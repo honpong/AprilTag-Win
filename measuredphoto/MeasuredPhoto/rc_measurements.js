@@ -152,7 +152,7 @@ rcMeasurements.redraw_measurement = function (m) {
         font_offset_x = -half_font_gap * ydiffrt;
         font_offset_y = half_font_gap * xdiffrt;
     }
-    m.text.text(rcMeasurements.format_dist(m)).x(mid_x + font_offset_x).dy(mid_y + - m.text.node.attributes.y.value - font_offset_y*2); //hacky thing because move has a bug
+    m.text.text(rcMeasurements.format_dist(m)).x(mid_x + font_offset_x).dy(mid_y + - m.text.node.attributes.y.value + font_offset_y*2); //hacky thing because move has a bug
     m.text_input_box.x(mid_x + font_offset_x).y(mid_y + font_offset_y*2); //do the same movement with the input box
     m.circle1.move(x1-3,y1-3)
     m.circle2.move(x2-3,y2-3)

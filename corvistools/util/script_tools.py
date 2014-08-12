@@ -190,16 +190,28 @@ class feature_stats:
         self.last_seen = {}
         self.packets = 0
         self.frames = 0
+        self.goodtracks = 0
+        self.trackattempts = 0
+        self.fulldrops = 0
         self.visible = []
 
     def packet(self, packet):
         if packet.header.type == cor.packet_filter_feature_id_visible:
             self.packets += 1
+            lastcount = len(self.visible)
+            self.trackattempts += lastcount
             self.visible = cor.packet_filter_feature_id_visible_t_features(packet)
+            notfirst = 0
             for f in self.visible:
                 if f not in self.first_seen:
                     self.first_seen[f] = packet.header.time
+                else:
+                    notfirst += 1
+                    self.goodtracks += 1
                 self.last_seen[f] = packet.header.time
+            if notfirst == 0 and lastcount > 0:
+                print "Dropped all features! Previous count was", lastcount, "at time", packet.header.time
+                self.fulldrops += 1
 
     def capture_packet(self, packet):
         if packet.header.type == cor.packet_camera:
@@ -221,6 +233,8 @@ class feature_stats:
             print "Max feature lifetime (frames):", numpy.max(life)
             print "Mean feature lifetime (frames):", numpy.mean(life)
             print "Median feature lifetime (frames):", numpy.median(life)
+            print "Tracked feature percentage:", self.goodtracks * 100 / float(self.trackattempts)
+            print "Times dropped all features:", self.fulldrops
 
 class sequence_stats:
     def __init__(self):

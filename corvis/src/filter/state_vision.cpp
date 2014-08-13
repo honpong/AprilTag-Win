@@ -81,6 +81,7 @@ state_vision_group::state_vision_group(const state_vector &T, const state_rotati
 {
     id = counter++;
     Tr.dynamic = true;
+    Wr.dynamic = true;
     children.push_back(&Tr);
     children.push_back(&Wr);
     Tr.v = v4(0., 0., 0., 0.);
@@ -344,6 +345,7 @@ void state_vision::evolve_state(f_t dt)
     for(list<state_vision_group *>::iterator giter = groups.children.begin(); giter != groups.children.end(); ++giter) {
         state_vision_group *g = *giter;
         g->Tr.v = g->Tr.v + dt * (V.v + 1./2. * dt * a.v);
+        g->Wr.v = integrate_angular_velocity(g->Wr.v, (w.v + dt/2. * dw.v) * dt);
     }
     state_motion::evolve_state(dt);
 }
@@ -354,9 +356,11 @@ void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t
         state_vision_group *g = *giter;
         for(int i = 0; i < src.rows; ++i) {
             v4 cov_Tr = g->Tr.copy_cov_from_row(src, i);
+            v4 cov_Wr = g->Wr.copy_cov_from_row(src, i);
             v4 cov_V = V.copy_cov_from_row(src, i);
             v4 cov_a = a.copy_cov_from_row(src, i);
             g->Tr.copy_cov_to_col(dst, i, cov_Tr + dt * (cov_V + 1./2. * dt * cov_a));
+            g->Wr.copy_cov_to_col(dst, i, cov_Wr);
         }
     }
     state_motion::project_motion_covariance(dst, src, dt);

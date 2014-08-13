@@ -290,7 +290,7 @@ rcMeasurements.start_distance_change_dialouge = function (m) {
         rcMeasurements.measurement_being_edited = m;
         //if (is_touch_device) { //use svg text element durring edit
         draw.node.appendChild(np_svg.node); //show number pad
-        np_to_portrait(); //this is initializing style of the number pad
+        np_rotate(last_orientation); //this is initializing style of the number pad
 
         // this is commented out because it is only for use on desktop systems.
 

@@ -110,18 +110,8 @@ function animate_screen_rotation(unused_time) {
         calculate_zoom_boundaries(target_orientation);
         start_pan_bounce();
         if (rotation_animation_id) { window.cancelAnimationFrame(rotation_animation_id);} //calcel if done
-        if (target_orientation == 1) {
-            np_to_portrait();
-        }
-        else if (target_orientation == 2) {
-            np_to_portrait_upsidedown();
-        }
-        else if (target_orientation == 3) {
-            np_to_landscape_left();
-        }
-        else if (target_orientation == 4) {
-            np_to_landscape_right();
-        }
+        np_rotate(target_orientation);
+
     }
     var draw_end = new Date(); // calculate how long the animation frame took, so we can compute the deltas for the next frame
     if (draw_end.getMilliseconds() - roation_frame_start.getMilliseconds() > 0 ) {last_rotation_animation_time = draw_end.getMilliseconds() - roation_frame_start.getMilliseconds();}

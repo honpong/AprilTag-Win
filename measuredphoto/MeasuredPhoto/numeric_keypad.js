@@ -57,6 +57,22 @@ var np_t_oth = np_oth.text("Color").fill(np_b_tc).move(np_b_w/2, np_b_h/7).font(
 
 
 //creat functions to rotate to portrait and landscape...
+function np_rotate(target_orientation){
+    if (target_orientation == 1) {
+        np_to_portrait();
+    }
+    else if (target_orientation == 2) {
+        np_to_portrait_upsidedown();
+    }
+    else if (target_orientation == 3) {
+        np_to_landscape_left();
+    }
+    else if (target_orientation == 4) {
+        np_to_landscape_right();
+    }
+}
+
+
 function np_to_portrait(){
     var np_scale = 1;
     var np_offset = 0.0;

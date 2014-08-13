@@ -111,6 +111,10 @@ function animate_screen_rotation(unused_time) {
         start_pan_bounce();
         if (rotation_animation_id) { window.cancelAnimationFrame(rotation_animation_id);} //calcel if done
         np_rotate(target_orientation);
+        //because we've already reset the zoom offset, we can set the offset for np_rotate again, if the number pad is visible...
+        if(draw.node.contains(np_svg.node)){
+            move_image_for_number_pad(rcMeasurements.measurement_being_edited.text.x(), rcMeasurements.measurement_being_edited.text.y());
+        }
 
     }
     var draw_end = new Date(); // calculate how long the animation frame took, so we can compute the deltas for the next frame

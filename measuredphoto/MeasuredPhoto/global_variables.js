@@ -13,8 +13,8 @@ var image; //the svg image element, tracked to allow resets
 var initial_load = true;  //determines if we set scale factor, or preserve prior zoom levle.
 var zoom_factor = 1; //how much we've zoomed in
 var min_zoom; //the smallest we let the user make the image
-var x_offset = 0; max_x_offset = 0; min_x_offset = 0; //deffines pan location, stores pan bounce boudaries
-var y_offset = 0; max_y_offset = 0; min_y_offset = 0; //deffines pan location, stores pan bounce boudaries
+var x_offset = 0; max_x_offset = 0; min_x_offset = 0; //deffines pan location, stores pan bounce boudaries. in pixel units on screen, not image units
+var y_offset = 0; max_y_offset = 0; min_y_offset = 0; //deffines pan location, stores pan bounce boudaries. in pixel units on screen, not image units
 var portrait_offset, landscape_offset; // additional offsets to acoomidate the buttons
 var prior_window_inner_width = window.innerWidth; //the last window size, so we can figure out how to change zoom / zoom offsets when resize occurs
 var prior_window_inner_height = window.innerHeight; //

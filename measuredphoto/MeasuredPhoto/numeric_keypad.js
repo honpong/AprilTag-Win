@@ -103,7 +103,7 @@ function np_to_portrait_upsidedown(){
     var np_offset = 0.0;
     if (np_b_w*4 > (window.innerWidth - landscape_offset)) {np_scale =(window.innerWidth - landscape_offset)/np_b_w/4;}
     else {np_offset = landscape_offset + ((window.innerWidth - landscape_offset) - np_b_w*4)/2;}
-    np_svg.move(0, portrait_offset);
+    np_svg.move(0, 0);
     np_svg.size(window.innerWidth, np_scale*np_b_h * 4);
     np_backgrnd.size(window.innerWidth, np_scale*np_b_h * 4).rotate(180).scale(np_scale);
     np_1.move(np_offset + np_scale*np_b_w*3,np_scale*np_b_h*3).rotate(180).scale(np_scale);

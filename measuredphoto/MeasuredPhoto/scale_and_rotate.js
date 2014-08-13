@@ -4,6 +4,14 @@
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+// draw_g is an svg group that is inside img_container.
+// draw_g has the measurements and the image and depth map as members.
+// draw_g is rotated durring mobile orientation changes.
+// draw_g is scaled durring zoom operations.
+// draw_g is panned and centered by x and y offsets which are in screen pixels rather than image pixels.
+// x_offset and y_offset determine where the centerof the scaled image sits in screen coordiates.
+
+
 var last_bounce_animation_time = 10;
 var pan_bounce_frame_start = null;
 var landscape_offset = 0;
@@ -212,6 +220,8 @@ function calculate_zoom_boundaries(orientation) {
     
 }
 
+
+//this is the method which actually moves the content lateraly and vertically on the screen. it does so by centering the drawing group inside the img_container.
 function drawing_pan_offset() {
     // slow down the drag if ouside boundry
     var x, y;
@@ -234,9 +244,9 @@ function drawing_pan_offset() {
 }
 
 // helper method to keep track of how screen is changing with regrads zoom and pan
+// returns an image coordinate given a pixel coordinate
 function pxl_to_img_xy(pX, pY){
     var iX, iY;
-    console.log(last_orientation);
     if (last_orientation == 1) { //regular portrait
         iX = (pX - x_offset - img_container.x())/zoom_factor + image_width/2; //we add half image width because x_offset is relative to image center
         iY = (pY - y_offset)/zoom_factor + image_height/2;
@@ -254,5 +264,92 @@ function pxl_to_img_xy(pX, pY){
         iY = (pX - img_container.x() - y_offset + (img_container.height() - img_container.width())/2)/zoom_factor + image_height/2;
     }
     return {'x':iX, 'y':iY};
+}
+
+// helper method to keep track of how screen is changing with regrads zoom, pan, and rotation.
+// returns a pixel coordinate given an image coordinate
+function img_to_pxl_xy(iX, iY){
+    console.log(JSON.stringify({'ix':iX, 'iy':iY}))
+    var pX, pY;
+    if (last_orientation == 1) { //regular portrait
+        pX = (iX - image_width/2)*zoom_factor + x_offset + img_container.x();
+        pY = ( iY - image_height/2 ) * zoom_factor + y_offset;
+    }
+    else if (last_orientation == 2) { //upside down portrait
+        pX = (image_width/2 - iX)  * zoom_factor + img_container.width()  - x_offset + img_container.x();
+        pY = (image_height/2 - iY) * zoom_factor + img_container.height() - y_offset;
+    }
+    else if (last_orientation == 3 ) {
+        pY = (iX - image_width/2)*zoom_factor + x_offset - (img_container.width() - img_container.height())/2;
+        pX = (image_height/2 - iY)*zoom_factor + img_container.width() + img_container.x() - y_offset + (img_container.height() - img_container.width())/2; //the top of the image is to the right of the screen
+    }
+    else {  //last orientation == 4
+        pY = (image_width/2 - iX)*zoom_factor + img_container.height() - x_offset + (img_container.width() - img_container.height())/2;
+        pX = (iY - image_height/2) * zoom_factor + img_container.x() + y_offset - (img_container.height() - img_container.width())/2 ;
+    }
+    console.log(JSON.stringify(window.innerHeight))
+    console.log(JSON.stringify({'px':pX, 'py':pY}))
+    return {'x':pX, 'y':pY};
+}
+
+
+
+//move the number being edited into the center of the screen not obscured by number pad
+var pre_np_x, pre_np_y, pre_np_min_x, pre_np_min_y, pre_np_max_x, pre_np_max_y;
+function move_image_for_number_pad(edited_number_x, edited_number_y){
+    //save the current image pan, and min x/y values
+    pre_np_x = x_offset;
+    pre_np_y = y_offset;
+    pre_np_min_x = min_x_offset;
+    pre_np_min_y = min_y_offset;
+    pre_np_max_x = max_x_offset;
+    pre_np_max_y = max_y_offset;
+    //calculate the new x/y offsets, change min x/y to allow for image to be moved appropriately
+    var pxY = img_to_pxl_xy(edited_number_x, edited_number_y)
+    if (last_orientation == 1) {
+        if (pxY.y > (window.innerHeight - np_svg.height() - 15 )) { // only move it if the number is obscured by the number pad
+            y_offset = y_offset -  np_svg.height();
+            min_y_offset = min_y_offset - np_svg.height();
+        }
+    }
+    else if (last_orientation == 2) {
+        if (pxY.y < (np_svg.height() + 15 )) { // only move it if the number is obscured by the number pad
+            y_offset = y_offset - np_svg.height();
+            min_y_offset = min_y_offset - np_svg.height();
+        }
+    }
+    else if (last_orientation == 3) {
+        if (pxY.x <  (np_svg.width() + 15 )) { // only move it if the number is obscured by the number pad
+            y_offset = y_offset -  np_svg.width();
+            min_y_offset = min_y_offset - np_svg.width();
+        }
+    }
+    else if (last_orientation == 4) {
+        if (pxY.x > (window.innerWidth - np_svg.width() - 15 )) { // only move it if the number is obscured by the number pad
+            y_offset = y_offset -  np_svg.width();
+            min_y_offset = min_y_offset - np_svg.width();
+        }
+    }
+
+    
+    
+    //animate move to new location
+    drawing_pan_offset();
+}
+
+//return scree position to where it was pre number edit operation
+function return_image_after_number_pad() {
+    //animate reuturn to saved x,y position with restored mix x/y values
+    x_offset = pre_np_x;
+    y_offset = pre_np_y;
+    min_x_offset = pre_np_min_x;
+    min_y_offset = pre_np_min_y;
+    max_x_offset = pre_np_max_x;
+    max_y_offset = pre_np_max_y;
+
+    drawing_pan_offset();
+    
+
+    
 }
 

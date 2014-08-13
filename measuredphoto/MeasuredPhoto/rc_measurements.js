@@ -291,6 +291,7 @@ rcMeasurements.start_distance_change_dialouge = function (m) {
         //if (is_touch_device) { //use svg text element durring edit
         draw.node.appendChild(np_svg.node); //show number pad
         np_rotate(last_orientation); //this is initializing style of the number pad
+        move_image_for_number_pad(m.text.x(), m.text.y());
 
         // this is commented out because it is only for use on desktop systems.
 
@@ -309,6 +310,7 @@ rcMeasurements.end_measurement_edit = function (){
     if (rcMeasurements.measurement_being_edited) {
         //if (is_touch_device) {
         if(draw.node.contains(np_svg.node)) {draw.node.removeChild(np_svg.node);} //hide number pad
+        return_image_after_number_pad();
         //}
         //else {
         //    measured_svg.node.removeChild( measurement_being_edited.text_input_box.node); //hide input box...

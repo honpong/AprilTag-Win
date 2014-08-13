@@ -227,17 +227,15 @@ void observation_vision_feature::innovation_covariance_hook(const matrix &cov, i
 
 void observation_vision_feature::predict()
 {
+    m4 Rr = to_rotation_matrix(state_group->Wr.v);
     m4 R = to_rotation_matrix(state.W.v);
+    Rrt = transpose(Rr);
     Rt = transpose(R);
     Rbc = to_rotation_matrix(state.Wc.v);
     Rcb = transpose(Rbc);
-    RcbRt = Rcb * Rt;
-
-    Rr = to_rotation_matrix(state_group->Wr.v);
-    Rw = Rr * Rbc;
-    Rtot = RcbRt * Rw;
-    Tlocal = Rr * state.Tc.v - state_group->Tr.v;
-    Ttot = Rcb * (Rt * Tlocal - state.Tc.v);
+    RcbRrt = Rcb * Rrt;
+    Rtot = RcbRrt * Rbc;
+    Ttot = Rcb * (Rrt * state.Tc.v - Rt * state_group->Tr.v - state.Tc.v);
 
     norm_initial.x = (feature->initial[0] - state.center_x.v) / state.focal_length.v;
     norm_initial.y = (feature->initial[1] - state.center_y.v) / state.focal_length.v;
@@ -257,8 +255,8 @@ void observation_vision_feature::predict()
     v4 X_unscale = Rtot * X0_unscale + Ttot;
 
     feature->relative = Rbc * X0_unscale + state.Tc.v;
-    feature->world = Rw * X0_unscale + Tlocal + state.T.v;
-    feature->local = Rt * (feature->world - state.T.v);
+    feature->local = Rrt * feature->relative - Rt * state_group->Tr.v;
+    feature->world = R * feature->local + state.T.v;
     feature->depth = X_unscale[2];
     v4 ippred = X / X[2]; //in the image plane
     if(fabs(ippred[2]-1.) > 1.e-7 || ippred[3] != 0.) {
@@ -284,20 +282,20 @@ void observation_vision_feature::cache_jacobians()
     v4 dX_dk1 = Rtot * v4(-X0[0] / kr * r2, -X0[1] / kr * r2, 0., 0.);
     v4 dX_dk2 = Rtot * v4(-X0[0] / kr * r4, -X0[1] / kr * r4, 0., 0.);
     
+    m4v4 dRr_dWr = to_rotation_matrix_jacobian(state_group->Wr.v);
     m4v4 dR_dW = to_rotation_matrix_jacobian(state.W.v);
     m4v4 dRbc_dWc = to_rotation_matrix_jacobian(state.Wc.v);
+    m4v4 dRrt_dWr = transpose(dRr_dWr);
     m4v4 dRt_dW = transpose(dR_dW);
     m4v4 dRcb_dWc = transpose(dRbc_dWc);
-    m4v4 dRr_dWr = to_rotation_matrix_jacobian(state_group->Wr.v);
     
-    m4v4 dRtot_dW  = Rcb * dRt_dW * Rw;
-    m4v4 dRtot_dWr = RcbRt * dRr_dWr * Rbc;
-    m4v4 dRtot_dWc = dRcb_dWc * (Rt * Rw) + (RcbRt * Rr) * dRbc_dWc;
-    m4 dTtot_dWc = dRcb_dWc * (Rt * Tlocal - state.Tc.v);
-    m4 dTtot_dW  = Rcb * (dRt_dW * Tlocal);
-    m4 dTtot_dWr = RcbRt * (dRr_dWr * state.Tc.v);
-    m4 dTtot_dTc = RcbRt * Rr - Rcb;
-    m4 dTtot_dTr = -RcbRt;
+    m4v4 dRtot_dWr  = Rcb * dRrt_dWr * Rbc;
+    m4v4 dRtot_dWc = dRcb_dWc * (Rrt * Rbc) + (Rcb * Rrt) * dRbc_dWc;
+    m4 dTtot_dWc = dRcb_dWc * (Rrt * state.Tc.v - Rt * state_group->Tr.v - state.Tc.v);
+    m4 dTtot_dWr  = Rcb * (dRrt_dWr * state.Tc.v);
+    m4 dTtot_dW  = -Rcb * (dRt_dW * state_group->Tr.v);
+    m4 dTtot_dTc = Rcb * Rrt - Rcb;
+    m4 dTtot_dTr = -Rcb * Rt;
     
     state.fill_calibration(norm_predicted, r2, r4, r6, kr);
     f_t invZ = 1. / X[2];
@@ -310,10 +308,8 @@ void observation_vision_feature::cache_jacobians()
     dy_dp = sum(dy_dX * dX_dp);
     f_t invrho = feature->v.invdepth();
     if(!feature->is_initialized()) {
-        dx_dW = dx_dX * (dRtot_dW * feature->calibrated);
         dx_dWc = dx_dX * (dRtot_dWc * feature->calibrated);
         dx_dWr = dx_dX * (dRtot_dWr * feature->calibrated);
-        dy_dW = dy_dX * (dRtot_dW * feature->calibrated);
         dy_dWc = dy_dX * (dRtot_dWc * feature->calibrated);
         dy_dWr = dy_dX * (dRtot_dWr * feature->calibrated);
         //dy_dT = m4(0.);
@@ -330,12 +326,12 @@ void observation_vision_feature::cache_jacobians()
         dx_dcy = sum(dx_dX * dX_dcy);
         dy_dcx = sum(dy_dX * dX_dcx);
         dy_dcy = 1. + sum(dy_dX * dX_dcy);
-        dx_dW = dx_dX * (dRtot_dW * X0 + dTtot_dW * invrho);
+        dx_dW = dx_dX * (dTtot_dW * invrho);
         dx_dWc = dx_dX * (dRtot_dWc * X0 + dTtot_dWc * invrho);
         dx_dWr = dx_dX * (dRtot_dWr * X0 + dTtot_dWr * invrho);
         dx_dTc = dx_dX * dTtot_dTc * invrho;
         dx_dTr = dx_dX * dTtot_dTr * invrho;
-        dy_dW = dy_dX * (dRtot_dW * X0 + dTtot_dW * invrho);
+        dy_dW = dy_dX * (dTtot_dW * invrho);
         dy_dWc = dy_dX * (dRtot_dWc * X0 + dTtot_dWc * invrho);
         dy_dWr = dy_dX * (dRtot_dWr * X0 + dTtot_dWr * invrho);
         dy_dTc = dy_dX * dTtot_dTc * invrho;
@@ -352,11 +348,9 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
             v4 cov_Wc = state.Wc.copy_cov_from_row(src, j);
             v4 cov_Wr = state_group->Wr.copy_cov_from_row(src, j);
             dst(0, j) =
-            sum(dx_dW * cov_W) +
             sum(dx_dWc * cov_Wc) +
             sum(dx_dWr * cov_Wr);
             dst(1, j) =
-            sum(dy_dW * cov_W) +
             sum(dy_dWc * cov_Wc) +
             sum(dy_dWr * cov_Wr);
         }

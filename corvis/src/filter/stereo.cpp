@@ -301,7 +301,7 @@ m4 estimate_F(const struct stereo_global &g, const stereo_frame &reference, cons
     dT = transpose(R2w) * (reference.T - target.T);
 
     // E21 is 3x3
-    m4 E21 = dR * skew3(dT);
+    m4 E21 = skew3(dT) * dR;
 
     m4 Kinv;
     Kinv[0][0] = 1./g.focal_length;

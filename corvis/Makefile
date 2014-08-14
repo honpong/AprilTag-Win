@@ -173,14 +173,14 @@ FILTER_CXX_SOURCES := $(addprefix src/$(d)/, filter.cpp state_vision.cpp state_m
 
 FILTER_SOURCES := $(addprefix src/$(d)/, device_parameters.c)
 
-CPPFLAGS := $(CPPFLAGS) -Isrc/filter -Isrc/MRF2.2
+CPPFLAGS := $(CPPFLAGS) -Isrc/filter -Isrc/MRF2.2 -Isrc/vlfeat-0.9.18/vl
 build/$(d)/_filter.cpp: swig/_filter.ipp
 	@mkdir -p $(@D)
 	@mkdir -p bin/filter
 	$(SWIG) -python -c++ -threads $(SWIGFLAGS) -Isrc/filter -o $@ -outdir bin/filter $<
 
 #bin/$(d)/_filter.so: LDFLAGS := $(LDFLAGS) `pkg-config --libs opencv`
-bin/$(d)/_filter.so:$(patsubst src/%,build/%,$(FILTER_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(FILTER_SOURCES:.c=.o)) bin/MRF2.2/_mrf.so
+bin/$(d)/_filter.so:$(patsubst src/%,build/%,$(FILTER_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(FILTER_SOURCES:.c=.o)) bin/MRF2.2/_mrf.so bin/vlfeat-0.9.18/_vl.so
 
 TARGETS := $(TARGETS) bin/$(d)/_filter.so bin/$(d)/__init__.py
 CXX_SOURCES := $(CXX_SOURCES) $(FILTER_CXX_SOURCES)
@@ -199,6 +199,18 @@ bin/$(d)/_mrf.so:$(patsubst src/%,build/%,$(MRF_CXX_SOURCES:.cpp=.o))
 TARGETS := $(TARGETS) bin/$(d)/_mrf.so
 CXX_SOURCES := $(CXX_SOURCES) $(MRF_CXX_SOURCES)
 
+############################## VLFEAT ############################
+d := vlfeat-0.9.18
+ 
+VL_C_SOURCES := $(addprefix src/$(d)/, vl/aib.c vl/array.c vl/covdet.c vl/dsift.c vl/fisher.c vl/generic.c vl/getopt_long.c vl/gmm.c vl/hikmeans.c vl/hog.c vl/homkermap.c vl/host.c vl/ikmeans.c vl/imopv.c vl/imopv_sse2.c vl/kdtree.c vl/kmeans.c vl/lbp.c vl/liop.c vl/mathop.c vl/mathop_avx.c vl/mathop_sse2.c vl/mser.c vl/pgm.c vl/quickshift.c vl/random.c vl/rodrigues.c vl/scalespace.c vl/sift.c vl/slic.c vl/stringop.c vl/svm.c vl/svmdataset.c vl/vlad.c)
+
+CPPFLAGS := $(CPPFLAGS)
+
+bin/$(d)/_vl.so:$(patsubst src/%,build/%,$(VL_C_SOURCES:.c=.o))
+
+TARGETS := $(TARGETS) bin/$(d)/_vl.so
+SOURCES := $(SOURCES) $(VL_C_SOURCES)
+
 ############################## TEST ############################
 
 d := test
@@ -216,7 +228,7 @@ build/$(d)/%.o: $(d)/%.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 
-bin/test: build/$(d)/gtest_main.o build/$(d)/gtest-all.o $(patsubst test/%,build/test/%,$(TEST_CXX_SOURCES:.cpp=.o)) $(addprefix build/numerics/, vec4.o matrix.o) $(addprefix build/filter/, stereo.o stereo_mesh.o fast_detector/fast_9.o scaled_mask.o triangle.o) bin/MRF2.2/_mrf.so
+bin/test: build/$(d)/gtest_main.o build/$(d)/gtest-all.o $(patsubst test/%,build/test/%,$(TEST_CXX_SOURCES:.cpp=.o)) $(addprefix build/numerics/, vec4.o matrix.o) $(addprefix build/filter/, stereo.o stereo_mesh.o fast_detector/fast_9.o scaled_mask.o triangle.o) bin/MRF2.2/_mrf.so bin/vlfeat-0.9.18/_vl.so
 	@mkdir -p $(@D)
 	$(CC) $(LDFLAGS) $(PYTHON_LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
 

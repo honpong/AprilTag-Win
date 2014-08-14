@@ -124,6 +124,43 @@
 		32CD632316CC015100496D46 /* RCDateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 32CD632216CC015100496D46 /* RCDateFormatter.m */; };
 		32CD632516CC022600496D46 /* RCDateFormatter.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32CD632116CC015100496D46 /* RCDateFormatter.h */; };
 		32FAF1EA16AE1640001B68A9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32FAF1E916AE1640001B68A9 /* UIKit.framework */; };
+		D30434B3197E85FE00190B70 /* aib.c in Sources */ = {isa = PBXBuildFile; fileRef = D3043468197E85FE00190B70 /* aib.c */; };
+		D30434B4197E85FE00190B70 /* array.c in Sources */ = {isa = PBXBuildFile; fileRef = D304346A197E85FE00190B70 /* array.c */; };
+		D30434B5197E85FE00190B70 /* covdet.c in Sources */ = {isa = PBXBuildFile; fileRef = D304346C197E85FE00190B70 /* covdet.c */; };
+		D30434B6197E85FE00190B70 /* dsift.c in Sources */ = {isa = PBXBuildFile; fileRef = D304346E197E85FE00190B70 /* dsift.c */; };
+		D30434B7197E85FE00190B70 /* fisher.c in Sources */ = {isa = PBXBuildFile; fileRef = D3043470197E85FE00190B70 /* fisher.c */; };
+		D30434B8197E85FE00190B70 /* float.th in Resources */ = {isa = PBXBuildFile; fileRef = D3043472197E85FE00190B70 /* float.th */; };
+		D30434B9197E85FE00190B70 /* generic.c in Sources */ = {isa = PBXBuildFile; fileRef = D3043473197E85FE00190B70 /* generic.c */; };
+		D30434BB197E85FE00190B70 /* gmm.c in Sources */ = {isa = PBXBuildFile; fileRef = D3043477197E85FE00190B70 /* gmm.c */; };
+		D30434BC197E85FE00190B70 /* hikmeans.c in Sources */ = {isa = PBXBuildFile; fileRef = D304347A197E85FE00190B70 /* hikmeans.c */; };
+		D30434BD197E85FE00190B70 /* hog.c in Sources */ = {isa = PBXBuildFile; fileRef = D304347C197E85FE00190B70 /* hog.c */; };
+		D30434BE197E85FE00190B70 /* homkermap.c in Sources */ = {isa = PBXBuildFile; fileRef = D304347E197E85FE00190B70 /* homkermap.c */; };
+		D30434BF197E85FE00190B70 /* host.c in Sources */ = {isa = PBXBuildFile; fileRef = D3043480197E85FE00190B70 /* host.c */; };
+		D30434C0197E85FE00190B70 /* ikmeans_elkan.tc in Resources */ = {isa = PBXBuildFile; fileRef = D3043482197E85FE00190B70 /* ikmeans_elkan.tc */; };
+		D30434C1197E85FE00190B70 /* ikmeans_init.tc in Resources */ = {isa = PBXBuildFile; fileRef = D3043483197E85FE00190B70 /* ikmeans_init.tc */; };
+		D30434C2197E85FE00190B70 /* ikmeans_lloyd.tc in Resources */ = {isa = PBXBuildFile; fileRef = D3043484197E85FE00190B70 /* ikmeans_lloyd.tc */; };
+		D30434C3197E85FE00190B70 /* ikmeans.c in Sources */ = {isa = PBXBuildFile; fileRef = D3043485197E85FE00190B70 /* ikmeans.c */; };
+		D30434C4197E85FE00190B70 /* imopv_sse2.c in Sources */ = {isa = PBXBuildFile; fileRef = D3043487197E85FE00190B70 /* imopv_sse2.c */; };
+		D30434C5197E85FE00190B70 /* imopv.c in Sources */ = {isa = PBXBuildFile; fileRef = D3043489197E85FE00190B70 /* imopv.c */; };
+		D30434C6197E85FE00190B70 /* kdtree.c in Sources */ = {isa = PBXBuildFile; fileRef = D304348B197E85FE00190B70 /* kdtree.c */; };
+		D30434C7197E85FE00190B70 /* kmeans.c in Sources */ = {isa = PBXBuildFile; fileRef = D304348D197E85FE00190B70 /* kmeans.c */; };
+		D30434C8197E85FE00190B70 /* lbp.c in Sources */ = {isa = PBXBuildFile; fileRef = D304348F197E85FE00190B70 /* lbp.c */; };
+		D30434C9197E85FE00190B70 /* liop.c in Sources */ = {isa = PBXBuildFile; fileRef = D3043491197E85FE00190B70 /* liop.c */; };
+		D30434CA197E85FE00190B70 /* mathop_avx.c in Sources */ = {isa = PBXBuildFile; fileRef = D3043493197E85FE00190B70 /* mathop_avx.c */; };
+		D30434CB197E85FE00190B70 /* mathop_sse2.c in Sources */ = {isa = PBXBuildFile; fileRef = D3043495197E85FE00190B70 /* mathop_sse2.c */; };
+		D30434CC197E85FE00190B70 /* mathop.c in Sources */ = {isa = PBXBuildFile; fileRef = D3043497197E85FE00190B70 /* mathop.c */; };
+		D30434CD197E85FE00190B70 /* mser.c in Sources */ = {isa = PBXBuildFile; fileRef = D3043499197E85FE00190B70 /* mser.c */; };
+		D30434CE197E85FE00190B70 /* pgm.c in Sources */ = {isa = PBXBuildFile; fileRef = D304349B197E85FE00190B70 /* pgm.c */; };
+		D30434CF197E85FE00190B70 /* quickshift.c in Sources */ = {isa = PBXBuildFile; fileRef = D304349E197E85FE00190B70 /* quickshift.c */; };
+		D30434D0197E85FE00190B70 /* random.c in Sources */ = {isa = PBXBuildFile; fileRef = D30434A0197E85FE00190B70 /* random.c */; };
+		D30434D1197E85FE00190B70 /* rodrigues.c in Sources */ = {isa = PBXBuildFile; fileRef = D30434A2197E85FE00190B70 /* rodrigues.c */; };
+		D30434D2197E85FE00190B70 /* scalespace.c in Sources */ = {isa = PBXBuildFile; fileRef = D30434A4197E85FE00190B70 /* scalespace.c */; };
+		D30434D3197E85FE00190B70 /* sift.c in Sources */ = {isa = PBXBuildFile; fileRef = D30434A7197E85FE00190B70 /* sift.c */; };
+		D30434D4197E85FE00190B70 /* slic.c in Sources */ = {isa = PBXBuildFile; fileRef = D30434A9197E85FE00190B70 /* slic.c */; };
+		D30434D5197E85FE00190B70 /* stringop.c in Sources */ = {isa = PBXBuildFile; fileRef = D30434AB197E85FE00190B70 /* stringop.c */; };
+		D30434D6197E85FE00190B70 /* svm.c in Sources */ = {isa = PBXBuildFile; fileRef = D30434AD197E85FE00190B70 /* svm.c */; };
+		D30434D7197E85FE00190B70 /* svmdataset.c in Sources */ = {isa = PBXBuildFile; fileRef = D30434AF197E85FE00190B70 /* svmdataset.c */; };
+		D30434D8197E85FE00190B70 /* vlad.c in Sources */ = {isa = PBXBuildFile; fileRef = D30434B1197E85FE00190B70 /* vlad.c */; };
 		D3217E1218BE2E0100762A31 /* RCCaptureManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D3217E0E18BE2E0100762A31 /* RCCaptureManager.m */; };
 		D3217E1318BE2E0100762A31 /* RCReplayManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D3217E1018BE2E0100762A31 /* RCReplayManager.m */; };
 		D3217E1718BE2FA700762A31 /* RCCaptureManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D3217E0D18BE2E0100762A31 /* RCCaptureManager.h */; };
@@ -378,6 +415,79 @@
 		32CD632116CC015100496D46 /* RCDateFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDateFormatter.h; sourceTree = "<group>"; };
 		32CD632216CC015100496D46 /* RCDateFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDateFormatter.m; sourceTree = "<group>"; };
 		32FAF1E916AE1640001B68A9 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		D3043468197E85FE00190B70 /* aib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = aib.c; path = "../../corvis/src/vlfeat-0.9.18/vl/aib.c"; sourceTree = "<group>"; };
+		D3043469197E85FE00190B70 /* aib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aib.h; path = "../../corvis/src/vlfeat-0.9.18/vl/aib.h"; sourceTree = "<group>"; };
+		D304346A197E85FE00190B70 /* array.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = array.c; path = "../../corvis/src/vlfeat-0.9.18/vl/array.c"; sourceTree = "<group>"; };
+		D304346B197E85FE00190B70 /* array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = array.h; path = "../../corvis/src/vlfeat-0.9.18/vl/array.h"; sourceTree = "<group>"; };
+		D304346C197E85FE00190B70 /* covdet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = covdet.c; path = "../../corvis/src/vlfeat-0.9.18/vl/covdet.c"; sourceTree = "<group>"; };
+		D304346D197E85FE00190B70 /* covdet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = covdet.h; path = "../../corvis/src/vlfeat-0.9.18/vl/covdet.h"; sourceTree = "<group>"; };
+		D304346E197E85FE00190B70 /* dsift.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = dsift.c; path = "../../corvis/src/vlfeat-0.9.18/vl/dsift.c"; sourceTree = "<group>"; };
+		D304346F197E85FE00190B70 /* dsift.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = dsift.h; path = "../../corvis/src/vlfeat-0.9.18/vl/dsift.h"; sourceTree = "<group>"; };
+		D3043470197E85FE00190B70 /* fisher.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = fisher.c; path = "../../corvis/src/vlfeat-0.9.18/vl/fisher.c"; sourceTree = "<group>"; };
+		D3043471197E85FE00190B70 /* fisher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fisher.h; path = "../../corvis/src/vlfeat-0.9.18/vl/fisher.h"; sourceTree = "<group>"; };
+		D3043472197E85FE00190B70 /* float.th */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = float.th; path = "../../corvis/src/vlfeat-0.9.18/vl/float.th"; sourceTree = "<group>"; };
+		D3043473197E85FE00190B70 /* generic.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = generic.c; path = "../../corvis/src/vlfeat-0.9.18/vl/generic.c"; sourceTree = "<group>"; };
+		D3043474197E85FE00190B70 /* generic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = generic.h; path = "../../corvis/src/vlfeat-0.9.18/vl/generic.h"; sourceTree = "<group>"; };
+		D3043477197E85FE00190B70 /* gmm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = gmm.c; path = "../../corvis/src/vlfeat-0.9.18/vl/gmm.c"; sourceTree = "<group>"; };
+		D3043478197E85FE00190B70 /* gmm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gmm.h; path = "../../corvis/src/vlfeat-0.9.18/vl/gmm.h"; sourceTree = "<group>"; };
+		D3043479197E85FE00190B70 /* heap-def.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "heap-def.h"; path = "../../corvis/src/vlfeat-0.9.18/vl/heap-def.h"; sourceTree = "<group>"; };
+		D304347A197E85FE00190B70 /* hikmeans.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = hikmeans.c; path = "../../corvis/src/vlfeat-0.9.18/vl/hikmeans.c"; sourceTree = "<group>"; };
+		D304347B197E85FE00190B70 /* hikmeans.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hikmeans.h; path = "../../corvis/src/vlfeat-0.9.18/vl/hikmeans.h"; sourceTree = "<group>"; };
+		D304347C197E85FE00190B70 /* hog.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = hog.c; path = "../../corvis/src/vlfeat-0.9.18/vl/hog.c"; sourceTree = "<group>"; };
+		D304347D197E85FE00190B70 /* hog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hog.h; path = "../../corvis/src/vlfeat-0.9.18/vl/hog.h"; sourceTree = "<group>"; };
+		D304347E197E85FE00190B70 /* homkermap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = homkermap.c; path = "../../corvis/src/vlfeat-0.9.18/vl/homkermap.c"; sourceTree = "<group>"; };
+		D304347F197E85FE00190B70 /* homkermap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = homkermap.h; path = "../../corvis/src/vlfeat-0.9.18/vl/homkermap.h"; sourceTree = "<group>"; };
+		D3043480197E85FE00190B70 /* host.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = host.c; path = "../../corvis/src/vlfeat-0.9.18/vl/host.c"; sourceTree = "<group>"; };
+		D3043481197E85FE00190B70 /* host.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = host.h; path = "../../corvis/src/vlfeat-0.9.18/vl/host.h"; sourceTree = "<group>"; };
+		D3043482197E85FE00190B70 /* ikmeans_elkan.tc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ikmeans_elkan.tc; path = "../../corvis/src/vlfeat-0.9.18/vl/ikmeans_elkan.tc"; sourceTree = "<group>"; };
+		D3043483197E85FE00190B70 /* ikmeans_init.tc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ikmeans_init.tc; path = "../../corvis/src/vlfeat-0.9.18/vl/ikmeans_init.tc"; sourceTree = "<group>"; };
+		D3043484197E85FE00190B70 /* ikmeans_lloyd.tc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ikmeans_lloyd.tc; path = "../../corvis/src/vlfeat-0.9.18/vl/ikmeans_lloyd.tc"; sourceTree = "<group>"; };
+		D3043485197E85FE00190B70 /* ikmeans.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ikmeans.c; path = "../../corvis/src/vlfeat-0.9.18/vl/ikmeans.c"; sourceTree = "<group>"; };
+		D3043486197E85FE00190B70 /* ikmeans.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ikmeans.h; path = "../../corvis/src/vlfeat-0.9.18/vl/ikmeans.h"; sourceTree = "<group>"; };
+		D3043487197E85FE00190B70 /* imopv_sse2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = imopv_sse2.c; path = "../../corvis/src/vlfeat-0.9.18/vl/imopv_sse2.c"; sourceTree = "<group>"; };
+		D3043488197E85FE00190B70 /* imopv_sse2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = imopv_sse2.h; path = "../../corvis/src/vlfeat-0.9.18/vl/imopv_sse2.h"; sourceTree = "<group>"; };
+		D3043489197E85FE00190B70 /* imopv.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = imopv.c; path = "../../corvis/src/vlfeat-0.9.18/vl/imopv.c"; sourceTree = "<group>"; };
+		D304348A197E85FE00190B70 /* imopv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = imopv.h; path = "../../corvis/src/vlfeat-0.9.18/vl/imopv.h"; sourceTree = "<group>"; };
+		D304348B197E85FE00190B70 /* kdtree.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = kdtree.c; path = "../../corvis/src/vlfeat-0.9.18/vl/kdtree.c"; sourceTree = "<group>"; };
+		D304348C197E85FE00190B70 /* kdtree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kdtree.h; path = "../../corvis/src/vlfeat-0.9.18/vl/kdtree.h"; sourceTree = "<group>"; };
+		D304348D197E85FE00190B70 /* kmeans.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = kmeans.c; path = "../../corvis/src/vlfeat-0.9.18/vl/kmeans.c"; sourceTree = "<group>"; };
+		D304348E197E85FE00190B70 /* kmeans.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kmeans.h; path = "../../corvis/src/vlfeat-0.9.18/vl/kmeans.h"; sourceTree = "<group>"; };
+		D304348F197E85FE00190B70 /* lbp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lbp.c; path = "../../corvis/src/vlfeat-0.9.18/vl/lbp.c"; sourceTree = "<group>"; };
+		D3043490197E85FE00190B70 /* lbp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lbp.h; path = "../../corvis/src/vlfeat-0.9.18/vl/lbp.h"; sourceTree = "<group>"; };
+		D3043491197E85FE00190B70 /* liop.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = liop.c; path = "../../corvis/src/vlfeat-0.9.18/vl/liop.c"; sourceTree = "<group>"; };
+		D3043492197E85FE00190B70 /* liop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = liop.h; path = "../../corvis/src/vlfeat-0.9.18/vl/liop.h"; sourceTree = "<group>"; };
+		D3043493197E85FE00190B70 /* mathop_avx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mathop_avx.c; path = "../../corvis/src/vlfeat-0.9.18/vl/mathop_avx.c"; sourceTree = "<group>"; };
+		D3043494197E85FE00190B70 /* mathop_avx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mathop_avx.h; path = "../../corvis/src/vlfeat-0.9.18/vl/mathop_avx.h"; sourceTree = "<group>"; };
+		D3043495197E85FE00190B70 /* mathop_sse2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mathop_sse2.c; path = "../../corvis/src/vlfeat-0.9.18/vl/mathop_sse2.c"; sourceTree = "<group>"; };
+		D3043496197E85FE00190B70 /* mathop_sse2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mathop_sse2.h; path = "../../corvis/src/vlfeat-0.9.18/vl/mathop_sse2.h"; sourceTree = "<group>"; };
+		D3043497197E85FE00190B70 /* mathop.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mathop.c; path = "../../corvis/src/vlfeat-0.9.18/vl/mathop.c"; sourceTree = "<group>"; };
+		D3043498197E85FE00190B70 /* mathop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mathop.h; path = "../../corvis/src/vlfeat-0.9.18/vl/mathop.h"; sourceTree = "<group>"; };
+		D3043499197E85FE00190B70 /* mser.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mser.c; path = "../../corvis/src/vlfeat-0.9.18/vl/mser.c"; sourceTree = "<group>"; };
+		D304349A197E85FE00190B70 /* mser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mser.h; path = "../../corvis/src/vlfeat-0.9.18/vl/mser.h"; sourceTree = "<group>"; };
+		D304349B197E85FE00190B70 /* pgm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pgm.c; path = "../../corvis/src/vlfeat-0.9.18/vl/pgm.c"; sourceTree = "<group>"; };
+		D304349C197E85FE00190B70 /* pgm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pgm.h; path = "../../corvis/src/vlfeat-0.9.18/vl/pgm.h"; sourceTree = "<group>"; };
+		D304349D197E85FE00190B70 /* qsort-def.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "qsort-def.h"; path = "../../corvis/src/vlfeat-0.9.18/vl/qsort-def.h"; sourceTree = "<group>"; };
+		D304349E197E85FE00190B70 /* quickshift.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = quickshift.c; path = "../../corvis/src/vlfeat-0.9.18/vl/quickshift.c"; sourceTree = "<group>"; };
+		D304349F197E85FE00190B70 /* quickshift.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = quickshift.h; path = "../../corvis/src/vlfeat-0.9.18/vl/quickshift.h"; sourceTree = "<group>"; };
+		D30434A0197E85FE00190B70 /* random.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = random.c; path = "../../corvis/src/vlfeat-0.9.18/vl/random.c"; sourceTree = "<group>"; };
+		D30434A1197E85FE00190B70 /* random.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = random.h; path = "../../corvis/src/vlfeat-0.9.18/vl/random.h"; sourceTree = "<group>"; };
+		D30434A2197E85FE00190B70 /* rodrigues.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rodrigues.c; path = "../../corvis/src/vlfeat-0.9.18/vl/rodrigues.c"; sourceTree = "<group>"; };
+		D30434A3197E85FE00190B70 /* rodrigues.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rodrigues.h; path = "../../corvis/src/vlfeat-0.9.18/vl/rodrigues.h"; sourceTree = "<group>"; };
+		D30434A4197E85FE00190B70 /* scalespace.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = scalespace.c; path = "../../corvis/src/vlfeat-0.9.18/vl/scalespace.c"; sourceTree = "<group>"; };
+		D30434A5197E85FE00190B70 /* scalespace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = scalespace.h; path = "../../corvis/src/vlfeat-0.9.18/vl/scalespace.h"; sourceTree = "<group>"; };
+		D30434A6197E85FE00190B70 /* shuffle-def.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "shuffle-def.h"; path = "../../corvis/src/vlfeat-0.9.18/vl/shuffle-def.h"; sourceTree = "<group>"; };
+		D30434A7197E85FE00190B70 /* sift.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sift.c; path = "../../corvis/src/vlfeat-0.9.18/vl/sift.c"; sourceTree = "<group>"; };
+		D30434A8197E85FE00190B70 /* sift.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sift.h; path = "../../corvis/src/vlfeat-0.9.18/vl/sift.h"; sourceTree = "<group>"; };
+		D30434A9197E85FE00190B70 /* slic.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = slic.c; path = "../../corvis/src/vlfeat-0.9.18/vl/slic.c"; sourceTree = "<group>"; };
+		D30434AA197E85FE00190B70 /* slic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = slic.h; path = "../../corvis/src/vlfeat-0.9.18/vl/slic.h"; sourceTree = "<group>"; };
+		D30434AB197E85FE00190B70 /* stringop.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = stringop.c; path = "../../corvis/src/vlfeat-0.9.18/vl/stringop.c"; sourceTree = "<group>"; };
+		D30434AC197E85FE00190B70 /* stringop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stringop.h; path = "../../corvis/src/vlfeat-0.9.18/vl/stringop.h"; sourceTree = "<group>"; };
+		D30434AD197E85FE00190B70 /* svm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = svm.c; path = "../../corvis/src/vlfeat-0.9.18/vl/svm.c"; sourceTree = "<group>"; };
+		D30434AE197E85FE00190B70 /* svm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = svm.h; path = "../../corvis/src/vlfeat-0.9.18/vl/svm.h"; sourceTree = "<group>"; };
+		D30434AF197E85FE00190B70 /* svmdataset.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = svmdataset.c; path = "../../corvis/src/vlfeat-0.9.18/vl/svmdataset.c"; sourceTree = "<group>"; };
+		D30434B0197E85FE00190B70 /* svmdataset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = svmdataset.h; path = "../../corvis/src/vlfeat-0.9.18/vl/svmdataset.h"; sourceTree = "<group>"; };
+		D30434B1197E85FE00190B70 /* vlad.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = vlad.c; path = "../../corvis/src/vlfeat-0.9.18/vl/vlad.c"; sourceTree = "<group>"; };
+		D30434B2197E85FE00190B70 /* vlad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vlad.h; path = "../../corvis/src/vlfeat-0.9.18/vl/vlad.h"; sourceTree = "<group>"; };
 		D3217E0D18BE2E0100762A31 /* RCCaptureManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCaptureManager.h; sourceTree = "<group>"; };
 		D3217E0E18BE2E0100762A31 /* RCCaptureManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCaptureManager.m; sourceTree = "<group>"; };
 		D3217E0F18BE2E0100762A31 /* RCReplayManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCReplayManager.h; sourceTree = "<group>"; };
@@ -651,6 +761,7 @@
 		32865B6A16260B500080BA1A /* RCCore */ = {
 			isa = PBXGroup;
 			children = (
+				D3043466197E85C400190B70 /* VLFeat */,
 				D9045D811953E562002DD9D5 /* Stereo */,
 				324FF86018ECB67F00DC5E7F /* Protocols */,
 				324FF85D18ECB5C300DC5E7F /* Categories */,
@@ -784,6 +895,86 @@
 				32CB306916B2F6A8005ACD97 /* OCMockRecorder.h */,
 			);
 			path = OCMock;
+			sourceTree = "<group>";
+		};
+		D3043466197E85C400190B70 /* VLFeat */ = {
+			isa = PBXGroup;
+			children = (
+				D3043468197E85FE00190B70 /* aib.c */,
+				D3043469197E85FE00190B70 /* aib.h */,
+				D304346A197E85FE00190B70 /* array.c */,
+				D304346B197E85FE00190B70 /* array.h */,
+				D304346C197E85FE00190B70 /* covdet.c */,
+				D304346D197E85FE00190B70 /* covdet.h */,
+				D304346E197E85FE00190B70 /* dsift.c */,
+				D304346F197E85FE00190B70 /* dsift.h */,
+				D3043470197E85FE00190B70 /* fisher.c */,
+				D3043471197E85FE00190B70 /* fisher.h */,
+				D3043472197E85FE00190B70 /* float.th */,
+				D3043473197E85FE00190B70 /* generic.c */,
+				D3043474197E85FE00190B70 /* generic.h */,
+				D3043477197E85FE00190B70 /* gmm.c */,
+				D3043478197E85FE00190B70 /* gmm.h */,
+				D3043479197E85FE00190B70 /* heap-def.h */,
+				D304347A197E85FE00190B70 /* hikmeans.c */,
+				D304347B197E85FE00190B70 /* hikmeans.h */,
+				D304347C197E85FE00190B70 /* hog.c */,
+				D304347D197E85FE00190B70 /* hog.h */,
+				D304347E197E85FE00190B70 /* homkermap.c */,
+				D304347F197E85FE00190B70 /* homkermap.h */,
+				D3043480197E85FE00190B70 /* host.c */,
+				D3043481197E85FE00190B70 /* host.h */,
+				D3043482197E85FE00190B70 /* ikmeans_elkan.tc */,
+				D3043483197E85FE00190B70 /* ikmeans_init.tc */,
+				D3043484197E85FE00190B70 /* ikmeans_lloyd.tc */,
+				D3043485197E85FE00190B70 /* ikmeans.c */,
+				D3043486197E85FE00190B70 /* ikmeans.h */,
+				D3043487197E85FE00190B70 /* imopv_sse2.c */,
+				D3043488197E85FE00190B70 /* imopv_sse2.h */,
+				D3043489197E85FE00190B70 /* imopv.c */,
+				D304348A197E85FE00190B70 /* imopv.h */,
+				D304348B197E85FE00190B70 /* kdtree.c */,
+				D304348C197E85FE00190B70 /* kdtree.h */,
+				D304348D197E85FE00190B70 /* kmeans.c */,
+				D304348E197E85FE00190B70 /* kmeans.h */,
+				D304348F197E85FE00190B70 /* lbp.c */,
+				D3043490197E85FE00190B70 /* lbp.h */,
+				D3043491197E85FE00190B70 /* liop.c */,
+				D3043492197E85FE00190B70 /* liop.h */,
+				D3043493197E85FE00190B70 /* mathop_avx.c */,
+				D3043494197E85FE00190B70 /* mathop_avx.h */,
+				D3043495197E85FE00190B70 /* mathop_sse2.c */,
+				D3043496197E85FE00190B70 /* mathop_sse2.h */,
+				D3043497197E85FE00190B70 /* mathop.c */,
+				D3043498197E85FE00190B70 /* mathop.h */,
+				D3043499197E85FE00190B70 /* mser.c */,
+				D304349A197E85FE00190B70 /* mser.h */,
+				D304349B197E85FE00190B70 /* pgm.c */,
+				D304349C197E85FE00190B70 /* pgm.h */,
+				D304349D197E85FE00190B70 /* qsort-def.h */,
+				D304349E197E85FE00190B70 /* quickshift.c */,
+				D304349F197E85FE00190B70 /* quickshift.h */,
+				D30434A0197E85FE00190B70 /* random.c */,
+				D30434A1197E85FE00190B70 /* random.h */,
+				D30434A2197E85FE00190B70 /* rodrigues.c */,
+				D30434A3197E85FE00190B70 /* rodrigues.h */,
+				D30434A4197E85FE00190B70 /* scalespace.c */,
+				D30434A5197E85FE00190B70 /* scalespace.h */,
+				D30434A6197E85FE00190B70 /* shuffle-def.h */,
+				D30434A7197E85FE00190B70 /* sift.c */,
+				D30434A8197E85FE00190B70 /* sift.h */,
+				D30434A9197E85FE00190B70 /* slic.c */,
+				D30434AA197E85FE00190B70 /* slic.h */,
+				D30434AB197E85FE00190B70 /* stringop.c */,
+				D30434AC197E85FE00190B70 /* stringop.h */,
+				D30434AD197E85FE00190B70 /* svm.c */,
+				D30434AE197E85FE00190B70 /* svm.h */,
+				D30434AF197E85FE00190B70 /* svmdataset.c */,
+				D30434B0197E85FE00190B70 /* svmdataset.h */,
+				D30434B1197E85FE00190B70 /* vlad.c */,
+				D30434B2197E85FE00190B70 /* vlad.h */,
+			);
+			name = VLFeat;
 			sourceTree = "<group>";
 		};
 		D38126F918CA237000E635C3 /* GCDAsyncSocket */ = {
@@ -938,7 +1129,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D30434C2197E85FE00190B70 /* ikmeans_lloyd.tc in Resources */,
+				D30434B8197E85FE00190B70 /* float.th in Resources */,
+				D30434C0197E85FE00190B70 /* ikmeans_elkan.tc in Resources */,
 				D3CC6E63195AD11800C0A7E6 /* README.txt in Resources */,
+				D30434C1197E85FE00190B70 /* ikmeans_init.tc in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -988,36 +1183,55 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D30434B3197E85FE00190B70 /* aib.c in Sources */,
 				32A7254317501BD4004C873A /* RCDistanceLabel.m in Sources */,
 				32A7254417501BD4004C873A /* RCFractionLabel.m in Sources */,
 				324FF85B18ECB5BE00DC5E7F /* UIView+RCOrientationRotation.m in Sources */,
 				3267A2E516C46D9A001E14C7 /* AFHTTPClient.m in Sources */,
+				D30434BF197E85FE00190B70 /* host.c in Sources */,
 				3267A2E616C46D9A001E14C7 /* AFHTTPRequestOperation.m in Sources */,
 				3267A2E716C46D9A001E14C7 /* AFImageRequestOperation.m in Sources */,
 				3267A2E816C46D9A001E14C7 /* AFJSONRequestOperation.m in Sources */,
 				3280BB301919B0C300338A38 /* UIView+RCViewFade.m in Sources */,
+				D30434D7197E85FE00190B70 /* svmdataset.c in Sources */,
 				D3CC6E69195AD11800C0A7E6 /* mrf.cpp in Sources */,
+				D30434CF197E85FE00190B70 /* quickshift.c in Sources */,
 				D3CC6E6A195AD11800C0A7E6 /* TRW-S.cpp in Sources */,
+				D30434B5197E85FE00190B70 /* covdet.c in Sources */,
+				D30434B6197E85FE00190B70 /* dsift.c in Sources */,
 				D94ECE72194CD626008F2F9A /* RCSensorDelegate.m in Sources */,
 				324FF85A18ECB5BE00DC5E7F /* UIView+RCConstraints.m in Sources */,
 				3267A2E916C46D9A001E14C7 /* AFNetworkActivityIndicatorManager.m in Sources */,
+				D30434BE197E85FE00190B70 /* homkermap.c in Sources */,
+				D30434BC197E85FE00190B70 /* hikmeans.c in Sources */,
+				D30434D8197E85FE00190B70 /* vlad.c in Sources */,
 				3267A2EA16C46D9A001E14C7 /* AFPropertyListRequestOperation.m in Sources */,
 				3267A2EB16C46D9A001E14C7 /* AFURLConnectionOperation.m in Sources */,
+				D30434BD197E85FE00190B70 /* hog.c in Sources */,
 				D3CC6E6B195AD11800C0A7E6 /* ICM.cpp in Sources */,
+				D30434C5197E85FE00190B70 /* imopv.c in Sources */,
+				D30434D4197E85FE00190B70 /* slic.c in Sources */,
+				D30434B9197E85FE00190B70 /* generic.c in Sources */,
 				D3CC6E66195AD11800C0A7E6 /* example.cpp in Sources */,
 				3267A2EC16C46D9A001E14C7 /* AFXMLRequestOperation.m in Sources */,
 				D3217E1318BE2E0100762A31 /* RCReplayManager.m in Sources */,
 				3267A2ED16C46D9A001E14C7 /* UIImageView+AFNetworking.m in Sources */,
+				D30434B7197E85FE00190B70 /* fisher.c in Sources */,
 				3267A2F116C46DA8001E14C7 /* RCHTTPClient.m in Sources */,
+				D30434CA197E85FE00190B70 /* mathop_avx.c in Sources */,
 				3267A2F416C46DB7001E14C7 /* RCUserManager.m in Sources */,
+				D30434D1197E85FE00190B70 /* rodrigues.c in Sources */,
 				D3CC6E64195AD11800C0A7E6 /* graph.cpp in Sources */,
 				32CD632316CC015100496D46 /* RCDateFormatter.m in Sources */,
 				32C4493A16D5457C00984BEC /* Guid.m in Sources */,
 				D3CC6E68195AD11800C0A7E6 /* MaxProdBP.cpp in Sources */,
+				D30434C7197E85FE00190B70 /* kmeans.c in Sources */,
 				32C4493B16D5457C00984BEC /* KeychainItemWrapper.m in Sources */,
 				328ACC1416D5953900BC7142 /* RCUser.m in Sources */,
 				32C3892E16DD429100BD995C /* NSString+RCString.m in Sources */,
+				D30434CC197E85FE00190B70 /* mathop.c in Sources */,
 				D38126F618CA234200E635C3 /* RCConnectionManager.m in Sources */,
+				D30434C3197E85FE00190B70 /* ikmeans.c in Sources */,
 				D3CC6E6E195AD11800C0A7E6 /* BP-S.cpp in Sources */,
 				D3CC6E6C195AD11800C0A7E6 /* LinkedBlockList.cpp in Sources */,
 				D3CC6E65195AD11800C0A7E6 /* regions-maxprod.cpp in Sources */,
@@ -1027,16 +1241,30 @@
 				3281B106174EE5040080D07E /* RCFraction.m in Sources */,
 				D3CC6E67195AD11800C0A7E6 /* GCoptimization.cpp in Sources */,
 				D9045D871953E586002DD9D5 /* stereo_mesh.cpp in Sources */,
+				D30434CE197E85FE00190B70 /* pgm.c in Sources */,
 				3215DC351797449D00DD86E4 /* RCMeasuredPhoto.m in Sources */,
 				32BA41F5179F33D8002BAE13 /* RCFeatureLayerDelegate.m in Sources */,
+				D30434D2197E85FE00190B70 /* scalespace.c in Sources */,
+				D30434D0197E85FE00190B70 /* random.c in Sources */,
+				D30434C4197E85FE00190B70 /* imopv_sse2.c in Sources */,
+				D30434C6197E85FE00190B70 /* kdtree.c in Sources */,
 				32BA41FE179F3656002BAE13 /* RCFeaturesLayer.m in Sources */,
 				32771A0517DC29AE00881279 /* RCLocationManager.m in Sources */,
+				D30434BB197E85FE00190B70 /* gmm.c in Sources */,
 				D3217E1218BE2E0100762A31 /* RCCaptureManager.m in Sources */,
+				D30434D6197E85FE00190B70 /* svm.c in Sources */,
+				D30434C8197E85FE00190B70 /* lbp.c in Sources */,
 				D9045D8A1953E592002DD9D5 /* triangle.cpp in Sources */,
 				D9045D861953E586002DD9D5 /* stereo.cpp in Sources */,
+				D30434B4197E85FE00190B70 /* array.c in Sources */,
 				32771A0617DC29AE00881279 /* RCMotionManager.m in Sources */,
+				D30434C9197E85FE00190B70 /* liop.c in Sources */,
 				D9045D7E1953E189002DD9D5 /* RCStereo.mm in Sources */,
+				D30434CD197E85FE00190B70 /* mser.c in Sources */,
+				D30434CB197E85FE00190B70 /* mathop_sse2.c in Sources */,
 				32771A0717DC29AE00881279 /* RCVideoManager.m in Sources */,
+				D30434D5197E85FE00190B70 /* stringop.c in Sources */,
+				D30434D3197E85FE00190B70 /* sift.c in Sources */,
 				322B8A8B17DC2A28008FED6E /* RCAVSessionManager.m in Sources */,
 				D38126FC18CA239800E635C3 /* GCDAsyncSocket.m in Sources */,
 				D94ECE6D194CC171008F2F9A /* RCGeocoder.m in Sources */,

@@ -80,12 +80,14 @@ state_vision_group::state_vision_group(const state_vision_group &other): Tr(othe
 state_vision_group::state_vision_group(const state_vector &T, const state_rotation_vector &W): health(0.), status(group_initializing)
 {
     id = counter++;
+    Tr.dynamic = true;
+    Wr.dynamic = true;
     children.push_back(&Tr);
     children.push_back(&Wr);
-    Tr.v = T.v;
-    Wr.v = W.v;
-    Tr.set_initial_variance(T.variance()[0], T.variance()[1], T.variance()[2]);
-    Wr.set_initial_variance(W.variance()[0], W.variance()[1], W.variance()[2]);
+    Tr.v = v4(0., 0., 0., 0.);
+    Wr.v = rotation_vector();
+    Tr.set_initial_variance(0., 0., 0.);
+    Wr.set_initial_variance(0., 0., 0.);
     Tr.set_process_noise(ref_noise);
     Wr.set_process_noise(ref_noise);
 }
@@ -197,9 +199,6 @@ void state_vision::reset()
 
 void state_vision::reset_position()
 {
-    for(list<state_vision_group *>::iterator giter = groups.children.begin(); giter != groups.children.end(); giter++) {
-        (*giter)->Tr.v -= T.v;
-    }
     T.v = 0.;
     total_distance = 0.;
     last_position = 0.;
@@ -258,9 +257,6 @@ void state_vision::project_new_group_covariance(const state_vision_group &g)
     //Note: this only works to fill in the covariance for Tr, Wr because it fills in cov(T,Tr) etc first (then copies that to cov(Tr,Tr).
     for(int i = 0; i < cov.cov.rows; ++i)
     {
-        v4 cov_T = T.copy_cov_from_row(cov.cov, i);
-        g.Tr.copy_cov_to_col(cov.cov, i, cov_T);
-        g.Tr.copy_cov_to_row(cov.cov, i, cov_T);
         v4 cov_W = W.copy_cov_from_row(cov.cov, i);
         g.Wr.copy_cov_to_col(cov.cov, i, cov_W);
         g.Wr.copy_cov_to_row(cov.cov, i, cov_W);
@@ -277,16 +273,6 @@ state_vision_group * state_vision::add_group(uint64_t time)
     }
     groups.children.push_back(g);
     remap();
-#ifdef TEST_POSDEF
-    if(!test_posdef(cov.cov)) fprintf(stderr, "not pos def before propagating group\n");
-#endif
-    project_new_group_covariance(*g);
-    //perturb to make positive definite.
-    //TODO: investigate how to fix the model so that this dependency goes away
-    //TODO: this is clearly wrong. lower is worse, higher is not necessarily worse. weird
-    //TODO: Want to get rid of this, but fails positive definiteness test without it.
-    g->Wr.perturb_variance();
-    g->Tr.perturb_variance();
 #ifdef TEST_POSDEF
     if(!test_posdef(cov.cov)) fprintf(stderr, "not pos def after propagating group\n");
 #endif
@@ -350,4 +336,52 @@ void state_vision::add_non_orientation_states()
     children.push_back(&groups);
 }
 
+void state_vision::evolve_state(f_t dt)
+{
+    for(list<state_vision_group *>::iterator giter = groups.children.begin(); giter != groups.children.end(); ++giter) {
+        state_vision_group *g = *giter;
+        m4 Rr = to_rotation_matrix(g->Wr.v);
+        g->Tr.v = g->Tr.v + Rr * Rt * dT;
+        g->Wr.v = integrate_angular_velocity(g->Wr.v, dW);
+    }
+    state_motion::evolve_state(dt);
+}
 
+void state_vision::cache_jacobians(f_t dt)
+{
+    state_motion::cache_jacobians(dt);
+
+    for(list<state_vision_group *>::iterator giter = groups.children.begin(); giter != groups.children.end(); ++giter) {
+        state_vision_group *g = *giter;
+        integrate_angular_velocity_jacobian(g->Wr.v, dW, g->dWrp_dWr, g->dWrp_dwdt);
+        g->Rr = to_rotation_matrix(g->Wr.v);
+        m4v4 dRr_dWr = to_rotation_matrix_jacobian(g->Wr.v);
+        g->dTrp_dV = g->Rr * Rt * dt;
+        g->dTrp_dWr = dRr_dWr * Rt * dT;
+        g->dTrp_dW = g->Rr * dRt_dW * dT;
+    }
+}
+
+void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t dt)
+{
+    for(list<state_vision_group *>::iterator giter = groups.children.begin(); giter != groups.children.end(); ++giter) {
+        state_vision_group *g = *giter;
+        for(int i = 0; i < src.rows; ++i) {
+            v4 cov_Tr = g->Tr.copy_cov_from_row(src, i);
+            v4 cov_Wr = g->Wr.copy_cov_from_row(src, i);
+            v4 cov_W = W.copy_cov_from_row(src, i);
+            v4 cov_V = V.copy_cov_from_row(src, i);
+            v4 cov_a = a.copy_cov_from_row(src, i);
+            v4 cov_w = w.copy_cov_from_row(src, i);
+            v4 cov_dw = dw.copy_cov_from_row(src, i);
+
+            v4 cov_Tp = cov_Tr +
+            g->dTrp_dV * (cov_V + .5 * dt * cov_a) +
+            g->dTrp_dWr * cov_Wr +
+            g->dTrp_dW * cov_W;
+            g->Tr.copy_cov_to_col(dst, i, cov_Tp);
+            g->Wr.copy_cov_to_col(dst, i, g->dWrp_dWr * cov_Wr + g->dWrp_dwdt * dt * (cov_w + dt/2. * cov_dw));
+        }
+    }
+    state_motion::project_motion_covariance(dst, src, dt);
+}

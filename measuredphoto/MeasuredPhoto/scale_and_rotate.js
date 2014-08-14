@@ -6,8 +6,9 @@
 
 // draw_g is an svg group that is inside img_container.
 // draw_g has the measurements and the image and depth map as members.
-// draw_g is rotated durring mobile orientation changes.
+// draw_g is rotated durring mobile orientation changes. rotations are applied after panning operations.
 // draw_g is scaled durring zoom operations.
+// zoom_factor is the ratio between the number of screen pixels along a line over image pixels.
 // draw_g is panned and centered by x and y offsets which are in screen pixels rather than image pixels.
 // x_offset and y_offset determine where the centerof the scaled image sits in screen coordiates.
 
@@ -27,11 +28,9 @@ function calculate_min_zoom(){
     
     var z_factor;
     if ((image_width)/(image_height) >= effective_width/effective_height) { //image is too wide for screen, scale by width
-        console.log('scale by width');
         z_factor = effective_width / image_width;
     }
     else {
-        console.log('scale by height')
         //image is too tall for screen, scale by hieght
         z_factor = effective_height / image_height;
     }

@@ -102,6 +102,7 @@ function animate_screen_rotation(unused_time) {
         rotation_animation_id = window.requestAnimationFrame(animate_screen_rotation); //call self recusively
     }
     else {
+        //minimum zoom may be different in the new orientation
         old_min_zoom = min_zoom;
         min_zoom = calculate_min_zoom();
         if (min_zoom > zoom_factor || zoom_factor <= old_min_zoom + 0.000001) {  //if picture is gettin more real estate, or the user hasn't zoomed, adjust zoom.

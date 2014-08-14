@@ -286,7 +286,7 @@ bool line_line_intersect(v4 p1, v4 p2, v4 p3, v4 p4, v4 & pa, v4 & pb)
 
 //TODO: estimate_F doesnt agree with eight point F. This is now correct for F corresponding to X2 = R * X1 + T
 
-m4 estimate_F(const struct stereo_global &g, const stereo_frame &reference, const stereo_frame &target)
+m4 estimate_F(const struct stereo_global &g, const stereo_frame &reference, const stereo_frame &target, m4 & dR, v4 & dT)
 {
     /*
     x1_w = R1 * x1 + T1
@@ -297,8 +297,8 @@ m4 estimate_F(const struct stereo_global &g, const stereo_frame &reference, cons
     */
     m4 R1w = to_rotation_matrix(reference.W);
     m4 R2w = to_rotation_matrix(target.W);
-    m4 dR = transpose(R2w)*R1w;
-    v4 dT = transpose(R2w) * (reference.T - target.T);
+    dR = transpose(R2w)*R1w;
+    dT = transpose(R2w) * (reference.T - target.T);
 
     // E21 is 3x3
     m4 E21 = dR * skew3(dT);
@@ -603,11 +603,12 @@ bool stereo::preprocess_internal(const stereo_frame &from, const stereo_frame &t
     used_eight_point = use_eight_point;
     // estimate_F uses R,T, and the camera calibration
     if(!use_eight_point)
-        F = estimate_F(*this, from, to);
+        F_motion = estimate_F(*this, from, to, dR, dT);
     else
     // estimate_F_eight_point uses common tracked features between the two frames
         success = estimate_F_eight_point(from, to, F);
 
+    F = F_motion;
     if(enable_debug_files) {
         write_debug_info();
     }
@@ -914,8 +915,6 @@ void stereo::write_debug_info()
     m4_file_print(debug_info, "Rreference", Rreference);
     v4_file_print(debug_info, "Ttarget", target->T);
     v4_file_print(debug_info, "Treference", reference->T);
-    m4 dR = transpose(Rtarget)*Rreference;
-    v4 dT = transpose(Rtarget) * (reference->T - target->T);
 
     m4_file_print(debug_info, "dR", dR);
     v4_file_print(debug_info, "dT", dT);
@@ -929,6 +928,7 @@ void stereo::write_debug_info()
     fprintf(debug_info, "k2 = %g;\n", k2);
     fprintf(debug_info, "k3 = %g;\n", k3);
     m4_file_print(debug_info, "F", F);
+    m4_file_print(debug_info, "F_motion", F_motion);
 
     fclose(debug_info);
 }

@@ -73,6 +73,9 @@ struct stereo_global {
 class stereo: public stereo_global {
 public:
     m4 F;
+    m4 F_motion;
+    m4 dR;
+    v4 dT;
     stereo_frame *target, *reference;
     stereo_mesh mesh;
     enum stereo_orientation orientation;

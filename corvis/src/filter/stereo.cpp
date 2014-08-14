@@ -545,6 +545,347 @@ bool estimate_F_eight_point(const stereo_frame & reference, const stereo_frame &
     return true;
 }
 
+#include "sift.h"
+typedef struct _sift_keypoint
+{
+    xy pt;
+    float sigma;
+    vl_sift_pix d [128] ;
+} sift_keypoint;
+
+typedef struct _sift_match
+{
+    int i1, i2;
+    float score;
+} sift_match;
+
+int compute_inliers(const v4 from [], const v4 to [], int nmatches, const m4 & F, float thresh, bool inliers [])
+{
+    int ninliers = 0;
+    for(int i = 0; i < nmatches; i++) {
+        // Sampson distance x2*F*x1 / (sum((Fx1).^2) + sum((F'x2).^2))
+        v4 pfp = to[i]*F*from[i];
+        v4 el1 = F*from[i];
+        v4 el2 = transpose(F)*to[i];
+        float distance = sum(pfp);
+        distance = distance*distance;
+        distance = distance / (el1[0]*el1[0] + el1[1]*el1[1] + el2[0]* el2[0] + el2[1]*el2[1]);
+
+// distance in pixels
+//        v4 line = F*from[i];
+//        line = line / sqrt(line[0]*line[0] + line[1]*line[1]);
+//        float distance = fabs(sum(to[i]*line));
+        if(distance < thresh) {
+            inliers[i] = true;
+            ninliers++;
+        }
+        else
+            inliers[i] = false;
+    }
+    return ninliers;
+}
+
+// Chooses k random elements from a list with n elements and puts them in inds
+// Uses reservoir sampling
+void choose_random(int k, int n, int * inds)
+{
+    int i;
+
+    // Initialize reservoir
+    for(i = 0; i < k; i++)
+        inds[i] = i;
+
+    for(; i < n; i++) {
+        // Pick a random index from 0 to i.
+        int j = rand() % (i+1);
+
+        // If the randomly picked index is smaller than k, then replace
+        // the element present at the index with new element
+        if (j < k)
+            inds[j] = i;
+    }
+}
+
+bool refine_F(const vector<v4> & reference_pts, const vector<v4> target_pts, m4 & F)
+{
+    vector<v4> estimate_pts1;
+    vector<v4> estimate_pts2;
+
+    const int npoints = (int)reference_pts.size();
+    bool inliers[npoints];
+    float sampson_thresh = 0.5;
+    int ninliers;
+
+    for(int row = 0; row < 4; row++) {
+        for(int col = 0; col < 4; col++) {
+            fprintf(stderr, "%f ", F[row][col]);
+        }
+        fprintf(stderr, "\n");
+    }
+
+    ninliers = compute_inliers(&reference_pts[0], &target_pts[0], npoints, F, sampson_thresh, inliers);
+    fprintf(stderr, "%d inliers\n", ninliers);
+
+    estimate_pts1.clear();
+    estimate_pts2.clear();
+    for(int m = 0; m < npoints; m++) {
+        if(inliers[m]) {
+            estimate_pts1.push_back(reference_pts[m]);
+            estimate_pts2.push_back(target_pts[m]);
+        }
+    }
+    m4 F2 = eight_point_F(&estimate_pts1[0], &estimate_pts2[0], (int)estimate_pts1.size());
+
+    ninliers = compute_inliers(&reference_pts[0], &target_pts[0], npoints, F2, sampson_thresh, inliers);
+    fprintf(stderr, "%d inliers sampson\n", ninliers);
+
+    estimate_pts1.clear();
+    estimate_pts2.clear();
+    for(int m = 0; m < npoints; m++) {
+        if(inliers[m]) {
+            estimate_pts1.push_back(reference_pts[m]);
+            estimate_pts2.push_back(target_pts[m]);
+        }
+    }
+    F2 = eight_point_F(&estimate_pts1[0], &estimate_pts2[0], (int)estimate_pts1.size());
+    ninliers = compute_inliers(&reference_pts[0], &target_pts[0], npoints, F2, sampson_thresh, inliers);
+    fprintf(stderr, "%d inliers refined tight\n", ninliers);
+
+    F = F2;
+
+    return true;
+}
+
+// F is from reference_pts to target_pts
+bool ransac_F(const vector<v4> & reference_pts, const vector<v4> target_pts, m4 & F)
+{
+    vector<v4> estimate_pts1;
+    vector<v4> estimate_pts2;
+    const int npoints = (int)reference_pts.size();
+    fprintf(stderr, "nmatches %d\n", npoints);
+    bool inliers[npoints];
+    float sampson_thresh = 0.5;
+
+    int iterations = 2000;
+    m4 bestF = F;
+    int bestinliers = compute_inliers(&reference_pts[0], &target_pts[0], npoints, bestF, sampson_thresh, inliers);
+    fprintf(stderr, "started with %d inliers", bestinliers);
+
+    for(int i = 0; i < iterations; i++)
+    {
+        int points[8];
+        // select 8 random points
+        choose_random(8, npoints, points);
+
+        // estimate F
+        estimate_pts1.clear();
+        estimate_pts2.clear();
+        for(int m = 0; m < 8; m++) {
+            estimate_pts1.push_back(reference_pts[points[m]]);
+            estimate_pts2.push_back(target_pts[points[m]]);
+        }
+        m4 currentF = eight_point_F(&estimate_pts1[0], &estimate_pts2[0], (int)estimate_pts1.size());
+
+        // measure fitness
+        int currentinliers = compute_inliers(&reference_pts[0], &target_pts[0], npoints, currentF, sampson_thresh, inliers);
+        if(currentinliers > bestinliers) {
+            bestinliers = currentinliers;
+            bestF = currentF;
+        }
+    }
+    fprintf(stderr, "best_inliers %d\n", bestinliers);
+
+    // measure fitness
+    int best_inliers = compute_inliers(&reference_pts[0], &target_pts[0], npoints, bestF, sampson_thresh, inliers);
+    fprintf(stderr, "should be the same best_inliers %d\n", best_inliers);
+
+    // estimate F
+    estimate_pts1.clear();
+    estimate_pts2.clear();
+    for(int m = 0; m < npoints; m++) {
+        if(inliers[m]) {
+            estimate_pts1.push_back(reference_pts[m]);
+            estimate_pts2.push_back(target_pts[m]);
+        }
+    }
+    fprintf(stderr, "calling eight point with %lu points (should be best_inliers)\n", estimate_pts1.size());
+    bestF = eight_point_F(&estimate_pts1[0], &estimate_pts2[0], (int)estimate_pts1.size());
+
+    // measure fitness
+    int final_inliers = compute_inliers(&reference_pts[0], &target_pts[0], npoints, bestF, sampson_thresh, inliers);
+    fprintf(stderr, "after estimating with %lu final inliers %d\n", estimate_pts1.size(), final_inliers);
+
+    F = bestF;
+
+    return true;
+}
+
+vector<sift_match> ubc_match(vector<sift_keypoint> k1, vector<sift_keypoint>k2)
+{
+    double thresh = 1.5;
+
+    vector<sift_match> matches;
+    for(unsigned int i1 = 0; i1 < k1.size(); i1++) {
+        sift_match match;
+        float best_score = 1e10;
+        float second_best_score = 1e10;
+        int bestk = -1;
+        for(unsigned int i2 = 0; i2 < k2.size(); i2++) {
+            double acc = 0;
+            for(int bin = 0; bin < 128; bin++)
+            {
+                float delta = k1[i1].d[bin] - k2[i2].d[bin];
+                acc += delta*delta;
+            }
+
+            if(acc < best_score) {
+                second_best_score = best_score;
+                best_score = acc;
+                bestk = i2;
+            } else if(acc < second_best_score) {
+                second_best_score = acc;
+            }
+        }
+        /* Lowe's method: accept the match only if unique. */
+        if(second_best_score == 1e10) continue;
+
+        if(thresh * (float) best_score < (float) second_best_score && bestk != -1) {
+            match.i1 = i1;
+            match.i2 = bestk;
+            match.score = best_score;
+            matches.push_back(match);
+        }
+    }
+    return matches;
+}
+
+vector<sift_keypoint> sift_detect(uint8_t * image, int width, int height, int noctaves, int nlevels, int o_min)
+{
+    vector<sift_keypoint> keypoints;
+    vl_sift_pix * fdata = (vl_sift_pix *)malloc(width*height*sizeof(vl_sift_pix));
+
+    /* convert data type */
+    for (int q = 0; q < width * height; ++q) {
+        fdata[q] = image[q];
+    }
+
+    VlSiftFilt * filt = vl_sift_new(width, height, noctaves, nlevels, o_min);
+    /* ...............................................................
+     *                                             Process each octave
+     * ............................................................ */
+    int i     = 0 ;
+    int first = 1 ;
+    int err;
+    while (1) {
+        VlSiftKeypoint const *keys = 0 ;
+        int                   nkeys ;
+
+        /* calculate the GSS for the next octave .................... */
+        if (first) {
+            first = 0 ;
+            err = vl_sift_process_first_octave (filt, fdata) ;
+        } else {
+            err = vl_sift_process_next_octave  (filt) ;
+        }
+
+        if (err) {
+            err = VL_ERR_OK ;
+            break ;
+        }
+
+        /* run detector ............................................. */
+        vl_sift_detect (filt) ;
+
+        keys  = vl_sift_get_keypoints     (filt) ;
+        nkeys = vl_sift_get_nkeypoints (filt) ;
+        i     = 0 ;
+
+        printf ("sift: detected %d (unoriented) keypoints\n", nkeys) ;
+
+        /* for each keypoint ........................................ */
+        for (; i < nkeys ; ++i) {
+            double                angles [4] ;
+            int                   nangles ;
+            VlSiftKeypoint const *k ;
+
+            /* obtain keypoint orientations ........................... */
+            k = keys + i ;
+            nangles = vl_sift_calc_keypoint_orientations(filt, angles, k) ;
+
+            /* for each orientation ................................... */
+            for (int q = 0 ; q < (unsigned) nangles ; ++q) {
+                sift_keypoint descr;
+
+                /* compute descriptor (if necessary) */
+                vl_sift_calc_keypoint_descriptor(filt, descr.d, k, angles [q]) ;
+                descr.pt.x = k->x;
+                descr.pt.y = k->y;
+                descr.sigma = k->sigma;
+                /* possibly should convert to uint8 for matching later */
+                /*
+                 int l ;
+                 for (l = 0 ; l < 128 ; ++l) {
+                double x = 512.0 * descr[l] ;
+                x = (x < 255.0) ? x : 255.0 ;
+                vl_file_meta_put_uint8 (&dsc, (vl_uint8) (x)) ;
+                 }
+                 */
+                keypoints.push_back(descr);
+            }
+        }
+    }
+    free(fdata);
+    return keypoints;
+}
+
+bool stereo::reestimate_F(const stereo_frame & reference, const stereo_frame & target, m4 & F, m4 & R, v4 & T)
+{
+    // Detect and describe
+    int noctaves = -1;
+    int nlevels = 3;
+    int o_min = 0;
+    vector<sift_keypoint> reference_keypoints = sift_detect(reference.image, width, height, noctaves, nlevels, o_min);
+    vector<sift_keypoint> target_keypoints = sift_detect(target.image, width, height, noctaves, nlevels, o_min);
+    fprintf(stderr, "ref %lu\n", reference_keypoints.size());
+    fprintf(stderr, "target %lu\n", target_keypoints.size());
+
+    // Match
+    vector<sift_match> matches = ubc_match(reference_keypoints, target_keypoints);
+    fprintf(stderr, "size of matches %lu\n", matches.size());
+
+    vector<v4> reference_correspondences;
+    vector<v4> target_correspondences;
+    for(int m = 0; m < matches.size(); m++) {
+        xy p1 = reference_keypoints[matches[m].i1].pt;
+        xy p2 = target_keypoints[matches[m].i2].pt;
+        reference_correspondences.push_back(v4(p1.x, p1.y, 1, 0));
+        target_correspondences.push_back(v4(p2.x, p2.y, 1, 0));
+    }
+
+    // Estimate F
+    ransac_F(reference_correspondences, target_correspondences, F);
+    const int npoints = (int)reference_correspondences.size();
+    bool inliers[npoints];
+    float sampson_thresh = 0.5;
+
+    compute_inliers(&reference_correspondences[0], &target_correspondences[0], npoints, F, sampson_thresh, inliers);
+    v4 p1, p2;
+    bool valid = false;
+    for(int i = 0; i < npoints; i++) {
+        if(inliers[i]) {
+            p1 = reference_correspondences[i];
+            p2 = target_correspondences[i];
+            valid = true;
+            break;
+        }
+    }
+
+    if(!valid)
+        return false;
+
+    return true;
+}
+
 // Triangulates a point in the world reference frame from two views
 bool stereo::triangulate_internal(const stereo_frame & reference, const stereo_frame & target, int reference_x, int reference_y, int target_x, int target_y, v4 & intersection, float & depth, float & error) const
 {
@@ -608,7 +949,15 @@ bool stereo::preprocess_internal(const stereo_frame &from, const stereo_frame &t
     // estimate_F_eight_point uses common tracked features between the two frames
         success = estimate_F_eight_point(from, to, F);
 
+    m4 Rest; v4 Test;
     F = F_motion;
+    bool valid = reestimate_F(from, to, F_eight_point, Rest, Test);
+    if(valid) {
+        F = F_eight_point;
+    }
+    else
+        fprintf(stderr, "Invalid F estimation\n");
+
     if(enable_debug_files) {
         write_debug_info();
     }
@@ -929,6 +1278,7 @@ void stereo::write_debug_info()
     fprintf(debug_info, "k3 = %g;\n", k3);
     m4_file_print(debug_info, "F", F);
     m4_file_print(debug_info, "F_motion", F_motion);
+    m4_file_print(debug_info, "F_eight_point", F_eight_point);
 
     fclose(debug_info);
 }

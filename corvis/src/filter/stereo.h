@@ -73,7 +73,7 @@ struct stereo_global {
 class stereo: public stereo_global {
 public:
     m4 F;
-    m4 F_motion;
+    m4 F_motion, F_eight_point;
     m4 dR;
     v4 dT;
     stereo_frame *target, *reference;
@@ -111,6 +111,7 @@ protected:
 
     // Computes a fundamental matrix between reference and target and stores it in F.
     bool preprocess_internal(const stereo_frame & reference, const stereo_frame & target, m4 &F, bool use_eight_point);
+    bool reestimate_F(const stereo_frame & reference, const stereo_frame & target, m4 & F, m4 & R, v4 & T);
 
 private:
     char debug_basename[1024];
@@ -125,5 +126,7 @@ private:
 m4 eight_point_F(v4 p1[], v4 p2[], int npts);
 bool line_endpoints(v4 line, int width, int height, float endpoints[4]);
 
+int compute_inliers(const v4 from [], const v4 to [], int nmatches, const m4 & F, float thresh, bool inliers []);
+bool ransac_F(const vector<v4> & reference_pts, const vector<v4> target_pts, m4 & F);
 
 #endif

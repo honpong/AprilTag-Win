@@ -116,10 +116,14 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
                  })
     
     //draging measurement end points.
-    Hammer(m.circle1.node).on("drag", function(e) { i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY); rcMeasurements.move_measurement(m, i.x, i.y, m.x2, m.y2); e.stopPropagation(); e.preventDefault(); });
-    Hammer(m.circle2.node).on("drag",  function(e) { i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY); rcMeasurements.move_measurement(m, m.x1, m.y1, i.x, i.y); e.stopPropagation(); e.preventDefault();});
-    Hammer(m.selector_circle1.node).on("drag",  function(e) {i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY); rcMeasurements.move_measurement(m, i.x, i.y, m.x2, m.y2); e.stopPropagation(); e.preventDefault(); });
-    Hammer(m.selector_circle2.node).on("drag", function(e) {i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY); rcMeasurements.move_measurement(m, m.x1, m.y1, i.x, i.y); e.stopPropagation(); e.preventDefault(); });
+    Hammer(m.circle1.node).on("drag", function(e) {
+                                  i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY);
+                                  rcMeasurements.move_measurement(m, i.x, i.y, m.x2, m.y2);
+                                  e.stopPropagation(); e.preventDefault();
+                              }).on("dragend", function(e) {rcMeasurements.deselect_measurement(m);e.stopPropagation(); e.preventDefault();});
+    Hammer(m.circle2.node).on("drag",  function(e) { i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY); rcMeasurements.move_measurement(m, m.x1, m.y1, i.x, i.y); e.stopPropagation(); e.preventDefault();}).on("dragend", function(e) {rcMeasurements.deselect_measurement(m);e.stopPropagation(); e.preventDefault();});
+    Hammer(m.selector_circle1.node).on("drag",  function(e) {i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY); rcMeasurements.move_measurement(m, i.x, i.y, m.x2, m.y2); e.stopPropagation(); e.preventDefault(); }).on("dragend", function(e) {rcMeasurements.deselect_measurement(m);e.stopPropagation(); e.preventDefault();});
+    Hammer(m.selector_circle2.node).on("drag", function(e) {i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY); rcMeasurements.move_measurement(m, m.x1, m.y1, i.x, i.y); e.stopPropagation(); e.preventDefault(); }).on("dragend", function(e) {rcMeasurements.deselect_measurement(m);e.stopPropagation(); e.preventDefault();});
     
     rcMeasurements.measurements[m.guid] = m;
 
@@ -127,8 +131,8 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
 
 rcMeasurements.click_action = function (m) {
     setTimeout(function(){ return false;},1);  //this just forces refresh for some browsers
-    if ( ! rcMeasurements.is_measurement_being_deleted(m) ) {  //this is both a deletion
-        rcMeasurements.select_measurement(m);
+    if ( ! rcMeasurements.is_measurement_being_deleted(m) ) {  //this is both a deletion and a check for deletion
+        //rcMeasurements.select_measurement(m); //we aren't doing anything here any more
     }
 }
 
@@ -273,7 +277,14 @@ rcMeasurements.select_measurement = function (m) {
     rcMeasurements.paint_selected(current_measurement);
 }
 
+rcMeasurements.deselect_measurement = function (m) {
+    if (current_measurement == m) { current_measurement = null;}
+    rcMeasurements.paint_deselected(m);
+}
+
+
 rcMeasurements.move_measurement = function (m, nx1, ny1, nx2, ny2) {
+    rcMeasurements.select_measurement(m);
     m.x1 = nx1;
     m.y1 = ny1;
     m.x2 = nx2;
@@ -309,6 +320,7 @@ rcMeasurements.start_distance_change_dialouge = function (m) {
 rcMeasurements.end_measurement_edit = function (){
     if (rcMeasurements.measurement_being_edited) {
         //if (is_touch_device) {
+        rcMeasurements.deselect_measurement(rcMeasurements.measurement_being_edited); //un-highlight measurement we're editing
         if(draw.node.contains(np_svg.node)) {draw.node.removeChild(np_svg.node);} //hide number pad
         return_image_after_number_pad();
         //}

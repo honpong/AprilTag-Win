@@ -332,7 +332,9 @@ typedef NS_ENUM(int, RCLicenseStatus)
 
 - (void) startReplay
 {
-    _cor_setup->sfm.ignore_lateness = true;
+    dispatch_sync(queue, ^{
+        _cor_setup->sfm.ignore_lateness = true;
+    });
 }
 
 - (void) startInertialOnlyFusion __attribute((deprecated("No longer needed; does nothing.")))

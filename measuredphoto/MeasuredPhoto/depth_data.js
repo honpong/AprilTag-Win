@@ -206,18 +206,36 @@ function fill_depth_map(){
     //iterate over spatial data and asign colors to each location based on total depth. will take two itterations. one to find maximal depth in image, another to create pixels.
     var total_depth_sqr =0;
     var current_depth_sqr;
+    var v1,v2,v3;
     
-    for (var i = 0; i < spatial_data['vertices'].length; i++) {
-        current_depth_sqr = spatial_data['vertices'][i][0]*spatial_data['vertices'][i][0] + spatial_data['vertices'][i][1]*spatial_data['vertices'][i][1] + spatial_data['vertices'][i][2]*spatial_data['vertices'][i][2];
+    // calculate the average depth so we understand how to color
+    for (var i = 0; i < spatial_data['faces'].length; i++) {
+        v1 = spatial_data['vertices'][spatial_data['faces'][i][0]];
+        v2 = spatial_data['vertices'][spatial_data['faces'][i][1]];
+        v3 = spatial_data['vertices'][spatial_data['faces'][i][2]];
+        current_depth_sqr = (v1[0]*v1[0] +
+                             v1[1]*v1[1] +
+                             v1[2]*v1[2] +
+                             v2[0]*v2[0] +
+                             v2[1]*v2[1] +
+                             v2[2]*v2[2] +
+                             v3[0]*v3[0] +
+                             v3[1]*v3[1] +
+                             v3[2]*v3[2]
+                             )/3;
         total_depth_sqr = total_depth_sqr + current_depth_sqr;
     }
+    
+//    for (var i = 0; i < spatial_data['vertices'].length; i++) {
+//        current_depth_sqr = spatial_data['vertices'][i][0]*spatial_data['vertices'][i][0] + spatial_data['vertices'][i][1]*spatial_data['vertices'][i][1] + spatial_data['vertices'][i][2]*spatial_data['vertices'][i][2];
+//        total_depth_sqr = total_depth_sqr + current_depth_sqr;
+//    }
     
     var avg_depth_sqr = total_depth_sqr/spatial_data['vertices'].length;
     var coords;
     
     var draw_start = new Date();
 
-    var v1,v2,v3;
     var dm_t = [[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]];
     for (var i = 0; i < spatial_data['faces'].length; i++) { //now that we know the avg depth, draw to the canvas...
         v1 = spatial_data['vertices'][spatial_data['faces'][i][0]];
@@ -330,7 +348,7 @@ function dm_add_traingle(vs, avg_depth_sqr){
 }
 
 function dm_clr_from_depth(avg_depth_sqr, current_depth_sqr) {
-    var clr_int_str =  (255*avg_depth_sqr/3/(avg_depth_sqr/3 + current_depth_sqr)).toFixed(0);
+    var clr_int_str =  (255*avg_depth_sqr/1.2/(avg_depth_sqr/1.2 + current_depth_sqr)).toFixed(0);
     return 'rgb('+clr_int_str+','+clr_int_str+','+clr_int_str+')';
 }
 

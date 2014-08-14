@@ -16,7 +16,7 @@ if len(sys.argv) != 3:
     print "Usage:", sys.argv[0], "<data_filename> <configuration_name>"
     sys.exit(1)
 
-cor.cvar.cor_time_pb_real = False
+cor.cvar.cor_time_pb_real = True
 
 replay_file = sys.argv[1]
 configuration_name = sys.argv[2]

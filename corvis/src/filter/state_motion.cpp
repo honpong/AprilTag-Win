@@ -11,9 +11,12 @@
 void state_motion_orientation::cache_jacobians(f_t dt)
 {
     m4 dWp_dwdt;
-    integrate_angular_velocity_jacobian(W.v, (w.v + dt/2. * dw.v) * dt, dWp_dW, dWp_dwdt);
+    dW = (w.v + dt/2. * dw.v) * dt;
+    integrate_angular_velocity_jacobian(W.v, dW, dWp_dW, dWp_dwdt);
     dWp_dw = dWp_dwdt * dt;
     dWp_ddw = dWp_dw * (dt/2.);
+    Rt = transpose(to_rotation_matrix(W.v));
+    dRt_dW = transpose(to_rotation_matrix_jacobian(W.v));
 }
 
 void state_motion_orientation::project_motion_covariance(matrix &dst, const matrix &src, f_t dt)
@@ -57,7 +60,7 @@ void state_motion_orientation::evolve_covariance(f_t dt)
 
 void state_motion_orientation::evolve_state(f_t dt)
 {
-    W.v = integrate_angular_velocity(W.v, (w.v + dt/2. * dw.v) * dt);
+    W.v = integrate_angular_velocity(W.v, dW);
     w.v = w.v + dw.v * dt;
 }
 
@@ -72,7 +75,7 @@ void state_motion_orientation::compute_gravity(double latitude, double altitude)
 void state_motion::evolve_state(f_t dt)
 {
     static stdev_vector V_dev, a_dev, w_dev, dw_dev;
-    T.v = T.v + dt * (V.v + 1./2. * dt * a.v);
+    T.v = T.v + dT;
     V.v = V.v + dt * a.v;
 
     state_motion_orientation::evolve_state(dt);
@@ -120,6 +123,12 @@ void state_motion::evolve_covariance_orientation_only(f_t dt)
     for(int i = 0; i < cov.size(); ++i) {
         cov(i, i) += cov.process_noise[i] * dt;
     }
+}
+
+void state_motion::cache_jacobians(f_t dt)
+{
+    state_motion_orientation::cache_jacobians(dt);
+    dT = dt * (V.v + (dt / 2.) * a.v);
 }
 
 void state_motion::evolve(f_t dt)

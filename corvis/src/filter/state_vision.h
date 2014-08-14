@@ -140,8 +140,7 @@ class state_vision_group: public state_branch<state_node *> {
  public:
     state_vector Tr;
     state_rotation_vector Wr;
-    v4 origin_T;
-    rotation_vector origin_W;
+
     state_branch<state_vision_feature *> features;
     list<uint64_t> neighbors;
     list<uint64_t> old_neighbors;
@@ -158,7 +157,11 @@ class state_vision_group: public state_branch<state_node *> {
     int make_normal();
     static f_t ref_noise;
     static f_t min_feats;
-    m4 dWp_dW, dWp_dw, dWp_ddw;
+    
+    //cached data
+    m4 Rr;    
+    m4 dWrp_dWr, dWrp_dwdt;
+    m4 dTrp_dV, dTrp_dWr, dTrp_dW;
 };
 
 class state_vision: public state_motion {
@@ -194,6 +197,7 @@ protected:
     virtual void remove_non_orientation_states();
     virtual void evolve_state(f_t dt);
     virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);
+    virtual void cache_jacobians(f_t dt);
 private:
     void project_new_group_covariance(const state_vision_group &g);
     void clear_features_and_groups();

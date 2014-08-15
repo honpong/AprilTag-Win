@@ -200,7 +200,7 @@ rcMeasurements.to_json = function () {
 
 rcMeasurements.save_measurements = function () {
     jsonStr = rcMeasurements.to_json();
-    $.ajax({ type: "PUT", url: rc_server_location + "true_measure/m_photo/" + m_photo_guid + "/annotations/", contentType: "application/json", processData: false, dataType: "json", data: jsonStr })
+    $.ajax({ type: "PUT", url: rc_server_location + "true_measure/api/v1/m_photo/" + m_photo_guid + "/annotations/", contentType: "application/json", processData: false, dataType: "json", data: jsonStr })
     .done(function(data, textStatus, jqXHR) {
           //alert(textStatus + ": " + JSON.stringify(data));
           })

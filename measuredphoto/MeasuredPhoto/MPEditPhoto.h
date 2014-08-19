@@ -27,6 +27,7 @@
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *titleTextWidthConstraint;
 @property (weak, nonatomic) IBOutlet UIView *navBar;
 @property (nonatomic, readonly) UIDeviceOrientation currentUIOrientation;
+@property (nonatomic) NSIndexPath* indexPath;
 
 - (IBAction)handlePhotosButton:(id)sender;
 - (IBAction)handleCameraButton:(id)sender;

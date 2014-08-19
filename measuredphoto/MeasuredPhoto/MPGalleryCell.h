@@ -13,7 +13,6 @@
 @property (weak, nonatomic) IBOutlet UIButton *imgButton;
 @property (weak, nonatomic) IBOutlet UILabel *titleLabel;
 @property (nonatomic) NSString* guid;
-@property (nonatomic) long index;
 
 - (void) setImage:(UIImage*)image;
 - (void) setTitle:(NSString*)title;

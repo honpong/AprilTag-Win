@@ -25,7 +25,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 
 @implementation MPGalleryController
 {
-    NSArray* measuredPhotos;
+    NSMutableArray* measuredPhotos;
     MPFadeTransitionDelegate* fadeTransitionDelegate;
     UIView* shrinkToView;
     MPUndoOverlay* undoView;
@@ -39,7 +39,8 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 - (void) viewDidLoad
 {
     [super viewDidLoad];
-    measuredPhotos = [MPDMeasuredPhoto MR_findAllSortedBy:@"created_at" ascending:NO];
+    
+    [self refreshCollectionData];
     self.collectionView.dataSource = self;
     self.collectionView.delegate = self;
     
@@ -60,17 +61,18 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 
 - (void) viewDidAppear:(BOOL)animated
 {
-    if (self.transitionFromView.superview)
-    {
-        [self zoomThumbnailOut];
-    }
-    
     if (self.editPhotoController.measuredPhoto.is_deleted)
     {
         [self handlePhotoDeleted];
     }
-    
-    [self refreshCollection];
+    else
+    {
+        if (self.transitionFromView.superview)
+        {
+            [self zoomThumbnailOut];
+        }
+        [self refreshCollection];
+    }
 }
 
 - (void) viewDidDisappear:(BOOL)animated
@@ -104,9 +106,11 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 {
     UIButton* button = (UIButton*)sender;
     MPGalleryCell* cell = (MPGalleryCell*)button.superview.superview;
-    MPDMeasuredPhoto* measuredPhoto = measuredPhotos[cell.index];
+    NSIndexPath* indexPath = [self.collectionView indexPathForCell:cell];
+    MPDMeasuredPhoto* measuredPhoto = measuredPhotos[indexPath.item];
     
     self.editPhotoController.measuredPhoto = measuredPhoto;
+    self.editPhotoController.indexPath = indexPath; // must be set after .measuredPhoto
     self.editPhotoController.transitioningDelegate = fadeTransitionDelegate;
     
     shrinkToView = cell;
@@ -135,8 +139,18 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 
 - (void) handlePhotoDeleted
 {
-    [self refreshCollection];
-    [self fadeThumbnailOut];
+    [self.transitionFromView removeFromSuperview];
+    
+    NSIndexPath* indexPath = self.editPhotoController.indexPath;
+    
+    if (indexPath)
+    {
+        NSInteger itemIndex = indexPath.item;
+        [measuredPhotos removeObjectAtIndex:itemIndex];
+        [self.collectionView deleteItemsAtIndexPaths:[NSArray arrayWithObject:indexPath]];
+    }
+    [self.collectionView reloadData];
+    
     [undoView showWithDuration:6.];
 }
 
@@ -155,7 +169,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
         {
             DLog(@"Deleted %@", self.editPhotoController.measuredPhoto.id_guid);
             
-            if ([self.editPhotoController.measuredPhoto deleteAssociatedFiles])
+            if (![self.editPhotoController.measuredPhoto deleteAssociatedFiles])
             {
                 DLogs(@"Failed to delete files");
                 //TODO: log error to analytics
@@ -227,19 +241,6 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     }
 }
 
-- (void) fadeThumbnailOut
-{
-    [UIView animateWithDuration: .5
-                          delay: 0
-                        options: UIViewAnimationOptionCurveLinear
-                     animations:^{
-                         self.transitionFromView.alpha = 0;
-                     }
-                     completion:^(BOOL finished){
-                         [self.transitionFromView removeFromSuperview];
-                     }];
-}
-
 #pragma mark - UICollectionView Datasource
 
 - (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
@@ -256,9 +257,8 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 {
     MPGalleryCell* cell = (MPGalleryCell*)[collectionView dequeueReusableCellWithReuseIdentifier:@"photoCell" forIndexPath:indexPath];
     
-    MPDMeasuredPhoto* measuredPhoto = measuredPhotos[indexPath.row];
+    MPDMeasuredPhoto* measuredPhoto = measuredPhotos[indexPath.item];
     
-    cell.index = indexPath.row;
     cell.guid = measuredPhoto.id_guid;
     [cell setImage: [UIImage imageWithContentsOfFile:measuredPhoto.imageFileName]];
     [cell setTitle: measuredPhoto.name];
@@ -266,10 +266,15 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     return cell;
 }
 
-- (void) refreshCollection
+- (void) refreshCollectionData
 {
     NSPredicate* predicate = [NSPredicate predicateWithFormat:@"is_deleted == NO"];
-    measuredPhotos = [MPDMeasuredPhoto MR_findAllSortedBy:@"created_at" ascending:NO withPredicate:predicate];
+    measuredPhotos = [[MPDMeasuredPhoto MR_findAllSortedBy:@"created_at" ascending:NO withPredicate:predicate] mutableCopy];
+}
+
+- (void) refreshCollection
+{
+    [self refreshCollectionData];
     [self.collectionView reloadData];
 }
 

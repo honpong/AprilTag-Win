@@ -63,6 +63,14 @@
     });
 }
 
+- (void) setMeasuredPhoto:(MPDMeasuredPhoto *)measuredPhoto
+{
+    _measuredPhoto = measuredPhoto;
+    _indexPath = nil; // ensures any previous index path is cleared
+}
+
+#pragma mark - Orientation
+
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
     return NO;
@@ -111,6 +119,8 @@
     [self.webView stringByEvaluatingJavaScriptFromString: jsFunction];
 }
 
+#pragma mark - Animations
+
 - (void) fadeOutTitleButton
 {
     [UIView animateWithDuration: .3
@@ -140,6 +150,8 @@
                          
                      }];
 }
+
+#pragma mark - Event handlers
 
 - (IBAction)handlePhotosButton:(id)sender
 {
@@ -175,6 +187,8 @@
 {
     [self gotoEditTitle];
 }
+
+#pragma mark - Screen transitions
 
 - (void) gotoEditTitle
 {

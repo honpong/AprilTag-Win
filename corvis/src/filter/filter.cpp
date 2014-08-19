@@ -201,7 +201,6 @@ void process_observation_queue(struct filter *f, uint64_t time)
         f->numeric_failed = true;
         f->calibration_bad = true;
     }
-    filter_update_outputs(f, time);
 }
 
 void filter_compute_gravity(struct filter *f, double latitude, double altitude)
@@ -1078,6 +1077,13 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     
     if(f->max_velocity > convergence_minimum_velocity && f->median_depth_variance < convergence_maximum_depth_variance) f->has_converged = true;
     
+    filter_update_outputs(f, time);
+    f_t delta_T = norm(f->s.T.v - f->s.last_position);
+    if(delta_T > .01) {
+        f->s.total_distance += norm(f->s.T.v - f->s.last_position);
+        f->s.last_position = f->s.T.v;
+    }
+
     return true;
 }
 

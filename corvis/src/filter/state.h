@@ -152,6 +152,7 @@ public:
             if(!test_posdef(cov.cov)) fprintf(stderr, "not pos def before explicit time update\n");
 #endif
             f_t dt = ((f_t)time - (f_t)current_time) / 1000000.;
+            if(log_enabled && dt > .025) fprintf(stderr, "Time step is %f\n", dt);
             evolve(dt);
 #ifdef TEST_POSDEF
             if(!test_posdef(cov.cov)) fprintf(stderr, "not pos def after explicit time update\n");

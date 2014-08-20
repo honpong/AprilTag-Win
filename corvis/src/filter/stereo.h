@@ -110,7 +110,7 @@ protected:
     void rectify_frames();
 
     // Computes a fundamental matrix between reference and target and stores it in F.
-    bool preprocess_internal(const stereo_frame & reference, const stereo_frame & target, m4 &F, bool use_eight_point);
+    bool preprocess_internal(const stereo_frame & reference, stereo_frame & target, m4 &F, bool use_eight_point);
     bool reestimate_F(const stereo_frame & reference, const stereo_frame & target, m4 & F, m4 & R, v4 & T);
 
 private:
@@ -128,5 +128,6 @@ bool line_endpoints(v4 line, int width, int height, float endpoints[4]);
 
 int compute_inliers(const v4 from [], const v4 to [], int nmatches, const m4 & F, float thresh, bool inliers []);
 bool ransac_F(const vector<v4> & reference_pts, const vector<v4> target_pts, m4 & F);
+bool decompose_F(const m4 & F, float focal_length, float center_x, float center_y, const v4 & p1, const v4 & p2, m4 & R, v4 & T);
 
 #endif

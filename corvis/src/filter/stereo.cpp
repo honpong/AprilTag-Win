@@ -6,6 +6,7 @@ bool debug_triangulate = false;
 // if enabled, adds a 3 pixel jitter in all directions to correspondence
 bool enable_jitter = false;
 bool enable_rectify = false;
+bool enable_eight_point_motion = false;
 #ifndef ARCHIVE
 bool enable_debug_files = true;
 #else
@@ -410,6 +411,178 @@ bool find_correspondence(const stereo_frame & reference, const stereo_frame & ta
     }
 
     return success;
+}
+
+// note, R,T is from p1 to p2, not from p2 to p1 (as in world coordinates)
+bool validate_RT(const m4 & R, const v4 & T, const v4 & p1, const v4 & p2)
+{
+    // TODO: decide if I should use this or intersection
+    // positive depth constraint
+    /*
+    m4 skew_Rp1 = skew3(R*p1);
+    m4 skew_p2 = skew3(p2);
+    float alpha1 = -sum((skew_p2*T)*(skew_p2*R*p1))/pow(norm(skew_p2*T), 2);
+    float alpha2 =  sum((skew_Rp1*p2)*(skew_Rp1*T))/pow(norm(skew_Rp1*p2), 2);
+     */
+
+    // actual intersection
+    v4 o1 = T;
+    v4 o2 = v4(0,0,0,0);
+    v4 p12 = R*p1 + T;
+    v4 pa, pb;
+    bool success = line_line_intersect(o1, p12, o2, p2, pa, pb);
+    if(!success) return false;
+
+    // switch to camera relative coordinates
+    pa = transpose(R)*(pa - T);
+
+    //fprintf(stderr, "intersection says %d, alpha says %f %f\n", (pa[2] > 0 & pb[2] > 0), alpha1, alpha2);
+
+    if(pa[2] < 0 || pb[2] < 0) return false;
+
+    return true;
+}
+
+bool decompose_F(const m4 & F, float focal_length, float center_x, float center_y, const v4 & p1, const v4 & p2, m4 & R, v4 & T)
+{
+    m4 Kinv;
+    Kinv[0][0] = 1./focal_length;
+    Kinv[1][1] = 1./focal_length;
+    Kinv[0][2] = -center_x/focal_length;
+    Kinv[1][2] = -center_y/focal_length;
+    Kinv[2][2] = 1;
+    Kinv[3][3] = 1;
+
+    m4 K;
+    K[0][0] = focal_length;
+    K[1][1] = focal_length;
+    K[0][2] = center_x;
+    K[1][2] = center_y;
+    K[2][2] = 1;
+    K[3][3] = 1;
+
+    m4 E4 = transpose(K)*F*K;
+    v4 p1p = Kinv*p1;
+    v4 p2p = Kinv*p2;
+
+    matrix temp1(3,3);
+    matrix temp2(3,3);
+
+    matrix E(3, 3);
+    for(int i = 0; i < 3; i++)
+        for(int j = 0; j < 3; j++)
+            E(i,j) = E4[i][j];
+
+    matrix W(3, 3);
+    W(0,0) = 0; W(0,1) = -1; W(0,2) = 0;
+    W(1,0) = 1; W(1,1) = 0;  W(1,2) = 0;
+    W(2,0) = 0; W(2,1) = 0;  W(2,2) = 1;
+    matrix Wt(3, 3);
+    matrix_transpose(Wt, W);
+
+    matrix Rzp = W;
+    matrix Rzn(3,3);
+    Rzn(0,0) = 0;  Rzn(0,1) = 1; Rzn(0,2) = 0;
+    Rzn(1,0) = -1; Rzn(1,1) = 0; Rzn(1,2) = 0;
+    Rzn(2,0) = 0;  Rzn(2,1) = 0; Rzn(2,2) = 1;
+
+    matrix Z(3, 3);
+    Z(0,0) = 0; Z(0,1) = -1; Z(0,2) = 0;
+    Z(1,0) = 1; Z(1,1) = 0;  Z(1,2) = 0;
+    Z(2,0) = 0; Z(2,1) = 0;  Z(2,2) = 0;
+
+    matrix U(3, 3);
+    matrix S(1, 3);
+    matrix Vt(3, 3);
+    matrix V(3,3);
+    matrix_svd(E, U, S, Vt);
+    // V = Vt'
+    matrix_transpose(V, Vt);
+
+    m4 R1, R2;
+    v4 T1, T2;
+
+    float det_U = matrix_3x3_determinant(U);
+    float det_V = matrix_3x3_determinant(V);
+    if(det_U < 0 && det_V < 0) {
+        matrix_negate(U);
+        matrix_negate(V);
+    }
+    else if(det_U < 0 && det_V > 0) {
+        // U = -U*Rzn; V = V*Rzp;
+        matrix_negate(U);
+        matrix_product(temp1, U, Rzn);
+        U = temp1;
+        matrix_product(temp1, V, Rzp);
+        V = temp1;
+    }
+    else if(det_U > 0 && det_V < 0) {
+        // U = U*Rzn; V = -V*Rzp;
+        matrix_negate(V);
+        matrix_product(temp1, U, Rzn);
+        U = temp1;
+        matrix_product(temp1, V, Rzp);
+        V = temp1;
+    }
+
+    // Vt = V' after possibly shifting V
+    matrix_transpose(Vt, V);
+
+    // T = u_3
+    T1[0] = U(0,2);
+    T1[1] = U(1,2);
+    T1[2] = U(2,2);
+    T2 = -T1;
+
+    // R1 = UWV'
+    matrix_product(temp1, W, Vt);
+    matrix_product(temp2, U, temp1);
+    for(int row = 0; row < 3; row++)
+        for(int col = 0; col < 3; col++) {
+            R1[row][col] = temp2(row,col);
+        }
+    R1[3][0] = 0; R1[3][1] = 0; R1[3][2] = 0; R1[3][3] = 1;
+
+    // R2 = UW'V'
+    matrix_product(temp1, Wt, Vt);
+    matrix_product(temp2, U, temp1);
+    for(int row = 0; row < 3; row++)
+        for(int col = 0; col < 3; col++) {
+            R2[row][col] = temp2(row,col);
+        }
+    R2[3][0] = 0; R2[3][1] = 0; R2[3][2] = 0; R2[3][3] = 1;
+
+    int nvalid = 0;
+    if(validate_RT(R1, T1, p1p, p2p)) {
+        R = R1;
+        T = T1;
+        nvalid++;
+    }
+
+    if(validate_RT(R2, T1, p1p, p2p)) {
+        R = R2;
+        T = T1;
+        nvalid++;
+    }
+
+    if(validate_RT(R1, T2, p1p, p2p)) {
+        R = R1;
+        T = T2;
+        nvalid++;
+    }
+
+    if(validate_RT(R2, T2, p1p, p2p)) {
+        R = R2;
+        T = T2;
+        nvalid++;
+    }
+
+    if(nvalid != 1) {
+        fprintf(stderr, "Error: There should always be only one solution, but found %d", nvalid);
+        return false;
+    }
+
+    return true;
 }
 
 m4 eight_point_F(v4 p1[], v4 p2[], int npts)
@@ -883,6 +1056,11 @@ bool stereo::reestimate_F(const stereo_frame & reference, const stereo_frame & t
     if(!valid)
         return false;
 
+    // Note: R & T are from reference to target, but stereo frames are stored as
+    // target to reference
+    // TODO: Use more than one correspondence for more robust validation
+    decompose_F(F, focal_length, center_x, center_y, p1, p2, R, T);
+
     return true;
 }
 
@@ -938,7 +1116,7 @@ bool stereo::triangulate_internal(const stereo_frame & reference, const stereo_f
     return true;
 }
 
-bool stereo::preprocess_internal(const stereo_frame &from, const stereo_frame &to, m4 &F, bool use_eight_point)
+bool stereo::preprocess_internal(const stereo_frame &from, stereo_frame &to, m4 &F, bool use_eight_point)
 {
     bool success = true;
     used_eight_point = use_eight_point;
@@ -949,11 +1127,19 @@ bool stereo::preprocess_internal(const stereo_frame &from, const stereo_frame &t
     // estimate_F_eight_point uses common tracked features between the two frames
         success = estimate_F_eight_point(from, to, F);
 
-    m4 Rest; v4 Test;
+    m4 R_eight_point;
+    v4 T_eight_point;
     F = F_motion;
-    bool valid = reestimate_F(from, to, F_eight_point, Rest, Test);
+    bool valid = reestimate_F(from, to, F_eight_point, R_eight_point, T_eight_point);
     if(valid) {
         F = F_eight_point;
+        if(enable_eight_point_motion) {
+            m4 Rto = transpose(R_eight_point);
+            v4 Tto = -transpose(R_eight_point)*T_eight_point;
+            v4 Rvec = invrodrigues(Rto, NULL);
+            to.W = rotation_vector(Rvec[0], Rvec[1], Rvec[2]);
+            to.T = Tto * norm(to.T); // keep the magnitude of T
+        }
     }
     else
         fprintf(stderr, "Invalid F estimation\n");

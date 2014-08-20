@@ -72,3 +72,53 @@ TEST(Stereo, LineEndpoints) {
     EXPECT_FLOAT_EQ(endpoints[3], 0);
 
 }
+
+TEST(Stereo, DecomposeF) {
+
+    const m4 F = {{ 
+        v4(1.78401e-06,   1.80498e-05,  0.00438624,  0), 
+        v4(-1.58894e-05,  1.76122e-06,  0.00939954,  0),
+        v4(-0.00715472,  -0.0100469,    0.99987,     0),
+        v4(0, 0, 0, 1)
+    }};
+
+    float focal_length = 525.851;
+    float center_x = 326.299;
+    float center_y = 248.752;
+    const v4 p1 = v4(464.379425, 51.303638, 1.000000, 0.000000);
+    const v4 p2 = v4(432.259125, 85.563332, 1.000000, 0.000000);
+
+    const v4 T_gt = v4(-0.30957282,0.73110586,-0.60798758,0);
+    const m4 R_gt = {{
+        v4(0.99746948, -0.060900524, -0.03668436, 0),
+        v4(0.057197798, 0.99386221,  -0.09469077, 0),
+        v4(0.042225916, 0.092352889, 0.99483061, 0),
+        v4(0, 0, 0, 1)
+    }};
+    const m4 R2_gt = transpose(R_gt);
+    const v4 T2_gt = -transpose(R_gt)*T_gt;
+
+    m4 R, R2;
+    v4 T, T2;
+
+    // R and T are from p1 to p2
+    decompose_F(F, focal_length, center_x, center_y, p1, p2, R, T);
+
+    // Check the opposite direction
+    decompose_F(transpose(F), focal_length, center_x, center_y, p2, p1, R2, T2);
+
+    for(int i = 0; i < 4; i++)
+        EXPECT_FLOAT_EQ(T_gt[i], T[i]);
+
+    for(int r = 0; r < 4; r++)
+        for(int c = 0; c < 4; c++)
+            EXPECT_FLOAT_EQ(R_gt[r][c], R[r][c]);
+
+    for(int i = 0; i < 4; i++)
+        EXPECT_FLOAT_EQ(T2_gt[i], T2[i]);
+
+    for(int r = 0; r < 4; r++)
+        for(int c = 0; c < 4; c++)
+            EXPECT_FLOAT_EQ(R2_gt[r][c], R2[r][c]);
+
+}

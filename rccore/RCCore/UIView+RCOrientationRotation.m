@@ -87,7 +87,7 @@
             imageOrientation = UIImageOrientationUp;
             break;
         case UIDeviceOrientationLandscapeRight:
-            imageOrientation = UIImageOrientationUp;
+            imageOrientation = UIImageOrientationDown;
             break;
             
         default:

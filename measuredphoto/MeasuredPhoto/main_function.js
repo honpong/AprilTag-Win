@@ -267,54 +267,54 @@ function clear_all(){
 }
 
 function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric){
-    m_photo_guid = guid;
-    if (typeof use_metric === "undefined" || use_metric === null) { use_metric = true; } //metric is our default if not set
-    default_units_metric = use_metric; //set default if provided.
-    // only call initialization once.
-    try {
-        if (!is_rc_initialized) {
-            rc_initialize();
-        }
+    window.setTimeout( function () {
+        m_photo_guid = guid;
+        if (typeof use_metric === "undefined" || use_metric === null) { use_metric = true; } //metric is our default if not set
+        default_units_metric = use_metric; //set default if provided.
+        // only call initialization once.
+        try {
+            if (!is_rc_initialized) {
+                rc_initialize();
+            }
+            
+            //assume clear is called first if this is the second load
+
+            image = img_container.image(rc_img_url).loaded(function(loader) {
+                                                  console.log('loading image');
+                                                  //this should rotate the image
+                                                  //alert('loading img');
+                                                  //image_width = loader.height;
+                                                  //image_height = loader.width;
+                                                  //image.rotate(90, image_width/2, image_height/2).move(-(image_height-image_width)/2,(image_height-image_width)/2);
+                                                  
+                                                           
+                                                  image_width = loader.width;
+                                                  image_height = loader.height;
+
+                                                  draw_g.add(image);
+                                                  if ( ! draw.node.contains(menu_svg.node)) {draw.node.appendChild(menu_svg.node);}
+                                                  
+                                                  // load measurements
+                                                  rcMeasurements.load_json(rc_annotation_url, function() {
+                                                                                    //alert('loading spatial data');
+                                                                                    load_spatial_data(rc_data_url); //this function is defined in depth_data.js
+                                                                                    //size depthmap
+                                                                                    dm_size(image_width,image_height);}
+                                                                           );
+
+                                                           
+                                                  // Initial dexecution if needed
+                                                  //alert('do on orientation change');
+                                                  doOnOrientationChange();
+                                                  
+                                                  
+                                                  });
         
-        //assume clear is called first if this is the second load
-
-        image = img_container.image(rc_img_url).loaded(function(loader) {
-                                              console.log('loading image');
-                                              //this should rotate the image
-                                              //alert('loading img');
-                                              //image_width = loader.height;
-                                              //image_height = loader.width;
-                                              //image.rotate(90, image_width/2, image_height/2).move(-(image_height-image_width)/2,(image_height-image_width)/2);
-                                              
-                                                       
-                                              image_width = loader.width;
-                                              image_height = loader.height;
-
-                                              draw_g.add(image);
-                                              if ( ! draw.node.contains(menu_svg.node)) {draw.node.appendChild(menu_svg.node);}
-                                              
-                                              // load measurements
-                                              rcMeasurements.load_json(rc_annotation_url, function() {
-                                                                                //alert('loading spatial data');
-                                                                                load_spatial_data(rc_data_url); //this function is defined in depth_data.js
-                                                                                //size depthmap
-                                                                                dm_size(image_width,image_height);}
-                                                                       );
-
-                                                       
-                                              // Initial dexecution if needed
-                                              //alert('do on orientation change');
-                                              doOnOrientationChange();
-                                              
-                                              
-                                              });
-    
-        return 0;
-    }
-    catch(err) {
-        console.log(err.message);
-        return(err.message);
-    }
-    
-    
+            return 0;
+        }
+        catch(err) {
+            console.log(err.message);
+            return(err.message);
+        }
+    },0 );
 }

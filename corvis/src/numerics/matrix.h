@@ -160,6 +160,7 @@ void matrix_product(matrix &res, const matrix &A, const matrix &B, bool trans1 =
 bool matrix_svd(matrix &A, matrix &U, matrix &S, matrix &Vt);
 bool matrix_invert(matrix &m);
 void matrix_transpose(matrix &dst, const matrix &src);
+void matrix_negate(matrix & A);
 bool matrix_cholesky(matrix &A);
 f_t matrix_check_condition(matrix &A);
 bool matrix_is_symmetric(matrix &m);
@@ -168,6 +169,7 @@ bool matrix_solve_svd(matrix &A, matrix &B);
 bool matrix_solve_syt(matrix &A, matrix &B);
 bool matrix_solve_extra(matrix &A, matrix &B);
 bool matrix_solve_refine(matrix &A, matrix &B);
+f_t matrix_3x3_determinant(const matrix & A);
 
 bool test_posdef(const matrix &m);
 

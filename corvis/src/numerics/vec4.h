@@ -213,6 +213,8 @@ static inline m4 operator-(const m4 &a, const m4 &c) {
 
 extern m4 const m4_identity;
 
+static inline f_t norm(const m4 &m) { return sqrt(sum(m[0]*m[0] + m[1]*m[1] + m[2]*m[2] + m[3]*m[3])); }
+
 static inline m4 operator-(const m4 &m) {
     return (m4) { {
                 -m.data[0],

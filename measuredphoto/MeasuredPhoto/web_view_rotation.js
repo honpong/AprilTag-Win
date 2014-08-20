@@ -29,6 +29,8 @@ var target_rotation = 0;
 var current_rotation = 0;
 var target_orientation = 1;
 function forceOrientationChange(orientation) {
+    window.setTimeout( function () {
+    
     console.log ('forcing orientation change');
     if ( orientation === 1) { // portrait or portrait upsidedown (iOS takes care of this one, so its the same as 1)
         target_rotation = 0;
@@ -48,7 +50,7 @@ function forceOrientationChange(orientation) {
     
     last_orientation = orientation;
     
-    
+                      },0);
 }
 
 var rotation_animation_id, roation_frame_start, total_rotation_diff; //rotation animaiton variables

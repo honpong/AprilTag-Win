@@ -233,6 +233,7 @@ function rc_initialize(){
 
 
 function clear_all(){
+    window.setTimeout(function (){
     //try {
         //scale and roation handling
         initial_load = true;
@@ -264,6 +265,7 @@ function clear_all(){
     //catch(err){
     //    return(err.message);
    // }
+                      },0);
 }
 
 function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric){

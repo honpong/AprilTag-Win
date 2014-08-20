@@ -11,6 +11,8 @@
 #import <CoreMedia/CoreMedia.h>
 #import "RCOpenGLManagerFactory.h"
 
+static const NSTimeInterval animationDuration = .2;
+
 @implementation RCVideoPreview
 {
     float xDisp, yDisp, zDisp;
@@ -34,8 +36,14 @@
     bool fadeFromWhite;
     float fadeTime;
     NSDate *fadeStart;
+    float xScale;
+    float yScale;
+    UIDeviceOrientation animationOrientation;
+    void(^animationComplete)(BOOL finished);
     
     CMBufferQueueRef previewBufferQueue;
+    
+    BOOL didReceiveFirstFrame;
 }
 
 - (id) initWithCoder:(NSCoder *)aDecoder
@@ -60,11 +68,16 @@
 {
     OPENGL_MANAGER;
     
+    didReceiveFirstFrame = NO;
+    
     textureWidth = 640;
     textureHeight = 480;
     textureScale = 1.;
+    xScale = 1.;
+    yScale = 1.;
     fadeToWhite = false;
     fadeFromWhite = false;
+    animationComplete = nil;
     
     // Use 2x scale factor on Retina displays.
     self.contentScaleFactor = [[UIScreen mainScreen] scale];
@@ -81,11 +94,65 @@
     
     OSStatus err = CMBufferQueueCreate(kCFAllocatorDefault, 1, CMBufferQueueGetCallbacksForUnsortedSampleBuffers(), &previewBufferQueue);
     if (err) DLog(@"ERROR creating CMBufferQueue");
+    
+    crtClosedFrame = CGRectZero;
 }
 
 + (Class)layerClass
 {
     return [CAEAGLLayer class];
+}
+
+//- (void) layoutSubviews
+//{
+//    crtClosedFrame = CGRectMake(0, self.superview.frame.size.height / 2, self.superview.frame.size.width, 2.);
+//}
+
+- (void) animateOpen:(UIDeviceOrientation) orientation
+{
+    animationOrientation = orientation;
+    [self fadeToWhite:NO fromWhite:YES inSeconds:animationDuration];
+    // grow video from horizontal line to full screen
+//    [UIView animateWithDuration: animationDuration
+//                          delay: .1
+//                        options: UIViewAnimationOptionCurveEaseIn
+//                     animations:^{
+//                         self.frame = self.superview.frame;
+//                         [self fadeToWhite:NO fromWhite:YES inSeconds:animationDuration];
+//                     }
+//                     completion:^(BOOL finished){
+//                         
+//                     }];
+}
+
+- (void) animateClosed:(UIDeviceOrientation)orientation withCompletionBlock:(void(^)(BOOL finished))completion
+{
+    animationOrientation = orientation;
+    animationComplete = completion;
+    [self fadeToWhite:YES fromWhite:NO inSeconds:animationDuration * 1.5];
+    // shrink video into a horizontal line
+//    [UIView animateWithDuration: animationDuration
+//                          delay: 0
+//                        options: UIViewAnimationOptionCurveEaseOut
+//                     animations:^{
+//                         self.frame = crtClosedFrame;
+//                         [self fadeToWhite:YES fromWhite:NO inSeconds:animationDuration];
+//                     }
+//                     completion:^(BOOL finished){
+//                         
+//                         // line shrinks to dot in center
+//                         [UIView animateWithDuration: .1
+//                                               delay: 0
+//                                             options: UIViewAnimationOptionCurveEaseOut
+//                                          animations:^{
+//                                              self.frame = CGRectMake(self.superview.frame.size.width / 2, self.superview.frame.size.height / 2, 2., 2.);
+//                                          }
+//                                          completion:^(BOOL finished){
+//                                              completion(finished);
+//                                          }];
+//                     }];
+    
+    //completion(YES);
 }
 
 - (void) displaySampleBuffer:(CMSampleBufferRef)sampleBuffer
@@ -101,6 +168,12 @@
         
         dispatch_async(dispatch_get_main_queue(), ^{
             CMSampleBufferRef sbuf = (CMSampleBufferRef)CMBufferQueueDequeueAndRetain(previewBufferQueue);
+            if (!didReceiveFirstFrame)
+            {
+                fadeStart = [NSDate date];
+                didReceiveFirstFrame = YES;
+            }
+            
             if (sbuf) {
                 CVImageBufferRef pixBuf = CMSampleBufferGetImageBuffer(sbuf);
                 [weakSelf pixelBufferReadyForDisplay:pixBuf];
@@ -121,22 +194,66 @@
 	// Don't make OpenGLES calls while in the background.
 	if ( [UIApplication sharedApplication].applicationState != UIApplicationStateBackground )
     {
+        bool callCompletion = false;
         if([self beginFrame]) {
             if(fadeToWhite || fadeFromWhite)
             {
+                float horzScale = 1., vertScale = 1.;
                 float whiteness = 0.;
                 float elapsed = -[fadeStart timeIntervalSinceNow] / fadeTime;
+                if(elapsed > 1) elapsed = 1;
                 if(fadeToWhite && fadeFromWhite)
                     whiteness = elapsed < .5 ? elapsed * 2. : 2. - elapsed * 2.;
                 else if(fadeToWhite)
-                    whiteness = elapsed;
+                {
+                    if(elapsed < .5)
+                    {
+                        whiteness = elapsed * 2.;
+                        horzScale = 1.;
+                    }
+                    else
+                    {
+                        whiteness = 1.;
+                        horzScale = 2. - elapsed * 2.;
+                    }
+                }
                 else //fadeFromWhite
                     whiteness = 1. - elapsed;
+                vertScale = 1. - whiteness;
+                //if(vertScale == 0) vertScale = 1. / self.bounds.size.width;
                 glUniform1f(glGetUniformLocation([OPENGL_MANAGER yuvTextureProgram], "whiteness"), whiteness);
-                if(elapsed >= 1.) fadeToWhite = fadeFromWhite = false;
+                if(elapsed >= 1.)
+                {
+                    fadeToWhite = fadeFromWhite = false;
+                    callCompletion = true;
+                }
+                
+                switch([[UIDevice currentDevice] orientation])
+                {
+                    case UIInterfaceOrientationLandscapeLeft:
+                    case UIInterfaceOrientationLandscapeRight:
+                        xScale = horzScale;
+                        yScale = vertScale;
+                        break;
+                        
+                    case UIInterfaceOrientationPortrait:
+                    case UIInterfaceOrientationPortraitUpsideDown:
+                    default:
+                        xScale = vertScale;
+                        yScale = horzScale;
+                        break;
+                }
+                
+                if(xScale == 0.) xScale = 1. / self.bounds.size.width;
+                if(yScale == 0.) yScale = 1. / self.bounds.size.height;
             }
             [self displayPixelBuffer:pixelBuffer];
             [self endFrame];
+            if(callCompletion && animationComplete)
+            {
+                animationComplete(true);
+                animationComplete = nil;
+            }
         }
     }
 }
@@ -380,12 +497,12 @@
     glBindTexture(CVOpenGLESTextureGetTarget(chromaTexture), CVOpenGLESTextureGetName(chromaTexture));
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	
-    static const GLfloat squareVertices[] = {
-        -1.0f, -1.0f,
-        1.0f, -1.0f,
-        -1.0f,  1.0f,
-        1.0f,  1.0f,
+
+    GLfloat squareVertices[] = {
+        -xScale, -yScale,
+        xScale, -yScale,
+        -xScale,  yScale,
+        xScale,  yScale,
     };
     
 	// The texture vertices are set up such that we flip the texture vertically.

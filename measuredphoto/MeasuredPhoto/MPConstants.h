@@ -10,7 +10,8 @@
 #define TapeMeasure_Constants_h
 #endif
 
-#define DATA_MANAGER [TMDataManagerFactory getInstance]
+#define CONTEXT [NSManagedObjectContext MR_defaultContext]
+
 #define SESSION_MANAGER [RCAVSessionManager sharedInstance]
 #define SENSOR_FUSION [RCSensorFusion sharedInstance]
 #define VIDEO_MANAGER [RCVideoManager sharedInstance]
@@ -20,8 +21,10 @@
 #define HTTP_CLIENT [RCHTTPClient sharedInstance]
 #define SERVER_OPS [TMServerOpsFactory getInstance]
 #define OPENGL_MANAGER [RCOpenGLManagerFactory getInstance]
+#define STEREO [RCStereo sharedInstance]
 
-#define DOCUMENTS_DIRECTORY [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject]
+#define DOCUMENTS_DIRECTORY_URL [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject]
+#define CACHE_DIRECTORY_URL [[[NSFileManager defaultManager] URLsForDirectory:NSCachesDirectory inDomains:NSUserDomainMask] lastObject]
 
 #define PREF_UNITS @"units_preference"
 #define PREF_ADD_LOCATION @"addlocation_preference"
@@ -35,10 +38,11 @@
 
 #define API_VERSION 1
 #ifdef ARCHIVE
-#define API_BASE_URL @"https://app.realitycap.com/"
+#define API_HOST @"app.realitycap.com"
 #else
-#define API_BASE_URL @"https://internal.realitycap.com/"
+#define API_HOST @"internal.realitycap.com"
 #endif
+#define API_BASE_URL [NSString stringWithFormat:@"https://%@/", API_HOST]
 #define API_HEADER_ACCEPT @"application/vnd.realitycap.json; version=1.0"
 #define API_DATUM_LOGGED @"api/v1/datum_logged/"
 
@@ -47,9 +51,11 @@
 #ifdef DEBUG
 #define LOGME NSLog(@"%s", __PRETTY_FUNCTION__);
 #define DLog(fmt, ...) NSLog((@"%s " fmt), __PRETTY_FUNCTION__, ##__VA_ARGS__);
+#define DLogs(string) NSLog((@"%s %@"), __PRETTY_FUNCTION__, string);
 #else
 #define LOGME // do nothing
 #define DLog(fmt, ...) // do nothing
+#define DLogs(string) // do nothing
 #endif
 
 #define KEY_DATE_STARTED @"dateStarted"
@@ -75,3 +81,7 @@ typedef NS_ENUM(int, MPTutorialAnswer) {
     MPTutorialAnswerYes = 1
 };
 
+#define ERROR_DOMAIN @"com.realitycap.TrueMeasure.ErrorDomain"
+
+static NSString * const MPUIOrientationDidChangeNotification = @"com.realitycap.MPUIOrientationDidChangeNotification";
+static NSString * const MPCapturePhotoDidAppearNotification = @"com.realitycap.MPCapturePhotoDidAppearNotification";

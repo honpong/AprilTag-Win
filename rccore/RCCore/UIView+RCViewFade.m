@@ -12,15 +12,13 @@
 
 -(void)fadeOutWithDuration:(NSTimeInterval)duration andWait:(NSTimeInterval)wait
 {
-    [UIView beginAnimations: @"Fade Out" context:nil];
-    
-    // wait for time before begin
-    [UIView setAnimationDelay:wait];
-    
-    // duration of animation
-    [UIView setAnimationDuration:duration];
-    self.alpha = 0.0;
-    [UIView commitAnimations];
+    [UIView animateWithDuration: duration
+                          delay: wait
+                        options: UIViewAnimationOptionCurveEaseIn
+                     animations:^{
+                         self.alpha = 0;
+                     }
+                     completion:nil];
 }
 
 -(void)fadeInWithDuration:(NSTimeInterval)duration withAlpha:(float)alpha andWait:(NSTimeInterval)wait
@@ -28,15 +26,13 @@
     self.hidden = NO;
     self.alpha = 0;
     
-    [UIView beginAnimations: @"Fade In" context:nil];
-    
-    // wait for time before begin
-    [UIView setAnimationDelay:wait];
-    
-    // duration of animation
-    [UIView setAnimationDuration:duration];
-    self.alpha = alpha;
-    [UIView commitAnimations];
+    [UIView animateWithDuration: duration
+                          delay: wait
+                        options: UIViewAnimationOptionCurveEaseIn
+                     animations:^{
+                         self.alpha = alpha;
+                     }
+                     completion:nil];
 }
 
 -(void)fadeInWithDuration:(NSTimeInterval)duration andWait:(NSTimeInterval)wait

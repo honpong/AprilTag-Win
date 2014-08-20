@@ -25,6 +25,7 @@
 #import "MPToolbarView.h"
 #import "MPThumbnailButton.h"
 #import "MPShutterButton.h"
+#import "MPOrientationChangeData.h"
 #import "MPContainerView.h"
 
 extern NSString * const MPUIOrientationDidChangeNotification;
@@ -38,6 +39,7 @@ extern NSString * const MPUIOrientationDidChangeNotification;
 - (IBAction)handleThumbnail:(id)sender;
 - (IBAction)handleQuestionButton:(id)sender;
 - (IBAction)handleQuestionCloseButton:(id)sender;
+- (void) setOrientation:(UIDeviceOrientation)orientation animated:(BOOL)animated;
 
 @property (nonatomic) IBOutlet MPAugmentedRealityView *arView;
 @property (weak, nonatomic) IBOutlet MPShutterButton *shutterButton;

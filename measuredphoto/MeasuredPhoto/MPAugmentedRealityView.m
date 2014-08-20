@@ -9,6 +9,7 @@
 #import "MPAugmentedRealityView.h"
 #import "MPLoupe.h"
 #import <RCCore/RCCore.h>
+#import "MPCapturePhoto.h"
 
 @implementation MPAugmentedRealityView
 {    
@@ -75,6 +76,7 @@
 - (void) layoutSubviews
 {
     [videoView setVideoOrientation:AVCaptureVideoOrientationPortrait];
+//    videoView.frame = [videoView getCrtClosedFrame:[MPCapturePhoto getCurrentUIOrientation]];
     videoView.frame = self.frame;
     selectedFeaturesLayer.frame = self.frame;
     featuresLayer.frame = self.frame;
@@ -95,6 +97,19 @@
     initializingFeaturesLayer = [[RCFeaturesLayer alloc] initWithFeatureCount:FEATURE_COUNT andColor:[UIColor colorWithRed:200 green:0 blue:0 alpha:.5]];
     initializingFeaturesLayer.hidden = YES;
     [featuresView.layer insertSublayer:initializingFeaturesLayer below:selectedFeaturesLayer];
+}
+
+- (void) animateOpen
+{
+    [UIView animateWithDuration: .3
+                          delay: 0
+                        options: UIViewAnimationOptionCurveEaseIn
+                     animations:^{
+                         videoView.frame = self.frame;
+                     }
+                     completion:^(BOOL finished){
+                         
+                     }];
 }
 
 - (void) selectFeature:(RCFeaturePoint *)point

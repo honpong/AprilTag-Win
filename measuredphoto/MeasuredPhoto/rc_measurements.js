@@ -29,17 +29,46 @@ rcMeasurements.saveable_liniar_measurement = function (m) {
 }
 
 rcMeasurements.draw_measurement = function (m, measured_svg){
+
+    //we need to write distance onto screen
+    var d_string = rcMeasurements.format_dist(m);
+    m.text_shadow = measured_svg.text(d_string);
+    m.text_shadow.font({
+                       family: 'San Serif'
+                       , size: 25
+                       , anchor: 'middle'
+                       , leading: 1
+                       }).stroke({ color: shadow_color, opacity: 1, width: 5 });
     
-    m.pixel_distatnce = Math.sqrt( Math.pow((m.x1 - m.x2), 2) + Math.pow((m.y1 - m.y2), 2));
-    m.xdiffrt = (m.x1-m.x2) / m.pixel_distatnce;
-    m.ydiffrt = (m.y1-m.y2) / m.pixel_distatnce;
-    m.mid_x = m.x1 + (m.x2 - m.x1)/2;
+    m.text = measured_svg.text(d_string);
+    m.text.font({
+                family: 'San Serif'
+                , size: 25
+                , anchor: 'middle'
+                , leading: 1
+                }).fill({ color: line_color, opacity: 1});
+    // calculate how big of a gap we need for text, certain other layout paramaters
+    var hlf_text_w = m.text_shadow.node.offsetWidth/2;
+    var hlf_text_h = m.text_shadow.node.offsetHeight/2;
+    
+    m.pixel_distatnce = Math.sqrt( Math.pow((m.x1 - m.x2), 2) + Math.pow((m.y1 - m.y2), 2)); //how long the line is
+    m.xdiffrt = (m.x1-m.x2) / m.pixel_distatnce; //ratio of x length to line length
+    m.ydiffrt = (m.y1-m.y2) / m.pixel_distatnce; //ratio of y lenght to line length
+    m.mid_x = m.x1 + (m.x2 - m.x1)/2;   //midpoint of line
     m.mid_y = m.y1 + (m.y2 - m.y1)/2;
     
-    m.half_font_gap = 25;
+    console.log('hlf_text_w hlf_text_h  m.xdiffrt m.ydiffrt ' + hlf_text_w.toFixed() + ' ' + hlf_text_h.toFixed() + ' ' +  m.xdiffrt.toFixed(2) + ' ' +  m.ydiffrt.toFixed(2) );
+    
+    if (hlf_text_w/hlf_text_h < Math.abs(m.xdiffrt/m.ydiffrt)) { //line is more horizontal, text width dominates gap
+        m.half_font_gap = Math.sqrt(hlf_text_w*hlf_text_w + hlf_text_w*hlf_text_w*m.ydiffrt*m.ydiffrt/m.xdiffrt/m.xdiffrt)+5;
+    }
+    else { //line is more vertical, we want to use a smaller gap dependent on angle
+        m.half_font_gap = Math.sqrt(hlf_text_h*hlf_text_h + hlf_text_h*hlf_text_h*m.xdiffrt*m.xdiffrt/m.ydiffrt/m.ydiffrt );
+    }
+    
     m.font_offset = false;
     m.font_offset_x = 0;
-    m.font_offset_y = -5;
+    m.font_offset_y = - hlf_text_h;
     
     if (m.pixel_distatnce < m.half_font_gap * 2 + 10) {
         m.font_offset = true;
@@ -51,25 +80,13 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
 	//a measurement will not have this function when it is deserialized.
     m.saveable_copy = rcMeasurements.saveable_liniar_measurement(m)
     
-    //we need to write distance onto screen
-    var d_string = rcMeasurements.format_dist(m);
-    m.text_shadow = measured_svg.text(d_string).move(m.mid_x + m.font_offset_x, m.mid_y + m.font_offset_y);
-    m.text_shadow.font({
-                family: 'San Serif'
-                , size: 25
-                , anchor: 'middle'
-                , leading: 1
-                }).stroke({ color: shadow_color, opacity: 1, width: 5 });
 
-    m.text = measured_svg.text(d_string).move(m.mid_x + m.font_offset_x, m.mid_y + m.font_offset_y);
-    m.text.font({
-                family: 'San Serif'
-                , size: 25
-                , anchor: 'middle'
-                , leading: 1
-                }).fill({ color: line_color, opacity: 1});
+    //move text to correct location
+    m.text_shadow.move(m.mid_x + m.font_offset_x, m.mid_y + m.font_offset_y);
+    m.text.move(m.mid_x + m.font_offset_x, m.mid_y + m.font_offset_y);
+    //create hiden text box for entry on devices with keyboards
     m.text_input_box = measured_svg.foreignObject(m.half_font_gap * 2, m.half_font_gap * 2).move(m.mid_x - m.half_font_gap, m.mid_y - m.half_font_gap );
-    console.log('text width = ' + m.text.width().toFixed());
+
     
     var foo = m.text.lines.members[0];
     console.log( foo.width().toFixed() );
@@ -159,25 +176,42 @@ rcMeasurements.click_action = function (m) {
 }
 
 rcMeasurements.redraw_measurement = function (m) {
+
+    m.text_shadow.text(rcMeasurements.format_dist(m));
+    m.text.text(rcMeasurements.format_dist(m));
     
-    m.pixel_distatnce = Math.sqrt( Math.pow((m.x1 - m.x2), 2) + Math.pow((m.y1 - m.y2), 2));
-    m.xdiffrt = (m.x1-m.x2) / m.pixel_distatnce;
-    m.ydiffrt = (m.y1-m.y2) / m.pixel_distatnce;
-    m.mid_x = m.x1 + (m.x2 - m.x1)/2;
+    // calculate how big of a gap we need for text, certain other layout paramaters
+    var hlf_text_w = m.text_shadow.node.offsetWidth/2;
+    var hlf_text_h = m.text_shadow.node.offsetHeight/2;
+    
+    m.pixel_distatnce = Math.sqrt( Math.pow((m.x1 - m.x2), 2) + Math.pow((m.y1 - m.y2), 2)); //how long the line is
+    m.xdiffrt = (m.x1-m.x2) / m.pixel_distatnce; //ratio of x length to line length
+    m.ydiffrt = (m.y1-m.y2) / m.pixel_distatnce; //ratio of y lenght to line length
+    m.mid_x = m.x1 + (m.x2 - m.x1)/2;   //midpoint of line
     m.mid_y = m.y1 + (m.y2 - m.y1)/2;
     
-    m.half_font_gap = 25;
+    console.log('hlf_text_w hlf_text_h  m.xdiffrt m.ydiffrt ' + hlf_text_w.toFixed() + ' ' + hlf_text_h.toFixed() + ' ' +  m.xdiffrt.toFixed(2) + ' ' +  m.ydiffrt.toFixed(2) );
+    
+    if (hlf_text_w/hlf_text_h < Math.abs(m.xdiffrt/m.ydiffrt)) { //line is more horizontal, text width dominates gap
+        m.half_font_gap = Math.sqrt(hlf_text_w*hlf_text_w + hlf_text_w*hlf_text_w*m.ydiffrt*m.ydiffrt/m.xdiffrt/m.xdiffrt)+5;
+    }
+    else { //line is more vertical, we want to use a smaller gap dependent on angle
+        m.half_font_gap = Math.sqrt(hlf_text_h*hlf_text_h + hlf_text_h*hlf_text_h*m.xdiffrt*m.xdiffrt/m.ydiffrt/m.ydiffrt );
+    }
+    
     m.font_offset = false;
     m.font_offset_x = 0;
-    m.font_offset_y = -5;
+    m.font_offset_y = - hlf_text_h;
     
     if (m.pixel_distatnce < m.half_font_gap * 2 + 10) {
         m.font_offset = true;
         m.font_offset_x = -m.half_font_gap * m.ydiffrt;
         m.font_offset_y = m.half_font_gap * m.xdiffrt;
     }
-    m.text_shadow.text(rcMeasurements.format_dist(m)).x(m.mid_x + m.font_offset_x).dy(m.mid_y + - m.text.node.attributes.y.value + m.font_offset_y*2);
-    m.text.text(rcMeasurements.format_dist(m)).x(m.mid_x + m.font_offset_x).dy(m.mid_y + - m.text.node.attributes.y.value + m.font_offset_y*2); //hacky thing because move has a bug
+
+    m.text_shadow.x(m.mid_x + m.font_offset_x).dy(m.mid_y + - m.text.node.attributes.y.value + m.font_offset_y);
+    m.text.x(m.mid_x + m.font_offset_x).dy(m.mid_y + - m.text.node.attributes.y.value + m.font_offset_y); //hacky thing because move has a bug
+
     m.text_input_box.x(m.mid_x + m.font_offset_x).y(m.mid_y + m.font_offset_y*2); //do the same movement with the input box
     rcMeasurements.place_cursor(m);
 

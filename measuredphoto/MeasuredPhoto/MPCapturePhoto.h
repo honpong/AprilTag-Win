@@ -36,14 +36,14 @@ extern NSString * const MPUIOrientationDidChangeNotification;
 - (void)handlePause;
 - (void)handleResume;
 - (IBAction)handleShutterButton:(id)sender;
-- (IBAction)handleThumbnail:(id)sender;
+- (IBAction)handleGalleryButton:(id)sender;
 - (IBAction)handleQuestionButton:(id)sender;
 - (IBAction)handleQuestionCloseButton:(id)sender;
 - (void) setOrientation:(UIDeviceOrientation)orientation animated:(BOOL)animated;
 
 @property (nonatomic) IBOutlet MPAugmentedRealityView *arView;
 @property (weak, nonatomic) IBOutlet MPShutterButton *shutterButton;
-@property (weak, nonatomic) IBOutlet MPThumbnailButton *thumbnail;
+@property (weak, nonatomic) IBOutlet MPThumbnailButton *galleryButton;
 @property (weak, nonatomic) IBOutlet UILabel *messageLabel;
 @property (weak, nonatomic) IBOutlet MPToolbarView *toolbar;
 @property (weak, nonatomic) IBOutlet UILabel *questionLabel;

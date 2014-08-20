@@ -347,7 +347,7 @@
                                                     <action selector="handleShutterButton:" destination="2" eventType="touchUpInside" id="pEe-78-VNZ"/>
                                                 </connections>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZQs-EY-vVt" userLabel="Thumbnail" customClass="MPThumbnailButton">
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZQs-EY-vVt" userLabel="GalleryButton" customClass="MPThumbnailButton">
                                                 <rect key="frame" x="25" y="954" width="50" height="50"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="50" id="QZj-dN-Pim"/>
@@ -362,7 +362,7 @@
                                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                                 </state>
                                                 <connections>
-                                                    <action selector="handleThumbnail:" destination="2" eventType="touchUpInside" id="ZG7-me-d5N"/>
+                                                    <action selector="handleGalleryButton:" destination="2" eventType="touchUpInside" id="XbA-Z4-uuC"/>
                                                 </connections>
                                             </button>
                                         </subviews>
@@ -463,6 +463,7 @@
                     <connections>
                         <outlet property="arView" destination="FQA-yL-8tr" id="YPQ-Vr-9b8"/>
                         <outlet property="containerView" destination="fmz-nL-eyO" id="hat-gE-qXG"/>
+                        <outlet property="galleryButton" destination="ZQs-EY-vVt" id="5Gs-29-j32"/>
                         <outlet property="instructionsView" destination="YXD-29-RMl" id="J4C-tR-y2G"/>
                         <outlet property="messageLabel" destination="b7l-6F-Kqv" id="N6a-4R-ABB"/>
                         <outlet property="questionCloseButton" destination="Zij-1f-flx" id="BO4-YL-fro"/>
@@ -470,7 +471,6 @@
                         <outlet property="questionSegButton" destination="naR-3K-rHJ" id="065-BK-IuE"/>
                         <outlet property="questionView" destination="uow-Hl-Yjk" id="22x-7m-3iv"/>
                         <outlet property="shutterButton" destination="aqd-DL-0IF" id="OPg-RG-80p"/>
-                        <outlet property="thumbnail" destination="ZQs-EY-vVt" id="FxO-Wv-3C5"/>
                         <outlet property="toolbar" destination="9pE-pm-oS2" id="huq-SI-a7P"/>
                     </connections>
                 </viewController>

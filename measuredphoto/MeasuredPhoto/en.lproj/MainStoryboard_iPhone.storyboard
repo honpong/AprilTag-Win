@@ -583,7 +583,7 @@
                                             <action selector="handleShutterButton:" destination="2" eventType="touchUpInside" id="Fcg-9x-1of"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" alpha="0.64999999999999969" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Knw-H5-IDC" userLabel="Thumbnail" customClass="MPThumbnailButton">
+                                    <button opaque="NO" alpha="0.64999999999999969" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Knw-H5-IDC" userLabel="GalleryButton" customClass="MPThumbnailButton">
                                         <rect key="frame" x="250" y="19" width="50" height="50"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="50" id="Hbf-6l-nBN"/>
@@ -598,7 +598,7 @@
                                             <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         </state>
                                         <connections>
-                                            <action selector="handleThumbnail:" destination="2" eventType="touchUpInside" id="pSP-Ux-dTr"/>
+                                            <action selector="handleGalleryButton:" destination="2" eventType="touchUpInside" id="GAR-nO-LBm"/>
                                         </connections>
                                     </button>
                                 </subviews>
@@ -628,6 +628,7 @@
                     <connections>
                         <outlet property="arView" destination="PlL-07-yn5" id="UjT-FF-Y9E"/>
                         <outlet property="containerView" destination="IzM-3z-8rc" id="RFI-Oe-iU3"/>
+                        <outlet property="galleryButton" destination="Knw-H5-IDC" id="G0i-uL-MU7"/>
                         <outlet property="instructionsView" destination="FT6-Up-tfM" id="FiM-6n-Vvw"/>
                         <outlet property="messageLabel" destination="Q9N-TY-BVN" id="jCM-7D-ndQ"/>
                         <outlet property="questionCloseButton" destination="DFe-rq-hgZ" id="qpG-ka-NFa"/>
@@ -635,7 +636,6 @@
                         <outlet property="questionSegButton" destination="DqL-sS-tKW" id="phe-u9-d7s"/>
                         <outlet property="questionView" destination="o29-ya-cwL" id="ttw-tW-HCz"/>
                         <outlet property="shutterButton" destination="OhI-Mn-pZh" id="ROV-3a-nI2"/>
-                        <outlet property="thumbnail" destination="Knw-H5-IDC" id="stM-Y4-TiO"/>
                         <outlet property="toolbar" destination="HzP-oT-oHk" id="9Lp-iO-hSx"/>
                     </connections>
                 </viewController>

@@ -47,7 +47,7 @@ static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
     
     MPDMeasuredPhoto* measuredPhoto;
 }
-@synthesize toolbar, thumbnail, shutterButton, messageLabel, questionLabel, questionSegButton, questionView, arView, containerView, instructionsView;
+@synthesize toolbar, galleryButton, shutterButton, messageLabel, questionLabel, questionSegButton, questionView, arView, containerView, instructionsView;
 
 typedef NS_ENUM(int, AlertTag) {
     AlertTagTutorial = 0,
@@ -86,21 +86,22 @@ typedef struct
     bool autohide; // auto hide message
     bool showStillPhoto;
     bool stereo;
+    bool showGalleryButton;
     const char *title;
     const char *message;
 } statesetup;
 
 static statesetup setups[] =
 {
-    //                  button image               sensors fusion   shw-msmnts  badfeat  instrct ftrs    prgrs                     autohide stillPhoto  stereo  title           message
-    { ST_STARTUP,       BUTTON_SHUTTER_DISABLED,   false,  false,   false,      false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  "Startup",      "Loading" },
-    { ST_READY,         BUTTON_SHUTTER,            true,   false,   false,      false,   false,  false,  SpinnerTypeNone,          true,    false,      false,  "Ready",        "Point the camera at the scene you want to capture, then press the button." },
-    { ST_INITIALIZING,  BUTTON_SHUTTER_DISABLED,   true,   true,    false,      true,    false,  true,   SpinnerTypeDeterminate,   true,    false,      false,  "Initializing", "Hold still" },
-    { ST_MOVING,        BUTTON_DELETE,             true,   true,    false,      true,    true,   true,   SpinnerTypeNone,          false,   false,      true,   "Moving",       "Move up, down, or sideways. Press the button to cancel." },
-    { ST_CAPTURE,       BUTTON_SHUTTER,            true,   true,    false,      true,    true,   true,   SpinnerTypeNone,          false,   false,      true,   "Capture",      "Press the button to capture a photo." },
-    { ST_PROCESSING,    BUTTON_DELETE,             false,  false,   false,      false,   false,  false,  SpinnerTypeDeterminate,   true,    true,       false,  "Processing",   "Please wait" },
-    { ST_ERROR,         BUTTON_DELETE,             false,  false,   true,       false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  "Error",        "Whoops, something went wrong. Try again." },
-    { ST_FINISHED,      BUTTON_DELETE,             false,  false,   true,       false,   false,  false,  SpinnerTypeNone,          true,    true,       false,  "Finished",     "Tap anywhere to start a measurement, then tap again to finish it" }
+    //                  button image               sensors fusion   shw-msmnts  badfeat  instrct ftrs    prgrs                     autohide stillPhoto  stereo  showGalleryButton title           message
+    { ST_STARTUP,       BUTTON_SHUTTER_DISABLED,   false,  false,   false,      false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  true,             "Startup",      "Loading" },
+    { ST_READY,         BUTTON_SHUTTER,            true,   false,   false,      false,   false,  false,  SpinnerTypeNone,          true,    false,      false,  true,            "Ready",        "Point the camera at the scene you want to capture, then press the button." },
+    { ST_INITIALIZING,  BUTTON_SHUTTER_DISABLED,   true,   true,    false,      true,    false,  true,   SpinnerTypeDeterminate,   true,    false,      false,  true,            "Initializing", "Hold still" },
+    { ST_MOVING,        BUTTON_DELETE,             true,   true,    false,      true,    true,   true,   SpinnerTypeNone,          false,   false,      true,   false,            "Moving",       "Move up, down, or sideways. Press the button to cancel." },
+    { ST_CAPTURE,       BUTTON_SHUTTER,            true,   true,    false,      true,    true,   true,   SpinnerTypeNone,          false,   false,      true,   false,            "Capture",      "Press the button to capture a photo." },
+    { ST_PROCESSING,    BUTTON_SHUTTER_DISABLED,   false,  false,   false,      false,   false,  false,  SpinnerTypeDeterminate,   true,    true,       false,  false,            "Processing",   "Please wait" },
+    { ST_ERROR,         BUTTON_DELETE,             false,  false,   true,       false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  true,             "Error",        "Whoops, something went wrong. Try again." },
+    { ST_FINISHED,      BUTTON_DELETE,             false,  false,   true,       false,   false,  false,  SpinnerTypeNone,          true,    true,       false,  true,             "Finished",     "Tap anywhere to start a measurement, then tap again to finish it" }
 };
 
 static transition transitions[] =
@@ -205,6 +206,11 @@ static transition transitions[] =
     
     [self switchButtonImage:newSetup.buttonImage];
     
+    if (!oldSetup.showGalleryButton && newSetup.showGalleryButton)
+        self.galleryButton.enabled = YES;
+    if (oldSetup.showGalleryButton && !newSetup.showGalleryButton)
+        self.galleryButton.enabled = NO;
+    
     lastTransitionTime = CACurrentMediaTime();
     currentState = newState;
 }
@@ -263,9 +269,6 @@ static transition transitions[] =
 - (void)viewDidUnload
 {
 	LOGME
-    [self setArView:nil];
-    [self setShutterButton:nil];
-    [self setThumbnail:nil];
 	[super viewDidUnload];
 }
 
@@ -392,7 +395,7 @@ static transition transitions[] =
     [self handleStateEvent:EV_SHUTTER_TAP];
 }
 
-- (IBAction)handleThumbnail:(id)sender
+- (IBAction)handleGalleryButton:(id)sender
 {
     [self gotoGallery];
 }

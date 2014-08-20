@@ -29,6 +29,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     MPFadeTransitionDelegate* fadeTransitionDelegate;
     UIView* shrinkToView;
     MPUndoOverlay* undoView;
+    MPDMeasuredPhoto* photoToBeDeleted;
 }
 
 - (void) dealloc
@@ -57,6 +58,8 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     undoView = [[MPUndoOverlay alloc] initWithMessage:@"Photo deleted"];
     undoView.delegate = self;
     [self.view addSubview: undoView];
+    
+    photoToBeDeleted = nil;
 }
 
 - (void) viewDidAppear:(BOOL)animated
@@ -64,6 +67,10 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     if (self.editPhotoController.measuredPhoto.is_deleted)
     {
         [self handlePhotoDeleted];
+    }
+    else if (self.editPhotoController.measuredPhoto && ![measuredPhotos containsObject:self.editPhotoController.measuredPhoto])
+    {
+        [self handlePhotoAdded];
     }
     else
     {
@@ -80,6 +87,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     self.collectionView.alpha = 1.;
     self.navBar.alpha = 1.;
     [undoView hide];
+    [self handleUndoPeriodExpired]; // make sure any pending deletes happen right away
 }
 
 - (NSUInteger) supportedInterfaceOrientations
@@ -139,11 +147,13 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 
 - (void) handlePhotoDeleted
 {
+    photoToBeDeleted = self.editPhotoController.measuredPhoto;
+    
     [self.transitionFromView removeFromSuperview];
     
     NSIndexPath* indexPath = self.editPhotoController.indexPath;
     
-    if (indexPath)
+    if (indexPath) // if indexPath is nil, then the deleted photo was not opened from the gallery view
     {
         NSInteger itemIndex = indexPath.item;
         [measuredPhotos removeObjectAtIndex:itemIndex];
@@ -154,34 +164,63 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     [undoView showWithDuration:6.];
 }
 
+- (void) handlePhotoAdded
+{
+    int photosAdded = [self refreshCollectionData];
+    NSMutableArray* indexPaths = [[NSMutableArray alloc] initWithCapacity:photosAdded];
+    for (int i = 0; i < photosAdded; i++)
+    {
+        NSIndexPath* indexPath = [NSIndexPath indexPathForItem:i inSection:0];
+        [indexPaths addObject:indexPath];
+    }
+   [self.collectionView insertItemsAtIndexPaths:indexPaths];
+}
+
 #pragma mark - MPUndoOverlayDelegate
 
 - (void) handleUndoButton
 {
-    self.editPhotoController.measuredPhoto.is_deleted = NO;
-    [self refreshCollection];
+    NSIndexPath* indexPath;
+    
+    photoToBeDeleted.is_deleted = NO;
+    [self refreshCollectionData];
+    
+    if (self.editPhotoController.indexPath)
+    {
+        indexPath = self.editPhotoController.indexPath;
+    }
+    else
+    {
+        indexPath = [NSIndexPath indexPathForItem:0 inSection:0];
+    }
+    
+    [self.collectionView insertItemsAtIndexPaths:[NSArray arrayWithObject:indexPath]];
+    photoToBeDeleted = nil;
 }
 
 - (void) handleUndoPeriodExpired
 {
-    [CONTEXT MR_saveToPersistentStoreWithCompletion:^(BOOL success, NSError *error) {
-        if (success)
-        {
-            DLog(@"Deleted %@", self.editPhotoController.measuredPhoto.id_guid);
-            
-            if (![self.editPhotoController.measuredPhoto deleteAssociatedFiles])
+    if (photoToBeDeleted)
+    {
+        [CONTEXT MR_saveToPersistentStoreWithCompletion:^(BOOL success, NSError *error) {
+            if (success)
             {
-                DLogs(@"Failed to delete files");
-                //TODO: log error to analytics
+                DLog(@"Deleted %@", photoToBeDeleted.id_guid);
+                
+                if (![photoToBeDeleted deleteAssociatedFiles])
+                {
+                    DLogs(@"Failed to delete files");
+                    //TODO: log error to analytics
+                }
+            }
+            else if (error)
+            {
+                DLog(@"Error saving context: %@", error);
             }
             
-            self.editPhotoController.measuredPhoto = nil;
-        }
-        else if (error)
-        {
-            DLog(@"Error saving context: %@", error.description);
-        }
-    }];
+            photoToBeDeleted = nil;
+        }];
+    }
 }
 
 #pragma mark - Animations
@@ -266,10 +305,12 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     return cell;
 }
 
-- (void) refreshCollectionData
+- (int) refreshCollectionData
 {
+    int previousCount = measuredPhotos.count;
     NSPredicate* predicate = [NSPredicate predicateWithFormat:@"is_deleted == NO"];
     measuredPhotos = [[MPDMeasuredPhoto MR_findAllSortedBy:@"created_at" ascending:NO withPredicate:predicate] mutableCopy];
+    return measuredPhotos.count - previousCount;
 }
 
 - (void) refreshCollection

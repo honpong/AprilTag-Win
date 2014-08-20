@@ -268,6 +268,10 @@ function clear_all(){
                       },0);
 }
 
+function setDefaultUnits(use_metric) {
+    window.setTimeout (function () {default_units_metric = use_metric;} , 0);
+}
+
 function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric){
     window.setTimeout( function () {
         m_photo_guid = guid;

@@ -58,4 +58,5 @@ var menu_svg;
 //unit display
 var default_units_metric = true; // false for imperial
 var unit_display_fractional = true;
+var unit_default_set_by_app = false;
 

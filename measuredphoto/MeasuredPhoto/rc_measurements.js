@@ -23,6 +23,11 @@ rcMeasurements.new_measurement = function (iX1, iY1, iX2, iY2, measured_svg){
     
 }
 
+rcMeasurements.saveable_liniar_measurement = function (m) {
+    //we only want a subset of the measurements content, so we create a temp object we write the content we want to keep into
+    return { distance:m.distance, overwriten:m.overwriten, x1:m.x1, y1:m.y1, x2:m.x2, y2:m.y2, guid:m.guid, units_metric:m.units_metric}
+}
+
 rcMeasurements.draw_measurement = function (m, measured_svg){
     
     m.pixel_distatnce = Math.sqrt( Math.pow((m.x1 - m.x2), 2) + Math.pow((m.y1 - m.y2), 2));
@@ -44,10 +49,7 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
     
     //This allows a measurement to be saved. it is necessary to call this as part of draw, because
 	//a measurement will not have this function when it is deserialized.
-    m.saveable_copy = function() {
-        //we only want a subset of the measurements content, so we create a temp object we write the content we want to keep into
-        return { distance:m.distance, overwriten:m.overwriten, x1:m.x1, y1:m.y1, x2:m.x2, y2:m.y2, guid:m.guid, units_metric:m.units_metric}
-    }
+    m.saveable_copy = rcMeasurements.saveable_liniar_measurement(m)
     
     //we need to write distance onto screen
     var d_string = rcMeasurements.format_dist(m);
@@ -140,10 +142,10 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
                                   i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY);
                                   rcMeasurements.move_measurement(m, i.x, i.y, m.x2, m.y2);
                                   e.stopPropagation(); e.preventDefault();
-                              }).on("dragend", function(e) {rcMeasurements.deselect_measurement(m);e.stopPropagation(); e.preventDefault();});
-    Hammer(m.circle2.node).on("drag",  function(e) { i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY); rcMeasurements.move_measurement(m, m.x1, m.y1, i.x, i.y); e.stopPropagation(); e.preventDefault();}).on("dragend", function(e) {rcMeasurements.deselect_measurement(m);e.stopPropagation(); e.preventDefault();});
-    Hammer(m.selector_circle1.node).on("drag",  function(e) {i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY); rcMeasurements.move_measurement(m, i.x, i.y, m.x2, m.y2); e.stopPropagation(); e.preventDefault(); }).on("dragend", function(e) {rcMeasurements.deselect_measurement(m);e.stopPropagation(); e.preventDefault();});
-    Hammer(m.selector_circle2.node).on("drag", function(e) {i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY); rcMeasurements.move_measurement(m, m.x1, m.y1, i.x, i.y); e.stopPropagation(); e.preventDefault(); }).on("dragend", function(e) {rcMeasurements.deselect_measurement(m);e.stopPropagation(); e.preventDefault();});
+                              }).on("dragend", function(e) {rcMeasurements.deselect_measurement(m); rcMeasurements.save_measurements(); e.stopPropagation(); e.preventDefault();});
+    Hammer(m.circle2.node).on("drag",  function(e) { i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY); rcMeasurements.move_measurement(m, m.x1, m.y1, i.x, i.y); e.stopPropagation(); e.preventDefault();}).on("dragend", function(e) {rcMeasurements.deselect_measurement(m); rcMeasurements.save_measurements();e.stopPropagation(); e.preventDefault();});
+    Hammer(m.selector_circle1.node).on("drag",  function(e) {i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY); rcMeasurements.move_measurement(m, i.x, i.y, m.x2, m.y2); e.stopPropagation(); e.preventDefault(); }).on("dragend", function(e) {rcMeasurements.deselect_measurement(m); rcMeasurements.save_measurements();e.stopPropagation(); e.preventDefault();});
+    Hammer(m.selector_circle2.node).on("drag", function(e) {i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY); rcMeasurements.move_measurement(m, m.x1, m.y1, i.x, i.y); e.stopPropagation(); e.preventDefault(); }).on("dragend", function(e) {rcMeasurements.deselect_measurement(m); rcMeasurements.save_measurements();e.stopPropagation(); e.preventDefault();});
     
     rcMeasurements.measurements[m.guid] = m;
 
@@ -179,10 +181,12 @@ rcMeasurements.redraw_measurement = function (m) {
     m.text_input_box.x(m.mid_x + m.font_offset_x).y(m.mid_y + m.font_offset_y*2); //do the same movement with the input box
     rcMeasurements.place_cursor(m);
 
-    m.circle1.move(m.x1-3,m.y1-3)
-    m.circle2.move(m.x2-3,m.y2-3)
-    m.selector_circle1.move(m.x1-15,m.y1-15)
-    m.selector_circle2.move(m.x2-15,m.y2-15)
+    m.saveable_copy = rcMeasurements.saveable_liniar_measurement(m); // need to change how this measurement is saved
+    
+    m.circle1.move(m.x1-3,m.y1-3);
+    m.circle2.move(m.x2-3,m.y2-3);
+    m.selector_circle1.move(m.x1-15,m.y1-15);
+    m.selector_circle2.move(m.x2-15,m.y2-15);
     
     if (m.font_offset){
         m.shadow_line1.plot(m.x1 - 3 * m.xdiffrt, m.y1 - 3 * m.ydiffrt, m.x2 + 3 * m.xdiffrt, m.y2 + 3 * m.ydiffrt);
@@ -213,8 +217,10 @@ rcMeasurements.redraw_all_measurements = function (){
 
 rcMeasurements.to_json = function () {
     var measurements_to_save = {};
+    // if the app has set (or reset) the default units then save the default units.
+    if (unit_default_set_by_app) { measurements_to_save['use_metric'] = default_units_metric; }
     for (var key in rcMeasurements.measurements) {
-        measurements_to_save[key] = rcMeasurements.measurements[key].saveable_copy();
+        measurements_to_save[key] = rcMeasurements.measurements[key].saveable_copy;
     }
     return JSON.stringify(measurements_to_save);
 }
@@ -258,6 +264,12 @@ rcMeasurements.load_json  = function (m_url, callback_function) {
     setTimeout(function(){
         $.ajaxSetup({ cache: false });
         $.getJSON(m_url, function(data) {
+            //use then strip out metadata
+            if ('use_metric' in data) {
+                //we only overwrite the default units with the stored defualt units if the app hasn't told us what units to use
+                if (! unit_default_set_by_app) {default_units_metric = data['use_metric'];}
+                delete myArray['use_metric'];
+            }
             rcMeasurements.measurements = data;
             //for each measurement, draw measurement
             for (var key in rcMeasurements.measurements) {
@@ -483,6 +495,7 @@ rcMeasurements.finish_number_operation = function (){
     else  {
         rcMeasurements.measurement_being_edited.distance = parsed_distance;
         rcMeasurements.setText( rcMeasurements.measurement_being_edited, rcMeasurements.format_dist(rcMeasurements.measurement_being_edited));
+        rcMeasurements.measurement_being_edited.saveable_copy = rcMeasurements.saveable_liniar_measurement(rcMeasurements.measurement_being_edited);
         rcMeasurements.end_measurement_edit();
     }
 }

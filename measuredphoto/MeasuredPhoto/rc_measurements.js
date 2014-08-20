@@ -1,7 +1,7 @@
 //Copywrite (c) 2014 by RealityCap, Inc. Written by Jordan Miller for the exclusive use of RealityCap, Inc.
 
 rcMeasurements = {
-    measurements : {}, measurement_being_edited : null, inches_to_meter : 39.3701
+    measurements : {}, measurement_being_edited : null, inches_to_meter : 39.3701, cursor_animation_id : null
 }
 
 // instantiate a measurement and add it to the measurment list
@@ -25,25 +25,21 @@ rcMeasurements.new_measurement = function (iX1, iY1, iX2, iY2, measured_svg){
 
 rcMeasurements.draw_measurement = function (m, measured_svg){
     
-    var x1 = m.x1, y1 = m.y1;
-    var x2 = m.x2, y2 = m.y2;
+    m.pixel_distatnce = Math.sqrt( Math.pow((m.x1 - m.x2), 2) + Math.pow((m.y1 - m.y2), 2));
+    m.xdiffrt = (m.x1-m.x2) / m.pixel_distatnce;
+    m.ydiffrt = (m.y1-m.y2) / m.pixel_distatnce;
+    m.mid_x = m.x1 + (m.x2 - m.x1)/2;
+    m.mid_y = m.y1 + (m.y2 - m.y1)/2;
     
+    m.half_font_gap = 25;
+    m.font_offset = false;
+    m.font_offset_x = 0;
+    m.font_offset_y = -5;
     
-    var pixel_distatnce = Math.sqrt( Math.pow((x1 - x2), 2) + Math.pow((y1 - y2), 2));
-    var xdiffrt = (x1-x2) / pixel_distatnce;
-    var ydiffrt = (y1-y2) / pixel_distatnce;
-    var mid_x = x1 + (x2 - x1)/2;
-    var mid_y = y1 + (y2 - y1)/2;
-    
-    var half_font_gap = 25;
-    var font_offset = false;
-    var font_offset_x = 0;
-    var font_offset_y = -5;
-    
-    if (pixel_distatnce < half_font_gap * 2 + 10) {
-        font_offset = true;
-        font_offset_x = -half_font_gap * ydiffrt;
-        font_offset_y = half_font_gap * xdiffrt;
+    if (m.pixel_distatnce < m.half_font_gap * 2 + 10) {
+        m.font_offset = true;
+        m.font_offset_x = -m.half_font_gap * m.ydiffrt;
+        m.font_offset_y = m.half_font_gap * m.xdiffrt;
     }
     
     //This allows a measurement to be saved. it is necessary to call this as part of draw, because
@@ -55,14 +51,38 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
     
     //we need to write distance onto screen
     var d_string = rcMeasurements.format_dist(m);
-    m.text = measured_svg.text(d_string).move(mid_x + font_offset_x, mid_y + font_offset_y);
-    m.text.font({
-                family: 'Source Sans Pro'
-                , size: 18
+    m.text_shadow = measured_svg.text(d_string).move(m.mid_x + m.font_offset_x, m.mid_y + m.font_offset_y);
+    m.text_shadow.font({
+                family: 'San Serif'
+                , size: 25
                 , anchor: 'middle'
                 , leading: 1
-                }).fill(line_color).stroke({ color: shadow_color, opacity: .5, width: 1 });
-    m.text_input_box = measured_svg.foreignObject(half_font_gap * 2, half_font_gap * 2).move(mid_x - half_font_gap, mid_y - half_font_gap );
+                }).stroke({ color: shadow_color, opacity: 1, width: 5 });
+
+    m.text = measured_svg.text(d_string).move(m.mid_x + m.font_offset_x, m.mid_y + m.font_offset_y);
+    m.text.font({
+                family: 'San Serif'
+                , size: 25
+                , anchor: 'middle'
+                , leading: 1
+                }).fill({ color: line_color, opacity: 1});
+    m.text_input_box = measured_svg.foreignObject(m.half_font_gap * 2, m.half_font_gap * 2).move(m.mid_x - m.half_font_gap, m.mid_y - m.half_font_gap );
+    console.log('text width = ' + m.text.width().toFixed());
+    
+    var foo = m.text.lines.members[0];
+    console.log( foo.width().toFixed() );
+    
+    //text box cursor approach //m.text_cursor = measured_svg.plain("").move(m.mid_x + m.font_offset_x, m.mid_y + m.font_offset_y);
+    m.text_cursor = measured_svg.line(0,0,0,24);
+    rcMeasurements.place_cursor(m);
+    m.text_cursor.stroke({ color: shadow_color, opacity: 0, width: 2 });
+    //m.text_cursor.font({
+    //            family: 'Courier'
+    //            , size: 18
+    //            , anchor: 'middle'
+    //            , leading: 1
+    //            }).fill({'color':highlight_color, 'opacity':0});
+
     var input = document.createElement("input");
     input.name = "distance-" + m.guid
     input.value = m.distance;
@@ -70,34 +90,34 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
     measured_svg.node.removeChild(m.text_input_box.node); //hide the input box after adding it
     
     
-    if (font_offset){
-        m.shadow_line1 = measured_svg.line(x1 - 3 * xdiffrt, y1 - 3 * ydiffrt, x2 + 3 * xdiffrt, y2 + 3 * ydiffrt);
-        m.shadow_line2 = measured_svg.line(x1 - 3 * xdiffrt, y1 - 3 * ydiffrt, x2 + 3 * xdiffrt, y2 + 3 * ydiffrt);
+    if (m.font_offset){
+        m.shadow_line1 = measured_svg.line(m.x1 - 3 * m.xdiffrt, m.y1 - 3 * m.ydiffrt, m.x2 + 3 * m.xdiffrt, m.y2 + 3 * m.ydiffrt);
+        m.shadow_line2 = measured_svg.line(m.x1 - 3 * m.xdiffrt, m.y1 - 3 * m.ydiffrt, m.x2 + 3 * m.xdiffrt, m.y2 + 3 * m.ydiffrt);
     }
     else {
-        m.shadow_line1 = measured_svg.line(x1 - 3 * xdiffrt, y1 - 3 * ydiffrt, mid_x + half_font_gap * xdiffrt, mid_y + half_font_gap * ydiffrt);
-        m.shadow_line2 = measured_svg.line(mid_x - half_font_gap * xdiffrt, mid_y - half_font_gap * ydiffrt, x2 + 3 * xdiffrt, y2 + 3 * ydiffrt);
+        m.shadow_line1 = measured_svg.line(m.x1 - 3 * m.xdiffrt, m.y1 - 3 * m.ydiffrt, m.mid_x + m.half_font_gap * m.xdiffrt, m.mid_y + m.half_font_gap * m.ydiffrt);
+        m.shadow_line2 = measured_svg.line(m.mid_x - m.half_font_gap * m.xdiffrt, m.mid_y - m.half_font_gap * m.ydiffrt, m.x2 + 3 * m.xdiffrt, m.y2 + 3 * m.ydiffrt);
     }
-    m.shadow_line1.stroke({ color: shadow_color, opacity: 1, width: 4 });
-    m.shadow_line2.stroke({ color: shadow_color, opacity: 1, width: 4 });
+    m.shadow_line1.stroke({ color: shadow_color, opacity: .7, width: 4 });
+    m.shadow_line2.stroke({ color: shadow_color, opacity: .7, width: 4 });
     
-    m.circle1 = measured_svg.circle(6).move(x1-3,y1-3).stroke({ color: shadow_color, width : 1.5 }).fill({ color: line_color , opacity:1});
-    m.circle2 = measured_svg.circle(6).move(x2-3,y2-3).stroke({ color: shadow_color, width : 1.5 }).fill({ color: line_color , opacity:1 });
+    m.circle1 = measured_svg.circle(6).move(m.x1-3,m.y1-3).stroke({ color: shadow_color, width : 1.5 }).fill({ color: line_color , opacity:1});
+    m.circle2 = measured_svg.circle(6).move(m.x2-3,m.y2-3).stroke({ color: shadow_color, width : 1.5 }).fill({ color: line_color , opacity:1 });
     
-    if (font_offset){
-        m.line1 = measured_svg.line(x1 - 1 * xdiffrt, y1 - 1 * ydiffrt, x2 + 1 * xdiffrt, y2 + 1 * ydiffrt)
-        m.line2 = measured_svg.line(x1 - 1 * xdiffrt, y1 - 1 * ydiffrt, x2 + 1 * xdiffrt, y2 + 1 * ydiffrt)
+    if (m.font_offset){
+        m.line1 = measured_svg.line(m.x1 - 1 * m.xdiffrt, m.y1 - 1 * m.ydiffrt, m.x2 + 1 * m.xdiffrt, m.y2 + 1 * m.ydiffrt)
+        m.line2 = measured_svg.line(m.x1 - 1 * m.xdiffrt, m.y1 - 1 * m.ydiffrt, m.x2 + 1 * m.xdiffrt, m.y2 + 1 * m.ydiffrt)
     }
     else {
-        m.line1 = measured_svg.line(x1 - 1 * xdiffrt, y1 - 1 * ydiffrt,  mid_x + (half_font_gap + 1) * xdiffrt, mid_y + (half_font_gap + 1) * ydiffrt)
-        m.line2 = measured_svg.line(mid_x - (half_font_gap + 1) * xdiffrt, mid_y - (half_font_gap + 1) * ydiffrt, x2 + 1 * xdiffrt, y2 + 1 * ydiffrt)
+        m.line1 = measured_svg.line(m.x1 - 1 * m.xdiffrt, m.y1 - 1 * m.ydiffrt,  m.mid_x + (m.half_font_gap + 1) * m.xdiffrt, m.mid_y + (m.half_font_gap + 1) * m.ydiffrt)
+        m.line2 = measured_svg.line(m.mid_x - (m.half_font_gap + 1) * m.xdiffrt, m.mid_y - (m.half_font_gap + 1) * m.ydiffrt, m.x2 + 1 * m.xdiffrt, m.y2 + 1 * m.ydiffrt)
     }
     
-    m.line1.stroke({ color: line_color, width: 1 }).fill({ color: line_color });
-    m.line2.stroke({ color: line_color, width: 1 }).fill({ color: line_color });
+    m.line1.stroke({ color: line_color, width: 2 }).fill({ color: line_color });
+    m.line2.stroke({ color: line_color, width: 2 }).fill({ color: line_color });
     
-    m.selector_circle1 = measured_svg.circle(30).move(x1-15,y1-15).fill({opacity:0});
-    m.selector_circle2 = measured_svg.circle(30).move(x2-15,y2-15).fill({opacity:0});
+    m.selector_circle1 = measured_svg.circle(30).move(m.x1-15,m.y1-15).fill({opacity:0});
+    m.selector_circle2 = measured_svg.circle(30).move(m.x2-15,m.y2-15).fill({opacity:0});
     
     //acctions for what happens on clicks
     m.shadow_line1.click (function (e) { rcMeasurements.click_action(m); e.stopPropagation(); e.preventDefault(); })
@@ -137,48 +157,49 @@ rcMeasurements.click_action = function (m) {
 }
 
 rcMeasurements.redraw_measurement = function (m) {
-    var x1 = m.x1, y1 = m.y1;
-    var x2 = m.x2, y2 = m.y2;
     
-    var pixel_distatnce = Math.sqrt( Math.pow((x1 - x2), 2) + Math.pow((y1 - y2), 2));
-    var xdiffrt = (x1-x2) / pixel_distatnce;
-    var ydiffrt = (y1-y2) / pixel_distatnce;
-    var mid_x = x1 + (x2 - x1)/2;
-    var mid_y = y1 + (y2 - y1)/2;
+    m.pixel_distatnce = Math.sqrt( Math.pow((m.x1 - m.x2), 2) + Math.pow((m.y1 - m.y2), 2));
+    m.xdiffrt = (m.x1-m.x2) / m.pixel_distatnce;
+    m.ydiffrt = (m.y1-m.y2) / m.pixel_distatnce;
+    m.mid_x = m.x1 + (m.x2 - m.x1)/2;
+    m.mid_y = m.y1 + (m.y2 - m.y1)/2;
     
-    var half_font_gap = 25;
-    var font_offset = false;
-    var font_offset_x = 0;
-    var font_offset_y = -5;
+    m.half_font_gap = 25;
+    m.font_offset = false;
+    m.font_offset_x = 0;
+    m.font_offset_y = -5;
     
-    if (pixel_distatnce < half_font_gap * 2 + 10) {
-        font_offset = true;
-        font_offset_x = -half_font_gap * ydiffrt;
-        font_offset_y = half_font_gap * xdiffrt;
+    if (m.pixel_distatnce < m.half_font_gap * 2 + 10) {
+        m.font_offset = true;
+        m.font_offset_x = -m.half_font_gap * m.ydiffrt;
+        m.font_offset_y = m.half_font_gap * m.xdiffrt;
     }
-    m.text.text(rcMeasurements.format_dist(m)).x(mid_x + font_offset_x).dy(mid_y + - m.text.node.attributes.y.value + font_offset_y*2); //hacky thing because move has a bug
-    m.text_input_box.x(mid_x + font_offset_x).y(mid_y + font_offset_y*2); //do the same movement with the input box
-    m.circle1.move(x1-3,y1-3)
-    m.circle2.move(x2-3,y2-3)
-    m.selector_circle1.move(x1-15,y1-15)
-    m.selector_circle2.move(x2-15,y2-15)
+    m.text_shadow.text(rcMeasurements.format_dist(m)).x(m.mid_x + m.font_offset_x).dy(m.mid_y + - m.text.node.attributes.y.value + m.font_offset_y*2);
+    m.text.text(rcMeasurements.format_dist(m)).x(m.mid_x + m.font_offset_x).dy(m.mid_y + - m.text.node.attributes.y.value + m.font_offset_y*2); //hacky thing because move has a bug
+    m.text_input_box.x(m.mid_x + m.font_offset_x).y(m.mid_y + m.font_offset_y*2); //do the same movement with the input box
+    rcMeasurements.place_cursor(m);
+
+    m.circle1.move(m.x1-3,m.y1-3)
+    m.circle2.move(m.x2-3,m.y2-3)
+    m.selector_circle1.move(m.x1-15,m.y1-15)
+    m.selector_circle2.move(m.x2-15,m.y2-15)
     
-    if (font_offset){
-        m.shadow_line1.plot(x1 - 3 * xdiffrt, y1 - 3 * ydiffrt, x2 + 3 * xdiffrt, y2 + 3 * ydiffrt);
-        m.shadow_line2.plot(x1 - 3 * xdiffrt, y1 - 3 * ydiffrt, x2 + 3 * xdiffrt, y2 + 3 * ydiffrt);
-    }
-    else {
-        m.shadow_line1.plot(x1 - 3 * xdiffrt, y1 - 3 * ydiffrt, mid_x + half_font_gap * xdiffrt, mid_y + half_font_gap * ydiffrt);
-        m.shadow_line2.plot(mid_x - half_font_gap * xdiffrt, mid_y - half_font_gap * ydiffrt, x2 + 3 * xdiffrt, y2 + 3 * ydiffrt);
-    }
-    
-    if (font_offset){
-        m.line1.plot(x1 - 1 * xdiffrt, y1 - 1 * ydiffrt, x2 + 1 * xdiffrt, y2 + 1 * ydiffrt)
-        m.line2.plot(x1 - 1 * xdiffrt, y1 - 1 * ydiffrt, x2 + 1 * xdiffrt, y2 + 1 * ydiffrt)
+    if (m.font_offset){
+        m.shadow_line1.plot(m.x1 - 3 * m.xdiffrt, m.y1 - 3 * m.ydiffrt, m.x2 + 3 * m.xdiffrt, m.y2 + 3 * m.ydiffrt);
+        m.shadow_line2.plot(m.x1 - 3 * m.xdiffrt, m.y1 - 3 * m.ydiffrt, m.x2 + 3 * m.xdiffrt, m.y2 + 3 * m.ydiffrt);
     }
     else {
-        m.line1.plot(x1 - 1 * xdiffrt, y1 - 1 * ydiffrt,  mid_x + (half_font_gap + 1) * xdiffrt, mid_y + (half_font_gap + 1) * ydiffrt)
-        m.line2.plot(mid_x - (half_font_gap + 1) * xdiffrt, mid_y - (half_font_gap + 1) * ydiffrt, x2 + 1 * xdiffrt, y2 + 1 * ydiffrt)
+        m.shadow_line1.plot(m.x1 - 3 * m.xdiffrt, m.y1 - 3 * m.ydiffrt, m.mid_x + m.half_font_gap * m.xdiffrt, m.mid_y + m.half_font_gap * m.ydiffrt);
+        m.shadow_line2.plot(m.mid_x - m.half_font_gap * m.xdiffrt, m.mid_y - m.half_font_gap * m.ydiffrt, m.x2 + 3 * m.xdiffrt, m.y2 + 3 * m.ydiffrt);
+    }
+    
+    if (m.font_offset){
+        m.line1.plot(m.x1 - 1 * m.xdiffrt, m.y1 - 1 * m.ydiffrt, m.x2 + 1 * m.xdiffrt, m.y2 + 1 * m.ydiffrt)
+        m.line2.plot(m.x1 - 1 * m.xdiffrt, m.y1 - 1 * m.ydiffrt, m.x2 + 1 * m.xdiffrt, m.y2 + 1 * m.ydiffrt)
+    }
+    else {
+        m.line1.plot(m.x1 - 1 * m.xdiffrt, m.y1 - 1 * m.ydiffrt,  m.mid_x + (m.half_font_gap + 1) * m.xdiffrt, m.mid_y + (m.half_font_gap + 1) * m.ydiffrt)
+        m.line2.plot(m.mid_x - (m.half_font_gap + 1) * m.xdiffrt, m.mid_y - (m.half_font_gap + 1) * m.ydiffrt, m.x2 + 1 * m.xdiffrt, m.y2 + 1 * m.ydiffrt)
     }
 }
 
@@ -216,6 +237,7 @@ rcMeasurements.delete_measurement  = function (m) {
           if (confirm('delete measurement?')) {
               //remove visual elemnts
               m.text.remove();
+              m.text_shadow.remove();
               m.circle1.remove();
               m.circle2.remove();
               m.selector_circle1.remove();
@@ -295,6 +317,51 @@ rcMeasurements.move_measurement = function (m, nx1, ny1, nx2, ny2) {
 }
 
 // functions for modifying measurements
+//rcMeasurements.cursor_string_for_distance_string = function (d_str) {
+//    var c_str = ".";
+//    for (i=0; i < (d_str.length*2); i++) {
+//        c_str = c_str + " ";
+//    }
+//    c_str = c_str + "|";
+//    return c_str;
+//}
+
+rcMeasurements.setText = function (m, str) {
+    m.text_shadow.text(str);
+    m.text.text(str);
+}
+
+rcMeasurements.place_cursor = function (m){
+    var u_offset;
+    if (m.units_metric) {u_offset = 23}
+    else {u_offset = 12}
+    var c_offset = m.text.node.offsetWidth/2 - u_offset;
+    m.text_cursor.move(m.mid_x + m.font_offset_x + c_offset, m.mid_y + m.font_offset_y); //and for curser
+
+}
+
+
+rcMeasurements.start_cursor_animation = function (m) {
+    if (rcMeasurements.cursor_animation_id){ window.clearTimeout(rcMeasurements.cursor_animation_id) };
+    rcMeasurements.cursor_animation_id = window.setTimeout(function(){rcMeasurements.show_cursor_frame(m)}, 10);
+}
+
+rcMeasurements.show_cursor_frame = function (m) {
+    rcMeasurements.place_cursor(m);
+    m.text_cursor.stroke({ color: shadow_color, opacity: .9, width: 2 });
+    rcMeasurements.cursor_animation_id = window.setTimeout(function(){rcMeasurements.hide_cursor_frame(m)},700);
+}
+
+rcMeasurements.hide_cursor_frame = function (m) {
+    m.text_cursor.stroke({ color: shadow_color, opacity: 0, width: 2 });
+    rcMeasurements.cursor_animation_id = window.setTimeout(function(){rcMeasurements.show_cursor_frame(m)},700);
+}
+
+rcMeasurements.stop_cursor_animation = function (m) {
+    m.text_cursor.stroke({ color: shadow_color, opacity: 0, width: 2 });
+    if (rcMeasurements.cursor_animation_id){ window.clearTimeout(rcMeasurements.cursor_animation_id) };
+    rcMeasurements.cursor_animation_id = null
+}
 
 rcMeasurements.start_distance_change_dialouge = function (m) {
         rcMeasurements.select_measurement(m); //highlight measurement we're editing
@@ -303,6 +370,8 @@ rcMeasurements.start_distance_change_dialouge = function (m) {
         draw.node.appendChild(np_svg.node); //show number pad
         np_rotate(last_orientation); //this is initializing style of the number pad
         move_image_for_number_pad(m.text.x(), m.text.y());
+        rcMeasurements.start_cursor_animation(m);
+    
 
         // this is commented out because it is only for use on desktop systems.
 
@@ -323,6 +392,8 @@ rcMeasurements.end_measurement_edit = function (){
         rcMeasurements.deselect_measurement(rcMeasurements.measurement_being_edited); //un-highlight measurement we're editing
         if(draw.node.contains(np_svg.node)) {draw.node.removeChild(np_svg.node);} //hide number pad
         return_image_after_number_pad();
+        rcMeasurements.stop_cursor_animation(rcMeasurements.measurement_being_edited);
+
         //}
         //else {
         //    measured_svg.node.removeChild( measurement_being_edited.text_input_box.node); //hide input box...
@@ -342,8 +413,9 @@ rcMeasurements.switch_units = function () {
         rcMeasurements.measurement_being_edited.distance = parsed_distance;
         if(rcMeasurements.measurement_being_edited.units_metric == true){ rcMeasurements.measurement_being_edited.units_metric = false; }
         else{ rcMeasurements.measurement_being_edited.units_metric = true; }
-        rcMeasurements.measurement_being_edited.text.text(rcMeasurements.format_dist(rcMeasurements.measurement_being_edited));
+        rcMeasurements.setText(rcMeasurements.measurement_being_edited, rcMeasurements.format_dist(rcMeasurements.measurement_being_edited));
     }
+    rcMeasurements.place_cursor(rcMeasurements.measurement_being_edited);
 }
 
 
@@ -352,18 +424,21 @@ rcMeasurements.add_character = function (key) {
     var unit_str = str.substring(str.length - 2);
     str = str.substring(0, str.length - 2);
 
-    if (str == '?') { rcMeasurements.measurement_being_edited.text.text(key + unit_str); }
-    else {rcMeasurements.measurement_being_edited.text.text( str + key + unit_str);}
+    if (str == '?') { rcMeasurements.setText(rcMeasurements.measurement_being_edited, key + unit_str); }
+    else {rcMeasurements.setText(rcMeasurements.measurement_being_edited,  str + key + unit_str);}
+    rcMeasurements.place_cursor(rcMeasurements.measurement_being_edited);
+
 }
 rcMeasurements.del_character = function (key) {
     var str      = rcMeasurements.measurement_being_edited.text.text();
     var unit_str = str.substring(str.length - 2);
     str = str.substring(0, str.length - 2);
     
-    if (str.length <= 1) { rcMeasurements.measurement_being_edited.text.text('?' + unit_str); }
+    if (str.length <= 1) { rcMeasurements.setText(rcMeasurements.measurement_being_edited, '?' + unit_str); }
     else{
-        rcMeasurements.measurement_being_edited.text.text( str.substring(0, str.length - 1) + unit_str );
+        rcMeasurements.setText( rcMeasurements.measurement_being_edited,  str.substring(0, str.length - 1) + unit_str );
     }
+    rcMeasurements.place_cursor(rcMeasurements.measurement_being_edited);
 }
 
 // called on distance before drawn to screen
@@ -407,7 +482,7 @@ rcMeasurements.finish_number_operation = function (){
     }
     else  {
         rcMeasurements.measurement_being_edited.distance = parsed_distance;
-        rcMeasurements.measurement_being_edited.text.text(rcMeasurements.format_dist(rcMeasurements.measurement_being_edited));
+        rcMeasurements.setText( rcMeasurements.measurement_being_edited, rcMeasurements.format_dist(rcMeasurements.measurement_being_edited));
         rcMeasurements.end_measurement_edit();
     }
 }

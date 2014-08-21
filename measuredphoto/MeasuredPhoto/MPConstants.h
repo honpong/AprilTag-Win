@@ -48,14 +48,14 @@
 
 #define INCHES_PER_METER 39.3700787
 
-#ifdef DEBUG
-#define LOGME NSLog(@"%s", __PRETTY_FUNCTION__);
-#define DLog(fmt, ...) NSLog((@"%s " fmt), __PRETTY_FUNCTION__, ##__VA_ARGS__);
-#define DLogs(string) NSLog((@"%s %@"), __PRETTY_FUNCTION__, string);
-#else
+#ifdef ARCHIVE
 #define LOGME // do nothing
 #define DLog(fmt, ...) // do nothing
 #define DLogs(string) // do nothing
+#else
+#define LOGME NSLog(@"%s", __PRETTY_FUNCTION__);
+#define DLog(fmt, ...) NSLog((@"%s " fmt), __PRETTY_FUNCTION__, ##__VA_ARGS__);
+#define DLogs(string) NSLog((@"%s %@"), __PRETTY_FUNCTION__, string);
 #endif
 
 #define KEY_DATE_STARTED @"dateStarted"

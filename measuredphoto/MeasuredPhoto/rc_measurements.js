@@ -1,7 +1,7 @@
 //Copywrite (c) 2014 by RealityCap, Inc. Written by Jordan Miller for the exclusive use of RealityCap, Inc.
 
 rcMeasurements = {
-    measurements : {}, measurement_being_edited : null, inches_to_meter : 39.3701, cursor_animation_id : null
+    measurements : {}, measurement_being_edited : null, inches_to_meter : 39.3701, cursor_animation_id : null, most_recent_drag : 0
 }
 
 // instantiate a measurement and add it to the measurment list
@@ -139,14 +139,14 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
     m.selector_circle2 = measured_svg.circle(30).move(m.x2-15,m.y2-15).fill({opacity:0});
     
     //acctions for what happens on clicks
-    m.shadow_line1.click (function (e) { rcMeasurements.click_action(m); e.stopPropagation(); e.preventDefault(); })
-    m.shadow_line2.click (function (e) { rcMeasurements.click_action(m); e.stopPropagation(); e.preventDefault();})
-    m.line1.click (function (e) { rcMeasurements.click_action(m); e.stopPropagation(); e.preventDefault();})
-    m.line2.click (function (e) { rcMeasurements.click_action(m); e.stopPropagation(); e.preventDefault();})
-    m.circle1.click (function (e) { rcMeasurements.click_action(m); e.stopPropagation(); e.preventDefault();})
-    m.circle2.click (function (e) { rcMeasurements.click_action(m); e.stopPropagation(); e.preventDefault();})
-    m.selector_circle1.click(function (e) { rcMeasurements.click_action(m); e.stopPropagation(); e.preventDefault();})
-    m.selector_circle2.click(function (e) { rcMeasurements.click_action(m); e.stopPropagation(); e.preventDefault();})
+    m.shadow_line1.click (function (e) { rcMeasurements.click_action(m,e);})
+    m.shadow_line2.click (function (e) { rcMeasurements.click_action(m, e);})
+    m.line1.click (function (e) { rcMeasurements.click_action(m, e);})
+    m.line2.click (function (e) { rcMeasurements.click_action(m, e);})
+    m.circle1.click (function (e) { rcMeasurements.click_action(m, e);})
+    m.circle2.click (function (e) { rcMeasurements.click_action(m, e);})
+    m.selector_circle1.click(function (e) { rcMeasurements.click_action(m, e);})
+    m.selector_circle2.click(function (e) { rcMeasurements.click_action(m, e);})
     //text editing
     m.text.click(function (e) {
                      setTimeout(function(){ return false;},1);
@@ -159,20 +159,38 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
                                   i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY);
                                   rcMeasurements.move_measurement(m, i.x, i.y, m.x2, m.y2);
                                   e.stopPropagation(); e.preventDefault();
-                              }).on("dragend", function(e) {rcMeasurements.deselect_measurement(m); rcMeasurements.save_measurements(); e.stopPropagation(); e.preventDefault();});
-    Hammer(m.circle2.node).on("drag",  function(e) { i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY); rcMeasurements.move_measurement(m, m.x1, m.y1, i.x, i.y); e.stopPropagation(); e.preventDefault();}).on("dragend", function(e) {rcMeasurements.deselect_measurement(m); rcMeasurements.save_measurements();e.stopPropagation(); e.preventDefault();});
-    Hammer(m.selector_circle1.node).on("drag",  function(e) {i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY); rcMeasurements.move_measurement(m, i.x, i.y, m.x2, m.y2); e.stopPropagation(); e.preventDefault(); }).on("dragend", function(e) {rcMeasurements.deselect_measurement(m); rcMeasurements.save_measurements();e.stopPropagation(); e.preventDefault();});
-    Hammer(m.selector_circle2.node).on("drag", function(e) {i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY); rcMeasurements.move_measurement(m, m.x1, m.y1, i.x, i.y); e.stopPropagation(); e.preventDefault(); }).on("dragend", function(e) {rcMeasurements.deselect_measurement(m); rcMeasurements.save_measurements();e.stopPropagation(); e.preventDefault();});
+                              }).on("dragend", function(e) {rcMeasurements.dragEndHandler(m,e); });
+    Hammer(m.circle2.node).on("drag",  function(e) { i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY); rcMeasurements.move_measurement(m, m.x1, m.y1, i.x, i.y); e.stopPropagation(); e.preventDefault();}).on("dragend", function(e) {rcMeasurements.dragEndHandler(m,e); });
+    Hammer(m.selector_circle1.node).on("drag",  function(e) {
+                                       e.stopPropagation(); e.preventDefault();
+                                       i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY);
+                                       rcMeasurements.move_measurement(m, i.x, i.y, m.x2, m.y2);
+                                       }).on("dragend", function(e) { rcMeasurements.dragEndHandler(m,e); });
+    Hammer(m.selector_circle2.node).on("drag", function(e) {i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY); rcMeasurements.move_measurement(m, m.x1, m.y1, i.x, i.y); e.stopPropagation(); e.preventDefault(); }).on("dragend", function(e) {rcMeasurements.dragEndHandler(m,e);});
     
     rcMeasurements.measurements[m.guid] = m;
 
 }
 
-rcMeasurements.click_action = function (m) {
+rcMeasurements.dragEndHandler = function (m, e) {
+    e.stopPropagation(); e.preventDefault();
+    rcMeasurements.most_recent_drag = new Date();
+    rcMeasurements.deselect_measurement(m);
+    rcMeasurements.save_measurements();
+}
+
+rcMeasurements.click_action = function (m,e) {
     setTimeout(function(){ return false;},1);  //this just forces refresh for some browsers
-    if ( ! rcMeasurements.is_measurement_being_deleted(m) ) {  //this is both a deletion and a check for deletion
-        //rcMeasurements.select_measurement(m); //we aren't doing anything here any more
+    if ( rcMeasurements.is_measurement_being_deleted(m) ) {  //this is both a deletion and a check for deletion
+         e.stopPropagation(); e.preventDefault(); // if deleted, dont do anything else
     }
+    //if we just ended a drag, don't propagate click
+    var now = new Date();
+    var last_drag_time_diff = now - rcMeasurements.most_recent_drag;
+    if (last_drag_time_diff < 100){
+        e.stopPropagation(); e.preventDefault();
+    }
+    //otherwise allow anotations gesture to propegate to image to see if it has an effect on anotations.
 }
 
 rcMeasurements.redraw_measurement = function (m) {

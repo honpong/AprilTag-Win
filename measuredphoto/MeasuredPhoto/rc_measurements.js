@@ -263,6 +263,44 @@ rcMeasurements.redraw_measurement = function (m) {
     }
 }
 
+rcMeasurements.redraw_lines = function(m) {
+    // calculate how big of a gap we need for text, certain other layout paramaters
+    var hlf_text_w = m.text_shadow.node.offsetWidth/2;
+    var hlf_text_h = m.text_shadow.node.offsetHeight/2;
+    
+    if (hlf_text_w/hlf_text_h < Math.abs(m.xdiffrt/m.ydiffrt)) { //line is more horizontal, text width dominates gap
+        m.half_font_gap = Math.sqrt(hlf_text_w*hlf_text_w + hlf_text_w*hlf_text_w*m.ydiffrt*m.ydiffrt/m.xdiffrt/m.xdiffrt)+5;
+    }
+    else { //line is more vertical, we want to use a smaller gap dependent on angle
+        m.half_font_gap = Math.sqrt(hlf_text_h*hlf_text_h + hlf_text_h*hlf_text_h*m.xdiffrt*m.xdiffrt/m.ydiffrt/m.ydiffrt );
+    }
+    
+    if (m.pixel_distatnce < m.half_font_gap * 2 + 10) {
+        m.font_offset = true;
+        m.font_offset_x = -m.half_font_gap * m.ydiffrt;
+        m.font_offset_y = m.half_font_gap * m.xdiffrt;
+    }
+    
+    if (m.font_offset){
+        m.shadow_line1.plot(m.x1 - 3 * m.xdiffrt, m.y1 - 3 * m.ydiffrt, m.x2 + 3 * m.xdiffrt, m.y2 + 3 * m.ydiffrt);
+        m.shadow_line2.plot(m.x1 - 3 * m.xdiffrt, m.y1 - 3 * m.ydiffrt, m.x2 + 3 * m.xdiffrt, m.y2 + 3 * m.ydiffrt);
+    }
+    else {
+        m.shadow_line1.plot(m.x1 - 3 * m.xdiffrt, m.y1 - 3 * m.ydiffrt, m.mid_x + m.half_font_gap * m.xdiffrt, m.mid_y + m.half_font_gap * m.ydiffrt);
+        m.shadow_line2.plot(m.mid_x - m.half_font_gap * m.xdiffrt, m.mid_y - m.half_font_gap * m.ydiffrt, m.x2 + 3 * m.xdiffrt, m.y2 + 3 * m.ydiffrt);
+    }
+    
+    if (m.font_offset){
+        m.line1.plot(m.x1 - 1 * m.xdiffrt, m.y1 - 1 * m.ydiffrt, m.x2 + 1 * m.xdiffrt, m.y2 + 1 * m.ydiffrt)
+        m.line2.plot(m.x1 - 1 * m.xdiffrt, m.y1 - 1 * m.ydiffrt, m.x2 + 1 * m.xdiffrt, m.y2 + 1 * m.ydiffrt)
+    }
+    else {
+        m.line1.plot(m.x1 - 1 * m.xdiffrt, m.y1 - 1 * m.ydiffrt,  m.mid_x + (m.half_font_gap + 1) * m.xdiffrt, m.mid_y + (m.half_font_gap + 1) * m.ydiffrt)
+        m.line2.plot(m.mid_x - (m.half_font_gap + 1) * m.xdiffrt, m.mid_y - (m.half_font_gap + 1) * m.ydiffrt, m.x2 + 1 * m.xdiffrt, m.y2 + 1 * m.ydiffrt)
+    }
+
+}
+
 rcMeasurements.redraw_all_measurements = function (){
     for (var key in rcMeasurements.measurements) {
         rcMeasurements.redraw_measurement(measurements[key]);
@@ -462,6 +500,7 @@ rcMeasurements.end_measurement_edit = function (){
         return_image_after_number_pad();
         rcMeasurements.stop_cursor_animation(rcMeasurements.measurement_being_edited);
 
+
         //}
         //else {
         //    measured_svg.node.removeChild( measurement_being_edited.text_input_box.node); //hide input box...
@@ -495,6 +534,7 @@ rcMeasurements.add_character = function (key) {
     if (str == '?') { rcMeasurements.setText(rcMeasurements.measurement_being_edited, key + unit_str); }
     else {rcMeasurements.setText(rcMeasurements.measurement_being_edited,  str + key + unit_str);}
     rcMeasurements.place_cursor(rcMeasurements.measurement_being_edited);
+    rcMeasurements.redraw_lines(rcMeasurements.measurement_being_edited);
 
 }
 rcMeasurements.del_character = function (key) {
@@ -507,6 +547,7 @@ rcMeasurements.del_character = function (key) {
         rcMeasurements.setText( rcMeasurements.measurement_being_edited,  str.substring(0, str.length - 1) + unit_str );
     }
     rcMeasurements.place_cursor(rcMeasurements.measurement_being_edited);
+    rcMeasurements.redraw_lines(rcMeasurements.measurement_being_edited);
 }
 
 // called on distance before drawn to screen
@@ -551,6 +592,7 @@ rcMeasurements.finish_number_operation = function (){
     else  {
         rcMeasurements.measurement_being_edited.distance = parsed_distance;
         rcMeasurements.setText( rcMeasurements.measurement_being_edited, rcMeasurements.format_dist(rcMeasurements.measurement_being_edited));
+        rcMeasurements.redraw_lines(rcMeasurements.measurement_being_edited);
         rcMeasurements.measurement_being_edited.saveable_copy = rcMeasurements.saveable_liniar_measurement(rcMeasurements.measurement_being_edited);
         rcMeasurements.end_measurement_edit();
     }

@@ -3,6 +3,7 @@
 #include "filter.h"
 
 bool debug_triangulate = false;
+bool debug_eight_point_ransac = false;
 // if enabled, adds a 3 pixel jitter in all directions to correspondence
 bool enable_jitter = false;
 bool enable_rectify = false;
@@ -785,14 +786,12 @@ bool ransac_F(const vector<v4> & reference_pts, const vector<v4> target_pts, m4 
     vector<v4> estimate_pts1;
     vector<v4> estimate_pts2;
     const int npoints = (int)reference_pts.size();
-    fprintf(stderr, "nmatches %d\n", npoints);
     bool inliers[npoints];
     float sampson_thresh = 0.5;
 
     int iterations = 2000;
     m4 bestF = F;
     int bestinliers = compute_inliers(&reference_pts[0], &target_pts[0], npoints, bestF, sampson_thresh, inliers);
-    fprintf(stderr, "started with %d inliers", bestinliers);
 
     for(int i = 0; i < iterations; i++)
     {
@@ -816,11 +815,9 @@ bool ransac_F(const vector<v4> & reference_pts, const vector<v4> target_pts, m4 
             bestF = currentF;
         }
     }
-    fprintf(stderr, "best_inliers %d\n", bestinliers);
 
     // measure fitness
-    int best_inliers = compute_inliers(&reference_pts[0], &target_pts[0], npoints, bestF, sampson_thresh, inliers);
-    fprintf(stderr, "should be the same best_inliers %d\n", best_inliers);
+    compute_inliers(&reference_pts[0], &target_pts[0], npoints, bestF, sampson_thresh, inliers);
 
     // estimate F
     estimate_pts1.clear();
@@ -831,12 +828,13 @@ bool ransac_F(const vector<v4> & reference_pts, const vector<v4> target_pts, m4 
             estimate_pts2.push_back(target_pts[m]);
         }
     }
-    fprintf(stderr, "calling eight point with %lu points (should be best_inliers)\n", estimate_pts1.size());
     bestF = eight_point_F(&estimate_pts1[0], &estimate_pts2[0], (int)estimate_pts1.size());
 
     // measure fitness
     int final_inliers = compute_inliers(&reference_pts[0], &target_pts[0], npoints, bestF, sampson_thresh, inliers);
-    fprintf(stderr, "after estimating with %lu final inliers %d\n", estimate_pts1.size(), final_inliers);
+    if(debug_eight_point_ransac) {
+        fprintf(stderr, "after refining %d matches with %lu inliers, got final inliers %d\n", npoints, estimate_pts1.size(), final_inliers);
+    }
 
     F = bestF;
 
@@ -923,8 +921,6 @@ vector<sift_keypoint> sift_detect(uint8_t * image, int width, int height, int no
         nkeys = vl_sift_get_nkeypoints (filt) ;
         i     = 0 ;
 
-        printf ("sift: detected %d (unoriented) keypoints\n", nkeys) ;
-
         /* for each keypoint ........................................ */
         for (; i < nkeys ; ++i) {
             double                angles [4] ;
@@ -969,12 +965,9 @@ bool stereo::reestimate_F(const stereo_frame & reference, const stereo_frame & t
     int o_min = 0;
     vector<sift_keypoint> reference_keypoints = sift_detect(reference.image, width, height, noctaves, nlevels, o_min);
     vector<sift_keypoint> target_keypoints = sift_detect(target.image, width, height, noctaves, nlevels, o_min);
-    fprintf(stderr, "ref %lu\n", reference_keypoints.size());
-    fprintf(stderr, "target %lu\n", target_keypoints.size());
 
     // Match
     vector<sift_match> matches = ubc_match(reference_keypoints, target_keypoints);
-    fprintf(stderr, "size of matches %lu\n", matches.size());
 
     vector<v4> reference_correspondences;
     vector<v4> target_correspondences;

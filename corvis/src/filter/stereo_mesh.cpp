@@ -3,6 +3,7 @@
 #include "filter.h"
 
 bool debug_triangulate_mesh = false;
+bool debug_mrf = false;
 bool enable_match_occupancy = true;
 bool enable_top_n = true;
 bool enable_mrf = true;
@@ -448,7 +449,8 @@ void stereo_mesh_refine_mrf(stereo_mesh & mesh, int width, int height)
     //The cost of pixel p and label l is
     // stored at cost[p*nLabels+l]
     int npixels = (int)stereo_grid_locations.size();
-    fprintf(stderr, "npixels considered %d\n", npixels);
+    if(debug_mrf)
+        fprintf(stderr, "npixels considered %d\n", npixels);
     MRF::CostVal * unary = new MRF::CostVal[npixels*NLABELS];
 
     for(int pixel = 0; pixel < npixels; pixel++)
@@ -469,18 +471,22 @@ void stereo_mesh_refine_mrf(stereo_mesh & mesh, int width, int height)
 
 
     E = mrf->totalEnergy();
-    printf("Energy at the Start= %g (%g,%g)\n", (float)E,
-		   (float)mrf->smoothnessEnergy(), (float)mrf->dataEnergy());
+    if(debug_mrf) {
+        fprintf(stderr, "Energy at the Start= %g (%g,%g)\n", (float)E,
+                (float)mrf->smoothnessEnergy(), (float)mrf->dataEnergy());
+    }
 
     tot_t = 0;
     for (iter=0; iter<10; iter++) {
 		mrf->optimize(10, t);
 
-		E = mrf->totalEnergy();
-		lowerBound = mrf->lowerBound();
-		tot_t = tot_t + t ;
-		printf("energy = %g, %g\n", mrf->smoothnessEnergy(), mrf->dataEnergy());
-		printf("energy = %g, lower bound = %f (%f secs)\n", (float)E, lowerBound, tot_t);
+        if(debug_mrf) {
+            E = mrf->totalEnergy();
+            lowerBound = mrf->lowerBound();
+            tot_t = tot_t + t ;
+            fprintf(stderr, "energy = %g, %g\n", mrf->smoothnessEnergy(), mrf->dataEnergy());
+            fprintf(stderr, "energy = %g, lower bound = %f (%f secs)\n", (float)E, lowerBound, tot_t);
+        }
     }
 
     MRF::Label labelhist[NLABELS];
@@ -496,9 +502,11 @@ void stereo_mesh_refine_mrf(stereo_mesh & mesh, int width, int height)
             stereo_mesh_add_vertex(mesh, pt.x, pt.y, match.x, match.y, match.point, match.score);
         }
     }
-    for(int i = 0; i < NLABELS; i++)
-        fprintf(stderr, "%d ", labelhist[i]);
-    fprintf(stderr, "\n");
+    if(debug_mrf) {
+        for(int i = 0; i < NLABELS; i++)
+            fprintf(stderr, "%d ", labelhist[i]);
+        fprintf(stderr, "\n");
+    }
 
 
     delete unary;

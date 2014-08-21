@@ -1,7 +1,9 @@
 //Copywrite (c) 2014 by RealityCap, Inc. Written by Jordan Miller for the exclusive use of RealityCap, Inc.
 
+
+
 rcMeasurements = {
-    measurements : {}, measurement_being_edited : null, inches_to_meter : 39.3701, cursor_animation_id : null, most_recent_drag : 0
+    measurements : {}, measurement_being_edited : null, inches_to_meter : 39.3701, cursor_animation_id : null, most_recent_drag : 0, font_family : 'HelveticaNeue-Light, Helvetica, Arial'
 }
 
 // instantiate a measurement and add it to the measurment list
@@ -34,16 +36,16 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
     var d_string = rcMeasurements.format_dist(m);
     m.text_shadow = measured_svg.text(d_string);
     m.text_shadow.font({
-                       family: 'San Serif'
-                       , size: 25
+                       family: rcMeasurements.font_family,
+                        size: 25
                        , anchor: 'middle'
                        , leading: 1
-                       }).stroke({ color: shadow_color, opacity: 1, width: 5 });
+                       }).stroke({ color: shadow_color, opacity: 1, width: 2.5 });
     
     m.text = measured_svg.text(d_string);
     m.text.font({
-                family: 'San Serif'
-                , size: 25
+                family: rcMeasurements.font_family,
+                 size: 25
                 , anchor: 'middle'
                 , leading: 1
                 }).fill({ color: line_color, opacity: 1});
@@ -510,7 +512,7 @@ rcMeasurements.format_dist = function (m){
     
     if (m.distance) {
         if (m.units_metric) { return m.distance.toFixed(2)+' m'; }
-        else { return (m.distance * rcMeasurements.inches_to_meter).toFixed(2) + ' "'; }
+        else { return (m.distance * rcMeasurements.inches_to_meter).toFixed(1) + ' "'; }
     }
     else {
         if (m.units_metric) { return '? m'; }

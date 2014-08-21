@@ -120,7 +120,7 @@
                                                                      toItem:self.superview
                                                                   attribute:NSLayoutAttributeBottom
                                                                  multiplier:1.
-                                                                   constant:constant];
+                                                                   constant:-constant];
     [self.superview addConstraint:constraint];
     return constraint;
 }

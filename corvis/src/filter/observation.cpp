@@ -227,17 +227,14 @@ void observation_vision_feature::innovation_covariance_hook(const matrix &cov, i
 
 void observation_vision_feature::predict()
 {
+    m4 Rr = to_rotation_matrix(state_group->Wr.v);
     m4 R = to_rotation_matrix(state.W.v);
-    Rt = transpose(R);
+    Rrt = transpose(Rr);
     Rbc = to_rotation_matrix(state.Wc.v);
     Rcb = transpose(Rbc);
-    RcbRt = Rcb * Rt;
-
-    Rr = to_rotation_matrix(state_group->Wr.v);
-    Rw = Rr * Rbc;
-    Rtot = RcbRt * Rw;
-    Tw = Rr * state.Tc.v + state_group->Tr.v;
-    Ttot = Rcb * (Rt * (Tw - state.T.v) - state.Tc.v);
+    RcbRrt = Rcb * Rrt;
+    Rtot = RcbRrt * Rbc;
+    Ttot = Rcb * (Rrt * (state.Tc.v - state_group->Tr.v) - state.Tc.v);
 
     norm_initial.x = (feature->initial[0] - state.center_x.v) / state.focal_length.v;
     norm_initial.y = (feature->initial[1] - state.center_y.v) / state.focal_length.v;
@@ -257,8 +254,8 @@ void observation_vision_feature::predict()
     v4 X_unscale = Rtot * X0_unscale + Ttot;
 
     feature->relative = Rbc * X0_unscale + state.Tc.v;
-    feature->world = Rw * X0_unscale + Tw;
-    feature->local = Rt * (feature->world - state.T.v);
+    feature->local = Rrt * (feature->relative - state_group->Tr.v);
+    feature->world = R * feature->local + state.T.v;
     feature->depth = X_unscale[2];
     v4 ippred = X / X[2]; //in the image plane
     if(fabs(ippred[2]-1.) > 1.e-7 || ippred[3] != 0.) {
@@ -284,21 +281,17 @@ void observation_vision_feature::cache_jacobians()
     v4 dX_dk1 = Rtot * v4(-X0[0] / kr * r2, -X0[1] / kr * r2, 0., 0.);
     v4 dX_dk2 = Rtot * v4(-X0[0] / kr * r4, -X0[1] / kr * r4, 0., 0.);
     
-    m4v4 dR_dW = to_rotation_matrix_jacobian(state.W.v);
-    m4v4 dRbc_dWc = to_rotation_matrix_jacobian(state.Wc.v);
-    m4v4 dRt_dW = transpose(dR_dW);
-    m4v4 dRcb_dWc = transpose(dRbc_dWc);
     m4v4 dRr_dWr = to_rotation_matrix_jacobian(state_group->Wr.v);
+    m4v4 dRbc_dWc = to_rotation_matrix_jacobian(state.Wc.v);
+    m4v4 dRrt_dWr = transpose(dRr_dWr);
+    m4v4 dRcb_dWc = transpose(dRbc_dWc);
     
-    m4v4 dRtot_dW  = Rcb * dRt_dW * Rw;
-    m4v4 dRtot_dWr = RcbRt * dRr_dWr * Rbc;
-    m4v4 dRtot_dWc = dRcb_dWc * (Rt * Rw) + (RcbRt * Rr) * dRbc_dWc;
-    m4 dTtot_dWc = dRcb_dWc * (Rt * (Tw - state.T.v) - state.Tc.v);
-    m4 dTtot_dW  = Rcb * (dRt_dW * (Tw - state.T.v));
-    m4 dTtot_dWr = RcbRt * (dRr_dWr * state.Tc.v);
-    m4 dTtot_dT  =-RcbRt;
-    m4 dTtot_dTc = RcbRt * Rr - Rcb;
-    m4 dTtot_dTr = RcbRt;
+    m4v4 dRtot_dWr  = Rcb * dRrt_dWr * Rbc;
+    m4v4 dRtot_dWc = dRcb_dWc * (Rrt * Rbc) + (Rcb * Rrt) * dRbc_dWc;
+    m4 dTtot_dWc = dRcb_dWc * (Rrt * (state.Tc.v - state_group->Tr.v) - state.Tc.v);
+    m4 dTtot_dWr  = Rcb * (dRrt_dWr * (state.Tc.v - state_group->Tr.v));
+    m4 dTtot_dTc = Rcb * Rrt - Rcb;
+    m4 dTtot_dTr = -Rcb * Rrt;
     
     state.fill_calibration(norm_predicted, r2, r4, r6, kr);
     f_t invZ = 1. / X[2];
@@ -311,11 +304,9 @@ void observation_vision_feature::cache_jacobians()
     dy_dp = sum(dy_dX * dX_dp);
     f_t invrho = feature->v.invdepth();
     if(!feature->is_initialized()) {
-        dx_dW = dx_dX * (dRtot_dW * feature->calibrated),
-        dx_dWc = dx_dX * (dRtot_dWc * feature->calibrated),
+        dx_dWc = dx_dX * (dRtot_dWc * feature->calibrated);
         dx_dWr = dx_dX * (dRtot_dWr * feature->calibrated);
-        dy_dW = dy_dX * (dRtot_dW * feature->calibrated),
-        dy_dWc = dy_dX * (dRtot_dWc * feature->calibrated),
+        dy_dWc = dy_dX * (dRtot_dWc * feature->calibrated);
         dy_dWr = dy_dX * (dRtot_dWr * feature->calibrated);
         //dy_dT = m4(0.);
         //dy_dT = m4(0.);
@@ -331,16 +322,12 @@ void observation_vision_feature::cache_jacobians()
         dx_dcy = sum(dx_dX * dX_dcy);
         dy_dcx = sum(dy_dX * dX_dcx);
         dy_dcy = 1. + sum(dy_dX * dX_dcy);
-        dx_dW = dx_dX * (dRtot_dW * X0 + dTtot_dW * invrho);
         dx_dWc = dx_dX * (dRtot_dWc * X0 + dTtot_dWc * invrho);
         dx_dWr = dx_dX * (dRtot_dWr * X0 + dTtot_dWr * invrho);
-        dx_dT = dx_dX * dTtot_dT * invrho;
         dx_dTc = dx_dX * dTtot_dTc * invrho;
         dx_dTr = dx_dX * dTtot_dTr * invrho;
-        dy_dW = dy_dX * (dRtot_dW * X0 + dTtot_dW * invrho);
         dy_dWc = dy_dX * (dRtot_dWc * X0 + dTtot_dWc * invrho);
         dy_dWr = dy_dX * (dRtot_dWr * X0 + dTtot_dWr * invrho);
-        dy_dT = dy_dX * dTtot_dT * invrho;
         dy_dTc = dy_dX * dTtot_dTc * invrho;
         dy_dTr = dy_dX * dTtot_dTr * invrho;
     }
@@ -351,15 +338,12 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
 
     if(!feature->is_initialized()) {
         for(int j = 0; j < dst.cols; ++j) {
-            v4 cov_W = state.W.copy_cov_from_row(src, j);
             v4 cov_Wc = state.Wc.copy_cov_from_row(src, j);
             v4 cov_Wr = state_group->Wr.copy_cov_from_row(src, j);
             dst(0, j) =
-            sum(dx_dW * cov_W) +
             sum(dx_dWc * cov_Wc) +
             sum(dx_dWr * cov_Wr);
             dst(1, j) =
-            sum(dy_dW * cov_W) +
             sum(dy_dWc * cov_Wc) +
             sum(dy_dWr * cov_Wr);
         }
@@ -371,10 +355,8 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
             f_t cov_cy = state.center_y.copy_cov_from_row(src, j);
             f_t cov_k1 = state.k1.copy_cov_from_row(src, j);
             f_t cov_k2 = state.k2.copy_cov_from_row(src, j);
-            v4 cov_W = state.W.copy_cov_from_row(src, j);
             v4 cov_Wc = state.Wc.copy_cov_from_row(src, j);
             v4 cov_Wr = state_group->Wr.copy_cov_from_row(src, j);
-            v4 cov_T = state.T.copy_cov_from_row(src, j);
             v4 cov_Tc = state.Tc.copy_cov_from_row(src, j);
             v4 cov_Tr = state_group->Tr.copy_cov_from_row(src, j);
             dst(0, j) = dx_dp * cov_feat +
@@ -384,8 +366,6 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
             dx_dk1 * cov_k1 +
             dx_dk2 * cov_k2 +
             //dy_dk3[i] * p[state.k3.index] +
-            sum(dx_dW * cov_W) +
-            sum(dx_dT * cov_T) +
             sum(dx_dWc * cov_Wc) +
             sum(dx_dTc * cov_Tc) +
             sum(dx_dWr * cov_Wr) +
@@ -397,8 +377,6 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
             dy_dk1 * cov_k1 +
             dy_dk2 * cov_k2 +
             //dy_dk3[i] * p[state.k3.index] +
-            sum(dy_dW * cov_W) +
-            sum(dy_dT * cov_T) +
             sum(dy_dWc * cov_Wc) +
             sum(dy_dTc * cov_Tc) +
             sum(dy_dWr * cov_Wr) +
@@ -428,6 +406,56 @@ f_t observation_vision_feature::projection_residual(const v4 & X_inf, const f_t 
     f_t dx = uncalib.x - found.x;
     f_t dy = uncalib.y - found.y;
     return dx * dx + dy * dy;
+}
+
+void observation_vision_feature::update_initializing()
+{
+    if(feature->is_initialized()) return;
+    f_t min = 0.01; //infinity-ish (100m)
+    f_t max = 10.; //1/.10 for 10cm
+    f_t min_d2, max_d2;
+    v4 X_inf = Rtot * feature->calibrated;
+    
+    v4 X_inf_proj = X_inf / X_inf[2];
+    v4 X_0 = X_inf + max * Ttot;
+    
+    v4 X_0_proj = X_0 / X_0[2];
+    v4 delta = (X_inf_proj - X_0_proj);
+    f_t pixelvar = sum(delta * delta) * state.focal_length.v * state.focal_length.v;
+    if(pixelvar > 5. * 5. * state_vision_feature::measurement_var) { //tells us if we have enough baseline
+        feature->status = feature_normal;
+    }
+    
+    xy bestkp;
+    bestkp.x = meas[0];
+    bestkp.y = meas[1];
+    
+    min_d2 = projection_residual(X_inf, min, bestkp);
+    max_d2 = projection_residual(X_inf, max, bestkp);
+    f_t best = min;
+    f_t best_d2 = min_d2;
+    for(int i = 0; i < 10; ++i) { //10 iterations = 1024 segments
+        if(min_d2 < max_d2) {
+            max = (min + max) / 2.;
+            max_d2 = projection_residual(X_inf, max, bestkp);
+            if(min_d2 < best_d2) {
+                best_d2 = min_d2;
+                best = min;
+            }
+        } else {
+            min = (min + max) / 2.;
+            min_d2 = projection_residual(X_inf, min, bestkp);
+            if(max_d2 < best_d2) {
+                best_d2 = max_d2;
+                best = max;
+            }
+        }
+    }
+    if(best > .01 && best < 10.) {
+        feature->v.set_depth_meters(1./best);
+    }
+    //repredict using triangulated depth
+    predict();
 }
 
 bool observation_vision_feature::measure()
@@ -462,47 +490,7 @@ bool observation_vision_feature::measure()
         stdev[0].data(meas[0]);
         stdev[1].data(meas[1]);
         if(!feature->is_initialized()) {
-            f_t min = 0.01; //infinity-ish (100m)
-            f_t max = 10.; //1/.10 for 10cm
-            f_t min_d2, max_d2;
-            v4 X_inf = Rtot * feature->calibrated;
-
-            v4 X_inf_proj = X_inf / X_inf[2];
-            v4 X_0 = X_inf + max * Ttot;
-
-            v4 X_0_proj = X_0 / X_0[2];
-            v4 delta = (X_inf_proj - X_0_proj);
-            f_t pixelvar = sum(delta * delta) * state.focal_length.v * state.focal_length.v;
-            if(pixelvar > 5. * 5. * state_vision_feature::measurement_var) { //tells us if we have enough baseline
-                feature->status = feature_normal;
-            }
-
-            min_d2 = projection_residual(X_inf, min, bestkp);
-            max_d2 = projection_residual(X_inf, max, bestkp);
-            f_t best = min;
-            f_t best_d2 = min_d2;
-            for(int i = 0; i < 10; ++i) { //10 iterations = 1024 segments
-                if(min_d2 < max_d2) {
-                    max = (min + max) / 2.;
-                    max_d2 = projection_residual(X_inf, max, bestkp);
-                    if(min_d2 < best_d2) {
-                        best_d2 = min_d2;
-                        best = min;
-                    }
-                } else {
-                    min = (min + max) / 2.;
-                    min_d2 = projection_residual(X_inf, min, bestkp);
-                    if(max_d2 < best_d2) {
-                        best_d2 = max_d2;
-                        best = max;
-                    }
-                }
-            }
-            if(best > .01 && best < 10.) {
-                feature->v.set_depth_meters(1./best);
-            }
-            //repredict using triangulated depth
-            predict();
+            update_initializing();
         }
     }
     return valid;

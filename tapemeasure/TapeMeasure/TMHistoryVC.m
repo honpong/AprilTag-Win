@@ -368,7 +368,7 @@
 {
     if (actionSheet == nil)
     {
-        actionSheet = [[UIActionSheet alloc] initWithTitle:@"Menu"
+        actionSheet = [[UIActionSheet alloc] initWithTitle:@"Endless Tape Measure Menu"
                                                   delegate:self
                                          cancelButtonTitle:@"Cancel"
                                     destructiveButtonTitle:nil

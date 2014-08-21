@@ -228,7 +228,7 @@
     }
     else
     {
-        [button setTitle:@"Hold device in portrait orientaion" forState:UIControlStateNormal];
+        [button setTitle:@"Hold device in landscape orientaion" forState:UIControlStateNormal];
         button.enabled = YES; // bug workaround. see http://stackoverflow.com/questions/19973515/uibutton-title-text-is-not-updated-even-if-i-update-it-in-main-thread
         button.enabled = NO;
     }

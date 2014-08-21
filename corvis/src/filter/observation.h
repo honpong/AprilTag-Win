@@ -57,8 +57,7 @@ class observation_vision_feature: public observation_storage<2> {
     const state_vision &state;
  public:
     static stdev_scalar stdev[2], inn_stdev[2];
-    m4 Rt, Rbc, Rcb, RcbRt, Rr, Rw;
-    v4 Tw;
+    m4 Rrt, Rbc, Rcb, RcbRrt;
     v4 X0, X;
     uint8_t *im1, *im2;
     struct tracker tracker;
@@ -67,7 +66,7 @@ class observation_vision_feature: public observation_storage<2> {
     f_t dx_dp, dy_dp, dx_dF, dy_dF;
 
     f_t dx_dk1, dy_dk1, dx_dk2, dy_dk2, dx_dcx, dy_dcx, dx_dcy, dy_dcy;
-    v4 dx_dW, dy_dW, dx_dT, dy_dT, dx_dWc, dy_dWc, dx_dTc, dy_dTc, dx_dWr, dy_dWr, dx_dTr, dy_dTr;
+    v4 dx_dWc, dy_dWc, dx_dTc, dy_dTc, dx_dWr, dy_dWr, dx_dTr, dy_dTr;
 
     state_vision_group *state_group;
     state_vision_feature *feature;
@@ -80,6 +79,7 @@ class observation_vision_feature: public observation_storage<2> {
     virtual void cache_jacobians();
     virtual void project_covariance(matrix &dst, const matrix &src);
     virtual void innovation_covariance_hook(const matrix &cov, int index);
+    void update_initializing();
 
     observation_vision_feature(state_vision &_state, uint64_t _time_actual, uint64_t _time_apparent): observation_storage(_time_actual, _time_apparent), state(_state) {}
 };

@@ -155,7 +155,7 @@ packet_t * packet_read(FILE * file)
     CMVideoFormatDescriptionCreateForImageBuffer(kCFAllocatorDefault, imageBuffer, &formatDescription);
     CMSampleTimingInfo sampleTiming;
     sampleTiming.duration = CMTimeMake(1, 30); // 30fps
-    sampleTiming.decodeTimeStamp = CMTimeMake((packet->header.time-16667)*1.e3, 1.e9); // time in 1/1e9 sec
+    sampleTiming.decodeTimeStamp = CMTimeMake((packet->header.time)*1.e3, 1.e9); // time in 1/1e9 sec
     sampleTiming.presentationTimeStamp = sampleTiming.decodeTimeStamp;
 
     CMSampleBufferRef ref;

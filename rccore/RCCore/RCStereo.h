@@ -32,6 +32,8 @@
 @interface RCStereo : NSObject
 
 @property (weak) id<RCStereoDelegate> delegate;
+@property (nonatomic, readonly) NSString* fileBaseName;
+@property (nonatomic) NSString* guid;
 
 + (RCStereo *) sharedInstance;
 
@@ -41,5 +43,6 @@
 - (RCFeaturePoint *) triangulatePointWithMesh:(CGPoint)point;
 - (void) setOrientation:(UIDeviceOrientation)orientation;
 - (void) reset;
+
 @end
 

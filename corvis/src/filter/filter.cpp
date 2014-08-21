@@ -553,19 +553,9 @@ void filter_setup_next_frame(struct filter *f, uint64_t time)
 
 void filter_send_output(struct filter *f, uint64_t time)
 {
+    if(!f->output) return;
     size_t nfeats = f->s.features.size();
-    packet_filter_current_t *cp = 0;
-    if(f->output) {
-        cp = (packet_filter_current_t *)mapbuffer_alloc(f->output, packet_filter_current, (uint32_t)(sizeof(packet_filter_current) - 16 + nfeats * 3 * sizeof(float)));
-    }
-    packet_filter_feature_id_visible_t *visible = 0;
-    if(f->output) {
-        visible = (packet_filter_feature_id_visible_t *)mapbuffer_alloc(f->output, packet_filter_feature_id_visible, (uint32_t)(sizeof(packet_filter_feature_id_visible_t) - 16 + nfeats * sizeof(uint64_t)));
-        for(int i = 0; i < 3; ++i) {
-            visible->T[i] = f->s.T.v[i];
-            visible->W[i] = f->s.W.v.raw_vector()[i];
-        }
-    }
+    packet_filter_current_t *cp = (packet_filter_current_t *)mapbuffer_alloc(f->output, packet_filter_current, (uint32_t)(sizeof(packet_filter_current) - 16 + nfeats * 3 * sizeof(float)));
     int n_good_feats = 0;
     for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
         state_vision_group *g = *giter;
@@ -573,23 +563,33 @@ void filter_send_output(struct filter *f, uint64_t time)
         for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
             state_vision_feature *i = *fiter;
             if(!i->status || i->status == feature_reject) continue;
-            if(f->output) {
-                cp->points[n_good_feats][0] = i->world[0];
-                cp->points[n_good_feats][1] = i->world[1];
-                cp->points[n_good_feats][2] = i->world[2];
-                visible->feature_id[n_good_feats] = i->id;
-            }
+            cp->points[n_good_feats][0] = i->world[0];
+            cp->points[n_good_feats][1] = i->world[1];
+            cp->points[n_good_feats][2] = i->world[2];
             ++n_good_feats;
         }
     }
-    if(f->output) {
-        cp->header.user = n_good_feats;
-        visible->header.user = n_good_feats;
+    cp->header.user = n_good_feats;
+    mapbuffer_enqueue(f->output, (packet_t*)cp, time);
+    
+    packet_filter_feature_id_visible_t *visible = (packet_filter_feature_id_visible_t *)mapbuffer_alloc(f->output, packet_filter_feature_id_visible, (uint32_t)(sizeof(packet_filter_feature_id_visible_t) - 16 + nfeats * sizeof(uint64_t)));
+    for(int i = 0; i < 3; ++i) {
+        visible->T[i] = f->s.T.v[i];
+        visible->W[i] = f->s.W.v.raw_vector()[i];
     }
-    if(f->output) {
-        mapbuffer_enqueue(f->output, (packet_t*)cp, time);
-        mapbuffer_enqueue(f->output, (packet_t*)visible, time);
+    n_good_feats = 0;
+    for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
+        state_vision_group *g = *giter;
+        if(g->status == group_initializing) continue;
+        for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
+            state_vision_feature *i = *fiter;
+            if(!i->status || i->status == feature_reject) continue;
+            visible->feature_id[n_good_feats] = i->id;
+            ++n_good_feats;
+        }
     }
+    visible->header.user = n_good_feats;
+    mapbuffer_enqueue(f->output, (packet_t*)visible, time);
 }
 
 //features are added to the state immediately upon detection - handled with triangulation in observation_vision_feature::predict - but what is happening with the empty row of the covariance matrix during that time?
@@ -948,8 +948,8 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     state_vision_feature::initial_depth_meters = M_E;
     state_vision_feature::initial_var = .75;
     state_vision_feature::initial_process_noise = 1.e-20;
-    state_vision_feature::measurement_var = 2. * 2.;
-    state_vision_feature::outlier_thresh = 1.5;
+    state_vision_feature::measurement_var = 1.5 * 1.5;
+    state_vision_feature::outlier_thresh = 2;
     state_vision_feature::outlier_reject = 30.;
     state_vision_feature::max_variance = .10 * .10; //because of log-depth, the standard deviation is approximately a percentage (so .10 * .10 = 10%)
     state_vision_feature::min_add_vis_cov = .5;

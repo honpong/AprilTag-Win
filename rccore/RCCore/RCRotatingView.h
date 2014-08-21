@@ -8,6 +8,6 @@
 
 @protocol RCRotatingView <NSObject>
 
-- (void) handleOrientationChange:(UIDeviceOrientation)orientation;
+- (void) handleOrientationChange:(UIDeviceOrientation)orientation animated:(BOOL)animated;
 
 @end

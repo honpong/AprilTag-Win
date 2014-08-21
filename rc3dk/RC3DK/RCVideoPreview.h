@@ -34,6 +34,7 @@
     size_t textureWidth;
     size_t textureHeight;
     CGRect normalizedSamplingRect;
+    CGRect crtClosedFrame;
 }
 
 /**
@@ -45,7 +46,16 @@
  */
 - (void) setVideoOrientation:(AVCaptureVideoOrientation)orientation;
 /**
+ Starts CRT power up animation
+ */
+- (void) animateOpen:(UIDeviceOrientation) orientation;
+/**
+ Starts CRT power down animation
+ */
+- (void) animateClosed:(UIDeviceOrientation)orientation withCompletionBlock:(void(^)(BOOL finished))completion;
+/**
  Fades to/from white.
  */
 - (void) fadeToWhite:(bool)to fromWhite:(bool)from inSeconds:(float)seconds;
+
 @end

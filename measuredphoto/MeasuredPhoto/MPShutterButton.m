@@ -19,7 +19,7 @@
         if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
         {
             [[NSNotificationCenter defaultCenter] addObserver:self
-                                                     selector:@selector(handleOrientationChange)
+                                                     selector:@selector(handleOrientationChange:)
                                                          name:MPUIOrientationDidChangeNotification
                                                        object:nil];
         }
@@ -32,10 +32,13 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (void) handleOrientationChange
+- (void) handleOrientationChange:(NSNotification*)notification
 {
-    UIDeviceOrientation orientation = [MPCapturePhoto getCurrentUIOrientation];
-    [self applyRotationTransformation:orientation animated:YES];
+    if (notification.object)
+    {
+        MPOrientationChangeData* data = (MPOrientationChangeData*)notification.object;
+        [self applyRotationTransformation:data.orientation animated:data.animated];
+    }
 }
 
 @end

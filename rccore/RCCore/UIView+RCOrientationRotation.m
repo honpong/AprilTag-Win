@@ -11,20 +11,20 @@
 
 @implementation UIView (RCOrientationRotation)
 
-- (void) rotateChildViews:(UIDeviceOrientation)orientation
+- (void) rotateChildViews:(UIDeviceOrientation)orientation animated:(BOOL)animated
 {
     for (id<RCRotatingView> subView in self.subviews)
     {
-        if ([subView respondsToSelector:@selector(handleOrientationChange:)])
+        if ([subView respondsToSelector:@selector(handleOrientationChange:animated:)])
         {
-            [subView handleOrientationChange:orientation];
+            [subView handleOrientationChange:orientation animated:animated];
         }
     }
 }
 
 - (void) applyRotationTransformationAnimated:(UIDeviceOrientation)deviceOrientation
 {
-    [UIView animateWithDuration: .5
+    [UIView animateWithDuration: .3
                           delay: 0
                         options: UIViewAnimationOptionCurveEaseIn
                      animations:^{
@@ -69,6 +69,59 @@
         case UIDeviceOrientationLandscapeRight: return @-M_PI_2;
         default: return nil;
     }
+}
+
+/** returns only portrait right side up, or landscape right side up */
++ (UIImageOrientation) imageOrientationFromDeviceOrientation:(UIDeviceOrientation)deviceOrientation
+{
+    UIImageOrientation imageOrientation;
+    
+    switch (deviceOrientation) {
+        case UIDeviceOrientationPortrait:
+            imageOrientation = UIImageOrientationRight;
+            break;
+        case UIDeviceOrientationPortraitUpsideDown:
+            imageOrientation = UIImageOrientationRight;
+            break;
+        case UIDeviceOrientationLandscapeLeft:
+            imageOrientation = UIImageOrientationUp;
+            break;
+        case UIDeviceOrientationLandscapeRight:
+            imageOrientation = UIImageOrientationDown;
+            break;
+            
+        default:
+            imageOrientation = UIImageOrientationUp;
+            break;
+    }
+    
+    return imageOrientation;
+}
+
++ (UIDeviceOrientation) deviceOrientationFromUIOrientation:(UIInterfaceOrientation)uiOrientation
+{
+    UIDeviceOrientation deviceOrientation;
+    
+    switch (uiOrientation) {
+        case UIInterfaceOrientationPortrait:
+            deviceOrientation = UIDeviceOrientationPortrait;
+            break;
+        case UIInterfaceOrientationPortraitUpsideDown:
+            deviceOrientation = UIDeviceOrientationPortraitUpsideDown;
+            break;
+        case UIInterfaceOrientationLandscapeLeft:
+            deviceOrientation = UIDeviceOrientationLandscapeRight; // needs to be reverse, for some stupid reason
+            break;
+        case UIInterfaceOrientationLandscapeRight:
+            deviceOrientation = UIDeviceOrientationLandscapeLeft; // needs to be reverse, for some stupid reason
+            break;
+            
+        default:
+            deviceOrientation = UIDeviceOrientationUnknown;
+            break;
+    }
+    
+    return deviceOrientation;
 }
 
 @end

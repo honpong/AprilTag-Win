@@ -19,29 +19,31 @@
 #import "MBProgressHUD.h"
 #import "MPVideoPreview.h"
 #import "MPAugmentedRealityView.h"
-#import "MPViewController.h"
+#import "MPBaseViewController.h"
 #import "MPAnalytics.h"
 #import "MPSlideBanner.h"
 #import "MPToolbarView.h"
 #import "MPThumbnailButton.h"
 #import "MPShutterButton.h"
+#import "MPOrientationChangeData.h"
 #import "MPContainerView.h"
 
 extern NSString * const MPUIOrientationDidChangeNotification;
 
-@interface MPCapturePhoto : MPViewController <RCSensorFusionDelegate, RCStereoDelegate, UIAlertViewDelegate, MPAugRealityViewDelegate, MPInstructionsViewDelegate>
+@interface MPCapturePhoto : MPBaseViewController <RCSensorFusionDelegate, RCStereoDelegate, UIAlertViewDelegate, MPAugRealityViewDelegate, MPInstructionsViewDelegate>
 
 + (UIDeviceOrientation) getCurrentUIOrientation;
 - (void)handlePause;
 - (void)handleResume;
 - (IBAction)handleShutterButton:(id)sender;
-- (IBAction)handleThumbnail:(id)sender;
+- (IBAction)handleGalleryButton:(id)sender;
 - (IBAction)handleQuestionButton:(id)sender;
 - (IBAction)handleQuestionCloseButton:(id)sender;
+- (void) setOrientation:(UIDeviceOrientation)orientation animated:(BOOL)animated;
 
 @property (nonatomic) IBOutlet MPAugmentedRealityView *arView;
 @property (weak, nonatomic) IBOutlet MPShutterButton *shutterButton;
-@property (weak, nonatomic) IBOutlet MPThumbnailButton *thumbnail;
+@property (weak, nonatomic) IBOutlet MPThumbnailButton *galleryButton;
 @property (weak, nonatomic) IBOutlet UILabel *messageLabel;
 @property (weak, nonatomic) IBOutlet MPToolbarView *toolbar;
 @property (weak, nonatomic) IBOutlet UILabel *questionLabel;

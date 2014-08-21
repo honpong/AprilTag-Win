@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="5056" systemVersion="13D65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="Lfz-Fr-Qzy">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="5056" systemVersion="13E28" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="Lfz-Fr-Qzy">
     <dependencies>
         <deployment defaultVersion="1536" identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3733"/>
@@ -83,7 +83,7 @@
                         </constraints>
                     </view>
                     <toolbarItems/>
-                    <navigationItem key="navigationItem" title="New Measurement" id="F6c-6f-pCd">
+                    <navigationItem key="navigationItem" title="Endless Tape Measure" id="F6c-6f-pCd">
                         <barButtonItem key="leftBarButtonItem" title="List" id="pEN-GI-qQK">
                             <connections>
                                 <segue destination="1Xl-wZ-ecL" kind="push" identifier="toHistory" id="Njf-k6-UUz"/>
@@ -993,7 +993,7 @@
                         <sections/>
                     </tableView>
                     <toolbarItems/>
-                    <navigationItem key="navigationItem" title="Measurements" id="vfg-jz-j3q">
+                    <navigationItem key="navigationItem" title="Endless Tape Measure" id="vfg-jz-j3q">
                         <barButtonItem key="backBarButtonItem" title="Back" id="u3B-7m-Ss4"/>
                         <barButtonItem key="leftBarButtonItem" image="Menu Icon" id="8AN-qG-uJ2">
                             <connections>
@@ -1292,7 +1292,7 @@
         <segue reference="lFM-Gm-EBj"/>
         <segue reference="s4S-GM-rQx"/>
         <segue reference="Njf-k6-UUz"/>
-        <segue reference="HxR-ps-kMf"/>
         <segue reference="Q9q-au-hTw"/>
+        <segue reference="HxR-ps-kMf"/>
     </inferredMetricsTieBreakers>
 </document>

@@ -6,9 +6,9 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "MPViewController.h"
+#import "MPBaseViewController.h"
 
-@interface MPYouTubeVideo : MPViewController
+@interface MPYouTubeVideo : MPBaseViewController
 
 @property (weak, nonatomic) IBOutlet UIBarButtonItem *doneButton;
 @property (weak, nonatomic) IBOutlet UIWebView *webView;

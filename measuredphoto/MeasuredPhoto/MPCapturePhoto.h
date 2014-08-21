@@ -19,7 +19,7 @@
 #import "MBProgressHUD.h"
 #import "MPVideoPreview.h"
 #import "MPAugmentedRealityView.h"
-#import "MPViewController.h"
+#import "MPBaseViewController.h"
 #import "MPAnalytics.h"
 #import "MPSlideBanner.h"
 #import "MPToolbarView.h"
@@ -30,7 +30,7 @@
 
 extern NSString * const MPUIOrientationDidChangeNotification;
 
-@interface MPCapturePhoto : MPViewController <RCSensorFusionDelegate, RCStereoDelegate, UIAlertViewDelegate, MPAugRealityViewDelegate, MPInstructionsViewDelegate>
+@interface MPCapturePhoto : MPBaseViewController <RCSensorFusionDelegate, RCStereoDelegate, UIAlertViewDelegate, MPAugRealityViewDelegate, MPInstructionsViewDelegate>
 
 + (UIDeviceOrientation) getCurrentUIOrientation;
 - (void)handlePause;

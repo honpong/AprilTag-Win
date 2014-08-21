@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 RealityCap. All rights reserved.
 //
 
-#import "MPViewController.h"
+#import "MPBaseViewController.h"
 #import <RC3DK/RC3DK.h>
 #import "MPHttpInterceptor.h"
 #import "MPTitleTextBox.h"
@@ -14,7 +14,7 @@
 
 @class MPDMeasuredPhoto;
 
-@interface MPEditPhoto : MPViewController <UIWebViewDelegate, MPHttpInterceptorDelegate, UITextFieldDelegate>
+@interface MPEditPhoto : MPBaseViewController <UIWebViewDelegate, MPHttpInterceptorDelegate, UITextFieldDelegate>
 
 @property (nonatomic) MPDMeasuredPhoto* measuredPhoto;
 @property (weak, nonatomic) IBOutlet UIWebView *webView;

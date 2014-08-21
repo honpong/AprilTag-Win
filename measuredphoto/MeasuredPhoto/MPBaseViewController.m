@@ -1,17 +1,17 @@
 //
-//  MPViewController.m
+//  MPBaseViewController.m
 //  MeasuredPhoto
 //
 //  Created by Ben Hirashima on 7/26/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "MPViewController.h"
+#import "MPBaseViewController.h"
 
-@interface MPViewController ()
+@interface MPBaseViewController ()
 
 @end
 
-@implementation MPViewController
+@implementation MPBaseViewController
 
 @end

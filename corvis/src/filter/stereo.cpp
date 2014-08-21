@@ -779,56 +779,6 @@ void choose_random(int k, int n, int * inds)
     }
 }
 
-bool refine_F(const vector<v4> & reference_pts, const vector<v4> target_pts, m4 & F)
-{
-    vector<v4> estimate_pts1;
-    vector<v4> estimate_pts2;
-
-    const int npoints = (int)reference_pts.size();
-    bool inliers[npoints];
-    float sampson_thresh = 0.5;
-    int ninliers;
-
-    for(int row = 0; row < 4; row++) {
-        for(int col = 0; col < 4; col++) {
-            fprintf(stderr, "%f ", F[row][col]);
-        }
-        fprintf(stderr, "\n");
-    }
-
-    ninliers = compute_inliers(&reference_pts[0], &target_pts[0], npoints, F, sampson_thresh, inliers);
-    fprintf(stderr, "%d inliers\n", ninliers);
-
-    estimate_pts1.clear();
-    estimate_pts2.clear();
-    for(int m = 0; m < npoints; m++) {
-        if(inliers[m]) {
-            estimate_pts1.push_back(reference_pts[m]);
-            estimate_pts2.push_back(target_pts[m]);
-        }
-    }
-    m4 F2 = eight_point_F(&estimate_pts1[0], &estimate_pts2[0], (int)estimate_pts1.size());
-
-    ninliers = compute_inliers(&reference_pts[0], &target_pts[0], npoints, F2, sampson_thresh, inliers);
-    fprintf(stderr, "%d inliers sampson\n", ninliers);
-
-    estimate_pts1.clear();
-    estimate_pts2.clear();
-    for(int m = 0; m < npoints; m++) {
-        if(inliers[m]) {
-            estimate_pts1.push_back(reference_pts[m]);
-            estimate_pts2.push_back(target_pts[m]);
-        }
-    }
-    F2 = eight_point_F(&estimate_pts1[0], &estimate_pts2[0], (int)estimate_pts1.size());
-    ninliers = compute_inliers(&reference_pts[0], &target_pts[0], npoints, F2, sampson_thresh, inliers);
-    fprintf(stderr, "%d inliers refined tight\n", ninliers);
-
-    F = F2;
-
-    return true;
-}
-
 // F is from reference_pts to target_pts
 bool ransac_F(const vector<v4> & reference_pts, const vector<v4> target_pts, m4 & F)
 {

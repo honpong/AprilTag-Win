@@ -389,7 +389,7 @@
                                                   delegate:self
                                          cancelButtonTitle:@"Cancel"
                                     destructiveButtonTitle:nil
-                                         otherButtonTitles:@"About", @"Tell a friend", @"Accuracy tips", @"Tutorial video", @"Rate the app", @"Preferences", nil];
+                                         otherButtonTitles:@"About", @"Tell a friend", @"Rate the app", @"Accuracy tips", @"Tutorial video", @"Preferences", nil];
     }
     
     // Show the sheet
@@ -417,17 +417,17 @@
         }
         case 2:
         {
-            [tipsView show];
+            [self gotoAppStore];
             break;
         }
         case 3:
         {
-            [self gotoTutorialVideo];
+            [tipsView show];
             break;
         }
         case 4:
         {
-            [self gotoAppStore];
+            [self gotoTutorialVideo];
             break;
         }
         case 5:

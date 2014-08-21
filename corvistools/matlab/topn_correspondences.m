@@ -37,12 +37,12 @@ K = [info.focal_length 0 info.center_x; 0 info.focal_length info.center_y; 0 0 1
 figure(77); clf;
 imshow(I1);
 hold on
-plot(X1(ind(1), 1), X1(ind(1), 2), 'go');
+plot(X1(1, 1), X1(1, 2), 'go');
 figure(78); clf;
 imshow(I2);
 hold on
-plot(X2(ind(1), 1), X2(ind(1), 2), 'go');
-decompose_F(Fgt, K, X1(ind, :), X2(ind,:));
+plot(X2(1, 1), X2(1, 2), 'go');
+decompose_F(Fgt, K, X1, X2);
 
 % computes a transform to make correspondences with scanlines
 [T1,T2] = estimateUncalibratedRectification(F,X1,X2,size(I1));

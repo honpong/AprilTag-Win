@@ -28,6 +28,7 @@
 
 - (void)viewDidLoad
 {
+    LOGME
     [super viewDidLoad];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -52,8 +53,14 @@
 
 - (void)viewWillAppear:(BOOL)animated
 {
+    LOGME
     self.titleText.measuredPhoto = self.measuredPhoto;
     if (isWebViewLoaded) [self loadMeasuredPhoto];
+}
+
+- (void) viewDidAppear:(BOOL)animated
+{
+    LOGME
 }
 
 - (void) viewDidDisappear:(BOOL)animated
@@ -231,6 +238,7 @@
     {
         NSString* javascript = [NSString stringWithFormat:@"loadMPhoto('%@', '%@', '%@', '%@');", self.measuredPhoto.imageFileName, self.measuredPhoto.depthFileName, self.measuredPhoto.annotationsFileName, self.measuredPhoto.id_guid];
         [self.webView stringByEvaluatingJavaScriptFromString: javascript];
+        DLogs(javascript);
     }
     else
     {

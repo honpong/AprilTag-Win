@@ -389,7 +389,7 @@
                                                   delegate:self
                                          cancelButtonTitle:@"Cancel"
                                     destructiveButtonTitle:nil
-                                         otherButtonTitles:@"About", @"Tell a friend", @"Accuracy Tips", @"Tutorial Video", @"Preferences", nil];
+                                         otherButtonTitles:@"About", @"Tell a friend", @"Accuracy tips", @"Tutorial video", @"Rate the app", @"Preferences", nil];
     }
     
     // Show the sheet
@@ -427,6 +427,11 @@
         }
         case 4:
         {
+            [self gotoAppStore];
+            break;
+        }
+        case 5:
+        {
             [self performSegueWithIdentifier:@"toSettings" sender:self];
             break;
         }
@@ -434,6 +439,12 @@
         default:
             break;
     }
+}
+
+- (void) gotoAppStore
+{
+    NSURL *url = [NSURL URLWithString:@"itms-apps://itunes.com/apps/EndlessTapeMeasure"];
+    [[UIApplication sharedApplication] openURL:url];
 }
 
 #pragma mark - Sharing

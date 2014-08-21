@@ -437,7 +437,7 @@ MRF::CostVal unary_cost(int pixel, int label)
     return lambda * exp(-beta * -stereo_grid_matches[pixel][label].score);
 }
 
-void stereo_mesh_refine_mrf(stereo_mesh & mesh, int width, int height)
+void stereo_mesh_refine_mrf(stereo_mesh & mesh, int width, int height, void (*progress_callback)(float), float start_progress, float end_progress)
 {
     MRF* mrf;
     MRF::EnergyVal E;
@@ -477,7 +477,8 @@ void stereo_mesh_refine_mrf(stereo_mesh & mesh, int width, int height)
     }
 
     tot_t = 0;
-    for (iter=0; iter<10; iter++) {
+    int niterations = 10;
+    for (iter=0; iter<niterations; iter++) {
 		mrf->optimize(10, t);
 
         if(debug_mrf) {
@@ -486,6 +487,11 @@ void stereo_mesh_refine_mrf(stereo_mesh & mesh, int width, int height)
             tot_t = tot_t + t ;
             fprintf(stderr, "energy = %g, %g\n", mrf->smoothnessEnergy(), mrf->dataEnergy());
             fprintf(stderr, "energy = %g, lower bound = %f (%f secs)\n", (float)E, lowerBound, tot_t);
+        }
+
+        if(progress_callback) {
+            float progress = start_progress + (end_progress - start_progress)*iter/niterations;
+            progress_callback(progress);
         }
     }
 
@@ -594,6 +600,10 @@ void stereo_mesh_add_gradient_grid(stereo_mesh & mesh, const stereo &g, int npoi
     int m_width = g.width / grid_size;
     int m_height = g.height / grid_size;
 
+    float max_progress = 1;
+    if(enable_mrf)
+        max_progress = 0.75;
+
     stereo_grid_locations.clear();
     stereo_grid_matches.clear();
     for(int y = 0; y < g.height; y+=grid_size) {
@@ -624,7 +634,7 @@ void stereo_mesh_add_gradient_grid(stereo_mesh & mesh, const stereo &g, int npoi
             stereo_grid_matches.push_back(matches);
         }
         if(progress_callback) {
-            float progress = (float)y / g.height;
+            float progress = max_progress * (float)y / g.height;
             progress_callback(progress);
         }
     }
@@ -639,7 +649,7 @@ void stereo_mesh_add_gradient_grid(stereo_mesh & mesh, const stereo &g, int npoi
         }
     }
     else {
-        stereo_mesh_refine_mrf(mesh, m_width, m_height);
+        stereo_mesh_refine_mrf(mesh, m_width, m_height, progress_callback, max_progress, 1.);
     }
 }
 

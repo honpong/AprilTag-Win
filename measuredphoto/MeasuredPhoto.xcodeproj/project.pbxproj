@@ -94,7 +94,7 @@
 		32BA42AD17A2DF8B002BAE13 /* MPAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA42AC17A2DF8B002BAE13 /* MPAppDelegate.m */; };
 		32BA42B617A2DF8B002BAE13 /* MainStoryboard_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 32BA42B417A2DF8B002BAE13 /* MainStoryboard_iPhone.storyboard */; };
 		32BA42B917A2DF8B002BAE13 /* MainStoryboard_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 32BA42B717A2DF8B002BAE13 /* MainStoryboard_iPad.storyboard */; };
-		32BA42BC17A2DF8B002BAE13 /* MPViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA42BB17A2DF8B002BAE13 /* MPViewController.m */; };
+		32BA42BC17A2DF8B002BAE13 /* MPBaseViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA42BB17A2DF8B002BAE13 /* MPBaseViewController.m */; };
 		32BA42C417A2DF8B002BAE13 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA42C317A2DF8B002BAE13 /* SenTestingKit.framework */; };
 		32BA42C517A2DF8B002BAE13 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA429C17A2DF8B002BAE13 /* UIKit.framework */; };
 		32BA42C617A2DF8B002BAE13 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA429E17A2DF8B002BAE13 /* Foundation.framework */; };
@@ -347,8 +347,8 @@
 		32BA42AC17A2DF8B002BAE13 /* MPAppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPAppDelegate.m; sourceTree = "<group>"; };
 		32BA42B517A2DF8B002BAE13 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPhone.storyboard; sourceTree = "<group>"; };
 		32BA42B817A2DF8B002BAE13 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPad.storyboard; sourceTree = "<group>"; };
-		32BA42BA17A2DF8B002BAE13 /* MPViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPViewController.h; sourceTree = "<group>"; };
-		32BA42BB17A2DF8B002BAE13 /* MPViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPViewController.m; sourceTree = "<group>"; };
+		32BA42BA17A2DF8B002BAE13 /* MPBaseViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPBaseViewController.h; sourceTree = "<group>"; };
+		32BA42BB17A2DF8B002BAE13 /* MPBaseViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPBaseViewController.m; sourceTree = "<group>"; };
 		32BA42C217A2DF8B002BAE13 /* MeasuredPhotoTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MeasuredPhotoTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		32BA42C317A2DF8B002BAE13 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
 		32BA42CB17A2DF8B002BAE13 /* MeasuredPhotoTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "MeasuredPhotoTests-Info.plist"; sourceTree = "<group>"; };
@@ -745,8 +745,8 @@
 				3201E4D719807F06008F61D5 /* MPEditTitleController.m */,
 				32BA433617A2EF69002BAE13 /* MPCapturePhoto.h */,
 				32BA433717A2EF69002BAE13 /* MPCapturePhoto.m */,
-				32BA42BA17A2DF8B002BAE13 /* MPViewController.h */,
-				32BA42BB17A2DF8B002BAE13 /* MPViewController.m */,
+				32BA42BA17A2DF8B002BAE13 /* MPBaseViewController.h */,
+				32BA42BB17A2DF8B002BAE13 /* MPBaseViewController.m */,
 				320E5DE817E37E8400381E7A /* MPYouTubeVideo.h */,
 				320E5DE917E37E8400381E7A /* MPYouTubeVideo.m */,
 				32B78F8819182C93003165C9 /* MPLocalMoviePlayer.h */,
@@ -1268,7 +1268,7 @@
 				32EFED33196C91CE00FDC89F /* NSManagedObjectModel+MagicalRecord.m in Sources */,
 				32EFED2A196C91CE00FDC89F /* NSManagedObject+MagicalAggregation.m in Sources */,
 				32EEC84F17B97D1900A0DF49 /* MPMeasurementView.m in Sources */,
-				32BA42BC17A2DF8B002BAE13 /* MPViewController.m in Sources */,
+				32BA42BC17A2DF8B002BAE13 /* MPBaseViewController.m in Sources */,
 				1768898F195B599100337524 /* scale_and_rotate.js in Sources */,
 				32EFED8B196E078F00FDC89F /* SBJsonUTF8Stream.m in Sources */,
 				32EFED30196C91CE00FDC89F /* NSManagedObjectContext+MagicalRecord.m in Sources */,

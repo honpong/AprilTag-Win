@@ -182,15 +182,17 @@ rcMeasurements.dragEndHandler = function (m, e) {
 }
 
 rcMeasurements.click_action = function (m,e) {
-    setTimeout(function(){ return false;},1);  //this just forces refresh for some browsers
-    if ( rcMeasurements.is_measurement_being_deleted(m) ) {  //this is both a deletion and a check for deletion
-         e.stopPropagation(); e.preventDefault(); // if deleted, dont do anything else
-    }
     //if we just ended a drag, don't propagate click
     var now = new Date();
     var last_drag_time_diff = now - rcMeasurements.most_recent_drag;
     if (last_drag_time_diff < 100){
         e.stopPropagation(); e.preventDefault();
+        return;
+    }
+
+    setTimeout(function(){ return false;},1);  //this just forces refresh for some browsers
+    if ( rcMeasurements.is_measurement_being_deleted(m) ) {  //this is both a deletion and a check for deletion
+        e.stopPropagation(); e.preventDefault(); // if deleted, dont do anything else
     }
     //otherwise allow anotations gesture to propegate to image to see if it has an effect on anotations.
 }

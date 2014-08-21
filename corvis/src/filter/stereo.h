@@ -61,7 +61,6 @@ struct stereo_global {
 *
  * During video processing
  * - process_frame on each frame while video is running
- * - baseline to determine when there is enough distance between the saved state and the current state
  * When video processing is finished
  * - process_frame with final=true on the last frame
  * - preprocess to calculate the fundamental matrix F between the two saved states
@@ -84,11 +83,6 @@ public:
     bool triangulate(int reference_x, int reference_y, v4 & intersection, struct stereo_match * match = NULL) const;
     bool triangulate_top_n(int reference_x, int reference_y, int n, vector<struct stereo_match> & matches) const;
     bool triangulate_mesh(int x, int y, v4 & intersection) const;
-    /*
-     * Returns the baseline traveled between the saved state and the
-     * reference state in the frame of the camera
-     */
-    v4 baseline();
 
     bool preprocess(bool use_eight_point=false);
     bool preprocess_mesh(void(*progress_callback)(float));
@@ -102,9 +96,6 @@ public:
     stereo(): target(0), reference(0), correspondences(0), orientation(STEREO_ORIENTATION_RIGHT) {}
     ~stereo() { if(target) delete target; if(reference) delete reference; }
 protected:
-    bool should_save_frame(struct filter * f);
-    void save_frame(struct filter *f, const uint8_t *frame);
-    void update_state(struct filter *f);
     bool find_and_triangulate_top_n(int reference_x, int reference_y, int width, int height, int n, vector<struct stereo_match> & matches) const;
     bool triangulate_internal(const stereo_frame & reference, const stereo_frame & target, int reference_x, int reference_y, int target_x, int target_y, v4 & intersection, float & depth, float & error) const;
     void rectify_frames();

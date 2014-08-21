@@ -1167,16 +1167,6 @@ int intersection_length(list<stereo_feature> &l1, list<stereo_feature> &l2)
     return len;
 }
 
-v4 stereo::baseline()
-{
-    if(!target)
-        return v4(0,0,0,0);
-    
-    m4 R1w = to_rotation_matrix(target->W);
-    
-    return transpose(R1w) * (T - target->T);
-}
-
 void stereo::process_frame(const struct stereo_global &g, const uint8_t *data, list<stereo_feature> &features, bool final)
 {
     stereo_global::operator=(g);

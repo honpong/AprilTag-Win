@@ -41,6 +41,7 @@
 #import "UIView+RCViewFade.h"
 
 #import "RCRotatingView.h"
+#import "RCSlideBanner.h"
 
 #import "NSString+RCString.h"
 

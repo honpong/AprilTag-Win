@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		1749D0A5178377F100E15D12 /* RCMeasuredPhotoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 1749D0A4178377F100E15D12 /* RCMeasuredPhotoTests.m */; };
+		320E9C4719A6BB8A00D6153B /* RCSlideBanner.m in Sources */ = {isa = PBXBuildFile; fileRef = 320E9C4619A6BB8A00D6153B /* RCSlideBanner.m */; };
+		320E9C4919A6BE7E00D6153B /* RCSlideBanner.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 320E9C4519A6BB8A00D6153B /* RCSlideBanner.h */; };
 		3215DC351797449D00DD86E4 /* RCMeasuredPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 3215DC341797449D00DD86E4 /* RCMeasuredPhoto.m */; };
 		321F4E27177BA99B00C94BE4 /* NSObject+SupersequentImplementation.m in Sources */ = {isa = PBXBuildFile; fileRef = 321F4E26177BA99B00C94BE4 /* NSObject+SupersequentImplementation.m */; };
 		322B8A8B17DC2A28008FED6E /* RCAVSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 322B8A8A17DC2A28008FED6E /* RCAVSessionManager.m */; };
@@ -192,6 +194,7 @@
 				D3217E1818BE2FA700762A31 /* RCReplayManager.h in CopyFiles */,
 				322B8A9517DC2C68008FED6E /* CLPlacemark+RCPlacemark.h in CopyFiles */,
 				324FF86218ECB70B00DC5E7F /* RCRotatingView.h in CopyFiles */,
+				320E9C4919A6BE7E00D6153B /* RCSlideBanner.h in CopyFiles */,
 				322B8A9117DC2C53008FED6E /* RCAVSessionManager.h in CopyFiles */,
 				322B8A9217DC2C53008FED6E /* RCLocationManager.h in CopyFiles */,
 				322B8A9317DC2C53008FED6E /* RCMotionManager.h in CopyFiles */,
@@ -236,6 +239,8 @@
 /* Begin PBXFileReference section */
 		1749D0A3178377F100E15D12 /* RCMeasuredPhotoTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCMeasuredPhotoTests.h; path = ../../rccore/RCCoreTests/RCMeasuredPhotoTests.h; sourceTree = "<group>"; };
 		1749D0A4178377F100E15D12 /* RCMeasuredPhotoTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCMeasuredPhotoTests.m; path = ../../rccore/RCCoreTests/RCMeasuredPhotoTests.m; sourceTree = "<group>"; };
+		320E9C4519A6BB8A00D6153B /* RCSlideBanner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCSlideBanner.h; path = ../../rccore/RCCore/RCSlideBanner.h; sourceTree = "<group>"; };
+		320E9C4619A6BB8A00D6153B /* RCSlideBanner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCSlideBanner.m; path = ../../rccore/RCCore/RCSlideBanner.m; sourceTree = "<group>"; };
 		3215DC331797449D00DD86E4 /* RCMeasuredPhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMeasuredPhoto.h; sourceTree = "<group>"; };
 		3215DC341797449D00DD86E4 /* RCMeasuredPhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCMeasuredPhoto.m; sourceTree = "<group>"; };
 		321F4E25177BA99A00C94BE4 /* NSObject+SupersequentImplementation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+SupersequentImplementation.h"; sourceTree = "<group>"; };
@@ -708,6 +713,8 @@
 				32BA41F4179F33D8002BAE13 /* RCFeatureLayerDelegate.m */,
 				32BA41FC179F3656002BAE13 /* RCFeaturesLayer.h */,
 				32BA41FD179F3656002BAE13 /* RCFeaturesLayer.m */,
+				320E9C4519A6BB8A00D6153B /* RCSlideBanner.h */,
+				320E9C4619A6BB8A00D6153B /* RCSlideBanner.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -934,6 +941,7 @@
 				3267A2EB16C46D9A001E14C7 /* AFURLConnectionOperation.m in Sources */,
 				3267A2EC16C46D9A001E14C7 /* AFXMLRequestOperation.m in Sources */,
 				D3217E1318BE2E0100762A31 /* RCReplayManager.m in Sources */,
+				320E9C4719A6BB8A00D6153B /* RCSlideBanner.m in Sources */,
 				3267A2ED16C46D9A001E14C7 /* UIImageView+AFNetworking.m in Sources */,
 				3267A2F116C46DA8001E14C7 /* RCHTTPClient.m in Sources */,
 				3267A2F416C46DB7001E14C7 /* RCUserManager.m in Sources */,

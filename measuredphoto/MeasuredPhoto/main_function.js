@@ -276,7 +276,7 @@ function setDefaultUnits(use_metric) {
 function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric){
     window.setTimeout( function () {
         m_photo_guid = guid;
-        if (typeof use_metric === "undefined" || use_metric === null) { default_units_metric = true; } //metric is our default if not set
+        if (typeof use_metric === "undefined" || use_metric === null) { default_units_metric = false; } //metric is our default if not set
                       else {default_units_metric = use_metric; unit_default_set_by_app = true; }//set default if provided.
         // only call initialization once.
         try {

@@ -11,6 +11,7 @@
 #import <RC3DK/RC3DK.h>
 #import "RCCore/RCGeocoder.h"
 #import "RCCore/RCSensorDelegate.h"
+#import "TMLocalMoviePlayer.h"
 
 @implementation TMNewMeasurementVC
 {
@@ -252,6 +253,28 @@ static transition transitions[] =
                                                object:nil];
     [self handleResume];
     SENSOR_FUSION.delegate = self;
+    
+    if ([[NSUserDefaults.standardUserDefaults objectForKey:PREF_IS_FIRST_LAUNCH] isEqual: @YES])
+    {
+        [NSUserDefaults.standardUserDefaults setObject:@NO forKey:PREF_IS_FIRST_LAUNCH];
+        [self gotoTutorialVideo];
+    }
+}
+
+- (void) gotoTutorialVideo
+{
+    NSURL *movieURL = [[NSBundle mainBundle] URLForResource:@"EndlessTapeMeasure" withExtension:@"mp4"];
+    TMLocalMoviePlayer* movieViewController = [[TMLocalMoviePlayer alloc] initWithContentURL:movieURL];
+    movieViewController.modalPresentationStyle = UIModalPresentationFullScreen;
+    [self presentMoviePlayerViewControllerAnimated:movieViewController];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:movieViewController  name:MPMoviePlayerPlaybackDidFinishNotification object:movieViewController.moviePlayer]; // needed to receive the notification below
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(moviePlayerWillExitFullScreen:) name:MPMoviePlayerPlaybackDidFinishNotification object:nil];
+}
+
+- (void) moviePlayerWillExitFullScreen:(NSNotification*)notification
+{
+    [self dismissMoviePlayerViewControllerAnimated];
 }
 
 - (void) viewWillDisappear:(BOOL)animated

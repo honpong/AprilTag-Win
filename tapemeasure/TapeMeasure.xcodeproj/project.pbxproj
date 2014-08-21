@@ -11,6 +11,8 @@
 		32011D13191D96EA00F17327 /* TMAboutView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32011D12191D96EA00F17327 /* TMAboutView.m */; };
 		32011D16191D97E500F17327 /* TMTipsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32011D15191D97E500F17327 /* TMTipsView.m */; };
 		320992711706402D0078C992 /* TMViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32808D63170396E200BE7CBC /* TMViewController.m */; };
+		320F9F8719A6A65000CF43B6 /* EndlessTapeMeasure.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 320F9F8619A6A65000CF43B6 /* EndlessTapeMeasure.mp4 */; };
+		320F9F8D19A6A8C300CF43B6 /* TMLocalMoviePlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 320F9F8C19A6A8C300CF43B6 /* TMLocalMoviePlayer.m */; };
 		3232AAA116D2C1FF007101EA /* TMMeasurement+TMMeasurementSync.m in Sources */ = {isa = PBXBuildFile; fileRef = 3232AAA016D2C1FF007101EA /* TMMeasurement+TMMeasurementSync.m */; };
 		3233C7AF16F3B9D700129B99 /* TMAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 3233C7AE16F3B9D700129B99 /* TMAnalytics.m */; };
 		323A82321731A4B90028DB16 /* TMNewMeasurementTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 323A82311731A4B90028DB16 /* TMNewMeasurementTests.m */; };
@@ -384,6 +386,9 @@
 		32011D15191D97E500F17327 /* TMTipsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMTipsView.m; sourceTree = "<group>"; };
 		3209926E17063F080078C992 /* TMNewMeasurementVCSyncTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMNewMeasurementVCSyncTests.h; sourceTree = "<group>"; };
 		3209926F17063F080078C992 /* TMNewMeasurementVCSyncTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMNewMeasurementVCSyncTests.m; sourceTree = "<group>"; };
+		320F9F8619A6A65000CF43B6 /* EndlessTapeMeasure.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = EndlessTapeMeasure.mp4; sourceTree = "<group>"; };
+		320F9F8B19A6A8C300CF43B6 /* TMLocalMoviePlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMLocalMoviePlayer.h; sourceTree = "<group>"; };
+		320F9F8C19A6A8C300CF43B6 /* TMLocalMoviePlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMLocalMoviePlayer.m; sourceTree = "<group>"; };
 		3232AA9F16D2C1FF007101EA /* TMMeasurement+TMMeasurementSync.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TMMeasurement+TMMeasurementSync.h"; sourceTree = "<group>"; };
 		3232AAA016D2C1FF007101EA /* TMMeasurement+TMMeasurementSync.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "TMMeasurement+TMMeasurementSync.m"; sourceTree = "<group>"; };
 		3233C7AD16F3B9D700129B99 /* TMAnalytics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMAnalytics.h; sourceTree = "<group>"; };
@@ -1030,6 +1035,7 @@
 		3280F7E9161BBB3200B5C8A8 /* TapeMeasure */ = {
 			isa = PBXGroup;
 			children = (
+				320F9F8619A6A65000CF43B6 /* EndlessTapeMeasure.mp4 */,
 				32D2B6D918EA163000B72F05 /* Calibration */,
 				32BA42FB17A2E5A9002BAE13 /* Shaders */,
 				32C45D9616DC22AB00FE7247 /* ThirdParty */,
@@ -1131,6 +1137,8 @@
 				32E4C4BE18F8A7A20094022B /* TMNavigationController.m */,
 				32F403331940E326002741C8 /* TMPreferences.h */,
 				32F403341940E326002741C8 /* TMPreferences.m */,
+				320F9F8B19A6A8C300CF43B6 /* TMLocalMoviePlayer.h */,
+				320F9F8C19A6A8C300CF43B6 /* TMLocalMoviePlayer.m */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -1782,6 +1790,7 @@
 				32E6877618F617160043D50A /* osk-iap-badge-60.png in Resources */,
 				32E687AD18F617160043D50A /* ReadingList-Icon-60.png in Resources */,
 				32E6875D18F617160043D50A /* Omnifocus-Icon-72@2x.png in Resources */,
+				320F9F8719A6A65000CF43B6 /* EndlessTapeMeasure.mp4 in Resources */,
 				32E6878B18F617160043D50A /* osk-navbarButton-highlighted@2x.png in Resources */,
 				32E6876218F617160043D50A /* osk-appDotNetIcon-29@2x.png in Resources */,
 				324EC50818E3ADB900D47E0D /* MainStoryboard_iPad.storyboard in Resources */,
@@ -2099,6 +2108,7 @@
 				32E6881B18F617170043D50A /* UIColor+OSKUtility.m in Sources */,
 				3288775E173C17B900A553B9 /* TMPoint.m in Sources */,
 				32E687FF18F617170043D50A /* OSKReadingListActivity.m in Sources */,
+				320F9F8D19A6A8C300CF43B6 /* TMLocalMoviePlayer.m in Sources */,
 				328CBF391742AED700A6DF7B /* TMTickMarksLayerDelegate.m in Sources */,
 				3287D8A2174C1E4100DDFD43 /* TMVideoPreview.m in Sources */,
 				32C5663017692EA100FB3CD4 /* TMAugmentedRealityView.m in Sources */,

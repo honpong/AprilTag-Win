@@ -53,6 +53,8 @@
         [NSUserDefaults.standardUserDefaults registerDefaults:appDefaults];
     });
     
+//    [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_IS_FIRST_LAUNCH]; // for testing
+    
     [Flurry setSecureTransportEnabled:YES];
     [Flurry setCrashReportingEnabled:YES];
     [Flurry setDebugLogEnabled:NO];

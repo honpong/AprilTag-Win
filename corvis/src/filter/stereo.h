@@ -49,8 +49,6 @@ public:
 struct stereo_global {
     int width;
     int height;
-    v4 T;
-    rotation_vector W;
     f_t focal_length;
     f_t center_x;
     f_t center_y;
@@ -79,7 +77,7 @@ public:
     stereo_mesh mesh;
     enum stereo_orientation orientation;
 
-    void process_frame(const struct stereo_global &g, const uint8_t *data, list<stereo_feature> &features, bool final);
+    void process_frame(const struct stereo_global &g, const v4 & T, const rotation_vector & W, const uint8_t *data, list<stereo_feature> &features, bool final);
     bool triangulate(int reference_x, int reference_y, v4 & intersection, struct stereo_match * match = NULL) const;
     bool triangulate_top_n(int reference_x, int reference_y, int n, vector<struct stereo_match> & matches) const;
     bool triangulate_mesh(int x, int y, v4 & intersection) const;

@@ -1167,13 +1167,13 @@ int intersection_length(list<stereo_feature> &l1, list<stereo_feature> &l2)
     return len;
 }
 
-void stereo::process_frame(const struct stereo_global &g, const uint8_t *data, list<stereo_feature> &features, bool final)
+void stereo::process_frame(const struct stereo_global &g, const v4 & T, const rotation_vector & W, const uint8_t *data, list<stereo_feature> &features, bool final)
 {
     stereo_global::operator=(g);
     
     if(final) {
         if(reference) delete reference;
-        reference = new stereo_frame(data, g.width, g.height, g.T, g.W, features);
+        reference = new stereo_frame(data, g.width, g.height, T, W, features);
         if(enable_debug_files) {
             write_frames(false);
         }
@@ -1186,7 +1186,7 @@ void stereo::process_frame(const struct stereo_global &g, const uint8_t *data, l
         }
     } else if(features.size() >= 15) {
         if(!target) {
-            target = new stereo_frame(data, g.width, g.height, g.T, g.W, features);
+            target = new stereo_frame(data, g.width, g.height, T, W, features);
         }
         /* Uncomment to automatically enable updating the saved stereo state
          * when there are less than 15 features overlapping
@@ -1373,9 +1373,6 @@ void stereo::write_debug_info()
 
     fprintf(debug_info, "width = %d;\n", width);
     fprintf(debug_info, "height = %d;\n", height);
-    v4_file_print(debug_info, "Tglobal", T);
-    m4 R = to_rotation_matrix(W);
-    m4_file_print(debug_info, "Rglobal", R);
 
     m4 Rtarget = to_rotation_matrix(target->W);
     m4 Rreference = to_rotation_matrix(reference->W);

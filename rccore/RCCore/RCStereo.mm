@@ -93,8 +93,8 @@
     
     s.width = (int)CVPixelBufferGetWidth(pixelBuffer);
     s.height = (int)CVPixelBufferGetHeight(pixelBuffer);
-    s.T = data.cameraTransformation.translation.vector;
-    s.W = rotation_vector(data.cameraTransformation.rotation.x, data.cameraTransformation.rotation.y, data.cameraTransformation.rotation.z);
+    v4 T = data.cameraTransformation.translation.vector;
+    rotation_vector W = rotation_vector(data.cameraTransformation.rotation.x, data.cameraTransformation.rotation.y, data.cameraTransformation.rotation.z);
     s.focal_length = data.cameraParameters.focalLength;
     s.center_x = data.cameraParameters.opticalCenterX;
     s.center_y = data.cameraParameters.opticalCenterY;
@@ -106,7 +106,7 @@
     for (RCFeaturePoint *feature in data.featurePoints) {
         features.push_back(stereo_feature(feature.id, v4(feature.x, feature.y, 0., 0.)));
     }
-    mystereo.process_frame(s, pixel, features, final);
+    mystereo.process_frame(s, T, W, pixel, features, final);
     
     if(final) {
         [self writeSampleBuffer:data.sampleBuffer withFilename:texture_path];

@@ -8,10 +8,6 @@ bool enable_match_occupancy = true;
 bool enable_top_n = true;
 bool enable_mrf = true;
 
-extern f_t estimate_kr(v4 point, f_t k1, f_t k2, f_t k3);
-extern v4 calibrate_im_point(v4 normalized_point, float k1, float k2, float k3);
-extern v4 project_point(f_t x, f_t y, f_t center_x, f_t center_y, float focal_length);
-
 struct inddist {
     uint32_t index;
     float distance;
@@ -86,11 +82,9 @@ bool stereo_mesh_triangulate(const stereo_mesh & mesh, const stereo &g, int x, i
     v4 T = g.reference->T;
 
     // Get calibrated camera2 point
-    v4 point = project_point(x, y, g.center_x, g.center_y, g.focal_length);
-    v4 calibrated_point = calibrate_im_point(point, g.k1, g.k2, g.k3);
+    v4 calibrated_point = g.camera.calibrate_image_point(x, y);
     if(debug_triangulate_mesh) {
-        fprintf(stderr, "point, calibrated_point: ");
-        point.print();
+        fprintf(stderr, "calibrated_point: ");
         calibrated_point.print();
     }
 
@@ -165,8 +159,8 @@ void stereo_mesh_write_rotated_json(const char * filename, const stereo_mesh & m
 
     // Transform center point to rotated pixel coordinates
     // rotate around width/2 height/2
-    v4 image_midpoint = v4(g.width/2, g.height/2., 0, 0);
-    v4 image_center = v4(g.center_x, g.center_y, 0, 0);
+    v4 image_midpoint = v4(g.camera.width/2, g.camera.height/2., 0, 0);
+    v4 image_center = v4(g.camera.center_x, g.camera.center_y, 0, 0);
     image_center -= image_midpoint;
     bool is_landscape = degrees == 0 || degrees == 180;
     if(!is_landscape) {
@@ -183,15 +177,15 @@ void stereo_mesh_write_rotated_json(const char * filename, const stereo_mesh & m
     fprintf(vertices, "\"texture_name\": \"%s\",\n", texturename);
     fprintf(vertices, "\"rotation_degrees\": %d,\n", degrees);
     fprintf(vertices, "\"center\": [%g, %g],\n", image_center[0], image_center[1]);
-    fprintf(vertices, "\"focal_length\": %g,\n", g.focal_length);
-    fprintf(vertices, "\"k1\": %g,\n", g.k1);
-    fprintf(vertices, "\"k2\": %g,\n", g.k2);
-    fprintf(vertices, "\"k3\": %g,\n", g.k3);
+    fprintf(vertices, "\"focal_length\": %g,\n", g.camera.focal_length);
+    fprintf(vertices, "\"k1\": %g,\n", g.camera.k1);
+    fprintf(vertices, "\"k2\": %g,\n", g.camera.k2);
+    fprintf(vertices, "\"k3\": %g,\n", g.camera.k3);
     fprintf(vertices, "\"vertices\" : [\n");
     for(int i = 0; i < mesh.vertices.size(); i++)
     {
         v4 vertex = R*mesh.vertices[i];
-        v4 imvertex = v4(mesh.vertices_image[i].x, mesh.vertices_image[i].y, 0, 0) - v4(g.width/2, g.height/2, 0, 0);
+        v4 imvertex = v4(mesh.vertices_image[i].x, mesh.vertices_image[i].y, 0, 0) - v4(g.camera.width/2, g.camera.height/2, 0, 0);
         imvertex = R*imvertex + image_midpoint; // image_midpoint is already rotated
         fprintf(vertices, "[%f, %f, %f, %f, %f, %f]", vertex[0], vertex[1], vertex[2], imvertex[0], imvertex[1], mesh.match_scores[i]);
         if(i == mesh.vertices.size()-1)
@@ -275,8 +269,7 @@ bool check_triangle(const stereo &g, const stereo_mesh & mesh, const stereo_tria
         float y = mesh.vertices_image[t.vertices[v]].y;
         
         // Get calibrated camera2 point
-        v4 point = project_point(x, y, g.center_x, g.center_y, g.focal_length);
-        v4 calibrated_point = calibrate_im_point(point, g.k1, g.k2, g.k3);
+        v4 calibrated_point = g.camera.calibrate_image_point(x, y);
         
         // Rotate the direction into the world reference frame and translate
         // back to the origin
@@ -597,8 +590,8 @@ void stereo_mesh_write_topn_correspondences(const char * filename)
 
 void stereo_mesh_add_gradient_grid(stereo_mesh & mesh, const stereo &g, int npoints, void (*progress_callback)(float))
 {
-    int m_width = g.width / grid_size;
-    int m_height = g.height / grid_size;
+    int m_width = g.camera.width / grid_size;
+    int m_height = g.camera.height / grid_size;
 
     float max_progress = 1;
     if(enable_mrf)
@@ -606,8 +599,8 @@ void stereo_mesh_add_gradient_grid(stereo_mesh & mesh, const stereo &g, int npoi
 
     stereo_grid_locations.clear();
     stereo_grid_matches.clear();
-    for(int y = 0; y < g.height; y+=grid_size) {
-        for(int x = 0; x < g.width; x+=grid_size) {
+    for(int y = 0; y < g.camera.height; y+=grid_size) {
+        for(int x = 0; x < g.camera.width; x+=grid_size) {
             int best_x = x;
             int best_y = y;
             float best_gradient = 0;
@@ -615,8 +608,8 @@ void stereo_mesh_add_gradient_grid(stereo_mesh & mesh, const stereo &g, int npoi
                 for(int dx = 1; dx < grid_size; dx++) {
                     int row = y + dy;
                     int col = x + dx;
-                    float gx = ((float)g.reference->image[row*g.width+col] - (float)g.reference->image[row*g.width+ (col-1)])/2.;
-                    float gy = ((float)g.reference->image[row*g.width+col] - (float)g.reference->image[(row-1)*g.width + col])/2.;
+                    float gx = ((float)g.reference->image[row*g.camera.width+col] - (float)g.reference->image[row*g.camera.width+ (col-1)])/2.;
+                    float gy = ((float)g.reference->image[row*g.camera.width+col] - (float)g.reference->image[(row-1)*g.camera.width + col])/2.;
                     float mag = sqrt(gx*gx + gy*gy);
                     if(mag > best_gradient) {
                         best_gradient = mag;
@@ -634,7 +627,7 @@ void stereo_mesh_add_gradient_grid(stereo_mesh & mesh, const stereo &g, int npoi
             stereo_grid_matches.push_back(matches);
         }
         if(progress_callback) {
-            float progress = max_progress * (float)y / g.height;
+            float progress = max_progress * (float)y / g.camera.height;
             progress_callback(progress);
         }
     }
@@ -658,8 +651,8 @@ void stereo_mesh_add_gradient(stereo_mesh & mesh, const stereo &g, int npoints, 
     // TODO: what is the best mask_shift value
     int mask_shift = 2;
     int grid_size = 1 << mask_shift;
-    int m_width = g.width / grid_size;
-    int m_height = g.height / grid_size;
+    int m_width = g.camera.width / grid_size;
+    int m_height = g.camera.height / grid_size;
 
     bool * match_occupied = (bool *)calloc(m_width*m_height, sizeof(bool));
     float * match_scores = (float *)calloc(m_width*m_height, sizeof(float));
@@ -670,11 +663,11 @@ void stereo_mesh_add_gradient(stereo_mesh & mesh, const stereo &g, int npoints, 
     v4 intersection;
 
     xy pt;
-    for(int row = 1; row < g.height; row++)
-        for(int col = 1; col < g.width; col++)
+    for(int row = 1; row < g.camera.height; row++)
+        for(int col = 1; col < g.camera.width; col++)
         {
-            float dx = ((float)g.reference->image[row*g.width+col] - (float)g.reference->image[row*g.width+ (col-1)])/2.;
-            float dy = ((float)g.reference->image[row*g.width+col] - (float)g.reference->image[(row-1)*g.width + col])/2.;
+            float dx = ((float)g.reference->image[row*g.camera.width+col] - (float)g.reference->image[row*g.camera.width+ (col-1)])/2.;
+            float dy = ((float)g.reference->image[row*g.camera.width+col] - (float)g.reference->image[(row-1)*g.camera.width + col])/2.;
             float mag = sqrt(dx*dx + dy*dy);
             if(mag > 5) {
                 pt.x = col;
@@ -741,10 +734,10 @@ void stereo_mesh_add_grid(stereo_mesh & mesh, const stereo &g, int step, void (*
     v4 intersection;
     struct stereo_match match;
 
-    for(int row = 0; row < g.height; row += step) {
-        for(int col=0; col < g.width; col += step) {
+    for(int row = 0; row < g.camera.height; row += step) {
+        for(int col=0; col < g.camera.width; col += step) {
             if(progress_callback) {
-                float progress = (1.*col + row*g.width)/(g.height*g.width);
+                float progress = (1.*col + row*g.camera.width)/(g.camera.height*g.camera.width);
                 progress_callback(progress);
             }
             success = g.triangulate(col, row, intersection, &match);

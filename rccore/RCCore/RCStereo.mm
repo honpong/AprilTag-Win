@@ -84,7 +84,7 @@
 
 - (void) processFrame:(RCSensorFusionData *)data withFinal:(bool)final
 {
-    struct stereo_global s;
+    camera s;
     
     CMSampleBufferRef sampleBuffer = data.sampleBuffer;
     CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);

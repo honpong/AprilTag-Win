@@ -192,7 +192,7 @@ DEPS := $(DEPS) build/_filter.ipp.d
 
 d := stereo
 
-STEREO_CXX_SOURCES := $(addprefix src/$(d)/, stereo.cpp stereo_mesh.cpp triangle.cpp)
+STEREO_CXX_SOURCES := $(addprefix src/$(d)/, stereo.cpp stereo_mesh.cpp camera.cpp triangle.cpp)
 
 STEREO_SOURCES :=
 
@@ -245,7 +245,7 @@ build/$(d)/%.o: $(d)/%.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 
-bin/test: build/$(d)/gtest_main.o build/$(d)/gtest-all.o $(patsubst test/%,build/test/%,$(TEST_CXX_SOURCES:.cpp=.o)) $(addprefix build/numerics/, vec4.o matrix.o) $(addprefix build/stereo/, stereo.o stereo_mesh.o triangle.o) $(addprefix build/filter/, fast_detector/fast_9.o scaled_mask.o) bin/MRF2.2/_mrf.so bin/vlfeat-0.9.18/_vl.so
+bin/test: build/$(d)/gtest_main.o build/$(d)/gtest-all.o $(patsubst test/%,build/test/%,$(TEST_CXX_SOURCES:.cpp=.o)) $(addprefix build/numerics/, vec4.o matrix.o) $(addprefix build/filter/, fast_detector/fast_9.o scaled_mask.o) bin/stereo/_stereo.so bin/MRF2.2/_mrf.so bin/vlfeat-0.9.18/_vl.so
 	@mkdir -p $(@D)
 	$(CC) $(LDFLAGS) $(PYTHON_LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
 

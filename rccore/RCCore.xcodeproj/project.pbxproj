@@ -172,6 +172,7 @@
 		D36C361F184F314400F77AAF /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C361E184F314400F77AAF /* CoreVideo.framework */; };
 		D38126F618CA234200E635C3 /* RCConnectionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D38126F518CA234200E635C3 /* RCConnectionManager.m */; };
 		D38126FC18CA239800E635C3 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = D38126FB18CA239800E635C3 /* GCDAsyncSocket.m */; };
+		D39F963719AB75E700562BA2 /* camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D39F963619AB75E700562BA2 /* camera.cpp */; };
 		D3CC6E63195AD11800C0A7E6 /* README.txt in Resources */ = {isa = PBXBuildFile; fileRef = D3CC6E4D195AD11800C0A7E6 /* README.txt */; };
 		D3CC6E64195AD11800C0A7E6 /* graph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3CC6E4E195AD11800C0A7E6 /* graph.cpp */; };
 		D3CC6E65195AD11800C0A7E6 /* regions-maxprod.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3CC6E4F195AD11800C0A7E6 /* regions-maxprod.cpp */; };
@@ -501,6 +502,8 @@
 		D38126F518CA234200E635C3 /* RCConnectionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCConnectionManager.m; sourceTree = "<group>"; };
 		D38126FA18CA239800E635C3 /* GCDAsyncSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GCDAsyncSocket.h; path = GCDAsyncSocket/GCDAsyncSocket.h; sourceTree = "<group>"; };
 		D38126FB18CA239800E635C3 /* GCDAsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GCDAsyncSocket.m; path = GCDAsyncSocket/GCDAsyncSocket.m; sourceTree = "<group>"; };
+		D39F963519AB75E700562BA2 /* camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = camera.h; path = ../../corvis/src/stereo/camera.h; sourceTree = "<group>"; };
+		D39F963619AB75E700562BA2 /* camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = camera.cpp; path = ../../corvis/src/stereo/camera.cpp; sourceTree = "<group>"; };
 		D3CC6E4B195AD11800C0A7E6 /* graph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = graph.h; path = ../../corvis/src/MRF2.2/graph.h; sourceTree = "<group>"; };
 		D3CC6E4C195AD11800C0A7E6 /* typeTruncatedQuadratic2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = typeTruncatedQuadratic2D.h; path = ../../corvis/src/MRF2.2/typeTruncatedQuadratic2D.h; sourceTree = "<group>"; };
 		D3CC6E4D195AD11800C0A7E6 /* README.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = README.txt; path = ../../corvis/src/MRF2.2/README.txt; sourceTree = "<group>"; };
@@ -1021,6 +1024,8 @@
 			isa = PBXGroup;
 			children = (
 				D3CC6E49195ACF5A00C0A7E6 /* MRF */,
+				D39F963519AB75E700562BA2 /* camera.h */,
+				D39F963619AB75E700562BA2 /* camera.cpp */,
 				D9045D821953E586002DD9D5 /* stereo.cpp */,
 				D9045D831953E586002DD9D5 /* stereo.h */,
 				D9045D841953E586002DD9D5 /* stereo_mesh.cpp */,
@@ -1219,6 +1224,7 @@
 				D30434B7197E85FE00190B70 /* fisher.c in Sources */,
 				3267A2F116C46DA8001E14C7 /* RCHTTPClient.m in Sources */,
 				D30434CA197E85FE00190B70 /* mathop_avx.c in Sources */,
+				D39F963719AB75E700562BA2 /* camera.cpp in Sources */,
 				3267A2F416C46DB7001E14C7 /* RCUserManager.m in Sources */,
 				D30434D1197E85FE00190B70 /* rodrigues.c in Sources */,
 				D3CC6E64195AD11800C0A7E6 /* graph.cpp in Sources */,

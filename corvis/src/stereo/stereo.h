@@ -1,6 +1,7 @@
 #ifndef __STEREO_H
 #define __STEREO_H
 
+#include "camera.h"
 #include "stereo_mesh.h"
 #include <list>
 using namespace std;
@@ -46,15 +47,6 @@ public:
     ~stereo_frame();
 };
 
-struct stereo_global {
-    int width;
-    int height;
-    f_t focal_length;
-    f_t center_x;
-    f_t center_y;
-    f_t k1, k2, k3;
-};
-
 /* How to use this class
 *
  * During video processing
@@ -67,8 +59,9 @@ struct stereo_global {
  * - use either triangulate or triangulate_mesh to determine the world coordinates of the point in the final frame
  */
 
-class stereo: public stereo_global {
+class stereo {
 public:
+    camera camera;
     m4 F;
     m4 F_motion, F_eight_point;
     m4 dR;
@@ -77,7 +70,7 @@ public:
     stereo_mesh mesh;
     enum stereo_orientation orientation;
 
-    void process_frame(const struct stereo_global &g, const v4 & T, const rotation_vector & W, const uint8_t *data, list<stereo_feature> &features, bool final);
+    void process_frame(const class camera &c, const v4 & T, const rotation_vector & W, const uint8_t *data, list<stereo_feature> &features, bool final);
     bool triangulate(int reference_x, int reference_y, v4 & intersection, struct stereo_match * match = NULL) const;
     bool triangulate_top_n(int reference_x, int reference_y, int n, vector<struct stereo_match> & matches) const;
     bool triangulate_mesh(int x, int y, v4 & intersection) const;
@@ -97,6 +90,7 @@ protected:
     bool find_and_triangulate_top_n(int reference_x, int reference_y, int width, int height, int n, vector<struct stereo_match> & matches) const;
     bool triangulate_internal(const stereo_frame & reference, const stereo_frame & target, int reference_x, int reference_y, int target_x, int target_y, v4 & intersection, float & depth, float & error) const;
     void rectify_frames();
+    void rectify_features(list<stereo_feature> & features);
 
     // Computes a fundamental matrix between reference and target and stores it in F.
     bool preprocess_internal(const stereo_frame & reference, stereo_frame & target, m4 &F, bool use_eight_point);

@@ -215,36 +215,6 @@ bool track_line(uint8_t * im1, bool * im1valid, uint8_t * im2,  bool * im2valid,
     return valid_match;
 }
 
-f_t estimate_kr(v4 point, f_t k1, f_t k2, f_t k3)
-{
-    f_t r2 = point[0]*point[0] + point[1]*point[1];
-    f_t r4 = r2 * r2;
-    f_t r6 = r4 * r2;
-    f_t kr = 1. + r2 * k1 + r4 * k2 + r6 * k3;
-    return kr;
-}
-
-v4 calibrate_im_point(v4 normalized_point, float k1, float k2, float k3)
-{
-    f_t kr;
-    v4 calibrated_point = normalized_point;
-    //forward calculation - guess calibrated from initial
-    kr = estimate_kr(normalized_point, k1, k2, k3);
-    calibrated_point[0] /= kr;
-    calibrated_point[1] /= kr;
-    //backward calculation - use calibrated guess to get new parameters and recompute
-    kr = estimate_kr(calibrated_point, k1, k2, k3);
-    calibrated_point = normalized_point;
-    calibrated_point[0] /= kr;
-    calibrated_point[1] /= kr;
-    return calibrated_point;
-}
-
-v4 project_point(f_t x, f_t y, f_t center_x, f_t center_y, float focal_length)
-{
-    return v4((x - center_x)/focal_length, (y - center_y)/focal_length, 1, 1);
-}
-
 // From http://paulbourke.net/geometry/pointlineplane/lineline.c
 bool line_line_intersect(v4 p1, v4 p2, v4 p3, v4 p4, v4 & pa, v4 & pb)
 {
@@ -288,7 +258,7 @@ bool line_line_intersect(v4 p1, v4 p2, v4 p3, v4 p4, v4 & pa, v4 & pb)
 
 //TODO: estimate_F doesnt agree with eight point F. This is now correct for F corresponding to X2 = R * X1 + T
 
-m4 estimate_F(const struct stereo_global &g, const stereo_frame &reference, const stereo_frame &target, m4 & dR, v4 & dT)
+m4 estimate_F(const camera &g, const stereo_frame &reference, const stereo_frame &target, m4 & dR, v4 & dT)
 {
     /*
     x1_w = R1 * x1 + T1
@@ -963,8 +933,8 @@ bool stereo::reestimate_F(const stereo_frame & reference, const stereo_frame & t
     int noctaves = -1;
     int nlevels = 3;
     int o_min = 0;
-    vector<sift_keypoint> reference_keypoints = sift_detect(reference.image, width, height, noctaves, nlevels, o_min);
-    vector<sift_keypoint> target_keypoints = sift_detect(target.image, width, height, noctaves, nlevels, o_min);
+    vector<sift_keypoint> reference_keypoints = sift_detect(reference.image, camera.width, camera.height, noctaves, nlevels, o_min);
+    vector<sift_keypoint> target_keypoints = sift_detect(target.image, camera.width, camera.height, noctaves, nlevels, o_min);
 
     // Match
     vector<sift_match> matches = ubc_match(reference_keypoints, target_keypoints);
@@ -1002,7 +972,7 @@ bool stereo::reestimate_F(const stereo_frame & reference, const stereo_frame & t
     // Note: R & T are from reference to target, but stereo frames are stored as
     // target to reference
     // TODO: Use more than one correspondence for more robust validation
-    decompose_F(F, focal_length, center_x, center_y, p1, p2, R, T);
+    decompose_F(F, camera.focal_length, camera.center_x, camera.center_y, p1, p2, R, T);
 
     return true;
 }
@@ -1014,10 +984,15 @@ bool stereo::triangulate_internal(const stereo_frame & reference, const stereo_f
     v4 pa, pb;
     bool success;
 
-    v4 p1_projected = project_point(reference_x, reference_y, center_x, center_y, focal_length);
-    v4 p1_calibrated = calibrate_im_point(p1_projected, k1, k2, k3);
-    v4 p2_projected = project_point(target_x, target_y, center_x, center_y, focal_length);
-    v4 p2_calibrated = calibrate_im_point(p2_projected, k1, k2, k3);
+    v4 p1_calibrated, p2_calibrated;
+    if(enable_rectify) {
+        p1_calibrated = camera.project_image_point(reference_x, reference_y);
+        p2_calibrated = camera.project_image_point(target_x, target_y);
+    }
+    else {
+        p1_calibrated = camera.calibrate_image_point(reference_x, reference_y);
+        p2_calibrated = camera.calibrate_image_point(target_x, target_y);
+    }
 
     m4 R1w = to_rotation_matrix(reference.W);
     m4 R2w = to_rotation_matrix(target.W);
@@ -1065,7 +1040,7 @@ bool stereo::preprocess_internal(const stereo_frame &from, stereo_frame &to, m4 
     used_eight_point = use_eight_point;
     // estimate_F uses R,T, and the camera calibration
     if(!use_eight_point)
-        F_motion = estimate_F(*this, from, to, dR, dT);
+        F_motion = estimate_F(camera, from, to, dR, dT);
     else
     // estimate_F_eight_point uses common tracked features between the two frames
         success = estimate_F_eight_point(from, to, F);
@@ -1121,7 +1096,7 @@ bool stereo::triangulate_top_n(int reference_x, int reference_y, int n, vector<s
         return false;
 
     // sets match
-    bool ok = find_and_triangulate_top_n(reference_x, reference_y, width, height, n, matches);
+    bool ok = find_and_triangulate_top_n(reference_x, reference_y, camera.width, camera.height, n, matches);
     return ok;
 }
 
@@ -1137,7 +1112,7 @@ bool stereo::triangulate(int reference_x, int reference_y, v4 & intersection, st
     float error;
     
     // sets match
-    bool ok = find_correspondence(*reference, *target, F, reference_x, reference_y, width, height, match_internal);
+    bool ok = find_correspondence(*reference, *target, F, reference_x, reference_y, camera.width, camera.height, match_internal);
     if(ok)
         ok = triangulate_internal(*reference, *target, reference_x, reference_y, match_internal.x, match_internal.y, intersection, match_internal.depth, error);
 
@@ -1167,10 +1142,10 @@ int intersection_length(list<stereo_feature> &l1, list<stereo_feature> &l2)
     return len;
 }
 
-void stereo::process_frame(const struct stereo_global &g, const v4 & T, const rotation_vector & W, const uint8_t *data, list<stereo_feature> &features, bool final)
+void stereo::process_frame(const class camera &g, const v4 & T, const rotation_vector & W, const uint8_t *data, list<stereo_feature> &features, bool final)
 {
-    stereo_global::operator=(g);
-    
+    camera = g;
+
     if(final) {
         if(reference) delete reference;
         reference = new stereo_frame(data, g.width, g.height, T, W, features);
@@ -1256,69 +1231,24 @@ void stereo::write_frames(bool is_rectified)
     char buffer[1024];
     if(is_rectified) {
         snprintf(buffer, 1024, "%s-target-rectified.pgm", debug_basename);
-        write_image(buffer, target->image, width, height);
+        write_image(buffer, target->image, camera.width, camera.height);
         snprintf(buffer, 1024, "%s-reference-rectified.pgm", debug_basename);
-        write_image(buffer, reference->image, width, height);
+        write_image(buffer, reference->image, camera.width, camera.height);
     }
     else {
         snprintf(buffer, 1024, "%s-target.pgm", debug_basename);
-        write_image(buffer, target->image, width, height);
+        write_image(buffer, target->image, camera.width, camera.height);
         snprintf(buffer, 1024, "%s-reference.pgm", debug_basename);
-        write_image(buffer, reference->image, width, height);
+        write_image(buffer, reference->image, camera.width, camera.height);
     }
 }
 
-#define interp(c0, c1, t) ((c0)*(1-(t)) + ((c1)*(t)))
-float bilinear_interp(uint8_t * image, int width, int height, float x, float y)
-{
-    float result = 0;
-    int xi = (int)x;
-    int yi = (int)y;
-    float tx = x - xi;
-    float ty = y - yi;
-    if(xi < 0 || xi >= width-1 || yi < 0 || yi >= height-1)
-        return 0;
-    float c00 = image[yi*width + xi];
-    float c01 = image[(yi+1)*width + xi];
-    float c10 = image[yi*width + xi + 1];
-    float c11 = image[(yi+1)*width + xi + 1];
-    result = interp(interp(c00, c10, tx), interp(c01, c11, tx), ty);
-    return result;
-}
-
-void undistort_coordinate(float x, float y, f_t focal, float cx, float cy, f_t k1, f_t k2, f_t k3, float & x_undistorted, float & y_undistorted)
-{
-    v4 pt = v4((x - cx)/focal, (y - cy)/focal, 1, 0);
-    f_t kr = estimate_kr(pt, k1, k2, k3);
-    x_undistorted = pt[0] * focal * kr + cx;
-    y_undistorted = pt[1] * focal * kr + cy;
-}
-
-void rectify_image(uint8_t * input, uint8_t * output, bool * valid, int width, int height, float k1, float k2, float k3, float center_x, float center_y, float focal_length)
-{
-    for(int y = 0; y < height; y++)
-        for(int x = 0; x < width; x++) {
-            float x_undistorted, y_undistorted;
-            undistort_coordinate(x, y, focal_length, center_x, center_y, k1, k2, k3, x_undistorted, y_undistorted);
-            if(x_undistorted < 0 || x_undistorted >= width-1 ||
-               y_undistorted < 0 || y_undistorted >= height-1) {
-                valid[y*width + x] = false;
-                output[y*width + x] = 0;
-            }
-            else {
-                valid[y*width + x] = true;
-                output[y*width + x] = bilinear_interp(input, width, height, x_undistorted, y_undistorted);
-            }
-        }
-}
-
-void rectify_features(list<stereo_feature> & features, float k1, float k2, float k3, float center_x, float center_y, float focal_length)
+void stereo::rectify_features(list<stereo_feature> & features)
 {
     for(list<stereo_feature>::iterator fiter = features.begin(); fiter != features.end(); ++fiter) {
         stereo_feature f = *fiter;
-        float x_undistorted, y_undistorted;
-        undistort_coordinate(f.current[0], f.current[1], focal_length, center_x, center_y, k1, k2, k3, x_undistorted, y_undistorted);
-        fiter->current = v4(x_undistorted, y_undistorted, 0, 0);
+        feature_t undistorted = camera.undistort_image_point(f.current[0], f.current[1]);
+        fiter->current = v4(undistorted.x, undistorted.y, 0, 0);
     }
 }
 
@@ -1326,15 +1256,15 @@ void stereo::rectify_frames()
 {
     if(!reference || !target) return;
 
-    stereo_frame * reference_rectified = new stereo_frame(reference->image, width, height, reference->T, reference->W, reference->features);
-    rectify_image(reference->image, reference_rectified->image, reference_rectified->valid, width, height, k1, k2, k3, center_x, center_y, focal_length);
-    rectify_features(reference_rectified->features, k1, k2, k3, center_x, center_y, focal_length);
+    stereo_frame * reference_rectified = new stereo_frame(reference->image, camera.width, camera.height, reference->T, reference->W, reference->features);
+    camera.undistort_image(reference->image, reference_rectified->image, reference_rectified->valid);
+    rectify_features(reference_rectified->features);
     delete reference;
     reference = reference_rectified;
 
-    stereo_frame * target_rectified = new stereo_frame(target->image, width, height, target->T, target->W, target->features);
-    rectify_image(target->image, target_rectified->image, target_rectified->valid, width, height, k1, k2, k3, center_x, center_y, focal_length);
-    rectify_features(target_rectified->features, k1, k2, k3, center_x, center_y, focal_length);
+    stereo_frame * target_rectified = new stereo_frame(target->image, camera.width, camera.height, target->T, target->W, target->features);
+    camera.undistort_image(target->image, target_rectified->image, target_rectified->valid);
+    rectify_features(target_rectified->features);
     delete target;
     target = target_rectified;
 
@@ -1371,8 +1301,8 @@ void stereo::write_debug_info()
     FILE * debug_info = fopen(filename, "w");
 
 
-    fprintf(debug_info, "width = %d;\n", width);
-    fprintf(debug_info, "height = %d;\n", height);
+    fprintf(debug_info, "width = %d;\n", camera.width);
+    fprintf(debug_info, "height = %d;\n", camera.height);
 
     m4 Rtarget = to_rotation_matrix(target->W);
     m4 Rreference = to_rotation_matrix(reference->W);
@@ -1386,12 +1316,12 @@ void stereo::write_debug_info()
     fprintf(debug_info, "enable_jitter = %d;\n", enable_jitter);
     fprintf(debug_info, "enable_rectify = %d;\n", enable_rectify);
 
-    fprintf(debug_info, "focal_length = %g;\n", focal_length);
-    fprintf(debug_info, "center_x = %g;\n", center_x);
-    fprintf(debug_info, "center_y = %g;\n", center_y);
-    fprintf(debug_info, "k1 = %g;\n", k1);
-    fprintf(debug_info, "k2 = %g;\n", k2);
-    fprintf(debug_info, "k3 = %g;\n", k3);
+    fprintf(debug_info, "focal_length = %g;\n", camera.focal_length);
+    fprintf(debug_info, "center_x = %g;\n", camera.center_x);
+    fprintf(debug_info, "center_y = %g;\n", camera.center_y);
+    fprintf(debug_info, "k1 = %g;\n", camera.k1);
+    fprintf(debug_info, "k2 = %g;\n", camera.k2);
+    fprintf(debug_info, "k3 = %g;\n", camera.k3);
     m4_file_print(debug_info, "F", F);
     m4_file_print(debug_info, "F_motion", F_motion);
     m4_file_print(debug_info, "F_eight_point", F_eight_point);

@@ -1,6 +1,6 @@
 #include "stereo.h"
 #include "stereo_mesh.h"
-#include "filter.h"
+#include "../filter/filter.h"
 
 bool debug_triangulate = false;
 bool debug_eight_point_ransac = false;

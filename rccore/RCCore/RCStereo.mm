@@ -12,7 +12,7 @@
 #import <UIKit/UIKit.h>
 
 #include "../../corvis/src/numerics/vec4.h"
-#include "../../corvis/src/filter/stereo.h"
+#include "../../corvis/src/stereo/stereo.h"
 
 @interface RCStereo ()
 

@@ -1,6 +1,6 @@
 #include "stereo_mesh.h"
 #include "stereo.h"
-#include "filter.h"
+#include "../filter/filter.h"
 
 bool debug_triangulate_mesh = false;
 bool debug_mrf = false;
@@ -755,7 +755,7 @@ void stereo_mesh_add_grid(stereo_mesh & mesh, const stereo &g, int step, void (*
     }
 }
 
-#include "tracker.h"
+#include "../filter/tracker.h"
 void stereo_mesh_add_features(stereo_mesh & mesh, const stereo &g, int maxvertices, void (*progress_callback)(float))
 {
     bool success;

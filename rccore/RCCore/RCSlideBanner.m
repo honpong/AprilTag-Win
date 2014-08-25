@@ -15,7 +15,8 @@
 
 @implementation RCSlideBanner
 {
-    NSLayoutConstraint* topToSuperviewConstraint;
+    NSLayoutConstraint* bottomToSuperviewConstraint;
+    NSLayoutConstraint* heightConstraint;
 }
 @synthesize state;
 
@@ -23,15 +24,37 @@
 {
     if (self = [super initWithCoder:(NSCoder *)aDecoder])
     {
-        state = RCSlideBannerStateShowing; // assume view is showing in storyboard
+        [self initialize];
     }
     return self;
 }
 
-- (void) layoutSubviews
+- (id) initWithFrame:(CGRect)frame
 {
-    [super layoutSubviews];
-    topToSuperviewConstraint = [self findTopToSuperviewConstraint];
+    if (self = [super initWithFrame:frame])
+    {
+        [self initialize];
+    }
+    return self;
+}
+
+- (void) initialize
+{
+    state = RCSlideBannerStateShowing; // assume view is showing by default
+    self.translatesAutoresizingMaskIntoConstraints = NO;
+}
+
+- (void) didMoveToSuperview
+{
+    [self addLeadingSpaceToSuperviewConstraint:0];
+    [self addTrailingSpaceToSuperviewConstraint:0];
+    bottomToSuperviewConstraint = [self addBottomSpaceToSuperviewConstraint:0];
+}
+
+- (void) setHeightConstraint:(CGFloat)height
+{
+    heightConstraint = [self getHeightConstraint:100];
+    [self addConstraint:heightConstraint];
 }
 
 - (void) showInstantly
@@ -39,7 +62,7 @@
     self.hidden = NO;
     if (state == RCSlideBannerStateShowing) return;
     state = RCSlideBannerStateShowing;
-    [self moveDown];
+    [self moveUp];
 }
 
 - (void) showAnimated
@@ -62,7 +85,7 @@
 {
     if (state == RCSlideBannerStateHidden) return;
     state = RCSlideBannerStateHidden;
-    [self moveUp];
+    [self moveDown];
 }
 
 - (void) hideInstantly
@@ -92,12 +115,12 @@
 
 - (void) moveDown
 {
-    if (topToSuperviewConstraint) topToSuperviewConstraint.constant = 0;
+    if (bottomToSuperviewConstraint) bottomToSuperviewConstraint.constant = heightConstraint.constant;
 }
 
 - (void) moveUp
 {
-    if (topToSuperviewConstraint) topToSuperviewConstraint.constant = -self.bounds.size.height;
+    if (bottomToSuperviewConstraint) bottomToSuperviewConstraint.constant = 0;
 }
 
 @end

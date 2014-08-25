@@ -240,7 +240,16 @@
 {
     for (NSLayoutConstraint* con in self.superview.constraints)
     {
-        if (con.firstItem == self && con.secondItem == self.superview && con.firstAttribute == NSLayoutAttributeTop) return con;
+        if (con.firstItem == self.superview && con.secondItem == self && con.firstAttribute == NSLayoutAttributeTop) return con;
+    }
+    return nil;
+}
+
+- (NSLayoutConstraint*) findBottomToSuperviewConstraint
+{
+    for (NSLayoutConstraint* con in self.superview.constraints)
+    {
+        if (con.firstItem == self && con.secondItem == self.superview && con.firstAttribute == NSLayoutAttributeBottom) return con;
     }
     return nil;
 }

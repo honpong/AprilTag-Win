@@ -22,5 +22,6 @@ typedef NS_ENUM(int, RCSlideBannerState) {
 - (void) showAnimated;
 - (void) hideWithDelay:(float)secs onCompletion:(void (^)(BOOL finished))completionBlock;
 - (void) hideInstantly;
+- (void) setHeightConstraint:(CGFloat)height;
 
 @end

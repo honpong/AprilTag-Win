@@ -56,6 +56,9 @@
 		3267A2FE16C46F56001E14C7 /* AFURLConnectionOperation.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3267A2DF16C46D9A001E14C7 /* AFURLConnectionOperation.h */; };
 		3267A2FF16C46F56001E14C7 /* AFXMLRequestOperation.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3267A2E116C46D9A001E14C7 /* AFXMLRequestOperation.h */; };
 		3267A30016C46F56001E14C7 /* UIImageView+AFNetworking.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3267A2E316C46D9A001E14C7 /* UIImageView+AFNetworking.h */; };
+		3272F73819ABFE7C001F7AA1 /* RCOutlinedButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 3272F73719ABFE7C001F7AA1 /* RCOutlinedButton.m */; };
+		3272F73A19ABFE8E001F7AA1 /* RCOutlinedButton.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3272F73619ABFE7C001F7AA1 /* RCOutlinedButton.h */; };
+		3272F73B19ABFE95001F7AA1 /* RCOutlinedButton.m in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3272F73719ABFE7C001F7AA1 /* RCOutlinedButton.m */; };
 		3274E23A1756800C007EDEE1 /* RCDistanceImperialTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3274E2391756800C007EDEE1 /* RCDistanceImperialTests.m */; };
 		3274E23D1756A9E5007EDEE1 /* RCDistanceMetricTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3274E23C1756A9E5007EDEE1 /* RCDistanceMetricTests.m */; };
 		32771A0517DC29AE00881279 /* RCLocationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32771A0017DC29AE00881279 /* RCLocationManager.m */; };
@@ -199,6 +202,7 @@
 				322B8A9217DC2C53008FED6E /* RCLocationManager.h in CopyFiles */,
 				322B8A9317DC2C53008FED6E /* RCMotionManager.h in CopyFiles */,
 				322B8A9417DC2C53008FED6E /* RCVideoManager.h in CopyFiles */,
+				3272F73B19ABFE95001F7AA1 /* RCOutlinedButton.m in CopyFiles */,
 				32BA4202179F3E83002BAE13 /* RCFeaturesLayer.h in CopyFiles */,
 				324FF86318ECB71100DC5E7F /* UIView+RCConstraints.h in CopyFiles */,
 				324FF86418ECB71100DC5E7F /* UIView+RCConstraints.m in CopyFiles */,
@@ -213,6 +217,7 @@
 				32A7254A17501C25004C873A /* RCFraction.h in CopyFiles */,
 				32A7254B17501C25004C873A /* RCDistance.h in CopyFiles */,
 				32A7254517501BEA004C873A /* RCDistanceLabel.h in CopyFiles */,
+				3272F73A19ABFE8E001F7AA1 /* RCOutlinedButton.h in CopyFiles */,
 				32A7254617501BEA004C873A /* RCFractionLabel.h in CopyFiles */,
 				32C3892F16DD441B00BD995C /* NSString+RCString.h in CopyFiles */,
 				328ACC1616D595A100BC7142 /* RCUser.h in CopyFiles */,
@@ -295,6 +300,8 @@
 		3267A2F016C46DA8001E14C7 /* RCHTTPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCHTTPClient.m; sourceTree = "<group>"; };
 		3267A2F216C46DB7001E14C7 /* RCUserManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCUserManager.h; sourceTree = "<group>"; };
 		3267A2F316C46DB7001E14C7 /* RCUserManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCUserManager.m; sourceTree = "<group>"; };
+		3272F73619ABFE7C001F7AA1 /* RCOutlinedButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCOutlinedButton.h; path = ../../rccore/RCCore/RCOutlinedButton.h; sourceTree = "<group>"; };
+		3272F73719ABFE7C001F7AA1 /* RCOutlinedButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCOutlinedButton.m; path = ../../rccore/RCCore/RCOutlinedButton.m; sourceTree = "<group>"; };
 		3274E2381756800C007EDEE1 /* RCDistanceImperialTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceImperialTests.h; sourceTree = "<group>"; };
 		3274E2391756800C007EDEE1 /* RCDistanceImperialTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDistanceImperialTests.m; sourceTree = "<group>"; };
 		3274E23B1756A9E5007EDEE1 /* RCDistanceMetricTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceMetricTests.h; sourceTree = "<group>"; };
@@ -715,6 +722,8 @@
 				32BA41FD179F3656002BAE13 /* RCFeaturesLayer.m */,
 				320E9C4519A6BB8A00D6153B /* RCSlideBanner.h */,
 				320E9C4619A6BB8A00D6153B /* RCSlideBanner.m */,
+				3272F73619ABFE7C001F7AA1 /* RCOutlinedButton.h */,
+				3272F73719ABFE7C001F7AA1 /* RCOutlinedButton.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -955,6 +964,7 @@
 				3281B100174EDB5C0080D07E /* RCDistanceImperial.m in Sources */,
 				3281B103174EE1060080D07E /* RCDistanceImperialFractional.m in Sources */,
 				3281B106174EE5040080D07E /* RCFraction.m in Sources */,
+				3272F73819ABFE7C001F7AA1 /* RCOutlinedButton.m in Sources */,
 				D9045D871953E586002DD9D5 /* stereo_mesh.cpp in Sources */,
 				3215DC351797449D00DD86E4 /* RCMeasuredPhoto.m in Sources */,
 				32BA41F5179F33D8002BAE13 /* RCFeatureLayerDelegate.m in Sources */,

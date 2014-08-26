@@ -23,13 +23,23 @@
 
 - (void) addMatchSuperviewConstraints
 {
+    [self addMatchWidthToSuperviewConstraints];
+    [self addMatchHeightToSuperviewContraints];
+}
+
+- (void) addMatchWidthToSuperviewConstraints
+{
     self.translatesAutoresizingMaskIntoConstraints = NO;
-    [self.superview addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[self]|"
+    [self.superview addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[self]|"
                                                                            options:0
                                                                            metrics:nil
                                                                              views:NSDictionaryOfVariableBindings(self)]];
-    
-    [self.superview addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[self]|"
+}
+
+- (void) addMatchHeightToSuperviewContraints
+{
+    self.translatesAutoresizingMaskIntoConstraints = NO;
+    [self.superview addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[self]|"
                                                                            options:0
                                                                            metrics:nil
                                                                              views:NSDictionaryOfVariableBindings(self)]];
@@ -70,9 +80,22 @@
 
 - (void) addWidthConstraint:(CGFloat)width andHeightConstraint:(CGFloat)height
 {
-    [self addConstraint: [self getWidthConstraint:width] ];
-    
-    [self addConstraint: [self getHeightConstraint:height] ];
+    [self addWidthConstraint:width];
+    [self addHeightConstraint:height];
+}
+
+- (NSLayoutConstraint*) addWidthConstraint:(CGFloat)width
+{
+    NSLayoutConstraint* widthConstraint = [self getWidthConstraint:width];
+    [self addConstraint:widthConstraint];
+    return widthConstraint;
+}
+
+- (NSLayoutConstraint*) addHeightConstraint:(CGFloat)height
+{
+    NSLayoutConstraint* heightConstraint = [self getHeightConstraint:height];
+    [self addConstraint:heightConstraint];
+    return heightConstraint;
 }
 
 - (NSLayoutConstraint*) getWidthConstraint:(CGFloat)width
@@ -156,11 +179,11 @@
 - (NSLayoutConstraint*) addTopSpaceToViewConstraint:(UIView*)view withDist:(int)dist
 {
     self.translatesAutoresizingMaskIntoConstraints = NO;
-    NSLayoutConstraint* constraint = [NSLayoutConstraint constraintWithItem:self
-                                                                  attribute:NSLayoutAttributeTop
-                                                                  relatedBy:NSLayoutRelationEqual
-                                                                     toItem:view
+    NSLayoutConstraint* constraint = [NSLayoutConstraint constraintWithItem:view
                                                                   attribute:NSLayoutAttributeBottom
+                                                                  relatedBy:NSLayoutRelationEqual
+                                                                     toItem:self
+                                                                  attribute:NSLayoutAttributeTop
                                                                  multiplier:1.
                                                                    constant:-dist];
     [self.superview addConstraint:constraint];

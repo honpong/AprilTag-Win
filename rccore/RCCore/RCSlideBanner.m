@@ -17,6 +17,7 @@
 {
     NSLayoutConstraint* bottomToSuperviewConstraint;
     NSLayoutConstraint* heightConstraint;
+    CGFloat originalBottomSpace;
 }
 @synthesize state;
 
@@ -44,17 +45,15 @@
     self.translatesAutoresizingMaskIntoConstraints = NO;
 }
 
-- (void) didMoveToSuperview
-{
-    [self addLeadingSpaceToSuperviewConstraint:0];
-    [self addTrailingSpaceToSuperviewConstraint:0];
-    bottomToSuperviewConstraint = [self addBottomSpaceToSuperviewConstraint:0];
-}
-
 - (void) setHeightConstraint:(CGFloat)height
 {
-    heightConstraint = [self getHeightConstraint:height];
-    [self addConstraint:heightConstraint];
+    heightConstraint = [self addHeightConstraint:height];
+}
+
+- (void) setBottomSpaceToSuperviewConstraint:(CGFloat)distance
+{
+    bottomToSuperviewConstraint = [self addBottomSpaceToSuperviewConstraint:distance];
+    originalBottomSpace = distance;
 }
 
 - (void) showInstantly
@@ -73,7 +72,7 @@
     [self.superview layoutIfNeeded];
     [UIView animateWithDuration: .5
                           delay: 0
-                        options: UIViewAnimationOptionCurveEaseIn
+                        options: UIViewAnimationOptionCurveEaseOut
                      animations:^{
                          [self showInstantly];
                          [self.superview layoutIfNeeded];
@@ -115,12 +114,12 @@
 
 - (void) moveDown
 {
-    if (bottomToSuperviewConstraint) bottomToSuperviewConstraint.constant = heightConstraint.constant;
+    if (bottomToSuperviewConstraint) bottomToSuperviewConstraint.constant = heightConstraint.constant + originalBottomSpace;
 }
 
 - (void) moveUp
 {
-    if (bottomToSuperviewConstraint) bottomToSuperviewConstraint.constant = 0;
+    if (bottomToSuperviewConstraint) bottomToSuperviewConstraint.constant = -originalBottomSpace;
 }
 
 @end

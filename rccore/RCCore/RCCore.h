@@ -43,6 +43,7 @@
 #import "RCRotatingView.h"
 #import "RCSlideBanner.h"
 #import "RCOutlinedButton.h"
+#import "RCRateMeView.h"
 
 #import "NSString+RCString.h"
 

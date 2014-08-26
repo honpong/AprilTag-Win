@@ -59,6 +59,8 @@
 		3272F73819ABFE7C001F7AA1 /* RCOutlinedButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 3272F73719ABFE7C001F7AA1 /* RCOutlinedButton.m */; };
 		3272F73A19ABFE8E001F7AA1 /* RCOutlinedButton.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3272F73619ABFE7C001F7AA1 /* RCOutlinedButton.h */; };
 		3272F73B19ABFE95001F7AA1 /* RCOutlinedButton.m in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3272F73719ABFE7C001F7AA1 /* RCOutlinedButton.m */; };
+		3272F74019AD0615001F7AA1 /* RCRateMeView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3272F73F19AD0615001F7AA1 /* RCRateMeView.m */; };
+		3272F74119AD0904001F7AA1 /* RCRateMeView.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3272F73E19AD0615001F7AA1 /* RCRateMeView.h */; };
 		3274E23A1756800C007EDEE1 /* RCDistanceImperialTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3274E2391756800C007EDEE1 /* RCDistanceImperialTests.m */; };
 		3274E23D1756A9E5007EDEE1 /* RCDistanceMetricTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3274E23C1756A9E5007EDEE1 /* RCDistanceMetricTests.m */; };
 		32771A0517DC29AE00881279 /* RCLocationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32771A0017DC29AE00881279 /* RCLocationManager.m */; };
@@ -205,6 +207,7 @@
 				3272F73B19ABFE95001F7AA1 /* RCOutlinedButton.m in CopyFiles */,
 				32BA4202179F3E83002BAE13 /* RCFeaturesLayer.h in CopyFiles */,
 				324FF86318ECB71100DC5E7F /* UIView+RCConstraints.h in CopyFiles */,
+				3272F74119AD0904001F7AA1 /* RCRateMeView.h in CopyFiles */,
 				324FF86418ECB71100DC5E7F /* UIView+RCConstraints.m in CopyFiles */,
 				324FF86518ECB71100DC5E7F /* UIView+RCOrientationRotation.h in CopyFiles */,
 				324FF86618ECB71100DC5E7F /* UIView+RCOrientationRotation.m in CopyFiles */,
@@ -302,6 +305,8 @@
 		3267A2F316C46DB7001E14C7 /* RCUserManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCUserManager.m; sourceTree = "<group>"; };
 		3272F73619ABFE7C001F7AA1 /* RCOutlinedButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCOutlinedButton.h; path = ../../rccore/RCCore/RCOutlinedButton.h; sourceTree = "<group>"; };
 		3272F73719ABFE7C001F7AA1 /* RCOutlinedButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCOutlinedButton.m; path = ../../rccore/RCCore/RCOutlinedButton.m; sourceTree = "<group>"; };
+		3272F73E19AD0615001F7AA1 /* RCRateMeView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCRateMeView.h; path = ../../rccore/RCCore/RCRateMeView.h; sourceTree = "<group>"; };
+		3272F73F19AD0615001F7AA1 /* RCRateMeView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCRateMeView.m; path = ../../rccore/RCCore/RCRateMeView.m; sourceTree = "<group>"; };
 		3274E2381756800C007EDEE1 /* RCDistanceImperialTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceImperialTests.h; sourceTree = "<group>"; };
 		3274E2391756800C007EDEE1 /* RCDistanceImperialTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDistanceImperialTests.m; sourceTree = "<group>"; };
 		3274E23B1756A9E5007EDEE1 /* RCDistanceMetricTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceMetricTests.h; sourceTree = "<group>"; };
@@ -724,6 +729,8 @@
 				320E9C4619A6BB8A00D6153B /* RCSlideBanner.m */,
 				3272F73619ABFE7C001F7AA1 /* RCOutlinedButton.h */,
 				3272F73719ABFE7C001F7AA1 /* RCOutlinedButton.m */,
+				3272F73E19AD0615001F7AA1 /* RCRateMeView.h */,
+				3272F73F19AD0615001F7AA1 /* RCRateMeView.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -977,6 +984,7 @@
 				D9045D7E1953E189002DD9D5 /* RCStereo.mm in Sources */,
 				32771A0717DC29AE00881279 /* RCVideoManager.m in Sources */,
 				322B8A8B17DC2A28008FED6E /* RCAVSessionManager.m in Sources */,
+				3272F74019AD0615001F7AA1 /* RCRateMeView.m in Sources */,
 				D38126FC18CA239800E635C3 /* GCDAsyncSocket.m in Sources */,
 				D94ECE6D194CC171008F2F9A /* RCGeocoder.m in Sources */,
 				322B8A9017DC2AE8008FED6E /* CLPlacemark+RCPlacemark.m in Sources */,

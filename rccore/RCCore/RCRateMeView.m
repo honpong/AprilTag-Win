@@ -70,22 +70,40 @@ static const CGFloat buttonHeight = 45;
     [laterButton addBottomSpaceToSuperviewConstraint:0];
     [laterButton addLeadingSpaceToSuperviewConstraint:0];
     [laterButton addWidthConstraint:width/2 andHeightConstraint:buttonHeight];
+    [laterButton addTarget:self action:@selector(laterButtonTapped) forControlEvents:UIControlEventTouchUpInside];
     
     [self addSubview:noButton];
     [noButton addBottomSpaceToSuperviewConstraint:0];
     [noButton addTrailingSpaceToSuperviewConstraint:0];
     [noButton addWidthConstraint:width/2 andHeightConstraint:buttonHeight];
+    [noButton addTarget:self action:@selector(neverButtonTapped) forControlEvents:UIControlEventTouchUpInside];
     
     [self addSubview:yesButton];
     [yesButton addBottomSpaceToViewConstraint:noButton withDist:0];
     [yesButton addMatchWidthToSuperviewConstraints];
     [yesButton addHeightConstraint:buttonHeight];
+    [yesButton addTarget:self action:@selector(rateButtonTapped) forControlEvents:UIControlEventTouchUpInside];
 }
 
 - (void) didMoveToSuperview
 {
     [self addWidthConstraint:width];
     [self setHeightConstraint:height];
+}
+
+- (void) rateButtonTapped
+{
+    if ([self.delegate respondsToSelector:@selector(handleRateNowButton)]) [self.delegate handleRateNowButton];
+}
+
+- (void) laterButtonTapped
+{
+    if ([self.delegate respondsToSelector:@selector(handleRateLaterButton)]) [self.delegate handleRateLaterButton];
+}
+
+- (void) neverButtonTapped
+{
+    if ([self.delegate respondsToSelector:@selector(handleRateNeverButton)]) [self.delegate handleRateNeverButton];
 }
 
 - (void)drawRect:(CGRect)rect

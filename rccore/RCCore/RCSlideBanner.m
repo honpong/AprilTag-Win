@@ -99,9 +99,9 @@
     state = RCSlideBannerStateAnimating;
     
     [self.superview layoutIfNeeded];
-    [UIView animateWithDuration: .5
+    [UIView animateWithDuration: .3
                           delay: secs
-                        options: UIViewAnimationOptionCurveEaseIn
+                        options: UIViewAnimationOptionCurveLinear
                      animations:^{
                          [self hide];
                          [self.superview layoutIfNeeded];

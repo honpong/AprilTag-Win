@@ -9,6 +9,16 @@
 #import <UIKit/UIKit.h>
 #import "RCSlideBanner.h"
 
+@protocol RCRateMeViewDelegate <NSObject>
+
+- (void) handleRateNowButton;
+- (void) handleRateLaterButton;
+- (void) handleRateNeverButton;
+
+@end
+
 @interface RCRateMeView : RCSlideBanner
+
+@property (nonatomic) id<RCRateMeViewDelegate> delegate;
 
 @end

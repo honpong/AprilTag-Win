@@ -13,39 +13,28 @@ v4 camera::project_image_point(f_t x, f_t y) const
     return v4((x - center_x)/focal_length, (y - center_y)/focal_length, 1, 1);
 }
 
-// TODO: Revisit this to make sure it is consistent with inverse
-
 v4 camera::calibrate_image_point(f_t x, f_t y) const
 {
-    f_t kr;
-    v4 normalized_point = project_image_point(x, y);
-    v4 calibrated_point;
-
-    //forward calculation - guess calibrated from initial
-    kr = estimate_kr(normalized_point[0], normalized_point[1], k1, k2, k3);
-    calibrated_point[0] /= kr;
-    calibrated_point[1] /= kr;
-
-    //backward calculation - use calibrated guess to get new parameters and recompute
-    kr = estimate_kr(calibrated_point[0], calibrated_point[1], k1, k2, k3);
-    calibrated_point = normalized_point;
-    calibrated_point[0] /= kr;
-    calibrated_point[1] /= kr;
+    feature_t undistorted = undistort_image_point(x, y);
+    v4 calibrated_point = project_image_point(undistorted.x, undistorted.y);
     return calibrated_point;
 }
 
 feature_t camera::undistort_image_point(f_t x, f_t y) const
 {
+    // Project distorted point
     f_t projected_x = (x - center_x)/focal_length;
     f_t projected_y = (y - center_y)/focal_length;
+    // Estimate kr
     f_t r2 = projected_x*projected_x + projected_y*projected_y;
     f_t r4 = r2 * r2;
     f_t r6 = r4 * r2;
     f_t kr = 1. + r2 * k1 + r4 * k2 + r6 * k3;
 
+    // Adjust distorted projection by kr, and back project to image
     feature_t undistorted;
-    undistorted.x = projected_x * focal_length * kr + center_x;
-    undistorted.y = projected_y * focal_length * kr + center_y;
+    undistorted.x = projected_x * focal_length / kr + center_x;
+    undistorted.y = projected_y * focal_length / kr + center_y;
     return undistorted;
 }
 

@@ -89,8 +89,8 @@ public:
 protected:
     bool find_and_triangulate_top_n(int reference_x, int reference_y, int width, int height, int n, vector<struct stereo_match> & matches) const;
     bool triangulate_internal(const stereo_frame & reference, const stereo_frame & target, int reference_x, int reference_y, int target_x, int target_y, v4 & intersection, float & depth, float & error) const;
-    void rectify_frames();
-    void rectify_features(list<stereo_feature> & features);
+    void undistort_frames();
+    void undistort_features(list<stereo_feature> & features);
 
     // Computes a fundamental matrix between reference and target and stores it in F.
     bool preprocess_internal(const stereo_frame & reference, stereo_frame & target, m4 &F, bool use_eight_point);

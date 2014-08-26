@@ -6,7 +6,7 @@ bool debug_triangulate = false;
 bool debug_eight_point_ransac = false;
 // if enabled, adds a 3 pixel jitter in all directions to correspondence
 bool enable_jitter = false;
-bool enable_rectify = false;
+bool enable_distortion_correction = false;
 bool enable_eight_point_motion = false;
 #ifndef ARCHIVE
 bool enable_debug_files = true;
@@ -985,7 +985,7 @@ bool stereo::triangulate_internal(const stereo_frame & reference, const stereo_f
     bool success;
 
     v4 p1_calibrated, p2_calibrated;
-    if(enable_rectify) {
+    if(enable_distortion_correction) {
         p1_calibrated = camera.project_image_point(reference_x, reference_y);
         p2_calibrated = camera.project_image_point(target_x, target_y);
     }
@@ -1100,9 +1100,6 @@ bool stereo::triangulate_top_n(int reference_x, int reference_y, int n, vector<s
     return ok;
 }
 
-// TODO: stereo_mesh uses rectified frames directly to find points to
-// triangulate, but in general triangulate should use distorted coordinates and
-// rectify them to match the internal representation of the images
 bool stereo::triangulate(int reference_x, int reference_y, v4 & intersection, struct stereo_match * match) const
 {
     if(!reference || !target)
@@ -1150,14 +1147,14 @@ void stereo::process_frame(const class camera &g, const v4 & T, const rotation_v
         if(reference) delete reference;
         reference = new stereo_frame(data, g.width, g.height, T, W, features);
         if(enable_debug_files) {
-            write_frames(false);
+            write_frames(true);
         }
 
-        if(enable_rectify)
-            rectify_frames();
+        if(enable_distortion_correction)
+            undistort_frames();
 
-        if(enable_debug_files && enable_rectify) {
-            write_frames(true);
+        if(enable_debug_files && enable_distortion_correction) {
+            write_frames(false);
         }
     } else if(features.size() >= 15) {
         if(!target) {
@@ -1226,13 +1223,13 @@ bool stereo::preprocess_mesh(void(*progress_callback)(float))
     return true;
 }
 
-void stereo::write_frames(bool is_rectified)
+void stereo::write_frames(bool is_distorted)
 {
     char buffer[1024];
-    if(is_rectified) {
-        snprintf(buffer, 1024, "%s-target-rectified.pgm", debug_basename);
+    if(is_distorted) {
+        snprintf(buffer, 1024, "%s-target-distorted.pgm", debug_basename);
         write_image(buffer, target->image, camera.width, camera.height);
-        snprintf(buffer, 1024, "%s-reference-rectified.pgm", debug_basename);
+        snprintf(buffer, 1024, "%s-reference-distorted.pgm", debug_basename);
         write_image(buffer, reference->image, camera.width, camera.height);
     }
     else {
@@ -1243,7 +1240,7 @@ void stereo::write_frames(bool is_rectified)
     }
 }
 
-void stereo::rectify_features(list<stereo_feature> & features)
+void stereo::undistort_features(list<stereo_feature> & features)
 {
     for(list<stereo_feature>::iterator fiter = features.begin(); fiter != features.end(); ++fiter) {
         stereo_feature f = *fiter;
@@ -1252,21 +1249,21 @@ void stereo::rectify_features(list<stereo_feature> & features)
     }
 }
 
-void stereo::rectify_frames()
+void stereo::undistort_frames()
 {
     if(!reference || !target) return;
 
-    stereo_frame * reference_rectified = new stereo_frame(reference->image, camera.width, camera.height, reference->T, reference->W, reference->features);
-    camera.undistort_image(reference->image, reference_rectified->image, reference_rectified->valid);
-    rectify_features(reference_rectified->features);
+    stereo_frame * reference_undistorted = new stereo_frame(reference->image, camera.width, camera.height, reference->T, reference->W, reference->features);
+    camera.undistort_image(reference->image, reference_undistorted->image, reference_undistorted->valid);
+    undistort_features(reference_undistorted->features);
     delete reference;
-    reference = reference_rectified;
+    reference = reference_undistorted;
 
-    stereo_frame * target_rectified = new stereo_frame(target->image, camera.width, camera.height, target->T, target->W, target->features);
-    camera.undistort_image(target->image, target_rectified->image, target_rectified->valid);
-    rectify_features(target_rectified->features);
+    stereo_frame * target_undistorted = new stereo_frame(target->image, camera.width, camera.height, target->T, target->W, target->features);
+    camera.undistort_image(target->image, target_undistorted->image, target_undistorted->valid);
+    undistort_features(target_undistorted->features);
     delete target;
-    target = target_rectified;
+    target = target_undistorted;
 
 }
 
@@ -1314,7 +1311,7 @@ void stereo::write_debug_info()
     m4_file_print(debug_info, "dR", dR);
     v4_file_print(debug_info, "dT", dT);
     fprintf(debug_info, "enable_jitter = %d;\n", enable_jitter);
-    fprintf(debug_info, "enable_rectify = %d;\n", enable_rectify);
+    fprintf(debug_info, "enable_distortion_correction = %d;\n", enable_distortion_correction);
 
     fprintf(debug_info, "focal_length = %g;\n", camera.focal_length);
     fprintf(debug_info, "center_x = %g;\n", camera.center_x);

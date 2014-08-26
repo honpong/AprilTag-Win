@@ -44,6 +44,7 @@
 #import "RCSlideBanner.h"
 #import "RCOutlinedButton.h"
 #import "RCRateMeView.h"
+#import "RCInvertButton.h"
 
 #import "NSString+RCString.h"
 

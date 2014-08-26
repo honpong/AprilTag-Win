@@ -61,6 +61,8 @@
 		3272F73B19ABFE95001F7AA1 /* RCOutlinedButton.m in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3272F73719ABFE7C001F7AA1 /* RCOutlinedButton.m */; };
 		3272F74019AD0615001F7AA1 /* RCRateMeView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3272F73F19AD0615001F7AA1 /* RCRateMeView.m */; };
 		3272F74119AD0904001F7AA1 /* RCRateMeView.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3272F73E19AD0615001F7AA1 /* RCRateMeView.h */; };
+		3272F74619AD2455001F7AA1 /* RCInvertButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 3272F74519AD2455001F7AA1 /* RCInvertButton.m */; };
+		3272F74719AD245F001F7AA1 /* RCInvertButton.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3272F74419AD2455001F7AA1 /* RCInvertButton.h */; };
 		3274E23A1756800C007EDEE1 /* RCDistanceImperialTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3274E2391756800C007EDEE1 /* RCDistanceImperialTests.m */; };
 		3274E23D1756A9E5007EDEE1 /* RCDistanceMetricTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3274E23C1756A9E5007EDEE1 /* RCDistanceMetricTests.m */; };
 		32771A0517DC29AE00881279 /* RCLocationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32771A0017DC29AE00881279 /* RCLocationManager.m */; };
@@ -196,6 +198,7 @@
 				D94ECE6F194CCA78008F2F9A /* RCGeocoder.h in CopyFiles */,
 				D3217E1918BE306F00762A31 /* CaptureFile.h in CopyFiles */,
 				D3217E1718BE2FA700762A31 /* RCCaptureManager.h in CopyFiles */,
+				3272F74719AD245F001F7AA1 /* RCInvertButton.h in CopyFiles */,
 				D3217E1818BE2FA700762A31 /* RCReplayManager.h in CopyFiles */,
 				322B8A9517DC2C68008FED6E /* CLPlacemark+RCPlacemark.h in CopyFiles */,
 				324FF86218ECB70B00DC5E7F /* RCRotatingView.h in CopyFiles */,
@@ -307,6 +310,8 @@
 		3272F73719ABFE7C001F7AA1 /* RCOutlinedButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCOutlinedButton.m; path = ../../rccore/RCCore/RCOutlinedButton.m; sourceTree = "<group>"; };
 		3272F73E19AD0615001F7AA1 /* RCRateMeView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCRateMeView.h; path = ../../rccore/RCCore/RCRateMeView.h; sourceTree = "<group>"; };
 		3272F73F19AD0615001F7AA1 /* RCRateMeView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCRateMeView.m; path = ../../rccore/RCCore/RCRateMeView.m; sourceTree = "<group>"; };
+		3272F74419AD2455001F7AA1 /* RCInvertButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCInvertButton.h; path = ../../rccore/RCCore/RCInvertButton.h; sourceTree = "<group>"; };
+		3272F74519AD2455001F7AA1 /* RCInvertButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCInvertButton.m; path = ../../rccore/RCCore/RCInvertButton.m; sourceTree = "<group>"; };
 		3274E2381756800C007EDEE1 /* RCDistanceImperialTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceImperialTests.h; sourceTree = "<group>"; };
 		3274E2391756800C007EDEE1 /* RCDistanceImperialTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDistanceImperialTests.m; sourceTree = "<group>"; };
 		3274E23B1756A9E5007EDEE1 /* RCDistanceMetricTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceMetricTests.h; sourceTree = "<group>"; };
@@ -731,6 +736,8 @@
 				3272F73719ABFE7C001F7AA1 /* RCOutlinedButton.m */,
 				3272F73E19AD0615001F7AA1 /* RCRateMeView.h */,
 				3272F73F19AD0615001F7AA1 /* RCRateMeView.m */,
+				3272F74419AD2455001F7AA1 /* RCInvertButton.h */,
+				3272F74519AD2455001F7AA1 /* RCInvertButton.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -961,6 +968,7 @@
 				3267A2ED16C46D9A001E14C7 /* UIImageView+AFNetworking.m in Sources */,
 				3267A2F116C46DA8001E14C7 /* RCHTTPClient.m in Sources */,
 				3267A2F416C46DB7001E14C7 /* RCUserManager.m in Sources */,
+				3272F74619AD2455001F7AA1 /* RCInvertButton.m in Sources */,
 				32CD632316CC015100496D46 /* RCDateFormatter.m in Sources */,
 				32C4493A16D5457C00984BEC /* Guid.m in Sources */,
 				32C4493B16D5457C00984BEC /* KeychainItemWrapper.m in Sources */,

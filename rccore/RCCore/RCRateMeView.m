@@ -8,8 +8,16 @@
 
 #import "RCRateMeView.h"
 #import "UIView+RCConstraints.h"
+#import "RCInvertButton.h"
 
 @implementation RCRateMeView
+{
+    UILabel* label;
+    RCInvertButton* yesButton;
+    RCInvertButton* laterButton;
+    RCInvertButton* noButton;
+    UIColor* lightBlue;
+}
 
 static const CGFloat width = 300;
 static const CGFloat height = 160;
@@ -26,27 +34,32 @@ static const CGFloat buttonHeight = 45;
 
 - (void) initialize
 {
-    self.backgroundColor = [UIColor colorWithRed:0 green:.6 blue:1. alpha:1.];
+    lightBlue = [UIColor colorWithRed:0 green:.6 blue:1. alpha:1.];
+    
+    self.backgroundColor = lightBlue;
     self.layer.cornerRadius = 10;
     self.clipsToBounds = YES;
     
-    UILabel* label = [UILabel new];
-    label.text = @"Thanks for trying our app. Please rate it on the AppStore!";
+    label = [UILabel new];
+    label.text = @"Thanks for trying our app. Help us out by rating it on the AppStore!";
     label.textColor = [UIColor whiteColor];
     label.numberOfLines = 2;
     label.textAlignment = NSTextAlignmentCenter;
     
-    UIButton* yesButton = [UIButton new];
+    yesButton = [RCInvertButton new];
     [yesButton setTitle:@"Rate now" forState:UIControlStateNormal];
     yesButton.titleLabel.textColor = [UIColor whiteColor];
+    yesButton.invertedColor = lightBlue;
     
-    UIButton* laterButton = [UIButton new];
+    laterButton = [RCInvertButton new];
     [laterButton setTitle:@"Later" forState:UIControlStateNormal];
     laterButton.titleLabel.textColor = [UIColor whiteColor];
+    laterButton.invertedColor = lightBlue;
     
-    UIButton* noButton = [UIButton new];
+    noButton = [RCInvertButton new];
     [noButton setTitle:@"Never!" forState:UIControlStateNormal];
     noButton.titleLabel.textColor = [UIColor whiteColor];
+    noButton.invertedColor = lightBlue;
     
     [self addSubview:label];
     [label addLeadingSpaceToSuperviewConstraint:10];
@@ -54,12 +67,12 @@ static const CGFloat buttonHeight = 45;
     [label addTopSpaceToSuperviewConstraint:14];
     
     [self addSubview:laterButton];
-    [laterButton addBottomSpaceToSuperviewConstraint:1];
+    [laterButton addBottomSpaceToSuperviewConstraint:0];
     [laterButton addLeadingSpaceToSuperviewConstraint:0];
     [laterButton addWidthConstraint:width/2 andHeightConstraint:buttonHeight];
     
     [self addSubview:noButton];
-    [noButton addBottomSpaceToSuperviewConstraint:1];
+    [noButton addBottomSpaceToSuperviewConstraint:0];
     [noButton addTrailingSpaceToSuperviewConstraint:0];
     [noButton addWidthConstraint:width/2 andHeightConstraint:buttonHeight];
     
@@ -81,7 +94,7 @@ static const CGFloat buttonHeight = 45;
     CGContextSetStrokeColorWithColor(context, [[UIColor colorWithWhite:1 alpha:.6] CGColor]);
     CGContextSetLineWidth(context, 1.);
     
-    CGFloat topLineHeight = rect.size.height - 1 - buttonHeight*2;
+    CGFloat topLineHeight = rect.size.height - buttonHeight*2;
     CGFloat midLineHeight = rect.size.height - buttonHeight;
     
 	CGContextMoveToPoint(context, 0, topLineHeight);

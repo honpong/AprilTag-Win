@@ -3,8 +3,14 @@
 
 
 rcMeasurements = {
-    measurements : {}, measurement_being_edited : null, inches_to_meter : 39.3701, cursor_animation_id : null, most_recent_drag : 0, font_family : 'HelveticaNeue-Light, Helvetica, Arial'
-}
+    measurements : {},
+    measurement_being_edited : null,
+    inches_to_meter : 39.3701,
+    cursor_animation_id : null,
+    most_recent_drag : 0,
+    font_family : 'HelveticaNeue-Light, Helvetica, Arial',
+    prior_measurement_states : []
+};
 
 // instantiate a measurement and add it to the measurment list
 // takes image locations
@@ -321,6 +327,7 @@ rcMeasurements.to_json = function () {
 
 rcMeasurements.save_measurements = function () {
     jsonStr = rcMeasurements.to_json();
+    rcMeasurements.prior_measurement_states.push(jsonStr);
     $.ajax({ type: "PUT", url: rc_server_location + "true_measure/api/v1/m_photo/" + m_photo_guid + "/annotations/", contentType: "application/json", processData: false, dataType: "json", data: jsonStr })
     .done(function(data, textStatus, jqXHR) {
           //alert(textStatus + ": " + JSON.stringify(data));
@@ -333,24 +340,19 @@ rcMeasurements.save_measurements = function () {
 
 
 rcMeasurements.delete_measurement  = function (m) {
-    window.setTimeout( function() {
-          if (confirm('delete measurement?')) {
-              //remove visual elemnts
-              m.text.remove();
-              m.text_shadow.remove();
-              m.circle1.remove();
-              m.circle2.remove();
-              m.selector_circle1.remove();
-              m.selector_circle2.remove();
-              m.shadow_line1.remove();
-              m.shadow_line2.remove();
-              m.line1.remove();
-              m.line2.remove();
-              //removed from measurements array
-              delete rcMeasurements.measurements[m.guid];
-              //alert(rcMeasurements.to_json());
-          }
-    }, 0)
+    //remove visual elemnts
+    m.text.remove();
+    m.text_shadow.remove();
+    m.circle1.remove();
+    m.circle2.remove();
+    m.selector_circle1.remove();
+    m.selector_circle2.remove();
+    m.shadow_line1.remove();
+    m.shadow_line2.remove();
+    m.line1.remove();
+    m.line2.remove();
+    //removed from measurements array
+    delete rcMeasurements.measurements[m.guid];
 }
 
 rcMeasurements.load_json  = function (m_url, callback_function) {
@@ -369,6 +371,9 @@ rcMeasurements.load_json  = function (m_url, callback_function) {
             for (var key in rcMeasurements.measurements) {
              rcMeasurements.draw_measurement(rcMeasurements.measurements[key], measured_svg);
             }
+            //initialize prior measurments
+            rcMeasurements.prior_measurement_states.push(rcMeasurements.to_json());
+
             callback_function();
         }).error(function () {
             //window.setTimeout(function(){alert('failed to load annotations')},0);
@@ -376,6 +381,25 @@ rcMeasurements.load_json  = function (m_url, callback_function) {
             callback_function();
         });
     }, 0);
+}
+
+rcMeasurements.revert_measurement_state = function () {
+    if (rcMeasurements.prior_measurement_states.length > 1) {
+        //delete all measurements
+        for (var key in rcMeasurements.measurements) {
+            rcMeasurements.delete_measurement(rcMeasurements.measurements[key]);
+        }
+        //pull prior measurement state
+        rcMeasurements.prior_measurement_states.pop(); //trow away the current state
+        var prior_m_json = rcMeasurements.prior_measurement_states.pop(); //go to the one before.
+        rcMeasurements.measurements = JSON.parse(prior_m_json);
+        //draw all measurements
+        for (var key in rcMeasurements.measurements) {
+            rcMeasurements.draw_measurement(rcMeasurements.measurements[key], measured_svg);
+        }
+        // save new state - this will add current state back to the stack
+        rcMeasurements.save_measurements();
+    }
 }
 
 // functions for coloring and decoloring selected lines
@@ -611,5 +635,6 @@ rcMeasurements.is_measurement_being_deleted = function (m) {
 // this clears all measurements, used when we are switching between measured photos but not reloading the app
 rcMeasurements.reset = function () {
     rcMeasurements.measurements = {};
+    rcMeasurements.prior_measurement_states = [];
     rcMeasurements.measurement_being_edited = null;
 }

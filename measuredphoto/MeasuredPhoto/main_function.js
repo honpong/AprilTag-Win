@@ -204,6 +204,10 @@ function rc_initialize(){
         }
     }
     
+    undo_last_change = function() {
+        rcMeasurements.revert_measurement_state();
+    }
+    
     // construct menue
     build_rc_menu();
     

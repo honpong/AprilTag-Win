@@ -93,14 +93,19 @@
     self.hidden = YES;
 }
 
-- (void) hideWithDelay:(float)secs onCompletion:(void (^)(BOOL finished))completionBlock
+- (void) hideAnimated
+{
+    [self hideAnimated:nil];
+}
+
+- (void) hideAnimated:(void (^)(BOOL finished))completionBlock
 {
     if (state != RCSlideBannerStateShowing) return;
     state = RCSlideBannerStateAnimating;
     
     [self.superview layoutIfNeeded];
     [UIView animateWithDuration: .3
-                          delay: secs
+                          delay: 0
                         options: UIViewAnimationOptionCurveLinear
                      animations:^{
                          [self hide];
@@ -110,6 +115,11 @@
                          self.hidden = YES;
                          if (completionBlock) completionBlock(finished);
                      }];
+}
+
+- (void) hideWithDelay:(float)secs onCompletion:(void (^)(BOOL finished))completionBlock
+{
+    [self hideAnimated:completionBlock];
 }
 
 - (void) moveDown

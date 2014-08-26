@@ -19,6 +19,6 @@
 
 @interface RCRateMeView : RCSlideBanner
 
-@property (nonatomic) id<RCRateMeViewDelegate> delegate;
+@property (weak, nonatomic) id<RCRateMeViewDelegate> delegate;
 
 @end

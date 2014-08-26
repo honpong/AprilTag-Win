@@ -77,8 +77,8 @@ bool line_endpoints(v4 line, int width, int height, float endpoints[4])
 
 #define WINDOW 4
 static const float maximum_match_score = 1;
-// 5 pixels average deviation from the mean across the patch
-static const float constant_patch_thresh = 3*3;
+// 3 pixels average deviation from the mean across the patch
+// static const float constant_patch_thresh = 3*3;
 float score_match(const unsigned char *im1, const bool * im1valid, int xsize, int ysize, int stride, const int x1, const int y1, const unsigned char *im2, const bool * im2valid, const int x2, const int y2, float max_error)
 {
     int window = WINDOW;

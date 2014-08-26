@@ -84,7 +84,7 @@ public:
     void set_orientation(enum stereo_orientation current_orientation) { orientation = current_orientation; }
 
     void reset() { if(target) delete target; target = 0; if(reference) delete reference; reference = 0; }
-    stereo(): target(0), reference(0), correspondences(0), orientation(STEREO_ORIENTATION_RIGHT) {}
+    stereo(): target(0), reference(0), orientation(STEREO_ORIENTATION_RIGHT) {}
     ~stereo() { if(target) delete target; if(reference) delete reference; }
 protected:
     bool find_and_triangulate_top_n(int reference_x, int reference_y, int width, int height, int n, vector<struct stereo_match> & matches) const;
@@ -100,7 +100,6 @@ private:
     char debug_basename[1024];
     char debug_texturename[1024];
     bool used_eight_point;
-    FILE * correspondences;
 
     void write_frames(bool is_rectified);
     void write_debug_info();

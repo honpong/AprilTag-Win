@@ -53,7 +53,7 @@
 
 - (void) setHeightConstraint:(CGFloat)height
 {
-    heightConstraint = [self getHeightConstraint:100];
+    heightConstraint = [self getHeightConstraint:height];
     [self addConstraint:heightConstraint];
 }
 

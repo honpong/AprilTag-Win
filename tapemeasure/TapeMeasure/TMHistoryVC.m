@@ -443,7 +443,7 @@
 
 - (void) gotoAppStore
 {
-    NSURL *url = [NSURL URLWithString:@"itms-apps://itunes.com/apps/EndlessTapeMeasure"];
+    NSURL *url = [NSURL URLWithString:URL_APPSTORE];
     [[UIApplication sharedApplication] openURL:url];
 }
 

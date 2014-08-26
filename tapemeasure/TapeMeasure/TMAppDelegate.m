@@ -48,12 +48,18 @@
                                      PREF_SHOW_LOCATION_EXPLANATION: @YES,
                                      PREF_LAST_TRANS_ID: @0,
                                      PREF_IS_FIRST_LAUNCH: @YES,
-                                     PREF_IS_TIPS_SHOWN: @NO};
+                                     PREF_IS_TIPS_SHOWN: @NO,
+                                     PREF_SHOW_RATE_NAG: @YES,
+                                     PREF_RATE_NAG_TIMESTAMP : @0};
         
         [NSUserDefaults.standardUserDefaults registerDefaults:appDefaults];
     });
-    
+
+    #ifndef ARCHIVE
 //    [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_IS_FIRST_LAUNCH]; // for testing
+    [NSUserDefaults.standardUserDefaults setObject:@0 forKey:PREF_RATE_NAG_TIMESTAMP]; // for testing
+    [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_SHOW_RATE_NAG]; // for testing
+    #endif
     
     [Flurry setSecureTransportEnabled:YES];
     [Flurry setCrashReportingEnabled:YES];

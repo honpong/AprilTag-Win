@@ -38,6 +38,8 @@
 #define PREF_IS_CALIBRATED @"is_calibrated"
 #define PREF_IS_FIRST_LAUNCH @"is_first_launch"
 #define PREF_IS_TIPS_SHOWN @"is_tips_shown"
+#define PREF_SHOW_RATE_NAG @"show_rate_nag"
+#define PREF_RATE_NAG_TIMESTAMP @"rate_nag_timestamp"
 
 #define API_VERSION 1
 #define API_BASE_URL @"https://internal.realitycap.com/"
@@ -50,6 +52,7 @@
 
 #define URL_WEBSITE @"http://realitycap.com"
 #define URL_SHARING @"http://app.realitycap.com/endless"
+#define URL_APPSTORE @"itms-apps://itunes.com/apps/EndlessTapeMeasure"
 
 #define INCHES_PER_METER 39.3700787
 

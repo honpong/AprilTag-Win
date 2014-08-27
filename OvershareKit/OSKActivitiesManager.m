@@ -642,42 +642,42 @@ static NSString * OSKActivitiesManagerPersistentExclusionsKey = @"OSKActivitiesM
     if ([self.customizationsDelegate respondsToSelector:@selector(applicationCredentialForActivityType:)]) {
         appCredential = [self.customizationsDelegate applicationCredentialForActivityType:activityType];
     }
-#if DEBUG == 1
-    else {
-        // THESE ARE DEVELOPMENT CREDENTIALS ONLY, TO MAKE DEMOING OVERSHARE SIMPLE FOR US.
-        // YOUR APP SHOULD OBTAIN AND PROVIDE YOUR OWN CREDENTIALS BEFORE SHIPPING!!!
-        if ([activityType isEqualToString:OSKActivityType_iOS_Facebook]) {
-            appCredential = [[OSKApplicationCredential alloc]
-                             initWithOvershareApplicationKey:OSKApplicationCredential_Facebook_Key
-                             applicationSecret:nil
-                             appName:@"Overshare"];
-        }
-        else if ([activityType isEqualToString:OSKActivityType_API_AppDotNet]) {
-            appCredential = [[OSKApplicationCredential alloc]
-                             initWithOvershareApplicationKey:OSKApplicationCredential_AppDotNet_Dev
-                             applicationSecret:nil
-                             appName:@"Overshare"];
-        }
-        else if ([activityType isEqualToString:OSKActivityType_API_Pocket]) {
-            appCredential = [[OSKApplicationCredential alloc]
-                             initWithOvershareApplicationKey:OSKApplicationCredential_Pocket_iPhone_Dev
-                             applicationSecret:nil
-                             appName:@"Overshare"];
-        }
-        else if ([activityType isEqualToString:OSKActivityType_API_Readability]) {
-            appCredential = [[OSKApplicationCredential alloc]
-                             initWithOvershareApplicationKey:OSKApplicationCredential_Readability_Key
-                             applicationSecret:OSKApplicationCredential_Readability_Secret
-                             appName:@"Overshare"];
-        }
-        else if ([activityType isEqualToString:OSKActivityType_API_GooglePlus]) {
-            appCredential = [[OSKApplicationCredential alloc]
-                             initWithOvershareApplicationKey:OSKApplicationCredential_GooglePlus_Key
-                             applicationSecret:nil
-                             appName:@"Overshare"];
-        }
-    }
-#endif
+//#if DEBUG == 1
+//    else {
+//        // THESE ARE DEVELOPMENT CREDENTIALS ONLY, TO MAKE DEMOING OVERSHARE SIMPLE FOR US.
+//        // YOUR APP SHOULD OBTAIN AND PROVIDE YOUR OWN CREDENTIALS BEFORE SHIPPING!!!
+//        if ([activityType isEqualToString:OSKActivityType_iOS_Facebook]) {
+//            appCredential = [[OSKApplicationCredential alloc]
+//                             initWithOvershareApplicationKey:OSKApplicationCredential_Facebook_Key
+//                             applicationSecret:nil
+//                             appName:@"Overshare"];
+//        }
+//        else if ([activityType isEqualToString:OSKActivityType_API_AppDotNet]) {
+//            appCredential = [[OSKApplicationCredential alloc]
+//                             initWithOvershareApplicationKey:OSKApplicationCredential_AppDotNet_Dev
+//                             applicationSecret:nil
+//                             appName:@"Overshare"];
+//        }
+//        else if ([activityType isEqualToString:OSKActivityType_API_Pocket]) {
+//            appCredential = [[OSKApplicationCredential alloc]
+//                             initWithOvershareApplicationKey:OSKApplicationCredential_Pocket_iPhone_Dev
+//                             applicationSecret:nil
+//                             appName:@"Overshare"];
+//        }
+//        else if ([activityType isEqualToString:OSKActivityType_API_Readability]) {
+//            appCredential = [[OSKApplicationCredential alloc]
+//                             initWithOvershareApplicationKey:OSKApplicationCredential_Readability_Key
+//                             applicationSecret:OSKApplicationCredential_Readability_Secret
+//                             appName:@"Overshare"];
+//        }
+//        else if ([activityType isEqualToString:OSKActivityType_API_GooglePlus]) {
+//            appCredential = [[OSKApplicationCredential alloc]
+//                             initWithOvershareApplicationKey:OSKApplicationCredential_GooglePlus_Key
+//                             applicationSecret:nil
+//                             appName:@"Overshare"];
+//        }
+//    }
+//#endif
     return appCredential;
 }
 

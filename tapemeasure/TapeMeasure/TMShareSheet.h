@@ -17,7 +17,7 @@
 
 @end
 
-@interface TMShareSheet : NSObject
+@interface TMShareSheet : NSObject <OSKActivityCustomizations>
 
 @property (weak) UIViewController<TMShareSheetDelegate>* delegate;
 

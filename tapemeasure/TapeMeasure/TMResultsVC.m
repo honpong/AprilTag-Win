@@ -15,6 +15,7 @@
 @implementation TMResultsVC
 {
     RCRateMeView* rateMeView;
+    TMShareSheet* shareSheet;
 }
 @synthesize theMeasurement;
 
@@ -30,7 +31,6 @@
 {
     [super viewDidLoad];
     [RCDistanceLabel class]; // needed so that storyboard can see this class, since it's in a library
-    [OSKActivitiesManager sharedInstance].customizationsDelegate = self;
     [self.distLabel setDistance:theMeasurement.getPrimaryDistanceObject];
     
     [self createRateMeBanner];
@@ -116,7 +116,8 @@
 {
     OSKShareableContent *content = [OSKShareableContent contentFromText:[self composeSharingString]];
     content.title = @"Share Measurement";
-    TMShareSheet* shareSheet = [TMShareSheet shareSheetWithDelegate:self];
+    shareSheet = [TMShareSheet shareSheetWithDelegate:self];
+    [OSKActivitiesManager sharedInstance].customizationsDelegate = shareSheet;
     [shareSheet showShareSheet_Pad_FromBarButtonItem:self.btnAction content:content];
 }
 
@@ -509,10 +510,10 @@
             dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
                 if ([weakSelf.navigationController.viewControllers.lastObject isKindOfClass:[TMResultsVC class]])
                 {
-                    NSNumber* timestamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]];
-                    [NSUserDefaults.standardUserDefaults setObject:timestamp forKey:PREF_RATE_NAG_TIMESTAMP];
-                    
-                    [rateMeView showAnimated];
+            NSNumber* timestamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]];
+            [NSUserDefaults.standardUserDefaults setObject:timestamp forKey:PREF_RATE_NAG_TIMESTAMP];
+            
+                [rateMeView showAnimated];
                 }
             });
         }

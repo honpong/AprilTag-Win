@@ -79,8 +79,8 @@
     if ([activityType isEqualToString:OSKActivityType_iOS_Facebook]) {
         appCredential = [[OSKApplicationCredential alloc]
                          initWithOvershareApplicationKey:RCApplicationCredential_Facebook_Key
-                         applicationSecret:nil
-                         appName:@"Overshare"];
+                         applicationSecret:RCApplicationCredential_Facebook_Secret
+                         appName:@"Endless Tape Measure"];
     }
     
     return appCredential;

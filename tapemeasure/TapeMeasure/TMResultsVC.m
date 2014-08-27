@@ -504,12 +504,16 @@
         NSUInteger measurementCount = [TMMeasurement getAllExceptDeleted].count;
         if (measurementCount >= 10)
         {
-            NSNumber* timestamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]];
-            [NSUserDefaults.standardUserDefaults setObject:timestamp forKey:PREF_RATE_NAG_TIMESTAMP];
-            
+            __weak TMResultsVC* weakSelf = self;
             dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, 1. * NSEC_PER_SEC);
             dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
-                [rateMeView showAnimated];
+                if ([weakSelf.navigationController.viewControllers.lastObject isKindOfClass:[TMResultsVC class]])
+                {
+                    NSNumber* timestamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]];
+                    [NSUserDefaults.standardUserDefaults setObject:timestamp forKey:PREF_RATE_NAG_TIMESTAMP];
+                    
+                    [rateMeView showAnimated];
+                }
             });
         }
     }

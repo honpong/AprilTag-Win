@@ -510,7 +510,8 @@ typedef NS_ENUM(int, RCLicenseStatus)
         });
     }
     
-    if(errorCode == RCSensorFusionErrorCodeVision && (f->run_state != RCSensorFusionRunStateRunning)) {
+    if(f->run_state != RCSensorFusionRunStateRunning && (errorCode == RCSensorFusionErrorCodeVision || converged < .1)) {
+        //refocus if either we tried to detect and failed, or if we've recently moved
         isProcessingVideo = false;
         processingVideoRequested = true;
         

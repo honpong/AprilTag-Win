@@ -322,7 +322,6 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
     else if(f->run_state == RCSensorFusionRunStateSteadyInitialization) {
         uint64_t steady = steady_time(f, f->accel_stability, meas, accelerometer_steady_var, steady_sigma, time);
         if(steady > steady_converge_time) {
-            f->run_state = RCSensorFusionRunStateDynamicInitialization;
             f->want_start = f->stable_start;
             f->s.V.set_initial_variance(velocity_steady_var);
             f->s.a.set_initial_variance(accelerometer_steady_var);
@@ -759,7 +758,10 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
             }
         } else return true;
     }
-    if(f->run_state != RCSensorFusionRunStateRunning && f->run_state != RCSensorFusionRunStateDynamicInitialization) return true; //frame was "processed" so that callbacks still get called
+    if(f->run_state == RCSensorFusionRunStateSteadyInitialization) {
+        if(time - f->stable_start < steady_converge_time) return true;
+    }
+    if(f->run_state != RCSensorFusionRunStateRunning && f->run_state != RCSensorFusionRunStateDynamicInitialization && f->run_state != RCSensorFusionRunStateSteadyInitialization) return true; //frame was "processed" so that callbacks still get called
     if(width != f->track.width || height != f->track.height || stride != f->track.stride) {
         fprintf(stderr, "Image dimensions don't match what we expect!\n");
         abort();
@@ -837,7 +839,7 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     int space = f->s.maxstatesize - f->s.statesize - 6;
     if(space > f->max_group_add) space = f->max_group_add;
     if(space >= f->min_group_add) {
-        if(f->run_state == RCSensorFusionRunStateDynamicInitialization) {
+        if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) {
 #ifdef TEST_POSDEF
             if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def before disabling orient only\n");
 #endif
@@ -856,10 +858,10 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
             if (log_enabled) fprintf(stderr, "detector failure: only %ld features after add\n", f->s.features.size());
             f->detector_failed = true;
             f->calibration_bad = true;
-            if(f->run_state == RCSensorFusionRunStateDynamicInitialization) f->s.enable_orientation_only();
+            if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) f->s.enable_orientation_only();
         } else {
             //don't go active until we can successfully add features
-            if(f->run_state == RCSensorFusionRunStateDynamicInitialization) {
+            if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) {
                 f->run_state = RCSensorFusionRunStateRunning;
                 f->active_time = time;
             }

@@ -42,7 +42,7 @@
                             <view opaque="NO" userInteractionEnabled="NO" contentMode="top" translatesAutoresizingMaskIntoConstraints="NO" id="HRB-Sw-umE" userLabel="MessageBackground">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="88"/>
                                 <subviews>
-                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="" lineBreakMode="wordWrap" numberOfLines="5" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="iSv-1b-l8P" userLabel="MessageText">
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Please wait" lineBreakMode="wordWrap" numberOfLines="5" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="iSv-1b-l8P" userLabel="MessageText">
                                         <rect key="frame" x="20" y="4" width="280" height="80"/>
                                         <accessibility key="accessibilityConfiguration">
                                             <accessibilityTraits key="traits" none="YES" staticText="YES" notEnabled="YES"/>

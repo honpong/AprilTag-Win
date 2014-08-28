@@ -66,6 +66,7 @@ typedef enum {
 + (struct corvis_device_parameters) getCalibrationData;
 + (NSDictionary*) getCalibrationAsDictionary;
 + (NSString*) getCalibrationAsString;
++ (void) clearCalibrationData;
 + (NSString*) stringFromCalibration:(struct corvis_device_parameters)dc;
 + (BOOL) hasCalibrationData;
 + (BOOL) isCalibrationDataValid:(NSDictionary*)data;

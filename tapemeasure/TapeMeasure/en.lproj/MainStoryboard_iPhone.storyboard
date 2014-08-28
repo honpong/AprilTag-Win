@@ -14,11 +14,11 @@
                         <viewControllerLayoutGuide type="bottom" id="Fsl-Iq-kiX"/>
                     </layoutGuides>
                     <view key="view" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="3" userLabel="RootView">
-                        <rect key="frame" x="0.0" y="64" width="320" height="504"/>
+                        <rect key="frame" x="0.0" y="64" width="320" height="460"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="PSc-p3-nSY" userLabel="Aug Reality View" customClass="TMAugmentedRealityView">
-                                <rect key="frame" x="0.0" y="88" width="320" height="416"/>
+                                <rect key="frame" x="0.0" y="44" width="320" height="416"/>
                                 <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="416" id="Zbf-Xk-Z5E"/>
@@ -50,14 +50,14 @@
                                 </constraints>
                             </view>
                             <imageView hidden="YES" userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fNx-Aq-2l9" userLabel="DistanceBackground" customClass="TM2DTapeView">
-                                <rect key="frame" x="0.0" y="424" width="320" height="80"/>
+                                <rect key="frame" x="0.0" y="380" width="320" height="80"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="320" id="ON5-nM-DC2"/>
                                     <constraint firstAttribute="height" constant="80" id="ufT-vc-KFz"/>
                                 </constraints>
                             </imageView>
                             <label hidden="YES" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hdQ-u4-3uc" userLabel="DistanceLabel" customClass="RCDistanceLabel">
-                                <rect key="frame" x="0.0" y="202" width="320" height="100"/>
+                                <rect key="frame" x="0.0" y="180" width="320" height="100"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="100" id="8a3-k2-B2P"/>
                                     <constraint firstAttribute="width" constant="320" id="jUn-PO-y7S"/>
@@ -1019,6 +1019,76 @@
             </objects>
             <point key="canvasLocation" x="333" y="111"/>
         </scene>
+        <!--Location Intro Controller-->
+        <scene sceneID="eeH-zp-02U">
+            <objects>
+                <viewController id="a5y-gc-Pjm" customClass="TMLocationIntroController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="fBA-n3-Vxg"/>
+                        <viewControllerLayoutGuide type="bottom" id="uRG-0h-SHD"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="wAc-Je-7cJ">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ipad_on_table.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="cnN-7G-gTs">
+                                <rect key="frame" x="0.0" y="20" width="320" height="548"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            </imageView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="zTI-gw-tS8">
+                                <rect key="frame" x="0.0" y="159" width="320" height="250"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <subviews>
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" lineBreakMode="tailTruncation" numberOfLines="10" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="K4f-TO-lA8">
+                                        <rect key="frame" x="20" y="20" width="280" height="210"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <string key="text">Welcome. After you tap Next, we will ask for permission to use your  current location. This makes your measurements more accurate by adjusting for differences in gravity across the planet. Allowing us to use your location is optional. We will never track you or share your location with anyone outside our company.</string>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" white="0.0" alpha="0.70000000000000007" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstItem="K4f-TO-lA8" firstAttribute="leading" secondItem="zTI-gw-tS8" secondAttribute="leading" constant="20" id="IIn-bq-Bkj"/>
+                                    <constraint firstAttribute="bottom" secondItem="K4f-TO-lA8" secondAttribute="bottom" constant="20" id="exK-gj-cR1"/>
+                                    <constraint firstAttribute="height" constant="250" id="lDk-hZ-JkQ"/>
+                                    <constraint firstItem="K4f-TO-lA8" firstAttribute="top" secondItem="zTI-gw-tS8" secondAttribute="top" constant="20" id="rFl-IU-rrx"/>
+                                    <constraint firstAttribute="trailing" secondItem="K4f-TO-lA8" secondAttribute="trailing" constant="20" id="s9S-Z8-YEr"/>
+                                </constraints>
+                            </view>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4he-LE-JfI">
+                                <rect key="frame" x="0.0" y="493" width="320" height="75"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.69999999999999996" colorSpace="calibratedWhite"/>
+                                <state key="normal" title="Next">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="handleNextButton:" destination="a5y-gc-Pjm" eventType="touchUpInside" id="NXJ-tG-ya5"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="uRG-0h-SHD" firstAttribute="top" secondItem="cnN-7G-gTs" secondAttribute="bottom" id="7ZJ-pp-UhK"/>
+                            <constraint firstItem="cnN-7G-gTs" firstAttribute="top" secondItem="fBA-n3-Vxg" secondAttribute="bottom" id="ObD-7Y-Cuc"/>
+                            <constraint firstItem="zTI-gw-tS8" firstAttribute="leading" secondItem="wAc-Je-7cJ" secondAttribute="leading" id="aD0-sg-4bB"/>
+                            <constraint firstAttribute="centerY" secondItem="zTI-gw-tS8" secondAttribute="centerY" id="jYu-c6-Ei7"/>
+                            <constraint firstAttribute="trailing" secondItem="zTI-gw-tS8" secondAttribute="trailing" id="ofl-Uh-Hzk"/>
+                            <constraint firstItem="cnN-7G-gTs" firstAttribute="leading" secondItem="wAc-Je-7cJ" secondAttribute="leading" id="u0i-YQ-kzf"/>
+                            <constraint firstAttribute="trailing" secondItem="cnN-7G-gTs" secondAttribute="trailing" id="zh6-LN-Wkq"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="nextButton" destination="4he-LE-JfI" id="fdF-wJ-04i"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="CtC-Di-KJf" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-546" y="-573"/>
+        </scene>
         <!--Navigation Controller-->
         <scene sceneID="dH2-m9-eE9">
             <objects>
@@ -1282,6 +1352,7 @@
         <image name="Menu Icon" width="17" height="17"/>
         <image name="Pin.png" width="32" height="39"/>
         <image name="TotalPath.png" width="120" height="120"/>
+        <image name="ipad_on_table.jpg" width="1536" height="2048"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
@@ -1289,10 +1360,10 @@
         <simulatedScreenMetrics key="destination" type="retina4"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
+        <segue reference="OMX-af-ZGK"/>
         <segue reference="lFM-Gm-EBj"/>
-        <segue reference="s4S-GM-rQx"/>
         <segue reference="Njf-k6-UUz"/>
-        <segue reference="Q9q-au-hTw"/>
         <segue reference="HxR-ps-kMf"/>
+        <segue reference="Q9q-au-hTw"/>
     </inferredMetricsTieBreakers>
 </document>

@@ -110,6 +110,7 @@
 		32E0A08516E141BE00D0E689 /* TMLocationExtTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E0A08416E141BE00D0E689 /* TMLocationExtTests.m */; };
 		32E0A08816E148A500D0E689 /* TMSyncable+TMSyncableSync.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E0A08716E148A500D0E689 /* TMSyncable+TMSyncableSync.m */; };
 		32E4C4BF18F8A7A20094022B /* TMNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E4C4BE18F8A7A20094022B /* TMNavigationController.m */; };
+		32E50DBC19AFDBC40048D069 /* TMLocationIntro.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E50DBB19AFDBC40048D069 /* TMLocationIntro.m */; };
 		32E681B618F5CD260043D50A /* Accounts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32E681B518F5CD260043D50A /* Accounts.framework */; };
 		32E6849118F5FB250043D50A /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32E6849018F5FB250043D50A /* AddressBook.framework */; };
 		32E6849318F5FB390043D50A /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32E6849218F5FB390043D50A /* CoreText.framework */; };
@@ -539,6 +540,8 @@
 		32E0A08716E148A500D0E689 /* TMSyncable+TMSyncableSync.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "TMSyncable+TMSyncableSync.m"; sourceTree = "<group>"; };
 		32E4C4BD18F8A7A20094022B /* TMNavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMNavigationController.h; sourceTree = "<group>"; };
 		32E4C4BE18F8A7A20094022B /* TMNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMNavigationController.m; sourceTree = "<group>"; };
+		32E50DBA19AFDBC40048D069 /* TMLocationIntro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMLocationIntro.h; sourceTree = "<group>"; };
+		32E50DBB19AFDBC40048D069 /* TMLocationIntro.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMLocationIntro.m; sourceTree = "<group>"; };
 		32E681B518F5CD260043D50A /* Accounts.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accounts.framework; path = System/Library/Frameworks/Accounts.framework; sourceTree = SDKROOT; };
 		32E6849018F5FB250043D50A /* AddressBook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBook.framework; path = System/Library/Frameworks/AddressBook.framework; sourceTree = SDKROOT; };
 		32E6849218F5FB390043D50A /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
@@ -1134,6 +1137,8 @@
 				32F403341940E326002741C8 /* TMPreferences.m */,
 				320F9F8B19A6A8C300CF43B6 /* TMLocalMoviePlayer.h */,
 				320F9F8C19A6A8C300CF43B6 /* TMLocalMoviePlayer.m */,
+				32E50DBA19AFDBC40048D069 /* TMLocationIntro.h */,
+				32E50DBB19AFDBC40048D069 /* TMLocationIntro.m */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -1984,6 +1989,7 @@
 				32E6881E18F617170043D50A /* UIView+OSKUtilities.m in Sources */,
 				32E687F118F617160043D50A /* OSKMicrobloggingTextView.m in Sources */,
 				32E6880318F617170043D50A /* OSKSession.m in Sources */,
+				32E50DBC19AFDBC40048D069 /* TMLocationIntro.m in Sources */,
 				32E6880718F617170043D50A /* OSKShareableContent.m in Sources */,
 				32E687E018F617160043D50A /* OSKFacebookActivity.m in Sources */,
 				32E687FD18F617170043D50A /* OSKReadabilityActivity.m in Sources */,

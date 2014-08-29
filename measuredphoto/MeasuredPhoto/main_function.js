@@ -166,16 +166,17 @@ function rc_initialize(){
         }
     }
     
-    function angle_handler(e) {
+    function angle_handler(i) {
     
     }
     
-    function text_entry_handler (e) {
-    
+    function text_entry_handler (i) {
+        //create a new text box at this location
+        rcMeasurements.new_note(i.x, i.y, measured_svg);
     }
     
     function eraser_handler (e) {
-    
+        // do nothing - annotations have their own click listners for erase.
     }
 
     function click_or_touch(e) {

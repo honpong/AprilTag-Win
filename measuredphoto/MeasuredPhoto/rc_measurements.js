@@ -4,6 +4,8 @@
 
 rcMeasurements = {
     measurements : {},
+    angles : {},
+    notes : {},
     measurement_being_edited : null,
     inches_to_meter : 39.3701,
     cursor_animation_id : null,
@@ -180,6 +182,10 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
 
 }
 
+rcMeasurements.draw_note = function (n) {
+
+}
+
 rcMeasurements.dragEndHandler = function (m, e) {
     e.stopPropagation(); e.preventDefault();
     rcMeasurements.most_recent_drag = new Date();
@@ -316,13 +322,19 @@ rcMeasurements.redraw_all_measurements = function (){
 
 
 rcMeasurements.to_json = function () {
-    var measurements_to_save = {};
+    var annotations_to_save = {measurements : {}, notes : {}, angles : {} };
     // if the app has set (or reset) the default units then save the default units.
-    if (unit_default_set_by_app) { measurements_to_save['use_metric'] = default_units_metric; }
+    if (unit_default_set_by_app) { annotations_to_save['use_metric'] = default_units_metric; }
     for (var key in rcMeasurements.measurements) {
-        measurements_to_save[key] = rcMeasurements.measurements[key].saveable_copy;
+        annotations_to_save.measurements[key] = rcMeasurements.measurements[key].saveable_copy;
     }
-    return JSON.stringify(measurements_to_save);
+    for (var key in rcMeasurements.angles) {
+        annotations_to_save.angles[key] = rcMeasurements.angles[key].saveable_copy;
+    }
+    for (var key in rcMeasurements.notes) {
+        annotations_to_save.notes[key] = rcMeasurements.notes[key].saveable_copy;
+    }
+    return JSON.stringify(annotations_to_save);
 }
 
 rcMeasurements.save_measurements = function () {
@@ -360,20 +372,9 @@ rcMeasurements.load_json  = function (m_url, callback_function) {
     setTimeout(function(){
         $.ajaxSetup({ cache: false });
         $.getJSON(m_url, function(data) {
-            //use then strip out metadata
-            if ('use_metric' in data) {
-                //we only overwrite the default units with the stored defualt units if the app hasn't told us what units to use
-                if (! unit_default_set_by_app) {default_units_metric = data['use_metric'];}
-                delete myArray['use_metric'];
-            }
-            rcMeasurements.measurements = data;
-            //for each measurement, draw measurement
-            for (var key in rcMeasurements.measurements) {
-             rcMeasurements.draw_measurement(rcMeasurements.measurements[key], measured_svg);
-            }
+            rcMeasurements.apply_json_data(data);
             //initialize prior measurments
             rcMeasurements.prior_measurement_states.push(rcMeasurements.to_json());
-
             callback_function();
         }).error(function () {
             //window.setTimeout(function(){alert('failed to load annotations')},0);
@@ -383,20 +384,43 @@ rcMeasurements.load_json  = function (m_url, callback_function) {
     }, 0);
 }
 
+rcMeasurements.apply_json_data = function (data) {
+    if ('use_metric' in data) {
+        //we only overwrite the default units with the stored defualt units if the app hasn't told us what units to use
+        if (! unit_default_set_by_app) {default_units_metric = data['use_metric'];}
+        delete myArray['use_metric'];
+    }
+    if ('measurements' in data) { rcMeasurements.measurements = data.measurements; } else {rcMeasurements.measurements = {};}
+    if ('angles' in data) { rcMeasurements.angles = data.angles; } else {rcMeasurements.angles = {};}
+    if ('notes' in data) { rcMeasurements.notes = data.measurements; } else {rcMeasurements.notes = {};}
+    //for each measurement, draw measurement
+    for (var key in rcMeasurements.measurements) {
+        rcMeasurements.draw_measurement(rcMeasurements.measurements[key], measured_svg);
+    }
+    for (var key in rcMeasurements.agles) {
+        rcMeasurements.draw_angle(rcMeasurements.angles[key], measured_svg);
+    }
+    for (var key in rcMeasurements.notes) {
+        rcMeasurements.draw_note(rcMeasurements.notes[key], measured_svg);
+    }
+}
+
 rcMeasurements.revert_measurement_state = function () {
     if (rcMeasurements.prior_measurement_states.length > 1) {
         //delete all measurements
         for (var key in rcMeasurements.measurements) {
             rcMeasurements.delete_measurement(rcMeasurements.measurements[key]);
         }
+        for (var key in rcMeasurements.agles) {
+            rcMeasurements.delete_angle(rcMeasurements.angles[key]);
+        }
+        for (var key in rcMeasurements.notes) {
+            rcMeasurements.delete_note(rcMeasurements.notes[key]);
+        }
         //pull prior measurement state
         rcMeasurements.prior_measurement_states.pop(); //trow away the current state
         var prior_m_json = rcMeasurements.prior_measurement_states.pop(); //go to the one before.
-        rcMeasurements.measurements = JSON.parse(prior_m_json);
-        //draw all measurements
-        for (var key in rcMeasurements.measurements) {
-            rcMeasurements.draw_measurement(rcMeasurements.measurements[key], measured_svg);
-        }
+        rcMeasurements.apply_json_data(JSON.parse(prior_m_json));
         // save new state - this will add current state back to the stack
         rcMeasurements.save_measurements();
     }
@@ -635,6 +659,8 @@ rcMeasurements.is_measurement_being_deleted = function (m) {
 // this clears all measurements, used when we are switching between measured photos but not reloading the app
 rcMeasurements.reset = function () {
     rcMeasurements.measurements = {};
+    rcMeasurements.angles = {};
+    rcMeasurements.notes = {};
     rcMeasurements.prior_measurement_states = [];
     rcMeasurements.measurement_being_edited = null;
 }

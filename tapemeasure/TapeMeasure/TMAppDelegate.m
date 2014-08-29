@@ -55,11 +55,12 @@
         [NSUserDefaults.standardUserDefaults registerDefaults:appDefaults];
     });
 
-    #ifndef ARCHIVE
-    //    [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_IS_FIRST_LAUNCH]; // for testing
-//    [NSUserDefaults.standardUserDefaults setObject:@NO forKey:PREF_IS_CALIBRATED]; // for testing
-    [NSUserDefaults.standardUserDefaults setObject:@0 forKey:PREF_RATE_NAG_TIMESTAMP]; // for testing
-    [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_SHOW_RATE_NAG]; // for testing
+    #ifndef ARCHIVE // for testing
+//    [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_IS_FIRST_LAUNCH];
+//    [NSUserDefaults.standardUserDefaults setObject:@NO forKey:PREF_IS_CALIBRATED];
+    [NSUserDefaults.standardUserDefaults setObject:@0 forKey:PREF_RATE_NAG_TIMESTAMP];
+    [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_SHOW_RATE_NAG];
+    [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_SHOW_LOCATION_EXPLANATION];
     #endif
     
     [Flurry setSecureTransportEnabled:YES];
@@ -75,8 +76,9 @@
     BOOL calibratedFlag = [NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_CALIBRATED];
     BOOL hasCalibration = [SENSOR_FUSION hasCalibrationData];
     
-    if([self shouldShowLocationExplanation])
+    if([NSUserDefaults.standardUserDefaults boolForKey:PREF_SHOW_LOCATION_EXPLANATION])
     {
+        [NSUserDefaults.standardUserDefaults setObject:@NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
         [self gotoLocationIntro];
     }
     else
@@ -167,20 +169,10 @@
     DLog(@"MEMORY WARNING");
 }
 
-- (BOOL)shouldShowLocationExplanation
-{
-    if ([CLLocationManager locationServicesEnabled])
-    {
-        return [CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined;
-    }
-    else
-    {
-        return NO;
-    }
-}
-
 - (void) locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
+    LOGME
+    
     if ([[NSUserDefaults.standardUserDefaults objectForKey:PREF_ADD_LOCATION] isEqual:@(-1)]) // if location pref hasn't been set
     {
         [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_ADD_LOCATION]; // set location pref to yes

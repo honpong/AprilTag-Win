@@ -7,6 +7,7 @@
 //
 
 #import "TMLocationIntro.h"
+@import CoreLocation;
 
 @interface TMLocationIntro ()
 
@@ -14,7 +15,7 @@
 
 @implementation TMLocationIntro
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+- (id) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
@@ -23,17 +24,29 @@
     return self;
 }
 
-- (void)viewDidLoad
+- (void) viewDidLoad
 {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
 }
 
-- (IBAction)handleNextButton:(id)sender
+- (void) viewDidAppear:(BOOL)animated
+{
+    if ([CLLocationManager locationServicesEnabled])
+    {
+        self.introLabel.text = @"Welcome to Endless Tape Measure. When you tap Next, we will ask for permission to use your current location. This is optional, but it makes your measurements more accurate by adjusting for differences in gravity across the planet.";
+    }
+    else
+    {
+        self.introLabel.text = @"Welcome to Endless Tape Measure. I see that you have location services disabled. If you allow this app to use your location, it can make your measurements more accurate. This is completely optional. You can enable location in the Settings app, under 'Privacy'.";
+    }
+}
+
+- (IBAction) handleNextButton:(id)sender
 {
     if ([self.delegate respondsToSelector:@selector(nextButtonTapped)])
     {
         [self.delegate nextButtonTapped];
     }
 }
+
 @end

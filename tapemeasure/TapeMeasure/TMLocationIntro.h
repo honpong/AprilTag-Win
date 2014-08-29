@@ -18,6 +18,7 @@
 
 @property (weak, nonatomic) id<TMLocationIntroDelegate> delegate;
 @property (weak, nonatomic) IBOutlet UIButton *nextButton;
+@property (weak, nonatomic) IBOutlet UILabel *introLabel;
 
 - (IBAction)handleNextButton:(id)sender;
 

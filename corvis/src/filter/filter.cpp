@@ -28,7 +28,7 @@ const static uint64_t steady_converge_time = 2000000; //time that user needs to 
 const static int static_converge_samples = 500; //number of accelerometer readings needed to converge in static cal mode
 const static f_t accelerometer_steady_var = .15*.15; //variance when held steady, based on std dev measurement of iphone 5s held in hand
 const static f_t velocity_steady_var = .1 * .1; //initial var of state.V when steady
-const static f_t accelerometer_inertial_var = 1.*1.; //variance when in inertial only mode
+const static f_t accelerometer_inertial_var = 2.33*2.33; //variance when in inertial only mode
 const static f_t static_sigma = 6.; //how close to mean measurements in static mode need to be
 const static f_t steady_sigma = 3.; //how close to mean measurements in steady mode need to be - lower because it is handheld motion, not gaussian noise
 const static f_t dynamic_W_thresh_variance = 5.e-2; // variance of W must be less than this to initialize from dynamic mode
@@ -308,10 +308,14 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
 
     if(f->run_state == RCSensorFusionRunStateStaticCalibration) {
         uint64_t steady = steady_time(f, f->accel_stability, meas, f->a_variance, static_sigma, time);
-        if(steady > min_steady_time && f->accel_stability.count >= static_converge_samples)
+        if(steady > min_steady_time)
         {
-            update_static_calibration(f);
-            f->run_state = RCSensorFusionRunStateInactive;
+            //obs_a->variance = f->a_variance
+            if(f->accel_stability.count >= static_converge_samples)
+            {
+                update_static_calibration(f);
+                f->run_state = RCSensorFusionRunStateInactive;
+            }
         }
         else
         {
@@ -1027,7 +1031,7 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->s.a_bias.v = v4(device.a_bias[0], device.a_bias[1], device.a_bias[2], 0.);
     f_t tmp[3];
     //TODO: figure out how much drift we need to worry about between runs
-    for(int i = 0; i < 3; ++i) tmp[i] = device.a_bias_var[i] < 1.e-5 ? 1.e-5 : device.a_bias_var[i];
+    for(int i = 0; i < 3; ++i) tmp[i] = device.a_bias_var[i] < 1.e-4 ? 1.e-4 : device.a_bias_var[i];
     f->s.a_bias.set_initial_variance(tmp[0], tmp[1], tmp[2]);
     f->s.w_bias.v = v4(device.w_bias[0], device.w_bias[1], device.w_bias[2], 0.);
     for(int i = 0; i < 3; ++i) tmp[i] = device.w_bias_var[i] < 1.e-6 ? 1.e-6 : device.w_bias_var[i];

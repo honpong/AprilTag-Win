@@ -259,6 +259,51 @@ uint64_t steady_time(struct filter *f, stdev_vector &stdev, v4 meas, f_t varianc
     return time - f->stable_start;
 }
 
+static f_t get_accelerometer_variance_for_run_state(struct filter *f, v4 meas, uint64_t time)
+{
+    switch(f->run_state)
+    {
+        case RCSensorFusionRunStateRunning:
+        case RCSensorFusionRunStateInactive: //shouldn't happen
+            return f->a_variance;
+        case RCSensorFusionRunStateDynamicInitialization:
+            return accelerometer_inertial_var;
+        case RCSensorFusionRunStateStaticCalibration:
+            if(steady_time(f, f->accel_stability, meas, f->a_variance, static_sigma, time) > min_steady_time)
+            {
+                if(f->accel_stability.count >= static_converge_samples)
+                {
+                    update_static_calibration(f);
+                    f->run_state = RCSensorFusionRunStateInactive;
+                }
+                return f->a_variance;
+            }
+            else
+            {
+                return accelerometer_inertial_var;
+            }
+        case RCSensorFusionRunStateSteadyInitialization:
+            uint64_t steady = steady_time(f, f->accel_stability, meas, accelerometer_steady_var, steady_sigma, time);
+            if(steady > min_steady_time)
+            {
+                if(steady > steady_converge_time) {
+                    f->want_start = f->stable_start;
+                    f->s.V.set_initial_variance(velocity_steady_var);
+                    f->s.a.set_initial_variance(accelerometer_steady_var);
+                }
+                return accelerometer_steady_var;
+            }
+            else
+            {
+                return accelerometer_inertial_var;
+            }
+    }
+#ifdef DEBUG
+    assert(0); //should never fall through to here;
+#endif
+    return f->a_variance;
+}
+
 void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t time)
 {
     if(f->run_state == RCSensorFusionRunStateInactive) return;
@@ -304,36 +349,7 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
     
     f->observations.observations.push_back(obs_a);
     
-    obs_a->variance = f->a_variance;
-
-    if(f->run_state == RCSensorFusionRunStateStaticCalibration) {
-        uint64_t steady = steady_time(f, f->accel_stability, meas, f->a_variance, static_sigma, time);
-        if(steady > min_steady_time)
-        {
-            //obs_a->variance = f->a_variance
-            if(f->accel_stability.count >= static_converge_samples)
-            {
-                update_static_calibration(f);
-                f->run_state = RCSensorFusionRunStateInactive;
-            }
-        }
-        else
-        {
-            obs_a->variance = accelerometer_inertial_var;
-        }
-    }
-    else if(f->run_state == RCSensorFusionRunStateDynamicInitialization) obs_a->variance = accelerometer_inertial_var;
-    else if(f->run_state == RCSensorFusionRunStateSteadyInitialization) {
-        uint64_t steady = steady_time(f, f->accel_stability, meas, accelerometer_steady_var, steady_sigma, time);
-        if(steady > steady_converge_time) {
-            f->want_start = f->stable_start;
-            f->s.V.set_initial_variance(velocity_steady_var);
-            f->s.a.set_initial_variance(accelerometer_steady_var);
-        } else if(steady > min_steady_time)
-            obs_a->variance = accelerometer_steady_var;
-        else
-            obs_a->variance = accelerometer_inertial_var;
-    }
+    obs_a->variance = get_accelerometer_variance_for_run_state(f, meas, time);
 
     if(show_tuning) fprintf(stderr, "accelerometer:\n");
     process_observation_queue(f, time);

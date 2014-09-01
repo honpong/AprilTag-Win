@@ -237,7 +237,14 @@ void update_static_calibration(struct filter *f)
     f->s.w_bias.v = f->gyro_stability.mean;
 }
 
-uint64_t steady_time(struct filter *f, stdev_vector &stdev, v4 meas, f_t variance, f_t sigma, uint64_t time)
+static void reset_stability(struct filter *f)
+{
+    f->accel_stability = stdev_vector();
+    f->gyro_stability = stdev_vector();
+    f->stable_start = 0;
+}
+
+uint64_t steady_time(struct filter *f, stdev_vector &stdev, v4 meas, f_t variance, f_t sigma, uint64_t time, v4 orientation, bool use_orientation)
 {
     bool steady = false;
     if(stdev.count) {
@@ -250,13 +257,28 @@ uint64_t steady_time(struct filter *f, stdev_vector &stdev, v4 meas, f_t varianc
         }
     }
     if(!steady) {
-        f->gyro_stability = stdev_vector();
-        f->accel_stability = stdev_vector();
+        reset_stability(f);
         f->stable_start = time;
+    }
+    if(!stdev.count && use_orientation) {
+        v4 local_up = transpose(to_rotation_matrix(f->s.W.v)) * v4(0., 0., 1., 0.);
+        //face up -> (0, 0, 1)
+        //portrait -> (0, 1, 0)
+        //landscape -> (1, 0, 0)
+        f_t costheta = sum(orientation * local_up);
+        if(fabs(costheta) < .99) return 0; //don't start since we aren't in orientation +/- 8 deg (cos(45 deg) would be .71)
     }
     stdev.data(meas);
     
     return time - f->stable_start;
+}
+
+static void print_calibration(struct filter *f)
+{
+    fprintf(stderr, "w bias is: "); f->s.w_bias.v.print(); fprintf(stderr, "\n");
+    fprintf(stderr, "w bias var is: "); f->s.w_bias.variance().print(); fprintf(stderr, "\n");
+    fprintf(stderr, "a bias is: "); f->s.a_bias.v.print(); fprintf(stderr, "\n");
+    fprintf(stderr, "a bias var is: "); f->s.a_bias.variance().print(); fprintf(stderr, "\n");
 }
 
 static f_t get_accelerometer_variance_for_run_state(struct filter *f, v4 meas, uint64_t time)
@@ -269,13 +291,19 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, v4 meas, u
         case RCSensorFusionRunStateDynamicInitialization:
             return accelerometer_inertial_var;
         case RCSensorFusionRunStateStaticCalibration:
-            if(steady_time(f, f->accel_stability, meas, f->a_variance, static_sigma, time) > min_steady_time)
+            if(steady_time(f, f->accel_stability, meas, f->a_variance, static_sigma, time, v4(0., 0., 1., 0.), true) > min_steady_time)
             {
                 f->s.enable_bias_estimation();
                 if(f->accel_stability.count >= static_converge_samples)
                 {
                     update_static_calibration(f);
-                    f->run_state = RCSensorFusionRunStateInactive;
+                    f->run_state = RCSensorFusionRunStatePortraitCalibration;
+                    reset_stability(f);
+                    f->s.disable_bias_estimation();
+#ifdef LOG_ENABLED
+                    fprintf(stderr, "When finishing static calibration:\n");
+                    print_calibration(f);
+#endif
                 }
                 return f->a_variance;
             }
@@ -284,8 +312,55 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, v4 meas, u
                 f->s.disable_bias_estimation();
                 return accelerometer_inertial_var;
             }
+        case RCSensorFusionRunStatePortraitCalibration:
+        {
+            uint64_t steady = steady_time(f, f->accel_stability, meas, accelerometer_steady_var, steady_sigma, time, v4(0, 1, 0, 0), true);
+            if(steady > min_steady_time)
+            {
+                f->s.enable_bias_estimation();
+                if(steady > steady_converge_time) {
+                    f->run_state = RCSensorFusionRunStateLandscapeCalibration;
+                    reset_stability(f);
+                    f->s.disable_bias_estimation();
+#ifdef LOG_ENABLED
+                    fprintf(stderr, "When finishing portrait calibration:\n");
+                    print_calibration(f);
+#endif
+                }
+                return accelerometer_steady_var;
+            }
+            else
+            {
+                f->s.disable_bias_estimation();
+                return accelerometer_inertial_var;
+            }
+        }
+        case RCSensorFusionRunStateLandscapeCalibration:
+        {
+            uint64_t steady = steady_time(f, f->accel_stability, meas, accelerometer_steady_var, steady_sigma, time, v4(1, 0, 0, 0), true);
+            if(steady > min_steady_time)
+            {
+                f->s.enable_bias_estimation();
+                if(steady > steady_converge_time) {
+                    f->run_state = RCSensorFusionRunStateInactive;
+                    reset_stability(f);
+                    f->s.disable_bias_estimation();
+#ifdef LOG_ENABLED
+                    fprintf(stderr, "When finishing landscape calibration:\n");
+                    print_calibration(f);
+#endif
+                }
+                return accelerometer_steady_var;
+            }
+            else
+            {
+                f->s.disable_bias_estimation();
+                return accelerometer_inertial_var;
+            }
+        }
         case RCSensorFusionRunStateSteadyInitialization:
-            uint64_t steady = steady_time(f, f->accel_stability, meas, accelerometer_steady_var, steady_sigma, time);
+        {
+            uint64_t steady = steady_time(f, f->accel_stability, meas, accelerometer_steady_var, steady_sigma, time, v4(), false);
             if(steady > min_steady_time)
             {
                 f->s.enable_bias_estimation();
@@ -301,6 +376,7 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, v4 meas, u
                 f->s.disable_bias_estimation();
                 return accelerometer_inertial_var;
             }
+        }
     }
 #ifdef DEBUG
     assert(0); //should never fall through to here;
@@ -887,6 +963,10 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
             //don't go active until we can successfully add features
             if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) {
                 f->run_state = RCSensorFusionRunStateRunning;
+#ifdef LOG_ENABLED
+                fprintf(stderr, "When moving from steady init to running:\n");
+                print_calibration(f);
+#endif
                 f->active_time = time;
             }
             f->detector_failed = false;
@@ -1122,7 +1202,7 @@ float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
 
 float filter_converged(struct filter *f)
 {
-    if(f->run_state == RCSensorFusionRunStateSteadyInitialization) {
+    if(f->run_state == RCSensorFusionRunStateSteadyInitialization || f->run_state == RCSensorFusionRunStatePortraitCalibration || f->run_state == RCSensorFusionRunStateLandscapeCalibration) {
         return (f->last_time - f->stable_start) / (f_t)steady_converge_time;
     } else if(f->run_state == RCSensorFusionRunStateStaticCalibration) {
         return f->accel_stability.count / (f_t)static_converge_samples;
@@ -1189,16 +1269,13 @@ void filter_get_camera_parameters(struct filter *f, float matrix[16], float foca
 
 void filter_start_static_calibration(struct filter *f)
 {
-    f->accel_stability = stdev_vector();
-    f->gyro_stability = stdev_vector();
-    f->stable_start = 0;
+    reset_stability(f);
     f->run_state = RCSensorFusionRunStateStaticCalibration;
 }
 
 void filter_start_hold_steady(struct filter *f)
 {
-    f->accel_stability = stdev_vector();
-    f->stable_start = 0;
+    reset_stability(f);
     f->run_state = RCSensorFusionRunStateSteadyInitialization;
 }
 

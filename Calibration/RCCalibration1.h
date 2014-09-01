@@ -34,8 +34,8 @@
 
 @property (weak, nonatomic) id<RCCalibrationDelegate> calibrationDelegate;
 @property (weak, nonatomic) id<RCSensorDelegate> sensorDelegate;
-@property (weak, nonatomic) IBOutlet UIButton *button;
 @property (weak, nonatomic) IBOutlet UILabel *messageLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *bgImage;
 
 + (RCCalibration1 *)instantiateViewController;
 - (IBAction)handleButton:(id)sender;

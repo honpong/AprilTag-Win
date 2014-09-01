@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="5056" systemVersion="13D65" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="N4n-gK-IPh">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="5056" systemVersion="13E28" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="N4n-gK-IPh">
     <dependencies>
         <deployment defaultVersion="1536" identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3733"/>
@@ -211,7 +211,7 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="qLM-JU-KyG" userLabel="MessageBackground">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="92"/>
                                 <subviews>
-                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Your device needs to be calibrated just once. Place it on a flat, stable surface, like a table." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="7Ps-rY-M69" userLabel="MessageLabel">
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Place the device on a flat, stable surface, like a table." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="7Ps-rY-M69" userLabel="MessageLabel">
                                         <rect key="frame" x="20" y="10" width="280" height="72"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -227,48 +227,22 @@
                                     <constraint firstAttribute="trailing" secondItem="7Ps-rY-M69" secondAttribute="trailing" constant="20" id="ru2-VM-zFk"/>
                                 </constraints>
                             </view>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gTF-TO-lNo">
-                                <rect key="frame" x="0.0" y="476" width="320" height="92"/>
-                                <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" verticalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="oKL-F2-xdL">
-                                        <rect key="frame" x="0.0" y="0.0" width="320" height="92"/>
-                                        <fontDescription key="fontDescription" type="boldSystem" size="button"/>
-                                        <state key="normal" title="Tap here to begin calibration">
-                                            <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                        </state>
-                                        <connections>
-                                            <action selector="handleButton:" destination="N4n-gK-IPh" eventType="touchUpInside" id="nzZ-MH-BDa"/>
-                                        </connections>
-                                    </button>
-                                </subviews>
-                                <color key="backgroundColor" white="0.0" alpha="0.5" colorSpace="calibratedWhite"/>
-                                <constraints>
-                                    <constraint firstAttribute="trailing" secondItem="oKL-F2-xdL" secondAttribute="trailing" id="8hd-zN-jVv"/>
-                                    <constraint firstItem="oKL-F2-xdL" firstAttribute="leading" secondItem="gTF-TO-lNo" secondAttribute="leading" id="M7T-Ja-5mC"/>
-                                    <constraint firstItem="oKL-F2-xdL" firstAttribute="top" secondItem="gTF-TO-lNo" secondAttribute="top" id="mVL-mZ-8l6"/>
-                                    <constraint firstAttribute="bottom" secondItem="oKL-F2-xdL" secondAttribute="bottom" id="r4Y-U1-gcf"/>
-                                    <constraint firstAttribute="height" constant="92" id="rUY-e2-val"/>
-                                </constraints>
-                            </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="qLM-JU-KyG" firstAttribute="top" secondItem="4Xn-yd-zOo" secondAttribute="top" id="2Kd-Co-vVU"/>
-                            <constraint firstItem="gTF-TO-lNo" firstAttribute="bottom" secondItem="4Xn-yd-zOo" secondAttribute="bottom" id="2L3-F3-Fva"/>
                             <constraint firstAttribute="trailing" secondItem="KVB-TC-Gp7" secondAttribute="trailing" id="38S-5h-OMQ"/>
                             <constraint firstItem="KVB-TC-Gp7" firstAttribute="top" secondItem="4Xn-yd-zOo" secondAttribute="top" id="3gD-aa-60A"/>
                             <constraint firstItem="qLM-JU-KyG" firstAttribute="leading" secondItem="4Xn-yd-zOo" secondAttribute="leading" id="C5w-3m-Sxc"/>
-                            <constraint firstAttribute="trailing" secondItem="gTF-TO-lNo" secondAttribute="trailing" id="HJy-J9-Lqe"/>
                             <constraint firstItem="KVB-TC-Gp7" firstAttribute="bottom" secondItem="4Xn-yd-zOo" secondAttribute="bottom" id="LKg-3t-6PX"/>
                             <constraint firstItem="KVB-TC-Gp7" firstAttribute="leading" secondItem="4Xn-yd-zOo" secondAttribute="leading" id="MKI-hA-bLE"/>
-                            <constraint firstItem="gTF-TO-lNo" firstAttribute="leading" secondItem="4Xn-yd-zOo" secondAttribute="leading" id="hPt-FS-a9I"/>
                             <constraint firstAttribute="trailing" secondItem="qLM-JU-KyG" secondAttribute="trailing" id="lgK-kI-LFZ"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Calibration" id="jhM-Z6-iH1"/>
                     <nil key="simulatedStatusBarMetrics"/>
                     <connections>
-                        <outlet property="button" destination="oKL-F2-xdL" id="cwS-sR-E1e"/>
+                        <outlet property="bgImage" destination="KVB-TC-Gp7" id="6XH-CS-ngy"/>
                         <outlet property="messageLabel" destination="7Ps-rY-M69" id="IuY-RP-tjr"/>
                     </connections>
                 </viewController>

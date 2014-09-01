@@ -271,6 +271,7 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, v4 meas, u
         case RCSensorFusionRunStateStaticCalibration:
             if(steady_time(f, f->accel_stability, meas, f->a_variance, static_sigma, time) > min_steady_time)
             {
+                f->s.enable_bias_estimation();
                 if(f->accel_stability.count >= static_converge_samples)
                 {
                     update_static_calibration(f);
@@ -280,12 +281,14 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, v4 meas, u
             }
             else
             {
+                f->s.disable_bias_estimation();
                 return accelerometer_inertial_var;
             }
         case RCSensorFusionRunStateSteadyInitialization:
             uint64_t steady = steady_time(f, f->accel_stability, meas, accelerometer_steady_var, steady_sigma, time);
             if(steady > min_steady_time)
             {
+                f->s.enable_bias_estimation();
                 if(steady > steady_converge_time) {
                     f->want_start = f->stable_start;
                     f->s.V.set_initial_variance(velocity_steady_var);
@@ -295,6 +298,7 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, v4 meas, u
             }
             else
             {
+                f->s.disable_bias_estimation();
                 return accelerometer_inertial_var;
             }
     }

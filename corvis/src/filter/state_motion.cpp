@@ -163,6 +163,7 @@ void state_motion::enable_orientation_only()
     if(orientation_only) return;
     orientation_only = true;
     remove_non_orientation_states();
+    disable_bias_estimation();
     remap();
 }
 
@@ -171,5 +172,26 @@ void state_motion::disable_orientation_only()
     if(!orientation_only) return;
     orientation_only = false;
     add_non_orientation_states();
+    enable_bias_estimation();
+    remap();
+}
+
+void state_motion::disable_bias_estimation()
+{
+    if(!estimate_bias) return;
+    estimate_bias = false;
+    a_bias.set_initial_variance(a_bias.variance()[0], a_bias.variance()[1], a_bias.variance()[2]);
+    remove_child(&a_bias);
+    w_bias.set_initial_variance(w_bias.variance()[0], w_bias.variance()[1], w_bias.variance()[2]);
+    remove_child(&w_bias);
+    remap();
+}
+
+void state_motion::enable_bias_estimation()
+{
+    if(estimate_bias) return;
+    estimate_bias = true;
+    children.push_back(&a_bias);
+    children.push_back(&w_bias);
     remap();
 }

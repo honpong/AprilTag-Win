@@ -24,6 +24,8 @@
     return (RCCalibration1 *)[calibrationStoryBoard instantiateInitialViewController];
 }
 
+- (BOOL) prefersStatusBarHidden { return YES; }
+
 - (void) viewDidLoad
 {
     [super viewDidLoad];

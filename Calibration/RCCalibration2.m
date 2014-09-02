@@ -19,6 +19,8 @@
 }
 @synthesize button, messageLabel, videoPreview;
 
+- (BOOL) prefersStatusBarHidden { return YES; }
+
 - (void) viewDidLoad
 {
     [super viewDidLoad];

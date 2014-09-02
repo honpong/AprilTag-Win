@@ -405,6 +405,7 @@ static transition transitions[] =
 - (void)startSensorFusion
 {
     LOGME
+    [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
     [[sensorDelegate getVideoProvider] setDelegate:nil];
     [SENSOR_FUSION startSensorFusionWithDevice:[sensorDelegate getVideoDevice]];
 }
@@ -414,6 +415,7 @@ static transition transitions[] =
     LOGME
     [SENSOR_FUSION stopSensorFusion];
     [[sensorDelegate getVideoProvider] setDelegate:self.arView.videoView];
+    [[UIApplication sharedApplication] setIdleTimerDisabled:NO];
 }
 
 #pragma mark - RCSensorFusionDelegate

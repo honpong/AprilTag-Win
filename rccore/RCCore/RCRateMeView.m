@@ -41,7 +41,7 @@ static const CGFloat buttonHeight = 45;
     self.clipsToBounds = YES;
     
     label = [UILabel new];
-    label.text = @"Thanks for trying our app. Help us out by rating it on the AppStore!";
+    label.text = @"Thanks for trying our app. Help us out by rating it on the App Store!";
     label.textColor = [UIColor whiteColor];
     label.numberOfLines = 2;
     label.textAlignment = NSTextAlignmentCenter;

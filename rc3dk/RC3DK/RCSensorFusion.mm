@@ -358,6 +358,9 @@ typedef NS_ENUM(int, RCLicenseStatus)
 {
     if(isSensorFusionRunning) return;
     dispatch_async(queue, ^{
+        [RCCalibration clearCalibrationData];
+        _cor_setup->device = [RCCalibration getCalibrationData];
+        filter_initialize(&_cor_setup->sfm, _cor_setup->device);
         filter_start_static_calibration(&_cor_setup->sfm);
     });
     isSensorFusionRunning = true;

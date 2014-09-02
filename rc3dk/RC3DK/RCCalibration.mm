@@ -239,6 +239,11 @@
     return [RCCalibration isCalibrationDataValid:data];
 }
 
++ (void) clearCalibrationData
+{
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:PREF_DEVICE_PARAMS];
+}
+
 + (BOOL) isCalibrationDataValid:(NSDictionary*)data
 {
     BOOL result = NO;

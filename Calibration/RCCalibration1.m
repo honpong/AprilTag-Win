@@ -14,8 +14,9 @@
     BOOL isCalibrating;
     MBProgressHUD *progressView;
     RCSensorFusion* sensorFusion;
+    RCSensorFusionRunState currentRunState;
 }
-@synthesize button, messageLabel;
+@synthesize messageLabel, bgImage;
 
 + (RCCalibration1 *)instantiateViewController
 {
@@ -36,22 +37,23 @@
                                                object:nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(handleOrientationChange)
-                                                 name:UIDeviceOrientationDidChangeNotification
+                                             selector:@selector(handleResume)
+                                                 name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
     
     sensorFusion = [RCSensorFusion sharedInstance];
     sensorFusion.delegate = self;
+    currentRunState = RCSensorFusionRunStateInactive;
     
 	isCalibrating = NO;
 }
 
 - (void) viewDidAppear:(BOOL)animated
 {
-    [self updateButtonState];
     if ([self.calibrationDelegate respondsToSelector:@selector(calibrationScreenDidAppear:)])
         [self.calibrationDelegate calibrationScreenDidAppear: @"Calibration1"];
     [super viewDidAppear:animated];
+    [self startCalibration];
 }
 
 - (void) viewWillDisappear:(BOOL)animated
@@ -60,24 +62,14 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (void) handleOrientationChange
-{
-    [self updateButtonState];
-    
-    if ([[UIDevice currentDevice] orientation] != UIDeviceOrientationFaceUp)
-    {
-        if (isCalibrating) [self stopCalibration];
-    }
-}
-
 - (void) handlePause
 {
     if(isCalibrating) [self stopCalibration];
 }
 
-- (IBAction) handleButton:(id)sender
+- (void) handleResume
 {
-    if (!isCalibrating) [self startCalibration];
+    [self startCalibration];
 }
 
 - (void) sensorFusionDidUpdateData:(RCSensorFusionData *)data
@@ -99,25 +91,38 @@
     }
     else if (isCalibrating)
     {
-        if (status.runState == RCSensorFusionRunStateInactive)
+        if(status.runState != currentRunState)
         {
-            [self calibrationFinished];
+            currentRunState = status.runState;
+            switch(currentRunState)
+            {
+                case RCSensorFusionRunStateStaticCalibration:
+                    [messageLabel setText:@"Place the device on a flat, stable surface, like a table."];
+                    break;
+                case RCSensorFusionRunStatePortraitCalibration:
+                    [messageLabel setText:@"Hold the device steady in portrait orientation, perpendicular to the floor."];
+                    bgImage.image = [UIImage imageNamed:@"holding_portrait.jpg"];
+                    break;
+                case RCSensorFusionRunStateLandscapeCalibration:
+                    [messageLabel setText:@"Hold the device steady in landscape orientation, perpendicular to the floor."];
+                    bgImage.image = [UIImage imageNamed:@"holding_landscape.jpg"];
+                    break;
+                case RCSensorFusionRunStateInactive:
+                    [self calibrationFinished];
+                    break;
+                default: //should not happen
+                    break;
+            }
+            [UIViewController attemptRotationToDeviceOrientation];
         }
-        else
-        {
-            [self updateProgressView:status.progress];
-        }
+        [self updateProgressView:status.progress];
     }
 }
 
 - (void) calibrationFinished
 {
     [self stopCalibration];
-    
-    RCCalibration2* cal2 = [self.storyboard instantiateViewControllerWithIdentifier:@"Calibration2"];
-    cal2.calibrationDelegate = self.calibrationDelegate; // pass the RCCalibrationDelegate object on to the next view controller
-    cal2.sensorDelegate = self.sensorDelegate; // pass the RCSensorDelegate object on to the next view controller
-    [self presentViewController:cal2 animated:YES completion:nil];
+    [self gotoNextScreen];
 }
 
 - (void) startCalibration
@@ -125,8 +130,6 @@
     isCalibrating = YES;
     
     [self showProgressViewWithTitle:@"Calibrating"];
-    [self updateButtonState];
-    [messageLabel setText:@"Don't touch the device until calibration has finished"];
     
     //This calibration step only requires motion data, no video
     [self.sensorDelegate startMotionSensors];
@@ -142,10 +145,14 @@
     [sensorFusion stopSensorFusion];
     sensorFusion.delegate = nil;
     
-    [self updateButtonState];
-    [messageLabel setText:@"Your device needs to be calibrated just once. Place it on a flat, stable surface, like a table."];
+    [messageLabel setText:@"Place the device on a flat, stable surface, like a table."];
     [self hideProgressView];
     
+}
+
+- (void) gotoNextScreen
+{
+    if ([self.calibrationDelegate respondsToSelector:@selector(calibrationDidFinish)]) [self.calibrationDelegate calibrationDidFinish];
 }
 
 - (void)showProgressViewWithTitle:(NSString*)title
@@ -165,30 +172,6 @@
 - (void)updateProgressView:(float)progress
 {
     [progressView setProgress:progress];
-}
-
-- (void) updateButtonState
-{
-    if ([[UIDevice currentDevice] orientation] == UIDeviceOrientationFaceUp)
-    {
-        if (isCalibrating)
-        {
-            [button setTitle:@"Calibrating" forState:UIControlStateNormal];
-            button.enabled = YES; // bug workaround. see http://stackoverflow.com/questions/19973515/uibutton-title-text-is-not-updated-even-if-i-update-it-in-main-thread
-            button.enabled = NO;
-        }
-        else
-        {
-            button.enabled = YES;
-            [button setTitle:@"Tap here to begin calibration" forState:UIControlStateNormal];
-        }
-    }
-    else
-    {
-        [button setTitle:@"Lay device face up" forState:UIControlStateNormal];
-        button.enabled = YES; // bug workaround. see http://stackoverflow.com/questions/19973515/uibutton-title-text-is-not-updated-even-if-i-update-it-in-main-thread
-        button.enabled = NO;
-    }
 }
 
 @end

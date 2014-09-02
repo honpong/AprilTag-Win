@@ -66,7 +66,9 @@ RCSensorFusionErrorCode filter_setup::get_error()
         {
             case RCSensorFusionRunStateInactive:
                 //This should never happen.
+#ifdef DEBUG
                 assert(0);
+#endif
             case RCSensorFusionRunStateRunning:
                 //OK, just stop and report it to the user.
                 break;

@@ -64,7 +64,7 @@ public:
     state_vector V;
     state_vector a;
     
-    state_motion(covariance &c): state_motion_orientation(c), orientation_only(false)
+    state_motion(covariance &c): state_motion_orientation(c), orientation_only(false), estimate_bias(true)
     {
         T.dynamic = true;
         V.dynamic = true;
@@ -82,7 +82,10 @@ public:
     virtual void enable_orientation_only();
     virtual void disable_orientation_only();
     virtual void evolve(f_t dt);
+    virtual void enable_bias_estimation();
+    virtual void disable_bias_estimation();
 protected:
+    bool estimate_bias;
     bool orientation_only;
     virtual void add_non_orientation_states();
     virtual void remove_non_orientation_states();

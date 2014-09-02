@@ -1041,7 +1041,7 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <subviews>
                                     <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" lineBreakMode="tailTruncation" numberOfLines="10" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="290" translatesAutoresizingMaskIntoConstraints="NO" id="K4f-TO-lA8">
-                                        <rect key="frame" x="20" y="12" width="290" height="122"/>
+                                        <rect key="frame" x="20" y="15" width="290" height="122"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="122" id="5OG-KG-geh"/>
@@ -1054,7 +1054,7 @@
                                 </subviews>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="200" id="6d5-db-Y8A"/>
-                                    <constraint firstItem="K4f-TO-lA8" firstAttribute="top" secondItem="zTI-gw-tS8" secondAttribute="top" constant="12" id="ZC4-kF-cTm"/>
+                                    <constraint firstItem="K4f-TO-lA8" firstAttribute="top" secondItem="zTI-gw-tS8" secondAttribute="top" constant="15" id="ZC4-kF-cTm"/>
                                     <constraint firstAttribute="trailing" secondItem="K4f-TO-lA8" secondAttribute="trailing" constant="10" id="de5-yC-OW5"/>
                                     <constraint firstItem="K4f-TO-lA8" firstAttribute="leading" secondItem="zTI-gw-tS8" secondAttribute="leading" constant="20" symbolic="YES" id="nEf-F9-S8N"/>
                                 </constraints>

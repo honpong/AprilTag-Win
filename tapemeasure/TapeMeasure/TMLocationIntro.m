@@ -14,6 +14,9 @@
 @end
 
 @implementation TMLocationIntro
+{
+    NSString* originalTextFromStoryboard;
+}
 
 - (id) initWithCoder:(NSCoder *)aDecoder
 {
@@ -32,6 +35,8 @@
 - (void) viewDidLoad
 {
     [super viewDidLoad];
+    
+    originalTextFromStoryboard = self.introLabel.text;
 }
 
 - (void) viewDidAppear:(BOOL)animated
@@ -56,7 +61,7 @@
 {
     if ([CLLocationManager locationServicesEnabled])
     {
-        self.introLabel.text = @"Welcome. When you tap Next, we will ask for permission to use your  current location. This is optional, but it makes your measurements more accurate by adjusting for differences in gravity across the earth.";
+        self.introLabel.text = originalTextFromStoryboard;
     }
     else
     {

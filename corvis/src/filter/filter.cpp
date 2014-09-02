@@ -300,7 +300,7 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, v4 meas, u
                     f->run_state = RCSensorFusionRunStatePortraitCalibration;
                     reset_stability(f);
                     f->s.disable_bias_estimation();
-#ifdef LOG_ENABLED
+#if log_enabled
                     fprintf(stderr, "When finishing static calibration:\n");
                     print_calibration(f);
 #endif
@@ -322,7 +322,7 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, v4 meas, u
                     f->run_state = RCSensorFusionRunStateLandscapeCalibration;
                     reset_stability(f);
                     f->s.disable_bias_estimation();
-#ifdef LOG_ENABLED
+#if log_enabled
                     fprintf(stderr, "When finishing portrait calibration:\n");
                     print_calibration(f);
 #endif
@@ -345,7 +345,7 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, v4 meas, u
                     f->run_state = RCSensorFusionRunStateInactive;
                     reset_stability(f);
                     f->s.disable_bias_estimation();
-#ifdef LOG_ENABLED
+#if log_enabled
                     fprintf(stderr, "When finishing landscape calibration:\n");
                     print_calibration(f);
 #endif
@@ -963,7 +963,7 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
             //don't go active until we can successfully add features
             if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) {
                 f->run_state = RCSensorFusionRunStateRunning;
-#ifdef LOG_ENABLED
+#if log_enabled
                 fprintf(stderr, "When moving from steady init to running:\n");
                 print_calibration(f);
 #endif

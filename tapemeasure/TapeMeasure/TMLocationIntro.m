@@ -15,14 +15,19 @@
 
 @implementation TMLocationIntro
 
-- (id) initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+- (id) initWithCoder:(NSCoder *)aDecoder
 {
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        // Custom initialization
+    if (self = [super initWithCoder:aDecoder])
+    {
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(handleResume)
+                                                     name:UIApplicationDidBecomeActiveNotification
+                                                   object:nil];
     }
     return self;
 }
+
+- (BOOL) prefersStatusBarHidden { return YES; }
 
 - (void) viewDidLoad
 {
@@ -31,14 +36,12 @@
 
 - (void) viewDidAppear:(BOOL)animated
 {
-    if ([CLLocationManager locationServicesEnabled])
-    {
-        self.introLabel.text = @"Welcome to Endless Tape Measure. When you tap Next, we will ask for permission to use your current location. This is optional, but it makes your measurements more accurate by adjusting for differences in gravity across the planet.";
-    }
-    else
-    {
-        self.introLabel.text = @"Welcome to Endless Tape Measure. I see that you have location services disabled. If you allow this app to use your location, it can make your measurements more accurate. This is completely optional. You can enable location in the Settings app, under 'Privacy'.";
-    }
+    [self setIntroText];
+}
+
+- (void) handleResume
+{
+    [self setIntroText];
 }
 
 - (IBAction) handleNextButton:(id)sender
@@ -47,6 +50,20 @@
     {
         [self.delegate nextButtonTapped];
     }
+}
+
+- (void) setIntroText
+{
+    if ([CLLocationManager locationServicesEnabled])
+    {
+        self.introLabel.text = @"Welcome. When you tap Next, we will ask for permission to use your  current location. This is optional, but it makes your measurements more accurate by adjusting for differences in gravity across the earth.";
+    }
+    else
+    {
+        self.introLabel.text = @"Welcome. I see that you have location services disabled. If you allow this app to use your location, it can make your measurements more accurate. This is completely optional. You can enable location in the Settings app, under 'Privacy'.";
+    }
+    
+    [self.introLabel sizeToFit];
 }
 
 @end

@@ -112,7 +112,6 @@
 		32E0A08816E148A500D0E689 /* TMSyncable+TMSyncableSync.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E0A08716E148A500D0E689 /* TMSyncable+TMSyncableSync.m */; };
 		32E4C4BF18F8A7A20094022B /* TMNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E4C4BE18F8A7A20094022B /* TMNavigationController.m */; };
 		32E50DBC19AFDBC40048D069 /* TMLocationIntro.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E50DBB19AFDBC40048D069 /* TMLocationIntro.m */; };
-		32E50DBF19B001660048D069 /* stock-photo-2887453-earth-from-space.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32E50DBE19B001660048D069 /* stock-photo-2887453-earth-from-space.jpg */; };
 		32E681B618F5CD260043D50A /* Accounts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32E681B518F5CD260043D50A /* Accounts.framework */; };
 		32E6849118F5FB250043D50A /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32E6849018F5FB250043D50A /* AddressBook.framework */; };
 		32E6849318F5FB390043D50A /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32E6849218F5FB390043D50A /* CoreText.framework */; };
@@ -545,7 +544,6 @@
 		32E4C4BE18F8A7A20094022B /* TMNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMNavigationController.m; sourceTree = "<group>"; };
 		32E50DBA19AFDBC40048D069 /* TMLocationIntro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMLocationIntro.h; sourceTree = "<group>"; };
 		32E50DBB19AFDBC40048D069 /* TMLocationIntro.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMLocationIntro.m; sourceTree = "<group>"; };
-		32E50DBE19B001660048D069 /* stock-photo-2887453-earth-from-space.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = "stock-photo-2887453-earth-from-space.jpg"; sourceTree = "<group>"; };
 		32E681B518F5CD260043D50A /* Accounts.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accounts.framework; path = System/Library/Frameworks/Accounts.framework; sourceTree = SDKROOT; };
 		32E6849018F5FB250043D50A /* AddressBook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBook.framework; path = System/Library/Frameworks/AddressBook.framework; sourceTree = SDKROOT; };
 		32E6849218F5FB390043D50A /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
@@ -1038,7 +1036,6 @@
 			isa = PBXGroup;
 			children = (
 				32C210BF19B63433007FF050 /* golden_gate.jpg */,
-				32E50DBE19B001660048D069 /* stock-photo-2887453-earth-from-space.jpg */,
 				320F9F8619A6A65000CF43B6 /* EndlessTapeMeasure.mp4 */,
 				32D2B6D918EA163000B72F05 /* Calibration */,
 				32BA42FB17A2E5A9002BAE13 /* Shaders */,
@@ -1824,7 +1821,6 @@
 				32E6875018F617160043D50A /* GooglePlus-Icon-60@2x.png in Resources */,
 				32E6879A18F617160043D50A /* osk-readabilityIcon-76@2x.png in Resources */,
 				32E6874518F617160043D50A /* Chrome-Icon-60@2x.png in Resources */,
-				32E50DBF19B001660048D069 /* stock-photo-2887453-earth-from-space.jpg in Resources */,
 				32E6877918F617160043D50A /* osk-iap-badge-76@2x.png in Resources */,
 				32E6876018F617160043D50A /* osk-airDropIcon-76@2x.png in Resources */,
 				32E6875C18F617160043D50A /* Omnifocus-Icon-72.png in Resources */,

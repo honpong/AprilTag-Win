@@ -241,7 +241,7 @@ static void reset_stability(struct filter *f)
 {
     f->accel_stability = stdev_vector();
     f->gyro_stability = stdev_vector();
-    f->stable_start = 0;
+    f->stable_start = f->last_time;
 }
 
 uint64_t steady_time(struct filter *f, stdev_vector &stdev, v4 meas, f_t variance, f_t sigma, uint64_t time, v4 orientation, bool use_orientation)
@@ -258,9 +258,9 @@ uint64_t steady_time(struct filter *f, stdev_vector &stdev, v4 meas, f_t varianc
     }
     if(!steady) {
         reset_stability(f);
-        f->stable_start = time;
     }
     if(!stdev.count && use_orientation) {
+        if(!f->s.orientation_initialized) return 0;
         v4 local_up = transpose(to_rotation_matrix(f->s.W.v)) * v4(0., 0., 1., 0.);
         //face up -> (0, 0, 1)
         //portrait -> (0, 1, 0)

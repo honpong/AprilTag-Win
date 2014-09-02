@@ -15,6 +15,7 @@
     MBProgressHUD *progressView;
     RCSensorFusion* sensorFusion;
     RCSensorFusionRunState currentRunState;
+    float currentProgress;
 }
 @synthesize messageLabel, bgImage;
 
@@ -44,6 +45,7 @@
     sensorFusion = [RCSensorFusion sharedInstance];
     sensorFusion.delegate = self;
     currentRunState = RCSensorFusionRunStateInactive;
+    currentProgress = 0.;
     
 	isCalibrating = NO;
 }
@@ -97,17 +99,21 @@
             switch(currentRunState)
             {
                 case RCSensorFusionRunStateStaticCalibration:
+                    [self hideProgressView];
                     [messageLabel setText:@"Place the device on a flat, stable surface, like a table."];
                     break;
                 case RCSensorFusionRunStatePortraitCalibration:
+                    [self hideProgressView];
                     [messageLabel setText:@"Hold the device steady in portrait orientation, perpendicular to the floor."];
                     bgImage.image = [UIImage imageNamed:@"holding_portrait.jpg"];
                     break;
                 case RCSensorFusionRunStateLandscapeCalibration:
+                    [self hideProgressView];
                     [messageLabel setText:@"Hold the device steady in landscape orientation, perpendicular to the floor."];
                     bgImage.image = [UIImage imageNamed:@"holding_landscape.jpg"];
                     break;
                 case RCSensorFusionRunStateInactive:
+                    [self hideProgressView];
                     [self calibrationFinished];
                     break;
                 default: //should not happen
@@ -115,7 +121,15 @@
             }
             [UIViewController attemptRotationToDeviceOrientation];
         }
-        [self updateProgressView:status.progress];
+        if(status.progress != currentProgress)
+        {
+            if(status.progress >= 0.02 && currentProgress < 0.02) //delay showing it until we've made a bit of progress so it doesn't flash on and reset as soon as we get close
+            {
+                [self showProgressView];
+            }
+            [self updateProgressView:status.progress];
+            currentProgress = status.progress;
+        }
     }
 }
 
@@ -128,9 +142,7 @@
 - (void) startCalibration
 {
     isCalibrating = YES;
-    
-    [self showProgressViewWithTitle:@"Calibrating"];
-    
+    [self createProgressViewWithTitle:@"Calibrating"];
     //This calibration step only requires motion data, no video
     [self.sensorDelegate startMotionSensors];
     sensorFusion.delegate = self;
@@ -155,12 +167,17 @@
     if ([self.calibrationDelegate respondsToSelector:@selector(calibrationDidFinish)]) [self.calibrationDelegate calibrationDidFinish];
 }
 
-- (void)showProgressViewWithTitle:(NSString*)title
+- (void)createProgressViewWithTitle:(NSString*)title
 {
     progressView = [[MBProgressHUD alloc] initWithView:self.view];
     progressView.mode = MBProgressHUDModeAnnularDeterminate;
     [self.view addSubview:progressView];
     progressView.labelText = title;
+    [progressView hide:YES];
+}
+
+- (void)showProgressView
+{
     [progressView show:YES];
 }
 

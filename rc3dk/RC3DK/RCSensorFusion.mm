@@ -99,6 +99,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
     BOOL isLicenseValid;
     bool isStableStart;
     RCSensorFusionRunState lastRunState;
+    float lastProgress;
     NSString* licenseKey;
 }
 
@@ -300,6 +301,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
         queue = dispatch_queue_create("com.realitycap.sensorfusion", DISPATCH_QUEUE_SERIAL);
         inputQueue = dispatch_queue_create("com.realitycap.sensorfusion.input", DISPATCH_QUEUE_SERIAL);
         lastRunState = RCSensorFusionRunStateInactive;
+        lastProgress = 0.;
         licenseKey = nil;
         
         [RCPrivateHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
@@ -487,7 +489,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
     RCSensorFusionErrorCode errorCode = _cor_setup->get_error();
     float converged = _cor_setup->get_filter_converged();
     
-    if((converged == 0. || converged == 1.) && (errorCode == RCSensorFusionErrorCodeNone) && (f->run_state == lastRunState)) return;
+    if((converged == lastProgress) && (errorCode == RCSensorFusionErrorCodeNone) && (f->run_state == lastRunState)) return;
 
     // queue actions related to failures before queuing callbacks to the sdk client.
     if(errorCode == RCSensorFusionErrorCodeTooFast || errorCode == RCSensorFusionErrorCodeOther)
@@ -523,7 +525,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
         [cameraManager focusOnceAndLock];
     }
     
-    if((converged < 1. || converged > 0.) || (errorCode != RCSensorFusionErrorCodeNone) || (f->run_state != lastRunState))
+    if((converged != lastProgress) || (errorCode != RCSensorFusionErrorCodeNone) || (f->run_state != lastRunState))
     {
         RCSensorFusionError* error = nil;
         if (errorCode != RCSensorFusionErrorCodeNone) error = [RCSensorFusionError errorWithDomain:ERROR_DOMAIN code:errorCode userInfo:nil];
@@ -535,6 +537,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
     }
     
     lastRunState = f->run_state;
+    lastProgress = converged;
 }
 
 - (void) sendDataWithSampleBuffer:(CMSampleBufferRef)sampleBuffer

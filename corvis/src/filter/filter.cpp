@@ -241,7 +241,7 @@ static void reset_stability(struct filter *f)
 {
     f->accel_stability = stdev_vector();
     f->gyro_stability = stdev_vector();
-    f->stable_start = f->last_time;
+    f->stable_start = 0;
 }
 
 uint64_t steady_time(struct filter *f, stdev_vector &stdev, v4 meas, f_t variance, f_t sigma, uint64_t time, v4 orientation, bool use_orientation)
@@ -258,6 +258,7 @@ uint64_t steady_time(struct filter *f, stdev_vector &stdev, v4 meas, f_t varianc
     }
     if(!steady) {
         reset_stability(f);
+        f->stable_start = time;
     }
     if(!stdev.count && use_orientation) {
         if(!f->s.orientation_initialized) return 0;
@@ -365,7 +366,6 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, v4 meas, u
             {
                 f->s.enable_bias_estimation();
                 if(steady > steady_converge_time) {
-                    f->want_start = f->stable_start;
                     f->s.V.set_initial_variance(velocity_steady_var);
                     f->s.a.set_initial_variance(accelerometer_steady_var);
                 }
@@ -1203,6 +1203,7 @@ float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
 float filter_converged(struct filter *f)
 {
     if(f->run_state == RCSensorFusionRunStateSteadyInitialization || f->run_state == RCSensorFusionRunStatePortraitCalibration || f->run_state == RCSensorFusionRunStateLandscapeCalibration) {
+        if(f->stable_start == 0) return 0.;
         return (f->last_time - f->stable_start) / (f_t)steady_converge_time;
     } else if(f->run_state == RCSensorFusionRunStateStaticCalibration) {
         return f->accel_stability.count / (f_t)static_converge_samples;

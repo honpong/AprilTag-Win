@@ -17,7 +17,7 @@
     RCSensorFusionRunState currentRunState;
     float currentProgress;
 }
-@synthesize messageLabel, bgImage;
+@synthesize messageLabel;
 
 + (RCCalibration1 *)instantiateViewController
 {
@@ -93,33 +93,10 @@
     }
     else if (isCalibrating)
     {
-        if(status.runState != currentRunState)
+        if(status.runState == RCSensorFusionRunStatePortraitCalibration)
         {
-            currentRunState = status.runState;
-            switch(currentRunState)
-            {
-                case RCSensorFusionRunStateStaticCalibration:
-                    [self hideProgressView];
-                    [messageLabel setText:@"Place the device on a flat, stable surface, like a table."];
-                    break;
-                case RCSensorFusionRunStatePortraitCalibration:
-                    [self hideProgressView];
-                    [messageLabel setText:@"Hold the device steady in portrait orientation, perpendicular to the floor."];
-                    bgImage.image = [UIImage imageNamed:@"holding_portrait.jpg"];
-                    break;
-                case RCSensorFusionRunStateLandscapeCalibration:
-                    [self hideProgressView];
-                    [messageLabel setText:@"Hold the device steady in landscape orientation, perpendicular to the floor."];
-                    bgImage.image = [UIImage imageNamed:@"holding_landscape.jpg"];
-                    break;
-                case RCSensorFusionRunStateInactive:
-                    [self hideProgressView];
-                    [self calibrationFinished];
-                    break;
-                default: //should not happen
-                    break;
-            }
-            [UIViewController attemptRotationToDeviceOrientation];
+            [self hideProgressView];
+            [self gotoNextScreen];
         }
         if(status.progress != currentProgress)
         {
@@ -131,12 +108,6 @@
             currentProgress = status.progress;
         }
     }
-}
-
-- (void) calibrationFinished
-{
-    [self stopCalibration];
-    [self gotoNextScreen];
 }
 
 - (void) startCalibration
@@ -164,7 +135,11 @@
 
 - (void) gotoNextScreen
 {
-    if ([self.calibrationDelegate respondsToSelector:@selector(calibrationDidFinish)]) [self.calibrationDelegate calibrationDidFinish];
+    RCCalibration2* cal2 = [self.storyboard instantiateViewControllerWithIdentifier:@"Calibration2"];
+    cal2.calibrationDelegate = self.calibrationDelegate; // pass the RCCalibrationDelegate object on to the next view controller
+    cal2.sensorDelegate = self.sensorDelegate; // pass the RCSensorDelegate object on to the next view controller
+    sensorFusion.delegate = cal2;
+    [self presentViewController:cal2 animated:YES completion:nil];
 }
 
 - (void)createProgressViewWithTitle:(NSString*)title

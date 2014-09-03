@@ -20,34 +20,10 @@
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="1000" image="holding_portrait.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="n8E-u9-vYQ">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                             </imageView>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ph6-za-xAH" userLabel="Button Background">
-                                <rect key="frame" x="0.0" y="476" width="320" height="92"/>
-                                <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" verticalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hfa-eO-cCm">
-                                        <rect key="frame" x="0.0" y="0.0" width="320" height="92"/>
-                                        <fontDescription key="fontDescription" type="boldSystem" size="button"/>
-                                        <state key="normal" title="Tap here to begin calibration">
-                                            <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                        </state>
-                                        <connections>
-                                            <action selector="handleButton:" destination="N4n-gK-IPh" eventType="touchUpInside" id="7v1-EV-qSd"/>
-                                            <action selector="handleButton:" destination="hYB-Er-qSF" eventType="touchUpInside" id="9ij-XJ-vcN"/>
-                                        </connections>
-                                    </button>
-                                </subviews>
-                                <color key="backgroundColor" white="0.0" alpha="0.5" colorSpace="calibratedWhite"/>
-                                <constraints>
-                                    <constraint firstItem="hfa-eO-cCm" firstAttribute="top" secondItem="ph6-za-xAH" secondAttribute="top" id="5gG-G2-TWz"/>
-                                    <constraint firstItem="hfa-eO-cCm" firstAttribute="leading" secondItem="ph6-za-xAH" secondAttribute="leading" id="5s3-dg-xoJ"/>
-                                    <constraint firstAttribute="bottom" secondItem="hfa-eO-cCm" secondAttribute="bottom" id="Gp6-mD-Ag5"/>
-                                    <constraint firstAttribute="height" constant="92" id="mDX-Yq-OUz"/>
-                                    <constraint firstAttribute="trailing" secondItem="hfa-eO-cCm" secondAttribute="trailing" id="x2e-k6-0ky"/>
-                                </constraints>
-                            </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="aRc-X4-Vcc" userLabel="MessageBackground">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="92"/>
                                 <subviews>
-                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Hold the device steady in portrait orientation. Make sure the camera lens isn't blocked. Step 3 of 4." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="fdP-KM-m8o" userLabel="MessageLabel">
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Hold the device steady in portrait orientation, perpendicular to the floor." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="fdP-KM-m8o" userLabel="MessageLabel">
                                         <rect key="frame" x="20" y="10" width="280" height="72"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -63,36 +39,20 @@
                                     <constraint firstItem="fdP-KM-m8o" firstAttribute="top" secondItem="aRc-X4-Vcc" secondAttribute="top" constant="10" id="z1X-wB-WBe"/>
                                 </constraints>
                             </view>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="sUo-ag-x0H" customClass="RCVideoPreview">
-                                <rect key="frame" x="234" y="366" width="66" height="88"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="66" id="5IE-l2-qAj"/>
-                                    <constraint firstAttribute="height" constant="88" id="Wi1-fF-dHg"/>
-                                </constraints>
-                            </view>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="aRc-X4-Vcc" firstAttribute="leading" secondItem="BYb-94-Ubw" secondAttribute="leading" id="0Ys-2S-J2o"/>
                             <constraint firstItem="n8E-u9-vYQ" firstAttribute="leading" secondItem="BYb-94-Ubw" secondAttribute="leading" id="0ht-xN-5C1"/>
-                            <constraint firstAttribute="trailing" secondItem="sUo-ag-x0H" secondAttribute="trailing" constant="20" id="1ZN-5o-Dlu"/>
                             <constraint firstAttribute="trailing" secondItem="aRc-X4-Vcc" secondAttribute="trailing" id="7i6-zW-lVM"/>
                             <constraint firstAttribute="trailing" secondItem="n8E-u9-vYQ" secondAttribute="trailing" id="AKS-0t-Pf5"/>
                             <constraint firstItem="pBQ-hj-TvB" firstAttribute="top" secondItem="n8E-u9-vYQ" secondAttribute="bottom" id="FET-UC-Bmo"/>
-                            <constraint firstItem="pBQ-hj-TvB" firstAttribute="top" secondItem="ph6-za-xAH" secondAttribute="bottom" id="Rhb-4i-xfV"/>
                             <constraint firstItem="aRc-X4-Vcc" firstAttribute="top" secondItem="BYb-94-Ubw" secondAttribute="top" id="cXM-hN-VX0"/>
-                            <constraint firstItem="ph6-za-xAH" firstAttribute="leading" secondItem="BYb-94-Ubw" secondAttribute="leading" id="iOJ-c3-YQy"/>
                             <constraint firstItem="n8E-u9-vYQ" firstAttribute="top" secondItem="BYb-94-Ubw" secondAttribute="top" id="kzC-pB-DHk"/>
-                            <constraint firstAttribute="trailing" secondItem="ph6-za-xAH" secondAttribute="trailing" id="q0e-sE-g8W"/>
-                            <constraint firstItem="ph6-za-xAH" firstAttribute="top" secondItem="sUo-ag-x0H" secondAttribute="bottom" constant="22" id="zp4-VM-l4O"/>
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="button" destination="hfa-eO-cCm" id="f0N-QF-Icf"/>
                         <outlet property="messageLabel" destination="fdP-KM-m8o" id="ShX-Uc-xGX"/>
-                        <outlet property="videoPreview" destination="sUo-ag-x0H" id="gGO-d7-NYH"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="zgc-5Q-fUH" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -114,43 +74,10 @@
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="1000" image="holding_landscape.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="O2J-d5-ZxN">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                             </imageView>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ySa-Nz-aUi" customClass="RCVideoPreview">
-                                <rect key="frame" x="212" y="390" width="88" height="66"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
-                                <constraints>
-                                    <constraint firstAttribute="height" constant="66" id="Iy9-fQ-14A"/>
-                                    <constraint firstAttribute="width" constant="88" id="JPw-Uj-bDT"/>
-                                </constraints>
-                            </view>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cph-6w-PTC" userLabel="Button Background">
-                                <rect key="frame" x="0.0" y="476" width="320" height="92"/>
-                                <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" verticalCompressionResistancePriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rbW-x3-zGZ">
-                                        <rect key="frame" x="0.0" y="0.0" width="320" height="92"/>
-                                        <fontDescription key="fontDescription" type="boldSystem" size="button"/>
-                                        <state key="normal" title="Tap here to begin calibration">
-                                            <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                        </state>
-                                        <connections>
-                                            <action selector="handleButton:" destination="N4n-gK-IPh" eventType="touchUpInside" id="7at-Rc-ERl"/>
-                                            <action selector="handleButton:" destination="JuK-1B-U5i" eventType="touchUpInside" id="ijv-DE-9vj"/>
-                                        </connections>
-                                    </button>
-                                </subviews>
-                                <color key="backgroundColor" white="0.0" alpha="0.5" colorSpace="calibratedWhite"/>
-                                <constraints>
-                                    <constraint firstItem="rbW-x3-zGZ" firstAttribute="leading" secondItem="cph-6w-PTC" secondAttribute="leading" id="9Mf-RY-a5b"/>
-                                    <constraint firstItem="rbW-x3-zGZ" firstAttribute="top" secondItem="cph-6w-PTC" secondAttribute="top" id="I6g-07-3Lk"/>
-                                    <constraint firstAttribute="height" constant="92" id="VZj-Z6-p9k"/>
-                                    <constraint firstAttribute="bottom" secondItem="rbW-x3-zGZ" secondAttribute="bottom" id="YYb-OF-YZY"/>
-                                    <constraint firstAttribute="trailing" secondItem="rbW-x3-zGZ" secondAttribute="trailing" id="oWV-wO-w8v"/>
-                                </constraints>
-                            </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dEo-ua-HVY" userLabel="MessageBackground">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="92"/>
                                 <subviews>
-                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Hold the device steady in landscape orientation. Make sure the camera lens isn't blocked. Step 4 of 4." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="2qZ-TE-cQF" userLabel="MessageLabel">
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Hold the device steady in landscape orientation, perpendicular to the floor." textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="2qZ-TE-cQF" userLabel="MessageLabel">
                                         <rect key="frame" x="20" y="10" width="280" height="72"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
@@ -170,23 +97,16 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="O2J-d5-ZxN" firstAttribute="leading" secondItem="cnt-8b-uCl" secondAttribute="leading" id="0zU-83-4tt"/>
-                            <constraint firstItem="cph-6w-PTC" firstAttribute="top" secondItem="ySa-Nz-aUi" secondAttribute="bottom" constant="20" id="Boc-pF-QO8"/>
                             <constraint firstItem="dEo-ua-HVY" firstAttribute="top" secondItem="cnt-8b-uCl" secondAttribute="top" id="MQC-T1-sIB"/>
                             <constraint firstItem="6SN-fx-kNf" firstAttribute="top" secondItem="O2J-d5-ZxN" secondAttribute="bottom" id="SgC-hx-Dts"/>
                             <constraint firstAttribute="trailing" secondItem="dEo-ua-HVY" secondAttribute="trailing" id="aLz-eh-A4C"/>
                             <constraint firstItem="dEo-ua-HVY" firstAttribute="leading" secondItem="cnt-8b-uCl" secondAttribute="leading" id="gaw-om-KqD"/>
                             <constraint firstAttribute="trailing" secondItem="O2J-d5-ZxN" secondAttribute="trailing" id="lEB-Y7-oBD"/>
-                            <constraint firstItem="cph-6w-PTC" firstAttribute="leading" secondItem="cnt-8b-uCl" secondAttribute="leading" id="mXp-wU-6sA"/>
-                            <constraint firstAttribute="trailing" secondItem="ySa-Nz-aUi" secondAttribute="trailing" constant="20" id="pGG-Sc-IAT"/>
-                            <constraint firstItem="6SN-fx-kNf" firstAttribute="top" secondItem="cph-6w-PTC" secondAttribute="bottom" id="sa9-TT-57Y"/>
-                            <constraint firstAttribute="trailing" secondItem="cph-6w-PTC" secondAttribute="trailing" id="saE-V4-7NY"/>
                             <constraint firstItem="O2J-d5-ZxN" firstAttribute="top" secondItem="cnt-8b-uCl" secondAttribute="top" id="wwV-gP-rXy"/>
                         </constraints>
                     </view>
                     <connections>
-                        <outlet property="button" destination="rbW-x3-zGZ" id="STB-16-gcp"/>
                         <outlet property="messageLabel" destination="2qZ-TE-cQF" id="cbQ-0K-Rku"/>
-                        <outlet property="videoPreview" destination="ySa-Nz-aUi" id="pPa-a3-xdw"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="CVy-gP-ZKb" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -242,7 +162,6 @@
                     <navigationItem key="navigationItem" title="Calibration" id="jhM-Z6-iH1"/>
                     <nil key="simulatedStatusBarMetrics"/>
                     <connections>
-                        <outlet property="bgImage" destination="KVB-TC-Gp7" id="6XH-CS-ngy"/>
                         <outlet property="messageLabel" destination="7Ps-rY-M69" id="IuY-RP-tjr"/>
                     </connections>
                 </viewController>

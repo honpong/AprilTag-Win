@@ -92,7 +92,7 @@
         }
         if(status.progress != currentProgress)
         {
-            if(status.progress >= 0.02 && currentProgress < 0.02) //delay showing it until we've made a bit of progress so it doesn't flash on and reset as soon as we get close
+            if(status.progress > 0. && currentProgress <= 0.)
             {
                 [self showProgressView];
             }

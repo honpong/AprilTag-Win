@@ -301,6 +301,8 @@ static f_t get_bias_convergence(struct filter *f, int dir)
     if(pct < min_pct) min_pct = pct;
     pct = var_bounds_to_std_percent(f->s.w_bias.variance()[other2], f->w_bias_start[other2], min_w_bias_var);
     if(pct < min_pct) min_pct = pct;
+    if(min_pct < 0.) min_pct = 0.;
+    if(min_pct > 1.) min_pct = 1.;
     return min_pct;
 }
 

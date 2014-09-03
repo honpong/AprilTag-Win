@@ -287,6 +287,7 @@ void state_vision::fill_calibration(feature_t &initial, f_t &r2, f_t &r4, f_t &r
     kr = 1. + r2 * k1.v + r4 * k2.v + r6 * k3.v;
 }
 
+/*
 feature_t state_vision::calibrate_feature(const feature_t &initial)
 {
     feature_t norm, calib;
@@ -303,6 +304,7 @@ feature_t state_vision::calibrate_feature(const feature_t &initial)
     calib.y = norm.y / kr;
     return calib;
 }
+*/
 
 void state_vision::remove_non_orientation_states()
 {

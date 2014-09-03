@@ -551,6 +551,15 @@ bool matrix_svd(matrix &A, matrix &U, matrix &S, matrix &Vt)
     return true;
 }
 
+void matrix_negate(matrix & mat)
+{
+    for(int r = 0; r < mat.rows; r++) {
+        for(int c = 0; c < mat.cols; c++) {
+            mat(r,c) = -mat(r,c);
+        }
+    }
+}
+
 void matrix_transpose(matrix &dst, const matrix &src)
 {
     assert(dst.cols == src.rows && dst.rows == src.cols);
@@ -564,6 +573,15 @@ void matrix_transpose(matrix &dst, const matrix &src)
 matrix &matrix_dereference(matrix *m)
 {
     return *m;
+}
+
+f_t matrix_3x3_determinant(const matrix & A)
+{
+    assert(A.cols == 3 && A.rows == 3);
+
+    return A(0,0)*(A(1,1)*A(2,2) - A(1,2)*A(2,1)) -
+           A(0,1)*(A(1,0)*A(2,2) - A(1,2)*A(2,0)) +
+           A(0,2)*(A(1,0)*A(2,1) - A(1,1)*A(2,0));
 }
 
 //need to put this test around every operation that affects cov. (possibly with #defines, google test?)

@@ -169,7 +169,7 @@ DEPS := $(DEPS) build/_numerics.ipp.d
 
 d := filter
 
-FILTER_CXX_SOURCES := $(addprefix src/$(d)/, filter.cpp state_vision.cpp state_motion.cpp state.cpp observation.cpp stereo.cpp stereo_mesh.cpp filter_setup.cpp fast_detector/fast_9.cpp scaled_mask.cpp triangle.cpp) build/$(d)/_filter.cpp
+FILTER_CXX_SOURCES := $(addprefix src/$(d)/, filter.cpp state_vision.cpp state_motion.cpp state.cpp observation.cpp filter_setup.cpp fast_detector/fast_9.cpp scaled_mask.cpp) build/$(d)/_filter.cpp
 
 FILTER_SOURCES := $(addprefix src/$(d)/, device_parameters.c)
 
@@ -187,11 +187,52 @@ CXX_SOURCES := $(CXX_SOURCES) $(FILTER_CXX_SOURCES)
 SOURCES := $(SOURCES) $(FILTER_SOURCES)
 DEPS := $(DEPS) build/_filter.ipp.d
 
+
+############################## STEREO ############################
+
+d := stereo
+
+STEREO_CXX_SOURCES := $(addprefix src/$(d)/, stereo.cpp stereo_mesh.cpp camera.cpp triangle.cpp)
+
+STEREO_SOURCES :=
+
+CPPFLAGS := $(CPPFLAGS) -Isrc/stereo -Isrc/filter -Isrc/MRF2.2 -Isrc/vlfeat-0.9.18/vl
+
+bin/$(d)/_stereo.so:$(patsubst src/%,build/%,$(STEREO_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(STEREO_SOURCES:.c=.o)) bin/MRF2.2/_mrf.so bin/vlfeat-0.9.18/_vl.so
+
+TARGETS := $(TARGETS) bin/$(d)/_stereo.so bin/$(d)/__init__.py
+CXX_SOURCES := $(CXX_SOURCES) $(STEREO_CXX_SOURCES)
+SOURCES := $(SOURCES) $(STEREO_SOURCES)
+
+############################## MRF ############################
+d := MRF2.2
+
+MRF_CXX_SOURCES := $(addprefix src/$(d)/, BP-S.cpp GCoptimization.cpp ICM.cpp LinkedBlockList.cpp MaxProdBP.cpp TRW-S.cpp graph.cpp maxflow.cpp regions-maxprod.cpp mrf.cpp)
+
+CPPFLAGS := $(CPPFLAGS)
+
+bin/$(d)/_mrf.so:$(patsubst src/%,build/%,$(MRF_CXX_SOURCES:.cpp=.o))
+
+TARGETS := $(TARGETS) bin/$(d)/_mrf.so
+CXX_SOURCES := $(CXX_SOURCES) $(MRF_CXX_SOURCES)
+
+############################## VLFEAT ############################
+d := vlfeat-0.9.18
+ 
+VL_C_SOURCES := $(addprefix src/$(d)/, vl/aib.c vl/array.c vl/covdet.c vl/dsift.c vl/fisher.c vl/generic.c vl/getopt_long.c vl/gmm.c vl/hikmeans.c vl/hog.c vl/homkermap.c vl/host.c vl/ikmeans.c vl/imopv.c vl/imopv_sse2.c vl/kdtree.c vl/kmeans.c vl/lbp.c vl/liop.c vl/mathop.c vl/mathop_avx.c vl/mathop_sse2.c vl/mser.c vl/pgm.c vl/quickshift.c vl/random.c vl/rodrigues.c vl/scalespace.c vl/sift.c vl/slic.c vl/stringop.c vl/svm.c vl/svmdataset.c vl/vlad.c)
+
+CPPFLAGS := $(CPPFLAGS)
+
+bin/$(d)/_vl.so:$(patsubst src/%,build/%,$(VL_C_SOURCES:.c=.o))
+
+TARGETS := $(TARGETS) bin/$(d)/_vl.so
+SOURCES := $(SOURCES) $(VL_C_SOURCES)
+
 ############################## TEST ############################
 
 d := test
 
-TEST_CXX_SOURCES := $(addprefix $(d)/, test.cpp numerics/vec4.cpp filter/stereo.cpp numerics/quaternion.cpp)
+TEST_CXX_SOURCES := $(addprefix $(d)/, test.cpp numerics/vec4.cpp stereo/stereo.cpp stereo/camera.cpp numerics/quaternion.cpp)
 
 CPPFLAGS := $(CPPFLAGS) -I../ -Isrc/numerics -Itest
 LDFLAGS := $(LDFLAGS) -lstdc++
@@ -204,7 +245,7 @@ build/$(d)/%.o: $(d)/%.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 
-bin/test: build/$(d)/gtest_main.o build/$(d)/gtest-all.o $(patsubst test/%,build/test/%,$(TEST_CXX_SOURCES:.cpp=.o)) $(addprefix build/numerics/, vec4.o matrix.o) $(addprefix build/filter/, stereo.o stereo_mesh.o fast_detector/fast_9.o scaled_mask.o triangle.o)
+bin/test: build/$(d)/gtest_main.o build/$(d)/gtest-all.o $(patsubst test/%,build/test/%,$(TEST_CXX_SOURCES:.cpp=.o)) $(addprefix build/numerics/, vec4.o matrix.o) $(addprefix build/filter/, fast_detector/fast_9.o scaled_mask.o) bin/stereo/_stereo.so bin/MRF2.2/_mrf.so bin/vlfeat-0.9.18/_vl.so
 	@mkdir -p $(@D)
 	$(CC) $(LDFLAGS) $(PYTHON_LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
 

@@ -462,10 +462,6 @@ typedef NS_ENUM(int, RCLicenseStatus)
     LOGME
     if(!isSensorFusionRunning) return;
 
-    isSensorFusionRunning = false;
-    isProcessingVideo = false;
-    processingVideoRequested = false;
-
     [dataWaiting removeAllObjects];
     [self saveCalibration];
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
@@ -477,7 +473,9 @@ typedef NS_ENUM(int, RCLicenseStatus)
     });
     RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
     [cameraManager releaseVideoDevice];
-
+    isSensorFusionRunning = false;
+    isProcessingVideo = false;
+    processingVideoRequested = false;
 }
 
 - (void) sendStatus

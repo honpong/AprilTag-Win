@@ -859,6 +859,7 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
         } else return true;
     }
     if(f->run_state == RCSensorFusionRunStateSteadyInitialization) {
+        if(f->stable_start == 0) return true;
         if(time - f->stable_start < steady_converge_time) return true;
     }
     if(f->run_state != RCSensorFusionRunStateRunning && f->run_state != RCSensorFusionRunStateDynamicInitialization && f->run_state != RCSensorFusionRunStateSteadyInitialization) return true; //frame was "processed" so that callbacks still get called

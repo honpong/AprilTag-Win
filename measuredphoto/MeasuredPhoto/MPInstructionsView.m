@@ -72,7 +72,7 @@ const static float smoothing = .5;
     RCTranslation *trans = [[transformation.rotation getInverse] transformTranslation:transformation.translation];
     float distFromStartPoint = sqrt(transformation.translation.x * transformation.translation.x + transformation.translation.y * transformation.translation.y + transformation.translation.z * transformation.translation.z);
     // require movement of at least 5cm
-    float targetDist = MAX(0.05, depth / 10.);
+    float targetDist = MAX(0.05, depth / 8.);
     float progress = distFromStartPoint / targetDist;
     if (progress >= 1)
     {

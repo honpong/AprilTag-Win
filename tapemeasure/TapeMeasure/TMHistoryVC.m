@@ -11,6 +11,7 @@
 #import "CustomIOS7AlertView.h"
 #import "TMAboutView.h"
 #import "TMTipsView.h"
+#import "TMLocalMoviePlayer.h"
 
 @implementation TMHistoryVC
 {
@@ -109,6 +110,22 @@
 }
 
 #pragma mark - Private methods
+
+- (void) gotoTutorialVideo
+{
+    NSURL *movieURL = [[NSBundle mainBundle] URLForResource:@"EndlessTapeMeasure" withExtension:@"mp4"];
+    TMLocalMoviePlayer* movieViewController = [[TMLocalMoviePlayer alloc] initWithContentURL:movieURL];
+    movieViewController.modalPresentationStyle = UIModalPresentationFullScreen;
+    [self presentMoviePlayerViewControllerAnimated:movieViewController];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:movieViewController  name:MPMoviePlayerPlaybackDidFinishNotification object:movieViewController.moviePlayer]; // needed to receive the notification below
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(moviePlayerWillExitFullScreen:) name:MPMoviePlayerPlaybackDidFinishNotification object:nil];
+}
+
+- (void) moviePlayerWillExitFullScreen:(NSNotification*)notification
+{
+    [self dismissMoviePlayerViewControllerAnimated];
+}
 
 //- (void) loginIfPossible
 //{
@@ -372,7 +389,7 @@
                                                   delegate:self
                                          cancelButtonTitle:@"Cancel"
                                     destructiveButtonTitle:nil
-                                         otherButtonTitles:@"About", @"Tell a friend", @"Accuracy Tips", @"Preferences", nil];
+                                         otherButtonTitles:@"About", @"Tell a friend", @"Rate the app", @"Accuracy tips", @"Tutorial video", @"Preferences", nil];
     }
     
     // Show the sheet
@@ -390,25 +407,31 @@
     {
         case 0:
         {
-            DLog(@"About button");
             [aboutView show];
             break;
         }
         case 1:
         {
-            DLog(@"Share button");
             [self showShareSheet];
             break;
         }
         case 2:
         {
-            DLog(@"Tips button");
-            [tipsView show];
+            [self gotoAppStore];
             break;
         }
         case 3:
         {
-            DLog(@"Preferences button");
+            [tipsView show];
+            break;
+        }
+        case 4:
+        {
+            [self gotoTutorialVideo];
+            break;
+        }
+        case 5:
+        {
             [self performSegueWithIdentifier:@"toSettings" sender:self];
             break;
         }
@@ -416,6 +439,12 @@
         default:
             break;
     }
+}
+
+- (void) gotoAppStore
+{
+    NSURL *url = [NSURL URLWithString:URL_APPSTORE];
+    [[UIApplication sharedApplication] openURL:url];
 }
 
 #pragma mark - Sharing

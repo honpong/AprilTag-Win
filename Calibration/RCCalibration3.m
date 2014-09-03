@@ -6,28 +6,22 @@
 //
 
 #import "RCCalibration3.h"
-
-@interface RCCalibration3 ()
-
-@end
+#import "MBProgressHUD.h"
 
 @implementation RCCalibration3
 {
-    BOOL isCalibrating;
-    bool steadyDone;
     MBProgressHUD *progressView;
-    NSDate* startTime;
     RCSensorFusion* sensorFusion;
+    float currentProgress;
 }
-@synthesize button, messageLabel, videoPreview;
+@synthesize messageLabel;
+
+- (BOOL) prefersStatusBarHidden { return YES; }
 
 - (void) viewDidLoad
 {
     [super viewDidLoad];
-	
-    isCalibrating = NO;
-    steadyDone = NO;
-    
+	   
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(handlePause)
                                                  name:UIApplicationWillResignActiveNotification
@@ -36,25 +30,18 @@
                                              selector:@selector(handleResume)
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(handleOrientation)
-                                                 name:UIDeviceOrientationDidChangeNotification
-                                               object:nil];
     
     sensorFusion = [RCSensorFusion sharedInstance];
-    sensorFusion.delegate = self;
-    [self.sensorDelegate getVideoProvider].delegate = self.videoPreview;
 }
 
 - (void) viewDidAppear:(BOOL)animated
 {
+    currentProgress = 0.;
     if ([self.calibrationDelegate respondsToSelector:@selector(calibrationScreenDidAppear:)])
         [self.calibrationDelegate calibrationScreenDidAppear: @"Calibration3"];
     [super viewDidAppear:animated];
-    [self handleResume];
-    [videoPreview setVideoOrientation:AVCaptureVideoOrientationLandscapeRight];
-    [self handleOrientation];
-    [self handleResume];
+    [self createProgressViewWithTitle:@"Calibrating"];
+    sensorFusion.delegate = self;
 }
 
 - (NSUInteger) supportedInterfaceOrientations
@@ -62,31 +49,15 @@
     return UIInterfaceOrientationMaskLandscapeRight;
 }
 
-- (void) handleOrientation
-{
-    [self updateButtonState];
-    
-    if ([[UIDevice currentDevice] orientation] != UIDeviceOrientationLandscapeLeft)
-    {
-        if (isCalibrating) [self stopCalibration];
-    }
-}
-
 - (void) handlePause
 {
     [self stopCalibration];
-    [self.sensorDelegate stopAllSensors];
 }
 
 - (void) handleResume
 {
-    //We need video data whenever the view is active for the preview window
-    [self.sensorDelegate startAllSensors];
-}
-
-- (IBAction) handleButton:(id)sender
-{
-    [self startCalibration];
+    //TODO: go to calibration screen 1
+    [self.presentingViewController.presentingViewController dismissViewControllerAnimated:NO completion:nil];
 }
 
 - (void) gotoNextScreen
@@ -96,107 +67,62 @@
 
 - (void) sensorFusionDidUpdateData:(RCSensorFusionData*)data
 {
-    if (isCalibrating && steadyDone)
-    {
-        if (!startTime)
-            [self startTimer];
-        
-        float progress = .5 - [startTime timeIntervalSinceNow] / 4.; // 2 seconds steady followed by 2 seconds of data
-        
-        if (progress < 1.)
-        {
-            [self updateProgressView:progress];
-        }
-        else
-        {
-            [self finishCalibration];
-        }
-    }
-    if (data.sampleBuffer) [videoPreview displaySampleBuffer:data.sampleBuffer];
 }
 
 - (void) sensorFusionDidChangeStatus:(RCSensorFusionStatus *)status
 {
-    if (isCalibrating && !steadyDone)
+    if ([status.error isKindOfClass:[RCLicenseError class]])
     {
-        if (status.runState == RCSensorFusionRunStateRunning)
-        {
-            steadyDone = true;
-        }
-        else
-        {
-            [self updateProgressView:status.progress / 2.];
-        }
-    }
-    
-    if ([status.error isKindOfClass:[RCSensorFusionError class]])
-    {
-        NSLog(@"SENSOR FUSION ERROR %li", (long)status.error.code);
-        startTime = nil;
-        steadyDone = false;
-        [sensorFusion stopSensorFusion];
-        [sensorFusion startSensorFusionWithDevice:[self.sensorDelegate getVideoDevice]];
-    }
-    else if ([status.error isKindOfClass:[RCLicenseError class]])
-    {
-        [self stopCalibration];
-        
         NSString * message = [NSString stringWithFormat:@"There was a problem validating your license. The license error code is: %li.", (long)status.error.code];
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"RC3DK License Error"
+        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"3DK License Error"
                                                         message:message
                                                        delegate:self
                                               cancelButtonTitle:@"OK"
                                               otherButtonTitles:nil];
         [alert show];
+        [self stopCalibration];
+    }
+    else
+    {
+        if(status.runState == RCSensorFusionRunStateInactive)
+        {
+            [self hideProgressView];
+            [self stopCalibration];
+            [self gotoNextScreen];
+        }
+        if(status.progress != currentProgress)
+        {
+            if(status.progress >= 0.02 && currentProgress < 0.02) //delay showing it until we've made a bit of progress so it doesn't flash on and reset as soon as we get close
+            {
+                [self showProgressView];
+            }
+            [self updateProgressView:status.progress];
+            currentProgress = status.progress;
+        }
     }
 }
 
-- (void) startTimer
-{
-    startTime = [NSDate date];
-}
-
-- (void) startCalibration
-{
-    LOGME
-    
-    isCalibrating = YES;
-    steadyDone = NO;
-    
-    [button setTitle:@"Calibrating" forState:UIControlStateNormal];
-    [messageLabel setText:@"Hold the device steady and make sure the camera isn't blocked"];
-    [self showProgressViewWithTitle:@"Calibrating"];
-    
-    [sensorFusion startSensorFusionWithDevice:[self.sensorDelegate getVideoDevice]];
-}
 
 - (void) stopCalibration
 {
-    if (isCalibrating)
-    {
-        LOGME
-        isCalibrating = NO;
-        steadyDone = NO;
-        [button setTitle:@"Tap here to begin calibration" forState:UIControlStateNormal];
-        [messageLabel setText:@"Hold the iPad steady in landscape orientation. Make sure the camera lens isn't blocked. Step 3 of 3."];
-        [self hideProgressView];
-        startTime = nil;
-        [sensorFusion stopSensorFusion];
-    }
+    LOGME
+    sensorFusion.delegate = nil;
+    [self hideProgressView];
+    [self.sensorDelegate stopAllSensors];
+    [sensorFusion stopSensorFusion];
 }
 
-- (void) finishCalibration
-{
-    [self stopCalibration];
-    [self gotoNextScreen];
-}
-
-- (void)showProgressViewWithTitle:(NSString*)title
+- (void)createProgressViewWithTitle:(NSString*)title
 {
     progressView = [[MBProgressHUD alloc] initWithView:self.view];
     progressView.mode = MBProgressHUDModeAnnularDeterminate;
     [self.view addSubview:progressView];
     progressView.labelText = title;
+    [progressView hide:YES];
+}
+
+- (void)showProgressView
+{
     [progressView show:YES];
 }
 
@@ -208,30 +134,6 @@
 - (void)updateProgressView:(float)progress
 {
     [progressView setProgress:progress];
-}
-
-- (void) updateButtonState
-{
-    if ([[UIDevice currentDevice] orientation] == UIDeviceOrientationLandscapeLeft)
-    {
-        if (isCalibrating)
-        {
-            [button setTitle:@"Calibrating" forState:UIControlStateNormal];
-            button.enabled = YES; // bug workaround. see http://stackoverflow.com/questions/19973515/uibutton-title-text-is-not-updated-even-if-i-update-it-in-main-thread
-            button.enabled = NO;
-        }
-        else
-        {
-            button.enabled = YES;
-            [button setTitle:@"Tap here to begin calibration" forState:UIControlStateNormal];
-        }
-    }
-    else
-    {
-        [button setTitle:@"Hold device in landscape orientaion" forState:UIControlStateNormal];
-        button.enabled = YES; // bug workaround. see http://stackoverflow.com/questions/19973515/uibutton-title-text-is-not-updated-even-if-i-update-it-in-main-thread
-        button.enabled = NO;
-    }
 }
 
 @end

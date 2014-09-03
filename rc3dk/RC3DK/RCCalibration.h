@@ -50,7 +50,7 @@
 #define KEY_SHUTTER_PERIOD @"shutterPeriod"
 #define KEY_CALIBRATION_VERSION @"calibrationVersion"
 
-#define CALIBRATION_VERSION 6
+#define CALIBRATION_VERSION 7
 
 #define JSON_KEY_FLAG @"flag"
 #define JSON_KEY_BLOB @"blob"
@@ -66,6 +66,7 @@ typedef enum {
 + (struct corvis_device_parameters) getCalibrationData;
 + (NSDictionary*) getCalibrationAsDictionary;
 + (NSString*) getCalibrationAsString;
++ (void) clearCalibrationData;
 + (NSString*) stringFromCalibration:(struct corvis_device_parameters)dc;
 + (BOOL) hasCalibrationData;
 + (BOOL) isCalibrationDataValid:(NSDictionary*)data;

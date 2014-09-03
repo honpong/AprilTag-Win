@@ -11,8 +11,9 @@
 #import "TMMeasurement.h"
 #import "TMMeasurement+TMMeasurementExt.h"
 #import "Flurry.h"
+#import "TMLocationIntro.h"
 
-@interface TMAppDelegate : UIResponder <UIApplicationDelegate, CLLocationManagerDelegate>
+@interface TMAppDelegate : UIResponder <UIApplicationDelegate, CLLocationManagerDelegate, TMLocationIntroDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
 

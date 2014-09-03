@@ -38,6 +38,8 @@
 #define PREF_IS_CALIBRATED @"is_calibrated"
 #define PREF_IS_FIRST_LAUNCH @"is_first_launch"
 #define PREF_IS_TIPS_SHOWN @"is_tips_shown"
+#define PREF_SHOW_RATE_NAG @"show_rate_nag"
+#define PREF_RATE_NAG_TIMESTAMP @"rate_nag_timestamp"
 
 #define API_VERSION 1
 #define API_BASE_URL @"https://internal.realitycap.com/"
@@ -50,6 +52,7 @@
 
 #define URL_WEBSITE @"http://realitycap.com"
 #define URL_SHARING @"http://app.realitycap.com/endless"
+#define URL_APPSTORE @"itms-apps://itunes.com/apps/EndlessTapeMeasure"
 
 #define INCHES_PER_METER 39.3700787
 
@@ -78,3 +81,4 @@ typedef enum {
 #define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v)     ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedDescending)
 
 static NSString* RCApplicationCredential_Facebook_Key = @"671645849539796";
+static NSString* RCApplicationCredential_Facebook_Secret = @"827cfb4e92aff3551ffeb3618be46e08";

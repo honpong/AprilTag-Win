@@ -13,7 +13,10 @@
 @end
 
 @implementation TMResultsVC
-
+{
+    RCRateMeView* rateMeView;
+    TMShareSheet* shareSheet;
+}
 @synthesize theMeasurement;
 
 - (void)viewWillAppear:(BOOL)animated
@@ -28,8 +31,9 @@
 {
     [super viewDidLoad];
     [RCDistanceLabel class]; // needed so that storyboard can see this class, since it's in a library
-    [OSKActivitiesManager sharedInstance].customizationsDelegate = self;
     [self.distLabel setDistance:theMeasurement.getPrimaryDistanceObject];
+    
+    [self createRateMeBanner];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -37,10 +41,13 @@
     [TMAnalytics logEvent:@"View.Results"];
     [self.tableView reloadData];
     [super viewDidAppear:animated];
+    
+    [self showRateNagIfNecessary];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
 {
+    [rateMeView hideInstantly];
     [self saveMeasurement];
     [super viewWillDisappear:animated];
 }
@@ -51,6 +58,11 @@
     [self setBtnNew:nil];
     [self setBtnAction:nil];
     [super viewDidUnload];
+}
+
+- (void) viewDidLayoutSubviews
+{
+    [self.navigationController.view bringSubviewToFront:rateMeView];
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
@@ -104,7 +116,8 @@
 {
     OSKShareableContent *content = [OSKShareableContent contentFromText:[self composeSharingString]];
     content.title = @"Share Measurement";
-    TMShareSheet* shareSheet = [TMShareSheet shareSheetWithDelegate:self];
+    shareSheet = [TMShareSheet shareSheetWithDelegate:self];
+    [OSKActivitiesManager sharedInstance].customizationsDelegate = shareSheet;
     [shareSheet showShareSheet_Pad_FromBarButtonItem:self.btnAction content:content];
 }
 
@@ -158,6 +171,16 @@
 - (void)didDismissOptions
 {
     [self.distLabel setDistance:theMeasurement.getPrimaryDistanceObject]; // update label with new units
+}
+
+- (void)createRateMeBanner
+{
+    rateMeView = [RCRateMeView new];
+    [self.navigationController.view addSubview:rateMeView];
+    [rateMeView addCenterXInSuperviewConstraints];
+    [rateMeView setBottomSpaceToSuperviewConstraint:55];
+    [rateMeView hideInstantly];
+    rateMeView.delegate = self;
 }
 
 - (NSString*)getLocationDisplayText:(TMLocation*)location
@@ -441,6 +464,60 @@
                         madeWith];
     
     return result;
+}
+
+#pragma mark - RCRateMeViewDelegate
+
+- (void) handleRateNowButton
+{
+    [NSUserDefaults.standardUserDefaults setObject:@NO forKey:PREF_SHOW_RATE_NAG];
+    [rateMeView hideInstantly];
+    [self gotoAppStore];
+}
+
+- (void) handleRateLaterButton
+{
+    [rateMeView hideAnimated];
+}
+
+- (void) handleRateNeverButton
+{
+    [rateMeView hideAnimated];
+    [NSUserDefaults.standardUserDefaults setObject:@NO forKey:PREF_SHOW_RATE_NAG];
+}
+
+- (void) gotoAppStore
+{
+    NSURL *url = [NSURL URLWithString:URL_APPSTORE];
+    [[UIApplication sharedApplication] openURL:url];
+}
+
+- (void) showRateNagIfNecessary
+{
+    BOOL isMeasurementJustTaken = [[NSDate date] timeIntervalSince1970] - self.theMeasurement.timestamp < 5.;
+    BOOL showRateNag = [[NSUserDefaults.standardUserDefaults objectForKey:PREF_SHOW_RATE_NAG] isEqualToNumber:@YES];
+    NSNumber* timeOfLastNag = [NSUserDefaults.standardUserDefaults objectForKey:PREF_RATE_NAG_TIMESTAMP];
+    NSTimeInterval secondsSinceLastNag = [[NSDate date] timeIntervalSince1970] - timeOfLastNag.doubleValue;
+    BOOL hasBeenNaggedRecently = secondsSinceLastNag < 24 * 60 * 60; // if nagged within the last 24 hours
+    
+    if (isMeasurementJustTaken && showRateNag && !hasBeenNaggedRecently)
+    {
+        NSUInteger measurementCount = [TMMeasurement getAllExceptDeleted].count;
+        if (measurementCount >= 10)
+        {
+            __weak TMResultsVC* weakSelf = self;
+            dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, 1. * NSEC_PER_SEC);
+            dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+                if ([weakSelf.navigationController.viewControllers.lastObject isKindOfClass:[TMResultsVC class]])
+                {
+            NSNumber* timestamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]];
+            [NSUserDefaults.standardUserDefaults setObject:timestamp forKey:PREF_RATE_NAG_TIMESTAMP];
+            
+                [rateMeView showAnimated];
+                }
+            });
+        }
+    }
 }
 
 @end

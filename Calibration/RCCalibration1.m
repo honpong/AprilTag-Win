@@ -14,8 +14,10 @@
     BOOL isCalibrating;
     MBProgressHUD *progressView;
     RCSensorFusion* sensorFusion;
+    RCSensorFusionRunState currentRunState;
+    float currentProgress;
 }
-@synthesize button, messageLabel;
+@synthesize messageLabel;
 
 + (RCCalibration1 *)instantiateViewController
 {
@@ -23,6 +25,8 @@
     calibrationStoryBoard = [UIStoryboard storyboardWithName:@"Calibration" bundle:nil];
     return (RCCalibration1 *)[calibrationStoryBoard instantiateInitialViewController];
 }
+
+- (BOOL) prefersStatusBarHidden { return YES; }
 
 - (void) viewDidLoad
 {
@@ -34,22 +38,24 @@
                                                object:nil];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(handleOrientationChange)
-                                                 name:UIDeviceOrientationDidChangeNotification
+                                             selector:@selector(handleResume)
+                                                 name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
     
     sensorFusion = [RCSensorFusion sharedInstance];
     sensorFusion.delegate = self;
+    currentRunState = RCSensorFusionRunStateInactive;
+    currentProgress = 0.;
     
 	isCalibrating = NO;
 }
 
 - (void) viewDidAppear:(BOOL)animated
 {
-    [self updateButtonState];
     if ([self.calibrationDelegate respondsToSelector:@selector(calibrationScreenDidAppear:)])
         [self.calibrationDelegate calibrationScreenDidAppear: @"Calibration1"];
     [super viewDidAppear:animated];
+    [self startCalibration];
 }
 
 - (void) viewWillDisappear:(BOOL)animated
@@ -58,24 +64,14 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (void) handleOrientationChange
-{
-    [self updateButtonState];
-    
-    if ([[UIDevice currentDevice] orientation] != UIDeviceOrientationFaceUp)
-    {
-        if (isCalibrating) [self stopCalibration];
-    }
-}
-
 - (void) handlePause
 {
     if(isCalibrating) [self stopCalibration];
 }
 
-- (IBAction) handleButton:(id)sender
+- (void) handleResume
 {
-    if (!isCalibrating) [self startCalibration];
+    [self startCalibration];
 }
 
 - (void) sensorFusionDidUpdateData:(RCSensorFusionData *)data
@@ -97,35 +93,27 @@
     }
     else if (isCalibrating)
     {
-        if (status.runState == RCSensorFusionRunStateInactive)
+        if(status.runState == RCSensorFusionRunStatePortraitCalibration)
         {
-            [self calibrationFinished];
+            [self hideProgressView];
+            [self gotoNextScreen];
         }
-        else
+        if(status.progress != currentProgress)
         {
+            if(status.progress >= 0.02 && currentProgress < 0.02) //delay showing it until we've made a bit of progress so it doesn't flash on and reset as soon as we get close
+            {
+                [self showProgressView];
+            }
             [self updateProgressView:status.progress];
+            currentProgress = status.progress;
         }
     }
-}
-
-- (void) calibrationFinished
-{
-    [self stopCalibration];
-    
-    RCCalibration2* cal2 = [self.storyboard instantiateViewControllerWithIdentifier:@"Calibration2"];
-    cal2.calibrationDelegate = self.calibrationDelegate; // pass the RCCalibrationDelegate object on to the next view controller
-    cal2.sensorDelegate = self.sensorDelegate; // pass the RCSensorDelegate object on to the next view controller
-    [self presentViewController:cal2 animated:YES completion:nil];
 }
 
 - (void) startCalibration
 {
     isCalibrating = YES;
-    
-    [self showProgressViewWithTitle:@"Calibrating"];
-    [self updateButtonState];
-    [messageLabel setText:@"Don't touch the device until calibration has finished"];
-    
+    [self createProgressViewWithTitle:@"Calibrating"];
     //This calibration step only requires motion data, no video
     [self.sensorDelegate startMotionSensors];
     sensorFusion.delegate = self;
@@ -140,18 +128,31 @@
     [sensorFusion stopSensorFusion];
     sensorFusion.delegate = nil;
     
-    [self updateButtonState];
-    [messageLabel setText:@"Your device needs to be calibrated just once. Place it on a flat, stable surface, like a table."];
+    [messageLabel setText:@"Place the device on a flat, stable surface, like a table."];
     [self hideProgressView];
     
 }
 
-- (void)showProgressViewWithTitle:(NSString*)title
+- (void) gotoNextScreen
+{
+    RCCalibration2* cal2 = [self.storyboard instantiateViewControllerWithIdentifier:@"Calibration2"];
+    cal2.calibrationDelegate = self.calibrationDelegate; // pass the RCCalibrationDelegate object on to the next view controller
+    cal2.sensorDelegate = self.sensorDelegate; // pass the RCSensorDelegate object on to the next view controller
+    sensorFusion.delegate = cal2;
+    [self presentViewController:cal2 animated:YES completion:nil];
+}
+
+- (void)createProgressViewWithTitle:(NSString*)title
 {
     progressView = [[MBProgressHUD alloc] initWithView:self.view];
     progressView.mode = MBProgressHUDModeAnnularDeterminate;
     [self.view addSubview:progressView];
     progressView.labelText = title;
+    [progressView hide:YES];
+}
+
+- (void)showProgressView
+{
     [progressView show:YES];
 }
 
@@ -163,30 +164,6 @@
 - (void)updateProgressView:(float)progress
 {
     [progressView setProgress:progress];
-}
-
-- (void) updateButtonState
-{
-    if ([[UIDevice currentDevice] orientation] == UIDeviceOrientationFaceUp)
-    {
-        if (isCalibrating)
-        {
-            [button setTitle:@"Calibrating" forState:UIControlStateNormal];
-            button.enabled = YES; // bug workaround. see http://stackoverflow.com/questions/19973515/uibutton-title-text-is-not-updated-even-if-i-update-it-in-main-thread
-            button.enabled = NO;
-        }
-        else
-        {
-            button.enabled = YES;
-            [button setTitle:@"Tap here to begin calibration" forState:UIControlStateNormal];
-        }
-    }
-    else
-    {
-        [button setTitle:@"Lay device face up" forState:UIControlStateNormal];
-        button.enabled = YES; // bug workaround. see http://stackoverflow.com/questions/19973515/uibutton-title-text-is-not-updated-even-if-i-update-it-in-main-thread
-        button.enabled = NO;
-    }
 }
 
 @end

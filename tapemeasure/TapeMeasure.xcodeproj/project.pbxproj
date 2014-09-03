@@ -11,6 +11,8 @@
 		32011D13191D96EA00F17327 /* TMAboutView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32011D12191D96EA00F17327 /* TMAboutView.m */; };
 		32011D16191D97E500F17327 /* TMTipsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32011D15191D97E500F17327 /* TMTipsView.m */; };
 		320992711706402D0078C992 /* TMViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32808D63170396E200BE7CBC /* TMViewController.m */; };
+		320F9F8719A6A65000CF43B6 /* EndlessTapeMeasure.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 320F9F8619A6A65000CF43B6 /* EndlessTapeMeasure.mp4 */; };
+		320F9F8D19A6A8C300CF43B6 /* TMLocalMoviePlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 320F9F8C19A6A8C300CF43B6 /* TMLocalMoviePlayer.m */; };
 		3232AAA116D2C1FF007101EA /* TMMeasurement+TMMeasurementSync.m in Sources */ = {isa = PBXBuildFile; fileRef = 3232AAA016D2C1FF007101EA /* TMMeasurement+TMMeasurementSync.m */; };
 		3233C7AF16F3B9D700129B99 /* TMAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 3233C7AE16F3B9D700129B99 /* TMAnalytics.m */; };
 		323A82321731A4B90028DB16 /* TMNewMeasurementTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 323A82311731A4B90028DB16 /* TMNewMeasurementTests.m */; };
@@ -83,6 +85,7 @@
 		32B8F67F16E92368001B1962 /* TMServerOpsFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B8F67E16E92368001B1962 /* TMServerOpsFactory.m */; };
 		32BAFF2C173057C700C69941 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328478BC162E2CCF00BFCDD4 /* QuartzCore.framework */; };
 		32BD1D5B178F1AE2005201DA /* TMLineLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BD1D5A178F1AE2005201DA /* TMLineLayerDelegate.m */; };
+		32C210C019B63433007FF050 /* golden_gate.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32C210BF19B63433007FF050 /* golden_gate.jpg */; };
 		32C242F2170B7ED200738BCD /* TMMeasurementTypeCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C242F1170B7ED200738BCD /* TMMeasurementTypeCell.m */; };
 		32C539DD16701FEC00A14137 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32C539DC16701FEC00A14137 /* SenTestingKit.framework */; };
 		32C539DE16701FEC00A14137 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E3161BBB3200B5C8A8 /* UIKit.framework */; };
@@ -108,12 +111,12 @@
 		32E0A08516E141BE00D0E689 /* TMLocationExtTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E0A08416E141BE00D0E689 /* TMLocationExtTests.m */; };
 		32E0A08816E148A500D0E689 /* TMSyncable+TMSyncableSync.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E0A08716E148A500D0E689 /* TMSyncable+TMSyncableSync.m */; };
 		32E4C4BF18F8A7A20094022B /* TMNavigationController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E4C4BE18F8A7A20094022B /* TMNavigationController.m */; };
+		32E50DBC19AFDBC40048D069 /* TMLocationIntro.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E50DBB19AFDBC40048D069 /* TMLocationIntro.m */; };
 		32E681B618F5CD260043D50A /* Accounts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32E681B518F5CD260043D50A /* Accounts.framework */; };
 		32E6849118F5FB250043D50A /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32E6849018F5FB250043D50A /* AddressBook.framework */; };
 		32E6849318F5FB390043D50A /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32E6849218F5FB390043D50A /* CoreText.framework */; };
 		32E6849518F5FB430043D50A /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32E6849418F5FB430043D50A /* MediaPlayer.framework */; };
 		32E6873C18F617160043D50A /* GoogleOpenSource.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32E685D918F617150043D50A /* GoogleOpenSource.framework */; };
-		32E6873D18F617160043D50A /* GooglePlus.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 32E685DA18F617150043D50A /* GooglePlus.bundle */; };
 		32E6873E18F617160043D50A /* GooglePlus.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32E685DB18F617150043D50A /* GooglePlus.framework */; };
 		32E6873F18F617160043D50A /* 1Password-Icon-120.png in Resources */ = {isa = PBXBuildFile; fileRef = 32E685DD18F617150043D50A /* 1Password-Icon-120.png */; };
 		32E6874018F617160043D50A /* 1Password-Icon-60@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 32E685DE18F617150043D50A /* 1Password-Icon-60@2x.png */; };
@@ -342,9 +345,7 @@
 		32E6881F18F617170043D50A /* UIViewController+OSKUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6873B18F617160043D50A /* UIViewController+OSKUtilities.m */; };
 		32E6882518F617440043D50A /* ADNLogin.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6882218F617440043D50A /* ADNLogin.m */; };
 		32E6882618F617440043D50A /* ADNPassportLaunchView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6882418F617440043D50A /* ADNPassportLaunchView.m */; };
-		32E6882A18F617D10043D50A /* GoogleOpenSource.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32E6882718F617D10043D50A /* GoogleOpenSource.framework */; };
 		32E6882B18F617D10043D50A /* GooglePlus.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 32E6882818F617D10043D50A /* GooglePlus.bundle */; };
-		32E6882C18F617D10043D50A /* GooglePlus.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32E6882918F617D10043D50A /* GooglePlus.framework */; };
 		32F216C6170F3B4E003DA782 /* TMResultsVCTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32F216C5170F3B4E003DA782 /* TMResultsVCTests.m */; };
 		32F403351940E326002741C8 /* TMPreferences.m in Sources */ = {isa = PBXBuildFile; fileRef = 32F403341940E326002741C8 /* TMPreferences.m */; };
 		D9218CB716E847B2006F4591 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9218CB616E847B2006F4591 /* SystemConfiguration.framework */; };
@@ -384,6 +385,9 @@
 		32011D15191D97E500F17327 /* TMTipsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMTipsView.m; sourceTree = "<group>"; };
 		3209926E17063F080078C992 /* TMNewMeasurementVCSyncTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMNewMeasurementVCSyncTests.h; sourceTree = "<group>"; };
 		3209926F17063F080078C992 /* TMNewMeasurementVCSyncTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMNewMeasurementVCSyncTests.m; sourceTree = "<group>"; };
+		320F9F8619A6A65000CF43B6 /* EndlessTapeMeasure.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = EndlessTapeMeasure.mp4; sourceTree = "<group>"; };
+		320F9F8B19A6A8C300CF43B6 /* TMLocalMoviePlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMLocalMoviePlayer.h; sourceTree = "<group>"; };
+		320F9F8C19A6A8C300CF43B6 /* TMLocalMoviePlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMLocalMoviePlayer.m; sourceTree = "<group>"; };
 		3232AA9F16D2C1FF007101EA /* TMMeasurement+TMMeasurementSync.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TMMeasurement+TMMeasurementSync.h"; sourceTree = "<group>"; };
 		3232AAA016D2C1FF007101EA /* TMMeasurement+TMMeasurementSync.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "TMMeasurement+TMMeasurementSync.m"; sourceTree = "<group>"; };
 		3233C7AD16F3B9D700129B99 /* TMAnalytics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMAnalytics.h; sourceTree = "<group>"; };
@@ -489,6 +493,7 @@
 		32BA42FA17A2E5A9002BAE13 /* yuvtorgb.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuvtorgb.vsh; sourceTree = "<group>"; };
 		32BD1D59178F1AE2005201DA /* TMLineLayerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMLineLayerDelegate.h; sourceTree = "<group>"; };
 		32BD1D5A178F1AE2005201DA /* TMLineLayerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMLineLayerDelegate.m; sourceTree = "<group>"; };
+		32C210BF19B63433007FF050 /* golden_gate.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = golden_gate.jpg; sourceTree = "<group>"; };
 		32C242F0170B7ED200738BCD /* TMMeasurementTypeCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurementTypeCell.h; sourceTree = "<group>"; };
 		32C242F1170B7ED200738BCD /* TMMeasurementTypeCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurementTypeCell.m; sourceTree = "<group>"; };
 		32C41CB6166815750002A8AB /* TMConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TMConstants.h; sourceTree = "<group>"; };
@@ -537,6 +542,8 @@
 		32E0A08716E148A500D0E689 /* TMSyncable+TMSyncableSync.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "TMSyncable+TMSyncableSync.m"; sourceTree = "<group>"; };
 		32E4C4BD18F8A7A20094022B /* TMNavigationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMNavigationController.h; sourceTree = "<group>"; };
 		32E4C4BE18F8A7A20094022B /* TMNavigationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMNavigationController.m; sourceTree = "<group>"; };
+		32E50DBA19AFDBC40048D069 /* TMLocationIntro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMLocationIntro.h; sourceTree = "<group>"; };
+		32E50DBB19AFDBC40048D069 /* TMLocationIntro.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMLocationIntro.m; sourceTree = "<group>"; };
 		32E681B518F5CD260043D50A /* Accounts.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accounts.framework; path = System/Library/Frameworks/Accounts.framework; sourceTree = SDKROOT; };
 		32E6849018F5FB250043D50A /* AddressBook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBook.framework; path = System/Library/Frameworks/AddressBook.framework; sourceTree = SDKROOT; };
 		32E6849218F5FB390043D50A /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
@@ -925,7 +932,6 @@
 				D9557B1416DFDF1500B48C4B /* Accelerate.framework in Frameworks */,
 				328D264F16BB15550067D7D8 /* Security.framework in Frameworks */,
 				32E6873C18F617160043D50A /* GoogleOpenSource.framework in Frameworks */,
-				32E6882A18F617D10043D50A /* GoogleOpenSource.framework in Frameworks */,
 				32803A6718DB7642002F54B5 /* Reveal.framework in Frameworks */,
 				32590C8316781F4000E2BA1C /* CoreLocation.framework in Frameworks */,
 				32590C8216781EEC00E2BA1C /* MapKit.framework in Frameworks */,
@@ -939,7 +945,6 @@
 				3287846A1630B6B300040AAF /* CoreMedia.framework in Frameworks */,
 				3288555016307A6A0074A3DE /* CoreMotion.framework in Frameworks */,
 				32E6873E18F617160043D50A /* GooglePlus.framework in Frameworks */,
-				32E6882C18F617D10043D50A /* GooglePlus.framework in Frameworks */,
 				328478BD162E2CCF00BFCDD4 /* QuartzCore.framework in Frameworks */,
 				3280BB48191AE86A00338A38 /* libFlurry_5.0.0.a in Frameworks */,
 				32865B9316260C710080BA1A /* libRCCore.a in Frameworks */,
@@ -1030,6 +1035,8 @@
 		3280F7E9161BBB3200B5C8A8 /* TapeMeasure */ = {
 			isa = PBXGroup;
 			children = (
+				32C210BF19B63433007FF050 /* golden_gate.jpg */,
+				320F9F8619A6A65000CF43B6 /* EndlessTapeMeasure.mp4 */,
 				32D2B6D918EA163000B72F05 /* Calibration */,
 				32BA42FB17A2E5A9002BAE13 /* Shaders */,
 				32C45D9616DC22AB00FE7247 /* ThirdParty */,
@@ -1131,6 +1138,10 @@
 				32E4C4BE18F8A7A20094022B /* TMNavigationController.m */,
 				32F403331940E326002741C8 /* TMPreferences.h */,
 				32F403341940E326002741C8 /* TMPreferences.m */,
+				320F9F8B19A6A8C300CF43B6 /* TMLocalMoviePlayer.h */,
+				320F9F8C19A6A8C300CF43B6 /* TMLocalMoviePlayer.m */,
+				32E50DBA19AFDBC40048D069 /* TMLocationIntro.h */,
+				32E50DBB19AFDBC40048D069 /* TMLocationIntro.m */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -1782,6 +1793,7 @@
 				32E6877618F617160043D50A /* osk-iap-badge-60.png in Resources */,
 				32E687AD18F617160043D50A /* ReadingList-Icon-60.png in Resources */,
 				32E6875D18F617160043D50A /* Omnifocus-Icon-72@2x.png in Resources */,
+				320F9F8719A6A65000CF43B6 /* EndlessTapeMeasure.mp4 in Resources */,
 				32E6878B18F617160043D50A /* osk-navbarButton-highlighted@2x.png in Resources */,
 				32E6876218F617160043D50A /* osk-appDotNetIcon-29@2x.png in Resources */,
 				324EC50818E3ADB900D47E0D /* MainStoryboard_iPad.storyboard in Resources */,
@@ -1818,6 +1830,7 @@
 				32E6876918F617160043D50A /* osk-copyIcon-purple-60@2x.png in Resources */,
 				32E687B118F617160043D50A /* Riposte-Icon-60@2x.png in Resources */,
 				32E6876B18F617160043D50A /* osk-copyIcon-purple-76@2x.png in Resources */,
+				32C210C019B63433007FF050 /* golden_gate.jpg in Resources */,
 				32E6875918F617160043D50A /* link-button.png in Resources */,
 				32E6875818F617160043D50A /* Instapaper-Icon-76@2x.png in Resources */,
 				32E6874C18F617160043D50A /* Drafts-Icon-76@2x.png in Resources */,
@@ -1876,7 +1889,6 @@
 				32E6876F18F617160043D50A /* osk-copyIcon-yellow-76@2x.png in Resources */,
 				32E6875518F617160043D50A /* Instapaper-Icon-29@2x.png in Resources */,
 				32E687A318F617160043D50A /* osk_linkPlaceholder_pad@2x.png in Resources */,
-				32E6873D18F617160043D50A /* GooglePlus.bundle in Resources */,
 				32E6876318F617160043D50A /* osk-appDotNetIcon-60@2x.png in Resources */,
 				32E6877D18F617160043D50A /* osk-iconMask-bw-29.png in Resources */,
 				32E6876618F617160043D50A /* osk-appStoreIcon-76.png in Resources */,
@@ -1981,6 +1993,7 @@
 				32E6881E18F617170043D50A /* UIView+OSKUtilities.m in Sources */,
 				32E687F118F617160043D50A /* OSKMicrobloggingTextView.m in Sources */,
 				32E6880318F617170043D50A /* OSKSession.m in Sources */,
+				32E50DBC19AFDBC40048D069 /* TMLocationIntro.m in Sources */,
 				32E6880718F617170043D50A /* OSKShareableContent.m in Sources */,
 				32E687E018F617160043D50A /* OSKFacebookActivity.m in Sources */,
 				32E687FD18F617170043D50A /* OSKReadabilityActivity.m in Sources */,
@@ -2099,6 +2112,7 @@
 				32E6881B18F617170043D50A /* UIColor+OSKUtility.m in Sources */,
 				3288775E173C17B900A553B9 /* TMPoint.m in Sources */,
 				32E687FF18F617170043D50A /* OSKReadingListActivity.m in Sources */,
+				320F9F8D19A6A8C300CF43B6 /* TMLocalMoviePlayer.m in Sources */,
 				328CBF391742AED700A6DF7B /* TMTickMarksLayerDelegate.m in Sources */,
 				3287D8A2174C1E4100DDFD43 /* TMVideoPreview.m in Sources */,
 				32C5663017692EA100FB3CD4 /* TMAugmentedRealityView.m in Sources */,

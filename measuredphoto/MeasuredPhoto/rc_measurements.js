@@ -1,8 +1,18 @@
 //Copywrite (c) 2014 by RealityCap, Inc. Written by Jordan Miller for the exclusive use of RealityCap, Inc.
 
+
+
 rcMeasurements = {
-    measurements : {}, measurement_being_edited : null, inches_to_meter : 39.3701, cursor_animation_id : null, most_recent_drag : 0
-}
+    measurements : {},
+    angles : {},
+    notes : {},
+    measurement_being_edited : null,
+    inches_to_meter : 39.3701,
+    cursor_animation_id : null,
+    most_recent_drag : 0,
+    font_family : 'HelveticaNeue-Light, Helvetica, Arial',
+    prior_measurement_states : []
+};
 
 // instantiate a measurement and add it to the measurment list
 // takes image locations
@@ -34,16 +44,16 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
     var d_string = rcMeasurements.format_dist(m);
     m.text_shadow = measured_svg.text(d_string);
     m.text_shadow.font({
-                       family: 'San Serif'
-                       , size: 25
+                       family: rcMeasurements.font_family,
+                        size: 25
                        , anchor: 'middle'
                        , leading: 1
-                       }).stroke({ color: shadow_color, opacity: 1, width: 5 });
+                       }).stroke({ color: shadow_color, opacity: 1, width: 2.5 });
     
     m.text = measured_svg.text(d_string);
     m.text.font({
-                family: 'San Serif'
-                , size: 25
+                family: rcMeasurements.font_family,
+                 size: 25
                 , anchor: 'middle'
                 , leading: 1
                 }).fill({ color: line_color, opacity: 1});
@@ -172,6 +182,10 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
 
 }
 
+rcMeasurements.draw_note = function (n) {
+
+}
+
 rcMeasurements.dragEndHandler = function (m, e) {
     e.stopPropagation(); e.preventDefault();
     rcMeasurements.most_recent_drag = new Date();
@@ -180,15 +194,17 @@ rcMeasurements.dragEndHandler = function (m, e) {
 }
 
 rcMeasurements.click_action = function (m,e) {
-    setTimeout(function(){ return false;},1);  //this just forces refresh for some browsers
-    if ( rcMeasurements.is_measurement_being_deleted(m) ) {  //this is both a deletion and a check for deletion
-         e.stopPropagation(); e.preventDefault(); // if deleted, dont do anything else
-    }
     //if we just ended a drag, don't propagate click
     var now = new Date();
     var last_drag_time_diff = now - rcMeasurements.most_recent_drag;
     if (last_drag_time_diff < 100){
         e.stopPropagation(); e.preventDefault();
+        return;
+    }
+
+    setTimeout(function(){ return false;},1);  //this just forces refresh for some browsers
+    if ( rcMeasurements.is_measurement_being_deleted(m) ) {  //this is both a deletion and a check for deletion
+        e.stopPropagation(); e.preventDefault(); // if deleted, dont do anything else
     }
     //otherwise allow anotations gesture to propegate to image to see if it has an effect on anotations.
 }
@@ -259,6 +275,44 @@ rcMeasurements.redraw_measurement = function (m) {
     }
 }
 
+rcMeasurements.redraw_lines = function(m) {
+    // calculate how big of a gap we need for text, certain other layout paramaters
+    var hlf_text_w = m.text_shadow.node.offsetWidth/2;
+    var hlf_text_h = m.text_shadow.node.offsetHeight/2;
+    
+    if (hlf_text_w/hlf_text_h < Math.abs(m.xdiffrt/m.ydiffrt)) { //line is more horizontal, text width dominates gap
+        m.half_font_gap = Math.sqrt(hlf_text_w*hlf_text_w + hlf_text_w*hlf_text_w*m.ydiffrt*m.ydiffrt/m.xdiffrt/m.xdiffrt)+5;
+    }
+    else { //line is more vertical, we want to use a smaller gap dependent on angle
+        m.half_font_gap = Math.sqrt(hlf_text_h*hlf_text_h + hlf_text_h*hlf_text_h*m.xdiffrt*m.xdiffrt/m.ydiffrt/m.ydiffrt );
+    }
+    
+    if (m.pixel_distatnce < m.half_font_gap * 2 + 10) {
+        m.font_offset = true;
+        m.font_offset_x = -m.half_font_gap * m.ydiffrt;
+        m.font_offset_y = m.half_font_gap * m.xdiffrt;
+    }
+    
+    if (m.font_offset){
+        m.shadow_line1.plot(m.x1 - 3 * m.xdiffrt, m.y1 - 3 * m.ydiffrt, m.x2 + 3 * m.xdiffrt, m.y2 + 3 * m.ydiffrt);
+        m.shadow_line2.plot(m.x1 - 3 * m.xdiffrt, m.y1 - 3 * m.ydiffrt, m.x2 + 3 * m.xdiffrt, m.y2 + 3 * m.ydiffrt);
+    }
+    else {
+        m.shadow_line1.plot(m.x1 - 3 * m.xdiffrt, m.y1 - 3 * m.ydiffrt, m.mid_x + m.half_font_gap * m.xdiffrt, m.mid_y + m.half_font_gap * m.ydiffrt);
+        m.shadow_line2.plot(m.mid_x - m.half_font_gap * m.xdiffrt, m.mid_y - m.half_font_gap * m.ydiffrt, m.x2 + 3 * m.xdiffrt, m.y2 + 3 * m.ydiffrt);
+    }
+    
+    if (m.font_offset){
+        m.line1.plot(m.x1 - 1 * m.xdiffrt, m.y1 - 1 * m.ydiffrt, m.x2 + 1 * m.xdiffrt, m.y2 + 1 * m.ydiffrt)
+        m.line2.plot(m.x1 - 1 * m.xdiffrt, m.y1 - 1 * m.ydiffrt, m.x2 + 1 * m.xdiffrt, m.y2 + 1 * m.ydiffrt)
+    }
+    else {
+        m.line1.plot(m.x1 - 1 * m.xdiffrt, m.y1 - 1 * m.ydiffrt,  m.mid_x + (m.half_font_gap + 1) * m.xdiffrt, m.mid_y + (m.half_font_gap + 1) * m.ydiffrt)
+        m.line2.plot(m.mid_x - (m.half_font_gap + 1) * m.xdiffrt, m.mid_y - (m.half_font_gap + 1) * m.ydiffrt, m.x2 + 1 * m.xdiffrt, m.y2 + 1 * m.ydiffrt)
+    }
+
+}
+
 rcMeasurements.redraw_all_measurements = function (){
     for (var key in rcMeasurements.measurements) {
         rcMeasurements.redraw_measurement(measurements[key]);
@@ -268,17 +322,24 @@ rcMeasurements.redraw_all_measurements = function (){
 
 
 rcMeasurements.to_json = function () {
-    var measurements_to_save = {};
+    var annotations_to_save = {measurements : {}, notes : {}, angles : {} };
     // if the app has set (or reset) the default units then save the default units.
-    if (unit_default_set_by_app) { measurements_to_save['use_metric'] = default_units_metric; }
+    if (unit_default_set_by_app) { annotations_to_save['use_metric'] = default_units_metric; }
     for (var key in rcMeasurements.measurements) {
-        measurements_to_save[key] = rcMeasurements.measurements[key].saveable_copy;
+        annotations_to_save.measurements[key] = rcMeasurements.measurements[key].saveable_copy;
     }
-    return JSON.stringify(measurements_to_save);
+    for (var key in rcMeasurements.angles) {
+        annotations_to_save.angles[key] = rcMeasurements.angles[key].saveable_copy;
+    }
+    for (var key in rcMeasurements.notes) {
+        annotations_to_save.notes[key] = rcMeasurements.notes[key].saveable_copy;
+    }
+    return JSON.stringify(annotations_to_save);
 }
 
 rcMeasurements.save_measurements = function () {
     jsonStr = rcMeasurements.to_json();
+    rcMeasurements.prior_measurement_states.push(jsonStr);
     $.ajax({ type: "PUT", url: rc_server_location + "true_measure/api/v1/m_photo/" + m_photo_guid + "/annotations/", contentType: "application/json", processData: false, dataType: "json", data: jsonStr })
     .done(function(data, textStatus, jqXHR) {
           //alert(textStatus + ": " + JSON.stringify(data));
@@ -291,24 +352,19 @@ rcMeasurements.save_measurements = function () {
 
 
 rcMeasurements.delete_measurement  = function (m) {
-    window.setTimeout( function() {
-          if (confirm('delete measurement?')) {
-              //remove visual elemnts
-              m.text.remove();
-              m.text_shadow.remove();
-              m.circle1.remove();
-              m.circle2.remove();
-              m.selector_circle1.remove();
-              m.selector_circle2.remove();
-              m.shadow_line1.remove();
-              m.shadow_line2.remove();
-              m.line1.remove();
-              m.line2.remove();
-              //removed from measurements array
-              delete rcMeasurements.measurements[m.guid];
-              //alert(rcMeasurements.to_json());
-          }
-    }, 0)
+    //remove visual elemnts
+    m.text.remove();
+    m.text_shadow.remove();
+    m.circle1.remove();
+    m.circle2.remove();
+    m.selector_circle1.remove();
+    m.selector_circle2.remove();
+    m.shadow_line1.remove();
+    m.shadow_line2.remove();
+    m.line1.remove();
+    m.line2.remove();
+    //removed from measurements array
+    delete rcMeasurements.measurements[m.guid];
 }
 
 rcMeasurements.load_json  = function (m_url, callback_function) {
@@ -316,17 +372,9 @@ rcMeasurements.load_json  = function (m_url, callback_function) {
     setTimeout(function(){
         $.ajaxSetup({ cache: false });
         $.getJSON(m_url, function(data) {
-            //use then strip out metadata
-            if ('use_metric' in data) {
-                //we only overwrite the default units with the stored defualt units if the app hasn't told us what units to use
-                if (! unit_default_set_by_app) {default_units_metric = data['use_metric'];}
-                delete myArray['use_metric'];
-            }
-            rcMeasurements.measurements = data;
-            //for each measurement, draw measurement
-            for (var key in rcMeasurements.measurements) {
-             rcMeasurements.draw_measurement(rcMeasurements.measurements[key], measured_svg);
-            }
+            rcMeasurements.apply_json_data(data);
+            //initialize prior measurments
+            rcMeasurements.prior_measurement_states.push(rcMeasurements.to_json());
             callback_function();
         }).error(function () {
             //window.setTimeout(function(){alert('failed to load annotations')},0);
@@ -334,6 +382,48 @@ rcMeasurements.load_json  = function (m_url, callback_function) {
             callback_function();
         });
     }, 0);
+}
+
+rcMeasurements.apply_json_data = function (data) {
+    if ('use_metric' in data) {
+        //we only overwrite the default units with the stored defualt units if the app hasn't told us what units to use
+        if (! unit_default_set_by_app) {default_units_metric = data['use_metric'];}
+        delete myArray['use_metric'];
+    }
+    if ('measurements' in data) { rcMeasurements.measurements = data.measurements; } else {rcMeasurements.measurements = {};}
+    if ('angles' in data) { rcMeasurements.angles = data.angles; } else {rcMeasurements.angles = {};}
+    if ('notes' in data) { rcMeasurements.notes = data.measurements; } else {rcMeasurements.notes = {};}
+    //for each measurement, draw measurement
+    for (var key in rcMeasurements.measurements) {
+        rcMeasurements.draw_measurement(rcMeasurements.measurements[key], measured_svg);
+    }
+    for (var key in rcMeasurements.agles) {
+        rcMeasurements.draw_angle(rcMeasurements.angles[key], measured_svg);
+    }
+    for (var key in rcMeasurements.notes) {
+        rcMeasurements.draw_note(rcMeasurements.notes[key], measured_svg);
+    }
+}
+
+rcMeasurements.revert_measurement_state = function () {
+    if (rcMeasurements.prior_measurement_states.length > 1) {
+        //delete all measurements
+        for (var key in rcMeasurements.measurements) {
+            rcMeasurements.delete_measurement(rcMeasurements.measurements[key]);
+        }
+        for (var key in rcMeasurements.agles) {
+            rcMeasurements.delete_angle(rcMeasurements.angles[key]);
+        }
+        for (var key in rcMeasurements.notes) {
+            rcMeasurements.delete_note(rcMeasurements.notes[key]);
+        }
+        //pull prior measurement state
+        rcMeasurements.prior_measurement_states.pop(); //trow away the current state
+        var prior_m_json = rcMeasurements.prior_measurement_states.pop(); //go to the one before.
+        rcMeasurements.apply_json_data(JSON.parse(prior_m_json));
+        // save new state - this will add current state back to the stack
+        rcMeasurements.save_measurements();
+    }
 }
 
 // functions for coloring and decoloring selected lines
@@ -458,6 +548,7 @@ rcMeasurements.end_measurement_edit = function (){
         return_image_after_number_pad();
         rcMeasurements.stop_cursor_animation(rcMeasurements.measurement_being_edited);
 
+
         //}
         //else {
         //    measured_svg.node.removeChild( measurement_being_edited.text_input_box.node); //hide input box...
@@ -491,6 +582,7 @@ rcMeasurements.add_character = function (key) {
     if (str == '?') { rcMeasurements.setText(rcMeasurements.measurement_being_edited, key + unit_str); }
     else {rcMeasurements.setText(rcMeasurements.measurement_being_edited,  str + key + unit_str);}
     rcMeasurements.place_cursor(rcMeasurements.measurement_being_edited);
+    rcMeasurements.redraw_lines(rcMeasurements.measurement_being_edited);
 
 }
 rcMeasurements.del_character = function (key) {
@@ -503,6 +595,7 @@ rcMeasurements.del_character = function (key) {
         rcMeasurements.setText( rcMeasurements.measurement_being_edited,  str.substring(0, str.length - 1) + unit_str );
     }
     rcMeasurements.place_cursor(rcMeasurements.measurement_being_edited);
+    rcMeasurements.redraw_lines(rcMeasurements.measurement_being_edited);
 }
 
 // called on distance before drawn to screen
@@ -510,7 +603,7 @@ rcMeasurements.format_dist = function (m){
     
     if (m.distance) {
         if (m.units_metric) { return m.distance.toFixed(2)+' m'; }
-        else { return (m.distance * rcMeasurements.inches_to_meter).toFixed(2) + ' "'; }
+        else { return (m.distance * rcMeasurements.inches_to_meter).toFixed(1) + ' "'; }
     }
     else {
         if (m.units_metric) { return '? m'; }
@@ -547,6 +640,7 @@ rcMeasurements.finish_number_operation = function (){
     else  {
         rcMeasurements.measurement_being_edited.distance = parsed_distance;
         rcMeasurements.setText( rcMeasurements.measurement_being_edited, rcMeasurements.format_dist(rcMeasurements.measurement_being_edited));
+        rcMeasurements.redraw_lines(rcMeasurements.measurement_being_edited);
         rcMeasurements.measurement_being_edited.saveable_copy = rcMeasurements.saveable_liniar_measurement(rcMeasurements.measurement_being_edited);
         rcMeasurements.end_measurement_edit();
     }
@@ -565,5 +659,8 @@ rcMeasurements.is_measurement_being_deleted = function (m) {
 // this clears all measurements, used when we are switching between measured photos but not reloading the app
 rcMeasurements.reset = function () {
     rcMeasurements.measurements = {};
+    rcMeasurements.angles = {};
+    rcMeasurements.notes = {};
+    rcMeasurements.prior_measurement_states = [];
     rcMeasurements.measurement_being_edited = null;
 }

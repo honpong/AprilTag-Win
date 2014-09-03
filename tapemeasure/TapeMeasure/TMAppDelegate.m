@@ -48,10 +48,20 @@
                                      PREF_SHOW_LOCATION_EXPLANATION: @YES,
                                      PREF_LAST_TRANS_ID: @0,
                                      PREF_IS_FIRST_LAUNCH: @YES,
-                                     PREF_IS_TIPS_SHOWN: @NO};
+                                     PREF_IS_TIPS_SHOWN: @NO,
+                                     PREF_SHOW_RATE_NAG: @YES,
+                                     PREF_RATE_NAG_TIMESTAMP : @0};
         
         [NSUserDefaults.standardUserDefaults registerDefaults:appDefaults];
     });
+
+    #ifndef ARCHIVE // for testing
+//    [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_IS_FIRST_LAUNCH];
+//    [NSUserDefaults.standardUserDefaults setObject:@NO forKey:PREF_IS_CALIBRATED];
+    [NSUserDefaults.standardUserDefaults setObject:@0 forKey:PREF_RATE_NAG_TIMESTAMP];
+    [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_SHOW_RATE_NAG];
+    [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_SHOW_LOCATION_EXPLANATION];
+    #endif
     
     [Flurry setSecureTransportEnabled:YES];
     [Flurry setCrashReportingEnabled:YES];
@@ -65,14 +75,29 @@
     
     BOOL calibratedFlag = [NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_CALIBRATED];
     BOOL hasCalibration = [SENSOR_FUSION hasCalibrationData];
-    if (SKIP_CALIBRATION || (calibratedFlag && hasCalibration) )
+    
+    if([NSUserDefaults.standardUserDefaults boolForKey:PREF_SHOW_LOCATION_EXPLANATION])
     {
-        [self gotoMainViewController];
+        [NSUserDefaults.standardUserDefaults setObject:@NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
+        [self gotoLocationIntro];
     }
     else
     {
-        if (!hasCalibration) [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_IS_CALIBRATED];
-        [self gotoCalibration];
+        if ([LOCATION_MANAGER isLocationAuthorized])
+        {
+            // location already authorized. go ahead.
+            LOCATION_MANAGER.delegate = self;
+            [LOCATION_MANAGER startLocationUpdates];
+        }
+        
+        if (SKIP_CALIBRATION || (calibratedFlag && hasCalibration) )
+        {
+            [self gotoMainViewController];
+        }
+        else
+        {
+            [self gotoCalibration];
+        }
     }
     
     return YES;
@@ -88,12 +113,33 @@
     RCCalibration1 * calibration1 = [RCCalibration1 instantiateViewController];
     calibration1.calibrationDelegate = self;
     calibration1.sensorDelegate = mySensorDelegate;
-
     calibration1.modalPresentationStyle = UIModalPresentationFullScreen;
     self.window.rootViewController = calibration1;
 }
 
-#pragma mark RCCalibrationDelegate methods
+- (void) gotoLocationIntro
+{
+    TMLocationIntro* vc = (TMLocationIntro*)[navigationController.storyboard instantiateViewControllerWithIdentifier:@"LocationIntro"];
+    vc.delegate = self;
+    self.window.rootViewController = vc;
+}
+
+#pragma mark - TMLocationIntroDelegate
+
+- (void) nextButtonTapped
+{
+    [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
+    
+    if([LOCATION_MANAGER shouldAttemptLocationAuthorization])
+    {
+        LOCATION_MANAGER.delegate = self;
+        [LOCATION_MANAGER startLocationUpdates]; // will show dialog asking user to authorize location
+    }
+    
+    [self gotoCalibration];
+}
+
+#pragma mark - RCCalibrationDelegate methods
 
 - (void) calibrationDidFinish
 {
@@ -110,26 +156,7 @@
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
-    // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
-    LOGME
-    [NSUserDefaults.standardUserDefaults synchronize];
-    
-    if([self shouldShowLocationExplanation])
-    {
-        // show explanation, then ask for authorization. if they authorize, then start updating location.
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Location"
-                                                        message:@"If you allow the app to use your location, we can improve the accuracy of your measurements by adjusting for altitude and how far you are from the equator. If you don't want to save location data with your measurements, you can turn that off in the preferences."
-                                                       delegate:self
-                                              cancelButtonTitle:@"Continue"
-                                              otherButtonTitles:nil];
-        [alert show];
-    }
-    else if ([LOCATION_MANAGER isLocationAuthorized])
-    {
-        // location already authorized. go ahead.
-        LOCATION_MANAGER.delegate = self;
-        [LOCATION_MANAGER startLocationUpdates];
-    }
+   LOGME
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application
@@ -142,35 +169,10 @@
     DLog(@"MEMORY WARNING");
 }
 
-- (BOOL)shouldShowLocationExplanation
-{
-    if ([CLLocationManager locationServicesEnabled])
-    {
-        return [CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined;
-    }
-    else
-    {
-        return [NSUserDefaults.standardUserDefaults boolForKey:PREF_SHOW_LOCATION_EXPLANATION];
-    }
-}
-
-- (void) alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
-{
-    if (buttonIndex == 0) //the only button
-    {
-        [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
-        [NSUserDefaults.standardUserDefaults synchronize];
-        
-        if([LOCATION_MANAGER shouldAttemptLocationAuthorization])
-        {
-            LOCATION_MANAGER.delegate = self;
-            [LOCATION_MANAGER startLocationUpdates]; // will show dialog asking user to authorize location
-        }
-    }
-}
-
 - (void) locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
+    LOGME
+    
     if ([[NSUserDefaults.standardUserDefaults objectForKey:PREF_ADD_LOCATION] isEqual:@(-1)]) // if location pref hasn't been set
     {
         [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_ADD_LOCATION]; // set location pref to yes

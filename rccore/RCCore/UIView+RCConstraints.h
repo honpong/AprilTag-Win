@@ -19,6 +19,11 @@
 - (NSLayoutConstraint*) addCenterYInSuperviewConstraints;
 
 - (void) addWidthConstraint:(CGFloat)width andHeightConstraint:(CGFloat)height;
+- (NSLayoutConstraint*) addWidthConstraint:(CGFloat)width;
+- (NSLayoutConstraint*) addHeightConstraint:(CGFloat)height;
+
+- (void) addMatchWidthToSuperviewConstraints;
+- (void) addMatchHeightToSuperviewContraints;
 
 - (NSLayoutConstraint*) addTopSpaceToSuperviewConstraint:(CGFloat)constant;
 - (NSLayoutConstraint*) addBottomSpaceToSuperviewConstraint:(CGFloat)constant;

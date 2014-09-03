@@ -40,9 +40,9 @@ var marker; //svg element which should apear at imate cooridnates of click_image
 
 
 // color constants
-var shadow_color = '#000';
-var highlight_color = '#ff0';
-var line_color = '#f00';
+var shadow_color = '#222';
+var highlight_color = '#992';
+var line_color = '#ca0';
 
 // menu buttons
 var menu_background_color = '#fff';

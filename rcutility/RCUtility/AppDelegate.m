@@ -41,9 +41,6 @@
 
 - (void) startFromCalibration
 {
-    NSLog(@"Removing calibration data");
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:PREF_DEVICE_PARAMS];
-
     RCCalibration1 *calibration1 = [RCCalibration1 instantiateViewController];
     calibration1.calibrationDelegate = self;
     calibration1.sensorDelegate = sensorDelegate;

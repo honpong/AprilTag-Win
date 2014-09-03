@@ -11,6 +11,7 @@
 #import <RC3DK/RC3DK.h>
 #import "RCCore/RCGeocoder.h"
 #import "RCCore/RCSensorDelegate.h"
+#import "TMLocalMoviePlayer.h"
 
 @implementation TMNewMeasurementVC
 {
@@ -66,11 +67,11 @@ typedef struct
 static statesetup setups[] =
 {
     //                                fusion  sensors measure listBtn rtryBtn shwdstc shwtape ftrs    prgrs   title           message         autohide
-    { ST_STARTUP,       ICON_GREEN,   false,  false,  false,  true,   false,  false,  false,  false,  false,  "Starting Up",  "Starting up...", false},
-    { ST_READY,         ICON_GREEN,   false,  true,   false,  true,   false,  false,  false,  false,  false,  "Instructions", "Stand where you want to start the measurement, point the camera forward, and tap the screen to initalize.", false },
-    { ST_INITIALIZING,  ICON_GREEN,   true,   true,   false,  true,   true,   true,   false,  true,   true,   "Hold still",   "Hold the device still and keep it pointed forward.", false},
-    { ST_MEASURE,       ICON_GREEN,   true,   true,   true,   true,   true,   true,   true,   true,   false,  "Measuring",    "Go! Move to the place where you want to end your measurement, then tap the screen to finish. Keep the camera pointed forward.", false },
-    { ST_FINISHED,      ICON_GREEN,   false,  false,  false,  true,   true,   true,   true,   false,  false,  "Finished",     "Looks good. Press save to name and store your measurement.", false },
+    { ST_STARTUP,       ICON_GREEN,   false,  false,  false,  true,   false,  false,  false,  false,  false,  "",  "", false},
+    { ST_READY,         ICON_GREEN,   false,  true,   false,  true,   false,  false,  false,  false,  false,  "Instructions", "Hold the device steady where you want to start the measurement and tap to begin.", false },
+    { ST_INITIALIZING,  ICON_GREEN,   true,   true,   false,  true,   true,   true,   false,  true,   true,   "Initializing",   "Hold the device steady.", false},
+    { ST_MEASURE,       ICON_GREEN,   true,   true,   true,   true,   true,   true,   true,   true,   false,  "Measuring",    "Go! Move the device to the end of your measurement, and tap to finish.", false },
+    { ST_FINISHED,      ICON_GREEN,   false,  false,  false,  true,   true,   true,   true,   false,  false,  "",     "", false },
     { ST_VISIONFAIL,    ICON_RED,     false,  true,   false,  true,   true,   true,   true,   false,  false,  "Try again",    "Sorry, the camera can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit.", false },
     { ST_FASTFAIL,      ICON_RED,     false,  true,   false,  true,   true,   true,   true,   false,  false,  "Try again",    "Sorry, that didn't work. For best results, move at a normal walking pace.", false },
     { ST_FAIL,          ICON_RED,     false,  true,   false,  true,   true,   true,   true,   false,  false,  "Try again",    "Sorry, we need to try that again.", false },
@@ -252,6 +253,28 @@ static transition transitions[] =
                                                object:nil];
     [self handleResume];
     SENSOR_FUSION.delegate = self;
+    
+    if ([[NSUserDefaults.standardUserDefaults objectForKey:PREF_IS_FIRST_LAUNCH] isEqual: @YES])
+    {
+        [NSUserDefaults.standardUserDefaults setObject:@NO forKey:PREF_IS_FIRST_LAUNCH];
+        [self gotoTutorialVideo];
+    }
+}
+
+- (void) gotoTutorialVideo
+{
+    NSURL *movieURL = [[NSBundle mainBundle] URLForResource:@"EndlessTapeMeasure" withExtension:@"mp4"];
+    TMLocalMoviePlayer* movieViewController = [[TMLocalMoviePlayer alloc] initWithContentURL:movieURL];
+    movieViewController.modalPresentationStyle = UIModalPresentationFullScreen;
+    [self presentMoviePlayerViewControllerAnimated:movieViewController];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:movieViewController  name:MPMoviePlayerPlaybackDidFinishNotification object:movieViewController.moviePlayer]; // needed to receive the notification below
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(moviePlayerWillExitFullScreen:) name:MPMoviePlayerPlaybackDidFinishNotification object:nil];
+}
+
+- (void) moviePlayerWillExitFullScreen:(NSNotification*)notification
+{
+    [self dismissMoviePlayerViewControllerAnimated];
 }
 
 - (void) viewWillDisappear:(BOOL)animated
@@ -382,6 +405,7 @@ static transition transitions[] =
 - (void)startSensorFusion
 {
     LOGME
+    [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
     [[sensorDelegate getVideoProvider] setDelegate:nil];
     [SENSOR_FUSION startSensorFusionWithDevice:[sensorDelegate getVideoDevice]];
 }
@@ -391,6 +415,7 @@ static transition transitions[] =
     LOGME
     [SENSOR_FUSION stopSensorFusion];
     [[sensorDelegate getVideoProvider] setDelegate:self.arView.videoView];
+    [[UIApplication sharedApplication] setIdleTimerDisabled:NO];
 }
 
 #pragma mark - RCSensorFusionDelegate

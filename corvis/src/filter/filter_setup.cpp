@@ -54,6 +54,11 @@ RCSensorFusionErrorCode filter_setup::get_error()
         errorCode = RCSensorFusionErrorCodeVision;
 
     RCSensorFusionRunState state = sfm.run_state;
+    if(errorCode == RCSensorFusionErrorCodeVision && state != RCSensorFusionRunStateRunning)
+    {
+        sfm.detector_failed = false; //Clear to avoid repeating error before we try detection again
+    }
+
     if(errorCode == RCSensorFusionErrorCodeTooFast || errorCode == RCSensorFusionErrorCodeOther) {
         // Do a full filter reset
         filter_initialize(&sfm, device);
@@ -61,7 +66,9 @@ RCSensorFusionErrorCode filter_setup::get_error()
         {
             case RCSensorFusionRunStateInactive:
                 //This should never happen.
+#ifdef DEBUG
                 assert(0);
+#endif
             case RCSensorFusionRunStateRunning:
                 //OK, just stop and report it to the user.
                 break;

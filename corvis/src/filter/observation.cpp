@@ -562,7 +562,7 @@ void observation_accelerometer::project_covariance(matrix &dst, const matrix &sr
         for(int j = 0; j < dst.cols; ++j) {
             v4 cov_a_bias = state.a_bias.copy_cov_from_row(src, j);
             v4 cov_W = state.W.copy_cov_from_row(src, j);
-            v4 res = cov_a_bias + dya_dW * cov_W;
+            v4 res = state.estimate_bias ? cov_a_bias + dya_dW * cov_W : dya_dW * cov_W;
             for(int i = 0; i < 3; ++i) {
                 dst(i, j) = res[i];
             }

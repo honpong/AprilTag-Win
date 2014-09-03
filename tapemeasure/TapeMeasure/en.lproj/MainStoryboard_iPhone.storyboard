@@ -14,11 +14,11 @@
                         <viewControllerLayoutGuide type="bottom" id="Fsl-Iq-kiX"/>
                     </layoutGuides>
                     <view key="view" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="3" userLabel="RootView">
-                        <rect key="frame" x="0.0" y="64" width="320" height="504"/>
+                        <rect key="frame" x="0.0" y="64" width="320" height="460"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="PSc-p3-nSY" userLabel="Aug Reality View" customClass="TMAugmentedRealityView">
-                                <rect key="frame" x="0.0" y="88" width="320" height="416"/>
+                                <rect key="frame" x="0.0" y="44" width="320" height="416"/>
                                 <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="416" id="Zbf-Xk-Z5E"/>
@@ -50,14 +50,14 @@
                                 </constraints>
                             </view>
                             <imageView hidden="YES" userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fNx-Aq-2l9" userLabel="DistanceBackground" customClass="TM2DTapeView">
-                                <rect key="frame" x="0.0" y="424" width="320" height="80"/>
+                                <rect key="frame" x="0.0" y="380" width="320" height="80"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="320" id="ON5-nM-DC2"/>
                                     <constraint firstAttribute="height" constant="80" id="ufT-vc-KFz"/>
                                 </constraints>
                             </imageView>
                             <label hidden="YES" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hdQ-u4-3uc" userLabel="DistanceLabel" customClass="RCDistanceLabel">
-                                <rect key="frame" x="0.0" y="202" width="320" height="100"/>
+                                <rect key="frame" x="0.0" y="180" width="320" height="100"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="100" id="8a3-k2-B2P"/>
                                     <constraint firstAttribute="width" constant="320" id="jUn-PO-y7S"/>
@@ -211,7 +211,7 @@
                                                         <action selector="handleUnitsControl:" destination="af5-ix-ohl" eventType="valueChanged" id="X2V-5p-J8r"/>
                                                     </connections>
                                                 </segmentedControl>
-                                                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" misplaced="YES" text="Default Units" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="AxK-1d-ppU">
+                                                <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Default Units" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="AxK-1d-ppU">
                                                     <rect key="frame" x="20" y="11" width="110" height="21"/>
                                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                                     <fontDescription key="fontDescription" type="system" pointSize="17"/>
@@ -220,10 +220,11 @@
                                                 </label>
                                             </subviews>
                                             <constraints>
-                                                <constraint firstItem="AxK-1d-ppU" firstAttribute="leading" secondItem="5eM-d3-J3T" secondAttribute="leading" constant="20" id="8tF-1i-rWa"/>
+                                                <constraint firstItem="AxK-1d-ppU" firstAttribute="centerY" secondItem="5eM-d3-J3T" secondAttribute="centerY" id="15k-Cv-B7U"/>
                                                 <constraint firstAttribute="trailing" secondItem="zXC-2q-42O" secondAttribute="trailing" constant="20" id="GrC-hi-ChX"/>
-                                                <constraint firstAttribute="centerY" secondItem="AxK-1d-ppU" secondAttribute="centerY" id="aQN-Ij-qsE"/>
+                                                <constraint firstItem="zXC-2q-42O" firstAttribute="leading" secondItem="AxK-1d-ppU" secondAttribute="trailing" constant="8" symbolic="YES" id="pNq-td-RFI"/>
                                                 <constraint firstAttribute="centerY" secondItem="zXC-2q-42O" secondAttribute="centerY" id="qut-sO-Kve"/>
+                                                <constraint firstItem="AxK-1d-ppU" firstAttribute="leading" secondItem="5eM-d3-J3T" secondAttribute="leading" constant="20" symbolic="YES" id="tgU-o2-DNv"/>
                                             </constraints>
                                         </tableViewCellContentView>
                                     </tableViewCell>
@@ -1019,6 +1020,86 @@
             </objects>
             <point key="canvasLocation" x="333" y="111"/>
         </scene>
+        <!--Location Intro - LocationIntro-->
+        <scene sceneID="eeH-zp-02U">
+            <objects>
+                <viewController storyboardIdentifier="LocationIntro" title="LocationIntro" useStoryboardIdentifierAsRestorationIdentifier="YES" id="a5y-gc-Pjm" customClass="TMLocationIntro" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="fBA-n3-Vxg"/>
+                        <viewControllerLayoutGuide type="bottom" id="uRG-0h-SHD"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleAspectFit" id="wAc-Je-7cJ">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="golden_gate.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="cnN-7G-gTs">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            </imageView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="zTI-gw-tS8">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="200"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <subviews>
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" lineBreakMode="tailTruncation" numberOfLines="10" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="290" translatesAutoresizingMaskIntoConstraints="NO" id="K4f-TO-lA8">
+                                        <rect key="frame" x="20" y="15" width="290" height="122"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="122" id="5OG-KG-geh"/>
+                                        </constraints>
+                                        <string key="text">Welcome. When you tap Next, we will ask for permission to use your  current location. This is optional, but it makes your measurements more accurate by adjusting for differences in gravity across the earth.</string>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="200" id="6d5-db-Y8A"/>
+                                    <constraint firstItem="K4f-TO-lA8" firstAttribute="top" secondItem="zTI-gw-tS8" secondAttribute="top" constant="15" id="ZC4-kF-cTm"/>
+                                    <constraint firstAttribute="trailing" secondItem="K4f-TO-lA8" secondAttribute="trailing" constant="10" id="de5-yC-OW5"/>
+                                    <constraint firstItem="K4f-TO-lA8" firstAttribute="leading" secondItem="zTI-gw-tS8" secondAttribute="leading" constant="20" symbolic="YES" id="nEf-F9-S8N"/>
+                                </constraints>
+                            </view>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4he-LE-JfI">
+                                <rect key="frame" x="0.0" y="503" width="320" height="65"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.5" colorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="65" id="axb-Ab-EXa"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="boldSystem" pointSize="17"/>
+                                <state key="normal" title="Next">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="handleNextButton:" destination="a5y-gc-Pjm" eventType="touchUpInside" id="pJs-Kx-N2z"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="uRG-0h-SHD" firstAttribute="top" secondItem="4he-LE-JfI" secondAttribute="bottom" id="50j-JG-ahr"/>
+                            <constraint firstAttribute="trailing" secondItem="4he-LE-JfI" secondAttribute="trailing" id="8YZ-WK-6Yv"/>
+                            <constraint firstItem="4he-LE-JfI" firstAttribute="leading" secondItem="wAc-Je-7cJ" secondAttribute="leading" id="GDT-qu-8rh"/>
+                            <constraint firstItem="uRG-0h-SHD" firstAttribute="top" secondItem="cnN-7G-gTs" secondAttribute="bottom" id="Jpp-Dl-WQg"/>
+                            <constraint firstItem="cnN-7G-gTs" firstAttribute="top" secondItem="fBA-n3-Vxg" secondAttribute="bottom" id="UAu-fX-Ro3"/>
+                            <constraint firstItem="zTI-gw-tS8" firstAttribute="leading" secondItem="wAc-Je-7cJ" secondAttribute="leading" id="aD0-sg-4bB"/>
+                            <constraint firstItem="zTI-gw-tS8" firstAttribute="top" secondItem="fBA-n3-Vxg" secondAttribute="bottom" id="l5p-zI-ZFo"/>
+                            <constraint firstAttribute="trailing" secondItem="zTI-gw-tS8" secondAttribute="trailing" id="ofl-Uh-Hzk"/>
+                            <constraint firstItem="cnN-7G-gTs" firstAttribute="leading" secondItem="wAc-Je-7cJ" secondAttribute="leading" id="u0i-YQ-kzf"/>
+                            <constraint firstAttribute="trailing" secondItem="cnN-7G-gTs" secondAttribute="trailing" id="zh6-LN-Wkq"/>
+                        </constraints>
+                    </view>
+                    <nil key="simulatedStatusBarMetrics"/>
+                    <connections>
+                        <outlet property="introLabel" destination="K4f-TO-lA8" id="aJI-h7-RGx"/>
+                        <outlet property="nextButton" destination="4he-LE-JfI" id="dJy-DJ-7l5"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="CtC-Di-KJf" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-546" y="-573"/>
+        </scene>
         <!--Navigation Controller-->
         <scene sceneID="dH2-m9-eE9">
             <objects>
@@ -1282,6 +1363,7 @@
         <image name="Menu Icon" width="17" height="17"/>
         <image name="Pin.png" width="32" height="39"/>
         <image name="TotalPath.png" width="120" height="120"/>
+        <image name="golden_gate.jpg" width="1955" height="3202"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
@@ -1289,10 +1371,10 @@
         <simulatedScreenMetrics key="destination" type="retina4"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
+        <segue reference="OMX-af-ZGK"/>
         <segue reference="lFM-Gm-EBj"/>
-        <segue reference="s4S-GM-rQx"/>
         <segue reference="Njf-k6-UUz"/>
-        <segue reference="Q9q-au-hTw"/>
         <segue reference="HxR-ps-kMf"/>
+        <segue reference="Q9q-au-hTw"/>
     </inferredMetricsTieBreakers>
 </document>

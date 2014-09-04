@@ -182,7 +182,106 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
 
 }
 
-rcMeasurements.draw_note = function (n) {
+rcMeasurements.new_note = function (iX, iY, svg_target) {
+    var n = {};
+    n.x = iX;
+    n.y = iY;
+    n.guid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);});
+    n.text = ''
+    
+    rcMeasurements.draw_note(n, svg_target);
+    n.input.focus()
+}
+
+rcMeasurements.saveable_note = function (n) {
+    return {  x:n.x, y:n.y, guid:n.guid, note:n.text }
+}
+
+
+rcMeasurements.draw_note = function (n, svg_target) {
+    //This allows a note to be saved. it is necessary to call this as part of draw, because
+	//a note will not have this function when it is deserialized.
+    n.saveable_copy = rcMeasurements.saveable_note(n)
+    
+    
+    
+    n.input = document.createElement("input");
+    n.input.name = "note-" + n.guid;
+    n.input.value = n.text;
+    n.input.style.display = 'none';
+    
+    if (n.text == '') {n.text = ' ';}
+    n.text_display = svg_target.text(n.text).move(n.x, n.y);
+    
+    $(n.input.name).on( 'input', function(e){
+                       console.log('text chagne');
+                       n.text_display.text(n.iput.value); //set the value of the svg text displayed to the value in the hidden text box
+                       } );
+    
+    n.text_display.click (function (e) {
+                            n.input.focus();
+                            e.stopPropagation(); e.preventDefault();
+                            });
+    
+    //draging text box
+    Hammer(n.text_display.node).on("drag", function(e) {
+                                     e.stopPropagation(); e.preventDefault();
+                                     }).on("dragend", function(e) {
+                                           e.stopPropagation(); e.preventDefault();
+                                           });
+    
+    rcMeasurements.notes[n.guid] = n;
+    
+}
+
+
+rcMeasurements.draw_note_old = function (n, svg_target) {
+    console.log('drawing note');
+    //This allows a note to be saved. it is necessary to call this as part of draw, because
+	//a note will not have this function when it is deserialized.
+    n.saveable_copy = rcMeasurements.saveable_note(n)
+    
+    
+    
+    n.input = document.createElement("input");
+    n.input.name = "note-" + n.guid;
+    n.input.value = n.text;
+    n.input.style.background = 'transparent';
+    n.input.style['boarder-color'] = 'transparent';
+    n.input.style.boarder = '0px';
+    n.input.style.color = line_color;
+    n.input.style.width = '150px';
+    n.input.style.height = '29px';
+    n.input.style.font_family = rcMeasurements.font_family;
+    n.input.style['font-size'] = '20px';
+    //create hiden text box for entry on devices with keyboards
+    n.text_input_box = svg_target.foreignObject( 150, 29).move(n.x, n.y);
+    n.text_input_box.appendChild(n.input);
+    //measured_svg.node.removeChild(m.text_input_box.node); //hide the input box after adding it
+    
+    $(n.input.name).on( 'input', function(e){
+               console.log('text chagne');
+               } );
+    
+    n.text_input_box.click (function (e) {
+                                 n.input.focus();
+                   console.log('stopping propegation');
+                    e.stopPropagation(); e.preventDefault();
+                   });
+    
+    //draging text boz
+    Hammer(n.text_input_box.node).on("drag", function(e) {
+                                     n.x
+                                     e.stopPropagation(); e.preventDefault();
+                                     }).on("dragend", function(e) {
+                                           e.stopPropagation(); e.preventDefault();
+                                           });
+    
+    rcMeasurements.notes[n.guid] = n;
+
+}
+
+rcMeasurements.redraw_note = function (n) {
 
 }
 
@@ -392,16 +491,19 @@ rcMeasurements.apply_json_data = function (data) {
     }
     if ('measurements' in data) { rcMeasurements.measurements = data.measurements; } else {rcMeasurements.measurements = {};}
     if ('angles' in data) { rcMeasurements.angles = data.angles; } else {rcMeasurements.angles = {};}
-    if ('notes' in data) { rcMeasurements.notes = data.measurements; } else {rcMeasurements.notes = {};}
+    if ('notes' in data) { rcMeasurements.notes = data.notes; } else {rcMeasurements.notes = {};}
     //for each measurement, draw measurement
     for (var key in rcMeasurements.measurements) {
-        rcMeasurements.draw_measurement(rcMeasurements.measurements[key], measured_svg);
+        try {rcMeasurements.draw_measurement(rcMeasurements.measurements[key], measured_svg);}
+        catch(err) {console.log(JSON.stringify(err)); delete rcMeasurements.measurements[key];}
     }
     for (var key in rcMeasurements.agles) {
-        rcMeasurements.draw_angle(rcMeasurements.angles[key], measured_svg);
+        try {rcMeasurements.draw_agles(rcMeasurements.agles[key], measured_svg);}
+        catch(err) {console.log(JSON.stringify(err)); delete rcMeasurements.agles[key];}
     }
     for (var key in rcMeasurements.notes) {
-        rcMeasurements.draw_note(rcMeasurements.notes[key], measured_svg);
+        try {rcMeasurements.draw_notes(rcMeasurements.notes[key], measured_svg);}
+        catch(err) {console.log(JSON.stringify(err)); delete rcMeasurements.notes[key];}
     }
 }
 

@@ -172,7 +172,7 @@ function rc_initialize(){
     
     function text_entry_handler (i) {
         //create a new text box at this location
-        rcMeasurements.new_note(i.x, i.y, measured_svg);
+        //rcMeasurements.new_note(i.x, i.y, measured_svg);
     }
     
     function eraser_handler (e) {
@@ -197,6 +197,8 @@ function rc_initialize(){
         if (draw.node.contains(image.node)) {
             draw_g.node.insertBefore(dm_svg.node,image.node);
             draw_g.node.removeChild(image.node);
+            //start depthmap calculation if not yet done.
+            if (!dm_drawn) {fill_depth_map();}
         }
         //remove depthmap from dom tree put image in its place
         else if(draw.node.contains(dm_svg.node)){

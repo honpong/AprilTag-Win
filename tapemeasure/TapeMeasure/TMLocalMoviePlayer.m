@@ -18,7 +18,7 @@
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
-        // Custom initialization
+        
     }
     return self;
 }
@@ -26,24 +26,91 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
+    
+    NSURL *movieURL = [[NSBundle mainBundle] URLForResource:@"EndlessTapeMeasure" withExtension:@"mp4"];
+    
+    _moviePlayer =  [[MPMoviePlayerController alloc] initWithContentURL:movieURL];
+    self.moviePlayer.controlStyle = MPMovieControlStyleNone;
+    self.moviePlayer.shouldAutoplay = NO;
+    [self.view addSubview:self.moviePlayer.view];
+    [self.view bringSubviewToFront:self.moviePlayer.view];
+    
+    // eliminates flash when we start playing the video
+    [self.moviePlayer setFullscreen:YES animated:NO];
+    [self.moviePlayer setFullscreen:NO animated:NO];
 }
 
-- (void)didReceiveMemoryWarning
+- (BOOL) prefersStatusBarHidden { return YES; }
+
+- (UIInterfaceOrientation) preferredInterfaceOrientationForPresentation
 {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+    return UIInterfaceOrientationLandscapeRight;
 }
 
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+- (void) playMovie
 {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(moviePlayBackDidFinish:)
+                                                 name:MPMoviePlayerPlaybackDidFinishNotification
+                                               object:_moviePlayer];
+    
+    
+    [self.moviePlayer setFullscreen:YES animated:NO];
+    [self.moviePlayer play];
 }
-*/
+
+- (void) moviePlayBackDidFinish:(NSNotification*)notification
+{
+    MPMoviePlayerController *player = [notification object];
+    
+    [[NSNotificationCenter defaultCenter]
+         removeObserver:self
+         name:MPMoviePlayerPlaybackDidFinishNotification
+         object:player];
+    
+    if ([player respondsToSelector:@selector(setFullscreen:animated:)])
+    {
+        [player setFullscreen:NO animated:NO];
+    }
+    
+    self.playButton.hidden = YES;
+    self.skipButton.hidden = YES;
+    self.messageLabel.hidden = YES;
+    
+    self.playAgainButton.hidden = NO;
+    self.continueButton.hidden = NO;
+}
+
+- (IBAction)handlePlayButton:(id)sender
+{
+    [self playMovie];
+}
+
+- (IBAction)handleSkipButton:(id)sender
+{
+    [self dismissSelf];
+}
+
+- (IBAction)handlePlayAgainButton:(id)sender
+{
+    [self playMovie];
+}
+
+- (IBAction)handleContinueButton:(id)sender
+{
+    [self dismissSelf];
+}
+
+- (void) dismissSelf
+{
+    if ([self.delegate respondsToSelector:@selector(moviePlayerDismissed)])
+    {
+        [self.delegate moviePlayerDismissed];
+    }
+    else if (self.presentingViewController)
+    {
+        [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+    }
+}
 
 @end

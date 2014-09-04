@@ -60,7 +60,7 @@
 //    [NSUserDefaults.standardUserDefaults setObject:@NO forKey:PREF_IS_CALIBRATED];
     [NSUserDefaults.standardUserDefaults setObject:@0 forKey:PREF_RATE_NAG_TIMESTAMP];
     [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_SHOW_RATE_NAG];
-    [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_SHOW_LOCATION_EXPLANATION];
+//    [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_SHOW_LOCATION_EXPLANATION];
     #endif
     
     [Flurry setSecureTransportEnabled:YES];
@@ -124,6 +124,20 @@
     self.window.rootViewController = vc;
 }
 
+- (void) gotoTutorialVideo
+{
+    TMLocalMoviePlayer* movieController = [navigationController.storyboard instantiateViewControllerWithIdentifier:@"Tutorial"];
+    movieController.delegate = self;
+    self.window.rootViewController = movieController;
+}
+
+#pragma mark - TMLocalMoviePlayerDelegate
+
+- (void) moviePlayerDismissed
+{
+    [self gotoMainViewController];
+}
+
 #pragma mark - TMLocationIntroDelegate
 
 - (void) nextButtonTapped
@@ -145,7 +159,16 @@
 {
     LOGME
     [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_IS_CALIBRATED];
-    [self gotoMainViewController];
+    
+    if ([[NSUserDefaults.standardUserDefaults objectForKey:PREF_IS_FIRST_LAUNCH] isEqual: @YES])
+    {
+        [NSUserDefaults.standardUserDefaults setObject:@NO forKey:PREF_IS_FIRST_LAUNCH];
+        [self gotoTutorialVideo];
+    }
+    else
+    {
+        [self gotoMainViewController];
+    }
 }
 
 - (void) calibrationDidFail:(NSError *)error

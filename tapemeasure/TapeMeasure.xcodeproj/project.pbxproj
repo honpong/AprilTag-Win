@@ -76,6 +76,7 @@
 		32A0966116D6E8EF001C4D18 /* TMCreateAccountVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A0966016D6E8EF001C4D18 /* TMCreateAccountVC.m */; };
 		32A326A516B0985100F801DE /* TMMeasurement+TMMeasurementExt.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A326A416B0985100F801DE /* TMMeasurement+TMMeasurementExt.m */; };
 		32A3F44D16AA126F0055BDD3 /* TMDataManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A3F44C16AA126F0055BDD3 /* TMDataManagerFactory.m */; };
+		32AB3B1D19B7B86700C9BAF0 /* tutorial_screenshot.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32AB3B1C19B7B86700C9BAF0 /* tutorial_screenshot.jpg */; };
 		32B3252016EA49E00069DE63 /* TMLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B3251F16EA49E00069DE63 /* TMLocation.m */; };
 		32B3252316EA49F70069DE63 /* TMSyncable.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B3252216EA49F70069DE63 /* TMSyncable.m */; };
 		32B3252D16EA86420069DE63 /* TMLiveServerTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 32B3252C16EA86420069DE63 /* TMLiveServerTests.mm */; };
@@ -475,6 +476,7 @@
 		32A326A416B0985100F801DE /* TMMeasurement+TMMeasurementExt.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "TMMeasurement+TMMeasurementExt.m"; sourceTree = "<group>"; };
 		32A3F44B16AA126F0055BDD3 /* TMDataManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMDataManagerFactory.h; sourceTree = "<group>"; };
 		32A3F44C16AA126F0055BDD3 /* TMDataManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMDataManagerFactory.m; sourceTree = "<group>"; };
+		32AB3B1C19B7B86700C9BAF0 /* tutorial_screenshot.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = tutorial_screenshot.jpg; sourceTree = "<group>"; };
 		32B3251E16EA49E00069DE63 /* TMLocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMLocation.h; sourceTree = "<group>"; };
 		32B3251F16EA49E00069DE63 /* TMLocation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMLocation.m; sourceTree = "<group>"; };
 		32B3252116EA49F70069DE63 /* TMSyncable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMSyncable.h; sourceTree = "<group>"; };
@@ -1035,8 +1037,7 @@
 		3280F7E9161BBB3200B5C8A8 /* TapeMeasure */ = {
 			isa = PBXGroup;
 			children = (
-				32C210BF19B63433007FF050 /* golden_gate.jpg */,
-				320F9F8619A6A65000CF43B6 /* EndlessTapeMeasure.mp4 */,
+				32AB3B1F19B7B87000C9BAF0 /* Media */,
 				32D2B6D918EA163000B72F05 /* Calibration */,
 				32BA42FB17A2E5A9002BAE13 /* Shaders */,
 				32C45D9616DC22AB00FE7247 /* ThirdParty */,
@@ -1077,6 +1078,16 @@
 				329B38DF1626409D0021B41E /* RCCoreTests.octest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		32AB3B1F19B7B87000C9BAF0 /* Media */ = {
+			isa = PBXGroup;
+			children = (
+				32AB3B1C19B7B86700C9BAF0 /* tutorial_screenshot.jpg */,
+				32C210BF19B63433007FF050 /* golden_gate.jpg */,
+				320F9F8619A6A65000CF43B6 /* EndlessTapeMeasure.mp4 */,
+			);
+			name = Media;
 			sourceTree = "<group>";
 		};
 		32B6865E16C9717D00A907A6 /* Models */ = {
@@ -1916,6 +1927,7 @@
 				32E687A818F617160043D50A /* Pocket-Icon-60@2x.png in Resources */,
 				32E6879B18F617160043D50A /* osk-safariIcon-60@2x.png in Resources */,
 				32E6876718F617160043D50A /* osk-appStoreIcon-76@2x.png in Resources */,
+				32AB3B1D19B7B86700C9BAF0 /* tutorial_screenshot.jpg in Resources */,
 				32E6875118F617160043D50A /* GooglePlus-Icon-76.png in Resources */,
 				32E6874918F617160043D50A /* Drafts-Icon-29@2x.png in Resources */,
 				32E6879D18F617160043D50A /* osk-safariIcon-76@2x.png in Resources */,

@@ -113,13 +113,8 @@
 
 - (void) gotoTutorialVideo
 {
-    NSURL *movieURL = [[NSBundle mainBundle] URLForResource:@"EndlessTapeMeasure" withExtension:@"mp4"];
-    TMLocalMoviePlayer* movieViewController = [[TMLocalMoviePlayer alloc] initWithContentURL:movieURL];
-    movieViewController.modalPresentationStyle = UIModalPresentationFullScreen;
-    [self presentMoviePlayerViewControllerAnimated:movieViewController];
-    
-    [[NSNotificationCenter defaultCenter] removeObserver:movieViewController  name:MPMoviePlayerPlaybackDidFinishNotification object:movieViewController.moviePlayer]; // needed to receive the notification below
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(moviePlayerWillExitFullScreen:) name:MPMoviePlayerPlaybackDidFinishNotification object:nil];
+    TMLocalMoviePlayer* movieViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"Tutorial"];
+    [self presentViewController:movieViewController animated:YES completion:nil];
 }
 
 - (void) moviePlayerWillExitFullScreen:(NSNotification*)notification

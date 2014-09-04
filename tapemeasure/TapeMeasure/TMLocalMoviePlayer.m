@@ -38,13 +38,23 @@
     // eliminates flash when we start playing the video
     [self.moviePlayer setFullscreen:YES animated:NO];
     [self.moviePlayer setFullscreen:NO animated:NO];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handlePause)
+                                                 name:UIApplicationWillResignActiveNotification
+                                               object:nil];
 }
 
 - (BOOL) prefersStatusBarHidden { return YES; }
 
-- (UIInterfaceOrientation) preferredInterfaceOrientationForPresentation
+//- (UIInterfaceOrientation) preferredInterfaceOrientationForPresentation
+//{
+//    return UIInterfaceOrientationLandscapeRight;
+//}
+
+- (void) handlePause
 {
-    return UIInterfaceOrientationLandscapeRight;
+    [self stopMovie];
 }
 
 - (void) playMovie
@@ -56,7 +66,20 @@
     
     
     [self.moviePlayer setFullscreen:YES animated:NO];
+    [self.moviePlayer setCurrentPlaybackTime:0];
     [self.moviePlayer play];
+}
+
+- (void) stopMovie
+{
+    [self.moviePlayer setFullscreen:NO animated:NO];
+    
+    self.playButton.hidden = YES;
+    self.skipButton.hidden = YES;
+    self.messageLabel.hidden = YES;
+    
+    self.playAgainButton.hidden = NO;
+    self.continueButton.hidden = NO;
 }
 
 - (void) moviePlayBackDidFinish:(NSNotification*)notification
@@ -70,15 +93,8 @@
     
     if ([player respondsToSelector:@selector(setFullscreen:animated:)])
     {
-        [player setFullscreen:NO animated:NO];
+        [self stopMovie];
     }
-    
-    self.playButton.hidden = YES;
-    self.skipButton.hidden = YES;
-    self.messageLabel.hidden = YES;
-    
-    self.playAgainButton.hidden = NO;
-    self.continueButton.hidden = NO;
 }
 
 - (IBAction)handlePlayButton:(id)sender

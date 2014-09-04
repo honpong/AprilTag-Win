@@ -208,7 +208,7 @@
 - (void) locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
 {
     LOGME
-    if(!waitingForLocationAuthorization) return;
+    if(status == kCLAuthorizationStatusNotDetermined || !waitingForLocationAuthorization) return;
     if(status == kCLAuthorizationStatusAuthorized) [LOCATION_MANAGER startLocationUpdates];
     if(status == kCLAuthorizationStatusAuthorized || status == kCLAuthorizationStatusDenied || status == kCLAuthorizationStatusRestricted)
         [self gotoCalibration];

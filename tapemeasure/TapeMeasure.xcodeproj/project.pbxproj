@@ -38,6 +38,7 @@
 		32808D64170396E200BE7CBC /* TMViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32808D63170396E200BE7CBC /* TMViewController.m */; };
 		3280BB45191ABBC700338A38 /* TMShareSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 3280BB44191ABBC700338A38 /* TMShareSheet.m */; };
 		3280BB48191AE86A00338A38 /* libFlurry_5.0.0.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280BB47191AE86A00338A38 /* libFlurry_5.0.0.a */; };
+		3280EC4619B8F9730097AAF9 /* TMIntroScreen.m in Sources */ = {isa = PBXBuildFile; fileRef = 3280EC4519B8F9730097AAF9 /* TMIntroScreen.m */; };
 		3280F7E4161BBB3200B5C8A8 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E3161BBB3200B5C8A8 /* UIKit.framework */; };
 		3280F7E6161BBB3200B5C8A8 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E5161BBB3200B5C8A8 /* Foundation.framework */; };
 		3280F7E8161BBB3200B5C8A8 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E7161BBB3200B5C8A8 /* CoreGraphics.framework */; };
@@ -418,6 +419,8 @@
 		3280BB43191ABBC700338A38 /* TMShareSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMShareSheet.h; sourceTree = "<group>"; };
 		3280BB44191ABBC700338A38 /* TMShareSheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMShareSheet.m; sourceTree = "<group>"; };
 		3280BB47191AE86A00338A38 /* libFlurry_5.0.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libFlurry_5.0.0.a; path = Flurry/libFlurry_5.0.0.a; sourceTree = "<group>"; };
+		3280EC4419B8F9730097AAF9 /* TMIntroScreen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMIntroScreen.h; sourceTree = "<group>"; };
+		3280EC4519B8F9730097AAF9 /* TMIntroScreen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMIntroScreen.m; sourceTree = "<group>"; };
 		3280F7DF161BBB3200B5C8A8 /* Tape Measure.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Tape Measure.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3280F7E3161BBB3200B5C8A8 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		3280F7E5161BBB3200B5C8A8 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -1153,6 +1156,8 @@
 				320F9F8C19A6A8C300CF43B6 /* TMLocalMoviePlayer.m */,
 				32E50DBA19AFDBC40048D069 /* TMLocationIntro.h */,
 				32E50DBB19AFDBC40048D069 /* TMLocationIntro.m */,
+				3280EC4419B8F9730097AAF9 /* TMIntroScreen.h */,
+				3280EC4519B8F9730097AAF9 /* TMIntroScreen.m */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -2008,6 +2013,7 @@
 				32E50DBC19AFDBC40048D069 /* TMLocationIntro.m in Sources */,
 				32E6880718F617170043D50A /* OSKShareableContent.m in Sources */,
 				32E687E018F617160043D50A /* OSKFacebookActivity.m in Sources */,
+				3280EC4619B8F9730097AAF9 /* TMIntroScreen.m in Sources */,
 				32E687FD18F617170043D50A /* OSKReadabilityActivity.m in Sources */,
 				32E6881118F617170043D50A /* OSKTwitterTextEntity.m in Sources */,
 				3280F7F4161BBB3200B5C8A8 /* TMAppDelegate.m in Sources */,

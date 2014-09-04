@@ -11,10 +11,10 @@
 #import "TMMeasurement.h"
 #import "TMMeasurement+TMMeasurementExt.h"
 #import "Flurry.h"
-#import "TMLocationIntro.h"
+#import "TMIntroScreen.h"
 #import "TMLocalMoviePlayer.h"
 
-@interface TMAppDelegate : UIResponder <UIApplicationDelegate, CLLocationManagerDelegate, TMLocationIntroDelegate, TMLocalMoviePlayerDelegate>
+@interface TMAppDelegate : UIResponder <UIApplicationDelegate, CLLocationManagerDelegate, TMLocalMoviePlayerDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
 

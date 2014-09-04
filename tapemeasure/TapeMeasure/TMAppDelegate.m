@@ -81,16 +81,15 @@
     
     navigationController = (UINavigationController*)self.window.rootViewController;
     
-    mySensorDelegate = [SensorDelegate sharedInstance];
+    mySensorDelegate = SENSOR_DELEGATE;
     
     BOOL calibratedFlag = [NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_CALIBRATED];
     BOOL hasCalibration = [SENSOR_FUSION hasCalibrationData];
     
-    if([NSUserDefaults.standardUserDefaults boolForKey:PREF_SHOW_LOCATION_EXPLANATION])
+    if([NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_FIRST_LAUNCH])
     {
-        waitingForLocationAuthorization = true;
-        [NSUserDefaults.standardUserDefaults setObject:@NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
-        [self gotoLocationIntro];
+        [NSUserDefaults.standardUserDefaults setObject:@NO forKey:PREF_IS_FIRST_LAUNCH];
+        [self gotoIntroScreen];
     }
     else
     {
@@ -128,10 +127,11 @@
     self.window.rootViewController = calibration1;
 }
 
-- (void) gotoLocationIntro
+- (void) gotoIntroScreen
 {
-    TMLocationIntro* vc = (TMLocationIntro*)[navigationController.storyboard instantiateViewControllerWithIdentifier:@"LocationIntro"];
-    vc.delegate = self;
+    TMIntroScreen* vc = (TMIntroScreen*)[navigationController.storyboard instantiateViewControllerWithIdentifier:@"IntroScreen"];
+    vc.calibrationDelegate = self;
+    vc.sensorDelegate = mySensorDelegate;
     self.window.rootViewController = vc;
 }
 

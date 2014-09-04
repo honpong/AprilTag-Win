@@ -25,12 +25,12 @@ int state_node::maxstatesize;
 
 const static uint64_t min_steady_time = 100000; //time held steady before we start treating it as steady
 const static uint64_t steady_converge_time = 2000000; //time that user needs to hold steady (us)
-const static int static_converge_samples = 500; //number of accelerometer readings needed to converge in static cal mode
+const static int static_converge_samples = 200; //number of accelerometer readings needed to converge in static cal mode
 const static f_t accelerometer_steady_var = .15*.15; //variance when held steady, based on std dev measurement of iphone 5s held in hand
 const static f_t velocity_steady_var = .1 * .1; //initial var of state.V when steady
 const static f_t accelerometer_inertial_var = 2.33*2.33; //variance when in inertial only mode
 const static f_t static_sigma = 6.; //how close to mean measurements in static mode need to be
-const static f_t steady_sigma = 3.; //how close to mean measurements in steady mode need to be - lower because it is handheld motion, not gaussian noise
+const static f_t steady_sigma = 6.; //how close to mean measurements in steady mode need to be - lower because it is handheld motion, not gaussian noise
 const static f_t dynamic_W_thresh_variance = 5.e-2; // variance of W must be less than this to initialize from dynamic mode
 const static f_t min_a_bias_var = 1.e-4; // variance of a_bias must be less than this to finish calibration, and is reset to this between each run
 const static f_t min_w_bias_var = 1.e-6; // variance of w_bias must be less than this to finish calibration, and is reset to this between each run
@@ -250,7 +250,9 @@ uint64_t steady_time(struct filter *f, stdev_vector &stdev, v4 meas, f_t varianc
 {
     bool steady = false;
     if(stdev.count) {
+        //hysteresis - tighter tolerance for getting into calibration, but looser for staying in
         f_t sigma2 = sigma * sigma;
+        if(time - f->stable_start < min_steady_time) sigma2 *= .5*.5;
         steady = true;
         for(int i = 0; i < 3; ++i) {
             f_t delta = meas[i] - stdev.mean[i];
@@ -269,7 +271,7 @@ uint64_t steady_time(struct filter *f, stdev_vector &stdev, v4 meas, f_t varianc
         //portrait -> (0, 1, 0)
         //landscape -> (1, 0, 0)
         f_t costheta = sum(orientation * local_up);
-        if(fabs(costheta) < .99) return 0; //don't start since we aren't in orientation +/- 8 deg (cos(45 deg) would be .71)
+        if(fabs(costheta) < .995) return 0; //don't start since we aren't in orientation +/- 6 deg
     }
     stdev.data(meas);
     

@@ -151,6 +151,11 @@
     if ([self.delegate respondsToSelector:@selector(locationManager:didUpdateHeading:)]) [self.delegate locationManager:manager didUpdateHeading:newHeading];
 }
 
+- (void) locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
+{
+    if ([self.delegate respondsToSelector:@selector(locationManager:didChangeAuthorizationStatus:)]) [self.delegate locationManager:manager didChangeAuthorizationStatus:status];
+}
+
 - (void) locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
 {
     LOGME

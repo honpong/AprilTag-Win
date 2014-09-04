@@ -27,6 +27,16 @@
 {
     UINavigationController* navigationController;
     id<RCSensorDelegate> mySensorDelegate;
+    bool waitingForLocationAuthorization;
+}
+
+-(id)init
+{
+    if(self = [super init])
+    {
+        waitingForLocationAuthorization = false;
+    }
+    return self;
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -78,6 +88,7 @@
     
     if([NSUserDefaults.standardUserDefaults boolForKey:PREF_SHOW_LOCATION_EXPLANATION])
     {
+        waitingForLocationAuthorization = true;
         [NSUserDefaults.standardUserDefaults setObject:@NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
         [self gotoLocationIntro];
     }
@@ -147,10 +158,12 @@
     if([LOCATION_MANAGER shouldAttemptLocationAuthorization])
     {
         LOCATION_MANAGER.delegate = self;
-        [LOCATION_MANAGER startLocationUpdates]; // will show dialog asking user to authorize location
+        [LOCATION_MANAGER startLocationUpdates]; // will show dialog asking user to authorize location. gotoCalibration triggered by didChangeAuthorizationStatus delegate function
     }
-    
-    [self gotoCalibration];
+    else
+    {
+        [self gotoCalibration];
+    }
 }
 
 #pragma mark - RCCalibrationDelegate methods
@@ -192,6 +205,16 @@
     DLog(@"MEMORY WARNING");
 }
 
+- (void) locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
+{
+    LOGME
+    if(!waitingForLocationAuthorization) return;
+    if(status == kCLAuthorizationStatusAuthorized) [LOCATION_MANAGER startLocationUpdates];
+    if(status == kCLAuthorizationStatusAuthorized || status == kCLAuthorizationStatusDenied || status == kCLAuthorizationStatusRestricted)
+        [self gotoCalibration];
+    waitingForLocationAuthorization = false;
+}
+
 - (void) locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
     LOGME
@@ -201,7 +224,7 @@
         [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_ADD_LOCATION]; // set location pref to yes
     }
     
-    LOCATION_MANAGER.delegate = nil;
+    //LOCATION_MANAGER.delegate = nil;
     [SENSOR_FUSION setLocation:[LOCATION_MANAGER getStoredLocation]];
 }
 

@@ -9,9 +9,9 @@
 #import "RCDebugLog.h"
 
 /** This implements two different methods of capturing data from CoreMotion - polling or updates to a queue. Experimentally, as of iOS 6, capturing updates to a queue consumes signficantly more CPU than polling.
- 
+    Update: As of iOS 7/8, this difference is much less, but still surprisingly large (roughly 6% of cpu for queue, 3% for polling)
  */
-#define POLL
+//#define POLL
 //#define DEBUG_TIMER
 
 @implementation RCMotionManager
@@ -69,11 +69,12 @@
 
     if (!isCapturing)
     {
-        //Timer interval of .011 determined experimentally using DEBUG_TIMER - setting it to .01 makes the gyro rate drop dramatically
-        [cmMotionManager setAccelerometerUpdateInterval:.011];
-        [cmMotionManager setGyroUpdateInterval:.011];
+        //Previously setting it to .01 made the gyro rate drop dramatically; appears to have been fixed
+        //Previous timer interval of .011 determined experimentally using DEBUG_TIMER
+        [cmMotionManager setAccelerometerUpdateInterval:.01];
+        [cmMotionManager setGyroUpdateInterval:.01];
 #ifdef POLL
-        isCapturing = [self startMotionCaptureWithTimer:[NSTimer scheduledTimerWithTimeInterval:.011 target:self selector:@selector(timerCallback:) userInfo:nil repeats:true]];
+        isCapturing = [self startMotionCaptureWithTimer:[NSTimer scheduledTimerWithTimeInterval:.01 target:self selector:@selector(timerCallback:) userInfo:nil repeats:true]];
 #else
         isCapturing = [self startMotionCapWithQueue:[NSOperationQueue new]];
 #endif
@@ -98,8 +99,10 @@
 - (void)timerCallback:(id)userInfo
 {
     RCSensorFusion* sensorFusion = [RCSensorFusion sharedInstance];
+    NSTimeInterval now = [[NSProcessInfo processInfo] systemUptime];
     CMGyroData *gyroData = cmMotionManager.gyroData;
-    if(gyroData && gyroData.timestamp != lastGyro)
+    double delta = now - gyroData.timestamp; //make sure the data is not too stale
+    if(gyroData && gyroData.timestamp != lastGyro && delta < .04)
     {
         [sensorFusion receiveGyroData:gyroData];
         lastGyro = gyroData.timestamp;
@@ -109,7 +112,8 @@
 #endif
     }
     CMAccelerometerData *accelerometerData = cmMotionManager.accelerometerData;
-    if(accelerometerData && accelerometerData.timestamp != lastAccelerometer)
+    delta = now - gyroData.timestamp; //make sure the data is not too stale
+    if(accelerometerData && accelerometerData.timestamp != lastAccelerometer && delta < .04)
     {
         [sensorFusion receiveAccelerometerData:accelerometerData];
         lastAccelerometer = accelerometerData.timestamp;

@@ -39,6 +39,7 @@ public:
     virtual int remap_static(int i, covariance &cov) = 0;
     virtual void reset() = 0;
     virtual void remove() = 0;
+    virtual void print() = 0;
 };
 
 template<class T> class state_branch: public state_node {
@@ -95,6 +96,13 @@ public:
         n->remove();
     }
     
+    virtual void print()
+    {
+        for(iterator j = children.begin(); j != children.end(); ++j) {
+            (*j)->print();
+        }
+    }
+    
     list<T> children;
 };
 
@@ -118,6 +126,12 @@ public:
         }
 #endif
         return statesize;
+    }
+    
+    virtual void print()
+    {
+        fprintf(stderr, "State dump:\n");
+        state_branch::print();
     }
     
     virtual void reset() {
@@ -160,11 +174,13 @@ protected:
 
 template <class T, int _size> class state_leaf: public state_node {
  public:
-    state_leaf(): index(-1), size(_size) {}
+    state_leaf(const char *_name): index(-1), size(_size), name(_name) {}
 
     T v;
     
     covariance *cov;
+    
+    const char *name;
     
     void set_process_noise(f_t x)
     {
@@ -247,7 +263,7 @@ protected:
 
 class state_vector: public state_leaf<v4, 3> {
  public:
-    state_vector() { reset(); }
+    state_vector(const char *_name): state_leaf(_name) { reset(); }
 
     using state_leaf::set_initial_variance;
     
@@ -308,11 +324,16 @@ class state_vector: public state_leaf<v4, 3> {
         v[1] = state[index+1];
         v[2] = state[index+2];
     }
+    
+    virtual void print()
+    {
+        fprintf(stderr, "%s: ", name); v.print(); variance().print(); fprintf(stderr, "(vector)\n");
+    }
 };
 
 class state_rotation_vector: public state_leaf<rotation_vector, 3> {
 public:
-    state_rotation_vector() { reset(); }
+    state_rotation_vector(const char *_name): state_leaf(_name) { reset(); }
 
     void saturate()
     {
@@ -382,6 +403,11 @@ public:
         v.y() = state[index+1];
         if(!saturated) v.z() = state[index+2];
     }
+    
+    virtual void print()
+    {
+        fprintf(stderr, "%s: ", name); v.raw_vector().print(); variance().print(); fprintf(stderr, "(rot vec)\n");
+    }
 
 protected:
     bool saturated;
@@ -390,7 +416,7 @@ protected:
 class state_quaternion: public state_leaf<quaternion, 4>
 {
 public:
-    state_quaternion() { reset(); }
+    state_quaternion(const char *_name): state_leaf(_name) { reset(); }
     
     void saturate()
     {
@@ -467,6 +493,12 @@ public:
         normalize();
     }
     
+    virtual void print()
+    {
+        v4 data(v.w(), v.x(), v.y(), v.z());
+        fprintf(stderr, "%s: ", name); data.print(); variance().print(); fprintf(stderr, "(quaternion)\n");
+    }
+    
     void normalize()
     {
         if(index < 0) return;
@@ -511,7 +543,7 @@ protected:
 
 class state_scalar: public state_leaf<f_t, 1> {
  public:
-    state_scalar() { reset(); }
+    state_scalar(const char *_name): state_leaf(_name) { reset(); }
 
     f_t *raw_array() { return &v; }
 
@@ -554,6 +586,11 @@ class state_scalar: public state_leaf<f_t, 1> {
     
     virtual void copy_state_from_array(matrix &state) {
         v = state[index];
+    }
+    
+    virtual void print()
+    {
+        fprintf(stderr, "%s: %f %f (scalar)\n", name, v, variance());
     }
 };
 

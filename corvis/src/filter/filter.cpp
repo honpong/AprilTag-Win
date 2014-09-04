@@ -25,14 +25,15 @@ int state_node::maxstatesize;
 
 const static uint64_t min_steady_time = 100000; //time held steady before we start treating it as steady
 const static uint64_t steady_converge_time = 2000000; //time that user needs to hold steady (us)
-const static int static_converge_samples = 500; //number of accelerometer readings needed to converge in static cal mode
+const static int static_converge_samples = 200; //number of accelerometer readings needed to converge in static cal mode
 const static f_t accelerometer_steady_var = .15*.15; //variance when held steady, based on std dev measurement of iphone 5s held in hand
 const static f_t velocity_steady_var = .1 * .1; //initial var of state.V when steady
 const static f_t accelerometer_inertial_var = 2.33*2.33; //variance when in inertial only mode
 const static f_t static_sigma = 6.; //how close to mean measurements in static mode need to be
-const static f_t steady_sigma = 3.; //how close to mean measurements in steady mode need to be - lower because it is handheld motion, not gaussian noise
+const static f_t steady_sigma = 6.; //how close to mean measurements in steady mode need to be - lower because it is handheld motion, not gaussian noise
 const static f_t dynamic_W_thresh_variance = 5.e-2; // variance of W must be less than this to initialize from dynamic mode
-
+const static f_t min_a_bias_var = 1.e-4; // variance of a_bias must be less than this to finish calibration, and is reset to this between each run
+const static f_t min_w_bias_var = 1.e-6; // variance of w_bias must be less than this to finish calibration, and is reset to this between each run
 //TODO: homogeneous coordinates.
 
 /*
@@ -234,6 +235,7 @@ void update_static_calibration(struct filter *f)
     f->a_variance = (var[0] + var[1] + var[2]) / 3.;
     var = f->gyro_stability.variance;
     f->w_variance = (var[0] + var[1] + var[2]) / 3.;
+    //this updates even the one dof that can't converge in the filter for this orientation (since we were static)
     f->s.w_bias.v = f->gyro_stability.mean;
 }
 
@@ -248,7 +250,9 @@ uint64_t steady_time(struct filter *f, stdev_vector &stdev, v4 meas, f_t varianc
 {
     bool steady = false;
     if(stdev.count) {
-        f_t sigma2 = sigma * sigma; //4.5 sigma seems to be the right balance of not getting false positives while also capturing full stdev
+        //hysteresis - tighter tolerance for getting into calibration, but looser for staying in
+        f_t sigma2 = sigma * sigma;
+        if(time - f->stable_start < min_steady_time) sigma2 *= .5*.5;
         steady = true;
         for(int i = 0; i < 3; ++i) {
             f_t delta = meas[i] - stdev.mean[i];
@@ -267,7 +271,7 @@ uint64_t steady_time(struct filter *f, stdev_vector &stdev, v4 meas, f_t varianc
         //portrait -> (0, 1, 0)
         //landscape -> (1, 0, 0)
         f_t costheta = sum(orientation * local_up);
-        if(fabs(costheta) < .99) return 0; //don't start since we aren't in orientation +/- 8 deg (cos(45 deg) would be .71)
+        if(fabs(costheta) < .995) return 0; //don't start since we aren't in orientation +/- 6 deg
     }
     stdev.data(meas);
     
@@ -280,6 +284,28 @@ static void print_calibration(struct filter *f)
     fprintf(stderr, "w bias var is: "); f->s.w_bias.variance().print(); fprintf(stderr, "\n");
     fprintf(stderr, "a bias is: "); f->s.a_bias.v.print(); fprintf(stderr, "\n");
     fprintf(stderr, "a bias var is: "); f->s.a_bias.variance().print(); fprintf(stderr, "\n");
+}
+
+static float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
+{
+    return current < end ? 1. : (log(begin) - log(current)) / (log(begin) - log(end)); //log here seems to give smoother progress
+}
+
+static f_t get_bias_convergence(struct filter *f, int dir)
+{
+    int other1 = 1, other2 = 2;
+    if(dir == 0) { other1 = 1; other2 = 2; }
+    if(dir == 1) { other1 = 0; other2 = 2; }
+    if(dir == 2) { other1 = 0; other2 = 1; }
+    f_t pct;
+    f_t min_pct = var_bounds_to_std_percent(f->s.a_bias.variance()[dir], f->a_bias_start[dir], min_a_bias_var);
+    pct = var_bounds_to_std_percent(f->s.w_bias.variance()[other1], f->w_bias_start[other1], min_w_bias_var);
+    if(pct < min_pct) min_pct = pct;
+    pct = var_bounds_to_std_percent(f->s.w_bias.variance()[other2], f->w_bias_start[other2], min_w_bias_var);
+    if(pct < min_pct) min_pct = pct;
+    if(min_pct < 0.) min_pct = 0.;
+    if(min_pct > 1.) min_pct = 1.;
+    return min_pct;
 }
 
 static f_t get_accelerometer_variance_for_run_state(struct filter *f, v4 meas, uint64_t time)
@@ -295,10 +321,13 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, v4 meas, u
             if(steady_time(f, f->accel_stability, meas, f->a_variance, static_sigma, time, v4(0., 0., 1., 0.), true) > min_steady_time)
             {
                 f->s.enable_bias_estimation();
-                if(f->accel_stability.count >= static_converge_samples)
+                //base this on # samples instead of variance because we are also estimating a, w variance here
+                if(f->accel_stability.count >= static_converge_samples && get_bias_convergence(f, 2) >= 1.)
                 {
                     update_static_calibration(f);
                     f->run_state = RCSensorFusionRunStatePortraitCalibration;
+                    f->a_bias_start = f->s.a_bias.variance();
+                    f->w_bias_start = f->s.w_bias.variance();
                     reset_stability(f);
                     f->s.disable_bias_estimation();
 #if log_enabled
@@ -306,7 +335,7 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, v4 meas, u
                     print_calibration(f);
 #endif
                 }
-                return f->a_variance;
+                return f->a_variance * 3 * 3; //pump up this variance because we aren't really perfect here
             }
             else
             {
@@ -315,12 +344,14 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, v4 meas, u
             }
         case RCSensorFusionRunStatePortraitCalibration:
         {
-            uint64_t steady = steady_time(f, f->accel_stability, meas, accelerometer_steady_var, steady_sigma, time, v4(0, 1, 0, 0), true);
-            if(steady > min_steady_time)
+            if(steady_time(f, f->accel_stability, meas, accelerometer_steady_var, steady_sigma, time, v4(0, 1, 0, 0), true) > min_steady_time)
             {
                 f->s.enable_bias_estimation();
-                if(steady > steady_converge_time) {
+                if(get_bias_convergence(f, 1) >= 1.)
+                {
                     f->run_state = RCSensorFusionRunStateLandscapeCalibration;
+                    f->a_bias_start = f->s.a_bias.variance();
+                    f->w_bias_start = f->s.w_bias.variance();
                     reset_stability(f);
                     f->s.disable_bias_estimation();
 #if log_enabled
@@ -338,11 +369,11 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, v4 meas, u
         }
         case RCSensorFusionRunStateLandscapeCalibration:
         {
-            uint64_t steady = steady_time(f, f->accel_stability, meas, accelerometer_steady_var, steady_sigma, time, v4(1, 0, 0, 0), true);
-            if(steady > min_steady_time)
+            if(steady_time(f, f->accel_stability, meas, accelerometer_steady_var, steady_sigma, time, v4(1, 0, 0, 0), true) > min_steady_time)
             {
                 f->s.enable_bias_estimation();
-                if(steady > steady_converge_time) {
+                if(get_bias_convergence(f, 0) >= 1.)
+                {
                     f->run_state = RCSensorFusionRunStateInactive;
                     reset_stability(f);
                     f->s.disable_bias_estimation();
@@ -1132,10 +1163,10 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->s.a_bias.v = v4(device.a_bias[0], device.a_bias[1], device.a_bias[2], 0.);
     f_t tmp[3];
     //TODO: figure out how much drift we need to worry about between runs
-    for(int i = 0; i < 3; ++i) tmp[i] = device.a_bias_var[i] < 1.e-4 ? 1.e-4 : device.a_bias_var[i];
+    for(int i = 0; i < 3; ++i) tmp[i] = device.a_bias_var[i] < min_a_bias_var ? min_a_bias_var : device.a_bias_var[i];
     f->s.a_bias.set_initial_variance(tmp[0], tmp[1], tmp[2]);
     f->s.w_bias.v = v4(device.w_bias[0], device.w_bias[1], device.w_bias[2], 0.);
-    for(int i = 0; i < 3; ++i) tmp[i] = device.w_bias_var[i] < 1.e-6 ? 1.e-6 : device.w_bias_var[i];
+    for(int i = 0; i < 3; ++i) tmp[i] = device.w_bias_var[i] < min_w_bias_var ? min_w_bias_var : device.w_bias_var[i];
     f->s.w_bias.set_initial_variance(tmp[0], tmp[1], tmp[2]);
     
     f->s.focal_length.v = device.Fx;
@@ -1196,18 +1227,17 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->s.remap();
 }
 
-float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
-{
-    return (sqrt(begin) - sqrt(current)) / (sqrt(begin) - sqrt(end));
-}
-
 float filter_converged(struct filter *f)
 {
-    if(f->run_state == RCSensorFusionRunStateSteadyInitialization || f->run_state == RCSensorFusionRunStatePortraitCalibration || f->run_state == RCSensorFusionRunStateLandscapeCalibration) {
+    if(f->run_state == RCSensorFusionRunStateSteadyInitialization) {
         if(f->stable_start == 0) return 0.;
         return (f->last_time - f->stable_start) / (f_t)steady_converge_time;
+    } else if(f->run_state == RCSensorFusionRunStatePortraitCalibration) {
+        return get_bias_convergence(f, 1);
+    } else if(f->run_state == RCSensorFusionRunStateLandscapeCalibration) {
+        return get_bias_convergence(f, 0);
     } else if(f->run_state == RCSensorFusionRunStateStaticCalibration) {
-        return f->accel_stability.count / (f_t)static_converge_samples;
+        return min(f->accel_stability.count / (f_t)static_converge_samples, get_bias_convergence(f, 2));
         /*f->s.remap();
         float min, pct;
         //return the max of the three a bias variances because we don't restrict orientation
@@ -1272,6 +1302,8 @@ void filter_get_camera_parameters(struct filter *f, float matrix[16], float foca
 void filter_start_static_calibration(struct filter *f)
 {
     reset_stability(f);
+    f->a_bias_start = f->s.a_bias.variance();
+    f->w_bias_start = f->s.w_bias.variance();
     f->run_state = RCSensorFusionRunStateStaticCalibration;
 }
 

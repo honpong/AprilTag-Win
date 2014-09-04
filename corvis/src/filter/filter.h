@@ -87,6 +87,8 @@ filter(bool estimate_calibration): s(estimate_calibration, cov)
     
     bool estimating_Tc;
     
+    v4 a_bias_start, w_bias_start; //for tracking calibration progress
+    
     observation_queue observations;
 };
 

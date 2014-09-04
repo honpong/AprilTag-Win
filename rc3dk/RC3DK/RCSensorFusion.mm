@@ -457,25 +457,29 @@ typedef NS_ENUM(int, RCLicenseStatus)
     dispatch_async(queue, ^{ filter_select_feature(&_cor_setup->sfm, x, y); });
 }
 
-- (void) stopSensorFusion
+- (void) flushAndReset
 {
-    LOGME
-    if(!isSensorFusionRunning) return;
-
+    isSensorFusionRunning = false;
     [dataWaiting removeAllObjects];
-    [self saveCalibration];
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-        [RCCalibration postDeviceCalibration:nil onFailure:nil];
-    });
-    
+    dispatch_sync(inputQueue, ^{});
     dispatch_sync(queue, ^{
         filter_initialize(&_cor_setup->sfm, _cor_setup->device);
     });
     RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
     [cameraManager releaseVideoDevice];
-    isSensorFusionRunning = false;
     isProcessingVideo = false;
     processingVideoRequested = false;
+}
+
+- (void) stopSensorFusion
+{
+    LOGME
+    if(!isSensorFusionRunning) return;
+    [self saveCalibration];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+        [RCCalibration postDeviceCalibration:nil onFailure:nil];
+    });
+    [self flushAndReset];
 }
 
 - (void) sendStatus
@@ -492,24 +496,15 @@ typedef NS_ENUM(int, RCLicenseStatus)
     // queue actions related to failures before queuing callbacks to the sdk client.
     if(errorCode == RCSensorFusionErrorCodeTooFast || errorCode == RCSensorFusionErrorCodeOther)
     {
-        //Sensor fusion has already been reset by get_error
-        isProcessingVideo = false;
-        processingVideoRequested = false;
-        isSensorFusionRunning = false;
+        //Sensor fusion has already been reset by get_error, but it could have gotten random data inbetween, so do full reset
         dispatch_async(dispatch_get_main_queue(), ^{
-            [dataWaiting removeAllObjects];
-            RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
-            [cameraManager releaseVideoDevice];
+            [self flushAndReset];
         });
     } else if(lastRunState == RCSensorFusionRunStateStaticCalibration && f->run_state == RCSensorFusionRunStateInactive && errorCode == RCSensorFusionErrorCodeNone)
     {
         isSensorFusionRunning = false;
         dispatch_async(dispatch_get_main_queue(), ^{
-            [dataWaiting removeAllObjects];
-            [self saveCalibration];
-            dispatch_async(queue, ^{
-                filter_initialize(&_cor_setup->sfm, _cor_setup->device);
-            });
+            [self stopSensorFusion];
         });
     }
     
@@ -613,6 +608,14 @@ typedef NS_ENUM(int, RCLicenseStatus)
         DLog( @"Sample buffer is not ready. Skipping sample." );
         return;
     }
+    CMTime timestamp = (CMTime)CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
+    uint64_t time_us = timestamp.value / (timestamp.timescale / 1000000.);
+    uint64_t now = get_timestamp();
+    if(now - time_us > 100000)
+    {
+        DLog(@"Warning, got an old video frame - timestamp %lld, now %lld\n", time_us, now);
+        return;
+    }
     
     if (sampleBuffer) sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
     CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
@@ -683,6 +686,13 @@ typedef NS_ENUM(int, RCLicenseStatus)
 - (void) receiveAccelerometerData:(CMAccelerometerData *)accelerationData;
 {
     if(!isSensorFusionRunning) return;
+    uint64_t time_us = accelerationData.timestamp * 1000000;
+    uint64_t now = get_timestamp();
+    if(now - time_us > 40000)
+    {
+        DLog(@"Warning, got an old accelerometer sample - timestamp %lld, now %lld\n", time_us, now);
+        return;
+    }
     dispatch_async(inputQueue, ^{
         if (!isSensorFusionRunning) return;
         uint64_t time = accelerationData.timestamp * 1000000;
@@ -703,6 +713,13 @@ typedef NS_ENUM(int, RCLicenseStatus)
 - (void) receiveGyroData:(CMGyroData *)gyroData
 {
     if(!isSensorFusionRunning) return;
+    uint64_t time_us = gyroData.timestamp * 1000000;
+    uint64_t now = get_timestamp();
+    if(now - time_us > 40000)
+    {
+        DLog(@"Warning, got an old gyro sample - timestamp %lld, now %lld\n", time_us, now);
+        return;
+    }
     dispatch_async(inputQueue, ^{
         if (!isSensorFusionRunning) return;
         uint64_t time = gyroData.timestamp * 1000000;

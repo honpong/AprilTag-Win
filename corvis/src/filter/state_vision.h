@@ -82,7 +82,7 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     static f_t max_variance;
     static f_t min_add_vis_cov;
 
-    state_vision_feature() {};
+    state_vision_feature(): state_leaf("feature") {};
     state_vision_feature(f_t initialx, f_t initialy);
     bool should_drop() const;
     bool is_valid() const;
@@ -132,6 +132,10 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     
     virtual void copy_state_from_array(matrix &state) {
         v.v = state[index];
+    }
+    
+    virtual void print() {
+        fprintf(stderr, "feature %lld %f %f\n", id, v.v, variance());
     }
 
 };

@@ -15,7 +15,7 @@ f_t state_vision_feature::min_add_vis_cov;
 uint64_t state_vision_group::counter = 0;
 uint64_t state_vision_feature::counter = 0;
 
-state_vision_feature::state_vision_feature(f_t initialx, f_t initialy): outlier(0.), initial(initialx, initialy, 1., 0.), current(initial), user(false), status(feature_initializing)
+state_vision_feature::state_vision_feature(f_t initialx, f_t initialy): state_leaf("feature"), outlier(0.), initial(initialx, initialy, 1., 0.), current(initial), user(false), status(feature_initializing)
 {
     id = counter++;
     set_initial_variance(initial_var);
@@ -77,7 +77,7 @@ state_vision_group::state_vision_group(const state_vision_group &other): Tr(othe
     children.push_back(&Wr);
 }
 
-state_vision_group::state_vision_group(const state_vector &T, const state_rotation_vector &W): health(0.), status(group_initializing)
+state_vision_group::state_vision_group(const state_vector &T, const state_rotation_vector &W): Tr("Tr"), Wr("Wr"), health(0.), status(group_initializing)
 {
     id = counter++;
     Tr.dynamic = true;
@@ -153,7 +153,7 @@ int state_vision_group::make_normal()
     return 0;
 }
 
-state_vision::state_vision(bool _estimate_calibration, covariance &c): state_motion(c)
+state_vision::state_vision(bool _estimate_calibration, covariance &c): Tc("Tc"), Wc("Wc"), focal_length("focal_length"), center_x("center_x"), center_y("center_y"), k1("k1"), k2("k2"), k3("k3"), state_motion(c)
 {
     estimate_calibration = _estimate_calibration;
     reference = NULL;
@@ -308,8 +308,6 @@ feature_t state_vision::calibrate_feature(const feature_t &initial)
 
 void state_vision::remove_non_orientation_states()
 {
-    state_motion::remove_non_orientation_states();
-
     if(estimate_calibration) {
         remove_child(&Tc);
         remove_child(&Wc);
@@ -320,6 +318,7 @@ void state_vision::remove_non_orientation_states()
     remove_child(&k1);
     remove_child(&k2);
     remove_child(&groups);
+    state_motion::remove_non_orientation_states();
 }
 
 void state_vision::add_non_orientation_states()

@@ -164,7 +164,7 @@ void state_motion::enable_orientation_only()
     orientation_only = true;
     remove_non_orientation_states();
     disable_bias_estimation();
-    remap();
+    //remap implicit in disable_bias_estimation
 }
 
 void state_motion::disable_orientation_only()
@@ -173,7 +173,7 @@ void state_motion::disable_orientation_only()
     orientation_only = false;
     add_non_orientation_states();
     enable_bias_estimation();
-    remap();
+    //remap implicit in enable_bias_estimation
 }
 
 void state_motion::disable_bias_estimation()

@@ -81,7 +81,7 @@
     }
 }
 
-- (void)startLocationUpdates:(CLLocationManager*)locMan
+- (void)startLocationUpdates
 {
     LOGME
     if (isUpdating || [self isLocationDisallowed]) return;

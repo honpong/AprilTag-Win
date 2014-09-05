@@ -61,17 +61,20 @@
                                      PREF_IS_FIRST_LAUNCH: @YES,
                                      PREF_IS_TIPS_SHOWN: @NO,
                                      PREF_SHOW_RATE_NAG: @YES,
-                                     PREF_RATE_NAG_TIMESTAMP : @0};
+                                     PREF_RATE_NAG_TIMESTAMP : @0,
+                                     PREF_LOCATION_NAG_TIMESTAMP: @0};
         
         [NSUserDefaults.standardUserDefaults registerDefaults:appDefaults];
     });
 
     #ifndef ARCHIVE // for testing
-//    [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_IS_FIRST_LAUNCH];
-//    [NSUserDefaults.standardUserDefaults setObject:@NO forKey:PREF_IS_CALIBRATED];
+//    [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_IS_FIRST_LAUNCH];
+//    [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_IS_CALIBRATED];
+//    [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_SHOW_RATE_NAG];
 //    [NSUserDefaults.standardUserDefaults setObject:@0 forKey:PREF_RATE_NAG_TIMESTAMP];
-//    [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_SHOW_RATE_NAG];
-//    [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_SHOW_LOCATION_EXPLANATION];
+//    [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_SHOW_LOCATION_EXPLANATION];
+//    [NSUserDefaults.standardUserDefaults setObject:@0 forKey:PREF_LOCATION_NAG_TIMESTAMP];
+
     #endif
     
     [Flurry setSecureTransportEnabled:YES];

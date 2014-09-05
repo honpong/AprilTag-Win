@@ -19,7 +19,14 @@
 #import "OvershareKit.h"
 #import "TMShareSheet.h"
 
-@interface TMResultsVC : TMTableViewController <NSFetchedResultsControllerDelegate, UITextFieldDelegate, UIActionSheetDelegate, OptionsDelegate, TMShareSheetDelegate, RCRateMeViewDelegate>
+@interface TMResultsVC : TMTableViewController <NSFetchedResultsControllerDelegate,
+                                                UITextFieldDelegate,
+                                                UIActionSheetDelegate,
+                                                OptionsDelegate,
+                                                TMShareSheetDelegate,
+                                                RCRateMeViewDelegate,
+                                                RCLocationPopUpDelegate,
+                                                CLLocationManagerDelegate>
 {
     UIActionSheet *sheet;
     NSURLConnection *theConnection;

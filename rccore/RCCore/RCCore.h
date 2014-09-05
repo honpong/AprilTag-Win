@@ -45,6 +45,8 @@
 #import "RCOutlinedButton.h"
 #import "RCRateMeView.h"
 #import "RCInvertButton.h"
+#import "RCThreeButtonSlideView.h"
+#import "RCLocationPopUp.h"
 
 #import "NSString+RCString.h"
 

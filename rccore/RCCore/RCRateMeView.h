@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "RCSlideBanner.h"
+#import "RCThreeButtonSlideView.h"
 
 @protocol RCRateMeViewDelegate <NSObject>
 
@@ -17,7 +17,7 @@
 
 @end
 
-@interface RCRateMeView : RCSlideBanner
+@interface RCRateMeView : RCThreeButtonSlideView
 
 @property (weak, nonatomic) id<RCRateMeViewDelegate> delegate;
 

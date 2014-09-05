@@ -75,9 +75,10 @@ const CLLocationDegrees startingLongitude = 43.;
 
 - (IBAction) handleNextButton:(id)sender
 {
-    [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
+    NSNumber* timestamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]];
+    [NSUserDefaults.standardUserDefaults setObject:timestamp forKey:PREF_LOCATION_NAG_TIMESTAMP];
     
-    if([LOCATION_MANAGER shouldAttemptLocationAuthorization])
+    if(![CLLocationManager locationServicesEnabled] || [CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined)
     {
         waitingForLocationAuthorization = true;
         LOCATION_MANAGER.delegate = self;
@@ -91,33 +92,32 @@ const CLLocationDegrees startingLongitude = 43.;
 
 - (IBAction)handleLaterButton:(id)sender
 {
+    NSNumber* timestamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]];
+    [NSUserDefaults.standardUserDefaults setObject:timestamp forKey:PREF_LOCATION_NAG_TIMESTAMP];
     if (!waitingForLocationAuthorization) [self gotoNextScreen];
 }
 
 - (IBAction)handleNeverButton:(id)sender
 {
-    if (!waitingForLocationAuthorization)
-    {
-        [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
-        [self gotoNextScreen];
-    }
+    [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
+    [self gotoNextScreen];
 }
 
 - (void) setIntroText
 {
     if ([CLLocationManager locationServicesEnabled])
     {
-        self.nextButton.hidden = NO;
+        [self.nextButton setTitle:originalNextButtonText forState:UIControlStateNormal];
         [self.laterButton setTitle:originalLaterButtonText forState:UIControlStateNormal];
         [self.neverButton setTitle:originalNeverButtonText forState:UIControlStateNormal];
         self.introLabel.text = originalTextFromStoryboard;
     }
     else
     {
-        self.nextButton.hidden = YES;
+        [self.nextButton setTitle:@"Turn on location services" forState:UIControlStateNormal];
         [self.laterButton setTitle:@"Remind me later" forState:UIControlStateNormal];
         [self.neverButton setTitle:@"Skip" forState:UIControlStateNormal];
-        self.introLabel.text = @"I see that you have location services disabled. If you allow this app to use your location, it can make your measurements more accurate. This is completely optional. You can enable location in the Settings app, under 'Privacy'.";
+        self.introLabel.text = @"I see that you have location services disabled. If you allow this app to use your location, it can make your measurements more accurate. This is optional, but recommended";
     }
     
     [self.introLabel sizeToFit];
@@ -150,11 +150,22 @@ const CLLocationDegrees startingLongitude = 43.;
     LOGME
     
     if(status == kCLAuthorizationStatusNotDetermined || !waitingForLocationAuthorization) return;
-    if(status == kCLAuthorizationStatusAuthorized) [LOCATION_MANAGER startLocationUpdates];
-    if(status == kCLAuthorizationStatusAuthorized || status == kCLAuthorizationStatusDenied || status == kCLAuthorizationStatusRestricted)
+    if(status == kCLAuthorizationStatusAuthorized)
+    {
+        [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
+        [LOCATION_MANAGER startLocationUpdates];
+        LOCATION_MANAGER.delegate = nil;
+    }
+    else if(status == kCLAuthorizationStatusDenied || status == kCLAuthorizationStatusRestricted)
+    {
+        [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
+    }
+    if([CLLocationManager locationServicesEnabled] && (status == kCLAuthorizationStatusAuthorized || status == kCLAuthorizationStatusDenied || status == kCLAuthorizationStatusRestricted))
+    {
+        if (status != kCLAuthorizationStatusAuthorized) [LOCATION_MANAGER stopLocationUpdates];
         [self gotoNextScreen];
-    
-    waitingForLocationAuthorization = false;
+        waitingForLocationAuthorization = false;
+    }
 }
 
 - (void) gotoNextScreen

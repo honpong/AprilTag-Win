@@ -15,6 +15,7 @@
 @implementation TMResultsVC
 {
     RCRateMeView* rateMeView;
+    RCLocationPopUp* locationPopup;
     TMShareSheet* shareSheet;
 }
 @synthesize theMeasurement;
@@ -37,6 +38,7 @@
     [self.distLabel setDistance:theMeasurement.getPrimaryDistanceObject];
     
     [self createRateMeBanner];
+    [self createLocationPopup];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -45,7 +47,8 @@
     [self.tableView reloadData];
     [super viewDidAppear:animated];
     
-    [self showRateNagIfNecessary];
+    if (![self showLocationNagIfNecessary])
+        [self showRateNagIfNecessary];
 }
 
 - (void)viewWillDisappear:(BOOL)animated
@@ -171,12 +174,12 @@
     }
 }
 
-- (void)didDismissOptions
+- (void) didDismissOptions
 {
     [self.distLabel setDistance:theMeasurement.getPrimaryDistanceObject]; // update label with new units
 }
 
-- (void)createRateMeBanner
+- (void) createRateMeBanner
 {
     rateMeView = [RCRateMeView new];
     [self.navigationController.view addSubview:rateMeView];
@@ -184,6 +187,17 @@
     [rateMeView setBottomSpaceToSuperviewConstraint:55];
     [rateMeView hideInstantly];
     rateMeView.delegate = self;
+}
+
+- (void) createLocationPopup
+{
+    locationPopup = [RCLocationPopUp new];
+    [locationPopup setPrimaryColor: [UIColor colorWithRed:0 green:128./255. blue:0 alpha:1.]];
+    [self.navigationController.view addSubview:locationPopup];
+    [locationPopup addCenterXInSuperviewConstraints];
+    [locationPopup setBottomSpaceToSuperviewConstraint:55];
+    [locationPopup hideInstantly];
+    locationPopup.delegate = self;
 }
 
 - (NSString*)getLocationDisplayText:(TMLocation*)location
@@ -473,7 +487,7 @@
 
 - (void) handleRateNowButton
 {
-    [NSUserDefaults.standardUserDefaults setObject:@NO forKey:PREF_SHOW_RATE_NAG];
+    [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_RATE_NAG];
     [rateMeView hideInstantly];
     [self gotoAppStore];
 }
@@ -486,8 +500,34 @@
 - (void) handleRateNeverButton
 {
     [rateMeView hideAnimated];
-    [NSUserDefaults.standardUserDefaults setObject:@NO forKey:PREF_SHOW_RATE_NAG];
+    [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_RATE_NAG];
 }
+
+#pragma mark - RCLocationPopUpDelegate
+
+- (void) handleAllowLocationButton
+{
+    NSNumber* timestamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]];
+    [NSUserDefaults.standardUserDefaults setObject:timestamp forKey:PREF_LOCATION_NAG_TIMESTAMP];
+    
+    [locationPopup hideInstantly];
+    [LOCATION_MANAGER startLocationUpdates];
+}
+
+- (void) handleLaterLocationButton
+{
+    NSNumber* timestamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]];
+    [NSUserDefaults.standardUserDefaults setObject:timestamp forKey:PREF_LOCATION_NAG_TIMESTAMP];
+    [locationPopup hideAnimated];
+}
+
+- (void) handleNeverLocationButton
+{
+    [locationPopup hideAnimated];
+    [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
+}
+
+#pragma mark -
 
 - (void) gotoAppStore
 {
@@ -495,7 +535,7 @@
     [[UIApplication sharedApplication] openURL:url];
 }
 
-- (void) showRateNagIfNecessary
+- (BOOL) showRateNagIfNecessary
 {
     BOOL isMeasurementJustTaken = [[NSDate date] timeIntervalSince1970] - self.theMeasurement.timestamp < 5.;
     BOOL showRateNag = [[NSUserDefaults.standardUserDefaults objectForKey:PREF_SHOW_RATE_NAG] isEqualToNumber:@YES];
@@ -519,7 +559,83 @@
                 [rateMeView showAnimated];
                 }
             });
+            
+            return YES;
         }
+        else
+        {
+            return NO;
+        }
+    }
+    else
+    {
+        return NO;
+    }
+}
+
+- (BOOL) showLocationNagIfNecessary
+{
+    BOOL isMeasurementJustTaken = [[NSDate date] timeIntervalSince1970] - self.theMeasurement.timestamp < 5.;
+    BOOL showLocationNag = [[NSUserDefaults.standardUserDefaults objectForKey:PREF_SHOW_LOCATION_EXPLANATION] isEqualToNumber:@YES];
+    NSNumber* timeOfLastNag = [NSUserDefaults.standardUserDefaults objectForKey:PREF_LOCATION_NAG_TIMESTAMP];
+    NSTimeInterval secondsSinceLastNag = [[NSDate date] timeIntervalSince1970] - timeOfLastNag.doubleValue;
+    BOOL hasBeenNaggedRecently = secondsSinceLastNag < 24; // if nagged within the last 24 hours
+    
+    if (isMeasurementJustTaken && showLocationNag && !hasBeenNaggedRecently)
+    {
+        LOCATION_MANAGER.delegate = self;
+        
+        __weak TMResultsVC* weakSelf = self;
+        dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, 1. * NSEC_PER_SEC);
+        dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
+            if ([weakSelf.navigationController.viewControllers.lastObject isKindOfClass:[TMResultsVC class]])
+            {
+                NSNumber* timestamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]];
+                [NSUserDefaults.standardUserDefaults setObject:timestamp forKey:PREF_LOCATION_NAG_TIMESTAMP];
+                
+                [locationPopup showAnimated];
+            }
+        });
+        
+        return YES;
+    }
+    else
+    {
+        return NO;
+    }
+}
+
+#pragma mark - CLLocationManagerDelegate
+
+- (void) locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
+{
+    LOGME
+    
+//    if(status == kCLAuthorizationStatusAuthorized)
+//    {
+//        [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
+//        [LOCATION_MANAGER startLocationUpdates];
+//        LOCATION_MANAGER.delegate = nil;
+//    }
+//    else if(status == kCLAuthorizationStatusDenied || status == kCLAuthorizationStatusRestricted)
+//    {
+//        [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
+//    }
+    
+    if(status == kCLAuthorizationStatusNotDetermined) return;
+    if(status == kCLAuthorizationStatusAuthorized)
+    {
+        [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
+        [LOCATION_MANAGER startLocationUpdates];
+        LOCATION_MANAGER.delegate = nil;
+    }
+    else if(status == kCLAuthorizationStatusDenied || status == kCLAuthorizationStatusRestricted)
+    {
+        [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
+    }
+    if([CLLocationManager locationServicesEnabled] && (status == kCLAuthorizationStatusDenied || status == kCLAuthorizationStatusRestricted))
+    {
+        [LOCATION_MANAGER stopLocationUpdates];
     }
 }
 

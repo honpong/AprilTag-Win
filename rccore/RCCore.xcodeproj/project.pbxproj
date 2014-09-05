@@ -19,6 +19,10 @@
 		322B8A9317DC2C53008FED6E /* RCMotionManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32771A0117DC29AE00881279 /* RCMotionManager.h */; };
 		322B8A9417DC2C53008FED6E /* RCVideoManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32771A0317DC29AE00881279 /* RCVideoManager.h */; };
 		322B8A9517DC2C68008FED6E /* CLPlacemark+RCPlacemark.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 322B8A8E17DC2AE8008FED6E /* CLPlacemark+RCPlacemark.h */; };
+		323155EC19BA49A300EDC65D /* RCThreeButtonSlideView.m in Sources */ = {isa = PBXBuildFile; fileRef = 323155EB19BA49A300EDC65D /* RCThreeButtonSlideView.m */; };
+		323155EE19BA4CE900EDC65D /* RCThreeButtonSlideView.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 323155EA19BA49A300EDC65D /* RCThreeButtonSlideView.h */; };
+		323155F119BA63A300EDC65D /* RCLocationPopUp.m in Sources */ = {isa = PBXBuildFile; fileRef = 323155F019BA63A300EDC65D /* RCLocationPopUp.m */; };
+		323155F219BA642C00EDC65D /* RCLocationPopUp.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 323155EF19BA63A300EDC65D /* RCLocationPopUp.h */; };
 		3233EEDF16E034FE0003DE9E /* NSString+RCString.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C3892D16DD429100BD995C /* NSString+RCString.m */; };
 		3247AE1817DD3B0E0036211B /* RCAVSessionManager+RCAVSessionManagerMock.m in Sources */ = {isa = PBXBuildFile; fileRef = 3247AE0F17DD3B0E0036211B /* RCAVSessionManager+RCAVSessionManagerMock.m */; };
 		3247AE1917DD3B0E0036211B /* RCAVSessionManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3247AE1117DD3B0E0036211B /* RCAVSessionManagerTests.m */; };
@@ -255,6 +259,7 @@
 				320E9C4919A6BE7E00D6153B /* RCSlideBanner.h in CopyFiles */,
 				322B8A9117DC2C53008FED6E /* RCAVSessionManager.h in CopyFiles */,
 				322B8A9217DC2C53008FED6E /* RCLocationManager.h in CopyFiles */,
+				323155EE19BA4CE900EDC65D /* RCThreeButtonSlideView.h in CopyFiles */,
 				322B8A9317DC2C53008FED6E /* RCMotionManager.h in CopyFiles */,
 				322B8A9417DC2C53008FED6E /* RCVideoManager.h in CopyFiles */,
 				3272F73B19ABFE95001F7AA1 /* RCOutlinedButton.m in CopyFiles */,
@@ -281,6 +286,7 @@
 				32CBDFCD16D55C36000B3ADB /* Guid.h in CopyFiles */,
 				32CD632516CC022600496D46 /* RCDateFormatter.h in CopyFiles */,
 				3267A2F616C46F56001E14C7 /* RCUserManager.h in CopyFiles */,
+				323155F219BA642C00EDC65D /* RCLocationPopUp.h in CopyFiles */,
 				3267A2F716C46F56001E14C7 /* RCHTTPClient.h in CopyFiles */,
 				3267A2F816C46F56001E14C7 /* AFHTTPClient.h in CopyFiles */,
 				3267A2F916C46F56001E14C7 /* AFHTTPRequestOperation.h in CopyFiles */,
@@ -311,6 +317,10 @@
 		322B8A8A17DC2A28008FED6E /* RCAVSessionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCAVSessionManager.m; path = ../../SensorManagers/RCAVSessionManager.m; sourceTree = "<group>"; };
 		322B8A8E17DC2AE8008FED6E /* CLPlacemark+RCPlacemark.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "CLPlacemark+RCPlacemark.h"; sourceTree = "<group>"; };
 		322B8A8F17DC2AE8008FED6E /* CLPlacemark+RCPlacemark.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "CLPlacemark+RCPlacemark.m"; sourceTree = "<group>"; };
+		323155EA19BA49A300EDC65D /* RCThreeButtonSlideView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCThreeButtonSlideView.h; path = ../../rccore/RCCore/RCThreeButtonSlideView.h; sourceTree = "<group>"; };
+		323155EB19BA49A300EDC65D /* RCThreeButtonSlideView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCThreeButtonSlideView.m; path = ../../rccore/RCCore/RCThreeButtonSlideView.m; sourceTree = "<group>"; };
+		323155EF19BA63A300EDC65D /* RCLocationPopUp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCLocationPopUp.h; path = ../../rccore/RCCore/RCLocationPopUp.h; sourceTree = "<group>"; };
+		323155F019BA63A300EDC65D /* RCLocationPopUp.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCLocationPopUp.m; path = ../../rccore/RCCore/RCLocationPopUp.m; sourceTree = "<group>"; };
 		3233EED816E00CFA0003DE9E /* RCHttpClientTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCHttpClientTests.h; sourceTree = "<group>"; };
 		3233EED916E00CFA0003DE9E /* RCHttpClientTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCHttpClientTests.m; sourceTree = "<group>"; };
 		3233EEDB16E015930003DE9E /* RCUserManagerTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCUserManagerTests.h; sourceTree = "<group>"; };
@@ -888,6 +898,10 @@
 				3272F73F19AD0615001F7AA1 /* RCRateMeView.m */,
 				3272F74419AD2455001F7AA1 /* RCInvertButton.h */,
 				3272F74519AD2455001F7AA1 /* RCInvertButton.m */,
+				323155EA19BA49A300EDC65D /* RCThreeButtonSlideView.h */,
+				323155EB19BA49A300EDC65D /* RCThreeButtonSlideView.m */,
+				323155EF19BA63A300EDC65D /* RCLocationPopUp.h */,
+				323155F019BA63A300EDC65D /* RCLocationPopUp.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -1281,6 +1295,7 @@
 				3272F73819ABFE7C001F7AA1 /* RCOutlinedButton.m in Sources */,
 				D9045D871953E586002DD9D5 /* stereo_mesh.cpp in Sources */,
 				D30434CE197E85FE00190B70 /* pgm.c in Sources */,
+				323155EC19BA49A300EDC65D /* RCThreeButtonSlideView.m in Sources */,
 				3215DC351797449D00DD86E4 /* RCMeasuredPhoto.m in Sources */,
 				32BA41F5179F33D8002BAE13 /* RCFeatureLayerDelegate.m in Sources */,
 				D30434D2197E85FE00190B70 /* scalespace.c in Sources */,
@@ -1289,6 +1304,7 @@
 				D30434C6197E85FE00190B70 /* kdtree.c in Sources */,
 				32BA41FE179F3656002BAE13 /* RCFeaturesLayer.m in Sources */,
 				32771A0517DC29AE00881279 /* RCLocationManager.m in Sources */,
+				323155F119BA63A300EDC65D /* RCLocationPopUp.m in Sources */,
 				D30434BB197E85FE00190B70 /* gmm.c in Sources */,
 				D3217E1218BE2E0100762A31 /* RCCaptureManager.m in Sources */,
 				D30434D6197E85FE00190B70 /* svm.c in Sources */,

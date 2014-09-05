@@ -28,8 +28,6 @@
     int filterStatusCode;
     
     id<RCSensorDelegate>sensorDelegate;
-    
-    TMLocationIntro* locationIntro;
 }
 
 #pragma mark - State Machine
@@ -200,11 +198,6 @@ static transition transitions[] =
     newMeasurement = [TMMeasurement getNewMeasurement];
     newMeasurement.type = self.type;
     [newMeasurement autoSelectUnitsScale];
-    
-    if ([NSUserDefaults.standardUserDefaults boolForKey:PREF_SHOW_LOCATION_EXPLANATION])
-    {
-        locationIntro = [self.storyboard instantiateViewControllerWithIdentifier:@"LocationIntro"]; // preload location permission screen
-    }
 }
 
 - (void) viewDidLayoutSubviews
@@ -633,16 +626,7 @@ static transition transitions[] =
 - (void) saveAndGotoResult
 {
     [self saveMeasurement];
-    
-    if ([NSUserDefaults.standardUserDefaults boolForKey:PREF_SHOW_LOCATION_EXPLANATION])
-    {
-        locationIntro.theMeasurement = newMeasurement;
-        [self.navigationController pushViewController:locationIntro animated:YES];
-    }
-    else
-    {
-        [self performSegueWithIdentifier:@"toResult" sender:self.btnRetry];
-    }
+    [self performSegueWithIdentifier:@"toResult" sender:self.btnRetry];
 }
 
 - (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender

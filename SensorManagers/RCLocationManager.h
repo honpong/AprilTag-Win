@@ -12,12 +12,12 @@
  */
 @interface RCLocationManager : NSObject <CLLocationManagerDelegate>
 
+- (void) requestLocationAccessWithCompletion:(void (^)(BOOL granted))handler;
 - (void) startLocationUpdates;
 - (void) stopLocationUpdates;
 - (CLLocation*) getStoredLocation;
 - (BOOL) isUpdatingLocation;
-- (BOOL) shouldAttemptLocationAuthorization;
-- (BOOL) isLocationAuthorized;
+- (BOOL) isLocationDisallowed;
 - (void) startHeadingUpdates;
 - (void) stopHeadingUpdates;
 

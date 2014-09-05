@@ -65,12 +65,8 @@
 
 - (void) startLocationUpdatesIfAllowed
 {
-    //Only attempt to start location updates if authorized or haven't yet asked
-    if ([locationManager isLocationAuthorized] || [locationManager shouldAttemptLocationAuthorization])
-    {
-        locationManager.delegate = self;
-        [locationManager startLocationUpdates];
-    }
+    locationManager.delegate = self;
+    [locationManager startLocationUpdates];
 }
 
 - (CLLocation *) getStoredLocation

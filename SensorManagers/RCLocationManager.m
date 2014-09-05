@@ -15,6 +15,7 @@
     CLLocation *_location;
     BOOL isUpdating;
     BOOL shouldStopAutomatically;
+    void (^authorizationHandler)(BOOL granted);
 }
 
 + (RCLocationManager *) sharedInstance
@@ -39,6 +40,12 @@
                                                    object:nil];
         isUpdating = NO;
         shouldStopAutomatically = YES;
+        authorizationHandler = nil;
+        _sysLocationMan = [[CLLocationManager alloc] init];
+        _sysLocationMan.desiredAccuracy = kCLLocationAccuracyBest;
+        _sysLocationMan.distanceFilter = 500;
+        _sysLocationMan.headingFilter = 1;
+        _sysLocationMan.delegate = self;
     }
     
     return self;
@@ -49,23 +56,35 @@
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (void)startLocationUpdates
+- (void) requestLocationAccessWithCompletion:(void (^)(BOOL granted))handler
 {
-    [self startLocationUpdates:[[CLLocationManager alloc] init]];
+    if([self isLocationDisallowed])
+    {
+        handler(false);
+    }
+    else
+    {
+        if([CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined)
+        {
+            //ask for approval
+            authorizationHandler = handler;
+            if([_sysLocationMan respondsToSelector:@selector(requestWhenInUseAuthorization)])
+                [_sysLocationMan requestWhenInUseAuthorization];
+            else
+                [_sysLocationMan startUpdatingLocation];
+        }
+        else
+        {
+            //not disallowed or undetermined, so allowed
+            handler(true);
+        }
+    }
 }
 
 - (void)startLocationUpdates:(CLLocationManager*)locMan
 {
     LOGME
-    
-    if (isUpdating) return;
-
-    _sysLocationMan = locMan;
-    _sysLocationMan.desiredAccuracy = kCLLocationAccuracyBest;
-    _sysLocationMan.distanceFilter = 500;
-    _sysLocationMan.headingFilter = 1;
-    _sysLocationMan.delegate = (id<CLLocationManagerDelegate>) [RCLocationManager sharedInstance];
-    
+    if (isUpdating || [self isLocationDisallowed]) return;
     [_sysLocationMan startUpdatingLocation];
     isUpdating = YES;
 }
@@ -74,10 +93,6 @@
 {
     LOGME
     if (isUpdating) [_sysLocationMan stopUpdatingLocation];
-    
-    //don't release sysLocationMan if we might be waiting for authorization. this would cause the "allow" dialog to disappear
-    if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusAuthorized || ![self shouldAttemptLocationAuthorization]) _sysLocationMan = nil;
-    
     isUpdating = NO;
 }
 
@@ -86,7 +101,6 @@
     LOGME
     if ([CLLocationManager headingAvailable])
     {
-        _sysLocationMan.delegate = (id<CLLocationManagerDelegate>) [RCLocationManager sharedInstance];
         [_sysLocationMan startUpdatingHeading];
         shouldStopAutomatically = NO;
     }
@@ -103,28 +117,21 @@
     shouldStopAutomatically = YES;
 }
 
-- (BOOL) shouldAttemptLocationAuthorization
+- (BOOL) isLocationDisallowed
 {
-    if (![CLLocationManager locationServicesEnabled])
+    if(![CLLocationManager locationServicesEnabled]) return true;
+    CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
+    switch(status)
     {
-        DLog(@"Location services disabled");
-        return NO;
+        case kCLAuthorizationStatusNotDetermined:
+        case kCLAuthorizationStatusAuthorizedAlways: //This is the same as kCLAuthorizationStatusAuthorized from iOS < 8
+        case kCLAuthorizationStatusAuthorizedWhenInUse:
+            return false;
+        case kCLAuthorizationStatusDenied:
+        case kCLAuthorizationStatusRestricted:
+            DLog(@"Location permission explictly denied or restricted");
+            return true;
     }
-    
-    if ([CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined)
-    {
-        return YES;
-    }
-    else
-    {
-        DLog(@"Location permission explictly denied or restricted");
-        return NO;
-    }
-}
-
-- (BOOL) isLocationAuthorized
-{
-    return [CLLocationManager locationServicesEnabled] && [CLLocationManager authorizationStatus] == kCLAuthorizationStatusAuthorized;
 }
 
 - (BOOL)isUpdatingLocation
@@ -153,7 +160,12 @@
 
 - (void) locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
 {
-    if ([self.delegate respondsToSelector:@selector(locationManager:didChangeAuthorizationStatus:)]) [self.delegate locationManager:manager didChangeAuthorizationStatus:status];
+    if(authorizationHandler == nil) return;
+    if([CLLocationManager authorizationStatus] != kCLAuthorizationStatusNotDetermined)
+    {
+        authorizationHandler([self isLocationDisallowed]);
+        authorizationHandler = nil;
+    }    
 }
 
 - (void) locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error

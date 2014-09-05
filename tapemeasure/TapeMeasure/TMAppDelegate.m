@@ -94,7 +94,7 @@
     }
     else
     {
-        if ([LOCATION_MANAGER isLocationAuthorized])
+        if (![LOCATION_MANAGER isLocationDisallowed])
         {
             // location already authorized. go ahead.
             LOCATION_MANAGER.delegate = self;
@@ -154,16 +154,12 @@
 - (void) nextButtonTapped
 {
     [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
-    
-    if([LOCATION_MANAGER shouldAttemptLocationAuthorization])
+    LOCATION_MANAGER.delegate = self;
+    [LOCATION_MANAGER requestLocationAccessWithCompletion:^(BOOL granted)
     {
-        LOCATION_MANAGER.delegate = self;
-        [LOCATION_MANAGER startLocationUpdates]; // will show dialog asking user to authorize location. gotoCalibration triggered by didChangeAuthorizationStatus delegate function
-    }
-    else
-    {
+        if(granted) [LOCATION_MANAGER startLocationUpdates];
         [self gotoCalibration];
-    }
+    }];
 }
 
 #pragma mark - RCCalibrationDelegate methods
@@ -203,16 +199,6 @@
 - (void)applicationDidReceiveMemoryWarning:(UIApplication *)application
 {
     DLog(@"MEMORY WARNING");
-}
-
-- (void) locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
-{
-    LOGME
-    if(status == kCLAuthorizationStatusNotDetermined || !waitingForLocationAuthorization) return;
-    if(status == kCLAuthorizationStatusAuthorized) [LOCATION_MANAGER startLocationUpdates];
-    if(status == kCLAuthorizationStatusAuthorized || status == kCLAuthorizationStatusDenied || status == kCLAuthorizationStatusRestricted)
-        [self gotoCalibration];
-    waitingForLocationAuthorization = false;
 }
 
 - (void) locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations

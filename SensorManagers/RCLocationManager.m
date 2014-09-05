@@ -69,7 +69,12 @@
             //ask for approval
             authorizationHandler = handler;
             if([_sysLocationMan respondsToSelector:@selector(requestWhenInUseAuthorization)])
+//TODO: get rid of these ifdefs when we can build in xcode 6
+#ifdef __IPHONE_8_0
                 [_sysLocationMan requestWhenInUseAuthorization];
+#else
+                [_sysLocationMan performSelector:@selector(requestWhenInUseAuthorization)];
+#endif
             else
                 [_sysLocationMan startUpdatingLocation];
         }
@@ -125,6 +130,10 @@
     shouldStopAutomatically = YES;
 }
 
+#ifndef __IPHONE_8_0
+#define kCLAuthorizationStatusAuthorizedAlways kCLAuthorizationStatusAuthorized
+#endif
+
 - (BOOL) isLocationDisallowed
 {
     if(![CLLocationManager locationServicesEnabled]) return true;
@@ -133,7 +142,9 @@
     {
         case kCLAuthorizationStatusNotDetermined:
         case kCLAuthorizationStatusAuthorizedAlways: //This is the same as kCLAuthorizationStatusAuthorized from iOS < 8
+#ifdef __IPHONE_8_0
         case kCLAuthorizationStatusAuthorizedWhenInUse:
+#endif
             return false;
         case kCLAuthorizationStatusDenied:
         case kCLAuthorizationStatusRestricted:

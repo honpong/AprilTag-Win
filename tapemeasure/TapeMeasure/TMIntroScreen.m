@@ -7,7 +7,7 @@
 //
 
 #import "TMIntroScreen.h"
-#import "RCCalibration1.h"
+#import "TMLocationIntro.h"
 
 @interface TMIntroScreen ()
 
@@ -26,11 +26,10 @@
 
 - (IBAction)handleNextButton:(id)sender
 {
-    RCCalibration1 * calibration1 = [RCCalibration1 instantiateViewController];
-    calibration1.calibrationDelegate = self.calibrationDelegate;
-    calibration1.sensorDelegate = self.sensorDelegate;
-    calibration1.modalPresentationStyle = UIModalPresentationFullScreen;
-    [self presentViewController:calibration1 animated:YES completion:nil];
+    TMLocationIntro* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"LocationIntro"];
+    vc.calibrationDelegate = self.calibrationDelegate;
+    vc.sensorDelegate = self.sensorDelegate;
+    [self presentViewController:vc animated:YES completion:nil];
 }
 
 @end

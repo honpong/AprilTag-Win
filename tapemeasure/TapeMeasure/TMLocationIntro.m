@@ -8,6 +8,7 @@
 
 #import "TMLocationIntro.h"
 #import "TMResultsVC.h"
+#import "RCCalibration1.h"
 @import CoreLocation;
 
 const CLLocationDegrees latitude = 35.;
@@ -84,13 +85,13 @@ const CLLocationDegrees startingLongitude = 43.;
     }
     else
     {
-        [self gotoMeasurementResult];
+        [self gotoNextScreen];
     }
 }
 
 - (IBAction)handleLaterButton:(id)sender
 {
-    if (!waitingForLocationAuthorization) [self gotoMeasurementResult];
+    if (!waitingForLocationAuthorization) [self gotoNextScreen];
 }
 
 - (IBAction)handleNeverButton:(id)sender
@@ -98,7 +99,7 @@ const CLLocationDegrees startingLongitude = 43.;
     if (!waitingForLocationAuthorization)
     {
         [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
-        [self gotoMeasurementResult];
+        [self gotoNextScreen];
     }
 }
 
@@ -116,7 +117,7 @@ const CLLocationDegrees startingLongitude = 43.;
         self.nextButton.hidden = YES;
         [self.laterButton setTitle:@"Remind me later" forState:UIControlStateNormal];
         [self.neverButton setTitle:@"Skip" forState:UIControlStateNormal];
-        self.introLabel.text = @"Congratulations on taking a measurement! I see that you have location services disabled. If you allow this app to use your location, it can make your measurements more accurate. This is completely optional. You can enable location in the Settings app, under 'Privacy'.";
+        self.introLabel.text = @"I see that you have location services disabled. If you allow this app to use your location, it can make your measurements more accurate. This is completely optional. You can enable location in the Settings app, under 'Privacy'.";
     }
     
     [self.introLabel sizeToFit];
@@ -151,9 +152,21 @@ const CLLocationDegrees startingLongitude = 43.;
     if(status == kCLAuthorizationStatusNotDetermined || !waitingForLocationAuthorization) return;
     if(status == kCLAuthorizationStatusAuthorized) [LOCATION_MANAGER startLocationUpdates];
     if(status == kCLAuthorizationStatusAuthorized || status == kCLAuthorizationStatusDenied || status == kCLAuthorizationStatusRestricted)
-        [self gotoMeasurementResult];
+        [self gotoNextScreen];
     
     waitingForLocationAuthorization = false;
+}
+
+- (void) gotoNextScreen
+{
+    if ([self.presentingViewController isKindOfClass:[TMIntroScreen class]])
+    {
+        [self gotoCalibration];
+    }
+    else
+    {
+        [self gotoMeasurementResult];
+    }
 }
 
 - (void) gotoMeasurementResult
@@ -161,6 +174,15 @@ const CLLocationDegrees startingLongitude = 43.;
     TMResultsVC* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"Results"];
     vc.theMeasurement = self.theMeasurement;
     [self.navigationController pushViewController:vc animated:YES];
+}
+
+- (void) gotoCalibration
+{
+    RCCalibration1 * calibration1 = [RCCalibration1 instantiateViewController];
+    calibration1.calibrationDelegate = self.calibrationDelegate;
+    calibration1.sensorDelegate = self.sensorDelegate;
+    calibration1.modalPresentationStyle = UIModalPresentationFullScreen;
+    [self presentViewController:calibration1 animated:YES completion:nil];
 }
 
 @end

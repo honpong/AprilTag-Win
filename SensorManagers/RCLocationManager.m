@@ -85,8 +85,16 @@
 {
     LOGME
     if (isUpdating || [self isLocationDisallowed]) return;
-    [_sysLocationMan startUpdatingLocation];
-    isUpdating = YES;
+    void (^authBlock)(BOOL granted) = ^(BOOL granted)
+    {
+        if(granted)
+        {
+            [_sysLocationMan startUpdatingLocation];
+            isUpdating = YES;
+        }
+    };
+    if([CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined) [self requestLocationAccessWithCompletion:authBlock];
+    else authBlock(true);
 }
 
 - (void)stopLocationUpdates

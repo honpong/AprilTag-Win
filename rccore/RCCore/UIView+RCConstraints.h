@@ -27,8 +27,8 @@
 
 - (NSLayoutConstraint*) addTopSpaceToSuperviewConstraint:(CGFloat)constant;
 - (NSLayoutConstraint*) addBottomSpaceToSuperviewConstraint:(CGFloat)constant;
-- (NSLayoutConstraint*) addLeadingSpaceToSuperviewConstraint:(CGFloat)constant;
-- (NSLayoutConstraint*) addTrailingSpaceToSuperviewConstraint:(CGFloat)constant;
+- (NSLayoutConstraint*) addLeftSpaceToSuperviewConstraint:(CGFloat)constant;
+- (NSLayoutConstraint*) addRightSpaceToSuperviewConstraint:(CGFloat)constant;
 
 - (NSLayoutConstraint*) addTopSpaceToViewConstraint:(UIView*)view withDist:(int)dist;
 - (NSLayoutConstraint*) addBottomSpaceToViewConstraint:(UIView*)view withDist:(int)dist;

@@ -62,19 +62,19 @@ static const CGFloat buttonHeight = 45;
     noButton.invertedColor = lightBlue;
     
     [self addSubview:label];
-    [label addLeadingSpaceToSuperviewConstraint:10];
-    [label addTrailingSpaceToSuperviewConstraint:10];
+    [label addLeftSpaceToSuperviewConstraint:10];
+    [label addRightSpaceToSuperviewConstraint:10];
     [label addTopSpaceToSuperviewConstraint:14];
     
     [self addSubview:laterButton];
     [laterButton addBottomSpaceToSuperviewConstraint:0];
-    [laterButton addLeadingSpaceToSuperviewConstraint:0];
+    [laterButton addLeftSpaceToSuperviewConstraint:0];
     [laterButton addWidthConstraint:width/2 andHeightConstraint:buttonHeight];
     [laterButton addTarget:self action:@selector(laterButtonTapped) forControlEvents:UIControlEventTouchUpInside];
     
     [self addSubview:noButton];
     [noButton addBottomSpaceToSuperviewConstraint:0];
-    [noButton addTrailingSpaceToSuperviewConstraint:0];
+    [noButton addRightSpaceToSuperviewConstraint:0];
     [noButton addWidthConstraint:width/2 andHeightConstraint:buttonHeight];
     [noButton addTarget:self action:@selector(neverButtonTapped) forControlEvents:UIControlEventTouchUpInside];
     

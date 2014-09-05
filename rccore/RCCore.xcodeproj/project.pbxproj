@@ -180,6 +180,7 @@
 		D36C361D184F313600F77AAF /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C361C184F313600F77AAF /* CoreMedia.framework */; };
 		D36C361F184F314400F77AAF /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C361E184F314400F77AAF /* CoreVideo.framework */; };
 		D374D71019BA077900D2EA79 /* stereo_features.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D374D70F19BA077900D2EA79 /* stereo_features.cpp */; };
+		D374D71319BA0BD500D2EA79 /* fundamental.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D374D71219BA0BD500D2EA79 /* fundamental.cpp */; };
 		D38126F618CA234200E635C3 /* RCConnectionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D38126F518CA234200E635C3 /* RCConnectionManager.m */; };
 		D38126FC18CA239800E635C3 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = D38126FB18CA239800E635C3 /* GCDAsyncSocket.m */; };
 		D39F963719AB75E700562BA2 /* camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D39F963619AB75E700562BA2 /* camera.cpp */; };
@@ -523,6 +524,8 @@
 		D36C361E184F314400F77AAF /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		D374D70E19BA077900D2EA79 /* stereo_features.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stereo_features.h; path = ../../corvis/src/stereo/stereo_features.h; sourceTree = "<group>"; };
 		D374D70F19BA077900D2EA79 /* stereo_features.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = stereo_features.cpp; path = ../../corvis/src/stereo/stereo_features.cpp; sourceTree = "<group>"; };
+		D374D71119BA0BD500D2EA79 /* fundamental.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fundamental.h; path = ../../corvis/src/stereo/fundamental.h; sourceTree = "<group>"; };
+		D374D71219BA0BD500D2EA79 /* fundamental.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fundamental.cpp; path = ../../corvis/src/stereo/fundamental.cpp; sourceTree = "<group>"; };
 		D38126F418CA234200E635C3 /* RCConnectionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCConnectionManager.h; sourceTree = "<group>"; };
 		D38126F518CA234200E635C3 /* RCConnectionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCConnectionManager.m; sourceTree = "<group>"; };
 		D38126FA18CA239800E635C3 /* GCDAsyncSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GCDAsyncSocket.h; path = GCDAsyncSocket/GCDAsyncSocket.h; sourceTree = "<group>"; };
@@ -1059,6 +1062,8 @@
 				D3CC6E49195ACF5A00C0A7E6 /* MRF */,
 				D39F963519AB75E700562BA2 /* camera.h */,
 				D39F963619AB75E700562BA2 /* camera.cpp */,
+				D374D71119BA0BD500D2EA79 /* fundamental.h */,
+				D374D71219BA0BD500D2EA79 /* fundamental.cpp */,
 				D9045D821953E586002DD9D5 /* stereo.cpp */,
 				D9045D831953E586002DD9D5 /* stereo.h */,
 				D374D70E19BA077900D2EA79 /* stereo_features.h */,
@@ -1258,6 +1263,7 @@
 				320E9C4719A6BB8A00D6153B /* RCSlideBanner.m in Sources */,
 				3267A2ED16C46D9A001E14C7 /* UIImageView+AFNetworking.m in Sources */,
 				D30434B7197E85FE00190B70 /* fisher.c in Sources */,
+				D374D71319BA0BD500D2EA79 /* fundamental.cpp in Sources */,
 				3267A2F116C46DA8001E14C7 /* RCHTTPClient.m in Sources */,
 				D30434CA197E85FE00190B70 /* mathop_avx.c in Sources */,
 				D39F963719AB75E700562BA2 /* camera.cpp in Sources */,

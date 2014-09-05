@@ -9,6 +9,10 @@
 #import "RCDebugLog.h"
 
 @implementation RCAVSessionManager
+{
+    bool hasInput;
+}
+
 @synthesize session, videoDevice;
 
 + (id) sharedInstance
@@ -19,6 +23,11 @@
         instance = [RCAVSessionManager new];
     });
     return instance;
+}
+
++(void)requestCameraAccessWithCompletion:(void (^)(BOOL))handler
+{
+    [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:handler];
 }
 
 - (id) init
@@ -40,12 +49,9 @@
         
         session = [[AVCaptureSession alloc] init];
         
-        [session beginConfiguration];
         [session setSessionPreset:AVCaptureSessionPreset640x480]; // 640x480 required
         
-        [self addInputToSession];
-        
-        [session commitConfiguration];
+        hasInput = false;
     }
     
     return self;
@@ -85,6 +91,7 @@
         }
         
         [session addInput:input];
+        hasInput = true;
     }
     else
     {
@@ -102,7 +109,9 @@
         DLog(@"Session is nil");
         return false;
     }
-        
+    
+    if(!hasInput) [self addInputToSession];
+    
     if (![session isRunning]) [session startRunning];
     
     return true;

@@ -168,6 +168,61 @@
 		D36C360C184F2FC100F77AAF /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C360B184F2FC100F77AAF /* Security.framework */; };
 		D36C360E184F2FCD00F77AAF /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C360D184F2FCD00F77AAF /* SystemConfiguration.framework */; };
 		D36C3621184F360C00F77AAF /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C3620184F360C00F77AAF /* libz.dylib */; };
+		D3EF0A9819BA1FD100512050 /* RCStereo.mm in Sources */ = {isa = PBXBuildFile; fileRef = D3EF0A9719BA1FD100512050 /* RCStereo.mm */; };
+		D3F50AFE19BA19FD00791303 /* aib.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50A8E19BA19FD00791303 /* aib.c */; };
+		D3F50AFF19BA19FD00791303 /* array.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50A9019BA19FD00791303 /* array.c */; };
+		D3F50B0019BA19FD00791303 /* covdet.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50A9219BA19FD00791303 /* covdet.c */; };
+		D3F50B0119BA19FD00791303 /* dsift.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50A9419BA19FD00791303 /* dsift.c */; };
+		D3F50B0219BA19FD00791303 /* fisher.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50A9619BA19FD00791303 /* fisher.c */; };
+		D3F50B0319BA19FD00791303 /* float.th in Resources */ = {isa = PBXBuildFile; fileRef = D3F50A9819BA19FD00791303 /* float.th */; };
+		D3F50B0419BA19FD00791303 /* generic.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50A9919BA19FD00791303 /* generic.c */; };
+		D3F50B0519BA19FD00791303 /* gmm.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50A9B19BA19FD00791303 /* gmm.c */; };
+		D3F50B0619BA19FD00791303 /* hikmeans.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50A9E19BA19FD00791303 /* hikmeans.c */; };
+		D3F50B0719BA19FD00791303 /* hog.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AA019BA19FD00791303 /* hog.c */; };
+		D3F50B0819BA19FD00791303 /* homkermap.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AA219BA19FD00791303 /* homkermap.c */; };
+		D3F50B0919BA19FD00791303 /* host.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AA419BA19FD00791303 /* host.c */; };
+		D3F50B0A19BA19FD00791303 /* ikmeans_elkan.tc in Resources */ = {isa = PBXBuildFile; fileRef = D3F50AA619BA19FD00791303 /* ikmeans_elkan.tc */; };
+		D3F50B0B19BA19FD00791303 /* ikmeans_init.tc in Resources */ = {isa = PBXBuildFile; fileRef = D3F50AA719BA19FD00791303 /* ikmeans_init.tc */; };
+		D3F50B0C19BA19FD00791303 /* ikmeans_lloyd.tc in Resources */ = {isa = PBXBuildFile; fileRef = D3F50AA819BA19FD00791303 /* ikmeans_lloyd.tc */; };
+		D3F50B0D19BA19FD00791303 /* ikmeans.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AA919BA19FD00791303 /* ikmeans.c */; };
+		D3F50B0E19BA19FD00791303 /* imopv_sse2.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AAB19BA19FD00791303 /* imopv_sse2.c */; };
+		D3F50B0F19BA19FD00791303 /* imopv.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AAD19BA19FD00791303 /* imopv.c */; };
+		D3F50B1019BA19FD00791303 /* kdtree.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AAF19BA19FD00791303 /* kdtree.c */; };
+		D3F50B1119BA19FD00791303 /* kmeans.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AB119BA19FD00791303 /* kmeans.c */; };
+		D3F50B1219BA19FD00791303 /* lbp.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AB319BA19FD00791303 /* lbp.c */; };
+		D3F50B1319BA19FD00791303 /* liop.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AB519BA19FD00791303 /* liop.c */; };
+		D3F50B1419BA19FD00791303 /* mathop_avx.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AB719BA19FD00791303 /* mathop_avx.c */; };
+		D3F50B1519BA19FD00791303 /* mathop_sse2.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AB919BA19FD00791303 /* mathop_sse2.c */; };
+		D3F50B1619BA19FD00791303 /* mathop.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50ABB19BA19FD00791303 /* mathop.c */; };
+		D3F50B1719BA19FD00791303 /* mser.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50ABD19BA19FD00791303 /* mser.c */; };
+		D3F50B1819BA19FD00791303 /* pgm.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50ABF19BA19FD00791303 /* pgm.c */; };
+		D3F50B1919BA19FD00791303 /* quickshift.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AC219BA19FD00791303 /* quickshift.c */; };
+		D3F50B1A19BA19FD00791303 /* random.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AC419BA19FD00791303 /* random.c */; };
+		D3F50B1B19BA19FD00791303 /* rodrigues.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AC619BA19FD00791303 /* rodrigues.c */; };
+		D3F50B1C19BA19FD00791303 /* scalespace.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AC819BA19FD00791303 /* scalespace.c */; };
+		D3F50B1D19BA19FD00791303 /* sift.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50ACB19BA19FD00791303 /* sift.c */; };
+		D3F50B1E19BA19FD00791303 /* slic.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50ACD19BA19FD00791303 /* slic.c */; };
+		D3F50B1F19BA19FD00791303 /* stringop.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50ACF19BA19FD00791303 /* stringop.c */; };
+		D3F50B2019BA19FD00791303 /* svm.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AD119BA19FD00791303 /* svm.c */; };
+		D3F50B2119BA19FD00791303 /* svmdataset.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AD319BA19FD00791303 /* svmdataset.c */; };
+		D3F50B2219BA19FD00791303 /* vlad.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AD519BA19FD00791303 /* vlad.c */; };
+		D3F50B2319BA19FD00791303 /* README.txt in Resources */ = {isa = PBXBuildFile; fileRef = D3F50ADA19BA19FD00791303 /* README.txt */; };
+		D3F50B2419BA19FD00791303 /* graph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50ADB19BA19FD00791303 /* graph.cpp */; };
+		D3F50B2519BA19FD00791303 /* regions-maxprod.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50ADC19BA19FD00791303 /* regions-maxprod.cpp */; };
+		D3F50B2719BA19FD00791303 /* GCoptimization.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AE019BA19FD00791303 /* GCoptimization.cpp */; };
+		D3F50B2819BA19FD00791303 /* MaxProdBP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AE319BA19FD00791303 /* MaxProdBP.cpp */; };
+		D3F50B2919BA19FD00791303 /* mrf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AE519BA19FD00791303 /* mrf.cpp */; };
+		D3F50B2A19BA19FD00791303 /* TRW-S.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AE719BA19FD00791303 /* TRW-S.cpp */; };
+		D3F50B2B19BA19FD00791303 /* ICM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AE919BA19FD00791303 /* ICM.cpp */; };
+		D3F50B2C19BA19FD00791303 /* LinkedBlockList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AEB19BA19FD00791303 /* LinkedBlockList.cpp */; };
+		D3F50B2D19BA19FD00791303 /* maxflow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AED19BA19FD00791303 /* maxflow.cpp */; };
+		D3F50B2E19BA19FD00791303 /* BP-S.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AEE19BA19FD00791303 /* BP-S.cpp */; };
+		D3F50B2F19BA19FD00791303 /* camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AF219BA19FD00791303 /* camera.cpp */; };
+		D3F50B3019BA19FD00791303 /* fundamental.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AF419BA19FD00791303 /* fundamental.cpp */; };
+		D3F50B3119BA19FD00791303 /* stereo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AF519BA19FD00791303 /* stereo.cpp */; };
+		D3F50B3219BA19FD00791303 /* stereo_features.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AF819BA19FD00791303 /* stereo_features.cpp */; };
+		D3F50B3319BA19FD00791303 /* stereo_mesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AF919BA19FD00791303 /* stereo_mesh.cpp */; };
+		D3F50B3419BA19FD00791303 /* triangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AFB19BA19FD00791303 /* triangle.cpp */; };
 		D3F57863184F2DAE00EE450E /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3F57862184F2DAE00EE450E /* Accelerate.framework */; };
 		D3F57867184F2DE100EE450E /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3F57866184F2DE100EE450E /* AVFoundation.framework */; };
 		D3F57869184F2DEE00EE450E /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3F57868184F2DEE00EE450E /* CoreImage.framework */; };
@@ -493,6 +548,116 @@
 		D36C360B184F2FC100F77AAF /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		D36C360D184F2FCD00F77AAF /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		D36C3620184F360C00F77AAF /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
+		D3EF0A9619BA1FD100512050 /* RCStereo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCStereo.h; path = ../../measuredphoto/MeasuredPhoto/RCStereo.h; sourceTree = "<group>"; };
+		D3EF0A9719BA1FD100512050 /* RCStereo.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = RCStereo.mm; path = ../../measuredphoto/MeasuredPhoto/RCStereo.mm; sourceTree = "<group>"; };
+		D3F50A8E19BA19FD00791303 /* aib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = aib.c; path = "../../corvis/src/vlfeat-0.9.18/vl/aib.c"; sourceTree = "<group>"; };
+		D3F50A8F19BA19FD00791303 /* aib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aib.h; path = "../../corvis/src/vlfeat-0.9.18/vl/aib.h"; sourceTree = "<group>"; };
+		D3F50A9019BA19FD00791303 /* array.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = array.c; path = "../../corvis/src/vlfeat-0.9.18/vl/array.c"; sourceTree = "<group>"; };
+		D3F50A9119BA19FD00791303 /* array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = array.h; path = "../../corvis/src/vlfeat-0.9.18/vl/array.h"; sourceTree = "<group>"; };
+		D3F50A9219BA19FD00791303 /* covdet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = covdet.c; path = "../../corvis/src/vlfeat-0.9.18/vl/covdet.c"; sourceTree = "<group>"; };
+		D3F50A9319BA19FD00791303 /* covdet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = covdet.h; path = "../../corvis/src/vlfeat-0.9.18/vl/covdet.h"; sourceTree = "<group>"; };
+		D3F50A9419BA19FD00791303 /* dsift.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = dsift.c; path = "../../corvis/src/vlfeat-0.9.18/vl/dsift.c"; sourceTree = "<group>"; };
+		D3F50A9519BA19FD00791303 /* dsift.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = dsift.h; path = "../../corvis/src/vlfeat-0.9.18/vl/dsift.h"; sourceTree = "<group>"; };
+		D3F50A9619BA19FD00791303 /* fisher.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = fisher.c; path = "../../corvis/src/vlfeat-0.9.18/vl/fisher.c"; sourceTree = "<group>"; };
+		D3F50A9719BA19FD00791303 /* fisher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fisher.h; path = "../../corvis/src/vlfeat-0.9.18/vl/fisher.h"; sourceTree = "<group>"; };
+		D3F50A9819BA19FD00791303 /* float.th */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = float.th; path = "../../corvis/src/vlfeat-0.9.18/vl/float.th"; sourceTree = "<group>"; };
+		D3F50A9919BA19FD00791303 /* generic.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = generic.c; path = "../../corvis/src/vlfeat-0.9.18/vl/generic.c"; sourceTree = "<group>"; };
+		D3F50A9A19BA19FD00791303 /* generic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = generic.h; path = "../../corvis/src/vlfeat-0.9.18/vl/generic.h"; sourceTree = "<group>"; };
+		D3F50A9B19BA19FD00791303 /* gmm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = gmm.c; path = "../../corvis/src/vlfeat-0.9.18/vl/gmm.c"; sourceTree = "<group>"; };
+		D3F50A9C19BA19FD00791303 /* gmm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gmm.h; path = "../../corvis/src/vlfeat-0.9.18/vl/gmm.h"; sourceTree = "<group>"; };
+		D3F50A9D19BA19FD00791303 /* heap-def.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "heap-def.h"; path = "../../corvis/src/vlfeat-0.9.18/vl/heap-def.h"; sourceTree = "<group>"; };
+		D3F50A9E19BA19FD00791303 /* hikmeans.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = hikmeans.c; path = "../../corvis/src/vlfeat-0.9.18/vl/hikmeans.c"; sourceTree = "<group>"; };
+		D3F50A9F19BA19FD00791303 /* hikmeans.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hikmeans.h; path = "../../corvis/src/vlfeat-0.9.18/vl/hikmeans.h"; sourceTree = "<group>"; };
+		D3F50AA019BA19FD00791303 /* hog.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = hog.c; path = "../../corvis/src/vlfeat-0.9.18/vl/hog.c"; sourceTree = "<group>"; };
+		D3F50AA119BA19FD00791303 /* hog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hog.h; path = "../../corvis/src/vlfeat-0.9.18/vl/hog.h"; sourceTree = "<group>"; };
+		D3F50AA219BA19FD00791303 /* homkermap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = homkermap.c; path = "../../corvis/src/vlfeat-0.9.18/vl/homkermap.c"; sourceTree = "<group>"; };
+		D3F50AA319BA19FD00791303 /* homkermap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = homkermap.h; path = "../../corvis/src/vlfeat-0.9.18/vl/homkermap.h"; sourceTree = "<group>"; };
+		D3F50AA419BA19FD00791303 /* host.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = host.c; path = "../../corvis/src/vlfeat-0.9.18/vl/host.c"; sourceTree = "<group>"; };
+		D3F50AA519BA19FD00791303 /* host.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = host.h; path = "../../corvis/src/vlfeat-0.9.18/vl/host.h"; sourceTree = "<group>"; };
+		D3F50AA619BA19FD00791303 /* ikmeans_elkan.tc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ikmeans_elkan.tc; path = "../../corvis/src/vlfeat-0.9.18/vl/ikmeans_elkan.tc"; sourceTree = "<group>"; };
+		D3F50AA719BA19FD00791303 /* ikmeans_init.tc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ikmeans_init.tc; path = "../../corvis/src/vlfeat-0.9.18/vl/ikmeans_init.tc"; sourceTree = "<group>"; };
+		D3F50AA819BA19FD00791303 /* ikmeans_lloyd.tc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ikmeans_lloyd.tc; path = "../../corvis/src/vlfeat-0.9.18/vl/ikmeans_lloyd.tc"; sourceTree = "<group>"; };
+		D3F50AA919BA19FD00791303 /* ikmeans.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = ikmeans.c; path = "../../corvis/src/vlfeat-0.9.18/vl/ikmeans.c"; sourceTree = "<group>"; };
+		D3F50AAA19BA19FD00791303 /* ikmeans.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ikmeans.h; path = "../../corvis/src/vlfeat-0.9.18/vl/ikmeans.h"; sourceTree = "<group>"; };
+		D3F50AAB19BA19FD00791303 /* imopv_sse2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = imopv_sse2.c; path = "../../corvis/src/vlfeat-0.9.18/vl/imopv_sse2.c"; sourceTree = "<group>"; };
+		D3F50AAC19BA19FD00791303 /* imopv_sse2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = imopv_sse2.h; path = "../../corvis/src/vlfeat-0.9.18/vl/imopv_sse2.h"; sourceTree = "<group>"; };
+		D3F50AAD19BA19FD00791303 /* imopv.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = imopv.c; path = "../../corvis/src/vlfeat-0.9.18/vl/imopv.c"; sourceTree = "<group>"; };
+		D3F50AAE19BA19FD00791303 /* imopv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = imopv.h; path = "../../corvis/src/vlfeat-0.9.18/vl/imopv.h"; sourceTree = "<group>"; };
+		D3F50AAF19BA19FD00791303 /* kdtree.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = kdtree.c; path = "../../corvis/src/vlfeat-0.9.18/vl/kdtree.c"; sourceTree = "<group>"; };
+		D3F50AB019BA19FD00791303 /* kdtree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kdtree.h; path = "../../corvis/src/vlfeat-0.9.18/vl/kdtree.h"; sourceTree = "<group>"; };
+		D3F50AB119BA19FD00791303 /* kmeans.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = kmeans.c; path = "../../corvis/src/vlfeat-0.9.18/vl/kmeans.c"; sourceTree = "<group>"; };
+		D3F50AB219BA19FD00791303 /* kmeans.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kmeans.h; path = "../../corvis/src/vlfeat-0.9.18/vl/kmeans.h"; sourceTree = "<group>"; };
+		D3F50AB319BA19FD00791303 /* lbp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = lbp.c; path = "../../corvis/src/vlfeat-0.9.18/vl/lbp.c"; sourceTree = "<group>"; };
+		D3F50AB419BA19FD00791303 /* lbp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lbp.h; path = "../../corvis/src/vlfeat-0.9.18/vl/lbp.h"; sourceTree = "<group>"; };
+		D3F50AB519BA19FD00791303 /* liop.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = liop.c; path = "../../corvis/src/vlfeat-0.9.18/vl/liop.c"; sourceTree = "<group>"; };
+		D3F50AB619BA19FD00791303 /* liop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = liop.h; path = "../../corvis/src/vlfeat-0.9.18/vl/liop.h"; sourceTree = "<group>"; };
+		D3F50AB719BA19FD00791303 /* mathop_avx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mathop_avx.c; path = "../../corvis/src/vlfeat-0.9.18/vl/mathop_avx.c"; sourceTree = "<group>"; };
+		D3F50AB819BA19FD00791303 /* mathop_avx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mathop_avx.h; path = "../../corvis/src/vlfeat-0.9.18/vl/mathop_avx.h"; sourceTree = "<group>"; };
+		D3F50AB919BA19FD00791303 /* mathop_sse2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mathop_sse2.c; path = "../../corvis/src/vlfeat-0.9.18/vl/mathop_sse2.c"; sourceTree = "<group>"; };
+		D3F50ABA19BA19FD00791303 /* mathop_sse2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mathop_sse2.h; path = "../../corvis/src/vlfeat-0.9.18/vl/mathop_sse2.h"; sourceTree = "<group>"; };
+		D3F50ABB19BA19FD00791303 /* mathop.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mathop.c; path = "../../corvis/src/vlfeat-0.9.18/vl/mathop.c"; sourceTree = "<group>"; };
+		D3F50ABC19BA19FD00791303 /* mathop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mathop.h; path = "../../corvis/src/vlfeat-0.9.18/vl/mathop.h"; sourceTree = "<group>"; };
+		D3F50ABD19BA19FD00791303 /* mser.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mser.c; path = "../../corvis/src/vlfeat-0.9.18/vl/mser.c"; sourceTree = "<group>"; };
+		D3F50ABE19BA19FD00791303 /* mser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mser.h; path = "../../corvis/src/vlfeat-0.9.18/vl/mser.h"; sourceTree = "<group>"; };
+		D3F50ABF19BA19FD00791303 /* pgm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = pgm.c; path = "../../corvis/src/vlfeat-0.9.18/vl/pgm.c"; sourceTree = "<group>"; };
+		D3F50AC019BA19FD00791303 /* pgm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pgm.h; path = "../../corvis/src/vlfeat-0.9.18/vl/pgm.h"; sourceTree = "<group>"; };
+		D3F50AC119BA19FD00791303 /* qsort-def.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "qsort-def.h"; path = "../../corvis/src/vlfeat-0.9.18/vl/qsort-def.h"; sourceTree = "<group>"; };
+		D3F50AC219BA19FD00791303 /* quickshift.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = quickshift.c; path = "../../corvis/src/vlfeat-0.9.18/vl/quickshift.c"; sourceTree = "<group>"; };
+		D3F50AC319BA19FD00791303 /* quickshift.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = quickshift.h; path = "../../corvis/src/vlfeat-0.9.18/vl/quickshift.h"; sourceTree = "<group>"; };
+		D3F50AC419BA19FD00791303 /* random.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = random.c; path = "../../corvis/src/vlfeat-0.9.18/vl/random.c"; sourceTree = "<group>"; };
+		D3F50AC519BA19FD00791303 /* random.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = random.h; path = "../../corvis/src/vlfeat-0.9.18/vl/random.h"; sourceTree = "<group>"; };
+		D3F50AC619BA19FD00791303 /* rodrigues.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rodrigues.c; path = "../../corvis/src/vlfeat-0.9.18/vl/rodrigues.c"; sourceTree = "<group>"; };
+		D3F50AC719BA19FD00791303 /* rodrigues.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rodrigues.h; path = "../../corvis/src/vlfeat-0.9.18/vl/rodrigues.h"; sourceTree = "<group>"; };
+		D3F50AC819BA19FD00791303 /* scalespace.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = scalespace.c; path = "../../corvis/src/vlfeat-0.9.18/vl/scalespace.c"; sourceTree = "<group>"; };
+		D3F50AC919BA19FD00791303 /* scalespace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = scalespace.h; path = "../../corvis/src/vlfeat-0.9.18/vl/scalespace.h"; sourceTree = "<group>"; };
+		D3F50ACA19BA19FD00791303 /* shuffle-def.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "shuffle-def.h"; path = "../../corvis/src/vlfeat-0.9.18/vl/shuffle-def.h"; sourceTree = "<group>"; };
+		D3F50ACB19BA19FD00791303 /* sift.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sift.c; path = "../../corvis/src/vlfeat-0.9.18/vl/sift.c"; sourceTree = "<group>"; };
+		D3F50ACC19BA19FD00791303 /* sift.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sift.h; path = "../../corvis/src/vlfeat-0.9.18/vl/sift.h"; sourceTree = "<group>"; };
+		D3F50ACD19BA19FD00791303 /* slic.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = slic.c; path = "../../corvis/src/vlfeat-0.9.18/vl/slic.c"; sourceTree = "<group>"; };
+		D3F50ACE19BA19FD00791303 /* slic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = slic.h; path = "../../corvis/src/vlfeat-0.9.18/vl/slic.h"; sourceTree = "<group>"; };
+		D3F50ACF19BA19FD00791303 /* stringop.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = stringop.c; path = "../../corvis/src/vlfeat-0.9.18/vl/stringop.c"; sourceTree = "<group>"; };
+		D3F50AD019BA19FD00791303 /* stringop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stringop.h; path = "../../corvis/src/vlfeat-0.9.18/vl/stringop.h"; sourceTree = "<group>"; };
+		D3F50AD119BA19FD00791303 /* svm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = svm.c; path = "../../corvis/src/vlfeat-0.9.18/vl/svm.c"; sourceTree = "<group>"; };
+		D3F50AD219BA19FD00791303 /* svm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = svm.h; path = "../../corvis/src/vlfeat-0.9.18/vl/svm.h"; sourceTree = "<group>"; };
+		D3F50AD319BA19FD00791303 /* svmdataset.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = svmdataset.c; path = "../../corvis/src/vlfeat-0.9.18/vl/svmdataset.c"; sourceTree = "<group>"; };
+		D3F50AD419BA19FD00791303 /* svmdataset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = svmdataset.h; path = "../../corvis/src/vlfeat-0.9.18/vl/svmdataset.h"; sourceTree = "<group>"; };
+		D3F50AD519BA19FD00791303 /* vlad.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = vlad.c; path = "../../corvis/src/vlfeat-0.9.18/vl/vlad.c"; sourceTree = "<group>"; };
+		D3F50AD619BA19FD00791303 /* vlad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vlad.h; path = "../../corvis/src/vlfeat-0.9.18/vl/vlad.h"; sourceTree = "<group>"; };
+		D3F50AD819BA19FD00791303 /* graph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = graph.h; path = ../../corvis/src/MRF2.2/graph.h; sourceTree = "<group>"; };
+		D3F50AD919BA19FD00791303 /* typeTruncatedQuadratic2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = typeTruncatedQuadratic2D.h; path = ../../corvis/src/MRF2.2/typeTruncatedQuadratic2D.h; sourceTree = "<group>"; };
+		D3F50ADA19BA19FD00791303 /* README.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = README.txt; path = ../../corvis/src/MRF2.2/README.txt; sourceTree = "<group>"; };
+		D3F50ADB19BA19FD00791303 /* graph.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = graph.cpp; path = ../../corvis/src/MRF2.2/graph.cpp; sourceTree = "<group>"; };
+		D3F50ADC19BA19FD00791303 /* regions-maxprod.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "regions-maxprod.cpp"; path = "../../corvis/src/MRF2.2/regions-maxprod.cpp"; sourceTree = "<group>"; };
+		D3F50ADE19BA19FD00791303 /* block.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = block.h; path = ../../corvis/src/MRF2.2/block.h; sourceTree = "<group>"; };
+		D3F50ADF19BA19FD00791303 /* energy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = energy.h; path = ../../corvis/src/MRF2.2/energy.h; sourceTree = "<group>"; };
+		D3F50AE019BA19FD00791303 /* GCoptimization.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GCoptimization.cpp; path = ../../corvis/src/MRF2.2/GCoptimization.cpp; sourceTree = "<group>"; };
+		D3F50AE119BA19FD00791303 /* GCoptimization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GCoptimization.h; path = ../../corvis/src/MRF2.2/GCoptimization.h; sourceTree = "<group>"; };
+		D3F50AE219BA19FD00791303 /* mrf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mrf.h; path = ../../corvis/src/MRF2.2/mrf.h; sourceTree = "<group>"; };
+		D3F50AE319BA19FD00791303 /* MaxProdBP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MaxProdBP.cpp; path = ../../corvis/src/MRF2.2/MaxProdBP.cpp; sourceTree = "<group>"; };
+		D3F50AE419BA19FD00791303 /* MaxProdBP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaxProdBP.h; path = ../../corvis/src/MRF2.2/MaxProdBP.h; sourceTree = "<group>"; };
+		D3F50AE519BA19FD00791303 /* mrf.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mrf.cpp; path = ../../corvis/src/MRF2.2/mrf.cpp; sourceTree = "<group>"; };
+		D3F50AE619BA19FD00791303 /* regions-new.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "regions-new.h"; path = "../../corvis/src/MRF2.2/regions-new.h"; sourceTree = "<group>"; };
+		D3F50AE719BA19FD00791303 /* TRW-S.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "TRW-S.cpp"; path = "../../corvis/src/MRF2.2/TRW-S.cpp"; sourceTree = "<group>"; };
+		D3F50AE819BA19FD00791303 /* TRW-S.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "TRW-S.h"; path = "../../corvis/src/MRF2.2/TRW-S.h"; sourceTree = "<group>"; };
+		D3F50AE919BA19FD00791303 /* ICM.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ICM.cpp; path = ../../corvis/src/MRF2.2/ICM.cpp; sourceTree = "<group>"; };
+		D3F50AEA19BA19FD00791303 /* ICM.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ICM.h; path = ../../corvis/src/MRF2.2/ICM.h; sourceTree = "<group>"; };
+		D3F50AEB19BA19FD00791303 /* LinkedBlockList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LinkedBlockList.cpp; path = ../../corvis/src/MRF2.2/LinkedBlockList.cpp; sourceTree = "<group>"; };
+		D3F50AEC19BA19FD00791303 /* LinkedBlockList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LinkedBlockList.h; path = ../../corvis/src/MRF2.2/LinkedBlockList.h; sourceTree = "<group>"; };
+		D3F50AED19BA19FD00791303 /* maxflow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = maxflow.cpp; path = ../../corvis/src/MRF2.2/maxflow.cpp; sourceTree = "<group>"; };
+		D3F50AEE19BA19FD00791303 /* BP-S.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "BP-S.cpp"; path = "../../corvis/src/MRF2.2/BP-S.cpp"; sourceTree = "<group>"; };
+		D3F50AEF19BA19FD00791303 /* BP-S.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "BP-S.h"; path = "../../corvis/src/MRF2.2/BP-S.h"; sourceTree = "<group>"; };
+		D3F50AF119BA19FD00791303 /* camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = camera.h; path = ../../corvis/src/stereo/camera.h; sourceTree = "<group>"; };
+		D3F50AF219BA19FD00791303 /* camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = camera.cpp; path = ../../corvis/src/stereo/camera.cpp; sourceTree = "<group>"; };
+		D3F50AF319BA19FD00791303 /* fundamental.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fundamental.h; path = ../../corvis/src/stereo/fundamental.h; sourceTree = "<group>"; };
+		D3F50AF419BA19FD00791303 /* fundamental.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fundamental.cpp; path = ../../corvis/src/stereo/fundamental.cpp; sourceTree = "<group>"; };
+		D3F50AF519BA19FD00791303 /* stereo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = stereo.cpp; path = ../../corvis/src/stereo/stereo.cpp; sourceTree = "<group>"; };
+		D3F50AF619BA19FD00791303 /* stereo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stereo.h; path = ../../corvis/src/stereo/stereo.h; sourceTree = "<group>"; };
+		D3F50AF719BA19FD00791303 /* stereo_features.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stereo_features.h; path = ../../corvis/src/stereo/stereo_features.h; sourceTree = "<group>"; };
+		D3F50AF819BA19FD00791303 /* stereo_features.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = stereo_features.cpp; path = ../../corvis/src/stereo/stereo_features.cpp; sourceTree = "<group>"; };
+		D3F50AF919BA19FD00791303 /* stereo_mesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = stereo_mesh.cpp; path = ../../corvis/src/stereo/stereo_mesh.cpp; sourceTree = "<group>"; };
+		D3F50AFA19BA19FD00791303 /* stereo_mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stereo_mesh.h; path = ../../corvis/src/stereo/stereo_mesh.h; sourceTree = "<group>"; };
+		D3F50AFB19BA19FD00791303 /* triangle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = triangle.cpp; path = ../../corvis/src/stereo/triangle.cpp; sourceTree = "<group>"; };
+		D3F50AFC19BA19FD00791303 /* triangle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = triangle.h; path = ../../corvis/src/stereo/triangle.h; sourceTree = "<group>"; };
 		D3F57862184F2DAE00EE450E /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		D3F57866184F2DE100EE450E /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		D3F57868184F2DEE00EE450E /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
@@ -681,6 +846,7 @@
 			isa = PBXGroup;
 			children = (
 				32C173C8191457F4008B3262 /* TrueMeasureTutorial.mp4 */,
+				D3F50AFD19BA19FD00791303 /* Stereo */,
 				3244D38718E60F4600AB0DE0 /* Calibration */,
 				32934CD218D8D9A1005DC87C /* HTML */,
 				32BA436A17A30BAC002BAE13 /* Shaders */,
@@ -1044,6 +1210,140 @@
 			path = JSON;
 			sourceTree = "<group>";
 		};
+		D3F50AD719BA19FD00791303 /* VLFeat */ = {
+			isa = PBXGroup;
+			children = (
+				D3F50A8E19BA19FD00791303 /* aib.c */,
+				D3F50A8F19BA19FD00791303 /* aib.h */,
+				D3F50A9019BA19FD00791303 /* array.c */,
+				D3F50A9119BA19FD00791303 /* array.h */,
+				D3F50A9219BA19FD00791303 /* covdet.c */,
+				D3F50A9319BA19FD00791303 /* covdet.h */,
+				D3F50A9419BA19FD00791303 /* dsift.c */,
+				D3F50A9519BA19FD00791303 /* dsift.h */,
+				D3F50A9619BA19FD00791303 /* fisher.c */,
+				D3F50A9719BA19FD00791303 /* fisher.h */,
+				D3F50A9819BA19FD00791303 /* float.th */,
+				D3F50A9919BA19FD00791303 /* generic.c */,
+				D3F50A9A19BA19FD00791303 /* generic.h */,
+				D3F50A9B19BA19FD00791303 /* gmm.c */,
+				D3F50A9C19BA19FD00791303 /* gmm.h */,
+				D3F50A9D19BA19FD00791303 /* heap-def.h */,
+				D3F50A9E19BA19FD00791303 /* hikmeans.c */,
+				D3F50A9F19BA19FD00791303 /* hikmeans.h */,
+				D3F50AA019BA19FD00791303 /* hog.c */,
+				D3F50AA119BA19FD00791303 /* hog.h */,
+				D3F50AA219BA19FD00791303 /* homkermap.c */,
+				D3F50AA319BA19FD00791303 /* homkermap.h */,
+				D3F50AA419BA19FD00791303 /* host.c */,
+				D3F50AA519BA19FD00791303 /* host.h */,
+				D3F50AA619BA19FD00791303 /* ikmeans_elkan.tc */,
+				D3F50AA719BA19FD00791303 /* ikmeans_init.tc */,
+				D3F50AA819BA19FD00791303 /* ikmeans_lloyd.tc */,
+				D3F50AA919BA19FD00791303 /* ikmeans.c */,
+				D3F50AAA19BA19FD00791303 /* ikmeans.h */,
+				D3F50AAB19BA19FD00791303 /* imopv_sse2.c */,
+				D3F50AAC19BA19FD00791303 /* imopv_sse2.h */,
+				D3F50AAD19BA19FD00791303 /* imopv.c */,
+				D3F50AAE19BA19FD00791303 /* imopv.h */,
+				D3F50AAF19BA19FD00791303 /* kdtree.c */,
+				D3F50AB019BA19FD00791303 /* kdtree.h */,
+				D3F50AB119BA19FD00791303 /* kmeans.c */,
+				D3F50AB219BA19FD00791303 /* kmeans.h */,
+				D3F50AB319BA19FD00791303 /* lbp.c */,
+				D3F50AB419BA19FD00791303 /* lbp.h */,
+				D3F50AB519BA19FD00791303 /* liop.c */,
+				D3F50AB619BA19FD00791303 /* liop.h */,
+				D3F50AB719BA19FD00791303 /* mathop_avx.c */,
+				D3F50AB819BA19FD00791303 /* mathop_avx.h */,
+				D3F50AB919BA19FD00791303 /* mathop_sse2.c */,
+				D3F50ABA19BA19FD00791303 /* mathop_sse2.h */,
+				D3F50ABB19BA19FD00791303 /* mathop.c */,
+				D3F50ABC19BA19FD00791303 /* mathop.h */,
+				D3F50ABD19BA19FD00791303 /* mser.c */,
+				D3F50ABE19BA19FD00791303 /* mser.h */,
+				D3F50ABF19BA19FD00791303 /* pgm.c */,
+				D3F50AC019BA19FD00791303 /* pgm.h */,
+				D3F50AC119BA19FD00791303 /* qsort-def.h */,
+				D3F50AC219BA19FD00791303 /* quickshift.c */,
+				D3F50AC319BA19FD00791303 /* quickshift.h */,
+				D3F50AC419BA19FD00791303 /* random.c */,
+				D3F50AC519BA19FD00791303 /* random.h */,
+				D3F50AC619BA19FD00791303 /* rodrigues.c */,
+				D3F50AC719BA19FD00791303 /* rodrigues.h */,
+				D3F50AC819BA19FD00791303 /* scalespace.c */,
+				D3F50AC919BA19FD00791303 /* scalespace.h */,
+				D3F50ACA19BA19FD00791303 /* shuffle-def.h */,
+				D3F50ACB19BA19FD00791303 /* sift.c */,
+				D3F50ACC19BA19FD00791303 /* sift.h */,
+				D3F50ACD19BA19FD00791303 /* slic.c */,
+				D3F50ACE19BA19FD00791303 /* slic.h */,
+				D3F50ACF19BA19FD00791303 /* stringop.c */,
+				D3F50AD019BA19FD00791303 /* stringop.h */,
+				D3F50AD119BA19FD00791303 /* svm.c */,
+				D3F50AD219BA19FD00791303 /* svm.h */,
+				D3F50AD319BA19FD00791303 /* svmdataset.c */,
+				D3F50AD419BA19FD00791303 /* svmdataset.h */,
+				D3F50AD519BA19FD00791303 /* vlad.c */,
+				D3F50AD619BA19FD00791303 /* vlad.h */,
+			);
+			name = VLFeat;
+			sourceTree = "<group>";
+		};
+		D3F50AF019BA19FD00791303 /* MRF */ = {
+			isa = PBXGroup;
+			children = (
+				D3F50AD819BA19FD00791303 /* graph.h */,
+				D3F50AD919BA19FD00791303 /* typeTruncatedQuadratic2D.h */,
+				D3F50ADA19BA19FD00791303 /* README.txt */,
+				D3F50ADB19BA19FD00791303 /* graph.cpp */,
+				D3F50ADC19BA19FD00791303 /* regions-maxprod.cpp */,
+				D3F50ADE19BA19FD00791303 /* block.h */,
+				D3F50ADF19BA19FD00791303 /* energy.h */,
+				D3F50AE019BA19FD00791303 /* GCoptimization.cpp */,
+				D3F50AE119BA19FD00791303 /* GCoptimization.h */,
+				D3F50AE219BA19FD00791303 /* mrf.h */,
+				D3F50AE319BA19FD00791303 /* MaxProdBP.cpp */,
+				D3F50AE419BA19FD00791303 /* MaxProdBP.h */,
+				D3F50AE519BA19FD00791303 /* mrf.cpp */,
+				D3F50AE619BA19FD00791303 /* regions-new.h */,
+				D3F50AE719BA19FD00791303 /* TRW-S.cpp */,
+				D3F50AE819BA19FD00791303 /* TRW-S.h */,
+				D3F50AE919BA19FD00791303 /* ICM.cpp */,
+				D3F50AEA19BA19FD00791303 /* ICM.h */,
+				D3F50AEB19BA19FD00791303 /* LinkedBlockList.cpp */,
+				D3F50AEC19BA19FD00791303 /* LinkedBlockList.h */,
+				D3F50AED19BA19FD00791303 /* maxflow.cpp */,
+				D3F50AEE19BA19FD00791303 /* BP-S.cpp */,
+				D3F50AEF19BA19FD00791303 /* BP-S.h */,
+			);
+			name = MRF;
+			sourceTree = "<group>";
+		};
+		D3F50AFD19BA19FD00791303 /* Stereo */ = {
+			isa = PBXGroup;
+			children = (
+				D3EF0A9619BA1FD100512050 /* RCStereo.h */,
+				D3EF0A9719BA1FD100512050 /* RCStereo.mm */,
+				D3F50AD719BA19FD00791303 /* VLFeat */,
+				D3F50AF019BA19FD00791303 /* MRF */,
+				D3F50AF119BA19FD00791303 /* camera.h */,
+				D3F50AF219BA19FD00791303 /* camera.cpp */,
+				D3F50AF319BA19FD00791303 /* fundamental.h */,
+				D3F50AF419BA19FD00791303 /* fundamental.cpp */,
+				D3F50AF519BA19FD00791303 /* stereo.cpp */,
+				D3F50AF619BA19FD00791303 /* stereo.h */,
+				D3F50AF719BA19FD00791303 /* stereo_features.h */,
+				D3F50AF819BA19FD00791303 /* stereo_features.cpp */,
+				D3F50AF919BA19FD00791303 /* stereo_mesh.cpp */,
+				D3F50AFA19BA19FD00791303 /* stereo_mesh.h */,
+				D3F50AFB19BA19FD00791303 /* triangle.cpp */,
+				D3F50AFC19BA19FD00791303 /* triangle.h */,
+			);
+			name = Stereo;
+			path = ../../RCCore/RCCore;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -1173,8 +1473,10 @@
 				1743A51E1986F8E1001A5A6A /* rc_menu.js in Resources */,
 				32BA42A717A2DF8B002BAE13 /* InfoPlist.strings in Resources */,
 				3244D38F18E60F4600AB0DE0 /* Calibration.storyboard in Resources */,
+				D3F50B0A19BA19FD00791303 /* ikmeans_elkan.tc in Resources */,
 				32BA42B617A2DF8B002BAE13 /* MainStoryboard_iPhone.storyboard in Resources */,
 				17A377BF198307110002CCAA /* rc_measurements.js in Resources */,
+				D3F50B0319BA19FD00791303 /* float.th in Resources */,
 				324DB325195B8D310004567A /* fastclick.js in Resources */,
 				1768899B195B59F500337524 /* measured_photo_svg.html in Resources */,
 				32EFED5E196E01DB00FDC89F /* test.html in Resources */,
@@ -1183,11 +1485,14 @@
 				324DB328195B8D310004567A /* scale_and_rotate.js in Resources */,
 				324DB329195B8D310004567A /* global_variables.js in Resources */,
 				324DB32A195B8D310004567A /* tilt_monitor.js in Resources */,
+				D3F50B2319BA19FD00791303 /* README.txt in Resources */,
 				324DB32B195B8D310004567A /* web_view_rotation.js in Resources */,
 				324DB32C195B8D310004567A /* depth_data.js in Resources */,
 				324DB32D195B8D310004567A /* request_animation_frame.js in Resources */,
+				D3F50B0C19BA19FD00791303 /* ikmeans_lloyd.tc in Resources */,
 				324DB32E195B8D310004567A /* svgjs.js in Resources */,
 				324DB32F195B8D310004567A /* svgjs_fornobj.js in Resources */,
+				D3F50B0B19BA19FD00791303 /* ikmeans_init.tc in Resources */,
 				324DB330195B8D310004567A /* hammer.js in Resources */,
 				32BA42B917A2DF8B002BAE13 /* MainStoryboard_iPad.storyboard in Resources */,
 				32C135CB1892E6F5004DF62B /* kb-loupe-hi.png in Resources */,
@@ -1246,73 +1551,111 @@
 			buildActionMask = 2147483647;
 			files = (
 				3288AF6917ECE8BC00BCAD09 /* MPSlideBanner.m in Sources */,
+				D3F50B1019BA19FD00791303 /* kdtree.c in Sources */,
 				32BA436117A2FC52002BAE13 /* MPAnalytics.m in Sources */,
 				3201E4E11982D18C008F61D5 /* MPFadeTransitionDelegate.m in Sources */,
 				32EFED2E196C91CE00FDC89F /* NSManagedObject+MagicalRequests.m in Sources */,
 				32BA42A917A2DF8B002BAE13 /* main.m in Sources */,
 				32EFEDA619744A9800FDC89F /* MPNativeAction.m in Sources */,
 				3248C7DE18A4515000061D4A /* MPShutterButton.m in Sources */,
+				D3F50B1919BA19FD00791303 /* quickshift.c in Sources */,
 				32EFED86196E078F00FDC89F /* SBJsonStreamParserState.m in Sources */,
+				D3F50B2419BA19FD00791303 /* graph.cpp in Sources */,
+				D3F50B1819BA19FD00791303 /* pgm.c in Sources */,
 				3201E523198C0FE2008F61D5 /* MPOrientationChangeData.m in Sources */,
 				324C751E17B4293800C67ED2 /* MPMeasurementsView.m in Sources */,
 				32EFED28196C91CE00FDC89F /* NSRelationshipDescription+MagicalDataImport.m in Sources */,
+				D3F50B0619BA19FD00791303 /* hikmeans.c in Sources */,
 				1768898D195B599100337524 /* main_function.js in Sources */,
 				32EFED24196C91CE00FDC89F /* NSAttributeDescription+MagicalDataImport.m in Sources */,
 				32EFED32196C91CE00FDC89F /* NSManagedObjectContext+MagicalThreading.m in Sources */,
 				32EFED2C196C91CE00FDC89F /* NSManagedObject+MagicalFinders.m in Sources */,
+				D3F50B3219BA19FD00791303 /* stereo_features.cpp in Sources */,
 				32EFEDCB1977450500FDC89F /* MPGalleryController.m in Sources */,
+				D3F50B1E19BA19FD00791303 /* slic.c in Sources */,
 				32EFED84196E078F00FDC89F /* SBJsonStreamParserAccumulator.m in Sources */,
 				32EFED34196C91CE00FDC89F /* NSPersistentStore+MagicalRecord.m in Sources */,
+				D3F50B2D19BA19FD00791303 /* maxflow.cpp in Sources */,
+				D3F50B3019BA19FD00791303 /* fundamental.cpp in Sources */,
 				32BA42AD17A2DF8B002BAE13 /* MPAppDelegate.m in Sources */,
 				32EFED3C196C91CE00FDC89F /* MagicalRecord.m in Sources */,
 				32EFED33196C91CE00FDC89F /* NSManagedObjectModel+MagicalRecord.m in Sources */,
+				D3F50B1619BA19FD00791303 /* mathop.c in Sources */,
 				32EFED2A196C91CE00FDC89F /* NSManagedObject+MagicalAggregation.m in Sources */,
+				D3F50B1119BA19FD00791303 /* kmeans.c in Sources */,
 				32EEC84F17B97D1900A0DF49 /* MPMeasurementView.m in Sources */,
 				32BA42BC17A2DF8B002BAE13 /* MPBaseViewController.m in Sources */,
+				D3F50B2519BA19FD00791303 /* regions-maxprod.cpp in Sources */,
 				1768898F195B599100337524 /* scale_and_rotate.js in Sources */,
 				32EFED8B196E078F00FDC89F /* SBJsonUTF8Stream.m in Sources */,
+				D3F50B1719BA19FD00791303 /* mser.c in Sources */,
 				32EFED30196C91CE00FDC89F /* NSManagedObjectContext+MagicalRecord.m in Sources */,
 				320A5BCD198032AB0046BA1B /* MPTitleTextBox.m in Sources */,
+				D3F50B2B19BA19FD00791303 /* ICM.cpp in Sources */,
+				D3F50B0919BA19FD00791303 /* host.c in Sources */,
 				32EFED36196C91CE00FDC89F /* MagicalRecord+Actions.m in Sources */,
+				D3F50B0419BA19FD00791303 /* generic.c in Sources */,
 				32BA433217A2EF4E002BAE13 /* MPAugmentedRealityView.m in Sources */,
 				32EFEDD0197749E400FDC89F /* MPGalleryCell.m in Sources */,
 				32EFED8C196E078F00FDC89F /* SBJsonWriter.m in Sources */,
 				32EFECE1196C6C9F00FDC89F /* Model.xcdatamodeld in Sources */,
 				32934CDB18D8DB7C005DC87C /* MPEditPhoto.m in Sources */,
+				D3F50B2A19BA19FD00791303 /* TRW-S.cpp in Sources */,
+				D3F50B0519BA19FD00791303 /* gmm.c in Sources */,
 				32A2104218906439002BD1E4 /* MPView.m in Sources */,
+				D3F50B0F19BA19FD00791303 /* imopv.c in Sources */,
 				1768898E195B599100337524 /* numeric_keypad.js in Sources */,
 				32BA433317A2EF4E002BAE13 /* MPLineLayer.m in Sources */,
 				17688995195B599100337524 /* svgjs.js in Sources */,
 				17688992195B599100337524 /* web_view_rotation.js in Sources */,
+				D3F50B1B19BA19FD00791303 /* rodrigues.c in Sources */,
 				32EFED23196C91CE00FDC89F /* MagicalImportFunctions.m in Sources */,
 				3244D39218E60F4600AB0DE0 /* RCCalibration3.m in Sources */,
 				17688993195B599100337524 /* depth_data.js in Sources */,
+				D3F50B2219BA19FD00791303 /* vlad.c in Sources */,
 				32EFED81196E078F00FDC89F /* NSObject+SBJson.m in Sources */,
+				D3F50B2C19BA19FD00791303 /* LinkedBlockList.cpp in Sources */,
 				32EFED38196C91CE00FDC89F /* MagicalRecord+iCloud.m in Sources */,
 				32EFED39196C91CE00FDC89F /* MagicalRecord+Options.m in Sources */,
 				3244D39018E60F4600AB0DE0 /* RCCalibration1.m in Sources */,
+				D3F50B0D19BA19FD00791303 /* ikmeans.c in Sources */,
 				32EFED95196F37F900FDC89F /* jquery-2.1.1.min.js in Sources */,
 				32EFED27196C91CE00FDC89F /* NSObject+MagicalDataImport.m in Sources */,
 				32AF89EB18C00A2A00667EA3 /* MPContainerView.m in Sources */,
 				32EFED80196E078F00FDC89F /* GTMNSString+URLArguments.m in Sources */,
 				32AC641D1991500200699A2E /* MPDLocation.m in Sources */,
 				3298E9EF18A58ECC0017209B /* MPDotLayerDelegate.m in Sources */,
+				D3F50B1D19BA19FD00791303 /* sift.c in Sources */,
 				32EFED31196C91CE00FDC89F /* NSManagedObjectContext+MagicalSaves.m in Sources */,
 				32745D621892EFF5000C68F4 /* MPImageView.m in Sources */,
 				32EFED2F196C91CE00FDC89F /* NSManagedObjectContext+MagicalObserving.m in Sources */,
 				3244D39118E60F4600AB0DE0 /* RCCalibration2.m in Sources */,
 				322C371418A18AB6001C69C2 /* MPCircleLayerDelegate.m in Sources */,
+				D3F50B1319BA19FD00791303 /* liop.c in Sources */,
 				17394FC81982E14F0020DE33 /* rc_measurements.js in Sources */,
+				D3F50B3319BA19FD00791303 /* stereo_mesh.cpp in Sources */,
 				32745D661892F9E2000C68F4 /* MPCrosshairsLayerDelegate.m in Sources */,
+				D3F50B1F19BA19FD00791303 /* stringop.c in Sources */,
+				D3F50B1A19BA19FD00791303 /* random.c in Sources */,
+				D3F50B3119BA19FD00791303 /* stereo.cpp in Sources */,
+				D3F50B2019BA19FD00791303 /* svm.c in Sources */,
 				328824B317C6C7BA0072CF54 /* MPPaddedLabel.m in Sources */,
 				17688990195B599100337524 /* global_variables.js in Sources */,
 				17688991195B599100337524 /* tilt_monitor.js in Sources */,
+				D3F50B1519BA19FD00791303 /* mathop_sse2.c in Sources */,
+				D3F50B1419BA19FD00791303 /* mathop_avx.c in Sources */,
+				D3F50B2919BA19FD00791303 /* mrf.cpp in Sources */,
 				32EFED4B196C9D4D00FDC89F /* MPDMeasuredPhoto+MPDMeasuredPhotoExt.m in Sources */,
 				32EFED37196C91CE00FDC89F /* MagicalRecord+ErrorHandling.m in Sources */,
 				3201E4DE19818596008F61D5 /* MPZoomTransition.m in Sources */,
 				32EFED2B196C91CE00FDC89F /* NSManagedObject+MagicalDataImport.m in Sources */,
 				1743A51B1986F8CF001A5A6A /* rc_menu.js in Sources */,
+				D3F50B0219BA19FD00791303 /* fisher.c in Sources */,
 				3201E512198AE939008F61D5 /* MPTintTouchButton.m in Sources */,
+				D3F50B0819BA19FD00791303 /* homkermap.c in Sources */,
+				D3F50AFE19BA19FD00791303 /* aib.c in Sources */,
+				D3F50B0019BA19FD00791303 /* covdet.c in Sources */,
+				D3F50B0119BA19FD00791303 /* dsift.c in Sources */,
 				32BA433417A2EF4E002BAE13 /* MPLineLayerDelegate.m in Sources */,
 				32EFED89196E078F00FDC89F /* SBJsonStreamWriterState.m in Sources */,
 				3244D39518E6134500AB0DE0 /* MBProgressHUD.m in Sources */,
@@ -1321,11 +1664,16 @@
 				32BA433817A2EF69002BAE13 /* MPCapturePhoto.m in Sources */,
 				32C135C91892E6F5004DF62B /* ACMagnifyingGlass.m in Sources */,
 				17843799198B0B6F004AB248 /* json2.js in Sources */,
+				D3F50B2E19BA19FD00791303 /* BP-S.cpp in Sources */,
 				3280BB3D1919B44100338A38 /* MPSurveyAnswer.m in Sources */,
+				D3F50B2819BA19FD00791303 /* MaxProdBP.cpp in Sources */,
 				32EFEDA31973349B00FDC89F /* MPHttpInterceptor.m in Sources */,
 				32AC6415198C393200699A2E /* MPUndoOverlay.m in Sources */,
 				322C371F18A18D78001C69C2 /* MPInstructionsView.m in Sources */,
+				D3F50AFF19BA19FD00791303 /* array.c in Sources */,
+				D3F50B0719BA19FD00791303 /* hog.c in Sources */,
 				32EFED85196E078F00FDC89F /* SBJsonStreamParserAdapter.m in Sources */,
+				D3F50B1C19BA19FD00791303 /* scalespace.c in Sources */,
 				329222F9180F21BA008BF9A0 /* MPPhotoRequest.m in Sources */,
 				3201E4D819807F06008F61D5 /* MPEditTitleController.m in Sources */,
 				32EFED3A196C91CE00FDC89F /* MagicalRecord+Setup.m in Sources */,
@@ -1337,12 +1685,14 @@
 				17688996195B599100337524 /* svgjs_fornobj.js in Sources */,
 				32B78F8A19182C93003165C9 /* MPLocalMoviePlayer.m in Sources */,
 				32EFED88196E078F00FDC89F /* SBJsonStreamWriterAccumulator.m in Sources */,
+				D3F50B2119BA19FD00791303 /* svmdataset.c in Sources */,
 				32EFED87196E078F00FDC89F /* SBJsonStreamWriter.m in Sources */,
 				32EFED7F196E078F00FDC89F /* GTMNSDictionary+URLArguments.m in Sources */,
 				32AC64201991508400699A2E /* MPDMeasuredPhoto.m in Sources */,
 				32EFED8A196E078F00FDC89F /* SBJsonTokeniser.m in Sources */,
 				32EFED29196C91CE00FDC89F /* NSString+MagicalDataImport.m in Sources */,
 				3248C7DB18A44AE400061D4A /* MPToolbarView.m in Sources */,
+				D3F50B2719BA19FD00791303 /* GCoptimization.cpp in Sources */,
 				3201E4E41982D212008F61D5 /* MPFadeTransition.m in Sources */,
 				32EFED3B196C91CE00FDC89F /* MagicalRecord+ShorthandSupport.m in Sources */,
 				32EFED26196C91CE00FDC89F /* NSNumber+MagicalDataImport.m in Sources */,
@@ -1350,9 +1700,14 @@
 				32038C1A188DBEAE00E4F549 /* MPMagView.m in Sources */,
 				32934CF218D922E1005DC87C /* UIImage+MPImageFile.m in Sources */,
 				32EFED82196E078F00FDC89F /* SBJsonParser.m in Sources */,
+				D3EF0A9819BA1FD100512050 /* RCStereo.mm in Sources */,
+				D3F50B0E19BA19FD00791303 /* imopv_sse2.c in Sources */,
+				D3F50B2F19BA19FD00791303 /* camera.cpp in Sources */,
 				176889A1195B5C2200337524 /* fastclick.js in Sources */,
 				3248C7E118A464BF00061D4A /* MPThumbnailButton.m in Sources */,
+				D3F50B1219BA19FD00791303 /* lbp.c in Sources */,
 				32C135CA1892E6F5004DF62B /* ACMagnifyingView.m in Sources */,
+				D3F50B3419BA19FD00791303 /* triangle.cpp in Sources */,
 				32EFED25196C91CE00FDC89F /* NSEntityDescription+MagicalDataImport.m in Sources */,
 				320E5DEA17E37E8400381E7A /* MPYouTubeVideo.m in Sources */,
 				17688994195B599100337524 /* request_animation_frame.js in Sources */,

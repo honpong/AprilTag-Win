@@ -223,6 +223,8 @@ static void sensor_fusion_stereo_progress(float progress)
 
 }
 
+#define DOCS_DIRECTORY [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0]
+
 - (void) setGuid:(NSString *)guid
 {
     self.fileBaseName = [NSString stringWithFormat:@"%@/%@-stereo", DOCS_DIRECTORY, guid];

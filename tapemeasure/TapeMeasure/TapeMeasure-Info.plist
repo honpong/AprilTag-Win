@@ -28,6 +28,12 @@
 	<string>7</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>We use computer vision to measure. This app won't work without the camera!</string>
+	<key>NSLocationUsageDescription</key>
+	<string>This will make your measurements more accurate. (Optional, but recommended.)</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>This will make your measurements more accurate. (Optional, but recommended.)</string>
 	<key>UIFileSharingEnabled</key>
 	<true/>
 	<key>UIMainStoryboardFile</key>

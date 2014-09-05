@@ -579,7 +579,7 @@
     BOOL showLocationNag = [[NSUserDefaults.standardUserDefaults objectForKey:PREF_SHOW_LOCATION_EXPLANATION] isEqualToNumber:@YES];
     NSNumber* timeOfLastNag = [NSUserDefaults.standardUserDefaults objectForKey:PREF_LOCATION_NAG_TIMESTAMP];
     NSTimeInterval secondsSinceLastNag = [[NSDate date] timeIntervalSince1970] - timeOfLastNag.doubleValue;
-    BOOL hasBeenNaggedRecently = secondsSinceLastNag < 24; // if nagged within the last 24 hours
+    BOOL hasBeenNaggedRecently = secondsSinceLastNag < 60 * 60; // if nagged within the last hour
     
     if (isMeasurementJustTaken && showLocationNag && !hasBeenNaggedRecently)
     {

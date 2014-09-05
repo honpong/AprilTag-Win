@@ -63,12 +63,12 @@
 #define FLURRY_KEY @"D3NDKGP5MZCKVBZCD5BF" //dev
 #endif
 
-#ifdef DEBUG
-#define LOGME NSLog(@"%s", __PRETTY_FUNCTION__);
-#define DLog(fmt, ...) NSLog((@"%s " fmt), __PRETTY_FUNCTION__, ##__VA_ARGS__);
+#ifdef ARCHIVE
+    #define LOGME // do nothing
+    #define DLog(fmt, ...) // do nothing
 #else
-#define LOGME // do nothing
-#define DLog(fmt, ...) // do nothing
+    #define LOGME NSLog(@"%s", __PRETTY_FUNCTION__);
+    #define DLog(fmt, ...) NSLog((@"%s " fmt), __PRETTY_FUNCTION__, ##__VA_ARGS__);
 #endif
 
 typedef enum {

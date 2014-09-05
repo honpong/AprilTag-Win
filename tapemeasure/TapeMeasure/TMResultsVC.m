@@ -22,7 +22,7 @@
 - (void)viewWillAppear:(BOOL)animated
 {
     [self.navigationController setToolbarHidden:NO animated:animated];    
-    if ([self.prevView class] == [TMNewMeasurementVC class]) self.navigationItem.backBarButtonItem = nil;
+    if ([self.presentingViewController isKindOfClass:[TMNewMeasurementVC class]]) self.navigationItem.backBarButtonItem = nil;
     
     [super viewWillAppear:animated];
 }
@@ -30,6 +30,9 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    [self.navigationController setNavigationBarHidden:NO animated:NO]; // necessary because location intro may have hidden it
+    
     [RCDistanceLabel class]; // needed so that storyboard can see this class, since it's in a library
     [self.distLabel setDistance:theMeasurement.getPrimaryDistanceObject];
     

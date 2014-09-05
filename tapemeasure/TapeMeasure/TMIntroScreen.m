@@ -20,6 +20,10 @@
     [super viewDidLoad];
 }
 
+- (BOOL) prefersStatusBarHidden { return YES; }
+
+- (NSUInteger) supportedInterfaceOrientations { return UIInterfaceOrientationMaskPortrait; }
+
 - (IBAction)handleNextButton:(id)sender
 {
     RCCalibration1 * calibration1 = [RCCalibration1 instantiateViewController];

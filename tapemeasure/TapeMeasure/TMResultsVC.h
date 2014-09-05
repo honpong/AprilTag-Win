@@ -38,6 +38,5 @@
 @property (weak, nonatomic) IBOutlet RCDistanceLabel *distLabel;
 
 @property TMMeasurement *theMeasurement;
-@property (weak) UIViewController *prevView;
 
 @end

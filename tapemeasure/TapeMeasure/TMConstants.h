@@ -28,6 +28,7 @@
 #define HTTP_CLIENT [RCHTTPClient sharedInstance]
 #define SERVER_OPS [TMServerOpsFactory getInstance]
 #define OPENGL_MANAGER [RCOpenGLManagerFactory getInstance]
+#define SENSOR_DELEGATE [SensorDelegate sharedInstance]
 
 #define DOCUMENTS_DIRECTORY [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject]
 
@@ -62,12 +63,12 @@
 #define FLURRY_KEY @"D3NDKGP5MZCKVBZCD5BF" //dev
 #endif
 
-#ifdef DEBUG
-#define LOGME NSLog(@"%s", __PRETTY_FUNCTION__);
-#define DLog(fmt, ...) NSLog((@"%s " fmt), __PRETTY_FUNCTION__, ##__VA_ARGS__);
+#ifdef ARCHIVE
+    #define LOGME // do nothing
+    #define DLog(fmt, ...) // do nothing
 #else
-#define LOGME // do nothing
-#define DLog(fmt, ...) // do nothing
+    #define LOGME NSLog(@"%s", __PRETTY_FUNCTION__);
+    #define DLog(fmt, ...) NSLog((@"%s " fmt), __PRETTY_FUNCTION__, ##__VA_ARGS__);
 #endif
 
 typedef enum {

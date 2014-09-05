@@ -12,11 +12,15 @@ var spatial_data;
 
 var dm_canvas;
 var dm_context;
+var dm_drawn = false;
+var dm_loading_message;
+
 
 var dm_center_x, dm_center_y;
 
 function dm_initialize(){
     spatial_data_loaded = false;
+    dm_drawn = false;
     spatial_data = null;
     if(dm_svg && draw.node.contains(dm_svg.node)) {draw_g.node.removeChild(dm_svg.node);}
     dm_svg = SVG(dm_node);
@@ -26,6 +30,8 @@ function dm_initialize(){
     dm_canvas.height = 100;
     dm_canvas.style.position = "absolute";
     dm_context = dm_canvas.getContext('2d');
+    dm_loading_message = dm_svg.text("Loading Depth Map ...")
+
 }
 
 function dm_size(x,y){
@@ -169,6 +175,8 @@ function dm_add_point(percent_depth,x,y,size){
 }
 
 function finalize_dm(){
+    dm_loading_message.remove();
+    delete dm_loading_message;
     dm_svg.image(dm_canvas.toDataURL("image/png")); //image/png is a mime type.
     dm_context = null;
 }
@@ -209,71 +217,65 @@ function fill_depth_map(){
     var v1,v2,v3;
     
     // calculate the average depth so we understand how to color
-    for (var i = 0; i < spatial_data['faces'].length; i++) {
-        v1 = spatial_data['vertices'][spatial_data['faces'][i][0]];
-        v2 = spatial_data['vertices'][spatial_data['faces'][i][1]];
-        v3 = spatial_data['vertices'][spatial_data['faces'][i][2]];
-        current_depth_sqr = (v1[0]*v1[0] +
-                             v1[1]*v1[1] +
-                             v1[2]*v1[2] +
-                             v2[0]*v2[0] +
-                             v2[1]*v2[1] +
-                             v2[2]*v2[2] +
-                             v3[0]*v3[0] +
-                             v3[1]*v3[1] +
-                             v3[2]*v3[2]
-                             )/3;
-        total_depth_sqr = total_depth_sqr + current_depth_sqr;
-    }
+    dm_loading_message.text('loading depth data \n calculating average depth...');
     
-//    for (var i = 0; i < spatial_data['vertices'].length; i++) {
-//        current_depth_sqr = spatial_data['vertices'][i][0]*spatial_data['vertices'][i][0] + spatial_data['vertices'][i][1]*spatial_data['vertices'][i][1] + spatial_data['vertices'][i][2]*spatial_data['vertices'][i][2];
-//        total_depth_sqr = total_depth_sqr + current_depth_sqr;
-//    }
+    window.setTimeout(function () {
+        for (var i = 0; i < spatial_data['faces'].length; i++) {
+            v1 = spatial_data['vertices'][spatial_data['faces'][i][0]];
+            v2 = spatial_data['vertices'][spatial_data['faces'][i][1]];
+            v3 = spatial_data['vertices'][spatial_data['faces'][i][2]];
+            current_depth_sqr = (v1[0]*v1[0] +
+                                 v1[1]*v1[1] +
+                                 v1[2]*v1[2] +
+                                 v2[0]*v2[0] +
+                                 v2[1]*v2[1] +
+                                 v2[2]*v2[2] +
+                                 v3[0]*v3[0] +
+                                 v3[1]*v3[1] +
+                                 v3[2]*v3[2]
+                                 )/3;
+            total_depth_sqr = total_depth_sqr + current_depth_sqr;
+        }
+  
     
-    var avg_depth_sqr = total_depth_sqr/spatial_data['vertices'].length;
-    var coords;
-    
-    var draw_start = new Date();
+        var avg_depth_sqr = total_depth_sqr/spatial_data['vertices'].length;
+        var coords;
+        
+        var draw_start = new Date();
+        dm_loading_message.text('loading depth data \n drawing tiangles...');
+      window.setTimeout ( function () {
+            var dm_t = [[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]];
+            for (var i = 0; i < spatial_data['faces'].length; i++) { //now that we know the avg depth, draw to the canvas...
+                v1 = spatial_data['vertices'][spatial_data['faces'][i][0]];
+                v2 = spatial_data['vertices'][spatial_data['faces'][i][1]];
+                v3 = spatial_data['vertices'][spatial_data['faces'][i][2]];
+                // if we want these to be rotated, set x to img_width - v[4] and y to v[3]
+                dm_t[0][0] = v1[3]; // image x coordinate
+                dm_t[1][0] = v2[3];
+                dm_t[2][0] = v3[3];
+                dm_t[0][1] = v1[4]; // image y coordinates
+                dm_t[1][1] = v2[4];
+                dm_t[2][1] = v3[4];
+                dm_t[0][2] = v1[0]; //spatial x
+                dm_t[1][2] = v2[0];
+                dm_t[2][2] = v3[0];
+                dm_t[0][3] = v1[1]; //spatial y
+                dm_t[1][3] = v2[1];
+                dm_t[2][3] = v3[1];
+                dm_t[0][4] = v1[2];  //spatial z
+                dm_t[1][4] = v2[2];
+                dm_t[2][4] = v3[2];
 
-    var dm_t = [[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]];
-    for (var i = 0; i < spatial_data['faces'].length; i++) { //now that we know the avg depth, draw to the canvas...
-        v1 = spatial_data['vertices'][spatial_data['faces'][i][0]];
-        v2 = spatial_data['vertices'][spatial_data['faces'][i][1]];
-        v3 = spatial_data['vertices'][spatial_data['faces'][i][2]];
-        // if we want these to be rotated, set x to img_width - v[4] and y to v[3]
-        dm_t[0][0] = v1[3]; // image x coordinate
-        dm_t[1][0] = v2[3];
-        dm_t[2][0] = v3[3];
-        dm_t[0][1] = v1[4]; // image y coordinates
-        dm_t[1][1] = v2[4];
-        dm_t[2][1] = v3[4];
-        dm_t[0][2] = v1[0]; //spatial x
-        dm_t[1][2] = v2[0];
-        dm_t[2][2] = v3[0];
-        dm_t[0][3] = v1[1]; //spatial y
-        dm_t[1][3] = v2[1];
-        dm_t[2][3] = v3[1];
-        dm_t[0][4] = v1[2];  //spatial z
-        dm_t[1][4] = v2[2];
-        dm_t[2][4] = v3[2];
+                dm_add_traingle(dm_t, avg_depth_sqr);
+            }
+            
 
-        dm_add_traingle(dm_t, avg_depth_sqr);
-    }
-    
-
-    var draw_end = new Date();
-    console.log('compute time for triangels = ' + Math.abs(draw_end-draw_start).toString());
-
-//    for (var i = 0; i < spatial_data['vertices'].length; i++) { //now that we know the avg depth, draw to the canvas...
-//        coords = [spatial_data['vertices'][i][3],spatial_data['vertices'][i][4]];
-//        current_depth_sqr = spatial_data['vertices'][i][0]*spatial_data['vertices'][i][0] + spatial_data['vertices'][i][1]*spatial_data['vertices'][i][1] + spatial_data['vertices'][i][2]*spatial_data['vertices'][i][2];
-//        // we use 1/(x+1) because its bounded between 1 and 0 over 0->infity. it also concentrates contrast in features closer than the average
-//        dm_add_point(avg_depth_sqr/2/(avg_depth_sqr/2 + current_depth_sqr), coords[0], coords[1], 6); //if we want to rotate, you can do something like x = img_width - coords[1], y = coords[0]
-//    }
-    
-    finalize_dm();
-    
+            var draw_end = new Date();
+            console.log('compute time for triangels = ' + Math.abs(draw_end-draw_start).toString());
+            
+            finalize_dm();
+        }, 5);
+     }, 5);
 }
 
 
@@ -414,7 +416,6 @@ function load_spatial_data(json_url) {   //image width needed becaues of image r
           spatial_data_loaded = true;
           dm_center_x = image_width / 2; //relies on global image width/height having been set in main
           dm_center_y = image_height / 2;
-          fill_depth_map();
       });
 }
 

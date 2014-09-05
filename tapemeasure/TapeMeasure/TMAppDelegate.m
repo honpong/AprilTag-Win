@@ -16,6 +16,7 @@
 #import "TMMeasurementTypeVC.h"
 #import "TMNewMeasurementVC.h"
 #import "TMHistoryVC.h"
+#import "TMLocationIntro.h"
 
 #if TARGET_IPHONE_SIMULATOR
 #define SKIP_CALIBRATION YES // skip calibration when running on emulator because it cannot calibrate
@@ -68,8 +69,8 @@
     #ifndef ARCHIVE // for testing
 //    [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_IS_FIRST_LAUNCH];
 //    [NSUserDefaults.standardUserDefaults setObject:@NO forKey:PREF_IS_CALIBRATED];
-    [NSUserDefaults.standardUserDefaults setObject:@0 forKey:PREF_RATE_NAG_TIMESTAMP];
-    [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_SHOW_RATE_NAG];
+//    [NSUserDefaults.standardUserDefaults setObject:@0 forKey:PREF_RATE_NAG_TIMESTAMP];
+//    [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_SHOW_RATE_NAG];
 //    [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_SHOW_LOCATION_EXPLANATION];
     #endif
     
@@ -81,16 +82,14 @@
     
     navigationController = (UINavigationController*)self.window.rootViewController;
     
-    mySensorDelegate = [SensorDelegate sharedInstance];
+    mySensorDelegate = SENSOR_DELEGATE;
     
     BOOL calibratedFlag = [NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_CALIBRATED];
     BOOL hasCalibration = [SENSOR_FUSION hasCalibrationData];
     
-    if([NSUserDefaults.standardUserDefaults boolForKey:PREF_SHOW_LOCATION_EXPLANATION])
+    if([NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_FIRST_LAUNCH] && !SKIP_CALIBRATION)
     {
-        waitingForLocationAuthorization = true;
-        [NSUserDefaults.standardUserDefaults setObject:@NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
-        [self gotoLocationIntro];
+        [self gotoIntroScreen];
     }
     else
     {
@@ -128,10 +127,11 @@
     self.window.rootViewController = calibration1;
 }
 
-- (void) gotoLocationIntro
+- (void) gotoIntroScreen
 {
-    TMLocationIntro* vc = (TMLocationIntro*)[navigationController.storyboard instantiateViewControllerWithIdentifier:@"LocationIntro"];
-    vc.delegate = self;
+    TMIntroScreen* vc = (TMIntroScreen*)[navigationController.storyboard instantiateViewControllerWithIdentifier:@"IntroScreen"];
+    vc.calibrationDelegate = self;
+    vc.sensorDelegate = mySensorDelegate;
     self.window.rootViewController = vc;
 }
 
@@ -149,29 +149,14 @@
     [self gotoMainViewController];
 }
 
-#pragma mark - TMLocationIntroDelegate
-
-- (void) nextButtonTapped
-{
-    [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
-    LOCATION_MANAGER.delegate = self;
-    [LOCATION_MANAGER requestLocationAccessWithCompletion:^(BOOL granted)
-    {
-        if(granted) [LOCATION_MANAGER startLocationUpdates];
-        [self gotoCalibration];
-    }];
-}
-
-#pragma mark - RCCalibrationDelegate methods
-
 - (void) calibrationDidFinish
 {
     LOGME
     [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_IS_CALIBRATED];
     
-    if ([[NSUserDefaults.standardUserDefaults objectForKey:PREF_IS_FIRST_LAUNCH] isEqual: @YES])
+    if ([NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_FIRST_LAUNCH])
     {
-        [NSUserDefaults.standardUserDefaults setObject:@NO forKey:PREF_IS_FIRST_LAUNCH];
+        [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_IS_FIRST_LAUNCH];
         [self gotoTutorialVideo];
     }
     else

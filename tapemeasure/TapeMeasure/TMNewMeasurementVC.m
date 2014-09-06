@@ -12,6 +12,7 @@
 #import "RCCore/RCGeocoder.h"
 #import "RCCore/RCSensorDelegate.h"
 #import "TMLocalMoviePlayer.h"
+#import "TMLocationIntro.h"
 
 @implementation TMNewMeasurementVC
 {
@@ -634,7 +635,6 @@ static transition transitions[] =
     {
         TMResultsVC* resultsVC = [segue destinationViewController];
         resultsVC.theMeasurement = newMeasurement;
-        resultsVC.prevView = self;
     }
     else if([[segue identifier] isEqualToString:@"toOptions"])
     {

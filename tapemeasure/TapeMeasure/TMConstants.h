@@ -36,6 +36,7 @@
 #define PREF_ADD_LOCATION @"addlocation_preference"
 #define PREF_LAST_TRANS_ID @"last_trans_id"
 #define PREF_SHOW_LOCATION_EXPLANATION @"show_location_explanation"
+#define PREF_LOCATION_NAG_TIMESTAMP @"location_nag_timestamp"
 #define PREF_IS_CALIBRATED @"is_calibrated"
 #define PREF_IS_FIRST_LAUNCH @"is_first_launch"
 #define PREF_IS_TIPS_SHOWN @"is_tips_shown"
@@ -63,12 +64,12 @@
 #define FLURRY_KEY @"D3NDKGP5MZCKVBZCD5BF" //dev
 #endif
 
-#ifdef DEBUG
-#define LOGME NSLog(@"%s", __PRETTY_FUNCTION__);
-#define DLog(fmt, ...) NSLog((@"%s " fmt), __PRETTY_FUNCTION__, ##__VA_ARGS__);
+#ifdef ARCHIVE
+    #define LOGME // do nothing
+    #define DLog(fmt, ...) // do nothing
 #else
-#define LOGME // do nothing
-#define DLog(fmt, ...) // do nothing
+    #define LOGME NSLog(@"%s", __PRETTY_FUNCTION__);
+    #define DLog(fmt, ...) NSLog((@"%s " fmt), __PRETTY_FUNCTION__, ##__VA_ARGS__);
 #endif
 
 typedef enum {

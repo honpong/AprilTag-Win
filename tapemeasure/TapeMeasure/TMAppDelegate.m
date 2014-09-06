@@ -16,6 +16,7 @@
 #import "TMMeasurementTypeVC.h"
 #import "TMNewMeasurementVC.h"
 #import "TMHistoryVC.h"
+#import "TMLocationIntro.h"
 
 #if TARGET_IPHONE_SIMULATOR
 #define SKIP_CALIBRATION YES // skip calibration when running on emulator because it cannot calibrate
@@ -60,17 +61,20 @@
                                      PREF_IS_FIRST_LAUNCH: @YES,
                                      PREF_IS_TIPS_SHOWN: @NO,
                                      PREF_SHOW_RATE_NAG: @YES,
-                                     PREF_RATE_NAG_TIMESTAMP : @0};
+                                     PREF_RATE_NAG_TIMESTAMP : @0,
+                                     PREF_LOCATION_NAG_TIMESTAMP: @0};
         
         [NSUserDefaults.standardUserDefaults registerDefaults:appDefaults];
     });
 
     #ifndef ARCHIVE // for testing
-//    [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_IS_FIRST_LAUNCH];
-//    [NSUserDefaults.standardUserDefaults setObject:@NO forKey:PREF_IS_CALIBRATED];
-    [NSUserDefaults.standardUserDefaults setObject:@0 forKey:PREF_RATE_NAG_TIMESTAMP];
-    [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_SHOW_RATE_NAG];
-//    [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_SHOW_LOCATION_EXPLANATION];
+//    [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_IS_FIRST_LAUNCH];
+//    [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_IS_CALIBRATED];
+//    [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_SHOW_RATE_NAG];
+//    [NSUserDefaults.standardUserDefaults setObject:@0 forKey:PREF_RATE_NAG_TIMESTAMP];
+//    [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_SHOW_LOCATION_EXPLANATION];
+//    [NSUserDefaults.standardUserDefaults setObject:@0 forKey:PREF_LOCATION_NAG_TIMESTAMP];
+
     #endif
     
     [Flurry setSecureTransportEnabled:YES];
@@ -86,9 +90,8 @@
     BOOL calibratedFlag = [NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_CALIBRATED];
     BOOL hasCalibration = [SENSOR_FUSION hasCalibrationData];
     
-    if([NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_FIRST_LAUNCH])
+    if([NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_FIRST_LAUNCH] && !SKIP_CALIBRATION)
     {
-        [NSUserDefaults.standardUserDefaults setObject:@NO forKey:PREF_IS_FIRST_LAUNCH];
         [self gotoIntroScreen];
     }
     else
@@ -149,23 +152,6 @@
     [self gotoMainViewController];
 }
 
-#pragma mark - TMLocationIntroDelegate
-
-- (void) nextButtonTapped
-{
-    [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
-    
-    if([LOCATION_MANAGER shouldAttemptLocationAuthorization])
-    {
-        LOCATION_MANAGER.delegate = self;
-        [LOCATION_MANAGER startLocationUpdates]; // will show dialog asking user to authorize location. gotoCalibration triggered by didChangeAuthorizationStatus delegate function
-    }
-    else
-    {
-        [self gotoCalibration];
-    }
-}
-
 #pragma mark - RCCalibrationDelegate methods
 
 - (void) calibrationDidFinish
@@ -173,9 +159,9 @@
     LOGME
     [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_IS_CALIBRATED];
     
-    if ([[NSUserDefaults.standardUserDefaults objectForKey:PREF_IS_FIRST_LAUNCH] isEqual: @YES])
+    if ([NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_FIRST_LAUNCH])
     {
-        [NSUserDefaults.standardUserDefaults setObject:@NO forKey:PREF_IS_FIRST_LAUNCH];
+        [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_IS_FIRST_LAUNCH];
         [self gotoTutorialVideo];
     }
     else
@@ -203,16 +189,6 @@
 - (void)applicationDidReceiveMemoryWarning:(UIApplication *)application
 {
     DLog(@"MEMORY WARNING");
-}
-
-- (void) locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
-{
-    LOGME
-    if(status == kCLAuthorizationStatusNotDetermined || !waitingForLocationAuthorization) return;
-    if(status == kCLAuthorizationStatusAuthorized) [LOCATION_MANAGER startLocationUpdates];
-    if(status == kCLAuthorizationStatusAuthorized || status == kCLAuthorizationStatusDenied || status == kCLAuthorizationStatusRestricted)
-        [self gotoCalibration];
-    waitingForLocationAuthorization = false;
 }
 
 - (void) locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations

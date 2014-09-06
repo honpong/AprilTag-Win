@@ -7,6 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "TMMeasurement+TMMeasurementExt.h"
+@import MapKit;
+
+@protocol RCCalibrationDelegate, RCSensorDelegate;
 
 @protocol TMLocationIntroDelegate <NSObject>
 
@@ -14,14 +18,20 @@
 
 @end
 
-@interface TMLocationIntro : UIViewController
+@interface TMLocationIntro : UIViewController <CLLocationManagerDelegate>
 
 @property (weak, nonatomic) id<TMLocationIntroDelegate> delegate;
 @property (weak, nonatomic) IBOutlet UIButton *nextButton;
 @property (weak, nonatomic) IBOutlet UIButton *laterButton;
+@property (weak, nonatomic) IBOutlet UIButton *neverButton;
 @property (weak, nonatomic) IBOutlet UILabel *introLabel;
+@property (weak, nonatomic) IBOutlet MKMapView *mapView;
+@property (nonatomic) TMMeasurement* theMeasurement;
+@property (weak, nonatomic) id<RCCalibrationDelegate> calibrationDelegate;
+@property (weak, nonatomic) id<RCSensorDelegate> sensorDelegate;
 
 - (IBAction)handleNextButton:(id)sender;
 - (IBAction)handleLaterButton:(id)sender;
+- (IBAction)handleNeverButton:(id)sender;
 
 @end

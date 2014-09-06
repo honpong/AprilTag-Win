@@ -1,9 +1,10 @@
 #include "stereo.h"
+#include "fundamental.h"
+#include "stereo_features.h"
 #include "stereo_mesh.h"
 #include "../filter/filter.h"
 
 bool debug_triangulate = false;
-bool debug_eight_point_ransac = false;
 // if enabled, adds a 3 pixel jitter in all directions to correspondence
 bool enable_jitter = false;
 bool enable_distortion_correction = false;
@@ -256,53 +257,6 @@ bool line_line_intersect(v4 p1, v4 p2, v4 p3, v4 p4, v4 & pa, v4 & pb)
     return true;
 }
 
-//TODO: estimate_F doesnt agree with eight point F. This is now correct for F corresponding to X2 = R * X1 + T
-
-m4 estimate_F(const camera &g, const stereo_frame &reference, const stereo_frame &target, m4 & dR, v4 & dT)
-{
-    /*
-    x1_w = R1 * x1 + T1
-    x2 = R2^t * (R1 * x1 + T1 - T2)
-    
-    R21 = R2^t * R1
-    T21 = R2^t * (T1 - T2)
-    */
-    m4 R1w = to_rotation_matrix(reference.W);
-    m4 R2w = to_rotation_matrix(target.W);
-    dR = transpose(R2w)*R1w;
-    dT = transpose(R2w) * (reference.T - target.T);
-
-    // E21 is 3x3
-    m4 E21 = skew3(dT) * dR;
-
-    m4 Kinv;
-    Kinv[0][0] = 1./g.focal_length;
-    Kinv[1][1] = 1./g.focal_length;
-    Kinv[0][2] = -g.center_x/g.focal_length;
-    Kinv[1][2] = -g.center_y/g.focal_length;
-    Kinv[2][2] = 1;
-    Kinv[3][3] = 1;
-
-    m4 F21 = transpose(Kinv)*E21*Kinv;
-
-    // for numerical conditioning
-    // F = F / norm(F) / sign(F(3,3))
-    float Fnorm = 0;
-    for(int i = 0; i < 3; i++)
-        for(int j = 0; j < 3; j++)
-            Fnorm += F21[i][j]*F21[i][j];
-    Fnorm = sqrt(Fnorm);
-
-    if(F21[2][2] < 0)
-        Fnorm = -Fnorm;
-
-    for(int i = 0; i < 3; i++)
-        for(int j = 0; j < 3; j++)
-            F21[i][j] = F21[i][j] / Fnorm;
-
-    return F21;
-}
-
 bool compare_score(const stereo_match & m1, const stereo_match & m2)
 {
     return m1.score < m2.score;
@@ -384,285 +338,6 @@ bool find_correspondence(const stereo_frame & reference, const stereo_frame & ta
     return success;
 }
 
-// note, R,T is from p1 to p2, not from p2 to p1 (as in world coordinates)
-bool validate_RT(const m4 & R, const v4 & T, const v4 & p1, const v4 & p2)
-{
-    // TODO: decide if I should use this or intersection
-    // positive depth constraint
-    /*
-    m4 skew_Rp1 = skew3(R*p1);
-    m4 skew_p2 = skew3(p2);
-    float alpha1 = -sum((skew_p2*T)*(skew_p2*R*p1))/pow(norm(skew_p2*T), 2);
-    float alpha2 =  sum((skew_Rp1*p2)*(skew_Rp1*T))/pow(norm(skew_Rp1*p2), 2);
-     */
-
-    // actual intersection
-    v4 o1 = T;
-    v4 o2 = v4(0,0,0,0);
-    v4 p12 = R*p1 + T;
-    v4 pa, pb;
-    bool success = line_line_intersect(o1, p12, o2, p2, pa, pb);
-    if(!success) return false;
-
-    // switch to camera relative coordinates
-    pa = transpose(R)*(pa - T);
-
-    //fprintf(stderr, "intersection says %d, alpha says %f %f\n", (pa[2] > 0 & pb[2] > 0), alpha1, alpha2);
-
-    if(pa[2] < 0 || pb[2] < 0) return false;
-
-    return true;
-}
-
-bool decompose_F(const m4 & F, float focal_length, float center_x, float center_y, const v4 & p1, const v4 & p2, m4 & R, v4 & T)
-{
-    m4 Kinv;
-    Kinv[0][0] = 1./focal_length;
-    Kinv[1][1] = 1./focal_length;
-    Kinv[0][2] = -center_x/focal_length;
-    Kinv[1][2] = -center_y/focal_length;
-    Kinv[2][2] = 1;
-    Kinv[3][3] = 1;
-
-    m4 K;
-    K[0][0] = focal_length;
-    K[1][1] = focal_length;
-    K[0][2] = center_x;
-    K[1][2] = center_y;
-    K[2][2] = 1;
-    K[3][3] = 1;
-
-    m4 E4 = transpose(K)*F*K;
-    v4 p1p = Kinv*p1;
-    v4 p2p = Kinv*p2;
-
-    matrix temp1(3,3);
-    matrix temp2(3,3);
-
-    matrix E(3, 3);
-    for(int i = 0; i < 3; i++)
-        for(int j = 0; j < 3; j++)
-            E(i,j) = E4[i][j];
-
-    matrix W(3, 3);
-    W(0,0) = 0; W(0,1) = -1; W(0,2) = 0;
-    W(1,0) = 1; W(1,1) = 0;  W(1,2) = 0;
-    W(2,0) = 0; W(2,1) = 0;  W(2,2) = 1;
-    matrix Wt(3, 3);
-    matrix_transpose(Wt, W);
-
-    matrix Rzp = W;
-    matrix Rzn(3,3);
-    Rzn(0,0) = 0;  Rzn(0,1) = 1; Rzn(0,2) = 0;
-    Rzn(1,0) = -1; Rzn(1,1) = 0; Rzn(1,2) = 0;
-    Rzn(2,0) = 0;  Rzn(2,1) = 0; Rzn(2,2) = 1;
-
-    matrix Z(3, 3);
-    Z(0,0) = 0; Z(0,1) = -1; Z(0,2) = 0;
-    Z(1,0) = 1; Z(1,1) = 0;  Z(1,2) = 0;
-    Z(2,0) = 0; Z(2,1) = 0;  Z(2,2) = 0;
-
-    matrix U(3, 3);
-    matrix S(1, 3);
-    matrix Vt(3, 3);
-    matrix V(3,3);
-    matrix_svd(E, U, S, Vt);
-    // V = Vt'
-    matrix_transpose(V, Vt);
-
-    m4 R1, R2;
-    v4 T1, T2;
-
-    float det_U = matrix_3x3_determinant(U);
-    float det_V = matrix_3x3_determinant(V);
-    if(det_U < 0 && det_V < 0) {
-        matrix_negate(U);
-        matrix_negate(V);
-    }
-    else if(det_U < 0 && det_V > 0) {
-        // U = -U*Rzn; V = V*Rzp;
-        matrix_negate(U);
-        matrix_product(temp1, U, Rzn);
-        U = temp1;
-        matrix_product(temp1, V, Rzp);
-        V = temp1;
-    }
-    else if(det_U > 0 && det_V < 0) {
-        // U = U*Rzn; V = -V*Rzp;
-        matrix_negate(V);
-        matrix_product(temp1, U, Rzn);
-        U = temp1;
-        matrix_product(temp1, V, Rzp);
-        V = temp1;
-    }
-
-    // Vt = V' after possibly shifting V
-    matrix_transpose(Vt, V);
-
-    // T = u_3
-    T1[0] = U(0,2);
-    T1[1] = U(1,2);
-    T1[2] = U(2,2);
-    T2 = -T1;
-
-    // R1 = UWV'
-    matrix_product(temp1, W, Vt);
-    matrix_product(temp2, U, temp1);
-    for(int row = 0; row < 3; row++)
-        for(int col = 0; col < 3; col++) {
-            R1[row][col] = temp2(row,col);
-        }
-    R1[3][0] = 0; R1[3][1] = 0; R1[3][2] = 0; R1[3][3] = 1;
-
-    // R2 = UW'V'
-    matrix_product(temp1, Wt, Vt);
-    matrix_product(temp2, U, temp1);
-    for(int row = 0; row < 3; row++)
-        for(int col = 0; col < 3; col++) {
-            R2[row][col] = temp2(row,col);
-        }
-    R2[3][0] = 0; R2[3][1] = 0; R2[3][2] = 0; R2[3][3] = 1;
-
-    int nvalid = 0;
-    if(validate_RT(R1, T1, p1p, p2p)) {
-        R = R1;
-        T = T1;
-        nvalid++;
-    }
-
-    if(validate_RT(R2, T1, p1p, p2p)) {
-        R = R2;
-        T = T1;
-        nvalid++;
-    }
-
-    if(validate_RT(R1, T2, p1p, p2p)) {
-        R = R1;
-        T = T2;
-        nvalid++;
-    }
-
-    if(validate_RT(R2, T2, p1p, p2p)) {
-        R = R2;
-        T = T2;
-        nvalid++;
-    }
-
-    if(nvalid != 1) {
-        fprintf(stderr, "Error: There should always be only one solution, but found %d", nvalid);
-        return false;
-    }
-
-    return true;
-}
-
-m4 eight_point_F(v4 p1[], v4 p2[], int npts)
-{
-    // normalize points
-    v4 center1 = v4(0., 0., 0., 0.);
-    v4 center2 = v4(0., 0., 0., 0.);
-    float norm1 = 0, norm2 = 0;
-    for(int i = 0; i < npts; i++) {
-        center1 += p1[i];
-        center2 += p2[i];
-    }
-    center1 /= npts;
-    center2 /= npts;
-    for(int i = 0; i < npts; i++) {
-        norm1 += sum((p1[i] - center1)*(p1[i] - center1));
-        norm2 += sum((p2[i] - center1)*(p2[i] - center2));
-    }
-    norm1 = sqrt(2.*npts / norm1);
-    norm2 = sqrt(2.*npts / norm2);
-
-    matrix T1(3, 3);
-    matrix T2(3, 3);
-    T1(0, 0) = norm1; T1(0, 1) = 0;     T1(0, 2) = -norm1*center1[0];
-    T1(1, 0) = 0;     T1(1, 1) = norm1; T1(1, 2) = -norm1*center1[1];
-    T1(2, 0) = 0;     T1(2, 1) = 0;     T1(2, 2) = 1;
-
-
-    T2(0, 0) = norm2; T2(0, 1) = 0;     T2(0, 2) = -norm2*center2[0];
-    T2(1, 0) = 0;     T2(1, 1) = norm2; T2(1, 2) = -norm2*center2[1];
-    T2(2, 0) = 0;     T2(2, 1) = 0;     T2(2, 2) = 1;
-
-    matrix constraints(npts, 9);
-    for(int i = 0; i < npts; i++) {
-        v4 p1n = (p1[i] - center1) * norm1;
-        v4 p2n = (p2[i] - center2) * norm2;
-        constraints(i, 0) = p1n[0]*p2n[0];
-        constraints(i, 1) = p1n[1]*p2n[0];
-        constraints(i, 2) = p2n[0];
-        constraints(i, 3) = p1n[0]*p2n[1];
-        constraints(i, 4) = p1n[1]*p2n[1];
-        constraints(i, 5) = p2n[1];
-        constraints(i, 6) = p1n[0];
-        constraints(i, 7) = p1n[1];
-        constraints(i, 8) = 1;
-    }
-
-
-    // some columns of U are inverted compared to matlab
-    matrix U(npts, npts);
-    matrix S(1, min(npts, 9));
-    matrix Vt(9, 9);
-
-    matrix_svd(constraints, U, S, Vt);
-
-    matrix F(3, 3);
-    F(0, 0) = Vt(8, 0); F(0, 1) = Vt(8, 1); F(0, 2) = Vt(8, 2);
-    F(1, 0) = Vt(8, 3); F(1, 1) = Vt(8, 4); F(1, 2) = Vt(8, 5);
-    F(2, 0) = Vt(8, 6); F(2, 1) = Vt(8, 7); F(2, 2) = Vt(8, 8);
-
-    matrix UF(3, 3);
-    matrix SF(1, 3);
-    matrix VFt(3, 3);
-    matrix_svd(F, UF, SF, VFt);
-    matrix SE(3, 3);
-    // Convert S back to a diagonal matrix (matrix_svd fills a vector)
-    for(int i = 0; i < 3; i++)
-        for(int j = 0; j < 3; j++)
-        {
-            if(i == j)
-                SE(i,j) = SF(0,i);
-            else
-                SE(i,j) = 0;
-        }
-    SE(2,2) = 0;
-    
-    // TODO: there is probably a cleaner way to do this:
-    // F = transpose(T2) * U * S * Vt * T1;
-    matrix temp1(3, 3);
-    matrix temp2(3, 3);
-    matrix_product(temp1, VFt, T1);
-    matrix_product(temp2, SE, temp1); 
-    matrix_product(temp1, UF, temp2); 
-    matrix_product(temp2, T2, temp1, true); // transpose T2
-    F = temp2;
-
-    // F = F / norm(F) / sign(F(3,3))
-    float Fnorm = 0;
-    for(int i = 0; i < 3; i++)
-        for(int j = 0; j < 3; j++)
-            Fnorm += F(i,j)*F(i,j);
-    Fnorm = sqrt(Fnorm);
-
-    if(F(2,2) < 0)
-      Fnorm = -Fnorm;
-
-    for(int i = 0; i < 3; i++)
-        for(int j = 0; j < 3; j++)
-            F(i,j) = F(i,j) / Fnorm;
-
-    m4 estimatedF;
-    for(int i = 0; i < 3; i++)
-      for(int j = 0; j < 3; j++)
-        estimatedF[i][j] = F(i,j);
-    estimatedF[3][3] = 1;
-
-    return estimatedF;
-}
-
 bool estimate_F_eight_point(const stereo_frame & reference, const stereo_frame & target, m4 & F)
 {
     vector<v4> reference_pts;
@@ -689,261 +364,24 @@ bool estimate_F_eight_point(const stereo_frame & reference, const stereo_frame &
     return true;
 }
 
-#include "sift.h"
-typedef struct _sift_keypoint
-{
-    xy pt;
-    float sigma;
-    vl_sift_pix d [128] ;
-} sift_keypoint;
-
-typedef struct _sift_match
-{
-    int i1, i2;
-    float score;
-} sift_match;
-
-int compute_inliers(const v4 from [], const v4 to [], int nmatches, const m4 & F, float thresh, bool inliers [])
-{
-    int ninliers = 0;
-    for(int i = 0; i < nmatches; i++) {
-        // Sampson distance x2*F*x1 / (sum((Fx1).^2) + sum((F'x2).^2))
-        v4 pfp = to[i]*F*from[i];
-        v4 el1 = F*from[i];
-        v4 el2 = transpose(F)*to[i];
-        float distance = sum(pfp);
-        distance = distance*distance;
-        distance = distance / (el1[0]*el1[0] + el1[1]*el1[1] + el2[0]* el2[0] + el2[1]*el2[1]);
-
-// distance in pixels
-//        v4 line = F*from[i];
-//        line = line / sqrt(line[0]*line[0] + line[1]*line[1]);
-//        float distance = fabs(sum(to[i]*line));
-        if(distance < thresh) {
-            inliers[i] = true;
-            ninliers++;
-        }
-        else
-            inliers[i] = false;
-    }
-    return ninliers;
-}
-
-// Chooses k random elements from a list with n elements and puts them in inds
-// Uses reservoir sampling
-void choose_random(int k, int n, int * inds)
-{
-    int i;
-
-    // Initialize reservoir
-    for(i = 0; i < k; i++)
-        inds[i] = i;
-
-    for(; i < n; i++) {
-        // Pick a random index from 0 to i.
-        int j = rand() % (i+1);
-
-        // If the randomly picked index is smaller than k, then replace
-        // the element present at the index with new element
-        if (j < k)
-            inds[j] = i;
-    }
-}
-
-// F is from reference_pts to target_pts
-bool ransac_F(const vector<v4> & reference_pts, const vector<v4> target_pts, m4 & F)
-{
-    vector<v4> estimate_pts1;
-    vector<v4> estimate_pts2;
-    const int npoints = (int)reference_pts.size();
-    bool inliers[npoints];
-    float sampson_thresh = 0.5;
-
-    int iterations = 2000;
-    m4 bestF = F;
-    int bestinliers = compute_inliers(&reference_pts[0], &target_pts[0], npoints, bestF, sampson_thresh, inliers);
-
-    for(int i = 0; i < iterations; i++)
-    {
-        int points[8];
-        // select 8 random points
-        choose_random(8, npoints, points);
-
-        // estimate F
-        estimate_pts1.clear();
-        estimate_pts2.clear();
-        for(int m = 0; m < 8; m++) {
-            estimate_pts1.push_back(reference_pts[points[m]]);
-            estimate_pts2.push_back(target_pts[points[m]]);
-        }
-        m4 currentF = eight_point_F(&estimate_pts1[0], &estimate_pts2[0], (int)estimate_pts1.size());
-
-        // measure fitness
-        int currentinliers = compute_inliers(&reference_pts[0], &target_pts[0], npoints, currentF, sampson_thresh, inliers);
-        if(currentinliers > bestinliers) {
-            bestinliers = currentinliers;
-            bestF = currentF;
-        }
-    }
-
-    // measure fitness
-    compute_inliers(&reference_pts[0], &target_pts[0], npoints, bestF, sampson_thresh, inliers);
-
-    // estimate F
-    estimate_pts1.clear();
-    estimate_pts2.clear();
-    for(int m = 0; m < npoints; m++) {
-        if(inliers[m]) {
-            estimate_pts1.push_back(reference_pts[m]);
-            estimate_pts2.push_back(target_pts[m]);
-        }
-    }
-    bestF = eight_point_F(&estimate_pts1[0], &estimate_pts2[0], (int)estimate_pts1.size());
-
-    // measure fitness
-    int final_inliers = compute_inliers(&reference_pts[0], &target_pts[0], npoints, bestF, sampson_thresh, inliers);
-    if(debug_eight_point_ransac) {
-        fprintf(stderr, "after refining %d matches with %lu inliers, got final inliers %d\n", npoints, estimate_pts1.size(), final_inliers);
-    }
-
-    F = bestF;
-
-    return true;
-}
-
-vector<sift_match> ubc_match(vector<sift_keypoint> k1, vector<sift_keypoint>k2)
-{
-    double thresh = 1.5;
-
-    vector<sift_match> matches;
-    for(unsigned int i1 = 0; i1 < k1.size(); i1++) {
-        sift_match match;
-        float best_score = 1e10;
-        float second_best_score = 1e10;
-        int bestk = -1;
-        for(unsigned int i2 = 0; i2 < k2.size(); i2++) {
-            double acc = 0;
-            for(int bin = 0; bin < 128; bin++)
-            {
-                float delta = k1[i1].d[bin] - k2[i2].d[bin];
-                acc += delta*delta;
-            }
-
-            if(acc < best_score) {
-                second_best_score = best_score;
-                best_score = acc;
-                bestk = i2;
-            } else if(acc < second_best_score) {
-                second_best_score = acc;
-            }
-        }
-        /* Lowe's method: accept the match only if unique. */
-        if(second_best_score == 1e10) continue;
-
-        if(thresh * (float) best_score < (float) second_best_score && bestk != -1) {
-            match.i1 = i1;
-            match.i2 = bestk;
-            match.score = best_score;
-            matches.push_back(match);
-        }
-    }
-    return matches;
-}
-
-vector<sift_keypoint> sift_detect(uint8_t * image, int width, int height, int noctaves, int nlevels, int o_min)
-{
-    vector<sift_keypoint> keypoints;
-    vl_sift_pix * fdata = (vl_sift_pix *)malloc(width*height*sizeof(vl_sift_pix));
-
-    /* convert data type */
-    for (int q = 0; q < width * height; ++q) {
-        fdata[q] = image[q];
-    }
-
-    VlSiftFilt * filt = vl_sift_new(width, height, noctaves, nlevels, o_min);
-    /* ...............................................................
-     *                                             Process each octave
-     * ............................................................ */
-    int i     = 0 ;
-    int first = 1 ;
-    int err;
-    while (1) {
-        VlSiftKeypoint const *keys = 0 ;
-        int                   nkeys ;
-
-        /* calculate the GSS for the next octave .................... */
-        if (first) {
-            first = 0 ;
-            err = vl_sift_process_first_octave (filt, fdata) ;
-        } else {
-            err = vl_sift_process_next_octave  (filt) ;
-        }
-
-        if (err) {
-            err = VL_ERR_OK ;
-            break ;
-        }
-
-        /* run detector ............................................. */
-        vl_sift_detect (filt) ;
-
-        keys  = vl_sift_get_keypoints     (filt) ;
-        nkeys = vl_sift_get_nkeypoints (filt) ;
-        i     = 0 ;
-
-        /* for each keypoint ........................................ */
-        for (; i < nkeys ; ++i) {
-            double                angles [4] ;
-            int                   nangles ;
-            VlSiftKeypoint const *k ;
-
-            /* obtain keypoint orientations ........................... */
-            k = keys + i ;
-            nangles = vl_sift_calc_keypoint_orientations(filt, angles, k) ;
-
-            /* for each orientation ................................... */
-            for (int q = 0 ; q < (unsigned) nangles ; ++q) {
-                sift_keypoint descr;
-
-                /* compute descriptor (if necessary) */
-                vl_sift_calc_keypoint_descriptor(filt, descr.d, k, angles [q]) ;
-                descr.pt.x = k->x;
-                descr.pt.y = k->y;
-                descr.sigma = k->sigma;
-                /* possibly should convert to uint8 for matching later */
-                /*
-                 int l ;
-                 for (l = 0 ; l < 128 ; ++l) {
-                double x = 512.0 * descr[l] ;
-                x = (x < 255.0) ? x : 255.0 ;
-                vl_file_meta_put_uint8 (&dsc, (vl_uint8) (x)) ;
-                 }
-                 */
-                keypoints.push_back(descr);
-            }
-        }
-    }
-    free(fdata);
-    return keypoints;
-}
-
-bool stereo::reestimate_F(const stereo_frame & reference, const stereo_frame & target, m4 & F, m4 & R, v4 & T)
+bool stereo::reestimate_F(const stereo_frame & reference, const stereo_frame & target, m4 & F, m4 & R, v4 & T, void(*progress_callback)(float), float progress_start, float progress_end)
 {
     // Detect and describe
     int noctaves = -1;
     int nlevels = 3;
     int o_min = 0;
-    vector<sift_keypoint> reference_keypoints = sift_detect(reference.image, camera.width, camera.height, noctaves, nlevels, o_min);
-    vector<sift_keypoint> target_keypoints = sift_detect(target.image, camera.width, camera.height, noctaves, nlevels, o_min);
+    float step_progress = (progress_end - progress_start)*1./3;
+    vector<sift_keypoint> reference_keypoints = sift_detect(reference.image, camera.width, camera.height, noctaves, nlevels, o_min, progress_callback, progress_start, progress_start + step_progress);
+    vector<sift_keypoint> target_keypoints = sift_detect(target.image, camera.width, camera.height, noctaves, nlevels, o_min, progress_callback, progress_start + step_progress, progress_start + 2*step_progress);
 
     // Match
-    vector<sift_match> matches = ubc_match(reference_keypoints, target_keypoints);
+    vector<sift_match> matches = ubc_match(reference_keypoints, target_keypoints, progress_callback, progress_start + 2*step_progress, progress_start + 2.8*step_progress);
 
     vector<v4> reference_correspondences;
     vector<v4> target_correspondences;
     for(int m = 0; m < matches.size(); m++) {
-        xy p1 = reference_keypoints[matches[m].i1].pt;
-        xy p2 = target_keypoints[matches[m].i2].pt;
+        feature_t p1 = reference_keypoints[matches[m].i1].pt;
+        feature_t p2 = target_keypoints[matches[m].i2].pt;
         reference_correspondences.push_back(v4(p1.x, p1.y, 1, 0));
         target_correspondences.push_back(v4(p2.x, p2.y, 1, 0));
     }
@@ -973,6 +411,8 @@ bool stereo::reestimate_F(const stereo_frame & reference, const stereo_frame & t
     // target to reference
     // TODO: Use more than one correspondence for more robust validation
     decompose_F(F, camera.focal_length, camera.center_x, camera.center_y, p1, p2, R, T);
+    if(progress_callback)
+        progress_callback(progress_start + step_progress*3);
 
     return true;
 }
@@ -1034,7 +474,7 @@ bool stereo::triangulate_internal(const stereo_frame & reference, const stereo_f
     return true;
 }
 
-bool stereo::preprocess_internal(const stereo_frame &from, stereo_frame &to, m4 &F, bool use_eight_point)
+bool stereo::preprocess_internal(const stereo_frame &from, stereo_frame &to, m4 &F, bool use_eight_point, void(*progress_callback)(float), float progress_start, float progress_end)
 {
     bool success = true;
     used_eight_point = use_eight_point;
@@ -1048,7 +488,7 @@ bool stereo::preprocess_internal(const stereo_frame &from, stereo_frame &to, m4 
     m4 R_eight_point;
     v4 T_eight_point;
     F = F_motion;
-    bool valid = reestimate_F(from, to, F_eight_point, R_eight_point, T_eight_point);
+    bool valid = reestimate_F(from, to, F_eight_point, R_eight_point, T_eight_point, progress_callback, progress_start, progress_end);
     if(valid) {
         F = F_eight_point;
         if(enable_eight_point_motion) {
@@ -1170,13 +610,13 @@ void stereo::process_frame(const class camera &g, const v4 & T, const rotation_v
     }
 }
 
-bool stereo::preprocess(bool use_eight_point)
+bool stereo::preprocess(bool use_eight_point, void(*progress_callback)(float))
 {
     if(!target || !reference) return false;
 
     transform_to_reference(reference);
 
-    return preprocess_internal(*reference, *target, F, use_eight_point);
+    return preprocess_internal(*reference, *target, F, use_eight_point, progress_callback, 0, 0.2);
 }
 
 bool stereo::preprocess_mesh(void(*progress_callback)(float))
@@ -1184,7 +624,7 @@ bool stereo::preprocess_mesh(void(*progress_callback)(float))
     if(!target || !reference) return false;
 
     // creates a mesh by searching for correspondences from reference to target
-    mesh = stereo_mesh_create(*this, progress_callback);
+    mesh = stereo_mesh_create(*this, progress_callback, 0.2, 1);
 
     char filename[1024];
     char suffix[1024] = "";

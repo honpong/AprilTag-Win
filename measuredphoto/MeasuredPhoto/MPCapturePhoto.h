@@ -16,6 +16,7 @@
 #import <CoreGraphics/CoreGraphics.h>
 #import <CoreLocation/CoreLocation.h>
 #import <RCCore/RCCore.h>
+#import "RCStereo.h"
 #import "MBProgressHUD.h"
 #import "MPVideoPreview.h"
 #import "MPAugmentedRealityView.h"

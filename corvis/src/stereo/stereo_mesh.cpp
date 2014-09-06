@@ -588,14 +588,17 @@ void stereo_mesh_write_topn_correspondences(const char * filename)
     fclose(correspondences);
 }
 
-void stereo_mesh_add_gradient_grid(stereo_mesh & mesh, const stereo &g, int npoints, void (*progress_callback)(float))
+void stereo_mesh_add_gradient_grid(stereo_mesh & mesh, const stereo &g, int npoints, void (*progress_callback)(float), float progress_start, float progress_end)
 {
     int m_width = g.camera.width / grid_size;
     int m_height = g.camera.height / grid_size;
 
-    float max_progress = 1;
-    if(enable_mrf)
-        max_progress = 0.75;
+    float step_range = progress_end - progress_start;
+    float mrf_range = 0;
+    if(enable_mrf) {
+        mrf_range = step_range * 0.25;
+        step_range = step_range * 0.75;
+    }
 
     stereo_grid_locations.clear();
     stereo_grid_matches.clear();
@@ -627,7 +630,7 @@ void stereo_mesh_add_gradient_grid(stereo_mesh & mesh, const stereo &g, int npoi
             stereo_grid_matches.push_back(matches);
         }
         if(progress_callback) {
-            float progress = max_progress * (float)y / g.camera.height;
+            float progress = progress_start + step_range * (float)y / g.camera.height;
             progress_callback(progress);
         }
     }
@@ -642,11 +645,11 @@ void stereo_mesh_add_gradient_grid(stereo_mesh & mesh, const stereo &g, int npoi
         }
     }
     else {
-        stereo_mesh_refine_mrf(mesh, m_width, m_height, progress_callback, max_progress, 1.);
+        stereo_mesh_refine_mrf(mesh, m_width, m_height, progress_callback, progress_start + step_range, progress_start + step_range + mrf_range);
     }
 }
 
-void stereo_mesh_add_gradient(stereo_mesh & mesh, const stereo &g, int npoints, void (*progress_callback)(float))
+void stereo_mesh_add_gradient(stereo_mesh & mesh, const stereo &g, int npoints, void (*progress_callback)(float), float progress_start, float progress_end)
 {
     // TODO: what is the best mask_shift value
     int mask_shift = 2;
@@ -718,7 +721,7 @@ void stereo_mesh_add_gradient(stereo_mesh & mesh, const stereo &g, int npoints, 
             }
         }
         if(progress_callback) {
-            float progress = (float)i / nchosen;
+            float progress = progress_start + (progress_end - progress_start)*(float)i / nchosen;
             progress_callback(progress);
         }
     }
@@ -728,7 +731,7 @@ void stereo_mesh_add_gradient(stereo_mesh & mesh, const stereo &g, int npoints, 
     free(match_ind);
 }
 
-void stereo_mesh_add_grid(stereo_mesh & mesh, const stereo &g, int step, void (*progress_callback)(float))
+void stereo_mesh_add_grid(stereo_mesh & mesh, const stereo &g, int step, void (*progress_callback)(float), float progress_start, float progress_end)
 {
     bool success;
     v4 intersection;
@@ -737,7 +740,7 @@ void stereo_mesh_add_grid(stereo_mesh & mesh, const stereo &g, int step, void (*
     for(int row = 0; row < g.camera.height; row += step) {
         for(int col=0; col < g.camera.width; col += step) {
             if(progress_callback) {
-                float progress = (1.*col + row*g.camera.width)/(g.camera.height*g.camera.width);
+                float progress = progress_start + (progress_end - progress_start) * (1.*col + row*g.camera.width)/(g.camera.height*g.camera.width);
                 progress_callback(progress);
             }
             success = g.triangulate(col, row, intersection, &match);
@@ -749,7 +752,7 @@ void stereo_mesh_add_grid(stereo_mesh & mesh, const stereo &g, int step, void (*
 }
 
 #include "../filter/tracker.h"
-void stereo_mesh_add_features(stereo_mesh & mesh, const stereo &g, int maxvertices, void (*progress_callback)(float))
+void stereo_mesh_add_features(stereo_mesh & mesh, const stereo &g, int maxvertices, void (*progress_callback)(float), float progress_start, float progress_end)
 {
     bool success;
     v4 intersection;
@@ -762,7 +765,7 @@ void stereo_mesh_add_features(stereo_mesh & mesh, const stereo &g, int maxvertic
 
     for(int i = 0; i < features.size(); i++) {
             if(progress_callback)
-                progress_callback(i*1./features.size());
+                progress_callback(progress_start + (progress_end - progress_start)*i*1./features.size());
             struct stereo_match match;
             success = g.triangulate(features[i].x, features[i].y, intersection, &match);
             if(success) {
@@ -771,13 +774,13 @@ void stereo_mesh_add_features(stereo_mesh & mesh, const stereo &g, int maxvertic
     }
 }
 
-stereo_mesh stereo_mesh_create(const stereo &g, void(*progress_callback)(float))
+stereo_mesh stereo_mesh_create(const stereo &g, void(*progress_callback)(float), float progress_start, float progress_end)
 {
     stereo_mesh mesh;
-    stereo_mesh_add_gradient_grid(mesh, g, 2000, progress_callback);
-    //stereo_mesh_add_gradient(mesh, g, 2000, progress_callback);
-    //stereo_mesh_add_features(mesh, g, 500);
-    //stereo_mesh_add_grid(mesh, g, 10, progress_callback);
+    stereo_mesh_add_gradient_grid(mesh, g, 2000, progress_callback, progress_start, progress_end);
+    //stereo_mesh_add_gradient(mesh, g, 2000, progress_callback, progress_start, progress_end);
+    //stereo_mesh_add_features(mesh, g, 500, progress_callback, progress_start, progress_end);
+    //stereo_mesh_add_grid(mesh, g, 10, progress_callback, progress_start, progress_end);
     stereo_mesh_delaunay(g, mesh);
     return mesh;
 }

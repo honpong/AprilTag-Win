@@ -1,6 +1,12 @@
 #include "stereo_features.h"
 
-vector<sift_match> ubc_match(vector<sift_keypoint> k1, vector<sift_keypoint>k2)
+void update_progress(void(*progress_callback)(float), float progress_start, float progress_end, float percent)
+{
+    if(progress_callback)
+        progress_callback(progress_start + (progress_end - progress_start)*percent);
+}
+
+vector<sift_match> ubc_match(vector<sift_keypoint> k1, vector<sift_keypoint>k2, void(*progress_callback)(float), float progress_start, float progress_end)
 {
     double thresh = 1.5;
 
@@ -35,11 +41,13 @@ vector<sift_match> ubc_match(vector<sift_keypoint> k1, vector<sift_keypoint>k2)
             match.score = best_score;
             matches.push_back(match);
         }
+        if(i1 % 5 == 0)
+            update_progress(progress_callback, progress_start, progress_end, (float)i1/k1.size());
     }
     return matches;
 }
 
-vector<sift_keypoint> sift_detect(uint8_t * image, int width, int height, int noctaves, int nlevels, int o_min)
+vector<sift_keypoint> sift_detect(uint8_t * image, int width, int height, int noctaves, int nlevels, int o_min, void(*progress_callback)(float), float progress_start, float progress_end)
 {
     vector<sift_keypoint> keypoints;
     vl_sift_pix * fdata = (vl_sift_pix *)malloc(width*height*sizeof(vl_sift_pix));
@@ -50,20 +58,28 @@ vector<sift_keypoint> sift_detect(uint8_t * image, int width, int height, int no
     }
 
     VlSiftFilt * filt = vl_sift_new(width, height, noctaves, nlevels, o_min);
+    noctaves = vl_sift_get_noctaves(filt);
+
     /* ...............................................................
      *                                             Process each octave
      * ............................................................ */
     int i     = 0 ;
     int first = 1 ;
     int err;
+    int o = 0;
+    float current_progress = 0;
+    float total_progress = powf(2, noctaves + 1) - 1;
     while (1) {
         VlSiftKeypoint const *keys = 0 ;
         int                   nkeys ;
 
+        float step_progress = powf(2, noctaves - o)/total_progress;
         /* calculate the GSS for the next octave .................... */
         if (first) {
             first = 0 ;
             err = vl_sift_process_first_octave (filt, fdata) ;
+            current_progress = 0.05;
+            update_progress(progress_callback, progress_start, progress_end, 0.05);
         } else {
             err = vl_sift_process_next_octave  (filt) ;
         }
@@ -110,7 +126,13 @@ vector<sift_keypoint> sift_detect(uint8_t * image, int width, int height, int no
                  */
                 keypoints.push_back(descr);
             }
+            if(i == 0 || i % 5 == 0) {
+                update_progress(progress_callback, progress_start, progress_end, current_progress + i*step_progress/nkeys);
+            }
         }
+        current_progress += step_progress;
+
+        o++;
     }
     free(fdata);
     return keypoints;

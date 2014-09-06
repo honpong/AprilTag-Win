@@ -27,7 +27,7 @@ typedef struct _stereo_mesh {
 class stereo;
 
 // F is from s1 to s2
-stereo_mesh stereo_mesh_create(const stereo &global, void (*progress_callback)(float));
+stereo_mesh stereo_mesh_create(const stereo &global, void (*progress_callback)(float), float progress_start, float progress_end);
 void stereo_remesh_delaunay(stereo_mesh & mesh);
 bool stereo_mesh_triangulate(const stereo_mesh & mesh, const stereo &global, int x, int y, v4 & intersection);
 

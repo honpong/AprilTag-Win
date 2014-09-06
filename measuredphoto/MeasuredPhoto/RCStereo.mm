@@ -210,7 +210,7 @@ static void sensor_fusion_stereo_progress(float progress)
 - (bool) preprocess
 {
     bool success;
-    success = mystereo.preprocess(false);
+    success = mystereo.preprocess(false, sensor_fusion_stereo_progress);
     if(success) {
         success = mystereo.preprocess_mesh(sensor_fusion_stereo_progress);
     }

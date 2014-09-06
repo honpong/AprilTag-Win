@@ -75,7 +75,7 @@ public:
     bool triangulate_top_n(int reference_x, int reference_y, int n, vector<struct stereo_match> & matches) const;
     bool triangulate_mesh(int x, int y, v4 & intersection) const;
 
-    bool preprocess(bool use_eight_point=false);
+    bool preprocess(bool use_eight_point=false, void(*progress_callback)(float)=NULL);
     bool preprocess_mesh(void(*progress_callback)(float));
 
     void set_debug_basename(const char * basename) { snprintf(debug_basename, 1024, "%s", basename); }
@@ -93,8 +93,8 @@ protected:
     void undistort_features(list<stereo_feature> & features);
 
     // Computes a fundamental matrix between reference and target and stores it in F.
-    bool preprocess_internal(const stereo_frame & reference, stereo_frame & target, m4 &F, bool use_eight_point);
-    bool reestimate_F(const stereo_frame & reference, const stereo_frame & target, m4 & F, m4 & R, v4 & T);
+    bool preprocess_internal(const stereo_frame &reference, stereo_frame & target, m4 &F, bool use_eight_point, void(*progress_callback)(float), float progress_start, float progress_end);
+    bool reestimate_F(const stereo_frame & reference, const stereo_frame & target, m4 & F, m4 & R, v4 & T, void(*progress_callback)(float), float progress_start, float progress_end);
 
 private:
     char debug_basename[1024];

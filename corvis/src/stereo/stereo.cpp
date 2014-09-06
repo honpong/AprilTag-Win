@@ -364,17 +364,18 @@ bool estimate_F_eight_point(const stereo_frame & reference, const stereo_frame &
     return true;
 }
 
-bool stereo::reestimate_F(const stereo_frame & reference, const stereo_frame & target, m4 & F, m4 & R, v4 & T)
+bool stereo::reestimate_F(const stereo_frame & reference, const stereo_frame & target, m4 & F, m4 & R, v4 & T, void(*progress_callback)(float), float progress_start, float progress_end)
 {
     // Detect and describe
     int noctaves = -1;
     int nlevels = 3;
     int o_min = 0;
-    vector<sift_keypoint> reference_keypoints = sift_detect(reference.image, camera.width, camera.height, noctaves, nlevels, o_min);
-    vector<sift_keypoint> target_keypoints = sift_detect(target.image, camera.width, camera.height, noctaves, nlevels, o_min);
+    float step_progress = (progress_end - progress_start)*1./3;
+    vector<sift_keypoint> reference_keypoints = sift_detect(reference.image, camera.width, camera.height, noctaves, nlevels, o_min, progress_callback, progress_start, progress_start + step_progress);
+    vector<sift_keypoint> target_keypoints = sift_detect(target.image, camera.width, camera.height, noctaves, nlevels, o_min, progress_callback, progress_start + step_progress, progress_start + 2*step_progress);
 
     // Match
-    vector<sift_match> matches = ubc_match(reference_keypoints, target_keypoints);
+    vector<sift_match> matches = ubc_match(reference_keypoints, target_keypoints, progress_callback, progress_start + 2*step_progress, progress_start + 2.8*step_progress);
 
     vector<v4> reference_correspondences;
     vector<v4> target_correspondences;
@@ -410,6 +411,8 @@ bool stereo::reestimate_F(const stereo_frame & reference, const stereo_frame & t
     // target to reference
     // TODO: Use more than one correspondence for more robust validation
     decompose_F(F, camera.focal_length, camera.center_x, camera.center_y, p1, p2, R, T);
+    if(progress_callback)
+        progress_callback(progress_start + step_progress*3);
 
     return true;
 }
@@ -471,7 +474,7 @@ bool stereo::triangulate_internal(const stereo_frame & reference, const stereo_f
     return true;
 }
 
-bool stereo::preprocess_internal(const stereo_frame &from, stereo_frame &to, m4 &F, bool use_eight_point)
+bool stereo::preprocess_internal(const stereo_frame &from, stereo_frame &to, m4 &F, bool use_eight_point, void(*progress_callback)(float), float progress_start, float progress_end)
 {
     bool success = true;
     used_eight_point = use_eight_point;
@@ -485,7 +488,7 @@ bool stereo::preprocess_internal(const stereo_frame &from, stereo_frame &to, m4 
     m4 R_eight_point;
     v4 T_eight_point;
     F = F_motion;
-    bool valid = reestimate_F(from, to, F_eight_point, R_eight_point, T_eight_point);
+    bool valid = reestimate_F(from, to, F_eight_point, R_eight_point, T_eight_point, progress_callback, progress_start, progress_end);
     if(valid) {
         F = F_eight_point;
         if(enable_eight_point_motion) {
@@ -607,13 +610,13 @@ void stereo::process_frame(const class camera &g, const v4 & T, const rotation_v
     }
 }
 
-bool stereo::preprocess(bool use_eight_point)
+bool stereo::preprocess(bool use_eight_point, void(*progress_callback)(float))
 {
     if(!target || !reference) return false;
 
     transform_to_reference(reference);
 
-    return preprocess_internal(*reference, *target, F, use_eight_point);
+    return preprocess_internal(*reference, *target, F, use_eight_point, progress_callback, 0, 0.2);
 }
 
 bool stereo::preprocess_mesh(void(*progress_callback)(float))
@@ -621,7 +624,7 @@ bool stereo::preprocess_mesh(void(*progress_callback)(float))
     if(!target || !reference) return false;
 
     // creates a mesh by searching for correspondences from reference to target
-    mesh = stereo_mesh_create(*this, progress_callback);
+    mesh = stereo_mesh_create(*this, progress_callback, 0.2, 1);
 
     char filename[1024];
     char suffix[1024] = "";

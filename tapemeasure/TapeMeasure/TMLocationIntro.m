@@ -78,16 +78,11 @@ const CLLocationDegrees startingLongitude = 43.;
     NSNumber* timestamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]];
     [NSUserDefaults.standardUserDefaults setObject:timestamp forKey:PREF_LOCATION_NAG_TIMESTAMP];
     
-    if(![CLLocationManager locationServicesEnabled] || [CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined)
-    {
-        waitingForLocationAuthorization = true;
-        LOCATION_MANAGER.delegate = self;
-        [LOCATION_MANAGER startLocationUpdates]; // will show dialog asking user to authorize location. gotoCalibration triggered by didChangeAuthorizationStatus delegate function
-    }
-    else
-    {
-        [self gotoNextScreen];
-    }
+    [LOCATION_MANAGER requestLocationAccessWithCompletion:^(BOOL granted)
+     {
+         if(granted) [LOCATION_MANAGER startLocationUpdates];
+         [self gotoNextScreen];
+     }];
 }
 
 - (IBAction)handleLaterButton:(id)sender

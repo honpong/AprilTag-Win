@@ -96,7 +96,7 @@
     }
     else
     {
-        if ([LOCATION_MANAGER isLocationAuthorized])
+        if (![LOCATION_MANAGER isLocationDisallowed])
         {
             // location already authorized. go ahead.
             LOCATION_MANAGER.delegate = self;
@@ -151,8 +151,6 @@
 {
     [self gotoMainViewController];
 }
-
-#pragma mark - RCCalibrationDelegate methods
 
 - (void) calibrationDidFinish
 {

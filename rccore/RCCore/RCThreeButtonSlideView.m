@@ -50,8 +50,8 @@ static const CGFloat buttonHeight = 45;
     button3.titleLabel.textColor = [UIColor whiteColor];
     
     [self addSubview:label];
-    [label addLeadingSpaceToSuperviewConstraint:10];
-    [label addTrailingSpaceToSuperviewConstraint:10];
+    [label addLeftSpaceToSuperviewConstraint:10];
+    [label addRightSpaceToSuperviewConstraint:10];
     [label addTopSpaceToSuperviewConstraint:14];
     
     [self addSubview:button1];
@@ -62,13 +62,13 @@ static const CGFloat buttonHeight = 45;
     
     [self addSubview:button2];
     [button2 addBottomSpaceToSuperviewConstraint:0];
-    [button2 addLeadingSpaceToSuperviewConstraint:0];
+    [button2 addLeftSpaceToSuperviewConstraint:0];
     [button2 addWidthConstraint:width/2 andHeightConstraint:buttonHeight];
     [button2 addTarget:self action:@selector(button2Tapped) forControlEvents:UIControlEventTouchUpInside];
     
     [self addSubview:button3];
     [button3 addBottomSpaceToSuperviewConstraint:0];
-    [button3 addTrailingSpaceToSuperviewConstraint:0];
+    [button3 addRightSpaceToSuperviewConstraint:0];
     [button3 addWidthConstraint:width/2 andHeightConstraint:buttonHeight];
     [button3 addTarget:self action:@selector(button3Tapped) forControlEvents:UIControlEventTouchUpInside];
     

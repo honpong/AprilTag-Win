@@ -16,9 +16,12 @@
 
 @interface RCAVSessionManager : NSObject
 
-@property AVCaptureSession *session;
-@property AVCaptureDevice *videoDevice;
+@property (retain, nonatomic) AVCaptureSession *session;
+@property (retain, nonatomic) AVCaptureDevice *videoDevice;
 
++ (void) requestCameraAccessWithCompletion:(void (^)(BOOL granted))handler;
+/** Configures the device and adds the input to the session. This will trigger the caemra access dialog if it wasn't already triggered. */
+- (void) addInputToSession;
 - (BOOL) startSession;
 - (void) endSession;
 - (BOOL) isRunning;

@@ -57,7 +57,7 @@
     
     [self setShadowColor:self.shadowColor];
     
-    [nominatorLabel addLeadingSpaceToSuperviewConstraint:0];
+    [nominatorLabel addLeftSpaceToSuperviewConstraint:0];
     [nominatorLabel addTopSpaceToSuperviewConstraint:0];
     [denominatorLabel addBottomSpaceToSuperviewConstraint:0];
     

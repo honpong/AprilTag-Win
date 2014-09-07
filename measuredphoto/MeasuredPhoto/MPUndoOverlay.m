@@ -39,13 +39,13 @@
         self.messageLabel.textColor = [UIColor whiteColor];
         [self addSubview:self.messageLabel];
         [self.messageLabel addCenterYInSuperviewConstraints];
-        [self.messageLabel addLeadingSpaceToSuperviewConstraint:20.];
+        [self.messageLabel addLeftSpaceToSuperviewConstraint:20.];
         
         _undoButton = [MPTintTouchButton new];
         [self.undoButton setTitle:@"Undo" forState:UIControlStateNormal];
         self.undoButton.titleLabel.textColor = [UIColor whiteColor];
         [self addSubview:self.undoButton];
-        [self.undoButton addTrailingSpaceToSuperviewConstraint:0];
+        [self.undoButton addRightSpaceToSuperviewConstraint:0];
         [self.undoButton addTopSpaceToSuperviewConstraint:0];
         [self.undoButton addBottomSpaceToSuperviewConstraint:0];
         [self.undoButton addConstraint:[self.undoButton getWidthConstraint:80]];

@@ -131,7 +131,7 @@
     
     // distance label
     [distanceLabel addBottomSpaceToSuperviewConstraint:0];
-    distLeadingSpaceConstraint = [distanceLabel addLeadingSpaceToSuperviewConstraint:0];
+    distLeadingSpaceConstraint = [distanceLabel addLeftSpaceToSuperviewConstraint:0];
     distHeightConstraint = [distanceLabel getHeightConstraint:self.frame.size.height];
     [distanceLabel addConstraint:distHeightConstraint];
     
@@ -145,11 +145,11 @@
     if (alignmentConstraint) [containerView.superview removeConstraint:alignmentConstraint];
     
     if (textAlignment == NSTextAlignmentLeft)
-        alignmentConstraint = [containerView addLeadingSpaceToSuperviewConstraint:0];
+        alignmentConstraint = [containerView addLeftSpaceToSuperviewConstraint:0];
     else if (textAlignment == NSTextAlignmentCenter)
         alignmentConstraint = [containerView addCenterXInSuperviewConstraints];
     else if (textAlignment == NSTextAlignmentRight)
-        alignmentConstraint = [containerView addTrailingSpaceToSuperviewConstraint:0];
+        alignmentConstraint = [containerView addRightSpaceToSuperviewConstraint:0];
     
     [containerView setNeedsUpdateConstraints];
 }
@@ -275,11 +275,11 @@
     if (centerAlignmentExcludesFraction_)
     {
         [symbolLabel removeConstraint:symbolTrailingSpaceConstraint];
-        distTrailingSpaceConstraint = [distanceLabel addTrailingSpaceToSuperviewConstraint:32];
+        distTrailingSpaceConstraint = [distanceLabel addRightSpaceToSuperviewConstraint:32];
     }
     else
     {
-        symbolTrailingSpaceConstraint = [symbolLabel addTrailingSpaceToSuperviewConstraint:0];
+        symbolTrailingSpaceConstraint = [symbolLabel addRightSpaceToSuperviewConstraint:0];
         [distanceLabel removeConstraint:distTrailingSpaceConstraint];
     }
     [self sizeToFit];

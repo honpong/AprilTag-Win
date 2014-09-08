@@ -670,14 +670,14 @@ static transition transitions[] =
 
 - (NSArray*) buildTipsArray
 {
-    return @[@"This app uses the camera to \"see\" how far the device has moved.",
-             @"Small blue dots appear on the screen when the camera can see well.",
+    return @[@"This app uses the camera to \"see\" how far the device moved. Don't block the camera.",
+             @"The camera can see well when small blue dots appear on the screen while measuring.",
              @"The app measures the straight-line distance from the start point to the end point.",
              @"Hold the device steady with two hands to minimize small vibrations.",
              @"Don't move too fast or too slow. Normal walking speed works well.",
              @"To measure small objects, move the device from one end of the object to the other.",
              @"To measure long distances, hold the device in front of you as you walk.",
-             @"If you get an error, try again with the camera pointed in a different direction.",
+             @"If you have problems, try again with the camera pointed in a different direction.",
              @"There is no limit to how far you can measure with Endless Tape Measure."];
 }
 

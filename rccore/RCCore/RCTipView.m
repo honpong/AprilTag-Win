@@ -32,7 +32,7 @@
     [super drawTextInRect:UIEdgeInsetsInsetRect(rect, insets)];
     
     // draw white triangle in bottom right corner
-    CGPoint startPoint = CGPointMake(rect.size.width - 20, rect.size.height - 20);
+    CGPoint startPoint = CGPointMake(rect.size.width - 15, rect.size.height - 20);
     
     CGContextRef context = UIGraphicsGetCurrentContext();
     CGContextMoveToPoint(context, startPoint.x, startPoint.y);

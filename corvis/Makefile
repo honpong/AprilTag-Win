@@ -192,7 +192,7 @@ DEPS := $(DEPS) build/_filter.ipp.d
 
 d := stereo
 
-STEREO_CXX_SOURCES := $(addprefix src/$(d)/, stereo.cpp stereo_mesh.cpp camera.cpp triangle.cpp)
+STEREO_CXX_SOURCES := $(addprefix src/$(d)/, stereo.cpp stereo_mesh.cpp camera.cpp fundamental.cpp stereo_features.cpp triangle.cpp)
 
 STEREO_SOURCES :=
 

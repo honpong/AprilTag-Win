@@ -148,7 +148,7 @@ static transition transitions[] =
     if(!oldSetup.progress && newSetup.progress)
         [self showProgressWithTitle:@(newSetup.title)];
     if(!oldSetup.showTips && newSetup.showTips)
-        [tipsView fadeInWithDuration:.5 andWait:0];
+        [self showTipsView];
     if(oldSetup.showTips && !newSetup.showTips)
         [tipsView fadeOutWithDuration:.5 andWait:0];
     
@@ -212,6 +212,7 @@ static transition transitions[] =
     [tipsView addWidthConstraint:280 andHeightConstraint:80];
     [tipsView addBottomSpaceToSuperviewConstraint:20];
     tipsView.alpha = 0;
+    tipsView.delegate = self;
     tipsView.tips = [self buildTipsArray];
 }
 
@@ -660,6 +661,13 @@ static transition transitions[] =
     }
 }
 
+- (void) showTipsView
+{
+    NSInteger tipIndex = [NSUserDefaults.standardUserDefaults integerForKey:PREF_LAST_TIP_INDEX];
+    [tipsView showTip:tipIndex + 1];
+    [tipsView fadeInWithDuration:.5 andWait:0];
+}
+
 - (NSArray*) buildTipsArray
 {
     return @[@"This app uses the camera to \"see\" how far the device has moved.",
@@ -671,6 +679,13 @@ static transition transitions[] =
              @"To measure long distances, hold the device in front of you as you walk.",
              @"If you get an error, try again with the camera pointed in a different direction.",
              @"There is no limit to how far you can measure with Endless Tape Measure."];
+}
+
+#pragma mark - RCTipViewDelegate
+
+- (void) tipIndexUpdated:(int)index
+{
+    [NSUserDefaults.standardUserDefaults setInteger:index forKey:PREF_LAST_TIP_INDEX];
 }
 
 @end

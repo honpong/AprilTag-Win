@@ -8,10 +8,19 @@
 
 @import UIKit;
 
+@protocol RCTipViewDelegate <NSObject>
+
+- (void) tipIndexUpdated:(int)index;
+
+@end
+
 @interface RCTipView : UILabel
 
+@property (weak, nonatomic) id<RCTipViewDelegate> delegate;
 @property (nonatomic) NSArray* tips;
+@property (nonatomic) int currentTipIndex;
 
 - (void) showNextTip;
+- (void) showTip:(int)index;
 
 @end

@@ -9,9 +9,6 @@
 #import "RCTipView.h"
 
 @implementation RCTipView
-{
-    int currentTipIndex;
-}
 
 - (id) initWithFrame:(CGRect)frame
 {
@@ -24,7 +21,7 @@
         self.textColor = [UIColor whiteColor];
         self.userInteractionEnabled = YES;
         
-        currentTipIndex = -1;
+        self.currentTipIndex = -1;
     }
     return self;
 }
@@ -48,21 +45,28 @@
     CGContextFillPath(context);
 }
 
+- (void) updateTipText
+{
+    if (self.currentTipIndex >= self.tips.count) return;
+    self.text = [NSString stringWithFormat:@"Tip: %@", self.tips[self.currentTipIndex]];
+    if ([self.delegate respondsToSelector:@selector(tipIndexUpdated:)]) [self.delegate tipIndexUpdated:self.currentTipIndex];
+}
+
 - (void) showNextTip
 {
-    if (self.tips.count > 0)
-    {
-        currentTipIndex = currentTipIndex >= self.tips.count - 1 ? 0 : currentTipIndex + 1;
-        
-        self.text = [NSString stringWithFormat:@"Tip: %@", self.tips[currentTipIndex]];
-    }
+    [self showTip:self.currentTipIndex + 1];
+}
+
+- (void) showTip:(int)index
+{
+    self.currentTipIndex = index < self.tips.count ? index : 0;
+    [self updateTipText];
 }
 
 - (void) setTips:(NSArray *)tips
 {
     _tips = tips;
-    currentTipIndex = -1;
-    [self showNextTip];
+    self.currentTipIndex = -1;
 }
 
 - (void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event

@@ -42,6 +42,7 @@
 #define PREF_IS_TIPS_SHOWN @"is_tips_shown"
 #define PREF_SHOW_RATE_NAG @"show_rate_nag"
 #define PREF_RATE_NAG_TIMESTAMP @"rate_nag_timestamp"
+#define PREF_LAST_TIP_INDEX @"last_tip_index"
 
 #define API_VERSION 1
 #define API_BASE_URL @"https://internal.realitycap.com/"

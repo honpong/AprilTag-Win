@@ -39,7 +39,6 @@
 #define PREF_LOCATION_NAG_TIMESTAMP @"location_nag_timestamp"
 #define PREF_IS_CALIBRATED @"is_calibrated"
 #define PREF_IS_FIRST_LAUNCH @"is_first_launch"
-#define PREF_IS_TIPS_SHOWN @"is_tips_shown"
 #define PREF_SHOW_RATE_NAG @"show_rate_nag"
 #define PREF_RATE_NAG_TIMESTAMP @"rate_nag_timestamp"
 #define PREF_LAST_TIP_INDEX @"last_tip_index"

@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
 #include "stereo.h"
+#include "fundamental.h"
 
 const static m4 result = { {
     v4(4.7050659665283991e-06, -3.608920748657601e-04, 0.034825532535250781, 0),

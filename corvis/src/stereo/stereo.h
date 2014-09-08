@@ -105,11 +105,6 @@ private:
     void write_debug_info();
 };
 
-m4 eight_point_F(v4 p1[], v4 p2[], int npts);
 bool line_endpoints(v4 line, int width, int height, float endpoints[4]);
-
-int compute_inliers(const v4 from [], const v4 to [], int nmatches, const m4 & F, float thresh, bool inliers []);
-bool ransac_F(const vector<v4> & reference_pts, const vector<v4> target_pts, m4 & F);
-bool decompose_F(const m4 & F, float focal_length, float center_x, float center_y, const v4 & p1, const v4 & p2, m4 & R, v4 & T);
 
 #endif

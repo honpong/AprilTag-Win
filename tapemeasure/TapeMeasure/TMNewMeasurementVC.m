@@ -28,6 +28,8 @@
     int filterStatusCode;
     
     id<RCSensorDelegate>sensorDelegate;
+    
+    RCTipView* tipsView;
 }
 
 #pragma mark - State Machine
@@ -58,6 +60,7 @@ typedef struct
     bool retryBtnEnabled;
     bool showTape;
     bool showDistance;
+    bool showTips;
     bool features;
     bool progress;
     const char *title;
@@ -67,15 +70,15 @@ typedef struct
 
 static statesetup setups[] =
 {
-    //                                fusion  sensors measure listBtn rtryBtn shwdstc shwtape ftrs    prgrs   title           message         autohide
-    { ST_STARTUP,       ICON_GREEN,   false,  false,  false,  true,   false,  false,  false,  false,  false,  "",  "", false},
-    { ST_READY,         ICON_GREEN,   false,  true,   false,  true,   false,  false,  false,  false,  false,  "Instructions", "Hold the device steady where you want to start the measurement and tap to begin.", false },
-    { ST_INITIALIZING,  ICON_GREEN,   true,   true,   false,  true,   true,   true,   false,  true,   true,   "Initializing",   "Hold the device steady.", false},
-    { ST_MEASURE,       ICON_GREEN,   true,   true,   true,   true,   true,   true,   true,   true,   false,  "Measuring",    "Go! Move the device to the end of your measurement, and tap to finish.", false },
-    { ST_FINISHED,      ICON_GREEN,   false,  false,  false,  true,   true,   true,   true,   false,  false,  "",     "", false },
-    { ST_VISIONFAIL,    ICON_RED,     false,  true,   false,  true,   true,   true,   true,   false,  false,  "Try again",    "Sorry, the camera can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit.", false },
-    { ST_FASTFAIL,      ICON_RED,     false,  true,   false,  true,   true,   true,   true,   false,  false,  "Try again",    "Sorry, that didn't work. For best results, move at a normal walking pace.", false },
-    { ST_FAIL,          ICON_RED,     false,  true,   false,  true,   true,   true,   true,   false,  false,  "Try again",    "Sorry, we need to try that again.", false },
+    //                                fusion  sensors measure listBtn rtryBtn shwdstc shwtape showTips ftrs    prgrs   title           message         autohide
+    { ST_STARTUP,       ICON_GREEN,   false,  false,  false,  true,   false,  false,  false,  false,   false,  false,  "",  "", false},
+    { ST_READY,         ICON_GREEN,   false,  true,   false,  true,   false,  false,  false,  true,    false,  false,  "Instructions", "Hold the device steady where you want to start the measurement and tap to begin.", false },
+    { ST_INITIALIZING,  ICON_GREEN,   true,   true,   false,  true,   true,   true,   false,  true,    true,   true,   "Initializing",   "Hold the device steady.", false},
+    { ST_MEASURE,       ICON_GREEN,   true,   true,   true,   true,   true,   true,   true,   false,   true,   false,  "Measuring",    "Go! Move the device to the end of your measurement, and tap to finish.", false },
+    { ST_FINISHED,      ICON_GREEN,   false,  false,  false,  true,   true,   true,   true,   false,   false,  false,  "",     "", false },
+    { ST_VISIONFAIL,    ICON_RED,     false,  true,   false,  true,   true,   true,   true,   false,   false,  false,  "Try again",    "Sorry, the camera can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit.", false },
+    { ST_FASTFAIL,      ICON_RED,     false,  true,   false,  true,   true,   true,   true,   false,   false,  false,  "Try again",    "Sorry, that didn't work. For best results, move at a normal walking pace.", false },
+    { ST_FAIL,          ICON_RED,     false,  true,   false,  true,   true,   true,   true,   false,   false,  false,  "Try again",    "Sorry, we need to try that again.", false },
 };
 
 static transition transitions[] =
@@ -144,6 +147,10 @@ static transition transitions[] =
         [self hideProgress];
     if(!oldSetup.progress && newSetup.progress)
         [self showProgressWithTitle:@(newSetup.title)];
+    if(!oldSetup.showTips && newSetup.showTips)
+        [tipsView fadeInWithDuration:.5 andWait:0];
+    if(oldSetup.showTips && !newSetup.showTips)
+        [tipsView fadeOutWithDuration:.5 andWait:0];
     
     currentState = newState;
     
@@ -198,6 +205,14 @@ static transition transitions[] =
     newMeasurement = [TMMeasurement getNewMeasurement];
     newMeasurement.type = self.type;
     [newMeasurement autoSelectUnitsScale];
+    
+    tipsView = [RCTipView new];
+    [self.view addSubview:tipsView];
+    [tipsView addCenterXInSuperviewConstraints];
+    [tipsView addWidthConstraint:280 andHeightConstraint:80];
+    [tipsView addBottomSpaceToSuperviewConstraint:20];
+    tipsView.alpha = 0;
+    tipsView.tips = [self buildTipsArray];
 }
 
 - (void) viewDidLayoutSubviews
@@ -643,6 +658,19 @@ static transition transitions[] =
         
         [[segue destinationViewController] setDelegate:self];
     }
+}
+
+- (NSArray*) buildTipsArray
+{
+    return @[@"This app uses the camera to \"see\" how far the device has moved.",
+             @"Small blue dots appear on the screen when the camera can see well.",
+             @"The app measures the straight-line distance from the start point to the end point.",
+             @"Hold the device steady with two hands to minimize small vibrations.",
+             @"Don't move too fast or too slow. Normal walking speed works well.",
+             @"To measure small objects, move the device from one end of the object to the other.",
+             @"To measure long distances, hold the device in front of you as you walk.",
+             @"If you get an error, try again with the camera pointed in a different direction.",
+             @"There is no limit to how far you can measure with Endless Tape Measure."];
 }
 
 @end

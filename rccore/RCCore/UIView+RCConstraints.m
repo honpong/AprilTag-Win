@@ -27,21 +27,37 @@
     [self addMatchHeightToSuperviewContraints];
 }
 
+- (void) addMatchSuperviewConstraints:(CGFloat)spacing
+{
+    [self addMatchWidthToSuperviewConstraints:spacing];
+    [self addMatchHeightToSuperviewContraints:spacing];
+}
+
 - (void) addMatchWidthToSuperviewConstraints
 {
+    [self addMatchWidthToSuperviewConstraints:0];
+}
+
+- (void) addMatchWidthToSuperviewConstraints:(CGFloat)spacing
+{
     self.translatesAutoresizingMaskIntoConstraints = NO;
-    [self.superview addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|[self]|"
+    [self.superview addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:|-spacing-[self]-spacing-|"
                                                                            options:0
-                                                                           metrics:nil
+                                                                           metrics:@{ @"spacing": [NSNumber numberWithDouble:spacing] }
                                                                              views:NSDictionaryOfVariableBindings(self)]];
 }
 
 - (void) addMatchHeightToSuperviewContraints
 {
+    [self addMatchHeightToSuperviewContraints:0];
+}
+
+- (void) addMatchHeightToSuperviewContraints:(CGFloat)spacing
+{
     self.translatesAutoresizingMaskIntoConstraints = NO;
-    [self.superview addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|[self]|"
+    [self.superview addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-spacing-[self]-spacing-|"
                                                                            options:0
-                                                                           metrics:nil
+                                                                           metrics:@{ @"spacing": [NSNumber numberWithDouble:spacing] }
                                                                              views:NSDictionaryOfVariableBindings(self)]];
 }
 

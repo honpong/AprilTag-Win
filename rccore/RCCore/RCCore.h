@@ -46,6 +46,7 @@
 #import "RCInvertButton.h"
 #import "RCThreeButtonSlideView.h"
 #import "RCLocationPopUp.h"
+#import "RCTipView.h"
 
 #import "NSString+RCString.h"
 

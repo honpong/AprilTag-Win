@@ -62,7 +62,7 @@
                                      PREF_SHOW_RATE_NAG: @YES,
                                      PREF_RATE_NAG_TIMESTAMP : @0,
                                      PREF_LOCATION_NAG_TIMESTAMP: @0,
-                                     PREF_LAST_TIP_INDEX: @0};
+                                     PREF_LAST_TIP_INDEX: @(-1)};
         
         [NSUserDefaults.standardUserDefaults registerDefaults:appDefaults];
     });

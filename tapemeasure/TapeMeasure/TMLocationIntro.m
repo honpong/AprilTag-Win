@@ -24,7 +24,6 @@ const CLLocationDegrees startingLongitude = 43.;
     NSString* originalNextButtonText;
     NSString* originalLaterButtonText;
     NSString* originalNeverButtonText;
-    bool waitingForLocationAuthorization;
 }
 
 - (id) initWithCoder:(NSCoder *)aDecoder
@@ -46,8 +45,6 @@ const CLLocationDegrees startingLongitude = 43.;
 - (void) viewDidLoad
 {
     [super viewDidLoad];
-    
-    waitingForLocationAuthorization = false;
     
     [self.navigationController setNavigationBarHidden:YES animated:NO];
     
@@ -80,6 +77,7 @@ const CLLocationDegrees startingLongitude = 43.;
     
     [LOCATION_MANAGER requestLocationAccessWithCompletion:^(BOOL granted)
      {
+         [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
          if(granted) [LOCATION_MANAGER startLocationUpdates];
          [self gotoNextScreen];
      }];
@@ -89,7 +87,7 @@ const CLLocationDegrees startingLongitude = 43.;
 {
     NSNumber* timestamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]];
     [NSUserDefaults.standardUserDefaults setObject:timestamp forKey:PREF_LOCATION_NAG_TIMESTAMP];
-    if (!waitingForLocationAuthorization) [self gotoNextScreen];
+    [self gotoNextScreen];
 }
 
 - (IBAction)handleNeverButton:(id)sender
@@ -136,31 +134,6 @@ const CLLocationDegrees startingLongitude = 43.;
             [NSThread sleepForTimeInterval:0.0333];
         }
     });
-}
-
-#pragma mark - CLLocationManagerDelegate
-
-- (void) locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
-{
-    LOGME
-    
-    if(status == kCLAuthorizationStatusNotDetermined || !waitingForLocationAuthorization) return;
-    if(status == kCLAuthorizationStatusAuthorized)
-    {
-        [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
-        [LOCATION_MANAGER startLocationUpdates];
-        LOCATION_MANAGER.delegate = nil;
-    }
-    else if(status == kCLAuthorizationStatusDenied || status == kCLAuthorizationStatusRestricted)
-    {
-        [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
-    }
-    if([CLLocationManager locationServicesEnabled] && (status == kCLAuthorizationStatusAuthorized || status == kCLAuthorizationStatusDenied || status == kCLAuthorizationStatusRestricted))
-    {
-        if (status != kCLAuthorizationStatusAuthorized) [LOCATION_MANAGER stopLocationUpdates];
-        [self gotoNextScreen];
-        waitingForLocationAuthorization = false;
-    }
 }
 
 - (void) gotoNextScreen

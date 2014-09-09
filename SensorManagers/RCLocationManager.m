@@ -90,16 +90,8 @@
 {
     LOGME
     if (isUpdating || [self isLocationDisallowed]) return;
-    void (^authBlock)(BOOL granted) = ^(BOOL granted)
-    {
-        if(granted)
-        {
-            [_sysLocationMan startUpdatingLocation];
-            isUpdating = YES;
-        }
-    };
-    if([CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined) [self requestLocationAccessWithCompletion:authBlock];
-    else authBlock(true);
+    isUpdating = YES;
+    [_sysLocationMan startUpdatingLocation];
 }
 
 - (void)stopLocationUpdates
@@ -150,6 +142,25 @@
         case kCLAuthorizationStatusRestricted:
             DLog(@"Location permission explictly denied or restricted");
             return true;
+    }
+}
+
+- (BOOL) isLocationExplicitlyAllowed
+{
+    if(![CLLocationManager locationServicesEnabled]) return false;
+    CLAuthorizationStatus status = [CLLocationManager authorizationStatus];
+    switch(status)
+    {
+        case kCLAuthorizationStatusAuthorizedAlways: //This is the same as kCLAuthorizationStatusAuthorized from iOS < 8
+#ifdef __IPHONE_8_0
+        case kCLAuthorizationStatusAuthorizedWhenInUse:
+#endif
+            return true;
+        case kCLAuthorizationStatusDenied:
+        case kCLAuthorizationStatusRestricted:
+            DLog(@"Location permission explictly denied or restricted");
+        case kCLAuthorizationStatusNotDetermined:
+            return false;
     }
 }
 

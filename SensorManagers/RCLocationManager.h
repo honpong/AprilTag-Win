@@ -18,6 +18,7 @@
 - (CLLocation*) getStoredLocation;
 - (BOOL) isUpdatingLocation;
 - (BOOL) isLocationDisallowed;
+- (BOOL) isLocationExplicitlyAllowed;
 - (void) startHeadingUpdates;
 - (void) stopHeadingUpdates;
 

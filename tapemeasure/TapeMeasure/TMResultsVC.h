@@ -25,8 +25,7 @@
                                                 OptionsDelegate,
                                                 TMShareSheetDelegate,
                                                 RCRateMeViewDelegate,
-                                                RCLocationPopUpDelegate,
-                                                CLLocationManagerDelegate>
+                                                RCLocationPopUpDelegate>
 {
     UIActionSheet *sheet;
     NSURLConnection *theConnection;

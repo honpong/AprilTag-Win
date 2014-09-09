@@ -316,7 +316,7 @@ static transition transitions[] =
 	LOGME
     [self handleStateEvent:EV_RESUME];
     
-    useLocation = ![LOCATION_MANAGER isLocationDisallowed] && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
+    useLocation = [LOCATION_MANAGER isLocationExplicitlyAllowed] && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
     if (useLocation) [self updateLocation];
 }
 

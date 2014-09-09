@@ -96,7 +96,7 @@
     }
     else
     {
-        if (![LOCATION_MANAGER isLocationDisallowed])
+        if ([LOCATION_MANAGER isLocationExplicitlyAllowed])
         {
             // location already authorized. go ahead.
             LOCATION_MANAGER.delegate = self;

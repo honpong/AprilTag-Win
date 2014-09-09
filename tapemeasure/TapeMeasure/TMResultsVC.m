@@ -511,7 +511,10 @@
     [NSUserDefaults.standardUserDefaults setObject:timestamp forKey:PREF_LOCATION_NAG_TIMESTAMP];
     
     [locationPopup hideInstantly];
-    [LOCATION_MANAGER startLocationUpdates];
+    [LOCATION_MANAGER requestLocationAccessWithCompletion:^(BOOL authorized) {
+        [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
+        if(authorized) [LOCATION_MANAGER startLocationUpdates];
+    }];
 }
 
 - (void) handleLaterLocationButton
@@ -583,8 +586,6 @@
     
     if (isMeasurementJustTaken && showLocationNag && !hasBeenNaggedRecently)
     {
-        LOCATION_MANAGER.delegate = self;
-        
         __weak TMResultsVC* weakSelf = self;
         dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, 1. * NSEC_PER_SEC);
         dispatch_after(popTime, dispatch_get_main_queue(), ^(void){
@@ -602,40 +603,6 @@
     else
     {
         return NO;
-    }
-}
-
-#pragma mark - CLLocationManagerDelegate
-
-- (void) locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
-{
-    LOGME
-    
-//    if(status == kCLAuthorizationStatusAuthorized)
-//    {
-//        [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
-//        [LOCATION_MANAGER startLocationUpdates];
-//        LOCATION_MANAGER.delegate = nil;
-//    }
-//    else if(status == kCLAuthorizationStatusDenied || status == kCLAuthorizationStatusRestricted)
-//    {
-//        [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
-//    }
-    
-    if(status == kCLAuthorizationStatusNotDetermined) return;
-    if(status == kCLAuthorizationStatusAuthorized)
-    {
-        [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
-        [LOCATION_MANAGER startLocationUpdates];
-        LOCATION_MANAGER.delegate = nil;
-    }
-    else if(status == kCLAuthorizationStatusDenied || status == kCLAuthorizationStatusRestricted)
-    {
-        [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
-    }
-    if([CLLocationManager locationServicesEnabled] && (status == kCLAuthorizationStatusDenied || status == kCLAuthorizationStatusRestricted))
-    {
-        [LOCATION_MANAGER stopLocationUpdates];
     }
 }
 

@@ -18,7 +18,7 @@
 
 @end
 
-@interface TMLocationIntro : UIViewController <CLLocationManagerDelegate>
+@interface TMLocationIntro : UIViewController
 
 @property (weak, nonatomic) id<TMLocationIntroDelegate> delegate;
 @property (weak, nonatomic) IBOutlet UIButton *nextButton;

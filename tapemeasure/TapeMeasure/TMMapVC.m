@@ -32,7 +32,7 @@
     self.mapView.delegate = self;
     
     //make sure we have a fresh location to work with
-    [LOCATION_MANAGER startLocationUpdates];
+    if([LOCATION_MANAGER isLocationExplicitlyAllowed]) [LOCATION_MANAGER startLocationUpdates];
     
     [self setMapCenter];
 

@@ -70,18 +70,28 @@
 
 - (NSLayoutConstraint*) addCenterXInSuperviewConstraints
 {
+    return [self addCenterXInSuperviewConstraints:0];
+}
+
+- (NSLayoutConstraint*) addCenterXInSuperviewConstraints:(CGFloat)offset
+{
     NSLayoutConstraint* constraint = [NSLayoutConstraint constraintWithItem:self
                                                                   attribute:NSLayoutAttributeCenterX
                                                                   relatedBy:NSLayoutRelationEqual
                                                                      toItem:self.superview
                                                                   attribute:NSLayoutAttributeCenterX
                                                                  multiplier:1.
-                                                                   constant:0];
+                                                                   constant:offset];
     [self.superview addConstraint:constraint];
     return constraint;
 }
 
 - (NSLayoutConstraint*) addCenterYInSuperviewConstraints
+{
+    return [self addCenterYInSuperviewConstraints:0];
+}
+
+- (NSLayoutConstraint*) addCenterYInSuperviewConstraints:(CGFloat)offset
 {
     NSLayoutConstraint* constraint = [NSLayoutConstraint constraintWithItem:self
                                                                   attribute:NSLayoutAttributeCenterY
@@ -89,7 +99,7 @@
                                                                      toItem:self.superview
                                                                   attribute:NSLayoutAttributeCenterY
                                                                  multiplier:1.
-                                                                   constant:0];
+                                                                   constant:offset];
     [self.superview addConstraint:constraint];
     return constraint;
 }

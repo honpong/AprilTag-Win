@@ -147,7 +147,10 @@
     if (textAlignment == NSTextAlignmentLeft)
         alignmentConstraint = [containerView addLeftSpaceToSuperviewConstraint:0];
     else if (textAlignment == NSTextAlignmentCenter)
-        alignmentConstraint = [containerView addCenterXInSuperviewConstraints];
+        if (centerAlignmentExcludesFraction)
+            alignmentConstraint = [containerView addCenterXInSuperviewConstraints:self.font.pointSize / 60 * -40];
+        else
+            alignmentConstraint = [containerView addCenterXInSuperviewConstraints];
     else if (textAlignment == NSTextAlignmentRight)
         alignmentConstraint = [containerView addRightSpaceToSuperviewConstraint:0];
     
@@ -282,6 +285,8 @@
         symbolTrailingSpaceConstraint = [symbolLabel addRightSpaceToSuperviewConstraint:0];
         [distanceLabel removeConstraint:distTrailingSpaceConstraint];
     }
+    
+    [self addAlignmentConstraint:self.textAlignment];
     [self sizeToFit];
 }
 

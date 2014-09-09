@@ -17,7 +17,9 @@
 
 - (void) addCenterInSuperviewConstraints;
 - (NSLayoutConstraint*) addCenterXInSuperviewConstraints;
+- (NSLayoutConstraint*) addCenterXInSuperviewConstraints:(CGFloat)offset;
 - (NSLayoutConstraint*) addCenterYInSuperviewConstraints;
+- (NSLayoutConstraint*) addCenterYInSuperviewConstraints:(CGFloat)offset;
 
 - (void) addWidthConstraint:(CGFloat)width andHeightConstraint:(CGFloat)height;
 - (NSLayoutConstraint*) addWidthConstraint:(CGFloat)width;

@@ -71,11 +71,11 @@ typedef struct
 static statesetup setups[] =
 {
     //                                fusion  sensors measure listBtn rtryBtn shwdstc shwtape showTips ftrs    prgrs   title           message         autohide
-    { ST_STARTUP,       ICON_GREEN,   false,  false,  false,  true,   false,  false,  false,  false,   false,  false,  "",  "", false},
-    { ST_READY,         ICON_GREEN,   false,  true,   false,  true,   false,  false,  false,  true,    false,  false,  "Instructions", "Hold the device steady where you want to start the measurement and tap to begin.", false },
-    { ST_INITIALIZING,  ICON_GREEN,   true,   true,   false,  true,   true,   true,   false,  true,    true,   true,   "Initializing",   "Hold the device steady.", false},
-    { ST_MEASURE,       ICON_GREEN,   true,   true,   true,   true,   true,   true,   true,   false,   true,   false,  "Measuring",    "Go! Move the device to the end of your measurement, and tap to finish.", false },
-    { ST_FINISHED,      ICON_GREEN,   false,  false,  false,  true,   true,   true,   true,   false,   false,  false,  "",     "", false },
+    { ST_STARTUP,       ICON_GREEN,   false,  false,  false,  true,   false,  false,  false,  false,   false,  false,  "",             "",             false},
+    { ST_READY,         ICON_GREEN,   false,  true,   false,  true,   false,  false,  false,  true,    false,  false,  "Instructions", "Hold the device steady where you want to start the measurement and tap the screen to begin.", false },
+    { ST_INITIALIZING,  ICON_GREEN,   true,   true,   false,  true,   true,   true,   false,  true,    true,   true,   "Initializing", "Hold the device steady.", false},
+    { ST_MEASURE,       ICON_GREEN,   true,   true,   true,   true,   true,   true,   true,   false,   true,   false,  "Measuring",    "Go! Move the device to the end of your measurement, and tap the screen to finish.", false },
+    { ST_FINISHED,      ICON_GREEN,   false,  false,  false,  true,   true,   true,   true,   false,   false,  false,  "",             "", false },
     { ST_VISIONFAIL,    ICON_RED,     false,  true,   false,  true,   true,   true,   true,   false,   false,  false,  "Try again",    "Sorry, the camera can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit.", false },
     { ST_FASTFAIL,      ICON_RED,     false,  true,   false,  true,   true,   true,   true,   false,   false,  false,  "Try again",    "Sorry, that didn't work. For best results, move at a normal walking pace.", false },
     { ST_FAIL,          ICON_RED,     false,  true,   false,  true,   true,   true,   true,   false,   false,  false,  "Try again",    "Sorry, we need to try that again.", false },

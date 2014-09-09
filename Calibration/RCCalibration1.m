@@ -52,6 +52,12 @@
 	isCalibrating = NO;
 }
 
+- (void) viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    [messageLabel setText:@"We need to calibrate your sensors just once. Place the device on a flat, stable surface, like a table."];
+}
+
 - (void) viewDidAppear:(BOOL)animated
 {
     if ([self.calibrationDelegate respondsToSelector:@selector(calibrationScreenDidAppear:)])
@@ -104,6 +110,7 @@
         {
             if(status.progress > 0. && currentProgress <= 0.)
             {
+                [messageLabel setText:@"Don't touch the device or the table."];
                 [self showProgressView];
             }
             [self updateProgressView:status.progress];
@@ -130,7 +137,6 @@
     [sensorFusion stopSensorFusion];
     sensorFusion.delegate = nil;
     
-    [messageLabel setText:@"Place the device on a flat, stable surface, like a table."];
     [self hideProgressView];
     
 }

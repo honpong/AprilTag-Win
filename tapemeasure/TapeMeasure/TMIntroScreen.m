@@ -26,10 +26,28 @@
 
 - (IBAction)handleNextButton:(id)sender
 {
-    TMLocationIntro* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"LocationIntro"];
-    vc.calibrationDelegate = self.calibrationDelegate;
-    vc.sensorDelegate = self.sensorDelegate;
-    [self presentViewController:vc animated:YES completion:nil];
+    [RCAVSessionManager requestCameraAccessWithCompletion:^(BOOL granted){
+        if(granted)
+        {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                TMLocationIntro* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"LocationIntro"];
+                vc.calibrationDelegate = self.calibrationDelegate;
+                vc.sensorDelegate = self.sensorDelegate;
+                [self presentViewController:vc animated:YES completion:nil];
+            });
+        }
+        else
+        {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"No camera access."
+                                                                message:@"This app cannot function without camera access. Turn it on in Settings/Privacy/Camera."
+                                                               delegate:nil
+                                                      cancelButtonTitle:@"OK"
+                                                      otherButtonTitles:nil];
+                [alert show];
+            });
+        }
+    }];
 }
 
 @end

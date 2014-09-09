@@ -29,12 +29,12 @@
         float remainder = inches - wholeInches;
         floatValue = remainder;
         
-        int sixteenths = roundf(remainder * 16);
+        int eighths = roundf(remainder * 8);
         
-        int gcd = [RCFraction gcdForNumber1:sixteenths andNumber2:16];
+        int gcd = [RCFraction gcdForNumber1:eighths andNumber2:8];
         
-        nominator = sixteenths / gcd;
-        denominator = 16 / gcd;
+        nominator = eighths / gcd;
+        denominator = 8 / gcd;
     }
     
     return self;

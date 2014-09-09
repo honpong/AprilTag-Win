@@ -148,7 +148,7 @@
         alignmentConstraint = [containerView addLeftSpaceToSuperviewConstraint:0];
     else if (textAlignment == NSTextAlignmentCenter)
         if (centerAlignmentExcludesFraction)
-            alignmentConstraint = [containerView addCenterXInSuperviewConstraints:self.font.pointSize / 60 * -40];
+            alignmentConstraint = [containerView addCenterXInSuperviewConstraints:self.font.pointSize / 60 * -35];
         else
             alignmentConstraint = [containerView addCenterXInSuperviewConstraints];
     else if (textAlignment == NSTextAlignmentRight)

@@ -32,7 +32,6 @@
 		326E47D716FA5EE1007AA105 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32C87C4416779B2F006ED337 /* CoreLocation.framework */; };
 		3273BCB5170BA81F00FF0F6A /* TMMeasurementType.m in Sources */ = {isa = PBXBuildFile; fileRef = 3273BCB4170BA81F00FF0F6A /* TMMeasurementType.m */; };
 		32803A6018DB6452002F54B5 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 32803A5F18DB6452002F54B5 /* Images.xcassets */; };
-		32803A6718DB7642002F54B5 /* Reveal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32803A6618DB7641002F54B5 /* Reveal.framework */; };
 		32803A6A18DBA2CF002F54B5 /* UIImage+InverseImage.m in Sources */ = {isa = PBXBuildFile; fileRef = 32803A6918DBA2CF002F54B5 /* UIImage+InverseImage.m */; };
 		32808D5F170396B600BE7CBC /* TMTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32808D5E170396B600BE7CBC /* TMTableViewController.m */; };
 		32808D64170396E200BE7CBC /* TMViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32808D63170396E200BE7CBC /* TMViewController.m */; };
@@ -409,7 +408,6 @@
 		3273BCB3170BA81F00FF0F6A /* TMMeasurementType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurementType.h; sourceTree = "<group>"; };
 		3273BCB4170BA81F00FF0F6A /* TMMeasurementType.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurementType.m; sourceTree = "<group>"; };
 		32803A5F18DB6452002F54B5 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		32803A6618DB7641002F54B5 /* Reveal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Reveal.framework; sourceTree = "<group>"; };
 		32803A6818DBA2CF002F54B5 /* UIImage+InverseImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+InverseImage.h"; sourceTree = "<group>"; };
 		32803A6918DBA2CF002F54B5 /* UIImage+InverseImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+InverseImage.m"; sourceTree = "<group>"; };
 		32808D5D170396B600BE7CBC /* TMTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMTableViewController.h; sourceTree = "<group>"; };
@@ -937,7 +935,6 @@
 				D9557B1416DFDF1500B48C4B /* Accelerate.framework in Frameworks */,
 				328D264F16BB15550067D7D8 /* Security.framework in Frameworks */,
 				32E6873C18F617160043D50A /* GoogleOpenSource.framework in Frameworks */,
-				32803A6718DB7642002F54B5 /* Reveal.framework in Frameworks */,
 				32590C8316781F4000E2BA1C /* CoreLocation.framework in Frameworks */,
 				32590C8216781EEC00E2BA1C /* MapKit.framework in Frameworks */,
 				3287846E1630B6C500040AAF /* ImageIO.framework in Frameworks */,
@@ -1010,7 +1007,6 @@
 				32E6849218F5FB390043D50A /* CoreText.framework */,
 				32E6849018F5FB250043D50A /* AddressBook.framework */,
 				32E681B518F5CD260043D50A /* Accounts.framework */,
-				32803A6618DB7641002F54B5 /* Reveal.framework */,
 				32B3252E16EA8AB20069DE63 /* MobileCoreServices.framework */,
 				D9218CB616E847B2006F4591 /* SystemConfiguration.framework */,
 				D9557B1F16DFEDD300B48C4B /* AssetsLibrary.framework */,
@@ -2268,8 +2264,6 @@
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
-					"-framework",
-					Reveal,
 				);
 				PRODUCT_NAME = "Tape Measure";
 				PROVISIONING_PROFILE = "";
@@ -2391,8 +2385,6 @@
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
-					"-framework",
-					Reveal,
 				);
 				PRODUCT_NAME = "Tape Measure";
 				PROVISIONING_PROFILE = "";
@@ -2430,8 +2422,6 @@
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
-					"-framework",
-					Reveal,
 				);
 				PRODUCT_NAME = "Tape Measure";
 				PROVISIONING_PROFILE = "";

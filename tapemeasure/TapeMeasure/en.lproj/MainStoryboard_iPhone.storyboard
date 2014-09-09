@@ -302,7 +302,7 @@
             </objects>
             <point key="canvasLocation" x="787" y="794"/>
         </scene>
-        <!--Preferences-->
+        <!--Preferences - Preferences-->
         <scene sceneID="9R5-Rh-aty">
             <objects>
                 <tableViewController id="af5-ix-ohl" customClass="TMPreferences" sceneMemberID="viewController">
@@ -389,7 +389,7 @@
                             <outlet property="delegate" destination="af5-ix-ohl" id="roo-Rf-i4C"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" id="hZ0-qG-dfP"/>
+                    <navigationItem key="navigationItem" title="Preferences" id="hZ0-qG-dfP"/>
                     <connections>
                         <outlet property="locationSwitch" destination="MUN-le-KHy" id="A7Y-pP-23d"/>
                         <outlet property="unitsControl" destination="zXC-2q-42O" id="2g5-3Z-V1z"/>

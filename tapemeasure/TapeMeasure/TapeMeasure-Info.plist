@@ -47,6 +47,11 @@
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>
+		<string>video-camera</string>
+		<string>accelerometer</string>
+		<string>gyroscope</string>
+		<string>location-services</string>
+		<string>bluetooth-le</string>
 	</array>
 	<key>UIStatusBarHidden</key>
 	<true/>

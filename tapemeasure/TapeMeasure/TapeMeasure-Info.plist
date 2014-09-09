@@ -29,7 +29,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>We use computer vision to measure. This app won't work without the camera!</string>
+	<string>This app uses the camera to measure. It won&apos;t work without it.</string>
 	<key>NSLocationUsageDescription</key>
 	<string>This will make your measurements more accurate. (Optional, but recommended.)</string>
 	<key>NSLocationWhenInUseUsageDescription</key>

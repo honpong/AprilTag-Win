@@ -390,10 +390,7 @@ static transition transitions[] =
 - (void)startMeasuring
 {
     LOGME
-    [TMAnalytics
-     startTimedEvent:@"Measurement.New"
-     withParameters:@{ @"Type": [newMeasurement getTypeString] }
-     ];
+    [TMAnalytics startTimedEvent:@"Measurement.New" withParameters:nil];
 }
 
 - (void)stopMeasuring
@@ -636,6 +633,7 @@ static transition transitions[] =
 
 - (IBAction)handleRetryButton:(id)sender
 {
+    [TMAnalytics logEvent:@"View.NewMeasurement.Reset"];
     [self transitionToState:ST_READY];
 }
 

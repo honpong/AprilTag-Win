@@ -71,11 +71,20 @@
     [self.navigationController.view bringSubviewToFront:rateMeView];
 }
 
+#pragma mark - UITextFieldDelegate
+
+- (void)textFieldDidEndEditing:(UITextField *)textField
+{
+    if (textField.text.length > 0) [TMAnalytics logEvent:@"Measurement.NameEdited"];
+}
+
 - (BOOL)textFieldShouldReturn:(UITextField *)textField
 {
     [textField resignFirstResponder];
     return NO;
 }
+
+#pragma mark -
 
 - (IBAction)handleDeleteButton:(id)sender
 {
@@ -120,6 +129,8 @@
 
 - (IBAction)handleActionButton:(id)sender
 {
+    [TMAnalytics logEvent:@"View.ShareMeasurement"];
+    
     OSKShareableContent *content = [OSKShareableContent contentFromText:[self composeSharingString]];
     content.title = @"Share Measurement";
     shareSheet = [TMShareSheet shareSheetWithDelegate:self];
@@ -129,33 +140,7 @@
 
 - (IBAction)handlePageCurl:(id)sender
 {
-    [TMAnalytics logEvent:@"Measurement.ViewOptions.Results"];
-}
-
-- (void)showActionSheet
-{
-    sheet = [[UIActionSheet alloc] initWithTitle:@"Share this measurement"
-                                        delegate:self
-                               cancelButtonTitle:@"Cancel"
-                                destructiveButtonTitle:nil
-                               otherButtonTitles:@"Facebook", @"Twitter", @"Email", @"Text Message", nil];
-    // Show the sheet
-    [sheet showFromToolbar:self.navigationController.toolbar];
-}
-
-- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
-{
-    DLog(@"Button %ld", (long)buttonIndex);
     
-    if (buttonIndex != 4)
-    {
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Coming Soon"
-                                                        message:@"We're working on it!"
-                                                       delegate:self
-                                              cancelButtonTitle:@"OK"
-                                              otherButtonTitles:nil];
-        [alert show];
-    }
 }
 
 - (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
@@ -227,9 +212,7 @@
         theMeasurement.name = nameBox.text;
         theMeasurement.syncPending = YES;
         [DATA_MANAGER saveContext];
-        
-        [TMAnalytics logEvent:@"Measurement.Edit"];
-        
+                
 //        if ([USER_MANAGER getLoginState] == LoginStateYes)
 //        {
 //            if (theMeasurement.dbid > 0) {
@@ -483,10 +466,26 @@
     return result;
 }
 
+#pragma mark - TMShareSheetDelegate
+
+- (OSKActivityCompletionHandler) activityCompletionHandler
+{
+    OSKActivityCompletionHandler activityCompletionHandler = ^(OSKActivity *activity, BOOL successful, NSError *error){
+        if (successful) {
+            [TMAnalytics logEvent:@"Share.Measurement" withParameters:@{ @"Type": [activity.class activityName] }];
+        } else {
+            [TMAnalytics logError:@"Share.Measurement" message:[activity.class activityName] error:error];
+        }
+    };
+    return activityCompletionHandler;
+}
+
 #pragma mark - RCRateMeViewDelegate
 
 - (void) handleRateNowButton
 {
+    [TMAnalytics logEvent:@"Choice.RateNag" withParameters:@{ @"Button" : @"Rate" }];
+    
     [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_RATE_NAG];
     [rateMeView hideInstantly];
     [self gotoAppStore];
@@ -494,11 +493,15 @@
 
 - (void) handleRateLaterButton
 {
+    [TMAnalytics logEvent:@"Choice.RateNag" withParameters:@{ @"Button" : @"Later" }];
+    
     [rateMeView hideAnimated];
 }
 
 - (void) handleRateNeverButton
 {
+    [TMAnalytics logEvent:@"Choice.RateNag" withParameters:@{ @"Button" : @"Never" }];
+    
     [rateMeView hideAnimated];
     [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_RATE_NAG];
 }
@@ -507,6 +510,8 @@
 
 - (void) handleAllowLocationButton
 {
+    [TMAnalytics logEvent:@"Choice.LocationNag" withParameters:@{ @"Button" : @"Allow" }];
+    
     NSNumber* timestamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]];
     [NSUserDefaults.standardUserDefaults setObject:timestamp forKey:PREF_LOCATION_NAG_TIMESTAMP];
     
@@ -519,6 +524,8 @@
 
 - (void) handleLaterLocationButton
 {
+    [TMAnalytics logEvent:@"Choice.LocationNag" withParameters:@{ @"Button" : @"Later" }];
+    
     NSNumber* timestamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]];
     [NSUserDefaults.standardUserDefaults setObject:timestamp forKey:PREF_LOCATION_NAG_TIMESTAMP];
     [locationPopup hideAnimated];
@@ -526,6 +533,8 @@
 
 - (void) handleNeverLocationButton
 {
+    [TMAnalytics logEvent:@"Choice.LocationNag" withParameters:@{ @"Button" : @"Never" }];
+    
     [locationPopup hideAnimated];
     [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
 }

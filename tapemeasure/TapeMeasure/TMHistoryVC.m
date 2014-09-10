@@ -372,6 +372,8 @@
 
 - (void)showActionSheet
 {
+    [TMAnalytics logEvent:@"View.History.Menu"];
+    
     if (actionSheet == nil)
     {
         actionSheet = [[UIActionSheet alloc] initWithTitle:@"Endless Tape Measure Menu"
@@ -396,21 +398,25 @@
     {
         case 0:
         {
+            [TMAnalytics logEvent:@"View.About"];
             [aboutView show];
             break;
         }
         case 1:
         {
+            [TMAnalytics logEvent:@"View.ShareApp"];
             [self showShareSheet];
             break;
         }
         case 2:
         {
+            [TMAnalytics logEvent:@"View.Rate"];
             [self gotoAppStore];
             break;
         }
         case 3:
         {
+            [TMAnalytics logEvent:@"View.Tips"];
             [tipsView show];
             break;
         }
@@ -450,6 +456,20 @@
     content.title = @"Share App";
     TMShareSheet* shareSheet = [TMShareSheet shareSheetWithDelegate:self];
     [shareSheet showShareSheet_Pad_FromBarButtonItem:self.actionButton content:content];
+}
+
+#pragma mark - TMShareSheetDelegate
+
+- (OSKActivityCompletionHandler) activityCompletionHandler
+{
+    OSKActivityCompletionHandler activityCompletionHandler = ^(OSKActivity *activity, BOOL successful, NSError *error){
+        if (successful) {
+            [TMAnalytics logEvent:@"Share.App" withParameters:@{ @"Type": [activity.class activityName] }];
+        } else {
+            [TMAnalytics logError:@"Share.App" message:[activity.class activityName] error:error];
+        }
+    };
+    return activityCompletionHandler;
 }
 
 @end

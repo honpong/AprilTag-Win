@@ -20,6 +20,11 @@
     [super viewDidLoad];
 }
 
+- (void) viewDidAppear:(BOOL)animated
+{
+    [TMAnalytics logEvent:@"View.IntroScreen"];
+}
+
 - (BOOL) prefersStatusBarHidden { return YES; }
 
 - (NSUInteger) supportedInterfaceOrientations { return UIInterfaceOrientationMaskPortrait; }
@@ -30,6 +35,8 @@
         if(granted)
         {
             dispatch_async(dispatch_get_main_queue(), ^{
+                [TMAnalytics logEvent:@"Permission.Camera" withParameters:@{ @"Allowed" : @YES }];
+                
                 TMLocationIntro* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"LocationIntro"];
                 vc.calibrationDelegate = self.calibrationDelegate;
                 vc.sensorDelegate = self.sensorDelegate;
@@ -39,6 +46,8 @@
         else
         {
             dispatch_async(dispatch_get_main_queue(), ^{
+                [TMAnalytics logEvent:@"Permission.Camera" withParameters:@{ @"Allowed" : @NO }];
+                
                 UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"No camera access."
                                                                 message:@"This app cannot function without camera access. Turn it on in Settings/Privacy/Camera."
                                                                delegate:nil

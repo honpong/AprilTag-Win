@@ -59,7 +59,7 @@
 {
     float xOffset = 0;
     
-    meters = meters / 10; // TODO: temp for testing
+    meters = meters / 10; // slow it down
     
     if (units == UnitsImperial)
     {

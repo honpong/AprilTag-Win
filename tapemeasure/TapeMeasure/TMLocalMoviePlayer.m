@@ -45,6 +45,11 @@
                                                object:nil];
 }
 
+- (void) viewDidAppear:(BOOL)animated
+{
+    [TMAnalytics logEvent:@"View.Tutorial"];
+}
+
 - (BOOL) prefersStatusBarHidden { return YES; }
 
 //- (UIInterfaceOrientation) preferredInterfaceOrientationForPresentation
@@ -99,6 +104,7 @@
 
 - (IBAction)handlePlayButton:(id)sender
 {
+    [TMAnalytics logEvent:@"View.Tutorial.Play"];
     [self playMovie];
 }
 
@@ -109,6 +115,7 @@
 
 - (IBAction)handlePlayAgainButton:(id)sender
 {
+    [TMAnalytics logEvent:@"View.Tutorial.PlayAgain"];
     [self playMovie];
 }
 

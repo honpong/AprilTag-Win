@@ -61,6 +61,7 @@ const CLLocationDegrees startingLongitude = 43.;
 
 - (void) viewDidAppear:(BOOL)animated
 {
+    [TMAnalytics logEvent:@"View.LocationIntro"];
     [self setIntroText];
     [self animateMap];
 }
@@ -72,19 +73,33 @@ const CLLocationDegrees startingLongitude = 43.;
 
 - (IBAction) handleNextButton:(id)sender
 {
+    [TMAnalytics logEvent:@"Choice.LocationIntro" withParameters:@{ @"Button" : @"Allow" }];
+    
     NSNumber* timestamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]];
     [NSUserDefaults.standardUserDefaults setObject:timestamp forKey:PREF_LOCATION_NAG_TIMESTAMP];
     
     [LOCATION_MANAGER requestLocationAccessWithCompletion:^(BOOL granted)
      {
          [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
-         if(granted) [LOCATION_MANAGER startLocationUpdates];
+         
+         if(granted)
+         {
+             [TMAnalytics logEvent:@"Permission.Location" withParameters:@{ @"Allowed" : @"Yes" }];
+             [LOCATION_MANAGER startLocationUpdates];
+         }
+         else
+         {
+             [TMAnalytics logEvent:@"Permission.Location" withParameters:@{ @"Allowed" : @"No" }];
+         }
+         
          [self gotoNextScreen];
      }];
 }
 
 - (IBAction)handleLaterButton:(id)sender
 {
+    [TMAnalytics logEvent:@"Choice.LocationIntro" withParameters:@{ @"Button" : @"Later" }];
+    
     NSNumber* timestamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]];
     [NSUserDefaults.standardUserDefaults setObject:timestamp forKey:PREF_LOCATION_NAG_TIMESTAMP];
     [self gotoNextScreen];
@@ -92,6 +107,8 @@ const CLLocationDegrees startingLongitude = 43.;
 
 - (IBAction)handleNeverButton:(id)sender
 {
+    [TMAnalytics logEvent:@"Choice.LocationIntro" withParameters:@{ @"Button" : @"Never" }];
+    
     [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
     [self gotoNextScreen];
 }

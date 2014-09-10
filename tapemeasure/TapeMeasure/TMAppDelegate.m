@@ -152,6 +152,8 @@
     [self gotoMainViewController];
 }
 
+#pragma mark - RCCalibrationDelegate
+
 - (void) calibrationDidFinish
 {
     LOGME
@@ -168,11 +170,17 @@
     }
 }
 
-- (void) calibrationDidFail:(NSError *)error
+- (void) calibrationScreenDidAppear:(NSString*)screenName
 {
-    DLog("Calibration failed: %@", error);
-    [self gotoCalibration];
+    if ([screenName isEqualToString:@"Calibration1"])
+        [TMAnalytics logEvent:@"View.Calibration1"];
+    else if ([screenName isEqualToString:@"Calibration2"])
+        [TMAnalytics logEvent:@"View.Calibration2"];
+    else if ([screenName isEqualToString:@"Calibration3"])
+        [TMAnalytics logEvent:@"View.Calibration3"];
 }
+
+#pragma mark -
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {

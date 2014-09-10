@@ -91,31 +91,86 @@
     }
 }
 
-- (IBAction)handleUnitsButton:(id)sender {
+- (IBAction)handleUnitsButton:(id)sender
+{
     theMeasurement.units = btnUnits.selectedSegmentIndex;
     
-    [self setScaleButtons];    
+    [self setScaleButtons];
+    
+    if (btnUnits.selectedSegmentIndex)
+        [TMAnalytics logEvent:@"Measurement.Options" withParameters:@{ @"Units" : @"Metric" }];
+    else
+        [TMAnalytics logEvent:@"Measurement.Options" withParameters:@{ @"Units" : @"Imperial" }];
 }
 
-- (IBAction)handleScaleButton:(id)sender {
+- (IBAction)handleScaleButton:(id)sender
+{
     if(theMeasurement.units == UnitsMetric)
     {
         theMeasurement.unitsScaleMetric = self.btnScale.selectedSegmentIndex;
+        
+        switch (self.btnScale.selectedSegmentIndex)
+        {
+            case 0:
+            {
+                [TMAnalytics logEvent:@"Measurement.Options" withParameters:@{ @"MetricScale" : @"km" }];
+                break;
+            }
+            case 1:
+            {
+                [TMAnalytics logEvent:@"Measurement.Options" withParameters:@{ @"MetricScale" : @"m" }];
+                break;
+            }
+            case 2:
+            {
+                [TMAnalytics logEvent:@"Measurement.Options" withParameters:@{ @"MetricScale" : @"cm" }];
+                break;
+            }
+            default:
+                break;
+        }
     }
     else
     {
         theMeasurement.unitsScaleImperial = self.btnScale.selectedSegmentIndex;
+        
+        switch (self.btnScale.selectedSegmentIndex)
+        {
+            case 0:
+            {
+                [TMAnalytics logEvent:@"Measurement.Options" withParameters:@{ @"ImperialScale" : @"mi" }];
+                break;
+            }
+            case 1:
+            {
+                [TMAnalytics logEvent:@"Measurement.Options" withParameters:@{ @"ImperialScale" : @"yd" }];
+                break;
+            }
+            case 2:
+            {
+                [TMAnalytics logEvent:@"Measurement.Options" withParameters:@{ @"ImperialScale" : @"in" }];
+                break;
+            }
+            default:
+                break;
+        }
     }
 }
 
-- (IBAction)handleFractionalButton:(id)sender {
+- (IBAction)handleFractionalButton:(id)sender
+{
     theMeasurement.fractional = (int32_t)self.btnFractional.selectedSegmentIndex;
+    
+    if (theMeasurement.fractional == 0)
+        [TMAnalytics logEvent:@"Measurement.Options" withParameters:@{ @"Fractional" : @"Decimal" }];
+    else
+        [TMAnalytics logEvent:@"Measurement.Options" withParameters:@{ @"Fractional" : @"Fractional" }];
 }
 
 - (void)saveMeasurement
 {
     NSError *error;
-    [theMeasurement.managedObjectContext save:&error]; //TODO: Handle save error
-    if(error) DLog(@"Error in saveMeasurement");
+    [theMeasurement.managedObjectContext save:&error];
+    if (error) [TMAnalytics logError:@"Options.Save" message:error.debugDescription error:error];
 }
 @end

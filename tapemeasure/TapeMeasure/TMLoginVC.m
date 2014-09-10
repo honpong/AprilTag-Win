@@ -114,7 +114,6 @@
     
     user.username = self.emailBox.text; //we use email as username
     user.password = self.passwordBox.text;
-    //TODO: get full name?
     
      __weak TMLoginVC* weakSelf = self;
     [USER_MANAGER

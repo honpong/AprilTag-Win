@@ -29,7 +29,13 @@
 #import <sys/sysctl.h>
 #import <CommonCrypto/CommonDigest.h>
 
-#define POCKET_SDK_VERSION @"1.0rc1"
+#define POCKET_SDK_VERSION @"1.0.2"
+
+#if TARGET_IPHONE_SIMULATOR || TARGET_OS_IPHONE
+#define PocketGlobalKeychainServiceName @"PocketAPI"
+#else
+#define PocketGlobalKeychainServiceName [NSString stringWithFormat:@"%@.PocketAPI", [[[NSBundle mainBundle] infoDictionary] objectForKey:(NSString *)kCFBundleIdentifierKey]]
+#endif
 
 static NSString *kPocketAPICurrentLoginKey = @"PocketAPICurrentLogin";
 
@@ -52,6 +58,9 @@ static NSString *kPocketAPICurrentLoginKey = @"PocketAPICurrentLogin";
 
 -(void)pkt_setKeychainValue:(id)value forKey:(NSString *)key;
 -(id)pkt_getKeychainValueForKey:(NSString *)key;
+
+-(void)pkt_setKeychainValue:(id)value forKey:(NSString *)key serviceName:(NSString *)serviceName;
+-(id)pkt_getKeychainValueForKey:(NSString *)key serviceName:(NSString *)serviceName;
 
 @end
 
@@ -89,14 +98,14 @@ static PocketAPI *sSharedAPI = nil;
 
 +(PocketAPI *)sharedAPI{
 	@synchronized(self)
-    {
-        if (sSharedAPI == NULL){
-            sSharedAPI = [self alloc];
+	{
+		if (sSharedAPI == NULL){
+			sSharedAPI = [self alloc];
 			[sSharedAPI init];
 		}
-    }
+	}
 	
-    return(sSharedAPI);
+	return(sSharedAPI);
 }
 
 +(NSString *)pocketAppURLScheme{
@@ -164,9 +173,33 @@ static PocketAPI *sSharedAPI = nil;
 	[consumerKey release];
 	consumerKey = aConsumerKey;
 	
-	if(!self.URLScheme && consumerKey){
+	if(!URLScheme && consumerKey){
 		[self setURLScheme:[self URLScheme]];
 	}
+	
+	// if on a Mac, and this user was logged in with a pre-1.0.2 SDK, attempt to migrate the keychain values if the token/digest pair matches
+#if !DEBUG && TARGET_OS_MAC && !TARGET_OS_IPHONE && !TARGET_IPHONE_SIMULATOR
+	if(![self pkt_getToken]){ // if we don't already have a token
+		NSString *existingHash = [self pkt_getKeychainValueForKey:@"tokenDigest" serviceName:@"PocketAPI"];
+		if(existingHash){ // ...but we do have an unmigrated token
+			NSString *token = [self pkt_getKeychainValueForKey:@"token" serviceName:@"PocketAPI"];
+			NSString *currentHash = [[self class] pkt_hashForConsumerKey:self.consumerKey accessToken:token];
+			if([existingHash isEqualToString:currentHash]){ // ...and the hash matches our consumer key
+				// migrate the token to the new location in the keychain
+				NSString *username = [self pkt_getKeychainValueForKey:@"username" serviceName:@"PocketAPI"];
+				
+				[self pkt_setKeychainValue:username forKey:@"username"];
+				[self pkt_setKeychainValue:nil forKey:@"username" serviceName:@"PocketAPI"];
+				
+				[self pkt_setKeychainValue:token forKey:@"token"];
+				[self pkt_setKeychainValue:nil forKey:@"token" serviceName:@"PocketAPI"];
+				
+				[self pkt_setKeychainValue:currentHash forKey:@"tokenDigest"];
+				[self pkt_setKeychainValue:nil forKey:@"tokenDigest" serviceName:@"PocketAPI"];
+			}
+		}
+	}
+#endif
 	
 	// ensure the access token stored matches the consumer key that generated it
 	if(self.isLoggedIn){
@@ -242,7 +275,7 @@ static PocketAPI *sSharedAPI = nil;
 	if([[url scheme] isEqualToString:self.URLScheme]){
 		NSDictionary *urlQuery = [NSDictionary pkt_dictionaryByParsingURLEncodedFormString:[url query]];
 
-		PocketAPILogin *login = nil;
+		PocketAPILogin *login = currentLogin;
 		if([[url path] isEqualToString:@"/reverse"] && [urlQuery objectForKey:@"code"]){
 			BOOL allowReverseLogin = YES;
 #if TARGET_OS_IPHONE
@@ -312,27 +345,43 @@ static PocketAPI *sSharedAPI = nil;
 	[operationQueue addOperation:[self saveOperationWithURL:url title:title delegate:delegate]];
 }
 
+-(void)saveURL:(NSURL *)url withTitle:(NSString *)title tweetID:(NSString *)tweetID delegate:(id<PocketAPIDelegate>)delegate{
+	[operationQueue addOperation:[self saveOperationWithURL:url title:title tweetID:tweetID delegate:delegate]];
+}
+
 -(void)callAPIMethod:(NSString *)APIMethod withHTTPMethod:(PocketAPIHTTPMethod)HTTPMethod arguments:(NSDictionary *)arguments delegate:(id<PocketAPIDelegate>)delegate{
 	[operationQueue addOperation:[self methodOperationWithAPIMethod:APIMethod forHTTPMethod:HTTPMethod arguments:arguments delegate:delegate]];
 }
 
--(NSOperation *)saveOperationWithURL:(NSURL *)url title:(NSString *)title delegate:(id<PocketAPIDelegate>)delegate{
+-(NSOperation *)saveOperationWithURL:(NSURL *)url title:(NSString *)title tweetID:(NSString *)tweetID delegate:(id<PocketAPIDelegate>)delegate{
 	if(!url || !url.absoluteString) return nil;
 	
 	NSNumber *timestamp = [NSNumber numberWithInteger:(NSInteger)([[NSDate date] timeIntervalSince1970])];
-
+	
+	NSMutableDictionary *arguments = [NSMutableDictionary dictionary];
+	[arguments setObject:timestamp forKey:@"time"];
+	[arguments setObject:url.absoluteString forKey:@"url"];
+	
+	if(title){
+		[arguments setObject:title forKey:@"title"];
+	}
+	
+	if(tweetID && ![tweetID isEqualToString:@""] && ![tweetID isEqualToString:@"0"]){
+		[arguments setObject:tweetID forKey:@"ref_id"];
+	}
+	
 	return [self methodOperationWithAPIMethod:@"add"
 								forHTTPMethod:PocketAPIHTTPMethodPOST
-									arguments:[NSDictionary dictionaryWithObjectsAndKeys:
-											   timestamp, @"time",
-											   url.absoluteString, @"url",
-											   title, @"title",
-											   nil]
+									arguments:[[arguments copy] autorelease]
 									 delegate:delegate];
 }
 
+-(NSOperation *)saveOperationWithURL:(NSURL *)url title:(NSString *)title delegate:(id<PocketAPIDelegate>)delegate{
+	return [self saveOperationWithURL:url title:title tweetID:nil delegate:delegate];
+}
+
 -(NSOperation *)saveOperationWithURL:(NSURL *)url delegate:(id<PocketAPIDelegate>)delegate{
-	return [self saveOperationWithURL:url title:nil delegate:delegate];
+	return [self saveOperationWithURL:url title:nil tweetID:nil delegate:delegate];
 }
 
 -(NSOperation *)methodOperationWithAPIMethod:(NSString *)APIMethod forHTTPMethod:(PocketAPIHTTPMethod)HTTPMethod arguments:(NSDictionary *)arguments delegate:(id<PocketAPIDelegate>)delegate{
@@ -359,6 +408,10 @@ static PocketAPI *sSharedAPI = nil;
 	[self saveURL:url withTitle:title delegate:[PocketAPIBlockDelegate delegateWithSaveHandler:handler]];
 }
 
+-(void)saveURL:(NSURL *)url withTitle:(NSString *)title tweetID:(NSString *)tweetID handler:(PocketAPISaveHandler)handler{
+	[self saveURL:url withTitle:title tweetID:tweetID delegate:[PocketAPIBlockDelegate delegateWithSaveHandler:handler]];
+}
+
 -(void)callAPIMethod:(NSString *)APIMethod withHTTPMethod:(PocketAPIHTTPMethod)HTTPMethod arguments:(NSDictionary *)arguments handler:(PocketAPIResponseHandler)handler{
 	[self callAPIMethod:APIMethod withHTTPMethod:HTTPMethod arguments:arguments delegate:[PocketAPIBlockDelegate delegateWithResponseHandler:handler]];
 }
@@ -371,6 +424,10 @@ static PocketAPI *sSharedAPI = nil;
 
 -(NSOperation *)saveOperationWithURL:(NSURL *)url title:(NSString *)title handler:(PocketAPISaveHandler)handler{
 	return [self saveOperationWithURL:url title:title delegate:[PocketAPIBlockDelegate delegateWithSaveHandler:handler]];
+}
+
+-(NSOperation *)saveOperationWithURL:(NSURL *)url title:(NSString *)title tweetID:(NSString *)tweetID handler:(PocketAPISaveHandler)handler{
+	return [self saveOperationWithURL:url title:title tweetID:tweetID delegate:[PocketAPIBlockDelegate delegateWithSaveHandler:handler]];
 }
 
 -(NSOperation *)methodOperationWithAPIMethod:(NSString *)APIMethod forHTTPMethod:(PocketAPIHTTPMethod)httpMethod arguments:(NSDictionary *)arguments handler:(PocketAPIResponseHandler)handler{
@@ -504,6 +561,9 @@ static PocketAPI *sSharedAPI = nil;
 		
 		NSString *productName   = @"PocketSDK:" POCKET_SDK_VERSION;
 		NSString *appName       = [bundleInfo objectForKey:@"CFBundleDisplayName"];
+		if(!appName){
+			appName             = [bundleInfo objectForKey:(NSString *)kCFBundleNameKey];
+		}
 		NSString *appVersion    = [bundleInfo objectForKey:@"CFBundleVersion"];
 		NSString *deviceMfg     = @"Apple";
 		NSString *storeName     = @"App Store";
@@ -526,7 +586,19 @@ static PocketAPI *sSharedAPI = nil;
 		}
 #endif
 		
-		userAgent = [[[NSArray arrayWithObjects:productName,appName,appVersion,osType,osVersion,deviceMfg,deviceName,deviceType,storeName,nil] componentsJoinedByString:@";"] retain];
+#define PKTAtLeastEmptyString(__str) ((__str) == nil ? @"" : (__str))
+		userAgent = [[[NSArray arrayWithObjects:
+					   PKTAtLeastEmptyString(productName),
+					   PKTAtLeastEmptyString(appName),
+					   PKTAtLeastEmptyString(appVersion),
+					   PKTAtLeastEmptyString(osType),
+					   PKTAtLeastEmptyString(osVersion),
+					   PKTAtLeastEmptyString(deviceMfg),
+					   PKTAtLeastEmptyString(deviceName),
+					   PKTAtLeastEmptyString(deviceType),
+					   PKTAtLeastEmptyString(storeName),
+					   nil] componentsJoinedByString:@";"] retain];
+#undef PKTAtLeastEmptyString
 	}
 	return userAgent;
 }
@@ -535,64 +607,64 @@ static PocketAPI *sSharedAPI = nil;
 #if TARGET_OS_IPHONE
 	size_t size;
 	const char *typeSpecifier = "hw.machine";
-    sysctlbyname(typeSpecifier, NULL, &size, NULL, 0);
-    
-    char *answer = malloc(size);
-    sysctlbyname(typeSpecifier, answer, &size, NULL, 0);
-    
-    NSString *platform = [NSString stringWithCString:answer encoding: NSUTF8StringEncoding];
-    free(answer);
+	sysctlbyname(typeSpecifier, NULL, &size, NULL, 0);
+	
+	char *answer = malloc(size);
+	sysctlbyname(typeSpecifier, answer, &size, NULL, 0);
+	
+	NSString *platform = [NSString stringWithCString:answer encoding: NSUTF8StringEncoding];
+	free(answer);
 
 	if ([platform isEqualToString:@"iFPGA"])        return @"iFPGA";
 	
-    // iPhone
-    if ([platform isEqualToString:@"iPhone1,1"])    return @"iPhone 1G";
-    if ([platform isEqualToString:@"iPhone1,2"])    return @"iPhone 3G";
-    if ([platform hasPrefix:@"iPhone2"])            return @"iPhone 3GS";
-    if ([platform hasPrefix:@"iPhone3"])            return @"iPhone 4";
-    if ([platform hasPrefix:@"iPhone4"])            return @"iPhone 4S";
-    
-    // iPod
-    if ([platform hasPrefix:@"iPod1"])             return @"iPod touch 1G";
-    if ([platform hasPrefix:@"iPod2"])              return @"iPod touch 2G";
-    if ([platform hasPrefix:@"iPod3"])              return @"iPod touch 3G";
-    if ([platform hasPrefix:@"iPod4"])              return @"iPod touch 4G";
+	// iPhone
+	if ([platform isEqualToString:@"iPhone1,1"])    return @"iPhone 1G";
+	if ([platform isEqualToString:@"iPhone1,2"])    return @"iPhone 3G";
+	if ([platform hasPrefix:@"iPhone2"])            return @"iPhone 3GS";
+	if ([platform hasPrefix:@"iPhone3"])            return @"iPhone 4";
+	if ([platform hasPrefix:@"iPhone4"])            return @"iPhone 4S";
 	
-    // iPad
-    if ([platform hasPrefix:@"iPad1"])              return @"iPad 1G";
-    if ([platform hasPrefix:@"iPad2"])              return @"iPad 2G";
-    if ([platform hasPrefix:@"iPad3"])              return @"iPad 3G";
-    
-    // Apple TV
-    if ([platform hasPrefix:@"AppleTV2"])           return @"Apple TV 2G";
+	// iPod
+	if ([platform hasPrefix:@"iPod1"])              return @"iPod touch 1G";
+	if ([platform hasPrefix:@"iPod2"])              return @"iPod touch 2G";
+	if ([platform hasPrefix:@"iPod3"])              return @"iPod touch 3G";
+	if ([platform hasPrefix:@"iPod4"])              return @"iPod touch 4G";
 	
-    if ([platform hasPrefix:@"iPhone"])             return @"Unknown iPhone";
-    if ([platform hasPrefix:@"iPod"])               return @"Unknown iPod touch";
-    if ([platform hasPrefix:@"iPad"])               return @"Unknown iPad";
-    
+	// iPad
+	if ([platform hasPrefix:@"iPad1"])              return @"iPad 1G";
+	if ([platform hasPrefix:@"iPad2"])              return @"iPad 2G";
+	if ([platform hasPrefix:@"iPad3"])              return @"iPad 3G";
+	
+	// Apple TV
+	if ([platform hasPrefix:@"AppleTV2"])           return @"Apple TV 2G";
+	
+	if ([platform hasPrefix:@"iPhone"])             return @"Unknown iPhone";
+	if ([platform hasPrefix:@"iPod"])               return @"Unknown iPod touch";
+	if ([platform hasPrefix:@"iPad"])               return @"Unknown iPad";
+	
 	// Simulator thanks Jordan Breeding
-    if ([platform hasSuffix:@"86"] || [platform isEqual:@"x86_64"]) return UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? @"iPad Simulator" : @"iPhone Simulator";
+	if ([platform hasSuffix:@"86"] || [platform isEqual:@"x86_64"]) return UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? @"iPad Simulator" : @"iPhone Simulator";
 	
-    return @"Unknown iOS Device";
+	return @"Unknown iOS Device";
 #else
 	NSString *modelIdentifier = @"";
-    
-    int nameSuccess = 0;
-    const int SUCCEEDED = 0;
-    
-    size_t size = 0;
-    nameSuccess = sysctlbyname("hw.machine", NULL, &size, NULL, 0);
-    if (nameSuccess != SUCCEEDED || size == 0)
-        return modelIdentifier;
-    
-    char *machine = malloc(size);
-    nameSuccess = sysctlbyname("hw.machine", machine, &size, NULL, 0);
-    if (nameSuccess == SUCCEEDED) {
-        modelIdentifier = [NSString stringWithUTF8String:machine];
-    }
-    free(machine);
-    
-    return modelIdentifier;
+	
+	int nameSuccess = 0;
+	const int SUCCEEDED = 0;
+	
+	size_t size = 0;
+	nameSuccess = sysctlbyname("hw.machine", NULL, &size, NULL, 0);
+	if (nameSuccess != SUCCEEDED || size == 0)
+		return modelIdentifier;
+	
+	char *machine = malloc(size);
+	nameSuccess = sysctlbyname("hw.machine", machine, &size, NULL, 0);
+	if (nameSuccess == SUCCEEDED) {
+		modelIdentifier = [NSString stringWithUTF8String:machine];
+	}
+	free(machine);
+	
+	return modelIdentifier;
 #endif
 }
 
@@ -601,12 +673,12 @@ static PocketAPI *sSharedAPI = nil;
 	return [[UIDevice currentDevice] systemVersion];
 #else
 	SInt32 versionMajor = 0;
-    SInt32 versionMinor = 0;
-    SInt32 versionBugFix = 0;
-    Gestalt( gestaltSystemVersionMajor, &versionMajor );
-    Gestalt( gestaltSystemVersionMinor, &versionMinor );
-    Gestalt( gestaltSystemVersionBugFix, &versionBugFix );
-    return [NSString stringWithFormat:@"%d.%d.%d", versionMajor, versionMinor, versionBugFix];
+	SInt32 versionMinor = 0;
+	SInt32 versionBugFix = 0;
+	Gestalt( gestaltSystemVersionMajor, &versionMajor );
+	Gestalt( gestaltSystemVersionMinor, &versionMinor );
+	Gestalt( gestaltSystemVersionBugFix, &versionBugFix );
+	return [NSString stringWithFormat:@"%d.%d.%d", versionMajor, versionMinor, versionBugFix];
 #endif
 }
 
@@ -619,29 +691,35 @@ static PocketAPI *sSharedAPI = nil;
 
 @implementation PocketAPI (Credentials)
 
-#define PocketGlobalKeychainServiceName @"PocketAPI"
-
 -(void)pkt_setKeychainValue:(id)value forKey:(NSString *)key{
+	[self pkt_setKeychainValue:value forKey:key serviceName:PocketGlobalKeychainServiceName];
+}
+
+-(id)pkt_getKeychainValueForKey:(NSString *)key{
+	return [self pkt_getKeychainValueForKey:key serviceName:PocketGlobalKeychainServiceName];
+}
+
+-(void)pkt_setKeychainValue:(id)value forKey:(NSString *)key serviceName:(NSString *)serviceName{
 	if(value){
-#if TARGET_IPHONE_SIMULATOR || (DEBUG && !TARGET_OS_IPHONE)
-		[[NSUserDefaults standardUserDefaults] setObject:value forKey:[NSString stringWithFormat:@"%@.%@", PocketGlobalKeychainServiceName, key]];
+#if TARGET_IPHONE_SIMULATOR || (DEBUG && !TARGET_OS_IPHONE && TARGET_OS_MAC)
+		[[NSUserDefaults standardUserDefaults] setObject:value forKey:[NSString stringWithFormat:@"%@.%@", serviceName, key]];
 #else
-		[SFHFKeychainUtils storeUsername:key andPassword:value forServiceName:PocketGlobalKeychainServiceName updateExisting:YES error:nil];
+		[SFHFKeychainUtils storeUsername:key andPassword:value forServiceName:serviceName updateExisting:YES error:nil];
 #endif
 	}else{
-#if TARGET_IPHONE_SIMULATOR || (DEBUG && !TARGET_OS_IPHONE)
-		[[NSUserDefaults standardUserDefaults] removeObjectForKey:[NSString stringWithFormat:@"%@.%@", PocketGlobalKeychainServiceName, key]];
+#if TARGET_IPHONE_SIMULATOR || (DEBUG && !TARGET_OS_IPHONE && TARGET_OS_MAC)
+		[[NSUserDefaults standardUserDefaults] removeObjectForKey:[NSString stringWithFormat:@"%@.%@", serviceName, key]];
 #else
-		[SFHFKeychainUtils deleteItemForUsername:key andServiceName:PocketGlobalKeychainServiceName error:nil];
+		[SFHFKeychainUtils deleteItemForUsername:key andServiceName:serviceName error:nil];
 #endif
 	}
 }
 
--(id)pkt_getKeychainValueForKey:(NSString *)key{
-#if TARGET_IPHONE_SIMULATOR || (DEBUG && !TARGET_OS_IPHONE)
-	return [[NSUserDefaults standardUserDefaults] objectForKey:[NSString stringWithFormat:@"%@.%@", PocketGlobalKeychainServiceName, key]];
+-(id)pkt_getKeychainValueForKey:(NSString *)key serviceName:(NSString *)serviceName{
+#if TARGET_IPHONE_SIMULATOR || (DEBUG && !TARGET_OS_IPHONE && TARGET_OS_MAC)
+	return [[NSUserDefaults standardUserDefaults] objectForKey:[NSString stringWithFormat:@"%@.%@", serviceName, key]];
 #else
-	return [SFHFKeychainUtils getPasswordForUsername:key andServiceName:PocketGlobalKeychainServiceName error:nil];
+	return [SFHFKeychainUtils getPasswordForUsername:key andServiceName:serviceName error:nil];
 #endif
 }
 
@@ -710,3 +788,7 @@ static PocketAPI *sSharedAPI = nil;
 
 @end
 #endif
+
+NSString *PocketAPITweetID(unsigned long long tweetID){
+	return [NSString stringWithFormat:@"%llu", tweetID];
+}

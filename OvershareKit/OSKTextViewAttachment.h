@@ -7,8 +7,6 @@
 //
 
 #import <Foundation/Foundation.h>
-@import CoreGraphics;
-@import UIKit;
 
 extern const CGFloat OSKTextViewAttachmentViewWidth_Phone;
 extern const CGFloat OSKTextViewAttachmentViewWidth_Pad;

@@ -72,6 +72,8 @@
 		328D264F16BB15550067D7D8 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328D264E16BB15550067D7D8 /* Security.framework */; };
 		328D4A2E1728A61E001E8251 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E7161BBB3200B5C8A8 /* CoreGraphics.framework */; };
 		32935108172F352200E8FDEA /* TMCrosshairsLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32935107172F352200E8FDEA /* TMCrosshairsLayerDelegate.m */; };
+		3298378C19BFDB3D00270DBB /* OSKMimeAttachment.m in Sources */ = {isa = PBXBuildFile; fileRef = 3298378919BFDB3D00270DBB /* OSKMimeAttachment.m */; };
+		3298378D19BFDB3D00270DBB /* OSKWebPageTitleUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 3298378B19BFDB3D00270DBB /* OSKWebPageTitleUtility.m */; };
 		329EB1071937E5050049C9B9 /* about.html in Resources */ = {isa = PBXBuildFile; fileRef = 329EB1061937E5050049C9B9 /* about.html */; };
 		32A0966116D6E8EF001C4D18 /* TMCreateAccountVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A0966016D6E8EF001C4D18 /* TMCreateAccountVC.m */; };
 		32A326A516B0985100F801DE /* TMMeasurement+TMMeasurementExt.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A326A416B0985100F801DE /* TMMeasurement+TMMeasurementExt.m */; };
@@ -470,6 +472,10 @@
 		328D264E16BB15550067D7D8 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		32935106172F352200E8FDEA /* TMCrosshairsLayerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMCrosshairsLayerDelegate.h; sourceTree = "<group>"; };
 		32935107172F352200E8FDEA /* TMCrosshairsLayerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMCrosshairsLayerDelegate.m; sourceTree = "<group>"; };
+		3298378819BFDB3D00270DBB /* OSKMimeAttachment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSKMimeAttachment.h; sourceTree = "<group>"; };
+		3298378919BFDB3D00270DBB /* OSKMimeAttachment.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OSKMimeAttachment.m; sourceTree = "<group>"; };
+		3298378A19BFDB3D00270DBB /* OSKWebPageTitleUtility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSKWebPageTitleUtility.h; sourceTree = "<group>"; };
+		3298378B19BFDB3D00270DBB /* OSKWebPageTitleUtility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OSKWebPageTitleUtility.m; sourceTree = "<group>"; };
 		329EB1061937E5050049C9B9 /* about.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = about.html; sourceTree = "<group>"; };
 		32A0965F16D6E8EF001C4D18 /* TMCreateAccountVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMCreateAccountVC.h; sourceTree = "<group>"; };
 		32A0966016D6E8EF001C4D18 /* TMCreateAccountVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMCreateAccountVC.m; sourceTree = "<group>"; };
@@ -1306,10 +1312,10 @@
 		32E685D718F617150043D50A /* OvershareKit */ = {
 			isa = PBXGroup;
 			children = (
+				32E6872718F617160043D50A /* PocketSDK */,
 				32E6882018F617430043D50A /* ADNLogin */,
 				32E685D818F617150043D50A /* GooglePlus-SDK */,
 				32E685DC18F617150043D50A /* Images */,
-				32E6872718F617160043D50A /* PocketSDK */,
 				32E6865518F617150043D50A /* NSCoder+OSKCoder.h */,
 				32E6865618F617150043D50A /* NSCoder+OSKCoder.m */,
 				32E6865718F617150043D50A /* NSData+OSKDerp.h */,
@@ -1438,6 +1444,8 @@
 				32E686D218F617160043D50A /* OSKMicroblogPublishingViewController.h */,
 				32E686D318F617160043D50A /* OSKMicroblogPublishingViewController.m */,
 				32E686D418F617160043D50A /* OSKMicroblogPublishingViewController.xib */,
+				3298378819BFDB3D00270DBB /* OSKMimeAttachment.h */,
+				3298378919BFDB3D00270DBB /* OSKMimeAttachment.m */,
 				32E686D518F617160043D50A /* OSKNavigationController.h */,
 				32E686D618F617160043D50A /* OSKNavigationController.m */,
 				32E686D718F617160043D50A /* OSKOAuthUtility.h */,
@@ -1515,6 +1523,8 @@
 				32E6871F18F617160043D50A /* OSKUsernamePasswordCell.m */,
 				32E6872018F617160043D50A /* OSKUsernamePasswordViewController.h */,
 				32E6872118F617160043D50A /* OSKUsernamePasswordViewController.m */,
+				3298378A19BFDB3D00270DBB /* OSKWebPageTitleUtility.h */,
+				3298378B19BFDB3D00270DBB /* OSKWebPageTitleUtility.m */,
 				32E6872218F617160043D50A /* OSKWebViewController.h */,
 				32E6872318F617160043D50A /* OSKWebViewController.m */,
 				32E6872418F617160043D50A /* OSKXCallbackURLInfo.h */,
@@ -2093,6 +2103,7 @@
 				32E687D118F617160043D50A /* OSKActivityToggleCell.m in Sources */,
 				32B8F67F16E92368001B1962 /* TMServerOpsFactory.m in Sources */,
 				32E687D318F617160043D50A /* OSKAirDropActivity.m in Sources */,
+				3298378D19BFDB3D00270DBB /* OSKWebPageTitleUtility.m in Sources */,
 				32E687EC18F617160043D50A /* OSKMailComposeViewController.m in Sources */,
 				32E687BC18F617160043D50A /* NSMutableURLRequest+OSKUtilities.m in Sources */,
 				32E687C518F617160043D50A /* OSKActionSheet.m in Sources */,
@@ -2136,6 +2147,7 @@
 				32011D16191D97E500F17327 /* TMTipsView.m in Sources */,
 				32E687F618F617170043D50A /* OSKOmnifocusActivity.m in Sources */,
 				32E687BB18F617160043D50A /* NSHTTPURLResponse+OSKUtilities.m in Sources */,
+				3298378C19BFDB3D00270DBB /* OSKMimeAttachment.m in Sources */,
 				32E687F918F617170043D50A /* OSKPinboardUtility.m in Sources */,
 				32E687E118F617160043D50A /* OSKFacebookAudienceChooserViewController.m in Sources */,
 				32E687C318F617160043D50A /* OSKAccountManagementViewController.m in Sources */,
@@ -2258,7 +2270,6 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/TapeMeasure/Flurry\"",
 					"$(PROJECT_DIR)/TapeMeasure/Flurry",
-					"$(PROJECT_DIR)/TapeMeasure/OvershareKit",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = (
@@ -2380,7 +2391,6 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/TapeMeasure/Flurry\"",
 					"$(PROJECT_DIR)/TapeMeasure/Flurry",
-					"$(PROJECT_DIR)/TapeMeasure/OvershareKit",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -2416,7 +2426,6 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/TapeMeasure/Flurry\"",
 					"$(PROJECT_DIR)/TapeMeasure/Flurry",
-					"$(PROJECT_DIR)/TapeMeasure/OvershareKit",
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (

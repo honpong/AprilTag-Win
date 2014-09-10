@@ -477,6 +477,9 @@ static transition transitions[] =
 {
     if (setups[currentState].measuring) [self updateMeasurement:data.transformation withTotalPath:data.totalPathLength];
 
+    RCTranslation *trans = data.cameraTransformation.getInverse.translation;
+    [self.tapeView2D moveTapeWithCameraRelativeDisp:trans.z withUnits:newMeasurement.units];
+
     if(data.sampleBuffer)
     {
         [self.arView.videoView displaySampleBuffer:data.sampleBuffer];
@@ -515,7 +518,6 @@ static transition transitions[] =
     [newMeasurement autoSelectUnitsScale];
     
     [self updateDistanceLabel];
-    [self.tapeView2D moveTapeWithXDisp:newMeasurement.xDisp withDistance:[newMeasurement getPrimaryMeasurementDist] withUnits:newMeasurement.units];
 }
 
 - (void)saveMeasurement

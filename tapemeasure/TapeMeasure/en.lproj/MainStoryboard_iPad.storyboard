@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="5056" systemVersion="13C1021" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="Lfz-Fr-Qzy">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="5056" systemVersion="13E28" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="Lfz-Fr-Qzy">
     <dependencies>
         <deployment defaultVersion="1792" identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3733"/>
@@ -89,7 +89,7 @@
                     <navigationItem key="navigationItem" title="Endless Tape Measure" id="F6c-6f-pCd">
                         <barButtonItem key="leftBarButtonItem" title="List" id="Ihh-Jy-eY6">
                             <connections>
-                                <segue destination="1Xl-wZ-ecL" kind="push" identifier="toHistory" id="Vjr-ka-mBa"/>
+                                <action selector="handleListButton:" destination="2" id="N5L-iO-ap9"/>
                             </connections>
                         </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" enabled="NO" title="Reset" id="RBP-u0-i88">
@@ -108,6 +108,7 @@
                         <outlet property="lblInstructions" destination="iSv-1b-l8P" id="v9F-Tt-uv2"/>
                         <outlet property="tapeView2D" destination="fNx-Aq-2l9" id="LAC-if-ECU"/>
                         <segue destination="uhU-II-DVp" kind="push" identifier="toResult" id="aLk-mN-EKo"/>
+                        <segue destination="1Xl-wZ-ecL" kind="push" identifier="toHistory" id="KQt-B5-P8J"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4" sceneMemberID="firstResponder"/>
@@ -304,10 +305,10 @@
             </objects>
             <point key="canvasLocation" x="-125" y="894"/>
         </scene>
-        <!--ResultsVC - Saved Measurement-->
+        <!--ResultsVC - Results-->
         <scene sceneID="bH7-Ep-Lav">
             <objects>
-                <tableViewController storyboardIdentifier="Results" useStoryboardIdentifierAsRestorationIdentifier="YES" id="uhU-II-DVp" customClass="TMResultsVC" sceneMemberID="viewController">
+                <tableViewController storyboardIdentifier="Results" title="Results" useStoryboardIdentifierAsRestorationIdentifier="YES" id="uhU-II-DVp" customClass="TMResultsVC" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" dataMode="prototypes" style="grouped" separatorStyle="default" allowsSelection="NO" showsSelectionImmediatelyOnTouchBegin="NO" rowHeight="44" sectionHeaderHeight="10" sectionFooterHeight="10" id="YfD-B0-eof">
                         <rect key="frame" x="0.0" y="64" width="320" height="460"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -1617,10 +1618,10 @@
         <simulatedScreenMetrics key="destination" type="retina4"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
-        <segue reference="Mgn-80-d4D"/>
-        <segue reference="Vjr-ka-mBa"/>
-        <segue reference="HxR-ps-kMf"/>
-        <segue reference="Q9q-au-hTw"/>
         <segue reference="aLk-mN-EKo"/>
+        <segue reference="Mgn-80-d4D"/>
+        <segue reference="KQt-B5-P8J"/>
+        <segue reference="Q9q-au-hTw"/>
+        <segue reference="HxR-ps-kMf"/>
     </inferredMetricsTieBreakers>
 </document>

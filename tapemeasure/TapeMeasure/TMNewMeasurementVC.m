@@ -151,6 +151,8 @@ static transition transitions[] =
         [self showTipsView];
     if(oldSetup.showTips && !newSetup.showTips)
         [tipsView fadeOutWithDuration:.5 andWait:0];
+    if(!oldSetup.sensorCapture && newSetup.sensorCapture)
+        [self.arView.videoView animateOpen:UIDeviceOrientationPortrait];
     
     currentState = newState;
     
@@ -315,8 +317,6 @@ static transition transitions[] =
 {
 	LOGME
     
-    [self.arView.videoView animateOpen:UIDeviceOrientationPortrait];
-    
     [self handleStateEvent:EV_RESUME];
     
     useLocation = [LOCATION_MANAGER isLocationExplicitlyAllowed] && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
@@ -327,6 +327,19 @@ static transition transitions[] =
 {
     if (sender.state != UIGestureRecognizerStateEnded) return;
     [self handleStateEvent:EV_TAP];
+}
+
+- (IBAction)handleListButton:(id)sender
+{
+    [self hide2dTape];
+    [self.arView hideFeatures];
+    self.distanceLabel.hidden = YES;
+    [tipsView fadeOutWithDuration:.2 andWait:0];
+    
+    __weak TMNewMeasurementVC* weakSelf = self;
+    [self.arView.videoView animateClosed:UIDeviceOrientationPortrait withCompletionBlock:^(BOOL finished) {
+        [weakSelf performSegueWithIdentifier:@"toHistory" sender:weakSelf];
+    }];
 }
 
 - (void) updateLocation
@@ -400,14 +413,6 @@ static transition transitions[] =
 {
     LOGME
     [TMAnalytics endTimedEvent:@"Measurement.New"];
-}
-
-- (IBAction)handleListButton:(id)sender
-{
-    __weak TMNewMeasurementVC* weakSelf = self;
-    [self.arView.videoView animateClosed:UIDeviceOrientationPortrait withCompletionBlock:^(BOOL finished) {
-        [weakSelf performSegueWithIdentifier:@"toHistory" sender:weakSelf];
-    }];
 }
 
 - (void)startSensorFusion

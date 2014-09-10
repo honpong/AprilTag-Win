@@ -13,6 +13,6 @@
 @interface TM2DTapeView : UIImageView
 
 - (void)drawTickMarksWithUnits:(Units)units;
-- (void)moveTapeWithXDisp:(float)x withDistance:(float)meters withUnits:(Units)units;
+- (void)moveTapeWithDistance:(float)meters withUnits:(Units)units;
 
 @end

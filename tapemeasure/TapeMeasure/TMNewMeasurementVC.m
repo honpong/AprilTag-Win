@@ -515,7 +515,7 @@ static transition transitions[] =
     [newMeasurement autoSelectUnitsScale];
     
     [self updateDistanceLabel];
-    [self.tapeView2D moveTapeWithXDisp:newMeasurement.xDisp withDistance:[newMeasurement getPrimaryMeasurementDist] withUnits:newMeasurement.units];
+    [self.tapeView2D moveTapeWithDistance:[newMeasurement getPrimaryMeasurementDist] withUnits:newMeasurement.units];
 }
 
 - (void)saveMeasurement

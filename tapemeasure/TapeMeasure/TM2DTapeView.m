@@ -55,7 +55,7 @@
     isInitialized = YES;
 }
 
-- (void)moveTapeWithXDisp:(float)x withDistance:(float)meters withUnits:(Units)units
+- (void)moveTapeWithDistance:(float)meters withUnits:(Units)units
 {
     float xOffset = 0;
     
@@ -66,8 +66,6 @@
         float inches = meters * INCHES_PER_METER;
         float distRemainder = inches - floor(inches);
         xOffset = distRemainder * pixelsPerInch;
-        
-        if (x > 0) xOffset = -xOffset;
         xOffset = xOffset - pixelsPerInch;
     }
     else
@@ -75,8 +73,6 @@
         float centimeters = meters * 100;
         float distRemainder = centimeters - floor(centimeters);
         xOffset = distRemainder * pixelsPerCM;
-        
-        if (x > 0) xOffset = -xOffset;
         xOffset = xOffset - pixelsPerCM;
     }
     

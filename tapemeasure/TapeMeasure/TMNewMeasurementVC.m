@@ -30,6 +30,8 @@
     id<RCSensorDelegate>sensorDelegate;
     
     RCTipView* tipsView;
+    
+    UIColor* originalDistanceTextColor;
 }
 
 #pragma mark - State Machine
@@ -153,6 +155,10 @@ static transition transitions[] =
         [tipsView fadeOutWithDuration:.5 andWait:0];
     if(!oldSetup.sensorCapture && newSetup.sensorCapture)
         [self.arView.videoView animateOpen:UIDeviceOrientationPortrait];
+    if(oldSetup.icon == ICON_GREEN && newSetup.icon == ICON_RED)
+        self.distanceLabel.textColor = [UIColor redColor];
+    if(oldSetup.icon == ICON_RED && newSetup.icon == ICON_GREEN)
+        self.distanceLabel.textColor = originalDistanceTextColor;
     
     currentState = newState;
     
@@ -216,6 +222,8 @@ static transition transitions[] =
     tipsView.alpha = 0;
     tipsView.delegate = self;
     tipsView.tips = [self buildTipsArray];
+    
+    originalDistanceTextColor = self.distanceLabel.textColor;
 }
 
 - (void) viewDidLayoutSubviews

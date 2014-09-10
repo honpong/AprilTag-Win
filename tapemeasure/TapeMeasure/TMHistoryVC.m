@@ -18,6 +18,7 @@
     CustomIOS7AlertView *aboutView;
     CustomIOS7AlertView *tipsView;
     CustomIOS7AlertView *unitsView;
+    TMShareSheet* shareSheet;
 }
 
 #pragma mark - Event handlers
@@ -454,7 +455,8 @@
 {
     OSKShareableContent *content = [OSKShareableContent contentFromText:[self composeSharingString]];
     content.title = @"Share App";
-    TMShareSheet* shareSheet = [TMShareSheet shareSheetWithDelegate:self];
+    shareSheet = [TMShareSheet shareSheetWithDelegate:self];
+    [OSKActivitiesManager sharedInstance].customizationsDelegate = shareSheet;
     [shareSheet showShareSheet_Pad_FromBarButtonItem:self.actionButton content:content];
 }
 

@@ -55,11 +55,11 @@
     isInitialized = YES;
 }
 
-- (void)moveTapeWithCameraRelativeDisp:(float)disp withUnits:(Units)units
+- (void)moveTapeWithXDisp:(float)x withDistance:(float)meters withUnits:(Units)units
 {
     float xOffset = 0;
     
-    float meters = fabs(disp) / 10; // slow it down
+    meters = meters / 10; // slow it down
     
     if (units == UnitsImperial)
     {
@@ -67,7 +67,7 @@
         float distRemainder = inches - floor(inches);
         xOffset = distRemainder * pixelsPerInch;
         
-        if (disp > 0) xOffset = -xOffset;
+        if (x > 0) xOffset = -xOffset;
         xOffset = xOffset - pixelsPerInch;
     }
     else
@@ -76,7 +76,7 @@
         float distRemainder = centimeters - floor(centimeters);
         xOffset = distRemainder * pixelsPerCM;
         
-        if (disp > 0) xOffset = -xOffset;
+        if (x > 0) xOffset = -xOffset;
         xOffset = xOffset - pixelsPerCM;
     }
     

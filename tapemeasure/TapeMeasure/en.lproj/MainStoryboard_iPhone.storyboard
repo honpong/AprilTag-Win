@@ -209,7 +209,7 @@
                     <navigationItem key="navigationItem" title="Endless Tape Measure" id="F6c-6f-pCd">
                         <barButtonItem key="leftBarButtonItem" title="List" id="pEN-GI-qQK">
                             <connections>
-                                <segue destination="1Xl-wZ-ecL" kind="push" identifier="toHistory" id="Njf-k6-UUz"/>
+                                <action selector="handleListButton:" destination="2" id="J1q-1N-F4Y"/>
                             </connections>
                         </barButtonItem>
                         <barButtonItem key="rightBarButtonItem" enabled="NO" title="Reset" id="Y2t-4c-bUt">
@@ -227,6 +227,7 @@
                         <outlet property="lblInstructions" destination="iSv-1b-l8P" id="v9F-Tt-uv2"/>
                         <outlet property="tapeView2D" destination="fNx-Aq-2l9" id="LAC-if-ECU"/>
                         <segue destination="uhU-II-DVp" kind="push" identifier="toResult" id="lFM-Gm-EBj"/>
+                        <segue destination="1Xl-wZ-ecL" kind="push" identifier="toHistory" id="86j-NX-eAX"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4" sceneMemberID="firstResponder"/>
@@ -670,10 +671,10 @@
             </objects>
             <point key="canvasLocation" x="-128" y="796"/>
         </scene>
-        <!--ResultsVC - Saved Measurement-->
+        <!--Results-->
         <scene sceneID="bH7-Ep-Lav">
             <objects>
-                <tableViewController storyboardIdentifier="Results" useStoryboardIdentifierAsRestorationIdentifier="YES" id="uhU-II-DVp" customClass="TMResultsVC" sceneMemberID="viewController">
+                <tableViewController storyboardIdentifier="Results" title="Results" useStoryboardIdentifierAsRestorationIdentifier="YES" id="uhU-II-DVp" userLabel="Results" customClass="TMResultsVC" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" dataMode="prototypes" style="grouped" separatorStyle="default" allowsSelection="NO" showsSelectionImmediatelyOnTouchBegin="NO" rowHeight="44" sectionHeaderHeight="10" sectionFooterHeight="10" id="YfD-B0-eof">
                         <rect key="frame" x="0.0" y="64" width="320" height="460"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -1630,9 +1631,9 @@
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
         <segue reference="OMX-af-ZGK"/>
+        <segue reference="86j-NX-eAX"/>
         <segue reference="lFM-Gm-EBj"/>
-        <segue reference="Njf-k6-UUz"/>
-        <segue reference="HxR-ps-kMf"/>
         <segue reference="Q9q-au-hTw"/>
+        <segue reference="HxR-ps-kMf"/>
     </inferredMetricsTieBreakers>
 </document>

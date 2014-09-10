@@ -38,6 +38,7 @@
 - (IBAction)handleRetryButton:(id)sender;
 - (void)startMeasuring;
 - (void)stopMeasuring;
+- (IBAction)handleListButton:(id)sender;
 
 @property (weak, nonatomic) IBOutlet RCDistanceLabel *distanceLabel;
 @property (weak, nonatomic) IBOutlet UILabel *lblInstructions;

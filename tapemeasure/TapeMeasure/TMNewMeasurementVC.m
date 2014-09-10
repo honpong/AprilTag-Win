@@ -314,6 +314,9 @@ static transition transitions[] =
 - (void)handleResume
 {
 	LOGME
+    
+    [self.arView.videoView animateOpen:UIDeviceOrientationPortrait];
+    
     [self handleStateEvent:EV_RESUME];
     
     useLocation = [LOCATION_MANAGER isLocationExplicitlyAllowed] && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
@@ -397,6 +400,14 @@ static transition transitions[] =
 {
     LOGME
     [TMAnalytics endTimedEvent:@"Measurement.New"];
+}
+
+- (IBAction)handleListButton:(id)sender
+{
+    __weak TMNewMeasurementVC* weakSelf = self;
+    [self.arView.videoView animateClosed:UIDeviceOrientationPortrait withCompletionBlock:^(BOOL finished) {
+        [weakSelf performSegueWithIdentifier:@"toHistory" sender:weakSelf];
+    }];
 }
 
 - (void)startSensorFusion

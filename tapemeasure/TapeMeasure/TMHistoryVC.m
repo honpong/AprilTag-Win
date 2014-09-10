@@ -279,7 +279,7 @@
 
 - (void) linkTapped:(id)sender
 {
-    NSURL *url = [NSURL URLWithString:@"http://realitycap.com"];
+    NSURL *url = [NSURL URLWithString:URL_WEBSITE];
     [[UIApplication sharedApplication] openURL:url];
 }
 

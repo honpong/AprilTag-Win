@@ -7,7 +7,7 @@ def set_initialized(dc):
     for i in range(3):
         #dc.a_bias[i] = 0.
         #dc.w_bias[i] = 0.
-        dc.a_bias_var[i] = 1.e-4 #5.e-3
+        dc.a_bias_var[i] = 6.4e-3
         dc.w_bias_var[i] = 1.e-4 #5.e-5
 
 def set_device_parameters(dc, config_name):

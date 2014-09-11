@@ -12,14 +12,14 @@
 #import "OSKActivity.h"
 #import "OSKAccountChooserViewController.h"
 #import "UIColor+OSKUtility.h"
-#import "OSKPocketAccountViewController.h"
+//#import "OSKPocketAccountViewController.h"
 #import "OSKAccountTypeCell.h"
 #import "OSKActivityToggleCell.h"
 
 #import "OSK1PasswordSearchActivity.h"
 #import "OSK1PasswordBrowserActivity.h"
 #import "OSKAirDropActivity.h"
-#import "OSKAppDotNetActivity.h"
+//#import "OSKAppDotNetActivity.h"
 #import "OSKChromeActivity.h"
 #import "OSKCopyToPasteboardActivity.h"
 #import "OSKDraftsActivity.h"
@@ -107,9 +107,9 @@ static NSString * OSKAccountManagementHeaderViewIdentifier = @"OSKAccountManagem
     NSMutableArray *classes = [[NSMutableArray alloc] init];
     
     NSMutableSet *defaultClasses = [NSMutableSet set];
-    [defaultClasses addObject:[OSKAppDotNetActivity class]];
+//    [defaultClasses addObject:[OSKAppDotNetActivity class]];
     [defaultClasses addObject:[OSKInstapaperActivity class]];
-    [defaultClasses addObject:[OSKPocketActivity class]];
+//    [defaultClasses addObject:[OSKPocketActivity class]];
     [defaultClasses addObject:[OSKReadabilityActivity class]];
     [defaultClasses addObject:[OSKPinboardActivity class]];
     
@@ -146,9 +146,9 @@ static NSString * OSKAccountManagementHeaderViewIdentifier = @"OSKAccountManagem
     NSMutableArray *classes = [[NSMutableArray alloc] init];
     
     NSMutableSet *defaultClasses = [NSMutableSet set];
-    [defaultClasses addObject:[OSKAppDotNetActivity class]];
+//    [defaultClasses addObject:[OSKAppDotNetActivity class]];
     [defaultClasses addObject:[OSKInstapaperActivity class]];
-    [defaultClasses addObject:[OSKPocketActivity class]];
+//    [defaultClasses addObject:[OSKPocketActivity class]];
     [defaultClasses addObject:[OSKReadingListActivity class]];
     [defaultClasses addObject:[OSKReadabilityActivity class]];
     [defaultClasses addObject:[OSKPinboardActivity class]];
@@ -287,9 +287,9 @@ static NSString * OSKAccountManagementHeaderViewIdentifier = @"OSKAccountManagem
         if ([activityClass authenticationMethod] == OSKAuthenticationMethod_ManagedAccounts) {
             OSKAccountChooserViewController *chooser = [[OSKAccountChooserViewController alloc] initForManagingAccountsOfActivityClass:activityClass];
             [self.navigationController pushViewController:chooser animated:YES];
-        } else {
-            OSKPocketAccountViewController *pocketVC = [[OSKPocketAccountViewController alloc] initWithStyle:UITableViewStyleGrouped];
-            [self.navigationController pushViewController:pocketVC animated:YES];
+//        } else {
+//            OSKPocketAccountViewController *pocketVC = [[OSKPocketAccountViewController alloc] initWithStyle:UITableViewStyleGrouped];
+//            [self.navigationController pushViewController:pocketVC animated:YES];
         }
     }
 }

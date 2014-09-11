@@ -266,13 +266,9 @@
 		32E687CF18F617160043D50A /* OSKActivitySheetViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6868918F617160043D50A /* OSKActivitySheetViewController.m */; };
 		32E687D018F617160043D50A /* OSKActivitySheetViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32E6868A18F617160043D50A /* OSKActivitySheetViewController.xib */; };
 		32E687D118F617160043D50A /* OSKActivityToggleCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6868C18F617160043D50A /* OSKActivityToggleCell.m */; };
-		32E687D218F617160043D50A /* OSKADNLoginManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6868E18F617160043D50A /* OSKADNLoginManager.m */; };
 		32E687D318F617160043D50A /* OSKAirDropActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6869018F617160043D50A /* OSKAirDropActivity.m */; };
 		32E687D418F617160043D50A /* OSKAirDropViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6869218F617160043D50A /* OSKAirDropViewController.m */; };
 		32E687D518F617160043D50A /* OSKAlertView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6869418F617160043D50A /* OSKAlertView.m */; };
-		32E687D618F617160043D50A /* OSKAppDotNetActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6869618F617160043D50A /* OSKAppDotNetActivity.m */; };
-		32E687D718F617160043D50A /* OSKAppDotNetAuthenticationViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6869818F617160043D50A /* OSKAppDotNetAuthenticationViewController.m */; };
-		32E687D818F617160043D50A /* OSKAppDotNetUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6869A18F617160043D50A /* OSKAppDotNetUtility.m */; };
 		32E687D918F617160043D50A /* OSKApplicationCredential.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6869C18F617160043D50A /* OSKApplicationCredential.m */; };
 		32E687DA18F617160043D50A /* OSKBorderedButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E686A018F617160043D50A /* OSKBorderedButton.m */; };
 		32E687DB18F617160043D50A /* OSKChromeActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E686A218F617160043D50A /* OSKChromeActivity.m */; };
@@ -305,8 +301,6 @@
 		32E687F718F617170043D50A /* OSKPagedHorizontalLayout.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E686DC18F617160043D50A /* OSKPagedHorizontalLayout.m */; };
 		32E687F818F617170043D50A /* OSKPinboardActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E686DE18F617160043D50A /* OSKPinboardActivity.m */; };
 		32E687F918F617170043D50A /* OSKPinboardUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E686E018F617160043D50A /* OSKPinboardUtility.m */; };
-		32E687FA18F617170043D50A /* OSKPocketAccountViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E686E218F617160043D50A /* OSKPocketAccountViewController.m */; };
-		32E687FB18F617170043D50A /* OSKPocketActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E686E418F617160043D50A /* OSKPocketActivity.m */; };
 		32E687FC18F617170043D50A /* OSKPresentationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E686E818F617160043D50A /* OSKPresentationManager.m */; };
 		32E687FD18F617170043D50A /* OSKReadabilityActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E686EF18F617160043D50A /* OSKReadabilityActivity.m */; };
 		32E687FE18F617170043D50A /* OSKReadabilityUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E686F118F617160043D50A /* OSKReadabilityUtility.m */; };
@@ -334,17 +328,11 @@
 		32E6881418F617170043D50A /* OSKUsernamePasswordCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6871F18F617160043D50A /* OSKUsernamePasswordCell.m */; };
 		32E6881518F617170043D50A /* OSKUsernamePasswordViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6872118F617160043D50A /* OSKUsernamePasswordViewController.m */; };
 		32E6881618F617170043D50A /* OSKWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6872318F617160043D50A /* OSKWebViewController.m */; };
-		32E6881718F617170043D50A /* PocketAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6872A18F617160043D50A /* PocketAPI.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		32E6881818F617170043D50A /* PocketAPILogin.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6872C18F617160043D50A /* PocketAPILogin.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		32E6881918F617170043D50A /* PocketAPIOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6872E18F617160043D50A /* PocketAPIOperation.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
-		32E6881A18F617170043D50A /* SFHFKeychainUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6873118F617160043D50A /* SFHFKeychainUtils.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		32E6881B18F617170043D50A /* UIColor+OSKUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6873318F617160043D50A /* UIColor+OSKUtility.m */; };
 		32E6881C18F617170043D50A /* UIDevice+OSKHardware.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6873518F617160043D50A /* UIDevice+OSKHardware.m */; };
 		32E6881D18F617170043D50A /* UIImage+OSKUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6873718F617160043D50A /* UIImage+OSKUtilities.m */; };
 		32E6881E18F617170043D50A /* UIView+OSKUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6873918F617160043D50A /* UIView+OSKUtilities.m */; };
 		32E6881F18F617170043D50A /* UIViewController+OSKUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6873B18F617160043D50A /* UIViewController+OSKUtilities.m */; };
-		32E6882518F617440043D50A /* ADNLogin.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6882218F617440043D50A /* ADNLogin.m */; };
-		32E6882618F617440043D50A /* ADNPassportLaunchView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6882418F617440043D50A /* ADNPassportLaunchView.m */; };
 		32F216C6170F3B4E003DA782 /* TMResultsVCTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32F216C5170F3B4E003DA782 /* TMResultsVCTests.m */; };
 		32F403351940E326002741C8 /* TMPreferences.m in Sources */ = {isa = PBXBuildFile; fileRef = 32F403341940E326002741C8 /* TMPreferences.m */; };
 		D9218CB716E847B2006F4591 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9218CB616E847B2006F4591 /* SystemConfiguration.framework */; };
@@ -729,20 +717,12 @@
 		32E6868A18F617160043D50A /* OSKActivitySheetViewController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = OSKActivitySheetViewController.xib; sourceTree = "<group>"; };
 		32E6868B18F617160043D50A /* OSKActivityToggleCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSKActivityToggleCell.h; sourceTree = "<group>"; };
 		32E6868C18F617160043D50A /* OSKActivityToggleCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OSKActivityToggleCell.m; sourceTree = "<group>"; };
-		32E6868D18F617160043D50A /* OSKADNLoginManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSKADNLoginManager.h; sourceTree = "<group>"; };
-		32E6868E18F617160043D50A /* OSKADNLoginManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OSKADNLoginManager.m; sourceTree = "<group>"; };
 		32E6868F18F617160043D50A /* OSKAirDropActivity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSKAirDropActivity.h; sourceTree = "<group>"; };
 		32E6869018F617160043D50A /* OSKAirDropActivity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OSKAirDropActivity.m; sourceTree = "<group>"; };
 		32E6869118F617160043D50A /* OSKAirDropViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSKAirDropViewController.h; sourceTree = "<group>"; };
 		32E6869218F617160043D50A /* OSKAirDropViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OSKAirDropViewController.m; sourceTree = "<group>"; };
 		32E6869318F617160043D50A /* OSKAlertView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSKAlertView.h; sourceTree = "<group>"; };
 		32E6869418F617160043D50A /* OSKAlertView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OSKAlertView.m; sourceTree = "<group>"; };
-		32E6869518F617160043D50A /* OSKAppDotNetActivity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSKAppDotNetActivity.h; sourceTree = "<group>"; };
-		32E6869618F617160043D50A /* OSKAppDotNetActivity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OSKAppDotNetActivity.m; sourceTree = "<group>"; };
-		32E6869718F617160043D50A /* OSKAppDotNetAuthenticationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSKAppDotNetAuthenticationViewController.h; sourceTree = "<group>"; };
-		32E6869818F617160043D50A /* OSKAppDotNetAuthenticationViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OSKAppDotNetAuthenticationViewController.m; sourceTree = "<group>"; };
-		32E6869918F617160043D50A /* OSKAppDotNetUtility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSKAppDotNetUtility.h; sourceTree = "<group>"; };
-		32E6869A18F617160043D50A /* OSKAppDotNetUtility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OSKAppDotNetUtility.m; sourceTree = "<group>"; };
 		32E6869B18F617160043D50A /* OSKApplicationCredential.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSKApplicationCredential.h; sourceTree = "<group>"; };
 		32E6869C18F617160043D50A /* OSKApplicationCredential.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OSKApplicationCredential.m; sourceTree = "<group>"; };
 		32E6869D18F617160043D50A /* OSKAuthenticationViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSKAuthenticationViewController.h; sourceTree = "<group>"; };
@@ -811,10 +791,6 @@
 		32E686DE18F617160043D50A /* OSKPinboardActivity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OSKPinboardActivity.m; sourceTree = "<group>"; };
 		32E686DF18F617160043D50A /* OSKPinboardUtility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSKPinboardUtility.h; sourceTree = "<group>"; };
 		32E686E018F617160043D50A /* OSKPinboardUtility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OSKPinboardUtility.m; sourceTree = "<group>"; };
-		32E686E118F617160043D50A /* OSKPocketAccountViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSKPocketAccountViewController.h; sourceTree = "<group>"; };
-		32E686E218F617160043D50A /* OSKPocketAccountViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OSKPocketAccountViewController.m; sourceTree = "<group>"; };
-		32E686E318F617160043D50A /* OSKPocketActivity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSKPocketActivity.h; sourceTree = "<group>"; };
-		32E686E418F617160043D50A /* OSKPocketActivity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OSKPocketActivity.m; sourceTree = "<group>"; };
 		32E686E518F617160043D50A /* OSKPresentationColor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSKPresentationColor.h; sourceTree = "<group>"; };
 		32E686E618F617160043D50A /* OSKPresentationLocalization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSKPresentationLocalization.h; sourceTree = "<group>"; };
 		32E686E718F617160043D50A /* OSKPresentationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSKPresentationManager.h; sourceTree = "<group>"; };
@@ -881,16 +857,6 @@
 		32E6872418F617160043D50A /* OSKXCallbackURLInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSKXCallbackURLInfo.h; sourceTree = "<group>"; };
 		32E6872518F617160043D50A /* OvershareKit-iOS.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "OvershareKit-iOS.h"; sourceTree = "<group>"; };
 		32E6872618F617160043D50A /* OvershareKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OvershareKit.h; sourceTree = "<group>"; };
-		32E6872818F617160043D50A /* PocketAPI+NSOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "PocketAPI+NSOperation.h"; sourceTree = "<group>"; };
-		32E6872918F617160043D50A /* PocketAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PocketAPI.h; sourceTree = "<group>"; };
-		32E6872A18F617160043D50A /* PocketAPI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PocketAPI.m; sourceTree = "<group>"; };
-		32E6872B18F617160043D50A /* PocketAPILogin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PocketAPILogin.h; sourceTree = "<group>"; };
-		32E6872C18F617160043D50A /* PocketAPILogin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PocketAPILogin.m; sourceTree = "<group>"; };
-		32E6872D18F617160043D50A /* PocketAPIOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PocketAPIOperation.h; sourceTree = "<group>"; };
-		32E6872E18F617160043D50A /* PocketAPIOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PocketAPIOperation.m; sourceTree = "<group>"; };
-		32E6872F18F617160043D50A /* PocketAPITypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PocketAPITypes.h; sourceTree = "<group>"; };
-		32E6873018F617160043D50A /* SFHFKeychainUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SFHFKeychainUtils.h; sourceTree = "<group>"; };
-		32E6873118F617160043D50A /* SFHFKeychainUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SFHFKeychainUtils.m; sourceTree = "<group>"; };
 		32E6873218F617160043D50A /* UIColor+OSKUtility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+OSKUtility.h"; sourceTree = "<group>"; };
 		32E6873318F617160043D50A /* UIColor+OSKUtility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIColor+OSKUtility.m"; sourceTree = "<group>"; };
 		32E6873418F617160043D50A /* UIDevice+OSKHardware.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIDevice+OSKHardware.h"; sourceTree = "<group>"; };
@@ -901,10 +867,6 @@
 		32E6873918F617160043D50A /* UIView+OSKUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+OSKUtilities.m"; sourceTree = "<group>"; };
 		32E6873A18F617160043D50A /* UIViewController+OSKUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+OSKUtilities.h"; sourceTree = "<group>"; };
 		32E6873B18F617160043D50A /* UIViewController+OSKUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+OSKUtilities.m"; sourceTree = "<group>"; };
-		32E6882118F617440043D50A /* ADNLogin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADNLogin.h; sourceTree = "<group>"; };
-		32E6882218F617440043D50A /* ADNLogin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADNLogin.m; sourceTree = "<group>"; };
-		32E6882318F617440043D50A /* ADNPassportLaunchView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ADNPassportLaunchView.h; sourceTree = "<group>"; };
-		32E6882418F617440043D50A /* ADNPassportLaunchView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ADNPassportLaunchView.m; sourceTree = "<group>"; };
 		32E6882718F617D10043D50A /* GoogleOpenSource.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GoogleOpenSource.framework; path = "../OvershareKit/GooglePlus-SDK/GoogleOpenSource.framework"; sourceTree = "<group>"; };
 		32E6882818F617D10043D50A /* GooglePlus.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; name = GooglePlus.bundle; path = "../OvershareKit/GooglePlus-SDK/GooglePlus.bundle"; sourceTree = "<group>"; };
 		32E6882918F617D10043D50A /* GooglePlus.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GooglePlus.framework; path = "../OvershareKit/GooglePlus-SDK/GooglePlus.framework"; sourceTree = "<group>"; };
@@ -1301,8 +1263,6 @@
 		32E685D718F617150043D50A /* OvershareKit */ = {
 			isa = PBXGroup;
 			children = (
-				32E6872718F617160043D50A /* PocketSDK */,
-				32E6882018F617430043D50A /* ADNLogin */,
 				32E685DC18F617150043D50A /* Images */,
 				32E6865518F617150043D50A /* NSCoder+OSKCoder.h */,
 				32E6865618F617150043D50A /* NSCoder+OSKCoder.m */,
@@ -1360,20 +1320,12 @@
 				32E6868A18F617160043D50A /* OSKActivitySheetViewController.xib */,
 				32E6868B18F617160043D50A /* OSKActivityToggleCell.h */,
 				32E6868C18F617160043D50A /* OSKActivityToggleCell.m */,
-				32E6868D18F617160043D50A /* OSKADNLoginManager.h */,
-				32E6868E18F617160043D50A /* OSKADNLoginManager.m */,
 				32E6868F18F617160043D50A /* OSKAirDropActivity.h */,
 				32E6869018F617160043D50A /* OSKAirDropActivity.m */,
 				32E6869118F617160043D50A /* OSKAirDropViewController.h */,
 				32E6869218F617160043D50A /* OSKAirDropViewController.m */,
 				32E6869318F617160043D50A /* OSKAlertView.h */,
 				32E6869418F617160043D50A /* OSKAlertView.m */,
-				32E6869518F617160043D50A /* OSKAppDotNetActivity.h */,
-				32E6869618F617160043D50A /* OSKAppDotNetActivity.m */,
-				32E6869718F617160043D50A /* OSKAppDotNetAuthenticationViewController.h */,
-				32E6869818F617160043D50A /* OSKAppDotNetAuthenticationViewController.m */,
-				32E6869918F617160043D50A /* OSKAppDotNetUtility.h */,
-				32E6869A18F617160043D50A /* OSKAppDotNetUtility.m */,
 				32E6869B18F617160043D50A /* OSKApplicationCredential.h */,
 				32E6869C18F617160043D50A /* OSKApplicationCredential.m */,
 				32E6869D18F617160043D50A /* OSKAuthenticationViewController.h */,
@@ -1444,10 +1396,6 @@
 				32E686DE18F617160043D50A /* OSKPinboardActivity.m */,
 				32E686DF18F617160043D50A /* OSKPinboardUtility.h */,
 				32E686E018F617160043D50A /* OSKPinboardUtility.m */,
-				32E686E118F617160043D50A /* OSKPocketAccountViewController.h */,
-				32E686E218F617160043D50A /* OSKPocketAccountViewController.m */,
-				32E686E318F617160043D50A /* OSKPocketActivity.h */,
-				32E686E418F617160043D50A /* OSKPocketActivity.m */,
 				32E686E518F617160043D50A /* OSKPresentationColor.h */,
 				32E686E618F617160043D50A /* OSKPresentationLocalization.h */,
 				32E686E718F617160043D50A /* OSKPresentationManager.h */,
@@ -1656,34 +1604,6 @@
 				32E6865418F617150043D50A /* Things-Icon-76@2x.png */,
 			);
 			path = Images;
-			sourceTree = "<group>";
-		};
-		32E6872718F617160043D50A /* PocketSDK */ = {
-			isa = PBXGroup;
-			children = (
-				32E6872818F617160043D50A /* PocketAPI+NSOperation.h */,
-				32E6872918F617160043D50A /* PocketAPI.h */,
-				32E6872A18F617160043D50A /* PocketAPI.m */,
-				32E6872B18F617160043D50A /* PocketAPILogin.h */,
-				32E6872C18F617160043D50A /* PocketAPILogin.m */,
-				32E6872D18F617160043D50A /* PocketAPIOperation.h */,
-				32E6872E18F617160043D50A /* PocketAPIOperation.m */,
-				32E6872F18F617160043D50A /* PocketAPITypes.h */,
-				32E6873018F617160043D50A /* SFHFKeychainUtils.h */,
-				32E6873118F617160043D50A /* SFHFKeychainUtils.m */,
-			);
-			path = PocketSDK;
-			sourceTree = "<group>";
-		};
-		32E6882018F617430043D50A /* ADNLogin */ = {
-			isa = PBXGroup;
-			children = (
-				32E6882118F617440043D50A /* ADNLogin.h */,
-				32E6882218F617440043D50A /* ADNLogin.m */,
-				32E6882318F617440043D50A /* ADNPassportLaunchView.h */,
-				32E6882418F617440043D50A /* ADNPassportLaunchView.m */,
-			);
-			path = ADNLogin;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1986,7 +1906,6 @@
 				32E687F418F617170043D50A /* OSKNavigationController.m in Sources */,
 				32E687EB18F617160043D50A /* OSKLinkShorteningUtility.m in Sources */,
 				32E6880118F617170043D50A /* OSKSafariActivity.m in Sources */,
-				32E6881918F617170043D50A /* PocketAPIOperation.m in Sources */,
 				32E687C418F617160043D50A /* OSKAccountTypeCell.m in Sources */,
 				32E6881E18F617170043D50A /* UIView+OSKUtilities.m in Sources */,
 				32E687F118F617160043D50A /* OSKMicrobloggingTextView.m in Sources */,
@@ -2004,7 +1923,6 @@
 				32E6881618F617170043D50A /* OSKWebViewController.m in Sources */,
 				32E687ED18F617160043D50A /* OSKManagedAccount.m in Sources */,
 				32E6880518F617170043D50A /* OSKSessionController_Pad.m in Sources */,
-				32E6882618F617440043D50A /* ADNPassportLaunchView.m in Sources */,
 				32E6881318F617170043D50A /* OSKUITextViewSubstitute.m in Sources */,
 				328CE19F16432B6D0092A69C /* TMHistoryVC.m in Sources */,
 				328CE1A516433F340092A69C /* TMOptionsVC.m in Sources */,
@@ -2019,7 +1937,6 @@
 				32E687B718F617160043D50A /* NSCoder+OSKCoder.m in Sources */,
 				32D2B6EB18EA163000B72F05 /* RCCalibration1.m in Sources */,
 				32D2B6EC18EA163000B72F05 /* RCCalibration2.m in Sources */,
-				32E687D718F617160043D50A /* OSKAppDotNetAuthenticationViewController.m in Sources */,
 				3280BB45191ABBC700338A38 /* TMShareSheet.m in Sources */,
 				32E687EA18F617160043D50A /* OSKKeychainUtility.m in Sources */,
 				32E4C4BF18F8A7A20094022B /* TMNavigationController.m in Sources */,
@@ -2038,22 +1955,18 @@
 				32E687BA18F617160043D50A /* NSDictionary+OSKModel.m in Sources */,
 				32E6880E18F617170043D50A /* OSKThingsActivity.m in Sources */,
 				32E687E518F617160043D50A /* OSKFileManager.m in Sources */,
-				32E6881818F617170043D50A /* PocketAPILogin.m in Sources */,
 				32E687D518F617160043D50A /* OSKAlertView.m in Sources */,
 				32E687EF18F617160043D50A /* OSKManagedAccountStore.m in Sources */,
 				32E687B818F617160043D50A /* NSData+OSKDerp.m in Sources */,
 				32E6880F18F617170043D50A /* OSKTwitterActivity.m in Sources */,
-				32E6881A18F617170043D50A /* SFHFKeychainUtils.m in Sources */,
 				32E6880018F617170043D50A /* OSKRPSTPasswordManagementAppService.m in Sources */,
 				32A0966116D6E8EF001C4D18 /* TMCreateAccountVC.m in Sources */,
 				32E687BF18F617160043D50A /* NSString+OSKEmoji.m in Sources */,
-				32E687FB18F617170043D50A /* OSKPocketActivity.m in Sources */,
 				32E687BD18F617160043D50A /* NSString+OSK_UUID.m in Sources */,
 				32E687CF18F617160043D50A /* OSKActivitySheetViewController.m in Sources */,
 				32E6881518F617170043D50A /* OSKUsernamePasswordViewController.m in Sources */,
 				32E687F718F617170043D50A /* OSKPagedHorizontalLayout.m in Sources */,
 				325FC8BB16D6F7CF003A00BE /* TMLoginVC.m in Sources */,
-				32E687FA18F617170043D50A /* OSKPocketAccountViewController.m in Sources */,
 				32E6880818F617170043D50A /* OSKShareableContentItem.m in Sources */,
 				32E6880618F617170043D50A /* OSKSessionController_Phone.m in Sources */,
 				32E687DB18F617160043D50A /* OSKChromeActivity.m in Sources */,
@@ -2067,7 +1980,6 @@
 				32E687E918F617160043D50A /* OSKInstapaperUtility.m in Sources */,
 				32011D13191D96EA00F17327 /* TMAboutView.m in Sources */,
 				32E6881418F617170043D50A /* OSKUsernamePasswordCell.m in Sources */,
-				32E6882518F617440043D50A /* ADNLogin.m in Sources */,
 				32E0A07F16E13D5600D0E689 /* TMSyncable+TMSyncableExt.m in Sources */,
 				32E687DD18F617160043D50A /* OSKCursorMovement.m in Sources */,
 				32E687C718F617160043D50A /* OSKActivity.m in Sources */,
@@ -2097,16 +2009,13 @@
 				32E687EE18F617160043D50A /* OSKManagedAccountCredential.m in Sources */,
 				32808D5F170396B600BE7CBC /* TMTableViewController.m in Sources */,
 				32808D64170396E200BE7CBC /* TMViewController.m in Sources */,
-				32E687D218F617160043D50A /* OSKADNLoginManager.m in Sources */,
 				32C242F2170B7ED200738BCD /* TMMeasurementTypeCell.m in Sources */,
-				32E687D618F617160043D50A /* OSKAppDotNetActivity.m in Sources */,
 				3273BCB5170BA81F00FF0F6A /* TMMeasurementType.m in Sources */,
 				32E6880218F617170043D50A /* OSKSaveToCameraRollActivity.m in Sources */,
 				32E687DE18F617160043D50A /* OSKDraftsActivity.m in Sources */,
 				32E687CE18F617160043D50A /* OSKActivityOperation.m in Sources */,
 				32935108172F352200E8FDEA /* TMCrosshairsLayerDelegate.m in Sources */,
 				32895B7517396F6D001B4C10 /* TMMeasurement.m in Sources */,
-				32E687D818F617160043D50A /* OSKAppDotNetUtility.m in Sources */,
 				32895B781739B665001B4C10 /* TMPoint+TMPointExt.m in Sources */,
 				32E6881B18F617170043D50A /* UIColor+OSKUtility.m in Sources */,
 				3288775E173C17B900A553B9 /* TMPoint.m in Sources */,
@@ -2125,7 +2034,6 @@
 				32E687F918F617170043D50A /* OSKPinboardUtility.m in Sources */,
 				32E687E118F617160043D50A /* OSKFacebookAudienceChooserViewController.m in Sources */,
 				32E687C318F617160043D50A /* OSKAccountManagementViewController.m in Sources */,
-				32E6881718F617170043D50A /* PocketAPI.m in Sources */,
 				32E687CD18F617160043D50A /* OSKActivityIndicatorItem.m in Sources */,
 				32BD1D5B178F1AE2005201DA /* TMLineLayerDelegate.m in Sources */,
 				328CB79817949A1100893C68 /* TMLineLayer.m in Sources */,
@@ -2233,7 +2141,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
-					"$(PROJECT_DIR)/../OvershareKit/GooglePlus-SDK",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TapeMeasure/TapeMeasure-Prefix.pch";
@@ -2355,7 +2262,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
-					"$(PROJECT_DIR)/../OvershareKit/GooglePlus-SDK",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TapeMeasure/TapeMeasure-Prefix.pch";
@@ -2390,7 +2296,6 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
-					"$(PROJECT_DIR)/../OvershareKit/GooglePlus-SDK",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TapeMeasure/TapeMeasure-Prefix.pch";

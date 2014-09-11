@@ -8,7 +8,7 @@
 
 #import "OSKActivitiesManager.h"
 
-#import "ADNLogin.h"
+//#import "ADNLogin.h"
 #import "OSKActivity.h"
 #import "OSKActivityCustomizations.h"
 #import "OSKApplicationCredential.h"
@@ -20,7 +20,7 @@
 #import "OSK1PasswordSearchActivity.h"
 #import "OSK1PasswordBrowserActivity.h"
 #import "OSKAirDropActivity.h"
-#import "OSKAppDotNetActivity.h"
+//#import "OSKAppDotNetActivity.h"
 #import "OSKChromeActivity.h"
 #import "OSKCopyToPasteboardActivity.h"
 #import "OSKDraftsActivity.h"
@@ -31,7 +31,7 @@
 #import "OSKReadingListActivity.h"
 #import "OSKOmnifocusActivity.h"
 #import "OSKPinboardActivity.h"
-#import "OSKPocketActivity.h"
+//#import "OSKPocketActivity.h"
 #import "OSKReadabilityActivity.h"
 #import "OSKSafariActivity.h"
 #import "OSKSaveToCameraRollActivity.h"
@@ -300,12 +300,12 @@ static NSString * OSKActivitiesManagerPersistentExclusionsKey = @"OSKActivitiesM
                                                     item:item];
     if (twitter) { [activities addObject:twitter]; }
     
-    OSKAppDotNetActivity *appDotNet = [self validActivityForType:[OSKAppDotNetActivity activityType]
-                                                       class:[OSKAppDotNetActivity class]
-                                               excludedTypes:excludedActivityTypes
-                                           requireOperations:requireOperations
-                                                        item:item];
-    if (appDotNet) { [activities addObject:appDotNet]; }
+//    OSKAppDotNetActivity *appDotNet = [self validActivityForType:[OSKAppDotNetActivity activityType]
+//                                                       class:[OSKAppDotNetActivity class]
+//                                               excludedTypes:excludedActivityTypes
+//                                           requireOperations:requireOperations
+//                                                        item:item];
+//    if (appDotNet) { [activities addObject:appDotNet]; }
 
 //    OSKGooglePlusActivity *googlePlus = [self validActivityForType:[OSKGooglePlusActivity activityType]
 //                                                             class:[OSKGooglePlusActivity class]
@@ -436,12 +436,12 @@ static NSString * OSKActivitiesManagerPersistentExclusionsKey = @"OSKActivitiesM
                                                                   item:item];
     if (instapaper) { [activities addObject:instapaper]; }
     
-    OSKPocketActivity *pocket = [self validActivityForType:[OSKPocketActivity activityType]
-                                                     class:[OSKPocketActivity class]
-                                             excludedTypes:excludedActivityTypes
-                                         requireOperations:requireOperations
-                                                      item:item];
-    if (pocket) { [activities addObject:pocket]; }
+//    OSKPocketActivity *pocket = [self validActivityForType:[OSKPocketActivity activityType]
+//                                                     class:[OSKPocketActivity class]
+//                                             excludedTypes:excludedActivityTypes
+//                                         requireOperations:requireOperations
+//                                                      item:item];
+//    if (pocket) { [activities addObject:pocket]; }
     
     OSKReadabilityActivity *readability = [self validActivityForType:[OSKReadabilityActivity activityType]
                                                                class:[OSKReadabilityActivity class]

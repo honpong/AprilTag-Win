@@ -26,7 +26,7 @@
 #import "OSKDraftsActivity.h"
 #import "OSKEmailActivity.h"
 #import "OSKFacebookActivity.h"
-#import "OSKGooglePlusActivity.h"
+//#import "OSKGooglePlusActivity.h"
 #import "OSKInstapaperActivity.h"
 #import "OSKReadingListActivity.h"
 #import "OSKOmnifocusActivity.h"
@@ -307,12 +307,12 @@ static NSString * OSKActivitiesManagerPersistentExclusionsKey = @"OSKActivitiesM
                                                         item:item];
     if (appDotNet) { [activities addObject:appDotNet]; }
 
-    OSKGooglePlusActivity *googlePlus = [self validActivityForType:[OSKGooglePlusActivity activityType]
-                                                             class:[OSKGooglePlusActivity class]
-                                                     excludedTypes:excludedActivityTypes
-                                                 requireOperations:requireOperations
-                                                              item:item];
-    if (googlePlus) { [activities addObject:googlePlus]; }
+//    OSKGooglePlusActivity *googlePlus = [self validActivityForType:[OSKGooglePlusActivity activityType]
+//                                                             class:[OSKGooglePlusActivity class]
+//                                                     excludedTypes:excludedActivityTypes
+//                                                 requireOperations:requireOperations
+//                                                              item:item];
+//    if (googlePlus) { [activities addObject:googlePlus]; }
     
     return activities;
 }

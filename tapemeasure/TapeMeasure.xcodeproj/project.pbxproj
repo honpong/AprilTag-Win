@@ -119,8 +119,6 @@
 		32E6849118F5FB250043D50A /* AddressBook.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32E6849018F5FB250043D50A /* AddressBook.framework */; };
 		32E6849318F5FB390043D50A /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32E6849218F5FB390043D50A /* CoreText.framework */; };
 		32E6849518F5FB430043D50A /* MediaPlayer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32E6849418F5FB430043D50A /* MediaPlayer.framework */; };
-		32E6873C18F617160043D50A /* GoogleOpenSource.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32E685D918F617150043D50A /* GoogleOpenSource.framework */; };
-		32E6873E18F617160043D50A /* GooglePlus.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32E685DB18F617150043D50A /* GooglePlus.framework */; };
 		32E6873F18F617160043D50A /* 1Password-Icon-120.png in Resources */ = {isa = PBXBuildFile; fileRef = 32E685DD18F617150043D50A /* 1Password-Icon-120.png */; };
 		32E6874018F617160043D50A /* 1Password-Icon-60@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 32E685DE18F617150043D50A /* 1Password-Icon-60@2x.png */; };
 		32E6874118F617160043D50A /* 1Password-Icon-76.png in Resources */ = {isa = PBXBuildFile; fileRef = 32E685DF18F617150043D50A /* 1Password-Icon-76.png */; };
@@ -288,7 +286,6 @@
 		32E687E318F617160043D50A /* OSKFacebookPublishingViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32E686B218F617160043D50A /* OSKFacebookPublishingViewController.xib */; };
 		32E687E418F617160043D50A /* OSKFacebookUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E686B518F617160043D50A /* OSKFacebookUtility.m */; };
 		32E687E518F617160043D50A /* OSKFileManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E686B718F617160043D50A /* OSKFileManager.m */; };
-		32E687E618F617160043D50A /* OSKGooglePlusActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E686B918F617160043D50A /* OSKGooglePlusActivity.m */; };
 		32E687E718F617160043D50A /* OSKInMemoryImageCache.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E686BB18F617160043D50A /* OSKInMemoryImageCache.m */; };
 		32E687E818F617160043D50A /* OSKInstapaperActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E686BD18F617160043D50A /* OSKInstapaperActivity.m */; };
 		32E687E918F617160043D50A /* OSKInstapaperUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E686BF18F617160043D50A /* OSKInstapaperUtility.m */; };
@@ -348,7 +345,6 @@
 		32E6881F18F617170043D50A /* UIViewController+OSKUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6873B18F617160043D50A /* UIViewController+OSKUtilities.m */; };
 		32E6882518F617440043D50A /* ADNLogin.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6882218F617440043D50A /* ADNLogin.m */; };
 		32E6882618F617440043D50A /* ADNPassportLaunchView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E6882418F617440043D50A /* ADNPassportLaunchView.m */; };
-		32E6882B18F617D10043D50A /* GooglePlus.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 32E6882818F617D10043D50A /* GooglePlus.bundle */; };
 		32F216C6170F3B4E003DA782 /* TMResultsVCTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32F216C5170F3B4E003DA782 /* TMResultsVCTests.m */; };
 		32F403351940E326002741C8 /* TMPreferences.m in Sources */ = {isa = PBXBuildFile; fileRef = 32F403341940E326002741C8 /* TMPreferences.m */; };
 		D9218CB716E847B2006F4591 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9218CB616E847B2006F4591 /* SystemConfiguration.framework */; };
@@ -557,9 +553,6 @@
 		32E6849018F5FB250043D50A /* AddressBook.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AddressBook.framework; path = System/Library/Frameworks/AddressBook.framework; sourceTree = SDKROOT; };
 		32E6849218F5FB390043D50A /* CoreText.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreText.framework; path = System/Library/Frameworks/CoreText.framework; sourceTree = SDKROOT; };
 		32E6849418F5FB430043D50A /* MediaPlayer.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MediaPlayer.framework; path = System/Library/Frameworks/MediaPlayer.framework; sourceTree = SDKROOT; };
-		32E685D918F617150043D50A /* GoogleOpenSource.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = GoogleOpenSource.framework; sourceTree = "<group>"; };
-		32E685DA18F617150043D50A /* GooglePlus.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = GooglePlus.bundle; sourceTree = "<group>"; };
-		32E685DB18F617150043D50A /* GooglePlus.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = GooglePlus.framework; sourceTree = "<group>"; };
 		32E685DD18F617150043D50A /* 1Password-Icon-120.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "1Password-Icon-120.png"; sourceTree = "<group>"; };
 		32E685DE18F617150043D50A /* 1Password-Icon-60@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "1Password-Icon-60@2x.png"; sourceTree = "<group>"; };
 		32E685DF18F617150043D50A /* 1Password-Icon-76.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "1Password-Icon-76.png"; sourceTree = "<group>"; };
@@ -779,8 +772,6 @@
 		32E686B518F617160043D50A /* OSKFacebookUtility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OSKFacebookUtility.m; sourceTree = "<group>"; };
 		32E686B618F617160043D50A /* OSKFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSKFileManager.h; sourceTree = "<group>"; };
 		32E686B718F617160043D50A /* OSKFileManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OSKFileManager.m; sourceTree = "<group>"; };
-		32E686B818F617160043D50A /* OSKGooglePlusActivity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSKGooglePlusActivity.h; sourceTree = "<group>"; };
-		32E686B918F617160043D50A /* OSKGooglePlusActivity.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OSKGooglePlusActivity.m; sourceTree = "<group>"; };
 		32E686BA18F617160043D50A /* OSKInMemoryImageCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSKInMemoryImageCache.h; sourceTree = "<group>"; };
 		32E686BB18F617160043D50A /* OSKInMemoryImageCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OSKInMemoryImageCache.m; sourceTree = "<group>"; };
 		32E686BC18F617160043D50A /* OSKInstapaperActivity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSKInstapaperActivity.h; sourceTree = "<group>"; };
@@ -941,7 +932,6 @@
 				D9557B2016DFEDD300B48C4B /* AssetsLibrary.framework in Frameworks */,
 				D9557B1416DFDF1500B48C4B /* Accelerate.framework in Frameworks */,
 				328D264F16BB15550067D7D8 /* Security.framework in Frameworks */,
-				32E6873C18F617160043D50A /* GoogleOpenSource.framework in Frameworks */,
 				32590C8316781F4000E2BA1C /* CoreLocation.framework in Frameworks */,
 				32590C8216781EEC00E2BA1C /* MapKit.framework in Frameworks */,
 				3287846E1630B6C500040AAF /* ImageIO.framework in Frameworks */,
@@ -953,7 +943,6 @@
 				3287846C1630B6C000040AAF /* CoreVideo.framework in Frameworks */,
 				3287846A1630B6B300040AAF /* CoreMedia.framework in Frameworks */,
 				3288555016307A6A0074A3DE /* CoreMotion.framework in Frameworks */,
-				32E6873E18F617160043D50A /* GooglePlus.framework in Frameworks */,
 				328478BD162E2CCF00BFCDD4 /* QuartzCore.framework in Frameworks */,
 				32865B9316260C710080BA1A /* libRCCore.a in Frameworks */,
 				3280F7E4161BBB3200B5C8A8 /* UIKit.framework in Frameworks */,
@@ -1314,7 +1303,6 @@
 			children = (
 				32E6872718F617160043D50A /* PocketSDK */,
 				32E6882018F617430043D50A /* ADNLogin */,
-				32E685D818F617150043D50A /* GooglePlus-SDK */,
 				32E685DC18F617150043D50A /* Images */,
 				32E6865518F617150043D50A /* NSCoder+OSKCoder.h */,
 				32E6865618F617150043D50A /* NSCoder+OSKCoder.m */,
@@ -1415,8 +1403,6 @@
 				32E686B518F617160043D50A /* OSKFacebookUtility.m */,
 				32E686B618F617160043D50A /* OSKFileManager.h */,
 				32E686B718F617160043D50A /* OSKFileManager.m */,
-				32E686B818F617160043D50A /* OSKGooglePlusActivity.h */,
-				32E686B918F617160043D50A /* OSKGooglePlusActivity.m */,
 				32E686BA18F617160043D50A /* OSKInMemoryImageCache.h */,
 				32E686BB18F617160043D50A /* OSKInMemoryImageCache.m */,
 				32E686BC18F617160043D50A /* OSKInstapaperActivity.h */,
@@ -1543,16 +1529,6 @@
 			);
 			name = OvershareKit;
 			path = ../../OvershareKit;
-			sourceTree = "<group>";
-		};
-		32E685D818F617150043D50A /* GooglePlus-SDK */ = {
-			isa = PBXGroup;
-			children = (
-				32E685D918F617150043D50A /* GoogleOpenSource.framework */,
-				32E685DA18F617150043D50A /* GooglePlus.bundle */,
-				32E685DB18F617150043D50A /* GooglePlus.framework */,
-			);
-			path = "GooglePlus-SDK";
 			sourceTree = "<group>";
 		};
 		32E685DC18F617150043D50A /* Images */ = {
@@ -1905,7 +1881,6 @@
 				32E687B418F617160043D50A /* Things-Icon-60@2x.png in Resources */,
 				329EB1071937E5050049C9B9 /* about.html in Resources */,
 				32E687AC18F617160043D50A /* ReadingList-Icon-29@2x.png in Resources */,
-				32E6882B18F617D10043D50A /* GooglePlus.bundle in Resources */,
 				32E687A518F617160043D50A /* osk_linkPlaceholder_phone@2x.png in Resources */,
 				32E6877218F617160043D50A /* osk-facebookIcon-76@2x.png in Resources */,
 				32E6876F18F617160043D50A /* osk-copyIcon-yellow-76@2x.png in Resources */,
@@ -2024,7 +1999,6 @@
 				32E6881118F617170043D50A /* OSKTwitterTextEntity.m in Sources */,
 				3280F7F4161BBB3200B5C8A8 /* TMAppDelegate.m in Sources */,
 				3280F803161BBB3200B5C8A8 /* TMNewMeasurementVC.m in Sources */,
-				32E687E618F617160043D50A /* OSKGooglePlusActivity.m in Sources */,
 				32E6880918F617170043D50A /* OSKSmartPunctuation.m in Sources */,
 				32E6880A18F617170043D50A /* OSKSMSActivity.m in Sources */,
 				32E6881618F617170043D50A /* OSKWebViewController.m in Sources */,

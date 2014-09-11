@@ -35,7 +35,7 @@
         if(granted)
         {
             dispatch_async(dispatch_get_main_queue(), ^{
-                [TMAnalytics logEvent:@"Permission.Camera" withParameters:@{ @"Allowed" : @YES }];
+                [TMAnalytics logEvent:@"Permission.Camera" withParameters:@{ @"Allowed" : @"Yes" }];
                 
                 TMLocationIntro* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"LocationIntro"];
                 vc.calibrationDelegate = self.calibrationDelegate;
@@ -46,7 +46,7 @@
         else
         {
             dispatch_async(dispatch_get_main_queue(), ^{
-                [TMAnalytics logEvent:@"Permission.Camera" withParameters:@{ @"Allowed" : @NO }];
+                [TMAnalytics logEvent:@"Permission.Camera" withParameters:@{ @"Allowed" : @"No" }];
                 
                 UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"No camera access."
                                                                 message:@"This app cannot function without camera access. Turn it on in Settings/Privacy/Camera."

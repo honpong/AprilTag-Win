@@ -381,7 +381,7 @@
                                                   delegate:self
                                          cancelButtonTitle:@"Cancel"
                                     destructiveButtonTitle:nil
-                                         otherButtonTitles:@"About", @"Tell a friend", @"Rate the app", @"Accuracy tips", @"Tutorial video", @"Preferences", nil];
+                                         otherButtonTitles:@"About", @"Share app", @"Rate the app", @"Accuracy tips", @"Tutorial video", @"Preferences", nil];
     }
     
     // Show the sheet

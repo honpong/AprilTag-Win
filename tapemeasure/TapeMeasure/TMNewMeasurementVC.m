@@ -78,7 +78,7 @@ static statesetup setups[] =
     { ST_INITIALIZING,  ICON_GREEN,   true,   true,   false,  true,   true,   true,   false,  true,    true,   true,   "Initializing", "Hold the device steady.", false},
     { ST_MEASURE,       ICON_GREEN,   true,   true,   true,   true,   true,   true,   true,   false,   true,   false,  "Measuring",    "Go! Move the device to the end of your measurement, and tap the screen to finish.", false },
     { ST_FINISHED,      ICON_GREEN,   false,  false,  false,  true,   true,   true,   true,   false,   false,  false,  "",             "", false },
-    { ST_VISIONFAIL,    ICON_RED,     false,  true,   false,  true,   true,   true,   true,   false,   false,  false,  "Try again",    "Sorry, the camera can't see well enough to measure right now. Try to keep some blue dots in sight, and make sure the area is well lit.", false },
+    { ST_VISIONFAIL,    ICON_RED,     false,  true,   false,  true,   true,   true,   false,  false,   false,  false,  "Try again",    "The camera can't see well enough to measure. Try again with the camera pointed in a different direction.", false },
     { ST_FASTFAIL,      ICON_RED,     false,  true,   false,  true,   true,   true,   true,   false,   false,  false,  "Try again",    "Sorry, that didn't work. For best results, move at a normal walking pace.", false },
     { ST_FAIL,          ICON_RED,     false,  true,   false,  true,   true,   true,   true,   false,   false,  false,  "Try again",    "Sorry, we need to try that again.", false },
 };
@@ -88,7 +88,7 @@ static transition transitions[] =
     { ST_STARTUP, EV_RESUME, ST_READY },
     { ST_READY, EV_TAP, ST_INITIALIZING },
     { ST_INITIALIZING, EV_INITIALIZED, ST_MEASURE },
-//    { ST_INITIALIZING, EV_VISIONFAIL, ST_VISIONFAIL }, // don't quit on vision failure
+    { ST_INITIALIZING, EV_VISIONFAIL, ST_VISIONFAIL }, // don't quit on vision failure
     { ST_MEASURE, EV_TAP, ST_FINISHED },
     { ST_MEASURE, EV_FASTFAIL, ST_FASTFAIL },
     { ST_MEASURE, EV_FAIL, ST_FAIL },

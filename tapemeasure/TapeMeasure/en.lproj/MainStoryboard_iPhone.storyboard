@@ -423,6 +423,11 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="G1l-6K-EDv" userLabel="BlackBackground">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                            </view>
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" userInteractionEnabled="NO" contentMode="scaleToFill" mapType="satellite" zoomEnabled="NO" rotateEnabled="NO" pitchEnabled="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Bpd-x4-0TH">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -522,14 +527,18 @@
                                 </constraints>
                             </view>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstItem="G1l-6K-EDv" firstAttribute="leading" secondItem="JJL-tD-eC3" secondAttribute="leading" id="9lG-KC-L9t"/>
                             <constraint firstItem="Bpd-x4-0TH" firstAttribute="leading" secondItem="JJL-tD-eC3" secondAttribute="leading" id="BnG-O6-FlE"/>
                             <constraint firstAttribute="trailing" secondItem="LwA-BK-iQF" secondAttribute="trailing" id="Dx6-Zr-pwZ"/>
                             <constraint firstItem="0c9-cu-gKx" firstAttribute="top" secondItem="Bpd-x4-0TH" secondAttribute="bottom" id="FzR-2b-qNx"/>
+                            <constraint firstAttribute="trailing" secondItem="G1l-6K-EDv" secondAttribute="trailing" id="KdG-Vo-mSE"/>
+                            <constraint firstItem="G1l-6K-EDv" firstAttribute="top" secondItem="JJL-tD-eC3" secondAttribute="top" id="USE-Jp-4Vr"/>
                             <constraint firstItem="0c9-cu-gKx" firstAttribute="top" secondItem="LwA-BK-iQF" secondAttribute="bottom" id="VZQ-y1-UxH"/>
                             <constraint firstItem="LwA-BK-iQF" firstAttribute="top" secondItem="JJL-tD-eC3" secondAttribute="top" id="bRC-9r-dzD"/>
                             <constraint firstItem="LwA-BK-iQF" firstAttribute="leading" secondItem="JJL-tD-eC3" secondAttribute="leading" id="bdx-fS-2db"/>
+                            <constraint firstItem="0c9-cu-gKx" firstAttribute="top" secondItem="G1l-6K-EDv" secondAttribute="bottom" id="jVC-k4-FhA"/>
                             <constraint firstAttribute="trailing" secondItem="Bpd-x4-0TH" secondAttribute="trailing" id="ooe-TB-0tM"/>
                             <constraint firstItem="Bpd-x4-0TH" firstAttribute="top" secondItem="JJL-tD-eC3" secondAttribute="top" id="qUF-k1-mbJ"/>
                         </constraints>

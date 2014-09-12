@@ -197,6 +197,7 @@
                         <subviews>
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="ycS-OD-txX">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="504"/>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                             </mapView>
                             <view alpha="0.69999999999999996" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Dln-Xm-jBF" userLabel="TextFieldBackground">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="59"/>
@@ -266,7 +267,7 @@
                                 </connections>
                             </button>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="ycS-OD-txX" firstAttribute="top" secondItem="08J-KQ-DOx" secondAttribute="bottom" id="1CR-B2-j32"/>
                             <constraint firstItem="3vq-Zf-5wZ" firstAttribute="leading" secondItem="9OL-Am-pyX" secondAttribute="leading" constant="-1" id="3v9-9E-TcO"/>
@@ -1489,6 +1490,11 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xc1-6i-dsx" userLabel="BlackBackground">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                            </view>
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" userInteractionEnabled="NO" contentMode="scaleToFill" mapType="satellite" zoomEnabled="NO" rotateEnabled="NO" pitchEnabled="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4Xi-XX-tjD">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -1590,12 +1596,16 @@
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
+                            <constraint firstAttribute="trailing" secondItem="xc1-6i-dsx" secondAttribute="trailing" id="1kB-qQ-NRm"/>
+                            <constraint firstItem="0NT-Ex-21M" firstAttribute="top" secondItem="xc1-6i-dsx" secondAttribute="bottom" id="BHZ-fP-9b2"/>
                             <constraint firstAttribute="trailing" secondItem="eZq-1a-q86" secondAttribute="trailing" id="LAD-ct-PHX"/>
                             <constraint firstItem="eZq-1a-q86" firstAttribute="top" secondItem="Pa3-7E-X19" secondAttribute="top" id="NNg-NM-nrI"/>
+                            <constraint firstItem="xc1-6i-dsx" firstAttribute="top" secondItem="Pa3-7E-X19" secondAttribute="top" id="QDp-vd-Yge"/>
                             <constraint firstItem="4Xi-XX-tjD" firstAttribute="leading" secondItem="Pa3-7E-X19" secondAttribute="leading" id="QzL-2f-hwt"/>
                             <constraint firstItem="eZq-1a-q86" firstAttribute="leading" secondItem="Pa3-7E-X19" secondAttribute="leading" id="R5A-cg-IXi"/>
                             <constraint firstItem="0NT-Ex-21M" firstAttribute="top" secondItem="4Xi-XX-tjD" secondAttribute="bottom" id="ULe-bn-nVs"/>
                             <constraint firstItem="0NT-Ex-21M" firstAttribute="top" secondItem="eZq-1a-q86" secondAttribute="bottom" id="UxC-Br-29Q"/>
+                            <constraint firstItem="xc1-6i-dsx" firstAttribute="leading" secondItem="Pa3-7E-X19" secondAttribute="leading" id="cRl-9z-DXG"/>
                             <constraint firstAttribute="trailing" secondItem="4Xi-XX-tjD" secondAttribute="trailing" id="l9G-1s-izy"/>
                             <constraint firstItem="4Xi-XX-tjD" firstAttribute="top" secondItem="Pa3-7E-X19" secondAttribute="top" id="qKb-sB-VKJ"/>
                         </constraints>
@@ -1618,7 +1628,7 @@
     <resources>
         <image name="ComposeSheetLocationArrow.png" width="21" height="21"/>
         <image name="Menu Icon" width="17" height="17"/>
-        <image name="Pin.png" width="32" height="39"/>
+        <image name="Pin.png" width="1920" height="1080"/>
         <image name="PlayButton" width="70" height="70"/>
         <image name="TotalPath" width="120" height="120"/>
         <image name="golden_gate.jpg" width="1955" height="3202"/>

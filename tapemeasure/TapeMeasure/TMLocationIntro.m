@@ -11,8 +11,8 @@
 #import "RCCalibration1.h"
 @import CoreLocation;
 
-const CLLocationDegrees latitude = 35.;
-const CLLocationDegrees startingLongitude = 43.;
+static const CLLocationDegrees latitude = 35.;
+static const CLLocationDegrees startingLongitude = 43.;
 
 @interface TMLocationIntro ()
 
@@ -24,16 +24,15 @@ const CLLocationDegrees startingLongitude = 43.;
     NSString* originalNextButtonText;
     NSString* originalLaterButtonText;
     NSString* originalNeverButtonText;
+    
+    NSTimer* mapTimer;
 }
 
 - (id) initWithCoder:(NSCoder *)aDecoder
 {
     if (self = [super initWithCoder:aDecoder])
     {
-        [[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(handleResume)
-                                                     name:UIApplicationDidBecomeActiveNotification
-                                                   object:nil];
+        
     }
     return self;
 }
@@ -53,22 +52,49 @@ const CLLocationDegrees startingLongitude = 43.;
     originalLaterButtonText = self.laterButton.titleLabel.text;
     originalNeverButtonText = self.neverButton.titleLabel.text;
     
-    [self.mapView setVisibleMapRect:MKMapRectWorld animated:NO];
-    [self.mapView setCenterCoordinate:CLLocationCoordinate2DMake(latitude, startingLongitude) animated:NO];
-    
     [self setIntroText];
+    
+    self.mapView.alpha = 0;
 }
 
 - (void) viewDidAppear:(BOOL)animated
 {
     [TMAnalytics logEvent:@"View.LocationIntro"];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handleResume)
+                                                 name:UIApplicationDidBecomeActiveNotification
+                                               object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handlePause)
+                                                 name:UIApplicationWillResignActiveNotification
+                                               object:nil];
+    
     [self setIntroText];
-    [self animateMap];
+    
+    [self.mapView setVisibleMapRect:MKMapRectWorld animated:NO];
+    CLLocationCoordinate2D center = CLLocationCoordinate2DMake(latitude, startingLongitude);
+    [self.mapView setCenterCoordinate:center animated:YES];
+    [self.mapView fadeInWithDuration:.5 andWait:0];
+    [self startMapAnimation];
+}
+
+- (void) viewWillDisappear:(BOOL)animated
+{
+    [self stopMapAnimation];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void) handleResume
 {
     [self setIntroText];
+    [self startMapAnimation];
+}
+
+- (void) handlePause
+{
+    [self stopMapAnimation];
 }
 
 - (IBAction) handleNextButton:(id)sender
@@ -133,24 +159,27 @@ const CLLocationDegrees startingLongitude = 43.;
     [self.introLabel sizeToFit];
 }
 
-- (void) animateMap
+- (void) startMapAnimation
 {
-    __block CLLocationDegrees longitude = self.mapView.centerCoordinate.longitude;
+    mapTimer = [NSTimer timerWithTimeInterval:0.0333 target:self selector:@selector(moveMap) userInfo:nil repeats:YES];
     
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-        while (true)
-        {
-            __block CLLocationCoordinate2D center = CLLocationCoordinate2DMake(latitude, longitude);
-            dispatch_sync(dispatch_get_main_queue(), ^{
-                [self.mapView setCenterCoordinate:center animated:NO];
-            });
-            
-            longitude = longitude + .1;
-            if (longitude >= 180.) longitude = -180.;
-            
-            [NSThread sleepForTimeInterval:0.0333];
-        }
-    });
+    [[NSRunLoop mainRunLoop] addTimer:mapTimer forMode:NSDefaultRunLoopMode];
+}
+
+- (void) moveMap
+{
+    CLLocationDegrees longitude = self.mapView.centerCoordinate.longitude;
+    longitude = longitude + .1;
+    if (longitude >= 180.) longitude = -180.;
+    
+    CLLocationCoordinate2D center = CLLocationCoordinate2DMake(latitude, longitude);
+    
+    [self.mapView setCenterCoordinate:center animated:NO];
+}
+
+- (void) stopMapAnimation
+{
+    [mapTimer invalidate];
 }
 
 - (void) gotoNextScreen

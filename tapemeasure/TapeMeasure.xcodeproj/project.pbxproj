@@ -11,7 +11,6 @@
 		32011D13191D96EA00F17327 /* TMAboutView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32011D12191D96EA00F17327 /* TMAboutView.m */; };
 		32011D16191D97E500F17327 /* TMTipsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32011D15191D97E500F17327 /* TMTipsView.m */; };
 		320992711706402D0078C992 /* TMViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32808D63170396E200BE7CBC /* TMViewController.m */; };
-		320F9F8719A6A65000CF43B6 /* EndlessTapeMeasure.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 320F9F8619A6A65000CF43B6 /* EndlessTapeMeasure.mp4 */; };
 		320F9F8D19A6A8C300CF43B6 /* TMLocalMoviePlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 320F9F8C19A6A8C300CF43B6 /* TMLocalMoviePlayer.m */; };
 		3232AAA116D2C1FF007101EA /* TMMeasurement+TMMeasurementSync.m in Sources */ = {isa = PBXBuildFile; fileRef = 3232AAA016D2C1FF007101EA /* TMMeasurement+TMMeasurementSync.m */; };
 		3233C7AF16F3B9D700129B99 /* TMAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 3233C7AE16F3B9D700129B99 /* TMAnalytics.m */; };
@@ -24,6 +23,7 @@
 		32590C8216781EEC00E2BA1C /* MapKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32590C8116781EEC00E2BA1C /* MapKit.framework */; };
 		32590C8316781F4000E2BA1C /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32C87C4416779B2F006ED337 /* CoreLocation.framework */; };
 		325FC8BB16D6F7CF003A00BE /* TMLoginVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 325FC8BA16D6F7CF003A00BE /* TMLoginVC.m */; };
+		3265479819C3669500A89749 /* Tutorial.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 3265479719C3669500A89749 /* Tutorial.mp4 */; };
 		326E47D116FA31C2007AA105 /* MainStoryboard_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3280F7FB161BBB3200B5C8A8 /* MainStoryboard_iPhone.storyboard */; };
 		326E47D216FA31CE007AA105 /* TMNewMeasurementVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 3280F802161BBB3200B5C8A8 /* TMNewMeasurementVC.m */; };
 		326E47D316FA5DFD007AA105 /* TMAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 3233C7AE16F3B9D700129B99 /* TMAnalytics.m */; };
@@ -372,7 +372,6 @@
 		32011D15191D97E500F17327 /* TMTipsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMTipsView.m; sourceTree = "<group>"; };
 		3209926E17063F080078C992 /* TMNewMeasurementVCSyncTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMNewMeasurementVCSyncTests.h; sourceTree = "<group>"; };
 		3209926F17063F080078C992 /* TMNewMeasurementVCSyncTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMNewMeasurementVCSyncTests.m; sourceTree = "<group>"; };
-		320F9F8619A6A65000CF43B6 /* EndlessTapeMeasure.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = EndlessTapeMeasure.mp4; sourceTree = "<group>"; };
 		320F9F8B19A6A8C300CF43B6 /* TMLocalMoviePlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMLocalMoviePlayer.h; sourceTree = "<group>"; };
 		320F9F8C19A6A8C300CF43B6 /* TMLocalMoviePlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMLocalMoviePlayer.m; sourceTree = "<group>"; };
 		3232AA9F16D2C1FF007101EA /* TMMeasurement+TMMeasurementSync.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TMMeasurement+TMMeasurementSync.h"; sourceTree = "<group>"; };
@@ -389,6 +388,7 @@
 		32590C8116781EEC00E2BA1C /* MapKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MapKit.framework; path = System/Library/Frameworks/MapKit.framework; sourceTree = SDKROOT; };
 		325FC8B916D6F7CF003A00BE /* TMLoginVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMLoginVC.h; sourceTree = "<group>"; };
 		325FC8BA16D6F7CF003A00BE /* TMLoginVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMLoginVC.m; sourceTree = "<group>"; };
+		3265479719C3669500A89749 /* Tutorial.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = Tutorial.mp4; sourceTree = "<group>"; };
 		326E47CC16FA2EB0007AA105 /* TMNewMeasurementVCAsyncTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMNewMeasurementVCAsyncTests.h; sourceTree = "<group>"; };
 		326E47CD16FA2EB0007AA105 /* TMNewMeasurementVCAsyncTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMNewMeasurementVCAsyncTests.m; sourceTree = "<group>"; };
 		3273BCB3170BA81F00FF0F6A /* TMMeasurementType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurementType.h; sourceTree = "<group>"; };
@@ -1039,9 +1039,9 @@
 		32AB3B1F19B7B87000C9BAF0 /* Media */ = {
 			isa = PBXGroup;
 			children = (
+				3265479719C3669500A89749 /* Tutorial.mp4 */,
 				32AB3B1C19B7B86700C9BAF0 /* tutorial_screenshot.jpg */,
 				32C210BF19B63433007FF050 /* golden_gate.jpg */,
-				320F9F8619A6A65000CF43B6 /* EndlessTapeMeasure.mp4 */,
 			);
 			name = Media;
 			sourceTree = "<group>";
@@ -1711,7 +1711,6 @@
 				32E6877618F617160043D50A /* osk-iap-badge-60.png in Resources */,
 				32E687AD18F617160043D50A /* ReadingList-Icon-60.png in Resources */,
 				32E6875D18F617160043D50A /* Omnifocus-Icon-72@2x.png in Resources */,
-				320F9F8719A6A65000CF43B6 /* EndlessTapeMeasure.mp4 in Resources */,
 				32E6878B18F617160043D50A /* osk-navbarButton-highlighted@2x.png in Resources */,
 				32E6876218F617160043D50A /* osk-appDotNetIcon-29@2x.png in Resources */,
 				324EC50818E3ADB900D47E0D /* MainStoryboard_iPad.storyboard in Resources */,
@@ -1734,6 +1733,7 @@
 				32E6879F18F617160043D50A /* osk-twitterIcon-60@2x.png in Resources */,
 				32E6876D18F617160043D50A /* osk-copyIcon-yellow-60@2x.png in Resources */,
 				32E6878E18F617160043D50A /* osk-photosIcon-60@2x.png in Resources */,
+				3265479819C3669500A89749 /* Tutorial.mp4 in Resources */,
 				32E6876E18F617160043D50A /* osk-copyIcon-yellow-76.png in Resources */,
 				32E687CA18F617160043D50A /* OSKActivityCollectionViewCell_Pad.xib in Resources */,
 				32E6875018F617160043D50A /* GooglePlus-Icon-60@2x.png in Resources */,

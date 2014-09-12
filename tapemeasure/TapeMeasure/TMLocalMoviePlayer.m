@@ -27,7 +27,7 @@
 {
     [super viewDidLoad];
     
-    NSURL *movieURL = [[NSBundle mainBundle] URLForResource:@"EndlessTapeMeasure" withExtension:@"mp4"];
+    NSURL *movieURL = [[NSBundle mainBundle] URLForResource:@"Tutorial" withExtension:@"mp4"];
     
     _moviePlayer =  [[MPMoviePlayerController alloc] initWithContentURL:movieURL];
     self.moviePlayer.controlStyle = MPMovieControlStyleEmbedded;

@@ -1642,7 +1642,7 @@
         <image name="Pin.png" width="32" height="39"/>
         <image name="PlayButton" width="70" height="70"/>
         <image name="TotalPath.png" width="120" height="120"/>
-        <image name="golden_gate.jpg" width="1955" height="3202"/>
+        <image name="golden_gate.jpg" width="1536" height="2516"/>
         <image name="tutorial_screenshot.jpg" width="1920" height="1080"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">

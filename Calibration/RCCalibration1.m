@@ -34,16 +34,6 @@
 {
     [super viewDidLoad];
     
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(handlePause)
-                                                 name:UIApplicationWillResignActiveNotification
-                                               object:nil];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(handleResume)
-                                                 name:UIApplicationDidBecomeActiveNotification
-                                               object:nil];
-    
     sensorFusion = [RCSensorFusion sharedInstance];
     sensorFusion.delegate = self;
     currentRunState = RCSensorFusionRunStateInactive;
@@ -63,13 +53,30 @@
     if ([self.calibrationDelegate respondsToSelector:@selector(calibrationScreenDidAppear:)])
         [self.calibrationDelegate calibrationScreenDidAppear: @"Calibration1"];
     [super viewDidAppear:animated];
-    [self startCalibration];
+
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handlePause)
+                                                 name:UIApplicationWillResignActiveNotification
+                                               object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handleResume)
+                                                 name:UIApplicationDidBecomeActiveNotification
+                                               object:nil];
+    
+    [self handleResume];
 }
 
 - (void) viewWillDisappear:(BOOL)animated
 {
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:UIApplicationWillResignActiveNotification
+                                                  object:nil];
+    
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:UIApplicationDidBecomeActiveNotification
+                                                  object:nil];
     [super viewWillDisappear:animated];
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 - (void) handlePause

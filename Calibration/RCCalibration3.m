@@ -21,7 +21,11 @@
 - (void) viewDidLoad
 {
     [super viewDidLoad];
-	   
+    sensorFusion = [RCSensorFusion sharedInstance];
+}
+
+- (void) viewDidAppear:(BOOL)animated
+{
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(handlePause)
                                                  name:UIApplicationWillResignActiveNotification
@@ -31,17 +35,26 @@
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
     
-    sensorFusion = [RCSensorFusion sharedInstance];
-}
-
-- (void) viewDidAppear:(BOOL)animated
-{
+    
     currentProgress = 0.;
     if ([self.calibrationDelegate respondsToSelector:@selector(calibrationScreenDidAppear:)])
         [self.calibrationDelegate calibrationScreenDidAppear: @"Calibration3"];
     [super viewDidAppear:animated];
     [self createProgressViewWithTitle:@"Calibrating"];
     sensorFusion.delegate = self;
+}
+
+- (void) viewWillDisappear:(BOOL)animated
+{
+    LOGME;
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:UIApplicationWillResignActiveNotification
+                                                  object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:UIApplicationDidBecomeActiveNotification
+                                                  object:nil];
+    
+    [super viewWillDisappear:animated];
 }
 
 - (NSUInteger) supportedInterfaceOrientations
@@ -56,12 +69,18 @@
 
 - (void) handleResume
 {
-    //TODO: go to calibration screen 1
     [self.presentingViewController.presentingViewController dismissViewControllerAnimated:NO completion:nil];
 }
 
 - (void) gotoNextScreen
 {
+    //viewWillDisappear does not seem to get called in this case
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:UIApplicationWillResignActiveNotification
+                                                  object:nil];
+    [[NSNotificationCenter defaultCenter] removeObserver:self
+                                                    name:UIApplicationDidBecomeActiveNotification
+                                                  object:nil];
     if ([self.calibrationDelegate respondsToSelector:@selector(calibrationDidFinish)]) [self.calibrationDelegate calibrationDidFinish];
 }
 

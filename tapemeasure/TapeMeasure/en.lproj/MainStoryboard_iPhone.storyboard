@@ -20,7 +20,7 @@
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </imageView>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Super short tutorial video" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="V4O-BD-OXY">
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Short tutorial video" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="V4O-BD-OXY">
                                 <rect key="frame" x="20" y="527" width="280" height="21"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <constraints>
@@ -63,10 +63,11 @@
                                 </connections>
                             </button>
                             <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Wri-lv-2aw">
-                                <rect key="frame" x="110" y="239" width="100" height="40"/>
+                                <rect key="frame" x="60" y="234" width="200" height="40"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" red="0.0" green="0.50196081400000003" blue="1" alpha="0.69999999999999996" colorSpace="calibratedRGB"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="100" id="2mB-fO-DX4"/>
+                                    <constraint firstAttribute="width" constant="200" id="2mB-fO-DX4"/>
                                     <constraint firstAttribute="height" constant="40" id="Iid-uP-l18"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
@@ -75,13 +76,19 @@
                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                     <color key="titleShadowColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                        <integer key="value" value="10"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
                                 <connections>
                                     <action selector="handlePlayAgainButton:" destination="aiy-SX-bT1" eventType="touchUpInside" id="VCd-gg-LaA"/>
                                 </connections>
                             </button>
                             <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fm1-2W-yMD">
-                                <rect key="frame" x="60" y="289" width="200" height="40"/>
+                                <rect key="frame" x="60" y="294" width="200" height="40"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" red="0.0" green="0.50196081400000003" blue="1" alpha="0.69999999999999996" colorSpace="calibratedRGB"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="40" id="0pt-tz-zFs"/>
                                     <constraint firstAttribute="width" constant="200" id="xR4-Ok-Fcg"/>
@@ -92,6 +99,11 @@
                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                     <color key="titleShadowColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                        <integer key="value" value="10"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
                                 <connections>
                                     <action selector="handleContinueButton:" destination="aiy-SX-bT1" eventType="touchUpInside" id="yFI-ju-dPt"/>
                                 </connections>
@@ -103,7 +115,7 @@
                             <constraint firstAttribute="trailing" secondItem="V4O-BD-OXY" secondAttribute="trailing" constant="20" id="8ad-GN-j03"/>
                             <constraint firstItem="fm1-2W-yMD" firstAttribute="centerX" secondItem="Ped-22-htI" secondAttribute="centerX" id="A7S-JP-8vU"/>
                             <constraint firstItem="Zyg-6t-kbY" firstAttribute="top" secondItem="AGW-nP-B8C" secondAttribute="bottom" id="EWR-EF-nLV"/>
-                            <constraint firstItem="fm1-2W-yMD" firstAttribute="bottom" secondItem="Ped-22-htI" secondAttribute="bottom" constant="10" id="Ehm-4N-kqv"/>
+                            <constraint firstItem="fm1-2W-yMD" firstAttribute="bottom" secondItem="Ped-22-htI" secondAttribute="bottom" constant="15" id="Ehm-4N-kqv"/>
                             <constraint firstAttribute="trailing" secondItem="rmF-9t-HcF" secondAttribute="trailing" constant="20" id="JTt-gd-c2a"/>
                             <constraint firstAttribute="centerX" secondItem="Ped-22-htI" secondAttribute="centerX" id="Kh5-8z-b1A"/>
                             <constraint firstAttribute="centerY" secondItem="Ped-22-htI" secondAttribute="centerY" id="MJJ-0M-WcX"/>
@@ -111,7 +123,7 @@
                             <constraint firstItem="AGW-nP-B8C" firstAttribute="leading" secondItem="hGK-qc-tQm" secondAttribute="leading" id="QXb-wP-QyE"/>
                             <constraint firstAttribute="trailing" secondItem="AGW-nP-B8C" secondAttribute="trailing" id="USh-07-jXj"/>
                             <constraint firstItem="V4O-BD-OXY" firstAttribute="leading" secondItem="hGK-qc-tQm" secondAttribute="leading" constant="20" id="XfQ-Ec-QYJ"/>
-                            <constraint firstItem="Wri-lv-2aw" firstAttribute="top" secondItem="Ped-22-htI" secondAttribute="top" constant="-10" id="YxM-z8-sbu"/>
+                            <constraint firstItem="Wri-lv-2aw" firstAttribute="top" secondItem="Ped-22-htI" secondAttribute="top" constant="-15" id="YxM-z8-sbu"/>
                             <constraint firstItem="AGW-nP-B8C" firstAttribute="top" secondItem="hGK-qc-tQm" secondAttribute="top" id="fIj-oL-gC7"/>
                             <constraint firstItem="Zyg-6t-kbY" firstAttribute="top" secondItem="V4O-BD-OXY" secondAttribute="bottom" constant="20" id="fbH-MQ-Dub"/>
                         </constraints>
@@ -1622,7 +1634,7 @@
         <image name="PlayButton" width="70" height="70"/>
         <image name="TotalPath.png" width="120" height="120"/>
         <image name="golden_gate.jpg" width="1955" height="3202"/>
-        <image name="tutorial_screenshot.jpg" width="1279" height="720"/>
+        <image name="tutorial_screenshot.jpg" width="1920" height="1080"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>

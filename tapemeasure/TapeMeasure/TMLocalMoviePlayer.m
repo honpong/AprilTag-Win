@@ -30,7 +30,7 @@
     NSURL *movieURL = [[NSBundle mainBundle] URLForResource:@"EndlessTapeMeasure" withExtension:@"mp4"];
     
     _moviePlayer =  [[MPMoviePlayerController alloc] initWithContentURL:movieURL];
-    self.moviePlayer.controlStyle = MPMovieControlStyleNone;
+    self.moviePlayer.controlStyle = MPMovieControlStyleEmbedded;
     self.moviePlayer.shouldAutoplay = NO;
     [self.view addSubview:self.moviePlayer.view];
     [self.view bringSubviewToFront:self.moviePlayer.view];

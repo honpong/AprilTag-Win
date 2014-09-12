@@ -1357,7 +1357,7 @@
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                             </imageView>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Super short tutorial video" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="VG3-Bu-E6c">
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Short tutorial video" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="VG3-Bu-E6c">
                                 <rect key="frame" x="20" y="527" width="280" height="21"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <constraints>
@@ -1400,35 +1400,47 @@
                                 </connections>
                             </button>
                             <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="L5d-bc-v4s">
-                                <rect key="frame" x="110" y="239" width="100" height="40"/>
+                                <rect key="frame" x="40" y="219" width="240" height="50"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" red="0.0" green="0.50196081400000003" blue="1" alpha="0.70000000000000007" colorSpace="calibratedRGB"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="40" id="Jqg-F1-Cd2"/>
-                                    <constraint firstAttribute="width" constant="100" id="p3C-bx-cL0"/>
+                                    <constraint firstAttribute="height" constant="50" id="Jqg-F1-Cd2"/>
+                                    <constraint firstAttribute="width" constant="240" id="p3C-bx-cL0"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="24"/>
                                 <size key="titleShadowOffset" width="1" height="1"/>
                                 <state key="normal" title="Play Again">
                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                     <color key="titleShadowColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                        <integer key="value" value="10"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
                                 <connections>
                                     <action selector="handlePlayAgainButton:" destination="UOq-PZ-54W" eventType="touchUpInside" id="GXm-3a-uVZ"/>
                                 </connections>
                             </button>
                             <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rep-UD-Xtx">
-                                <rect key="frame" x="60" y="289" width="200" height="40"/>
+                                <rect key="frame" x="40" y="299" width="240" height="50"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" red="0.0" green="0.50196081400000003" blue="1" alpha="0.69999999999999996" colorSpace="calibratedRGB"/>
                                 <constraints>
-                                    <constraint firstAttribute="height" constant="40" id="gNE-ID-Jkw"/>
-                                    <constraint firstAttribute="width" constant="200" id="sL6-bP-jYQ"/>
+                                    <constraint firstAttribute="height" constant="50" id="gNE-ID-Jkw"/>
+                                    <constraint firstAttribute="width" constant="240" id="sL6-bP-jYQ"/>
                                 </constraints>
-                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="24"/>
                                 <size key="titleShadowOffset" width="1" height="1"/>
                                 <state key="normal" title="Take a measurement">
                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                     <color key="titleShadowColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                        <integer key="value" value="10"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
                                 <connections>
                                     <action selector="handleContinueButton:" destination="UOq-PZ-54W" eventType="touchUpInside" id="WpM-tC-F7G"/>
                                 </connections>
@@ -1437,12 +1449,12 @@
                         <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="L5d-bc-v4s" firstAttribute="centerX" secondItem="rep-UD-Xtx" secondAttribute="centerX" id="0NQ-2b-uYN"/>
-                            <constraint firstItem="L5d-bc-v4s" firstAttribute="top" secondItem="8kb-9Q-OQA" secondAttribute="top" constant="-10" id="FyL-JH-WTs"/>
+                            <constraint firstItem="L5d-bc-v4s" firstAttribute="top" secondItem="8kb-9Q-OQA" secondAttribute="top" constant="-30" id="FyL-JH-WTs"/>
                             <constraint firstAttribute="trailing" secondItem="hd0-9q-9UB" secondAttribute="trailing" id="KTW-jr-pV6"/>
                             <constraint firstItem="fCP-1u-ipv" firstAttribute="top" secondItem="ee8-Ae-NuD" secondAttribute="top" constant="20" symbolic="YES" id="MUL-g7-o97"/>
                             <constraint firstItem="VG3-Bu-E6c" firstAttribute="leading" secondItem="ee8-Ae-NuD" secondAttribute="leading" constant="20" id="QLf-vh-Slj"/>
                             <constraint firstItem="hd0-9q-9UB" firstAttribute="top" secondItem="ee8-Ae-NuD" secondAttribute="top" id="TVn-mT-7kj"/>
-                            <constraint firstItem="rep-UD-Xtx" firstAttribute="bottom" secondItem="8kb-9Q-OQA" secondAttribute="bottom" constant="10" id="UZp-lU-a4f"/>
+                            <constraint firstItem="rep-UD-Xtx" firstAttribute="bottom" secondItem="8kb-9Q-OQA" secondAttribute="bottom" constant="30" id="UZp-lU-a4f"/>
                             <constraint firstItem="rep-UD-Xtx" firstAttribute="centerX" secondItem="8kb-9Q-OQA" secondAttribute="centerX" id="Unu-k2-eAR"/>
                             <constraint firstAttribute="centerX" secondItem="8kb-9Q-OQA" secondAttribute="centerX" id="WVu-CP-rPh"/>
                             <constraint firstItem="3xk-zM-Sqk" firstAttribute="top" secondItem="VG3-Bu-E6c" secondAttribute="bottom" constant="20" id="YBA-Mv-sZH"/>
@@ -1610,7 +1622,7 @@
         <image name="PlayButton" width="70" height="70"/>
         <image name="TotalPath" width="120" height="120"/>
         <image name="golden_gate.jpg" width="1955" height="3202"/>
-        <image name="tutorial_screenshot.jpg" width="1279" height="720"/>
+        <image name="tutorial_screenshot.jpg" width="1920" height="1080"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>

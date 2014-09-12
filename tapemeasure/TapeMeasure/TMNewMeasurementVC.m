@@ -206,7 +206,7 @@ static transition transitions[] =
     tapGesture.numberOfTapsRequired = 1;
     [self.arView addGestureRecognizer:tapGesture];
     
-    self.distanceLabel.centerAlignmentExcludesFraction = YES;
+    if (newMeasurement.units == UnitsImperial) self.distanceLabel.centerAlignmentExcludesFraction = YES;
     
     [[sensorDelegate getVideoProvider] setDelegate:self.arView.videoView];
     

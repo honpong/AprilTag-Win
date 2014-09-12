@@ -9,9 +9,12 @@
 
 @implementation RCTranslation
 
+//TODO: Can we use vsqrtf?
 - (RCPoint *)transformPoint:(RCPoint *)point
 {
-    vFloat stdSum = vsqrtf(point.standardDeviation * point.standardDeviation + self.standardDeviation * self.standardDeviation);
+    //vFloat stdSum = vsqrtf(point.standardDeviation * point.standardDeviation + self.standardDeviation * self.standardDeviation);
+    vFloat sumprod = point.standardDeviation * point.standardDeviation + self.standardDeviation + self.standardDeviation;
+    vFloat stdSum = (vFloat) { sqrtf(sumprod[0]), sqrtf(sumprod[1]), sqrtf(sumprod[2]), 0. };
     return [[RCPoint alloc] initWithVector:point.vector + self.vector withStandardDeviation:stdSum];
 }
 
@@ -32,15 +35,19 @@
 
 - (RCTranslation *)composeWithTranslation:(RCTranslation *)other
 {
-    vFloat stdSum = vsqrtf(other.standardDeviation * other.standardDeviation + self.standardDeviation * self.standardDeviation);
+    //vFloat stdSum = vsqrtf(other.standardDeviation * other.standardDeviation + self.standardDeviation * self.standardDeviation);
+    vFloat sumprod = other.standardDeviation * other.standardDeviation + self.standardDeviation + self.standardDeviation;
+    vFloat stdSum = (vFloat) { sqrtf(sumprod[0]), sqrtf(sumprod[1]), sqrtf(sumprod[2]), 0. };
     return [[RCTranslation alloc] initWithVector:other.vector + self.vector withStandardDeviation:stdSum];
 }
 
 + (RCTranslation *)translationFromPoint:(RCPoint *)fromPoint toPoint:(RCPoint *)toPoint
 {
     vFloat trans = toPoint.vector - fromPoint.vector;
-    vFloat stdev = vsqrtf(toPoint.standardDeviation * toPoint.standardDeviation + fromPoint.standardDeviation * fromPoint.standardDeviation);
-    return [[RCTranslation alloc] initWithVector:trans withStandardDeviation:stdev];
+    //vFloat stdSum = vsqrtf(toPoint.standardDeviation * toPoint.standardDeviation + fromPoint.standardDeviation * fromPoint.standardDeviation);
+    vFloat sumprod = toPoint.standardDeviation * toPoint.standardDeviation + fromPoint.standardDeviation + fromPoint.standardDeviation;
+    vFloat stdSum = (vFloat) { sqrtf(sumprod[0]), sqrtf(sumprod[1]), sqrtf(sumprod[2]), 0. };
+    return [[RCTranslation alloc] initWithVector:trans withStandardDeviation:stdSum];
 }
 
 @end

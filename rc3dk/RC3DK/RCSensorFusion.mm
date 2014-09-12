@@ -271,7 +271,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
 {
     while([dataWaiting count]) {
         RCSensorFusionOperation *op = (RCSensorFusionOperation *)dataWaiting[0];
-        if(op.time >= time) break;
+        if(time && op.time >= time) break;
         dispatch_async(queue, op.block);
         [dataWaiting removeObjectAtIndex:0];
     }
@@ -460,10 +460,16 @@ typedef NS_ENUM(int, RCLicenseStatus)
 - (void) flushAndReset
 {
     isSensorFusionRunning = false;
-    [dataWaiting removeAllObjects];
-    dispatch_sync(inputQueue, ^{});
+    dispatch_sync(inputQueue, ^{
+        [self flushOperationsBeforeTime:0];
+    });
     dispatch_sync(queue, ^{
         filter_initialize(&_cor_setup->sfm, _cor_setup->device);
+        if(pixelBufferCached) {
+            CVPixelBufferUnlockBaseAddress(pixelBufferCached, kCVPixelBufferLock_ReadOnly);
+            CVPixelBufferRelease(pixelBufferCached);
+            pixelBufferCached = nil;
+        }
     });
     RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
     [cameraManager releaseVideoDevice];
@@ -661,7 +667,13 @@ typedef NS_ENUM(int, RCLicenseStatus)
         [self flushOperationsBeforeTime:offset_time];
         dispatch_async(queue, ^{
             bool docallback = true;
-            if(isProcessingVideo) {
+            if(!isSensorFusionRunning)
+            {
+                CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
+                CVPixelBufferRelease(pixelBuffer);
+                if (sampleBuffer) CFRelease(sampleBuffer);
+                return;
+            } else if(isProcessingVideo) {
                 docallback = filter_image_measurement(&_cor_setup->sfm, pixel, (int)width, (int)height, (int)stride, offset_time);
             }
             if(docallback) {
@@ -698,6 +710,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
         uint64_t time = accelerationData.timestamp * 1000000;
         [self flushOperationsBeforeTime:time - 40000];
         [self enqueueOperation:[[RCSensorFusionOperation alloc] initWithBlock:^{
+            if(!isSensorFusionRunning) return;
             float data[3];
             //ios gives acceleration in g-units, so multiply by standard gravity in m/s^2
             //it appears that accelerometer axes are flipped
@@ -725,6 +738,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
         uint64_t time = gyroData.timestamp * 1000000;
         [self flushOperationsBeforeTime:time - 40000];
         [self enqueueOperation:[[RCSensorFusionOperation alloc] initWithBlock:^{
+            if(!isSensorFusionRunning) return;
             float data[3];
             data[0] = gyroData.rotationRate.x;
             data[1] = gyroData.rotationRate.y;

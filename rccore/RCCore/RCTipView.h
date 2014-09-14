@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 RealityCap. All rights reserved.
 //
 
-@import UIKit;
+#import <UIKit/UIKit.h>
 
 @protocol RCTipViewDelegate <NSObject>
 

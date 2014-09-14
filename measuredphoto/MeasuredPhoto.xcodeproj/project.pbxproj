@@ -7,23 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		17394FC81982E14F0020DE33 /* rc_measurements.js in Sources */ = {isa = PBXBuildFile; fileRef = 17394FC71982E14F0020DE33 /* rc_measurements.js */; };
-		1743A51B1986F8CF001A5A6A /* rc_menu.js in Sources */ = {isa = PBXBuildFile; fileRef = 1743A51A1986F8CF001A5A6A /* rc_menu.js */; };
 		1743A51E1986F8E1001A5A6A /* rc_menu.js in Resources */ = {isa = PBXBuildFile; fileRef = 1743A51A1986F8CF001A5A6A /* rc_menu.js */; };
-		1768898D195B599100337524 /* main_function.js in Sources */ = {isa = PBXBuildFile; fileRef = 17688982195B599100337524 /* main_function.js */; };
-		1768898E195B599100337524 /* numeric_keypad.js in Sources */ = {isa = PBXBuildFile; fileRef = 17688983195B599100337524 /* numeric_keypad.js */; };
-		1768898F195B599100337524 /* scale_and_rotate.js in Sources */ = {isa = PBXBuildFile; fileRef = 17688984195B599100337524 /* scale_and_rotate.js */; };
-		17688990195B599100337524 /* global_variables.js in Sources */ = {isa = PBXBuildFile; fileRef = 17688985195B599100337524 /* global_variables.js */; };
-		17688991195B599100337524 /* tilt_monitor.js in Sources */ = {isa = PBXBuildFile; fileRef = 17688986195B599100337524 /* tilt_monitor.js */; };
-		17688992195B599100337524 /* web_view_rotation.js in Sources */ = {isa = PBXBuildFile; fileRef = 17688987195B599100337524 /* web_view_rotation.js */; };
-		17688993195B599100337524 /* depth_data.js in Sources */ = {isa = PBXBuildFile; fileRef = 17688988195B599100337524 /* depth_data.js */; };
-		17688994195B599100337524 /* request_animation_frame.js in Sources */ = {isa = PBXBuildFile; fileRef = 17688989195B599100337524 /* request_animation_frame.js */; };
-		17688995195B599100337524 /* svgjs.js in Sources */ = {isa = PBXBuildFile; fileRef = 1768898A195B599100337524 /* svgjs.js */; };
-		17688996195B599100337524 /* svgjs_fornobj.js in Sources */ = {isa = PBXBuildFile; fileRef = 1768898B195B599100337524 /* svgjs_fornobj.js */; };
-		17688997195B599100337524 /* hammer.js in Sources */ = {isa = PBXBuildFile; fileRef = 1768898C195B599100337524 /* hammer.js */; };
 		1768899B195B59F500337524 /* measured_photo_svg.html in Resources */ = {isa = PBXBuildFile; fileRef = 1768899A195B59F500337524 /* measured_photo_svg.html */; };
-		176889A1195B5C2200337524 /* fastclick.js in Sources */ = {isa = PBXBuildFile; fileRef = 1768899F195B5C2200337524 /* fastclick.js */; };
-		17843799198B0B6F004AB248 /* json2.js in Sources */ = {isa = PBXBuildFile; fileRef = 17843798198B0B6F004AB248 /* json2.js */; };
 		1784379C198B0B83004AB248 /* json2.js in Resources */ = {isa = PBXBuildFile; fileRef = 17843798198B0B6F004AB248 /* json2.js */; };
 		17A377BF198307110002CCAA /* rc_measurements.js in Resources */ = {isa = PBXBuildFile; fileRef = 17394FC71982E14F0020DE33 /* rc_measurements.js */; };
 		3201E4D819807F06008F61D5 /* MPEditTitleController.m in Sources */ = {isa = PBXBuildFile; fileRef = 3201E4D719807F06008F61D5 /* MPEditTitleController.m */; };
@@ -158,7 +143,6 @@
 		32EFED8A196E078F00FDC89F /* SBJsonTokeniser.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFED7A196E078F00FDC89F /* SBJsonTokeniser.m */; };
 		32EFED8B196E078F00FDC89F /* SBJsonUTF8Stream.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFED7C196E078F00FDC89F /* SBJsonUTF8Stream.m */; };
 		32EFED8C196E078F00FDC89F /* SBJsonWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFED7E196E078F00FDC89F /* SBJsonWriter.m */; };
-		32EFED95196F37F900FDC89F /* jquery-2.1.1.min.js in Sources */ = {isa = PBXBuildFile; fileRef = 32EFED94196F37F900FDC89F /* jquery-2.1.1.min.js */; };
 		32EFED96196F381C00FDC89F /* jquery-2.1.1.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 32EFED94196F37F900FDC89F /* jquery-2.1.1.min.js */; };
 		32EFEDA31973349B00FDC89F /* MPHttpInterceptor.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFEDA11973349B00FDC89F /* MPHttpInterceptor.m */; };
 		32EFEDA619744A9800FDC89F /* MPNativeAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFEDA519744A9800FDC89F /* MPNativeAction.m */; };
@@ -1566,7 +1550,6 @@
 				324C751E17B4293800C67ED2 /* MPMeasurementsView.m in Sources */,
 				32EFED28196C91CE00FDC89F /* NSRelationshipDescription+MagicalDataImport.m in Sources */,
 				D3F50B0619BA19FD00791303 /* hikmeans.c in Sources */,
-				1768898D195B599100337524 /* main_function.js in Sources */,
 				32EFED24196C91CE00FDC89F /* NSAttributeDescription+MagicalDataImport.m in Sources */,
 				32EFED32196C91CE00FDC89F /* NSManagedObjectContext+MagicalThreading.m in Sources */,
 				32EFED2C196C91CE00FDC89F /* NSManagedObject+MagicalFinders.m in Sources */,
@@ -1586,7 +1569,6 @@
 				32EEC84F17B97D1900A0DF49 /* MPMeasurementView.m in Sources */,
 				32BA42BC17A2DF8B002BAE13 /* MPBaseViewController.m in Sources */,
 				D3F50B2519BA19FD00791303 /* regions-maxprod.cpp in Sources */,
-				1768898F195B599100337524 /* scale_and_rotate.js in Sources */,
 				32EFED8B196E078F00FDC89F /* SBJsonUTF8Stream.m in Sources */,
 				D3F50B1719BA19FD00791303 /* mser.c in Sources */,
 				32EFED30196C91CE00FDC89F /* NSManagedObjectContext+MagicalRecord.m in Sources */,
@@ -1604,14 +1586,10 @@
 				D3F50B0519BA19FD00791303 /* gmm.c in Sources */,
 				32A2104218906439002BD1E4 /* MPView.m in Sources */,
 				D3F50B0F19BA19FD00791303 /* imopv.c in Sources */,
-				1768898E195B599100337524 /* numeric_keypad.js in Sources */,
 				32BA433317A2EF4E002BAE13 /* MPLineLayer.m in Sources */,
-				17688995195B599100337524 /* svgjs.js in Sources */,
-				17688992195B599100337524 /* web_view_rotation.js in Sources */,
 				D3F50B1B19BA19FD00791303 /* rodrigues.c in Sources */,
 				32EFED23196C91CE00FDC89F /* MagicalImportFunctions.m in Sources */,
 				3244D39218E60F4600AB0DE0 /* RCCalibration3.m in Sources */,
-				17688993195B599100337524 /* depth_data.js in Sources */,
 				D3F50B2219BA19FD00791303 /* vlad.c in Sources */,
 				32EFED81196E078F00FDC89F /* NSObject+SBJson.m in Sources */,
 				D3F50B2C19BA19FD00791303 /* LinkedBlockList.cpp in Sources */,
@@ -1619,7 +1597,6 @@
 				32EFED39196C91CE00FDC89F /* MagicalRecord+Options.m in Sources */,
 				3244D39018E60F4600AB0DE0 /* RCCalibration1.m in Sources */,
 				D3F50B0D19BA19FD00791303 /* ikmeans.c in Sources */,
-				32EFED95196F37F900FDC89F /* jquery-2.1.1.min.js in Sources */,
 				32EFED27196C91CE00FDC89F /* NSObject+MagicalDataImport.m in Sources */,
 				32AF89EB18C00A2A00667EA3 /* MPContainerView.m in Sources */,
 				32EFED80196E078F00FDC89F /* GTMNSString+URLArguments.m in Sources */,
@@ -1632,7 +1609,6 @@
 				3244D39118E60F4600AB0DE0 /* RCCalibration2.m in Sources */,
 				322C371418A18AB6001C69C2 /* MPCircleLayerDelegate.m in Sources */,
 				D3F50B1319BA19FD00791303 /* liop.c in Sources */,
-				17394FC81982E14F0020DE33 /* rc_measurements.js in Sources */,
 				D3F50B3319BA19FD00791303 /* stereo_mesh.cpp in Sources */,
 				32745D661892F9E2000C68F4 /* MPCrosshairsLayerDelegate.m in Sources */,
 				D3F50B1F19BA19FD00791303 /* stringop.c in Sources */,
@@ -1640,8 +1616,6 @@
 				D3F50B3119BA19FD00791303 /* stereo.cpp in Sources */,
 				D3F50B2019BA19FD00791303 /* svm.c in Sources */,
 				328824B317C6C7BA0072CF54 /* MPPaddedLabel.m in Sources */,
-				17688990195B599100337524 /* global_variables.js in Sources */,
-				17688991195B599100337524 /* tilt_monitor.js in Sources */,
 				D3F50B1519BA19FD00791303 /* mathop_sse2.c in Sources */,
 				D3F50B1419BA19FD00791303 /* mathop_avx.c in Sources */,
 				D3F50B2919BA19FD00791303 /* mrf.cpp in Sources */,
@@ -1649,7 +1623,6 @@
 				32EFED37196C91CE00FDC89F /* MagicalRecord+ErrorHandling.m in Sources */,
 				3201E4DE19818596008F61D5 /* MPZoomTransition.m in Sources */,
 				32EFED2B196C91CE00FDC89F /* NSManagedObject+MagicalDataImport.m in Sources */,
-				1743A51B1986F8CF001A5A6A /* rc_menu.js in Sources */,
 				D3F50B0219BA19FD00791303 /* fisher.c in Sources */,
 				3201E512198AE939008F61D5 /* MPTintTouchButton.m in Sources */,
 				D3F50B0819BA19FD00791303 /* homkermap.c in Sources */,
@@ -1663,7 +1636,6 @@
 				32745D691892FBCE000C68F4 /* MPLoupe.m in Sources */,
 				32BA433817A2EF69002BAE13 /* MPCapturePhoto.m in Sources */,
 				32C135C91892E6F5004DF62B /* ACMagnifyingGlass.m in Sources */,
-				17843799198B0B6F004AB248 /* json2.js in Sources */,
 				D3F50B2E19BA19FD00791303 /* BP-S.cpp in Sources */,
 				3280BB3D1919B44100338A38 /* MPSurveyAnswer.m in Sources */,
 				D3F50B2819BA19FD00791303 /* MaxProdBP.cpp in Sources */,
@@ -1680,9 +1652,7 @@
 				3201E4DB198184F8008F61D5 /* MPZoomTransitionDelegate.m in Sources */,
 				32C71CA719802F6100947798 /* MPRotatingButton.m in Sources */,
 				325B55E218BD2684009B8B0D /* MPMessageBox.m in Sources */,
-				17688997195B599100337524 /* hammer.js in Sources */,
 				32EFED35196C91CE00FDC89F /* NSPersistentStoreCoordinator+MagicalRecord.m in Sources */,
-				17688996195B599100337524 /* svgjs_fornobj.js in Sources */,
 				32B78F8A19182C93003165C9 /* MPLocalMoviePlayer.m in Sources */,
 				32EFED88196E078F00FDC89F /* SBJsonStreamWriterAccumulator.m in Sources */,
 				D3F50B2119BA19FD00791303 /* svmdataset.c in Sources */,
@@ -1703,14 +1673,12 @@
 				D3EF0A9819BA1FD100512050 /* RCStereo.mm in Sources */,
 				D3F50B0E19BA19FD00791303 /* imopv_sse2.c in Sources */,
 				D3F50B2F19BA19FD00791303 /* camera.cpp in Sources */,
-				176889A1195B5C2200337524 /* fastclick.js in Sources */,
 				3248C7E118A464BF00061D4A /* MPThumbnailButton.m in Sources */,
 				D3F50B1219BA19FD00791303 /* lbp.c in Sources */,
 				32C135CA1892E6F5004DF62B /* ACMagnifyingView.m in Sources */,
 				D3F50B3419BA19FD00791303 /* triangle.cpp in Sources */,
 				32EFED25196C91CE00FDC89F /* NSEntityDescription+MagicalDataImport.m in Sources */,
 				320E5DEA17E37E8400381E7A /* MPYouTubeVideo.m in Sources */,
-				17688994195B599100337524 /* request_animation_frame.js in Sources */,
 				32EFED83196E078F00FDC89F /* SBJsonStreamParser.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

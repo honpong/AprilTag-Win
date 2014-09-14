@@ -255,7 +255,7 @@ static transition transitions[] =
     
     [self validateStateMachine];
     
-    useLocation = [LOCATION_MANAGER isLocationAuthorized] && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
+    useLocation = ![LOCATION_MANAGER isLocationDisallowed] && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
     
     [[sensorDelegate getVideoProvider] setDelegate:self.arView.videoView];
     

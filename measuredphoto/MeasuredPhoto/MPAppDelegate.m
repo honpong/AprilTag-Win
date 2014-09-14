@@ -131,7 +131,7 @@
     LOGME
     [NSUserDefaults.standardUserDefaults synchronize];
 
-    if ([LOCATION_MANAGER isLocationAuthorized])
+    if ([LOCATION_MANAGER isLocationExplicitlyAllowed])
     {
         // location already authorized. go ahead.
         LOCATION_MANAGER.delegate = self;
@@ -178,8 +178,8 @@
     {
         [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
         [NSUserDefaults.standardUserDefaults synchronize];
-        
-        if([LOCATION_MANAGER shouldAttemptLocationAuthorization])
+
+        if(![CLLocationManager locationServicesEnabled] || [CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined)
         {
             LOCATION_MANAGER.delegate = self;
             [LOCATION_MANAGER startLocationUpdates]; // will show dialog asking user to authorize location

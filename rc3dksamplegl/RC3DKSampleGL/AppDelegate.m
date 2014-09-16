@@ -30,8 +30,6 @@
                                  nil];
     [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
     
-    [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_SHOW_LOCATION_EXPLANATION]; // TODO: remove. for testing only.
-
     // Set the sensorFusion license key to allow it to validate the license
     [[RCSensorFusion sharedInstance] setLicenseKey:SDK_LICENSE_KEY];
 

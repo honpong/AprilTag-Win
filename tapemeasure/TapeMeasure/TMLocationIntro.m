@@ -151,7 +151,7 @@ static const CLLocationDegrees startingLongitude = 43.;
     else
     {
         [self.nextButton setTitle:@"Turn on location services" forState:UIControlStateNormal];
-        [self.laterButton setTitle:@"Remind me later" forState:UIControlStateNormal];
+        [self.laterButton setTitle:@"Later" forState:UIControlStateNormal];
         [self.neverButton setTitle:@"Skip" forState:UIControlStateNormal];
         self.introLabel.text = @"I see that you have location services disabled. If you allow this app to use your location, it can make your measurements more accurate by adjusting for differences in gravity across the earth. This is optional, but recommended";
     }

@@ -8,8 +8,9 @@
 
 #import <UIKit/UIKit.h>
 #import "RCCalibration1.h"
+#import "LocationPermissionController.h"
 
-@interface AppDelegate : UIResponder <UIApplicationDelegate, RCCalibrationDelegate, CLLocationManagerDelegate>
+@interface AppDelegate : UIResponder <UIApplicationDelegate, RCCalibrationDelegate, LocationPermissionControllerDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
 

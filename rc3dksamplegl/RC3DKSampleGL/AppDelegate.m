@@ -29,7 +29,7 @@
                                  [NSNumber numberWithBool:YES], PREF_SHOW_LOCATION_EXPLANATION,
                                  nil];
     [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
-
+    
     // Set the sensorFusion license key to allow it to validate the license
     [[RCSensorFusion sharedInstance] setLicenseKey:SDK_LICENSE_KEY];
 
@@ -44,11 +44,18 @@
     BOOL isCalibrated = [[NSUserDefaults standardUserDefaults] boolForKey:PREF_IS_CALIBRATED]; // gets set to YES when calibration completes
     BOOL hasStoredCalibrationData = [[RCSensorFusion sharedInstance] hasCalibrationData]; // checks if calibration data can be retrieved
 
-    // if calibration hasn't been done, or can't be retrieved, start calibration
-    if (!isCalibrated || !hasStoredCalibrationData)
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_SHOW_LOCATION_EXPLANATION])
     {
-        if (!hasStoredCalibrationData) [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_IS_CALIBRATED]; // ensures calibration is not marked as finished until it's completely finished
-        [self gotoCalibration];
+        [self gotoLocationPermissionScreen];
+    }
+    else
+    {
+        // if calibration hasn't been done, or can't be retrieved, start calibration
+        if (!isCalibrated || !hasStoredCalibrationData)
+        {
+            if (!hasStoredCalibrationData) [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_IS_CALIBRATED]; // ensures calibration is not marked as finished until it's completely finished
+            [self gotoCalibration];
+        }
     }
     
     return YES;
@@ -69,46 +76,28 @@
     self.window.rootViewController = calibration1;
 }
 
-- (void)applicationDidBecomeActive:(UIApplication *)application
+- (void) gotoLocationPermissionScreen
 {
-    LOGME
-    [[NSUserDefaults standardUserDefaults] synchronize];
-
-    if([self shouldShowLocationExplanation])
-    {
-        //On first launch, show explanation for why we need location. The alert view's callback will attempt to start location, which will ask for authorization.
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Location"
-                                                        message:@"If you allow the app to use your location, we can improve the accuracy of your measurements by adjusting for altitude and how far you are from the equator."
-                                                       delegate:self
-                                              cancelButtonTitle:@"Continue"
-                                              otherButtonTitles:nil];
-        [alert show];
-    }
-    else
-    {
-        //Does nothing if location is not authorized. The SensorDelegate calls [RCSensorFusion setLocation] automatically. If you do not use the SensorDelegate, make sure you pass the location to RCSensorFusion before starting sensor fusion.
-        [mySensorDelegate startLocationUpdatesIfAllowed];
-    }
+    [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
+    
+    LocationPermissionController* viewController = [mainViewController.storyboard instantiateViewControllerWithIdentifier:@"LocationPermission"];
+    viewController.delegate = self;
+    self.window.rootViewController = viewController;
 }
 
-- (BOOL)shouldShowLocationExplanation
+#pragma mark - LocationPermissionControllerDelegate
+
+- (void) locationPermissionResult:(BOOL)granted
 {
-    return [[NSUserDefaults standardUserDefaults] boolForKey:PREF_SHOW_LOCATION_EXPLANATION];
+    if(granted) [locationManager startLocationUpdates];
+    
+    [self gotoCalibration];
 }
 
-- (void) alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
-{
-    if (buttonIndex == 0) //the only button
-    {
-        [[NSUserDefaults standardUserDefaults] setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
-        [[NSUserDefaults standardUserDefaults] synchronize];
-        [mySensorDelegate startLocationUpdatesIfAllowed];
-    }
-}
+#pragma mark - RCCalibrationDelegate
 
 - (void) calibrationDidFinish
 {
-    LOGME
     [[NSUserDefaults standardUserDefaults] setBool:YES forKey:PREF_IS_CALIBRATED]; // set a flag to indicate calibration completed
     [self gotoMainViewController];
 }

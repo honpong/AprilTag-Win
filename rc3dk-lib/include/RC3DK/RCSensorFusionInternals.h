@@ -23,6 +23,10 @@ typedef enum
     RCSensorFusionRunStateDynamicInitialization = 3,
     /** RCSensorFusion is active and updates are being provided with all data. */
     RCSensorFusionRunStateRunning = 4,
+    /** RCSensorFusion is in handheld portrait calibration mode. The device should be held steady in portrait orientation, perpendicular to the floor. Progress is available on [RCSensorFusionStatus calibrationProgress]. */
+    RCSensorFusionRunStatePortraitCalibration = 5,
+    /** RCSensorFusion is in handheld landscape calibration mode. The device should be held steady in landscape orientation, perpendicular to the floor. Progress is available on [RCSensorFusionStatus calibrationProgress]. */
+    RCSensorFusionRunStateLandscapeCalibration = 6
 } RCSensorFusionRunState;
 
 typedef enum

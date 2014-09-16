@@ -46,7 +46,6 @@
 
 - (void) viewWillDisappear:(BOOL)animated
 {
-    LOGME;
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:UIApplicationWillResignActiveNotification
                                                   object:nil];
@@ -119,7 +118,6 @@
 
 - (void) stopCalibration
 {
-    LOGME
     [self hideProgressView];
     [self.sensorDelegate stopAllSensors];
     [sensorFusion stopSensorFusion];

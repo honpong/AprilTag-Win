@@ -437,12 +437,12 @@
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="C39-XJ-bxR" customClass="RCInvertButton">
-                                        <rect key="frame" x="30" y="498" width="120" height="50"/>
+                                        <rect key="frame" x="30" y="498" width="140" height="50"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.25" colorSpace="calibratedWhite"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="50" id="EYY-Uc-e10"/>
-                                            <constraint firstAttribute="width" constant="120" id="ewQ-Iw-6Ld"/>
+                                            <constraint firstAttribute="width" constant="140" id="ewQ-Iw-6Ld"/>
                                         </constraints>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <state key="normal" title="Maybe later">
@@ -490,11 +490,11 @@
                                         <size key="shadowOffset" width="0.0" height="0.0"/>
                                     </label>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="s4t-0F-1if" customClass="RCInvertButton">
-                                        <rect key="frame" x="170" y="498" width="120" height="50"/>
+                                        <rect key="frame" x="190" y="498" width="100" height="50"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.25" colorSpace="calibratedWhite"/>
                                         <constraints>
-                                            <constraint firstAttribute="width" constant="120" id="Xra-lA-MBM"/>
+                                            <constraint firstAttribute="width" constant="100" id="Xra-lA-MBM"/>
                                             <constraint firstAttribute="height" constant="50" id="fS2-T0-gT8"/>
                                         </constraints>
                                         <fontDescription key="fontDescription" type="system" pointSize="17"/>

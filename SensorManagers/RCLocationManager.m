@@ -58,8 +58,14 @@
 
 - (void) requestLocationAccessWithCompletion:(void (^)(BOOL granted))handler
 {
-    if([self isLocationDisallowed])
+    if(![CLLocationManager locationServicesEnabled])
     {
+        //If location is turned off globally, this will pop up the dialog that sends the user to preferences. Explicitly asking permission does not do this.
+        [_sysLocationMan startUpdatingLocation];
+    }
+    else if([self isLocationDisallowed])
+    {
+        //We already tried to get permission and failed
         handler(false);
     }
     else

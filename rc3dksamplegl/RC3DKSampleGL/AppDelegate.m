@@ -85,11 +85,6 @@
     self.window.rootViewController = viewController;
 }
 
-- (void)applicationDidBecomeActive:(UIApplication *)application
-{
-    LOGME
-}
-
 #pragma mark - LocationPermissionControllerDelegate
 
 - (void) locationPermissionResult:(BOOL)granted
@@ -103,7 +98,6 @@
 
 - (void) calibrationDidFinish
 {
-    LOGME
     [[NSUserDefaults standardUserDefaults] setBool:YES forKey:PREF_IS_CALIBRATED]; // set a flag to indicate calibration completed
     [self gotoMainViewController];
 }

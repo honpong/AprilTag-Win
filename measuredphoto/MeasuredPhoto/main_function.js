@@ -25,10 +25,13 @@ function doOnOrientationChange()
 var switch_image_depthmap; //declaring this in the global scope for later initialization
 
 function clear_tool_data(){ //this should be called whenever theres a switch in tools
+    //line tool data
     lineNotStarted = true;
     click_image_x1 = null;
     click_image_y1 = null;
     if(marker) { marker.remove(); }
+    //text annotation data
+    rcMeasurements.endNoteEdit();
 }
 
 

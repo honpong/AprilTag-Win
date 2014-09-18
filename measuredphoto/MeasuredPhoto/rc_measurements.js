@@ -229,6 +229,7 @@ rcMeasurements.deleteCharacterFromNote = function (){
 
 rcMeasurements.endNoteEdit = function (){
     if (rcMeasurements.active_note) {
+        rcMeasurements.redraw_note(rcMeasurements.active_note);
         rcMeasurements.stop_cursor_animation(rcMeasurements.active_note);
         rcMeasurements.active_note = null;
     }

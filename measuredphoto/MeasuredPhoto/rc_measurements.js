@@ -225,6 +225,16 @@ rcMeasurements.addCharacterToNote = function (char){
     }
 }
 
+//this completely replaces the text annotation w/ the string and ends edit operation.
+rcMeasurements.updateNote = function (str) {
+    if (rcMeasurements.active_note) {
+        if(str == '') {str = ' ';} //if we failed to add a character we still need at least one character
+        rcMeasurements.active_note.text = str;
+        rcMeasurements.redraw_note(rcMeasurements.active_note);
+    }
+    rcMeasurements.endNoteEdit();
+}
+
 
 rcMeasurements.redraw_note = function (n) {
 

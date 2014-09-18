@@ -181,34 +181,9 @@ function finalize_dm(){
     dm_context = null;
 }
 
-function fill_depth_map_new(sample_increment){
-    //get depth at each sample point, calculate average depth
-    var total_depth_sqr =0;
-    var dist_sqr;
-    var current_3d_coord;
 
-    var depths = []
-    for (var i = 0; i < image_width; i+=sample_increment) {
-        for (var j = 0; j < image_height; j+=sample_increment) {
-            current_3d_coord = dm_3d_location_from_pixel_location(i,j);
-            if (current_3d_coord != null) {
-                dist_sqr = current_3d_coord[0]*current_3d_coord[0]+current_3d_coord[1]*current_3d_coord[1]+current_3d_coord[2]*current_3d_coord[2];
-                depths.push([i,j,dist_sqr]);
-                total_depth_sqr += dist_sqr;
-            }
-        }
-    }
-
-    var avg_depth_sqr = total_depth_sqr/depths.length;
-    for (var i = 0; i < depths.length; i++) {
-        //color depth map in based on average depth, sample frequence, and depth at each sample point
-        dm_add_point( avg_depth_sqr/2/(avg_depth_sqr/2 + depths[i][2]), depths[i][0], depths[i][1], sample_increment+1);
-    }
-    
-    finalize_dm();
-
-    
-}
+var avg_depth_sqr = 0;
+var min_depth_sqr = 100000000;
 
 function fill_depth_map(){
     //iterate over spatial data and asign colors to each location based on total depth. will take two itterations. one to find maximal depth in image, another to create pixels.
@@ -234,11 +209,12 @@ function fill_depth_map(){
                                  v3[1]*v3[1] +
                                  v3[2]*v3[2]
                                  )/3;
+            if (current_depth_sqr < min_depth_sqr) {min_depth_sqr = current_depth_sqr;}
             total_depth_sqr = total_depth_sqr + current_depth_sqr;
         }
   
     
-        var avg_depth_sqr = total_depth_sqr/spatial_data['vertices'].length;
+        avg_depth_sqr = total_depth_sqr/spatial_data['vertices'].length;
         var coords;
         
         var draw_start = new Date();
@@ -266,7 +242,7 @@ function fill_depth_map(){
                 dm_t[1][4] = v2[2];
                 dm_t[2][4] = v3[2];
 
-                dm_add_traingle(dm_t, avg_depth_sqr);
+                dm_add_traingle(dm_t);
             }
             
 
@@ -279,29 +255,7 @@ function fill_depth_map(){
 }
 
 
-function dm_add_traingle_via_points(vs, avg_depth_sqr){
-    
-    var min_x, max_x, min_y, max_y;
-    min_x = Math.min(vs[0][0],Math.min(vs[1][0],vs[2][0]));
-    max_x = Math.max(vs[0][0],Math.max(vs[1][0],vs[2][0]));
-    min_y = Math.min(vs[0][1],Math.min(vs[1][1],vs[2][1]));
-    max_y = Math.max(vs[0][1],Math.max(vs[1][1],vs[2][1]));
-    
-    var coords, dist_sqr;
-    for (var i = min_x; i < max_x; i+=2) {
-        for (var j = min_y; j < max_y; j+=2) {
-            if (point_in_triangle(i,j,vs,2)) {
-                coords = d3_coord_for_img_x_y(i,j,vs);
-                dist_sqr = coords[0]*coords[0]+coords[1]*coords[1]+coords[2]*coords[2];
-                dm_add_point( avg_depth_sqr/2/(avg_depth_sqr/2 + dist_sqr), i, j, 3);
-            }
-        }
-    }
-    
-}
-
-
-function dm_add_traingle(vs, avg_depth_sqr){
+function dm_add_traingle(vs){
     //a triangle describes a plain, where x and y are image coordinates, and z is depth.
     //we will find the equation of the plain to calculated dx,dy in order to generate a gradiant.
     var v1 = [vs[0][0],vs[0][1],0], v2 = [vs[1][0],vs[1][1],0], v3 = [vs[2][0],vs[2][1],0];
@@ -335,22 +289,21 @@ function dm_add_traingle(vs, avg_depth_sqr){
     //console.log('d from grad_end = ' + dm_dot(norm_vec, grad_end).toFixed(3) + '  d from grad_start = ' + dm_dot(norm_vec, grad_start).toFixed(3))
     
     var grad = dm_context.createLinearGradient(grad_start[0], grad_start[1], grad_end[0], grad_end[1]); //create gradients from vectors
-    grad.addColorStop(0, dm_clr_from_depth( avg_depth_sqr, grad_start[2]*grad_start[2]));
-    grad.addColorStop(1, dm_clr_from_depth( avg_depth_sqr, grad_end[2]*grad_end[2]));
+    grad.addColorStop(0, dm_clr_from_depth( grad_start[2]*grad_start[2]));
+    grad.addColorStop(1, dm_clr_from_depth( grad_end[2]*grad_end[2]));
 
     dm_context.beginPath();
     dm_context.moveTo(vs[0][0],vs[0][1]);
     dm_context.lineTo(vs[1][0],vs[1][1]);
     dm_context.lineTo(vs[2][0],vs[2][1]);
-    //dm_clr = dm_clr_from_depth(avg_depth_sqr, (v1[2]*v1[2]+v2[2]*v2[2]+v3[2]*v3[2])/3); //average depth squared
     dm_context.fillStyle= grad;
     dm_context.fill();
 
     
 }
 
-function dm_clr_from_depth(avg_depth_sqr, current_depth_sqr) {
-    var clr_int_str =  (255*avg_depth_sqr/1.2/(avg_depth_sqr/1.2 + current_depth_sqr)).toFixed(0);
+function dm_clr_from_depth( current_depth_sqr) {
+    var clr_int_str =  (255*(avg_depth_sqr-min_depth_sqr)/1.2/((avg_depth_sqr-min_depth_sqr)/1.2 + (current_depth_sqr-min_depth_sqr))).toFixed(0);
     return 'rgb('+clr_int_str+','+clr_int_str+','+clr_int_str+')';
 }
 

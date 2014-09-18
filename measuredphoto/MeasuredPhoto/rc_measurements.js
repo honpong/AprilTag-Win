@@ -203,7 +203,7 @@ rcMeasurements.new_note = function (iX, iY, svg_target) {
 }
 
 rcMeasurements.saveable_note = function (n) {
-    return {  x:n.x, y:n.y, guid:n.guid, note:n.text, annotation_type:n.annotation_type };
+    return {  x:n.x, y:n.y, guid:n.guid, text:n.text, annotation_type:n.annotation_type };
 }
 
 rcMeasurements.delete_note  = function (n) {
@@ -232,6 +232,7 @@ rcMeasurements.endNoteEdit = function (){
         rcMeasurements.redraw_note(rcMeasurements.active_note);
         rcMeasurements.stop_cursor_animation(rcMeasurements.active_note);
         rcMeasurements.active_note = null;
+        rcMeasurements.save_measurements();
     }
 }
 
@@ -566,7 +567,7 @@ rcMeasurements.apply_json_data = function (data) {
         catch(err) {console.log(JSON.stringify(err)); delete rcMeasurements.agles[key];}
     }
     for (var key in rcMeasurements.notes) {
-        try {rcMeasurements.draw_notes(rcMeasurements.notes[key], measured_svg);}
+        try {rcMeasurements.draw_note(rcMeasurements.notes[key], measured_svg);}
         catch(err) {console.log(JSON.stringify(err)); delete rcMeasurements.notes[key];}
     }
 }

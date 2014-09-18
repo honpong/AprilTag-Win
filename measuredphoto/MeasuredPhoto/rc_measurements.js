@@ -7,6 +7,7 @@ rcMeasurements = {
     angles : {},
     notes : {},
     measurement_being_edited : null,
+    active_note : null,
     inches_to_meter : 39.3701,
     cursor_animation_id : null,
     most_recent_drag : 0,
@@ -187,10 +188,10 @@ rcMeasurements.new_note = function (iX, iY, svg_target) {
     n.x = iX;
     n.y = iY;
     n.guid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);});
-    n.text = ''
+    n.text = ' ' //we need to have at least one character or the svg text element creation will fail.
     
     rcMeasurements.draw_note(n, svg_target);
-    n.input.focus()
+    rcMeasurements.active_note = n;
 }
 
 rcMeasurements.saveable_note = function (n) {
@@ -198,28 +199,85 @@ rcMeasurements.saveable_note = function (n) {
 }
 
 
+rcMeasurements.deleteCharacterFromNote = function (){
+    if (rcMeasurements.active_note) {
+        if(rcMeasurements.active_note.text != ' ') {
+            rcMeasurements.active_note.text = rcMeasurements.active_note.text.slice(0, -1);
+            if(rcMeasurements.active_note.text == '') {rcMeasurements.active_note.text = ' ';} //we need at least one character for svg to not fail
+            rcMeasurements.redraw_note(rcMeasurements.active_note);
+        }
+    }
+}
+
+rcMeasurements.endNoteEdit = function (){
+    if (rcMeasurements.active_note) {
+        rcMeasurements.active_note = null;
+    }
+}
+
+
+rcMeasurements.addCharacterToNote = function (char){
+    if (rcMeasurements.active_note) {
+        if(rcMeasurements.active_note.text == ' ') {rcMeasurements.active_note.text = '';}
+        rcMeasurements.active_note.text = rcMeasurements.active_note.text + char;
+        if(rcMeasurements.active_note.text == '') {rcMeasurements.active_note.text = ' ';} //if we failed to add a character we still need at least one character
+        rcMeasurements.redraw_note(rcMeasurements.active_note);
+    }
+}
+
+
+rcMeasurements.redraw_note = function (n) {
+
+    n.saveable_copy = rcMeasurements.saveable_note(n);
+
+    n.text_display.text(n.text).move(n.x, n.y);
+    n.text_shadow.text(n.text).move(n.x, n.y);
+
+    if ((n.text != ' ') && ( ! n.svg_target.node.contains(n.text_display.node))) {
+        n.svg_target.node.appendChild(n.text_shadow.node);
+        n.svg_target.node.appendChild(n.text_display.node); // shadow must be appened first so that the forground is shown on top.
+        n.text_display.move(n.x, n.y);
+        n.text_shadow.move(n.x, n.y); //we loose position information after detachement, so the must be placed again.
+    }
+    else if ((n.text == ' ') && (n.svg_target.node.contains(n.text_display.node))) {
+        n.svg_target.node.removeChild(n.text_display.node);
+        n.svg_target.node.removeChild(n.text_shadow.node);
+    }
+
+}
+
 rcMeasurements.draw_note = function (n, svg_target) {
     //This allows a note to be saved. it is necessary to call this as part of draw, because
 	//a note will not have this function when it is deserialized.
-    n.saveable_copy = rcMeasurements.saveable_note(n)
+    n.saveable_copy = rcMeasurements.saveable_note(n);
     
+    n.svg_target = svg_target;
     
+    n.text_shadow = svg_target.text(n.text).move(n.x, n.y);
+    n.text_shadow.font({
+                       family: rcMeasurements.font_family,
+                       size: 25
+                       , anchor: 'middle'
+                       , leading: 1
+                       }).stroke({ color: shadow_color, opacity: 1, width: 2.5 });
     
-    n.input = document.createElement("input");
-    n.input.name = "note-" + n.guid;
-    n.input.value = n.text;
-    n.input.style.display = 'none';
-    
-    if (n.text == '') {n.text = ' ';}
     n.text_display = svg_target.text(n.text).move(n.x, n.y);
+    n.text_display.font({
+                family: rcMeasurements.font_family,
+                size: 25
+                , anchor: 'middle'
+                , leading: 1
+                }).fill({ color: line_color, opacity: 1});
+
+    if (n.text == ' ') {
+        n.svg_target.node.removeChild(n.text_display.node);
+        n.svg_target.node.removeChild(n.text_shadow.node);
+    }
+
     
-    $(n.input.name).on( 'input', function(e){
-                       console.log('text chagne');
-                       n.text_display.text(n.iput.value); //set the value of the svg text displayed to the value in the hidden text box
-                       } );
     
     n.text_display.click (function (e) {
-                            n.input.focus();
+                          rcMeasurements.active_note = n;
                             e.stopPropagation(); e.preventDefault();
                             });
     
@@ -278,10 +336,6 @@ rcMeasurements.draw_note_old = function (n, svg_target) {
                                            });
     
     rcMeasurements.notes[n.guid] = n;
-
-}
-
-rcMeasurements.redraw_note = function (n) {
 
 }
 

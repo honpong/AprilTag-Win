@@ -35,8 +35,22 @@ function clear_tool_data(){ //this should be called whenever theres a switch in 
 function rc_initialize(){
     is_rc_initialized = true;
 
-    //alert('starting initialization');
-
+    //precent backspace button from bring page back.
+    $(document).bind("keydown", function(e){
+        if (e.keyCode == 8) {e.preventDefault();}
+    });
+    //attach listern for key presses
+    $(document).keyup(function(e){
+        e.preventDefault();
+        e.stopPropagation();
+        if(e.keyCode == 46 || e.keyCode == 8) {rcMeasurements.deleteCharacterFromNote();}
+        else if(e.keyCode == 13) {rcMeasurements.endNoteEdit();}
+    })
+    $(document).keypress(function(e){
+                         console.log(String.fromCharCode(e.keyCode));
+                         rcMeasurements.addCharacterToNote ( String.fromCharCode(e.keyCode) );
+                      })
+    
     
     /* create an svg drawing */
     draw = SVG('drawing').size(window.innerWidth, window.innerHeight);
@@ -172,7 +186,7 @@ function rc_initialize(){
     
     function text_entry_handler (i) {
         //create a new text box at this location
-        //rcMeasurements.new_note(i.x, i.y, measured_svg);
+        rcMeasurements.new_note(i.x, i.y, measured_svg);
     }
     
     function eraser_handler (e) {

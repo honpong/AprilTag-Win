@@ -19,7 +19,7 @@ rcMeasurements = {
 // takes image locations
 rcMeasurements.new_measurement = function (iX1, iY1, iX2, iY2, measured_svg){
     var m = {};
-    var start_time = new Date();
+    m.annotation_type = 'measurement';
     m.distance = distanceBetween(iX1, iY1, iX2, iY2); //distanceBetween is defined in depth_data.js
     m.overwriten = false;
     m.x1 = iX1;
@@ -36,7 +36,7 @@ rcMeasurements.new_measurement = function (iX1, iY1, iX2, iY2, measured_svg){
 
 rcMeasurements.saveable_liniar_measurement = function (m) {
     //we only want a subset of the measurements content, so we create a temp object we write the content we want to keep into
-    return { distance:m.distance, overwriten:m.overwriten, x1:m.x1, y1:m.y1, x2:m.x2, y2:m.y2, guid:m.guid, units_metric:m.units_metric}
+    return { distance:m.distance, overwriten:m.overwriten, x1:m.x1, y1:m.y1, x2:m.x2, y2:m.y2, guid:m.guid, units_metric:m.units_metric, annotation_type:m.annotation_type};
 }
 
 rcMeasurements.draw_measurement = function (m, measured_svg){
@@ -104,14 +104,15 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
     
     //text box cursor approach //m.text_cursor = measured_svg.plain("").move(m.mid_x + m.font_offset_x, m.mid_y + m.font_offset_y);
     m.text_cursor = measured_svg.line(0,0,0,24);
-    rcMeasurements.place_cursor(m);
+    m.place_cursor = function() {
+            var u_offset;
+            if (m.units_metric) {u_offset = 23}
+            else {u_offset = 12}
+            var c_offset = m.text.node.offsetWidth/2 - u_offset;
+            m.text_cursor.move(m.mid_x + m.font_offset_x + c_offset, m.mid_y + m.font_offset_y);
+    }
+    m.place_cursor();
     m.text_cursor.stroke({ color: shadow_color, opacity: 0, width: 2 });
-    //m.text_cursor.font({
-    //            family: 'Courier'
-    //            , size: 18
-    //            , anchor: 'middle'
-    //            , leading: 1
-    //            }).fill({'color':highlight_color, 'opacity':0});
 
     var input = document.createElement("input");
     input.name = "distance-" + m.guid
@@ -184,7 +185,9 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
 }
 
 rcMeasurements.new_note = function (iX, iY, svg_target) {
+    rcMeasurements.endNoteEdit(); //stop any active note eddits, as this note will become active
     var n = {};
+    n.annotation_type = 'note';
     n.x = iX;
     n.y = iY;
     n.guid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);});
@@ -192,10 +195,11 @@ rcMeasurements.new_note = function (iX, iY, svg_target) {
     
     rcMeasurements.draw_note(n, svg_target);
     rcMeasurements.active_note = n;
+    rcMeasurements.start_cursor_animation(n);
 }
 
 rcMeasurements.saveable_note = function (n) {
-    return {  x:n.x, y:n.y, guid:n.guid, note:n.text }
+    return {  x:n.x, y:n.y, guid:n.guid, note:n.text, annotation_type:n.annotation_type };
 }
 
 
@@ -211,6 +215,7 @@ rcMeasurements.deleteCharacterFromNote = function (){
 
 rcMeasurements.endNoteEdit = function (){
     if (rcMeasurements.active_note) {
+        rcMeasurements.stop_cursor_animation(rcMeasurements.active_note);
         rcMeasurements.active_note = null;
     }
 }
@@ -238,6 +243,7 @@ rcMeasurements.updateNote = function (str) {
 
 rcMeasurements.redraw_note = function (n) {
 
+    if (n.text == '') {n.text = ' ';} //'' is invalid text for svg library
     n.saveable_copy = rcMeasurements.saveable_note(n);
 
     n.text_display.text(n.text).move(n.x, n.y);
@@ -254,6 +260,8 @@ rcMeasurements.redraw_note = function (n) {
         n.svg_target.node.removeChild(n.text_shadow.node);
     }
 
+    n.place_cursor();
+    
 }
 
 rcMeasurements.draw_note = function (n, svg_target) {
@@ -283,11 +291,22 @@ rcMeasurements.draw_note = function (n, svg_target) {
         n.svg_target.node.removeChild(n.text_display.node);
         n.svg_target.node.removeChild(n.text_shadow.node);
     }
+    
+    n.text_cursor = svg_target.line(0,0,0,24);
+    n.place_cursor = function (){
+        var c_offset = n.text_display.node.offsetWidth/2 + 4;
+        n.text_cursor.move(n.x + c_offset, n.y + 4);
+    };
+    n.place_cursor();
+    n.text_cursor.stroke({ color: shadow_color, opacity: 0, width: 2 });
+
 
     
     
     n.text_display.click (function (e) {
-                          rcMeasurements.active_note = n;
+                          rcMeasurements.endNoteEdit(); //end any active edit
+                          rcMeasurements.active_note = n; //set this note as the active note
+                          rcMeasurements.start_cursor_animation(n); //start the cursor on this note.
                             e.stopPropagation(); e.preventDefault();
                             });
     
@@ -410,7 +429,7 @@ rcMeasurements.redraw_measurement = function (m) {
     m.text.x(m.mid_x + m.font_offset_x).dy(m.mid_y + - m.text.node.attributes.y.value + m.font_offset_y); //hacky thing because move has a bug
 
     m.text_input_box.x(m.mid_x + m.font_offset_x).y(m.mid_y + m.font_offset_y*2); //do the same movement with the input box
-    rcMeasurements.place_cursor(m);
+    m.place_cursor();
 
     m.saveable_copy = rcMeasurements.saveable_liniar_measurement(m); // need to change how this measurement is saved
     
@@ -651,15 +670,6 @@ rcMeasurements.setText = function (m, str) {
     m.text.text(str);
 }
 
-rcMeasurements.place_cursor = function (m){
-    var u_offset;
-    if (m.units_metric) {u_offset = 23}
-    else {u_offset = 12}
-    var c_offset = m.text.node.offsetWidth/2 - u_offset;
-    m.text_cursor.move(m.mid_x + m.font_offset_x + c_offset, m.mid_y + m.font_offset_y); //and for curser
-
-}
-
 
 rcMeasurements.start_cursor_animation = function (m) {
     if (rcMeasurements.cursor_animation_id){ window.clearTimeout(rcMeasurements.cursor_animation_id) };
@@ -667,7 +677,7 @@ rcMeasurements.start_cursor_animation = function (m) {
 }
 
 rcMeasurements.show_cursor_frame = function (m) {
-    rcMeasurements.place_cursor(m);
+    m.place_cursor();
     m.text_cursor.stroke({ color: shadow_color, opacity: .9, width: 2 });
     rcMeasurements.cursor_animation_id = window.setTimeout(function(){rcMeasurements.hide_cursor_frame(m)},700);
 }
@@ -678,9 +688,9 @@ rcMeasurements.hide_cursor_frame = function (m) {
 }
 
 rcMeasurements.stop_cursor_animation = function (m) {
-    m.text_cursor.stroke({ color: shadow_color, opacity: 0, width: 2 });
     if (rcMeasurements.cursor_animation_id){ window.clearTimeout(rcMeasurements.cursor_animation_id) };
     rcMeasurements.cursor_animation_id = null
+    m.text_cursor.stroke({ color: shadow_color, opacity: 0, width: 2 });
 }
 
 rcMeasurements.start_distance_change_dialouge = function (m) {
@@ -736,7 +746,7 @@ rcMeasurements.switch_units = function () {
         else{ rcMeasurements.measurement_being_edited.units_metric = true; }
         rcMeasurements.setText(rcMeasurements.measurement_being_edited, rcMeasurements.format_dist(rcMeasurements.measurement_being_edited));
     }
-    rcMeasurements.place_cursor(rcMeasurements.measurement_being_edited);
+    rcMeasurements.measurement_being_edited.place_cursor();
 }
 
 
@@ -747,7 +757,7 @@ rcMeasurements.add_character = function (key) {
 
     if (str == '?') { rcMeasurements.setText(rcMeasurements.measurement_being_edited, key + unit_str); }
     else {rcMeasurements.setText(rcMeasurements.measurement_being_edited,  str + key + unit_str);}
-    rcMeasurements.place_cursor(rcMeasurements.measurement_being_edited);
+    rcMeasurements.measurement_being_edited.place_cursor();
     rcMeasurements.redraw_lines(rcMeasurements.measurement_being_edited);
 
 }
@@ -760,7 +770,7 @@ rcMeasurements.del_character = function (key) {
     else{
         rcMeasurements.setText( rcMeasurements.measurement_being_edited,  str.substring(0, str.length - 1) + unit_str );
     }
-    rcMeasurements.place_cursor(rcMeasurements.measurement_being_edited);
+    rcMeasurements.measurement_being_edited.place_cursor();
     rcMeasurements.redraw_lines(rcMeasurements.measurement_being_edited);
 }
 

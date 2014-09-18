@@ -132,6 +132,7 @@ function build_rc_menu() {
 
     
     function draw_text_icon (button) {
+        rc_menu.note_button = button;
         button.add(menu_svg.line(11,10,29,10).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
         button.add(menu_svg.line(20,10,20,29).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
         button.add(menu_svg.line(11,9,11,12).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));

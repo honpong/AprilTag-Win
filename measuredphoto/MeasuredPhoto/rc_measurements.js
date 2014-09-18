@@ -41,6 +41,7 @@ rcMeasurements.saveable_liniar_measurement = function (m) {
 
 rcMeasurements.draw_measurement = function (m, measured_svg){
 
+    
     //we need to write distance onto screen
     var d_string = rcMeasurements.format_dist(m);
     m.text_shadow = measured_svg.text(d_string);
@@ -182,6 +183,9 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
     
     rcMeasurements.measurements[m.guid] = m;
 
+    //define delete funciton
+    m.delete_self = function () {rcMeasurements.delete_measurement(m);};
+    
 }
 
 rcMeasurements.new_note = function (iX, iY, svg_target) {
@@ -200,6 +204,16 @@ rcMeasurements.new_note = function (iX, iY, svg_target) {
 
 rcMeasurements.saveable_note = function (n) {
     return {  x:n.x, y:n.y, guid:n.guid, note:n.text, annotation_type:n.annotation_type };
+}
+
+rcMeasurements.delete_note  = function (n) {
+    //remove visual elemnts
+    n.text_display.remove();
+    n.text_shadow.remove();
+    n.text_cursor.remove();
+    //removed from measurements array
+    delete rcMeasurements.notes[n.guid];
+    delete n;
 }
 
 
@@ -304,11 +318,18 @@ rcMeasurements.draw_note = function (n, svg_target) {
     
     
     n.text_display.click (function (e) {
-                          rcMeasurements.endNoteEdit(); //end any active edit
-                          rcMeasurements.active_note = n; //set this note as the active note
-                          rcMeasurements.start_cursor_animation(n); //start the cursor on this note.
-                            e.stopPropagation(); e.preventDefault();
-                            });
+                            //this line does the deletion as well as checking for if it occured. - this checks the eraser button.
+                            if ( rcMeasurements.is_annotation_being_deleted(n) ) {
+                                  e.stopPropagation(); e.preventDefault();
+                            }
+                            else if (rc_menu.current_button == rc_menu.note_button) {
+                                  rcMeasurements.endNoteEdit(); //end any active edit
+                                  rcMeasurements.active_note = n; //set this note as the active note
+                                  rcMeasurements.start_cursor_animation(n); //start the cursor on this note.
+                                  e.stopPropagation(); e.preventDefault();
+                            }
+                            //do nothing and pass the event on if neither the text nor erase button is chosen
+    });
     
     //draging text box
     Hammer(n.text_display.node).on("drag", function(e) {
@@ -319,54 +340,13 @@ rcMeasurements.draw_note = function (n, svg_target) {
     
     rcMeasurements.notes[n.guid] = n;
     
-}
-
-
-rcMeasurements.draw_note_old = function (n, svg_target) {
-    console.log('drawing note');
-    //This allows a note to be saved. it is necessary to call this as part of draw, because
-	//a note will not have this function when it is deserialized.
-    n.saveable_copy = rcMeasurements.saveable_note(n)
     
-    
-    
-    n.input = document.createElement("input");
-    n.input.name = "note-" + n.guid;
-    n.input.value = n.text;
-    n.input.style.background = 'transparent';
-    n.input.style['boarder-color'] = 'transparent';
-    n.input.style.boarder = '0px';
-    n.input.style.color = line_color;
-    n.input.style.width = '150px';
-    n.input.style.height = '29px';
-    n.input.style.font_family = rcMeasurements.font_family;
-    n.input.style['font-size'] = '20px';
-    //create hiden text box for entry on devices with keyboards
-    n.text_input_box = svg_target.foreignObject( 150, 29).move(n.x, n.y);
-    n.text_input_box.appendChild(n.input);
-    //measured_svg.node.removeChild(m.text_input_box.node); //hide the input box after adding it
-    
-    $(n.input.name).on( 'input', function(e){
-               console.log('text chagne');
-               } );
-    
-    n.text_input_box.click (function (e) {
-                                 n.input.focus();
-                   console.log('stopping propegation');
-                    e.stopPropagation(); e.preventDefault();
-                   });
-    
-    //draging text boz
-    Hammer(n.text_input_box.node).on("drag", function(e) {
-                                     n.x
-                                     e.stopPropagation(); e.preventDefault();
-                                     }).on("dragend", function(e) {
-                                           e.stopPropagation(); e.preventDefault();
-                                           });
-    
-    rcMeasurements.notes[n.guid] = n;
+    //define delete funciton
+    n.delete_self = function () { rcMeasurements.delete_note(n); };
 
 }
+
+
 
 rcMeasurements.dragEndHandler = function (m, e) {
     e.stopPropagation(); e.preventDefault();
@@ -385,7 +365,7 @@ rcMeasurements.click_action = function (m,e) {
     }
 
     setTimeout(function(){ return false;},1);  //this just forces refresh for some browsers
-    if ( rcMeasurements.is_measurement_being_deleted(m) ) {  //this is both a deletion and a check for deletion
+    if ( rcMeasurements.is_annotation_being_deleted(m) ) {  //this is both a deletion and a check for deletion
         e.stopPropagation(); e.preventDefault(); // if deleted, dont do anything else
     }
     //otherwise allow anotations gesture to propegate to image to see if it has an effect on anotations.
@@ -594,13 +574,13 @@ rcMeasurements.revert_measurement_state = function () {
     if (rcMeasurements.prior_measurement_states.length > 1) {
         //delete all measurements
         for (var key in rcMeasurements.measurements) {
-            rcMeasurements.delete_measurement(rcMeasurements.measurements[key]);
+            rcMeasurements.measurements[key].delete_self();
         }
         for (var key in rcMeasurements.agles) {
             rcMeasurements.delete_angle(rcMeasurements.angles[key]);
         }
         for (var key in rcMeasurements.notes) {
-            rcMeasurements.delete_note(rcMeasurements.notes[key]);
+            rcMeasurements.notes[key].delete_self();
         }
         //pull prior measurement state
         rcMeasurements.prior_measurement_states.pop(); //trow away the current state
@@ -823,9 +803,9 @@ rcMeasurements.finish_number_operation = function (){
 }
 
 // this checks for wether or not the rc_menu button designated as the eraser button is selected.
-rcMeasurements.is_measurement_being_deleted = function (m) {
+rcMeasurements.is_annotation_being_deleted = function (m) {
     if (rc_menu.current_button == rc_menu.eraser_button) {
-        rcMeasurements.delete_measurement(m);
+        m.delete_self();
         setTimeout( function () {rcMeasurements.save_measurements();}, 0)
         return true;
     }
@@ -839,4 +819,5 @@ rcMeasurements.reset = function () {
     rcMeasurements.notes = {};
     rcMeasurements.prior_measurement_states = [];
     rcMeasurements.measurement_being_edited = null;
+    rcMeasurements.active_note = null;
 }

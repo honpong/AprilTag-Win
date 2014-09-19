@@ -80,12 +80,6 @@
 		32BA42B617A2DF8B002BAE13 /* MainStoryboard_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 32BA42B417A2DF8B002BAE13 /* MainStoryboard_iPhone.storyboard */; };
 		32BA42B917A2DF8B002BAE13 /* MainStoryboard_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 32BA42B717A2DF8B002BAE13 /* MainStoryboard_iPad.storyboard */; };
 		32BA42BC17A2DF8B002BAE13 /* MPBaseViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA42BB17A2DF8B002BAE13 /* MPBaseViewController.m */; };
-		32BA42C417A2DF8B002BAE13 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA42C317A2DF8B002BAE13 /* SenTestingKit.framework */; };
-		32BA42C517A2DF8B002BAE13 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA429C17A2DF8B002BAE13 /* UIKit.framework */; };
-		32BA42C617A2DF8B002BAE13 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA429E17A2DF8B002BAE13 /* Foundation.framework */; };
-		32BA42CE17A2DF8B002BAE13 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 32BA42CC17A2DF8B002BAE13 /* InfoPlist.strings */; };
-		32BA42D117A2DF8B002BAE13 /* MeasuredPhotoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA42D017A2DF8B002BAE13 /* MeasuredPhotoTests.m */; };
-		32BA432917A2EE9D002BAE13 /* MPAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA432717A2EE9D002BAE13 /* MPAnalytics.m */; };
 		32BA433217A2EF4E002BAE13 /* MPAugmentedRealityView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA432B17A2EF4E002BAE13 /* MPAugmentedRealityView.m */; };
 		32BA433317A2EF4E002BAE13 /* MPLineLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA432D17A2EF4E002BAE13 /* MPLineLayer.m */; };
 		32BA433417A2EF4E002BAE13 /* MPLineLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA432F17A2EF4E002BAE13 /* MPLineLayerDelegate.m */; };
@@ -247,13 +241,6 @@
 			remoteGlobalIDString = 32BA04DB19102B04008365F2;
 			remoteInfo = TrueMeasureSDK;
 		};
-		32BA42C717A2DF8B002BAE13 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 32BA429117A2DF8B002BAE13 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 32BA429817A2DF8B002BAE13;
-			remoteInfo = MeasuredPhoto;
-		};
 		32BA433F17A2EFF2002BAE13 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 32BA433917A2EFF2002BAE13 /* RCCore.xcodeproj */;
@@ -388,12 +375,7 @@
 		32BA42B817A2DF8B002BAE13 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPad.storyboard; sourceTree = "<group>"; };
 		32BA42BA17A2DF8B002BAE13 /* MPBaseViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPBaseViewController.h; sourceTree = "<group>"; };
 		32BA42BB17A2DF8B002BAE13 /* MPBaseViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPBaseViewController.m; sourceTree = "<group>"; };
-		32BA42C217A2DF8B002BAE13 /* MeasuredPhotoTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MeasuredPhotoTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		32BA42C317A2DF8B002BAE13 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
-		32BA42CB17A2DF8B002BAE13 /* MeasuredPhotoTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "MeasuredPhotoTests-Info.plist"; sourceTree = "<group>"; };
-		32BA42CD17A2DF8B002BAE13 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		32BA42CF17A2DF8B002BAE13 /* MeasuredPhotoTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MeasuredPhotoTests.h; sourceTree = "<group>"; };
-		32BA42D017A2DF8B002BAE13 /* MeasuredPhotoTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MeasuredPhotoTests.m; sourceTree = "<group>"; };
 		32BA432617A2EE9D002BAE13 /* MPAnalytics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPAnalytics.h; sourceTree = "<group>"; };
 		32BA432717A2EE9D002BAE13 /* MPAnalytics.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPAnalytics.m; sourceTree = "<group>"; };
 		32BA432817A2EE9D002BAE13 /* MPConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPConstants.h; sourceTree = "<group>"; };
@@ -683,16 +665,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		32BA42BE17A2DF8B002BAE13 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				32BA42C417A2DF8B002BAE13 /* SenTestingKit.framework in Frameworks */,
-				32BA42C517A2DF8B002BAE13 /* UIKit.framework in Frameworks */,
-				32BA42C617A2DF8B002BAE13 /* Foundation.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -782,7 +754,6 @@
 				329222E6180DEF8A008BF9A0 /* TrueMeasureSDK.xcodeproj */,
 				32BA433917A2EFF2002BAE13 /* RCCore.xcodeproj */,
 				32BA42A217A2DF8B002BAE13 /* MeasuredPhoto */,
-				32BA42C917A2DF8B002BAE13 /* MeasuredPhotoTests */,
 				32BA429B17A2DF8B002BAE13 /* Frameworks */,
 				32BA429A17A2DF8B002BAE13 /* Products */,
 			);
@@ -792,7 +763,6 @@
 			isa = PBXGroup;
 			children = (
 				32BA429917A2DF8B002BAE13 /* TrueMeasure.app */,
-				32BA42C217A2DF8B002BAE13 /* MeasuredPhotoTests.octest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -865,25 +835,6 @@
 				32BA42A417A2DF8B002BAE13 /* MeasuredPhoto-Info.plist */,
 				32BA42AA17A2DF8B002BAE13 /* MeasuredPhoto-Prefix.pch */,
 				32DB2BE617C28AC9001F7E5D /* Settings.bundle */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		32BA42C917A2DF8B002BAE13 /* MeasuredPhotoTests */ = {
-			isa = PBXGroup;
-			children = (
-				32BA42CF17A2DF8B002BAE13 /* MeasuredPhotoTests.h */,
-				32BA42D017A2DF8B002BAE13 /* MeasuredPhotoTests.m */,
-				32BA42CA17A2DF8B002BAE13 /* Supporting Files */,
-			);
-			path = MeasuredPhotoTests;
-			sourceTree = "<group>";
-		};
-		32BA42CA17A2DF8B002BAE13 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				32BA42CB17A2DF8B002BAE13 /* MeasuredPhotoTests-Info.plist */,
-				32BA42CC17A2DF8B002BAE13 /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -1351,25 +1302,6 @@
 			productReference = 32BA429917A2DF8B002BAE13 /* TrueMeasure.app */;
 			productType = "com.apple.product-type.application";
 		};
-		32BA42C117A2DF8B002BAE13 /* MeasuredPhotoTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 32BA42D717A2DF8B002BAE13 /* Build configuration list for PBXNativeTarget "MeasuredPhotoTests" */;
-			buildPhases = (
-				32BA42BD17A2DF8B002BAE13 /* Sources */,
-				32BA42BE17A2DF8B002BAE13 /* Frameworks */,
-				32BA42BF17A2DF8B002BAE13 /* Resources */,
-				32BA42C017A2DF8B002BAE13 /* ShellScript */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				32BA42C817A2DF8B002BAE13 /* PBXTargetDependency */,
-			);
-			name = MeasuredPhotoTests;
-			productName = MeasuredPhotoTests;
-			productReference = 32BA42C217A2DF8B002BAE13 /* MeasuredPhotoTests.octest */;
-			productType = "com.apple.product-type.bundle";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -1409,7 +1341,6 @@
 			projectRoot = "";
 			targets = (
 				32BA429817A2DF8B002BAE13 /* MeasuredPhoto */,
-				32BA42C117A2DF8B002BAE13 /* MeasuredPhotoTests */,
 			);
 		};
 /* End PBXProject section */
@@ -1488,14 +1419,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		32BA42BF17A2DF8B002BAE13 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				32BA42CE17A2DF8B002BAE13 /* InfoPlist.strings in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
@@ -1513,19 +1436,6 @@
 			shellPath = /bin/sh;
 			shellScript = "KEYWORDS=\"TODO|FIXME|\\?\\?\\?:|\\!\\!\\!:\"\nfind ${SRCROOT} \\( -name \"*.h\" -or -name \"*.m\" \\) -print0 | \\\nxargs -0 egrep --with-filename --line-number --only-matching \"($KEYWORDS).*\\$\" | \\\nperl -p -e \"s/($KEYWORDS)/ warning: \\$1/\"";
 			showEnvVarsInLog = 0;
-		};
-		32BA42C017A2DF8B002BAE13 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1683,15 +1593,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		32BA42BD17A2DF8B002BAE13 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				32BA42D117A2DF8B002BAE13 /* MeasuredPhotoTests.m in Sources */,
-				32BA432917A2EE9D002BAE13 /* MPAnalytics.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -1704,11 +1605,6 @@
 			isa = PBXTargetDependency;
 			name = TrueMeasureSDK;
 			targetProxy = 329222F4180F13C5008BF9A0 /* PBXContainerItemProxy */;
-		};
-		32BA42C817A2DF8B002BAE13 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 32BA429817A2DF8B002BAE13 /* MeasuredPhoto */;
-			targetProxy = 32BA42C717A2DF8B002BAE13 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1735,14 +1631,6 @@
 				32BA42B817A2DF8B002BAE13 /* en */,
 			);
 			name = MainStoryboard_iPad.storyboard;
-			sourceTree = "<group>";
-		};
-		32BA42CC17A2DF8B002BAE13 /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				32BA42CD17A2DF8B002BAE13 /* en */,
-			);
-			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -1813,23 +1701,6 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "\"$(PROJECT_TEMP_DIR)/../UninstalledProducts/include\"";
 				WRAPPER_EXTENSION = app;
-			};
-			name = Archive;
-		};
-		3287D80F1815DF92006578F9 /* Archive */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/MeasuredPhoto.app/MeasuredPhoto";
-				FRAMEWORK_SEARCH_PATHS = (
-					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
-					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
-				INFOPLIST_FILE = "MeasuredPhotoTests/MeasuredPhotoTests-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = octest;
 			};
 			name = Archive;
 		};
@@ -1974,40 +1845,6 @@
 			};
 			name = Release;
 		};
-		32BA42D817A2DF8B002BAE13 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/MeasuredPhoto.app/MeasuredPhoto";
-				FRAMEWORK_SEARCH_PATHS = (
-					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
-					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
-				INFOPLIST_FILE = "MeasuredPhotoTests/MeasuredPhotoTests-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = octest;
-			};
-			name = Debug;
-		};
-		32BA42D917A2DF8B002BAE13 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/MeasuredPhoto.app/MeasuredPhoto";
-				FRAMEWORK_SEARCH_PATHS = (
-					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
-					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
-				INFOPLIST_FILE = "MeasuredPhotoTests/MeasuredPhotoTests-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = octest;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -2027,16 +1864,6 @@
 				32BA42D517A2DF8B002BAE13 /* Debug */,
 				32BA42D617A2DF8B002BAE13 /* Release */,
 				3287D80E1815DF92006578F9 /* Archive */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		32BA42D717A2DF8B002BAE13 /* Build configuration list for PBXNativeTarget "MeasuredPhotoTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				32BA42D817A2DF8B002BAE13 /* Debug */,
-				32BA42D917A2DF8B002BAE13 /* Release */,
-				3287D80F1815DF92006578F9 /* Archive */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

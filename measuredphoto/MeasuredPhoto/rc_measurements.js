@@ -206,11 +206,11 @@ rcMeasurements.saveable_note = function (n) {
     return {  x:n.x, y:n.y, guid:n.guid, text:n.text, annotation_type:n.annotation_type };
 }
 
-rcMeasurements.delete_note  = function (n) {
+rcMeasurements.delete_note = function (n) {
     //remove visual elemnts
-    n.text_display.remove();
-    n.text_shadow.remove();
-    n.text_cursor.remove();
+    if (n.svg_target.node.contains(n.text_display.node)) { n.text_display.remove();}
+    if (n.svg_target.node.contains(n.text_shadow.node)) { n.text_shadow.remove();}
+    if (n.svg_target.node.contains(n.text_cursor.node)) { n.text_cursor.remove();}
     //removed from measurements array
     delete rcMeasurements.notes[n.guid];
     delete n;
@@ -231,6 +231,10 @@ rcMeasurements.endNoteEdit = function (){
     if (rcMeasurements.active_note) {
         rcMeasurements.redraw_note(rcMeasurements.active_note);
         rcMeasurements.stop_cursor_animation(rcMeasurements.active_note);
+        //if no content remove
+        if ((rcMeasurements.active_note.text.length == 0) || (rcMeasurements.active_note.text == " ") || !rcMeasurements.active_note.text.trim()) {
+            rcMeasurements.active_note.delete_self();
+        }
         rcMeasurements.active_note = null;
         rcMeasurements.save_measurements();
     }
@@ -241,7 +245,7 @@ rcMeasurements.addCharacterToNote = function (char){
     if (rcMeasurements.active_note) {
         if(rcMeasurements.active_note.text == ' ') {rcMeasurements.active_note.text = '';}
         rcMeasurements.active_note.text = rcMeasurements.active_note.text + char;
-        if(rcMeasurements.active_note.text == '') {rcMeasurements.active_note.text = ' ';} //if we failed to add a character we still need at least one character
+        if(rcMeasurements.active_note.text.length == 0) {rcMeasurements.active_note.text = " ";} //if we failed to add a character we still need at least one character
         rcMeasurements.redraw_note(rcMeasurements.active_note);
     }
 }
@@ -249,7 +253,7 @@ rcMeasurements.addCharacterToNote = function (char){
 //this completely replaces the text annotation w/ the string and ends edit operation.
 rcMeasurements.updateNote = function (str) {
     if (rcMeasurements.active_note) {
-        if(str == '') {str = ' ';} //if we failed to add a character we still need at least one character
+        if(str.length == 0 ) {str = ' ';} //if we failed to add a character we still need at least one character
         rcMeasurements.active_note.text = str;
         rcMeasurements.redraw_note(rcMeasurements.active_note);
     }
@@ -259,7 +263,7 @@ rcMeasurements.updateNote = function (str) {
 
 rcMeasurements.redraw_note = function (n) {
 
-    if (n.text == '') {n.text = ' ';} //'' is invalid text for svg library
+    if ((n.text.length == 0) || !n.text.trim()) {n.text = ' ';} //'' is invalid text for svg library
     n.saveable_copy = rcMeasurements.saveable_note(n);
 
     n.text_display.text(n.text).move(n.x, n.y);

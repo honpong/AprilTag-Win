@@ -184,17 +184,8 @@
 		D3F50B2019BA19FD00791303 /* svm.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AD119BA19FD00791303 /* svm.c */; };
 		D3F50B2119BA19FD00791303 /* svmdataset.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AD319BA19FD00791303 /* svmdataset.c */; };
 		D3F50B2219BA19FD00791303 /* vlad.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AD519BA19FD00791303 /* vlad.c */; };
-		D3F50B2319BA19FD00791303 /* README.txt in Resources */ = {isa = PBXBuildFile; fileRef = D3F50ADA19BA19FD00791303 /* README.txt */; };
-		D3F50B2419BA19FD00791303 /* graph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50ADB19BA19FD00791303 /* graph.cpp */; };
-		D3F50B2519BA19FD00791303 /* regions-maxprod.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50ADC19BA19FD00791303 /* regions-maxprod.cpp */; };
-		D3F50B2719BA19FD00791303 /* GCoptimization.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AE019BA19FD00791303 /* GCoptimization.cpp */; };
-		D3F50B2819BA19FD00791303 /* MaxProdBP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AE319BA19FD00791303 /* MaxProdBP.cpp */; };
 		D3F50B2919BA19FD00791303 /* mrf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AE519BA19FD00791303 /* mrf.cpp */; };
 		D3F50B2A19BA19FD00791303 /* TRW-S.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AE719BA19FD00791303 /* TRW-S.cpp */; };
-		D3F50B2B19BA19FD00791303 /* ICM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AE919BA19FD00791303 /* ICM.cpp */; };
-		D3F50B2C19BA19FD00791303 /* LinkedBlockList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AEB19BA19FD00791303 /* LinkedBlockList.cpp */; };
-		D3F50B2D19BA19FD00791303 /* maxflow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AED19BA19FD00791303 /* maxflow.cpp */; };
-		D3F50B2E19BA19FD00791303 /* BP-S.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AEE19BA19FD00791303 /* BP-S.cpp */; };
 		D3F50B2F19BA19FD00791303 /* camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AF219BA19FD00791303 /* camera.cpp */; };
 		D3F50B3019BA19FD00791303 /* fundamental.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AF419BA19FD00791303 /* fundamental.cpp */; };
 		D3F50B3119BA19FD00791303 /* stereo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AF519BA19FD00791303 /* stereo.cpp */; };
@@ -589,29 +580,11 @@
 		D3F50AD419BA19FD00791303 /* svmdataset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = svmdataset.h; path = "../../corvis/src/vlfeat-0.9.18/vl/svmdataset.h"; sourceTree = "<group>"; };
 		D3F50AD519BA19FD00791303 /* vlad.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = vlad.c; path = "../../corvis/src/vlfeat-0.9.18/vl/vlad.c"; sourceTree = "<group>"; };
 		D3F50AD619BA19FD00791303 /* vlad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vlad.h; path = "../../corvis/src/vlfeat-0.9.18/vl/vlad.h"; sourceTree = "<group>"; };
-		D3F50AD819BA19FD00791303 /* graph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = graph.h; path = ../../corvis/src/MRF2.2/graph.h; sourceTree = "<group>"; };
 		D3F50AD919BA19FD00791303 /* typeTruncatedQuadratic2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = typeTruncatedQuadratic2D.h; path = ../../corvis/src/MRF2.2/typeTruncatedQuadratic2D.h; sourceTree = "<group>"; };
-		D3F50ADA19BA19FD00791303 /* README.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = README.txt; path = ../../corvis/src/MRF2.2/README.txt; sourceTree = "<group>"; };
-		D3F50ADB19BA19FD00791303 /* graph.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = graph.cpp; path = ../../corvis/src/MRF2.2/graph.cpp; sourceTree = "<group>"; };
-		D3F50ADC19BA19FD00791303 /* regions-maxprod.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "regions-maxprod.cpp"; path = "../../corvis/src/MRF2.2/regions-maxprod.cpp"; sourceTree = "<group>"; };
-		D3F50ADE19BA19FD00791303 /* block.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = block.h; path = ../../corvis/src/MRF2.2/block.h; sourceTree = "<group>"; };
-		D3F50ADF19BA19FD00791303 /* energy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = energy.h; path = ../../corvis/src/MRF2.2/energy.h; sourceTree = "<group>"; };
-		D3F50AE019BA19FD00791303 /* GCoptimization.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GCoptimization.cpp; path = ../../corvis/src/MRF2.2/GCoptimization.cpp; sourceTree = "<group>"; };
-		D3F50AE119BA19FD00791303 /* GCoptimization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GCoptimization.h; path = ../../corvis/src/MRF2.2/GCoptimization.h; sourceTree = "<group>"; };
 		D3F50AE219BA19FD00791303 /* mrf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mrf.h; path = ../../corvis/src/MRF2.2/mrf.h; sourceTree = "<group>"; };
-		D3F50AE319BA19FD00791303 /* MaxProdBP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MaxProdBP.cpp; path = ../../corvis/src/MRF2.2/MaxProdBP.cpp; sourceTree = "<group>"; };
-		D3F50AE419BA19FD00791303 /* MaxProdBP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaxProdBP.h; path = ../../corvis/src/MRF2.2/MaxProdBP.h; sourceTree = "<group>"; };
 		D3F50AE519BA19FD00791303 /* mrf.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mrf.cpp; path = ../../corvis/src/MRF2.2/mrf.cpp; sourceTree = "<group>"; };
-		D3F50AE619BA19FD00791303 /* regions-new.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "regions-new.h"; path = "../../corvis/src/MRF2.2/regions-new.h"; sourceTree = "<group>"; };
 		D3F50AE719BA19FD00791303 /* TRW-S.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "TRW-S.cpp"; path = "../../corvis/src/MRF2.2/TRW-S.cpp"; sourceTree = "<group>"; };
 		D3F50AE819BA19FD00791303 /* TRW-S.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "TRW-S.h"; path = "../../corvis/src/MRF2.2/TRW-S.h"; sourceTree = "<group>"; };
-		D3F50AE919BA19FD00791303 /* ICM.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ICM.cpp; path = ../../corvis/src/MRF2.2/ICM.cpp; sourceTree = "<group>"; };
-		D3F50AEA19BA19FD00791303 /* ICM.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ICM.h; path = ../../corvis/src/MRF2.2/ICM.h; sourceTree = "<group>"; };
-		D3F50AEB19BA19FD00791303 /* LinkedBlockList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LinkedBlockList.cpp; path = ../../corvis/src/MRF2.2/LinkedBlockList.cpp; sourceTree = "<group>"; };
-		D3F50AEC19BA19FD00791303 /* LinkedBlockList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LinkedBlockList.h; path = ../../corvis/src/MRF2.2/LinkedBlockList.h; sourceTree = "<group>"; };
-		D3F50AED19BA19FD00791303 /* maxflow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = maxflow.cpp; path = ../../corvis/src/MRF2.2/maxflow.cpp; sourceTree = "<group>"; };
-		D3F50AEE19BA19FD00791303 /* BP-S.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "BP-S.cpp"; path = "../../corvis/src/MRF2.2/BP-S.cpp"; sourceTree = "<group>"; };
-		D3F50AEF19BA19FD00791303 /* BP-S.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "BP-S.h"; path = "../../corvis/src/MRF2.2/BP-S.h"; sourceTree = "<group>"; };
 		D3F50AF119BA19FD00791303 /* camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = camera.h; path = ../../corvis/src/stereo/camera.h; sourceTree = "<group>"; };
 		D3F50AF219BA19FD00791303 /* camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = camera.cpp; path = ../../corvis/src/stereo/camera.cpp; sourceTree = "<group>"; };
 		D3F50AF319BA19FD00791303 /* fundamental.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fundamental.h; path = ../../corvis/src/stereo/fundamental.h; sourceTree = "<group>"; };
@@ -1228,29 +1201,11 @@
 		D3F50AF019BA19FD00791303 /* MRF */ = {
 			isa = PBXGroup;
 			children = (
-				D3F50AD819BA19FD00791303 /* graph.h */,
 				D3F50AD919BA19FD00791303 /* typeTruncatedQuadratic2D.h */,
-				D3F50ADA19BA19FD00791303 /* README.txt */,
-				D3F50ADB19BA19FD00791303 /* graph.cpp */,
-				D3F50ADC19BA19FD00791303 /* regions-maxprod.cpp */,
-				D3F50ADE19BA19FD00791303 /* block.h */,
-				D3F50ADF19BA19FD00791303 /* energy.h */,
-				D3F50AE019BA19FD00791303 /* GCoptimization.cpp */,
-				D3F50AE119BA19FD00791303 /* GCoptimization.h */,
 				D3F50AE219BA19FD00791303 /* mrf.h */,
-				D3F50AE319BA19FD00791303 /* MaxProdBP.cpp */,
-				D3F50AE419BA19FD00791303 /* MaxProdBP.h */,
 				D3F50AE519BA19FD00791303 /* mrf.cpp */,
-				D3F50AE619BA19FD00791303 /* regions-new.h */,
 				D3F50AE719BA19FD00791303 /* TRW-S.cpp */,
 				D3F50AE819BA19FD00791303 /* TRW-S.h */,
-				D3F50AE919BA19FD00791303 /* ICM.cpp */,
-				D3F50AEA19BA19FD00791303 /* ICM.h */,
-				D3F50AEB19BA19FD00791303 /* LinkedBlockList.cpp */,
-				D3F50AEC19BA19FD00791303 /* LinkedBlockList.h */,
-				D3F50AED19BA19FD00791303 /* maxflow.cpp */,
-				D3F50AEE19BA19FD00791303 /* BP-S.cpp */,
-				D3F50AEF19BA19FD00791303 /* BP-S.h */,
 			);
 			name = MRF;
 			sourceTree = "<group>";
@@ -1400,7 +1355,6 @@
 				324DB328195B8D310004567A /* scale_and_rotate.js in Resources */,
 				324DB329195B8D310004567A /* global_variables.js in Resources */,
 				324DB32A195B8D310004567A /* tilt_monitor.js in Resources */,
-				D3F50B2319BA19FD00791303 /* README.txt in Resources */,
 				324DB32B195B8D310004567A /* web_view_rotation.js in Resources */,
 				324DB32C195B8D310004567A /* depth_data.js in Resources */,
 				324DB32D195B8D310004567A /* request_animation_frame.js in Resources */,
@@ -1454,7 +1408,6 @@
 				3248C7DE18A4515000061D4A /* MPShutterButton.m in Sources */,
 				D3F50B1919BA19FD00791303 /* quickshift.c in Sources */,
 				32EFED86196E078F00FDC89F /* SBJsonStreamParserState.m in Sources */,
-				D3F50B2419BA19FD00791303 /* graph.cpp in Sources */,
 				D3F50B1819BA19FD00791303 /* pgm.c in Sources */,
 				3201E523198C0FE2008F61D5 /* MPOrientationChangeData.m in Sources */,
 				324C751E17B4293800C67ED2 /* MPMeasurementsView.m in Sources */,
@@ -1468,7 +1421,6 @@
 				D3F50B1E19BA19FD00791303 /* slic.c in Sources */,
 				32EFED84196E078F00FDC89F /* SBJsonStreamParserAccumulator.m in Sources */,
 				32EFED34196C91CE00FDC89F /* NSPersistentStore+MagicalRecord.m in Sources */,
-				D3F50B2D19BA19FD00791303 /* maxflow.cpp in Sources */,
 				D3F50B3019BA19FD00791303 /* fundamental.cpp in Sources */,
 				32BA42AD17A2DF8B002BAE13 /* MPAppDelegate.m in Sources */,
 				32EFED3C196C91CE00FDC89F /* MagicalRecord.m in Sources */,
@@ -1478,12 +1430,10 @@
 				D3F50B1119BA19FD00791303 /* kmeans.c in Sources */,
 				32EEC84F17B97D1900A0DF49 /* MPMeasurementView.m in Sources */,
 				32BA42BC17A2DF8B002BAE13 /* MPBaseViewController.m in Sources */,
-				D3F50B2519BA19FD00791303 /* regions-maxprod.cpp in Sources */,
 				32EFED8B196E078F00FDC89F /* SBJsonUTF8Stream.m in Sources */,
 				D3F50B1719BA19FD00791303 /* mser.c in Sources */,
 				32EFED30196C91CE00FDC89F /* NSManagedObjectContext+MagicalRecord.m in Sources */,
 				320A5BCD198032AB0046BA1B /* MPTitleTextBox.m in Sources */,
-				D3F50B2B19BA19FD00791303 /* ICM.cpp in Sources */,
 				D3F50B0919BA19FD00791303 /* host.c in Sources */,
 				32EFED36196C91CE00FDC89F /* MagicalRecord+Actions.m in Sources */,
 				D3F50B0419BA19FD00791303 /* generic.c in Sources */,
@@ -1502,7 +1452,6 @@
 				3244D39218E60F4600AB0DE0 /* RCCalibration3.m in Sources */,
 				D3F50B2219BA19FD00791303 /* vlad.c in Sources */,
 				32EFED81196E078F00FDC89F /* NSObject+SBJson.m in Sources */,
-				D3F50B2C19BA19FD00791303 /* LinkedBlockList.cpp in Sources */,
 				32EFED38196C91CE00FDC89F /* MagicalRecord+iCloud.m in Sources */,
 				32EFED39196C91CE00FDC89F /* MagicalRecord+Options.m in Sources */,
 				3244D39018E60F4600AB0DE0 /* RCCalibration1.m in Sources */,
@@ -1546,9 +1495,7 @@
 				32745D691892FBCE000C68F4 /* MPLoupe.m in Sources */,
 				32BA433817A2EF69002BAE13 /* MPCapturePhoto.m in Sources */,
 				32C135C91892E6F5004DF62B /* ACMagnifyingGlass.m in Sources */,
-				D3F50B2E19BA19FD00791303 /* BP-S.cpp in Sources */,
 				3280BB3D1919B44100338A38 /* MPSurveyAnswer.m in Sources */,
-				D3F50B2819BA19FD00791303 /* MaxProdBP.cpp in Sources */,
 				32EFEDA31973349B00FDC89F /* MPHttpInterceptor.m in Sources */,
 				32AC6415198C393200699A2E /* MPUndoOverlay.m in Sources */,
 				322C371F18A18D78001C69C2 /* MPInstructionsView.m in Sources */,
@@ -1572,7 +1519,6 @@
 				32EFED8A196E078F00FDC89F /* SBJsonTokeniser.m in Sources */,
 				32EFED29196C91CE00FDC89F /* NSString+MagicalDataImport.m in Sources */,
 				3248C7DB18A44AE400061D4A /* MPToolbarView.m in Sources */,
-				D3F50B2719BA19FD00791303 /* GCoptimization.cpp in Sources */,
 				3201E4E41982D212008F61D5 /* MPFadeTransition.m in Sources */,
 				32EFED3B196C91CE00FDC89F /* MagicalRecord+ShorthandSupport.m in Sources */,
 				32EFED26196C91CE00FDC89F /* NSNumber+MagicalDataImport.m in Sources */,

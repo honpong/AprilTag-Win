@@ -207,7 +207,7 @@ SOURCES := $(SOURCES) $(STEREO_SOURCES)
 ############################## MRF ############################
 d := MRF2.2
 
-MRF_CXX_SOURCES := $(addprefix src/$(d)/, BP-S.cpp GCoptimization.cpp ICM.cpp LinkedBlockList.cpp MaxProdBP.cpp TRW-S.cpp graph.cpp maxflow.cpp regions-maxprod.cpp mrf.cpp)
+MRF_CXX_SOURCES := $(addprefix src/$(d)/, TRW-S.cpp mrf.cpp)
 
 CPPFLAGS := $(CPPFLAGS)
 

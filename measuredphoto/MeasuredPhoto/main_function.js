@@ -36,9 +36,12 @@ function clear_tool_data(){ //this should be called whenever theres a switch in 
 
 
 function rc_initialize(){
+    console.log = logNative;
+    console.log("rc_initialize()");
+    
     is_rc_initialized = true;
-
-    //precent backspace button from bring page back.
+    
+        //precent backspace button from bring page back.
     $(document).bind("keydown", function(e){
         if (e.keyCode == 8) {e.preventDefault();}
     });
@@ -64,7 +67,7 @@ function rc_initialize(){
     measured_svg = img_container.nested();
     draw_g.add(measured_svg);
     
-    //alert('hammer initializaitons');
+    console.log('hammer initializaitons');
 
     hammer = Hammer(document.body);
     
@@ -298,6 +301,7 @@ function setDefaultUnits(use_metric) {
 }
 
 function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric){
+    console.log("loadMPhoto()");
     window.setTimeout( function () {
         m_photo_guid = guid;
         if (typeof use_metric === "undefined" || use_metric === null) { default_units_metric = false; } //metric is our default if not set
@@ -348,4 +352,14 @@ function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric)
             return(err.message);
         }
     },0 );
+}
+
+function logNative(message)
+{
+    var jsonData = { "message": message };
+    $.ajax({ type: "POST", url: "http://internal.realitycap.com/log/", contentType: "application/json", processData: false, dataType: "json", data: JSON.stringify(jsonData) })
+        .fail(function(jqXHR, textStatus, errorThrown) {
+              alert(textStatus + ": " + JSON.stringify(jqXHR));
+        })
+    ;
 }

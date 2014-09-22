@@ -156,7 +156,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     if (indexPath) // if indexPath is nil, then the deleted photo was not opened from the gallery view
     {
         NSInteger itemIndex = indexPath.item;
-        [measuredPhotos removeObjectAtIndex:itemIndex];
+        if (itemIndex < measuredPhotos.count) [measuredPhotos removeObjectAtIndex:itemIndex];
         [self.collectionView deleteItemsAtIndexPaths:[NSArray arrayWithObject:indexPath]];
     }
     [self.collectionView reloadData];
@@ -219,6 +219,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
             }
             
             photoToBeDeleted = nil;
+            self.editPhotoController.measuredPhoto = nil;
         }];
     }
 }

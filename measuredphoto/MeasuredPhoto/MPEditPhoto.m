@@ -310,12 +310,22 @@
             *error = [NSError errorWithDomain:ERROR_DOMAIN code:500 userInfo:userInfo];
         }
     }
+    else if ([nativeAction.request.URL.description endsWithString:@"/log/"] && [nativeAction.method isEqualToString:@"POST"])
+    {
+        [self webViewLog:[nativeAction.params objectForKey:@"message"]];
+        return @{ @"message": @"Write to log successful" };
+    }
     else
     {
        return @{ @"message": @"Invalid URL" };
     }
     
     return nil;
+}
+
+- (void) webViewLog:(NSString*)message
+{
+    if (message && message.length > 0) DLogs(message);
 }
 
 @end

@@ -80,12 +80,6 @@
 		32BA42B617A2DF8B002BAE13 /* MainStoryboard_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 32BA42B417A2DF8B002BAE13 /* MainStoryboard_iPhone.storyboard */; };
 		32BA42B917A2DF8B002BAE13 /* MainStoryboard_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 32BA42B717A2DF8B002BAE13 /* MainStoryboard_iPad.storyboard */; };
 		32BA42BC17A2DF8B002BAE13 /* MPBaseViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA42BB17A2DF8B002BAE13 /* MPBaseViewController.m */; };
-		32BA42C417A2DF8B002BAE13 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA42C317A2DF8B002BAE13 /* SenTestingKit.framework */; };
-		32BA42C517A2DF8B002BAE13 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA429C17A2DF8B002BAE13 /* UIKit.framework */; };
-		32BA42C617A2DF8B002BAE13 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA429E17A2DF8B002BAE13 /* Foundation.framework */; };
-		32BA42CE17A2DF8B002BAE13 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 32BA42CC17A2DF8B002BAE13 /* InfoPlist.strings */; };
-		32BA42D117A2DF8B002BAE13 /* MeasuredPhotoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA42D017A2DF8B002BAE13 /* MeasuredPhotoTests.m */; };
-		32BA432917A2EE9D002BAE13 /* MPAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA432717A2EE9D002BAE13 /* MPAnalytics.m */; };
 		32BA433217A2EF4E002BAE13 /* MPAugmentedRealityView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA432B17A2EF4E002BAE13 /* MPAugmentedRealityView.m */; };
 		32BA433317A2EF4E002BAE13 /* MPLineLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA432D17A2EF4E002BAE13 /* MPLineLayer.m */; };
 		32BA433417A2EF4E002BAE13 /* MPLineLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA432F17A2EF4E002BAE13 /* MPLineLayerDelegate.m */; };
@@ -190,17 +184,8 @@
 		D3F50B2019BA19FD00791303 /* svm.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AD119BA19FD00791303 /* svm.c */; };
 		D3F50B2119BA19FD00791303 /* svmdataset.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AD319BA19FD00791303 /* svmdataset.c */; };
 		D3F50B2219BA19FD00791303 /* vlad.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AD519BA19FD00791303 /* vlad.c */; };
-		D3F50B2319BA19FD00791303 /* README.txt in Resources */ = {isa = PBXBuildFile; fileRef = D3F50ADA19BA19FD00791303 /* README.txt */; };
-		D3F50B2419BA19FD00791303 /* graph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50ADB19BA19FD00791303 /* graph.cpp */; };
-		D3F50B2519BA19FD00791303 /* regions-maxprod.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50ADC19BA19FD00791303 /* regions-maxprod.cpp */; };
-		D3F50B2719BA19FD00791303 /* GCoptimization.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AE019BA19FD00791303 /* GCoptimization.cpp */; };
-		D3F50B2819BA19FD00791303 /* MaxProdBP.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AE319BA19FD00791303 /* MaxProdBP.cpp */; };
 		D3F50B2919BA19FD00791303 /* mrf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AE519BA19FD00791303 /* mrf.cpp */; };
 		D3F50B2A19BA19FD00791303 /* TRW-S.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AE719BA19FD00791303 /* TRW-S.cpp */; };
-		D3F50B2B19BA19FD00791303 /* ICM.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AE919BA19FD00791303 /* ICM.cpp */; };
-		D3F50B2C19BA19FD00791303 /* LinkedBlockList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AEB19BA19FD00791303 /* LinkedBlockList.cpp */; };
-		D3F50B2D19BA19FD00791303 /* maxflow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AED19BA19FD00791303 /* maxflow.cpp */; };
-		D3F50B2E19BA19FD00791303 /* BP-S.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AEE19BA19FD00791303 /* BP-S.cpp */; };
 		D3F50B2F19BA19FD00791303 /* camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AF219BA19FD00791303 /* camera.cpp */; };
 		D3F50B3019BA19FD00791303 /* fundamental.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AF419BA19FD00791303 /* fundamental.cpp */; };
 		D3F50B3119BA19FD00791303 /* stereo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AF519BA19FD00791303 /* stereo.cpp */; };
@@ -246,13 +231,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = 32BA04DB19102B04008365F2;
 			remoteInfo = TrueMeasureSDK;
-		};
-		32BA42C717A2DF8B002BAE13 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 32BA429117A2DF8B002BAE13 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 32BA429817A2DF8B002BAE13;
-			remoteInfo = MeasuredPhoto;
 		};
 		32BA433F17A2EFF2002BAE13 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -388,12 +366,7 @@
 		32BA42B817A2DF8B002BAE13 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/MainStoryboard_iPad.storyboard; sourceTree = "<group>"; };
 		32BA42BA17A2DF8B002BAE13 /* MPBaseViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MPBaseViewController.h; sourceTree = "<group>"; };
 		32BA42BB17A2DF8B002BAE13 /* MPBaseViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MPBaseViewController.m; sourceTree = "<group>"; };
-		32BA42C217A2DF8B002BAE13 /* MeasuredPhotoTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MeasuredPhotoTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		32BA42C317A2DF8B002BAE13 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
-		32BA42CB17A2DF8B002BAE13 /* MeasuredPhotoTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "MeasuredPhotoTests-Info.plist"; sourceTree = "<group>"; };
-		32BA42CD17A2DF8B002BAE13 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		32BA42CF17A2DF8B002BAE13 /* MeasuredPhotoTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MeasuredPhotoTests.h; sourceTree = "<group>"; };
-		32BA42D017A2DF8B002BAE13 /* MeasuredPhotoTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MeasuredPhotoTests.m; sourceTree = "<group>"; };
 		32BA432617A2EE9D002BAE13 /* MPAnalytics.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPAnalytics.h; sourceTree = "<group>"; };
 		32BA432717A2EE9D002BAE13 /* MPAnalytics.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPAnalytics.m; sourceTree = "<group>"; };
 		32BA432817A2EE9D002BAE13 /* MPConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPConstants.h; sourceTree = "<group>"; };
@@ -607,29 +580,11 @@
 		D3F50AD419BA19FD00791303 /* svmdataset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = svmdataset.h; path = "../../corvis/src/vlfeat-0.9.18/vl/svmdataset.h"; sourceTree = "<group>"; };
 		D3F50AD519BA19FD00791303 /* vlad.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = vlad.c; path = "../../corvis/src/vlfeat-0.9.18/vl/vlad.c"; sourceTree = "<group>"; };
 		D3F50AD619BA19FD00791303 /* vlad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vlad.h; path = "../../corvis/src/vlfeat-0.9.18/vl/vlad.h"; sourceTree = "<group>"; };
-		D3F50AD819BA19FD00791303 /* graph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = graph.h; path = ../../corvis/src/MRF2.2/graph.h; sourceTree = "<group>"; };
 		D3F50AD919BA19FD00791303 /* typeTruncatedQuadratic2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = typeTruncatedQuadratic2D.h; path = ../../corvis/src/MRF2.2/typeTruncatedQuadratic2D.h; sourceTree = "<group>"; };
-		D3F50ADA19BA19FD00791303 /* README.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = README.txt; path = ../../corvis/src/MRF2.2/README.txt; sourceTree = "<group>"; };
-		D3F50ADB19BA19FD00791303 /* graph.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = graph.cpp; path = ../../corvis/src/MRF2.2/graph.cpp; sourceTree = "<group>"; };
-		D3F50ADC19BA19FD00791303 /* regions-maxprod.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "regions-maxprod.cpp"; path = "../../corvis/src/MRF2.2/regions-maxprod.cpp"; sourceTree = "<group>"; };
-		D3F50ADE19BA19FD00791303 /* block.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = block.h; path = ../../corvis/src/MRF2.2/block.h; sourceTree = "<group>"; };
-		D3F50ADF19BA19FD00791303 /* energy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = energy.h; path = ../../corvis/src/MRF2.2/energy.h; sourceTree = "<group>"; };
-		D3F50AE019BA19FD00791303 /* GCoptimization.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = GCoptimization.cpp; path = ../../corvis/src/MRF2.2/GCoptimization.cpp; sourceTree = "<group>"; };
-		D3F50AE119BA19FD00791303 /* GCoptimization.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GCoptimization.h; path = ../../corvis/src/MRF2.2/GCoptimization.h; sourceTree = "<group>"; };
 		D3F50AE219BA19FD00791303 /* mrf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mrf.h; path = ../../corvis/src/MRF2.2/mrf.h; sourceTree = "<group>"; };
-		D3F50AE319BA19FD00791303 /* MaxProdBP.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = MaxProdBP.cpp; path = ../../corvis/src/MRF2.2/MaxProdBP.cpp; sourceTree = "<group>"; };
-		D3F50AE419BA19FD00791303 /* MaxProdBP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MaxProdBP.h; path = ../../corvis/src/MRF2.2/MaxProdBP.h; sourceTree = "<group>"; };
 		D3F50AE519BA19FD00791303 /* mrf.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mrf.cpp; path = ../../corvis/src/MRF2.2/mrf.cpp; sourceTree = "<group>"; };
-		D3F50AE619BA19FD00791303 /* regions-new.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "regions-new.h"; path = "../../corvis/src/MRF2.2/regions-new.h"; sourceTree = "<group>"; };
 		D3F50AE719BA19FD00791303 /* TRW-S.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "TRW-S.cpp"; path = "../../corvis/src/MRF2.2/TRW-S.cpp"; sourceTree = "<group>"; };
 		D3F50AE819BA19FD00791303 /* TRW-S.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "TRW-S.h"; path = "../../corvis/src/MRF2.2/TRW-S.h"; sourceTree = "<group>"; };
-		D3F50AE919BA19FD00791303 /* ICM.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ICM.cpp; path = ../../corvis/src/MRF2.2/ICM.cpp; sourceTree = "<group>"; };
-		D3F50AEA19BA19FD00791303 /* ICM.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ICM.h; path = ../../corvis/src/MRF2.2/ICM.h; sourceTree = "<group>"; };
-		D3F50AEB19BA19FD00791303 /* LinkedBlockList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = LinkedBlockList.cpp; path = ../../corvis/src/MRF2.2/LinkedBlockList.cpp; sourceTree = "<group>"; };
-		D3F50AEC19BA19FD00791303 /* LinkedBlockList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = LinkedBlockList.h; path = ../../corvis/src/MRF2.2/LinkedBlockList.h; sourceTree = "<group>"; };
-		D3F50AED19BA19FD00791303 /* maxflow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = maxflow.cpp; path = ../../corvis/src/MRF2.2/maxflow.cpp; sourceTree = "<group>"; };
-		D3F50AEE19BA19FD00791303 /* BP-S.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "BP-S.cpp"; path = "../../corvis/src/MRF2.2/BP-S.cpp"; sourceTree = "<group>"; };
-		D3F50AEF19BA19FD00791303 /* BP-S.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "BP-S.h"; path = "../../corvis/src/MRF2.2/BP-S.h"; sourceTree = "<group>"; };
 		D3F50AF119BA19FD00791303 /* camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = camera.h; path = ../../corvis/src/stereo/camera.h; sourceTree = "<group>"; };
 		D3F50AF219BA19FD00791303 /* camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = camera.cpp; path = ../../corvis/src/stereo/camera.cpp; sourceTree = "<group>"; };
 		D3F50AF319BA19FD00791303 /* fundamental.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fundamental.h; path = ../../corvis/src/stereo/fundamental.h; sourceTree = "<group>"; };
@@ -680,16 +635,6 @@
 				32BA42A117A2DF8B002BAE13 /* CoreGraphics.framework in Frameworks */,
 				320529E618046AF6007D7435 /* libGoogleAnalyticsServices.a in Frameworks */,
 				32BA434617A2F986002BAE13 /* libRCCore.a in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		32BA42BE17A2DF8B002BAE13 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				32BA42C417A2DF8B002BAE13 /* SenTestingKit.framework in Frameworks */,
-				32BA42C517A2DF8B002BAE13 /* UIKit.framework in Frameworks */,
-				32BA42C617A2DF8B002BAE13 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -782,7 +727,6 @@
 				329222E6180DEF8A008BF9A0 /* TrueMeasureSDK.xcodeproj */,
 				32BA433917A2EFF2002BAE13 /* RCCore.xcodeproj */,
 				32BA42A217A2DF8B002BAE13 /* MeasuredPhoto */,
-				32BA42C917A2DF8B002BAE13 /* MeasuredPhotoTests */,
 				32BA429B17A2DF8B002BAE13 /* Frameworks */,
 				32BA429A17A2DF8B002BAE13 /* Products */,
 			);
@@ -792,7 +736,6 @@
 			isa = PBXGroup;
 			children = (
 				32BA429917A2DF8B002BAE13 /* TrueMeasure.app */,
-				32BA42C217A2DF8B002BAE13 /* MeasuredPhotoTests.octest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -865,25 +808,6 @@
 				32BA42A417A2DF8B002BAE13 /* MeasuredPhoto-Info.plist */,
 				32BA42AA17A2DF8B002BAE13 /* MeasuredPhoto-Prefix.pch */,
 				32DB2BE617C28AC9001F7E5D /* Settings.bundle */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		32BA42C917A2DF8B002BAE13 /* MeasuredPhotoTests */ = {
-			isa = PBXGroup;
-			children = (
-				32BA42CF17A2DF8B002BAE13 /* MeasuredPhotoTests.h */,
-				32BA42D017A2DF8B002BAE13 /* MeasuredPhotoTests.m */,
-				32BA42CA17A2DF8B002BAE13 /* Supporting Files */,
-			);
-			path = MeasuredPhotoTests;
-			sourceTree = "<group>";
-		};
-		32BA42CA17A2DF8B002BAE13 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				32BA42CB17A2DF8B002BAE13 /* MeasuredPhotoTests-Info.plist */,
-				32BA42CC17A2DF8B002BAE13 /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -1277,29 +1201,11 @@
 		D3F50AF019BA19FD00791303 /* MRF */ = {
 			isa = PBXGroup;
 			children = (
-				D3F50AD819BA19FD00791303 /* graph.h */,
 				D3F50AD919BA19FD00791303 /* typeTruncatedQuadratic2D.h */,
-				D3F50ADA19BA19FD00791303 /* README.txt */,
-				D3F50ADB19BA19FD00791303 /* graph.cpp */,
-				D3F50ADC19BA19FD00791303 /* regions-maxprod.cpp */,
-				D3F50ADE19BA19FD00791303 /* block.h */,
-				D3F50ADF19BA19FD00791303 /* energy.h */,
-				D3F50AE019BA19FD00791303 /* GCoptimization.cpp */,
-				D3F50AE119BA19FD00791303 /* GCoptimization.h */,
 				D3F50AE219BA19FD00791303 /* mrf.h */,
-				D3F50AE319BA19FD00791303 /* MaxProdBP.cpp */,
-				D3F50AE419BA19FD00791303 /* MaxProdBP.h */,
 				D3F50AE519BA19FD00791303 /* mrf.cpp */,
-				D3F50AE619BA19FD00791303 /* regions-new.h */,
 				D3F50AE719BA19FD00791303 /* TRW-S.cpp */,
 				D3F50AE819BA19FD00791303 /* TRW-S.h */,
-				D3F50AE919BA19FD00791303 /* ICM.cpp */,
-				D3F50AEA19BA19FD00791303 /* ICM.h */,
-				D3F50AEB19BA19FD00791303 /* LinkedBlockList.cpp */,
-				D3F50AEC19BA19FD00791303 /* LinkedBlockList.h */,
-				D3F50AED19BA19FD00791303 /* maxflow.cpp */,
-				D3F50AEE19BA19FD00791303 /* BP-S.cpp */,
-				D3F50AEF19BA19FD00791303 /* BP-S.h */,
 			);
 			name = MRF;
 			sourceTree = "<group>";
@@ -1351,25 +1257,6 @@
 			productReference = 32BA429917A2DF8B002BAE13 /* TrueMeasure.app */;
 			productType = "com.apple.product-type.application";
 		};
-		32BA42C117A2DF8B002BAE13 /* MeasuredPhotoTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 32BA42D717A2DF8B002BAE13 /* Build configuration list for PBXNativeTarget "MeasuredPhotoTests" */;
-			buildPhases = (
-				32BA42BD17A2DF8B002BAE13 /* Sources */,
-				32BA42BE17A2DF8B002BAE13 /* Frameworks */,
-				32BA42BF17A2DF8B002BAE13 /* Resources */,
-				32BA42C017A2DF8B002BAE13 /* ShellScript */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				32BA42C817A2DF8B002BAE13 /* PBXTargetDependency */,
-			);
-			name = MeasuredPhotoTests;
-			productName = MeasuredPhotoTests;
-			productReference = 32BA42C217A2DF8B002BAE13 /* MeasuredPhotoTests.octest */;
-			productType = "com.apple.product-type.bundle";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -1409,7 +1296,6 @@
 			projectRoot = "";
 			targets = (
 				32BA429817A2DF8B002BAE13 /* MeasuredPhoto */,
-				32BA42C117A2DF8B002BAE13 /* MeasuredPhotoTests */,
 			);
 		};
 /* End PBXProject section */
@@ -1469,7 +1355,6 @@
 				324DB328195B8D310004567A /* scale_and_rotate.js in Resources */,
 				324DB329195B8D310004567A /* global_variables.js in Resources */,
 				324DB32A195B8D310004567A /* tilt_monitor.js in Resources */,
-				D3F50B2319BA19FD00791303 /* README.txt in Resources */,
 				324DB32B195B8D310004567A /* web_view_rotation.js in Resources */,
 				324DB32C195B8D310004567A /* depth_data.js in Resources */,
 				324DB32D195B8D310004567A /* request_animation_frame.js in Resources */,
@@ -1485,14 +1370,6 @@
 				32745D6B18930889000C68F4 /* kb-loupe-hi@2x.png in Resources */,
 				3246689418E62B5400A3DF62 /* ipad_on_table.jpg in Resources */,
 				3246689C18E62B6700A3DF62 /* holding_portrait.jpg in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		32BA42BF17A2DF8B002BAE13 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				32BA42CE17A2DF8B002BAE13 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1514,19 +1391,6 @@
 			shellScript = "KEYWORDS=\"TODO|FIXME|\\?\\?\\?:|\\!\\!\\!:\"\nfind ${SRCROOT} \\( -name \"*.h\" -or -name \"*.m\" \\) -print0 | \\\nxargs -0 egrep --with-filename --line-number --only-matching \"($KEYWORDS).*\\$\" | \\\nperl -p -e \"s/($KEYWORDS)/ warning: \\$1/\"";
 			showEnvVarsInLog = 0;
 		};
-		32BA42C017A2DF8B002BAE13 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
-		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -1544,7 +1408,6 @@
 				3248C7DE18A4515000061D4A /* MPShutterButton.m in Sources */,
 				D3F50B1919BA19FD00791303 /* quickshift.c in Sources */,
 				32EFED86196E078F00FDC89F /* SBJsonStreamParserState.m in Sources */,
-				D3F50B2419BA19FD00791303 /* graph.cpp in Sources */,
 				D3F50B1819BA19FD00791303 /* pgm.c in Sources */,
 				3201E523198C0FE2008F61D5 /* MPOrientationChangeData.m in Sources */,
 				324C751E17B4293800C67ED2 /* MPMeasurementsView.m in Sources */,
@@ -1558,7 +1421,6 @@
 				D3F50B1E19BA19FD00791303 /* slic.c in Sources */,
 				32EFED84196E078F00FDC89F /* SBJsonStreamParserAccumulator.m in Sources */,
 				32EFED34196C91CE00FDC89F /* NSPersistentStore+MagicalRecord.m in Sources */,
-				D3F50B2D19BA19FD00791303 /* maxflow.cpp in Sources */,
 				D3F50B3019BA19FD00791303 /* fundamental.cpp in Sources */,
 				32BA42AD17A2DF8B002BAE13 /* MPAppDelegate.m in Sources */,
 				32EFED3C196C91CE00FDC89F /* MagicalRecord.m in Sources */,
@@ -1568,12 +1430,10 @@
 				D3F50B1119BA19FD00791303 /* kmeans.c in Sources */,
 				32EEC84F17B97D1900A0DF49 /* MPMeasurementView.m in Sources */,
 				32BA42BC17A2DF8B002BAE13 /* MPBaseViewController.m in Sources */,
-				D3F50B2519BA19FD00791303 /* regions-maxprod.cpp in Sources */,
 				32EFED8B196E078F00FDC89F /* SBJsonUTF8Stream.m in Sources */,
 				D3F50B1719BA19FD00791303 /* mser.c in Sources */,
 				32EFED30196C91CE00FDC89F /* NSManagedObjectContext+MagicalRecord.m in Sources */,
 				320A5BCD198032AB0046BA1B /* MPTitleTextBox.m in Sources */,
-				D3F50B2B19BA19FD00791303 /* ICM.cpp in Sources */,
 				D3F50B0919BA19FD00791303 /* host.c in Sources */,
 				32EFED36196C91CE00FDC89F /* MagicalRecord+Actions.m in Sources */,
 				D3F50B0419BA19FD00791303 /* generic.c in Sources */,
@@ -1592,7 +1452,6 @@
 				3244D39218E60F4600AB0DE0 /* RCCalibration3.m in Sources */,
 				D3F50B2219BA19FD00791303 /* vlad.c in Sources */,
 				32EFED81196E078F00FDC89F /* NSObject+SBJson.m in Sources */,
-				D3F50B2C19BA19FD00791303 /* LinkedBlockList.cpp in Sources */,
 				32EFED38196C91CE00FDC89F /* MagicalRecord+iCloud.m in Sources */,
 				32EFED39196C91CE00FDC89F /* MagicalRecord+Options.m in Sources */,
 				3244D39018E60F4600AB0DE0 /* RCCalibration1.m in Sources */,
@@ -1636,9 +1495,7 @@
 				32745D691892FBCE000C68F4 /* MPLoupe.m in Sources */,
 				32BA433817A2EF69002BAE13 /* MPCapturePhoto.m in Sources */,
 				32C135C91892E6F5004DF62B /* ACMagnifyingGlass.m in Sources */,
-				D3F50B2E19BA19FD00791303 /* BP-S.cpp in Sources */,
 				3280BB3D1919B44100338A38 /* MPSurveyAnswer.m in Sources */,
-				D3F50B2819BA19FD00791303 /* MaxProdBP.cpp in Sources */,
 				32EFEDA31973349B00FDC89F /* MPHttpInterceptor.m in Sources */,
 				32AC6415198C393200699A2E /* MPUndoOverlay.m in Sources */,
 				322C371F18A18D78001C69C2 /* MPInstructionsView.m in Sources */,
@@ -1662,7 +1519,6 @@
 				32EFED8A196E078F00FDC89F /* SBJsonTokeniser.m in Sources */,
 				32EFED29196C91CE00FDC89F /* NSString+MagicalDataImport.m in Sources */,
 				3248C7DB18A44AE400061D4A /* MPToolbarView.m in Sources */,
-				D3F50B2719BA19FD00791303 /* GCoptimization.cpp in Sources */,
 				3201E4E41982D212008F61D5 /* MPFadeTransition.m in Sources */,
 				32EFED3B196C91CE00FDC89F /* MagicalRecord+ShorthandSupport.m in Sources */,
 				32EFED26196C91CE00FDC89F /* NSNumber+MagicalDataImport.m in Sources */,
@@ -1683,15 +1539,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		32BA42BD17A2DF8B002BAE13 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				32BA42D117A2DF8B002BAE13 /* MeasuredPhotoTests.m in Sources */,
-				32BA432917A2EE9D002BAE13 /* MPAnalytics.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -1704,11 +1551,6 @@
 			isa = PBXTargetDependency;
 			name = TrueMeasureSDK;
 			targetProxy = 329222F4180F13C5008BF9A0 /* PBXContainerItemProxy */;
-		};
-		32BA42C817A2DF8B002BAE13 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 32BA429817A2DF8B002BAE13 /* MeasuredPhoto */;
-			targetProxy = 32BA42C717A2DF8B002BAE13 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1735,14 +1577,6 @@
 				32BA42B817A2DF8B002BAE13 /* en */,
 			);
 			name = MainStoryboard_iPad.storyboard;
-			sourceTree = "<group>";
-		};
-		32BA42CC17A2DF8B002BAE13 /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				32BA42CD17A2DF8B002BAE13 /* en */,
-			);
-			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -1813,23 +1647,6 @@
 				TARGETED_DEVICE_FAMILY = "1,2";
 				USER_HEADER_SEARCH_PATHS = "\"$(PROJECT_TEMP_DIR)/../UninstalledProducts/include\"";
 				WRAPPER_EXTENSION = app;
-			};
-			name = Archive;
-		};
-		3287D80F1815DF92006578F9 /* Archive */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/MeasuredPhoto.app/MeasuredPhoto";
-				FRAMEWORK_SEARCH_PATHS = (
-					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
-					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
-				INFOPLIST_FILE = "MeasuredPhotoTests/MeasuredPhotoTests-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = octest;
 			};
 			name = Archive;
 		};
@@ -1974,40 +1791,6 @@
 			};
 			name = Release;
 		};
-		32BA42D817A2DF8B002BAE13 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/MeasuredPhoto.app/MeasuredPhoto";
-				FRAMEWORK_SEARCH_PATHS = (
-					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
-					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
-				INFOPLIST_FILE = "MeasuredPhotoTests/MeasuredPhotoTests-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = octest;
-			};
-			name = Debug;
-		};
-		32BA42D917A2DF8B002BAE13 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/MeasuredPhoto.app/MeasuredPhoto";
-				FRAMEWORK_SEARCH_PATHS = (
-					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
-					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
-				INFOPLIST_FILE = "MeasuredPhotoTests/MeasuredPhotoTests-Info.plist";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = octest;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -2027,16 +1810,6 @@
 				32BA42D517A2DF8B002BAE13 /* Debug */,
 				32BA42D617A2DF8B002BAE13 /* Release */,
 				3287D80E1815DF92006578F9 /* Archive */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		32BA42D717A2DF8B002BAE13 /* Build configuration list for PBXNativeTarget "MeasuredPhotoTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				32BA42D817A2DF8B002BAE13 /* Debug */,
-				32BA42D917A2DF8B002BAE13 /* Release */,
-				3287D80F1815DF92006578F9 /* Archive */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

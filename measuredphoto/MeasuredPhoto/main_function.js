@@ -356,6 +356,10 @@ function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric)
 
 function logNative(message)
 {
+    // log to browser console
+    console.debug(message);
+    
+    // log to native land
     var jsonData = { "message": message };
     $.ajax({ type: "POST", url: "http://internal.realitycap.com/log/", contentType: "application/json", processData: false, dataType: "json", data: JSON.stringify(jsonData) })
         .fail(function(jqXHR, textStatus, errorThrown) {

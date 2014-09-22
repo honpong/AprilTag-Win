@@ -184,7 +184,7 @@ function rc_initialize(){
     }
     
     function angle_handler(i) {
-    
+        rcMeasurements.new_range(i.x, i.y, measured_svg);
     }
     
     function text_entry_handler (i) {

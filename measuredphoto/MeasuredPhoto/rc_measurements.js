@@ -6,6 +6,7 @@ rcMeasurements = {
     measurements : {},
     angles : {},
     notes : {},
+    ranges : {},
     measurement_being_edited : null,
     active_note : null,
     inches_to_meter : 39.3701,
@@ -14,6 +15,14 @@ rcMeasurements = {
     font_family : 'HelveticaNeue-Light, Helvetica, Arial',
     prior_measurement_states : []
 };
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                                                                      //
+//          LINEAR MEASUREMENTS                                                                                                         //
+//                                                                                                                                      //
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // instantiate a measurement and add it to the measurment list
 // takes image locations
@@ -188,6 +197,143 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
     
 }
 
+rcMeasurements.dragEndHandler = function (m, e) {
+    e.stopPropagation(); e.preventDefault();
+    rcMeasurements.most_recent_drag = new Date();
+    rcMeasurements.deselect_measurement(m);
+    rcMeasurements.save_measurements();
+}
+
+rcMeasurements.click_action = function (m,e) {
+    //if we just ended a drag, don't propagate click
+    var now = new Date();
+    var last_drag_time_diff = now - rcMeasurements.most_recent_drag;
+    if (last_drag_time_diff < 100){
+        e.stopPropagation(); e.preventDefault();
+        return;
+    }
+    
+    setTimeout(function(){ return false;},1);  //this just forces refresh for some browsers
+    if ( rcMeasurements.is_annotation_being_deleted(m) ) {  //this is both a deletion and a check for deletion
+        e.stopPropagation(); e.preventDefault(); // if deleted, dont do anything else
+    }
+    //otherwise allow anotations gesture to propegate to image to see if it has an effect on anotations.
+}
+
+rcMeasurements.redraw_measurement = function (m) {
+    
+    m.text_shadow.text(rcMeasurements.format_dist(m));
+    m.text.text(rcMeasurements.format_dist(m));
+    
+    // calculate how big of a gap we need for text, certain other layout paramaters
+    var hlf_text_w = m.text_shadow.node.offsetWidth/2;
+    var hlf_text_h = m.text_shadow.node.offsetHeight/2;
+    
+    m.pixel_distatnce = Math.sqrt( Math.pow((m.x1 - m.x2), 2) + Math.pow((m.y1 - m.y2), 2)); //how long the line is
+    m.xdiffrt = (m.x1-m.x2) / m.pixel_distatnce; //ratio of x length to line length
+    m.ydiffrt = (m.y1-m.y2) / m.pixel_distatnce; //ratio of y lenght to line length
+    m.mid_x = m.x1 + (m.x2 - m.x1)/2;   //midpoint of line
+    m.mid_y = m.y1 + (m.y2 - m.y1)/2;
+    
+    console.log('hlf_text_w hlf_text_h  m.xdiffrt m.ydiffrt ' + hlf_text_w.toFixed() + ' ' + hlf_text_h.toFixed() + ' ' +  m.xdiffrt.toFixed(2) + ' ' +  m.ydiffrt.toFixed(2) );
+    
+    if (hlf_text_w/hlf_text_h < Math.abs(m.xdiffrt/m.ydiffrt)) { //line is more horizontal, text width dominates gap
+        m.half_font_gap = Math.sqrt(hlf_text_w*hlf_text_w + hlf_text_w*hlf_text_w*m.ydiffrt*m.ydiffrt/m.xdiffrt/m.xdiffrt)+5;
+    }
+    else { //line is more vertical, we want to use a smaller gap dependent on angle
+        m.half_font_gap = Math.sqrt(hlf_text_h*hlf_text_h + hlf_text_h*hlf_text_h*m.xdiffrt*m.xdiffrt/m.ydiffrt/m.ydiffrt );
+    }
+    
+    m.font_offset = false;
+    m.font_offset_x = 0;
+    m.font_offset_y = - hlf_text_h;
+    
+    if (m.pixel_distatnce < m.half_font_gap * 2 + 10) {
+        m.font_offset = true;
+        m.font_offset_x = -m.half_font_gap * m.ydiffrt;
+        m.font_offset_y = m.half_font_gap * m.xdiffrt;
+    }
+    
+    m.text_shadow.x(m.mid_x + m.font_offset_x).dy(m.mid_y + - m.text.node.attributes.y.value + m.font_offset_y);
+    m.text.x(m.mid_x + m.font_offset_x).dy(m.mid_y + - m.text.node.attributes.y.value + m.font_offset_y); //hacky thing because move has a bug
+    
+    m.text_input_box.x(m.mid_x + m.font_offset_x).y(m.mid_y + m.font_offset_y*2); //do the same movement with the input box
+    m.place_cursor();
+    
+    m.saveable_copy = rcMeasurements.saveable_liniar_measurement(m); // need to change how this measurement is saved
+    
+    m.circle1.move(m.x1-3,m.y1-3);
+    m.circle2.move(m.x2-3,m.y2-3);
+    m.selector_circle1.move(m.x1-15,m.y1-15);
+    m.selector_circle2.move(m.x2-15,m.y2-15);
+    
+    if (m.font_offset){
+        m.shadow_line1.plot(m.x1 - 3 * m.xdiffrt, m.y1 - 3 * m.ydiffrt, m.x2 + 3 * m.xdiffrt, m.y2 + 3 * m.ydiffrt);
+        m.shadow_line2.plot(m.x1 - 3 * m.xdiffrt, m.y1 - 3 * m.ydiffrt, m.x2 + 3 * m.xdiffrt, m.y2 + 3 * m.ydiffrt);
+    }
+    else {
+        m.shadow_line1.plot(m.x1 - 3 * m.xdiffrt, m.y1 - 3 * m.ydiffrt, m.mid_x + m.half_font_gap * m.xdiffrt, m.mid_y + m.half_font_gap * m.ydiffrt);
+        m.shadow_line2.plot(m.mid_x - m.half_font_gap * m.xdiffrt, m.mid_y - m.half_font_gap * m.ydiffrt, m.x2 + 3 * m.xdiffrt, m.y2 + 3 * m.ydiffrt);
+    }
+    
+    if (m.font_offset){
+        m.line1.plot(m.x1 - 1 * m.xdiffrt, m.y1 - 1 * m.ydiffrt, m.x2 + 1 * m.xdiffrt, m.y2 + 1 * m.ydiffrt)
+        m.line2.plot(m.x1 - 1 * m.xdiffrt, m.y1 - 1 * m.ydiffrt, m.x2 + 1 * m.xdiffrt, m.y2 + 1 * m.ydiffrt)
+    }
+    else {
+        m.line1.plot(m.x1 - 1 * m.xdiffrt, m.y1 - 1 * m.ydiffrt,  m.mid_x + (m.half_font_gap + 1) * m.xdiffrt, m.mid_y + (m.half_font_gap + 1) * m.ydiffrt)
+        m.line2.plot(m.mid_x - (m.half_font_gap + 1) * m.xdiffrt, m.mid_y - (m.half_font_gap + 1) * m.ydiffrt, m.x2 + 1 * m.xdiffrt, m.y2 + 1 * m.ydiffrt)
+    }
+}
+
+rcMeasurements.redraw_lines = function(m) {
+    // calculate how big of a gap we need for text, certain other layout paramaters
+    var hlf_text_w = m.text_shadow.node.offsetWidth/2;
+    var hlf_text_h = m.text_shadow.node.offsetHeight/2;
+    
+    if (hlf_text_w/hlf_text_h < Math.abs(m.xdiffrt/m.ydiffrt)) { //line is more horizontal, text width dominates gap
+        m.half_font_gap = Math.sqrt(hlf_text_w*hlf_text_w + hlf_text_w*hlf_text_w*m.ydiffrt*m.ydiffrt/m.xdiffrt/m.xdiffrt)+5;
+    }
+    else { //line is more vertical, we want to use a smaller gap dependent on angle
+        m.half_font_gap = Math.sqrt(hlf_text_h*hlf_text_h + hlf_text_h*hlf_text_h*m.xdiffrt*m.xdiffrt/m.ydiffrt/m.ydiffrt );
+    }
+    
+    if (m.pixel_distatnce < m.half_font_gap * 2 + 10) {
+        m.font_offset = true;
+        m.font_offset_x = -m.half_font_gap * m.ydiffrt;
+        m.font_offset_y = m.half_font_gap * m.xdiffrt;
+    }
+    
+    if (m.font_offset){
+        m.shadow_line1.plot(m.x1 - 3 * m.xdiffrt, m.y1 - 3 * m.ydiffrt, m.x2 + 3 * m.xdiffrt, m.y2 + 3 * m.ydiffrt);
+        m.shadow_line2.plot(m.x1 - 3 * m.xdiffrt, m.y1 - 3 * m.ydiffrt, m.x2 + 3 * m.xdiffrt, m.y2 + 3 * m.ydiffrt);
+    }
+    else {
+        m.shadow_line1.plot(m.x1 - 3 * m.xdiffrt, m.y1 - 3 * m.ydiffrt, m.mid_x + m.half_font_gap * m.xdiffrt, m.mid_y + m.half_font_gap * m.ydiffrt);
+        m.shadow_line2.plot(m.mid_x - m.half_font_gap * m.xdiffrt, m.mid_y - m.half_font_gap * m.ydiffrt, m.x2 + 3 * m.xdiffrt, m.y2 + 3 * m.ydiffrt);
+    }
+    
+    if (m.font_offset){
+        m.line1.plot(m.x1 - 1 * m.xdiffrt, m.y1 - 1 * m.ydiffrt, m.x2 + 1 * m.xdiffrt, m.y2 + 1 * m.ydiffrt)
+        m.line2.plot(m.x1 - 1 * m.xdiffrt, m.y1 - 1 * m.ydiffrt, m.x2 + 1 * m.xdiffrt, m.y2 + 1 * m.ydiffrt)
+    }
+    else {
+        m.line1.plot(m.x1 - 1 * m.xdiffrt, m.y1 - 1 * m.ydiffrt,  m.mid_x + (m.half_font_gap + 1) * m.xdiffrt, m.mid_y + (m.half_font_gap + 1) * m.ydiffrt)
+        m.line2.plot(m.mid_x - (m.half_font_gap + 1) * m.xdiffrt, m.mid_y - (m.half_font_gap + 1) * m.ydiffrt, m.x2 + 1 * m.xdiffrt, m.y2 + 1 * m.ydiffrt)
+    }
+    
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                                                                      //
+//          TEXT ANNOTATIONS                                                                                                            //
+//                                                                                                                                      //
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
 rcMeasurements.new_note = function (iX, iY, svg_target) {
     rcMeasurements.endNoteEdit(); //stop any active note eddits, as this note will become active
     var n = {};
@@ -353,133 +499,114 @@ rcMeasurements.draw_note = function (n, svg_target) {
 }
 
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                                                                      //
+//          RANGE ANNOTATIONS                                                                                                            //
+//                                                                                                                                      //
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-rcMeasurements.dragEndHandler = function (m, e) {
-    e.stopPropagation(); e.preventDefault();
-    rcMeasurements.most_recent_drag = new Date();
-    rcMeasurements.deselect_measurement(m);
-    rcMeasurements.save_measurements();
+
+
+rcMeasurements.new_range = function (iX, iY, svg_target) {
+    var r = {};
+    r.annotation_type = 'range';
+    r.x = iX;
+    r.y = iY;
+    r.guid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);});
+    r.range = distanceTo(r.x, r.y); //distanceTo is defined in depth_data.js
+    
+    rcMeasurements.draw_range(r, svg_target);
 }
 
-rcMeasurements.click_action = function (m,e) {
-    //if we just ended a drag, don't propagate click
-    var now = new Date();
-    var last_drag_time_diff = now - rcMeasurements.most_recent_drag;
-    if (last_drag_time_diff < 100){
-        e.stopPropagation(); e.preventDefault();
-        return;
-    }
-
-    setTimeout(function(){ return false;},1);  //this just forces refresh for some browsers
-    if ( rcMeasurements.is_annotation_being_deleted(m) ) {  //this is both a deletion and a check for deletion
-        e.stopPropagation(); e.preventDefault(); // if deleted, dont do anything else
-    }
-    //otherwise allow anotations gesture to propegate to image to see if it has an effect on anotations.
+rcMeasurements.saveable_range = function (n) {
+    return {  x:n.x, y:n.y, guid:n.guid, annotation_type:n.annotation_type };
 }
 
-rcMeasurements.redraw_measurement = function (m) {
-
-    m.text_shadow.text(rcMeasurements.format_dist(m));
-    m.text.text(rcMeasurements.format_dist(m));
-    
-    // calculate how big of a gap we need for text, certain other layout paramaters
-    var hlf_text_w = m.text_shadow.node.offsetWidth/2;
-    var hlf_text_h = m.text_shadow.node.offsetHeight/2;
-    
-    m.pixel_distatnce = Math.sqrt( Math.pow((m.x1 - m.x2), 2) + Math.pow((m.y1 - m.y2), 2)); //how long the line is
-    m.xdiffrt = (m.x1-m.x2) / m.pixel_distatnce; //ratio of x length to line length
-    m.ydiffrt = (m.y1-m.y2) / m.pixel_distatnce; //ratio of y lenght to line length
-    m.mid_x = m.x1 + (m.x2 - m.x1)/2;   //midpoint of line
-    m.mid_y = m.y1 + (m.y2 - m.y1)/2;
-    
-    console.log('hlf_text_w hlf_text_h  m.xdiffrt m.ydiffrt ' + hlf_text_w.toFixed() + ' ' + hlf_text_h.toFixed() + ' ' +  m.xdiffrt.toFixed(2) + ' ' +  m.ydiffrt.toFixed(2) );
-    
-    if (hlf_text_w/hlf_text_h < Math.abs(m.xdiffrt/m.ydiffrt)) { //line is more horizontal, text width dominates gap
-        m.half_font_gap = Math.sqrt(hlf_text_w*hlf_text_w + hlf_text_w*hlf_text_w*m.ydiffrt*m.ydiffrt/m.xdiffrt/m.xdiffrt)+5;
-    }
-    else { //line is more vertical, we want to use a smaller gap dependent on angle
-        m.half_font_gap = Math.sqrt(hlf_text_h*hlf_text_h + hlf_text_h*hlf_text_h*m.xdiffrt*m.xdiffrt/m.ydiffrt/m.ydiffrt );
-    }
-    
-    m.font_offset = false;
-    m.font_offset_x = 0;
-    m.font_offset_y = - hlf_text_h;
-    
-    if (m.pixel_distatnce < m.half_font_gap * 2 + 10) {
-        m.font_offset = true;
-        m.font_offset_x = -m.half_font_gap * m.ydiffrt;
-        m.font_offset_y = m.half_font_gap * m.xdiffrt;
-    }
-
-    m.text_shadow.x(m.mid_x + m.font_offset_x).dy(m.mid_y + - m.text.node.attributes.y.value + m.font_offset_y);
-    m.text.x(m.mid_x + m.font_offset_x).dy(m.mid_y + - m.text.node.attributes.y.value + m.font_offset_y); //hacky thing because move has a bug
-
-    m.text_input_box.x(m.mid_x + m.font_offset_x).y(m.mid_y + m.font_offset_y*2); //do the same movement with the input box
-    m.place_cursor();
-
-    m.saveable_copy = rcMeasurements.saveable_liniar_measurement(m); // need to change how this measurement is saved
-    
-    m.circle1.move(m.x1-3,m.y1-3);
-    m.circle2.move(m.x2-3,m.y2-3);
-    m.selector_circle1.move(m.x1-15,m.y1-15);
-    m.selector_circle2.move(m.x2-15,m.y2-15);
-    
-    if (m.font_offset){
-        m.shadow_line1.plot(m.x1 - 3 * m.xdiffrt, m.y1 - 3 * m.ydiffrt, m.x2 + 3 * m.xdiffrt, m.y2 + 3 * m.ydiffrt);
-        m.shadow_line2.plot(m.x1 - 3 * m.xdiffrt, m.y1 - 3 * m.ydiffrt, m.x2 + 3 * m.xdiffrt, m.y2 + 3 * m.ydiffrt);
-    }
-    else {
-        m.shadow_line1.plot(m.x1 - 3 * m.xdiffrt, m.y1 - 3 * m.ydiffrt, m.mid_x + m.half_font_gap * m.xdiffrt, m.mid_y + m.half_font_gap * m.ydiffrt);
-        m.shadow_line2.plot(m.mid_x - m.half_font_gap * m.xdiffrt, m.mid_y - m.half_font_gap * m.ydiffrt, m.x2 + 3 * m.xdiffrt, m.y2 + 3 * m.ydiffrt);
-    }
-    
-    if (m.font_offset){
-        m.line1.plot(m.x1 - 1 * m.xdiffrt, m.y1 - 1 * m.ydiffrt, m.x2 + 1 * m.xdiffrt, m.y2 + 1 * m.ydiffrt)
-        m.line2.plot(m.x1 - 1 * m.xdiffrt, m.y1 - 1 * m.ydiffrt, m.x2 + 1 * m.xdiffrt, m.y2 + 1 * m.ydiffrt)
-    }
-    else {
-        m.line1.plot(m.x1 - 1 * m.xdiffrt, m.y1 - 1 * m.ydiffrt,  m.mid_x + (m.half_font_gap + 1) * m.xdiffrt, m.mid_y + (m.half_font_gap + 1) * m.ydiffrt)
-        m.line2.plot(m.mid_x - (m.half_font_gap + 1) * m.xdiffrt, m.mid_y - (m.half_font_gap + 1) * m.ydiffrt, m.x2 + 1 * m.xdiffrt, m.y2 + 1 * m.ydiffrt)
-    }
+rcMeasurements.delete_range = function (n) {
+    //remove visual elemnts
+    if (n.svg_target.node.contains(n.text_display.node)) { n.text_display.remove();}
+    if (n.svg_target.node.contains(n.text_shadow.node)) { n.text_shadow.remove();}
+    if (n.svg_target.node.contains(n.text_cursor.node)) { n.text_cursor.remove();}
+    //removed from measurements array
+    delete rcMeasurements.notes[n.guid];
+    delete n;
 }
 
-rcMeasurements.redraw_lines = function(m) {
-    // calculate how big of a gap we need for text, certain other layout paramaters
-    var hlf_text_w = m.text_shadow.node.offsetWidth/2;
-    var hlf_text_h = m.text_shadow.node.offsetHeight/2;
-    
-    if (hlf_text_w/hlf_text_h < Math.abs(m.xdiffrt/m.ydiffrt)) { //line is more horizontal, text width dominates gap
-        m.half_font_gap = Math.sqrt(hlf_text_w*hlf_text_w + hlf_text_w*hlf_text_w*m.ydiffrt*m.ydiffrt/m.xdiffrt/m.xdiffrt)+5;
-    }
-    else { //line is more vertical, we want to use a smaller gap dependent on angle
-        m.half_font_gap = Math.sqrt(hlf_text_h*hlf_text_h + hlf_text_h*hlf_text_h*m.xdiffrt*m.xdiffrt/m.ydiffrt/m.ydiffrt );
-    }
-    
-    if (m.pixel_distatnce < m.half_font_gap * 2 + 10) {
-        m.font_offset = true;
-        m.font_offset_x = -m.half_font_gap * m.ydiffrt;
-        m.font_offset_y = m.half_font_gap * m.xdiffrt;
-    }
-    
-    if (m.font_offset){
-        m.shadow_line1.plot(m.x1 - 3 * m.xdiffrt, m.y1 - 3 * m.ydiffrt, m.x2 + 3 * m.xdiffrt, m.y2 + 3 * m.ydiffrt);
-        m.shadow_line2.plot(m.x1 - 3 * m.xdiffrt, m.y1 - 3 * m.ydiffrt, m.x2 + 3 * m.xdiffrt, m.y2 + 3 * m.ydiffrt);
-    }
-    else {
-        m.shadow_line1.plot(m.x1 - 3 * m.xdiffrt, m.y1 - 3 * m.ydiffrt, m.mid_x + m.half_font_gap * m.xdiffrt, m.mid_y + m.half_font_gap * m.ydiffrt);
-        m.shadow_line2.plot(m.mid_x - m.half_font_gap * m.xdiffrt, m.mid_y - m.half_font_gap * m.ydiffrt, m.x2 + 3 * m.xdiffrt, m.y2 + 3 * m.ydiffrt);
-    }
-    
-    if (m.font_offset){
-        m.line1.plot(m.x1 - 1 * m.xdiffrt, m.y1 - 1 * m.ydiffrt, m.x2 + 1 * m.xdiffrt, m.y2 + 1 * m.ydiffrt)
-        m.line2.plot(m.x1 - 1 * m.xdiffrt, m.y1 - 1 * m.ydiffrt, m.x2 + 1 * m.xdiffrt, m.y2 + 1 * m.ydiffrt)
-    }
-    else {
-        m.line1.plot(m.x1 - 1 * m.xdiffrt, m.y1 - 1 * m.ydiffrt,  m.mid_x + (m.half_font_gap + 1) * m.xdiffrt, m.mid_y + (m.half_font_gap + 1) * m.ydiffrt)
-        m.line2.plot(m.mid_x - (m.half_font_gap + 1) * m.xdiffrt, m.mid_y - (m.half_font_gap + 1) * m.ydiffrt, m.x2 + 1 * m.xdiffrt, m.y2 + 1 * m.ydiffrt)
-    }
 
+rcMeasurements.redraw_range = function (n) {
+    
+    if ((n.text.length == 0) || !n.text.trim()) {n.text = ' ';} //'' is invalid text for svg library
+    n.saveable_copy = rcMeasurements.saveable_note(n);
+    
+    n.text_display.text(n.range.toFixed(1)).move(n.x, n.y);
+    n.text_shadow.text(n.range.toFixed(1)).move(n.x, n.y);
+    
+    if ((n.text != ' ') && ( ! n.svg_target.node.contains(n.text_display.node))) {
+        n.svg_target.node.appendChild(n.text_shadow.node);
+        n.svg_target.node.appendChild(n.text_display.node); // shadow must be appened first so that the forground is shown on top.
+        n.text_display.move(n.x, n.y);
+        n.text_shadow.move(n.x, n.y); //we loose position information after detachement, so the must be placed again.
+    }
+    else if ((n.text == ' ') && (n.svg_target.node.contains(n.text_display.node))) {
+        n.svg_target.node.removeChild(n.text_display.node);
+        n.svg_target.node.removeChild(n.text_shadow.node);
+    }
+    
+    n.place_cursor();
+    
 }
+
+rcMeasurements.draw_range = function (n, svg_target) {
+    //This allows a note to be saved. it is necessary to call this as part of draw, because
+	//a note will not have this function when it is deserialized.
+    n.saveable_copy = rcMeasurements.saveable_range(n);
+    
+    n.svg_target = svg_target;
+    
+    n.marker = svg_target.circle(4).move( n.x-2, n.y-2).stroke({ color: line_color, opacity: 1, width : 2 }).fill({opacity:0});
+    n.text_shadow = svg_target.text(n.range.toFixed(1)).move(n.x, n.y);
+    n.text_shadow.font({
+                       family: rcMeasurements.font_family,
+                       size: 25
+                       , anchor: 'middle'
+                       , leading: 1
+                       }).stroke({ color: shadow_color, opacity: 1, width: 2.5 });
+    
+    n.text_display = svg_target.text(n.range.toFixed(1)).move(n.x, n.y);
+    n.text_display.font({
+                        family: rcMeasurements.font_family,
+                        size: 25
+                        , anchor: 'middle'
+                        , leading: 1
+                        }).fill({ color: line_color, opacity: 1});
+    
+    
+    n.marker.click (function (e) {
+                          //this line does the deletion as well as checking for if it occured. - this checks the eraser button.
+                          if ( rcMeasurements.is_annotation_being_deleted(n) ) {
+                            e.stopPropagation(); e.preventDefault();
+                          }
+                          //do nothing and pass the event on if erase button is not selected
+                          });
+    
+    //draging
+    rcMeasurements.ranges[n.guid] = n;
+    
+    
+    //define delete funciton
+    n.delete_self = function () { rcMeasurements.delete_range(n); };
+    
+}
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                                                                      //
+//          SAVING, UNDOING, DATA MANAGEMENT                                                                                            //
+//                                                                                                                                      //
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 
 rcMeasurements.redraw_all_measurements = function (){
     for (var key in rcMeasurements.measurements) {
@@ -597,6 +724,64 @@ rcMeasurements.revert_measurement_state = function () {
     }
 }
 
+// this checks for wether or not the rc_menu button designated as the eraser button is selected.
+rcMeasurements.is_annotation_being_deleted = function (m) {
+    if (rc_menu.current_button == rc_menu.eraser_button) {
+        m.delete_self();
+        setTimeout( function () {rcMeasurements.save_measurements();}, 0)
+        return true;
+    }
+    return false;
+}
+
+// this clears all measurements, used when we are switching between measured photos but not reloading the app
+rcMeasurements.reset = function () {
+    rcMeasurements.measurements = {};
+    rcMeasurements.angles = {};
+    rcMeasurements.notes = {};
+    rcMeasurements.prior_measurement_states = [];
+    rcMeasurements.measurement_being_edited = null;
+    rcMeasurements.active_note = null;
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                                                                      //
+//          CURSOR DRAWING AND ANIMAITON                                                                                                //
+//                                                                                                                                      //
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+rcMeasurements.start_cursor_animation = function (m) {
+    if (rcMeasurements.cursor_animation_id){ window.clearTimeout(rcMeasurements.cursor_animation_id) };
+    rcMeasurements.cursor_animation_id = window.setTimeout(function(){rcMeasurements.show_cursor_frame(m)}, 10);
+}
+
+rcMeasurements.show_cursor_frame = function (m) {
+    m.place_cursor();
+    m.text_cursor.stroke({ color: shadow_color, opacity: .9, width: 2 });
+    rcMeasurements.cursor_animation_id = window.setTimeout(function(){rcMeasurements.hide_cursor_frame(m)},700);
+}
+
+rcMeasurements.hide_cursor_frame = function (m) {
+    m.text_cursor.stroke({ color: shadow_color, opacity: 0, width: 2 });
+    rcMeasurements.cursor_animation_id = window.setTimeout(function(){rcMeasurements.show_cursor_frame(m)},700);
+}
+
+rcMeasurements.stop_cursor_animation = function (m) {
+    if (rcMeasurements.cursor_animation_id){ window.clearTimeout(rcMeasurements.cursor_animation_id) };
+    rcMeasurements.cursor_animation_id = null
+    m.text_cursor.stroke({ color: shadow_color, opacity: 0, width: 2 });
+}
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                                                                      //
+//          EDITING OF LINEAR MEAUREMENTS                                                                                               //
+//                                                                                                                                      //
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
 // functions for coloring and decoloring selected lines
 rcMeasurements.paint_selected = function (m) {
     m.circle1.stroke({ color: highlight_color, opacity: 1, width: 1.5 });
@@ -641,42 +826,9 @@ rcMeasurements.move_measurement = function (m, nx1, ny1, nx2, ny2) {
     rcMeasurements.redraw_measurement(m);
 }
 
-// functions for modifying measurements
-//rcMeasurements.cursor_string_for_distance_string = function (d_str) {
-//    var c_str = ".";
-//    for (i=0; i < (d_str.length*2); i++) {
-//        c_str = c_str + " ";
-//    }
-//    c_str = c_str + "|";
-//    return c_str;
-//}
-
 rcMeasurements.setText = function (m, str) {
     m.text_shadow.text(str);
     m.text.text(str);
-}
-
-
-rcMeasurements.start_cursor_animation = function (m) {
-    if (rcMeasurements.cursor_animation_id){ window.clearTimeout(rcMeasurements.cursor_animation_id) };
-    rcMeasurements.cursor_animation_id = window.setTimeout(function(){rcMeasurements.show_cursor_frame(m)}, 10);
-}
-
-rcMeasurements.show_cursor_frame = function (m) {
-    m.place_cursor();
-    m.text_cursor.stroke({ color: shadow_color, opacity: .9, width: 2 });
-    rcMeasurements.cursor_animation_id = window.setTimeout(function(){rcMeasurements.hide_cursor_frame(m)},700);
-}
-
-rcMeasurements.hide_cursor_frame = function (m) {
-    m.text_cursor.stroke({ color: shadow_color, opacity: 0, width: 2 });
-    rcMeasurements.cursor_animation_id = window.setTimeout(function(){rcMeasurements.show_cursor_frame(m)},700);
-}
-
-rcMeasurements.stop_cursor_animation = function (m) {
-    if (rcMeasurements.cursor_animation_id){ window.clearTimeout(rcMeasurements.cursor_animation_id) };
-    rcMeasurements.cursor_animation_id = null
-    m.text_cursor.stroke({ color: shadow_color, opacity: 0, width: 2 });
 }
 
 rcMeasurements.start_distance_change_dialouge = function (m) {
@@ -808,22 +960,3 @@ rcMeasurements.finish_number_operation = function (){
     }
 }
 
-// this checks for wether or not the rc_menu button designated as the eraser button is selected.
-rcMeasurements.is_annotation_being_deleted = function (m) {
-    if (rc_menu.current_button == rc_menu.eraser_button) {
-        m.delete_self();
-        setTimeout( function () {rcMeasurements.save_measurements();}, 0)
-        return true;
-    }
-    return false;
-}
-
-// this clears all measurements, used when we are switching between measured photos but not reloading the app
-rcMeasurements.reset = function () {
-    rcMeasurements.measurements = {};
-    rcMeasurements.angles = {};
-    rcMeasurements.notes = {};
-    rcMeasurements.prior_measurement_states = [];
-    rcMeasurements.measurement_being_edited = null;
-    rcMeasurements.active_note = null;
-}

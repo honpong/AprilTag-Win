@@ -417,3 +417,17 @@ function distanceBetween(x1, y1, x2, y2) {
     }
     return distance;
 }
+
+function distanceTo(x1, y1) {
+    //cammera is at 0,0,0
+    var d3_1, distance = null;
+    try{
+        d3_1 = dm_3d_location_from_pixel_location(x1,y1);
+        distance = Math.sqrt( Math.pow((d3_1[0]), 2) + Math.pow((d3_1[1]), 2) + Math.pow((d3_1[2]), 2));
+    }
+    catch (err) {
+        distance = null;
+    }
+    return distance;
+}
+

@@ -12,15 +12,7 @@
 #import <OpenGLES/ES2/glext.h>
 #import <CoreVideo/CVOpenGLESTextureCache.h>
 #import <AVFoundation/AVFoundation.h>
-
-@protocol RCVideoFrameDelegate <NSObject>
-@required
-- (void) displaySampleBuffer:(CMSampleBufferRef)sampleBuffer;
-@end
-
-@protocol RCVideoFrameProvider <NSObject>
-@property id<RCVideoFrameDelegate> delegate;
-@end
+#import "RCVideoFrameProvider.h"
 
 /**
  This is a video preview view that can be used as an alternative to a AVCaptureVideoPreviewLayer. You can pass individual

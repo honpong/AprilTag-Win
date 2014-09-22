@@ -21,14 +21,12 @@
 		327B553918EB4D720001CCE1 /* RCAFPropertyListRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B552F18EB4D720001CCE1 /* RCAFPropertyListRequestOperation.m */; };
 		327B553A18EB4D720001CCE1 /* RCAFURLConnectionOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B553118EB4D720001CCE1 /* RCAFURLConnectionOperation.m */; };
 		327B553B18EB4D720001CCE1 /* RCAFXMLRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B553318EB4D720001CCE1 /* RCAFXMLRequestOperation.m */; };
-		327B554318EB4D8C0001CCE1 /* ShaderUtilities.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B553F18EB4D8C0001CCE1 /* ShaderUtilities.c */; };
 		327B556C18EB4DC20001CCE1 /* NSString+RCString.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B554618EB4DC20001CCE1 /* NSString+RCString.m */; };
 		327B556D18EB4DC20001CCE1 /* RCCalibration.mm in Sources */ = {isa = PBXBuildFile; fileRef = 327B554918EB4DC20001CCE1 /* RCCalibration.mm */; };
 		327B556E18EB4DC20001CCE1 /* RCCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B554B18EB4DC20001CCE1 /* RCCameraManager.m */; };
 		327B556F18EB4DC20001CCE1 /* RCCameraParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B554D18EB4DC20001CCE1 /* RCCameraParameters.m */; };
 		327B557018EB4DC20001CCE1 /* RCDeviceInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B555018EB4DC20001CCE1 /* RCDeviceInfo.m */; };
 		327B557118EB4DC20001CCE1 /* RCFeaturePoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B555218EB4DC20001CCE1 /* RCFeaturePoint.m */; };
-		327B557218EB4DC20001CCE1 /* RCOpenGLManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B555418EB4DC20001CCE1 /* RCOpenGLManagerFactory.m */; };
 		327B557318EB4DC20001CCE1 /* RCPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B555618EB4DC20001CCE1 /* RCPoint.m */; };
 		327B557418EB4DC20001CCE1 /* RCPrivateHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B555818EB4DC20001CCE1 /* RCPrivateHTTPClient.m */; };
 		327B557518EB4DC20001CCE1 /* RCRotation.mm in Sources */ = {isa = PBXBuildFile; fileRef = 327B555A18EB4DC20001CCE1 /* RCRotation.mm */; };
@@ -39,7 +37,6 @@
 		327B557A18EB4DC20001CCE1 /* RCTransformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B556418EB4DC20001CCE1 /* RCTransformation.m */; };
 		327B557B18EB4DC20001CCE1 /* RCTranslation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B556618EB4DC20001CCE1 /* RCTranslation.m */; };
 		327B557C18EB4DC20001CCE1 /* RCVector.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B556818EB4DC20001CCE1 /* RCVector.m */; };
-		327B557D18EB4DC20001CCE1 /* RCVideoPreview.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B556A18EB4DC20001CCE1 /* RCVideoPreview.m */; };
 		327B559518EB4F250001CCE1 /* debug.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B558718EB4F250001CCE1 /* debug.c */; };
 		327B559618EB4F250001CCE1 /* dispatch.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B558918EB4F250001CCE1 /* dispatch.c */; };
 		327B559718EB4F260001CCE1 /* inbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B558B18EB4F250001CCE1 /* inbuffer.c */; };
@@ -74,7 +71,6 @@
 		327B560918EB57830001CCE1 /* RCTranslation.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B556518EB4DC20001CCE1 /* RCTranslation.h */; };
 		327B560A18EB57830001CCE1 /* RCVector.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B556718EB4DC20001CCE1 /* RCVector.h */; };
 		327B560B18EB57830001CCE1 /* RCSensorFusion.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B555D18EB4DC20001CCE1 /* RCSensorFusion.h */; };
-		327B560C18EB57830001CCE1 /* RCVideoPreview.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B556918EB4DC20001CCE1 /* RCVideoPreview.h */; };
 		327B560D18EB57970001CCE1 /* RC3DK.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B554718EB4DC20001CCE1 /* RC3DK.h */; };
 		327B560E18EB57A50001CCE1 /* RCDeviceInfo.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B554F18EB4DC20001CCE1 /* RCDeviceInfo.h */; };
 		327B563918EB5F0A0001CCE1 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B563518EB5ECA0001CCE1 /* OpenGLES.framework */; };
@@ -120,7 +116,6 @@
 				327B560A18EB57830001CCE1 /* RCVector.h in CopyFiles */,
 				327B560B18EB57830001CCE1 /* RCSensorFusion.h in CopyFiles */,
 				327B560E18EB57A50001CCE1 /* RCDeviceInfo.h in CopyFiles */,
-				327B560C18EB57830001CCE1 /* RCVideoPreview.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -152,12 +147,6 @@
 		327B553118EB4D720001CCE1 /* RCAFURLConnectionOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAFURLConnectionOperation.m; sourceTree = "<group>"; };
 		327B553218EB4D720001CCE1 /* RCAFXMLRequestOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAFXMLRequestOperation.h; sourceTree = "<group>"; };
 		327B553318EB4D720001CCE1 /* RCAFXMLRequestOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAFXMLRequestOperation.m; sourceTree = "<group>"; };
-		327B553D18EB4D8C0001CCE1 /* passThrough.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = passThrough.fsh; sourceTree = "<group>"; };
-		327B553E18EB4D8C0001CCE1 /* passThrough.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = passThrough.vsh; sourceTree = "<group>"; };
-		327B553F18EB4D8C0001CCE1 /* ShaderUtilities.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ShaderUtilities.c; sourceTree = "<group>"; };
-		327B554018EB4D8C0001CCE1 /* ShaderUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderUtilities.h; sourceTree = "<group>"; };
-		327B554118EB4D8C0001CCE1 /* yuvtorgb.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuvtorgb.fsh; sourceTree = "<group>"; };
-		327B554218EB4D8C0001CCE1 /* yuvtorgb.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuvtorgb.vsh; sourceTree = "<group>"; };
 		327B554418EB4DC20001CCE1 /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		327B554518EB4DC20001CCE1 /* NSString+RCString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+RCString.h"; sourceTree = "<group>"; };
 		327B554618EB4DC20001CCE1 /* NSString+RCString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+RCString.m"; sourceTree = "<group>"; };
@@ -173,8 +162,6 @@
 		327B555018EB4DC20001CCE1 /* RCDeviceInfo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDeviceInfo.m; sourceTree = "<group>"; };
 		327B555118EB4DC20001CCE1 /* RCFeaturePoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCFeaturePoint.h; sourceTree = "<group>"; };
 		327B555218EB4DC20001CCE1 /* RCFeaturePoint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCFeaturePoint.m; sourceTree = "<group>"; };
-		327B555318EB4DC20001CCE1 /* RCOpenGLManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCOpenGLManagerFactory.h; sourceTree = "<group>"; };
-		327B555418EB4DC20001CCE1 /* RCOpenGLManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCOpenGLManagerFactory.m; sourceTree = "<group>"; };
 		327B555518EB4DC20001CCE1 /* RCPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCPoint.h; sourceTree = "<group>"; };
 		327B555618EB4DC20001CCE1 /* RCPoint.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCPoint.m; sourceTree = "<group>"; };
 		327B555718EB4DC20001CCE1 /* RCPrivateHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCPrivateHTTPClient.h; sourceTree = "<group>"; };
@@ -195,8 +182,6 @@
 		327B556618EB4DC20001CCE1 /* RCTranslation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCTranslation.m; sourceTree = "<group>"; };
 		327B556718EB4DC20001CCE1 /* RCVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVector.h; sourceTree = "<group>"; };
 		327B556818EB4DC20001CCE1 /* RCVector.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVector.m; sourceTree = "<group>"; };
-		327B556918EB4DC20001CCE1 /* RCVideoPreview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoPreview.h; sourceTree = "<group>"; };
-		327B556A18EB4DC20001CCE1 /* RCVideoPreview.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoPreview.m; sourceTree = "<group>"; };
 		327B556B18EB4DC20001CCE1 /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 		327B557E18EB4DDE0001CCE1 /* RC3DK-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "RC3DK-Info.plist"; sourceTree = "<group>"; };
 		327B558518EB4F250001CCE1 /* cor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cor.h; sourceTree = "<group>"; };
@@ -334,11 +319,9 @@
 				327B552218EB4D720001CCE1 /* AFNetworking */,
 				327B558318EB4F130001CCE1 /* Corvis */,
 				327B558018EB4E3A0001CCE1 /* Data Classes */,
-				327B553C18EB4D8C0001CCE1 /* Shaders */,
 				327B558118EB4E520001CCE1 /* Singletons */,
 				327B54E518EB4CC90001CCE1 /* Supporting Files */,
 				327B558218EB4E690001CCE1 /* Utilities */,
-				327B557F18EB4DF80001CCE1 /* Views */,
 				327B554718EB4DC20001CCE1 /* RC3DK.h */,
 				327B554E18EB4DC20001CCE1 /* RCConstants.h */,
 				327B554418EB4DC20001CCE1 /* LICENSE */,
@@ -406,30 +389,6 @@
 				327B553318EB4D720001CCE1 /* RCAFXMLRequestOperation.m */,
 			);
 			path = AFNetworking;
-			sourceTree = "<group>";
-		};
-		327B553C18EB4D8C0001CCE1 /* Shaders */ = {
-			isa = PBXGroup;
-			children = (
-				327B553D18EB4D8C0001CCE1 /* passThrough.fsh */,
-				327B553E18EB4D8C0001CCE1 /* passThrough.vsh */,
-				327B553F18EB4D8C0001CCE1 /* ShaderUtilities.c */,
-				327B554018EB4D8C0001CCE1 /* ShaderUtilities.h */,
-				327B554118EB4D8C0001CCE1 /* yuvtorgb.fsh */,
-				327B554218EB4D8C0001CCE1 /* yuvtorgb.vsh */,
-			);
-			path = Shaders;
-			sourceTree = "<group>";
-		};
-		327B557F18EB4DF80001CCE1 /* Views */ = {
-			isa = PBXGroup;
-			children = (
-				327B555318EB4DC20001CCE1 /* RCOpenGLManagerFactory.h */,
-				327B555418EB4DC20001CCE1 /* RCOpenGLManagerFactory.m */,
-				327B556918EB4DC20001CCE1 /* RCVideoPreview.h */,
-				327B556A18EB4DC20001CCE1 /* RCVideoPreview.m */,
-			);
-			name = Views;
 			sourceTree = "<group>";
 		};
 		327B558018EB4E3A0001CCE1 /* Data Classes */ = {
@@ -721,7 +680,6 @@
 			files = (
 				327B559718EB4F260001CCE1 /* inbuffer.c in Sources */,
 				328A4DD51950D5F400587949 /* RCLicenseError.m in Sources */,
-				327B557218EB4DC20001CCE1 /* RCOpenGLManagerFactory.m in Sources */,
 				327B559A18EB4F260001CCE1 /* plugins.c in Sources */,
 				327B557C18EB4DC20001CCE1 /* RCVector.m in Sources */,
 				327B55BE18EB4F3A0001CCE1 /* filter.cpp in Sources */,
@@ -730,7 +688,6 @@
 				327B553718EB4D720001CCE1 /* RCAFJSONRequestOperation.m in Sources */,
 				327B55C218EB4F3A0001CCE1 /* state.cpp in Sources */,
 				327B557018EB4DC20001CCE1 /* RCDeviceInfo.m in Sources */,
-				327B557D18EB4DC20001CCE1 /* RCVideoPreview.m in Sources */,
 				327B556D18EB4DC20001CCE1 /* RCCalibration.mm in Sources */,
 				D97AEF8118F7613F00573148 /* device_parameters.c in Sources */,
 				D9CCDC7E192E887F00A41329 /* scaled_mask.cpp in Sources */,
@@ -764,7 +721,6 @@
 				327B557618EB4DC20001CCE1 /* RCScalar.m in Sources */,
 				327B557418EB4DC20001CCE1 /* RCPrivateHTTPClient.m in Sources */,
 				327B559B18EB4F260001CCE1 /* timestamp.c in Sources */,
-				327B554318EB4D8C0001CCE1 /* ShaderUtilities.c in Sources */,
 				327B559818EB4F260001CCE1 /* mapbuffer.c in Sources */,
 				327B557118EB4DC20001CCE1 /* RCFeaturePoint.m in Sources */,
 			);

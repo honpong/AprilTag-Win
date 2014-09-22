@@ -10,6 +10,7 @@
 #include <stdio.h>
 #import <ImageIO/ImageIO.h>
 #import "RCAVSessionManager.h"
+#import "RCVideoFrameProvider.h"
 
 /** 
  Handles getting video frames from the AV session, and passes them directly to the RCSensorFusion shared instance.

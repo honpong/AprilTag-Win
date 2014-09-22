@@ -479,11 +479,6 @@
 		32B8F67A16E8F80E001B1962 /* TMMeasurementDM 2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "TMMeasurementDM 2.xcdatamodel"; sourceTree = "<group>"; };
 		32B8F67D16E92367001B1962 /* TMServerOpsFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMServerOpsFactory.h; sourceTree = "<group>"; };
 		32B8F67E16E92368001B1962 /* TMServerOpsFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMServerOpsFactory.m; sourceTree = "<group>"; };
-		32BA42F617A2E5A9002BAE13 /* tape.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = tape.vsh; sourceTree = "<group>"; };
-		32BA42F717A2E5A9002BAE13 /* tape_imperial.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = tape_imperial.fsh; sourceTree = "<group>"; };
-		32BA42F817A2E5A9002BAE13 /* tape_metric.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = tape_metric.fsh; sourceTree = "<group>"; };
-		32BA42F917A2E5A9002BAE13 /* yuvtorgb.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuvtorgb.fsh; sourceTree = "<group>"; };
-		32BA42FA17A2E5A9002BAE13 /* yuvtorgb.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuvtorgb.vsh; sourceTree = "<group>"; };
 		32BD1D59178F1AE2005201DA /* TMLineLayerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMLineLayerDelegate.h; sourceTree = "<group>"; };
 		32BD1D5A178F1AE2005201DA /* TMLineLayerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMLineLayerDelegate.m; sourceTree = "<group>"; };
 		32C210BF19B63433007FF050 /* golden_gate.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = golden_gate.jpg; sourceTree = "<group>"; };
@@ -995,7 +990,6 @@
 			children = (
 				32AB3B1F19B7B87000C9BAF0 /* Media */,
 				32D2B6D918EA163000B72F05 /* Calibration */,
-				32BA42FB17A2E5A9002BAE13 /* Shaders */,
 				32C45D9616DC22AB00FE7247 /* ThirdParty */,
 				3280F7EA161BBB3200B5C8A8 /* Supporting Files */,
 				32B6865E16C9717D00A907A6 /* Models */,
@@ -1150,19 +1144,6 @@
 				32011D15191D97E500F17327 /* TMTipsView.m */,
 			);
 			name = Views;
-			sourceTree = "<group>";
-		};
-		32BA42FB17A2E5A9002BAE13 /* Shaders */ = {
-			isa = PBXGroup;
-			children = (
-				32BA42F617A2E5A9002BAE13 /* tape.vsh */,
-				32BA42F717A2E5A9002BAE13 /* tape_imperial.fsh */,
-				32BA42F817A2E5A9002BAE13 /* tape_metric.fsh */,
-				32BA42F917A2E5A9002BAE13 /* yuvtorgb.fsh */,
-				32BA42FA17A2E5A9002BAE13 /* yuvtorgb.vsh */,
-			);
-			name = Shaders;
-			path = ../../RCCore/RCCore/Shaders;
 			sourceTree = "<group>";
 		};
 		32C45D9616DC22AB00FE7247 /* ThirdParty */ = {
@@ -1644,7 +1625,7 @@
 			name = TapeMeasureTests;
 			productName = TapeMeasureTests;
 			productReference = 32C539DB16701FEC00A14137 /* TapeMeasureTests.octest */;
-			productType = "com.apple.product-type.bundle";
+			productType = "com.apple.product-type.bundle.ocunit-test";
 		};
 /* End PBXNativeTarget section */
 

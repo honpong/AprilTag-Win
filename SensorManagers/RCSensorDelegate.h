@@ -5,6 +5,8 @@
 //  Copyright (c) 2014 RealityCap. All rights reserved.
 //
 
+#import "RCVideoFrameProvider.h"
+
 /** Provides a generic sensor interface.
  
  A delegate implementing this protocol is required for the provided RCCalibration views, and can provide a simplified sensor interface for use with RCSensorFusion.
@@ -37,7 +39,7 @@
  */
 - (AVCaptureDevice*) getVideoDevice;
 /**
- @returns Gets a object that sends video frames to it's delegate. This is where the video frames for the video preview views come from.
+ @returns Gets a object that sends video frames to its delegate. This is where the video frames for the video preview views come from.
  */
 - (id<RCVideoFrameProvider>) getVideoProvider;
 /**

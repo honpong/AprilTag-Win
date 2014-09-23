@@ -22,6 +22,9 @@ function dm_initialize(){
     spatial_data_loaded = false;
     dm_drawn = false;
     spatial_data = null;
+    avg_depth_sqr = 0;
+    min_depth_sqr = 100000000;
+    max_depth_sqr = 0;
     if(dm_svg && draw.node.contains(dm_svg.node)) {draw_g.node.removeChild(dm_svg.node);}
     dm_svg = SVG(dm_node);
     dm_canvas= document.createElement('canvas');

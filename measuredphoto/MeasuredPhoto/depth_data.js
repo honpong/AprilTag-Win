@@ -38,7 +38,7 @@ function dm_size(x,y){
     dm_svg.size(x,y);
     dm_canvas.width  = x;
     dm_canvas.height = y;
-    dm_context.fillStyle   = '#000066';
+    dm_context.fillStyle   = 'rgba(0,0,0,0.4)';
     dm_context.fillRect  (0,   0, dm_canvas.width, dm_canvas.height);
 }
 
@@ -170,13 +170,18 @@ var dm_clr;
 function dm_add_point(percent_depth,x,y,size){
     // dm_svg.rect(size,size).move(x,y).fill('#fff').opacity(percent_depth);
     dm_clr = (255*percent_depth).toFixed(0);
-    dm_context.fillStyle = 'rgb('+dm_clr+','+dm_clr+','+dm_clr+')';
+    dm_context.fillStyle = 'rgba('+dm_clr+','+dm_clr+','+dm_clr+',.3)';
     dm_context.fillRect(x - size/2,   y-size/2, size, size);
 }
 
 function finalize_dm(){
     dm_loading_message.remove();
     delete dm_loading_message;
+    img_clone =image.clone();
+    dm_svg.add(img_clone);
+    img_clone.filter(function(add) {
+                      add.colorMatrix('saturate', 0)
+                      }); //desatureate
     dm_svg.image(dm_canvas.toDataURL("image/png")); //image/png is a mime type.
     dm_context = null;
 }
@@ -184,6 +189,7 @@ function finalize_dm(){
 
 var avg_depth_sqr = 0;
 var min_depth_sqr = 100000000;
+var max_depth_sqr = 0;
 
 function fill_depth_map(){
     //iterate over spatial data and asign colors to each location based on total depth. will take two itterations. one to find maximal depth in image, another to create pixels.
@@ -210,6 +216,7 @@ function fill_depth_map(){
                                  v3[2]*v3[2]
                                  )/3;
             if (current_depth_sqr < min_depth_sqr) {min_depth_sqr = current_depth_sqr;}
+            if (current_depth_sqr > max_depth_sqr) {max_depth_sqr = current_depth_sqr;}
             total_depth_sqr = total_depth_sqr + current_depth_sqr;
         }
   
@@ -289,8 +296,8 @@ function dm_add_traingle(vs){
     //console.log('d from grad_end = ' + dm_dot(norm_vec, grad_end).toFixed(3) + '  d from grad_start = ' + dm_dot(norm_vec, grad_start).toFixed(3))
     
     var grad = dm_context.createLinearGradient(grad_start[0], grad_start[1], grad_end[0], grad_end[1]); //create gradients from vectors
-    grad.addColorStop(0, dm_clr_from_depth( grad_start[2]*grad_start[2]));
-    grad.addColorStop(1, dm_clr_from_depth( grad_end[2]*grad_end[2]));
+    grad.addColorStop(0, dm_clr_from_depth( grad_start[2]));
+    grad.addColorStop(1, dm_clr_from_depth( grad_end[2]));
 
     dm_context.beginPath();
     dm_context.moveTo(vs[0][0],vs[0][1]);
@@ -302,10 +309,25 @@ function dm_add_traingle(vs){
     
 }
 
-function dm_clr_from_depth( current_depth_sqr) {
+function grey_dm_clr_from_depth( current_depth_sqr) {
     var clr_int_str =  (255*(avg_depth_sqr-min_depth_sqr)/1.2/((avg_depth_sqr-min_depth_sqr)/1.2 + (current_depth_sqr-min_depth_sqr))).toFixed(0);
-    return 'rgb('+clr_int_str+','+clr_int_str+','+clr_int_str+')';
+    return 'rgba('+clr_int_str+','+clr_int_str+','+clr_int_str+',0.3)';
 }
+
+function dm_clr_from_depth( current_depth_sqr) {
+    var x
+    try {
+        x = (current_depth_sqr - min_depth_sqr)/(max_depth_sqr - min_depth_sqr);
+    }
+    catch(err) {
+        x = 0.5;
+    }
+    var red = Math.min( Math.max( 255*4*(0.75-x), 0), 255);
+    var blue  = Math.min( Math.max( 255*4*(x-0.25), 0), 255);
+    var green= Math.min( Math.max( 255*(4*Math.abs(x-0.5)-1), 0), 255);
+    return 'rgba('+red.toFixed()+','+green.toFixed()+','+blue.toFixed()+',0.3)';
+}
+
 
 //face is specified as an array of 3 vertices, each one x,y,z - z is not used
 function point_in_triangle(x,y,face, tol){ // tol for tolarnce, how far outside in pixels the point can be from the traingle.

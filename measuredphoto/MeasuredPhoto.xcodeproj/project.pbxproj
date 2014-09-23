@@ -59,6 +59,9 @@
 		3280BB3D1919B44100338A38 /* MPSurveyAnswer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3280BB3C1919B44100338A38 /* MPSurveyAnswer.m */; };
 		328824B317C6C7BA0072CF54 /* MPPaddedLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 328824B217C6C7BA0072CF54 /* MPPaddedLabel.m */; };
 		3288AF6917ECE8BC00BCAD09 /* MPSlideBanner.m in Sources */ = {isa = PBXBuildFile; fileRef = 3288AF6817ECE8BC00BCAD09 /* MPSlideBanner.m */; };
+		328C7DD119D1E9B40079BA40 /* golden_gate.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 328C7DD019D1E9B30079BA40 /* golden_gate.jpg */; };
+		328C7DD719D1EA420079BA40 /* MPIntroScreen.m in Sources */ = {isa = PBXBuildFile; fileRef = 328C7DD619D1EA420079BA40 /* MPIntroScreen.m */; };
+		328C7DDA19D1EC0D0079BA40 /* MPLocationIntro.m in Sources */ = {isa = PBXBuildFile; fileRef = 328C7DD919D1EC0D0079BA40 /* MPLocationIntro.m */; };
 		329222F6180F13D6008BF9A0 /* libTrueMeasureSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 329222ED180DEF8A008BF9A0 /* libTrueMeasureSDK.a */; };
 		329222F9180F21BA008BF9A0 /* MPPhotoRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 329222F8180F21BA008BF9A0 /* MPPhotoRequest.m */; };
 		32934CDB18D8DB7C005DC87C /* MPEditPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 32934CDA18D8DB7C005DC87C /* MPEditPhoto.m */; };
@@ -330,6 +333,11 @@
 		328824B217C6C7BA0072CF54 /* MPPaddedLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPPaddedLabel.m; sourceTree = "<group>"; };
 		3288AF6717ECE8BC00BCAD09 /* MPSlideBanner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPSlideBanner.h; sourceTree = "<group>"; };
 		3288AF6817ECE8BC00BCAD09 /* MPSlideBanner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPSlideBanner.m; sourceTree = "<group>"; };
+		328C7DD019D1E9B30079BA40 /* golden_gate.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = golden_gate.jpg; sourceTree = "<group>"; };
+		328C7DD519D1EA420079BA40 /* MPIntroScreen.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPIntroScreen.h; sourceTree = "<group>"; };
+		328C7DD619D1EA420079BA40 /* MPIntroScreen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPIntroScreen.m; sourceTree = "<group>"; };
+		328C7DD819D1EC0D0079BA40 /* MPLocationIntro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPLocationIntro.h; sourceTree = "<group>"; };
+		328C7DD919D1EC0D0079BA40 /* MPLocationIntro.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPLocationIntro.m; sourceTree = "<group>"; };
 		329222E6180DEF8A008BF9A0 /* TrueMeasureSDK.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = TrueMeasureSDK.xcodeproj; path = ../TrueMeasureSDK/TrueMeasureSDK.xcodeproj; sourceTree = "<group>"; };
 		329222F7180F21BA008BF9A0 /* MPPhotoRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPPhotoRequest.h; sourceTree = "<group>"; };
 		329222F8180F21BA008BF9A0 /* MPPhotoRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPPhotoRequest.m; sourceTree = "<group>"; };
@@ -672,6 +680,15 @@
 			name = GoogleAnalytics;
 			sourceTree = "<group>";
 		};
+		328C7DD419D1E9B90079BA40 /* Media */ = {
+			isa = PBXGroup;
+			children = (
+				328C7DD019D1E9B30079BA40 /* golden_gate.jpg */,
+				32C173C8191457F4008B3262 /* TrueMeasureTutorial.mp4 */,
+			);
+			name = Media;
+			sourceTree = "<group>";
+		};
 		329222E7180DEF8A008BF9A0 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -772,7 +789,7 @@
 		32BA42A217A2DF8B002BAE13 /* MeasuredPhoto */ = {
 			isa = PBXGroup;
 			children = (
-				32C173C8191457F4008B3262 /* TrueMeasureTutorial.mp4 */,
+				328C7DD419D1E9B90079BA40 /* Media */,
 				D3F50AFD19BA19FD00791303 /* Stereo */,
 				3244D38718E60F4600AB0DE0 /* Calibration */,
 				32934CD218D8D9A1005DC87C /* HTML */,
@@ -837,6 +854,10 @@
 				3201E4E01982D18C008F61D5 /* MPFadeTransitionDelegate.m */,
 				3201E4E21982D212008F61D5 /* MPFadeTransition.h */,
 				3201E4E31982D212008F61D5 /* MPFadeTransition.m */,
+				328C7DD519D1EA420079BA40 /* MPIntroScreen.h */,
+				328C7DD619D1EA420079BA40 /* MPIntroScreen.m */,
+				328C7DD819D1EC0D0079BA40 /* MPLocationIntro.h */,
+				328C7DD919D1EC0D0079BA40 /* MPLocationIntro.m */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -1366,6 +1387,7 @@
 				32BA42B917A2DF8B002BAE13 /* MainStoryboard_iPad.storyboard in Resources */,
 				32C135CB1892E6F5004DF62B /* kb-loupe-hi.png in Resources */,
 				3246689B18E62B6700A3DF62 /* holding_landscape.jpg in Resources */,
+				328C7DD119D1E9B40079BA40 /* golden_gate.jpg in Resources */,
 				32DB2BE717C28AC9001F7E5D /* Settings.bundle in Resources */,
 				32745D6B18930889000C68F4 /* kb-loupe-hi@2x.png in Resources */,
 				3246689418E62B5400A3DF62 /* ipad_on_table.jpg in Resources */,
@@ -1491,6 +1513,7 @@
 				32BA433417A2EF4E002BAE13 /* MPLineLayerDelegate.m in Sources */,
 				32EFED89196E078F00FDC89F /* SBJsonStreamWriterState.m in Sources */,
 				3244D39518E6134500AB0DE0 /* MBProgressHUD.m in Sources */,
+				328C7DD719D1EA420079BA40 /* MPIntroScreen.m in Sources */,
 				32BA433517A2EF4E002BAE13 /* MPVideoPreview.m in Sources */,
 				32745D691892FBCE000C68F4 /* MPLoupe.m in Sources */,
 				32BA433817A2EF69002BAE13 /* MPCapturePhoto.m in Sources */,
@@ -1515,6 +1538,7 @@
 				D3F50B2119BA19FD00791303 /* svmdataset.c in Sources */,
 				32EFED87196E078F00FDC89F /* SBJsonStreamWriter.m in Sources */,
 				32EFED7F196E078F00FDC89F /* GTMNSDictionary+URLArguments.m in Sources */,
+				328C7DDA19D1EC0D0079BA40 /* MPLocationIntro.m in Sources */,
 				32AC64201991508400699A2E /* MPDMeasuredPhoto.m in Sources */,
 				32EFED8A196E078F00FDC89F /* SBJsonTokeniser.m in Sources */,
 				32EFED29196C91CE00FDC89F /* NSString+MagicalDataImport.m in Sources */,

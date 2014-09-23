@@ -35,6 +35,9 @@
 #define PREF_SHOW_INSTRUCTIONS @"show_instructions"
 #define PREF_SHOW_ACCURACY_QUESTION @"show_accuracy_question"
 #define PREF_IS_FIRST_START @"is_first_start"
+#define PREF_SHOW_RATE_NAG @"show_rate_nag"
+#define PREF_RATE_NAG_TIMESTAMP @"rate_nag_timestamp"
+#define PREF_LOCATION_NAG_TIMESTAMP @"location_nag_timestamp"
 
 #define API_VERSION 1
 #ifdef ARCHIVE

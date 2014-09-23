@@ -16,9 +16,10 @@
 #import "CoreData+MagicalRecord.h"
 #import "MPEditPhoto.h"
 #import "MPHttpInterceptor.h"
+#import "MPIntroScreen.h"
 
 #if TARGET_IPHONE_SIMULATOR
-#define SKIP_CALIBRATION YES // skip calibration when running on emulator because it cannot calibrate
+#define SKIP_CALIBRATION NO // skip calibration when running on emulator because it cannot calibrate
 #else
 #define SKIP_CALIBRATION NO
 #endif
@@ -51,11 +52,16 @@
                                     PREF_TUTORIAL_ANSWER: @0,
                                     PREF_SHOW_INSTRUCTIONS: @YES,
                                     PREF_SHOW_ACCURACY_QUESTION: @NO, // TODO: change to YES for prod
-                                    PREF_IS_FIRST_START: @YES};
+                                    PREF_IS_FIRST_START: @YES,
+                                    PREF_RATE_NAG_TIMESTAMP : @0,
+                                    PREF_LOCATION_NAG_TIMESTAMP: @0,};
        
         [NSUserDefaults.standardUserDefaults registerDefaults:appDefaults];
-         
-//        [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_IS_FIRST_START]; // temp, for testing
+        
+        // for testing only
+        #ifndef ARCHIVE
+//        [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_IS_FIRST_START];
+        #endif
         
         [RCHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
     });
@@ -64,23 +70,11 @@
     
     mainViewController = self.window.rootViewController;
     
-    BOOL calibratedFlag = [NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_CALIBRATED];
-    BOOL hasCalibration = [SENSOR_FUSION hasCalibrationData];
-    if (SKIP_CALIBRATION || (calibratedFlag && hasCalibration))
-    {
-        [self gotoGallery];
-    }
-    else
-    {
-        if (!hasCalibration) [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_IS_CALIBRATED];
-        [self gotoCalibration];
-    }
-    
     // google analytics setup
     #ifndef ARCHIVE
     [GAI sharedInstance].dryRun = YES; // turns off analtyics if not an archive build
-    #endif
 //    [[[GAI sharedInstance] logger] setLogLevel:kGAILogLevelVerbose];
+    #endif
     [GAI sharedInstance].trackUncaughtExceptions = YES;
     [MPAnalytics getTracker]; // initializes tracker
     
@@ -88,6 +82,32 @@
     [MagicalRecord setupCoreDataStackWithStoreNamed:@"Model"];
     
     [NSURLProtocol registerClass:[MPHttpInterceptor class]];
+    
+    BOOL calibratedFlag = [NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_CALIBRATED];
+    BOOL hasCalibration = [SENSOR_FUSION hasCalibrationData];
+    
+    if([NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_FIRST_START] && !SKIP_CALIBRATION)
+    {
+        [self gotoIntroScreen];
+    }
+    else
+    {
+        if ([LOCATION_MANAGER isLocationExplicitlyAllowed])
+        {
+            // location already authorized. go ahead.
+            LOCATION_MANAGER.delegate = self;
+            [LOCATION_MANAGER startLocationUpdates];
+        }
+        
+        if (SKIP_CALIBRATION || (calibratedFlag && hasCalibration) )
+        {
+            [self gotoGallery];
+        }
+        else
+        {
+            [self gotoCalibration];
+        }
+    }
     
     return YES;
 }
@@ -106,13 +126,37 @@
     self.window.rootViewController = vc;
 }
 
+- (void) gotoIntroScreen
+{
+    MPIntroScreen* vc = [mainViewController.storyboard instantiateViewControllerWithIdentifier:@"IntroScreen"];
+    vc.calibrationDelegate = self;
+    vc.sensorDelegate = mySensorDelegate;
+    self.window.rootViewController = vc;
+}
+
+- (void) gotoTutorialVideo
+{
+//    TMLocalMoviePlayer* movieController = [navigationController.storyboard instantiateViewControllerWithIdentifier:@"Tutorial"];
+//    movieController.delegate = self;
+//    self.window.rootViewController = movieController;
+}
+
 #pragma mark RCCalibrationDelegate methods
 
 - (void) calibrationDidFinish
 {
     LOGME
     [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_IS_CALIBRATED];
-    [self gotoGallery];
+    
+//    if ([NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_FIRST_START])
+//    {
+//        [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_IS_FIRST_START];
+//        [self gotoTutorialVideo];
+//    }
+//    else
+//    {
+        [self gotoGallery];
+//    }
 }
 
 - (void) calibrationScreenDidAppear:(NSString *)screenName
@@ -129,24 +173,6 @@
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
     LOGME
-    [NSUserDefaults.standardUserDefaults synchronize];
-
-    if ([LOCATION_MANAGER isLocationExplicitlyAllowed])
-    {
-        // location already authorized. go ahead.
-        LOCATION_MANAGER.delegate = self;
-        [LOCATION_MANAGER startLocationUpdates];
-    }
-    else if([self shouldShowLocationExplanation] && locationAlert == nil)
-    {
-        // show explanation, then ask for authorization. if they authorize, then start updating location.
-        locationAlert = [[UIAlertView alloc] initWithTitle:@"Location"
-                                                   message:@"If you allow the app to use your location, we can improve the accuracy of your measurements by adjusting for altitude and how far you are from the equator."
-                                                  delegate:self
-                                         cancelButtonTitle:@"Continue"
-                                         otherButtonTitles:nil];
-        [locationAlert show];
-    }
 }
 							
 - (void)applicationWillResignActive:(UIApplication *)application
@@ -158,40 +184,6 @@
 - (void) applicationWillTerminate:(UIApplication *)application
 {
     [MagicalRecord cleanUp];
-}
-
-- (BOOL)shouldShowLocationExplanation
-{
-    if ([CLLocationManager locationServicesEnabled])
-    {
-        return [CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined;
-    }
-    else
-    {
-        return [NSUserDefaults.standardUserDefaults boolForKey:PREF_SHOW_LOCATION_EXPLANATION];
-    }
-}
-
-- (void) alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
-{
-    if (buttonIndex == 0) //the only button
-    {
-        [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
-        [NSUserDefaults.standardUserDefaults synchronize];
-
-        if(![CLLocationManager locationServicesEnabled] || [CLLocationManager authorizationStatus] == kCLAuthorizationStatusNotDetermined)
-        {
-            LOCATION_MANAGER.delegate = self;
-            [LOCATION_MANAGER startLocationUpdates]; // will show dialog asking user to authorize location
-        }
-    }
-    locationAlert = nil;
-}
-
-- (void) locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
-{
-    LOCATION_MANAGER.delegate = nil;
-    [SENSOR_FUSION setLocation:[LOCATION_MANAGER getStoredLocation]];
 }
 
 // this gets called when another app requests a measured photo

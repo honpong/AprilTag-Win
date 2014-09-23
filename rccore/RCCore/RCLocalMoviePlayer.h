@@ -1,16 +1,21 @@
 //
-//  TMLocalMoviePlayer.h
-//  TapeMeasure
+//  RCLocalMoviePlayer.h
+//  RCCore
 //
-//  Created by Ben Hirashima on 8/21/14.
+//  Created by Ben Hirashima on 9/23/14.
 //  Copyright (c) 2014 RealityCap. All rights reserved.
 //
 
+#import <UIKit/UIKit.h>
 #import <MediaPlayer/MediaPlayer.h>
-#import "TMViewController.h"
-#import <RCCore/RCCore.h>
 
-@interface TMLocalMoviePlayer : RCLocalMoviePlayer
+@protocol RCLocalMoviePlayerDelegate <NSObject>
+
+- (void) moviePlayerDismissed;
+
+@end
+
+@interface RCLocalMoviePlayer : UIViewController
 
 @property (weak, nonatomic) id<RCLocalMoviePlayerDelegate> delegate;
 @property (nonatomic) MPMoviePlayerController* moviePlayer;

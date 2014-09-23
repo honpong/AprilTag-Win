@@ -48,6 +48,8 @@
 #import "RCLocationPopUp.h"
 #import "RCTipView.h"
 
+#import "RCLocalMoviePlayer.h"
+
 #import "NSString+RCString.h"
 
 #endif

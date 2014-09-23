@@ -14,126 +14,33 @@
 
 @implementation TMLocalMoviePlayer
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
-{
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        
-    }
-    return self;
-}
-
-- (void)viewDidLoad
-{
-    [super viewDidLoad];
-    
-    NSURL *movieURL = [[NSBundle mainBundle] URLForResource:@"Tutorial" withExtension:@"mp4"];
-    
-    _moviePlayer =  [[MPMoviePlayerController alloc] initWithContentURL:movieURL];
-    self.moviePlayer.controlStyle = MPMovieControlStyleEmbedded;
-    self.moviePlayer.shouldAutoplay = NO;
-    [self.view addSubview:self.moviePlayer.view];
-    [self.view bringSubviewToFront:self.moviePlayer.view];
-    
-    // eliminates flash when we start playing the video
-    [self.moviePlayer setFullscreen:YES animated:NO];
-    [self.moviePlayer setFullscreen:NO animated:NO];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(handlePause)
-                                                 name:UIApplicationWillResignActiveNotification
-                                               object:nil];
-}
-
 - (void) viewDidAppear:(BOOL)animated
 {
     [TMAnalytics logEvent:@"View.Tutorial"];
-}
-
-- (BOOL) prefersStatusBarHidden { return YES; }
-
-//- (UIInterfaceOrientation) preferredInterfaceOrientationForPresentation
-//{
-//    return UIInterfaceOrientationLandscapeRight;
-//}
-
-- (void) handlePause
-{
-    [self stopMovie];
-}
-
-- (void) playMovie
-{
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(moviePlayBackDidFinish:)
-                                                 name:MPMoviePlayerPlaybackDidFinishNotification
-                                               object:_moviePlayer];
-    
-    
-    [self.moviePlayer setFullscreen:YES animated:NO];
-    [self.moviePlayer setCurrentPlaybackTime:0];
-    [self.moviePlayer play];
-}
-
-- (void) stopMovie
-{
-    [self.moviePlayer setFullscreen:NO animated:NO];
-    
-    self.playButton.hidden = YES;
-    self.skipButton.hidden = YES;
-    self.messageLabel.hidden = YES;
-    
-    self.playAgainButton.hidden = NO;
-    self.continueButton.hidden = NO;
-}
-
-- (void) moviePlayBackDidFinish:(NSNotification*)notification
-{
-    MPMoviePlayerController *player = [notification object];
-    
-    [[NSNotificationCenter defaultCenter]
-         removeObserver:self
-         name:MPMoviePlayerPlaybackDidFinishNotification
-         object:player];
-    
-    if ([player respondsToSelector:@selector(setFullscreen:animated:)])
-    {
-        [self stopMovie];
-    }
+    [super viewDidAppear:animated];
 }
 
 - (IBAction)handlePlayButton:(id)sender
 {
     [TMAnalytics logEvent:@"View.Tutorial.Play"];
-    [self playMovie];
+    [super handlePlayButton:sender];
 }
 
 - (IBAction)handleSkipButton:(id)sender
 {
-    [self dismissSelf];
+    [TMAnalytics logEvent:@"View.Tutorial.Skip"];
+    [super handleSkipButton:sender];
 }
 
 - (IBAction)handlePlayAgainButton:(id)sender
 {
     [TMAnalytics logEvent:@"View.Tutorial.PlayAgain"];
-    [self playMovie];
+    [super handlePlayAgainButton:sender];
 }
 
 - (IBAction)handleContinueButton:(id)sender
 {
-    [self dismissSelf];
-}
-
-- (void) dismissSelf
-{
-    if ([self.delegate respondsToSelector:@selector(moviePlayerDismissed)])
-    {
-        [self.delegate moviePlayerDismissed];
-    }
-    else if (self.presentingViewController)
-    {
-        [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
-    }
+    [super handleContinueButton:sender];
 }
 
 @end

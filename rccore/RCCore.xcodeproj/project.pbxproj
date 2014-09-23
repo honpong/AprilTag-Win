@@ -105,6 +105,8 @@
 		328926C6177CE4280051C96C /* RCUserManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3233EEDC16E015930003DE9E /* RCUserManagerTests.m */; };
 		328ACC1416D5953900BC7142 /* RCUser.m in Sources */ = {isa = PBXBuildFile; fileRef = 328ACC1316D5953900BC7142 /* RCUser.m */; };
 		328ACC1616D595A100BC7142 /* RCUser.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 328ACC1216D5953900BC7142 /* RCUser.h */; };
+		328C7DE119D1FD050079BA40 /* RCLocalMoviePlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 328C7DE019D1FD050079BA40 /* RCLocalMoviePlayer.m */; };
+		328C7DE219D1FF4C0079BA40 /* RCLocalMoviePlayer.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 328C7DDF19D1FD050079BA40 /* RCLocalMoviePlayer.h */; };
 		328E2C3C17A09A0300F5DFD3 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328E2C3B17A09A0300F5DFD3 /* OpenGLES.framework */; };
 		329E2D101795C4EC00986923 /* RCCore.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 329E2D0F1795C4D000986923 /* RCCore.h */; };
 		32A7254117501B32004C873A /* RCDistanceLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A7253E17501B32004C873A /* RCDistanceLabel.m */; };
@@ -194,6 +196,7 @@
 			dstPath = "include/${PRODUCT_NAME}";
 			dstSubfolderSpec = 16;
 			files = (
+				328C7DE219D1FF4C0079BA40 /* RCLocalMoviePlayer.h in CopyFiles */,
 				D94ECE73194CD653008F2F9A /* RCSensorDelegate.h in CopyFiles */,
 				D94ECE6F194CCA78008F2F9A /* RCGeocoder.h in CopyFiles */,
 				D3217E1918BE306F00762A31 /* CaptureFile.h in CopyFiles */,
@@ -361,6 +364,8 @@
 		3287E0EB174D6D8000373013 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		328ACC1216D5953900BC7142 /* RCUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCUser.h; sourceTree = "<group>"; };
 		328ACC1316D5953900BC7142 /* RCUser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCUser.m; sourceTree = "<group>"; };
+		328C7DDF19D1FD050079BA40 /* RCLocalMoviePlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCLocalMoviePlayer.h; path = ../../rccore/RCCore/RCLocalMoviePlayer.h; sourceTree = "<group>"; };
+		328C7DE019D1FD050079BA40 /* RCLocalMoviePlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCLocalMoviePlayer.m; path = ../../rccore/RCCore/RCLocalMoviePlayer.m; sourceTree = "<group>"; };
 		328E2C3B17A09A0300F5DFD3 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		329E2D0F1795C4D000986923 /* RCCore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCore.h; sourceTree = "<group>"; };
 		32A7253D17501B32004C873A /* RCDistanceLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceLabel.h; sourceTree = "<group>"; };
@@ -636,6 +641,7 @@
 		32865B6A16260B500080BA1A /* RCCore */ = {
 			isa = PBXGroup;
 			children = (
+				328C7DDD19D1FCE90079BA40 /* Controllers */,
 				324FF86018ECB67F00DC5E7F /* Protocols */,
 				324FF85D18ECB5C300DC5E7F /* Categories */,
 				D38126F918CA237000E635C3 /* GCDAsyncSocket */,
@@ -746,6 +752,15 @@
 			name = Views;
 			sourceTree = "<group>";
 		};
+		328C7DDD19D1FCE90079BA40 /* Controllers */ = {
+			isa = PBXGroup;
+			children = (
+				328C7DDF19D1FD050079BA40 /* RCLocalMoviePlayer.h */,
+				328C7DE019D1FD050079BA40 /* RCLocalMoviePlayer.m */,
+			);
+			name = Controllers;
+			sourceTree = "<group>";
+		};
 		32BA42F317A2E57C002BAE13 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
@@ -833,7 +848,7 @@
 			name = RCCoreTests;
 			productName = RCCoreTests;
 			productReference = 32865B7616260B500080BA1A /* RCCoreTests.octest */;
-			productType = "com.apple.product-type.bundle";
+			productType = "com.apple.product-type.bundle.ocunit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -982,6 +997,7 @@
 				32771A0617DC29AE00881279 /* RCMotionManager.m in Sources */,
 				32771A0717DC29AE00881279 /* RCVideoManager.m in Sources */,
 				322B8A8B17DC2A28008FED6E /* RCAVSessionManager.m in Sources */,
+				328C7DE119D1FD050079BA40 /* RCLocalMoviePlayer.m in Sources */,
 				3272F74019AD0615001F7AA1 /* RCRateMeView.m in Sources */,
 				D38126FC18CA239800E635C3 /* GCDAsyncSocket.m in Sources */,
 				D94ECE6D194CC171008F2F9A /* RCGeocoder.m in Sources */,

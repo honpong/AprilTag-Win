@@ -18,9 +18,7 @@
 {
     [super viewDidLoad];
     
-    NSURL *movieURL = [[NSBundle mainBundle] URLForResource:@"Tutorial" withExtension:@"mp4"];
-    
-    _moviePlayer =  [[MPMoviePlayerController alloc] initWithContentURL:movieURL];
+    _moviePlayer =  [[MPMoviePlayerController alloc] initWithContentURL:self.movieURL];
     self.moviePlayer.controlStyle = MPMovieControlStyleEmbedded;
     self.moviePlayer.shouldAutoplay = NO;
     [self.view addSubview:self.moviePlayer.view];
@@ -113,6 +111,12 @@
     {
         [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
     }
+}
+
+- (void) setMovieURL:(NSURL *)movieURL
+{
+    if (self.moviePlayer) self.moviePlayer.contentURL = movieURL;
+    _movieURL = movieURL;
 }
 
 @end

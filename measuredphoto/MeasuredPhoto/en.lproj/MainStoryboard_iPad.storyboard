@@ -650,7 +650,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Alx-80-4D8" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-2755" y="-118"/>
+            <point key="canvasLocation" x="-3595" y="-118"/>
         </scene>
         <!--IntroScreen-->
         <scene sceneID="vJa-IF-V6j">
@@ -722,11 +722,142 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Y8P-uZ-c0Q" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-3615" y="-118"/>
+            <point key="canvasLocation" x="-4417" y="-118"/>
+        </scene>
+        <!--Tutorial-->
+        <scene sceneID="BnK-1z-hrm">
+            <objects>
+                <viewController storyboardIdentifier="Tutorial" title="Tutorial" useStoryboardIdentifierAsRestorationIdentifier="YES" id="onT-F5-cXN" customClass="MPLocalMoviePlayer" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="s3i-9W-OlR"/>
+                        <viewControllerLayoutGuide type="bottom" id="guU-gQ-iyR"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="ZSJ-Pk-FWb">
+                        <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" alpha="0.5" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="tutorial_screenshot.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="zpw-48-iDG">
+                                <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                            </imageView>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Short tutorial video" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="Fmy-cW-MAG">
+                                <rect key="frame" x="20" y="983" width="728" height="21"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="21" id="Sv2-0j-eqS"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                                <color key="shadowColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                <size key="shadowOffset" width="1" height="1"/>
+                            </label>
+                            <button opaque="NO" alpha="0.5" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ygK-y8-a8n" userLabel="Button - Play">
+                                <rect key="frame" x="349" y="477" width="70" height="70"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="70" id="Gdg-W9-aGW"/>
+                                    <constraint firstAttribute="height" constant="70" id="Ogz-fK-Kuy"/>
+                                </constraints>
+                                <state key="normal" image="PlayButton">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="handlePlayButton:" destination="onT-F5-cXN" eventType="touchUpInside" id="4c0-0Z-C14"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3Np-C4-1qh">
+                                <rect key="frame" x="688" y="20" width="60" height="40"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="60" id="93g-3f-ytP"/>
+                                    <constraint firstAttribute="height" constant="40" id="c2O-ay-Q3a"/>
+                                </constraints>
+                                <size key="titleShadowOffset" width="1" height="1"/>
+                                <state key="normal" title="Skip">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="handleSkipButton:" destination="onT-F5-cXN" eventType="touchUpInside" id="MtS-mH-aLL"/>
+                                </connections>
+                            </button>
+                            <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="crr-Qs-fPn">
+                                <rect key="frame" x="284" y="462" width="200" height="40"/>
+                                <color key="backgroundColor" red="0.0" green="0.50196081400000003" blue="1" alpha="0.69999999999999996" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="200" id="SId-uk-pNn"/>
+                                    <constraint firstAttribute="height" constant="40" id="uJt-pg-aOg"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <size key="titleShadowOffset" width="1" height="1"/>
+                                <state key="normal" title="Play Again">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="titleShadowColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                        <integer key="value" value="10"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                                <connections>
+                                    <action selector="handlePlayAgainButton:" destination="onT-F5-cXN" eventType="touchUpInside" id="kSW-ey-Mqp"/>
+                                </connections>
+                            </button>
+                            <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="fz9-Lv-rGZ">
+                                <rect key="frame" x="284" y="522" width="200" height="40"/>
+                                <color key="backgroundColor" red="0.0" green="0.50196081400000003" blue="1" alpha="0.69999999999999996" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="200" id="7eF-v7-NQR"/>
+                                    <constraint firstAttribute="height" constant="40" id="cbR-Zu-rlt"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <size key="titleShadowOffset" width="1" height="1"/>
+                                <state key="normal" title="Take a measurement">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="titleShadowColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                        <integer key="value" value="10"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                                <connections>
+                                    <action selector="handleContinueButton:" destination="onT-F5-cXN" eventType="touchUpInside" id="eaN-Xb-ocX"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="zpw-48-iDG" firstAttribute="leading" secondItem="ZSJ-Pk-FWb" secondAttribute="leading" id="4hn-Zz-nYy"/>
+                            <constraint firstItem="guU-gQ-iyR" firstAttribute="top" secondItem="Fmy-cW-MAG" secondAttribute="bottom" constant="20" id="6zD-a9-dt0"/>
+                            <constraint firstAttribute="centerX" secondItem="ygK-y8-a8n" secondAttribute="centerX" id="CH0-li-nJC"/>
+                            <constraint firstItem="fz9-Lv-rGZ" firstAttribute="centerX" secondItem="ygK-y8-a8n" secondAttribute="centerX" id="HUn-dP-cpl"/>
+                            <constraint firstItem="crr-Qs-fPn" firstAttribute="top" secondItem="ygK-y8-a8n" secondAttribute="top" constant="-15" id="OwO-it-83b"/>
+                            <constraint firstItem="crr-Qs-fPn" firstAttribute="centerX" secondItem="fz9-Lv-rGZ" secondAttribute="centerX" id="Pa8-vf-2cy"/>
+                            <constraint firstItem="guU-gQ-iyR" firstAttribute="top" secondItem="zpw-48-iDG" secondAttribute="bottom" id="U0Y-t4-Vt9"/>
+                            <constraint firstAttribute="trailing" secondItem="zpw-48-iDG" secondAttribute="trailing" id="cPT-Dn-Akl"/>
+                            <constraint firstAttribute="trailing" secondItem="3Np-C4-1qh" secondAttribute="trailing" constant="20" id="ej0-p9-kiE"/>
+                            <constraint firstItem="Fmy-cW-MAG" firstAttribute="leading" secondItem="ZSJ-Pk-FWb" secondAttribute="leading" constant="20" id="fiT-lk-9Dt"/>
+                            <constraint firstAttribute="trailing" secondItem="Fmy-cW-MAG" secondAttribute="trailing" constant="20" id="m1y-Ib-FmM"/>
+                            <constraint firstItem="fz9-Lv-rGZ" firstAttribute="bottom" secondItem="ygK-y8-a8n" secondAttribute="bottom" constant="15" id="oNS-d4-MB9"/>
+                            <constraint firstItem="zpw-48-iDG" firstAttribute="top" secondItem="ZSJ-Pk-FWb" secondAttribute="top" id="pBP-yX-foA"/>
+                            <constraint firstItem="3Np-C4-1qh" firstAttribute="top" secondItem="ZSJ-Pk-FWb" secondAttribute="top" constant="20" symbolic="YES" id="uvd-tD-y1K"/>
+                            <constraint firstAttribute="centerY" secondItem="ygK-y8-a8n" secondAttribute="centerY" id="yaU-tD-7Nv"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="continueButton" destination="fz9-Lv-rGZ" id="9y1-Sr-Msx"/>
+                        <outlet property="messageLabel" destination="Fmy-cW-MAG" id="3Ky-mk-pnI"/>
+                        <outlet property="playAgainButton" destination="crr-Qs-fPn" id="h7l-5l-aeE"/>
+                        <outlet property="playButton" destination="ygK-y8-a8n" id="Vs8-R4-I5e"/>
+                        <outlet property="skipButton" destination="3Np-C4-1qh" id="OpV-cn-JQh"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="5jR-po-M2I" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-2779" y="-118"/>
         </scene>
     </scenes>
     <resources>
         <image name="PLCameraFloatingShutterButton" width="73" height="73"/>
+        <image name="PlayButton" width="70" height="70"/>
         <image name="UIButtonBarAction" width="19" height="26"/>
         <image name="UIButtonBarTrash" width="18" height="25"/>
         <image name="golden_gate.jpg" width="1536" height="2516"/>
@@ -734,6 +865,7 @@
         <image name="menu" width="17" height="17"/>
         <image name="photos-icon-nav-bar" width="32" height="32"/>
         <image name="photos-icon-toolbar" width="50" height="50"/>
+        <image name="tutorial_screenshot.jpg" width="1920" height="1080"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>

@@ -62,6 +62,7 @@
 		328C7DD119D1E9B40079BA40 /* golden_gate.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 328C7DD019D1E9B30079BA40 /* golden_gate.jpg */; };
 		328C7DD719D1EA420079BA40 /* MPIntroScreen.m in Sources */ = {isa = PBXBuildFile; fileRef = 328C7DD619D1EA420079BA40 /* MPIntroScreen.m */; };
 		328C7DDA19D1EC0D0079BA40 /* MPLocationIntro.m in Sources */ = {isa = PBXBuildFile; fileRef = 328C7DD919D1EC0D0079BA40 /* MPLocationIntro.m */; };
+		328C7DE819D208680079BA40 /* tutorial_screenshot.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 328C7DE719D208680079BA40 /* tutorial_screenshot.jpg */; };
 		329222F6180F13D6008BF9A0 /* libTrueMeasureSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 329222ED180DEF8A008BF9A0 /* libTrueMeasureSDK.a */; };
 		329222F9180F21BA008BF9A0 /* MPPhotoRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 329222F8180F21BA008BF9A0 /* MPPhotoRequest.m */; };
 		32934CDB18D8DB7C005DC87C /* MPEditPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 32934CDA18D8DB7C005DC87C /* MPEditPhoto.m */; };
@@ -93,7 +94,7 @@
 		32C135C91892E6F5004DF62B /* ACMagnifyingGlass.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C135C31892E6F5004DF62B /* ACMagnifyingGlass.m */; };
 		32C135CA1892E6F5004DF62B /* ACMagnifyingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C135C51892E6F5004DF62B /* ACMagnifyingView.m */; };
 		32C135CB1892E6F5004DF62B /* kb-loupe-hi.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C135C71892E6F5004DF62B /* kb-loupe-hi.png */; };
-		32C173C9191457F4008B3262 /* TrueMeasureTutorial.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 32C173C8191457F4008B3262 /* TrueMeasureTutorial.mp4 */; };
+		32C173C9191457F4008B3262 /* Tutorial.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 32C173C8191457F4008B3262 /* Tutorial.mp4 */; };
 		32C71CA719802F6100947798 /* MPRotatingButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C71CA619802F6100947798 /* MPRotatingButton.m */; };
 		32DB2BE717C28AC9001F7E5D /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 32DB2BE617C28AC9001F7E5D /* Settings.bundle */; };
 		32EEC84F17B97D1900A0DF49 /* MPMeasurementView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EEC84E17B97D1900A0DF49 /* MPMeasurementView.m */; };
@@ -338,6 +339,7 @@
 		328C7DD619D1EA420079BA40 /* MPIntroScreen.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPIntroScreen.m; sourceTree = "<group>"; };
 		328C7DD819D1EC0D0079BA40 /* MPLocationIntro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPLocationIntro.h; sourceTree = "<group>"; };
 		328C7DD919D1EC0D0079BA40 /* MPLocationIntro.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPLocationIntro.m; sourceTree = "<group>"; };
+		328C7DE719D208680079BA40 /* tutorial_screenshot.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = tutorial_screenshot.jpg; sourceTree = "<group>"; };
 		329222E6180DEF8A008BF9A0 /* TrueMeasureSDK.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = TrueMeasureSDK.xcodeproj; path = ../TrueMeasureSDK/TrueMeasureSDK.xcodeproj; sourceTree = "<group>"; };
 		329222F7180F21BA008BF9A0 /* MPPhotoRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPPhotoRequest.h; sourceTree = "<group>"; };
 		329222F8180F21BA008BF9A0 /* MPPhotoRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPPhotoRequest.m; sourceTree = "<group>"; };
@@ -402,7 +404,7 @@
 		32C135C41892E6F5004DF62B /* ACMagnifyingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ACMagnifyingView.h; sourceTree = "<group>"; };
 		32C135C51892E6F5004DF62B /* ACMagnifyingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ACMagnifyingView.m; sourceTree = "<group>"; };
 		32C135C71892E6F5004DF62B /* kb-loupe-hi.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "kb-loupe-hi.png"; sourceTree = "<group>"; };
-		32C173C8191457F4008B3262 /* TrueMeasureTutorial.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = TrueMeasureTutorial.mp4; sourceTree = "<group>"; };
+		32C173C8191457F4008B3262 /* Tutorial.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = Tutorial.mp4; sourceTree = "<group>"; };
 		32C71CA519802F6100947798 /* MPRotatingButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPRotatingButton.h; sourceTree = "<group>"; };
 		32C71CA619802F6100947798 /* MPRotatingButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPRotatingButton.m; sourceTree = "<group>"; };
 		32DB2BE617C28AC9001F7E5D /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
@@ -683,8 +685,9 @@
 		328C7DD419D1E9B90079BA40 /* Media */ = {
 			isa = PBXGroup;
 			children = (
+				328C7DE719D208680079BA40 /* tutorial_screenshot.jpg */,
 				328C7DD019D1E9B30079BA40 /* golden_gate.jpg */,
-				32C173C8191457F4008B3262 /* TrueMeasureTutorial.mp4 */,
+				32C173C8191457F4008B3262 /* Tutorial.mp4 */,
 			);
 			name = Media;
 			sourceTree = "<group>";
@@ -1359,7 +1362,7 @@
 			files = (
 				1784379C198B0B83004AB248 /* json2.js in Resources */,
 				32EFED96196F381C00FDC89F /* jquery-2.1.1.min.js in Resources */,
-				32C173C9191457F4008B3262 /* TrueMeasureTutorial.mp4 in Resources */,
+				32C173C9191457F4008B3262 /* Tutorial.mp4 in Resources */,
 				320E5DE117E0E5BC00381E7A /* Images.xcassets in Resources */,
 				1743A51E1986F8E1001A5A6A /* rc_menu.js in Resources */,
 				32BA42A717A2DF8B002BAE13 /* InfoPlist.strings in Resources */,
@@ -1372,6 +1375,7 @@
 				1768899B195B59F500337524 /* measured_photo_svg.html in Resources */,
 				32EFED5E196E01DB00FDC89F /* test.html in Resources */,
 				324DB326195B8D310004567A /* main_function.js in Resources */,
+				328C7DE819D208680079BA40 /* tutorial_screenshot.jpg in Resources */,
 				324DB327195B8D310004567A /* numeric_keypad.js in Resources */,
 				324DB328195B8D310004567A /* scale_and_rotate.js in Resources */,
 				324DB329195B8D310004567A /* global_variables.js in Resources */,

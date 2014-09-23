@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6245" systemVersion="13F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="naN-gY-NUo">
     <dependencies>
+        <deployment defaultVersion="1536" identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6238"/>
     </dependencies>
     <scenes>
@@ -688,7 +689,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="iaM-5G-YQI" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-541" y="97"/>
+            <point key="canvasLocation" x="-888" y="97"/>
         </scene>
         <!--LocationIntro-->
         <scene sceneID="1jI-aD-qrv">
@@ -827,11 +828,142 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="8Xv-8A-lgP" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="-161" y="97"/>
+            <point key="canvasLocation" x="-522" y="97"/>
+        </scene>
+        <!--Tutorial-->
+        <scene sceneID="PY0-kF-XnL">
+            <objects>
+                <viewController storyboardIdentifier="Tutorial" title="Tutorial" useStoryboardIdentifierAsRestorationIdentifier="YES" id="hFR-V6-8HC" customClass="MPLocalMoviePlayer" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="MHx-y1-Pdc"/>
+                        <viewControllerLayoutGuide type="bottom" id="77H-1O-0Yd"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="xZ7-5D-V7s">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" alpha="0.5" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="tutorial_screenshot.jpg" translatesAutoresizingMaskIntoConstraints="NO" id="9P4-um-6ND">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                            </imageView>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Short tutorial video" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="280" translatesAutoresizingMaskIntoConstraints="NO" id="jG2-qQ-DIg">
+                                <rect key="frame" x="20" y="527" width="280" height="21"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="21" id="0eS-Mq-ra3"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                                <color key="shadowColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                <size key="shadowOffset" width="1" height="1"/>
+                            </label>
+                            <button opaque="NO" alpha="0.5" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="nzr-H2-WU2" userLabel="Button - Play">
+                                <rect key="frame" x="125" y="249" width="70" height="70"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="70" id="LdE-1z-FcJ"/>
+                                    <constraint firstAttribute="height" constant="70" id="hzR-eB-tpr"/>
+                                </constraints>
+                                <state key="normal" image="PlayButton">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="handlePlayButton:" destination="hFR-V6-8HC" eventType="touchUpInside" id="2AK-LT-Soq"/>
+                                </connections>
+                            </button>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bsT-jm-AUs">
+                                <rect key="frame" x="240" y="20" width="60" height="40"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="60" id="Vg5-dt-MRn"/>
+                                    <constraint firstAttribute="height" constant="40" id="aJd-61-9ha"/>
+                                </constraints>
+                                <size key="titleShadowOffset" width="1" height="1"/>
+                                <state key="normal" title="Skip">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="handleSkipButton:" destination="hFR-V6-8HC" eventType="touchUpInside" id="rkB-Hj-UM8"/>
+                                </connections>
+                            </button>
+                            <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Bmk-Ed-sLj">
+                                <rect key="frame" x="60" y="234" width="200" height="40"/>
+                                <color key="backgroundColor" red="0.0" green="0.50196081400000003" blue="1" alpha="0.69999999999999996" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="Afr-YI-tqO"/>
+                                    <constraint firstAttribute="width" constant="200" id="qaY-6O-Scc"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <size key="titleShadowOffset" width="1" height="1"/>
+                                <state key="normal" title="Play Again">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="titleShadowColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                        <integer key="value" value="10"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                                <connections>
+                                    <action selector="handlePlayAgainButton:" destination="hFR-V6-8HC" eventType="touchUpInside" id="pWS-EN-BkO"/>
+                                </connections>
+                            </button>
+                            <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hgA-oM-6FR">
+                                <rect key="frame" x="60" y="294" width="200" height="40"/>
+                                <color key="backgroundColor" red="0.0" green="0.50196081400000003" blue="1" alpha="0.69999999999999996" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="0Rd-p4-j9d"/>
+                                    <constraint firstAttribute="width" constant="200" id="gXp-Av-Bcb"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
+                                <size key="titleShadowOffset" width="1" height="1"/>
+                                <state key="normal" title="Take a measurement">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="titleShadowColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                        <integer key="value" value="10"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                                <connections>
+                                    <action selector="handleContinueButton:" destination="hFR-V6-8HC" eventType="touchUpInside" id="Mbf-PD-ecn"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="centerY" secondItem="nzr-H2-WU2" secondAttribute="centerY" id="7r8-lZ-tJh"/>
+                            <constraint firstItem="77H-1O-0Yd" firstAttribute="top" secondItem="9P4-um-6ND" secondAttribute="bottom" id="A2B-4r-H91"/>
+                            <constraint firstAttribute="trailing" secondItem="jG2-qQ-DIg" secondAttribute="trailing" constant="20" id="AD1-PW-XI2"/>
+                            <constraint firstAttribute="centerX" secondItem="nzr-H2-WU2" secondAttribute="centerX" id="D6S-sP-Bis"/>
+                            <constraint firstItem="hgA-oM-6FR" firstAttribute="bottom" secondItem="nzr-H2-WU2" secondAttribute="bottom" constant="15" id="GOm-nP-g5s"/>
+                            <constraint firstItem="Bmk-Ed-sLj" firstAttribute="centerX" secondItem="hgA-oM-6FR" secondAttribute="centerX" id="GVG-gF-DNx"/>
+                            <constraint firstItem="Bmk-Ed-sLj" firstAttribute="top" secondItem="nzr-H2-WU2" secondAttribute="top" constant="-15" id="HT2-RR-2cr"/>
+                            <constraint firstItem="hgA-oM-6FR" firstAttribute="centerX" secondItem="nzr-H2-WU2" secondAttribute="centerX" id="LSU-9J-V19"/>
+                            <constraint firstAttribute="trailing" secondItem="bsT-jm-AUs" secondAttribute="trailing" constant="20" id="U2R-FS-v8S"/>
+                            <constraint firstItem="9P4-um-6ND" firstAttribute="leading" secondItem="xZ7-5D-V7s" secondAttribute="leading" id="aJN-pW-9Ba"/>
+                            <constraint firstItem="jG2-qQ-DIg" firstAttribute="leading" secondItem="xZ7-5D-V7s" secondAttribute="leading" constant="20" id="eqY-vA-jWo"/>
+                            <constraint firstAttribute="trailing" secondItem="9P4-um-6ND" secondAttribute="trailing" id="ncY-zH-DDu"/>
+                            <constraint firstItem="bsT-jm-AUs" firstAttribute="top" secondItem="xZ7-5D-V7s" secondAttribute="top" constant="20" symbolic="YES" id="yU4-6g-Zdn"/>
+                            <constraint firstItem="9P4-um-6ND" firstAttribute="top" secondItem="xZ7-5D-V7s" secondAttribute="top" id="yfa-SI-hsJ"/>
+                            <constraint firstItem="77H-1O-0Yd" firstAttribute="top" secondItem="jG2-qQ-DIg" secondAttribute="bottom" constant="20" id="yyx-fZ-zrs"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="continueButton" destination="hgA-oM-6FR" id="GBc-hI-IYK"/>
+                        <outlet property="messageLabel" destination="jG2-qQ-DIg" id="EXT-BG-RiJ"/>
+                        <outlet property="playAgainButton" destination="Bmk-Ed-sLj" id="iRP-z2-ydL"/>
+                        <outlet property="playButton" destination="nzr-H2-WU2" id="KDI-LS-2cW"/>
+                        <outlet property="skipButton" destination="bsT-jm-AUs" id="Fnd-zg-Kvh"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="mWI-VL-3DF" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-153" y="97"/>
         </scene>
     </scenes>
     <resources>
         <image name="PLCameraFloatingShutterButton" width="73" height="73"/>
+        <image name="PlayButton" width="70" height="70"/>
         <image name="UIButtonBarAction" width="19" height="26"/>
         <image name="UIButtonBarTrash" width="18" height="25"/>
         <image name="golden_gate.jpg" width="1536" height="2516"/>
@@ -839,6 +971,7 @@
         <image name="menu" width="17" height="17"/>
         <image name="photos-icon-nav-bar" width="32" height="32"/>
         <image name="photos-icon-toolbar" width="50" height="50"/>
+        <image name="tutorial_screenshot.jpg" width="1920" height="1080"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>

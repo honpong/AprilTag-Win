@@ -126,7 +126,7 @@
                         <outlet property="continueButton" destination="fm1-2W-yMD" id="OXm-vF-Vr6"/>
                         <outlet property="messageLabel" destination="V4O-BD-OXY" id="bkq-vb-8W5"/>
                         <outlet property="playAgainButton" destination="Wri-lv-2aw" id="MQG-ZE-yYW"/>
-                        <outlet property="playButton" destination="Wri-lv-2aw" id="BSg-6g-9u5"/>
+                        <outlet property="playButton" destination="Ped-22-htI" id="knP-eH-JxG"/>
                         <outlet property="skipButton" destination="rmF-9t-HcF" id="cdi-Pd-qL3"/>
                     </connections>
                 </viewController>

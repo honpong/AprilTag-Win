@@ -136,9 +136,9 @@
 
 - (void) gotoTutorialVideo
 {
-//    TMLocalMoviePlayer* movieController = [navigationController.storyboard instantiateViewControllerWithIdentifier:@"Tutorial"];
-//    movieController.delegate = self;
-//    self.window.rootViewController = movieController;
+    MPLocalMoviePlayer* movieController = [mainViewController.storyboard instantiateViewControllerWithIdentifier:@"Tutorial"];
+    movieController.delegate = self;
+    self.window.rootViewController = movieController;
 }
 
 #pragma mark RCCalibrationDelegate methods
@@ -148,16 +148,25 @@
     LOGME
     [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_IS_CALIBRATED];
     
-//    if ([NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_FIRST_START])
-//    {
-//        [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_IS_FIRST_START];
-//        [self gotoTutorialVideo];
-//    }
-//    else
-//    {
+    if ([NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_FIRST_START])
+    {
+        [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_IS_FIRST_START];
+        [self gotoTutorialVideo];
+    }
+    else
+    {
         [self gotoGallery];
-//    }
+    }
 }
+
+#pragma mark - TMLocalMoviePlayerDelegate
+
+- (void) moviePlayerDismissed
+{
+    [self gotoGallery];
+}
+
+#pragma mark - RCCalibrationDelegate
 
 - (void) calibrationScreenDidAppear:(NSString *)screenName
 {
@@ -169,6 +178,8 @@
     DLog("Calibration failed: %@", error);
     // TODO: implement
 }
+
+#pragma mark -
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {

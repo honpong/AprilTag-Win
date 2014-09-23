@@ -24,6 +24,7 @@
 @property (weak, nonatomic) IBOutlet UIButton *playAgainButton;
 @property (weak, nonatomic) IBOutlet UIButton *continueButton;
 @property (weak, nonatomic) IBOutlet UILabel *messageLabel;
+@property (nonatomic) NSURL *movieURL;
 
 - (IBAction)handlePlayButton:(id)sender;
 - (IBAction)handleSkipButton:(id)sender;

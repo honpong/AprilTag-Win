@@ -300,25 +300,6 @@ static transition transitions[] =
     
     [questionView hideInstantly];
     [self handleResume];
-        
-    if ([[NSUserDefaults.standardUserDefaults objectForKey:PREF_IS_FIRST_START]  isEqual: @YES])
-    {
-        [NSUserDefaults.standardUserDefaults setObject:@NO forKey:PREF_IS_FIRST_START];
-        [self gotoTutorialVideo];
-    }
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName:MPCapturePhotoDidAppearNotification object:nil];
-}
-
-- (void) gotoTutorialVideo
-{
-    NSURL *movieURL = [[NSBundle mainBundle] URLForResource:@"TrueMeasureTutorial" withExtension:@"mp4"];
-    MPLocalMoviePlayer* movieViewController = [[MPLocalMoviePlayer alloc] initWithContentURL:movieURL];
-    movieViewController.modalPresentationStyle = UIModalPresentationFullScreen;
-    [self presentMoviePlayerViewControllerAnimated:movieViewController];
-    
-    [[NSNotificationCenter defaultCenter] removeObserver:movieViewController  name:MPMoviePlayerPlaybackDidFinishNotification object:movieViewController.moviePlayer]; // needed to receive the notification below
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(moviePlayerWillExitFullScreen:) name:MPMoviePlayerPlaybackDidFinishNotification object:nil];
 }
 
 - (void) moviePlayerWillExitFullScreen:(NSNotification*)notification

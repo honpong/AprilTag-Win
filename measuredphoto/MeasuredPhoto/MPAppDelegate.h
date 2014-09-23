@@ -9,8 +9,9 @@
 #import <CoreLocation/CoreLocation.h>
 #import <RCCore/RCCore.h>
 #import "RCCalibration1.h"
+#import "MPLocalMoviePlayer.h"
 
-@interface MPAppDelegate : UIResponder <UIApplicationDelegate, CLLocationManagerDelegate, RCCalibrationDelegate>
+@interface MPAppDelegate : UIResponder <UIApplicationDelegate, CLLocationManagerDelegate, RCCalibrationDelegate, RCLocalMoviePlayerDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
 

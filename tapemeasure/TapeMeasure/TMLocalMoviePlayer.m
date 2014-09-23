@@ -14,6 +14,12 @@
 
 @implementation TMLocalMoviePlayer
 
+- (void) viewDidLoad
+{
+    self.movieURL = [[NSBundle mainBundle] URLForResource:@"Tutorial" withExtension:@"mp4"];
+    [super viewDidLoad];
+}
+
 - (void) viewDidAppear:(BOOL)animated
 {
     [TMAnalytics logEvent:@"View.Tutorial"];

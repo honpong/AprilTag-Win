@@ -26,6 +26,7 @@ var switch_image_depthmap; //declaring this in the global scope for later initia
 
 function clear_tool_data(){ //this should be called whenever theres a switch in tools
     //line tool data
+    console.log('starting clear_tool_data');
     lineNotStarted = true;
     click_image_x1 = null;
     click_image_y1 = null;
@@ -37,7 +38,7 @@ function clear_tool_data(){ //this should be called whenever theres a switch in 
 
 function rc_initialize(){
     console.log = logNative;
-    console.log("rc_initialize()");
+    console.log("starting rc_initialize()");
     
     is_rc_initialized = true;
     
@@ -260,6 +261,7 @@ function rc_initialize(){
 
 
 function clear_all(){
+    console.log('starting clear_all()');
     window.setTimeout(function (){
     //try {
         //scale and roation handling
@@ -301,7 +303,7 @@ function setDefaultUnits(use_metric) {
 }
 
 function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric){
-    console.log("loadMPhoto()");
+    console.log("startin loadMPhoto()");
     window.setTimeout( function () {
         m_photo_guid = guid;
         if (typeof use_metric === "undefined" || use_metric === null) { default_units_metric = false; } //metric is our default if not set
@@ -313,9 +315,9 @@ function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric)
             }
             
             //assume clear is called first if this is the second load
-
+                      console.log('loading image from '+ rc_img_url);
             image = img_container.image(rc_img_url).loaded(function(loader) {
-                                                  console.log('loading image');
+                                                  console.log('starting image load callback');
                                                   //this should rotate the image
                                                   //alert('loading img');
                                                   //image_width = loader.height;
@@ -325,16 +327,20 @@ function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric)
                                                            
                                                   image_width = loader.width;
                                                   image_height = loader.height;
-
+                                                   console.log('loaded image dimensions: ' + image_width.toFixed()+ ' x ' + image_height.toFixed() );
+                                                           
                                                   draw_g.add(image);
                                                   if ( ! draw.node.contains(menu_svg.node)) {draw.node.appendChild(menu_svg.node);}
                                                   
                                                   // load measurements
                                                   rcMeasurements.load_json(rc_annotation_url, function() {
                                                                                     //alert('loading spatial data');
+                                                                                    console.log('starting annotation data load calback');
                                                                                     load_spatial_data(rc_data_url); //this function is defined in depth_data.js
                                                                                     //size depthmap
-                                                                                    dm_size(image_width,image_height);}
+                                                                                    dm_size(image_width,image_height);
+                                                                                   console.log('finished rcMeasurement.load_json callback');
+                                                                                }
                                                                            );
 
                                                            
@@ -351,6 +357,7 @@ function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric)
             console.log(err.message);
             return(err.message);
         }
+        console.log('finished loadMPhoto()');
     },0 );
 }
 

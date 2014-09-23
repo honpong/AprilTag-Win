@@ -364,11 +364,15 @@ function d3_coord_for_img_x_y(x,y,face){
 
 
 function load_spatial_data(json_url) {   //image width needed becaues of image reversal
+    console.log('starting load_spatial_data('+json_url+')');
     $.getJSON(json_url, function(data) {
+          console.log('in spatial data calback');
           spatial_data = data;
+          console.log('number of vertixes loaded: ' + spatial_data['vertices'].length.toFixed() );
           spatial_data_loaded = true;
           dm_center_x = image_width / 2; //relies on global image width/height having been set in main
           dm_center_y = image_height / 2;
+          console.log('data callback finished');
       });
 }
 

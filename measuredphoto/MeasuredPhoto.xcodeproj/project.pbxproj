@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		172564BB19D233BC00C5BD7A /* svgjs_filter.js in Sources */ = {isa = PBXBuildFile; fileRef = 172564BA19D233BC00C5BD7A /* svgjs_filter.js */; };
+		172564BE19D2343C00C5BD7A /* svgjs_filter.js in Resources */ = {isa = PBXBuildFile; fileRef = 172564BA19D233BC00C5BD7A /* svgjs_filter.js */; };
 		1743A51E1986F8E1001A5A6A /* rc_menu.js in Resources */ = {isa = PBXBuildFile; fileRef = 1743A51A1986F8CF001A5A6A /* rc_menu.js */; };
 		1768899B195B59F500337524 /* measured_photo_svg.html in Resources */ = {isa = PBXBuildFile; fileRef = 1768899A195B59F500337524 /* measured_photo_svg.html */; };
 		1784379C198B0B83004AB248 /* json2.js in Resources */ = {isa = PBXBuildFile; fileRef = 17843798198B0B6F004AB248 /* json2.js */; };
@@ -253,6 +255,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		172564BA19D233BC00C5BD7A /* svgjs_filter.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = svgjs_filter.js; sourceTree = "<group>"; };
 		17394FC71982E14F0020DE33 /* rc_measurements.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = rc_measurements.js; sourceTree = "<group>"; };
 		1743A51A1986F8CF001A5A6A /* rc_menu.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = rc_menu.js; sourceTree = "<group>"; };
 		17688982195B599100337524 /* main_function.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = main_function.js; sourceTree = "<group>"; };
@@ -719,6 +722,7 @@
 		32934CD218D8D9A1005DC87C /* HTML */ = {
 			isa = PBXGroup;
 			children = (
+				172564BA19D233BC00C5BD7A /* svgjs_filter.js */,
 				17843798198B0B6F004AB248 /* json2.js */,
 				1743A51A1986F8CF001A5A6A /* rc_menu.js */,
 				17394FC71982E14F0020DE33 /* rc_measurements.js */,
@@ -1360,6 +1364,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				172564BE19D2343C00C5BD7A /* svgjs_filter.js in Resources */,
 				1784379C198B0B83004AB248 /* json2.js in Resources */,
 				32EFED96196F381C00FDC89F /* jquery-2.1.1.min.js in Resources */,
 				32C173C9191457F4008B3262 /* Tutorial.mp4 in Resources */,
@@ -1553,6 +1558,7 @@
 				32EFED2D196C91CE00FDC89F /* NSManagedObject+MagicalRecord.m in Sources */,
 				32038C1A188DBEAE00E4F549 /* MPMagView.m in Sources */,
 				32934CF218D922E1005DC87C /* UIImage+MPImageFile.m in Sources */,
+				172564BB19D233BC00C5BD7A /* svgjs_filter.js in Sources */,
 				32EFED82196E078F00FDC89F /* SBJsonParser.m in Sources */,
 				D3EF0A9819BA1FD100512050 /* RCStereo.mm in Sources */,
 				D3F50B0E19BA19FD00791303 /* imopv_sse2.c in Sources */,

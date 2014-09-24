@@ -41,7 +41,7 @@ function dm_size(x,y){
     dm_svg.size(x,y);
     dm_canvas.width  = x;
     dm_canvas.height = y;
-    dm_context.fillStyle   = 'rgba(0,0,0,0.4)';
+    dm_context.fillStyle   = 'rgba(0,0,0,0.8)';
     dm_context.fillRect  (0,   0, dm_canvas.width, dm_canvas.height);
 }
 
@@ -183,8 +183,9 @@ function finalize_dm(){
     img_clone =image.clone();
     dm_svg.add(img_clone);
     img_clone.filter(function(add) {
-                      add.colorMatrix('saturate', 0)
-                      }); //desatureate
+                     add.colorMatrix('saturate', 0); //desatureate
+                     //add.componentTransfer({ rgb: { type: 'linear', slope: 1.5, intercept: 0.2 }}); //lighten
+                      });
     dm_svg.image(dm_canvas.toDataURL("image/png")); //image/png is a mime type.
     dm_context = null;
 }
@@ -306,15 +307,20 @@ function dm_add_traingle(vs){
     dm_context.moveTo(vs[0][0],vs[0][1]);
     dm_context.lineTo(vs[1][0],vs[1][1]);
     dm_context.lineTo(vs[2][0],vs[2][1]);
+    dm_context.globalCompositeOperation = 'destination-out';
+    dm_context.fill();
+    dm_context.globalCompositeOperation = 'source-over';
     dm_context.fillStyle= grad;
     dm_context.fill();
+    dm_context.strokeStyle = 'rgba(0,0,0,.3)';
+    dm_context.stroke();
 
     
 }
 
 function grey_dm_clr_from_depth( current_depth_sqr) {
     var clr_int_str =  (255*(avg_depth_sqr-min_depth_sqr)/1.2/((avg_depth_sqr-min_depth_sqr)/1.2 + (current_depth_sqr-min_depth_sqr))).toFixed(0);
-    return 'rgba('+clr_int_str+','+clr_int_str+','+clr_int_str+',0.3)';
+    return 'rgba('+clr_int_str+','+clr_int_str+','+clr_int_str+',0.5)';
 }
 
 function dm_clr_from_depth( current_depth_sqr) {
@@ -327,8 +333,8 @@ function dm_clr_from_depth( current_depth_sqr) {
     }
     var blue = Math.min( Math.max( 255*4*(x-0.45), 0), 255);
     var red  = Math.min( Math.max( 255*4*(0.45-x), 0), 255);
-    var green= Math.min( Math.max( 255*4*(.45 - Math.abs(x-0.5)), 0), 255);
-    return 'rgba('+red.toFixed()+','+green.toFixed()+','+blue.toFixed()+',0.3)';
+    var green= Math.min( Math.max( 255*4*(0.45 - Math.abs(x-0.5)), 0), 255);
+    return 'rgba('+red.toFixed()+','+green.toFixed()+','+blue.toFixed()+',0.35)';
 }
 
 

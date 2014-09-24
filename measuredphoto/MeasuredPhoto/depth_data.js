@@ -325,9 +325,9 @@ function dm_clr_from_depth( current_depth_sqr) {
     catch(err) {
         x = 0.5;
     }
-    var red = Math.min( Math.max( 255*4*(0.75-x), 0), 255);
-    var blue  = Math.min( Math.max( 255*4*(x-0.25), 0), 255);
-    var green= Math.min( Math.max( 255*(4*Math.abs(x-0.5)-1), 0), 255);
+    var blue = Math.min( Math.max( 255*4*(x-0.45), 0), 255);
+    var red  = Math.min( Math.max( 255*4*(0.45-x), 0), 255);
+    var green= Math.min( Math.max( 255*4*(.45 - Math.abs(x-0.5)), 0), 255);
     return 'rgba('+red.toFixed()+','+green.toFixed()+','+blue.toFixed()+',0.3)';
 }
 

@@ -23,6 +23,7 @@
 
 + (MPShareSheet*) shareSheetWithDelegate:(UIViewController<MPShareSheetDelegate>*) delegate;
 - (void) showShareSheet_Pad_FromBarButtonItem:(UIBarButtonItem *)barButtonItem content:(OSKShareableContent *)content;
+- (void) showShareSheet_Pad_FromRect:(CGRect)rect withViewController:(UIViewController*)viewController inView:(UIView*)inView content:(OSKShareableContent *)content;
 - (void) showShareSheet_Phone:(OSKShareableContent *)content;
 
 @end

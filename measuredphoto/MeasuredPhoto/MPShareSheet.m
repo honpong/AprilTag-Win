@@ -39,6 +39,27 @@
         [self showShareSheet_Phone:content];
     }
 }
+
+- (void) showShareSheet_Pad_FromRect:(CGRect)rect withViewController:(UIViewController*)viewController inView:(UIView*)inView content:(OSKShareableContent *)content
+{
+    
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+    {
+        NSDictionary *options = [self createOptionsDict];
+        [[OSKPresentationManager sharedInstance] presentActivitySheetForContent:content
+                                                       presentingViewController:viewController
+                                                                popoverFromRect:rect
+                                                                         inView:inView
+                                                       permittedArrowDirections:UIPopoverArrowDirectionUp
+                                                                       animated:YES
+                                                                        options:options];
+    }
+    else
+    {
+        [self showShareSheet_Phone:content];
+    }
+}
+
 - (void) showShareSheet_Phone:(OSKShareableContent *)content
 {
     NSDictionary *options = [self createOptionsDict];

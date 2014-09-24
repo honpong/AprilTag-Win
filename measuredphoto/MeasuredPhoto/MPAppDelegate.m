@@ -19,7 +19,7 @@
 #import "MPIntroScreen.h"
 
 #if TARGET_IPHONE_SIMULATOR
-#define SKIP_CALIBRATION NO // skip calibration when running on emulator because it cannot calibrate
+#define SKIP_CALIBRATION YES // skip calibration when running on emulator because it cannot calibrate
 #else
 #define SKIP_CALIBRATION NO
 #endif

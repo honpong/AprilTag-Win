@@ -13,6 +13,11 @@
 #import "MPEditPhoto.h"
 #import "MPCapturePhoto.h"
 #import "MPFadeTransitionDelegate.h"
+#import "CustomIOS7AlertView.h"
+#import "MPAboutView.h"
+#import "MPTipsView.h"
+#import "MPLocalMoviePlayer.h"
+#import "MPPreferencesController.h"
 
 static const NSTimeInterval zoomAnimationDuration = .1;
 
@@ -30,6 +35,9 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     UIView* shrinkToView;
     MPUndoOverlay* undoView;
     MPDMeasuredPhoto* photoToBeDeleted;
+    CustomIOS7AlertView *aboutView;
+    MPShareSheet* shareSheet;
+    UIActionSheet *actionSheet;
 }
 
 - (void) dealloc
@@ -60,6 +68,17 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     [self.view addSubview: undoView];
     
     photoToBeDeleted = nil;
+    
+    aboutView = [[CustomIOS7AlertView alloc] init];
+    aboutView.layer.backgroundColor = [[UIColor whiteColor] CGColor];
+    [aboutView setContainerView:[[MPAboutView alloc] initWithFrame:CGRectMake(0, 0, 290, 210)]];
+    [aboutView setButtonTitles:[NSArray arrayWithObject:@"Close"]];
+    [aboutView setOnButtonTouchUpInside:^(CustomIOS7AlertView *alertView_, int buttonIndex) {
+        [alertView_ close];
+    }];
+    [aboutView setOnTouchUpOutside:^(CustomIOS7AlertView *alertView_) {
+        [alertView_ close];
+    }];
 }
 
 - (void) viewDidAppear:(BOOL)animated
@@ -99,7 +118,10 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 
 - (IBAction)handleMenuButton:(id)sender
 {
-    
+    if (actionSheet.isVisible)
+        [self dismissActionSheet];
+    else
+        [self showActionSheet];
 }
 
 - (IBAction)handleCameraButton:(id)sender
@@ -320,6 +342,132 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 {
     [self refreshCollectionData];
     [self.collectionView reloadData];
+}
+
+- (void) gotoTutorialVideo
+{
+    MPLocalMoviePlayer* movieViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"Tutorial"];
+    [self presentViewController:movieViewController animated:YES completion:nil];
+}
+
+#pragma mark - Action sheet
+
+- (void)showActionSheet
+{
+//    [TMAnalytics logEvent:@"View.History.Menu"];
+    
+    if (actionSheet == nil)
+    {
+        actionSheet = [[UIActionSheet alloc] initWithTitle:@"TrueMeasure Menu"
+                                                  delegate:self
+                                         cancelButtonTitle:@"Cancel"
+                                    destructiveButtonTitle:nil
+                                         otherButtonTitles:@"About", @"Share app", @"Rate the app", @"Accuracy tips", @"Tutorial video", @"Preferences", nil];
+    }
+    
+    // Show the sheet
+    [actionSheet showFromRect:self.menuButton.bounds inView:self.menuButton animated:YES];
+}
+
+- (void) dismissActionSheet
+{
+    [actionSheet dismissWithClickedButtonIndex:-1 animated:NO];
+}
+
+- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
+{
+    switch (buttonIndex)
+    {
+        case 0:
+        {
+//            [TMAnalytics logEvent:@"View.About"];
+            [aboutView show];
+            break;
+        }
+        case 1:
+        {
+//            [TMAnalytics logEvent:@"View.ShareApp"];
+            [self showShareSheet];
+            break;
+        }
+        case 2:
+        {
+//            [TMAnalytics logEvent:@"View.Rate"];
+            [self gotoAppStore];
+            break;
+        }
+        case 3:
+        {
+//            [TMAnalytics logEvent:@"View.Tips"];
+            [self gotoTips];
+            break;
+        }
+        case 4:
+        {
+            [self gotoTutorialVideo];
+            break;
+        }
+        case 5:
+        {
+            [self gotoPreferences];
+            break;
+        }
+            
+        default:
+            break;
+    }
+}
+
+- (void) gotoTips
+{
+    
+}
+
+- (void) gotoPreferences
+{
+    MPPreferencesController* prefs = [self.storyboard instantiateViewControllerWithIdentifier:@"Preferences"];
+    
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+        prefs.modalPresentationStyle = UIModalPresentationFormSheet;
+    
+    [self presentViewController:prefs animated:YES completion:nil];
+}
+
+- (void) gotoAppStore
+{
+    NSURL *url = [NSURL URLWithString:URL_APPSTORE];
+    [[UIApplication sharedApplication] openURL:url];
+}
+
+#pragma mark - Sharing
+
+- (NSString*) composeSharingString
+{
+    NSString* result = [NSString stringWithFormat: @"Check out this app that lets you measure anything in a photo! %@", URL_SHARING];
+    return result;
+}
+
+- (void) showShareSheet
+{
+    OSKShareableContent *content = [OSKShareableContent contentFromText:[self composeSharingString]];
+    content.title = @"Share App";
+    shareSheet = [MPShareSheet shareSheetWithDelegate:self];
+    [OSKActivitiesManager sharedInstance].customizationsDelegate = shareSheet;
+    [shareSheet showShareSheet_Pad_FromRect:self.menuButton.frame withViewController:self inView:self.view content:content];
+}
+
+#pragma mark - TMShareSheetDelegate
+
+- (OSKActivityCompletionHandler) activityCompletionHandler
+{
+    OSKActivityCompletionHandler activityCompletionHandler = ^(OSKActivity *activity, BOOL successful, NSError *error){
+//        if (successful) {
+//            [TMAnalytics logEvent:@"Share.App" withParameters:@{ @"Type": [activity.class activityName] }];
+//        } else {
+//            [TMAnalytics logError:@"Share.App" message:[activity.class activityName] error:error];
+//        }
+    };
+    return activityCompletionHandler;
 }
 
 @end

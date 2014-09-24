@@ -688,7 +688,6 @@ rcMeasurements.apply_json_data = function (data) {
     if ('use_metric' in data) {
         //we only overwrite the default units with the stored defualt units if the app hasn't told us what units to use
         if (! unit_default_set_by_app) {default_units_metric = data['use_metric'];}
-        delete myArray['use_metric'];
     }
     if ('measurements' in data) { rcMeasurements.measurements = data.measurements; } else {rcMeasurements.measurements = {};}
     if ('angles' in data) { rcMeasurements.angles = data.angles; } else {rcMeasurements.angles = {};}
@@ -926,8 +925,25 @@ rcMeasurements.del_character = function (key) {
 rcMeasurements.format_dist = function (m){
     
     if (m.distance) {
-        if (m.units_metric) { return m.distance.toFixed(2)+' m'; }
-        else { return (m.distance * rcMeasurements.inches_to_meter).toFixed(1) + ' "'; }
+        if (m.units_metric) {
+            if ( m.distance >= 0.995) {
+                return m.distance.toFixed(2)+' m';
+            }
+            else {
+                return (100 * m.distance).toFixed(0)+' cm';
+            }
+        }
+        else {
+            if ((m.distance * rcMeasurements.inches_to_meter) >= 23.95) {
+                var inches = m.distance * rcMeasurements.inches_to_meter;
+                var feet = Math.floor( (inches + 0.5) / 12);
+                var remaining_inches = Math.max(0,(inches - feet * 12));
+                return feet.toFixed(0) + " ' " + remaining_inches.toFixed(0) + ' "';
+            }
+            else {
+                return (m.distance * rcMeasurements.inches_to_meter).toFixed(1) + ' "';
+            }
+        }
     }
     else {
         if (m.units_metric) { return '? m'; }

@@ -203,10 +203,10 @@ function rc_initialize(){
     function click_or_touch(e) {
         var i = pxl_to_img_xy(e.pageX, e.pageY);
         if ( i.x > image_width || i.y > image_height || i.x < 0 || i.y < 0) {return null;} //ignore taps off of image
-        else if (rc_menu.current_button == rc_menu.button2) {line_handler(i);}
-        else if (rc_menu.current_button == rc_menu.button3) {angle_handler(i);}
-        else if (rc_menu.current_button == rc_menu.button4) {eraser_handler(i);}
-        else if (rc_menu.current_button == rc_menu.button5) {text_entry_handler(i);}
+        else if (rc_menu.current_button == rc_menu.line_button) {line_handler(i);}
+        else if (rc_menu.current_button == rc_menu.angle_button) {angle_handler(i);}
+        else if (rc_menu.current_button == rc_menu.eraser_button) {eraser_handler(i);}
+        else if (rc_menu.current_button == rc_menu.text_button) {text_entry_handler(i);}
     }
     
     FastClick.attach(document.body);
@@ -230,6 +230,13 @@ function rc_initialize(){
     
     undo_last_change = function() {
         rcMeasurements.revert_measurement_state();
+    }
+    
+    toggle_all_units = function() {
+        if   (default_units_metric) {default_units_metric = false;}
+        else                        {default_units_metric = true;}
+        unit_default_set_by_app = true;
+        rcMeasurements.reset_all_measurement_units_to_default();
     }
     
     // construct menue

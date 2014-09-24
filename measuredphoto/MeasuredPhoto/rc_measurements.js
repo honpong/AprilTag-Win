@@ -615,7 +615,7 @@ rcMeasurements.draw_range = function (n, svg_target) {
 
 rcMeasurements.redraw_all_measurements = function (){
     for (var key in rcMeasurements.measurements) {
-        rcMeasurements.redraw_measurement(measurements[key]);
+        rcMeasurements.redraw_measurement(rcMeasurements.measurements[key]);
     }
 }
 
@@ -781,11 +781,16 @@ rcMeasurements.stop_cursor_animation = function (m) {
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                                                      //
-//          EDITING OF LINEAR MEAUREMENTS                                                                                               //
+//          EDITING AND DYNAMIC PRESENTATION OF LINEAR MEAUREMENTS                                                                      //
 //                                                                                                                                      //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
+rcMeasurements.reset_all_measurement_units_to_default = function(){
+    for (var key in rcMeasurements.measurements) {
+        rcMeasurements.measurements[key].units_metric = default_units_metric; //overwrite the measurements unit information w/ the current global default.
+    }
+    rcMeasurements.redraw_all_measurements();
+}
 
 // functions for coloring and decoloring selected lines
 rcMeasurements.paint_selected = function (m) {

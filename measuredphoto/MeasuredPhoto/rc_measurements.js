@@ -161,20 +161,25 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
     m.selector_circle2 = measured_svg.circle(30).move(m.x2-15,m.y2-15).fill({opacity:0});
     
     //acctions for what happens on clicks
-    m.shadow_line1.click (function (e) { rcMeasurements.click_action(m,e);})
-    m.shadow_line2.click (function (e) { rcMeasurements.click_action(m, e);})
-    m.line1.click (function (e) { rcMeasurements.click_action(m, e);})
-    m.line2.click (function (e) { rcMeasurements.click_action(m, e);})
-    m.circle1.click (function (e) { rcMeasurements.click_action(m, e);})
-    m.circle2.click (function (e) { rcMeasurements.click_action(m, e);})
-    m.selector_circle1.click(function (e) { rcMeasurements.click_action(m, e);})
-    m.selector_circle2.click(function (e) { rcMeasurements.click_action(m, e);})
-    //text editing
-    m.text.click(function (e) {
-                     setTimeout(function(){ return false;},1);
-                     rcMeasurements.start_distance_change_dialouge(m);
-                     e.stopPropagation(); e.preventDefault();
-                 })
+    m.shadow_line1.click (function (e) { rcMeasurements.click_action(m,e);});
+    m.shadow_line2.click (function (e) { rcMeasurements.click_action(m, e);});
+    m.line1.click (function (e) { rcMeasurements.click_action(m, e);});
+    m.line2.click (function (e) { rcMeasurements.click_action(m, e);});
+    m.circle1.click (function (e) { rcMeasurements.click_action(m, e);});
+    m.circle2.click (function (e) { rcMeasurements.click_action(m, e);});
+    m.selector_circle1.click(function (e) { rcMeasurements.click_action(m, e);});
+    m.selector_circle2.click(function (e) { rcMeasurements.click_action(m, e);});
+
+    //non - editable distance click action
+    m.text.click(function (e) { rcMeasurements.click_action(m, e);});
+    
+// this has been commented out becasue we're not allowing distance editing for MVP release
+//    //text editing
+//    m.text.click(function (e) {
+//                     setTimeout(function(){ return false;},1);
+//                     rcMeasurements.start_distance_change_dialouge(m);
+//                     e.stopPropagation(); e.preventDefault();
+//                 })
     
     //draging measurement end points.
     Hammer(m.circle1.node).on("drag", function(e) {

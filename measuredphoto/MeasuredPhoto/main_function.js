@@ -214,10 +214,18 @@ function rc_initialize(){
     draw.click( function(e) { setTimeout(function(){ click_or_touch(e); },1);   e.stopPropagation(); e.preventDefault();} );
     
     switch_image_depthmap = function () { //we move the image svg off the dom, and move the depthmap on the dom.
-        //remove image from dom tree put depthmap in its place
+        console.log('switch_image_depthmap()');
+        //remove image from dom tree put mask in its place
         if (draw.node.contains(image.node)) {
-            draw_g.node.insertBefore(dm_svg.node,image.node);
+            draw_g.node.insertBefore(dm_mask_svg.node,image.node);
             draw_g.node.removeChild(image.node);
+            if (!dm_mask_drawn) {fill_dm_mask();}
+            
+        }
+        //remove image mask put depthmap in its place
+        else if(draw.node.contains(dm_mask_svg.node)) {
+            draw_g.node.insertBefore(dm_svg.node,dm_mask_svg.node);
+            draw_g.node.removeChild(dm_mask_svg.node);
             //start depthmap calculation if not yet done.
             if (!dm_drawn) {fill_depth_map();}
         }
@@ -225,6 +233,7 @@ function rc_initialize(){
         else if(draw.node.contains(dm_svg.node)){
             draw_g.node.insertBefore(image.node,dm_svg.node);
             draw_g.node.removeChild(dm_svg.node);
+            
         }
     }
     
@@ -344,9 +353,7 @@ function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric)
                                                                                     //alert('loading spatial data');
                                                                                     console.log('starting annotation data load calback');
                                                                                     load_spatial_data(rc_data_url); //this function is defined in depth_data.js
-                                                                                    //size depthmap
-                                                                                    dm_size(image_width,image_height);
-                                                                                   console.log('finished rcMeasurement.load_json callback');
+                                                                                    console.log('finished rcMeasurement.load_json callback');
                                                                                 }
                                                                            );
 

@@ -4,7 +4,9 @@
 
 
 var dm_node = document.createElement('dm_node');
+var dm_mask_node = document.createElement('dm_mask_node');
 var dm_svg;
+var dm_mask_svg;
 
 //variables + functions for loading and using spatial data
 var spatial_data_loaded = false;
@@ -12,37 +14,59 @@ var spatial_data;
 
 var dm_canvas;
 var dm_context;
+var dm_mask_canvas;
+var dm_mask_context;
 var dm_drawn = false;
+var dm_mask_drawn = false;
 var dm_loading_message;
 
 
 var dm_center_x, dm_center_y;
 
 function dm_initialize(){
+    console.log('dm_initialize()');
     spatial_data_loaded = false;
     dm_drawn = false;
+    dm_mask_drawn = false;
     spatial_data = null;
     avg_depth_sqr = 0;
     min_depth_sqr = 100000000;
     max_depth_sqr = 0;
-    if(dm_svg && draw.node.contains(dm_svg.node)) {draw_g.node.removeChild(dm_svg.node);}
+    if(dm_svg && draw_g.node.contains(dm_svg.node)) {draw_g.node.removeChild(dm_svg.node);}
+    if(dm_mask_svg && draw_g.node.contains(dm_mask_svg.node)) {draw_g.node.removeChild(dm_mask_svg.node);}
     dm_svg = SVG(dm_node);
-    dm_canvas= document.createElement('canvas');
-    dm_canvas.id     = "dm_canvas";
-    dm_canvas.width  = 100;
-    dm_canvas.height = 100;
-    dm_canvas.style.position = "absolute";
-    dm_context = dm_canvas.getContext('2d');
-    dm_loading_message = dm_svg.text("Loading Depth Map ...")
-
+    dm_mask_svg = SVG(dm_mask_node);
+    dm_canvas = null;
+    dm_context = null;
+    dm_mask_canvas= null;
+    dm_mask_context = null;
 }
 
 function dm_size(x,y){
     dm_svg.size(x,y);
+    dm_loading_message = dm_svg.text("Loading Depth Map ...")
+
+    dm_canvas= document.createElement('canvas');
+    dm_canvas.id     = "dm_canvas";
     dm_canvas.width  = x;
     dm_canvas.height = y;
-    dm_context.fillStyle   = 'rgba(0,0,0,0.8)';
-    dm_context.fillRect  (0,   0, dm_canvas.width, dm_canvas.height);
+    dm_context = dm_canvas.getContext('2d');
+
+    dm_context.strokeStyle = 'rgba(0,0,0,.3)'; //for line stroking, so that we don't have to update stroke style in drawing loop.
+}
+
+function dm_mask_size(x,y){
+    dm_mask_svg.size(x,y);
+
+    dm_mask_canvas= document.createElement('canvas');
+    dm_mask_canvas.id     = "dm_canvas";
+    dm_mask_canvas.width  = x;
+    dm_mask_canvas.height = y;
+    
+    dm_mask_context = dm_mask_canvas.getContext('2d');
+    dm_mask_context.fillStyle   = 'rgba(0,0,0,0.8)';
+    dm_mask_context.fillRect  (0,   0, dm_mask_canvas.width, dm_mask_canvas.height);
+    dm_mask_context.globalCompositeOperation = 'destination-out'; //so subsequent drawing remvoes content
 }
 
 
@@ -168,26 +192,38 @@ function dm_triangle_intersect(   v1,v2,v3,  // Triangle vertices
     return 0;
 }
 
-
-var dm_clr;
-function dm_add_point(percent_depth,x,y,size){
-    // dm_svg.rect(size,size).move(x,y).fill('#fff').opacity(percent_depth);
-    dm_clr = (255*percent_depth).toFixed(0);
-    dm_context.fillStyle = 'rgba('+dm_clr+','+dm_clr+','+dm_clr+',.3)';
-    dm_context.fillRect(x - size/2,   y-size/2, size, size);
-}
-
 function finalize_dm(){
+    console.log('finalize_dm()');
     dm_loading_message.remove();
     delete dm_loading_message;
+    
     img_clone =image.clone();
-    dm_svg.add(img_clone);
     img_clone.filter(function(add) {
                      add.colorMatrix('saturate', 0); //desatureate
                      //add.componentTransfer({ rgb: { type: 'linear', slope: 1.5, intercept: 0.2 }}); //lighten
                       });
+    dm_svg.add(img_clone);
     dm_svg.image(dm_canvas.toDataURL("image/png")); //image/png is a mime type.
     dm_context = null;
+    dm_canvas = null;
+    
+    dm_drawn = true;
+    console.log('finished finalize_dm()');
+
+}
+
+function finalize_dm_mask(){
+    console.log('finalize_dm_mask()');
+    
+    //do the same for the masking canvas
+    img_clone2 =image.clone();
+    dm_mask_svg.add(img_clone2);
+    dm_mask_svg.image(dm_mask_canvas.toDataURL("image/png")); //image/png is a mime type.
+    dm_mask_context = null;
+    dm_mask_canvas = null;
+    
+    dm_mask_drawn = true;
+    console.log('finished finalize_dm_mask()');
 }
 
 
@@ -195,7 +231,34 @@ var avg_depth_sqr = 0;
 var min_depth_sqr = 100000000;
 var max_depth_sqr = 0;
 
+
+function fill_dm_mask(){
+    
+    if (!spatial_data_loaded) {return false;}
+    
+    dm_mask_size(image_width, image_height);
+    
+    for (var i = 0; i < spatial_data['faces'].length; i++) { //now that we know the avg depth, draw to the canvas...
+        v1 = spatial_data['vertices'][spatial_data['faces'][i][0]];
+        v2 = spatial_data['vertices'][spatial_data['faces'][i][1]];
+        v3 = spatial_data['vertices'][spatial_data['faces'][i][2]];
+        
+        dm_mask_context.moveTo(v1[3],v1[4]);
+        dm_mask_context.lineTo(v2[3],v2[4]);
+        dm_mask_context.lineTo(v3[3],v3[4]);
+
+    }
+    dm_mask_context.fill();
+
+    finalize_dm_mask();
+    
+}
+
 function fill_depth_map(){
+    if (!spatial_data_loaded) {return false;}
+    //size depthmap
+    dm_size(image_width,image_height);
+
     //iterate over spatial data and asign colors to each location based on total depth. will take two itterations. one to find maximal depth in image, another to create pixels.
     var total_depth_sqr =0;
     var current_depth_sqr;
@@ -253,16 +316,16 @@ function fill_depth_map(){
                 dm_t[1][4] = v2[2];
                 dm_t[2][4] = v3[2];
 
-                dm_add_traingle(dm_t);
+                dm_add_traingle(dm_t); //draw the color to each triangle w/ gradient
             }
-            
+
 
             var draw_end = new Date();
             console.log('compute time for triangels = ' + Math.abs(draw_end-draw_start).toString());
             
             finalize_dm();
-        }, 5);
-     }, 5);
+        }, 0);
+     }, 0);
 }
 
 
@@ -307,14 +370,9 @@ function dm_add_traingle(vs){
     dm_context.moveTo(vs[0][0],vs[0][1]);
     dm_context.lineTo(vs[1][0],vs[1][1]);
     dm_context.lineTo(vs[2][0],vs[2][1]);
-    dm_context.globalCompositeOperation = 'destination-out';
-    dm_context.fill();
-    dm_context.globalCompositeOperation = 'source-over';
     dm_context.fillStyle= grad;
     dm_context.fill();
-    dm_context.strokeStyle = 'rgba(0,0,0,.3)';
     dm_context.stroke();
-
     
 }
 
@@ -334,63 +392,7 @@ function dm_clr_from_depth( current_depth_sqr) {
     var blue = Math.min( Math.max( 255*4*(x-0.45), 0), 255);
     var red  = Math.min( Math.max( 255*4*(0.45-x), 0), 255);
     var green= Math.min( Math.max( 255*4*(0.45 - Math.abs(x-0.5)), 0), 255);
-    return 'rgba('+red.toFixed()+','+green.toFixed()+','+blue.toFixed()+',0.35)';
-}
-
-
-//face is specified as an array of 3 vertices, each one x,y,z - z is not used
-function point_in_triangle(x,y,face, tol){ // tol for tolarnce, how far outside in pixels the point can be from the traingle.
-    //test that the x,y coordinate is in the larger rectangel that bounds the triangle looking at max x,y, min x,y
-    if ((x-tol>face[0][0]) && (x-tol>face[1][0]) && (x-tol>face[2][0]) ){return false;}
-    if ((x+tol<face[0][0]) && (x+tol<face[1][0]) && (x+tol<face[2][0]) ){return false;}
-    if ((y-tol>face[0][1]) && (y-tol>face[1][1]) && (y-tol>face[2][1]) ){return false;}
-    if ((y+tol<face[0][1]) && (y+tol<face[1][1]) && (y+tol<face[2][1]) ){return false;}
-    
-    //if so, test taht the x,y coordinate is actually inside the triangle by calculating slope boundaries.
-    //we add and subtract 1 to x so that if a traingle boundtry cuts though a pixel we count it as being in that traingle.
-    //the traingles will therefor 'overlap' a bit randomely, but this should eliminate the chance of not finind a traingle for a pixel.
-    var a, b, c;
-    a = (face[1][1]-face[0][1])/(face[1][0]-face[0][0]);
-    b = face[0][1];
-    if (( b + a*(face[2][0]-face[0][0]) > face[2][1] ) && (b + a*(x-face[0][0])+tol < y )){return false;}
-    if (( b + a*(face[2][0]-face[0][0]) < face[2][1] ) && (b + a*(x-face[0][0])-tol > y )){return false;}
-    a = (face[2][1]-face[0][1])/(face[2][0]-face[0][0]);
-    b = face[0][1];
-    if (( b + a*(face[1][0]-face[0][0]) > face[1][1] ) && (b + a*(x-face[0][0])+tol < y )){return false;}
-    if (( b + a*(face[1][0]-face[0][0]) < face[1][1] ) && (b + a*(x-face[0][0])-tol > y )){return false;}
-    a = (face[2][1]-face[1][1])/(face[2][0]-face[1][0]);
-    b = face[1][1];
-    if (( b + a*(face[0][0]-face[1][0]) > face[0][1] ) && (b + a*(x-face[1][0])+tol < y )){return false;}
-    if (( b + a*(face[0][0]-face[1][0]) < face[0][1] ) && (b + a*(x-face[1][0])-tol > y )){return false;}
-    
-    return true;
-}
-
-// face is a 3 element array, each element is an array with: [ img_x, img_y, 3d_x, 3d_y, 3d_z]
-function d3_coord_for_img_x_y(x,y,face){
-    // we use the formula for the intersection of two lines to determine the point at which a ray (from face[0][img_x], face[0][img_y]) through x,y
-    // intersects the line segment from (from face[1][img_x], face[1][img_y]) two (from face[2][img_x], face[2][img_y]).
-    var inter_x = ((face[0][0]*y-face[0][1]*x)*(face[1][0]-face[2][0]) - (face[0][0]-x)*(face[1][0]*face[2][1]-face[1][1]*face[2][0])) /
-                  ((face[0][0] - x) * ( face[1][1] - face[2][1] )      - (face[0][1]-y)*(face[1][0]-face[2][0]) );
-    
-    var inter_y = ((face[0][0]*y-face[0][1]*x)*(face[1][1]-face[2][1]) - (face[0][1]-y)*(face[1][0]*face[2][1]-face[1][1]*face[2][0])) /
-                  ((face[0][0] - x) * ( face[1][1] - face[2][1] )      - (face[0][1]-y)*(face[1][0]-face[2][0]) );
-    
-    // we can now calculate a linear combinatino of face[1] and face[2]'s 3D coordinates at the intesect based on the relative distance from each
-    var d1 = Math.sqrt(Math.pow(face[1][0]-inter_x,2)+Math.pow(face[1][1]-inter_y,2));
-    var d2 = Math.sqrt(Math.pow(face[2][0]-inter_x,2)+Math.pow(face[2][1]-inter_y,2));
-    var inter_coords = [ face[1][2] + d1/(d1+d2)*(face[2][2]-face[1][2]),
-                         face[1][3] + d1/(d1+d2)*(face[2][3]-face[1][3]),
-                         face[1][4] + d1/(d1+d2)*(face[2][4]-face[1][4])];
-    
-    
-    // we can then caluclate a linear comination of 3D coordinates from the intersect point and face[1] based on the reltaive distance to x,y.
-    d1 = Math.sqrt(Math.pow(face[0][0] - x,2)+Math.pow(face[0][1]-y,2));
-    d2 = Math.sqrt(Math.pow(inter_x - x,2)   +Math.pow(inter_y-y,2));
-    return [face[0][2] + d1/(d1+d2)*(inter_coords[0]-face[0][2]),
-            face[0][3] + d1/(d1+d2)*(inter_coords[1]-face[0][3]),
-            face[0][4] + d1/(d1+d2)*(inter_coords[2]-face[0][4])];
-    
+    return 'rgba('+red.toFixed()+','+green.toFixed()+','+blue.toFixed()+',0.25)';
 }
 
 
@@ -407,38 +409,6 @@ function load_spatial_data(json_url) {   //image width needed becaues of image r
       });
 }
 
-function spatial_coord_for_img_coord(x,y){
-    for (var i = 0; i < spatial_data['faces'].length; i++) {
-        
-        
-        if (point_in_triangle(x,y,[[image_width-spatial_data['vertices'][spatial_data['faces'][i][0]][4],spatial_data['vertices'][spatial_data['faces'][i][0]][3],0],
-                                   [image_width-spatial_data['vertices'][spatial_data['faces'][i][1]][4],spatial_data['vertices'][spatial_data['faces'][i][1]][3],0],
-                                   [image_width-spatial_data['vertices'][spatial_data['faces'][i][2]][4],spatial_data['vertices'][spatial_data['faces'][i][2]][3],0]],1)){
-            var v1,v2,v3;
-            var dm_t = [[0,0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]];
-            v1 = spatial_data['vertices'][spatial_data['faces'][i][0]];
-            v2 = spatial_data['vertices'][spatial_data['faces'][i][1]];
-            v3 = spatial_data['vertices'][spatial_data['faces'][i][2]];
-            dm_t[0][0] = image_width-v1[4];
-            dm_t[1][0] = image_width-v2[4];
-            dm_t[2][0] = image_width-v3[4];
-            dm_t[0][1] = v1[3];
-            dm_t[1][1] = v2[3];
-            dm_t[2][1] = v3[3];
-            dm_t[0][2] = v1[0];
-            dm_t[1][2] = v2[0];
-            dm_t[2][2] = v3[0];
-            dm_t[0][3] = v1[1];
-            dm_t[1][3] = v2[1];
-            dm_t[2][3] = v3[1];
-            dm_t[0][4] = v1[2];
-            dm_t[1][4] = v2[2];
-            dm_t[2][4] = v3[2];
-            return d3_coord_for_img_x_y(x,y,dm_t);
-        }
-        
-    }
-}
 
 function distanceBetween(x1, y1, x2, y2) {
     var d3_1, d3_2, distance = null;

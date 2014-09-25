@@ -175,7 +175,7 @@
 
 - (void) calibrationDidFail:(NSError *)error
 {
-    DLog("Calibration failed: %@", error);
+    DLog(@"Calibration failed: %@", error);
     // TODO: implement
 }
 

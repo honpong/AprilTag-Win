@@ -67,6 +67,15 @@
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       allowLocationSimulation = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "327B54DE18EB4CC90001CCE1"
+            BuildableName = "libRC3DK.a"
+            BlueprintName = "RC3DK"
+            ReferencedContainer = "container:RC3DK.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>

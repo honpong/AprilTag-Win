@@ -46,8 +46,6 @@
 // called when user taps a link on the page
 - (BOOL) webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
-    DLog(@"%@", request.URL.description);
-    
     if ([request.URL isEqual:htmlUrl])
     {
         return YES;

@@ -267,6 +267,7 @@
 		328A4DD11950D52000587949 /* RCSensorFusionError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCSensorFusionError.m; path = ../../rc3dk/RC3DK/RCSensorFusionError.m; sourceTree = "<group>"; };
 		328A4DD31950D5F400587949 /* RCLicenseError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCLicenseError.h; path = ../../rc3dk/RC3DK/RCLicenseError.h; sourceTree = "<group>"; };
 		328A4DD41950D5F400587949 /* RCLicenseError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCLicenseError.m; path = ../../rc3dk/RC3DK/RCLicenseError.m; sourceTree = "<group>"; };
+		32F7D56219D49E14002239FF /* RCDebugLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCDebugLog.h; path = ../../SensorManagers/RCDebugLog.h; sourceTree = "<group>"; };
 		D97AEF8018F7613F00573148 /* device_parameters.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = device_parameters.c; sourceTree = "<group>"; };
 		D9CCDC7C192E887F00A41329 /* scaled_mask.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scaled_mask.cpp; sourceTree = "<group>"; };
 		D9CCDC7D192E887F00A41329 /* scaled_mask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scaled_mask.h; sourceTree = "<group>"; };
@@ -480,6 +481,7 @@
 		327B558218EB4E690001CCE1 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				32F7D56219D49E14002239FF /* RCDebugLog.h */,
 				327B554518EB4DC20001CCE1 /* NSString+RCString.h */,
 				327B554618EB4DC20001CCE1 /* NSString+RCString.m */,
 				327B554818EB4DC20001CCE1 /* RCCalibration.h */,

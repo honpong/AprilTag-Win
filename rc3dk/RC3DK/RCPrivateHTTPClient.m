@@ -25,7 +25,7 @@ static RCPrivateHTTPClient*instance;
     [instance setDefaultHeader:@"User-Agent" value:userAgent];
     [instance setApiVersion:apiVersion];
     
-    DLog(@"\nBase URL: %@\nAccept-Header: %@\nUser-Agent: %@\nAPI-Version: %i\n", instance.baseURL, acceptHeaderValue, userAgent, apiVersion);
+//    DLog(@"\nBase URL: %@\nAccept-Header: %@\nUser-Agent: %@\nAPI-Version: %i\n", baseUrl, acceptHeaderValue, userAgent, apiVersion);
 }
 
 + (NSString*)getUserAgentString

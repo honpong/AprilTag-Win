@@ -232,7 +232,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
                     
                     if (![photoToBeDeleted deleteAssociatedFiles])
                     {
-                        DLogs(@"Failed to delete files");
+                        DLog(@"Failed to delete files");
                         //TODO: log error to analytics
                     }
                 }

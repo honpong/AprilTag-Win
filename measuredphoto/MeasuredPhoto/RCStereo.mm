@@ -77,7 +77,7 @@
     
     if(![UIImageJPEGRepresentation(lastImage, .8) writeToFile:filename atomically:YES])
     {
-        NSLog(@"FAILED");
+        DLog(@"FAILED");
     }
     CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
 }
@@ -201,7 +201,7 @@ static void sensor_fusion_stereo_progress(float progress)
             break;
         default:
             sensor_orientation = STEREO_ORIENTATION_LEFT;
-            NSLog(@"Unknown orientation");
+            DLog(@"Unknown orientation");
     }
     mystereo.set_orientation(sensor_orientation);
 }

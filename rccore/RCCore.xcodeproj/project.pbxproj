@@ -34,9 +34,7 @@
 		324FF85B18ECB5BE00DC5E7F /* UIView+RCOrientationRotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 324FF85918ECB5BE00DC5E7F /* UIView+RCOrientationRotation.m */; };
 		324FF86218ECB70B00DC5E7F /* RCRotatingView.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 324FF86118ECB69F00DC5E7F /* RCRotatingView.h */; };
 		324FF86318ECB71100DC5E7F /* UIView+RCConstraints.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 324FF85618ECB5BE00DC5E7F /* UIView+RCConstraints.h */; };
-		324FF86418ECB71100DC5E7F /* UIView+RCConstraints.m in CopyFiles */ = {isa = PBXBuildFile; fileRef = 324FF85718ECB5BE00DC5E7F /* UIView+RCConstraints.m */; };
 		324FF86518ECB71100DC5E7F /* UIView+RCOrientationRotation.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 324FF85818ECB5BE00DC5E7F /* UIView+RCOrientationRotation.h */; };
-		324FF86618ECB71100DC5E7F /* UIView+RCOrientationRotation.m in CopyFiles */ = {isa = PBXBuildFile; fileRef = 324FF85918ECB5BE00DC5E7F /* UIView+RCOrientationRotation.m */; };
 		3267A2E516C46D9A001E14C7 /* AFHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2D316C46D9A001E14C7 /* AFHTTPClient.m */; };
 		3267A2E616C46D9A001E14C7 /* AFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2D516C46D9A001E14C7 /* AFHTTPRequestOperation.m */; };
 		3267A2E716C46D9A001E14C7 /* AFImageRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 3267A2D716C46D9A001E14C7 /* AFImageRequestOperation.m */; };
@@ -62,7 +60,6 @@
 		3267A30016C46F56001E14C7 /* UIImageView+AFNetworking.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3267A2E316C46D9A001E14C7 /* UIImageView+AFNetworking.h */; };
 		3272F73819ABFE7C001F7AA1 /* RCOutlinedButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 3272F73719ABFE7C001F7AA1 /* RCOutlinedButton.m */; };
 		3272F73A19ABFE8E001F7AA1 /* RCOutlinedButton.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3272F73619ABFE7C001F7AA1 /* RCOutlinedButton.h */; };
-		3272F73B19ABFE95001F7AA1 /* RCOutlinedButton.m in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3272F73719ABFE7C001F7AA1 /* RCOutlinedButton.m */; };
 		3272F74019AD0615001F7AA1 /* RCRateMeView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3272F73F19AD0615001F7AA1 /* RCRateMeView.m */; };
 		3272F74119AD0904001F7AA1 /* RCRateMeView.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3272F73E19AD0615001F7AA1 /* RCRateMeView.h */; };
 		3272F74619AD2455001F7AA1 /* RCInvertButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 3272F74519AD2455001F7AA1 /* RCInvertButton.m */; };
@@ -211,13 +208,10 @@
 				323155EE19BA4CE900EDC65D /* RCThreeButtonSlideView.h in CopyFiles */,
 				322B8A9317DC2C53008FED6E /* RCMotionManager.h in CopyFiles */,
 				322B8A9417DC2C53008FED6E /* RCVideoManager.h in CopyFiles */,
-				3272F73B19ABFE95001F7AA1 /* RCOutlinedButton.m in CopyFiles */,
 				32BA4202179F3E83002BAE13 /* RCFeaturesLayer.h in CopyFiles */,
 				324FF86318ECB71100DC5E7F /* UIView+RCConstraints.h in CopyFiles */,
 				3272F74119AD0904001F7AA1 /* RCRateMeView.h in CopyFiles */,
-				324FF86418ECB71100DC5E7F /* UIView+RCConstraints.m in CopyFiles */,
 				324FF86518ECB71100DC5E7F /* UIView+RCOrientationRotation.h in CopyFiles */,
-				324FF86618ECB71100DC5E7F /* UIView+RCOrientationRotation.m in CopyFiles */,
 				32BA41F9179F353B002BAE13 /* RCFeatureLayerDelegate.h in CopyFiles */,
 				329E2D101795C4EC00986923 /* RCCore.h in CopyFiles */,
 				3280BB321919B1B400338A38 /* UIView+RCViewFade.h in CopyFiles */,
@@ -401,6 +395,7 @@
 		32CD632216CC015100496D46 /* RCDateFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDateFormatter.m; sourceTree = "<group>"; };
 		32EBA5A519BE1B7D00407D8E /* RCTipView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCTipView.h; path = ../../rccore/RCCore/RCTipView.h; sourceTree = "<group>"; };
 		32EBA5A619BE1B7D00407D8E /* RCTipView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCTipView.m; path = ../../rccore/RCCore/RCTipView.m; sourceTree = "<group>"; };
+		32F7D56319D49E23002239FF /* RCDebugLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCDebugLog.h; path = ../../SensorManagers/RCDebugLog.h; sourceTree = "<group>"; };
 		32FAF1E916AE1640001B68A9 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		D3217E0D18BE2E0100762A31 /* RCCaptureManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCaptureManager.h; sourceTree = "<group>"; };
 		D3217E0E18BE2E0100762A31 /* RCCaptureManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCaptureManager.m; sourceTree = "<group>"; };
@@ -534,6 +529,7 @@
 		325FC8BF16D6FFFA003A00BE /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				32F7D56319D49E23002239FF /* RCDebugLog.h */,
 				D94ECE70194CD626008F2F9A /* RCSensorDelegate.h */,
 				D94ECE71194CD626008F2F9A /* RCSensorDelegate.m */,
 				D3217E1118BE2E0100762A31 /* CaptureFile.h */,

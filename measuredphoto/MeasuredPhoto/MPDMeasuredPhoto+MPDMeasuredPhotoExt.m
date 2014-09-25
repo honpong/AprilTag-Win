@@ -87,13 +87,13 @@
     
     if (error || dirContents == nil)
     {
-        DLog("Failed to get documents directory contents: %@", error);
+        DLog(@"Failed to get documents directory contents: %@", error);
         return NO;
     }
     
     if (dirContents.count == 0)
     {
-        DLogs(@"Documents directory is empty");
+        DLog(@"Documents directory is empty");
         return YES;
     }
     
@@ -105,7 +105,7 @@
             isSuccess = [[NSFileManager defaultManager] removeItemAtURL:url error:&error];
             if (error)
             {
-                DLog("Error deleting file %@: %@", url, error);
+                DLog(@"Error deleting file %@: %@", url, error);
                 isSuccess = NO;
             }
         }

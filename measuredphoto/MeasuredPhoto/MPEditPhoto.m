@@ -238,7 +238,7 @@
     {
         NSString* javascript = [NSString stringWithFormat:@"loadMPhoto('%@', '%@', '%@', '%@');", self.measuredPhoto.imageFileName, self.measuredPhoto.depthFileName, self.measuredPhoto.annotationsFileName, self.measuredPhoto.id_guid];
         [self.webView stringByEvaluatingJavaScriptFromString: javascript];
-        DLogs(javascript);
+        DLog(javascript);
     }
     else
     {
@@ -325,7 +325,7 @@
 
 - (void) webViewLog:(NSString*)message
 {
-    if (message && message.length > 0) DLogs(message);
+    if (message && message.length > 0) DLog(message);
 }
 
 @end

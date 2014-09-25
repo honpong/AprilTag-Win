@@ -6,6 +6,8 @@
 //  Copyright (c) 2012 RealityCap. All rights reserved.
 //
 
+#include "RCDebugLog.h"
+
 #ifndef TapeMeasure_Constants_h
 #define TapeMeasure_Constants_h
 #endif
@@ -62,14 +64,6 @@
 #define FLURRY_KEY @"NZ3QP9KQNBVZKW53SPM2" //prod
 #else
 #define FLURRY_KEY @"D3NDKGP5MZCKVBZCD5BF" //dev
-#endif
-
-#ifdef ARCHIVE
-    #define LOGME // do nothing
-    #define DLog(fmt, ...) // do nothing
-#else
-    #define LOGME NSLog(@"%s", __PRETTY_FUNCTION__);
-    #define DLog(fmt, ...) NSLog((@"%s " fmt), __PRETTY_FUNCTION__, ##__VA_ARGS__);
 #endif
 
 typedef enum {

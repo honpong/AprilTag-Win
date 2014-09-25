@@ -13,7 +13,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import <RCCore/RCCore.h>
 
-@interface MPVideoPreview : RCVideoPreview <RCVideoFrameDelegate>
+@interface MPVideoPreview : RCVideoPreviewCRT <RCVideoFrameDelegate>
 
 - (CGRect) getCrtClosedFrame:(UIDeviceOrientation)orientation;
 

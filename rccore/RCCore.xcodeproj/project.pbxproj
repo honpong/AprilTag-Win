@@ -164,6 +164,8 @@
 		D94ECE72194CD626008F2F9A /* RCSensorDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D94ECE71194CD626008F2F9A /* RCSensorDelegate.m */; };
 		D94ECE73194CD653008F2F9A /* RCSensorDelegate.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D94ECE70194CD626008F2F9A /* RCSensorDelegate.h */; };
 		D991D4F719D0D35100CC0195 /* RCVideoFrameProvider.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D90C5A2619D0D1D2002CCC73 /* RCVideoFrameProvider.h */; };
+		D99CE19C19D4992700510B81 /* RCVideoPreviewCRT.m in Sources */ = {isa = PBXBuildFile; fileRef = D99CE19B19D4992700510B81 /* RCVideoPreviewCRT.m */; };
+		D99CE1AC19D4A80B00510B81 /* RCVideoPreviewCRT.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D99CE19A19D4992700510B81 /* RCVideoPreviewCRT.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -204,6 +206,7 @@
 			dstPath = "include/${PRODUCT_NAME}";
 			dstSubfolderSpec = 16;
 			files = (
+				D99CE1AC19D4A80B00510B81 /* RCVideoPreviewCRT.h in CopyFiles */,
 				D991D4F719D0D35100CC0195 /* RCVideoFrameProvider.h in CopyFiles */,
 				D9392B4719D09BAD0055B6B7 /* RCOpenGLManagerFactory.h in CopyFiles */,
 				D9392B4819D09BAD0055B6B7 /* RCVideoPreview.h in CopyFiles */,
@@ -438,6 +441,8 @@
 		D94ECE6C194CC171008F2F9A /* RCGeocoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCGeocoder.m; sourceTree = "<group>"; };
 		D94ECE70194CD626008F2F9A /* RCSensorDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCSensorDelegate.h; path = ../../SensorManagers/RCSensorDelegate.h; sourceTree = "<group>"; };
 		D94ECE71194CD626008F2F9A /* RCSensorDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCSensorDelegate.m; path = ../../SensorManagers/RCSensorDelegate.m; sourceTree = "<group>"; };
+		D99CE19A19D4992700510B81 /* RCVideoPreviewCRT.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoPreviewCRT.h; sourceTree = "<group>"; };
+		D99CE19B19D4992700510B81 /* RCVideoPreviewCRT.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoPreviewCRT.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -772,6 +777,8 @@
 				D9392B4119D09A8E0055B6B7 /* RCOpenGLManagerFactory.m */,
 				D9392B4219D09A8E0055B6B7 /* RCVideoPreview.h */,
 				D9392B4319D09A8E0055B6B7 /* RCVideoPreview.m */,
+				D99CE19A19D4992700510B81 /* RCVideoPreviewCRT.h */,
+				D99CE19B19D4992700510B81 /* RCVideoPreviewCRT.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -997,6 +1004,7 @@
 				3267A2E816C46D9A001E14C7 /* AFJSONRequestOperation.m in Sources */,
 				3280BB301919B0C300338A38 /* UIView+RCViewFade.m in Sources */,
 				D94ECE72194CD626008F2F9A /* RCSensorDelegate.m in Sources */,
+				D99CE19C19D4992700510B81 /* RCVideoPreviewCRT.m in Sources */,
 				324FF85A18ECB5BE00DC5E7F /* UIView+RCConstraints.m in Sources */,
 				3267A2E916C46D9A001E14C7 /* AFNetworkActivityIndicatorManager.m in Sources */,
 				3267A2EA16C46D9A001E14C7 /* AFPropertyListRequestOperation.m in Sources */,

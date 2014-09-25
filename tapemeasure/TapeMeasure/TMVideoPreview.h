@@ -14,7 +14,7 @@
 #import <RC3DK/RC3DK.h>
 #import <RCCore/RCCore.h>
 
-@interface TMVideoPreview : RCVideoPreview <RCVideoFrameDelegate>
+@interface TMVideoPreview : RCVideoPreviewCRT <RCVideoFrameDelegate>
 
 @end
 

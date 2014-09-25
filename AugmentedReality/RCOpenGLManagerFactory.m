@@ -17,8 +17,6 @@
 
 @implementation RCOpenGLManagerImpl
 
-@synthesize yuvTextureProgram;
-@synthesize tapeProgram;
 @synthesize oglContext;
 
 - (const GLchar *)readFile:(NSString *)name
@@ -32,43 +30,7 @@
     return source;
 }
 
-const GLchar *vertSrc = "\n\
-attribute vec4 position;\n\
-attribute mediump vec4 textureCoordinate;\n\
-varying mediump vec2 coordinate;\n\
-\n\
-void main()\n\
-{\n\
-	gl_Position = position;\n\
-	coordinate = textureCoordinate.xy;\n\
-}\n\
-";
-
-const GLchar *fragSrc = "\n\
-uniform sampler2D videoFrameY;\n\
-uniform sampler2D videoFrameUV;\n\
-uniform lowp float whiteness;\n\
-\n\
-varying highp vec2 coordinate;\n\
-\n\
-void main()\n\
-{\n\
-    mediump vec3 yuv;\n\
-    lowp vec3 rgb;\n\
-    \n\
-    yuv.x = texture2D(videoFrameY, coordinate).r;\n\
-    yuv.yz = texture2D(videoFrameUV, coordinate).rg - vec2(0.5, 0.5);\n\
-    \n\
-    // Using BT.709 which is the standard for HDTV\n\
-    rgb = mat3(      1,       1,      1,\n\
-               0, -.18732, 1.8556,\n\
-               1.57481, -.46813,      0) * yuv * (1. - whiteness) + whiteness;\n\
-    \n\
-    gl_FragColor = vec4(rgb, 1);\n\
-}\n\
-";
-
-- (bool)loadShaders
+- (bool)createProgram:(GLuint *)program withVertexShader:(const GLchar *)vertSrc withFragmentShader:(const GLchar *)fragSrc
 {
     // Load vertex and fragment shaders
     //const GLchar *vertSrc = [self readFile:@"yuvtorgb.vsh"];
@@ -76,27 +38,26 @@ void main()\n\
     
     // attributes
     GLint attribLocation[NUM_ATTRIBUTES] = {
-        ATTRIB_VERTEX, ATTRIB_TEXTUREPOSITON, ATTRIB_PERPINDICULAR
+        ATTRIB_VERTEX, ATTRIB_TEXTUREPOSITON
     };
     GLchar *attribName[NUM_ATTRIBUTES] = {
-        "position", "textureCoordinate", "perpindicular"
+        "position", "textureCoordinate"
     };
     
     glueCreateProgram(vertSrc, fragSrc,
                       2, (const GLchar **)&attribName[0], attribLocation,
                       0, 0, 0, // we don't need to get uniform locations in this example
-                      &yuvTextureProgram);
+                      program);
     
-    if (!yuvTextureProgram)
+    if (!*program)
         return false;
-    
-    glUseProgram(yuvTextureProgram);
-    // Get uniform locations.
-    glUniform1i(glGetUniformLocation(yuvTextureProgram, "videoFrameY"), 0);
-    glUniform1i(glGetUniformLocation(yuvTextureProgram, "videoFrameUV"), 1);
-    glUniform1f(glGetUniformLocation(yuvTextureProgram, "whiteness"), 0.);
-    
+
     return true;
+}
+
+- (void)deleteProgram:(GLuint)program
+{
+    if(program) glDeleteProgram(program);
 }
 
 - (bool)setupGL
@@ -108,10 +69,6 @@ void main()\n\
     }
     [EAGLContext setCurrentContext:oglContext];
     
-    if(![self loadShaders]) {
-        DLog(@"Failed to load OpenGL ES shaders");
-        return false;
-    }
     return true;
 }
 
@@ -129,14 +86,6 @@ void main()\n\
 
 - (void) dealloc
 {
-    if (yuvTextureProgram) {
-        glDeleteProgram(yuvTextureProgram);
-        yuvTextureProgram = 0;
-    }
-    if(tapeProgram) {
-        glDeleteProgram(tapeProgram);
-        tapeProgram = 0;
-    }
     if(oglContext) {
         oglContext = nil;
     }

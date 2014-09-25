@@ -21,7 +21,7 @@
 #import "RCCaptureManager.h"
 #import "RCReplayManager.h"
 
-#import "RCVideoPreview.h"
+#import "RCVideoPreviewCRT.h"
 
 #import "RCDistance.h"
 #import "RCDistanceMetric.h"

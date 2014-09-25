@@ -11,7 +11,41 @@
 #import <CoreMedia/CoreMedia.h>
 #import "RCOpenGLManagerFactory.h"
 
-static const NSTimeInterval animationDuration = .2;
+static const GLchar *vertSrc = "\n\
+attribute vec4 position;\n\
+attribute mediump vec4 textureCoordinate;\n\
+varying mediump vec2 coordinate;\n\
+\n\
+void main()\n\
+{\n\
+gl_Position = position;\n\
+coordinate = textureCoordinate.xy;\n\
+}\n\
+";
+
+static const GLchar *fragSrc = "\n\
+uniform sampler2D videoFrameY;\n\
+uniform sampler2D videoFrameUV;\n\
+uniform lowp float whiteness;\n\
+\n\
+varying highp vec2 coordinate;\n\
+\n\
+void main()\n\
+{\n\
+mediump vec3 yuv;\n\
+lowp vec3 rgb;\n\
+\n\
+yuv.x = texture2D(videoFrameY, coordinate).r;\n\
+yuv.yz = texture2D(videoFrameUV, coordinate).rg - vec2(0.5, 0.5);\n\
+\n\
+// Using BT.709 which is the standard for HDTV\n\
+rgb = mat3(      1,       1,      1,\n\
+0, -.18732, 1.8556,\n\
+1.57481, -.46813,      0) * yuv * (1. - whiteness) + whiteness;\n\
+\n\
+gl_FragColor = vec4(rgb, 1);\n\
+}\n\
+";
 
 @implementation RCVideoPreview
 {
@@ -29,21 +63,8 @@ static const NSTimeInterval animationDuration = .2;
     
     CVOpenGLESTextureRef lumaTexture;
     CVOpenGLESTextureRef chromaTexture;
-    float textureScale;
-    
-    //For fading the screen to white
-    bool fadeToWhite;
-    bool fadeFromWhite;
-    float fadeTime;
-    NSDate *fadeStart;
-    float xScale;
-    float yScale;
-    UIDeviceOrientation animationOrientation;
-    void(^animationComplete)(BOOL finished);
     
     CMBufferQueueRef previewBufferQueue;
-    
-    BOOL didReceiveFirstFrame;
 }
 
 - (id) initWithCoder:(NSCoder *)aDecoder
@@ -66,18 +87,16 @@ static const NSTimeInterval animationDuration = .2;
 
 - (void) initialize
 {
-    OPENGL_MANAGER;
-    
-    didReceiveFirstFrame = NO;
+    [OPENGL_MANAGER createProgram:&yuvTextureProgram withVertexShader:vertSrc withFragmentShader:fragSrc];
+    glUseProgram(yuvTextureProgram);
+    glUniform1i(glGetUniformLocation(yuvTextureProgram, "videoFrameY"), 0);
+    glUniform1i(glGetUniformLocation(yuvTextureProgram, "videoFrameUV"), 1);
+    glUniform1f(glGetUniformLocation(yuvTextureProgram, "whiteness"), 0.);
     
     textureWidth = 640;
     textureHeight = 480;
-    textureScale = 1.;
     xScale = 1.;
     yScale = 1.;
-    fadeToWhite = false;
-    fadeFromWhite = false;
-    animationComplete = nil;
     
     // Use 2x scale factor on Retina displays.
     self.contentScaleFactor = [[UIScreen mainScreen] scale];
@@ -94,65 +113,11 @@ static const NSTimeInterval animationDuration = .2;
     
     OSStatus err = CMBufferQueueCreate(kCFAllocatorDefault, 1, CMBufferQueueGetCallbacksForUnsortedSampleBuffers(), &previewBufferQueue);
     if (err) DLog(@"ERROR creating CMBufferQueue");
-    
-    crtClosedFrame = CGRectZero;
 }
 
 + (Class)layerClass
 {
     return [CAEAGLLayer class];
-}
-
-//- (void) layoutSubviews
-//{
-//    crtClosedFrame = CGRectMake(0, self.superview.frame.size.height / 2, self.superview.frame.size.width, 2.);
-//}
-
-- (void) animateOpen:(UIDeviceOrientation) orientation
-{
-    animationOrientation = orientation;
-    [self fadeToWhite:NO fromWhite:YES inSeconds:animationDuration];
-    // grow video from horizontal line to full screen
-//    [UIView animateWithDuration: animationDuration
-//                          delay: .1
-//                        options: UIViewAnimationOptionCurveEaseIn
-//                     animations:^{
-//                         self.frame = self.superview.frame;
-//                         [self fadeToWhite:NO fromWhite:YES inSeconds:animationDuration];
-//                     }
-//                     completion:^(BOOL finished){
-//                         
-//                     }];
-}
-
-- (void) animateClosed:(UIDeviceOrientation)orientation withCompletionBlock:(void(^)(BOOL finished))completion
-{
-    animationOrientation = orientation;
-    animationComplete = completion;
-    [self fadeToWhite:YES fromWhite:NO inSeconds:animationDuration * 1.5];
-    // shrink video into a horizontal line
-//    [UIView animateWithDuration: animationDuration
-//                          delay: 0
-//                        options: UIViewAnimationOptionCurveEaseOut
-//                     animations:^{
-//                         self.frame = crtClosedFrame;
-//                         [self fadeToWhite:YES fromWhite:NO inSeconds:animationDuration];
-//                     }
-//                     completion:^(BOOL finished){
-//                         
-//                         // line shrinks to dot in center
-//                         [UIView animateWithDuration: .1
-//                                               delay: 0
-//                                             options: UIViewAnimationOptionCurveEaseOut
-//                                          animations:^{
-//                                              self.frame = CGRectMake(self.superview.frame.size.width / 2, self.superview.frame.size.height / 2, 2., 2.);
-//                                          }
-//                                          completion:^(BOOL finished){
-//                                              completion(finished);
-//                                          }];
-//                     }];
-    
-    //completion(YES);
 }
 
 - (void) displaySampleBuffer:(CMSampleBufferRef)sampleBuffer
@@ -168,12 +133,6 @@ static const NSTimeInterval animationDuration = .2;
         
         dispatch_async(dispatch_get_main_queue(), ^{
             CMSampleBufferRef sbuf = (CMSampleBufferRef)CMBufferQueueDequeueAndRetain(previewBufferQueue);
-            if (!didReceiveFirstFrame)
-            {
-                fadeStart = [NSDate date];
-                didReceiveFirstFrame = YES;
-            }
-            
             if (sbuf) {
                 CVImageBufferRef pixBuf = CMSampleBufferGetImageBuffer(sbuf);
                 [weakSelf pixelBufferReadyForDisplay:pixBuf];
@@ -194,76 +153,12 @@ static const NSTimeInterval animationDuration = .2;
 	// Don't make OpenGLES calls while in the background.
 	if ( [UIApplication sharedApplication].applicationState != UIApplicationStateBackground )
     {
-        bool callCompletion = false;
         if([self beginFrame]) {
-            if(fadeToWhite || fadeFromWhite)
-            {
-                float horzScale = 1., vertScale = 1.;
-                float whiteness = 0.;
-                float elapsed = -[fadeStart timeIntervalSinceNow] / fadeTime;
-                if(elapsed > 1) elapsed = 1;
-                if(fadeToWhite && fadeFromWhite)
-                    whiteness = elapsed < .5 ? elapsed * 2. : 2. - elapsed * 2.;
-                else if(fadeToWhite)
-                {
-                    if(elapsed < .5)
-                    {
-                        whiteness = elapsed * 2.;
-                        horzScale = 1.;
-                    }
-                    else
-                    {
-                        whiteness = 1.;
-                        horzScale = 2. - elapsed * 2.;
-                    }
-                }
-                else //fadeFromWhite
-                    whiteness = 1. - elapsed;
-                vertScale = 1. - whiteness;
-                //if(vertScale == 0) vertScale = 1. / self.bounds.size.width;
-                glUniform1f(glGetUniformLocation([OPENGL_MANAGER yuvTextureProgram], "whiteness"), whiteness);
-                if(elapsed >= 1.)
-                {
-                    fadeToWhite = fadeFromWhite = false;
-                    callCompletion = true;
-                }
-                
-                switch([[UIDevice currentDevice] orientation])
-                {
-                    case UIInterfaceOrientationLandscapeLeft:
-                    case UIInterfaceOrientationLandscapeRight:
-                        xScale = horzScale;
-                        yScale = vertScale;
-                        break;
-                        
-                    case UIInterfaceOrientationPortrait:
-                    case UIInterfaceOrientationPortraitUpsideDown:
-                    default:
-                        xScale = vertScale;
-                        yScale = horzScale;
-                        break;
-                }
-                
-                if(xScale == 0.) xScale = 1. / self.bounds.size.width;
-                if(yScale == 0.) yScale = 1. / self.bounds.size.height;
-            }
+            
             [self displayPixelBuffer:pixelBuffer];
             [self endFrame];
-            if(callCompletion && animationComplete)
-            {
-                animationComplete(true);
-                animationComplete = nil;
-            }
         }
     }
-}
-
-- (void) fadeToWhite:(bool)to fromWhite:(bool)from inSeconds:(float)seconds;
-{
-    fadeStart = [NSDate date];
-    fadeTime = seconds;
-    fadeToWhite = to;
-    fadeFromWhite = from;
 }
 
 - (void)checkGLError
@@ -334,8 +229,8 @@ static const NSTimeInterval animationDuration = .2;
     // Validate program before drawing. This is a good check, but only really necessary in a debug build.
     // DEBUG macro must be defined in your debug configurations if that's not already the case.
 #if defined(DEBUG)
-    if (!glueValidateProgram([OPENGL_MANAGER yuvTextureProgram])) {
-        DLog(@"Failed to validate program: %d", [OPENGL_MANAGER yuvTextureProgram]);
+    if (!glueValidateProgram(yuvTextureProgram)) {
+        DLog(@"Failed to validate program: %d", yuvTextureProgram);
         return;
     }
 #endif
@@ -346,7 +241,7 @@ static const NSTimeInterval animationDuration = .2;
 - (CGRect)textureSamplingRectForCroppingTextureWithAspectRatio:(CGSize)textureAspectRatio toAspectRatio:(CGSize)croppingAspectRatio
 {
 	CGSize cropScaleAmount = CGSizeMake(croppingAspectRatio.width / textureAspectRatio.width, croppingAspectRatio.height / textureAspectRatio.height);
-	textureScale = fmax(cropScaleAmount.width, cropScaleAmount.height);
+	float textureScale = fmax(cropScaleAmount.width, cropScaleAmount.height);
 	CGSize scaledTextureSize = CGSizeMake(textureAspectRatio.width * textureScale, textureAspectRatio.height * textureScale);
 	
 	if ( cropScaleAmount.height > cropScaleAmount.width ) {
@@ -435,7 +330,7 @@ static const NSTimeInterval animationDuration = .2;
     
     pixelBuffer = (CVImageBufferRef)CFRetain(pixelBuffer);
     
-    glUseProgram([OPENGL_MANAGER yuvTextureProgram]);
+    glUseProgram(yuvTextureProgram);
     
     CVReturn err;
     if (videoTextureCache == NULL)
@@ -576,6 +471,8 @@ static const NSTimeInterval animationDuration = .2;
         CFRelease(videoTextureCache);
         videoTextureCache = 0;
     }
+    
+    [OPENGL_MANAGER deleteProgram:yuvTextureProgram];
     
     //    [super dealloc];
 }

@@ -12,10 +12,9 @@
 // the factory returns an instance of an object that implements this protocol
 @protocol RCOpenGLManager <NSObject>
 
-@property GLuint yuvTextureProgram;
-@property GLuint tapeProgram;
 @property EAGLContext* oglContext;
-
+- (bool)createProgram:(GLuint *)program withVertexShader:(const GLchar *)vertSrc withFragmentShader:(const GLchar *)fragSrc;
+- (void)deleteProgram:(GLuint)program;
 @end
 
 // the factory methods to get/set the instance
@@ -29,6 +28,5 @@
 enum {
     ATTRIB_VERTEX,
     ATTRIB_TEXTUREPOSITON,
-    ATTRIB_PERPINDICULAR,
     NUM_ATTRIBUTES
 };

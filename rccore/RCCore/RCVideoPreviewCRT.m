@@ -72,31 +72,14 @@ static const NSTimeInterval animationDuration = .2;
             whiteness = 1. - elapsed;
         vertScale = 1. - whiteness;
         //if(vertScale == 0) vertScale = 1. / self.bounds.size.width;
-        glUniform1f(glGetUniformLocation(yuvTextureProgram, "whiteness"), whiteness);
+        [self setWhiteness:whiteness];
         if(elapsed >= 1.)
         {
             fadeToWhite = fadeFromWhite = false;
             callCompletion = true;
         }
         
-        switch([[UIDevice currentDevice] orientation])
-        {
-            case UIInterfaceOrientationLandscapeLeft:
-            case UIInterfaceOrientationLandscapeRight:
-                xScale = horzScale;
-                yScale = vertScale;
-                break;
-                
-            case UIInterfaceOrientationPortrait:
-            case UIInterfaceOrientationPortraitUpsideDown:
-            default:
-                xScale = vertScale;
-                yScale = horzScale;
-                break;
-        }
-        
-        if(xScale == 0.) xScale = 1. / self.bounds.size.width;
-        if(yScale == 0.) yScale = 1. / self.bounds.size.height;
+        [self setHorizontalScale:horzScale withVerticalScale:vertScale];
     }
     
     [super pixelBufferReadyForDisplay:pixelBuffer];

@@ -21,18 +21,6 @@
  and any augmented reality overlays you draw on top of it stay in sync.
  */
 @interface RCVideoPreview : UIView <RCVideoFrameDelegate>
-{
-@protected
-    // these are accessible to subclasses
-    size_t textureWidth;
-    size_t textureHeight;
-    CGRect normalizedSamplingRect;
-    
-    float xScale;
-    float yScale;
-    
-    GLuint yuvTextureProgram;
-}
 
 /**
  Pass CMSampleBufferRef video frames to this method.
@@ -42,5 +30,13 @@
  Sets the orientation of the video preview.
  */
 - (void) setVideoOrientation:(AVCaptureVideoOrientation)orientation;
+/**
+ Fades the image to white - 0 represents normal display, and 1 represents all white.
+ */
+- (void) setWhiteness:(float)whiteness;
+/**
+ Scales the video preview.
+ */
+- (void)setHorizontalScale:(float)hScale withVerticalScale:(float)vScale;
 
 @end

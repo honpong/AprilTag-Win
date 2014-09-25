@@ -65,6 +65,14 @@ gl_FragColor = vec4(rgb, 1);\n\
     CVOpenGLESTextureRef chromaTexture;
     
     CMBufferQueueRef previewBufferQueue;
+    
+    size_t textureWidth;
+    size_t textureHeight;
+    CGRect normalizedSamplingRect;
+    
+    float xScale;
+    float yScale;
+    GLuint yuvTextureProgram;
 }
 
 - (id) initWithCoder:(NSCoder *)aDecoder
@@ -146,6 +154,32 @@ gl_FragColor = vec4(rgb, 1);\n\
     }
     
     CFRelease(sampleBuffer);
+}
+
+- (void)setWhiteness:(float)whiteness
+{
+    glUniform1f(glGetUniformLocation(yuvTextureProgram, "whiteness"), whiteness);
+}
+
+- (void)setHorizontalScale:(float)hScale withVerticalScale:(float)vScale
+{
+    switch([[UIDevice currentDevice] orientation])
+    {
+        case UIInterfaceOrientationLandscapeLeft:
+        case UIInterfaceOrientationLandscapeRight:
+            xScale = hScale;
+            yScale = vScale;
+            break;
+            
+        case UIInterfaceOrientationPortrait:
+        case UIInterfaceOrientationPortraitUpsideDown:
+        default:
+            xScale = vScale;
+            yScale = hScale;
+            break;
+    }
+    if(xScale == 0.) xScale = 1. / self.bounds.size.width;
+    if(yScale == 0.) yScale = 1. / self.bounds.size.height;
 }
 
 - (void)pixelBufferReadyForDisplay:(CVPixelBufferRef)pixelBuffer

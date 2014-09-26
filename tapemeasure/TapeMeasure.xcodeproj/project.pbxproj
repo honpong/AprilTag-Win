@@ -32,6 +32,7 @@
 		326E47D716FA5EE1007AA105 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32C87C4416779B2F006ED337 /* CoreLocation.framework */; };
 		3273BCB5170BA81F00FF0F6A /* TMMeasurementType.m in Sources */ = {isa = PBXBuildFile; fileRef = 3273BCB4170BA81F00FF0F6A /* TMMeasurementType.m */; };
 		32763FB719BFB2D700D94DEB /* libFlurry_5.3.0.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32763FB619BFB2D700D94DEB /* libFlurry_5.3.0.a */; };
+		327FC37E19D505A200C113D0 /* libRCCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 329B38DD1626409D0021B41E /* libRCCore.a */; };
 		32803A6018DB6452002F54B5 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 32803A5F18DB6452002F54B5 /* Images.xcassets */; };
 		32803A6A18DBA2CF002F54B5 /* UIImage+InverseImage.m in Sources */ = {isa = PBXBuildFile; fileRef = 32803A6918DBA2CF002F54B5 /* UIImage+InverseImage.m */; };
 		32808D5F170396B600BE7CBC /* TMTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32808D5E170396B600BE7CBC /* TMTableViewController.m */; };
@@ -51,7 +52,6 @@
 		3285FEB7163717D60046D02E /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3285FEB2163717440046D02E /* GLKit.framework */; };
 		3285FEB91637182B0046D02E /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3285FEB81637182B0046D02E /* OpenGLES.framework */; };
 		32865B9116260B7C0080BA1A /* RCCore.xcodeproj in Resources */ = {isa = PBXBuildFile; fileRef = 32865B9016260B7C0080BA1A /* RCCore.xcodeproj */; };
-		32865B9316260C710080BA1A /* libRCCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32865B9216260C710080BA1A /* libRCCore.a */; };
 		3287279D16A9C7C7000A652C /* AppledocSettings.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3287279C16A9C7C7000A652C /* AppledocSettings.plist */; };
 		3287846A1630B6B300040AAF /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328784691630B6B300040AAF /* CoreMedia.framework */; };
 		3287846C1630B6C000040AAF /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287846B1630B6C000040AAF /* CoreVideo.framework */; };
@@ -423,7 +423,6 @@
 		3285FEB4163717990046D02E /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
 		3285FEB81637182B0046D02E /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		32865B9016260B7C0080BA1A /* RCCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCCore.xcodeproj; path = ../RCCore/RCCore.xcodeproj; sourceTree = "<group>"; };
-		32865B9216260C710080BA1A /* libRCCore.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRCCore.a; path = "../RCCore/build/Release-iphoneos/libRCCore.a"; sourceTree = "<group>"; };
 		3287279C16A9C7C7000A652C /* AppledocSettings.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = AppledocSettings.plist; sourceTree = "<group>"; };
 		328784691630B6B300040AAF /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		3287846B1630B6C000040AAF /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
@@ -867,9 +866,6 @@
 		32E6873918F617160043D50A /* UIView+OSKUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+OSKUtilities.m"; sourceTree = "<group>"; };
 		32E6873A18F617160043D50A /* UIViewController+OSKUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+OSKUtilities.h"; sourceTree = "<group>"; };
 		32E6873B18F617160043D50A /* UIViewController+OSKUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+OSKUtilities.m"; sourceTree = "<group>"; };
-		32E6882718F617D10043D50A /* GoogleOpenSource.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GoogleOpenSource.framework; path = "../OvershareKit/GooglePlus-SDK/GoogleOpenSource.framework"; sourceTree = "<group>"; };
-		32E6882818F617D10043D50A /* GooglePlus.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; name = GooglePlus.bundle; path = "../OvershareKit/GooglePlus-SDK/GooglePlus.bundle"; sourceTree = "<group>"; };
-		32E6882918F617D10043D50A /* GooglePlus.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GooglePlus.framework; path = "../OvershareKit/GooglePlus-SDK/GooglePlus.framework"; sourceTree = "<group>"; };
 		32F216C4170F3B4E003DA782 /* TMResultsVCTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMResultsVCTests.h; sourceTree = "<group>"; };
 		32F216C5170F3B4E003DA782 /* TMResultsVCTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMResultsVCTests.m; sourceTree = "<group>"; };
 		32F403331940E326002741C8 /* TMPreferences.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMPreferences.h; sourceTree = "<group>"; };
@@ -885,6 +881,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				327FC37E19D505A200C113D0 /* libRCCore.a in Frameworks */,
 				32E6849518F5FB430043D50A /* MediaPlayer.framework in Frameworks */,
 				32E6849318F5FB390043D50A /* CoreText.framework in Frameworks */,
 				32E6849118F5FB250043D50A /* AddressBook.framework in Frameworks */,
@@ -907,7 +904,6 @@
 				3287846A1630B6B300040AAF /* CoreMedia.framework in Frameworks */,
 				3288555016307A6A0074A3DE /* CoreMotion.framework in Frameworks */,
 				328478BD162E2CCF00BFCDD4 /* QuartzCore.framework in Frameworks */,
-				32865B9316260C710080BA1A /* libRCCore.a in Frameworks */,
 				3280F7E4161BBB3200B5C8A8 /* UIKit.framework in Frameworks */,
 				3280F7E6161BBB3200B5C8A8 /* Foundation.framework in Frameworks */,
 				3280F7E8161BBB3200B5C8A8 /* CoreGraphics.framework in Frameworks */,
@@ -958,9 +954,6 @@
 		3280F7E2161BBB3200B5C8A8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				32E6882718F617D10043D50A /* GoogleOpenSource.framework */,
-				32E6882818F617D10043D50A /* GooglePlus.bundle */,
-				32E6882918F617D10043D50A /* GooglePlus.framework */,
 				32E6849418F5FB430043D50A /* MediaPlayer.framework */,
 				32E6849218F5FB390043D50A /* CoreText.framework */,
 				32E6849018F5FB250043D50A /* AddressBook.framework */,
@@ -969,7 +962,6 @@
 				D9218CB616E847B2006F4591 /* SystemConfiguration.framework */,
 				D9557B1F16DFEDD300B48C4B /* AssetsLibrary.framework */,
 				D9557B1316DFDF1500B48C4B /* Accelerate.framework */,
-				32865B9216260C710080BA1A /* libRCCore.a */,
 				328D264E16BB15550067D7D8 /* Security.framework */,
 				32590C8116781EEC00E2BA1C /* MapKit.framework */,
 				32C87C4416779B2F006ED337 /* CoreLocation.framework */,

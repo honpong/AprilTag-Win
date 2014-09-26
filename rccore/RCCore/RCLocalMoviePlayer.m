@@ -79,6 +79,11 @@
     {
         [self stopMovie];
     }
+    
+    if ([self.delegate respondsToSelector:@selector(moviePlayBackDidFinish)])
+    {
+        [self.delegate moviePlayBackDidFinish];
+    }
 }
 
 - (IBAction)handlePlayButton:(id)sender

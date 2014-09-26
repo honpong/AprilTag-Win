@@ -12,6 +12,7 @@
 @protocol RCLocalMoviePlayerDelegate <NSObject>
 
 - (void) moviePlayerDismissed;
+- (void) moviePlayBackDidFinish;
 
 @end
 

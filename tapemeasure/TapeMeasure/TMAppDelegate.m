@@ -152,6 +152,11 @@
     [self gotoMainViewController];
 }
 
+- (void) moviePlayBackDidFinish
+{
+    [TMAnalytics logEvent:@"View.Tutorial.MovieFinished"];
+}
+
 #pragma mark - RCCalibrationDelegate
 
 - (void) calibrationDidFinish

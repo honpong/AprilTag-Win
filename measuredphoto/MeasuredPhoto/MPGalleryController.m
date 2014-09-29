@@ -35,7 +35,6 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     UIView* shrinkToView;
     MPUndoOverlay* undoView;
     MPDMeasuredPhoto* photoToBeDeleted;
-    CustomIOS7AlertView *aboutView;
     MPShareSheet* shareSheet;
     UIActionSheet *actionSheet;
 }
@@ -68,17 +67,6 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     [self.view addSubview: undoView];
     
     photoToBeDeleted = nil;
-    
-    aboutView = [[CustomIOS7AlertView alloc] initWithParentView:self.view];
-    aboutView.layer.backgroundColor = [[UIColor whiteColor] CGColor];
-    [aboutView setContainerView:[[MPAboutView alloc] initWithFrame:CGRectMake(0, 0, 290, 210)]];
-    [aboutView setButtonTitles:[NSArray arrayWithObject:@"Close"]];
-    [aboutView setOnButtonTouchUpInside:^(CustomIOS7AlertView *alertView_, int buttonIndex) {
-        [alertView_ close];
-    }];
-    [aboutView setOnTouchUpOutside:^(CustomIOS7AlertView *alertView_) {
-        [alertView_ close];
-    }];
 }
 
 - (void) viewDidAppear:(BOOL)animated
@@ -381,7 +369,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
         case 0:
         {
 //            [TMAnalytics logEvent:@"View.About"];
-            [aboutView show];
+            [self gotoAbout];
             break;
         }
         case 1:
@@ -416,6 +404,14 @@ static const NSTimeInterval zoomAnimationDuration = .1;
         default:
             break;
     }
+}
+
+- (void) gotoAbout
+{
+    MPWebViewController* viewController = [self.storyboard instantiateViewControllerWithIdentifier:@"GenericWebView"];
+    viewController.htmlUrl = [[NSBundle mainBundle] URLForResource:@"about" withExtension:@"html"];
+    [self presentViewController:viewController animated:YES completion:nil];
+    viewController.titleLabel.text = @"About"; // must come after present...
 }
 
 - (void) gotoTips

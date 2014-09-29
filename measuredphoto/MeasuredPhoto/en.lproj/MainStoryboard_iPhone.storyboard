@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6245" systemVersion="13F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="naN-gY-NUo">
     <dependencies>
+        <deployment defaultVersion="1792" identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6238"/>
     </dependencies>
     <scenes>
@@ -466,6 +467,7 @@
                                     <constraint firstItem="yYe-Po-MEE" firstAttribute="centerX" secondItem="5ie-Wg-BOX" secondAttribute="centerX" id="DkO-1E-h1q"/>
                                     <constraint firstItem="hfC-n8-Hoh" firstAttribute="leading" secondItem="5ie-Wg-BOX" secondAttribute="leading" constant="10" id="TaN-3f-yBD"/>
                                     <constraint firstAttribute="centerY" secondItem="yYe-Po-MEE" secondAttribute="centerY" id="odQ-7M-ZmH"/>
+                                    <constraint firstAttribute="height" constant="44" id="tsA-JS-O36"/>
                                     <constraint firstAttribute="centerY" secondItem="hfC-n8-Hoh" secondAttribute="centerY" id="yxg-Dp-0Xq"/>
                                 </constraints>
                             </view>
@@ -477,7 +479,6 @@
                         </subviews>
                         <constraints>
                             <constraint firstItem="2Jw-Hk-uNK" firstAttribute="bottom" secondItem="lx5-hd-VaU" secondAttribute="top" id="6m3-kP-aeo"/>
-                            <constraint firstAttribute="bottom" secondItem="5ie-Wg-BOX" secondAttribute="bottom" constant="524" id="Gee-cT-aXm"/>
                             <constraint firstItem="5ie-Wg-BOX" firstAttribute="leading" secondItem="BKc-kx-TbX" secondAttribute="leading" id="IjI-WH-jzk"/>
                             <constraint firstAttribute="trailing" secondItem="5ie-Wg-BOX" secondAttribute="trailing" id="PIz-Cn-9Xh"/>
                             <constraint firstItem="2Jw-Hk-uNK" firstAttribute="leading" secondItem="BKc-kx-TbX" secondAttribute="leading" id="Qon-Y2-mMY"/>

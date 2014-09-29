@@ -456,10 +456,11 @@ static transition transitions[] =
     RCStereo * stereo = [RCStereo sharedInstance];
     [stereo setGuid: measuredPhoto.id_guid];
     [stereo processFrame:lastSensorFusionDataWithImage withFinal:true];
-    [stereo setOrientation:[MPCapturePhoto getCurrentUIOrientation]];
+    UIDeviceOrientation orientation = [MPCapturePhoto getCurrentUIOrientation];
+    [stereo setOrientation:orientation];
     stereo.delegate = self;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-        [measuredPhoto writeImagetoJpeg:lastSensorFusionDataWithImage.sampleBuffer withOrientation:[MPCapturePhoto getCurrentUIOrientation]];
+        [measuredPhoto writeImagetoJpeg:lastSensorFusionDataWithImage.sampleBuffer withOrientation:orientation];
         // TODO: Handle potential stereo failure here (this function will return false)
         [stereo preprocess];
     });

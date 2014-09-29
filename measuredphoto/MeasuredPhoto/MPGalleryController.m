@@ -411,7 +411,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     MPWebViewController* viewController = [self.storyboard instantiateViewControllerWithIdentifier:@"GenericWebView"];
     viewController.htmlUrl = [[NSBundle mainBundle] URLForResource:@"about" withExtension:@"html"];
     [self presentViewController:viewController animated:YES completion:nil];
-    viewController.titleLabel.text = @"About"; // must come after present...
+    viewController.titleLabel.text = @"About TrueMeasure"; // must come after present...
 }
 
 - (void) gotoTips

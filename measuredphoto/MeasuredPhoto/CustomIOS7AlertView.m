@@ -86,37 +86,44 @@ CGFloat buttonSpacerHeight = 0;
 
     self.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0];
 
+    [parentView addSubview:self];
+    [self addMatchSuperviewConstraints];
+    
     [self addSubview:dialogView];
-
+    [dialogView addCenterInSuperviewConstraints];
+    [dialogView addWidthConstraint:dialogView.bounds.size.width andHeightConstraint:dialogView.bounds.size.height];
+    
+    dialogView.frame =CGRectZero;
     // Can be attached to a view or to the top most window
     // Attached to a view:
-    if (parentView != NULL) {
-        [parentView addSubview:self];
-
-    // Attached to the top most window (make sure we are using the right orientation):
-    } else {
-        UIInterfaceOrientation interfaceOrientation = [[UIApplication sharedApplication] statusBarOrientation];
-        switch (interfaceOrientation) {
-            case UIInterfaceOrientationLandscapeLeft:
-                self.transform = CGAffineTransformMakeRotation(M_PI * 270.0 / 180.0);
-                break;
-                
-            case UIInterfaceOrientationLandscapeRight:
-                self.transform = CGAffineTransformMakeRotation(M_PI * 90.0 / 180.0);
-                break;
-
-            case UIInterfaceOrientationPortraitUpsideDown:
-                self.transform = CGAffineTransformMakeRotation(M_PI * 180.0 / 180.0);
-                break;
-
-            default:
-                break;
-        }
-
-        [self setFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
-        [[[[UIApplication sharedApplication] windows] firstObject] addSubview:self];
-    }
-
+//    if (parentView != NULL) {
+//        [parentView addSubview:self];
+//    
+//    // Attached to the top most window (make sure we are using the right orientation):
+//    } else {
+//        UIInterfaceOrientation interfaceOrientation = [[UIApplication sharedApplication] statusBarOrientation];
+//        switch (interfaceOrientation) {
+//            case UIInterfaceOrientationLandscapeLeft:
+//                self.transform = CGAffineTransformMakeRotation(M_PI * 270.0 / 180.0);
+//                break;
+//                
+//            case UIInterfaceOrientationLandscapeRight:
+//                self.transform = CGAffineTransformMakeRotation(M_PI * 90.0 / 180.0);
+//                break;
+//
+//            case UIInterfaceOrientationPortraitUpsideDown:
+//                self.transform = CGAffineTransformMakeRotation(M_PI * 180.0 / 180.0);
+//                break;
+//
+//            default:
+//                break;
+//        }
+//
+//        [self setFrame:CGRectMake(0, 0, self.frame.size.width, self.frame.size.height)];
+//        [[[[UIApplication sharedApplication] windows] firstObject] addSubview:self];
+//    }
+//    
+    
     [UIView animateWithDuration:0.2f delay:0.0 options:UIViewAnimationOptionCurveEaseInOut
 					 animations:^{
 						 self.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.4f];
@@ -181,7 +188,7 @@ CGFloat buttonSpacerHeight = 0;
 - (UIView *)createContainerView
 {
     if (containerView == NULL) {
-        containerView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 300, 150)];
+        containerView = [[UIView alloc] initWithFrame:CGRectZero];
     }
 
     CGSize screenSize = [self countScreenSize];

@@ -292,7 +292,6 @@
 		326ACFCE19D2221B00B36965 /* UIView+OSKUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 326ACED319D2221B00B36965 /* UIView+OSKUtilities.m */; };
 		326ACFCF19D2221B00B36965 /* UIViewController+OSKUtilities.m in Sources */ = {isa = PBXBuildFile; fileRef = 326ACED519D2221B00B36965 /* UIViewController+OSKUtilities.m */; };
 		326ACFD219D222F000B36965 /* MPAboutView.m in Sources */ = {isa = PBXBuildFile; fileRef = 326ACFD119D222F000B36965 /* MPAboutView.m */; };
-		326ACFD519D2238500B36965 /* MPTipsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 326ACFD419D2238500B36965 /* MPTipsView.m */; };
 		326ACFD719D2279800B36965 /* about.html in Resources */ = {isa = PBXBuildFile; fileRef = 326ACFD619D2279800B36965 /* about.html */; };
 		326ACFD919D227A600B36965 /* tips.html in Resources */ = {isa = PBXBuildFile; fileRef = 326ACFD819D227A600B36965 /* tips.html */; };
 		326ACFDE19D22A1F00B36965 /* OSK1PasswordBrowserActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = 326ACFDB19D22A1F00B36965 /* OSK1PasswordBrowserActivity.m */; };
@@ -300,6 +299,7 @@
 		326ACFE219D22B2100B36965 /* MPPreferencesController.m in Sources */ = {isa = PBXBuildFile; fileRef = 326ACFE119D22B2100B36965 /* MPPreferencesController.m */; };
 		326ACFE519D3347F00B36965 /* realitycap_logo.png in Resources */ = {isa = PBXBuildFile; fileRef = 326ACFE319D3347F00B36965 /* realitycap_logo.png */; };
 		326ACFE619D3347F00B36965 /* realitycap_logo@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 326ACFE419D3347F00B36965 /* realitycap_logo@2x.png */; };
+		326ACFE919D38AED00B36965 /* MPWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 326ACFE819D38AED00B36965 /* MPWebViewController.m */; };
 		326EA9E617BC354C009000D4 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 326EA9E517BC354C009000D4 /* CoreData.framework */; };
 		32745D621892EFF5000C68F4 /* MPImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32745D611892EFF5000C68F4 /* MPImageView.m */; };
 		32745D661892F9E2000C68F4 /* MPCrosshairsLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32745D651892F9E2000C68F4 /* MPCrosshairsLayerDelegate.m */; };
@@ -921,8 +921,6 @@
 		326ACED519D2221B00B36965 /* UIViewController+OSKUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+OSKUtilities.m"; sourceTree = "<group>"; };
 		326ACFD019D222F000B36965 /* MPAboutView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPAboutView.h; sourceTree = "<group>"; };
 		326ACFD119D222F000B36965 /* MPAboutView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPAboutView.m; sourceTree = "<group>"; };
-		326ACFD319D2238500B36965 /* MPTipsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPTipsView.h; sourceTree = "<group>"; };
-		326ACFD419D2238500B36965 /* MPTipsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPTipsView.m; sourceTree = "<group>"; };
 		326ACFD619D2279800B36965 /* about.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = about.html; sourceTree = "<group>"; };
 		326ACFD819D227A600B36965 /* tips.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = tips.html; sourceTree = "<group>"; };
 		326ACFDA19D22A1F00B36965 /* OSK1PasswordBrowserActivity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSK1PasswordBrowserActivity.h; sourceTree = "<group>"; };
@@ -933,6 +931,8 @@
 		326ACFE119D22B2100B36965 /* MPPreferencesController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPPreferencesController.m; sourceTree = "<group>"; };
 		326ACFE319D3347F00B36965 /* realitycap_logo.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = realitycap_logo.png; sourceTree = "<group>"; };
 		326ACFE419D3347F00B36965 /* realitycap_logo@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "realitycap_logo@2x.png"; sourceTree = "<group>"; };
+		326ACFE719D38AED00B36965 /* MPWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPWebViewController.h; sourceTree = "<group>"; };
+		326ACFE819D38AED00B36965 /* MPWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPWebViewController.m; sourceTree = "<group>"; };
 		326EA9DE17BC3532009000D4 /* GAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GAI.h; sourceTree = "<group>"; };
 		326EA9DF17BC3532009000D4 /* GAITrackedViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GAITrackedViewController.h; sourceTree = "<group>"; };
 		326EA9E017BC3532009000D4 /* GAITracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GAITracker.h; sourceTree = "<group>"; };
@@ -1863,6 +1863,8 @@
 				328C7DD919D1EC0D0079BA40 /* MPLocationIntro.m */,
 				326ACFE019D22B2100B36965 /* MPPreferencesController.h */,
 				326ACFE119D22B2100B36965 /* MPPreferencesController.m */,
+				326ACFE719D38AED00B36965 /* MPWebViewController.h */,
+				326ACFE819D38AED00B36965 /* MPWebViewController.m */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -1923,8 +1925,6 @@
 				326ACD5619D221B600B36965 /* MPShareSheet.m */,
 				326ACFD019D222F000B36965 /* MPAboutView.h */,
 				326ACFD119D222F000B36965 /* MPAboutView.m */,
-				326ACFD319D2238500B36965 /* MPTipsView.h */,
-				326ACFD419D2238500B36965 /* MPTipsView.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -2704,7 +2704,6 @@
 				326ACF8B19D2221B00B36965 /* OSKCopyToPasteboardActivity.m in Sources */,
 				326ACFC519D2221B00B36965 /* OSKWebPageTitleUtility.m in Sources */,
 				326ACF7A19D2221B00B36965 /* OSKActivityCollectionViewController.m in Sources */,
-				326ACFD519D2238500B36965 /* MPTipsView.m in Sources */,
 				326ACF8D19D2221B00B36965 /* OSKDraftsActivity.m in Sources */,
 				326ACD5119D2212C00B36965 /* CustomIOS7AlertView.m in Sources */,
 				32EFED2F196C91CE00FDC89F /* NSManagedObjectContext+MagicalObserving.m in Sources */,
@@ -2770,6 +2769,7 @@
 				32EFED3A196C91CE00FDC89F /* MagicalRecord+Setup.m in Sources */,
 				3201E4DB198184F8008F61D5 /* MPZoomTransitionDelegate.m in Sources */,
 				326ACFA319D2221B00B36965 /* OSKNavigationController.m in Sources */,
+				326ACFE919D38AED00B36965 /* MPWebViewController.m in Sources */,
 				326ACF9B19D2221B00B36965 /* OSKManagedAccount.m in Sources */,
 				32C71CA719802F6100947798 /* MPRotatingButton.m in Sources */,
 				325B55E218BD2684009B8B0D /* MPMessageBox.m in Sources */,
@@ -2915,7 +2915,7 @@
 				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "ARCHIVE=1";
 				INFOPLIST_FILE = "MeasuredPhoto/MeasuredPhoto-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				IS_FILE_SHARING_ENABLED = NO;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3015,7 +3015,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
 				INFOPLIST_FILE = "MeasuredPhoto/MeasuredPhoto-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				IS_FILE_SHARING_ENABLED = YES;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3055,7 +3055,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
 				INFOPLIST_FILE = "MeasuredPhoto/MeasuredPhoto-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				IS_FILE_SHARING_ENABLED = YES;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",

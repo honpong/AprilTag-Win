@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6245" systemVersion="13F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="naN-gY-NUo">
     <dependencies>
-        <deployment defaultVersion="1536" identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6238"/>
     </dependencies>
     <scenes>
@@ -423,6 +422,80 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="6R3-zz-dQF" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="591" y="778"/>
+        </scene>
+        <!--GenericWebView-->
+        <scene sceneID="uzL-zs-nFp">
+            <objects>
+                <viewController storyboardIdentifier="GenericWebView" title="GenericWebView" useStoryboardIdentifierAsRestorationIdentifier="YES" id="9Mc-Ed-IIY" customClass="MPWebViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="4v3-7D-l5h"/>
+                        <viewControllerLayoutGuide type="bottom" id="lx5-hd-VaU"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="BKc-kx-TbX">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5ie-Wg-BOX" userLabel="NavBar">
+                                <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
+                                <subviews>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="right" contentVerticalAlignment="fill" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hfC-n8-Hoh">
+                                        <rect key="frame" x="10" y="2" width="60" height="40"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="60" id="Hdj-hh-J0l"/>
+                                            <constraint firstAttribute="height" constant="40" id="TnA-TB-IH7"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <state key="normal" title="Back" image="BackArrow">
+                                            <color key="titleColor" red="0.0" green="0.50196081400000003" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="handleBackButton:" destination="9Mc-Ed-IIY" eventType="touchUpInside" id="Bc1-M6-cG7"/>
+                                            <action selector="handleBackButton:" destination="XKK-9s-6RD" eventType="touchUpInside" id="EON-IW-fMO"/>
+                                        </connections>
+                                    </button>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="yYe-Po-MEE">
+                                        <rect key="frame" x="144" y="11" width="33" height="21"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" red="0.14133374392986298" green="0.14132951200008392" blue="0.14133191108703613" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstItem="yYe-Po-MEE" firstAttribute="centerX" secondItem="5ie-Wg-BOX" secondAttribute="centerX" id="DkO-1E-h1q"/>
+                                    <constraint firstItem="hfC-n8-Hoh" firstAttribute="leading" secondItem="5ie-Wg-BOX" secondAttribute="leading" constant="10" id="TaN-3f-yBD"/>
+                                    <constraint firstAttribute="centerY" secondItem="yYe-Po-MEE" secondAttribute="centerY" id="odQ-7M-ZmH"/>
+                                    <constraint firstAttribute="centerY" secondItem="hfC-n8-Hoh" secondAttribute="centerY" id="yxg-Dp-0Xq"/>
+                                </constraints>
+                            </view>
+                            <webView contentMode="scaleToFill" allowsInlineMediaPlayback="NO" mediaPlaybackRequiresUserAction="NO" mediaPlaybackAllowsAirPlay="NO" keyboardDisplayRequiresUserAction="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2Jw-Hk-uNK">
+                                <rect key="frame" x="0.0" y="44" width="320" height="524"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <dataDetectorType key="dataDetectorTypes"/>
+                            </webView>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="2Jw-Hk-uNK" firstAttribute="bottom" secondItem="lx5-hd-VaU" secondAttribute="top" id="6m3-kP-aeo"/>
+                            <constraint firstAttribute="bottom" secondItem="5ie-Wg-BOX" secondAttribute="bottom" constant="524" id="Gee-cT-aXm"/>
+                            <constraint firstItem="5ie-Wg-BOX" firstAttribute="leading" secondItem="BKc-kx-TbX" secondAttribute="leading" id="IjI-WH-jzk"/>
+                            <constraint firstAttribute="trailing" secondItem="5ie-Wg-BOX" secondAttribute="trailing" id="PIz-Cn-9Xh"/>
+                            <constraint firstItem="2Jw-Hk-uNK" firstAttribute="leading" secondItem="BKc-kx-TbX" secondAttribute="leading" id="Qon-Y2-mMY"/>
+                            <constraint firstAttribute="trailing" secondItem="2Jw-Hk-uNK" secondAttribute="trailing" id="f9X-Y4-3Ef"/>
+                            <constraint firstItem="2Jw-Hk-uNK" firstAttribute="top" secondItem="5ie-Wg-BOX" secondAttribute="bottom" id="iBl-TW-9nF"/>
+                            <constraint firstItem="5ie-Wg-BOX" firstAttribute="top" secondItem="4v3-7D-l5h" secondAttribute="bottom" id="pnn-lx-3Hg"/>
+                        </constraints>
+                    </view>
+                    <nil key="simulatedStatusBarMetrics"/>
+                    <connections>
+                        <outlet property="backButton" destination="hfC-n8-Hoh" id="cKj-wg-NP9"/>
+                        <outlet property="titleLabel" destination="yYe-Po-MEE" id="OLf-Et-eQA"/>
+                        <outlet property="webView" destination="2Jw-Hk-uNK" id="G0b-ib-f1z"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="kB8-MQ-YlF" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1341" y="778"/>
         </scene>
         <!--MeasuredPhoto-->
         <scene sceneID="5">
@@ -963,7 +1036,7 @@
         <!--Preferences-->
         <scene sceneID="hTQ-8p-qZ9">
             <objects>
-                <tableViewController storyboardIdentifier="Preferences" title="Preferences" useStoryboardIdentifierAsRestorationIdentifier="YES" id="XKK-9s-6RD" customClass="MPPreferencesController" sceneMemberID="viewController">
+                <tableViewController storyboardIdentifier="Preferences" title="Preferences" modalTransitionStyle="flipHorizontal" useStoryboardIdentifierAsRestorationIdentifier="YES" id="XKK-9s-6RD" customClass="MPPreferencesController" sceneMemberID="viewController">
                     <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="plain" separatorStyle="default" allowsSelection="NO" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="6Wg-3Q-ar3">
                         <rect key="frame" x="0.0" y="94" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -994,7 +1067,7 @@
                                     </connections>
                                 </button>
                             </subviews>
-                            <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                            <color key="backgroundColor" red="0.1413337439" green="0.14132951199999999" blue="0.14133191110000001" alpha="1" colorSpace="calibratedRGB"/>
                             <constraints>
                                 <constraint firstAttribute="centerX" secondItem="HrA-w8-Hez" secondAttribute="centerX" id="9ot-IX-oyO"/>
                                 <constraint firstItem="hEA-db-Zg5" firstAttribute="leading" secondItem="6Ya-wY-smR" secondAttribute="leading" constant="10" id="f86-qx-zBg"/>
@@ -1050,7 +1123,6 @@
                             <outlet property="delegate" destination="XKK-9s-6RD" id="HOz-SU-Utx"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Preferences" id="cME-VQ-go8"/>
                     <nil key="simulatedStatusBarMetrics"/>
                     <connections>
                         <outlet property="backButton" destination="hEA-db-Zg5" id="SCv-fB-BBd"/>

@@ -3,6 +3,7 @@
     <dependencies>
         <deployment defaultVersion="1536" identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6238"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
         <!--Gallery Controller-->
@@ -857,7 +858,7 @@
         <!--Preferences-->
         <scene sceneID="etX-6F-GKC">
             <objects>
-                <tableViewController storyboardIdentifier="Preferences" title="Preferences" useStoryboardIdentifierAsRestorationIdentifier="YES" id="YZl-TM-3fA" customClass="MPPreferencesController" sceneMemberID="viewController">
+                <tableViewController storyboardIdentifier="Preferences" title="Preferences" modalPresentationStyle="formSheet" useStoryboardIdentifierAsRestorationIdentifier="YES" id="YZl-TM-3fA" customClass="MPPreferencesController" sceneMemberID="viewController">
                     <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="plain" separatorStyle="default" allowsSelection="NO" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="XwY-Ay-EzY">
                         <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -873,12 +874,12 @@
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="fill" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qED-O7-uhv">
-                                    <rect key="frame" x="10" y="2" width="60" height="40"/>
+                                    <rect key="frame" x="700" y="2" width="60" height="40"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="40" id="4So-19-s4k"/>
                                         <constraint firstAttribute="width" constant="60" id="Kso-LZ-Qaq"/>
                                     </constraints>
-                                    <state key="normal" title="Back" image="BackArrow">
+                                    <state key="normal" title="Close">
                                         <color key="titleColor" red="0.0" green="0.50196081400000003" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                                         <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                     </state>
@@ -887,11 +888,11 @@
                                     </connections>
                                 </button>
                             </subviews>
-                            <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                            <color key="backgroundColor" red="0.1413337439" green="0.14132951199999999" blue="0.14133191110000001" alpha="1" colorSpace="calibratedRGB"/>
                             <constraints>
                                 <constraint firstAttribute="centerY" secondItem="qED-O7-uhv" secondAttribute="centerY" id="5cS-BX-mBk"/>
-                                <constraint firstItem="qED-O7-uhv" firstAttribute="leading" secondItem="YaV-AF-0WW" secondAttribute="leading" constant="10" id="PiG-mV-1zy"/>
                                 <constraint firstAttribute="centerX" secondItem="IKe-Wq-Pz6" secondAttribute="centerX" id="UEi-jr-X9F"/>
+                                <constraint firstAttribute="trailing" secondItem="qED-O7-uhv" secondAttribute="trailing" constant="8" id="gjP-mX-cO3"/>
                                 <constraint firstAttribute="centerY" secondItem="IKe-Wq-Pz6" secondAttribute="centerY" id="wf6-ET-UVL"/>
                             </constraints>
                         </view>
@@ -943,7 +944,6 @@
                             <outlet property="delegate" destination="YZl-TM-3fA" id="OMi-TR-53B"/>
                         </connections>
                     </tableView>
-                    <navigationItem key="navigationItem" title="Preferences" id="Kt2-qL-UOi"/>
                     <nil key="simulatedStatusBarMetrics"/>
                     <connections>
                         <outlet property="backButton" destination="qED-O7-uhv" id="CZP-5K-Fot"/>
@@ -954,9 +954,79 @@
             </objects>
             <point key="canvasLocation" x="1659" y="-118"/>
         </scene>
+        <!--Web View Controller-->
+        <scene sceneID="dAJ-sg-lp3">
+            <objects>
+                <viewController storyboardIdentifier="GenericWebView" automaticallyAdjustsScrollViewInsets="NO" modalPresentationStyle="formSheet" useStoryboardIdentifierAsRestorationIdentifier="YES" id="tp0-Sx-POx" customClass="MPWebViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="uAO-n3-8m1"/>
+                        <viewControllerLayoutGuide type="bottom" id="NDf-uz-v18"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="AOw-gV-410">
+                        <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Y2O-9X-v5i">
+                                <rect key="frame" x="0.0" y="0.0" width="768" height="44"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Fyc-5c-BLi">
+                                        <rect key="frame" x="368" y="11" width="33" height="21"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="siX-2u-3Zp">
+                                        <rect key="frame" x="698" y="0.0" width="60" height="44"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="44" id="RBE-mK-dqv"/>
+                                            <constraint firstAttribute="width" constant="60" id="zwu-5b-Qwh"/>
+                                        </constraints>
+                                        <state key="normal" title="Close">
+                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="handleBackButton:" destination="tp0-Sx-POx" eventType="touchUpInside" id="trl-ZW-xGM"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" red="0.1413337439" green="0.14132951199999999" blue="0.14133191110000001" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="trailing" secondItem="siX-2u-3Zp" secondAttribute="trailing" constant="10" id="Amr-EE-0oI"/>
+                                    <constraint firstAttribute="height" constant="44" id="gm6-aT-E7s"/>
+                                    <constraint firstAttribute="centerX" secondItem="Fyc-5c-BLi" secondAttribute="centerX" id="hP5-2R-WEp"/>
+                                    <constraint firstAttribute="centerY" secondItem="Fyc-5c-BLi" secondAttribute="centerY" id="kte-h6-jw6"/>
+                                    <constraint firstAttribute="centerY" secondItem="siX-2u-3Zp" secondAttribute="centerY" id="xFK-Si-Ph5"/>
+                                </constraints>
+                            </view>
+                            <webView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="wyc-YZ-GNI">
+                                <rect key="frame" x="0.0" y="44" width="768" height="980"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                            </webView>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="wyc-YZ-GNI" firstAttribute="leading" secondItem="AOw-gV-410" secondAttribute="leading" id="BCT-Sk-Kkt"/>
+                            <constraint firstItem="Y2O-9X-v5i" firstAttribute="leading" secondItem="AOw-gV-410" secondAttribute="leading" id="ST1-Kn-t5m"/>
+                            <constraint firstItem="wyc-YZ-GNI" firstAttribute="top" secondItem="Y2O-9X-v5i" secondAttribute="bottom" id="WHP-gH-tjg"/>
+                            <constraint firstItem="NDf-uz-v18" firstAttribute="top" secondItem="wyc-YZ-GNI" secondAttribute="bottom" id="cxM-jy-tZb"/>
+                            <constraint firstItem="Y2O-9X-v5i" firstAttribute="top" secondItem="AOw-gV-410" secondAttribute="topMargin" id="ekb-uy-hfb"/>
+                            <constraint firstAttribute="trailing" secondItem="wyc-YZ-GNI" secondAttribute="trailing" id="f6U-Mx-yP8"/>
+                            <constraint firstAttribute="trailing" secondItem="Y2O-9X-v5i" secondAttribute="trailing" id="ixd-tg-RpA"/>
+                        </constraints>
+                    </view>
+                    <nil key="simulatedStatusBarMetrics"/>
+                    <connections>
+                        <outlet property="backButton" destination="siX-2u-3Zp" id="EYO-hj-LRf"/>
+                        <outlet property="titleLabel" destination="Fyc-5c-BLi" id="LGY-pw-xjc"/>
+                        <outlet property="webView" destination="wyc-YZ-GNI" id="9Lo-s3-ze1"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="q1z-XR-UWn" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2503" y="-118"/>
+        </scene>
     </scenes>
     <resources>
-        <image name="BackArrow" width="17" height="40"/>
         <image name="PLCameraFloatingShutterButton" width="73" height="73"/>
         <image name="PlayButton" width="70" height="70"/>
         <image name="UIButtonBarAction" width="19" height="26"/>

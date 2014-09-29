@@ -33,9 +33,6 @@
 
 - (id)init;
 
-/*!
- DEPRECATED: Use the [CustomIOS7AlertView init] method without passing a parent view.
- */
 - (id)initWithParentView: (UIView *)_parentView __attribute__ ((deprecated));
 
 - (void)show;

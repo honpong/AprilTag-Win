@@ -15,9 +15,9 @@
 #import "MPFadeTransitionDelegate.h"
 #import "CustomIOS7AlertView.h"
 #import "MPAboutView.h"
-#import "MPTipsView.h"
 #import "MPLocalMoviePlayer.h"
 #import "MPPreferencesController.h"
+#import "MPWebViewController.h"
 
 static const NSTimeInterval zoomAnimationDuration = .1;
 
@@ -69,7 +69,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     
     photoToBeDeleted = nil;
     
-    aboutView = [[CustomIOS7AlertView alloc] init];
+    aboutView = [[CustomIOS7AlertView alloc] initWithParentView:self.view];
     aboutView.layer.backgroundColor = [[UIColor whiteColor] CGColor];
     [aboutView setContainerView:[[MPAboutView alloc] initWithFrame:CGRectMake(0, 0, 290, 210)]];
     [aboutView setButtonTitles:[NSArray arrayWithObject:@"Close"]];
@@ -420,17 +420,16 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 
 - (void) gotoTips
 {
-    
+    MPWebViewController* viewController = [self.storyboard instantiateViewControllerWithIdentifier:@"GenericWebView"];
+    viewController.htmlUrl = [[NSBundle mainBundle] URLForResource:@"tips" withExtension:@"html"];
+    [self presentViewController:viewController animated:YES completion:nil];
+    viewController.titleLabel.text = @"Tips"; // must come after present...
 }
 
 - (void) gotoPreferences
 {
-    MPPreferencesController* prefs = [self.storyboard instantiateViewControllerWithIdentifier:@"Preferences"];
-    
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
-        prefs.modalPresentationStyle = UIModalPresentationFormSheet;
-    
-    [self presentViewController:prefs animated:YES completion:nil];
+    MPPreferencesController* viewController = [self.storyboard instantiateViewControllerWithIdentifier:@"Preferences"];
+    [self presentViewController:viewController animated:YES completion:nil];
 }
 
 - (void) gotoAppStore

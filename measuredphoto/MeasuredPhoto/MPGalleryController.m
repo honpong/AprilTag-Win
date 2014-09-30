@@ -196,24 +196,26 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 {
     LOGME
     
-    [CONTEXT MR_saveToPersistentStoreWithCompletion:^(BOOL success, NSError *error) {
-        if (success)
-        {
-            DLog(@"Deleted %@", photoToBeDeleted.id_guid);
-            
-            if (![photoToBeDeleted deleteAssociatedFiles])
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+        [CONTEXT MR_saveToPersistentStoreWithCompletion:^(BOOL success, NSError *error) {
+            if (success)
             {
-                DLog(@"Failed to delete files");
-                //TODO: log error to analytics
+                DLog(@"Deleted %@", photoToBeDeleted.id_guid);
+                
+                if (![photoToBeDeleted deleteAssociatedFiles])
+                {
+                    DLog(@"Failed to delete files");
+                    //TODO: log error to analytics
+                }
             }
-        }
-        else if (error)
-        {
-            DLog(@"Error saving context: %@", error);
-        }
-        
-        photoToBeDeleted = nil;
-    }];
+            else if (error)
+            {
+                DLog(@"Error saving context: %@", error);
+            }
+            
+            photoToBeDeleted = nil;
+        }];
+    });
 }
 
 #pragma mark - MPUndoOverlayDelegate
@@ -240,14 +242,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 
 - (void) handleUndoPeriodExpired
 {
-    if (photoToBeDeleted)
-    {
-        LOGME
-        __weak MPGalleryController* weakSelf = self;
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-            [weakSelf deletePhoto];
-        });
-    }
+    if (photoToBeDeleted) [self deletePhoto];
 }
 
 #pragma mark - Animations

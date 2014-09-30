@@ -451,16 +451,19 @@ static transition transitions[] =
     if ([status.error isKindOfClass:[RCSensorFusionError class]])
     {
         if(status.error.code == RCSensorFusionErrorCodeTooFast) {
+            [TMAnalytics logEvent:@"Filter.Fail" withParameters:@{ @"Reason": @"TooFast" }];
             [self handleStateEvent:EV_FASTFAIL];
             if(currentState == ST_FASTFAIL) {
                 lastFailTime = currentTime;
             }
         } else if(status.error.code == RCSensorFusionErrorCodeOther) {
+            [TMAnalytics logEvent:@"Filter.Fail" withParameters:@{ @"Reason": @"Other" }];
             [self handleStateEvent:EV_FAIL];
             if(currentState == ST_FAIL) {
                 lastFailTime = currentTime;
             }
         } else if(status.error.code == RCSensorFusionErrorCodeVision) {
+            [TMAnalytics logEvent:@"Filter.Fail" withParameters:@{ @"Reason": @"Vision" }];
             [self handleStateEvent:EV_VISIONFAIL];
             if(currentState == ST_VISIONFAIL) {
                 lastFailTime = currentTime;

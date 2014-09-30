@@ -105,11 +105,14 @@
         [UIView animateWithDuration:fadeDuration delay:delay options:UIViewAnimationOptionAllowUserInteraction animations:^{
             self.alpha = .1; // animate to .1 because going to 0 disables user interaction
         } completion:^(BOOL finished) {
-            [self hide];
-            
-            if (!isUndone && [self.delegate respondsToSelector:@selector(handleUndoPeriodExpired)])
+            if (finished)
             {
-                [self.delegate handleUndoPeriodExpired];
+                [self hide];
+                
+                if (!isUndone && [self.delegate respondsToSelector:@selector(handleUndoPeriodExpired)])
+                {
+                    [self.delegate handleUndoPeriodExpired];
+                }
             }
         }];
         
@@ -118,6 +121,11 @@
 
 - (void) hide
 {
+    // stop animations immediately
+    [CATransaction begin];
+    [self.layer removeAllAnimations];
+    [CATransaction commit];
+    
     self.alpha = 0;
 }
 

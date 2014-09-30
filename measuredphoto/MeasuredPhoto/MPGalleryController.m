@@ -18,6 +18,7 @@
 #import "MPLocalMoviePlayer.h"
 #import "MPPreferencesController.h"
 #import "MPWebViewController.h"
+#import <QuartzCore/QuartzCore.h>
 
 static const NSTimeInterval zoomAnimationDuration = .1;
 
@@ -89,12 +90,16 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     }
 }
 
-- (void) viewDidDisappear:(BOOL)animated
+- (void) viewWillDisappear:(BOOL)animated
 {
+    if (photoToBeDeleted)
+    {
+        [self deletePhoto]; // make sure any pending deletes happen right away
+    }
+    
     self.collectionView.alpha = 1.;
     self.navBar.alpha = 1.;
     [undoView hide];
-    [self handleUndoPeriodExpired]; // make sure any pending deletes happen right away
 }
 
 - (NSUInteger) supportedInterfaceOrientations
@@ -157,11 +162,11 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 
 - (void) handlePhotoDeleted
 {
-    photoToBeDeleted = self.editPhotoController.measuredPhoto;
-    
-    [self.transitionFromView removeFromSuperview];
-    
     NSIndexPath* indexPath = self.editPhotoController.indexPath;
+    photoToBeDeleted = self.editPhotoController.measuredPhoto;
+    self.editPhotoController.measuredPhoto = nil;
+    
+    [self.transitionFromView removeFromSuperview];    
     
     if (indexPath) // if indexPath is nil, then the deleted photo was not opened from the gallery view
     {
@@ -184,6 +189,30 @@ static const NSTimeInterval zoomAnimationDuration = .1;
         [indexPaths addObject:indexPath];
     }
    [self.collectionView insertItemsAtIndexPaths:indexPaths];
+}
+
+- (void) deletePhoto
+{
+    LOGME
+    
+    [CONTEXT MR_saveToPersistentStoreWithCompletion:^(BOOL success, NSError *error) {
+        if (success)
+        {
+            DLog(@"Deleted %@", photoToBeDeleted.id_guid);
+            
+            if (![photoToBeDeleted deleteAssociatedFiles])
+            {
+                DLog(@"Failed to delete files");
+                //TODO: log error to analytics
+            }
+        }
+        else if (error)
+        {
+            DLog(@"Error saving context: %@", error);
+        }
+        
+        photoToBeDeleted = nil;
+    }];
 }
 
 #pragma mark - MPUndoOverlayDelegate
@@ -212,26 +241,10 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 {
     if (photoToBeDeleted)
     {
+        LOGME
+        __weak MPGalleryController* weakSelf = self;
         dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-            [CONTEXT MR_saveToPersistentStoreWithCompletion:^(BOOL success, NSError *error) {
-                if (success)
-                {
-                    DLog(@"Deleted %@", photoToBeDeleted.id_guid);
-                    
-                    if (![photoToBeDeleted deleteAssociatedFiles])
-                    {
-                        DLog(@"Failed to delete files");
-                        //TODO: log error to analytics
-                    }
-                }
-                else if (error)
-                {
-                    DLog(@"Error saving context: %@", error);
-                }
-                
-                photoToBeDeleted = nil;
-                self.editPhotoController.measuredPhoto = nil;
-            }];
+            [weakSelf deletePhoto];
         });
     }
 }

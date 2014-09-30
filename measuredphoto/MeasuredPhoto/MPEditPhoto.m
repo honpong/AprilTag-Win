@@ -328,7 +328,7 @@
 
 - (void) webViewLog:(NSString*)message
 {
-    if (message && message.length > 0) DLog(message);
+    if (message && message.length > 0) DLog(@"%@", message);
 }
 
 @end

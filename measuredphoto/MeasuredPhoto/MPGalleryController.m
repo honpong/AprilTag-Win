@@ -78,6 +78,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     }
     else if (self.editPhotoController.measuredPhoto && ![measuredPhotos containsObject:self.editPhotoController.measuredPhoto])
     {
+        [self hideZoomedThumbnail];
         [self handlePhotoAdded];
     }
     else
@@ -301,8 +302,16 @@ static const NSTimeInterval zoomAnimationDuration = .1;
                              self.transitionFromView.frame = [self.view convertRect:shrinkToView.frame fromView:self.collectionView];
                          }
                          completion:^(BOOL finished){
-                             [self.transitionFromView removeFromSuperview];
+                             [self hideZoomedThumbnail];
                          }];
+    }
+}
+
+- (void) hideZoomedThumbnail
+{
+    if (self.transitionFromView.superview)
+    {
+        [self.transitionFromView removeFromSuperview];
     }
 }
 

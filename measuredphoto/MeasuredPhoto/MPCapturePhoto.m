@@ -16,7 +16,6 @@
 #import "MPSurveyAnswer.h"
 #import "RCStereo.h"
 #import "RCCore/RCSensorDelegate.h"
-@import MediaPlayer;
 #import "MPDMeasuredPhoto.h"
 #import "MPDLocation.h"
 #import "CoreData+MagicalRecord.h"
@@ -95,8 +94,8 @@ static statesetup setups[] =
 {
     //                  button image               sensors fusion   shw-msmnts  badfeat  instrct ftrs    prgrs                     autohide stillPhoto  stereo  showGalleryButton title           message
     { ST_STARTUP,       BUTTON_SHUTTER_DISABLED,   false,  false,   false,      false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  true,             "Startup",      "Loading" },
-    { ST_READY,         BUTTON_SHUTTER,            true,   false,   false,      false,   false,  false,  SpinnerTypeNone,          true,    false,      false,  true,            "Ready",        "Point the camera at the scene you want to capture, then press the button." },
-    { ST_INITIALIZING,  BUTTON_SHUTTER_DISABLED,   true,   true,    false,      true,    false,  true,   SpinnerTypeDeterminate,   true,    false,      false,  true,            "Initializing", "Hold still" },
+    { ST_READY,         BUTTON_SHUTTER,            true,   false,   false,      false,   false,  false,  SpinnerTypeNone,          true,    false,      false,  true,             "Ready",        "Point the camera at the scene you want to capture, then press the button." },
+    { ST_INITIALIZING,  BUTTON_SHUTTER_DISABLED,   true,   true,    false,      true,    false,  true,   SpinnerTypeDeterminate,   true,    false,      false,  true,             "Initializing", "Hold still" },
     { ST_MOVING,        BUTTON_DELETE,             true,   true,    false,      true,    true,   true,   SpinnerTypeNone,          false,   false,      true,   false,            "Moving",       "Move up, down, or sideways. Press the button to cancel." },
     { ST_CAPTURE,       BUTTON_SHUTTER,            true,   true,    false,      true,    true,   true,   SpinnerTypeNone,          false,   false,      true,   false,            "Capture",      "Press the button to capture a photo." },
     { ST_PROCESSING,    BUTTON_SHUTTER_DISABLED,   false,  false,   false,      false,   false,  false,  SpinnerTypeDeterminate,   true,    true,       false,  false,            "Processing",   "Please wait" },

@@ -24,5 +24,6 @@
 - (IBAction)handleMenuButton:(id)sender;
 - (IBAction)handleCameraButton:(id)sender;
 - (IBAction)handleImageButton:(id)sender;
+- (void) hideZoomedThumbnail;
 
 @end

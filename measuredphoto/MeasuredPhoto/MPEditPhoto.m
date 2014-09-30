@@ -169,6 +169,9 @@
 {
     if ([self.presentingViewController isKindOfClass:[MPGalleryController class]])
     {
+        MPGalleryController* galleryController = (MPGalleryController*)self.presentingViewController;
+        [galleryController hideZoomedThumbnail];
+        
         MPCapturePhoto* cameraController = [self.storyboard instantiateViewControllerWithIdentifier:@"Camera"];
         [cameraController setOrientation:[[UIDevice currentDevice] orientation] animated:NO];
         [self presentViewController:cameraController animated:NO completion:nil];

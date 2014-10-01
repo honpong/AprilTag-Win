@@ -78,7 +78,7 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
     m.mid_x = m.x1 + (m.x2 - m.x1)/2;   //midpoint of line
     m.mid_y = m.y1 + (m.y2 - m.y1)/2;
     
-    console.log('hlf_text_w hlf_text_h  m.xdiffrt m.ydiffrt ' + hlf_text_w.toFixed() + ' ' + hlf_text_h.toFixed() + ' ' +  m.xdiffrt.toFixed(2) + ' ' +  m.ydiffrt.toFixed(2) );
+    //console.log('hlf_text_w hlf_text_h  m.xdiffrt m.ydiffrt ' + hlf_text_w.toFixed() + ' ' + hlf_text_h.toFixed() + ' ' +  m.xdiffrt.toFixed(2) + ' ' +  m.ydiffrt.toFixed(2) );
     
     if (hlf_text_w/hlf_text_h < Math.abs(m.xdiffrt/m.ydiffrt)) { //line is more horizontal, text width dominates gap
         m.half_font_gap = Math.sqrt(hlf_text_w*hlf_text_w + hlf_text_w*hlf_text_w*m.ydiffrt*m.ydiffrt/m.xdiffrt/m.xdiffrt)+5;
@@ -203,6 +203,7 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
 }
 
 rcMeasurements.dragEndHandler = function (m, e) {
+    console.log('rcMeasurements.dragEndHandler()');
     e.stopPropagation(); e.preventDefault();
     rcMeasurements.most_recent_drag = new Date();
     rcMeasurements.deselect_measurement(m);
@@ -240,7 +241,7 @@ rcMeasurements.redraw_measurement = function (m) {
     m.mid_x = m.x1 + (m.x2 - m.x1)/2;   //midpoint of line
     m.mid_y = m.y1 + (m.y2 - m.y1)/2;
     
-    console.log('hlf_text_w hlf_text_h  m.xdiffrt m.ydiffrt ' + hlf_text_w.toFixed() + ' ' + hlf_text_h.toFixed() + ' ' +  m.xdiffrt.toFixed(2) + ' ' +  m.ydiffrt.toFixed(2) );
+    //console.log('hlf_text_w hlf_text_h  m.xdiffrt m.ydiffrt ' + hlf_text_w.toFixed() + ' ' + hlf_text_h.toFixed() + ' ' +  m.xdiffrt.toFixed(2) + ' ' +  m.ydiffrt.toFixed(2) );
     
     if (hlf_text_w/hlf_text_h < Math.abs(m.xdiffrt/m.ydiffrt)) { //line is more horizontal, text width dominates gap
         m.half_font_gap = Math.sqrt(hlf_text_w*hlf_text_w + hlf_text_w*hlf_text_w*m.ydiffrt*m.ydiffrt/m.xdiffrt/m.xdiffrt)+5;
@@ -622,6 +623,7 @@ rcMeasurements.redraw_all_measurements = function (){
 
 
 rcMeasurements.to_json = function () {
+    console.log('rcMeasurements.to_json');
     var annotations_to_save = {measurements : {}, notes : {}, angles : {} };
     // if the app has set (or reset) the default units then save the default units.
     if (unit_default_set_by_app) { annotations_to_save['use_metric'] = default_units_metric; }
@@ -870,7 +872,7 @@ rcMeasurements.end_measurement_edit = function (){
         if(draw.node.contains(np_svg.node)) {draw.node.removeChild(np_svg.node);} //hide number pad
         return_image_after_number_pad();
         rcMeasurements.stop_cursor_animation(rcMeasurements.measurement_being_edited);
-
+        setTimeout( function () {rcMeasurements.save_measurements();}, 0)
 
         //}
         //else {
@@ -879,7 +881,6 @@ rcMeasurements.end_measurement_edit = function (){
         //}
     }
     rcMeasurements.measurement_being_edited = null; //so we know wether or not we have a sesion open.
-    setTimeout( function () {rcMeasurements.save_measurements();}, 0)
 }
 
 rcMeasurements.switch_units = function () {

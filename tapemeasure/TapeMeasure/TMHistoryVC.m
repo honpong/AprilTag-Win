@@ -349,6 +349,17 @@
     }   
 }
 
+// following two methods solve a layout warning in iOS 8 http://stackoverflow.com/questions/25822324/ios8-constraints-ambiguously-suggest-a-height-of-zero
+- (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return 44;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return 44;
+}
+
 #pragma mark - Table view delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath

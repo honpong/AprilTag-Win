@@ -261,7 +261,7 @@
     
     [TMAnalytics logEvent:@"Measurement.Delete.History"];
     
-    [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+    [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
     [self loadTableData];
     [self.tableView endUpdates];
     

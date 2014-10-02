@@ -72,6 +72,10 @@
             return DEVICE_TYPE_IPHONE5C;
         case DeviceTypeiPhone5s:
             return DEVICE_TYPE_IPHONE5S;
+        case DeviceTypeiPhone6:
+            return DEVICE_TYPE_IPHONE6;
+        case DeviceTypeiPhone6Plus:
+            return DEVICE_TYPE_IPHONE6PLUS;
         case DeviceTypeiPod5:
             return DEVICE_TYPE_IPOD5;
         case DeviceTypeiPad2:

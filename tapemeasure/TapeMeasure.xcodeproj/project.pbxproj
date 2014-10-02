@@ -31,7 +31,6 @@
 		326E47D616FA5ED4007AA105 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3288554F16307A6A0074A3DE /* CoreMotion.framework */; };
 		326E47D716FA5EE1007AA105 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32C87C4416779B2F006ED337 /* CoreLocation.framework */; };
 		3273BCB5170BA81F00FF0F6A /* TMMeasurementType.m in Sources */ = {isa = PBXBuildFile; fileRef = 3273BCB4170BA81F00FF0F6A /* TMMeasurementType.m */; };
-		32763FB719BFB2D700D94DEB /* libFlurry_5.3.0.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32763FB619BFB2D700D94DEB /* libFlurry_5.3.0.a */; };
 		327FC37E19D505A200C113D0 /* libRCCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 329B38DD1626409D0021B41E /* libRCCore.a */; };
 		32803A6018DB6452002F54B5 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 32803A5F18DB6452002F54B5 /* Images.xcassets */; };
 		32803A6A18DBA2CF002F54B5 /* UIImage+InverseImage.m in Sources */ = {isa = PBXBuildFile; fileRef = 32803A6918DBA2CF002F54B5 /* UIImage+InverseImage.m */; };
@@ -76,6 +75,7 @@
 		3298378D19BFDB3D00270DBB /* OSKWebPageTitleUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 3298378B19BFDB3D00270DBB /* OSKWebPageTitleUtility.m */; };
 		329EB1071937E5050049C9B9 /* about.html in Resources */ = {isa = PBXBuildFile; fileRef = 329EB1061937E5050049C9B9 /* about.html */; };
 		32A0966116D6E8EF001C4D18 /* TMCreateAccountVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A0966016D6E8EF001C4D18 /* TMCreateAccountVC.m */; };
+		32A0A64C19DDC45A0088D6FD /* libFlurry_5.4.0.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32A0A64B19DDC45A0088D6FD /* libFlurry_5.4.0.a */; };
 		32A326A516B0985100F801DE /* TMMeasurement+TMMeasurementExt.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A326A416B0985100F801DE /* TMMeasurement+TMMeasurementExt.m */; };
 		32A3F44D16AA126F0055BDD3 /* TMDataManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A3F44C16AA126F0055BDD3 /* TMDataManagerFactory.m */; };
 		32AB3B1D19B7B86700C9BAF0 /* tutorial_screenshot.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32AB3B1C19B7B86700C9BAF0 /* tutorial_screenshot.jpg */; };
@@ -393,7 +393,6 @@
 		326E47CD16FA2EB0007AA105 /* TMNewMeasurementVCAsyncTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMNewMeasurementVCAsyncTests.m; sourceTree = "<group>"; };
 		3273BCB3170BA81F00FF0F6A /* TMMeasurementType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurementType.h; sourceTree = "<group>"; };
 		3273BCB4170BA81F00FF0F6A /* TMMeasurementType.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurementType.m; sourceTree = "<group>"; };
-		32763FB619BFB2D700D94DEB /* libFlurry_5.3.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libFlurry_5.3.0.a; path = Flurry/libFlurry_5.3.0.a; sourceTree = "<group>"; };
 		327BB10C19DC9D3F004182D1 /* Reveal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Reveal.framework; path = ../Reveal/Reveal.framework; sourceTree = "<group>"; };
 		32803A5F18DB6452002F54B5 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		32803A6818DBA2CF002F54B5 /* UIImage+InverseImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+InverseImage.h"; sourceTree = "<group>"; };
@@ -463,6 +462,7 @@
 		329EB1061937E5050049C9B9 /* about.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = about.html; sourceTree = "<group>"; };
 		32A0965F16D6E8EF001C4D18 /* TMCreateAccountVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMCreateAccountVC.h; sourceTree = "<group>"; };
 		32A0966016D6E8EF001C4D18 /* TMCreateAccountVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMCreateAccountVC.m; sourceTree = "<group>"; };
+		32A0A64B19DDC45A0088D6FD /* libFlurry_5.4.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libFlurry_5.4.0.a; sourceTree = "<group>"; };
 		32A326A316B0985100F801DE /* TMMeasurement+TMMeasurementExt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TMMeasurement+TMMeasurementExt.h"; sourceTree = "<group>"; };
 		32A326A416B0985100F801DE /* TMMeasurement+TMMeasurementExt.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "TMMeasurement+TMMeasurementExt.m"; sourceTree = "<group>"; };
 		32A3F44B16AA126F0055BDD3 /* TMDataManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMDataManagerFactory.h; sourceTree = "<group>"; };
@@ -888,8 +888,8 @@
 				32E6849118F5FB250043D50A /* AddressBook.framework in Frameworks */,
 				32E681B618F5CD260043D50A /* Accounts.framework in Frameworks */,
 				32B3253116EA8AFB0069DE63 /* MobileCoreServices.framework in Frameworks */,
-				32763FB719BFB2D700D94DEB /* libFlurry_5.3.0.a in Frameworks */,
 				D9218CB716E847B2006F4591 /* SystemConfiguration.framework in Frameworks */,
+				32A0A64C19DDC45A0088D6FD /* libFlurry_5.4.0.a in Frameworks */,
 				D9557B2016DFEDD300B48C4B /* AssetsLibrary.framework in Frameworks */,
 				D9557B1416DFDF1500B48C4B /* Accelerate.framework in Frameworks */,
 				328D264F16BB15550067D7D8 /* Security.framework in Frameworks */,
@@ -1250,7 +1250,7 @@
 		32E6807B18F5BA740043D50A /* Flurry */ = {
 			isa = PBXGroup;
 			children = (
-				32763FB619BFB2D700D94DEB /* libFlurry_5.3.0.a */,
+				32A0A64B19DDC45A0088D6FD /* libFlurry_5.4.0.a */,
 				32B8F67416E841BF001B1962 /* Flurry.h */,
 			);
 			name = Flurry;
@@ -2147,6 +2147,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/TapeMeasure/Flurry\"",
 					"$(PROJECT_DIR)/TapeMeasure/Flurry",
+					"$(PROJECT_DIR)/TapeMeasure",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = (
@@ -2268,6 +2269,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/TapeMeasure/Flurry\"",
 					"$(PROJECT_DIR)/TapeMeasure/Flurry",
+					"$(PROJECT_DIR)/TapeMeasure",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -2306,6 +2308,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/TapeMeasure/Flurry\"",
 					"$(PROJECT_DIR)/TapeMeasure/Flurry",
+					"$(PROJECT_DIR)/TapeMeasure",
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (

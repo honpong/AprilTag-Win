@@ -105,7 +105,12 @@
     [fractionLabel sizeToFit];
     [symbolLabel sizeToFit];
     
-    CGFloat width = distanceLabel.bounds.size.width + fractionLabel.bounds.size.width + symbolLabel.bounds.size.width;
+    CGFloat width;
+    if (textAlignment == NSTextAlignmentCenter && centerAlignmentExcludesFraction)
+        width = distanceLabel.bounds.size.width;
+    else
+        width = distanceLabel.bounds.size.width + fractionLabel.bounds.size.width + symbolLabel.bounds.size.width;
+    
     CGFloat height = distanceLabel.bounds.size.height;
     return CGSizeMake(width, height);
 }
@@ -116,22 +121,6 @@
     [fractionLabel invalidateIntrinsicContentSize];
     [symbolLabel invalidateIntrinsicContentSize];
     [super invalidateIntrinsicContentSize];
-}
-
-- (UIEdgeInsets) alignmentRectInsets
-{
-    UIEdgeInsets insets;
-    
-    if (textAlignment == NSTextAlignmentCenter && centerAlignmentExcludesFraction)
-    {
-        insets = UIEdgeInsetsMake(0, 0, 0, self.fractionLabel.bounds.size.width + symbolLabel.bounds.size.width);
-    }
-    else
-    {
-        insets = UIEdgeInsetsZero;
-    }
-    
-    return insets;
 }
 
 @end

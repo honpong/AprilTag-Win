@@ -64,8 +64,7 @@
 
 - (void) updateConstraints
 {
-    [containerView addCenterYInSuperviewConstraints];
-    [self addAlignmentConstraint:self.textAlignment];
+    [containerView addCenterInSuperviewConstraints];
     [super updateConstraints];
 }
 

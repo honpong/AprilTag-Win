@@ -137,6 +137,10 @@
 		32CD632516CC022600496D46 /* RCDateFormatter.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32CD632116CC015100496D46 /* RCDateFormatter.h */; };
 		32EBA5A719BE1B7D00407D8E /* RCTipView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EBA5A619BE1B7D00407D8E /* RCTipView.m */; };
 		32EBA5A919BE231200407D8E /* RCTipView.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32EBA5A519BE1B7D00407D8E /* RCTipView.h */; };
+		32F01D4719DE04C2000585FB /* NSLayoutConstraint+RCAutoLayoutDebugging.m in Sources */ = {isa = PBXBuildFile; fileRef = 32F01D4419DE04C2000585FB /* NSLayoutConstraint+RCAutoLayoutDebugging.m */; };
+		32F01D4819DE04C2000585FB /* UIView+RCAutoLayoutDebugging.m in Sources */ = {isa = PBXBuildFile; fileRef = 32F01D4619DE04C2000585FB /* UIView+RCAutoLayoutDebugging.m */; };
+		32F01D4919DE050F000585FB /* NSLayoutConstraint+RCAutoLayoutDebugging.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32F01D4319DE04C2000585FB /* NSLayoutConstraint+RCAutoLayoutDebugging.h */; };
+		32F01D4A19DE0512000585FB /* UIView+RCAutoLayoutDebugging.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32F01D4519DE04C2000585FB /* UIView+RCAutoLayoutDebugging.h */; };
 		32FAF1EA16AE1640001B68A9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32FAF1E916AE1640001B68A9 /* UIKit.framework */; };
 		D3217E1218BE2E0100762A31 /* RCCaptureManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D3217E0E18BE2E0100762A31 /* RCCaptureManager.m */; };
 		D3217E1318BE2E0100762A31 /* RCReplayManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D3217E1018BE2E0100762A31 /* RCReplayManager.m */; };
@@ -193,7 +197,9 @@
 			dstPath = "include/${PRODUCT_NAME}";
 			dstSubfolderSpec = 16;
 			files = (
+				32F01D4919DE050F000585FB /* NSLayoutConstraint+RCAutoLayoutDebugging.h in CopyFiles */,
 				328C7DE219D1FF4C0079BA40 /* RCLocalMoviePlayer.h in CopyFiles */,
+				32F01D4A19DE0512000585FB /* UIView+RCAutoLayoutDebugging.h in CopyFiles */,
 				D94ECE73194CD653008F2F9A /* RCSensorDelegate.h in CopyFiles */,
 				D94ECE6F194CCA78008F2F9A /* RCGeocoder.h in CopyFiles */,
 				D3217E1918BE306F00762A31 /* CaptureFile.h in CopyFiles */,
@@ -395,6 +401,10 @@
 		32CD632216CC015100496D46 /* RCDateFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDateFormatter.m; sourceTree = "<group>"; };
 		32EBA5A519BE1B7D00407D8E /* RCTipView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCTipView.h; path = ../../rccore/RCCore/RCTipView.h; sourceTree = "<group>"; };
 		32EBA5A619BE1B7D00407D8E /* RCTipView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCTipView.m; path = ../../rccore/RCCore/RCTipView.m; sourceTree = "<group>"; };
+		32F01D4319DE04C2000585FB /* NSLayoutConstraint+RCAutoLayoutDebugging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSLayoutConstraint+RCAutoLayoutDebugging.h"; sourceTree = "<group>"; };
+		32F01D4419DE04C2000585FB /* NSLayoutConstraint+RCAutoLayoutDebugging.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSLayoutConstraint+RCAutoLayoutDebugging.m"; sourceTree = "<group>"; };
+		32F01D4519DE04C2000585FB /* UIView+RCAutoLayoutDebugging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+RCAutoLayoutDebugging.h"; sourceTree = "<group>"; };
+		32F01D4619DE04C2000585FB /* UIView+RCAutoLayoutDebugging.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+RCAutoLayoutDebugging.m"; sourceTree = "<group>"; };
 		32F7D56319D49E23002239FF /* RCDebugLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCDebugLog.h; path = ../../SensorManagers/RCDebugLog.h; sourceTree = "<group>"; };
 		32FAF1E916AE1640001B68A9 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		D3217E0D18BE2E0100762A31 /* RCCaptureManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCaptureManager.h; sourceTree = "<group>"; };
@@ -483,6 +493,10 @@
 		324FF85D18ECB5C300DC5E7F /* Categories */ = {
 			isa = PBXGroup;
 			children = (
+				32F01D4319DE04C2000585FB /* NSLayoutConstraint+RCAutoLayoutDebugging.h */,
+				32F01D4419DE04C2000585FB /* NSLayoutConstraint+RCAutoLayoutDebugging.m */,
+				32F01D4519DE04C2000585FB /* UIView+RCAutoLayoutDebugging.h */,
+				32F01D4619DE04C2000585FB /* UIView+RCAutoLayoutDebugging.m */,
 				324FF85618ECB5BE00DC5E7F /* UIView+RCConstraints.h */,
 				324FF85718ECB5BE00DC5E7F /* UIView+RCConstraints.m */,
 				324FF85818ECB5BE00DC5E7F /* UIView+RCOrientationRotation.h */,
@@ -963,6 +977,7 @@
 				324FF85A18ECB5BE00DC5E7F /* UIView+RCConstraints.m in Sources */,
 				3267A2E916C46D9A001E14C7 /* AFNetworkActivityIndicatorManager.m in Sources */,
 				3267A2EA16C46D9A001E14C7 /* AFPropertyListRequestOperation.m in Sources */,
+				32F01D4719DE04C2000585FB /* NSLayoutConstraint+RCAutoLayoutDebugging.m in Sources */,
 				3267A2EB16C46D9A001E14C7 /* AFURLConnectionOperation.m in Sources */,
 				3267A2EC16C46D9A001E14C7 /* AFXMLRequestOperation.m in Sources */,
 				D3217E1318BE2E0100762A31 /* RCReplayManager.m in Sources */,
@@ -981,6 +996,7 @@
 				3281B100174EDB5C0080D07E /* RCDistanceImperial.m in Sources */,
 				3281B103174EE1060080D07E /* RCDistanceImperialFractional.m in Sources */,
 				32EBA5A719BE1B7D00407D8E /* RCTipView.m in Sources */,
+				32F01D4819DE04C2000585FB /* UIView+RCAutoLayoutDebugging.m in Sources */,
 				3281B106174EE5040080D07E /* RCFraction.m in Sources */,
 				3272F73819ABFE7C001F7AA1 /* RCOutlinedButton.m in Sources */,
 				323155EC19BA49A300EDC65D /* RCThreeButtonSlideView.m in Sources */,

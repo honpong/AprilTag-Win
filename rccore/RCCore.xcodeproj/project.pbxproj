@@ -141,6 +141,7 @@
 		32F01D4819DE04C2000585FB /* UIView+RCAutoLayoutDebugging.m in Sources */ = {isa = PBXBuildFile; fileRef = 32F01D4619DE04C2000585FB /* UIView+RCAutoLayoutDebugging.m */; };
 		32F01D4919DE050F000585FB /* NSLayoutConstraint+RCAutoLayoutDebugging.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32F01D4319DE04C2000585FB /* NSLayoutConstraint+RCAutoLayoutDebugging.h */; };
 		32F01D4A19DE0512000585FB /* UIView+RCAutoLayoutDebugging.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32F01D4519DE04C2000585FB /* UIView+RCAutoLayoutDebugging.h */; };
+		32FA5EB619DE2C6800A5A773 /* RCDistanceLabelContainer.m in Sources */ = {isa = PBXBuildFile; fileRef = 32FA5EB519DE2C6800A5A773 /* RCDistanceLabelContainer.m */; };
 		32FAF1EA16AE1640001B68A9 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32FAF1E916AE1640001B68A9 /* UIKit.framework */; };
 		D3217E1218BE2E0100762A31 /* RCCaptureManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D3217E0E18BE2E0100762A31 /* RCCaptureManager.m */; };
 		D3217E1318BE2E0100762A31 /* RCReplayManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D3217E1018BE2E0100762A31 /* RCReplayManager.m */; };
@@ -406,6 +407,8 @@
 		32F01D4519DE04C2000585FB /* UIView+RCAutoLayoutDebugging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+RCAutoLayoutDebugging.h"; sourceTree = "<group>"; };
 		32F01D4619DE04C2000585FB /* UIView+RCAutoLayoutDebugging.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+RCAutoLayoutDebugging.m"; sourceTree = "<group>"; };
 		32F7D56319D49E23002239FF /* RCDebugLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCDebugLog.h; path = ../../SensorManagers/RCDebugLog.h; sourceTree = "<group>"; };
+		32FA5EB419DE2C6800A5A773 /* RCDistanceLabelContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDistanceLabelContainer.h; sourceTree = "<group>"; };
+		32FA5EB519DE2C6800A5A773 /* RCDistanceLabelContainer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDistanceLabelContainer.m; sourceTree = "<group>"; };
 		32FAF1E916AE1640001B68A9 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		D3217E0D18BE2E0100762A31 /* RCCaptureManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCaptureManager.h; sourceTree = "<group>"; };
 		D3217E0E18BE2E0100762A31 /* RCCaptureManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCaptureManager.m; sourceTree = "<group>"; };
@@ -738,6 +741,8 @@
 			children = (
 				32A7253D17501B32004C873A /* RCDistanceLabel.h */,
 				32A7253E17501B32004C873A /* RCDistanceLabel.m */,
+				32FA5EB419DE2C6800A5A773 /* RCDistanceLabelContainer.h */,
+				32FA5EB519DE2C6800A5A773 /* RCDistanceLabelContainer.m */,
 				32A7253F17501B32004C873A /* RCFractionLabel.h */,
 				32A7254017501B32004C873A /* RCFractionLabel.m */,
 				32BA41F3179F33D8002BAE13 /* RCFeatureLayerDelegate.h */,
@@ -995,6 +1000,7 @@
 				3281B0FD174ED5EB0080D07E /* RCDistanceMetric.m in Sources */,
 				3281B100174EDB5C0080D07E /* RCDistanceImperial.m in Sources */,
 				3281B103174EE1060080D07E /* RCDistanceImperialFractional.m in Sources */,
+				32FA5EB619DE2C6800A5A773 /* RCDistanceLabelContainer.m in Sources */,
 				32EBA5A719BE1B7D00407D8E /* RCTipView.m in Sources */,
 				32F01D4819DE04C2000585FB /* UIView+RCAutoLayoutDebugging.m in Sources */,
 				3281B106174EE5040080D07E /* RCFraction.m in Sources */,

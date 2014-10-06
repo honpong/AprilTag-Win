@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6245" systemVersion="13F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="Lfz-Fr-Qzy">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="5056" systemVersion="13F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="Lfz-Fr-Qzy">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6238"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="3733"/>
     </dependencies>
     <scenes>
-        <!--NewMeasurement-->
+        <!--New MeasurementVC - NewMeasurement-->
         <scene sceneID="5">
             <objects>
                 <viewController storyboardIdentifier="NewMeasurement" title="NewMeasurement" useStoryboardIdentifierAsRestorationIdentifier="YES" id="2" customClass="TMNewMeasurementVC" sceneMemberID="viewController">
@@ -112,7 +112,7 @@
             </objects>
             <point key="canvasLocation" x="-125" y="159"/>
         </scene>
-        <!--Options-->
+        <!--OptionsVC - Options-->
         <scene sceneID="5Ne-wr-uwW">
             <objects>
                 <viewController storyboardIdentifier="Options" title="Options" modalTransitionStyle="partialCurl" useStoryboardIdentifierAsRestorationIdentifier="YES" id="cgy-4E-LAs" customClass="TMOptionsVC" sceneMemberID="viewController">
@@ -180,7 +180,7 @@
             </objects>
             <point key="canvasLocation" x="787" y="894"/>
         </scene>
-        <!--Edit Location-->
+        <!--MapVC - Edit Location-->
         <scene sceneID="gxn-2M-v1K">
             <objects>
                 <viewController storyboardIdentifier="Map" useStoryboardIdentifierAsRestorationIdentifier="YES" id="V4g-9y-Plh" customClass="TMMapVC" sceneMemberID="viewController">
@@ -303,12 +303,12 @@
             </objects>
             <point key="canvasLocation" x="-125" y="894"/>
         </scene>
-        <!--Results-->
+        <!--ResultsVC - Results-->
         <scene sceneID="bH7-Ep-Lav">
             <objects>
                 <tableViewController storyboardIdentifier="Results" title="Results" useStoryboardIdentifierAsRestorationIdentifier="YES" id="uhU-II-DVp" customClass="TMResultsVC" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" dataMode="prototypes" style="grouped" separatorStyle="default" allowsSelection="NO" showsSelectionImmediatelyOnTouchBegin="NO" rowHeight="44" sectionHeaderHeight="10" sectionFooterHeight="10" id="YfD-B0-eof">
-                        <rect key="frame" x="0.0" y="64" width="320" height="524"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="524"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                         <label key="tableFooterView" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" id="BPG-bl-aab" customClass="RCDistanceLabel">
@@ -833,10 +833,10 @@
             </objects>
             <point key="canvasLocation" x="333" y="-563"/>
         </scene>
-        <!--Measurements-->
+        <!--HistoryVC - Endless Tape Measure-->
         <scene sceneID="ONc-yi-Sxz">
             <objects>
-                <tableViewController storyboardIdentifier="History" title="Measurements" useStoryboardIdentifierAsRestorationIdentifier="YES" id="1Xl-wZ-ecL" customClass="TMHistoryVC" sceneMemberID="viewController">
+                <tableViewController storyboardIdentifier="History" title="Endless Tape Measure" useStoryboardIdentifierAsRestorationIdentifier="YES" id="1Xl-wZ-ecL" customClass="TMHistoryVC" sceneMemberID="viewController">
                     <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="Hfy-MW-och">
                         <rect key="frame" x="0.0" y="64" width="320" height="504"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
@@ -1093,7 +1093,7 @@
             </objects>
             <point key="canvasLocation" x="787" y="-563"/>
         </scene>
-        <!--Back-->
+        <!--Measurement TypeVC - Back-->
         <scene sceneID="cbM-AL-eLO">
             <objects>
                 <collectionViewController storyboardIdentifier="MeasurementType" autoresizesArchivedViewToFullSize="NO" title="Back" useStoryboardIdentifierAsRestorationIdentifier="YES" id="6ns-J1-Uvo" customClass="TMMeasurementTypeVC" sceneMemberID="viewController">
@@ -1164,12 +1164,12 @@
             </objects>
             <point key="canvasLocation" x="1205" y="159"/>
         </scene>
-        <!--Preferences-->
+        <!--Preferences - Preferences-->
         <scene sceneID="TsZ-Ak-0Ln">
             <objects>
                 <tableViewController id="6Rs-Wp-jZI" customClass="TMPreferences" sceneMemberID="viewController">
                     <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="plain" separatorStyle="default" allowsSelection="NO" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="d2K-Mc-VxT">
-                        <rect key="frame" x="0.0" y="64" width="320" height="568"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <sections>
@@ -1256,7 +1256,7 @@
             </objects>
             <point key="canvasLocation" x="787" y="159"/>
         </scene>
-        <!--IntroScreen-->
+        <!--Intro Screen - IntroScreen-->
         <scene sceneID="RXM-7H-hvm">
             <objects>
                 <viewController storyboardIdentifier="IntroScreen" title="IntroScreen" useStoryboardIdentifierAsRestorationIdentifier="YES" id="ZKU-6C-qJg" customClass="TMIntroScreen" sceneMemberID="viewController">
@@ -1328,7 +1328,7 @@
             </objects>
             <point key="canvasLocation" x="-546" y="-563"/>
         </scene>
-        <!--Tutorial-->
+        <!--Local Movie Player - Tutorial-->
         <scene sceneID="r35-bM-kSp">
             <objects>
                 <viewController storyboardIdentifier="Tutorial" title="Tutorial" useStoryboardIdentifierAsRestorationIdentifier="YES" id="UOq-PZ-54W" customClass="TMLocalMoviePlayer" sceneMemberID="viewController">
@@ -1458,7 +1458,7 @@
             </objects>
             <point key="canvasLocation" x="-546" y="159"/>
         </scene>
-        <!--LocationIntro-->
+        <!--Location Intro - LocationIntro-->
         <scene sceneID="wBy-9A-BhQ">
             <objects>
                 <viewController storyboardIdentifier="LocationIntro" title="LocationIntro" useStoryboardIdentifierAsRestorationIdentifier="YES" id="1s1-vh-lqa" customClass="TMLocationIntro" sceneMemberID="viewController">

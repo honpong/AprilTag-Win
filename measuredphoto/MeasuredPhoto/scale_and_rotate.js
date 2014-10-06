@@ -3,7 +3,9 @@
 /////////                        CODE TO DO PAN AND ZOOM ANIMATIONS , scalling,                 ////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
+// draw is the primary SVG node. it contains menu_svg and the img_container
+// menu_svg contains the menu, so it can be scaled independendtly of the img_container
+// img_container contains the images and the measurements
 // draw_g is an svg group that is inside img_container.
 // draw_g has the measurements and the image and depth map as members.
 // draw_g is rotated durring mobile orientation changes. rotations are applied after panning operations.
@@ -81,7 +83,6 @@ function scaleImageToMatchScreen() {
     prior_window_inner_height = img_container.height();
     
     calculate_zoom_boundaries(last_orientation); //set the max/min zoom offsets
-    
     draw_g.scale(zoom_factor);
     drawing_pan_offset();
     

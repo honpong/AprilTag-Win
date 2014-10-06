@@ -361,7 +361,7 @@ static transition transitions[] =
 
 - (void) gotoHistory
 {
-    UIViewController* vc = [self.navigationController.storyboard instantiateViewControllerWithIdentifier:@"History"];
+    TMHistoryVC* vc = [self.navigationController.storyboard instantiateViewControllerWithIdentifier:@"History"];
     [self.navigationController pushViewController:vc animated:NO];
 }
 
@@ -555,7 +555,6 @@ static transition transitions[] =
     [locationObj addMeasurementObject:newMeasurement];
     [DATA_MANAGER saveContext];
     
-    NSNumber* primaryDist = [NSNumber numberWithFloat:[[newMeasurement getPrimaryDistanceObject] meters]];
     [TMAnalytics
      logEvent:@"Measurement.Save"
      withParameters:[NSDictionary dictionaryWithObjectsAndKeys: [newMeasurement getDistRangeString], @"Distance", nil]
@@ -681,6 +680,7 @@ static transition transitions[] =
 
 - (void) saveAndGotoResult
 {
+    [self saveMeasurement];
     TMResultsVC* resultsVC = [self.navigationController.storyboard instantiateViewControllerWithIdentifier:@"Results"];
     resultsVC.theMeasurement = newMeasurement;
     [self.navigationController pushViewController:resultsVC animated:YES];

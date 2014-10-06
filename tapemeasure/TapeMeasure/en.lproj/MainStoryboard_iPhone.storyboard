@@ -232,8 +232,6 @@
                         <outlet property="instructionsBg" destination="HRB-Sw-umE" id="8VT-Jj-eRY"/>
                         <outlet property="lblInstructions" destination="iSv-1b-l8P" id="v9F-Tt-uv2"/>
                         <outlet property="tapeView2D" destination="fNx-Aq-2l9" id="LAC-if-ECU"/>
-                        <segue destination="uhU-II-DVp" kind="push" identifier="toResult" id="lFM-Gm-EBj"/>
-                        <segue destination="1Xl-wZ-ecL" kind="push" identifier="toHistory" id="86j-NX-eAX"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="4" sceneMemberID="firstResponder"/>
@@ -313,7 +311,7 @@
             <objects>
                 <tableViewController id="af5-ix-ohl" customClass="TMPreferences" sceneMemberID="viewController">
                     <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="static" style="plain" separatorStyle="default" allowsSelection="NO" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="nAg-ha-gxQ">
-                        <rect key="frame" x="0.0" y="64" width="320" height="504"/>
+                        <rect key="frame" x="0.0" y="64" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <sections>
@@ -679,7 +677,7 @@
             <objects>
                 <tableViewController storyboardIdentifier="Results" title="Results" useStoryboardIdentifierAsRestorationIdentifier="YES" id="uhU-II-DVp" userLabel="Results" customClass="TMResultsVC" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" dataMode="prototypes" style="grouped" separatorStyle="default" allowsSelection="NO" showsSelectionImmediatelyOnTouchBegin="NO" rowHeight="44" sectionHeaderHeight="10" sectionFooterHeight="10" id="YfD-B0-eof">
-                        <rect key="frame" x="0.0" y="64" width="320" height="460"/>
+                        <rect key="frame" x="0.0" y="64" width="320" height="524"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                         <label key="tableFooterView" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" id="ddv-wB-wQ0" customClass="RCDistanceLabel">
@@ -1274,7 +1272,6 @@
                     <nil key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="actionButton" destination="8AN-qG-uJ2" id="zwL-y5-BKg"/>
-                        <segue destination="uhU-II-DVp" kind="push" identifier="toResult" id="kp1-LL-S9f"/>
                         <segue destination="lBc-mk-hRE" kind="push" identifier="toCreateAccount" id="Q9q-au-hTw"/>
                         <segue destination="q5w-e3-00n" kind="push" identifier="toLogin" id="HxR-ps-kMf"/>
                         <segue destination="af5-ix-ohl" kind="push" identifier="toSettings" id="caZ-Ga-qMT"/>
@@ -1628,10 +1625,9 @@
         <simulatedScreenMetrics key="destination" type="retina4"/>
     </simulatedMetricsContainer>
     <inferredMetricsTieBreakers>
-        <segue reference="OMX-af-ZGK"/>
-        <segue reference="86j-NX-eAX"/>
-        <segue reference="lFM-Gm-EBj"/>
-        <segue reference="Q9q-au-hTw"/>
         <segue reference="HxR-ps-kMf"/>
+        <segue reference="S7s-hS-ebY"/>
+        <segue reference="Q9q-au-hTw"/>
+        <segue reference="OMX-af-ZGK"/>
     </inferredMetricsTieBreakers>
 </document>

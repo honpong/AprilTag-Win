@@ -7,6 +7,7 @@
 //
 
 #import "TMResultsVC.h"
+#import "TMHistoryVC.h"
 
 @interface TMResultsVC ()
 
@@ -53,6 +54,8 @@
 
 - (void)viewWillDisappear:(BOOL)animated
 {
+    [locationPopup removeFromSuperview];
+    [rateMeView removeFromSuperview];
     [rateMeView hideInstantly];
     [self saveMeasurement];
     [super viewWillDisappear:animated];
@@ -111,15 +114,22 @@
 - (IBAction)handleNewButton:(id)sender
 {
     [self saveMeasurement];
-    UIViewController* vc = [self.navigationController.storyboard instantiateViewControllerWithIdentifier:@"NewMeasurement"];
-    [self.navigationController setViewControllers:[NSArray arrayWithObject:vc] animated:YES];
+    [self.navigationController popToRootViewControllerAnimated:NO];
 }
 
 - (IBAction)handleListButton:(id)sender
 {
     [self saveMeasurement];
-    UIViewController* vc = [self.navigationController.storyboard instantiateViewControllerWithIdentifier:@"History"];
-    [self.navigationController setViewControllers:[NSArray arrayWithObject:vc] animated:YES];
+    
+    if ([self.navigationController.secondToLastViewController isKindOfClass:[TMHistoryVC class]])
+    {
+        [self.navigationController dismissTopViewController:YES];
+    }
+    else
+    {
+        UIViewController* vc = [self.navigationController.storyboard instantiateViewControllerWithIdentifier:@"History"];
+        [self.navigationController pushViewController:vc animated:YES];
+    }
 }
 
 - (IBAction)handleKeyboardDone:(id)sender

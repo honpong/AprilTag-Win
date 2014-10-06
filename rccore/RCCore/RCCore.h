@@ -38,6 +38,7 @@
 #import "UIView+RCConstraints.h"
 #import "UIView+RCOrientationRotation.h"
 #import "UIView+RCViewFade.h"
+#import "UINavigationController+RCNavConExtensions.h"
 
 #import "RCRotatingView.h"
 #import "RCSlideBanner.h"

@@ -124,6 +124,8 @@
 		32BA41F9179F353B002BAE13 /* RCFeatureLayerDelegate.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32BA41F3179F33D8002BAE13 /* RCFeatureLayerDelegate.h */; };
 		32BA41FE179F3656002BAE13 /* RCFeaturesLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA41FD179F3656002BAE13 /* RCFeaturesLayer.m */; };
 		32BA4202179F3E83002BAE13 /* RCFeaturesLayer.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32BA41FC179F3656002BAE13 /* RCFeaturesLayer.h */; };
+		32BAC58A19E3465E0042E345 /* UINavigationController+RCNavConExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BAC58919E3465E0042E345 /* UINavigationController+RCNavConExtensions.m */; };
+		32BAC58B19E347680042E345 /* UINavigationController+RCNavConExtensions.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32BAC58819E3465E0042E345 /* UINavigationController+RCNavConExtensions.h */; };
 		32BFAEBC1796FC520089A7B2 /* libRC3DK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFAEB91796FC230089A7B2 /* libRC3DK.a */; };
 		32C3892E16DD429100BD995C /* NSString+RCString.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C3892D16DD429100BD995C /* NSString+RCString.m */; };
 		32C3892F16DD441B00BD995C /* NSString+RCString.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32C3892C16DD429100BD995C /* NSString+RCString.h */; };
@@ -193,6 +195,7 @@
 			dstPath = "include/${PRODUCT_NAME}";
 			dstSubfolderSpec = 16;
 			files = (
+				32BAC58B19E347680042E345 /* UINavigationController+RCNavConExtensions.h in CopyFiles */,
 				328C7DE219D1FF4C0079BA40 /* RCLocalMoviePlayer.h in CopyFiles */,
 				D94ECE73194CD653008F2F9A /* RCSensorDelegate.h in CopyFiles */,
 				D94ECE6F194CCA78008F2F9A /* RCGeocoder.h in CopyFiles */,
@@ -376,6 +379,8 @@
 		32BA41F4179F33D8002BAE13 /* RCFeatureLayerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCFeatureLayerDelegate.m; sourceTree = "<group>"; };
 		32BA41FC179F3656002BAE13 /* RCFeaturesLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCFeaturesLayer.h; sourceTree = "<group>"; };
 		32BA41FD179F3656002BAE13 /* RCFeaturesLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCFeaturesLayer.m; sourceTree = "<group>"; };
+		32BAC58819E3465E0042E345 /* UINavigationController+RCNavConExtensions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "UINavigationController+RCNavConExtensions.h"; path = "../../rccore/RCCore/UINavigationController+RCNavConExtensions.h"; sourceTree = "<group>"; };
+		32BAC58919E3465E0042E345 /* UINavigationController+RCNavConExtensions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UINavigationController+RCNavConExtensions.m"; path = "../../rccore/RCCore/UINavigationController+RCNavConExtensions.m"; sourceTree = "<group>"; };
 		32BFAEB21796FC230089A7B2 /* RC3DK.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RC3DK.xcodeproj; path = ../RC3DK/RC3DK.xcodeproj; sourceTree = "<group>"; };
 		32C3892C16DD429100BD995C /* NSString+RCString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+RCString.h"; sourceTree = "<group>"; };
 		32C3892D16DD429100BD995C /* NSString+RCString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+RCString.m"; sourceTree = "<group>"; };
@@ -489,6 +494,8 @@
 				324FF85918ECB5BE00DC5E7F /* UIView+RCOrientationRotation.m */,
 				3280BB2E1919B0C300338A38 /* UIView+RCViewFade.h */,
 				3280BB2F1919B0C300338A38 /* UIView+RCViewFade.m */,
+				32BAC58819E3465E0042E345 /* UINavigationController+RCNavConExtensions.h */,
+				32BAC58919E3465E0042E345 /* UINavigationController+RCNavConExtensions.m */,
 			);
 			name = Categories;
 			sourceTree = "<group>";
@@ -952,6 +959,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				32A7254317501BD4004C873A /* RCDistanceLabel.m in Sources */,
+				32BAC58A19E3465E0042E345 /* UINavigationController+RCNavConExtensions.m in Sources */,
 				32A7254417501BD4004C873A /* RCFractionLabel.m in Sources */,
 				324FF85B18ECB5BE00DC5E7F /* UIView+RCOrientationRotation.m in Sources */,
 				3267A2E516C46D9A001E14C7 /* AFHTTPClient.m in Sources */,

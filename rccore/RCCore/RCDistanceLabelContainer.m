@@ -111,7 +111,12 @@
     else
         width = distanceLabel.bounds.size.width + fractionLabel.bounds.size.width + symbolLabel.bounds.size.width;
     
-    CGFloat height = distanceLabel.bounds.size.height;
+    CGFloat height;
+    if (distanceLabel.bounds.size.height > 0)
+        height = distanceLabel.bounds.size.height;
+    else
+        height = fractionLabel.bounds.size.height;
+    
     return CGSizeMake(width, height);
 }
 

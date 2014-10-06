@@ -227,6 +227,11 @@ static transition transitions[] =
     tipsView.tips = [self buildTipsArray];
     
     originalDistanceTextColor = self.distanceLabel.textColor;
+    
+    self.distanceLabel.centerAlignmentExcludesFraction = YES;
+    self.distanceLabel.font = [UIFont systemFontOfSize:70];
+    self.distanceLabel.textColor = [UIColor colorWithRed:219./255. green:166./255. blue:46./255. alpha:1.];
+    self.distanceLabel.shadowColor = [UIColor darkGrayColor];
 }
 
 - (void) viewDidLayoutSubviews

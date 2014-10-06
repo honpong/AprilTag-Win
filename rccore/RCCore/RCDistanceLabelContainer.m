@@ -51,7 +51,7 @@
 - (void) setupViews
 {
     self.translatesAutoresizingMaskIntoConstraints = NO;
-    self.backgroundColor = [UIColor yellowColor];
+    self.backgroundColor = [UIColor clearColor];
     
     distanceLabel = [UILabel new];
     distanceLabel.translatesAutoresizingMaskIntoConstraints = NO;

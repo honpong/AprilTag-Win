@@ -127,6 +127,7 @@
 
 - (void)setTextColor:(UIColor *)textColor
 {
+    _textColor = textColor;
     nominatorLabel.textColor = textColor;
     denominatorLabel.textColor = textColor;
     [self setNeedsDisplay];
@@ -145,6 +146,7 @@
 
 - (void) setShadowColor:(UIColor *)shadowColor
 {
+    _shadowColor = shadowColor;
     nominatorLabel.shadowColor = shadowColor;
     nominatorLabel.shadowOffset = CGSizeMake(1, 1);
     denominatorLabel.shadowColor = shadowColor;

@@ -197,7 +197,8 @@
         containerView.fractionLabel.font = font;
         containerView.distanceLabel.font = font;
         
-        [self invalidateIntrinsicContentSize];
+        [containerView invalidateIntrinsicContentSize];
+        [containerView sizeToFit];
     }
 }
 

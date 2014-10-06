@@ -35,6 +35,10 @@
     [self.navigationController setNavigationBarHidden:NO animated:NO]; // necessary because location intro may have hidden it
     
     [RCDistanceLabel class]; // needed so that storyboard can see this class, since it's in a library
+//    self.distLabel.centerAlignmentExcludesFraction = YES;
+    self.distLabel.font = [UIFont systemFontOfSize:70];
+    self.distLabel.textColor = [UIColor colorWithRed:219./255. green:166./255. blue:46./255. alpha:1.];
+    self.distLabel.shadowColor = [UIColor darkGrayColor];
     [self.distLabel setDistance:theMeasurement.getPrimaryDistanceObject];
     
     [self createRateMeBanner];

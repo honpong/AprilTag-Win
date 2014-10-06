@@ -13,6 +13,7 @@
 #import "RCCore/RCSensorDelegate.h"
 #import "TMLocalMoviePlayer.h"
 #import "TMLocationIntro.h"
+#import "TMHistoryVC.h"
 
 @implementation TMNewMeasurementVC
 {
@@ -354,8 +355,14 @@ static transition transitions[] =
     
     __weak TMNewMeasurementVC* weakSelf = self;
     [self.arView.videoView animateClosed:UIDeviceOrientationPortrait withCompletionBlock:^(BOOL finished) {
-        [weakSelf performSegueWithIdentifier:@"toHistory" sender:weakSelf];
+        [weakSelf gotoHistory];
     }];
+}
+
+- (void) gotoHistory
+{
+    UIViewController* vc = [self.navigationController.storyboard instantiateViewControllerWithIdentifier:@"History"];
+    [self.navigationController pushViewController:vc animated:NO];
 }
 
 - (void) updateLocation
@@ -674,24 +681,9 @@ static transition transitions[] =
 
 - (void) saveAndGotoResult
 {
-    [self saveMeasurement];
-    [self performSegueWithIdentifier:@"toResult" sender:self.btnRetry];
-}
-
-- (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    if ([[segue identifier] isEqualToString:@"toResult"])
-    {
-        TMResultsVC* resultsVC = [segue destinationViewController];
-        resultsVC.theMeasurement = newMeasurement;
-    }
-    else if([[segue identifier] isEqualToString:@"toOptions"])
-    {
-        TMOptionsVC *optionsVC = [segue destinationViewController];
-        optionsVC.theMeasurement = newMeasurement;
-        
-        [[segue destinationViewController] setDelegate:self];
-    }
+    TMResultsVC* resultsVC = [self.navigationController.storyboard instantiateViewControllerWithIdentifier:@"Results"];
+    resultsVC.theMeasurement = newMeasurement;
+    [self.navigationController pushViewController:resultsVC animated:YES];
 }
 
 - (void) showTipsView

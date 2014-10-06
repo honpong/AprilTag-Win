@@ -92,15 +92,22 @@
     [self.tableView reloadData];
 }
 
-- (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+- (void) gotoResult:(NSIndexPath*)indexPath
 {
-    if ([[segue identifier] isEqualToString:@"toResult"])
+    TMMeasurement *measurement = measurementsData[indexPath.row];
+    TMResultsVC *resultsVC;
+    
+    if ([self.navigationController.secondToLastViewController isKindOfClass:[TMResultsVC class]])
     {
-        NSIndexPath *indexPath = (NSIndexPath*)sender;
-        TMMeasurement *measurement = measurementsData[indexPath.row];
-        
-        TMResultsVC *resultsVC = [segue destinationViewController];
+        resultsVC = (TMResultsVC*)self.navigationController.secondToLastViewController;
         resultsVC.theMeasurement = measurement;
+        [self.navigationController dismissTopViewController:YES];
+    }
+    else
+    {
+        resultsVC = [self.navigationController.storyboard instantiateViewControllerWithIdentifier:@"Results"];
+        resultsVC.theMeasurement = measurement;
+        [self.navigationController pushViewController:resultsVC animated:YES];
     }
 }
 
@@ -285,8 +292,7 @@
 
 - (IBAction)handleNewButton:(id)sender
 {
-    UIViewController* vc = [self.navigationController.storyboard instantiateViewControllerWithIdentifier:@"NewMeasurement"];
-    [self.navigationController setViewControllers:[NSArray arrayWithObject:vc] animated:YES];
+    [self.navigationController popToRootViewControllerAnimated:NO];
 }
 
 #pragma mark - Table view data source
@@ -364,7 +370,7 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    [self performSegueWithIdentifier:@"toResult" sender:indexPath];
+    [self gotoResult:indexPath];
 }
 
 - (UITableViewCellEditingStyle)tableView:(UITableView *)aTableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath

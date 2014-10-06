@@ -71,13 +71,8 @@
 {
     [TMAnalytics logEvent:@"View.History"];
     [self refreshTableView];
-    [self performSelectorInBackground:@selector(setupDataCapture) withObject:nil];
-}
-
-- (void)viewWillAppear:(BOOL)animated
-{
-    [self.navigationController setToolbarHidden:YES animated:animated];
-    [super viewWillAppear:animated];
+    
+    self.navigationItem.title = self.title; // workaround for title not appearing when VC not presented with an animation
 }
 
 - (void)viewDidUnload {
@@ -212,15 +207,6 @@
 //        [HUD hide:YES];
 //    }];
 //}
-
-- (void)setupDataCapture
-{
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        /** Expensive. Can cause UI to lag if called at the wrong time. */
-        [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
-    });
-}
 
 - (void)refreshPrefs
 {

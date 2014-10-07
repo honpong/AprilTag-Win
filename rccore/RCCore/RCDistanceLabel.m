@@ -64,21 +64,20 @@
 
 - (void) updateConstraints
 {
-    [containerView addCenterInSuperviewConstraints];
+    [self addAlignmentConstraint:self.textAlignment];
+    [containerView addCenterYInSuperviewConstraints];
+
     [super updateConstraints];
 }
 
 - (void) addAlignmentConstraint:(NSTextAlignment)textAlignment
 {
-    if (alignmentConstraint) [containerView.superview removeConstraint:alignmentConstraint];
+    if (alignmentConstraint) [self removeConstraint:alignmentConstraint];
     
     if (textAlignment == NSTextAlignmentLeft)
         alignmentConstraint = [containerView addLeftSpaceToSuperviewConstraint:0];
     else if (textAlignment == NSTextAlignmentCenter)
-        if (centerAlignmentExcludesFraction)
-            alignmentConstraint = [containerView addCenterXInSuperviewConstraints:self.font.pointSize / 60 * -35];
-        else
-            alignmentConstraint = [containerView addCenterXInSuperviewConstraints];
+        alignmentConstraint = [containerView addCenterXInSuperviewConstraints];
     else if (textAlignment == NSTextAlignmentRight)
         alignmentConstraint = [containerView addRightSpaceToSuperviewConstraint:0];
 }

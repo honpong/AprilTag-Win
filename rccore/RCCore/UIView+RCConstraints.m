@@ -63,7 +63,6 @@
 
 - (void) addCenterInSuperviewConstraints
 {
-    self.translatesAutoresizingMaskIntoConstraints = NO;
     [self addCenterXInSuperviewConstraints];
     [self addCenterYInSuperviewConstraints];
 }
@@ -75,6 +74,7 @@
 
 - (NSLayoutConstraint*) addCenterXInSuperviewConstraints:(CGFloat)offset
 {
+    self.translatesAutoresizingMaskIntoConstraints = NO;
     NSLayoutConstraint* constraint = [NSLayoutConstraint constraintWithItem:self
                                                                   attribute:NSLayoutAttributeCenterX
                                                                   relatedBy:NSLayoutRelationEqual
@@ -93,6 +93,7 @@
 
 - (NSLayoutConstraint*) addCenterYInSuperviewConstraints:(CGFloat)offset
 {
+    self.translatesAutoresizingMaskIntoConstraints = NO;
     NSLayoutConstraint* constraint = [NSLayoutConstraint constraintWithItem:self
                                                                   attribute:NSLayoutAttributeCenterY
                                                                   relatedBy:NSLayoutRelationEqual

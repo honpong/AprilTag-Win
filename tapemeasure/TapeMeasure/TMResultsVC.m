@@ -174,10 +174,14 @@
     }
 }
 
-- (void) didDismissOptions
+#pragma mark - TMOptionsDelegate
+
+- (void) didChangeOptions
 {
     [self.distLabel setDistance:theMeasurement.getPrimaryDistanceObject]; // update label with new units
 }
+
+#pragma mark -
 
 - (void) createRateMeBanner
 {

@@ -50,7 +50,6 @@
 {
     [super viewWillDisappear:animated];
     [self saveMeasurement];
-    [delegate didDismissOptions];
 }
 
 - (void)viewDidUnload {
@@ -60,15 +59,17 @@
     [super viewDidUnload];
 }
 
+- (BOOL)hidesBottomBarWhenPushed { return YES; }
+
 - (void)setScaleButtons {
     //switch scale buttons to appropriate type
     if(theMeasurement.units == UnitsMetric)
     {
         [self.btnScale removeAllSegments];
         
-        [self.btnScale insertSegmentWithTitle:@"km" atIndex:self.btnScale.numberOfSegments animated:YES];
-        [self.btnScale insertSegmentWithTitle:@"m" atIndex:self.btnScale.numberOfSegments animated:YES];
-        [self.btnScale insertSegmentWithTitle:@"cm" atIndex:self.btnScale.numberOfSegments animated:YES];
+        [self.btnScale insertSegmentWithTitle:@"km" atIndex:self.btnScale.numberOfSegments animated:NO];
+        [self.btnScale insertSegmentWithTitle:@"m" atIndex:self.btnScale.numberOfSegments animated:NO];
+        [self.btnScale insertSegmentWithTitle:@"cm" atIndex:self.btnScale.numberOfSegments animated:NO];
         
         self.btnScale.selectedSegmentIndex = theMeasurement.unitsScaleMetric;
         
@@ -79,10 +80,10 @@
     {
         [self.btnScale removeAllSegments];
         
-        [self.btnScale insertSegmentWithTitle:@"mi" atIndex:self.btnScale.numberOfSegments animated:YES];
-        [self.btnScale insertSegmentWithTitle:@"yd" atIndex:self.btnScale.numberOfSegments animated:YES];
-        [self.btnScale insertSegmentWithTitle:@"ft" atIndex:self.btnScale.numberOfSegments animated:YES];
-        [self.btnScale insertSegmentWithTitle:@"in" atIndex:self.btnScale.numberOfSegments animated:YES];
+        [self.btnScale insertSegmentWithTitle:@"mi" atIndex:self.btnScale.numberOfSegments animated:NO];
+        [self.btnScale insertSegmentWithTitle:@"yd" atIndex:self.btnScale.numberOfSegments animated:NO];
+        [self.btnScale insertSegmentWithTitle:@"ft" atIndex:self.btnScale.numberOfSegments animated:NO];
+        [self.btnScale insertSegmentWithTitle:@"in" atIndex:self.btnScale.numberOfSegments animated:NO];
         
         self.btnScale.selectedSegmentIndex = theMeasurement.unitsScaleImperial;
         
@@ -101,6 +102,8 @@
         [TMAnalytics logEvent:@"Measurement.Options" withParameters:@{ @"Units" : @"Metric" }];
     else
         [TMAnalytics logEvent:@"Measurement.Options" withParameters:@{ @"Units" : @"Imperial" }];
+    
+    [delegate didChangeOptions];
 }
 
 - (IBAction)handleScaleButton:(id)sender
@@ -155,6 +158,8 @@
                 break;
         }
     }
+    
+    [delegate didChangeOptions];
 }
 
 - (IBAction)handleFractionalButton:(id)sender
@@ -165,6 +170,8 @@
         [TMAnalytics logEvent:@"Measurement.Options" withParameters:@{ @"Fractional" : @"Decimal" }];
     else
         [TMAnalytics logEvent:@"Measurement.Options" withParameters:@{ @"Fractional" : @"Fractional" }];
+    
+    [delegate didChangeOptions];
 }
 
 - (void)saveMeasurement

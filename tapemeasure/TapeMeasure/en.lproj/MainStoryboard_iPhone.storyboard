@@ -238,10 +238,10 @@
             </objects>
             <point key="canvasLocation" x="-128" y="111"/>
         </scene>
-        <!--Options-->
+        <!--Units-->
         <scene sceneID="5Ne-wr-uwW">
             <objects>
-                <viewController storyboardIdentifier="Options" title="Options" modalTransitionStyle="partialCurl" useStoryboardIdentifierAsRestorationIdentifier="YES" id="cgy-4E-LAs" customClass="TMOptionsVC" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="Options" title="Units" modalTransitionStyle="flipHorizontal" useStoryboardIdentifierAsRestorationIdentifier="YES" id="cgy-4E-LAs" customClass="TMOptionsVC" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="UfV-Dd-nB2"/>
                         <viewControllerLayoutGuide type="bottom" id="kUp-hz-hBH"/>
@@ -295,7 +295,10 @@
                             <constraint firstItem="0c0-Il-aiO" firstAttribute="leading" secondItem="P2a-uO-bBB" secondAttribute="leading" constant="20" symbolic="YES" id="xAg-gj-aPr"/>
                         </constraints>
                     </view>
+                    <extendedEdge key="edgesForExtendedLayout" bottom="YES"/>
+                    <navigationItem key="navigationItem" title="Units" id="h5i-OD-gES"/>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" barStyle="black" translucent="NO" prompted="NO"/>
+                    <nil key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="btnFractional" destination="0c0-Il-aiO" id="EDC-Z1-VLO"/>
                         <outlet property="btnScale" destination="HHD-hF-MKR" id="gmU-1B-kuC"/>
@@ -677,7 +680,7 @@
             <objects>
                 <tableViewController storyboardIdentifier="Results" title="Results" useStoryboardIdentifierAsRestorationIdentifier="YES" id="uhU-II-DVp" userLabel="Results" customClass="TMResultsVC" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" dataMode="prototypes" style="grouped" separatorStyle="default" allowsSelection="NO" showsSelectionImmediatelyOnTouchBegin="NO" rowHeight="44" sectionHeaderHeight="10" sectionFooterHeight="10" id="YfD-B0-eof">
-                        <rect key="frame" x="0.0" y="64" width="320" height="524"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="460"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" cocoaTouchSystemColor="groupTableViewBackgroundColor"/>
                         <label key="tableFooterView" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" id="ddv-wB-wQ0" customClass="RCDistanceLabel">
@@ -895,7 +898,7 @@
                         <barButtonItem title="Units" id="g4Q-OF-N0l">
                             <connections>
                                 <action selector="handlePageCurl:" destination="uhU-II-DVp" id="X9a-aD-88W"/>
-                                <segue destination="cgy-4E-LAs" kind="modal" identifier="toOptions" id="b8m-6u-pJ0"/>
+                                <segue destination="cgy-4E-LAs" kind="push" identifier="toOptions" id="b8m-6u-pJ0"/>
                             </connections>
                         </barButtonItem>
                         <barButtonItem style="plain" systemItem="flexibleSpace" id="5we-qa-25U"/>
@@ -907,7 +910,7 @@
                         <barButtonItem style="plain" systemItem="flexibleSpace" id="78P-qf-4kU"/>
                     </toolbarItems>
                     <navigationItem key="navigationItem" title="Saved Measurement" id="K0k-5H-bWa">
-                        <barButtonItem key="backBarButtonItem" title="Cancel" id="pOV-AH-cuT"/>
+                        <barButtonItem key="backBarButtonItem" title="Back" id="pOV-AH-cuT"/>
                         <barButtonItem key="leftBarButtonItem" title="List" id="nms-vR-A3n">
                             <connections>
                                 <action selector="handleListButton:" destination="uhU-II-DVp" id="mwu-Mx-yIA"/>
@@ -919,6 +922,7 @@
                             </connections>
                         </barButtonItem>
                     </navigationItem>
+                    <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" barStyle="black" translucent="NO" prompted="NO"/>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics" barStyle="black" translucent="NO"/>
                     <connections>
                         <outlet property="btnAction" destination="zX5-JF-YV9" id="sXK-fh-Ih6"/>

@@ -79,20 +79,20 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
             dc->Tc[1] = 0.050;
             dc->Tc[2] = 0.000;
             return true;
-        case DEVICE_TYPE_IPHONE6: //Guess from teardown and received calibration
-            dc->Fx = 577.;
-            dc->Fy = 577.;
-            dc->K[0] = .15;
-            dc->K[1] = -.18;
+        case DEVICE_TYPE_IPHONE6: //Calibrated on Eagle's iPhone 6; consistent with teardwon
+            dc->Fx = 548.;
+            dc->Fy = 548.;
+            dc->K[0] = .10;
+            dc->K[1] = -.15;
             dc->Tc[0] = 0.015;
             dc->Tc[1] = 0.065;
             dc->Tc[2] = 0.000;
             return true;
-        case DEVICE_TYPE_IPHONE6PLUS: //Guess from teardown and received calibration
-            dc->Fx = 577.;
-            dc->Fy = 577.;
-            dc->K[0] = .15;
-            dc->K[1] = -.18;
+        case DEVICE_TYPE_IPHONE6PLUS: //Copied from 6 - teardown indicates they are pretty close to the same
+            dc->Fx = 548.;
+            dc->Fy = 548.;
+            dc->K[0] = .10;
+            dc->K[1] = -.15;
             dc->Tc[0] = 0.015;
             dc->Tc[1] = 0.065;
             dc->Tc[2] = 0.000;

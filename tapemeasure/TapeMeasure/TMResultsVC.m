@@ -39,6 +39,7 @@
     self.distLabel.font = [UIFont systemFontOfSize:70];
     self.distLabel.textColor = [UIColor colorWithRed:219./255. green:166./255. blue:46./255. alpha:1.];
     self.distLabel.shadowColor = [UIColor darkGrayColor];
+    self.distLabel.textAlignment = NSTextAlignmentCenter;
     [self.distLabel setDistance:theMeasurement.getPrimaryDistanceObject];
     
     [self createRateMeBanner];

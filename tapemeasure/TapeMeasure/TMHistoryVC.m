@@ -301,6 +301,7 @@
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     UILabel* nameLabel = (UILabel*)[cell viewWithTag:1];
     RCDistanceLabel* valueLabel = (RCDistanceLabel*)[cell viewWithTag:2];
+    valueLabel.textAlignment = NSTextAlignmentRight;
     
     TMMeasurement *measurement = measurementsData[indexPath.row];
     

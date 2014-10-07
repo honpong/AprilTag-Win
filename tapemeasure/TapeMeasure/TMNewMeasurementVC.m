@@ -229,6 +229,7 @@ static transition transitions[] =
     
     originalDistanceTextColor = self.distanceLabel.textColor;
     
+    self.distanceLabel.textAlignment = NSTextAlignmentCenter;
     self.distanceLabel.centerAlignmentExcludesFraction = YES;
     self.distanceLabel.font = [UIFont systemFontOfSize:70];
     self.distanceLabel.textColor = [UIColor colorWithRed:219./255. green:166./255. blue:46./255. alpha:1.];

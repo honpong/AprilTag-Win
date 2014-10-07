@@ -23,6 +23,8 @@
 
 #pragma mark - Event handlers
 
+- (BOOL)hidesBottomBarWhenPushed { return YES; }
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];

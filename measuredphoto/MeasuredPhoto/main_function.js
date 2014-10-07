@@ -183,7 +183,9 @@ function rc_initialize(){
             // we want to instantiate a measurement here, and pass that measurement to be drawn
             rcMeasurements.new_measurement(click_image_x1, click_image_y1, i.x, i.y, measured_svg);
             clear_tool_data();
-            setTimeout( function () {rcMeasurements.save_measurements();}, 0)
+            setTimeout( function () {rcMeasurements.save_measurements();
+                        rc_menu.enable_disenable_undo(rcMeasurements.is_undo_available());
+                       }, 0)
         }
     }
     
@@ -207,6 +209,7 @@ function rc_initialize(){
         else if (rc_menu.current_button == rc_menu.angle_button) {angle_handler(i);}
         else if (rc_menu.current_button == rc_menu.eraser_button) {eraser_handler(i);}
         else if (rc_menu.current_button == rc_menu.text_button) {text_entry_handler(i);}
+        rc_menu.enable_disenable_undo(rcMeasurements.is_undo_available());
     }
     
     FastClick.attach(document.body);
@@ -239,6 +242,7 @@ function rc_initialize(){
     
     undo_last_change = function() {
         rcMeasurements.revert_measurement_state();
+        rc_menu.enable_disenable_undo(rcMeasurements.is_undo_available());
     }
     
     toggle_all_units = function() {
@@ -279,7 +283,7 @@ function rc_initialize(){
 function clear_all(){
     console.log('starting clear_all()');
     window.setTimeout(function (){
-    //try {
+    try {
         //scale and roation handling
         initial_load = true;
     
@@ -306,10 +310,12 @@ function clear_all(){
     
         //window.setTimeout( function() {alert('completed clear_all');}, 0)
         return 0;
-    //}
-    //catch(err){
-    //    return(err.message);
-   // }
+                      
+        rc_menu.enable_disenable_undo(rcMeasurements.is_undo_available());
+    }
+    catch(err){
+        return(err.message);
+   }
                       },0);
 }
 
@@ -354,6 +360,7 @@ function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric)
                                                                                     console.log('starting annotation data load calback');
                                                                                     load_spatial_data(rc_data_url); //this function is defined in depth_data.js
                                                                                     console.log('finished rcMeasurement.load_json callback');
+                                                                                    rc_menu.enable_disenable_undo(rcMeasurements.is_undo_available());
                                                                                 }
                                                                            );
 

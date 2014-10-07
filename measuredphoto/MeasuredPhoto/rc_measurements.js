@@ -211,6 +211,7 @@ rcMeasurements.dragEndHandler = function (m, e) {
 }
 
 rcMeasurements.click_action = function (m,e) {
+    console.log("click_action(m,e)");
     //if we just ended a drag, don't propagate click
     var now = new Date();
     var last_drag_time_diff = now - rcMeasurements.most_recent_drag;
@@ -642,6 +643,7 @@ rcMeasurements.to_json = function () {
 rcMeasurements.save_measurements = function () {
     jsonStr = rcMeasurements.to_json();
     rcMeasurements.prior_measurement_states.push(jsonStr);
+    console.log('prior_measurement_states length = ' + rcMeasurements.prior_measurement_states.length.toFixed());
     $.ajax({ type: "PUT", url: rc_server_location + "true_measure/api/v1/m_photo/" + m_photo_guid + "/annotations/", contentType: "application/json", processData: false, dataType: "json", data: jsonStr })
     .done(function(data, textStatus, jqXHR) {
           //alert(textStatus + ": " + JSON.stringify(data));
@@ -677,6 +679,7 @@ rcMeasurements.load_json  = function (m_url, callback_function) {
             rcMeasurements.apply_json_data(data);
             //initialize prior measurments
             rcMeasurements.prior_measurement_states.push(rcMeasurements.to_json());
+            console.log('prior_measurement_states length = ' + rcMeasurements.prior_measurement_states.length.toFixed());
             callback_function();
         }).error(function () {
             //window.setTimeout(function(){alert('failed to load annotations')},0);
@@ -709,6 +712,12 @@ rcMeasurements.apply_json_data = function (data) {
     }
 }
 
+rcMeasurements.is_undo_available = function () {
+    if (rcMeasurements.prior_measurement_states.length > 1) { return true;}
+    else {return false;}
+}
+
+//this performs the undo
 rcMeasurements.revert_measurement_state = function () {
     if (rcMeasurements.prior_measurement_states.length > 1) {
         //delete all measurements
@@ -723,7 +732,9 @@ rcMeasurements.revert_measurement_state = function () {
         }
         //pull prior measurement state
         rcMeasurements.prior_measurement_states.pop(); //trow away the current state
+        console.log('prior_measurement_states length = ' + rcMeasurements.prior_measurement_states.length.toFixed());
         var prior_m_json = rcMeasurements.prior_measurement_states.pop(); //go to the one before.
+        console.log('prior_measurement_states length = ' + rcMeasurements.prior_measurement_states.length.toFixed());
         rcMeasurements.apply_json_data(JSON.parse(prior_m_json));
         // save new state - this will add current state back to the stack
         rcMeasurements.save_measurements();
@@ -732,9 +743,13 @@ rcMeasurements.revert_measurement_state = function () {
 
 // this checks for wether or not the rc_menu button designated as the eraser button is selected.
 rcMeasurements.is_annotation_being_deleted = function (m) {
+    console.log('rcMeasurements.is_annotation_being_deleted(m)')
     if (rc_menu.current_button == rc_menu.eraser_button) {
         m.delete_self();
-        setTimeout( function () {rcMeasurements.save_measurements();}, 0)
+        setTimeout( function () {
+                                    rcMeasurements.save_measurements();
+                                    rc_menu.enable_disenable_undo(rcMeasurements.is_undo_available());
+                                 }, 0)
         return true;
     }
     return false;

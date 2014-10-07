@@ -106,10 +106,18 @@
     [symbolLabel sizeToFit];
     
     CGFloat width;
-    if (textAlignment == NSTextAlignmentCenter && centerAlignmentExcludesFraction)
-        width = distanceLabel.bounds.size.width;
+    
+    if (textAlignment == NSTextAlignmentCenter)
+    {
+        if (centerAlignmentExcludesFraction && distanceLabel.bounds.size.width)
+            width = distanceLabel.bounds.size.width;
+        else
+            width = distanceLabel.bounds.size.width + fractionLabel.bounds.size.width;
+    }
     else
+    {
         width = distanceLabel.bounds.size.width + fractionLabel.bounds.size.width + symbolLabel.bounds.size.width;
+    }
     
     CGFloat height;
     if (distanceLabel.bounds.size.height > 0)

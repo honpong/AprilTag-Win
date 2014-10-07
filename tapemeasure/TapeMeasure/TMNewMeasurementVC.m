@@ -349,10 +349,14 @@ static transition transitions[] =
     self.distanceLabel.hidden = YES;
     [tipsView fadeOutWithDuration:.2 andWait:0];
     
+    #if TARGET_IPHONE_SIMULATOR
+    [self gotoHistory]; // skip CRT animation. doesn't work on simulator.
+    #else
     __weak TMNewMeasurementVC* weakSelf = self;
     [self.arView.videoView animateClosed:UIDeviceOrientationPortrait withCompletionBlock:^(BOOL finished) {
         [weakSelf gotoHistory];
     }];
+    #endif
 }
 
 - (void) gotoHistory

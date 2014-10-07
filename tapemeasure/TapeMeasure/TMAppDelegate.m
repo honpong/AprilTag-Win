@@ -77,6 +77,14 @@
 
     #endif
     
+    #if TARGET_IPHONE_SIMULATOR // generate some measurements for testing in the simulator
+    TMMeasurement* newMeasurement = [TMMeasurement getNewMeasurement];
+    [newMeasurement setPointToPoint:arc4random_uniform(100)];
+    newMeasurement.timestamp = [[NSDate date] timeIntervalSince1970];
+    [newMeasurement insertIntoDb];
+    [DATA_MANAGER saveContext];
+    #endif
+    
     [Flurry setSecureTransportEnabled:YES];
     [Flurry setCrashReportingEnabled:YES];
     [Flurry setDebugLogEnabled:NO];

@@ -251,7 +251,10 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bordered" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="aTI-ct-3V4">
-                                <rect key="frame" x="20" y="336" width="280" height="29"/>
+                                <rect key="frame" x="20" y="300" width="280" height="41"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="aHb-uz-LOv"/>
+                                </constraints>
                                 <segments>
                                     <segment title="Metric"/>
                                     <segment title="Imperial"/>
@@ -261,7 +264,10 @@
                                 </connections>
                             </segmentedControl>
                             <segmentedControl opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bordered" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="0c0-Il-aiO">
-                                <rect key="frame" x="20" y="456" width="280" height="29"/>
+                                <rect key="frame" x="20" y="444" width="280" height="41"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="uIi-q1-Yqh"/>
+                                </constraints>
                                 <segments>
                                     <segment title="Decimal"/>
                                     <segment title="Fractional"/>
@@ -271,7 +277,10 @@
                                 </connections>
                             </segmentedControl>
                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bordered" selectedSegmentIndex="1" translatesAutoresizingMaskIntoConstraints="NO" id="HHD-hF-MKR">
-                                <rect key="frame" x="20" y="396" width="280" height="29"/>
+                                <rect key="frame" x="20" y="372" width="280" height="41"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="VVI-D8-pqh"/>
+                                </constraints>
                                 <segments>
                                     <segment title="km"/>
                                     <segment title="m"/>
@@ -286,13 +295,13 @@
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="HHD-hF-MKR" secondAttribute="trailing" constant="20" symbolic="YES" id="8be-sd-oaj"/>
                             <constraint firstItem="aTI-ct-3V4" firstAttribute="leading" secondItem="P2a-uO-bBB" secondAttribute="leading" constant="20" symbolic="YES" id="Gp4-7n-T8D"/>
+                            <constraint firstItem="HHD-hF-MKR" firstAttribute="top" secondItem="aTI-ct-3V4" secondAttribute="bottom" constant="32" id="K9x-Fc-FRm"/>
                             <constraint firstAttribute="bottom" secondItem="0c0-Il-aiO" secondAttribute="bottom" constant="20" symbolic="YES" id="Lc0-GE-4WI"/>
-                            <constraint firstAttribute="bottom" secondItem="HHD-hF-MKR" secondAttribute="bottom" constant="80" id="VKT-tV-a1z"/>
                             <constraint firstItem="HHD-hF-MKR" firstAttribute="leading" secondItem="P2a-uO-bBB" secondAttribute="leading" constant="20" symbolic="YES" id="bOj-Ut-mtT"/>
                             <constraint firstAttribute="trailing" secondItem="0c0-Il-aiO" secondAttribute="trailing" constant="20" symbolic="YES" id="oTf-lN-hYD"/>
                             <constraint firstAttribute="trailing" secondItem="aTI-ct-3V4" secondAttribute="trailing" constant="20" symbolic="YES" id="pju-TG-ulu"/>
-                            <constraint firstAttribute="bottom" secondItem="aTI-ct-3V4" secondAttribute="bottom" constant="140" id="qZK-Lx-tsp"/>
                             <constraint firstItem="0c0-Il-aiO" firstAttribute="leading" secondItem="P2a-uO-bBB" secondAttribute="leading" constant="20" symbolic="YES" id="xAg-gj-aPr"/>
+                            <constraint firstItem="0c0-Il-aiO" firstAttribute="top" secondItem="HHD-hF-MKR" secondAttribute="bottom" constant="32" id="yPq-GO-HcU"/>
                         </constraints>
                     </view>
                     <extendedEdge key="edgesForExtendedLayout" bottom="YES"/>

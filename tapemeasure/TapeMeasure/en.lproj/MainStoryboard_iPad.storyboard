@@ -125,7 +125,10 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bordered" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="aTI-ct-3V4">
-                                <rect key="frame" x="20" y="336" width="280" height="29"/>
+                                <rect key="frame" x="20" y="300" width="280" height="41"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="us1-Nu-kMZ"/>
+                                </constraints>
                                 <segments>
                                     <segment title="Metric"/>
                                     <segment title="Imperial"/>
@@ -135,7 +138,10 @@
                                 </connections>
                             </segmentedControl>
                             <segmentedControl opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bordered" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="0c0-Il-aiO">
-                                <rect key="frame" x="20" y="456" width="280" height="29"/>
+                                <rect key="frame" x="20" y="444" width="280" height="41"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="g91-Pt-pfE"/>
+                                </constraints>
                                 <segments>
                                     <segment title="Decimal"/>
                                     <segment title="Fractional"/>
@@ -145,7 +151,10 @@
                                 </connections>
                             </segmentedControl>
                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bordered" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="HHD-hF-MKR">
-                                <rect key="frame" x="20" y="396" width="280" height="29"/>
+                                <rect key="frame" x="20" y="372" width="280" height="41"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="40" id="7xx-va-D2b"/>
+                                </constraints>
                                 <segments>
                                     <segment title="km"/>
                                     <segment title="m"/>
@@ -169,7 +178,7 @@
                             <constraint firstItem="0c0-Il-aiO" firstAttribute="leading" secondItem="P2a-uO-bBB" secondAttribute="leading" constant="20" symbolic="YES" id="xAg-gj-aPr"/>
                         </constraints>
                     </view>
-                    <value key="contentSizeForViewInPopover" type="size" width="320" height="190"/>
+                    <value key="contentSizeForViewInPopover" type="size" width="400" height="225"/>
                     <simulatedNavigationBarMetrics key="simulatedTopBarMetrics" barStyle="black" translucent="NO" prompted="NO"/>
                     <connections>
                         <outlet property="btnFractional" destination="0c0-Il-aiO" id="EDC-Z1-VLO"/>

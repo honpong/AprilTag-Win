@@ -78,3 +78,5 @@ typedef enum {
 
 static NSString* RCApplicationCredential_Facebook_Key = @"671645849539796";
 static NSString* RCApplicationCredential_Facebook_Secret = @"827cfb4e92aff3551ffeb3618be46e08";
+
+#define COLOR_DULL_YELLOW [UIColor colorWithRed:219./255. green:166./255. blue:46./255. alpha:1.]

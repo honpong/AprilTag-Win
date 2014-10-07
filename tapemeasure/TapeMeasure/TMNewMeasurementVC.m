@@ -214,10 +214,6 @@ static transition transitions[] =
     progressView = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
     [self.view addSubview:progressView];
     
-    newMeasurement = [TMMeasurement getNewMeasurement];
-    newMeasurement.type = self.type;
-    [newMeasurement autoSelectUnitsScale];
-    
     tipsView = [RCTipView new];
     [self.view addSubview:tipsView];
     [tipsView addCenterXInSuperviewConstraints];
@@ -282,6 +278,11 @@ static transition transitions[] =
                                              selector:@selector(handleResume)
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
+    
+    newMeasurement = [TMMeasurement getNewMeasurement];
+    newMeasurement.type = self.type;
+    [newMeasurement autoSelectUnitsScale];
+    
     [self handleResume];
     SENSOR_FUSION.delegate = self;
 }

@@ -120,6 +120,7 @@
         [self hideFraction];
     }
     [containerView invalidateIntrinsicContentSize];
+    [containerView setNeedsLayout];
 }
 
 - (void) setDistanceImperialFractional:(RCDistanceImperialFractional*)distObj

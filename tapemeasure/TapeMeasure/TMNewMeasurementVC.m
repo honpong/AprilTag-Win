@@ -231,7 +231,8 @@ static transition transitions[] =
     
     self.distanceLabel.textAlignment = NSTextAlignmentCenter;
     self.distanceLabel.centerAlignmentExcludesFraction = YES;
-    self.distanceLabel.font = [UIFont systemFontOfSize:70];
+    CGFloat fontSize = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? 70 : 50;
+    self.distanceLabel.font = [UIFont systemFontOfSize:fontSize];
     self.distanceLabel.textColor = COLOR_DULL_YELLOW;
     self.distanceLabel.shadowColor = [UIColor darkGrayColor];
 }

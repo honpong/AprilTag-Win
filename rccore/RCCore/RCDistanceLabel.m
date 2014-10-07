@@ -134,12 +134,13 @@
         [self hideFraction];
     }
     
-    if (distObj.wholeInches + distObj.fraction.nominator == 0)
+    containerView.distanceLabel.text = [distObj getStringWithoutFractionOrUnitsSymbol];
+    
+    if (![containerView.distanceLabel.text isEqualToString:@"0"] && distObj.wholeInches + distObj.fraction.nominator == 0)
         [self hideSymbol];
     else
         [self showSymbol];
     
-    containerView.distanceLabel.text = [distObj getStringWithoutFractionOrUnitsSymbol];
     [containerView.distanceLabel sizeToFit];
     
     [containerView invalidateIntrinsicContentSize];

@@ -19,8 +19,8 @@
 @property (nonatomic) NSTextAlignment textAlignment;
 @property (nonatomic) UIFont* font;
 
-+ (RCDistanceLabel*) distLabel:(id<RCDistance>)distObj withFrame:(CGRect)frame;
-+ (RCDistanceLabel*) distLabel:(id<RCDistance>)distObj withFrame:(CGRect)frame withFont:(UIFont*)font;
++ (RCDistanceLabel*) distLabel:(id<RCDistance>)distObj;
++ (RCDistanceLabel*) distLabel:(id<RCDistance>)distObj withFont:(UIFont*)font;
 - (void) setDistanceText:(NSString*)dist;
 - (void) setDistance:(id<RCDistance>)distObj;
 - (void) setDistanceImperialFractional:(RCDistanceImperialFractional*)distObj;

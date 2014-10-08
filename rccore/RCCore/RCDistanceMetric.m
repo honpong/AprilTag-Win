@@ -24,19 +24,19 @@
         
         if(scale == UnitsScaleCM)
         {
-            self.unitSymbol = @"cm";
+            unitSymbol = @"cm";
             convertedDist = meters * 100; //convert to cm
             stringRep = [NSString localizedStringWithFormat:@"%0.1f%@", convertedDist, unitSymbol];
         }
         else if(scale == UnitsScaleKM)
         {
-            self.unitSymbol = @"km";
+            unitSymbol = @"km";
             convertedDist = meters / 1000; //convert to km
             stringRep = [NSString localizedStringWithFormat:@"%0.3f%@", convertedDist, unitSymbol];
         }
         else if(scale == UnitsScaleM)
         {
-            self.unitSymbol = @"m";
+            unitSymbol = @"m";
             stringRep = [NSString localizedStringWithFormat:@"%0.2f%@", meters, unitSymbol];
         }
         else

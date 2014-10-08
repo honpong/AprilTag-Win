@@ -11,7 +11,11 @@
 @implementation RCDistanceImperialFractional
 {
     NSString* stringRep;
-    float convertedDist;
+    NSString* stringWithoutFractionOrUnitsSymbol;
+    double _miles;
+    double _yards;
+    double _feet;
+    double _inches;
 }
 @synthesize meters, scale, wholeMiles, wholeYards, wholeFeet, wholeInches, fraction;
 
@@ -22,34 +26,42 @@
 
 + (RCDistanceImperialFractional*) distWithMiles:(int)miles withYards:(int)yards withFeet:(int)feet withInches:(int)inches withNominator:(int)nom withDenominator:(int)denom
 {
-    return [[RCDistanceImperialFractional alloc] initWithMiles:miles withYards:yards withFeet:feet withInches:inches withNominator:nom withDenominator:denom];
+    RCDistanceImperialFractional* dist = [[RCDistanceImperialFractional alloc] initWithMiles:miles withYards:yards withFeet:feet withInches:inches withNominator:nom withDenominator:denom withScale:UnitsScaleIN];
+    return dist;
+}
+
++ (RCDistanceImperialFractional*) distWithMiles:(int)miles withYards:(int)yards withFeet:(int)feet withInches:(int)inches withNominator:(int)nom withDenominator:(int)denom withScale:(UnitsScale)unitsScale
+{
+    RCDistanceImperialFractional* dist = [[RCDistanceImperialFractional alloc] initWithMiles:miles withYards:yards withFeet:feet withInches:inches withNominator:nom withDenominator:denom withScale:unitsScale];
+    return dist;
 }
 
 - (id) initWithMeters:(float)meters_ withScale:(UnitsScale)unitsScale
 {
     if(self = [super init])
     {
+        _inches = _feet = _yards = _miles = 0;
         wholeMiles = wholeYards = wholeFeet = wholeInches = 0;
         meters = fabsf(meters_);
         scale = unitsScale;
         
-        convertedDist = meters * INCHES_PER_METER; //convert to inches
+        _inches = meters * INCHES_PER_METER; //convert to inches
         
         if(scale == UnitsScaleFT)
         {
-            [self calculateFeet:convertedDist];
+            [self calculateFeet:_inches];
         }
         else if(scale == UnitsScaleYD)
         {
-            [self calculateYards:convertedDist];
+            [self calculateYards:_inches];
         }
         else if(scale == UnitsScaleMI)
         {
-            [self calculateMiles:convertedDist];
+            [self calculateMiles:_inches];
         }
         else if(scale == UnitsScaleIN)
         {
-            [self calculateInches:convertedDist];
+            [self calculateInches:_inches];
         }
         else
         {
@@ -60,40 +72,32 @@
     return self;
 }
 
-- (id) initWithMiles:(int)miles withYards:(int)yards withFeet:(int)feet withInches:(int)inches withNominator:(int)nom withDenominator:(int)denom
+- (id) initWithMiles:(int)miles withYards:(int)yards withFeet:(int)feet withInches:(int)inches withNominator:(int)nom withDenominator:(int)denom withScale:(UnitsScale)unitsScale
 {
-    if(self = [super init])
-    {
-        wholeMiles = miles;
-        wholeYards = yards;
-        wholeFeet = feet;
-        wholeInches = inches;
-        fraction = [RCFraction fractionWithNominator:nom withDenominator:denom];
-        scale = UnitsScaleIN;
-    }
-    return self;
+    float meters_ = miles * METERS_PER_MILE + yards * METERS_PER_YARD + feet * METERS_PER_FOOT + inches * METERS_PER_INCH + ((float)nom/denom * METERS_PER_INCH);
+    return [[RCDistanceImperialFractional alloc] initWithMeters:meters_ withScale:unitsScale];
 }
 
 - (void) calculateMiles:(double)inches
 {
-    double miles = inches / INCHES_PER_MILE;
-    wholeMiles = floor(miles);
+    _miles = inches / INCHES_PER_MILE;
+    wholeMiles = floor(_miles);
     double remainingInches = inches - (wholeMiles * INCHES_PER_MILE);
     [self calculateFeet:remainingInches]; //skip to feet
 }
 
 - (void) calculateYards:(double)inches
 {
-    double yards = inches / INCHES_PER_YARD;
-    wholeYards = floor(yards);
+    _yards = inches / INCHES_PER_YARD;
+    wholeYards = floor(_yards);
     double remainingInches = inches - (wholeYards * INCHES_PER_YARD);
     [self calculateFeet:remainingInches];
 }
 
 - (void) calculateFeet:(double)inches
 {
-    double feet = inches / INCHES_PER_FOOT;
-    wholeFeet = floor(feet);
+    _feet = inches / INCHES_PER_FOOT;
+    wholeFeet = floor(_feet);
     double remainingInches = inches - (wholeFeet * INCHES_PER_FOOT);
     [self calculateInches:remainingInches];
 }
@@ -142,7 +146,7 @@
     if (scale == UnitsScaleMI)
     {
         if (wholeInches >= 6) wholeFeet++;
-        wholeInches = 0;
+    wholeInches = 0;
     }
     if (scale == UnitsScaleYD && wholeFeet == 3)
     {
@@ -152,58 +156,72 @@
     if (scale == UnitsScaleMI && wholeFeet == INCHES_PER_MILE / 12)
     {
         wholeMiles++;
-        wholeFeet = 0;
+    wholeFeet = 0;
     }
 }
 
 - (NSString*) description
 {
-    NSMutableString* result = [self getStringWithoutFractionOrUnitsSymbol];
-
-    if (scale != UnitsScaleYD && scale != UnitsScaleMI && fraction.nominator > 0)
+    if (stringRep == nil)
     {
-        if (result.length > 0) [result appendString:@" "];
-        [result appendString:[fraction description]];
-        [result appendString:@"\""];
-    }
-    else if (wholeInches > 0)
-    {
-        [result appendString:@"\""];
-    }
+        NSMutableString* result = [[self getStringWithoutFractionOrUnitsSymbol] mutableCopy];
 
-    return [NSString stringWithString:result];
+        if (scale != UnitsScaleYD && scale != UnitsScaleMI && fraction.nominator > 0)
+        {
+            if (result.length > 0) [result appendString:@" "];
+            [result appendString:[fraction description]];
+            [result appendString:@"\""];
+        }
+        else if (wholeInches > 0)
+        {
+            [result appendString:@"\""];
+        }
+        
+        stringRep = [NSString stringWithString:result];
+    }
+    
+    return stringRep;
 }
 
-- (NSMutableString*) getStringWithoutFractionOrUnitsSymbol
+- (NSString*) getStringWithoutFractionOrUnitsSymbol
 {
-    NSMutableString* result = [NSMutableString stringWithString:@""];
-    
+    if (stringWithoutFractionOrUnitsSymbol == nil)
+    {
+        NSMutableString* result = [NSMutableString stringWithString:@""];
+        
     [self roundToScale];
+        
+        if (scale == UnitsScaleMI)
+        {
+            [result appendString: [NSString localizedStringWithFormat:@"%imi", wholeMiles]];
+        }
+        if (scale == UnitsScaleYD)
+        {
+            [result appendString: [NSString localizedStringWithFormat:@"%iyd", wholeYards]];
+        }
+        if (scale == UnitsScaleFT && wholeFeet == 0)
+        {
+            [result appendString: @"0\'"];
+        }
+        else if (wholeFeet)
+        {
+            if (result.length > 0) [result appendString:@" "];
+            [result appendString: [NSString localizedStringWithFormat:@"%i\'", wholeFeet]];
+        }
+        if (wholeInches && scale != UnitsScaleMI)
+        {
+            if (result.length > 0) [result appendString:@" "];
+            [result appendString: [NSString localizedStringWithFormat:@"%i", wholeInches]];
+        }
+        if (scale == UnitsScaleIN && (wholeInches + fraction.nominator == 0))
+        {
+            [result appendString:@"0"];
+        }
+        
+        stringWithoutFractionOrUnitsSymbol = [NSString stringWithString:result];;
+    }
     
-    if (wholeMiles && scale == UnitsScaleMI)
-        [result appendString: [NSString localizedStringWithFormat:@"%imi", wholeMiles]];
-    
-    if (wholeYards && scale == UnitsScaleYD)
-    {
-        if (result.length > 0) [result appendString:@" "];
-        [result appendString: [NSString localizedStringWithFormat:@"%iyd", wholeYards]];
-    }
-    if (wholeFeet)
-    {
-        if (result.length > 0) [result appendString:@" "];
-        [result appendString: [NSString localizedStringWithFormat:@"%i\'", wholeFeet]];
-    }
-    if (wholeInches && scale != UnitsScaleMI)
-    {
-        if (result.length > 0) [result appendString:@" "];
-        [result appendString: [NSString localizedStringWithFormat:@"%i", wholeInches]];
-    }
-    if (wholeInches + wholeFeet + wholeYards + wholeMiles + fraction.nominator == 0)
-    {
-        [result appendString:@"0"];
-    }
-    
-    return result;
+    return stringWithoutFractionOrUnitsSymbol;
 }
 
 @end

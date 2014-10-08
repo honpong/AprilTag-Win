@@ -22,14 +22,14 @@
 }
 @synthesize centerAlignmentExcludesFraction;
 
-+ (RCDistanceLabel*) distLabel:(id<RCDistance>)distObj withFrame:(CGRect)frame
++ (RCDistanceLabel*) distLabel:(id<RCDistance>)distObj
 {
-    return [RCDistanceLabel distLabel:distObj withFrame:frame withFont:[UIFont systemFontOfSize:[UIFont systemFontSize]]];
+    return [RCDistanceLabel distLabel:distObj withFont:[UIFont systemFontOfSize:[UIFont systemFontSize]]];
 }
 
-+ (RCDistanceLabel*) distLabel:(id<RCDistance>)distObj withFrame:(CGRect)frame withFont:(UIFont*)font
++ (RCDistanceLabel*) distLabel:(id<RCDistance>)distObj withFont:(UIFont*)font
 {
-    RCDistanceLabel* label = [[RCDistanceLabel alloc] initWithFrame:frame];
+    RCDistanceLabel* label = [RCDistanceLabel new];
     [label setDistance:distObj];
     label.font = font;
     return label;
@@ -125,6 +125,8 @@
 
 - (void) setDistanceImperialFractional:(RCDistanceImperialFractional*)distObj
 {
+    containerView.distanceLabel.text = [distObj getStringWithoutFractionOrUnitsSymbol];
+    
     if (distObj.fraction.nominator > 0)
     {
         [self showFraction];
@@ -134,8 +136,6 @@
     {
         [self hideFraction];
     }
-    
-    containerView.distanceLabel.text = [distObj getStringWithoutFractionOrUnitsSymbol];
     
     if (![containerView.distanceLabel.text isEqualToString:@"0"] && distObj.wholeInches + distObj.fraction.nominator == 0)
         [self hideSymbol];

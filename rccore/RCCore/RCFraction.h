@@ -10,7 +10,7 @@
 
 @interface RCFraction : NSObject
 
-@property float floatValue;
+@property (readonly) float floatValue;
 @property int nominator;
 @property int denominator;
 

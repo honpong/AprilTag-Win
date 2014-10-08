@@ -90,6 +90,8 @@
         self.btnFractional.enabled = YES;
         self.btnFractional.selectedSegmentIndex = theMeasurement.fractional;
     }
+    
+    [self.view setNeedsLayout]; // workaround for bug on iPhone where segmented control doesn't honor it's height constraint.
 }
 
 - (IBAction)handleUnitsButton:(id)sender

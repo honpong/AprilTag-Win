@@ -41,7 +41,6 @@
         
     videoView = [[TMVideoPreview alloc] initWithFrame:self.frame];
     videoView.translatesAutoresizingMaskIntoConstraints = NO;
-    [videoView setVideoOrientation:UIInterfaceOrientationPortrait];
     [self addSubview:videoView];
     [self sendSubviewToBack:videoView];
     [videoView addMatchSuperviewConstraints];

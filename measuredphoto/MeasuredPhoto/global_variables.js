@@ -23,9 +23,9 @@ var hammer; //the gesture recognition object
 
 var is_rc_initialized = false; //we use this to determine whether or not we need to call a bunch of setup functions.
 var draw;  //the main SVG DOM object we'll be adding to
-var img_container;//the nest SVG element which contains the image and the measurements
+var img_container;//the nested SVG element which contains the image and the measurements
 var draw_g; //the SVG group which contains the image and the measurements - it is rotated and scaled inside draw_container to allow for dynamic editing behavior.
-var measured_svg; //a nested svg object inside draw that contains the measurements we draw to the screen.
+var measured_svg; //a nested svg object inside draw_g that contains the measurements we draw to the screen.
 var image;  // the image that goes in the svg node
 var orientation_drawn_landsacep = false; //lets us know which way we were drawn when we're re-drawing. this may be helpful for optimizaitons, or could be factored out.
 var bounce_animation_id = null; // allows tracking and canceling of the pan bounce animation
@@ -49,6 +49,7 @@ var menu_background_color = '#fff';
 var button_size = 44;
 var button_outline_color = '#fff';
 var button_icon_color = '#333';
+var button_icon_inactive_color = '#999';
 var button_icon_stoke_width = 1.2;
 var button_fill_color = '#fff';
 var button_fill_opacity = 0.0;

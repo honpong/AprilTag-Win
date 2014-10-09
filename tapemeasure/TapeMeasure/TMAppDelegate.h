@@ -14,7 +14,7 @@
 #import "TMIntroScreen.h"
 #import "TMLocalMoviePlayer.h"
 
-@interface TMAppDelegate : UIResponder <UIApplicationDelegate, CLLocationManagerDelegate, TMLocalMoviePlayerDelegate>
+@interface TMAppDelegate : UIResponder <UIApplicationDelegate, CLLocationManagerDelegate, RCLocalMoviePlayerDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
 

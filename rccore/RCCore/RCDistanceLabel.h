@@ -10,15 +10,17 @@
 #import "RCDistanceImperialFractional.h"
 #import "RCFractionLabel.h"
 
-@interface RCDistanceLabel : UILabel
+@interface RCDistanceLabel : UIView
 
-@property (readonly) UILabel* distanceLabel;
-@property (readonly) RCFractionLabel* fractionLabel;
-@property (readonly) UILabel* symbolLabel;
 @property (nonatomic) BOOL centerAlignmentExcludesFraction;
+@property (nonatomic) NSString* text;
+@property (nonatomic) UIColor* textColor;
+@property (nonatomic) UIColor* shadowColor;
+@property (nonatomic) NSTextAlignment textAlignment;
+@property (nonatomic) UIFont* font;
 
-+ (RCDistanceLabel*) distLabel:(id<RCDistance>)distObj withFrame:(CGRect)frame;
-+ (RCDistanceLabel*) distLabel:(id<RCDistance>)distObj withFrame:(CGRect)frame withFont:(UIFont*)font;
++ (RCDistanceLabel*) distLabel:(id<RCDistance>)distObj;
++ (RCDistanceLabel*) distLabel:(id<RCDistance>)distObj withFont:(UIFont*)font;
 - (void) setDistanceText:(NSString*)dist;
 - (void) setDistance:(id<RCDistance>)distObj;
 - (void) setDistanceImperialFractional:(RCDistanceImperialFractional*)distObj;

@@ -35,6 +35,8 @@ const static f_t dynamic_W_thresh_variance = 5.e-2; // variance of W must be les
 //a_bias_var for best results on benchmarks is 6.4e-3
 const static f_t min_a_bias_var = 1.e-4; // calibration will finish immediately when variance of a_bias is less than this, and it is reset to this between each run
 const static f_t min_w_bias_var = 1.e-6; // variance of w_bias is reset to this between each run
+const static f_t max_accel_delta = 10.; //This is biggest jump seen in hard shaking of device
+const static f_t max_gyro_delta = 5.; //This is biggest jump seen in hard shaking of device
 //TODO: homogeneous coordinates.
 
 /*
@@ -415,16 +417,23 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, v4 meas, u
 
 void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t time)
 {
+    v4 meas(data[0], data[1], data[2], 0.);
+    v4 accel_delta = meas - f->last_accel_meas;
+    f->last_accel_meas = meas;
+    //This will throw away both the outlier measurement and the next measurement, because we update last every time. This prevents setting last to an outlier and never recovering.
     if(f->run_state == RCSensorFusionRunStateInactive) return;
     if(!check_packet_time(f, time, packet_accelerometer)) return;
-
     if(!f->got_accelerometer) { //skip first packet - has been crap from gyro
         f->got_accelerometer = true;
         return;
     }
     if(!f->got_gyroscope) return;
 
-    v4 meas(data[0], data[1], data[2], 0.);
+    if(fabs(accel_delta[0]) > max_accel_delta || fabs(accel_delta[1]) > max_accel_delta || fabs(accel_delta[2]) > max_accel_delta)
+    {
+        if(log_enabled) fprintf(stderr, "Rejecting an accel sample due to extreme jump %f %f %f\n", accel_delta[0], accel_delta[1], accel_delta[2]);
+        return;
+    }
     
     if(!f->gravity_init) {
         f->gravity_init = true;
@@ -480,6 +489,10 @@ extern "C" void filter_gyroscope_packet(void *_f, packet_t *p)
 
 void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time)
 {
+    v4 meas(data[0], data[1], data[2], 0.);
+    v4 gyro_delta = meas - f->last_gyro_meas;
+    f->last_gyro_meas = meas;
+    //This will throw away both the outlier measurement and the next measurement, because we update last every time. This prevents setting last to an outlier and never recovering.
     if(f->run_state == RCSensorFusionRunStateInactive) return;
     if(!check_packet_time(f, time, packet_gyroscope)) return;
     if(!f->got_gyroscope) { //skip the first piece of data as it seems to be crap
@@ -488,7 +501,11 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
     }
     if(!f->gravity_init) return;
 
-    v4 meas(data[0], data[1], data[2], 0.);
+    if(fabs(gyro_delta[0]) > max_gyro_delta || fabs(gyro_delta[1]) > max_gyro_delta || fabs(gyro_delta[2]) > max_gyro_delta)
+    {
+        if(log_enabled) fprintf(stderr, "Rejecting a gyro sample due to extreme jump %f %f %f\n", gyro_delta[0], gyro_delta[1], gyro_delta[2]);
+        return;
+    }
 
     observation_gyroscope *obs_w = new observation_gyroscope(f->s, time, time);
     for(int i = 0; i < 3; ++i) {

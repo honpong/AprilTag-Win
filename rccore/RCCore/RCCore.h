@@ -40,6 +40,9 @@
 #import "UIView+RCConstraints.h"
 #import "UIView+RCOrientationRotation.h"
 #import "UIView+RCViewFade.h"
+#import "UIView+RCAutoLayoutDebugging.h"
+#import "UINavigationController+RCNavConExtensions.h"
+#import "NSLayoutConstraint+RCAutoLayoutDebugging.h"
 
 #import "RCRotatingView.h"
 #import "RCSlideBanner.h"
@@ -49,6 +52,8 @@
 #import "RCThreeButtonSlideView.h"
 #import "RCLocationPopUp.h"
 #import "RCTipView.h"
+
+#import "RCLocalMoviePlayer.h"
 
 #import "NSString+RCString.h"
 

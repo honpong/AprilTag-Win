@@ -24,14 +24,13 @@
 		32590C8316781F4000E2BA1C /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32C87C4416779B2F006ED337 /* CoreLocation.framework */; };
 		325FC8BB16D6F7CF003A00BE /* TMLoginVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 325FC8BA16D6F7CF003A00BE /* TMLoginVC.m */; };
 		3265479819C3669500A89749 /* Tutorial.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 3265479719C3669500A89749 /* Tutorial.mp4 */; };
-		326E47D116FA31C2007AA105 /* MainStoryboard_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3280F7FB161BBB3200B5C8A8 /* MainStoryboard_iPhone.storyboard */; };
 		326E47D216FA31CE007AA105 /* TMNewMeasurementVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 3280F802161BBB3200B5C8A8 /* TMNewMeasurementVC.m */; };
 		326E47D316FA5DFD007AA105 /* TMAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 3233C7AE16F3B9D700129B99 /* TMAnalytics.m */; };
 		326E47D516FA5ECF007AA105 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287846F1630B6CB00040AAF /* AVFoundation.framework */; };
 		326E47D616FA5ED4007AA105 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3288554F16307A6A0074A3DE /* CoreMotion.framework */; };
 		326E47D716FA5EE1007AA105 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32C87C4416779B2F006ED337 /* CoreLocation.framework */; };
 		3273BCB5170BA81F00FF0F6A /* TMMeasurementType.m in Sources */ = {isa = PBXBuildFile; fileRef = 3273BCB4170BA81F00FF0F6A /* TMMeasurementType.m */; };
-		32763FB719BFB2D700D94DEB /* libFlurry_5.3.0.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32763FB619BFB2D700D94DEB /* libFlurry_5.3.0.a */; };
+		327FC37E19D505A200C113D0 /* libRCCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 329B38DD1626409D0021B41E /* libRCCore.a */; };
 		32803A6018DB6452002F54B5 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 32803A5F18DB6452002F54B5 /* Images.xcassets */; };
 		32803A6A18DBA2CF002F54B5 /* UIImage+InverseImage.m in Sources */ = {isa = PBXBuildFile; fileRef = 32803A6918DBA2CF002F54B5 /* UIImage+InverseImage.m */; };
 		32808D5F170396B600BE7CBC /* TMTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32808D5E170396B600BE7CBC /* TMTableViewController.m */; };
@@ -51,7 +50,6 @@
 		3285FEB7163717D60046D02E /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3285FEB2163717440046D02E /* GLKit.framework */; };
 		3285FEB91637182B0046D02E /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3285FEB81637182B0046D02E /* OpenGLES.framework */; };
 		32865B9116260B7C0080BA1A /* RCCore.xcodeproj in Resources */ = {isa = PBXBuildFile; fileRef = 32865B9016260B7C0080BA1A /* RCCore.xcodeproj */; };
-		32865B9316260C710080BA1A /* libRCCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32865B9216260C710080BA1A /* libRCCore.a */; };
 		3287279D16A9C7C7000A652C /* AppledocSettings.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3287279C16A9C7C7000A652C /* AppledocSettings.plist */; };
 		3287846A1630B6B300040AAF /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328784691630B6B300040AAF /* CoreMedia.framework */; };
 		3287846C1630B6C000040AAF /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287846B1630B6C000040AAF /* CoreVideo.framework */; };
@@ -76,6 +74,7 @@
 		3298378D19BFDB3D00270DBB /* OSKWebPageTitleUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 3298378B19BFDB3D00270DBB /* OSKWebPageTitleUtility.m */; };
 		329EB1071937E5050049C9B9 /* about.html in Resources */ = {isa = PBXBuildFile; fileRef = 329EB1061937E5050049C9B9 /* about.html */; };
 		32A0966116D6E8EF001C4D18 /* TMCreateAccountVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A0966016D6E8EF001C4D18 /* TMCreateAccountVC.m */; };
+		32A0A64C19DDC45A0088D6FD /* libFlurry_5.4.0.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32A0A64B19DDC45A0088D6FD /* libFlurry_5.4.0.a */; };
 		32A326A516B0985100F801DE /* TMMeasurement+TMMeasurementExt.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A326A416B0985100F801DE /* TMMeasurement+TMMeasurementExt.m */; };
 		32A3F44D16AA126F0055BDD3 /* TMDataManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A3F44C16AA126F0055BDD3 /* TMDataManagerFactory.m */; };
 		32AB3B1D19B7B86700C9BAF0 /* tutorial_screenshot.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32AB3B1C19B7B86700C9BAF0 /* tutorial_screenshot.jpg */; };
@@ -393,7 +392,7 @@
 		326E47CD16FA2EB0007AA105 /* TMNewMeasurementVCAsyncTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMNewMeasurementVCAsyncTests.m; sourceTree = "<group>"; };
 		3273BCB3170BA81F00FF0F6A /* TMMeasurementType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurementType.h; sourceTree = "<group>"; };
 		3273BCB4170BA81F00FF0F6A /* TMMeasurementType.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurementType.m; sourceTree = "<group>"; };
-		32763FB619BFB2D700D94DEB /* libFlurry_5.3.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libFlurry_5.3.0.a; path = Flurry/libFlurry_5.3.0.a; sourceTree = "<group>"; };
+		327BB10C19DC9D3F004182D1 /* Reveal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Reveal.framework; path = ../Reveal/Reveal.framework; sourceTree = "<group>"; };
 		32803A5F18DB6452002F54B5 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		32803A6818DBA2CF002F54B5 /* UIImage+InverseImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+InverseImage.h"; sourceTree = "<group>"; };
 		32803A6918DBA2CF002F54B5 /* UIImage+InverseImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+InverseImage.m"; sourceTree = "<group>"; };
@@ -423,7 +422,6 @@
 		3285FEB4163717990046D02E /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
 		3285FEB81637182B0046D02E /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		32865B9016260B7C0080BA1A /* RCCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCCore.xcodeproj; path = ../RCCore/RCCore.xcodeproj; sourceTree = "<group>"; };
-		32865B9216260C710080BA1A /* libRCCore.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRCCore.a; path = "../RCCore/build/Release-iphoneos/libRCCore.a"; sourceTree = "<group>"; };
 		3287279C16A9C7C7000A652C /* AppledocSettings.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = AppledocSettings.plist; sourceTree = "<group>"; };
 		328784691630B6B300040AAF /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		3287846B1630B6C000040AAF /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
@@ -463,6 +461,7 @@
 		329EB1061937E5050049C9B9 /* about.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = about.html; sourceTree = "<group>"; };
 		32A0965F16D6E8EF001C4D18 /* TMCreateAccountVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMCreateAccountVC.h; sourceTree = "<group>"; };
 		32A0966016D6E8EF001C4D18 /* TMCreateAccountVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMCreateAccountVC.m; sourceTree = "<group>"; };
+		32A0A64B19DDC45A0088D6FD /* libFlurry_5.4.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libFlurry_5.4.0.a; sourceTree = "<group>"; };
 		32A326A316B0985100F801DE /* TMMeasurement+TMMeasurementExt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TMMeasurement+TMMeasurementExt.h"; sourceTree = "<group>"; };
 		32A326A416B0985100F801DE /* TMMeasurement+TMMeasurementExt.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "TMMeasurement+TMMeasurementExt.m"; sourceTree = "<group>"; };
 		32A3F44B16AA126F0055BDD3 /* TMDataManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMDataManagerFactory.h; sourceTree = "<group>"; };
@@ -862,13 +861,11 @@
 		32E6873918F617160043D50A /* UIView+OSKUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+OSKUtilities.m"; sourceTree = "<group>"; };
 		32E6873A18F617160043D50A /* UIViewController+OSKUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+OSKUtilities.h"; sourceTree = "<group>"; };
 		32E6873B18F617160043D50A /* UIViewController+OSKUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+OSKUtilities.m"; sourceTree = "<group>"; };
-		32E6882718F617D10043D50A /* GoogleOpenSource.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GoogleOpenSource.framework; path = "../OvershareKit/GooglePlus-SDK/GoogleOpenSource.framework"; sourceTree = "<group>"; };
-		32E6882818F617D10043D50A /* GooglePlus.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; name = GooglePlus.bundle; path = "../OvershareKit/GooglePlus-SDK/GooglePlus.bundle"; sourceTree = "<group>"; };
-		32E6882918F617D10043D50A /* GooglePlus.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GooglePlus.framework; path = "../OvershareKit/GooglePlus-SDK/GooglePlus.framework"; sourceTree = "<group>"; };
 		32F216C4170F3B4E003DA782 /* TMResultsVCTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMResultsVCTests.h; sourceTree = "<group>"; };
 		32F216C5170F3B4E003DA782 /* TMResultsVCTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMResultsVCTests.m; sourceTree = "<group>"; };
 		32F403331940E326002741C8 /* TMPreferences.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMPreferences.h; sourceTree = "<group>"; };
 		32F403341940E326002741C8 /* TMPreferences.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMPreferences.m; sourceTree = "<group>"; };
+		32F7D56A19D49F8C002239FF /* RCDebugLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCDebugLog.h; path = ../../SensorManagers/RCDebugLog.h; sourceTree = "<group>"; };
 		D9218CB616E847B2006F4591 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		D9557B1316DFDF1500B48C4B /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		D9557B1F16DFEDD300B48C4B /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
@@ -879,13 +876,14 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				327FC37E19D505A200C113D0 /* libRCCore.a in Frameworks */,
 				32E6849518F5FB430043D50A /* MediaPlayer.framework in Frameworks */,
 				32E6849318F5FB390043D50A /* CoreText.framework in Frameworks */,
 				32E6849118F5FB250043D50A /* AddressBook.framework in Frameworks */,
 				32E681B618F5CD260043D50A /* Accounts.framework in Frameworks */,
 				32B3253116EA8AFB0069DE63 /* MobileCoreServices.framework in Frameworks */,
-				32763FB719BFB2D700D94DEB /* libFlurry_5.3.0.a in Frameworks */,
 				D9218CB716E847B2006F4591 /* SystemConfiguration.framework in Frameworks */,
+				32A0A64C19DDC45A0088D6FD /* libFlurry_5.4.0.a in Frameworks */,
 				D9557B2016DFEDD300B48C4B /* AssetsLibrary.framework in Frameworks */,
 				D9557B1416DFDF1500B48C4B /* Accelerate.framework in Frameworks */,
 				328D264F16BB15550067D7D8 /* Security.framework in Frameworks */,
@@ -901,7 +899,6 @@
 				3287846A1630B6B300040AAF /* CoreMedia.framework in Frameworks */,
 				3288555016307A6A0074A3DE /* CoreMotion.framework in Frameworks */,
 				328478BD162E2CCF00BFCDD4 /* QuartzCore.framework in Frameworks */,
-				32865B9316260C710080BA1A /* libRCCore.a in Frameworks */,
 				3280F7E4161BBB3200B5C8A8 /* UIKit.framework in Frameworks */,
 				3280F7E6161BBB3200B5C8A8 /* Foundation.framework in Frameworks */,
 				3280F7E8161BBB3200B5C8A8 /* CoreGraphics.framework in Frameworks */,
@@ -952,9 +949,7 @@
 		3280F7E2161BBB3200B5C8A8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				32E6882718F617D10043D50A /* GoogleOpenSource.framework */,
-				32E6882818F617D10043D50A /* GooglePlus.bundle */,
-				32E6882918F617D10043D50A /* GooglePlus.framework */,
+				327BB10C19DC9D3F004182D1 /* Reveal.framework */,
 				32E6849418F5FB430043D50A /* MediaPlayer.framework */,
 				32E6849218F5FB390043D50A /* CoreText.framework */,
 				32E6849018F5FB250043D50A /* AddressBook.framework */,
@@ -963,7 +958,6 @@
 				D9218CB616E847B2006F4591 /* SystemConfiguration.framework */,
 				D9557B1F16DFEDD300B48C4B /* AssetsLibrary.framework */,
 				D9557B1316DFDF1500B48C4B /* Accelerate.framework */,
-				32865B9216260C710080BA1A /* libRCCore.a */,
 				328D264E16BB15550067D7D8 /* Security.framework */,
 				32590C8116781EEC00E2BA1C /* MapKit.framework */,
 				32C87C4416779B2F006ED337 /* CoreLocation.framework */,
@@ -1004,6 +998,7 @@
 				32B8F67E16E92368001B1962 /* TMServerOpsFactory.m */,
 				3233C7AD16F3B9D700129B99 /* TMAnalytics.h */,
 				3233C7AE16F3B9D700129B99 /* TMAnalytics.m */,
+				32F7D56A19D49F8C002239FF /* RCDebugLog.h */,
 				32803A5F18DB6452002F54B5 /* Images.xcassets */,
 			);
 			path = TapeMeasure;
@@ -1235,7 +1230,7 @@
 		32E6807B18F5BA740043D50A /* Flurry */ = {
 			isa = PBXGroup;
 			children = (
-				32763FB619BFB2D700D94DEB /* libFlurry_5.3.0.a */,
+				32A0A64B19DDC45A0088D6FD /* libFlurry_5.4.0.a */,
 				32B8F67416E841BF001B1962 /* Flurry.h */,
 			);
 			name = Flurry;
@@ -1839,7 +1834,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				32C539E516701FEC00A14137 /* InfoPlist.strings in Resources */,
-				326E47D116FA31C2007AA105 /* MainStoryboard_iPhone.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2132,6 +2126,7 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/TapeMeasure/Flurry\"",
 					"$(PROJECT_DIR)/TapeMeasure/Flurry",
+					"$(PROJECT_DIR)/TapeMeasure",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = (
@@ -2243,6 +2238,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/../Reveal",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TapeMeasure/TapeMeasure-Prefix.pch";
@@ -2252,10 +2248,14 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/TapeMeasure/Flurry\"",
 					"$(PROJECT_DIR)/TapeMeasure/Flurry",
+					"$(PROJECT_DIR)/TapeMeasure",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
+					"-lz",
+					"-framework",
+					Reveal,
 				);
 				PRODUCT_NAME = "Tape Measure";
 				PROVISIONING_PROFILE = "";
@@ -2277,6 +2277,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
+					"$(PROJECT_DIR)/../Reveal",
 				);
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "TapeMeasure/TapeMeasure-Prefix.pch";
@@ -2286,11 +2287,15 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/TapeMeasure/Flurry\"",
 					"$(PROJECT_DIR)/TapeMeasure/Flurry",
+					"$(PROJECT_DIR)/TapeMeasure",
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
+					"-lz",
+					"-framework",
+					Reveal,
 				);
 				PRODUCT_NAME = "Tape Measure";
 				PROVISIONING_PROFILE = "";

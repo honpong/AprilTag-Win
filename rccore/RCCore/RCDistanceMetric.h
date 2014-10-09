@@ -21,8 +21,8 @@
 
 @interface RCDistanceMetric : NSObject <RCDistance>
 
-@property float meters;
-@property UnitsScale scale;
-@property NSString* unitSymbol;
+@property (readonly) float meters;
+@property (readonly) UnitsScale scale;
+@property (readonly) NSString* unitSymbol;
 
 @end

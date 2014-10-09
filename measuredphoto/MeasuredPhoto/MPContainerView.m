@@ -10,38 +10,47 @@
 #import <RCCore/RCCore.h>
 
 @implementation MPContainerView
+{
+    CGFloat widthPortrait;
+    CGFloat heightPortrait;
+}
 @synthesize delegate;
 
 - (id)initWithCoder:(NSCoder *)aDecoder
 {
     if (self = [super initWithCoder:aDecoder])
     {
+        NSLayoutConstraint* widthConstraint = [self findWidthConstraint];
+        NSLayoutConstraint* heightConstraint = [self findHeightConstraint];
         
+        widthPortrait = widthConstraint.constant;
+        heightPortrait = heightConstraint.constant;
     }
     return self;
 }
 
 - (void) handleOrientationChange:(UIDeviceOrientation)orientation animated:(BOOL)animated
 {
-    [self applyRotationTransformation:orientation animated:animated];
+    if (orientation == UIDeviceOrientationPortrait || orientation == UIDeviceOrientationPortraitUpsideDown)
+    {
+        [self modifyWidthContraint:widthPortrait andHeightConstraint:heightPortrait];
+    }
+    else if (orientation == UIDeviceOrientationLandscapeLeft || orientation == UIDeviceOrientationLandscapeRight)
+    {
+        [self modifyWidthContraint:heightPortrait andHeightConstraint:widthPortrait];
+    }
     
-    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
-    {
-        [self removeConstraintsFromSuperview];
-        [self addMatchSuperviewConstraints];
-    }
-    else
-    {
-        // simply change width and height while leaving constraints in place
-        if (orientation == UIDeviceOrientationPortrait || orientation == UIDeviceOrientationPortraitUpsideDown)
-        {
-            [self modifyWidthContraint:320 andHeightConstraint:480];
-        }
-        else if (orientation == UIDeviceOrientationLandscapeLeft || orientation == UIDeviceOrientationLandscapeRight)
-        {
-            [self modifyWidthContraint:480 andHeightConstraint:320];
-        }
-    }
+    [self setNeedsUpdateConstraints];
+    
+    [self setNeedsUpdateConstraints];
+    [UIView animateWithDuration: .3
+                          delay: 0
+                        options: UIViewAnimationOptionCurveEaseIn
+                     animations:^{
+                         [self applyRotationTransformation:orientation animated:NO];
+                         [self layoutIfNeeded];
+                     }
+                     completion:nil];
 }
 
 // pass all touch events to the delegate, which in this case is the augmented reality view

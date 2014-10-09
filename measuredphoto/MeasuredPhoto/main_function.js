@@ -26,6 +26,7 @@ var switch_image_depthmap; //declaring this in the global scope for later initia
 
 function clear_tool_data(){ //this should be called whenever theres a switch in tools
     //line tool data
+    console.log('starting clear_tool_data');
     lineNotStarted = true;
     click_image_x1 = null;
     click_image_y1 = null;
@@ -36,9 +37,12 @@ function clear_tool_data(){ //this should be called whenever theres a switch in 
 
 
 function rc_initialize(){
+    //console.log = logNative;
+    console.log("starting rc_initialize()");
+    
     is_rc_initialized = true;
-
-    //precent backspace button from bring page back.
+    
+        //precent backspace button from bring page back.
     $(document).bind("keydown", function(e){
         if (e.keyCode == 8) {e.preventDefault();}
     });
@@ -64,7 +68,7 @@ function rc_initialize(){
     measured_svg = img_container.nested();
     draw_g.add(measured_svg);
     
-    //alert('hammer initializaitons');
+    console.log('hammer initializaitons');
 
     hammer = Hammer(document.body);
     
@@ -179,12 +183,14 @@ function rc_initialize(){
             // we want to instantiate a measurement here, and pass that measurement to be drawn
             rcMeasurements.new_measurement(click_image_x1, click_image_y1, i.x, i.y, measured_svg);
             clear_tool_data();
-            setTimeout( function () {rcMeasurements.save_measurements();}, 0)
+            setTimeout( function () {rcMeasurements.save_measurements();
+                        rc_menu.enable_disenable_undo(rcMeasurements.is_undo_available());
+                       }, 0)
         }
     }
     
     function angle_handler(i) {
-    
+        rcMeasurements.new_range(i.x, i.y, measured_svg);
     }
     
     function text_entry_handler (i) {
@@ -199,10 +205,11 @@ function rc_initialize(){
     function click_or_touch(e) {
         var i = pxl_to_img_xy(e.pageX, e.pageY);
         if ( i.x > image_width || i.y > image_height || i.x < 0 || i.y < 0) {return null;} //ignore taps off of image
-        else if (rc_menu.current_button == rc_menu.button2) {line_handler(i);}
-        else if (rc_menu.current_button == rc_menu.button3) {angle_handler(i);}
-        else if (rc_menu.current_button == rc_menu.button4) {eraser_handler(i);}
-        else if (rc_menu.current_button == rc_menu.button5) {text_entry_handler(i);}
+        else if (rc_menu.current_button == rc_menu.line_button) {line_handler(i);}
+        else if (rc_menu.current_button == rc_menu.angle_button) {angle_handler(i);}
+        else if (rc_menu.current_button == rc_menu.eraser_button) {eraser_handler(i);}
+        else if (rc_menu.current_button == rc_menu.text_button) {text_entry_handler(i);}
+        rc_menu.enable_disenable_undo(rcMeasurements.is_undo_available());
     }
     
     FastClick.attach(document.body);
@@ -210,10 +217,18 @@ function rc_initialize(){
     draw.click( function(e) { setTimeout(function(){ click_or_touch(e); },1);   e.stopPropagation(); e.preventDefault();} );
     
     switch_image_depthmap = function () { //we move the image svg off the dom, and move the depthmap on the dom.
-        //remove image from dom tree put depthmap in its place
+        console.log('switch_image_depthmap()');
+        //remove image from dom tree put mask in its place
         if (draw.node.contains(image.node)) {
-            draw_g.node.insertBefore(dm_svg.node,image.node);
+            draw_g.node.insertBefore(dm_mask_svg.node,image.node);
             draw_g.node.removeChild(image.node);
+            if (!dm_mask_drawn) {fill_dm_mask();}
+            
+        }
+        //remove image mask put depthmap in its place
+        else if(draw.node.contains(dm_mask_svg.node)) {
+            draw_g.node.insertBefore(dm_svg.node,dm_mask_svg.node);
+            draw_g.node.removeChild(dm_mask_svg.node);
             //start depthmap calculation if not yet done.
             if (!dm_drawn) {fill_depth_map();}
         }
@@ -221,11 +236,20 @@ function rc_initialize(){
         else if(draw.node.contains(dm_svg.node)){
             draw_g.node.insertBefore(image.node,dm_svg.node);
             draw_g.node.removeChild(dm_svg.node);
+            
         }
     }
     
     undo_last_change = function() {
         rcMeasurements.revert_measurement_state();
+        rc_menu.enable_disenable_undo(rcMeasurements.is_undo_available());
+    }
+    
+    toggle_all_units = function() {
+        if   (default_units_metric) {default_units_metric = false;}
+        else                        {default_units_metric = true;}
+        unit_default_set_by_app = true;
+        rcMeasurements.reset_all_measurement_units_to_default();
     }
     
     // construct menue
@@ -257,8 +281,9 @@ function rc_initialize(){
 
 
 function clear_all(){
+    console.log('starting clear_all()');
     window.setTimeout(function (){
-    //try {
+    try {
         //scale and roation handling
         initial_load = true;
     
@@ -285,10 +310,12 @@ function clear_all(){
     
         //window.setTimeout( function() {alert('completed clear_all');}, 0)
         return 0;
-    //}
-    //catch(err){
-    //    return(err.message);
-   // }
+                      
+        rc_menu.enable_disenable_undo(rcMeasurements.is_undo_available());
+    }
+    catch(err){
+        return(err.message);
+   }
                       },0);
 }
 
@@ -298,6 +325,7 @@ function setDefaultUnits(use_metric) {
 }
 
 function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric){
+    console.log("startin loadMPhoto()");
     window.setTimeout( function () {
         m_photo_guid = guid;
         if (typeof use_metric === "undefined" || use_metric === null) { default_units_metric = false; } //metric is our default if not set
@@ -309,9 +337,9 @@ function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric)
             }
             
             //assume clear is called first if this is the second load
-
+                      console.log('loading image from '+ rc_img_url);
             image = img_container.image(rc_img_url).loaded(function(loader) {
-                                                  console.log('loading image');
+                                                  console.log('starting image load callback');
                                                   //this should rotate the image
                                                   //alert('loading img');
                                                   //image_width = loader.height;
@@ -321,16 +349,19 @@ function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric)
                                                            
                                                   image_width = loader.width;
                                                   image_height = loader.height;
-
+                                                   console.log('loaded image dimensions: ' + image_width.toFixed()+ ' x ' + image_height.toFixed() );
+                                                           
                                                   draw_g.add(image);
                                                   if ( ! draw.node.contains(menu_svg.node)) {draw.node.appendChild(menu_svg.node);}
                                                   
                                                   // load measurements
                                                   rcMeasurements.load_json(rc_annotation_url, function() {
                                                                                     //alert('loading spatial data');
+                                                                                    console.log('starting annotation data load calback');
                                                                                     load_spatial_data(rc_data_url); //this function is defined in depth_data.js
-                                                                                    //size depthmap
-                                                                                    dm_size(image_width,image_height);}
+                                                                                    console.log('finished rcMeasurement.load_json callback');
+                                                                                    rc_menu.enable_disenable_undo(rcMeasurements.is_undo_available());
+                                                                                }
                                                                            );
 
                                                            
@@ -347,5 +378,20 @@ function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric)
             console.log(err.message);
             return(err.message);
         }
+        console.log('finished loadMPhoto()');
     },0 );
+}
+
+function logNative(message)
+{
+    // log to browser console
+    console.debug(message);
+    
+    // log to native land
+    var jsonData = { "message": message };
+    $.ajax({ type: "POST", url: "http://internal.realitycap.com/log/", contentType: "application/json", processData: false, dataType: "json", data: JSON.stringify(jsonData) })
+        .fail(function(jqXHR, textStatus, errorThrown) {
+              alert(textStatus + ": " + JSON.stringify(jqXHR));
+        })
+    ;
 }

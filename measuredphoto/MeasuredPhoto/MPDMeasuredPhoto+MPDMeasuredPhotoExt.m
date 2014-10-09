@@ -80,27 +80,35 @@
 
 - (BOOL) deleteAssociatedFiles
 {
-    NSError* error;
     BOOL isSuccess = YES;
     
-    for (NSURL* url in [[NSFileManager defaultManager] contentsOfDirectoryAtURL:DOCUMENTS_DIRECTORY_URL includingPropertiesForKeys:nil options:0 error:&error])
+    NSError* error;
+    NSArray* dirContents = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:DOCUMENTS_DIRECTORY_URL includingPropertiesForKeys:nil options:0 error:&error];
+    
+    if (error || dirContents == nil)
+    {
+        DLog(@"Failed to get documents directory contents: %@", error);
+        return NO;
+    }
+    
+    if (dirContents.count == 0)
+    {
+        DLog(@"Documents directory is empty");
+        return YES;
+    }
+    
+    for (NSURL* url in dirContents)
     {
         NSString* fileName = url.pathComponents.lastObject;
         if (url.pathExtension.length > 0 && [fileName beginsWithString:self.id_guid])
         {
-            [[NSFileManager defaultManager] removeItemAtURL:url error:&error];
+            isSuccess = [[NSFileManager defaultManager] removeItemAtURL:url error:&error];
             if (error)
             {
-                DLog("%@", error);
+                DLog(@"Error deleting file %@: %@", url, error);
                 isSuccess = NO;
             }
         }
-    }
-    
-    if (error)
-    {
-        DLog("%@", error);
-        isSuccess = NO;
     }
     
     return isSuccess;

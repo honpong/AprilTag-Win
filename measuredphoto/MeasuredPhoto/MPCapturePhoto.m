@@ -16,7 +16,6 @@
 #import "MPSurveyAnswer.h"
 #import "RCStereo.h"
 #import "RCCore/RCSensorDelegate.h"
-@import MediaPlayer;
 #import "MPDMeasuredPhoto.h"
 #import "MPDLocation.h"
 #import "CoreData+MagicalRecord.h"
@@ -95,8 +94,8 @@ static statesetup setups[] =
 {
     //                  button image               sensors fusion   shw-msmnts  badfeat  instrct ftrs    prgrs                     autohide stillPhoto  stereo  showGalleryButton title           message
     { ST_STARTUP,       BUTTON_SHUTTER_DISABLED,   false,  false,   false,      false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  true,             "Startup",      "Loading" },
-    { ST_READY,         BUTTON_SHUTTER,            true,   false,   false,      false,   false,  false,  SpinnerTypeNone,          true,    false,      false,  true,            "Ready",        "Point the camera at the scene you want to capture, then press the button." },
-    { ST_INITIALIZING,  BUTTON_SHUTTER_DISABLED,   true,   true,    false,      true,    false,  true,   SpinnerTypeDeterminate,   true,    false,      false,  true,            "Initializing", "Hold still" },
+    { ST_READY,         BUTTON_SHUTTER,            true,   false,   false,      false,   false,  false,  SpinnerTypeNone,          true,    false,      false,  true,             "Ready",        "Point the camera at the scene you want to capture, then press the button." },
+    { ST_INITIALIZING,  BUTTON_SHUTTER_DISABLED,   true,   true,    false,      true,    false,  true,   SpinnerTypeDeterminate,   true,    false,      false,  true,             "Initializing", "Hold still" },
     { ST_MOVING,        BUTTON_DELETE,             true,   true,    false,      true,    true,   true,   SpinnerTypeNone,          false,   false,      true,   false,            "Moving",       "Move up, down, or sideways. Press the button to cancel." },
     { ST_CAPTURE,       BUTTON_SHUTTER,            true,   true,    false,      true,    true,   true,   SpinnerTypeNone,          false,   false,      true,   false,            "Capture",      "Press the button to capture a photo." },
     { ST_PROCESSING,    BUTTON_SHUTTER_DISABLED,   false,  false,   false,      false,   false,  false,  SpinnerTypeDeterminate,   true,    true,       false,  false,            "Processing",   "Please wait" },
@@ -300,25 +299,6 @@ static transition transitions[] =
     
     [questionView hideInstantly];
     [self handleResume];
-        
-    if ([[NSUserDefaults.standardUserDefaults objectForKey:PREF_IS_FIRST_START]  isEqual: @YES])
-    {
-        [NSUserDefaults.standardUserDefaults setObject:@NO forKey:PREF_IS_FIRST_START];
-        [self gotoTutorialVideo];
-    }
-    
-    [[NSNotificationCenter defaultCenter] postNotificationName:MPCapturePhotoDidAppearNotification object:nil];
-}
-
-- (void) gotoTutorialVideo
-{
-    NSURL *movieURL = [[NSBundle mainBundle] URLForResource:@"TrueMeasureTutorial" withExtension:@"mp4"];
-    MPLocalMoviePlayer* movieViewController = [[MPLocalMoviePlayer alloc] initWithContentURL:movieURL];
-    movieViewController.modalPresentationStyle = UIModalPresentationFullScreen;
-    [self presentMoviePlayerViewControllerAnimated:movieViewController];
-    
-    [[NSNotificationCenter defaultCenter] removeObserver:movieViewController  name:MPMoviePlayerPlaybackDidFinishNotification object:movieViewController.moviePlayer]; // needed to receive the notification below
-    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(moviePlayerWillExitFullScreen:) name:MPMoviePlayerPlaybackDidFinishNotification object:nil];
 }
 
 - (void) moviePlayerWillExitFullScreen:(NSNotification*)notification
@@ -343,6 +323,8 @@ static transition transitions[] =
 {
     [super viewDidDisappear:animated];
 }
+
+#pragma mark - Orientation
 
 - (BOOL) shouldAutorotate
 {
@@ -375,6 +357,8 @@ static transition transitions[] =
     MPOrientationChangeData* data = [MPOrientationChangeData dataWithOrientation:orientation animated:animated];
     [[NSNotificationCenter defaultCenter] postNotificationName:MPUIOrientationDidChangeNotification object:data];
 }
+
+#pragma mark -
 
 - (void)handlePause
 {
@@ -475,10 +459,11 @@ static transition transitions[] =
     RCStereo * stereo = [RCStereo sharedInstance];
     [stereo setGuid: measuredPhoto.id_guid];
     [stereo processFrame:lastSensorFusionDataWithImage withFinal:true];
-    [stereo setOrientation:[MPCapturePhoto getCurrentUIOrientation]];
+    UIDeviceOrientation orientation = [MPCapturePhoto getCurrentUIOrientation];
+    [stereo setOrientation:orientation];
     stereo.delegate = self;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-        [measuredPhoto writeImagetoJpeg:lastSensorFusionDataWithImage.sampleBuffer withOrientation:[MPCapturePhoto getCurrentUIOrientation]];
+        [measuredPhoto writeImagetoJpeg:lastSensorFusionDataWithImage.sampleBuffer withOrientation:orientation];
         // TODO: Handle potential stereo failure here (this function will return false)
         [stereo preprocess];
     });
@@ -491,14 +476,12 @@ static transition transitions[] =
         MPGalleryController* galleryController = (MPGalleryController*)self.presentingViewController;
         MPEditPhoto* editPhotoController = galleryController.editPhotoController;
         editPhotoController.measuredPhoto = measuredPhoto;
-        editPhotoController.transitioningDelegate = nil; // remove fade transition
         [self presentViewController:editPhotoController animated:YES completion:nil];
     }
     else if ([self.presentingViewController isKindOfClass:[MPEditPhoto class]])
     {
         MPEditPhoto* editPhotoController = (MPEditPhoto*)self.presentingViewController;
         editPhotoController.measuredPhoto = measuredPhoto;
-        editPhotoController.transitioningDelegate = nil; // remove fade transition
         [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
     }
 }

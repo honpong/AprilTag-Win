@@ -648,11 +648,12 @@ bool stereo::preprocess_mesh(void(*progress_callback)(float))
 
     stereo_remesh_delaunay(mesh);
 
+    snprintf(filename, 1024, "%s%s-remesh.json", debug_basename, suffix);
+    stereo_mesh_write_rotated_json(filename, mesh, *this, orientation, debug_texturename);
+
     if(enable_debug_files) {
         snprintf(filename, 1024, "%s%s-remesh.ply", debug_basename, suffix);
         stereo_mesh_write(filename, mesh, debug_texturename);
-        snprintf(filename, 1024, "%s%s-remesh.json", debug_basename, suffix);
-        stereo_mesh_write_rotated_json(filename, mesh, *this, orientation, debug_texturename);
         snprintf(filename, 1024, "%s%s-remesh-correspondences.csv", debug_basename, suffix);
         stereo_mesh_write_correspondences(filename, mesh);
     }

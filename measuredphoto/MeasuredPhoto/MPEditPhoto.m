@@ -169,6 +169,9 @@
 {
     if ([self.presentingViewController isKindOfClass:[MPGalleryController class]])
     {
+        MPGalleryController* galleryController = (MPGalleryController*)self.presentingViewController;
+        [galleryController hideZoomedThumbnail];
+        
         MPCapturePhoto* cameraController = [self.storyboard instantiateViewControllerWithIdentifier:@"Camera"];
         [cameraController setOrientation:[[UIDevice currentDevice] orientation] animated:NO];
         [self presentViewController:cameraController animated:NO completion:nil];
@@ -238,7 +241,7 @@
     {
         NSString* javascript = [NSString stringWithFormat:@"loadMPhoto('%@', '%@', '%@', '%@');", self.measuredPhoto.imageFileName, self.measuredPhoto.depthFileName, self.measuredPhoto.annotationsFileName, self.measuredPhoto.id_guid];
         [self.webView stringByEvaluatingJavaScriptFromString: javascript];
-        DLogs(javascript);
+//        DLog(javascript);
     }
     else
     {
@@ -310,12 +313,22 @@
             *error = [NSError errorWithDomain:ERROR_DOMAIN code:500 userInfo:userInfo];
         }
     }
+    else if ([nativeAction.request.URL.description endsWithString:@"/log/"] && [nativeAction.method isEqualToString:@"POST"])
+    {
+        [self webViewLog:[nativeAction.params objectForKey:@"message"]];
+        return @{ @"message": @"Write to log successful" };
+    }
     else
     {
        return @{ @"message": @"Invalid URL" };
     }
     
     return nil;
+}
+
+- (void) webViewLog:(NSString*)message
+{
+    if (message && message.length > 0) DLog(@"%@", message);
 }
 
 @end

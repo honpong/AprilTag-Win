@@ -6,6 +6,8 @@
 //  Copyright (c) 2012 RealityCap. All rights reserved.
 //
 
+#include "RCDebugLog.h"
+
 #ifndef TapeMeasure_Constants_h
 #define TapeMeasure_Constants_h
 #endif
@@ -35,6 +37,9 @@
 #define PREF_SHOW_INSTRUCTIONS @"show_instructions"
 #define PREF_SHOW_ACCURACY_QUESTION @"show_accuracy_question"
 #define PREF_IS_FIRST_START @"is_first_start"
+#define PREF_SHOW_RATE_NAG @"show_rate_nag"
+#define PREF_RATE_NAG_TIMESTAMP @"rate_nag_timestamp"
+#define PREF_LOCATION_NAG_TIMESTAMP @"location_nag_timestamp"
 
 #define API_VERSION 1
 #ifdef ARCHIVE
@@ -47,16 +52,6 @@
 #define API_DATUM_LOGGED @"api/v1/datum_logged/"
 
 #define INCHES_PER_METER 39.3700787
-
-#ifdef ARCHIVE
-#define LOGME // do nothing
-#define DLog(fmt, ...) // do nothing
-#define DLogs(string) // do nothing
-#else
-#define LOGME NSLog(@"%s", __PRETTY_FUNCTION__);
-#define DLog(fmt, ...) NSLog((@"%s " fmt), __PRETTY_FUNCTION__, ##__VA_ARGS__);
-#define DLogs(string) NSLog((@"%s %@"), __PRETTY_FUNCTION__, string);
-#endif
 
 #define KEY_DATE_STARTED @"dateStarted"
 
@@ -85,3 +80,11 @@ typedef NS_ENUM(int, MPTutorialAnswer) {
 
 static NSString * const MPUIOrientationDidChangeNotification = @"com.realitycap.MPUIOrientationDidChangeNotification";
 static NSString * const MPCapturePhotoDidAppearNotification = @"com.realitycap.MPCapturePhotoDidAppearNotification";
+
+#define URL_WEBSITE @"http://realitycap.com"
+#define URL_SHARING @"http://app.realitycap.com/truemeasure"
+#define URL_APPSTORE @"itms-apps://itunes.com/apps/TrueMeasure"
+
+static NSString* RCApplicationCredential_Facebook_Key = @"671645849539796";
+static NSString* RCApplicationCredential_Facebook_Secret = @"827cfb4e92aff3551ffeb3618be46e08"; // TODO: this is for ETM. change to TM.
+

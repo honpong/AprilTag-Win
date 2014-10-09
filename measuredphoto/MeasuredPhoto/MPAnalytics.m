@@ -45,7 +45,7 @@
 
 + (void) logScreenView:(NSString*)screenName
 {
-    DLog("Screen tracked: %@", screenName); //TODO: send to GA
+    DLog(@"Screen tracked: %@", screenName); //TODO: send to GA
 }
 
 /** Send analytics data to server right now */

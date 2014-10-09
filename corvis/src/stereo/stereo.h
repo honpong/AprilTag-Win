@@ -17,15 +17,19 @@ struct stereo_match {
 };
 
 /*
- * Each name corresponds to iOS UIImageOrientation,
+ * Each name corresponds to iOS UIDeviceOrientation,
  * the value is the amount the mesh needs to be rotated to bring it inline with
  * a jpeg saved with this orientation
+ * LANDSCAPE_LEFT = home button on the left (landscape)
+ * LANDSCAPE_RIGHT = home button on the right (landscape)
+ * PORTRAIT = home button on the bottom (portrait)
+ * PORTRAIT_UPSIDE_DOWN = home button on the top (portrait)
  */
 enum stereo_orientation {
-    STEREO_ORIENTATION_RIGHT = 0,
-    STEREO_ORIENTATION_UP = 90,
-    STEREO_ORIENTATION_LEFT = 180,
-    STEREO_ORIENTATION_DOWN = 270,
+    STEREO_ORIENTATION_LANDSCAPE_LEFT = 0,
+    STEREO_ORIENTATION_PORTRAIT = 90,
+    STEREO_ORIENTATION_LANDSCAPE_RIGHT = 180,
+    STEREO_ORIENTATION_PORTRAIT_UPSIDE_DOWN = 270,
 };
 
 class stereo_feature {
@@ -84,7 +88,7 @@ public:
     void set_orientation(enum stereo_orientation current_orientation) { orientation = current_orientation; }
 
     void reset() { if(target) delete target; target = 0; if(reference) delete reference; reference = 0; }
-    stereo(): target(0), reference(0), orientation(STEREO_ORIENTATION_RIGHT) {}
+    stereo(): target(0), reference(0), orientation(STEREO_ORIENTATION_LANDSCAPE_LEFT) {}
     ~stereo() { if(target) delete target; if(reference) delete reference; }
 protected:
     bool find_and_triangulate_top_n(int reference_x, int reference_y, int width, int height, int n, vector<struct stereo_match> & matches) const;

@@ -60,6 +60,7 @@ filter(bool estimate_calibration): s(estimate_calibration, cov)
 
     uint64_t want_start;
     bool got_accelerometer, got_gyroscope, got_image;
+    v4 last_gyro_meas, last_accel_meas;
     int image_height, image_width;
     uint64_t shutter_delay;
     uint64_t shutter_period;

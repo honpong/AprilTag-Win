@@ -14,35 +14,39 @@
 
 @implementation MPLocalMoviePlayer
 
-- (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
+- (void) viewDidLoad
 {
-    self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
-    if (self) {
-        // Custom initialization
-    }
-    return self;
-}
-
-- (void)viewDidLoad
-{
+    self.movieURL = [[NSBundle mainBundle] URLForResource:@"Tutorial" withExtension:@"mp4"];
     [super viewDidLoad];
 }
 
-- (void)didReceiveMemoryWarning
+- (void) viewDidAppear:(BOOL)animated
 {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+//    [TMAnalytics logEvent:@"View.Tutorial"];
+    [super viewDidAppear:animated];
 }
 
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+- (IBAction)handlePlayButton:(id)sender
 {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
+//    [TMAnalytics logEvent:@"View.Tutorial.Play"];
+    [super handlePlayButton:sender];
 }
-*/
+
+- (IBAction)handleSkipButton:(id)sender
+{
+//    [TMAnalytics logEvent:@"View.Tutorial.Skip"];
+    [super handleSkipButton:sender];
+}
+
+- (IBAction)handlePlayAgainButton:(id)sender
+{
+//    [TMAnalytics logEvent:@"View.Tutorial.PlayAgain"];
+    [super handlePlayAgainButton:sender];
+}
+
+- (IBAction)handleContinueButton:(id)sender
+{
+    [super handleContinueButton:sender];
+}
 
 @end

@@ -18,9 +18,9 @@ typedef enum {
 
 @protocol RCDistance <NSObject>
 
-@property float meters;
-@property UnitsScale scale;
-@property NSString* unitSymbol;
+@property (readonly) float meters;
+@property (readonly) UnitsScale scale;
+@property (readonly) NSString* unitSymbol;
 
 - (id) initWithMeters:(float)distance withScale:(UnitsScale)scale;
 

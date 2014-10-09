@@ -44,6 +44,8 @@
     if ([platform isEqualToString:@"iPhone5,4"])    return DeviceTypeiPhone5c;
     if ([platform isEqualToString:@"iPhone6,1"])    return DeviceTypeiPhone5s;
     if ([platform isEqualToString:@"iPhone6,2"])    return DeviceTypeiPhone5s;
+    if ([platform isEqualToString:@"iPhone7,1"])    return DeviceTypeiPhone6Plus;
+    if ([platform isEqualToString:@"iPhone7,2"])    return DeviceTypeiPhone6;
 
     if ([platform isEqualToString:@"iPod1,1"])      return DeviceTypeUnknown; //iPod touch 1
     if ([platform isEqualToString:@"iPod2,1"])      return DeviceTypeUnknown; //iPod touch 2
@@ -68,8 +70,10 @@
     if ([platform isEqualToString:@"iPad3,6"])      return DeviceTypeiPad4;
     if ([platform isEqualToString:@"iPad4,1"])      return DeviceTypeiPadAir;
     if ([platform isEqualToString:@"iPad4,2"])      return DeviceTypeiPadAir;
+    if ([platform isEqualToString:@"iPad4,3"])      return DeviceTypeiPadAir;
     if ([platform isEqualToString:@"iPad4,4"])      return DeviceTypeiPadMiniRetina;
     if ([platform isEqualToString:@"iPad4,5"])      return DeviceTypeiPadMiniRetina;
+    if ([platform isEqualToString:@"iPad4,6"])      return DeviceTypeiPadMiniRetina;
 
     if ([platform isEqualToString:@"i386"])         return DeviceTypeUnknown;
     if ([platform isEqualToString:@"x86_64"])       return DeviceTypeUnknown;

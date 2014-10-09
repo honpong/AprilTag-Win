@@ -7,6 +7,7 @@
 //
 
 #import "TMResultsVC.h"
+#import "TMHistoryVC.h"
 
 @interface TMResultsVC ()
 
@@ -35,6 +36,11 @@
     [self.navigationController setNavigationBarHidden:NO animated:NO]; // necessary because location intro may have hidden it
     
     [RCDistanceLabel class]; // needed so that storyboard can see this class, since it's in a library
+    CGFloat fontSize = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? 70 : 50;
+    self.distLabel.font = [UIFont systemFontOfSize:fontSize];
+    self.distLabel.textColor = [UIColor colorWithRed:219./255. green:166./255. blue:46./255. alpha:1.];
+    self.distLabel.shadowColor = [UIColor darkGrayColor];
+    self.distLabel.textAlignment = NSTextAlignmentCenter;
     [self.distLabel setDistance:theMeasurement.getPrimaryDistanceObject];
     
     [self createRateMeBanner];
@@ -53,6 +59,8 @@
 
 - (void)viewWillDisappear:(BOOL)animated
 {
+    [locationPopup removeFromSuperview];
+    [rateMeView removeFromSuperview];
     [rateMeView hideInstantly];
     [self saveMeasurement];
     [super viewWillDisappear:animated];
@@ -111,15 +119,22 @@
 - (IBAction)handleNewButton:(id)sender
 {
     [self saveMeasurement];
-    UIViewController* vc = [self.navigationController.storyboard instantiateViewControllerWithIdentifier:@"NewMeasurement"];
-    [self.navigationController setViewControllers:[NSArray arrayWithObject:vc] animated:YES];
+    [self.navigationController popToRootViewControllerAnimated:NO];
 }
 
 - (IBAction)handleListButton:(id)sender
 {
     [self saveMeasurement];
-    UIViewController* vc = [self.navigationController.storyboard instantiateViewControllerWithIdentifier:@"History"];
-    [self.navigationController setViewControllers:[NSArray arrayWithObject:vc] animated:YES];
+    
+    if ([self.navigationController.secondToLastViewController isKindOfClass:[TMHistoryVC class]])
+    {
+        [self.navigationController dismissTopViewController:YES];
+    }
+    else
+    {
+        UIViewController* vc = [self.navigationController.storyboard instantiateViewControllerWithIdentifier:@"History"];
+        [self.navigationController pushViewController:vc animated:YES];
+    }
 }
 
 - (IBAction)handleKeyboardDone:(id)sender
@@ -159,10 +174,14 @@
     }
 }
 
-- (void) didDismissOptions
+#pragma mark - TMOptionsDelegate
+
+- (void) didChangeOptions
 {
     [self.distLabel setDistance:theMeasurement.getPrimaryDistanceObject]; // update label with new units
 }
+
+#pragma mark -
 
 - (void) createRateMeBanner
 {

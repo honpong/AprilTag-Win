@@ -13,6 +13,12 @@
 #import "MPEditPhoto.h"
 #import "MPCapturePhoto.h"
 #import "MPFadeTransitionDelegate.h"
+#import "CustomIOS7AlertView.h"
+#import "MPAboutView.h"
+#import "MPLocalMoviePlayer.h"
+#import "MPPreferencesController.h"
+#import "MPWebViewController.h"
+#import <QuartzCore/QuartzCore.h>
 
 static const NSTimeInterval zoomAnimationDuration = .1;
 
@@ -30,6 +36,8 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     UIView* shrinkToView;
     MPUndoOverlay* undoView;
     MPDMeasuredPhoto* photoToBeDeleted;
+    MPShareSheet* shareSheet;
+    UIActionSheet *actionSheet;
 }
 
 - (void) dealloc
@@ -70,6 +78,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     }
     else if (self.editPhotoController.measuredPhoto && ![measuredPhotos containsObject:self.editPhotoController.measuredPhoto])
     {
+        [self hideZoomedThumbnail];
         [self handlePhotoAdded];
     }
     else
@@ -82,12 +91,16 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     }
 }
 
-- (void) viewDidDisappear:(BOOL)animated
+- (void) viewWillDisappear:(BOOL)animated
 {
+    if (photoToBeDeleted)
+    {
+        [self deletePhoto]; // make sure any pending deletes happen right away
+    }
+    
     self.collectionView.alpha = 1.;
     self.navBar.alpha = 1.;
     [undoView hide];
-    [self handleUndoPeriodExpired]; // make sure any pending deletes happen right away
 }
 
 - (NSUInteger) supportedInterfaceOrientations
@@ -99,7 +112,10 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 
 - (IBAction)handleMenuButton:(id)sender
 {
-    
+    if (actionSheet.isVisible)
+        [self dismissActionSheet];
+    else
+        [self showActionSheet];
 }
 
 - (IBAction)handleCameraButton:(id)sender
@@ -147,16 +163,16 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 
 - (void) handlePhotoDeleted
 {
-    photoToBeDeleted = self.editPhotoController.measuredPhoto;
-    
-    [self.transitionFromView removeFromSuperview];
-    
     NSIndexPath* indexPath = self.editPhotoController.indexPath;
+    photoToBeDeleted = self.editPhotoController.measuredPhoto;
+    self.editPhotoController.measuredPhoto = nil;
+    
+    [self.transitionFromView removeFromSuperview];    
     
     if (indexPath) // if indexPath is nil, then the deleted photo was not opened from the gallery view
     {
         NSInteger itemIndex = indexPath.item;
-        [measuredPhotos removeObjectAtIndex:itemIndex];
+        if (itemIndex < measuredPhotos.count) [measuredPhotos removeObjectAtIndex:itemIndex];
         [self.collectionView deleteItemsAtIndexPaths:[NSArray arrayWithObject:indexPath]];
     }
     [self.collectionView reloadData];
@@ -174,6 +190,32 @@ static const NSTimeInterval zoomAnimationDuration = .1;
         [indexPaths addObject:indexPath];
     }
    [self.collectionView insertItemsAtIndexPaths:indexPaths];
+}
+
+- (void) deletePhoto
+{
+    LOGME
+    
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
+        [CONTEXT MR_saveToPersistentStoreWithCompletion:^(BOOL success, NSError *error) {
+            if (success)
+            {
+                DLog(@"Deleted %@", photoToBeDeleted.id_guid);
+                
+                if (![photoToBeDeleted deleteAssociatedFiles])
+                {
+                    DLog(@"Failed to delete files");
+                    //TODO: log error to analytics
+                }
+            }
+            else if (error)
+            {
+                DLog(@"Error saving context: %@", error);
+            }
+            
+            photoToBeDeleted = nil;
+        }];
+    });
 }
 
 #pragma mark - MPUndoOverlayDelegate
@@ -200,27 +242,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 
 - (void) handleUndoPeriodExpired
 {
-    if (photoToBeDeleted)
-    {
-        [CONTEXT MR_saveToPersistentStoreWithCompletion:^(BOOL success, NSError *error) {
-            if (success)
-            {
-                DLog(@"Deleted %@", photoToBeDeleted.id_guid);
-                
-                if (![photoToBeDeleted deleteAssociatedFiles])
-                {
-                    DLogs(@"Failed to delete files");
-                    //TODO: log error to analytics
-                }
-            }
-            else if (error)
-            {
-                DLog(@"Error saving context: %@", error);
-            }
-            
-            photoToBeDeleted = nil;
-        }];
-    }
+    if (photoToBeDeleted) [self deletePhoto];
 }
 
 #pragma mark - Animations
@@ -275,8 +297,16 @@ static const NSTimeInterval zoomAnimationDuration = .1;
                              self.transitionFromView.frame = [self.view convertRect:shrinkToView.frame fromView:self.collectionView];
                          }
                          completion:^(BOOL finished){
-                             [self.transitionFromView removeFromSuperview];
+                             [self hideZoomedThumbnail];
                          }];
+    }
+}
+
+- (void) hideZoomedThumbnail
+{
+    if (self.transitionFromView.superview)
+    {
+        [self.transitionFromView removeFromSuperview];
     }
 }
 
@@ -317,6 +347,139 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 {
     [self refreshCollectionData];
     [self.collectionView reloadData];
+}
+
+- (void) gotoTutorialVideo
+{
+    MPLocalMoviePlayer* movieViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"Tutorial"];
+    [self presentViewController:movieViewController animated:YES completion:nil];
+}
+
+#pragma mark - Action sheet
+
+- (void)showActionSheet
+{
+//    [TMAnalytics logEvent:@"View.History.Menu"];
+    
+    if (actionSheet == nil)
+    {
+        actionSheet = [[UIActionSheet alloc] initWithTitle:@"TrueMeasure Menu"
+                                                  delegate:self
+                                         cancelButtonTitle:@"Cancel"
+                                    destructiveButtonTitle:nil
+                                         otherButtonTitles:@"About", @"Share app", @"Rate the app", @"Accuracy tips", @"Tutorial video", @"Preferences", nil];
+    }
+    
+    // Show the sheet
+    [actionSheet showFromRect:self.menuButton.bounds inView:self.menuButton animated:YES];
+}
+
+- (void) dismissActionSheet
+{
+    [actionSheet dismissWithClickedButtonIndex:-1 animated:NO];
+}
+
+- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
+{
+    switch (buttonIndex)
+    {
+        case 0:
+        {
+//            [TMAnalytics logEvent:@"View.About"];
+            [self gotoAbout];
+            break;
+        }
+        case 1:
+        {
+//            [TMAnalytics logEvent:@"View.ShareApp"];
+            [self showShareSheet];
+            break;
+        }
+        case 2:
+        {
+//            [TMAnalytics logEvent:@"View.Rate"];
+            [self gotoAppStore];
+            break;
+        }
+        case 3:
+        {
+//            [TMAnalytics logEvent:@"View.Tips"];
+            [self gotoTips];
+            break;
+        }
+        case 4:
+        {
+            [self gotoTutorialVideo];
+            break;
+        }
+        case 5:
+        {
+            [self gotoPreferences];
+            break;
+        }
+            
+        default:
+            break;
+    }
+}
+
+- (void) gotoAbout
+{
+    MPWebViewController* viewController = [self.storyboard instantiateViewControllerWithIdentifier:@"GenericWebView"];
+    viewController.htmlUrl = [[NSBundle mainBundle] URLForResource:@"about" withExtension:@"html"];
+    [self presentViewController:viewController animated:YES completion:nil];
+    viewController.titleLabel.text = @"About TrueMeasure"; // must come after present...
+}
+
+- (void) gotoTips
+{
+    MPWebViewController* viewController = [self.storyboard instantiateViewControllerWithIdentifier:@"GenericWebView"];
+    viewController.htmlUrl = [[NSBundle mainBundle] URLForResource:@"tips" withExtension:@"html"];
+    [self presentViewController:viewController animated:YES completion:nil];
+    viewController.titleLabel.text = @"Tips"; // must come after present...
+}
+
+- (void) gotoPreferences
+{
+    MPPreferencesController* viewController = [self.storyboard instantiateViewControllerWithIdentifier:@"Preferences"];
+    [self presentViewController:viewController animated:YES completion:nil];
+}
+
+- (void) gotoAppStore
+{
+    NSURL *url = [NSURL URLWithString:URL_APPSTORE];
+    [[UIApplication sharedApplication] openURL:url];
+}
+
+#pragma mark - Sharing
+
+- (NSString*) composeSharingString
+{
+    NSString* result = [NSString stringWithFormat: @"Check out this app that lets you measure anything in a photo! %@", URL_SHARING];
+    return result;
+}
+
+- (void) showShareSheet
+{
+    OSKShareableContent *content = [OSKShareableContent contentFromText:[self composeSharingString]];
+    content.title = @"Share App";
+    shareSheet = [MPShareSheet shareSheetWithDelegate:self];
+    [OSKActivitiesManager sharedInstance].customizationsDelegate = shareSheet;
+    [shareSheet showShareSheet_Pad_FromRect:self.menuButton.frame withViewController:self inView:self.view content:content];
+}
+
+#pragma mark - TMShareSheetDelegate
+
+- (OSKActivityCompletionHandler) activityCompletionHandler
+{
+    OSKActivityCompletionHandler activityCompletionHandler = ^(OSKActivity *activity, BOOL successful, NSError *error){
+//        if (successful) {
+//            [TMAnalytics logEvent:@"Share.App" withParameters:@{ @"Type": [activity.class activityName] }];
+//        } else {
+//            [TMAnalytics logError:@"Share.App" message:[activity.class activityName] error:error];
+//        }
+    };
+    return activityCompletionHandler;
 }
 
 @end

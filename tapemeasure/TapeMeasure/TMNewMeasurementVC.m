@@ -13,6 +13,7 @@
 #import "RCCore/RCSensorDelegate.h"
 #import "TMLocalMoviePlayer.h"
 #import "TMLocationIntro.h"
+#import "TMHistoryVC.h"
 
 @implementation TMNewMeasurementVC
 {
@@ -75,7 +76,7 @@ static statesetup setups[] =
     //                                fusion  sensors measure listBtn rtryBtn shwdstc shwtape showTips ftrs    prgrs   title           message         autohide
     { ST_STARTUP,       ICON_GREEN,   false,  false,  false,  true,   false,  false,  false,  false,   false,  false,  "",             "",             false},
     { ST_READY,         ICON_GREEN,   false,  true,   false,  true,   false,  false,  false,  true,    false,  false,  "Instructions", "Hold the device steady where you want to start the measurement and tap the screen to begin.", false },
-    { ST_INITIALIZING,  ICON_GREEN,   true,   true,   false,  true,   true,   true,   false,  true,    true,   true,   "Initializing", "Hold the device steady.", false},
+    { ST_INITIALIZING,  ICON_GREEN,   true,   true,   false,  true,   true,   true,   false,  true,    true,   true,   "Hold still",   "Hold the device steady.", false},
     { ST_MEASURE,       ICON_GREEN,   true,   true,   true,   true,   true,   true,   true,   false,   true,   false,  "Measuring",    "Go! Move the device to the end of your measurement, and tap the screen to finish.", false },
     { ST_FINISHED,      ICON_GREEN,   false,  false,  false,  true,   true,   true,   true,   false,   false,  false,  "",             "", false },
     { ST_VISIONFAIL,    ICON_RED,     false,  true,   false,  true,   true,   true,   false,  false,   false,  false,  "Try again",    "The camera can't see well enough to measure. Try again with the camera pointed in a different direction.", false },
@@ -213,10 +214,6 @@ static transition transitions[] =
     progressView = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
     [self.view addSubview:progressView];
     
-    newMeasurement = [TMMeasurement getNewMeasurement];
-    newMeasurement.type = self.type;
-    [newMeasurement autoSelectUnitsScale];
-    
     tipsView = [RCTipView new];
     [self.view addSubview:tipsView];
     [tipsView addCenterXInSuperviewConstraints];
@@ -227,6 +224,13 @@ static transition transitions[] =
     tipsView.tips = [self buildTipsArray];
     
     originalDistanceTextColor = self.distanceLabel.textColor;
+    
+    self.distanceLabel.textAlignment = NSTextAlignmentCenter;
+    self.distanceLabel.centerAlignmentExcludesFraction = YES;
+    CGFloat fontSize = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? 70 : 50;
+    self.distanceLabel.font = [UIFont systemFontOfSize:fontSize];
+    self.distanceLabel.textColor = COLOR_DULL_YELLOW;
+    self.distanceLabel.shadowColor = [UIColor darkGrayColor];
 }
 
 - (void) viewDidLayoutSubviews
@@ -281,6 +285,11 @@ static transition transitions[] =
                                              selector:@selector(handleResume)
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
+    
+    newMeasurement = [TMMeasurement getNewMeasurement];
+    newMeasurement.type = self.type;
+    [newMeasurement autoSelectUnitsScale];
+    
     [self handleResume];
     SENSOR_FUSION.delegate = self;
 }
@@ -347,10 +356,20 @@ static transition transitions[] =
     self.distanceLabel.hidden = YES;
     [tipsView fadeOutWithDuration:.2 andWait:0];
     
+    #if TARGET_IPHONE_SIMULATOR
+    [self gotoHistory]; // skip CRT animation. doesn't work on simulator.
+    #else
     __weak TMNewMeasurementVC* weakSelf = self;
     [self.arView.videoView animateClosed:UIDeviceOrientationPortrait withCompletionBlock:^(BOOL finished) {
-        [weakSelf performSegueWithIdentifier:@"toHistory" sender:weakSelf];
+        [weakSelf gotoHistory];
     }];
+    #endif
+}
+
+- (void) gotoHistory
+{
+    TMHistoryVC* vc = [self.navigationController.storyboard instantiateViewControllerWithIdentifier:@"History"];
+    [self.navigationController pushViewController:vc animated:NO];
 }
 
 - (void) updateLocation
@@ -451,16 +470,19 @@ static transition transitions[] =
     if ([status.error isKindOfClass:[RCSensorFusionError class]])
     {
         if(status.error.code == RCSensorFusionErrorCodeTooFast) {
+            [TMAnalytics logEvent:@"Filter.Fail" withParameters:@{ @"Reason": @"TooFast" }];
             [self handleStateEvent:EV_FASTFAIL];
             if(currentState == ST_FASTFAIL) {
                 lastFailTime = currentTime;
             }
         } else if(status.error.code == RCSensorFusionErrorCodeOther) {
+            [TMAnalytics logEvent:@"Filter.Fail" withParameters:@{ @"Reason": @"Other" }];
             [self handleStateEvent:EV_FAIL];
             if(currentState == ST_FAIL) {
                 lastFailTime = currentTime;
             }
         } else if(status.error.code == RCSensorFusionErrorCodeVision) {
+            [TMAnalytics logEvent:@"Filter.Fail" withParameters:@{ @"Reason": @"Vision" }];
             [self handleStateEvent:EV_VISIONFAIL];
             if(currentState == ST_VISIONFAIL) {
                 lastFailTime = currentTime;
@@ -540,7 +562,6 @@ static transition transitions[] =
     [locationObj addMeasurementObject:newMeasurement];
     [DATA_MANAGER saveContext];
     
-    NSNumber* primaryDist = [NSNumber numberWithFloat:[[newMeasurement getPrimaryDistanceObject] meters]];
     [TMAnalytics
      logEvent:@"Measurement.Save"
      withParameters:[NSDictionary dictionaryWithObjectsAndKeys: [newMeasurement getDistRangeString], @"Distance", nil]
@@ -667,23 +688,9 @@ static transition transitions[] =
 - (void) saveAndGotoResult
 {
     [self saveMeasurement];
-    [self performSegueWithIdentifier:@"toResult" sender:self.btnRetry];
-}
-
-- (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    if ([[segue identifier] isEqualToString:@"toResult"])
-    {
-        TMResultsVC* resultsVC = [segue destinationViewController];
-        resultsVC.theMeasurement = newMeasurement;
-    }
-    else if([[segue identifier] isEqualToString:@"toOptions"])
-    {
-        TMOptionsVC *optionsVC = [segue destinationViewController];
-        optionsVC.theMeasurement = newMeasurement;
-        
-        [[segue destinationViewController] setDelegate:self];
-    }
+    TMResultsVC* resultsVC = [self.navigationController.storyboard instantiateViewControllerWithIdentifier:@"Results"];
+    resultsVC.theMeasurement = newMeasurement;
+    [self.navigationController pushViewController:resultsVC animated:YES];
 }
 
 - (void) showTipsView

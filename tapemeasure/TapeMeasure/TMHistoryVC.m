@@ -23,6 +23,8 @@
 
 #pragma mark - Event handlers
 
+- (BOOL)hidesBottomBarWhenPushed { return YES; }
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -71,13 +73,8 @@
 {
     [TMAnalytics logEvent:@"View.History"];
     [self refreshTableView];
-    [self performSelectorInBackground:@selector(setupDataCapture) withObject:nil];
-}
-
-- (void)viewWillAppear:(BOOL)animated
-{
-    [self.navigationController setToolbarHidden:YES animated:animated];
-    [super viewWillAppear:animated];
+    
+    self.navigationItem.title = self.title; // workaround for title not appearing when VC not presented with an animation
 }
 
 - (void)viewDidUnload {
@@ -92,15 +89,22 @@
     [self.tableView reloadData];
 }
 
-- (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
+- (void) gotoResult:(NSIndexPath*)indexPath
 {
-    if ([[segue identifier] isEqualToString:@"toResult"])
+    TMMeasurement *measurement = measurementsData[indexPath.row];
+    TMResultsVC *resultsVC;
+    
+    if ([self.navigationController.secondToLastViewController isKindOfClass:[TMResultsVC class]])
     {
-        NSIndexPath *indexPath = (NSIndexPath*)sender;
-        TMMeasurement *measurement = measurementsData[indexPath.row];
-        
-        TMResultsVC *resultsVC = [segue destinationViewController];
+        resultsVC = (TMResultsVC*)self.navigationController.secondToLastViewController;
         resultsVC.theMeasurement = measurement;
+        [self.navigationController dismissTopViewController:YES];
+    }
+    else
+    {
+        resultsVC = [self.navigationController.storyboard instantiateViewControllerWithIdentifier:@"Results"];
+        resultsVC.theMeasurement = measurement;
+        [self.navigationController pushViewController:resultsVC animated:YES];
     }
 }
 
@@ -206,15 +210,6 @@
 //    }];
 //}
 
-- (void)setupDataCapture
-{
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        /** Expensive. Can cause UI to lag if called at the wrong time. */
-        [VIDEO_MANAGER setupWithSession:SESSION_MANAGER.session];
-    });
-}
-
 - (void)refreshPrefs
 {
     unitsPref = [[NSUserDefaults standardUserDefaults] objectForKey:@"Units"];
@@ -261,7 +256,7 @@
     
     [TMAnalytics logEvent:@"Measurement.Delete.History"];
     
-    [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+    [self.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationAutomatic];
     [self loadTableData];
     [self.tableView endUpdates];
     
@@ -285,8 +280,7 @@
 
 - (IBAction)handleNewButton:(id)sender
 {
-    UIViewController* vc = [self.navigationController.storyboard instantiateViewControllerWithIdentifier:@"NewMeasurement"];
-    [self.navigationController setViewControllers:[NSArray arrayWithObject:vc] animated:YES];
+    [self.navigationController popToRootViewControllerAnimated:NO];
 }
 
 #pragma mark - Table view data source
@@ -309,6 +303,7 @@
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     UILabel* nameLabel = (UILabel*)[cell viewWithTag:1];
     RCDistanceLabel* valueLabel = (RCDistanceLabel*)[cell viewWithTag:2];
+    valueLabel.textAlignment = NSTextAlignmentRight;
     
     TMMeasurement *measurement = measurementsData[indexPath.row];
     
@@ -349,11 +344,22 @@
     }   
 }
 
+// following two methods solve a layout warning in iOS 8 http://stackoverflow.com/questions/25822324/ios8-constraints-ambiguously-suggest-a-height-of-zero
+- (CGFloat)tableView:(UITableView *)tableView estimatedHeightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return 44;
+}
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
+{
+    return 44;
+}
+
 #pragma mark - Table view delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    [self performSegueWithIdentifier:@"toResult" sender:indexPath];
+    [self gotoResult:indexPath];
 }
 
 - (UITableViewCellEditingStyle)tableView:(UITableView *)aTableView editingStyleForRowAtIndexPath:(NSIndexPath *)indexPath

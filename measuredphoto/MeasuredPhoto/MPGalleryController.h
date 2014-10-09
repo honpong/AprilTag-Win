@@ -10,8 +10,9 @@
 #import "MPEditPhoto.h"
 #import "MPZoomTransitionDelegate.h"
 #import "MPUndoOverlay.h"
+#import "MPShareSheet.h"
 
-@interface MPGalleryController : UIViewController <UICollectionViewDataSource, UICollectionViewDelegate, MPZoomTransitionFromView, MPUndeOverlayDelegate>
+@interface MPGalleryController : UIViewController <UICollectionViewDataSource, UICollectionViewDelegate, MPZoomTransitionFromView, MPUndoOverlayDelegate, UIActionSheetDelegate, MPShareSheetDelegate>
 
 @property (weak, nonatomic) IBOutlet UIButton *cameraButton;
 @property (weak, nonatomic) IBOutlet UIButton *menuButton;
@@ -23,5 +24,6 @@
 - (IBAction)handleMenuButton:(id)sender;
 - (IBAction)handleCameraButton:(id)sender;
 - (IBAction)handleImageButton:(id)sender;
+- (void) hideZoomedThumbnail;
 
 @end

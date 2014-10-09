@@ -6,6 +6,8 @@
 //  Copyright (c) 2012 RealityCap. All rights reserved.
 //
 
+#include "RCDebugLog.h"
+
 #ifndef TapeMeasure_Constants_h
 #define TapeMeasure_Constants_h
 #endif
@@ -64,14 +66,6 @@
 #define FLURRY_KEY @"D3NDKGP5MZCKVBZCD5BF" //dev
 #endif
 
-#ifdef ARCHIVE
-    #define LOGME // do nothing
-    #define DLog(fmt, ...) // do nothing
-#else
-    #define LOGME NSLog(@"%s", __PRETTY_FUNCTION__);
-    #define DLog(fmt, ...) NSLog((@"%s " fmt), __PRETTY_FUNCTION__, ##__VA_ARGS__);
-#endif
-
 typedef enum {
     TypePointToPoint = 0, TypeTotalPath = 1, TypeHorizontal = 2, TypeVertical = 3
 } MeasurementType;
@@ -84,3 +78,5 @@ typedef enum {
 
 static NSString* RCApplicationCredential_Facebook_Key = @"671645849539796";
 static NSString* RCApplicationCredential_Facebook_Secret = @"827cfb4e92aff3551ffeb3618be46e08";
+
+#define COLOR_DULL_YELLOW [UIColor colorWithRed:219./255. green:166./255. blue:46./255. alpha:1.]

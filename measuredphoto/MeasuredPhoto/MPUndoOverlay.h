@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "MPTintTouchButton.h"
 
-@protocol MPUndeOverlayDelegate <NSObject>
+@protocol MPUndoOverlayDelegate <NSObject>
 
 - (void) handleUndoButton;
 - (void) handleUndoPeriodExpired;
@@ -18,7 +18,7 @@
 
 @interface MPUndoOverlay : UIView
 
-@property (nonatomic) id<MPUndeOverlayDelegate> delegate;
+@property (nonatomic) id<MPUndoOverlayDelegate> delegate;
 @property (nonatomic, readonly) UILabel* messageLabel;
 @property (nonatomic, readonly) MPTintTouchButton* undoButton;
 

@@ -75,4 +75,9 @@
     return m;
 }
 
+- (float)floatValue
+{
+    return (float)nominator/denominator;
+}
+
 @end

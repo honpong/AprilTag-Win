@@ -540,9 +540,8 @@
 				INFOPLIST_FILE = "RC3DKSampleGL/RC3DKSampleGL-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = (
-					"$(SRCROOT)/../RC3DK-Lib",
+					"$(SRCROOT)/../rc3dk-lib",
 					"$(inherited)",
-					"/Users/benhirashima/Documents/Development/RealityCap/rcmain/rc3dk-lib",
 				);
 				OTHER_LDFLAGS = (
 					"-lc++",
@@ -565,9 +564,8 @@
 				INFOPLIST_FILE = "RC3DKSampleGL/RC3DKSampleGL-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LIBRARY_SEARCH_PATHS = (
-					"$(SRCROOT)/../RC3DK-Lib",
+					"$(SRCROOT)/../rc3dk-lib",
 					"$(inherited)",
-					"/Users/benhirashima/Documents/Development/RealityCap/rcmain/rc3dk-lib",
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (

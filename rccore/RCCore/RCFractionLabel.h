@@ -8,8 +8,15 @@
 
 #import <UIKit/UIKit.h>
 
-@interface RCFractionLabel : UILabel
+@interface RCFractionLabel : UIView
+
+@property (nonatomic) UIFont* font;
+@property (nonatomic) UIColor* textColor;
+@property (nonatomic) UIColor* shadowColor;
+@property (nonatomic) CGSize shadowOffset;
+
 - (void)setNominator:(int)nominator andDenominator:(int)denominator;
 - (void)setFromStringsNominator:(NSString*)nominator andDenominator:(NSString*)denominator;
 - (void)parseFraction:(NSString*)fractionString;
+
 @end

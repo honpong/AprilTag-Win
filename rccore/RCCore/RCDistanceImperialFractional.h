@@ -11,19 +11,19 @@
 
 @interface RCDistanceImperialFractional : NSObject <RCDistance>
 
-@property float meters;
-@property UnitsScale scale;
-@property NSString* unitSymbol;
+@property (readonly) float meters;
+@property (readonly) UnitsScale scale;
+@property (readonly) NSString* unitSymbol;
 
-@property int wholeMiles;
-@property int wholeYards;
-@property int wholeFeet;
-@property int wholeInches;
-@property RCFraction* fraction;
+@property (readonly) int wholeMiles;
+@property (readonly) int wholeYards;
+@property (readonly) int wholeFeet;
+@property (readonly) int wholeInches;
+@property (readonly) RCFraction* fraction;
 
 + (RCDistanceImperialFractional*) distWithMeters:(float)meters withScale:(UnitsScale)unitsScale;
-+ (RCDistanceImperialFractional*) distWithMiles:(int)miles withYards:(int)yards withFeet:(int)feet withInches:(int)inches withNominator:(int)nom withDenominator:(int)denom;
++ (RCDistanceImperialFractional*) distWithMiles:(int)miles withYards:(int)yards withFeet:(int)feet withInches:(int)inches withNominator:(int)nom withDenominator:(int)denom withScale:(UnitsScale)unitsScale;
 
-- (NSMutableString*) getStringWithoutFractionOrUnitsSymbol;
+- (NSString*) getStringWithoutFractionOrUnitsSymbol;
 
 @end

@@ -23,6 +23,8 @@
 
 #pragma mark - Event handlers
 
+- (BOOL)hidesBottomBarWhenPushed { return YES; }
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -301,6 +303,7 @@
     UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier];
     UILabel* nameLabel = (UILabel*)[cell viewWithTag:1];
     RCDistanceLabel* valueLabel = (RCDistanceLabel*)[cell viewWithTag:2];
+    valueLabel.textAlignment = NSTextAlignmentRight;
     
     TMMeasurement *measurement = measurementsData[indexPath.row];
     

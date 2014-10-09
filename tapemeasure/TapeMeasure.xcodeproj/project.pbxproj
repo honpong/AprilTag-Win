@@ -24,7 +24,6 @@
 		32590C8316781F4000E2BA1C /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32C87C4416779B2F006ED337 /* CoreLocation.framework */; };
 		325FC8BB16D6F7CF003A00BE /* TMLoginVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 325FC8BA16D6F7CF003A00BE /* TMLoginVC.m */; };
 		3265479819C3669500A89749 /* Tutorial.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 3265479719C3669500A89749 /* Tutorial.mp4 */; };
-		326E47D116FA31C2007AA105 /* MainStoryboard_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3280F7FB161BBB3200B5C8A8 /* MainStoryboard_iPhone.storyboard */; };
 		326E47D216FA31CE007AA105 /* TMNewMeasurementVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 3280F802161BBB3200B5C8A8 /* TMNewMeasurementVC.m */; };
 		326E47D316FA5DFD007AA105 /* TMAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 3233C7AE16F3B9D700129B99 /* TMAnalytics.m */; };
 		326E47D516FA5ECF007AA105 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287846F1630B6CB00040AAF /* AVFoundation.framework */; };
@@ -1854,7 +1853,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				32C539E516701FEC00A14137 /* InfoPlist.strings in Resources */,
-				326E47D116FA31C2007AA105 /* MainStoryboard_iPhone.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

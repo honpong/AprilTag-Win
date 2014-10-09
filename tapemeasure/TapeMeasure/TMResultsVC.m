@@ -36,6 +36,11 @@
     [self.navigationController setNavigationBarHidden:NO animated:NO]; // necessary because location intro may have hidden it
     
     [RCDistanceLabel class]; // needed so that storyboard can see this class, since it's in a library
+    CGFloat fontSize = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? 70 : 50;
+    self.distLabel.font = [UIFont systemFontOfSize:fontSize];
+    self.distLabel.textColor = [UIColor colorWithRed:219./255. green:166./255. blue:46./255. alpha:1.];
+    self.distLabel.shadowColor = [UIColor darkGrayColor];
+    self.distLabel.textAlignment = NSTextAlignmentCenter;
     [self.distLabel setDistance:theMeasurement.getPrimaryDistanceObject];
     
     [self createRateMeBanner];
@@ -169,10 +174,14 @@
     }
 }
 
-- (void) didDismissOptions
+#pragma mark - TMOptionsDelegate
+
+- (void) didChangeOptions
 {
     [self.distLabel setDistance:theMeasurement.getPrimaryDistanceObject]; // update label with new units
 }
+
+#pragma mark -
 
 - (void) createRateMeBanner
 {

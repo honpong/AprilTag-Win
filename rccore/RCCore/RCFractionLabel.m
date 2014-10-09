@@ -8,6 +8,7 @@
 
 #import "RCFractionLabel.h"
 #import "UIView+RCConstraints.h"
+#import "UIView+RCAutoLayoutDebugging.h"
 
 @implementation RCFractionLabel
 {
@@ -39,61 +40,56 @@
 
 - (void)setupViews
 {
-    nominatorLabel = [[UILabel alloc] initWithFrame:CGRectZero];
+    self.translatesAutoresizingMaskIntoConstraints = NO;
+    self.autoLayoutNameTag = @"fractionLabel";
+    self.backgroundColor = [UIColor clearColor];
+    
+    nominatorLabel = [[UILabel alloc] init];
     nominatorLabel.translatesAutoresizingMaskIntoConstraints = NO;
     nominatorLabel.textColor = self.textColor;
     nominatorLabel.textAlignment = NSTextAlignmentRight;
     nominatorLabel.backgroundColor = [UIColor clearColor];
     nominatorLabel.font = self.font;
+    nominatorLabel.autoLayoutNameTag = @"nominator";
     [self addSubview:nominatorLabel];
     
-    denominatorLabel = [[UILabel alloc] initWithFrame:CGRectZero];
+    denominatorLabel = [[UILabel alloc] init];
     denominatorLabel.translatesAutoresizingMaskIntoConstraints = NO;
     denominatorLabel.textColor = self.textColor;
     denominatorLabel.textAlignment = NSTextAlignmentLeft;
     denominatorLabel.backgroundColor = [UIColor clearColor];
     denominatorLabel.font = self.font;
+    denominatorLabel.autoLayoutNameTag = @"denominator";
     [self addSubview:denominatorLabel];
     
     [self setShadowColor:self.shadowColor];
+    [self setFont:[UIFont systemFontOfSize:17.]]; // must be done after nom and denom have been created
+}
+
+- (void) updateConstraints
+{
+    [nominatorLabel removeConstraintsFromSuperview];
+    [denominatorLabel removeConstraintsFromSuperview];
     
     [nominatorLabel addLeftSpaceToSuperviewConstraint:0];
     [nominatorLabel addTopSpaceToSuperviewConstraint:0];
     [denominatorLabel addBottomSpaceToSuperviewConstraint:0];
+    [denominatorLabel addRightSpaceToSuperviewConstraint:0];
     
-    spacingConstraint = [NSLayoutConstraint constraintWithItem:nominatorLabel
-                                                     attribute:NSLayoutAttributeRight
-                                                     relatedBy:NSLayoutRelationEqual
-                                                        toItem:denominatorLabel
-                                                     attribute:NSLayoutAttributeLeft
-                                                    multiplier:1
-                                                      constant:0];
-    [self addConstraint:spacingConstraint];
-    
-    widthConstraint = [NSLayoutConstraint constraintWithItem:self
-                                                    attribute:NSLayoutAttributeWidth
-                                                    relatedBy:NSLayoutRelationEqual
-                                                       toItem:nil
-                                                    attribute:NSLayoutAttributeNotAnAttribute
-                                                   multiplier:1
-                                                     constant:self.frame.size.width];
-    [self addConstraint:widthConstraint];
-    
-    heightConstraint = [NSLayoutConstraint constraintWithItem:self
-                                                     attribute:NSLayoutAttributeHeight
-                                                     relatedBy:NSLayoutRelationEqual
-                                                        toItem:nil
-                                                     attribute:NSLayoutAttributeNotAnAttribute
-                                                    multiplier:1
-                                                      constant:self.frame.size.height];
-    [self addConstraint:heightConstraint];
+    [super updateConstraints];
+}
+
+- (CGSize) intrinsicContentSize
+{
+    return [self sizeThatFits:CGSizeZero];
 }
 
 - (CGSize) sizeThatFits:(CGSize)size
 {
     CGFloat width = 0;
     if (!self.hidden) width = nominatorLabel.bounds.size.width + denominatorLabel.bounds.size.width;
-    return CGSizeMake(width, (self.font.pointSize / 17) * 21);
+    CGSize sizeThatFits = CGSizeMake(width, (self.font.pointSize / 17) * 21);
+    return sizeThatFits;
 }
 
 - (void)setNominator:(int)nominator andDenominator:(int)denominator
@@ -116,7 +112,8 @@
         self.hidden = NO;
     }
     
-    [self sizeToFit];
+    [self invalidateIntrinsicContentSize];
+    [self setNeedsDisplay]; // redraws line
 }
 
 - (void)parseFraction:(NSString*)fractionString
@@ -128,15 +125,9 @@
     }
 }
 
-- (void)setText:(NSString *)text
-{
-    [super setText:nil];
-    [self parseFraction:text];
-}
-
 - (void)setTextColor:(UIColor *)textColor
 {
-    [super setTextColor:textColor];
+    _textColor = textColor;
     nominatorLabel.textColor = textColor;
     denominatorLabel.textColor = textColor;
     [self setNeedsDisplay];
@@ -144,32 +135,23 @@
 
 - (void) setFont:(UIFont *)font
 {
+    _font = font;
     CGFloat fontSize = (10. / 17.) * font.pointSize;
     UIFont* subFont = [UIFont fontWithName:font.familyName size:fontSize];
     nominatorLabel.font = subFont;
     denominatorLabel.font = subFont;
-    [self sizeToFit];
-    [super setFont:font];
+    [self invalidateIntrinsicContentSize];
+    [self setNeedsDisplay]; // redraws line
 }
 
 - (void) setShadowColor:(UIColor *)shadowColor
 {
-    [super setShadowColor:shadowColor];
+    _shadowColor = shadowColor;
     nominatorLabel.shadowColor = shadowColor;
     nominatorLabel.shadowOffset = CGSizeMake(1, 1);
     denominatorLabel.shadowColor = shadowColor;
     denominatorLabel.shadowOffset = CGSizeMake(1, 1);
-}
-
-- (void) sizeToFit
-{
-    [nominatorLabel sizeToFit];
-    [denominatorLabel sizeToFit];
-    
-    CGSize size = [self sizeThatFits:self.frame.size];
-    widthConstraint.constant = size.width;
-    heightConstraint.constant = size.height;
-    [self setNeedsUpdateConstraints];
+    [self setNeedsDisplay];
 }
 
 - (void)drawRect:(CGRect)rect

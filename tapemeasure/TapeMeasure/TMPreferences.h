@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface TMPreferences : UITableViewController
+@interface TMPreferences : UIViewController
 
 @property (weak, nonatomic) IBOutlet UISegmentedControl *unitsControl;
 @property (weak, nonatomic) IBOutlet UISwitch *locationSwitch;

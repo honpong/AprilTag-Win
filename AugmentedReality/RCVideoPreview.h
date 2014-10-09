@@ -27,10 +27,6 @@
  */
 - (void) displaySampleBuffer:(CMSampleBufferRef)sampleBuffer;
 /**
- Sets the orientation of the video preview.
- */
-- (void) setVideoOrientation:(AVCaptureVideoOrientation)orientation;
-/**
  Fades the image to white - 0 represents normal display, and 1 represents all white.
  */
 - (void) setWhiteness:(float)whiteness;

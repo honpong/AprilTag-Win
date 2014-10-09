@@ -417,10 +417,12 @@
                                     </view>
                                 </subviews>
                                 <constraints>
+                                    <constraint firstAttribute="width" constant="768" id="4Gf-U2-9e3"/>
                                     <constraint firstAttribute="bottom" secondItem="9pE-pm-oS2" secondAttribute="bottom" id="7aI-1s-Lbp"/>
                                     <constraint firstItem="9pE-pm-oS2" firstAttribute="top" secondItem="fmz-nL-eyO" secondAttribute="top" id="GpJ-Hc-qFl"/>
                                     <constraint firstAttribute="centerX" secondItem="uow-Hl-Yjk" secondAttribute="centerX" id="IZk-4u-0W6"/>
                                     <constraint firstAttribute="bottom" secondItem="b7l-6F-Kqv" secondAttribute="bottom" constant="20" id="J5T-oP-hsJ"/>
+                                    <constraint firstAttribute="height" constant="1024" id="ZJv-HV-wcp"/>
                                     <constraint firstAttribute="centerX" secondItem="b7l-6F-Kqv" secondAttribute="centerX" id="jhI-jz-17B"/>
                                     <constraint firstItem="uow-Hl-Yjk" firstAttribute="top" secondItem="fmz-nL-eyO" secondAttribute="top" id="nFq-o4-2AY"/>
                                     <constraint firstAttribute="trailing" secondItem="9pE-pm-oS2" secondAttribute="trailing" id="nJk-aK-CkY"/>
@@ -429,14 +431,12 @@
                         </subviews>
                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
-                            <constraint firstItem="B5Z-WL-pm5" firstAttribute="top" secondItem="fmz-nL-eyO" secondAttribute="bottom" id="C0f-m0-jw4"/>
                             <constraint firstItem="B5Z-WL-pm5" firstAttribute="top" secondItem="FQA-yL-8tr" secondAttribute="bottom" id="Hw9-4b-kge"/>
-                            <constraint firstItem="fmz-nL-eyO" firstAttribute="top" secondItem="lII-c5-BYz" secondAttribute="bottom" id="RDq-EY-Lgn"/>
-                            <constraint firstAttribute="trailing" secondItem="fmz-nL-eyO" secondAttribute="trailing" id="UGV-NZ-V7O"/>
                             <constraint firstItem="FQA-yL-8tr" firstAttribute="top" secondItem="lII-c5-BYz" secondAttribute="bottom" id="ZAc-6E-UOi"/>
-                            <constraint firstItem="fmz-nL-eyO" firstAttribute="leading" secondItem="5" secondAttribute="leading" id="a0E-nb-UvP"/>
                             <constraint firstAttribute="trailing" secondItem="FQA-yL-8tr" secondAttribute="trailing" id="b3v-tA-Ayy"/>
                             <constraint firstItem="FQA-yL-8tr" firstAttribute="leading" secondItem="5" secondAttribute="leading" id="i6P-fz-8U0"/>
+                            <constraint firstAttribute="centerY" secondItem="fmz-nL-eyO" secondAttribute="centerY" id="s6B-m8-yOy"/>
+                            <constraint firstAttribute="centerX" secondItem="fmz-nL-eyO" secondAttribute="centerX" id="swP-Sb-poA"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="VaH-JM-IAo"/>

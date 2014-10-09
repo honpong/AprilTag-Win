@@ -324,6 +324,8 @@ static transition transitions[] =
     [super viewDidDisappear:animated];
 }
 
+#pragma mark - Orientation
+
 - (BOOL) shouldAutorotate
 {
     return NO;
@@ -355,6 +357,8 @@ static transition transitions[] =
     MPOrientationChangeData* data = [MPOrientationChangeData dataWithOrientation:orientation animated:animated];
     [[NSNotificationCenter defaultCenter] postNotificationName:MPUIOrientationDidChangeNotification object:data];
 }
+
+#pragma mark -
 
 - (void)handlePause
 {

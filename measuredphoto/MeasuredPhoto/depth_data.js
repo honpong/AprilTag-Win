@@ -69,43 +69,42 @@ function dm_mask_size(x,y){
     dm_mask_context.globalCompositeOperation = 'destination-out'; //so subsequent drawing remvoes content
 }
 
-
-//function to estimate lens distortion
-function dm_estimate_kr(point, k1, k2, k3)
-{
-    r2 = point[0]*point[0] + point[1]*point[1];
-    r4 = r2 * r2;
-    r6 = r4 * r2;
-    kr = 1. + r2 * k1 + r4 * k2 + r6 * k3;
-    return kr;
-}
-
-//apply lens distortion correction
-function dm_calibrate_im_point(normalized_point, k1, k2, k3)
-{
-    var kr;
-    var calibrated_point = normalized_point;
-    //forward calculation - guess calibrated from initial
-    kr = dm_estimate_kr(normalized_point, k1, k2, k3);
-    calibrated_point[0] /= kr;
-    calibrated_point[1] /= kr;
-    //backward calculation - use calibrated guess to get new parameters and recompute
-    kr = dm_estimate_kr(calibrated_point, k1, k2, k3);
-    calibrated_point = normalized_point;
-    calibrated_point[0] /= kr;
-    calibrated_point[1] /= kr;
-    return calibrated_point;
-}
-
 //start conversion of pixel coorediantes into ray in space.
-function dm_project_point(x, y, center_x, center_y, focal_length)
+function dm_project_image_point(x, y, center_x, center_y, focal_length)
 {
     return [(x - center_x)/focal_length, (y - center_y)/focal_length, 1, 1];
 }
 
+function dm_undistort_image_point(x, y, center_x, center_y, focal_length, k1, k2, k3)
+{
+    // Project distorted point
+    var projected = [0, 0];
+    var undistorted = [0, 0];
+    projected[0] = (x - center_x)/focal_length;
+    projected[1] = (y - center_y)/focal_length;
+    // Estimate kr
+    var r2 = projected[0]*projected[0] + projected[1]*projected[1];
+    var r4 = r2 * r2;
+    var r6 = r4 * r2;
+    var kr = 1. + r2 * k1 + r4 * k2 + r6 * k3;
+
+    // Adjust distorted projection by kr, and back project to image
+    undistorted[0] = projected[0] * focal_length / kr + center_x;
+    undistorted[1] = projected[1] * focal_length / kr + center_y;
+    return undistorted;
+}
+
+function dm_calibrate_image_point(x, y, center_x, center_y, focal_length, k1, k2, k3)
+{
+    undistorted = dm_undistort_image_point(x, y, center_x, center_y, focal_length, k1, k2, k3);
+    calibrated_point = dm_project_image_point(undistorted[0], undistorted[1], center_x, center_y, focal_length);
+    return calibrated_point;
+}
+
 function dm_3d_location_from_pixel_location(x,y){
-    var ray = dm_project_point(x, y, dm_center_x, dm_center_y, spatial_data.focal_length);
-    var calibrated_ray = dm_calibrate_im_point(ray, spatial_data.k1, spatial_data.k2, spatial_data.k3);
+    var calibrated_ray;
+    calibrated_ray = dm_calibrate_image_point(x, y, dm_center_x, dm_center_y, spatial_data.focal_length, spatial_data.k1, spatial_data.k2, spatial_data.k3);
+
     //iterate over all triangles until one is found.
     var t; //scaler which is multiplied by ray direction to get intersection of ray and triangle
     var ray_origin = [0,0,0];

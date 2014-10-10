@@ -11,6 +11,7 @@
 @protocol OptionsDelegate <NSObject>
 
 - (void) didChangeOptions;
+- (void) didDismissOptions;
 
 @end
 

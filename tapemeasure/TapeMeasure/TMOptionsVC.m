@@ -38,6 +38,10 @@
     
     [self setScaleButtons];
     [self setButtonStates];
+    
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissSelf)];
+    tapGesture.numberOfTapsRequired = 1;
+    [self.view addGestureRecognizer:tapGesture];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -166,8 +170,7 @@
 
 - (IBAction)handleCloseButton:(id)sender
 {
-    UINavigationController* navController = (UINavigationController*)self.presentingViewController;
-    [navController.viewControllers.lastObject dismissViewControllerAnimated:YES completion:nil];
+    [self dismissSelf];
 }
 
 - (IBAction)handleFractionalButton:(id)sender
@@ -187,5 +190,12 @@
     NSError *error;
     [theMeasurement.managedObjectContext save:&error];
     if (error) [TMAnalytics logError:@"Options.Save" message:error.debugDescription error:error];
+}
+
+- (void) dismissSelf
+{
+    UINavigationController* navController = (UINavigationController*)self.presentingViewController;
+    [navController.viewControllers.lastObject dismissViewControllerAnimated:YES completion:nil];
+    [delegate didDismissOptions];
 }
 @end

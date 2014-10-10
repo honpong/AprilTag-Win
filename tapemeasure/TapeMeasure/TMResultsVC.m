@@ -8,7 +8,6 @@
 
 #import "TMResultsVC.h"
 #import "TMHistoryVC.h"
-#import "TMModalCoverVerticalTransitionDelegate.h"
 
 @interface TMResultsVC ()
 
@@ -19,6 +18,7 @@
     RCRateMeView* rateMeView;
     RCLocationPopUp* locationPopup;
     TMShareSheet* shareSheet;
+    UIView* dimmingView;
 }
 @synthesize theMeasurement;
 
@@ -46,6 +46,9 @@
     
     [self createRateMeBanner];
     [self createLocationPopup];
+    
+    dimmingView = [UIView new];
+    dimmingView.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:.5];
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -159,9 +162,8 @@
     TMOptionsVC *optionsVC = [self.storyboard instantiateViewControllerWithIdentifier:@"Options"];
     optionsVC.theMeasurement = theMeasurement;
     [optionsVC setDelegate:self];
-        
-    TMModalCoverVerticalTransitionDelegate* transitionDelegate = [TMModalCoverVerticalTransitionDelegate new];
-    optionsVC.transitioningDelegate = transitionDelegate;
+    
+    [self dimScreen];
     
     [self presentViewController:optionsVC animated:YES completion:nil];
 }
@@ -187,6 +189,11 @@
 - (void) didChangeOptions
 {
     [self.distLabel setDistance:theMeasurement.getPrimaryDistanceObject]; // update label with new units
+}
+
+- (void) didDismissOptions
+{
+    [self unDimScreen];
 }
 
 #pragma mark -
@@ -640,6 +647,18 @@
     {
         return NO;
     }
+}
+
+- (void) dimScreen
+{
+    [self.navigationController.view addSubview:dimmingView];
+    [dimmingView addMatchSuperviewConstraints];
+}
+
+- (void) unDimScreen
+{
+    [dimmingView removeConstraintsFromSuperview];
+    [dimmingView removeFromSuperview];
 }
 
 @end

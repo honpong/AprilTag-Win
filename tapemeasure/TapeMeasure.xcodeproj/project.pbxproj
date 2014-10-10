@@ -73,8 +73,6 @@
 		3298378C19BFDB3D00270DBB /* OSKMimeAttachment.m in Sources */ = {isa = PBXBuildFile; fileRef = 3298378919BFDB3D00270DBB /* OSKMimeAttachment.m */; };
 		3298378D19BFDB3D00270DBB /* OSKWebPageTitleUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 3298378B19BFDB3D00270DBB /* OSKWebPageTitleUtility.m */; };
 		329EB1071937E5050049C9B9 /* about.html in Resources */ = {isa = PBXBuildFile; fileRef = 329EB1061937E5050049C9B9 /* about.html */; };
-		329F4FD519E76C5000D2DA99 /* TMModalCoverVerticalTransitionDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 329F4FD419E76C5000D2DA99 /* TMModalCoverVerticalTransitionDelegate.m */; };
-		329F4FD819E76CA400D2DA99 /* TMModalCoverVerticalTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = 329F4FD719E76CA400D2DA99 /* TMModalCoverVerticalTransition.m */; };
 		32A0966116D6E8EF001C4D18 /* TMCreateAccountVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A0966016D6E8EF001C4D18 /* TMCreateAccountVC.m */; };
 		32A0A64C19DDC45A0088D6FD /* libFlurry_5.4.0.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32A0A64B19DDC45A0088D6FD /* libFlurry_5.4.0.a */; };
 		32A326A516B0985100F801DE /* TMMeasurement+TMMeasurementExt.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A326A416B0985100F801DE /* TMMeasurement+TMMeasurementExt.m */; };
@@ -461,10 +459,6 @@
 		3298378A19BFDB3D00270DBB /* OSKWebPageTitleUtility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OSKWebPageTitleUtility.h; sourceTree = "<group>"; };
 		3298378B19BFDB3D00270DBB /* OSKWebPageTitleUtility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OSKWebPageTitleUtility.m; sourceTree = "<group>"; };
 		329EB1061937E5050049C9B9 /* about.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = about.html; sourceTree = "<group>"; };
-		329F4FD319E76C5000D2DA99 /* TMModalCoverVerticalTransitionDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMModalCoverVerticalTransitionDelegate.h; sourceTree = "<group>"; };
-		329F4FD419E76C5000D2DA99 /* TMModalCoverVerticalTransitionDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMModalCoverVerticalTransitionDelegate.m; sourceTree = "<group>"; };
-		329F4FD619E76CA300D2DA99 /* TMModalCoverVerticalTransition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMModalCoverVerticalTransition.h; sourceTree = "<group>"; };
-		329F4FD719E76CA400D2DA99 /* TMModalCoverVerticalTransition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMModalCoverVerticalTransition.m; sourceTree = "<group>"; };
 		32A0965F16D6E8EF001C4D18 /* TMCreateAccountVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMCreateAccountVC.h; sourceTree = "<group>"; };
 		32A0966016D6E8EF001C4D18 /* TMCreateAccountVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMCreateAccountVC.m; sourceTree = "<group>"; };
 		32A0A64B19DDC45A0088D6FD /* libFlurry_5.4.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libFlurry_5.4.0.a; sourceTree = "<group>"; };
@@ -1106,10 +1100,6 @@
 				32E50DBB19AFDBC40048D069 /* TMLocationIntro.m */,
 				3280EC4419B8F9730097AAF9 /* TMIntroScreen.h */,
 				3280EC4519B8F9730097AAF9 /* TMIntroScreen.m */,
-				329F4FD319E76C5000D2DA99 /* TMModalCoverVerticalTransitionDelegate.h */,
-				329F4FD419E76C5000D2DA99 /* TMModalCoverVerticalTransitionDelegate.m */,
-				329F4FD619E76CA300D2DA99 /* TMModalCoverVerticalTransition.h */,
-				329F4FD719E76CA400D2DA99 /* TMModalCoverVerticalTransition.m */,
 			);
 			name = Controllers;
 			sourceTree = "<group>";
@@ -1932,7 +1922,6 @@
 				3232AAA116D2C1FF007101EA /* TMMeasurement+TMMeasurementSync.m in Sources */,
 				32E687C818F617160043D50A /* OSKActivityCollectionViewCell.m in Sources */,
 				32E687E218F617160043D50A /* OSKFacebookPublishingViewController.m in Sources */,
-				329F4FD519E76C5000D2DA99 /* TMModalCoverVerticalTransitionDelegate.m in Sources */,
 				32E687FC18F617170043D50A /* OSKPresentationManager.m in Sources */,
 				32E687E418F617160043D50A /* OSKFacebookUtility.m in Sources */,
 				32E6880C18F617170043D50A /* OSKTextViewAttachment.m in Sources */,
@@ -1999,7 +1988,6 @@
 				3273BCB5170BA81F00FF0F6A /* TMMeasurementType.m in Sources */,
 				32E6880218F617170043D50A /* OSKSaveToCameraRollActivity.m in Sources */,
 				32E687DE18F617160043D50A /* OSKDraftsActivity.m in Sources */,
-				329F4FD819E76CA400D2DA99 /* TMModalCoverVerticalTransition.m in Sources */,
 				32E687CE18F617160043D50A /* OSKActivityOperation.m in Sources */,
 				32935108172F352200E8FDEA /* TMCrosshairsLayerDelegate.m in Sources */,
 				32895B7517396F6D001B4C10 /* TMMeasurement.m in Sources */,

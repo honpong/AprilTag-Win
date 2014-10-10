@@ -21,8 +21,6 @@ var dm_mask_drawn = false;
 var dm_loading_message;
 
 
-var dm_center_x, dm_center_y;
-
 function dm_initialize(){
     console.log('dm_initialize()');
     spatial_data_loaded = false;
@@ -103,7 +101,8 @@ function dm_calibrate_image_point(x, y, center_x, center_y, focal_length, k1, k2
 
 function dm_3d_location_from_pixel_location(x,y){
     var calibrated_ray;
-    calibrated_ray = dm_calibrate_image_point(x, y, dm_center_x, dm_center_y, spatial_data.focal_length, spatial_data.k1, spatial_data.k2, spatial_data.k3);
+    calibrated_ray = dm_calibrate_image_point(x, y, spatial_data.center[0], spatial_data.center[1],
+            spatial_data.focal_length, spatial_data.k1, spatial_data.k2, spatial_data.k3);
 
     //iterate over all triangles until one is found.
     var t; //scaler which is multiplied by ray direction to get intersection of ray and triangle
@@ -402,8 +401,6 @@ function load_spatial_data(json_url) {   //image width needed becaues of image r
           spatial_data = data;
           console.log('number of vertixes loaded: ' + spatial_data['vertices'].length.toFixed() );
           spatial_data_loaded = true;
-          dm_center_x = image_width / 2; //relies on global image width/height having been set in main
-          dm_center_y = image_height / 2;
           console.log('data callback finished');
       });
 }

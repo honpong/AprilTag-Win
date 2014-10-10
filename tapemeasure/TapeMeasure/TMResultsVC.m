@@ -163,9 +163,16 @@
     optionsVC.theMeasurement = theMeasurement;
     [optionsVC setDelegate:self];
     
-    [self dimScreen];
-    
-    [self presentViewController:optionsVC animated:YES completion:nil];
+    if (SYSTEM_VERSION_LESS_THAN(@"8.0") && UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
+    {
+        optionsVC.view.backgroundColor = [UIColor colorWithHue:0 saturation:0 brightness:.98 alpha:1];
+        [self.navigationController pushViewController:optionsVC animated:YES];
+    }
+    else
+    {
+        [self dimScreen];
+        [self presentViewController:optionsVC animated:YES completion:nil];
+    }
 }
 
 - (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender

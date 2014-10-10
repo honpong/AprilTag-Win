@@ -22,6 +22,7 @@
 @property (weak, nonatomic) IBOutlet UISegmentedControl *btnUnits;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *btnScale;
 @property (weak, nonatomic) IBOutlet UIButton *closeButton;
+@property (weak, nonatomic) IBOutlet UIView *containerView;
 
 @property (nonatomic, strong) TMMeasurement *theMeasurement;
 

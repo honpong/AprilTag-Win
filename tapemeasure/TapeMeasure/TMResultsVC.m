@@ -8,6 +8,7 @@
 
 #import "TMResultsVC.h"
 #import "TMHistoryVC.h"
+#import "TMModalCoverVerticalTransitionDelegate.h"
 
 @interface TMResultsVC ()
 
@@ -153,9 +154,16 @@
     [shareSheet showShareSheet_Pad_FromBarButtonItem:self.btnAction content:content];
 }
 
-- (IBAction)handlePageCurl:(id)sender
+- (IBAction)handleUnitsButton:(id)sender
 {
+    TMOptionsVC *optionsVC = [self.storyboard instantiateViewControllerWithIdentifier:@"Options"];
+    optionsVC.theMeasurement = theMeasurement;
+    [optionsVC setDelegate:self];
+        
+    TMModalCoverVerticalTransitionDelegate* transitionDelegate = [TMModalCoverVerticalTransitionDelegate new];
+    optionsVC.transitioningDelegate = transitionDelegate;
     
+    [self presentViewController:optionsVC animated:YES completion:nil];
 }
 
 - (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender

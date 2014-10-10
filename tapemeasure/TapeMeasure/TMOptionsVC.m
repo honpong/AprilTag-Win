@@ -7,7 +7,7 @@
 //
 
 #import "TMOptionsVC.h"
-#import "RCCore/RCDistance.h"
+#import <RCCore/RCCore.h>
 
 @interface TMOptionsVC ()
 
@@ -162,6 +162,12 @@
     }
     
     [delegate didChangeOptions];
+}
+
+- (IBAction)handleCloseButton:(id)sender
+{
+    UINavigationController* navController = (UINavigationController*)self.presentingViewController;
+    [navController.viewControllers.lastObject dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (IBAction)handleFractionalButton:(id)sender

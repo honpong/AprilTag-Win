@@ -48,5 +48,6 @@
 - (NSLayoutConstraint*) findWidthConstraint;
 - (NSLayoutConstraint*) findHeightConstraint;
 - (NSLayoutConstraint*) findTopToSuperviewConstraint;
+- (NSLayoutConstraint*) findBottomToSuperviewConstraint;
 
 @end

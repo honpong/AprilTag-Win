@@ -23,6 +23,7 @@ function doOnOrientationChange()
 }
 
 var switch_image_depthmap; //declaring this in the global scope for later initialization
+var dm_mask_fade_animaiton_id; //used for iterative callback for animating the mask fade.
 
 function clear_tool_data(){ //this should be called whenever theres a switch in tools
     //line tool data
@@ -173,6 +174,12 @@ function rc_initialize(){
     
     
     function line_handler(i) { //takes an image coordinate pair as an input
+        //test if we have depth information at this point. if not show the depth mask then animate its fade
+        if (! distanceTo(i.x,i.y)) {
+            show_dm_mask();
+            start_dm_mask_fade_out();
+        }
+        
         if (lineNotStarted){
             lineNotStarted = false;
             click_image_x1 = i.x; //we map into image coordinates here, incase scale factor chagnes between clicks
@@ -220,10 +227,7 @@ function rc_initialize(){
         console.log('switch_image_depthmap()');
         //remove image from dom tree put mask in its place
         if (draw.node.contains(image.node)) {
-            draw_g.node.insertBefore(dm_mask_svg.node,image.node);
-            draw_g.node.removeChild(image.node);
-            if (!dm_mask_drawn) {fill_dm_mask();}
-            
+            show_dm_mask();
         }
         //remove image mask put depthmap in its place
         else if(draw.node.contains(dm_mask_svg.node)) {
@@ -238,6 +242,68 @@ function rc_initialize(){
             draw_g.node.removeChild(dm_svg.node);
             
         }
+    }
+    
+    show_dm_mask = function () {
+        console.log('show_dm_mask()');
+        //make the dm_mask_svg node the current image svg node
+        if (draw.node.contains(image.node)) {
+            draw_g.node.insertBefore(dm_mask_svg.node,image.node);
+            draw_g.node.removeChild(image.node);
+        }
+        else if(draw.node.contains(dm_svg.node)){
+            draw_g.node.insertBefore(dm_mask_svg.node,dm_svg.node);
+            draw_g.node.removeChild(dm_svg.node);
+            
+        }
+        if (!dm_mask_drawn) {fill_dm_mask();}
+        
+        //if an animation is happening we need to stop it
+        if (dm_mask_fade_animaiton_id) {
+            window.cancelAnimationFrame(dm_mask_fade_animaiton_id);
+            dm_mask_fade_animaiton_id = null;
+            if(dm_masking_image) {dm_masking_image.opacity(1);}
+        }
+
+        
+    }
+    
+    start_dm_mask_fade_out = function () {
+        console.log('start_dm_mask_fade_out()');
+        //start the fade out animation
+        if (dm_mask_fade_animaiton_id) {window.cancelAnimationFrame(dm_mask_fade_animaiton_id);}
+        dm_mask_fade_animaiton_id = window.requestAnimationFrame(fade_dm_mask_step_animation);
+    }
+    
+    fade_dm_mask_step_animation = function () {
+        var current_mask_opacity = dm_masking_image.opacity();
+        console.log('dm_masking_image_opacity ' + current_mask_opacity.toFixed(2));
+        //make the mask progresively more transparent, unill full transparency is reached
+        if (current_mask_opacity > 0) { //if we havn't hit zero transparency, then make it more transparent, and call again
+            var next_opicity = Math.max(0, current_mask_opacity - 0.01);
+            dm_masking_image.opacity(next_opicity);
+            dm_mask_fade_animaiton_id = window.requestAnimationFrame(fade_dm_mask_step_animation);
+        }
+        else {
+            fade_dm_mask_stop_animation();
+        }
+    }
+    
+    fade_dm_mask_stop_animation = function () {
+        console.log('fade_dm_mask_stop_animation()');
+        //terminate the iteration of the animation step
+        if (dm_mask_fade_animaiton_id) {
+            window.cancelAnimationFrame(dm_mask_fade_animaiton_id);
+            dm_mask_fade_animaiton_id = null;
+        }
+        //remove dm_svg.node as main image, restore image.node
+        if (draw.node.contains(dm_mask_svg.node)) {
+            console.log('removing depth mask')
+            draw_g.node.insertBefore(image.node, dm_mask_svg.node);
+            draw_g.node.removeChild(dm_mask_svg.node);
+        }
+        //restore the opacity of the mask.
+        if(dm_masking_image) {dm_masking_image.opacity(1);}
     }
     
     undo_last_change = function() {

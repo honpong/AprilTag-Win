@@ -16,6 +16,7 @@ var dm_canvas;
 var dm_context;
 var dm_mask_canvas;
 var dm_mask_context;
+var dm_masking_image;
 var dm_drawn = false;
 var dm_mask_drawn = false;
 var dm_loading_message;
@@ -216,7 +217,7 @@ function finalize_dm_mask(){
     //do the same for the masking canvas
     img_clone2 =image.clone();
     dm_mask_svg.add(img_clone2);
-    dm_mask_svg.image(dm_mask_canvas.toDataURL("image/png")); //image/png is a mime type.
+    dm_masking_image = dm_mask_svg.image(dm_mask_canvas.toDataURL("image/png")); //image/png is a mime type.
     dm_mask_context = null;
     dm_mask_canvas = null;
     
@@ -402,6 +403,7 @@ function load_spatial_data(json_url) {   //image width needed becaues of image r
           console.log('number of vertixes loaded: ' + spatial_data['vertices'].length.toFixed() );
           spatial_data_loaded = true;
           console.log('data callback finished');
+          if (!dm_mask_drawn) {fill_dm_mask();} //draw dm_mask on load so that it can be used in annimations around missing data
       });
 }
 
@@ -431,4 +433,6 @@ function distanceTo(x1, y1) {
     }
     return distance;
 }
+
+
 

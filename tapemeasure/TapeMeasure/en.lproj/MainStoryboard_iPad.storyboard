@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6245" systemVersion="13F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="Lfz-Fr-Qzy">
     <dependencies>
+        <deployment defaultVersion="1792" identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6238"/>
     </dependencies>
     <scenes>
@@ -1120,7 +1121,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="Ehh-Xs-OhS">
-                                <rect key="frame" x="124" y="43" width="180" height="41"/>
+                                <rect key="frame" x="120" y="43" width="180" height="41"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="180" id="6m7-2S-VQp"/>
                                     <constraint firstAttribute="height" constant="40" id="apn-pq-WLc"/>
@@ -1134,38 +1135,56 @@
                                 </connections>
                             </segmentedControl>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Save measurement location" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oZW-Se-j5u">
-                                <rect key="frame" x="16" y="113" width="213" height="21"/>
+                                <rect key="frame" x="20" y="169" width="213" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="e91-Mu-c1t">
-                                <rect key="frame" x="255" y="108" width="51" height="31"/>
+                                <rect key="frame" x="251" y="164" width="51" height="31"/>
                                 <connections>
                                     <action selector="handleSaveLocationSwitch:" destination="GQU-Yj-23N" eventType="valueChanged" id="Cld-yq-vQn"/>
                                 </connections>
                             </switch>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Default Units" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="RhV-ex-yRn">
-                                <rect key="frame" x="16" y="52" width="99" height="21"/>
+                                <rect key="frame" x="20" y="52" width="99" height="21"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dsv-hC-zum" userLabel="UseLocationSwitch">
+                                <rect key="frame" x="251" y="108" width="51" height="31"/>
+                                <connections>
+                                    <action selector="handleAllowLocationSwitch:" destination="GQU-Yj-23N" eventType="valueChanged" id="Gb2-FE-aff"/>
+                                </connections>
+                            </switch>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Allow app to use location" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="TOA-9g-9ZG">
+                                <rect key="frame" x="20" y="113" width="194" height="21"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
                         <constraints>
-                            <constraint firstAttribute="trailing" secondItem="Ehh-Xs-OhS" secondAttribute="trailing" constant="16" id="46I-zj-4jf"/>
-                            <constraint firstItem="oZW-Se-j5u" firstAttribute="leading" secondItem="pBi-LC-t2p" secondAttribute="leading" constant="16" id="MGK-er-a9d"/>
-                            <constraint firstAttribute="trailing" secondItem="e91-Mu-c1t" secondAttribute="trailing" constant="16" id="O4D-a7-oKv"/>
+                            <constraint firstAttribute="trailing" secondItem="Ehh-Xs-OhS" secondAttribute="trailing" constant="20" id="46I-zj-4jf"/>
+                            <constraint firstItem="oZW-Se-j5u" firstAttribute="centerY" secondItem="e91-Mu-c1t" secondAttribute="centerY" id="8MV-Yk-hBU"/>
+                            <constraint firstItem="dsv-hC-zum" firstAttribute="trailing" secondItem="Ehh-Xs-OhS" secondAttribute="trailing" id="BxB-ky-moA"/>
+                            <constraint firstItem="e91-Mu-c1t" firstAttribute="top" secondItem="dsv-hC-zum" secondAttribute="bottom" constant="25" id="EAw-n9-xUv"/>
+                            <constraint firstItem="TOA-9g-9ZG" firstAttribute="centerY" secondItem="dsv-hC-zum" secondAttribute="centerY" id="Npv-NR-Z0e"/>
+                            <constraint firstItem="dsv-hC-zum" firstAttribute="top" secondItem="Ehh-Xs-OhS" secondAttribute="bottom" constant="25" id="PTO-lk-GhV"/>
                             <constraint firstItem="Ehh-Xs-OhS" firstAttribute="top" secondItem="hzC-gN-WJo" secondAttribute="bottom" constant="23" id="ZpQ-kB-ti0"/>
                             <constraint firstItem="RhV-ex-yRn" firstAttribute="top" secondItem="hzC-gN-WJo" secondAttribute="bottom" constant="32" id="a65-dT-Ubj"/>
-                            <constraint firstItem="e91-Mu-c1t" firstAttribute="top" secondItem="Ehh-Xs-OhS" secondAttribute="bottom" constant="25" id="o2i-4s-tmZ"/>
-                            <constraint firstItem="oZW-Se-j5u" firstAttribute="top" secondItem="Ehh-Xs-OhS" secondAttribute="bottom" constant="30" id="uG8-e4-X3J"/>
-                            <constraint firstItem="RhV-ex-yRn" firstAttribute="leading" secondItem="pBi-LC-t2p" secondAttribute="leading" constant="16" id="xDJ-Rf-82A"/>
+                            <constraint firstItem="oZW-Se-j5u" firstAttribute="leading" secondItem="TOA-9g-9ZG" secondAttribute="leading" id="bZD-ML-ZbM"/>
+                            <constraint firstItem="dsv-hC-zum" firstAttribute="trailing" secondItem="e91-Mu-c1t" secondAttribute="trailing" id="cCD-xH-Ah6"/>
+                            <constraint firstItem="RhV-ex-yRn" firstAttribute="leading" secondItem="TOA-9g-9ZG" secondAttribute="leading" id="lMt-xA-PuH"/>
+                            <constraint firstItem="RhV-ex-yRn" firstAttribute="leading" secondItem="pBi-LC-t2p" secondAttribute="leading" constant="20" id="xDJ-Rf-82A"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Preferences" id="fR8-IP-9By"/>
-                    <value key="contentSizeForViewInPopover" type="size" width="340" height="140"/>
+                    <value key="contentSizeForViewInPopover" type="size" width="340" height="200"/>
                     <nil key="simulatedBottomBarMetrics"/>
                     <connections>
+                        <outlet property="allowLocationSwitch" destination="dsv-hC-zum" id="6aO-mw-ef2"/>
+                        <outlet property="saveLocationLabel" destination="oZW-Se-j5u" id="3Mn-pT-bAe"/>
                         <outlet property="saveLocationSwitch" destination="e91-Mu-c1t" id="xUH-da-QZj"/>
                         <outlet property="unitsControl" destination="Ehh-Xs-OhS" id="KgN-F2-bb1"/>
                     </connections>

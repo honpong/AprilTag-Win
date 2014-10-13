@@ -29,10 +29,13 @@
 {
     [TMAnalytics logEvent:@"View.Preferences"];
     
-    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapOutside:)];
-    tapGesture.numberOfTapsRequired = 1;
-    tapGesture.delegate = self;
-    [self.view.superview addGestureRecognizer:tapGesture];
+    if (self.containerView) // only on iPhone
+    {
+        UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapOutside:)];
+        tapGesture.numberOfTapsRequired = 1;
+        tapGesture.delegate = self;
+        [self.view.superview addGestureRecognizer:tapGesture];
+    }
 }
 
 - (void) handleResume
@@ -110,7 +113,6 @@
 
 - (void) handleTapOutside:(UIGestureRecognizer *)gestureRecognizer
 {
-//    if (gestureRecognizer.view) 
     [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
 }
 

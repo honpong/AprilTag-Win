@@ -39,9 +39,13 @@
     [self setScaleButtons];
     [self setButtonStates];
     
-    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissSelf)];
-    tapGesture.numberOfTapsRequired = 1;
-    [self.view addGestureRecognizer:tapGesture];
+    if (self.modalPresentationStyle == UIModalPresentationCustom)
+    {
+        UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapOutside:)];
+        tapGesture.numberOfTapsRequired = 1;
+        tapGesture.delegate = self;
+        [self.view addGestureRecognizer:tapGesture];
+    }
 }
 
 - (void)viewDidAppear:(BOOL)animated
@@ -168,11 +172,6 @@
     [delegate didChangeOptions];
 }
 
-- (IBAction)handleCloseButton:(id)sender
-{
-    [self dismissSelf];
-}
-
 - (IBAction)handleFractionalButton:(id)sender
 {
     theMeasurement.fractional = (int32_t)self.btnFractional.selectedSegmentIndex;
@@ -192,10 +191,21 @@
     if (error) [TMAnalytics logError:@"Options.Save" message:error.debugDescription error:error];
 }
 
-- (void) dismissSelf
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
 {
-    UINavigationController* navController = (UINavigationController*)self.presentingViewController;
-    [navController.viewControllers.lastObject dismissViewControllerAnimated:YES completion:nil];
-    [delegate didDismissOptions];
+    if(touch.view == self.containerView)
+    {
+        return NO;
+    }
+    else
+    {
+        return YES;
+    }
 }
+
+- (void) handleTapOutside:(UIGestureRecognizer *)gestureRecognizer
+{
+    [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+}
+
 @end

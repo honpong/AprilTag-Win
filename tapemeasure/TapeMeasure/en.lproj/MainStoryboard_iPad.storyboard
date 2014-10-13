@@ -851,7 +851,7 @@
             <objects>
                 <tableViewController storyboardIdentifier="History" title="Endless Tape Measure" useStoryboardIdentifierAsRestorationIdentifier="YES" id="1Xl-wZ-ecL" customClass="TMHistoryVC" sceneMemberID="viewController">
                     <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="Hfy-MW-och">
-                        <rect key="frame" x="0.0" y="64" width="320" height="504"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="504"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <prototypes>
@@ -1117,11 +1117,11 @@
                         <viewControllerLayoutGuide type="bottom" id="vyY-1l-WaD"/>
                     </layoutGuides>
                     <view key="view" contentMode="scaleToFill" id="pBi-LC-t2p">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <rect key="frame" x="0.0" y="0.0" width="340" height="200"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="Ehh-Xs-OhS">
-                                <rect key="frame" x="120" y="43" width="180" height="41"/>
+                                <rect key="frame" x="140" y="43" width="180" height="41"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="180" id="6m7-2S-VQp"/>
                                     <constraint firstAttribute="height" constant="40" id="apn-pq-WLc"/>
@@ -1140,7 +1140,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="e91-Mu-c1t">
-                                <rect key="frame" x="251" y="164" width="51" height="31"/>
+                                <rect key="frame" x="271" y="164" width="51" height="31"/>
                                 <connections>
                                     <action selector="handleSaveLocationSwitch:" destination="GQU-Yj-23N" eventType="valueChanged" id="Cld-yq-vQn"/>
                                 </connections>
@@ -1152,7 +1152,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="dsv-hC-zum" userLabel="UseLocationSwitch">
-                                <rect key="frame" x="251" y="108" width="51" height="31"/>
+                                <rect key="frame" x="271" y="108" width="51" height="31"/>
                                 <connections>
                                     <action selector="handleAllowLocationSwitch:" destination="GQU-Yj-23N" eventType="valueChanged" id="Gb2-FE-aff"/>
                                 </connections>
@@ -1181,7 +1181,11 @@
                     </view>
                     <navigationItem key="navigationItem" title="Preferences" id="fR8-IP-9By"/>
                     <value key="contentSizeForViewInPopover" type="size" width="340" height="200"/>
+                    <nil key="simulatedStatusBarMetrics"/>
+                    <nil key="simulatedTopBarMetrics"/>
                     <nil key="simulatedBottomBarMetrics"/>
+                    <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+                    <size key="freeformSize" width="340" height="200"/>
                     <connections>
                         <outlet property="allowLocationSwitch" destination="dsv-hC-zum" id="6aO-mw-ef2"/>
                         <outlet property="saveLocationLabel" destination="oZW-Se-j5u" id="3Mn-pT-bAe"/>
@@ -1191,7 +1195,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Gbq-Ke-GUm" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="774" y="161"/>
+            <point key="canvasLocation" x="787" y="161"/>
         </scene>
         <!--Back-->
         <scene sceneID="cbM-AL-eLO">

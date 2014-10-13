@@ -8,6 +8,7 @@
 
 #import "TMResultsVC.h"
 #import "TMHistoryVC.h"
+#import <RCCore/RCCore.h>
 
 @interface TMResultsVC ()
 
@@ -19,6 +20,7 @@
     RCLocationPopUp* locationPopup;
     TMShareSheet* shareSheet;
     UIView* dimmingView;
+    RCModalCoverVerticalTransition* transition;
 }
 @synthesize theMeasurement;
 
@@ -163,16 +165,14 @@
     optionsVC.theMeasurement = theMeasurement;
     [optionsVC setDelegate:self];
     
-    if (SYSTEM_VERSION_LESS_THAN(@"8.0") && UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
     {
-        optionsVC.view.backgroundColor = [UIColor colorWithHue:0 saturation:0 brightness:.98 alpha:1];
-        [self.navigationController pushViewController:optionsVC animated:YES];
+        if (transition == nil) transition = [RCModalCoverVerticalTransition new];
+        optionsVC.transitioningDelegate = transition;
+        optionsVC.modalPresentationStyle = UIModalPresentationCustom;
     }
-    else
-    {
-        [self dimScreen];
-        [self presentViewController:optionsVC animated:YES completion:nil];
-    }
+
+    [self presentViewController:optionsVC animated:YES completion:nil];
 }
 
 - (void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender

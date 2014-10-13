@@ -15,7 +15,7 @@
 
 @end
 
-@interface TMOptionsVC : UIViewController
+@interface TMOptionsVC : UIViewController <UIGestureRecognizerDelegate>
 
 @property (weak, nonatomic) id delegate;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *btnFractional;

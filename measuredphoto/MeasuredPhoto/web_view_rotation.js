@@ -61,11 +61,13 @@ function start_orientation_change_rotation(){
     console.log ('start orientatino change');
 
     if (rotation_animation_id) {window.cancelAnimationFrame(rotation_animation_id)};
-    if (current_rotation == 0 && target_rotation == 270) {current_rotation = 360;} //adjust for wrap arround at 360/0 for subtraction
+    if (current_rotation == 0 && target_rotation >= 181) {current_rotation = 360;} //adjust for wrap arround at 360/0 for subtraction
     if (current_rotation == 270 && target_rotation == 0) {target_rotation = 360;}
     if (current_rotation == 360 && target_rotation == 90) {current_rotation = 0;}
     if (current_rotation == 360 && target_rotation == 0) {current_rotation = 0;}
     total_rotation_diff = target_rotation - current_rotation;
+    console.log()
+    console.log ('current rotation: ' + current_rotation.toFixed() + ', target rotation: ' +target_rotation.toFixed() + ', total rotation diff = ' + total_rotation_diff.toFixed());
     prep_inc_zoom_offset_stepping();
     roation_frame_start = new Date();
     rotation_animation_id = window.requestAnimationFrame(animate_screen_rotation);}
@@ -74,15 +76,15 @@ function start_orientation_change_rotation(){
 var rotation_delta, rotation_number_of_frames;
 var next_rotation;
 function animate_screen_rotation(unused_time) {
-    console.log ('animate screen');
+    //console.log ('animate screen');
 
     if (roation_frame_start == null) { roation_frame_start = new Date();}
 
-    console.log ('current rotation: ' + current_rotation.toFixed() + ', target rotation: ' +target_rotation.toFixed());
+    //console.log ('current rotation: ' + current_rotation.toFixed() + ', target rotation: ' +target_rotation.toFixed());
     
     if (current_rotation != target_rotation) //if current frame rotation is less than target frame rotation, keep working.
     {
-        console.log('current_rotation != target_rotation');
+        //console.log('current_rotation != target_rotation');
         //calculate next rotation step - use last_frame rotation time.
         if (current_rotation == 0 && target_rotation >= 180) { //adjust for wrap arround at 360/0 for subtraction
             console.log('wrapping current rotation to 360');
@@ -95,7 +97,7 @@ function animate_screen_rotation(unused_time) {
             ((rotation_delta > 0) && (current_rotation + rotation_delta > target_rotation)) ) {
             next_rotation = target_rotation;} //rotation termination condition
         else { next_rotation = current_rotation + rotation_delta;}
-        console.log('rotation delta: '+rotation_delta.toFixed()+', next rotation: '+next_rotation.toFixed());
+        //console.log('rotation delta: '+rotation_delta.toFixed()+', next rotation: '+next_rotation.toFixed());
         
         
         //calculate next offest step

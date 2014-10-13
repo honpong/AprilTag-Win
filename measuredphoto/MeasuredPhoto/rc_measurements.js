@@ -110,7 +110,7 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
 
     
     var foo = m.text.lines.members[0];
-    console.log( foo.width().toFixed() );
+    //console.log( foo.width().toFixed() );
     
     //text box cursor approach //m.text_cursor = measured_svg.plain("").move(m.mid_x + m.font_offset_x, m.mid_y + m.font_offset_y);
     m.text_cursor = measured_svg.line(0,0,0,24);
@@ -203,7 +203,7 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
 }
 
 rcMeasurements.dragEndHandler = function (m, e) {
-    console.log('rcMeasurements.dragEndHandler()');
+    //console.log('rcMeasurements.dragEndHandler()');
     e.stopPropagation(); e.preventDefault();
     rcMeasurements.most_recent_drag = new Date();
     rcMeasurements.deselect_measurement(m);
@@ -211,7 +211,7 @@ rcMeasurements.dragEndHandler = function (m, e) {
 }
 
 rcMeasurements.click_action = function (m,e) {
-    console.log("click_action(m,e)");
+    //console.log("click_action(m,e)");
     //if we just ended a drag, don't propagate click
     var now = new Date();
     var last_drag_time_diff = now - rcMeasurements.most_recent_drag;
@@ -624,7 +624,7 @@ rcMeasurements.redraw_all_measurements = function (){
 
 
 rcMeasurements.to_json = function () {
-    console.log('rcMeasurements.to_json');
+    //console.log('rcMeasurements.to_json');
     var annotations_to_save = {measurements : {}, notes : {}, angles : {} };
     // if the app has set (or reset) the default units then save the default units.
     if (unit_default_set_by_app) { annotations_to_save['use_metric'] = default_units_metric; }
@@ -643,7 +643,7 @@ rcMeasurements.to_json = function () {
 rcMeasurements.save_measurements = function () {
     jsonStr = rcMeasurements.to_json();
     rcMeasurements.prior_measurement_states.push(jsonStr);
-    console.log('prior_measurement_states length = ' + rcMeasurements.prior_measurement_states.length.toFixed());
+    //console.log('prior_measurement_states length = ' + rcMeasurements.prior_measurement_states.length.toFixed());
     $.ajax({ type: "PUT", url: rc_server_location + "true_measure/api/v1/m_photo/" + m_photo_guid + "/annotations/", contentType: "application/json", processData: false, dataType: "json", data: jsonStr })
     .done(function(data, textStatus, jqXHR) {
           //alert(textStatus + ": " + JSON.stringify(data));
@@ -679,7 +679,7 @@ rcMeasurements.load_json  = function (m_url, callback_function) {
             rcMeasurements.apply_json_data(data);
             //initialize prior measurments
             rcMeasurements.prior_measurement_states.push(rcMeasurements.to_json());
-            console.log('prior_measurement_states length = ' + rcMeasurements.prior_measurement_states.length.toFixed());
+            //console.log('prior_measurement_states length = ' + rcMeasurements.prior_measurement_states.length.toFixed());
             callback_function();
         }).error(function () {
             //window.setTimeout(function(){alert('failed to load annotations')},0);
@@ -732,9 +732,9 @@ rcMeasurements.revert_measurement_state = function () {
         }
         //pull prior measurement state
         rcMeasurements.prior_measurement_states.pop(); //trow away the current state
-        console.log('prior_measurement_states length = ' + rcMeasurements.prior_measurement_states.length.toFixed());
+        //console.log('prior_measurement_states length = ' + rcMeasurements.prior_measurement_states.length.toFixed());
         var prior_m_json = rcMeasurements.prior_measurement_states.pop(); //go to the one before.
-        console.log('prior_measurement_states length = ' + rcMeasurements.prior_measurement_states.length.toFixed());
+        //console.log('prior_measurement_states length = ' + rcMeasurements.prior_measurement_states.length.toFixed());
         rcMeasurements.apply_json_data(JSON.parse(prior_m_json));
         // save new state - this will add current state back to the stack
         rcMeasurements.save_measurements();
@@ -743,7 +743,7 @@ rcMeasurements.revert_measurement_state = function () {
 
 // this checks for wether or not the rc_menu button designated as the eraser button is selected.
 rcMeasurements.is_annotation_being_deleted = function (m) {
-    console.log('rcMeasurements.is_annotation_being_deleted(m)')
+    //console.log('rcMeasurements.is_annotation_being_deleted(m)')
     if (rc_menu.current_button == rc_menu.eraser_button) {
         m.delete_self();
         setTimeout( function () {

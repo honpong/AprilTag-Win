@@ -23,7 +23,7 @@ var dm_loading_message;
 
 
 function dm_initialize(){
-    console.log('dm_initialize()');
+    //console.log('dm_initialize()');
     spatial_data_loaded = false;
     dm_drawn = false;
     dm_mask_drawn = false;
@@ -192,7 +192,7 @@ function dm_triangle_intersect(   v1,v2,v3,  // Triangle vertices
 }
 
 function finalize_dm(){
-    console.log('finalize_dm()');
+    //console.log('finalize_dm()');
     dm_loading_message.remove();
     delete dm_loading_message;
     
@@ -207,12 +207,12 @@ function finalize_dm(){
     dm_canvas = null;
     
     dm_drawn = true;
-    console.log('finished finalize_dm()');
+    //console.log('finished finalize_dm()');
 
 }
 
 function finalize_dm_mask(){
-    console.log('finalize_dm_mask()');
+    //console.log('finalize_dm_mask()');
     
     //do the same for the masking canvas
     img_clone2 =image.clone();
@@ -222,7 +222,7 @@ function finalize_dm_mask(){
     dm_mask_canvas = null;
     
     dm_mask_drawn = true;
-    console.log('finished finalize_dm_mask()');
+    //console.log('finished finalize_dm_mask()');
 }
 
 
@@ -320,7 +320,7 @@ function fill_depth_map(){
 
 
             var draw_end = new Date();
-            console.log('compute time for triangels = ' + Math.abs(draw_end-draw_start).toString());
+            //console.log('compute time for triangels = ' + Math.abs(draw_end-draw_start).toString());
             
             finalize_dm();
         }, 0);
@@ -396,13 +396,13 @@ function dm_clr_from_depth( current_depth_sqr) {
 
 
 function load_spatial_data(json_url) {   //image width needed becaues of image reversal
-    console.log('starting load_spatial_data('+json_url+')');
+    //console.log('starting load_spatial_data('+json_url+')');
     $.getJSON(json_url, function(data) {
-          console.log('in spatial data calback');
+          //console.log('in spatial data calback');
           spatial_data = data;
-          console.log('number of vertixes loaded: ' + spatial_data['vertices'].length.toFixed() );
+          //console.log('number of vertixes loaded: ' + spatial_data['vertices'].length.toFixed() );
           spatial_data_loaded = true;
-          console.log('data callback finished');
+          //console.log('data callback finished');
           if (!dm_mask_drawn) {fill_dm_mask();} //draw dm_mask on load so that it can be used in annimations around missing data
       });
 }

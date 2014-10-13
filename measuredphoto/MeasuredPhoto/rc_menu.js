@@ -217,7 +217,7 @@ function build_rc_menu() {
     }
     
     rc_menu.enable_disenable_undo = function (undo_possible) {
-        console.log('rc_menu.enable_disenable_undo(' + undo_possible.toString() + ')');
+        //console.log('rc_menu.enable_disenable_undo(' + undo_possible.toString() + ')');
         var undo_button_color;
         if (undo_possible) { undo_button_color = button_icon_color; }
         else { undo_button_color = button_icon_inactive_color; }

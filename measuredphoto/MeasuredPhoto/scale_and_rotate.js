@@ -40,14 +40,14 @@ function calculate_min_zoom(){
 }
 
 function scaleImageToMatchScreen() {
-    console.log('scale image to match screen');
+    //console.log('scale image to match screen');
     if (draw_g.node.contains(measured_svg.node)) {draw_g.node.removeChild(measured_svg.node);}
     var changing_orientation = false;
     
     if(window.innerHeight > window.innerWidth){
         portrait_offset = button_size;
         landscape_offset = 0;
-        console.log('img_container sizing portrate');
+        //console.log('img_container sizing portrate');
         img_container.size(window.innerWidth, window.innerHeight - button_size);
         img_container.move(0,0);
         if (orientation_drawn_landsacep == true) {changing_orientation = true;}
@@ -56,7 +56,7 @@ function scaleImageToMatchScreen() {
     else {
         portrait_offset = 0;
         landscape_offset = button_size;
-        console.log('img_container sizing landsape');
+        //console.log('img_container sizing landsape');
         img_container.size(window.innerWidth - button_size, window.innerHeight);
         img_container.move(button_size, 0);
         if (orientation_drawn_landsacep == false) {changing_orientation = true;}
@@ -269,7 +269,7 @@ function pxl_to_img_xy(pX, pY){
 // helper method to keep track of how screen is changing with regrads zoom, pan, and rotation.
 // returns a pixel coordinate given an image coordinate
 function img_to_pxl_xy(iX, iY){
-    console.log(JSON.stringify({'ix':iX, 'iy':iY}))
+    //console.log(JSON.stringify({'ix':iX, 'iy':iY}))
     var pX, pY;
     if (last_orientation == 1) { //regular portrait
         pX = (iX - image_width/2)*zoom_factor + x_offset + img_container.x();
@@ -287,8 +287,8 @@ function img_to_pxl_xy(iX, iY){
         pY = (image_width/2 - iX)*zoom_factor + img_container.height() - x_offset + (img_container.width() - img_container.height())/2;
         pX = (iY - image_height/2) * zoom_factor + img_container.x() + y_offset - (img_container.height() - img_container.width())/2 ;
     }
-    console.log(JSON.stringify(window.innerHeight))
-    console.log(JSON.stringify({'px':pX, 'py':pY}))
+    //console.log(JSON.stringify(window.innerHeight))
+    //console.log(JSON.stringify({'px':pX, 'py':pY}))
     return {'x':pX, 'y':pY};
 }
 

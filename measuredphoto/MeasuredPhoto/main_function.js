@@ -1,7 +1,7 @@
 doing_orientatino_change = false;
 function doOnOrientationChange()
 {
-    console.log('do on orientation chagne');
+    //console.log('do on orientation chagne');
     if (!doing_orientatino_change) {
         doing_orientatino_change = true;  //theres a lot of nested calls, prevent some listeners double triggering this
         //change body and document size here too.
@@ -27,7 +27,7 @@ var dm_mask_fade_animaiton_id; //used for iterative callback for animating the m
 
 function clear_tool_data(){ //this should be called whenever theres a switch in tools
     //line tool data
-    console.log('starting clear_tool_data');
+    //console.log('starting clear_tool_data');
     lineNotStarted = true;
     click_image_x1 = null;
     click_image_y1 = null;
@@ -39,7 +39,7 @@ function clear_tool_data(){ //this should be called whenever theres a switch in 
 
 function rc_initialize(){
     //console.log = logNative;
-    console.log("starting rc_initialize()");
+    //console.log("starting rc_initialize()");
     
     is_rc_initialized = true;
     
@@ -55,7 +55,7 @@ function rc_initialize(){
         else if(e.keyCode == 13) {rcMeasurements.endNoteEdit();}
     })
     $(document).keypress(function(e){
-                         console.log(String.fromCharCode(e.keyCode));
+                         //console.log(String.fromCharCode(e.keyCode));
                          rcMeasurements.addCharacterToNote ( String.fromCharCode(e.keyCode) );
                       })
     
@@ -69,7 +69,7 @@ function rc_initialize(){
     measured_svg = img_container.nested();
     draw_g.add(measured_svg);
     
-    console.log('hammer initializaitons');
+    //console.log('hammer initializaitons');
 
     hammer = Hammer(document.body);
     
@@ -224,7 +224,7 @@ function rc_initialize(){
     draw.click( function(e) { setTimeout(function(){ click_or_touch(e); },1);   e.stopPropagation(); e.preventDefault();} );
     
     switch_image_depthmap = function () { //we move the image svg off the dom, and move the depthmap on the dom.
-        console.log('switch_image_depthmap()');
+        //console.log('switch_image_depthmap()');
         //remove image from dom tree put mask in its place
         if (draw.node.contains(image.node)) {
             show_dm_mask();
@@ -245,7 +245,7 @@ function rc_initialize(){
     }
     
     show_dm_mask = function () {
-        console.log('show_dm_mask()');
+        //console.log('show_dm_mask()');
         //make the dm_mask_svg node the current image svg node
         if (draw.node.contains(image.node)) {
             draw_g.node.insertBefore(dm_mask_svg.node,image.node);
@@ -269,7 +269,7 @@ function rc_initialize(){
     }
     
     start_dm_mask_fade_out = function () {
-        console.log('start_dm_mask_fade_out()');
+        //console.log('start_dm_mask_fade_out()');
         //start the fade out animation
         if (dm_mask_fade_animaiton_id) {window.cancelAnimationFrame(dm_mask_fade_animaiton_id);}
         dm_mask_fade_animaiton_id = window.requestAnimationFrame(fade_dm_mask_step_animation);
@@ -277,7 +277,7 @@ function rc_initialize(){
     
     fade_dm_mask_step_animation = function () {
         var current_mask_opacity = dm_masking_image.opacity();
-        console.log('dm_masking_image_opacity ' + current_mask_opacity.toFixed(2));
+        //console.log('dm_masking_image_opacity ' + current_mask_opacity.toFixed(2));
         //make the mask progresively more transparent, unill full transparency is reached
         if (current_mask_opacity > 0) { //if we havn't hit zero transparency, then make it more transparent, and call again
             var next_opicity = Math.max(0, current_mask_opacity - 0.01);
@@ -290,7 +290,7 @@ function rc_initialize(){
     }
     
     fade_dm_mask_stop_animation = function () {
-        console.log('fade_dm_mask_stop_animation()');
+        ////console.log('fade_dm_mask_stop_animation()');
         //terminate the iteration of the animation step
         if (dm_mask_fade_animaiton_id) {
             window.cancelAnimationFrame(dm_mask_fade_animaiton_id);
@@ -298,7 +298,7 @@ function rc_initialize(){
         }
         //remove dm_svg.node as main image, restore image.node
         if (draw.node.contains(dm_mask_svg.node)) {
-            console.log('removing depth mask')
+            //console.log('removing depth mask')
             draw_g.node.insertBefore(image.node, dm_mask_svg.node);
             draw_g.node.removeChild(dm_mask_svg.node);
         }
@@ -347,7 +347,7 @@ function rc_initialize(){
 
 
 function clear_all(){
-    console.log('starting clear_all()');
+    //console.log('starting clear_all()');
     window.setTimeout(function (){
     try {
         //scale and roation handling
@@ -391,7 +391,7 @@ function setDefaultUnits(use_metric) {
 }
 
 function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric){
-    console.log("startin loadMPhoto()");
+    //console.log("startin loadMPhoto()");
     window.setTimeout( function () {
         m_photo_guid = guid;
         if (typeof use_metric === "undefined" || use_metric === null) { default_units_metric = false; } //metric is our default if not set
@@ -403,9 +403,9 @@ function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric)
             }
             
             //assume clear is called first if this is the second load
-                      console.log('loading image from '+ rc_img_url);
+                      //console.log('loading image from '+ rc_img_url);
             image = img_container.image(rc_img_url).loaded(function(loader) {
-                                                  console.log('starting image load callback');
+                                                  //console.log('starting image load callback');
                                                   //this should rotate the image
                                                   //alert('loading img');
                                                   //image_width = loader.height;
@@ -415,7 +415,7 @@ function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric)
                                                            
                                                   image_width = loader.width;
                                                   image_height = loader.height;
-                                                   console.log('loaded image dimensions: ' + image_width.toFixed()+ ' x ' + image_height.toFixed() );
+                                                   //console.log('loaded image dimensions: ' + image_width.toFixed()+ ' x ' + image_height.toFixed() );
                                                            
                                                   draw_g.add(image);
                                                   if ( ! draw.node.contains(menu_svg.node)) {draw.node.appendChild(menu_svg.node);}
@@ -423,9 +423,9 @@ function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric)
                                                   // load measurements
                                                   rcMeasurements.load_json(rc_annotation_url, function() {
                                                                                     //alert('loading spatial data');
-                                                                                    console.log('starting annotation data load calback');
+                                                                                    //console.log('starting annotation data load calback');
                                                                                     load_spatial_data(rc_data_url); //this function is defined in depth_data.js
-                                                                                    console.log('finished rcMeasurement.load_json callback');
+                                                                                    //console.log('finished rcMeasurement.load_json callback');
                                                                                     rc_menu.enable_disenable_undo(rcMeasurements.is_undo_available());
                                                                                 }
                                                                            );
@@ -441,10 +441,10 @@ function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric)
             return 0;
         }
         catch(err) {
-            console.log(err.message);
+            //console.log(err.message);
             return(err.message);
         }
-        console.log('finished loadMPhoto()');
+        //console.log('finished loadMPhoto()');
     },0 );
 }
 

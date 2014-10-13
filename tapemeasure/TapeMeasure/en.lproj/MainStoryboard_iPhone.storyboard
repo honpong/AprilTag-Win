@@ -331,7 +331,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="5sZ-dQ-JCP" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="787" y="794"/>
+            <point key="canvasLocation" x="766" y="794"/>
         </scene>
         <!--LocationIntro-->
         <scene sceneID="PmR-yP-0hC">
@@ -1143,7 +1143,7 @@
             <objects>
                 <tableViewController storyboardIdentifier="History" title="Measurements" useStoryboardIdentifierAsRestorationIdentifier="YES" id="1Xl-wZ-ecL" customClass="TMHistoryVC" sceneMemberID="viewController">
                     <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="Hfy-MW-och">
-                        <rect key="frame" x="0.0" y="0.0" width="320" height="504"/>
+                        <rect key="frame" x="0.0" y="64" width="320" height="504"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <prototypes>
@@ -1555,48 +1555,73 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="ceo-HY-P7V">
-                                <rect key="frame" x="135" y="43" width="170" height="41"/>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="h6I-Ga-aG2" userLabel="ContainerView">
+                                <rect key="frame" x="0.0" y="378" width="320" height="190"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Allow app to use location" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" useAutomaticPreferredMaxLayoutWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="FDQ-NE-emo">
+                                        <rect key="frame" x="20" y="91" width="194" height="21"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="vFf-lF-ZT2" userLabel="SaveLocationSwitch">
+                                        <rect key="frame" x="253" y="141" width="51" height="31"/>
+                                        <connections>
+                                            <action selector="handleLocationSwitch:" destination="5QF-Oo-FcB" eventType="valueChanged" id="ogt-Ji-5th"/>
+                                        </connections>
+                                    </switch>
+                                    <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="ceo-HY-P7V">
+                                        <rect key="frame" x="132" y="21" width="170" height="41"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="170" id="YlY-NA-EDk"/>
+                                            <constraint firstAttribute="height" constant="40" id="oKx-bp-fFt"/>
+                                        </constraints>
+                                        <segments>
+                                            <segment title="Metric"/>
+                                            <segment title="Imperial"/>
+                                        </segments>
+                                        <connections>
+                                            <action selector="handleUnitsControl:" destination="5QF-Oo-FcB" eventType="valueChanged" id="Vza-Wy-r9y"/>
+                                        </connections>
+                                    </segmentedControl>
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Default Units" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" useAutomaticPreferredMaxLayoutWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="57Y-Wb-riA">
+                                        <rect key="frame" x="20" y="30" width="99" height="21"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="GKN-6b-B8J" userLabel="UseLocationSwitch">
+                                        <rect key="frame" x="253" y="86" width="51" height="31"/>
+                                    </switch>
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Save measurement location" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" useAutomaticPreferredMaxLayoutWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="pLP-lE-DvF">
+                                        <rect key="frame" x="20" y="146" width="213" height="21"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <color key="backgroundColor" red="0.97647064920000004" green="0.97647064920000004" blue="0.97647064920000004" alpha="1" colorSpace="deviceRGB"/>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="170" id="YlY-NA-EDk"/>
-                                    <constraint firstAttribute="height" constant="40" id="oKx-bp-fFt"/>
+                                    <constraint firstItem="57Y-Wb-riA" firstAttribute="leading" secondItem="FDQ-NE-emo" secondAttribute="leading" id="1Vv-4W-Wpp"/>
+                                    <constraint firstAttribute="bottom" secondItem="vFf-lF-ZT2" secondAttribute="bottom" constant="18" id="2R8-W9-CzN"/>
+                                    <constraint firstItem="GKN-6b-B8J" firstAttribute="centerX" secondItem="vFf-lF-ZT2" secondAttribute="centerX" id="311-PQ-h6S"/>
+                                    <constraint firstAttribute="trailing" secondItem="vFf-lF-ZT2" secondAttribute="trailing" constant="18" id="8kF-be-bm7"/>
+                                    <constraint firstItem="57Y-Wb-riA" firstAttribute="centerY" secondItem="ceo-HY-P7V" secondAttribute="centerY" constant="-0.5" id="AAR-rN-X8h"/>
+                                    <constraint firstAttribute="height" constant="190" id="DEC-3R-ZdR"/>
+                                    <constraint firstItem="pLP-lE-DvF" firstAttribute="centerY" secondItem="vFf-lF-ZT2" secondAttribute="centerY" id="LIq-CT-rMz"/>
+                                    <constraint firstItem="FDQ-NE-emo" firstAttribute="leading" secondItem="h6I-Ga-aG2" secondAttribute="leading" constant="20" id="M8w-0p-E2O"/>
+                                    <constraint firstItem="FDQ-NE-emo" firstAttribute="centerY" secondItem="GKN-6b-B8J" secondAttribute="centerY" id="h8o-GT-2Xs"/>
+                                    <constraint firstItem="ceo-HY-P7V" firstAttribute="trailing" secondItem="GKN-6b-B8J" secondAttribute="trailing" id="nMI-gg-nRe"/>
+                                    <constraint firstItem="FDQ-NE-emo" firstAttribute="leading" secondItem="pLP-lE-DvF" secondAttribute="leading" id="pVL-aL-hRQ"/>
+                                    <constraint firstItem="vFf-lF-ZT2" firstAttribute="top" secondItem="GKN-6b-B8J" secondAttribute="bottom" constant="24" id="qdB-sa-XJv"/>
+                                    <constraint firstItem="pLP-lE-DvF" firstAttribute="leading" secondItem="h6I-Ga-aG2" secondAttribute="leading" constant="20" id="s8C-2i-Skd"/>
+                                    <constraint firstItem="GKN-6b-B8J" firstAttribute="top" secondItem="ceo-HY-P7V" secondAttribute="bottom" constant="25" id="uhu-ax-A0h"/>
                                 </constraints>
-                                <segments>
-                                    <segment title="Metric"/>
-                                    <segment title="Imperial"/>
-                                </segments>
-                                <connections>
-                                    <action selector="handleUnitsControl:" destination="5QF-Oo-FcB" eventType="valueChanged" id="Vza-Wy-r9y"/>
-                                </connections>
-                            </segmentedControl>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Save measurement location" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" useAutomaticPreferredMaxLayoutWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="pLP-lE-DvF">
-                                <rect key="frame" x="15" y="113" width="213" height="21"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="vFf-lF-ZT2">
-                                <rect key="frame" x="256" y="108" width="51" height="31"/>
-                                <connections>
-                                    <action selector="handleLocationSwitch:" destination="5QF-Oo-FcB" eventType="valueChanged" id="ogt-Ji-5th"/>
-                                </connections>
-                            </switch>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Default Units" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" useAutomaticPreferredMaxLayoutWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="57Y-Wb-riA">
-                                <rect key="frame" x="15" y="52" width="99" height="21"/>
-                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
-                                <nil key="highlightedColor"/>
-                            </label>
+                            </view>
                         </subviews>
-                        <color key="backgroundColor" red="0.97647064920000004" green="0.97647064920000004" blue="0.97647064920000004" alpha="1" colorSpace="deviceRGB"/>
                         <constraints>
-                            <constraint firstAttribute="trailing" secondItem="vFf-lF-ZT2" secondAttribute="trailing" constant="15" id="4tW-Dg-RE9"/>
-                            <constraint firstItem="ceo-HY-P7V" firstAttribute="top" secondItem="9ou-8g-BdQ" secondAttribute="bottom" constant="23" id="8Rk-eD-9ij"/>
-                            <constraint firstAttribute="trailing" secondItem="ceo-HY-P7V" secondAttribute="trailing" constant="15" id="8sR-40-P1G"/>
-                            <constraint firstItem="57Y-Wb-riA" firstAttribute="top" secondItem="9ou-8g-BdQ" secondAttribute="bottom" constant="32" id="ZWX-xM-kqe"/>
-                            <constraint firstItem="57Y-Wb-riA" firstAttribute="leading" secondItem="pqY-sg-UN9" secondAttribute="leading" constant="15" id="aIW-da-S52"/>
-                            <constraint firstItem="pLP-lE-DvF" firstAttribute="top" secondItem="ceo-HY-P7V" secondAttribute="bottom" constant="30" id="aon-y4-iaX"/>
-                            <constraint firstItem="vFf-lF-ZT2" firstAttribute="top" secondItem="ceo-HY-P7V" secondAttribute="bottom" constant="25" id="guv-wM-2mX"/>
-                            <constraint firstItem="pLP-lE-DvF" firstAttribute="leading" secondItem="pqY-sg-UN9" secondAttribute="leading" constant="15" id="lOz-eb-MyS"/>
+                            <constraint firstItem="h6I-Ga-aG2" firstAttribute="leading" secondItem="pqY-sg-UN9" secondAttribute="leading" id="W1b-0U-Zwg"/>
+                            <constraint firstItem="1MJ-Xj-zPs" firstAttribute="top" secondItem="h6I-Ga-aG2" secondAttribute="bottom" id="hQ2-H2-OPi"/>
+                            <constraint firstAttribute="trailing" secondItem="h6I-Ga-aG2" secondAttribute="trailing" id="npW-sC-Jbh"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" title="Preferences" id="9Iq-hX-zZE"/>

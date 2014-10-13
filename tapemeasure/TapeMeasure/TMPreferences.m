@@ -28,6 +28,10 @@
 - (void) viewDidAppear:(BOOL)animated
 {
     [TMAnalytics logEvent:@"View.Preferences"];
+    
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapOutside)];
+    tapGesture.numberOfTapsRequired = 1;
+    [self.view.superview addGestureRecognizer:tapGesture];
 }
 
 - (void) handleResume
@@ -75,6 +79,11 @@
         [TMAnalytics logEvent:@"Preferences" withParameters:@{ @"Location" : @"Off" }];
     
     [NSUserDefaults.standardUserDefaults setObject:@(self.locationSwitch.isOn) forKey:PREF_ADD_LOCATION];
+}
+
+- (void) handleTapOutside
+{
+    [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
 }
 
 @end

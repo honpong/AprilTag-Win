@@ -43,6 +43,7 @@
 #import "UIView+RCAutoLayoutDebugging.h"
 #import "UINavigationController+RCNavConExtensions.h"
 #import "NSLayoutConstraint+RCAutoLayoutDebugging.h"
+#import "UIView+RCTappableView.h"
 
 #import "RCRotatingView.h"
 #import "RCSlideBanner.h"
@@ -54,6 +55,8 @@
 #import "RCTipView.h"
 
 #import "RCLocalMoviePlayer.h"
+#import "RCModalCoverVerticalTransition.h"
+#import "RCModalCoverVerticalAnimation.h"
 
 #import "NSString+RCString.h"
 

@@ -12,6 +12,8 @@
 #import "TMAboutView.h"
 #import "TMTipsView.h"
 #import "TMLocalMoviePlayer.h"
+#import "TMPreferences.h"
+#import <RCCore/RCCore.h>
 
 @implementation TMHistoryVC
 {
@@ -19,6 +21,7 @@
     CustomIOS7AlertView *tipsView;
     CustomIOS7AlertView *unitsView;
     TMShareSheet* shareSheet;
+    RCModalCoverVerticalTransition* transition;
 }
 
 #pragma mark - Event handlers
@@ -434,12 +437,28 @@
         }
         case 5:
         {
-            [self performSegueWithIdentifier:@"toSettings" sender:self];
+            [self gotoPreferences];
             break;
         }
 
         default:
             break;
+    }
+}
+
+- (void) gotoPreferences
+{
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+    {
+        [self performSegueWithIdentifier:@"toSettings" sender:self];
+    }
+    else
+    {
+        TMPreferences* prefsController = [self.storyboard instantiateViewControllerWithIdentifier:@"Preferences"];
+        if (transition == nil) transition = [RCModalCoverVerticalTransition new];
+        prefsController.transitioningDelegate = transition;
+        prefsController.modalPresentationStyle = UIModalPresentationCustom;
+        [self presentViewController:prefsController animated:YES completion:nil];
     }
 }
 

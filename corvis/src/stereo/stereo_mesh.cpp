@@ -160,15 +160,16 @@ void stereo_mesh_write_rotated_json(const char * filename, const stereo_mesh & m
     // Transform center point to rotated pixel coordinates
     // rotate around width/2 height/2
     v4 image_midpoint = v4(g.camera.width/2, g.camera.height/2., 0, 0);
-    v4 image_center = v4(g.camera.center_x, g.camera.center_y, 0, 0);
-    image_center -= image_midpoint;
+    v4 image_midpoint_rotated = image_midpoint;
     bool is_landscape = degrees == 0 || degrees == 180;
     if(!is_landscape) {
-        f_t temp = image_midpoint[0];
-        image_midpoint[0] = image_midpoint[1];
-        image_midpoint[1] = temp;
+        image_midpoint_rotated[0] = image_midpoint[1];
+        image_midpoint_rotated[1] = image_midpoint[0];
     }
-    image_center = R*image_center + image_midpoint;
+
+    v4 image_center = v4(g.camera.center_x, g.camera.center_y, 0, 0);
+
+    image_center = R*(image_center - image_midpoint) + image_midpoint_rotated;
 
     FILE * vertices = fopen(filename, "w");
     if(!vertices) return;
@@ -184,9 +185,9 @@ void stereo_mesh_write_rotated_json(const char * filename, const stereo_mesh & m
     fprintf(vertices, "\"vertices\" : [\n");
     for(int i = 0; i < mesh.vertices.size(); i++)
     {
-        v4 vertex = R*mesh.vertices[i];
-        v4 imvertex = v4(mesh.vertices_image[i].x, mesh.vertices_image[i].y, 0, 0) - v4(g.camera.width/2, g.camera.height/2, 0, 0);
-        imvertex = R*imvertex + image_midpoint; // image_midpoint is already rotated
+        v4 vertex = R*mesh.vertices[i]; // world coordinates are centered at 0,0
+        v4 imvertex = v4(mesh.vertices_image[i].x, mesh.vertices_image[i].y, 0, 0);
+        imvertex = R*(imvertex - image_midpoint) + image_midpoint_rotated;
         fprintf(vertices, "[%f, %f, %f, %f, %f, %f]", vertex[0], vertex[1], vertex[2], imvertex[0], imvertex[1], mesh.match_scores[i]);
         if(i == mesh.vertices.size()-1)
             fprintf(vertices, "\n");

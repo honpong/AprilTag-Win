@@ -1143,7 +1143,7 @@
             <objects>
                 <tableViewController storyboardIdentifier="History" title="Measurements" useStoryboardIdentifierAsRestorationIdentifier="YES" id="1Xl-wZ-ecL" customClass="TMHistoryVC" sceneMemberID="viewController">
                     <tableView key="view" opaque="NO" clipsSubviews="YES" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" id="Hfy-MW-och">
-                        <rect key="frame" x="0.0" y="64" width="320" height="504"/>
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="504"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES" heightSizable="YES" flexibleMaxY="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <prototypes>
@@ -1567,7 +1567,7 @@
                                     <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="vFf-lF-ZT2" userLabel="SaveLocationSwitch">
                                         <rect key="frame" x="253" y="141" width="51" height="31"/>
                                         <connections>
-                                            <action selector="handleLocationSwitch:" destination="5QF-Oo-FcB" eventType="valueChanged" id="ogt-Ji-5th"/>
+                                            <action selector="handleSaveLocationSwitch:" destination="5QF-Oo-FcB" eventType="valueChanged" id="ZAb-iI-Xbk"/>
                                         </connections>
                                     </switch>
                                     <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="ceo-HY-P7V">
@@ -1592,6 +1592,9 @@
                                     </label>
                                     <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="GKN-6b-B8J" userLabel="UseLocationSwitch">
                                         <rect key="frame" x="253" y="86" width="51" height="31"/>
+                                        <connections>
+                                            <action selector="handleAllowLocationSwitch:" destination="5QF-Oo-FcB" eventType="valueChanged" id="kFC-pB-ZeW"/>
+                                        </connections>
                                     </switch>
                                     <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Save measurement location" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" useAutomaticPreferredMaxLayoutWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="pLP-lE-DvF">
                                         <rect key="frame" x="20" y="146" width="213" height="21"/>
@@ -1628,7 +1631,10 @@
                     <value key="contentSizeForViewInPopover" type="size" width="340" height="140"/>
                     <nil key="simulatedBottomBarMetrics"/>
                     <connections>
-                        <outlet property="locationSwitch" destination="vFf-lF-ZT2" id="oWP-Rk-VNY"/>
+                        <outlet property="allowLocationSwitch" destination="GKN-6b-B8J" id="ymk-0P-QmZ"/>
+                        <outlet property="containerView" destination="h6I-Ga-aG2" id="KMt-m0-aqk"/>
+                        <outlet property="saveLocationLabel" destination="pLP-lE-DvF" id="AAv-Ge-teh"/>
+                        <outlet property="saveLocationSwitch" destination="vFf-lF-ZT2" id="UoA-gl-mgX"/>
                         <outlet property="unitsControl" destination="ceo-HY-P7V" id="UmW-hO-JuQ"/>
                     </connections>
                 </viewController>

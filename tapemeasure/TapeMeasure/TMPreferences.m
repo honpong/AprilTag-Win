@@ -29,8 +29,9 @@
 {
     [TMAnalytics logEvent:@"View.Preferences"];
     
-    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapOutside)];
+    UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapOutside:)];
     tapGesture.numberOfTapsRequired = 1;
+    tapGesture.delegate = self;
     [self.view.superview addGestureRecognizer:tapGesture];
 }
 
@@ -52,7 +53,7 @@
         self.unitsControl.selectedSegmentIndex = 0;
     }
     
-    [self.locationSwitch setOn:[[NSUserDefaults.standardUserDefaults objectForKey:PREF_ADD_LOCATION] isEqual:@YES]];
+    [self.saveLocationSwitch setOn:[[NSUserDefaults.standardUserDefaults objectForKey:PREF_ADD_LOCATION] isEqual:@YES]];
 }
 
 - (IBAction)handleUnitsControl:(id)sender
@@ -71,18 +72,45 @@
     [NSUserDefaults.standardUserDefaults synchronize];
 }
 
-- (IBAction)handleLocationSwitch:(id)sender
+- (IBAction)handleSaveLocationSwitch:(id)sender
 {
-    if (self.locationSwitch.isOn)
+    if (self.saveLocationSwitch.isOn)
         [TMAnalytics logEvent:@"Preferences" withParameters:@{ @"Location" : @"On" }];
     else
         [TMAnalytics logEvent:@"Preferences" withParameters:@{ @"Location" : @"Off" }];
     
-    [NSUserDefaults.standardUserDefaults setObject:@(self.locationSwitch.isOn) forKey:PREF_ADD_LOCATION];
+    [NSUserDefaults.standardUserDefaults setObject:@(self.saveLocationSwitch.isOn) forKey:PREF_ADD_LOCATION];
 }
 
-- (void) handleTapOutside
+- (IBAction)handleAllowLocationSwitch:(id)sender
 {
+    if (self.allowLocationSwitch.isOn)
+    {
+        self.saveLocationSwitch.enabled = YES;
+        self.saveLocationLabel.alpha = 1.;
+    }
+    else
+    {
+        self.saveLocationSwitch.enabled = NO;
+        self.saveLocationLabel.alpha = .5;
+    }
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
+{
+    if(touch.view == self.containerView)
+    {
+        return NO;
+    }
+    else
+    {
+        return YES;
+    }
+}
+
+- (void) handleTapOutside:(UIGestureRecognizer *)gestureRecognizer
+{
+//    if (gestureRecognizer.view) 
     [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
 }
 

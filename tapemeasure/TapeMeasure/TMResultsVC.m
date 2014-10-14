@@ -563,7 +563,7 @@
     
     [locationPopup hideInstantly];
     [LOCATION_MANAGER requestLocationAccessWithCompletion:^(BOOL authorized) {
-        [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
+        [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_NAG];
         [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_USE_LOCATION];
         if(authorized) [LOCATION_MANAGER startLocationUpdates];
     }];
@@ -583,7 +583,7 @@
     [TMAnalytics logEvent:@"Choice.LocationNag" withParameters:@{ @"Button" : @"Never" }];
     
     [locationPopup hideAnimated];
-    [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
+    [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_NAG];
 }
 
 #pragma mark -
@@ -635,7 +635,7 @@
 - (BOOL) showLocationNagIfNecessary
 {
     BOOL isMeasurementJustTaken = [[NSDate date] timeIntervalSince1970] - self.theMeasurement.timestamp < 5.;
-    BOOL showLocationNag = [NSUserDefaults.standardUserDefaults boolForKey:PREF_SHOW_LOCATION_EXPLANATION];
+    BOOL showLocationNag = [NSUserDefaults.standardUserDefaults boolForKey:PREF_SHOW_LOCATION_NAG];
     NSNumber* timeOfLastNag = [NSUserDefaults.standardUserDefaults objectForKey:PREF_LOCATION_NAG_TIMESTAMP];
     NSTimeInterval secondsSinceLastNag = [[NSDate date] timeIntervalSince1970] - timeOfLastNag.doubleValue;
     BOOL hasBeenNaggedRecently = secondsSinceLastNag < 60 * 60; // if nagged within the last hour

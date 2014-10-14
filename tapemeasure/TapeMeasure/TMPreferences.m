@@ -115,7 +115,7 @@
                 [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_PROMPTED_LOCATION_SERVICES];
                 
                 [LOCATION_MANAGER requestLocationAccessWithCompletion:^(BOOL authorized) {
-                    [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
+                    [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_NAG];
                     if(authorized)
                     {
                         [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_USE_LOCATION];
@@ -155,7 +155,7 @@
 - (void) requestLocationPermission
 {
     [LOCATION_MANAGER requestLocationAccessWithCompletion:^(BOOL authorized) {
-        [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
+        [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_NAG];
         if(authorized)
         {
             [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_USE_LOCATION];

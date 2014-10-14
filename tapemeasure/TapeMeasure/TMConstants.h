@@ -37,7 +37,7 @@
 #define PREF_UNITS @"units_preference"
 #define PREF_ADD_LOCATION @"addlocation_preference"
 #define PREF_LAST_TRANS_ID @"last_trans_id"
-#define PREF_SHOW_LOCATION_EXPLANATION @"show_location_explanation"
+#define PREF_SHOW_LOCATION_NAG @"show_location_explanation"
 #define PREF_LOCATION_NAG_TIMESTAMP @"location_nag_timestamp"
 #define PREF_IS_CALIBRATED @"is_calibrated"
 #define PREF_IS_FIRST_LAUNCH @"is_first_launch"

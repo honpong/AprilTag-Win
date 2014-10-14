@@ -56,7 +56,7 @@
         
         NSDictionary *appDefaults = @{PREF_UNITS: @(UnitsImperial),
                                      PREF_ADD_LOCATION: @(-1),
-                                     PREF_SHOW_LOCATION_EXPLANATION: @YES,
+                                     PREF_SHOW_LOCATION_NAG: @YES,
                                      PREF_LAST_TRANS_ID: @0,
                                      PREF_IS_FIRST_LAUNCH: @YES,
                                      PREF_SHOW_RATE_NAG: @YES,
@@ -72,7 +72,7 @@
 //    [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_IS_CALIBRATED];
 //    [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_SHOW_RATE_NAG];
 //    [NSUserDefaults.standardUserDefaults setObject:@0 forKey:PREF_RATE_NAG_TIMESTAMP];
-//    [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_SHOW_LOCATION_EXPLANATION];
+//    [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_SHOW_LOCATION_NAG];
 //    [NSUserDefaults.standardUserDefaults setObject:@0 forKey:PREF_LOCATION_NAG_TIMESTAMP];
 
     #endif

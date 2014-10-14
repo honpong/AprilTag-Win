@@ -104,7 +104,7 @@
     }
     else
     {
-        if ([LOCATION_MANAGER isLocationExplicitlyAllowed])
+        if ([LOCATION_MANAGER isLocationExplicitlyAllowed] && [NSUserDefaults.standardUserDefaults boolForKey:PREF_USE_LOCATION])
         {
             // location already authorized. go ahead.
             LOCATION_MANAGER.delegate = self;

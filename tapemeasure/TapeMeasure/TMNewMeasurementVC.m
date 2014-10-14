@@ -339,7 +339,7 @@ static transition transitions[] =
     
     [self handleStateEvent:EV_RESUME];
     
-    useLocation = [LOCATION_MANAGER isLocationExplicitlyAllowed] && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
+    useLocation = [LOCATION_MANAGER isLocationExplicitlyAllowed] && [NSUserDefaults.standardUserDefaults boolForKey:PREF_USE_LOCATION];
     if (useLocation) [self updateLocation];
 }
 
@@ -382,17 +382,12 @@ static transition transitions[] =
 
 - (void) locationManager:(CLLocationManager *)manager didUpdateLocations:(NSArray *)locations
 {
-    if ([[NSUserDefaults.standardUserDefaults objectForKey:PREF_ADD_LOCATION] isEqual:@(-1)]) // if location pref hasn't been set
-    {
-        [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_ADD_LOCATION]; // set location pref to yes
-    }
-    
     LOCATION_MANAGER.delegate = nil;
     
     CLLocation *clLocation = [LOCATION_MANAGER getStoredLocation];
     [SENSOR_FUSION setLocation:clLocation];
     
-    if(useLocation && clLocation)
+    if([NSUserDefaults.standardUserDefaults boolForKey:PREF_ADD_LOCATION] && clLocation)
     {
         locationObj = [TMLocation getLocationNear:clLocation];
         
@@ -416,6 +411,8 @@ static transition transitions[] =
                  if(block_address) locationObj.address = block_address;
              }];
         }
+        
+        DLog(@"Added location to measurement");
     }
 }
 
@@ -559,7 +556,12 @@ static transition transitions[] =
     newMeasurement.syncPending = YES;
     
     [newMeasurement insertIntoDb]; //order is important. this must be inserted before location is added.
-    [locationObj addMeasurementObject:newMeasurement];
+    
+    if ([NSUserDefaults.standardUserDefaults boolForKey:PREF_ADD_LOCATION])
+    {
+        [locationObj addMeasurementObject:newMeasurement];
+    }
+    
     [DATA_MANAGER saveContext];
     
     [TMAnalytics

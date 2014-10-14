@@ -348,6 +348,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
     if(location)
     {
         dispatch_async(queue, ^{ filter_compute_gravity(&_cor_setup->sfm, location.coordinate.latitude, location.altitude); } );
+        DLog(@"Sensor fusion location set: %@", location);
     }
 }
 

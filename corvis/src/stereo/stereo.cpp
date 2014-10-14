@@ -468,7 +468,7 @@ bool stereo::triangulate_internal(const stereo_frame & reference, const stereo_f
             fprintf(stderr, "Error too large, failing\n");
         return false;
     }
-    intersection = pa + (pb - pa)/2;
+    intersection = pa;
     depth = cam1_intersect[2];
 
     return true;

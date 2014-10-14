@@ -70,8 +70,10 @@
     CVPixelBufferLockBaseAddress(imageBuffer, 0);
     CIImage * image = [CIImage imageWithCVPixelBuffer:imageBuffer];
     CIContext *context = [CIContext contextWithOptions:nil];
-    
-    UIImage * lastImage = [UIImage imageWithCGImage:[context createCGImage:image fromRect:image.extent]];
+
+    CGImageRef cgimage = [context createCGImage:image fromRect:image.extent];
+    UIImage * lastImage = [UIImage imageWithCGImage:cgimage];
+
     
     DLog(@"Writing to %@", filename);
     
@@ -79,6 +81,8 @@
     {
         DLog(@"FAILED");
     }
+
+    CFRelease(cgimage);
     CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
 }
 

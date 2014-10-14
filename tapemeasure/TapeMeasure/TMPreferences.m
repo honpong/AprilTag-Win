@@ -22,6 +22,8 @@
                                              selector:@selector(handleResume)
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
+    
+    [self.allowLocationSwitch addTarget:self action:@selector(setSaveLocationSwitchEnabledStatus) forControlEvents:UIControlEventValueChanged];
     [self refreshPrefs];
 }
 
@@ -29,7 +31,7 @@
 {
     [TMAnalytics logEvent:@"View.Preferences"];
     
-    if (self.containerView) // only on iPhone
+    if (self.modalPresentationStyle == UIModalPresentationCustom)
     {
         UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapOutside:)];
         tapGesture.numberOfTapsRequired = 1;
@@ -56,7 +58,12 @@
         self.unitsControl.selectedSegmentIndex = 0;
     }
     
-    [self.saveLocationSwitch setOn:[[NSUserDefaults.standardUserDefaults objectForKey:PREF_ADD_LOCATION] isEqual:@YES]];
+    [self.saveLocationSwitch setOn:[NSUserDefaults.standardUserDefaults boolForKey:PREF_ADD_LOCATION]];
+    
+    BOOL shouldAllowLocationSwitchBeOn = [NSUserDefaults.standardUserDefaults boolForKey:PREF_USE_LOCATION] && [LOCATION_MANAGER isLocationExplicitlyAllowed];
+    [self.allowLocationSwitch setOn:shouldAllowLocationSwitchBeOn];
+    
+    [self setSaveLocationSwitchEnabledStatus];
 }
 
 - (IBAction)handleUnitsControl:(id)sender
@@ -82,10 +89,87 @@
     else
         [TMAnalytics logEvent:@"Preferences" withParameters:@{ @"Location" : @"Off" }];
     
-    [NSUserDefaults.standardUserDefaults setObject:@(self.saveLocationSwitch.isOn) forKey:PREF_ADD_LOCATION];
+    [NSUserDefaults.standardUserDefaults setBool:self.saveLocationSwitch.isOn forKey:PREF_ADD_LOCATION];
 }
 
 - (IBAction)handleAllowLocationSwitch:(id)sender
+{
+    if (self.allowLocationSwitch.isOn)
+    {
+        if (![CLLocationManager locationServicesEnabled])
+        {
+            if ([NSUserDefaults.standardUserDefaults boolForKey:PREF_PROMPTED_LOCATION_SERVICES])
+            {
+                UIAlertView* alertView = [[UIAlertView alloc] initWithTitle:@"Whoops"
+                                                                    message:@"Location services are currently disabled for the entire device. Please go to Settings > Privacy > Location Services to enable location."
+                                                                   delegate:self
+                                                          cancelButtonTitle:nil
+                                                          otherButtonTitles:@"Got it", nil];
+                [alertView show];
+                
+                [self.allowLocationSwitch setOn:NO animated:YES];
+                [self setSaveLocationSwitchEnabledStatus]; // shouldn't be necessary, but is for some reason
+            }
+            else
+            {
+                [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_PROMPTED_LOCATION_SERVICES];
+                
+                [LOCATION_MANAGER requestLocationAccessWithCompletion:^(BOOL authorized) {
+                    [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
+                    if(authorized)
+                    {
+                        [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_USE_LOCATION];
+                        [self.allowLocationSwitch setOn:YES animated:NO]; 
+                        [self setSaveLocationSwitchEnabledStatus]; // shouldn't be necessary, but is for some reason
+                    }
+                }];
+            }
+        }
+        else if ([LOCATION_MANAGER isLocationDisallowed])
+        {
+            UIAlertView* alertView = [[UIAlertView alloc] initWithTitle:@"Denied"
+                                                               message:@"This app has been denied location permission, possibly by you. Please go to [Settings > Privacy > Location Services] to grant location permission to this app."
+                                                              delegate:self
+                                                     cancelButtonTitle:nil
+                                                     otherButtonTitles:@"Got it", nil];
+            [alertView show];
+            
+            [self.allowLocationSwitch setOn:NO animated:YES];
+            [self setSaveLocationSwitchEnabledStatus]; // shouldn't be necessary, but is for some reason
+        }
+        else if (![LOCATION_MANAGER isLocationExplicitlyAllowed])
+        {
+            [self requestLocationPermission];
+        }
+        else
+        {
+            [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_USE_LOCATION];
+        }
+    }
+    else
+    {
+        [NSUserDefaults.standardUserDefaults setBool:self.allowLocationSwitch.isOn forKey:PREF_USE_LOCATION];
+    }
+}
+
+- (void) requestLocationPermission
+{
+    [LOCATION_MANAGER requestLocationAccessWithCompletion:^(BOOL authorized) {
+        [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
+        if(authorized)
+        {
+            [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_USE_LOCATION];
+            [LOCATION_MANAGER startLocationUpdates];
+        }
+        else
+        {
+            [self.allowLocationSwitch setOn:NO animated:YES];
+            [self setSaveLocationSwitchEnabledStatus]; // shouldn't be necessary, but is for some reason
+        }
+    }];
+}
+
+- (void) setSaveLocationSwitchEnabledStatus
 {
     if (self.allowLocationSwitch.isOn)
     {

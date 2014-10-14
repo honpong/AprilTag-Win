@@ -104,6 +104,11 @@ static const CLLocationDegrees startingLongitude = 43.;
     NSNumber* timestamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]];
     [NSUserDefaults.standardUserDefaults setObject:timestamp forKey:PREF_LOCATION_NAG_TIMESTAMP];
     
+    if (![CLLocationManager locationServicesEnabled])
+    {
+        [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_PROMPTED_LOCATION_SERVICES];
+    }
+    
     [LOCATION_MANAGER requestLocationAccessWithCompletion:^(BOOL granted)
      {
          [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
@@ -111,6 +116,7 @@ static const CLLocationDegrees startingLongitude = 43.;
          if(granted)
          {
              [TMAnalytics logEvent:@"Permission.Location" withParameters:@{ @"Allowed" : @"Yes" }];
+             [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_USE_LOCATION];
              [LOCATION_MANAGER startLocationUpdates];
          }
          else

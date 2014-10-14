@@ -60,6 +60,7 @@
 {
     if(![CLLocationManager locationServicesEnabled])
     {
+        authorizationHandler = handler;
         //If location is turned off globally, this will pop up the dialog that sends the user to preferences. Explicitly asking permission does not do this.
         [_sysLocationMan startUpdatingLocation];
     }
@@ -197,16 +198,16 @@
 - (void) locationManager:(CLLocationManager *)manager didChangeAuthorizationStatus:(CLAuthorizationStatus)status
 {
     if(authorizationHandler == nil) return;
-    if([CLLocationManager authorizationStatus] != kCLAuthorizationStatusNotDetermined)
+    if(status != kCLAuthorizationStatusNotDetermined)
     {
-        authorizationHandler([self isLocationDisallowed]);
+        authorizationHandler([self isLocationExplicitlyAllowed]);
         authorizationHandler = nil;
     }    
 }
 
 - (void) locationManager:(CLLocationManager *)manager didFailWithError:(NSError *)error
 {
-    LOGME
+    DLog(@"%@", error);
 }
 
 - (void)updateStoredLocation:(CLLocation*)newLocation

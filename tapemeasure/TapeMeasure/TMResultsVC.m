@@ -556,9 +556,15 @@
     NSNumber* timestamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]];
     [NSUserDefaults.standardUserDefaults setObject:timestamp forKey:PREF_LOCATION_NAG_TIMESTAMP];
     
+    if (![CLLocationManager locationServicesEnabled])
+    {
+        [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_PROMPTED_LOCATION_SERVICES];
+    }
+    
     [locationPopup hideInstantly];
     [LOCATION_MANAGER requestLocationAccessWithCompletion:^(BOOL authorized) {
         [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
+        [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_USE_LOCATION];
         if(authorized) [LOCATION_MANAGER startLocationUpdates];
     }];
 }
@@ -629,12 +635,14 @@
 - (BOOL) showLocationNagIfNecessary
 {
     BOOL isMeasurementJustTaken = [[NSDate date] timeIntervalSince1970] - self.theMeasurement.timestamp < 5.;
-    BOOL showLocationNag = [[NSUserDefaults.standardUserDefaults objectForKey:PREF_SHOW_LOCATION_EXPLANATION] isEqualToNumber:@YES];
+    BOOL showLocationNag = [NSUserDefaults.standardUserDefaults boolForKey:PREF_SHOW_LOCATION_EXPLANATION];
     NSNumber* timeOfLastNag = [NSUserDefaults.standardUserDefaults objectForKey:PREF_LOCATION_NAG_TIMESTAMP];
     NSTimeInterval secondsSinceLastNag = [[NSDate date] timeIntervalSince1970] - timeOfLastNag.doubleValue;
     BOOL hasBeenNaggedRecently = secondsSinceLastNag < 60 * 60; // if nagged within the last hour
+    BOOL alreadyPromptedToTurnOnLocationServices = [NSUserDefaults.standardUserDefaults boolForKey:PREF_PROMPTED_LOCATION_SERVICES];
+    BOOL locationServicesEnabled = [CLLocationManager locationServicesEnabled];
     
-    if (isMeasurementJustTaken && showLocationNag && !hasBeenNaggedRecently)
+    if (isMeasurementJustTaken && showLocationNag && !hasBeenNaggedRecently && (locationServicesEnabled || (!locationServicesEnabled && !alreadyPromptedToTurnOnLocationServices)))
     {
         __weak TMResultsVC* weakSelf = self;
         dispatch_time_t popTime = dispatch_time(DISPATCH_TIME_NOW, 1. * NSEC_PER_SEC);

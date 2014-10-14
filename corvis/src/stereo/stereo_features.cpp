@@ -134,6 +134,8 @@ vector<sift_keypoint> sift_detect(uint8_t * image, int width, int height, int no
 
         o++;
     }
+
+    vl_sift_delete(filt);
     free(fdata);
     return keypoints;
 }

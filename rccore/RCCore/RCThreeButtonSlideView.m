@@ -54,11 +54,11 @@ static const CGFloat buttonHeight = 45;
     [label addRightSpaceToSuperviewConstraint:10];
     [label addTopSpaceToSuperviewConstraint:14];
     
-    [self addSubview:button1];
-    [button1 addBottomSpaceToViewConstraint:button3 withDist:0];
-    [button1 addMatchWidthToSuperviewConstraints];
-    [button1 addHeightConstraint:buttonHeight];
-    [button1 addTarget:self action:@selector(button1Tapped) forControlEvents:UIControlEventTouchUpInside];
+    [self addSubview:button3];
+    [button3 addBottomSpaceToSuperviewConstraint:0];
+    [button3 addRightSpaceToSuperviewConstraint:0];
+    [button3 addWidthConstraint:width/2 andHeightConstraint:buttonHeight];
+    [button3 addTarget:self action:@selector(button3Tapped) forControlEvents:UIControlEventTouchUpInside];
     
     [self addSubview:button2];
     [button2 addBottomSpaceToSuperviewConstraint:0];
@@ -66,11 +66,11 @@ static const CGFloat buttonHeight = 45;
     [button2 addWidthConstraint:width/2 andHeightConstraint:buttonHeight];
     [button2 addTarget:self action:@selector(button2Tapped) forControlEvents:UIControlEventTouchUpInside];
     
-    [self addSubview:button3];
-    [button3 addBottomSpaceToSuperviewConstraint:0];
-    [button3 addRightSpaceToSuperviewConstraint:0];
-    [button3 addWidthConstraint:width/2 andHeightConstraint:buttonHeight];
-    [button3 addTarget:self action:@selector(button3Tapped) forControlEvents:UIControlEventTouchUpInside];
+    [self addSubview:button1];
+    [button1 addBottomSpaceToViewConstraint:button3 withDist:0]; // must go after button3 has been added to view hierarchy
+    [button1 addMatchWidthToSuperviewConstraints];
+    [button1 addHeightConstraint:buttonHeight];
+    [button1 addTarget:self action:@selector(button1Tapped) forControlEvents:UIControlEventTouchUpInside];
     
     [self setPrimaryColor:lightBlue];
 }

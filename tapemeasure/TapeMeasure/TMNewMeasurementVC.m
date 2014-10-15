@@ -199,11 +199,11 @@ static transition transitions[] =
     }
     else if (newState == ST_FASTFAIL)
     {
-        [TMAnalytics logEvent:@"Measurement.Fail" withParameters:@{ @"Error" : @"TooFast" }];
+        [TMAnalytics logEvent:@"Measurement.Fail" withParameters:@{ @"Error" : @"TooFast", @"Vision Error Preceded" : didGetVisionError ? @"Yes" : @"No" }];
     }
     else if (newState == ST_FAIL)
     {
-        [TMAnalytics logEvent:@"Measurement.Fail" withParameters:@{ @"Error" : @"Other" }];
+        [TMAnalytics logEvent:@"Measurement.Fail" withParameters:@{ @"Error" : @"Other", @"Vision Error Preceded" : didGetVisionError ? @"Yes" : @"No" }];
     }
     else if (newState == ST_INIT_VISION_FAIL)
     {

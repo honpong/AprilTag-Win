@@ -35,6 +35,7 @@
     UIColor* originalDistanceTextColor;
     
     BOOL didGetVisionError;
+    bool isCurrentFail;
 }
 
 #pragma mark - State Machine
@@ -50,7 +51,7 @@ typedef enum
 
 // order is significant
 enum state { ST_STARTUP, ST_READY, ST_INITIALIZING, ST_MEASURE, ST_FINISHED, ST_INIT_VISION_FAIL, ST_VISION_FAIL, ST_FASTFAIL, ST_FAIL, ST_ANY } currentState;
-enum event { EV_RESUME, EV_CONVERGED, EV_STEADY_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_TAP, EV_PAUSE, EV_CANCEL, EV_INITIALIZED };
+enum event { EV_RESUME, EV_CONVERGED, EV_STEADY_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_NOFAIL, EV_FAIL_EXPIRED, EV_TAP, EV_PAUSE, EV_CANCEL, EV_INITIALIZED };
 
 typedef struct { enum state state; enum event event; enum state newstate; } transition;
 
@@ -100,6 +101,7 @@ static transition transitions[] =
     { ST_VISION_FAIL, EV_TAP, ST_FINISHED },
     { ST_VISION_FAIL, EV_FASTFAIL, ST_FASTFAIL },
     { ST_VISION_FAIL, EV_FAIL, ST_FAIL },
+    { ST_VISION_FAIL, EV_NOFAIL, ST_MEASURE },
     { ST_INIT_VISION_FAIL, EV_FAIL_EXPIRED, ST_READY },
     { ST_VISION_FAIL, EV_FAIL_EXPIRED, ST_MEASURE },
     { ST_FASTFAIL, EV_FAIL_EXPIRED, ST_READY },
@@ -510,8 +512,12 @@ static transition transitions[] =
             [self handleStateEvent:EV_VISIONFAIL];
         }
         lastFailTime = currentTime;
+        isCurrentFail = true;
     }
-    
+    else
+    {
+        isCurrentFail = false;
+    }
     if(currentState == ST_INITIALIZING)
     {
         if (status.runState == RCSensorFusionRunStateRunning)
@@ -533,8 +539,7 @@ static transition transitions[] =
         [self.arView.featuresLayer updateFeatures:data.featurePoints];
     }
     
-    double currentTime = CACurrentMediaTime();
-    if (lastFailTime != 0 && currentTime - lastFailTime > 3)
+    if (!isCurrentFail && lastFailTime != 0 && CACurrentMediaTime() - lastFailTime > 1)
     {
         [self handleStateEvent:EV_FAIL_EXPIRED];
         lastFailTime = 0;

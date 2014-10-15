@@ -41,7 +41,6 @@ filter_setup::filter_setup(dispatch_t *_input, const char *outfn, struct corvis_
     dispatch_add_rewrite(input, packet_camera, 16667);
 }
 
-//TODO: fail if we get a vision error on the first frame
 //TODO: Make it so speed error doesn't cause reset?
 RCSensorFusionErrorCode filter_setup::get_error()
 {

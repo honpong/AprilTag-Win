@@ -99,6 +99,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
     BOOL isLicenseValid;
     bool isStableStart;
     RCSensorFusionRunState lastRunState;
+    RCSensorFusionErrorCode lastErrorCode;
     float lastProgress;
     NSString* licenseKey;
 }
@@ -301,6 +302,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
         queue = dispatch_queue_create("com.realitycap.sensorfusion", DISPATCH_QUEUE_SERIAL);
         inputQueue = dispatch_queue_create("com.realitycap.sensorfusion.input", DISPATCH_QUEUE_SERIAL);
         lastRunState = RCSensorFusionRunStateInactive;
+        lastErrorCode = RCSensorFusionErrorCodeNone;
         lastProgress = 0.;
         licenseKey = nil;
         
@@ -498,7 +500,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
     RCSensorFusionErrorCode errorCode = _cor_setup->get_error();
     float converged = _cor_setup->get_filter_converged();
     
-    if((converged == lastProgress) && (errorCode == RCSensorFusionErrorCodeNone) && (f->run_state == lastRunState)) return;
+    if((converged == lastProgress) && (errorCode == lastErrorCode) && (f->run_state == lastRunState)) return;
 
     // queue actions related to failures before queuing callbacks to the sdk client.
     if(errorCode == RCSensorFusionErrorCodeTooFast || errorCode == RCSensorFusionErrorCodeOther)
@@ -525,7 +527,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
         [cameraManager focusOnceAndLock];
     }
     
-    if((converged != lastProgress) || (errorCode != RCSensorFusionErrorCodeNone) || (f->run_state != lastRunState))
+    if((converged != lastProgress) || (errorCode != lastErrorCode) || (f->run_state != lastRunState))
     {
         RCSensorFusionError* error = nil;
         if (errorCode != RCSensorFusionErrorCodeNone) error = [RCSensorFusionError errorWithDomain:ERROR_DOMAIN code:errorCode userInfo:nil];
@@ -535,7 +537,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
             if ([self.delegate respondsToSelector:@selector(sensorFusionDidChangeStatus:)]) [self.delegate sensorFusionDidChangeStatus:status];
         });
     }
-    
+    lastErrorCode = errorCode;
     lastRunState = f->run_state;
     lastProgress = converged;
 }

@@ -26,7 +26,7 @@
  */
 - (void) sensorFusionDidUpdateData:(RCSensorFusionData*)data;
 
-/** Sent to the delegate whenever the status of RCSensorFusion changes, including when an error occurs.
+/** Sent to the delegate whenever the status of RCSensorFusion changes, including when an error occurs, or a previous error state is cleared.
  
  @param status An instance of RCSensorFusionStatus containing the current sensor fusion status.
  */

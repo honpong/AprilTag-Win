@@ -36,7 +36,7 @@
         UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapOutside:)];
         tapGesture.numberOfTapsRequired = 1;
         tapGesture.delegate = self;
-        [self.view.superview addGestureRecognizer:tapGesture];
+        [self.view addGestureRecognizer:tapGesture];
     }
 }
 

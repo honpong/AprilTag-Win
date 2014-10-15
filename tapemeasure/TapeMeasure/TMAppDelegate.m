@@ -103,7 +103,7 @@
     BOOL calibratedFlag = [NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_CALIBRATED];
     BOOL hasCalibration = [SENSOR_FUSION hasCalibrationData];
     
-    if([NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_FIRST_LAUNCH] && !SKIP_CALIBRATION)
+    if([NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_FIRST_LAUNCH])
     {
         [self gotoIntroScreen];
     }

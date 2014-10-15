@@ -18,7 +18,7 @@
 
 + (void) logEvent: (NSString*)eventName withParameters: (NSDictionary*)params
 {
-    DLog(@"Analytics: %@", eventName);
+    DLog(@"Analytics: %@ %@", eventName, params);
     [Flurry logEvent:eventName withParameters:params];
 }
 
@@ -36,7 +36,7 @@
 
 + (void) startTimedEvent: (NSString*)eventName withParameters: (NSDictionary*)params
 {
-    DLog(@"Analytics: %@", eventName);
+    DLog(@"Analytics: %@ %@", eventName, params);
     [Flurry logEvent:eventName withParameters:params timed:YES];
 }
 

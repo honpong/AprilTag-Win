@@ -33,6 +33,8 @@
     RCTipView* tipsView;
     
     UIColor* originalDistanceTextColor;
+    
+    BOOL didGetVisionError;
 }
 
 #pragma mark - State Machine
@@ -81,8 +83,8 @@ static statesetup setups[] =
     { ST_FINISHED,          ICON_GREEN,   false,  false,  false,  true,   true,   true,   true,   false,   false,  false,  "",             "", false },
     { ST_INIT_VISION_FAIL,  ICON_RED,     false,  true,   false,  true,   true,   true,   false,  false,   false,  false,  "Try again",    "The camera can't see well enough to measure. Try again with the camera pointed in a different direction.", false },
     { ST_VISION_FAIL,       ICON_RED,     true,   true,   true,   true,   true,   true,   true,   false,   true,   false,  "Warning",      "The camera can't see well enough to measure. Try pointing the camera in a different direction.", false },
-    { ST_FASTFAIL,          ICON_RED,     false,  true,   false,  true,   true,   true,   true,   false,   false,  false,  "Try again",    "Sorry, that didn't work. For best results, move at a normal walking pace.", false },
-    { ST_FAIL,              ICON_RED,     false,  true,   false,  true,   true,   true,   true,   false,   false,  false,  "Try again",    "Sorry, we need to try that again.", false },
+    { ST_FASTFAIL,          ICON_RED,     false,  true,   false,  true,   true,   true,   true,   true,    false,  false,  "Try again",    "Sorry, that didn't work. For best results, move at a normal walking pace.", false },
+    { ST_FAIL,              ICON_RED,     false,  true,   false,  true,   true,   true,   true,   true,    false,  false,  "Try again",    "Sorry, we need to try that again.", false },
 };
 
 static transition transitions[] =
@@ -99,6 +101,7 @@ static transition transitions[] =
     { ST_VISION_FAIL, EV_FASTFAIL, ST_FASTFAIL },
     { ST_VISION_FAIL, EV_FAIL, ST_FAIL },
     { ST_INIT_VISION_FAIL, EV_FAIL_EXPIRED, ST_READY },
+    { ST_VISION_FAIL, EV_FAIL_EXPIRED, ST_MEASURE },
     { ST_FASTFAIL, EV_FAIL_EXPIRED, ST_READY },
     { ST_FAIL, EV_FAIL_EXPIRED, ST_READY },
     { ST_INIT_VISION_FAIL, EV_TAP, ST_READY },
@@ -177,7 +180,37 @@ static transition transitions[] =
     
     lastTransitionTime = CACurrentMediaTime();
     
-    if (currentState == ST_FINISHED) [self saveAndGotoResult];
+    [self handleStateTransition:newState];
+}
+
+- (void) handleStateTransition:(int)newState
+{
+    if (newState == ST_READY)
+    {
+        didGetVisionError = NO;
+    }
+    else if (newState == ST_FINISHED)
+    {
+        NSString* errorType = didGetVisionError ? @"Vision" : @"None";
+        [TMAnalytics logEvent:@"Measurement.Save" withParameters:@{ @"Error" : errorType, @"Distance": [newMeasurement getDistRangeString] }]; // successful measurement
+        [self saveAndGotoResult];
+    }
+    else if (newState == ST_FASTFAIL)
+    {
+        [TMAnalytics logEvent:@"Measurement.Fail" withParameters:@{ @"Error" : @"TooFast" }];
+    }
+    else if (newState == ST_FAIL)
+    {
+        [TMAnalytics logEvent:@"Measurement.Fail" withParameters:@{ @"Error" : @"Other" }];
+    }
+    else if (newState == ST_INIT_VISION_FAIL)
+    {
+        [TMAnalytics logEvent:@"Measurement.Fail" withParameters:@{ @"Error" : @"InitVision" }];
+    }
+    else if (newState == ST_VISION_FAIL)
+    {
+        didGetVisionError = YES;
+    }
 }
 
 - (void)handleStateEvent:(int)event
@@ -226,7 +259,7 @@ static transition transitions[] =
     tipsView.alpha = 0;
     tipsView.delegate = self;
     tipsView.tips = [self buildTipsArray];
-        
+    
     self.distanceLabel.textAlignment = NSTextAlignmentCenter;
     self.distanceLabel.centerAlignmentExcludesFraction = YES;
     CGFloat fontSize = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? 70 : 50;
@@ -470,31 +503,15 @@ static transition transitions[] =
     if ([status.error isKindOfClass:[RCSensorFusionError class]])
     {
         if(status.error.code == RCSensorFusionErrorCodeTooFast) {
-            [TMAnalytics logEvent:@"Filter.Fail" withParameters:@{ @"Reason": @"TooFast" }];
             [self handleStateEvent:EV_FASTFAIL];
-            if(currentState == ST_FASTFAIL) {
-                lastFailTime = currentTime;
-            }
         } else if(status.error.code == RCSensorFusionErrorCodeOther) {
-            [TMAnalytics logEvent:@"Filter.Fail" withParameters:@{ @"Reason": @"Other" }];
             [self handleStateEvent:EV_FAIL];
-            if(currentState == ST_FAIL) {
-                lastFailTime = currentTime;
-            }
         } else if(status.error.code == RCSensorFusionErrorCodeVision) {
-            [TMAnalytics logEvent:@"Filter.Fail" withParameters:@{ @"Reason": @"Vision" }];
             [self handleStateEvent:EV_VISIONFAIL];
-            if(currentState == ST_INIT_VISION_FAIL) {
-                lastFailTime = currentTime;
-            }
         }
+        lastFailTime = currentTime;
     }
     
-    if(lastFailTime == currentTime) {
-        //in case we aren't changing states, update the error message
-        NSString *message = [NSString stringWithFormat:@(setups[currentState].message), filterStatusCode];
-        [self showMessage:message withTitle:@(setups[currentState].title) autoHide:setups[currentState].autohide];
-    }
     if(currentState == ST_INITIALIZING)
     {
         if (status.runState == RCSensorFusionRunStateRunning)
@@ -514,6 +531,13 @@ static transition transitions[] =
     {
         [self.arView.videoView displaySampleBuffer:data.sampleBuffer];
         [self.arView.featuresLayer updateFeatures:data.featurePoints];
+    }
+    
+    double currentTime = CACurrentMediaTime();
+    if (lastFailTime != 0 && currentTime - lastFailTime > 3)
+    {
+        [self handleStateEvent:EV_FAIL_EXPIRED];
+        lastFailTime = 0;
     }
 }
 
@@ -566,11 +590,6 @@ static transition transitions[] =
     }
     
     [DATA_MANAGER saveContext];
-    
-    [TMAnalytics
-     logEvent:@"Measurement.Save"
-     withParameters:[NSDictionary dictionaryWithObjectsAndKeys: [newMeasurement getDistRangeString], @"Distance", nil]
-     ];
     
 //    if (locationObj.syncPending && [USER_MANAGER getLoginState] == LoginStateYes)
 //    {

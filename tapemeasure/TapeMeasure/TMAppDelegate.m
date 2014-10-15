@@ -65,6 +65,12 @@
                                      PREF_LAST_TIP_INDEX: @(-1)};
         
         [NSUserDefaults.standardUserDefaults registerDefaults:appDefaults];
+        
+        if ([NSUserDefaults.standardUserDefaults objectForKey:PREF_USE_LOCATION] == nil)
+        {
+            // this handles the case of an upgrade from an older version that didn't have this pref.
+            [NSUserDefaults.standardUserDefaults setBool:[LOCATION_MANAGER isLocationExplicitlyAllowed] forKey:PREF_USE_LOCATION];
+        }
     });
 
     #ifndef ARCHIVE // for testing
@@ -74,7 +80,6 @@
 //    [NSUserDefaults.standardUserDefaults setObject:@0 forKey:PREF_RATE_NAG_TIMESTAMP];
 //    [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_SHOW_LOCATION_NAG];
 //    [NSUserDefaults.standardUserDefaults setObject:@0 forKey:PREF_LOCATION_NAG_TIMESTAMP];
-
     #endif
     
     #if TARGET_IPHONE_SIMULATOR // generate some measurements for testing in the simulator

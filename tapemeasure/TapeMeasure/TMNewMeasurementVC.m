@@ -47,7 +47,7 @@ typedef enum
 } IconType;
 
 // order is significant
-enum state { ST_STARTUP, ST_READY, ST_INITIALIZING, ST_MEASURE, ST_FINISHED, ST_VISIONFAIL, ST_FASTFAIL, ST_FAIL, ST_ANY } currentState;
+enum state { ST_STARTUP, ST_READY, ST_INITIALIZING, ST_MEASURE, ST_FINISHED, ST_INIT_VISION_FAIL, ST_VISION_FAIL, ST_FASTFAIL, ST_FAIL, ST_ANY } currentState;
 enum event { EV_RESUME, EV_CONVERGED, EV_STEADY_TIMEOUT, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_FAIL_EXPIRED, EV_TAP, EV_PAUSE, EV_CANCEL, EV_INITIALIZED };
 
 typedef struct { enum state state; enum event event; enum state newstate; } transition;
@@ -73,15 +73,16 @@ typedef struct
 
 static statesetup setups[] =
 {
-    //                                fusion  sensors measure listBtn rtryBtn shwdstc shwtape showTips ftrs    prgrs   title           message         autohide
-    { ST_STARTUP,       ICON_GREEN,   false,  false,  false,  true,   false,  false,  false,  false,   false,  false,  "",             "",             false},
-    { ST_READY,         ICON_GREEN,   false,  true,   false,  true,   false,  false,  false,  true,    false,  false,  "Instructions", "Hold the device steady where you want to start the measurement and tap the screen to begin.", false },
-    { ST_INITIALIZING,  ICON_GREEN,   true,   true,   false,  true,   true,   true,   false,  true,    true,   true,   "Hold still",   "Hold the device steady.", false},
-    { ST_MEASURE,       ICON_GREEN,   true,   true,   true,   true,   true,   true,   true,   false,   true,   false,  "Measuring",    "Go! Move the device to the end of your measurement, and tap the screen to finish.", false },
-    { ST_FINISHED,      ICON_GREEN,   false,  false,  false,  true,   true,   true,   true,   false,   false,  false,  "",             "", false },
-    { ST_VISIONFAIL,    ICON_RED,     false,  true,   false,  true,   true,   true,   false,  false,   false,  false,  "Try again",    "The camera can't see well enough to measure. Try again with the camera pointed in a different direction.", false },
-    { ST_FASTFAIL,      ICON_RED,     false,  true,   false,  true,   true,   true,   true,   false,   false,  false,  "Try again",    "Sorry, that didn't work. For best results, move at a normal walking pace.", false },
-    { ST_FAIL,          ICON_RED,     false,  true,   false,  true,   true,   true,   true,   false,   false,  false,  "Try again",    "Sorry, we need to try that again.", false },
+    //                                    fusion  sensors measure listBtn rtryBtn shwdstc shwtape showTips ftrs    prgrs   title           message         autohide
+    { ST_STARTUP,           ICON_GREEN,   false,  false,  false,  true,   false,  false,  false,  false,   false,  false,  "",             "",             false},
+    { ST_READY,             ICON_GREEN,   false,  true,   false,  true,   false,  false,  false,  true,    false,  false,  "Instructions", "Hold the device steady where you want to start the measurement and tap the screen to begin.", false },
+    { ST_INITIALIZING,      ICON_GREEN,   true,   true,   false,  true,   true,   true,   false,  true,    true,   true,   "Hold still",   "Hold the device steady.", false},
+    { ST_MEASURE,           ICON_GREEN,   true,   true,   true,   true,   true,   true,   true,   false,   true,   false,  "Measuring",    "Go! Move the device to the end of your measurement, and tap the screen to finish.", false },
+    { ST_FINISHED,          ICON_GREEN,   false,  false,  false,  true,   true,   true,   true,   false,   false,  false,  "",             "", false },
+    { ST_INIT_VISION_FAIL,  ICON_RED,     false,  true,   false,  true,   true,   true,   false,  false,   false,  false,  "Try again",    "The camera can't see well enough to measure. Try again with the camera pointed in a different direction.", false },
+    { ST_VISION_FAIL,       ICON_RED,     true,   true,   true,   true,   true,   true,   true,   false,   true,   false,  "Warning",      "The camera can't see well enough to measure. Try pointing the camera in a different direction.", false },
+    { ST_FASTFAIL,          ICON_RED,     false,  true,   false,  true,   true,   true,   true,   false,   false,  false,  "Try again",    "Sorry, that didn't work. For best results, move at a normal walking pace.", false },
+    { ST_FAIL,              ICON_RED,     false,  true,   false,  true,   true,   true,   true,   false,   false,  false,  "Try again",    "Sorry, we need to try that again.", false },
 };
 
 static transition transitions[] =
@@ -89,15 +90,18 @@ static transition transitions[] =
     { ST_STARTUP, EV_RESUME, ST_READY },
     { ST_READY, EV_TAP, ST_INITIALIZING },
     { ST_INITIALIZING, EV_INITIALIZED, ST_MEASURE },
-    { ST_INITIALIZING, EV_VISIONFAIL, ST_VISIONFAIL }, // don't quit on vision failure
+    { ST_INITIALIZING, EV_VISIONFAIL, ST_INIT_VISION_FAIL }, // don't quit on vision failure
     { ST_MEASURE, EV_TAP, ST_FINISHED },
     { ST_MEASURE, EV_FASTFAIL, ST_FASTFAIL },
     { ST_MEASURE, EV_FAIL, ST_FAIL },
-//    { ST_MEASURE, EV_VISIONFAIL, ST_VISIONFAIL }, // don't quit on vision failure
-    { ST_VISIONFAIL, EV_FAIL_EXPIRED, ST_READY },
+    { ST_MEASURE, EV_VISIONFAIL, ST_VISION_FAIL },
+    { ST_VISION_FAIL, EV_TAP, ST_FINISHED },
+    { ST_VISION_FAIL, EV_FASTFAIL, ST_FASTFAIL },
+    { ST_VISION_FAIL, EV_FAIL, ST_FAIL },
+    { ST_INIT_VISION_FAIL, EV_FAIL_EXPIRED, ST_READY },
     { ST_FASTFAIL, EV_FAIL_EXPIRED, ST_READY },
     { ST_FAIL, EV_FAIL_EXPIRED, ST_READY },
-    { ST_VISIONFAIL, EV_TAP, ST_READY },
+    { ST_INIT_VISION_FAIL, EV_TAP, ST_READY },
     { ST_FASTFAIL, EV_TAP, ST_READY },
     { ST_FAIL, EV_TAP, ST_READY },
     { ST_ANY, EV_PAUSE, ST_STARTUP },
@@ -222,15 +226,14 @@ static transition transitions[] =
     tipsView.alpha = 0;
     tipsView.delegate = self;
     tipsView.tips = [self buildTipsArray];
-    
-    originalDistanceTextColor = self.distanceLabel.textColor;
-    
+        
     self.distanceLabel.textAlignment = NSTextAlignmentCenter;
     self.distanceLabel.centerAlignmentExcludesFraction = YES;
     CGFloat fontSize = UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? 70 : 50;
     self.distanceLabel.font = [UIFont systemFontOfSize:fontSize];
     self.distanceLabel.textColor = COLOR_DULL_YELLOW;
     self.distanceLabel.shadowColor = [UIColor darkGrayColor];
+    originalDistanceTextColor = self.distanceLabel.textColor;
 }
 
 - (void) viewDidLayoutSubviews
@@ -481,7 +484,7 @@ static transition transitions[] =
         } else if(status.error.code == RCSensorFusionErrorCodeVision) {
             [TMAnalytics logEvent:@"Filter.Fail" withParameters:@{ @"Reason": @"Vision" }];
             [self handleStateEvent:EV_VISIONFAIL];
-            if(currentState == ST_VISIONFAIL) {
+            if(currentState == ST_INIT_VISION_FAIL) {
                 lastFailTime = currentTime;
             }
         }

@@ -54,6 +54,8 @@
                      }
                      completion:^(BOOL finished) {
                          [transitionContext completeTransition:YES];
+                         // workaround for bug in iOS 8 http://stackoverflow.com/questions/24338700/from-view-controller-disappears-using-uiviewcontrollercontexttransitioning
+                         [UIApplication.sharedApplication.keyWindow addSubview:toVC.view];
                      }];
 }
 

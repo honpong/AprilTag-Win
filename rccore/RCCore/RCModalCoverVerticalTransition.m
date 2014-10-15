@@ -25,14 +25,4 @@
     return controller;
 }
 
-- (id <UIViewControllerInteractiveTransitioning>)interactionControllerForPresentation:(id <UIViewControllerAnimatedTransitioning>)animator
-{
-    return nil;
-}
-
-- (id <UIViewControllerInteractiveTransitioning>)interactionControllerForDismissal:(id <UIViewControllerAnimatedTransitioning>)animator
-{
-    return nil;
-}
-
 @end

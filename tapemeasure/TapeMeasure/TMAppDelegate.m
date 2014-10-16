@@ -42,36 +42,33 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^
+    // determine default units based on locale
+    NSString* locale = [[NSLocale currentLocale] localeIdentifier];
+    Units defaultUnits = [locale isEqualToString:@"en_US"] ? UnitsImperial : UnitsMetric;
+    
+    if ([NSUserDefaults.standardUserDefaults objectForKey:PREF_UNITS] == nil)
     {
-        // determine default units based on locale
-        NSString* locale = [[NSLocale currentLocale] localeIdentifier];
-        Units defaultUnits = [locale isEqualToString:@"en_US"] ? UnitsImperial : UnitsMetric;
-        
-        if ([NSUserDefaults.standardUserDefaults objectForKey:PREF_UNITS] == nil)
-        {
-            [NSUserDefaults.standardUserDefaults setInteger:defaultUnits forKey:PREF_UNITS];
-            [NSUserDefaults.standardUserDefaults synchronize];
-        }
-        
-        NSDictionary *appDefaults = @{PREF_UNITS: @(UnitsImperial),
-                                     PREF_ADD_LOCATION: @(-1),
-                                     PREF_SHOW_LOCATION_NAG: @YES,
-                                     PREF_LAST_TRANS_ID: @0,
-                                     PREF_IS_FIRST_LAUNCH: @YES,
-                                     PREF_SHOW_RATE_NAG: @YES,
-                                     PREF_RATE_NAG_TIMESTAMP : @0,
-                                     PREF_LOCATION_NAG_TIMESTAMP: @0,
-                                     PREF_LAST_TIP_INDEX: @(-1)};
-        
-        [NSUserDefaults.standardUserDefaults registerDefaults:appDefaults];
-        
-        if ([NSUserDefaults.standardUserDefaults objectForKey:PREF_USE_LOCATION] == nil)
-        {
-            // this handles the case of an upgrade from an older version that didn't have this pref.
-            [NSUserDefaults.standardUserDefaults setBool:[LOCATION_MANAGER isLocationExplicitlyAllowed] forKey:PREF_USE_LOCATION];
-        }
-    });
+        [NSUserDefaults.standardUserDefaults setInteger:defaultUnits forKey:PREF_UNITS];
+        [NSUserDefaults.standardUserDefaults synchronize];
+    }
+    
+    NSDictionary *appDefaults = @{PREF_UNITS: @(UnitsImperial),
+                                 PREF_ADD_LOCATION: @(-1),
+                                 PREF_SHOW_LOCATION_NAG: @YES,
+                                 PREF_LAST_TRANS_ID: @0,
+                                 PREF_IS_FIRST_LAUNCH: @YES,
+                                 PREF_SHOW_RATE_NAG: @YES,
+                                 PREF_RATE_NAG_TIMESTAMP : @0,
+                                 PREF_LOCATION_NAG_TIMESTAMP: @0,
+                                 PREF_LAST_TIP_INDEX: @(-1)};
+    
+    [NSUserDefaults.standardUserDefaults registerDefaults:appDefaults];
+    
+    if ([NSUserDefaults.standardUserDefaults objectForKey:PREF_USE_LOCATION] == nil)
+    {
+        // this handles the case of an upgrade from an older version that didn't have this pref.
+        [NSUserDefaults.standardUserDefaults setBool:[LOCATION_MANAGER isLocationExplicitlyAllowed] forKey:PREF_USE_LOCATION];
+    }
 
     #ifndef ARCHIVE // for testing
 //    [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_IS_FIRST_LAUNCH];

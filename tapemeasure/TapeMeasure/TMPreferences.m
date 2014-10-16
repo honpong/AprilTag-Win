@@ -160,6 +160,8 @@
         {
             [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_USE_LOCATION];
             [LOCATION_MANAGER startLocationUpdates];
+            [self.allowLocationSwitch setOn:YES animated:YES];
+            [self setSaveLocationSwitchEnabledStatus]; // shouldn't be necessary, but is for some reason
         }
         else
         {

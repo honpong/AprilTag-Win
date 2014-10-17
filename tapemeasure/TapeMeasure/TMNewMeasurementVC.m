@@ -269,15 +269,10 @@ static transition transitions[] =
     self.distanceLabel.textColor = COLOR_DULL_YELLOW;
     self.distanceLabel.shadowColor = [UIColor darkGrayColor];
     originalDistanceTextColor = self.distanceLabel.textColor;
-}
-
-- (void) viewDidLayoutSubviews
-{
+    
     [self.tapeView2D drawTickMarksWithUnits:(Units)[[NSUserDefaults standardUserDefaults] integerForKey:PREF_UNITS]];
     self.tapeView2D.transform = CGAffineTransformMakeRotation((float)M_PI_2);
     self.tapeView2D.layer.sublayerTransform = [self get3DTransform];
-//    self.distanceLabel.transform = CGAffineTransformMakeScale(1.5, 1.5);
-    [self.view layoutSubviews];
 }
 
 - (CATransform3D) get3DTransform

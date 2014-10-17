@@ -13,6 +13,7 @@
 @protocol RCOpenGLManager <NSObject>
 
 @property EAGLContext* oglContext;
+- (const GLchar *)readFile:(NSString *)name;
 - (bool)createProgram:(GLuint *)program withVertexShader:(const GLchar *)vertSrc withFragmentShader:(const GLchar *)fragSrc;
 - (void)deleteProgram:(GLuint)program;
 @end

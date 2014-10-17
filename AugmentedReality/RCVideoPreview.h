@@ -35,4 +35,7 @@
  */
 - (void)setHorizontalScale:(float)hScale withVerticalScale:(float)vScale;
 
+- (void) getPerspectiveMatrix:(float[16])mout withFocalLength:(float)focalLength withNear:(float)near withFar:(float)far;
+- (void) getCameraScreenTransform:(float[16])mout forOrientation:(UIInterfaceOrientation)orientation;
+
 @end

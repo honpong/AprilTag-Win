@@ -65,8 +65,13 @@ gl_FragColor = vec4(rgb, 1);\n\
     
     CMBufferQueueRef previewBufferQueue;
     
+    size_t textureWidth, textureHeight;
+    CGFloat textureCoordWidth;
+    CGFloat textureCoordHeight;
+    
     float xScale;
     float yScale;
+    float whiteness;
     GLuint yuvTextureProgram;
 }
 
@@ -90,6 +95,7 @@ gl_FragColor = vec4(rgb, 1);\n\
 
 - (void) initialize
 {
+    [EAGLContext setCurrentContext:[OPENGL_MANAGER oglContext]];
     [OPENGL_MANAGER createProgram:&yuvTextureProgram withVertexShader:vertSrc withFragmentShader:fragSrc];
     glUseProgram(yuvTextureProgram);
     glUniform1i(glGetUniformLocation(yuvTextureProgram, "videoFrameY"), 0);
@@ -157,9 +163,9 @@ gl_FragColor = vec4(rgb, 1);\n\
     CFRelease(sampleBuffer);
 }
 
-- (void)setWhiteness:(float)whiteness
+- (void)setWhiteness:(float)w
 {
-    glUniform1f(glGetUniformLocation(yuvTextureProgram, "whiteness"), whiteness);
+    whiteness = w;
 }
 
 - (void)setHorizontalScale:(float)hScale withVerticalScale:(float)vScale
@@ -189,7 +195,6 @@ gl_FragColor = vec4(rgb, 1);\n\
 	if ( [UIApplication sharedApplication].applicationState != UIApplicationStateBackground )
     {
         if([self beginFrame]) {
-            
             [self displayPixelBuffer:pixelBuffer];
             [self endFrame];
         }
@@ -202,6 +207,7 @@ gl_FragColor = vec4(rgb, 1);\n\
     if(err != GL_NO_ERROR) {
         DLog(@"OpenGL Error %d!\n", err);
         //assert(0);
+        glInsertEventMarkerEXT(0, "com.apple.GPUTools.event.debug-frame");
     }
 }
 
@@ -289,6 +295,7 @@ gl_FragColor = vec4(rgb, 1);\n\
     // Don't make OpenGLES calls while in the background.
 	if ( [UIApplication sharedApplication].applicationState == UIApplicationStateBackground ) return false;
     
+    [EAGLContext setCurrentContext:[OPENGL_MANAGER oglContext]];
 	if (frameBufferHandle == 0) {
 		BOOL success = [self createBuffers];
 		if ( !success ) {
@@ -339,6 +346,8 @@ gl_FragColor = vec4(rgb, 1);\n\
     
     glUseProgram(yuvTextureProgram);
     
+    glUniform1f(glGetUniformLocation(yuvTextureProgram, "whiteness"), whiteness);
+    
     CVReturn err;
     if (videoTextureCache == NULL)
         return;
@@ -346,8 +355,8 @@ gl_FragColor = vec4(rgb, 1);\n\
     //cleanup before each frame so we don't force a premature flush of opengl pipeline
     [self cleanUpTextures];
 	
-    size_t textureWidth = CVPixelBufferGetWidth(pixelBuffer);
-    size_t textureHeight = CVPixelBufferGetHeight(pixelBuffer);
+    textureWidth = CVPixelBufferGetWidth(pixelBuffer);
+    textureHeight = CVPixelBufferGetHeight(pixelBuffer);
 
     // CVOpenGLESTextureCacheCreateTextureFromImage will create GLES texture
     // optimally from CVImageBufferRef.
@@ -433,8 +442,8 @@ gl_FragColor = vec4(rgb, 1);\n\
     
     CGFloat scaleWidth = rotatedBufferWidth / textureWidth;
     CGFloat scaleHeight = rotatedBufferHeight / textureHeight;
-    CGFloat textureCoordWidth = 1.;
-    CGFloat textureCoordHeight = 1.;
+    textureCoordWidth = 1.;
+    textureCoordHeight = 1.;
     if(scaleHeight > scaleWidth)
     {
         //We can fit more vertically than horizontally so crop width
@@ -474,6 +483,8 @@ gl_FragColor = vec4(rgb, 1);\n\
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
     CFRelease(pixelBuffer);
+    [self checkGLError];
+
 }
 
 - (void) getCameraScreenTransform:(float[16])mout forOrientation:(UIInterfaceOrientation)orientation
@@ -505,6 +516,29 @@ gl_FragColor = vec4(rgb, 1);\n\
             mout[5] = -1.;
             break;
     }
+}
+
+- (void) getPerspectiveMatrix:(float[16])mout withFocalLength:(float)focalLength withNear:(float)near withFar:(float)far
+{
+    mout[0] = 2. * focalLength / textureWidth / textureCoordWidth;
+    mout[1] = 0.0f;
+    mout[2] = 0.0f;
+    mout[3] = 0.0f;
+    
+    mout[4] = 0.0f;
+    mout[5] = -2. * focalLength / textureHeight / textureCoordHeight;
+    mout[6] = 0.0f;
+    mout[7] = 0.0f;
+    
+    mout[8] = 0.0f;
+    mout[9] = 0.0f;
+    mout[10] = (far+near) / (far-near);
+    mout[11] = 1.0f;
+    
+    mout[12] = 0.0f;
+    mout[13] = 0.0f;
+    mout[14] = -2 * far * near /  (far-near);
+    mout[15] = 0.0f;
 }
 
 - (void)dealloc

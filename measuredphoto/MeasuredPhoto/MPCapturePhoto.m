@@ -708,6 +708,9 @@ static transition transitions[] =
     {
         lastSensorFusionDataWithImage = data;
         
+        //HERE - how to pass all data to AR view. I think it would be nicer to have a single pass of frame, features, camera, etc. But we already don't pass features. Better to just pass the camera params first? Hmm.
+        
+        [self.arView.videoView setViewTransform:data.cameraTransformation withCameraParameters:data.cameraParameters];
         [self.arView.videoView displaySampleBuffer:data.sampleBuffer];
         
         [self.arView.featuresLayer updateFeatures:goodPoints];

@@ -87,4 +87,26 @@
     return DeviceTypeUnknown;
 }
 
+//This was for tape measure and is no longer used
++ (float) getPhysicalScreenMetersX
+{
+    switch ([RCDeviceInfo getDeviceType]) {
+        case DeviceTypeiPad2:
+            return 0.061;
+        case DeviceTypeiPad3:
+            return 0.061;
+        case DeviceTypeiPad4:
+            return 0.061;
+        case DeviceTypeiPadMini:
+            return 0.055;
+        case DeviceTypeiPhone4s:
+            return 0.050;
+        case DeviceTypeiPhone5:
+            return 0.050;
+        case DeviceTypeiPod5:
+            return 0.050;
+        default:
+            return 0.050;
+    }
+}
 @end

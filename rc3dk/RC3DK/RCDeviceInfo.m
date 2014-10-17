@@ -87,26 +87,24 @@
     return DeviceTypeUnknown;
 }
 
-//This was for tape measure and is no longer used
 + (float) getPhysicalScreenMetersX
 {
-    switch ([RCDeviceInfo getDeviceType]) {
-        case DeviceTypeiPad2:
-            return 0.061;
-        case DeviceTypeiPad3:
-            return 0.061;
-        case DeviceTypeiPad4:
-            return 0.061;
+    // we only need to include cases that differ from the default case
+    switch ([RCDeviceInfo getDeviceType])
+    {
         case DeviceTypeiPadMini:
             return 0.055;
-        case DeviceTypeiPhone4s:
-            return 0.050;
-        case DeviceTypeiPhone5:
-            return 0.050;
-        case DeviceTypeiPod5:
-            return 0.050;
+        case DeviceTypeiPadMiniRetina:
+            return 0.055;
+        case DeviceTypeiPadMiniRetina2:
+            return 0.055;
+        case DeviceTypeiPhone6:
+            return 0.05852;
+        case DeviceTypeiPhone6Plus:
+            return 0.06848;
         default:
-            return 0.050;
+            return UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? 0.061 : 0.050;
     }
 }
+
 @end

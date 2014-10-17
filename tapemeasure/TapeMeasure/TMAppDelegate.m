@@ -80,11 +80,7 @@
     #endif
     
     #if TARGET_IPHONE_SIMULATOR // generate some measurements for testing in the simulator
-    TMMeasurement* newMeasurement = [TMMeasurement getNewMeasurement];
-    [newMeasurement setPointToPoint:arc4random_uniform(100)];
-    newMeasurement.timestamp = [[NSDate date] timeIntervalSince1970];
-    [newMeasurement insertIntoDb];
-    [DATA_MANAGER saveContext];
+    if ([TMMeasurement getAllExceptDeleted].count == 0) [self generateDummyMeasurements];
     #endif
     
     [Flurry setSecureTransportEnabled:YES];
@@ -223,6 +219,58 @@
     
     //LOCATION_MANAGER.delegate = nil;
     [SENSOR_FUSION setLocation:[LOCATION_MANAGER getStoredLocation]];
+}
+
+- (void) generateDummyMeasurements
+{
+    TMMeasurement* newMeasurement;
+    
+    newMeasurement = [TMMeasurement getNewMeasurement];
+    newMeasurement.name = @"Hallway";
+    [newMeasurement setPointToPoint:3.82];
+    newMeasurement.timestamp = [[NSDate date] timeIntervalSince1970];
+    [newMeasurement insertIntoDb];
+    
+    newMeasurement = [TMMeasurement getNewMeasurement];
+    newMeasurement.name = @"Hallway";
+    [newMeasurement setPointToPoint:3.83];
+    newMeasurement.timestamp = [[NSDate date] timeIntervalSince1970];
+    [newMeasurement insertIntoDb];
+    
+    newMeasurement = [TMMeasurement getNewMeasurement];
+    newMeasurement.name = @"Paper";
+    [newMeasurement setPointToPoint:0.2667];
+    newMeasurement.timestamp = [[NSDate date] timeIntervalSince1970];
+    [newMeasurement autoSelectUnitsScale];
+    [newMeasurement insertIntoDb];
+    
+    newMeasurement = [TMMeasurement getNewMeasurement];
+    newMeasurement.name = @"Laptop";
+    [newMeasurement setPointToPoint:0.3302];
+    newMeasurement.timestamp = [[NSDate date] timeIntervalSince1970];
+    newMeasurement.unitsScaleImperial = UnitsScaleIN;
+    [newMeasurement insertIntoDb];
+    
+    newMeasurement = [TMMeasurement getNewMeasurement];
+    newMeasurement.name = @"Table";
+    [newMeasurement setPointToPoint:1.01];
+    newMeasurement.units = UnitsMetric;
+    newMeasurement.timestamp = [[NSDate date] timeIntervalSince1970];
+    [newMeasurement insertIntoDb];
+    
+    TMLocation* location = [TMLocation getNewLocation];
+    location.locationName = @"Home";
+    [location insertIntoDb];
+    
+    newMeasurement = [TMMeasurement getNewMeasurement];
+    newMeasurement.name = @"Driveway";
+    [newMeasurement setPointToPoint:100];
+    newMeasurement.timestamp = [[NSDate date] timeIntervalSince1970];
+    [newMeasurement insertIntoDb];
+    
+    [location addMeasurementObject:newMeasurement];
+    
+    [DATA_MANAGER saveContext];
 }
 
 @end

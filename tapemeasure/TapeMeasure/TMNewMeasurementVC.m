@@ -589,7 +589,7 @@ static transition transitions[] =
     
     [newMeasurement insertIntoDb]; //order is important. this must be inserted before location is added.
     
-    if ([NSUserDefaults.standardUserDefaults boolForKey:PREF_ADD_LOCATION])
+    if ([NSUserDefaults.standardUserDefaults boolForKey:PREF_USE_LOCATION] && [NSUserDefaults.standardUserDefaults boolForKey:PREF_ADD_LOCATION])
     {
         [locationObj addMeasurementObject:newMeasurement];
     }

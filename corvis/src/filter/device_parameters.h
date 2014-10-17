@@ -43,9 +43,11 @@ typedef enum
     DEVICE_TYPE_IPAD3,
     DEVICE_TYPE_IPAD4,
     DEVICE_TYPE_IPADAIR,
+    DEVICE_TYPE_IPADAIR2,
 
     DEVICE_TYPE_IPADMINI,
     DEVICE_TYPE_IPADMINIRETINA,
+    DEVICE_TYPE_IPADMINIRETINA2,
 } corvis_device_type;
 
 bool get_parameters_for_device(corvis_device_type type, struct corvis_device_parameters *dc);

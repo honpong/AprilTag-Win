@@ -142,6 +142,15 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
             dc->Tc[1] = .065;
             dc->Tc[2] = .000;
             return true;
+        case DEVICE_TYPE_IPADAIR2: //Just copied from old
+            dc->Fx = 582.;
+            dc->Fy = 582.;
+            dc->K[0] = .12;
+            dc->K[1] = -.25;
+            dc->Tc[0] = -.012;
+            dc->Tc[1] = .065;
+            dc->Tc[2] = .000;
+            return true;
         case DEVICE_TYPE_IPADMINI: //Tc from sequence is consistent with teardown
             dc->Fx = 583.;
             dc->Fy = 583.;
@@ -152,6 +161,15 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
             dc->Tc[2] = 0.;
             return true;
         case DEVICE_TYPE_IPADMINIRETINA: //Tc from sequence is consistent with teardown
+            dc->Fx = 580.;
+            dc->Fy = 580.;
+            dc->K[0] = .14;
+            dc->K[1] = -.33;
+            dc->Tc[0] = -0.003;
+            dc->Tc[1] = 0.070;
+            dc->Tc[2] = 0.000;
+            return true;
+        case DEVICE_TYPE_IPADMINIRETINA2: //Just copied from old
             dc->Fx = 580.;
             dc->Fy = 580.;
             dc->K[0] = .14;

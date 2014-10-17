@@ -86,10 +86,14 @@
             return DEVICE_TYPE_IPAD4;
         case DeviceTypeiPadAir:
             return DEVICE_TYPE_IPADAIR;
+        case DeviceTypeiPadAir2:
+            return DEVICE_TYPE_IPADAIR2;
         case DeviceTypeiPadMini:
             return DEVICE_TYPE_IPADMINI;
         case DeviceTypeiPadMiniRetina:
             return DEVICE_TYPE_IPADMINIRETINA;
+        case DeviceTypeiPadMiniRetina2:
+            return DEVICE_TYPE_IPADMINIRETINA2;
         case DeviceTypeUnknown:
             return DEVICE_TYPE_UNKNOWN;
     }

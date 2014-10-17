@@ -76,12 +76,7 @@
             //ask for approval
             authorizationHandler = handler;
             if([_sysLocationMan respondsToSelector:@selector(requestWhenInUseAuthorization)])
-//TODO: get rid of these ifdefs when we can build in xcode 6
-#ifdef __IPHONE_8_0
                 [_sysLocationMan requestWhenInUseAuthorization]; // NSLocationWhenInUseUsageDescription key in Info.plist required when calling this method.
-#else
-                [_sysLocationMan performSelector:@selector(requestWhenInUseAuthorization)];
-#endif
             else
                 [_sysLocationMan startUpdatingLocation];
         }

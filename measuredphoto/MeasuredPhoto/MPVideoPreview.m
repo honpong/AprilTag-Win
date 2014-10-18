@@ -117,21 +117,21 @@
     [self getPerspectiveMatrix:projection withFocalLength:cameraParams.focalLength withNear:near withFar:far];
     
     float camera[16];
-    [cameraTrans getOpenGLMatrix:camera];
+    [[cameraTrans getInverse] getOpenGLMatrix:camera];
     
     UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
     float camera_screen[16];
-    [self getCameraScreenTransform:camera_screen forOrientation:orientation];
+    [self getMyCameraScreenTransform:camera_screen forOrientation:orientation];
 
     glUniformMatrix4fv(glGetUniformLocation(myProgram, "projection_matrix"), 1, false, projection);
     glUniformMatrix4fv(glGetUniformLocation(myProgram, "camera_matrix"), 1, false, camera);
     glUniformMatrix4fv(glGetUniformLocation(myProgram, "camera_screen_transform"), 1, false, camera_screen);
 
     GLfloat vertices[] = {
-        -.5, 0, -.5,
-        .5, 0, -.5,
-        -.5, 0, .5,
-        .5, 0, .5
+        0, -.05, -.05,
+        0, .05, -.05,
+        0, -.05, .05,
+        0, .05, .05
     };
     glVertexAttribPointer(ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, vertices);
     glEnableVertexAttribArray(ATTRIB_VERTEX);
@@ -146,6 +146,37 @@
 //#endif
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
+}
+
+- (void) getMyCameraScreenTransform:(float[16])mout forOrientation:(UIInterfaceOrientation)orientation
+{
+    for(int i = 0; i < 16; ++i) mout[i] = 0.;
+    mout[10] = 1.;
+    mout[15] = 1.;
+    //iOS camera coordinates are right handed, with positive x to the right, positive y down, and positive z back
+    //GL normalized device coordinates are left handed, with positive x to the rigth, positive y up, and positive z back
+    //So we flip the y coordinate here.
+    switch(orientation)
+    {
+        case UIInterfaceOrientationPortrait:
+            mout[1] = -1.;
+            mout[4] = 1.;
+            break;
+        case UIInterfaceOrientationPortraitUpsideDown:
+            mout[1] = 1.;
+            mout[4] = -1.;
+            break;
+        case UIInterfaceOrientationLandscapeLeft:
+            mout[0] = -1.;
+            mout[5] = -1.;
+            break;
+        default:
+        case UIInterfaceOrientationUnknown:
+        case UIInterfaceOrientationLandscapeRight:
+            mout[0] = 1.;
+            mout[5] = 1.;
+            break;
+    }
 }
 
 - (void) setViewTransform:(RCTransformation *)viewTransform withCameraParameters:(RCCameraParameters *)cameraParameters

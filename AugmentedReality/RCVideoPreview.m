@@ -63,7 +63,7 @@ gl_FragColor = vec4(rgb, 1);\n\
     CVOpenGLESTextureRef lumaTexture;
     CVOpenGLESTextureRef chromaTexture;
     
-    CMBufferQueueRef previewBufferQueue;
+    RCSensorFusionData *dataQueued;
     
     size_t textureWidth, textureHeight;
     CGFloat textureCoordWidth;
@@ -120,8 +120,7 @@ gl_FragColor = vec4(rgb, 1);\n\
         DLog(@"Error at CVOpenGLESTextureCacheCreate %d", errCache);
     }
     
-    OSStatus errQueue = CMBufferQueueCreate(kCFAllocatorDefault, 1, CMBufferQueueGetCallbacksForUnsortedSampleBuffers(), &previewBufferQueue);
-    if (errQueue) DLog(@"ERROR creating CMBufferQueue");
+    dataQueued = nil;
 }
 
 + (Class)layerClass
@@ -135,32 +134,41 @@ gl_FragColor = vec4(rgb, 1);\n\
     [self createBuffers];
 }
 
+- (void) displaySensorFusionData:(RCSensorFusionData *)data
+{
+    @synchronized(dataQueued)
+    {
+        if(!dataQueued) //no previous frame - enqueue it and send the render block.
+        {
+            dataQueued = data;
+            __weak RCVideoPreview* weakSelf = self;
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                RCSensorFusionData *localData;
+                @synchronized(dataQueued)
+                {
+                    localData = dataQueued;
+                    dataQueued = nil;
+                }
+                CVPixelBufferRef pixBuf = (CVPixelBufferRef)CFRetain(CMSampleBufferGetImageBuffer(localData.sampleBuffer)); //This can be a zombie object if the pixel buffer was already invalidated (finalized)
+                if(CMSampleBufferIsValid(localData.sampleBuffer)) //We put this after retaining the pixel buffer to make sure that invalidate doesn't get called between the check and our retain
+                {
+                    [weakSelf pixelBufferReadyForDisplay:pixBuf];
+                }
+                CFRelease(pixBuf);
+
+            });
+        }
+        else //A frame was already enqueued - drop it and replace with the new one. The render block is already waiting to execute.
+        {
+            dataQueued = data;
+        }
+    }
+}
+
 - (void) displaySampleBuffer:(CMSampleBufferRef)sampleBuffer
 {
-    sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
-    
-    // Enqueue it for preview.  This is a shallow queue, so if image processing is taking too long,
-    // we'll drop this frame for preview (this keeps preview latency low).
-    OSStatus err = CMBufferQueueEnqueue(previewBufferQueue, sampleBuffer);
-    if ( !err )
-    {
-        __weak RCVideoPreview* weakSelf = self;
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            CMSampleBufferRef sbuf = (CMSampleBufferRef)CMBufferQueueDequeueAndRetain(previewBufferQueue);
-            if (sbuf) {
-                CVImageBufferRef pixBuf = CMSampleBufferGetImageBuffer(sbuf);
-                [weakSelf pixelBufferReadyForDisplay:pixBuf];
-                CFRelease(sbuf);
-            }
-        });
-    }
-    else
-    {
-        DLog(@"ERROR enqueueing video frame for preview. Code %i", (int)err);
-    }
-    
-    CFRelease(sampleBuffer);
+    [self displaySensorFusionData:[[RCSensorFusionData alloc] initWithTransformation:nil withCameraTransformation:nil withCameraParameters:nil withTotalPath:nil withFeatures:nil withSampleBuffer:sampleBuffer withTimestamp:nil]];
 }
 
 - (void)setWhiteness:(float)w
@@ -203,12 +211,13 @@ gl_FragColor = vec4(rgb, 1);\n\
 
 - (void)checkGLError
 {
+#ifdef DEBUG
     GLenum err = glGetError();
     if(err != GL_NO_ERROR) {
         DLog(@"OpenGL Error %d!\n", err);
-        //assert(0);
         glInsertEventMarkerEXT(0, "com.apple.GPUTools.event.debug-frame");
     }
+#endif
 }
 
 - (BOOL)createBuffers

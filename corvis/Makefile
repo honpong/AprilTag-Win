@@ -192,17 +192,29 @@ DEPS := $(DEPS) build/_filter.ipp.d
 
 d := stereo
 
-STEREO_CXX_SOURCES := $(addprefix src/$(d)/, stereo.cpp stereo_mesh.cpp camera.cpp fundamental.cpp stereo_features.cpp triangle.cpp)
+STEREO_CXX_SOURCES := $(addprefix src/$(d)/, stereo.cpp stereo_mesh.cpp camera.cpp fundamental.cpp stereo_features.cpp)
 
 STEREO_SOURCES :=
 
-CPPFLAGS := $(CPPFLAGS) -Isrc/stereo -Isrc/filter -Isrc/MRF2.2 -Isrc/vlfeat-0.9.18/vl
+CPPFLAGS := $(CPPFLAGS) -Isrc/stereo -Isrc/filter -Isrc/MRF2.2 -Isrc/qhull/src/libqhull/ -Isrc/vlfeat-0.9.18/vl
 
 bin/$(d)/_stereo.so:$(patsubst src/%,build/%,$(STEREO_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(STEREO_SOURCES:.c=.o)) bin/MRF2.2/_mrf.so bin/vlfeat-0.9.18/_vl.so
 
 TARGETS := $(TARGETS) bin/$(d)/_stereo.so bin/$(d)/__init__.py
 CXX_SOURCES := $(CXX_SOURCES) $(STEREO_CXX_SOURCES)
 SOURCES := $(SOURCES) $(STEREO_SOURCES)
+
+############################## QHull ############################
+d := qhull
+
+QHULL_C_SOURCES := $(addprefix src/$(d)/src/libqhull/, geom.c geom2.c global.c io.c libqhull.c mem.c merge.c poly.c poly2.c qset.c random.c rboxlib.c stat.c user.c usermem.c userprintf.c userprintf_rbox.c)
+
+CPPFLAGS := $(CPPFLAGS)
+
+bin/$(d)/_qhull.so:$(patsubst src/%,build/%,$(QHULL_C_SOURCES:.c=.o))
+
+TARGETS := $(TARGETS) bin/$(d)/_qhull.so
+SOURCES := $(SOURCES) $(QHULL_C_SOURCES)
 
 ############################## MRF ############################
 d := MRF2.2

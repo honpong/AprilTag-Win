@@ -287,7 +287,77 @@ bool check_triangle(const stereo &g, const stereo_mesh & mesh, const stereo_tria
     return true;
 }
 
-#include "triangle.h"
+extern "C" {
+    #include "libqhull.h"
+    #include "mem.h"
+    #include "qset.h"
+}
+
+vector<stereo_triangle> qhull_mesh_points(vector<image_coordinate> coordinates)
+{
+    vector<stereo_triangle> triangles;
+    int TOTpoints = (int)coordinates.size();
+    int dim= 2;             /* dimension of points */
+    int numpoints;            /* number of points */
+    // TODO: why is this dim+1
+    coordT points[(dim+1)*TOTpoints]; /* array of coordinates for each point */
+    coordT *rows[TOTpoints];
+    boolT ismalloc= False;    /* True if qhull should free points in qh_freeqhull() or reallocation */
+    char flags[250] = "qhull d Qt Qbb Qc Qz";  /* "d" delaunay triangulation "Qt" forces triangle output rest copied from octave */
+    /* debug options "s" summary "Tc" check frequently "Tv" verify results */
+    /* for full option flags see qh-quick.htm */
+    //char flags[250] = "qhull d s d Tcv";
+    //must also set outfile=stdout and errfile=stderr to use this
+    FILE *outfile= NULL;    /* output from qh_produce_output()
+                             use NULL to skip qh_produce_output() */
+    FILE *errfile= NULL;    /* error messages from qhull code */
+    int exitcode;             /* 0 if no error from qhull */
+    facetT *facet;            /* set by FORALLfacets */
+    vertexT *vertex, **vertexp; /* set by FOREACHvertex_ */
+    int curlong, totlong;     /* memory remaining after qh_memfreeshort */
+    int i;
+
+    numpoints = TOTpoints;
+
+    /* Set points */
+    for(i = 0; i < numpoints; i++) {
+        points[i*dim] = coordinates[i].x;
+        points[i*dim+1] = coordinates[i].y;
+    }
+
+    /* Set up rows */
+    for (i=0; i < numpoints; i++)
+        rows[i]= points+dim*i;
+
+    /* Create qhull */
+    exitcode = qh_new_qhull (dim, numpoints, points, ismalloc,
+                            flags, outfile, errfile);
+
+    if (!exitcode) {                  /* if no error */
+        qh_triangulate(); // Octave did this, but the example code did not
+        
+        FORALLfacets {
+            int z = 0;
+            stereo_triangle t;
+            // a simplical non upper delaunay facet should be a nice triangle
+            if (!facet->upperdelaunay && facet->simplicial) {
+                FOREACHvertex_(facet->vertices) {
+                    int id = qh_pointid (vertex->point);
+                    t.vertices[z] = id;
+                    z++;
+                }
+                triangles.push_back(t);
+            }
+        }
+    }
+    qh_freeqhull(!qh_ALL);                 /* free long memory */
+    qh_memfreeshort (&curlong, &totlong);  /* free short memory and memory allocator */
+    if (curlong || totlong)
+        fprintf (errfile, "qhull internal warning (user_eg, #2): did not free %d bytes of long memory (%d pieces)\n", totlong, curlong);
+
+    return triangles;
+}
+
 void stereo_remesh_delaunay(stereo_mesh & mesh)
 {
     // check which vertices have been used by triangles that we kept
@@ -299,79 +369,35 @@ void stereo_remesh_delaunay(stereo_mesh & mesh)
         occurences[t.vertices[1]]++;
         occurences[t.vertices[2]]++;
     }
-    
-    char triswitches[] = "zQB";
-    struct triangulateio in, out;
-    in.pointlist = (float *)malloc(sizeof(float)*2*mesh.vertices_image.size());
-    in.numberofpoints = (int)mesh.vertices_image.size();
-    in.pointmarkerlist = NULL;
-    in.numberofpointattributes = 0;
-    out.pointlist = NULL;
-    out.trianglelist = NULL;
-    out.edgelist = NULL;
-    out.normlist = NULL;
-    out.numberoftriangles = 0;
-    
-    int z = 0;
+
+    vector<image_coordinate> remesh_vertices;
     vector<int> vertex_mapping;
     for(int i = 0; i < mesh.vertices_image.size(); i++) {
         if(occurences[i] > 1) {
-            in.pointlist[z*2] = mesh.vertices_image[i].x;
-            in.pointlist[z*2+1] = mesh.vertices_image[i].y;
-            z++;
+            remesh_vertices.push_back(mesh.vertices_image[i]);
             vertex_mapping.push_back(i);
         }
     }
-    in.numberofpoints = z;
-    if(in.numberofpoints > 3)
-        triangulate(triswitches, &in, &out, NULL);
-    
-    
+
+    vector<stereo_triangle> triangles = qhull_mesh_points(remesh_vertices);
+
     mesh.triangles.clear();
-    for(int i = 0; i < out.numberoftriangles; i++) {
+    for(int i = 0; i < triangles.size(); i++) {
         stereo_triangle t;
-        t.vertices[0] = vertex_mapping[out.trianglelist[i*3]];
-        t.vertices[1] = vertex_mapping[out.trianglelist[i*3+1]];
-        t.vertices[2] = vertex_mapping[out.trianglelist[i*3+2]];
+        t.vertices[0] = vertex_mapping[triangles[i].vertices[0]];
+        t.vertices[1] = vertex_mapping[triangles[i].vertices[1]];
+        t.vertices[2] = vertex_mapping[triangles[i].vertices[2]];
         mesh.triangles.push_back(t);
     }
-
-    free(in.pointlist);
-    free(out.pointlist);
-    free(out.trianglelist);
 }
+
 
 void stereo_mesh_delaunay(const stereo &g, stereo_mesh & mesh)
 {
-    char triswitches[] = "zQB";
-    struct triangulateio in, out;
-    in.pointlist = (float *)malloc(sizeof(float)*2*mesh.vertices_image.size());
-    in.numberofpoints = (int)mesh.vertices_image.size();
-    in.pointmarkerlist = NULL;
-    in.numberofpointattributes = 0;
-    out.pointlist = NULL;
-    out.trianglelist = NULL;
-    out.edgelist = NULL;
-    out.normlist = NULL;
-    out.numberoftriangles = 0;
-    for(int i = 0; i < mesh.vertices_image.size(); i++) {
-        in.pointlist[i*2] = mesh.vertices_image[i].x;
-        in.pointlist[i*2+1] = mesh.vertices_image[i].y;
-    }
-    if(in.numberofpoints > 3)
-        triangulate(triswitches, &in, &out, NULL);
-    for(int i = 0; i < out.numberoftriangles; i++) {
-        stereo_triangle t;
-        t.vertices[0] = out.trianglelist[i*3];
-        t.vertices[1] = out.trianglelist[i*3+1];
-        t.vertices[2] = out.trianglelist[i*3+2];
-        if(check_triangle(g, mesh, t))
-            mesh.triangles.push_back(t);
-    }
-
-    free(in.pointlist);
-    free(out.pointlist);
-    free(out.trianglelist);
+    vector<stereo_triangle> triangles = qhull_mesh_points(mesh.vertices_image);
+    for(int t = 0; t < triangles.size(); t++)
+        if(check_triangle(g, mesh, triangles[t]))
+            mesh.triangles.push_back(triangles[t]);
 }
 
 #include "mrf.h"

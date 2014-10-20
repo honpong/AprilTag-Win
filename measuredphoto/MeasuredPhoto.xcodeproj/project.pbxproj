@@ -395,6 +395,23 @@
 		32EFEDA619744A9800FDC89F /* MPNativeAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFEDA519744A9800FDC89F /* MPNativeAction.m */; };
 		32EFEDCB1977450500FDC89F /* MPGalleryController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFEDCA1977450500FDC89F /* MPGalleryController.m */; };
 		32EFEDD0197749E400FDC89F /* MPGalleryCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EFEDCF197749E400FDC89F /* MPGalleryCell.m */; };
+		D30CE11F19EE86A1009E413E /* geom.c in Sources */ = {isa = PBXBuildFile; fileRef = D30CE10E19EE86A1009E413E /* geom.c */; };
+		D30CE12019EE86A1009E413E /* geom2.c in Sources */ = {isa = PBXBuildFile; fileRef = D30CE10F19EE86A1009E413E /* geom2.c */; };
+		D30CE12119EE86A1009E413E /* global.c in Sources */ = {isa = PBXBuildFile; fileRef = D30CE11019EE86A1009E413E /* global.c */; };
+		D30CE12219EE86A1009E413E /* io.c in Sources */ = {isa = PBXBuildFile; fileRef = D30CE11119EE86A1009E413E /* io.c */; };
+		D30CE12319EE86A1009E413E /* libqhull.c in Sources */ = {isa = PBXBuildFile; fileRef = D30CE11219EE86A1009E413E /* libqhull.c */; };
+		D30CE12419EE86A1009E413E /* mem.c in Sources */ = {isa = PBXBuildFile; fileRef = D30CE11319EE86A1009E413E /* mem.c */; };
+		D30CE12519EE86A1009E413E /* merge.c in Sources */ = {isa = PBXBuildFile; fileRef = D30CE11419EE86A1009E413E /* merge.c */; };
+		D30CE12619EE86A1009E413E /* poly.c in Sources */ = {isa = PBXBuildFile; fileRef = D30CE11519EE86A1009E413E /* poly.c */; };
+		D30CE12719EE86A1009E413E /* poly2.c in Sources */ = {isa = PBXBuildFile; fileRef = D30CE11619EE86A1009E413E /* poly2.c */; };
+		D30CE12819EE86A1009E413E /* qset.c in Sources */ = {isa = PBXBuildFile; fileRef = D30CE11719EE86A1009E413E /* qset.c */; };
+		D30CE12919EE86A1009E413E /* random.c in Sources */ = {isa = PBXBuildFile; fileRef = D30CE11819EE86A1009E413E /* random.c */; };
+		D30CE12A19EE86A1009E413E /* rboxlib.c in Sources */ = {isa = PBXBuildFile; fileRef = D30CE11919EE86A1009E413E /* rboxlib.c */; };
+		D30CE12B19EE86A1009E413E /* stat.c in Sources */ = {isa = PBXBuildFile; fileRef = D30CE11A19EE86A1009E413E /* stat.c */; };
+		D30CE12C19EE86A1009E413E /* user.c in Sources */ = {isa = PBXBuildFile; fileRef = D30CE11B19EE86A1009E413E /* user.c */; };
+		D30CE12D19EE86A1009E413E /* usermem.c in Sources */ = {isa = PBXBuildFile; fileRef = D30CE11C19EE86A1009E413E /* usermem.c */; };
+		D30CE12E19EE86A1009E413E /* userprintf_rbox.c in Sources */ = {isa = PBXBuildFile; fileRef = D30CE11D19EE86A1009E413E /* userprintf_rbox.c */; };
+		D30CE12F19EE86A1009E413E /* userprintf.c in Sources */ = {isa = PBXBuildFile; fileRef = D30CE11E19EE86A1009E413E /* userprintf.c */; };
 		D36C360A184F2FB900F77AAF /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C3609184F2FB900F77AAF /* QuartzCore.framework */; };
 		D36C360C184F2FC100F77AAF /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C360B184F2FC100F77AAF /* Security.framework */; };
 		D36C360E184F2FCD00F77AAF /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C360D184F2FCD00F77AAF /* SystemConfiguration.framework */; };
@@ -444,7 +461,6 @@
 		D3F50B3119BA19FD00791303 /* stereo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AF519BA19FD00791303 /* stereo.cpp */; };
 		D3F50B3219BA19FD00791303 /* stereo_features.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AF819BA19FD00791303 /* stereo_features.cpp */; };
 		D3F50B3319BA19FD00791303 /* stereo_mesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AF919BA19FD00791303 /* stereo_mesh.cpp */; };
-		D3F50B3419BA19FD00791303 /* triangle.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AFB19BA19FD00791303 /* triangle.cpp */; };
 		D3F57863184F2DAE00EE450E /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3F57862184F2DAE00EE450E /* Accelerate.framework */; };
 		D3F57867184F2DE100EE450E /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3F57866184F2DE100EE450E /* AVFoundation.framework */; };
 		D3F57869184F2DEE00EE450E /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3F57868184F2DEE00EE450E /* CoreImage.framework */; };
@@ -1121,6 +1137,34 @@
 		32F0753B18033BAD001C8355 /* libGoogleAnalyticsServices.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libGoogleAnalyticsServices.a; sourceTree = "<group>"; };
 		32F0753D18033C10001C8355 /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
 		32F7D56519D49E35002239FF /* RCDebugLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCDebugLog.h; path = ../../SensorManagers/RCDebugLog.h; sourceTree = "<group>"; };
+		D30CE10319EE86A1009E413E /* geom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = geom.h; path = ../../corvis/src/qhull/src/libqhull/geom.h; sourceTree = "<group>"; };
+		D30CE10419EE86A1009E413E /* io.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = io.h; path = ../../corvis/src/qhull/src/libqhull/io.h; sourceTree = "<group>"; };
+		D30CE10519EE86A1009E413E /* libqhull.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = libqhull.h; path = ../../corvis/src/qhull/src/libqhull/libqhull.h; sourceTree = "<group>"; };
+		D30CE10619EE86A1009E413E /* mem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mem.h; path = ../../corvis/src/qhull/src/libqhull/mem.h; sourceTree = "<group>"; };
+		D30CE10719EE86A1009E413E /* merge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = merge.h; path = ../../corvis/src/qhull/src/libqhull/merge.h; sourceTree = "<group>"; };
+		D30CE10819EE86A1009E413E /* poly.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = poly.h; path = ../../corvis/src/qhull/src/libqhull/poly.h; sourceTree = "<group>"; };
+		D30CE10919EE86A1009E413E /* qhull_a.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = qhull_a.h; path = ../../corvis/src/qhull/src/libqhull/qhull_a.h; sourceTree = "<group>"; };
+		D30CE10A19EE86A1009E413E /* qset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = qset.h; path = ../../corvis/src/qhull/src/libqhull/qset.h; sourceTree = "<group>"; };
+		D30CE10B19EE86A1009E413E /* random.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = random.h; path = ../../corvis/src/qhull/src/libqhull/random.h; sourceTree = "<group>"; };
+		D30CE10C19EE86A1009E413E /* stat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stat.h; path = ../../corvis/src/qhull/src/libqhull/stat.h; sourceTree = "<group>"; };
+		D30CE10D19EE86A1009E413E /* user.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = user.h; path = ../../corvis/src/qhull/src/libqhull/user.h; sourceTree = "<group>"; };
+		D30CE10E19EE86A1009E413E /* geom.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = geom.c; path = ../../corvis/src/qhull/src/libqhull/geom.c; sourceTree = "<group>"; };
+		D30CE10F19EE86A1009E413E /* geom2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = geom2.c; path = ../../corvis/src/qhull/src/libqhull/geom2.c; sourceTree = "<group>"; };
+		D30CE11019EE86A1009E413E /* global.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = global.c; path = ../../corvis/src/qhull/src/libqhull/global.c; sourceTree = "<group>"; };
+		D30CE11119EE86A1009E413E /* io.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = io.c; path = ../../corvis/src/qhull/src/libqhull/io.c; sourceTree = "<group>"; };
+		D30CE11219EE86A1009E413E /* libqhull.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = libqhull.c; path = ../../corvis/src/qhull/src/libqhull/libqhull.c; sourceTree = "<group>"; };
+		D30CE11319EE86A1009E413E /* mem.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mem.c; path = ../../corvis/src/qhull/src/libqhull/mem.c; sourceTree = "<group>"; };
+		D30CE11419EE86A1009E413E /* merge.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = merge.c; path = ../../corvis/src/qhull/src/libqhull/merge.c; sourceTree = "<group>"; };
+		D30CE11519EE86A1009E413E /* poly.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = poly.c; path = ../../corvis/src/qhull/src/libqhull/poly.c; sourceTree = "<group>"; };
+		D30CE11619EE86A1009E413E /* poly2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = poly2.c; path = ../../corvis/src/qhull/src/libqhull/poly2.c; sourceTree = "<group>"; };
+		D30CE11719EE86A1009E413E /* qset.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = qset.c; path = ../../corvis/src/qhull/src/libqhull/qset.c; sourceTree = "<group>"; };
+		D30CE11819EE86A1009E413E /* random.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = random.c; path = ../../corvis/src/qhull/src/libqhull/random.c; sourceTree = "<group>"; };
+		D30CE11919EE86A1009E413E /* rboxlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = rboxlib.c; path = ../../corvis/src/qhull/src/libqhull/rboxlib.c; sourceTree = "<group>"; };
+		D30CE11A19EE86A1009E413E /* stat.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = stat.c; path = ../../corvis/src/qhull/src/libqhull/stat.c; sourceTree = "<group>"; };
+		D30CE11B19EE86A1009E413E /* user.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = user.c; path = ../../corvis/src/qhull/src/libqhull/user.c; sourceTree = "<group>"; };
+		D30CE11C19EE86A1009E413E /* usermem.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = usermem.c; path = ../../corvis/src/qhull/src/libqhull/usermem.c; sourceTree = "<group>"; };
+		D30CE11D19EE86A1009E413E /* userprintf_rbox.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = userprintf_rbox.c; path = ../../corvis/src/qhull/src/libqhull/userprintf_rbox.c; sourceTree = "<group>"; };
+		D30CE11E19EE86A1009E413E /* userprintf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = userprintf.c; path = ../../corvis/src/qhull/src/libqhull/userprintf.c; sourceTree = "<group>"; };
 		D36C3609184F2FB900F77AAF /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		D36C360B184F2FC100F77AAF /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		D36C360D184F2FCD00F77AAF /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
@@ -1215,8 +1259,6 @@
 		D3F50AF819BA19FD00791303 /* stereo_features.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = stereo_features.cpp; path = ../../corvis/src/stereo/stereo_features.cpp; sourceTree = "<group>"; };
 		D3F50AF919BA19FD00791303 /* stereo_mesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = stereo_mesh.cpp; path = ../../corvis/src/stereo/stereo_mesh.cpp; sourceTree = "<group>"; };
 		D3F50AFA19BA19FD00791303 /* stereo_mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stereo_mesh.h; path = ../../corvis/src/stereo/stereo_mesh.h; sourceTree = "<group>"; };
-		D3F50AFB19BA19FD00791303 /* triangle.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = triangle.cpp; path = ../../corvis/src/stereo/triangle.cpp; sourceTree = "<group>"; };
-		D3F50AFC19BA19FD00791303 /* triangle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = triangle.h; path = ../../corvis/src/stereo/triangle.h; sourceTree = "<group>"; };
 		D3F57862184F2DAE00EE450E /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		D3F57866184F2DE100EE450E /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		D3F57868184F2DEE00EE450E /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
@@ -2129,6 +2171,42 @@
 			path = JSON;
 			sourceTree = "<group>";
 		};
+		D30CE10019EE8595009E413E /* QHull */ = {
+			isa = PBXGroup;
+			children = (
+				D30CE10319EE86A1009E413E /* geom.h */,
+				D30CE10419EE86A1009E413E /* io.h */,
+				D30CE10519EE86A1009E413E /* libqhull.h */,
+				D30CE10619EE86A1009E413E /* mem.h */,
+				D30CE10719EE86A1009E413E /* merge.h */,
+				D30CE10819EE86A1009E413E /* poly.h */,
+				D30CE10919EE86A1009E413E /* qhull_a.h */,
+				D30CE10A19EE86A1009E413E /* qset.h */,
+				D30CE10B19EE86A1009E413E /* random.h */,
+				D30CE10C19EE86A1009E413E /* stat.h */,
+				D30CE10D19EE86A1009E413E /* user.h */,
+				D30CE10E19EE86A1009E413E /* geom.c */,
+				D30CE10F19EE86A1009E413E /* geom2.c */,
+				D30CE11019EE86A1009E413E /* global.c */,
+				D30CE11119EE86A1009E413E /* io.c */,
+				D30CE11219EE86A1009E413E /* libqhull.c */,
+				D30CE11319EE86A1009E413E /* mem.c */,
+				D30CE11419EE86A1009E413E /* merge.c */,
+				D30CE11519EE86A1009E413E /* poly.c */,
+				D30CE11619EE86A1009E413E /* poly2.c */,
+				D30CE11719EE86A1009E413E /* qset.c */,
+				D30CE11819EE86A1009E413E /* random.c */,
+				D30CE11919EE86A1009E413E /* rboxlib.c */,
+				D30CE11A19EE86A1009E413E /* stat.c */,
+				D30CE11B19EE86A1009E413E /* user.c */,
+				D30CE11C19EE86A1009E413E /* usermem.c */,
+				D30CE11D19EE86A1009E413E /* userprintf_rbox.c */,
+				D30CE11E19EE86A1009E413E /* userprintf.c */,
+			);
+			name = QHull;
+			path = ../../measuredphoto/MeasuredPhoto;
+			sourceTree = "<group>";
+		};
 		D3F50AD719BA19FD00791303 /* VLFeat */ = {
 			isa = PBXGroup;
 			children = (
@@ -2224,6 +2302,7 @@
 		D3F50AFD19BA19FD00791303 /* Stereo */ = {
 			isa = PBXGroup;
 			children = (
+				D30CE10019EE8595009E413E /* QHull */,
 				D3EF0A9619BA1FD100512050 /* RCStereo.h */,
 				D3EF0A9719BA1FD100512050 /* RCStereo.mm */,
 				D3F50AD719BA19FD00791303 /* VLFeat */,
@@ -2238,8 +2317,6 @@
 				D3F50AF819BA19FD00791303 /* stereo_features.cpp */,
 				D3F50AF919BA19FD00791303 /* stereo_mesh.cpp */,
 				D3F50AFA19BA19FD00791303 /* stereo_mesh.h */,
-				D3F50AFB19BA19FD00791303 /* triangle.cpp */,
-				D3F50AFC19BA19FD00791303 /* triangle.h */,
 			);
 			name = Stereo;
 			path = ../../RCCore/RCCore;
@@ -2566,6 +2643,7 @@
 				326ACFB719D2221B00B36965 /* OSKShareableContentItem.m in Sources */,
 				3288AF6917ECE8BC00BCAD09 /* MPSlideBanner.m in Sources */,
 				326ACFDF19D22A1F00B36965 /* OSK1PasswordSearchActivity.m in Sources */,
+				D30CE12419EE86A1009E413E /* mem.c in Sources */,
 				326ACF6E19D2221B00B36965 /* NSString+OSKEmoji.m in Sources */,
 				D3F50B1019BA19FD00791303 /* kdtree.c in Sources */,
 				326ACF7419D2221B00B36965 /* OSKActionSheet.m in Sources */,
@@ -2584,6 +2662,7 @@
 				D3F50B1819BA19FD00791303 /* pgm.c in Sources */,
 				3201E523198C0FE2008F61D5 /* MPOrientationChangeData.m in Sources */,
 				324C751E17B4293800C67ED2 /* MPMeasurementsView.m in Sources */,
+				D30CE12A19EE86A1009E413E /* rboxlib.c in Sources */,
 				32EFED28196C91CE00FDC89F /* NSRelationshipDescription+MagicalDataImport.m in Sources */,
 				D3F50B0619BA19FD00791303 /* hikmeans.c in Sources */,
 				32EFED24196C91CE00FDC89F /* NSAttributeDescription+MagicalDataImport.m in Sources */,
@@ -2598,6 +2677,7 @@
 				32EFEDCB1977450500FDC89F /* MPGalleryController.m in Sources */,
 				326ACFA419D2221B00B36965 /* OSKOAuthUtility.m in Sources */,
 				D3F50B1E19BA19FD00791303 /* slic.c in Sources */,
+				D30CE12719EE86A1009E413E /* poly2.c in Sources */,
 				32EFED84196E078F00FDC89F /* SBJsonStreamParserAccumulator.m in Sources */,
 				326ACF7E19D2221B00B36965 /* OSKActivitySheetViewController.m in Sources */,
 				32EFED34196C91CE00FDC89F /* NSPersistentStore+MagicalRecord.m in Sources */,
@@ -2610,14 +2690,17 @@
 				326ACFD219D222F000B36965 /* MPAboutView.m in Sources */,
 				32EFED33196C91CE00FDC89F /* NSManagedObjectModel+MagicalRecord.m in Sources */,
 				326ACFA019D2221B00B36965 /* OSKMicroblogPublishingViewController.m in Sources */,
+				D30CE12219EE86A1009E413E /* io.c in Sources */,
 				326ACF8219D2221B00B36965 /* OSKAirDropActivity.m in Sources */,
 				D3F50B1619BA19FD00791303 /* mathop.c in Sources */,
+				D30CE12C19EE86A1009E413E /* user.c in Sources */,
 				32EFED2A196C91CE00FDC89F /* NSManagedObject+MagicalAggregation.m in Sources */,
 				D3F50B1119BA19FD00791303 /* kmeans.c in Sources */,
 				326ACFAC19D2221B00B36965 /* OSKReadabilityActivity.m in Sources */,
 				326ACF8E19D2221B00B36965 /* OSKEmailActivity.m in Sources */,
 				32EEC84F17B97D1900A0DF49 /* MPMeasurementView.m in Sources */,
 				326ACFBF19D2221B00B36965 /* OSKTwitterText.m in Sources */,
+				D30CE12D19EE86A1009E413E /* usermem.c in Sources */,
 				32BA42BC17A2DF8B002BAE13 /* MPBaseViewController.m in Sources */,
 				32EFED8B196E078F00FDC89F /* SBJsonUTF8Stream.m in Sources */,
 				D3F50B1719BA19FD00791303 /* mser.c in Sources */,
@@ -2634,6 +2717,7 @@
 				D3F50B0419BA19FD00791303 /* generic.c in Sources */,
 				32BA433217A2EF4E002BAE13 /* MPAugmentedRealityView.m in Sources */,
 				326ACFA519D2221B00B36965 /* OSKOmnifocusActivity.m in Sources */,
+				D30CE12919EE86A1009E413E /* random.c in Sources */,
 				32EFEDD0197749E400FDC89F /* MPGalleryCell.m in Sources */,
 				32EFED8C196E078F00FDC89F /* SBJsonWriter.m in Sources */,
 				32EFECE1196C6C9F00FDC89F /* Model.xcdatamodeld in Sources */,
@@ -2646,12 +2730,15 @@
 				D3F50B0F19BA19FD00791303 /* imopv.c in Sources */,
 				32BA433317A2EF4E002BAE13 /* MPLineLayer.m in Sources */,
 				326ACFAE19D2221B00B36965 /* OSKReadingListActivity.m in Sources */,
+				D30CE12619EE86A1009E413E /* poly.c in Sources */,
 				326ACF9919D2221B00B36965 /* OSKLinkShorteningUtility.m in Sources */,
 				D3F50B1B19BA19FD00791303 /* rodrigues.c in Sources */,
 				326ACF8419D2221B00B36965 /* OSKAlertView.m in Sources */,
 				32EFED23196C91CE00FDC89F /* MagicalImportFunctions.m in Sources */,
 				3244D39218E60F4600AB0DE0 /* RCCalibration3.m in Sources */,
 				D3F50B2219BA19FD00791303 /* vlad.c in Sources */,
+				D30CE12019EE86A1009E413E /* geom2.c in Sources */,
+				D30CE12519EE86A1009E413E /* merge.c in Sources */,
 				326ACFAF19D2221B00B36965 /* OSKRPSTPasswordManagementAppService.m in Sources */,
 				326ACFB819D2221B00B36965 /* OSKSmartPunctuation.m in Sources */,
 				326ACF8319D2221B00B36965 /* OSKAirDropViewController.m in Sources */,
@@ -2660,6 +2747,7 @@
 				326ACF6C19D2221B00B36965 /* NSString+OSK_UUID.m in Sources */,
 				326ACFBA19D2221B00B36965 /* OSKSystemAccountStore.m in Sources */,
 				326ACF7219D2221B00B36965 /* OSKAccountManagementViewController.m in Sources */,
+				D30CE12B19EE86A1009E413E /* stat.c in Sources */,
 				32EFED38196C91CE00FDC89F /* MagicalRecord+iCloud.m in Sources */,
 				32EFED39196C91CE00FDC89F /* MagicalRecord+Options.m in Sources */,
 				3244D39018E60F4600AB0DE0 /* RCCalibration1.m in Sources */,
@@ -2674,6 +2762,7 @@
 				326ACFC619D2221B00B36965 /* OSKWebViewController.m in Sources */,
 				326ACFCB19D2221B00B36965 /* UIColor+OSKUtility.m in Sources */,
 				32AC641D1991500200699A2E /* MPDLocation.m in Sources */,
+				D30CE12819EE86A1009E413E /* qset.c in Sources */,
 				3298E9EF18A58ECC0017209B /* MPDotLayerDelegate.m in Sources */,
 				D3F50B1D19BA19FD00791303 /* sift.c in Sources */,
 				32EFED31196C91CE00FDC89F /* NSManagedObjectContext+MagicalSaves.m in Sources */,
@@ -2704,6 +2793,7 @@
 				D3F50B1419BA19FD00791303 /* mathop_avx.c in Sources */,
 				D3F50B2919BA19FD00791303 /* mrf.cpp in Sources */,
 				326ACF7619D2221B00B36965 /* OSKActivity.m in Sources */,
+				D30CE11F19EE86A1009E413E /* geom.c in Sources */,
 				32EFED4B196C9D4D00FDC89F /* MPDMeasuredPhoto+MPDMeasuredPhotoExt.m in Sources */,
 				32EFED37196C91CE00FDC89F /* MagicalRecord+ErrorHandling.m in Sources */,
 				3201E4DE19818596008F61D5 /* MPZoomTransition.m in Sources */,
@@ -2717,6 +2807,7 @@
 				D3F50B0019BA19FD00791303 /* covdet.c in Sources */,
 				326ACF9C19D2221B00B36965 /* OSKManagedAccountCredential.m in Sources */,
 				D3F50B0119BA19FD00791303 /* dsift.c in Sources */,
+				D30CE12F19EE86A1009E413E /* userprintf.c in Sources */,
 				326ACF9619D2221B00B36965 /* OSKInstapaperActivity.m in Sources */,
 				32BA433417A2EF4E002BAE13 /* MPLineLayerDelegate.m in Sources */,
 				32EFED89196E078F00FDC89F /* SBJsonStreamWriterState.m in Sources */,
@@ -2740,6 +2831,7 @@
 				32EFED85196E078F00FDC89F /* SBJsonStreamParserAdapter.m in Sources */,
 				D3F50B1C19BA19FD00791303 /* scalespace.c in Sources */,
 				329222F9180F21BA008BF9A0 /* MPPhotoRequest.m in Sources */,
+				D30CE12E19EE86A1009E413E /* userprintf_rbox.c in Sources */,
 				326ACFB319D2221B00B36965 /* OSKSessionController.m in Sources */,
 				326ACFBE19D2221B00B36965 /* OSKTwitterActivity.m in Sources */,
 				3201E4D819807F06008F61D5 /* MPEditTitleController.m in Sources */,
@@ -2747,6 +2839,7 @@
 				3201E4DB198184F8008F61D5 /* MPZoomTransitionDelegate.m in Sources */,
 				326ACFA319D2221B00B36965 /* OSKNavigationController.m in Sources */,
 				326ACFE919D38AED00B36965 /* MPWebViewController.m in Sources */,
+				D30CE12119EE86A1009E413E /* global.c in Sources */,
 				326ACF9B19D2221B00B36965 /* OSKManagedAccount.m in Sources */,
 				32C71CA719802F6100947798 /* MPRotatingButton.m in Sources */,
 				325B55E218BD2684009B8B0D /* MPMessageBox.m in Sources */,
@@ -2779,6 +2872,7 @@
 				32038C1A188DBEAE00E4F549 /* MPMagView.m in Sources */,
 				326ACF9A19D2221B00B36965 /* OSKMailComposeViewController.m in Sources */,
 				32934CF218D922E1005DC87C /* UIImage+MPImageFile.m in Sources */,
+				D30CE12319EE86A1009E413E /* libqhull.c in Sources */,
 				172564BB19D233BC00C5BD7A /* svgjs_filter.js in Sources */,
 				32EFED82196E078F00FDC89F /* SBJsonParser.m in Sources */,
 				326ACFAD19D2221B00B36965 /* OSKReadabilityUtility.m in Sources */,
@@ -2794,7 +2888,6 @@
 				32C135CA1892E6F5004DF62B /* ACMagnifyingView.m in Sources */,
 				326ACFB119D2221B00B36965 /* OSKSaveToCameraRollActivity.m in Sources */,
 				326ACF9119D2221B00B36965 /* OSKFacebookPublishingViewController.m in Sources */,
-				D3F50B3419BA19FD00791303 /* triangle.cpp in Sources */,
 				326ACFE219D22B2100B36965 /* MPPreferencesController.m in Sources */,
 				326ACFCF19D2221B00B36965 /* UIViewController+OSKUtilities.m in Sources */,
 				32EFED25196C91CE00FDC89F /* NSEntityDescription+MagicalDataImport.m in Sources */,

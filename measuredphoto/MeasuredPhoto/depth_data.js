@@ -245,6 +245,7 @@ function fill_dm_mask(){
         dm_mask_context.moveTo(v1[3],v1[4]);
         dm_mask_context.lineTo(v2[3],v2[4]);
         dm_mask_context.lineTo(v3[3],v3[4]);
+        dm_mask_context.lineTo(v1[3],v1[4]);
 
     }
     dm_mask_context.fill();

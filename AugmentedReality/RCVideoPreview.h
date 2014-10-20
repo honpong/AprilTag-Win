@@ -14,6 +14,13 @@
 #import <AVFoundation/AVFoundation.h>
 #import "RCVideoFrameProvider.h"
 
+@protocol RCAugmentedRealityDelegate <NSObject>
+
+/** This will be called after drawing the background video, before the GL render buffer is presented. */
+- (void) renderWithSensorFusionData:(RCSensorFusionData *)data withPerspectiveMatrix:(float[16])projection;
+
+@end
+
 /**
  This is a video preview view that can be used as an alternative to a AVCaptureVideoPreviewLayer. You can pass individual
  video frames to this class, and it will display them as they are received. One advantage of this design is that you can 
@@ -22,10 +29,13 @@
  */
 @interface RCVideoPreview : UIView <RCVideoFrameDelegate>
 
+@property (nonatomic) id<RCAugmentedRealityDelegate> delegate;
+
 /**
  Pass CMSampleBufferRef video frames to this method.
  */
 - (void) displaySampleBuffer:(CMSampleBufferRef)sampleBuffer;
+- (void) displaySensorFusionData:(RCSensorFusionData *)data;
 /**
  Fades the image to white - 0 represents normal display, and 1 represents all white.
  */

@@ -48,6 +48,8 @@ gl_FragColor = vec4(rgb, 1);\n\
 }\n\
 ";
 
+#define MULTISAMPLE TRUE
+
 @implementation RCVideoPreview
 {
     int renderBufferWidth;
@@ -74,6 +76,8 @@ gl_FragColor = vec4(rgb, 1);\n\
     float whiteness;
     GLuint yuvTextureProgram;
 }
+
+@synthesize delegate;
 
 - (id) initWithCoder:(NSCoder *)aDecoder
 {
@@ -120,6 +124,7 @@ gl_FragColor = vec4(rgb, 1);\n\
         DLog(@"Error at CVOpenGLESTextureCacheCreate %d", errCache);
     }
     
+    delegate = nil;
     dataQueued = nil;
 }
 
@@ -153,7 +158,15 @@ gl_FragColor = vec4(rgb, 1);\n\
                 CVPixelBufferRef pixBuf = (CVPixelBufferRef)CFRetain(CMSampleBufferGetImageBuffer(localData.sampleBuffer)); //This can be a zombie object if the pixel buffer was already invalidated (finalized)
                 if(CMSampleBufferIsValid(localData.sampleBuffer)) //We put this after retaining the pixel buffer to make sure that invalidate doesn't get called between the check and our retain
                 {
-                    [weakSelf pixelBufferReadyForDisplay:pixBuf];
+                    if([weakSelf beginFrame]) {
+                        [weakSelf displayPixelBuffer:pixBuf];
+                        //call AR delegate
+                        float perspective[16];
+                        [weakSelf getPerspectiveMatrix:perspective withFocalLength:localData.cameraParameters.focalLength withNear:.01 withFar:1000.];
+                        if([weakSelf.delegate respondsToSelector:@selector(renderWithSensorFusionData:withPerspectiveMatrix:)])
+                            [weakSelf.delegate renderWithSensorFusionData:localData withPerspectiveMatrix:perspective];
+                        [weakSelf endFrame];
+                    }
                 }
                 CFRelease(pixBuf);
 
@@ -195,18 +208,6 @@ gl_FragColor = vec4(rgb, 1);\n\
     }
     if(xScale == 0.) xScale = 1. / self.bounds.size.width;
     if(yScale == 0.) yScale = 1. / self.bounds.size.height;
-}
-
-- (void)pixelBufferReadyForDisplay:(CVPixelBufferRef)pixelBuffer
-{
-	// Don't make OpenGLES calls while in the background.
-	if ( [UIApplication sharedApplication].applicationState != UIApplicationStateBackground )
-    {
-        if([self beginFrame]) {
-            [self displayPixelBuffer:pixelBuffer];
-            [self endFrame];
-        }
-    }
 }
 
 - (void)checkGLError

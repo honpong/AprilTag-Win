@@ -13,10 +13,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import <RCCore/RCCore.h>
 
-@interface MPVideoPreview : RCVideoPreviewCRT <RCVideoFrameDelegate>
-
-- (CGRect) getCrtClosedFrame:(UIDeviceOrientation)orientation;
-- (void) setViewTransform:(RCTransformation *)viewTransform withCameraParameters:(RCCameraParameters *)cameraParameters;
+@interface MPVideoPreview : NSObject <RCAugmentedRealityDelegate>
 
 @end
 

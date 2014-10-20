@@ -7,7 +7,6 @@
 //
 
 #import <RCCore/RCCore.h>
-#import "MPVideoPreview.h"
 #import "MPLineLayer.h"
 #import "MPMeasurementsView.h"
 #import "ACMagnifyingView.h"
@@ -27,7 +26,7 @@
 
 @property (weak, nonatomic) IBOutlet UIImageView *distanceBg;
 @property (weak, nonatomic) IBOutlet RCDistanceLabel *distanceLabel;
-@property (readonly) MPVideoPreview *videoView;
+@property (readonly) RCVideoPreviewCRT *videoView;
 @property (readonly) RCFeaturesLayer* featuresLayer;
 @property (readonly) RCFeaturesLayer* selectedFeaturesLayer;
 @property (readonly) RCFeaturesLayer* initializingFeaturesLayer;

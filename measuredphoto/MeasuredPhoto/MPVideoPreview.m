@@ -12,112 +12,43 @@
 #import "RCCore/RCOpenGLManagerFactory.h"
 #include "../../AugmentedReality/Shaders/ShaderUtilities.c"
 
-@interface RCVideoPreviewCRT ()
-
-- (void)displayPixelBuffer:(CVImageBufferRef)pixelBuffer;
-- (void)initialize;
-
-@end
-
 @implementation MPVideoPreview
 {
     GLuint myProgram;
-    RCTransformation *cameraTrans;
-    RCCameraParameters *cameraParams;
-}
-- (void) initialize
-{
-    [super initialize];
-    const char *myVertShader = [OPENGL_MANAGER readFile:@"flat.vsh"];
-    const char *myFragShader = [OPENGL_MANAGER readFile:@"flat.fsh"];
-    // attributes
-    GLint attribLocation[1] = {
-        ATTRIB_VERTEX
-    };
-    GLchar *attribName[1] = {
-        "position"
-    };
-    
-    glueCreateProgram(myVertShader, myFragShader,
-                      1, (const GLchar **)&attribName[0], attribLocation,
-                      0, 0, 0, // we don't need to get uniform locations in this example
-                      &myProgram);
-    assert(myProgram);
-    cameraTrans = nil;
-    cameraParams = nil;
-
 }
 
--(id)initWithFrame:(CGRect)frame
+-(id)init
 {
-    if (self = [super initWithFrame:frame])
+    if (self = [super init])
     {
-		[[NSNotificationCenter defaultCenter] addObserver:self
-                                                 selector:@selector(handleOrientationChange:)
-                                                     name:MPUIOrientationDidChangeNotification
-                                                   object:nil];
+        const char *myVertShader = [OPENGL_MANAGER readFile:@"flat.vsh"];
+        const char *myFragShader = [OPENGL_MANAGER readFile:@"flat.fsh"];
+        // attributes
+        GLint attribLocation[1] = {
+            ATTRIB_VERTEX
+        };
+        GLchar *attribName[1] = {
+            "position"
+        };
+        
+        glueCreateProgram(myVertShader, myFragShader,
+                          1, (const GLchar **)&attribName[0], attribLocation,
+                          0, 0, 0,
+                          &myProgram);
+        assert(myProgram);
     }
     return self;
 }
 
-- (void) dealloc
+- (void)renderWithSensorFusionData:(RCSensorFusionData *)data withPerspectiveMatrix:(float[16])projection
 {
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
-
-- (void) handleOrientationChange:(NSNotification*)notification
-{
-    if (notification.object)
-    {
-        MPOrientationChangeData* data = (MPOrientationChangeData*)notification.object;
-        
-        if (CGRectEqualToRect(crtClosedFrame, CGRectZero))
-        {
-            [self setCrtClosedFrame:data.orientation];
-            self.frame = crtClosedFrame;
-        }
-        else
-        {
-            [self setCrtClosedFrame:data.orientation];
-        }
-    }
-}
-
-- (CGRect) getCrtClosedFrame:(UIDeviceOrientation)orientation
-{
-    if (UIDeviceOrientationIsLandscape(orientation))
-    {
-        return CGRectMake(self.superview.frame.size.width / 2, 0, 2., self.superview.frame.size.height);
-    }
-    else
-    {
-        return CGRectMake(0, self.superview.frame.size.height / 2, self.superview.frame.size.width, 2.);
-    }
-}
-
-- (void) setCrtClosedFrame:(UIDeviceOrientation)orientation
-{
-    crtClosedFrame = [self getCrtClosedFrame:orientation];
-}
-
-- (void)displayPixelBuffer:(CVImageBufferRef)pixelBuffer
-{
-    [super displayPixelBuffer:pixelBuffer];
-    [self displayArrow];
-}
-
-- (void)displayArrow
-{
-    if(!cameraParams || !cameraTrans) return;
+    if(!data.cameraParameters || !data.cameraTransformation) return;
     glUseProgram(myProgram);
     
-    float projection[16];
     float near = .01, far = 1000.;
     
-    [self getPerspectiveMatrix:projection withFocalLength:cameraParams.focalLength withNear:near withFar:far];
-    
     float camera[16];
-    [[cameraTrans getInverse] getOpenGLMatrix:camera];
+    [[data.cameraTransformation getInverse] getOpenGLMatrix:camera];
     
     UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
     float camera_screen[16];
@@ -177,12 +108,6 @@
             mout[5] = 1.;
             break;
     }
-}
-
-- (void) setViewTransform:(RCTransformation *)viewTransform withCameraParameters:(RCCameraParameters *)cameraParameters
-{
-    cameraParams = cameraParameters;
-    cameraTrans = viewTransform;
 }
 
 @end

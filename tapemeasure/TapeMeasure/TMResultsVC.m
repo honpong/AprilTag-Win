@@ -134,7 +134,7 @@
     
     if ([self.navigationController.secondToLastViewController isKindOfClass:[TMHistoryVC class]])
     {
-        [self.navigationController dismissTopViewController:YES];
+        [self.navigationController popViewControllerAnimated:YES];
     }
     else
     {

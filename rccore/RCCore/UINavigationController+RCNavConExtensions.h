@@ -11,6 +11,5 @@
 @interface UINavigationController (RCNavConExtensions)
 
 - (UIViewController*) secondToLastViewController;
-- (void) dismissTopViewController:(BOOL)animated;
 
 @end

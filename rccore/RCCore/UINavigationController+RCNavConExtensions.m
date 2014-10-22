@@ -22,9 +22,4 @@
     return secondToLast;
 }
 
-- (void)dismissTopViewController:(BOOL)animated
-{
-    [self popToViewController:self.secondToLastViewController animated:animated];
-}
-
 @end

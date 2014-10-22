@@ -586,15 +586,17 @@ void stereo::process_frame(const class camera &g, const v4 & T, const rotation_v
     if(final) {
         if(reference) delete reference;
         reference = new stereo_frame(data, g.width, g.height, T, W, features);
-        if(enable_debug_files) {
-            write_frames(true);
-        }
+        if(reference && target) {
+            if(enable_debug_files) {
+                write_frames(true);
+            }
 
-        if(enable_distortion_correction)
-            undistort_frames();
+            if(enable_distortion_correction)
+                undistort_frames();
 
-        if(enable_debug_files && enable_distortion_correction) {
-            write_frames(false);
+            if(enable_debug_files && enable_distortion_correction) {
+                write_frames(false);
+            }
         }
     } else if(features.size() >= 15) {
         if(!target) {

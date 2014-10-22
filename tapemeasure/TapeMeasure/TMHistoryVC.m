@@ -72,6 +72,11 @@
 //    });
 }
 
+- (void)viewWillAppear:(BOOL)animated
+{
+    [self.navigationController setToolbarHidden:YES animated:NO]; // workaround for iOS bug where toolbar will appear when popping back to this view controller
+}
+
 - (void)viewDidAppear:(BOOL)animated
 {
     [TMAnalytics logEvent:@"View.History"];
@@ -101,7 +106,7 @@
     {
         resultsVC = (TMResultsVC*)self.navigationController.secondToLastViewController;
         resultsVC.theMeasurement = measurement;
-        [self.navigationController dismissTopViewController:YES];
+        [self.navigationController popViewControllerAnimated:YES];
     }
     else
     {

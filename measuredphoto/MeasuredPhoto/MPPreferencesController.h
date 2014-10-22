@@ -8,12 +8,13 @@
 
 #import <UIKit/UIKit.h>
 
-@interface MPPreferencesController : UITableViewController
+@interface MPPreferencesController : UIViewController <UIGestureRecognizerDelegate>
 
 @property (weak, nonatomic) IBOutlet UISegmentedControl *unitsControl;
-@property (weak, nonatomic) IBOutlet UIButton *backButton;
+@property (weak, nonatomic) IBOutlet UISwitch *allowLocationSwitch;
+@property (weak, nonatomic) IBOutlet UIView *containerView;
 
 - (IBAction)handleUnitsControl:(id)sender;
-- (IBAction)handleBackButton:(id)sender;
+- (IBAction)handleAllowLocationSwitch:(id)sender;
 
 @end

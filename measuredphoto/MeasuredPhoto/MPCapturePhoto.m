@@ -254,7 +254,7 @@ static transition transitions[] =
     
     [self validateStateMachine];
     
-    useLocation = ![LOCATION_MANAGER isLocationDisallowed] && [[NSUserDefaults standardUserDefaults] boolForKey:PREF_ADD_LOCATION];
+    useLocation = [LOCATION_MANAGER isLocationExplicitlyAllowed] && [NSUserDefaults.standardUserDefaults boolForKey:PREF_USE_LOCATION];
     
     [[sensorDelegate getVideoProvider] setDelegate:self.arView.videoView];
     
@@ -369,6 +369,7 @@ static transition transitions[] =
 - (void)handleResume
 {
 	LOGME
+    if (useLocation) [LOCATION_MANAGER startLocationUpdates];
     [self handleStateEvent:EV_RESUME];
     [self handleOrientationChange]; // ensures that UI is in correct orientation
     [self.arView.videoView animateOpen:[MPCapturePhoto getCurrentUIOrientation]];
@@ -639,6 +640,7 @@ static transition transitions[] =
     [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
     SENSOR_FUSION.delegate = self;
     [[sensorDelegate getVideoProvider] setDelegate:nil];
+    if (useLocation) [SENSOR_FUSION setLocation:[LOCATION_MANAGER getStoredLocation]];
     [SENSOR_FUSION startSensorFusionWithDevice:[sensorDelegate getVideoDevice]];
 }
 

@@ -38,6 +38,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     MPDMeasuredPhoto* photoToBeDeleted;
     MPShareSheet* shareSheet;
     UIActionSheet *actionSheet;
+    RCModalCoverVerticalTransition* transition;
 }
 
 - (void) dealloc
@@ -441,8 +442,18 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 
 - (void) gotoPreferences
 {
-    MPPreferencesController* viewController = [self.storyboard instantiateViewControllerWithIdentifier:@"Preferences"];
-    [self presentViewController:viewController animated:YES completion:nil];
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+    {
+        [self performSegueWithIdentifier:@"toSettings" sender:self];
+    }
+    else
+    {
+        MPPreferencesController* prefsController = [self.storyboard instantiateViewControllerWithIdentifier:@"Preferences"];
+        if (transition == nil) transition = [RCModalCoverVerticalTransition new];
+        prefsController.transitioningDelegate = transition;
+        prefsController.modalPresentationStyle = UIModalPresentationCustom;
+        [self presentViewController:prefsController animated:YES completion:nil];
+    }
 }
 
 - (void) gotoAppStore

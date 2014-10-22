@@ -39,6 +39,11 @@
     }
 }
 
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
+{
+    return touch.view == self.containerView ? NO : YES;
+}
+
 - (void) handleTapOutside:(UIGestureRecognizer *)gestureRecognizer
 {
     [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];

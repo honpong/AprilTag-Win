@@ -3,7 +3,6 @@
     <dependencies>
         <deployment defaultVersion="1792" identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6238"/>
-        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
     </dependencies>
     <scenes>
         <!--Gallery Controller-->
@@ -858,10 +857,10 @@
             </objects>
             <point key="canvasLocation" x="-2779" y="-118"/>
         </scene>
-        <!--Web View Controller-->
+        <!--GenericWebView-->
         <scene sceneID="dAJ-sg-lp3">
             <objects>
-                <viewController storyboardIdentifier="GenericWebView" automaticallyAdjustsScrollViewInsets="NO" modalPresentationStyle="formSheet" useStoryboardIdentifierAsRestorationIdentifier="YES" id="tp0-Sx-POx" customClass="MPWebViewController" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="GenericWebView" title="GenericWebView" automaticallyAdjustsScrollViewInsets="NO" modalPresentationStyle="formSheet" useStoryboardIdentifierAsRestorationIdentifier="YES" id="tp0-Sx-POx" customClass="MPWebViewController" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="uAO-n3-8m1"/>
                         <viewControllerLayoutGuide type="bottom" id="NDf-uz-v18"/>
@@ -870,7 +869,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Y2O-9X-v5i">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Y2O-9X-v5i" userLabel="TitleBar">
                                 <rect key="frame" x="0.0" y="0.0" width="768" height="44"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Title" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Fyc-5c-BLi">
@@ -911,14 +910,18 @@
                         <constraints>
                             <constraint firstItem="wyc-YZ-GNI" firstAttribute="leading" secondItem="AOw-gV-410" secondAttribute="leading" id="BCT-Sk-Kkt"/>
                             <constraint firstItem="Y2O-9X-v5i" firstAttribute="leading" secondItem="AOw-gV-410" secondAttribute="leading" id="ST1-Kn-t5m"/>
+                            <constraint firstItem="Y2O-9X-v5i" firstAttribute="top" secondItem="uAO-n3-8m1" secondAttribute="bottom" id="Sav-KF-QWN"/>
                             <constraint firstItem="wyc-YZ-GNI" firstAttribute="top" secondItem="Y2O-9X-v5i" secondAttribute="bottom" id="WHP-gH-tjg"/>
                             <constraint firstItem="NDf-uz-v18" firstAttribute="top" secondItem="wyc-YZ-GNI" secondAttribute="bottom" id="cxM-jy-tZb"/>
-                            <constraint firstItem="Y2O-9X-v5i" firstAttribute="top" secondItem="AOw-gV-410" secondAttribute="topMargin" id="ekb-uy-hfb"/>
                             <constraint firstAttribute="trailing" secondItem="wyc-YZ-GNI" secondAttribute="trailing" id="f6U-Mx-yP8"/>
                             <constraint firstAttribute="trailing" secondItem="Y2O-9X-v5i" secondAttribute="trailing" id="ixd-tg-RpA"/>
                         </constraints>
                     </view>
+                    <extendedEdge key="edgesForExtendedLayout"/>
+                    <value key="contentSizeForViewInPopover" type="size" width="540" height="540"/>
                     <nil key="simulatedStatusBarMetrics"/>
+                    <nil key="simulatedTopBarMetrics"/>
+                    <nil key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="backButton" destination="siX-2u-3Zp" id="EYO-hj-LRf"/>
                         <outlet property="titleLabel" destination="Fyc-5c-BLi" id="LGY-pw-xjc"/>

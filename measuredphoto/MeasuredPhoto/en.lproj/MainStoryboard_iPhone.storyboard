@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6245" systemVersion="13F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="naN-gY-NUo">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6250" systemVersion="13F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="naN-gY-NUo">
     <dependencies>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6238"/>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6244"/>
     </dependencies>
     <scenes>
         <!--YouTubeVideo-->
@@ -131,7 +132,7 @@
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Vva-7f-BUw" userLabel="CameraButton" customClass="MPTintTouchButton">
-                                        <rect key="frame" x="5" y="0.0" width="50" height="44"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="50" height="44"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="44" id="3xu-ge-svr"/>
                                             <constraint firstAttribute="width" constant="50" id="Bbc-pg-Ue5"/>
@@ -144,7 +145,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WCd-ky-tQU" userLabel="MenuButton" customClass="MPTintTouchButton">
-                                        <rect key="frame" x="265" y="0.0" width="50" height="44"/>
+                                        <rect key="frame" x="270" y="0.0" width="50" height="44"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="50" id="AcV-ZJ-BXI"/>
                                             <constraint firstAttribute="height" constant="44" id="SjF-ic-R6s"/>
@@ -169,10 +170,10 @@
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstItem="Vva-7f-BUw" firstAttribute="leading" secondItem="6c4-v4-qm3" secondAttribute="leading" constant="5" id="3cU-K6-gB9"/>
                                     <constraint firstAttribute="centerY" secondItem="Vva-7f-BUw" secondAttribute="centerY" id="7cy-TR-nGS"/>
                                     <constraint firstAttribute="centerY" secondItem="eTa-oB-Yqh" secondAttribute="centerY" id="Fjz-u8-Yt5"/>
-                                    <constraint firstAttribute="trailing" secondItem="WCd-ky-tQU" secondAttribute="trailing" constant="5" id="Fp7-h9-Srm"/>
+                                    <constraint firstAttribute="trailing" secondItem="WCd-ky-tQU" secondAttribute="trailing" id="Fp7-h9-Srm"/>
+                                    <constraint firstItem="Vva-7f-BUw" firstAttribute="leading" secondItem="6c4-v4-qm3" secondAttribute="leading" id="JXO-a5-xIA"/>
                                     <constraint firstAttribute="height" constant="44" id="lLh-0k-otx"/>
                                     <constraint firstAttribute="centerX" secondItem="eTa-oB-Yqh" secondAttribute="centerX" id="qMD-vK-kKB"/>
                                     <constraint firstAttribute="centerY" secondItem="WCd-ky-tQU" secondAttribute="centerY" id="vu8-bR-3KV"/>
@@ -222,7 +223,7 @@
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BY5-Rn-kTy" userLabel="CameraButton" customClass="MPRotatingButton">
-                                        <rect key="frame" x="5" y="0.0" width="50" height="44"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="50" height="44"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="44" id="ERH-kL-mW9"/>
                                             <constraint firstAttribute="width" constant="50" id="KV9-bK-q7C"/>
@@ -235,7 +236,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="K2K-HB-LTJ" userLabel="PhotosButton" customClass="MPRotatingButton">
-                                        <rect key="frame" x="55" y="0.0" width="50" height="44"/>
+                                        <rect key="frame" x="50" y="0.0" width="50" height="44"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="50" id="JUd-eJ-56m"/>
                                             <constraint firstAttribute="height" constant="44" id="apI-77-bcg"/>
@@ -248,7 +249,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0kr-Nj-mnI" userLabel="TrashButton" customClass="MPRotatingButton">
-                                        <rect key="frame" x="265" y="0.0" width="50" height="44"/>
+                                        <rect key="frame" x="270" y="0.0" width="50" height="44"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="44" id="EPN-aG-hsD"/>
                                             <constraint firstAttribute="width" constant="50" id="tPH-Zs-bcU"/>
@@ -261,7 +262,7 @@
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CX4-0V-D8b" userLabel="ShareButton" customClass="MPRotatingButton">
-                                        <rect key="frame" x="215" y="0.0" width="50" height="44"/>
+                                        <rect key="frame" x="220" y="0.0" width="50" height="44"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="44" id="4to-jp-8OB"/>
                                             <constraint firstAttribute="width" constant="50" id="ynZ-VD-6iy"/>
@@ -302,8 +303,8 @@
                                 <constraints>
                                     <constraint firstAttribute="centerY" secondItem="CX4-0V-D8b" secondAttribute="centerY" id="FBP-Ca-xdq"/>
                                     <constraint firstAttribute="height" constant="44" id="HYk-ac-aQx"/>
-                                    <constraint firstItem="BY5-Rn-kTy" firstAttribute="leading" secondItem="qbY-oG-MSj" secondAttribute="leading" constant="5" id="QAF-nn-A0F"/>
-                                    <constraint firstAttribute="trailing" secondItem="0kr-Nj-mnI" secondAttribute="trailing" constant="5" id="ZAs-uE-uMx"/>
+                                    <constraint firstItem="BY5-Rn-kTy" firstAttribute="leading" secondItem="qbY-oG-MSj" secondAttribute="leading" id="QAF-nn-A0F"/>
+                                    <constraint firstAttribute="trailing" secondItem="0kr-Nj-mnI" secondAttribute="trailing" id="ZAs-uE-uMx"/>
                                     <constraint firstAttribute="centerX" secondItem="nwz-FO-9pK" secondAttribute="centerX" id="bJh-VS-tuZ"/>
                                     <constraint firstAttribute="centerY" secondItem="nwz-FO-9pK" secondAttribute="centerY" id="dD5-fY-5rq"/>
                                     <constraint firstAttribute="centerX" secondItem="pqf-ql-u73" secondAttribute="centerX" id="gg6-Sa-2xM"/>

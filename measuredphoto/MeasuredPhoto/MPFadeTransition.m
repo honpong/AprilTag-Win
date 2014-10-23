@@ -72,13 +72,13 @@ static NSTimeInterval const MPAnimatedTransitionDuration = .3f;
 - (void) animateDismissal:(id<UIViewControllerContextTransitioning>)transitionContext
 {
     UIView* fromView;
+    UIViewController*fromViewController = [transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
     if ([transitionContext respondsToSelector:@selector(viewForKey:)]) // iOS 8
     {
         fromView = [transitionContext viewForKey:UITransitionContextFromViewKey];
     }
     else
     {
-        UIViewController*fromViewController = [transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
         fromView = fromViewController.view;
     }
     
@@ -97,11 +97,13 @@ static NSTimeInterval const MPAnimatedTransitionDuration = .3f;
     
     if (self.shouldFadeOut)
     {
+        UIView *container = [transitionContext containerView];
+        [container insertSubview:toView belowSubview:fromView];
+        
         fromView.alpha = 1.;
         [UIView animateKeyframesWithDuration:MPAnimatedTransitionDuration delay:0 options:0 animations:^{
             fromView.alpha = 0;
         } completion:^(BOOL finished) {
-            [fromView removeFromSuperview];
             [transitionContext completeTransition:finished];
         }];
     }

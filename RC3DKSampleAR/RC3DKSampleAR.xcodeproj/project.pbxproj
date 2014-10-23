@@ -54,6 +54,9 @@
 		D901460219F9A5EF004E7CE2 /* ShaderUtilities.c in Sources */ = {isa = PBXBuildFile; fileRef = D90145FA19F9A5EF004E7CE2 /* ShaderUtilities.c */; };
 		D901460319F9A5EF004E7CE2 /* yuvtorgb.fsh in Resources */ = {isa = PBXBuildFile; fileRef = D90145FC19F9A5EF004E7CE2 /* yuvtorgb.fsh */; };
 		D901460419F9A5EF004E7CE2 /* yuvtorgb.vsh in Resources */ = {isa = PBXBuildFile; fileRef = D90145FD19F9A5EF004E7CE2 /* yuvtorgb.vsh */; };
+		D901460819F9C2D8004E7CE2 /* ARDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D901460719F9C2D8004E7CE2 /* ARDelegate.m */; };
+		D901460B19F9C43B004E7CE2 /* flat.fsh in Resources */ = {isa = PBXBuildFile; fileRef = D901460919F9C43B004E7CE2 /* flat.fsh */; };
+		D901460C19F9C43B004E7CE2 /* flat.vsh in Resources */ = {isa = PBXBuildFile; fileRef = D901460A19F9C43B004E7CE2 /* flat.vsh */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -152,6 +155,10 @@
 		D90145FC19F9A5EF004E7CE2 /* yuvtorgb.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuvtorgb.fsh; sourceTree = "<group>"; };
 		D90145FD19F9A5EF004E7CE2 /* yuvtorgb.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuvtorgb.vsh; sourceTree = "<group>"; };
 		D901460519F9A997004E7CE2 /* RCVideoFrameProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RCVideoFrameProvider.h; path = ../../SensorManagers/RCVideoFrameProvider.h; sourceTree = "<group>"; };
+		D901460619F9C2D8004E7CE2 /* ARDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARDelegate.h; sourceTree = "<group>"; };
+		D901460719F9C2D8004E7CE2 /* ARDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARDelegate.m; sourceTree = "<group>"; };
+		D901460919F9C43B004E7CE2 /* flat.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = flat.fsh; sourceTree = "<group>"; };
+		D901460A19F9C43B004E7CE2 /* flat.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = flat.vsh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -222,6 +229,8 @@
 				D90145C719F9A184004E7CE2 /* LicenseHelper.m */,
 				D901456B19F9A00F004E7CE2 /* ViewController.h */,
 				D901456C19F9A00F004E7CE2 /* ViewController.m */,
+				D901460619F9C2D8004E7CE2 /* ARDelegate.h */,
+				D901460719F9C2D8004E7CE2 /* ARDelegate.m */,
 				D901456E19F9A00F004E7CE2 /* Main.storyboard */,
 				D901457119F9A00F004E7CE2 /* Images.xcassets */,
 				D901457319F9A00F004E7CE2 /* LaunchScreen.xib */,
@@ -234,6 +243,8 @@
 		D901456419F9A00F004E7CE2 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				D901460919F9C43B004E7CE2 /* flat.fsh */,
+				D901460A19F9C43B004E7CE2 /* flat.vsh */,
 				D901456519F9A00F004E7CE2 /* Info.plist */,
 				D901456619F9A00F004E7CE2 /* main.m */,
 			);
@@ -478,9 +489,11 @@
 				D90145BC19F9A094004E7CE2 /* ipad_on_table.jpg in Resources */,
 				D901460319F9A5EF004E7CE2 /* yuvtorgb.fsh in Resources */,
 				D901457519F9A00F004E7CE2 /* LaunchScreen.xib in Resources */,
+				D901460C19F9C43B004E7CE2 /* flat.vsh in Resources */,
 				D90145BB19F9A094004E7CE2 /* holding_portrait.jpg in Resources */,
 				D901460419F9A5EF004E7CE2 /* yuvtorgb.vsh in Resources */,
 				D901460019F9A5EF004E7CE2 /* passThrough.fsh in Resources */,
+				D901460B19F9C43B004E7CE2 /* flat.fsh in Resources */,
 				D901457219F9A00F004E7CE2 /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -513,6 +526,7 @@
 				D901456A19F9A00F004E7CE2 /* AppDelegate.m in Sources */,
 				D90145C819F9A184004E7CE2 /* LicenseHelper.m in Sources */,
 				D901456719F9A00F004E7CE2 /* main.m in Sources */,
+				D901460819F9C2D8004E7CE2 /* ARDelegate.m in Sources */,
 				D90145BD19F9A094004E7CE2 /* MBProgressHUD.m in Sources */,
 				D90145C119F9A094004E7CE2 /* RCSensorDelegate.m in Sources */,
 			);

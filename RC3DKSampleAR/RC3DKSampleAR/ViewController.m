@@ -12,6 +12,7 @@
 #import "RCDeviceInfo.h"
 #import "RCVideoPreview.h"
 #import "RCAVSessionManager.h"
+#import "ARDelegate.h"
 
 @implementation ViewController
 {
@@ -19,6 +20,7 @@
     bool isStarted; // Keeps track of whether the start button has been pressed
     id<RCSensorDelegate> sensorDelegate;
     RCVideoPreview *videoPreview;
+    id<RCAugmentedRealityDelegate> arDelegate;
 }
 
 @synthesize statusLabel;
@@ -35,10 +37,13 @@
     
     videoPreview = [[RCVideoPreview alloc] initWithFrame:self.view.frame];
     [[sensorDelegate getVideoProvider] setDelegate:videoPreview];
+    
+    arDelegate = [[ARDelegate alloc] init];
+    videoPreview.delegate = arDelegate;
+    
     [self.view addSubview:videoPreview];
     [self.view sendSubviewToBack:videoPreview];
-
-    
+    [videoPreview setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(handlePause)
                                                  name:UIApplicationWillResignActiveNotification

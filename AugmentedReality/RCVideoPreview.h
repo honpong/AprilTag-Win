@@ -17,7 +17,7 @@
 @protocol RCAugmentedRealityDelegate <NSObject>
 
 /** This will be called after drawing the background video, before the GL render buffer is presented. */
-- (void) renderWithSensorFusionData:(RCSensorFusionData *)data withPerspectiveMatrix:(float[16])projection;
+- (void) renderWithSensorFusionData:(RCSensorFusionData *)data withPerspectiveMatrix:(GLfloat[16])projection withCameraScreenMatrix:(GLfloat[16])camera_screen;
 
 @end
 
@@ -44,8 +44,5 @@
  Scales the video preview.
  */
 - (void)setHorizontalScale:(float)hScale withVerticalScale:(float)vScale;
-
-- (void) getPerspectiveMatrix:(float[16])mout withFocalLength:(float)focalLength withNear:(float)near withFar:(float)far;
-- (void) getCameraScreenTransform:(float[16])mout forOrientation:(UIInterfaceOrientation)orientation;
 
 @end

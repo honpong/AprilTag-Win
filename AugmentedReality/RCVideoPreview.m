@@ -54,7 +54,10 @@ gl_FragColor = vec4(rgb, 1);\n\
 {
     int renderBufferWidth;
 	int renderBufferHeight;
-    
+    int rotatedBufferWidth;
+    int rotatedBufferHeight;
+    float renderBufferScale;
+
 	CVOpenGLESTextureCacheRef videoTextureCache;
     
 	GLuint frameBufferHandle;
@@ -68,8 +71,6 @@ gl_FragColor = vec4(rgb, 1);\n\
     RCSensorFusionData *dataQueued;
     
     size_t textureWidth, textureHeight;
-    CGFloat textureCoordWidth;
-    CGFloat textureCoordHeight;
     
     float xScale;
     float yScale;
@@ -162,9 +163,11 @@ gl_FragColor = vec4(rgb, 1);\n\
                         [weakSelf displayPixelBuffer:pixBuf];
                         //call AR delegate
                         float perspective[16];
-                        [weakSelf getPerspectiveMatrix:perspective withFocalLength:localData.cameraParameters.focalLength withNear:.01 withFar:1000.];
-                        if([weakSelf.delegate respondsToSelector:@selector(renderWithSensorFusionData:withPerspectiveMatrix:)])
-                            [weakSelf.delegate renderWithSensorFusionData:localData withPerspectiveMatrix:perspective];
+                        float camera_screen[16];
+                        [weakSelf getPerspectiveMatrix:perspective withCameraParameters:localData.cameraParameters withNear:.01 withFar:100.];
+                        [weakSelf getCameraScreenTransform:camera_screen forOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+                        if([weakSelf.delegate respondsToSelector:@selector(renderWithSensorFusionData:withPerspectiveMatrix:withCameraScreenMatrix:)])
+                            [weakSelf.delegate renderWithSensorFusionData:localData withPerspectiveMatrix:perspective withCameraScreenMatrix:camera_screen];
                         [weakSelf endFrame];
                     }
                 }
@@ -432,7 +435,6 @@ gl_FragColor = vec4(rgb, 1);\n\
         xScale,  yScale,
     };
     
-    CGFloat rotatedBufferWidth, rotatedBufferHeight;
     // Preserve aspect ratio; fill layer bounds
     switch(orientation)
     {
@@ -450,26 +452,30 @@ gl_FragColor = vec4(rgb, 1);\n\
             break;
     }
     
-    CGFloat scaleWidth = rotatedBufferWidth / textureWidth;
-    CGFloat scaleHeight = rotatedBufferHeight / textureHeight;
-    textureCoordWidth = 1.;
-    textureCoordHeight = 1.;
+    float scaleWidth = rotatedBufferWidth / (float) textureWidth;
+    float scaleHeight = rotatedBufferHeight / (float) textureHeight;
+    GLfloat textureCoordWidth = 1.;
+    GLfloat textureCoordHeight = 1.;
     if(scaleHeight > scaleWidth)
     {
         //We can fit more vertically than horizontally so crop width
-        textureCoordWidth = scaleWidth / scaleHeight;
+        renderBufferScale = scaleHeight;
+        textureCoordWidth = scaleWidth / renderBufferScale;
     }
     else
     {
         //We can fit more vertically than horizontally so crop width
-        textureCoordHeight = scaleHeight / scaleWidth;
+        renderBufferScale = scaleWidth;
+        textureCoordHeight = scaleHeight / renderBufferScale;
     }
     
+    // The texture vertices are set up such that we flip the texture vertically.
+    // This is so that our top left origin buffers match OpenGL's bottom left texture coordinate system.
     GLfloat passThroughTextureVertices[] = {
-        (1.0 - textureCoordWidth)/2.0, (1.0 - textureCoordHeight)/2.0, // top left
-        (1.0 + textureCoordWidth)/2.0, (1.0 - textureCoordHeight)/2.0, // top right
-        (1.0 - textureCoordWidth)/2.0, (1.0 + textureCoordHeight)/2.0, // bottom left
-        (1.0 + textureCoordWidth)/2.0, (1.0 + textureCoordHeight)/2.0, // bottom right
+        (1.0 - textureCoordWidth)/2.0, (1.0 + textureCoordHeight)/2.0, // top left
+        (1.0 + textureCoordWidth)/2.0, (1.0 + textureCoordHeight)/2.0, // top right
+        (1.0 - textureCoordWidth)/2.0, (1.0 - textureCoordHeight)/2.0, // bottom left
+        (1.0 + textureCoordWidth)/2.0, (1.0 - textureCoordHeight)/2.0, // bottom right
     };
     
     // Draw the texture on the screen with OpenGL ES 2
@@ -497,58 +503,65 @@ gl_FragColor = vec4(rgb, 1);\n\
 
 }
 
-- (void) getCameraScreenTransform:(float[16])mout forOrientation:(UIInterfaceOrientation)orientation
+- (void) getCameraScreenTransform:(GLfloat[16])mout forOrientation:(UIInterfaceOrientation)orientation
 {
-    for(int i = 0; i < 16; ++i) mout[i] = 0.;
+    memset(mout, 0, sizeof(GLfloat) * 16);
     mout[10] = 1.;
     mout[15] = 1.;
-    //iOS camera coordinates are right handed, with positive x to the right, positive y down, and positive z back
-    //GL normalized device coordinates are left handed, with positive x to the rigth, positive y up, and positive z back
-    //So we flip the y coordinate here.
     switch(orientation)
     {
         case UIInterfaceOrientationPortrait:
             mout[1] = -1.;
-            mout[4] = -1.;
+            mout[4] = 1.;
             break;
         case UIInterfaceOrientationPortraitUpsideDown:
             mout[1] = 1.;
-            mout[4] = 1.;
+            mout[4] = -1.;
             break;
         case UIInterfaceOrientationLandscapeLeft:
             mout[0] = -1.;
-            mout[5] = 1.;
+            mout[5] = -1.;
             break;
         default:
         case UIInterfaceOrientationUnknown:
         case UIInterfaceOrientationLandscapeRight:
             mout[0] = 1.;
-            mout[5] = -1.;
+            mout[5] = 1.;
             break;
     }
 }
 
-- (void) getPerspectiveMatrix:(float[16])mout withFocalLength:(float)focalLength withNear:(float)near withFar:(float)far
+/*
+ Our camera is defined with positive x to the right, positive y down, and positive z forward
+ This is rotated from the usual OpenGL camera, which has positive x to the right, positive y up, and positive z back
+ (Note both are in fact right-handed systems).
+ 
+ GL normalized device coordinates are left handed, with positive x to the right, positive y up, and positive z forward
+ GL typically moves from right-handed camera to left-handed NDC by negating the z axis in the perspective matrix. Instead, we have to negate the y value.
+ 
+ Our projection model: x_pixel_rc = focal_length * kr * (x / z) + center_x
+ OpenGL ndc to screen model ( https://www.khronos.org/opengles/sdk/docs/man/xhtml/glViewport.xml ): x_pixel_gl = (1 + x_ndc) * (width_vp / 2)
+
+ We follow the OpenCV convention where a pixel's center is at the pixel coordinate, so our viewport (for 640x480) is [-.5, 639.5], [-.5, 479.5], where OpenGL defines the viewport as [0, 640], [0, 480]
+ So x_pixel_gl = (x_pixel_rc + .5) * scale
+ 
+ Solve for x_ndc given (1 + x_ndc) * (width_vp / 2) = (focal_length * kr * (x / z) + center_x + .5) * scale
+ x_ndc = focal_length * kr / (width_vp / 2) * scale * (x / z) + (center_x + .5) / (width_vp / 2) * scale - 1
+ y_ndc = - (focal_length * kr / (height_vp / 2) * scale * (y / z) - (center_y + .5) / (height_vp / 2) * scale + 1
+
+ We ignore radial distortion and drop the kr term here; better to undistort the image instead.
+ */
+
+- (void) getPerspectiveMatrix:(GLfloat[16])mout withCameraParameters:(RCCameraParameters *)cameraParameters withNear:(float)near withFar:(float)far
 {
-    mout[0] = 2. * focalLength / textureWidth / textureCoordWidth;
-    mout[1] = 0.0f;
-    mout[2] = 0.0f;
-    mout[3] = 0.0f;
-    
-    mout[4] = 0.0f;
-    mout[5] = -2. * focalLength / textureHeight / textureCoordHeight;
-    mout[6] = 0.0f;
-    mout[7] = 0.0f;
-    
-    mout[8] = 0.0f;
-    mout[9] = 0.0f;
+    memset(mout, 0, sizeof(GLfloat) * 16);
+    mout[0] = cameraParameters.focalLength / (rotatedBufferWidth / 2.) * renderBufferScale;
+    mout[2] = (cameraParameters.opticalCenterX + .5) / (rotatedBufferWidth / 2.) * renderBufferScale - 1;
+    mout[5] = -cameraParameters.focalLength / (rotatedBufferHeight / 2.) * renderBufferScale;
+    mout[6] = -(cameraParameters.opticalCenterY + .5) / (rotatedBufferHeight / 2.) * renderBufferScale + 1;
     mout[10] = (far+near) / (far-near);
     mout[11] = 1.0f;
-    
-    mout[12] = 0.0f;
-    mout[13] = 0.0f;
     mout[14] = -2 * far * near /  (far-near);
-    mout[15] = 0.0f;
 }
 
 - (void)dealloc
@@ -564,7 +577,7 @@ gl_FragColor = vec4(rgb, 1);\n\
     
     [OPENGL_MANAGER deleteProgram:yuvTextureProgram];
     
-    //    [super dealloc];
+    //[super dealloc]; - not needed with ARC
 }
 
 @end

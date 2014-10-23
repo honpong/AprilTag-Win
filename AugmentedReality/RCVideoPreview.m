@@ -10,16 +10,17 @@
 #include "ShaderUtilities.h"
 #import <CoreMedia/CoreMedia.h>
 #import "RCOpenGLManagerFactory.h"
+#import "RCDebugLog.h"
 
 static const GLchar *vertSrc = "\n\
 attribute vec4 position;\n\
 attribute mediump vec4 textureCoordinate;\n\
 varying mediump vec2 coordinate;\n\
-uniform mat4 camera_screen_transform;\n\
+uniform mat4 camera_screen_rotation;\n\
 \n\
 void main()\n\
 {\n\
-gl_Position = camera_screen_transform * position;\n\
+gl_Position = camera_screen_rotation * position;\n\
 coordinate = textureCoordinate.xy;\n\
 }\n\
 ";
@@ -100,8 +101,8 @@ gl_FragColor = vec4(rgb, 1);\n\
 
 - (void) initialize
 {
-    [EAGLContext setCurrentContext:[OPENGL_MANAGER oglContext]];
-    [OPENGL_MANAGER createProgram:&yuvTextureProgram withVertexShader:vertSrc withFragmentShader:fragSrc];
+    [EAGLContext setCurrentContext:[[RCOpenGLManagerFactory getInstance] oglContext]];
+    [[RCOpenGLManagerFactory getInstance] createProgram:&yuvTextureProgram withVertexShader:vertSrc withFragmentShader:fragSrc];
     glUseProgram(yuvTextureProgram);
     glUniform1i(glGetUniformLocation(yuvTextureProgram, "videoFrameY"), 0);
     glUniform1i(glGetUniformLocation(yuvTextureProgram, "videoFrameUV"), 1);
@@ -120,7 +121,7 @@ gl_FragColor = vec4(rgb, 1);\n\
                                      kEAGLDrawablePropertyColorFormat: kEAGLColorFormatRGBA8};
     
     //  Create a new CVOpenGLESTexture cache
-    CVReturn errCache = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault, NULL, [OPENGL_MANAGER oglContext], NULL, &videoTextureCache);
+    CVReturn errCache = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault, NULL, [[RCOpenGLManagerFactory getInstance] oglContext], NULL, &videoTextureCache);
     if (errCache) {
         DLog(@"Error at CVOpenGLESTextureCacheCreate %d", errCache);
     }
@@ -165,7 +166,7 @@ gl_FragColor = vec4(rgb, 1);\n\
                         float perspective[16];
                         float camera_screen[16];
                         [weakSelf getPerspectiveMatrix:perspective withCameraParameters:localData.cameraParameters withNear:.01 withFar:100.];
-                        [weakSelf getCameraScreenTransform:camera_screen forOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+                        [weakSelf getScreenRotation:camera_screen forOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
                         if([weakSelf.delegate respondsToSelector:@selector(renderWithSensorFusionData:withPerspectiveMatrix:withCameraScreenMatrix:)])
                             [weakSelf.delegate renderWithSensorFusionData:localData withPerspectiveMatrix:perspective withCameraScreenMatrix:camera_screen];
                         [weakSelf endFrame];
@@ -236,7 +237,7 @@ gl_FragColor = vec4(rgb, 1);\n\
     glGenRenderbuffers(1, &colorBufferHandle);
     glBindRenderbuffer(GL_RENDERBUFFER, colorBufferHandle);
     
-    [[OPENGL_MANAGER oglContext] renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer *)self.layer];
+    [[[RCOpenGLManagerFactory getInstance] oglContext] renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer *)self.layer];
     
 	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &renderBufferWidth);
     glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &renderBufferHeight);
@@ -308,7 +309,7 @@ gl_FragColor = vec4(rgb, 1);\n\
     // Don't make OpenGLES calls while in the background.
 	if ( [UIApplication sharedApplication].applicationState == UIApplicationStateBackground ) return false;
     
-    [EAGLContext setCurrentContext:[OPENGL_MANAGER oglContext]];
+    [EAGLContext setCurrentContext:[[RCOpenGLManagerFactory getInstance] oglContext]];
 	if (frameBufferHandle == 0) {
 		BOOL success = [self createBuffers];
 		if ( !success ) {
@@ -345,7 +346,7 @@ gl_FragColor = vec4(rgb, 1);\n\
     // Present
     glBindRenderbuffer(GL_RENDERBUFFER, colorBufferHandle);
     
-    EAGLContext *context = [OPENGL_MANAGER oglContext];
+    EAGLContext *context = [[RCOpenGLManagerFactory getInstance] oglContext];
     //context may be nil if gl manager goes away before we do
     if(context) [context presentRenderbuffer:GL_RENDERBUFFER];
     [self checkGLError];
@@ -424,9 +425,9 @@ gl_FragColor = vec4(rgb, 1);\n\
 
     float camera_screen[16];
     UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
-    [self getCameraScreenTransform:camera_screen forOrientation:orientation];
+    [self getScreenRotation:camera_screen forOrientation:orientation];
     
-    glUniformMatrix4fv(glGetUniformLocation(yuvTextureProgram, "camera_screen_transform"), 1, false, camera_screen);
+    glUniformMatrix4fv(glGetUniformLocation(yuvTextureProgram, "camera_screen_rotation"), 1, false, camera_screen);
     
     GLfloat squareVertices[] = {
         -xScale, -yScale,
@@ -464,7 +465,7 @@ gl_FragColor = vec4(rgb, 1);\n\
     }
     else
     {
-        //We can fit more vertically than horizontally so crop width
+        //We can fit more horizontally than vertically so crop height
         renderBufferScale = scaleWidth;
         textureCoordHeight = scaleHeight / renderBufferScale;
     }
@@ -503,7 +504,7 @@ gl_FragColor = vec4(rgb, 1);\n\
 
 }
 
-- (void) getCameraScreenTransform:(GLfloat[16])mout forOrientation:(UIInterfaceOrientation)orientation
+- (void) getScreenRotation:(GLfloat[16])mout forOrientation:(UIInterfaceOrientation)orientation
 {
     memset(mout, 0, sizeof(GLfloat) * 16);
     mout[10] = 1.;
@@ -575,7 +576,7 @@ gl_FragColor = vec4(rgb, 1);\n\
         videoTextureCache = 0;
     }
     
-    [OPENGL_MANAGER deleteProgram:yuvTextureProgram];
+    [[RCOpenGLManagerFactory getInstance] deleteProgram:yuvTextureProgram];
     
     //[super dealloc]; - not needed with ARC
 }

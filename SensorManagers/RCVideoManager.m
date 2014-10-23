@@ -7,6 +7,7 @@
 
 #import "RCVideoManager.h"
 #import "RCDebugLog.h"
+#import "RCSensorFusion.h"
 
 @implementation RCVideoManager
 {

@@ -6,6 +6,8 @@
 //
 
 #import "RCVideoFrameProvider.h"
+#import <CoreLocation/CoreLocation.h>
+#import <AVFoundation/AVFoundation.h>
 
 /** Provides a generic sensor interface.
  

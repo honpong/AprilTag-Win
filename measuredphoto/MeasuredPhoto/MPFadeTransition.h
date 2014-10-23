@@ -11,5 +11,7 @@
 @interface MPFadeTransition : NSObject <UIViewControllerAnimatedTransitioning>
 
 @property (nonatomic) BOOL reverse;
+@property (nonatomic) BOOL shouldFadeIn;
+@property (nonatomic) BOOL shouldFadeOut;
 
 @end

@@ -10,4 +10,7 @@
 
 @interface MPFadeTransitionDelegate : NSObject <UIViewControllerTransitioningDelegate>
 
+@property (nonatomic) BOOL shouldFadeIn;
+@property (nonatomic) BOOL shouldFadeOut;
+
 @end

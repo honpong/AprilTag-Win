@@ -125,7 +125,7 @@
                                 </cells>
                             </collectionView>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstItem="fwg-NB-lhW" firstAttribute="leading" secondItem="2da-YG-2KE" secondAttribute="leading" id="2ji-Cd-SlE"/>
                             <constraint firstItem="Ouk-lT-odt" firstAttribute="top" secondItem="2da-YG-2KE" secondAttribute="top" id="KWJ-6P-0XH"/>

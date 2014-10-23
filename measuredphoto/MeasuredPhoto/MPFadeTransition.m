@@ -12,31 +12,103 @@
 
 static NSTimeInterval const MPAnimatedTransitionDuration = .3f;
 
+- (instancetype)init
+{
+    if (self = [super init])
+    {
+        _shouldFadeIn = YES;
+        _shouldFadeOut = YES;
+    }
+    return self;
+}
+
 - (void)animateTransition:(id<UIViewControllerContextTransitioning>)transitionContext
 {
-    UIViewController*fromViewController = [transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
-    UIViewController *toViewController = [transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
+    if (self.reverse)
+    {
+        [self animateDismissal:transitionContext];
+    }
+    else
+    {
+        [self animatePresentation:transitionContext];
+    }
+}
+
+- (void) animatePresentation:(id<UIViewControllerContextTransitioning>)transitionContext
+{
+    UIView* toView;
+    
+    if ([transitionContext respondsToSelector:@selector(viewForKey:)]) // iOS 8
+    {
+        toView = [transitionContext viewForKey:UITransitionContextToViewKey];
+    }
+    else
+    {
+        UIViewController *toViewController = [transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
+        toView = toViewController.view;
+    }
+    
+    toView.alpha = 0;
+    
     UIView *container = [transitionContext containerView];
+    [container addSubview:toView];
+    [toView addMatchSuperviewConstraints];
     
-    if (self.reverse) {
-        fromViewController.view.alpha = 1.;
-        [container insertSubview:toViewController.view belowSubview:fromViewController.view];
+    if (self.shouldFadeIn)
+    {
+        [UIView animateKeyframesWithDuration:MPAnimatedTransitionDuration delay:0 options:0 animations:^{
+            toView.alpha = 1.;
+        } completion:^(BOOL finished) {
+            [transitionContext completeTransition:finished];
+        }];
     }
-    else {
-        toViewController.view.alpha = 0;
-        [container addSubview:toViewController.view];
+    else
+    {
+        toView.alpha = 1.;
+        [transitionContext completeTransition:YES];
+    }
+}
+
+- (void) animateDismissal:(id<UIViewControllerContextTransitioning>)transitionContext
+{
+    UIView* fromView;
+    UIViewController*fromViewController = [transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
+    if ([transitionContext respondsToSelector:@selector(viewForKey:)]) // iOS 8
+    {
+        fromView = [transitionContext viewForKey:UITransitionContextFromViewKey];
+    }
+    else
+    {
+        fromView = fromViewController.view;
     }
     
-    [UIView animateKeyframesWithDuration:MPAnimatedTransitionDuration delay:0 options:0 animations:^{
-        if (self.reverse) {
-            fromViewController.view.alpha = 0;
-        }
-        else {
-            toViewController.view.alpha = 1.;
-        }
-    } completion:^(BOOL finished) {
-        [transitionContext completeTransition:finished];
-    }];
+    UIView* toView;
+    UIViewController *toViewController = [transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
+    if ([transitionContext respondsToSelector:@selector(viewForKey:)]) // iOS 8
+    {
+        toView = [transitionContext viewForKey:UITransitionContextToViewKey];
+    }
+    else
+    {
+        toView = toViewController.view;
+    }
+    
+    toView.frame = [transitionContext finalFrameForViewController:toViewController];
+    
+    if (self.shouldFadeOut)
+    {
+        fromView.alpha = 1.;
+        [UIView animateKeyframesWithDuration:MPAnimatedTransitionDuration delay:0 options:0 animations:^{
+            fromView.alpha = 0;
+        } completion:^(BOOL finished) {
+            [transitionContext completeTransition:finished];
+        }];
+    }
+    else
+    {
+        fromView.alpha = 0;
+        [transitionContext completeTransition:YES];
+    }
 }
 
 - (NSTimeInterval)transitionDuration:(id<UIViewControllerContextTransitioning>)transitionContext

@@ -60,6 +60,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
                                                object:nil];
     
     fadeTransitionDelegate = [MPFadeTransitionDelegate new];
+    fadeTransitionDelegate.shouldFadeOut = NO;
     _editPhotoController = [self.storyboard instantiateViewControllerWithIdentifier:@"EditPhoto"];
     [self.editPhotoController.view class]; // forces view to load, calling viewDidLoad:
     [self.editPhotoController setOrientation:[UIView deviceOrientationFromUIOrientation:self.interfaceOrientation] animated:NO];
@@ -136,6 +137,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     
     self.editPhotoController.measuredPhoto = measuredPhoto;
     self.editPhotoController.indexPath = indexPath; // must be set after .measuredPhoto
+//    self.editPhotoController.modalPresentationStyle = UIModalPresentationCustom;
     self.editPhotoController.transitioningDelegate = fadeTransitionDelegate;
     
     shrinkToView = cell;
@@ -251,36 +253,52 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 - (void) zoomThumbnailIn:(UIImageView*)photo
 {
     CGFloat width, height;
-    CGPoint center;
+    
+    BOOL isPhotoPortrait = photo.image.size.width < photo.image.size.height;
     
     if (UIInterfaceOrientationIsPortrait(self.interfaceOrientation))
     {
-        width = self.collectionView.bounds.size.width;
-        height = (1.33333333) * width;
-        center = self.view.center;
+        if (isPhotoPortrait)
+        {
+            height = self.view.bounds.size.height - 88;
+            width = height * (1.33333333);
+        }
+        else
+        {
+            width = self.collectionView.bounds.size.width;
+            height = (1.33333333) * width;
+        }
     }
-    else
+    else // landscape
     {
-        height = self.view.bounds.size.height;
-        width = height * (1.33333333);
-        center = CGPointMake(self.view.center.y, self.view.center.x); // not sure why x and y need to be swapped here. self.view isn't rotated?
+        if (isPhotoPortrait)
+        {
+            height = self.view.bounds.size.height;
+            width = height * (1.33333333);
+        }
+        else
+        {
+            width = self.collectionView.bounds.size.width - 88;
+            height = (1.33333333) * width;
+        }
     }
     
     [UIView animateWithDuration: zoomAnimationDuration
                           delay: 0
                         options: UIViewAnimationOptionCurveEaseIn
                      animations:^{
-                         self.transitionFromView.bounds = CGRectMake(0, 0, width, height);
-                         self.transitionFromView.center = center;
+                         [photo addCenterInSuperviewConstraints];
+                         [photo addWidthConstraint:width andHeightConstraint:height];
+                         [photo.superview setNeedsUpdateConstraints];
+                         [photo.superview layoutIfNeeded];
                          self.collectionView.alpha = 0;
                          if (UIInterfaceOrientationIsLandscape(self.interfaceOrientation)) self.navBar.alpha = 0;
                      }
                      completion:^(BOOL finished){
-                         [photo addMatchSuperviewConstraints];
-                         [photo.superview setNeedsUpdateConstraints];
-                         [photo.superview layoutIfNeeded];
-                         
-                         [self presentViewController:self.editPhotoController animated:YES completion:nil];
+                         self.collectionView.hidden = YES;
+                         [self presentViewController:self.editPhotoController animated:YES completion:^{
+                             self.collectionView.hidden = NO;
+                         }];
                      }];
 }
 
@@ -293,9 +311,16 @@ static const NSTimeInterval zoomAnimationDuration = .1;
         
         [UIView animateWithDuration: zoomAnimationDuration
                               delay: 0
-                            options: UIViewAnimationOptionCurveEaseIn
+                            options: UIViewAnimationOptionCurveEaseOut
                          animations:^{
-                             self.transitionFromView.frame = [self.view convertRect:shrinkToView.frame fromView:self.collectionView];
+                             CGRect frame = [self.view convertRect:shrinkToView.frame fromView:self.collectionView];
+                             [self.transitionFromView addLeftSpaceToSuperviewConstraint:frame.origin.x];
+                             [self.transitionFromView addTopSpaceToSuperviewConstraint:frame.origin.y];
+                             [self.transitionFromView addWidthConstraint:frame.size.width andHeightConstraint:frame.size.height];
+                             [self.transitionFromView.superview setNeedsUpdateConstraints];
+                             [self.transitionFromView setNeedsUpdateConstraints];
+                             [self.transitionFromView layoutIfNeeded];
+                             [self.transitionFromView.superview layoutIfNeeded];
                          }
                          completion:^(BOOL finished){
                              [self hideZoomedThumbnail];

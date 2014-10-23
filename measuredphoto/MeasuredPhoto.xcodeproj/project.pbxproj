@@ -17,7 +17,6 @@
 		3201E4DB198184F8008F61D5 /* MPZoomTransitionDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3201E4DA198184F8008F61D5 /* MPZoomTransitionDelegate.m */; };
 		3201E4DE19818596008F61D5 /* MPZoomTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = 3201E4DD19818596008F61D5 /* MPZoomTransition.m */; };
 		3201E4E11982D18C008F61D5 /* MPFadeTransitionDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3201E4E01982D18C008F61D5 /* MPFadeTransitionDelegate.m */; };
-		3201E4E41982D212008F61D5 /* MPFadeTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = 3201E4E31982D212008F61D5 /* MPFadeTransition.m */; };
 		3201E512198AE939008F61D5 /* MPTintTouchButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 3201E511198AE939008F61D5 /* MPTintTouchButton.m */; };
 		3201E523198C0FE2008F61D5 /* MPOrientationChangeData.m in Sources */ = {isa = PBXBuildFile; fileRef = 3201E522198C0FE2008F61D5 /* MPOrientationChangeData.m */; };
 		32038C1A188DBEAE00E4F549 /* MPMagView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32038C19188DBEAE00E4F549 /* MPMagView.m */; };
@@ -527,8 +526,6 @@
 		3201E4DD19818596008F61D5 /* MPZoomTransition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPZoomTransition.m; sourceTree = "<group>"; };
 		3201E4DF1982D18C008F61D5 /* MPFadeTransitionDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPFadeTransitionDelegate.h; sourceTree = "<group>"; };
 		3201E4E01982D18C008F61D5 /* MPFadeTransitionDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPFadeTransitionDelegate.m; sourceTree = "<group>"; };
-		3201E4E21982D212008F61D5 /* MPFadeTransition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPFadeTransition.h; sourceTree = "<group>"; };
-		3201E4E31982D212008F61D5 /* MPFadeTransition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPFadeTransition.m; sourceTree = "<group>"; };
 		3201E510198AE939008F61D5 /* MPTintTouchButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPTintTouchButton.h; sourceTree = "<group>"; };
 		3201E511198AE939008F61D5 /* MPTintTouchButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPTintTouchButton.m; sourceTree = "<group>"; };
 		3201E521198C0FE2008F61D5 /* MPOrientationChangeData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPOrientationChangeData.h; sourceTree = "<group>"; };
@@ -1847,8 +1844,6 @@
 				32EFEDCA1977450500FDC89F /* MPGalleryController.m */,
 				3201E4DF1982D18C008F61D5 /* MPFadeTransitionDelegate.h */,
 				3201E4E01982D18C008F61D5 /* MPFadeTransitionDelegate.m */,
-				3201E4E21982D212008F61D5 /* MPFadeTransition.h */,
-				3201E4E31982D212008F61D5 /* MPFadeTransition.m */,
 				328C7DD519D1EA420079BA40 /* MPIntroScreen.h */,
 				328C7DD619D1EA420079BA40 /* MPIntroScreen.m */,
 				328C7DD819D1EC0D0079BA40 /* MPLocationIntro.h */,
@@ -2770,7 +2765,6 @@
 				32EFED29196C91CE00FDC89F /* NSString+MagicalDataImport.m in Sources */,
 				326ACFCD19D2221B00B36965 /* UIImage+OSKUtilities.m in Sources */,
 				3248C7DB18A44AE400061D4A /* MPToolbarView.m in Sources */,
-				3201E4E41982D212008F61D5 /* MPFadeTransition.m in Sources */,
 				326ACF9419D2221B00B36965 /* OSKFileManager.m in Sources */,
 				32EFED3B196C91CE00FDC89F /* MagicalRecord+ShorthandSupport.m in Sources */,
 				32EFED26196C91CE00FDC89F /* NSNumber+MagicalDataImport.m in Sources */,

@@ -37,28 +37,28 @@ static NSTimeInterval const MPAnimatedTransitionDuration = .3f;
 - (void) animatePresentation:(id<UIViewControllerContextTransitioning>)transitionContext
 {
     UIView* toView;
-    
+    UIViewController *toViewController = [transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
     if ([transitionContext respondsToSelector:@selector(viewForKey:)]) // iOS 8
     {
         toView = [transitionContext viewForKey:UITransitionContextToViewKey];
     }
     else
     {
-        UIViewController *toViewController = [transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
         toView = toViewController.view;
     }
     
-    toView.alpha = 0;
-    
     UIView *container = [transitionContext containerView];
     [container addSubview:toView];
-    [toView addMatchSuperviewConstraints];
+    
+    toView.alpha = 0;
+    toView.frame = [transitionContext finalFrameForViewController:toViewController];
     
     if (self.shouldFadeIn)
     {
         [UIView animateKeyframesWithDuration:MPAnimatedTransitionDuration delay:0 options:0 animations:^{
             toView.alpha = 1.;
         } completion:^(BOOL finished) {
+            
             [transitionContext completeTransition:finished];
         }];
     }
@@ -72,13 +72,13 @@ static NSTimeInterval const MPAnimatedTransitionDuration = .3f;
 - (void) animateDismissal:(id<UIViewControllerContextTransitioning>)transitionContext
 {
     UIView* fromView;
-    UIViewController*fromViewController = [transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
     if ([transitionContext respondsToSelector:@selector(viewForKey:)]) // iOS 8
     {
         fromView = [transitionContext viewForKey:UITransitionContextFromViewKey];
     }
     else
     {
+        UIViewController*fromViewController = [transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
         fromView = fromViewController.view;
     }
     
@@ -101,12 +101,12 @@ static NSTimeInterval const MPAnimatedTransitionDuration = .3f;
         [UIView animateKeyframesWithDuration:MPAnimatedTransitionDuration delay:0 options:0 animations:^{
             fromView.alpha = 0;
         } completion:^(BOOL finished) {
+            [fromView removeFromSuperview];
             [transitionContext completeTransition:finished];
         }];
     }
     else
     {
-        fromView.alpha = 0;
         [transitionContext completeTransition:YES];
     }
 }

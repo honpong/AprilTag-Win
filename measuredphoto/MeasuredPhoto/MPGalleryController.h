@@ -16,7 +16,7 @@
 @property (weak, nonatomic) IBOutlet UIButton *cameraButton;
 @property (weak, nonatomic) IBOutlet UIButton *menuButton;
 @property (weak, nonatomic) IBOutlet UICollectionView *collectionView;
-@property (nonatomic, readonly) UIView* transitionFromView;
+@property (nonatomic, readonly) UIView* zoomSourceView;
 @property (weak, nonatomic) IBOutlet UIView *navBar;
 @property (nonatomic, readonly) MPEditPhoto* editPhotoController;
 

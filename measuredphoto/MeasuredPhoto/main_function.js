@@ -1,3 +1,5 @@
+//Copywrite (c) 2014 by RealityCap, Inc. Written by Jordan Miller for the exclusive use of RealityCap, Inc.
+
 doing_orientatino_change = false;
 function doOnOrientationChange()
 {
@@ -390,9 +392,11 @@ function setDefaultUnits(use_metric) {
     unit_default_set_by_app = true;
 }
 
+var rc_img_url_glbl;
 function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric){
     //console.log("startin loadMPhoto()");
     window.setTimeout( function () {
+        rc_img_url_glbl = rc_img_url;
         m_photo_guid = guid;
         if (typeof use_metric === "undefined" || use_metric === null) { default_units_metric = false; } //metric is our default if not set
                       else {default_units_metric = use_metric; unit_default_set_by_app = true; }//set default if provided.

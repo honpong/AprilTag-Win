@@ -1,3 +1,10 @@
+//Copywrite (c) 2014 by RealityCap, Inc. Written by Jordan Miller for the exclusive use of RealityCap, Inc.
+
+
+// This code, at its heart, calls the svg.js function 'rotate' on draw_g and the menu buttons.
+// The majority of the remaining code simply handles annimations of rotation, including determining which direction to perform the rotation in
+
+
 var center_x, center_y, x_off_c, y_off_c, cur_sin, cur_cos, rotation_start_img_center;
 
 var target_rotation = 0;
@@ -47,7 +54,8 @@ function forceOrientationChange(orientation) {
     }
     
     target_orientation = orientation;
-    start_orientation_change_rotation();
+    rotate_w_no_animation();
+    //start_orientation_change_rotation();
     
     last_orientation = orientation;
     
@@ -71,6 +79,15 @@ function start_orientation_change_rotation(){
     prep_inc_zoom_offset_stepping();
     roation_frame_start = new Date();
     rotation_animation_id = window.requestAnimationFrame(animate_screen_rotation);}
+
+function rotate_w_no_animation() {
+    draw_g.rotate(target_rotation, img_container.width()/2, img_container.height()/2);
+    rc_menu.button1.rotate(target_rotation, rc_menu.button1.x() + button_size/2, rc_menu.button1.y() + button_size/2);
+    rc_menu.button2.rotate(target_rotation, rc_menu.button2.x() + button_size/2, rc_menu.button2.y() + button_size/2);
+    rc_menu.button3.rotate(target_rotation, rc_menu.button3.x() + button_size/2, rc_menu.button3.y() + button_size/2);
+    rc_menu.button4.rotate(target_rotation, rc_menu.button4.x() + button_size/2, rc_menu.button4.y() + button_size/2);
+    rc_menu.button5.rotate(target_rotation, rc_menu.button5.x() + button_size/2, rc_menu.button5.y() + button_size/2);
+}
 
 
 var rotation_delta, rotation_number_of_frames;

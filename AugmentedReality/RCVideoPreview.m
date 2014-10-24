@@ -55,9 +55,8 @@ gl_FragColor = vec4(rgb, 1);\n\
 {
     int renderBufferWidth;
 	int renderBufferHeight;
-    int rotatedBufferWidth;
-    int rotatedBufferHeight;
-    float renderBufferScale;
+    float textureCropScaleX;
+    float textureCropScaleY;
 
 	CVOpenGLESTextureCacheRef videoTextureCache;
     
@@ -436,6 +435,10 @@ gl_FragColor = vec4(rgb, 1);\n\
         xScale,  yScale,
     };
     
+    int rotatedBufferWidth;
+    int rotatedBufferHeight;
+    float renderBufferScale;
+
     // Preserve aspect ratio; fill layer bounds
     switch(orientation)
     {
@@ -455,28 +458,28 @@ gl_FragColor = vec4(rgb, 1);\n\
     
     float scaleWidth = rotatedBufferWidth / (float) textureWidth;
     float scaleHeight = rotatedBufferHeight / (float) textureHeight;
-    GLfloat textureCoordWidth = 1.;
-    GLfloat textureCoordHeight = 1.;
+    textureCropScaleX = 1.;
+    textureCropScaleY = 1.;
     if(scaleHeight > scaleWidth)
     {
         //We can fit more vertically than horizontally so crop width
         renderBufferScale = scaleHeight;
-        textureCoordWidth = scaleWidth / renderBufferScale;
+        textureCropScaleX = scaleWidth / renderBufferScale;
     }
     else
     {
         //We can fit more horizontally than vertically so crop height
         renderBufferScale = scaleWidth;
-        textureCoordHeight = scaleHeight / renderBufferScale;
+        textureCropScaleY = scaleHeight / renderBufferScale;
     }
     
     // The texture vertices are set up such that we flip the texture vertically.
     // This is so that our top left origin buffers match OpenGL's bottom left texture coordinate system.
     GLfloat passThroughTextureVertices[] = {
-        (1.0 - textureCoordWidth)/2.0, (1.0 + textureCoordHeight)/2.0, // top left
-        (1.0 + textureCoordWidth)/2.0, (1.0 + textureCoordHeight)/2.0, // top right
-        (1.0 - textureCoordWidth)/2.0, (1.0 - textureCoordHeight)/2.0, // bottom left
-        (1.0 + textureCoordWidth)/2.0, (1.0 - textureCoordHeight)/2.0, // bottom right
+        (1.0 - textureCropScaleX)/2.0, (1.0 + textureCropScaleY)/2.0, // top left
+        (1.0 + textureCropScaleX)/2.0, (1.0 + textureCropScaleY)/2.0, // top right
+        (1.0 - textureCropScaleX)/2.0, (1.0 - textureCropScaleY)/2.0, // bottom left
+        (1.0 + textureCropScaleX)/2.0, (1.0 - textureCropScaleY)/2.0, // bottom right
     };
     
     // Draw the texture on the screen with OpenGL ES 2
@@ -540,15 +543,23 @@ gl_FragColor = vec4(rgb, 1);\n\
  GL normalized device coordinates are left handed, with positive x to the right, positive y up, and positive z forward
  GL typically moves from right-handed camera to left-handed NDC by negating the z axis in the perspective matrix. Instead, we have to negate the y value.
  
- Our projection model: x_pixel_rc = focal_length * kr * (x / z) + center_x
- OpenGL ndc to screen model ( https://www.khronos.org/opengles/sdk/docs/man/xhtml/glViewport.xml ): x_pixel_gl = (1 + x_ndc) * (width_vp / 2)
-
- We follow the OpenCV convention where a pixel's center is at the pixel coordinate, so our viewport (for 640x480) is [-.5, 639.5], [-.5, 479.5], where OpenGL defines the viewport as [0, 640], [0, 480]
- So x_pixel_gl = (x_pixel_rc + .5) * scale
+ To derive the perspective matrix, we start with the following three known equations:
  
- Solve for x_ndc given (1 + x_ndc) * (width_vp / 2) = (focal_length * kr * (x / z) + center_x + .5) * scale
- x_ndc = focal_length * kr / (width_vp / 2) * scale * (x / z) + (center_x + .5) / (width_vp / 2) * scale - 1
- y_ndc = - (focal_length * kr / (height_vp / 2) * scale * (y / z) - (center_y + .5) / (height_vp / 2) * scale + 1
+ Our projection model: x_image = focal_length * kr * (x / z) + center_x
+
+ We follow the OpenCV convention where a pixel's center is at the pixel coordinate, so our image range (for 640x480) is [-.5, 639.5], [-.5, 479.5]. OpenGL texture coordinates range over [0,1]
+
+ So, x_texture = (x_image + .5) / textureWidth
+ 
+ We crop and scale the texture such that x_ndc = (x_texture - 1/2) * 2 / textureCropScaleX
+
+ Substituting gives us:
+ 
+ x_ndc = ((x_image + .5) / textureWidth - 1/2) * 2 / textureCropScaleX
+ 
+ x_ndc = (((focal_length * kr * x/z + center_x) + .5) / textureWidth - 1/2) * 2 / textureCropScaleX
+
+ x_ndc = focal_length * kr * 2 / textureWidth / textureCropScaleX * (x/z) + (center_x + .5  - textureWidth / 2) * 2 / textureWidth / textureCropScaleX
 
  We ignore radial distortion and drop the kr term here; better to undistort the image instead.
  */
@@ -556,10 +567,10 @@ gl_FragColor = vec4(rgb, 1);\n\
 - (void) getPerspectiveMatrix:(GLfloat[16])mout withCameraParameters:(RCCameraParameters *)cameraParameters withNear:(float)near withFar:(float)far
 {
     memset(mout, 0, sizeof(GLfloat) * 16);
-    mout[0] = cameraParameters.focalLength / (rotatedBufferWidth / 2.) * renderBufferScale;
-    mout[2] = (cameraParameters.opticalCenterX + .5) / (rotatedBufferWidth / 2.) * renderBufferScale - 1;
-    mout[5] = -cameraParameters.focalLength / (rotatedBufferHeight / 2.) * renderBufferScale;
-    mout[6] = -(cameraParameters.opticalCenterY + .5) / (rotatedBufferHeight / 2.) * renderBufferScale + 1;
+    mout[0] = cameraParameters.focalLength * 2. / textureWidth / textureCropScaleX;
+    mout[2] = (cameraParameters.opticalCenterX + .5 - textureWidth / 2.) * 2. / textureWidth / textureCropScaleX;
+    mout[5] = -cameraParameters.focalLength * 2. / textureHeight / textureCropScaleY;
+    mout[6] = -(cameraParameters.opticalCenterY + .5 - textureHeight / 2.) * 2. / textureHeight / textureCropScaleY;
     mout[10] = (far+near) / (far-near);
     mout[11] = 1.0f;
     mout[14] = -2 * far * near /  (far-near);

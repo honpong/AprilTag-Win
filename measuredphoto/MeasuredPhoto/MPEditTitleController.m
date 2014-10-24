@@ -18,6 +18,7 @@
 {
     BOOL isCanceled;
     MPFadeTransitionDelegate* transitionDelegate;
+    NSArray* constraintsTitleBoxFullWidth;
 }
 
 - (id) initWithCoder:(NSCoder *)aDecoder
@@ -36,6 +37,8 @@
     
     transitionDelegate = [MPFadeTransitionDelegate new];
     self.transitioningDelegate = transitionDelegate;
+    
+    constraintsTitleBoxFullWidth = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-[titleText]-80-|" options:0 metrics:nil views:@{ @"titleText": self.titleText }];
 }
 
 - (void) viewDidAppear:(BOOL)animated
@@ -44,11 +47,12 @@
     
     [self.titleText becomeFirstResponder];
     
-    UIImage* photo = [UIImage imageWithContentsOfFile:self.measuredPhoto.imageFileName];
-    [self.photoView setImage: photo];
-    self.titleText.text = self.measuredPhoto.name;
-    
     [self animateTitleTextBox];
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [self resetTitleBoxLayout];
 }
 
 - (NSUInteger) supportedInterfaceOrientations
@@ -58,8 +62,6 @@
 
 - (void) animateTitleTextBox
 {
-    NSArray* constraints = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-[titleText]-80-|" options:0 metrics:nil views:@{ @"titleText": self.titleText }];
-    
     if (UIInterfaceOrientationIsPortrait(self.interfaceOrientation))
     {
         NSString* placeholder = self.titleText.placeholder;
@@ -72,7 +74,7 @@
                          animations:^{
                              [self.titleText removeConstraint:self.titleTextWidth];
                              [self.navBar removeConstraint:self.titleTextCenterX];
-                             [self.navBar addConstraints:constraints];
+                             [self.navBar addConstraints:constraintsTitleBoxFullWidth];
                              
                              [self.titleText setNeedsUpdateConstraints];
                              [self.titleText layoutIfNeeded];
@@ -88,7 +90,7 @@
     {
         [self.titleText removeConstraint:self.titleTextWidth];
         [self.navBar removeConstraint:self.titleTextCenterX];
-        [self.navBar addConstraints:constraints];
+        [self.navBar addConstraints:constraintsTitleBoxFullWidth];
         
         self.navBarTopSpace.constant = -self.navBar.bounds.size.height;
         [self.view layoutIfNeeded];
@@ -108,6 +110,20 @@
     }
 }
 
+- (void) resetTitleBoxLayout
+{
+    [self.navBar removeConstraints:constraintsTitleBoxFullWidth];
+    [self.navBar addConstraint:self.titleTextCenterX];
+    [self.titleText addConstraint:self.titleTextWidth];
+    
+    [self.navBar setNeedsUpdateConstraints];
+    [self.navBar layoutIfNeeded];
+    [self.titleText setNeedsUpdateConstraints];
+    [self.titleText layoutIfNeeded];
+    [self.view setNeedsUpdateConstraints];
+    [self.view layoutIfNeeded];
+}
+
 - (IBAction)handleCancelButton:(id)sender
 {
     isCanceled = YES;
@@ -118,6 +134,10 @@
 - (void) setMeasuredPhoto:(MPDMeasuredPhoto *)measuredPhoto
 {
     _measuredPhoto = measuredPhoto;
+    
+    UIImage* photo = [UIImage imageWithContentsOfFile:self.measuredPhoto.imageFileName];
+    [self.photoView setImage: photo];
+    self.titleText.text = self.measuredPhoto.name;
 }
 
 #pragma mark - UITextFieldDelegate

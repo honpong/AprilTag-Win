@@ -151,10 +151,10 @@
             </objects>
             <point key="canvasLocation" x="-1859" y="-118"/>
         </scene>
-        <!--Edit Photo-->
+        <!--EditPhoto-->
         <scene sceneID="LHR-yV-36g">
             <objects>
-                <viewController storyboardIdentifier="EditPhoto" useStoryboardIdentifierAsRestorationIdentifier="YES" id="XqX-LL-Zdf" customClass="MPEditPhoto" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="EditPhoto" title="EditPhoto" useStoryboardIdentifierAsRestorationIdentifier="YES" id="XqX-LL-Zdf" customClass="MPEditPhoto" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="eWK-wc-Iwh"/>
                         <viewControllerLayoutGuide type="bottom" id="8oh-wt-yCk"/>
@@ -1015,6 +1015,84 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ADl-MA-cz4" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-1645" y="-759"/>
+        </scene>
+        <!--Edit Title Controller-->
+        <scene sceneID="P63-4a-WNd">
+            <objects>
+                <viewController storyboardIdentifier="EditTitle" useStoryboardIdentifierAsRestorationIdentifier="YES" id="TFI-2R-Azi" customClass="MPEditTitleController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="tuv-1F-Bxo"/>
+                        <viewControllerLayoutGuide type="bottom" id="nyJ-iJ-pWG"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="ZTF-1a-Rso">
+                        <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Sgw-hl-h1Q">
+                                <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                                <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                            </imageView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ioR-lC-nNt" userLabel="NavBar">
+                                <rect key="frame" x="0.0" y="0.0" width="768" height="44"/>
+                                <subviews>
+                                    <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Title" minimumFontSize="12" clearButtonMode="unlessEditing" translatesAutoresizingMaskIntoConstraints="NO" id="Mnh-v1-HiB" userLabel="TitleText">
+                                        <rect key="frame" x="234" y="7" width="300" height="30"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="300" id="AlK-0g-bwH"/>
+                                            <constraint firstAttribute="height" constant="30" id="g3W-Tl-Rpi"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                        <textInputTraits key="textInputTraits" autocapitalizationType="sentences" autocorrectionType="no" returnKeyType="done"/>
+                                    </textField>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hOO-Ln-EtG">
+                                        <rect key="frame" x="703" y="0.0" width="55" height="44"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="55" id="JOQ-Q8-qq8"/>
+                                            <constraint firstAttribute="height" constant="44" id="hdw-wk-vW2"/>
+                                        </constraints>
+                                        <state key="normal" title="Cancel">
+                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="handleCancelButton:" destination="TFI-2R-Azi" eventType="touchUpInside" id="l2Z-Rk-QJO"/>
+                                        </connections>
+                                    </button>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                                <constraints>
+                                    <constraint firstAttribute="centerY" secondItem="hOO-Ln-EtG" secondAttribute="centerY" id="1bB-bi-ohL"/>
+                                    <constraint firstAttribute="centerY" secondItem="Mnh-v1-HiB" secondAttribute="centerY" id="3Th-hw-UJ1"/>
+                                    <constraint firstAttribute="height" constant="44" id="F7m-3V-ZFK"/>
+                                    <constraint firstAttribute="centerX" secondItem="Mnh-v1-HiB" secondAttribute="centerX" id="VhI-Sq-jOP"/>
+                                    <constraint firstAttribute="trailing" secondItem="hOO-Ln-EtG" secondAttribute="trailing" constant="10" id="sRO-ix-uiv"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="Sgw-hl-h1Q" firstAttribute="leading" secondItem="ZTF-1a-Rso" secondAttribute="leading" id="Mrd-8z-yS2"/>
+                            <constraint firstAttribute="trailing" secondItem="Sgw-hl-h1Q" secondAttribute="trailing" id="Rzg-wf-DdU"/>
+                            <constraint firstAttribute="trailing" secondItem="ioR-lC-nNt" secondAttribute="trailing" id="Xd3-Lt-wuy"/>
+                            <constraint firstItem="Sgw-hl-h1Q" firstAttribute="top" secondItem="ZTF-1a-Rso" secondAttribute="top" id="Ypw-Oc-bXu"/>
+                            <constraint firstItem="ioR-lC-nNt" firstAttribute="leading" secondItem="ZTF-1a-Rso" secondAttribute="leading" id="jUX-ox-FYX"/>
+                            <constraint firstItem="ioR-lC-nNt" firstAttribute="top" secondItem="ZTF-1a-Rso" secondAttribute="top" id="qkn-jQ-jVF"/>
+                            <constraint firstItem="nyJ-iJ-pWG" firstAttribute="top" secondItem="Sgw-hl-h1Q" secondAttribute="bottom" id="xGD-Vs-Esu"/>
+                        </constraints>
+                    </view>
+                    <connections>
+                        <outlet property="cancelButton" destination="hOO-Ln-EtG" id="xIw-k4-JFx"/>
+                        <outlet property="cancelButtonTrailingSpace" destination="sRO-ix-uiv" id="MoJ-kZ-TR5"/>
+                        <outlet property="navBar" destination="ioR-lC-nNt" id="6oX-vf-Tdh"/>
+                        <outlet property="navBarTopSpace" destination="qkn-jQ-jVF" id="tFU-gz-RoS"/>
+                        <outlet property="photoView" destination="Sgw-hl-h1Q" id="P9W-DQ-eef"/>
+                        <outlet property="titleText" destination="Mnh-v1-HiB" id="VCb-d8-0KZ"/>
+                        <outlet property="titleTextCenterX" destination="VhI-Sq-jOP" id="RVQ-cW-4P7"/>
+                        <outlet property="titleTextWidth" destination="AlK-0g-bwH" id="tet-QA-3Xn"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="gWM-Q0-xLw" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="2469" y="-118"/>
         </scene>
     </scenes>
     <resources>

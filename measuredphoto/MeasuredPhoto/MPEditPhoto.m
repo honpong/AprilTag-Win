@@ -24,6 +24,7 @@
 @implementation MPEditPhoto
 {
     BOOL isWebViewLoaded;
+    MPEditTitleController* titleController;
 }
 
 - (void)viewDidLoad
@@ -49,6 +50,9 @@
     self.webView.scalesPageToFit = NO;
     self.webView.delegate = self;
     [self.webView loadRequest:[NSURLRequest requestWithURL:htmlUrl]];
+    
+    titleController = [self.storyboard instantiateViewControllerWithIdentifier:@"EditTitle"];
+    [titleController.view class]; //force view to load
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -203,7 +207,6 @@
 
 - (void) gotoEditTitle
 {
-    MPEditTitleController* titleController = [self.storyboard instantiateViewControllerWithIdentifier:@"EditTitle"];
     titleController.measuredPhoto = self.measuredPhoto;
     
     // force view controller to be in correct orientation when we present it

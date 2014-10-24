@@ -114,6 +114,8 @@ static NSTimeInterval const MPAnimatedTransitionDuration = .3f;
         [UIView animateKeyframesWithDuration:MPAnimatedTransitionDuration delay:0 options:0 animations:^{
             fromView.alpha = 0;
         } completion:^(BOOL finished) {
+            [fromView removeFromSuperview];
+            fromView.alpha = 1.;
             [transitionContext completeTransition:finished];
         }];
     }

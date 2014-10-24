@@ -24,7 +24,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 
 @interface MPGalleryController ()
 
-@property (nonatomic, readwrite) UIView* transitionFromView;
+@property (nonatomic, readwrite) UIView* zoomedThumbnail;
 @property (nonatomic, readwrite) MPEditPhoto* editPhotoController;
 
 @end
@@ -33,7 +33,6 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 {
     NSMutableArray* measuredPhotos;
     MPFadeTransitionDelegate* fadeTransitionDelegate;
-    UIView* shrinkToView;
     MPUndoOverlay* undoView;
     MPDMeasuredPhoto* photoToBeDeleted;
     MPShareSheet* shareSheet;
@@ -85,7 +84,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     }
     else
     {
-        if (self.transitionFromView.superview)
+        if (self.zoomedThumbnail.superview)
         {
             [self zoomThumbnailOut];
         }
@@ -140,8 +139,8 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 //    self.editPhotoController.modalPresentationStyle = UIModalPresentationCustom;
     self.editPhotoController.transitioningDelegate = fadeTransitionDelegate;
     
-    shrinkToView = cell;
-    CGRect shrinkToFrame = [self.view convertRect:shrinkToView.frame fromView:self.collectionView];
+    _zoomSourceView = cell;
+    CGRect shrinkToFrame = [self.view convertRect:self.zoomSourceView.frame fromView:self.collectionView];
     
     UIImageView* photo = [[UIImageView alloc] initWithFrame:shrinkToFrame];
     photo.center = cell.center;
@@ -151,7 +150,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     [self.view insertSubview:photo atIndex:self.view.subviews.count];
     photo.frame = shrinkToFrame;
     
-    self.transitionFromView = photo;
+    self.zoomedThumbnail = photo;
     
     [self zoomThumbnailIn:photo];
 }
@@ -160,7 +159,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 {
     if ([notification.name isEqual:MPCapturePhotoDidAppearNotification])
     {
-        [self.transitionFromView removeFromSuperview];
+        [self.zoomedThumbnail removeFromSuperview];
     }
 }
 
@@ -170,7 +169,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     photoToBeDeleted = self.editPhotoController.measuredPhoto;
     self.editPhotoController.measuredPhoto = nil;
     
-    [self.transitionFromView removeFromSuperview];    
+    [self.zoomedThumbnail removeFromSuperview];    
     
     if (indexPath) // if indexPath is nil, then the deleted photo was not opened from the gallery view
     {
@@ -261,12 +260,12 @@ static const NSTimeInterval zoomAnimationDuration = .1;
         if (isPhotoPortrait)
         {
             height = self.view.bounds.size.height - 88;
-            width = height * (1.33333333);
+            width = self.view.bounds.size.width;
         }
         else
         {
-            width = self.collectionView.bounds.size.width;
-            height = (1.33333333) * width;
+            width = self.view.bounds.size.width;
+            height = self.view.bounds.size.height;
         }
     }
     else // landscape
@@ -274,12 +273,12 @@ static const NSTimeInterval zoomAnimationDuration = .1;
         if (isPhotoPortrait)
         {
             height = self.view.bounds.size.height;
-            width = height * (1.33333333);
+            width = self.view.bounds.size.width;
         }
         else
         {
-            width = self.collectionView.bounds.size.width - 88;
-            height = (1.33333333) * width;
+            width = self.view.bounds.size.width - 88;
+            height = self.view.bounds.size.height;
         }
     }
     
@@ -304,23 +303,23 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 
 - (void) zoomThumbnailOut
 {
-    if (self.transitionFromView.superview)
+    if (self.zoomedThumbnail.superview)
     {
-        [self.transitionFromView removeConstraintsFromSuperview];
-        [self.transitionFromView removeConstraints:self.transitionFromView.constraints];
+        [self.zoomedThumbnail removeConstraintsFromSuperview];
+        [self.zoomedThumbnail removeConstraints:self.zoomedThumbnail.constraints];
         
         [UIView animateWithDuration: zoomAnimationDuration
                               delay: 0
                             options: UIViewAnimationOptionCurveEaseOut
                          animations:^{
-                             CGRect frame = [self.view convertRect:shrinkToView.frame fromView:self.collectionView];
-                             [self.transitionFromView addLeftSpaceToSuperviewConstraint:frame.origin.x];
-                             [self.transitionFromView addTopSpaceToSuperviewConstraint:frame.origin.y];
-                             [self.transitionFromView addWidthConstraint:frame.size.width andHeightConstraint:frame.size.height];
-                             [self.transitionFromView.superview setNeedsUpdateConstraints];
-                             [self.transitionFromView setNeedsUpdateConstraints];
-                             [self.transitionFromView layoutIfNeeded];
-                             [self.transitionFromView.superview layoutIfNeeded];
+                             CGRect frame = [self.view convertRect:self.zoomSourceView.frame fromView:self.collectionView];
+                             [self.zoomedThumbnail addLeftSpaceToSuperviewConstraint:frame.origin.x];
+                             [self.zoomedThumbnail addTopSpaceToSuperviewConstraint:frame.origin.y];
+                             [self.zoomedThumbnail addWidthConstraint:frame.size.width andHeightConstraint:frame.size.height];
+                             [self.zoomedThumbnail.superview setNeedsUpdateConstraints];
+                             [self.zoomedThumbnail setNeedsUpdateConstraints];
+                             [self.zoomedThumbnail layoutIfNeeded];
+                             [self.zoomedThumbnail.superview layoutIfNeeded];
                          }
                          completion:^(BOOL finished){
                              [self hideZoomedThumbnail];
@@ -330,9 +329,9 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 
 - (void) hideZoomedThumbnail
 {
-    if (self.transitionFromView.superview)
+    if (self.zoomedThumbnail.superview)
     {
-        [self.transitionFromView removeFromSuperview];
+        [self.zoomedThumbnail removeFromSuperview];
     }
 }
 

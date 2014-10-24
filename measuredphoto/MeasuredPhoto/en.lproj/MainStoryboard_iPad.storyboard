@@ -1045,7 +1045,7 @@
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Sgw-hl-h1Q">
-                                <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
+                                <rect key="frame" x="0.0" y="33" width="768" height="958"/>
                                 <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                             </imageView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ioR-lC-nNt" userLabel="NavBar">
@@ -1089,15 +1089,19 @@
                             <constraint firstItem="Sgw-hl-h1Q" firstAttribute="leading" secondItem="ZTF-1a-Rso" secondAttribute="leading" id="Mrd-8z-yS2"/>
                             <constraint firstAttribute="trailing" secondItem="Sgw-hl-h1Q" secondAttribute="trailing" id="Rzg-wf-DdU"/>
                             <constraint firstAttribute="trailing" secondItem="ioR-lC-nNt" secondAttribute="trailing" id="Xd3-Lt-wuy"/>
-                            <constraint firstItem="Sgw-hl-h1Q" firstAttribute="top" secondItem="ZTF-1a-Rso" secondAttribute="top" id="Ypw-Oc-bXu"/>
+                            <constraint firstItem="Sgw-hl-h1Q" firstAttribute="top" secondItem="ZTF-1a-Rso" secondAttribute="top" constant="33" id="Ypw-Oc-bXu"/>
                             <constraint firstItem="ioR-lC-nNt" firstAttribute="leading" secondItem="ZTF-1a-Rso" secondAttribute="leading" id="jUX-ox-FYX"/>
                             <constraint firstItem="ioR-lC-nNt" firstAttribute="top" secondItem="ZTF-1a-Rso" secondAttribute="top" id="qkn-jQ-jVF"/>
-                            <constraint firstItem="nyJ-iJ-pWG" firstAttribute="top" secondItem="Sgw-hl-h1Q" secondAttribute="bottom" id="xGD-Vs-Esu"/>
+                            <constraint firstItem="nyJ-iJ-pWG" firstAttribute="top" secondItem="Sgw-hl-h1Q" secondAttribute="bottom" constant="33" id="xGD-Vs-Esu"/>
                         </constraints>
                     </view>
                     <connections>
                         <outlet property="cancelButton" destination="hOO-Ln-EtG" id="xIw-k4-JFx"/>
                         <outlet property="cancelButtonTrailingSpace" destination="sRO-ix-uiv" id="MoJ-kZ-TR5"/>
+                        <outlet property="imageViewBottomSpace" destination="xGD-Vs-Esu" id="WmT-BB-LeS"/>
+                        <outlet property="imageViewLeftSpace" destination="Mrd-8z-yS2" id="SWN-i3-2KU"/>
+                        <outlet property="imageViewRightSpace" destination="Rzg-wf-DdU" id="qap-vH-9iY"/>
+                        <outlet property="imageViewTopSpace" destination="Ypw-Oc-bXu" id="bBo-nz-hF9"/>
                         <outlet property="navBar" destination="ioR-lC-nNt" id="6oX-vf-Tdh"/>
                         <outlet property="navBarTopSpace" destination="qkn-jQ-jVF" id="tFU-gz-RoS"/>
                         <outlet property="photoView" destination="Sgw-hl-h1Q" id="P9W-DQ-eef"/>

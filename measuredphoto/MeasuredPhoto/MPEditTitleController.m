@@ -41,16 +41,30 @@
     constraintsTitleBoxFullWidth = [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-[titleText]-80-|" options:0 metrics:nil views:@{ @"titleText": self.titleText }];
 }
 
+- (void)viewWillAppear:(BOOL)animated
+{
+    if (UIInterfaceOrientationIsPortrait(self.interfaceOrientation))
+    {
+        self.navBarTopSpace.constant = 0;
+    }
+    else
+    {
+        self.navBarTopSpace.constant = -self.navBar.bounds.size.height;
+    }
+    [self.navBar.superview setNeedsUpdateConstraints];
+    [self.navBar.superview layoutIfNeeded];
+    
+    [self setupPhotoConstraints];
+}
+
 - (void) viewDidAppear:(BOOL)animated
 {
     isCanceled = NO;
-    
     [self.titleText becomeFirstResponder];
-    
     [self animateTitleTextBox];
 }
 
-- (void)viewWillDisappear:(BOOL)animated
+- (void)viewDidDisappear:(BOOL)animated
 {
     [self resetTitleBoxLayout];
 }
@@ -58,6 +72,43 @@
 - (NSUInteger) supportedInterfaceOrientations
 {
     return self.supportedUIOrientations;
+}
+
+- (void) willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    [self setupPhotoConstraints];
+}
+
+- (void) setupPhotoConstraints
+{
+    BOOL isPhotoLandscape = self.photoView.image.size.width > self.photoView.image.size.height;
+    
+    if (isPhotoLandscape)
+        [self padPhotoTopBottom];
+    else
+        [self padPhotoLeftRight];
+}
+
+- (void) padPhotoTopBottom
+{
+    self.imageViewTopSpace.constant = 33;
+    self.imageViewBottomSpace.constant = 33;
+    self.imageViewLeftSpace.constant = 0;
+    self.imageViewRightSpace.constant = 0;
+    
+    [self.photoView.superview setNeedsUpdateConstraints];
+    [self.photoView.superview layoutIfNeeded];
+}
+
+- (void) padPhotoLeftRight
+{
+    self.imageViewTopSpace.constant = 0;
+    self.imageViewBottomSpace.constant = 0;
+    self.imageViewLeftSpace.constant = 33;
+    self.imageViewRightSpace.constant = 33;
+    
+    [self.photoView.superview setNeedsUpdateConstraints];
+    [self.photoView.superview layoutIfNeeded];
 }
 
 - (void) animateTitleTextBox

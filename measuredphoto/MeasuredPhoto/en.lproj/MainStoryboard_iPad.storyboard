@@ -166,7 +166,7 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="weX-qG-kff" userLabel="NavBar">
                                 <rect key="frame" x="0.0" y="0.0" width="768" height="44"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Y6S-wZ-0vK" customClass="MPRotatingButton">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Y6S-wZ-0vK" userLabel="GalleryButton" customClass="MPRotatingButton">
                                         <rect key="frame" x="75" y="0.0" width="50" height="44"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="50" id="O8J-dM-4Ta"/>
@@ -179,7 +179,7 @@
                                             <action selector="handlePhotosButton:" destination="XqX-LL-Zdf" eventType="touchUpInside" id="Dll-Wl-JHc"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="221-D7-kZ0" customClass="MPRotatingButton">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="221-D7-kZ0" userLabel="DeleteButton" customClass="MPRotatingButton">
                                         <rect key="frame" x="713" y="0.0" width="50" height="44"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="44" id="T9X-vk-uU7"/>
@@ -190,7 +190,7 @@
                                             <action selector="handleDelete:" destination="XqX-LL-Zdf" eventType="touchUpInside" id="5Y4-Pj-Vif"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zQZ-aQ-o1G" customClass="MPRotatingButton">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zQZ-aQ-o1G" userLabel="ShareButton" customClass="MPRotatingButton">
                                         <rect key="frame" x="643" y="0.0" width="50" height="44"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="44" id="33g-IM-z2C"/>
@@ -203,7 +203,7 @@
                                             <action selector="handleShareButton:" destination="XqX-LL-Zdf" eventType="touchUpInside" id="6aO-NS-0c1"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DLg-t1-Ry1" customClass="MPRotatingButton">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DLg-t1-Ry1" userLabel="CameraButton" customClass="MPRotatingButton">
                                         <rect key="frame" x="5" y="0.0" width="50" height="44"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="44" id="IIW-yO-RWa"/>
@@ -225,18 +225,32 @@
                                         <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences" autocorrectionType="no" returnKeyType="done"/>
                                     </textField>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vEB-XJ-kur" customClass="MPRotatingButton">
+                                        <rect key="frame" x="224" y="0.0" width="320" height="44"/>
+                                        <state key="normal">
+                                            <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="handleTitleButton:" destination="XqX-LL-Zdf" eventType="touchUpInside" id="cDU-4Q-c2x"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                                 <constraints>
                                     <constraint firstAttribute="centerY" secondItem="zQZ-aQ-o1G" secondAttribute="centerY" id="5xg-sJ-xus"/>
                                     <constraint firstAttribute="centerY" secondItem="Y6S-wZ-0vK" secondAttribute="centerY" id="87s-dZ-9F8"/>
                                     <constraint firstItem="221-D7-kZ0" firstAttribute="leading" secondItem="zQZ-aQ-o1G" secondAttribute="trailing" constant="20" id="QUF-lQ-irs"/>
+                                    <constraint firstAttribute="bottom" secondItem="vEB-XJ-kur" secondAttribute="bottom" id="dRV-Wg-Tik"/>
+                                    <constraint firstItem="vEB-XJ-kur" firstAttribute="trailing" secondItem="bYG-hX-3Hb" secondAttribute="trailing" constant="10" id="r4T-k7-F3l"/>
                                     <constraint firstAttribute="centerY" secondItem="221-D7-kZ0" secondAttribute="centerY" id="rcN-Aq-wDT"/>
                                     <constraint firstAttribute="centerY" secondItem="DLg-t1-Ry1" secondAttribute="centerY" id="sMQ-Fq-wG0"/>
                                     <constraint firstAttribute="centerX" secondItem="bYG-hX-3Hb" secondAttribute="centerX" id="t4e-fv-Nif"/>
                                     <constraint firstAttribute="trailing" secondItem="221-D7-kZ0" secondAttribute="trailing" constant="5" id="tUc-ky-RJk"/>
+                                    <constraint firstItem="vEB-XJ-kur" firstAttribute="leading" secondItem="bYG-hX-3Hb" secondAttribute="leading" constant="-10" id="u0b-MR-5Z0"/>
                                     <constraint firstAttribute="height" constant="44" id="uBv-Fk-Qjw"/>
                                     <constraint firstItem="Y6S-wZ-0vK" firstAttribute="leading" secondItem="DLg-t1-Ry1" secondAttribute="trailing" constant="20" id="uyk-bX-Mjl"/>
+                                    <constraint firstItem="vEB-XJ-kur" firstAttribute="top" secondItem="weX-qG-kff" secondAttribute="top" id="vnJ-t4-V8y"/>
                                     <constraint firstItem="DLg-t1-Ry1" firstAttribute="leading" secondItem="weX-qG-kff" secondAttribute="leading" constant="5" id="xbU-w3-cn1"/>
                                     <constraint firstAttribute="centerY" secondItem="bYG-hX-3Hb" secondAttribute="centerY" id="yDj-1z-7aZ"/>
                                 </constraints>
@@ -265,7 +279,9 @@
                         <outlet property="deleteButton" destination="221-D7-kZ0" id="Vaq-ND-diI"/>
                         <outlet property="photosButton" destination="Y6S-wZ-0vK" id="mop-Gg-W4f"/>
                         <outlet property="shareButton" destination="zQZ-aQ-o1G" id="wID-7T-zj2"/>
+                        <outlet property="titleButton" destination="vEB-XJ-kur" id="46D-NH-bw6"/>
                         <outlet property="titleText" destination="bYG-hX-3Hb" id="ceJ-Ec-Tkz"/>
+                        <outlet property="titleTextWidthConstraint" destination="Qzg-Cn-xGB" id="7uZ-y1-ZLh"/>
                         <outlet property="webView" destination="I8N-jP-reu" id="BBJ-yL-D3s"/>
                     </connections>
                 </viewController>

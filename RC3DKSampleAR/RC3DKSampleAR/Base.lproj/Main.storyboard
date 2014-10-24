@@ -18,7 +18,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="CuA-Z5-5RK" userLabel="statusLabel">
-                                <rect key="frame" x="16" y="520" width="568" height="60"/>
+                                <rect key="frame" x="16" y="558.5" width="568" height="21.5"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" cocoaTouchSystemColor="lightTextColor"/>
                                 <nil key="highlightedColor"/>
@@ -32,6 +32,11 @@
                             <constraint firstItem="CuA-Z5-5RK" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="ejg-A8-bJ5"/>
                             <constraint firstItem="CuA-Z5-5RK" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailingMargin" id="s9F-oS-nzl"/>
                         </constraints>
+                        <variation key="default">
+                            <mask key="constraints">
+                                <exclude reference="Al5-v0-LhV"/>
+                            </mask>
+                        </variation>
                     </view>
                     <connections>
                         <outlet property="statusLabel" destination="CuA-Z5-5RK" id="0x1-j2-1eY"/>

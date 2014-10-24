@@ -122,6 +122,7 @@
 
 - (void) setWebViewOrientation:(UIDeviceOrientation) orientation
 {
+    if (!isWebViewLoaded) return;
     NSString* jsFunction = [NSString stringWithFormat:@"forceOrientationChange(%li)", (long)orientation];
     [self.webView stringByEvaluatingJavaScriptFromString: jsFunction];
 }
@@ -268,6 +269,7 @@
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
     isWebViewLoaded = YES;
+    [self setOrientation:self.currentUIOrientation animated:NO];
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error

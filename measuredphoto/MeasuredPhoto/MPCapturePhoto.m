@@ -363,16 +363,19 @@ static transition transitions[] =
 - (void)handlePause
 {
 	LOGME
-    [self handleStateEvent:EV_PAUSE];
+    if(currentState != ST_PROCESSING)
+        [self handleStateEvent:EV_PAUSE];
 }
 
 - (void)handleResume
 {
 	LOGME
     if (useLocation) [LOCATION_MANAGER startLocationUpdates];
-    [self handleStateEvent:EV_RESUME];
+    if(currentState != ST_PROCESSING)
+        [self handleStateEvent:EV_RESUME];
     [self handleOrientationChange]; // ensures that UI is in correct orientation
-    [self.arView.videoView animateOpen:[MPCapturePhoto getCurrentUIOrientation]];
+    if(currentState != ST_PROCESSING)
+        [self.arView.videoView animateOpen:[MPCapturePhoto getCurrentUIOrientation]];
 }
 
 - (IBAction)handleShutterButton:(id)sender

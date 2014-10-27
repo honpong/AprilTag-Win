@@ -87,6 +87,8 @@ function rotate_w_no_animation() {
     rc_menu.button3.rotate(target_rotation, rc_menu.button3.x() + button_size/2, rc_menu.button3.y() + button_size/2);
     rc_menu.button4.rotate(target_rotation, rc_menu.button4.x() + button_size/2, rc_menu.button4.y() + button_size/2);
     rc_menu.button5.rotate(target_rotation, rc_menu.button5.x() + button_size/2, rc_menu.button5.y() + button_size/2);
+    last_orientation = target_orientation;
+    post_rotation_scaling();
 }
 
 
@@ -133,25 +135,32 @@ function animate_screen_rotation(unused_time) {
         rotation_animation_id = window.requestAnimationFrame(animate_screen_rotation); //call self recusively
     }
     else {
-        //minimum zoom may be different in the new orientation
-        old_min_zoom = min_zoom;
-        min_zoom = calculate_min_zoom();
-        if (min_zoom > zoom_factor || zoom_factor <= old_min_zoom + 0.000001) {  //if picture is gettin more real estate, or the user hasn't zoomed, adjust zoom.
-            zoom(min_zoom/zoom_factor, img_container.width()/2, img_container.height()/2);
-        }
-        calculate_zoom_boundaries(target_orientation);
-        start_pan_bounce();
-        if (rotation_animation_id) { window.cancelAnimationFrame(rotation_animation_id);} //calcel if done
-        np_rotate(target_orientation);
-        //because we've already reset the zoom offset, we can set the offset for np_rotate again, if the number pad is visible...
-        if(draw.node.contains(np_svg.node)){
-            move_image_for_number_pad(rcMeasurements.measurement_being_edited.text.x(), rcMeasurements.measurement_being_edited.text.y());
-        }
-
+        post_rotation_scaling();
     }
     var draw_end = new Date(); // calculate how long the animation frame took, so we can compute the deltas for the next frame
     if (draw_end.getMilliseconds() - roation_frame_start.getMilliseconds() > 0 ) {last_rotation_animation_time = draw_end.getMilliseconds() - roation_frame_start.getMilliseconds();}
     roation_frame_start = new Date(); //reset counter for traking how long it is taking to draw a frame
     
     
+}
+
+function post_rotation_scaling() {
+    console.log('post_rotation_scaling');
+    //minimum zoom may be different in the new orientation
+    old_min_zoom = min_zoom;
+    min_zoom = calculate_min_zoom();
+    console.log('old min zoom = ' + old_min_zoom.toFixed(2) + ' min zoom' + min_zoom.toFixed(2));
+    if (min_zoom > zoom_factor || zoom_factor <= old_min_zoom + 0.000001) {  //if picture is gettin more real estate, or the user hasn't zoomed, adjust zoom.
+        zoom(min_zoom/zoom_factor, img_container.width()/2, img_container.height()/2);
+        console.log('adjusted to larger space');
+    }
+    calculate_zoom_boundaries(target_orientation);
+    start_pan_bounce();
+    if (rotation_animation_id) { window.cancelAnimationFrame(rotation_animation_id);} //calcel if done
+    np_rotate(target_orientation);
+    //because we've already reset the zoom offset, we can set the offset for np_rotate again, if the number pad is visible...
+    if(draw.node.contains(np_svg.node)){
+        move_image_for_number_pad(rcMeasurements.measurement_being_edited.text.x(), rcMeasurements.measurement_being_edited.text.y());
+    }
+
 }

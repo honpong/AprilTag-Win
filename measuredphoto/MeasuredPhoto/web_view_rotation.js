@@ -36,7 +36,7 @@ function step_zoom_offset() {
 }
 
 
-function forceOrientationChange(orientation) {
+function forceOrientationChange(orientation, use_annimation) {
     window.setTimeout( function () {
     
     console.log ('forcing orientation change');
@@ -54,8 +54,9 @@ function forceOrientationChange(orientation) {
     }
     
     target_orientation = orientation;
-    rotate_w_no_animation();
-    //start_orientation_change_rotation();
+    
+    if (use_annimation === 1) {    start_orientation_change_rotation();}
+    else {rotate_w_no_animation();}
     
     last_orientation = orientation;
     

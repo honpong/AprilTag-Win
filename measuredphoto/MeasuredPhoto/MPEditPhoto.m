@@ -127,7 +127,8 @@
 - (void) setWebViewOrientation:(UIDeviceOrientation) orientation
 {
     if (!isWebViewLoaded) return;
-    NSString* jsFunction = [NSString stringWithFormat:@"forceOrientationChange(%li)", (long)orientation];
+    BOOL animated = self.presentingViewController ? YES : NO;
+    NSString* jsFunction = [NSString stringWithFormat:@"forceOrientationChange(%li,%i)", (long)orientation, animated];
     [self.webView stringByEvaluatingJavaScriptFromString: jsFunction];
 }
 

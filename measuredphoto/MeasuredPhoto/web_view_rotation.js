@@ -83,11 +83,7 @@ function start_orientation_change_rotation(){
 
 function rotate_w_no_animation() {
     draw_g.rotate(target_rotation, img_container.width()/2, img_container.height()/2);
-    rc_menu.button1.rotate(target_rotation, rc_menu.button1.x() + button_size/2, rc_menu.button1.y() + button_size/2);
-    rc_menu.button2.rotate(target_rotation, rc_menu.button2.x() + button_size/2, rc_menu.button2.y() + button_size/2);
-    rc_menu.button3.rotate(target_rotation, rc_menu.button3.x() + button_size/2, rc_menu.button3.y() + button_size/2);
-    rc_menu.button4.rotate(target_rotation, rc_menu.button4.x() + button_size/2, rc_menu.button4.y() + button_size/2);
-    rc_menu.button5.rotate(target_rotation, rc_menu.button5.x() + button_size/2, rc_menu.button5.y() + button_size/2);
+    rc_menu.rotate_buttons(target_rotation);
     last_orientation = target_orientation;
     current_rotation = target_rotation;
     post_rotation_scaling();
@@ -125,12 +121,7 @@ function animate_screen_rotation(unused_time) {
         //step_zoom_offset();
         
         draw_g.rotate(next_rotation, img_container.width()/2, img_container.height()/2);
-        rc_menu.button1.rotate(next_rotation, rc_menu.button1.x() + button_size/2, rc_menu.button1.y() + button_size/2);
-        rc_menu.button2.rotate(next_rotation, rc_menu.button2.x() + button_size/2, rc_menu.button2.y() + button_size/2);
-        rc_menu.button3.rotate(next_rotation, rc_menu.button3.x() + button_size/2, rc_menu.button3.y() + button_size/2);
-        rc_menu.button4.rotate(next_rotation, rc_menu.button4.x() + button_size/2, rc_menu.button4.y() + button_size/2);
-        rc_menu.button5.rotate(next_rotation, rc_menu.button5.x() + button_size/2, rc_menu.button5.y() + button_size/2);
-        //rc_menu.button6.rotate(next_rotation);
+        rc_menu.rotate_buttons(next_rotation);
         //draw rotation and offset
         current_rotation = next_rotation; //set for next iteration. hard to look at div style to get it due to browser differences
         

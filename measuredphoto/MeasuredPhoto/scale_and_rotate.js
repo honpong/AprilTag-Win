@@ -1,4 +1,4 @@
-
+//Copywrite (c) 2014 by RealityCap, Inc. Written by Jordan Miller for the exclusive use of RealityCap, Inc.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////                        CODE TO DO PAN AND ZOOM ANIMATIONS , scalling,                 ////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -40,7 +40,7 @@ function calculate_min_zoom(){
 }
 
 function scaleImageToMatchScreen() {
-    console.log('scaling image to match screen');
+    //console.log('scale image to match screen');
     if (draw_g.node.contains(measured_svg.node)) {draw_g.node.removeChild(measured_svg.node);}
     var changing_orientation = false;
     
@@ -70,7 +70,6 @@ function scaleImageToMatchScreen() {
         y_offset = img_container.height()/2;
         zoom_factor = calculate_min_zoom();
         min_zoom = zoom_factor; //we never want to let the user go smaller than this.
-        console.log('scale image to match screen min zoom = ' + min_zoom.toFixed(2));
     }
     else { //TODO: comment why this is doing this... is it for forced ortientatino change? or tablet browser uncontroled orientation change?
         if (changing_orientation && orientation_drawn_landsacep) { //going from portrait to landscape
@@ -90,7 +89,6 @@ function scaleImageToMatchScreen() {
     
     //redraw_all_measurements(); //i think this is no longer necessary as we are doing image based location in the svg
     draw_g.node.appendChild(measured_svg.node);
-    console.log('setting initial_load to false')
     initial_load = false;
     
 }

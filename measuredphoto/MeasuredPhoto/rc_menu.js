@@ -228,6 +228,14 @@ function build_rc_menu() {
         
     }
     
+    rc_menu.rotate_buttons = function (target_rotation) {
+        rc_menu.button1.rotate(target_rotation, rc_menu.button1.x() + button_size/2, rc_menu.button1.y() + button_size/2);
+        rc_menu.button2.rotate(target_rotation, rc_menu.button2.x() + button_size/2, rc_menu.button2.y() + button_size/2);
+        rc_menu.button3.rotate(target_rotation, rc_menu.button3.x() + button_size/2, rc_menu.button3.y() + button_size/2);
+        rc_menu.button4.rotate(target_rotation, rc_menu.button4.x() + button_size/2, rc_menu.button4.y() + button_size/2);
+        rc_menu.button5.rotate(target_rotation, rc_menu.button5.x() + button_size/2, rc_menu.button5.y() + button_size/2);
+    }
+    
 }
 
 rc_menu.reset =  function () {

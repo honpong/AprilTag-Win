@@ -88,13 +88,13 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
             dc->Tc[1] = 0.065;
             dc->Tc[2] = 0.000;
             return true;
-        case DEVICE_TYPE_IPHONE6PLUS: //Copied from 6 - teardown indicates they are pretty close to the same
+        case DEVICE_TYPE_IPHONE6PLUS: //Based on 6, but calibrated with real iPhone 6 plus
             dc->Fx = 548.;
             dc->Fy = 548.;
             dc->K[0] = .10;
             dc->K[1] = -.15;
-            dc->Tc[0] = 0.015;
-            dc->Tc[1] = 0.065;
+            dc->Tc[0] = 0.008;
+            dc->Tc[1] = 0.075;
             dc->Tc[2] = 0.000;
             return true;
         case DEVICE_TYPE_IPOD5: //Tc is reasonably consistent with teardown

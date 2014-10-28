@@ -349,11 +349,12 @@ function rc_initialize(){
 
 
 function clear_all(){
-    //console.log('starting clear_all()');
+    console.log('starting clear_all()');
     window.setTimeout(function (){
     try {
         //scale and roation handling
         initial_load = true;
+        console.log('tried setting initial_load to true, it is now = ' + initial_load.toString());
     
         //clear all measurements, reset handlers
         if (draw_g.node.contains(measured_svg.node)) {draw_g.node.removeChild(measured_svg.node);}
@@ -407,7 +408,8 @@ function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric)
             }
             
             //assume clear is called first if this is the second load
-                      //console.log('loading image from '+ rc_img_url);
+            //console.log('loading image from '+ rc_img_url);
+            initial_load = true; //were setting this incase zooming was called and set it to false after a clear was called
             image = img_container.image(rc_img_url).loaded(function(loader) {
                                                   //console.log('starting image load callback');
                                                   //this should rotate the image

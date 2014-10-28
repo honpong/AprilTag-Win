@@ -89,6 +89,7 @@ function rotate_w_no_animation() {
     rc_menu.button4.rotate(target_rotation, rc_menu.button4.x() + button_size/2, rc_menu.button4.y() + button_size/2);
     rc_menu.button5.rotate(target_rotation, rc_menu.button5.x() + button_size/2, rc_menu.button5.y() + button_size/2);
     last_orientation = target_orientation;
+    current_rotation = target_rotation;
     post_rotation_scaling();
 }
 

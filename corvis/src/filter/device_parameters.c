@@ -142,13 +142,13 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
             dc->Tc[1] = .065;
             dc->Tc[2] = .000;
             return true;
-        case DEVICE_TYPE_IPADAIR2: //Just copied from old
-            dc->Fx = 582.;
-            dc->Fy = 582.;
-            dc->K[0] = .12;
-            dc->K[1] = -.25;
-            dc->Tc[0] = -.012;
-            dc->Tc[1] = .065;
+        case DEVICE_TYPE_IPADAIR2: //Calibrated from device; very similar to old
+            dc->Fx = 573.;
+            dc->Fy = 573.;
+            dc->K[0] = .13;
+            dc->K[1] = -.26;
+            dc->Tc[0] = -.003;
+            dc->Tc[1] = .068;
             dc->Tc[2] = .000;
             return true;
         case DEVICE_TYPE_IPADMINI: //Tc from sequence is consistent with teardown

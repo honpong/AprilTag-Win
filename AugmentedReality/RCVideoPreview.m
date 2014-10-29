@@ -568,9 +568,9 @@ gl_FragColor = vec4(rgb, 1);\n\
 {
     memset(mout, 0, sizeof(GLfloat) * 16);
     mout[0] = cameraParameters.focalLength * 2. / textureWidth / textureCropScaleX;
-    mout[2] = (cameraParameters.opticalCenterX + .5 - textureWidth / 2.) * 2. / textureWidth / textureCropScaleX;
     mout[5] = -cameraParameters.focalLength * 2. / textureHeight / textureCropScaleY;
-    mout[6] = -(cameraParameters.opticalCenterY + .5 - textureHeight / 2.) * 2. / textureHeight / textureCropScaleY;
+    mout[8] = (cameraParameters.opticalCenterX + .5 - textureWidth / 2.) * 2. / textureWidth / textureCropScaleX;
+    mout[9] = -(cameraParameters.opticalCenterY + .5 - textureHeight / 2.) * 2. / textureHeight / textureCropScaleY;
     mout[10] = (far+near) / (far-near);
     mout[11] = 1.0f;
     mout[14] = -2 * far * near /  (far-near);

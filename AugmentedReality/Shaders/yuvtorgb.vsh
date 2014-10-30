@@ -1,5 +1,5 @@
 attribute vec4 position;
-attribute mediump vec4 textureCoordinate;
+attribute mediump vec4 texture_coordinate;
 varying mediump vec2 coordinate;
 
 void main()

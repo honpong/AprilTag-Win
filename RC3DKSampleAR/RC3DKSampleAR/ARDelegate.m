@@ -19,22 +19,27 @@
 
 @synthesize initialCamera;
 
+enum {
+    ATTRIB_VERTEX
+};
+
+const static GLint attribLocation[1] = {
+    ATTRIB_VERTEX
+};
+
+const static GLchar * attribName[1] = {
+    "position"
+};
+
 -(id)init
 {
     if (self = [super init])
     {
         const char *myVertShader = [[RCOpenGLManagerFactory getInstance] readFile:@"flat.vsh"];
         const char *myFragShader = [[RCOpenGLManagerFactory getInstance] readFile:@"flat.fsh"];
-        // attributes
-        GLint attribLocation[1] = {
-            ATTRIB_VERTEX
-        };
-        GLchar *attribName[1] = {
-            "position"
-        };
         
         glueCreateProgram(myVertShader, myFragShader,
-                          1, (const GLchar **)&attribName[0], attribLocation,
+                          1, attribName, attribLocation,
                           0, 0, 0,
                           &myProgram);
         assert(myProgram);

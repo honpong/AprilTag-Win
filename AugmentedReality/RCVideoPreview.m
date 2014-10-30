@@ -15,14 +15,14 @@
 
 static const GLchar *vertSrc = "\n\
 attribute vec4 position;\n\
-attribute mediump vec4 textureCoordinate;\n\
+attribute mediump vec4 texture_coordinate;\n\
 varying mediump vec2 coordinate;\n\
 uniform mat4 camera_screen_rotation;\n\
 \n\
 void main()\n\
 {\n\
 gl_Position = camera_screen_rotation * position;\n\
-coordinate = textureCoordinate.xy;\n\
+coordinate = texture_coordinate.xy;\n\
 }\n\
 ";
 
@@ -49,6 +49,21 @@ rgb = mat3(      1,       1,      1,\n\
 gl_FragColor = vec4(rgb, 1);\n\
 }\n\
 ";
+
+enum {
+    ATTRIB_VERTEX,
+    ATTRIB_TEXTUREPOSITION
+};
+
+const static GLint attribLocation[2] = {
+    ATTRIB_VERTEX,
+    ATTRIB_TEXTUREPOSITION
+};
+
+const static GLchar * attribName[2] = {
+    "position",
+    "texture_coordinate"
+};
 
 #define MULTISAMPLE
 
@@ -103,7 +118,8 @@ gl_FragColor = vec4(rgb, 1);\n\
 - (void) initialize
 {
     [EAGLContext setCurrentContext:[[RCOpenGLManagerFactory getInstance] oglContext]];
-    [[RCOpenGLManagerFactory getInstance] createProgram:&yuvTextureProgram withVertexShader:vertSrc withFragmentShader:fragSrc];
+    
+    glueCreateProgram(vertSrc, fragSrc, 2, attribName, attribLocation, 0, 0, 0, &yuvTextureProgram);
     glUseProgram(yuvTextureProgram);
     glUniform1i(glGetUniformLocation(yuvTextureProgram, "videoFrameY"), 0);
     glUniform1i(glGetUniformLocation(yuvTextureProgram, "videoFrameUV"), 1);
@@ -506,8 +522,8 @@ gl_FragColor = vec4(rgb, 1);\n\
     // Update attribute values.
     glVertexAttribPointer(ATTRIB_VERTEX, 2, GL_FLOAT, 0, 0, squareVertices);
     glEnableVertexAttribArray(ATTRIB_VERTEX);
-    glVertexAttribPointer(ATTRIB_TEXTUREPOSITON, 2, GL_FLOAT, 0, 0, passThroughTextureVertices);
-    glEnableVertexAttribArray(ATTRIB_TEXTUREPOSITON);
+    glVertexAttribPointer(ATTRIB_TEXTUREPOSITION, 2, GL_FLOAT, 0, 0, passThroughTextureVertices);
+    glEnableVertexAttribArray(ATTRIB_TEXTUREPOSITION);
     
     // Update uniform values if there are any
     
@@ -612,7 +628,8 @@ gl_FragColor = vec4(rgb, 1);\n\
         videoTextureCache = 0;
     }
     
-    [[RCOpenGLManagerFactory getInstance] deleteProgram:yuvTextureProgram];
+    glDeleteProgram(yuvTextureProgram);
+    yuvTextureProgram = 0;
     
     //[super dealloc]; - not needed with ARC
 }

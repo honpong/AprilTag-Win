@@ -14,8 +14,6 @@
 
 @property EAGLContext* oglContext;
 - (const GLchar *)readFile:(NSString *)name;
-- (bool)createProgram:(GLuint *)program withVertexShader:(const GLchar *)vertSrc withFragmentShader:(const GLchar *)fragSrc;
-- (void)deleteProgram:(GLuint)program;
 @end
 
 // the factory methods to get/set the instance
@@ -26,8 +24,3 @@
 
 @end
 
-enum {
-    ATTRIB_VERTEX,
-    ATTRIB_TEXTUREPOSITON,
-    NUM_ATTRIBUTES
-};

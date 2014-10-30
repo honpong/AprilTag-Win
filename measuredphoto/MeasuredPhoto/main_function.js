@@ -41,7 +41,7 @@ function clear_tool_data(){ //this should be called whenever theres a switch in 
 
 function rc_initialize(){
     console.log = logNative;
-    //console.log("starting rc_initialize()");
+    console.log("starting rc_initialize()");
     
     is_rc_initialized = true;
     
@@ -408,10 +408,10 @@ function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric)
             }
             
             //assume clear is called first if this is the second load
-            //console.log('loading image from '+ rc_img_url);
+            console.log('loading image from '+ rc_img_url);
             initial_load = true; //were setting this incase zooming was called and set it to false after a clear was called
             image = img_container.image(rc_img_url).loaded(function(loader) {
-                                                  //console.log('starting image load callback');
+                                                  console.log('starting image load callback');
                                                   //this should rotate the image
                                                   //alert('loading img');
                                                   //image_width = loader.height;

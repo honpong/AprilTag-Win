@@ -14,11 +14,12 @@
 #import <AVFoundation/AVFoundation.h>
 #import "RCVideoFrameProvider.h"
 #import "RCSensorFusion.h"
+#import <GLKit/GLKit.h>
 
 @protocol RCAugmentedRealityDelegate <NSObject>
 
 /** This will be called after drawing the background video, before the GL render buffer is presented. */
-- (void) renderWithSensorFusionData:(RCSensorFusionData *)data withPerspectiveMatrix:(GLfloat[16])projection withCameraScreenMatrix:(GLfloat[16])camera_screen;
+- (void) renderWithSensorFusionData:(RCSensorFusionData *)data withPerspectiveMatrix:(GLKMatrix4)perspective;
 
 @end
 

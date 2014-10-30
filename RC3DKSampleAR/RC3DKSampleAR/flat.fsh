@@ -5,7 +5,9 @@
 //  Copyright (c) 2014 Realitycap. All rights reserved.
 //
 
+uniform lowp vec4 color;
+
 void main()
 {
-    gl_FragColor = vec4(0., 0., 1., 1.);
+    gl_FragColor = color;
 }

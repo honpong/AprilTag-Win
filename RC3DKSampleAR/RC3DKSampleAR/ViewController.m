@@ -20,7 +20,8 @@
     bool isStarted; // Keeps track of whether the start button has been pressed
     id<RCSensorDelegate> sensorDelegate;
     RCVideoPreview *videoPreview;
-    id<RCAugmentedRealityDelegate> arDelegate;
+    ARDelegate *arDelegate;
+    RCSensorFusionRunState currentRunState;
 }
 
 @synthesize statusLabel;
@@ -87,6 +88,9 @@
 // Called after each video frame is processed ~ 30hz.
 - (void)sensorFusionDidUpdateData:(RCSensorFusionData *)data
 {
+    //as long as we are initializing, update the initial camera pose
+    if(currentRunState == RCSensorFusionRunStateSteadyInitialization) arDelegate.initialCamera = data.cameraTransformation;
+    
     [videoPreview displaySensorFusionData:data];
 }
 
@@ -109,6 +113,7 @@
     {
         statusLabel.text = @"Move the device to measure the distance.";
     }
+    currentRunState = status.runState;
 }
 
 #pragma mark -

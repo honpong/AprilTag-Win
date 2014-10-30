@@ -17,6 +17,8 @@
     GLuint myProgram;
 }
 
+@synthesize initialCamera;
+
 -(id)init
 {
     if (self = [super init])
@@ -40,7 +42,7 @@
     return self;
 }
 
-- (void)renderWithSensorFusionData:(RCSensorFusionData *)data withPerspectiveMatrix:(float[16])projection withCameraScreenMatrix:(GLfloat *)camera_screen
+- (void)renderWithSensorFusionData:(RCSensorFusionData *)data withPerspectiveMatrix:(GLKMatrix4)projection
 {
     if(!data.cameraParameters || !data.cameraTransformation) return;
     glUseProgram(myProgram);
@@ -50,20 +52,24 @@
     float camera[16];
     [[data.cameraTransformation getInverse] getOpenGLMatrix:camera];
     
+    float model[16];
+    [initialCamera getOpenGLMatrix:model];
+    
     UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
 
-    glUniformMatrix4fv(glGetUniformLocation(myProgram, "projection_matrix"), 1, false, projection);
+    glUniformMatrix4fv(glGetUniformLocation(myProgram, "projection_matrix"), 1, false, projection.m);
     glUniformMatrix4fv(glGetUniformLocation(myProgram, "camera_matrix"), 1, false, camera);
-    glUniformMatrix4fv(glGetUniformLocation(myProgram, "camera_screen_transform"), 1, false, camera_screen);
+    glUniformMatrix4fv(glGetUniformLocation(myProgram, "model_matrix"), 1, false, model);
 
     GLfloat vertices[] = {
-        0, -.05, -.05,
-        0, .05, -.05,
-        0, -.05, .05,
-        0, .05, .05
+        -.05, -.05, 1,
+        .05, -.05, 1,
+        -.05, .05, 1,
+        .05, .05, 1
     };
     glVertexAttribPointer(ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, vertices);
     glEnableVertexAttribArray(ATTRIB_VERTEX);
+    glUniform4f(glGetUniformLocation(myProgram, "color"), 0, 0, 1, 1);
 
     // Validate program before drawing. This is a good check, but only really necessary in a debug build.
     // DEBUG macro must be defined in your debug configurations if that's not already the case.

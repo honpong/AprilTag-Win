@@ -15,5 +15,7 @@
 
 @interface ARDelegate : NSObject <RCAugmentedRealityDelegate>
 
+@property RCTransformation *initialCamera;
+
 @end
 

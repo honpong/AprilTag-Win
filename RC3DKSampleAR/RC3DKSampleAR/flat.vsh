@@ -8,9 +8,9 @@
 attribute vec4 position;
 uniform mat4 projection_matrix;
 uniform mat4 camera_matrix;
-uniform mat4 camera_screen_transform;
+uniform mat4 model_matrix;
 
 void main()
 {
-    gl_Position = camera_screen_transform * projection_matrix * camera_matrix * position;
+    gl_Position = projection_matrix * camera_matrix * model_matrix * position;
 }

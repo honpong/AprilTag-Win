@@ -57,6 +57,7 @@
 		D901460819F9C2D8004E7CE2 /* ARDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D901460719F9C2D8004E7CE2 /* ARDelegate.m */; };
 		D901460B19F9C43B004E7CE2 /* flat.fsh in Resources */ = {isa = PBXBuildFile; fileRef = D901460919F9C43B004E7CE2 /* flat.fsh */; };
 		D901460C19F9C43B004E7CE2 /* flat.vsh in Resources */ = {isa = PBXBuildFile; fileRef = D901460A19F9C43B004E7CE2 /* flat.vsh */; };
+		D963096B1A01BC9800F92929 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D963096A1A01BC9800F92929 /* GLKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -159,6 +160,7 @@
 		D901460719F9C2D8004E7CE2 /* ARDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARDelegate.m; sourceTree = "<group>"; };
 		D901460919F9C43B004E7CE2 /* flat.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = flat.fsh; sourceTree = "<group>"; };
 		D901460A19F9C43B004E7CE2 /* flat.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = flat.vsh; sourceTree = "<group>"; };
+		D963096A1A01BC9800F92929 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -166,6 +168,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D963096B1A01BC9800F92929 /* GLKit.framework in Frameworks */,
 				D901459F19F9A07D004E7CE2 /* libRC3DK.a in Frameworks */,
 				D90145F019F9A23E004E7CE2 /* UIKit.framework in Frameworks */,
 				D90145E919F9A23E004E7CE2 /* CoreMedia.framework in Frameworks */,
@@ -353,6 +356,7 @@
 		D90145DF19F9A23E004E7CE2 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D963096A1A01BC9800F92929 /* GLKit.framework */,
 				D90145CD19F9A23E004E7CE2 /* OpenGLES.framework */,
 				D90145CE19F9A23E004E7CE2 /* CoreFoundation.framework */,
 				D90145CF19F9A23E004E7CE2 /* CFNetwork.framework */,

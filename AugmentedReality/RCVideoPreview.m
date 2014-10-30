@@ -11,6 +11,7 @@
 #import <CoreMedia/CoreMedia.h>
 #import "RCOpenGLManagerFactory.h"
 #import "RCDebugLog.h"
+#import <GLKit/GLKit.h>
 
 static const GLchar *vertSrc = "\n\
 attribute vec4 position;\n\
@@ -162,12 +163,10 @@ gl_FragColor = vec4(rgb, 1);\n\
                     if([weakSelf beginFrame]) {
                         [weakSelf displayPixelBuffer:pixBuf];
                         //call AR delegate
-                        float perspective[16];
-                        float camera_screen[16];
-                        [weakSelf getPerspectiveMatrix:perspective withCameraParameters:localData.cameraParameters withNear:.01 withFar:100.];
-                        [weakSelf getScreenRotation:camera_screen forOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
-                        if([weakSelf.delegate respondsToSelector:@selector(renderWithSensorFusionData:withPerspectiveMatrix:withCameraScreenMatrix:)])
-                            [weakSelf.delegate renderWithSensorFusionData:localData withPerspectiveMatrix:perspective withCameraScreenMatrix:camera_screen];
+                        GLKMatrix4 perspective = [weakSelf getPerspectiveMatrixWithCameraParameters:localData.cameraParameters withNear:.01 withFar:100.];
+                        GLKMatrix4 camera_screen = [weakSelf getScreenRotationForOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+                        if([weakSelf.delegate respondsToSelector:@selector(renderWithSensorFusionData:withPerspectiveMatrix:)])
+                            [weakSelf.delegate renderWithSensorFusionData:localData withPerspectiveMatrix:GLKMatrix4Multiply(camera_screen, perspective)];
                         [weakSelf endFrame];
                     }
                 }
@@ -422,11 +421,10 @@ gl_FragColor = vec4(rgb, 1);\n\
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    float camera_screen[16];
     UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
-    [self getScreenRotation:camera_screen forOrientation:orientation];
+    GLKMatrix4 camera_screen = [self getScreenRotationForOrientation:orientation];
     
-    glUniformMatrix4fv(glGetUniformLocation(yuvTextureProgram, "camera_screen_rotation"), 1, false, camera_screen);
+    glUniformMatrix4fv(glGetUniformLocation(yuvTextureProgram, "camera_screen_rotation"), 1, false, camera_screen.m);
     
     GLfloat squareVertices[] = {
         -xScale, -yScale,
@@ -507,32 +505,34 @@ gl_FragColor = vec4(rgb, 1);\n\
 
 }
 
-- (void) getScreenRotation:(GLfloat[16])mout forOrientation:(UIInterfaceOrientation)orientation
+- (GLKMatrix4) getScreenRotationForOrientation:(UIInterfaceOrientation)orientation
 {
-    memset(mout, 0, sizeof(GLfloat) * 16);
-    mout[10] = 1.;
-    mout[15] = 1.;
+    GLKMatrix4 res;
+    memset(&res, 0, sizeof(res));
+    res.m[10] = 1.;
+    res.m[15] = 1.;
     switch(orientation)
     {
         case UIInterfaceOrientationPortrait:
-            mout[1] = -1.;
-            mout[4] = 1.;
+            res.m[1] = -1.;
+            res.m[4] = 1.;
             break;
         case UIInterfaceOrientationPortraitUpsideDown:
-            mout[1] = 1.;
-            mout[4] = -1.;
+            res.m[1] = 1.;
+            res.m[4] = -1.;
             break;
         case UIInterfaceOrientationLandscapeLeft:
-            mout[0] = -1.;
-            mout[5] = -1.;
+            res.m[0] = -1.;
+            res.m[5] = -1.;
             break;
         default:
         case UIInterfaceOrientationUnknown:
         case UIInterfaceOrientationLandscapeRight:
-            mout[0] = 1.;
-            mout[5] = 1.;
+            res.m[0] = 1.;
+            res.m[5] = 1.;
             break;
     }
+    return res;
 }
 
 /*
@@ -564,16 +564,18 @@ gl_FragColor = vec4(rgb, 1);\n\
  We ignore radial distortion and drop the kr term here; better to undistort the image instead.
  */
 
-- (void) getPerspectiveMatrix:(GLfloat[16])mout withCameraParameters:(RCCameraParameters *)cameraParameters withNear:(float)near withFar:(float)far
+- (GLKMatrix4) getPerspectiveMatrixWithCameraParameters:(RCCameraParameters *)cameraParameters withNear:(float)near withFar:(float)far
 {
-    memset(mout, 0, sizeof(GLfloat) * 16);
-    mout[0] = cameraParameters.focalLength * 2. / textureWidth / textureCropScaleX;
-    mout[5] = -cameraParameters.focalLength * 2. / textureHeight / textureCropScaleY;
-    mout[8] = (cameraParameters.opticalCenterX + .5 - textureWidth / 2.) * 2. / textureWidth / textureCropScaleX;
-    mout[9] = -(cameraParameters.opticalCenterY + .5 - textureHeight / 2.) * 2. / textureHeight / textureCropScaleY;
-    mout[10] = (far+near) / (far-near);
-    mout[11] = 1.0f;
-    mout[14] = -2 * far * near /  (far-near);
+    GLKMatrix4 ret;
+    memset(&ret, 0, sizeof(ret));
+    ret.m[0] = cameraParameters.focalLength * 2. / textureWidth / textureCropScaleX;
+    ret.m[5] = -cameraParameters.focalLength * 2. / textureHeight / textureCropScaleY;
+    ret.m[8] = (cameraParameters.opticalCenterX + .5 - textureWidth / 2.) * 2. / textureWidth / textureCropScaleX;
+    ret.m[9] = -(cameraParameters.opticalCenterY + .5 - textureHeight / 2.) * 2. / textureHeight / textureCropScaleY;
+    ret.m[10] = (far+near) / (far-near);
+    ret.m[11] = 1.0f;
+    ret.m[14] = -2 * far * near /  (far-near);
+    return ret;
 }
 
 - (void)dealloc

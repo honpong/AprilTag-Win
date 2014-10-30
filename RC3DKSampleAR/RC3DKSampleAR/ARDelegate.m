@@ -20,16 +20,36 @@
 @synthesize initialCamera;
 
 enum {
+    ATTRIB_VERTEX,
+    NUM_ATTRIBUTES
+};
+
+const static GLint attribLocation[NUM_ATTRIBUTES] = {
     ATTRIB_VERTEX
 };
 
-const static GLint attribLocation[1] = {
-    ATTRIB_VERTEX
-};
-
-const static GLchar * attribName[1] = {
+const static GLchar * attribName[NUM_ATTRIBUTES] = {
     "position"
 };
+
+enum {
+    UNIFORM_COLOR,
+    UNIFORM_PROJECTION,
+    UNIFORM_CAMERA,
+    UNIFORM_MODEL,
+    NUM_UNIFORMS
+};
+
+static int uniformLocation[NUM_UNIFORMS];
+
+const static GLchar *uniformName[NUM_UNIFORMS] =
+{
+    "color",
+    "projection_matrix",
+    "camera_matrix",
+    "model_matrix"
+};
+
 
 -(id)init
 {
@@ -39,8 +59,8 @@ const static GLchar * attribName[1] = {
         const char *myFragShader = [[RCOpenGLManagerFactory getInstance] readFile:@"flat.fsh"];
         
         glueCreateProgram(myVertShader, myFragShader,
-                          1, attribName, attribLocation,
-                          0, 0, 0,
+                          NUM_ATTRIBUTES, attribName, attribLocation,
+                          NUM_UNIFORMS, uniformName, uniformLocation,
                           &myProgram);
         assert(myProgram);
     }
@@ -62,9 +82,9 @@ const static GLchar * attribName[1] = {
     
     UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
 
-    glUniformMatrix4fv(glGetUniformLocation(myProgram, "projection_matrix"), 1, false, projection.m);
-    glUniformMatrix4fv(glGetUniformLocation(myProgram, "camera_matrix"), 1, false, camera.m);
-    glUniformMatrix4fv(glGetUniformLocation(myProgram, "model_matrix"), 1, false, model.m);
+    glUniformMatrix4fv(uniformLocation[UNIFORM_PROJECTION], 1, false, projection.m);
+    glUniformMatrix4fv(uniformLocation[UNIFORM_CAMERA], 1, false, camera.m);
+    glUniformMatrix4fv(uniformLocation[UNIFORM_MODEL], 1, false, model.m);
 
     GLfloat vertices[] = {
         -.05, -.05, 1,
@@ -74,7 +94,7 @@ const static GLchar * attribName[1] = {
     };
     glVertexAttribPointer(ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, vertices);
     glEnableVertexAttribArray(ATTRIB_VERTEX);
-    glUniform4f(glGetUniformLocation(myProgram, "color"), 0, 0, 1, 1);
+    glUniform4f(uniformLocation[UNIFORM_COLOR], 0, 0, 1, 1);
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
     static const GLfloat cubeVerticesStrip[] = {
@@ -97,11 +117,11 @@ const static GLchar * attribName[1] = {
     };
     glVertexAttribPointer(ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, cubeVerticesStrip);
     glEnableVertexAttribArray(ATTRIB_VERTEX);
-    glUniform4f(glGetUniformLocation(myProgram, "color"), 0, 1, 0, 1);
+    glUniform4f(uniformLocation[UNIFORM_COLOR], 0, 1, 0, 1);
 
     model = GLKMatrix4Translate(model, 0, 0, 2);
     model = GLKMatrix4Scale(model, .1, .1, .1);
-    glUniformMatrix4fv(glGetUniformLocation(myProgram, "model_matrix"), 1, false, model.m);
+    glUniformMatrix4fv(uniformLocation[UNIFORM_MODEL], 1, false, model.m);
 
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 26);
 

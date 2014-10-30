@@ -60,6 +60,7 @@ function forceOrientationChange(orientation, use_annimation) {
     
     last_orientation = orientation;
     
+    console.log('forceOrientationChange finished');
                       },0);
 }
 

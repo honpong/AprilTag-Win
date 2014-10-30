@@ -10,7 +10,6 @@
 #import "RCAVSessionManager.h"
 #import "RCLocationManager.h"
 #import "RCMotionManager.h"
-#import "RCSensorFusion.h"
 
 @implementation SensorDelegate
 {

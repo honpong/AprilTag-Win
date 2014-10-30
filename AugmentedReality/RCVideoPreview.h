@@ -13,7 +13,6 @@
 #import <CoreVideo/CVOpenGLESTextureCache.h>
 #import <AVFoundation/AVFoundation.h>
 #import "RCVideoFrameProvider.h"
-#import "RCSensorFusion.h"
 #import <GLKit/GLKit.h>
 
 @protocol RCAugmentedRealityDelegate <NSObject>

@@ -40,7 +40,7 @@ function clear_tool_data(){ //this should be called whenever theres a switch in 
 
 
 function rc_initialize(){
-    //console.log = logNative;
+    console.log = logNative;
     //console.log("starting rc_initialize()");
     
     is_rc_initialized = true;

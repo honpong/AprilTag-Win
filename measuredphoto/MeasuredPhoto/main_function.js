@@ -3,7 +3,7 @@
 doing_orientatino_change = false;
 function doOnOrientationChange()
 {
-    //console.log('do on orientation chagne');
+    console.log('do on orientation chagne');
     if (!doing_orientatino_change) {
         doing_orientatino_change = true;  //theres a lot of nested calls, prevent some listeners double triggering this
         //change body and document size here too.
@@ -344,6 +344,8 @@ function rc_initialize(){
     np_add_listeners(); //setup image
     
     dm_initialize();
+    
+    doOnOrientationChange();
 
 }
 

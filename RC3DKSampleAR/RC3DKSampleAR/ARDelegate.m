@@ -49,17 +49,17 @@
     
     float near = .01, far = 1000.;
     
-    float camera[16];
-    [[data.cameraTransformation getInverse] getOpenGLMatrix:camera];
+    GLKMatrix4 camera;
+    [[data.cameraTransformation getInverse] getOpenGLMatrix:camera.m];
     
-    float model[16];
-    [initialCamera getOpenGLMatrix:model];
+    GLKMatrix4 model;
+    [initialCamera getOpenGLMatrix:model.m];
     
     UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
 
     glUniformMatrix4fv(glGetUniformLocation(myProgram, "projection_matrix"), 1, false, projection.m);
-    glUniformMatrix4fv(glGetUniformLocation(myProgram, "camera_matrix"), 1, false, camera);
-    glUniformMatrix4fv(glGetUniformLocation(myProgram, "model_matrix"), 1, false, model);
+    glUniformMatrix4fv(glGetUniformLocation(myProgram, "camera_matrix"), 1, false, camera.m);
+    glUniformMatrix4fv(glGetUniformLocation(myProgram, "model_matrix"), 1, false, model.m);
 
     GLfloat vertices[] = {
         -.05, -.05, 1,
@@ -70,6 +70,35 @@
     glVertexAttribPointer(ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, vertices);
     glEnableVertexAttribArray(ATTRIB_VERTEX);
     glUniform4f(glGetUniformLocation(myProgram, "color"), 0, 0, 1, 1);
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+    static const GLfloat cubeVerticesStrip[] = {
+        // Front face
+        -1,-1,1, 1,-1,1, -1,1,1, 1,1,1,
+        // Right face
+        1,1,1, 1,-1,1, 1,1,-1, 1,-1,-1,
+        // Back face
+        1,-1,-1, -1,-1,-1, 1,1,-1, -1,1,-1,
+        // Left face
+        -1,1,-1, -1,-1,-1, -1,1,1, -1,-1,1,
+        // Bottom face
+        -1,-1,1, -1,-1,-1, 1,-1,1, 1,-1,-1,
+        
+        // move to top
+        1,-1,-1, -1,1,1,
+        
+        // Top Face
+        -1,1,1, 1,1,1, -1,1,-1, 1,1,-1
+    };
+    glVertexAttribPointer(ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, cubeVerticesStrip);
+    glEnableVertexAttribArray(ATTRIB_VERTEX);
+    glUniform4f(glGetUniformLocation(myProgram, "color"), 0, 1, 0, 1);
+
+    model = GLKMatrix4Translate(model, 0, 0, 2);
+    model = GLKMatrix4Scale(model, .1, .1, .1);
+    glUniformMatrix4fv(glGetUniformLocation(myProgram, "model_matrix"), 1, false, model.m);
+
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 26);
 
     // Validate program before drawing. This is a good check, but only really necessary in a debug build.
     // DEBUG macro must be defined in your debug configurations if that's not already the case.
@@ -79,7 +108,6 @@
         return;
     }
 #endif
-    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
 }
 

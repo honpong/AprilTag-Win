@@ -50,7 +50,7 @@ gl_FragColor = vec4(rgb, 1);\n\
 }\n\
 ";
 
-#define MULTISAMPLE TRUE
+#define MULTISAMPLE
 
 @implementation RCVideoPreview
 {
@@ -65,6 +65,7 @@ gl_FragColor = vec4(rgb, 1);\n\
     GLuint sampleFramebuffer;
 	GLuint colorBufferHandle;
     GLuint sampleColorBuffer;
+    GLuint depthRenderBuffer;
     
     CVOpenGLESTextureRef lumaTexture;
     CVOpenGLESTextureRef chromaTexture;
@@ -226,8 +227,6 @@ gl_FragColor = vec4(rgb, 1);\n\
 - (BOOL)createBuffers
 {
 	BOOL success = YES;
-	
-	glDisable(GL_DEPTH_TEST);
     
     glGenFramebuffers(1, &frameBufferHandle);
     glBindFramebuffer(GL_FRAMEBUFFER, frameBufferHandle);
@@ -236,11 +235,11 @@ gl_FragColor = vec4(rgb, 1);\n\
     glBindRenderbuffer(GL_RENDERBUFFER, colorBufferHandle);
     
     [[[RCOpenGLManagerFactory getInstance] oglContext] renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer *)self.layer];
-    
-	glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &renderBufferWidth);
-    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &renderBufferHeight);
-    
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorBufferHandle);
+    
+    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &renderBufferWidth);
+    glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &renderBufferHeight);
+
 	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         DLog(@"Failure with standard framebuffer generation");
 		success = NO;
@@ -254,10 +253,21 @@ gl_FragColor = vec4(rgb, 1);\n\
     glRenderbufferStorageMultisampleAPPLE(GL_RENDERBUFFER, 4, GL_RGBA8_OES, renderBufferWidth, renderBufferHeight);
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, sampleColorBuffer);
     
+    glGenRenderbuffers(1, &depthRenderBuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, depthRenderBuffer);
+    glRenderbufferStorageMultisampleAPPLE(GL_RENDERBUFFER, 4, GL_DEPTH_COMPONENT16, renderBufferWidth, renderBufferHeight);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderBuffer);
+
 	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         DLog(@"Failure with multisample framebuffer generation");
 		success = NO;
 	}
+#else
+    glGenRenderbuffers(1, &depthRenderBuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, depthRenderBuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT16, renderBufferWidth, renderBufferHeight);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderBuffer);
+
 #endif
     return success;
 }
@@ -279,8 +289,15 @@ gl_FragColor = vec4(rgb, 1);\n\
         sampleFramebuffer = 0;
     }
     
+    if(depthRenderBuffer) {
+        glDeleteFramebuffers(1, &depthRenderBuffer);
+        depthRenderBuffer = 0;
+        
+    }
+    
     if(sampleColorBuffer) {
         glDeleteRenderbuffers(1, &sampleColorBuffer);
+        sampleColorBuffer = 0;
     }
 }
 
@@ -323,10 +340,13 @@ gl_FragColor = vec4(rgb, 1);\n\
     // Set the view port to the entire view
     glViewport(0, 0, renderBufferWidth, renderBufferHeight);
     
+    glEnable(GL_DEPTH_TEST);
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClearColor(0., 0., 0., 1.);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     return true;
 }
 
@@ -353,6 +373,8 @@ gl_FragColor = vec4(rgb, 1);\n\
 - (void)displayPixelBuffer:(CVImageBufferRef)pixelBuffer
 {
     if (pixelBuffer == nil) return;
+    
+    glDepthMask(GL_FALSE);
     
     pixelBuffer = (CVImageBufferRef)CFRetain(pixelBuffer);
     
@@ -500,6 +522,7 @@ gl_FragColor = vec4(rgb, 1);\n\
     
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
+    glDepthMask(GL_TRUE);
     CFRelease(pixelBuffer);
     [self checkGLError];
 

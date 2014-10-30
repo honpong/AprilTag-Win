@@ -140,16 +140,36 @@ function build_rc_menu() {
     
     function draw_unit_toggle (button) {
         rc_menu.unit_button = button;
-        button.add(menu_svg.text('Units').font({family: rcMeasurements.font_family, size: 15, anchor: 'middle', leading: 1
-                                               }).move(20,10).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width/2.5 }));
+        
+        rc_menu.metric_unit_text = menu_svg.text('m').font({family: rcMeasurements.font_family, size: 15, anchor: 'middle', leading: 1
+                                                           }).move(10,10).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width/2.5 });
+        rc_menu.imperial_unit_text = menu_svg.text('ft').font({family: rcMeasurements.font_family, size: 15, anchor: 'middle', leading: 1
+                                                              }).move(30,10).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width/2.5 });
+        button.add(menu_svg.text('|').font({family: rcMeasurements.font_family, size: 15, anchor: 'middle', leading: 1
+                                           }).move(20,10).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width/2.5 }));
+        button.add(rc_menu.metric_unit_text);
+        button.add(rc_menu.imperial_unit_text);
+        
         rc_menu.unit_button.click (function (e) {
                                        toggle_all_units(); e.stopPropagation(); e.preventDefault();
                                        });
         button.rotate_button = function (target_rotation) {
             button.rotate(target_rotation, button.x() + button_size/2, button.y() + button_size/2);
         }
+        
+        rc_menu.unit_button.highlight_active_unit = function (metric_is_selected) {
+            if (metric_is_selected) {
+                rc_menu.metric_unit_text.stroke({color: button_highlight_color});
+                rc_menu.imperial_unit_text.stroke({color: button_icon_color});
+            }
+            else {
+                rc_menu.imperial_unit_text.stroke({color: button_highlight_color});
+                rc_menu.metric_unit_text.stroke({color: button_icon_color});
+            }
+        }
     }
     draw_unit_toggle(rc_menu.button3);
+    
     
     function draw_eraser_icon (button) {
         rc_menu.eraser_button = button;

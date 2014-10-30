@@ -318,6 +318,7 @@ function rc_initialize(){
         else                        {default_units_metric = true;}
         unit_default_set_by_app = true;
         rcMeasurements.reset_all_measurement_units_to_default();
+        rc_menu.unit_button.highlight_active_unit(default_units_metric);
     }
     
     // construct menue
@@ -442,7 +443,7 @@ function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric)
                                                   // Initial dexecution if needed
                                                   //alert('do on orientation change');
                                                   doOnOrientationChange();
-                                                  
+                                                  rc_menu.unit_button.highlight_active_unit(default_units_metric);
                                                   
                                                   });
         

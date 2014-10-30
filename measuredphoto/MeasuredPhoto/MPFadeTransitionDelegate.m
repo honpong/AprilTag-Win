@@ -65,7 +65,7 @@ static NSTimeInterval const MPAnimatedTransitionDuration = .3f;
     
     if (self.shouldFadeIn)
     {
-        [UIView animateKeyframesWithDuration:MPAnimatedTransitionDuration delay:0 options:0 animations:^{
+        [UIView animateKeyframesWithDuration:MPAnimatedTransitionDuration delay:.15 options:0 animations:^{
             toView.alpha = 1.;
         } completion:^(BOOL finished) {
             

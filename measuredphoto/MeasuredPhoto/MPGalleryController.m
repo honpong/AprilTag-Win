@@ -60,7 +60,9 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     
     fadeTransitionDelegate = [MPFadeTransitionDelegate new];
     fadeTransitionDelegate.shouldFadeOut = NO;
+    
     _editPhotoController = [self.storyboard instantiateViewControllerWithIdentifier:@"EditPhoto"];
+    self.editPhotoController.transitioningDelegate = fadeTransitionDelegate;
     [self.editPhotoController.view class]; // forces view to load, calling viewDidLoad:
     [self.editPhotoController setOrientation:[UIView deviceOrientationFromUIOrientation:self.interfaceOrientation] animated:NO];
     
@@ -137,7 +139,6 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     self.editPhotoController.measuredPhoto = measuredPhoto;
     self.editPhotoController.indexPath = indexPath; // must be set after .measuredPhoto
 //    self.editPhotoController.modalPresentationStyle = UIModalPresentationCustom;
-    self.editPhotoController.transitioningDelegate = fadeTransitionDelegate;
     
     _zoomSourceView = cell;
     CGRect shrinkToFrame = [self.view convertRect:self.zoomSourceView.frame fromView:self.collectionView];

@@ -52,17 +52,36 @@ gl_FragColor = vec4(rgb, 1);\n\
 
 enum {
     ATTRIB_VERTEX,
-    ATTRIB_TEXTUREPOSITION
+    ATTRIB_TEXTUREPOSITION,
+    NUM_ATTRIBUTES
 };
 
-const static GLint attribLocation[2] = {
+const static GLint attribLocation[NUM_ATTRIBUTES] = {
     ATTRIB_VERTEX,
-    ATTRIB_TEXTUREPOSITION
+    ATTRIB_TEXTUREPOSITION,
 };
 
-const static GLchar * attribName[2] = {
+const static GLchar * attribName[NUM_ATTRIBUTES] = {
     "position",
     "texture_coordinate"
+};
+
+enum {
+    UNIFORM_VIDEOY,
+    UNIFORM_VIDEOUV,
+    UNIFORM_WHITENESS,
+    UNIFORM_CAMERASCREEN,
+    NUM_UNIFORMS
+};
+
+static int uniformLocation[NUM_UNIFORMS];
+
+const static GLchar *uniformName[NUM_UNIFORMS] =
+{
+    "videoFrameY",
+    "videoFrameUV",
+    "whiteness",
+    "camera_screen_rotation"
 };
 
 #define MULTISAMPLE
@@ -119,11 +138,11 @@ const static GLchar * attribName[2] = {
 {
     [EAGLContext setCurrentContext:[[RCOpenGLManagerFactory getInstance] oglContext]];
     
-    glueCreateProgram(vertSrc, fragSrc, 2, attribName, attribLocation, 0, 0, 0, &yuvTextureProgram);
+    glueCreateProgram(vertSrc, fragSrc, 2, attribName, attribLocation, NUM_UNIFORMS, uniformName, uniformLocation, &yuvTextureProgram);
     glUseProgram(yuvTextureProgram);
-    glUniform1i(glGetUniformLocation(yuvTextureProgram, "videoFrameY"), 0);
-    glUniform1i(glGetUniformLocation(yuvTextureProgram, "videoFrameUV"), 1);
-    glUniform1f(glGetUniformLocation(yuvTextureProgram, "whiteness"), 0.);
+    glUniform1i(uniformLocation[UNIFORM_VIDEOY], 0);
+    glUniform1i(uniformLocation[UNIFORM_VIDEOUV], 1);
+    glUniform1f(uniformLocation[UNIFORM_WHITENESS], 0.);
     
     xScale = 1.;
     yScale = 1.;
@@ -396,7 +415,7 @@ const static GLchar * attribName[2] = {
     
     glUseProgram(yuvTextureProgram);
     
-    glUniform1f(glGetUniformLocation(yuvTextureProgram, "whiteness"), whiteness);
+    glUniform1f(uniformLocation[UNIFORM_WHITENESS], whiteness);
     
     CVReturn err;
     if (videoTextureCache == NULL)
@@ -462,7 +481,7 @@ const static GLchar * attribName[2] = {
     UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
     GLKMatrix4 camera_screen = [self getScreenRotationForOrientation:orientation];
     
-    glUniformMatrix4fv(glGetUniformLocation(yuvTextureProgram, "camera_screen_rotation"), 1, false, camera_screen.m);
+    glUniformMatrix4fv(uniformLocation[UNIFORM_CAMERASCREEN], 1, false, camera_screen.m);
     
     GLfloat squareVertices[] = {
         -xScale, -yScale,

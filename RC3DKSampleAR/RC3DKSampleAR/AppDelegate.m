@@ -13,9 +13,9 @@
 #import "RCLocationManager.h"
 #import "RCSensorFusion.h"
 #import "RCCalibration1.h"
+#import "RCAVSessionManager.h"
 
 #define PREF_IS_CALIBRATED @"PREF_IS_CALIBRATED"
-#define PREF_SHOW_LOCATION_EXPLANATION @"RC_SHOW_LOCATION_EXPLANATION"
 
 @implementation AppDelegate
 {
@@ -29,7 +29,6 @@
     // set defaults for some prefs
     NSDictionary *appDefaults = [NSDictionary dictionaryWithObjectsAndKeys:
                                  [NSNumber numberWithBool:NO], PREF_IS_CALIBRATED,
-                                 [NSNumber numberWithBool:YES], PREF_SHOW_LOCATION_EXPLANATION,
                                  nil];
     [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
     
@@ -75,37 +74,21 @@
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
     [[NSUserDefaults standardUserDefaults] synchronize];
+    [locationManager requestLocationAccessWithCompletion:^(BOOL granted) {
+        if(granted) [locationManager startLocationUpdates];
+    }];
+    [RCAVSessionManager requestCameraAccessWithCompletion:^(BOOL granted) {
+        if(!granted)
+        {
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Failure"
+                                                            message:@"This app won't work without camera access."
+                                                           delegate:self
+                                                  cancelButtonTitle:@"Cancel"
+                                                  otherButtonTitles:nil];
+            [alert show];
+        }
+    }];
     
-    if([self shouldShowLocationExplanation])
-    {
-        //On first launch, show explanation for why we need location. The alert view's callback will attempt to start location, which will ask for authorization.
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Location"
-                                                        message:@"If you allow the app to use your location, we can improve the accuracy of your measurements by adjusting for altitude and how far you are from the equator."
-                                                       delegate:self
-                                              cancelButtonTitle:@"Continue"
-                                              otherButtonTitles:nil];
-        [alert show];
-    }
-    else
-    {
-        //Does nothing if location is not authorized. The SensorDelegate calls [RCSensorFusion setLocation] automatically. If you do not use the SensorDelegate, make sure you pass the location to RCSensorFusion before starting sensor fusion.
-        [mySensorDelegate startLocationUpdatesIfAllowed];
-    }
-}
-
-- (BOOL)shouldShowLocationExplanation
-{
-    return [[NSUserDefaults standardUserDefaults] boolForKey:PREF_SHOW_LOCATION_EXPLANATION];
-}
-
-- (void) alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
-{
-    if (buttonIndex == 0) //the only button
-    {
-        [[NSUserDefaults standardUserDefaults] setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
-        [[NSUserDefaults standardUserDefaults] synchronize];
-        [mySensorDelegate startLocationUpdatesIfAllowed];
-    }
 }
 
 - (void) calibrationDidFinish

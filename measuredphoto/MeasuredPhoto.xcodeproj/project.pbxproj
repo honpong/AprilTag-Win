@@ -336,7 +336,6 @@
 		32BA433217A2EF4E002BAE13 /* MPAugmentedRealityView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA432B17A2EF4E002BAE13 /* MPAugmentedRealityView.m */; };
 		32BA433317A2EF4E002BAE13 /* MPLineLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA432D17A2EF4E002BAE13 /* MPLineLayer.m */; };
 		32BA433417A2EF4E002BAE13 /* MPLineLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA432F17A2EF4E002BAE13 /* MPLineLayerDelegate.m */; };
-		32BA433517A2EF4E002BAE13 /* MPVideoPreview.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA433117A2EF4E002BAE13 /* MPVideoPreview.m */; };
 		32BA433817A2EF69002BAE13 /* MPCapturePhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA433717A2EF69002BAE13 /* MPCapturePhoto.m */; };
 		32BA434617A2F986002BAE13 /* libRCCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA434017A2EFF2002BAE13 /* libRCCore.a */; };
 		32BA436117A2FC52002BAE13 /* MPAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA432717A2EE9D002BAE13 /* MPAnalytics.m */; };
@@ -1004,8 +1003,6 @@
 		32BA432D17A2EF4E002BAE13 /* MPLineLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPLineLayer.m; sourceTree = "<group>"; };
 		32BA432E17A2EF4E002BAE13 /* MPLineLayerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPLineLayerDelegate.h; sourceTree = "<group>"; };
 		32BA432F17A2EF4E002BAE13 /* MPLineLayerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPLineLayerDelegate.m; sourceTree = "<group>"; };
-		32BA433017A2EF4E002BAE13 /* MPVideoPreview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPVideoPreview.h; sourceTree = "<group>"; };
-		32BA433117A2EF4E002BAE13 /* MPVideoPreview.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPVideoPreview.m; sourceTree = "<group>"; };
 		32BA433617A2EF69002BAE13 /* MPCapturePhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPCapturePhoto.h; sourceTree = "<group>"; };
 		32BA433717A2EF69002BAE13 /* MPCapturePhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPCapturePhoto.m; sourceTree = "<group>"; };
 		32BA433917A2EFF2002BAE13 /* RCCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCCore.xcodeproj; path = ../RCCore/RCCore.xcodeproj; sourceTree = "<group>"; };
@@ -1902,8 +1899,6 @@
 				3248C7E018A464BF00061D4A /* MPThumbnailButton.m */,
 				3248C7D918A44AE400061D4A /* MPToolbarView.h */,
 				3248C7DA18A44AE400061D4A /* MPToolbarView.m */,
-				32BA433017A2EF4E002BAE13 /* MPVideoPreview.h */,
-				32BA433117A2EF4E002BAE13 /* MPVideoPreview.m */,
 				32A2104018906439002BD1E4 /* MPView.h */,
 				32A2104118906439002BD1E4 /* MPView.m */,
 				32934CF018D922E1005DC87C /* UIImage+MPImageFile.h */,
@@ -2740,7 +2735,6 @@
 				3244D39518E6134500AB0DE0 /* MBProgressHUD.m in Sources */,
 				328C7DD719D1EA420079BA40 /* MPIntroScreen.m in Sources */,
 				326ACFAB19D2221B00B36965 /* OSKPresentationManager.m in Sources */,
-				32BA433517A2EF4E002BAE13 /* MPVideoPreview.m in Sources */,
 				32745D691892FBCE000C68F4 /* MPLoupe.m in Sources */,
 				326ACF6A19D2221B00B36965 /* NSHTTPURLResponse+OSKUtilities.m in Sources */,
 				32BA433817A2EF69002BAE13 /* MPCapturePhoto.m in Sources */,

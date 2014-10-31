@@ -23,7 +23,6 @@
 #import "MPDMeasuredPhoto+MPDMeasuredPhotoExt.h"
 #import "MPEditPhoto.h"
 #import "MPGalleryController.h"
-#import "MPVideoPreview.h"
 
 static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
 

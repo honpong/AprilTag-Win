@@ -18,7 +18,6 @@
 #import <RCCore/RCCore.h>
 #import "RCStereo.h"
 #import "MBProgressHUD.h"
-#import "MPVideoPreview.h"
 #import "MPAugmentedRealityView.h"
 #import "MPBaseViewController.h"
 #import "MPAnalytics.h"

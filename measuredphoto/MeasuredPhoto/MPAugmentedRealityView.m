@@ -18,7 +18,7 @@
     int videoFrameOffset;
     RCFeaturePoint* lastPointTapped;
     BOOL isInitialized;
-    MPVideoPreview *AROverlay;
+    //ARDelegate *AROverlay;
 }
 @synthesize videoView, featuresView, featuresLayer, selectedFeaturesLayer, initializingFeaturesLayer, measurementsView, photoView, delegate;
 
@@ -49,8 +49,8 @@
     [self addSubview:videoView];
     [self sendSubviewToBack:videoView];
     
-    AROverlay = [[MPVideoPreview alloc] init];
-    [videoView setDelegate:AROverlay];
+    //AROverlay = [[MPVideoPreview alloc] init];
+    //[videoView setDelegate:AROverlay];
     
     photoView = [[MPImageView alloc] initWithFrame:self.frame];
     photoView.hidden = YES;

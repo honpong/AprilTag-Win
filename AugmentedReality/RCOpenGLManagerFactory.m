@@ -7,7 +7,6 @@
 //
 
 #import "RCOpenGLManagerFactory.h"
-#include "ShaderUtilities.h"
 #import "RCDebugLog.h"
 
 @interface RCOpenGLManagerImpl : NSObject <RCOpenGLManager>

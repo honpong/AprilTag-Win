@@ -49,15 +49,11 @@
 		D90145F119F9A23E004E7CE2 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D90145DE19F9A23E004E7CE2 /* CoreGraphics.framework */; };
 		D90145FE19F9A5EF004E7CE2 /* RCOpenGLManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = D90145F419F9A5EF004E7CE2 /* RCOpenGLManagerFactory.m */; };
 		D90145FF19F9A5EF004E7CE2 /* RCVideoPreview.m in Sources */ = {isa = PBXBuildFile; fileRef = D90145F619F9A5EF004E7CE2 /* RCVideoPreview.m */; };
-		D901460019F9A5EF004E7CE2 /* passThrough.fsh in Resources */ = {isa = PBXBuildFile; fileRef = D90145F819F9A5EF004E7CE2 /* passThrough.fsh */; };
-		D901460119F9A5EF004E7CE2 /* passThrough.vsh in Resources */ = {isa = PBXBuildFile; fileRef = D90145F919F9A5EF004E7CE2 /* passThrough.vsh */; };
-		D901460219F9A5EF004E7CE2 /* ShaderUtilities.c in Sources */ = {isa = PBXBuildFile; fileRef = D90145FA19F9A5EF004E7CE2 /* ShaderUtilities.c */; };
-		D901460319F9A5EF004E7CE2 /* yuvtorgb.fsh in Resources */ = {isa = PBXBuildFile; fileRef = D90145FC19F9A5EF004E7CE2 /* yuvtorgb.fsh */; };
-		D901460419F9A5EF004E7CE2 /* yuvtorgb.vsh in Resources */ = {isa = PBXBuildFile; fileRef = D90145FD19F9A5EF004E7CE2 /* yuvtorgb.vsh */; };
 		D901460819F9C2D8004E7CE2 /* ARDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D901460719F9C2D8004E7CE2 /* ARDelegate.m */; };
 		D901460B19F9C43B004E7CE2 /* flat.fsh in Resources */ = {isa = PBXBuildFile; fileRef = D901460919F9C43B004E7CE2 /* flat.fsh */; };
 		D901460C19F9C43B004E7CE2 /* flat.vsh in Resources */ = {isa = PBXBuildFile; fileRef = D901460A19F9C43B004E7CE2 /* flat.vsh */; };
 		D963096B1A01BC9800F92929 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D963096A1A01BC9800F92929 /* GLKit.framework */; };
+		D9E8C4871A03FAFA002EDA05 /* RCGLShaderProgram.m in Sources */ = {isa = PBXBuildFile; fileRef = D9E8C4861A03FAFA002EDA05 /* RCGLShaderProgram.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -149,12 +145,6 @@
 		D90145F419F9A5EF004E7CE2 /* RCOpenGLManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCOpenGLManagerFactory.m; sourceTree = "<group>"; };
 		D90145F519F9A5EF004E7CE2 /* RCVideoPreview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoPreview.h; sourceTree = "<group>"; };
 		D90145F619F9A5EF004E7CE2 /* RCVideoPreview.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoPreview.m; sourceTree = "<group>"; };
-		D90145F819F9A5EF004E7CE2 /* passThrough.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = passThrough.fsh; sourceTree = "<group>"; };
-		D90145F919F9A5EF004E7CE2 /* passThrough.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = passThrough.vsh; sourceTree = "<group>"; };
-		D90145FA19F9A5EF004E7CE2 /* ShaderUtilities.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ShaderUtilities.c; sourceTree = "<group>"; };
-		D90145FB19F9A5EF004E7CE2 /* ShaderUtilities.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShaderUtilities.h; sourceTree = "<group>"; };
-		D90145FC19F9A5EF004E7CE2 /* yuvtorgb.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuvtorgb.fsh; sourceTree = "<group>"; };
-		D90145FD19F9A5EF004E7CE2 /* yuvtorgb.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = yuvtorgb.vsh; sourceTree = "<group>"; };
 		D901460519F9A997004E7CE2 /* RCVideoFrameProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RCVideoFrameProvider.h; path = ../../SensorManagers/RCVideoFrameProvider.h; sourceTree = "<group>"; };
 		D901460619F9C2D8004E7CE2 /* ARDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARDelegate.h; sourceTree = "<group>"; };
 		D901460719F9C2D8004E7CE2 /* ARDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARDelegate.m; sourceTree = "<group>"; };
@@ -162,6 +152,8 @@
 		D901460A19F9C43B004E7CE2 /* flat.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = flat.vsh; sourceTree = "<group>"; };
 		D963096A1A01BC9800F92929 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		D9E8C4821A02B143002EDA05 /* RC3DKSampleAR-prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RC3DKSampleAR-prefix.pch"; sourceTree = "<group>"; };
+		D9E8C4851A03FAFA002EDA05 /* RCGLShaderProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCGLShaderProgram.h; sourceTree = "<group>"; };
+		D9E8C4861A03FAFA002EDA05 /* RCGLShaderProgram.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCGLShaderProgram.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -385,27 +377,15 @@
 		D90145F219F9A5EF004E7CE2 /* AugmentedReality */ = {
 			isa = PBXGroup;
 			children = (
+				D9E8C4851A03FAFA002EDA05 /* RCGLShaderProgram.h */,
+				D9E8C4861A03FAFA002EDA05 /* RCGLShaderProgram.m */,
 				D90145F319F9A5EF004E7CE2 /* RCOpenGLManagerFactory.h */,
 				D90145F419F9A5EF004E7CE2 /* RCOpenGLManagerFactory.m */,
 				D90145F519F9A5EF004E7CE2 /* RCVideoPreview.h */,
 				D90145F619F9A5EF004E7CE2 /* RCVideoPreview.m */,
-				D90145F719F9A5EF004E7CE2 /* Shaders */,
 			);
 			name = AugmentedReality;
 			path = ../../AugmentedReality;
-			sourceTree = "<group>";
-		};
-		D90145F719F9A5EF004E7CE2 /* Shaders */ = {
-			isa = PBXGroup;
-			children = (
-				D90145F819F9A5EF004E7CE2 /* passThrough.fsh */,
-				D90145F919F9A5EF004E7CE2 /* passThrough.vsh */,
-				D90145FA19F9A5EF004E7CE2 /* ShaderUtilities.c */,
-				D90145FB19F9A5EF004E7CE2 /* ShaderUtilities.h */,
-				D90145FC19F9A5EF004E7CE2 /* yuvtorgb.fsh */,
-				D90145FD19F9A5EF004E7CE2 /* yuvtorgb.vsh */,
-			);
-			path = Shaders;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -457,9 +437,11 @@
 				TargetAttributes = {
 					D901456019F9A00F004E7CE2 = {
 						CreatedOnToolsVersion = 6.1;
+						DevelopmentTeam = 7CKC6G36R8;
 					};
 					D901457919F9A00F004E7CE2 = {
 						CreatedOnToolsVersion = 6.1;
+						DevelopmentTeam = 7CKC6G36R8;
 						TestTargetID = D901456019F9A00F004E7CE2;
 					};
 				};
@@ -488,17 +470,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D901460119F9A5EF004E7CE2 /* passThrough.vsh in Resources */,
 				D901457019F9A00F004E7CE2 /* Main.storyboard in Resources */,
 				D90145BA19F9A094004E7CE2 /* holding_landscape.jpg in Resources */,
 				D90145B919F9A094004E7CE2 /* Calibration.storyboard in Resources */,
 				D90145BC19F9A094004E7CE2 /* ipad_on_table.jpg in Resources */,
-				D901460319F9A5EF004E7CE2 /* yuvtorgb.fsh in Resources */,
 				D901457519F9A00F004E7CE2 /* LaunchScreen.xib in Resources */,
 				D901460C19F9C43B004E7CE2 /* flat.vsh in Resources */,
 				D90145BB19F9A094004E7CE2 /* holding_portrait.jpg in Resources */,
-				D901460419F9A5EF004E7CE2 /* yuvtorgb.vsh in Resources */,
-				D901460019F9A5EF004E7CE2 /* passThrough.fsh in Resources */,
 				D901460B19F9C43B004E7CE2 /* flat.fsh in Resources */,
 				D901457219F9A00F004E7CE2 /* Images.xcassets in Resources */,
 			);
@@ -523,7 +501,6 @@
 				D90145C519F9A094004E7CE2 /* RCVideoManager.m in Sources */,
 				D90145BE19F9A094004E7CE2 /* RCCalibration1.m in Sources */,
 				D90145C419F9A094004E7CE2 /* RCMotionManager.m in Sources */,
-				D901460219F9A5EF004E7CE2 /* ShaderUtilities.c in Sources */,
 				D90145FF19F9A5EF004E7CE2 /* RCVideoPreview.m in Sources */,
 				D90145C319F9A094004E7CE2 /* RCLocationManager.m in Sources */,
 				D901456D19F9A00F004E7CE2 /* ViewController.m in Sources */,
@@ -531,6 +508,7 @@
 				D90145FE19F9A5EF004E7CE2 /* RCOpenGLManagerFactory.m in Sources */,
 				D901456A19F9A00F004E7CE2 /* AppDelegate.m in Sources */,
 				D90145C819F9A184004E7CE2 /* LicenseHelper.m in Sources */,
+				D9E8C4871A03FAFA002EDA05 /* RCGLShaderProgram.m in Sources */,
 				D901456719F9A00F004E7CE2 /* main.m in Sources */,
 				D901460819F9C2D8004E7CE2 /* ARDelegate.m in Sources */,
 				D90145BD19F9A094004E7CE2 /* MBProgressHUD.m in Sources */,
@@ -659,6 +637,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LIBRARY = "libc++";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DKSampleAR/RC3DKSampleAR-Prefix.pch";
 				INFOPLIST_FILE = RC3DKSampleAR/Info.plist;
@@ -672,6 +652,7 @@
 					"-lc++",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Debug;
 		};
@@ -680,6 +661,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_CXX_LIBRARY = "libc++";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DKSampleAR/RC3DKSampleAR-Prefix.pch";
 				INFOPLIST_FILE = RC3DKSampleAR/Info.plist;
@@ -693,6 +676,7 @@
 					"-lc++",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 			};
 			name = Release;
 		};
@@ -700,6 +684,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -711,6 +697,7 @@
 				INFOPLIST_FILE = RC3DKSampleARTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RC3DKSampleAR.app/RC3DKSampleAR";
 			};
 			name = Debug;
@@ -719,6 +706,8 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
@@ -726,6 +715,7 @@
 				INFOPLIST_FILE = RC3DKSampleARTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RC3DKSampleAR.app/RC3DKSampleAR";
 			};
 			name = Release;

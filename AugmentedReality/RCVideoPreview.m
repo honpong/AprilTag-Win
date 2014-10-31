@@ -7,82 +7,46 @@
 //
 
 #import "RCVideoPreview.h"
-#include "ShaderUtilities.h"
 #import <CoreMedia/CoreMedia.h>
 #import "RCOpenGLManagerFactory.h"
 #import "RCDebugLog.h"
 #import <GLKit/GLKit.h>
+#import "RCGLShaderProgram.h"
 
-static const GLchar *vertSrc = "\n\
-attribute vec4 position;\n\
-attribute mediump vec4 texture_coordinate;\n\
-varying mediump vec2 coordinate;\n\
-uniform mat4 camera_screen_rotation;\n\
-\n\
-void main()\n\
-{\n\
-gl_Position = camera_screen_rotation * position;\n\
-coordinate = texture_coordinate.xy;\n\
-}\n\
-";
-
-static const GLchar *fragSrc = "\n\
-uniform sampler2D videoFrameY;\n\
-uniform sampler2D videoFrameUV;\n\
-uniform lowp float whiteness;\n\
-\n\
-varying highp vec2 coordinate;\n\
-\n\
-void main()\n\
-{\n\
-mediump vec3 yuv;\n\
-lowp vec3 rgb;\n\
-\n\
-yuv.x = texture2D(videoFrameY, coordinate).r;\n\
-yuv.yz = texture2D(videoFrameUV, coordinate).rg - vec2(0.5, 0.5);\n\
-\n\
-// Using BT.709 which is the standard for HDTV\n\
-rgb = mat3(      1,       1,      1,\n\
-0, -.18732, 1.8556,\n\
-1.57481, -.46813,      0) * yuv * (1. - whiteness) + whiteness;\n\
-\n\
-gl_FragColor = vec4(rgb, 1);\n\
-}\n\
-";
-
-enum {
-    ATTRIB_VERTEX,
-    ATTRIB_TEXTUREPOSITION,
-    NUM_ATTRIBUTES
-};
-
-const static GLint attribLocation[NUM_ATTRIBUTES] = {
-    ATTRIB_VERTEX,
-    ATTRIB_TEXTUREPOSITION,
-};
-
-const static GLchar * attribName[NUM_ATTRIBUTES] = {
-    "position",
-    "texture_coordinate"
-};
-
-enum {
-    UNIFORM_VIDEOY,
-    UNIFORM_VIDEOUV,
-    UNIFORM_WHITENESS,
-    UNIFORM_CAMERASCREEN,
-    NUM_UNIFORMS
-};
-
-static int uniformLocation[NUM_UNIFORMS];
-
-const static GLchar *uniformName[NUM_UNIFORMS] =
+static const char *vertSrc = SHADER_STRINGIFY(
+attribute vec4 position;
+attribute mediump vec4 texture_coordinate;
+varying mediump vec2 coordinate;
+uniform mat4 camera_screen_rotation;
+                 
+void main()
 {
-    "videoFrameY",
-    "videoFrameUV",
-    "whiteness",
-    "camera_screen_rotation"
-};
+    gl_Position = camera_screen_rotation * position;
+    coordinate = texture_coordinate.xy;
+});
+
+static const GLchar *fragSrc = SHADER_STRINGIFY(
+uniform sampler2D videoFrameY;
+uniform sampler2D videoFrameUV;
+uniform lowp float whiteness;
+
+varying highp vec2 coordinate;
+
+void main()
+{
+    mediump vec3 yuv;
+    lowp vec3 rgb;
+    
+    yuv.x = texture2D(videoFrameY, coordinate).r;
+    yuv.yz = texture2D(videoFrameUV, coordinate).rg - vec2(0.5, 0.5);
+    
+    // Using BT.709 which is the standard for HDTV
+    rgb = mat3(     1,       1,      1,
+                    0, -.18732, 1.8556,
+              1.57481, -.46813,      0) * yuv * (1. - whiteness) + whiteness;
+    
+    gl_FragColor = vec4(rgb, 1);
+});
 
 #define MULTISAMPLE
 
@@ -111,7 +75,7 @@ const static GLchar *uniformName[NUM_UNIFORMS] =
     float xScale;
     float yScale;
     float whiteness;
-    GLuint yuvTextureProgram;
+    RCGLShaderProgram *yuvTextureProgram;
 }
 
 @synthesize delegate;
@@ -138,11 +102,12 @@ const static GLchar *uniformName[NUM_UNIFORMS] =
 {
     [EAGLContext setCurrentContext:[[RCOpenGLManagerFactory getInstance] oglContext]];
     
-    glueCreateProgram(vertSrc, fragSrc, 2, attribName, attribLocation, NUM_UNIFORMS, uniformName, uniformLocation, &yuvTextureProgram);
-    glUseProgram(yuvTextureProgram);
-    glUniform1i(uniformLocation[UNIFORM_VIDEOY], 0);
-    glUniform1i(uniformLocation[UNIFORM_VIDEOUV], 1);
-    glUniform1f(uniformLocation[UNIFORM_WHITENESS], 0.);
+    yuvTextureProgram = [[RCGLShaderProgram alloc] init];
+    [yuvTextureProgram buildWithVertexSource:vertSrc withFragmentSource:fragSrc];
+    glUseProgram(yuvTextureProgram.program);
+    glUniform1i([yuvTextureProgram getUniformLocation:@"videoFrameY"], 0);
+    glUniform1i([yuvTextureProgram getUniformLocation:@"videoFrameUV"], 1);
+    glUniform1f([yuvTextureProgram getUniformLocation:@"whiteness"], 0.);
     
     xScale = 1.;
     yScale = 1.;
@@ -413,9 +378,9 @@ const static GLchar *uniformName[NUM_UNIFORMS] =
     
     pixelBuffer = (CVImageBufferRef)CFRetain(pixelBuffer);
     
-    glUseProgram(yuvTextureProgram);
+    glUseProgram(yuvTextureProgram.program);
     
-    glUniform1f(uniformLocation[UNIFORM_WHITENESS], whiteness);
+    glUniform1f([yuvTextureProgram getUniformLocation:@"whiteness"], whiteness);
     
     CVReturn err;
     if (videoTextureCache == NULL)
@@ -481,7 +446,7 @@ const static GLchar *uniformName[NUM_UNIFORMS] =
     UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
     GLKMatrix4 camera_screen = [self getScreenRotationForOrientation:orientation];
     
-    glUniformMatrix4fv(uniformLocation[UNIFORM_CAMERASCREEN], 1, false, camera_screen.m);
+    glUniformMatrix4fv([yuvTextureProgram getUniformLocation:@"camera_screen_rotation"], 1, false, camera_screen.m);
     
     GLfloat squareVertices[] = {
         -xScale, -yScale,
@@ -539,21 +504,10 @@ const static GLchar *uniformName[NUM_UNIFORMS] =
     
     // Draw the texture on the screen with OpenGL ES 2
     // Update attribute values.
-    glVertexAttribPointer(ATTRIB_VERTEX, 2, GL_FLOAT, 0, 0, squareVertices);
-    glEnableVertexAttribArray(ATTRIB_VERTEX);
-    glVertexAttribPointer(ATTRIB_TEXTUREPOSITION, 2, GL_FLOAT, 0, 0, passThroughTextureVertices);
-    glEnableVertexAttribArray(ATTRIB_TEXTUREPOSITION);
-    
-    // Update uniform values if there are any
-    
-    // Validate program before drawing. This is a good check, but only really necessary in a debug build.
-    // DEBUG macro must be defined in your debug configurations if that's not already the case.
-#if defined(DEBUG)
-    if (!glueValidateProgram(yuvTextureProgram)) {
-        DLog(@"Failed to validate program: %d", yuvTextureProgram);
-        return;
-    }
-#endif
+    glVertexAttribPointer([yuvTextureProgram getAttribLocation:@"position"], 2, GL_FLOAT, 0, 0, squareVertices);
+    glEnableVertexAttribArray([yuvTextureProgram getAttribLocation:@"position"]);
+    glVertexAttribPointer([yuvTextureProgram getAttribLocation:@"texture_coordinate"], 2, GL_FLOAT, 0, 0, passThroughTextureVertices);
+    glEnableVertexAttribArray([yuvTextureProgram getAttribLocation:@"texture_coordinate"]);
     
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
@@ -646,9 +600,6 @@ const static GLchar *uniformName[NUM_UNIFORMS] =
         CFRelease(videoTextureCache);
         videoTextureCache = 0;
     }
-    
-    glDeleteProgram(yuvTextureProgram);
-    yuvTextureProgram = 0;
     
     //[super dealloc]; - not needed with ARC
 }

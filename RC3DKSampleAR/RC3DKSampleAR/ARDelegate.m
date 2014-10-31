@@ -9,67 +9,22 @@
 #import "ARDelegate.h"
 #import <QuartzCore/CAEAGLLayer.h>
 #import "RCOpenGLManagerFactory.h"
-#include "ShaderUtilities.h"
+#import "RCGLShaderProgram.h"
 #include "RCDebugLog.h"
 
 @implementation ARDelegate
 {
-    GLuint myProgram;
+    RCGLShaderProgram *program;
 }
 
 @synthesize initialCamera;
-
-enum {
-    ATTRIB_VERTEX,
-    ATTRIB_NORMAL,
-    NUM_ATTRIBUTES
-};
-
-const static GLint attribLocation[NUM_ATTRIBUTES] = {
-    ATTRIB_VERTEX,
-    ATTRIB_NORMAL
-};
-
-const static GLchar * attribName[NUM_ATTRIBUTES] = {
-    "position",
-    "normal"
-};
-
-enum {
-    //UNIFORM_COLOR,
-    UNIFORM_DIRECTIONAL,
-    UNIFORM_MATERIAL,
-    UNIFORM_PROJECTION,
-    UNIFORM_CAMERA,
-    UNIFORM_MODEL,
-    NUM_UNIFORMS
-};
-
-static int uniformLocation[NUM_UNIFORMS];
-
-const static GLchar *uniformName[NUM_UNIFORMS] =
-{
-    //"color",
-    "directional",
-    "mat",
-    "projection_matrix",
-    "camera_matrix",
-    "model_matrix"
-};
-
 
 -(id)init
 {
     if (self = [super init])
     {
-        const char *myVertShader = [[RCOpenGLManagerFactory getInstance] readFile:@"flat.vsh"];
-        const char *myFragShader = [[RCOpenGLManagerFactory getInstance] readFile:@"flat.fsh"];
-        
-        glueCreateProgram(myVertShader, myFragShader,
-                          NUM_ATTRIBUTES, attribName, attribLocation,
-                          NUM_UNIFORMS, uniformName, uniformLocation,
-                          &myProgram);
-        assert(myProgram);
+        program = [[RCGLShaderProgram alloc] init];
+        [program buildWithVertexFileName:@"flat.vsh" withFragmentFileName:@"flat.fsh"];
     }
     return self;
 }
@@ -77,7 +32,7 @@ const static GLchar *uniformName[NUM_UNIFORMS] =
 - (void)renderWithSensorFusionData:(RCSensorFusionData *)data withPerspectiveMatrix:(GLKMatrix4)projection
 {
     if(!data.cameraParameters || !data.cameraTransformation) return;
-    glUseProgram(myProgram);
+    glUseProgram(program.program);
     
     float near = .01, far = 1000.;
     
@@ -89,25 +44,25 @@ const static GLchar *uniformName[NUM_UNIFORMS] =
     
     UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
 
-    glUniformMatrix4fv(uniformLocation[UNIFORM_PROJECTION], 1, false, projection.m);
-    glUniformMatrix4fv(uniformLocation[UNIFORM_CAMERA], 1, false, camera.m);
+    glUniformMatrix4fv([program getUniformLocation:@"projection_matrix"], 1, false, projection.m);
+    glUniformMatrix4fv([program getUniformLocation:@"camera_matrix"], 1, false, camera.m);
 
-    glEnableVertexAttribArray(ATTRIB_VERTEX);
+    glEnableVertexAttribArray([program getAttribLocation:@"position"]);
     
-    glUniform3f(glGetUniformLocation(myProgram, "directional.direction"), 0, 0, -1);
-    glUniform3f(glGetUniformLocation(myProgram, "directional.halfplane"), 0, 0, -1);
-    glUniform4f(glGetUniformLocation(myProgram, "directional.ambientColor"), .8, .8, .8, 1);
-    glUniform4f(glGetUniformLocation(myProgram, "directional.diffuseColor"), .8, .8, .8, 1);
-    glUniform4f(glGetUniformLocation(myProgram, "directional.specularColor"), .8, .8, .8, 1);
+    glUniform3f([program getUniformLocation:@"directional.direction"], 0, 0, -1);
+    glUniform3f([program getUniformLocation:@"directional.halfplane"], 0, 0, -1);
+    glUniform4f([program getUniformLocation:@"directional.ambientColor"], .8, .8, .8, 1);
+    glUniform4f([program getUniformLocation:@"directional.diffuseColor"], .8, .8, .8, 1);
+    glUniform4f([program getUniformLocation:@"directional.specularColor"], .8, .8, .8, 1);
     
-    glUniform4f(glGetUniformLocation(myProgram, "mat.ambientFactor"), 0., 0., 1., 1);
-    glUniform4f(glGetUniformLocation(myProgram, "mat.diffuseFactor"), 0., 0.5, 1., 1);
-    glUniform4f(glGetUniformLocation(myProgram, "mat.specularFactor"), 1., 1., 1., 1);
-    glUniform1f(glGetUniformLocation(myProgram, "mat.shininess"), 0.2);
+    glUniform4f([program getUniformLocation:@"mat.ambientFactor"], 0., 0., 1., 1);
+    glUniform4f([program getUniformLocation:@"mat.diffuseFactor"], 0., 0.5, 1., 1);
+    glUniform4f([program getUniformLocation:@"mat.specularFactor"], 1., 1., 1., 1);
+    glUniform1f([program getUniformLocation:@"mat.shininess"], 0.2);
 
     model = GLKMatrix4Translate(model, 0, 0, 1);
     model = GLKMatrix4Scale(model, .1, .1, .1);
-    glUniformMatrix4fv(uniformLocation[UNIFORM_MODEL], 1, false, model.m);
+    glUniformMatrix4fv([program getUniformLocation:@"model_matrix"], 1, false, model.m);
     
     {
         GLfloat face[] = {
@@ -119,11 +74,11 @@ const static GLchar *uniformName[NUM_UNIFORMS] =
             0,0,1, 0,0,1, 0,0,1
         };
         
-        glVertexAttribPointer(ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, face);
-        glEnableVertexAttribArray(ATTRIB_VERTEX);
+        glVertexAttribPointer([program getAttribLocation:@"position"], 3, GL_FLOAT, 0, 0, face);
+        glEnableVertexAttribArray([program getAttribLocation:@"position"]);
         
-        glVertexAttribPointer(ATTRIB_NORMAL, 3, GL_FLOAT, 0, 0, normal);
-        glEnableVertexAttribArray(ATTRIB_NORMAL);
+        glVertexAttribPointer([program getAttribLocation:@"normal"], 3, GL_FLOAT, 0, 0, normal);
+        glEnableVertexAttribArray([program getAttribLocation:@"normal"]);
         
         glDrawArrays(GL_TRIANGLES, 0, 6);
     }
@@ -138,11 +93,11 @@ const static GLchar *uniformName[NUM_UNIFORMS] =
             0,0,-1, 0,0,-1, 0,0,-1
         };
         
-        glVertexAttribPointer(ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, face);
-        glEnableVertexAttribArray(ATTRIB_VERTEX);
+        glVertexAttribPointer([program getAttribLocation:@"position"], 3, GL_FLOAT, 0, 0, face);
+        glEnableVertexAttribArray([program getAttribLocation:@"position"]);
         
-        glVertexAttribPointer(ATTRIB_NORMAL, 3, GL_FLOAT, 0, 0, normal);
-        glEnableVertexAttribArray(ATTRIB_NORMAL);
+        glVertexAttribPointer([program getAttribLocation:@"normal"], 3, GL_FLOAT, 0, 0, normal);
+        glEnableVertexAttribArray([program getAttribLocation:@"normal"]);
         
         glDrawArrays(GL_TRIANGLES, 0, 6);
     }
@@ -157,11 +112,11 @@ const static GLchar *uniformName[NUM_UNIFORMS] =
             1,0,0, 1,0,0, 1,0,0
         };
         
-        glVertexAttribPointer(ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, face);
-        glEnableVertexAttribArray(ATTRIB_VERTEX);
+        glVertexAttribPointer([program getAttribLocation:@"position"], 3, GL_FLOAT, 0, 0, face);
+        glEnableVertexAttribArray([program getAttribLocation:@"position"]);
         
-        glVertexAttribPointer(ATTRIB_NORMAL, 3, GL_FLOAT, 0, 0, normal);
-        glEnableVertexAttribArray(ATTRIB_NORMAL);
+        glVertexAttribPointer([program getAttribLocation:@"normal"], 3, GL_FLOAT, 0, 0, normal);
+        glEnableVertexAttribArray([program getAttribLocation:@"normal"]);
         
         glDrawArrays(GL_TRIANGLES, 0, 6);
     }
@@ -176,11 +131,11 @@ const static GLchar *uniformName[NUM_UNIFORMS] =
             -1,0,0, -1,0,0, -1,0,0
         };
         
-        glVertexAttribPointer(ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, face);
-        glEnableVertexAttribArray(ATTRIB_VERTEX);
+        glVertexAttribPointer([program getAttribLocation:@"position"], 3, GL_FLOAT, 0, 0, face);
+        glEnableVertexAttribArray([program getAttribLocation:@"position"]);
         
-        glVertexAttribPointer(ATTRIB_NORMAL, 3, GL_FLOAT, 0, 0, normal);
-        glEnableVertexAttribArray(ATTRIB_NORMAL);
+        glVertexAttribPointer([program getAttribLocation:@"normal"], 3, GL_FLOAT, 0, 0, normal);
+        glEnableVertexAttribArray([program getAttribLocation:@"normal"]);
         
         glDrawArrays(GL_TRIANGLES, 0, 6);
     }
@@ -195,11 +150,11 @@ const static GLchar *uniformName[NUM_UNIFORMS] =
             0,1,0, 0,1,0, 0,1,0
         };
         
-        glVertexAttribPointer(ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, face);
-        glEnableVertexAttribArray(ATTRIB_VERTEX);
+        glVertexAttribPointer([program getAttribLocation:@"position"], 3, GL_FLOAT, 0, 0, face);
+        glEnableVertexAttribArray([program getAttribLocation:@"position"]);
         
-        glVertexAttribPointer(ATTRIB_NORMAL, 3, GL_FLOAT, 0, 0, normal);
-        glEnableVertexAttribArray(ATTRIB_NORMAL);
+        glVertexAttribPointer([program getAttribLocation:@"normal"], 3, GL_FLOAT, 0, 0, normal);
+        glEnableVertexAttribArray([program getAttribLocation:@"normal"]);
         
         glDrawArrays(GL_TRIANGLES, 0, 6);
     }
@@ -214,11 +169,11 @@ const static GLchar *uniformName[NUM_UNIFORMS] =
             0,-1,0, 0,-1,0, 0,-1,0
         };
         
-        glVertexAttribPointer(ATTRIB_VERTEX, 3, GL_FLOAT, 0, 0, face);
-        glEnableVertexAttribArray(ATTRIB_VERTEX);
+        glVertexAttribPointer([program getAttribLocation:@"position"], 3, GL_FLOAT, 0, 0, face);
+        glEnableVertexAttribArray([program getAttribLocation:@"position"]);
         
-        glVertexAttribPointer(ATTRIB_NORMAL, 3, GL_FLOAT, 0, 0, normal);
-        glEnableVertexAttribArray(ATTRIB_NORMAL);
+        glVertexAttribPointer([program getAttribLocation:@"normal"], 3, GL_FLOAT, 0, 0, normal);
+        glEnableVertexAttribArray([program getAttribLocation:@"normal"]);
         
         glDrawArrays(GL_TRIANGLES, 0, 6);
     }
@@ -245,16 +200,6 @@ const static GLchar *uniformName[NUM_UNIFORMS] =
     };*/
     //glUniform4f(uniformLocation[UNIFORM_COLOR], 0, 1, 0, 1);
 
-
-
-    // Validate program before drawing. This is a good check, but only really necessary in a debug build.
-    // DEBUG macro must be defined in your debug configurations if that's not already the case.
-#if defined(DEBUG)
-    if (!glueValidateProgram(myProgram)) {
-        DLog(@"Failed to validate program: %d", myProgram);
-        return;
-    }
-#endif
 
 }
 

@@ -156,7 +156,7 @@
     if(loc == nil)
     {
 #ifdef DEBUG
-        NSLog(@"Attempted to get location for an invalid attribute: %@. Valid uniforms are: %@", name, attributes);
+        NSLog(@"Attempted to get location for an invalid attribute: %@. Valid attributes are: %@", name, attributes);
 #endif
         return 0;
     }

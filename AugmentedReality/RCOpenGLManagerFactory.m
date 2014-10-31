@@ -29,17 +29,6 @@
 */
 @synthesize oglContext;
 
-- (const GLchar *)readFile:(NSString *)name
-{
-    NSString *path;
-    const GLchar *source;
-    
-    path = [[NSBundle mainBundle] pathForResource:name ofType: nil];
-    source = (GLchar *)[[NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil] UTF8String];
-    
-    return source;
-}
-
 - (bool)setupGL
 {
     oglContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];

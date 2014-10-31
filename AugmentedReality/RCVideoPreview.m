@@ -13,6 +13,10 @@
 #import <GLKit/GLKit.h>
 #import "RCGLShaderProgram.h"
 
+#define MULTISAMPLE
+
+#pragma mark - Shader source
+
 static const char *vertSrc = SHADER_STRINGIFY(
 attribute vec4 position;
 attribute mediump vec4 texture_coordinate;
@@ -48,7 +52,7 @@ void main()
     gl_FragColor = vec4(rgb, 1);
 });
 
-#define MULTISAMPLE
+#pragma mark - RCVideoPreview
 
 @implementation RCVideoPreview
 {
@@ -184,7 +188,7 @@ void main()
 
 - (void) displaySampleBuffer:(CMSampleBufferRef)sampleBuffer
 {
-    [self displaySensorFusionData:[[RCSensorFusionData alloc] initWithTransformation:nil withCameraTransformation:nil withCameraParameters:nil withTotalPath:nil withFeatures:nil withSampleBuffer:sampleBuffer withTimestamp:nil]];
+    [self displaySensorFusionData:[[RCSensorFusionData alloc] initWithTransformation:nil withCameraTransformation:nil withCameraParameters:nil withTotalPath:nil withFeatures:nil withSampleBuffer:sampleBuffer withTimestamp:0]];
 }
 
 - (void)setWhiteness:(float)w

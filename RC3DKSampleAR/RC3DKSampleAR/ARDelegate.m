@@ -34,15 +34,12 @@
     if(!data.cameraParameters || !data.cameraTransformation) return;
     glUseProgram(program.program);
     
-    float near = .01, far = 1000.;
-    
     GLKMatrix4 camera;
     [[data.cameraTransformation getInverse] getOpenGLMatrix:camera.m];
     
     GLKMatrix4 model;
     [initialCamera getOpenGLMatrix:model.m];
     
-    UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
 
     glUniformMatrix4fv([program getUniformLocation:@"projection_matrix"], 1, false, projection.m);
     glUniformMatrix4fv([program getUniformLocation:@"camera_matrix"], 1, false, camera.m);

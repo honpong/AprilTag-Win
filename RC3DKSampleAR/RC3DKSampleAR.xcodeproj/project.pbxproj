@@ -12,7 +12,6 @@
 		D901456D19F9A00F004E7CE2 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D901456C19F9A00F004E7CE2 /* ViewController.m */; };
 		D901457019F9A00F004E7CE2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D901456E19F9A00F004E7CE2 /* Main.storyboard */; };
 		D901457219F9A00F004E7CE2 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D901457119F9A00F004E7CE2 /* Images.xcassets */; };
-		D901457519F9A00F004E7CE2 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = D901457319F9A00F004E7CE2 /* LaunchScreen.xib */; };
 		D901458119F9A00F004E7CE2 /* RC3DKSampleARTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D901458019F9A00F004E7CE2 /* RC3DKSampleARTests.m */; };
 		D901459F19F9A07D004E7CE2 /* libRC3DK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D901459D19F9A07D004E7CE2 /* libRC3DK.a */; };
 		D90145B919F9A094004E7CE2 /* Calibration.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D90145A019F9A094004E7CE2 /* Calibration.storyboard */; };
@@ -35,7 +34,6 @@
 		D90145E319F9A23E004E7CE2 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D90145D019F9A23E004E7CE2 /* MobileCoreServices.framework */; };
 		D90145E419F9A23E004E7CE2 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D90145D119F9A23E004E7CE2 /* Accelerate.framework */; };
 		D90145E519F9A23E004E7CE2 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D90145D219F9A23E004E7CE2 /* AVFoundation.framework */; };
-		D90145E619F9A23E004E7CE2 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D90145D319F9A23E004E7CE2 /* CoreGraphics.framework */; };
 		D90145E719F9A23E004E7CE2 /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D90145D419F9A23E004E7CE2 /* CoreImage.framework */; };
 		D90145E819F9A23E004E7CE2 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D90145D519F9A23E004E7CE2 /* CoreLocation.framework */; };
 		D90145E919F9A23E004E7CE2 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D90145D619F9A23E004E7CE2 /* CoreMedia.framework */; };
@@ -53,6 +51,7 @@
 		D901460B19F9C43B004E7CE2 /* flat.fsh in Resources */ = {isa = PBXBuildFile; fileRef = D901460919F9C43B004E7CE2 /* flat.fsh */; };
 		D901460C19F9C43B004E7CE2 /* flat.vsh in Resources */ = {isa = PBXBuildFile; fileRef = D901460A19F9C43B004E7CE2 /* flat.vsh */; };
 		D963096B1A01BC9800F92929 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D963096A1A01BC9800F92929 /* GLKit.framework */; };
+		D9AA84BD1A042DBE004C61D0 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = D9AA84BC1A042DBE004C61D0 /* Default-568h@2x.png */; };
 		D9E8C4871A03FAFA002EDA05 /* RCGLShaderProgram.m in Sources */ = {isa = PBXBuildFile; fileRef = D9E8C4861A03FAFA002EDA05 /* RCGLShaderProgram.m */; };
 /* End PBXBuildFile section */
 
@@ -76,7 +75,6 @@
 		D901456C19F9A00F004E7CE2 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		D901456F19F9A00F004E7CE2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		D901457119F9A00F004E7CE2 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		D901457419F9A00F004E7CE2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		D901457A19F9A00F004E7CE2 /* RC3DKSampleARTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RC3DKSampleARTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D901457F19F9A00F004E7CE2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D901458019F9A00F004E7CE2 /* RC3DKSampleARTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RC3DKSampleARTests.m; sourceTree = "<group>"; };
@@ -151,6 +149,7 @@
 		D901460919F9C43B004E7CE2 /* flat.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = flat.fsh; sourceTree = "<group>"; };
 		D901460A19F9C43B004E7CE2 /* flat.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = flat.vsh; sourceTree = "<group>"; };
 		D963096A1A01BC9800F92929 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
+		D9AA84BC1A042DBE004C61D0 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		D9E8C4821A02B143002EDA05 /* RC3DKSampleAR-prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RC3DKSampleAR-prefix.pch"; sourceTree = "<group>"; };
 		D9E8C4851A03FAFA002EDA05 /* RCGLShaderProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCGLShaderProgram.h; sourceTree = "<group>"; };
 		D9E8C4861A03FAFA002EDA05 /* RCGLShaderProgram.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCGLShaderProgram.m; sourceTree = "<group>"; };
@@ -175,7 +174,6 @@
 				D90145E219F9A23E004E7CE2 /* CFNetwork.framework in Frameworks */,
 				D90145E419F9A23E004E7CE2 /* Accelerate.framework in Frameworks */,
 				D90145EF19F9A23E004E7CE2 /* SystemConfiguration.framework in Frameworks */,
-				D90145E619F9A23E004E7CE2 /* CoreGraphics.framework in Frameworks */,
 				D90145EA19F9A23E004E7CE2 /* CoreMotion.framework in Frameworks */,
 				D90145E819F9A23E004E7CE2 /* CoreLocation.framework in Frameworks */,
 				D90145E319F9A23E004E7CE2 /* MobileCoreServices.framework in Frameworks */,
@@ -197,6 +195,7 @@
 		D901455819F9A00F004E7CE2 = {
 			isa = PBXGroup;
 			children = (
+				D9AA84BC1A042DBE004C61D0 /* Default-568h@2x.png */,
 				D901456319F9A00F004E7CE2 /* RC3DKSampleAR */,
 				D901457D19F9A00F004E7CE2 /* RC3DKSampleARTests */,
 				D901456219F9A00F004E7CE2 /* Products */,
@@ -229,7 +228,6 @@
 				D901460719F9C2D8004E7CE2 /* ARDelegate.m */,
 				D901456E19F9A00F004E7CE2 /* Main.storyboard */,
 				D901457119F9A00F004E7CE2 /* Images.xcassets */,
-				D901457319F9A00F004E7CE2 /* LaunchScreen.xib */,
 				D901456419F9A00F004E7CE2 /* Supporting Files */,
 				D90145DF19F9A23E004E7CE2 /* Frameworks */,
 			);
@@ -472,9 +470,9 @@
 			files = (
 				D901457019F9A00F004E7CE2 /* Main.storyboard in Resources */,
 				D90145BA19F9A094004E7CE2 /* holding_landscape.jpg in Resources */,
+				D9AA84BD1A042DBE004C61D0 /* Default-568h@2x.png in Resources */,
 				D90145B919F9A094004E7CE2 /* Calibration.storyboard in Resources */,
 				D90145BC19F9A094004E7CE2 /* ipad_on_table.jpg in Resources */,
-				D901457519F9A00F004E7CE2 /* LaunchScreen.xib in Resources */,
 				D901460C19F9C43B004E7CE2 /* flat.vsh in Resources */,
 				D90145BB19F9A094004E7CE2 /* holding_portrait.jpg in Resources */,
 				D901460B19F9C43B004E7CE2 /* flat.fsh in Resources */,
@@ -541,14 +539,6 @@
 				D901456F19F9A00F004E7CE2 /* Base */,
 			);
 			name = Main.storyboard;
-			sourceTree = "<group>";
-		};
-		D901457319F9A00F004E7CE2 /* LaunchScreen.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				D901457419F9A00F004E7CE2 /* Base */,
-			);
-			name = LaunchScreen.xib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

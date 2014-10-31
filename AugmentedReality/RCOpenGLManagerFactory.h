@@ -13,7 +13,7 @@
 @protocol RCOpenGLManager <NSObject>
 
 @property EAGLContext* oglContext;
-- (const GLchar *)readFile:(NSString *)name;
+
 @end
 
 // the factory methods to get/set the instance

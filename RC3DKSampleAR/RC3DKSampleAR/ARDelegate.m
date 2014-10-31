@@ -8,7 +8,7 @@
 
 #import "ARDelegate.h"
 #import <QuartzCore/CAEAGLLayer.h>
-#import "RCOpenGLManagerFactory.h"
+#import "RCGLManagerFactory.h"
 #import "RCGLShaderProgram.h"
 #include "RCDebugLog.h"
 

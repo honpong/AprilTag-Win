@@ -1,21 +1,21 @@
 //
-//  RCOpenGLManagerFactory.m
+//  RCGLManagerFactory.m
 //  RCCore
 //
 //  Created by Ben Hirashima on 7/24/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "RCOpenGLManagerFactory.h"
+#import "RCGLManagerFactory.h"
 #import "RCDebugLog.h"
 
-@interface RCOpenGLManagerImpl : NSObject <RCOpenGLManager>
+@interface RCGLManagerImpl : NSObject <RCGLManager>
 {
 }
 
 @end
 
-@implementation RCOpenGLManagerImpl
+@implementation RCGLManagerImpl
 
 /*
  The OpenGL context is owned by this singleton because GL's management of contexts and iOS's management of views don't play nicely under ARC
@@ -64,20 +64,20 @@
 // end private inner class
 
 // public factory class
-@implementation RCOpenGLManagerFactory
+@implementation RCGLManagerFactory
 
-static id<RCOpenGLManager> instance;
+static id<RCGLManager> instance;
 
-+ (id<RCOpenGLManager>) getInstance
++ (id<RCGLManager>) getInstance
 {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        instance = [RCOpenGLManagerImpl new];
+        instance = [RCGLManagerImpl new];
     });
     return instance;
 }
 
-+ (void) setInstance:(id<RCOpenGLManager>)mockObject
++ (void) setInstance:(id<RCGLManager>)mockObject
 {
     instance = mockObject;
 }

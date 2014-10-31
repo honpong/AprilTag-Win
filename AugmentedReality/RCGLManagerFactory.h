@@ -1,5 +1,5 @@
 //
-//  RCOpenGLManagerFactory.h
+//  RCGLManagerFactory.h
 //  RCCore
 //
 //  Created by Ben Hirashima on 7/24/13.
@@ -10,17 +10,17 @@
 #include <OpenGLES/ES2/gl.h>
 
 // the factory returns an instance of an object that implements this protocol
-@protocol RCOpenGLManager <NSObject>
+@protocol RCGLManager <NSObject>
 
 @property EAGLContext* oglContext;
 
 @end
 
 // the factory methods to get/set the instance
-@interface RCOpenGLManagerFactory : NSObject
+@interface RCGLManagerFactory : NSObject
 
-+ (id<RCOpenGLManager>)getInstance;
-+ (void)setInstance:(id<RCOpenGLManager>)mockObject; // makes testing possible
++ (id<RCGLManager>)getInstance;
++ (void)setInstance:(id<RCGLManager>)mockObject; // makes testing possible
 
 @end
 

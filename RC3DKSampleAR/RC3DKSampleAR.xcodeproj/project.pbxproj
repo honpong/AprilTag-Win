@@ -45,7 +45,7 @@
 		D90145EF19F9A23E004E7CE2 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D90145DC19F9A23E004E7CE2 /* SystemConfiguration.framework */; };
 		D90145F019F9A23E004E7CE2 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D90145DD19F9A23E004E7CE2 /* UIKit.framework */; };
 		D90145F119F9A23E004E7CE2 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D90145DE19F9A23E004E7CE2 /* CoreGraphics.framework */; };
-		D90145FE19F9A5EF004E7CE2 /* RCOpenGLManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = D90145F419F9A5EF004E7CE2 /* RCOpenGLManagerFactory.m */; };
+		D90145FE19F9A5EF004E7CE2 /* RCGLManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = D90145F419F9A5EF004E7CE2 /* RCGLManagerFactory.m */; };
 		D90145FF19F9A5EF004E7CE2 /* RCVideoPreview.m in Sources */ = {isa = PBXBuildFile; fileRef = D90145F619F9A5EF004E7CE2 /* RCVideoPreview.m */; };
 		D901460819F9C2D8004E7CE2 /* ARDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D901460719F9C2D8004E7CE2 /* ARDelegate.m */; };
 		D901460B19F9C43B004E7CE2 /* flat.fsh in Resources */ = {isa = PBXBuildFile; fileRef = D901460919F9C43B004E7CE2 /* flat.fsh */; };
@@ -139,8 +139,8 @@
 		D90145DC19F9A23E004E7CE2 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = "<absolute>"; };
 		D90145DD19F9A23E004E7CE2 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = "<absolute>"; };
 		D90145DE19F9A23E004E7CE2 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/System/Library/Frameworks/CoreGraphics.framework; sourceTree = "<absolute>"; };
-		D90145F319F9A5EF004E7CE2 /* RCOpenGLManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCOpenGLManagerFactory.h; sourceTree = "<group>"; };
-		D90145F419F9A5EF004E7CE2 /* RCOpenGLManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCOpenGLManagerFactory.m; sourceTree = "<group>"; };
+		D90145F319F9A5EF004E7CE2 /* RCGLManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCGLManagerFactory.h; sourceTree = "<group>"; };
+		D90145F419F9A5EF004E7CE2 /* RCGLManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCGLManagerFactory.m; sourceTree = "<group>"; };
 		D90145F519F9A5EF004E7CE2 /* RCVideoPreview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoPreview.h; sourceTree = "<group>"; };
 		D90145F619F9A5EF004E7CE2 /* RCVideoPreview.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoPreview.m; sourceTree = "<group>"; };
 		D901460519F9A997004E7CE2 /* RCVideoFrameProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RCVideoFrameProvider.h; path = ../../SensorManagers/RCVideoFrameProvider.h; sourceTree = "<group>"; };
@@ -377,8 +377,8 @@
 			children = (
 				D9E8C4851A03FAFA002EDA05 /* RCGLShaderProgram.h */,
 				D9E8C4861A03FAFA002EDA05 /* RCGLShaderProgram.m */,
-				D90145F319F9A5EF004E7CE2 /* RCOpenGLManagerFactory.h */,
-				D90145F419F9A5EF004E7CE2 /* RCOpenGLManagerFactory.m */,
+				D90145F319F9A5EF004E7CE2 /* RCGLManagerFactory.h */,
+				D90145F419F9A5EF004E7CE2 /* RCGLManagerFactory.m */,
 				D90145F519F9A5EF004E7CE2 /* RCVideoPreview.h */,
 				D90145F619F9A5EF004E7CE2 /* RCVideoPreview.m */,
 			);
@@ -503,7 +503,7 @@
 				D90145C319F9A094004E7CE2 /* RCLocationManager.m in Sources */,
 				D901456D19F9A00F004E7CE2 /* ViewController.m in Sources */,
 				D90145C019F9A094004E7CE2 /* RCCalibration3.m in Sources */,
-				D90145FE19F9A5EF004E7CE2 /* RCOpenGLManagerFactory.m in Sources */,
+				D90145FE19F9A5EF004E7CE2 /* RCGLManagerFactory.m in Sources */,
 				D901456A19F9A00F004E7CE2 /* AppDelegate.m in Sources */,
 				D90145C819F9A184004E7CE2 /* LicenseHelper.m in Sources */,
 				D9E8C4871A03FAFA002EDA05 /* RCGLShaderProgram.m in Sources */,

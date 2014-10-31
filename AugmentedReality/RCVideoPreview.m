@@ -8,7 +8,7 @@
 
 #import "RCVideoPreview.h"
 #import <CoreMedia/CoreMedia.h>
-#import "RCOpenGLManagerFactory.h"
+#import "RCGLManagerFactory.h"
 #import "RCDebugLog.h"
 #import <GLKit/GLKit.h>
 #import "RCGLShaderProgram.h"
@@ -104,7 +104,7 @@ void main()
 
 - (void) initialize
 {
-    [EAGLContext setCurrentContext:[[RCOpenGLManagerFactory getInstance] oglContext]];
+    [EAGLContext setCurrentContext:[[RCGLManagerFactory getInstance] oglContext]];
     
     yuvTextureProgram = [[RCGLShaderProgram alloc] init];
     [yuvTextureProgram buildWithVertexSource:vertSrc withFragmentSource:fragSrc];
@@ -126,7 +126,7 @@ void main()
                                      kEAGLDrawablePropertyColorFormat: kEAGLColorFormatRGBA8};
     
     //  Create a new CVOpenGLESTexture cache
-    CVReturn errCache = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault, NULL, [[RCOpenGLManagerFactory getInstance] oglContext], NULL, &videoTextureCache);
+    CVReturn errCache = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault, NULL, [[RCGLManagerFactory getInstance] oglContext], NULL, &videoTextureCache);
     if (errCache) {
         DLog(@"Error at CVOpenGLESTextureCacheCreate %d", errCache);
     }
@@ -238,7 +238,7 @@ void main()
     glGenRenderbuffers(1, &colorBufferHandle);
     glBindRenderbuffer(GL_RENDERBUFFER, colorBufferHandle);
     
-    [[[RCOpenGLManagerFactory getInstance] oglContext] renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer *)self.layer];
+    [[[RCGLManagerFactory getInstance] oglContext] renderbufferStorage:GL_RENDERBUFFER fromDrawable:(CAEAGLLayer *)self.layer];
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, colorBufferHandle);
     
     glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_WIDTH, &renderBufferWidth);
@@ -328,7 +328,7 @@ void main()
     // Don't make OpenGLES calls while in the background.
 	if ( [UIApplication sharedApplication].applicationState == UIApplicationStateBackground ) return false;
     
-    [EAGLContext setCurrentContext:[[RCOpenGLManagerFactory getInstance] oglContext]];
+    [EAGLContext setCurrentContext:[[RCGLManagerFactory getInstance] oglContext]];
 	if (frameBufferHandle == 0) {
 		BOOL success = [self createBuffers];
 		if ( !success ) {
@@ -368,7 +368,7 @@ void main()
     // Present
     glBindRenderbuffer(GL_RENDERBUFFER, colorBufferHandle);
     
-    EAGLContext *context = [[RCOpenGLManagerFactory getInstance] oglContext];
+    EAGLContext *context = [[RCGLManagerFactory getInstance] oglContext];
     //context may be nil if gl manager goes away before we do
     if(context) [context presentRenderbuffer:GL_RENDERBUFFER];
     [self checkGLError];

@@ -400,102 +400,57 @@ void stereo_mesh_delaunay(const stereo &g, stereo_mesh & mesh)
             mesh.triangles.push_back(triangles[t]);
 }
 
-#include "mrf.h"
-#include "TRW-S.h"
-
 static const int NLABELS = 9 + 1;
 static const int UNKNOWN_LABEL = NLABELS - 1;
 static const float PSI_U = 0.07; // unknown labels are .2% of depth difference from mean? was set to 0.002
 // slightly less than exp(-1) to try to promote 1 score matches from being labeled unknown
 // now expressed in cost units
 static const float PHI_U = 0.5; // was 0.04 from paper, but then everything gets set to unknown
+static const float PAIRWISE_LAMBDA = 1;
+static const float PAIRWISE_BETA = 2.3;
+
 static const int mask_shift = 3;
 static const int grid_size = 1 << mask_shift;
 vector< vector< struct stereo_match > > stereo_grid_matches;
 vector<xy> stereo_grid_locations;
 
-MRF::CostVal pairwise_cost(int pix1, int pix2, int i, int j)
-{
-    if (pix2 < pix1) { // ensure that fnCost(pix1, pix2, i, j) == fnCost(pix2, pix1, j, i)
-        int tmp;
-        tmp = pix1; pix1 = pix2; pix2 = tmp;
-        tmp = i; i = j; j = tmp;
-    }
-    if(i == UNKNOWN_LABEL && j == UNKNOWN_LABEL)
-        return 0;
-    else if (i == UNKNOWN_LABEL || j == UNKNOWN_LABEL)
-        return PSI_U;
-
-    MRF::CostVal depth1 = stereo_grid_matches[pix1][i].depth;
-    MRF::CostVal depth2 = stereo_grid_matches[pix2][j].depth;
-
-    // padded match results may have 0 depth and +1 unary cost
-    // force unknown label by setting the penalty high
-    if(depth1 == 0 || depth2 == 0) return PSI_U*10;
-
-    v4 point1 = stereo_grid_matches[pix1][i].point;
-    v4 point2 = stereo_grid_matches[pix2][j].point;
-    MRF::CostVal dist = norm(point1 - point2);
-
-    xy p1 = stereo_grid_locations[pix1];
-    xy p2 = stereo_grid_locations[pix2];
-    float deltapixels = sqrt((p1.x - p2.x)*(p1.x - p2.x) + (p1.y - p2.y)*(p1.y  - p2.y))/8;
-
-    MRF::CostVal answer = fabs(depth1 - depth2) / ((depth1 + depth2)/2.)/deltapixels;
-    answer =  dist / ((depth1 + depth2)/2)/deltapixels;
-
-    return answer;
-}
-
-MRF::CostVal unary_cost(int pixel, int label)
-{
-    float lambda = 1;
-    float beta = 1;
-    if(label == UNKNOWN_LABEL)
-        return lambda * exp(-beta * PHI_U);;
-
-    return lambda * exp(-beta * -stereo_grid_matches[pixel][label].score);
-}
-
-double pairwise_cost_dai(int pix1, int pix2, int i, int j, double lambda, double beta)
+double pairwise_cost(int pix1, int pix2, int i, int j)
 {
     // lambda scales the tradeoff between unary and pairwise
-//    float lambda = 0.5;
     // beta scales where on the exponential these distances live
-//    float beta = 2;
     if (pix2 < pix1) { // ensure that fnCost(pix1, pix2, i, j) == fnCost(pix2, pix1, j, i)
         int tmp;
         tmp = pix1; pix1 = pix2; pix2 = tmp;
         tmp = i; i = j; j = tmp;
     }
     if(i == UNKNOWN_LABEL && j == UNKNOWN_LABEL)
-        return lambda*exp(-0);
+        return PAIRWISE_LAMBDA*exp(-0);
     else if (i == UNKNOWN_LABEL || j == UNKNOWN_LABEL)
-        return lambda*exp(-beta * PSI_U);
+        return PAIRWISE_LAMBDA*exp(-PAIRWISE_BETA * PSI_U);
 
-    MRF::CostVal depth1 = stereo_grid_matches[pix1][i].depth;
-    MRF::CostVal depth2 = stereo_grid_matches[pix2][j].depth;
+    float depth1 = stereo_grid_matches[pix1][i].depth;
+    float depth2 = stereo_grid_matches[pix2][j].depth;
 
     // padded match results may have 0 depth and +1 unary cost
     // force unknown label by setting the penalty high
     if(depth1 == 0 || depth2 == 0)
-        return lambda*exp(-beta * PSI_U*10);
+        return PAIRWISE_LAMBDA*exp(-PAIRWISE_BETA * PSI_U*10);
 
     v4 point1 = stereo_grid_matches[pix1][i].point;
     v4 point2 = stereo_grid_matches[pix2][j].point;
-    MRF::CostVal dist = norm(point1 - point2);
+    float dist = norm(point1 - point2);
 
     xy p1 = stereo_grid_locations[pix1];
     xy p2 = stereo_grid_locations[pix2];
     float deltapixels = sqrt((p1.x - p2.x)*(p1.x - p2.x) + (p1.y - p2.y)*(p1.y  - p2.y))/8;
 
-    MRF::CostVal answer = fabs(depth1 - depth2) / ((depth1 + depth2)/2.)/deltapixels;
+    float answer = fabs(depth1 - depth2) / ((depth1 + depth2)/2.)/deltapixels;
     answer =  dist / ((depth1 + depth2)/2)/deltapixels;
 
-    return lambda*exp(-beta * answer);
+    return PAIRWISE_LAMBDA*exp(-PAIRWISE_BETA * answer);
 }
 
-double unary_cost_dai(int pixel, int label)
+double unary_cost(int pixel, int label)
 {
     //unary_cost is in range 1 (most likely) to 0 (not happening)
     if(label == UNKNOWN_LABEL)
@@ -522,7 +477,7 @@ vector<int> pixel_neighbors(int pixel) {
 using namespace std;
 using namespace dai;
 
-void stereo_mesh_refine_mrf_dai(stereo_mesh & mesh, int width, int height, void (*progress_callback)(float), float start_progress, float end_progress, double params[2])
+void stereo_mesh_refine_mrf(stereo_mesh & mesh, int width, int height, void (*progress_callback)(float), float start_progress, float end_progress)
 {
     int npixels = (int)stereo_grid_locations.size();
     int niterations = 5;
@@ -537,7 +492,7 @@ void stereo_mesh_refine_mrf_dai(stereo_mesh & mesh, int width, int height, void 
     Real unary[NLABELS];
     for(int pixel = 0; pixel < npixels; pixel++) {
         for(int label = 0; label < NLABELS; label++) {
-            unary[label] = unary_cost_dai(pixel, label);
+            unary[label] = unary_cost(pixel, label);
         }
         factors.push_back(Factor(vars[pixel], &unary[0]));
     }
@@ -549,7 +504,7 @@ void stereo_mesh_refine_mrf_dai(stereo_mesh & mesh, int width, int height, void 
             Real pairwise[NLABELS*NLABELS];
             for(int plabel = 0; plabel < NLABELS; plabel++)
                 for(int nlabel = 0; nlabel < NLABELS; nlabel++)
-                    pairwise[nlabel*NLABELS + plabel] = pairwise_cost_dai(pixel, neighbor, plabel, nlabel, params[0], params[1]);
+                    pairwise[nlabel*NLABELS + plabel] = pairwise_cost(pixel, neighbor, plabel, nlabel);
             factors.push_back(Factor(VarSet(vars[pixel], vars[neighbor]), &pairwise[0]));
         }
     }
@@ -594,91 +549,6 @@ void stereo_mesh_refine_mrf_dai(stereo_mesh & mesh, int width, int height, void 
     }
 }
 
-void stereo_mesh_refine_mrf(stereo_mesh & mesh, int width, int height, void (*progress_callback)(float), float start_progress, float end_progress)
-{
-    MRF* mrf;
-    MRF::EnergyVal E;
-    double lowerBound;
-    float t,tot_t;
-    int iter;
-
-    /* Create energy function */
-    //The cost of pixel p and label l is
-    // stored at cost[p*nLabels+l]
-    int npixels = (int)stereo_grid_locations.size();
-    if(debug_mrf)
-        fprintf(stderr, "npixels considered %d\n", npixels);
-    MRF::CostVal * unary = new MRF::CostVal[npixels*NLABELS];
-
-    for(int pixel = 0; pixel < npixels; pixel++)
-        for(int label = 0; label < NLABELS; label++)
-            unary[pixel*NLABELS+label] = unary_cost(pixel, label);
-
-    DataCost *data         = new DataCost(unary);
-    SmoothnessCost *smooth = new SmoothnessCost(pairwise_cost);
-    EnergyFunction *energy = new EnergyFunction(data,smooth);
-
-    mrf = new TRWS(width,height,NLABELS,energy);
-
-    // can disable caching of values of general smoothness function:
-    //mrf->dontCacheSmoothnessCosts();
-
-    mrf->initialize();
-    mrf->clearAnswer();
-
-
-    E = mrf->totalEnergy();
-    if(debug_mrf) {
-        fprintf(stderr, "Energy at the Start= %g (%g,%g)\n", (float)E,
-                (float)mrf->smoothnessEnergy(), (float)mrf->dataEnergy());
-    }
-
-    tot_t = 0;
-    int niterations = 10;
-    for (iter=0; iter<niterations; iter++) {
-		mrf->optimize(10, t);
-
-        if(debug_mrf) {
-            E = mrf->totalEnergy();
-            lowerBound = mrf->lowerBound();
-            tot_t = tot_t + t ;
-            fprintf(stderr, "energy = %g, %g\n", mrf->smoothnessEnergy(), mrf->dataEnergy());
-            fprintf(stderr, "energy = %g, lower bound = %f (%f secs)\n", (float)E, lowerBound, tot_t);
-        }
-
-        if(progress_callback) {
-            float progress = start_progress + (end_progress - start_progress)*iter/niterations;
-            progress_callback(progress);
-        }
-    }
-
-    MRF::Label labelhist[NLABELS];
-    for(int i=0; i < NLABELS; i++) labelhist[i] = 0;
-
-    MRF::Label * labels = mrf->getAnswerPtr();
-    for(int i = 0; i < width*height; i++) {
-        MRF::Label label = labels[i];
-        labelhist[label]++;
-        if(label != UNKNOWN_LABEL) {
-            xy pt = stereo_grid_locations[i];
-            struct stereo_match match = stereo_grid_matches[i][label];
-            stereo_mesh_add_vertex(mesh, pt.x, pt.y, match.x, match.y, match.point, match.score);
-        }
-    }
-    if(debug_mrf) {
-        for(int i = 0; i < NLABELS; i++)
-            fprintf(stderr, "%d ", labelhist[i]);
-        fprintf(stderr, "\n");
-    }
-
-
-    delete unary;
-    delete smooth;
-    delete data;
-    delete energy;
-    delete mrf;
-}
-
 void stereo_mesh_write_unary(const char * filename)
 {
     FILE * unary_file = fopen(filename, "w");
@@ -686,7 +556,7 @@ void stereo_mesh_write_unary(const char * filename)
 
     for(int pixel = 0; pixel < stereo_grid_matches.size(); pixel++) {
         for(int label = 0; label < NLABELS; label++) {
-            MRF::CostVal val = unary_cost(pixel, label);
+            float val = unary_cost(pixel, label);
             fprintf(unary_file, "%f", val);
             if(label == NLABELS-1)
                 fprintf(unary_file, "\n");
@@ -809,8 +679,7 @@ void stereo_mesh_add_gradient_grid(stereo_mesh & mesh, const stereo &g, int npoi
         }
     }
     else {
-        double final_params[2] = {1, 2.3};
-        stereo_mesh_refine_mrf_dai(mesh, m_width, m_height, progress_callback, progress_start + step_range, progress_start + step_range + mrf_range, final_params);
+        stereo_mesh_refine_mrf(mesh, m_width, m_height, progress_callback, progress_start + step_range, progress_start + step_range + mrf_range);
     }
 }
 

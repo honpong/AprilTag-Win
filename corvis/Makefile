@@ -196,9 +196,9 @@ STEREO_CXX_SOURCES := $(addprefix src/$(d)/, stereo.cpp stereo_mesh.cpp camera.c
 
 STEREO_SOURCES :=
 
-CPPFLAGS := $(CPPFLAGS) -Isrc/stereo -Isrc/filter -Isrc/MRF2.2 -Isrc/qhull/src/libqhull/ -Isrc/vlfeat-0.9.18/vl -Isrc/libDAI-0.3.1/include
+CPPFLAGS := $(CPPFLAGS) -Isrc/stereo -Isrc/filter -Isrc/qhull/src/libqhull/ -Isrc/vlfeat-0.9.18/vl -Isrc/libDAI-0.3.1/include
 
-bin/$(d)/_stereo.so:$(patsubst src/%,build/%,$(STEREO_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(STEREO_SOURCES:.c=.o)) bin/MRF2.2/_mrf.so bin/libDAI-0.3.1/_libDAI.so bin/vlfeat-0.9.18/_vl.so
+bin/$(d)/_stereo.so:$(patsubst src/%,build/%,$(STEREO_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(STEREO_SOURCES:.c=.o)) bin/libDAI-0.3.1/_libDAI.so bin/vlfeat-0.9.18/_vl.so
 
 TARGETS := $(TARGETS) bin/$(d)/_stereo.so bin/$(d)/__init__.py
 CXX_SOURCES := $(CXX_SOURCES) $(STEREO_CXX_SOURCES)
@@ -215,18 +215,6 @@ bin/$(d)/_qhull.so:$(patsubst src/%,build/%,$(QHULL_C_SOURCES:.c=.o))
 
 TARGETS := $(TARGETS) bin/$(d)/_qhull.so
 SOURCES := $(SOURCES) $(QHULL_C_SOURCES)
-
-############################## MRF ############################
-d := MRF2.2
-
-MRF_CXX_SOURCES := $(addprefix src/$(d)/, TRW-S.cpp mrf.cpp)
-
-CPPFLAGS := $(CPPFLAGS)
-
-bin/$(d)/_mrf.so:$(patsubst src/%,build/%,$(MRF_CXX_SOURCES:.cpp=.o))
-
-TARGETS := $(TARGETS) bin/$(d)/_mrf.so
-CXX_SOURCES := $(CXX_SOURCES) $(MRF_CXX_SOURCES)
 
 ############################## DAI ############################
 d := libDAI-0.3.1

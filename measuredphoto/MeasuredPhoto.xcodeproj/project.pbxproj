@@ -454,8 +454,6 @@
 		D3F50B2019BA19FD00791303 /* svm.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AD119BA19FD00791303 /* svm.c */; };
 		D3F50B2119BA19FD00791303 /* svmdataset.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AD319BA19FD00791303 /* svmdataset.c */; };
 		D3F50B2219BA19FD00791303 /* vlad.c in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AD519BA19FD00791303 /* vlad.c */; };
-		D3F50B2919BA19FD00791303 /* mrf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AE519BA19FD00791303 /* mrf.cpp */; };
-		D3F50B2A19BA19FD00791303 /* TRW-S.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AE719BA19FD00791303 /* TRW-S.cpp */; };
 		D3F50B2F19BA19FD00791303 /* camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AF219BA19FD00791303 /* camera.cpp */; };
 		D3F50B3019BA19FD00791303 /* fundamental.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AF419BA19FD00791303 /* fundamental.cpp */; };
 		D3F50B3119BA19FD00791303 /* stereo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50AF519BA19FD00791303 /* stereo.cpp */; };
@@ -1268,11 +1266,6 @@
 		D3F50AD419BA19FD00791303 /* svmdataset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = svmdataset.h; path = "../../corvis/src/vlfeat-0.9.18/vl/svmdataset.h"; sourceTree = "<group>"; };
 		D3F50AD519BA19FD00791303 /* vlad.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = vlad.c; path = "../../corvis/src/vlfeat-0.9.18/vl/vlad.c"; sourceTree = "<group>"; };
 		D3F50AD619BA19FD00791303 /* vlad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vlad.h; path = "../../corvis/src/vlfeat-0.9.18/vl/vlad.h"; sourceTree = "<group>"; };
-		D3F50AD919BA19FD00791303 /* typeTruncatedQuadratic2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = typeTruncatedQuadratic2D.h; path = ../../corvis/src/MRF2.2/typeTruncatedQuadratic2D.h; sourceTree = "<group>"; };
-		D3F50AE219BA19FD00791303 /* mrf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mrf.h; path = ../../corvis/src/MRF2.2/mrf.h; sourceTree = "<group>"; };
-		D3F50AE519BA19FD00791303 /* mrf.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = mrf.cpp; path = ../../corvis/src/MRF2.2/mrf.cpp; sourceTree = "<group>"; };
-		D3F50AE719BA19FD00791303 /* TRW-S.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "TRW-S.cpp"; path = "../../corvis/src/MRF2.2/TRW-S.cpp"; sourceTree = "<group>"; };
-		D3F50AE819BA19FD00791303 /* TRW-S.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "TRW-S.h"; path = "../../corvis/src/MRF2.2/TRW-S.h"; sourceTree = "<group>"; };
 		D3F50AF119BA19FD00791303 /* camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = camera.h; path = ../../corvis/src/stereo/camera.h; sourceTree = "<group>"; };
 		D3F50AF219BA19FD00791303 /* camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = camera.cpp; path = ../../corvis/src/stereo/camera.cpp; sourceTree = "<group>"; };
 		D3F50AF319BA19FD00791303 /* fundamental.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fundamental.h; path = ../../corvis/src/stereo/fundamental.h; sourceTree = "<group>"; };
@@ -2344,18 +2337,6 @@
 			name = VLFeat;
 			sourceTree = "<group>";
 		};
-		D3F50AF019BA19FD00791303 /* MRF */ = {
-			isa = PBXGroup;
-			children = (
-				D3F50AD919BA19FD00791303 /* typeTruncatedQuadratic2D.h */,
-				D3F50AE219BA19FD00791303 /* mrf.h */,
-				D3F50AE519BA19FD00791303 /* mrf.cpp */,
-				D3F50AE719BA19FD00791303 /* TRW-S.cpp */,
-				D3F50AE819BA19FD00791303 /* TRW-S.h */,
-			);
-			name = MRF;
-			sourceTree = "<group>";
-		};
 		D3F50AFD19BA19FD00791303 /* Stereo */ = {
 			isa = PBXGroup;
 			children = (
@@ -2365,7 +2346,6 @@
 				D3EF0A9619BA1FD100512050 /* RCStereo.h */,
 				D3EF0A9719BA1FD100512050 /* RCStereo.mm */,
 				D3F50AD719BA19FD00791303 /* VLFeat */,
-				D3F50AF019BA19FD00791303 /* MRF */,
 				D3F50AF119BA19FD00791303 /* camera.h */,
 				D3F50AF219BA19FD00791303 /* camera.cpp */,
 				D3F50AF319BA19FD00791303 /* fundamental.h */,
@@ -2819,7 +2799,6 @@
 				32EFECE1196C6C9F00FDC89F /* Model.xcdatamodeld in Sources */,
 				326ACF8919D2221B00B36965 /* OSKBorderedButton.m in Sources */,
 				32934CDB18D8DB7C005DC87C /* MPEditPhoto.m in Sources */,
-				D3F50B2A19BA19FD00791303 /* TRW-S.cpp in Sources */,
 				D3F50B0519BA19FD00791303 /* gmm.c in Sources */,
 				32A2104218906439002BD1E4 /* MPView.m in Sources */,
 				D3F7E1141A03F4EC00AB5778 /* io.cpp in Sources */,
@@ -2896,7 +2875,6 @@
 				D3F7E11F1A03F4EC00AB5778 /* weightedgraph.cpp in Sources */,
 				D3F50B1519BA19FD00791303 /* mathop_sse2.c in Sources */,
 				D3F50B1419BA19FD00791303 /* mathop_avx.c in Sources */,
-				D3F50B2919BA19FD00791303 /* mrf.cpp in Sources */,
 				326ACF7619D2221B00B36965 /* OSKActivity.m in Sources */,
 				D30CE11F19EE86A1009E413E /* geom.c in Sources */,
 				32EFED4B196C9D4D00FDC89F /* MPDMeasuredPhoto+MPDMeasuredPhotoExt.m in Sources */,

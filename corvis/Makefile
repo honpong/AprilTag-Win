@@ -196,9 +196,9 @@ STEREO_CXX_SOURCES := $(addprefix src/$(d)/, stereo.cpp stereo_mesh.cpp camera.c
 
 STEREO_SOURCES :=
 
-CPPFLAGS := $(CPPFLAGS) -Isrc/stereo -Isrc/filter -Isrc/MRF2.2 -Isrc/qhull/src/libqhull/ -Isrc/vlfeat-0.9.18/vl
+CPPFLAGS := $(CPPFLAGS) -Isrc/stereo -Isrc/filter -Isrc/MRF2.2 -Isrc/qhull/src/libqhull/ -Isrc/vlfeat-0.9.18/vl -Isrc/libDAI-0.3.1/include
 
-bin/$(d)/_stereo.so:$(patsubst src/%,build/%,$(STEREO_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(STEREO_SOURCES:.c=.o)) bin/MRF2.2/_mrf.so bin/vlfeat-0.9.18/_vl.so
+bin/$(d)/_stereo.so:$(patsubst src/%,build/%,$(STEREO_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(STEREO_SOURCES:.c=.o)) bin/MRF2.2/_mrf.so bin/libDAI-0.3.1/_libDAI.so bin/vlfeat-0.9.18/_vl.so
 
 TARGETS := $(TARGETS) bin/$(d)/_stereo.so bin/$(d)/__init__.py
 CXX_SOURCES := $(CXX_SOURCES) $(STEREO_CXX_SOURCES)
@@ -227,6 +227,18 @@ bin/$(d)/_mrf.so:$(patsubst src/%,build/%,$(MRF_CXX_SOURCES:.cpp=.o))
 
 TARGETS := $(TARGETS) bin/$(d)/_mrf.so
 CXX_SOURCES := $(CXX_SOURCES) $(MRF_CXX_SOURCES)
+
+############################## DAI ############################
+d := libDAI-0.3.1
+
+DAI_CXX_SOURCES := $(addprefix src/$(d)/src/, alldai.cpp graph.cpp regiongraph.cpp emalg.cpp bipgraph.cpp evidence.cpp io.cpp trwbp.cpp bp.cpp exactinf.cpp util.cpp bp_dual.cpp exceptions.cpp varset.cpp factor.cpp weightedgraph.cpp clustergraph.cpp factorgraph.cpp dag.cpp)
+
+CPPFLAGS := $(CPPFLAGS) -Isrc/$(d)/include -I/usr/local/include -DMACOSX -DDAI_WITH_BP -DDAI_WITH_TRWBP
+
+bin/$(d)/_libDAI.so:$(patsubst src/%,build/%,$(DAI_CXX_SOURCES:.cpp=.o))
+
+TARGETS := $(TARGETS) bin/$(d)/_libDAI.so
+CXX_SOURCES := $(CXX_SOURCES) $(DAI_CXX_SOURCES)
 
 ############################## VLFEAT ############################
 d := vlfeat-0.9.18
@@ -257,7 +269,7 @@ build/$(d)/%.o: $(d)/%.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 
-bin/test: build/$(d)/gtest_main.o build/$(d)/gtest-all.o $(patsubst test/%,build/test/%,$(TEST_CXX_SOURCES:.cpp=.o)) $(addprefix build/numerics/, vec4.o matrix.o) $(addprefix build/filter/, fast_detector/fast_9.o scaled_mask.o) bin/stereo/_stereo.so bin/MRF2.2/_mrf.so bin/vlfeat-0.9.18/_vl.so
+bin/test: build/$(d)/gtest_main.o build/$(d)/gtest-all.o $(patsubst test/%,build/test/%,$(TEST_CXX_SOURCES:.cpp=.o)) $(addprefix build/numerics/, vec4.o matrix.o) $(addprefix build/filter/, fast_detector/fast_9.o scaled_mask.o) bin/stereo/_stereo.so bin/libDAI-0.3.1/_libDAI.so bin/qhull/_qhull.so
 	@mkdir -p $(@D)
 	$(CC) $(LDFLAGS) $(PYTHON_LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
 

@@ -457,6 +457,143 @@ MRF::CostVal unary_cost(int pixel, int label)
     return lambda * exp(-beta * -stereo_grid_matches[pixel][label].score);
 }
 
+double pairwise_cost_dai(int pix1, int pix2, int i, int j, double lambda, double beta)
+{
+    // lambda scales the tradeoff between unary and pairwise
+//    float lambda = 0.5;
+    // beta scales where on the exponential these distances live
+//    float beta = 2;
+    if (pix2 < pix1) { // ensure that fnCost(pix1, pix2, i, j) == fnCost(pix2, pix1, j, i)
+        int tmp;
+        tmp = pix1; pix1 = pix2; pix2 = tmp;
+        tmp = i; i = j; j = tmp;
+    }
+    if(i == UNKNOWN_LABEL && j == UNKNOWN_LABEL)
+        return lambda*exp(-0);
+    else if (i == UNKNOWN_LABEL || j == UNKNOWN_LABEL)
+        return lambda*exp(-beta * PSI_U);
+
+    MRF::CostVal depth1 = stereo_grid_matches[pix1][i].depth;
+    MRF::CostVal depth2 = stereo_grid_matches[pix2][j].depth;
+
+    // padded match results may have 0 depth and +1 unary cost
+    // force unknown label by setting the penalty high
+    if(depth1 == 0 || depth2 == 0)
+        return lambda*exp(-beta * PSI_U*10);
+
+    v4 point1 = stereo_grid_matches[pix1][i].point;
+    v4 point2 = stereo_grid_matches[pix2][j].point;
+    MRF::CostVal dist = norm(point1 - point2);
+
+    xy p1 = stereo_grid_locations[pix1];
+    xy p2 = stereo_grid_locations[pix2];
+    float deltapixels = sqrt((p1.x - p2.x)*(p1.x - p2.x) + (p1.y - p2.y)*(p1.y  - p2.y))/8;
+
+    MRF::CostVal answer = fabs(depth1 - depth2) / ((depth1 + depth2)/2.)/deltapixels;
+    answer =  dist / ((depth1 + depth2)/2)/deltapixels;
+
+    return lambda*exp(-beta * answer);
+}
+
+double unary_cost_dai(int pixel, int label)
+{
+    //unary_cost is in range 1 (most likely) to 0 (not happening)
+    if(label == UNKNOWN_LABEL)
+        return (PHI_U + 1)/2;
+
+    return (-stereo_grid_matches[pixel][label].score + 1)/2;
+}
+
+vector<int> pixel_neighbors(int pixel) {
+    vector<int> neighbors;
+    int row_size = 640/grid_size;
+    if(pixel+1 < stereo_grid_locations.size()) neighbors.push_back(pixel+1);
+    if(pixel+row_size < stereo_grid_locations.size()) neighbors.push_back(pixel+row_size);
+    // Only add lower and right neighbors since we do this once for each pixel, avoids duplicate edges
+//    if(pixel-1 >= 0) neighbors.push_back(pixel-1);
+//    if(pixel-row_size >= 0) neighbors.push_back(pixel-row_size);
+
+    return neighbors;
+}
+
+#include <dai/alldai.h>
+#include <dai/trwbp.h>
+
+using namespace std;
+using namespace dai;
+
+void stereo_mesh_refine_mrf_dai(stereo_mesh & mesh, int width, int height, void (*progress_callback)(float), float start_progress, float end_progress, double params[2])
+{
+    int npixels = (int)stereo_grid_locations.size();
+    int niterations = 5;
+
+    vector<Var> vars;
+    vector<Factor> factors;
+
+    vars.reserve(npixels);
+    for(int pixel = 0; pixel < npixels; pixel++)
+        vars.push_back( Var(pixel, NLABELS) );
+
+    Real unary[NLABELS];
+    for(int pixel = 0; pixel < npixels; pixel++) {
+        for(int label = 0; label < NLABELS; label++) {
+            unary[label] = unary_cost_dai(pixel, label);
+        }
+        factors.push_back(Factor(vars[pixel], &unary[0]));
+    }
+
+    for(int pixel = 0; pixel < npixels; pixel++) {
+        vector<int> neighbors = pixel_neighbors(pixel);
+        for(int n = 0; n < neighbors.size(); n++) {
+            int neighbor = neighbors[n];
+            Real pairwise[NLABELS*NLABELS];
+            for(int plabel = 0; plabel < NLABELS; plabel++)
+                for(int nlabel = 0; nlabel < NLABELS; nlabel++)
+                    pairwise[nlabel*NLABELS + plabel] = pairwise_cost_dai(pixel, neighbor, plabel, nlabel, params[0], params[1]);
+            factors.push_back(Factor(VarSet(vars[pixel], vars[neighbor]), &pairwise[0]));
+        }
+    }
+
+    FactorGraph fg = FactorGraph(factors.begin(), factors.end(), vars.begin(), vars.end(), factors.size(), vars.size());
+
+    TRWBP ia(fg, PropertySet("[updates=SEQFIX,tol=1e-6,maxiter=10000,logdomain=0,inference=MAXPROD,damping=0.0,nrtrees=0,verbose=0]"));
+
+    ia.init();
+
+    for(int i = 0; i < niterations; i++) {
+        ia.setMaxIter(i + 1);
+        double energy = ia.run();
+        if(debug_mrf)
+            fprintf(stderr, "Iteration %d: %f\n", i, energy);
+
+        if(progress_callback) {
+            float progress = start_progress + (end_progress - start_progress)*i/niterations;
+            progress_callback(progress);
+        }
+    }
+
+    State maxState( ia.fg().factor(0).vars() );
+    vector<size_t> state;
+    int labelhist[NLABELS];
+    for(int i=0; i < NLABELS; i++) labelhist[i] = 0;
+
+    for(int pixel = 0; pixel < npixels; pixel++) {
+        int label = (int)ia.beliefV(pixel).p().argmax().first;
+        labelhist[label]++;
+        if(label != UNKNOWN_LABEL) {
+            xy pt = stereo_grid_locations[pixel];
+            struct stereo_match match = stereo_grid_matches[pixel][label];
+            stereo_mesh_add_vertex(mesh, pt.x, pt.y, match.x, match.y, match.point, match.score);
+        }
+    }
+
+    if(debug_mrf) {
+        for(int i = 0; i < NLABELS; i++)
+            fprintf(stderr, "%d ", labelhist[i]);
+        fprintf(stderr, "\n");
+    }
+}
+
 void stereo_mesh_refine_mrf(stereo_mesh & mesh, int width, int height, void (*progress_callback)(float), float start_progress, float end_progress)
 {
     MRF* mrf;
@@ -672,7 +809,8 @@ void stereo_mesh_add_gradient_grid(stereo_mesh & mesh, const stereo &g, int npoi
         }
     }
     else {
-        stereo_mesh_refine_mrf(mesh, m_width, m_height, progress_callback, progress_start + step_range, progress_start + step_range + mrf_range);
+        double final_params[2] = {1, 2.3};
+        stereo_mesh_refine_mrf_dai(mesh, m_width, m_height, progress_callback, progress_start + step_range, progress_start + step_range + mrf_range, final_params);
     }
 }
 

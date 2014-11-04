@@ -470,6 +470,30 @@
 		D3F57871184F2E1700EE450E /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3F57870184F2E1700EE450E /* CoreVideo.framework */; };
 		D3F57873184F2E2000EE450E /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3F57872184F2E2000EE450E /* MobileCoreServices.framework */; };
 		D3F57875184F2E2900EE450E /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3F57874184F2E2900EE450E /* OpenGLES.framework */; };
+		D3F7E1001A03F4EC00AB5778 /* alldai.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F7E0E01A03F4EB00AB5778 /* alldai.cpp */; };
+		D3F7E1011A03F4EC00AB5778 /* bbp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F7E0E11A03F4EB00AB5778 /* bbp.cpp */; };
+		D3F7E1021A03F4EC00AB5778 /* bipgraph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F7E0E21A03F4EB00AB5778 /* bipgraph.cpp */; };
+		D3F7E1031A03F4EC00AB5778 /* bp_dual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F7E0E31A03F4EB00AB5778 /* bp_dual.cpp */; };
+		D3F7E1061A03F4EC00AB5778 /* clustergraph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F7E0E61A03F4EB00AB5778 /* clustergraph.cpp */; };
+		D3F7E1071A03F4EC00AB5778 /* dag.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F7E0E71A03F4EB00AB5778 /* dag.cpp */; };
+		D3F7E1081A03F4EC00AB5778 /* daialg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F7E0E81A03F4EB00AB5778 /* daialg.cpp */; };
+		D3F7E10A1A03F4EC00AB5778 /* emalg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F7E0EA1A03F4EB00AB5778 /* emalg.cpp */; };
+		D3F7E10B1A03F4EC00AB5778 /* evidence.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F7E0EB1A03F4EB00AB5778 /* evidence.cpp */; };
+		D3F7E10C1A03F4EC00AB5778 /* exactinf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F7E0EC1A03F4EB00AB5778 /* exactinf.cpp */; };
+		D3F7E10D1A03F4EC00AB5778 /* exceptions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F7E0ED1A03F4EB00AB5778 /* exceptions.cpp */; };
+		D3F7E10E1A03F4EC00AB5778 /* factor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F7E0EE1A03F4EB00AB5778 /* factor.cpp */; };
+		D3F7E10F1A03F4EC00AB5778 /* factorgraph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F7E0EF1A03F4EB00AB5778 /* factorgraph.cpp */; };
+		D3F7E1121A03F4EC00AB5778 /* graph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F7E0F21A03F4EB00AB5778 /* graph.cpp */; };
+		D3F7E1141A03F4EC00AB5778 /* io.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F7E0F41A03F4EB00AB5778 /* io.cpp */; };
+		D3F7E1191A03F4EC00AB5778 /* properties.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F7E0F91A03F4EB00AB5778 /* properties.cpp */; };
+		D3F7E11A1A03F4EC00AB5778 /* regiongraph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F7E0FA1A03F4EB00AB5778 /* regiongraph.cpp */; };
+		D3F7E11C1A03F4EC00AB5778 /* trwbp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F7E0FC1A03F4EB00AB5778 /* trwbp.cpp */; };
+		D3F7E11D1A03F4EC00AB5778 /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F7E0FD1A03F4EB00AB5778 /* util.cpp */; };
+		D3F7E11E1A03F4EC00AB5778 /* varset.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F7E0FE1A03F4EB00AB5778 /* varset.cpp */; };
+		D3F7E11F1A03F4EC00AB5778 /* weightedgraph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F7E0FF1A03F4EB00AB5778 /* weightedgraph.cpp */; };
+		D3F7E1211A03F79200AB5778 /* boost.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D3F7E1201A03F79200AB5778 /* boost.a */; };
+		D3F7E1241A04000D00AB5778 /* bp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F7E1221A04000D00AB5778 /* bp.cpp */; };
+		D3F7E1251A04000D00AB5778 /* gibbs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F7E1231A04000D00AB5778 /* gibbs.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1268,6 +1292,30 @@
 		D3F57870184F2E1700EE450E /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		D3F57872184F2E2000EE450E /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		D3F57874184F2E2900EE450E /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		D3F7E0E01A03F4EB00AB5778 /* alldai.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = alldai.cpp; path = "../../corvis/src/libDAI-0.3.1/src/alldai.cpp"; sourceTree = "<group>"; };
+		D3F7E0E11A03F4EB00AB5778 /* bbp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bbp.cpp; path = "../../corvis/src/libDAI-0.3.1/src/bbp.cpp"; sourceTree = "<group>"; };
+		D3F7E0E21A03F4EB00AB5778 /* bipgraph.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bipgraph.cpp; path = "../../corvis/src/libDAI-0.3.1/src/bipgraph.cpp"; sourceTree = "<group>"; };
+		D3F7E0E31A03F4EB00AB5778 /* bp_dual.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bp_dual.cpp; path = "../../corvis/src/libDAI-0.3.1/src/bp_dual.cpp"; sourceTree = "<group>"; };
+		D3F7E0E61A03F4EB00AB5778 /* clustergraph.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = clustergraph.cpp; path = "../../corvis/src/libDAI-0.3.1/src/clustergraph.cpp"; sourceTree = "<group>"; };
+		D3F7E0E71A03F4EB00AB5778 /* dag.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = dag.cpp; path = "../../corvis/src/libDAI-0.3.1/src/dag.cpp"; sourceTree = "<group>"; };
+		D3F7E0E81A03F4EB00AB5778 /* daialg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = daialg.cpp; path = "../../corvis/src/libDAI-0.3.1/src/daialg.cpp"; sourceTree = "<group>"; };
+		D3F7E0EA1A03F4EB00AB5778 /* emalg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = emalg.cpp; path = "../../corvis/src/libDAI-0.3.1/src/emalg.cpp"; sourceTree = "<group>"; };
+		D3F7E0EB1A03F4EB00AB5778 /* evidence.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = evidence.cpp; path = "../../corvis/src/libDAI-0.3.1/src/evidence.cpp"; sourceTree = "<group>"; };
+		D3F7E0EC1A03F4EB00AB5778 /* exactinf.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = exactinf.cpp; path = "../../corvis/src/libDAI-0.3.1/src/exactinf.cpp"; sourceTree = "<group>"; };
+		D3F7E0ED1A03F4EB00AB5778 /* exceptions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = exceptions.cpp; path = "../../corvis/src/libDAI-0.3.1/src/exceptions.cpp"; sourceTree = "<group>"; };
+		D3F7E0EE1A03F4EB00AB5778 /* factor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = factor.cpp; path = "../../corvis/src/libDAI-0.3.1/src/factor.cpp"; sourceTree = "<group>"; };
+		D3F7E0EF1A03F4EB00AB5778 /* factorgraph.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = factorgraph.cpp; path = "../../corvis/src/libDAI-0.3.1/src/factorgraph.cpp"; sourceTree = "<group>"; };
+		D3F7E0F21A03F4EB00AB5778 /* graph.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = graph.cpp; path = "../../corvis/src/libDAI-0.3.1/src/graph.cpp"; sourceTree = "<group>"; };
+		D3F7E0F41A03F4EB00AB5778 /* io.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = io.cpp; path = "../../corvis/src/libDAI-0.3.1/src/io.cpp"; sourceTree = "<group>"; };
+		D3F7E0F91A03F4EB00AB5778 /* properties.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = properties.cpp; path = "../../corvis/src/libDAI-0.3.1/src/properties.cpp"; sourceTree = "<group>"; };
+		D3F7E0FA1A03F4EB00AB5778 /* regiongraph.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = regiongraph.cpp; path = "../../corvis/src/libDAI-0.3.1/src/regiongraph.cpp"; sourceTree = "<group>"; };
+		D3F7E0FC1A03F4EB00AB5778 /* trwbp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = trwbp.cpp; path = "../../corvis/src/libDAI-0.3.1/src/trwbp.cpp"; sourceTree = "<group>"; };
+		D3F7E0FD1A03F4EB00AB5778 /* util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = util.cpp; path = "../../corvis/src/libDAI-0.3.1/src/util.cpp"; sourceTree = "<group>"; };
+		D3F7E0FE1A03F4EB00AB5778 /* varset.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = varset.cpp; path = "../../corvis/src/libDAI-0.3.1/src/varset.cpp"; sourceTree = "<group>"; };
+		D3F7E0FF1A03F4EB00AB5778 /* weightedgraph.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = weightedgraph.cpp; path = "../../corvis/src/libDAI-0.3.1/src/weightedgraph.cpp"; sourceTree = "<group>"; };
+		D3F7E1201A03F79200AB5778 /* boost.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = boost.a; path = ../../measuredphoto/ofxiOSBoost/libs/boost/ios/boost.a; sourceTree = "<group>"; };
+		D3F7E1221A04000D00AB5778 /* bp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bp.cpp; path = "../../corvis/src/libDAI-0.3.1/src/bp.cpp"; sourceTree = "<group>"; };
+		D3F7E1231A04000D00AB5778 /* gibbs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gibbs.cpp; path = "../../corvis/src/libDAI-0.3.1/src/gibbs.cpp"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1282,6 +1330,7 @@
 				D36C360A184F2FB900F77AAF /* QuartzCore.framework in Frameworks */,
 				D3F57875184F2E2900EE450E /* OpenGLES.framework in Frameworks */,
 				D3F57873184F2E2000EE450E /* MobileCoreServices.framework in Frameworks */,
+				D3F7E1211A03F79200AB5778 /* boost.a in Frameworks */,
 				D3F57871184F2E1700EE450E /* CoreVideo.framework in Frameworks */,
 				D3F5786F184F2E0E00EE450E /* CoreMotion.framework in Frameworks */,
 				D3F5786D184F2E0600EE450E /* CoreMedia.framework in Frameworks */,
@@ -2207,6 +2256,14 @@
 			path = ../../measuredphoto/MeasuredPhoto;
 			sourceTree = "<group>";
 		};
+		D3EE15F81A07F06500188A5D /* ofxiOSBoost */ = {
+			isa = PBXGroup;
+			children = (
+				D3F7E1201A03F79200AB5778 /* boost.a */,
+			);
+			name = ofxiOSBoost;
+			sourceTree = "<group>";
+		};
 		D3F50AD719BA19FD00791303 /* VLFeat */ = {
 			isa = PBXGroup;
 			children = (
@@ -2302,7 +2359,9 @@
 		D3F50AFD19BA19FD00791303 /* Stereo */ = {
 			isa = PBXGroup;
 			children = (
+				D3EE15F81A07F06500188A5D /* ofxiOSBoost */,
 				D30CE10019EE8595009E413E /* QHull */,
+				D3F7E0DD1A03F4A400AB5778 /* libDAI */,
 				D3EF0A9619BA1FD100512050 /* RCStereo.h */,
 				D3EF0A9719BA1FD100512050 /* RCStereo.mm */,
 				D3F50AD719BA19FD00791303 /* VLFeat */,
@@ -2320,6 +2379,36 @@
 			);
 			name = Stereo;
 			path = ../../RCCore/RCCore;
+			sourceTree = "<group>";
+		};
+		D3F7E0DD1A03F4A400AB5778 /* libDAI */ = {
+			isa = PBXGroup;
+			children = (
+				D3F7E1221A04000D00AB5778 /* bp.cpp */,
+				D3F7E1231A04000D00AB5778 /* gibbs.cpp */,
+				D3F7E0E01A03F4EB00AB5778 /* alldai.cpp */,
+				D3F7E0E11A03F4EB00AB5778 /* bbp.cpp */,
+				D3F7E0E21A03F4EB00AB5778 /* bipgraph.cpp */,
+				D3F7E0E31A03F4EB00AB5778 /* bp_dual.cpp */,
+				D3F7E0E61A03F4EB00AB5778 /* clustergraph.cpp */,
+				D3F7E0E71A03F4EB00AB5778 /* dag.cpp */,
+				D3F7E0E81A03F4EB00AB5778 /* daialg.cpp */,
+				D3F7E0EA1A03F4EB00AB5778 /* emalg.cpp */,
+				D3F7E0EB1A03F4EB00AB5778 /* evidence.cpp */,
+				D3F7E0EC1A03F4EB00AB5778 /* exactinf.cpp */,
+				D3F7E0ED1A03F4EB00AB5778 /* exceptions.cpp */,
+				D3F7E0EE1A03F4EB00AB5778 /* factor.cpp */,
+				D3F7E0EF1A03F4EB00AB5778 /* factorgraph.cpp */,
+				D3F7E0F21A03F4EB00AB5778 /* graph.cpp */,
+				D3F7E0F41A03F4EB00AB5778 /* io.cpp */,
+				D3F7E0F91A03F4EB00AB5778 /* properties.cpp */,
+				D3F7E0FA1A03F4EB00AB5778 /* regiongraph.cpp */,
+				D3F7E0FC1A03F4EB00AB5778 /* trwbp.cpp */,
+				D3F7E0FD1A03F4EB00AB5778 /* util.cpp */,
+				D3F7E0FE1A03F4EB00AB5778 /* varset.cpp */,
+				D3F7E0FF1A03F4EB00AB5778 /* weightedgraph.cpp */,
+			);
+			name = libDAI;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -2665,6 +2754,7 @@
 				D30CE12A19EE86A1009E413E /* rboxlib.c in Sources */,
 				32EFED28196C91CE00FDC89F /* NSRelationshipDescription+MagicalDataImport.m in Sources */,
 				D3F50B0619BA19FD00791303 /* hikmeans.c in Sources */,
+				D3F7E1081A03F4EC00AB5778 /* daialg.cpp in Sources */,
 				32EFED24196C91CE00FDC89F /* NSAttributeDescription+MagicalDataImport.m in Sources */,
 				326ACF8C19D2221B00B36965 /* OSKCursorMovement.m in Sources */,
 				326ACFC119D2221B00B36965 /* OSKTwitterUtility.m in Sources */,
@@ -2675,14 +2765,17 @@
 				326ACF7D19D2221B00B36965 /* OSKActivityOperation.m in Sources */,
 				326ACFA619D2221B00B36965 /* OSKPagedHorizontalLayout.m in Sources */,
 				32EFEDCB1977450500FDC89F /* MPGalleryController.m in Sources */,
+				D3F7E1251A04000D00AB5778 /* gibbs.cpp in Sources */,
 				326ACFA419D2221B00B36965 /* OSKOAuthUtility.m in Sources */,
 				D3F50B1E19BA19FD00791303 /* slic.c in Sources */,
 				D30CE12719EE86A1009E413E /* poly2.c in Sources */,
 				32EFED84196E078F00FDC89F /* SBJsonStreamParserAccumulator.m in Sources */,
 				326ACF7E19D2221B00B36965 /* OSKActivitySheetViewController.m in Sources */,
+				D3F7E10C1A03F4EC00AB5778 /* exactinf.cpp in Sources */,
 				32EFED34196C91CE00FDC89F /* NSPersistentStore+MagicalRecord.m in Sources */,
 				D3F50B3019BA19FD00791303 /* fundamental.cpp in Sources */,
 				326ACFA719D2221B00B36965 /* OSKPinboardActivity.m in Sources */,
+				D3F7E1011A03F4EC00AB5778 /* bbp.cpp in Sources */,
 				32BA42AD17A2DF8B002BAE13 /* MPAppDelegate.m in Sources */,
 				32EFED3C196C91CE00FDC89F /* MagicalRecord.m in Sources */,
 				326ACF8819D2221B00B36965 /* OSKApplicationCredential.m in Sources */,
@@ -2705,6 +2798,7 @@
 				32EFED8B196E078F00FDC89F /* SBJsonUTF8Stream.m in Sources */,
 				D3F50B1719BA19FD00791303 /* mser.c in Sources */,
 				326ACF8A19D2221B00B36965 /* OSKChromeActivity.m in Sources */,
+				D3F7E11E1A03F4EC00AB5778 /* varset.cpp in Sources */,
 				32EFED30196C91CE00FDC89F /* NSManagedObjectContext+MagicalRecord.m in Sources */,
 				320A5BCD198032AB0046BA1B /* MPTitleTextBox.m in Sources */,
 				D3F50B0919BA19FD00791303 /* host.c in Sources */,
@@ -2719,6 +2813,8 @@
 				326ACFA519D2221B00B36965 /* OSKOmnifocusActivity.m in Sources */,
 				D30CE12919EE86A1009E413E /* random.c in Sources */,
 				32EFEDD0197749E400FDC89F /* MPGalleryCell.m in Sources */,
+				D3F7E1071A03F4EC00AB5778 /* dag.cpp in Sources */,
+				D3F7E1021A03F4EC00AB5778 /* bipgraph.cpp in Sources */,
 				32EFED8C196E078F00FDC89F /* SBJsonWriter.m in Sources */,
 				32EFECE1196C6C9F00FDC89F /* Model.xcdatamodeld in Sources */,
 				326ACF8919D2221B00B36965 /* OSKBorderedButton.m in Sources */,
@@ -2726,8 +2822,11 @@
 				D3F50B2A19BA19FD00791303 /* TRW-S.cpp in Sources */,
 				D3F50B0519BA19FD00791303 /* gmm.c in Sources */,
 				32A2104218906439002BD1E4 /* MPView.m in Sources */,
+				D3F7E1141A03F4EC00AB5778 /* io.cpp in Sources */,
 				326ACFB419D2221B00B36965 /* OSKSessionController_Pad.m in Sources */,
 				D3F50B0F19BA19FD00791303 /* imopv.c in Sources */,
+				D3F7E1031A03F4EC00AB5778 /* bp_dual.cpp in Sources */,
+				D3F7E11C1A03F4EC00AB5778 /* trwbp.cpp in Sources */,
 				32BA433317A2EF4E002BAE13 /* MPLineLayer.m in Sources */,
 				326ACFAE19D2221B00B36965 /* OSKReadingListActivity.m in Sources */,
 				D30CE12619EE86A1009E413E /* poly.c in Sources */,
@@ -2740,8 +2839,11 @@
 				D30CE12019EE86A1009E413E /* geom2.c in Sources */,
 				D30CE12519EE86A1009E413E /* merge.c in Sources */,
 				326ACFAF19D2221B00B36965 /* OSKRPSTPasswordManagementAppService.m in Sources */,
+				D3F7E1121A03F4EC00AB5778 /* graph.cpp in Sources */,
+				D3F7E1191A03F4EC00AB5778 /* properties.cpp in Sources */,
 				326ACFB819D2221B00B36965 /* OSKSmartPunctuation.m in Sources */,
 				326ACF8319D2221B00B36965 /* OSKAirDropViewController.m in Sources */,
+				D3F7E11A1A03F4EC00AB5778 /* regiongraph.cpp in Sources */,
 				326ACF9519D2221B00B36965 /* OSKInMemoryImageCache.m in Sources */,
 				32EFED81196E078F00FDC89F /* NSObject+SBJson.m in Sources */,
 				326ACF6C19D2221B00B36965 /* NSString+OSK_UUID.m in Sources */,
@@ -2772,10 +2874,12 @@
 				326ACF7A19D2221B00B36965 /* OSKActivityCollectionViewController.m in Sources */,
 				326ACF8D19D2221B00B36965 /* OSKDraftsActivity.m in Sources */,
 				326ACD5119D2212C00B36965 /* CustomIOS7AlertView.m in Sources */,
+				D3F7E10A1A03F4EC00AB5778 /* emalg.cpp in Sources */,
 				32EFED2F196C91CE00FDC89F /* NSManagedObjectContext+MagicalObserving.m in Sources */,
 				3244D39118E60F4600AB0DE0 /* RCCalibration2.m in Sources */,
 				322C371418A18AB6001C69C2 /* MPCircleLayerDelegate.m in Sources */,
 				326ACFC219D2221B00B36965 /* OSKUITextViewSubstitute.m in Sources */,
+				D3F7E1241A04000D00AB5778 /* bp.cpp in Sources */,
 				326ACF7519D2221B00B36965 /* OSKActivitiesManager.m in Sources */,
 				D3F50B1319BA19FD00791303 /* liop.c in Sources */,
 				326ACFDE19D22A1F00B36965 /* OSK1PasswordBrowserActivity.m in Sources */,
@@ -2789,6 +2893,7 @@
 				326ACFB019D2221B00B36965 /* OSKSafariActivity.m in Sources */,
 				328824B317C6C7BA0072CF54 /* MPPaddedLabel.m in Sources */,
 				326ACF7319D2221B00B36965 /* OSKAccountTypeCell.m in Sources */,
+				D3F7E11F1A03F4EC00AB5778 /* weightedgraph.cpp in Sources */,
 				D3F50B1519BA19FD00791303 /* mathop_sse2.c in Sources */,
 				D3F50B1419BA19FD00791303 /* mathop_avx.c in Sources */,
 				D3F50B2919BA19FD00791303 /* mrf.cpp in Sources */,
@@ -2798,6 +2903,7 @@
 				32EFED37196C91CE00FDC89F /* MagicalRecord+ErrorHandling.m in Sources */,
 				3201E4DE19818596008F61D5 /* MPZoomTransition.m in Sources */,
 				326ACF6719D2221B00B36965 /* NSData+OSKDerp.m in Sources */,
+				D3F7E1001A03F4EC00AB5778 /* alldai.cpp in Sources */,
 				32EFED2B196C91CE00FDC89F /* NSManagedObject+MagicalDataImport.m in Sources */,
 				D3F50B0219BA19FD00791303 /* fisher.c in Sources */,
 				326ACFCE19D2221B00B36965 /* UIView+OSKUtilities.m in Sources */,
@@ -2828,6 +2934,7 @@
 				322C371F18A18D78001C69C2 /* MPInstructionsView.m in Sources */,
 				D3F50AFF19BA19FD00791303 /* array.c in Sources */,
 				D3F50B0719BA19FD00791303 /* hog.c in Sources */,
+				D3F7E11D1A03F4EC00AB5778 /* util.cpp in Sources */,
 				32EFED85196E078F00FDC89F /* SBJsonStreamParserAdapter.m in Sources */,
 				D3F50B1C19BA19FD00791303 /* scalespace.c in Sources */,
 				329222F9180F21BA008BF9A0 /* MPPhotoRequest.m in Sources */,
@@ -2840,11 +2947,13 @@
 				326ACFA319D2221B00B36965 /* OSKNavigationController.m in Sources */,
 				326ACFE919D38AED00B36965 /* MPWebViewController.m in Sources */,
 				D30CE12119EE86A1009E413E /* global.c in Sources */,
+				D3F7E10D1A03F4EC00AB5778 /* exceptions.cpp in Sources */,
 				326ACF9B19D2221B00B36965 /* OSKManagedAccount.m in Sources */,
 				32C71CA719802F6100947798 /* MPRotatingButton.m in Sources */,
 				325B55E218BD2684009B8B0D /* MPMessageBox.m in Sources */,
 				326ACF8F19D2221B00B36965 /* OSKFacebookActivity.m in Sources */,
 				326ACF7719D2221B00B36965 /* OSKActivityCollectionViewCell.m in Sources */,
+				D3F7E10F1A03F4EC00AB5778 /* factorgraph.cpp in Sources */,
 				32EFED35196C91CE00FDC89F /* NSPersistentStoreCoordinator+MagicalRecord.m in Sources */,
 				32B78F8A19182C93003165C9 /* MPLocalMoviePlayer.m in Sources */,
 				32EFED88196E078F00FDC89F /* SBJsonStreamWriterAccumulator.m in Sources */,
@@ -2865,6 +2974,7 @@
 				3248C7DB18A44AE400061D4A /* MPToolbarView.m in Sources */,
 				3201E4E41982D212008F61D5 /* MPFadeTransition.m in Sources */,
 				326ACF9419D2221B00B36965 /* OSKFileManager.m in Sources */,
+				D3F7E1061A03F4EC00AB5778 /* clustergraph.cpp in Sources */,
 				32EFED3B196C91CE00FDC89F /* MagicalRecord+ShorthandSupport.m in Sources */,
 				32EFED26196C91CE00FDC89F /* NSNumber+MagicalDataImport.m in Sources */,
 				32EFED2D196C91CE00FDC89F /* NSManagedObject+MagicalRecord.m in Sources */,
@@ -2892,6 +3002,8 @@
 				326ACFCF19D2221B00B36965 /* UIViewController+OSKUtilities.m in Sources */,
 				32EFED25196C91CE00FDC89F /* NSEntityDescription+MagicalDataImport.m in Sources */,
 				320E5DEA17E37E8400381E7A /* MPYouTubeVideo.m in Sources */,
+				D3F7E10B1A03F4EC00AB5778 /* evidence.cpp in Sources */,
+				D3F7E10E1A03F4EC00AB5778 /* factor.cpp in Sources */,
 				32EFED83196E078F00FDC89F /* SBJsonStreamParser.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2957,10 +3069,20 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"${SRCROOT}/../corvis/src/libDAI-0.3.1/include/",
+					"${SRCROOT}/ofxiOSBoost/libs/boost/include/",
+				);
 				INFOPLIST_PREPROCESS = YES;
 				INFOPLIST_PREPROCESSOR_DEFINITIONS = "ARCHIVE=1";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-DMACOSX",
+				);
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;
@@ -3032,9 +3154,19 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"${SRCROOT}/../corvis/src/libDAI-0.3.1/include/",
+					"${SRCROOT}/ofxiOSBoost/libs/boost/include/",
+				);
 				INFOPLIST_PREPROCESS = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				ONLY_ACTIVE_ARCH = YES;
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-DMACOSX",
+				);
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -3058,9 +3190,19 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"${SRCROOT}/../corvis/src/libDAI-0.3.1/include/",
+					"${SRCROOT}/ofxiOSBoost/libs/boost/include/",
+				);
 				INFOPLIST_PREPROCESS = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 6.1;
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-DMACOSX",
+				);
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				VALIDATE_PRODUCT = YES;

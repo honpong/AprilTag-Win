@@ -109,7 +109,7 @@ void Gibbs::updateCounts() {
 
 size_t Gibbs::getFactorEntry( size_t I ) {
     size_t f_entry = 0;
-    for( int _j = nbF(I).size() - 1; _j >= 0; _j-- ) {
+    for( int _j = (int)nbF(I).size() - 1; _j >= 0; _j-- ) {
         // note that iterating over nbF(I) yields the same ordering
         // of variables as iterating over factor(I).vars()
         size_t j = nbF(I)[_j];
@@ -168,7 +168,7 @@ void Gibbs::resampleVar( size_t i ) {
 
 void Gibbs::randomizeState() {
     for( size_t i = 0; i < nrVars(); i++ )
-        _state[i] = rnd( var(i).states() );
+        _state[i] = rnd( (int)var(i).states() );
 }
 
 

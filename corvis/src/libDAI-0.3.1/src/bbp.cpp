@@ -22,7 +22,7 @@ using namespace std;
 /// Returns the entry of the I'th factor corresponding to a global state
 size_t getFactorEntryForState( const FactorGraph &fg, size_t I, const vector<size_t> &state ) {
     size_t f_entry = 0;
-    for( int _j = fg.nbF(I).size() - 1; _j >= 0; _j-- ) {
+    for( int _j = (int)fg.nbF(I).size() - 1; _j >= 0; _j-- ) {
         // note that iterating over nbF(I) yields the same ordering
         // of variables as iterating over factor(I).vars()
         size_t j = fg.nbF(I)[_j];
@@ -760,7 +760,7 @@ void BBP::initCostFnAdj( const BBPCostFunction &cfn, const vector<size_t> *state
             psi2_adj.reserve( fg.nrFactors() );
             for( size_t i = 0; i < fg.nrVars(); i++ ) {
                 size_t dim = fg.var(i).states();
-                int c = fg.nbV(i).size();
+                int c = (int)fg.nbV(i).size();
                 Prob p(dim,0.0);
                 for( size_t xi = 0; xi < dim; xi++ )
                     p.set( xi, (1 - c) * (1 + log( _ia->beliefV(i)[xi] )) );

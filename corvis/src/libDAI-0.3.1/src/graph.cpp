@@ -281,7 +281,7 @@ GraphAL createGraphLoop( size_t N ) {
 GraphAL createGraphTree( size_t N ) {
     GraphAL result( N );
     for( size_t i = 1; i < N; i++ ) {
-        size_t j = rnd_int( 0, i-1 );
+        size_t j = rnd_int( 0, (int)i-1 );
         result.addEdge( i, j, false );
     }
     return result;

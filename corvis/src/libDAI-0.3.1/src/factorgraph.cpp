@@ -89,7 +89,7 @@ std::ostream& operator<< ( std::ostream &os, const FactorGraph &fg ) {
         os << nr_nonzeros << endl;
         for( size_t k = 0; k < fg.factor(I).nrStates(); k++ )
             if( fg.factor(I)[k] != (Real)0 )
-                os << k << " " << setw(os.precision()+4) << fg.factor(I)[k] << endl;
+                os << k << " " << setw((int)os.precision()+4) << fg.factor(I)[k] << endl;
     }
 
     return(os);

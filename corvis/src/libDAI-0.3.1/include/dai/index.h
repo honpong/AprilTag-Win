@@ -460,7 +460,7 @@ class State {
 
         /// Returns \c true if the current state is valid
         bool valid() const {
-            return( state >= 0 );
+            return true; //( state >= 0 );
         }
 
         /// Resets the current state (to the joint state represented by linear state 0)

@@ -28,7 +28,7 @@
 #if defined(WINDOWS)
 #include <cstdint> // only defined in C++11 and higher, but needed for Win64 builds in order to enable conditional code in MPIR library
 #endif
-#include <gmpxx.h>
+//#include <gmpxx.h>
 
 #include <dai/exceptions.h>
 
@@ -98,12 +98,12 @@ namespace dai {
 typedef double Real;
 
 /// Arbitrary precision integer number
-typedef mpz_class BigInt;
+typedef size_t BigInt;
 
 /// Safe down-cast of big integer to size_t
 inline size_t BigInt_size_t( const BigInt &N ) {
     DAI_ASSERT( N <= (BigInt)std::numeric_limits<std::size_t>::max() );
-    return N.get_ui();
+    return N;
 }
 
 /// Returns true if argument is NAN (Not A Number)

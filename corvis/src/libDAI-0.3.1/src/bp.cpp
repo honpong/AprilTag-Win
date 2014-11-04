@@ -33,7 +33,7 @@ void BP::setProperties( const PropertySet &opts ) {
 
     props.tol = opts.getStringAs<Real>("tol");
     props.logdomain = opts.getStringAs<bool>("logdomain");
-    props.updates = opts.getStringAs<Properties::UpdateType>("updates");
+    props.updates = opts.getStringAs<int>("updates");
 
     if( opts.hasKey("maxiter") )
         props.maxiter = opts.getStringAs<size_t>("maxiter");
@@ -52,9 +52,9 @@ void BP::setProperties( const PropertySet &opts ) {
     else
         props.damping = 0.0;
     if( opts.hasKey("inference") )
-        props.inference = opts.getStringAs<Properties::InfType>("inference");
+        props.inference = opts.getStringAs<int>("inference");
     else
-        props.inference = Properties::InfType::SUMPROD;
+        props.inference = BPSUMPROD;
 }
 
 
@@ -92,12 +92,12 @@ void BP::construct() {
     _edges.clear();
     _edges.reserve( nrVars() );
     _edge2lut.clear();
-    if( props.updates == Properties::UpdateType::SEQMAX )
+    if( props.updates == BPSEQMAX )
         _edge2lut.reserve( nrVars() );
     for( size_t i = 0; i < nrVars(); ++i ) {
         _edges.push_back( vector<EdgeProp>() );
         _edges[i].reserve( nbV(i).size() );
-        if( props.updates == Properties::UpdateType::SEQMAX ) {
+        if( props.updates == BPSEQMAX ) {
             _edge2lut.push_back( vector<LutType::iterator>() );
             _edge2lut[i].reserve( nbV(i).size() );
         }
@@ -114,7 +114,7 @@ void BP::construct() {
 
             newEP.residual = 0.0;
             _edges[i].push_back( newEP );
-            if( props.updates == Properties::UpdateType::SEQMAX )
+            if( props.updates == BPSEQMAX )
                 _edge2lut[i].push_back( _lut.insert( make_pair( newEP.residual, make_pair( i, _edges[i].size() - 1 ))) );
         }
     }
@@ -144,7 +144,7 @@ void BP::init() {
         bforeach( const Neighbor &I, nbV(i) ) {
             message( i, I.iter ).fill( c );
             newMessage( i, I.iter ).fill( c );
-            if( props.updates == Properties::UpdateType::SEQMAX )
+            if( props.updates == BPSEQMAX )
                 updateResidual( i, I.iter, 0.0 );
         }
     }
@@ -224,7 +224,7 @@ void BP::calcNewMessage( size_t i, size_t _I ) {
         // Marginalize onto i
         if( !DAI_BP_FAST ) {
             // UNOPTIMIZED (SIMPLE TO READ, BUT SLOW) VERSION
-            if( props.inference == Properties::InfType::SUMPROD )
+            if( props.inference == BPSUMPROD )
                 marg = Fprod.marginal( var(i) ).p();
             else
                 marg = Fprod.maxMarginal( var(i) ).p();
@@ -233,7 +233,7 @@ void BP::calcNewMessage( size_t i, size_t _I ) {
             marg = Prob( var(i).states(), 0.0 );
             // ind is the precalculated IndexFor(i,I) i.e. to x_I == k corresponds x_i == ind[k]
             const ind_t ind = index(i,_I);
-            if( props.inference == Properties::InfType::SUMPROD )
+            if( props.inference == BPSUMPROD )
                 for( size_t r = 0; r < prod.size(); ++r )
                     marg.set( ind[r], marg[ind[r]] + prod[r] );
             else
@@ -251,7 +251,7 @@ void BP::calcNewMessage( size_t i, size_t _I ) {
         newMessage(i,_I) = marg;
 
     // Update the residual if necessary
-    if( props.updates == Properties::UpdateType::SEQMAX )
+    if( props.updates == BPSEQMAX )
         updateResidual( i, _I , dist( newMessage( i, _I ), message( i, _I ), DISTLINF ) );
 }
 
@@ -270,7 +270,7 @@ Real BP::run() {
     // been reached or until the maximum belief difference is smaller than tolerance
     Real maxDiff = INFINITY;
     for( ; _iters < props.maxiter && maxDiff > props.tol && (toc() - tic) < props.maxtime; _iters++ ) {
-        if( props.updates == Properties::UpdateType::SEQMAX ) {
+        if( props.updates == BPSEQMAX ) {
             if( _iters == 0 ) {
                 // do the first pass
                 for( size_t i = 0; i < nrVars(); ++i )
@@ -296,7 +296,7 @@ Real BP::run() {
                     }
                 }
             }
-        } else if( props.updates == Properties::UpdateType::PARALL ) {
+        } else if( props.updates == BPPARALL ) {
             // Parallel updates
             for( size_t i = 0; i < nrVars(); ++i )
                 bforeach( const Neighbor &I, nbV(i) )
@@ -307,7 +307,7 @@ Real BP::run() {
                     updateMessage( i, I.iter );
         } else {
             // Sequential updates
-            if( props.updates == Properties::UpdateType::SEQRND )
+            if( props.updates == BPSEQRND )
                 random_shuffle( _updateSeq.begin(), _updateSeq.end(), rnd );
 
             bforeach( const Edge &e, _updateSeq ) {
@@ -434,7 +434,7 @@ void BP::init( const VarSet &ns ) {
             Real val = props.logdomain ? 0.0 : 1.0;
             message( ni, I.iter ).fill( val );
             newMessage( ni, I.iter ).fill( val );
-            if( props.updates == Properties::UpdateType::SEQMAX )
+            if( props.updates == BPSEQMAX )
                 updateResidual( ni, I.iter, 0.0 );
         }
     }
@@ -447,14 +447,14 @@ void BP::updateMessage( size_t i, size_t _I ) {
         _sentMessages.push_back(make_pair(i,_I));
     if( props.damping == 0.0 ) {
         message(i,_I) = newMessage(i,_I);
-        if( props.updates == Properties::UpdateType::SEQMAX )
+        if( props.updates == BPSEQMAX )
             updateResidual( i, _I, 0.0 );
     } else {
         if( props.logdomain )
             message(i,_I) = (message(i,_I) * props.damping) + (newMessage(i,_I) * (1.0 - props.damping));
         else
             message(i,_I) = (message(i,_I) ^ props.damping) * (newMessage(i,_I) ^ (1.0 - props.damping));
-        if( props.updates == Properties::UpdateType::SEQMAX )
+        if( props.updates == BPSEQMAX )
             updateResidual( i, _I, dist( newMessage(i,_I), message(i,_I), DISTLINF ) );
     }
 }

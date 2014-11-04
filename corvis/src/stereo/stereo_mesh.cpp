@@ -556,7 +556,7 @@ void stereo_mesh_refine_mrf_dai(stereo_mesh & mesh, int width, int height, void 
 
     FactorGraph fg = FactorGraph(factors.begin(), factors.end(), vars.begin(), vars.end(), factors.size(), vars.size());
 
-    TRWBP ia(fg, PropertySet("[updates=SEQFIX,tol=1e-6,maxiter=10000,logdomain=0,inference=MAXPROD,damping=0.0,nrtrees=0,verbose=0]"));
+    TRWBP ia(fg, PropertySet("[updates=0,tol=1e-6,maxiter=10000,logdomain=0,inference=1,damping=0.0,nrtrees=0,verbose=0]"));
 
     ia.init();
 

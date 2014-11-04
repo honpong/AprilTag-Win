@@ -24,6 +24,15 @@
 
 namespace dai {
 
+// Update type
+const int BPSEQFIX = 0;
+const int BPSEQRND = 1;
+const int BPSEQMAX = 2;
+const int BPPARALL = 3;
+
+// Inf type
+const int BPSUMPROD = 0;
+const int BPMAXPROD = 1;
 
 /// Approximate inference algorithm "(Loopy) Belief Propagation"
 /** The Loopy Belief Propagation algorithm uses message passing
@@ -95,22 +104,6 @@ class BP : public DAIAlgFG {
     public:
         /// Parameters for BP
         struct Properties {
-            /// Enumeration of possible update schedules
-            /** The following update schedules have been defined:
-             *  - PARALL parallel updates
-             *  - SEQFIX sequential updates using a fixed sequence
-             *  - SEQRND sequential updates using a random sequence
-             *  - SEQMAX maximum-residual updates [\ref EMK06]
-             */
-            DAI_ENUM(UpdateType,SEQFIX,SEQRND,SEQMAX,PARALL);
-
-            /// Enumeration of inference variants
-            /** There are two inference variants:
-             *  - SUMPROD Sum-Product
-             *  - MAXPROD Max-Product (equivalent to Min-Sum)
-             */
-            DAI_ENUM(InfType,SUMPROD,MAXPROD);
-
             /// Verbosity (amount of output sent to stderr)
             size_t verbose;
 
@@ -129,11 +122,23 @@ class BP : public DAIAlgFG {
             /// Damping constant (0.0 means no damping, 1.0 is maximum damping)
             Real damping;
 
+            /// Enumeration of possible update schedules
+            /** The following update schedules have been defined:
+             *  - BPSEQFIX sequential updates using a fixed sequence = 0
+             *  - BPSEQRND sequential updates using a random sequence = 1
+             *  - BPSEQMAX maximum-residual updates [\ref EMK06] = 2
+             *  - BPPARALL parallel updates = 3
+             */
             /// Message update schedule
-            UpdateType updates;
+            int updates;
 
+            /// Enumeration of inference variants
+            /** There are two inference variants:
+             *  - BPSUMPROD Sum-Product = 0
+             *  - BPMAXPROD Max-Product (equivalent to Min-Sum) = 1
+             */
             /// Inference variant
-            InfType inference;
+            int inference;
         } props;
 
         /// Specifies whether the history of message updates should be recorded

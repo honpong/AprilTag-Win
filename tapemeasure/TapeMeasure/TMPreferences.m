@@ -187,14 +187,7 @@
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldReceiveTouch:(UITouch *)touch
 {
-    if(touch.view == self.containerView)
-    {
-        return NO;
-    }
-    else
-    {
-        return YES;
-    }
+    return touch.view == self.containerView ? NO : YES;
 }
 
 - (void) handleTapOutside:(UIGestureRecognizer *)gestureRecognizer

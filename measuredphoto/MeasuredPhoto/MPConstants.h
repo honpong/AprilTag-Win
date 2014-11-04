@@ -31,7 +31,7 @@
 #define PREF_UNITS @"units_preference"
 #define PREF_ADD_LOCATION @"addlocation_preference"
 #define PREF_LAST_TRANS_ID @"last_trans_id"
-#define PREF_SHOW_LOCATION_EXPLANATION @"show_location_explanation"
+#define PREF_SHOW_LOCATION_NAG @"show_location_explanation"
 #define PREF_IS_CALIBRATED @"is_calibrated"
 #define PREF_TUTORIAL_ANSWER @"tutorial_answer"
 #define PREF_SHOW_INSTRUCTIONS @"show_instructions"
@@ -40,6 +40,8 @@
 #define PREF_SHOW_RATE_NAG @"show_rate_nag"
 #define PREF_RATE_NAG_TIMESTAMP @"rate_nag_timestamp"
 #define PREF_LOCATION_NAG_TIMESTAMP @"location_nag_timestamp"
+#define PREF_USE_LOCATION @"use_location"
+#define PREF_PROMPTED_LOCATION_SERVICES @"prompted_location_services"
 
 #define API_VERSION 1
 #ifdef ARCHIVE

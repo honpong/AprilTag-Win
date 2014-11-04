@@ -24,6 +24,7 @@
 @implementation MPEditPhoto
 {
     BOOL isWebViewLoaded;
+    MPEditTitleController* titleController;
 }
 
 - (void)viewDidLoad
@@ -49,6 +50,9 @@
     self.webView.scalesPageToFit = NO;
     self.webView.delegate = self;
     [self.webView loadRequest:[NSURLRequest requestWithURL:htmlUrl]];
+    
+    titleController = [self.storyboard instantiateViewControllerWithIdentifier:@"EditTitle"];
+    [titleController.view class]; //force view to load
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -122,7 +126,9 @@
 
 - (void) setWebViewOrientation:(UIDeviceOrientation) orientation
 {
-    NSString* jsFunction = [NSString stringWithFormat:@"forceOrientationChange(%li)", (long)orientation];
+    if (!isWebViewLoaded) return;
+    BOOL animated = self.presentingViewController ? YES : NO;
+    NSString* jsFunction = [NSString stringWithFormat:@"forceOrientationChange(%li,%i)", (long)orientation, animated];
     [self.webView stringByEvaluatingJavaScriptFromString: jsFunction];
 }
 
@@ -202,7 +208,6 @@
 
 - (void) gotoEditTitle
 {
-    MPEditTitleController* titleController = [self.storyboard instantiateViewControllerWithIdentifier:@"EditTitle"];
     titleController.measuredPhoto = self.measuredPhoto;
     
     // force view controller to be in correct orientation when we present it
@@ -268,6 +273,7 @@
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
     isWebViewLoaded = YES;
+    [self setOrientation:self.currentUIOrientation animated:NO];
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error

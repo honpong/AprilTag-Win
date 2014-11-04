@@ -1,7 +1,9 @@
+//Copywrite (c) 2014 by RealityCap, Inc. Written by Jordan Miller for the exclusive use of RealityCap, Inc.
+
 doing_orientatino_change = false;
 function doOnOrientationChange()
 {
-    //console.log('do on orientation chagne');
+    console.log('do on orientation chagne');
     if (!doing_orientatino_change) {
         doing_orientatino_change = true;  //theres a lot of nested calls, prevent some listeners double triggering this
         //change body and document size here too.
@@ -38,8 +40,8 @@ function clear_tool_data(){ //this should be called whenever theres a switch in 
 
 
 function rc_initialize(){
-    //console.log = logNative;
-    //console.log("starting rc_initialize()");
+    console.log = logNative;
+    console.log("starting rc_initialize()");
     
     is_rc_initialized = true;
     
@@ -316,6 +318,7 @@ function rc_initialize(){
         else                        {default_units_metric = true;}
         unit_default_set_by_app = true;
         rcMeasurements.reset_all_measurement_units_to_default();
+        rc_menu.unit_button.highlight_active_unit(default_units_metric);
     }
     
     // construct menue
@@ -342,16 +345,19 @@ function rc_initialize(){
     np_add_listeners(); //setup image
     
     dm_initialize();
+    
+    doOnOrientationChange();
 
 }
 
 
 function clear_all(){
-    //console.log('starting clear_all()');
+    console.log('starting clear_all()');
     window.setTimeout(function (){
     try {
         //scale and roation handling
         initial_load = true;
+        console.log('tried setting initial_load to true, it is now = ' + initial_load.toString());
     
         //clear all measurements, reset handlers
         if (draw_g.node.contains(measured_svg.node)) {draw_g.node.removeChild(measured_svg.node);}
@@ -390,9 +396,11 @@ function setDefaultUnits(use_metric) {
     unit_default_set_by_app = true;
 }
 
+var rc_img_url_glbl;
 function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric){
     //console.log("startin loadMPhoto()");
     window.setTimeout( function () {
+        rc_img_url_glbl = rc_img_url;
         m_photo_guid = guid;
         if (typeof use_metric === "undefined" || use_metric === null) { default_units_metric = false; } //metric is our default if not set
                       else {default_units_metric = use_metric; unit_default_set_by_app = true; }//set default if provided.
@@ -403,9 +411,10 @@ function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric)
             }
             
             //assume clear is called first if this is the second load
-                      //console.log('loading image from '+ rc_img_url);
+            console.log('loading image from '+ rc_img_url);
+            initial_load = true; //were setting this incase zooming was called and set it to false after a clear was called
             image = img_container.image(rc_img_url).loaded(function(loader) {
-                                                  //console.log('starting image load callback');
+                                                  console.log('starting image load callback');
                                                   //this should rotate the image
                                                   //alert('loading img');
                                                   //image_width = loader.height;
@@ -434,7 +443,7 @@ function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric)
                                                   // Initial dexecution if needed
                                                   //alert('do on orientation change');
                                                   doOnOrientationChange();
-                                                  
+                                                  rc_menu.unit_button.highlight_active_unit(default_units_metric);
                                                   
                                                   });
         

@@ -1,3 +1,4 @@
+//Copywrite (c) 2014 by RealityCap, Inc. Written by Jordan Miller for the exclusive use of RealityCap, Inc.
 
 ////////////////////////////////////////////////////////////////////////////////
 //   DEFINE GLOBAL VARIABLES                                                  //

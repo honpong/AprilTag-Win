@@ -106,7 +106,7 @@ static const CLLocationDegrees startingLongitude = 43.;
     
     [LOCATION_MANAGER requestLocationAccessWithCompletion:^(BOOL granted)
      {
-         [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
+         [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_NAG];
          
          if(granted)
          {
@@ -135,7 +135,7 @@ static const CLLocationDegrees startingLongitude = 43.;
 {
 //    [TMAnalytics logEvent:@"Choice.LocationIntro" withParameters:@{ @"Button" : @"Never" }];
     
-    [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
+    [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_NAG];
     [self gotoNextScreen];
 }
 

@@ -88,13 +88,13 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
             dc->Tc[1] = 0.065;
             dc->Tc[2] = 0.000;
             return true;
-        case DEVICE_TYPE_IPHONE6PLUS: //Copied from 6 - teardown indicates they are pretty close to the same
+        case DEVICE_TYPE_IPHONE6PLUS: //Based on 6, but calibrated with real iPhone 6 plus
             dc->Fx = 548.;
             dc->Fy = 548.;
             dc->K[0] = .10;
             dc->K[1] = -.15;
-            dc->Tc[0] = 0.015;
-            dc->Tc[1] = 0.065;
+            dc->Tc[0] = 0.008;
+            dc->Tc[1] = 0.075;
             dc->Tc[2] = 0.000;
             return true;
         case DEVICE_TYPE_IPOD5: //Tc is reasonably consistent with teardown
@@ -142,13 +142,13 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
             dc->Tc[1] = .065;
             dc->Tc[2] = .000;
             return true;
-        case DEVICE_TYPE_IPADAIR2: //Just copied from old
-            dc->Fx = 582.;
-            dc->Fy = 582.;
-            dc->K[0] = .12;
-            dc->K[1] = -.25;
-            dc->Tc[0] = -.012;
-            dc->Tc[1] = .065;
+        case DEVICE_TYPE_IPADAIR2: //Calibrated from device; very similar to old
+            dc->Fx = 573.;
+            dc->Fy = 573.;
+            dc->K[0] = .13;
+            dc->K[1] = -.26;
+            dc->Tc[0] = -.003;
+            dc->Tc[1] = .068;
             dc->Tc[2] = .000;
             return true;
         case DEVICE_TYPE_IPADMINI: //Tc from sequence is consistent with teardown

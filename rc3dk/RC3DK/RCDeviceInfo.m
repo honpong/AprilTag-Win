@@ -27,6 +27,7 @@
     return platform;
 }
 
+//Update from: https://theiphonewiki.com/wiki/Models
 + (DeviceType) getDeviceType
 {
     NSString *platform = [self getPlatformString];
@@ -74,12 +75,14 @@
     if ([platform isEqualToString:@"iPad4,4"])      return DeviceTypeiPadMiniRetina;
     if ([platform isEqualToString:@"iPad4,5"])      return DeviceTypeiPadMiniRetina;
     if ([platform isEqualToString:@"iPad4,6"])      return DeviceTypeiPadMiniRetina;
+    if ([platform isEqualToString:@"iPad4,7"])      return DeviceTypeiPadMiniRetina2;
+    if ([platform isEqualToString:@"iPad4,8"])      return DeviceTypeiPadMiniRetina2;
+    if ([platform isEqualToString:@"iPad4,9"])      return DeviceTypeiPadMiniRetina2;
+    //iPad5,1 and 5,2 were mysteriously skipped? But keep them in here as they will likely show up
     if ([platform isEqualToString:@"iPad5,1"])      return DeviceTypeiPadAir2;
     if ([platform isEqualToString:@"iPad5,2"])      return DeviceTypeiPadAir2;
     if ([platform isEqualToString:@"iPad5,3"])      return DeviceTypeiPadAir2;
-    if ([platform isEqualToString:@"iPad5,4"])      return DeviceTypeiPadMiniRetina2;
-    if ([platform isEqualToString:@"iPad5,5"])      return DeviceTypeiPadMiniRetina2;
-    if ([platform isEqualToString:@"iPad5,6"])      return DeviceTypeiPadMiniRetina2;
+    if ([platform isEqualToString:@"iPad5,4"])      return DeviceTypeiPadAir2;
 
     if ([platform isEqualToString:@"i386"])         return DeviceTypeUnknown;
     if ([platform isEqualToString:@"x86_64"])       return DeviceTypeUnknown;

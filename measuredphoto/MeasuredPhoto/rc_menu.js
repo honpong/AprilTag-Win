@@ -67,6 +67,9 @@ function build_rc_menu() {
         button.add(menu_svg.line(14,24,7,32).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
         button.add(menu_svg.line(14,24,33,30).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
         rc_menu.depthmap_button.click (function (e) { switch_image_depthmap(); e.stopPropagation(); e.preventDefault();});
+        button.rotate_button = function (target_rotation) {
+            button.rotate(target_rotation, button.x() + button_size/2, button.y() + button_size/2);
+        }
     }
     
     // add 3d button to button 1
@@ -79,6 +82,9 @@ function build_rc_menu() {
         button.add(menu_svg.circle(2).move(27,8).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }).fill('none'));
         button.add(menu_svg.line(9,28,28,9).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
         rc_menu.line_button.click (function (e) { rc_menu.select_button(rc_menu.button2); e.stopPropagation(); e.preventDefault(); });
+        button.rotate_button = function (target_rotation) {
+            button.rotate(target_rotation, button.x() + button_size/2, button.y() + button_size/2);
+        }
     }
     draw_line_icon( rc_menu.button2 );
 
@@ -89,6 +95,9 @@ function build_rc_menu() {
         button.add(menu_svg.line(7,28,24,11).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
         button.add(menu_svg.line(7,28,30,28).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
         rc_menu.angle_button.click (function (e) { rc_menu.select_button(rc_menu.button3); e.stopPropagation(); e.preventDefault(); });
+        button.rotate_button = function (target_rotation) {
+            button.rotate(target_rotation, button.x() + button_size/2, button.y() + button_size/2);
+        }
     }
     //draw_angle_icon(rc_menu.button3);
     
@@ -101,6 +110,9 @@ function build_rc_menu() {
         button.add(menu_svg.line(10,15,15,10).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
         button.add(menu_svg.line(10,15,15,20).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
         rc_menu.undo_button.click (function (e) { undo_last_change(); e.stopPropagation(); e.preventDefault();});
+        button.rotate_button = function (target_rotation) {
+            button.rotate(target_rotation, button.x() + button_size/2, button.y() + button_size/2);
+        }
     }
     draw_undo_icon (rc_menu.button5);
 
@@ -110,6 +122,9 @@ function build_rc_menu() {
         button.add(menu_svg.line(15.5,21,7,30).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
         button.add(menu_svg.line(21.5,10,21.5,20).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
         button.add(menu_svg.line(16.5,15,26.5,15).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
+        button.rotate_button = function (target_rotation) {
+            button.rotate(target_rotation, button.x() + button_size/2, button.y() + button_size/2);
+        }
     }
     
     // add magnifying glass - to button5
@@ -117,18 +132,44 @@ function build_rc_menu() {
         button.add(menu_svg.circle(17).move(13,7).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }).fill('none'));
         button.add(menu_svg.line(15.5,21,7,30).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
         button.add(menu_svg.line(16.5,15,26.5,15).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
+        button.rotate_button = function (target_rotation) {
+            button.rotate(target_rotation, button.x() + button_size/2, button.y() + button_size/2);
+        }
     }
 
     
     function draw_unit_toggle (button) {
         rc_menu.unit_button = button;
-        button.add(menu_svg.text('Units').font({family: rcMeasurements.font_family, size: 15, anchor: 'middle', leading: 1
-                                               }).move(20,10).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width/2.5 }));
+        
+        rc_menu.metric_unit_text = menu_svg.text('m').font({family: rcMeasurements.font_family, size: 15, anchor: 'middle', leading: 1
+                                                           }).move(10,10).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width/2.5 });
+        rc_menu.imperial_unit_text = menu_svg.text('ft').font({family: rcMeasurements.font_family, size: 15, anchor: 'middle', leading: 1
+                                                              }).move(30,10).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width/2.5 });
+        button.add(menu_svg.text('|').font({family: rcMeasurements.font_family, size: 15, anchor: 'middle', leading: 1
+                                           }).move(20,10).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width/2.5 }));
+        button.add(rc_menu.metric_unit_text);
+        button.add(rc_menu.imperial_unit_text);
+        
         rc_menu.unit_button.click (function (e) {
                                        toggle_all_units(); e.stopPropagation(); e.preventDefault();
                                        });
+        button.rotate_button = function (target_rotation) {
+            button.rotate(target_rotation, button.x() + button_size/2, button.y() + button_size/2);
+        }
+        
+        rc_menu.unit_button.highlight_active_unit = function (metric_is_selected) {
+            if (metric_is_selected) {
+                rc_menu.metric_unit_text.stroke({color: button_highlight_color});
+                rc_menu.imperial_unit_text.stroke({color: button_icon_color});
+            }
+            else {
+                rc_menu.imperial_unit_text.stroke({color: button_highlight_color});
+                rc_menu.metric_unit_text.stroke({color: button_icon_color});
+            }
+        }
     }
     draw_unit_toggle(rc_menu.button3);
+    
     
     function draw_eraser_icon (button) {
         rc_menu.eraser_button = button;
@@ -142,6 +183,9 @@ function build_rc_menu() {
         button.add(menu_svg.line(20,25,34,25).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
         button.add(menu_svg.line(34,25,19,10).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
         rc_menu.eraser_button.click (function (e) { rc_menu.select_button(rc_menu.button4); e.stopPropagation(); e.preventDefault(); });
+        button.rotate_button = function (target_rotation) {
+            button.rotate(target_rotation, button.x() + button_size/2, button.y() + button_size/2);
+        }
     }
     draw_eraser_icon (rc_menu.button4);
 
@@ -154,6 +198,9 @@ function build_rc_menu() {
         button.add(menu_svg.line(29,9,29,12).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
         button.add(menu_svg.line(18,29,22,29).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
         rc_menu.text_button.click (function (e) { rc_menu.select_button(rc_menu.button5); e.stopPropagation(); e.preventDefault(); });
+        button.rotate_button = function (target_rotation) {
+            button.rotate(target_rotation, button.x() + button_size/2, button.y() + button_size/2);
+        }
     }
     //draw_text_icon (rc_menu.button5);
     
@@ -164,7 +211,9 @@ function build_rc_menu() {
         button.add(menu_svg.line(15,13,15,25).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
         button.add(menu_svg.line(19,13,19,25).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
         button.add(menu_svg.line(23,13,23,25).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
-
+        button.rotate_button = function (target_rotation) {
+            button.rotate(target_rotation, button.x() + button_size/2, button.y() + button_size/2);
+        }
     }
 
     rc_menu.rearrange_menu();
@@ -226,6 +275,14 @@ function build_rc_menu() {
                                  this.stroke({ color: undo_button_color })
                                  });
         
+    }
+    
+    rc_menu.rotate_buttons = function (target_rotation) {
+        rc_menu.button1.rotate_button(target_rotation);
+        rc_menu.button2.rotate_button(target_rotation);
+        rc_menu.button3.rotate_button(target_rotation);
+        rc_menu.button4.rotate_button(target_rotation);
+        rc_menu.button5.rotate_button(target_rotation);
     }
     
 }

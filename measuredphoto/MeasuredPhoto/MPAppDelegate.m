@@ -46,7 +46,7 @@
         
         NSDictionary *appDefaults = @{PREF_UNITS: [NSNumber numberWithInt:defaultUnits],
                                     PREF_ADD_LOCATION: @YES,
-                                    PREF_SHOW_LOCATION_EXPLANATION: @YES,
+                                    PREF_SHOW_LOCATION_NAG: @YES,
                                     PREF_LAST_TRANS_ID: @0,
                                     PREF_IS_CALIBRATED: @NO,
                                     PREF_TUTORIAL_ANSWER: @0,

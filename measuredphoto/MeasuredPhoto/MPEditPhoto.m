@@ -244,7 +244,8 @@
 {
     if (self.measuredPhoto)
     {
-        NSString* javascript = [NSString stringWithFormat:@"loadMPhoto('%@', '%@', '%@', '%@');", self.measuredPhoto.imageFileName, self.measuredPhoto.depthFileName, self.measuredPhoto.annotationsFileName, self.measuredPhoto.id_guid];
+        Units units = (Units)[NSUserDefaults.standardUserDefaults integerForKey:PREF_UNITS];
+        NSString* javascript = [NSString stringWithFormat:@"loadMPhoto('%@', '%@', '%@', '%@', %i);", self.measuredPhoto.imageFileName, self.measuredPhoto.depthFileName, self.measuredPhoto.annotationsFileName, self.measuredPhoto.id_guid, units == UnitsMetric];
         [self.webView stringByEvaluatingJavaScriptFromString: javascript];
 //        DLog(javascript);
     }

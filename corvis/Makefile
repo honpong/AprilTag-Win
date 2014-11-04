@@ -158,7 +158,7 @@ build/$(d)/_numerics.cpp: swig/_numerics.ipp
 	@mkdir -p bin/numerics
 	$(SWIG) -python -c++ -threads $(SWIGFLAGS) -Isrc/numerics -o $@ -outdir bin/numerics $<
 
-bin/$(d)/_numerics.so: LDFLAGS := $(LDFLAGS) -lm -lcblas -llapack -lstdc++ -framework vecLib
+bin/$(d)/_numerics.so: LDFLAGS := $(LDFLAGS) -lm -lcblas -llapack -lstdc++
 bin/$(d)/_numerics.so: $(patsubst src/%,build/%,$(NUMERICS_CXX_SOURCES:.cpp=.o))
 
 TARGETS := $(TARGETS) bin/$(d)/_numerics.so bin/$(d)/__init__.py

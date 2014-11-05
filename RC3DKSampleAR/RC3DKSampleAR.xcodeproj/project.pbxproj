@@ -48,8 +48,8 @@
 		D90145FE19F9A5EF004E7CE2 /* RCGLManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = D90145F419F9A5EF004E7CE2 /* RCGLManagerFactory.m */; };
 		D90145FF19F9A5EF004E7CE2 /* RCVideoPreview.m in Sources */ = {isa = PBXBuildFile; fileRef = D90145F619F9A5EF004E7CE2 /* RCVideoPreview.m */; };
 		D901460819F9C2D8004E7CE2 /* ARDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D901460719F9C2D8004E7CE2 /* ARDelegate.m */; };
-		D901460B19F9C43B004E7CE2 /* flat.fsh in Resources */ = {isa = PBXBuildFile; fileRef = D901460919F9C43B004E7CE2 /* flat.fsh */; };
-		D901460C19F9C43B004E7CE2 /* flat.vsh in Resources */ = {isa = PBXBuildFile; fileRef = D901460A19F9C43B004E7CE2 /* flat.vsh */; };
+		D901460B19F9C43B004E7CE2 /* shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = D901460919F9C43B004E7CE2 /* shader.fsh */; };
+		D901460C19F9C43B004E7CE2 /* shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = D901460A19F9C43B004E7CE2 /* shader.vsh */; };
 		D963096B1A01BC9800F92929 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D963096A1A01BC9800F92929 /* GLKit.framework */; };
 		D9AA84BD1A042DBE004C61D0 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = D9AA84BC1A042DBE004C61D0 /* Default-568h@2x.png */; };
 		D9E8C4871A03FAFA002EDA05 /* RCGLShaderProgram.m in Sources */ = {isa = PBXBuildFile; fileRef = D9E8C4861A03FAFA002EDA05 /* RCGLShaderProgram.m */; };
@@ -146,8 +146,8 @@
 		D901460519F9A997004E7CE2 /* RCVideoFrameProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RCVideoFrameProvider.h; path = ../../SensorManagers/RCVideoFrameProvider.h; sourceTree = "<group>"; };
 		D901460619F9C2D8004E7CE2 /* ARDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARDelegate.h; sourceTree = "<group>"; };
 		D901460719F9C2D8004E7CE2 /* ARDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARDelegate.m; sourceTree = "<group>"; };
-		D901460919F9C43B004E7CE2 /* flat.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = flat.fsh; sourceTree = "<group>"; };
-		D901460A19F9C43B004E7CE2 /* flat.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = flat.vsh; sourceTree = "<group>"; };
+		D901460919F9C43B004E7CE2 /* shader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = shader.fsh; path = ../RC3DKSampleAR/RC3DKSampleAR/shader.fsh; sourceTree = "<group>"; };
+		D901460A19F9C43B004E7CE2 /* shader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = shader.vsh; path = ../RC3DKSampleAR/RC3DKSampleAR/shader.vsh; sourceTree = "<group>"; };
 		D963096A1A01BC9800F92929 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		D9AA84BC1A042DBE004C61D0 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		D9E8C4821A02B143002EDA05 /* RC3DKSampleAR-prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RC3DKSampleAR-prefix.pch"; sourceTree = "<group>"; };
@@ -238,8 +238,6 @@
 			isa = PBXGroup;
 			children = (
 				D9E8C4821A02B143002EDA05 /* RC3DKSampleAR-prefix.pch */,
-				D901460919F9C43B004E7CE2 /* flat.fsh */,
-				D901460A19F9C43B004E7CE2 /* flat.vsh */,
 				D901456519F9A00F004E7CE2 /* Info.plist */,
 				D901456619F9A00F004E7CE2 /* main.m */,
 			);
@@ -381,6 +379,8 @@
 				D90145F419F9A5EF004E7CE2 /* RCGLManagerFactory.m */,
 				D90145F519F9A5EF004E7CE2 /* RCVideoPreview.h */,
 				D90145F619F9A5EF004E7CE2 /* RCVideoPreview.m */,
+				D901460919F9C43B004E7CE2 /* shader.fsh */,
+				D901460A19F9C43B004E7CE2 /* shader.vsh */,
 			);
 			name = AugmentedReality;
 			path = ../../AugmentedReality;
@@ -473,9 +473,9 @@
 				D9AA84BD1A042DBE004C61D0 /* Default-568h@2x.png in Resources */,
 				D90145B919F9A094004E7CE2 /* Calibration.storyboard in Resources */,
 				D90145BC19F9A094004E7CE2 /* ipad_on_table.jpg in Resources */,
-				D901460C19F9C43B004E7CE2 /* flat.vsh in Resources */,
+				D901460C19F9C43B004E7CE2 /* shader.vsh in Resources */,
 				D90145BB19F9A094004E7CE2 /* holding_portrait.jpg in Resources */,
-				D901460B19F9C43B004E7CE2 /* flat.fsh in Resources */,
+				D901460B19F9C43B004E7CE2 /* shader.fsh in Resources */,
 				D901457219F9A00F004E7CE2 /* Images.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

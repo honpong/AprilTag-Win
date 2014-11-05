@@ -24,7 +24,7 @@
     if (self = [super init])
     {
         program = [[RCGLShaderProgram alloc] init];
-        [program buildWithVertexFileName:@"flat.vsh" withFragmentFileName:@"flat.fsh"];
+        [program buildWithVertexFileName:@"shader.vsh" withFragmentFileName:@"shader.fsh"];
     }
     return self;
 }
@@ -46,16 +46,15 @@
 
     glEnableVertexAttribArray([program getAttribLocation:@"position"]);
     
-    glUniform3f([program getUniformLocation:@"directional.direction"], 0, 0, -1);
-    glUniform3f([program getUniformLocation:@"directional.halfplane"], 0, 0, -1);
-    glUniform4f([program getUniformLocation:@"directional.ambientColor"], .8, .8, .8, 1);
-    glUniform4f([program getUniformLocation:@"directional.diffuseColor"], .8, .8, .8, 1);
-    glUniform4f([program getUniformLocation:@"directional.specularColor"], .8, .8, .8, 1);
+    glUniform3f([program getUniformLocation:@"light_direction"], 0, 0, 1);
+    glUniform4f([program getUniformLocation:@"light_ambient"], .8, .8, .8, 1);
+    glUniform4f([program getUniformLocation:@"light_diffuse"], .8, .8, .8, 1);
+    glUniform4f([program getUniformLocation:@"light_specular"], .8, .8, .8, 1);
     
-    glUniform4f([program getUniformLocation:@"mat.ambientFactor"], 0., 0., 1., 1);
-    glUniform4f([program getUniformLocation:@"mat.diffuseFactor"], 0., 0.5, 1., 1);
-    glUniform4f([program getUniformLocation:@"mat.specularFactor"], 1., 1., 1., 1);
-    glUniform1f([program getUniformLocation:@"mat.shininess"], 0.2);
+    glUniform4f([program getUniformLocation:@"material_ambient"], 0., 0., 1., 1);
+    glUniform4f([program getUniformLocation:@"material_diffuse"], 0., 0.5, 1., 1);
+    glUniform4f([program getUniformLocation:@"material_specular"], 1., 1., 1., 1);
+    glUniform1f([program getUniformLocation:@"material_shininess"], 200.);
 
     model = GLKMatrix4Translate(model, 0, 0, 1);
     model = GLKMatrix4Scale(model, .1, .1, .1);

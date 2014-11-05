@@ -626,8 +626,8 @@ rcMeasurements.redraw_all_measurements = function (){
 rcMeasurements.to_json = function () {
     //console.log('rcMeasurements.to_json');
     var annotations_to_save = {measurements : {}, notes : {}, angles : {} };
-    // if the app has set (or reset) the default units then save the default units.
-    if (unit_default_set_by_app) { annotations_to_save['use_metric'] = default_units_metric; }
+    // save the default units.
+    annotations_to_save['use_metric'] = default_units_metric;
     for (var key in rcMeasurements.measurements) {
         annotations_to_save.measurements[key] = rcMeasurements.measurements[key].saveable_copy;
     }
@@ -640,9 +640,9 @@ rcMeasurements.to_json = function () {
     return JSON.stringify(annotations_to_save);
 }
 
-rcMeasurements.save_measurements = function () {
+rcMeasurements.save_measurements = function (optional_not_undoable_flag) {
     jsonStr = rcMeasurements.to_json();
-    rcMeasurements.prior_measurement_states.push(jsonStr);
+    if (!optional_not_undoable_flag) {rcMeasurements.prior_measurement_states.push(jsonStr);}
     //console.log('prior_measurement_states length = ' + rcMeasurements.prior_measurement_states.length.toFixed());
     $.ajax({ type: "PUT", url: rc_server_location + "true_measure/api/v1/m_photo/" + m_photo_guid + "/annotations/", contentType: "application/json", processData: false, dataType: "json", data: jsonStr })
     .done(function(data, textStatus, jqXHR) {
@@ -690,10 +690,7 @@ rcMeasurements.load_json  = function (m_url, callback_function) {
 }
 
 rcMeasurements.apply_json_data = function (data) {
-    if ('use_metric' in data) {
-        //we only overwrite the default units with the stored defualt units if the app hasn't told us what units to use
-        if (! unit_default_set_by_app) {default_units_metric = data['use_metric'];}
-    }
+    if ('use_metric' in data) { default_units_metric = data['use_metric']; } //use saved units preference over units specified externaly, ie: iOS app default units
     if ('measurements' in data) { rcMeasurements.measurements = data.measurements; } else {rcMeasurements.measurements = {};}
     if ('angles' in data) { rcMeasurements.angles = data.angles; } else {rcMeasurements.angles = {};}
     if ('notes' in data) { rcMeasurements.notes = data.notes; } else {rcMeasurements.notes = {};}
@@ -710,6 +707,8 @@ rcMeasurements.apply_json_data = function (data) {
         try {rcMeasurements.draw_note(rcMeasurements.notes[key], measured_svg);}
         catch(err) {console.log(JSON.stringify(err)); delete rcMeasurements.notes[key];}
     }
+    rc_menu.unit_button.highlight_active_unit(default_units_metric);
+    rcMeasurements.reset_all_measurement_units_to_default();
 }
 
 rcMeasurements.is_undo_available = function () {

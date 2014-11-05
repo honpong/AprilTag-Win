@@ -312,8 +312,8 @@
 				D901459D19F9A07D004E7CE2 /* libRC3DK.a */,
 			);
 			name = 3DK;
-			path = "/Users/eagle/projects/rcmain/rc3dksampleapp/RC3DKSampleApp/../../rc3dk-lib";
-			sourceTree = "<absolute>";
+			path = "../../rc3dk-lib";
+			sourceTree = "<group>";
 		};
 		D90145AC19F9A094004E7CE2 /* Calibration */ = {
 			isa = PBXGroup;
@@ -332,8 +332,8 @@
 				D90145AB19F9A094004E7CE2 /* RCCalibration3.m */,
 			);
 			name = Calibration;
-			path = /Users/eagle/projects/rcmain/rc3dksampleapp/RC3DKSampleApp/../../Calibration;
-			sourceTree = "<absolute>";
+			path = ../../Calibration;
+			sourceTree = "<group>";
 		};
 		D90145B819F9A094004E7CE2 /* Sensor Managers */ = {
 			isa = PBXGroup;
@@ -665,7 +665,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Users/eagle/projects/rcmain/rc3dk-lib",
+					"$(SRCROOT)/../rc3dk-lib",
 				);
 				OTHER_LDFLAGS = (
 					"-objC",
@@ -686,7 +686,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Users/eagle/projects/rcmain/rc3dk-lib",
+					"$(SRCROOT)/../rc3dk-lib",
 				);
 				OTHER_LDFLAGS = (
 					"-objC",

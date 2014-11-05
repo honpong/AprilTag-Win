@@ -77,12 +77,12 @@ const static GLfloat cube_normals[vertex_count * 3] = {
     0,1,0, 0,1,0, 0,1,0,
 };
 
-- (void)renderWithSensorFusionData:(RCSensorFusionData *)data withPerspectiveMatrix:(GLKMatrix4)projection
+- (void)renderWithSensorFusionData:(RCSensorFusionData *)data withCameraToScreenMatrix:(GLKMatrix4)cameraToScreen
 {
     if(!data.cameraParameters || !data.cameraTransformation) return;
     glUseProgram(program.program);
 
-    glUniformMatrix4fv([program getUniformLocation:@"projection_matrix"], 1, false, projection.m);
+    glUniformMatrix4fv([program getUniformLocation:@"projection_matrix"], 1, false, cameraToScreen.m);
 
     GLKMatrix4 camera;
     [[data.cameraTransformation getInverse] getOpenGLMatrix:camera.m];

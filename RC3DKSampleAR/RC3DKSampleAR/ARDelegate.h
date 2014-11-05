@@ -13,7 +13,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import "RCVideoPreview.h"
 
-@interface ARDelegate : NSObject <RCAugmentedRealityDelegate>
+@interface ARDelegate : NSObject <RCVideoPreviewDelegate>
 
 @property RCTransformation *initialCamera;
 

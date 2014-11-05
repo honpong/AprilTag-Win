@@ -145,7 +145,7 @@
 #ifdef DEBUG
         NSLog(@"Attempted to get location for an invalid uniform: %@. Valid uniforms are: %@", name, uniforms);
 #endif
-        return 0;
+        return -1;
     }
     return [loc intValue];
 }
@@ -158,7 +158,7 @@
 #ifdef DEBUG
         NSLog(@"Attempted to get location for an invalid attribute: %@. Valid attributes are: %@", name, attributes);
 #endif
-        return 0;
+        return -1;
     }
     return [loc intValue];
 }

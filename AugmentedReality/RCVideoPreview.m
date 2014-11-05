@@ -106,6 +106,8 @@ void main()
 {
     [EAGLContext setCurrentContext:[[RCGLManagerFactory getInstance] oglContext]];
     
+    [self createBuffers];
+    
     yuvTextureProgram = [[RCGLShaderProgram alloc] init];
     [yuvTextureProgram buildWithVertexSource:vertSrc withFragmentSource:fragSrc];
     glUseProgram(yuvTextureProgram.program);
@@ -170,8 +172,8 @@ void main()
                         //call AR delegate
                         GLKMatrix4 perspective = [weakSelf getPerspectiveMatrixWithCameraParameters:localData.cameraParameters withNear:.01 withFar:100.];
                         GLKMatrix4 camera_screen = [weakSelf getScreenRotationForOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
-                        if([weakSelf.delegate respondsToSelector:@selector(renderWithSensorFusionData:withPerspectiveMatrix:)])
-                            [weakSelf.delegate renderWithSensorFusionData:localData withPerspectiveMatrix:GLKMatrix4Multiply(camera_screen, perspective)];
+                        if([weakSelf.delegate respondsToSelector:@selector(renderWithSensorFusionData:withCameraToScreenMatrix:)])
+                            [weakSelf.delegate renderWithSensorFusionData:localData withCameraToScreenMatrix:GLKMatrix4Multiply(camera_screen, perspective)];
                         [weakSelf endFrame];
                     }
                 }

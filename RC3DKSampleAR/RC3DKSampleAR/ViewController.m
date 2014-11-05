@@ -110,7 +110,7 @@
     }
     else if(status.runState == RCSensorFusionRunStateRunning)
     {
-        statusLabel.text = @"Move the device to measure the distance.";
+        statusLabel.text = @"AR view active. Move to view.";
     }
     currentRunState = status.runState;
 }
@@ -127,6 +127,7 @@
         case RCSensorFusionErrorCodeTooFast:
             statusLabel.text = @"Error: The device was moved too fast. Try moving slower and smoother.";
             [self stopSensorFusion];
+            [self startSensorFusion];
             break;
         case RCSensorFusionErrorCodeOther:
             statusLabel.text = @"Error: A fatal error has occured.";

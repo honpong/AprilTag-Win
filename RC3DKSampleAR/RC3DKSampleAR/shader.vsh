@@ -24,7 +24,7 @@ void main()
     //This is not valid if our camera or model matrix is other than rotation, translation, and uniform scaling
     //In that case, use inverse transpose instead
     varying_normal = normalize(vec3(camera_matrix * model_matrix * vec4(normal, 0.)));
-    //This should probably be precomputed - we are being lazy.
+    //This could be precomputed, but for point lights we'd do this anyway
     varying_light_direction = normalize(vec3(camera_matrix * vec4(light_direction, 0.)));
     varying_camera_direction = normalize(-vec3(camera_matrix * model_matrix * position));
 }

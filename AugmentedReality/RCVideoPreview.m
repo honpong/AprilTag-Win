@@ -508,13 +508,17 @@ void main()
     
     // Draw the texture on the screen with OpenGL ES 2
     // Update attribute values.
-    glVertexAttribPointer([yuvTextureProgram getAttribLocation:@"position"], 2, GL_FLOAT, 0, 0, squareVertices);
     glEnableVertexAttribArray([yuvTextureProgram getAttribLocation:@"position"]);
-    glVertexAttribPointer([yuvTextureProgram getAttribLocation:@"texture_coordinate"], 2, GL_FLOAT, 0, 0, passThroughTextureVertices);
     glEnableVertexAttribArray([yuvTextureProgram getAttribLocation:@"texture_coordinate"]);
+
+    glVertexAttribPointer([yuvTextureProgram getAttribLocation:@"position"], 2, GL_FLOAT, 0, 0, squareVertices);
+    glVertexAttribPointer([yuvTextureProgram getAttribLocation:@"texture_coordinate"], 2, GL_FLOAT, 0, 0, passThroughTextureVertices);
     
     glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 
+    glDisableVertexAttribArray([yuvTextureProgram getAttribLocation:@"position"]);
+    glDisableVertexAttribArray([yuvTextureProgram getAttribLocation:@"texture_coordinate"]);
+    
     glDepthMask(GL_TRUE);
     CFRelease(pixelBuffer);
     [self checkGLError];

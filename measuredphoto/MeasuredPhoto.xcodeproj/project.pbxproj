@@ -450,8 +450,9 @@
 		D3F57871184F2E1700EE450E /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3F57870184F2E1700EE450E /* CoreVideo.framework */; };
 		D3F57873184F2E2000EE450E /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3F57872184F2E2000EE450E /* MobileCoreServices.framework */; };
 		D3F57875184F2E2900EE450E /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3F57874184F2E2900EE450E /* OpenGLES.framework */; };
-		D9F635DD19DC8B5500E829DC /* flat.fsh in Resources */ = {isa = PBXBuildFile; fileRef = D9F635DB19DC8B5500E829DC /* flat.fsh */; };
-		D9F635DE19DC8B5500E829DC /* flat.vsh in Resources */ = {isa = PBXBuildFile; fileRef = D9F635DC19DC8B5500E829DC /* flat.vsh */; };
+		D9E331C11A0B0D8E0037DFE6 /* MPARDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D9E331C01A0B0D8E0037DFE6 /* MPARDelegate.m */; };
+		D9E331C41A0B0DBB0037DFE6 /* shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = D9E331C21A0B0DBB0037DFE6 /* shader.fsh */; };
+		D9E331C51A0B0DBB0037DFE6 /* shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = D9E331C31A0B0DBB0037DFE6 /* shader.vsh */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1216,8 +1217,10 @@
 		D3F57870184F2E1700EE450E /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		D3F57872184F2E2000EE450E /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		D3F57874184F2E2900EE450E /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
-		D9F635DB19DC8B5500E829DC /* flat.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = flat.fsh; sourceTree = "<group>"; };
-		D9F635DC19DC8B5500E829DC /* flat.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = flat.vsh; sourceTree = "<group>"; };
+		D9E331BF1A0B0D8E0037DFE6 /* MPARDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPARDelegate.h; sourceTree = "<group>"; };
+		D9E331C01A0B0D8E0037DFE6 /* MPARDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPARDelegate.m; sourceTree = "<group>"; };
+		D9E331C21A0B0DBB0037DFE6 /* shader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.fsh; sourceTree = "<group>"; };
+		D9E331C31A0B0DBB0037DFE6 /* shader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.vsh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1850,7 +1853,6 @@
 		32BA42DB17A2E171002BAE13 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				D9F635D819DC8AC300E829DC /* Shaders */,
 				32934CC818D8B616005DC87C /* Layer Delegates */,
 				32BA42B717A2DF8B002BAE13 /* MainStoryboard_iPad.storyboard */,
 				32BA42B417A2DF8B002BAE13 /* MainStoryboard_iPhone.storyboard */,
@@ -1902,6 +1904,10 @@
 				326ACD5619D221B600B36965 /* MPShareSheet.m */,
 				326ACFD019D222F000B36965 /* MPAboutView.h */,
 				326ACFD119D222F000B36965 /* MPAboutView.m */,
+				D9E331C21A0B0DBB0037DFE6 /* shader.fsh */,
+				D9E331C31A0B0DBB0037DFE6 /* shader.vsh */,
+				D9E331BF1A0B0D8E0037DFE6 /* MPARDelegate.h */,
+				D9E331C01A0B0D8E0037DFE6 /* MPARDelegate.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -2230,15 +2236,6 @@
 			path = ../../RCCore/RCCore;
 			sourceTree = "<group>";
 		};
-		D9F635D819DC8AC300E829DC /* Shaders */ = {
-			isa = PBXGroup;
-			children = (
-				D9F635DB19DC8B5500E829DC /* flat.fsh */,
-				D9F635DC19DC8B5500E829DC /* flat.vsh */,
-			);
-			name = Shaders;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -2408,7 +2405,6 @@
 				1768899B195B59F500337524 /* measured_photo_svg.html in Resources */,
 				326ACF2319D2221B00B36965 /* osk-iconMask-bw-76.png in Resources */,
 				326ACF0119D2221B00B36965 /* osk-appDotNetIcon-29@2x.png in Resources */,
-				D9F635DD19DC8B5500E829DC /* flat.fsh in Resources */,
 				32EFED5E196E01DB00FDC89F /* test.html in Resources */,
 				324DB326195B8D310004567A /* main_function.js in Resources */,
 				326ACEF619D2221B00B36965 /* Omnifocus-Icon-29.png in Resources */,
@@ -2447,7 +2443,6 @@
 				326ACF5819D2221B00B36965 /* ReadingList-Icon-29.png in Resources */,
 				326ACF2E19D2221B00B36965 /* osk-messagesIcon-76@2x.png in Resources */,
 				326ACF5319D2221B00B36965 /* Pocket-Icon-29.png in Resources */,
-				D9F635DE19DC8B5500E829DC /* flat.vsh in Resources */,
 				324DB329195B8D310004567A /* global_variables.js in Resources */,
 				326ACEE419D2221B00B36965 /* Drafts-Icon-29@2x.png in Resources */,
 				324DB32A195B8D310004567A /* tilt_monitor.js in Resources */,
@@ -2493,11 +2488,13 @@
 				326ACF6119D2221B00B36965 /* Things-Icon-29.png in Resources */,
 				326ACF4219D2221B00B36965 /* osk-readabilityIcon-76.png in Resources */,
 				326ACF5F19D2221B00B36965 /* Riposte-Icon-76.png in Resources */,
+				D9E331C51A0B0DBB0037DFE6 /* shader.vsh in Resources */,
 				326ACF3219D2221B00B36965 /* osk-navbarButton-highlighted@2x.png in Resources */,
 				326ACF1D19D2221B00B36965 /* osk-icon-border-60@2x.png in Resources */,
 				326ACF0D19D2221B00B36965 /* osk-copyIcon-yellow-29@2x.png in Resources */,
 				326ACEE319D2221B00B36965 /* Drafts-Icon-29.png in Resources */,
 				326ACF1219D2221B00B36965 /* osk-facebookIcon-29@2x.png in Resources */,
+				D9E331C41A0B0DBB0037DFE6 /* shader.fsh in Resources */,
 				326ACF0619D2221B00B36965 /* osk-appStoreIcon-76@2x.png in Resources */,
 				326ACF3119D2221B00B36965 /* osk-navbarButton-highlighted.png in Resources */,
 				326ACF4619D2221B00B36965 /* osk-safariIcon-60@2x.png in Resources */,
@@ -2586,6 +2583,7 @@
 				326ACF8C19D2221B00B36965 /* OSKCursorMovement.m in Sources */,
 				326ACFC119D2221B00B36965 /* OSKTwitterUtility.m in Sources */,
 				32EFED32196C91CE00FDC89F /* NSManagedObjectContext+MagicalThreading.m in Sources */,
+				D9E331C11A0B0D8E0037DFE6 /* MPARDelegate.m in Sources */,
 				32EFED2C196C91CE00FDC89F /* NSManagedObject+MagicalFinders.m in Sources */,
 				D3F50B3219BA19FD00791303 /* stereo_features.cpp in Sources */,
 				326ACF9319D2221B00B36965 /* OSKFacebookUtility.m in Sources */,

@@ -721,6 +721,9 @@ static transition transitions[] =
     }
     
     if (currentState == ST_MOVING) [instructionsView updateDotPosition:data.transformation withDepth:[median floatValue]];
+    
+    if(currentState == ST_INITIALIZING) [arView.AROverlay setInitialCamera:data.cameraTransformation];
+
 }
 
 /** delegate method of MPInstructionsViewDelegate. tells us when the dot has reached the edge of the circle. */

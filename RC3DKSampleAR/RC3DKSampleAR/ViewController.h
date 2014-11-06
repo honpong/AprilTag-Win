@@ -12,6 +12,7 @@
 @interface ViewController : UIViewController <RCSensorFusionDelegate>
 
 @property (weak, nonatomic) IBOutlet UILabel *statusLabel;
+@property (weak, nonatomic) IBOutlet UIProgressView *progressBar;
 
 @end
 

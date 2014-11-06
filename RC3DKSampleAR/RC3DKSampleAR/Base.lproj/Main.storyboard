@@ -18,32 +18,42 @@
                         <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" numberOfLines="3" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="CuA-Z5-5RK" userLabel="statusLabel">
-                                <rect key="frame" x="16" y="559" width="568" height="22"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" numberOfLines="4" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="CuA-Z5-5RK" userLabel="statusLabel">
+                                <rect key="frame" x="16" y="35" width="568" height="22"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                <color key="textColor" cocoaTouchSystemColor="lightTextColor"/>
-                                <nil key="highlightedColor"/>
-                                <color key="shadowColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <color key="shadowColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
+                                <size key="shadowOffset" width="1" height="1"/>
                             </label>
+                            <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="sN7-N4-xge">
+                                <rect key="frame" x="16" y="65" width="568" height="2"/>
+                            </progressView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <gestureRecognizers/>
                         <constraints>
-                            <constraint firstItem="CuA-Z5-5RK" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" priority="750" constant="500" id="Al5-v0-LhV"/>
-                            <constraint firstAttribute="bottom" secondItem="CuA-Z5-5RK" secondAttribute="bottom" constant="20" symbolic="YES" id="OPh-HR-RA5"/>
+                            <constraint firstItem="sN7-N4-xge" firstAttribute="trailing" secondItem="CuA-Z5-5RK" secondAttribute="trailing" id="7fk-rN-OZ0"/>
+                            <constraint firstItem="CuA-Z5-5RK" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" constant="15" id="Wdy-o8-90h"/>
                             <constraint firstItem="CuA-Z5-5RK" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" id="ejg-A8-bJ5"/>
+                            <constraint firstItem="sN7-N4-xge" firstAttribute="top" secondItem="CuA-Z5-5RK" secondAttribute="bottom" constant="8" symbolic="YES" id="iWo-fY-bhz"/>
+                            <constraint firstItem="sN7-N4-xge" firstAttribute="leading" secondItem="CuA-Z5-5RK" secondAttribute="leading" id="lYh-OH-1BI"/>
                             <constraint firstItem="CuA-Z5-5RK" firstAttribute="trailing" secondItem="8bC-Xf-vdC" secondAttribute="trailingMargin" id="s9F-oS-nzl"/>
                         </constraints>
-                        <variation key="default">
-                            <mask key="constraints">
-                                <exclude reference="Al5-v0-LhV"/>
-                            </mask>
-                        </variation>
+                        <connections>
+                            <outletCollection property="gestureRecognizers" destination="502-tM-4cs" appends="YES" id="bPX-xU-HlZ"/>
+                        </connections>
                     </view>
                     <connections>
+                        <outlet property="progressBar" destination="sN7-N4-xge" id="WTc-rR-NNb"/>
                         <outlet property="statusLabel" destination="CuA-Z5-5RK" id="0x1-j2-1eY"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+                <tapGestureRecognizer id="502-tM-4cs">
+                    <connections>
+                        <action selector="handleSingleTap:" destination="BYZ-38-t0r" id="Npa-Cb-4ZX"/>
+                    </connections>
+                </tapGestureRecognizer>
             </objects>
         </scene>
     </scenes>

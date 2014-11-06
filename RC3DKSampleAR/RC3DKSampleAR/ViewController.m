@@ -23,11 +23,12 @@
     RCSensorFusionRunState currentRunState;
 }
 
-@synthesize statusLabel;
+@synthesize statusLabel, progressBar;
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    [progressBar setHidden:true];
     
     sensorDelegate = [SensorDelegate sharedInstance];
     sensorFusion = [RCSensorFusion sharedInstance]; // The main class of the 3DK framework
@@ -48,36 +49,62 @@
                                              selector:@selector(handlePause)
                                                  name:UIApplicationWillResignActiveNotification
                                                object:nil];
-    
-    [self doSanityCheck];
-    [self startSensorFusion];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handleResume)
+                                                 name:UIApplicationDidBecomeActiveNotification
+                                               object:nil];
+    [self handleResume];
 }
 
-- (void) doSanityCheck
+- (void) handleResume
 {
+    [sensorDelegate startAllSensors];
+    [self setInitialText];
+}
+
+- (void) setInitialText
+{
+#ifdef DEBUG
+    statusLabel.text = @"Warning: You are running a debug build. The performance will be better with an optimized build.\nTap to initialize.";
+#else
     if ([RCDeviceInfo getDeviceType] == DeviceTypeUnknown)
     {
-        statusLabel.text = @"Warning: This device is not supported by 3DK.";
+        statusLabel.text = @"Warning: This device is not supported by 3DK.\nTap to initialize.";
         return;
     }
-    
-#ifdef DEBUG
-    statusLabel.text = @"Warning: You are running a debug build. The performance will be better with an optimized build.";
+    else
+    {
+        statusLabel.text = @"Tap to initialize.";
+    }
 #endif
+}
+
+- (IBAction)handleSingleTap:(UITapGestureRecognizer *)sender
+{
+    if(isStarted)
+    {
+        [self stopSensorFusion];
+        [self setInitialText];
+    }
+    else
+    {
+        [self startSensorFusion];
+    }
 }
 
 - (void)startSensorFusion
 {
     isStarted = true;
-    [sensorDelegate startAllSensors];
     [[sensorDelegate getVideoProvider] setDelegate:nil];
     [[RCSensorFusion sharedInstance] startSensorFusionWithDevice:[[RCAVSessionManager sharedInstance] videoDevice]];
+    [progressBar setHidden:false];
+    statusLabel.text = @"Initializing. Hold the device steady.";
 }
 
 - (void)stopSensorFusion
 {
+    [progressBar setHidden:true];
     [sensorFusion stopSensorFusion];
-    [sensorDelegate stopAllSensors];
     [[sensorDelegate getVideoProvider] setDelegate:videoPreview];
     isStarted = false;
 }
@@ -106,11 +133,12 @@
     }
     else if(status.runState == RCSensorFusionRunStateSteadyInitialization)
     {
-        statusLabel.text = [NSString stringWithFormat:@"Initializing. Hold the device steady. %.0f%% complete.", status.progress * 100.];
+        progressBar.progress = status.progress;
     }
     else if(status.runState == RCSensorFusionRunStateRunning)
     {
-        statusLabel.text = @"AR view active. Move to view.";
+        [progressBar setHidden:true];
+        statusLabel.text = @"AR view active. Move to view. Tap to stop.";
     }
     currentRunState = status.runState;
 }
@@ -122,19 +150,18 @@
     switch (error.code)
     {
         case RCSensorFusionErrorCodeVision:
-            statusLabel.text = @"Error: The camera cannot see well enough. Could be too dark, camera blocked, or featureless scene.";
+            statusLabel.text = @"Alert: The camera cannot see well enough. Could be too dark, camera blocked, or featureless scene.";
             break;
         case RCSensorFusionErrorCodeTooFast:
-            statusLabel.text = @"Error: The device was moved too fast. Try moving slower and smoother.";
+            statusLabel.text = @"Error: The device was moved too fast. Try moving slower and smoother.\nTap to re-initialize.";
             [self stopSensorFusion];
-            [self startSensorFusion];
             break;
         case RCSensorFusionErrorCodeOther:
-            statusLabel.text = @"Error: A fatal error has occured.";
+            statusLabel.text = @"Error: A fatal error has occured.\nTap to re-initialize.";
             [self stopSensorFusion];
             break;
         default:
-            statusLabel.text = @"Error: Unknown.";
+            statusLabel.text = @"Error: Unknown.\nTap to re-initialize.";
             [self stopSensorFusion];
             break;
     }
@@ -153,6 +180,7 @@
     if (isStarted)
     {
         [self stopSensorFusion];
+        [self setInitialText];
     }
     else
     {
@@ -164,6 +192,7 @@
 - (void) handlePause
 {
     if(isStarted) [self stopSensorFusion];
+    [sensorDelegate stopAllSensors];
 }
 
 @end

@@ -678,6 +678,9 @@ typedef NS_ENUM(int, RCLicenseStatus)
                 return;
             } else if(isProcessingVideo) {
                 docallback = filter_image_measurement(&_cor_setup->sfm, pixel, (int)width, (int)height, (int)stride, offset_time);
+            } else {
+                //We're not actually running, but we do want to send updates for the video preview. Make sure that rotation is initialized.
+                docallback =  _cor_setup->sfm.gravity_init;
             }
             if(docallback) {
                 if(pixelBufferCached) {

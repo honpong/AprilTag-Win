@@ -333,7 +333,6 @@
 		32BA433217A2EF4E002BAE13 /* MPAugmentedRealityView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA432B17A2EF4E002BAE13 /* MPAugmentedRealityView.m */; };
 		32BA433317A2EF4E002BAE13 /* MPLineLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA432D17A2EF4E002BAE13 /* MPLineLayer.m */; };
 		32BA433417A2EF4E002BAE13 /* MPLineLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA432F17A2EF4E002BAE13 /* MPLineLayerDelegate.m */; };
-		32BA433517A2EF4E002BAE13 /* MPVideoPreview.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA433117A2EF4E002BAE13 /* MPVideoPreview.m */; };
 		32BA433817A2EF69002BAE13 /* MPCapturePhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA433717A2EF69002BAE13 /* MPCapturePhoto.m */; };
 		32BA434617A2F986002BAE13 /* libRCCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA434017A2EFF2002BAE13 /* libRCCore.a */; };
 		32BA436117A2FC52002BAE13 /* MPAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA432717A2EE9D002BAE13 /* MPAnalytics.m */; };
@@ -451,6 +450,8 @@
 		D3F57871184F2E1700EE450E /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3F57870184F2E1700EE450E /* CoreVideo.framework */; };
 		D3F57873184F2E2000EE450E /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3F57872184F2E2000EE450E /* MobileCoreServices.framework */; };
 		D3F57875184F2E2900EE450E /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3F57874184F2E2900EE450E /* OpenGLES.framework */; };
+		D9F635DD19DC8B5500E829DC /* flat.fsh in Resources */ = {isa = PBXBuildFile; fileRef = D9F635DB19DC8B5500E829DC /* flat.fsh */; };
+		D9F635DE19DC8B5500E829DC /* flat.vsh in Resources */ = {isa = PBXBuildFile; fileRef = D9F635DC19DC8B5500E829DC /* flat.vsh */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -993,8 +994,6 @@
 		32BA432D17A2EF4E002BAE13 /* MPLineLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPLineLayer.m; sourceTree = "<group>"; };
 		32BA432E17A2EF4E002BAE13 /* MPLineLayerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPLineLayerDelegate.h; sourceTree = "<group>"; };
 		32BA432F17A2EF4E002BAE13 /* MPLineLayerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPLineLayerDelegate.m; sourceTree = "<group>"; };
-		32BA433017A2EF4E002BAE13 /* MPVideoPreview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPVideoPreview.h; sourceTree = "<group>"; };
-		32BA433117A2EF4E002BAE13 /* MPVideoPreview.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPVideoPreview.m; sourceTree = "<group>"; };
 		32BA433617A2EF69002BAE13 /* MPCapturePhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPCapturePhoto.h; sourceTree = "<group>"; };
 		32BA433717A2EF69002BAE13 /* MPCapturePhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPCapturePhoto.m; sourceTree = "<group>"; };
 		32BA433917A2EFF2002BAE13 /* RCCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCCore.xcodeproj; path = ../RCCore/RCCore.xcodeproj; sourceTree = "<group>"; };
@@ -1217,6 +1216,8 @@
 		D3F57870184F2E1700EE450E /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		D3F57872184F2E2000EE450E /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		D3F57874184F2E2900EE450E /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		D9F635DB19DC8B5500E829DC /* flat.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = flat.fsh; sourceTree = "<group>"; };
+		D9F635DC19DC8B5500E829DC /* flat.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = flat.vsh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1849,6 +1850,7 @@
 		32BA42DB17A2E171002BAE13 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				D9F635D819DC8AC300E829DC /* Shaders */,
 				32934CC818D8B616005DC87C /* Layer Delegates */,
 				32BA42B717A2DF8B002BAE13 /* MainStoryboard_iPad.storyboard */,
 				32BA42B417A2DF8B002BAE13 /* MainStoryboard_iPhone.storyboard */,
@@ -1882,8 +1884,6 @@
 				3248C7E018A464BF00061D4A /* MPThumbnailButton.m */,
 				3248C7D918A44AE400061D4A /* MPToolbarView.h */,
 				3248C7DA18A44AE400061D4A /* MPToolbarView.m */,
-				32BA433017A2EF4E002BAE13 /* MPVideoPreview.h */,
-				32BA433117A2EF4E002BAE13 /* MPVideoPreview.m */,
 				32A2104018906439002BD1E4 /* MPView.h */,
 				32A2104118906439002BD1E4 /* MPView.m */,
 				32934CF018D922E1005DC87C /* UIImage+MPImageFile.h */,
@@ -2230,6 +2230,15 @@
 			path = ../../RCCore/RCCore;
 			sourceTree = "<group>";
 		};
+		D9F635D819DC8AC300E829DC /* Shaders */ = {
+			isa = PBXGroup;
+			children = (
+				D9F635DB19DC8B5500E829DC /* flat.fsh */,
+				D9F635DC19DC8B5500E829DC /* flat.vsh */,
+			);
+			name = Shaders;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -2399,6 +2408,7 @@
 				1768899B195B59F500337524 /* measured_photo_svg.html in Resources */,
 				326ACF2319D2221B00B36965 /* osk-iconMask-bw-76.png in Resources */,
 				326ACF0119D2221B00B36965 /* osk-appDotNetIcon-29@2x.png in Resources */,
+				D9F635DD19DC8B5500E829DC /* flat.fsh in Resources */,
 				32EFED5E196E01DB00FDC89F /* test.html in Resources */,
 				324DB326195B8D310004567A /* main_function.js in Resources */,
 				326ACEF619D2221B00B36965 /* Omnifocus-Icon-29.png in Resources */,
@@ -2437,6 +2447,7 @@
 				326ACF5819D2221B00B36965 /* ReadingList-Icon-29.png in Resources */,
 				326ACF2E19D2221B00B36965 /* osk-messagesIcon-76@2x.png in Resources */,
 				326ACF5319D2221B00B36965 /* Pocket-Icon-29.png in Resources */,
+				D9F635DE19DC8B5500E829DC /* flat.vsh in Resources */,
 				324DB329195B8D310004567A /* global_variables.js in Resources */,
 				326ACEE419D2221B00B36965 /* Drafts-Icon-29@2x.png in Resources */,
 				324DB32A195B8D310004567A /* tilt_monitor.js in Resources */,
@@ -2708,7 +2719,6 @@
 				3244D39518E6134500AB0DE0 /* MBProgressHUD.m in Sources */,
 				328C7DD719D1EA420079BA40 /* MPIntroScreen.m in Sources */,
 				326ACFAB19D2221B00B36965 /* OSKPresentationManager.m in Sources */,
-				32BA433517A2EF4E002BAE13 /* MPVideoPreview.m in Sources */,
 				32745D691892FBCE000C68F4 /* MPLoupe.m in Sources */,
 				326ACF6A19D2221B00B36965 /* NSHTTPURLResponse+OSKUtilities.m in Sources */,
 				32BA433817A2EF69002BAE13 /* MPCapturePhoto.m in Sources */,

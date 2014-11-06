@@ -29,7 +29,7 @@
 #define USER_MANAGER [RCUserManager sharedInstance]
 #define HTTP_CLIENT [RCHTTPClient sharedInstance]
 #define SERVER_OPS [TMServerOpsFactory getInstance]
-#define OPENGL_MANAGER [RCOpenGLManagerFactory getInstance]
+#define OPENGL_MANAGER [RCGLManagerFactory getInstance]
 #define SENSOR_DELEGATE [SensorDelegate sharedInstance]
 
 #define DOCUMENTS_DIRECTORY [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject]

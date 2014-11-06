@@ -25,7 +25,6 @@
 #import "RCVector.h"
 #import "RCPoint.h"
 #import "RCCameraParameters.h"
-#import "RCVideoPreview.h"
 
 // error classes
 #import "RCLicenseError.h"

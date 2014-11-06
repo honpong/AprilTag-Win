@@ -23,7 +23,6 @@
 #import "MPDMeasuredPhoto+MPDMeasuredPhotoExt.h"
 #import "MPEditPhoto.h"
 #import "MPGalleryController.h"
-#import "MPVideoPreview.h"
 
 static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
 
@@ -713,7 +712,7 @@ static transition transitions[] =
     {
         lastSensorFusionDataWithImage = data;
         
-        [self.arView.videoView displaySampleBuffer:data.sampleBuffer];
+        [self.arView.videoView displaySensorFusionData:data];
         
         [self.arView.featuresLayer updateFeatures:goodPoints];
         [self.arView.initializingFeaturesLayer updateFeatures:badPoints];

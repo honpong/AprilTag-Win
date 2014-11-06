@@ -27,7 +27,7 @@
 #define LOCATION_MANAGER [RCLocationManager sharedInstance]
 #define USER_MANAGER [RCUserManager sharedInstance]
 #define HTTP_CLIENT [RCHTTPClient sharedInstance]
-#define OPENGL_MANAGER [RCOpenGLManagerFactory getInstance]
+#define OPENGL_MANAGER [RCGLManagerFactory getInstance]
 
 #define DOCS_DIRECTORY [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0]
 

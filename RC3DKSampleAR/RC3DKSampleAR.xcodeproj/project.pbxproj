@@ -340,7 +340,6 @@
 				D90145B719F9A094004E7CE2 /* RCVideoManager.m */,
 			);
 			name = "Sensor Managers";
-			path = ../../rc3dksampleapp/RC3DKSampleApp;
 			sourceTree = "<group>";
 		};
 		D90145DF19F9A23E004E7CE2 /* Frameworks */ = {
@@ -367,7 +366,6 @@
 				D90145DE19F9A23E004E7CE2 /* CoreGraphics.framework */,
 			);
 			name = Frameworks;
-			path = ../../rc3dksampleapp;
 			sourceTree = "<group>";
 		};
 		D90145F219F9A5EF004E7CE2 /* AugmentedReality */ = {

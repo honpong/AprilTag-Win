@@ -191,6 +191,14 @@ static transition transitions[] =
     {
         didGetVisionError = NO;
     }
+    else if (newState == ST_INITIALIZING)
+    {
+        [TMAnalytics startTimedEvent:@"Measurement.Initializing" withParameters:nil];
+    }
+    else if(newState == ST_MEASURE)
+    {
+        [TMAnalytics endTimedEvent:@"Measurement.Initializing"];
+    }
     else if (newState == ST_FINISHED)
     {
         NSString* errorType = didGetVisionError ? @"Vision" : @"None";

@@ -147,6 +147,7 @@ static transition transitions[] =
     statesetup newSetup = setups[newState];
 
     DLog(@"Transitioning from %s to %s", oldSetup.title, newSetup.title);
+    if (![self handleStateTransition:newState]) return;
 
     if(!oldSetup.sensorCapture && newSetup.sensorCapture)
         [self startSensors];
@@ -191,15 +192,6 @@ static transition transitions[] =
     }
     if(!oldSetup.stereo && newSetup.stereo)
         [[RCStereo sharedInstance] reset];
-    if(currentState == ST_READY && newState == ST_MOVING)
-        [self handleMoveStart];
-    if(currentState == ST_MOVING && newState == ST_CAPTURE)
-        [self handleMoveFinished];
-    if(currentState == ST_CAPTURE && newState == ST_PROCESSING)
-        [self handleCaptureFinished];
-    if(currentState == ST_FINISHED && newState == ST_READY)
-        [self handlePhotoDeleted];
-    
     if (newSetup.progress == SpinnerTypeNone)
     {
         NSString* message = @(newSetup.message);
@@ -219,6 +211,33 @@ static transition transitions[] =
     
     lastTransitionTime = CACurrentMediaTime();
     currentState = newState;
+}
+
+/**
+ @returns NO if transition should be canceled
+ */
+- (BOOL) handleStateTransition:(int)newState
+{
+    if(newState == ST_MOVING)
+        [self handleMoveStart];
+    else if(newState == ST_CAPTURE)
+        [self handleMoveFinished];
+    else if(newState == ST_PROCESSING)
+    {
+        if (IS_DISK_SPACE_LOW)
+        {
+            [self handleStateEvent:EV_DISK_SPACE];
+            return NO;
+        }
+        else
+        {
+            [self handleCaptureFinished];
+        }
+    }
+    else if(currentState == ST_FINISHED && newState == ST_READY)
+        [self handlePhotoDeleted];
+    
+    return YES;
 }
 
 - (void)handleStateEvent:(int)event

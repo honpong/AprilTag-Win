@@ -164,6 +164,11 @@
     [self gotoGallery];
 }
 
+- (void) moviePlayBackDidFinish
+{
+    [MPAnalytics logEvent:@"View.Tutorial.MovieFinished"];
+}
+
 #pragma mark - RCCalibrationDelegate
 
 - (void) calibrationScreenDidAppear:(NSString *)screenName

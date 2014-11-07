@@ -44,6 +44,9 @@ static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
     id<RCSensorDelegate> sensorDelegate;
     
     MPDMeasuredPhoto* measuredPhoto;
+    
+    BOOL didGetVisionError;
+    RCSensorFusionErrorCode lastErrorCode;
 }
 @synthesize toolbar, galleryButton, shutterButton, messageLabel, questionLabel, questionSegButton, questionView, arView, containerView, instructionsView;
 
@@ -218,8 +221,20 @@ static transition transitions[] =
  */
 - (BOOL) handleStateTransition:(int)newState
 {
-    if(newState == ST_MOVING)
+    if (newState == ST_READY)
+    {
+        lastErrorCode = RCSensorFusionErrorCodeNone;
+        didGetVisionError = NO;
+    }
+    else if (newState == ST_INITIALIZING)
+    {
+        [MPAnalytics startTimedEvent:@"MPhoto.Initializing" withParameters:nil];
+    }
+    else if(newState == ST_MOVING)
+    {
+        [MPAnalytics endTimedEvent:@"MPhoto.Initializing"];
         [self handleMoveStart];
+    }
     else if(newState == ST_CAPTURE)
         [self handleMoveFinished];
     else if(newState == ST_PROCESSING)
@@ -231,11 +246,29 @@ static transition transitions[] =
         }
         else
         {
+            [MPAnalytics startTimedEvent:@"MPhoto.StereoProcessing" withParameters:nil];
             [self handleCaptureFinished];
         }
     }
+    else if (newState == ST_FINISHED)
+    {
+        [MPAnalytics endTimedEvent:@"MPhoto.StereoProcessing"];
+        NSString* errorType = didGetVisionError ? @"Vision" : @"None";
+        [MPAnalytics logEvent:@"MPhoto.Save" withParameters:@{ @"Error" : errorType }]; // successful
+    }
     else if(currentState == ST_FINISHED && newState == ST_READY)
+    {
         [self handlePhotoDeleted];
+    }
+    else if (newState == ST_ERROR)
+    {
+        if (lastErrorCode == RCSensorFusionErrorCodeTooFast)
+            [MPAnalytics logEvent:@"MPhoto.Fail" withParameters:@{ @"Error" : @"TooFast", @"Vision Error Preceded" : didGetVisionError ? @"Yes" : @"No" }];
+        else if (lastErrorCode == RCSensorFusionErrorCodeOther)
+            [MPAnalytics logEvent:@"MPhoto.Fail" withParameters:@{ @"Error" : @"Other", @"Vision Error Preceded" : didGetVisionError ? @"Yes" : @"No" }];
+        else
+            [MPAnalytics logEvent:@"MPhoto.Fail" withParameters:@{ @"Error" : @"Unknown", @"Vision Error Preceded" : didGetVisionError ? @"Yes" : @"No" }];
+    }
     
     return YES;
 }
@@ -247,7 +280,6 @@ static transition transitions[] =
         if(transitions[i].state == currentState || transitions[i].state == ST_ANY) {
             if(transitions[i].event == event) {
                 newState = transitions[i].newstate;
-//                DLog(@"State transition from %d to %d", currentState, newState);
                 break;
             }
         }
@@ -307,6 +339,9 @@ static transition transitions[] =
 {
     LOGME
     [super viewDidAppear:animated];
+    
+    // don't do this here because it gets called when popping two VCs off the stack. instead call it when presenting from another VC.
+//    [MPAnalytics logEvent:@"View.CapturePhoto"];
     
     //register to receive notifications of pause/resume events
     [[NSNotificationCenter defaultCenter] addObserver:self
@@ -508,6 +543,8 @@ static transition transitions[] =
 
 - (void) gotoEditPhotoScreen
 {
+    [MPAnalytics logEvent:@"View.EditPhoto"];
+    
     if ([self.presentingViewController isKindOfClass:[MPGalleryController class]])
     {
         MPGalleryController* galleryController = (MPGalleryController*)self.presentingViewController;
@@ -694,12 +731,15 @@ static transition transitions[] =
 {
     if ([status.error isKindOfClass:[RCSensorFusionError class]])
     {
-        DLog(@"ERROR code %i", status.error.code);
+        DLog(@"ERROR code %ld", status.error.code);
+        lastErrorCode = (RCSensorFusionErrorCode)status.error.code;
+        
         if(status.error.code == RCSensorFusionErrorCodeTooFast) {
             [self handleStateEvent:EV_FASTFAIL];
         } else if(status.error.code == RCSensorFusionErrorCodeOther) {
             [self handleStateEvent:EV_FAIL];
         } else if(status.error.code == RCSensorFusionErrorCodeVision) {
+            didGetVisionError = YES;
             [self handleStateEvent:EV_VISIONFAIL];
         }
     }
@@ -756,6 +796,8 @@ static transition transitions[] =
     
     if (currentState == ST_MOVING) [instructionsView updateDotPosition:data.transformation withDepth:[median floatValue]];
 }
+
+#pragma mark -
 
 /** delegate method of MPInstructionsViewDelegate. tells us when the dot has reached the edge of the circle. */
 - (void) moveComplete

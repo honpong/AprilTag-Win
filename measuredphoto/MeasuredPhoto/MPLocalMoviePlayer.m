@@ -22,25 +22,25 @@
 
 - (void) viewDidAppear:(BOOL)animated
 {
-//    [TMAnalytics logEvent:@"View.Tutorial"];
+    [MPAnalytics logEvent:@"View.Tutorial"];
     [super viewDidAppear:animated];
 }
 
 - (IBAction)handlePlayButton:(id)sender
 {
-//    [TMAnalytics logEvent:@"View.Tutorial.Play"];
+    [MPAnalytics logEvent:@"View.Tutorial.Play"];
     [super handlePlayButton:sender];
 }
 
 - (IBAction)handleSkipButton:(id)sender
 {
-//    [TMAnalytics logEvent:@"View.Tutorial.Skip"];
+    [MPAnalytics logEvent:@"View.Tutorial.Skip"];
     [super handleSkipButton:sender];
 }
 
 - (IBAction)handlePlayAgainButton:(id)sender
 {
-//    [TMAnalytics logEvent:@"View.Tutorial.PlayAgain"];
+    [MPAnalytics logEvent:@"View.Tutorial.PlayAgain"];
     [super handlePlayAgainButton:sender];
 }
 

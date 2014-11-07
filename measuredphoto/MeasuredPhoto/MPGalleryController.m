@@ -75,6 +75,8 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 
 - (void) viewDidAppear:(BOOL)animated
 {
+    [MPAnalytics logEvent:@"View.Gallery"];
+    
     if (self.editPhotoController.measuredPhoto.is_deleted)
     {
         [self handlePhotoDeleted];
@@ -127,6 +129,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     UIDeviceOrientation deviceOrientation = [UIView deviceOrientationFromUIOrientation:self.interfaceOrientation];
     [vc setOrientation:deviceOrientation animated:NO];
     [self presentViewController:vc animated:NO completion:nil];
+    [MPAnalytics logEvent:@"View.CapturePhoto"];
 }
 
 - (IBAction)handleImageButton:(id)sender
@@ -298,6 +301,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
                          self.collectionView.hidden = YES;
                          [self presentViewController:self.editPhotoController animated:YES completion:^{
                              self.collectionView.hidden = NO;
+                             [MPAnalytics logEvent:@"View.EditPhoto"];
                          }];
                      }];
 }
@@ -385,7 +389,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 
 - (void)showActionSheet
 {
-//    [TMAnalytics logEvent:@"View.History.Menu"];
+    [MPAnalytics logEvent:@"View.History.Menu"];
     
     if (actionSheet == nil)
     {
@@ -411,25 +415,25 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     {
         case 0:
         {
-//            [TMAnalytics logEvent:@"View.About"];
+            [MPAnalytics logEvent:@"View.About"];
             [self gotoAbout];
             break;
         }
         case 1:
         {
-//            [TMAnalytics logEvent:@"View.ShareApp"];
+            [MPAnalytics logEvent:@"View.ShareApp"];
             [self showShareSheet];
             break;
         }
         case 2:
         {
-//            [TMAnalytics logEvent:@"View.Rate"];
+            [MPAnalytics logEvent:@"View.Rate"];
             [self gotoAppStore];
             break;
         }
         case 3:
         {
-//            [TMAnalytics logEvent:@"View.Tips"];
+            [MPAnalytics logEvent:@"View.Tips"];
             [self gotoTips];
             break;
         }
@@ -509,11 +513,11 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 - (OSKActivityCompletionHandler) activityCompletionHandler
 {
     OSKActivityCompletionHandler activityCompletionHandler = ^(OSKActivity *activity, BOOL successful, NSError *error){
-//        if (successful) {
-//            [TMAnalytics logEvent:@"Share.App" withParameters:@{ @"Type": [activity.class activityName] }];
-//        } else {
-//            [TMAnalytics logError:@"Share.App" message:[activity.class activityName] error:error];
-//        }
+        if (successful) {
+            [MPAnalytics logEvent:@"Share.App" withParameters:@{ @"Type": [activity.class activityName] }];
+        } else {
+            [MPAnalytics logError:@"Share.App" message:[activity.class activityName] error:error];
+        }
     };
     return activityCompletionHandler;
 }

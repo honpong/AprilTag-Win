@@ -59,7 +59,7 @@ static const CLLocationDegrees startingLongitude = 43.;
 
 - (void) viewDidAppear:(BOOL)animated
 {
-//    [TMAnalytics logEvent:@"View.LocationIntro"];
+    [MPAnalytics logEvent:@"View.LocationIntro"];
     
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(handleResume)
@@ -99,7 +99,7 @@ static const CLLocationDegrees startingLongitude = 43.;
 
 - (IBAction) handleNextButton:(id)sender
 {
-//    [TMAnalytics logEvent:@"Choice.LocationIntro" withParameters:@{ @"Button" : @"Allow" }];
+    [MPAnalytics logEvent:@"Choice.LocationIntro" withParameters:@{ @"Button" : @"Allow" }];
     
     NSNumber* timestamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]];
     [NSUserDefaults.standardUserDefaults setObject:timestamp forKey:PREF_LOCATION_NAG_TIMESTAMP];
@@ -110,12 +110,12 @@ static const CLLocationDegrees startingLongitude = 43.;
          
          if(granted)
          {
-//             [TMAnalytics logEvent:@"Permission.Location" withParameters:@{ @"Allowed" : @"Yes" }];
+             [MPAnalytics logEvent:@"Permission.Location" withParameters:@{ @"Allowed" : @"Yes" }];
              [LOCATION_MANAGER startLocationUpdates];
          }
          else
          {
-//             [TMAnalytics logEvent:@"Permission.Location" withParameters:@{ @"Allowed" : @"No" }];
+             [MPAnalytics logEvent:@"Permission.Location" withParameters:@{ @"Allowed" : @"No" }];
          }
          
          [self gotoNextScreen];
@@ -124,7 +124,7 @@ static const CLLocationDegrees startingLongitude = 43.;
 
 - (IBAction)handleLaterButton:(id)sender
 {
-//    [TMAnalytics logEvent:@"Choice.LocationIntro" withParameters:@{ @"Button" : @"Later" }];
+    [MPAnalytics logEvent:@"Choice.LocationIntro" withParameters:@{ @"Button" : @"Later" }];
     
     NSNumber* timestamp = [NSNumber numberWithDouble:[[NSDate date] timeIntervalSince1970]];
     [NSUserDefaults.standardUserDefaults setObject:timestamp forKey:PREF_LOCATION_NAG_TIMESTAMP];
@@ -133,7 +133,7 @@ static const CLLocationDegrees startingLongitude = 43.;
 
 - (IBAction)handleNeverButton:(id)sender
 {
-//    [TMAnalytics logEvent:@"Choice.LocationIntro" withParameters:@{ @"Button" : @"Never" }];
+    [MPAnalytics logEvent:@"Choice.LocationIntro" withParameters:@{ @"Button" : @"Never" }];
     
     [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_SHOW_LOCATION_NAG];
     [self gotoNextScreen];

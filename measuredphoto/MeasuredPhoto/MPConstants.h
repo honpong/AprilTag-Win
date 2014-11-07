@@ -92,4 +92,8 @@ static NSString* RCApplicationCredential_Facebook_Secret = @"827cfb4e92aff3551ff
 
 #define IS_DISK_SPACE_LOW [RCDeviceInfo getFreeDiskSpaceInBytes] < 5000000
 
-#define FLURRY_KEY @"27CGCMKSPPYVS9HX3SXC"
+#ifdef ARCHIVE
+#define FLURRY_KEY @"N3827F4P9DWMD5FFFSHV" //prod
+#else
+#define FLURRY_KEY @"27CGCMKSPPYVS9HX3SXC" //dev
+#endif

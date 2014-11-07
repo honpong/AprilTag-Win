@@ -16,8 +16,7 @@
 {
     LOGME;
     
-//    [MPAnalytics logEventWithCategory:kAnalyticsCategoryFeedback withAction:@"Accuracy" withLabel:nil withValue:isAccurate ? @1 : @0];
-//    [MPAnalytics dispatch];
+    [MPAnalytics logEvent:@"Choice.AccuracySurvey" withParameters:@{ @"Accurate" : isAccurate ? @"Yes" : @"No" }];
     
     NSString* vendorId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
     NSString* answer = isAccurate ? @"true" : @"false";

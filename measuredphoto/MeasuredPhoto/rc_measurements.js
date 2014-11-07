@@ -732,9 +732,14 @@ rcMeasurements.revert_measurement_state = function () {
         //pull prior measurement state
         rcMeasurements.prior_measurement_states.pop(); //trow away the current state
         //console.log('prior_measurement_states length = ' + rcMeasurements.prior_measurement_states.length.toFixed());
-        var prior_m_json = rcMeasurements.prior_measurement_states.pop(); //go to the one before.
+        var prior_m_json = JSON.parse(rcMeasurements.prior_measurement_states.pop()); //go to the one before.
         //console.log('prior_measurement_states length = ' + rcMeasurements.prior_measurement_states.length.toFixed());
-        rcMeasurements.apply_json_data(JSON.parse(prior_m_json));
+
+        //we over write the units here before saving so that the units are not changed by undoing.
+        //in future any ui state that is persisted but not undoable can be over writen here
+        prior_m_json['use_metric'] = default_units_metric;
+
+        rcMeasurements.apply_json_data(prior_m_json);
         // save new state - this will add current state back to the stack
         rcMeasurements.save_measurements();
     }

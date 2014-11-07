@@ -65,8 +65,13 @@ typedef NS_ENUM(int, SpinnerType) {
     SpinnerTypeIndeterminate
 };
 
-enum state { ST_STARTUP, ST_READY, ST_INITIALIZING, ST_MOVING, ST_CAPTURE, ST_PROCESSING, ST_ERROR, ST_FINISHED, ST_ANY } currentState;
-enum event { EV_RESUME, EV_FIRSTTIME, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_SHUTTER_TAP, EV_PAUSE, EV_CANCEL, EV_MOVE_DONE, EV_PROCESSING_FINISHED, EV_INITIALIZED, EV_STEREOFAIL };
+typedef NS_ENUM(int, MessageColor) {
+    ColorGray,
+    ColorRed
+};
+
+enum state { ST_STARTUP, ST_READY, ST_INITIALIZING, ST_MOVING, ST_CAPTURE, ST_PROCESSING, ST_ERROR, ST_DISK_SPACE, ST_FINISHED, ST_ANY } currentState;
+enum event { EV_RESUME, EV_FIRSTTIME, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_SHUTTER_TAP, EV_PAUSE, EV_CANCEL, EV_MOVE_DONE, EV_PROCESSING_FINISHED, EV_INITIALIZED, EV_STEREOFAIL, EV_DISK_SPACE };
 
 typedef struct { enum state state; enum event event; enum state newstate; } transition;
 
@@ -86,20 +91,22 @@ typedef struct
     bool stereo;
     bool showGalleryButton;
     const char *title;
+    MessageColor messageColor;
     const char *message;
 } statesetup;
 
 static statesetup setups[] =
 {
-    //                  button image               sensors fusion   shw-msmnts  badfeat  instrct ftrs    prgrs                     autohide stillPhoto  stereo  showGalleryButton title           message
-    { ST_STARTUP,       BUTTON_SHUTTER_DISABLED,   false,  false,   false,      false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  true,             "Startup",      "Loading" },
-    { ST_READY,         BUTTON_SHUTTER,            true,   false,   false,      false,   false,  false,  SpinnerTypeNone,          true,    false,      false,  true,             "Ready",        "Point the camera at the scene you want to capture, then press the button." },
-    { ST_INITIALIZING,  BUTTON_SHUTTER_DISABLED,   true,   true,    false,      true,    false,  true,   SpinnerTypeDeterminate,   true,    false,      false,  true,             "Initializing", "Hold still" },
-    { ST_MOVING,        BUTTON_DELETE,             true,   true,    false,      true,    true,   true,   SpinnerTypeNone,          false,   false,      true,   false,            "Moving",       "Move up, down, or sideways. Press the button to cancel." },
-    { ST_CAPTURE,       BUTTON_SHUTTER,            true,   true,    false,      true,    true,   true,   SpinnerTypeNone,          false,   false,      true,   false,            "Capture",      "Press the button to capture a photo." },
-    { ST_PROCESSING,    BUTTON_SHUTTER_DISABLED,   false,  false,   false,      false,   false,  false,  SpinnerTypeDeterminate,   true,    true,       false,  false,            "Processing",   "Please wait" },
-    { ST_ERROR,         BUTTON_DELETE,             false,  false,   true,       false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  true,             "Error",        "Whoops, something went wrong. Try again." },
-    { ST_FINISHED,      BUTTON_DELETE,             false,  false,   true,       false,   false,  false,  SpinnerTypeNone,          true,    true,       false,  true,             "Finished",     "Tap anywhere to start a measurement, then tap again to finish it" }
+    //                  button image               sensors fusion   shw-msmnts  badfeat  instrct ftrs    prgrs                     autohide stillPhoto  stereo  showGalleryButton title           messageColor                                       message
+    { ST_STARTUP,       BUTTON_SHUTTER_DISABLED,   false,  false,   false,      false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  true,             "Startup",      ColorGray,    "Loading" },
+    { ST_READY,         BUTTON_SHUTTER,            true,   false,   false,      false,   false,  false,  SpinnerTypeNone,          true,    false,      false,  true,             "Ready",        ColorGray,    "Point the camera at the scene you want to capture, then press the button." },
+    { ST_INITIALIZING,  BUTTON_SHUTTER_DISABLED,   true,   true,    false,      true,    false,  true,   SpinnerTypeDeterminate,   true,    false,      false,  true,             "Initializing", ColorGray,    "Hold still" },
+    { ST_MOVING,        BUTTON_DELETE,             true,   true,    false,      true,    true,   true,   SpinnerTypeNone,          false,   false,      true,   false,            "Moving",       ColorGray,    "Move up, down, or sideways. Press the button to cancel." },
+    { ST_CAPTURE,       BUTTON_SHUTTER,            true,   true,    false,      true,    true,   true,   SpinnerTypeNone,          false,   false,      true,   false,            "Capture",      ColorGray,    "Press the button to capture a photo." },
+    { ST_PROCESSING,    BUTTON_SHUTTER_DISABLED,   false,  false,   false,      false,   false,  false,  SpinnerTypeDeterminate,   true,    true,       false,  false,            "Processing",   ColorGray,    "Please wait" },
+    { ST_ERROR,         BUTTON_DELETE,             true,   false,   true,       false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  true,             "Error",        ColorRed,     "Whoops, something went wrong. Try again." },
+    { ST_DISK_SPACE,    BUTTON_SHUTTER_DISABLED,   true,   false,   true,       false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  true,             "Error",        ColorRed,     "Your device is low on storage space. Free up some space first." },
+    { ST_FINISHED,      BUTTON_DELETE,             false,  false,   true,       false,   false,  false,  SpinnerTypeNone,          true,    true,       false,  true,             "Finished",     ColorGray,    "Tap anywhere to start a measurement, then tap again to finish it" }
 };
 
 static transition transitions[] =
@@ -120,7 +127,8 @@ static transition transitions[] =
     { ST_FINISHED, EV_SHUTTER_TAP, ST_READY },
     { ST_FINISHED, EV_PAUSE, ST_FINISHED },
     { ST_ANY, EV_PAUSE, ST_STARTUP },
-    { ST_ANY, EV_CANCEL, ST_STARTUP }
+    { ST_ANY, EV_CANCEL, ST_STARTUP },
+    { ST_ANY, EV_DISK_SPACE, ST_DISK_SPACE }
 };
 
 #define TRANS_COUNT (sizeof(transitions) / sizeof(*transitions))
@@ -195,7 +203,7 @@ static transition transitions[] =
     if (newSetup.progress == SpinnerTypeNone)
     {
         NSString* message = @(newSetup.message);
-        [self showMessage:message withTitle:@"" autoHide:newSetup.autohide];
+        [self showMessage:message withTitle:@"" withColor:newSetup.messageColor autoHide:newSetup.autohide];
     }
     else
     {
@@ -368,10 +376,18 @@ static transition transitions[] =
 
 - (void)handleResume
 {
-	LOGME
+    LOGME
+    
     if (useLocation) [LOCATION_MANAGER startLocationUpdates];
+    
     if(currentState != ST_PROCESSING)
-        [self handleStateEvent:EV_RESUME];
+    {
+        if ([RCDeviceInfo getFreeDiskSpaceInBytes] < 5000000)
+        	[self handleStateEvent:EV_DISK_SPACE];
+    	else
+        	[self handleStateEvent:EV_RESUME];
+    }
+    
     [self handleOrientationChange]; // ensures that UI is in correct orientation
     if(currentState != ST_PROCESSING)
         [self.arView.videoView animateOpen:[MPCapturePhoto getCurrentUIOrientation]];
@@ -754,13 +770,18 @@ static transition transitions[] =
     [progressView setProgress:progress];
 }
 
-- (void)showMessage:(NSString*)message withTitle:(NSString*)title autoHide:(BOOL)hide
+- (void)showMessage:(NSString*)message withTitle:(NSString*)title withColor:(MessageColor)color autoHide:(BOOL)hide
 {
     if (message && message.length > 0)
     {
         self.messageLabel.hidden = NO;
         self.messageLabel.alpha = 1;
         self.messageLabel.text = message ? message : @"";
+        
+        if (color == ColorRed)
+            self.messageLabel.backgroundColor = [UIColor colorWithRed:1 green:0 blue:0 alpha:.8];
+        else
+            self.messageLabel.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:.3];
         
         if (hide) [self.messageLabel fadeOutWithDuration:2 andWait:5];
     }

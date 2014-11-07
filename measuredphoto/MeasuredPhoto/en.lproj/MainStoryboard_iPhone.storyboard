@@ -511,19 +511,8 @@
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="PlL-07-yn5" customClass="MPAugmentedRealityView">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
-                                <subviews>
-                                    <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FT6-Up-tfM" customClass="MPInstructionsView">
-                                        <rect key="frame" x="0.0" y="80" width="320" height="320"/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" constant="320" id="JOe-mG-77Z"/>
-                                            <constraint firstAttribute="height" constant="320" id="mqC-dj-oiN"/>
-                                        </constraints>
-                                    </view>
-                                </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstAttribute="centerX" secondItem="FT6-Up-tfM" secondAttribute="centerX" id="TpA-TX-bGh"/>
-                                    <constraint firstAttribute="centerY" secondItem="FT6-Up-tfM" secondAttribute="centerY" id="rmv-pW-qAF"/>
                                     <constraint firstAttribute="height" constant="480" id="u50-iS-Mzw"/>
                                 </constraints>
                             </view>
@@ -678,7 +667,6 @@
                         <outlet property="arView" destination="PlL-07-yn5" id="UjT-FF-Y9E"/>
                         <outlet property="containerView" destination="IzM-3z-8rc" id="RFI-Oe-iU3"/>
                         <outlet property="galleryButton" destination="Knw-H5-IDC" id="G0i-uL-MU7"/>
-                        <outlet property="instructionsView" destination="FT6-Up-tfM" id="FiM-6n-Vvw"/>
                         <outlet property="messageLabel" destination="Q9N-TY-BVN" id="jCM-7D-ndQ"/>
                         <outlet property="questionCloseButton" destination="DFe-rq-hgZ" id="qpG-ka-NFa"/>
                         <outlet property="questionLabel" destination="8fT-Dx-mte" id="VPi-sE-De8"/>

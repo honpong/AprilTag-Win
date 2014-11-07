@@ -93,6 +93,12 @@ const static GLfloat cube_normals[vertex_count * 3] = {
     0,1,0, 0,1,0, 0,1,0,
 };*/
 
+
+- (void) setProgress:(float)progress
+{
+    
+}
+
 - (void)renderWithSensorFusionData:(RCSensorFusionData *)data withCameraToScreenMatrix:(GLKMatrix4)cameraToScreen
 {
     if(!data.cameraParameters || !data.cameraTransformation) return;

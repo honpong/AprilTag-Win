@@ -30,7 +30,7 @@
 
 extern NSString * const MPUIOrientationDidChangeNotification;
 
-@interface MPCapturePhoto : MPBaseViewController <RCSensorFusionDelegate, RCStereoDelegate, UIAlertViewDelegate, MPAugRealityViewDelegate, MPInstructionsViewDelegate>
+@interface MPCapturePhoto : MPBaseViewController <RCSensorFusionDelegate, RCStereoDelegate, UIAlertViewDelegate, MPAugRealityViewDelegate>
 
 + (UIDeviceOrientation) getCurrentUIOrientation;
 - (void)handlePause;
@@ -51,6 +51,5 @@ extern NSString * const MPUIOrientationDidChangeNotification;
 @property (weak, nonatomic) IBOutlet MPSlideBanner *questionView;
 @property (weak, nonatomic) IBOutlet UIButton *questionCloseButton;
 @property (weak, nonatomic) IBOutlet MPContainerView *containerView;
-@property (weak, nonatomic) IBOutlet MPInstructionsView *instructionsView;
 
 @end

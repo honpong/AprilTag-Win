@@ -11,7 +11,6 @@
 #import "MPMeasurementsView.h"
 #import "ACMagnifyingView.h"
 #import "MPImageView.h"
-#import "MPInstructionsView.h"
 #import "MPARDelegate.h"
 
 #define FEATURE_COUNT 200

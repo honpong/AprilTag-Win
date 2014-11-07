@@ -24,7 +24,6 @@
 		320E5DEA17E37E8400381E7A /* MPYouTubeVideo.m in Sources */ = {isa = PBXBuildFile; fileRef = 320E5DE917E37E8400381E7A /* MPYouTubeVideo.m */; };
 		322B815318315A3F006E963E /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32F0753D18033C10001C8355 /* AdSupport.framework */; };
 		322C371418A18AB6001C69C2 /* MPCircleLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 322C371318A18AB6001C69C2 /* MPCircleLayerDelegate.m */; };
-		322C371F18A18D78001C69C2 /* MPInstructionsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 322C371E18A18D78001C69C2 /* MPInstructionsView.m */; };
 		3244D38F18E60F4600AB0DE0 /* Calibration.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3244D38818E60F4600AB0DE0 /* Calibration.storyboard */; };
 		3244D39018E60F4600AB0DE0 /* RCCalibration1.m in Sources */ = {isa = PBXBuildFile; fileRef = 3244D38A18E60F4600AB0DE0 /* RCCalibration1.m */; };
 		3244D39118E60F4600AB0DE0 /* RCCalibration2.m in Sources */ = {isa = PBXBuildFile; fileRef = 3244D38C18E60F4600AB0DE0 /* RCCalibration2.m */; };
@@ -535,8 +534,6 @@
 		320E5DE917E37E8400381E7A /* MPYouTubeVideo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPYouTubeVideo.m; sourceTree = "<group>"; };
 		322C371218A18AB6001C69C2 /* MPCircleLayerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPCircleLayerDelegate.h; sourceTree = "<group>"; };
 		322C371318A18AB6001C69C2 /* MPCircleLayerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPCircleLayerDelegate.m; sourceTree = "<group>"; };
-		322C371D18A18D78001C69C2 /* MPInstructionsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPInstructionsView.h; sourceTree = "<group>"; };
-		322C371E18A18D78001C69C2 /* MPInstructionsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPInstructionsView.m; sourceTree = "<group>"; };
 		322C372218A194EE001C69C2 /* Reveal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Reveal.framework; sourceTree = "<group>"; };
 		3244D38818E60F4600AB0DE0 /* Calibration.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Calibration.storyboard; sourceTree = "<group>"; };
 		3244D38918E60F4600AB0DE0 /* RCCalibration1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration1.h; sourceTree = "<group>"; };
@@ -1862,8 +1859,6 @@
 				32AF89EA18C00A2A00667EA3 /* MPContainerView.m */,
 				32745D601892EFF5000C68F4 /* MPImageView.h */,
 				32745D611892EFF5000C68F4 /* MPImageView.m */,
-				322C371D18A18D78001C69C2 /* MPInstructionsView.h */,
-				322C371E18A18D78001C69C2 /* MPInstructionsView.m */,
 				32BA432C17A2EF4E002BAE13 /* MPLineLayer.h */,
 				32BA432D17A2EF4E002BAE13 /* MPLineLayer.m */,
 				32745D671892FBCE000C68F4 /* MPLoupe.h */,
@@ -2726,7 +2721,6 @@
 				3280BB3D1919B44100338A38 /* MPSurveyAnswer.m in Sources */,
 				32EFEDA31973349B00FDC89F /* MPHttpInterceptor.m in Sources */,
 				32AC6415198C393200699A2E /* MPUndoOverlay.m in Sources */,
-				322C371F18A18D78001C69C2 /* MPInstructionsView.m in Sources */,
 				D3F50AFF19BA19FD00791303 /* array.c in Sources */,
 				D3F50B0719BA19FD00791303 /* hog.c in Sources */,
 				32EFED85196E078F00FDC89F /* SBJsonStreamParserAdapter.m in Sources */,

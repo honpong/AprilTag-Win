@@ -45,7 +45,7 @@ static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
     
     MPDMeasuredPhoto* measuredPhoto;
 }
-@synthesize toolbar, galleryButton, shutterButton, messageLabel, questionLabel, questionSegButton, questionView, arView, containerView, instructionsView;
+@synthesize toolbar, galleryButton, shutterButton, messageLabel, questionLabel, questionSegButton, questionView, arView, containerView;
 
 typedef NS_ENUM(int, AlertTag) {
     AlertTagTutorial = 0,
@@ -167,10 +167,6 @@ static transition transitions[] =
         self.arView.initializingFeaturesLayer.hidden = YES;
     if(!oldSetup.showBadFeatures && newSetup.showBadFeatures)
         self.arView.initializingFeaturesLayer.hidden = NO;
-    if(!oldSetup.showSlideInstructions && newSetup.showSlideInstructions)
-        instructionsView.hidden = NO;
-    if(oldSetup.showSlideInstructions && !newSetup.showSlideInstructions)
-        instructionsView.hidden = YES;
     if(!oldSetup.showStillPhoto && newSetup.showStillPhoto)
     {
         arView.photoView.hidden = NO;
@@ -246,7 +242,6 @@ static transition transitions[] =
 //    }
     
     arView.delegate = self;
-    instructionsView.delegate = self;
     containerView.delegate = arView;
     
     sensorDelegate = [SensorDelegate sharedInstance];
@@ -708,6 +703,23 @@ static transition transitions[] =
         median = [sorted objectAtIndex:middle];
     } else median = [NSNumber numberWithFloat:2.];
 
+    if (currentState == ST_MOVING)
+    {
+        //Compute the capture progress here
+        float depth = [median floatValue];
+        
+        RCTranslation *trans = [[data.transformation.rotation getInverse] transformTranslation:data.transformation.translation];
+        float distFromStartPoint = sqrt(data.transformation.translation.x * data.transformation.translation.x + data.transformation.translation.y * data.transformation.translation.y + data.transformation.translation.z * data.transformation.translation.z);
+        // require movement of at least 5cm
+        float targetDist = MAX(0.05, depth / 8.);
+        float progress = distFromStartPoint / targetDist;
+        
+        [arView.AROverlay setProgress:progress];
+        if(progress >= 1.) [self handleStateEvent:EV_MOVE_DONE];
+    }
+    
+    if(currentState == ST_INITIALIZING) [arView.AROverlay setInitialCamera:data.cameraTransformation];
+
     if(data.sampleBuffer)
     {
         lastSensorFusionDataWithImage = data;
@@ -719,17 +731,6 @@ static transition transitions[] =
         
         if(setups[currentState].stereo) [STEREO processFrame:data withFinal:false];
     }
-    
-    if (currentState == ST_MOVING) [instructionsView updateDotPosition:data.transformation withDepth:[median floatValue]];
-    
-    if(currentState == ST_INITIALIZING) [arView.AROverlay setInitialCamera:data.cameraTransformation];
-
-}
-
-/** delegate method of MPInstructionsViewDelegate. tells us when the dot has reached the edge of the circle. */
-- (void) moveComplete
-{
-    [self handleStateEvent:EV_MOVE_DONE];
 }
 
 - (void)showProgressWithTitle:(NSString*)title

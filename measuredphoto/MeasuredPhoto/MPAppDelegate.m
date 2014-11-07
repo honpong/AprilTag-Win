@@ -7,7 +7,6 @@
 //
 
 #import "MPAppDelegate.h"
-#import "GAI.h"
 #import "MPPhotoRequest.h"
 #ifdef __APPLE__
 #include "TargetConditionals.h"
@@ -17,6 +16,7 @@
 #import "MPEditPhoto.h"
 #import "MPHttpInterceptor.h"
 #import "MPIntroScreen.h"
+#import "Flurry.h"
 
 #if TARGET_IPHONE_SIMULATOR
 #define SKIP_CALIBRATION YES // skip calibration when running on emulator because it cannot calibrate
@@ -69,14 +69,12 @@
     mySensorDelegate = [SensorDelegate sharedInstance];
     
     mainViewController = self.window.rootViewController;
-    
-    // google analytics setup
-    #ifndef ARCHIVE
-    [GAI sharedInstance].dryRun = YES; // turns off analtyics if not an archive build
-//    [[[GAI sharedInstance] logger] setLogLevel:kGAILogLevelVerbose];
-    #endif
-    [GAI sharedInstance].trackUncaughtExceptions = YES;
-    [MPAnalytics getTracker]; // initializes tracker
+
+    [Flurry setSecureTransportEnabled:YES];
+    [Flurry setCrashReportingEnabled:YES];
+    [Flurry setDebugLogEnabled:NO];
+    [Flurry setLogLevel:FlurryLogLevelNone];
+    [Flurry startSession:FLURRY_KEY];
     
     MagicalRecord.loggingLevel = MagicalRecordLoggingLevelVerbose;
     [MagicalRecord setupCoreDataStackWithStoreNamed:@"Model"];
@@ -170,7 +168,12 @@
 
 - (void) calibrationScreenDidAppear:(NSString *)screenName
 {
-    [MPAnalytics logScreenView:screenName];
+    if ([screenName isEqualToString:@"Calibration1"])
+        [MPAnalytics logEvent:@"View.Calibration1"];
+    else if ([screenName isEqualToString:@"Calibration2"])
+        [MPAnalytics logEvent:@"View.Calibration2"];
+    else if ([screenName isEqualToString:@"Calibration3"])
+        [MPAnalytics logEvent:@"View.Calibration3"];
 }
 
 - (void) calibrationDidFail:(NSError *)error

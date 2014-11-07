@@ -7,51 +7,43 @@
 //
 
 #import "MPAnalytics.h"
-#import "GAIDictionaryBuilder.h"
+#import "Flurry.h"
 
 @implementation MPAnalytics
 
-+ (id<GAITracker>) getTracker
++ (void) logEvent: (NSString*)eventName
 {
-    return [[GAI sharedInstance] trackerWithTrackingId:@"UA-43198622-1"];
+    DLog(@"%@", eventName);
+    [Flurry logEvent:eventName];
 }
 
-+ (void) logEventWithCategory:(NSString*)category withAction:(NSString*)action withLabel:(NSString*)label withValue:(NSNumber*)value
++ (void) logEvent: (NSString*)eventName withParameters: (NSDictionary*)params
 {
-    DLog(@"%@, %@, %@, %@", category, action, label, value);
-	[[self getTracker] send:[[GAIDictionaryBuilder createEventWithCategory:category     // Event category (required)
-                                                                    action:action       // Event action (required)
-                                                                     label:label        // Event label
-                                                                     value:value] build]];
+    DLog(@"%@ %@", eventName, params);
+    [Flurry logEvent:eventName withParameters:params];
 }
 
-+ (void) logError:(NSString*)errorType withMessage:(NSString*)errorMessage
++ (void) logError: (NSString*) eventName message: (NSString*)message error: (NSError*)error
 {
-    DLog(@"%@\n%@", errorType, errorMessage);
-    [self logEventWithCategory:@"Error" withAction:errorType withLabel:errorMessage withValue:nil];
+    DLog(@"%@\nError: %@", eventName, error.debugDescription);
+    [Flurry logError:eventName message:message error:error];
 }
 
-+ (void) logError:(NSString*)errorType withError:(NSError*)error
++ (void) logError: (NSString*) eventName message: (NSString*)message exception: (NSException*)exception
 {
-    DLog(@"%@\n%@", errorType, error.debugDescription);
-    [self logEventWithCategory:@"Error" withAction:errorType withLabel:error.debugDescription withValue:nil];
+    DLog(@"%@\nError: %@", eventName, exception.debugDescription);
+    [Flurry logError:eventName message:message exception:exception];
 }
 
-+ (void) logError:(NSString*)errorType withException: (NSException*)exception
++ (void) startTimedEvent: (NSString*)eventName withParameters: (NSDictionary*)params
 {
-    DLog(@"%@\n%@", errorType, exception.debugDescription);
-    [self logEventWithCategory:@"Error" withAction:errorType withLabel:exception.debugDescription withValue:nil];
+    DLog(@"%@ %@", eventName, params);
+    [Flurry logEvent:eventName withParameters:params timed:YES];
 }
 
-+ (void) logScreenView:(NSString*)screenName
++ (void) endTimedEvent: (NSString*)eventName
 {
-    DLog(@"Screen tracked: %@", screenName); //TODO: send to GA
-}
-
-/** Send analytics data to server right now */
-+ (void) dispatch
-{
-    [[GAI sharedInstance] dispatch];
+    [Flurry endTimedEvent:eventName withParameters:nil];
 }
 
 @end

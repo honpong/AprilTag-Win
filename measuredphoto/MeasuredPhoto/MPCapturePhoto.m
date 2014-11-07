@@ -306,7 +306,6 @@ static transition transitions[] =
 - (void) viewDidAppear:(BOOL)animated
 {
     LOGME
-    self.screenName = @"TakeMeasuredPhoto"; // must go before call to super
     [super viewDidAppear:animated];
     
     //register to receive notifications of pause/resume events

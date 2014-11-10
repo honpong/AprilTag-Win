@@ -22,7 +22,7 @@
 #define USER_MANAGER [RCUserManager sharedInstance]
 #define HTTP_CLIENT [RCHTTPClient sharedInstance]
 #define SERVER_OPS [TMServerOpsFactory getInstance]
-#define OPENGL_MANAGER [RCOpenGLManagerFactory getInstance]
+#define OPENGL_MANAGER [RCGLManagerFactory getInstance]
 #define STEREO [RCStereo sharedInstance]
 
 #define DOCUMENTS_DIRECTORY_URL [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject]
@@ -90,3 +90,10 @@ static NSString * const MPCapturePhotoDidAppearNotification = @"com.realitycap.M
 static NSString* RCApplicationCredential_Facebook_Key = @"671645849539796";
 static NSString* RCApplicationCredential_Facebook_Secret = @"827cfb4e92aff3551ffeb3618be46e08"; // TODO: this is for ETM. change to TM.
 
+#define IS_DISK_SPACE_LOW [RCDeviceInfo getFreeDiskSpaceInBytes] < 5000000
+
+#ifdef ARCHIVE
+#define FLURRY_KEY @"N3827F4P9DWMD5FFFSHV" //prod
+#else
+#define FLURRY_KEY @"27CGCMKSPPYVS9HX3SXC" //dev
+#endif

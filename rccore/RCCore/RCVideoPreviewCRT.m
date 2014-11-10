@@ -12,7 +12,7 @@ static const NSTimeInterval animationDuration = .2;
 
 @interface RCVideoPreview ()
 
-- (void)pixelBufferReadyForDisplay:(CVPixelBufferRef)pixelBuffer;
+- (void)displayPixelBuffer:(CVImageBufferRef)pixelBuffer;
 - (void)initialize;
 
 @end
@@ -39,7 +39,7 @@ static const NSTimeInterval animationDuration = .2;
     didReceiveFirstFrame = NO;
 }
 
-- (void)pixelBufferReadyForDisplay:(CVPixelBufferRef)pixelBuffer
+- (void)displayPixelBuffer:(CVImageBufferRef)pixelBuffer
 {
     bool callCompletion = false;
     if(fadeToWhite || fadeFromWhite)
@@ -82,7 +82,7 @@ static const NSTimeInterval animationDuration = .2;
         [self setHorizontalScale:horzScale withVerticalScale:vertScale];
     }
     
-    [super pixelBufferReadyForDisplay:pixelBuffer];
+    [super displayPixelBuffer:pixelBuffer];
 
     if(callCompletion && animationComplete)
     {

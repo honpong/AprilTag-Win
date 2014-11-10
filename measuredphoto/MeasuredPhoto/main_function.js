@@ -316,9 +316,9 @@ function rc_initialize(){
     toggle_all_units = function() {
         if   (default_units_metric) {default_units_metric = false;}
         else                        {default_units_metric = true;}
-        unit_default_set_by_app = true;
         rcMeasurements.reset_all_measurement_units_to_default();
         rc_menu.unit_button.highlight_active_unit(default_units_metric);
+        rcMeasurements.save_measurements(true); //pass in true for 'optional_not_undoable_flag' meaning that the undo button shouldn't undo this action.
     }
     
     // construct menue
@@ -393,7 +393,6 @@ function clear_all(){
 
 function setDefaultUnits(use_metric) {
     window.setTimeout (function () {default_units_metric = use_metric;} , 0);
-    unit_default_set_by_app = true;
 }
 
 var rc_img_url_glbl;
@@ -403,7 +402,7 @@ function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric)
         rc_img_url_glbl = rc_img_url;
         m_photo_guid = guid;
         if (typeof use_metric === "undefined" || use_metric === null) { default_units_metric = false; } //metric is our default if not set
-                      else {default_units_metric = use_metric; unit_default_set_by_app = true; }//set default if provided.
+                      else {default_units_metric = use_metric; }//set default if provided.
         // only call initialization once.
         try {
             if (!is_rc_initialized) {

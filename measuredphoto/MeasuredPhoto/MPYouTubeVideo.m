@@ -24,7 +24,6 @@
 
 - (void) viewDidAppear:(BOOL)animated
 {
-    self.screenName = @"TutorialVideo";
     [super viewDidAppear:animated];
 }
 

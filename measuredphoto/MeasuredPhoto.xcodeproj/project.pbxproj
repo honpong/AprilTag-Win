@@ -18,13 +18,13 @@
 		3201E512198AE939008F61D5 /* MPTintTouchButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 3201E511198AE939008F61D5 /* MPTintTouchButton.m */; };
 		3201E523198C0FE2008F61D5 /* MPOrientationChangeData.m in Sources */ = {isa = PBXBuildFile; fileRef = 3201E522198C0FE2008F61D5 /* MPOrientationChangeData.m */; };
 		32038C1A188DBEAE00E4F549 /* MPMagView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32038C19188DBEAE00E4F549 /* MPMagView.m */; };
-		320529E618046AF6007D7435 /* libGoogleAnalyticsServices.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32F0753B18033BAD001C8355 /* libGoogleAnalyticsServices.a */; };
 		320A5BCD198032AB0046BA1B /* MPTitleTextBox.m in Sources */ = {isa = PBXBuildFile; fileRef = 320A5BCC198032AB0046BA1B /* MPTitleTextBox.m */; };
 		320E5DE117E0E5BC00381E7A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 320E5DE017E0E5BC00381E7A /* Images.xcassets */; };
 		320E5DEA17E37E8400381E7A /* MPYouTubeVideo.m in Sources */ = {isa = PBXBuildFile; fileRef = 320E5DE917E37E8400381E7A /* MPYouTubeVideo.m */; };
 		322B815318315A3F006E963E /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32F0753D18033C10001C8355 /* AdSupport.framework */; };
 		322C371418A18AB6001C69C2 /* MPCircleLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 322C371318A18AB6001C69C2 /* MPCircleLayerDelegate.m */; };
 		322C371F18A18D78001C69C2 /* MPInstructionsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 322C371E18A18D78001C69C2 /* MPInstructionsView.m */; };
+		323BD0111A0D798900313573 /* libFlurry_5.4.0.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 323BD0101A0D798900313573 /* libFlurry_5.4.0.a */; };
 		3244D38F18E60F4600AB0DE0 /* Calibration.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3244D38818E60F4600AB0DE0 /* Calibration.storyboard */; };
 		3244D39018E60F4600AB0DE0 /* RCCalibration1.m in Sources */ = {isa = PBXBuildFile; fileRef = 3244D38A18E60F4600AB0DE0 /* RCCalibration1.m */; };
 		3244D39118E60F4600AB0DE0 /* RCCalibration2.m in Sources */ = {isa = PBXBuildFile; fileRef = 3244D38C18E60F4600AB0DE0 /* RCCalibration2.m */; };
@@ -333,7 +333,6 @@
 		32BA433217A2EF4E002BAE13 /* MPAugmentedRealityView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA432B17A2EF4E002BAE13 /* MPAugmentedRealityView.m */; };
 		32BA433317A2EF4E002BAE13 /* MPLineLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA432D17A2EF4E002BAE13 /* MPLineLayer.m */; };
 		32BA433417A2EF4E002BAE13 /* MPLineLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA432F17A2EF4E002BAE13 /* MPLineLayerDelegate.m */; };
-		32BA433517A2EF4E002BAE13 /* MPVideoPreview.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA433117A2EF4E002BAE13 /* MPVideoPreview.m */; };
 		32BA433817A2EF69002BAE13 /* MPCapturePhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA433717A2EF69002BAE13 /* MPCapturePhoto.m */; };
 		32BA434617A2F986002BAE13 /* libRCCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BA434017A2EFF2002BAE13 /* libRCCore.a */; };
 		32BA436117A2FC52002BAE13 /* MPAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BA432717A2EE9D002BAE13 /* MPAnalytics.m */; };
@@ -489,6 +488,8 @@
 		D3F7E1211A03F79200AB5778 /* boost.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D3F7E1201A03F79200AB5778 /* boost.a */; };
 		D3F7E1241A04000D00AB5778 /* bp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F7E1221A04000D00AB5778 /* bp.cpp */; };
 		D3F7E1251A04000D00AB5778 /* gibbs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F7E1231A04000D00AB5778 /* gibbs.cpp */; };
+		D9F635DD19DC8B5500E829DC /* flat.fsh in Resources */ = {isa = PBXBuildFile; fileRef = D9F635DB19DC8B5500E829DC /* flat.fsh */; };
+		D9F635DE19DC8B5500E829DC /* flat.vsh in Resources */ = {isa = PBXBuildFile; fileRef = D9F635DC19DC8B5500E829DC /* flat.vsh */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -574,6 +575,8 @@
 		322C371D18A18D78001C69C2 /* MPInstructionsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPInstructionsView.h; sourceTree = "<group>"; };
 		322C371E18A18D78001C69C2 /* MPInstructionsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPInstructionsView.m; sourceTree = "<group>"; };
 		322C372218A194EE001C69C2 /* Reveal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Reveal.framework; sourceTree = "<group>"; };
+		323BD00F1A0D798900313573 /* Flurry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Flurry.h; sourceTree = "<group>"; };
+		323BD0101A0D798900313573 /* libFlurry_5.4.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libFlurry_5.4.0.a; sourceTree = "<group>"; };
 		3244D38818E60F4600AB0DE0 /* Calibration.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Calibration.storyboard; sourceTree = "<group>"; };
 		3244D38918E60F4600AB0DE0 /* RCCalibration1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration1.h; sourceTree = "<group>"; };
 		3244D38A18E60F4600AB0DE0 /* RCCalibration1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration1.m; sourceTree = "<group>"; };
@@ -962,9 +965,6 @@
 		326ACFE419D3347F00B36965 /* realitycap_logo@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "realitycap_logo@2x.png"; sourceTree = "<group>"; };
 		326ACFE719D38AED00B36965 /* MPWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPWebViewController.h; sourceTree = "<group>"; };
 		326ACFE819D38AED00B36965 /* MPWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPWebViewController.m; sourceTree = "<group>"; };
-		326EA9DE17BC3532009000D4 /* GAI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GAI.h; sourceTree = "<group>"; };
-		326EA9DF17BC3532009000D4 /* GAITrackedViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GAITrackedViewController.h; sourceTree = "<group>"; };
-		326EA9E017BC3532009000D4 /* GAITracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GAITracker.h; sourceTree = "<group>"; };
 		326EA9E517BC354C009000D4 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		32745D601892EFF5000C68F4 /* MPImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPImageView.h; sourceTree = "<group>"; };
 		32745D611892EFF5000C68F4 /* MPImageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPImageView.m; sourceTree = "<group>"; };
@@ -1031,8 +1031,6 @@
 		32BA432D17A2EF4E002BAE13 /* MPLineLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPLineLayer.m; sourceTree = "<group>"; };
 		32BA432E17A2EF4E002BAE13 /* MPLineLayerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPLineLayerDelegate.h; sourceTree = "<group>"; };
 		32BA432F17A2EF4E002BAE13 /* MPLineLayerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPLineLayerDelegate.m; sourceTree = "<group>"; };
-		32BA433017A2EF4E002BAE13 /* MPVideoPreview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPVideoPreview.h; sourceTree = "<group>"; };
-		32BA433117A2EF4E002BAE13 /* MPVideoPreview.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPVideoPreview.m; sourceTree = "<group>"; };
 		32BA433617A2EF69002BAE13 /* MPCapturePhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPCapturePhoto.h; sourceTree = "<group>"; };
 		32BA433717A2EF69002BAE13 /* MPCapturePhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPCapturePhoto.m; sourceTree = "<group>"; };
 		32BA433917A2EFF2002BAE13 /* RCCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCCore.xcodeproj; path = ../RCCore/RCCore.xcodeproj; sourceTree = "<group>"; };
@@ -1147,7 +1145,6 @@
 		32EFEDCA1977450500FDC89F /* MPGalleryController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPGalleryController.m; sourceTree = "<group>"; };
 		32EFEDCE197749E400FDC89F /* MPGalleryCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPGalleryCell.h; sourceTree = "<group>"; };
 		32EFEDCF197749E400FDC89F /* MPGalleryCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPGalleryCell.m; sourceTree = "<group>"; };
-		32F0753B18033BAD001C8355 /* libGoogleAnalyticsServices.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libGoogleAnalyticsServices.a; sourceTree = "<group>"; };
 		32F0753D18033C10001C8355 /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
 		32F7D56519D49E35002239FF /* RCDebugLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCDebugLog.h; path = ../../SensorManagers/RCDebugLog.h; sourceTree = "<group>"; };
 		D30CE10319EE86A1009E413E /* geom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = geom.h; path = ../../corvis/src/qhull/src/libqhull/geom.h; sourceTree = "<group>"; };
@@ -1300,6 +1297,8 @@
 		D3F7E1201A03F79200AB5778 /* boost.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = boost.a; path = ../../measuredphoto/ofxiOSBoost/libs/boost/ios/boost.a; sourceTree = "<group>"; };
 		D3F7E1221A04000D00AB5778 /* bp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bp.cpp; path = "../../corvis/src/libDAI-0.3.1/src/bp.cpp"; sourceTree = "<group>"; };
 		D3F7E1231A04000D00AB5778 /* gibbs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gibbs.cpp; path = "../../corvis/src/libDAI-0.3.1/src/gibbs.cpp"; sourceTree = "<group>"; };
+		D9F635DB19DC8B5500E829DC /* flat.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = flat.fsh; sourceTree = "<group>"; };
+		D9F635DC19DC8B5500E829DC /* flat.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = flat.vsh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1312,6 +1311,7 @@
 				D36C360E184F2FCD00F77AAF /* SystemConfiguration.framework in Frameworks */,
 				D36C360C184F2FC100F77AAF /* Security.framework in Frameworks */,
 				D36C360A184F2FB900F77AAF /* QuartzCore.framework in Frameworks */,
+				323BD0111A0D798900313573 /* libFlurry_5.4.0.a in Frameworks */,
 				D3F57875184F2E2900EE450E /* OpenGLES.framework in Frameworks */,
 				D3F57873184F2E2000EE450E /* MobileCoreServices.framework in Frameworks */,
 				D3F7E1211A03F79200AB5778 /* boost.a in Frameworks */,
@@ -1328,7 +1328,6 @@
 				32BA429D17A2DF8B002BAE13 /* UIKit.framework in Frameworks */,
 				32BA429F17A2DF8B002BAE13 /* Foundation.framework in Frameworks */,
 				32BA42A117A2DF8B002BAE13 /* CoreGraphics.framework in Frameworks */,
-				320529E618046AF6007D7435 /* libGoogleAnalyticsServices.a in Frameworks */,
 				32BA434617A2F986002BAE13 /* libRCCore.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1336,6 +1335,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		323BD00E1A0D798900313573 /* Flurry */ = {
+			isa = PBXGroup;
+			children = (
+				323BD00F1A0D798900313573 /* Flurry.h */,
+				323BD0101A0D798900313573 /* libFlurry_5.4.0.a */,
+			);
+			path = Flurry;
+			sourceTree = "<group>";
+		};
 		3244D38718E60F4600AB0DE0 /* Calibration */ = {
 			isa = PBXGroup;
 			children = (
@@ -1733,17 +1741,6 @@
 			path = Images;
 			sourceTree = "<group>";
 		};
-		326EA9DB17BC3519009000D4 /* GoogleAnalytics */ = {
-			isa = PBXGroup;
-			children = (
-				32F0753B18033BAD001C8355 /* libGoogleAnalyticsServices.a */,
-				326EA9DE17BC3532009000D4 /* GAI.h */,
-				326EA9DF17BC3532009000D4 /* GAITrackedViewController.h */,
-				326EA9E017BC3532009000D4 /* GAITracker.h */,
-			);
-			name = GoogleAnalytics;
-			sourceTree = "<group>";
-		};
 		328C7DD419D1E9B90079BA40 /* Media */ = {
 			isa = PBXGroup;
 			children = (
@@ -1933,6 +1930,7 @@
 		32BA42DB17A2E171002BAE13 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				D9F635D819DC8AC300E829DC /* Shaders */,
 				32934CC818D8B616005DC87C /* Layer Delegates */,
 				32BA42B717A2DF8B002BAE13 /* MainStoryboard_iPad.storyboard */,
 				32BA42B417A2DF8B002BAE13 /* MainStoryboard_iPhone.storyboard */,
@@ -1966,8 +1964,6 @@
 				3248C7E018A464BF00061D4A /* MPThumbnailButton.m */,
 				3248C7D918A44AE400061D4A /* MPToolbarView.h */,
 				3248C7DA18A44AE400061D4A /* MPToolbarView.m */,
-				32BA433017A2EF4E002BAE13 /* MPVideoPreview.h */,
-				32BA433117A2EF4E002BAE13 /* MPVideoPreview.m */,
 				32A2104018906439002BD1E4 /* MPView.h */,
 				32A2104118906439002BD1E4 /* MPView.m */,
 				32934CF018D922E1005DC87C /* UIImage+MPImageFile.h */,
@@ -2009,13 +2005,13 @@
 		32BA430317A2EDE0002BAE13 /* ThirdParty */ = {
 			isa = PBXGroup;
 			children = (
+				323BD00E1A0D798900313573 /* Flurry */,
 				326ACD5819D2221A00B36965 /* OvershareKit */,
 				326ACD5419D2213200B36965 /* CustomIOS7AlertView */,
 				32EFED5F196E078F00FDC89F /* GTM */,
 				32EFED65196E078F00FDC89F /* JSON */,
 				32EFECE5196C91CE00FDC89F /* MagicalRecord */,
 				32C135BF1892E6F5004DF62B /* MagnifyingGlass */,
-				326EA9DB17BC3519009000D4 /* GoogleAnalytics */,
 			);
 			name = ThirdParty;
 			sourceTree = "<group>";
@@ -2376,6 +2372,15 @@
 			name = libDAI;
 			sourceTree = "<group>";
 		};
+		D9F635D819DC8AC300E829DC /* Shaders */ = {
+			isa = PBXGroup;
+			children = (
+				D9F635DB19DC8B5500E829DC /* flat.fsh */,
+				D9F635DC19DC8B5500E829DC /* flat.vsh */,
+			);
+			name = Shaders;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -2545,6 +2550,7 @@
 				1768899B195B59F500337524 /* measured_photo_svg.html in Resources */,
 				326ACF2319D2221B00B36965 /* osk-iconMask-bw-76.png in Resources */,
 				326ACF0119D2221B00B36965 /* osk-appDotNetIcon-29@2x.png in Resources */,
+				D9F635DD19DC8B5500E829DC /* flat.fsh in Resources */,
 				32EFED5E196E01DB00FDC89F /* test.html in Resources */,
 				324DB326195B8D310004567A /* main_function.js in Resources */,
 				326ACEF619D2221B00B36965 /* Omnifocus-Icon-29.png in Resources */,
@@ -2583,6 +2589,7 @@
 				326ACF5819D2221B00B36965 /* ReadingList-Icon-29.png in Resources */,
 				326ACF2E19D2221B00B36965 /* osk-messagesIcon-76@2x.png in Resources */,
 				326ACF5319D2221B00B36965 /* Pocket-Icon-29.png in Resources */,
+				D9F635DE19DC8B5500E829DC /* flat.vsh in Resources */,
 				324DB329195B8D310004567A /* global_variables.js in Resources */,
 				326ACEE419D2221B00B36965 /* Drafts-Icon-29@2x.png in Resources */,
 				324DB32A195B8D310004567A /* tilt_monitor.js in Resources */,
@@ -2883,7 +2890,6 @@
 				3244D39518E6134500AB0DE0 /* MBProgressHUD.m in Sources */,
 				328C7DD719D1EA420079BA40 /* MPIntroScreen.m in Sources */,
 				326ACFAB19D2221B00B36965 /* OSKPresentationManager.m in Sources */,
-				32BA433517A2EF4E002BAE13 /* MPVideoPreview.m in Sources */,
 				32745D691892FBCE000C68F4 /* MPLoupe.m in Sources */,
 				326ACF6A19D2221B00B36965 /* NSHTTPURLResponse+OSKUtilities.m in Sources */,
 				32BA433817A2EF69002BAE13 /* MPCapturePhoto.m in Sources */,
@@ -3072,6 +3078,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/MeasuredPhoto/**",
+					"$(PROJECT_DIR)/MeasuredPhoto/Flurry",
 				);
 				OTHER_LDFLAGS = (
 					"-lc++",
@@ -3192,6 +3199,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/MeasuredPhoto/**",
+					"$(PROJECT_DIR)/MeasuredPhoto/Flurry",
 				);
 				OTHER_LDFLAGS = (
 					"-lc++",
@@ -3232,6 +3240,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/MeasuredPhoto/**",
+					"$(PROJECT_DIR)/MeasuredPhoto/Flurry",
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (

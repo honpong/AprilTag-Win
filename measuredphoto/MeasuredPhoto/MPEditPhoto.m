@@ -55,16 +55,16 @@
     [titleController.view class]; //force view to load
 }
 
-- (void)viewWillAppear:(BOOL)animated
+- (void) viewWillAppear:(BOOL)animated
 {
-    LOGME
     self.titleText.measuredPhoto = self.measuredPhoto;
     if (isWebViewLoaded) [self loadMeasuredPhoto];
 }
 
 - (void) viewDidAppear:(BOOL)animated
 {
-    LOGME
+    // don't do this here because it gets called when popping two VCs off the stack. instead call it when presenting from another VC.
+//    [MPAnalytics logEvent:@"View.EditPhoto"];
 }
 
 - (void) viewDidDisappear:(BOOL)animated
@@ -186,6 +186,7 @@
     {
         [self.presentingViewController dismissViewControllerAnimated:NO completion:nil];
     }
+    [MPAnalytics logEvent:@"View.CapturePhoto"];
 }
 
 - (IBAction)handleShareButton:(id)sender
@@ -244,7 +245,8 @@
 {
     if (self.measuredPhoto)
     {
-        NSString* javascript = [NSString stringWithFormat:@"loadMPhoto('%@', '%@', '%@', '%@');", self.measuredPhoto.imageFileName, self.measuredPhoto.depthFileName, self.measuredPhoto.annotationsFileName, self.measuredPhoto.id_guid];
+        Units units = (Units)[NSUserDefaults.standardUserDefaults integerForKey:PREF_UNITS];
+        NSString* javascript = [NSString stringWithFormat:@"loadMPhoto('%@', '%@', '%@', '%@', %i);", self.measuredPhoto.imageFileName, self.measuredPhoto.depthFileName, self.measuredPhoto.annotationsFileName, self.measuredPhoto.id_guid, units == UnitsMetric];
         [self.webView stringByEvaluatingJavaScriptFromString: javascript];
 //        DLog(javascript);
     }

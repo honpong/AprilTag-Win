@@ -24,5 +24,6 @@ typedef enum
 + (NSString *) getPlatformString;
 + (DeviceType) getDeviceType;
 + (float) getPhysicalScreenMetersX;
++ (uint64_t) getFreeDiskSpaceInBytes;
 
 @end

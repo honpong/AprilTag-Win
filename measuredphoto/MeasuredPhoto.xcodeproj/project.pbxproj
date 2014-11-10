@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		172564BB19D233BC00C5BD7A /* svgjs_filter.js in Sources */ = {isa = PBXBuildFile; fileRef = 172564BA19D233BC00C5BD7A /* svgjs_filter.js */; };
 		172564BE19D2343C00C5BD7A /* svgjs_filter.js in Resources */ = {isa = PBXBuildFile; fileRef = 172564BA19D233BC00C5BD7A /* svgjs_filter.js */; };
 		1743A51E1986F8E1001A5A6A /* rc_menu.js in Resources */ = {isa = PBXBuildFile; fileRef = 1743A51A1986F8CF001A5A6A /* rc_menu.js */; };
 		1768899B195B59F500337524 /* measured_photo_svg.html in Resources */ = {isa = PBXBuildFile; fileRef = 1768899A195B59F500337524 /* measured_photo_svg.html */; };
@@ -2949,7 +2948,6 @@
 				326ACF9A19D2221B00B36965 /* OSKMailComposeViewController.m in Sources */,
 				32934CF218D922E1005DC87C /* UIImage+MPImageFile.m in Sources */,
 				D30CE12319EE86A1009E413E /* libqhull.c in Sources */,
-				172564BB19D233BC00C5BD7A /* svgjs_filter.js in Sources */,
 				32EFED82196E078F00FDC89F /* SBJsonParser.m in Sources */,
 				326ACFAD19D2221B00B36965 /* OSKReadabilityUtility.m in Sources */,
 				D3EF0A9819BA1FD100512050 /* RCStereo.mm in Sources */,

@@ -12,6 +12,7 @@
 #import "RCDeviceInfo.h"
 #import "RCAVSessionManager.h"
 #import "ARDelegate.h"
+#import "QRDelegate.h"
 
 @implementation ViewController
 {
@@ -21,6 +22,8 @@
     RCVideoPreview *videoPreview;
     ARDelegate *arDelegate;
     RCSensorFusionRunState currentRunState;
+    QRDelegate *qrDelegate;
+    AVCaptureMetadataOutput * detector;
 }
 
 @synthesize statusLabel, progressBar;
@@ -41,7 +44,13 @@
     
     arDelegate = [[ARDelegate alloc] init];
     videoPreview.delegate = arDelegate;
-    
+
+    qrDelegate = [[QRDelegate alloc] init];
+    qrDelegate.delegate = self;
+
+    detector = [[AVCaptureMetadataOutput alloc] init];
+    [detector setMetadataObjectsDelegate:qrDelegate queue:dispatch_get_main_queue()];
+
     [self.view addSubview:videoPreview];
     [self.view sendSubviewToBack:videoPreview];
     [videoPreview setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
@@ -98,15 +107,31 @@
     [[sensorDelegate getVideoProvider] setDelegate:nil];
     [[RCSensorFusion sharedInstance] startSensorFusionWithDevice:[[RCAVSessionManager sharedInstance] videoDevice]];
     [progressBar setHidden:false];
+
+    [[RCAVSessionManager sharedInstance] addOutput:detector];
+    // object types can only be set after an output has been hooked up
+    detector.metadataObjectTypes = @[AVMetadataObjectTypeQRCode];
+
     statusLabel.text = @"Initializing. Hold the device steady.";
 }
 
 - (void)stopSensorFusion
 {
+    detector.metadataObjectTypes = @[];
+    [[RCAVSessionManager sharedInstance] removeOutput:detector];
+
     [progressBar setHidden:true];
     [sensorFusion stopSensorFusion];
     [[sensorDelegate getVideoProvider] setDelegate:videoPreview];
+
     isStarted = false;
+}
+
+#pragma mark - QRDetectionDelegate methods
+
+- (void) codeDetected:(NSString *)code withCorners:(NSArray *)corners withTransformation:(RCTransformation *)transformation withTimestamp:(uint64_t)timestamp
+{
+    NSLog(@"Code detected %@ at %llu", code, timestamp);
 }
 
 #pragma mark - RCSensorFusionDelegate methods
@@ -116,6 +141,9 @@
 {
     //as long as we are initializing, update the initial camera pose
     if(currentRunState == RCSensorFusionRunStateSteadyInitialization) arDelegate.initialCamera = data.cameraTransformation;
+
+    if(currentRunState == RCSensorFusionRunStateRunning)
+        [qrDelegate addSensorFusionData:data];
     
     [videoPreview displaySensorFusionData:data];
 }

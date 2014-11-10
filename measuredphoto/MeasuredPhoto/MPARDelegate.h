@@ -14,7 +14,7 @@
 
 @interface MPARDelegate : NSObject <RCVideoPreviewDelegate>
 
-- (void) setProgress:(float)progress;
+- (void) setProgressHorizontal:(float)horizontal withVertical:(float)vertical;
 @property RCTransformation *initialCamera;
 
 @end

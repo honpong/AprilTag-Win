@@ -14,7 +14,8 @@
 @implementation MPARDelegate
 {
     RCGLShaderProgram *program;
-    float progress;
+    float progressHorizontal;
+    float progressVertical;
 }
 
 @synthesize initialCamera;
@@ -118,9 +119,10 @@ const static GLfloat cube_normals[6*6 * 3] = {
 };
 
 
-- (void) setProgress:(float)p
+- (void) setProgressHorizontal:(float)horizontal withVertical:(float)vertical
 {
-    progress = p;
+    progressHorizontal = horizontal;
+    progressVertical = vertical;
 }
 
 - (void)renderWithSensorFusionData:(RCSensorFusionData *)data withCameraToScreenMatrix:(GLKMatrix4)cameraToScreen
@@ -156,7 +158,7 @@ const static GLfloat cube_normals[6*6 * 3] = {
     [initialCamera getOpenGLMatrix:model.m];
     model = GLKMatrix4Translate(model, 0, 0, 1.);
     
-    model = GLKMatrix4Scale(model, .5/4, .5/4, .5/4);
+    model = GLKMatrix4Scale(model, .5/6, .5/6, .5/6);
 
     glUniformMatrix4fv([program getUniformLocation:@"model_matrix"], 1, false, model.m);
     
@@ -166,26 +168,9 @@ const static GLfloat cube_normals[6*6 * 3] = {
     glDrawArrays(GL_LINE_LOOP, 0, vertex_count);
     
     [initialCamera getOpenGLMatrix:model.m];
-    model = GLKMatrix4Translate(model, 0, 0, 1.);
-    
-    if(fabs(dx) > fabs(dy))
-    {
-        if(dx > 0.)
-            model = GLKMatrix4Translate(model, progress/2., 0., 0.);
-        else
-            model = GLKMatrix4Translate(model, -progress/2., 0., 0.);
+    model = GLKMatrix4Translate(model, progressHorizontal, progressVertical, 1.);
         
-    }
-    else if(fabs(dy) > fabs(dx))
-    {
-        if(dy > 0.)
-            model = GLKMatrix4Translate(model, 0., progress/2., 0.);
-        else
-            model = GLKMatrix4Translate(model, 0., -progress/2., 0.);
-        
-    }
-    
-    model = GLKMatrix4Scale(model, 1./16, 1./16, 1./16);
+    model = GLKMatrix4Scale(model, 1./24, 1./24, 1./24);
     
     glUniformMatrix4fv([program getUniformLocation:@"model_matrix"], 1, false, model.m);
     glEnableVertexAttribArray([program getAttribLocation:@"normal"]);

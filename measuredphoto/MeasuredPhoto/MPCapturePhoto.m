@@ -709,12 +709,12 @@ static transition transitions[] =
         float depth = [median floatValue];
         
         RCTranslation *trans = [[data.transformation.rotation getInverse] transformTranslation:data.transformation.translation];
-        float distFromStartPoint = sqrt(data.transformation.translation.x * data.transformation.translation.x + data.transformation.translation.y * data.transformation.translation.y + data.transformation.translation.z * data.transformation.translation.z);
+        float distFromStartPoint = sqrt(trans.x * trans.x + trans.y * trans.y);
         // require movement of at least 5cm
         float targetDist = MAX(0.05, depth / 8.);
         float progress = distFromStartPoint / targetDist;
         
-        [arView.AROverlay setProgress:progress];
+        [arView.AROverlay setProgressHorizontal:trans.x / 8. withVertical:trans.y / 8.];
         if(progress >= 1.) [self handleStateEvent:EV_MOVE_DONE];
     }
     

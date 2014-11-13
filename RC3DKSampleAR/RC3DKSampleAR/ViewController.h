@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "QRDelegate.h"
 
-@interface ViewController : UIViewController <RCSensorFusionDelegate,QRDetectionDelegate>
+@interface ViewController : UIViewController <RCSensorFusionDelegate>
 
 @property (weak, nonatomic) IBOutlet UILabel *statusLabel;
 @property (weak, nonatomic) IBOutlet UIProgressView *progressBar;

@@ -45,7 +45,6 @@
     videoPreview.delegate = arDelegate;
 
     qrDelegate = [[QRDelegate alloc] init];
-    qrDelegate.delegate = self;
 
     detector = [[AVCaptureMetadataOutput alloc] init];
     [detector setMetadataObjectsDelegate:qrDelegate queue:dispatch_get_main_queue()];
@@ -139,9 +138,6 @@
 {
     //as long as we are initializing, update the initial camera pose
     if(currentRunState == RCSensorFusionRunStateSteadyInitialization) arDelegate.initialCamera = data.cameraTransformation;
-
-    if(currentRunState == RCSensorFusionRunStateRunning)
-        [qrDelegate addSensorFusionData:data];
     
     [videoPreview displaySensorFusionData:data];
 }

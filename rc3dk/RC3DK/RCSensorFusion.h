@@ -72,6 +72,9 @@
  */
 - (void) startStaticCalibration;
 
+/** Computes the pose of the device relative to a QR code. */
+- (RCTransformation *) getTransformationForQRCodeObservation:(AVMetadataMachineReadableCodeObject *)observation transformOutput:(bool)transform;
+
 /** Prepares the object to receive video and inertial data, and starts sensor fusion updates.
  
  This method should be called when you are ready to begin receiving sensor fusion updates and your user is aware to point the camera at an appropriate visual scene. After you call this method you should immediately begin passing video, accelerometer, and gyro data using receiveVideoFrame, receiveAccelerometerData, and receiveGyroData respectively. Full processing will not begin until the user has held the device steady for a two second initialization period (this occurs concurrently with focusing the camera). The device does not need to be perfectly still; minor shake from the device being held in hand is acceptable. If the user moves during this time, the two second timer will start again. The progress of this timer is provided as a float between 0 and 1 in [RCSensorFusionStatus progress].

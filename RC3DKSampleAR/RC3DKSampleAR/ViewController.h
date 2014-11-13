@@ -7,7 +7,6 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "RCSensorFusion.h"
 #import "QRDelegate.h"
 
 @interface ViewController : UIViewController <RCSensorFusionDelegate,QRDetectionDelegate>

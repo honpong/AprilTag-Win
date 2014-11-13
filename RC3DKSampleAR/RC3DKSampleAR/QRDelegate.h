@@ -7,7 +7,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "RC3DK.h"
 
 @protocol QRDetectionDelegate <NSObject>
 

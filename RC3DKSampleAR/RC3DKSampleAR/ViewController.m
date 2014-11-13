@@ -131,7 +131,6 @@
 
 - (void) codeDetected:(NSString *)code withCorners:(NSArray *)corners withTransformation:(RCTransformation *)transformation withTimestamp:(uint64_t)timestamp
 {
-    NSLog(@"Code detected %@ at %llu", code, timestamp);
 }
 
 #pragma mark - RCSensorFusionDelegate methods

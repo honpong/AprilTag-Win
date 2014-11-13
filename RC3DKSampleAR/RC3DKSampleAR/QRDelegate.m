@@ -89,13 +89,17 @@
             [ H3 H4 H5 ]*[y2] = [H3x2+H4y2+H5]
             [ H6 H7 H8 ] [ 1]   [H6x2+H7y2+H8]
      
-     (each col multiplied by)
-                H0      H1      H2      H3      H4      H5      H6      H7      H8
-                0       +0      +0    - z1 x2 - z1 y2 - z1    + y1 x2 + y1 y2 + y
-     X1^ H X2 = z1 x2 + z1 y2 + z1      +0      +0      +0    - x1 x2 - x1 y2 - x1
-               -y1 x2 - y1 y2 - y1    + x1 x2 + x1 y2 + x1      +0      +0      +0
+                [0       0       0       -z1x2   -z1y2   -z1     y1x2    y1y2    y  ]   [H0]
+     X1^ H X2 = [z1x2    z1y2    z1      0       0       0       -x1x2   -x1y2   -x1] * [H1]
+                [-y1x2   -y1y2   -y1     x1x2    x1y2    x1      0       0       0  ]   [H2]
+                                                                                        [H3]
+                                                                                        [H4]
+                                                                                        [H5]
+                                                                                        [H6]
+                                                                                        [H7]
+                                                                                        [H8]
      
-     This only has rank 2, so we just use the first two constraints.
+     The X1X2 matrix only has rank 2, so we just use the first two constraints for each pixel.
      
      Decomposition of planar homography matrix should follow Masks derivation.
      */

@@ -7,7 +7,6 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "RCSensorFusion.h"
 
 @interface ViewController : UIViewController <RCSensorFusionDelegate>
 

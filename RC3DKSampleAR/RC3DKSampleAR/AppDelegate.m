@@ -11,7 +11,6 @@
 #import "LicenseHelper.h"
 #import "RCSensorDelegate.h"
 #import "RCLocationManager.h"
-#import "RCSensorFusion.h"
 #import "RCCalibration1.h"
 #import "RCAVSessionManager.h"
 

@@ -19,7 +19,6 @@ var dm_mask_context;
 var dm_masking_image;
 var dm_drawn = false;
 var dm_mask_drawn = false;
-var dm_loading_message;
 
 
 function dm_initialize(){
@@ -43,7 +42,7 @@ function dm_initialize(){
 
 function dm_size(x,y){
     dm_svg.size(x,y);
-    dm_loading_message = dm_svg.text("Loading Depth Map ...")
+    rcMessage.post("Loading Depth Map ...", 2000);
 
     dm_canvas= document.createElement('canvas');
     dm_canvas.id     = "dm_canvas";
@@ -193,8 +192,7 @@ function dm_triangle_intersect(   v1,v2,v3,  // Triangle vertices
 
 function finalize_dm(){
     //console.log('finalize_dm()');
-    dm_loading_message.remove();
-    delete dm_loading_message;
+    rcMessage.clear();
     
     img_clone =image.clone();
     img_clone.filter(function(add) {
@@ -265,7 +263,7 @@ function fill_depth_map(){
     var v1,v2,v3;
     
     // calculate the average depth so we understand how to color
-    dm_loading_message.text('loading depth data \n calculating average depth...');
+    rcMessage.post('loading depth data \n calculating average depth...',2000);
     
     window.setTimeout(function () {
         for (var i = 0; i < spatial_data['faces'].length; i++) {
@@ -292,7 +290,7 @@ function fill_depth_map(){
         var coords;
         
         var draw_start = new Date();
-        dm_loading_message.text('loading depth data \n drawing tiangles...');
+        rcMessage.post('loading depth data \n drawing triangles...',500);
       window.setTimeout ( function () {
             var dm_t = [[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]];
             for (var i = 0; i < spatial_data['faces'].length; i++) { //now that we know the avg depth, draw to the canvas...

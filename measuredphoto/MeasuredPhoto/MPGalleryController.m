@@ -59,7 +59,6 @@ static const NSTimeInterval zoomAnimationDuration = .1;
                                                object:nil];
     
     fadeTransitionDelegate = [MPFadeTransitionDelegate new];
-    fadeTransitionDelegate.shouldFadeOut = NO;
     
     _editPhotoController = [self.storyboard instantiateViewControllerWithIdentifier:@"EditPhoto"];
     self.editPhotoController.transitioningDelegate = fadeTransitionDelegate;
@@ -88,10 +87,6 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     }
     else
     {
-        if (self.zoomedThumbnail.superview)
-        {
-            [self zoomThumbnailOut];
-        }
         [self refreshCollection];
     }
 }
@@ -300,37 +295,38 @@ static const NSTimeInterval zoomAnimationDuration = .1;
                      completion:^(BOOL finished){
                          self.collectionView.hidden = YES;
                          [self presentViewController:self.editPhotoController animated:YES completion:^{
+                             [self hideZoomedThumbnail];
                              self.collectionView.hidden = NO;
                              [MPAnalytics logEvent:@"View.EditPhoto"];
                          }];
                      }];
 }
 
-- (void) zoomThumbnailOut
-{
-    if (self.zoomedThumbnail.superview)
-    {
-        [self.zoomedThumbnail removeConstraintsFromSuperview];
-        [self.zoomedThumbnail removeConstraints:self.zoomedThumbnail.constraints];
-        
-        [UIView animateWithDuration: zoomAnimationDuration
-                              delay: 0
-                            options: UIViewAnimationOptionCurveEaseOut
-                         animations:^{
-                             CGRect frame = [self.view convertRect:self.zoomSourceView.frame fromView:self.collectionView];
-                             [self.zoomedThumbnail addLeftSpaceToSuperviewConstraint:frame.origin.x];
-                             [self.zoomedThumbnail addTopSpaceToSuperviewConstraint:frame.origin.y];
-                             [self.zoomedThumbnail addWidthConstraint:frame.size.width andHeightConstraint:frame.size.height];
-                             [self.zoomedThumbnail.superview setNeedsUpdateConstraints];
-                             [self.zoomedThumbnail setNeedsUpdateConstraints];
-                             [self.zoomedThumbnail layoutIfNeeded];
-                             [self.zoomedThumbnail.superview layoutIfNeeded];
-                         }
-                         completion:^(BOOL finished){
-                             [self hideZoomedThumbnail];
-                         }];
-    }
-}
+//- (void) zoomThumbnailOut
+//{
+//    if (self.zoomedThumbnail.superview)
+//    {
+//        [self.zoomedThumbnail removeConstraintsFromSuperview];
+//        [self.zoomedThumbnail removeConstraints:self.zoomedThumbnail.constraints];
+//        
+//        [UIView animateWithDuration: zoomAnimationDuration
+//                              delay: 0
+//                            options: UIViewAnimationOptionCurveEaseOut
+//                         animations:^{
+//                             CGRect frame = [self.view convertRect:self.zoomSourceView.frame fromView:self.collectionView];
+//                             [self.zoomedThumbnail addLeftSpaceToSuperviewConstraint:frame.origin.x];
+//                             [self.zoomedThumbnail addTopSpaceToSuperviewConstraint:frame.origin.y];
+//                             [self.zoomedThumbnail addWidthConstraint:frame.size.width andHeightConstraint:frame.size.height];
+//                             [self.zoomedThumbnail.superview setNeedsUpdateConstraints];
+//                             [self.zoomedThumbnail setNeedsUpdateConstraints];
+//                             [self.zoomedThumbnail layoutIfNeeded];
+//                             [self.zoomedThumbnail.superview layoutIfNeeded];
+//                         }
+//                         completion:^(BOOL finished){
+//                             [self hideZoomedThumbnail];
+//                         }];
+//    }
+//}
 
 - (void) hideZoomedThumbnail
 {

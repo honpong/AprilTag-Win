@@ -13,6 +13,11 @@
  See below for derivation:
  [0       0       0       -z1x2   -z1y2   -z1     y1x2    y1y2    y1 ]
  [z1x2    z1y2    z1      0       0       0       -x1x2   -x1y2   -x1]
+ [-y1x2   -y1y2   -y1     x1x2    x1y2    x1      0       0       0  ]
+ 
+ Note: when we use z = 0, the first two constraints collapse.
+ Even when z is just a constant, columns 3 and 6 become constant, so rank = 7
+ Right now we use z = 1 and the second two constraints (still doesn't seem to work with z = 0)
  */
 static void set_homography_correspondence(matrix &X, int n, float x1, float y1, float z1, float x2, float y2)
 {
@@ -24,7 +29,7 @@ static void set_homography_correspondence(matrix &X, int n, float x1, float y1, 
      x1'  0 0 0    -x2(1)*x1'];
      */
     int row = n * 2;
-    X(row, 0) = 0;
+    /*X(row, 0) = 0;
     X(row, 1) = 0;
     X(row, 2) = 0;
     X(row, 3) = -z1 * x2;
@@ -33,8 +38,8 @@ static void set_homography_correspondence(matrix &X, int n, float x1, float y1, 
     X(row, 6) = y1 * x2;
     X(row, 7) = y1 * y2;
     X(row, 8) = y1;
-
-    row++;
+    row++;*/
+    
     X(row, 0) = z1 * x2;
     X(row, 1) = z1 * y2;
     X(row, 2) = z1;
@@ -44,6 +49,18 @@ static void set_homography_correspondence(matrix &X, int n, float x1, float y1, 
     X(row, 6) = -x1 * x2;
     X(row, 7) = -x1 * y2;
     X(row, 8) = -x1;
+    row++;
+    
+    X(row, 0) = -y1 * x2;
+    X(row, 1) = -y1 * y2;
+    X(row, 2) = -y1;
+    X(row, 3) = x1 * x2;
+    X(row, 4) = x1 * y2;
+    X(row, 5) = x1;
+    X(row, 6) = 0;
+    X(row, 7) = 0;
+    X(row, 8) = 0;
+
 }
 
  /*

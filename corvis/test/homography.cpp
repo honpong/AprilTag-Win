@@ -20,9 +20,10 @@ TEST(Homography, Reprojection)
         cam[i] = R * x[i] + T;
         image[i].x = cam[i][0] / cam[i][2];
         image[i].y = cam[i][1] / cam[i][2];
+        x[i].print(); cam[i].print(); fprintf(stderr, "%f %f\n", image[i].x, image[i].y);
     }
-    R.print();
-    T.print();
+    transpose(R).print();
+    (-transpose(R) * T).print();
     fprintf(stderr,"\n");
     compute_planar_homography_one_sided(x, image);
 }

@@ -10,115 +10,38 @@
 #include "../numerics/matrix.h"
 
 /*
- See below for derivation:
- [0       0       0       -z1x2   -z1y2   -z1     y1x2    y1y2    y1 ]
- [z1x2    z1y2    z1      0       0       0       -x1x2   -x1y2   -x1]
- [-y1x2   -y1y2   -y1     x1x2    x1y2    x1      0       0       0  ]
+ [0       0       0       -x1      -y1     -z1      x1y2    y1y2    z1y2 ]
+ [x1      y1      z1       0        0       0       x1x2    y1x2    z1x2 ]
  
- Note: when we use z = 0, the first two constraints collapse.
- Even when z is just a constant, columns 3 and 6 become constant, so rank = 7
- Right now we use z = 1 and the second two constraints (still doesn't seem to work with z = 0)
+ Note: Since we choose X1, this should never be degenerate
  */
 static void set_homography_correspondence(matrix &X, int n, float x1, float y1, float z1, float x2, float y2)
 {
-    /* Matlab, for dual projection case, not ours:
-     % set up constraints for homography matrix
-     function [rows] = makeRows(x1, x2);
-     
-     rows = [ 0 0 0    -x1'    x2(2)*x1';
-     x1'  0 0 0    -x2(1)*x1'];
-     */
     int row = n * 2;
-    /*X(row, 0) = 0;
+    X(row, 0) = 0;
     X(row, 1) = 0;
     X(row, 2) = 0;
-    X(row, 3) = -z1 * x2;
-    X(row, 4) = -z1 * y2;
+    X(row, 3) = -x1;
+    X(row, 4) = -y1;
     X(row, 5) = -z1;
-    X(row, 6) = y1 * x2;
-    X(row, 7) = y1 * y2;
-    X(row, 8) = y1;
-    row++;*/
+    X(row, 6) = y2 * x1;
+    X(row, 7) = y2 * y1;
+    X(row, 8) = y2 * z1;
+    row++;
     
-    X(row, 0) = z1 * x2;
-    X(row, 1) = z1 * y2;
+    X(row, 0) = x1;
+    X(row, 1) = y1;
     X(row, 2) = z1;
     X(row, 3) = 0;
     X(row, 4) = 0;
     X(row, 5) = 0;
-    X(row, 6) = -x1 * x2;
-    X(row, 7) = -x1 * y2;
-    X(row, 8) = -x1;
-    row++;
-    
-    X(row, 0) = -y1 * x2;
-    X(row, 1) = -y1 * y2;
-    X(row, 2) = -y1;
-    X(row, 3) = x1 * x2;
-    X(row, 4) = x1 * y2;
-    X(row, 5) = x1;
-    X(row, 6) = 0;
-    X(row, 7) = 0;
-    X(row, 8) = 0;
+    X(row, 6) = -x2 * x1;
+    X(row, 7) = -x2 * y1;
+    X(row, 8) = -x2 * z1;
 
 }
 
- /*
-     Derivation follows: http://vision.ucla.edu//MASKS/MASKS-ch5.pdf section 5.3
-     
-     X1 = 3D position of corner in QR-centered coordinates
-     R,T = transformation bringing camera coordinates to QR-centered coordinates
-     p = unknown projective scale factor (z2)
-     X2 = (x2, y2, 1) - normalized image coordinates of projected point
-     
-     X1 = R p X2 + T
-
-     N = normal to plane where the 4 features lie (in camera coordinates)
-     d = distance from camera to the plane (not to the point)
-     N^t p X2 = d follows from above two definitions, so
-     1/d N^t p X2 = 1
-     
-     Now we multiply T by 1, and subtitute in the above.
-     
-     X1 = R p X2 + T / d N^t p X2
-     X1 = H p X2, where H = R + T / d N^t
-     
-     Take cross product, X1 x X1 = 0; express as X1^ X1, where X1^ is (X1 hat) the skew-symmetric matrix for cross product.
-     
-     X1^ = [0   -z1  y1]
-           [x1    0 -x1]
-           [-y1  x1   0]
-     
-     X1^ X1 = X1^ H p X2
-     0 = X1^ H p X2; p is a non-zero scalar, so we can divide it out
-     0 = X1^ H X2
-     
-     Now work out the coefficients
-     
-     H X2 = [ H0 H1 H2 ] [x2]   [H0x2+H1y2+H2]
-            [ H3 H4 H5 ]*[y2] = [H3x2+H4y2+H5]
-            [ H6 H7 H8 ] [ 1]   [H6x2+H7y2+H8]
-     
-                [0       0       0       -z1x2   -z1y2   -z1     y1x2    y1y2    y1 ]   [H0]
-     X1^ H X2 = [z1x2    z1y2    z1      0       0       0       -x1x2   -x1y2   -x1] * [H1]
-                [-y1x2   -y1y2   -y1     x1x2    x1y2    x1      0       0       0  ]   [H2]
-                                                                                        [H3]
-                                                                                        [H4]
-                                                                                        [H5]
-                                                                                        [H6]
-                                                                                        [H7]
-                                                                                        [H8]
-     
-     The X1X2 matrix only has rank 2, so we just use the first two constraints for each pixel.
-     
-     Decomposition of planar homography matrix should follow Masks derivation.
-
-     */
-
-    //Based on Matlab from http://cs.gmu.edu/%7Ekosecka/examples-code/homography2Motion.m
-    //TODO - create test code for all of this.
-
-
+//Based on Matlab from http://cs.gmu.edu/%7Ekosecka/examples-code/homography2Motion.m
 void compute_planar_homography_one_sided(const v4 world_points[4], const feature_t calibrated[4])
 {
     matrix X(8, 9);

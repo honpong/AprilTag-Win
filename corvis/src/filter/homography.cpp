@@ -239,10 +239,10 @@ void compute_planar_homography_one_sided(const v4 world_points[4], const feature
     Rs[2] = W1 * transpose(U1);
     Rs[3] = W2 * transpose(U2);
     
-    Ts[0] = (H - W1 * transpose(U1)) * N1;
-    Ts[1] = (H - W2 * transpose(U2)) * N2;
-    Ts[2] = -(H - W1 * transpose(U1)) * N1;
-    Ts[3] = -(H - W2 * transpose(U2)) * N2;
+    Ts[0] = (H - Rs[0]) * N1;
+    Ts[1] = (H - Rs[1]) * N2;
+    Ts[2] = -(H - Rs[2]) * N1;
+    Ts[3] = -(H - Rs[3]) * N2;
     
     Ns[0] = N1;
     Ns[1] = N2;

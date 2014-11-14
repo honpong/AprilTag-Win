@@ -40,7 +40,7 @@ function clear_tool_data(){ //this should be called whenever theres a switch in 
 
 
 function rc_initialize(){
-    console.log = logNative;
+    //console.log = logNative;
     console.log("starting rc_initialize()");
     
     is_rc_initialized = true;
@@ -176,10 +176,11 @@ function rc_initialize(){
     
     
     function line_handler(i) { //takes an image coordinate pair as an input
-        //test if we have depth information at this point. if not show the depth mask then animate its fade
+        //test if we have depth information at this point. if not show the depth mask then animate its fade and give error message
         if (! distanceTo(i.x,i.y)) {
             show_dm_mask();
             start_dm_mask_fade_out();
+            rcMessage.post("Sorry, no measurement data there.",2000);
         }
         
         if (lineNotStarted){

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		17152FF61A12C136003AD447 /* rc_messages.js in Resources */ = {isa = PBXBuildFile; fileRef = 17152FF51A12C136003AD447 /* rc_messages.js */; };
 		172564BE19D2343C00C5BD7A /* svgjs_filter.js in Resources */ = {isa = PBXBuildFile; fileRef = 172564BA19D233BC00C5BD7A /* svgjs_filter.js */; };
 		1743A51E1986F8E1001A5A6A /* rc_menu.js in Resources */ = {isa = PBXBuildFile; fileRef = 1743A51A1986F8CF001A5A6A /* rc_menu.js */; };
 		1768899B195B59F500337524 /* measured_photo_svg.html in Resources */ = {isa = PBXBuildFile; fileRef = 1768899A195B59F500337524 /* measured_photo_svg.html */; };
@@ -537,6 +538,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		17152FF51A12C136003AD447 /* rc_messages.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = rc_messages.js; sourceTree = "<group>"; };
 		172564BA19D233BC00C5BD7A /* svgjs_filter.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = svgjs_filter.js; sourceTree = "<group>"; };
 		17394FC71982E14F0020DE33 /* rc_measurements.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = rc_measurements.js; sourceTree = "<group>"; };
 		1743A51A1986F8CF001A5A6A /* rc_menu.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = rc_menu.js; sourceTree = "<group>"; };
@@ -1784,6 +1786,7 @@
 				326ACFD619D2279800B36965 /* about.html */,
 				17843798198B0B6F004AB248 /* json2.js */,
 				1743A51A1986F8CF001A5A6A /* rc_menu.js */,
+				17152FF51A12C136003AD447 /* rc_messages.js */,
 				17394FC71982E14F0020DE33 /* rc_measurements.js */,
 				32EFED94196F37F900FDC89F /* jquery-2.1.1.min.js */,
 				1768899F195B5C2200337524 /* fastclick.js */,
@@ -2537,6 +2540,7 @@
 				D3F50B0A19BA19FD00791303 /* ikmeans_elkan.tc in Resources */,
 				32BA42B617A2DF8B002BAE13 /* MainStoryboard_iPhone.storyboard in Resources */,
 				17A377BF198307110002CCAA /* rc_measurements.js in Resources */,
+				17152FF61A12C136003AD447 /* rc_messages.js in Resources */,
 				326ACEDB19D2221B00B36965 /* 1Password-Icon-60@2x.png in Resources */,
 				326ACF2B19D2221B00B36965 /* osk-messagesIcon-29@2x.png in Resources */,
 				326ACF2519D2221B00B36965 /* osk-mailIcon-29.png in Resources */,

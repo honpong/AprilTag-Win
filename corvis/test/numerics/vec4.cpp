@@ -69,6 +69,17 @@ TEST(Matrix4, Identity) {
     EXPECT_EQ(transpose(symmetric), symmetric);
 }
 
+TEST(Matrix4, Determinant) {
+    m4 a = { {v4(5., -2., 1., 0.), v4(0., 3., -1., 0.), v4(2., 0., 7., 0.), v4(0., 0., 0., 0.) }};
+    EXPECT_FLOAT_EQ(determinant3(a), 103);
+    
+    m4 b = { {v4(1, 2, 3, 0), v4(0, -4, 1, 0), v4(0, 3, -1, 0), v4(0, 0, 0 ,0) }};
+    EXPECT_FLOAT_EQ(determinant3(b), 1);
+
+    EXPECT_FLOAT_EQ(determinant3(foo), 15128654.998270018);
+    EXPECT_FLOAT_EQ(determinant3(bar), 1349053797.5000024);
+}
+
 TEST(Vector4, Cross) {
     v4 vec2(.08, 1.2, -.23, 0.);
     {

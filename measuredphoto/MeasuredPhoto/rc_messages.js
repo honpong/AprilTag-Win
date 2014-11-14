@@ -11,7 +11,7 @@ rcMessage.initalize = function () {
     rcMessage.box = rcMessage.box = rcMessage.contaner.rect(10, 10);
     rcMessage.text = rcMessage.contaner.text(' ').font({
                                                       family: rcMeasurements.font_family,
-                                                      size: 20
+                                                      size: 18
                                                       , anchor: 'middle'
                                                       , leading: 1
                                                       }).fill({ color: rcMessage.message_color, opacity: 1 });

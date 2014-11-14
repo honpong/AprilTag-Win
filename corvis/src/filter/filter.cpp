@@ -1349,3 +1349,29 @@ void filter_select_feature(struct filter *f, float x, float y)
     myfeat->user = true;
     f->s.remap();
 }
+
+
+#include "homography.h"
+
+void filter_get_qr_code_transformation(struct filter *f, float qr_size, float corner_x[4], float corner_y[4], rotation_vector &R, v4 &T)
+{
+   
+    feature_t image_corners[4];
+    feature_t calibrated[4];
+    
+    for(int c = 0; c < 4; ++c)
+    {
+        image_corners[c].x = corner_x[c];
+        image_corners[c].y = corner_y[c];
+        calibrated[c] = f->s.calibrate_feature(image_corners[c]);
+    }
+    
+    v4 world_corners[4];
+    world_corners[0] = v4(-.5, .5, 0., 0.) * qr_size;
+    world_corners[1] = v4(-.5, -.5, 0., 0.) * qr_size;
+    world_corners[2] = v4(.5, -.5, 0., 0.) * qr_size;
+    world_corners[3] = v4(.5, .5, 0., 0.) * qr_size;
+    
+    compute_planar_homography_one_sided(world_corners, calibrated);
+    
+}

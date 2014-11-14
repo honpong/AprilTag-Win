@@ -131,59 +131,8 @@ typedef NS_ENUM(int, RCLicenseStatus)
     
     NSLog(@"Code detected %@ at %llu, corners (%f, %f), (%f, %f), (%f, %f), (%f, %f)", detection.code, detection.time, topleft.x * imageWidth, topleft.y * imageHeight, bottomleft.x * imageWidth, bottomleft.y * imageHeight, bottomright.x * imageWidth, bottomright.y * imageHeight, topright.x * imageWidth, topright.y * imageHeight);
     
-    
-    /*
-     What needs to be done. Derivation follows: http://vision.ucla.edu//MASKS/MASKS-ch5.pdf section 5.3
-     
-     X1 = 3D position of corner in QR-centered coordinates
-     R,T = transformation bringing camera coordinates to QR-centered coordinates
-     p = unknown projective scale factor (z2)
-     X2 = (x2, y2, 1) - normalized image coordinates of projected point
-     
-     X1 = R p X2 + T
-     
-     N = normal to plane where the 4 features lie (in camera coordinates)
-     d = distance from camera to the plane (not to the point)
-     N^t p X2 = d follows from above two definitions, so
-     1/d N^t p X2 = 1
-     
-     Now we multiply T by 1, and subtitute in the above.
-     
-     X1 = R p X2 + T / d N^t p X2
-     X1 = H p X2, where H = R + T / d N^t
-     
-     Take cross product, X1 x X1 = 0; express as X1^ X1, where X1^ is (X1 hat) the skew-symmetric matrix for cross product.
-     
-     X1^ = [0   -z1  y1]
-     [x1    0 -x1]
-     [-y1  x1   0]
-     
-     X1^ X1 = X1^ H p X2
-     0 = X1^ H p X2; p is a non-zero scalar, so we can divide it out
-     0 = X1^ H X2
-     
-     Now work out the coefficients
-     
-     H X2 = [ H0 H1 H2 ] [x2]   [H0x2+H1y2+H2]
-     [ H3 H4 H5 ]*[y2] = [H3x2+H4y2+H5]
-     [ H6 H7 H8 ] [ 1]   [H6x2+H7y2+H8]
-     
-     [0       0       0       -z1x2   -z1y2   -z1     y1x2    y1y2    y  ]   [H0]
-     X1^ H X2 = [z1x2    z1y2    z1      0       0       0       -x1x2   -x1y2   -x1] * [H1]
-     [-y1x2   -y1y2   -y1     x1x2    x1y2    x1      0       0       0  ]   [H2]
-     [H3]
-     [H4]
-     [H5]
-     [H6]
-     [H7]
-     [H8]
-     
-     The X1X2 matrix only has rank 2, so we just use the first two constraints for each pixel.
-     
-     Decomposition of planar homography matrix should follow Masks derivation.
-     */
-    
-    
+    filter_get_qr_code_transformation(&_cor_setup->sfm, qrdimension, topleft.x * imageWidth, topleft.y * imageHeight, bottomleft.x * imageWidth, bottomleft.y * imageHeight, bottomright.x * imageWidth, bottomright.y * imageHeight, topright.x * imageWidth, topright.y * imageHeight);
+ 
 }
 
 - (void) syncDetections

@@ -101,6 +101,8 @@ void filter_compute_gravity(struct filter *f, double latitude, double altitude);
 void filter_start_static_calibration(struct filter *f);
 void filter_start_hold_steady(struct filter *f);
 void filter_start_dynamic(struct filter *f);
+void filter_get_qr_code_transformation(struct filter *f, float qr_size, float corner_x[4], float corner_y[4], rotation_vector &R, v4 &T);
+
 
 #ifdef SWIG
 %callback("%s_cb");

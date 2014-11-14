@@ -9,9 +9,9 @@ CXX := g++
 PYTHON_CFLAGS := `python-config --includes` -I/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/numpy/core/include
 PYTHON_LDFLAGS := `python-config --libs`
 # -ftree-vectorize -ffast-math 
-CPPFLAGS := -Wall -g -fPIC -march=core2 -mfpmath=sse -O3 -D DEBUG $(PYTHON_CFLAGS) -I/opt/local/include -I/opt/local/include/FTGL -I/opt/local/include/freetype2 -Isrc/cor -Wdeprecated-writable-strings
+CPPFLAGS := -Wall -g -fPIC -march=core2 -mfpmath=sse -O0 -D DEBUG $(PYTHON_CFLAGS) -I/opt/local/include -I/opt/local/include/FTGL -I/opt/local/include/freetype2 -Isrc/cor -Wdeprecated-writable-strings
 CFLAGS := -std=gnu99
-LDFLAGS := -pthread -lpthread --warn-unresolved-symbols -O3 $(PYTHON_LDFLAGS) -framework Accelerate -framework OpenGL -framework GLUT -L/opt/local/lib -lftgl -lfreetype
+LDFLAGS := -pthread -lpthread --warn-unresolved-symbols -O0 $(PYTHON_LDFLAGS) -framework Accelerate -framework OpenGL -framework GLUT -L/opt/local/lib -lftgl -lfreetype
 SWIGFLAGS := -w403,362,389,503,401,462,472,314,509,204
 
 ####################### RULES ######################################
@@ -169,7 +169,7 @@ DEPS := $(DEPS) build/_numerics.ipp.d
 
 d := filter
 
-FILTER_CXX_SOURCES := $(addprefix src/$(d)/, filter.cpp state_vision.cpp state_motion.cpp state.cpp observation.cpp filter_setup.cpp fast_detector/fast_9.cpp scaled_mask.cpp) build/$(d)/_filter.cpp
+FILTER_CXX_SOURCES := $(addprefix src/$(d)/, filter.cpp state_vision.cpp state_motion.cpp state.cpp observation.cpp filter_setup.cpp fast_detector/fast_9.cpp scaled_mask.cpp homography.cpp) build/$(d)/_filter.cpp
 
 FILTER_SOURCES := $(addprefix src/$(d)/, device_parameters.c)
 
@@ -244,7 +244,7 @@ SOURCES := $(SOURCES) $(VL_C_SOURCES)
 
 d := test
 
-TEST_CXX_SOURCES := $(addprefix $(d)/, test.cpp numerics/vec4.cpp stereo/stereo.cpp stereo/camera.cpp numerics/quaternion.cpp)
+TEST_CXX_SOURCES := $(addprefix $(d)/, test.cpp numerics/vec4.cpp stereo/stereo.cpp stereo/camera.cpp numerics/quaternion.cpp homography.cpp)
 
 CPPFLAGS := $(CPPFLAGS) -I../ -Isrc/numerics -Itest
 LDFLAGS := $(LDFLAGS) -lstdc++
@@ -257,7 +257,7 @@ build/$(d)/%.o: $(d)/%.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 
-bin/test: build/$(d)/gtest_main.o build/$(d)/gtest-all.o $(patsubst test/%,build/test/%,$(TEST_CXX_SOURCES:.cpp=.o)) $(addprefix build/numerics/, vec4.o matrix.o) $(addprefix build/filter/, fast_detector/fast_9.o scaled_mask.o) bin/stereo/_stereo.so bin/libDAI-0.3.1/_libDAI.so bin/qhull/_qhull.so
+bin/test: build/$(d)/gtest_main.o build/$(d)/gtest-all.o $(patsubst test/%,build/test/%,$(TEST_CXX_SOURCES:.cpp=.o)) $(addprefix build/numerics/, vec4.o matrix.o) $(addprefix build/filter/, fast_detector/fast_9.o scaled_mask.o homography.o) bin/stereo/_stereo.so bin/libDAI-0.3.1/_libDAI.so bin/qhull/_qhull.so
 	@mkdir -p $(@D)
 	$(CC) $(LDFLAGS) $(PYTHON_LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
 

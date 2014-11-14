@@ -1366,12 +1366,5 @@ void filter_get_qr_code_transformation(struct filter *f, float qr_size, float co
         calibrated[c] = f->s.calibrate_feature(image_corners[c]);
     }
     
-    v4 world_corners[4];
-    world_corners[0] = v4(-.5, .5, 0., 0.) * qr_size;
-    world_corners[1] = v4(-.5, -.5, 0., 0.) * qr_size;
-    world_corners[2] = v4(.5, -.5, 0., 0.) * qr_size;
-    world_corners[3] = v4(.5, .5, 0., 0.) * qr_size;
-    
-    compute_planar_homography_one_sided(world_corners, calibrated);
-    
+    compute_qr_homography(calibrated, qr_size);
 }

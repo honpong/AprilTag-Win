@@ -10,12 +10,12 @@
 #include "../numerics/matrix.h"
 
 /*
- [0       0       0       -x1      -y1     -z1      x1y2    y1y2    z1y2 ]
- [x1      y1      z1       0        0       0       x1x2    y1x2    z1x2 ]
+ [0       0       0       -x1      -y1     -1       x1y2    y1y2    y2 ]
+ [x1      y1      1        0        0       0       x1x2    y1x2    x2 ]
  
  Note: Since we choose X1, this should never be degenerate
  */
-static void set_homography_correspondence(matrix &X, int n, float x1, float y1, float z1, float x2, float y2)
+static void set_homography_correspondence(matrix &X, int n, float x1, float y1, float x2, float y2)
 {
     int row = n * 2;
     X(row, 0) = 0;
@@ -23,26 +23,48 @@ static void set_homography_correspondence(matrix &X, int n, float x1, float y1, 
     X(row, 2) = 0;
     X(row, 3) = -x1;
     X(row, 4) = -y1;
-    X(row, 5) = -z1;
+    X(row, 5) = -1;
     X(row, 6) = y2 * x1;
     X(row, 7) = y2 * y1;
-    X(row, 8) = y2 * z1;
+    X(row, 8) = y2 *  1;
     row++;
     
     X(row, 0) = x1;
     X(row, 1) = y1;
-    X(row, 2) = z1;
+    X(row, 2) = 1;
     X(row, 3) = 0;
     X(row, 4) = 0;
     X(row, 5) = 0;
     X(row, 6) = -x2 * x1;
     X(row, 7) = -x2 * y1;
-    X(row, 8) = -x2 * z1;
+    X(row, 8) = -x2 *  1;
 
+}
+/* Positive depth check adapted from essentialDiscrete.m
+ */
+bool check_solution(const m4 & R, const v4 & T, const feature_t p1[4], const feature_t p2[4])
+{
+    int nvalid = 0;
+    for(int i = 0; i < 4; i++)
+    {
+        v4 x1 = v4(p1[i].x, p1[i].y, 1, 0);
+        v4 x2 = v4(p2[i].x, p2[i].y, 1, 0);
+        m4 skew_Rx1 = skew3(R*x1);
+        m4 skew_x2 = skew3(x2);
+        float alpha1 = -sum((skew_x2*T)*(skew_x2*R*x1))/pow(norm(skew_x2*T), 2);
+        float alpha2 =  sum((skew_Rx1*x2)*(skew_Rx1*T))/pow(norm(skew_Rx1*x2), 2);
+        fprintf(stderr, "%f %f\n", alpha1, alpha2);
+        if(alpha1 > 0 && alpha2 > 0)
+            nvalid++;
+    }
+    if(nvalid == 4)
+        return true;
+    fprintf(stderr, "nvalid %d\n", nvalid);
+    return false;
 }
 
 //Based on Matlab from http://cs.gmu.edu/%7Ekosecka/examples-code/homography2Motion.m
-void compute_planar_homography_one_sided(const v4 world_points[4], const feature_t calibrated[4])
+void compute_planar_homography(const feature_t p1[4], const feature_t p2[4], m4 & R, v4 & T)
 {
     matrix X(8, 9);
     
@@ -55,7 +77,7 @@ void compute_planar_homography_one_sided(const v4 world_points[4], const feature
      */
     for(int c = 0; c < 4; ++c)
     {
-        set_homography_correspondence(X, c, world_points[c][0], world_points[c][1], world_points[c][2], calibrated[c].x, calibrated[c].y);
+        set_homography_correspondence(X, c, p1[c].x, p1[c].y, p2[c].x, p2[c].y);
     }
     
     //Matlab: [u,s,v] = svd(B);
@@ -189,11 +211,39 @@ void compute_planar_homography_one_sided(const v4 world_points[4], const feature
     Ns[2] = -N1;
     Ns[3] = -N2;
     
+    R = m4_identity;
+    T = v4(0,0,0,0);
+
     fprintf(stderr, "Solutions found:\n");
     for(int i = 0; i < 4; ++i)
     {
         Rs[i].print(); Ts[i].print(); Ns[i].print();
         fprintf(stderr, "\n\n");
+        // MaSKS advocates checking N'*e3 > 0, but 
+        // since e3 is [0, 0, 1] this is equivalent
+        if(Ns[i][2] > 0 && check_solution(Rs[i], Ts[i], p1, p2))
+        {
+            fprintf(stderr, "Found a valid solution\n");
+            R = Rs[i];
+            T = Ts[i];
+        }
     }
+
 }
 
+// qr_width is width of one side in meters
+void compute_qr_homography(feature_t calibrated_points[4], float qr_width)
+{
+    feature_t ideal_points[4]; // fake image of a qr code 1 meter on each side, located at z=1 on an image plane at z=1
+    ideal_points[0] = (feature_t){.x = -.5, .y = .5};
+    ideal_points[1] = (feature_t){.x = -.5, .y = -.5};
+    ideal_points[2] = (feature_t){.x = .5,  .y = -.5};
+    ideal_points[3] = (feature_t){.x = .5,  .y = .5};
+
+    m4 R;
+    v4 T;
+
+    compute_planar_homography(ideal_points, calibrated_points, R, T);
+    
+    T = T*qr_width;
+}

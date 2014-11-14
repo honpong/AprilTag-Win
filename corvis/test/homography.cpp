@@ -2,11 +2,13 @@
 #include "homography.h"
 #include "rotation_vector.h"
 
-const static rotation_vector W(.23, 1.3, -.1);
-const static v4 T(.12, .89, 4., 0.);
+const static rotation_vector W(-.13, 1.3, -.1);
+const static v4 T(.12, .79, 4., 0.);
 
-TEST(Homography, Reprojection)
+TEST(Homography, Qr)
 {
+    // ideal qr plane is 1m on a side, 1m away (same as we use in
+    // compute_qr_homography)
     v4 x[4];
     x[0] = v4(-.5, .5, 1., 1.);
     x[1] = v4(-.5, -.5, 1., 1.);
@@ -25,5 +27,5 @@ TEST(Homography, Reprojection)
     R.print();
     T.print();
     fprintf(stderr,"\n");
-    compute_planar_homography_one_sided(x, image);
+    compute_qr_homography(image, 1.);
 }

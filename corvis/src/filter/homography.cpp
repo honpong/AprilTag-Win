@@ -214,6 +214,9 @@ void compute_planar_homography(const feature_t p1[4], const feature_t p2[4], m4 
     R = m4_identity;
     T = v4(0,0,0,0);
 
+    f_t maxdelta2 = .1; //This is sufficiently high that no valid solution should exceed it
+    f_t mindelta2 = maxdelta2;
+    
     fprintf(stderr, "Solutions found:\n");
     for(int i = 0; i < 4; ++i)
     {
@@ -225,10 +228,29 @@ void compute_planar_homography(const feature_t p1[4], const feature_t p2[4], m4 
         // unless we enforce that N is approximately [0, 0, 1]
         if(Ns[i][2] > 0.99 && check_solution(Rs[i], Ts[i], p1, p2))
         {
-            fprintf(stderr, "Found a valid solution\n");
-            R = Rs[i];
-            T = Ts[i];
+            fprintf(stderr, "Found a positive depth solution\n");
+            f_t delta2 = 0.;
+            for(int c = 0; c < 4; ++c)
+            {
+                v4 x = v4(p1[c].x, p1[c].y, 1., 0.);
+                v4 xc = Rs[i] * x + Ts[i];
+                fprintf(stderr, "projected to %f %f\n", xc[0] / xc[2], xc[1] / xc[2]);
+                f_t dx = xc[0] / xc[2] - p2[c].x;
+                f_t dy = xc[1] / xc[2] - p2[c].y;
+                delta2 += dx * dx + dy * dy;
+            }
+            if(delta2 < mindelta2)
+            {
+                mindelta2 = delta2;
+                R = Rs[i];
+                T = Ts[i];
+            }
         }
+    }
+    if(mindelta2 < maxdelta2)
+    {
+        fprintf(stderr, "Final solution, error %e:\n", mindelta2);
+        R.print(); T.print(); fprintf(stderr, "\n");
     }
 
 }
@@ -236,16 +258,14 @@ void compute_planar_homography(const feature_t p1[4], const feature_t p2[4], m4 
 // qr_width is width of one side in meters
 void compute_qr_homography(feature_t calibrated_points[4], float qr_width)
 {
-    feature_t ideal_points[4]; // fake image of a qr code 1 meter on each side, located at z=1 on an image plane at z=1
-    ideal_points[0] = (feature_t){.x = -.5, .y = .5};
-    ideal_points[1] = (feature_t){.x = -.5, .y = -.5};
-    ideal_points[2] = (feature_t){.x = .5,  .y = -.5};
-    ideal_points[3] = (feature_t){.x = .5,  .y = .5};
+    feature_t ideal_points[4]; // fake image of a qr code qr_width meter on each side, located at z=1 on an image plane at z=1
+    ideal_points[0] = (feature_t){.x = -.5f * qr_width, .y = .5f * qr_width};
+    ideal_points[1] = (feature_t){.x = -.5f * qr_width, .y = -.5f * qr_width};
+    ideal_points[2] = (feature_t){.x = .5f * qr_width,  .y = -.5f * qr_width};
+    ideal_points[3] = (feature_t){.x = .5f * qr_width,  .y = .5f * qr_width};
 
     m4 R;
     v4 T;
 
     compute_planar_homography(ideal_points, calibrated_points, R, T);
-    
-    T = T*qr_width;
 }

@@ -10,10 +10,11 @@ TEST(Homography, Qr)
     // ideal qr plane is 1m on a side, 1m away (same as we use in
     // compute_qr_homography)
     v4 x[4];
-    x[0] = v4(-.5, .5, 1., 1.);
-    x[1] = v4(-.5, -.5, 1., 1.);
-    x[2] = v4(.5, -.5, 1., 1.);
-    x[3] = v4(.5, .5, 1., 1.);
+    f_t width = .5;
+    x[0] = v4(-.5 * width, .5 * width, 1., 1.);
+    x[1] = v4(-.5 * width, -.5 * width, 1., 1.);
+    x[2] = v4(.5 * width, -.5 * width, 1., 1.);
+    x[3] = v4(.5 * width, .5 * width, 1., 1.);
     m4 R = to_rotation_matrix(W);
     v4 cam[4];
     feature_t image[4];
@@ -27,5 +28,5 @@ TEST(Homography, Qr)
     R.print();
     T.print();
     fprintf(stderr,"\n");
-    compute_qr_homography(image, 1.);
+    compute_qr_homography(image, width);
 }

@@ -72,8 +72,22 @@
  */
 - (void) startStaticCalibration;
 
-/** Computes the pose of the device relative to a QR code. */
-- (RCTransformation *) getTransformationForQRCodeObservation:(AVMetadataMachineReadableCodeObject *)observation transformOutput:(bool)transform;
+/** Requests that future transformations be reported relative to an observed QR code
+ 
+ RCSensorFusion will attempt to associate the supplied QR code observation with its current pose estimate. This may not always be successful because QR code observations are delivered asynchronously, and decoding or association may fail.
+ 
+ If decoding and association is successful, RCSensorFusionData.originQRCode will be set to the payload of the QR code, and future instances of RCSensorFusionData.transformation and RCSensorFusionData.cameraTransformation will be modified with the origin fixed to the center of the QR code, positive y pointing toward the canonical "top" of the QR code, and positive x pointing toward the canonical "right" side of the QR code. with positive z pointing opposite gravity.
+ 
+            [ ]  ^+y [ ]
+                 |
+                 o--->+x
+ 
+            [ ]
+ 
+ @param observation The qr code data provided by iOS
+ @param QRDimension The size of the QR code (width = height) in meters
+  */
+- (void) requestTransformationForQRCodeObservation:(AVMetadataMachineReadableCodeObject *)observation withDimension:(float)QRDimension;
 
 /** Prepares the object to receive video and inertial data, and starts sensor fusion updates.
  

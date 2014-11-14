@@ -64,7 +64,7 @@ bool check_solution(const m4 & R, const v4 & T, const feature_t p1[4], const fea
 }
 
 //Based on Matlab from http://cs.gmu.edu/%7Ekosecka/examples-code/homography2Motion.m
-void compute_planar_homography(const feature_t p1[4], const feature_t p2[4], m4 & R, v4 & T)
+bool compute_planar_homography(const feature_t p1[4], const feature_t p2[4], m4 & R, v4 & T)
 {
     matrix X(8, 9);
     
@@ -251,12 +251,13 @@ void compute_planar_homography(const feature_t p1[4], const feature_t p2[4], m4 
     {
         fprintf(stderr, "Final solution, error %e:\n", mindelta2);
         R.print(); T.print(); fprintf(stderr, "\n");
+        return true;
     }
-
+    return false;
 }
 
 // qr_width is width of one side in meters
-void compute_qr_homography(feature_t calibrated_points[4], float qr_width)
+bool compute_qr_homography(feature_t calibrated_points[4], float qr_width, m4 &R, v4 &T)
 {
     feature_t ideal_points[4]; // fake image of a qr code qr_width meter on each side, located at z=1 on an image plane at z=1
     ideal_points[0] = (feature_t){.x = -.5f * qr_width, .y = .5f * qr_width};
@@ -264,8 +265,5 @@ void compute_qr_homography(feature_t calibrated_points[4], float qr_width)
     ideal_points[2] = (feature_t){.x = .5f * qr_width,  .y = -.5f * qr_width};
     ideal_points[3] = (feature_t){.x = .5f * qr_width,  .y = .5f * qr_width};
 
-    m4 R;
-    v4 T;
-
-    compute_planar_homography(ideal_points, calibrated_points, R, T);
+    return compute_planar_homography(ideal_points, calibrated_points, R, T);
 }

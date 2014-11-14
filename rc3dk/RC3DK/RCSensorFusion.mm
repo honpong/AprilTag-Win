@@ -88,6 +88,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
 @property NSString * code;
 @property NSArray * corners;
 @property uint64_t time;
+@property float dimension;
 
 @property RCTransformation* transformation;
 
@@ -104,11 +105,14 @@ typedef NS_ENUM(int, RCLicenseStatus)
 @property NSMutableArray * detections;
 @property RCCameraParameters * camera;
 @property size_t imageWidth, imageHeight;
+@property struct filter *sfm;
+@property RCTransformation *originTransform;
+@property NSString *QRID_origin;
 
 @end
 
 @implementation QRSyncData
-@synthesize savedTransformations, savedTimes, detections, camera, imageWidth, imageHeight;
+@synthesize savedTransformations, savedTimes, detections, camera, imageWidth, imageHeight, sfm, originTransform, QRID_origin;
 
 -(id)init
 {
@@ -117,6 +121,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
         savedTransformations = [NSMutableArray array];
         savedTimes = [NSMutableArray array];
         detections = [NSMutableArray array];
+        QRID_origin = nil;
     }
     return self;
 }
@@ -131,8 +136,26 @@ typedef NS_ENUM(int, RCLicenseStatus)
     
     NSLog(@"Code detected %@ at %llu, corners (%f, %f), (%f, %f), (%f, %f), (%f, %f)", detection.code, detection.time, topleft.x * imageWidth, topleft.y * imageHeight, bottomleft.x * imageWidth, bottomleft.y * imageHeight, bottomright.x * imageWidth, bottomright.y * imageHeight, topright.x * imageWidth, topright.y * imageHeight);
     
-    filter_get_qr_code_transformation(&_cor_setup->sfm, qrdimension, topleft.x * imageWidth, topleft.y * imageHeight, bottomleft.x * imageWidth, bottomleft.y * imageHeight, bottomright.x * imageWidth, bottomright.y * imageHeight, topright.x * imageWidth, topright.y * imageHeight);
- 
+    float corner_x[4], corner_y[4];
+    corner_x[0] = topleft.x*imageWidth;
+    corner_x[1] = bottomleft.x*imageWidth;
+    corner_x[2] = bottomright.x*imageWidth;
+    corner_x[3] = topright.x*imageWidth;
+    corner_y[0] = topleft.y*imageHeight;
+    corner_y[1] = bottomleft.y*imageHeight;
+    corner_y[2] = bottomright.y*imageHeight;
+    corner_y[3] = topright.y*imageHeight;
+    
+    m4 R;
+    v4 T;
+    if(QRID_origin == nil && filter_get_qr_code_transformation(sfm, detection.dimension, corner_x, corner_y, R, T))
+    {
+        RCTranslation* o_translation = [[RCTranslation alloc] initWithVector:T withStandardDeviation:v4(0.)];
+        RCRotation* o_rotation = [[RCRotation alloc] initWithVector:invrodrigues(R, NULL) withStandardDeviation:v4(0.)];
+        RCTransformation *o_trans = [[RCTransformation alloc] initWithTranslation:o_translation withRotation:o_rotation];
+        originTransform = [[detection.transformation composeWithTransformation:o_trans] getInverse];
+        QRID_origin = detection.code;
+    }
 }
 
 - (void) syncDetections
@@ -208,7 +231,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
     }
 }
 
-- (void) observeQR:(AVMetadataMachineReadableCodeObject *)QRData
+- (void) observeQR:(AVMetadataMachineReadableCodeObject *)QRData withDimension:(float)dimension
 {
     @synchronized(savedTimes) {
         uint64_t timestamp = QRData.time.value / (QRData.time.timescale / 1000000.);
@@ -222,6 +245,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
         detection.code = QRData.stringValue;
         detection.time = timestamp;
         detection.corners = QRData.corners;
+        detection.dimension = dimension;
         [detections addObject:detection];
         
         [self syncDetections];
@@ -467,6 +491,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
             _cor_setup = new filter_setup(&dc);
             cor_time_init();
             plugins_start();
+            QRSync.sfm = &_cor_setup->sfm;
         });
     }
     
@@ -710,6 +735,11 @@ typedef NS_ENUM(int, RCLicenseStatus)
     RCRotation* camR = [[RCRotation alloc] initWithVector:f->s.Wc.v.raw_vector() withStandardDeviation:v4_sqrt(v4(f->s.Wc.variance()))];
     RCTransformation* camTransform = [[RCTransformation alloc] initWithTranslation:camT withRotation:camR];
     
+    if(QRSync.QRID_origin != nil)
+    {
+        transformation = [QRSync.originTransform composeWithTransformation:transformation];
+    }
+    
     RCScalar *totalPath = [[RCScalar alloc] initWithScalar:f->s.total_distance withStdDev:0.];
     
     RCCameraParameters *camParams = [[RCCameraParameters alloc] initWithFocalLength:f->s.focal_length.v withOpticalCenterX:f->s.center_x.v withOpticalCenterY:f->s.center_y.v withRadialSecondDegree:f->s.k1.v withRadialFourthDegree:f->s.k2.v];
@@ -933,10 +963,10 @@ typedef NS_ENUM(int, RCLicenseStatus)
 */
 
 #pragma mark - QR Code handling for ViewAR
-- (RCTransformation *) getTransformationForQRCodeObservation:(AVMetadataMachineReadableCodeObject *)observation transformOutput:(bool)transform
+- (void) requestTransformationForQRCodeObservation:(AVMetadataMachineReadableCodeObject *)observation withDimension:(float)QRDimension
 {
-    [QRSync observeQR:observation];
-    return nil;
+    if(observation.stringValue == nil) return;
+    [QRSync observeQR:observation withDimension:QRDimension];
 }
 
 @end

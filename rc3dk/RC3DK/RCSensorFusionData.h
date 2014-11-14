@@ -28,6 +28,10 @@
 /** An RCTransformation object representing the current camera transformation relative to the global reference frame as defined for the transformation property. */
 @property (nonatomic, readonly) RCTransformation* cameraTransformation;
 
+/** If the origin of cameraTransformation and transformation are currently being reported relative to a QR code, the decoded id of the code. Otherwise, nil.
+ */
+@property (nonatomic, readonly) NSString* originQRCode;
+
 /** An RCCameraParameters object representing the current optical (intrinsic) properties of the camera. */
 @property (nonatomic, readonly) RCCameraParameters *cameraParameters;
 

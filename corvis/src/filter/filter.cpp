@@ -1353,7 +1353,7 @@ void filter_select_feature(struct filter *f, float x, float y)
 
 #include "homography.h"
 
-void filter_get_qr_code_transformation(struct filter *f, float qr_size, float corner_x[4], float corner_y[4], rotation_vector &R, v4 &T)
+bool filter_get_qr_code_transformation(struct filter *f, float qr_size, float corner_x[4], float corner_y[4], m4 &R, v4 &T)
 {
    
     feature_t image_corners[4];
@@ -1366,5 +1366,5 @@ void filter_get_qr_code_transformation(struct filter *f, float qr_size, float co
         calibrated[c] = f->s.calibrate_feature(image_corners[c]);
     }
     
-    compute_qr_homography(calibrated, qr_size);
+    return compute_qr_homography(calibrated, qr_size, R, T);
 }

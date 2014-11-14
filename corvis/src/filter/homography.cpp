@@ -127,15 +127,16 @@ void compute_planar_homography_one_sided(const v4 world_points[4], const feature
     
     //Matlab: h = v(:,9);
     //    Hest = transpose(reshape(h,[3,3]));
-    m4 h = m4_identity;
+    // Hest is not transposed below because the transpose from matlab
+    // is just to undo what reshape has done
+    m4 Hest = m4_identity;
     for(int i = 0; i < 3; ++i)
     {
         for(int j = 0; j < 3; ++j)
         {
-            h[i][j] = Vt(8, i*3+j);
+            Hest[i][j] = Vt(8, i*3+j);
         }
     }
-    m4 Hest = transpose(h); //Check this - matlab version transposed?
     
     //Matlab: [u,s,v] = svd(Hest);
     U.resize(3, 3);

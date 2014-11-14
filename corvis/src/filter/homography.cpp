@@ -221,7 +221,9 @@ void compute_planar_homography(const feature_t p1[4], const feature_t p2[4], m4 
         fprintf(stderr, "\n\n");
         // MaSKS advocates checking N'*e3 > 0, but 
         // since e3 is [0, 0, 1] this is equivalent
-        if(Ns[i][2] > 0 && check_solution(Rs[i], Ts[i], p1, p2))
+        // TODO: this returns two solutions for the qr code case
+        // unless we enforce that N is approximately [0, 0, 1]
+        if(Ns[i][2] > 0.99 && check_solution(Rs[i], Ts[i], p1, p2))
         {
             fprintf(stderr, "Found a valid solution\n");
             R = Rs[i];

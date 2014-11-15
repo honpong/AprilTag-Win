@@ -657,6 +657,8 @@ typedef NS_ENUM(int, RCLicenseStatus)
     [cameraManager releaseVideoDevice];
     isProcessingVideo = false;
     processingVideoRequested = false;
+    QRSync = [[QRSyncData alloc] init];
+    QRSync.sfm = &_cor_setup->sfm;
 }
 
 - (void) stopSensorFusion

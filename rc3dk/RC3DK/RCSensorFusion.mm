@@ -148,7 +148,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
     
     m4 R;
     v4 T;
-    if(QRID_origin == nil && filter_get_qr_code_transformation(sfm, detection.dimension, corner_x, corner_y, R, T))
+    if(filter_get_qr_code_transformation(sfm, detection.dimension, corner_x, corner_y, R, T))
     {
         RCTranslation* o_translation = [[RCTranslation alloc] initWithVector:T withStandardDeviation:v4(0.)];
         RCRotation* o_rotation = [[RCRotation alloc] initWithVector:invrodrigues(R, NULL) withStandardDeviation:v4(0.)];
@@ -209,18 +209,18 @@ typedef NS_ENUM(int, RCLicenseStatus)
     return false;
 }
 
-- (void) addSensorFusionData:(RCSensorFusionData *)data
+- (void) addSensorFusionTransformation:(RCTransformation *)cameraTransformation withSampleBuffer:(CMSampleBufferRef)sampleBuffer withCameraParameters:(RCCameraParameters *)cameraParameters
 {
     @synchronized(savedTimes) {
-        camera = data.cameraParameters;
-        CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(data.sampleBuffer);
+        camera = cameraParameters;
+        CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
         
         imageWidth = CVPixelBufferGetWidth(pixelBuffer);
         imageHeight = CVPixelBufferGetHeight(pixelBuffer);
         
-        CMTime time = CMSampleBufferGetPresentationTimeStamp(data.sampleBuffer);
+        CMTime time = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
         uint64_t time_us = time.value / (time.timescale / 1000000.);
-        [savedTransformations addObject:data.cameraTransformation];
+        [savedTransformations addObject:cameraTransformation];
         [savedTimes addObject:[NSNumber numberWithUnsignedLongLong:time_us]];
         if([savedTransformations count] > 100)
             [savedTransformations removeObjectAtIndex:0];
@@ -735,18 +735,20 @@ typedef NS_ENUM(int, RCLicenseStatus)
     RCRotation* camR = [[RCRotation alloc] initWithVector:f->s.Wc.v.raw_vector() withStandardDeviation:v4_sqrt(v4(f->s.Wc.variance()))];
     RCTransformation* camTransform = [[RCTransformation alloc] initWithTranslation:camT withRotation:camR];
     
+    RCScalar *totalPath = [[RCScalar alloc] initWithScalar:f->s.total_distance withStdDev:0.];
+    
+    RCCameraParameters *camParams = [[RCCameraParameters alloc] initWithFocalLength:f->s.focal_length.v withOpticalCenterX:f->s.center_x.v withOpticalCenterY:f->s.center_y.v withRadialSecondDegree:f->s.k1.v withRadialFourthDegree:f->s.k2.v];
+
+    //Need to send the data before we modify it or else we recursively fail
+    [QRSync addSensorFusionTransformation:[transformation composeWithTransformation:camTransform]  withSampleBuffer:sampleBuffer withCameraParameters:camParams];
+    
     if(QRSync.QRID_origin != nil)
     {
         transformation = [QRSync.originTransform composeWithTransformation:transformation];
     }
     
-    RCScalar *totalPath = [[RCScalar alloc] initWithScalar:f->s.total_distance withStdDev:0.];
-    
-    RCCameraParameters *camParams = [[RCCameraParameters alloc] initWithFocalLength:f->s.focal_length.v withOpticalCenterX:f->s.center_x.v withOpticalCenterY:f->s.center_y.v withRadialSecondDegree:f->s.k1.v withRadialFourthDegree:f->s.k2.v];
-
     RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithTransformation:transformation withCameraTransformation:[transformation composeWithTransformation:camTransform] withCameraParameters:camParams withTotalPath:totalPath withFeatures:[self getFeaturesArray] withSampleBuffer:sampleBuffer withTimestamp:f->last_time];
 
-    [QRSync addSensorFusionData:data];
     //send the callback to the main/ui thread
     dispatch_async(dispatch_get_main_queue(), ^{
         if ([self.delegate respondsToSelector:@selector(sensorFusionDidUpdateData:)]) [self.delegate sensorFusionDidUpdateData:data];

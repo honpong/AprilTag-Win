@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include "homography.h"
 #include "rotation_vector.h"
+#include "util.h"
 
 const static rotation_vector W(-.13, 1.3, -.1);
 const static v4 T(.12, .79, 4., 0.);
@@ -28,5 +29,10 @@ TEST(Homography, Qr)
     R.print();
     T.print();
     fprintf(stderr,"\n");
-    compute_qr_homography(image, width);
+    m4 Rres;
+    v4 Tres;
+    compute_qr_homography(image, width, Rres, Tres);
+
+    test_m4_near(Rres, R, 1.e-6);
+    test_v4_near(Tres, T, 1.e-6);
 }

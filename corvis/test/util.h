@@ -1,6 +1,11 @@
 #ifndef __UTIL_H
 #define __UTIL_H
 
+#include "gtest/gtest.h"
+#include "cor_types.h"
+#include "vec4.h"
+#include "quaternion.h"
+
 static inline void test_m4_near(const m4 &a, const m4 &b, const f_t bounds)
 {
     for(int i = 0; i < 4; ++i) {

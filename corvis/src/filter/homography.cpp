@@ -53,13 +53,13 @@ bool check_solution(const m4 & R, const v4 & T, const feature_t p1[4], const fea
         m4 skew_x2 = skew3(x2);
         float alpha1 = -sum((skew_x2*T)*(skew_x2*R*x1))/pow(norm(skew_x2*T), 2);
         float alpha2 =  sum((skew_Rx1*x2)*(skew_Rx1*T))/pow(norm(skew_Rx1*x2), 2);
-        fprintf(stderr, "%f %f\n", alpha1, alpha2);
+//        fprintf(stderr, "%f %f\n", alpha1, alpha2);
         if(alpha1 > 0 && alpha2 > 0)
             nvalid++;
     }
     if(nvalid == 4)
         return true;
-    fprintf(stderr, "nvalid %d\n", nvalid);
+//    fprintf(stderr, "nvalid %d\n", nvalid);
     return false;
 }
 
@@ -201,6 +201,15 @@ bool compute_planar_homography(const feature_t p1[4], const feature_t p2[4], m4 
     Rs[2] = W1 * transpose(U1);
     Rs[3] = W2 * transpose(U2);
     
+    for(int i = 0; i < 4; ++i)
+    {
+        for(int j = 0; j < 3; ++j)
+        {
+            Rs[i][3][j] = 0.;
+        }
+        Rs[i][3][3] = 1.;
+    }
+    
     Ts[0] = (H - Rs[0]) * N1;
     Ts[1] = (H - Rs[1]) * N2;
     Ts[2] = -(H - Rs[2]) * N1;
@@ -217,24 +226,19 @@ bool compute_planar_homography(const feature_t p1[4], const feature_t p2[4], m4 
     f_t maxdelta2 = .1; //This is sufficiently high that no valid solution should exceed it
     f_t mindelta2 = maxdelta2;
     
-    fprintf(stderr, "Solutions found:\n");
     for(int i = 0; i < 4; ++i)
     {
-        Rs[i].print(); Ts[i].print(); Ns[i].print();
-        fprintf(stderr, "\n\n");
-        // MaSKS advocates checking N'*e3 > 0, but 
+        // MaSKS advocates checking N'*e3 > 0, but
         // since e3 is [0, 0, 1] this is equivalent
         // TODO: this returns two solutions for the qr code case
         // unless we enforce that N is approximately [0, 0, 1]
         if(Ns[i][2] > 0.99 && check_solution(Rs[i], Ts[i], p1, p2))
         {
-            fprintf(stderr, "Found a positive depth solution\n");
             f_t delta2 = 0.;
             for(int c = 0; c < 4; ++c)
             {
                 v4 x = v4(p1[c].x, p1[c].y, 1., 0.);
                 v4 xc = Rs[i] * x + Ts[i];
-                fprintf(stderr, "projected to %f %f\n", xc[0] / xc[2], xc[1] / xc[2]);
                 f_t dx = xc[0] / xc[2] - p2[c].x;
                 f_t dy = xc[1] / xc[2] - p2[c].y;
                 delta2 += dx * dx + dy * dy;

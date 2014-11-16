@@ -11,7 +11,7 @@
 
 /*
  [0       0       0       -x1      -y1     -1       x1y2    y1y2    y2 ]
- [x1      y1      1        0        0       0       x1x2    y1x2    x2 ]
+ [x1      y1      1        0        0       0      -x1x2   -y1x2   -x2 ]
  
  Note: Since we choose X1, this should never be degenerate
  */

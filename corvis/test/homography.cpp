@@ -36,3 +36,43 @@ TEST(Homography, Qr)
     test_m4_near(Rres, R, 1.e-6);
     test_v4_near(Tres, T, 1.e-6);
 }
+
+TEST(Homography, SyntheticImage)
+{
+    const float real_size = 0.05;
+    const float f = 500;
+    const float center_x = 640/2;
+    const float center_y = 480/2;
+
+    feature_t image[4];
+    image[0] = (feature_t){.x = 10, .y = 10};
+    image[1] = (feature_t){.x = 10, .y = 60};
+    image[2] = (feature_t){.x = 60, .y = 60};
+    image[3] = (feature_t){.x = 60, .y = 10};
+    
+    feature_t calibrated[4];
+    for(int i = 0; i < 4; i++)
+    {
+        calibrated[i].x = (image[i].x - center_x)/f;
+        calibrated[i].y = (image[i].y - center_y)/f;
+    }
+
+    feature_t qr_center = (feature_t){.x = image[0].x + (image[2].x - image[0].x)/2.,
+                                      .y = image[0].y + (image[2].y - image[0].y)/2.};
+    float scale_by = real_size / 0.1;
+    m4 R = m4_identity;
+    v4 T = scale_by * v4( (qr_center.x - center_x)/f, (qr_center.y - center_y)/f, 1, 0);
+    fprintf(stderr, "T_expected = ");
+    T.print();
+    fprintf(stderr, "\n");
+
+    m4 Rres;
+    v4 Tres;
+    compute_qr_homography(calibrated, real_size, Rres, Tres);
+    Rres.print();
+    fprintf(stderr, "\n");
+    Tres.print();
+    fprintf(stderr, "\n");
+    test_m4_near(Rres, R, 1.e-6);
+    test_v4_near(Tres, T, 1.e-6);
+}

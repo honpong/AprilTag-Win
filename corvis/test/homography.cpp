@@ -76,3 +76,27 @@ TEST(Homography, SyntheticImage)
     test_m4_near(Rres, R, 1.e-6);
     test_v4_near(Tres, T, 1.e-6);
 }
+
+TEST(Homography, ImageReal)
+{
+    feature_t image[4];
+    image[0] = (feature_t){.x = 291.030426, .y = 256.791859};
+    image[1] = (feature_t){.x = 289.511223, .y = 318.284512};
+    image[2] = (feature_t){.x = 349.993210, .y = 317.415562};
+    image[3] = (feature_t){.x = 350.646400, .y = 258.538685};
+    const float center_x = 311.292933;
+    const float center_y = 247.884155;
+    const float f = 535.735909;
+    float real_size = 0.0735;
+
+    feature_t calibrated[4];
+    for(int i = 0; i < 4; i++)
+    {
+        calibrated[i].x = (image[i].x - center_x)/f;
+        calibrated[i].y = (image[i].y - center_y)/f;
+    }
+
+    m4 Rres;
+    v4 Tres;
+    compute_qr_homography(calibrated, real_size, Rres, Tres);
+}

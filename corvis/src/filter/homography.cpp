@@ -260,14 +260,39 @@ bool compute_planar_homography(const feature_t p1[4], const feature_t p2[4], m4 
     return false;
 }
 
-// qr_width is width of one side in meters
+/*
+ * Computes a homography between calibrated image points and a fake image.
+ * The fake image is composed of a qr code which is one meter on each side
+ * located at z = 1 relative to the camera.
+ *
+ * This homography is decomposed into a rotation and translation, which is
+ * the rotation and translation required to move the camera from the fake
+ * image to the camera which has produced the calibrated points.
+ *
+ * The translation is composed with a translation from the origin of the
+ * fake camera to its image plane, so the resulting R&T represent the
+ * transformation required to take the camera which took the calibrated
+ * points to the center of the qr code.
+ *
+ * calibrated_points are the corners of the qr code, counter-clockwise order
+ * starting from the upper left.
+ *
+ * qr_width is the width in meters of the qr code in world coordinates.
+ */
 bool compute_qr_homography(feature_t calibrated_points[4], float qr_width, m4 &R, v4 &T)
 {
-    feature_t ideal_points[4]; // fake image of a qr code qr_width meter on each side, located at z=1 on an image plane at z=1
-    ideal_points[0] = (feature_t){.x = -.5f * qr_width, .y = .5f * qr_width};
-    ideal_points[1] = (feature_t){.x = -.5f * qr_width, .y = -.5f * qr_width};
-    ideal_points[2] = (feature_t){.x = .5f * qr_width,  .y = -.5f * qr_width};
-    ideal_points[3] = (feature_t){.x = .5f * qr_width,  .y = .5f * qr_width};
+    // Fake image of a qr code qr_width meter on each side, located at z=1 on an image plane at z=1
+    feature_t ideal_points[4];
+    ideal_points[0] = (feature_t){.x = -.5f*qr_width, .y = -.5f*qr_width};
+    ideal_points[1] = (feature_t){.x = -.5f*qr_width, .y = .5f*qr_width};
+    ideal_points[2] = (feature_t){.x = .5f*qr_width,  .y = .5f*qr_width};
+    ideal_points[3] = (feature_t){.x = .5f*qr_width,  .y = -.5f*qr_width};
 
-    return compute_planar_homography(ideal_points, calibrated_points, R, T);
+    bool success = compute_planar_homography(ideal_points, calibrated_points, R, T);
+
+    // Include the translation from the camera origin to the image plane
+    if(success)
+        T = T + R*v4(0, 0, 1, 0);
+
+    return success;
 }

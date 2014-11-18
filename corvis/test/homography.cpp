@@ -50,10 +50,10 @@ TEST(Homography, Qr)
     // of it to use with compute_qr_homography
     v4 x[4];
     f_t width = 0.5;
-    x[0] = v4(-.5 * width, -.5 * width, 1., 1.);
-    x[1] = v4(-.5 * width, .5 * width, 1., 1.);
-    x[2] = v4(.5 * width, .5 * width, 1., 1.);
-    x[3] = v4(.5 * width, -.5 * width, 1., 1.);
+    x[0] = v4(-.5 * width, .5 * width, 0., 1.);
+    x[1] = v4(-.5 * width, -.5 * width, 0., 1.);
+    x[2] = v4(.5 * width, -.5 * width, 0., 1.);
+    x[3] = v4(.5 * width, .5 * width, 0., 1.);
     m4 R = to_rotation_matrix(W);
     v4 cam[4];
     feature_t image[4];

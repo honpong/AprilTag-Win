@@ -50,10 +50,10 @@ TEST(Homography, Qr)
     // of it to use with compute_qr_homography
     v4 x[4];
     f_t width = 0.5;
-    x[0] = v4(-.5 * width, -.5 * width, 0., 1.);
-    x[1] = v4(-.5 * width, .5 * width, 0., 1.);
-    x[2] = v4(.5 * width, .5 * width, 0., 1.);
-    x[3] = v4(.5 * width, -.5 * width, 0., 1.);
+    x[0] = v4(-.5 * width, -.5 * width, 1., 1.);
+    x[1] = v4(-.5 * width, .5 * width, 1., 1.);
+    x[2] = v4(.5 * width, .5 * width, 1., 1.);
+    x[3] = v4(.5 * width, -.5 * width, 1., 1.);
     m4 R = to_rotation_matrix(W);
     v4 cam[4];
     feature_t image[4];
@@ -99,7 +99,7 @@ TEST(Homography, SyntheticImage)
                                       .y = image[0].y + (image[2].y - image[0].y)/2.};
     float scale_by = real_size / 0.1;
     m4 R = m4_identity;
-    v4 T = scale_by * v4( (qr_center.x - center_x)/f, (qr_center.y - center_y)/f, 1, 0);
+    v4 T = scale_by * v4( (qr_center.x - center_x)/f, (qr_center.y - center_y)/f, -.5/scale_by, 0);
     fprintf(stderr, "T_expected = ");
     T.print();
     fprintf(stderr, "\n");

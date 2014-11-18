@@ -12,11 +12,17 @@
 /*
  [0       0       0       -x1      -y1     -1       x1y2    y1y2    y2 ]
  [x1      y1      1        0        0       0      -x1x2   -y1x2   -x2 ]
- 
- Note: Since we choose X1, this should never be degenerate
  */
-static void set_homography_correspondence(matrix &X, int n, float x1, float y1, float x2, float y2)
+static void homography_set_correspondence(matrix &X, int n, float x1, float y1, float x2, float y2)
 {
+    /* Matlab:
+     % set up constraints for homography matrix
+     function [rows] = makeRows(x1, x2);
+     
+     rows = [ 0 0 0    -x1'    x2(2)*x1';
+                x1'  0 0 0    -x2(1)*x1'];
+     */
+
     int row = n * 2;
     X(row, 0) = 0;
     X(row, 1) = 0;
@@ -40,9 +46,100 @@ static void set_homography_correspondence(matrix &X, int n, float x1, float y1, 
     X(row, 8) = -x2 *  1;
 
 }
+
+
+/*
+ Derivation follows: http://vision.ucla.edu//MASKS/MASKS-ch5.pdf section 5.3
+     
+ X1 = 3D position of corner in QR-centered coordinates
+ R,T = transformation bringing camera coordinates to QR-centered coordinates
+ p = unknown projective scale factor (z2)
+ X2 = (x2, y2, 1) - normalized image coordinates of projected point
+ 
+ X1 = R p X2 + T
+ 
+ N = normal to plane where the 4 features lie (in camera coordinates)
+ d = distance from camera to the plane (not to the point)
+ N^t p X2 = d follows from above two definitions, so
+ 1/d N^t p X2 = 1
+ 
+ Now we multiply T by 1, and subtitute in the above.
+ 
+    X1 = R p X2 + T / d N^t p X2
+    X1 = H p X2, where H = R + T / d N^t
+ 
+ Take cross product, X1 x X1 = 0; express as X1^ X1, where X1^ is (X1 hat) the skew-symmetric matrix for cross product.
+ 
+    X1^ = [0   -z1  y1]
+          [x1    0 -x1]
+          [-y1  x1   0]
+     
+    X1^ X1 = X1^ H p X2
+    0 = X1^ H p X2; p is a non-zero scalar, so we can divide it out
+    0 = X1^ H X2
+     
+ Now work out the coefficients
+     
+    H X2 = [ H0 H1 H2 ] [x2]   [H0x2+H1y2+H2]
+           [ H3 H4 H5 ]*[y2] = [H3x2+H4y2+H5]
+           [ H6 H7 H8 ] [ 1]   [H6x2+H7y2+H8]
+     
+                [0       0       0       -z1x2   -z1y2   -z1     y1x2    y1y2    y1 ]   [H0]
+    X1^ H X2 =  [z1x2    z1y2    z1      0       0       0       -x1x2   -x1y2   -x1] * [H1]
+                [-y1x2   -y1y2   -y1     x1x2    x1y2    x1      0       0       0  ]   [H2]
+                                                                                        [H3]
+                                                                                        [H4]
+                                                                                        [H5]
+                                                                                        [H6]
+                                                                                        [H7]
+                                                                                        [H8]
+ 
+ Note: when we use z = 0, the first two constraints collapse.
+ Even when z is just a constant, columns 3 and 6 become constant, so rank = 7
+ Right now we use z = 1 and the second two constraints (still doesn't seem to work with z = 0)
+ 
+ Decomposition of planar homography matrix should follow Masks derivation.
+ */
+static void homography_set_correspondence_one_sided(matrix &X, int n, float x1, float y1, float z1, float x2, float y2)
+{
+    int row = n * 2;
+    /*X(row, 0) = 0;
+     X(row, 1) = 0;
+     X(row, 2) = 0;
+     X(row, 3) = -z1 * x2;
+     X(row, 4) = -z1 * y2;
+     X(row, 5) = -z1;
+     X(row, 6) = y1 * x2;
+     X(row, 7) = y1 * y2;
+     X(row, 8) = y1;
+     row++;*/
+    
+    X(row, 0) = z1 * x2;
+    X(row, 1) = z1 * y2;
+    X(row, 2) = z1;
+    X(row, 3) = 0;
+    X(row, 4) = 0;
+    X(row, 5) = 0;
+    X(row, 6) = -x1 * x2;
+    X(row, 7) = -x1 * y2;
+    X(row, 8) = -x1;
+    row++;
+    
+    X(row, 0) = -y1 * x2;
+    X(row, 1) = -y1 * y2;
+    X(row, 2) = -y1;
+    X(row, 3) = x1 * x2;
+    X(row, 4) = x1 * y2;
+    X(row, 5) = x1;
+    X(row, 6) = 0;
+    X(row, 7) = 0;
+    X(row, 8) = 0;
+    
+}
+
 /* Positive depth check adapted from essentialDiscrete.m
  */
-bool check_solution(const m4 & R, const v4 & T, const feature_t p1[4], const feature_t p2[4])
+bool homography_check_solution(const m4 &R, const v4 &T, const feature_t p1[4], const feature_t p2[4])
 {
     int nvalid = 0;
     for(int i = 0; i < 4; i++)
@@ -63,29 +160,22 @@ bool check_solution(const m4 & R, const v4 & T, const feature_t p1[4], const fea
     return false;
 }
 
-//Based on Matlab from http://cs.gmu.edu/%7Ekosecka/examples-code/homography2Motion.m
-bool compute_planar_homography(const feature_t p1[4], const feature_t p2[4], m4 & R, v4 & T)
+m4 homography_estimate_from_constraints(const matrix &X)
 {
-    matrix X(8, 9);
-    
-    /* Matlab:
-     NPOINTS = size(p,2);
-     B = [];
-     for i = 1:NPOINTS
-     B = [B; makeRows(p(:,i), q(:,i))];
-     end;
-     */
-    for(int c = 0; c < 4; ++c)
-    {
-        set_homography_correspondence(X, c, p1[c].x, p1[c].y, p2[c].x, p2[c].y);
-    }
-    
     //Matlab: [u,s,v] = svd(B);
     matrix U(8, 8);
     matrix S(1, 8);
     matrix Vt(9, 9);
     
-    matrix_svd(X, U, S, Vt);
+    matrix Xtmp(8, 9);
+    //SVD destroys passed in matrix
+    for(int i = 0; i < 8; ++i) {
+        for(int j = 0; j < 9; ++j)
+        {
+            Xtmp(i, j) = X(i, j);
+        }
+    }
+    matrix_svd(Xtmp, U, S, Vt);
     
     //Matlab: h = v(:,9);
     //    Hest = transpose(reshape(h,[3,3]));
@@ -117,8 +207,14 @@ bool compute_planar_homography(const feature_t p1[4], const feature_t p2[4], m4 
     matrix_svd(Hest_tmp, U, S, Vt);
     
     //Matlab: H = Hest/s(2,2);
-    m4 H = Hest * (1. / S[1]);
-    
+    return Hest * (1. / S[1]);
+}
+
+void homography_factorize(const m4 &H, m4 Rs[4], v4 Ts[4], v4 Ns[4])
+{
+    matrix U(3, 3);
+    matrix S(1, 3);
+    matrix Vt(3, 3);
     //Matlab: [u,s,v] = svd(H'*H);
     m4 HtH = transpose(H) * H;
     matrix HtH_tmp(&(HtH.data[0][0]), 3, 3, 4, 4);
@@ -137,7 +233,7 @@ bool compute_planar_homography(const feature_t p1[4], const feature_t p2[4], m4 
             Utmp[i][j] = U(i, j);
         }
     }
-    float usign = (determinant3(Utmp) < 0.) ? 1. : -1.;
+    //float usign = (determinant3(Utmp) < 0.) ? 1. : -1.;
     
     v4 v1(U(0, 0), U(1, 0), U(2, 0), 0.);
     v4 v2(U(0, 1), U(1, 1), U(2, 1), 0.);
@@ -195,7 +291,6 @@ bool compute_planar_homography(const feature_t p1[4], const feature_t p2[4], m4 
      Sol(:,:,3) = [W1*U1', -(H - W1*U1')*N1, -N1];
      Sol(:,:,4) = [W2*U2', -(H - W2*U2')*N2, -N2];
      */
-    m4 Rs[4]; v4 Ns[4]; v4 Ts[4];
     Rs[0] = W1 * transpose(U1);
     Rs[1] = W2 * transpose(U2);
     Rs[2] = W1 * transpose(U1);
@@ -219,10 +314,13 @@ bool compute_planar_homography(const feature_t p1[4], const feature_t p2[4], m4 
     Ns[1] = N2;
     Ns[2] = -N1;
     Ns[3] = -N2;
-    
+}
+
+bool homography_pick_solution(const m4 Rs[4], const v4 Ts[4], const v4 Ns[4], const feature_t p1[4], const feature_t p2[4], m4 &R, v4 &T)
+{
     R = m4_identity;
     T = v4(0,0,0,0);
-
+    
     f_t maxdelta2 = .1; //This is sufficiently high that no valid solution should exceed it
     f_t mindelta2 = maxdelta2;
     
@@ -232,7 +330,7 @@ bool compute_planar_homography(const feature_t p1[4], const feature_t p2[4], m4 
         // since e3 is [0, 0, 1] this is equivalent
         // TODO: this returns two solutions for the qr code case
         // unless we enforce that N is approximately [0, 0, 1]
-        if(Ns[i][2] > 0.99 && check_solution(Rs[i], Ts[i], p1, p2))
+        if(Ns[i][2] > 0.99 && homography_check_solution(Rs[i], Ts[i], p1, p2))
         {
             f_t delta2 = 0.;
             for(int c = 0; c < 4; ++c)
@@ -260,6 +358,96 @@ bool compute_planar_homography(const feature_t p1[4], const feature_t p2[4], m4 
     return false;
 }
 
+
+bool homography_pick_solution_one_sided(const m4 Rs[4], const v4 Ts[4], const v4 Ns[4], const v4 world_points[4], const feature_t calibrated[4], m4 &R, v4 &T)
+{
+    R = m4_identity;
+    T = v4(0,0,0,0);
+
+    f_t maxdelta2 = .1; //This is sufficiently high that no valid solution should exceed it
+    f_t mindelta2 = maxdelta2;
+    
+    for(int i = 0; i < 4; ++i)
+    {
+        // MaSKS advocates checking N'*e3 > 0, but
+        // since e3 is [0, 0, 1] this is equivalent
+        // TODO: this returns two solutions for the qr code case
+        // unless we enforce that N is approximately [0, 0, 1]
+        
+        f_t delta2 = 0.;
+        for(int c = 0; c < 4; ++c)
+        {
+            v4 x = world_points[c];
+            v4 xc = Rs[i] * x + Ts[i];
+            f_t dx = xc[0] / xc[2] - calibrated[c].x;
+            f_t dy = xc[1] / xc[2] - calibrated[c].y;
+            fprintf(stderr, "%f %f\n", xc[0] / xc[2], xc[1] / xc[2]);
+            delta2 += dx * dx + dy * dy;
+        }
+        if(delta2 < mindelta2)
+        {
+            mindelta2 = delta2;
+            R = Rs[i];
+            T = Ts[i];
+        }
+    }
+    if(mindelta2 < maxdelta2)
+    {
+        fprintf(stderr, "Final solution, error %e:\n", mindelta2);
+        R.print(); T.print(); fprintf(stderr, "\n");
+        return true;
+    }
+    return false;
+}
+
+bool homography_compute_one_sided(const v4 world_points[4], const feature_t calibrated[4], m4 &R, v4 &T)
+{
+    matrix X(8, 9);
+    for(int c = 0; c < 4; ++c)
+    {
+        homography_set_correspondence_one_sided(X, c, world_points[c][0], world_points[c][1], world_points[c][2], calibrated[c].x, calibrated[c].y);
+    }
+    m4 Rs[4];
+    v4 Ts[4], Ns[4];
+    m4 H = homography_estimate_from_constraints(X);
+    homography_factorize(H, Rs, Ts, Ns);
+    fprintf(stderr, "solutions found:\n");
+    for(int i = 0; i < 4; ++i)
+    {
+        //Our R,T are opposite of the standard approach
+        Rs[i] = transpose(Rs[i]);
+        Ts[i] = Rs[i] * -Ts[i];
+        Ns[i] = Rs[i] * Ns[i];
+        Rs[i].print(); Ts[i].print(); Ns[i].print();
+        fprintf(stderr, "\n\n");
+    }
+    return homography_pick_solution_one_sided(Rs, Ts, Ns, world_points, calibrated, R, T);
+}
+
+//Based on Matlab from http://cs.gmu.edu/%7Ekosecka/examples-code/homography2Motion.m
+bool homography_compute(const feature_t p1[4], const feature_t p2[4], m4 &R, v4 &T)
+{
+    matrix X(8, 9);
+    
+    /* Matlab:
+     NPOINTS = size(p,2);
+     B = [];
+     for i = 1:NPOINTS
+     B = [B; makeRows(p(:,i), q(:,i))];
+     end;
+     */
+    for(int c = 0; c < 4; ++c)
+    {
+        //Note: Since we choose X1, this should never be degenerate
+        homography_set_correspondence(X, c, p1[c].x, p1[c].y, p2[c].x, p2[c].y);
+    }
+    m4 Rs[4];
+    v4 Ts[4], Ns[4];
+    m4 H = homography_estimate_from_constraints(X);
+    homography_factorize(H, Rs, Ts, Ns);
+    return homography_pick_solution(Rs, Ts, Ns, p1, p2, R, T);
+}
+
 /*
  * Computes a homography between calibrated image points and a fake image.
  * The fake image is composed of a qr code which is one meter on each side
@@ -279,7 +467,7 @@ bool compute_planar_homography(const feature_t p1[4], const feature_t p2[4], m4 
  *
  * qr_width is the width in meters of the qr code in world coordinates.
  */
-bool compute_qr_homography(feature_t calibrated_points[4], float qr_width, m4 &R, v4 &T)
+bool homography_solve_qr(feature_t calibrated_points[4], float qr_width, m4 &R, v4 &T)
 {
     // Fake image of a qr code qr_width meter on each side, located at z=1 on an image plane at z=1
     feature_t ideal_points[4];
@@ -287,8 +475,8 @@ bool compute_qr_homography(feature_t calibrated_points[4], float qr_width, m4 &R
     ideal_points[1] = (feature_t){.x = -.5f*qr_width, .y = .5f*qr_width};
     ideal_points[2] = (feature_t){.x = .5f*qr_width,  .y = .5f*qr_width};
     ideal_points[3] = (feature_t){.x = .5f*qr_width,  .y = -.5f*qr_width};
-
-    bool success = compute_planar_homography(ideal_points, calibrated_points, R, T);
+    
+    bool success = homography_compute(ideal_points, calibrated_points, R, T);
 
     // Include the translation from the camera origin to the image plane
     if(success)

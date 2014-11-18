@@ -1366,5 +1366,5 @@ bool filter_get_qr_code_transformation(struct filter *f, float qr_size, float co
         calibrated[c] = f->s.calibrate_feature(image_corners[c]);
     }
     
-    return compute_qr_homography(calibrated, qr_size, R, T);
+    return homography_solve_qr(calibrated, qr_size, R, T);
 }

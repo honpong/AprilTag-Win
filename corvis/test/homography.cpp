@@ -136,5 +136,6 @@ TEST(Homography, ImageReal)
 
     m4 Rres;
     v4 Tres;
-    homography_solve_qr(calibrated, real_size, Rres, Tres);
+    bool success = homography_solve_qr(calibrated, real_size, Rres, Tres);
+    EXPECT_EQ(success, true);
 }

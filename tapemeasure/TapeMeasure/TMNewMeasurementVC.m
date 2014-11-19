@@ -571,11 +571,8 @@ static transition transitions[] =
     newMeasurement.pointToPoint_stdev = sqrt(ptxlin * ptxlin + ptylin * ptylin + ptzlin * ptzlin);
     
     newMeasurement.rotationX = transformation.rotation.x;
-    newMeasurement.rotationX_stdev = transformation.rotation.stdx;
     newMeasurement.rotationY = transformation.rotation.y;
-    newMeasurement.rotationY_stdev = transformation.rotation.stdy;
     newMeasurement.rotationZ = transformation.rotation.z;
-    newMeasurement.rotationZ_stdev = transformation.rotation.stdz;
     
     [newMeasurement autoSelectUnitsScale];
     

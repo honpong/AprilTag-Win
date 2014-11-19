@@ -316,6 +316,11 @@ void test_rotation(const v4 &vec)
         m4 jacpert = rotmat + apply_jacobian_m4v4(to_rotation_matrix_jacobian(quat), v4_delta);
         test_m4_near(jacpert, qpert, .001);
     }
+    quaternion qinv = to_quaternion(rotmat);
+    {
+        SCOPED_TRACE("q = to_quaternion(to_rotation_matrix(q))");
+        test_quaternion_near_rotation(quat, qinv, 1.e-15);
+    }
     
     integrate_angular_velocity_jacobian(quat, angvel, dW_dW, dW_dw);
     {

@@ -30,4 +30,15 @@ static inline void test_quaternion_near(const quaternion &a, const quaternion &b
     EXPECT_NEAR(a.z(), b.z(), bounds) << "Where index is z";
 }
 
+static inline void test_quaternion_near_rotation(const quaternion &a, const quaternion &b, const f_t bounds)
+{
+    //interpreted as rotations, q = -q
+    if((a.w() < 0. && b.w() >= 0.) || (a.w() >= 0. && b.w() < 0.))
+    {
+        test_quaternion_near(a, quaternion(-b.w(), -b.x(), -b.y(), -b.z()), bounds);
+    } else {
+        test_quaternion_near(a, b, bounds);
+    }
+}
+
 #endif

@@ -16,6 +16,7 @@ var dm_canvas;
 var dm_context;
 var dm_mask_canvas;
 var dm_mask_context;
+var dm_mask_canvas_backgound_color = 'rgba(9,0,0,1)';
 var dm_masking_image;
 var dm_drawn = false;
 var dm_mask_drawn = false;
@@ -62,7 +63,7 @@ function dm_mask_size(x,y){
     dm_mask_canvas.height = y;
     
     dm_mask_context = dm_mask_canvas.getContext('2d');
-    dm_mask_context.fillStyle   = 'rgba(0,0,0,0.8)';
+    dm_mask_context.fillStyle   = dm_mask_canvas_backgound_color;
     dm_mask_context.fillRect  (0,   0, dm_mask_canvas.width, dm_mask_canvas.height);
     dm_mask_context.globalCompositeOperation = 'destination-out'; //so subsequent drawing remvoes content
 }

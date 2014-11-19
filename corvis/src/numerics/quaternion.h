@@ -246,6 +246,43 @@ static inline m4v4 to_rotation_matrix_jacobian(const quaternion &q)
     }};
 }
 
+static inline quaternion to_quaternion(const m4 &m)
+{
+    v4 tr;
+    quaternion res;
+    tr[0] = ( m[0][0] + m[1][1] + m[2][2]);
+    tr[1] = ( m[0][0] - m[1][1] - m[2][2]);
+    tr[2] = (-m[0][0] + m[1][1] - m[2][2]);
+    tr[3] = (-m[0][0] - m[1][1] + m[2][2]);
+    if(tr[0] >= tr[1] && tr[0]>= tr[2] && tr[0] >= tr[3])
+    {
+        f_t s = 2. * sqrt(tr[0] + 1);
+        res.w() = .25 * s;
+        res.x() = (m[2][1] - m[1][2]) / s;
+        res.y() = (m[0][2] - m[2][0]) / s;
+        res.z() = (m[1][0] - m[0][1]) / s;
+    } else if(tr[1] >= tr[2] && tr[1] >= tr[3]) {
+        f_t s = 2. * sqrt(tr[1] + 1);
+        res.w() = (m[2][1] - m[1][2]) / s;
+        res.x() = .25 * s;
+        res.y() = (m[1][0] + m[0][1]) / s;
+        res.z() = (m[2][0] + m[0][2]) / s;
+    } else if(tr[2] >= tr[3]) {
+        f_t s = 2. * sqrt(tr[2] + 1.);
+        res.w() = (m[0][2] - m[2][0]) / s;
+        res.x() = (m[1][0] + m[0][1]) / s;
+        res.y() = .25 * s;
+        res.z() = (m[1][2] + m[2][1]) / s;
+    } else {
+        f_t s = 2. * sqrt(tr[3] + 1.);
+        res.w() = (m[1][0] - m[0][1]) / s;
+        res.x() = (m[0][2] + m[2][0]) / s;
+        res.y() = (m[1][2] + m[2][1]) / s;
+        res.z() = .25 * s;
+    }
+    return normalize(res);
+}
+
 static inline quaternion to_quaternion(const rotation_vector &v) {
     f_t theta2 = v.x()*v.x() + v.y()*v.y() + v.z()*v.z();
     f_t theta = sqrt(theta2);

@@ -730,11 +730,13 @@ typedef NS_ENUM(int, RCLicenseStatus)
     
     if (sampleBuffer) sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
     RCTranslation* translation = [[RCTranslation alloc] initWithVector:f->s.T.v withStandardDeviation:v4_sqrt(f->s.T.variance())];
-    RCRotation* rotation = [[RCRotation alloc] initWithVector:f->s.W.v.raw_vector() withStandardDeviation:v4_sqrt(v4(f->s.W.variance()))];
+    quaternion q = to_quaternion(f->s.W.v);
+    RCRotation* rotation = [[RCRotation alloc] initWithQuaternionW:q.w() withX:q.x() withY:q.y() withZ:q.z()];
     RCTransformation* transformation = [[RCTransformation alloc] initWithTranslation:translation withRotation:rotation];
 
     RCTranslation* camT = [[RCTranslation alloc] initWithVector:f->s.Tc.v withStandardDeviation:v4_sqrt(f->s.Tc.variance())];
-    RCRotation* camR = [[RCRotation alloc] initWithVector:f->s.Wc.v.raw_vector() withStandardDeviation:v4_sqrt(v4(f->s.Wc.variance()))];
+    q = to_quaternion(f->s.Wc.v);
+    RCRotation* camR = [[RCRotation alloc] initWithQuaternionW:q.w() withX:q.x() withY:q.y() withZ:q.z()];
     RCTransformation* camTransform = [[RCTransformation alloc] initWithTranslation:camT withRotation:camR];
     
     RCScalar *totalPath = [[RCScalar alloc] initWithScalar:f->s.total_distance withStdDev:0.];

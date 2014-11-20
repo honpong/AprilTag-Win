@@ -26,7 +26,7 @@
  */
 - (void) sensorFusionDidUpdateData:(RCSensorFusionData*)data;
 
-/** Sent to the delegate whenever the status of RCSensorFusion changes, including when an error occurs.
+/** Sent to the delegate whenever the status of RCSensorFusion changes, including when an error occurs, or a previous error state is cleared.
  
  @param status An instance of RCSensorFusionStatus containing the current sensor fusion status.
  */
@@ -68,7 +68,7 @@
 
 /** Starts a special one-time static calibration mode.
  
- This method may be called to estimate internal parameters; running it once on a particular device should improve the quality of output for that device. The device should be placed on a solid surface (not held in the hand), and left completely still for the duration of the static calibration. The camera is not used in this mode, so it is OK if the device is placed on its back. Check [RCSensorFusionStatus progress] to determine how well the parameters have been calibrated. When finished, RCSensorFusion will return to the inactive state and the resulting device parameters will be saved. You do not need to call startSensorFusion or stopSensorFusion when running static calibration.
+ This method may be called to estimate internal parameters; running it once on a particular device should improve the quality of output for that device. The device should be placed on a solid surface (not held in the hand), and left completely still for the duration of the static calibration. The camera is not used in this mode, so it is OK if the device is placed on its back. Check [RCSensorFusionStatus progress] to determine calibration progress. When finished, RCSensorFusion will automatically transition to handheld portrait and landscape calibration modes, where the device should be heald steady in each orientation. Your app should monitor [RCSensorFusionStatus runState] to determine the proper instructions to provide the user. See the provided calibration source code for details. You do not need to call startSensorFusion or stopSensorFusion when running calibration.
  */
 - (void) startStaticCalibration;
 

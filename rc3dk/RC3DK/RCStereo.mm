@@ -12,6 +12,7 @@
 #import <UIKit/UIKit.h>
 
 #include "../../corvis/src/numerics/vec4.h"
+#include "../../corvis/src/numerics/quaternion.h"
 #include "../../corvis/src/stereo/stereo.h"
 
 @interface RCStereo ()
@@ -98,7 +99,7 @@
     s.width = (int)CVPixelBufferGetWidth(pixelBuffer);
     s.height = (int)CVPixelBufferGetHeight(pixelBuffer);
     v4 T = data.cameraTransformation.translation.vector;
-    rotation_vector W = rotation_vector(data.cameraTransformation.rotation.x, data.cameraTransformation.rotation.y, data.cameraTransformation.rotation.z);
+    rotation_vector W = to_rotation_vector(quaternion(data.cameraTransformation.rotation.quaternionW, data.cameraTransformation.rotation.quaternionX, data.cameraTransformation.rotation.quaternionY, data.cameraTransformation.rotation.quaternionZ));
     s.focal_length = data.cameraParameters.focalLength;
     s.center_x = data.cameraParameters.opticalCenterX;
     s.center_y = data.cameraParameters.opticalCenterY;

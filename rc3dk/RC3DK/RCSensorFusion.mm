@@ -146,14 +146,38 @@ typedef NS_ENUM(int, RCLicenseStatus)
     corner_y[2] = bottomright.y*imageHeight;
     corner_y[3] = topright.y*imageHeight;
     
-    m4 R;
-    v4 T;
-    if(filter_get_qr_code_transformation(sfm, detection.dimension, corner_x, corner_y, R, T))
+    m4 Rq;
+    v4 Tq;
+    
+    /*
+     R and T provided by qr code transform: X_cam = Rq * X_new_world + Tq
+     Saved transformation: X_old_world = Rs * X_cam + Ts
+     
+     So result is X_old_world = Rs * (Rq * X_new_world + Tq) + Ts
+     We want zaxis new = zaxis old, so we will find an Rd that aligns them, and set Rq = Rq * Rd
+     */
+    
+    if(filter_get_qr_code_transformation(sfm, detection.dimension, corner_x, corner_y, Rq, Tq))
     {
-        RCTranslation* o_translation = [[RCTranslation alloc] initWithVector:T withStandardDeviation:v4(0.)];
-        RCRotation* o_rotation = [[RCRotation alloc] initWithVector:invrodrigues(R, NULL) withStandardDeviation:v4(0.)];
-        RCTransformation *o_trans = [[RCTransformation alloc] initWithTranslation:o_translation withRotation:o_rotation];
-        originTransform = [[detection.transformation composeWithTransformation:o_trans] getInverse];
+        quaternion Qq = to_quaternion(Rq);
+        quaternion Qs = quaternion(detection.transformation.rotation.quaternionW, detection.transformation.rotation.quaternionX, detection.transformation.rotation.quaternionY, detection.transformation.rotation.quaternionZ);
+        v4 z_old(0., 0., 1., 0.);
+        quaternion Qsq = quaternion_product(Qs, Qq);
+        v4 z_new = quaternion_rotate(Qsq, z_old);
+        quaternion Qd = rotation_between_two_vectors_normalized(z_old, z_new);
+        quaternion Qsqd = quaternion_product(Qd, Qsq);
+        
+        //here: Qd is not right
+        
+        v4 Tsq = v4(detection.transformation.translation.vector) + quaternion_rotate(Qs, Tq);
+        
+        v4 Tres = Tsq;
+        quaternion Qres = Qsq;
+
+        RCTranslation * translation = [[RCTranslation alloc] initWithX:Tres[0] withY:Tres[1] withZ:Tres[2]];
+        RCRotation * rotation = [[RCRotation alloc] initWithQuaternionW:Qres.w() withX:Qres.x() withY:Qres.y() withZ:Qres.z()];
+        
+        originTransform = [[[RCTransformation alloc] initWithTranslation:translation withRotation:rotation] getInverse];
         QRID_origin = detection.code;
     }
 }
@@ -751,7 +775,8 @@ typedef NS_ENUM(int, RCLicenseStatus)
         transformation = [QRSync.originTransform composeWithTransformation:transformation];
     }
     
-    RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithTransformation:transformation withCameraTransformation:[transformation composeWithTransformation:camTransform] withCameraParameters:camParams withTotalPath:totalPath withFeatures:[self getFeaturesArray] withSampleBuffer:sampleBuffer withTimestamp:f->last_time];
+    RCTransformation *cameraTransformation = [transformation composeWithTransformation:camTransform];
+    RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithTransformation:transformation withCameraTransformation:cameraTransformation withCameraParameters:camParams withTotalPath:totalPath withFeatures:[self getFeaturesArray] withSampleBuffer:sampleBuffer withTimestamp:f->last_time];
 
     //send the callback to the main/ui thread
     dispatch_async(dispatch_get_main_queue(), ^{

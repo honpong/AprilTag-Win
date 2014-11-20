@@ -100,15 +100,20 @@ const static GLfloat cube_normals[vertex_count * 3] = {
     
     //Concatenating GLKit matrices goes left to right, and our shaders multiply with matrices on the left and vectors on the right.
     //So the last transformation listed is applied to our vertices first
-    GLKMatrix4 model;
+    GLKMatrix4 model = GLKMatrix4Identity;
     
-    //Place it 1/2 meter in front of the initial camera position
-    [initialCamera getOpenGLMatrix:model.m];
-    model = GLKMatrix4Translate(model, 0, 0, .5);
-    GLKMatrix4 inverseInitialCameraRotation;
-    [[initialCamera.rotation getInverse] getOpenGLMatrix:inverseInitialCameraRotation.m];
-    model = GLKMatrix4Multiply(model, inverseInitialCameraRotation);
+    /*if(data.originQRCode == nil)
+    {
+        //Place it 1/2 meter in front of the initial camera position
+        [initialCamera getOpenGLMatrix:model.m];
+        model = GLKMatrix4Translate(model, 0, 0, .5);
+        GLKMatrix4 inverseInitialCameraRotation;
+        [[initialCamera.rotation getInverse] getOpenGLMatrix:inverseInitialCameraRotation.m];
+        model = GLKMatrix4Multiply(model, inverseInitialCameraRotation);
+    }*/
     
+    //Position it with the bottom face on the ground
+    model = GLKMatrix4Translate(model, 0., 0., .05);
     //Scale our cube so it's 10 cm on a side
     model = GLKMatrix4Scale(model, .05, .05, .05);
 

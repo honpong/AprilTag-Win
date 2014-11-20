@@ -13,7 +13,9 @@ typedef enum
 {
     DeviceTypeUnknown, DeviceTypeiPhone4s, DeviceTypeiPhone5, DeviceTypeiPad2, DeviceTypeiPad3, DeviceTypeiPad4, DeviceTypeiPadMini, DeviceTypeiPod5,
     DeviceTypeiPhone5c, DeviceTypeiPhone5s,
-    DeviceTypeiPadAir, DeviceTypeiPadMiniRetina
+    DeviceTypeiPhone6, DeviceTypeiPhone6Plus,
+    DeviceTypeiPadAir, DeviceTypeiPadMiniRetina,
+    DeviceTypeiPadAir2, DeviceTypeiPadMiniRetina2,
 } DeviceType;
 
 @interface RCDeviceInfo : NSObject
@@ -22,5 +24,6 @@ typedef enum
 + (NSString *) getPlatformString;
 + (DeviceType) getDeviceType;
 + (float) getPhysicalScreenMetersX;
++ (uint64_t) getFreeDiskSpaceInBytes;
 
 @end

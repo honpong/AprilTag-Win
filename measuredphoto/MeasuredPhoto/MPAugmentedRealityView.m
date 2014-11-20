@@ -162,12 +162,19 @@
 - (void) handleFeatureTapped:(CGPoint)coordinateTapped
 {
     CGPoint cameraPoint = [featuresLayer cameraPointFromScreenPoint:coordinateTapped];
-#ifdef MESH
-    RCFeaturePoint* pointTapped = [[RCStereo sharedInstance] triangulatePointWithMesh:cameraPoint];
-#else
-    RCFeaturePoint* pointTapped = [[RCStereo sharedInstance] triangulatePoint:cameraPoint];
-#endif
     
+#ifdef MESH
+    RCPoint* world = [[RCStereo sharedInstance] triangulatePointWithMesh:cameraPoint];
+#else
+    RCPoint* world = [[RCStereo sharedInstance] triangulatePoint:cameraPoint];
+#endif
+
+    RCFeaturePoint * pointTapped = [[RCFeaturePoint alloc] initWithId:0
+                                                                withX:cameraPoint.x
+                                                                withY:cameraPoint.y
+                                                    withOriginalDepth:[[RCScalar alloc] initWithScalar:1 withStdDev:100]
+                                                       withWorldPoint:world withInitialized:YES];
+
     if(pointTapped)
     {
         [self selectFeature:pointTapped];

@@ -119,58 +119,26 @@
     CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
 }
 
-- (RCFeaturePoint *) triangulatePoint:(CGPoint)point
+- (RCPoint *) triangulatePoint:(CGPoint)point
 {
     v4 world;
     bool success = mystereo.triangulate(point.x, point.y, world);
     if(!success)
         return NULL;
-    
-    // TODO: The feature is initialized with a completely invalid OriginalDepth
-    // but this is not used in drawing or calculating the distance
-    RCFeaturePoint* feature = [[RCFeaturePoint alloc]
-                               initWithId:0
-                               withX:point.x
-                               withY:point.y
-                               withOriginalDepth:[
-                                                  [RCScalar alloc]
-                                                  initWithScalar:1
-                                                  withStdDev:100]
-                               withWorldPoint:[
-                                               [RCPoint alloc]
-                                               initWithX:world[0]
-                                               withY:world[1]
-                                               withZ:world[2]]
-                               withInitialized:YES
-                               ];
+
+    RCPoint * feature = [[RCPoint alloc] initWithX:world[0] withY:world[1] withZ:world[2]];
     return feature;
 }
 
 
-- (RCFeaturePoint *) triangulatePointWithMesh:(CGPoint)point
+- (RCPoint *) triangulatePointWithMesh:(CGPoint)point
 {
     v4 world;
     bool success = mystereo.triangulate_mesh(point.x, point.y, world);
     if(!success)
         return NULL;
-    
-    // TODO: The feature is initialized with a completely invalid OriginalDepth
-    // but this is not used in drawing or calculating the distance
-    RCFeaturePoint* feature = [[RCFeaturePoint alloc]
-                               initWithId:0
-                               withX:point.x
-                               withY:point.y
-                               withOriginalDepth:[
-                                                  [RCScalar alloc]
-                                                  initWithScalar:1
-                                                  withStdDev:100]
-                               withWorldPoint:[
-                                               [RCPoint alloc]
-                                               initWithX:world[0]
-                                               withY:world[1]
-                                               withZ:world[2]]
-                               withInitialized:YES
-                               ];
+
+    RCPoint * feature = [[RCPoint alloc] initWithX:world[0] withY:world[1] withZ:world[2]];
     return feature;
 }
 

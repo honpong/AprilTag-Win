@@ -13,6 +13,7 @@
 
 // singletons
 #import "RCSensorFusion.h"
+#import "RCStereo.h"
 
 // data classes
 #import "RCFeaturePoint.h"

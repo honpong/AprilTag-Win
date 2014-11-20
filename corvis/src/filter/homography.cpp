@@ -321,7 +321,7 @@ bool homography_pick_solution(const m4 Rs[4], const v4 Ts[4], const v4 Ns[4], co
     R = m4_identity;
     T = v4(0,0,0,0);
     
-    f_t maxdelta2 = .1; //This is sufficiently high that no valid solution should exceed it
+    f_t maxdelta2 = .0005; //This is sufficiently high that no valid solution should exceed it
     f_t mindelta2 = maxdelta2;
     
     for(int i = 0; i < 4; ++i)
@@ -330,9 +330,12 @@ bool homography_pick_solution(const m4 Rs[4], const v4 Ts[4], const v4 Ns[4], co
         // since e3 is [0, 0, 1] this is equivalent
         // TODO: this returns two solutions for the qr code case
         // unless we enforce that N is approximately [0, 0, 1]
-        if(Ns[i][2] > 0.99 && homography_check_solution(Rs[i], Ts[i], p1, p2))
+        //if(Ns[i][2] > 0.99 && homography_check_solution(Rs[i], Ts[i], p1, p2))
         {
+
             f_t delta2 = 0.;
+            v4 cam_center = transpose(Rs[i]) * (v4(0., 0., 0., 1.) - Ts[i]);
+            if(cam_center[2] < 0.) delta2 = 1000.;
             for(int c = 0; c < 4; ++c)
             {
                 v4 x = v4(p1[c].x, p1[c].y, 1., 0.);
@@ -340,6 +343,7 @@ bool homography_pick_solution(const m4 Rs[4], const v4 Ts[4], const v4 Ns[4], co
                 f_t dx = xc[0] / xc[2] - p2[c].x;
                 f_t dy = xc[1] / xc[2] - p2[c].y;
                 delta2 += dx * dx + dy * dy;
+                if(xc[2] < 0.) delta2 += 100.;
             }
             if(delta2 < mindelta2)
             {

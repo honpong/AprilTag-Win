@@ -322,4 +322,39 @@ static inline void integrate_angular_velocity_jacobian(const quaternion &Q, cons
     }};
 }
 
+//Assumes a and b are already normalized
+static inline quaternion rotation_between_two_vectors_normalized(const v4 &a, const v4 &b)
+{
+    quaternion res;
+    f_t d = dot(a,b);
+    v4 axis;
+    if( d >= 1.) //the two vectors are aligned)
+    {
+        return quaternion();
+    }
+    else if(d < (-1. + 1.e-6)) //the two vector are (nearly) opposite, pick an arbitrary orthogonal axis
+    {
+        if(fabs(a[0]) > fabs(a[2])) //make sure we have a non-zero element
+        {
+            res = quaternion(0., -a[1], a[0], 0.);
+        } else {
+            res = quaternion(0., 0., -a[2], a[1]);
+        }
+    } else { // normal case
+        f_t s = sqrt((1. + d) * 2.);
+        
+        v4 axis = cross(a, b);
+        res = quaternion(.5 * s, axis[0] / s, axis[1] / s, axis[2] / s);
+    }
+    return normalize(res);
+}
+
+static inline quaternion rotation_between_two_vectors(const v4 &a, const v4 &b)
+{
+    //make sure the 3rd element is zero and normalize
+    v4 an(a[0], a[1], a[2], 0.);
+    v4 bn(b[0], b[1], b[2], 0.);
+    return rotation_between_two_vectors_normalized(an / norm(an), bn / norm(bn));
+}
+
 #endif

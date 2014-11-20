@@ -14,6 +14,7 @@ var spatial_data;
 
 var dm_canvas;
 var dm_context;
+var dm_canvas_imgData;
 var dm_mask_canvas;
 var dm_mask_context;
 var dm_mask_canvas_backgound_color = 'rgba(9,0,0,1)';
@@ -37,6 +38,7 @@ function dm_initialize(){
     dm_mask_svg = SVG(dm_mask_node);
     dm_canvas = null;
     dm_context = null;
+    dm_canvas_imgData = null;
     dm_mask_canvas= null;
     dm_mask_context = null;
 }
@@ -50,6 +52,13 @@ function dm_size(x,y){
     dm_canvas.width  = x;
     dm_canvas.height = y;
     dm_context = dm_canvas.getContext('2d');
+    dm_canvas_imgData = dm_context.createImageData(x,y);
+    for(var i = 0; i < dm_canvas_imgData.data.length; i+= 4) {
+        dm_canvas_imgData.data[i+0] = 1;
+        dm_canvas_imgData.data[i+1] = 1;
+        dm_canvas_imgData.data[i+2] = 1;
+        dm_canvas_imgData.data[i+3] = 200;
+    }
 
     dm_context.strokeStyle = 'rgba(0,0,0,.3)'; //for line stroking, so that we don't have to update stroke style in drawing loop.
 }
@@ -127,6 +136,28 @@ function dm_3d_location_from_pixel_location(x,y){
     return null;
 }
 
+function dm_3d_location_from_pixel_in_face(x,y,v1,v2,v3){
+    var calibrated_ray;
+    calibrated_ray = dm_calibrate_image_point(x, y, spatial_data.center[0], spatial_data.center[1],
+                                              spatial_data.focal_length, spatial_data.k1, spatial_data.k2, spatial_data.k3);
+    
+    //iterate over all triangles until one is found.
+    var t; //scaler which is multiplied by ray direction to get intersection of ray and triangle
+    var ray_origin = [0,0,0];
+    var ray_direction =  [calibrated_ray[0], calibrated_ray[1], 1];
+    
+    var ray_norm = Math.sqrt(ray_direction[0]*ray_direction[0] + ray_direction[1]*ray_direction[1] + ray_direction[2]*ray_direction[2])
+    ray_direction[0] = ray_direction[0] / ray_norm;
+    ray_direction[1] = ray_direction[1] / ray_norm;
+    ray_direction[2] = ray_direction[2] / ray_norm;
+    t = dm_triangle_intersect(v1, v2, v3, [0,0,0], ray_direction);
+    if (t > EPSILON) {
+        return [ray_direction[0]*t, ray_direction[1]*t, ray_direction[2]*t];
+    }
+    return null;
+}
+
+
 function dm_cross(out, a, b) {
     out[0] = a[1]*b[2]-a[2]*b[1];
     out[1] = a[2]*b[0]-a[0]*b[2];
@@ -194,6 +225,8 @@ function dm_triangle_intersect(   v1,v2,v3,  // Triangle vertices
 function finalize_dm(){
     //console.log('finalize_dm()');
     rcMessage.clear();
+    
+    dm_context.putImageData(dm_canvas_imgData,0,0);
     
     img_clone =image.clone();
     img_clone.filter(function(add) {
@@ -315,7 +348,7 @@ function fill_depth_map(){
                 dm_t[1][4] = v2[2];
                 dm_t[2][4] = v3[2];
 
-                dm_add_traingle(dm_t); //draw the color to each triangle w/ gradient
+                dm_imgData_add_traingle(dm_t); //draw the color to each triangle w/ gradient
             }
 
 
@@ -375,24 +408,104 @@ function dm_add_traingle(vs){
     
 }
 
+function dm_triangle_sign (p1, p2, p3)
+{
+    return (p1[0] - p3[0]) * (p2[1] - p3[1]) - (p2[0] - p3[0]) * (p1[1] - p3[1]);
+}
+
+function dm_PointInTriangle (pt, v1, v2, v3)
+{
+    var b1, b2, b3;
+    
+    b1 = dm_triangle_sign(pt, v1, v2) < 0.0001;
+    b2 = dm_triangle_sign(pt, v2, v3) < 0.0001;
+    b3 = dm_triangle_sign(pt, v3, v1) < 0.0001;
+    
+    return ((b1 == b2) && (b2 == b3));
+}
+
+
+function dm_imgData_add_traingle(vs){
+    //a triangle describes a plain, where x and y are image coordinates, and z is depth.
+    //we will find the equation of the plain to calculated dx,dy in order to generate a gradiant.
+    var v0 = [Math.round(vs[0][0]),Math.round(vs[0][1]),0], v1 = [Math.round(vs[1][0]),Math.round(vs[1][1]),0], v2 = [Math.round(vs[2][0]),Math.round(vs[2][1]),0];
+    v0[2] = vs[0][2]*vs[0][2]+vs[0][3]*vs[0][3]+vs[0][4]*vs[0][4]
+    v1[2] = vs[1][2]*vs[1][2]+vs[1][3]*vs[1][3]+vs[1][4]*vs[1][4]
+    v2[2] = vs[2][2]*vs[2][2]+vs[2][3]*vs[2][3]+vs[2][4]*vs[2][4]
+    
+    //determine equaiton of plan s.t. we can subsequently calculate depth
+    var v12=[0,0,0], v13=[0,0,0], norm_vec = [0,0,0];
+    dm_sub(v12, v1, v0);      //calculate cross product of edge vectors to get normal vector.
+    dm_sub(v13, v2, v0);
+    dm_cross(norm_vec, v12, v13);
+    var d = dm_dot(norm_vec, v2); //calculate offset constant using normal
+    var doc = d/norm_vec[2];
+    var aoc = norm_vec[0]/norm_vec[2];
+    var boc = norm_vec[1]/norm_vec[2];
+    
+    // figure out bounds of iteration
+    var min_x = v0[0], max_x = v0[0], min_y = v0[1], max_y = v0[1];
+    if (v0[0]>v1[0]||v0[0]>v2[0]) { min_x = Math.min(v1[0], v2[0]); }
+    if (v0[0]<v1[0]||v0[0]<v2[0]) { max_x = Math.max(v1[0], v2[0]); }
+    if (v0[1]>v1[1]||v0[1]>v2[1]) { min_y = Math.min(v1[1], v2[1]); }
+    if (v0[1]<v1[1]||v0[1]<v2[1]) { max_y = Math.max(v1[1], v2[1]); }
+    
+    var depth_at_ij, cv, s, t;
+    //inspired by http://stackoverflow.com/questions/2049582/how-to-determine-a-point-in-a-triangle
+    var area = 1/2 * (-v1[1] * v2[0] + v0[1] * (-v1[0] + v2[0]) + v0[0] * (v1[1] - v2[1]) + v1[0] * v2[1]);
+    var sign = area < 0 ? -1 : 1;
+    var s_b = (v0[1] * v2[0] - v0[0] * v2[1])* sign;
+    var s_x = (v2[1] - v0[1]) * sign;
+    var s_y = (v0[0] - v2[0]) * sign;
+    var t_b = (v0[0] * v1[1] - v0[1] * v1[0]) * sign;
+    var t_x = (v0[1] - v1[1]) * sign;
+    var t_y = (v1[0] - v0[0]) * sign;
+    var areaxsignx2 = 2.2 * area * sign;
+    
+    //iterate over triangle and fill imageData w/ color
+    for(var i = min_x; i <= max_x; i++){
+        for (var j = min_y; j <= max_y; j++) {
+            s = s_b + s_x * i + s_y * j;
+            t = t_b + t_x * i + t_y * j;
+            if (s > -0.1 && t > -0.1 && (s + t) < areaxsignx2) {
+                depth_at_ij = doc - aoc * i - boc * j; // z = (d - ax - by) / c
+                cv = dm_clr_values_from_depth(depth_at_ij);
+                dm_canvas_imgData.data[((j-1)*image_width+i)*4 +0] = cv[0];
+                dm_canvas_imgData.data[((j-1)*image_width+i)*4 +1] = cv[1];
+                dm_canvas_imgData.data[((j-1)*image_width+i)*4 +2] = cv[2];
+                dm_canvas_imgData.data[((j-1)*image_width+i)*4 +3] = cv[3];
+            }
+        }
+    }
+
+    
+}
+
+
 function grey_dm_clr_from_depth( current_depth_sqr) {
     var clr_int_str =  (255*(avg_depth_sqr-min_depth_sqr)/1.2/((avg_depth_sqr-min_depth_sqr)/1.2 + (current_depth_sqr-min_depth_sqr))).toFixed(0);
     return 'rgba('+clr_int_str+','+clr_int_str+','+clr_int_str+',0.5)';
 }
 
 function dm_clr_from_depth( current_depth_sqr) {
-    var x
+    var cv = dm_clr_values_from_depth(current_depth_sqr);
+    return 'rgba('+cv[0].toFixed()+','+cv[1].toFixed()+','+cv[2].toFixed()+',0.25)';
+}
+
+var dm_clrv_x;
+function dm_clr_values_from_depth( current_depth_sqr) {
     try {
-        x = (current_depth_sqr - min_depth_sqr)/(max_depth_sqr - min_depth_sqr);
+        dm_clrv_x = (current_depth_sqr - min_depth_sqr)/(max_depth_sqr - min_depth_sqr);
     }
     catch(err) {
-        x = 0.5;
+        dm_clrv_x = 0.5;
     }
-    var blue = Math.min( Math.max( 255*4*(x-0.45), 0), 255);
-    var red  = Math.min( Math.max( 255*4*(0.45-x), 0), 255);
-    var green= Math.min( Math.max( 255*4*(0.45 - Math.abs(x-0.5)), 0), 255);
-    return 'rgba('+red.toFixed()+','+green.toFixed()+','+blue.toFixed()+',0.25)';
+    return [ Math.min( Math.max( 255*4*(0.45-dm_clrv_x), 0), 255),
+             Math.min( Math.max( 255*4*(0.45 - Math.abs(dm_clrv_x-0.5)), 0), 255),
+             Math.min( Math.max( 255*4*(dm_clrv_x-0.45), 0), 255),
+            64];
 }
+
 
 
 function load_spatial_data(json_url) {   //image width needed becaues of image reversal

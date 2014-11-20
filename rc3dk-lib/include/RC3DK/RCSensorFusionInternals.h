@@ -33,9 +33,9 @@ typedef enum
 {
     /** No error has occurred. */
     RCSensorFusionErrorCodeNone = 0,
-    /** No visual features were detected in the most recent image. This is normal in some circumstances, such as quick motion or if the device temporarily looks at a blank wall. However, if this is received repeatedly, it may indicate that the camera is covered or it is too dark. RCSensorFusion will continue.*/
+    /** No visual features were detected in the most recent image. This is normal in some circumstances, such as quick motion or if the device temporarily looks at a blank wall. RCSensorFusion will continue. When features are detected again, [RCSensorFusionDelegate sensorFusionDidChangeStatus] will be called again with RCSensorFusionStatus.error set to nil. If the time between these two events is more than a couple seconds, it is likely to be unrecoverable.*/
     RCSensorFusionErrorCodeVision = 1,
-    /** The device moved more rapidly than expected for typical handheld motion. This may indicate that RCSensorFusion has failed and is providing invalid data. RCSensorFusion will continue.*/
+    /** The device moved more rapidly than expected for typical handheld motion. This may indicate that RCSensorFusion has failed and is providing invalid data. RCSensorFusion will be reset.*/
     RCSensorFusionErrorCodeTooFast = 2,
     /** A fatal internal error has occured. Please contact RealityCap and provide [RCSensorFusionStatus statusCode] from the status property of the last received RCSensorFusionData object. RCSensorFusion will be reset.*/
     RCSensorFusionErrorCodeOther = 3,

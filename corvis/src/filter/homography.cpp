@@ -150,13 +150,11 @@ bool homography_check_solution(const m4 &R, const v4 &T, const feature_t p1[4], 
         m4 skew_x2 = skew3(x2);
         float alpha1 = -sum((skew_x2*T)*(skew_x2*R*x1))/pow(norm(skew_x2*T), 2);
         float alpha2 =  sum((skew_Rx1*x2)*(skew_Rx1*T))/pow(norm(skew_Rx1*x2), 2);
-//        fprintf(stderr, "%f %f\n", alpha1, alpha2);
         if(alpha1 > 0 && alpha2 > 0)
             nvalid++;
     }
     if(nvalid == 4)
         return true;
-//    fprintf(stderr, "nvalid %d\n", nvalid);
     return false;
 }
 
@@ -355,8 +353,6 @@ bool homography_pick_solution(const m4 Rs[4], const v4 Ts[4], const v4 Ns[4], co
     }
     if(mindelta2 < maxdelta2)
     {
-        fprintf(stderr, "Final solution, error %e:\n", mindelta2);
-        R.print(); T.print(); fprintf(stderr, "\n");
         return true;
     }
     return false;
@@ -385,7 +381,6 @@ bool homography_pick_solution_one_sided(const m4 Rs[4], const v4 Ts[4], const v4
             v4 xc = Rs[i] * x + Ts[i];
             f_t dx = xc[0] / xc[2] - calibrated[c].x;
             f_t dy = xc[1] / xc[2] - calibrated[c].y;
-            fprintf(stderr, "%f %f\n", xc[0] / xc[2], xc[1] / xc[2]);
             delta2 += dx * dx + dy * dy;
         }
         if(delta2 < mindelta2)
@@ -397,8 +392,6 @@ bool homography_pick_solution_one_sided(const m4 Rs[4], const v4 Ts[4], const v4
     }
     if(mindelta2 < maxdelta2)
     {
-        fprintf(stderr, "Final solution, error %e:\n", mindelta2);
-        R.print(); T.print(); fprintf(stderr, "\n");
         return true;
     }
     return false;
@@ -415,15 +408,12 @@ bool homography_compute_one_sided(const v4 world_points[4], const feature_t cali
     v4 Ts[4], Ns[4];
     m4 H = homography_estimate_from_constraints(X);
     homography_factorize(H, Rs, Ts, Ns);
-    fprintf(stderr, "solutions found:\n");
     for(int i = 0; i < 4; ++i)
     {
         //Our R,T are opposite of the standard approach
         Rs[i] = transpose(Rs[i]);
         Ts[i] = Rs[i] * -Ts[i];
         Ns[i] = Rs[i] * Ns[i];
-        Rs[i].print(); Ts[i].print(); Ns[i].print();
-        fprintf(stderr, "\n\n");
     }
     return homography_pick_solution_one_sided(Rs, Ts, Ns, world_points, calibrated, R, T);
 }
@@ -485,7 +475,8 @@ bool homography_solve_qr(feature_t calibrated_points[4], float qr_width, m4 &R, 
 
     // Include the translation from the camera origin to the image plane
     if(success)
+    {
         T = T + R*v4(0, 0, 1, 0);
-
+    }
     return success;
 }

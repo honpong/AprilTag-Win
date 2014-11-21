@@ -14,7 +14,7 @@
 {
     for(AVMetadataMachineReadableCodeObject *metadata in metadataObjects)
     {
-        [[RCSensorFusion sharedInstance] requestTransformationForQRCodeObservation:metadata withDimension:.15];
+        [[RCSensorFusion sharedInstance] requestTransformationForQRCodeObservation:metadata withDimension:.17];
         break; //This could include up to 4 QR detections in the frame, but we just want the first one.
     }
 }

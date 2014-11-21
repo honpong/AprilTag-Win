@@ -161,23 +161,19 @@ typedef NS_ENUM(int, RCLicenseStatus)
     {
         quaternion Qq = to_quaternion(Rq);
         quaternion Qs = quaternion(detection.transformation.rotation.quaternionW, detection.transformation.rotation.quaternionX, detection.transformation.rotation.quaternionY, detection.transformation.rotation.quaternionZ);
-        v4 z_old(0., 0., 1., 0.);
         quaternion Qsq = quaternion_product(Qs, Qq);
-        v4 z_new = quaternion_rotate(Qsq, z_old);
-        quaternion Qd = rotation_between_two_vectors_normalized(z_old, z_new);
-        quaternion Qsqd = quaternion_product(Qd, Qsq);
-        
-        //here: Qd is not right
-        
         v4 Tsq = v4(detection.transformation.translation.vector) + quaternion_rotate(Qs, Tq);
-        
-        v4 Tres = Tsq;
-        quaternion Qres = Qsq;
 
-        RCTranslation * translation = [[RCTranslation alloc] initWithX:Tres[0] withY:Tres[1] withZ:Tres[2]];
-        RCRotation * rotation = [[RCRotation alloc] initWithQuaternionW:Qres.w() withX:Qres.x() withY:Qres.y() withZ:Qres.z()];
+        v4 z_old(0., 0., 1., 0.);
+        v4 z_new = quaternion_rotate(conjugate(Qsq), z_old);
+        quaternion Qd = rotation_between_two_vectors_normalized(z_old, z_new);
+        quaternion Qsqd = quaternion_product(Qsq, Qd);
+
+        RCTranslation * translation = [[RCTranslation alloc] initWithX:Tsq[0] withY:Tsq[1] withZ:Tsq[2]];
+        RCRotation * rotation = [[RCRotation alloc] initWithQuaternionW:Qsqd.w() withX:Qsqd.x() withY:Qsqd.y() withZ:Qsqd.z()];
         
         originTransform = [[[RCTransformation alloc] initWithTranslation:translation withRotation:rotation] getInverse];
+        
         QRID_origin = detection.code;
     }
 }
@@ -776,7 +772,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
     }
     
     RCTransformation *cameraTransformation = [transformation composeWithTransformation:camTransform];
-    RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithTransformation:transformation withCameraTransformation:cameraTransformation withCameraParameters:camParams withTotalPath:totalPath withFeatures:[self getFeaturesArray] withSampleBuffer:sampleBuffer withTimestamp:f->last_time];
+    RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithTransformation:transformation withCameraTransformation:cameraTransformation withCameraParameters:camParams withTotalPath:totalPath withFeatures:[self getFeaturesArray] withSampleBuffer:sampleBuffer withTimestamp:f->last_time withOriginQRCode:QRSync.QRID_origin];
 
     //send the callback to the main/ui thread
     dispatch_async(dispatch_get_main_queue(), ^{

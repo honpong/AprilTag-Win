@@ -570,9 +570,7 @@ static transition transitions[] =
     float ptxlin = transformation.translation.x / ptdist * transformation.translation.stdx, ptylin = transformation.translation.y / ptdist * transformation.translation.stdy, ptzlin = transformation.translation.z / ptdist * transformation.translation.stdz;
     newMeasurement.pointToPoint_stdev = sqrt(ptxlin * ptxlin + ptylin * ptylin + ptzlin * ptzlin);
     
-    newMeasurement.rotationX = transformation.rotation.x;
-    newMeasurement.rotationY = transformation.rotation.y;
-    newMeasurement.rotationZ = transformation.rotation.z;
+    //TODO: Store rotation if needed - update to quaternion
     
     [newMeasurement autoSelectUnitsScale];
     

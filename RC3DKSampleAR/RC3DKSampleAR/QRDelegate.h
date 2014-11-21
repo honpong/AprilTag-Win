@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "RC3DK.h"
 
 @interface QRDelegate : NSObject <AVCaptureMetadataOutputObjectsDelegate>
 

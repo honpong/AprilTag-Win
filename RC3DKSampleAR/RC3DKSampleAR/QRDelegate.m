@@ -14,7 +14,8 @@
 {
     for(AVMetadataMachineReadableCodeObject *metadata in metadataObjects)
     {
-        [[RCSensorFusion sharedInstance] requestTransformationForQRCodeObservation:metadata withDimension:.17];
+#warning Make sure you set this to the actual size of your QR code (width or height in meters)
+        [[RCSensorFusion sharedInstance] requestTransformationForQRCodeObservation:metadata withDimension:.1825];
         break; //This could include up to 4 QR detections in the frame, but we just want the first one.
     }
 }

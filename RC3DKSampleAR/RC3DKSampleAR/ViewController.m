@@ -23,6 +23,7 @@
     RCSensorFusionRunState currentRunState;
     QRDelegate *qrDelegate;
     AVCaptureMetadataOutput * detector;
+    bool detectorActive;
 }
 
 @synthesize statusLabel, progressBar;
@@ -109,26 +110,22 @@
     [[RCAVSessionManager sharedInstance] addOutput:detector];
     // object types can only be set after an output has been hooked up
     detector.metadataObjectTypes = @[AVMetadataObjectTypeQRCode];
+    detectorActive = true;
 
     statusLabel.text = @"Initializing. Hold the device steady.";
 }
 
 - (void)stopSensorFusion
 {
-    detector.metadataObjectTypes = @[];
-    [[RCAVSessionManager sharedInstance] removeOutput:detector];
-
     [progressBar setHidden:true];
     [sensorFusion stopSensorFusion];
     [[sensorDelegate getVideoProvider] setDelegate:videoPreview];
 
+    detector.metadataObjectTypes = @[];
+    [[RCAVSessionManager sharedInstance] removeOutput:detector];
+    detectorActive = false;
+
     isStarted = false;
-}
-
-#pragma mark - QRDetectionDelegate methods
-
-- (void) codeDetected:(NSString *)code withCorners:(NSArray *)corners withTransformation:(RCTransformation *)transformation withTimestamp:(uint64_t)timestamp
-{
 }
 
 #pragma mark - RCSensorFusionDelegate methods
@@ -138,6 +135,13 @@
 {
     //as long as we are initializing, update the initial camera pose
     if(currentRunState == RCSensorFusionRunStateSteadyInitialization) arDelegate.initialCamera = data.cameraTransformation;
+    
+    if(data.originQRCode != nil && detectorActive)
+    {
+        //This appears to cause the session to be reconfigured so causes a flash in the video.
+        detector.metadataObjectTypes = @[];
+        detectorActive = false;
+    }
     
     [videoPreview displaySensorFusionData:data];
 }

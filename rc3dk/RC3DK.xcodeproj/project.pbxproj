@@ -79,86 +79,6 @@
 		328A4DD61950DB2200587949 /* RCSensorFusionError.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 328A4DD01950D52000587949 /* RCSensorFusionError.h */; };
 		328A4DD71950DB2E00587949 /* RCLicenseError.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 328A4DD31950D5F400587949 /* RCLicenseError.h */; };
 		D351C6171A1E7EF7003DF3F3 /* RC3DKPlus.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D3B4EABD1A1E7DCC00BE0443 /* RC3DKPlus.h */; };
-		D392F8131A1E010F00BBB1FF /* boost.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D392F7851A1E010E00BBB1FF /* boost.a */; };
-		D392F8141A1E010F00BBB1FF /* geom.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7921A1E010E00BBB1FF /* geom.c */; };
-		D392F8151A1E010F00BBB1FF /* geom2.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7931A1E010E00BBB1FF /* geom2.c */; };
-		D392F8161A1E010F00BBB1FF /* global.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7941A1E010E00BBB1FF /* global.c */; };
-		D392F8171A1E010F00BBB1FF /* io.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7951A1E010E00BBB1FF /* io.c */; };
-		D392F8181A1E010F00BBB1FF /* libqhull.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7961A1E010E00BBB1FF /* libqhull.c */; };
-		D392F8191A1E010F00BBB1FF /* mem.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7971A1E010E00BBB1FF /* mem.c */; };
-		D392F81A1A1E010F00BBB1FF /* merge.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7981A1E010E00BBB1FF /* merge.c */; };
-		D392F81B1A1E010F00BBB1FF /* poly.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7991A1E010E00BBB1FF /* poly.c */; };
-		D392F81C1A1E010F00BBB1FF /* poly2.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F79A1A1E010E00BBB1FF /* poly2.c */; };
-		D392F81D1A1E010F00BBB1FF /* qset.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F79B1A1E010E00BBB1FF /* qset.c */; };
-		D392F81E1A1E010F00BBB1FF /* random.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F79C1A1E010E00BBB1FF /* random.c */; };
-		D392F81F1A1E010F00BBB1FF /* rboxlib.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F79D1A1E010E00BBB1FF /* rboxlib.c */; };
-		D392F8201A1E010F00BBB1FF /* stat.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F79E1A1E010E00BBB1FF /* stat.c */; };
-		D392F8211A1E010F00BBB1FF /* user.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F79F1A1E010E00BBB1FF /* user.c */; };
-		D392F8221A1E010F00BBB1FF /* usermem.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7A01A1E010E00BBB1FF /* usermem.c */; };
-		D392F8231A1E010F00BBB1FF /* userprintf_rbox.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7A11A1E010E00BBB1FF /* userprintf_rbox.c */; };
-		D392F8241A1E010F00BBB1FF /* userprintf.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7A21A1E010E00BBB1FF /* userprintf.c */; };
-		D392F8251A1E010F00BBB1FF /* bp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F7A41A1E010E00BBB1FF /* bp.cpp */; };
-		D392F8261A1E010F00BBB1FF /* gibbs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F7A51A1E010E00BBB1FF /* gibbs.cpp */; };
-		D392F8271A1E010F00BBB1FF /* alldai.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F7A61A1E010E00BBB1FF /* alldai.cpp */; };
-		D392F8281A1E010F00BBB1FF /* bbp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F7A71A1E010E00BBB1FF /* bbp.cpp */; };
-		D392F8291A1E010F00BBB1FF /* bipgraph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F7A81A1E010E00BBB1FF /* bipgraph.cpp */; };
-		D392F82A1A1E010F00BBB1FF /* bp_dual.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F7A91A1E010E00BBB1FF /* bp_dual.cpp */; };
-		D392F82B1A1E010F00BBB1FF /* clustergraph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F7AA1A1E010E00BBB1FF /* clustergraph.cpp */; };
-		D392F82C1A1E010F00BBB1FF /* dag.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F7AB1A1E010E00BBB1FF /* dag.cpp */; };
-		D392F82D1A1E010F00BBB1FF /* daialg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F7AC1A1E010E00BBB1FF /* daialg.cpp */; };
-		D392F82E1A1E010F00BBB1FF /* emalg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F7AD1A1E010E00BBB1FF /* emalg.cpp */; };
-		D392F82F1A1E010F00BBB1FF /* evidence.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F7AE1A1E010E00BBB1FF /* evidence.cpp */; };
-		D392F8301A1E010F00BBB1FF /* exactinf.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F7AF1A1E010E00BBB1FF /* exactinf.cpp */; };
-		D392F8311A1E010F00BBB1FF /* exceptions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F7B01A1E010E00BBB1FF /* exceptions.cpp */; };
-		D392F8321A1E010F00BBB1FF /* factor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F7B11A1E010E00BBB1FF /* factor.cpp */; };
-		D392F8331A1E010F00BBB1FF /* factorgraph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F7B21A1E010E00BBB1FF /* factorgraph.cpp */; };
-		D392F8341A1E010F00BBB1FF /* graph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F7B31A1E010E00BBB1FF /* graph.cpp */; };
-		D392F8351A1E010F00BBB1FF /* io.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F7B41A1E010E00BBB1FF /* io.cpp */; };
-		D392F8361A1E010F00BBB1FF /* properties.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F7B51A1E010E00BBB1FF /* properties.cpp */; };
-		D392F8371A1E010F00BBB1FF /* regiongraph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F7B61A1E010E00BBB1FF /* regiongraph.cpp */; };
-		D392F8381A1E010F00BBB1FF /* trwbp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F7B71A1E010E00BBB1FF /* trwbp.cpp */; };
-		D392F8391A1E010F00BBB1FF /* util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F7B81A1E010E00BBB1FF /* util.cpp */; };
-		D392F83A1A1E010F00BBB1FF /* varset.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F7B91A1E010E00BBB1FF /* varset.cpp */; };
-		D392F83B1A1E010F00BBB1FF /* weightedgraph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F7BA1A1E010E00BBB1FF /* weightedgraph.cpp */; };
-		D392F83C1A1E010F00BBB1FF /* RCStereo.mm in Sources */ = {isa = PBXBuildFile; fileRef = D392F7BD1A1E010E00BBB1FF /* RCStereo.mm */; };
-		D392F83D1A1E010F00BBB1FF /* aib.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7BE1A1E010E00BBB1FF /* aib.c */; };
-		D392F83E1A1E010F00BBB1FF /* array.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7C01A1E010E00BBB1FF /* array.c */; };
-		D392F83F1A1E010F00BBB1FF /* covdet.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7C21A1E010E00BBB1FF /* covdet.c */; };
-		D392F8401A1E010F00BBB1FF /* dsift.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7C41A1E010E00BBB1FF /* dsift.c */; };
-		D392F8411A1E010F00BBB1FF /* fisher.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7C61A1E010E00BBB1FF /* fisher.c */; };
-		D392F8421A1E010F00BBB1FF /* generic.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7C91A1E010E00BBB1FF /* generic.c */; };
-		D392F8431A1E010F00BBB1FF /* gmm.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7CB1A1E010E00BBB1FF /* gmm.c */; };
-		D392F8441A1E010F00BBB1FF /* hikmeans.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7CE1A1E010E00BBB1FF /* hikmeans.c */; };
-		D392F8451A1E010F00BBB1FF /* hog.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7D01A1E010E00BBB1FF /* hog.c */; };
-		D392F8461A1E010F00BBB1FF /* homkermap.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7D21A1E010E00BBB1FF /* homkermap.c */; };
-		D392F8471A1E010F00BBB1FF /* host.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7D41A1E010E00BBB1FF /* host.c */; };
-		D392F8481A1E010F00BBB1FF /* ikmeans.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7D91A1E010E00BBB1FF /* ikmeans.c */; };
-		D392F8491A1E010F00BBB1FF /* imopv_sse2.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7DB1A1E010E00BBB1FF /* imopv_sse2.c */; };
-		D392F84A1A1E010F00BBB1FF /* imopv.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7DD1A1E010E00BBB1FF /* imopv.c */; };
-		D392F84B1A1E010F00BBB1FF /* kdtree.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7DF1A1E010E00BBB1FF /* kdtree.c */; };
-		D392F84C1A1E010F00BBB1FF /* kmeans.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7E11A1E010E00BBB1FF /* kmeans.c */; };
-		D392F84D1A1E010F00BBB1FF /* lbp.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7E31A1E010E00BBB1FF /* lbp.c */; };
-		D392F84E1A1E010F00BBB1FF /* liop.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7E51A1E010E00BBB1FF /* liop.c */; };
-		D392F84F1A1E010F00BBB1FF /* mathop_avx.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7E71A1E010E00BBB1FF /* mathop_avx.c */; };
-		D392F8501A1E010F00BBB1FF /* mathop_sse2.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7E91A1E010E00BBB1FF /* mathop_sse2.c */; };
-		D392F8511A1E010F00BBB1FF /* mathop.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7EB1A1E010E00BBB1FF /* mathop.c */; };
-		D392F8521A1E010F00BBB1FF /* mser.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7ED1A1E010E00BBB1FF /* mser.c */; };
-		D392F8531A1E010F00BBB1FF /* pgm.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7EF1A1E010E00BBB1FF /* pgm.c */; };
-		D392F8541A1E010F00BBB1FF /* quickshift.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7F21A1E010E00BBB1FF /* quickshift.c */; };
-		D392F8551A1E010F00BBB1FF /* random.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7F41A1E010E00BBB1FF /* random.c */; };
-		D392F8561A1E010F00BBB1FF /* rodrigues.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7F61A1E010E00BBB1FF /* rodrigues.c */; };
-		D392F8571A1E010F00BBB1FF /* scalespace.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7F81A1E010E00BBB1FF /* scalespace.c */; };
-		D392F8581A1E010F00BBB1FF /* sift.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7FB1A1E010E00BBB1FF /* sift.c */; };
-		D392F8591A1E010F00BBB1FF /* slic.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7FD1A1E010E00BBB1FF /* slic.c */; };
-		D392F85A1A1E010F00BBB1FF /* stringop.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7FF1A1E010E00BBB1FF /* stringop.c */; };
-		D392F85B1A1E010F00BBB1FF /* svm.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F8011A1E010E00BBB1FF /* svm.c */; };
-		D392F85C1A1E010F00BBB1FF /* svmdataset.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F8031A1E010E00BBB1FF /* svmdataset.c */; };
-		D392F85D1A1E010F00BBB1FF /* vlad.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F8051A1E010E00BBB1FF /* vlad.c */; };
-		D392F85E1A1E010F00BBB1FF /* camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F8091A1E010E00BBB1FF /* camera.cpp */; };
-		D392F85F1A1E010F00BBB1FF /* fundamental.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F80B1A1E010E00BBB1FF /* fundamental.cpp */; };
-		D392F8601A1E010F00BBB1FF /* stereo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F80C1A1E010E00BBB1FF /* stereo.cpp */; };
-		D392F8611A1E010F00BBB1FF /* stereo_features.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F80F1A1E010E00BBB1FF /* stereo_features.cpp */; };
-		D392F8621A1E010F00BBB1FF /* stereo_mesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F8101A1E010E00BBB1FF /* stereo_mesh.cpp */; };
 		D3B4EAC01A1E7DE100BE0443 /* ikmeans.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7D91A1E010E00BBB1FF /* ikmeans.c */; };
 		D3B4EAC11A1E7DE100BE0443 /* homkermap.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7D21A1E010E00BBB1FF /* homkermap.c */; };
 		D3B4EAC21A1E7DE100BE0443 /* user.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F79F1A1E010E00BBB1FF /* user.c */; };
@@ -642,7 +562,7 @@
 		D392F80F1A1E010E00BBB1FF /* stereo_features.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = stereo_features.cpp; path = ../../corvis/src/stereo/stereo_features.cpp; sourceTree = "<group>"; };
 		D392F8101A1E010E00BBB1FF /* stereo_mesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = stereo_mesh.cpp; path = ../../corvis/src/stereo/stereo_mesh.cpp; sourceTree = "<group>"; };
 		D392F8111A1E010E00BBB1FF /* stereo_mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stereo_mesh.h; path = ../../corvis/src/stereo/stereo_mesh.h; sourceTree = "<group>"; };
-		D3B4EABD1A1E7DCC00BE0443 /* RC3DKPlus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RC3DKPlus.h; sourceTree = "<group>"; };
+		D3B4EABD1A1E7DCC00BE0443 /* RC3DKPlus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RC3DKPlus.h; path = RC3DK/RC3DKPlus.h; sourceTree = "<group>"; };
 		D3B4EB591A1E7DE100BE0443 /* libRC3DKPlus.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRC3DKPlus.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		D97AEF8018F7613F00573148 /* device_parameters.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = device_parameters.c; sourceTree = "<group>"; };
 		D9CCDC7C192E887F00A41329 /* scaled_mask.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scaled_mask.cpp; sourceTree = "<group>"; };
@@ -655,7 +575,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D392F8131A1E010F00BBB1FF /* boost.a in Frameworks */,
 				327B563918EB5F0A0001CCE1 /* OpenGLES.framework in Frameworks */,
 				327B54E318EB4CC90001CCE1 /* Foundation.framework in Frameworks */,
 			);
@@ -689,6 +608,7 @@
 		327B54D618EB4CC90001CCE1 = {
 			isa = PBXGroup;
 			children = (
+				D35C16FA1A20B1510048C5BC /* RC3DKPlus */,
 				327B54E418EB4CC90001CCE1 /* RC3DK */,
 				327B54F818EB4CC90001CCE1 /* RC3DKTests */,
 				327B54E118EB4CC90001CCE1 /* Frameworks */,
@@ -724,11 +644,9 @@
 				327B558318EB4F130001CCE1 /* Corvis */,
 				327B558018EB4E3A0001CCE1 /* Data Classes */,
 				327B558118EB4E520001CCE1 /* Singletons */,
-				D392F8121A1E010E00BBB1FF /* Stereo */,
 				327B54E518EB4CC90001CCE1 /* Supporting Files */,
 				327B558218EB4E690001CCE1 /* Utilities */,
 				327B554718EB4DC20001CCE1 /* RC3DK.h */,
-				D3B4EABD1A1E7DCC00BE0443 /* RC3DKPlus.h */,
 				327B554E18EB4DC20001CCE1 /* RCConstants.h */,
 				327B554418EB4DC20001CCE1 /* LICENSE */,
 				327B556B18EB4DC20001CCE1 /* README */,
@@ -969,6 +887,15 @@
 			path = OCMock;
 			sourceTree = "<group>";
 		};
+		D35C16FA1A20B1510048C5BC /* RC3DKPlus */ = {
+			isa = PBXGroup;
+			children = (
+				D3B4EABD1A1E7DCC00BE0443 /* RC3DKPlus.h */,
+				D392F8121A1E010E00BBB1FF /* Stereo */,
+			);
+			name = RC3DKPlus;
+			sourceTree = "<group>";
+		};
 		D392F7861A1E010E00BBB1FF /* ofxiOSBoost */ = {
 			isa = PBXGroup;
 			children = (
@@ -1126,12 +1053,12 @@
 		D392F8121A1E010E00BBB1FF /* Stereo */ = {
 			isa = PBXGroup;
 			children = (
+				D392F8071A1E010E00BBB1FF /* VLFeat */,
 				D392F7861A1E010E00BBB1FF /* ofxiOSBoost */,
 				D392F7A31A1E010E00BBB1FF /* QHull */,
 				D392F7BB1A1E010E00BBB1FF /* libDAI */,
 				D392F7BC1A1E010E00BBB1FF /* RCStereo.h */,
 				D392F7BD1A1E010E00BBB1FF /* RCStereo.mm */,
-				D392F8071A1E010E00BBB1FF /* VLFeat */,
 				D392F8081A1E010E00BBB1FF /* camera.h */,
 				D392F8091A1E010E00BBB1FF /* camera.cpp */,
 				D392F80A1A1E010E00BBB1FF /* fundamental.h */,
@@ -1313,127 +1240,48 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D392F8481A1E010F00BBB1FF /* ikmeans.c in Sources */,
-				D392F8461A1E010F00BBB1FF /* homkermap.c in Sources */,
-				D392F8211A1E010F00BBB1FF /* user.c in Sources */,
-				D392F8261A1E010F00BBB1FF /* gibbs.cpp in Sources */,
-				D392F85E1A1E010F00BBB1FF /* camera.cpp in Sources */,
-				D392F81D1A1E010F00BBB1FF /* qset.c in Sources */,
-				D392F85A1A1E010F00BBB1FF /* stringop.c in Sources */,
-				D392F8251A1E010F00BBB1FF /* bp.cpp in Sources */,
-				D392F81A1A1E010F00BBB1FF /* merge.c in Sources */,
 				327B559718EB4F260001CCE1 /* inbuffer.c in Sources */,
 				328A4DD51950D5F400587949 /* RCLicenseError.m in Sources */,
-				D392F8581A1E010F00BBB1FF /* sift.c in Sources */,
 				327B559A18EB4F260001CCE1 /* plugins.c in Sources */,
-				D392F8191A1E010F00BBB1FF /* mem.c in Sources */,
-				D392F8271A1E010F00BBB1FF /* alldai.cpp in Sources */,
-				D392F81B1A1E010F00BBB1FF /* poly.c in Sources */,
-				D392F81F1A1E010F00BBB1FF /* rboxlib.c in Sources */,
 				327B557C18EB4DC20001CCE1 /* RCVector.m in Sources */,
 				327B55BE18EB4F3A0001CCE1 /* filter.cpp in Sources */,
 				327B553618EB4D720001CCE1 /* RCAFImageRequestOperation.m in Sources */,
-				D392F82A1A1E010F00BBB1FF /* bp_dual.cpp in Sources */,
-				D392F81E1A1E010F00BBB1FF /* random.c in Sources */,
 				327B55C118EB4F3A0001CCE1 /* observation.cpp in Sources */,
-				D392F8431A1E010F00BBB1FF /* gmm.c in Sources */,
 				327B553718EB4D720001CCE1 /* RCAFJSONRequestOperation.m in Sources */,
-				D392F8531A1E010F00BBB1FF /* pgm.c in Sources */,
 				327B55C218EB4F3A0001CCE1 /* state.cpp in Sources */,
 				327B557018EB4DC20001CCE1 /* RCDeviceInfo.m in Sources */,
-				D392F8551A1E010F00BBB1FF /* random.c in Sources */,
-				D392F84C1A1E010F00BBB1FF /* kmeans.c in Sources */,
 				327B556D18EB4DC20001CCE1 /* RCCalibration.mm in Sources */,
 				D97AEF8118F7613F00573148 /* device_parameters.c in Sources */,
 				D9CCDC7E192E887F00A41329 /* scaled_mask.cpp in Sources */,
-				D392F83B1A1E010F00BBB1FF /* weightedgraph.cpp in Sources */,
-				D392F85D1A1E010F00BBB1FF /* vlad.c in Sources */,
-				D392F8341A1E010F00BBB1FF /* graph.cpp in Sources */,
-				D392F8171A1E010F00BBB1FF /* io.c in Sources */,
-				D392F83F1A1E010F00BBB1FF /* covdet.c in Sources */,
-				D392F8591A1E010F00BBB1FF /* slic.c in Sources */,
-				D392F8391A1E010F00BBB1FF /* util.cpp in Sources */,
 				327B55BD18EB4F3A0001CCE1 /* fast_9.cpp in Sources */,
-				D392F8381A1E010F00BBB1FF /* trwbp.cpp in Sources */,
 				327B557718EB4DC20001CCE1 /* RCSensorFusion.mm in Sources */,
-				D392F85C1A1E010F00BBB1FF /* svmdataset.c in Sources */,
-				D392F8311A1E010F00BBB1FF /* exceptions.cpp in Sources */,
-				D392F83C1A1E010F00BBB1FF /* RCStereo.mm in Sources */,
-				D392F8181A1E010F00BBB1FF /* libqhull.c in Sources */,
-				D392F8151A1E010F00BBB1FF /* geom2.c in Sources */,
 				327B55D318EB4F430001CCE1 /* kalman.cpp in Sources */,
 				327B553818EB4D720001CCE1 /* RCAFNetworkActivityIndicatorManager.m in Sources */,
-				D392F8521A1E010F00BBB1FF /* mser.c in Sources */,
 				327B556C18EB4DC20001CCE1 /* NSString+RCString.m in Sources */,
-				D392F83A1A1E010F00BBB1FF /* varset.cpp in Sources */,
-				D392F82E1A1E010F00BBB1FF /* emalg.cpp in Sources */,
 				327B55C018EB4F3A0001CCE1 /* state_vision.cpp in Sources */,
-				D392F84F1A1E010F00BBB1FF /* mathop_avx.c in Sources */,
 				327B556E18EB4DC20001CCE1 /* RCCameraManager.m in Sources */,
 				327B557B18EB4DC20001CCE1 /* RCTranslation.m in Sources */,
-				D392F84A1A1E010F00BBB1FF /* imopv.c in Sources */,
-				D392F8231A1E010F00BBB1FF /* userprintf_rbox.c in Sources */,
 				327B557A18EB4DC20001CCE1 /* RCTransformation.m in Sources */,
-				D392F8371A1E010F00BBB1FF /* regiongraph.cpp in Sources */,
-				D392F8621A1E010F00BBB1FF /* stereo_mesh.cpp in Sources */,
-				D392F8281A1E010F00BBB1FF /* bbp.cpp in Sources */,
-				D392F82D1A1E010F00BBB1FF /* daialg.cpp in Sources */,
-				D392F8451A1E010F00BBB1FF /* hog.c in Sources */,
 				327B55D518EB4F430001CCE1 /* vec4.cpp in Sources */,
 				327B557318EB4DC20001CCE1 /* RCPoint.m in Sources */,
-				D392F82B1A1E010F00BBB1FF /* clustergraph.cpp in Sources */,
-				D392F84D1A1E010F00BBB1FF /* lbp.c in Sources */,
-				D392F8611A1E010F00BBB1FF /* stereo_features.cpp in Sources */,
 				327B553B18EB4D720001CCE1 /* RCAFXMLRequestOperation.m in Sources */,
-				D392F8561A1E010F00BBB1FF /* rodrigues.c in Sources */,
 				327B55C318EB4F3A0001CCE1 /* state_motion.cpp in Sources */,
 				327B559518EB4F250001CCE1 /* debug.c in Sources */,
 				327B559918EB4F260001CCE1 /* packet.c in Sources */,
-				D392F8351A1E010F00BBB1FF /* io.cpp in Sources */,
-				D392F82F1A1E010F00BBB1FF /* evidence.cpp in Sources */,
 				328A4DD21950D52000587949 /* RCSensorFusionError.m in Sources */,
 				327B553418EB4D720001CCE1 /* RCAFHTTPClient.m in Sources */,
 				327B55BF18EB4F3A0001CCE1 /* filter_setup.cpp in Sources */,
-				D392F82C1A1E010F00BBB1FF /* dag.cpp in Sources */,
-				D392F8291A1E010F00BBB1FF /* bipgraph.cpp in Sources */,
-				D392F8321A1E010F00BBB1FF /* factor.cpp in Sources */,
-				D392F83E1A1E010F00BBB1FF /* array.c in Sources */,
 				327B55D418EB4F430001CCE1 /* matrix.cpp in Sources */,
-				D392F84B1A1E010F00BBB1FF /* kdtree.c in Sources */,
-				D392F8501A1E010F00BBB1FF /* mathop_sse2.c in Sources */,
 				327B553A18EB4D720001CCE1 /* RCAFURLConnectionOperation.m in Sources */,
-				D392F8411A1E010F00BBB1FF /* fisher.c in Sources */,
-				D392F8331A1E010F00BBB1FF /* factorgraph.cpp in Sources */,
-				D392F8361A1E010F00BBB1FF /* properties.cpp in Sources */,
-				D392F8441A1E010F00BBB1FF /* hikmeans.c in Sources */,
 				327B559618EB4F250001CCE1 /* dispatch.c in Sources */,
 				327B553918EB4D720001CCE1 /* RCAFPropertyListRequestOperation.m in Sources */,
-				D392F85B1A1E010F00BBB1FF /* svm.c in Sources */,
 				327B557818EB4DC20001CCE1 /* RCSensorFusionData.m in Sources */,
-				D392F8201A1E010F00BBB1FF /* stat.c in Sources */,
 				327B557918EB4DC20001CCE1 /* RCSensorFusionStatus.m in Sources */,
-				D392F8541A1E010F00BBB1FF /* quickshift.c in Sources */,
-				D392F8421A1E010F00BBB1FF /* generic.c in Sources */,
-				D392F8241A1E010F00BBB1FF /* userprintf.c in Sources */,
-				D392F85F1A1E010F00BBB1FF /* fundamental.cpp in Sources */,
-				D392F8221A1E010F00BBB1FF /* usermem.c in Sources */,
-				D392F8141A1E010F00BBB1FF /* geom.c in Sources */,
 				327B556F18EB4DC20001CCE1 /* RCCameraParameters.m in Sources */,
 				327B557518EB4DC20001CCE1 /* RCRotation.mm in Sources */,
-				D392F8301A1E010F00BBB1FF /* exactinf.cpp in Sources */,
-				D392F84E1A1E010F00BBB1FF /* liop.c in Sources */,
-				D392F8471A1E010F00BBB1FF /* host.c in Sources */,
-				D392F83D1A1E010F00BBB1FF /* aib.c in Sources */,
 				327B553518EB4D720001CCE1 /* RCAFHTTPRequestOperation.m in Sources */,
-				D392F8161A1E010F00BBB1FF /* global.c in Sources */,
-				D392F8601A1E010F00BBB1FF /* stereo.cpp in Sources */,
-				D392F8571A1E010F00BBB1FF /* scalespace.c in Sources */,
-				D392F81C1A1E010F00BBB1FF /* poly2.c in Sources */,
-				D392F8401A1E010F00BBB1FF /* dsift.c in Sources */,
 				327B557618EB4DC20001CCE1 /* RCScalar.m in Sources */,
-				D392F8511A1E010F00BBB1FF /* mathop.c in Sources */,
 				327B557418EB4DC20001CCE1 /* RCPrivateHTTPClient.m in Sources */,
-				D392F8491A1E010F00BBB1FF /* imopv_sse2.c in Sources */,
 				327B559B18EB4F260001CCE1 /* timestamp.c in Sources */,
 				327B559818EB4F260001CCE1 /* mapbuffer.c in Sources */,
 				327B557118EB4DC20001CCE1 /* RCFeaturePoint.m in Sources */,
@@ -1666,6 +1514,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/Users/brian/Dropbox/pixelfin/realitycap/code/rcmain/measuredphoto/ofxiOSBoost/libs/boost/ios,
+					/Users/brian/Dropbox/pixelfin/realitycap/code/rcmain/rc3dk/ofxiOSBoost/libs/boost/ios,
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -1812,6 +1661,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/Users/brian/Dropbox/pixelfin/realitycap/code/rcmain/measuredphoto/ofxiOSBoost/libs/boost/ios,
+					/Users/brian/Dropbox/pixelfin/realitycap/code/rcmain/rc3dk/ofxiOSBoost/libs/boost/ios,
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -1840,6 +1690,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/Users/brian/Dropbox/pixelfin/realitycap/code/rcmain/measuredphoto/ofxiOSBoost/libs/boost/ios,
+					/Users/brian/Dropbox/pixelfin/realitycap/code/rcmain/rc3dk/ofxiOSBoost/libs/boost/ios,
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -1959,6 +1810,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					/Users/brian/Dropbox/pixelfin/realitycap/code/rcmain/measuredphoto/ofxiOSBoost/libs/boost/ios,
+					/Users/brian/Dropbox/pixelfin/realitycap/code/rcmain/rc3dk/ofxiOSBoost/libs/boost/ios,
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",

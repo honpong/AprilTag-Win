@@ -951,7 +951,6 @@
 		32BA433617A2EF69002BAE13 /* MPCapturePhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPCapturePhoto.h; sourceTree = "<group>"; };
 		32BA433717A2EF69002BAE13 /* MPCapturePhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPCapturePhoto.m; sourceTree = "<group>"; };
 		32BA433917A2EFF2002BAE13 /* RCCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCCore.xcodeproj; path = ../RCCore/RCCore.xcodeproj; sourceTree = "<group>"; };
-		32BA434717A2F989002BAE13 /* libRC3DK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRC3DK.a; path = "../RC3DK/build/Release-iphoneos/libRC3DK.a"; sourceTree = "<group>"; };
 		32C135C21892E6F5004DF62B /* ACMagnifyingGlass.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ACMagnifyingGlass.h; sourceTree = "<group>"; };
 		32C135C31892E6F5004DF62B /* ACMagnifyingGlass.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ACMagnifyingGlass.m; sourceTree = "<group>"; };
 		32C135C41892E6F5004DF62B /* ACMagnifyingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ACMagnifyingView.h; sourceTree = "<group>"; };
@@ -1624,7 +1623,6 @@
 				D3F57862184F2DAE00EE450E /* Accelerate.framework */,
 				32F0753D18033C10001C8355 /* AdSupport.framework */,
 				326EA9E517BC354C009000D4 /* CoreData.framework */,
-				32BA434717A2F989002BAE13 /* libRC3DK.a */,
 				32BA429C17A2DF8B002BAE13 /* UIKit.framework */,
 				32BA429E17A2DF8B002BAE13 /* Foundation.framework */,
 				32BA42A017A2DF8B002BAE13 /* CoreGraphics.framework */,

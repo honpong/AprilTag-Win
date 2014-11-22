@@ -126,7 +126,6 @@
 		32BA4202179F3E83002BAE13 /* RCFeaturesLayer.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32BA41FC179F3656002BAE13 /* RCFeaturesLayer.h */; };
 		32BAC58A19E3465E0042E345 /* UINavigationController+RCNavConExtensions.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BAC58919E3465E0042E345 /* UINavigationController+RCNavConExtensions.m */; };
 		32BAC58B19E347680042E345 /* UINavigationController+RCNavConExtensions.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32BAC58819E3465E0042E345 /* UINavigationController+RCNavConExtensions.h */; };
-		32BFAEBC1796FC520089A7B2 /* libRC3DK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFAEB91796FC230089A7B2 /* libRC3DK.a */; };
 		32C3892E16DD429100BD995C /* NSString+RCString.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C3892D16DD429100BD995C /* NSString+RCString.m */; };
 		32C3892F16DD441B00BD995C /* NSString+RCString.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32C3892C16DD429100BD995C /* NSString+RCString.h */; };
 		32C4493A16D5457C00984BEC /* Guid.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C4493716D5457C00984BEC /* Guid.m */; };
@@ -160,6 +159,7 @@
 		D36C361B184F312900F77AAF /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C361A184F312900F77AAF /* CoreImage.framework */; };
 		D36C361D184F313600F77AAF /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C361C184F313600F77AAF /* CoreMedia.framework */; };
 		D36C361F184F314400F77AAF /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D36C361E184F314400F77AAF /* CoreVideo.framework */; };
+		D37A66FE1A20B33A0019778E /* libRC3DKPlus.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D37A66FD1A20B3290019778E /* libRC3DKPlus.a */; };
 		D38126F618CA234200E635C3 /* RCConnectionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D38126F518CA234200E635C3 /* RCConnectionManager.m */; };
 		D38126FC18CA239800E635C3 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = D38126FB18CA239800E635C3 /* GCDAsyncSocket.m */; };
 		D9392B4419D09A8E0055B6B7 /* RCGLManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = D9392B4119D09A8E0055B6B7 /* RCGLManagerFactory.m */; };
@@ -184,13 +184,6 @@
 			remoteGlobalIDString = 32865B6416260B500080BA1A;
 			remoteInfo = RCCore;
 		};
-		3288A87417C559020055B82E /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 32BFAEB21796FC230089A7B2 /* RC3DK.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 327B54DE18EB4CC90001CCE1;
-			remoteInfo = RC3DK;
-		};
 		32BFAEB81796FC230089A7B2 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 32BFAEB21796FC230089A7B2 /* RC3DK.xcodeproj */;
@@ -204,6 +197,20 @@
 			proxyType = 2;
 			remoteGlobalIDString = 328AEA831796144200D9DCB8;
 			remoteInfo = RC3DKTests;
+		};
+		D37A66F81A20B3290019778E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 32BFAEB21796FC230089A7B2 /* RC3DK.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D3B4EABE1A1E7DE100BE0443;
+			remoteInfo = RC3DKPlus;
+		};
+		D37A66FC1A20B3290019778E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 32BFAEB21796FC230089A7B2 /* RC3DK.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D3B4EB591A1E7DE100BE0443;
+			remoteInfo = RC3DKPlus;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -475,11 +482,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D37A66FE1A20B33A0019778E /* libRC3DKPlus.a in Frameworks */,
 				D36C361F184F314400F77AAF /* CoreVideo.framework in Frameworks */,
 				D36C361D184F313600F77AAF /* CoreMedia.framework in Frameworks */,
 				D36C361B184F312900F77AAF /* CoreImage.framework in Frameworks */,
 				D36C3617184F311B00F77AAF /* Accelerate.framework in Frameworks */,
-				32BFAEBC1796FC520089A7B2 /* libRC3DK.a in Frameworks */,
 				3281B115174EF1640080D07E /* AVFoundation.framework in Frameworks */,
 				3281B113174EF15F0080D07E /* CoreMotion.framework in Frameworks */,
 				3281B111174EF1570080D07E /* Security.framework in Frameworks */,
@@ -846,6 +853,7 @@
 			children = (
 				32BFAEB91796FC230089A7B2 /* libRC3DK.a */,
 				32BFAEBB1796FC230089A7B2 /* RC3DKTests.xctest */,
+				D37A66FD1A20B3290019778E /* libRC3DKPlus.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -897,7 +905,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				3288A87517C559020055B82E /* PBXTargetDependency */,
+				D37A66F91A20B3290019778E /* PBXTargetDependency */,
 			);
 			name = RCCore;
 			productName = RCCore;
@@ -970,6 +978,13 @@
 			fileType = wrapper.cfbundle;
 			path = RC3DKTests.xctest;
 			remoteRef = 32BFAEBA1796FC230089A7B2 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		D37A66FD1A20B3290019778E /* libRC3DKPlus.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRC3DKPlus.a;
+			remoteRef = D37A66FC1A20B3290019778E /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -1124,10 +1139,10 @@
 			target = 32865B6416260B500080BA1A /* RCCore */;
 			targetProxy = 32865B7C16260B500080BA1A /* PBXContainerItemProxy */;
 		};
-		3288A87517C559020055B82E /* PBXTargetDependency */ = {
+		D37A66F91A20B3290019778E /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			name = RC3DK;
-			targetProxy = 3288A87417C559020055B82E /* PBXContainerItemProxy */;
+			name = RC3DKPlus;
+			targetProxy = D37A66F81A20B3290019778E /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

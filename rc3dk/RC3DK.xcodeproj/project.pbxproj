@@ -1482,14 +1482,9 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
-					"$(SRCROOT)/ofxiOSBoost/libs/boost/include/",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
-				OTHER_CPLUSPLUSFLAGS = (
-					"$(OTHER_CFLAGS)",
-					"-DMACOSX",
-				);
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = "-ObjC";
 				SDKROOT = iphoneos;
 				SEPARATE_STRIP = YES;
@@ -1511,11 +1506,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "LIBRARY=1";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					/Users/brian/Dropbox/pixelfin/realitycap/code/rcmain/measuredphoto/ofxiOSBoost/libs/boost/ios,
-					/Users/brian/Dropbox/pixelfin/realitycap/code/rcmain/rc3dk/ofxiOSBoost/libs/boost/ios,
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-all_load",
@@ -1584,15 +1575,10 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
-					"$(SRCROOT)/ofxiOSBoost/libs/boost/include/",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_CPLUSPLUSFLAGS = (
-					"$(OTHER_CFLAGS)",
-					"-DMACOSX",
-				);
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = "-ObjC";
 				SDKROOT = iphoneos;
 				SEPARATE_STRIP = YES;
@@ -1629,15 +1615,10 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
-					"$(SRCROOT)/ofxiOSBoost/libs/boost/include/",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				ONLY_ACTIVE_ARCH = YES;
-				OTHER_CPLUSPLUSFLAGS = (
-					"$(OTHER_CFLAGS)",
-					"-DMACOSX",
-				);
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = "-ObjC";
 				SDKROOT = iphoneos;
 				SEPARATE_STRIP = YES;
@@ -1658,11 +1639,7 @@
 				FRAMEWORK_VERSION = 0.6.1;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					/Users/brian/Dropbox/pixelfin/realitycap/code/rcmain/measuredphoto/ofxiOSBoost/libs/boost/ios,
-					/Users/brian/Dropbox/pixelfin/realitycap/code/rcmain/rc3dk/ofxiOSBoost/libs/boost/ios,
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-all_load",
@@ -1687,11 +1664,7 @@
 				FRAMEWORK_VERSION = 0.6.1;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					/Users/brian/Dropbox/pixelfin/realitycap/code/rcmain/measuredphoto/ofxiOSBoost/libs/boost/ios,
-					/Users/brian/Dropbox/pixelfin/realitycap/code/rcmain/rc3dk/ofxiOSBoost/libs/boost/ios,
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-all_load",
@@ -1779,14 +1752,9 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
-					"$(SRCROOT)/ofxiOSBoost/libs/boost/include/",
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
-				OTHER_CPLUSPLUSFLAGS = (
-					"$(OTHER_CFLAGS)",
-					"-DMACOSX",
-				);
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = "-ObjC";
 				SDKROOT = iphoneos;
 				SEPARATE_STRIP = YES;
@@ -1807,11 +1775,7 @@
 				FRAMEWORK_VERSION = 0.6.1;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					/Users/brian/Dropbox/pixelfin/realitycap/code/rcmain/measuredphoto/ofxiOSBoost/libs/boost/ios,
-					/Users/brian/Dropbox/pixelfin/realitycap/code/rcmain/rc3dk/ofxiOSBoost/libs/boost/ios,
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-all_load",
@@ -1857,9 +1821,19 @@
 				FRAMEWORK_VERSION = 0.6.1;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"$(SRCROOT)/ofxiOSBoost/libs/boost/include/",
+					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/Users/brian/Dropbox/pixelfin/realitycap/code/rcmain/measuredphoto/ofxiOSBoost/libs/boost/ios,
+					"$(SRCROOT)/ofxiOSBoost/libs/boost/ios/",
+				);
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-DMACOSX",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -1885,9 +1859,19 @@
 				FRAMEWORK_VERSION = 0.6.1;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"$(SRCROOT)/ofxiOSBoost/libs/boost/include/",
+					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/Users/brian/Dropbox/pixelfin/realitycap/code/rcmain/measuredphoto/ofxiOSBoost/libs/boost/ios,
+					"$(SRCROOT)/ofxiOSBoost/libs/boost/ios/",
+				);
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-DMACOSX",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -1914,9 +1898,19 @@
 				FRAMEWORK_VERSION = 0.6.1;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"$(SRCROOT)/ofxiOSBoost/libs/boost/include/",
+					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/Users/brian/Dropbox/pixelfin/realitycap/code/rcmain/measuredphoto/ofxiOSBoost/libs/boost/ios,
+					"$(SRCROOT)/ofxiOSBoost/libs/boost/ios/",
+				);
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-DMACOSX",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -1944,9 +1938,19 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "LIBRARY=1";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"$(SRCROOT)/ofxiOSBoost/libs/boost/include/",
+					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
+				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/Users/brian/Dropbox/pixelfin/realitycap/code/rcmain/measuredphoto/ofxiOSBoost/libs/boost/ios,
+					"$(SRCROOT)/ofxiOSBoost/libs/boost/ios/",
+				);
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-DMACOSX",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",

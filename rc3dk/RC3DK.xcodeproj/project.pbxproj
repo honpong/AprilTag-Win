@@ -187,7 +187,6 @@
 		D3B4EB391A1E7DE100BE0443 /* timestamp.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B559318EB4F250001CCE1 /* timestamp.c */; };
 		D3B4EB3A1A1E7DE100BE0443 /* mapbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B558D18EB4F250001CCE1 /* mapbuffer.c */; };
 		D3B4EB3B1A1E7DE100BE0443 /* RCFeaturePoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B555218EB4DC20001CCE1 /* RCFeaturePoint.m */; };
-		D3B4EB3D1A1E7DE100BE0443 /* boost.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D392F7851A1E010E00BBB1FF /* boost.a */; };
 		D3B4EB3E1A1E7DE100BE0443 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B563518EB5ECA0001CCE1 /* OpenGLES.framework */; };
 		D3B4EB3F1A1E7DE100BE0443 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B54E218EB4CC90001CCE1 /* Foundation.framework */; };
 		D3B4EB411A1E7DE100BE0443 /* RCStereo.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D392F7BC1A1E010E00BBB1FF /* RCStereo.h */; };
@@ -409,7 +408,6 @@
 		328A4DD31950D5F400587949 /* RCLicenseError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCLicenseError.h; path = ../../rc3dk/RC3DK/RCLicenseError.h; sourceTree = "<group>"; };
 		328A4DD41950D5F400587949 /* RCLicenseError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCLicenseError.m; path = ../../rc3dk/RC3DK/RCLicenseError.m; sourceTree = "<group>"; };
 		32F7D56219D49E14002239FF /* RCDebugLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCDebugLog.h; path = ../../SensorManagers/RCDebugLog.h; sourceTree = "<group>"; };
-		D392F7851A1E010E00BBB1FF /* boost.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = boost.a; path = ../../rc3dk/ofxiOSBoost/libs/boost/ios/boost.a; sourceTree = "<group>"; };
 		D392F7871A1E010E00BBB1FF /* geom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = geom.h; path = ../../corvis/src/qhull/src/libqhull/geom.h; sourceTree = "<group>"; };
 		D392F7881A1E010E00BBB1FF /* io.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = io.h; path = ../../corvis/src/qhull/src/libqhull/io.h; sourceTree = "<group>"; };
 		D392F7891A1E010E00BBB1FF /* libqhull.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = libqhull.h; path = ../../corvis/src/qhull/src/libqhull/libqhull.h; sourceTree = "<group>"; };
@@ -564,7 +562,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D3B4EB3D1A1E7DE100BE0443 /* boost.a in Frameworks */,
 				D3B4EB3E1A1E7DE100BE0443 /* OpenGLES.framework in Frameworks */,
 				D3B4EB3F1A1E7DE100BE0443 /* Foundation.framework in Frameworks */,
 			);
@@ -864,14 +861,6 @@
 			name = RC3DKPlus;
 			sourceTree = "<group>";
 		};
-		D392F7861A1E010E00BBB1FF /* ofxiOSBoost */ = {
-			isa = PBXGroup;
-			children = (
-				D392F7851A1E010E00BBB1FF /* boost.a */,
-			);
-			name = ofxiOSBoost;
-			sourceTree = "<group>";
-		};
 		D392F7A31A1E010E00BBB1FF /* QHull */ = {
 			isa = PBXGroup;
 			children = (
@@ -1006,7 +995,6 @@
 			isa = PBXGroup;
 			children = (
 				D392F8071A1E010E00BBB1FF /* VLFeat */,
-				D392F7861A1E010E00BBB1FF /* ofxiOSBoost */,
 				D392F7A31A1E010E00BBB1FF /* QHull */,
 				D392F7BB1A1E010E00BBB1FF /* libDAI */,
 				D392F7BC1A1E010E00BBB1FF /* RCStereo.h */,

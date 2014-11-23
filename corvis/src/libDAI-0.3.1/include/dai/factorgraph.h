@@ -207,7 +207,7 @@ class FactorGraph {
         /** \note The Markov graph has the variables as nodes and an edge
          *  between two variables if and only if the variables share a factor.
          */
-        GraphAL MarkovGraph() const;
+        //GraphAL MarkovGraph() const;
 
         /// Returns whether the \a I 'th factor is maximal
         /** \note A factor (domain) is \a maximal if and only if it is not a
@@ -286,7 +286,7 @@ class FactorGraph {
         /** \note This version changes the factor graph structure and thus returns a newly constructed FactorGraph
          *  and keeps the current one constant, contrary to clamp()
          */
-        FactorGraph clamped( size_t i, size_t x ) const;
+        //FactorGraph clamped( size_t i, size_t x ) const;
     //@}
 
     /// \name Operations

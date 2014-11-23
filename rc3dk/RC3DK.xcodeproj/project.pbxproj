@@ -106,6 +106,8 @@
 		D3588F091A20C4B800CA10E7 /* stat.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F79E1A1E010E00BBB1FF /* stat.c */; };
 		D3588F0A1A20C4CB00CA10E7 /* io.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7951A1E010E00BBB1FF /* io.c */; };
 		D3588F0B1A20C50200CA10E7 /* usermem.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7A01A1E010E00BBB1FF /* usermem.c */; };
+		D3931E1B1A2217E5008F8940 /* random.c in Sources */ = {isa = PBXBuildFile; fileRef = D3931E191A2217D8008F8940 /* random.c */; };
+		D3931E1E1A221853008F8940 /* host.c in Sources */ = {isa = PBXBuildFile; fileRef = D3931E1C1A221850008F8940 /* host.c */; };
 		D3B4EAC41A1E7DE100BE0443 /* camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F8091A1E010E00BBB1FF /* camera.cpp */; };
 		D3B4EAC91A1E7DE100BE0443 /* inbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B558B18EB4F250001CCE1 /* inbuffer.c */; };
 		D3B4EACA1A1E7DE100BE0443 /* RCLicenseError.m in Sources */ = {isa = PBXBuildFile; fileRef = 328A4DD41950D5F400587949 /* RCLicenseError.m */; };
@@ -468,6 +470,8 @@
 		D392F80F1A1E010E00BBB1FF /* stereo_features.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = stereo_features.cpp; path = ../../corvis/src/stereo/stereo_features.cpp; sourceTree = "<group>"; };
 		D392F8101A1E010E00BBB1FF /* stereo_mesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = stereo_mesh.cpp; path = ../../corvis/src/stereo/stereo_mesh.cpp; sourceTree = "<group>"; };
 		D392F8111A1E010E00BBB1FF /* stereo_mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stereo_mesh.h; path = ../../corvis/src/stereo/stereo_mesh.h; sourceTree = "<group>"; };
+		D3931E191A2217D8008F8940 /* random.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = random.c; path = "../../corvis/src/vlfeat-0.9.18/vl/random.c"; sourceTree = "<group>"; };
+		D3931E1C1A221850008F8940 /* host.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = host.c; path = "../../corvis/src/vlfeat-0.9.18/vl/host.c"; sourceTree = "<group>"; };
 		D3B4EABD1A1E7DCC00BE0443 /* RC3DKPlus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RC3DKPlus.h; path = RC3DK/RC3DKPlus.h; sourceTree = "<group>"; };
 		D3B4EB591A1E7DE100BE0443 /* libRC3DKPlus.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRC3DKPlus.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		D97AEF8018F7613F00573148 /* device_parameters.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = device_parameters.c; sourceTree = "<group>"; };
@@ -854,6 +858,8 @@
 		D392F8071A1E010E00BBB1FF /* VLFeat */ = {
 			isa = PBXGroup;
 			children = (
+				D3931E1C1A221850008F8940 /* host.c */,
+				D3931E191A2217D8008F8940 /* random.c */,
 				D392F7C91A1E010E00BBB1FF /* generic.c */,
 				D392F7DD1A1E010E00BBB1FF /* imopv.c */,
 				D392F7FB1A1E010E00BBB1FF /* sift.c */,
@@ -1159,11 +1165,13 @@
 				D3B4EAC41A1E7DE100BE0443 /* camera.cpp in Sources */,
 				D3588F051A20C44900CA10E7 /* geom.c in Sources */,
 				D3B4EAC91A1E7DE100BE0443 /* inbuffer.c in Sources */,
+				D3931E1E1A221853008F8940 /* host.c in Sources */,
 				D3588EF71A20C06B00CA10E7 /* bipgraph.cpp in Sources */,
 				D3B4EACA1A1E7DE100BE0443 /* RCLicenseError.m in Sources */,
 				D3B4EACC1A1E7DE100BE0443 /* plugins.c in Sources */,
 				D3588EF61A20C06600CA10E7 /* exceptions.cpp in Sources */,
 				D33B00581A20CA8E00287FC9 /* sift.c in Sources */,
+				D3931E1B1A2217E5008F8940 /* random.c in Sources */,
 				D3588EFA1A20C0B900CA10E7 /* daialg.cpp in Sources */,
 				D3B4EAD11A1E7DE100BE0443 /* RCVector.m in Sources */,
 				D3588F091A20C4B800CA10E7 /* stat.c in Sources */,

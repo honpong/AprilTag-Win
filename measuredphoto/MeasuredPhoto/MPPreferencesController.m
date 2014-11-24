@@ -28,7 +28,7 @@
 
 - (void) viewDidAppear:(BOOL)animated
 {
-//    [TMAnalytics logEvent:@"View.Preferences"];
+    [MPAnalytics logEvent:@"View.Preferences"];
     
     if (self.modalPresentationStyle == UIModalPresentationCustom)
     {
@@ -73,12 +73,12 @@
 {
     if (self.unitsControl.selectedSegmentIndex == 0)
     {
-//        [TMAnalytics logEvent:@"Preferences" withParameters:@{ @"Units" : @"Metric" }];
+        [MPAnalytics logEvent:@"Preferences" withParameters:@{ @"Units" : @"Metric" }];
         [NSUserDefaults.standardUserDefaults setObject:@(UnitsMetric) forKey:PREF_UNITS];
     }
     else if (self.unitsControl.selectedSegmentIndex == 1)
     {
-//        [TMAnalytics logEvent:@"Preferences" withParameters:@{ @"Units" : @"Imperial" }];
+        [MPAnalytics logEvent:@"Preferences" withParameters:@{ @"Units" : @"Imperial" }];
         [NSUserDefaults.standardUserDefaults setObject:@(UnitsImperial) forKey:PREF_UNITS];
     }
     

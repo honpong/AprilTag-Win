@@ -287,7 +287,77 @@ bool check_triangle(const stereo &g, const stereo_mesh & mesh, const stereo_tria
     return true;
 }
 
-#include "triangle.h"
+extern "C" {
+    #include "libqhull.h"
+    #include "mem.h"
+    #include "qset.h"
+}
+
+vector<stereo_triangle> qhull_mesh_points(vector<image_coordinate> coordinates)
+{
+    vector<stereo_triangle> triangles;
+    int TOTpoints = (int)coordinates.size();
+    int dim= 2;             /* dimension of points */
+    int numpoints;            /* number of points */
+    // TODO: why is this dim+1
+    coordT points[(dim+1)*TOTpoints]; /* array of coordinates for each point */
+    coordT *rows[TOTpoints];
+    boolT ismalloc= False;    /* True if qhull should free points in qh_freeqhull() or reallocation */
+    char flags[250] = "qhull d Qt Qbb Qc Qz";  /* "d" delaunay triangulation "Qt" forces triangle output rest copied from octave */
+    /* debug options "s" summary "Tc" check frequently "Tv" verify results */
+    /* for full option flags see qh-quick.htm */
+    //char flags[250] = "qhull d s d Tcv";
+    //must also set outfile=stdout and errfile=stderr to use this
+    FILE *outfile= NULL;    /* output from qh_produce_output()
+                             use NULL to skip qh_produce_output() */
+    FILE *errfile= NULL;    /* error messages from qhull code */
+    int exitcode;             /* 0 if no error from qhull */
+    facetT *facet;            /* set by FORALLfacets */
+    vertexT *vertex, **vertexp; /* set by FOREACHvertex_ */
+    int curlong, totlong;     /* memory remaining after qh_memfreeshort */
+    int i;
+
+    numpoints = TOTpoints;
+
+    /* Set points */
+    for(i = 0; i < numpoints; i++) {
+        points[i*dim] = coordinates[i].x;
+        points[i*dim+1] = coordinates[i].y;
+    }
+
+    /* Set up rows */
+    for (i=0; i < numpoints; i++)
+        rows[i]= points+dim*i;
+
+    /* Create qhull */
+    exitcode = qh_new_qhull (dim, numpoints, points, ismalloc,
+                            flags, outfile, errfile);
+
+    if (!exitcode) {                  /* if no error */
+        qh_triangulate(); // Octave did this, but the example code did not
+        
+        FORALLfacets {
+            int z = 0;
+            stereo_triangle t;
+            // a simplical non upper delaunay facet should be a nice triangle
+            if (!facet->upperdelaunay && facet->simplicial) {
+                FOREACHvertex_(facet->vertices) {
+                    int id = qh_pointid (vertex->point);
+                    t.vertices[z] = id;
+                    z++;
+                }
+                triangles.push_back(t);
+            }
+        }
+    }
+    qh_freeqhull(!qh_ALL);                 /* free long memory */
+    qh_memfreeshort (&curlong, &totlong);  /* free short memory and memory allocator */
+    if (curlong || totlong)
+        fprintf (errfile, "qhull internal warning (user_eg, #2): did not free %d bytes of long memory (%d pieces)\n", totlong, curlong);
+
+    return triangles;
+}
+
 void stereo_remesh_delaunay(stereo_mesh & mesh)
 {
     // check which vertices have been used by triangles that we kept
@@ -299,83 +369,36 @@ void stereo_remesh_delaunay(stereo_mesh & mesh)
         occurences[t.vertices[1]]++;
         occurences[t.vertices[2]]++;
     }
-    
-    char triswitches[] = "zQB";
-    struct triangulateio in, out;
-    in.pointlist = (float *)malloc(sizeof(float)*2*mesh.vertices_image.size());
-    in.numberofpoints = (int)mesh.vertices_image.size();
-    in.pointmarkerlist = NULL;
-    in.numberofpointattributes = 0;
-    out.pointlist = NULL;
-    out.trianglelist = NULL;
-    out.edgelist = NULL;
-    out.normlist = NULL;
-    out.numberoftriangles = 0;
-    
-    int z = 0;
+
+    vector<image_coordinate> remesh_vertices;
     vector<int> vertex_mapping;
     for(int i = 0; i < mesh.vertices_image.size(); i++) {
         if(occurences[i] > 1) {
-            in.pointlist[z*2] = mesh.vertices_image[i].x;
-            in.pointlist[z*2+1] = mesh.vertices_image[i].y;
-            z++;
+            remesh_vertices.push_back(mesh.vertices_image[i]);
             vertex_mapping.push_back(i);
         }
     }
-    in.numberofpoints = z;
-    if(in.numberofpoints > 3)
-        triangulate(triswitches, &in, &out, NULL);
-    
-    
+
+    vector<stereo_triangle> triangles = qhull_mesh_points(remesh_vertices);
+
     mesh.triangles.clear();
-    for(int i = 0; i < out.numberoftriangles; i++) {
+    for(int i = 0; i < triangles.size(); i++) {
         stereo_triangle t;
-        t.vertices[0] = vertex_mapping[out.trianglelist[i*3]];
-        t.vertices[1] = vertex_mapping[out.trianglelist[i*3+1]];
-        t.vertices[2] = vertex_mapping[out.trianglelist[i*3+2]];
+        t.vertices[0] = vertex_mapping[triangles[i].vertices[0]];
+        t.vertices[1] = vertex_mapping[triangles[i].vertices[1]];
+        t.vertices[2] = vertex_mapping[triangles[i].vertices[2]];
         mesh.triangles.push_back(t);
     }
-
-    free(in.pointlist);
-    free(out.pointlist);
-    free(out.trianglelist);
 }
+
 
 void stereo_mesh_delaunay(const stereo &g, stereo_mesh & mesh)
 {
-    char triswitches[] = "zQB";
-    struct triangulateio in, out;
-    in.pointlist = (float *)malloc(sizeof(float)*2*mesh.vertices_image.size());
-    in.numberofpoints = (int)mesh.vertices_image.size();
-    in.pointmarkerlist = NULL;
-    in.numberofpointattributes = 0;
-    out.pointlist = NULL;
-    out.trianglelist = NULL;
-    out.edgelist = NULL;
-    out.normlist = NULL;
-    out.numberoftriangles = 0;
-    for(int i = 0; i < mesh.vertices_image.size(); i++) {
-        in.pointlist[i*2] = mesh.vertices_image[i].x;
-        in.pointlist[i*2+1] = mesh.vertices_image[i].y;
-    }
-    if(in.numberofpoints > 3)
-        triangulate(triswitches, &in, &out, NULL);
-    for(int i = 0; i < out.numberoftriangles; i++) {
-        stereo_triangle t;
-        t.vertices[0] = out.trianglelist[i*3];
-        t.vertices[1] = out.trianglelist[i*3+1];
-        t.vertices[2] = out.trianglelist[i*3+2];
-        if(check_triangle(g, mesh, t))
-            mesh.triangles.push_back(t);
-    }
-
-    free(in.pointlist);
-    free(out.pointlist);
-    free(out.trianglelist);
+    vector<stereo_triangle> triangles = qhull_mesh_points(mesh.vertices_image);
+    for(int t = 0; t < triangles.size(); t++)
+        if(check_triangle(g, mesh, triangles[t]))
+            mesh.triangles.push_back(triangles[t]);
 }
-
-#include "mrf.h"
-#include "TRW-S.h"
 
 static const int NLABELS = 9 + 1;
 static const int UNKNOWN_LABEL = NLABELS - 1;
@@ -383,137 +406,147 @@ static const float PSI_U = 0.07; // unknown labels are .2% of depth difference f
 // slightly less than exp(-1) to try to promote 1 score matches from being labeled unknown
 // now expressed in cost units
 static const float PHI_U = 0.5; // was 0.04 from paper, but then everything gets set to unknown
+static const float PAIRWISE_LAMBDA = 1;
+static const float PAIRWISE_BETA = 2.3;
+
 static const int mask_shift = 3;
 static const int grid_size = 1 << mask_shift;
 vector< vector< struct stereo_match > > stereo_grid_matches;
 vector<xy> stereo_grid_locations;
 
-MRF::CostVal pairwise_cost(int pix1, int pix2, int i, int j)
+double pairwise_cost(int pix1, int pix2, int i, int j)
 {
+    // lambda scales the tradeoff between unary and pairwise
+    // beta scales where on the exponential these distances live
     if (pix2 < pix1) { // ensure that fnCost(pix1, pix2, i, j) == fnCost(pix2, pix1, j, i)
         int tmp;
         tmp = pix1; pix1 = pix2; pix2 = tmp;
         tmp = i; i = j; j = tmp;
     }
     if(i == UNKNOWN_LABEL && j == UNKNOWN_LABEL)
-        return 0;
+        return PAIRWISE_LAMBDA*exp(-0);
     else if (i == UNKNOWN_LABEL || j == UNKNOWN_LABEL)
-        return PSI_U;
+        return PAIRWISE_LAMBDA*exp(-PAIRWISE_BETA * PSI_U);
 
-    MRF::CostVal depth1 = stereo_grid_matches[pix1][i].depth;
-    MRF::CostVal depth2 = stereo_grid_matches[pix2][j].depth;
+    float depth1 = stereo_grid_matches[pix1][i].depth;
+    float depth2 = stereo_grid_matches[pix2][j].depth;
 
     // padded match results may have 0 depth and +1 unary cost
     // force unknown label by setting the penalty high
-    if(depth1 == 0 || depth2 == 0) return PSI_U*10;
+    if(depth1 == 0 || depth2 == 0)
+        return PAIRWISE_LAMBDA*exp(-PAIRWISE_BETA * PSI_U*10);
 
     v4 point1 = stereo_grid_matches[pix1][i].point;
     v4 point2 = stereo_grid_matches[pix2][j].point;
-    MRF::CostVal dist = norm(point1 - point2);
+    float dist = norm(point1 - point2);
 
     xy p1 = stereo_grid_locations[pix1];
     xy p2 = stereo_grid_locations[pix2];
     float deltapixels = sqrt((p1.x - p2.x)*(p1.x - p2.x) + (p1.y - p2.y)*(p1.y  - p2.y))/8;
 
-    MRF::CostVal answer = fabs(depth1 - depth2) / ((depth1 + depth2)/2.)/deltapixels;
+    float answer = fabs(depth1 - depth2) / ((depth1 + depth2)/2.)/deltapixels;
     answer =  dist / ((depth1 + depth2)/2)/deltapixels;
 
-    return answer;
+    return PAIRWISE_LAMBDA*exp(-PAIRWISE_BETA * answer);
 }
 
-MRF::CostVal unary_cost(int pixel, int label)
+double unary_cost(int pixel, int label)
 {
-    float lambda = 1;
-    float beta = 1;
+    //unary_cost is in range 1 (most likely) to 0 (not happening)
     if(label == UNKNOWN_LABEL)
-        return lambda * exp(-beta * PHI_U);;
+        return (PHI_U + 1)/2;
 
-    return lambda * exp(-beta * -stereo_grid_matches[pixel][label].score);
+    return (-stereo_grid_matches[pixel][label].score + 1)/2;
 }
+
+vector<int> pixel_neighbors(int pixel) {
+    vector<int> neighbors;
+    int row_size = 640/grid_size;
+    if(pixel+1 < stereo_grid_locations.size()) neighbors.push_back(pixel+1);
+    if(pixel+row_size < stereo_grid_locations.size()) neighbors.push_back(pixel+row_size);
+    // Only add lower and right neighbors since we do this once for each pixel, avoids duplicate edges
+//    if(pixel-1 >= 0) neighbors.push_back(pixel-1);
+//    if(pixel-row_size >= 0) neighbors.push_back(pixel-row_size);
+
+    return neighbors;
+}
+
+#include <dai/alldai.h>
+#include <dai/trwbp.h>
+
+using namespace std;
+using namespace dai;
 
 void stereo_mesh_refine_mrf(stereo_mesh & mesh, int width, int height, void (*progress_callback)(float), float start_progress, float end_progress)
 {
-    MRF* mrf;
-    MRF::EnergyVal E;
-    double lowerBound;
-    float t,tot_t;
-    int iter;
-
-    /* Create energy function */
-    //The cost of pixel p and label l is
-    // stored at cost[p*nLabels+l]
     int npixels = (int)stereo_grid_locations.size();
-    if(debug_mrf)
-        fprintf(stderr, "npixels considered %d\n", npixels);
-    MRF::CostVal * unary = new MRF::CostVal[npixels*NLABELS];
+    int niterations = 5;
 
+    vector<Var> vars;
+    vector<Factor> factors;
+
+    vars.reserve(npixels);
     for(int pixel = 0; pixel < npixels; pixel++)
-        for(int label = 0; label < NLABELS; label++)
-            unary[pixel*NLABELS+label] = unary_cost(pixel, label);
+        vars.push_back( Var(pixel, NLABELS) );
 
-    DataCost *data         = new DataCost(unary);
-    SmoothnessCost *smooth = new SmoothnessCost(pairwise_cost);
-    EnergyFunction *energy = new EnergyFunction(data,smooth);
-
-    mrf = new TRWS(width,height,NLABELS,energy);
-
-    // can disable caching of values of general smoothness function:
-    //mrf->dontCacheSmoothnessCosts();
-
-    mrf->initialize();
-    mrf->clearAnswer();
-
-
-    E = mrf->totalEnergy();
-    if(debug_mrf) {
-        fprintf(stderr, "Energy at the Start= %g (%g,%g)\n", (float)E,
-                (float)mrf->smoothnessEnergy(), (float)mrf->dataEnergy());
+    Real unary[NLABELS];
+    for(int pixel = 0; pixel < npixels; pixel++) {
+        for(int label = 0; label < NLABELS; label++) {
+            unary[label] = unary_cost(pixel, label);
+        }
+        factors.push_back(Factor(vars[pixel], &unary[0]));
     }
 
-    tot_t = 0;
-    int niterations = 10;
-    for (iter=0; iter<niterations; iter++) {
-		mrf->optimize(10, t);
-
-        if(debug_mrf) {
-            E = mrf->totalEnergy();
-            lowerBound = mrf->lowerBound();
-            tot_t = tot_t + t ;
-            fprintf(stderr, "energy = %g, %g\n", mrf->smoothnessEnergy(), mrf->dataEnergy());
-            fprintf(stderr, "energy = %g, lower bound = %f (%f secs)\n", (float)E, lowerBound, tot_t);
+    for(int pixel = 0; pixel < npixels; pixel++) {
+        vector<int> neighbors = pixel_neighbors(pixel);
+        for(int n = 0; n < neighbors.size(); n++) {
+            int neighbor = neighbors[n];
+            Real pairwise[NLABELS*NLABELS];
+            for(int plabel = 0; plabel < NLABELS; plabel++)
+                for(int nlabel = 0; nlabel < NLABELS; nlabel++)
+                    pairwise[nlabel*NLABELS + plabel] = pairwise_cost(pixel, neighbor, plabel, nlabel);
+            factors.push_back(Factor(VarSet(vars[pixel], vars[neighbor]), &pairwise[0]));
         }
+    }
+
+    FactorGraph fg = FactorGraph(factors.begin(), factors.end(), vars.begin(), vars.end(), factors.size(), vars.size());
+
+    TRWBP ia(fg, PropertySet("[updates=0,tol=1e-6,maxiter=10000,logdomain=0,inference=1,damping=0.0,nrtrees=0,verbose=0]"));
+
+    ia.init();
+
+    for(int i = 0; i < niterations; i++) {
+        ia.setMaxIter(i + 1);
+        double energy = ia.run();
+        if(debug_mrf)
+            fprintf(stderr, "Iteration %d: %f\n", i, energy);
 
         if(progress_callback) {
-            float progress = start_progress + (end_progress - start_progress)*iter/niterations;
+            float progress = start_progress + (end_progress - start_progress)*i/niterations;
             progress_callback(progress);
         }
     }
 
-    MRF::Label labelhist[NLABELS];
+    State maxState( ia.fg().factor(0).vars() );
+    vector<size_t> state;
+    int labelhist[NLABELS];
     for(int i=0; i < NLABELS; i++) labelhist[i] = 0;
 
-    MRF::Label * labels = mrf->getAnswerPtr();
-    for(int i = 0; i < width*height; i++) {
-        MRF::Label label = labels[i];
+    for(int pixel = 0; pixel < npixels; pixel++) {
+        int label = (int)ia.beliefV(pixel).p().argmax().first;
         labelhist[label]++;
         if(label != UNKNOWN_LABEL) {
-            xy pt = stereo_grid_locations[i];
-            struct stereo_match match = stereo_grid_matches[i][label];
+            xy pt = stereo_grid_locations[pixel];
+            struct stereo_match match = stereo_grid_matches[pixel][label];
             stereo_mesh_add_vertex(mesh, pt.x, pt.y, match.x, match.y, match.point, match.score);
         }
     }
+
     if(debug_mrf) {
         for(int i = 0; i < NLABELS; i++)
             fprintf(stderr, "%d ", labelhist[i]);
         fprintf(stderr, "\n");
     }
-
-
-    delete unary;
-    delete smooth;
-    delete data;
-    delete energy;
-    delete mrf;
 }
 
 void stereo_mesh_write_unary(const char * filename)
@@ -523,7 +556,7 @@ void stereo_mesh_write_unary(const char * filename)
 
     for(int pixel = 0; pixel < stereo_grid_matches.size(); pixel++) {
         for(int label = 0; label < NLABELS; label++) {
-            MRF::CostVal val = unary_cost(pixel, label);
+            float val = unary_cost(pixel, label);
             fprintf(unary_file, "%f", val);
             if(label == NLABELS-1)
                 fprintf(unary_file, "\n");

@@ -246,6 +246,43 @@ static inline m4v4 to_rotation_matrix_jacobian(const quaternion &q)
     }};
 }
 
+static inline quaternion to_quaternion(const m4 &m)
+{
+    v4 tr;
+    quaternion res;
+    tr[0] = ( m[0][0] + m[1][1] + m[2][2]);
+    tr[1] = ( m[0][0] - m[1][1] - m[2][2]);
+    tr[2] = (-m[0][0] + m[1][1] - m[2][2]);
+    tr[3] = (-m[0][0] - m[1][1] + m[2][2]);
+    if(tr[0] >= tr[1] && tr[0]>= tr[2] && tr[0] >= tr[3])
+    {
+        f_t s = 2. * sqrt(tr[0] + 1);
+        res.w() = .25 * s;
+        res.x() = (m[2][1] - m[1][2]) / s;
+        res.y() = (m[0][2] - m[2][0]) / s;
+        res.z() = (m[1][0] - m[0][1]) / s;
+    } else if(tr[1] >= tr[2] && tr[1] >= tr[3]) {
+        f_t s = 2. * sqrt(tr[1] + 1);
+        res.w() = (m[2][1] - m[1][2]) / s;
+        res.x() = .25 * s;
+        res.y() = (m[1][0] + m[0][1]) / s;
+        res.z() = (m[2][0] + m[0][2]) / s;
+    } else if(tr[2] >= tr[3]) {
+        f_t s = 2. * sqrt(tr[2] + 1.);
+        res.w() = (m[0][2] - m[2][0]) / s;
+        res.x() = (m[1][0] + m[0][1]) / s;
+        res.y() = .25 * s;
+        res.z() = (m[1][2] + m[2][1]) / s;
+    } else {
+        f_t s = 2. * sqrt(tr[3] + 1.);
+        res.w() = (m[1][0] - m[0][1]) / s;
+        res.x() = (m[0][2] + m[2][0]) / s;
+        res.y() = (m[1][2] + m[2][1]) / s;
+        res.z() = .25 * s;
+    }
+    return normalize(res);
+}
+
 static inline quaternion to_quaternion(const rotation_vector &v) {
     f_t theta2 = v.x()*v.x() + v.y()*v.y() + v.z()*v.z();
     f_t theta = sqrt(theta2);
@@ -283,6 +320,41 @@ static inline void integrate_angular_velocity_jacobian(const quaternion &Q, cons
         v4(Q.z(), Q.w(), -Q.x(), 0.),
         v4(-Q.y(), Q.x(), Q.w(), 0.)
     }};
+}
+
+//Assumes a and b are already normalized
+static inline quaternion rotation_between_two_vectors_normalized(const v4 &a, const v4 &b)
+{
+    quaternion res;
+    f_t d = dot(a,b);
+    v4 axis;
+    if( d >= 1.) //the two vectors are aligned)
+    {
+        return quaternion();
+    }
+    else if(d < (-1. + 1.e-6)) //the two vector are (nearly) opposite, pick an arbitrary orthogonal axis
+    {
+        if(fabs(a[0]) > fabs(a[2])) //make sure we have a non-zero element
+        {
+            res = quaternion(0., -a[1], a[0], 0.);
+        } else {
+            res = quaternion(0., 0., -a[2], a[1]);
+        }
+    } else { // normal case
+        f_t s = sqrt((1. + d) * 2.);
+        
+        v4 axis = cross(a, b);
+        res = quaternion(.5 * s, axis[0] / s, axis[1] / s, axis[2] / s);
+    }
+    return normalize(res);
+}
+
+static inline quaternion rotation_between_two_vectors(const v4 &a, const v4 &b)
+{
+    //make sure the 3rd element is zero and normalize
+    v4 an(a[0], a[1], a[2], 0.);
+    v4 bn(b[0], b[1], b[2], 0.);
+    return rotation_between_two_vectors_normalized(an / norm(an), bn / norm(bn));
 }
 
 #endif

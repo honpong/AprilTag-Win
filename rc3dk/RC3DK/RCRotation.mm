@@ -7,12 +7,45 @@
 
 #import "RCRotation.h"
 #import "vec4.h"
+#import "quaternion.h"
 
 @implementation RCRotation
+{
+    quaternion q;
+}
+
+- (float) quaternionW
+{
+    return q.w();
+}
+
+- (float) quaternionX
+{
+    return q.x();
+}
+
+- (float) quaternionY
+{
+    return q.y();
+}
+
+- (float) quaternionZ
+{
+    return q.z();
+}
+
+- (id) initWithQuaternionW:(float)w withX:(float)x withY:(float)y withZ:(float)z
+{
+    if(self = [super init])
+    {
+        q = quaternion(w, x, y, z);
+    }
+    return self;
+}
 
 - (void) getOpenGLMatrix:(float[16])matrix
 {
-    m4 rot = rodrigues(self.vector, NULL);
+    m4 rot = to_rotation_matrix(q);
     //transpose for OpenGL
     for(int i = 0; i < 4; ++i) {
         for(int j = 0; j < 4; ++j) {
@@ -23,7 +56,7 @@
 
 - (RCPoint *)transformPoint:(RCPoint *)point
 {
-    m4 R = rodrigues(self.vector, NULL);
+    m4 R = to_rotation_matrix(q);
     v4 rotated = R * point.vector;
     //TODO: account for standard deviation of rotation in addition to that of the point
     v4 stdev = R * point.standardDeviation * transpose(R);
@@ -32,7 +65,7 @@
 
 - (RCTranslation *)transformTranslation:(RCTranslation *)translation
 {
-    m4 R = rodrigues(self.vector, NULL);
+    m4 R = to_rotation_matrix(q);
     v4 rotated = R * translation.vector;
     //TODO: account for standard deviation of rotation in addition to that of the point
     v4 stdev = R * translation.standardDeviation * transpose(R);
@@ -41,16 +74,28 @@
 
 - (RCRotation *)getInverse
 {
-    return [[RCRotation alloc] initWithVector:-self.vector withStandardDeviation:self.standardDeviation];
+    quaternion i = conjugate(q);
+    return [[RCRotation alloc] initWithQuaternionW:i.w() withX:i.x() withY:i.y() withZ:i.z()];
 }
 
 - (RCRotation *)composeWithRotation:(RCRotation *)other
 {
     //TODO: standard deviation
-    m4 R = rodrigues(self.vector, NULL);
-    m4 R2 = rodrigues(other.vector, NULL);
-    v4 res = invrodrigues(R * R2, NULL);
-    return [[RCRotation alloc] initWithVector:res withStandardDeviation:self.standardDeviation];
+    quaternion a = quaternion_product(q, quaternion(other.quaternionW, other.quaternionX, other.quaternionY, other.quaternionZ));
+    return [[RCRotation alloc] initWithQuaternionW:a.w() withX:a.x() withY:a.y() withZ:a.z()];
+}
+
+- (NSDictionary*) dictionaryRepresentation
+{
+    //create a dictionary and add the two memebers of this class as floats
+    NSMutableDictionary *tmpDic = [NSMutableDictionary dictionaryWithCapacity:8];
+    tmpDic[@"qw"] = @(self.quaternionW);
+    tmpDic[@"qx"] = @(self.quaternionX);
+    tmpDic[@"qy"] = @(self.quaternionY);
+    tmpDic[@"qz"] = @(self.quaternionZ);
+    
+    //we return an immutable version
+    return [NSDictionary dictionaryWithDictionary:tmpDic];
 }
 
 @end

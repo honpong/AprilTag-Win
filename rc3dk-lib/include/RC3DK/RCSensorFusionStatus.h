@@ -19,6 +19,8 @@
  - RCSensorFusionStateSteadyInitialization - startSensorFusionWithDevice: has been called, and RCSensorFusion is in the handheld steady initialization phase. Progress is available on [RCSensorFusionStatus calibrationProgress].
  - RCSensorFusionStateDynamicInitialization - startSensorFusionUnstableWithDevice: has been called, and RCSensorFusion is in the handheld dynamic initialization phase. Progress is available on [RCSensorFusionStatus calibrationProgress].
  - RCSensorFusionStateRunning - RCSensorFusion is active and updates are being provided with all data.
+ - RCSensorFusionRunStatePortraitCalibration - RCSensorFusion is in handheld portrait calibration mode. The device should be held steady in portrait orientation, perpendicular to the floor. Progress is available on [RCSensorFusionStatus calibrationProgress].
+ - RCSensorFusionRunStateLandscapeCalibration - RCSensorFusion is in handheld landscape calibration mode. The device should be held steady in landscape orientation, perpendicular to the floor. Progress is available on [RCSensorFusionStatus calibrationProgress].
  */
 @property (nonatomic, readonly) RCSensorFusionRunState runState;
 

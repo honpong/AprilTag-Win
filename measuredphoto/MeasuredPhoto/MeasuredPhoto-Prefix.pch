@@ -12,5 +12,6 @@
     #import <UIKit/UIKit.h>
     #import <Foundation/Foundation.h>
     #import "MPConstants.h"
+    #import "MPAnalytics.h"
     #import <RCCore/RCCore.h>
 #endif

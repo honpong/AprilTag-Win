@@ -191,6 +191,14 @@ static transition transitions[] =
     {
         didGetVisionError = NO;
     }
+    else if (newState == ST_INITIALIZING)
+    {
+        [TMAnalytics startTimedEvent:@"Measurement.Initializing" withParameters:nil];
+    }
+    else if(newState == ST_MEASURE)
+    {
+        [TMAnalytics endTimedEvent:@"Measurement.Initializing"];
+    }
     else if (newState == ST_FINISHED)
     {
         NSString* errorType = didGetVisionError ? @"Vision" : @"None";
@@ -562,12 +570,7 @@ static transition transitions[] =
     float ptxlin = transformation.translation.x / ptdist * transformation.translation.stdx, ptylin = transformation.translation.y / ptdist * transformation.translation.stdy, ptzlin = transformation.translation.z / ptdist * transformation.translation.stdz;
     newMeasurement.pointToPoint_stdev = sqrt(ptxlin * ptxlin + ptylin * ptylin + ptzlin * ptzlin);
     
-    newMeasurement.rotationX = transformation.rotation.x;
-    newMeasurement.rotationX_stdev = transformation.rotation.stdx;
-    newMeasurement.rotationY = transformation.rotation.y;
-    newMeasurement.rotationY_stdev = transformation.rotation.stdy;
-    newMeasurement.rotationZ = transformation.rotation.z;
-    newMeasurement.rotationZ_stdev = transformation.rotation.stdz;
+    //TODO: Store rotation if needed - update to quaternion
     
     [newMeasurement autoSelectUnitsScale];
     

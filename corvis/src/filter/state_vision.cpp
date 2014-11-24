@@ -287,24 +287,19 @@ void state_vision::fill_calibration(feature_t &initial, f_t &r2, f_t &r4, f_t &r
     kr = 1. + r2 * k1.v + r4 * k2.v + r6 * k3.v;
 }
 
-/*
 feature_t state_vision::calibrate_feature(const feature_t &initial)
 {
     feature_t norm, calib;
-    f_t r2, r4, r6, kr;
+    
     norm.x = (initial.x - center_x.v) / focal_length.v;
     norm.y = (initial.y - center_y.v) / focal_length.v;
-    //forward calculation - guess calibrated from initial
+    
+    f_t r2, r4, r6, kr;
     fill_calibration(norm, r2, r4, r6, kr);
-    calib.x = norm.x / kr;
-    calib.y = norm.y / kr;
-    //backward calbulation - use calibrated guess to get new parameters and recompute
-    fill_calibration(calib, r2, r4, r6, kr);
     calib.x = norm.x / kr;
     calib.y = norm.y / kr;
     return calib;
 }
-*/
 
 void state_vision::remove_non_orientation_states()
 {

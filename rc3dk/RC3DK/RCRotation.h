@@ -5,12 +5,23 @@
 // To change the template use AppCode | Preferences | File Templates.
 //
 
-#include "RCVector.h"
 #include "RCPoint.h"
 #include "RCTranslation.h"
 
 /** Represents a 3D rotation. */
-@interface RCRotation : RCVector
+@interface RCRotation: NSObject
+
+/** Instantiate an RCRotation with the given quaternion parameters. */
+- (id) initWithQuaternionW:(float)w withX:(float)x withY:(float)y withZ:(float)z;
+
+/** The w element of the quaternion. */
+@property (nonatomic, readonly) float quaternionW;
+/** The x element of the quaternion. */
+@property (nonatomic, readonly) float quaternionX;
+/** The y element of the quaternion. */
+@property (nonatomic, readonly) float quaternionY;
+/** The z element of the quaternion. */
+@property (nonatomic, readonly) float quaternionZ;
 
 /** Fills in a matrix representation of the rotation that is compatible with OpenGL.
  
@@ -46,5 +57,8 @@
  @param other An RCRotation object
  @returns An RCRotation object representing the combined rotation. */
 - (RCRotation *) composeWithRotation:(RCRotation *)other;
+
+/** Return a dictionary representation of the quaternion. */
+- (NSDictionary*) dictionaryRepresentation;
 
 @end

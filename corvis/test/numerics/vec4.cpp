@@ -316,6 +316,25 @@ void test_rotation(const v4 &vec)
         m4 jacpert = rotmat + apply_jacobian_m4v4(to_rotation_matrix_jacobian(quat), v4_delta);
         test_m4_near(jacpert, qpert, .001);
     }
+    quaternion qinv = to_quaternion(rotmat);
+    {
+        SCOPED_TRACE("q = to_quaternion(to_rotation_matrix(q))");
+        test_quaternion_near_rotation(quat, qinv, 1.e-15);
+    }
+
+    {
+        const v4 lvec(1.5, -.64, 4.1, 0.);
+        v4 vrot = quaternion_rotate(quat, lvec);
+        SCOPED_TRACE("q * vec = rotation_between_two_vectors(vec, quaternion_rotation(q, vec)) * vec");
+        test_v4_near(vrot, quaternion_rotate(rotation_between_two_vectors(lvec, vrot), lvec), 1.e-12);
+    }
+    
+    {
+        const v4 up(0., 0., 1., 0.);
+        v4 newup = quaternion_rotate(quat, up);
+        SCOPED_TRACE("up = quaternion_rotate(rotation_between_two_vectors(quaternion_rotate(q, up), up), quaternion_rotate(q, up))");
+        test_v4_near(up, quaternion_rotate(rotation_between_two_vectors(newup, up), newup) , 1.e-12);
+    }
     
     integrate_angular_velocity_jacobian(quat, angvel, dW_dW, dW_dw);
     {
@@ -355,7 +374,7 @@ void test_rotation(const v4 &vec)
 }
 
 
-TEST(Matrix4, Rodrigues) {
+TEST(Matrix4, Rotation) {
     v4 rotvec(.55, -1.2, -.15, 0.);
     
     {

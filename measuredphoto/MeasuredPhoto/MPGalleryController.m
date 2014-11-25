@@ -389,7 +389,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     
     if (actionSheet == nil)
     {
-        actionSheet = [[UIActionSheet alloc] initWithTitle:@"TrueMeasure Menu"
+        actionSheet = [[UIActionSheet alloc] initWithTitle:@"3Dimension Menu"
                                                   delegate:self
                                          cancelButtonTitle:@"Cancel"
                                     destructiveButtonTitle:nil
@@ -454,7 +454,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     MPWebViewController* viewController = [self.storyboard instantiateViewControllerWithIdentifier:@"GenericWebView"];
     viewController.htmlUrl = [[NSBundle mainBundle] URLForResource:@"about" withExtension:@"html"];
     [self presentViewController:viewController animated:YES completion:nil];
-    viewController.titleLabel.text = @"About TrueMeasure"; // must come after present...
+    viewController.titleLabel.text = @"About 3Dimension"; // must come after present...
 }
 
 - (void) gotoTips
@@ -491,7 +491,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 
 - (NSString*) composeSharingString
 {
-    NSString* result = [NSString stringWithFormat: @"Check out this app that lets you measure anything in a photo! %@", URL_SHARING];
+    NSString* result = [NSString stringWithFormat: @"Check out this app that lets you measure anything in a photo: 3Dimension %@", URL_SHARING];
     return result;
 }
 

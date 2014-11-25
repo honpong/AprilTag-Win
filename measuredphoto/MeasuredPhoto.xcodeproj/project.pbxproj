@@ -1008,7 +1008,7 @@
 		32AF89EA18C00A2A00667EA3 /* MPContainerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPContainerView.m; sourceTree = "<group>"; };
 		32B78F8819182C93003165C9 /* MPLocalMoviePlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPLocalMoviePlayer.h; sourceTree = "<group>"; };
 		32B78F8919182C93003165C9 /* MPLocalMoviePlayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPLocalMoviePlayer.m; sourceTree = "<group>"; };
-		32BA429917A2DF8B002BAE13 /* TrueMeasure.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrueMeasure.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		32BA429917A2DF8B002BAE13 /* 3Dimension.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = 3Dimension.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		32BA429C17A2DF8B002BAE13 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		32BA429E17A2DF8B002BAE13 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		32BA42A017A2DF8B002BAE13 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -1821,7 +1821,7 @@
 		32BA429A17A2DF8B002BAE13 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				32BA429917A2DF8B002BAE13 /* TrueMeasure.app */,
+				32BA429917A2DF8B002BAE13 /* 3Dimension.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -2403,7 +2403,7 @@
 			);
 			name = MeasuredPhoto;
 			productName = MeasuredPhoto;
-			productReference = 32BA429917A2DF8B002BAE13 /* TrueMeasure.app */;
+			productReference = 32BA429917A2DF8B002BAE13 /* 3Dimension.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -3088,7 +3088,7 @@
 					"-framework",
 					Reveal,
 				);
-				PRODUCT_NAME = TrueMeasure;
+				PRODUCT_NAME = 3Dimension;
 				PROVISIONING_PROFILE = "";
 				SEPARATE_STRIP = YES;
 				STRIP_STYLE = all;
@@ -3209,7 +3209,7 @@
 					"-framework",
 					Reveal,
 				);
-				PRODUCT_NAME = TrueMeasure;
+				PRODUCT_NAME = 3Dimension;
 				PROVISIONING_PROFILE = "";
 				SEPARATE_STRIP = YES;
 				STRIP_STYLE = all;
@@ -3251,7 +3251,7 @@
 					"-framework",
 					Reveal,
 				);
-				PRODUCT_NAME = TrueMeasure;
+				PRODUCT_NAME = 3Dimension;
 				PROVISIONING_PROFILE = "";
 				SEPARATE_STRIP = YES;
 				STRIP_STYLE = all;

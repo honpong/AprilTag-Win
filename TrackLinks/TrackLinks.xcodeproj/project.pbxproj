@@ -12,6 +12,7 @@
 		323BD0971A25324800313573 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0961A25324800313573 /* Images.xcassets */; };
 		323BD09A1A25324800313573 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0981A25324800313573 /* LaunchScreen.xib */; };
 		323BD0A61A25324800313573 /* TrackLinksTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0A51A25324800313573 /* TrackLinksTests.m */; };
+		323BD0BA1A25388C00313573 /* libRC3DK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 323BD0B51A25387500313573 /* libRC3DK.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -21,6 +22,27 @@
 			proxyType = 1;
 			remoteGlobalIDString = 323BD0851A25324800313573;
 			remoteInfo = TrackLinks;
+		};
+		323BD0B41A25387500313573 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 323BD0AF1A25387500313573 /* RC3DK.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 327B54DF18EB4CC90001CCE1;
+			remoteInfo = RC3DK;
+		};
+		323BD0B61A25387500313573 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 323BD0AF1A25387500313573 /* RC3DK.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 327B54EF18EB4CC90001CCE1;
+			remoteInfo = RC3DKTests;
+		};
+		323BD0B81A25388600313573 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 323BD0AF1A25387500313573 /* RC3DK.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 327B54DE18EB4CC90001CCE1;
+			remoteInfo = RC3DK;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -35,6 +57,7 @@
 		323BD09F1A25324800313573 /* TrackLinksTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TrackLinksTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		323BD0A41A25324800313573 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		323BD0A51A25324800313573 /* TrackLinksTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TrackLinksTests.m; sourceTree = "<group>"; };
+		323BD0AF1A25387500313573 /* RC3DK.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RC3DK.xcodeproj; path = ../rc3dk/RC3DK.xcodeproj; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -42,6 +65,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				323BD0BA1A25388C00313573 /* libRC3DK.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -58,6 +82,7 @@
 		323BD07D1A25324800313573 = {
 			isa = PBXGroup;
 			children = (
+				323BD0AF1A25387500313573 /* RC3DK.xcodeproj */,
 				323BD0881A25324800313573 /* TrackLinks */,
 				323BD0A21A25324800313573 /* TrackLinksTests */,
 				323BD0871A25324800313573 /* Products */,
@@ -111,6 +136,15 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		323BD0B01A25387500313573 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				323BD0B51A25387500313573 /* libRC3DK.a */,
+				323BD0B71A25387500313573 /* RC3DKTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -125,6 +159,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				323BD0B91A25388600313573 /* PBXTargetDependency */,
 			);
 			name = TrackLinks;
 			productName = TrackLinks;
@@ -179,6 +214,12 @@
 			mainGroup = 323BD07D1A25324800313573;
 			productRefGroup = 323BD0871A25324800313573 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 323BD0B01A25387500313573 /* Products */;
+					ProjectRef = 323BD0AF1A25387500313573 /* RC3DK.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				323BD0851A25324800313573 /* TrackLinks */,
@@ -186,6 +227,23 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		323BD0B51A25387500313573 /* libRC3DK.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRC3DK.a;
+			remoteRef = 323BD0B41A25387500313573 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		323BD0B71A25387500313573 /* RC3DKTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = RC3DKTests.xctest;
+			remoteRef = 323BD0B61A25387500313573 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		323BD0841A25324800313573 /* Resources */ = {
@@ -231,6 +289,11 @@
 			isa = PBXTargetDependency;
 			target = 323BD0851A25324800313573 /* TrackLinks */;
 			targetProxy = 323BD0A01A25324800313573 /* PBXContainerItemProxy */;
+		};
+		323BD0B91A25388600313573 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = RC3DK;
+			targetProxy = 323BD0B81A25388600313573 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

@@ -141,14 +141,10 @@ const static GLfloat cube_normals[6*6 * 3] = {
     glUniform4f([program getUniformLocation:@"light_diffuse"], .8, .8, .8, 1);
     glUniform4f([program getUniformLocation:@"light_specular"], .8, .8, .8, 1);
     
-    glUniform4f([program getUniformLocation:@"material_ambient"], 0., 0., 1., 1);
-    glUniform4f([program getUniformLocation:@"material_diffuse"], 0., 0.5, 1., 1);
+    glUniform4f([program getUniformLocation:@"material_ambient"], 0.05, 1., 0.1, 1);
+    glUniform4f([program getUniformLocation:@"material_diffuse"], 0., 1., 0.5, 1);
     glUniform4f([program getUniformLocation:@"material_specular"], 1., 1., 1., 1);
     glUniform1f([program getUniformLocation:@"material_shininess"], 200.);
-    
-    RCPoint *projectedpt = [[initialCamera.rotation getInverse] transformPoint:[data.transformation.translation transformPoint:[[RCPoint alloc] initWithX:0. withY:0. withZ:0.]]];
-    float dx = projectedpt.x;
-    float dy = projectedpt.y;
     
     //Concatenating GLKit matrices goes left to right, and our shaders multiply with matrices on the left and vectors on the right.
     //So the last transformation listed is applied to our vertices first
@@ -158,19 +154,22 @@ const static GLfloat cube_normals[6*6 * 3] = {
     [initialCamera getOpenGLMatrix:model.m];
     model = GLKMatrix4Translate(model, 0, 0, 1.);
     
-    model = GLKMatrix4Scale(model, .5/6, .5/6, .5/6);
+    float arrowScale = .25;
+    
+    model = GLKMatrix4Scale(model, arrowScale / 4., arrowScale / 4., arrowScale / 4.); // each arrow chunk in the model is 4 meters long
 
     glUniformMatrix4fv([program getUniformLocation:@"model_matrix"], 1, false, model.m);
     
     glEnableVertexAttribArray([program getAttribLocation:@"position"]);
     glVertexAttribPointer([program getAttribLocation:@"position"], vertex_size, GL_FLOAT, 0, 0, arrow_vertices);
     
+    glLineWidth(2.);
     glDrawArrays(GL_LINE_LOOP, 0, vertex_count);
     
     [initialCamera getOpenGLMatrix:model.m];
-    model = GLKMatrix4Translate(model, progressHorizontal, progressVertical, 1.);
+    model = GLKMatrix4Translate(model, progressHorizontal * arrowScale, progressVertical * arrowScale, 1.);
         
-    model = GLKMatrix4Scale(model, 1./24, 1./24, 1./24);
+    model = GLKMatrix4Scale(model, arrowScale / 8., arrowScale / 8., arrowScale / 8.);
     
     glUniformMatrix4fv([program getUniformLocation:@"model_matrix"], 1, false, model.m);
     glEnableVertexAttribArray([program getAttribLocation:@"normal"]);

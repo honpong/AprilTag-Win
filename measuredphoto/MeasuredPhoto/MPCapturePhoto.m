@@ -26,6 +26,11 @@
 
 static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
 
+typedef enum
+{
+    MOVING_START, MOVING_VERTICAL, MOVING_HORIZONTAL
+} movement_status;
+
 @implementation MPCapturePhoto
 {
     BOOL useLocation;
@@ -47,7 +52,10 @@ static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
     
     BOOL didGetVisionError;
     RCSensorFusionErrorCode lastErrorCode;
+    
+    movement_status moving_state;
 }
+
 @synthesize toolbar, galleryButton, shutterButton, messageLabel, questionLabel, questionSegButton, questionView, arView, containerView;
 
 typedef NS_ENUM(int, AlertTag) {
@@ -74,7 +82,7 @@ typedef NS_ENUM(int, MessageColor) {
 };
 
 enum state { ST_STARTUP, ST_READY, ST_INITIALIZING, ST_MOVING, ST_CAPTURE, ST_PROCESSING, ST_ERROR, ST_DISK_SPACE, ST_FINISHED, ST_ANY } currentState;
-enum event { EV_RESUME, EV_FIRSTTIME, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_SHUTTER_TAP, EV_PAUSE, EV_CANCEL, EV_MOVE_DONE, EV_PROCESSING_FINISHED, EV_INITIALIZED, EV_STEREOFAIL, EV_DISK_SPACE };
+enum event { EV_RESUME, EV_FIRSTTIME, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_SHUTTER_TAP, EV_PAUSE, EV_CANCEL, EV_MOVE_DONE, EV_MOVE_UNDONE, EV_PROCESSING_FINISHED, EV_INITIALIZED, EV_STEREOFAIL, EV_DISK_SPACE };
 
 typedef struct { enum state state; enum event event; enum state newstate; } transition;
 
@@ -122,10 +130,11 @@ static transition transitions[] =
     { ST_MOVING, EV_FAIL, ST_ERROR },
     { ST_MOVING, EV_FASTFAIL, ST_ERROR },
     { ST_CAPTURE, EV_SHUTTER_TAP, ST_PROCESSING },
-    { ST_PROCESSING, EV_PROCESSING_FINISHED, ST_FINISHED },
-    { ST_PROCESSING, EV_STEREOFAIL, ST_ERROR },
+    { ST_CAPTURE, EV_MOVE_UNDONE, ST_MOVING },
     { ST_CAPTURE, EV_FAIL, ST_ERROR },
     { ST_CAPTURE, EV_FASTFAIL, ST_ERROR },
+    { ST_PROCESSING, EV_PROCESSING_FINISHED, ST_FINISHED },
+    { ST_PROCESSING, EV_STEREOFAIL, ST_ERROR },
     { ST_ERROR, EV_SHUTTER_TAP, ST_READY },
     { ST_FINISHED, EV_SHUTTER_TAP, ST_READY },
     { ST_FINISHED, EV_PAUSE, ST_FINISHED },
@@ -509,6 +518,7 @@ static transition transitions[] =
 - (void) handleMoveStart
 {
     LOGME
+    moving_state = MOVING_START;
 }
 
 - (void) handleMoveFinished
@@ -777,19 +787,49 @@ static transition transitions[] =
         median = [sorted objectAtIndex:middle];
     } else median = [NSNumber numberWithFloat:2.];
 
-    if (currentState == ST_MOVING)
+    if (currentState == ST_MOVING || currentState == ST_CAPTURE)
     {
         //Compute the capture progress here
         float depth = [median floatValue];
         
-        RCTranslation *trans = [[data.transformation.rotation getInverse] transformTranslation:data.transformation.translation];
-        float distFromStartPoint = sqrt(trans.x * trans.x + trans.y * trans.y);
+        RCPoint *projectedpt = [[arView.AROverlay.initialCamera.rotation getInverse] transformPoint:[data.transformation.translation transformPoint:[[RCPoint alloc] initWithX:0. withY:0. withZ:0.]]];
+        
         // require movement of at least 5cm
         float targetDist = MAX(0.05, depth / 8.);
-        float progress = distFromStartPoint / targetDist;
+
+        float dx = projectedpt.x / targetDist;
+        float dy = projectedpt.y / targetDist;
+        if(dx > 1.) dx = 1.;
+        if(dx < -1.) dx = -1.;
+        if(dy > 1.) dy = 1.;
+        if(dy < -1.) dy = -1.;
+        //hysteresis
+        if(moving_state == MOVING_START)
+        {
+            moving_state = (fabs(dx) > fabs(dy)) ? MOVING_HORIZONTAL : MOVING_VERTICAL;
+        }
+        else if(moving_state == MOVING_HORIZONTAL)
+        {
+            if(fabs(dy) > fabs(dx) + .05) moving_state = MOVING_VERTICAL;
+        }
+        else if(moving_state == MOVING_VERTICAL)
+        {
+            if(fabs(dx) > fabs(dy) + .05) moving_state = MOVING_HORIZONTAL;
+        }
         
-        [arView.AROverlay setProgressHorizontal:trans.x / 8. withVertical:trans.y / 8.];
-        if(progress >= 1.) [self handleStateEvent:EV_MOVE_DONE];
+        float progress;
+        if(moving_state == MOVING_HORIZONTAL)
+        {
+            progress = fabs(dx);
+            [arView.AROverlay setProgressHorizontal:dx withVertical:0.];
+        }
+        else
+        {
+            progress = fabs(dy);
+            [arView.AROverlay setProgressHorizontal:0. withVertical:dy];
+        }
+        if(currentState == ST_MOVING && progress >= 1.) [self handleStateEvent:EV_MOVE_DONE];
+        if(currentState == ST_CAPTURE && progress < 1.) [self handleStateEvent:EV_MOVE_UNDONE];
     }
     
     if(currentState == ST_INITIALIZING) [arView.AROverlay setInitialCamera:data.cameraTransformation];

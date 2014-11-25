@@ -1,13 +1,22 @@
 //
-//  AppDelegate.m
-//  TrackLinks
+//  MPAppDelegate.m
+//  MeasuredPhoto
 //
-//  Created by Ben Hirashima on 11/25/14.
-//  Copyright (c) 2014 Caterpillar. All rights reserved.
+//  Created by Ben Hirashima on 7/26/13.
+//  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "AppDelegate.h"
-#import "CATConstants.h"
+#import "MPAppDelegate.h"
+#import "MPPhotoRequest.h"
+#ifdef __APPLE__
+#include "TargetConditionals.h"
+#endif
+#import "MPAnalytics.h"
+#import "CoreData+MagicalRecord.h"
+#import "MPEditPhoto.h"
+#import "MPHttpInterceptor.h"
+#import "MPIntroScreen.h"
+#import "Flurry.h"
 
 #if TARGET_IPHONE_SIMULATOR
 #define SKIP_CALIBRATION YES // skip calibration when running on emulator because it cannot calibrate
@@ -15,7 +24,7 @@
 #define SKIP_CALIBRATION NO
 #endif
 
-@implementation AppDelegate
+@implementation MPAppDelegate
 {
     UIAlertView *locationAlert;
     UIViewController* mainViewController;
@@ -36,23 +45,23 @@
         }
         
         NSDictionary *appDefaults = @{PREF_UNITS: [NSNumber numberWithInt:defaultUnits],
-                                      PREF_ADD_LOCATION: @YES,
-                                      PREF_SHOW_LOCATION_NAG: @YES,
-                                      PREF_LAST_TRANS_ID: @0,
-                                      PREF_IS_CALIBRATED: @NO,
-                                      PREF_TUTORIAL_ANSWER: @0,
-                                      PREF_SHOW_INSTRUCTIONS: @YES,
-                                      PREF_SHOW_ACCURACY_QUESTION: @NO, // TODO: change to YES for prod
-                                      PREF_IS_FIRST_START: @YES,
-                                      PREF_RATE_NAG_TIMESTAMP : @0,
-                                      PREF_LOCATION_NAG_TIMESTAMP: @0,};
-        
+                                    PREF_ADD_LOCATION: @YES,
+                                    PREF_SHOW_LOCATION_NAG: @YES,
+                                    PREF_LAST_TRANS_ID: @0,
+                                    PREF_IS_CALIBRATED: @NO,
+                                    PREF_TUTORIAL_ANSWER: @0,
+                                    PREF_SHOW_INSTRUCTIONS: @YES,
+                                    PREF_SHOW_ACCURACY_QUESTION: @NO, // TODO: change to YES for prod
+                                    PREF_IS_FIRST_START: @YES,
+                                    PREF_RATE_NAG_TIMESTAMP : @0,
+                                    PREF_LOCATION_NAG_TIMESTAMP: @0,};
+       
         [NSUserDefaults.standardUserDefaults registerDefaults:appDefaults];
         
         // for testing only
-#ifndef ARCHIVE
-        //        [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_IS_FIRST_START];
-#endif
+        #ifndef ARCHIVE
+//        [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_IS_FIRST_START];
+        #endif
         
         [RCHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
     });
@@ -60,7 +69,7 @@
     mySensorDelegate = [SensorDelegate sharedInstance];
     
     mainViewController = self.window.rootViewController;
-    
+
     [Flurry setSecureTransportEnabled:YES];
     [Flurry setCrashReportingEnabled:YES];
     [Flurry setDebugLogEnabled:NO];
@@ -184,7 +193,7 @@
 {
     LOGME
 }
-
+							
 - (void)applicationWillResignActive:(UIApplication *)application
 {
     LOGME
@@ -200,9 +209,8 @@
 - (BOOL) application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
 {
     DLog(@"Application launched with URL: %@", url);
-    //    [MPPhotoRequest setLastRequest:url withSourceApp:sourceApplication];
+//    [MPPhotoRequest setLastRequest:url withSourceApp:sourceApplication];
     return YES;
 }
 
 @end
-

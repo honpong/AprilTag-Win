@@ -53,12 +53,11 @@ function dm_size(x,y){
     dm_canvas.height = y;
     dm_context = dm_canvas.getContext('2d');
     dm_canvas_imgData = dm_context.createImageData(x,y);
-    for(var i = 0; i < dm_canvas_imgData.data.length; i+= 4) {
-        dm_canvas_imgData.data[i+0] = 1;
-        dm_canvas_imgData.data[i+1] = 1;
-        dm_canvas_imgData.data[i+2] = 1;
-        dm_canvas_imgData.data[i+3] = 200;
-    }
+    //we're just updataing the alpha here, put in a local variable for faster reference.
+    //var canvas_optimizer = dm_canvas_imgData.data;
+    //for(var i = 3; i < dm_canvas_imgData.data.length; i+= 4) {
+     //   canvas_optimizer[i] = 200;
+    //}
 
     dm_context.strokeStyle = 'rgba(0,0,0,.3)'; //for line stroking, so that we don't have to update stroke style in drawing loop.
 }
@@ -224,7 +223,7 @@ function dm_triangle_intersect(   v1,v2,v3,  // Triangle vertices
 
 function finalize_dm(){
     //console.log('finalize_dm()');
-    rcMessage.clear();
+    //rcMessage.clear();
     
     dm_context.putImageData(dm_canvas_imgData,0,0);
     
@@ -289,17 +288,20 @@ function fill_dm_mask(){
 function fill_depth_map(){
     if (!spatial_data_loaded) {return false;}
     //size depthmap
+    time_in_iner_triangle_loop = 0
     dm_size(image_width,image_height);
 
     //iterate over spatial data and asign colors to each location based on total depth. will take two itterations. one to find maximal depth in image, another to create pixels.
     var total_depth_sqr =0;
     var current_depth_sqr;
     var v1,v2,v3;
+    var cnvs_img_data = dm_canvas_imgData.data;
     
     // calculate the average depth so we understand how to color
     rcMessage.post('loading depth data \n calculating average depth...',2000);
     
-    window.setTimeout(function () {
+    var avg_calc_start = new Date().getTime();
+//    window.setTimeout(function () {
         for (var i = 0; i < spatial_data['faces'].length; i++) {
             v1 = spatial_data['vertices'][spatial_data['faces'][i][0]];
             v2 = spatial_data['vertices'][spatial_data['faces'][i][1]];
@@ -321,11 +323,14 @@ function fill_depth_map(){
   
     
         avg_depth_sqr = total_depth_sqr/spatial_data['vertices'].length;
+        var avg_calc_time = new Date().getTime() - avg_calc_start;
+
+    
         var coords;
         
-        var draw_start = new Date();
+        var draw_start = new Date().getTime();
         rcMessage.post('loading depth data \n drawing triangles...',500);
-      window.setTimeout ( function () {
+      //window.setTimeout ( function () {
             var dm_t = [[0,0,0,0,0],[0,0,0,0,0],[0,0,0,0,0]];
             for (var i = 0; i < spatial_data['faces'].length; i++) { //now that we know the avg depth, draw to the canvas...
                 v1 = spatial_data['vertices'][spatial_data['faces'][i][0]];
@@ -348,16 +353,17 @@ function fill_depth_map(){
                 dm_t[1][4] = v2[2];
                 dm_t[2][4] = v3[2];
 
-                dm_imgData_add_traingle(dm_t); //draw the color to each triangle w/ gradient
+                dm_imgData_traingleLoop(dm_t, cnvs_img_data); //draw the color to each triangle w/ gradient
             }
 
 
-            var draw_end = new Date();
-            //console.log('compute time for triangels = ' + Math.abs(draw_end-draw_start).toString());
-            
+            var draw_end = new Date().getTime();
+    
             finalize_dm();
-        }, 0);
-     }, 0);
+        rcMessage.post('triangel time = ' + Math.abs(draw_end-draw_start).toString() + '\n avg_calc_time = ' +  Math.abs(avg_calc_time).toString(), 5000);
+        console.log('triangel time = ' + (draw_end-draw_start).toString() + '\n avg_calc_time = ' +  avg_calc_time.toString() + ' \n inner loop = ' + time_in_iner_triangle_loop.toString() );
+        //}, 0);
+   //  }, 0);
 }
 
 
@@ -424,8 +430,8 @@ function dm_PointInTriangle (pt, v1, v2, v3)
     return ((b1 == b2) && (b2 == b3));
 }
 
-
-function dm_imgData_add_traingle(vs){
+var time_in_iner_triangle_loop  = 0;
+function dm_imgData_add_traingle(vs, cnvs_img_data){
     //a triangle describes a plain, where x and y are image coordinates, and z is depth.
     //we will find the equation of the plain to calculated dx,dy in order to generate a gradiant.
     var v0 = [Math.round(vs[0][0]),Math.round(vs[0][1]),0], v1 = [Math.round(vs[1][0]),Math.round(vs[1][1]),0], v2 = [Math.round(vs[2][0]),Math.round(vs[2][1]),0];
@@ -450,7 +456,7 @@ function dm_imgData_add_traingle(vs){
     if (v0[1]>v1[1]||v0[1]>v2[1]) { min_y = Math.min(v1[1], v2[1]); }
     if (v0[1]<v1[1]||v0[1]<v2[1]) { max_y = Math.max(v1[1], v2[1]); }
     
-    var depth_at_ij, cv, s, t;
+    var cv, s, t, id_indx, clrx;
     //inspired by http://stackoverflow.com/questions/2049582/how-to-determine-a-point-in-a-triangle
     var area = 1/2 * (-v1[1] * v2[0] + v0[1] * (-v1[0] + v2[0]) + v0[0] * (v1[1] - v2[1]) + v1[0] * v2[1]);
     var sign = area < 0 ? -1 : 1;
@@ -461,23 +467,150 @@ function dm_imgData_add_traingle(vs){
     var t_x = (v0[1] - v1[1]) * sign;
     var t_y = (v1[0] - v0[0]) * sign;
     var areaxsignx2 = 2.2 * area * sign;
+    var color_denominator = (max_depth_sqr - min_depth_sqr);
+
+    //find maxx vertex, minx vertex, midx vertex. (if tied doesn't matter)
+    //find formula for maxx_x->minx, maxx->midx, midx-minx lines.
+    //find if midx vertext to left or right of maxx->minx line
+    
+    //for maxx to minx
+    
+    //for y value at that x on maxx->minx to
+        //if above midx midx->maxx line at that x
+        //else midx->minx line at that x
+           //calc depth and draw depth.
     
     //iterate over triangle and fill imageData w/ color
-    for(var i = min_x; i <= max_x; i++){
-        for (var j = min_y; j <= max_y; j++) {
+    var innerLoopStart = new Date().getTime();
+    for(var i = min_x; i <= max_x; i+=1){
+        for (var j = min_y; j <= max_y; j+=1) {
             s = s_b + s_x * i + s_y * j;
             t = t_b + t_x * i + t_y * j;
             if (s > -0.1 && t > -0.1 && (s + t) < areaxsignx2) {
-                depth_at_ij = doc - aoc * i - boc * j; // z = (d - ax - by) / c
-                cv = dm_clr_values_from_depth(depth_at_ij);
-                dm_canvas_imgData.data[((j-1)*image_width+i)*4 +0] = cv[0];
-                dm_canvas_imgData.data[((j-1)*image_width+i)*4 +1] = cv[1];
-                dm_canvas_imgData.data[((j-1)*image_width+i)*4 +2] = cv[2];
-                dm_canvas_imgData.data[((j-1)*image_width+i)*4 +3] = cv[3];
+                //moved dm_clr_values_from_depth code into loop to try to further optimize.
+                // depth, z = (d - ax - by) / c
+                clrx = ((doc - aoc * i - boc * j) - min_depth_sqr)/color_denominator*1023;
+                cnvs_img_data.set( [460 - clrx,
+                                    460 - Math.abs(clrx-500),
+                                    clrx - 460,
+                                    64], ((j-1)*image_width+i)*4);
             }
         }
     }
+    time_in_iner_triangle_loop += (innerLoopStart - new Date().getTime());
+    
+}
 
+function dm_imgData_traingleLoop(vs, cnvs_img_data){
+    //a triangle describes a plain, where x and y are image coordinates, and z is depth.
+    //we will find the equation of the plain to calculated dx,dy in order to generate a gradiant.
+    var v0 = [Math.round(vs[0][0]),Math.round(vs[0][1]),0], v1 = [Math.round(vs[1][0]),Math.round(vs[1][1]),0], v2 = [Math.round(vs[2][0]),Math.round(vs[2][1]),0];
+    v0[2] = vs[0][2]*vs[0][2]+vs[0][3]*vs[0][3]+vs[0][4]*vs[0][4]
+    v1[2] = vs[1][2]*vs[1][2]+vs[1][3]*vs[1][3]+vs[1][4]*vs[1][4]
+    v2[2] = vs[2][2]*vs[2][2]+vs[2][3]*vs[2][3]+vs[2][4]*vs[2][4]
+    
+    //determine equaiton of plan s.t. we can subsequently calculate depth
+    var v12=[0,0,0], v13=[0,0,0], norm_vec = [0,0,0];
+    dm_sub(v12, v1, v0);      //calculate cross product of edge vectors to get normal vector.
+    dm_sub(v13, v2, v0);
+    dm_cross(norm_vec, v12, v13);
+    var d = dm_dot(norm_vec, v2); //calculate offset constant using normal
+    var doc = d/norm_vec[2];
+    var aoc = norm_vec[0]/norm_vec[2];
+    var boc = norm_vec[1]/norm_vec[2];
+    
+    //find maxx vertex, minx vertex, midx vertex. (if tied doesn't matter)
+    var min_x = v0, max_x = v0, mid_x = v0;
+    if (v0[0]>=v1[0]&&v0[0]>=v2[0])
+    {
+        if (v1[0]>v2[0]) { mid_x = v1; min_x = v2}
+        else {mid_x = v2; min_x = v1}
+    }
+    else if (v1[0]>=v0[0]&&v1[0]>=v2[0])
+    {
+        max_x = v1;
+        if (v0[0]>v2[0]) { mid_x = v0; min_x = v2}
+        else {mid_x = v2; min_x = v0}
+    }
+    else //v2max
+    {
+        max_x = v2;
+        if (v0[0]>v1[0]) { mid_x = v0; min_x = v1}
+        else {mid_x = v1; min_x = v0}
+    }
+    
+    if (mid_x[0] == max_x[0]) {
+        max_x[0] = max_x[0]+1;
+    }
+    
+    var clrx;
+    var color_denominator = (max_depth_sqr - min_depth_sqr);
+    
+    var no_triangle_drawn = true;
+    
+    //find formula for maxx_x->minx, maxx->midx, midx-minx lines.
+    var btc, bmc, mtc;
+    if (max_x[0] - min_x[0] != 0){  //bottom->top c
+        btc = (max_x[1] - min_x[1]) / (max_x[0] - min_x[0]);
+    }
+    else {
+        btc = (max_x[1] - min_x[1]) / (1/(max_x[1] - min_x[1]));
+    }
+    if (mid_x[0] - min_x[0] != 0){
+        bmc = (mid_x[1] - min_x[1])/(mid_x[0] - min_x[0]); //botom->mid c
+    }
+    else {
+        bmc = (mid_x[1] - min_x[1]) / (1/(mid_x[1] - min_x[1]));
+    }
+    if (max_x[0] - mid_x[0] != 0) {
+        mtc = (max_x[1] - mid_x[1])/ (max_x[0] - mid_x[0]); //mid->top c
+    }
+    else {
+        mtc = (max_x[1] - mid_x[1]) / (1/(max_x[1] - mid_x[1]));
+    }
+    
+    //find if midx vertext to left or right of maxx->minx line
+    var mid_less_bt = (mid_x[1] < (min_x[1] + btc*(mid_x[0]-min_x[0])));
+    //for maxx to minx
+    var max_j, min_j;
+    var innerLoopStart = new Date().getTime();
+    for( var i = min_x[0]; i < max_x[0]; i++){
+        //for y value at that x on maxx->minx to
+        //if above midx midx->maxx line at that x
+        //else midx->minx line at that x
+        if (mid_less_bt) {
+            max_j = Math.round( min_x[1] + btc*(i-min_x[0]));
+            if (i > mid_x[0]){ min_j =  Math.floor(mid_x[1] + mtc*(i-mid_x[0])); }
+            else {  min_j = Math.floor(min_x[1] + bmc*(i-min_x[0])); }
+        }
+        else {
+            min_j = Math.floor(min_x[1] + btc*(i-min_x[0]));
+            if (i > mid_x[0]) { max_j = Math.round(mid_x[1] + mtc*(i-mid_x[0])); }
+            else{ max_j = Math.round(min_x[1] + bmc*(i-min_x[0])); }
+        }
+        if (i > 0 && i <= image_width){
+            //calc depth and draw depth.
+            for (var j = min_j; j <= max_j; j++){
+                //moved dm_clr_values_from_depth code into loop to try to further optimize.
+                // depth, z = (d - ax - by) / c
+                clrx = ((doc - aoc * i - boc * j) - min_depth_sqr)/color_denominator*1023;
+                if (  j > 0 && j <= image_height){
+                    cnvs_img_data.set( [460 - clrx,
+                                        460 - Math.abs(clrx-500),
+                                        clrx - 460,
+                                        64], ((j-1)*image_width+i)*4);
+                    no_triangle_drawn = false;
+                }
+                
+            }
+        }
+    }
+    
+    if (no_triangle_drawn) {
+        console.log('no tirangle drawn');
+    }
+    
+    time_in_iner_triangle_loop += (innerLoopStart - new Date().getTime());
     
 }
 
@@ -492,8 +625,8 @@ function dm_clr_from_depth( current_depth_sqr) {
     return 'rgba('+cv[0].toFixed()+','+cv[1].toFixed()+','+cv[2].toFixed()+',0.25)';
 }
 
-var dm_clrv_x;
 function dm_clr_values_from_depth( current_depth_sqr) {
+    var dm_clrv_x;
     try {
         dm_clrv_x = (current_depth_sqr - min_depth_sqr)/(max_depth_sqr - min_depth_sqr);
     }

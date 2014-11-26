@@ -30,20 +30,25 @@
     return self;
 }
 
-const static int vertex_count = 7*4;
 const static int vertex_size = 2;
 
-const static GLfloat arrow_vertices[vertex_count * vertex_size] = {
-    //top
-    -.125, .125,
-    -.125, .625,
-    -.375, .625,
-    0., 1.,
-    .375, .625,
-    .125, .625,
+//primary arrow and progress indicator to the right
+
+const static GLfloat progress_vertices[9 * 2] = {
+    .125, -.125,
     .125, .125,
-    
-    //right
+    .625, -.125,
+
+    .125, .125,
+    .625, .125,
+    .625, -.125,
+
+    .625, -.375,
+    .625, .375,
+    1., 0.,
+};
+
+const static GLfloat arrow_vertices[7 * 2] = {
     .125, .125,
     .625, .125,
     .625, .375,
@@ -51,7 +56,10 @@ const static GLfloat arrow_vertices[vertex_count * vertex_size] = {
     .625, -.375,
     .625, -.125,
     .125, -.125,
-    
+};
+
+
+const static GLfloat other_vertices[21 * vertex_size] = {
     //bottom
     .125, -.125,
     .125, -.625,
@@ -69,20 +77,15 @@ const static GLfloat arrow_vertices[vertex_count * vertex_size] = {
     -.625, .375,
     -.625, .125,
     -.125, .125,
-};
-
-const static GLfloat arrow_triangle_vertices[9 * 2] = {
-    .125, -.125,
+    
+    //top
+    -.125, .125,
+    -.125, .625,
+    -.375, .625,
+    0., 1.,
+    .375, .625,
+    .125, .625,
     .125, .125,
-    .625, -.125,
-
-    .125, .125,
-    .625, .125,
-    .625, -.125,
-
-    .625, -.375,
-    .625, .375,
-    1., 0.,
 };
 
 const static GLfloat cube_vertices[6*6 * 3] = {
@@ -162,6 +165,19 @@ const static float arrowScale = .5;
     glUniform4f([program getUniformLocation:@"material_specular"], 1., 1., 1., 1);
     glUniform1f([program getUniformLocation:@"material_shininess"], 200.);
     
+    float progress;
+    float arrowTheta;
+    if(fabs(progressVertical) > fabs(progressHorizontal))
+    {
+        if(progressVertical > 0.) arrowTheta = M_PI_2;
+        else arrowTheta = -M_PI_2;
+        progress = fabs(progressVertical);
+    } else {
+        if(progressHorizontal > 0.) arrowTheta = 0.;
+        else arrowTheta = M_PI;
+        progress = fabs(progressHorizontal);
+    }
+    
     //Concatenating GLKit matrices goes left to right, and our shaders multiply with matrices on the left and vectors on the right.
     //So the last transformation listed is applied to our vertices first
     GLKMatrix4 model;
@@ -169,36 +185,50 @@ const static float arrowScale = .5;
     //Place it in front of the initial camera position
     [initialCamera getOpenGLMatrix:model.m];
     model = GLKMatrix4Translate(model, 0, 0, arrowDepth);
-    
-    
-    model = GLKMatrix4Scale(model, arrowScale, arrowScale, arrowScale); // each arrow chunk in the model is 4 meters long
-
+    model = GLKMatrix4Scale(model, arrowScale, arrowScale, arrowScale);
+    model = GLKMatrix4RotateZ(model, arrowTheta);
     glUniformMatrix4fv([program getUniformLocation:@"model_matrix"], 1, false, model.m);
-    
+
+    /*********** outline ******/
     glEnableVertexAttribArray([program getAttribLocation:@"position"]);
     glVertexAttribPointer([program getAttribLocation:@"position"], vertex_size, GL_FLOAT, 0, 0, arrow_vertices);
     
     glLineWidth(2.);
-    glDrawArrays(GL_LINE_LOOP, 0, vertex_count);
+    glDrawArrays(GL_LINE_STRIP, 0, 7);
+
+    /******* other 3 outline *****/
+    glUniform4f([program getUniformLocation:@"material_ambient"], 0.05, 1., 0.1, 1. - progress);
+    glUniform4f([program getUniformLocation:@"material_diffuse"], 0., 1., 0.5, 1. - progress);
+    glUniform4f([program getUniformLocation:@"material_specular"], 0., 0., 0., 0.);
+
+    glVertexAttribPointer([program getAttribLocation:@"position"], vertex_size, GL_FLOAT, 0, 0, other_vertices);
     
+    glLineWidth(2.);
+    glDrawArrays(GL_LINE_STRIP, 0, 21);
+
     
-    [initialCamera getOpenGLMatrix:model.m];
+    /************filled arrow*****/
+    
     glUniform4f([program getUniformLocation:@"material_ambient"], 0.05, 1., 0.1, .5);
     glUniform4f([program getUniformLocation:@"material_diffuse"], 0., 1., 0.5, .5);
     glUniform4f([program getUniformLocation:@"material_specular"], 0., 0., 0., 0.);
  
-    
-    model = GLKMatrix4Translate(model, 0., 0., arrowDepth);
-    
-    model = GLKMatrix4Scale(model, arrowScale * progressHorizontal, arrowScale * progressHorizontal, arrowScale * progressHorizontal);
+    model = GLKMatrix4Scale(model, progress, progress, progress);
 
     glUniformMatrix4fv([program getUniformLocation:@"model_matrix"], 1, false, model.m);
-    glVertexAttribPointer([program getAttribLocation:@"position"], 2, GL_FLOAT, 0, 0, arrow_triangle_vertices);
+    glVertexAttribPointer([program getAttribLocation:@"position"], 2, GL_FLOAT, 0, 0, progress_vertices);
     glDrawArrays(GL_TRIANGLES, 0, 9);
+
+    
+    /********** cube ***/
+    
+    glUniform4f([program getUniformLocation:@"material_ambient"], 0.05, 1., 0.1, 1);
+    glUniform4f([program getUniformLocation:@"material_diffuse"], 0., 1., 0.5, 1);
+    glUniform4f([program getUniformLocation:@"material_specular"], 1., 1., 1., 1);
 
     [initialCamera getOpenGLMatrix:model.m];
     model = GLKMatrix4Translate(model, progressHorizontal * arrowScale, progressVertical * arrowScale, arrowDepth);
-        
+
     model = GLKMatrix4Scale(model, arrowScale / 8., arrowScale / 8., arrowScale / 8.);
     
     glUniformMatrix4fv([program getUniformLocation:@"model_matrix"], 1, false, model.m);

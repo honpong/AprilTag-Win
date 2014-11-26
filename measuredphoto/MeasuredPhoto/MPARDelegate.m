@@ -35,41 +35,54 @@ const static int vertex_size = 2;
 
 const static GLfloat arrow_vertices[vertex_count * vertex_size] = {
     //top
-    -.5, .5,
-    -.5, 2.5,
-    -1.5, 2.5,
-    0., 4.,
-    1.5, 2.5,
-    .5, 2.5,
-    .5, .5,
+    -.125, .125,
+    -.125, .625,
+    -.375, .625,
+    0., 1.,
+    .375, .625,
+    .125, .625,
+    .125, .125,
     
     //right
-    .5, .5,
-    2.5, .5,
-    2.5, 1.5,
-    4., 0.,
-    2.5, -1.5,
-    2.5, -.5,
-    .5, -.5,
+    .125, .125,
+    .625, .125,
+    .625, .375,
+    1., 0.,
+    .625, -.375,
+    .625, -.125,
+    .125, -.125,
     
     //bottom
-    .5, -.5,
-    .5, -2.5,
-    1.5, -2.5,
-    0., -4.,
-    -1.5, -2.5,
-    -.5, -2.5,
-    -.5, -.5,
+    .125, -.125,
+    .125, -.625,
+    .375, -.625,
+    0., -1.,
+    -.375, -.625,
+    -.125, -.625,
+    -.125, -.125,
     
     //left
-    -.5, -.5,
-    -2.5, -.5,
-    -2.5, -1.5,
-    -4., 0.,
-    -2.5, 1.5,
-    -2.5, .5,
-    -.5, .5,
+    -.125, -.125,
+    -.625, -.125,
+    -.625, -.375,
+    -1., 0.,
+    -.625, .375,
+    -.625, .125,
+    -.125, .125,
+};
 
+const static GLfloat arrow_triangle_vertices[9 * 2] = {
+    .125, -.125,
+    .125, .125,
+    .625, -.125,
+
+    .125, .125,
+    .625, .125,
+    .625, -.125,
+
+    .625, -.375,
+    .625, .375,
+    1., 0.,
 };
 
 const static GLfloat cube_vertices[6*6 * 3] = {
@@ -125,6 +138,9 @@ const static GLfloat cube_normals[6*6 * 3] = {
     progressVertical = vertical;
 }
 
+const static float arrowDepth = 2.;
+const static float arrowScale = .5;
+
 - (void)renderWithSensorFusionData:(RCSensorFusionData *)data withCameraToScreenMatrix:(GLKMatrix4)cameraToScreen
 {
     if(!data.cameraParameters || !data.cameraTransformation) return;
@@ -152,11 +168,10 @@ const static GLfloat cube_normals[6*6 * 3] = {
     
     //Place it in front of the initial camera position
     [initialCamera getOpenGLMatrix:model.m];
-    model = GLKMatrix4Translate(model, 0, 0, 2.);
+    model = GLKMatrix4Translate(model, 0, 0, arrowDepth);
     
-    float arrowScale = .5;
     
-    model = GLKMatrix4Scale(model, arrowScale / 4., arrowScale / 4., arrowScale / 4.); // each arrow chunk in the model is 4 meters long
+    model = GLKMatrix4Scale(model, arrowScale, arrowScale, arrowScale); // each arrow chunk in the model is 4 meters long
 
     glUniformMatrix4fv([program getUniformLocation:@"model_matrix"], 1, false, model.m);
     
@@ -166,8 +181,23 @@ const static GLfloat cube_normals[6*6 * 3] = {
     glLineWidth(2.);
     glDrawArrays(GL_LINE_LOOP, 0, vertex_count);
     
+    
     [initialCamera getOpenGLMatrix:model.m];
-    model = GLKMatrix4Translate(model, progressHorizontal * arrowScale, progressVertical * arrowScale, 2.);
+    glUniform4f([program getUniformLocation:@"material_ambient"], 0.05, 1., 0.1, .5);
+    glUniform4f([program getUniformLocation:@"material_diffuse"], 0., 1., 0.5, .5);
+    glUniform4f([program getUniformLocation:@"material_specular"], 0., 0., 0., 0.);
+ 
+    
+    model = GLKMatrix4Translate(model, 0., 0., arrowDepth);
+    
+    model = GLKMatrix4Scale(model, arrowScale * progressHorizontal, arrowScale * progressHorizontal, arrowScale * progressHorizontal);
+
+    glUniformMatrix4fv([program getUniformLocation:@"model_matrix"], 1, false, model.m);
+    glVertexAttribPointer([program getAttribLocation:@"position"], 2, GL_FLOAT, 0, 0, arrow_triangle_vertices);
+    glDrawArrays(GL_TRIANGLES, 0, 9);
+
+    [initialCamera getOpenGLMatrix:model.m];
+    model = GLKMatrix4Translate(model, progressHorizontal * arrowScale, progressVertical * arrowScale, arrowDepth);
         
     model = GLKMatrix4Scale(model, arrowScale / 8., arrowScale / 8., arrowScale / 8.);
     

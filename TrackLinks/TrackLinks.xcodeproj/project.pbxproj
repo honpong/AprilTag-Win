@@ -664,6 +664,7 @@
 				323BD0AB1A25324800313573 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		323BD0AC1A25324800313573 /* Build configuration list for PBXNativeTarget "TrackLinksTests" */ = {
 			isa = XCConfigurationList;
@@ -672,6 +673,7 @@
 				323BD0AE1A25324800313573 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

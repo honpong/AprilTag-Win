@@ -207,18 +207,29 @@ const static float arrowScale = .5;
     glDrawArrays(GL_LINE_STRIP, 0, 21);
 
     
+//#define ARROW_PROGRESS
     /************filled arrow*****/
     
     glUniform4f([program getUniformLocation:@"material_ambient"], 0.05, 1., 0.1, .5);
     glUniform4f([program getUniformLocation:@"material_diffuse"], 0., 1., 0.5, .5);
     glUniform4f([program getUniformLocation:@"material_specular"], 0., 0., 0., 0.);
- 
+#ifdef ARROW_PROGRESS
     model = GLKMatrix4Scale(model, progress, progress, progress);
 
     glUniformMatrix4fv([program getUniformLocation:@"model_matrix"], 1, false, model.m);
     glVertexAttribPointer([program getAttribLocation:@"position"], 2, GL_FLOAT, 0, 0, progress_vertices);
     glDrawArrays(GL_TRIANGLES, 0, 9);
-
+#else
+    GLfloat bar_vertices[] = {
+        0., -.125,
+        0., .125,
+        progress, .125,
+        progress, -.125
+    };
+    
+    glVertexAttribPointer([program getAttribLocation:@"position"], 2, GL_FLOAT, 0, 0, bar_vertices);
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+#endif
     
     /********** cube ***/
     

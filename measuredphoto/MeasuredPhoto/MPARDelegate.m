@@ -152,9 +152,9 @@ const static GLfloat cube_normals[6*6 * 3] = {
     
     //Place it in front of the initial camera position
     [initialCamera getOpenGLMatrix:model.m];
-    model = GLKMatrix4Translate(model, 0, 0, 1.);
+    model = GLKMatrix4Translate(model, 0, 0, 2.);
     
-    float arrowScale = .25;
+    float arrowScale = .5;
     
     model = GLKMatrix4Scale(model, arrowScale / 4., arrowScale / 4., arrowScale / 4.); // each arrow chunk in the model is 4 meters long
 
@@ -167,7 +167,7 @@ const static GLfloat cube_normals[6*6 * 3] = {
     glDrawArrays(GL_LINE_LOOP, 0, vertex_count);
     
     [initialCamera getOpenGLMatrix:model.m];
-    model = GLKMatrix4Translate(model, progressHorizontal * arrowScale, progressVertical * arrowScale, 1.);
+    model = GLKMatrix4Translate(model, progressHorizontal * arrowScale, progressVertical * arrowScale, 2.);
         
     model = GLKMatrix4Scale(model, arrowScale / 8., arrowScale / 8., arrowScale / 8.);
     

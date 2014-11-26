@@ -794,8 +794,7 @@ static transition transitions[] =
         
         RCPoint *projectedpt = [[arView.AROverlay.initialCamera.rotation getInverse] transformPoint:[data.transformation.translation transformPoint:[[RCPoint alloc] initWithX:0. withY:0. withZ:0.]]];
         
-        // require movement of at least 5cm
-        float targetDist = MAX(0.05, depth / 8.);
+        float targetDist = log(depth / 8. + 1.) + .05; // require movement of at least 5cm
 
         float dx = projectedpt.x / targetDist;
         float dy = projectedpt.y / targetDist;

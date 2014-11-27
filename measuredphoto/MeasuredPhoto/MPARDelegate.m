@@ -206,7 +206,6 @@ const static float arrowScale = .5;
     glLineWidth(2.);
     glDrawArrays(GL_LINE_STRIP, 0, 21);
 
-    
 //#define ARROW_PROGRESS
     /************filled arrow*****/
     
@@ -220,19 +219,38 @@ const static float arrowScale = .5;
     glVertexAttribPointer([program getAttribLocation:@"position"], 2, GL_FLOAT, 0, 0, progress_vertices);
     glDrawArrays(GL_TRIANGLES, 0, 9);
 #else
-    GLfloat bar_vertices[] = {
-        0., -.125,
-        0., .125,
-        progress, .125,
-        progress, -.125
-    };
-    
-    glVertexAttribPointer([program getAttribLocation:@"position"], 2, GL_FLOAT, 0, 0, bar_vertices);
-    glDrawArrays(GL_TRIANGLE_FAN, 0, 4);
+    if(progress > .125) //don't  draw if we haven't reached the start of the arrow yet
+    {
+        float barprogress,headscale;
+        if(progress > .625)
+        {
+            barprogress = .625;
+            headscale = progress - .625;
+        } else {
+            barprogress = progress;
+            headscale = 0.;
+        }
+        GLfloat bar_vertices[] = {
+            0., -.125,
+            0., .125,
+            barprogress, .125,
+
+            barprogress, .125,
+            barprogress, -.125,
+            0., -.125,
+            
+            barprogress, -headscale,
+            barprogress, headscale,
+            progress, 0.
+        };
+        
+        glVertexAttribPointer([program getAttribLocation:@"position"], 2, GL_FLOAT, 0, 0, bar_vertices);
+        glDrawArrays(GL_TRIANGLES, 0, 9);
+    }
 #endif
-    
+
     /********** cube ***/
-    
+
     glUniform4f([program getUniformLocation:@"material_ambient"], 0.05, 1., 0.1, 1);
     glUniform4f([program getUniformLocation:@"material_diffuse"], 0., 1., 0.5, 1);
     glUniform4f([program getUniformLocation:@"material_specular"], 1., 1., 1., 1);

@@ -6,10 +6,10 @@
 //  Copyright (c) 2014 RealityCap. All rights reserved.
 //
 
-#import "MPContainerView.h"
+#import "CATContainerView.h"
 #import <RCCore/RCCore.h>
 
-@implementation MPContainerView
+@implementation CATContainerView
 {
     CGFloat widthPortrait;
     CGFloat heightPortrait;

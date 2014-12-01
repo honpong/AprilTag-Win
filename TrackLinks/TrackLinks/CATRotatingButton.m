@@ -6,10 +6,10 @@
 //  Copyright (c) 2014 RealityCap. All rights reserved.
 //
 
-#import "MPRotatingButton.h"
-#import "MPOrientationChangeData.h"
+#import "CATRotatingButton.h"
+#import "CATOrientationChangeData.h"
 
-@implementation MPRotatingButton
+@implementation CATRotatingButton
 
 - (id) initWithCoder:(NSCoder *)aDecoder
 {
@@ -32,7 +32,7 @@
 {
     if (notification.object)
     {
-        MPOrientationChangeData* data = (MPOrientationChangeData*)notification.object;
+        CATOrientationChangeData* data = (CATOrientationChangeData*)notification.object;
         [self applyRotationTransformation:data.orientation animated:data.animated];
     }
 }

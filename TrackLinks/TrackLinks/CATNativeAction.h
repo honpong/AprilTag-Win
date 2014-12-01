@@ -34,7 +34,7 @@
  * This is just a normalized object representation of a request sent to the native app from Javascript. It's really just
  * a way for us to pass this request information to our native code that is going to respond to the request.
  */
-@interface MPNativeAction : NSObject {
+@interface CATNativeAction : NSObject {
     NSString *mAction;
     NSString* mBody;
     NSURLRequest* mRequest;
@@ -47,7 +47,7 @@
 @property(readonly) NSURLRequest* request;
 @property(readonly) NSDictionary* params;
 
-+ (MPNativeAction*) nativeActionWithRequest:(NSURLRequest*)request;
++ (CATNativeAction*) nativeActionWithRequest:(NSURLRequest*)request;
 - (id) initWithRequest:(NSURLRequest*)request;
 - (NSDictionary*) parseParams;
 

@@ -6,16 +6,16 @@
 //  Copyright (c) 2014 RealityCap. All rights reserved.
 //
 
-#import "MPInstructionsView.h"
+#import "CATInstructionsView.h"
 #import "MPCircleLayerDelegate.h"
 #import "MPDotLayerDelegate.h"
-#import "MPCapturePhoto.h"
+#import "CATCapturePhoto.h"
 #import <RCCore/RCCore.h>
 
 const static CGFloat lineWidth = 10.; //TODO: this is hardcoded in subviews
 const static float smoothing = .5;
 
-@implementation MPInstructionsView
+@implementation CATInstructionsView
 {
     CALayer* circleLayer;
     CALayer* dotLayer;

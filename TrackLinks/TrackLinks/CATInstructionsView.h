@@ -16,7 +16,7 @@
 
 @class RCTransformation;
 
-@interface MPInstructionsView : MPView
+@interface CATInstructionsView : UIView
 
 @property (nonatomic) id<MPInstructionsViewDelegate> delegate;
 

@@ -6,22 +6,22 @@
 //  Copyright (c) 2014 RealityCap. All rights reserved.
 //
 
-#import "MPEditPhoto.h"
+#import "CATEditPhoto.h"
 #import <RCCore/RCCore.h>
 #import "MPDMeasuredPhoto+MPDMeasuredPhotoExt.h"
 #import "MPHttpInterceptor.h"
 #import "MPGalleryController.h"
-#import "MPCapturePhoto.h"
+#import "CATCapturePhoto.h"
 #import "CoreData+MagicalRecord.h"
 #import "MPEditTitleController.h"
 
-@interface MPEditPhoto ()
+@interface CATEditPhoto ()
 
 @property (nonatomic, readwrite) UIDeviceOrientation currentUIOrientation;
 
 @end
 
-@implementation MPEditPhoto
+@implementation CATEditPhoto
 {
     BOOL isWebViewLoaded;
     MPEditTitleController* titleController;
@@ -119,7 +119,7 @@
 - (void) setOrientation:(UIDeviceOrientation)orientation animated:(BOOL)animated
 {
     self.currentUIOrientation = orientation;
-    MPOrientationChangeData* data = [MPOrientationChangeData dataWithOrientation:orientation animated:animated];
+    CATOrientationChangeData* data = [CATOrientationChangeData dataWithOrientation:orientation animated:animated];
     [[NSNotificationCenter defaultCenter] postNotificationName:MPUIOrientationDidChangeNotification object:data];
     [self setWebViewOrientation:orientation];
 }
@@ -178,7 +178,7 @@
         MPGalleryController* galleryController = (MPGalleryController*)self.presentingViewController;
         [galleryController hideZoomedThumbnail];
         
-        MPCapturePhoto* cameraController = [self.storyboard instantiateViewControllerWithIdentifier:@"Camera"];
+        CATCapturePhoto* cameraController = [self.storyboard instantiateViewControllerWithIdentifier:@"Camera"];
         [cameraController setOrientation:[[UIDevice currentDevice] orientation] animated:NO];
         [self presentViewController:cameraController animated:NO completion:nil];
     }

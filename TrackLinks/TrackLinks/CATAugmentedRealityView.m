@@ -6,12 +6,12 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "MPAugmentedRealityView.h"
+#import "CATAugmentedRealityView.h"
 #import "MPLoupe.h"
 #import <RCCore/RCCore.h>
-#import "MPCapturePhoto.h"
+#import "CATCapturePhoto.h"
 
-@implementation MPAugmentedRealityView
+@implementation CATAugmentedRealityView
 {    
     NSMutableArray* pointsPool;
     float videoScale;

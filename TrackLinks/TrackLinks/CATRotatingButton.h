@@ -9,6 +9,6 @@
 #import <UIKit/UIKit.h>
 #import "MPTintTouchButton.h"
 
-@interface MPRotatingButton : MPTintTouchButton
+@interface CATRotatingButton : MPTintTouchButton
 
 @end

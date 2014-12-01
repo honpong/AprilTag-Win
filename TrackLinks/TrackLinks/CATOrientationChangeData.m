@@ -6,13 +6,13 @@
 //  Copyright (c) 2014 RealityCap. All rights reserved.
 //
 
-#import "MPOrientationChangeData.h"
+#import "CATOrientationChangeData.h"
 
-@implementation MPOrientationChangeData
+@implementation CATOrientationChangeData
 
-+ (MPOrientationChangeData*) dataWithOrientation:(UIDeviceOrientation)orientation animated:(BOOL)animated
++ (CATOrientationChangeData*) dataWithOrientation:(UIDeviceOrientation)orientation animated:(BOOL)animated
 {
-    return (MPOrientationChangeData*)[[MPOrientationChangeData alloc] initWithOrientation:orientation animated:animated];
+    return (CATOrientationChangeData*)[[CATOrientationChangeData alloc] initWithOrientation:orientation animated:animated];
 }
 
 - (id) initWithOrientation:(UIDeviceOrientation)orientation animated:(BOOL)animated

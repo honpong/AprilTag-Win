@@ -6,11 +6,11 @@
 //  Copyright (c) 2014 RealityCap. All rights reserved.
 //
 
-#import "MPThumbnailButton.h"
+#import "CATGalleryButton.h"
 #import <RCCore/RCCore.h>
-#import "MPCapturePhoto.h"
+#import "CATCapturePhoto.h"
 
-@implementation MPThumbnailButton
+@implementation CATGalleryButton
 
 - (id) initWithCoder:(NSCoder *)aDecoder
 {
@@ -36,7 +36,7 @@
 {
     if (notification.object)
     {
-        MPOrientationChangeData* data = (MPOrientationChangeData*)notification.object;
+        CATOrientationChangeData* data = (CATOrientationChangeData*)notification.object;
         [self applyRotationTransformation:data.orientation animated:data.animated];
     }
 }

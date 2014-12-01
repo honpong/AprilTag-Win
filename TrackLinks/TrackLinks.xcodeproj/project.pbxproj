@@ -32,19 +32,16 @@
 		323BD0DF1A253AEC00313573 /* svgjs_fornobj.js in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0CC1A253AEC00313573 /* svgjs_fornobj.js */; };
 		323BD0E01A253AEC00313573 /* tilt_monitor.js in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0CD1A253AEC00313573 /* tilt_monitor.js */; };
 		323BD0E11A253AEC00313573 /* web_view_rotation.js in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0CE1A253AEC00313573 /* web_view_rotation.js */; };
-		323BD0FF1A253B0D00313573 /* MPAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0E31A253B0D00313573 /* MPAppDelegate.m */; };
-		323BD1001A253B0D00313573 /* MPAugmentedRealityView.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0E51A253B0D00313573 /* MPAugmentedRealityView.m */; };
-		323BD1011A253B0D00313573 /* MPCapturePhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0E71A253B0D00313573 /* MPCapturePhoto.m */; };
-		323BD1021A253B0D00313573 /* MPContainerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0EA1A253B0D00313573 /* MPContainerView.m */; };
-		323BD1031A253B0D00313573 /* MPEditPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0EC1A253B0D00313573 /* MPEditPhoto.m */; };
-		323BD1041A253B0D00313573 /* MPImageView.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0EE1A253B0D00313573 /* MPImageView.m */; };
-		323BD1051A253B0D00313573 /* MPInstructionsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0F01A253B0D00313573 /* MPInstructionsView.m */; };
-		323BD1061A253B0D00313573 /* MPNativeAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0F21A253B0D00313573 /* MPNativeAction.m */; };
-		323BD1071A253B0D00313573 /* MPOrientationChangeData.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0F41A253B0D00313573 /* MPOrientationChangeData.m */; };
-		323BD1081A253B0D00313573 /* MPPaddedLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0F61A253B0D00313573 /* MPPaddedLabel.m */; };
-		323BD1091A253B0D00313573 /* MPRotatingButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0F81A253B0D00313573 /* MPRotatingButton.m */; };
-		323BD10A1A253B0D00313573 /* MPShutterButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0FA1A253B0D00313573 /* MPShutterButton.m */; };
-		323BD10B1A253B0D00313573 /* MPThumbnailButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0FC1A253B0D00313573 /* MPThumbnailButton.m */; };
+		323BD1001A253B0D00313573 /* CATAugmentedRealityView.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0E51A253B0D00313573 /* CATAugmentedRealityView.m */; };
+		323BD1011A253B0D00313573 /* CATCapturePhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0E71A253B0D00313573 /* CATCapturePhoto.m */; };
+		323BD1021A253B0D00313573 /* CATContainerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0EA1A253B0D00313573 /* CATContainerView.m */; };
+		323BD1031A253B0D00313573 /* CATEditPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0EC1A253B0D00313573 /* CATEditPhoto.m */; };
+		323BD1051A253B0D00313573 /* CATInstructionsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0F01A253B0D00313573 /* CATInstructionsView.m */; };
+		323BD1061A253B0D00313573 /* CATNativeAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0F21A253B0D00313573 /* CATNativeAction.m */; };
+		323BD1071A253B0D00313573 /* CATOrientationChangeData.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0F41A253B0D00313573 /* CATOrientationChangeData.m */; };
+		323BD1091A253B0D00313573 /* CATRotatingButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0F81A253B0D00313573 /* CATRotatingButton.m */; };
+		323BD10A1A253B0D00313573 /* CATShutterButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0FA1A253B0D00313573 /* CATShutterButton.m */; };
+		323BD10B1A253B0D00313573 /* CATGalleryButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0FC1A253B0D00313573 /* CATGalleryButton.m */; };
 		323BD10C1A253B0D00313573 /* RCStereo.mm in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0FE1A253B0D00313573 /* RCStereo.mm */; };
 		323BD1111A253B9A00313573 /* MainStoryboard_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 323BD10D1A253B9A00313573 /* MainStoryboard_iPad.storyboard */; };
 		323BD1121A253B9A00313573 /* MainStoryboard_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 323BD10F1A253B9A00313573 /* MainStoryboard_iPhone.storyboard */; };
@@ -112,33 +109,27 @@
 		323BD0CC1A253AEC00313573 /* svgjs_fornobj.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = svgjs_fornobj.js; sourceTree = "<group>"; };
 		323BD0CD1A253AEC00313573 /* tilt_monitor.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = tilt_monitor.js; sourceTree = "<group>"; };
 		323BD0CE1A253AEC00313573 /* web_view_rotation.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = web_view_rotation.js; sourceTree = "<group>"; };
-		323BD0E21A253B0D00313573 /* MPAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPAppDelegate.h; sourceTree = "<group>"; };
-		323BD0E31A253B0D00313573 /* MPAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPAppDelegate.m; sourceTree = "<group>"; };
-		323BD0E41A253B0D00313573 /* MPAugmentedRealityView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPAugmentedRealityView.h; sourceTree = "<group>"; };
-		323BD0E51A253B0D00313573 /* MPAugmentedRealityView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPAugmentedRealityView.m; sourceTree = "<group>"; };
-		323BD0E61A253B0D00313573 /* MPCapturePhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPCapturePhoto.h; sourceTree = "<group>"; };
-		323BD0E71A253B0D00313573 /* MPCapturePhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPCapturePhoto.m; sourceTree = "<group>"; };
+		323BD0E41A253B0D00313573 /* CATAugmentedRealityView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATAugmentedRealityView.h; sourceTree = "<group>"; };
+		323BD0E51A253B0D00313573 /* CATAugmentedRealityView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATAugmentedRealityView.m; sourceTree = "<group>"; };
+		323BD0E61A253B0D00313573 /* CATCapturePhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATCapturePhoto.h; sourceTree = "<group>"; };
+		323BD0E71A253B0D00313573 /* CATCapturePhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATCapturePhoto.m; sourceTree = "<group>"; };
 		323BD0E81A253B0D00313573 /* CATConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATConstants.h; sourceTree = "<group>"; };
-		323BD0E91A253B0D00313573 /* MPContainerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPContainerView.h; sourceTree = "<group>"; };
-		323BD0EA1A253B0D00313573 /* MPContainerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPContainerView.m; sourceTree = "<group>"; };
-		323BD0EB1A253B0D00313573 /* MPEditPhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPEditPhoto.h; sourceTree = "<group>"; };
-		323BD0EC1A253B0D00313573 /* MPEditPhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPEditPhoto.m; sourceTree = "<group>"; };
-		323BD0ED1A253B0D00313573 /* MPImageView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPImageView.h; sourceTree = "<group>"; };
-		323BD0EE1A253B0D00313573 /* MPImageView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPImageView.m; sourceTree = "<group>"; };
-		323BD0EF1A253B0D00313573 /* MPInstructionsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPInstructionsView.h; sourceTree = "<group>"; };
-		323BD0F01A253B0D00313573 /* MPInstructionsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPInstructionsView.m; sourceTree = "<group>"; };
-		323BD0F11A253B0D00313573 /* MPNativeAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPNativeAction.h; sourceTree = "<group>"; };
-		323BD0F21A253B0D00313573 /* MPNativeAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPNativeAction.m; sourceTree = "<group>"; };
-		323BD0F31A253B0D00313573 /* MPOrientationChangeData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPOrientationChangeData.h; sourceTree = "<group>"; };
-		323BD0F41A253B0D00313573 /* MPOrientationChangeData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPOrientationChangeData.m; sourceTree = "<group>"; };
-		323BD0F51A253B0D00313573 /* MPPaddedLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPPaddedLabel.h; sourceTree = "<group>"; };
-		323BD0F61A253B0D00313573 /* MPPaddedLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPPaddedLabel.m; sourceTree = "<group>"; };
-		323BD0F71A253B0D00313573 /* MPRotatingButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPRotatingButton.h; sourceTree = "<group>"; };
-		323BD0F81A253B0D00313573 /* MPRotatingButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPRotatingButton.m; sourceTree = "<group>"; };
-		323BD0F91A253B0D00313573 /* MPShutterButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPShutterButton.h; sourceTree = "<group>"; };
-		323BD0FA1A253B0D00313573 /* MPShutterButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPShutterButton.m; sourceTree = "<group>"; };
-		323BD0FB1A253B0D00313573 /* MPThumbnailButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPThumbnailButton.h; sourceTree = "<group>"; };
-		323BD0FC1A253B0D00313573 /* MPThumbnailButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPThumbnailButton.m; sourceTree = "<group>"; };
+		323BD0E91A253B0D00313573 /* CATContainerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATContainerView.h; sourceTree = "<group>"; };
+		323BD0EA1A253B0D00313573 /* CATContainerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATContainerView.m; sourceTree = "<group>"; };
+		323BD0EB1A253B0D00313573 /* CATEditPhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATEditPhoto.h; sourceTree = "<group>"; };
+		323BD0EC1A253B0D00313573 /* CATEditPhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATEditPhoto.m; sourceTree = "<group>"; };
+		323BD0EF1A253B0D00313573 /* CATInstructionsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATInstructionsView.h; sourceTree = "<group>"; };
+		323BD0F01A253B0D00313573 /* CATInstructionsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATInstructionsView.m; sourceTree = "<group>"; };
+		323BD0F11A253B0D00313573 /* CATNativeAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATNativeAction.h; sourceTree = "<group>"; };
+		323BD0F21A253B0D00313573 /* CATNativeAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATNativeAction.m; sourceTree = "<group>"; };
+		323BD0F31A253B0D00313573 /* CATOrientationChangeData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATOrientationChangeData.h; sourceTree = "<group>"; };
+		323BD0F41A253B0D00313573 /* CATOrientationChangeData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATOrientationChangeData.m; sourceTree = "<group>"; };
+		323BD0F71A253B0D00313573 /* CATRotatingButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATRotatingButton.h; sourceTree = "<group>"; };
+		323BD0F81A253B0D00313573 /* CATRotatingButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATRotatingButton.m; sourceTree = "<group>"; };
+		323BD0F91A253B0D00313573 /* CATShutterButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATShutterButton.h; sourceTree = "<group>"; };
+		323BD0FA1A253B0D00313573 /* CATShutterButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATShutterButton.m; sourceTree = "<group>"; };
+		323BD0FB1A253B0D00313573 /* CATGalleryButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATGalleryButton.h; sourceTree = "<group>"; };
+		323BD0FC1A253B0D00313573 /* CATGalleryButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATGalleryButton.m; sourceTree = "<group>"; };
 		323BD0FD1A253B0D00313573 /* RCStereo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCStereo.h; sourceTree = "<group>"; };
 		323BD0FE1A253B0D00313573 /* RCStereo.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RCStereo.mm; sourceTree = "<group>"; };
 		323BD10E1A253B9A00313573 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainStoryboard_iPad.storyboard; sourceTree = "<group>"; };
@@ -187,33 +178,27 @@
 			isa = PBXGroup;
 			children = (
 				323BD0BB1A253AEC00313573 /* HTML */,
-				323BD0E21A253B0D00313573 /* MPAppDelegate.h */,
-				323BD0E31A253B0D00313573 /* MPAppDelegate.m */,
-				323BD0E41A253B0D00313573 /* MPAugmentedRealityView.h */,
-				323BD0E51A253B0D00313573 /* MPAugmentedRealityView.m */,
-				323BD0E61A253B0D00313573 /* MPCapturePhoto.h */,
-				323BD0E71A253B0D00313573 /* MPCapturePhoto.m */,
+				323BD0E41A253B0D00313573 /* CATAugmentedRealityView.h */,
+				323BD0E51A253B0D00313573 /* CATAugmentedRealityView.m */,
+				323BD0E61A253B0D00313573 /* CATCapturePhoto.h */,
+				323BD0E71A253B0D00313573 /* CATCapturePhoto.m */,
 				323BD0E81A253B0D00313573 /* CATConstants.h */,
-				323BD0E91A253B0D00313573 /* MPContainerView.h */,
-				323BD0EA1A253B0D00313573 /* MPContainerView.m */,
-				323BD0EB1A253B0D00313573 /* MPEditPhoto.h */,
-				323BD0EC1A253B0D00313573 /* MPEditPhoto.m */,
-				323BD0ED1A253B0D00313573 /* MPImageView.h */,
-				323BD0EE1A253B0D00313573 /* MPImageView.m */,
-				323BD0EF1A253B0D00313573 /* MPInstructionsView.h */,
-				323BD0F01A253B0D00313573 /* MPInstructionsView.m */,
-				323BD0F11A253B0D00313573 /* MPNativeAction.h */,
-				323BD0F21A253B0D00313573 /* MPNativeAction.m */,
-				323BD0F31A253B0D00313573 /* MPOrientationChangeData.h */,
-				323BD0F41A253B0D00313573 /* MPOrientationChangeData.m */,
-				323BD0F51A253B0D00313573 /* MPPaddedLabel.h */,
-				323BD0F61A253B0D00313573 /* MPPaddedLabel.m */,
-				323BD0F71A253B0D00313573 /* MPRotatingButton.h */,
-				323BD0F81A253B0D00313573 /* MPRotatingButton.m */,
-				323BD0F91A253B0D00313573 /* MPShutterButton.h */,
-				323BD0FA1A253B0D00313573 /* MPShutterButton.m */,
-				323BD0FB1A253B0D00313573 /* MPThumbnailButton.h */,
-				323BD0FC1A253B0D00313573 /* MPThumbnailButton.m */,
+				323BD0E91A253B0D00313573 /* CATContainerView.h */,
+				323BD0EA1A253B0D00313573 /* CATContainerView.m */,
+				323BD0EB1A253B0D00313573 /* CATEditPhoto.h */,
+				323BD0EC1A253B0D00313573 /* CATEditPhoto.m */,
+				323BD0EF1A253B0D00313573 /* CATInstructionsView.h */,
+				323BD0F01A253B0D00313573 /* CATInstructionsView.m */,
+				323BD0F11A253B0D00313573 /* CATNativeAction.h */,
+				323BD0F21A253B0D00313573 /* CATNativeAction.m */,
+				323BD0F31A253B0D00313573 /* CATOrientationChangeData.h */,
+				323BD0F41A253B0D00313573 /* CATOrientationChangeData.m */,
+				323BD0F71A253B0D00313573 /* CATRotatingButton.h */,
+				323BD0F81A253B0D00313573 /* CATRotatingButton.m */,
+				323BD0F91A253B0D00313573 /* CATShutterButton.h */,
+				323BD0FA1A253B0D00313573 /* CATShutterButton.m */,
+				323BD0FB1A253B0D00313573 /* CATGalleryButton.h */,
+				323BD0FC1A253B0D00313573 /* CATGalleryButton.m */,
 				323BD0FD1A253B0D00313573 /* RCStereo.h */,
 				323BD0FE1A253B0D00313573 /* RCStereo.mm */,
 				323BD08D1A25324800313573 /* AppDelegate.h */,
@@ -434,21 +419,18 @@
 			buildActionMask = 2147483647;
 			files = (
 				323BD08F1A25324800313573 /* AppDelegate.m in Sources */,
-				323BD10B1A253B0D00313573 /* MPThumbnailButton.m in Sources */,
-				323BD1011A253B0D00313573 /* MPCapturePhoto.m in Sources */,
-				323BD1091A253B0D00313573 /* MPRotatingButton.m in Sources */,
+				323BD10B1A253B0D00313573 /* CATGalleryButton.m in Sources */,
+				323BD1011A253B0D00313573 /* CATCapturePhoto.m in Sources */,
+				323BD1091A253B0D00313573 /* CATRotatingButton.m in Sources */,
 				323BD08C1A25324800313573 /* main.m in Sources */,
-				323BD1041A253B0D00313573 /* MPImageView.m in Sources */,
-				323BD0FF1A253B0D00313573 /* MPAppDelegate.m in Sources */,
-				323BD1081A253B0D00313573 /* MPPaddedLabel.m in Sources */,
-				323BD1071A253B0D00313573 /* MPOrientationChangeData.m in Sources */,
-				323BD10A1A253B0D00313573 /* MPShutterButton.m in Sources */,
+				323BD1071A253B0D00313573 /* CATOrientationChangeData.m in Sources */,
+				323BD10A1A253B0D00313573 /* CATShutterButton.m in Sources */,
 				323BD10C1A253B0D00313573 /* RCStereo.mm in Sources */,
-				323BD1001A253B0D00313573 /* MPAugmentedRealityView.m in Sources */,
-				323BD1051A253B0D00313573 /* MPInstructionsView.m in Sources */,
-				323BD1061A253B0D00313573 /* MPNativeAction.m in Sources */,
-				323BD1031A253B0D00313573 /* MPEditPhoto.m in Sources */,
-				323BD1021A253B0D00313573 /* MPContainerView.m in Sources */,
+				323BD1001A253B0D00313573 /* CATAugmentedRealityView.m in Sources */,
+				323BD1051A253B0D00313573 /* CATInstructionsView.m in Sources */,
+				323BD1061A253B0D00313573 /* CATNativeAction.m in Sources */,
+				323BD1031A253B0D00313573 /* CATEditPhoto.m in Sources */,
+				323BD1021A253B0D00313573 /* CATContainerView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

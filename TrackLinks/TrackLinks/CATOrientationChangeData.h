@@ -8,12 +8,12 @@
 
 #import <Foundation/Foundation.h>
 
-@interface MPOrientationChangeData : NSObject
+@interface CATOrientationChangeData : NSObject
 
 @property (nonatomic) UIDeviceOrientation orientation;
 @property (nonatomic) BOOL animated;
 
-+ (MPOrientationChangeData*) dataWithOrientation:(UIDeviceOrientation)orientation animated:(BOOL)animated;
++ (CATOrientationChangeData*) dataWithOrientation:(UIDeviceOrientation)orientation animated:(BOOL)animated;
 - (id) initWithOrientation:(UIDeviceOrientation)orientation animated:(BOOL)animated;
 
 @end

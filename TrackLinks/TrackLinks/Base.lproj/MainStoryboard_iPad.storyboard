@@ -8,7 +8,7 @@
         <!--EditPhoto-->
         <scene sceneID="LHR-yV-36g">
             <objects>
-                <viewController storyboardIdentifier="EditPhoto" title="EditPhoto" useStoryboardIdentifierAsRestorationIdentifier="YES" id="XqX-LL-Zdf" customClass="MPEditPhoto" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="EditPhoto" title="EditPhoto" useStoryboardIdentifierAsRestorationIdentifier="YES" id="XqX-LL-Zdf" customClass="CATEditPhoto" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="eWK-wc-Iwh"/>
                         <viewControllerLayoutGuide type="bottom" id="8oh-wt-yCk"/>
@@ -20,7 +20,7 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="weX-qG-kff" userLabel="NavBar">
                                 <rect key="frame" x="0.0" y="0.0" width="768" height="44"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Y6S-wZ-0vK" userLabel="GalleryButton" customClass="MPRotatingButton">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Y6S-wZ-0vK" userLabel="GalleryButton" customClass="CATRotatingButton">
                                         <rect key="frame" x="75" y="0.0" width="50" height="44"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="50" id="O8J-dM-4Ta"/>
@@ -33,7 +33,7 @@
                                             <action selector="handlePhotosButton:" destination="XqX-LL-Zdf" eventType="touchUpInside" id="Dll-Wl-JHc"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="221-D7-kZ0" userLabel="DeleteButton" customClass="MPRotatingButton">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="221-D7-kZ0" userLabel="DeleteButton" customClass="CATRotatingButton">
                                         <rect key="frame" x="713" y="0.0" width="50" height="44"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="44" id="T9X-vk-uU7"/>
@@ -44,7 +44,7 @@
                                             <action selector="handleDelete:" destination="XqX-LL-Zdf" eventType="touchUpInside" id="5Y4-Pj-Vif"/>
                                         </connections>
                                     </button>
-                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zQZ-aQ-o1G" userLabel="ShareButton" customClass="MPRotatingButton">
+                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zQZ-aQ-o1G" userLabel="ShareButton" customClass="CATRotatingButton">
                                         <rect key="frame" x="643" y="0.0" width="50" height="44"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="44" id="33g-IM-z2C"/>
@@ -57,7 +57,7 @@
                                             <action selector="handleShareButton:" destination="XqX-LL-Zdf" eventType="touchUpInside" id="6aO-NS-0c1"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DLg-t1-Ry1" userLabel="CameraButton" customClass="MPRotatingButton">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DLg-t1-Ry1" userLabel="CameraButton" customClass="CATRotatingButton">
                                         <rect key="frame" x="5" y="0.0" width="50" height="44"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="44" id="IIW-yO-RWa"/>
@@ -79,7 +79,7 @@
                                         <fontDescription key="fontDescription" type="system" pointSize="18"/>
                                         <textInputTraits key="textInputTraits" autocapitalizationType="sentences" autocorrectionType="no" returnKeyType="done"/>
                                     </textField>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vEB-XJ-kur" customClass="MPRotatingButton">
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vEB-XJ-kur" customClass="CATRotatingButton">
                                         <rect key="frame" x="224" y="0.0" width="320" height="44"/>
                                         <state key="normal">
                                             <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
@@ -146,7 +146,7 @@
         <!--MeasuredPhoto-->
         <scene sceneID="4">
             <objects>
-                <viewController storyboardIdentifier="Camera" useStoryboardIdentifierAsRestorationIdentifier="YES" id="2" userLabel="MeasuredPhoto" customClass="MPCapturePhoto" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="Camera" useStoryboardIdentifierAsRestorationIdentifier="YES" id="2" userLabel="MeasuredPhoto" customClass="CATCapturePhoto" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="lII-c5-BYz"/>
                         <viewControllerLayoutGuide type="bottom" id="B5Z-WL-pm5"/>
@@ -155,10 +155,10 @@
                         <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FQA-yL-8tr" userLabel="AugmentedReality" customClass="MPAugmentedRealityView">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FQA-yL-8tr" userLabel="AugmentedReality" customClass="CATAugmentedRealityView">
                                 <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                                 <subviews>
-                                    <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="YXD-29-RMl" customClass="MPInstructionsView">
+                                    <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="YXD-29-RMl" customClass="CATInstructionsView">
                                         <rect key="frame" x="0.0" y="128" width="768" height="768"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="768" id="8n1-If-Cga"/>
@@ -171,7 +171,7 @@
                                     <constraint firstAttribute="centerX" secondItem="YXD-29-RMl" secondAttribute="centerX" id="SXR-2i-ZW6"/>
                                 </constraints>
                             </view>
-                            <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fmz-nL-eyO" userLabel="UI Container" customClass="MPContainerView">
+                            <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fmz-nL-eyO" userLabel="UI Container" customClass="CATContainerView">
                                 <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                                 <subviews>
                                     <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Slowly move left and right a bit" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="14" adjustsLetterSpacingToFitWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="b7l-6F-Kqv" userLabel="Message Box" customClass="MPMessageBox">
@@ -188,7 +188,7 @@
                                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="9pE-pm-oS2" userLabel="Toolbar" customClass="MPToolbarView">
                                         <rect key="frame" x="668" y="0.0" width="100" height="1024"/>
                                         <subviews>
-                                            <button opaque="NO" alpha="0.30000000000000004" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aqd-DL-0IF" userLabel="ShutterButton" customClass="MPShutterButton">
+                                            <button opaque="NO" alpha="0.30000000000000004" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aqd-DL-0IF" userLabel="ShutterButton" customClass="CATShutterButton">
                                                 <rect key="frame" x="13" y="475" width="75" height="75"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="75" id="O8N-XS-Evj"/>
@@ -206,7 +206,7 @@
                                                     <action selector="handleShutterButton:" destination="2" eventType="touchUpInside" id="pEe-78-VNZ"/>
                                                 </connections>
                                             </button>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZQs-EY-vVt" userLabel="GalleryButton" customClass="MPThumbnailButton">
+                                            <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZQs-EY-vVt" userLabel="GalleryButton" customClass="CATGalleryButton">
                                                 <rect key="frame" x="25" y="954" width="50" height="50"/>
                                                 <constraints>
                                                     <constraint firstAttribute="height" constant="50" id="QZj-dN-Pim"/>
@@ -234,71 +234,14 @@
                                             <constraint firstAttribute="width" constant="100" id="ggR-EL-ufA"/>
                                         </constraints>
                                     </view>
-                                    <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="uow-Hl-Yjk" customClass="MPSlideBanner">
-                                        <rect key="frame" x="192" y="0.0" width="384" height="80"/>
-                                        <subviews>
-                                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Are the measurements accurate?" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="eSi-AO-0Yf">
-                                                <rect key="frame" x="20" y="10" width="344" height="21"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="height" constant="21" id="En2-gx-352"/>
-                                                </constraints>
-                                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="calibratedRGB"/>
-                                                <nil key="highlightedColor"/>
-                                            </label>
-                                            <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="bar" translatesAutoresizingMaskIntoConstraints="NO" id="naR-3K-rHJ">
-                                                <rect key="frame" x="20" y="39" width="344" height="29"/>
-                                                <segments>
-                                                    <segment title="Pretty Close"/>
-                                                    <segment title="Not Really"/>
-                                                    <segment title="Don't ask again"/>
-                                                </segments>
-                                                <color key="tintColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                <connections>
-                                                    <action selector="handleQuestionButton:" destination="2" eventType="valueChanged" id="e0o-qK-lI9"/>
-                                                </connections>
-                                            </segmentedControl>
-                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Zij-1f-flx">
-                                                <rect key="frame" x="354" y="0.0" width="30" height="30"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="width" constant="30" id="D1X-3n-ghw"/>
-                                                    <constraint firstAttribute="height" constant="30" id="amW-eE-XVp"/>
-                                                </constraints>
-                                                <fontDescription key="fontDescription" name="GillSans" family="Gill Sans" pointSize="19"/>
-                                                <state key="normal" title="x">
-                                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                                </state>
-                                                <connections>
-                                                    <action selector="handleQuestionCloseButton:" destination="2" eventType="touchUpInside" id="ERb-Vb-mGo"/>
-                                                </connections>
-                                            </button>
-                                        </subviews>
-                                        <color key="backgroundColor" white="0.0" alpha="0.5" colorSpace="calibratedWhite"/>
-                                        <constraints>
-                                            <constraint firstItem="eSi-AO-0Yf" firstAttribute="leading" secondItem="uow-Hl-Yjk" secondAttribute="leading" constant="20" id="GON-F5-WJj"/>
-                                            <constraint firstAttribute="trailing" secondItem="Zij-1f-flx" secondAttribute="trailing" id="HHr-ze-W3l"/>
-                                            <constraint firstItem="naR-3K-rHJ" firstAttribute="leading" secondItem="uow-Hl-Yjk" secondAttribute="leading" constant="20" id="Haf-iM-uxd"/>
-                                            <constraint firstAttribute="centerX" secondItem="naR-3K-rHJ" secondAttribute="centerX" id="Iaw-0r-M3K"/>
-                                            <constraint firstItem="Zij-1f-flx" firstAttribute="top" secondItem="uow-Hl-Yjk" secondAttribute="top" id="JYM-y3-IAY"/>
-                                            <constraint firstAttribute="bottom" secondItem="naR-3K-rHJ" secondAttribute="bottom" constant="13" id="Lq7-Ps-C1a"/>
-                                            <constraint firstAttribute="height" constant="80" id="Uh1-kc-jnh"/>
-                                            <constraint firstAttribute="trailing" secondItem="eSi-AO-0Yf" secondAttribute="trailing" constant="20" id="XTf-cZ-anQ"/>
-                                            <constraint firstAttribute="width" constant="384" id="aNq-Vc-nSa"/>
-                                            <constraint firstAttribute="trailing" secondItem="naR-3K-rHJ" secondAttribute="trailing" constant="20" id="t2I-cg-l1B"/>
-                                            <constraint firstItem="eSi-AO-0Yf" firstAttribute="top" secondItem="uow-Hl-Yjk" secondAttribute="top" constant="10" id="yP3-Or-QVV"/>
-                                        </constraints>
-                                    </view>
                                 </subviews>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="768" id="4Gf-U2-9e3"/>
                                     <constraint firstAttribute="bottom" secondItem="9pE-pm-oS2" secondAttribute="bottom" id="7aI-1s-Lbp"/>
                                     <constraint firstItem="9pE-pm-oS2" firstAttribute="top" secondItem="fmz-nL-eyO" secondAttribute="top" id="GpJ-Hc-qFl"/>
-                                    <constraint firstAttribute="centerX" secondItem="uow-Hl-Yjk" secondAttribute="centerX" id="IZk-4u-0W6"/>
                                     <constraint firstAttribute="bottom" secondItem="b7l-6F-Kqv" secondAttribute="bottom" constant="20" id="J5T-oP-hsJ"/>
                                     <constraint firstAttribute="height" constant="1024" id="ZJv-HV-wcp"/>
                                     <constraint firstAttribute="centerX" secondItem="b7l-6F-Kqv" secondAttribute="centerX" id="jhI-jz-17B"/>
-                                    <constraint firstItem="uow-Hl-Yjk" firstAttribute="top" secondItem="fmz-nL-eyO" secondAttribute="top" id="nFq-o4-2AY"/>
                                     <constraint firstAttribute="trailing" secondItem="9pE-pm-oS2" secondAttribute="trailing" id="nJk-aK-CkY"/>
                                 </constraints>
                             </view>
@@ -321,10 +264,6 @@
                         <outlet property="galleryButton" destination="ZQs-EY-vVt" id="5Gs-29-j32"/>
                         <outlet property="instructionsView" destination="YXD-29-RMl" id="J4C-tR-y2G"/>
                         <outlet property="messageLabel" destination="b7l-6F-Kqv" id="N6a-4R-ABB"/>
-                        <outlet property="questionCloseButton" destination="Zij-1f-flx" id="BO4-YL-fro"/>
-                        <outlet property="questionLabel" destination="eSi-AO-0Yf" id="0jJ-D2-yoQ"/>
-                        <outlet property="questionSegButton" destination="naR-3K-rHJ" id="065-BK-IuE"/>
-                        <outlet property="questionView" destination="uow-Hl-Yjk" id="22x-7m-3iv"/>
                         <outlet property="shutterButton" destination="aqd-DL-0IF" id="OPg-RG-80p"/>
                         <outlet property="toolbar" destination="9pE-pm-oS2" id="huq-SI-a7P"/>
                     </connections>

@@ -29,18 +29,18 @@
 
 
 
-#import "MPNativeAction.h"
+#import "CATNativeAction.h"
 #import "NSObject+SBJson.h"
 #import "GTMNSDictionary+URLArguments.h"
 #import "SBJsonWriter.h"
 
-@implementation MPNativeAction
+@implementation CATNativeAction
 @synthesize body = mBody;
 @synthesize request = mRequest;
 
-+ (MPNativeAction*) nativeActionWithRequest:(NSURLRequest*)request
++ (CATNativeAction*) nativeActionWithRequest:(NSURLRequest*)request
 {
-    return [[MPNativeAction alloc] initWithRequest:request];
+    return [[CATNativeAction alloc] initWithRequest:request];
 }
 
 - (id) initWithRequest:(NSURLRequest*)request

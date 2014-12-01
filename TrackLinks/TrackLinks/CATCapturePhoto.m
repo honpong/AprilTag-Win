@@ -6,7 +6,7 @@
 //  Copyright (c) 2012 RealityCap. All rights reserved.
 //
 
-#import "MPCapturePhoto.h"
+#import "CATCapturePhoto.h"
 #import "math.h"
 #import "MPYouTubeVideo.h"
 #import "MPPhotoRequest.h"
@@ -21,12 +21,12 @@
 #import "CoreData+MagicalRecord.h"
 #import "MBProgressHUD.h"
 #import "MPDMeasuredPhoto+MPDMeasuredPhotoExt.h"
-#import "MPEditPhoto.h"
+#import "CATEditPhoto.h"
 #import "MPGalleryController.h"
 
 static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
 
-@implementation MPCapturePhoto
+@implementation CATCapturePhoto
 {
     BOOL useLocation;
     double lastTransitionTime;
@@ -414,7 +414,7 @@ static transition transitions[] =
 - (void) setOrientation:(UIDeviceOrientation)orientation animated:(BOOL)animated
 {
     [self.view rotateChildViews:orientation animated:animated];
-    MPOrientationChangeData* data = [MPOrientationChangeData dataWithOrientation:orientation animated:animated];
+    CATOrientationChangeData* data = [CATOrientationChangeData dataWithOrientation:orientation animated:animated];
     [[NSNotificationCenter defaultCenter] postNotificationName:MPUIOrientationDidChangeNotification object:data];
 }
 
@@ -443,7 +443,7 @@ static transition transitions[] =
     
     [self handleOrientationChange]; // ensures that UI is in correct orientation
     if(currentState != ST_PROCESSING)
-        [self.arView.videoView animateOpen:[MPCapturePhoto getCurrentUIOrientation]];
+        [self.arView.videoView animateOpen:[CATCapturePhoto getCurrentUIOrientation]];
 }
 
 - (IBAction)handleShutterButton:(id)sender
@@ -531,7 +531,7 @@ static transition transitions[] =
     RCStereo * stereo = [RCStereo sharedInstance];
     [stereo setGuid: measuredPhoto.id_guid];
     [stereo processFrame:lastSensorFusionDataWithImage withFinal:true];
-    UIDeviceOrientation orientation = [MPCapturePhoto getCurrentUIOrientation];
+    UIDeviceOrientation orientation = [CATCapturePhoto getCurrentUIOrientation];
     [stereo setOrientation:orientation];
     stereo.delegate = self;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
@@ -548,13 +548,13 @@ static transition transitions[] =
     if ([self.presentingViewController isKindOfClass:[MPGalleryController class]])
     {
         MPGalleryController* galleryController = (MPGalleryController*)self.presentingViewController;
-        MPEditPhoto* editPhotoController = galleryController.editPhotoController;
+        CATEditPhoto* editPhotoController = galleryController.editPhotoController;
         editPhotoController.measuredPhoto = measuredPhoto;
         [self presentViewController:editPhotoController animated:YES completion:nil];
     }
     else if ([self.presentingViewController isKindOfClass:[MPEditPhoto class]])
     {
-        MPEditPhoto* editPhotoController = (MPEditPhoto*)self.presentingViewController;
+        CATEditPhoto* editPhotoController = (CATEditPhoto*)self.presentingViewController;
         editPhotoController.measuredPhoto = measuredPhoto;
         [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
     }
@@ -562,7 +562,7 @@ static transition transitions[] =
 
 - (void) gotoGallery
 {
-    [self.arView.videoView animateClosed:[MPCapturePhoto getCurrentUIOrientation] withCompletionBlock:^(BOOL finished) {
+    [self.arView.videoView animateClosed:[CATCapturePhoto getCurrentUIOrientation] withCompletionBlock:^(BOOL finished) {
         dispatch_async(dispatch_get_main_queue(), ^{
             if ([self.presentingViewController isKindOfClass:[MPGalleryController class]])
             {

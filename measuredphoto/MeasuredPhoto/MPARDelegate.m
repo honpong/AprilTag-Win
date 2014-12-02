@@ -32,21 +32,7 @@
 
 const static int vertex_size = 2;
 
-//primary arrow and progress indicator to the right
-
-const static GLfloat progress_vertices[9 * 2] = {
-    .125, -.125,
-    .125, .125,
-    .625, -.125,
-
-    .125, .125,
-    .625, .125,
-    .625, -.125,
-
-    .625, -.375,
-    .625, .375,
-    1., 0.,
-};
+//primary arrow and progress indicator to the right - we rotate depending on direction of motion
 
 const static GLfloat arrow_vertices[7 * 2] = {
     .125, .125,
@@ -58,6 +44,12 @@ const static GLfloat arrow_vertices[7 * 2] = {
     .125, -.125,
 };
 
+const static GLfloat endcap_vertices[4 * 2] = {
+    .125, .125,
+    0., .125,
+    0., -.125,
+    .125, -.125
+};
 
 const static GLfloat other_vertices[21 * vertex_size] = {
     //bottom
@@ -178,6 +170,8 @@ const static float arrowScale = .5;
         progress = fabs(progressHorizontal);
     }
     
+    float fadein = progress > .5 ? 1. : progress * 2.;
+    float fadeout = 1. - fadein;
     //Concatenating GLKit matrices goes left to right, and our shaders multiply with matrices on the left and vectors on the right.
     //So the last transformation listed is applied to our vertices first
     GLKMatrix4 model;
@@ -189,65 +183,59 @@ const static float arrowScale = .5;
     model = GLKMatrix4RotateZ(model, arrowTheta);
     glUniformMatrix4fv([program getUniformLocation:@"model_matrix"], 1, false, model.m);
 
+    
+    glLineWidth(2.);
+    glUniform4f([program getUniformLocation:@"material_specular"], 0., 0., 0., 0.);
+
     /*********** outline ******/
     glEnableVertexAttribArray([program getAttribLocation:@"position"]);
     glVertexAttribPointer([program getAttribLocation:@"position"], vertex_size, GL_FLOAT, 0, 0, arrow_vertices);
-    
-    glLineWidth(2.);
     glDrawArrays(GL_LINE_STRIP, 0, 7);
 
-    /******* other 3 outline *****/
-    glUniform4f([program getUniformLocation:@"material_ambient"], 0.05, 1., 0.1, 1. - progress);
-    glUniform4f([program getUniformLocation:@"material_diffuse"], 0., 1., 0.5, 1. - progress);
-    glUniform4f([program getUniformLocation:@"material_specular"], 0., 0., 0., 0.);
+    /******* endcap *****/
+    glUniform4f([program getUniformLocation:@"material_ambient"], 0.05, 1., 0.1, fadein);
+    glUniform4f([program getUniformLocation:@"material_diffuse"], 0., 1., 0.5, fadein);
+    glVertexAttribPointer([program getAttribLocation:@"position"], vertex_size, GL_FLOAT, 0, 0, endcap_vertices);
+    
+    glDrawArrays(GL_LINE_STRIP, 0, 4);
 
+
+    /******* other 3 outline *****/
+    glUniform4f([program getUniformLocation:@"material_ambient"], 0.05, 1., 0.1, fadeout);
+    glUniform4f([program getUniformLocation:@"material_diffuse"], 0., 1., 0.5, fadeout);
     glVertexAttribPointer([program getAttribLocation:@"position"], vertex_size, GL_FLOAT, 0, 0, other_vertices);
     
-    glLineWidth(2.);
     glDrawArrays(GL_LINE_STRIP, 0, 21);
 
-//#define ARROW_PROGRESS
     /************filled arrow*****/
-    
     glUniform4f([program getUniformLocation:@"material_ambient"], 0.05, 1., 0.1, .5);
     glUniform4f([program getUniformLocation:@"material_diffuse"], 0., 1., 0.5, .5);
     glUniform4f([program getUniformLocation:@"material_specular"], 0., 0., 0., 0.);
-#ifdef ARROW_PROGRESS
-    model = GLKMatrix4Scale(model, progress, progress, progress);
-
-    glUniformMatrix4fv([program getUniformLocation:@"model_matrix"], 1, false, model.m);
-    glVertexAttribPointer([program getAttribLocation:@"position"], 2, GL_FLOAT, 0, 0, progress_vertices);
-    glDrawArrays(GL_TRIANGLES, 0, 9);
-#else
-    if(progress > .125) //don't  draw if we haven't reached the start of the arrow yet
+    float barprogress,headscale;
+    if(progress > .625)
     {
-        float barprogress,headscale;
-        if(progress > .625)
-        {
-            barprogress = .625;
-            headscale = progress - .625;
-        } else {
-            barprogress = progress;
-            headscale = 0.;
-        }
-        GLfloat bar_vertices[] = {
-            0., -.125,
-            0., .125,
-            barprogress, .125,
-
-            barprogress, .125,
-            barprogress, -.125,
-            0., -.125,
-            
-            barprogress, -headscale,
-            barprogress, headscale,
-            progress, 0.
-        };
-        
-        glVertexAttribPointer([program getAttribLocation:@"position"], 2, GL_FLOAT, 0, 0, bar_vertices);
-        glDrawArrays(GL_TRIANGLES, 0, 9);
+        barprogress = .625;
+        headscale = progress - .625;
+    } else {
+        barprogress = progress;
+        headscale = 0.;
     }
-#endif
+    GLfloat bar_vertices[] = {
+        0., -.125,
+        0., .125,
+        barprogress, .125,
+        
+        barprogress, .125,
+        barprogress, -.125,
+        0., -.125,
+        
+        barprogress, -headscale,
+        barprogress, headscale,
+        progress, 0.
+    };
+    
+    glVertexAttribPointer([program getAttribLocation:@"position"], 2, GL_FLOAT, 0, 0, bar_vertices);
+    glDrawArrays(GL_TRIANGLES, 0, 9);
 
     /********** cube ***/
 

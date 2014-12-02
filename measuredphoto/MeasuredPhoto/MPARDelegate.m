@@ -11,11 +11,44 @@
 #import "RCCore/RCGLManagerFactory.h"
 #import "RCCore/RCGLShaderProgram.h"
 
+#pragma mark - Shader source
+
+static const char *vertSrc = SHADER_STRINGIFY(
+attribute vec4 position;
+
+uniform mat4 projection_matrix;
+uniform mat4 camera_matrix;
+uniform mat4 model_matrix;
+
+attribute mediump vec4 texture_coordinate;
+varying mediump vec2 coordinate;
+                 
+void main()
+{
+    gl_Position = gl_Position = projection_matrix * camera_matrix * model_matrix * position;
+    coordinate = texture_coordinate.xy;
+});
+
+static const GLchar *fragSrc = SHADER_STRINGIFY(
+uniform sampler2D texture_value;
+
+varying mediump vec2 coordinate;
+
+void main()
+{
+    lowp vec4 color = texture2D(texture_value, coordinate);
+    gl_FragColor = vec4(vec3(1., 1., 1.) - color.xyz, color.w);
+});
+
+#pragma mark - MPARDelegate
+
 @implementation MPARDelegate
 {
     RCGLShaderProgram *program;
     float progressHorizontal;
     float progressVertical;
+    GLKTextureInfo *phoneSprite;
+    RCGLShaderProgram *textureProgram;
 }
 
 @synthesize initialCamera, hidden;
@@ -26,6 +59,11 @@
     {
         program = [[RCGLShaderProgram alloc] init];
         [program buildWithVertexFileName:@"shader.vsh" withFragmentFileName:@"shader.fsh"];
+        
+        textureProgram = [[RCGLShaderProgram alloc] init];
+        [textureProgram buildWithVertexSource:vertSrc withFragmentSource:fragSrc];
+        
+        phoneSprite = [GLKTextureLoader textureWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"iphone.png" ofType: nil] options:NULL error:NULL];
     }
     return self;
 }
@@ -79,53 +117,6 @@ const static GLfloat other_vertices[21 * vertex_size] = {
     .125, .625,
     .125, .125,
 };
-
-const static GLfloat cube_vertices[6*6 * 3] = {
-    //top
-    1,1,1, -1,1,1, -1,-1,1,
-    -1,-1,1, 1,-1,1, 1,1,1,
-    //bottom
-    1,1,-1, 1,-1,-1, -1,-1,-1,
-    -1,-1,-1, -1,1,-1, 1,1,-1,
-    
-    //left
-    -1,1,1, -1,1,-1, -1,-1,-1,
-    -1,-1,-1, -1,-1,1, -1,1,1,
-    //right
-    1,1,1, 1,-1,1, 1,-1,-1,
-    1,-1,-1, 1,1,-1, 1,1,1,
-    
-    //back
-    1,-1,1, -1,-1,1, -1,-1,-1,
-    -1,-1,-1, 1,-1,-1, 1,-1,1,
-    //front
-    1,1,1, 1,1,-1, -1,1,-1,
-    -1,1,-1, -1,1,1, 1,1,1
-};
-
-const static GLfloat cube_normals[6*6 * 3] = {
-    //top
-    0,0,1, 0,0,1, 0,0,1,
-    0,0,1, 0,0,1, 0,0,1,
-    //bottom
-    0,0,-1, 0,0,-1, 0,0,-1,
-    0,0,-1, 0,0,-1, 0,0,-1,
-    
-    //left
-    -1,0,0, -1,0,0, -1,0,0,
-    -1,0,0, -1,0,0, -1,0,0,
-    //right
-    1,0,0, 1,0,0, 1,0,0,
-    1,0,0, 1,0,0, 1,0,0,
-    
-    //back
-    0,-1,0, 0,-1,0, 0,-1,0,
-    0,-1,0, 0,-1,0, 0,-1,0,
-    //front
-    0,1,0, 0,1,0, 0,1,0,
-    0,1,0, 0,1,0, 0,1,0,
-};
-
 
 - (void) setProgressHorizontal:(float)horizontal withVertical:(float)vertical
 {
@@ -237,31 +228,88 @@ const static float arrowScale = .5;
     glVertexAttribPointer([program getAttribLocation:@"position"], 2, GL_FLOAT, 0, 0, bar_vertices);
     glDrawArrays(GL_TRIANGLES, 0, 9);
 
-    /********** cube ***/
-
-    glUniform4f([program getUniformLocation:@"material_ambient"], 0.05, 1., 0.1, 1);
-    glUniform4f([program getUniformLocation:@"material_diffuse"], 0., 1., 0.5, 1);
-    glUniform4f([program getUniformLocation:@"material_specular"], 1., 1., 1., 1);
-
-    [initialCamera getOpenGLMatrix:model.m];
-    model = GLKMatrix4Translate(model, progressHorizontal * arrowScale, progressVertical * arrowScale, arrowDepth);
-
-    model = GLKMatrix4Scale(model, arrowScale / 8., arrowScale / 8., arrowScale / 8.);
-    
-    glUniformMatrix4fv([program getUniformLocation:@"model_matrix"], 1, false, model.m);
-    glEnableVertexAttribArray([program getAttribLocation:@"normal"]);
-    
-    glVertexAttribPointer([program getAttribLocation:@"position"], 3, GL_FLOAT, 0, 0, cube_vertices);
-    glVertexAttribPointer([program getAttribLocation:@"normal"], 3, GL_FLOAT, 0, 0, cube_normals);
-
-    glDrawArrays(GL_TRIANGLES, 0, 6*6);
-    
-    
     glDisableVertexAttribArray([program getAttribLocation:@"position"]);
     glDisableVertexAttribArray([program getAttribLocation:@"normal"]);
+    
+    /**********sprite*******/
+    
+    glDisable(GL_DEPTH_TEST);
+    glUseProgram(textureProgram.program);
+    glUniformMatrix4fv([textureProgram getUniformLocation:@"projection_matrix"], 1, false, cameraToScreen.m);
+    glUniformMatrix4fv([textureProgram getUniformLocation:@"camera_matrix"], 1, false, camera.m);
+    
+    
+    [initialCamera getOpenGLMatrix:model.m];
+    model = GLKMatrix4Translate(model, progressHorizontal * arrowScale, progressVertical * arrowScale, arrowDepth);
+    model = GLKMatrix4Scale(model, arrowScale * 2.5, arrowScale * 2.5, arrowScale * 2.5);
+    model = GLKMatrix4Multiply(model, [self getScreenRotationForOrientation:[[UIApplication sharedApplication] statusBarOrientation]]);
+    glUniformMatrix4fv([textureProgram getUniformLocation:@"model_matrix"], 1, false, model.m);
+    
+    GLfloat sprite_vertices[] = {
+        -.125, -.125,
+        -.125, .125,
+        .125, .125,
+        
+        .125, .125,
+        .125, -.125,
+        -.125, -.125
+    };
+    
+    GLfloat texture_vertices[] = {
+        0., 0.,
+        0., 1.,
+        1., 1.,
+        
+        1., 1.,
+        1., 0.,
+        0., 0.
+    };
+    
+    glEnableVertexAttribArray([textureProgram getAttribLocation:@"position"]);
+    glEnableVertexAttribArray([textureProgram getAttribLocation:@"texture_coordinate"]);
+    
+    glVertexAttribPointer([textureProgram getAttribLocation:@"position"], 2, GL_FLOAT, 0, 0, sprite_vertices);
+    glVertexAttribPointer([textureProgram getAttribLocation:@"texture_coordinate"], 2, GL_FLOAT, 0, 0, texture_vertices);
+    
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(phoneSprite.target, phoneSprite.name);
+    glUniform1i([textureProgram getUniformLocation:@"texture_value"], 0);
 
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    
+    glDisableVertexAttribArray([textureProgram getAttribLocation:@"position"]);
+    glDisableVertexAttribArray([textureProgram getAttribLocation:@"texture_coordinate"]);
 }
 
+- (GLKMatrix4) getScreenRotationForOrientation:(UIInterfaceOrientation)orientation
+{
+    GLKMatrix4 res;
+    memset(&res, 0, sizeof(res));
+    res.m[10] = 1.;
+    res.m[15] = 1.;
+    switch(orientation)
+    {
+        case UIInterfaceOrientationPortrait:
+            res.m[1] = -1.;
+            res.m[4] = 1.;
+            break;
+        case UIInterfaceOrientationPortraitUpsideDown:
+            res.m[1] = 1.;
+            res.m[4] = -1.;
+            break;
+        case UIInterfaceOrientationLandscapeLeft:
+            res.m[0] = -1.;
+            res.m[5] = -1.;
+            break;
+        default:
+        case UIInterfaceOrientationUnknown:
+        case UIInterfaceOrientationLandscapeRight:
+            res.m[0] = 1.;
+            res.m[5] = 1.;
+            break;
+    }
+    return res;
+}
 
 @end
 

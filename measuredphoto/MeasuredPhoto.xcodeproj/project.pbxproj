@@ -490,6 +490,7 @@
 		D3F7E1211A03F79200AB5778 /* boost.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D3F7E1201A03F79200AB5778 /* boost.a */; };
 		D3F7E1241A04000D00AB5778 /* bp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F7E1221A04000D00AB5778 /* bp.cpp */; };
 		D3F7E1251A04000D00AB5778 /* gibbs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F7E1231A04000D00AB5778 /* gibbs.cpp */; };
+		D9C976881A2E717B009EFEF7 /* iphone.png in Resources */ = {isa = PBXBuildFile; fileRef = D9C976871A2E717B009EFEF7 /* iphone.png */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -1300,6 +1301,7 @@
 		D3F7E1201A03F79200AB5778 /* boost.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = boost.a; path = ../../measuredphoto/ofxiOSBoost/libs/boost/ios/boost.a; sourceTree = "<group>"; };
 		D3F7E1221A04000D00AB5778 /* bp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bp.cpp; path = "../../corvis/src/libDAI-0.3.1/src/bp.cpp"; sourceTree = "<group>"; };
 		D3F7E1231A04000D00AB5778 /* gibbs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gibbs.cpp; path = "../../corvis/src/libDAI-0.3.1/src/gibbs.cpp"; sourceTree = "<group>"; };
+		D9C976871A2E717B009EFEF7 /* iphone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = iphone.png; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1748,6 +1750,7 @@
 				328C7DE719D208680079BA40 /* tutorial_screenshot.jpg */,
 				328C7DD019D1E9B30079BA40 /* golden_gate.jpg */,
 				32C173C8191457F4008B3262 /* Tutorial.mp4 */,
+				D9C976871A2E717B009EFEF7 /* iphone.png */,
 			);
 			name = Media;
 			sourceTree = "<group>";
@@ -2541,6 +2544,7 @@
 				326ACEEB19D2221B00B36965 /* GooglePlus-Icon-60@2x.png in Resources */,
 				324DB325195B8D310004567A /* fastclick.js in Resources */,
 				326ACEFA19D2221B00B36965 /* Omnifocus-Icon-72@2x.png in Resources */,
+				D9C976881A2E717B009EFEF7 /* iphone.png in Resources */,
 				326ACEF819D2221B00B36965 /* Omnifocus-Icon-60@2x.png in Resources */,
 				1768899B195B59F500337524 /* measured_photo_svg.html in Resources */,
 				326ACF2319D2221B00B36965 /* osk-iconMask-bw-76.png in Resources */,

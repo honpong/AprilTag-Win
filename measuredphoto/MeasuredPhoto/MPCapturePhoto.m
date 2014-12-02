@@ -209,6 +209,10 @@ static transition transitions[] =
     {
         [self hideMessage];
     }
+    if(oldSetup.showSlideInstructions && !newSetup.showSlideInstructions)
+        [self.arView.AROverlay setHidden:true];
+    if(!oldSetup.showSlideInstructions && newSetup.showSlideInstructions)
+        [self.arView.AROverlay setHidden:false];
     
     [self switchButtonImage:newSetup.buttonImage];
     
@@ -325,6 +329,8 @@ static transition transitions[] =
     progressView = [[MBProgressHUD alloc] initWithView:self.containerView];
     progressView.mode = MBProgressHUDModeAnnularDeterminate;
     [self.containerView addSubview:progressView];
+    
+    [self.arView.AROverlay setHidden:true];
 }
 
 - (void)viewDidUnload

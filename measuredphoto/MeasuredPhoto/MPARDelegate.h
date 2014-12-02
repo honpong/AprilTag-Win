@@ -16,6 +16,7 @@
 
 - (void) setProgressHorizontal:(float)horizontal withVertical:(float)vertical;
 @property RCTransformation *initialCamera;
+@property bool hidden;
 
 @end
 

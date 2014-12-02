@@ -18,7 +18,7 @@
     float progressVertical;
 }
 
-@synthesize initialCamera;
+@synthesize initialCamera, hidden;
 
 -(id)init
 {
@@ -138,7 +138,7 @@ const static float arrowScale = .5;
 
 - (void)renderWithSensorFusionData:(RCSensorFusionData *)data withCameraToScreenMatrix:(GLKMatrix4)cameraToScreen
 {
-    if(!data.cameraParameters || !data.cameraTransformation) return;
+    if(hidden || !data.cameraParameters || !data.cameraTransformation) return;
     glUseProgram(program.program);
 
     glUniformMatrix4fv([program getUniformLocation:@"projection_matrix"], 1, false, cameraToScreen.m);

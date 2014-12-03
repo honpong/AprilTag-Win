@@ -8,21 +8,10 @@
 
 #import "CATCapturePhoto.h"
 #import "math.h"
-#import "MPYouTubeVideo.h"
-#import "MPPhotoRequest.h"
-#import "MPLoupe.h"
-#import "MPLocalMoviePlayer.h"
 #import "UIImage+MPImageFile.h"
-#import "MPSurveyAnswer.h"
 #import "RCStereo.h"
-#import "RCCore/RCSensorDelegate.h"
-#import "MPDMeasuredPhoto.h"
-#import "MPDLocation.h"
-#import "CoreData+MagicalRecord.h"
 #import "MBProgressHUD.h"
-#import "MPDMeasuredPhoto+MPDMeasuredPhotoExt.h"
 #import "CATEditPhoto.h"
-#import "MPGalleryController.h"
 
 static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
 
@@ -415,7 +404,7 @@ static transition transitions[] =
 {
     [self.view rotateChildViews:orientation animated:animated];
     CATOrientationChangeData* data = [CATOrientationChangeData dataWithOrientation:orientation animated:animated];
-    [[NSNotificationCenter defaultCenter] postNotificationName:MPUIOrientationDidChangeNotification object:data];
+    [[NSNotificationCenter defaultCenter] postNotificationName:CATUIOrientationDidChangeNotification object:data];
 }
 
 #pragma mark -

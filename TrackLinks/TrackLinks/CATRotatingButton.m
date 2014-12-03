@@ -1,13 +1,14 @@
-//
-//  MPRotatingBarButton.m
-//  MeasuredPhoto
+//  CATRotatingBarButton.m
+//  TrackLinks
 //
 //  Created by Ben Hirashima on 7/23/14.
-//  Copyright (c) 2014 RealityCap. All rights reserved.
+//  Copyright (c) 2014 Caterpillar. All rights reserved.
 //
 
 #import "CATRotatingButton.h"
 #import "CATOrientationChangeData.h"
+#import "UIView+RCOrientationRotation.h"
+#import "CATConstants.h"
 
 @implementation CATRotatingButton
 
@@ -17,7 +18,7 @@
     {
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(handleOrientationChange:)
-                                                     name:MPUIOrientationDidChangeNotification
+                                                     name:CATUIOrientationDidChangeNotification
                                                    object:nil];
     }
     return self;

@@ -3,7 +3,7 @@
 //  RC3DK
 //
 //  Created by Eagle Jones on 4/10/14.
-//  Copyright (c) 2014 RealityCap. All rights reserved.
+//  Copyright (c) 2014 Caterpillar. All rights reserved.
 //
 
 #include "device_parameters.h"

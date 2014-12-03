@@ -1,9 +1,8 @@
-//
-//  MPOrientationChangeData.h
-//  MeasuredPhoto
+//  CATOrientationChangeData.h
+//  TrackLinks
 //
 //  Created by Ben Hirashima on 8/1/14.
-//  Copyright (c) 2014 RealityCap. All rights reserved.
+//  Copyright (c) 2014 Caterpillar. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>

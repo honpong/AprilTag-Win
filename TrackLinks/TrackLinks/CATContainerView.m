@@ -1,9 +1,8 @@
-//
-//  MPContainerView.m
-//  MeasuredPhoto
+//  CATContainerView.m
+//  TrackLinks
 //
 //  Created by Ben Hirashima on 2/27/14.
-//  Copyright (c) 2014 RealityCap. All rights reserved.
+//  Copyright (c) 2014 Caterpillar. All rights reserved.
 //
 
 #import "CATContainerView.h"

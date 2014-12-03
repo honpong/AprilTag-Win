@@ -1,15 +1,14 @@
-//
-//  MPContainerView.h
-//  MeasuredPhoto
+//  CATContainerView.h
+//  TrackLinks
 //
 //  Created by Ben Hirashima on 2/27/14.
-//  Copyright (c) 2014 RealityCap. All rights reserved.
+//  Copyright (c) 2014 Caterpillar. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
-#import <RCCore/RCCore.h>
+@import UIKit;
+#import "CATRotatingView.h"
 
-@interface CATContainerView : UIView <RCRotatingView>
+@interface CATContainerView : UIView <CATRotatingView>
 
 @property (nonatomic) UIResponder* delegate;
 

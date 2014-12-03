@@ -36,19 +36,6 @@
                                             <action selector="handleCameraButton:" destination="Itm-Xt-bSd" eventType="touchUpInside" id="T1A-Yf-PFC"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="K2K-HB-LTJ" userLabel="PhotosButton" customClass="CATRotatingButton">
-                                        <rect key="frame" x="50" y="0.0" width="50" height="44"/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" constant="50" id="JUd-eJ-56m"/>
-                                            <constraint firstAttribute="height" constant="44" id="apI-77-bcg"/>
-                                        </constraints>
-                                        <state key="normal" image="photos-icon-nav-bar">
-                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                        </state>
-                                        <connections>
-                                            <action selector="handlePhotosButton:" destination="Itm-Xt-bSd" eventType="touchUpInside" id="QDN-Um-wZL"/>
-                                        </connections>
-                                    </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0kr-Nj-mnI" userLabel="TrashButton" customClass="CATRotatingButton">
                                         <rect key="frame" x="270" y="0.0" width="50" height="44"/>
                                         <constraints>
@@ -62,59 +49,14 @@
                                             <action selector="handleDelete:" destination="Itm-Xt-bSd" eventType="touchUpInside" id="9pa-8N-GkA"/>
                                         </connections>
                                     </button>
-                                    <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CX4-0V-D8b" userLabel="ShareButton" customClass="CATRotatingButton">
-                                        <rect key="frame" x="220" y="0.0" width="50" height="44"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="44" id="4to-jp-8OB"/>
-                                            <constraint firstAttribute="width" constant="50" id="ynZ-VD-6iy"/>
-                                        </constraints>
-                                        <color key="tintColor" red="0.0" green="0.47843137254901957" blue="1" alpha="1" colorSpace="calibratedRGB"/>
-                                        <state key="normal" image="UIButtonBarAction">
-                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                        </state>
-                                        <connections>
-                                            <action selector="handleShareButton:" destination="Itm-Xt-bSd" eventType="touchUpInside" id="rof-WN-hW6"/>
-                                        </connections>
-                                    </button>
-                                    <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" borderStyle="roundedRect" placeholder="Title" textAlignment="center" minimumFontSize="12" translatesAutoresizingMaskIntoConstraints="NO" id="nwz-FO-9pK" customClass="MPTitleTextBox">
-                                        <rect key="frame" x="110" y="7" width="100" height="30"/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" constant="100" id="tOm-ae-Fcd"/>
-                                            <constraint firstAttribute="height" constant="30" id="y4O-80-nBC"/>
-                                        </constraints>
-                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                        <textInputTraits key="textInputTraits" autocapitalizationType="sentences" autocorrectionType="no" returnKeyType="done"/>
-                                    </textField>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="pqf-ql-u73" userLabel="TitleButton">
-                                        <rect key="frame" x="105" y="0.0" width="110" height="44"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="44" id="7oD-8G-5UX"/>
-                                            <constraint firstAttribute="width" constant="110" id="Ato-sg-fb6"/>
-                                        </constraints>
-                                        <state key="normal">
-                                            <color key="titleColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
-                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                        </state>
-                                        <connections>
-                                            <action selector="handleTitleButton:" destination="Itm-Xt-bSd" eventType="touchUpInside" id="4WK-Rb-kt3"/>
-                                        </connections>
-                                    </button>
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstAttribute="centerY" secondItem="CX4-0V-D8b" secondAttribute="centerY" id="FBP-Ca-xdq"/>
                                     <constraint firstAttribute="height" constant="44" id="HYk-ac-aQx"/>
                                     <constraint firstItem="BY5-Rn-kTy" firstAttribute="leading" secondItem="qbY-oG-MSj" secondAttribute="leading" id="QAF-nn-A0F"/>
                                     <constraint firstAttribute="trailing" secondItem="0kr-Nj-mnI" secondAttribute="trailing" id="ZAs-uE-uMx"/>
-                                    <constraint firstAttribute="centerX" secondItem="nwz-FO-9pK" secondAttribute="centerX" id="bJh-VS-tuZ"/>
-                                    <constraint firstAttribute="centerY" secondItem="nwz-FO-9pK" secondAttribute="centerY" id="dD5-fY-5rq"/>
-                                    <constraint firstAttribute="centerX" secondItem="pqf-ql-u73" secondAttribute="centerX" id="gg6-Sa-2xM"/>
-                                    <constraint firstAttribute="centerY" secondItem="K2K-HB-LTJ" secondAttribute="centerY" id="m4J-C3-Vg1"/>
-                                    <constraint firstItem="K2K-HB-LTJ" firstAttribute="leading" secondItem="BY5-Rn-kTy" secondAttribute="trailing" id="nkz-FP-h0s"/>
-                                    <constraint firstAttribute="centerY" secondItem="pqf-ql-u73" secondAttribute="centerY" id="ote-wV-4sM"/>
                                     <constraint firstAttribute="centerY" secondItem="0kr-Nj-mnI" secondAttribute="centerY" id="phN-wm-4kJ"/>
                                     <constraint firstAttribute="centerY" secondItem="BY5-Rn-kTy" secondAttribute="centerY" id="tUR-2s-sAU"/>
-                                    <constraint firstItem="0kr-Nj-mnI" firstAttribute="leading" secondItem="CX4-0V-D8b" secondAttribute="trailing" id="vuD-Dr-6ML"/>
                                 </constraints>
                             </view>
                         </subviews>
@@ -135,11 +77,6 @@
                         <outlet property="cameraButton" destination="BY5-Rn-kTy" id="YOs-qW-w6A"/>
                         <outlet property="deleteButton" destination="0kr-Nj-mnI" id="GsR-jP-6pg"/>
                         <outlet property="navBar" destination="qbY-oG-MSj" id="7A2-Lq-piJ"/>
-                        <outlet property="photosButton" destination="K2K-HB-LTJ" id="MdR-sw-BNo"/>
-                        <outlet property="shareButton" destination="CX4-0V-D8b" id="zrP-Ii-iSE"/>
-                        <outlet property="titleButton" destination="pqf-ql-u73" id="9oa-Eb-dWi"/>
-                        <outlet property="titleText" destination="nwz-FO-9pK" id="AdM-rS-Za2"/>
-                        <outlet property="titleTextWidthConstraint" destination="tOm-ae-Fcd" id="YMr-dS-Nwl"/>
                         <outlet property="webView" destination="WfC-xF-Z4Z" id="mqd-C5-XIj"/>
                     </connections>
                 </viewController>
@@ -279,10 +216,8 @@
     </scenes>
     <resources>
         <image name="PLCameraFloatingShutterButton" width="73" height="73"/>
-        <image name="UIButtonBarAction" width="19" height="26"/>
         <image name="UIButtonBarTrash" width="18" height="25"/>
         <image name="ios7-camera-outline" width="32" height="32"/>
-        <image name="photos-icon-nav-bar" width="32" height="32"/>
         <image name="photos-icon-toolbar" width="50" height="50"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">

@@ -90,14 +90,14 @@
 
 - (void) setupFeatureLayers
 {
-    selectedFeaturesLayer = [[RCFeaturesLayer alloc] initWithFeatureCount:2 andColor:[UIColor greenColor]];
+    selectedFeaturesLayer = [[CATFeaturesLayer alloc] initWithFeatureCount:2 andColor:[UIColor greenColor]];
     [featuresView.layer addSublayer:selectedFeaturesLayer];
     
-    featuresLayer = [[RCFeaturesLayer alloc] initWithFeatureCount:FEATURE_COUNT andColor:[UIColor colorWithRed:0 green:200 blue:255 alpha:1]]; // cyan color
+    featuresLayer = [[CATFeaturesLayer alloc] initWithFeatureCount:FEATURE_COUNT andColor:[UIColor colorWithRed:0 green:200 blue:255 alpha:1]]; // cyan color
     featuresLayer.hidden = YES;
     [featuresView.layer insertSublayer:featuresLayer below:selectedFeaturesLayer];
 
-    initializingFeaturesLayer = [[RCFeaturesLayer alloc] initWithFeatureCount:FEATURE_COUNT andColor:[UIColor colorWithRed:200 green:0 blue:0 alpha:.5]];
+    initializingFeaturesLayer = [[CATFeaturesLayer alloc] initWithFeatureCount:FEATURE_COUNT andColor:[UIColor colorWithRed:200 green:0 blue:0 alpha:.5]];
     initializingFeaturesLayer.hidden = YES;
     [featuresView.layer insertSublayer:initializingFeaturesLayer below:selectedFeaturesLayer];
 }

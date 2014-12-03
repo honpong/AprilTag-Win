@@ -1,15 +1,14 @@
-//
-//  MPEditPhoto.m
-//  MeasuredPhoto
+//  CATEditPhoto.m
+//  TrackLinks
 //
 //  Created by Ben Hirashima on 3/18/14.
-//  Copyright (c) 2014 RealityCap. All rights reserved.
+//  Copyright (c) 2014 Caterpillar. All rights reserved.
 //
 
 #import "CATEditPhoto.h"
 #import <RCCore/RCCore.h>
 #import "MPDMeasuredPhoto+MPDMeasuredPhotoExt.h"
-#import "MPHttpInterceptor.h"
+#import "CATHttpInterceptor.h"
 #import "MPGalleryController.h"
 #import "CATCapturePhoto.h"
 #import "CoreData+MagicalRecord.h"
@@ -37,7 +36,7 @@
                                                  name:UIDeviceOrientationDidChangeNotification
                                                object:nil];
     
-    [MPHttpInterceptor setDelegate:self];
+    [CATHttpInterceptor setDelegate:self];
     
     NSURL *htmlUrl = [[NSBundle mainBundle] URLForResource:@"measured_photo_svg" withExtension:@"html"]; // url of the html file bundled with the app
     
@@ -120,7 +119,7 @@
 {
     self.currentUIOrientation = orientation;
     CATOrientationChangeData* data = [CATOrientationChangeData dataWithOrientation:orientation animated:animated];
-    [[NSNotificationCenter defaultCenter] postNotificationName:MPUIOrientationDidChangeNotification object:data];
+    [[NSNotificationCenter defaultCenter] postNotificationName:CATUIOrientationDidChangeNotification object:data];
     [self setWebViewOrientation:orientation];
 }
 
@@ -303,9 +302,9 @@
     else return NO; // disallow loading of http and all other types of links
 }
 
-#pragma mark - MPHttpInterceptorDelegate
+#pragma mark - CATHttpInterceptorDelegate
 
-- (NSDictionary *)handleAction:(MPNativeAction *)nativeAction error:(NSError **)error
+- (NSDictionary *)handleAction:(CATNativeAction *)nativeAction error:(NSError **)error
 {
     if ([nativeAction.request.URL.description endsWithString:@"/annotations/"] && [nativeAction.method isEqualToString:@"PUT"])
     {

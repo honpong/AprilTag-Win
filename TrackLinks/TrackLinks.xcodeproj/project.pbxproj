@@ -45,6 +45,45 @@
 		323BD10C1A253B0D00313573 /* RCStereo.mm in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0FE1A253B0D00313573 /* RCStereo.mm */; };
 		323BD1111A253B9A00313573 /* MainStoryboard_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 323BD10D1A253B9A00313573 /* MainStoryboard_iPad.storyboard */; };
 		323BD1121A253B9A00313573 /* MainStoryboard_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 323BD10F1A253B9A00313573 /* MainStoryboard_iPhone.storyboard */; };
+		32BFDD9A1A2D354F00D03F44 /* CATTintTouchButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDD991A2D354F00D03F44 /* CATTintTouchButton.m */; };
+		32BFDDAB1A2E433D00D03F44 /* Calibration.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 32BFDD9F1A2E433D00D03F44 /* Calibration.storyboard */; };
+		32BFDDAC1A2E433D00D03F44 /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32BFDDA01A2E433D00D03F44 /* holding_landscape.jpg */; };
+		32BFDDAD1A2E433D00D03F44 /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32BFDDA11A2E433D00D03F44 /* holding_portrait.jpg */; };
+		32BFDDAE1A2E433D00D03F44 /* ipad_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32BFDDA21A2E433D00D03F44 /* ipad_on_table.jpg */; };
+		32BFDDAF1A2E433D00D03F44 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDA41A2E433D00D03F44 /* MBProgressHUD.m */; };
+		32BFDDB01A2E433D00D03F44 /* RCCalibration1.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDA61A2E433D00D03F44 /* RCCalibration1.m */; };
+		32BFDDB11A2E433D00D03F44 /* RCCalibration2.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDA81A2E433D00D03F44 /* RCCalibration2.m */; };
+		32BFDDB21A2E433D00D03F44 /* RCCalibration3.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDAA1A2E433D00D03F44 /* RCCalibration3.m */; };
+		32BFDDC01A2E43A700D03F44 /* RCAVSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDB51A2E43A700D03F44 /* RCAVSessionManager.m */; };
+		32BFDDC11A2E43A700D03F44 /* RCLocationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDB81A2E43A700D03F44 /* RCLocationManager.m */; };
+		32BFDDC21A2E43A700D03F44 /* RCMotionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDBA1A2E43A700D03F44 /* RCMotionManager.m */; };
+		32BFDDC31A2E43A700D03F44 /* RCSensorDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDBC1A2E43A700D03F44 /* RCSensorDelegate.m */; };
+		32BFDDC41A2E43A700D03F44 /* RCVideoManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDBF1A2E43A700D03F44 /* RCVideoManager.m */; };
+		32BFDDC71A2E445100D03F44 /* CATHttpInterceptor.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDC61A2E445100D03F44 /* CATHttpInterceptor.m */; };
+		32BFDDE31A2E451E00D03F44 /* NSObject+SBJson.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDCB1A2E451E00D03F44 /* NSObject+SBJson.m */; };
+		32BFDDE41A2E451E00D03F44 /* SBJsonParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDCE1A2E451E00D03F44 /* SBJsonParser.m */; };
+		32BFDDE51A2E451E00D03F44 /* SBJsonStreamParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDD01A2E451E00D03F44 /* SBJsonStreamParser.m */; };
+		32BFDDE61A2E451E00D03F44 /* SBJsonStreamParserAccumulator.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDD21A2E451E00D03F44 /* SBJsonStreamParserAccumulator.m */; };
+		32BFDDE71A2E451E00D03F44 /* SBJsonStreamParserAdapter.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDD41A2E451E00D03F44 /* SBJsonStreamParserAdapter.m */; };
+		32BFDDE81A2E451E00D03F44 /* SBJsonStreamParserState.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDD61A2E451E00D03F44 /* SBJsonStreamParserState.m */; };
+		32BFDDE91A2E451E00D03F44 /* SBJsonStreamWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDD81A2E451E00D03F44 /* SBJsonStreamWriter.m */; };
+		32BFDDEA1A2E451E00D03F44 /* SBJsonStreamWriterAccumulator.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDDA1A2E451E00D03F44 /* SBJsonStreamWriterAccumulator.m */; };
+		32BFDDEB1A2E451E00D03F44 /* SBJsonStreamWriterState.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDDC1A2E451E00D03F44 /* SBJsonStreamWriterState.m */; };
+		32BFDDEC1A2E451E00D03F44 /* SBJsonTokeniser.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDDE1A2E451E00D03F44 /* SBJsonTokeniser.m */; };
+		32BFDDED1A2E451E00D03F44 /* SBJsonUTF8Stream.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDE01A2E451E00D03F44 /* SBJsonUTF8Stream.m */; };
+		32BFDDEE1A2E451E00D03F44 /* SBJsonWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDE21A2E451E00D03F44 /* SBJsonWriter.m */; };
+		32BFDDF51A2E452F00D03F44 /* GTMNSDictionary+URLArguments.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDF21A2E452F00D03F44 /* GTMNSDictionary+URLArguments.m */; };
+		32BFDDF61A2E452F00D03F44 /* GTMNSString+URLArguments.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDF41A2E452F00D03F44 /* GTMNSString+URLArguments.m */; };
+		32BFDDFE1A2E4B2200D03F44 /* RCGLManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDF91A2E4B2200D03F44 /* RCGLManagerFactory.m */; };
+		32BFDDFF1A2E4B2200D03F44 /* RCGLShaderProgram.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDFB1A2E4B2200D03F44 /* RCGLShaderProgram.m */; };
+		32BFDE001A2E4B2200D03F44 /* RCVideoPreview.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDFD1A2E4B2200D03F44 /* RCVideoPreview.m */; };
+		32BFDE061A2E4F0000D03F44 /* CATFeatureLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDE031A2E4F0000D03F44 /* CATFeatureLayerDelegate.m */; };
+		32BFDE071A2E4F0000D03F44 /* CATFeaturesLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDE051A2E4F0000D03F44 /* CATFeaturesLayer.m */; };
+		32BFDE101A2E50CA00D03F44 /* CATToolbarView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDE0F1A2E50CA00D03F44 /* CATToolbarView.m */; };
+		32BFDE151A2E51D000D03F44 /* UIView+RCOrientationRotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDE141A2E51D000D03F44 /* UIView+RCOrientationRotation.m */; };
+		32BFDE181A2E528F00D03F44 /* UIImage+MPImageFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDE171A2E528F00D03F44 /* UIImage+MPImageFile.m */; };
+		32BFDE1F1A2E83F000D03F44 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFDE1E1A2E83F000D03F44 /* CoreLocation.framework */; };
+		32BFDE221A2E83F600D03F44 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFDE211A2E83F600D03F44 /* AVFoundation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -83,7 +122,7 @@
 		323BD08A1A25324800313573 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		323BD08B1A25324800313573 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		323BD08D1A25324800313573 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
-		323BD08E1A25324800313573 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		323BD08E1A25324800313573 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = AppDelegate.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		323BD0961A25324800313573 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		323BD0991A25324800313573 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		323BD09F1A25324800313573 /* TrackLinksTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TrackLinksTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -116,8 +155,8 @@
 		323BD0E81A253B0D00313573 /* CATConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATConstants.h; sourceTree = "<group>"; };
 		323BD0E91A253B0D00313573 /* CATContainerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATContainerView.h; sourceTree = "<group>"; };
 		323BD0EA1A253B0D00313573 /* CATContainerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATContainerView.m; sourceTree = "<group>"; };
-		323BD0EB1A253B0D00313573 /* CATEditPhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATEditPhoto.h; sourceTree = "<group>"; };
-		323BD0EC1A253B0D00313573 /* CATEditPhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATEditPhoto.m; sourceTree = "<group>"; };
+		323BD0EB1A253B0D00313573 /* CATEditPhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = CATEditPhoto.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		323BD0EC1A253B0D00313573 /* CATEditPhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = CATEditPhoto.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		323BD0EF1A253B0D00313573 /* CATInstructionsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATInstructionsView.h; sourceTree = "<group>"; };
 		323BD0F01A253B0D00313573 /* CATInstructionsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATInstructionsView.m; sourceTree = "<group>"; };
 		323BD0F11A253B0D00313573 /* CATNativeAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATNativeAction.h; sourceTree = "<group>"; };
@@ -134,6 +173,84 @@
 		323BD0FE1A253B0D00313573 /* RCStereo.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RCStereo.mm; sourceTree = "<group>"; };
 		323BD10E1A253B9A00313573 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainStoryboard_iPad.storyboard; sourceTree = "<group>"; };
 		323BD1101A253B9A00313573 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainStoryboard_iPhone.storyboard; sourceTree = "<group>"; };
+		32BFDD981A2D354F00D03F44 /* CATTintTouchButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATTintTouchButton.h; sourceTree = "<group>"; };
+		32BFDD991A2D354F00D03F44 /* CATTintTouchButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATTintTouchButton.m; sourceTree = "<group>"; };
+		32BFDD9F1A2E433D00D03F44 /* Calibration.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Calibration.storyboard; sourceTree = "<group>"; };
+		32BFDDA01A2E433D00D03F44 /* holding_landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_landscape.jpg; sourceTree = "<group>"; };
+		32BFDDA11A2E433D00D03F44 /* holding_portrait.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_portrait.jpg; sourceTree = "<group>"; };
+		32BFDDA21A2E433D00D03F44 /* ipad_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = ipad_on_table.jpg; sourceTree = "<group>"; };
+		32BFDDA31A2E433D00D03F44 /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
+		32BFDDA41A2E433D00D03F44 /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
+		32BFDDA51A2E433D00D03F44 /* RCCalibration1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration1.h; sourceTree = "<group>"; };
+		32BFDDA61A2E433D00D03F44 /* RCCalibration1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration1.m; sourceTree = "<group>"; };
+		32BFDDA71A2E433D00D03F44 /* RCCalibration2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration2.h; sourceTree = "<group>"; };
+		32BFDDA81A2E433D00D03F44 /* RCCalibration2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration2.m; sourceTree = "<group>"; };
+		32BFDDA91A2E433D00D03F44 /* RCCalibration3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration3.h; sourceTree = "<group>"; };
+		32BFDDAA1A2E433D00D03F44 /* RCCalibration3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration3.m; sourceTree = "<group>"; };
+		32BFDDB41A2E43A700D03F44 /* RCAVSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAVSessionManager.h; sourceTree = "<group>"; };
+		32BFDDB51A2E43A700D03F44 /* RCAVSessionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAVSessionManager.m; sourceTree = "<group>"; };
+		32BFDDB61A2E43A700D03F44 /* RCDebugLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDebugLog.h; sourceTree = "<group>"; };
+		32BFDDB71A2E43A700D03F44 /* RCLocationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCLocationManager.h; sourceTree = "<group>"; };
+		32BFDDB81A2E43A700D03F44 /* RCLocationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCLocationManager.m; sourceTree = "<group>"; };
+		32BFDDB91A2E43A700D03F44 /* RCMotionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMotionManager.h; sourceTree = "<group>"; };
+		32BFDDBA1A2E43A700D03F44 /* RCMotionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCMotionManager.m; sourceTree = "<group>"; };
+		32BFDDBB1A2E43A700D03F44 /* RCSensorDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorDelegate.h; sourceTree = "<group>"; };
+		32BFDDBC1A2E43A700D03F44 /* RCSensorDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCSensorDelegate.m; sourceTree = "<group>"; };
+		32BFDDBD1A2E43A700D03F44 /* RCVideoFrameProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoFrameProvider.h; sourceTree = "<group>"; };
+		32BFDDBE1A2E43A700D03F44 /* RCVideoManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoManager.h; sourceTree = "<group>"; };
+		32BFDDBF1A2E43A700D03F44 /* RCVideoManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoManager.m; sourceTree = "<group>"; };
+		32BFDDC51A2E445100D03F44 /* CATHttpInterceptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = CATHttpInterceptor.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		32BFDDC61A2E445100D03F44 /* CATHttpInterceptor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = CATHttpInterceptor.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
+		32BFDDCA1A2E451E00D03F44 /* NSObject+SBJson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+SBJson.h"; sourceTree = "<group>"; };
+		32BFDDCB1A2E451E00D03F44 /* NSObject+SBJson.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+SBJson.m"; sourceTree = "<group>"; };
+		32BFDDCC1A2E451E00D03F44 /* SBJson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJson.h; sourceTree = "<group>"; };
+		32BFDDCD1A2E451E00D03F44 /* SBJsonParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonParser.h; sourceTree = "<group>"; };
+		32BFDDCE1A2E451E00D03F44 /* SBJsonParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonParser.m; sourceTree = "<group>"; };
+		32BFDDCF1A2E451E00D03F44 /* SBJsonStreamParser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonStreamParser.h; sourceTree = "<group>"; };
+		32BFDDD01A2E451E00D03F44 /* SBJsonStreamParser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonStreamParser.m; sourceTree = "<group>"; };
+		32BFDDD11A2E451E00D03F44 /* SBJsonStreamParserAccumulator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonStreamParserAccumulator.h; sourceTree = "<group>"; };
+		32BFDDD21A2E451E00D03F44 /* SBJsonStreamParserAccumulator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonStreamParserAccumulator.m; sourceTree = "<group>"; };
+		32BFDDD31A2E451E00D03F44 /* SBJsonStreamParserAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonStreamParserAdapter.h; sourceTree = "<group>"; };
+		32BFDDD41A2E451E00D03F44 /* SBJsonStreamParserAdapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonStreamParserAdapter.m; sourceTree = "<group>"; };
+		32BFDDD51A2E451E00D03F44 /* SBJsonStreamParserState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonStreamParserState.h; sourceTree = "<group>"; };
+		32BFDDD61A2E451E00D03F44 /* SBJsonStreamParserState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonStreamParserState.m; sourceTree = "<group>"; };
+		32BFDDD71A2E451E00D03F44 /* SBJsonStreamWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonStreamWriter.h; sourceTree = "<group>"; };
+		32BFDDD81A2E451E00D03F44 /* SBJsonStreamWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonStreamWriter.m; sourceTree = "<group>"; };
+		32BFDDD91A2E451E00D03F44 /* SBJsonStreamWriterAccumulator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonStreamWriterAccumulator.h; sourceTree = "<group>"; };
+		32BFDDDA1A2E451E00D03F44 /* SBJsonStreamWriterAccumulator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonStreamWriterAccumulator.m; sourceTree = "<group>"; };
+		32BFDDDB1A2E451E00D03F44 /* SBJsonStreamWriterState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonStreamWriterState.h; sourceTree = "<group>"; };
+		32BFDDDC1A2E451E00D03F44 /* SBJsonStreamWriterState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonStreamWriterState.m; sourceTree = "<group>"; };
+		32BFDDDD1A2E451E00D03F44 /* SBJsonTokeniser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonTokeniser.h; sourceTree = "<group>"; };
+		32BFDDDE1A2E451E00D03F44 /* SBJsonTokeniser.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonTokeniser.m; sourceTree = "<group>"; };
+		32BFDDDF1A2E451E00D03F44 /* SBJsonUTF8Stream.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonUTF8Stream.h; sourceTree = "<group>"; };
+		32BFDDE01A2E451E00D03F44 /* SBJsonUTF8Stream.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonUTF8Stream.m; sourceTree = "<group>"; };
+		32BFDDE11A2E451E00D03F44 /* SBJsonWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJsonWriter.h; sourceTree = "<group>"; };
+		32BFDDE21A2E451E00D03F44 /* SBJsonWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonWriter.m; sourceTree = "<group>"; };
+		32BFDDF01A2E452F00D03F44 /* GTMDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GTMDefines.h; sourceTree = "<group>"; };
+		32BFDDF11A2E452F00D03F44 /* GTMNSDictionary+URLArguments.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "GTMNSDictionary+URLArguments.h"; sourceTree = "<group>"; };
+		32BFDDF21A2E452F00D03F44 /* GTMNSDictionary+URLArguments.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "GTMNSDictionary+URLArguments.m"; sourceTree = "<group>"; };
+		32BFDDF31A2E452F00D03F44 /* GTMNSString+URLArguments.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "GTMNSString+URLArguments.h"; sourceTree = "<group>"; };
+		32BFDDF41A2E452F00D03F44 /* GTMNSString+URLArguments.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "GTMNSString+URLArguments.m"; sourceTree = "<group>"; };
+		32BFDDF81A2E4B2200D03F44 /* RCGLManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCGLManagerFactory.h; sourceTree = "<group>"; };
+		32BFDDF91A2E4B2200D03F44 /* RCGLManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCGLManagerFactory.m; sourceTree = "<group>"; };
+		32BFDDFA1A2E4B2200D03F44 /* RCGLShaderProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCGLShaderProgram.h; sourceTree = "<group>"; };
+		32BFDDFB1A2E4B2200D03F44 /* RCGLShaderProgram.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCGLShaderProgram.m; sourceTree = "<group>"; };
+		32BFDDFC1A2E4B2200D03F44 /* RCVideoPreview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoPreview.h; sourceTree = "<group>"; };
+		32BFDDFD1A2E4B2200D03F44 /* RCVideoPreview.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoPreview.m; sourceTree = "<group>"; };
+		32BFDE021A2E4F0000D03F44 /* CATFeatureLayerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATFeatureLayerDelegate.h; sourceTree = "<group>"; };
+		32BFDE031A2E4F0000D03F44 /* CATFeatureLayerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATFeatureLayerDelegate.m; sourceTree = "<group>"; };
+		32BFDE041A2E4F0000D03F44 /* CATFeaturesLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATFeaturesLayer.h; sourceTree = "<group>"; };
+		32BFDE051A2E4F0000D03F44 /* CATFeaturesLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATFeaturesLayer.m; sourceTree = "<group>"; };
+		32BFDE0E1A2E50CA00D03F44 /* CATToolbarView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATToolbarView.h; sourceTree = "<group>"; };
+		32BFDE0F1A2E50CA00D03F44 /* CATToolbarView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATToolbarView.m; sourceTree = "<group>"; };
+		32BFDE121A2E513200D03F44 /* CATRotatingView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CATRotatingView.h; sourceTree = "<group>"; };
+		32BFDE131A2E51D000D03F44 /* UIView+RCOrientationRotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+RCOrientationRotation.h"; sourceTree = "<group>"; };
+		32BFDE141A2E51D000D03F44 /* UIView+RCOrientationRotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+RCOrientationRotation.m"; sourceTree = "<group>"; };
+		32BFDE161A2E528F00D03F44 /* UIImage+MPImageFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+MPImageFile.h"; sourceTree = "<group>"; };
+		32BFDE171A2E528F00D03F44 /* UIImage+MPImageFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+MPImageFile.m"; sourceTree = "<group>"; };
+		32BFDE191A2E807A00D03F44 /* RC3DK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RC3DK.h; sourceTree = "<group>"; };
+		32BFDE1E1A2E83F000D03F44 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		32BFDE211A2E83F600D03F44 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -141,6 +258,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32BFDE221A2E83F600D03F44 /* AVFoundation.framework in Frameworks */,
+				32BFDE1F1A2E83F000D03F44 /* CoreLocation.framework in Frameworks */,
 				323BD0BA1A25388C00313573 /* libRC3DK.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -161,6 +280,7 @@
 				323BD0AF1A25387500313573 /* RC3DK.xcodeproj */,
 				323BD0881A25324800313573 /* TrackLinks */,
 				323BD0A21A25324800313573 /* TrackLinksTests */,
+				32BFDE231A2E840700D03F44 /* Frameworks */,
 				323BD0871A25324800313573 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -177,28 +297,23 @@
 		323BD0881A25324800313573 /* TrackLinks */ = {
 			isa = PBXGroup;
 			children = (
+				32BFDE011A2E4EEF00D03F44 /* Views */,
+				32BFDDF71A2E4B2200D03F44 /* AugmentedReality */,
+				32BFDDC81A2E44F000D03F44 /* ThirdParty */,
+				32BFDDB31A2E43A700D03F44 /* SensorManagers */,
+				32BFDD9E1A2E433D00D03F44 /* Calibration */,
 				323BD0BB1A253AEC00313573 /* HTML */,
-				323BD0E41A253B0D00313573 /* CATAugmentedRealityView.h */,
-				323BD0E51A253B0D00313573 /* CATAugmentedRealityView.m */,
 				323BD0E61A253B0D00313573 /* CATCapturePhoto.h */,
 				323BD0E71A253B0D00313573 /* CATCapturePhoto.m */,
 				323BD0E81A253B0D00313573 /* CATConstants.h */,
-				323BD0E91A253B0D00313573 /* CATContainerView.h */,
-				323BD0EA1A253B0D00313573 /* CATContainerView.m */,
 				323BD0EB1A253B0D00313573 /* CATEditPhoto.h */,
 				323BD0EC1A253B0D00313573 /* CATEditPhoto.m */,
-				323BD0EF1A253B0D00313573 /* CATInstructionsView.h */,
-				323BD0F01A253B0D00313573 /* CATInstructionsView.m */,
 				323BD0F11A253B0D00313573 /* CATNativeAction.h */,
 				323BD0F21A253B0D00313573 /* CATNativeAction.m */,
 				323BD0F31A253B0D00313573 /* CATOrientationChangeData.h */,
 				323BD0F41A253B0D00313573 /* CATOrientationChangeData.m */,
-				323BD0F71A253B0D00313573 /* CATRotatingButton.h */,
-				323BD0F81A253B0D00313573 /* CATRotatingButton.m */,
-				323BD0F91A253B0D00313573 /* CATShutterButton.h */,
-				323BD0FA1A253B0D00313573 /* CATShutterButton.m */,
-				323BD0FB1A253B0D00313573 /* CATGalleryButton.h */,
-				323BD0FC1A253B0D00313573 /* CATGalleryButton.m */,
+				32BFDDC51A2E445100D03F44 /* CATHttpInterceptor.h */,
+				32BFDDC61A2E445100D03F44 /* CATHttpInterceptor.m */,
 				323BD0FD1A253B0D00313573 /* RCStereo.h */,
 				323BD0FE1A253B0D00313573 /* RCStereo.mm */,
 				323BD08D1A25324800313573 /* AppDelegate.h */,
@@ -208,6 +323,7 @@
 				323BD10F1A253B9A00313573 /* MainStoryboard_iPhone.storyboard */,
 				323BD0981A25324800313573 /* LaunchScreen.xib */,
 				323BD0891A25324800313573 /* Supporting Files */,
+				32BFDE191A2E807A00D03F44 /* RC3DK.h */,
 			);
 			path = TrackLinks;
 			sourceTree = "<group>";
@@ -273,6 +389,154 @@
 			path = HTML;
 			sourceTree = "<group>";
 		};
+		32BFDD9E1A2E433D00D03F44 /* Calibration */ = {
+			isa = PBXGroup;
+			children = (
+				32BFDD9F1A2E433D00D03F44 /* Calibration.storyboard */,
+				32BFDDA01A2E433D00D03F44 /* holding_landscape.jpg */,
+				32BFDDA11A2E433D00D03F44 /* holding_portrait.jpg */,
+				32BFDDA21A2E433D00D03F44 /* ipad_on_table.jpg */,
+				32BFDDA31A2E433D00D03F44 /* MBProgressHUD.h */,
+				32BFDDA41A2E433D00D03F44 /* MBProgressHUD.m */,
+				32BFDDA51A2E433D00D03F44 /* RCCalibration1.h */,
+				32BFDDA61A2E433D00D03F44 /* RCCalibration1.m */,
+				32BFDDA71A2E433D00D03F44 /* RCCalibration2.h */,
+				32BFDDA81A2E433D00D03F44 /* RCCalibration2.m */,
+				32BFDDA91A2E433D00D03F44 /* RCCalibration3.h */,
+				32BFDDAA1A2E433D00D03F44 /* RCCalibration3.m */,
+			);
+			name = Calibration;
+			path = ../../Calibration;
+			sourceTree = "<group>";
+		};
+		32BFDDB31A2E43A700D03F44 /* SensorManagers */ = {
+			isa = PBXGroup;
+			children = (
+				32BFDDB41A2E43A700D03F44 /* RCAVSessionManager.h */,
+				32BFDDB51A2E43A700D03F44 /* RCAVSessionManager.m */,
+				32BFDDB61A2E43A700D03F44 /* RCDebugLog.h */,
+				32BFDDB71A2E43A700D03F44 /* RCLocationManager.h */,
+				32BFDDB81A2E43A700D03F44 /* RCLocationManager.m */,
+				32BFDDB91A2E43A700D03F44 /* RCMotionManager.h */,
+				32BFDDBA1A2E43A700D03F44 /* RCMotionManager.m */,
+				32BFDDBB1A2E43A700D03F44 /* RCSensorDelegate.h */,
+				32BFDDBC1A2E43A700D03F44 /* RCSensorDelegate.m */,
+				32BFDDBD1A2E43A700D03F44 /* RCVideoFrameProvider.h */,
+				32BFDDBE1A2E43A700D03F44 /* RCVideoManager.h */,
+				32BFDDBF1A2E43A700D03F44 /* RCVideoManager.m */,
+			);
+			name = SensorManagers;
+			path = ../../SensorManagers;
+			sourceTree = "<group>";
+		};
+		32BFDDC81A2E44F000D03F44 /* ThirdParty */ = {
+			isa = PBXGroup;
+			children = (
+				32BFDDEF1A2E452F00D03F44 /* GTM */,
+				32BFDDC91A2E451E00D03F44 /* JSON */,
+			);
+			name = ThirdParty;
+			sourceTree = "<group>";
+		};
+		32BFDDC91A2E451E00D03F44 /* JSON */ = {
+			isa = PBXGroup;
+			children = (
+				32BFDDCA1A2E451E00D03F44 /* NSObject+SBJson.h */,
+				32BFDDCB1A2E451E00D03F44 /* NSObject+SBJson.m */,
+				32BFDDCC1A2E451E00D03F44 /* SBJson.h */,
+				32BFDDCD1A2E451E00D03F44 /* SBJsonParser.h */,
+				32BFDDCE1A2E451E00D03F44 /* SBJsonParser.m */,
+				32BFDDCF1A2E451E00D03F44 /* SBJsonStreamParser.h */,
+				32BFDDD01A2E451E00D03F44 /* SBJsonStreamParser.m */,
+				32BFDDD11A2E451E00D03F44 /* SBJsonStreamParserAccumulator.h */,
+				32BFDDD21A2E451E00D03F44 /* SBJsonStreamParserAccumulator.m */,
+				32BFDDD31A2E451E00D03F44 /* SBJsonStreamParserAdapter.h */,
+				32BFDDD41A2E451E00D03F44 /* SBJsonStreamParserAdapter.m */,
+				32BFDDD51A2E451E00D03F44 /* SBJsonStreamParserState.h */,
+				32BFDDD61A2E451E00D03F44 /* SBJsonStreamParserState.m */,
+				32BFDDD71A2E451E00D03F44 /* SBJsonStreamWriter.h */,
+				32BFDDD81A2E451E00D03F44 /* SBJsonStreamWriter.m */,
+				32BFDDD91A2E451E00D03F44 /* SBJsonStreamWriterAccumulator.h */,
+				32BFDDDA1A2E451E00D03F44 /* SBJsonStreamWriterAccumulator.m */,
+				32BFDDDB1A2E451E00D03F44 /* SBJsonStreamWriterState.h */,
+				32BFDDDC1A2E451E00D03F44 /* SBJsonStreamWriterState.m */,
+				32BFDDDD1A2E451E00D03F44 /* SBJsonTokeniser.h */,
+				32BFDDDE1A2E451E00D03F44 /* SBJsonTokeniser.m */,
+				32BFDDDF1A2E451E00D03F44 /* SBJsonUTF8Stream.h */,
+				32BFDDE01A2E451E00D03F44 /* SBJsonUTF8Stream.m */,
+				32BFDDE11A2E451E00D03F44 /* SBJsonWriter.h */,
+				32BFDDE21A2E451E00D03F44 /* SBJsonWriter.m */,
+			);
+			path = JSON;
+			sourceTree = "<group>";
+		};
+		32BFDDEF1A2E452F00D03F44 /* GTM */ = {
+			isa = PBXGroup;
+			children = (
+				32BFDDF01A2E452F00D03F44 /* GTMDefines.h */,
+				32BFDDF11A2E452F00D03F44 /* GTMNSDictionary+URLArguments.h */,
+				32BFDDF21A2E452F00D03F44 /* GTMNSDictionary+URLArguments.m */,
+				32BFDDF31A2E452F00D03F44 /* GTMNSString+URLArguments.h */,
+				32BFDDF41A2E452F00D03F44 /* GTMNSString+URLArguments.m */,
+			);
+			path = GTM;
+			sourceTree = "<group>";
+		};
+		32BFDDF71A2E4B2200D03F44 /* AugmentedReality */ = {
+			isa = PBXGroup;
+			children = (
+				32BFDDF81A2E4B2200D03F44 /* RCGLManagerFactory.h */,
+				32BFDDF91A2E4B2200D03F44 /* RCGLManagerFactory.m */,
+				32BFDDFA1A2E4B2200D03F44 /* RCGLShaderProgram.h */,
+				32BFDDFB1A2E4B2200D03F44 /* RCGLShaderProgram.m */,
+				32BFDDFC1A2E4B2200D03F44 /* RCVideoPreview.h */,
+				32BFDDFD1A2E4B2200D03F44 /* RCVideoPreview.m */,
+			);
+			name = AugmentedReality;
+			path = ../../AugmentedReality;
+			sourceTree = "<group>";
+		};
+		32BFDE011A2E4EEF00D03F44 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				32BFDE161A2E528F00D03F44 /* UIImage+MPImageFile.h */,
+				32BFDE171A2E528F00D03F44 /* UIImage+MPImageFile.m */,
+				32BFDE131A2E51D000D03F44 /* UIView+RCOrientationRotation.h */,
+				32BFDE141A2E51D000D03F44 /* UIView+RCOrientationRotation.m */,
+				32BFDE121A2E513200D03F44 /* CATRotatingView.h */,
+				32BFDE0E1A2E50CA00D03F44 /* CATToolbarView.h */,
+				32BFDE0F1A2E50CA00D03F44 /* CATToolbarView.m */,
+				32BFDD981A2D354F00D03F44 /* CATTintTouchButton.h */,
+				32BFDD991A2D354F00D03F44 /* CATTintTouchButton.m */,
+				323BD0E41A253B0D00313573 /* CATAugmentedRealityView.h */,
+				323BD0E51A253B0D00313573 /* CATAugmentedRealityView.m */,
+				323BD0E91A253B0D00313573 /* CATContainerView.h */,
+				323BD0EA1A253B0D00313573 /* CATContainerView.m */,
+				323BD0EF1A253B0D00313573 /* CATInstructionsView.h */,
+				323BD0F01A253B0D00313573 /* CATInstructionsView.m */,
+				323BD0F71A253B0D00313573 /* CATRotatingButton.h */,
+				323BD0F81A253B0D00313573 /* CATRotatingButton.m */,
+				323BD0F91A253B0D00313573 /* CATShutterButton.h */,
+				323BD0FA1A253B0D00313573 /* CATShutterButton.m */,
+				323BD0FB1A253B0D00313573 /* CATGalleryButton.h */,
+				323BD0FC1A253B0D00313573 /* CATGalleryButton.m */,
+				32BFDE021A2E4F0000D03F44 /* CATFeatureLayerDelegate.h */,
+				32BFDE031A2E4F0000D03F44 /* CATFeatureLayerDelegate.m */,
+				32BFDE041A2E4F0000D03F44 /* CATFeaturesLayer.h */,
+				32BFDE051A2E4F0000D03F44 /* CATFeaturesLayer.m */,
+			);
+			name = Views;
+			sourceTree = "<group>";
+		};
+		32BFDE231A2E840700D03F44 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				32BFDE211A2E83F600D03F44 /* AVFoundation.framework */,
+				32BFDE1E1A2E83F000D03F44 /* CoreLocation.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -318,6 +582,7 @@
 		323BD07E1A25324800313573 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				CLASSPREFIX = CAT;
 				LastUpgradeCheck = 0610;
 				ORGANIZATIONNAME = Caterpillar;
 				TargetAttributes = {
@@ -383,12 +648,16 @@
 				323BD0D31A253AEC00313573 /* jquery-2.1.1.min.js in Resources */,
 				323BD1121A253B9A00313573 /* MainStoryboard_iPhone.storyboard in Resources */,
 				323BD0D71A253AEC00313573 /* numeric_keypad.js in Resources */,
+				32BFDDAB1A2E433D00D03F44 /* Calibration.storyboard in Resources */,
 				323BD0DF1A253AEC00313573 /* svgjs_fornobj.js in Resources */,
 				323BD09A1A25324800313573 /* LaunchScreen.xib in Resources */,
+				32BFDDAD1A2E433D00D03F44 /* holding_portrait.jpg in Resources */,
 				323BD0E01A253AEC00313573 /* tilt_monitor.js in Resources */,
 				323BD0E11A253AEC00313573 /* web_view_rotation.js in Resources */,
 				323BD0D91A253AEC00313573 /* rc_menu.js in Resources */,
+				32BFDDAC1A2E433D00D03F44 /* holding_landscape.jpg in Resources */,
 				323BD0D21A253AEC00313573 /* hammer.js in Resources */,
+				32BFDDAE1A2E433D00D03F44 /* ipad_on_table.jpg in Resources */,
 				323BD1111A253B9A00313573 /* MainStoryboard_iPad.storyboard in Resources */,
 				323BD0DC1A253AEC00313573 /* scale_and_rotate.js in Resources */,
 				323BD0D61A253AEC00313573 /* measured_photo_svg.html in Resources */,
@@ -418,18 +687,51 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32BFDDE91A2E451E00D03F44 /* SBJsonStreamWriter.m in Sources */,
+				32BFDE101A2E50CA00D03F44 /* CATToolbarView.m in Sources */,
+				32BFDE071A2E4F0000D03F44 /* CATFeaturesLayer.m in Sources */,
+				32BFDE151A2E51D000D03F44 /* UIView+RCOrientationRotation.m in Sources */,
 				323BD08F1A25324800313573 /* AppDelegate.m in Sources */,
 				323BD10B1A253B0D00313573 /* CATGalleryButton.m in Sources */,
+				32BFDDC71A2E445100D03F44 /* CATHttpInterceptor.m in Sources */,
+				32BFDDE81A2E451E00D03F44 /* SBJsonStreamParserState.m in Sources */,
+				32BFDE001A2E4B2200D03F44 /* RCVideoPreview.m in Sources */,
+				32BFDDB11A2E433D00D03F44 /* RCCalibration2.m in Sources */,
+				32BFDDC11A2E43A700D03F44 /* RCLocationManager.m in Sources */,
 				323BD1011A253B0D00313573 /* CATCapturePhoto.m in Sources */,
+				32BFDDE51A2E451E00D03F44 /* SBJsonStreamParser.m in Sources */,
+				32BFDE061A2E4F0000D03F44 /* CATFeatureLayerDelegate.m in Sources */,
 				323BD1091A253B0D00313573 /* CATRotatingButton.m in Sources */,
+				32BFDDB21A2E433D00D03F44 /* RCCalibration3.m in Sources */,
+				32BFDDE31A2E451E00D03F44 /* NSObject+SBJson.m in Sources */,
+				32BFDDC01A2E43A700D03F44 /* RCAVSessionManager.m in Sources */,
+				32BFDDEE1A2E451E00D03F44 /* SBJsonWriter.m in Sources */,
 				323BD08C1A25324800313573 /* main.m in Sources */,
+				32BFDDC31A2E43A700D03F44 /* RCSensorDelegate.m in Sources */,
+				32BFDDEB1A2E451E00D03F44 /* SBJsonStreamWriterState.m in Sources */,
 				323BD1071A253B0D00313573 /* CATOrientationChangeData.m in Sources */,
+				32BFDDFE1A2E4B2200D03F44 /* RCGLManagerFactory.m in Sources */,
+				32BFDDEC1A2E451E00D03F44 /* SBJsonTokeniser.m in Sources */,
+				32BFDDED1A2E451E00D03F44 /* SBJsonUTF8Stream.m in Sources */,
+				32BFDDC41A2E43A700D03F44 /* RCVideoManager.m in Sources */,
 				323BD10A1A253B0D00313573 /* CATShutterButton.m in Sources */,
+				32BFDE181A2E528F00D03F44 /* UIImage+MPImageFile.m in Sources */,
+				32BFDDEA1A2E451E00D03F44 /* SBJsonStreamWriterAccumulator.m in Sources */,
+				32BFDDF61A2E452F00D03F44 /* GTMNSString+URLArguments.m in Sources */,
+				32BFDDF51A2E452F00D03F44 /* GTMNSDictionary+URLArguments.m in Sources */,
+				32BFDDAF1A2E433D00D03F44 /* MBProgressHUD.m in Sources */,
 				323BD10C1A253B0D00313573 /* RCStereo.mm in Sources */,
+				32BFDDE41A2E451E00D03F44 /* SBJsonParser.m in Sources */,
+				32BFDDB01A2E433D00D03F44 /* RCCalibration1.m in Sources */,
 				323BD1001A253B0D00313573 /* CATAugmentedRealityView.m in Sources */,
+				32BFDD9A1A2D354F00D03F44 /* CATTintTouchButton.m in Sources */,
 				323BD1051A253B0D00313573 /* CATInstructionsView.m in Sources */,
 				323BD1061A253B0D00313573 /* CATNativeAction.m in Sources */,
+				32BFDDC21A2E43A700D03F44 /* RCMotionManager.m in Sources */,
 				323BD1031A253B0D00313573 /* CATEditPhoto.m in Sources */,
+				32BFDDE71A2E451E00D03F44 /* SBJsonStreamParserAdapter.m in Sources */,
+				32BFDDFF1A2E4B2200D03F44 /* RCGLShaderProgram.m in Sources */,
+				32BFDDE61A2E451E00D03F44 /* SBJsonStreamParserAccumulator.m in Sources */,
 				323BD1021A253B0D00313573 /* CATContainerView.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

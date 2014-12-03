@@ -14,6 +14,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import "RCVideoFrameProvider.h"
 #import <GLKit/GLKit.h>
+#import <RC3DK/RC3DK.h>
 
 @protocol RCVideoPreviewDelegate <NSObject>
 

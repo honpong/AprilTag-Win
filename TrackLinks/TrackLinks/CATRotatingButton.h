@@ -1,14 +1,13 @@
-//
-//  MPRotatingBarButton.h
-//  MeasuredPhoto
+//  CATRotatingBarButton.h
+//  TrackLinks
 //
 //  Created by Ben Hirashima on 7/23/14.
-//  Copyright (c) 2014 RealityCap. All rights reserved.
+//  Copyright (c) 2014 Caterpillar. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>
-#import "MPTintTouchButton.h"
+#import "CATTintTouchButton.h"
 
-@interface CATRotatingButton : MPTintTouchButton
+@interface CATRotatingButton : CATTintTouchButton
 
 @end

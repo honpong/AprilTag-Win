@@ -8,6 +8,13 @@
 
 #import "AppDelegate.h"
 #import "CATConstants.h"
+#import "RCSensorDelegate.h"
+#import "RCLocationManager.h"
+#import "CATHttpInterceptor.h"
+#import <RC3DK/RC3DK.h>
+#import "RCCalibration1.h"
+#import "RCDebugLog.h"
+#import "RCMotionManager.h"
 
 #if TARGET_IPHONE_SIMULATOR
 #define SKIP_CALIBRATION YES // skip calibration when running on emulator because it cannot calibrate
@@ -50,58 +57,40 @@
         [NSUserDefaults.standardUserDefaults registerDefaults:appDefaults];
         
         // for testing only
-#ifndef ARCHIVE
+        #ifndef ARCHIVE
         //        [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_IS_FIRST_START];
-#endif
-        
-        [RCHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
+        #endif
     });
     
     mySensorDelegate = [SensorDelegate sharedInstance];
     
     mainViewController = self.window.rootViewController;
     
-    [Flurry setSecureTransportEnabled:YES];
-    [Flurry setCrashReportingEnabled:YES];
-    [Flurry setDebugLogEnabled:NO];
-    [Flurry setLogLevel:FlurryLogLevelNone];
-    [Flurry startSession:FLURRY_KEY];
-    
-    MagicalRecord.loggingLevel = MagicalRecordLoggingLevelVerbose;
-    [MagicalRecord setupCoreDataStackWithStoreNamed:@"Model"];
-    
-    [NSURLProtocol registerClass:[MPHttpInterceptor class]];
+    [NSURLProtocol registerClass:[CATHttpInterceptor class]];
     
     BOOL calibratedFlag = [NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_CALIBRATED];
     BOOL hasCalibration = [SENSOR_FUSION hasCalibrationData];
     
-    if([NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_FIRST_START] && !SKIP_CALIBRATION)
+    if ([LOCATION_MANAGER isLocationExplicitlyAllowed])
     {
-        [self gotoIntroScreen];
+        // location already authorized. go ahead.
+        LOCATION_MANAGER.delegate = self;
+        [LOCATION_MANAGER startLocationUpdates];
+    }
+    
+    if (SKIP_CALIBRATION || (calibratedFlag && hasCalibration) )
+    {
+        [self gotoCaptureScreen];
     }
     else
     {
-        if ([LOCATION_MANAGER isLocationExplicitlyAllowed])
-        {
-            // location already authorized. go ahead.
-            LOCATION_MANAGER.delegate = self;
-            [LOCATION_MANAGER startLocationUpdates];
-        }
-        
-        if (SKIP_CALIBRATION || (calibratedFlag && hasCalibration) )
-        {
-            [self gotoGallery];
-        }
-        else
-        {
-            [self gotoCalibration];
-        }
+        [self gotoCalibration];
     }
     
     return YES;
 }
 
-- (void) gotoGallery
+- (void) gotoCaptureScreen
 {
     self.window.rootViewController = mainViewController;
 }
@@ -115,21 +104,6 @@
     self.window.rootViewController = vc;
 }
 
-- (void) gotoIntroScreen
-{
-    MPIntroScreen* vc = [mainViewController.storyboard instantiateViewControllerWithIdentifier:@"IntroScreen"];
-    vc.calibrationDelegate = self;
-    vc.sensorDelegate = mySensorDelegate;
-    self.window.rootViewController = vc;
-}
-
-- (void) gotoTutorialVideo
-{
-    MPLocalMoviePlayer* movieController = [mainViewController.storyboard instantiateViewControllerWithIdentifier:@"Tutorial"];
-    movieController.delegate = self;
-    self.window.rootViewController = movieController;
-}
-
 #pragma mark RCCalibrationDelegate methods
 
 - (void) calibrationDidFinish
@@ -137,39 +111,14 @@
     LOGME
     [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_IS_CALIBRATED];
     
-    if ([NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_FIRST_START])
-    {
-        [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_IS_FIRST_START];
-        [self gotoTutorialVideo];
-    }
-    else
-    {
-        [self gotoGallery];
-    }
-}
-
-#pragma mark - TMLocalMoviePlayerDelegate
-
-- (void) moviePlayerDismissed
-{
-    [self gotoGallery];
-}
-
-- (void) moviePlayBackDidFinish
-{
-    [MPAnalytics logEvent:@"View.Tutorial.MovieFinished"];
+    [self gotoCaptureScreen];
 }
 
 #pragma mark - RCCalibrationDelegate
 
 - (void) calibrationScreenDidAppear:(NSString *)screenName
 {
-    if ([screenName isEqualToString:@"Calibration1"])
-        [MPAnalytics logEvent:@"View.Calibration1"];
-    else if ([screenName isEqualToString:@"Calibration2"])
-        [MPAnalytics logEvent:@"View.Calibration2"];
-    else if ([screenName isEqualToString:@"Calibration3"])
-        [MPAnalytics logEvent:@"View.Calibration3"];
+    // log to analytics if desired
 }
 
 - (void) calibrationDidFail:(NSError *)error
@@ -180,28 +129,10 @@
 
 #pragma mark -
 
-- (void)applicationDidBecomeActive:(UIApplication *)application
-{
-    LOGME
-}
-
 - (void)applicationWillResignActive:(UIApplication *)application
 {
     LOGME
     if (MOTION_MANAGER.isCapturing) [MOTION_MANAGER stopMotionCapture];
-}
-
-- (void) applicationWillTerminate:(UIApplication *)application
-{
-    [MagicalRecord cleanUp];
-}
-
-// this gets called when another app requests a measured photo
-- (BOOL) application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
-{
-    DLog(@"Application launched with URL: %@", url);
-    //    [MPPhotoRequest setLastRequest:url withSourceApp:sourceApplication];
-    return YES;
 }
 
 @end

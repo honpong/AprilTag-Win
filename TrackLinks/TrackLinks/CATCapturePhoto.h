@@ -15,22 +15,18 @@
 #import <ImageIO/ImageIO.h>
 #import <CoreGraphics/CoreGraphics.h>
 #import <CoreLocation/CoreLocation.h>
-#import <RCCore/RCCore.h>
 #import "RCStereo.h"
 #import "MBProgressHUD.h"
 #import "CATAugmentedRealityView.h"
-#import "MPBaseViewController.h"
-#import "MPAnalytics.h"
-#import "MPSlideBanner.h"
-#import "MPToolbarView.h"
+#import "CATToolbarView.h"
 #import "CATGalleryButton.h"
 #import "CATShutterButton.h"
 #import "CATOrientationChangeData.h"
 #import "CATContainerView.h"
 
-extern NSString * const MPUIOrientationDidChangeNotification;
+extern NSString * const CATUIOrientationDidChangeNotification;
 
-@interface CATCapturePhoto : MPBaseViewController <RCSensorFusionDelegate, RCStereoDelegate, UIAlertViewDelegate, MPAugRealityViewDelegate, MPInstructionsViewDelegate>
+@interface CATCapturePhoto : UIViewController <RCSensorFusionDelegate, RCStereoDelegate, UIAlertViewDelegate, MPInstructionsViewDelegate>
 
 + (UIDeviceOrientation) getCurrentUIOrientation;
 - (void)handlePause;
@@ -45,10 +41,9 @@ extern NSString * const MPUIOrientationDidChangeNotification;
 @property (weak, nonatomic) IBOutlet CATShutterButton *shutterButton;
 @property (weak, nonatomic) IBOutlet CATGalleryButton *galleryButton;
 @property (weak, nonatomic) IBOutlet UILabel *messageLabel;
-@property (weak, nonatomic) IBOutlet MPToolbarView *toolbar;
+@property (weak, nonatomic) IBOutlet CATToolbarView *toolbar;
 @property (weak, nonatomic) IBOutlet UILabel *questionLabel;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *questionSegButton;
-@property (weak, nonatomic) IBOutlet MPSlideBanner *questionView;
 @property (weak, nonatomic) IBOutlet UIButton *questionCloseButton;
 @property (weak, nonatomic) IBOutlet CATContainerView *containerView;
 @property (weak, nonatomic) IBOutlet CATInstructionsView *instructionsView;

@@ -1,6 +1,6 @@
 //
-//  Constants.h
-//  TapeMeasure
+//  CATConstants.h
+//  TrackLinks
 //
 //  Created by Ben Hirashima on 11/29/14.
 //  Copyright (c) 2014 Caterpillar. All rights reserved.
@@ -9,8 +9,6 @@
 #ifndef TapeMeasure_Constants_h
 #define TapeMeasure_Constants_h
 #endif
-
-#define CONTEXT [NSManagedObjectContext MR_defaultContext]
 
 #define SESSION_MANAGER [RCAVSessionManager sharedInstance]
 #define SENSOR_FUSION [RCSensorFusion sharedInstance]
@@ -41,16 +39,6 @@
 #define PREF_USE_LOCATION @"use_location"
 #define PREF_PROMPTED_LOCATION_SERVICES @"prompted_location_services"
 
-#define API_VERSION 1
-#ifdef ARCHIVE
-#define API_HOST @"app.realitycap.com"
-#else
-#define API_HOST @"internal.realitycap.com"
-#endif
-#define API_BASE_URL [NSString stringWithFormat:@"https://%@/", API_HOST]
-#define API_HEADER_ACCEPT @"application/vnd.realitycap.json; version=1.0"
-#define API_DATUM_LOGGED @"api/v1/datum_logged/"
-
 #define INCHES_PER_METER 39.3700787
 
 #define KEY_DATE_STARTED @"dateStarted"
@@ -61,51 +49,13 @@
 #define SYSTEM_VERSION_LESS_THAN(v)                 ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
 #define SYSTEM_VERSION_LESS_THAN_OR_EQUAL_TO(v)     ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedDescending)
 
-#define JSON_KEY_FLAG @"flag"
-#define JSON_KEY_BLOB @"blob"
+#define ERROR_DOMAIN @"com.cat.ErrorDomain"
 
-typedef NS_ENUM(int, JsonBlobFlag) {
-    JsonBlobFlagCalibrationData = 1,
-    JsonBlobFlagAccuracyQuestion = 2
-};
-
-// answer to the question do you want to watch tutorial video
-typedef NS_ENUM(int, MPTutorialAnswer) {
-    MPTutorialAnswerDontAskAgain = -1,
-    MPTutorialAnswerNotNow = 0,
-    MPTutorialAnswerYes = 1
-};
-
-#define ERROR_DOMAIN @"com.realitycap.TrueMeasure.ErrorDomain"
-
-static NSString * const MPUIOrientationDidChangeNotification = @"com.realitycap.MPUIOrientationDidChangeNotification";
-static NSString * const MPCapturePhotoDidAppearNotification = @"com.realitycap.MPCapturePhotoDidAppearNotification";
-
-#define URL_WEBSITE @"http://realitycap.com"
-#define URL_SHARING @"http://app.realitycap.com/3Dimension"
-#define URL_APPSTORE @"itms-apps://itunes.com/apps/3Dimension"
-
-static NSString* RCApplicationCredential_Facebook_Key = @"671645849539796";
-static NSString* RCApplicationCredential_Facebook_Secret = @"827cfb4e92aff3551ffeb3618be46e08"; // TODO: this is for ETM. change to TM.
+static NSString * const CATUIOrientationDidChangeNotification = @"com.cat.UIOrientationDidChangeNotification";
+static NSString * const CATCapturePhotoDidAppearNotification = @"com.cat.CapturePhotoDidAppearNotification";
 
 #define IS_DISK_SPACE_LOW [RCDeviceInfo getFreeDiskSpaceInBytes] < 5000000
 
-#ifdef ARCHIVE
-#define FLURRY_KEY @"N3827F4P9DWMD5FFFSHV" //prod
-#else
-#define FLURRY_KEY @"27CGCMKSPPYVS9HX3SXC" //dev
-#endif
-
-#ifdef ARCHIVE
-#define LOGME // do nothing
-#define DLog(fmt, ...) // do nothing
-#define NSLog(...) // do nothing
-#else
-#ifdef DEBUG
-#define LOGME fprintf(stderr,"%s %-4x %s\n", __TIME__, pthread_mach_thread_np(pthread_self()), __PRETTY_FUNCTION__);
-#define DLog(format, ...) fprintf(stderr,"%s %-4x %s %s\n", __TIME__, pthread_mach_thread_np(pthread_self()), __PRETTY_FUNCTION__, [[NSString stringWithFormat:format, ##__VA_ARGS__] UTF8String]);
-#else
-#define LOGME NSLog(@"%s", __PRETTY_FUNCTION__);
-#define DLog(fmt, ...) NSLog((@"%s " fmt), __PRETTY_FUNCTION__, ##__VA_ARGS__);
-#endif
-#endif
+typedef enum {
+    UnitsMetric = 0, UnitsImperial = 1
+} Units;

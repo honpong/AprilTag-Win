@@ -5,6 +5,9 @@
 //  Copyright (c) 2014 Caterpillar. All rights reserved.
 //
 
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+
 @protocol MPInstructionsViewDelegate <NSObject>
 
 - (void) moveComplete;

@@ -6,8 +6,6 @@
 //
 
 #import "CATInstructionsView.h"
-#import "MPCircleLayerDelegate.h"
-#import "MPDotLayerDelegate.h"
 #import "CATCapturePhoto.h"
 #import <RCCore/RCCore.h>
 

@@ -5,6 +5,8 @@
 //  Copyright (c) 2014 Caterpillar. All rights reserved.
 //
 
+#import <UIKit/UIKit.h>
+
 @interface CATShutterButton : UIButton
 
 @end

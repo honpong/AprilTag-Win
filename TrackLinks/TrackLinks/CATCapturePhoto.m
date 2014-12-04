@@ -6,12 +6,17 @@
 //  Copyright (c) 2012 RealityCap. All rights reserved.
 //
 
+#import "CATConstants.h"
 #import "CATCapturePhoto.h"
 #import "math.h"
 #import "UIImage+MPImageFile.h"
 #import "RCStereo.h"
 #import "MBProgressHUD.h"
 #import "CATEditPhoto.h"
+#import "RC3DK.h"
+#import "RCSensorDelegate.h"
+#import "RCDebugLog.h"
+#import <CoreLocation/CoreLocation.h>
 
 static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
 
@@ -25,7 +30,6 @@ static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
     
     MBProgressHUD *progressView;
     RCSensorFusionData* lastSensorFusionDataWithImage;
-    AFHTTPClient* httpClient;
     NSTimer* questionTimer;
     NSMutableArray *goodPoints;
     UIImage * lastImage;
@@ -37,7 +41,7 @@ static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
     BOOL didGetVisionError;
     RCSensorFusionErrorCode lastErrorCode;
 }
-@synthesize toolbar, galleryButton, shutterButton, messageLabel, questionLabel, questionSegButton, questionView, arView, containerView, instructionsView;
+@synthesize toolbar, galleryButton, shutterButton, messageLabel, questionLabel, questionSegButton, arView, containerView, instructionsView;
 
 typedef NS_ENUM(int, AlertTag) {
     AlertTagTutorial = 0,
@@ -162,8 +166,6 @@ static transition transitions[] =
         else
             [self hideProgress];
     }
-    if(oldSetup.showMeasurements && !newSetup.showMeasurements)
-        [self.arView.measurementsView clearMeasurements];
     if(oldSetup.showBadFeatures && !newSetup.showBadFeatures)
         self.arView.initializingFeaturesLayer.hidden = YES;
     if(!oldSetup.showBadFeatures && newSetup.showBadFeatures)
@@ -172,16 +174,6 @@ static transition transitions[] =
         instructionsView.hidden = NO;
     if(oldSetup.showSlideInstructions && !newSetup.showSlideInstructions)
         instructionsView.hidden = YES;
-    if(!oldSetup.showStillPhoto && newSetup.showStillPhoto)
-    {
-        arView.photoView.hidden = NO;
-        arView.magGlassEnabled = YES;
-    }
-    if(oldSetup.showStillPhoto && !newSetup.showStillPhoto)
-    {
-        arView.photoView.hidden = YES;
-        arView.magGlassEnabled = NO;
-    }
     if(!oldSetup.stereo && newSetup.stereo)
         [[RCStereo sharedInstance] reset];
     if (newSetup.progress == SpinnerTypeNone)
@@ -215,15 +207,6 @@ static transition transitions[] =
         lastErrorCode = RCSensorFusionErrorCodeNone;
         didGetVisionError = NO;
     }
-    else if (newState == ST_INITIALIZING)
-    {
-        [MPAnalytics startTimedEvent:@"MPhoto.Initializing" withParameters:nil];
-    }
-    else if(newState == ST_MOVING)
-    {
-        [MPAnalytics endTimedEvent:@"MPhoto.Initializing"];
-        [self handleMoveStart];
-    }
     else if(newState == ST_CAPTURE)
         [self handleMoveFinished];
     else if(newState == ST_PROCESSING)
@@ -235,28 +218,12 @@ static transition transitions[] =
         }
         else
         {
-            [MPAnalytics startTimedEvent:@"MPhoto.StereoProcessing" withParameters:nil];
             [self handleCaptureFinished];
         }
-    }
-    else if (newState == ST_FINISHED)
-    {
-        [MPAnalytics endTimedEvent:@"MPhoto.StereoProcessing"];
-        NSString* errorType = didGetVisionError ? @"Vision" : @"None";
-        [MPAnalytics logEvent:@"MPhoto.Save" withParameters:@{ @"Error" : errorType }]; // successful
     }
     else if(currentState == ST_FINISHED && newState == ST_READY)
     {
         [self handlePhotoDeleted];
-    }
-    else if (newState == ST_ERROR)
-    {
-        if (lastErrorCode == RCSensorFusionErrorCodeTooFast)
-            [MPAnalytics logEvent:@"MPhoto.Fail" withParameters:@{ @"Error" : @"TooFast", @"Vision Error Preceded" : didGetVisionError ? @"Yes" : @"No" }];
-        else if (lastErrorCode == RCSensorFusionErrorCodeOther)
-            [MPAnalytics logEvent:@"MPhoto.Fail" withParameters:@{ @"Error" : @"Other", @"Vision Error Preceded" : didGetVisionError ? @"Yes" : @"No" }];
-        else
-            [MPAnalytics logEvent:@"MPhoto.Fail" withParameters:@{ @"Error" : @"Unknown", @"Vision Error Preceded" : didGetVisionError ? @"Yes" : @"No" }];
     }
     
     return YES;
@@ -293,7 +260,6 @@ static transition transitions[] =
 //        [self showInstructionsDialog];
 //    }
     
-    arView.delegate = self;
     instructionsView.delegate = self;
     containerView.delegate = arView;
     
@@ -346,18 +312,7 @@ static transition transitions[] =
                                                  name:UIDeviceOrientationDidChangeNotification
                                                object:nil];
     
-    [questionView hideInstantly];
     [self handleResume];
-}
-
-- (void) moviePlayerWillExitFullScreen:(NSNotification*)notification
-{
-    NSNumber* reason = (NSNumber*)[notification.userInfo objectForKey:MPMoviePlayerPlaybackDidFinishReasonUserInfoKey];
-    if (reason.intValue == MPMovieFinishReasonUserExited)
-    {
-        [self dismissMoviePlayerViewControllerAnimated];
-        [self handleResume];
-    }
 }
 
 - (void) viewWillDisappear:(BOOL)animated

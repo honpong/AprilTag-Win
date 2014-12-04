@@ -6,6 +6,8 @@
 //  Copyright (c) 2014 Caterpillar. All rights reserved.
 //
 
+#import <UIKit/UIKit.h>
+
 #ifndef TapeMeasure_Constants_h
 #define TapeMeasure_Constants_h
 #endif

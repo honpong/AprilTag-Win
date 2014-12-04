@@ -6,8 +6,8 @@
 //
 
 #import "CATShutterButton.h"
-#import <RCCore/RCCore.h>
 #import "CATCapturePhoto.h"
+#import "UIView+RCOrientationRotation.h"
 
 @implementation CATShutterButton
 

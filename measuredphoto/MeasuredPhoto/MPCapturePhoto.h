@@ -27,6 +27,7 @@
 #import "MPShutterButton.h"
 #import "MPOrientationChangeData.h"
 #import "MPContainerView.h"
+#import "MPExpandingCircleAnimationView.h"
 
 extern NSString * const MPUIOrientationDidChangeNotification;
 
@@ -51,5 +52,6 @@ extern NSString * const MPUIOrientationDidChangeNotification;
 @property (weak, nonatomic) IBOutlet MPSlideBanner *questionView;
 @property (weak, nonatomic) IBOutlet UIButton *questionCloseButton;
 @property (weak, nonatomic) IBOutlet MPContainerView *containerView;
+@property (weak, nonatomic) IBOutlet MPExpandingCircleAnimationView *expandingCircleView;
 
 @end

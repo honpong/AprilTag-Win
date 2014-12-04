@@ -8,7 +8,4 @@
 
 @interface MPShutterButton : UIButton
 
-- (void) startHighlightAnimation;
-- (void) stopHighlightAnimation;
-
 @end

@@ -301,6 +301,7 @@
 		32745D661892F9E2000C68F4 /* MPCrosshairsLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32745D651892F9E2000C68F4 /* MPCrosshairsLayerDelegate.m */; };
 		32745D691892FBCE000C68F4 /* MPLoupe.m in Sources */ = {isa = PBXBuildFile; fileRef = 32745D681892FBCE000C68F4 /* MPLoupe.m */; };
 		32745D6B18930889000C68F4 /* kb-loupe-hi@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 32745D6A18930889000C68F4 /* kb-loupe-hi@2x.png */; };
+		327524581A2FE3D500459B79 /* MPExpandingCircleAnimationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 327524571A2FE3D500459B79 /* MPExpandingCircleAnimationView.m */; };
 		3280BB3D1919B44100338A38 /* MPSurveyAnswer.m in Sources */ = {isa = PBXBuildFile; fileRef = 3280BB3C1919B44100338A38 /* MPSurveyAnswer.m */; };
 		328824B317C6C7BA0072CF54 /* MPPaddedLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 328824B217C6C7BA0072CF54 /* MPPaddedLabel.m */; };
 		3288AF6917ECE8BC00BCAD09 /* MPSlideBanner.m in Sources */ = {isa = PBXBuildFile; fileRef = 3288AF6817ECE8BC00BCAD09 /* MPSlideBanner.m */; };
@@ -463,9 +464,6 @@
 		D3F57871184F2E1700EE450E /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3F57870184F2E1700EE450E /* CoreVideo.framework */; };
 		D3F57873184F2E2000EE450E /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3F57872184F2E2000EE450E /* MobileCoreServices.framework */; };
 		D3F57875184F2E2900EE450E /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D3F57874184F2E2900EE450E /* OpenGLES.framework */; };
-		D9E331C11A0B0D8E0037DFE6 /* MPARDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D9E331C01A0B0D8E0037DFE6 /* MPARDelegate.m */; };
-		D9E331C41A0B0DBB0037DFE6 /* shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = D9E331C21A0B0DBB0037DFE6 /* shader.fsh */; };
-		D9E331C51A0B0DBB0037DFE6 /* shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = D9E331C31A0B0DBB0037DFE6 /* shader.vsh */; };
 		D3F7E1001A03F4EC00AB5778 /* alldai.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F7E0E01A03F4EB00AB5778 /* alldai.cpp */; };
 		D3F7E1011A03F4EC00AB5778 /* bbp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F7E0E11A03F4EB00AB5778 /* bbp.cpp */; };
 		D3F7E1021A03F4EC00AB5778 /* bipgraph.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F7E0E21A03F4EB00AB5778 /* bipgraph.cpp */; };
@@ -491,6 +489,9 @@
 		D3F7E1241A04000D00AB5778 /* bp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F7E1221A04000D00AB5778 /* bp.cpp */; };
 		D3F7E1251A04000D00AB5778 /* gibbs.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F7E1231A04000D00AB5778 /* gibbs.cpp */; };
 		D9C976881A2E717B009EFEF7 /* iphone.png in Resources */ = {isa = PBXBuildFile; fileRef = D9C976871A2E717B009EFEF7 /* iphone.png */; };
+		D9E331C11A0B0D8E0037DFE6 /* MPARDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D9E331C01A0B0D8E0037DFE6 /* MPARDelegate.m */; };
+		D9E331C41A0B0DBB0037DFE6 /* shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = D9E331C21A0B0DBB0037DFE6 /* shader.fsh */; };
+		D9E331C51A0B0DBB0037DFE6 /* shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = D9E331C31A0B0DBB0037DFE6 /* shader.vsh */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -973,6 +974,8 @@
 		32745D671892FBCE000C68F4 /* MPLoupe.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPLoupe.h; sourceTree = "<group>"; };
 		32745D681892FBCE000C68F4 /* MPLoupe.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPLoupe.m; sourceTree = "<group>"; };
 		32745D6A18930889000C68F4 /* kb-loupe-hi@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "kb-loupe-hi@2x.png"; sourceTree = "<group>"; };
+		327524561A2FE3D500459B79 /* MPExpandingCircleAnimationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPExpandingCircleAnimationView.h; sourceTree = "<group>"; };
+		327524571A2FE3D500459B79 /* MPExpandingCircleAnimationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPExpandingCircleAnimationView.m; sourceTree = "<group>"; };
 		3280BB3B1919B44100338A38 /* MPSurveyAnswer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPSurveyAnswer.h; sourceTree = "<group>"; };
 		3280BB3C1919B44100338A38 /* MPSurveyAnswer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPSurveyAnswer.m; sourceTree = "<group>"; };
 		328824B117C6C7BA0072CF54 /* MPPaddedLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPPaddedLabel.h; sourceTree = "<group>"; };
@@ -1273,10 +1276,6 @@
 		D3F57870184F2E1700EE450E /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		D3F57872184F2E2000EE450E /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
 		D3F57874184F2E2900EE450E /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
-		D9E331BF1A0B0D8E0037DFE6 /* MPARDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPARDelegate.h; sourceTree = "<group>"; };
-		D9E331C01A0B0D8E0037DFE6 /* MPARDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPARDelegate.m; sourceTree = "<group>"; };
-		D9E331C21A0B0DBB0037DFE6 /* shader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.fsh; sourceTree = "<group>"; };
-		D9E331C31A0B0DBB0037DFE6 /* shader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.vsh; sourceTree = "<group>"; };
 		D3F7E0E01A03F4EB00AB5778 /* alldai.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = alldai.cpp; path = "../../corvis/src/libDAI-0.3.1/src/alldai.cpp"; sourceTree = "<group>"; };
 		D3F7E0E11A03F4EB00AB5778 /* bbp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bbp.cpp; path = "../../corvis/src/libDAI-0.3.1/src/bbp.cpp"; sourceTree = "<group>"; };
 		D3F7E0E21A03F4EB00AB5778 /* bipgraph.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bipgraph.cpp; path = "../../corvis/src/libDAI-0.3.1/src/bipgraph.cpp"; sourceTree = "<group>"; };
@@ -1302,6 +1301,10 @@
 		D3F7E1221A04000D00AB5778 /* bp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bp.cpp; path = "../../corvis/src/libDAI-0.3.1/src/bp.cpp"; sourceTree = "<group>"; };
 		D3F7E1231A04000D00AB5778 /* gibbs.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gibbs.cpp; path = "../../corvis/src/libDAI-0.3.1/src/gibbs.cpp"; sourceTree = "<group>"; };
 		D9C976871A2E717B009EFEF7 /* iphone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = iphone.png; sourceTree = "<group>"; };
+		D9E331BF1A0B0D8E0037DFE6 /* MPARDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPARDelegate.h; sourceTree = "<group>"; };
+		D9E331C01A0B0D8E0037DFE6 /* MPARDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPARDelegate.m; sourceTree = "<group>"; };
+		D9E331C21A0B0DBB0037DFE6 /* shader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.fsh; sourceTree = "<group>"; };
+		D9E331C31A0B0DBB0037DFE6 /* shader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.vsh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1988,6 +1991,8 @@
 				D9E331C31A0B0DBB0037DFE6 /* shader.vsh */,
 				D9E331BF1A0B0D8E0037DFE6 /* MPARDelegate.h */,
 				D9E331C01A0B0D8E0037DFE6 /* MPARDelegate.m */,
+				327524561A2FE3D500459B79 /* MPExpandingCircleAnimationView.h */,
+				327524571A2FE3D500459B79 /* MPExpandingCircleAnimationView.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -2862,6 +2867,7 @@
 				D3F50B2019BA19FD00791303 /* svm.c in Sources */,
 				326ACFC319D2221B00B36965 /* OSKUsernamePasswordCell.m in Sources */,
 				326ACFB019D2221B00B36965 /* OSKSafariActivity.m in Sources */,
+				327524581A2FE3D500459B79 /* MPExpandingCircleAnimationView.m in Sources */,
 				328824B317C6C7BA0072CF54 /* MPPaddedLabel.m in Sources */,
 				326ACF7319D2221B00B36965 /* OSKAccountTypeCell.m in Sources */,
 				D3F7E11F1A03F4EC00AB5778 /* weightedgraph.cpp in Sources */,

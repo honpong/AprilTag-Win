@@ -909,7 +909,7 @@ static transition transitions[] =
 {
     NSString* imageName;
     
-    [shutterButton stopHighlightAnimation];
+    [self.expandingCircleView stopHighlightAnimation];
     
     switch (imageType) {
         case BUTTON_DELETE:
@@ -934,7 +934,7 @@ static transition transitions[] =
             imageName = @"PLCameraFloatingShutterButton";
             shutterButton.alpha = 1.;
             shutterButton.enabled = YES;
-            [shutterButton startHighlightAnimation];
+            [self.expandingCircleView startHighlightAnimation];
             break;
             
         default:

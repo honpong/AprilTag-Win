@@ -137,6 +137,7 @@
 		32CBDFCE16D55C3F000B3ADB /* KeychainItemWrapper.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32C4493816D5457C00984BEC /* KeychainItemWrapper.h */; };
 		32CD632316CC015100496D46 /* RCDateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 32CD632216CC015100496D46 /* RCDateFormatter.m */; };
 		32CD632516CC022600496D46 /* RCDateFormatter.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32CD632116CC015100496D46 /* RCDateFormatter.h */; };
+		32CF88A81A310D220044B17B /* RC3DK.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32CF88981A31066E0044B17B /* RC3DK.h */; };
 		32D83D7319E8629600F20DC4 /* RCModalCoverVerticalTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D83D7219E8629600F20DC4 /* RCModalCoverVerticalTransition.m */; };
 		32D83D7719E862E900F20DC4 /* RCModalCoverVerticalAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D83D7619E862E900F20DC4 /* RCModalCoverVerticalAnimation.m */; };
 		32D83D7819E864A200F20DC4 /* RCModalCoverVerticalTransition.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32D83D7119E8629600F20DC4 /* RCModalCoverVerticalTransition.h */; };
@@ -215,6 +216,7 @@
 			dstPath = "include/${PRODUCT_NAME}";
 			dstSubfolderSpec = 16;
 			files = (
+				32CF88A81A310D220044B17B /* RC3DK.h in CopyFiles */,
 				D9E331C61A0B0E310037DFE6 /* RCGLShaderProgram.h in CopyFiles */,
 				D99CE1AC19D4A80B00510B81 /* RCVideoPreviewCRT.h in CopyFiles */,
 				D991D4F719D0D35100CC0195 /* RCVideoFrameProvider.h in CopyFiles */,
@@ -428,6 +430,7 @@
 		32CBDFCB16D55921000B3ADB /* RCConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCConstants.h; sourceTree = "<group>"; };
 		32CD632116CC015100496D46 /* RCDateFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDateFormatter.h; sourceTree = "<group>"; };
 		32CD632216CC015100496D46 /* RCDateFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDateFormatter.m; sourceTree = "<group>"; };
+		32CF88981A31066E0044B17B /* RC3DK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RC3DK.h; sourceTree = "<group>"; };
 		32D83D7119E8629600F20DC4 /* RCModalCoverVerticalTransition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCModalCoverVerticalTransition.h; path = ../../rccore/RCCore/RCModalCoverVerticalTransition.h; sourceTree = "<group>"; };
 		32D83D7219E8629600F20DC4 /* RCModalCoverVerticalTransition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCModalCoverVerticalTransition.m; path = ../../rccore/RCCore/RCModalCoverVerticalTransition.m; sourceTree = "<group>"; };
 		32D83D7519E862E900F20DC4 /* RCModalCoverVerticalAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCModalCoverVerticalAnimation.h; path = ../../rccore/RCCore/RCModalCoverVerticalAnimation.h; sourceTree = "<group>"; };
@@ -718,6 +721,7 @@
 				32CBDFCB16D55921000B3ADB /* RCConstants.h */,
 				328ACC1216D5953900BC7142 /* RCUser.h */,
 				328ACC1316D5953900BC7142 /* RCUser.m */,
+				32CF88981A31066E0044B17B /* RC3DK.h */,
 			);
 			path = RCCore;
 			sourceTree = "<group>";

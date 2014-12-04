@@ -496,6 +496,7 @@
 		32C8969016699C0400667BF9 /* TMMeasurementTypeVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurementTypeVC.m; sourceTree = "<group>"; };
 		32CB4C5F1649979300D8A7B8 /* TMMeasurementDM.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = TMMeasurementDM.xcdatamodel; sourceTree = "<group>"; };
 		32CB4C6116499C0700D8A7B8 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		32CF88AA1A310D500044B17B /* RC3DK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RC3DK.h; sourceTree = "<group>"; };
 		32D2B6DA18EA163000B72F05 /* Calibration.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Calibration.storyboard; sourceTree = "<group>"; };
 		32D2B6DB18EA163000B72F05 /* holding_landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_landscape.jpg; sourceTree = "<group>"; };
 		32D2B6DC18EA163000B72F05 /* holding_portrait.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_portrait.jpg; sourceTree = "<group>"; };
@@ -1000,6 +1001,7 @@
 				3233C7AE16F3B9D700129B99 /* TMAnalytics.m */,
 				32F7D56A19D49F8C002239FF /* RCDebugLog.h */,
 				32803A5F18DB6452002F54B5 /* Images.xcassets */,
+				32CF88AA1A310D500044B17B /* RC3DK.h */,
 			);
 			path = TapeMeasure;
 			sourceTree = "<group>";

@@ -1046,6 +1046,7 @@
 		32C173C8191457F4008B3262 /* Tutorial.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = Tutorial.mp4; sourceTree = "<group>"; };
 		32C71CA519802F6100947798 /* MPRotatingButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPRotatingButton.h; sourceTree = "<group>"; };
 		32C71CA619802F6100947798 /* MPRotatingButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPRotatingButton.m; sourceTree = "<group>"; };
+		32CF88951A31060F0044B17B /* RC3DK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RC3DK.h; sourceTree = "<group>"; };
 		32DB2BE617C28AC9001F7E5D /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		32EEC84D17B97D1900A0DF49 /* MPMeasurementView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMeasurementView.h; sourceTree = "<group>"; };
 		32EEC84E17B97D1900A0DF49 /* MPMeasurementView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMeasurementView.m; sourceTree = "<group>"; };
@@ -1888,6 +1889,7 @@
 				3201E521198C0FE2008F61D5 /* MPOrientationChangeData.h */,
 				3201E522198C0FE2008F61D5 /* MPOrientationChangeData.m */,
 				32F7D56519D49E35002239FF /* RCDebugLog.h */,
+				32CF88951A31060F0044B17B /* RC3DK.h */,
 			);
 			path = MeasuredPhoto;
 			sourceTree = "<group>";

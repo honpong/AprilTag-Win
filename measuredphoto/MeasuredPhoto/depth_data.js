@@ -228,12 +228,14 @@ function finalize_dm(){
     dm_context.putImageData(dm_canvas_imgData,0,0);
     
     img_clone =image.clone();
-    img_clone.filter(function(add) {
-                     add.colorMatrix('saturate', 0); //desatureate
-                     //add.componentTransfer({ rgb: { type: 'linear', slope: 1.5, intercept: 0.2 }}); //lighten
-                      });
+    mask_clone = dm_masking_image.clone();
+    //img_clone.filter(function(add) {
+    //                 add.colorMatrix('saturate', 0); //desatureate
+    //                 //add.componentTransfer({ rgb: { type: 'linear', slope: 1.5, intercept: 0.2 }}); //lighten
+    //                  });
     dm_svg.add(img_clone);
     dm_svg.image(dm_canvas.toDataURL("image/png")); //image/png is a mime type.
+    dm_svg.add(mask_clone);
     dm_context = null;
     dm_canvas = null;
     

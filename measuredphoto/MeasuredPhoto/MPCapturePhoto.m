@@ -67,7 +67,7 @@ typedef NS_ENUM(int, AlertTag) {
 
 typedef enum
 {
-    BUTTON_SHUTTER, BUTTON_SHUTTER_DISABLED, BUTTON_DELETE, BUTTON_CANCEL
+    BUTTON_SHUTTER, BUTTON_SHUTTER_DISABLED, BUTTON_DELETE, BUTTON_CANCEL, BUTTON_SHUTTER_ANIMATED
 } ButtonImage;
 
 typedef NS_ENUM(int, SpinnerType) {
@@ -113,7 +113,7 @@ static statesetup setups[] =
     { ST_READY,         BUTTON_SHUTTER,            true,   false,   false,      false,   false,  false,  SpinnerTypeNone,          true,    false,      false,  true,             "Ready",        ColorGray,    "Point the camera at the scene you want to capture, then press the button." },
     { ST_INITIALIZING,  BUTTON_SHUTTER_DISABLED,   true,   true,    false,      true,    false,  true,   SpinnerTypeDeterminate,   true,    false,      false,  true,             "Initializing", ColorGray,    "Hold still" },
     { ST_MOVING,        BUTTON_DELETE,             true,   true,    false,      true,    true,   true,   SpinnerTypeNone,          false,   false,      true,   false,            "Moving",       ColorGray,    "Move up, down, or sideways. Press the button to cancel." },
-    { ST_CAPTURE,       BUTTON_SHUTTER,            true,   true,    false,      true,    true,   true,   SpinnerTypeNone,          false,   false,      true,   false,            "Capture",      ColorGray,    "Press the button to capture a photo." },
+    { ST_CAPTURE,       BUTTON_SHUTTER_ANIMATED,   true,   true,    false,      true,    true,   true,   SpinnerTypeNone,          false,   false,      true,   false,            "Capture",      ColorGray,    "Press the button to capture a photo." },
     { ST_PROCESSING,    BUTTON_SHUTTER_DISABLED,   false,  false,   false,      false,   false,  false,  SpinnerTypeDeterminate,   true,    true,       false,  false,            "Processing",   ColorGray,    "Please wait" },
     { ST_ERROR,         BUTTON_DELETE,             true,   false,   true,       false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  true,             "Error",        ColorRed,     "Whoops, something went wrong. Try again." },
     { ST_DISK_SPACE,    BUTTON_SHUTTER_DISABLED,   true,   false,   true,       false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  true,             "Error",        ColorRed,     "Your device is low on storage space. Free up some space first." },
@@ -909,6 +909,8 @@ static transition transitions[] =
 {
     NSString* imageName;
     
+    [shutterButton stopHighlightAnimation];
+    
     switch (imageType) {
         case BUTTON_DELETE:
             imageName = @"MobileMailSettings_trashmbox";
@@ -926,6 +928,13 @@ static transition transitions[] =
             imageName = @"BackButton";
             shutterButton.alpha = 1.;
             shutterButton.enabled = YES;
+            break;
+            
+        case BUTTON_SHUTTER_ANIMATED:
+            imageName = @"PLCameraFloatingShutterButton";
+            shutterButton.alpha = 1.;
+            shutterButton.enabled = YES;
+            [shutterButton startHighlightAnimation];
             break;
             
         default:

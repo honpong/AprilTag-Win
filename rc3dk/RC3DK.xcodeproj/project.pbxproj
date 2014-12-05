@@ -999,6 +999,7 @@
 				D3B4EB401A1E7DE100BE0443 /* CopyFiles */,
 				D3B4EB521A1E7DE100BE0443 /* Library Sanity Check */,
 				D3B4EB531A1E7DE100BE0443 /* Warnings for TODOs */,
+				D321AD431A323E06003AEA77 /* Open build library folder */,
 			);
 			buildRules = (
 			);
@@ -1079,6 +1080,32 @@
 			shellScript = "KEYWORDS=\"TODO|FIXME|\\?\\?\\?:|\\!\\!\\!:\"\nfind ${SRCROOT} \\( -name \"*.h\" -or -name \"*.m\" \\) -print0 | \\\nxargs -0 egrep --with-filename --line-number --only-matching \"($KEYWORDS).*\\$\" | \\\nperl -p -e \"s/($KEYWORDS)/ warning: \\$1/\"";
 			showEnvVarsInLog = 0;
 		};
+		32CF889E1A31094B0044B17B /* Open built library folder */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Open built library folder";
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ \"$CONFIGURATION\" == \"Library\" ]; then\n    open \"$BUILT_PRODUCTS_DIR\"\nfi";
+		};
+		D321AD431A323E06003AEA77 /* Open build library folder */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Open build library folder";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if [ \"$CONFIGURATION\" == \"Library\" ]; then\n    open \"$BUILT_PRODUCTS_DIR\"\nfi";
+		};
 		D3B4EB521A1E7DE100BE0443 /* Library Sanity Check */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -1108,17 +1135,6 @@
 			shellPath = /bin/sh;
 			shellScript = "KEYWORDS=\"TODO|FIXME|\\?\\?\\?:|\\!\\!\\!:\"\nfind ${SRCROOT} \\( -name \"*.h\" -or -name \"*.m\" \\) -print0 | \\\nxargs -0 egrep --with-filename --line-number --only-matching \"($KEYWORDS).*\\$\" | \\\nperl -p -e \"s/($KEYWORDS)/ warning: \\$1/\"";
 			showEnvVarsInLog = 0;
-		};
-		32CF889E1A31094B0044B17B /* Open built library folder */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			name = "Open built library folder";
-			shellPath = /bin/sh;
-			shellScript = "if [ \"$CONFIGURATION\" == \"Library\" ]; then\n    open \"$BUILT_PRODUCTS_DIR\"\nfi";
 		};
 /* End PBXShellScriptBuildPhase section */
 

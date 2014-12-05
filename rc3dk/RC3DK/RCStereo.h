@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
 #import <UIKit/UIKit.h>
-#import "RCSensorFusion.h"
+#import "RC3DK.h"
 
 /** The delegate of RCStereoDelegate must implement this protocol in order to receive status updates. */
 @protocol RCStereoDelegate <NSObject>

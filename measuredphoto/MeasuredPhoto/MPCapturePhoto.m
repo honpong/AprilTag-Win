@@ -14,7 +14,6 @@
 #import "MPLocalMoviePlayer.h"
 #import "UIImage+MPImageFile.h"
 #import "MPSurveyAnswer.h"
-#import "RCStereo.h"
 #import "RCCore/RCSensorDelegate.h"
 #import "MPDMeasuredPhoto.h"
 #import "MPDLocation.h"

@@ -10,6 +10,6 @@
 #define MeasuredPhoto_RC3DK_h
 
 // this file exists so that shared source files outside this project can import 3DK using the quoted style, like #import "RC3DK.h"
-#import <RC3DK/RC3DK.h>
+#import <RC3DKPlus/RC3DKPlus.h>
 
 #endif

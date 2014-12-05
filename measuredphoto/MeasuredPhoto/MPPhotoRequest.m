@@ -7,7 +7,6 @@
 //
 
 #import "MPPhotoRequest.h"
-#import <RC3DK/RC3DK.h>
 #import <TrueMeasureSDK/TrueMeasureSDK.h>
 
 static NSString* const kTMQueryStringApiKey = @"apikey";

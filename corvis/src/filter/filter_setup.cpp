@@ -81,6 +81,8 @@ RCSensorFusionErrorCode filter_setup::get_error()
                 errorCode = RCSensorFusionErrorCodeNone;
                 filter_start_dynamic(&sfm);
                 break;
+            case RCSensorFusionRunStateLandscapeCalibration:
+            case RCSensorFusionRunStatePortraitCalibration:
             case RCSensorFusionRunStateStaticCalibration:
                 errorCode = RCSensorFusionErrorCodeNone;
                 filter_start_static_calibration(&sfm);

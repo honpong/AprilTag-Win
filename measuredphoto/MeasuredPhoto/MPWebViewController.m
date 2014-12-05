@@ -36,7 +36,15 @@
 
 - (BOOL) webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType
 {
-    return YES;
+    if ([request.URL.scheme isEqualToString:@"file"])
+    {
+        return YES;
+    }
+    else
+    {
+        [[UIApplication sharedApplication] openURL:request.URL];
+        return NO;
+    }
 }
 
 @end

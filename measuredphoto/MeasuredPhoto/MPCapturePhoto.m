@@ -232,6 +232,12 @@ static transition transitions[] =
 {
     if (newState == ST_READY)
     {
+        if (IS_DISK_SPACE_LOW)
+        {
+            [self handleStateEvent:EV_DISK_SPACE];
+            return NO;
+        }
+        
         lastErrorCode = RCSensorFusionErrorCodeNone;
         didGetVisionError = NO;
     }

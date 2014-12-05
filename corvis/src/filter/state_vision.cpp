@@ -153,7 +153,7 @@ int state_vision_group::make_normal()
     return 0;
 }
 
-state_vision::state_vision(bool _estimate_calibration, covariance &c): Tc("Tc"), Wc("Wc"), focal_length("focal_length"), center_x("center_x"), center_y("center_y"), k1("k1"), k2("k2"), k3("k3"), state_motion(c)
+state_vision::state_vision(bool _estimate_calibration, covariance &c): state_motion(c), Tc("Tc"), Wc("Wc"), focal_length("focal_length"), center_x("center_x"), center_y("center_y"), k1("k1"), k2("k2"), k3("k3")
 {
     estimate_calibration = _estimate_calibration;
     reference = NULL;

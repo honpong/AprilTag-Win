@@ -414,7 +414,7 @@ static transition transitions[] =
 - (void) handleOrientationChange
 {
     UIDeviceOrientation newOrientation = [[UIDevice currentDevice] orientation];
-    if (currentUIOrientation != newOrientation && (newOrientation == UIDeviceOrientationPortrait || newOrientation == UIDeviceOrientationPortraitUpsideDown || newOrientation == UIDeviceOrientationLandscapeLeft || newOrientation == UIDeviceOrientationLandscapeRight))
+    if (currentUIOrientation != newOrientation && UIDeviceOrientationIsValidInterfaceOrientation(newOrientation))
     {
         currentUIOrientation = newOrientation;
         [self setOrientation:currentUIOrientation animated:YES];

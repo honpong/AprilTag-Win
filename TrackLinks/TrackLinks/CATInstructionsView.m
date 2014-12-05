@@ -1,21 +1,18 @@
-//
-//  MPInstructionsView.m
-//  MeasuredPhoto
+//  CATInstructionsView.m
+//  TrackLinks
 //
 //  Created by Ben Hirashima on 2/4/14.
-//  Copyright (c) 2014 RealityCap. All rights reserved.
+//  Copyright (c) 2014 Caterpillar. All rights reserved.
 //
 
-#import "MPInstructionsView.h"
-#import "MPCircleLayerDelegate.h"
-#import "MPDotLayerDelegate.h"
-#import "MPCapturePhoto.h"
+#import "CATInstructionsView.h"
+#import "CATCapturePhoto.h"
 #import <RCCore/RCCore.h>
 
 const static CGFloat lineWidth = 10.; //TODO: this is hardcoded in subviews
 const static float smoothing = .5;
 
-@implementation MPInstructionsView
+@implementation CATInstructionsView
 {
     CALayer* circleLayer;
     CALayer* dotLayer;

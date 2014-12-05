@@ -942,6 +942,7 @@
 				327B54DD18EB4CC90001CCE1 /* CopyFiles */,
 				327B565418EB655C0001CCE1 /* Library Sanity Check */,
 				327B565518EB66F00001CCE1 /* Warnings for TODOs */,
+				32CF889E1A31094B0044B17B /* Open built library folder */,
 			);
 			buildRules = (
 			);
@@ -1088,6 +1089,17 @@
 			shellPath = /bin/sh;
 			shellScript = "KEYWORDS=\"TODO|FIXME|\\?\\?\\?:|\\!\\!\\!:\"\nfind ${SRCROOT} \\( -name \"*.h\" -or -name \"*.m\" \\) -print0 | \\\nxargs -0 egrep --with-filename --line-number --only-matching \"($KEYWORDS).*\\$\" | \\\nperl -p -e \"s/($KEYWORDS)/ warning: \\$1/\"";
 			showEnvVarsInLog = 0;
+		};
+		32CF889E1A31094B0044B17B /* Open built library folder */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Open built library folder";
+			shellPath = /bin/sh;
+			shellScript = "if [ \"$CONFIGURATION\" == \"Library\" ]; then\n    open \"$BUILT_PRODUCTS_DIR\"\nfi";
 		};
 /* End PBXShellScriptBuildPhase section */
 

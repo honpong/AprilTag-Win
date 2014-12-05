@@ -11,7 +11,7 @@
 #import "MPMeasurementsView.h"
 #import "ACMagnifyingView.h"
 #import "MPImageView.h"
-#import "MPInstructionsView.h"
+#import "MPARDelegate.h"
 
 #define FEATURE_COUNT 200
 
@@ -30,6 +30,7 @@
 @property (readonly) RCFeaturesLayer* featuresLayer;
 @property (readonly) RCFeaturesLayer* selectedFeaturesLayer;
 @property (readonly) RCFeaturesLayer* initializingFeaturesLayer;
+@property (readonly) MPARDelegate* AROverlay;
 @property (readonly) MPMeasurementsView* measurementsView;
 @property (readonly) UIView* featuresView;
 @property (readonly) MPImageView* photoView;

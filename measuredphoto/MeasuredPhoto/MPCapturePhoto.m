@@ -25,6 +25,11 @@
 
 static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
 
+typedef enum
+{
+    MOVING_START, MOVING_VERTICAL, MOVING_HORIZONTAL
+} movement_status;
+
 @implementation MPCapturePhoto
 {
     BOOL useLocation;
@@ -46,8 +51,11 @@ static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
     
     BOOL didGetVisionError;
     RCSensorFusionErrorCode lastErrorCode;
+    
+    movement_status moving_state;
 }
-@synthesize toolbar, galleryButton, shutterButton, messageLabel, questionLabel, questionSegButton, questionView, arView, containerView, instructionsView;
+
+@synthesize toolbar, galleryButton, shutterButton, messageLabel, questionLabel, questionSegButton, questionView, arView, containerView;
 
 typedef NS_ENUM(int, AlertTag) {
     AlertTagTutorial = 0,
@@ -58,7 +66,7 @@ typedef NS_ENUM(int, AlertTag) {
 
 typedef enum
 {
-    BUTTON_SHUTTER, BUTTON_SHUTTER_DISABLED, BUTTON_DELETE, BUTTON_CANCEL
+    BUTTON_SHUTTER, BUTTON_SHUTTER_DISABLED, BUTTON_DELETE, BUTTON_CANCEL, BUTTON_SHUTTER_ANIMATED
 } ButtonImage;
 
 typedef NS_ENUM(int, SpinnerType) {
@@ -73,7 +81,7 @@ typedef NS_ENUM(int, MessageColor) {
 };
 
 enum state { ST_STARTUP, ST_READY, ST_INITIALIZING, ST_MOVING, ST_CAPTURE, ST_PROCESSING, ST_ERROR, ST_DISK_SPACE, ST_FINISHED, ST_ANY } currentState;
-enum event { EV_RESUME, EV_FIRSTTIME, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_SHUTTER_TAP, EV_PAUSE, EV_CANCEL, EV_MOVE_DONE, EV_PROCESSING_FINISHED, EV_INITIALIZED, EV_STEREOFAIL, EV_DISK_SPACE };
+enum event { EV_RESUME, EV_FIRSTTIME, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_SHUTTER_TAP, EV_PAUSE, EV_CANCEL, EV_MOVE_DONE, EV_MOVE_UNDONE, EV_PROCESSING_FINISHED, EV_INITIALIZED, EV_STEREOFAIL, EV_DISK_SPACE };
 
 typedef struct { enum state state; enum event event; enum state newstate; } transition;
 
@@ -104,7 +112,7 @@ static statesetup setups[] =
     { ST_READY,         BUTTON_SHUTTER,            true,   false,   false,      false,   false,  false,  SpinnerTypeNone,          true,    false,      false,  true,             "Ready",        ColorGray,    "Point the camera at the scene you want to capture, then press the button." },
     { ST_INITIALIZING,  BUTTON_SHUTTER_DISABLED,   true,   true,    false,      true,    false,  true,   SpinnerTypeDeterminate,   true,    false,      false,  true,             "Initializing", ColorGray,    "Hold still" },
     { ST_MOVING,        BUTTON_DELETE,             true,   true,    false,      true,    true,   true,   SpinnerTypeNone,          false,   false,      true,   false,            "Moving",       ColorGray,    "Move up, down, or sideways. Press the button to cancel." },
-    { ST_CAPTURE,       BUTTON_SHUTTER,            true,   true,    false,      true,    true,   true,   SpinnerTypeNone,          false,   false,      true,   false,            "Capture",      ColorGray,    "Press the button to capture a photo." },
+    { ST_CAPTURE,       BUTTON_SHUTTER_ANIMATED,   true,   true,    false,      true,    true,   true,   SpinnerTypeNone,          false,   false,      true,   false,            "Capture",      ColorGray,    "Press the button to capture a photo." },
     { ST_PROCESSING,    BUTTON_SHUTTER_DISABLED,   false,  false,   false,      false,   false,  false,  SpinnerTypeDeterminate,   true,    true,       false,  false,            "Processing",   ColorGray,    "Please wait" },
     { ST_ERROR,         BUTTON_DELETE,             true,   false,   true,       false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  true,             "Error",        ColorRed,     "Whoops, something went wrong. Try again." },
     { ST_DISK_SPACE,    BUTTON_SHUTTER_DISABLED,   true,   false,   true,       false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  true,             "Error",        ColorRed,     "Your device is low on storage space. Free up some space first." },
@@ -121,10 +129,11 @@ static transition transitions[] =
     { ST_MOVING, EV_FAIL, ST_ERROR },
     { ST_MOVING, EV_FASTFAIL, ST_ERROR },
     { ST_CAPTURE, EV_SHUTTER_TAP, ST_PROCESSING },
-    { ST_PROCESSING, EV_PROCESSING_FINISHED, ST_FINISHED },
-    { ST_PROCESSING, EV_STEREOFAIL, ST_ERROR },
+    { ST_CAPTURE, EV_MOVE_UNDONE, ST_MOVING },
     { ST_CAPTURE, EV_FAIL, ST_ERROR },
     { ST_CAPTURE, EV_FASTFAIL, ST_ERROR },
+    { ST_PROCESSING, EV_PROCESSING_FINISHED, ST_FINISHED },
+    { ST_PROCESSING, EV_STEREOFAIL, ST_ERROR },
     { ST_ERROR, EV_SHUTTER_TAP, ST_READY },
     { ST_FINISHED, EV_SHUTTER_TAP, ST_READY },
     { ST_FINISHED, EV_PAUSE, ST_FINISHED },
@@ -178,10 +187,6 @@ static transition transitions[] =
         self.arView.initializingFeaturesLayer.hidden = YES;
     if(!oldSetup.showBadFeatures && newSetup.showBadFeatures)
         self.arView.initializingFeaturesLayer.hidden = NO;
-    if(!oldSetup.showSlideInstructions && newSetup.showSlideInstructions)
-        instructionsView.hidden = NO;
-    if(oldSetup.showSlideInstructions && !newSetup.showSlideInstructions)
-        instructionsView.hidden = YES;
     if(!oldSetup.showStillPhoto && newSetup.showStillPhoto)
     {
         arView.photoView.hidden = NO;
@@ -203,6 +208,10 @@ static transition transitions[] =
     {
         [self hideMessage];
     }
+    if(oldSetup.showSlideInstructions && !newSetup.showSlideInstructions)
+        [self.arView.AROverlay setHidden:true];
+    if(!oldSetup.showSlideInstructions && newSetup.showSlideInstructions)
+        [self.arView.AROverlay setHidden:false];
     
     [self switchButtonImage:newSetup.buttonImage];
     
@@ -304,7 +313,6 @@ static transition transitions[] =
 //    }
     
     arView.delegate = self;
-    instructionsView.delegate = self;
     containerView.delegate = arView;
     
     sensorDelegate = [SensorDelegate sharedInstance];
@@ -320,6 +328,8 @@ static transition transitions[] =
     progressView = [[MBProgressHUD alloc] initWithView:self.containerView];
     progressView.mode = MBProgressHUDModeAnnularDeterminate;
     [self.containerView addSubview:progressView];
+    
+    [self.arView.AROverlay setHidden:true];
 }
 
 - (void)viewDidUnload
@@ -403,7 +413,7 @@ static transition transitions[] =
 - (void) handleOrientationChange
 {
     UIDeviceOrientation newOrientation = [[UIDevice currentDevice] orientation];
-    if (currentUIOrientation != newOrientation && (newOrientation == UIDeviceOrientationPortrait || newOrientation == UIDeviceOrientationPortraitUpsideDown || newOrientation == UIDeviceOrientationLandscapeLeft || newOrientation == UIDeviceOrientationLandscapeRight))
+    if (currentUIOrientation != newOrientation && UIDeviceOrientationIsValidInterfaceOrientation(newOrientation))
     {
         currentUIOrientation = newOrientation;
         [self setOrientation:currentUIOrientation animated:YES];
@@ -513,6 +523,7 @@ static transition transitions[] =
 - (void) handleMoveStart
 {
     LOGME
+    moving_state = MOVING_START;
 }
 
 - (void) handleMoveFinished
@@ -781,6 +792,52 @@ static transition transitions[] =
         median = [sorted objectAtIndex:middle];
     } else median = [NSNumber numberWithFloat:2.];
 
+    if (currentState == ST_MOVING || currentState == ST_CAPTURE)
+    {
+        //Compute the capture progress here
+        float depth = [median floatValue];
+        
+        RCPoint *projectedpt = [[arView.AROverlay.initialCamera.rotation getInverse] transformPoint:[data.transformation.translation transformPoint:[[RCPoint alloc] initWithX:0. withY:0. withZ:0.]]];
+        
+        float targetDist = log(depth / 8. + 1.) + .05; // require movement of at least 5cm
+
+        float dx = projectedpt.x / targetDist;
+        float dy = projectedpt.y / targetDist;
+        if(dx > 1.) dx = 1.;
+        if(dx < -1.) dx = -1.;
+        if(dy > 1.) dy = 1.;
+        if(dy < -1.) dy = -1.;
+        //hysteresis
+        if(moving_state == MOVING_START)
+        {
+            moving_state = (fabs(dx) > fabs(dy)) ? MOVING_HORIZONTAL : MOVING_VERTICAL;
+        }
+        else if(moving_state == MOVING_HORIZONTAL)
+        {
+            if(fabs(dy) > fabs(dx) + .05) moving_state = MOVING_VERTICAL;
+        }
+        else if(moving_state == MOVING_VERTICAL)
+        {
+            if(fabs(dx) > fabs(dy) + .05) moving_state = MOVING_HORIZONTAL;
+        }
+        
+        float progress;
+        if(moving_state == MOVING_HORIZONTAL)
+        {
+            progress = fabs(dx);
+            [arView.AROverlay setProgressHorizontal:dx withVertical:0.];
+        }
+        else
+        {
+            progress = fabs(dy);
+            [arView.AROverlay setProgressHorizontal:0. withVertical:dy];
+        }
+        if(currentState == ST_MOVING && progress >= 1.) [self handleStateEvent:EV_MOVE_DONE];
+        if(currentState == ST_CAPTURE && progress < 1.) [self handleStateEvent:EV_MOVE_UNDONE];
+    }
+    
+    if(currentState == ST_INITIALIZING) [arView.AROverlay setInitialCamera:data.cameraTransformation];
+
     if(data.sampleBuffer)
     {
         lastSensorFusionDataWithImage = data;
@@ -792,17 +849,9 @@ static transition transitions[] =
         
         if(setups[currentState].stereo) [STEREO processFrame:data withFinal:false];
     }
-    
-    if (currentState == ST_MOVING) [instructionsView updateDotPosition:data.transformation withDepth:[median floatValue]];
 }
 
 #pragma mark -
-
-/** delegate method of MPInstructionsViewDelegate. tells us when the dot has reached the edge of the circle. */
-- (void) moveComplete
-{
-    [self handleStateEvent:EV_MOVE_DONE];
-}
 
 - (void)showProgressWithTitle:(NSString*)title
 {
@@ -859,6 +908,8 @@ static transition transitions[] =
 {
     NSString* imageName;
     
+    [self.expandingCircleView stopHighlightAnimation];
+    
     switch (imageType) {
         case BUTTON_DELETE:
             imageName = @"MobileMailSettings_trashmbox";
@@ -876,6 +927,13 @@ static transition transitions[] =
             imageName = @"BackButton";
             shutterButton.alpha = 1.;
             shutterButton.enabled = YES;
+            break;
+            
+        case BUTTON_SHUTTER_ANIMATED:
+            imageName = @"PLCameraFloatingShutterButton";
+            shutterButton.alpha = 1.;
+            shutterButton.enabled = YES;
+            [self.expandingCircleView startHighlightAnimation];
             break;
             
         default:

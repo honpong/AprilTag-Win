@@ -3,7 +3,7 @@
 //  RC3DK
 //
 //  Created by Eagle Jones.
-//  Copyright (c) 2014 RealityCap. All rights reserved.
+//  Copyright (c) 2014 Caterpillar. All rights reserved.
 //
 
 #ifndef __QUATERNION_H

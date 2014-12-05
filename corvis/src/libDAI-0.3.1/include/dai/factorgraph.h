@@ -263,10 +263,10 @@ class FactorGraph {
         /// Backup the factors specified by indices in \a facs
         /** \throw MULTIPLE_UNDO if a backup already exists
          */
-        virtual void backupFactors( const std::set<size_t>& facs );
+        void backupFactors( const std::set<size_t>& facs );
 
         /// Restore all factors to the backup copies
-        virtual void restoreFactors();
+        void restoreFactors();
 
         /// Makes a backup of all factors connected to a set of variables
         /** \throw MULTIPLE_UNDO if a backup already exists

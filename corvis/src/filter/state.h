@@ -174,7 +174,7 @@ protected:
 
 template <class T, int _size> class state_leaf: public state_node {
  public:
-    state_leaf(const char *_name): index(-1), size(_size), name(_name) {}
+    state_leaf(const char *_name): name(_name), index(-1), size(_size) {}
 
     T v;
     

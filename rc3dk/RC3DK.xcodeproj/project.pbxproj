@@ -78,6 +78,11 @@
 		328A4DD51950D5F400587949 /* RCLicenseError.m in Sources */ = {isa = PBXBuildFile; fileRef = 328A4DD41950D5F400587949 /* RCLicenseError.m */; };
 		328A4DD61950DB2200587949 /* RCSensorFusionError.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 328A4DD01950D52000587949 /* RCSensorFusionError.h */; };
 		328A4DD71950DB2E00587949 /* RCLicenseError.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 328A4DD31950D5F400587949 /* RCLicenseError.h */; };
+		D321AD3E1A323C17003AEA77 /* camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D321AD301A323BF7003AEA77 /* camera.cpp */; };
+		D321AD3F1A323C17003AEA77 /* fundamental.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D321AD311A323BF7003AEA77 /* fundamental.cpp */; };
+		D321AD401A323C17003AEA77 /* stereo_features.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D321AD331A323BF7003AEA77 /* stereo_features.cpp */; };
+		D321AD411A323C17003AEA77 /* stereo_mesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D321AD351A323BF7003AEA77 /* stereo_mesh.cpp */; };
+		D321AD421A323C17003AEA77 /* stereo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D321AD371A323BF7003AEA77 /* stereo.cpp */; };
 		D33B00581A20CA8E00287FC9 /* sift.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7FB1A1E010E00BBB1FF /* sift.c */; };
 		D33B00591A20CAB700287FC9 /* generic.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7C91A1E010E00BBB1FF /* generic.c */; };
 		D33B005A1A20CACE00287FC9 /* imopv.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7DD1A1E010E00BBB1FF /* imopv.c */; };
@@ -108,7 +113,6 @@
 		D3588F0B1A20C50200CA10E7 /* usermem.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7A01A1E010E00BBB1FF /* usermem.c */; };
 		D3931E1B1A2217E5008F8940 /* random.c in Sources */ = {isa = PBXBuildFile; fileRef = D3931E191A2217D8008F8940 /* random.c */; };
 		D3931E1E1A221853008F8940 /* host.c in Sources */ = {isa = PBXBuildFile; fileRef = D3931E1C1A221850008F8940 /* host.c */; };
-		D3B4EAC41A1E7DE100BE0443 /* camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F8091A1E010E00BBB1FF /* camera.cpp */; };
 		D3B4EAC91A1E7DE100BE0443 /* inbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B558B18EB4F250001CCE1 /* inbuffer.c */; };
 		D3B4EACA1A1E7DE100BE0443 /* RCLicenseError.m in Sources */ = {isa = PBXBuildFile; fileRef = 328A4DD41950D5F400587949 /* RCLicenseError.m */; };
 		D3B4EACC1A1E7DE100BE0443 /* plugins.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B559118EB4F250001CCE1 /* plugins.c */; };
@@ -132,10 +136,8 @@
 		D3B4EAF81A1E7DE100BE0443 /* RCCameraManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B554B18EB4DC20001CCE1 /* RCCameraManager.m */; };
 		D3B4EAF91A1E7DE100BE0443 /* RCTranslation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B556618EB4DC20001CCE1 /* RCTranslation.m */; };
 		D3B4EAFC1A1E7DE100BE0443 /* RCTransformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B556418EB4DC20001CCE1 /* RCTransformation.m */; };
-		D3B4EAFE1A1E7DE100BE0443 /* stereo_mesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F8101A1E010E00BBB1FF /* stereo_mesh.cpp */; };
 		D3B4EB021A1E7DE100BE0443 /* vec4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55D118EB4F430001CCE1 /* vec4.cpp */; };
 		D3B4EB031A1E7DE100BE0443 /* RCPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B555618EB4DC20001CCE1 /* RCPoint.m */; };
-		D3B4EB061A1E7DE100BE0443 /* stereo_features.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F80F1A1E010E00BBB1FF /* stereo_features.cpp */; };
 		D3B4EB071A1E7DE100BE0443 /* RCAFXMLRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B553318EB4D720001CCE1 /* RCAFXMLRequestOperation.m */; };
 		D3B4EB091A1E7DE100BE0443 /* state_motion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55B118EB4F3A0001CCE1 /* state_motion.cpp */; };
 		D3B4EB0A1A1E7DE100BE0443 /* debug.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B558718EB4F250001CCE1 /* debug.c */; };
@@ -149,11 +151,9 @@
 		D3B4EB1E1A1E7DE100BE0443 /* RCAFPropertyListRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B552F18EB4D720001CCE1 /* RCAFPropertyListRequestOperation.m */; };
 		D3B4EB201A1E7DE100BE0443 /* RCSensorFusionData.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B556018EB4DC20001CCE1 /* RCSensorFusionData.m */; };
 		D3B4EB221A1E7DE100BE0443 /* RCSensorFusionStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B556218EB4DC20001CCE1 /* RCSensorFusionStatus.m */; };
-		D3B4EB261A1E7DE100BE0443 /* fundamental.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F80B1A1E010E00BBB1FF /* fundamental.cpp */; };
 		D3B4EB291A1E7DE100BE0443 /* RCCameraParameters.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B554D18EB4DC20001CCE1 /* RCCameraParameters.m */; };
 		D3B4EB2A1A1E7DE100BE0443 /* RCRotation.mm in Sources */ = {isa = PBXBuildFile; fileRef = 327B555A18EB4DC20001CCE1 /* RCRotation.mm */; };
 		D3B4EB2F1A1E7DE100BE0443 /* RCAFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B552718EB4D720001CCE1 /* RCAFHTTPRequestOperation.m */; };
-		D3B4EB311A1E7DE100BE0443 /* stereo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F80C1A1E010E00BBB1FF /* stereo.cpp */; };
 		D3B4EB351A1E7DE100BE0443 /* RCScalar.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B555C18EB4DC20001CCE1 /* RCScalar.m */; };
 		D3B4EB371A1E7DE100BE0443 /* RCPrivateHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B555818EB4DC20001CCE1 /* RCPrivateHTTPClient.m */; };
 		D3B4EB391A1E7DE100BE0443 /* timestamp.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B559318EB4F250001CCE1 /* timestamp.c */; };
@@ -380,98 +380,98 @@
 		328A4DD31950D5F400587949 /* RCLicenseError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCLicenseError.h; path = ../../rc3dk/RC3DK/RCLicenseError.h; sourceTree = "<group>"; };
 		328A4DD41950D5F400587949 /* RCLicenseError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCLicenseError.m; path = ../../rc3dk/RC3DK/RCLicenseError.m; sourceTree = "<group>"; };
 		32F7D56219D49E14002239FF /* RCDebugLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCDebugLog.h; path = ../../SensorManagers/RCDebugLog.h; sourceTree = "<group>"; };
-		D392F7871A1E010E00BBB1FF /* geom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = geom.h; path = ../../corvis/src/qhull/src/libqhull/geom.h; sourceTree = "<group>"; };
-		D392F7881A1E010E00BBB1FF /* io.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = io.h; path = ../../corvis/src/qhull/src/libqhull/io.h; sourceTree = "<group>"; };
-		D392F7891A1E010E00BBB1FF /* libqhull.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = libqhull.h; path = ../../corvis/src/qhull/src/libqhull/libqhull.h; sourceTree = "<group>"; };
-		D392F78A1A1E010E00BBB1FF /* mem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mem.h; path = ../../corvis/src/qhull/src/libqhull/mem.h; sourceTree = "<group>"; };
-		D392F78B1A1E010E00BBB1FF /* merge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = merge.h; path = ../../corvis/src/qhull/src/libqhull/merge.h; sourceTree = "<group>"; };
-		D392F78C1A1E010E00BBB1FF /* poly.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = poly.h; path = ../../corvis/src/qhull/src/libqhull/poly.h; sourceTree = "<group>"; };
-		D392F78D1A1E010E00BBB1FF /* qhull_a.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = qhull_a.h; path = ../../corvis/src/qhull/src/libqhull/qhull_a.h; sourceTree = "<group>"; };
-		D392F78E1A1E010E00BBB1FF /* qset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = qset.h; path = ../../corvis/src/qhull/src/libqhull/qset.h; sourceTree = "<group>"; };
-		D392F78F1A1E010E00BBB1FF /* random.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = random.h; path = ../../corvis/src/qhull/src/libqhull/random.h; sourceTree = "<group>"; };
-		D392F7901A1E010E00BBB1FF /* stat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stat.h; path = ../../corvis/src/qhull/src/libqhull/stat.h; sourceTree = "<group>"; };
-		D392F7911A1E010E00BBB1FF /* user.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = user.h; path = ../../corvis/src/qhull/src/libqhull/user.h; sourceTree = "<group>"; };
-		D392F7921A1E010E00BBB1FF /* geom.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = geom.c; path = ../../corvis/src/qhull/src/libqhull/geom.c; sourceTree = "<group>"; };
-		D392F7931A1E010E00BBB1FF /* geom2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = geom2.c; path = ../../corvis/src/qhull/src/libqhull/geom2.c; sourceTree = "<group>"; };
-		D392F7941A1E010E00BBB1FF /* global.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = global.c; path = ../../corvis/src/qhull/src/libqhull/global.c; sourceTree = "<group>"; };
-		D392F7951A1E010E00BBB1FF /* io.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = io.c; path = ../../corvis/src/qhull/src/libqhull/io.c; sourceTree = "<group>"; };
-		D392F7961A1E010E00BBB1FF /* libqhull.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = libqhull.c; path = ../../corvis/src/qhull/src/libqhull/libqhull.c; sourceTree = "<group>"; };
-		D392F7971A1E010E00BBB1FF /* mem.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = mem.c; path = ../../corvis/src/qhull/src/libqhull/mem.c; sourceTree = "<group>"; };
-		D392F7981A1E010E00BBB1FF /* merge.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = merge.c; path = ../../corvis/src/qhull/src/libqhull/merge.c; sourceTree = "<group>"; };
-		D392F7991A1E010E00BBB1FF /* poly.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = poly.c; path = ../../corvis/src/qhull/src/libqhull/poly.c; sourceTree = "<group>"; };
-		D392F79A1A1E010E00BBB1FF /* poly2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = poly2.c; path = ../../corvis/src/qhull/src/libqhull/poly2.c; sourceTree = "<group>"; };
-		D392F79B1A1E010E00BBB1FF /* qset.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = qset.c; path = ../../corvis/src/qhull/src/libqhull/qset.c; sourceTree = "<group>"; };
-		D392F79C1A1E010E00BBB1FF /* random.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = random.c; path = ../../corvis/src/qhull/src/libqhull/random.c; sourceTree = "<group>"; };
-		D392F79E1A1E010E00BBB1FF /* stat.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = stat.c; path = ../../corvis/src/qhull/src/libqhull/stat.c; sourceTree = "<group>"; };
-		D392F79F1A1E010E00BBB1FF /* user.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = user.c; path = ../../corvis/src/qhull/src/libqhull/user.c; sourceTree = "<group>"; };
-		D392F7A01A1E010E00BBB1FF /* usermem.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = usermem.c; path = ../../corvis/src/qhull/src/libqhull/usermem.c; sourceTree = "<group>"; };
-		D392F7A21A1E010E00BBB1FF /* userprintf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = userprintf.c; path = ../../corvis/src/qhull/src/libqhull/userprintf.c; sourceTree = "<group>"; };
-		D392F7A41A1E010E00BBB1FF /* bp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bp.cpp; path = "../../corvis/src/libDAI-0.3.1/src/bp.cpp"; sourceTree = "<group>"; };
-		D392F7A81A1E010E00BBB1FF /* bipgraph.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = bipgraph.cpp; path = "../../corvis/src/libDAI-0.3.1/src/bipgraph.cpp"; sourceTree = "<group>"; };
-		D392F7AC1A1E010E00BBB1FF /* daialg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = daialg.cpp; path = "../../corvis/src/libDAI-0.3.1/src/daialg.cpp"; sourceTree = "<group>"; };
-		D392F7B01A1E010E00BBB1FF /* exceptions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = exceptions.cpp; path = "../../corvis/src/libDAI-0.3.1/src/exceptions.cpp"; sourceTree = "<group>"; };
-		D392F7B21A1E010E00BBB1FF /* factorgraph.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = factorgraph.cpp; path = "../../corvis/src/libDAI-0.3.1/src/factorgraph.cpp"; sourceTree = "<group>"; };
-		D392F7B51A1E010E00BBB1FF /* properties.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = properties.cpp; path = "../../corvis/src/libDAI-0.3.1/src/properties.cpp"; sourceTree = "<group>"; };
-		D392F7B71A1E010E00BBB1FF /* trwbp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = trwbp.cpp; path = "../../corvis/src/libDAI-0.3.1/src/trwbp.cpp"; sourceTree = "<group>"; };
-		D392F7B81A1E010E00BBB1FF /* util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = util.cpp; path = "../../corvis/src/libDAI-0.3.1/src/util.cpp"; sourceTree = "<group>"; };
-		D392F7BA1A1E010E00BBB1FF /* weightedgraph.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = weightedgraph.cpp; path = "../../corvis/src/libDAI-0.3.1/src/weightedgraph.cpp"; sourceTree = "<group>"; };
-		D392F7BC1A1E010E00BBB1FF /* RCStereo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCStereo.h; path = ../../rc3dk/RC3DK/RCStereo.h; sourceTree = "<group>"; };
-		D392F7BD1A1E010E00BBB1FF /* RCStereo.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = RCStereo.mm; path = ../../rc3dk/RC3DK/RCStereo.mm; sourceTree = "<group>"; };
-		D392F7BF1A1E010E00BBB1FF /* aib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = aib.h; path = "../../corvis/src/vlfeat-0.9.18/vl/aib.h"; sourceTree = "<group>"; };
-		D392F7C11A1E010E00BBB1FF /* array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = array.h; path = "../../corvis/src/vlfeat-0.9.18/vl/array.h"; sourceTree = "<group>"; };
-		D392F7C31A1E010E00BBB1FF /* covdet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = covdet.h; path = "../../corvis/src/vlfeat-0.9.18/vl/covdet.h"; sourceTree = "<group>"; };
-		D392F7C51A1E010E00BBB1FF /* dsift.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = dsift.h; path = "../../corvis/src/vlfeat-0.9.18/vl/dsift.h"; sourceTree = "<group>"; };
-		D392F7C71A1E010E00BBB1FF /* fisher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fisher.h; path = "../../corvis/src/vlfeat-0.9.18/vl/fisher.h"; sourceTree = "<group>"; };
-		D392F7C81A1E010E00BBB1FF /* float.th */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = float.th; path = "../../corvis/src/vlfeat-0.9.18/vl/float.th"; sourceTree = "<group>"; };
-		D392F7C91A1E010E00BBB1FF /* generic.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = generic.c; path = "../../corvis/src/vlfeat-0.9.18/vl/generic.c"; sourceTree = "<group>"; };
-		D392F7CA1A1E010E00BBB1FF /* generic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = generic.h; path = "../../corvis/src/vlfeat-0.9.18/vl/generic.h"; sourceTree = "<group>"; };
-		D392F7CC1A1E010E00BBB1FF /* gmm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gmm.h; path = "../../corvis/src/vlfeat-0.9.18/vl/gmm.h"; sourceTree = "<group>"; };
-		D392F7CD1A1E010E00BBB1FF /* heap-def.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "heap-def.h"; path = "../../corvis/src/vlfeat-0.9.18/vl/heap-def.h"; sourceTree = "<group>"; };
-		D392F7CF1A1E010E00BBB1FF /* hikmeans.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hikmeans.h; path = "../../corvis/src/vlfeat-0.9.18/vl/hikmeans.h"; sourceTree = "<group>"; };
-		D392F7D11A1E010E00BBB1FF /* hog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = hog.h; path = "../../corvis/src/vlfeat-0.9.18/vl/hog.h"; sourceTree = "<group>"; };
-		D392F7D31A1E010E00BBB1FF /* homkermap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = homkermap.h; path = "../../corvis/src/vlfeat-0.9.18/vl/homkermap.h"; sourceTree = "<group>"; };
-		D392F7D51A1E010E00BBB1FF /* host.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = host.h; path = "../../corvis/src/vlfeat-0.9.18/vl/host.h"; sourceTree = "<group>"; };
-		D392F7D61A1E010E00BBB1FF /* ikmeans_elkan.tc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ikmeans_elkan.tc; path = "../../corvis/src/vlfeat-0.9.18/vl/ikmeans_elkan.tc"; sourceTree = "<group>"; };
-		D392F7D71A1E010E00BBB1FF /* ikmeans_init.tc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ikmeans_init.tc; path = "../../corvis/src/vlfeat-0.9.18/vl/ikmeans_init.tc"; sourceTree = "<group>"; };
-		D392F7D81A1E010E00BBB1FF /* ikmeans_lloyd.tc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = ikmeans_lloyd.tc; path = "../../corvis/src/vlfeat-0.9.18/vl/ikmeans_lloyd.tc"; sourceTree = "<group>"; };
-		D392F7DA1A1E010E00BBB1FF /* ikmeans.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ikmeans.h; path = "../../corvis/src/vlfeat-0.9.18/vl/ikmeans.h"; sourceTree = "<group>"; };
-		D392F7DC1A1E010E00BBB1FF /* imopv_sse2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = imopv_sse2.h; path = "../../corvis/src/vlfeat-0.9.18/vl/imopv_sse2.h"; sourceTree = "<group>"; };
-		D392F7DD1A1E010E00BBB1FF /* imopv.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = imopv.c; path = "../../corvis/src/vlfeat-0.9.18/vl/imopv.c"; sourceTree = "<group>"; };
-		D392F7DE1A1E010E00BBB1FF /* imopv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = imopv.h; path = "../../corvis/src/vlfeat-0.9.18/vl/imopv.h"; sourceTree = "<group>"; };
-		D392F7E01A1E010E00BBB1FF /* kdtree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kdtree.h; path = "../../corvis/src/vlfeat-0.9.18/vl/kdtree.h"; sourceTree = "<group>"; };
-		D392F7E21A1E010E00BBB1FF /* kmeans.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = kmeans.h; path = "../../corvis/src/vlfeat-0.9.18/vl/kmeans.h"; sourceTree = "<group>"; };
-		D392F7E41A1E010E00BBB1FF /* lbp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = lbp.h; path = "../../corvis/src/vlfeat-0.9.18/vl/lbp.h"; sourceTree = "<group>"; };
-		D392F7E61A1E010E00BBB1FF /* liop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = liop.h; path = "../../corvis/src/vlfeat-0.9.18/vl/liop.h"; sourceTree = "<group>"; };
-		D392F7E81A1E010E00BBB1FF /* mathop_avx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mathop_avx.h; path = "../../corvis/src/vlfeat-0.9.18/vl/mathop_avx.h"; sourceTree = "<group>"; };
-		D392F7EA1A1E010E00BBB1FF /* mathop_sse2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mathop_sse2.h; path = "../../corvis/src/vlfeat-0.9.18/vl/mathop_sse2.h"; sourceTree = "<group>"; };
-		D392F7EC1A1E010E00BBB1FF /* mathop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mathop.h; path = "../../corvis/src/vlfeat-0.9.18/vl/mathop.h"; sourceTree = "<group>"; };
-		D392F7EE1A1E010E00BBB1FF /* mser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = mser.h; path = "../../corvis/src/vlfeat-0.9.18/vl/mser.h"; sourceTree = "<group>"; };
-		D392F7F01A1E010E00BBB1FF /* pgm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = pgm.h; path = "../../corvis/src/vlfeat-0.9.18/vl/pgm.h"; sourceTree = "<group>"; };
-		D392F7F11A1E010E00BBB1FF /* qsort-def.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "qsort-def.h"; path = "../../corvis/src/vlfeat-0.9.18/vl/qsort-def.h"; sourceTree = "<group>"; };
-		D392F7F31A1E010E00BBB1FF /* quickshift.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = quickshift.h; path = "../../corvis/src/vlfeat-0.9.18/vl/quickshift.h"; sourceTree = "<group>"; };
-		D392F7F51A1E010E00BBB1FF /* random.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = random.h; path = "../../corvis/src/vlfeat-0.9.18/vl/random.h"; sourceTree = "<group>"; };
-		D392F7F71A1E010E00BBB1FF /* rodrigues.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rodrigues.h; path = "../../corvis/src/vlfeat-0.9.18/vl/rodrigues.h"; sourceTree = "<group>"; };
-		D392F7F91A1E010E00BBB1FF /* scalespace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = scalespace.h; path = "../../corvis/src/vlfeat-0.9.18/vl/scalespace.h"; sourceTree = "<group>"; };
-		D392F7FA1A1E010E00BBB1FF /* shuffle-def.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "shuffle-def.h"; path = "../../corvis/src/vlfeat-0.9.18/vl/shuffle-def.h"; sourceTree = "<group>"; };
-		D392F7FB1A1E010E00BBB1FF /* sift.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = sift.c; path = "../../corvis/src/vlfeat-0.9.18/vl/sift.c"; sourceTree = "<group>"; };
-		D392F7FC1A1E010E00BBB1FF /* sift.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sift.h; path = "../../corvis/src/vlfeat-0.9.18/vl/sift.h"; sourceTree = "<group>"; };
-		D392F7FE1A1E010E00BBB1FF /* slic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = slic.h; path = "../../corvis/src/vlfeat-0.9.18/vl/slic.h"; sourceTree = "<group>"; };
-		D392F8001A1E010E00BBB1FF /* stringop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stringop.h; path = "../../corvis/src/vlfeat-0.9.18/vl/stringop.h"; sourceTree = "<group>"; };
-		D392F8021A1E010E00BBB1FF /* svm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = svm.h; path = "../../corvis/src/vlfeat-0.9.18/vl/svm.h"; sourceTree = "<group>"; };
-		D392F8041A1E010E00BBB1FF /* svmdataset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = svmdataset.h; path = "../../corvis/src/vlfeat-0.9.18/vl/svmdataset.h"; sourceTree = "<group>"; };
-		D392F8061A1E010E00BBB1FF /* vlad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = vlad.h; path = "../../corvis/src/vlfeat-0.9.18/vl/vlad.h"; sourceTree = "<group>"; };
-		D392F8081A1E010E00BBB1FF /* camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = camera.h; path = ../../corvis/src/stereo/camera.h; sourceTree = "<group>"; };
-		D392F8091A1E010E00BBB1FF /* camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = camera.cpp; path = ../../corvis/src/stereo/camera.cpp; sourceTree = "<group>"; };
-		D392F80A1A1E010E00BBB1FF /* fundamental.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = fundamental.h; path = ../../corvis/src/stereo/fundamental.h; sourceTree = "<group>"; };
-		D392F80B1A1E010E00BBB1FF /* fundamental.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = fundamental.cpp; path = ../../corvis/src/stereo/fundamental.cpp; sourceTree = "<group>"; };
-		D392F80C1A1E010E00BBB1FF /* stereo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = stereo.cpp; path = ../../corvis/src/stereo/stereo.cpp; sourceTree = "<group>"; };
-		D392F80D1A1E010E00BBB1FF /* stereo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stereo.h; path = ../../corvis/src/stereo/stereo.h; sourceTree = "<group>"; };
-		D392F80E1A1E010E00BBB1FF /* stereo_features.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stereo_features.h; path = ../../corvis/src/stereo/stereo_features.h; sourceTree = "<group>"; };
-		D392F80F1A1E010E00BBB1FF /* stereo_features.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = stereo_features.cpp; path = ../../corvis/src/stereo/stereo_features.cpp; sourceTree = "<group>"; };
-		D392F8101A1E010E00BBB1FF /* stereo_mesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = stereo_mesh.cpp; path = ../../corvis/src/stereo/stereo_mesh.cpp; sourceTree = "<group>"; };
-		D392F8111A1E010E00BBB1FF /* stereo_mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = stereo_mesh.h; path = ../../corvis/src/stereo/stereo_mesh.h; sourceTree = "<group>"; };
-		D3931E191A2217D8008F8940 /* random.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = random.c; path = "../../corvis/src/vlfeat-0.9.18/vl/random.c"; sourceTree = "<group>"; };
-		D3931E1C1A221850008F8940 /* host.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = host.c; path = "../../corvis/src/vlfeat-0.9.18/vl/host.c"; sourceTree = "<group>"; };
+		D321AD301A323BF7003AEA77 /* camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = camera.cpp; sourceTree = "<group>"; };
+		D321AD311A323BF7003AEA77 /* fundamental.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fundamental.cpp; sourceTree = "<group>"; };
+		D321AD321A323BF7003AEA77 /* fundamental.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fundamental.h; sourceTree = "<group>"; };
+		D321AD331A323BF7003AEA77 /* stereo_features.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stereo_features.cpp; sourceTree = "<group>"; };
+		D321AD341A323BF7003AEA77 /* stereo_features.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stereo_features.h; sourceTree = "<group>"; };
+		D321AD351A323BF7003AEA77 /* stereo_mesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stereo_mesh.cpp; sourceTree = "<group>"; };
+		D321AD361A323BF7003AEA77 /* stereo_mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stereo_mesh.h; sourceTree = "<group>"; };
+		D321AD371A323BF7003AEA77 /* stereo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stereo.cpp; sourceTree = "<group>"; };
+		D321AD381A323BF7003AEA77 /* stereo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stereo.h; sourceTree = "<group>"; };
+		D392F7871A1E010E00BBB1FF /* geom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = geom.h; sourceTree = "<group>"; };
+		D392F7881A1E010E00BBB1FF /* io.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = io.h; sourceTree = "<group>"; };
+		D392F7891A1E010E00BBB1FF /* libqhull.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libqhull.h; sourceTree = "<group>"; };
+		D392F78A1A1E010E00BBB1FF /* mem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mem.h; sourceTree = "<group>"; };
+		D392F78B1A1E010E00BBB1FF /* merge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = merge.h; sourceTree = "<group>"; };
+		D392F78C1A1E010E00BBB1FF /* poly.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = poly.h; sourceTree = "<group>"; };
+		D392F78D1A1E010E00BBB1FF /* qhull_a.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = qhull_a.h; sourceTree = "<group>"; };
+		D392F78E1A1E010E00BBB1FF /* qset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = qset.h; sourceTree = "<group>"; };
+		D392F78F1A1E010E00BBB1FF /* random.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = random.h; sourceTree = "<group>"; };
+		D392F7901A1E010E00BBB1FF /* stat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stat.h; sourceTree = "<group>"; };
+		D392F7911A1E010E00BBB1FF /* user.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = user.h; sourceTree = "<group>"; };
+		D392F7921A1E010E00BBB1FF /* geom.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = geom.c; sourceTree = "<group>"; };
+		D392F7931A1E010E00BBB1FF /* geom2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = geom2.c; sourceTree = "<group>"; };
+		D392F7941A1E010E00BBB1FF /* global.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = global.c; sourceTree = "<group>"; };
+		D392F7951A1E010E00BBB1FF /* io.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = io.c; sourceTree = "<group>"; };
+		D392F7961A1E010E00BBB1FF /* libqhull.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = libqhull.c; sourceTree = "<group>"; };
+		D392F7971A1E010E00BBB1FF /* mem.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mem.c; sourceTree = "<group>"; };
+		D392F7981A1E010E00BBB1FF /* merge.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = merge.c; sourceTree = "<group>"; };
+		D392F7991A1E010E00BBB1FF /* poly.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = poly.c; sourceTree = "<group>"; };
+		D392F79A1A1E010E00BBB1FF /* poly2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = poly2.c; sourceTree = "<group>"; };
+		D392F79B1A1E010E00BBB1FF /* qset.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = qset.c; sourceTree = "<group>"; };
+		D392F79C1A1E010E00BBB1FF /* random.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = random.c; sourceTree = "<group>"; };
+		D392F79E1A1E010E00BBB1FF /* stat.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = stat.c; sourceTree = "<group>"; };
+		D392F79F1A1E010E00BBB1FF /* user.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = user.c; sourceTree = "<group>"; };
+		D392F7A01A1E010E00BBB1FF /* usermem.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = usermem.c; sourceTree = "<group>"; };
+		D392F7A21A1E010E00BBB1FF /* userprintf.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = userprintf.c; sourceTree = "<group>"; };
+		D392F7A41A1E010E00BBB1FF /* bp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bp.cpp; sourceTree = "<group>"; };
+		D392F7A81A1E010E00BBB1FF /* bipgraph.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = bipgraph.cpp; sourceTree = "<group>"; };
+		D392F7AC1A1E010E00BBB1FF /* daialg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = daialg.cpp; sourceTree = "<group>"; };
+		D392F7B01A1E010E00BBB1FF /* exceptions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = exceptions.cpp; sourceTree = "<group>"; };
+		D392F7B21A1E010E00BBB1FF /* factorgraph.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = factorgraph.cpp; sourceTree = "<group>"; };
+		D392F7B51A1E010E00BBB1FF /* properties.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = properties.cpp; sourceTree = "<group>"; };
+		D392F7B71A1E010E00BBB1FF /* trwbp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = trwbp.cpp; sourceTree = "<group>"; };
+		D392F7B81A1E010E00BBB1FF /* util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = util.cpp; sourceTree = "<group>"; };
+		D392F7BA1A1E010E00BBB1FF /* weightedgraph.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = weightedgraph.cpp; sourceTree = "<group>"; };
+		D392F7BC1A1E010E00BBB1FF /* RCStereo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCStereo.h; sourceTree = "<group>"; };
+		D392F7BD1A1E010E00BBB1FF /* RCStereo.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RCStereo.mm; sourceTree = "<group>"; };
+		D392F7BF1A1E010E00BBB1FF /* aib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aib.h; sourceTree = "<group>"; };
+		D392F7C11A1E010E00BBB1FF /* array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = array.h; sourceTree = "<group>"; };
+		D392F7C31A1E010E00BBB1FF /* covdet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = covdet.h; sourceTree = "<group>"; };
+		D392F7C51A1E010E00BBB1FF /* dsift.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dsift.h; sourceTree = "<group>"; };
+		D392F7C71A1E010E00BBB1FF /* fisher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fisher.h; sourceTree = "<group>"; };
+		D392F7C81A1E010E00BBB1FF /* float.th */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = float.th; sourceTree = "<group>"; };
+		D392F7C91A1E010E00BBB1FF /* generic.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = generic.c; sourceTree = "<group>"; };
+		D392F7CA1A1E010E00BBB1FF /* generic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = generic.h; sourceTree = "<group>"; };
+		D392F7CC1A1E010E00BBB1FF /* gmm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gmm.h; sourceTree = "<group>"; };
+		D392F7CD1A1E010E00BBB1FF /* heap-def.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "heap-def.h"; sourceTree = "<group>"; };
+		D392F7CF1A1E010E00BBB1FF /* hikmeans.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hikmeans.h; sourceTree = "<group>"; };
+		D392F7D11A1E010E00BBB1FF /* hog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hog.h; sourceTree = "<group>"; };
+		D392F7D31A1E010E00BBB1FF /* homkermap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = homkermap.h; sourceTree = "<group>"; };
+		D392F7D51A1E010E00BBB1FF /* host.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = host.h; sourceTree = "<group>"; };
+		D392F7D61A1E010E00BBB1FF /* ikmeans_elkan.tc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ikmeans_elkan.tc; sourceTree = "<group>"; };
+		D392F7D71A1E010E00BBB1FF /* ikmeans_init.tc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ikmeans_init.tc; sourceTree = "<group>"; };
+		D392F7D81A1E010E00BBB1FF /* ikmeans_lloyd.tc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ikmeans_lloyd.tc; sourceTree = "<group>"; };
+		D392F7DA1A1E010E00BBB1FF /* ikmeans.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ikmeans.h; sourceTree = "<group>"; };
+		D392F7DC1A1E010E00BBB1FF /* imopv_sse2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imopv_sse2.h; sourceTree = "<group>"; };
+		D392F7DD1A1E010E00BBB1FF /* imopv.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = imopv.c; sourceTree = "<group>"; };
+		D392F7DE1A1E010E00BBB1FF /* imopv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imopv.h; sourceTree = "<group>"; };
+		D392F7E01A1E010E00BBB1FF /* kdtree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kdtree.h; sourceTree = "<group>"; };
+		D392F7E21A1E010E00BBB1FF /* kmeans.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kmeans.h; sourceTree = "<group>"; };
+		D392F7E41A1E010E00BBB1FF /* lbp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lbp.h; sourceTree = "<group>"; };
+		D392F7E61A1E010E00BBB1FF /* liop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = liop.h; sourceTree = "<group>"; };
+		D392F7E81A1E010E00BBB1FF /* mathop_avx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mathop_avx.h; sourceTree = "<group>"; };
+		D392F7EA1A1E010E00BBB1FF /* mathop_sse2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mathop_sse2.h; sourceTree = "<group>"; };
+		D392F7EC1A1E010E00BBB1FF /* mathop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mathop.h; sourceTree = "<group>"; };
+		D392F7EE1A1E010E00BBB1FF /* mser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mser.h; sourceTree = "<group>"; };
+		D392F7F01A1E010E00BBB1FF /* pgm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pgm.h; sourceTree = "<group>"; };
+		D392F7F11A1E010E00BBB1FF /* qsort-def.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "qsort-def.h"; sourceTree = "<group>"; };
+		D392F7F31A1E010E00BBB1FF /* quickshift.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = quickshift.h; sourceTree = "<group>"; };
+		D392F7F51A1E010E00BBB1FF /* random.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = random.h; sourceTree = "<group>"; };
+		D392F7F71A1E010E00BBB1FF /* rodrigues.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rodrigues.h; sourceTree = "<group>"; };
+		D392F7F91A1E010E00BBB1FF /* scalespace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scalespace.h; sourceTree = "<group>"; };
+		D392F7FA1A1E010E00BBB1FF /* shuffle-def.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "shuffle-def.h"; sourceTree = "<group>"; };
+		D392F7FB1A1E010E00BBB1FF /* sift.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sift.c; sourceTree = "<group>"; };
+		D392F7FC1A1E010E00BBB1FF /* sift.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sift.h; sourceTree = "<group>"; };
+		D392F7FE1A1E010E00BBB1FF /* slic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = slic.h; sourceTree = "<group>"; };
+		D392F8001A1E010E00BBB1FF /* stringop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stringop.h; sourceTree = "<group>"; };
+		D392F8021A1E010E00BBB1FF /* svm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = svm.h; sourceTree = "<group>"; };
+		D392F8041A1E010E00BBB1FF /* svmdataset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = svmdataset.h; sourceTree = "<group>"; };
+		D392F8061A1E010E00BBB1FF /* vlad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vlad.h; sourceTree = "<group>"; };
+		D392F8081A1E010E00BBB1FF /* camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = camera.h; sourceTree = "<group>"; };
+		D3931E191A2217D8008F8940 /* random.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = random.c; sourceTree = "<group>"; };
+		D3931E1C1A221850008F8940 /* host.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = host.c; sourceTree = "<group>"; };
 		D3B4EABD1A1E7DCC00BE0443 /* RC3DKPlus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RC3DKPlus.h; path = RC3DK/RC3DKPlus.h; sourceTree = "<group>"; };
 		D3B4EB591A1E7DE100BE0443 /* libRC3DKPlus.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRC3DKPlus.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		D97AEF8018F7613F00573148 /* device_parameters.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = device_parameters.c; sourceTree = "<group>"; };
@@ -796,6 +796,32 @@
 			path = OCMock;
 			sourceTree = "<group>";
 		};
+		D321AD2E1A323B6D003AEA77 /* Corvis */ = {
+			isa = PBXGroup;
+			children = (
+				D321AD2F1A323B7C003AEA77 /* stereo */,
+			);
+			name = Corvis;
+			sourceTree = "<group>";
+		};
+		D321AD2F1A323B7C003AEA77 /* stereo */ = {
+			isa = PBXGroup;
+			children = (
+				D321AD301A323BF7003AEA77 /* camera.cpp */,
+				D392F8081A1E010E00BBB1FF /* camera.h */,
+				D321AD311A323BF7003AEA77 /* fundamental.cpp */,
+				D321AD321A323BF7003AEA77 /* fundamental.h */,
+				D321AD331A323BF7003AEA77 /* stereo_features.cpp */,
+				D321AD341A323BF7003AEA77 /* stereo_features.h */,
+				D321AD351A323BF7003AEA77 /* stereo_mesh.cpp */,
+				D321AD361A323BF7003AEA77 /* stereo_mesh.h */,
+				D321AD371A323BF7003AEA77 /* stereo.cpp */,
+				D321AD381A323BF7003AEA77 /* stereo.h */,
+			);
+			name = stereo;
+			path = ../../corvis/src/stereo;
+			sourceTree = "<group>";
+		};
 		D35C16FA1A20B1510048C5BC /* RC3DKPlus */ = {
 			isa = PBXGroup;
 			children = (
@@ -836,7 +862,7 @@
 				D392F7A21A1E010E00BBB1FF /* userprintf.c */,
 			);
 			name = QHull;
-			path = ../../measuredphoto/MeasuredPhoto;
+			path = ../../corvis/src/qhull/src/libqhull;
 			sourceTree = "<group>";
 		};
 		D392F7BB1A1E010E00BBB1FF /* libDAI */ = {
@@ -853,6 +879,7 @@
 				D392F7BA1A1E010E00BBB1FF /* weightedgraph.cpp */,
 			);
 			name = libDAI;
+			path = "../../corvis/src/libDAI-0.3.1/src";
 			sourceTree = "<group>";
 		};
 		D392F8071A1E010E00BBB1FF /* VLFeat */ = {
@@ -905,30 +932,22 @@
 				D392F8061A1E010E00BBB1FF /* vlad.h */,
 			);
 			name = VLFeat;
+			path = "../../corvis/src/vlfeat-0.9.18/vl";
 			sourceTree = "<group>";
 		};
 		D392F8121A1E010E00BBB1FF /* Stereo */ = {
 			isa = PBXGroup;
 			children = (
+				D321AD2E1A323B6D003AEA77 /* Corvis */,
 				D392F8071A1E010E00BBB1FF /* VLFeat */,
 				D392F7A31A1E010E00BBB1FF /* QHull */,
 				D392F7BB1A1E010E00BBB1FF /* libDAI */,
 				D392F7BC1A1E010E00BBB1FF /* RCStereo.h */,
 				D392F7BD1A1E010E00BBB1FF /* RCStereo.mm */,
-				D392F8081A1E010E00BBB1FF /* camera.h */,
-				D392F8091A1E010E00BBB1FF /* camera.cpp */,
-				D392F80A1A1E010E00BBB1FF /* fundamental.h */,
-				D392F80B1A1E010E00BBB1FF /* fundamental.cpp */,
-				D392F80C1A1E010E00BBB1FF /* stereo.cpp */,
-				D392F80D1A1E010E00BBB1FF /* stereo.h */,
-				D392F80E1A1E010E00BBB1FF /* stereo_features.h */,
-				D392F80F1A1E010E00BBB1FF /* stereo_features.cpp */,
-				D392F8101A1E010E00BBB1FF /* stereo_mesh.cpp */,
-				D392F8111A1E010E00BBB1FF /* stereo_mesh.h */,
 			);
 			name = Stereo;
-			path = /Users/brian/Dropbox/pixelfin/realitycap/code/rcmain/measuredphoto/MeasuredPhoto/../../RCCore/RCCore;
-			sourceTree = "<absolute>";
+			path = RC3DK;
+			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
@@ -1174,7 +1193,6 @@
 			files = (
 				D3588F071A20C47100CA10E7 /* merge.c in Sources */,
 				D3588EF81A20C08F00CA10E7 /* properties.cpp in Sources */,
-				D3B4EAC41A1E7DE100BE0443 /* camera.cpp in Sources */,
 				D3588F051A20C44900CA10E7 /* geom.c in Sources */,
 				D3B4EAC91A1E7DE100BE0443 /* inbuffer.c in Sources */,
 				D3931E1E1A221853008F8940 /* host.c in Sources */,
@@ -1185,6 +1203,7 @@
 				D33B00581A20CA8E00287FC9 /* sift.c in Sources */,
 				D3931E1B1A2217E5008F8940 /* random.c in Sources */,
 				D3588EFA1A20C0B900CA10E7 /* daialg.cpp in Sources */,
+				D321AD3F1A323C17003AEA77 /* fundamental.cpp in Sources */,
 				D3B4EAD11A1E7DE100BE0443 /* RCVector.m in Sources */,
 				D3588F091A20C4B800CA10E7 /* stat.c in Sources */,
 				D3B4EAD21A1E7DE100BE0443 /* filter.cpp in Sources */,
@@ -1201,6 +1220,7 @@
 				D3B4EADE1A1E7DE100BE0443 /* RCCalibration.mm in Sources */,
 				D3B4EADF1A1E7DE100BE0443 /* device_parameters.c in Sources */,
 				D3B4EAE01A1E7DE100BE0443 /* scaled_mask.cpp in Sources */,
+				D321AD421A323C17003AEA77 /* stereo.cpp in Sources */,
 				D3588EF31A20C04000CA10E7 /* bp.cpp in Sources */,
 				D3B4EAE81A1E7DE100BE0443 /* fast_9.cpp in Sources */,
 				D3B4EAEA1A1E7DE100BE0443 /* RCSensorFusion.mm in Sources */,
@@ -1213,12 +1233,11 @@
 				D3B4EAF91A1E7DE100BE0443 /* RCTranslation.m in Sources */,
 				D3588EF51A20C04600CA10E7 /* factorgraph.cpp in Sources */,
 				D3B4EAFC1A1E7DE100BE0443 /* RCTransformation.m in Sources */,
-				D3B4EAFE1A1E7DE100BE0443 /* stereo_mesh.cpp in Sources */,
+				D321AD411A323C17003AEA77 /* stereo_mesh.cpp in Sources */,
 				D3B4EB021A1E7DE100BE0443 /* vec4.cpp in Sources */,
 				D3B4EB031A1E7DE100BE0443 /* RCPoint.m in Sources */,
 				D3588F041A20C42C00CA10E7 /* poly2.c in Sources */,
 				D3588EFF1A20C36F00CA10E7 /* user.c in Sources */,
-				D3B4EB061A1E7DE100BE0443 /* stereo_features.cpp in Sources */,
 				D33B005A1A20CACE00287FC9 /* imopv.c in Sources */,
 				D3B4EB071A1E7DE100BE0443 /* RCAFXMLRequestOperation.m in Sources */,
 				D3B4EB091A1E7DE100BE0443 /* state_motion.cpp in Sources */,
@@ -1227,23 +1246,23 @@
 				D3B4EB0E1A1E7DE100BE0443 /* RCSensorFusionError.m in Sources */,
 				D3B4EB0F1A1E7DE100BE0443 /* RCAFHTTPClient.m in Sources */,
 				D3B4EB101A1E7DE100BE0443 /* filter_setup.cpp in Sources */,
+				D321AD3E1A323C17003AEA77 /* camera.cpp in Sources */,
 				D3588EFC1A20C31300CA10E7 /* libqhull.c in Sources */,
 				D3B4EB151A1E7DE100BE0443 /* matrix.cpp in Sources */,
 				D3588F021A20C3BE00CA10E7 /* mem.c in Sources */,
 				D3588F0A1A20C4CB00CA10E7 /* io.c in Sources */,
 				D3B4EB181A1E7DE100BE0443 /* RCAFURLConnectionOperation.m in Sources */,
 				D3588EF91A20C09C00CA10E7 /* weightedgraph.cpp in Sources */,
+				D321AD401A323C17003AEA77 /* stereo_features.cpp in Sources */,
 				D3B4EB1D1A1E7DE100BE0443 /* dispatch.c in Sources */,
 				D3588EFD1A20C32400CA10E7 /* poly.c in Sources */,
 				D3B4EB1E1A1E7DE100BE0443 /* RCAFPropertyListRequestOperation.m in Sources */,
 				D3588F031A20C3FD00CA10E7 /* userprintf.c in Sources */,
 				D3B4EB201A1E7DE100BE0443 /* RCSensorFusionData.m in Sources */,
 				D3B4EB221A1E7DE100BE0443 /* RCSensorFusionStatus.m in Sources */,
-				D3B4EB261A1E7DE100BE0443 /* fundamental.cpp in Sources */,
 				D3B4EB291A1E7DE100BE0443 /* RCCameraParameters.m in Sources */,
 				D3B4EB2A1A1E7DE100BE0443 /* RCRotation.mm in Sources */,
 				D3B4EB2F1A1E7DE100BE0443 /* RCAFHTTPRequestOperation.m in Sources */,
-				D3B4EB311A1E7DE100BE0443 /* stereo.cpp in Sources */,
 				D3B4EB351A1E7DE100BE0443 /* RCScalar.m in Sources */,
 				D3588F081A20C4A400CA10E7 /* global.c in Sources */,
 				D3588EFB1A20C0D200CA10E7 /* util.cpp in Sources */,

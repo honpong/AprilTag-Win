@@ -6,7 +6,8 @@
 //
 
 #import "CATContainerView.h"
-#import <RCCore/RCCore.h>
+#import "UIView+RCConstraints.h"
+#import "UIView+RCOrientationRotation.h"
 
 @implementation CATContainerView
 {

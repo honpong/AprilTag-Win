@@ -12,7 +12,6 @@
 		323BD0971A25324800313573 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0961A25324800313573 /* Images.xcassets */; };
 		323BD09A1A25324800313573 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0981A25324800313573 /* LaunchScreen.xib */; };
 		323BD0A61A25324800313573 /* TrackLinksTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0A51A25324800313573 /* TrackLinksTests.m */; };
-		323BD0BA1A25388C00313573 /* libRC3DK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 323BD0B51A25387500313573 /* libRC3DK.a */; };
 		323BD0CF1A253AEC00313573 /* depth_data.js in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0BC1A253AEC00313573 /* depth_data.js */; };
 		323BD0D01A253AEC00313573 /* fastclick.js in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0BD1A253AEC00313573 /* fastclick.js */; };
 		323BD0D11A253AEC00313573 /* global_variables.js in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0BE1A253AEC00313573 /* global_variables.js */; };
@@ -36,15 +35,15 @@
 		323BD1011A253B0D00313573 /* CATCapturePhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0E71A253B0D00313573 /* CATCapturePhoto.m */; };
 		323BD1021A253B0D00313573 /* CATContainerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0EA1A253B0D00313573 /* CATContainerView.m */; };
 		323BD1031A253B0D00313573 /* CATEditPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0EC1A253B0D00313573 /* CATEditPhoto.m */; };
-		323BD1051A253B0D00313573 /* CATInstructionsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0F01A253B0D00313573 /* CATInstructionsView.m */; };
 		323BD1061A253B0D00313573 /* CATNativeAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0F21A253B0D00313573 /* CATNativeAction.m */; };
 		323BD1071A253B0D00313573 /* CATOrientationChangeData.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0F41A253B0D00313573 /* CATOrientationChangeData.m */; };
 		323BD1091A253B0D00313573 /* CATRotatingButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0F81A253B0D00313573 /* CATRotatingButton.m */; };
 		323BD10A1A253B0D00313573 /* CATShutterButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0FA1A253B0D00313573 /* CATShutterButton.m */; };
 		323BD10B1A253B0D00313573 /* CATGalleryButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0FC1A253B0D00313573 /* CATGalleryButton.m */; };
-		323BD10C1A253B0D00313573 /* RCStereo.mm in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0FE1A253B0D00313573 /* RCStereo.mm */; };
 		323BD1111A253B9A00313573 /* MainStoryboard_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 323BD10D1A253B9A00313573 /* MainStoryboard_iPad.storyboard */; };
 		323BD1121A253B9A00313573 /* MainStoryboard_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 323BD10F1A253B9A00313573 /* MainStoryboard_iPhone.storyboard */; };
+		327524791A3271E400459B79 /* libRC3DKPlus.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 327524781A3271DC00459B79 /* libRC3DKPlus.a */; };
+		327524821A3276E600459B79 /* UIView+RCConstraints.m in Sources */ = {isa = PBXBuildFile; fileRef = 327524811A3276E600459B79 /* UIView+RCConstraints.m */; };
 		32BFDD9A1A2D354F00D03F44 /* CATTintTouchButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDD991A2D354F00D03F44 /* CATTintTouchButton.m */; };
 		32BFDDAB1A2E433D00D03F44 /* Calibration.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 32BFDD9F1A2E433D00D03F44 /* Calibration.storyboard */; };
 		32BFDDAC1A2E433D00D03F44 /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32BFDDA01A2E433D00D03F44 /* holding_landscape.jpg */; };
@@ -108,12 +107,19 @@
 			remoteGlobalIDString = 327B54EF18EB4CC90001CCE1;
 			remoteInfo = RC3DKTests;
 		};
-		323BD0B81A25388600313573 /* PBXContainerItemProxy */ = {
+		327524731A3271DC00459B79 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 323BD0AF1A25387500313573 /* RC3DK.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = 327B54DE18EB4CC90001CCE1;
-			remoteInfo = RC3DK;
+			remoteGlobalIDString = D3B4EABE1A1E7DE100BE0443;
+			remoteInfo = RC3DKPlus;
+		};
+		327524771A3271DC00459B79 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 323BD0AF1A25387500313573 /* RC3DK.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D3B4EB591A1E7DE100BE0443;
+			remoteInfo = RC3DKPlus;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -157,8 +163,6 @@
 		323BD0EA1A253B0D00313573 /* CATContainerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATContainerView.m; sourceTree = "<group>"; };
 		323BD0EB1A253B0D00313573 /* CATEditPhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = CATEditPhoto.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		323BD0EC1A253B0D00313573 /* CATEditPhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = CATEditPhoto.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		323BD0EF1A253B0D00313573 /* CATInstructionsView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATInstructionsView.h; sourceTree = "<group>"; };
-		323BD0F01A253B0D00313573 /* CATInstructionsView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATInstructionsView.m; sourceTree = "<group>"; };
 		323BD0F11A253B0D00313573 /* CATNativeAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATNativeAction.h; sourceTree = "<group>"; };
 		323BD0F21A253B0D00313573 /* CATNativeAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATNativeAction.m; sourceTree = "<group>"; };
 		323BD0F31A253B0D00313573 /* CATOrientationChangeData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATOrientationChangeData.h; sourceTree = "<group>"; };
@@ -169,10 +173,10 @@
 		323BD0FA1A253B0D00313573 /* CATShutterButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATShutterButton.m; sourceTree = "<group>"; };
 		323BD0FB1A253B0D00313573 /* CATGalleryButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATGalleryButton.h; sourceTree = "<group>"; };
 		323BD0FC1A253B0D00313573 /* CATGalleryButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATGalleryButton.m; sourceTree = "<group>"; };
-		323BD0FD1A253B0D00313573 /* RCStereo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCStereo.h; sourceTree = "<group>"; };
-		323BD0FE1A253B0D00313573 /* RCStereo.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RCStereo.mm; sourceTree = "<group>"; };
 		323BD10E1A253B9A00313573 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainStoryboard_iPad.storyboard; sourceTree = "<group>"; };
 		323BD1101A253B9A00313573 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainStoryboard_iPhone.storyboard; sourceTree = "<group>"; };
+		327524801A3276E600459B79 /* UIView+RCConstraints.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+RCConstraints.h"; sourceTree = "<group>"; };
+		327524811A3276E600459B79 /* UIView+RCConstraints.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+RCConstraints.m"; sourceTree = "<group>"; };
 		32BFDD981A2D354F00D03F44 /* CATTintTouchButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATTintTouchButton.h; sourceTree = "<group>"; };
 		32BFDD991A2D354F00D03F44 /* CATTintTouchButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATTintTouchButton.m; sourceTree = "<group>"; };
 		32BFDD9F1A2E433D00D03F44 /* Calibration.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Calibration.storyboard; sourceTree = "<group>"; };
@@ -258,9 +262,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				327524791A3271E400459B79 /* libRC3DKPlus.a in Frameworks */,
 				32BFDE221A2E83F600D03F44 /* AVFoundation.framework in Frameworks */,
 				32BFDE1F1A2E83F000D03F44 /* CoreLocation.framework in Frameworks */,
-				323BD0BA1A25388C00313573 /* libRC3DK.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -314,8 +318,6 @@
 				323BD0F41A253B0D00313573 /* CATOrientationChangeData.m */,
 				32BFDDC51A2E445100D03F44 /* CATHttpInterceptor.h */,
 				32BFDDC61A2E445100D03F44 /* CATHttpInterceptor.m */,
-				323BD0FD1A253B0D00313573 /* RCStereo.h */,
-				323BD0FE1A253B0D00313573 /* RCStereo.mm */,
 				323BD08D1A25324800313573 /* AppDelegate.h */,
 				323BD08E1A25324800313573 /* AppDelegate.m */,
 				323BD0961A25324800313573 /* Images.xcassets */,
@@ -359,6 +361,7 @@
 			children = (
 				323BD0B51A25387500313573 /* libRC3DK.a */,
 				323BD0B71A25387500313573 /* RC3DKTests.xctest */,
+				327524781A3271DC00459B79 /* libRC3DKPlus.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -499,6 +502,8 @@
 		32BFDE011A2E4EEF00D03F44 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				327524801A3276E600459B79 /* UIView+RCConstraints.h */,
+				327524811A3276E600459B79 /* UIView+RCConstraints.m */,
 				32BFDE161A2E528F00D03F44 /* UIImage+MPImageFile.h */,
 				32BFDE171A2E528F00D03F44 /* UIImage+MPImageFile.m */,
 				32BFDE131A2E51D000D03F44 /* UIView+RCOrientationRotation.h */,
@@ -512,8 +517,6 @@
 				323BD0E51A253B0D00313573 /* CATAugmentedRealityView.m */,
 				323BD0E91A253B0D00313573 /* CATContainerView.h */,
 				323BD0EA1A253B0D00313573 /* CATContainerView.m */,
-				323BD0EF1A253B0D00313573 /* CATInstructionsView.h */,
-				323BD0F01A253B0D00313573 /* CATInstructionsView.m */,
 				323BD0F71A253B0D00313573 /* CATRotatingButton.h */,
 				323BD0F81A253B0D00313573 /* CATRotatingButton.m */,
 				323BD0F91A253B0D00313573 /* CATShutterButton.h */,
@@ -551,7 +554,7 @@
 			buildRules = (
 			);
 			dependencies = (
-				323BD0B91A25388600313573 /* PBXTargetDependency */,
+				327524741A3271DC00459B79 /* PBXTargetDependency */,
 			);
 			name = TrackLinks;
 			productName = TrackLinks;
@@ -634,6 +637,13 @@
 			fileType = wrapper.cfbundle;
 			path = RC3DKTests.xctest;
 			remoteRef = 323BD0B61A25387500313573 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		327524781A3271DC00459B79 /* libRC3DKPlus.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRC3DKPlus.a;
+			remoteRef = 327524771A3271DC00459B79 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 /* End PBXReferenceProxy section */
@@ -720,12 +730,11 @@
 				32BFDDF61A2E452F00D03F44 /* GTMNSString+URLArguments.m in Sources */,
 				32BFDDF51A2E452F00D03F44 /* GTMNSDictionary+URLArguments.m in Sources */,
 				32BFDDAF1A2E433D00D03F44 /* MBProgressHUD.m in Sources */,
-				323BD10C1A253B0D00313573 /* RCStereo.mm in Sources */,
 				32BFDDE41A2E451E00D03F44 /* SBJsonParser.m in Sources */,
+				327524821A3276E600459B79 /* UIView+RCConstraints.m in Sources */,
 				32BFDDB01A2E433D00D03F44 /* RCCalibration1.m in Sources */,
 				323BD1001A253B0D00313573 /* CATAugmentedRealityView.m in Sources */,
 				32BFDD9A1A2D354F00D03F44 /* CATTintTouchButton.m in Sources */,
-				323BD1051A253B0D00313573 /* CATInstructionsView.m in Sources */,
 				323BD1061A253B0D00313573 /* CATNativeAction.m in Sources */,
 				32BFDDC21A2E43A700D03F44 /* RCMotionManager.m in Sources */,
 				323BD1031A253B0D00313573 /* CATEditPhoto.m in Sources */,
@@ -752,10 +761,10 @@
 			target = 323BD0851A25324800313573 /* TrackLinks */;
 			targetProxy = 323BD0A01A25324800313573 /* PBXContainerItemProxy */;
 		};
-		323BD0B91A25388600313573 /* PBXTargetDependency */ = {
+		327524741A3271DC00459B79 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			name = RC3DK;
-			targetProxy = 323BD0B81A25388600313573 /* PBXContainerItemProxy */;
+			name = RC3DKPlus;
+			targetProxy = 327524731A3271DC00459B79 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

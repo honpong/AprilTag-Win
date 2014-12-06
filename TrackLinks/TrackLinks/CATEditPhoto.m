@@ -6,13 +6,9 @@
 //
 
 #import "CATEditPhoto.h"
-#import <RCCore/RCCore.h>
-#import "MPDMeasuredPhoto+MPDMeasuredPhotoExt.h"
 #import "CATHttpInterceptor.h"
-#import "MPGalleryController.h"
 #import "CATCapturePhoto.h"
-#import "CoreData+MagicalRecord.h"
-#import "MPEditTitleController.h"
+#import "RCDebugLog.h"
 
 @interface CATEditPhoto ()
 
@@ -23,7 +19,6 @@
 @implementation CATEditPhoto
 {
     BOOL isWebViewLoaded;
-    MPEditTitleController* titleController;
 }
 
 - (void)viewDidLoad
@@ -42,28 +37,15 @@
     
     isWebViewLoaded = NO;
     
-    self.titleText.delegate = self;
-    self.titleText.widthConstraint = self.titleTextWidthConstraint;
-    
     // setup web view
     self.webView.scalesPageToFit = NO;
     self.webView.delegate = self;
     [self.webView loadRequest:[NSURLRequest requestWithURL:htmlUrl]];
-    
-    titleController = [self.storyboard instantiateViewControllerWithIdentifier:@"EditTitle"];
-    [titleController.view class]; //force view to load
 }
 
 - (void) viewWillAppear:(BOOL)animated
 {
-    self.titleText.measuredPhoto = self.measuredPhoto;
     if (isWebViewLoaded) [self loadMeasuredPhoto];
-}
-
-- (void) viewDidAppear:(BOOL)animated
-{
-    // don't do this here because it gets called when popping two VCs off the stack. instead call it when presenting from another VC.
-//    [MPAnalytics logEvent:@"View.EditPhoto"];
 }
 
 - (void) viewDidDisappear:(BOOL)animated

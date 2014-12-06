@@ -15,7 +15,6 @@
 #import <ImageIO/ImageIO.h>
 #import <CoreGraphics/CoreGraphics.h>
 #import <CoreLocation/CoreLocation.h>
-#import "RCStereo.h"
 #import "MBProgressHUD.h"
 #import "CATAugmentedRealityView.h"
 #import "CATToolbarView.h"
@@ -26,7 +25,7 @@
 
 extern NSString * const CATUIOrientationDidChangeNotification;
 
-@interface CATCapturePhoto : UIViewController <RCSensorFusionDelegate, RCStereoDelegate, UIAlertViewDelegate, MPInstructionsViewDelegate>
+@interface CATCapturePhoto : UIViewController <RCSensorFusionDelegate, RCStereoDelegate, UIAlertViewDelegate>
 
 + (UIDeviceOrientation) getCurrentUIOrientation;
 - (void)handlePause;
@@ -46,6 +45,5 @@ extern NSString * const CATUIOrientationDidChangeNotification;
 @property (weak, nonatomic) IBOutlet UISegmentedControl *questionSegButton;
 @property (weak, nonatomic) IBOutlet UIButton *questionCloseButton;
 @property (weak, nonatomic) IBOutlet CATContainerView *containerView;
-@property (weak, nonatomic) IBOutlet CATInstructionsView *instructionsView;
 
 @end

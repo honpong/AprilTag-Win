@@ -9,8 +9,6 @@
 #import "CATHttpInterceptor.h"
 #import "CATRotatingButton.h"
 
-@class MPDMeasuredPhoto;
-
 @interface CATEditPhoto : UIViewController <UIWebViewDelegate, CATHttpInterceptorDelegate, UITextFieldDelegate>
 
 @property (weak, nonatomic) IBOutlet UIWebView *webView;

@@ -6,7 +6,6 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
-#import "CATInstructionsView.h"
 #import "RCVideoPreview.h"
 #import <RC3DK/RC3DK.h>
 #import "CATFeaturesLayer.h"
@@ -16,7 +15,6 @@
 @interface CATAugmentedRealityView : UIView
 
 @property (weak, nonatomic) IBOutlet UIImageView *distanceBg;
-//@property (weak, nonatomic) IBOutlet RCDistanceLabel *distanceLabel;
 @property (readonly) RCVideoPreview *videoView;
 @property (readonly) CATFeaturesLayer* featuresLayer;
 @property (readonly) CATFeaturesLayer* initializingFeaturesLayer;
@@ -25,10 +23,5 @@
 - (void) initialize;
 - (void) showFeatures;
 - (void) hideFeatures;
-- (RCFeaturePoint*) selectFeatureNearest:(CGPoint)coordinateTapped;
-- (void) selectFeature:(RCFeaturePoint*)point;
-- (void) clearSelectedFeatures;
-- (void) handleFeatureTapped:(CGPoint)coordinateTapped;
-- (void) resetSelectedFeatures;
 
 @end

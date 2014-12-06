@@ -10,13 +10,13 @@
 #import "CATCapturePhoto.h"
 #import "math.h"
 #import "UIImage+MPImageFile.h"
-#import "RCStereo.h"
 #import "MBProgressHUD.h"
 #import "CATEditPhoto.h"
 #import "RC3DK.h"
 #import "RCSensorDelegate.h"
 #import "RCDebugLog.h"
 #import <CoreLocation/CoreLocation.h>
+#import <RC3DKPlus/RC3DKPlus.h>
 
 static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
 

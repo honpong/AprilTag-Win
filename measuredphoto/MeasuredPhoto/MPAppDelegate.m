@@ -7,7 +7,6 @@
 //
 
 #import "MPAppDelegate.h"
-#import "MPPhotoRequest.h"
 #ifdef __APPLE__
 #include "TargetConditionals.h"
 #endif

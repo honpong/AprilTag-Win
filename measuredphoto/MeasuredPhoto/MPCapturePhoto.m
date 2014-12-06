@@ -9,7 +9,6 @@
 #import "MPCapturePhoto.h"
 #import "math.h"
 #import "MPYouTubeVideo.h"
-#import "MPPhotoRequest.h"
 #import "MPLoupe.h"
 #import "MPLocalMoviePlayer.h"
 #import "UIImage+MPImageFile.h"

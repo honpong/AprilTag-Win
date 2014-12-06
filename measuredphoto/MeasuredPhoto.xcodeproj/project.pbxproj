@@ -309,8 +309,6 @@
 		328C7DD719D1EA420079BA40 /* MPIntroScreen.m in Sources */ = {isa = PBXBuildFile; fileRef = 328C7DD619D1EA420079BA40 /* MPIntroScreen.m */; };
 		328C7DDA19D1EC0D0079BA40 /* MPLocationIntro.m in Sources */ = {isa = PBXBuildFile; fileRef = 328C7DD919D1EC0D0079BA40 /* MPLocationIntro.m */; };
 		328C7DE819D208680079BA40 /* tutorial_screenshot.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 328C7DE719D208680079BA40 /* tutorial_screenshot.jpg */; };
-		329222F6180F13D6008BF9A0 /* libTrueMeasureSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 329222ED180DEF8A008BF9A0 /* libTrueMeasureSDK.a */; };
-		329222F9180F21BA008BF9A0 /* MPPhotoRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 329222F8180F21BA008BF9A0 /* MPPhotoRequest.m */; };
 		32934CDB18D8DB7C005DC87C /* MPEditPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 32934CDA18D8DB7C005DC87C /* MPEditPhoto.m */; };
 		32934CF218D922E1005DC87C /* UIImage+MPImageFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 32934CF118D922E1005DC87C /* UIImage+MPImageFile.m */; };
 		3298E9EF18A58ECC0017209B /* MPDotLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3298E9EE18A58ECC0017209B /* MPDotLayerDelegate.m */; };
@@ -441,27 +439,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = 32865B6416260B500080BA1A;
 			remoteInfo = RCCore;
-		};
-		329222EC180DEF8A008BF9A0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 329222E6180DEF8A008BF9A0 /* TrueMeasureSDK.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 329222B7180DEE0B008BF9A0;
-			remoteInfo = TrueMeasureSDK;
-		};
-		329222EE180DEF8A008BF9A0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 329222E6180DEF8A008BF9A0 /* TrueMeasureSDK.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 329222CA180DEE0B008BF9A0;
-			remoteInfo = TrueMeasureSDKTests;
-		};
-		329222F4180F13C5008BF9A0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 329222E6180DEF8A008BF9A0 /* TrueMeasureSDK.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = 32BA04DB19102B04008365F2;
-			remoteInfo = TrueMeasureSDK;
 		};
 		32BA433F17A2EFF2002BAE13 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -928,9 +905,6 @@
 		328C7DD819D1EC0D0079BA40 /* MPLocationIntro.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPLocationIntro.h; sourceTree = "<group>"; };
 		328C7DD919D1EC0D0079BA40 /* MPLocationIntro.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPLocationIntro.m; sourceTree = "<group>"; };
 		328C7DE719D208680079BA40 /* tutorial_screenshot.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = tutorial_screenshot.jpg; sourceTree = "<group>"; };
-		329222E6180DEF8A008BF9A0 /* TrueMeasureSDK.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = TrueMeasureSDK.xcodeproj; path = ../TrueMeasureSDK/TrueMeasureSDK.xcodeproj; sourceTree = "<group>"; };
-		329222F7180F21BA008BF9A0 /* MPPhotoRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPPhotoRequest.h; sourceTree = "<group>"; };
-		329222F8180F21BA008BF9A0 /* MPPhotoRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPPhotoRequest.m; sourceTree = "<group>"; };
 		32934CD918D8DB7C005DC87C /* MPEditPhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPEditPhoto.h; sourceTree = "<group>"; };
 		32934CDA18D8DB7C005DC87C /* MPEditPhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPEditPhoto.m; sourceTree = "<group>"; };
 		32934CEB18D90A6B005DC87C /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
@@ -1155,7 +1129,6 @@
 				D3F57867184F2DE100EE450E /* AVFoundation.framework in Frameworks */,
 				D3F57863184F2DAE00EE450E /* Accelerate.framework in Frameworks */,
 				322B815318315A3F006E963E /* AdSupport.framework in Frameworks */,
-				329222F6180F13D6008BF9A0 /* libTrueMeasureSDK.a in Frameworks */,
 				326EA9E617BC354C009000D4 /* CoreData.framework in Frameworks */,
 				32BA429D17A2DF8B002BAE13 /* UIKit.framework in Frameworks */,
 				32BA429F17A2DF8B002BAE13 /* Foundation.framework in Frameworks */,
@@ -1584,15 +1557,6 @@
 			name = Media;
 			sourceTree = "<group>";
 		};
-		329222E7180DEF8A008BF9A0 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				329222ED180DEF8A008BF9A0 /* libTrueMeasureSDK.a */,
-				329222EF180DEF8A008BF9A0 /* TrueMeasureSDKTests.xctest */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		32934CC818D8B616005DC87C /* Layer Delegates */ = {
 			isa = PBXGroup;
 			children = (
@@ -1642,7 +1606,6 @@
 		32BA429017A2DF8B002BAE13 = {
 			isa = PBXGroup;
 			children = (
-				329222E6180DEF8A008BF9A0 /* TrueMeasureSDK.xcodeproj */,
 				32BA433917A2EFF2002BAE13 /* RCCore.xcodeproj */,
 				32BA42A217A2DF8B002BAE13 /* MeasuredPhoto */,
 				32BA429B17A2DF8B002BAE13 /* Frameworks */,
@@ -1701,8 +1664,6 @@
 				32BA432817A2EE9D002BAE13 /* MPConstants.h */,
 				32BA42AB17A2DF8B002BAE13 /* MPAppDelegate.h */,
 				32BA42AC17A2DF8B002BAE13 /* MPAppDelegate.m */,
-				329222F7180F21BA008BF9A0 /* MPPhotoRequest.h */,
-				329222F8180F21BA008BF9A0 /* MPPhotoRequest.m */,
 				32EFEDA01973349B00FDC89F /* MPHttpInterceptor.h */,
 				32EFEDA11973349B00FDC89F /* MPHttpInterceptor.m */,
 				32EFEDA419744A9800FDC89F /* MPNativeAction.h */,
@@ -2045,7 +2006,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				329222F5180F13C5008BF9A0 /* PBXTargetDependency */,
 				3288A87717C5590A0055B82E /* PBXTargetDependency */,
 			);
 			name = MeasuredPhoto;
@@ -2084,10 +2044,6 @@
 					ProductGroup = 32BA433A17A2EFF2002BAE13 /* Products */;
 					ProjectRef = 32BA433917A2EFF2002BAE13 /* RCCore.xcodeproj */;
 				},
-				{
-					ProductGroup = 329222E7180DEF8A008BF9A0 /* Products */;
-					ProjectRef = 329222E6180DEF8A008BF9A0 /* TrueMeasureSDK.xcodeproj */;
-				},
 			);
 			projectRoot = "";
 			targets = (
@@ -2097,20 +2053,6 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
-		329222ED180DEF8A008BF9A0 /* libTrueMeasureSDK.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libTrueMeasureSDK.a;
-			remoteRef = 329222EC180DEF8A008BF9A0 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		329222EF180DEF8A008BF9A0 /* TrueMeasureSDKTests.xctest */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = TrueMeasureSDKTests.xctest;
-			remoteRef = 329222EE180DEF8A008BF9A0 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
 		32BA434017A2EFF2002BAE13 /* libRCCore.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -2487,7 +2429,6 @@
 				32EFEDA31973349B00FDC89F /* MPHttpInterceptor.m in Sources */,
 				32AC6415198C393200699A2E /* MPUndoOverlay.m in Sources */,
 				32EFED85196E078F00FDC89F /* SBJsonStreamParserAdapter.m in Sources */,
-				329222F9180F21BA008BF9A0 /* MPPhotoRequest.m in Sources */,
 				326ACFB319D2221B00B36965 /* OSKSessionController.m in Sources */,
 				326ACFBE19D2221B00B36965 /* OSKTwitterActivity.m in Sources */,
 				3201E4D819807F06008F61D5 /* MPEditTitleController.m in Sources */,
@@ -2549,11 +2490,6 @@
 			isa = PBXTargetDependency;
 			name = RCCore;
 			targetProxy = 3288A87617C5590A0055B82E /* PBXContainerItemProxy */;
-		};
-		329222F5180F13C5008BF9A0 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = TrueMeasureSDK;
-			targetProxy = 329222F4180F13C5008BF9A0 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

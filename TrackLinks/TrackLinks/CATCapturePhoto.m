@@ -248,6 +248,8 @@ static transition transitions[] =
 
 #pragma mark - View Controller
 
+- (BOOL) prefersStatusBarHidden { return YES; }
+
 - (void)viewDidLoad
 {
     LOGME

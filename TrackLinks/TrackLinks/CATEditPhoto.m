@@ -23,6 +23,8 @@
     BOOL isWebViewLoaded;
 }
 
+- (BOOL) prefersStatusBarHidden { return YES; }
+
 - (void)viewDidLoad
 {
     LOGME

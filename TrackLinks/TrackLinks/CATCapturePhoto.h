@@ -38,9 +38,6 @@
 @property (weak, nonatomic) IBOutlet CATGalleryButton *galleryButton;
 @property (weak, nonatomic) IBOutlet UILabel *messageLabel;
 @property (weak, nonatomic) IBOutlet CATToolbarView *toolbar;
-@property (weak, nonatomic) IBOutlet UILabel *questionLabel;
-@property (weak, nonatomic) IBOutlet UISegmentedControl *questionSegButton;
-@property (weak, nonatomic) IBOutlet UIButton *questionCloseButton;
 @property (weak, nonatomic) IBOutlet CATContainerView *containerView;
 @property (weak, nonatomic) IBOutlet MPExpandingCircleAnimationView *expandingCircleView;
 

@@ -52,7 +52,7 @@ typedef enum
     
     movement_status moving_state;
 }
-@synthesize toolbar, galleryButton, shutterButton, messageLabel, questionLabel, questionSegButton, arView, containerView;
+@synthesize toolbar, galleryButton, shutterButton, messageLabel, arView, containerView;
 
 typedef NS_ENUM(int, AlertTag) {
     AlertTagTutorial = 0,
@@ -268,17 +268,6 @@ static transition transitions[] =
     LOGME
 	[super viewDidLoad];
     
-    // determine if we have an internet connection for playing the tutorial video
-//    if ([[NSUserDefaults standardUserDefaults] integerForKey:PREF_TUTORIAL_ANSWER] == MPTutorialAnswerNotNow)
-//    {
-//            MPLocalMoviePlayer* movieController = [self.storyboard instantiateViewControllerWithIdentifier:@"MoviePlayer"];
-//            [self presentMoviePlayerViewControllerAnimated:movieController];
-//    } else if ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_SHOW_INSTRUCTIONS])
-//    {
-//        [self showInstructionsDialog];
-//    }
-    
-//    instructionsView.delegate = self;
     containerView.delegate = arView;
     
     sensorDelegate = [SensorDelegate sharedInstance];
@@ -288,8 +277,6 @@ static transition transitions[] =
     useLocation = [LOCATION_MANAGER isLocationExplicitlyAllowed] && [NSUserDefaults.standardUserDefaults boolForKey:PREF_USE_LOCATION];
     
     [[sensorDelegate getVideoProvider] setDelegate:self.arView.videoView];
-    
-    if (SYSTEM_VERSION_LESS_THAN(@"7")) questionSegButton.tintColor = [UIColor darkGrayColor];
     
     progressView = [[MBProgressHUD alloc] initWithView:self.containerView];
     progressView.mode = MBProgressHUDModeAnnularDeterminate;
@@ -314,9 +301,6 @@ static transition transitions[] =
 {
     LOGME
     [super viewDidAppear:animated];
-    
-    // don't do this here because it gets called when popping two VCs off the stack. instead call it when presenting from another VC.
-//    [MPAnalytics logEvent:@"View.CapturePhoto"];
     
     //register to receive notifications of pause/resume events
     [[NSNotificationCenter defaultCenter] addObserver:self

@@ -139,24 +139,35 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HzP-oT-oHk" userLabel="Toolbar">
                                 <rect key="frame" x="0.0" y="480" width="320" height="88"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OhI-Mn-pZh" userLabel="ShutterButton" customClass="CATShutterButton">
+                                    <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="r2F-7t-u46" customClass="MPExpandingCircleAnimationView">
                                         <rect key="frame" x="123" y="7" width="75" height="75"/>
+                                        <subviews>
+                                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OhI-Mn-pZh" userLabel="ShutterButton" customClass="CATShutterButton">
+                                                <rect key="frame" x="0.0" y="0.0" width="75" height="75"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="height" constant="75" id="3PN-Ra-0XU"/>
+                                                    <constraint firstAttribute="width" constant="75" id="oW2-l0-Hwi"/>
+                                                </constraints>
+                                                <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
+                                                <state key="normal" image="PLCameraFloatingShutterButton">
+                                                    <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="calibratedRGB"/>
+                                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                                </state>
+                                                <state key="highlighted">
+                                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                </state>
+                                                <connections>
+                                                    <action selector="handleShutterButton:" destination="2" eventType="touchUpInside" id="Fcg-9x-1of"/>
+                                                </connections>
+                                            </button>
+                                        </subviews>
                                         <constraints>
-                                            <constraint firstAttribute="height" constant="75" id="3PN-Ra-0XU"/>
-                                            <constraint firstAttribute="width" constant="75" id="oW2-l0-Hwi"/>
+                                            <constraint firstAttribute="centerY" secondItem="OhI-Mn-pZh" secondAttribute="centerY" id="TdK-QM-haB"/>
+                                            <constraint firstAttribute="centerX" secondItem="OhI-Mn-pZh" secondAttribute="centerX" id="cXc-k8-NUq"/>
+                                            <constraint firstAttribute="height" constant="75" id="jE7-JN-AcE"/>
+                                            <constraint firstAttribute="width" constant="75" id="nyW-hM-uaU"/>
                                         </constraints>
-                                        <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
-                                        <state key="normal" image="PLCameraFloatingShutterButton">
-                                            <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="calibratedRGB"/>
-                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                        </state>
-                                        <state key="highlighted">
-                                            <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                        </state>
-                                        <connections>
-                                            <action selector="handleShutterButton:" destination="2" eventType="touchUpInside" id="Fcg-9x-1of"/>
-                                        </connections>
-                                    </button>
+                                    </view>
                                     <button hidden="YES" opaque="NO" alpha="0.64999999999999969" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Knw-H5-IDC" userLabel="GalleryButton" customClass="CATGalleryButton">
                                         <rect key="frame" x="250" y="19" width="50" height="50"/>
                                         <constraints>
@@ -180,9 +191,9 @@
                                 <constraints>
                                     <constraint firstAttribute="centerY" secondItem="Knw-H5-IDC" secondAttribute="centerY" id="4c7-K9-qhs"/>
                                     <constraint firstAttribute="height" constant="88" id="BdC-ds-EO0"/>
-                                    <constraint firstAttribute="centerY" secondItem="OhI-Mn-pZh" secondAttribute="centerY" id="PK4-MQ-1nk"/>
+                                    <constraint firstAttribute="centerX" secondItem="r2F-7t-u46" secondAttribute="centerX" id="IJf-oH-VdP"/>
                                     <constraint firstAttribute="trailing" secondItem="Knw-H5-IDC" secondAttribute="trailing" constant="20" id="kiF-RV-vjA"/>
-                                    <constraint firstAttribute="centerX" secondItem="OhI-Mn-pZh" secondAttribute="centerX" id="lLk-qv-mkb"/>
+                                    <constraint firstAttribute="centerY" secondItem="r2F-7t-u46" secondAttribute="centerY" id="wZx-RI-eju"/>
                                 </constraints>
                             </view>
                         </subviews>
@@ -202,6 +213,7 @@
                     <connections>
                         <outlet property="arView" destination="PlL-07-yn5" id="UjT-FF-Y9E"/>
                         <outlet property="containerView" destination="IzM-3z-8rc" id="RFI-Oe-iU3"/>
+                        <outlet property="expandingCircleView" destination="r2F-7t-u46" id="iDM-46-TjG"/>
                         <outlet property="galleryButton" destination="Knw-H5-IDC" id="G0i-uL-MU7"/>
                         <outlet property="messageLabel" destination="Q9N-TY-BVN" id="jCM-7D-ndQ"/>
                         <outlet property="shutterButton" destination="OhI-Mn-pZh" id="ROV-3a-nI2"/>

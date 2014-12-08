@@ -8,6 +8,8 @@
 #import "CATContainerView.h"
 #import "UIView+RCConstraints.h"
 #import "UIView+RCOrientationRotation.h"
+#import "CATConstants.h"
+#import "CATOrientationChangeData.h"
 
 @implementation CATContainerView
 {
@@ -25,32 +27,47 @@
         
         widthPortrait = widthConstraint.constant;
         heightPortrait = heightConstraint.constant;
+        
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(handleOrientationChange:)
+                                                     name:CATUIOrientationDidChangeNotification
+                                                   object:nil];
     }
     return self;
 }
 
-- (void) handleOrientationChange:(UIDeviceOrientation)orientation animated:(BOOL)animated
+- (void) dealloc
 {
-    if (orientation == UIDeviceOrientationPortrait || orientation == UIDeviceOrientationPortraitUpsideDown)
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void) handleOrientationChange:(NSNotification*)notification
+{
+    if (notification.object)
     {
-        [self modifyWidthContraint:widthPortrait andHeightConstraint:heightPortrait];
+        CATOrientationChangeData* data = (CATOrientationChangeData*)notification.object;
+        
+        if (data.orientation == UIDeviceOrientationPortrait || data.orientation == UIDeviceOrientationPortraitUpsideDown)
+        {
+            [self modifyWidthContraint:widthPortrait andHeightConstraint:heightPortrait];
+        }
+        else if (data.orientation == UIDeviceOrientationLandscapeLeft || data.orientation == UIDeviceOrientationLandscapeRight)
+        {
+            [self modifyWidthContraint:heightPortrait andHeightConstraint:widthPortrait];
+        }
+        
+        [UIView animateWithDuration: .3
+                              delay: 0
+                            options: UIViewAnimationOptionCurveEaseIn
+                         animations:^{
+                             [self applyRotationTransformation:data.orientation animated:NO];
+                         }
+                         completion:^(BOOL finished){
+                             [self setNeedsUpdateConstraints];
+                             [self setNeedsLayout];
+                             [self layoutIfNeeded];
+                         }];
     }
-    else if (orientation == UIDeviceOrientationLandscapeLeft || orientation == UIDeviceOrientationLandscapeRight)
-    {
-        [self modifyWidthContraint:heightPortrait andHeightConstraint:widthPortrait];
-    }
-    
-    [self setNeedsUpdateConstraints];
-    
-    [self setNeedsUpdateConstraints];
-    [UIView animateWithDuration: .3
-                          delay: 0
-                        options: UIViewAnimationOptionCurveEaseIn
-                     animations:^{
-                         [self applyRotationTransformation:orientation animated:NO];
-                         [self layoutIfNeeded];
-                     }
-                     completion:nil];
 }
 
 // pass all touch events to the delegate, which in this case is the augmented reality view

@@ -83,6 +83,12 @@
 		32BFDE181A2E528F00D03F44 /* UIImage+MPImageFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDE171A2E528F00D03F44 /* UIImage+MPImageFile.m */; };
 		32BFDE1F1A2E83F000D03F44 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFDE1E1A2E83F000D03F44 /* CoreLocation.framework */; };
 		32BFDE221A2E83F600D03F44 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFDE211A2E83F600D03F44 /* AVFoundation.framework */; };
+		32C951E31A365CDC005E1BFB /* MPARDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C951E01A365CDC005E1BFB /* MPARDelegate.m */; };
+		32C951E41A365CDC005E1BFB /* MPExpandingCircleAnimationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C951E21A365CDC005E1BFB /* MPExpandingCircleAnimationView.m */; };
+		32C951E81A365E02005E1BFB /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32C951E71A365E02005E1BFB /* GLKit.framework */; };
+		32C951EB1A366603005E1BFB /* shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 32C951E91A366603005E1BFB /* shader.fsh */; };
+		32C951EC1A366603005E1BFB /* shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 32C951EA1A366603005E1BFB /* shader.vsh */; };
+		32C951EE1A36699B005E1BFB /* iphone.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C951ED1A36699B005E1BFB /* iphone.png */; };
 		32EC392B1A3613D7004C31C0 /* MPDMeasuredPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EC392A1A3613D7004C31C0 /* MPDMeasuredPhoto.m */; };
 		32EC39301A361792004C31C0 /* NSString+RCString.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EC392F1A361792004C31C0 /* NSString+RCString.m */; };
 		32EC39331A361BC9004C31C0 /* UIView+RCViewFade.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EC39321A361BC9004C31C0 /* UIView+RCViewFade.m */; };
@@ -274,6 +280,14 @@
 		32BFDE191A2E807A00D03F44 /* RC3DK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RC3DK.h; sourceTree = "<group>"; };
 		32BFDE1E1A2E83F000D03F44 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		32BFDE211A2E83F600D03F44 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		32C951DF1A365CDC005E1BFB /* MPARDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPARDelegate.h; sourceTree = "<group>"; };
+		32C951E01A365CDC005E1BFB /* MPARDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPARDelegate.m; sourceTree = "<group>"; };
+		32C951E11A365CDC005E1BFB /* MPExpandingCircleAnimationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPExpandingCircleAnimationView.h; sourceTree = "<group>"; };
+		32C951E21A365CDC005E1BFB /* MPExpandingCircleAnimationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPExpandingCircleAnimationView.m; sourceTree = "<group>"; };
+		32C951E71A365E02005E1BFB /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
+		32C951E91A366603005E1BFB /* shader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.fsh; sourceTree = "<group>"; };
+		32C951EA1A366603005E1BFB /* shader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.vsh; sourceTree = "<group>"; };
+		32C951ED1A36699B005E1BFB /* iphone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = iphone.png; sourceTree = "<group>"; };
 		32EC39291A3613D7004C31C0 /* MPDMeasuredPhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPDMeasuredPhoto.h; sourceTree = "<group>"; };
 		32EC392A1A3613D7004C31C0 /* MPDMeasuredPhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPDMeasuredPhoto.m; sourceTree = "<group>"; };
 		32EC392E1A361792004C31C0 /* NSString+RCString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+RCString.h"; sourceTree = "<group>"; };
@@ -305,6 +319,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32C951E81A365E02005E1BFB /* GLKit.framework in Frameworks */,
 				32EC394F1A3623B5004C31C0 /* UIKit.framework in Frameworks */,
 				32EC394D1A3623B0004C31C0 /* Foundation.framework in Frameworks */,
 				32EC394B1A362393004C31C0 /* CoreMotion.framework in Frameworks */,
@@ -561,39 +576,46 @@
 		32BFDE011A2E4EEF00D03F44 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				32EC395A1A362D70004C31C0 /* MPPaddedLabel.h */,
-				32EC395B1A362D70004C31C0 /* MPPaddedLabel.m */,
-				32EC39571A362D56004C31C0 /* MPMessageBox.h */,
-				32EC39581A362D56004C31C0 /* MPMessageBox.m */,
-				32EC39311A361BC9004C31C0 /* UIView+RCViewFade.h */,
-				32EC39321A361BC9004C31C0 /* UIView+RCViewFade.m */,
-				32EC392E1A361792004C31C0 /* NSString+RCString.h */,
-				32EC392F1A361792004C31C0 /* NSString+RCString.m */,
-				327524801A3276E600459B79 /* UIView+RCConstraints.h */,
-				327524811A3276E600459B79 /* UIView+RCConstraints.m */,
-				32BFDE161A2E528F00D03F44 /* UIImage+MPImageFile.h */,
-				32BFDE171A2E528F00D03F44 /* UIImage+MPImageFile.m */,
-				32BFDE131A2E51D000D03F44 /* UIView+RCOrientationRotation.h */,
-				32BFDE141A2E51D000D03F44 /* UIView+RCOrientationRotation.m */,
-				32BFDE121A2E513200D03F44 /* CATRotatingView.h */,
-				32BFDE0E1A2E50CA00D03F44 /* CATToolbarView.h */,
-				32BFDE0F1A2E50CA00D03F44 /* CATToolbarView.m */,
-				32BFDD981A2D354F00D03F44 /* CATTintTouchButton.h */,
-				32BFDD991A2D354F00D03F44 /* CATTintTouchButton.m */,
+				32C951ED1A36699B005E1BFB /* iphone.png */,
+				32C951E91A366603005E1BFB /* shader.fsh */,
+				32C951EA1A366603005E1BFB /* shader.vsh */,
 				323BD0E41A253B0D00313573 /* CATAugmentedRealityView.h */,
 				323BD0E51A253B0D00313573 /* CATAugmentedRealityView.m */,
 				323BD0E91A253B0D00313573 /* CATContainerView.h */,
 				323BD0EA1A253B0D00313573 /* CATContainerView.m */,
-				323BD0F71A253B0D00313573 /* CATRotatingButton.h */,
-				323BD0F81A253B0D00313573 /* CATRotatingButton.m */,
-				323BD0F91A253B0D00313573 /* CATShutterButton.h */,
-				323BD0FA1A253B0D00313573 /* CATShutterButton.m */,
-				323BD0FB1A253B0D00313573 /* CATGalleryButton.h */,
-				323BD0FC1A253B0D00313573 /* CATGalleryButton.m */,
 				32BFDE021A2E4F0000D03F44 /* CATFeatureLayerDelegate.h */,
 				32BFDE031A2E4F0000D03F44 /* CATFeatureLayerDelegate.m */,
 				32BFDE041A2E4F0000D03F44 /* CATFeaturesLayer.h */,
 				32BFDE051A2E4F0000D03F44 /* CATFeaturesLayer.m */,
+				323BD0FB1A253B0D00313573 /* CATGalleryButton.h */,
+				323BD0FC1A253B0D00313573 /* CATGalleryButton.m */,
+				323BD0F71A253B0D00313573 /* CATRotatingButton.h */,
+				323BD0F81A253B0D00313573 /* CATRotatingButton.m */,
+				32BFDE121A2E513200D03F44 /* CATRotatingView.h */,
+				323BD0F91A253B0D00313573 /* CATShutterButton.h */,
+				323BD0FA1A253B0D00313573 /* CATShutterButton.m */,
+				32BFDD981A2D354F00D03F44 /* CATTintTouchButton.h */,
+				32BFDD991A2D354F00D03F44 /* CATTintTouchButton.m */,
+				32BFDE0E1A2E50CA00D03F44 /* CATToolbarView.h */,
+				32BFDE0F1A2E50CA00D03F44 /* CATToolbarView.m */,
+				32C951DF1A365CDC005E1BFB /* MPARDelegate.h */,
+				32C951E01A365CDC005E1BFB /* MPARDelegate.m */,
+				32C951E11A365CDC005E1BFB /* MPExpandingCircleAnimationView.h */,
+				32C951E21A365CDC005E1BFB /* MPExpandingCircleAnimationView.m */,
+				32EC39571A362D56004C31C0 /* MPMessageBox.h */,
+				32EC39581A362D56004C31C0 /* MPMessageBox.m */,
+				32EC395A1A362D70004C31C0 /* MPPaddedLabel.h */,
+				32EC395B1A362D70004C31C0 /* MPPaddedLabel.m */,
+				32EC392E1A361792004C31C0 /* NSString+RCString.h */,
+				32EC392F1A361792004C31C0 /* NSString+RCString.m */,
+				32BFDE161A2E528F00D03F44 /* UIImage+MPImageFile.h */,
+				32BFDE171A2E528F00D03F44 /* UIImage+MPImageFile.m */,
+				327524801A3276E600459B79 /* UIView+RCConstraints.h */,
+				327524811A3276E600459B79 /* UIView+RCConstraints.m */,
+				32BFDE131A2E51D000D03F44 /* UIView+RCOrientationRotation.h */,
+				32BFDE141A2E51D000D03F44 /* UIView+RCOrientationRotation.m */,
+				32EC39311A361BC9004C31C0 /* UIView+RCViewFade.h */,
+				32EC39321A361BC9004C31C0 /* UIView+RCViewFade.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -601,6 +623,7 @@
 		32BFDE231A2E840700D03F44 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				32C951E71A365E02005E1BFB /* GLKit.framework */,
 				32EC394E1A3623B5004C31C0 /* UIKit.framework */,
 				32EC394C1A3623B0004C31C0 /* Foundation.framework */,
 				32EC394A1A362393004C31C0 /* CoreMotion.framework */,
@@ -734,6 +757,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32C951EE1A36699B005E1BFB /* iphone.png in Resources */,
+				32C951EB1A366603005E1BFB /* shader.fsh in Resources */,
+				32C951EC1A366603005E1BFB /* shader.vsh in Resources */,
 				323BD0CF1A253AEC00313573 /* depth_data.js in Resources */,
 				323BD0DD1A253AEC00313573 /* svgjs.js in Resources */,
 				323BD0D31A253AEC00313573 /* jquery-2.1.1.min.js in Resources */,
@@ -785,8 +811,10 @@
 				323BD08F1A25324800313573 /* AppDelegate.m in Sources */,
 				323BD10B1A253B0D00313573 /* CATGalleryButton.m in Sources */,
 				32BFDDC71A2E445100D03F44 /* CATHttpInterceptor.m in Sources */,
+				32C951E31A365CDC005E1BFB /* MPARDelegate.m in Sources */,
 				32BFDDE81A2E451E00D03F44 /* SBJsonStreamParserState.m in Sources */,
 				32BFDE001A2E4B2200D03F44 /* RCVideoPreview.m in Sources */,
+				32C951E41A365CDC005E1BFB /* MPExpandingCircleAnimationView.m in Sources */,
 				32BFDDB11A2E433D00D03F44 /* RCCalibration2.m in Sources */,
 				32BFDDC11A2E43A700D03F44 /* RCLocationManager.m in Sources */,
 				323BD1011A253B0D00313573 /* CATCapturePhoto.m in Sources */,

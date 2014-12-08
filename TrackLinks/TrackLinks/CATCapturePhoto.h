@@ -23,6 +23,7 @@
 #import "CATOrientationChangeData.h"
 #import "CATContainerView.h"
 #import "CATConstants.h"
+#import "MPExpandingCircleAnimationView.h"
 
 @interface CATCapturePhoto : UIViewController <RCSensorFusionDelegate, RCStereoDelegate, UIAlertViewDelegate>
 
@@ -30,9 +31,6 @@
 - (void)handlePause;
 - (void)handleResume;
 - (IBAction)handleShutterButton:(id)sender;
-- (IBAction)handleGalleryButton:(id)sender;
-- (IBAction)handleQuestionButton:(id)sender;
-- (IBAction)handleQuestionCloseButton:(id)sender;
 - (void) setOrientation:(UIDeviceOrientation)orientation animated:(BOOL)animated;
 
 @property (nonatomic) IBOutlet CATAugmentedRealityView *arView;
@@ -44,5 +42,6 @@
 @property (weak, nonatomic) IBOutlet UISegmentedControl *questionSegButton;
 @property (weak, nonatomic) IBOutlet UIButton *questionCloseButton;
 @property (weak, nonatomic) IBOutlet CATContainerView *containerView;
+@property (weak, nonatomic) IBOutlet MPExpandingCircleAnimationView *expandingCircleView;
 
 @end

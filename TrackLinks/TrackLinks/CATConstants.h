@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#include <pthread.h>
+#include "RCDebugLog.h"
 
 #ifndef TapeMeasure_Constants_h
 #define TapeMeasure_Constants_h
@@ -62,17 +62,3 @@ static NSString * const CATCapturePhotoDidAppearNotification = @"com.cat.Capture
 typedef enum {
     UnitsMetric = 0, UnitsImperial = 1
 } Units;
-
-#ifdef ARCHIVE
-    #define LOGME // do nothing
-    #define DLog(fmt, ...) // do nothing
-    #define NSLog(...) // do nothing
-#else
-    #ifdef DEBUG
-        #define LOGME fprintf(stderr,"%s %-4x %s\n", __TIME__, pthread_mach_thread_np(pthread_self()), __PRETTY_FUNCTION__);
-        #define DLog(format, ...) fprintf(stderr,"%s %-4x %s %s\n", __TIME__, pthread_mach_thread_np(pthread_self()), __PRETTY_FUNCTION__, [[NSString stringWithFormat:format, ##__VA_ARGS__] UTF8String]);
-    #else
-        #define LOGME NSLog(@"%s", __PRETTY_FUNCTION__);
-        #define DLog(fmt, ...) NSLog((@"%s " fmt), __PRETTY_FUNCTION__, ##__VA_ARGS__);
-    #endif
-#endif

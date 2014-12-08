@@ -19,7 +19,7 @@
     BOOL isInitialized;
     //ARDelegate *AROverlay;
 }
-@synthesize videoView, featuresView, featuresLayer, initializingFeaturesLayer;
+@synthesize videoView, featuresView, featuresLayer, initializingFeaturesLayer, AROverlay;
 
 - (id) initWithFrame:(CGRect)frame
 {
@@ -48,8 +48,8 @@
     [self addSubview:videoView];
     [self sendSubviewToBack:videoView];
     
-    //AROverlay = [[MPVideoPreview alloc] init];
-    //[videoView setDelegate:AROverlay];
+    AROverlay = [[MPARDelegate alloc] init];
+    [videoView setDelegate:AROverlay];
     
     featuresView = [[UIView alloc] initWithFrame:CGRectZero];
     [self addSubview:featuresView];

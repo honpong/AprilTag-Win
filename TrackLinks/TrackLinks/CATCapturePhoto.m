@@ -17,6 +17,9 @@
 #import "RCDebugLog.h"
 #import <CoreLocation/CoreLocation.h>
 #import <RC3DKPlus/RC3DKPlus.h>
+#import "RCLocationManager.h"
+#import "UIView+RCOrientationRotation.h"
+#import "UIView+RCViewFade.h"
 
 static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
 
@@ -41,7 +44,7 @@ static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
     BOOL didGetVisionError;
     RCSensorFusionErrorCode lastErrorCode;
 }
-@synthesize toolbar, galleryButton, shutterButton, messageLabel, questionLabel, questionSegButton, arView, containerView, instructionsView;
+@synthesize toolbar, galleryButton, shutterButton, messageLabel, questionLabel, questionSegButton, arView, containerView;
 
 typedef NS_ENUM(int, AlertTag) {
     AlertTagTutorial = 0,
@@ -154,7 +157,7 @@ static transition transitions[] =
     if(oldSetup.sensorFusion && !newSetup.sensorFusion)
         [self stopSensorFusion];
     if(oldSetup.features && !newSetup.features)
-        [arView hideFeatures]; [arView resetSelectedFeatures];
+        [arView hideFeatures];
     if(!oldSetup.features && newSetup.features)
         [self.arView showFeatures];
     if(oldSetup.progress != newSetup.progress)
@@ -170,10 +173,10 @@ static transition transitions[] =
         self.arView.initializingFeaturesLayer.hidden = YES;
     if(!oldSetup.showBadFeatures && newSetup.showBadFeatures)
         self.arView.initializingFeaturesLayer.hidden = NO;
-    if(!oldSetup.showSlideInstructions && newSetup.showSlideInstructions)
-        instructionsView.hidden = NO;
-    if(oldSetup.showSlideInstructions && !newSetup.showSlideInstructions)
-        instructionsView.hidden = YES;
+//    if(!oldSetup.showSlideInstructions && newSetup.showSlideInstructions)
+//        instructionsView.hidden = NO;
+//    if(oldSetup.showSlideInstructions && !newSetup.showSlideInstructions)
+//        instructionsView.hidden = YES;
     if(!oldSetup.stereo && newSetup.stereo)
         [[RCStereo sharedInstance] reset];
     if (newSetup.progress == SpinnerTypeNone)
@@ -260,7 +263,7 @@ static transition transitions[] =
 //        [self showInstructionsDialog];
 //    }
     
-    instructionsView.delegate = self;
+//    instructionsView.delegate = self;
     containerView.delegate = arView;
     
     sensorDelegate = [SensorDelegate sharedInstance];
@@ -386,8 +389,6 @@ static transition transitions[] =
     }
     
     [self handleOrientationChange]; // ensures that UI is in correct orientation
-    if(currentState != ST_PROCESSING)
-        [self.arView.videoView animateOpen:[CATCapturePhoto getCurrentUIOrientation]];
 }
 
 - (IBAction)handleShutterButton:(id)sender
@@ -397,62 +398,7 @@ static transition transitions[] =
 
 - (IBAction)handleGalleryButton:(id)sender
 {
-    [self gotoGallery];
-}
-
-- (IBAction)handleQuestionButton:(id)sender
-{
-    questionLabel.text = @"Thanks!";
-    [questionView
-     hideWithDelay:.5
-     onCompletion:^(BOOL finished){
-         questionLabel.text = @"Are the measurements accurate?";
-         [questionSegButton setSelectedSegmentIndex:-1]; // clear selection
-     }];
     
-    UISegmentedControl* button = (UISegmentedControl*)sender;
-    switch (button.selectedSegmentIndex)
-    {
-        case 0:
-            // Pretty close
-            [MPSurveyAnswer postAnswer:YES];
-            break;
-        case 1:
-            // Not really
-            [MPSurveyAnswer postAnswer:NO];
-            break;
-        case 2:
-            // Don't show again
-            [[NSUserDefaults standardUserDefaults] setBool:NO forKey:PREF_SHOW_ACCURACY_QUESTION];
-            [[NSUserDefaults standardUserDefaults] synchronize];
-            break;
-        default:
-            break;
-    }
-    
-    isQuestionDismissed = YES;
-}
-
-- (IBAction)handleQuestionCloseButton:(id)sender
-{
-    [questionView hideInstantly];
-    isQuestionDismissed = YES;
-}
-
-- (void) handleTapGesture:(UIGestureRecognizer *) sender
-{
-    if (sender.state != UIGestureRecognizerStateEnded) return;
-    
-    CGPoint tappedPoint = [sender locationInView:self.arView];
-    if (currentState == ST_FINISHED)
-    {
-        [arView handleFeatureTapped:tappedPoint];
-    }
-    else if (currentState == ST_READY)
-    {
-//        CGPoint point = [self.arView.featuresLayer cameraPointFromScreenPoint:tappedPoint];
-//        [SENSOR_FUSION selectUserFeatureWithX:point.x withY:point.y];
-    }
 }
 
 - (void) handleMoveStart
@@ -487,66 +433,19 @@ static transition transitions[] =
 
 - (void) gotoEditPhotoScreen
 {
-    [MPAnalytics logEvent:@"View.EditPhoto"];
-    
-    if ([self.presentingViewController isKindOfClass:[MPGalleryController class]])
-    {
-        MPGalleryController* galleryController = (MPGalleryController*)self.presentingViewController;
-        CATEditPhoto* editPhotoController = galleryController.editPhotoController;
-        editPhotoController.measuredPhoto = measuredPhoto;
-        [self presentViewController:editPhotoController animated:YES completion:nil];
-    }
-    else if ([self.presentingViewController isKindOfClass:[MPEditPhoto class]])
-    {
-        CATEditPhoto* editPhotoController = (CATEditPhoto*)self.presentingViewController;
-        editPhotoController.measuredPhoto = measuredPhoto;
-        [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
-    }
-}
-
-- (void) gotoGallery
-{
-    [self.arView.videoView animateClosed:[CATCapturePhoto getCurrentUIOrientation] withCompletionBlock:^(BOOL finished) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            if ([self.presentingViewController isKindOfClass:[MPGalleryController class]])
-            {
-                [self.presentingViewController dismissViewControllerAnimated:NO completion:nil];
-            }
-            else if ([self.presentingViewController isKindOfClass:[MPEditPhoto class]])
-            {
-                [self.presentingViewController.presentingViewController dismissViewControllerAnimated:NO completion:nil];
-            }
-        });
-    }];
+    CATEditPhoto* editPhotoController = (CATEditPhoto*)self.presentingViewController;
+    editPhotoController.measuredPhoto = measuredPhoto;
+    [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
 }
 
 - (void) handlePhotoDeleted
 {
-    [questionView hideWithDelay:0 onCompletion:nil];
     [self hideMessage];
-
-    // TODO for testing only
-//    TMMeasuredPhoto* mp = [[TMMeasuredPhoto alloc] init];
-//    mp.appVersion = @"1.2";
-//    mp.appBuildNumber = @5;
-//    mp.featurePoints = [MPPhotoRequest transcribeFeaturePoints:goodPoints];
-//    mp.imageData = [MPPhotoRequest sampleBufferToNSData:lastSensorFusionDataWithImage.sampleBuffer];
-//    [[MPPhotoRequest lastRequest] sendMeasuredPhoto:mp];
 }
 
 - (MPDMeasuredPhoto*) saveMeasuredPhoto
 {
-    MPDMeasuredPhoto* cdMeasuredPhoto = [MPDMeasuredPhoto MR_createEntity];
-    
-    [CONTEXT MR_saveToPersistentStoreWithCompletion:^(BOOL success, NSError *error) {
-        if (success) {
-            DLog(@"Saved CoreData context.");
-        } else if (error) {
-            DLog(@"Error saving context: %@", error.description);
-        }
-    }];
-    
-    return cdMeasuredPhoto;
+    return [MPDMeasuredPhoto new];;
 }
 
 #pragma mark - RCStereoDelegate
@@ -568,73 +467,6 @@ static transition transitions[] =
 - (void) featureTapped
 {
     if (questionTimer && questionTimer.isValid) [questionTimer invalidate];
-}
-
-- (void) measurementCompleted
-{
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_SHOW_ACCURACY_QUESTION] && !isQuestionDismissed)
-    {
-        questionTimer = [NSTimer
-                         scheduledTimerWithTimeInterval:2.
-                         target:questionView
-                         selector:@selector(showAnimated)
-                         userInfo:nil
-                         repeats:false];
-    }
-}
-
-- (void) showTutorialDialog
-{
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Tutorial Video"
-                                                    message:@"Watch this short video to learn how to use the app."
-                                                   delegate:self
-                                          cancelButtonTitle:@"Don't ask again"
-                                          otherButtonTitles:@"OK (recommended)", @"Not now", nil];
-    alert.tag = AlertTagTutorial;
-    [alert show];
-}
-
-// TODO: obsolete
-- (void) showInstructionsDialog
-{
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Instructions"
-                                                    message:@"Hold the device firmly with two hands. Keep the camera pointed at what you want to measure and slide the device left, right, up and down. When some of the dots turn blue, then press the shutter button to take the photo."
-                                                   delegate:self
-                                          cancelButtonTitle:@"Don't show again"
-                                          otherButtonTitles:@"OK", nil];
-    alert.tag = AlertTagInstructions;
-    [alert show];
-}
-
-- (void) alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex
-{
-    if (alertView.tag == AlertTagTutorial)
-    {
-        if (buttonIndex == 0) // don't ask again
-        {
-            [[NSUserDefaults standardUserDefaults] setInteger:MPTutorialAnswerDontAskAgain forKey:PREF_TUTORIAL_ANSWER];
-            if ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_SHOW_INSTRUCTIONS]) [self showInstructionsDialog];
-        }
-        else if (buttonIndex == 1) // YES
-        {
-            [[NSUserDefaults standardUserDefaults] setInteger:MPTutorialAnswerYes forKey:PREF_TUTORIAL_ANSWER];
-            [[NSUserDefaults standardUserDefaults] setBool:NO forKey:PREF_SHOW_INSTRUCTIONS];
-            MPYouTubeVideo* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"YouTubeVideo"];
-            self.view.window.rootViewController = vc;
-        }
-        else if (buttonIndex == 2) // not now
-        {
-            [[NSUserDefaults standardUserDefaults] setInteger:MPTutorialAnswerNotNow forKey:PREF_TUTORIAL_ANSWER];
-            if ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_SHOW_INSTRUCTIONS]) [self showInstructionsDialog];
-        }
-    }
-    else if (alertView.tag == AlertTagInstructions)
-    {
-        if (buttonIndex == 0) // don't show again
-        {
-            [[NSUserDefaults standardUserDefaults] setBool:NO forKey:PREF_SHOW_INSTRUCTIONS];
-        }
-    }
 }
 
 #pragma mark - 3DK Stuff
@@ -738,7 +570,7 @@ static transition transitions[] =
         if(setups[currentState].stereo) [STEREO processFrame:data withFinal:false];
     }
     
-    if (currentState == ST_MOVING) [instructionsView updateDotPosition:data.transformation withDepth:[median floatValue]];
+//    if (currentState == ST_MOVING) [instructionsView updateDotPosition:data.transformation withDepth:[median floatValue]];
 }
 
 #pragma mark -

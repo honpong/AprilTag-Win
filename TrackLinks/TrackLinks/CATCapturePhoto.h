@@ -22,8 +22,7 @@
 #import "CATShutterButton.h"
 #import "CATOrientationChangeData.h"
 #import "CATContainerView.h"
-
-extern NSString * const CATUIOrientationDidChangeNotification;
+#import "CATConstants.h"
 
 @interface CATCapturePhoto : UIViewController <RCSensorFusionDelegate, RCStereoDelegate, UIAlertViewDelegate>
 

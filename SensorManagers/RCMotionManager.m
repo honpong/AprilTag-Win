@@ -6,7 +6,8 @@
 //
 
 #import "RCMotionManager.h"
-#import "RCDebugLog.h"
+#import "CATConstants.h"
+#import "RC3DK.h"
 
 /** This implements two different methods of capturing data from CoreMotion - polling or updates to a queue. Experimentally, as of iOS 6, capturing updates to a queue consumes signficantly more CPU than polling.
     Update: As of iOS 7/8, this difference is much less, but still surprisingly large (roughly 6% of cpu for queue, 3% for polling)
@@ -141,7 +142,6 @@
 
 - (BOOL)startMotionCapWithQueue:(NSOperationQueue*)queue
 {
-    RCSensorFusion* sensorFusion = [RCSensorFusion sharedInstance];
     queueMotion = queue;
     if(queueMotion == nil)
     {
@@ -163,6 +163,7 @@
              //                   gyroData.rotationRate.y,
              //                   gyroData.rotationRate.z);
              
+             RCSensorFusion* sensorFusion = [RCSensorFusion sharedInstance];
              [sensorFusion receiveGyroData:gyroData];
              lastGyro = gyroData.timestamp;
 #ifdef DEBUG_TIMER
@@ -184,6 +185,7 @@
              //                    accelerometerData.acceleration.y,
              //                    accelerometerData.acceleration.z);
              
+             RCSensorFusion* sensorFusion = [RCSensorFusion sharedInstance];
              [sensorFusion receiveAccelerometerData:accelerometerData];
              lastAccelerometer = accelerometerData.timestamp;
 #ifdef DEBUG_TIMER

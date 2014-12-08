@@ -5,9 +5,10 @@
 //  Copyright (c) 2014 Caterpillar. All rights reserved.
 //
 
-#import <RC3DK/RC3DK.h>
+#import "RC3DK.h"
 #import "CATHttpInterceptor.h"
 #import "CATRotatingButton.h"
+#import "MPDMeasuredPhoto.h"
 
 @interface CATEditPhoto : UIViewController <UIWebViewDelegate, CATHttpInterceptorDelegate, UITextFieldDelegate>
 
@@ -20,6 +21,7 @@
 @property (weak, nonatomic) IBOutlet UIView *navBar;
 @property (nonatomic, readonly) UIDeviceOrientation currentUIOrientation;
 @property (nonatomic) NSIndexPath* indexPath;
+@property (nonatomic) MPDMeasuredPhoto* measuredPhoto;
 
 - (IBAction)handlePhotosButton:(id)sender;
 - (IBAction)handleCameraButton:(id)sender;

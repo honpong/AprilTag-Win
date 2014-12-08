@@ -8,7 +8,7 @@
 
 #import <QuartzCore/QuartzCore.h>
 #import "CATFeatureLayerDelegate.h"
-#import <RC3DK/RC3DK.h>
+#import "RC3DK.h"
 
 #define VIDEO_WIDTH 480.
 #define VIDEO_HEIGHT 640.

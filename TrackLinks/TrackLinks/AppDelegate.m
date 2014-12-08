@@ -11,7 +11,7 @@
 #import "RCSensorDelegate.h"
 #import "RCLocationManager.h"
 #import "CATHttpInterceptor.h"
-#import <RC3DK/RC3DK.h>
+#import "RC3DK.h"
 #import "RCCalibration1.h"
 #import "RCDebugLog.h"
 #import "RCMotionManager.h"

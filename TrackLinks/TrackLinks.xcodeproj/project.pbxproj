@@ -83,6 +83,23 @@
 		32BFDE181A2E528F00D03F44 /* UIImage+MPImageFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDE171A2E528F00D03F44 /* UIImage+MPImageFile.m */; };
 		32BFDE1F1A2E83F000D03F44 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFDE1E1A2E83F000D03F44 /* CoreLocation.framework */; };
 		32BFDE221A2E83F600D03F44 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFDE211A2E83F600D03F44 /* AVFoundation.framework */; };
+		32EC392B1A3613D7004C31C0 /* MPDMeasuredPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EC392A1A3613D7004C31C0 /* MPDMeasuredPhoto.m */; };
+		32EC39301A361792004C31C0 /* NSString+RCString.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EC392F1A361792004C31C0 /* NSString+RCString.m */; };
+		32EC39331A361BC9004C31C0 /* UIView+RCViewFade.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EC39321A361BC9004C31C0 /* UIView+RCViewFade.m */; };
+		32EC39351A361F39004C31C0 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EC39341A361F39004C31C0 /* SystemConfiguration.framework */; };
+		32EC39371A361F45004C31C0 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EC39361A361F45004C31C0 /* Security.framework */; };
+		32EC39391A361F51004C31C0 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EC39381A361F51004C31C0 /* QuartzCore.framework */; };
+		32EC393B1A361F60004C31C0 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EC393A1A361F60004C31C0 /* OpenGLES.framework */; };
+		32EC393D1A361F6A004C31C0 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EC393C1A361F6A004C31C0 /* MobileCoreServices.framework */; };
+		32EC393F1A361F74004C31C0 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EC393E1A361F74004C31C0 /* CoreVideo.framework */; };
+		32EC39411A361F7B004C31C0 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EC39401A361F7B004C31C0 /* CoreMedia.framework */; };
+		32EC39431A361F89004C31C0 /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EC39421A361F89004C31C0 /* CoreImage.framework */; };
+		32EC39451A361F96004C31C0 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EC39441A361F96004C31C0 /* Accelerate.framework */; };
+		32EC39471A361FA1004C31C0 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EC39461A361FA1004C31C0 /* CoreGraphics.framework */; };
+		32EC39491A362366004C31C0 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EC39481A362366004C31C0 /* libz.dylib */; };
+		32EC394B1A362393004C31C0 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EC394A1A362393004C31C0 /* CoreMotion.framework */; };
+		32EC394D1A3623B0004C31C0 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EC394C1A3623B0004C31C0 /* Foundation.framework */; };
+		32EC394F1A3623B5004C31C0 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EC394E1A3623B5004C31C0 /* UIKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -255,6 +272,26 @@
 		32BFDE191A2E807A00D03F44 /* RC3DK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RC3DK.h; sourceTree = "<group>"; };
 		32BFDE1E1A2E83F000D03F44 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		32BFDE211A2E83F600D03F44 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		32EC39291A3613D7004C31C0 /* MPDMeasuredPhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPDMeasuredPhoto.h; sourceTree = "<group>"; };
+		32EC392A1A3613D7004C31C0 /* MPDMeasuredPhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPDMeasuredPhoto.m; sourceTree = "<group>"; };
+		32EC392E1A361792004C31C0 /* NSString+RCString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+RCString.h"; sourceTree = "<group>"; };
+		32EC392F1A361792004C31C0 /* NSString+RCString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+RCString.m"; sourceTree = "<group>"; };
+		32EC39311A361BC9004C31C0 /* UIView+RCViewFade.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+RCViewFade.h"; sourceTree = "<group>"; };
+		32EC39321A361BC9004C31C0 /* UIView+RCViewFade.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+RCViewFade.m"; sourceTree = "<group>"; };
+		32EC39341A361F39004C31C0 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		32EC39361A361F45004C31C0 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		32EC39381A361F51004C31C0 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		32EC393A1A361F60004C31C0 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		32EC393C1A361F6A004C31C0 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
+		32EC393E1A361F74004C31C0 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
+		32EC39401A361F7B004C31C0 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
+		32EC39421A361F89004C31C0 /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
+		32EC39441A361F96004C31C0 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
+		32EC39461A361FA1004C31C0 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		32EC39481A362366004C31C0 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
+		32EC394A1A362393004C31C0 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
+		32EC394C1A3623B0004C31C0 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		32EC394E1A3623B5004C31C0 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -262,9 +299,23 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				32EC394F1A3623B5004C31C0 /* UIKit.framework in Frameworks */,
+				32EC394D1A3623B0004C31C0 /* Foundation.framework in Frameworks */,
+				32EC394B1A362393004C31C0 /* CoreMotion.framework in Frameworks */,
+				32EC39491A362366004C31C0 /* libz.dylib in Frameworks */,
+				32EC39471A361FA1004C31C0 /* CoreGraphics.framework in Frameworks */,
+				32EC39451A361F96004C31C0 /* Accelerate.framework in Frameworks */,
+				32EC39431A361F89004C31C0 /* CoreImage.framework in Frameworks */,
+				32BFDE1F1A2E83F000D03F44 /* CoreLocation.framework in Frameworks */,
+				32EC39411A361F7B004C31C0 /* CoreMedia.framework in Frameworks */,
+				32EC393F1A361F74004C31C0 /* CoreVideo.framework in Frameworks */,
+				32EC393D1A361F6A004C31C0 /* MobileCoreServices.framework in Frameworks */,
+				32EC393B1A361F60004C31C0 /* OpenGLES.framework in Frameworks */,
+				32EC39391A361F51004C31C0 /* QuartzCore.framework in Frameworks */,
+				32EC39371A361F45004C31C0 /* Security.framework in Frameworks */,
+				32EC39351A361F39004C31C0 /* SystemConfiguration.framework in Frameworks */,
 				327524791A3271E400459B79 /* libRC3DKPlus.a in Frameworks */,
 				32BFDE221A2E83F600D03F44 /* AVFoundation.framework in Frameworks */,
-				32BFDE1F1A2E83F000D03F44 /* CoreLocation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -326,6 +377,8 @@
 				323BD0981A25324800313573 /* LaunchScreen.xib */,
 				323BD0891A25324800313573 /* Supporting Files */,
 				32BFDE191A2E807A00D03F44 /* RC3DK.h */,
+				32EC39291A3613D7004C31C0 /* MPDMeasuredPhoto.h */,
+				32EC392A1A3613D7004C31C0 /* MPDMeasuredPhoto.m */,
 			);
 			path = TrackLinks;
 			sourceTree = "<group>";
@@ -502,6 +555,10 @@
 		32BFDE011A2E4EEF00D03F44 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				32EC39311A361BC9004C31C0 /* UIView+RCViewFade.h */,
+				32EC39321A361BC9004C31C0 /* UIView+RCViewFade.m */,
+				32EC392E1A361792004C31C0 /* NSString+RCString.h */,
+				32EC392F1A361792004C31C0 /* NSString+RCString.m */,
 				327524801A3276E600459B79 /* UIView+RCConstraints.h */,
 				327524811A3276E600459B79 /* UIView+RCConstraints.m */,
 				32BFDE161A2E528F00D03F44 /* UIImage+MPImageFile.h */,
@@ -534,6 +591,20 @@
 		32BFDE231A2E840700D03F44 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				32EC394E1A3623B5004C31C0 /* UIKit.framework */,
+				32EC394C1A3623B0004C31C0 /* Foundation.framework */,
+				32EC394A1A362393004C31C0 /* CoreMotion.framework */,
+				32EC39481A362366004C31C0 /* libz.dylib */,
+				32EC39461A361FA1004C31C0 /* CoreGraphics.framework */,
+				32EC39441A361F96004C31C0 /* Accelerate.framework */,
+				32EC39421A361F89004C31C0 /* CoreImage.framework */,
+				32EC39401A361F7B004C31C0 /* CoreMedia.framework */,
+				32EC393E1A361F74004C31C0 /* CoreVideo.framework */,
+				32EC393C1A361F6A004C31C0 /* MobileCoreServices.framework */,
+				32EC393A1A361F60004C31C0 /* OpenGLES.framework */,
+				32EC39381A361F51004C31C0 /* QuartzCore.framework */,
+				32EC39361A361F45004C31C0 /* Security.framework */,
+				32EC39341A361F39004C31C0 /* SystemConfiguration.framework */,
 				32BFDE211A2E83F600D03F44 /* AVFoundation.framework */,
 				32BFDE1E1A2E83F000D03F44 /* CoreLocation.framework */,
 			);
@@ -715,12 +786,14 @@
 				32BFDDB21A2E433D00D03F44 /* RCCalibration3.m in Sources */,
 				32BFDDE31A2E451E00D03F44 /* NSObject+SBJson.m in Sources */,
 				32BFDDC01A2E43A700D03F44 /* RCAVSessionManager.m in Sources */,
+				32EC39331A361BC9004C31C0 /* UIView+RCViewFade.m in Sources */,
 				32BFDDEE1A2E451E00D03F44 /* SBJsonWriter.m in Sources */,
 				323BD08C1A25324800313573 /* main.m in Sources */,
 				32BFDDC31A2E43A700D03F44 /* RCSensorDelegate.m in Sources */,
 				32BFDDEB1A2E451E00D03F44 /* SBJsonStreamWriterState.m in Sources */,
 				323BD1071A253B0D00313573 /* CATOrientationChangeData.m in Sources */,
 				32BFDDFE1A2E4B2200D03F44 /* RCGLManagerFactory.m in Sources */,
+				32EC392B1A3613D7004C31C0 /* MPDMeasuredPhoto.m in Sources */,
 				32BFDDEC1A2E451E00D03F44 /* SBJsonTokeniser.m in Sources */,
 				32BFDDED1A2E451E00D03F44 /* SBJsonUTF8Stream.m in Sources */,
 				32BFDDC41A2E43A700D03F44 /* RCVideoManager.m in Sources */,
@@ -742,6 +815,7 @@
 				32BFDDFF1A2E4B2200D03F44 /* RCGLShaderProgram.m in Sources */,
 				32BFDDE61A2E451E00D03F44 /* SBJsonStreamParserAccumulator.m in Sources */,
 				323BD1021A253B0D00313573 /* CATContainerView.m in Sources */,
+				32EC39301A361792004C31C0 /* NSString+RCString.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -899,6 +973,7 @@
 				INFOPLIST_FILE = TrackLinks/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
 			};
@@ -938,6 +1013,74 @@
 			};
 			name = Release;
 		};
+		32EC39501A36274C004C31C0 /* Archive */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Archive;
+		};
+		32EC39511A36274C004C31C0 /* Archive */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREPROCESSOR_DEFINITIONS = "ARCHIVE=1";
+				INFOPLIST_FILE = TrackLinks/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				ONLY_ACTIVE_ARCH = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE = "";
+			};
+			name = Archive;
+		};
+		32EC39521A36274C004C31C0 /* Archive */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = TrackLinksTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/TrackLinks.app/TrackLinks";
+			};
+			name = Archive;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -946,6 +1089,7 @@
 			buildConfigurations = (
 				323BD0A71A25324800313573 /* Debug */,
 				323BD0A81A25324800313573 /* Release */,
+				32EC39501A36274C004C31C0 /* Archive */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -955,6 +1099,7 @@
 			buildConfigurations = (
 				323BD0AA1A25324800313573 /* Debug */,
 				323BD0AB1A25324800313573 /* Release */,
+				32EC39511A36274C004C31C0 /* Archive */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -964,6 +1109,7 @@
 			buildConfigurations = (
 				323BD0AD1A25324800313573 /* Debug */,
 				323BD0AE1A25324800313573 /* Release */,
+				32EC39521A36274C004C31C0 /* Archive */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

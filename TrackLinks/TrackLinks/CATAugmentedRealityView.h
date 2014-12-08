@@ -7,7 +7,7 @@
 //
 
 #import "RCVideoPreview.h"
-#import <RC3DK/RC3DK.h>
+#import "RC3DK.h"
 #import "CATFeaturesLayer.h"
 
 #define FEATURE_COUNT 200

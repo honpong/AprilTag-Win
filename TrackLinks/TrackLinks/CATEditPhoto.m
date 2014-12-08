@@ -8,7 +8,9 @@
 #import "CATEditPhoto.h"
 #import "CATHttpInterceptor.h"
 #import "CATCapturePhoto.h"
-#import "RCDebugLog.h"
+#import "CATConstants.h"
+#import "CATNativeAction.h"
+#import "NSString+RCString.h"
 
 @interface CATEditPhoto ()
 
@@ -80,20 +82,6 @@
     if (UIDeviceOrientationIsValidInterfaceOrientation(newOrientation))
     {
         [self setOrientation:newOrientation animated:YES];
-        
-        if (UIDeviceOrientationIsPortrait(newOrientation))
-        {
-            [self fadeOutTitleButton];
-        }
-        else if (UIDeviceOrientationIsLandscape(newOrientation))
-        {
-            if (newOrientation == UIDeviceOrientationLandscapeLeft)
-                self.titleButton.transform = CGAffineTransformMakeRotation(M_PI_2);
-            else
-                self.titleButton.transform = CGAffineTransformMakeRotation(-M_PI_2);
-            
-            [self fadeInTitleButton];
-        }
     }
 }
 
@@ -113,114 +101,19 @@
     [self.webView stringByEvaluatingJavaScriptFromString: jsFunction];
 }
 
-#pragma mark - Animations
-
-- (void) fadeOutTitleButton
-{
-    [UIView animateWithDuration: .3
-                          delay: 0
-                        options: UIViewAnimationOptionCurveEaseIn
-                     animations:^{
-                         self.titleButton.alpha = 0;
-                     }
-                     completion:^(BOOL finished){
-                         [self.titleButton setTitle:nil forState:UIControlStateNormal];
-                         self.titleButton.alpha = 1.;
-                     }];
-}
-
-- (void) fadeInTitleButton
-{
-    self.titleButton.alpha = 0;
-    [self.titleButton setTitle:@"Aa" forState:UIControlStateNormal];
-    
-    [UIView animateWithDuration: .3
-                          delay: 0
-                        options: UIViewAnimationOptionCurveEaseIn
-                     animations:^{
-                         self.titleButton.alpha = 1.;
-                     }
-                     completion:^(BOOL finished){
-                         
-                     }];
-}
-
 #pragma mark - Event handlers
-
-- (IBAction)handlePhotosButton:(id)sender
-{
-    [self gotoGallery];
-}
 
 - (IBAction)handleCameraButton:(id)sender
 {
-    if ([self.presentingViewController isKindOfClass:[MPGalleryController class]])
-    {
-        MPGalleryController* galleryController = (MPGalleryController*)self.presentingViewController;
-        [galleryController hideZoomedThumbnail];
-        
-        CATCapturePhoto* cameraController = [self.storyboard instantiateViewControllerWithIdentifier:@"Camera"];
-        [cameraController setOrientation:[[UIDevice currentDevice] orientation] animated:NO];
-        [self presentViewController:cameraController animated:NO completion:nil];
-    }
-    else if ([self.presentingViewController isKindOfClass:[MPCapturePhoto class]])
-    {
-        [self.presentingViewController dismissViewControllerAnimated:NO completion:nil];
-    }
-    [MPAnalytics logEvent:@"View.CapturePhoto"];
-}
-
-- (IBAction)handleShareButton:(id)sender
-{
-
+    [self.presentingViewController dismissViewControllerAnimated:NO completion:nil];
 }
 
 - (IBAction)handleDelete:(id)sender
 {
-    self.measuredPhoto.is_deleted = YES;
-    [self gotoGallery];
+    [self.presentingViewController dismissViewControllerAnimated:NO completion:nil];
 }
 
-- (IBAction)handleTitleButton:(id)sender
-{
-    [self gotoEditTitle];
-}
-
-#pragma mark - Screen transitions
-
-- (void) gotoEditTitle
-{
-    titleController.measuredPhoto = self.measuredPhoto;
-    
-    // force view controller to be in correct orientation when we present it
-    if (self.currentUIOrientation == UIDeviceOrientationLandscapeLeft)
-    {
-        titleController.supportedUIOrientations = UIInterfaceOrientationMaskLandscapeRight; //reversed for some stupid reason
-    }
-    else if (self.currentUIOrientation == UIDeviceOrientationLandscapeRight)
-    {
-        titleController.supportedUIOrientations = UIInterfaceOrientationMaskLandscapeLeft; //reversed for some stupid reason
-    }
-    
-    [self presentViewController:titleController animated:NO completion:nil];
-    
-    if (UIDeviceOrientationIsLandscape(self.currentUIOrientation))
-    {
-        titleController.supportedUIOrientations = UIInterfaceOrientationMaskAll;
-    }
-}
-
--(void) gotoGallery
-{
-    if ([self.presentingViewController isKindOfClass:[MPGalleryController class]])
-    {
-        [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
-    }
-    else if ([self.presentingViewController isKindOfClass:[MPCapturePhoto class]])
-    {
-        [self.presentingViewController.presentingViewController dismissViewControllerAnimated:YES completion:nil];
-    }
-}
+#pragma mark -
 
 - (void) loadMeasuredPhoto
 {
@@ -235,20 +128,6 @@
     {
         DLog(@"ERROR: Failed to load web view because measuredPhoto is nil");
     }
-}
-
-#pragma mark - UITextFieldDelegate
-
-- (BOOL) textFieldShouldBeginEditing:(UITextField *)textField
-{
-    [self gotoEditTitle];
-    return NO;
-}
-
-- (BOOL) textFieldShouldReturn:(UITextField *)textField
-{
-    [textField resignFirstResponder];
-    return YES;
 }
 
 #pragma mark - UIWebViewDelegate

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6250" systemVersion="13F34" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="2">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6254" systemVersion="14B25" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" initialViewController="2">
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6244"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6247"/>
     </dependencies>
     <scenes>
         <!--Edit Photo-->
@@ -98,42 +98,42 @@
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="PlL-07-yn5" customClass="CATAugmentedRealityView">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
-                                <subviews>
-                                    <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FT6-Up-tfM" customClass="CATInstructionsView">
-                                        <rect key="frame" x="0.0" y="80" width="320" height="320"/>
-                                        <constraints>
-                                            <constraint firstAttribute="width" constant="320" id="JOe-mG-77Z"/>
-                                            <constraint firstAttribute="height" constant="320" id="mqC-dj-oiN"/>
-                                        </constraints>
-                                    </view>
-                                </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstAttribute="centerX" secondItem="FT6-Up-tfM" secondAttribute="centerX" id="TpA-TX-bGh"/>
-                                    <constraint firstAttribute="centerY" secondItem="FT6-Up-tfM" secondAttribute="centerY" id="rmv-pW-qAF"/>
                                     <constraint firstAttribute="height" constant="480" id="u50-iS-Mzw"/>
                                 </constraints>
                             </view>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="IzM-3z-8rc" customClass="CATContainerView">
+                            <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="1RZ-Qf-iJ9">
                                 <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
                                 <subviews>
-                                    <label hidden="YES" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Slowly move left and right a bit" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="300" translatesAutoresizingMaskIntoConstraints="NO" id="Q9N-TY-BVN" userLabel="Message Box" customClass="MPMessageBox">
-                                        <rect key="frame" x="10" y="410" width="300" height="50"/>
-                                        <color key="backgroundColor" white="0.0" alpha="0.29999999999999999" colorSpace="calibratedWhite"/>
+                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="IzM-3z-8rc" customClass="CATContainerView">
+                                        <rect key="frame" x="0.0" y="0.0" width="320" height="480"/>
+                                        <subviews>
+                                            <label hidden="YES" opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Slowly move left and right a bit" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="300" translatesAutoresizingMaskIntoConstraints="NO" id="Q9N-TY-BVN" userLabel="Message Box" customClass="MPMessageBox">
+                                                <rect key="frame" x="10" y="20" width="300" height="50"/>
+                                                <color key="backgroundColor" white="0.0" alpha="0.29999999999999999" colorSpace="calibratedWhite"/>
+                                                <constraints>
+                                                    <constraint firstAttribute="width" constant="300" id="5Kc-Pn-EZ5"/>
+                                                    <constraint firstAttribute="height" constant="50" id="pz8-O2-pWd"/>
+                                                </constraints>
+                                                <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                                <nil key="highlightedColor"/>
+                                            </label>
+                                        </subviews>
                                         <constraints>
-                                            <constraint firstAttribute="width" constant="300" id="5Kc-Pn-EZ5"/>
-                                            <constraint firstAttribute="height" constant="50" id="pz8-O2-pWd"/>
+                                            <constraint firstAttribute="height" constant="480" id="Hn4-Fo-XE8"/>
+                                            <constraint firstItem="Q9N-TY-BVN" firstAttribute="top" secondItem="IzM-3z-8rc" secondAttribute="top" constant="20" id="J02-a5-Yws"/>
+                                            <constraint firstAttribute="centerX" secondItem="Q9N-TY-BVN" secondAttribute="centerX" id="VE7-TD-9MH"/>
+                                            <constraint firstAttribute="width" constant="320" id="rni-tK-qMZ"/>
                                         </constraints>
-                                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
-                                        <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                        <nil key="highlightedColor"/>
-                                    </label>
+                                    </view>
                                 </subviews>
                                 <constraints>
-                                    <constraint firstAttribute="bottom" secondItem="Q9N-TY-BVN" secondAttribute="bottom" constant="20" id="9cI-EQ-n8y"/>
-                                    <constraint firstAttribute="height" constant="480" id="Hn4-Fo-XE8"/>
-                                    <constraint firstAttribute="centerX" secondItem="Q9N-TY-BVN" secondAttribute="centerX" id="VE7-TD-9MH"/>
-                                    <constraint firstAttribute="width" constant="320" id="rni-tK-qMZ"/>
+                                    <constraint firstAttribute="centerX" secondItem="IzM-3z-8rc" secondAttribute="centerX" id="7OA-Ap-E7k"/>
+                                    <constraint firstAttribute="width" constant="320" id="Pkd-8l-LU4"/>
+                                    <constraint firstAttribute="centerY" secondItem="IzM-3z-8rc" secondAttribute="centerY" id="jTx-rI-tWZ"/>
+                                    <constraint firstAttribute="height" constant="480" id="lFS-Sg-hnp"/>
                                 </constraints>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HzP-oT-oHk" userLabel="Toolbar">
@@ -190,12 +190,12 @@
                         <constraints>
                             <constraint firstItem="PlL-07-yn5" firstAttribute="leading" secondItem="3" secondAttribute="leading" id="4cB-fo-lor"/>
                             <constraint firstItem="PlL-07-yn5" firstAttribute="trailing" secondItem="3" secondAttribute="trailing" id="80m-n3-g1D"/>
+                            <constraint firstItem="1RZ-Qf-iJ9" firstAttribute="top" secondItem="aIm-xH-eAu" secondAttribute="bottom" id="BBk-kn-88F"/>
                             <constraint firstItem="PlL-07-yn5" firstAttribute="top" secondItem="3" secondAttribute="top" id="Tak-gV-iDh"/>
                             <constraint firstItem="HzP-oT-oHk" firstAttribute="leading" secondItem="3" secondAttribute="leading" id="VZD-eY-bdc"/>
                             <constraint firstItem="2f0-t1-KNS" firstAttribute="top" secondItem="HzP-oT-oHk" secondAttribute="bottom" id="WMo-xa-hgA"/>
                             <constraint firstAttribute="trailing" secondItem="HzP-oT-oHk" secondAttribute="trailing" id="Zna-S3-Cdp"/>
-                            <constraint firstItem="IzM-3z-8rc" firstAttribute="top" secondItem="aIm-xH-eAu" secondAttribute="bottom" id="iQy-L2-f8y"/>
-                            <constraint firstAttribute="centerX" secondItem="IzM-3z-8rc" secondAttribute="centerX" id="sAe-B7-tFE"/>
+                            <constraint firstAttribute="centerX" secondItem="1RZ-Qf-iJ9" secondAttribute="centerX" id="lci-HH-zJi"/>
                         </constraints>
                     </view>
                     <nil key="simulatedStatusBarMetrics"/>
@@ -203,7 +203,6 @@
                         <outlet property="arView" destination="PlL-07-yn5" id="UjT-FF-Y9E"/>
                         <outlet property="containerView" destination="IzM-3z-8rc" id="RFI-Oe-iU3"/>
                         <outlet property="galleryButton" destination="Knw-H5-IDC" id="G0i-uL-MU7"/>
-                        <outlet property="instructionsView" destination="FT6-Up-tfM" id="FiM-6n-Vvw"/>
                         <outlet property="messageLabel" destination="Q9N-TY-BVN" id="jCM-7D-ndQ"/>
                         <outlet property="shutterButton" destination="OhI-Mn-pZh" id="ROV-3a-nI2"/>
                         <outlet property="toolbar" destination="HzP-oT-oHk" id="9Lp-iO-hSx"/>

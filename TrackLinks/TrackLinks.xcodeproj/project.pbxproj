@@ -100,6 +100,8 @@
 		32EC394B1A362393004C31C0 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EC394A1A362393004C31C0 /* CoreMotion.framework */; };
 		32EC394D1A3623B0004C31C0 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EC394C1A3623B0004C31C0 /* Foundation.framework */; };
 		32EC394F1A3623B5004C31C0 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EC394E1A3623B5004C31C0 /* UIKit.framework */; };
+		32EC39591A362D56004C31C0 /* MPMessageBox.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EC39581A362D56004C31C0 /* MPMessageBox.m */; };
+		32EC395C1A362D70004C31C0 /* MPPaddedLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EC395B1A362D70004C31C0 /* MPPaddedLabel.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -292,6 +294,10 @@
 		32EC394A1A362393004C31C0 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		32EC394C1A3623B0004C31C0 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		32EC394E1A3623B5004C31C0 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		32EC39571A362D56004C31C0 /* MPMessageBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMessageBox.h; sourceTree = "<group>"; };
+		32EC39581A362D56004C31C0 /* MPMessageBox.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMessageBox.m; sourceTree = "<group>"; };
+		32EC395A1A362D70004C31C0 /* MPPaddedLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPPaddedLabel.h; sourceTree = "<group>"; };
+		32EC395B1A362D70004C31C0 /* MPPaddedLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPPaddedLabel.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -358,6 +364,7 @@
 				32BFDDB31A2E43A700D03F44 /* SensorManagers */,
 				32BFDD9E1A2E433D00D03F44 /* Calibration */,
 				323BD0BB1A253AEC00313573 /* HTML */,
+				323BD0891A25324800313573 /* Supporting Files */,
 				323BD0E61A253B0D00313573 /* CATCapturePhoto.h */,
 				323BD0E71A253B0D00313573 /* CATCapturePhoto.m */,
 				323BD0E81A253B0D00313573 /* CATConstants.h */,
@@ -375,7 +382,6 @@
 				323BD10D1A253B9A00313573 /* MainStoryboard_iPad.storyboard */,
 				323BD10F1A253B9A00313573 /* MainStoryboard_iPhone.storyboard */,
 				323BD0981A25324800313573 /* LaunchScreen.xib */,
-				323BD0891A25324800313573 /* Supporting Files */,
 				32BFDE191A2E807A00D03F44 /* RC3DK.h */,
 				32EC39291A3613D7004C31C0 /* MPDMeasuredPhoto.h */,
 				32EC392A1A3613D7004C31C0 /* MPDMeasuredPhoto.m */,
@@ -555,6 +561,10 @@
 		32BFDE011A2E4EEF00D03F44 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				32EC395A1A362D70004C31C0 /* MPPaddedLabel.h */,
+				32EC395B1A362D70004C31C0 /* MPPaddedLabel.m */,
+				32EC39571A362D56004C31C0 /* MPMessageBox.h */,
+				32EC39581A362D56004C31C0 /* MPMessageBox.m */,
 				32EC39311A361BC9004C31C0 /* UIView+RCViewFade.h */,
 				32EC39321A361BC9004C31C0 /* UIView+RCViewFade.m */,
 				32EC392E1A361792004C31C0 /* NSString+RCString.h */,
@@ -795,6 +805,7 @@
 				32BFDDFE1A2E4B2200D03F44 /* RCGLManagerFactory.m in Sources */,
 				32EC392B1A3613D7004C31C0 /* MPDMeasuredPhoto.m in Sources */,
 				32BFDDEC1A2E451E00D03F44 /* SBJsonTokeniser.m in Sources */,
+				32EC395C1A362D70004C31C0 /* MPPaddedLabel.m in Sources */,
 				32BFDDED1A2E451E00D03F44 /* SBJsonUTF8Stream.m in Sources */,
 				32BFDDC41A2E43A700D03F44 /* RCVideoManager.m in Sources */,
 				323BD10A1A253B0D00313573 /* CATShutterButton.m in Sources */,
@@ -808,6 +819,7 @@
 				32BFDDB01A2E433D00D03F44 /* RCCalibration1.m in Sources */,
 				323BD1001A253B0D00313573 /* CATAugmentedRealityView.m in Sources */,
 				32BFDD9A1A2D354F00D03F44 /* CATTintTouchButton.m in Sources */,
+				32EC39591A362D56004C31C0 /* MPMessageBox.m in Sources */,
 				323BD1061A253B0D00313573 /* CATNativeAction.m in Sources */,
 				32BFDDC21A2E43A700D03F44 /* RCMotionManager.m in Sources */,
 				323BD1031A253B0D00313573 /* CATEditPhoto.m in Sources */,

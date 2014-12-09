@@ -71,11 +71,22 @@
     BOOL calibratedFlag = [NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_CALIBRATED];
     BOOL hasCalibration = [SENSOR_FUSION hasCalibrationData];
     
-    if ([LOCATION_MANAGER isLocationExplicitlyAllowed])
+    if (![LOCATION_MANAGER isLocationDisallowed])
     {
-        // location already authorized. go ahead.
-        LOCATION_MANAGER.delegate = self;
-        [LOCATION_MANAGER startLocationUpdates];
+        if ([LOCATION_MANAGER isLocationExplicitlyAllowed])
+        {
+            [LOCATION_MANAGER startLocationUpdates];
+        }
+        else
+        {
+            [LOCATION_MANAGER requestLocationAccessWithCompletion:^(BOOL granted)
+             {
+                 if(granted)
+                 {
+                     [LOCATION_MANAGER startLocationUpdates];
+                 }
+             }];
+        }        
     }
     
     if (SKIP_CALIBRATION || (calibratedFlag && hasCalibration) )

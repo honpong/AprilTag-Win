@@ -8,8 +8,6 @@
 
 #import <Foundation/Foundation.h>
 
-#import <RC3DK/RC3DK.h>
-
 #include "CaptureFile.h"
 
 @protocol RCReplayManagerDelegate <NSObject>

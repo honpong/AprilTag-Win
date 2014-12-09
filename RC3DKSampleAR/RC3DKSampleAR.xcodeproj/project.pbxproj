@@ -69,7 +69,7 @@
 /* Begin PBXFileReference section */
 		D32441281A0D13D4001A487D /* QRDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QRDelegate.h; sourceTree = "<group>"; };
 		D32441291A0D13D4001A487D /* QRDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QRDelegate.m; sourceTree = "<group>"; };
-		D901456119F9A00F004E7CE2 /* RC3DKSampleAR.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RC3DKSampleAR.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D901456119F9A00F004E7CE2 /* RealityCap AR Sample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "RealityCap AR Sample.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D901456519F9A00F004E7CE2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D901456619F9A00F004E7CE2 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		D901456819F9A00F004E7CE2 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -208,7 +208,7 @@
 		D901456219F9A00F004E7CE2 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				D901456119F9A00F004E7CE2 /* RC3DKSampleAR.app */,
+				D901456119F9A00F004E7CE2 /* RealityCap AR Sample.app */,
 				D901457A19F9A00F004E7CE2 /* RC3DKSampleARTests.xctest */,
 			);
 			name = Products;
@@ -406,7 +406,7 @@
 			);
 			name = RC3DKSampleAR;
 			productName = RC3DKSampleAR;
-			productReference = D901456119F9A00F004E7CE2 /* RC3DKSampleAR.app */;
+			productReference = D901456119F9A00F004E7CE2 /* RealityCap AR Sample.app */;
 			productType = "com.apple.product-type.application";
 		};
 		D901457919F9A00F004E7CE2 /* RC3DKSampleARTests */ = {
@@ -646,7 +646,7 @@
 					"-objC",
 					"-lc++",
 				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "RealityCap AR Sample";
 				PROVISIONING_PROFILE = "";
 			};
 			name = Debug;
@@ -670,7 +670,7 @@
 					"-objC",
 					"-lc++",
 				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "RealityCap AR Sample";
 				PROVISIONING_PROFILE = "";
 			};
 			name = Release;

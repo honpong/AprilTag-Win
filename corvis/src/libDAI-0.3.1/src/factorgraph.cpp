@@ -265,7 +265,7 @@ void FactorGraph::printDot( std::ostream &os ) const {
     os << "}" << endl;
 }
 
-
+/*
 GraphAL FactorGraph::MarkovGraph() const {
     GraphAL G( nrVars() );
     for( size_t i = 0; i < nrVars(); i++ )
@@ -275,6 +275,7 @@ GraphAL FactorGraph::MarkovGraph() const {
                     G.addEdge( i, j, true );
     return G;
 }
+ */
 
 
 bool FactorGraph::isMaximal( size_t I ) const {
@@ -463,7 +464,7 @@ bool FactorGraph::isBinary() const {
     return binary;
 }
 
-
+/*
 FactorGraph FactorGraph::clamped( size_t i, size_t state ) const {
     Var v = var( i );
     Real zeroth_order = (Real)1;
@@ -494,7 +495,7 @@ FactorGraph FactorGraph::clamped( size_t i, size_t state ) const {
     *(clamped_facs.begin()) *= zeroth_order;
     return FactorGraph( clamped_facs );
 }
-
+*/
 
 FactorGraph FactorGraph::maximalFactors() const {
     vector<size_t> maxfac( nrFactors() );

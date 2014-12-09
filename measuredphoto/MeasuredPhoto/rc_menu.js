@@ -23,14 +23,14 @@ function build_rc_menu() {
             h=0; v=1;
         }
         
-        var v_offset = v * (window.innerHeight - button_size * 5) / 10;
-        var h_offset = h * (window.innerWidth - button_size * 5) / 10;
+        var v_offset = v * (window.innerHeight - button_size * 4) / 8;
+        var h_offset = h * (window.innerWidth - button_size * 4) / 8;
         rc_menu.menu_background.size(menu_svg.width(), menu_svg.height());
         rc_menu.button1.move(h_offset + 0 * button_size * h, v_offset + 0 * button_size * v + 1);
         rc_menu.button2.move(h_offset*3 + 1 * button_size * h, v_offset + 1 * button_size * v + 1);
         rc_menu.button3.move(h_offset*5 + 2 * button_size * h, v_offset + 2 * button_size * v + 1);
         rc_menu.button4.move(h_offset*7 + 3 * button_size * h, v_offset + 3 * button_size * v + 1);
-        rc_menu.button5.move(h_offset*9 + 4 * button_size * h, v_offset + 4 * button_size * v + 1);
+        //rc_menu.button5.move(h_offset*9 + 4 * button_size * h, v_offset + 4 * button_size * v + 1);
         //rc_menu.button6.move(h_offset*11 + 5 * button_size * h, v_offset + 5 * button_size * v + 1);
         //button7.move(h_offset + 6 * button_size * h, v_offset + 6 * button_size * v);
         //button8.move(h_offset + 7 * button_size * h, v_offset + 7 * button_size * v);
@@ -43,7 +43,7 @@ function build_rc_menu() {
     rc_menu.button2 = menu_svg.group();
     rc_menu.button3 = menu_svg.group();
     rc_menu.button4 = menu_svg.group();
-    rc_menu.button5 = menu_svg.group();
+    //rc_menu.button5 = menu_svg.group();
     //rc_menu.button6 = menu_svg.group();
     //var rc_menu.button7 = menu_svg.group();
     //var rc_menu.button8 = menu_svg.group();
@@ -52,7 +52,7 @@ function build_rc_menu() {
     rc_menu.button2.add(menu_svg.rect(button_size -2, button_size -2).stroke({ color: button_outline_color, opacity: button_fill_opacity, width: 1 }).fill({color: button_fill_color, opacity: button_fill_opacity}));
     rc_menu.button3.add(menu_svg.rect(button_size -2, button_size -2).stroke({ color: button_outline_color, opacity: button_fill_opacity, width: 1 }).fill({color: button_fill_color, opacity: button_fill_opacity}));
     rc_menu.button4.add(menu_svg.rect(button_size -2, button_size -2).stroke({ color: button_outline_color, opacity: button_fill_opacity, width: 1 }).fill({color: button_fill_color, opacity: button_fill_opacity}));
-    rc_menu.button5.add(menu_svg.rect(button_size -2, button_size -2).stroke({ color: button_outline_color, opacity: button_fill_opacity, width: 1 }).fill({color: button_fill_color, opacity: button_fill_opacity}));
+    //rc_menu.button5.add(menu_svg.rect(button_size -2, button_size -2).stroke({ color: button_outline_color, opacity: button_fill_opacity, width: 1 }).fill({color: button_fill_color, opacity: button_fill_opacity}));
     //rc_menu.button6.add(menu_svg.rect(button_size -2, button_size -2).stroke({ color: button_outline_color, opacity: button_fill_opacity, width: 1 }).fill({color: button_fill_color, opacity: button_fill_opacity}));
     //rc_menu.button7.add(menu_svg.rect(button_size -2, button_size -2).stroke({ color: button_outline_color, opacity: 1, width: 3 }).fill(button_fill_color));
     //rc_menu.button8.add(menu_svg.rect(button_size -2, button_size -2).stroke({ color: button_outline_color, opacity: 1, width: 3 }).fill(button_fill_color));
@@ -73,20 +73,20 @@ function build_rc_menu() {
     }
     
     // add 3d button to button 1
-    draw_3d_axis( rc_menu.button1);
+    //draw_3d_axis( rc_menu.button1);
 
-    //add line icon to button2
+    //add line icon to button1
     function draw_line_icon (button) {
         rc_menu.line_button = button;
         button.add(menu_svg.circle(2).move(8,27).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }).fill('none'));
         button.add(menu_svg.circle(2).move(27,8).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }).fill('none'));
         button.add(menu_svg.line(9,28,28,9).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
-        rc_menu.line_button.click (function (e) { rc_menu.select_button(rc_menu.button2); e.stopPropagation(); e.preventDefault(); });
+        rc_menu.line_button.click (function (e) { rc_menu.select_button(button); e.stopPropagation(); e.preventDefault(); });
         button.rotate_button = function (target_rotation) {
             button.rotate(target_rotation, button.x() + button_size/2, button.y() + button_size/2);
         }
     }
-    draw_line_icon( rc_menu.button2 );
+    draw_line_icon( rc_menu.button1 );
 
     //add angle icon to button2
     function draw_angle_icon(button){
@@ -114,7 +114,7 @@ function build_rc_menu() {
             button.rotate(target_rotation, button.x() + button_size/2, button.y() + button_size/2);
         }
     }
-    draw_undo_icon (rc_menu.button5);
+    draw_undo_icon (rc_menu.button4);
 
     // add magnifying glass to button4
     function draw_mag_glass_icon (button) {
@@ -168,7 +168,7 @@ function build_rc_menu() {
             }
         }
     }
-    draw_unit_toggle(rc_menu.button3);
+    draw_unit_toggle(rc_menu.button2);
     
     
     function draw_eraser_icon (button) {
@@ -182,12 +182,12 @@ function build_rc_menu() {
         button.add(menu_svg.line(5,10,20,25).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
         button.add(menu_svg.line(20,25,34,25).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
         button.add(menu_svg.line(34,25,19,10).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
-        rc_menu.eraser_button.click (function (e) { rc_menu.select_button(rc_menu.button4); e.stopPropagation(); e.preventDefault(); });
+        rc_menu.eraser_button.click (function (e) { rc_menu.select_button(button); e.stopPropagation(); e.preventDefault(); });
         button.rotate_button = function (target_rotation) {
             button.rotate(target_rotation, button.x() + button_size/2, button.y() + button_size/2);
         }
     }
-    draw_eraser_icon (rc_menu.button4);
+    draw_eraser_icon (rc_menu.button3);
 
     
     function draw_text_icon (button) {
@@ -197,7 +197,7 @@ function build_rc_menu() {
         button.add(menu_svg.line(11,9,11,12).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
         button.add(menu_svg.line(29,9,29,12).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
         button.add(menu_svg.line(18,29,22,29).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
-        rc_menu.text_button.click (function (e) { rc_menu.select_button(rc_menu.button5); e.stopPropagation(); e.preventDefault(); });
+        rc_menu.text_button.click (function (e) { rc_menu.select_button(button); e.stopPropagation(); e.preventDefault(); });
         button.rotate_button = function (target_rotation) {
             button.rotate(target_rotation, button.x() + button_size/2, button.y() + button_size/2);
         }
@@ -232,7 +232,7 @@ function build_rc_menu() {
     }
     
     //start with line button selected
-    rc_menu.select_button(rc_menu.button2);
+    rc_menu.select_button(rc_menu.button1);
 
     rc_menu.deselect_button = function (button) {
         //this relies on the fact that the first thing we added to the button groups was the background rectangles.
@@ -282,11 +282,11 @@ function build_rc_menu() {
         rc_menu.button2.rotate_button(target_rotation);
         rc_menu.button3.rotate_button(target_rotation);
         rc_menu.button4.rotate_button(target_rotation);
-        rc_menu.button5.rotate_button(target_rotation);
+        //rc_menu.button5.rotate_button(target_rotation);
     }
     
 }
 
 rc_menu.reset =  function () {
-    rc_menu.select_button(rc_menu.button2);
+    rc_menu.select_button(rc_menu.button1);
 }

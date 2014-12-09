@@ -84,13 +84,13 @@ static NSString * const MPUIOrientationDidChangeNotification = @"com.realitycap.
 static NSString * const MPCapturePhotoDidAppearNotification = @"com.realitycap.MPCapturePhotoDidAppearNotification";
 
 #define URL_WEBSITE @"http://realitycap.com"
-#define URL_SHARING @"http://app.realitycap.com/truemeasure"
-#define URL_APPSTORE @"itms-apps://itunes.com/apps/TrueMeasure"
+#define URL_SHARING @"http://app.realitycap.com/3Dimension"
+#define URL_APPSTORE @"itms-apps://itunes.com/apps/3Dimension"
 
 static NSString* RCApplicationCredential_Facebook_Key = @"671645849539796";
 static NSString* RCApplicationCredential_Facebook_Secret = @"827cfb4e92aff3551ffeb3618be46e08"; // TODO: this is for ETM. change to TM.
 
-#define IS_DISK_SPACE_LOW [RCDeviceInfo getFreeDiskSpaceInBytes] < 5000000
+#define IS_DISK_SPACE_LOW [RCDeviceInfo getFreeDiskSpaceInBytes] < 10000000
 
 #ifdef ARCHIVE
 #define FLURRY_KEY @"N3827F4P9DWMD5FFFSHV" //prod

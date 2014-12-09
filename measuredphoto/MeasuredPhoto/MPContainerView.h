@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import <RCCore/RCCore.h>
 
-@interface MPContainerView : UIView <RCRotatingView>
+@interface MPContainerView : UIView
 
 @property (nonatomic) UIResponder* delegate;
 

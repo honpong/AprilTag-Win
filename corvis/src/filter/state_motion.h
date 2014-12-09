@@ -3,7 +3,7 @@
 //  RC3DK
 //
 //  Created by Eagle Jones on 1/24/14.
-//  Copyright (c) 2014 RealityCap. All rights reserved.
+//  Copyright (c) 2014 Caterpillar. All rights reserved.
 //
 
 #ifndef __RC3DK__state_motion__
@@ -21,7 +21,7 @@ public:
     state_vector a_bias;
     state_scalar g;
     
-    state_motion_orientation(covariance &c): W("W"), w("w"), dw("dw"), w_bias("w_bias"), a_bias("a_bias"), g("g"), state_root(c), orientation_initialized(false), gravity_magnitude(9.80665) {
+    state_motion_orientation(covariance &c): state_root(c), W("W"), w("w"), dw("dw"), w_bias("w_bias"), a_bias("a_bias"), g("g"), orientation_initialized(false), gravity_magnitude(9.80665) {
         W.dynamic = true;
         w.dynamic = true;
         children.push_back(&W);
@@ -64,7 +64,7 @@ public:
     state_vector V;
     state_vector a;
     
-    state_motion(covariance &c): T("T"), V("V"), a("a"), state_motion_orientation(c), orientation_only(false), estimate_bias(true)
+    state_motion(covariance &c): state_motion_orientation(c), T("T"), V("V"), a("a"), estimate_bias(true), orientation_only(false)
     {
         T.dynamic = true;
         V.dynamic = true;

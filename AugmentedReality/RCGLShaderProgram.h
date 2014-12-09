@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#include <OpenGLES/ES2/gl.h>
 
 /**
  A convenience macro for embedding multi-line strings in source without additional decoration.

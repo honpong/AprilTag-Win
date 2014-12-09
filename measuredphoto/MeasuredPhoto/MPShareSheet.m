@@ -105,7 +105,7 @@
         appCredential = [[OSKApplicationCredential alloc]
                          initWithOvershareApplicationKey:RCApplicationCredential_Facebook_Key
                          applicationSecret:RCApplicationCredential_Facebook_Secret
-                         appName:@"TrueMeasure"];
+                         appName:@"3Dimension"];
     }
     
     return appCredential;

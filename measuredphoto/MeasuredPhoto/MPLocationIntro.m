@@ -111,6 +111,7 @@ static const CLLocationDegrees startingLongitude = 43.;
          if(granted)
          {
              [MPAnalytics logEvent:@"Permission.Location" withParameters:@{ @"Allowed" : @"Yes" }];
+             [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_USE_LOCATION];
              [LOCATION_MANAGER startLocationUpdates];
          }
          else

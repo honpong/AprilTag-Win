@@ -18,9 +18,8 @@
     int videoFrameOffset;
     RCFeaturePoint* lastPointTapped;
     BOOL isInitialized;
-    //ARDelegate *AROverlay;
 }
-@synthesize videoView, featuresView, featuresLayer, selectedFeaturesLayer, initializingFeaturesLayer, measurementsView, photoView, delegate;
+@synthesize videoView, featuresView, featuresLayer, selectedFeaturesLayer, initializingFeaturesLayer, measurementsView, photoView, delegate, AROverlay;
 
 - (id) initWithFrame:(CGRect)frame
 {
@@ -49,8 +48,8 @@
     [self addSubview:videoView];
     [self sendSubviewToBack:videoView];
     
-    //AROverlay = [[MPVideoPreview alloc] init];
-    //[videoView setDelegate:AROverlay];
+    AROverlay = [[MPARDelegate alloc] init];
+    [videoView setDelegate:AROverlay];
     
     photoView = [[MPImageView alloc] initWithFrame:self.frame];
     photoView.hidden = YES;
@@ -162,12 +161,19 @@
 - (void) handleFeatureTapped:(CGPoint)coordinateTapped
 {
     CGPoint cameraPoint = [featuresLayer cameraPointFromScreenPoint:coordinateTapped];
-#ifdef MESH
-    RCFeaturePoint* pointTapped = [[RCStereo sharedInstance] triangulatePointWithMesh:cameraPoint];
-#else
-    RCFeaturePoint* pointTapped = [[RCStereo sharedInstance] triangulatePoint:cameraPoint];
-#endif
     
+#ifdef MESH
+    RCPoint* world = [[RCStereo sharedInstance] triangulatePointWithMesh:cameraPoint];
+#else
+    RCPoint* world = [[RCStereo sharedInstance] triangulatePoint:cameraPoint];
+#endif
+
+    RCFeaturePoint * pointTapped = [[RCFeaturePoint alloc] initWithId:0
+                                                                withX:cameraPoint.x
+                                                                withY:cameraPoint.y
+                                                    withOriginalDepth:[[RCScalar alloc] initWithScalar:1 withStdDev:100]
+                                                       withWorldPoint:world withInitialized:YES];
+
     if(pointTapped)
     {
         [self selectFeature:pointTapped];

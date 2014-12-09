@@ -7,5 +7,5 @@
     #import <SystemConfiguration/SystemConfiguration.h>
     #import <MobileCoreServices/MobileCoreServices.h>
     #import "RCConstants.h"
-    #import <RC3DK/RC3DK.h>
+    #import <RC3DKPlus/RC3DKPlus.h>
 #endif

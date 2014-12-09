@@ -2,10 +2,12 @@
 //  RCSensorDelegate.h
 //
 //  Created by Eagle Jones on 6/13/14.
-//  Copyright (c) 2014 RealityCap. All rights reserved.
+//  Copyright (c) 2014 Caterpillar. All rights reserved.
 //
 
 #import "RCVideoFrameProvider.h"
+#import <CoreLocation/CoreLocation.h>
+#import <AVFoundation/AVFoundation.h>
 
 /** Provides a generic sensor interface.
  

@@ -6,7 +6,6 @@
 //  Copyright (c) 2013 Realitycap. All rights reserved.
 //
 
-#import <RC3DK/RC3DK.h>
 #import <RCCore/RCCore.h>
 #import "CaptureViewController.h"
 #import "AppDelegate.h"

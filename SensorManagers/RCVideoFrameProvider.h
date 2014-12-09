@@ -3,7 +3,7 @@
 //  RCCore
 //
 //  Created by Eagle Jones on 9/22/14.
-//  Copyright (c) 2014 Caterpillar. All rights reserved.
+//  Copyright (c) 2014 RealityCap. All rights reserved.
 //
 
 #ifndef RCCore_RCVideoFrameProvider_h

@@ -10,7 +10,6 @@
 		323BD08C1A25324800313573 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD08B1A25324800313573 /* main.m */; };
 		323BD08F1A25324800313573 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD08E1A25324800313573 /* AppDelegate.m */; };
 		323BD0971A25324800313573 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0961A25324800313573 /* Images.xcassets */; };
-		323BD09A1A25324800313573 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0981A25324800313573 /* LaunchScreen.xib */; };
 		323BD0A61A25324800313573 /* TrackLinksTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0A51A25324800313573 /* TrackLinksTests.m */; };
 		323BD0CF1A253AEC00313573 /* depth_data.js in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0BC1A253AEC00313573 /* depth_data.js */; };
 		323BD0D01A253AEC00313573 /* fastclick.js in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0BD1A253AEC00313573 /* fastclick.js */; };
@@ -155,7 +154,6 @@
 		323BD08D1A25324800313573 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		323BD08E1A25324800313573 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = AppDelegate.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		323BD0961A25324800313573 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		323BD0991A25324800313573 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		323BD09F1A25324800313573 /* TrackLinksTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TrackLinksTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		323BD0A41A25324800313573 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		323BD0A51A25324800313573 /* TrackLinksTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TrackLinksTests.m; sourceTree = "<group>"; };
@@ -396,7 +394,6 @@
 				323BD0961A25324800313573 /* Images.xcassets */,
 				323BD10D1A253B9A00313573 /* MainStoryboard_iPad.storyboard */,
 				323BD10F1A253B9A00313573 /* MainStoryboard_iPhone.storyboard */,
-				323BD0981A25324800313573 /* LaunchScreen.xib */,
 				32BFDE191A2E807A00D03F44 /* RC3DK.h */,
 				32EC39291A3613D7004C31C0 /* MPDMeasuredPhoto.h */,
 				32EC392A1A3613D7004C31C0 /* MPDMeasuredPhoto.m */,
@@ -767,7 +764,6 @@
 				323BD0D71A253AEC00313573 /* numeric_keypad.js in Resources */,
 				32BFDDAB1A2E433D00D03F44 /* Calibration.storyboard in Resources */,
 				323BD0DF1A253AEC00313573 /* svgjs_fornobj.js in Resources */,
-				323BD09A1A25324800313573 /* LaunchScreen.xib in Resources */,
 				32BFDDAD1A2E433D00D03F44 /* holding_portrait.jpg in Resources */,
 				323BD0E01A253AEC00313573 /* tilt_monitor.js in Resources */,
 				323BD0E11A253AEC00313573 /* web_view_rotation.js in Resources */,
@@ -883,14 +879,6 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		323BD0981A25324800313573 /* LaunchScreen.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				323BD0991A25324800313573 /* Base */,
-			);
-			name = LaunchScreen.xib;
-			sourceTree = "<group>";
-		};
 		323BD10D1A253B9A00313573 /* MainStoryboard_iPad.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (

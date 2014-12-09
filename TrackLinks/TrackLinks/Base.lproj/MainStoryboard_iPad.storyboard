@@ -97,19 +97,6 @@
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FQA-yL-8tr" userLabel="AugmentedReality" customClass="CATAugmentedRealityView">
                                 <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
-                                <subviews>
-                                    <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="YXD-29-RMl" customClass="CATInstructionsView">
-                                        <rect key="frame" x="0.0" y="128" width="768" height="768"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="768" id="8n1-If-Cga"/>
-                                            <constraint firstAttribute="width" constant="768" id="TQ5-Ru-ap8"/>
-                                        </constraints>
-                                    </view>
-                                </subviews>
-                                <constraints>
-                                    <constraint firstAttribute="centerY" secondItem="YXD-29-RMl" secondAttribute="centerY" id="SNF-jb-B4D"/>
-                                    <constraint firstAttribute="centerX" secondItem="YXD-29-RMl" secondAttribute="centerX" id="SXR-2i-ZW6"/>
-                                </constraints>
                             </view>
                             <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fmz-nL-eyO" userLabel="UI Container" customClass="CATContainerView">
                                 <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
@@ -210,8 +197,8 @@
                     <connections>
                         <outlet property="arView" destination="FQA-yL-8tr" id="YPQ-Vr-9b8"/>
                         <outlet property="containerView" destination="fmz-nL-eyO" id="hat-gE-qXG"/>
+                        <outlet property="expandingCircleView" destination="vOS-7U-qcR" id="WwS-lj-Gmr"/>
                         <outlet property="galleryButton" destination="ZQs-EY-vVt" id="5Gs-29-j32"/>
-                        <outlet property="instructionsView" destination="YXD-29-RMl" id="J4C-tR-y2G"/>
                         <outlet property="messageLabel" destination="b7l-6F-Kqv" id="N6a-4R-ABB"/>
                         <outlet property="shutterButton" destination="aqd-DL-0IF" id="OPg-RG-80p"/>
                         <outlet property="toolbar" destination="9pE-pm-oS2" id="huq-SI-a7P"/>

@@ -3,7 +3,7 @@
 //  RCCore
 //
 //  Created by Ben Hirashima on 2/26/13.
-//  Copyright (c) 2013 RealityCap. All rights reserved.
+//  Copyright (c) 2014 Caterpillar. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>

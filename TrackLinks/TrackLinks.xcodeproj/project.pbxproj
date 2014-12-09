@@ -352,6 +352,10 @@
 			isa = PBXGroup;
 			children = (
 				323BD0AF1A25387500313573 /* RC3DK.xcodeproj */,
+				32BFDDF71A2E4B2200D03F44 /* AugmentedReality */,
+				32BFDDC81A2E44F000D03F44 /* ThirdParty */,
+				32BFDDB31A2E43A700D03F44 /* SensorManagers */,
+				32BFDD9E1A2E433D00D03F44 /* Calibration */,
 				323BD0881A25324800313573 /* TrackLinks */,
 				323BD0A21A25324800313573 /* TrackLinksTests */,
 				32BFDE231A2E840700D03F44 /* Frameworks */,
@@ -372,10 +376,6 @@
 			isa = PBXGroup;
 			children = (
 				32BFDE011A2E4EEF00D03F44 /* Views */,
-				32BFDDF71A2E4B2200D03F44 /* AugmentedReality */,
-				32BFDDC81A2E44F000D03F44 /* ThirdParty */,
-				32BFDDB31A2E43A700D03F44 /* SensorManagers */,
-				32BFDD9E1A2E433D00D03F44 /* Calibration */,
 				323BD0BB1A253AEC00313573 /* HTML */,
 				323BD0891A25324800313573 /* Supporting Files */,
 				323BD0E61A253B0D00313573 /* CATCapturePhoto.h */,
@@ -480,7 +480,7 @@
 				32BFDDAA1A2E433D00D03F44 /* RCCalibration3.m */,
 			);
 			name = Calibration;
-			path = ../../Calibration;
+			path = ../Calibration;
 			sourceTree = "<group>";
 		};
 		32BFDDB31A2E43A700D03F44 /* SensorManagers */ = {
@@ -500,7 +500,7 @@
 				32BFDDBF1A2E43A700D03F44 /* RCVideoManager.m */,
 			);
 			name = SensorManagers;
-			path = ../../SensorManagers;
+			path = ../SensorManagers;
 			sourceTree = "<group>";
 		};
 		32BFDDC81A2E44F000D03F44 /* ThirdParty */ = {
@@ -510,6 +510,7 @@
 				32BFDDC91A2E451E00D03F44 /* JSON */,
 			);
 			name = ThirdParty;
+			path = TrackLinks;
 			sourceTree = "<group>";
 		};
 		32BFDDC91A2E451E00D03F44 /* JSON */ = {
@@ -567,7 +568,7 @@
 				32BFDDFD1A2E4B2200D03F44 /* RCVideoPreview.m */,
 			);
 			name = AugmentedReality;
-			path = ../../AugmentedReality;
+			path = ../AugmentedReality;
 			sourceTree = "<group>";
 		};
 		32BFDE011A2E4EEF00D03F44 /* Views */ = {

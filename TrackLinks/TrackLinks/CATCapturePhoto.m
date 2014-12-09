@@ -3,7 +3,7 @@
 //  TapeMeasure
 //
 //  Created by Ben Hirashima on 10/2/12.
-//  Copyright (c) 2012 RealityCap. All rights reserved.
+//  Copyright (c) 2012 Caterpillar. All rights reserved.
 //
 
 #import "CATConstants.h"

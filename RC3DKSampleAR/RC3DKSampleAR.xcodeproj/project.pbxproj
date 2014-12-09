@@ -14,7 +14,6 @@
 		D901457019F9A00F004E7CE2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D901456E19F9A00F004E7CE2 /* Main.storyboard */; };
 		D901457219F9A00F004E7CE2 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D901457119F9A00F004E7CE2 /* Images.xcassets */; };
 		D901458119F9A00F004E7CE2 /* RC3DKSampleARTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D901458019F9A00F004E7CE2 /* RC3DKSampleARTests.m */; };
-		D901459F19F9A07D004E7CE2 /* libRC3DK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D901459D19F9A07D004E7CE2 /* libRC3DK.a */; };
 		D90145B919F9A094004E7CE2 /* Calibration.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D90145A019F9A094004E7CE2 /* Calibration.storyboard */; };
 		D90145BA19F9A094004E7CE2 /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D90145A119F9A094004E7CE2 /* holding_landscape.jpg */; };
 		D90145BB19F9A094004E7CE2 /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D90145A219F9A094004E7CE2 /* holding_portrait.jpg */; };
@@ -52,6 +51,7 @@
 		D901460B19F9C43B004E7CE2 /* shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = D901460919F9C43B004E7CE2 /* shader.fsh */; };
 		D901460C19F9C43B004E7CE2 /* shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = D901460A19F9C43B004E7CE2 /* shader.vsh */; };
 		D963096B1A01BC9800F92929 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D963096A1A01BC9800F92929 /* GLKit.framework */; };
+		D985D7DA1A153F0800067557 /* libRC3DK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D98CDC0F1A153D570078DA30 /* libRC3DK.a */; };
 		D9AA84BD1A042DBE004C61D0 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = D9AA84BC1A042DBE004C61D0 /* Default-568h@2x.png */; };
 		D9E8C4871A03FAFA002EDA05 /* RCGLShaderProgram.m in Sources */ = {isa = PBXBuildFile; fileRef = D9E8C4861A03FAFA002EDA05 /* RCGLShaderProgram.m */; };
 /* End PBXBuildFile section */
@@ -63,6 +63,27 @@
 			proxyType = 1;
 			remoteGlobalIDString = D901456019F9A00F004E7CE2;
 			remoteInfo = RC3DKSampleAR;
+		};
+		D985D7D61A153DF800067557 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D98CDC091A153D570078DA30 /* RC3DK.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 327B54DE18EB4CC90001CCE1;
+			remoteInfo = RC3DK;
+		};
+		D98CDC0E1A153D570078DA30 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D98CDC091A153D570078DA30 /* RC3DK.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 327B54DF18EB4CC90001CCE1;
+			remoteInfo = RC3DK;
+		};
+		D98CDC101A153D570078DA30 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D98CDC091A153D570078DA30 /* RC3DK.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 327B54EF18EB4CC90001CCE1;
+			remoteInfo = RC3DKTests;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -81,24 +102,6 @@
 		D901457A19F9A00F004E7CE2 /* RC3DKSampleARTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RC3DKSampleARTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D901457F19F9A00F004E7CE2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D901458019F9A00F004E7CE2 /* RC3DKSampleARTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RC3DKSampleARTests.m; sourceTree = "<group>"; };
-		D901458A19F9A07D004E7CE2 /* RC3DK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RC3DK.h; sourceTree = "<group>"; };
-		D901458B19F9A07D004E7CE2 /* RCCameraParameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCameraParameters.h; sourceTree = "<group>"; };
-		D901458C19F9A07D004E7CE2 /* RCDeviceInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDeviceInfo.h; sourceTree = "<group>"; };
-		D901458D19F9A07D004E7CE2 /* RCFeaturePoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCFeaturePoint.h; sourceTree = "<group>"; };
-		D901458E19F9A07D004E7CE2 /* RCLicenseError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCLicenseError.h; sourceTree = "<group>"; };
-		D901458F19F9A07D004E7CE2 /* RCPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCPoint.h; sourceTree = "<group>"; };
-		D901459019F9A07D004E7CE2 /* RCRotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCRotation.h; sourceTree = "<group>"; };
-		D901459119F9A07D004E7CE2 /* RCScalar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCScalar.h; sourceTree = "<group>"; };
-		D901459219F9A07D004E7CE2 /* RCSensorFusion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusion.h; sourceTree = "<group>"; };
-		D901459319F9A07D004E7CE2 /* RCSensorFusionData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusionData.h; sourceTree = "<group>"; };
-		D901459419F9A07D004E7CE2 /* RCSensorFusionError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusionError.h; sourceTree = "<group>"; };
-		D901459519F9A07D004E7CE2 /* RCSensorFusionInternals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusionInternals.h; sourceTree = "<group>"; };
-		D901459619F9A07D004E7CE2 /* RCSensorFusionStatus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusionStatus.h; sourceTree = "<group>"; };
-		D901459719F9A07D004E7CE2 /* RCTransformation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTransformation.h; sourceTree = "<group>"; };
-		D901459819F9A07D004E7CE2 /* RCTranslation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTranslation.h; sourceTree = "<group>"; };
-		D901459919F9A07D004E7CE2 /* RCVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVector.h; sourceTree = "<group>"; };
-		D901459A19F9A07D004E7CE2 /* RCVideoPreview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoPreview.h; sourceTree = "<group>"; };
-		D901459D19F9A07D004E7CE2 /* libRC3DK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libRC3DK.a; sourceTree = "<group>"; };
 		D90145A019F9A094004E7CE2 /* Calibration.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Calibration.storyboard; sourceTree = "<group>"; };
 		D90145A119F9A094004E7CE2 /* holding_landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_landscape.jpg; sourceTree = "<group>"; };
 		D90145A219F9A094004E7CE2 /* holding_portrait.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_portrait.jpg; sourceTree = "<group>"; };
@@ -152,6 +155,7 @@
 		D901460919F9C43B004E7CE2 /* shader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = shader.fsh; path = ../RC3DKSampleAR/RC3DKSampleAR/shader.fsh; sourceTree = "<group>"; };
 		D901460A19F9C43B004E7CE2 /* shader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = shader.vsh; path = ../RC3DKSampleAR/RC3DKSampleAR/shader.vsh; sourceTree = "<group>"; };
 		D963096A1A01BC9800F92929 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
+		D98CDC091A153D570078DA30 /* RC3DK.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RC3DK.xcodeproj; path = ../rc3dk/RC3DK.xcodeproj; sourceTree = "<group>"; };
 		D9AA84BC1A042DBE004C61D0 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		D9E8C4821A02B143002EDA05 /* RC3DKSampleAR-prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RC3DKSampleAR-prefix.pch"; sourceTree = "<group>"; };
 		D9E8C4851A03FAFA002EDA05 /* RCGLShaderProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCGLShaderProgram.h; sourceTree = "<group>"; };
@@ -163,8 +167,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D985D7DA1A153F0800067557 /* libRC3DK.a in Frameworks */,
 				D963096B1A01BC9800F92929 /* GLKit.framework in Frameworks */,
-				D901459F19F9A07D004E7CE2 /* libRC3DK.a in Frameworks */,
 				D90145F019F9A23E004E7CE2 /* UIKit.framework in Frameworks */,
 				D90145E919F9A23E004E7CE2 /* CoreMedia.framework in Frameworks */,
 				D90145E019F9A23E004E7CE2 /* OpenGLES.framework in Frameworks */,
@@ -198,6 +202,7 @@
 		D901455819F9A00F004E7CE2 = {
 			isa = PBXGroup;
 			children = (
+				D98CDC091A153D570078DA30 /* RC3DK.xcodeproj */,
 				D9AA84BC1A042DBE004C61D0 /* Default-568h@2x.png */,
 				D901456319F9A00F004E7CE2 /* RC3DKSampleAR */,
 				D901457D19F9A00F004E7CE2 /* RC3DKSampleARTests */,
@@ -218,7 +223,6 @@
 			isa = PBXGroup;
 			children = (
 				D90145F219F9A5EF004E7CE2 /* AugmentedReality */,
-				D901459E19F9A07D004E7CE2 /* 3DK */,
 				D90145AC19F9A094004E7CE2 /* Calibration */,
 				D90145B819F9A094004E7CE2 /* Sensor Managers */,
 				D901456819F9A00F004E7CE2 /* AppDelegate.h */,
@@ -264,48 +268,6 @@
 				D901457F19F9A00F004E7CE2 /* Info.plist */,
 			);
 			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		D901459B19F9A07D004E7CE2 /* RC3DK */ = {
-			isa = PBXGroup;
-			children = (
-				D901458A19F9A07D004E7CE2 /* RC3DK.h */,
-				D901458B19F9A07D004E7CE2 /* RCCameraParameters.h */,
-				D901458C19F9A07D004E7CE2 /* RCDeviceInfo.h */,
-				D901458D19F9A07D004E7CE2 /* RCFeaturePoint.h */,
-				D901458E19F9A07D004E7CE2 /* RCLicenseError.h */,
-				D901458F19F9A07D004E7CE2 /* RCPoint.h */,
-				D901459019F9A07D004E7CE2 /* RCRotation.h */,
-				D901459119F9A07D004E7CE2 /* RCScalar.h */,
-				D901459219F9A07D004E7CE2 /* RCSensorFusion.h */,
-				D901459319F9A07D004E7CE2 /* RCSensorFusionData.h */,
-				D901459419F9A07D004E7CE2 /* RCSensorFusionError.h */,
-				D901459519F9A07D004E7CE2 /* RCSensorFusionInternals.h */,
-				D901459619F9A07D004E7CE2 /* RCSensorFusionStatus.h */,
-				D901459719F9A07D004E7CE2 /* RCTransformation.h */,
-				D901459819F9A07D004E7CE2 /* RCTranslation.h */,
-				D901459919F9A07D004E7CE2 /* RCVector.h */,
-				D901459A19F9A07D004E7CE2 /* RCVideoPreview.h */,
-			);
-			path = RC3DK;
-			sourceTree = "<group>";
-		};
-		D901459C19F9A07D004E7CE2 /* include */ = {
-			isa = PBXGroup;
-			children = (
-				D901459B19F9A07D004E7CE2 /* RC3DK */,
-			);
-			path = include;
-			sourceTree = "<group>";
-		};
-		D901459E19F9A07D004E7CE2 /* 3DK */ = {
-			isa = PBXGroup;
-			children = (
-				D901459C19F9A07D004E7CE2 /* include */,
-				D901459D19F9A07D004E7CE2 /* libRC3DK.a */,
-			);
-			name = 3DK;
-			path = "../../rc3dk-lib";
 			sourceTree = "<group>";
 		};
 		D90145AC19F9A094004E7CE2 /* Calibration */ = {
@@ -389,6 +351,15 @@
 			path = ../../AugmentedReality;
 			sourceTree = "<group>";
 		};
+		D98CDC0A1A153D570078DA30 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				D98CDC0F1A153D570078DA30 /* libRC3DK.a */,
+				D98CDC111A153D570078DA30 /* RC3DKTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -403,6 +374,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				D985D7D71A153DF800067557 /* PBXTargetDependency */,
 			);
 			name = RC3DKSampleAR;
 			productName = RC3DKSampleAR;
@@ -458,6 +430,12 @@
 			mainGroup = D901455819F9A00F004E7CE2;
 			productRefGroup = D901456219F9A00F004E7CE2 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = D98CDC0A1A153D570078DA30 /* Products */;
+					ProjectRef = D98CDC091A153D570078DA30 /* RC3DK.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				D901456019F9A00F004E7CE2 /* RC3DKSampleAR */,
@@ -465,6 +443,23 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		D98CDC0F1A153D570078DA30 /* libRC3DK.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRC3DK.a;
+			remoteRef = D98CDC0E1A153D570078DA30 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		D98CDC111A153D570078DA30 /* RC3DKTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = RC3DKTests.xctest;
+			remoteRef = D98CDC101A153D570078DA30 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		D901455F19F9A00F004E7CE2 /* Resources */ = {
@@ -533,6 +528,11 @@
 			isa = PBXTargetDependency;
 			target = D901456019F9A00F004E7CE2 /* RC3DKSampleAR */;
 			targetProxy = D901457B19F9A00F004E7CE2 /* PBXContainerItemProxy */;
+		};
+		D985D7D71A153DF800067557 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = RC3DK;
+			targetProxy = D985D7D61A153DF800067557 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

@@ -397,11 +397,6 @@ static transition transitions[] =
     [self handleStateEvent:EV_SHUTTER_TAP];
 }
 
-- (IBAction)handleGalleryButton:(id)sender
-{
-    
-}
-
 - (void) handleMoveStart
 {
     LOGME
@@ -411,7 +406,6 @@ static transition transitions[] =
 - (void) handleMoveFinished
 {
     LOGME
-//    [instructionsView moveDotToCenter];
 }
 
 - (void) handleCaptureFinished
@@ -428,16 +422,16 @@ static transition transitions[] =
     stereo.delegate = self;
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
         [measuredPhoto writeImagetoJpeg:lastSensorFusionDataWithImage.sampleBuffer withOrientation:orientation];
-        // TODO: Handle potential stereo failure here (this function will return false)
         [stereo preprocess];
     });
 }
 
 - (void) gotoEditPhotoScreen
 {
-    CATEditPhoto* editPhotoController = (CATEditPhoto*)self.presentingViewController;
+    CATEditPhoto* editPhotoController = (CATEditPhoto*)[self.storyboard instantiateViewControllerWithIdentifier:@"EditPhoto"];
     editPhotoController.measuredPhoto = measuredPhoto;
-    [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+    [editPhotoController setOrientation:currentUIOrientation animated:NO];
+    [self presentViewController:editPhotoController animated:YES completion:nil];
 }
 
 - (void) handlePhotoDeleted

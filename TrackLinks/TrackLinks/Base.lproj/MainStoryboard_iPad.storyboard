@@ -20,17 +20,6 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="weX-qG-kff" userLabel="NavBar">
                                 <rect key="frame" x="0.0" y="0.0" width="768" height="44"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="221-D7-kZ0" userLabel="DeleteButton" customClass="CATRotatingButton">
-                                        <rect key="frame" x="713" y="0.0" width="50" height="44"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="44" id="T9X-vk-uU7"/>
-                                            <constraint firstAttribute="width" constant="50" id="at5-e7-aBQ"/>
-                                        </constraints>
-                                        <state key="normal" image="UIButtonBarTrash"/>
-                                        <connections>
-                                            <action selector="handleDelete:" destination="XqX-LL-Zdf" eventType="touchUpInside" id="5Y4-Pj-Vif"/>
-                                        </connections>
-                                    </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DLg-t1-Ry1" userLabel="CameraButton" customClass="CATRotatingButton">
                                         <rect key="frame" x="5" y="0.0" width="50" height="44"/>
                                         <constraints>
@@ -47,9 +36,7 @@
                                 </subviews>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                                 <constraints>
-                                    <constraint firstAttribute="centerY" secondItem="221-D7-kZ0" secondAttribute="centerY" id="rcN-Aq-wDT"/>
                                     <constraint firstAttribute="centerY" secondItem="DLg-t1-Ry1" secondAttribute="centerY" id="sMQ-Fq-wG0"/>
-                                    <constraint firstAttribute="trailing" secondItem="221-D7-kZ0" secondAttribute="trailing" constant="5" id="tUc-ky-RJk"/>
                                     <constraint firstAttribute="height" constant="44" id="uBv-Fk-Qjw"/>
                                     <constraint firstItem="DLg-t1-Ry1" firstAttribute="leading" secondItem="weX-qG-kff" secondAttribute="leading" constant="5" id="xbU-w3-cn1"/>
                                 </constraints>
@@ -75,7 +62,6 @@
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
                         <outlet property="cameraButton" destination="sMQ-Fq-wG0" id="iOC-FN-RTr"/>
-                        <outlet property="deleteButton" destination="221-D7-kZ0" id="Vaq-ND-diI"/>
                         <outlet property="webView" destination="I8N-jP-reu" id="BBJ-yL-D3s"/>
                     </connections>
                 </viewController>
@@ -211,7 +197,6 @@
     </scenes>
     <resources>
         <image name="PLCameraFloatingShutterButton" width="73" height="73"/>
-        <image name="UIButtonBarTrash" width="18" height="25"/>
         <image name="ios7-camera-outline" width="32" height="32"/>
         <image name="photos-icon-toolbar" width="50" height="50"/>
     </resources>

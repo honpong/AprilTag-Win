@@ -49,7 +49,7 @@
 
 - (void) viewWillAppear:(BOOL)animated
 {
-    if (isWebViewLoaded) [self loadMeasuredPhoto];
+    
 }
 
 - (void) viewDidDisappear:(BOOL)animated
@@ -62,7 +62,6 @@
 - (void) setMeasuredPhoto:(MPDMeasuredPhoto *)measuredPhoto
 {
     _measuredPhoto = measuredPhoto;
-    _indexPath = nil; // ensures any previous index path is cleared
 }
 
 #pragma mark - Orientation
@@ -107,11 +106,7 @@
 
 - (IBAction)handleCameraButton:(id)sender
 {
-    [self.presentingViewController dismissViewControllerAnimated:NO completion:nil];
-}
-
-- (IBAction)handleDelete:(id)sender
-{
+    [self.measuredPhoto deleteAssociatedFiles];
     [self.presentingViewController dismissViewControllerAnimated:NO completion:nil];
 }
 
@@ -124,7 +119,7 @@
         Units units = (Units)[NSUserDefaults.standardUserDefaults integerForKey:PREF_UNITS];
         NSString* javascript = [NSString stringWithFormat:@"loadMPhoto('%@', '%@', '%@', '%@', %i);", self.measuredPhoto.imageFileName, self.measuredPhoto.depthFileName, self.measuredPhoto.annotationsFileName, self.measuredPhoto.id_guid, units == UnitsMetric];
         [self.webView stringByEvaluatingJavaScriptFromString: javascript];
-//        DLog(javascript);
+//        DLog(@"%@", javascript);
     }
     else
     {
@@ -138,6 +133,7 @@
 {
     isWebViewLoaded = YES;
     [self setOrientation:self.currentUIOrientation animated:NO];
+    [self loadMeasuredPhoto];
 }
 
 - (void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error

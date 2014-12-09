@@ -18,6 +18,9 @@
 @interface RCStereo ()
 
 @property (nonatomic) NSString * fileBaseName;
+@property (nonatomic) NSURL* workingDirectory;
+@property (nonatomic) NSString* guid;
+@property (nonatomic) UIDeviceOrientation orientation;
 
 @end
 
@@ -158,6 +161,8 @@ static void sensor_fusion_stereo_progress(float progress)
 
 - (void) setOrientation:(UIDeviceOrientation) orientation
 {
+    _orientation = orientation;
+    
     enum stereo_orientation sensor_orientation;
     switch(orientation) {
         case UIDeviceOrientationLandscapeLeft:
@@ -195,16 +200,35 @@ static void sensor_fusion_stereo_progress(float progress)
 
 }
 
-#define DOCS_DIRECTORY [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0]
+- (void) setWorkingDirectory:(NSURL *)workingDirectory
+{
+    _workingDirectory = workingDirectory;
+}
 
 - (void) setGuid:(NSString *)guid
 {
-    self.fileBaseName = [NSString stringWithFormat:@"%@/%@-stereo", DOCS_DIRECTORY, guid];
-    texture_path = [self.fileBaseName stringByAppendingString:@".jpg"];
-    NSString * texture_filename = [[[NSURL URLWithString:texture_path] pathComponents] lastObject];
+    _guid = guid;
+}
 
-    mystereo.set_debug_basename([self.fileBaseName UTF8String]);
-    mystereo.set_debug_texture_filename([texture_filename UTF8String]);
+- (void) setWorkingDirectory:(NSURL *)workingDirectory andGuid:(NSString*)guid andOrientation:(UIDeviceOrientation)orientation
+{
+    [self setWorkingDirectory:workingDirectory];
+    [self setGuid:guid];
+    [self setOrientation:orientation];
+    [self setupFileBaseName];
+}
+
+- (void) setupFileBaseName
+{
+    if (self.guid && self.workingDirectory)
+    {
+        self.fileBaseName = [NSString stringWithFormat:@"%@/%@-stereo", self.workingDirectory.resourceSpecifier, self.guid];
+        texture_path = [self.fileBaseName stringByAppendingString:@".jpg"];
+        NSString * texture_filename = [[[NSURL URLWithString:texture_path] pathComponents] lastObject];
+        
+        mystereo.set_debug_basename([self.fileBaseName UTF8String]);
+        mystereo.set_debug_texture_filename([texture_filename UTF8String]);
+    }
 }
 
 -(void) reset

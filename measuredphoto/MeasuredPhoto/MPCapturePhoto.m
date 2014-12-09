@@ -543,14 +543,13 @@ static transition transitions[] =
     
     measuredPhoto = [self saveMeasuredPhoto];
 
-    RCStereo * stereo = [RCStereo sharedInstance];
-    [stereo setGuid: measuredPhoto.id_guid];
-    [stereo processFrame:lastSensorFusionDataWithImage withFinal:true];
-    UIDeviceOrientation orientation = [MPCapturePhoto getCurrentUIOrientation];
-    [stereo setOrientation:orientation];
+    RCStereo * stereo = STEREO;
     stereo.delegate = self;
+    [stereo setWorkingDirectory:WORKING_DIRECTORY_URL andGuid:measuredPhoto.id_guid andOrientation:currentUIOrientation];
+    [stereo processFrame:lastSensorFusionDataWithImage withFinal:true];
+    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-        [measuredPhoto writeImagetoJpeg:lastSensorFusionDataWithImage.sampleBuffer withOrientation:orientation];
+        [measuredPhoto writeImagetoJpeg:lastSensorFusionDataWithImage.sampleBuffer withOrientation:stereo.orientation];
         // TODO: Handle potential stereo failure here (this function will return false)
         [stereo preprocess];
     });

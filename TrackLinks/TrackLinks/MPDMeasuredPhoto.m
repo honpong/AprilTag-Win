@@ -58,21 +58,21 @@
 - (NSString*) imageFileName
 {
     NSString* fileName = [NSString stringWithFormat:@"%@.jpg", self.id_guid];
-    NSURL* fileUrl = [DOCUMENTS_DIRECTORY_URL URLByAppendingPathComponent:fileName];
+    NSURL* fileUrl = [WORKING_DIRECTORY_URL URLByAppendingPathComponent:fileName];
     return fileUrl.path;
 }
 
 - (NSString*) depthFileName
 {
     NSString* fileName = [NSString stringWithFormat:@"%@-stereo-remesh.json", self.id_guid];
-    NSURL* fileUrl = [DOCUMENTS_DIRECTORY_URL URLByAppendingPathComponent:fileName];
+    NSURL* fileUrl = [WORKING_DIRECTORY_URL URLByAppendingPathComponent:fileName];
     return fileUrl.path;
 }
 
 - (NSString*) annotationsFileName
 {
     NSString* fileName = [NSString stringWithFormat:@"%@-annotations.json", self.id_guid];
-    NSURL* fileUrl = [DOCUMENTS_DIRECTORY_URL URLByAppendingPathComponent:fileName];
+    NSURL* fileUrl = [WORKING_DIRECTORY_URL URLByAppendingPathComponent:fileName];
     return fileUrl.path;
 }
 
@@ -89,7 +89,7 @@
     BOOL isSuccess = YES;
     
     NSError* error;
-    NSArray* dirContents = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:DOCUMENTS_DIRECTORY_URL includingPropertiesForKeys:nil options:0 error:&error];
+    NSArray* dirContents = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:WORKING_DIRECTORY_URL includingPropertiesForKeys:nil options:0 error:&error];
     
     if (error || dirContents == nil)
     {

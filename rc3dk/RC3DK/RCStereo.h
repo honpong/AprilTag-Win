@@ -31,16 +31,18 @@
 @interface RCStereo : NSObject
 
 @property (weak) id<RCStereoDelegate> delegate;
+@property (nonatomic, readonly) NSURL* workingDirectory;
 @property (nonatomic, readonly) NSString* fileBaseName;
-@property (nonatomic) NSString* guid;
+@property (nonatomic, readonly) NSString* guid;
+@property (nonatomic, readonly) UIDeviceOrientation orientation;
 
 + (RCStereo *) sharedInstance;
 
+- (void) setWorkingDirectory:(NSURL *)workingDirectory andGuid:(NSString*)guid andOrientation:(UIDeviceOrientation)orientation;
 - (void) processFrame:(RCSensorFusionData *) data withFinal:(bool)final;
 - (bool) preprocess;
 - (RCPoint *) triangulatePoint:(CGPoint)point;
 - (RCPoint *) triangulatePointWithMesh:(CGPoint)point;
-- (void) setOrientation:(UIDeviceOrientation)orientation;
 - (void) reset;
 
 @end

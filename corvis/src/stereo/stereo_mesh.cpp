@@ -296,6 +296,9 @@ extern "C" {
 vector<stereo_triangle> qhull_mesh_points(vector<image_coordinate> coordinates)
 {
     vector<stereo_triangle> triangles;
+    if(coordinates.size() < 3)
+        return triangles;
+
     int TOTpoints = (int)coordinates.size();
     int dim= 2;             /* dimension of points */
     int numpoints;            /* number of points */

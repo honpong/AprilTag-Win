@@ -82,7 +82,7 @@ void main()
     RCGLShaderProgram *yuvTextureProgram;
 }
 
-@synthesize delegate;
+@synthesize delegate, orientation;
 
 - (id) initWithCoder:(NSCoder *)aDecoder
 {
@@ -104,6 +104,8 @@ void main()
 
 - (void) initialize
 {
+    self.orientation = UIInterfaceOrientationPortrait; // default
+    
     [EAGLContext setCurrentContext:[[RCGLManagerFactory getInstance] oglContext]];
     
     [self createBuffers];
@@ -171,7 +173,7 @@ void main()
                         [weakSelf displayPixelBuffer:pixBuf];
                         //call AR delegate
                         GLKMatrix4 perspective = [weakSelf getPerspectiveMatrixWithCameraParameters:localData.cameraParameters withNear:.01 withFar:100.];
-                        GLKMatrix4 camera_screen = [weakSelf getScreenRotationForOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
+                        GLKMatrix4 camera_screen = [weakSelf getScreenRotationForOrientation:self.orientation];
                         if([weakSelf.delegate respondsToSelector:@selector(renderWithSensorFusionData:withCameraToScreenMatrix:)])
                             [weakSelf.delegate renderWithSensorFusionData:localData withCameraToScreenMatrix:GLKMatrix4Multiply(camera_screen, perspective)];
                         [weakSelf endFrame];
@@ -449,8 +451,7 @@ void main()
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-    UIInterfaceOrientation orientation = [[UIApplication sharedApplication] statusBarOrientation];
-    GLKMatrix4 camera_screen = [self getScreenRotationForOrientation:orientation];
+    GLKMatrix4 camera_screen = [self getScreenRotationForOrientation:self.orientation];
     
     glUniformMatrix4fv([yuvTextureProgram getUniformLocation:@"camera_screen_rotation"], 1, false, camera_screen.m);
     
@@ -466,7 +467,7 @@ void main()
     float renderBufferScale;
 
     // Preserve aspect ratio; fill layer bounds
-    switch(orientation)
+    switch(self.orientation)
     {
         case UIInterfaceOrientationPortrait:
         case UIInterfaceOrientationPortraitUpsideDown:

@@ -61,6 +61,11 @@
     [self setInitialText];
 }
 
+- (void)willRotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation duration:(NSTimeInterval)duration
+{
+    videoPreview.orientation = toInterfaceOrientation;
+}
+
 - (void) setInitialText
 {
 #ifdef DEBUG

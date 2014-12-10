@@ -16,6 +16,7 @@
 #import "MPHttpInterceptor.h"
 #import "MPIntroScreen.h"
 #import "Flurry.h"
+#import "MPGalleryController.h"
 
 #if TARGET_IPHONE_SIMULATOR
 #define SKIP_CALIBRATION YES // skip calibration when running on emulator because it cannot calibrate
@@ -26,7 +27,7 @@
 @implementation MPAppDelegate
 {
     UIAlertView *locationAlert;
-    UIViewController* mainViewController;
+    MPGalleryController* galleryController;
     id<RCSensorDelegate> mySensorDelegate;
 }
 
@@ -67,7 +68,7 @@
     
     mySensorDelegate = [SensorDelegate sharedInstance];
     
-    mainViewController = self.window.rootViewController;
+    galleryController = (MPGalleryController*)self.window.rootViewController;
 
     [Flurry setSecureTransportEnabled:YES];
     [Flurry setCrashReportingEnabled:YES];
@@ -111,7 +112,7 @@
 
 - (void) gotoGallery
 {
-    self.window.rootViewController = mainViewController;
+    self.window.rootViewController = galleryController;
 }
 
 - (void) gotoCalibration
@@ -125,7 +126,7 @@
 
 - (void) gotoIntroScreen
 {
-    MPIntroScreen* vc = [mainViewController.storyboard instantiateViewControllerWithIdentifier:@"IntroScreen"];
+    MPIntroScreen* vc = [galleryController.storyboard instantiateViewControllerWithIdentifier:@"IntroScreen"];
     vc.calibrationDelegate = self;
     vc.sensorDelegate = mySensorDelegate;
     self.window.rootViewController = vc;
@@ -133,7 +134,7 @@
 
 - (void) gotoTutorialVideo
 {
-    MPLocalMoviePlayer* movieController = [mainViewController.storyboard instantiateViewControllerWithIdentifier:@"Tutorial"];
+    MPLocalMoviePlayer* movieController = [galleryController.storyboard instantiateViewControllerWithIdentifier:@"Tutorial"];
     movieController.delegate = self;
     self.window.rootViewController = movieController;
 }
@@ -156,11 +157,12 @@
     }
 }
 
-#pragma mark - TMLocalMoviePlayerDelegate
+#pragma mark - RCLocalMoviePlayerDelegate
 
 - (void) moviePlayerDismissed
 {
-    [self gotoGallery];
+    self.window.rootViewController = galleryController;
+    [galleryController gotoCapturePhoto];
 }
 
 - (void) moviePlayBackDidFinish

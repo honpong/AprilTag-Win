@@ -16,7 +16,7 @@
 
 - (void) viewDidLoad
 {
-    self.movieURL = [[NSBundle mainBundle] URLForResource:@"Tutorial" withExtension:@"mp4"];
+    self.movieURL = [[NSBundle mainBundle] URLForResource:@"Tutorial" withExtension:@"mov"];
     [super viewDidLoad];
 }
 

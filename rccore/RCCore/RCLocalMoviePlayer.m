@@ -34,6 +34,11 @@
                                                object:nil];
 }
 
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
 - (BOOL) prefersStatusBarHidden { return YES; }
 
 - (void) handlePause
@@ -48,6 +53,11 @@
                                                  name:MPMoviePlayerPlaybackDidFinishNotification
                                                object:_moviePlayer];
     
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(moviePlayerDidExitFullscreen)
+                                                 name:MPMoviePlayerDidExitFullscreenNotification
+                                               object:_moviePlayer];
+    
     
     [self.moviePlayer setFullscreen:YES animated:NO];
     [self.moviePlayer setCurrentPlaybackTime:0];
@@ -56,6 +66,7 @@
 
 - (void) stopMovie
 {
+    [self.moviePlayer stop];
     [self.moviePlayer setFullscreen:NO animated:NO];
     
     self.playButton.hidden = YES;
@@ -75,10 +86,22 @@
      name:MPMoviePlayerPlaybackDidFinishNotification
      object:player];
     
-    if ([player respondsToSelector:@selector(setFullscreen:animated:)])
+    [self stopMovie];
+    
+    if ([self.delegate respondsToSelector:@selector(moviePlayBackDidFinish)])
     {
-        [self stopMovie];
+        [self.delegate moviePlayBackDidFinish];
     }
+}
+
+- (void) moviePlayerDidExitFullscreen
+{
+    [[NSNotificationCenter defaultCenter]
+     removeObserver:self
+     name:MPMoviePlayerDidExitFullscreenNotification
+     object:self.moviePlayer];
+    
+    [self stopMovie];
     
     if ([self.delegate respondsToSelector:@selector(moviePlayBackDidFinish)])
     {
@@ -89,21 +112,41 @@
 - (IBAction)handlePlayButton:(id)sender
 {
     [self playMovie];
+    
+    if ([self.delegate respondsToSelector:@selector(moviePlayerPlayButtonTapped)])
+    {
+        [self.delegate moviePlayerPlayButtonTapped];
+    }
 }
 
 - (IBAction)handleSkipButton:(id)sender
 {
     [self dismissSelf];
+    
+    if ([self.delegate respondsToSelector:@selector(moviePlayerSkipButtonTapped)])
+    {
+        [self.delegate moviePlayerSkipButtonTapped];
+    }
 }
 
 - (IBAction)handlePlayAgainButton:(id)sender
 {
     [self playMovie];
+    
+    if ([self.delegate respondsToSelector:@selector(moviePlayerAgainButtonTapped)])
+    {
+        [self.delegate moviePlayerAgainButtonTapped];
+    }
 }
 
 - (IBAction)handleContinueButton:(id)sender
 {
     [self dismissSelf];
+    
+    if ([self.delegate respondsToSelector:@selector(moviePlayerContinueButtonTapped)])
+    {
+        [self.delegate moviePlayerContinueButtonTapped];
+    }
 }
 
 - (void) dismissSelf

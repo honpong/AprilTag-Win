@@ -120,11 +120,7 @@ static const NSTimeInterval zoomAnimationDuration = .1;
 
 - (IBAction)handleCameraButton:(id)sender
 {
-    MPCapturePhoto* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"Camera"];
-    UIDeviceOrientation deviceOrientation = [UIView deviceOrientationFromUIOrientation:self.interfaceOrientation];
-    [vc setOrientation:deviceOrientation animated:NO];
-    [self presentViewController:vc animated:NO completion:nil];
-    [MPAnalytics logEvent:@"View.CapturePhoto"];
+    [self gotoCapturePhoto];
 }
 
 - (IBAction)handleImageButton:(id)sender
@@ -375,12 +371,6 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     [self.collectionView reloadData];
 }
 
-- (void) gotoTutorialVideo
-{
-    MPLocalMoviePlayer* movieViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"Tutorial"];
-    [self presentViewController:movieViewController animated:YES completion:nil];
-}
-
 #pragma mark - Action sheet
 
 - (void)showActionSheet
@@ -487,6 +477,22 @@ static const NSTimeInterval zoomAnimationDuration = .1;
     [[UIApplication sharedApplication] openURL:url];
 }
 
+- (void) gotoTutorialVideo
+{
+    MPLocalMoviePlayer* movieViewController = [self.storyboard instantiateViewControllerWithIdentifier:@"Tutorial"];
+    movieViewController.delegate = self;
+    [self presentViewController:movieViewController animated:YES completion:nil];
+}
+
+- (void)gotoCapturePhoto
+{
+    MPCapturePhoto* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"Camera"];
+    UIDeviceOrientation deviceOrientation = [UIView deviceOrientationFromUIOrientation:self.interfaceOrientation];
+    [vc setOrientation:deviceOrientation animated:NO];
+    [self presentViewController:vc animated:NO completion:nil];
+    [MPAnalytics logEvent:@"View.CapturePhoto"];
+}
+
 #pragma mark - Sharing
 
 - (NSString*) composeSharingString
@@ -516,6 +522,18 @@ static const NSTimeInterval zoomAnimationDuration = .1;
         }
     };
     return activityCompletionHandler;
+}
+
+#pragma mark - RCLocalMoviePlayerDelegate
+
+- (void) moviePlayerContinueButtonTapped
+{
+    [self gotoCapturePhoto];
+}
+
+- (void) moviePlayerDismissed
+{
+    [self dismissViewControllerAnimated:YES completion:nil];
 }
 
 @end

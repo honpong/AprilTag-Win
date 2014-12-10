@@ -337,8 +337,8 @@
 		32C135C91892E6F5004DF62B /* ACMagnifyingGlass.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C135C31892E6F5004DF62B /* ACMagnifyingGlass.m */; };
 		32C135CA1892E6F5004DF62B /* ACMagnifyingView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C135C51892E6F5004DF62B /* ACMagnifyingView.m */; };
 		32C135CB1892E6F5004DF62B /* kb-loupe-hi.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C135C71892E6F5004DF62B /* kb-loupe-hi.png */; };
-		32C173C9191457F4008B3262 /* Tutorial.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 32C173C8191457F4008B3262 /* Tutorial.mp4 */; };
 		32C71CA719802F6100947798 /* MPRotatingButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C71CA619802F6100947798 /* MPRotatingButton.m */; };
+		32D0F3961A38F8A700066B27 /* Tutorial.mov in Resources */ = {isa = PBXBuildFile; fileRef = 32D0F3951A38F8A700066B27 /* Tutorial.mov */; };
 		32DB2BE717C28AC9001F7E5D /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 32DB2BE617C28AC9001F7E5D /* Settings.bundle */; };
 		32EEC84F17B97D1900A0DF49 /* MPMeasurementView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EEC84E17B97D1900A0DF49 /* MPMeasurementView.m */; };
 		32EFECE1196C6C9F00FDC89F /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 32EFECDF196C6C9F00FDC89F /* Model.xcdatamodeld */; };
@@ -932,10 +932,10 @@
 		32C135C41892E6F5004DF62B /* ACMagnifyingView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ACMagnifyingView.h; sourceTree = "<group>"; };
 		32C135C51892E6F5004DF62B /* ACMagnifyingView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ACMagnifyingView.m; sourceTree = "<group>"; };
 		32C135C71892E6F5004DF62B /* kb-loupe-hi.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "kb-loupe-hi.png"; sourceTree = "<group>"; };
-		32C173C8191457F4008B3262 /* Tutorial.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = Tutorial.mp4; sourceTree = "<group>"; };
 		32C71CA519802F6100947798 /* MPRotatingButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPRotatingButton.h; sourceTree = "<group>"; };
 		32C71CA619802F6100947798 /* MPRotatingButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPRotatingButton.m; sourceTree = "<group>"; };
 		32CF88951A31060F0044B17B /* RC3DK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RC3DK.h; sourceTree = "<group>"; };
+		32D0F3951A38F8A700066B27 /* Tutorial.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = Tutorial.mov; sourceTree = "<group>"; };
 		32DB2BE617C28AC9001F7E5D /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		32EEC84D17B97D1900A0DF49 /* MPMeasurementView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMeasurementView.h; sourceTree = "<group>"; };
 		32EEC84E17B97D1900A0DF49 /* MPMeasurementView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMeasurementView.m; sourceTree = "<group>"; };
@@ -1501,9 +1501,9 @@
 		328C7DD419D1E9B90079BA40 /* Media */ = {
 			isa = PBXGroup;
 			children = (
+				32D0F3951A38F8A700066B27 /* Tutorial.mov */,
 				328C7DE719D208680079BA40 /* tutorial_screenshot.jpg */,
 				328C7DD019D1E9B30079BA40 /* golden_gate.jpg */,
-				32C173C8191457F4008B3262 /* Tutorial.mp4 */,
 				D9C976871A2E717B009EFEF7 /* iphone.png */,
 			);
 			name = Media;
@@ -2039,7 +2039,6 @@
 				326ACFE619D3347F00B36965 /* realitycap_logo@2x.png in Resources */,
 				32EFED96196F381C00FDC89F /* jquery-2.1.1.min.js in Resources */,
 				326ACFD719D2279800B36965 /* about.html in Resources */,
-				32C173C9191457F4008B3262 /* Tutorial.mp4 in Resources */,
 				326ACF4E19D2221B00B36965 /* osk-twitterIcon-76@2x.png in Resources */,
 				326ACF3819D2221B00B36965 /* osk-photosIcon-76.png in Resources */,
 				326ACF1B19D2221B00B36965 /* osk-iap-badge-76.png in Resources */,
@@ -2059,6 +2058,7 @@
 				326ACF2419D2221B00B36965 /* osk-iconMask-bw-76@2x.png in Resources */,
 				326ACF3E19D2221B00B36965 /* osk-pinboardIcon-76@2x.png in Resources */,
 				326ACF6019D2221B00B36965 /* Riposte-Icon-76@2x.png in Resources */,
+				32D0F3961A38F8A700066B27 /* Tutorial.mov in Resources */,
 				326ACF4A19D2221B00B36965 /* osk-twitterIcon-29.png in Resources */,
 				326ACF0019D2221B00B36965 /* osk-appDotNetIcon-29.png in Resources */,
 				326ACF5E19D2221B00B36965 /* Riposte-Icon-60@2x.png in Resources */,

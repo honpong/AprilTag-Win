@@ -33,16 +33,18 @@
                                                  CVPixelBufferGetWidth(pixBuf),
                                                  CVPixelBufferGetHeight(pixBuf))];
     
-    CGImageRef rotatedImage = [self CGImageRotatedByAngle:videoImage angle:[self getRotationAngleFromOrientation:orientation]];
+    CGImageRef rotatedImage = [self CreateCGImageRotatedByAngle:videoImage angle:[self getRotationAngleFromOrientation:orientation]];
     
     UIImage *uiImage = [UIImage imageWithCGImage:rotatedImage scale:1. orientation:UIImageOrientationUp];
     
     CFRelease(videoImage);
     CFRelease(sampleBuffer);
+    CFRelease(rotatedImage);
+    
     return UIImageJPEGRepresentation(uiImage, 0.8);
 }
 
-+ (CGImageRef)CGImageRotatedByAngle:(CGImageRef)imgRef angle:(CGFloat)angle
++ (CGImageRef)CreateCGImageRotatedByAngle:(CGImageRef)imgRef angle:(CGFloat)angle CF_RETURNS_RETAINED
 {
     CGFloat angleInRadians = angle;
     
@@ -72,6 +74,7 @@
                        imgRef);
     
     CGImageRef rotatedImage = CGBitmapContextCreateImage(bmContext);
+    
     CFRelease(bmContext);
     
     return rotatedImage;

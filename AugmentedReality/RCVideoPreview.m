@@ -528,13 +528,13 @@ void main()
 
 }
 
-- (GLKMatrix4) getScreenRotationForOrientation:(UIInterfaceOrientation)orientation
+- (GLKMatrix4) getScreenRotationForOrientation:(UIInterfaceOrientation)orientation_
 {
     GLKMatrix4 res;
     memset(&res, 0, sizeof(res));
     res.m[10] = 1.;
     res.m[15] = 1.;
-    switch(orientation)
+    switch(orientation_)
     {
         case UIInterfaceOrientationPortrait:
             res.m[1] = -1.;

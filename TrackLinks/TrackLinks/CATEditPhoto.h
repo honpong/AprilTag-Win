@@ -19,7 +19,6 @@
 @property (nonatomic) MPDMeasuredPhoto* measuredPhoto;
 
 - (IBAction)handleCameraButton:(id)sender;
-- (IBAction)handleDelete:(id)sender;
 - (void) setOrientation:(UIDeviceOrientation)orientation animated:(BOOL)animated;
 
 @end

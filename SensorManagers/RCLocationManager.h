@@ -22,10 +22,6 @@
 - (void) startHeadingUpdates;
 - (void) stopHeadingUpdates;
 
-#ifdef DEBUG
-- (void)startLocationUpdates:(CLLocationManager*)locMan;
-#endif
-
 @property (weak, nonatomic) id<CLLocationManagerDelegate> delegate;
 
 + (RCLocationManager *) sharedInstance;

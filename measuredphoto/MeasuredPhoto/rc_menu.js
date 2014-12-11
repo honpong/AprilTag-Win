@@ -175,7 +175,7 @@ function build_rc_menu() {
     function togle_help() {
         if (rc_menu.help_shown) {
             rc_menu.help_shown = false;
-            rcMessage.clear();
+            rcMessage.clearHTML();
         }
         else {
             rc_menu.help_shown = true;

@@ -2,14 +2,16 @@
 
 //RC messages places text content at the front of the top level SVG node for a fixed period of time
 
-rcMessage = { contaner : null, text : null, box : null, message_color : '#fff', box_padding : 10 , html : null };
+rcMessage = { contaner : null, text : null, box : null, message_color : '#fff', box_padding : 10 , html : null, html_contaner : null};
 
 
 rcMessage.initalize = function () {
     rcMessage.contaner = draw.nested('message');
+    rcMessage.html_contaner = draw.nested('message');
     rcMessage.contaner.size(window.innerWidth, window.innerHeight)
+    rcMessage.html_contaner.size(window.innerWidth, window.innerHeight)
     rcMessage.box = rcMessage.contaner.rect(10, 10);
-    rcMessage.html = rcMessage.contaner.foreignObject(100,100).attr({id: 'fobj'});
+    rcMessage.html = rcMessage.html_contaner.foreignObject(100,100).attr({id: 'fobj'});
     rcMessage.html.size(window.innerWidth/1.05, window.innerHeight/1.15);
     rcMessage.html.center(window.innerWidth/2, window.innerHeight/2);
     rcMessage.text = rcMessage.contaner.text(' ').font({
@@ -19,6 +21,7 @@ rcMessage.initalize = function () {
                                                       , leading: 1
                                                       }).fill({ color: rcMessage.message_color, opacity: 1 });
     if (draw.node.contains(rcMessage.contaner.node)) {draw.node.removeChild(rcMessage.contaner.node);}
+    if (draw.node.contains(rcMessage.html_contaner.node)) {draw.node.removeChild(rcMessage.html_contaner.node);}
 
 }
 
@@ -60,18 +63,14 @@ rcMessage.rotate = function() {
 }
 
 rcMessage.postHTML = function(html, miliseconds_up) {
-    if (!rcMessage.contaner) {rcMessage.initalize();}
-    rcMessage.clear();
+    if (!rcMessage.html_contaner) {rcMessage.initalize();}
+    rcMessage.clearHTML();
     rcMessage.rotate();
 
-    if (!draw.node.contains(rcMessage.contaner.node)) {draw.node.appendChild(rcMessage.contaner.node);}
+    if (!draw.node.contains(rcMessage.html_contaner.node)) {draw.node.appendChild(rcMessage.html_contaner.node);}
     rcMessage.html.appendChild("div", {id: 'mydiv', innerHTML: html});
 
-    rcMessage.box.remove();
-    rcMessage.text.remove();
-    rcMessage.text = null;
-    
-
+    window.setTimeout( rcMessage.clearHTML, miliseconds_up);
 }
 
 rcMessage.post = function (message, miliseconds_up) {
@@ -81,15 +80,8 @@ rcMessage.post = function (message, miliseconds_up) {
     rcMessage.text = rcMessage.text.text(message)
     
     rcMessage.rotate();
-
-
-
     
-    window.setTimeout(function () {
-                        rcMessage.clear();
-                      },
-                      miliseconds_up
-    );
+    window.setTimeout( rcMessage.clear, miliseconds_up);
 }
 
 rcMessage.fadeOut = function () {
@@ -98,14 +90,11 @@ rcMessage.fadeOut = function () {
 
 rcMessage.clearHTML = function(){
     rcMessage.html.remove();
-    rcMessage.html = rcMessage.contaner.foreignObject(100,100).attr({id: 'fobj'});
-    rcMessage.html.size(window.innerWidth/1.15, window.innerHeight/1.15);
-    rcMessage.html.center(window.innerWidth/2, window.innerHeight/2);
-
+    rcMessage.html = rcMessage.html_contaner.foreignObject(100,100).attr({id: 'fobj'});
+    if (draw.node.contains(rcMessage.html_contaner.node)) {draw.node.removeChild(rcMessage.html_contaner.node);}
 }
 
 rcMessage.clear = function() {
-    rcMessage.clearHTML ();
     if (rcMessage.text) {rcMessage.text.text(' ');} //already clear
     if (draw.node.contains(rcMessage.contaner.node)) {draw.node.removeChild(rcMessage.contaner.node);}
 }

@@ -1,4 +1,6 @@
 
+//  Copyright (c) 2014 Caterpillar. All rights reserved.
+
 #import <Foundation/Foundation.h>
 #import "CATNativeAction.h"
 

@@ -1,9 +1,6 @@
-//
-//  flat.fsh
-//
-//  Created by Eagle Jones on 10/1/14.
+
 //  Copyright (c) 2014 Caterpillar. All rights reserved.
-//
+
 
 uniform highp vec4 light_ambient;
 uniform highp vec4 light_diffuse;

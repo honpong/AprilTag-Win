@@ -1,10 +1,6 @@
-//
-//  CATConstants.h
-//  TrackLinks
-//
-//  Created by Ben Hirashima on 11/29/14.
+
 //  Copyright (c) 2014 Caterpillar. All rights reserved.
-//
+
 
 #include "RCDebugLog.h"
 

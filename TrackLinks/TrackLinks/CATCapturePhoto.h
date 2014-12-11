@@ -1,10 +1,6 @@
-//
-//  TMViewController.h
-//  TapeMeasure
-//
-//  Created by Ben Hirashima on 10/2/12.
+
 //  Copyright (c) 2014 Caterpillar. All rights reserved.
-//
+
 
 #import <GLKit/GLKit.h>
 #import <AVFoundation/AVFoundation.h>

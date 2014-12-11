@@ -8,6 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface MPPaddedLabel : UILabel
+@interface CATPaddedLabel : UILabel
 
 @end

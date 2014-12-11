@@ -48,7 +48,7 @@
     [self addSubview:videoView];
     [self sendSubviewToBack:videoView];
     
-    AROverlay = [[MPARDelegate alloc] init];
+    AROverlay = [[CATARDelegate alloc] init];
     [videoView setDelegate:AROverlay];
     
     featuresView = [[UIView alloc] initWithFrame:CGRectZero];

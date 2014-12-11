@@ -14,7 +14,7 @@
 #import "RC3DK.h"
 #import "RCVideoPreview.h"
 
-@interface MPARDelegate : NSObject <RCVideoPreviewDelegate>
+@interface CATARDelegate : NSObject <RCVideoPreviewDelegate>
 
 - (void) setProgressHorizontal:(float)horizontal withVertical:(float)vertical;
 @property RCTransformation *initialCamera;

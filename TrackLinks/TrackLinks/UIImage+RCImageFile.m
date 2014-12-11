@@ -6,9 +6,9 @@
 //  Copyright (c) 2014 Caterpillar. All rights reserved.
 //
 
-#import "UIImage+MPImageFile.h"
+#import "UIImage+RCImageFile.h"
 
-@implementation UIImage (MPImageFile)
+@implementation UIImage (RCImageFile)
 
 + (NSData*) jpegDataFromSampleBuffer:(CMSampleBufferRef)sampleBuffer withOrientation:(UIImageOrientation)orientation
 {

@@ -8,7 +8,7 @@
 #import "RC3DK.h"
 #import "CATHttpInterceptor.h"
 #import "CATRotatingButton.h"
-#import "MPDMeasuredPhoto.h"
+#import "CATMeasuredPhoto.h"
 
 @interface CATEditPhoto : UIViewController <UIWebViewDelegate, CATHttpInterceptorDelegate, UITextFieldDelegate>
 
@@ -16,7 +16,7 @@
 @property (weak, nonatomic) IBOutlet UIButton *cameraButton;
 @property (weak, nonatomic) IBOutlet UIView *navBar;
 @property (nonatomic, readonly) UIDeviceOrientation currentUIOrientation;
-@property (nonatomic) MPDMeasuredPhoto* measuredPhoto;
+@property (nonatomic) CATMeasuredPhoto* measuredPhoto;
 
 - (IBAction)handleCameraButton:(id)sender;
 - (void) setOrientation:(UIDeviceOrientation)orientation animated:(BOOL)animated;

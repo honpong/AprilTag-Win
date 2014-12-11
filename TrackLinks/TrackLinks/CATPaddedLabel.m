@@ -6,11 +6,11 @@
 //  Copyright (c) 2014 Caterpillar. All rights reserved.
 //
 
-#import "MPPaddedLabel.h"
+#import "CATPaddedLabel.h"
 
 static UIEdgeInsets insets;
 
-@implementation MPPaddedLabel
+@implementation CATPaddedLabel
 
 + (void) initialize
 {

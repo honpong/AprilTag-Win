@@ -9,7 +9,7 @@
 #import "RCVideoPreview.h"
 #import "RC3DK.h"
 #import "CATFeaturesLayer.h"
-#import "MPARDelegate.h"
+#import "CATARDelegate.h"
 
 #define FEATURE_COUNT 200
 
@@ -20,7 +20,7 @@
 @property (readonly) CATFeaturesLayer* featuresLayer;
 @property (readonly) CATFeaturesLayer* initializingFeaturesLayer;
 @property (readonly) UIView* featuresView;
-@property (readonly) MPARDelegate* AROverlay;
+@property (readonly) CATARDelegate* AROverlay;
 
 - (void) initialize;
 - (void) showFeatures;

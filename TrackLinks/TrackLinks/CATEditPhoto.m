@@ -59,7 +59,7 @@
     });
 }
 
-- (void) setMeasuredPhoto:(MPDMeasuredPhoto *)measuredPhoto
+- (void) setMeasuredPhoto:(CATMeasuredPhoto *)measuredPhoto
 {
     _measuredPhoto = measuredPhoto;
 }

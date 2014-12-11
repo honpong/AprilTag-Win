@@ -8,7 +8,7 @@
 
 #import <UIKit/UIKit.h>
 
-@interface MPExpandingCircleAnimationView : UIView
+@interface CATExpandingCircleAnimationView : UIView
 
 @property (nonatomic) CGFloat beginningCircleRadius;
 @property (nonatomic) CGFloat endingCircleRadius;

@@ -6,13 +6,13 @@
 //  Copyright (c) 2014 Caterpillar. All rights reserved.
 //
 
-#import "MPDMeasuredPhoto.h"
+#import "CATMeasuredPhoto.h"
 #import "CATConstants.h"
-#import "UIImage+MPImageFile.h"
+#import "UIImage+RCImageFile.h"
 #import "UIView+RCOrientationRotation.h"
 #import "NSString+RCString.h"
 
-@implementation MPDMeasuredPhoto
+@implementation CATMeasuredPhoto
 
 - (instancetype)init
 {

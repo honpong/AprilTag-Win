@@ -23,7 +23,7 @@
 #import "CATOrientationChangeData.h"
 #import "CATContainerView.h"
 #import "CATConstants.h"
-#import "MPExpandingCircleAnimationView.h"
+#import "CATExpandingCircleAnimationView.h"
 
 @interface CATCapturePhoto : UIViewController <RCSensorFusionDelegate, RCStereoDelegate, UIAlertViewDelegate>
 
@@ -39,6 +39,6 @@
 @property (weak, nonatomic) IBOutlet UILabel *messageLabel;
 @property (weak, nonatomic) IBOutlet CATToolbarView *toolbar;
 @property (weak, nonatomic) IBOutlet CATContainerView *containerView;
-@property (weak, nonatomic) IBOutlet MPExpandingCircleAnimationView *expandingCircleView;
+@property (weak, nonatomic) IBOutlet CATExpandingCircleAnimationView *expandingCircleView;
 
 @end

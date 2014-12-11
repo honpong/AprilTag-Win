@@ -9,7 +9,7 @@
 #import "CATConstants.h"
 #import "CATCapturePhoto.h"
 #import "math.h"
-#import "UIImage+MPImageFile.h"
+#import "UIImage+RCImageFile.h"
 #import "MBProgressHUD.h"
 #import "CATEditPhoto.h"
 #import "RC3DK.h"
@@ -20,7 +20,7 @@
 #import "RCLocationManager.h"
 #import "UIView+RCOrientationRotation.h"
 #import "UIView+RCViewFade.h"
-#import "MPARDelegate.h"
+#import "CATARDelegate.h"
 
 static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
 
@@ -45,7 +45,7 @@ typedef enum
 
     id<RCSensorDelegate> sensorDelegate;
     
-    MPDMeasuredPhoto* measuredPhoto;
+    CATMeasuredPhoto* measuredPhoto;
     
     BOOL didGetVisionError;
     RCSensorFusionErrorCode lastErrorCode;
@@ -438,9 +438,9 @@ static transition transitions[] =
     [self hideMessage];
 }
 
-- (MPDMeasuredPhoto*) saveMeasuredPhoto
+- (CATMeasuredPhoto*) saveMeasuredPhoto
 {
-    return [MPDMeasuredPhoto new];;
+    return [CATMeasuredPhoto new];;
 }
 
 #pragma mark - RCStereoDelegate

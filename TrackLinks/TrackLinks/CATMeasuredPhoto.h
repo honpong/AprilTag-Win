@@ -10,7 +10,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import <UIKit/UIKit.h>
 
-@interface MPDMeasuredPhoto : NSObject
+@interface CATMeasuredPhoto : NSObject
 
 @property (nonatomic) NSString * id_guid;
 @property (nonatomic) NSTimeInterval created_at;

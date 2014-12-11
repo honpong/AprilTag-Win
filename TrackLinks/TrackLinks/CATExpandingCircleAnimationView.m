@@ -6,9 +6,9 @@
 //  Copyright (c) 2014 Caterpillar. All rights reserved.
 //
 
-#import "MPExpandingCircleAnimationView.h"
+#import "CATExpandingCircleAnimationView.h"
 
-@implementation MPExpandingCircleAnimationView
+@implementation CATExpandingCircleAnimationView
 {
     CAShapeLayer* animationLayer;
     CABasicAnimation* scaleAnimation;

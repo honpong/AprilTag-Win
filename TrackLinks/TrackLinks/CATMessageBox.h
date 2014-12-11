@@ -6,8 +6,8 @@
 //  Copyright (c) 2014 Caterpillar. All rights reserved.
 //
 
-#import "MPPaddedLabel.h"
+#import "CATPaddedLabel.h"
 
-@interface MPMessageBox : MPPaddedLabel
+@interface CATMessageBox : CATPaddedLabel
 
 @end

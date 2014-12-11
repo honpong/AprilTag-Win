@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 Caterpillar. All rights reserved.
 //
 
-#import "MPARDelegate.h"
+#import "CATARDelegate.h"
 #import <QuartzCore/QuartzCore.h>
 #import "RCGLManagerFactory.h"
 #import "RCGLShaderProgram.h"
@@ -44,7 +44,7 @@ void main()
 
 #pragma mark - MPARDelegate
 
-@implementation MPARDelegate
+@implementation CATARDelegate
 {
     RCGLShaderProgram *program;
     float progressHorizontal;

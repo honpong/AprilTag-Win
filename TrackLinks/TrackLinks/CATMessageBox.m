@@ -6,9 +6,9 @@
 //  Copyright (c) 2014 Caterpillar. All rights reserved.
 //
 
-#import "MPMessageBox.h"
+#import "CATMessageBox.h"
 
-@implementation MPMessageBox
+@implementation CATMessageBox
 
 - (id)initWithFrame:(CGRect)frame
 {

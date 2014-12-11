@@ -15,7 +15,7 @@
 #import <RC3DKPlus/RC3DKPlus.h>
 #import "RCLocationManager.h"
 
-static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
+static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationLandscapeRight;
 
 @implementation CATCapturePhoto
 {

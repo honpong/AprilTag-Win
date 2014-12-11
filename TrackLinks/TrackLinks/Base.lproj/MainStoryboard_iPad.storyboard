@@ -17,42 +17,30 @@
                         <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="weX-qG-kff" userLabel="NavBar">
-                                <rect key="frame" x="0.0" y="0.0" width="768" height="44"/>
-                                <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DLg-t1-Ry1" userLabel="CameraButton" customClass="CATRotatingButton">
-                                        <rect key="frame" x="5" y="0.0" width="50" height="44"/>
-                                        <constraints>
-                                            <constraint firstAttribute="height" constant="44" id="IIW-yO-RWa"/>
-                                            <constraint firstAttribute="width" constant="50" id="uZf-Ky-iPl"/>
-                                        </constraints>
-                                        <state key="normal" image="ios7-camera-outline">
-                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                        </state>
-                                        <connections>
-                                            <action selector="handleCameraButton:" destination="XqX-LL-Zdf" eventType="touchUpInside" id="5MP-vz-gTM"/>
-                                        </connections>
-                                    </button>
-                                </subviews>
-                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
-                                <constraints>
-                                    <constraint firstAttribute="centerY" secondItem="DLg-t1-Ry1" secondAttribute="centerY" id="sMQ-Fq-wG0"/>
-                                    <constraint firstAttribute="height" constant="44" id="uBv-Fk-Qjw"/>
-                                    <constraint firstItem="DLg-t1-Ry1" firstAttribute="leading" secondItem="weX-qG-kff" secondAttribute="leading" constant="5" id="xbU-w3-cn1"/>
-                                </constraints>
-                            </view>
                             <webView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="I8N-jP-reu">
-                                <rect key="frame" x="0.0" y="44" width="768" height="980"/>
+                                <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                             </webView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DLg-t1-Ry1" userLabel="CameraButton" customClass="CATRotatingButton">
+                                <rect key="frame" x="16" y="8" width="57" height="44"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="44" id="IIW-yO-RWa"/>
+                                </constraints>
+                                <state key="normal" title="&lt; Back">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="handleCameraButton:" destination="XqX-LL-Zdf" eventType="touchUpInside" id="5MP-vz-gTM"/>
+                                </connections>
+                            </button>
                         </subviews>
-                        <color key="backgroundColor" white="0.66666666666666663" alpha="1" colorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="I8N-jP-reu" firstAttribute="top" secondItem="weX-qG-kff" secondAttribute="bottom" id="35l-IQ-oai"/>
+                            <constraint firstItem="DLg-t1-Ry1" firstAttribute="top" secondItem="eWK-wc-Iwh" secondAttribute="bottom" constant="8" id="49u-iZ-Z35"/>
                             <constraint firstAttribute="trailing" secondItem="I8N-jP-reu" secondAttribute="trailing" id="NmN-mV-le5"/>
-                            <constraint firstItem="weX-qG-kff" firstAttribute="leading" secondItem="Uoc-he-1Yh" secondAttribute="leading" id="QYJ-jH-f4Q"/>
-                            <constraint firstAttribute="trailing" secondItem="weX-qG-kff" secondAttribute="trailing" id="RSH-Yr-yNX"/>
+                            <constraint firstItem="DLg-t1-Ry1" firstAttribute="leading" secondItem="Uoc-he-1Yh" secondAttribute="leading" constant="16" id="QPF-j0-cgw"/>
                             <constraint firstItem="I8N-jP-reu" firstAttribute="leading" secondItem="Uoc-he-1Yh" secondAttribute="leading" id="bcn-bo-4e9"/>
-                            <constraint firstItem="weX-qG-kff" firstAttribute="top" secondItem="Uoc-he-1Yh" secondAttribute="top" id="wNq-WB-elP"/>
+                            <constraint firstItem="I8N-jP-reu" firstAttribute="top" secondItem="eWK-wc-Iwh" secondAttribute="bottom" id="faZ-Mn-R6c"/>
                             <constraint firstAttribute="bottom" secondItem="I8N-jP-reu" secondAttribute="bottom" id="xkU-Jm-PhJ"/>
                         </constraints>
                     </view>
@@ -61,7 +49,6 @@
                     <nil key="simulatedStatusBarMetrics"/>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
-                        <outlet property="cameraButton" destination="sMQ-Fq-wG0" id="iOC-FN-RTr"/>
                         <outlet property="webView" destination="I8N-jP-reu" id="BBJ-yL-D3s"/>
                     </connections>
                 </viewController>
@@ -146,9 +133,6 @@
             <point key="canvasLocation" x="-1853" y="-118"/>
         </scene>
     </scenes>
-    <resources>
-        <image name="ios7-camera-outline" width="32" height="32"/>
-    </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>
         <simulatedOrientationMetrics key="orientation"/>

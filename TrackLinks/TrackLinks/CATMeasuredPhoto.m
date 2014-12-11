@@ -9,7 +9,6 @@
 #import "CATMeasuredPhoto.h"
 #import "CATConstants.h"
 #import "UIImage+RCImageFile.h"
-#import "UIView+RCOrientationRotation.h"
 #import "NSString+RCString.h"
 
 @implementation CATMeasuredPhoto
@@ -36,8 +35,7 @@
         return NO;
     }
     
-    NSData* jpgData = [UIImage jpegDataFromSampleBuffer:sampleBuffer
-                                        withOrientation:[UIView imageOrientationFromDeviceOrientation:orientation]];
+    NSData* jpgData = [UIImage jpegDataFromSampleBuffer:sampleBuffer withOrientation:UIInterfaceOrientationLandscapeRight];
     
     NSError* error;
     BOOL success = [jpgData writeToFile:[self imageFileName] options:NSDataWritingFileProtectionNone error:&error];

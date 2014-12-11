@@ -18,6 +18,5 @@
 @property (nonatomic) CATMeasuredPhoto* measuredPhoto;
 
 - (IBAction)handleCameraButton:(id)sender;
-- (void) setOrientation:(UIDeviceOrientation)orientation animated:(BOOL)animated;
 
 @end

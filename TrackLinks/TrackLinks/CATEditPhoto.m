@@ -29,12 +29,7 @@
 {
     LOGME
     [super viewDidLoad];
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(handleOrientationChange)
-                                                 name:UIDeviceOrientationDidChangeNotification
-                                               object:nil];
-    
+      
     [CATHttpInterceptor setDelegate:self];
     
     NSURL *htmlUrl = [[NSBundle mainBundle] URLForResource:@"measured_photo_svg" withExtension:@"html"]; // url of the html file bundled with the app
@@ -66,40 +61,9 @@
 
 #pragma mark - Orientation
 
-- (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
-{
-    return NO;
-}
-
 - (NSUInteger)supportedInterfaceOrientations
 {
-    return UIInterfaceOrientationMaskPortrait;
-}
-
-- (void) handleOrientationChange
-{
-    UIDeviceOrientation newOrientation = [[UIDevice currentDevice] orientation];
-    
-    if (UIDeviceOrientationIsValidInterfaceOrientation(newOrientation))
-    {
-        [self setOrientation:newOrientation animated:YES];
-    }
-}
-
-- (void) setOrientation:(UIDeviceOrientation)orientation animated:(BOOL)animated
-{
-    self.currentUIOrientation = orientation;
-    CATOrientationChangeData* data = [CATOrientationChangeData dataWithOrientation:orientation animated:animated];
-    [[NSNotificationCenter defaultCenter] postNotificationName:CATUIOrientationDidChangeNotification object:data];
-    [self setWebViewOrientation:orientation];
-}
-
-- (void) setWebViewOrientation:(UIDeviceOrientation) orientation
-{
-    if (!isWebViewLoaded) return;
-    BOOL animated = self.presentingViewController ? YES : NO;
-    NSString* jsFunction = [NSString stringWithFormat:@"forceOrientationChange(%li,%i)", (long)orientation, animated];
-    [self.webView stringByEvaluatingJavaScriptFromString: jsFunction];
+    return UIInterfaceOrientationMaskLandscapeRight;
 }
 
 #pragma mark - Event handlers
@@ -132,7 +96,6 @@
 - (void)webViewDidFinishLoad:(UIWebView *)webView
 {
     isWebViewLoaded = YES;
-    [self setOrientation:self.currentUIOrientation animated:NO];
     [self loadMeasuredPhoto];
 }
 

@@ -315,7 +315,6 @@ static transition transitions[] =
 {
     CATEditPhoto* editPhotoController = (CATEditPhoto*)[self.storyboard instantiateViewControllerWithIdentifier:@"EditPhoto"];
     editPhotoController.measuredPhoto = measuredPhoto;
-    [editPhotoController setOrientation:currentUIOrientation animated:NO];
     [self presentViewController:editPhotoController animated:YES completion:nil];
 }
 

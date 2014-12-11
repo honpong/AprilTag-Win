@@ -3,15 +3,12 @@
 
 
 #import "RC3DK.h"
-#import "CATHttpInterceptor.h"
 #import "CATMeasuredPhoto.h"
 
-@interface CATEditPhoto : UIViewController <UIWebViewDelegate, CATHttpInterceptorDelegate, UITextFieldDelegate>
+@interface CATEditPhoto : UIViewController <UIWebViewDelegate, UITextFieldDelegate>
 
 @property (weak, nonatomic) IBOutlet UIWebView *webView;
 @property (weak, nonatomic) IBOutlet UIButton *cameraButton;
-@property (weak, nonatomic) IBOutlet UIView *navBar;
-@property (nonatomic, readonly) UIDeviceOrientation currentUIOrientation;
 @property (nonatomic) CATMeasuredPhoto* measuredPhoto;
 
 - (IBAction)handleCameraButton:(id)sender;

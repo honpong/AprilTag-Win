@@ -6,7 +6,6 @@
 #import "CATConstants.h"
 #import "RCSensorDelegate.h"
 #import "RCLocationManager.h"
-#import "CATHttpInterceptor.h"
 #import "RC3DK.h"
 #import "RCDebugLog.h"
 #import "RCMotionManager.h"
@@ -47,9 +46,7 @@
     mySensorDelegate = [SensorDelegate sharedInstance];
     
     mainViewController = self.window.rootViewController;
-    
-    [NSURLProtocol registerClass:[CATHttpInterceptor class]];
-    
+        
     BOOL calibratedFlag = [NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_CALIBRATED];
     BOOL hasCalibration = [SENSOR_FUSION hasCalibrationData];
     

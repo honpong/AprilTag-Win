@@ -3,10 +3,8 @@
 //
 
 #import "CATEditPhoto.h"
-#import "CATHttpInterceptor.h"
 #import "CATCapturePhoto.h"
 #import "CATConstants.h"
-#import "CATNativeAction.h"
 #import "NSString+RCString.h"
 
 @interface CATEditPhoto ()
@@ -26,9 +24,7 @@
 {
     LOGME
     [super viewDidLoad];
-      
-    [CATHttpInterceptor setDelegate:self];
-    
+          
     NSURL *htmlUrl = [[NSBundle mainBundle] URLForResource:@"measured_photo_svg" withExtension:@"html"]; // url of the html file bundled with the app
     
     isWebViewLoaded = NO;
@@ -119,37 +115,6 @@
         return NO; // indicates web view should not load the content of the link
     }
     else return NO; // disallow loading of http and all other types of links
-}
-
-#pragma mark - CATHttpInterceptorDelegate
-
-- (NSDictionary *)handleAction:(CATNativeAction *)nativeAction error:(NSError **)error
-{
-    if ([nativeAction.request.URL.description endsWithString:@"/annotations/"] && [nativeAction.method isEqualToString:@"PUT"])
-    {
-        BOOL result = [self.measuredPhoto writeAnnotationsToFile:nativeAction.body];
-        
-        if (result == YES)
-        {
-            return @{ @"message": @"Annotations saved" };
-        }
-        else
-        {
-            NSDictionary* userInfo = @{ NSLocalizedDescriptionKey: @"Failed to write depth file" };
-            *error = [NSError errorWithDomain:ERROR_DOMAIN code:500 userInfo:userInfo];
-        }
-    }
-    else if ([nativeAction.request.URL.description endsWithString:@"/log/"] && [nativeAction.method isEqualToString:@"POST"])
-    {
-        [self webViewLog:[nativeAction.params objectForKey:@"message"]];
-        return @{ @"message": @"Write to log successful" };
-    }
-    else
-    {
-       return @{ @"message": @"Invalid URL" };
-    }
-    
-    return nil;
 }
 
 - (void) webViewLog:(NSString*)message

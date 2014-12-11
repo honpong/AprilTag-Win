@@ -29,7 +29,6 @@
 		323BD1001A253B0D00313573 /* CATAugmentedRealityView.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0E51A253B0D00313573 /* CATAugmentedRealityView.m */; };
 		323BD1011A253B0D00313573 /* CATCapturePhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0E71A253B0D00313573 /* CATCapturePhoto.m */; };
 		323BD1031A253B0D00313573 /* CATEditPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0EC1A253B0D00313573 /* CATEditPhoto.m */; };
-		323BD1061A253B0D00313573 /* CATNativeAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0F21A253B0D00313573 /* CATNativeAction.m */; };
 		323BD1111A253B9A00313573 /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 323BD10D1A253B9A00313573 /* MainStoryboard.storyboard */; };
 		327524791A3271E400459B79 /* libRC3DKPlus.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 327524781A3271DC00459B79 /* libRC3DKPlus.a */; };
 		32BFDDAB1A2E433D00D03F44 /* Calibration.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 32BFDD9F1A2E433D00D03F44 /* Calibration.storyboard */; };
@@ -45,7 +44,6 @@
 		32BFDDC21A2E43A700D03F44 /* RCMotionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDBA1A2E43A700D03F44 /* RCMotionManager.m */; };
 		32BFDDC31A2E43A700D03F44 /* RCSensorDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDBC1A2E43A700D03F44 /* RCSensorDelegate.m */; };
 		32BFDDC41A2E43A700D03F44 /* RCVideoManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDBF1A2E43A700D03F44 /* RCVideoManager.m */; };
-		32BFDDC71A2E445100D03F44 /* CATHttpInterceptor.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDC61A2E445100D03F44 /* CATHttpInterceptor.m */; };
 		32BFDDE31A2E451E00D03F44 /* NSObject+SBJson.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDCB1A2E451E00D03F44 /* NSObject+SBJson.m */; };
 		32BFDDE41A2E451E00D03F44 /* SBJsonParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDCE1A2E451E00D03F44 /* SBJsonParser.m */; };
 		32BFDDE51A2E451E00D03F44 /* SBJsonStreamParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDD01A2E451E00D03F44 /* SBJsonStreamParser.m */; };
@@ -159,8 +157,6 @@
 		323BD0E81A253B0D00313573 /* CATConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATConstants.h; sourceTree = "<group>"; };
 		323BD0EB1A253B0D00313573 /* CATEditPhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = CATEditPhoto.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		323BD0EC1A253B0D00313573 /* CATEditPhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = CATEditPhoto.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
-		323BD0F11A253B0D00313573 /* CATNativeAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATNativeAction.h; sourceTree = "<group>"; };
-		323BD0F21A253B0D00313573 /* CATNativeAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATNativeAction.m; sourceTree = "<group>"; };
 		323BD10E1A253B9A00313573 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainStoryboard.storyboard; sourceTree = "<group>"; };
 		32BFDD9F1A2E433D00D03F44 /* Calibration.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Calibration.storyboard; sourceTree = "<group>"; };
 		32BFDDA01A2E433D00D03F44 /* holding_landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_landscape.jpg; sourceTree = "<group>"; };
@@ -186,8 +182,6 @@
 		32BFDDBD1A2E43A700D03F44 /* RCVideoFrameProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoFrameProvider.h; sourceTree = "<group>"; };
 		32BFDDBE1A2E43A700D03F44 /* RCVideoManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoManager.h; sourceTree = "<group>"; };
 		32BFDDBF1A2E43A700D03F44 /* RCVideoManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoManager.m; sourceTree = "<group>"; };
-		32BFDDC51A2E445100D03F44 /* CATHttpInterceptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = CATHttpInterceptor.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
-		32BFDDC61A2E445100D03F44 /* CATHttpInterceptor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = CATHttpInterceptor.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		32BFDDCA1A2E451E00D03F44 /* NSObject+SBJson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+SBJson.h"; sourceTree = "<group>"; };
 		32BFDDCB1A2E451E00D03F44 /* NSObject+SBJson.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+SBJson.m"; sourceTree = "<group>"; };
 		32BFDDCC1A2E451E00D03F44 /* SBJson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJson.h; sourceTree = "<group>"; };
@@ -326,10 +320,6 @@
 				323BD0EC1A253B0D00313573 /* CATEditPhoto.m */,
 				32EC39291A3613D7004C31C0 /* CATMeasuredPhoto.h */,
 				32EC392A1A3613D7004C31C0 /* CATMeasuredPhoto.m */,
-				323BD0F11A253B0D00313573 /* CATNativeAction.h */,
-				323BD0F21A253B0D00313573 /* CATNativeAction.m */,
-				32BFDDC51A2E445100D03F44 /* CATHttpInterceptor.h */,
-				32BFDDC61A2E445100D03F44 /* CATHttpInterceptor.m */,
 				323BD08D1A25324800313573 /* AppDelegate.h */,
 				323BD08E1A25324800313573 /* AppDelegate.m */,
 				32BFDE191A2E807A00D03F44 /* RC3DK.h */,
@@ -702,7 +692,6 @@
 			files = (
 				32BFDDE91A2E451E00D03F44 /* SBJsonStreamWriter.m in Sources */,
 				323BD08F1A25324800313573 /* AppDelegate.m in Sources */,
-				32BFDDC71A2E445100D03F44 /* CATHttpInterceptor.m in Sources */,
 				32BFDDE81A2E451E00D03F44 /* SBJsonStreamParserState.m in Sources */,
 				32BFDE001A2E4B2200D03F44 /* RCVideoPreview.m in Sources */,
 				32BFDDB11A2E433D00D03F44 /* RCCalibration2.m in Sources */,
@@ -729,7 +718,6 @@
 				32BFDDE41A2E451E00D03F44 /* SBJsonParser.m in Sources */,
 				32BFDDB01A2E433D00D03F44 /* RCCalibration1.m in Sources */,
 				323BD1001A253B0D00313573 /* CATAugmentedRealityView.m in Sources */,
-				323BD1061A253B0D00313573 /* CATNativeAction.m in Sources */,
 				32BFDDC21A2E43A700D03F44 /* RCMotionManager.m in Sources */,
 				323BD1031A253B0D00313573 /* CATEditPhoto.m in Sources */,
 				32BFDDE71A2E451E00D03F44 /* SBJsonStreamParserAdapter.m in Sources */,

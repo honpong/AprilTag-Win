@@ -402,9 +402,5 @@ function logNative(message)
     
     // log to native land
     var jsonData = { "message": message };
-    $.ajax({ type: "POST", url: "http://internal.realitycap.com/log/", contentType: "application/json", processData: false, dataType: "json", data: JSON.stringify(jsonData) })
-        .fail(function(jqXHR, textStatus, errorThrown) {
-              alert(textStatus + ": " + JSON.stringify(jqXHR));
-        })
-    ;
+    $.ajax({ type: "POST", url: "http://internal.realitycap.com/log/", contentType: "application/json", processData: false, dataType: "json", data: JSON.stringify(jsonData) });
 }

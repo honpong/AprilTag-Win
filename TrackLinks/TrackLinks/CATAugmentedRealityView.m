@@ -8,7 +8,6 @@
 
 #import "CATAugmentedRealityView.h"
 #import "CATCapturePhoto.h"
-#import "UIView+RCConstraints.h"
 
 @implementation CATAugmentedRealityView
 {

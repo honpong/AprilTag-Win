@@ -72,7 +72,7 @@ static statesetup setups[] =
     { ST_STARTUP,       false,  false,   false,  SpinnerTypeNone,          false,  ColorGray,    "Loading" },
     { ST_READY,         true,   false,   false,  SpinnerTypeNone,          false,  ColorGray,    "Point the camera at the track link, then press the button." },
     { ST_INITIALIZING,  true,   true,    false,  SpinnerTypeDeterminate,   false,  ColorGray,    "Hold still" },
-    { ST_MOVING,        true,   true,    true,   SpinnerTypeNone,          true,   ColorGray,    "Move sideways left or right." },
+    { ST_MOVING,        true,   true,    true,   SpinnerTypeNone,          true,   ColorGray,    "Move sideways left or right until the progress bar is full." },
     { ST_CAPTURE,       true,   true,    true,   SpinnerTypeNone,          true,   ColorGray,    "Press the button to finish." },
     { ST_PROCESSING,    false,  false,   false,  SpinnerTypeDeterminate,   false,  ColorGray,    "Please wait" },
     { ST_ERROR,         true,   false,   false,  SpinnerTypeNone,          false,  ColorRed,     "Whoops, something went wrong. Try again." },

@@ -1,5 +1,5 @@
 //
-//  RCCameraManager.m
+//  RCCameraManager.mm
 //  RC3DK
 //
 //  Created by Brian on 1/9/14.
@@ -7,13 +7,51 @@
 //
 
 #import "RCCameraManager.h"
+#import "camera_control_interface.h"
+
+camera_control_interface::camera_control_interface(): platform_ptr(NULL)
+{
+}
+
+void camera_control_interface::init(void *platform)
+{
+    
+    platform_ptr = (void *)CFBridgingRetain([[RCCameraManager alloc] init]);
+}
+
+camera_control_interface::~camera_control_interface()
+{
+    CFBridgingRelease(platform_ptr);
+    platform_ptr = nil;
+}
+
+void camera_control_interface::focus_lock_at_current_position(std::function<void (uint64_t, float)> callback)
+{
+    [(__bridge id)platform_ptr lockFocus];
+    //TODO: pass callback
+}
+
+void camera_control_interface::focus_lock_at_position(float position, std::function<void (uint64_t)> callback)
+{
+    //TODO: implement
+}
+
+void camera_control_interface::focus_once_and_lock(std::function<void (uint64_t, float)> callback)
+{
+    [(__bridge id)platform_ptr focusOnceAndLock];
+    //TODO: pass callback
+}
+
+void camera_control_interface::focus_unlock()
+{
+    //TODO: implement
+}
 
 typedef NS_ENUM(int, RCCameraManagerOperationType) {
     RCCameraManagerOperationNone = 0, // will never be passed to a delegate
     RCCameraManagerOperationFocusOnce,
     RCCameraManagerOperationFocusLock,
 };
-
 
 @implementation RCCameraManager
 {

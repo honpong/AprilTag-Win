@@ -117,12 +117,12 @@
 
 #pragma mark RCCalibrationDelegate methods
 
-- (void) calibrationDidFinish
+- (void) calibrationDidFinish:(UIViewController*)lastViewController
 {
     LOGME
     [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_IS_CALIBRATED];
     
-    [self gotoCaptureScreen];
+    [lastViewController presentViewController:mainViewController animated:YES completion:nil];
 }
 
 #pragma mark - RCCalibrationDelegate

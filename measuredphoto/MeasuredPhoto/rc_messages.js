@@ -38,12 +38,12 @@ rcMessage.rotate = function() {
     }
     else if (current_rotation >= 50 && current_rotation <= 135) { //lanscape
         if(rcMessage.text){rcMessage.text.center(window.innerWidth/2 + rcMessage.text.node.offsetWidth/2 - button_size/2, draw_g.cy() + window.innerWidth/2 - rcMessage.text.node.offsetHeight/2);}
-        rcMessage.html.size((window.innerHeight-button_size)/1.15, window.innerWidth/1.05);
+        rcMessage.html.size((window.innerHeight-button_size)/1.05, window.innerWidth/1.05);
 
     }
     else { //lanscape
         if(rcMessage.text){rcMessage.text.center(window.innerWidth/2 + rcMessage.text.node.offsetWidth/2 + button_size/2, draw_g.cy() + window.innerWidth/2 - rcMessage.text.node.offsetHeight/2);}
-        rcMessage.html.size((window.innerHeight-button_size)/1.15, window.innerWidth/1.05);
+        rcMessage.html.size((window.innerHeight-button_size)/1.05, window.innerWidth/1.05);
 
     }
 

@@ -179,15 +179,15 @@ function build_rc_menu() {
         }
         else {
             rc_menu.help_shown = true;
-            rcMessage.postHTML('<ul style="background-color:white; border-radius: 15px; margin:6px; font-family: Helvetica;" >'+
-                               '<li style="margin: 6px;">To create a measurement, select the \nline tool, then tap two points.</li>'+
-                           '<li style="margin: 6px;">Select the eraser and touch a \nmeasurement to delet it.</li>'+
-                           '<li style="margin: 6px;">Hit the "m | ft" button to toggle units.</li>'+
+            rcMessage.postHTML('<ul style="background-color:white; border-radius: 15px; margin:6px; font-family: Helvetica;" ><br/>'+
+                               '<li style="margin: 6px;">To create a measurement, select the line tool, then tap two points.</li>'+
+                           '<li style="margin: 6px;">Select the eraser and touch a measurement to delet it.</li>'+
+                           '<li style="margin: 6px;">The "m | ft" button to toggles units.</li>'+
                            '<li style="margin: 6px;">Hit undo to undo your last change.</li>'+
-                           '<li style="margin: 6px;">You can pinch to zoom, \nand pan when zoomed in.</li>'+
+                           '<li style="margin: 6px;">You can pinch to zoom, and pan when zoomed in.</li>'+
                            '<li style="margin: 6px;">The trash can erases the photo.</li>'+
-                           '<li style="margin: 6px;">You can rename the measured photo \nby selecting the title box.</li>'+
-                           '<li style="margin: 6px;">Hit the "?" again to hide this.</li><br/></ul>', 30000);
+                           '<li style="margin: 6px;">Tap the title box to rename the photo.</li>'+
+                           '<li style="margin: 6px;">Hit "?" again to hide this.</li><br/></ul>', 30000);
         }
     }
     

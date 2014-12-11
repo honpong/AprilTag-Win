@@ -42,6 +42,7 @@
     
     videoView = [[RCVideoPreview alloc] initWithFrame:self.frame];
     videoView.translatesAutoresizingMaskIntoConstraints = NO;
+    videoView.orientation = UIInterfaceOrientationLandscapeRight;
     [self addSubview:videoView];
     [self sendSubviewToBack:videoView];
     

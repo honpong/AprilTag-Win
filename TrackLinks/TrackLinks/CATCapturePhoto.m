@@ -50,11 +50,6 @@ typedef enum
 }
 @synthesize arView;
 
-typedef NS_ENUM(int, AlertTag) {
-    AlertTagTutorial = 0,
-    AlertTagInstructions = 1
-};
-
 #pragma mark - State Machine
 
 typedef enum
@@ -300,17 +295,12 @@ static transition transitions[] =
 
 #pragma mark - Orientation
 
-- (BOOL) shouldAutorotate
-{
-    return NO;
-}
-
 - (NSUInteger)supportedInterfaceOrientations
 {
-    return UIInterfaceOrientationMaskPortrait;
+    return UIInterfaceOrientationMaskLandscapeRight;
 }
 
-#pragma mark -
+#pragma mark - App lifecycle
 
 - (void)handlePause
 {
@@ -333,6 +323,8 @@ static transition transitions[] =
         	[self handleStateEvent:EV_RESUME];
     }
 }
+
+#pragma mark - Event handlers
 
 - (IBAction)handleShutterButton:(id)sender
 {
@@ -522,7 +514,7 @@ static transition transitions[] =
     }
 }
 
-#pragma mark -
+#pragma mark - Misc
 
 /** delegate method of MPInstructionsViewDelegate. tells us when the dot has reached the edge of the circle. */
 - (void) moveComplete

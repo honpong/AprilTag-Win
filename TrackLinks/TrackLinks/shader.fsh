@@ -2,7 +2,7 @@
 //  flat.fsh
 //
 //  Created by Eagle Jones on 10/1/14.
-//  Copyright (c) 2014 Realitycap. All rights reserved.
+//  Copyright (c) 2014 Caterpillar. All rights reserved.
 //
 
 uniform highp vec4 light_ambient;

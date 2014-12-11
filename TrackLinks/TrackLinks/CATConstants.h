@@ -29,6 +29,7 @@
 
 #define PREF_UNITS @"units_preference"
 #define PREF_IS_CALIBRATED @"is_calibrated"
+#define PREF_USE_LOCATION @"use_location"
 
 #define INCHES_PER_METER 39.3700787
 

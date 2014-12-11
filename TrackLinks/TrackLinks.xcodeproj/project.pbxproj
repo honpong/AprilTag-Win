@@ -34,8 +34,7 @@
 		323BD1011A253B0D00313573 /* CATCapturePhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0E71A253B0D00313573 /* CATCapturePhoto.m */; };
 		323BD1031A253B0D00313573 /* CATEditPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0EC1A253B0D00313573 /* CATEditPhoto.m */; };
 		323BD1061A253B0D00313573 /* CATNativeAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0F21A253B0D00313573 /* CATNativeAction.m */; };
-		323BD1111A253B9A00313573 /* MainStoryboard_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 323BD10D1A253B9A00313573 /* MainStoryboard_iPad.storyboard */; };
-		323BD1121A253B9A00313573 /* MainStoryboard_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 323BD10F1A253B9A00313573 /* MainStoryboard_iPhone.storyboard */; };
+		323BD1111A253B9A00313573 /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 323BD10D1A253B9A00313573 /* MainStoryboard.storyboard */; };
 		327524791A3271E400459B79 /* libRC3DKPlus.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 327524781A3271DC00459B79 /* libRC3DKPlus.a */; };
 		327524821A3276E600459B79 /* UIView+RCConstraints.m in Sources */ = {isa = PBXBuildFile; fileRef = 327524811A3276E600459B79 /* UIView+RCConstraints.m */; };
 		32BFDDAB1A2E433D00D03F44 /* Calibration.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 32BFDD9F1A2E433D00D03F44 /* Calibration.storyboard */; };
@@ -172,8 +171,7 @@
 		323BD0EC1A253B0D00313573 /* CATEditPhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = CATEditPhoto.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		323BD0F11A253B0D00313573 /* CATNativeAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATNativeAction.h; sourceTree = "<group>"; };
 		323BD0F21A253B0D00313573 /* CATNativeAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATNativeAction.m; sourceTree = "<group>"; };
-		323BD10E1A253B9A00313573 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainStoryboard_iPad.storyboard; sourceTree = "<group>"; };
-		323BD1101A253B9A00313573 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainStoryboard_iPhone.storyboard; sourceTree = "<group>"; };
+		323BD10E1A253B9A00313573 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainStoryboard.storyboard; sourceTree = "<group>"; };
 		327524801A3276E600459B79 /* UIView+RCConstraints.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+RCConstraints.h"; sourceTree = "<group>"; };
 		327524811A3276E600459B79 /* UIView+RCConstraints.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+RCConstraints.m"; sourceTree = "<group>"; };
 		32BFDD9F1A2E433D00D03F44 /* Calibration.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Calibration.storyboard; sourceTree = "<group>"; };
@@ -350,8 +348,7 @@
 				323BD08E1A25324800313573 /* AppDelegate.m */,
 				32BFDE191A2E807A00D03F44 /* RC3DK.h */,
 				323BD0961A25324800313573 /* Images.xcassets */,
-				323BD10D1A253B9A00313573 /* MainStoryboard_iPad.storyboard */,
-				323BD10F1A253B9A00313573 /* MainStoryboard_iPhone.storyboard */,
+				323BD10D1A253B9A00313573 /* MainStoryboard.storyboard */,
 			);
 			path = TrackLinks;
 			sourceTree = "<group>";
@@ -690,7 +687,6 @@
 				323BD0CF1A253AEC00313573 /* depth_data.js in Resources */,
 				323BD0DD1A253AEC00313573 /* svgjs.js in Resources */,
 				323BD0D31A253AEC00313573 /* jquery-2.1.1.min.js in Resources */,
-				323BD1121A253B9A00313573 /* MainStoryboard_iPhone.storyboard in Resources */,
 				323BD0D71A253AEC00313573 /* numeric_keypad.js in Resources */,
 				32BFDDAB1A2E433D00D03F44 /* Calibration.storyboard in Resources */,
 				323BD0DF1A253AEC00313573 /* svgjs_fornobj.js in Resources */,
@@ -701,7 +697,7 @@
 				32BFDDAC1A2E433D00D03F44 /* holding_landscape.jpg in Resources */,
 				323BD0D21A253AEC00313573 /* hammer.js in Resources */,
 				32BFDDAE1A2E433D00D03F44 /* ipad_on_table.jpg in Resources */,
-				323BD1111A253B9A00313573 /* MainStoryboard_iPad.storyboard in Resources */,
+				323BD1111A253B9A00313573 /* MainStoryboard.storyboard in Resources */,
 				323BD0DC1A253AEC00313573 /* scale_and_rotate.js in Resources */,
 				323BD0D61A253AEC00313573 /* measured_photo_svg.html in Resources */,
 				323BD0D81A253AEC00313573 /* rc_measurements.js in Resources */,
@@ -795,20 +791,12 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
-		323BD10D1A253B9A00313573 /* MainStoryboard_iPad.storyboard */ = {
+		323BD10D1A253B9A00313573 /* MainStoryboard.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
 				323BD10E1A253B9A00313573 /* Base */,
 			);
-			name = MainStoryboard_iPad.storyboard;
-			sourceTree = "<group>";
-		};
-		323BD10F1A253B9A00313573 /* MainStoryboard_iPhone.storyboard */ = {
-			isa = PBXVariantGroup;
-			children = (
-				323BD1101A253B9A00313573 /* Base */,
-			);
-			name = MainStoryboard_iPhone.storyboard;
+			name = MainStoryboard.storyboard;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

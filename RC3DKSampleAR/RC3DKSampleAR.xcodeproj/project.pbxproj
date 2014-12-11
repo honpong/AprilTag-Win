@@ -58,6 +58,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
+		D3CEE3C21A39006C00A79A7F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D98CDC091A153D570078DA30 /* RC3DK.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D3B4EB591A1E7DE100BE0443;
+			remoteInfo = RC3DKPlus;
+		};
 		D901457B19F9A00F004E7CE2 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = D901455919F9A00F004E7CE2 /* Project object */;
@@ -360,6 +367,7 @@
 			children = (
 				D98CDC0F1A153D570078DA30 /* libRC3DK.a */,
 				D98CDC111A153D570078DA30 /* RC3DKTests.xctest */,
+				D3CEE3C31A39006C00A79A7F /* libRC3DKPlus.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -449,6 +457,13 @@
 /* End PBXProject section */
 
 /* Begin PBXReferenceProxy section */
+		D3CEE3C31A39006C00A79A7F /* libRC3DKPlus.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRC3DKPlus.a;
+			remoteRef = D3CEE3C21A39006C00A79A7F /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		D98CDC0F1A153D570078DA30 /* libRC3DK.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;

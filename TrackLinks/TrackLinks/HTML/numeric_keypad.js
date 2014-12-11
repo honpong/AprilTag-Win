@@ -1,4 +1,4 @@
-//Copywrite (c) 2014 by RealityCap, Inc. Written by Jordan Miller for the exclusive use of RealityCap, Inc. 
+//Copyright (c) 2014 Caterpillar 
 
 // this code creates the numeric keypad. callback functions can be provided for the buttons, and when np_add_listners is called they will be added to events on the keypad
 

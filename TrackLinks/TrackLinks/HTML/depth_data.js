@@ -1,4 +1,4 @@
-//Copywrite (c) 2014 by RealityCap, Inc. Written by Jordan Miller for the exclusive use of RealityCap, Inc.
+//Copyright (c) 2014 Caterpillar
 
 //this code gets and manages the depth data, including populating the depth map, as well as computing distances in physical space between pixels in the image.
 

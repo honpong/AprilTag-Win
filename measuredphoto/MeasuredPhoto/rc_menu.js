@@ -179,14 +179,15 @@ function build_rc_menu() {
         }
         else {
             rc_menu.help_shown = true;
-            rcMessage.post("- To create a measurement, select the \nline tool,then tap two points.\n"+
-                           "- Select the eraser and touch a \nmeasurement to delet it.\n \n"+
-                           "- Hit the 'm|ft' button to toggle units.\n"+
-                           "- Hit undo to undo your last change.\n"+
-                           "- You can pinch to zoom, \nand pan when zoomed in.\n"+
-                           "- The trash can erases the photo.\n"+
-                           "- You can rename the measured photo \nby selecting the title box.\n"+
-                           "- Hit the '?' again to hide this.", 30000);
+            rcMessage.postHTML('<ul style="background-color:white; border-radius: 15px; margin:6px; font-family: Helvetica;" >'+
+                               '<li style="margin: 6px;">To create a measurement, select the \nline tool, then tap two points.</li>'+
+                           '<li style="margin: 6px;">Select the eraser and touch a \nmeasurement to delet it.</li>'+
+                           '<li style="margin: 6px;">Hit the "m | ft" button to toggle units.</li>'+
+                           '<li style="margin: 6px;">Hit undo to undo your last change.</li>'+
+                           '<li style="margin: 6px;">You can pinch to zoom, \nand pan when zoomed in.</li>'+
+                           '<li style="margin: 6px;">The trash can erases the photo.</li>'+
+                           '<li style="margin: 6px;">You can rename the measured photo \nby selecting the title box.</li>'+
+                           '<li style="margin: 6px;">Hit the "?" again to hide this.</li><br/></ul>', 30000);
         }
     }
     

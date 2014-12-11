@@ -32,18 +32,12 @@
 		323BD0E11A253AEC00313573 /* web_view_rotation.js in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0CE1A253AEC00313573 /* web_view_rotation.js */; };
 		323BD1001A253B0D00313573 /* CATAugmentedRealityView.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0E51A253B0D00313573 /* CATAugmentedRealityView.m */; };
 		323BD1011A253B0D00313573 /* CATCapturePhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0E71A253B0D00313573 /* CATCapturePhoto.m */; };
-		323BD1021A253B0D00313573 /* CATContainerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0EA1A253B0D00313573 /* CATContainerView.m */; };
 		323BD1031A253B0D00313573 /* CATEditPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0EC1A253B0D00313573 /* CATEditPhoto.m */; };
 		323BD1061A253B0D00313573 /* CATNativeAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0F21A253B0D00313573 /* CATNativeAction.m */; };
-		323BD1071A253B0D00313573 /* CATOrientationChangeData.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0F41A253B0D00313573 /* CATOrientationChangeData.m */; };
-		323BD1091A253B0D00313573 /* CATRotatingButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0F81A253B0D00313573 /* CATRotatingButton.m */; };
-		323BD10A1A253B0D00313573 /* CATShutterButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0FA1A253B0D00313573 /* CATShutterButton.m */; };
-		323BD10B1A253B0D00313573 /* CATGalleryButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0FC1A253B0D00313573 /* CATGalleryButton.m */; };
 		323BD1111A253B9A00313573 /* MainStoryboard_iPad.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 323BD10D1A253B9A00313573 /* MainStoryboard_iPad.storyboard */; };
 		323BD1121A253B9A00313573 /* MainStoryboard_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 323BD10F1A253B9A00313573 /* MainStoryboard_iPhone.storyboard */; };
 		327524791A3271E400459B79 /* libRC3DKPlus.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 327524781A3271DC00459B79 /* libRC3DKPlus.a */; };
 		327524821A3276E600459B79 /* UIView+RCConstraints.m in Sources */ = {isa = PBXBuildFile; fileRef = 327524811A3276E600459B79 /* UIView+RCConstraints.m */; };
-		32BFDD9A1A2D354F00D03F44 /* CATTintTouchButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDD991A2D354F00D03F44 /* CATTintTouchButton.m */; };
 		32BFDDAB1A2E433D00D03F44 /* Calibration.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 32BFDD9F1A2E433D00D03F44 /* Calibration.storyboard */; };
 		32BFDDAC1A2E433D00D03F44 /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32BFDDA01A2E433D00D03F44 /* holding_landscape.jpg */; };
 		32BFDDAD1A2E433D00D03F44 /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32BFDDA11A2E433D00D03F44 /* holding_portrait.jpg */; };
@@ -75,15 +69,10 @@
 		32BFDDFE1A2E4B2200D03F44 /* RCGLManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDF91A2E4B2200D03F44 /* RCGLManagerFactory.m */; };
 		32BFDDFF1A2E4B2200D03F44 /* RCGLShaderProgram.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDFB1A2E4B2200D03F44 /* RCGLShaderProgram.m */; };
 		32BFDE001A2E4B2200D03F44 /* RCVideoPreview.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDFD1A2E4B2200D03F44 /* RCVideoPreview.m */; };
-		32BFDE061A2E4F0000D03F44 /* CATFeatureLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDE031A2E4F0000D03F44 /* CATFeatureLayerDelegate.m */; };
-		32BFDE071A2E4F0000D03F44 /* CATFeaturesLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDE051A2E4F0000D03F44 /* CATFeaturesLayer.m */; };
-		32BFDE101A2E50CA00D03F44 /* CATToolbarView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDE0F1A2E50CA00D03F44 /* CATToolbarView.m */; };
-		32BFDE151A2E51D000D03F44 /* UIView+RCOrientationRotation.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDE141A2E51D000D03F44 /* UIView+RCOrientationRotation.m */; };
 		32BFDE181A2E528F00D03F44 /* UIImage+RCImageFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDE171A2E528F00D03F44 /* UIImage+RCImageFile.m */; };
 		32BFDE1F1A2E83F000D03F44 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFDE1E1A2E83F000D03F44 /* CoreLocation.framework */; };
 		32BFDE221A2E83F600D03F44 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFDE211A2E83F600D03F44 /* AVFoundation.framework */; };
 		32C951E31A365CDC005E1BFB /* CATARDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C951E01A365CDC005E1BFB /* CATARDelegate.m */; };
-		32C951E41A365CDC005E1BFB /* CATExpandingCircleAnimationView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C951E21A365CDC005E1BFB /* CATExpandingCircleAnimationView.m */; };
 		32C951E81A365E02005E1BFB /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32C951E71A365E02005E1BFB /* GLKit.framework */; };
 		32C951EB1A366603005E1BFB /* shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 32C951E91A366603005E1BFB /* shader.fsh */; };
 		32C951EC1A366603005E1BFB /* shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 32C951EA1A366603005E1BFB /* shader.vsh */; };
@@ -104,8 +93,6 @@
 		32EC394B1A362393004C31C0 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EC394A1A362393004C31C0 /* CoreMotion.framework */; };
 		32EC394D1A3623B0004C31C0 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EC394C1A3623B0004C31C0 /* Foundation.framework */; };
 		32EC394F1A3623B5004C31C0 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EC394E1A3623B5004C31C0 /* UIKit.framework */; };
-		32EC39591A362D56004C31C0 /* CATMessageBox.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EC39581A362D56004C31C0 /* CATMessageBox.m */; };
-		32EC395C1A362D70004C31C0 /* CATPaddedLabel.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EC395B1A362D70004C31C0 /* CATPaddedLabel.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -181,26 +168,14 @@
 		323BD0E61A253B0D00313573 /* CATCapturePhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATCapturePhoto.h; sourceTree = "<group>"; };
 		323BD0E71A253B0D00313573 /* CATCapturePhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATCapturePhoto.m; sourceTree = "<group>"; };
 		323BD0E81A253B0D00313573 /* CATConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATConstants.h; sourceTree = "<group>"; };
-		323BD0E91A253B0D00313573 /* CATContainerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATContainerView.h; sourceTree = "<group>"; };
-		323BD0EA1A253B0D00313573 /* CATContainerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATContainerView.m; sourceTree = "<group>"; };
 		323BD0EB1A253B0D00313573 /* CATEditPhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = CATEditPhoto.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		323BD0EC1A253B0D00313573 /* CATEditPhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = CATEditPhoto.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		323BD0F11A253B0D00313573 /* CATNativeAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATNativeAction.h; sourceTree = "<group>"; };
 		323BD0F21A253B0D00313573 /* CATNativeAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATNativeAction.m; sourceTree = "<group>"; };
-		323BD0F31A253B0D00313573 /* CATOrientationChangeData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATOrientationChangeData.h; sourceTree = "<group>"; };
-		323BD0F41A253B0D00313573 /* CATOrientationChangeData.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATOrientationChangeData.m; sourceTree = "<group>"; };
-		323BD0F71A253B0D00313573 /* CATRotatingButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATRotatingButton.h; sourceTree = "<group>"; };
-		323BD0F81A253B0D00313573 /* CATRotatingButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATRotatingButton.m; sourceTree = "<group>"; };
-		323BD0F91A253B0D00313573 /* CATShutterButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATShutterButton.h; sourceTree = "<group>"; };
-		323BD0FA1A253B0D00313573 /* CATShutterButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATShutterButton.m; sourceTree = "<group>"; };
-		323BD0FB1A253B0D00313573 /* CATGalleryButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATGalleryButton.h; sourceTree = "<group>"; };
-		323BD0FC1A253B0D00313573 /* CATGalleryButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATGalleryButton.m; sourceTree = "<group>"; };
 		323BD10E1A253B9A00313573 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainStoryboard_iPad.storyboard; sourceTree = "<group>"; };
 		323BD1101A253B9A00313573 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainStoryboard_iPhone.storyboard; sourceTree = "<group>"; };
 		327524801A3276E600459B79 /* UIView+RCConstraints.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+RCConstraints.h"; sourceTree = "<group>"; };
 		327524811A3276E600459B79 /* UIView+RCConstraints.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+RCConstraints.m"; sourceTree = "<group>"; };
-		32BFDD981A2D354F00D03F44 /* CATTintTouchButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATTintTouchButton.h; sourceTree = "<group>"; };
-		32BFDD991A2D354F00D03F44 /* CATTintTouchButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATTintTouchButton.m; sourceTree = "<group>"; };
 		32BFDD9F1A2E433D00D03F44 /* Calibration.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Calibration.storyboard; sourceTree = "<group>"; };
 		32BFDDA01A2E433D00D03F44 /* holding_landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_landscape.jpg; sourceTree = "<group>"; };
 		32BFDDA11A2E433D00D03F44 /* holding_portrait.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_portrait.jpg; sourceTree = "<group>"; };
@@ -263,15 +238,6 @@
 		32BFDDFB1A2E4B2200D03F44 /* RCGLShaderProgram.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCGLShaderProgram.m; sourceTree = "<group>"; };
 		32BFDDFC1A2E4B2200D03F44 /* RCVideoPreview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoPreview.h; sourceTree = "<group>"; };
 		32BFDDFD1A2E4B2200D03F44 /* RCVideoPreview.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoPreview.m; sourceTree = "<group>"; };
-		32BFDE021A2E4F0000D03F44 /* CATFeatureLayerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATFeatureLayerDelegate.h; sourceTree = "<group>"; };
-		32BFDE031A2E4F0000D03F44 /* CATFeatureLayerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATFeatureLayerDelegate.m; sourceTree = "<group>"; };
-		32BFDE041A2E4F0000D03F44 /* CATFeaturesLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATFeaturesLayer.h; sourceTree = "<group>"; };
-		32BFDE051A2E4F0000D03F44 /* CATFeaturesLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATFeaturesLayer.m; sourceTree = "<group>"; };
-		32BFDE0E1A2E50CA00D03F44 /* CATToolbarView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATToolbarView.h; sourceTree = "<group>"; };
-		32BFDE0F1A2E50CA00D03F44 /* CATToolbarView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATToolbarView.m; sourceTree = "<group>"; };
-		32BFDE121A2E513200D03F44 /* CATRotatingView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CATRotatingView.h; sourceTree = "<group>"; };
-		32BFDE131A2E51D000D03F44 /* UIView+RCOrientationRotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+RCOrientationRotation.h"; sourceTree = "<group>"; };
-		32BFDE141A2E51D000D03F44 /* UIView+RCOrientationRotation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+RCOrientationRotation.m"; sourceTree = "<group>"; };
 		32BFDE161A2E528F00D03F44 /* UIImage+RCImageFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+RCImageFile.h"; sourceTree = "<group>"; };
 		32BFDE171A2E528F00D03F44 /* UIImage+RCImageFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+RCImageFile.m"; sourceTree = "<group>"; };
 		32BFDE191A2E807A00D03F44 /* RC3DK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RC3DK.h; sourceTree = "<group>"; };
@@ -279,8 +245,6 @@
 		32BFDE211A2E83F600D03F44 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		32C951DF1A365CDC005E1BFB /* CATARDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATARDelegate.h; sourceTree = "<group>"; };
 		32C951E01A365CDC005E1BFB /* CATARDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATARDelegate.m; sourceTree = "<group>"; };
-		32C951E11A365CDC005E1BFB /* CATExpandingCircleAnimationView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATExpandingCircleAnimationView.h; sourceTree = "<group>"; };
-		32C951E21A365CDC005E1BFB /* CATExpandingCircleAnimationView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATExpandingCircleAnimationView.m; sourceTree = "<group>"; };
 		32C951E71A365E02005E1BFB /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		32C951E91A366603005E1BFB /* shader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.fsh; sourceTree = "<group>"; };
 		32C951EA1A366603005E1BFB /* shader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.vsh; sourceTree = "<group>"; };
@@ -303,10 +267,6 @@
 		32EC394A1A362393004C31C0 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		32EC394C1A3623B0004C31C0 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		32EC394E1A3623B5004C31C0 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
-		32EC39571A362D56004C31C0 /* CATMessageBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATMessageBox.h; sourceTree = "<group>"; };
-		32EC39581A362D56004C31C0 /* CATMessageBox.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATMessageBox.m; sourceTree = "<group>"; };
-		32EC395A1A362D70004C31C0 /* CATPaddedLabel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATPaddedLabel.h; sourceTree = "<group>"; };
-		32EC395B1A362D70004C31C0 /* CATPaddedLabel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATPaddedLabel.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -384,8 +344,6 @@
 				32EC392A1A3613D7004C31C0 /* CATMeasuredPhoto.m */,
 				323BD0F11A253B0D00313573 /* CATNativeAction.h */,
 				323BD0F21A253B0D00313573 /* CATNativeAction.m */,
-				323BD0F31A253B0D00313573 /* CATOrientationChangeData.h */,
-				323BD0F41A253B0D00313573 /* CATOrientationChangeData.m */,
 				32BFDDC51A2E445100D03F44 /* CATHttpInterceptor.h */,
 				32BFDDC61A2E445100D03F44 /* CATHttpInterceptor.m */,
 				323BD08D1A25324800313573 /* AppDelegate.h */,
@@ -577,39 +535,14 @@
 				32C951EA1A366603005E1BFB /* shader.vsh */,
 				323BD0E41A253B0D00313573 /* CATAugmentedRealityView.h */,
 				323BD0E51A253B0D00313573 /* CATAugmentedRealityView.m */,
-				323BD0E91A253B0D00313573 /* CATContainerView.h */,
-				323BD0EA1A253B0D00313573 /* CATContainerView.m */,
-				32BFDE021A2E4F0000D03F44 /* CATFeatureLayerDelegate.h */,
-				32BFDE031A2E4F0000D03F44 /* CATFeatureLayerDelegate.m */,
-				32BFDE041A2E4F0000D03F44 /* CATFeaturesLayer.h */,
-				32BFDE051A2E4F0000D03F44 /* CATFeaturesLayer.m */,
-				323BD0FB1A253B0D00313573 /* CATGalleryButton.h */,
-				323BD0FC1A253B0D00313573 /* CATGalleryButton.m */,
-				323BD0F71A253B0D00313573 /* CATRotatingButton.h */,
-				323BD0F81A253B0D00313573 /* CATRotatingButton.m */,
-				32BFDE121A2E513200D03F44 /* CATRotatingView.h */,
-				323BD0F91A253B0D00313573 /* CATShutterButton.h */,
-				323BD0FA1A253B0D00313573 /* CATShutterButton.m */,
-				32BFDD981A2D354F00D03F44 /* CATTintTouchButton.h */,
-				32BFDD991A2D354F00D03F44 /* CATTintTouchButton.m */,
-				32BFDE0E1A2E50CA00D03F44 /* CATToolbarView.h */,
-				32BFDE0F1A2E50CA00D03F44 /* CATToolbarView.m */,
 				32C951DF1A365CDC005E1BFB /* CATARDelegate.h */,
 				32C951E01A365CDC005E1BFB /* CATARDelegate.m */,
-				32C951E11A365CDC005E1BFB /* CATExpandingCircleAnimationView.h */,
-				32C951E21A365CDC005E1BFB /* CATExpandingCircleAnimationView.m */,
-				32EC39571A362D56004C31C0 /* CATMessageBox.h */,
-				32EC39581A362D56004C31C0 /* CATMessageBox.m */,
-				32EC395A1A362D70004C31C0 /* CATPaddedLabel.h */,
-				32EC395B1A362D70004C31C0 /* CATPaddedLabel.m */,
 				32EC392E1A361792004C31C0 /* NSString+RCString.h */,
 				32EC392F1A361792004C31C0 /* NSString+RCString.m */,
 				32BFDE161A2E528F00D03F44 /* UIImage+RCImageFile.h */,
 				32BFDE171A2E528F00D03F44 /* UIImage+RCImageFile.m */,
 				327524801A3276E600459B79 /* UIView+RCConstraints.h */,
 				327524811A3276E600459B79 /* UIView+RCConstraints.m */,
-				32BFDE131A2E51D000D03F44 /* UIView+RCOrientationRotation.h */,
-				32BFDE141A2E51D000D03F44 /* UIView+RCOrientationRotation.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -798,22 +731,15 @@
 			buildActionMask = 2147483647;
 			files = (
 				32BFDDE91A2E451E00D03F44 /* SBJsonStreamWriter.m in Sources */,
-				32BFDE101A2E50CA00D03F44 /* CATToolbarView.m in Sources */,
-				32BFDE071A2E4F0000D03F44 /* CATFeaturesLayer.m in Sources */,
-				32BFDE151A2E51D000D03F44 /* UIView+RCOrientationRotation.m in Sources */,
 				323BD08F1A25324800313573 /* AppDelegate.m in Sources */,
-				323BD10B1A253B0D00313573 /* CATGalleryButton.m in Sources */,
 				32BFDDC71A2E445100D03F44 /* CATHttpInterceptor.m in Sources */,
 				32C951E31A365CDC005E1BFB /* CATARDelegate.m in Sources */,
 				32BFDDE81A2E451E00D03F44 /* SBJsonStreamParserState.m in Sources */,
 				32BFDE001A2E4B2200D03F44 /* RCVideoPreview.m in Sources */,
-				32C951E41A365CDC005E1BFB /* CATExpandingCircleAnimationView.m in Sources */,
 				32BFDDB11A2E433D00D03F44 /* RCCalibration2.m in Sources */,
 				32BFDDC11A2E43A700D03F44 /* RCLocationManager.m in Sources */,
 				323BD1011A253B0D00313573 /* CATCapturePhoto.m in Sources */,
 				32BFDDE51A2E451E00D03F44 /* SBJsonStreamParser.m in Sources */,
-				32BFDE061A2E4F0000D03F44 /* CATFeatureLayerDelegate.m in Sources */,
-				323BD1091A253B0D00313573 /* CATRotatingButton.m in Sources */,
 				32BFDDB21A2E433D00D03F44 /* RCCalibration3.m in Sources */,
 				32BFDDE31A2E451E00D03F44 /* NSObject+SBJson.m in Sources */,
 				32BFDDC01A2E43A700D03F44 /* RCAVSessionManager.m in Sources */,
@@ -821,14 +747,11 @@
 				323BD08C1A25324800313573 /* main.m in Sources */,
 				32BFDDC31A2E43A700D03F44 /* RCSensorDelegate.m in Sources */,
 				32BFDDEB1A2E451E00D03F44 /* SBJsonStreamWriterState.m in Sources */,
-				323BD1071A253B0D00313573 /* CATOrientationChangeData.m in Sources */,
 				32BFDDFE1A2E4B2200D03F44 /* RCGLManagerFactory.m in Sources */,
 				32EC392B1A3613D7004C31C0 /* CATMeasuredPhoto.m in Sources */,
 				32BFDDEC1A2E451E00D03F44 /* SBJsonTokeniser.m in Sources */,
-				32EC395C1A362D70004C31C0 /* CATPaddedLabel.m in Sources */,
 				32BFDDED1A2E451E00D03F44 /* SBJsonUTF8Stream.m in Sources */,
 				32BFDDC41A2E43A700D03F44 /* RCVideoManager.m in Sources */,
-				323BD10A1A253B0D00313573 /* CATShutterButton.m in Sources */,
 				32BFDE181A2E528F00D03F44 /* UIImage+RCImageFile.m in Sources */,
 				32BFDDEA1A2E451E00D03F44 /* SBJsonStreamWriterAccumulator.m in Sources */,
 				32BFDDF61A2E452F00D03F44 /* GTMNSString+URLArguments.m in Sources */,
@@ -838,15 +761,12 @@
 				327524821A3276E600459B79 /* UIView+RCConstraints.m in Sources */,
 				32BFDDB01A2E433D00D03F44 /* RCCalibration1.m in Sources */,
 				323BD1001A253B0D00313573 /* CATAugmentedRealityView.m in Sources */,
-				32BFDD9A1A2D354F00D03F44 /* CATTintTouchButton.m in Sources */,
-				32EC39591A362D56004C31C0 /* CATMessageBox.m in Sources */,
 				323BD1061A253B0D00313573 /* CATNativeAction.m in Sources */,
 				32BFDDC21A2E43A700D03F44 /* RCMotionManager.m in Sources */,
 				323BD1031A253B0D00313573 /* CATEditPhoto.m in Sources */,
 				32BFDDE71A2E451E00D03F44 /* SBJsonStreamParserAdapter.m in Sources */,
 				32BFDDFF1A2E4B2200D03F44 /* RCGLShaderProgram.m in Sources */,
 				32BFDDE61A2E451E00D03F44 /* SBJsonStreamParserAccumulator.m in Sources */,
-				323BD1021A253B0D00313573 /* CATContainerView.m in Sources */,
 				32EC39301A361792004C31C0 /* NSString+RCString.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

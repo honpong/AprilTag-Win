@@ -7,7 +7,6 @@
 
 #import "RC3DK.h"
 #import "CATHttpInterceptor.h"
-#import "CATRotatingButton.h"
 #import "CATMeasuredPhoto.h"
 
 @interface CATEditPhoto : UIViewController <UIWebViewDelegate, CATHttpInterceptorDelegate, UITextFieldDelegate>

@@ -17,13 +17,7 @@
 #import <CoreLocation/CoreLocation.h>
 #import "MBProgressHUD.h"
 #import "CATAugmentedRealityView.h"
-#import "CATToolbarView.h"
-#import "CATGalleryButton.h"
-#import "CATShutterButton.h"
-#import "CATOrientationChangeData.h"
-#import "CATContainerView.h"
 #import "CATConstants.h"
-#import "CATExpandingCircleAnimationView.h"
 
 @interface CATCapturePhoto : UIViewController <RCSensorFusionDelegate, RCStereoDelegate, UIAlertViewDelegate>
 

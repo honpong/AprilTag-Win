@@ -76,11 +76,12 @@ typedef NS_ENUM(int, SpinnerType) {
 
 typedef NS_ENUM(int, MessageColor) {
     ColorGray,
+    ColorYellow,
     ColorRed
 };
 
-enum state { ST_STARTUP, ST_READY, ST_INITIALIZING, ST_MOVING, ST_CAPTURE, ST_PROCESSING, ST_ERROR, ST_DISK_SPACE, ST_FINISHED, ST_ANY } currentState;
-enum event { EV_RESUME, EV_FIRSTTIME, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_SHUTTER_TAP, EV_PAUSE, EV_CANCEL, EV_MOVE_DONE, EV_MOVE_UNDONE, EV_PROCESSING_FINISHED, EV_INITIALIZED, EV_STEREOFAIL, EV_DISK_SPACE };
+enum state { ST_STARTUP, ST_READY, ST_INITIALIZING, ST_MOVING, ST_CAPTURE, ST_PROCESSING, ST_ERROR, ST_ROTATED_ERROR, ST_DISK_SPACE, ST_FINISHED, ST_ANY } currentState;
+enum event { EV_RESUME, EV_FIRSTTIME, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_SHUTTER_TAP, EV_PAUSE, EV_CANCEL, EV_MOVE_DONE, EV_MOVE_UNDONE, EV_PROCESSING_FINISHED, EV_INITIALIZED, EV_STEREOFAIL, EV_DISK_SPACE, EV_ROTATEDFAIL };
 
 typedef struct { enum state state; enum event event; enum state newstate; } transition;
 
@@ -114,6 +115,7 @@ static statesetup setups[] =
     { ST_CAPTURE,       BUTTON_SHUTTER_ANIMATED,   true,   true,    false,      true,    true,   true,   SpinnerTypeNone,          false,   false,      true,   false,            "Capture",      ColorGray,    "Press the button to finish the photo." },
     { ST_PROCESSING,    BUTTON_SHUTTER_DISABLED,   false,  false,   false,      false,   false,  false,  SpinnerTypeDeterminate,   true,    true,       false,  false,            "Processing",   ColorGray,    "Please wait" },
     { ST_ERROR,         BUTTON_DELETE,             true,   false,   true,       false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  true,             "Error",        ColorRed,     "Whoops, something went wrong. Try again." },
+    { ST_ROTATED_ERROR, BUTTON_DELETE,             true,   false,   true,       false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  true,             "Error",        ColorRed,     "You looked away from what you were measuring. Try again without turning." },
     { ST_DISK_SPACE,    BUTTON_SHUTTER_DISABLED,   true,   false,   true,       false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  true,             "Error",        ColorRed,     "Your device is low on storage space. Free up some space first." },
     { ST_FINISHED,      BUTTON_DELETE,             false,  false,   true,       false,   false,  false,  SpinnerTypeNone,          true,    true,       false,  true,             "Finished",     ColorGray,    "" }
 };
@@ -127,13 +129,16 @@ static transition transitions[] =
     { ST_MOVING, EV_MOVE_DONE, ST_CAPTURE },
     { ST_MOVING, EV_FAIL, ST_ERROR },
     { ST_MOVING, EV_FASTFAIL, ST_ERROR },
+    { ST_MOVING, EV_ROTATEDFAIL, ST_ROTATED_ERROR },
     { ST_CAPTURE, EV_SHUTTER_TAP, ST_PROCESSING },
     { ST_CAPTURE, EV_MOVE_UNDONE, ST_MOVING },
     { ST_CAPTURE, EV_FAIL, ST_ERROR },
     { ST_CAPTURE, EV_FASTFAIL, ST_ERROR },
+    { ST_CAPTURE, EV_ROTATEDFAIL, ST_ROTATED_ERROR },
     { ST_PROCESSING, EV_PROCESSING_FINISHED, ST_FINISHED },
     { ST_PROCESSING, EV_STEREOFAIL, ST_ERROR },
     { ST_ERROR, EV_SHUTTER_TAP, ST_READY },
+    { ST_ROTATED_ERROR, EV_SHUTTER_TAP, ST_READY },
     { ST_FINISHED, EV_SHUTTER_TAP, ST_READY },
     { ST_FINISHED, EV_PAUSE, ST_FINISHED },
     { ST_ANY, EV_PAUSE, ST_STARTUP },
@@ -765,6 +770,8 @@ static transition transitions[] =
 
 - (void) sensorFusionDidUpdateData:(RCSensorFusionData*)data
 {
+    if(currentState == ST_INITIALIZING) [arView.AROverlay setInitialCamera:data.cameraTransformation];
+
     goodPoints = [[NSMutableArray alloc] init];
     NSMutableArray *badPoints = [[NSMutableArray alloc] init];
     NSMutableArray *depths = [[NSMutableArray alloc] init];
@@ -840,7 +847,10 @@ static transition transitions[] =
         if(currentState == ST_CAPTURE && progress < 1.) [self handleStateEvent:EV_MOVE_UNDONE];
     }
     
-    if(currentState == ST_INITIALIZING) [arView.AROverlay setInitialCamera:data.cameraTransformation];
+    RCRotation *relative = [[arView.AROverlay.initialCamera.rotation getInverse] composeWithRotation:data.cameraTransformation.rotation];
+    float theta = acos(relative.quaternionW) * 2.;
+    if(theta > M_PI / 12.) [self showMessage:@"Don't turn. Move up, down, left, or right until the arrow fills with green." withTitle:@"Warning" withColor:ColorYellow autoHide:false];
+    if(theta > M_PI / 6.) [self handleStateEvent:EV_ROTATEDFAIL];
 
     if(data.sampleBuffer)
     {
@@ -892,6 +902,8 @@ static transition transitions[] =
         
         if (color == ColorRed)
             self.messageLabel.backgroundColor = [UIColor colorWithRed:1 green:0 blue:0 alpha:.8];
+        else if (color == ColorYellow)
+            self.messageLabel.backgroundColor = [UIColor colorWithRed:1 green:1 blue:0 alpha:.8];
         else
             self.messageLabel.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:.3];
         

@@ -8,6 +8,7 @@
 #include "tracker.h"
 #include "scaled_mask.h"
 #include "../../../shared_corvis_3dk/RCSensorFusionInternals.h"
+#include "../../../shared_corvis_3dk/camera_control_interface.h"
 
 struct filter {
 filter(bool estimate_calibration): s(estimate_calibration, cov)
@@ -91,6 +92,8 @@ filter(bool estimate_calibration): s(estimate_calibration, cov)
     v4 a_bias_start, w_bias_start; //for tracking calibration progress
     
     observation_queue observations;
+    
+    camera_control_interface camera_control;
 };
 
 bool filter_image_measurement(struct filter *f, unsigned char *data, int width, int height, int stride, uint64_t time);

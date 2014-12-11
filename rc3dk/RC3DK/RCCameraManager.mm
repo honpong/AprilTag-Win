@@ -11,12 +11,17 @@
 
 camera_control_interface::camera_control_interface(): platform_ptr(NULL)
 {
+    platform_ptr = (void *)CFBridgingRetain([[RCCameraManager alloc] init]);
 }
 
 void camera_control_interface::init(void *platform)
 {
-    
-    platform_ptr = (void *)CFBridgingRetain([[RCCameraManager alloc] init]);
+    [(__bridge RCCameraManager *)platform_ptr setVideoDevice:(__bridge id)platform];
+}
+
+void camera_control_interface::release_platform_specific_object()
+{
+    [(__bridge RCCameraManager *)platform_ptr releaseVideoDevice];
 }
 
 camera_control_interface::~camera_control_interface()
@@ -27,7 +32,7 @@ camera_control_interface::~camera_control_interface()
 
 void camera_control_interface::focus_lock_at_current_position(std::function<void (uint64_t, float)> callback)
 {
-    [(__bridge id)platform_ptr lockFocus];
+    [(__bridge RCCameraManager *)platform_ptr lockFocus];
     //TODO: pass callback
 }
 
@@ -38,7 +43,7 @@ void camera_control_interface::focus_lock_at_position(float position, std::funct
 
 void camera_control_interface::focus_once_and_lock(std::function<void (uint64_t, float)> callback)
 {
-    [(__bridge id)platform_ptr focusOnceAndLock];
+    [(__bridge RCCameraManager *)platform_ptr focusOnceAndLock];
     //TODO: pass callback
 }
 

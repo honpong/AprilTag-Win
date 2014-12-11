@@ -18,7 +18,17 @@ public:
     camera_control_interface();
     ~camera_control_interface();
     
-    void init(void *platform);
+    /**
+     Initializes the internal implementation with some platform-specific object.
+     For Objective C, this should an AVCaptureDevice, passed using (__bridge void *)device; the AVCaptureDevice will be retained/released within the implementation.
+     */
+    void init(void *platform_specific_object);
+    
+    /**
+     Releases the platform specific object.
+     */
+    //TODO: get rid of this? Only included since the previous implementation required it; not sure if it makes sense here
+    void release_platform_specific_object();
     
     /**
      Locks focus at the current position.

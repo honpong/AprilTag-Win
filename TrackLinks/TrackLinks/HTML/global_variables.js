@@ -16,7 +16,6 @@ var zoom_factor = 1; //how much we've zoomed in
 var min_zoom; //the smallest we let the user make the image
 var x_offset = 0; max_x_offset = 0; min_x_offset = 0; //deffines pan location, stores pan bounce boudaries. in pixel units on screen, not image units
 var y_offset = 0; max_y_offset = 0; min_y_offset = 0; //deffines pan location, stores pan bounce boudaries. in pixel units on screen, not image units
-var portrait_offset, landscape_offset; // additional offsets to acoomidate the buttons
 var prior_window_inner_width = window.innerWidth; //the last window size, so we can figure out how to change zoom / zoom offsets when resize occurs
 var prior_window_inner_height = window.innerHeight; //
 
@@ -45,17 +44,6 @@ var shadow_color = '#222';
 var highlight_color = '#992';
 var line_color = '#ca0';
 
-// menu buttons
-var menu_background_color = '#fff';
-var button_size = 44;
-var button_outline_color = '#fff';
-var button_icon_color = '#333';
-var button_icon_inactive_color = '#999';
-var button_icon_stoke_width = 1.2;
-var button_fill_color = '#fff';
-var button_fill_opacity = 0.0;
-var button_highlight_color = '#0bf';
-var menu_svg;
 
 //unit display
 var default_units_metric = false; // false for imperial

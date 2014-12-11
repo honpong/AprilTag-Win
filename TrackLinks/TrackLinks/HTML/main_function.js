@@ -16,11 +16,11 @@ function doOnOrientationChange()
         draw.node.style.width = window.innerWidth;
         draw.size(window.innerWidth, window.innerHeight);
         
+        console.log("starting scaleImage");
+        
         scaleImageToMatchScreen();
-        rc_menu.rearrange_menu ();
-        if (orientation_drawn_landsacep){np_to_landscape_bottom();}
-        else {np_to_portrait();}
         doing_orientatino_change = false;
+        console.log("done with orientation change");
     }
 }
 
@@ -40,36 +40,22 @@ function clear_tool_data(){ //this should be called whenever theres a switch in 
 
 
 function rc_initialize(){
-    //console.log = logNative;
+    console.log = logNative;
     console.log("starting rc_initialize()");
     
     is_rc_initialized = true;
     
-        //precent backspace button from bring page back.
-    $(document).bind("keydown", function(e){
-        if (e.keyCode == 8) {e.preventDefault();}
-    });
-    //attach listern for key presses
-    $(document).keyup(function(e){
-        e.preventDefault();
-        e.stopPropagation();
-        if(e.keyCode == 46 || e.keyCode == 8) {rcMeasurements.deleteCharacterFromNote();}
-        else if(e.keyCode == 13) {rcMeasurements.endNoteEdit();}
-    })
-    $(document).keypress(function(e){
-                         //console.log(String.fromCharCode(e.keyCode));
-                         rcMeasurements.addCharacterToNote ( String.fromCharCode(e.keyCode) );
-                      })
-    
+    console.log("creating svg");
     
     /* create an svg drawing */
     draw = SVG('drawing').size(window.innerWidth, window.innerHeight);
     img_container = draw.nested();
-    img_container.size(window.innerWidth, window.innerHeight - button_size); //initialize, this will change later depending on orientation
+    img_container.size(window.innerWidth, window.innerHeight); //initialize, this will change later depending on orientation
     draw_g = img_container.group();
-    menu_svg = draw.nested();
     measured_svg = img_container.nested();
     draw_g.add(measured_svg);
+
+    console.log("adding hammer");
     
     //console.log('hammer initializaitons');
 
@@ -175,6 +161,8 @@ function rc_initialize(){
                          });
     
     
+    console.log('done with hammer, starting line handler');
+    
     function line_handler(i) { //takes an image coordinate pair as an input
         //test if we have depth information at this point. if not show the depth mask then animate its fade and give error message
         if (! distanceTo(i.x,i.y)) {
@@ -193,33 +181,15 @@ function rc_initialize(){
             // we want to instantiate a measurement here, and pass that measurement to be drawn
             rcMeasurements.new_measurement(click_image_x1, click_image_y1, i.x, i.y, measured_svg);
             clear_tool_data();
-            setTimeout( function () {rcMeasurements.save_measurements();
-                        rc_menu.enable_disenable_undo(rcMeasurements.is_undo_available());
-                       }, 0)
+            setTimeout( rcMeasurements.save_measurements, 0)
         }
     }
     
-    function angle_handler(i) {
-        rcMeasurements.new_range(i.x, i.y, measured_svg);
-    }
-    
-    function text_entry_handler (i) {
-        //create a new text box at this location
-        rcMeasurements.new_note(i.x, i.y, measured_svg);
-    }
-    
-    function eraser_handler (e) {
-        // do nothing - annotations have their own click listners for erase.
-    }
 
     function click_or_touch(e) {
         var i = pxl_to_img_xy(e.pageX, e.pageY);
         if ( i.x > image_width || i.y > image_height || i.x < 0 || i.y < 0) {return null;} //ignore taps off of image
-        else if (rc_menu.current_button == rc_menu.line_button) {line_handler(i);}
-        else if (rc_menu.current_button == rc_menu.angle_button) {angle_handler(i);}
-        else if (rc_menu.current_button == rc_menu.eraser_button) {eraser_handler(i);}
-        else if (rc_menu.current_button == rc_menu.text_button) {text_entry_handler(i);}
-        rc_menu.enable_disenable_undo(rcMeasurements.is_undo_available());
+        line_handler(i);
     }
     
     FastClick.attach(document.body);
@@ -309,41 +279,14 @@ function rc_initialize(){
         if(dm_masking_image) {dm_masking_image.opacity(1);}
     }
     
-    undo_last_change = function() {
-        rcMeasurements.revert_measurement_state();
-        rc_menu.enable_disenable_undo(rcMeasurements.is_undo_available());
-    }
-    
-    toggle_all_units = function() {
-        if   (default_units_metric) {default_units_metric = false;}
-        else                        {default_units_metric = true;}
-        rcMeasurements.reset_all_measurement_units_to_default();
-        rc_menu.unit_button.highlight_active_unit(default_units_metric);
-        rcMeasurements.save_measurements(true); //pass in true for 'optional_not_undoable_flag' meaning that the undo button shouldn't undo this action.
-    }
-    
-    // construct menue
-    build_rc_menu();
     
     //prevent scrolling
     document.body.addEventListener('touchstart', function(e){ e.stopPropagation(); e.preventDefault(); });
 
     window.addEventListener('resize', function(event){
-                            if (draw.node.contains(menu_svg.node)) {draw.node.removeChild(menu_svg.node);} //take off menu
                             doOnOrientationChange();
-                            setTimeout(function(){
-                                       if ( ! draw.node.contains(menu_svg.node)) {draw.node.appendChild(menu_svg.node);} //put menu back on
-                                       },200)
                             start_pan_bounce(); start_zoom_return();
                             });
-
-    np_call_back_add = rcMeasurements.add_character;
-    np_call_back_del = rcMeasurements.del_character;
-    np_call_back_ent = rcMeasurements.finish_number_operation;
-    np_call_back_unt = rcMeasurements.switch_units;
-    np_call_back_oth = rc_menu.color_menu;
-    
-    np_add_listeners(); //setup image
     
     dm_initialize();
     
@@ -369,7 +312,6 @@ function clear_all(){
 
         // reset tool data / button data
         clear_tool_data();
-        rc_menu.reset();
     
         // reset the depth map
         dm_initialize();
@@ -384,7 +326,6 @@ function clear_all(){
         //window.setTimeout( function() {alert('completed clear_all');}, 0)
         return 0;
                       
-        rc_menu.enable_disenable_undo(rcMeasurements.is_undo_available());
     }
     catch(err){
         return(err.message);
@@ -427,7 +368,6 @@ function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric)
                                                    //console.log('loaded image dimensions: ' + image_width.toFixed()+ ' x ' + image_height.toFixed() );
                                                            
                                                   draw_g.add(image);
-                                                  if ( ! draw.node.contains(menu_svg.node)) {draw.node.appendChild(menu_svg.node);}
                                                   
                                                   // load measurements
                                                   rcMeasurements.load_json(rc_annotation_url, function() {
@@ -435,7 +375,6 @@ function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric)
                                                                                     //console.log('starting annotation data load calback');
                                                                                     load_spatial_data(rc_data_url); //this function is defined in depth_data.js
                                                                                     //console.log('finished rcMeasurement.load_json callback');
-                                                                                    rc_menu.enable_disenable_undo(rcMeasurements.is_undo_available());
                                                                                 }
                                                                            );
 
@@ -443,7 +382,6 @@ function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric)
                                                   // Initial dexecution if needed
                                                   //alert('do on orientation change');
                                                   doOnOrientationChange();
-                                                  rc_menu.unit_button.highlight_active_unit(default_units_metric);
                                                   
                                                   });
         

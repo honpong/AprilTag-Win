@@ -30,17 +30,17 @@ rcMessage.post = function (message, miliseconds_up) {
     var current_rotation = draw_g.trans.rotation;
     
     if ((current_rotation >= -45 && current_rotation <= 45) || (current_rotation >= 320 && current_rotation <= 400)) {
-        rcMessage.text.center(window.innerWidth/2 + rcMessage.text.node.offsetWidth/2 + 5, draw_g.cy() + window.innerHeight/2 - rcMessage.text.node.offsetHeight  - button_size);
+        rcMessage.text.center(window.innerWidth/2 + rcMessage.text.node.offsetWidth/2 + 5, draw_g.cy() + window.innerHeight/2 - rcMessage.text.node.offsetHeight);
     }
         
     else if (current_rotation >= 140 && current_rotation <= 220) {
         rcMessage.text.center(window.innerWidth/2 + rcMessage.text.node.offsetWidth/2 + 5, draw_g.cy() + window.innerHeight/2 - rcMessage.text.node.offsetHeight );
     }
     else if (current_rotation >= 50 && current_rotation <= 135) {
-        rcMessage.text.center(window.innerWidth/2 + rcMessage.text.node.offsetWidth/2 - button_size/2, draw_g.cy() + window.innerWidth/2 - rcMessage.text.node.offsetHeight/2);
+        rcMessage.text.center(window.innerWidth/2 + rcMessage.text.node.offsetWidth/2, draw_g.cy() + window.innerWidth/2 - rcMessage.text.node.offsetHeight/2);
     }
     else {
-        rcMessage.text.center(window.innerWidth/2 + rcMessage.text.node.offsetWidth/2 + button_size/2, draw_g.cy() + window.innerWidth/2 - rcMessage.text.node.offsetHeight/2);
+        rcMessage.text.center(window.innerWidth/2 + rcMessage.text.node.offsetWidth/2, draw_g.cy() + window.innerWidth/2 - rcMessage.text.node.offsetHeight/2);
     }
 
     // draw dark border box with rounded edges

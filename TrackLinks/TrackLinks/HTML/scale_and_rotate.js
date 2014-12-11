@@ -1,10 +1,10 @@
 //Copywrite (c) 2014 by RealityCap, Inc. Written by Jordan Miller for the exclusive use of RealityCap, Inc.
+
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////                        CODE TO DO PAN AND ZOOM ANIMATIONS , scalling,                 ////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// draw is the primary SVG node. it contains menu_svg and the img_container
-// menu_svg contains the menu, so it can be scaled independendtly of the img_container
+// draw is the primary SVG node. it contains the img_container
 // img_container contains the images and the measurements
 // draw_g is an svg group that is inside img_container.
 // draw_g has the measurements and the image and depth map as members.
@@ -17,8 +17,6 @@
 
 var last_bounce_animation_time = 10;
 var pan_bounce_frame_start = null;
-var landscape_offset = 0;
-var portrait_offset = 0;
 
 function calculate_min_zoom(){
     var effective_width = img_container.width();
@@ -45,20 +43,16 @@ function scaleImageToMatchScreen() {
     var changing_orientation = false;
     
     if(window.innerHeight > window.innerWidth){
-        portrait_offset = button_size;
-        landscape_offset = 0;
         //console.log('img_container sizing portrate');
-        img_container.size(window.innerWidth, window.innerHeight - button_size);
+        img_container.size(window.innerWidth, window.innerHeight);
         img_container.move(0,0);
         if (orientation_drawn_landsacep == true) {changing_orientation = true;}
         orientation_drawn_landsacep = false;
     }
     else {
-        portrait_offset = 0;
-        landscape_offset = button_size;
         //console.log('img_container sizing landsape');
-        img_container.size(window.innerWidth - button_size, window.innerHeight);
-        img_container.move(button_size, 0);
+        img_container.size(window.innerWidth, window.innerHeight);
+        img_container.move(0, 0);
         if (orientation_drawn_landsacep == false) {changing_orientation = true;}
         orientation_drawn_landsacep = true;
     }
@@ -195,7 +189,7 @@ function calculate_zoom_boundaries(orientation) {
     
     if (img_container.height() < image_height * zoom_factor) {
         min_y_offset = img_container.height() - image_height * zoom_factor / 2;}
-    else { min_y_offset = Math.max( portrait_offset - image_height * zoom_factor / 2,  img_container.height()/2);}
+    else { min_y_offset = Math.max( 0 - image_height * zoom_factor / 2,  img_container.height()/2);}
     //}
     if (orientation == 3) { //origin is rotaed + 90% from center of screen.... potentially plus or minus some prior offset
         if (image_width * zoom_factor > img_container.height()){

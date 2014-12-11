@@ -210,22 +210,6 @@ rcMeasurements.dragEndHandler = function (m, e) {
     rcMeasurements.save_measurements();
 }
 
-rcMeasurements.click_action = function (m,e) {
-    //console.log("click_action(m,e)");
-    //if we just ended a drag, don't propagate click
-    var now = new Date();
-    var last_drag_time_diff = now - rcMeasurements.most_recent_drag;
-    if (last_drag_time_diff < 100){
-        e.stopPropagation(); e.preventDefault();
-        return;
-    }
-    
-    setTimeout(function(){ return false;},1);  //this just forces refresh for some browsers
-    if ( rcMeasurements.is_annotation_being_deleted(m) ) {  //this is both a deletion and a check for deletion
-        e.stopPropagation(); e.preventDefault(); // if deleted, dont do anything else
-    }
-    //otherwise allow anotations gesture to propegate to image to see if it has an effect on anotations.
-}
 
 rcMeasurements.redraw_measurement = function (m) {
     
@@ -332,281 +316,6 @@ rcMeasurements.redraw_lines = function(m) {
 }
 
 
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                                                                      //
-//          TEXT ANNOTATIONS                                                                                                            //
-//                                                                                                                                      //
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-rcMeasurements.new_note = function (iX, iY, svg_target) {
-    rcMeasurements.endNoteEdit(); //stop any active note eddits, as this note will become active
-    var n = {};
-    n.annotation_type = 'note';
-    n.x = iX;
-    n.y = iY;
-    n.guid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);});
-    n.text = ' ' //we need to have at least one character or the svg text element creation will fail.
-    
-    rcMeasurements.draw_note(n, svg_target);
-    rcMeasurements.active_note = n;
-    rcMeasurements.start_cursor_animation(n);
-}
-
-rcMeasurements.saveable_note = function (n) {
-    return {  x:n.x, y:n.y, guid:n.guid, text:n.text, annotation_type:n.annotation_type };
-}
-
-rcMeasurements.delete_note = function (n) {
-    //remove visual elemnts
-    if (n.svg_target.node.contains(n.text_display.node)) { n.text_display.remove();}
-    if (n.svg_target.node.contains(n.text_shadow.node)) { n.text_shadow.remove();}
-    if (n.svg_target.node.contains(n.text_cursor.node)) { n.text_cursor.remove();}
-    //removed from measurements array
-    delete rcMeasurements.notes[n.guid];
-    delete n;
-}
-
-
-rcMeasurements.deleteCharacterFromNote = function (){
-    if (rcMeasurements.active_note) {
-        if(rcMeasurements.active_note.text != ' ') {
-            rcMeasurements.active_note.text = rcMeasurements.active_note.text.slice(0, -1);
-            if(rcMeasurements.active_note.text == '') {rcMeasurements.active_note.text = ' ';} //we need at least one character for svg to not fail
-            rcMeasurements.redraw_note(rcMeasurements.active_note);
-        }
-    }
-}
-
-rcMeasurements.endNoteEdit = function (){
-    if (rcMeasurements.active_note) {
-        rcMeasurements.redraw_note(rcMeasurements.active_note);
-        rcMeasurements.stop_cursor_animation(rcMeasurements.active_note);
-        //if no content remove
-        if ((rcMeasurements.active_note.text.length == 0) || (rcMeasurements.active_note.text == " ") || !rcMeasurements.active_note.text.trim()) {
-            rcMeasurements.active_note.delete_self();
-        }
-        rcMeasurements.active_note = null;
-        rcMeasurements.save_measurements();
-    }
-}
-
-
-rcMeasurements.addCharacterToNote = function (char){
-    if (rcMeasurements.active_note) {
-        if(rcMeasurements.active_note.text == ' ') {rcMeasurements.active_note.text = '';}
-        rcMeasurements.active_note.text = rcMeasurements.active_note.text + char;
-        if(rcMeasurements.active_note.text.length == 0) {rcMeasurements.active_note.text = " ";} //if we failed to add a character we still need at least one character
-        rcMeasurements.redraw_note(rcMeasurements.active_note);
-    }
-}
-
-//this completely replaces the text annotation w/ the string and ends edit operation.
-rcMeasurements.updateNote = function (str) {
-    if (rcMeasurements.active_note) {
-        if(str.length == 0 ) {str = ' ';} //if we failed to add a character we still need at least one character
-        rcMeasurements.active_note.text = str;
-        rcMeasurements.redraw_note(rcMeasurements.active_note);
-    }
-    rcMeasurements.endNoteEdit();
-}
-
-
-rcMeasurements.redraw_note = function (n) {
-
-    if ((n.text.length == 0) || !n.text.trim()) {n.text = ' ';} //'' is invalid text for svg library
-    n.saveable_copy = rcMeasurements.saveable_note(n);
-
-    n.text_display.text(n.text).move(n.x, n.y);
-    n.text_shadow.text(n.text).move(n.x, n.y);
-
-    if ((n.text != ' ') && ( ! n.svg_target.node.contains(n.text_display.node))) {
-        n.svg_target.node.appendChild(n.text_shadow.node);
-        n.svg_target.node.appendChild(n.text_display.node); // shadow must be appened first so that the forground is shown on top.
-        n.text_display.move(n.x, n.y);
-        n.text_shadow.move(n.x, n.y); //we loose position information after detachement, so the must be placed again.
-    }
-    else if ((n.text == ' ') && (n.svg_target.node.contains(n.text_display.node))) {
-        n.svg_target.node.removeChild(n.text_display.node);
-        n.svg_target.node.removeChild(n.text_shadow.node);
-    }
-
-    n.place_cursor();
-    
-}
-
-rcMeasurements.draw_note = function (n, svg_target) {
-    //This allows a note to be saved. it is necessary to call this as part of draw, because
-	//a note will not have this function when it is deserialized.
-    n.saveable_copy = rcMeasurements.saveable_note(n);
-    
-    n.svg_target = svg_target;
-    
-    n.text_shadow = svg_target.text(n.text).move(n.x, n.y);
-    n.text_shadow.font({
-                       family: rcMeasurements.font_family,
-                       size: 25
-                       , anchor: 'middle'
-                       , leading: 1
-                       }).stroke({ color: shadow_color, opacity: 1, width: 2.5 });
-    
-    n.text_display = svg_target.text(n.text).move(n.x, n.y);
-    n.text_display.font({
-                family: rcMeasurements.font_family,
-                size: 25
-                , anchor: 'middle'
-                , leading: 1
-                }).fill({ color: line_color, opacity: 1});
-
-    if (n.text == ' ') {
-        n.svg_target.node.removeChild(n.text_display.node);
-        n.svg_target.node.removeChild(n.text_shadow.node);
-    }
-    
-    n.text_cursor = svg_target.line(0,0,0,24);
-    n.place_cursor = function (){
-        var c_offset = n.text_display.node.offsetWidth/2 + 4;
-        n.text_cursor.move(n.x + c_offset, n.y + 4);
-    };
-    n.place_cursor();
-    n.text_cursor.stroke({ color: shadow_color, opacity: 0, width: 2 });
-
-
-    
-    
-    n.text_display.click (function (e) {
-                            //this line does the deletion as well as checking for if it occured. - this checks the eraser button.
-                            if ( rcMeasurements.is_annotation_being_deleted(n) ) {
-                                  e.stopPropagation(); e.preventDefault();
-                            }
-                            else if (rc_menu.current_button == rc_menu.note_button) {
-                                  rcMeasurements.endNoteEdit(); //end any active edit
-                                  rcMeasurements.active_note = n; //set this note as the active note
-                                  rcMeasurements.start_cursor_animation(n); //start the cursor on this note.
-                                  e.stopPropagation(); e.preventDefault();
-                            }
-                            //do nothing and pass the event on if neither the text nor erase button is chosen
-    });
-    
-    //draging text box
-    Hammer(n.text_display.node).on("drag", function(e) {
-                                     e.stopPropagation(); e.preventDefault();
-                                     }).on("dragend", function(e) {
-                                           e.stopPropagation(); e.preventDefault();
-                                           });
-    
-    rcMeasurements.notes[n.guid] = n;
-    
-    
-    //define delete funciton
-    n.delete_self = function () { rcMeasurements.delete_note(n); };
-
-}
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                                                                      //
-//          RANGE ANNOTATIONS                                                                                                            //
-//                                                                                                                                      //
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-rcMeasurements.new_range = function (iX, iY, svg_target) {
-    var r = {};
-    r.annotation_type = 'range';
-    r.x = iX;
-    r.y = iY;
-    r.guid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {var r = Math.random()*16|0,v=c=='x'?r:r&0x3|0x8;return v.toString(16);});
-    r.range = distanceTo(r.x, r.y); //distanceTo is defined in depth_data.js
-    
-    rcMeasurements.draw_range(r, svg_target);
-}
-
-rcMeasurements.saveable_range = function (n) {
-    return {  x:n.x, y:n.y, guid:n.guid, annotation_type:n.annotation_type };
-}
-
-rcMeasurements.delete_range = function (n) {
-    //remove visual elemnts
-    if (n.svg_target.node.contains(n.text_display.node)) { n.text_display.remove();}
-    if (n.svg_target.node.contains(n.text_shadow.node)) { n.text_shadow.remove();}
-    if (n.svg_target.node.contains(n.text_cursor.node)) { n.text_cursor.remove();}
-    //removed from measurements array
-    delete rcMeasurements.notes[n.guid];
-    delete n;
-}
-
-
-rcMeasurements.redraw_range = function (n) {
-    
-    if ((n.text.length == 0) || !n.text.trim()) {n.text = ' ';} //'' is invalid text for svg library
-    n.saveable_copy = rcMeasurements.saveable_note(n);
-    
-    n.text_display.text(n.range.toFixed(1)).move(n.x, n.y);
-    n.text_shadow.text(n.range.toFixed(1)).move(n.x, n.y);
-    
-    if ((n.text != ' ') && ( ! n.svg_target.node.contains(n.text_display.node))) {
-        n.svg_target.node.appendChild(n.text_shadow.node);
-        n.svg_target.node.appendChild(n.text_display.node); // shadow must be appened first so that the forground is shown on top.
-        n.text_display.move(n.x, n.y);
-        n.text_shadow.move(n.x, n.y); //we loose position information after detachement, so the must be placed again.
-    }
-    else if ((n.text == ' ') && (n.svg_target.node.contains(n.text_display.node))) {
-        n.svg_target.node.removeChild(n.text_display.node);
-        n.svg_target.node.removeChild(n.text_shadow.node);
-    }
-    
-    n.place_cursor();
-    
-}
-
-rcMeasurements.draw_range = function (n, svg_target) {
-    //This allows a note to be saved. it is necessary to call this as part of draw, because
-	//a note will not have this function when it is deserialized.
-    n.saveable_copy = rcMeasurements.saveable_range(n);
-    
-    n.svg_target = svg_target;
-    
-    n.marker = svg_target.circle(4).move( n.x-2, n.y-2).stroke({ color: line_color, opacity: 1, width : 2 }).fill({opacity:0});
-    n.text_shadow = svg_target.text(n.range.toFixed(1)).move(n.x, n.y);
-    n.text_shadow.font({
-                       family: rcMeasurements.font_family,
-                       size: 25
-                       , anchor: 'middle'
-                       , leading: 1
-                       }).stroke({ color: shadow_color, opacity: 1, width: 2.5 });
-    
-    n.text_display = svg_target.text(n.range.toFixed(1)).move(n.x, n.y);
-    n.text_display.font({
-                        family: rcMeasurements.font_family,
-                        size: 25
-                        , anchor: 'middle'
-                        , leading: 1
-                        }).fill({ color: line_color, opacity: 1});
-    
-    
-    n.marker.click (function (e) {
-                          //this line does the deletion as well as checking for if it occured. - this checks the eraser button.
-                          if ( rcMeasurements.is_annotation_being_deleted(n) ) {
-                            e.stopPropagation(); e.preventDefault();
-                          }
-                          //do nothing and pass the event on if erase button is not selected
-                          });
-    
-    //draging
-    rcMeasurements.ranges[n.guid] = n;
-    
-    
-    //define delete funciton
-    n.delete_self = function () { rcMeasurements.delete_range(n); };
-    
-}
-
-
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                                                      //
 //          SAVING, UNDOING, DATA MANAGEMENT                                                                                            //
@@ -707,7 +416,6 @@ rcMeasurements.apply_json_data = function (data) {
         try {rcMeasurements.draw_note(rcMeasurements.notes[key], measured_svg);}
         catch(err) {console.log(JSON.stringify(err)); delete rcMeasurements.notes[key];}
     }
-    rc_menu.unit_button.highlight_active_unit(default_units_metric);
     rcMeasurements.reset_all_measurement_units_to_default();
 }
 
@@ -716,48 +424,7 @@ rcMeasurements.is_undo_available = function () {
     else {return false;}
 }
 
-//this performs the undo
-rcMeasurements.revert_measurement_state = function () {
-    if (rcMeasurements.prior_measurement_states.length > 1) {
-        //delete all measurements
-        for (var key in rcMeasurements.measurements) {
-            rcMeasurements.measurements[key].delete_self();
-        }
-        for (var key in rcMeasurements.agles) {
-            rcMeasurements.delete_angle(rcMeasurements.angles[key]);
-        }
-        for (var key in rcMeasurements.notes) {
-            rcMeasurements.notes[key].delete_self();
-        }
-        //pull prior measurement state
-        rcMeasurements.prior_measurement_states.pop(); //trow away the current state
-        //console.log('prior_measurement_states length = ' + rcMeasurements.prior_measurement_states.length.toFixed());
-        var prior_m_json = JSON.parse(rcMeasurements.prior_measurement_states.pop()); //go to the one before.
-        //console.log('prior_measurement_states length = ' + rcMeasurements.prior_measurement_states.length.toFixed());
 
-        //we over write the units here before saving so that the units are not changed by undoing.
-        //in future any ui state that is persisted but not undoable can be over writen here
-        prior_m_json['use_metric'] = default_units_metric;
-
-        rcMeasurements.apply_json_data(prior_m_json);
-        // save new state - this will add current state back to the stack
-        rcMeasurements.save_measurements();
-    }
-}
-
-// this checks for wether or not the rc_menu button designated as the eraser button is selected.
-rcMeasurements.is_annotation_being_deleted = function (m) {
-    //console.log('rcMeasurements.is_annotation_being_deleted(m)')
-    if (rc_menu.current_button == rc_menu.eraser_button) {
-        m.delete_self();
-        setTimeout( function () {
-                                    rcMeasurements.save_measurements();
-                                    rc_menu.enable_disenable_undo(rcMeasurements.is_undo_available());
-                                 }, 0)
-        return true;
-    }
-    return false;
-}
 
 // this clears all measurements, used when we are switching between measured photos but not reloading the app
 rcMeasurements.reset = function () {
@@ -769,35 +436,6 @@ rcMeasurements.reset = function () {
     rcMeasurements.active_note = null;
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                                                                      //
-//          CURSOR DRAWING AND ANIMAITON                                                                                                //
-//                                                                                                                                      //
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-
-rcMeasurements.start_cursor_animation = function (m) {
-    if (rcMeasurements.cursor_animation_id){ window.clearTimeout(rcMeasurements.cursor_animation_id) };
-    rcMeasurements.cursor_animation_id = window.setTimeout(function(){rcMeasurements.show_cursor_frame(m)}, 10);
-}
-
-rcMeasurements.show_cursor_frame = function (m) {
-    m.place_cursor();
-    m.text_cursor.stroke({ color: shadow_color, opacity: .9, width: 2 });
-    rcMeasurements.cursor_animation_id = window.setTimeout(function(){rcMeasurements.hide_cursor_frame(m)},700);
-}
-
-rcMeasurements.hide_cursor_frame = function (m) {
-    m.text_cursor.stroke({ color: shadow_color, opacity: 0, width: 2 });
-    rcMeasurements.cursor_animation_id = window.setTimeout(function(){rcMeasurements.show_cursor_frame(m)},700);
-}
-
-rcMeasurements.stop_cursor_animation = function (m) {
-    if (rcMeasurements.cursor_animation_id){ window.clearTimeout(rcMeasurements.cursor_animation_id) };
-    rcMeasurements.cursor_animation_id = null
-    m.text_cursor.stroke({ color: shadow_color, opacity: 0, width: 2 });
-}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                                                      //
@@ -861,28 +499,6 @@ rcMeasurements.setText = function (m, str) {
     m.text.text(str);
 }
 
-rcMeasurements.start_distance_change_dialouge = function (m) {
-        rcMeasurements.select_measurement(m); //highlight measurement we're editing
-        rcMeasurements.measurement_being_edited = m;
-        //if (is_touch_device) { //use svg text element durring edit
-        draw.node.appendChild(np_svg.node); //show number pad
-        np_rotate(last_orientation); //this is initializing style of the number pad
-        move_image_for_number_pad(m.text.x(), m.text.y());
-        rcMeasurements.start_cursor_animation(m);
-    
-
-        // this is commented out because it is only for use on desktop systems.
-
-        //}
-        //else { // use
-        //    measured_svg.node.removeChild( m.text.node ); //detatch measurement from svg
-        //    measured_svg.node.appendChild( m.text_input_box.node); //show input box
-        //    var n = m.text_input_box.getChild(0)
-        //    n.focus();
-        //    n.select();
-        //}
-        
-}
 
 rcMeasurements.end_measurement_edit = function (){
     if (rcMeasurements.measurement_being_edited) {
@@ -917,30 +533,6 @@ rcMeasurements.switch_units = function () {
 }
 
 
-rcMeasurements.add_character = function (key) {
-    var str      = rcMeasurements.measurement_being_edited.text.text();
-    var unit_str = str.substring(str.length - 2);
-    str = str.substring(0, str.length - 2);
-
-    if (str == '?') { rcMeasurements.setText(rcMeasurements.measurement_being_edited, key + unit_str); }
-    else {rcMeasurements.setText(rcMeasurements.measurement_being_edited,  str + key + unit_str);}
-    rcMeasurements.measurement_being_edited.place_cursor();
-    rcMeasurements.redraw_lines(rcMeasurements.measurement_being_edited);
-
-}
-rcMeasurements.del_character = function (key) {
-    var str      = rcMeasurements.measurement_being_edited.text.text();
-    var unit_str = str.substring(str.length - 2);
-    str = str.substring(0, str.length - 2);
-    
-    if (str.length <= 1) { rcMeasurements.setText(rcMeasurements.measurement_being_edited, '?' + unit_str); }
-    else{
-        rcMeasurements.setText( rcMeasurements.measurement_being_edited,  str.substring(0, str.length - 1) + unit_str );
-    }
-    rcMeasurements.measurement_being_edited.place_cursor();
-    rcMeasurements.redraw_lines(rcMeasurements.measurement_being_edited);
-}
-
 // called on distance before drawn to screen
 rcMeasurements.format_dist = function (m){
     
@@ -972,37 +564,8 @@ rcMeasurements.format_dist = function (m){
     
 }
 
-// sets distance for a measurement based on the value of a string
-rcMeasurements.parse_dist = function (str, units_metric){
-    str = str.substring(0, str.length - 2);
-    if (str == '?') {
-        return null;
-    }
-    else if ( rcMeasurements.isNumber( str ) ) {
-        if (units_metric) { return parseFloat(str); }
-        else { return parseFloat(str) / rcMeasurements.inches_to_meter; }
-    }
-    else{
-        return 'err';
-    }
-}
-
 
 rcMeasurements.isNumber = function  (n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
-}
-rcMeasurements.finish_number_operation = function (){
-    //we need to check the validity of the input. if not a valid number, then raise a warning to the user, and either cancel or return to eiditing, if valid, update measuremnt
-    var parsed_distance = rcMeasurements.parse_dist(rcMeasurements.measurement_being_edited.text.text(), rcMeasurements.measurement_being_edited.units_metric);
-    if (parsed_distance == 'err') {
-        setTimeout(function () { alert("invalid number, please correct before proceeding"); }, 0);
-    }
-    else  {
-        rcMeasurements.measurement_being_edited.distance = parsed_distance;
-        rcMeasurements.setText( rcMeasurements.measurement_being_edited, rcMeasurements.format_dist(rcMeasurements.measurement_being_edited));
-        rcMeasurements.redraw_lines(rcMeasurements.measurement_being_edited);
-        rcMeasurements.measurement_being_edited.saveable_copy = rcMeasurements.saveable_liniar_measurement(rcMeasurements.measurement_being_edited);
-        rcMeasurements.end_measurement_edit();
-    }
 }
 

@@ -1,7 +1,7 @@
 //Copywrite (c) 2014 by RealityCap, Inc. Written by Jordan Miller for the exclusive use of RealityCap, Inc.
 
 rc_menu = {
-    current_button : null, eraser_button : null, line_button : null, angle_button: null, text_button : null, unit_button : null, depthmap_button : null, button1 : null, button2 : null, button3 : null, button4 : null, button5 : null, button6 : null
+    current_button : null, eraser_button : null, line_button : null, angle_button: null, text_button : null, unit_button : null, depthmap_button : null, help_button : null, button1 : null, button2 : null, button3 : null, button4 : null, button5 : null, button6 : null, help_shown : null
 }
 rc_menu.color_menu = function () { alert('no color options yet'); }
 
@@ -73,20 +73,20 @@ function build_rc_menu() {
     }
     
     // add 3d button to button 1
-    draw_3d_axis( rc_menu.button1);
+    //draw_3d_axis( rc_menu.button1);
 
-    //add line icon to button2
+    //add line icon to button1
     function draw_line_icon (button) {
         rc_menu.line_button = button;
         button.add(menu_svg.circle(2).move(8,27).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }).fill('none'));
         button.add(menu_svg.circle(2).move(27,8).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }).fill('none'));
         button.add(menu_svg.line(9,28,28,9).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
-        rc_menu.line_button.click (function (e) { rc_menu.select_button(rc_menu.button2); e.stopPropagation(); e.preventDefault(); });
+        rc_menu.line_button.click (function (e) { rc_menu.select_button(button); e.stopPropagation(); e.preventDefault(); });
         button.rotate_button = function (target_rotation) {
             button.rotate(target_rotation, button.x() + button_size/2, button.y() + button_size/2);
         }
     }
-    draw_line_icon( rc_menu.button2 );
+    draw_line_icon( rc_menu.button1 );
 
     //add angle icon to button2
     function draw_angle_icon(button){
@@ -114,7 +114,7 @@ function build_rc_menu() {
             button.rotate(target_rotation, button.x() + button_size/2, button.y() + button_size/2);
         }
     }
-    draw_undo_icon (rc_menu.button5);
+    draw_undo_icon (rc_menu.button4);
 
     // add magnifying glass to button4
     function draw_mag_glass_icon (button) {
@@ -168,8 +168,46 @@ function build_rc_menu() {
             }
         }
     }
-    draw_unit_toggle(rc_menu.button3);
+    draw_unit_toggle(rc_menu.button2);
+
+    rc_menu.help_shown = false;
     
+    function togle_help() {
+        if (rc_menu.help_shown) {
+            rc_menu.help_shown = false;
+            rcMessage.clear();
+        }
+        else {
+            rc_menu.help_shown = true;
+            rcMessage.postHTML('<ul style="background-color:white; border-radius: 15px; margin:6px; font-family: Helvetica;" >'+
+                               '<li style="margin: 6px;">To create a measurement, select the \nline tool, then tap two points.</li>'+
+                           '<li style="margin: 6px;">Select the eraser and touch a \nmeasurement to delet it.</li>'+
+                           '<li style="margin: 6px;">Hit the "m | ft" button to toggle units.</li>'+
+                           '<li style="margin: 6px;">Hit undo to undo your last change.</li>'+
+                           '<li style="margin: 6px;">You can pinch to zoom, \nand pan when zoomed in.</li>'+
+                           '<li style="margin: 6px;">The trash can erases the photo.</li>'+
+                           '<li style="margin: 6px;">You can rename the measured photo \nby selecting the title box.</li>'+
+                           '<li style="margin: 6px;">Hit the "?" again to hide this.</li><br/></ul>', 30000);
+        }
+    }
+    
+    function draw_help_button (button) {
+        rc_menu.help_button = button;
+        
+        rc_menu.question_mark_text = menu_svg.text('?').font({family: rcMeasurements.font_family, size: 25, anchor: 'middle', leading: 1
+                                                              }).move(20,5).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width/10 });
+        button.add(rc_menu.question_mark_text);
+        
+        rc_menu.help_button.click (function (e) {
+                                   togle_help(); e.stopPropagation(); e.preventDefault();
+                                   });
+        button.rotate_button = function (target_rotation) {
+            button.rotate(target_rotation, button.x() + button_size/2, button.y() + button_size/2);
+        }
+        
+    }
+    draw_help_button(rc_menu.button5);
+
     
     function draw_eraser_icon (button) {
         rc_menu.eraser_button = button;
@@ -182,12 +220,12 @@ function build_rc_menu() {
         button.add(menu_svg.line(5,10,20,25).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
         button.add(menu_svg.line(20,25,34,25).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
         button.add(menu_svg.line(34,25,19,10).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
-        rc_menu.eraser_button.click (function (e) { rc_menu.select_button(rc_menu.button4); e.stopPropagation(); e.preventDefault(); });
+        rc_menu.eraser_button.click (function (e) { rc_menu.select_button(button); e.stopPropagation(); e.preventDefault(); });
         button.rotate_button = function (target_rotation) {
             button.rotate(target_rotation, button.x() + button_size/2, button.y() + button_size/2);
         }
     }
-    draw_eraser_icon (rc_menu.button4);
+    draw_eraser_icon (rc_menu.button3);
 
     
     function draw_text_icon (button) {
@@ -197,7 +235,7 @@ function build_rc_menu() {
         button.add(menu_svg.line(11,9,11,12).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
         button.add(menu_svg.line(29,9,29,12).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
         button.add(menu_svg.line(18,29,22,29).stroke({ color: button_icon_color, opacity: 1, width: button_icon_stoke_width }));
-        rc_menu.text_button.click (function (e) { rc_menu.select_button(rc_menu.button5); e.stopPropagation(); e.preventDefault(); });
+        rc_menu.text_button.click (function (e) { rc_menu.select_button(button); e.stopPropagation(); e.preventDefault(); });
         button.rotate_button = function (target_rotation) {
             button.rotate(target_rotation, button.x() + button_size/2, button.y() + button_size/2);
         }
@@ -232,7 +270,7 @@ function build_rc_menu() {
     }
     
     //start with line button selected
-    rc_menu.select_button(rc_menu.button2);
+    rc_menu.select_button(rc_menu.button1);
 
     rc_menu.deselect_button = function (button) {
         //this relies on the fact that the first thing we added to the button groups was the background rectangles.
@@ -288,5 +326,5 @@ function build_rc_menu() {
 }
 
 rc_menu.reset =  function () {
-    rc_menu.select_button(rc_menu.button2);
+    rc_menu.select_button(rc_menu.button1);
 }

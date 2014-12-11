@@ -65,9 +65,6 @@
 		32BFDE1F1A2E83F000D03F44 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFDE1E1A2E83F000D03F44 /* CoreLocation.framework */; };
 		32BFDE221A2E83F600D03F44 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFDE211A2E83F600D03F44 /* AVFoundation.framework */; };
 		32C951E81A365E02005E1BFB /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32C951E71A365E02005E1BFB /* GLKit.framework */; };
-		32C951EB1A366603005E1BFB /* shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 32C951E91A366603005E1BFB /* shader.fsh */; };
-		32C951EC1A366603005E1BFB /* shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 32C951EA1A366603005E1BFB /* shader.vsh */; };
-		32C951EE1A36699B005E1BFB /* iphone.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C951ED1A36699B005E1BFB /* iphone.png */; };
 		32EC392B1A3613D7004C31C0 /* CATMeasuredPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EC392A1A3613D7004C31C0 /* CATMeasuredPhoto.m */; };
 		32EC39301A361792004C31C0 /* NSString+RCString.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EC392F1A361792004C31C0 /* NSString+RCString.m */; };
 		32EC39351A361F39004C31C0 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EC39341A361F39004C31C0 /* SystemConfiguration.framework */; };
@@ -224,9 +221,6 @@
 		32BFDE1E1A2E83F000D03F44 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		32BFDE211A2E83F600D03F44 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		32C951E71A365E02005E1BFB /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
-		32C951E91A366603005E1BFB /* shader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.fsh; sourceTree = "<group>"; };
-		32C951EA1A366603005E1BFB /* shader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.vsh; sourceTree = "<group>"; };
-		32C951ED1A36699B005E1BFB /* iphone.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = iphone.png; sourceTree = "<group>"; };
 		32EC39291A3613D7004C31C0 /* CATMeasuredPhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATMeasuredPhoto.h; sourceTree = "<group>"; };
 		32EC392A1A3613D7004C31C0 /* CATMeasuredPhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATMeasuredPhoto.m; sourceTree = "<group>"; };
 		32EC392E1A361792004C31C0 /* NSString+RCString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+RCString.h"; sourceTree = "<group>"; };
@@ -311,8 +305,11 @@
 		323BD0881A25324800313573 /* TrackLinks */ = {
 			isa = PBXGroup;
 			children = (
-				32BFDE011A2E4EEF00D03F44 /* Views */,
 				323BD0891A25324800313573 /* Supporting Files */,
+				323BD08D1A25324800313573 /* AppDelegate.h */,
+				323BD08E1A25324800313573 /* AppDelegate.m */,
+				323BD0E41A253B0D00313573 /* CATAugmentedRealityView.h */,
+				323BD0E51A253B0D00313573 /* CATAugmentedRealityView.m */,
 				323BD0E61A253B0D00313573 /* CATCapturePhoto.h */,
 				323BD0E71A253B0D00313573 /* CATCapturePhoto.m */,
 				323BD0E81A253B0D00313573 /* CATConstants.h */,
@@ -320,11 +317,13 @@
 				323BD0EC1A253B0D00313573 /* CATEditPhoto.m */,
 				32EC39291A3613D7004C31C0 /* CATMeasuredPhoto.h */,
 				32EC392A1A3613D7004C31C0 /* CATMeasuredPhoto.m */,
-				323BD08D1A25324800313573 /* AppDelegate.h */,
-				323BD08E1A25324800313573 /* AppDelegate.m */,
-				32BFDE191A2E807A00D03F44 /* RC3DK.h */,
 				323BD0961A25324800313573 /* Images.xcassets */,
 				323BD10D1A253B9A00313573 /* MainStoryboard.storyboard */,
+				32EC392E1A361792004C31C0 /* NSString+RCString.h */,
+				32EC392F1A361792004C31C0 /* NSString+RCString.m */,
+				32BFDE191A2E807A00D03F44 /* RC3DK.h */,
+				32BFDE161A2E528F00D03F44 /* UIImage+RCImageFile.h */,
+				32BFDE171A2E528F00D03F44 /* UIImage+RCImageFile.m */,
 			);
 			path = TrackLinks;
 			sourceTree = "<group>";
@@ -496,22 +495,6 @@
 			path = ../AugmentedReality;
 			sourceTree = "<group>";
 		};
-		32BFDE011A2E4EEF00D03F44 /* Views */ = {
-			isa = PBXGroup;
-			children = (
-				32C951ED1A36699B005E1BFB /* iphone.png */,
-				32C951E91A366603005E1BFB /* shader.fsh */,
-				32C951EA1A366603005E1BFB /* shader.vsh */,
-				323BD0E41A253B0D00313573 /* CATAugmentedRealityView.h */,
-				323BD0E51A253B0D00313573 /* CATAugmentedRealityView.m */,
-				32EC392E1A361792004C31C0 /* NSString+RCString.h */,
-				32EC392F1A361792004C31C0 /* NSString+RCString.m */,
-				32BFDE161A2E528F00D03F44 /* UIImage+RCImageFile.h */,
-				32BFDE171A2E528F00D03F44 /* UIImage+RCImageFile.m */,
-			);
-			name = Views;
-			sourceTree = "<group>";
-		};
 		32BFDE231A2E840700D03F44 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -649,9 +632,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				32C951EE1A36699B005E1BFB /* iphone.png in Resources */,
-				32C951EB1A366603005E1BFB /* shader.fsh in Resources */,
-				32C951EC1A366603005E1BFB /* shader.vsh in Resources */,
 				323BD0CF1A253AEC00313573 /* depth_data.js in Resources */,
 				323BD0DD1A253AEC00313573 /* svgjs.js in Resources */,
 				323BD0D31A253AEC00313573 /* jquery-2.1.1.min.js in Resources */,

@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		D324412A1A0D13D4001A487D /* QRDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D32441291A0D13D4001A487D /* QRDelegate.m */; };
+		D3CEE3C41A3989FF00A79A7F /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D3CEE3BE1A39006C00A79A7F /* libiconv.dylib */; };
 		D901456719F9A00F004E7CE2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D901456619F9A00F004E7CE2 /* main.m */; };
 		D901456A19F9A00F004E7CE2 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D901456919F9A00F004E7CE2 /* AppDelegate.m */; };
 		D901456D19F9A00F004E7CE2 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D901456C19F9A00F004E7CE2 /* ViewController.m */; };
@@ -90,6 +91,7 @@
 /* Begin PBXFileReference section */
 		D32441281A0D13D4001A487D /* QRDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QRDelegate.h; sourceTree = "<group>"; };
 		D32441291A0D13D4001A487D /* QRDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QRDelegate.m; sourceTree = "<group>"; };
+		D3CEE3BE1A39006C00A79A7F /* libiconv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiconv.dylib; path = usr/lib/libiconv.dylib; sourceTree = SDKROOT; };
 		D901456119F9A00F004E7CE2 /* RealityCap AR Sample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "RealityCap AR Sample.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D901456519F9A00F004E7CE2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D901456619F9A00F004E7CE2 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -167,6 +169,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D3CEE3C41A3989FF00A79A7F /* libiconv.dylib in Frameworks */,
 				D985D7DA1A153F0800067557 /* libRC3DK.a in Frameworks */,
 				D963096B1A01BC9800F92929 /* GLKit.framework in Frameworks */,
 				D90145F019F9A23E004E7CE2 /* UIKit.framework in Frameworks */,
@@ -202,6 +205,7 @@
 		D901455819F9A00F004E7CE2 = {
 			isa = PBXGroup;
 			children = (
+				D3CEE3BE1A39006C00A79A7F /* libiconv.dylib */,
 				D98CDC091A153D570078DA30 /* RC3DK.xcodeproj */,
 				D9AA84BC1A042DBE004C61D0 /* Default-568h@2x.png */,
 				D901456319F9A00F004E7CE2 /* RC3DKSampleAR */,

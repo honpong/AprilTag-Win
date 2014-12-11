@@ -683,6 +683,7 @@ rcMeasurements.load_json  = function (m_url, callback_function) {
             callback_function();
         }).error(function () {
             //window.setTimeout(function(){alert('failed to load annotations')},0);
+            rcMeasurements.prior_measurement_states.push("{}");
             rcMeasurements.measurements = {};
             callback_function();
         });

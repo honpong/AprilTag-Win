@@ -27,33 +27,33 @@ rcMessage.rotate = function() {
     var current_rotation = draw_g.trans.rotation;
     
     if ((current_rotation >= -45 && current_rotation <= 45) || (current_rotation >= 320 && current_rotation <= 400)) { //portrate
-        rcMessage.text.center(window.innerWidth/2 + rcMessage.text.node.offsetWidth/2 + 5, draw_g.cy() + window.innerHeight/2 - rcMessage.text.node.offsetHeight  - button_size);
+        if(rcMessage.text){rcMessage.text.center(window.innerWidth/2 + rcMessage.text.node.offsetWidth/2 + 5, draw_g.cy() + window.innerHeight/2 - rcMessage.text.node.offsetHeight  - button_size);}
         rcMessage.html.size(window.innerWidth/1.05, (window.innerHeight-button_size)/1.05);
     }
     
     else if (current_rotation >= 140 && current_rotation <= 220) { //portrait upside down
-        rcMessage.text.center(window.innerWidth/2 + rcMessage.text.node.offsetWidth/2 + 5, draw_g.cy() + window.innerHeight/2 - rcMessage.text.node.offsetHeight );
+        if(rcMessage.text){rcMessage.text.center(window.innerWidth/2 + rcMessage.text.node.offsetWidth/2 + 5, draw_g.cy() + window.innerHeight/2 - rcMessage.text.node.offsetHeight );}
         rcMessage.html.size(window.innerWidth/1.15, (window.innerHeight-button_size)/1.15);
 
     }
     else if (current_rotation >= 50 && current_rotation <= 135) { //lanscape
-        rcMessage.text.center(window.innerWidth/2 + rcMessage.text.node.offsetWidth/2 - button_size/2, draw_g.cy() + window.innerWidth/2 - rcMessage.text.node.offsetHeight/2);
+        if(rcMessage.text){rcMessage.text.center(window.innerWidth/2 + rcMessage.text.node.offsetWidth/2 - button_size/2, draw_g.cy() + window.innerWidth/2 - rcMessage.text.node.offsetHeight/2);}
         rcMessage.html.size((window.innerHeight-button_size)/1.15, window.innerWidth/1.05);
 
     }
     else { //lanscape
-        rcMessage.text.center(window.innerWidth/2 + rcMessage.text.node.offsetWidth/2 + button_size/2, draw_g.cy() + window.innerWidth/2 - rcMessage.text.node.offsetHeight/2);
+        if(rcMessage.text){rcMessage.text.center(window.innerWidth/2 + rcMessage.text.node.offsetWidth/2 + button_size/2, draw_g.cy() + window.innerWidth/2 - rcMessage.text.node.offsetHeight/2);}
         rcMessage.html.size((window.innerHeight-button_size)/1.15, window.innerWidth/1.05);
 
     }
 
 
     // draw dark border box with rounded edges
-    rcMessage.box.size(rcMessage.text.node.offsetWidth+rcMessage.box_padding*2, rcMessage.text.node.offsetHeight+rcMessage.box_padding).fill('#000').radius(rcMessage.box_padding).opacity(0.5).center(rcMessage.text.cx()-rcMessage.box_padding/1.5, rcMessage.text.cy());
+    if(rcMessage.text){rcMessage.box.size(rcMessage.text.node.offsetWidth+rcMessage.box_padding*2, rcMessage.text.node.offsetHeight+rcMessage.box_padding).fill('#000').radius(rcMessage.box_padding).opacity(0.5).center(rcMessage.text.cx()-rcMessage.box_padding/1.5, rcMessage.text.cy());}
 
     
-    rcMessage.text.rotate(current_rotation, window.innerWidth/2, window.innerHeight/2);
-    rcMessage.box.rotate(current_rotation, window.innerWidth/2, window.innerHeight/2);
+    if(rcMessage.text){rcMessage.text.rotate(current_rotation, window.innerWidth/2, window.innerHeight/2);}
+    if(rcMessage.text){rcMessage.box.rotate(current_rotation, window.innerWidth/2, window.innerHeight/2);}
     rcMessage.html.rotate(current_rotation, window.innerWidth/2, (window.innerHeight-button_size)/2);
     rcMessage.html.center(window.innerWidth/2, (window.innerHeight-button_size)/2);
     
@@ -67,12 +67,15 @@ rcMessage.postHTML = function(html, miliseconds_up) {
     if (!draw.node.contains(rcMessage.contaner.node)) {draw.node.appendChild(rcMessage.contaner.node);}
     rcMessage.html.appendChild("div", {id: 'mydiv', innerHTML: html});
 
+    rcMessage.box.remove();
+    rcMessage.text.remove();
+    rcMessage.text = null;
     
 
 }
 
 rcMessage.post = function (message, miliseconds_up) {
-    if (!rcMessage.contaner) {rcMessage.initalize();}
+    if (!rcMessage.contaner || !rcMessage.text) {rcMessage.initalize();}
     rcMessage.clear();
     if (!draw.node.contains(rcMessage.contaner.node)) {draw.node.appendChild(rcMessage.contaner.node);}
     rcMessage.text = rcMessage.text.text(message)

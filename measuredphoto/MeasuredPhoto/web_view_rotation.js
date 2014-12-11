@@ -156,5 +156,8 @@ function post_rotation_scaling() {
     if(draw.node.contains(np_svg.node)){
         move_image_for_number_pad(rcMeasurements.measurement_being_edited.text.x(), rcMeasurements.measurement_being_edited.text.y());
     }
+    
+    //last but not least, move any message text
+    rcMessage.rotate();
 
 }

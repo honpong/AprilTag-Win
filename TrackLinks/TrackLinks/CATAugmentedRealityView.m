@@ -11,15 +11,12 @@
 #import "UIView+RCConstraints.h"
 
 @implementation CATAugmentedRealityView
-{    
-    NSMutableArray* pointsPool;
+{
     float videoScale;
     int videoFrameOffset;
-    RCFeaturePoint* lastPointTapped;
     BOOL isInitialized;
-    //ARDelegate *AROverlay;
 }
-@synthesize videoView, featuresView, featuresLayer, initializingFeaturesLayer, AROverlay;
+@synthesize videoView, AROverlay;
 
 - (id) initWithFrame:(CGRect)frame
 {
@@ -51,45 +48,14 @@
     AROverlay = [[CATARDelegate alloc] init];
     [videoView setDelegate:AROverlay];
     
-    featuresView = [[UIView alloc] initWithFrame:CGRectZero];
-    [self addSubview:featuresView];
-    [featuresView addMatchSuperviewConstraints];
-    
-    [self setupFeatureLayers];
-    
     isInitialized = YES;
 }
 
 - (void) layoutSubviews
 {
     videoView.frame = self.frame;
-    featuresLayer.frame = self.frame;
-    initializingFeaturesLayer.frame = self.frame;
     
     [super layoutSubviews];
-}
-
-- (void) setupFeatureLayers
-{
-    featuresLayer = [[CATFeaturesLayer alloc] initWithFeatureCount:FEATURE_COUNT andColor:[UIColor colorWithRed:0 green:200 blue:255 alpha:1]]; // cyan color
-    featuresLayer.hidden = YES;
-    [featuresView.layer addSublayer:featuresLayer];
-
-    initializingFeaturesLayer = [[CATFeaturesLayer alloc] initWithFeatureCount:FEATURE_COUNT andColor:[UIColor colorWithRed:200 green:0 blue:0 alpha:.5]];
-    initializingFeaturesLayer.hidden = YES;
-    [featuresView.layer addSublayer:initializingFeaturesLayer];
-}
-
-- (void) showFeatures
-{
-    featuresLayer.hidden = NO;
-    initializingFeaturesLayer.hidden = NO;
-}
-
-- (void) hideFeatures
-{
-    featuresLayer.hidden = YES;
-    initializingFeaturesLayer.hidden = YES;
 }
 
 @end

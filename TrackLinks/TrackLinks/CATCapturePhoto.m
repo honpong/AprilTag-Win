@@ -35,13 +35,9 @@ typedef enum
     double lastTransitionTime;
     int filterStatusCode;
     BOOL isAligned;
-    BOOL isQuestionDismissed;
     
     MBProgressHUD *progressView;
     RCSensorFusionData* lastSensorFusionDataWithImage;
-    NSTimer* questionTimer;
-    NSMutableArray *goodPoints;
-    UIImage * lastImage;
 
     id<RCSensorDelegate> sensorDelegate;
     
@@ -121,7 +117,6 @@ static transition transitions[] =
     { ST_STARTUP, EV_RESUME, ST_READY },
     { ST_READY, EV_SHUTTER_TAP, ST_INITIALIZING },
     { ST_INITIALIZING, EV_INITIALIZED, ST_MOVING },
-    { ST_MOVING, EV_SHUTTER_TAP, ST_READY },
     { ST_MOVING, EV_MOVE_DONE, ST_CAPTURE },
     { ST_MOVING, EV_FAIL, ST_ERROR },
     { ST_MOVING, EV_FASTFAIL, ST_ERROR },
@@ -165,10 +160,6 @@ static transition transitions[] =
         [self stopSensors];
     if(oldSetup.sensorFusion && !newSetup.sensorFusion)
         [self stopSensorFusion];
-    if(oldSetup.features && !newSetup.features)
-        [arView hideFeatures];
-    if(!oldSetup.features && newSetup.features)
-        [self.arView showFeatures];
     if(oldSetup.progress != newSetup.progress)
     {
         if (newSetup.progress == SpinnerTypeDeterminate)
@@ -178,10 +169,6 @@ static transition transitions[] =
         else
             [self hideProgress];
     }
-    if(oldSetup.showBadFeatures && !newSetup.showBadFeatures)
-        self.arView.initializingFeaturesLayer.hidden = YES;
-    if(!oldSetup.showBadFeatures && newSetup.showBadFeatures)
-        self.arView.initializingFeaturesLayer.hidden = NO;
     if(!oldSetup.stereo && newSetup.stereo)
         [[RCStereo sharedInstance] reset];
     if (newSetup.progress == SpinnerTypeNone)
@@ -225,10 +212,6 @@ static transition transitions[] =
         {
             [self handleCaptureFinished];
         }
-    }
-    else if(currentState == ST_FINISHED && newState == ST_READY)
-    {
-        [self handlePhotoDeleted];
     }
     
     return YES;
@@ -416,13 +399,6 @@ static transition transitions[] =
     [self gotoEditPhotoScreen];
 }
 
-#pragma mark -
-
-- (void) featureTapped
-{
-    if (questionTimer && questionTimer.isValid) [questionTimer invalidate];
-}
-
 #pragma mark - 3DK Stuff
 
 - (void) startSensors
@@ -481,29 +457,7 @@ static transition transitions[] =
 
 - (void) sensorFusionDidUpdateData:(RCSensorFusionData*)data
 {
-    goodPoints = [[NSMutableArray alloc] init];
-    NSMutableArray *badPoints = [[NSMutableArray alloc] init];
     NSMutableArray *depths = [[NSMutableArray alloc] init];
-    
-    float mean;
-    float sum = 0.;
-    int count = 0;
-    for(RCFeaturePoint *feature in data.featurePoints)
-    {
-        [depths addObject:[NSNumber numberWithFloat:feature.originalDepth.scalar]];
-        sum += feature.originalDepth.scalar;
-        count++;
-        
-        if((feature.originalDepth.standardDeviation / feature.originalDepth.scalar < .01 || feature.originalDepth.standardDeviation < .004) && feature.initialized)
-        {
-            [goodPoints addObject:feature];
-        } else
-        {
-            [badPoints addObject:feature];
-        }
-    }
-    
-    mean = sum / count;
     
     NSNumber *median;
     if([depths count]) {
@@ -563,9 +517,6 @@ static transition transitions[] =
         lastSensorFusionDataWithImage = data;
         
         [self.arView.videoView displaySensorFusionData:data];
-        
-        [self.arView.featuresLayer updateFeatures:goodPoints];
-        [self.arView.initializingFeaturesLayer updateFeatures:badPoints];
         
         if(setups[currentState].stereo) [STEREO processFrame:data withFinal:false];
     }
@@ -629,51 +580,5 @@ static transition transitions[] =
 {
     [self.messageLabel fadeOutWithDuration:0.5 andWait:0];
 }
-
-//- (void) switchButtonImage:(ButtonImage)imageType
-//{
-//    NSString* imageName;
-//    
-//    [self.expandingCircleView stopHighlightAnimation];
-//    
-//    switch (imageType) {
-//        case BUTTON_DELETE:
-//            imageName = @"MobileMailSettings_trashmbox";
-//            shutterButton.alpha = 1.;
-//            shutterButton.enabled = YES;
-//            break;
-//            
-//        case BUTTON_SHUTTER_DISABLED:
-//            imageName = @"PLCameraFloatingShutterButton";
-//            shutterButton.alpha = .3;
-//            shutterButton.enabled = NO;
-//            break;
-//            
-//        case BUTTON_CANCEL:
-//            imageName = @"BackButton";
-//            shutterButton.alpha = 1.;
-//            shutterButton.enabled = YES;
-//            break;
-//            
-//        case BUTTON_SHUTTER_ANIMATED:
-//            imageName = @"PLCameraFloatingShutterButton";
-//            shutterButton.alpha = 1.;
-//            shutterButton.enabled = YES;
-//            [self.expandingCircleView startHighlightAnimation];
-//            break;
-//            
-//        default:
-//            imageName = @"PLCameraFloatingShutterButton";
-//            shutterButton.alpha = 1.;
-//            shutterButton.enabled = YES;
-//            break;
-//    }
-//    
-//    UIImage* image = [UIImage imageNamed:imageName];
-//    CGRect buttonFrame = shutterButton.bounds;
-//    buttonFrame.size = image.size;
-//    shutterButton.frame = buttonFrame;
-//    [shutterButton setImage:[UIImage imageNamed:imageName] forState:UIControlStateNormal];
-//}
 
 @end

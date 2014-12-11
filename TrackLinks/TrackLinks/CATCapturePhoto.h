@@ -27,11 +27,9 @@
 
 @interface CATCapturePhoto : UIViewController <RCSensorFusionDelegate, RCStereoDelegate, UIAlertViewDelegate>
 
-+ (UIDeviceOrientation) getCurrentUIOrientation;
 - (void)handlePause;
 - (void)handleResume;
 - (IBAction)handleShutterButton:(id)sender;
-- (void) setOrientation:(UIDeviceOrientation)orientation animated:(BOOL)animated;
 
 @property (nonatomic) IBOutlet CATAugmentedRealityView *arView;
 @property (weak, nonatomic) IBOutlet UILabel *messageLabel;

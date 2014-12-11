@@ -15,15 +15,9 @@
 
 @interface CATAugmentedRealityView : UIView
 
-@property (weak, nonatomic) IBOutlet UIImageView *distanceBg;
 @property (readonly) RCVideoPreview *videoView;
-@property (readonly) CATFeaturesLayer* featuresLayer;
-@property (readonly) CATFeaturesLayer* initializingFeaturesLayer;
-@property (readonly) UIView* featuresView;
 @property (readonly) CATARDelegate* AROverlay;
 
 - (void) initialize;
-- (void) showFeatures;
-- (void) hideFeatures;
 
 @end

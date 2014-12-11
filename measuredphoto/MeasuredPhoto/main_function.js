@@ -184,6 +184,7 @@ function rc_initialize(){
         }
         
         if (lineNotStarted){
+            if (! distanceTo(i.x,i.y)) {return;} //don't allow a measurement to be started in a dead area
             lineNotStarted = false;
             click_image_x1 = i.x; //we map into image coordinates here, incase scale factor chagnes between clicks
             click_image_y1 = i.y;

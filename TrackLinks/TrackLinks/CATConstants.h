@@ -13,10 +13,6 @@
 #define VIDEO_MANAGER [RCVideoManager sharedInstance]
 #define MOTION_MANAGER [RCMotionManager sharedInstance]
 #define LOCATION_MANAGER [RCLocationManager sharedInstance]
-#define USER_MANAGER [RCUserManager sharedInstance]
-#define HTTP_CLIENT [RCHTTPClient sharedInstance]
-#define SERVER_OPS [TMServerOpsFactory getInstance]
-#define OPENGL_MANAGER [RCGLManagerFactory getInstance]
 #define STEREO [RCStereo sharedInstance]
 
 #define DOCUMENTS_DIRECTORY_URL [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject]
@@ -26,8 +22,6 @@
 #define PREF_UNITS @"units_preference"
 #define PREF_IS_CALIBRATED @"is_calibrated"
 #define PREF_USE_LOCATION @"use_location"
-
-#define INCHES_PER_METER 39.3700787
 
 #define ERROR_DOMAIN @"com.cat.ErrorDomain"
 

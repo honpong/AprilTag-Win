@@ -18,14 +18,8 @@
 #import <CoreLocation/CoreLocation.h>
 #import <RC3DKPlus/RC3DKPlus.h>
 #import "RCLocationManager.h"
-#import "CATARDelegate.h"
 
 static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
-
-typedef enum
-{
-    MOVING_START, MOVING_VERTICAL, MOVING_HORIZONTAL
-} movement_status;
 
 @implementation CATCapturePhoto
 {
@@ -33,6 +27,7 @@ typedef enum
     double lastTransitionTime;
     int filterStatusCode;
     BOOL isAligned;
+    RCTransformation *initialCamera;
     
     MBProgressHUD *progressView;
     RCSensorFusionData* lastSensorFusionDataWithImage;
@@ -43,8 +38,6 @@ typedef enum
     
     BOOL didGetVisionError;
     RCSensorFusionErrorCode lastErrorCode;
-    
-    movement_status moving_state;
 }
 @synthesize arView;
 
@@ -291,7 +284,6 @@ static transition transitions[] =
 
 - (void) handleMoveStart
 {
-    moving_state = MOVING_START;
 }
 
 - (void) handleCaptureFinished
@@ -393,6 +385,7 @@ static transition transitions[] =
 
 - (void) sensorFusionDidUpdateData:(RCSensorFusionData*)data
 {
+    if(currentState == ST_INITIALIZING) initialCamera = data.cameraTransformation;
     NSMutableArray *depths = [[NSMutableArray alloc] init];
     
     NSNumber *median;
@@ -407,39 +400,15 @@ static transition transitions[] =
         //Compute the capture progress here
         float depth = [median floatValue];
         
-        RCPoint *projectedpt = [[arView.AROverlay.initialCamera.rotation getInverse] transformPoint:[data.transformation.translation transformPoint:[[RCPoint alloc] initWithX:0. withY:0. withZ:0.]]];
+        RCPoint *projectedpt = [[initialCamera.rotation getInverse] transformPoint:[data.transformation.translation transformPoint:[[RCPoint alloc] initWithX:0. withY:0. withZ:0.]]];
         
         float targetDist = log(depth / 8. + 1.) + .05; // require movement of at least 5cm
         
         float dx = projectedpt.x / targetDist;
-        float dy = projectedpt.y / targetDist;
         if(dx > 1.) dx = 1.;
         if(dx < -1.) dx = -1.;
-        if(dy > 1.) dy = 1.;
-        if(dy < -1.) dy = -1.;
-        //hysteresis
-        if(moving_state == MOVING_START)
-        {
-            moving_state = (fabs(dx) > fabs(dy)) ? MOVING_HORIZONTAL : MOVING_VERTICAL;
-        }
-        else if(moving_state == MOVING_HORIZONTAL)
-        {
-            if(fabs(dy) > fabs(dx) + .05) moving_state = MOVING_VERTICAL;
-        }
-        else if(moving_state == MOVING_VERTICAL)
-        {
-            if(fabs(dx) > fabs(dy) + .05) moving_state = MOVING_HORIZONTAL;
-        }
-        
-        float progress;
-        if(moving_state == MOVING_HORIZONTAL)
-        {
-            progress = fabs(dx);
-        }
-        else
-        {
-            progress = fabs(dy);
-        }
+
+        float progress = fabs(dx);
         self.progressBar.progress = progress;
         
         if(currentState == ST_MOVING && progress >= 1.) [self handleStateEvent:EV_MOVE_DONE];

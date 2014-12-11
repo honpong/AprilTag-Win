@@ -15,7 +15,7 @@
     int videoFrameOffset;
     BOOL isInitialized;
 }
-@synthesize videoView, AROverlay;
+@synthesize videoView;
 
 - (id) initWithFrame:(CGRect)frame
 {
@@ -44,9 +44,6 @@
     videoView.orientation = UIInterfaceOrientationLandscapeRight;
     [self addSubview:videoView];
     [self sendSubviewToBack:videoView];
-    
-    AROverlay = [[CATARDelegate alloc] init];
-    [videoView setDelegate:AROverlay];
     
     isInitialized = YES;
 }

@@ -70,7 +70,6 @@
 		32BFDE181A2E528F00D03F44 /* UIImage+RCImageFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDE171A2E528F00D03F44 /* UIImage+RCImageFile.m */; };
 		32BFDE1F1A2E83F000D03F44 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFDE1E1A2E83F000D03F44 /* CoreLocation.framework */; };
 		32BFDE221A2E83F600D03F44 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32BFDE211A2E83F600D03F44 /* AVFoundation.framework */; };
-		32C951E31A365CDC005E1BFB /* CATARDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C951E01A365CDC005E1BFB /* CATARDelegate.m */; };
 		32C951E81A365E02005E1BFB /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32C951E71A365E02005E1BFB /* GLKit.framework */; };
 		32C951EB1A366603005E1BFB /* shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 32C951E91A366603005E1BFB /* shader.fsh */; };
 		32C951EC1A366603005E1BFB /* shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 32C951EA1A366603005E1BFB /* shader.vsh */; };
@@ -238,8 +237,6 @@
 		32BFDE191A2E807A00D03F44 /* RC3DK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RC3DK.h; sourceTree = "<group>"; };
 		32BFDE1E1A2E83F000D03F44 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		32BFDE211A2E83F600D03F44 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
-		32C951DF1A365CDC005E1BFB /* CATARDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATARDelegate.h; sourceTree = "<group>"; };
-		32C951E01A365CDC005E1BFB /* CATARDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATARDelegate.m; sourceTree = "<group>"; };
 		32C951E71A365E02005E1BFB /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		32C951E91A366603005E1BFB /* shader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.fsh; sourceTree = "<group>"; };
 		32C951EA1A366603005E1BFB /* shader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.vsh; sourceTree = "<group>"; };
@@ -529,8 +526,6 @@
 				32C951EA1A366603005E1BFB /* shader.vsh */,
 				323BD0E41A253B0D00313573 /* CATAugmentedRealityView.h */,
 				323BD0E51A253B0D00313573 /* CATAugmentedRealityView.m */,
-				32C951DF1A365CDC005E1BFB /* CATARDelegate.h */,
-				32C951E01A365CDC005E1BFB /* CATARDelegate.m */,
 				32EC392E1A361792004C31C0 /* NSString+RCString.h */,
 				32EC392F1A361792004C31C0 /* NSString+RCString.m */,
 				32BFDE161A2E528F00D03F44 /* UIImage+RCImageFile.h */,
@@ -724,7 +719,6 @@
 				32BFDDE91A2E451E00D03F44 /* SBJsonStreamWriter.m in Sources */,
 				323BD08F1A25324800313573 /* AppDelegate.m in Sources */,
 				32BFDDC71A2E445100D03F44 /* CATHttpInterceptor.m in Sources */,
-				32C951E31A365CDC005E1BFB /* CATARDelegate.m in Sources */,
 				32BFDDE81A2E451E00D03F44 /* SBJsonStreamParserState.m in Sources */,
 				32BFDE001A2E4B2200D03F44 /* RCVideoPreview.m in Sources */,
 				32BFDDB11A2E433D00D03F44 /* RCCalibration2.m in Sources */,

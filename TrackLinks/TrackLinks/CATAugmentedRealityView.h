@@ -3,11 +3,9 @@
 
 #import "RCVideoPreview.h"
 #import "RC3DK.h"
-#import "CATARDelegate.h"
 
 @interface CATAugmentedRealityView : UIView
 
 @property (readonly) RCVideoPreview *videoView;
-@property (readonly) CATARDelegate* AROverlay;
 
 @end

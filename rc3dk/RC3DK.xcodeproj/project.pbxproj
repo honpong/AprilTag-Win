@@ -60,24 +60,24 @@
 		327B55FB18EB503A0001CCE1 /* RCDeviceInfoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B55F418EB503A0001CCE1 /* RCDeviceInfoTests.m */; };
 		327B55FC18EB503A0001CCE1 /* RCSensorFusion+RCSensorFusionMock.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B55F718EB503A0001CCE1 /* RCSensorFusion+RCSensorFusionMock.m */; };
 		327B55FD18EB503A0001CCE1 /* RCSensorFusionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B55F818EB503A0001CCE1 /* RCSensorFusionTests.m */; };
-		327B560118EB57830001CCE1 /* RCCameraParameters.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B554C18EB4DC20001CCE1 /* RCCameraParameters.h */; };
-		327B560218EB57830001CCE1 /* RCFeaturePoint.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B555118EB4DC20001CCE1 /* RCFeaturePoint.h */; };
-		327B560318EB57830001CCE1 /* RCPoint.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B555518EB4DC20001CCE1 /* RCPoint.h */; };
-		327B560418EB57830001CCE1 /* RCRotation.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B555918EB4DC20001CCE1 /* RCRotation.h */; };
-		327B560518EB57830001CCE1 /* RCScalar.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B555B18EB4DC20001CCE1 /* RCScalar.h */; };
-		327B560618EB57830001CCE1 /* RCSensorFusionData.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B555F18EB4DC20001CCE1 /* RCSensorFusionData.h */; };
-		327B560718EB57830001CCE1 /* RCSensorFusionStatus.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B556118EB4DC20001CCE1 /* RCSensorFusionStatus.h */; };
-		327B560818EB57830001CCE1 /* RCTransformation.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B556318EB4DC20001CCE1 /* RCTransformation.h */; };
-		327B560918EB57830001CCE1 /* RCTranslation.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B556518EB4DC20001CCE1 /* RCTranslation.h */; };
-		327B560A18EB57830001CCE1 /* RCVector.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B556718EB4DC20001CCE1 /* RCVector.h */; };
-		327B560B18EB57830001CCE1 /* RCSensorFusion.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B555D18EB4DC20001CCE1 /* RCSensorFusion.h */; };
-		327B560D18EB57970001CCE1 /* RC3DK.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B554718EB4DC20001CCE1 /* RC3DK.h */; };
-		327B560E18EB57A50001CCE1 /* RCDeviceInfo.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B554F18EB4DC20001CCE1 /* RCDeviceInfo.h */; };
+		327B560118EB57830001CCE1 /* RCCameraParameters.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B554C18EB4DC20001CCE1 /* RCCameraParameters.h */; };
+		327B560218EB57830001CCE1 /* RCFeaturePoint.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B555118EB4DC20001CCE1 /* RCFeaturePoint.h */; };
+		327B560318EB57830001CCE1 /* RCPoint.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B555518EB4DC20001CCE1 /* RCPoint.h */; };
+		327B560418EB57830001CCE1 /* RCRotation.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B555918EB4DC20001CCE1 /* RCRotation.h */; };
+		327B560518EB57830001CCE1 /* RCScalar.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B555B18EB4DC20001CCE1 /* RCScalar.h */; };
+		327B560618EB57830001CCE1 /* RCSensorFusionData.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B555F18EB4DC20001CCE1 /* RCSensorFusionData.h */; };
+		327B560718EB57830001CCE1 /* RCSensorFusionStatus.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B556118EB4DC20001CCE1 /* RCSensorFusionStatus.h */; };
+		327B560818EB57830001CCE1 /* RCTransformation.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B556318EB4DC20001CCE1 /* RCTransformation.h */; };
+		327B560918EB57830001CCE1 /* RCTranslation.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B556518EB4DC20001CCE1 /* RCTranslation.h */; };
+		327B560A18EB57830001CCE1 /* RCVector.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B556718EB4DC20001CCE1 /* RCVector.h */; };
+		327B560B18EB57830001CCE1 /* RCSensorFusion.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B555D18EB4DC20001CCE1 /* RCSensorFusion.h */; };
+		327B560D18EB57970001CCE1 /* RC3DK.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B554718EB4DC20001CCE1 /* RC3DK.h */; };
+		327B560E18EB57A50001CCE1 /* RCDeviceInfo.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B554F18EB4DC20001CCE1 /* RCDeviceInfo.h */; };
 		327B563918EB5F0A0001CCE1 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B563518EB5ECA0001CCE1 /* OpenGLES.framework */; };
 		328A4DD21950D52000587949 /* RCSensorFusionError.m in Sources */ = {isa = PBXBuildFile; fileRef = 328A4DD11950D52000587949 /* RCSensorFusionError.m */; };
 		328A4DD51950D5F400587949 /* RCLicenseError.m in Sources */ = {isa = PBXBuildFile; fileRef = 328A4DD41950D5F400587949 /* RCLicenseError.m */; };
-		328A4DD61950DB2200587949 /* RCSensorFusionError.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 328A4DD01950D52000587949 /* RCSensorFusionError.h */; };
-		328A4DD71950DB2E00587949 /* RCLicenseError.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 328A4DD31950D5F400587949 /* RCLicenseError.h */; };
+		328A4DD61950DB2200587949 /* RCSensorFusionError.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 328A4DD01950D52000587949 /* RCSensorFusionError.h */; };
+		328A4DD71950DB2E00587949 /* RCLicenseError.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 328A4DD31950D5F400587949 /* RCLicenseError.h */; };
 		D321AD3E1A323C17003AEA77 /* camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D321AD301A323BF7003AEA77 /* camera.cpp */; };
 		D321AD3F1A323C17003AEA77 /* fundamental.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D321AD311A323BF7003AEA77 /* fundamental.cpp */; };
 		D321AD401A323C17003AEA77 /* stereo_features.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D321AD331A323BF7003AEA77 /* stereo_features.cpp */; };
@@ -386,7 +386,7 @@
 		D953126F1A15AE63004D6068 /* homography.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D953126D1A15AE63004D6068 /* homography.cpp */; };
 		D97AEF8118F7613F00573148 /* device_parameters.c in Sources */ = {isa = PBXBuildFile; fileRef = D97AEF8018F7613F00573148 /* device_parameters.c */; };
 		D9CCDC7E192E887F00A41329 /* scaled_mask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9CCDC7C192E887F00A41329 /* scaled_mask.cpp */; };
-		D9FE87B619427F190052B8D8 /* RCSensorFusionInternals.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D9FE87B519410AB40052B8D8 /* RCSensorFusionInternals.h */; };
+		D9FE87B619427F190052B8D8 /* RCSensorFusionInternals.h in Copy Files */ = {isa = PBXBuildFile; fileRef = D9FE87B519410AB40052B8D8 /* RCSensorFusionInternals.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -400,29 +400,30 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		327B54DD18EB4CC90001CCE1 /* CopyFiles */ = {
+		327B54DD18EB4CC90001CCE1 /* Copy Files */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
-				328A4DD61950DB2200587949 /* RCSensorFusionError.h in CopyFiles */,
-				D9FE87B619427F190052B8D8 /* RCSensorFusionInternals.h in CopyFiles */,
-				327B560D18EB57970001CCE1 /* RC3DK.h in CopyFiles */,
-				327B560118EB57830001CCE1 /* RCCameraParameters.h in CopyFiles */,
-				327B560218EB57830001CCE1 /* RCFeaturePoint.h in CopyFiles */,
-				327B560318EB57830001CCE1 /* RCPoint.h in CopyFiles */,
-				327B560418EB57830001CCE1 /* RCRotation.h in CopyFiles */,
-				327B560518EB57830001CCE1 /* RCScalar.h in CopyFiles */,
-				327B560618EB57830001CCE1 /* RCSensorFusionData.h in CopyFiles */,
-				327B560718EB57830001CCE1 /* RCSensorFusionStatus.h in CopyFiles */,
-				328A4DD71950DB2E00587949 /* RCLicenseError.h in CopyFiles */,
-				327B560818EB57830001CCE1 /* RCTransformation.h in CopyFiles */,
-				327B560918EB57830001CCE1 /* RCTranslation.h in CopyFiles */,
-				327B560A18EB57830001CCE1 /* RCVector.h in CopyFiles */,
-				327B560B18EB57830001CCE1 /* RCSensorFusion.h in CopyFiles */,
-				327B560E18EB57A50001CCE1 /* RCDeviceInfo.h in CopyFiles */,
+				328A4DD61950DB2200587949 /* RCSensorFusionError.h in Copy Files */,
+				D9FE87B619427F190052B8D8 /* RCSensorFusionInternals.h in Copy Files */,
+				327B560D18EB57970001CCE1 /* RC3DK.h in Copy Files */,
+				327B560118EB57830001CCE1 /* RCCameraParameters.h in Copy Files */,
+				327B560218EB57830001CCE1 /* RCFeaturePoint.h in Copy Files */,
+				327B560318EB57830001CCE1 /* RCPoint.h in Copy Files */,
+				327B560418EB57830001CCE1 /* RCRotation.h in Copy Files */,
+				327B560518EB57830001CCE1 /* RCScalar.h in Copy Files */,
+				327B560618EB57830001CCE1 /* RCSensorFusionData.h in Copy Files */,
+				327B560718EB57830001CCE1 /* RCSensorFusionStatus.h in Copy Files */,
+				328A4DD71950DB2E00587949 /* RCLicenseError.h in Copy Files */,
+				327B560818EB57830001CCE1 /* RCTransformation.h in Copy Files */,
+				327B560918EB57830001CCE1 /* RCTranslation.h in Copy Files */,
+				327B560A18EB57830001CCE1 /* RCVector.h in Copy Files */,
+				327B560B18EB57830001CCE1 /* RCSensorFusion.h in Copy Files */,
+				327B560E18EB57A50001CCE1 /* RCDeviceInfo.h in Copy Files */,
 			);
+			name = "Copy Files";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		D3B4EB401A1E7DE100BE0443 /* CopyFiles */ = {
@@ -1786,7 +1787,7 @@
 			buildPhases = (
 				327B54DB18EB4CC90001CCE1 /* Sources */,
 				327B54DC18EB4CC90001CCE1 /* Frameworks */,
-				327B54DD18EB4CC90001CCE1 /* CopyFiles */,
+				327B54DD18EB4CC90001CCE1 /* Copy Files */,
 				327B565418EB655C0001CCE1 /* Library Sanity Check */,
 				327B565518EB66F00001CCE1 /* Warnings for TODOs */,
 				32CF889E1A31094B0044B17B /* Open built library folder */,

@@ -21,8 +21,9 @@
                                 <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                             </webView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DLg-t1-Ry1" userLabel="CameraButton" customClass="CATRotatingButton">
-                                <rect key="frame" x="16" y="8" width="57" height="44"/>
+                                <rect key="frame" x="20" y="4" width="75" height="44"/>
                                 <constraints>
+                                    <constraint firstAttribute="width" constant="75" id="7pF-PU-A81"/>
                                     <constraint firstAttribute="height" constant="44" id="IIW-yO-RWa"/>
                                 </constraints>
                                 <state key="normal" title="&lt; Back">
@@ -36,9 +37,9 @@
                         </subviews>
                         <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
-                            <constraint firstItem="DLg-t1-Ry1" firstAttribute="top" secondItem="eWK-wc-Iwh" secondAttribute="bottom" constant="8" id="49u-iZ-Z35"/>
+                            <constraint firstItem="DLg-t1-Ry1" firstAttribute="top" secondItem="eWK-wc-Iwh" secondAttribute="bottom" constant="4" id="49u-iZ-Z35"/>
                             <constraint firstAttribute="trailing" secondItem="I8N-jP-reu" secondAttribute="trailing" id="NmN-mV-le5"/>
-                            <constraint firstItem="DLg-t1-Ry1" firstAttribute="leading" secondItem="Uoc-he-1Yh" secondAttribute="leading" constant="16" id="QPF-j0-cgw"/>
+                            <constraint firstItem="DLg-t1-Ry1" firstAttribute="leading" secondItem="Uoc-he-1Yh" secondAttribute="leading" constant="20" id="QPF-j0-cgw"/>
                             <constraint firstItem="I8N-jP-reu" firstAttribute="leading" secondItem="Uoc-he-1Yh" secondAttribute="leading" id="bcn-bo-4e9"/>
                             <constraint firstItem="I8N-jP-reu" firstAttribute="top" secondItem="eWK-wc-Iwh" secondAttribute="bottom" id="faZ-Mn-R6c"/>
                             <constraint firstAttribute="bottom" secondItem="I8N-jP-reu" secondAttribute="bottom" id="xkU-Jm-PhJ"/>

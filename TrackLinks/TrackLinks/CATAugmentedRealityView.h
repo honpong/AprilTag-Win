@@ -5,13 +5,9 @@
 #import "RC3DK.h"
 #import "CATARDelegate.h"
 
-#define FEATURE_COUNT 200
-
 @interface CATAugmentedRealityView : UIView
 
 @property (readonly) RCVideoPreview *videoView;
 @property (readonly) CATARDelegate* AROverlay;
-
-- (void) initialize;
 
 @end

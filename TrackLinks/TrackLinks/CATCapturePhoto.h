@@ -24,5 +24,6 @@
 @property (nonatomic) IBOutlet CATAugmentedRealityView *arView;
 @property (weak, nonatomic) IBOutlet UILabel *messageLabel;
 @property (weak, nonatomic) IBOutlet UIView *uiContainer;
+@property (weak, nonatomic) IBOutlet UIProgressView *progressBar;
 
 @end

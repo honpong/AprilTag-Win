@@ -98,10 +98,18 @@
                                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <nil key="highlightedColor"/>
                                     </label>
+                                    <progressView hidden="YES" opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="j5I-Vx-yX3">
+                                        <rect key="frame" x="284" y="511" width="200" height="2"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="200" id="2sw-aS-3Kh"/>
+                                        </constraints>
+                                    </progressView>
                                 </subviews>
                                 <constraints>
+                                    <constraint firstAttribute="centerY" secondItem="j5I-Vx-yX3" secondAttribute="centerY" id="9PK-Fb-npZ"/>
                                     <constraint firstItem="dAb-FB-Coj" firstAttribute="leading" secondItem="tD6-xp-owG" secondAttribute="leading" constant="8" id="HSH-GE-Zwf"/>
                                     <constraint firstAttribute="centerY" secondItem="Ksd-C2-vsj" secondAttribute="centerY" id="dHu-rv-Vkh"/>
+                                    <constraint firstAttribute="centerX" secondItem="j5I-Vx-yX3" secondAttribute="centerX" id="fQH-iH-ByC"/>
                                     <constraint firstItem="dAb-FB-Coj" firstAttribute="top" secondItem="tD6-xp-owG" secondAttribute="top" constant="8" id="ijJ-xj-Gtv"/>
                                     <constraint firstAttribute="trailing" secondItem="Ksd-C2-vsj" secondAttribute="trailing" constant="8" id="pCx-RC-QYA"/>
                                     <constraint firstAttribute="trailing" secondItem="dAb-FB-Coj" secondAttribute="trailing" constant="8" id="uMg-Td-sQa"/>
@@ -125,6 +133,7 @@
                     <connections>
                         <outlet property="arView" destination="FQA-yL-8tr" id="YPQ-Vr-9b8"/>
                         <outlet property="messageLabel" destination="dAb-FB-Coj" id="r66-pG-ITZ"/>
+                        <outlet property="progressBar" destination="j5I-Vx-yX3" id="XDE-Me-Glq"/>
                         <outlet property="uiContainer" destination="tD6-xp-owG" id="0h2-Tn-ZKc"/>
                     </connections>
                 </viewController>

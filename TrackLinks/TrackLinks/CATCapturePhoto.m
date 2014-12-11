@@ -157,9 +157,9 @@ static transition transitions[] =
         [self hideMessage];
     }
     if(oldSetup.showInstructions && !newSetup.showInstructions)
-        [self.arView.AROverlay setHidden:true];
+        self.progressBar.hidden = YES;
     if(!oldSetup.showInstructions && newSetup.showInstructions)
-        [self.arView.AROverlay setHidden:false];
+        self.progressBar.hidden = NO;
 
     lastTransitionTime = CACurrentMediaTime();
     currentState = newState;
@@ -225,8 +225,6 @@ static transition transitions[] =
     progressView = [[MBProgressHUD alloc] initWithView:self.uiContainer];
     progressView.mode = MBProgressHUDModeAnnularDeterminate;
     [self.uiContainer addSubview:progressView];
-    
-    [self.arView.AROverlay setHidden:true];
 }
 
 - (void) viewDidAppear:(BOOL)animated
@@ -437,18 +435,16 @@ static transition transitions[] =
         if(moving_state == MOVING_HORIZONTAL)
         {
             progress = fabs(dx);
-            [arView.AROverlay setProgressHorizontal:dx withVertical:0.];
         }
         else
         {
             progress = fabs(dy);
-            [arView.AROverlay setProgressHorizontal:0. withVertical:dy];
         }
+        self.progressBar.progress = progress;
+        
         if(currentState == ST_MOVING && progress >= 1.) [self handleStateEvent:EV_MOVE_DONE];
         if(currentState == ST_CAPTURE && progress < 1.) [self handleStateEvent:EV_MOVE_UNDONE];
     }
-    
-    if(currentState == ST_INITIALIZING) [arView.AROverlay setInitialCamera:data.cameraTransformation];
     
     if(data.sampleBuffer)
     {

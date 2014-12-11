@@ -31,7 +31,7 @@
         return NO;
     }
     
-    NSData* jpgData = [UIImage jpegDataFromSampleBuffer:sampleBuffer withOrientation:UIInterfaceOrientationLandscapeRight];
+    NSData* jpgData = [UIImage jpegDataFromSampleBuffer:sampleBuffer withOrientation:UIImageOrientationUp];
     
     NSError* error;
     BOOL success = [jpgData writeToFile:[self imageFileName] options:NSDataWritingFileProtectionNone error:&error];

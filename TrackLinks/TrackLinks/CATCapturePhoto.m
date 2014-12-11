@@ -52,11 +52,6 @@ typedef enum
 
 #pragma mark - State Machine
 
-typedef enum
-{
-    BUTTON_SHUTTER, BUTTON_SHUTTER_DISABLED, BUTTON_DELETE, BUTTON_CANCEL, BUTTON_SHUTTER_ANIMATED
-} ButtonImage;
-
 typedef NS_ENUM(int, SpinnerType) {
     SpinnerTypeNone,
     SpinnerTypeDeterminate,
@@ -76,35 +71,28 @@ typedef struct { enum state state; enum event event; enum state newstate; } tran
 typedef struct
 {
     enum state state;
-    ButtonImage buttonImage;
     bool sensorCapture;
     bool sensorFusion;
-    bool showMeasurements;
-    bool showBadFeatures;
-    bool showSlideInstructions;
-    bool features;
+    bool showInstructions;
     SpinnerType progress;
     bool autohide; // auto hide message
-    bool showStillPhoto;
     bool stereo;
-    bool showGalleryButton;
-    const char *title;
     MessageColor messageColor;
     const char *message;
 } statesetup;
 
 static statesetup setups[] =
 {
-    //                  button image               sensors fusion   shw-msmnts  badfeat  instrct ftrs    prgrs                     autohide stillPhoto  stereo  showGalleryButton title           messageColor                                       message
-    { ST_STARTUP,       BUTTON_SHUTTER_DISABLED,   false,  false,   false,      false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  true,             "Startup",      ColorGray,    "Loading" },
-    { ST_READY,         BUTTON_SHUTTER,            true,   false,   false,      false,   false,  false,  SpinnerTypeNone,          true,    false,      false,  true,             "Ready",        ColorGray,    "Point the camera at the scene you want to capture, then press the button." },
-    { ST_INITIALIZING,  BUTTON_SHUTTER_DISABLED,   true,   true,    false,      true,    false,  true,   SpinnerTypeDeterminate,   true,    false,      false,  true,             "Initializing", ColorGray,    "Hold still" },
-    { ST_MOVING,        BUTTON_DELETE,             true,   true,    false,      true,    true,   true,   SpinnerTypeNone,          false,   false,      true,   false,            "Moving",       ColorGray,    "Move up, down, or sideways. Press the button to cancel." },
-    { ST_CAPTURE,       BUTTON_SHUTTER_ANIMATED,   true,   true,    false,      true,    true,   true,   SpinnerTypeNone,          false,   false,      true,   false,            "Capture",      ColorGray,    "Press the button to capture a photo." },
-    { ST_PROCESSING,    BUTTON_SHUTTER_DISABLED,   false,  false,   false,      false,   false,  false,  SpinnerTypeDeterminate,   true,    true,       false,  false,            "Processing",   ColorGray,    "Please wait" },
-    { ST_ERROR,         BUTTON_DELETE,             true,   false,   true,       false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  true,             "Error",        ColorRed,     "Whoops, something went wrong. Try again." },
-    { ST_DISK_SPACE,    BUTTON_SHUTTER_DISABLED,   true,   false,   true,       false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  true,             "Error",        ColorRed,     "Your device is low on storage space. Free up some space first." },
-    { ST_FINISHED,      BUTTON_DELETE,             false,  false,   true,       false,   false,  false,  SpinnerTypeNone,          true,    true,       false,  true,             "Finished",     ColorGray,    "Tap anywhere to start a measurement, then tap again to finish it" }
+    //                  sensors fusion   instrct prgrs                     autohide stereo  messageColor  message
+    { ST_STARTUP,       false,  false,   false,  SpinnerTypeNone,          false,   false,  ColorGray,    "Loading" },
+    { ST_READY,         true,   false,   false,  SpinnerTypeNone,          true,    false,  ColorGray,    "Point the camera at the track link, then press the button." },
+    { ST_INITIALIZING,  true,   true,    false,  SpinnerTypeDeterminate,   true,    false,  ColorGray,    "Hold still" },
+    { ST_MOVING,        true,   true,    true,   SpinnerTypeNone,          false,   true,   ColorGray,    "Move sideways left or right." },
+    { ST_CAPTURE,       true,   true,    true,   SpinnerTypeNone,          false,   true,   ColorGray,    "Press the button to finish." },
+    { ST_PROCESSING,    false,  false,   false,  SpinnerTypeDeterminate,   true,    false,  ColorGray,    "Please wait" },
+    { ST_ERROR,         true,   false,   false,  SpinnerTypeNone,          false,   false,  ColorRed,     "Whoops, something went wrong. Try again." },
+    { ST_DISK_SPACE,    true,   false,   false,  SpinnerTypeNone,          false,   false,  ColorRed,     "Your device is low on storage space. Free up some space first." },
+    { ST_FINISHED,      false,  false,   false,  SpinnerTypeNone,          true,    false,  ColorGray,    "" }
 };
 
 static transition transitions[] =
@@ -144,7 +132,6 @@ static transition transitions[] =
     statesetup oldSetup = setups[currentState];
     statesetup newSetup = setups[newState];
 
-    DLog(@"Transitioning from %s to %s", oldSetup.title, newSetup.title);
     if (![self handleStateTransition:newState]) return;
 
     if(!oldSetup.sensorCapture && newSetup.sensorCapture)
@@ -175,9 +162,9 @@ static transition transitions[] =
     {
         [self hideMessage];
     }
-    if(oldSetup.showSlideInstructions && !newSetup.showSlideInstructions)
+    if(oldSetup.showInstructions && !newSetup.showInstructions)
         [self.arView.AROverlay setHidden:true];
-    if(!oldSetup.showSlideInstructions && newSetup.showSlideInstructions)
+    if(!oldSetup.showInstructions && newSetup.showInstructions)
         [self.arView.AROverlay setHidden:false];
 
     lastTransitionTime = CACurrentMediaTime();
@@ -292,8 +279,6 @@ static transition transitions[] =
 {
     [super viewDidDisappear:animated];
 }
-
-#pragma mark - Orientation
 
 - (NSUInteger)supportedInterfaceOrientations
 {

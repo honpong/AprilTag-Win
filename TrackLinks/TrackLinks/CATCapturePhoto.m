@@ -18,8 +18,6 @@
 #import <CoreLocation/CoreLocation.h>
 #import <RC3DKPlus/RC3DKPlus.h>
 #import "RCLocationManager.h"
-#import "UIView+RCOrientationRotation.h"
-#import "UIView+RCViewFade.h"
 #import "CATARDelegate.h"
 
 static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
@@ -54,8 +52,7 @@ typedef enum
 
 typedef NS_ENUM(int, SpinnerType) {
     SpinnerTypeNone,
-    SpinnerTypeDeterminate,
-    SpinnerTypeIndeterminate
+    SpinnerTypeDeterminate
 };
 
 typedef NS_ENUM(int, MessageColor) {
@@ -75,7 +72,6 @@ typedef struct
     bool sensorFusion;
     bool showInstructions;
     SpinnerType progress;
-    bool autohide; // auto hide message
     bool stereo;
     MessageColor messageColor;
     const char *message;
@@ -83,16 +79,16 @@ typedef struct
 
 static statesetup setups[] =
 {
-    //                  sensors fusion   instrct prgrs                     autohide stereo  messageColor  message
-    { ST_STARTUP,       false,  false,   false,  SpinnerTypeNone,          false,   false,  ColorGray,    "Loading" },
-    { ST_READY,         true,   false,   false,  SpinnerTypeNone,          true,    false,  ColorGray,    "Point the camera at the track link, then press the button." },
-    { ST_INITIALIZING,  true,   true,    false,  SpinnerTypeDeterminate,   true,    false,  ColorGray,    "Hold still" },
-    { ST_MOVING,        true,   true,    true,   SpinnerTypeNone,          false,   true,   ColorGray,    "Move sideways left or right." },
-    { ST_CAPTURE,       true,   true,    true,   SpinnerTypeNone,          false,   true,   ColorGray,    "Press the button to finish." },
-    { ST_PROCESSING,    false,  false,   false,  SpinnerTypeDeterminate,   true,    false,  ColorGray,    "Please wait" },
-    { ST_ERROR,         true,   false,   false,  SpinnerTypeNone,          false,   false,  ColorRed,     "Whoops, something went wrong. Try again." },
-    { ST_DISK_SPACE,    true,   false,   false,  SpinnerTypeNone,          false,   false,  ColorRed,     "Your device is low on storage space. Free up some space first." },
-    { ST_FINISHED,      false,  false,   false,  SpinnerTypeNone,          true,    false,  ColorGray,    "" }
+    //                  sensors fusion   instrct prgrs                     stereo  messageColor  message
+    { ST_STARTUP,       false,  false,   false,  SpinnerTypeNone,          false,  ColorGray,    "Loading" },
+    { ST_READY,         true,   false,   false,  SpinnerTypeNone,          false,  ColorGray,    "Point the camera at the track link, then press the button." },
+    { ST_INITIALIZING,  true,   true,    false,  SpinnerTypeDeterminate,   false,  ColorGray,    "Hold still" },
+    { ST_MOVING,        true,   true,    true,   SpinnerTypeNone,          true,   ColorGray,    "Move sideways left or right." },
+    { ST_CAPTURE,       true,   true,    true,   SpinnerTypeNone,          true,   ColorGray,    "Press the button to finish." },
+    { ST_PROCESSING,    false,  false,   false,  SpinnerTypeDeterminate,   false,  ColorGray,    "Please wait" },
+    { ST_ERROR,         true,   false,   false,  SpinnerTypeNone,          false,  ColorRed,     "Whoops, something went wrong. Try again." },
+    { ST_DISK_SPACE,    true,   false,   false,  SpinnerTypeNone,          false,  ColorRed,     "Your device is low on storage space. Free up some space first." },
+    { ST_FINISHED,      false,  false,   false,  SpinnerTypeNone,          false,  ColorGray,    "" }
 };
 
 static transition transitions[] =
@@ -146,8 +142,6 @@ static transition transitions[] =
     {
         if (newSetup.progress == SpinnerTypeDeterminate)
             [self showProgressWithTitle:@(newSetup.message)];
-        else if (newSetup.progress == SpinnerTypeIndeterminate)
-            [self showIndeterminateProgress:@(newSetup.message)];
         else
             [self hideProgress];
     }
@@ -156,7 +150,7 @@ static transition transitions[] =
     if (newSetup.progress == SpinnerTypeNone)
     {
         NSString* message = @(newSetup.message);
-        [self showMessage:message withTitle:@"" withColor:newSetup.messageColor autoHide:newSetup.autohide];
+        [self showMessage:message withColor:newSetup.messageColor];
     }
     else
     {
@@ -181,8 +175,6 @@ static transition transitions[] =
         lastErrorCode = RCSensorFusionErrorCodeNone;
         didGetVisionError = NO;
     }
-    else if(newState == ST_CAPTURE)
-        [self handleMoveFinished];
     else if(newState == ST_PROCESSING)
     {
         if (IS_DISK_SPACE_LOW)
@@ -237,18 +229,6 @@ static transition transitions[] =
     [self.arView.AROverlay setHidden:true];
 }
 
-- (void)viewDidUnload
-{
-	LOGME
-	[super viewDidUnload];
-}
-
-- (void)viewWillAppear:(BOOL)animated
-{
-    [self.navigationController setToolbarHidden:YES animated:animated];
-    [super viewWillAppear:animated];
-}
-
 - (void) viewDidAppear:(BOOL)animated
 {
     LOGME
@@ -273,11 +253,6 @@ static transition transitions[] =
     [super viewWillDisappear:animated];
     [self handleStateEvent:EV_CANCEL];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
-
-- (void) viewDidDisappear:(BOOL)animated
-{
-    [super viewDidDisappear:animated];
 }
 
 - (NSUInteger)supportedInterfaceOrientations
@@ -318,19 +293,11 @@ static transition transitions[] =
 
 - (void) handleMoveStart
 {
-    LOGME
     moving_state = MOVING_START;
-}
-
-- (void) handleMoveFinished
-{
-    LOGME
 }
 
 - (void) handleCaptureFinished
 {
-    LOGME
-    
     measuredPhoto = [self saveMeasuredPhoto];
 
     RCStereo * stereo = [RCStereo sharedInstance];
@@ -352,21 +319,15 @@ static transition transitions[] =
     [self presentViewController:editPhotoController animated:YES completion:nil];
 }
 
-- (void) handlePhotoDeleted
-{
-    [self hideMessage];
-}
-
 - (CATMeasuredPhoto*) saveMeasuredPhoto
 {
-    return [CATMeasuredPhoto new];;
+    return [CATMeasuredPhoto new];
 }
 
 #pragma mark - RCStereoDelegate
 
 - (void) stereoDidUpdateProgress:(float)progress
 {
-    // Update modal view
     [progressView setProgress:progress];
 }
 
@@ -392,7 +353,6 @@ static transition transitions[] =
 
 - (void)startSensorFusion
 {
-    LOGME
     [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
     SENSOR_FUSION.delegate = self;
     [[sensorDelegate getVideoProvider] setDelegate:nil];
@@ -402,7 +362,6 @@ static transition transitions[] =
 
 - (void)stopSensorFusion
 {
-    LOGME
     [SENSOR_FUSION stopSensorFusion];
     [[sensorDelegate getVideoProvider] setDelegate:self.arView.videoView];
     [[UIApplication sharedApplication] setIdleTimerDisabled:NO];
@@ -426,8 +385,11 @@ static transition transitions[] =
             [self handleStateEvent:EV_VISIONFAIL];
         }
     }
+    
     [self updateProgress:status.progress];
-    if(currentState == ST_INITIALIZING && status.runState == RCSensorFusionRunStateRunning) {
+    
+    if(currentState == ST_INITIALIZING && status.runState == RCSensorFusionRunStateRunning)
+    {
         [self handleStateEvent:EV_INITIALIZED];
     }
 }
@@ -515,13 +477,6 @@ static transition transitions[] =
     [progressView show:YES];
 }
 
-- (void)showIndeterminateProgress:(NSString*)title
-{
-    progressView.labelText = title;
-    progressView.mode = MBProgressHUDModeIndeterminate;
-    [progressView show:YES];
-}
-
 - (void)hideProgress
 {
     [progressView hide:YES];
@@ -532,7 +487,7 @@ static transition transitions[] =
     [progressView setProgress:progress];
 }
 
-- (void)showMessage:(NSString*)message withTitle:(NSString*)title withColor:(MessageColor)color autoHide:(BOOL)hide
+- (void)showMessage:(NSString*)message withColor:(MessageColor)color
 {
     if (message && message.length > 0)
     {
@@ -544,8 +499,6 @@ static transition transitions[] =
             self.messageLabel.backgroundColor = [UIColor colorWithRed:1 green:0 blue:0 alpha:.8];
         else
             self.messageLabel.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:.3];
-        
-        if (hide) [self.messageLabel fadeOutWithDuration:2 andWait:5];
     }
     else
     {
@@ -555,7 +508,7 @@ static transition transitions[] =
 
 - (void)hideMessage
 {
-    [self.messageLabel fadeOutWithDuration:0.5 andWait:0];
+    self.messageLabel.hidden = YES;
 }
 
 @end

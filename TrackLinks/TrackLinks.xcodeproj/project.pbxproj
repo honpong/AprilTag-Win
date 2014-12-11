@@ -90,7 +90,6 @@
 		32C951EE1A36699B005E1BFB /* iphone.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C951ED1A36699B005E1BFB /* iphone.png */; };
 		32EC392B1A3613D7004C31C0 /* CATMeasuredPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EC392A1A3613D7004C31C0 /* CATMeasuredPhoto.m */; };
 		32EC39301A361792004C31C0 /* NSString+RCString.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EC392F1A361792004C31C0 /* NSString+RCString.m */; };
-		32EC39331A361BC9004C31C0 /* UIView+RCViewFade.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EC39321A361BC9004C31C0 /* UIView+RCViewFade.m */; };
 		32EC39351A361F39004C31C0 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EC39341A361F39004C31C0 /* SystemConfiguration.framework */; };
 		32EC39371A361F45004C31C0 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EC39361A361F45004C31C0 /* Security.framework */; };
 		32EC39391A361F51004C31C0 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EC39381A361F51004C31C0 /* QuartzCore.framework */; };
@@ -290,8 +289,6 @@
 		32EC392A1A3613D7004C31C0 /* CATMeasuredPhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATMeasuredPhoto.m; sourceTree = "<group>"; };
 		32EC392E1A361792004C31C0 /* NSString+RCString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+RCString.h"; sourceTree = "<group>"; };
 		32EC392F1A361792004C31C0 /* NSString+RCString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+RCString.m"; sourceTree = "<group>"; };
-		32EC39311A361BC9004C31C0 /* UIView+RCViewFade.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+RCViewFade.h"; sourceTree = "<group>"; };
-		32EC39321A361BC9004C31C0 /* UIView+RCViewFade.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+RCViewFade.m"; sourceTree = "<group>"; };
 		32EC39341A361F39004C31C0 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		32EC39361A361F45004C31C0 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		32EC39381A361F51004C31C0 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
@@ -613,8 +610,6 @@
 				327524811A3276E600459B79 /* UIView+RCConstraints.m */,
 				32BFDE131A2E51D000D03F44 /* UIView+RCOrientationRotation.h */,
 				32BFDE141A2E51D000D03F44 /* UIView+RCOrientationRotation.m */,
-				32EC39311A361BC9004C31C0 /* UIView+RCViewFade.h */,
-				32EC39321A361BC9004C31C0 /* UIView+RCViewFade.m */,
 			);
 			name = Views;
 			sourceTree = "<group>";
@@ -822,7 +817,6 @@
 				32BFDDB21A2E433D00D03F44 /* RCCalibration3.m in Sources */,
 				32BFDDE31A2E451E00D03F44 /* NSObject+SBJson.m in Sources */,
 				32BFDDC01A2E43A700D03F44 /* RCAVSessionManager.m in Sources */,
-				32EC39331A361BC9004C31C0 /* UIView+RCViewFade.m in Sources */,
 				32BFDDEE1A2E451E00D03F44 /* SBJsonWriter.m in Sources */,
 				323BD08C1A25324800313573 /* main.m in Sources */,
 				32BFDDC31A2E43A700D03F44 /* RCSensorDelegate.m in Sources */,

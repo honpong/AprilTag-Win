@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="6254" systemVersion="14B25" targetRuntime="iOS.CocoaTouch.iPad" propertyAccessControl="none" useAutolayout="YES" initialViewController="2">
     <dependencies>
+        <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="6247"/>
     </dependencies>
     <scenes>
@@ -83,110 +84,61 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FQA-yL-8tr" userLabel="AugmentedReality" customClass="CATAugmentedRealityView">
                                 <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                             </view>
-                            <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fmz-nL-eyO" userLabel="UI Container" customClass="CATContainerView">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tD6-xp-owG" userLabel="UIContainer">
                                 <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                                 <subviews>
-                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" text="Slowly move left and right a bit" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumFontSize="14" adjustsLetterSpacingToFitWidth="YES" translatesAutoresizingMaskIntoConstraints="NO" id="b7l-6F-Kqv" userLabel="Message Box" customClass="CATMessageBox">
-                                        <rect key="frame" x="117" y="964" width="534" height="40"/>
-                                        <color key="backgroundColor" white="0.0" alpha="0.29999999999999999" colorSpace="calibratedWhite"/>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Ksd-C2-vsj">
+                                        <rect key="frame" x="695" y="480" width="65" height="65"/>
+                                        <color key="backgroundColor" white="0.0" alpha="0.40000000000000002" colorSpace="calibratedWhite"/>
                                         <constraints>
-                                            <constraint firstAttribute="width" constant="534" id="5fc-SW-dBz"/>
-                                            <constraint firstAttribute="height" constant="40" id="8Ou-bv-bHs"/>
+                                            <constraint firstAttribute="height" constant="65" id="C7Z-Kp-x8g"/>
+                                            <constraint firstAttribute="width" constant="65" id="Ehh-sp-h9E"/>
                                         </constraints>
-                                        <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                        <state key="normal" title="Shutter">
+                                            <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                            <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                        </state>
+                                        <connections>
+                                            <action selector="handleShutterButton:" destination="2" eventType="touchUpInside" id="zbh-97-4HI"/>
+                                        </connections>
+                                    </button>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dAb-FB-Coj">
+                                        <rect key="frame" x="8" y="8" width="752" height="40"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="40" id="Lc4-PD-5Kj"/>
+                                        </constraints>
+                                        <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="9pE-pm-oS2" userLabel="Toolbar" customClass="CATToolbarView">
-                                        <rect key="frame" x="668" y="0.0" width="100" height="1024"/>
-                                        <subviews>
-                                            <view opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="vOS-7U-qcR" customClass="CATExpandingCircleAnimationView">
-                                                <rect key="frame" x="13" y="475" width="75" height="75"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="height" constant="75" id="fJf-TN-jTn"/>
-                                                    <constraint firstAttribute="width" constant="75" id="w8t-9M-vCt"/>
-                                                </constraints>
-                                            </view>
-                                            <button opaque="NO" alpha="0.30000000000000004" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aqd-DL-0IF" userLabel="ShutterButton" customClass="CATShutterButton">
-                                                <rect key="frame" x="13" y="475" width="75" height="75"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="height" constant="75" id="O8N-XS-Evj"/>
-                                                    <constraint firstAttribute="width" constant="75" id="Qw9-2V-ovd"/>
-                                                </constraints>
-                                                <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
-                                                <state key="normal" image="PLCameraFloatingShutterButton">
-                                                    <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="calibratedRGB"/>
-                                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                                </state>
-                                                <state key="highlighted">
-                                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                </state>
-                                                <connections>
-                                                    <action selector="handleShutterButton:" destination="2" eventType="touchUpInside" id="pEe-78-VNZ"/>
-                                                </connections>
-                                            </button>
-                                            <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZQs-EY-vVt" userLabel="GalleryButton" customClass="CATGalleryButton">
-                                                <rect key="frame" x="25" y="954" width="50" height="50"/>
-                                                <constraints>
-                                                    <constraint firstAttribute="height" constant="50" id="QZj-dN-Pim"/>
-                                                    <constraint firstAttribute="width" constant="50" id="Vyb-oU-OWK"/>
-                                                </constraints>
-                                                <fontDescription key="fontDescription" type="boldSystem" pointSize="15"/>
-                                                <state key="normal" image="photos-icon-toolbar">
-                                                    <color key="titleColor" red="0.19607843459999999" green="0.30980393290000002" blue="0.52156865600000002" alpha="1" colorSpace="calibratedRGB"/>
-                                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                                </state>
-                                                <state key="highlighted">
-                                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
-                                                </state>
-                                                <connections>
-                                                    <action selector="handleGalleryButton:" destination="2" eventType="touchUpInside" id="XbA-Z4-uuC"/>
-                                                </connections>
-                                            </button>
-                                        </subviews>
-                                        <color key="backgroundColor" white="0.0" alpha="0.29999999999999999" colorSpace="calibratedWhite"/>
-                                        <constraints>
-                                            <constraint firstAttribute="centerY" secondItem="aqd-DL-0IF" secondAttribute="centerY" id="9xD-HY-wnw"/>
-                                            <constraint firstItem="aqd-DL-0IF" firstAttribute="centerX" secondItem="9pE-pm-oS2" secondAttribute="centerX" id="PhW-Kf-ZQb"/>
-                                            <constraint firstAttribute="bottom" secondItem="ZQs-EY-vVt" secondAttribute="bottom" constant="20" symbolic="YES" id="Ren-dz-O0w"/>
-                                            <constraint firstAttribute="centerX" secondItem="ZQs-EY-vVt" secondAttribute="centerX" id="ViD-te-IZn"/>
-                                            <constraint firstAttribute="centerX" secondItem="vOS-7U-qcR" secondAttribute="centerX" id="fjC-fH-s1g"/>
-                                            <constraint firstAttribute="width" constant="100" id="ggR-EL-ufA"/>
-                                            <constraint firstAttribute="centerY" secondItem="vOS-7U-qcR" secondAttribute="centerY" id="oYF-JB-8io"/>
-                                        </constraints>
-                                    </view>
                                 </subviews>
                                 <constraints>
-                                    <constraint firstAttribute="width" constant="768" id="4Gf-U2-9e3"/>
-                                    <constraint firstAttribute="bottom" secondItem="9pE-pm-oS2" secondAttribute="bottom" id="7aI-1s-Lbp"/>
-                                    <constraint firstItem="9pE-pm-oS2" firstAttribute="top" secondItem="fmz-nL-eyO" secondAttribute="top" id="GpJ-Hc-qFl"/>
-                                    <constraint firstAttribute="bottom" secondItem="b7l-6F-Kqv" secondAttribute="bottom" constant="20" id="J5T-oP-hsJ"/>
-                                    <constraint firstAttribute="height" constant="1024" id="ZJv-HV-wcp"/>
-                                    <constraint firstAttribute="centerX" secondItem="b7l-6F-Kqv" secondAttribute="centerX" id="jhI-jz-17B"/>
-                                    <constraint firstAttribute="trailing" secondItem="9pE-pm-oS2" secondAttribute="trailing" id="nJk-aK-CkY"/>
+                                    <constraint firstItem="dAb-FB-Coj" firstAttribute="leading" secondItem="tD6-xp-owG" secondAttribute="leading" constant="8" id="HSH-GE-Zwf"/>
+                                    <constraint firstAttribute="centerY" secondItem="Ksd-C2-vsj" secondAttribute="centerY" id="dHu-rv-Vkh"/>
+                                    <constraint firstItem="dAb-FB-Coj" firstAttribute="top" secondItem="tD6-xp-owG" secondAttribute="top" constant="8" id="ijJ-xj-Gtv"/>
+                                    <constraint firstAttribute="trailing" secondItem="Ksd-C2-vsj" secondAttribute="trailing" constant="8" id="pCx-RC-QYA"/>
+                                    <constraint firstAttribute="trailing" secondItem="dAb-FB-Coj" secondAttribute="trailing" constant="8" id="uMg-Td-sQa"/>
                                 </constraints>
                             </view>
                         </subviews>
                         <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
+                            <constraint firstItem="B5Z-WL-pm5" firstAttribute="top" secondItem="tD6-xp-owG" secondAttribute="bottom" id="GWV-GZ-clE"/>
                             <constraint firstItem="B5Z-WL-pm5" firstAttribute="top" secondItem="FQA-yL-8tr" secondAttribute="bottom" id="Hw9-4b-kge"/>
                             <constraint firstItem="FQA-yL-8tr" firstAttribute="top" secondItem="lII-c5-BYz" secondAttribute="bottom" id="ZAc-6E-UOi"/>
+                            <constraint firstAttribute="trailing" secondItem="tD6-xp-owG" secondAttribute="trailing" id="ZX6-va-mYR"/>
                             <constraint firstAttribute="trailing" secondItem="FQA-yL-8tr" secondAttribute="trailing" id="b3v-tA-Ayy"/>
                             <constraint firstItem="FQA-yL-8tr" firstAttribute="leading" secondItem="5" secondAttribute="leading" id="i6P-fz-8U0"/>
-                            <constraint firstAttribute="centerY" secondItem="fmz-nL-eyO" secondAttribute="centerY" id="s6B-m8-yOy"/>
-                            <constraint firstAttribute="centerX" secondItem="fmz-nL-eyO" secondAttribute="centerX" id="swP-Sb-poA"/>
+                            <constraint firstItem="tD6-xp-owG" firstAttribute="leading" secondItem="5" secondAttribute="leading" id="krn-52-x77"/>
+                            <constraint firstItem="tD6-xp-owG" firstAttribute="top" secondItem="lII-c5-BYz" secondAttribute="bottom" id="tJd-SS-06J"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="VaH-JM-IAo"/>
                     <nil key="simulatedStatusBarMetrics"/>
                     <connections>
                         <outlet property="arView" destination="FQA-yL-8tr" id="YPQ-Vr-9b8"/>
-                        <outlet property="containerView" destination="fmz-nL-eyO" id="hat-gE-qXG"/>
-                        <outlet property="expandingCircleView" destination="vOS-7U-qcR" id="WwS-lj-Gmr"/>
-                        <outlet property="galleryButton" destination="ZQs-EY-vVt" id="5Gs-29-j32"/>
-                        <outlet property="messageLabel" destination="b7l-6F-Kqv" id="N6a-4R-ABB"/>
-                        <outlet property="shutterButton" destination="aqd-DL-0IF" id="OPg-RG-80p"/>
-                        <outlet property="toolbar" destination="9pE-pm-oS2" id="huq-SI-a7P"/>
+                        <outlet property="messageLabel" destination="dAb-FB-Coj" id="r66-pG-ITZ"/>
+                        <outlet property="uiContainer" destination="tD6-xp-owG" id="0h2-Tn-ZKc"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="3" sceneMemberID="firstResponder"/>
@@ -195,9 +147,7 @@
         </scene>
     </scenes>
     <resources>
-        <image name="PLCameraFloatingShutterButton" width="73" height="73"/>
         <image name="ios7-camera-outline" width="32" height="32"/>
-        <image name="photos-icon-toolbar" width="50" height="50"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>

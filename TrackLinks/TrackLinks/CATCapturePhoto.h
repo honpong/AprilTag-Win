@@ -34,11 +34,7 @@
 - (void) setOrientation:(UIDeviceOrientation)orientation animated:(BOOL)animated;
 
 @property (nonatomic) IBOutlet CATAugmentedRealityView *arView;
-@property (weak, nonatomic) IBOutlet CATShutterButton *shutterButton;
-@property (weak, nonatomic) IBOutlet CATGalleryButton *galleryButton;
 @property (weak, nonatomic) IBOutlet UILabel *messageLabel;
-@property (weak, nonatomic) IBOutlet CATToolbarView *toolbar;
-@property (weak, nonatomic) IBOutlet CATContainerView *containerView;
-@property (weak, nonatomic) IBOutlet CATExpandingCircleAnimationView *expandingCircleView;
+@property (weak, nonatomic) IBOutlet UIView *uiContainer;
 
 @end

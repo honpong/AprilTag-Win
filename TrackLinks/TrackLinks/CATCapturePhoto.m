@@ -52,7 +52,7 @@ typedef enum
     
     movement_status moving_state;
 }
-@synthesize toolbar, galleryButton, shutterButton, messageLabel, arView, containerView;
+@synthesize arView;
 
 typedef NS_ENUM(int, AlertTag) {
     AlertTagTutorial = 0,
@@ -182,10 +182,6 @@ static transition transitions[] =
         self.arView.initializingFeaturesLayer.hidden = YES;
     if(!oldSetup.showBadFeatures && newSetup.showBadFeatures)
         self.arView.initializingFeaturesLayer.hidden = NO;
-//    if(!oldSetup.showSlideInstructions && newSetup.showSlideInstructions)
-//        instructionsView.hidden = NO;
-//    if(oldSetup.showSlideInstructions && !newSetup.showSlideInstructions)
-//        instructionsView.hidden = YES;
     if(!oldSetup.stereo && newSetup.stereo)
         [[RCStereo sharedInstance] reset];
     if (newSetup.progress == SpinnerTypeNone)
@@ -201,14 +197,7 @@ static transition transitions[] =
         [self.arView.AROverlay setHidden:true];
     if(!oldSetup.showSlideInstructions && newSetup.showSlideInstructions)
         [self.arView.AROverlay setHidden:false];
-    
-    [self switchButtonImage:newSetup.buttonImage];
-    
-    if (!oldSetup.showGalleryButton && newSetup.showGalleryButton)
-        self.galleryButton.enabled = YES;
-    if (oldSetup.showGalleryButton && !newSetup.showGalleryButton)
-        self.galleryButton.enabled = NO;
-    
+
     lastTransitionTime = CACurrentMediaTime();
     currentState = newState;
 }
@@ -268,8 +257,6 @@ static transition transitions[] =
     LOGME
 	[super viewDidLoad];
     
-    containerView.delegate = arView;
-    
     sensorDelegate = [SensorDelegate sharedInstance];
     
     [self validateStateMachine];
@@ -278,9 +265,9 @@ static transition transitions[] =
     
     [[sensorDelegate getVideoProvider] setDelegate:self.arView.videoView];
     
-    progressView = [[MBProgressHUD alloc] initWithView:self.containerView];
+    progressView = [[MBProgressHUD alloc] initWithView:self.uiContainer];
     progressView.mode = MBProgressHUDModeAnnularDeterminate;
-    [self.containerView addSubview:progressView];
+    [self.uiContainer addSubview:progressView];
     
     [self.arView.AROverlay setHidden:true];
 }
@@ -311,10 +298,6 @@ static transition transitions[] =
                                              selector:@selector(handleResume)
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(handleOrientationChange)
-                                                 name:UIDeviceOrientationDidChangeNotification
-                                               object:nil];
     
     [self handleResume];
 }
@@ -339,31 +322,9 @@ static transition transitions[] =
     return NO;
 }
 
-+ (UIDeviceOrientation) getCurrentUIOrientation
-{
-    return currentUIOrientation;
-}
-
 - (NSUInteger)supportedInterfaceOrientations
 {
     return UIInterfaceOrientationMaskPortrait;
-}
-
-- (void) handleOrientationChange
-{
-    UIDeviceOrientation newOrientation = [[UIDevice currentDevice] orientation];
-    if (currentUIOrientation != newOrientation && (newOrientation == UIDeviceOrientationPortrait || newOrientation == UIDeviceOrientationPortraitUpsideDown || newOrientation == UIDeviceOrientationLandscapeLeft || newOrientation == UIDeviceOrientationLandscapeRight))
-    {
-        currentUIOrientation = newOrientation;
-        [self setOrientation:currentUIOrientation animated:YES];
-    }
-}
-
-- (void) setOrientation:(UIDeviceOrientation)orientation animated:(BOOL)animated
-{
-    [self.view rotateChildViews:orientation animated:animated];
-    CATOrientationChangeData* data = [CATOrientationChangeData dataWithOrientation:orientation animated:animated];
-    [[NSNotificationCenter defaultCenter] postNotificationName:CATUIOrientationDidChangeNotification object:data];
 }
 
 #pragma mark -
@@ -388,8 +349,6 @@ static transition transitions[] =
     	else
         	[self handleStateEvent:EV_RESUME];
     }
-    
-    [self handleOrientationChange]; // ensures that UI is in correct orientation
 }
 
 - (IBAction)handleShutterButton:(id)sender
@@ -671,50 +630,50 @@ static transition transitions[] =
     [self.messageLabel fadeOutWithDuration:0.5 andWait:0];
 }
 
-- (void) switchButtonImage:(ButtonImage)imageType
-{
-    NSString* imageName;
-    
-    [self.expandingCircleView stopHighlightAnimation];
-    
-    switch (imageType) {
-        case BUTTON_DELETE:
-            imageName = @"MobileMailSettings_trashmbox";
-            shutterButton.alpha = 1.;
-            shutterButton.enabled = YES;
-            break;
-            
-        case BUTTON_SHUTTER_DISABLED:
-            imageName = @"PLCameraFloatingShutterButton";
-            shutterButton.alpha = .3;
-            shutterButton.enabled = NO;
-            break;
-            
-        case BUTTON_CANCEL:
-            imageName = @"BackButton";
-            shutterButton.alpha = 1.;
-            shutterButton.enabled = YES;
-            break;
-            
-        case BUTTON_SHUTTER_ANIMATED:
-            imageName = @"PLCameraFloatingShutterButton";
-            shutterButton.alpha = 1.;
-            shutterButton.enabled = YES;
-            [self.expandingCircleView startHighlightAnimation];
-            break;
-            
-        default:
-            imageName = @"PLCameraFloatingShutterButton";
-            shutterButton.alpha = 1.;
-            shutterButton.enabled = YES;
-            break;
-    }
-    
-    UIImage* image = [UIImage imageNamed:imageName];
-    CGRect buttonFrame = shutterButton.bounds;
-    buttonFrame.size = image.size;
-    shutterButton.frame = buttonFrame;
-    [shutterButton setImage:[UIImage imageNamed:imageName] forState:UIControlStateNormal];
-}
+//- (void) switchButtonImage:(ButtonImage)imageType
+//{
+//    NSString* imageName;
+//    
+//    [self.expandingCircleView stopHighlightAnimation];
+//    
+//    switch (imageType) {
+//        case BUTTON_DELETE:
+//            imageName = @"MobileMailSettings_trashmbox";
+//            shutterButton.alpha = 1.;
+//            shutterButton.enabled = YES;
+//            break;
+//            
+//        case BUTTON_SHUTTER_DISABLED:
+//            imageName = @"PLCameraFloatingShutterButton";
+//            shutterButton.alpha = .3;
+//            shutterButton.enabled = NO;
+//            break;
+//            
+//        case BUTTON_CANCEL:
+//            imageName = @"BackButton";
+//            shutterButton.alpha = 1.;
+//            shutterButton.enabled = YES;
+//            break;
+//            
+//        case BUTTON_SHUTTER_ANIMATED:
+//            imageName = @"PLCameraFloatingShutterButton";
+//            shutterButton.alpha = 1.;
+//            shutterButton.enabled = YES;
+//            [self.expandingCircleView startHighlightAnimation];
+//            break;
+//            
+//        default:
+//            imageName = @"PLCameraFloatingShutterButton";
+//            shutterButton.alpha = 1.;
+//            shutterButton.enabled = YES;
+//            break;
+//    }
+//    
+//    UIImage* image = [UIImage imageNamed:imageName];
+//    CGRect buttonFrame = shutterButton.bounds;
+//    buttonFrame.size = image.size;
+//    shutterButton.frame = buttonFrame;
+//    [shutterButton setImage:[UIImage imageNamed:imageName] forState:UIControlStateNormal];
+//}
 
 @end

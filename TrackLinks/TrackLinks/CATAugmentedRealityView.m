@@ -80,19 +80,6 @@
     [featuresView.layer addSublayer:initializingFeaturesLayer];
 }
 
-- (void) animateOpen
-{
-    [UIView animateWithDuration: .3
-                          delay: 0
-                        options: UIViewAnimationOptionCurveEaseIn
-                     animations:^{
-                         videoView.frame = self.frame;
-                     }
-                     completion:^(BOOL finished){
-                         
-                     }];
-}
-
 - (void) showFeatures
 {
     featuresLayer.hidden = NO;
@@ -104,7 +91,5 @@
     featuresLayer.hidden = YES;
     initializingFeaturesLayer.hidden = YES;
 }
-
-#define MESH
 
 @end

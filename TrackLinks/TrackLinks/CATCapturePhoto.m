@@ -35,7 +35,7 @@ static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationLandscapeRi
     BOOL didGetVisionError;
     RCSensorFusionErrorCode lastErrorCode;
 }
-@synthesize arView;
+@synthesize videoView;
 
 #pragma mark - State Machine
 
@@ -209,11 +209,13 @@ static transition transitions[] =
     
     useLocation = [LOCATION_MANAGER isLocationExplicitlyAllowed] && [NSUserDefaults.standardUserDefaults boolForKey:PREF_USE_LOCATION];
     
-    [[sensorDelegate getVideoProvider] setDelegate:self.arView.videoView];
+    [[sensorDelegate getVideoProvider] setDelegate:self.videoView];
     
     progressView = [[MBProgressHUD alloc] initWithView:self.uiContainer];
     progressView.mode = MBProgressHUDModeAnnularDeterminate;
     [self.uiContainer addSubview:progressView];
+    
+    self.videoView.orientation = UIInterfaceOrientationLandscapeRight;
 }
 
 - (void) viewDidAppear:(BOOL)animated
@@ -348,7 +350,7 @@ static transition transitions[] =
 - (void)stopSensorFusion
 {
     [SENSOR_FUSION stopSensorFusion];
-    [[sensorDelegate getVideoProvider] setDelegate:self.arView.videoView];
+    [[sensorDelegate getVideoProvider] setDelegate:self.videoView];
     [[UIApplication sharedApplication] setIdleTimerDisabled:NO];
 }
 
@@ -415,7 +417,7 @@ static transition transitions[] =
     {
         lastSensorFusionDataWithImage = data;
         
-        [self.arView.videoView displaySensorFusionData:data];
+        [self.videoView displaySensorFusionData:data];
         
         if(setups[currentState].stereo) [STEREO processFrame:data withFinal:false];
     }

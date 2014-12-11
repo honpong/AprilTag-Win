@@ -69,7 +69,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FQA-yL-8tr" userLabel="AugmentedReality" customClass="CATAugmentedRealityView">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FQA-yL-8tr" userLabel="VideoView" customClass="RCVideoPreview">
                                 <rect key="frame" x="0.0" y="0.0" width="768" height="1024"/>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tD6-xp-owG" userLabel="UIContainer">
@@ -132,10 +132,10 @@
                     <navigationItem key="navigationItem" id="VaH-JM-IAo"/>
                     <nil key="simulatedStatusBarMetrics"/>
                     <connections>
-                        <outlet property="arView" destination="FQA-yL-8tr" id="YPQ-Vr-9b8"/>
                         <outlet property="messageLabel" destination="dAb-FB-Coj" id="r66-pG-ITZ"/>
                         <outlet property="progressBar" destination="j5I-Vx-yX3" id="XDE-Me-Glq"/>
                         <outlet property="uiContainer" destination="tD6-xp-owG" id="0h2-Tn-ZKc"/>
+                        <outlet property="videoView" destination="FQA-yL-8tr" id="ekS-GT-RVp"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="3" sceneMemberID="firstResponder"/>

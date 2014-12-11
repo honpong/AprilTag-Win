@@ -26,7 +26,6 @@
 		323BD0DC1A253AEC00313573 /* scale_and_rotate.js in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0C91A253AEC00313573 /* scale_and_rotate.js */; };
 		323BD0DD1A253AEC00313573 /* svgjs.js in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0CA1A253AEC00313573 /* svgjs.js */; };
 		323BD0DF1A253AEC00313573 /* svgjs_fornobj.js in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0CC1A253AEC00313573 /* svgjs_fornobj.js */; };
-		323BD1001A253B0D00313573 /* CATAugmentedRealityView.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0E51A253B0D00313573 /* CATAugmentedRealityView.m */; };
 		323BD1011A253B0D00313573 /* CATCapturePhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0E71A253B0D00313573 /* CATCapturePhoto.m */; };
 		323BD1031A253B0D00313573 /* CATEditPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0EC1A253B0D00313573 /* CATEditPhoto.m */; };
 		323BD1111A253B9A00313573 /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 323BD10D1A253B9A00313573 /* MainStoryboard.storyboard */; };
@@ -147,8 +146,6 @@
 		323BD0C91A253AEC00313573 /* scale_and_rotate.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = scale_and_rotate.js; sourceTree = "<group>"; };
 		323BD0CA1A253AEC00313573 /* svgjs.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = svgjs.js; sourceTree = "<group>"; };
 		323BD0CC1A253AEC00313573 /* svgjs_fornobj.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = svgjs_fornobj.js; sourceTree = "<group>"; };
-		323BD0E41A253B0D00313573 /* CATAugmentedRealityView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATAugmentedRealityView.h; sourceTree = "<group>"; };
-		323BD0E51A253B0D00313573 /* CATAugmentedRealityView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATAugmentedRealityView.m; sourceTree = "<group>"; };
 		323BD0E61A253B0D00313573 /* CATCapturePhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATCapturePhoto.h; sourceTree = "<group>"; };
 		323BD0E71A253B0D00313573 /* CATCapturePhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATCapturePhoto.m; sourceTree = "<group>"; };
 		323BD0E81A253B0D00313573 /* CATConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATConstants.h; sourceTree = "<group>"; };
@@ -308,8 +305,6 @@
 				323BD0891A25324800313573 /* Supporting Files */,
 				323BD08D1A25324800313573 /* AppDelegate.h */,
 				323BD08E1A25324800313573 /* AppDelegate.m */,
-				323BD0E41A253B0D00313573 /* CATAugmentedRealityView.h */,
-				323BD0E51A253B0D00313573 /* CATAugmentedRealityView.m */,
 				323BD0E61A253B0D00313573 /* CATCapturePhoto.h */,
 				323BD0E71A253B0D00313573 /* CATCapturePhoto.m */,
 				323BD0E81A253B0D00313573 /* CATConstants.h */,
@@ -697,7 +692,6 @@
 				32BFDDAF1A2E433D00D03F44 /* MBProgressHUD.m in Sources */,
 				32BFDDE41A2E451E00D03F44 /* SBJsonParser.m in Sources */,
 				32BFDDB01A2E433D00D03F44 /* RCCalibration1.m in Sources */,
-				323BD1001A253B0D00313573 /* CATAugmentedRealityView.m in Sources */,
 				32BFDDC21A2E43A700D03F44 /* RCMotionManager.m in Sources */,
 				323BD1031A253B0D00313573 /* CATEditPhoto.m in Sources */,
 				32BFDDE71A2E451E00D03F44 /* SBJsonStreamParserAdapter.m in Sources */,

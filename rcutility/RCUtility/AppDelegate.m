@@ -79,7 +79,7 @@
     return fileUrl;
 }
 
-- (void) calibrationDidFinish
+- (void) calibrationDidFinish:(UIViewController*)lastViewController
 {
     // Save calibration data
     

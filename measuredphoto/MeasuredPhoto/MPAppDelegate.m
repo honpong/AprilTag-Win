@@ -17,6 +17,8 @@
 #import "MPIntroScreen.h"
 #import "Flurry.h"
 #import "MPGalleryController.h"
+#import "RCCalibration2.h"
+#import "RCCalibration3.h"
 
 #if TARGET_IPHONE_SIMULATOR
 #define SKIP_CALIBRATION YES // skip calibration when running on emulator because it cannot calibrate
@@ -141,7 +143,7 @@
 
 #pragma mark RCCalibrationDelegate methods
 
-- (void) calibrationDidFinish
+- (void) calibrationDidFinish:(UIViewController*)lastViewController
 {
     LOGME
     [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_IS_CALIBRATED];
@@ -157,6 +159,16 @@
     }
 }
 
+- (void) calibrationScreenDidAppear:(UIViewController*)lastViewController
+{
+    if ([lastViewController isKindOfClass:[RCCalibration1 class]])
+        [MPAnalytics logEvent:@"View.Calibration1"];
+    else if ([lastViewController isKindOfClass:[RCCalibration2 class]])
+        [MPAnalytics logEvent:@"View.Calibration2"];
+    else if ([lastViewController isKindOfClass:[RCCalibration3 class]])
+        [MPAnalytics logEvent:@"View.Calibration3"];
+}
+
 #pragma mark - RCLocalMoviePlayerDelegate
 
 - (void) moviePlayerDismissed
@@ -168,24 +180,6 @@
 - (void) moviePlayBackDidFinish
 {
     [MPAnalytics logEvent:@"View.Tutorial.MovieFinished"];
-}
-
-#pragma mark - RCCalibrationDelegate
-
-- (void) calibrationScreenDidAppear:(NSString *)screenName
-{
-    if ([screenName isEqualToString:@"Calibration1"])
-        [MPAnalytics logEvent:@"View.Calibration1"];
-    else if ([screenName isEqualToString:@"Calibration2"])
-        [MPAnalytics logEvent:@"View.Calibration2"];
-    else if ([screenName isEqualToString:@"Calibration3"])
-        [MPAnalytics logEvent:@"View.Calibration3"];
-}
-
-- (void) calibrationDidFail:(NSError *)error
-{
-    DLog(@"Calibration failed: %@", error);
-    // TODO: implement
 }
 
 #pragma mark -

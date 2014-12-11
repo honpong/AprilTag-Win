@@ -38,7 +38,7 @@
     
     currentProgress = 0.;
     if ([self.calibrationDelegate respondsToSelector:@selector(calibrationScreenDidAppear:)])
-        [self.calibrationDelegate calibrationScreenDidAppear: @"Calibration2"];
+        [self.calibrationDelegate calibrationScreenDidAppear: self];
     [super viewDidAppear:animated];
     [self createProgressViewWithTitle:@"Calibrating"];
     sensorFusion.delegate = self;

@@ -38,7 +38,7 @@
     
     currentProgress = 0.;
     if ([self.calibrationDelegate respondsToSelector:@selector(calibrationScreenDidAppear:)])
-        [self.calibrationDelegate calibrationScreenDidAppear: @"Calibration3"];
+        [self.calibrationDelegate calibrationScreenDidAppear: self];
     [super viewDidAppear:animated];
     [self createProgressViewWithTitle:@"Calibrating"];
     sensorFusion.delegate = self;
@@ -73,14 +73,14 @@
 
 - (void) gotoNextScreen
 {
-    //viewWillDisappear does not seem to get called in this case
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:UIApplicationWillResignActiveNotification
                                                   object:nil];
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:UIApplicationDidBecomeActiveNotification
                                                   object:nil];
-    if ([self.calibrationDelegate respondsToSelector:@selector(calibrationDidFinish)]) [self.calibrationDelegate calibrationDidFinish];
+    
+    if ([self.calibrationDelegate respondsToSelector:@selector(calibrationDidFinish:)]) [self.calibrationDelegate calibrationDidFinish:self];
 }
 
 - (void) sensorFusionDidUpdateData:(RCSensorFusionData*)data

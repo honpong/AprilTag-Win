@@ -51,7 +51,7 @@
 - (void) viewDidAppear:(BOOL)animated
 {
     if ([self.calibrationDelegate respondsToSelector:@selector(calibrationScreenDidAppear:)])
-        [self.calibrationDelegate calibrationScreenDidAppear: @"Calibration1"];
+        [self.calibrationDelegate calibrationScreenDidAppear: self];
     [super viewDidAppear:animated];
 
     [[NSNotificationCenter defaultCenter] addObserver:self

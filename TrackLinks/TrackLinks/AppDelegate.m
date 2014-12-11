@@ -14,6 +14,7 @@
 #import "RC3DK.h"
 #import "RCDebugLog.h"
 #import "RCMotionManager.h"
+#import "RCAVSessionManager.h"
 
 #if TARGET_IPHONE_SIMULATOR
 #define SKIP_CALIBRATION YES // skip calibration when running on emulator because it cannot calibrate
@@ -55,6 +56,20 @@
     
     BOOL calibratedFlag = [NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_CALIBRATED];
     BOOL hasCalibration = [SENSOR_FUSION hasCalibrationData];
+    
+    [RCAVSessionManager requestCameraAccessWithCompletion:^(BOOL granted){
+        if(!granted)
+        {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"No camera access."
+                                                                message:@"This app cannot function without camera access. Turn it on in Settings/Privacy/Camera."
+                                                               delegate:nil
+                                                      cancelButtonTitle:@"OK"
+                                                      otherButtonTitles:nil];
+                [alert show];
+            });
+        }
+    }];
     
     if (![LOCATION_MANAGER isLocationDisallowed])
     {

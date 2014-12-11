@@ -1,4 +1,6 @@
 
+//  Copyright (c) 2014 Caterpillar. All rights reserved.
+
 #import "CATHttpInterceptor.h"
 #import "NSObject+SBJson.h"
 #import "GTMNSDictionary+URLArguments.h"

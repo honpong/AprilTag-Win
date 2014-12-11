@@ -42,23 +42,9 @@
         }
         
         NSDictionary *appDefaults = @{PREF_UNITS: [NSNumber numberWithInt:defaultUnits],
-                                      PREF_ADD_LOCATION: @YES,
-                                      PREF_SHOW_LOCATION_NAG: @YES,
-                                      PREF_LAST_TRANS_ID: @0,
-                                      PREF_IS_CALIBRATED: @NO,
-                                      PREF_TUTORIAL_ANSWER: @0,
-                                      PREF_SHOW_INSTRUCTIONS: @YES,
-                                      PREF_SHOW_ACCURACY_QUESTION: @NO, // TODO: change to YES for prod
-                                      PREF_IS_FIRST_START: @YES,
-                                      PREF_RATE_NAG_TIMESTAMP : @0,
-                                      PREF_LOCATION_NAG_TIMESTAMP: @0,};
+                                      PREF_IS_CALIBRATED: @NO};
         
         [NSUserDefaults.standardUserDefaults registerDefaults:appDefaults];
-        
-        // for testing only
-        #ifndef ARCHIVE
-        //        [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_IS_FIRST_START];
-        #endif
     });
     
     mySensorDelegate = [SensorDelegate sharedInstance];

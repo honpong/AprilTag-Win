@@ -113,6 +113,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
 {
     if (SKIP_LICENSE_CHECK)
     {
+        DLog(@"Skipping license check");
         isLicenseValid = YES;
         if (completionBlock) completionBlock(RCLicenseTypeFull, RCLicenseStatusOK);
         return;

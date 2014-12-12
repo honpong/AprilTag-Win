@@ -1,4 +1,4 @@
-//Copyright (c) 2014 Caterpillar
+//Copywrite (c) 2014 by RealityCap, Inc. Written by Jordan Miller for the exclusive use of RealityCap, Inc.
 
 doing_orientatino_change = false;
 function doOnOrientationChange()
@@ -40,7 +40,7 @@ function clear_tool_data(){ //this should be called whenever theres a switch in 
 
 
 function rc_initialize(){
-    console.log = logNative;
+    //console.log = logNative;
     console.log("starting rc_initialize()");
     
     is_rc_initialized = true;
@@ -163,38 +163,9 @@ function rc_initialize(){
     
     console.log('done with hammer, starting line handler');
     
-    function line_handler(i) { //takes an image coordinate pair as an input
-        //test if we have depth information at this point. if not show the depth mask then animate its fade and give error message
-        if (! distanceTo(i.x,i.y)) {
-            show_dm_mask();
-            start_dm_mask_fade_out();
-            rcMessage.post("Sorry, no measurement data there.",2000);
-        }
-        
-        if (lineNotStarted){
-            lineNotStarted = false;
-            click_image_x1 = i.x; //we map into image coordinates here, incase scale factor chagnes between clicks
-            click_image_y1 = i.y;
-            marker = measured_svg.circle(4).move(click_image_x1-2,click_image_y1-2).stroke({ color: line_color, opacity: 0.4, width : 2 }).fill({opacity:0});
-        }
-        else {
-            // we want to instantiate a measurement here, and pass that measurement to be drawn
-            rcMeasurements.new_measurement(click_image_x1, click_image_y1, i.x, i.y, measured_svg);
-            clear_tool_data();
-            setTimeout( rcMeasurements.save_measurements, 0)
-        }
-    }
-    
-
-    function click_or_touch(e) {
-        var i = pxl_to_img_xy(e.pageX, e.pageY);
-        if ( i.x > image_width || i.y > image_height || i.x < 0 || i.y < 0) {return null;} //ignore taps off of image
-        line_handler(i);
-    }
     
     FastClick.attach(document.body);
 
-    draw.click( function(e) { setTimeout(function(){ click_or_touch(e); },1);   e.stopPropagation(); e.preventDefault();} );
     
     switch_image_depthmap = function () { //we move the image svg off the dom, and move the depthmap on the dom.
         //console.log('switch_image_depthmap()');
@@ -307,7 +278,6 @@ function clear_all(){
         if (draw_g.node.contains(measured_svg.node)) {draw_g.node.removeChild(measured_svg.node);}
         measured_svg = img_container.nested();
         draw_g.add(measured_svg);
-        current_measurement = null;
         rcMeasurements.reset();
 
         // reset tool data / button data
@@ -350,39 +320,24 @@ function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric)
             if (!is_rc_initialized) {
                 rc_initialize();
             }
+            load_spatial_data(rc_data_url); //this function is defined in depth_data.js
+                      
             
             //assume clear is called first if this is the second load
             console.log('loading image from '+ rc_img_url);
             initial_load = true; //were setting this incase zooming was called and set it to false after a clear was called
             image = img_container.image(rc_img_url).loaded(function(loader) {
                                                   console.log('starting image load callback');
-                                                  //this should rotate the image
-                                                  //alert('loading img');
-                                                  //image_width = loader.height;
-                                                  //image_height = loader.width;
-                                                  //image.rotate(90, image_width/2, image_height/2).move(-(image_height-image_width)/2,(image_height-image_width)/2);
-                                                  
                                                            
                                                   image_width = loader.width;
                                                   image_height = loader.height;
-                                                   //console.log('loaded image dimensions: ' + image_width.toFixed()+ ' x ' + image_height.toFixed() );
                                                            
                                                   draw_g.add(image);
-                                                  
-                                                  // load measurements
-                                                  rcMeasurements.load_json(rc_annotation_url, function() {
-                                                                                    //alert('loading spatial data');
-                                                                                    //console.log('starting annotation data load calback');
-                                                                                    load_spatial_data(rc_data_url); //this function is defined in depth_data.js
-                                                                                    //console.log('finished rcMeasurement.load_json callback');
-                                                                                }
-                                                                           );
-
                                                            
-                                                  // Initial dexecution if needed
-                                                  //alert('do on orientation change');
                                                   doOnOrientationChange();
-                                                  
+                                                           
+                                                  rcMeasurements.new_measurement(image_width/4,image_height/2, 3*image_width/4, image_height/2, measured_svg);
+
                                                   });
         
             return 0;
@@ -402,5 +357,9 @@ function logNative(message)
     
     // log to native land
     var jsonData = { "message": message };
-    $.ajax({ type: "POST", url: "http://internal.realitycap.com/log/", contentType: "application/json", processData: false, dataType: "json", data: JSON.stringify(jsonData) });
+    $.ajax({ type: "POST", url: "http://internal.realitycap.com/log/", contentType: "application/json", processData: false, dataType: "json", data: JSON.stringify(jsonData) })
+        .fail(function(jqXHR, textStatus, errorThrown) {
+              alert(textStatus + ": " + JSON.stringify(jqXHR));
+        })
+    ;
 }

@@ -377,8 +377,9 @@ typedef NS_ENUM(int, RCLicenseStatus)
 {
 }
 
-- (void) focusOperationFinished:(bool)timedOut
+- (void) focusOperationFinishedAtTime:(uint64_t)timestamp withLensPosition:(float)lens_position
 {
+    NSLog(@"Focus operation finished at %llu with %f, starting processing", timestamp, lens_position);
     // startProcessingVideo
     if(processingVideoRequested && !isProcessingVideo) {
         isProcessingVideo = true;
@@ -408,7 +409,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
     __weak typeof(self) weakself = self;
     std::function<void (uint64_t, float)> callback = [weakself](uint64_t timestamp, float position)
     {
-        [weakself focusOperationFinished:false];
+        [weakself focusOperationFinishedAtTime:timestamp withLensPosition:position];
     };
     _cor_setup->sfm.camera_control.focus_lock_at_current_position(callback);
 
@@ -436,7 +437,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
         __weak typeof(self) weakself = self;
         std::function<void (uint64_t, float)> callback = [weakself](uint64_t timestamp, float position)
         {
-            [weakself focusOperationFinished:false];
+            [weakself focusOperationFinishedAtTime:timestamp withLensPosition:position];
         };
         _cor_setup->sfm.camera_control.focus_lock_at_current_position(callback);
     }
@@ -536,7 +537,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
         __weak typeof(self) weakself = self;
         std::function<void (uint64_t, float)> callback = [weakself](uint64_t timestamp, float position)
         {
-            [weakself focusOperationFinished:false];
+            [weakself focusOperationFinishedAtTime:timestamp withLensPosition:position];
         };
         _cor_setup->sfm.camera_control.focus_once_and_lock(callback);        
     }

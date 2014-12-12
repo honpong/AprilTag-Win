@@ -385,6 +385,11 @@ static transition transitions[] =
 {
     if(currentState == ST_INITIALIZING) initialCamera = data.cameraTransformation;
     NSMutableArray *depths = [[NSMutableArray alloc] init];
+
+    for(RCFeaturePoint *feature in data.featurePoints)
+    {
+        [depths addObject:[NSNumber numberWithFloat:feature.originalDepth.scalar]];
+    }
     
     NSNumber *median;
     if([depths count]) {

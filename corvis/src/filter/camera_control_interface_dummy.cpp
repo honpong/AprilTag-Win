@@ -29,9 +29,9 @@ void camera_control_interface::focus_lock_at_current_position(std::function<void
     callback(0, 1.);
 }
 
-void camera_control_interface::focus_lock_at_position(float position, std::function<void (uint64_t)> callback)
+void camera_control_interface::focus_lock_at_position(float position, std::function<void (uint64_t, float)> callback)
 {
-    callback(0);
+    callback(0, 1.);
 }
 
 void camera_control_interface::focus_once_and_lock(std::function<void (uint64_t, float)> callback)

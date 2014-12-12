@@ -45,7 +45,7 @@ public:
      @param position - A float value indicating the final lens position in the range [0, 1], corresponding to [near, infinity].
      @param callback - A lambda that will be called after the focus has successfully been locked. It receives the time at which the focus operation completed (frames delivered at this time or later are expected to be post-focus operation).
      */
-    void focus_lock_at_position(float position, std::function<void (uint64_t)> callback);
+    void focus_lock_at_position(float position, std::function<void (uint64_t, float)> callback);
 
     /**
      Performs a single autofocus operation, then locks the focus.

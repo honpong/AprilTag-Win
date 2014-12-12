@@ -19,5 +19,8 @@
 
 - (void) focusOnceAndLockWithCallback:(std::function<void (uint64_t, float)>)callback;
 - (void) lockFocusWithCallback:(std::function<void (uint64_t, float)>)callback;
+- (void) lockFocusCurrentWithCallback:(std::function<void (uint64_t, float)>)callback;
+- (void) lockFocusToPosition:(float)position withCallback:(std::function<void (uint64_t, float)>)callback;
+- (void) unlockFocus;
 
 @end

@@ -32,12 +32,12 @@ camera_control_interface::~camera_control_interface()
 
 void camera_control_interface::focus_lock_at_current_position(std::function<void (uint64_t, float)> callback)
 {
-    [(__bridge RCCameraManager *)platform_ptr lockFocusWithCallback:callback];
+    [(__bridge RCCameraManager *)platform_ptr lockFocusCurrentWithCallback:callback];
 }
 
-void camera_control_interface::focus_lock_at_position(float position, std::function<void (uint64_t)> callback)
+void camera_control_interface::focus_lock_at_position(float position, std::function<void (uint64_t, float)> callback)
 {
-    //TODO: implement
+    [(__bridge RCCameraManager *)platform_ptr lockFocusToPosition:position withCallback:callback];
 }
 
 void camera_control_interface::focus_once_and_lock(std::function<void (uint64_t, float)> callback)
@@ -47,19 +47,22 @@ void camera_control_interface::focus_once_and_lock(std::function<void (uint64_t,
 
 void camera_control_interface::focus_unlock()
 {
-    //TODO: implement
+    [(__bridge RCCameraManager *)platform_ptr unlockFocus];
 }
 
 typedef NS_ENUM(int, RCCameraManagerOperationType) {
-    RCCameraManagerOperationNone = 0, // will never be passed to a delegate
+    RCCameraManagerOperationNone = 0,
     RCCameraManagerOperationFocusOnce,
     RCCameraManagerOperationFocusLock,
+    RCCameraManagerOperationFocusCurrent,
+    RCCameraManagerOperationFocusPosition,
 };
 
 @implementation RCCameraManager
 {
     AVCaptureDevice * videoDevice;
     BOOL isFocusCapable;
+    BOOL hasLensPosition;
     AVCaptureFocusMode previousFocusMode;
 
     BOOL isFocusing;
@@ -79,8 +82,12 @@ typedef NS_ENUM(int, RCCameraManagerOperationType) {
     return instance;
 }
 
-- (void)performCallbackWithTime:(uint64_t)timestamp withFocalLength:(float)focal_length
+- (void)finishOperation
 {
+    uint64_t timestamp = 0;
+    float focal_length = 1;
+    if(hasLensPosition)
+        focal_length = videoDevice.lensPosition;
     if(callback)
         callback(timestamp, focal_length);
     callback = nil;
@@ -89,6 +96,10 @@ typedef NS_ENUM(int, RCCameraManagerOperationType) {
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
 {
+    // Don't track operations which are handled by iOS 8
+    if(pendingOperation == RCCameraManagerOperationFocusCurrent || pendingOperation == RCCameraManagerOperationFocusPosition)
+        return;
+
     if ([keyPath isEqualToString:@"adjustingFocus"]) {
         bool wasFocusing = isFocusing;
         isFocusing = [change[NSKeyValueChangeNewKey] isEqualToNumber:@1];
@@ -107,7 +118,7 @@ typedef NS_ENUM(int, RCCameraManagerOperationType) {
                     [videoDevice unlockForConfiguration];
                 }
             }
-            [self performCallbackWithTime:0 withFocalLength:0];
+            [self finishOperation];
         }
     }
 }
@@ -119,7 +130,7 @@ typedef NS_ENUM(int, RCCameraManagerOperationType) {
         // For some reason, even though we've requested it, the focus event isn't happening, give up and continue
         pendingOperation = RCCameraManagerOperationNone;
         DLog(@"Focus timed out, continuing");
-        [self performCallbackWithTime:0 withFocalLength:0];
+        [self finishOperation];
     }
 }
 
@@ -133,6 +144,7 @@ typedef NS_ENUM(int, RCCameraManagerOperationType) {
     pendingOperation = RCCameraManagerOperationNone;
     [videoDevice addObserver:self forKeyPath:@"adjustingFocus" options:NSKeyValueObservingOptionNew context:nil];
     isFocusCapable = [videoDevice isFocusModeSupported:AVCaptureFocusModeLocked] && [videoDevice isFocusModeSupported:AVCaptureFocusModeAutoFocus];
+    hasLensPosition = [videoDevice respondsToSelector:@selector(setFocusModeLockedWithLensPosition:completionHandler:)];
     previousFocusMode = videoDevice.focusMode;
 }
 
@@ -167,13 +179,13 @@ typedef NS_ENUM(int, RCCameraManagerOperationType) {
 
     if(!isFocusCapable) {
         DLog(@"INFO: Doesn't support focus, starting without");
-        [self performCallbackWithTime:0 withFocalLength:0];
+        [self finishOperation];
     }
     else if(operation == RCCameraManagerOperationFocusLock &&
             videoDevice.focusMode == AVCaptureFocusModeLocked && !videoDevice.adjustingFocus) {
         // Focus is already locked and we requested a lock
         DLog(@"INFO: Focus is already locked, starting");
-        [self performCallbackWithTime:0 withFocalLength:0];
+        [self finishOperation];
     }
     else {
         if ([videoDevice lockForConfiguration:nil]) {
@@ -201,4 +213,61 @@ typedef NS_ENUM(int, RCCameraManagerOperationType) {
     [self focusOperation:RCCameraManagerOperationFocusLock withCallback:focus_callback];
 }
 
+- (void) lockLensPosition:(float)position withCallback:(std::function<void (uint64_t, float)>)focus_callback
+{
+    if(position == AVCaptureLensPositionCurrent)
+        pendingOperation = RCCameraManagerOperationFocusCurrent;
+    else
+        pendingOperation = RCCameraManagerOperationFocusPosition;
+
+    if([videoDevice lockForConfiguration:nil]) {
+        __weak typeof(self) weakSelf = self;
+        [videoDevice setFocusModeLockedWithLensPosition:AVCaptureLensPositionCurrent completionHandler:^(CMTime syncTime) {
+            __strong typeof(self) strongSelf = weakSelf;
+            // TODO: Convert time from device time to session time, as per wwdc 2014 508
+            //
+            // We don't currently pass in the session, so masterClock is not accessible
+            // The device clock is tied to the input port not the device, apparently at AVCaptureInputPort.clock
+            // something like [device.ports objectAtIndex:0] clock] which is also part of the session
+            // CMTime converted = CMSyncConvertTime(syncTime, <#CMClockOrTimebaseRef fromClockOrTimebase#>, session.masterClock);
+            uint64_t time_us = syncTime.value / (syncTime.timescale / 1000000.);
+            focus_callback(time_us, strongSelf->videoDevice.lensPosition);
+            strongSelf->pendingOperation = RCCameraManagerOperationNone;
+        }];
+        [videoDevice unlockForConfiguration];
+    }
+}
+
+- (void) lockFocusToPosition:(float)position withCallback:(std::function<void (uint64_t, float)>)focus_callback
+{
+    DLog(@"Focus lock position %f requested", position);
+    if(hasLensPosition)
+        [self lockLensPosition:position withCallback:focus_callback];
+    else
+        // iOS 7 only
+        [self lockFocusWithCallback:focus_callback];
+}
+
+- (void) lockFocusCurrentWithCallback:(std::function<void (uint64_t, float)>)focus_callback
+{
+    DLog(@"Focus lock current requested, hasLensPosition %d", hasLensPosition);
+    if(hasLensPosition)
+        [self lockLensPosition:AVCaptureLensPositionCurrent withCallback:focus_callback];
+    else
+        // iOS 7 only
+        [self lockFocusWithCallback:focus_callback];
+}
+
+- (void) unlockFocus
+{
+    DLog(@"Unlock focus");
+    callback = nil;
+    pendingOperation = RCCameraManagerOperationNone;
+    if (isFocusCapable && [videoDevice lockForConfiguration:nil]) {
+        if([videoDevice isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus]) {
+            [videoDevice setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
+        }
+        [videoDevice unlockForConfiguration];
+    }
+}
 @end

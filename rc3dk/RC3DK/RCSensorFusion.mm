@@ -17,12 +17,6 @@ extern "C" {
 #import "RCPrivateHTTPClient.h"
 #import "NSString+RCString.h"
 
-#ifdef LIBRARY
-    #define SKIP_LICENSE_CHECK NO
-#else
-    #define SKIP_LICENSE_CHECK YES
-#endif
-
 uint64_t get_timestamp()
 {
     static mach_timebase_info_data_t s_timebase_info;
@@ -118,8 +112,8 @@ typedef NS_ENUM(int, RCLicenseStatus)
         if (completionBlock) completionBlock(RCLicenseTypeFull, RCLicenseStatusOK);
         return;
     }
-
-#if !SKIP_LICENSE_CHECK
+    // everything below here should get optimized out by the compiler if we're skipping the license check
+    
     if (apiKey == nil || apiKey.length == 0)
     {
         if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorMissingKey userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. License key was nil or zero length.", NSLocalizedFailureReasonErrorKey: @"License key was nil or zero length."}]);
@@ -152,9 +146,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
                             @"bundle_id": bundleId,
                             @"vendor_id": vendorId};
     
-    RCPrivateHTTPClient*client = [RCPrivateHTTPClient sharedInstance];
-    
-    [client
+    [HTTP_CLIENT
      postPath:API_LICENSING_POST
      parameters:params
      success:^(RCAFHTTPRequestOperation *operation, id JSON)
@@ -236,7 +228,6 @@ typedef NS_ENUM(int, RCLicenseStatus)
          }
      }
      ];
-#endif
 }
 
 - (void) validateLicenseInternal
@@ -309,8 +300,9 @@ typedef NS_ENUM(int, RCLicenseStatus)
         lastProgress = 0.;
         licenseKey = nil;
         
+#if !SKIP_LICENSE_CHECK
         [RCPrivateHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
-        
+#endif
         dispatch_async(queue, ^{
             corvis_device_parameters dc = [RCCalibration getCalibrationData];
             _cor_setup = new filter_setup(&dc);
@@ -488,9 +480,13 @@ typedef NS_ENUM(int, RCLicenseStatus)
     LOGME
     if(!isSensorFusionRunning) return;
     [self saveCalibration];
+    
+#ifndef OFFLINE
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
         [RCCalibration postDeviceCalibration:nil onFailure:nil];
     });
+#endif
+    
     [self flushAndReset];
 }
 

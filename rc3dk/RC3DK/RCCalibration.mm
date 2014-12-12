@@ -277,6 +277,7 @@
     return result;
 }
 
+#ifndef OFFLINE
 + (void) postDeviceCalibration:(void (^)())successBlock onFailure:(void (^)(NSInteger statusCode))failureBlock
 {
     LOGME;
@@ -313,5 +314,6 @@
      }
      ];
 }
+#endif
 
 @end

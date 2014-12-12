@@ -30,7 +30,7 @@
 
 extern NSString * const MPUIOrientationDidChangeNotification;
 
-@interface MPCapturePhoto : MPBaseViewController <RCSensorFusionDelegate, RCStereoDelegate, UIAlertViewDelegate, MPAugRealityViewDelegate>
+@interface MPCapturePhoto : MPBaseViewController <RCSensorFusionDelegate, RCStereoDelegate, UIAlertViewDelegate>
 
 + (UIDeviceOrientation) getCurrentUIOrientation;
 - (void)handlePause;

@@ -11,6 +11,4 @@
 
 @interface MPContainerView : UIView
 
-@property (nonatomic) UIResponder* delegate;
-
 @end

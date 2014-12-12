@@ -19,7 +19,7 @@
     RCFeaturePoint* lastPointTapped;
     BOOL isInitialized;
 }
-@synthesize videoView, featuresView, featuresLayer, selectedFeaturesLayer, initializingFeaturesLayer, measurementsView, photoView, delegate, AROverlay;
+@synthesize videoView, featuresView, featuresLayer, selectedFeaturesLayer, initializingFeaturesLayer, measurementsView, photoView, AROverlay;
 
 - (id) initWithFrame:(CGRect)frame
 {
@@ -152,76 +152,6 @@
 {
     featuresLayer.hidden = YES;
     initializingFeaturesLayer.hidden = YES;
-}
-
-#define MESH
-
-#pragma mark - touch events
-
-- (void) handleFeatureTapped:(CGPoint)coordinateTapped
-{
-    CGPoint cameraPoint = [featuresLayer cameraPointFromScreenPoint:coordinateTapped];
-    
-#ifdef MESH
-    RCPoint* world = [[RCStereo sharedInstance] triangulatePointWithMesh:cameraPoint];
-#else
-    RCPoint* world = [[RCStereo sharedInstance] triangulatePoint:cameraPoint];
-#endif
-
-    RCFeaturePoint * pointTapped = [[RCFeaturePoint alloc] initWithId:0
-                                                                withX:cameraPoint.x
-                                                                withY:cameraPoint.y
-                                                    withOriginalDepth:[[RCScalar alloc] initWithScalar:1 withStdDev:100]
-                                                       withWorldPoint:world withInitialized:YES];
-
-    if(pointTapped)
-    {
-        [self selectFeature:pointTapped];
-        
-        if ([delegate respondsToSelector:@selector(featureTapped)]) [delegate featureTapped];
-        
-        if (lastPointTapped)
-        {
-            [measurementsView addMeasurementBetweenPointA:pointTapped andPointB:lastPointTapped];
-            [self resetSelectedFeatures];
-            
-            if ([delegate respondsToSelector:@selector(measurementCompleted)]) [delegate measurementCompleted];
-        }
-        else
-        {
-            lastPointTapped = pointTapped;
-        }
-    }
-}
-
-- (void) resetSelectedFeatures
-{
-    lastPointTapped = nil;
-    [self clearSelectedFeatures];
-}
-
-- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
-{
-	if (self.isMagGlassEnabled) [super touchesBegan:touches withEvent:event];
-}
-
-- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
-{
-	if (self.isMagGlassEnabled) [super touchesMoved:touches withEvent:event];
-}
-
-- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
-{
-	if (!self.isMagGlassEnabled) return;
-        
-    [super touchesEnded:touches withEvent:event];
-    
-    if (touches && touches.count == 1)
-    {
-        UITouch* touch = touches.allObjects[0];
-        CGPoint touchPoint = [touch locationInView:self];
-        [self handleFeatureTapped:touchPoint];
-    }
 }
 
 @end

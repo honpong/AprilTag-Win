@@ -15,7 +15,6 @@
     CGFloat widthPortrait;
     CGFloat heightPortrait;
 }
-@synthesize delegate;
 
 - (id)initWithCoder:(NSCoder *)aDecoder
 {
@@ -67,27 +66,6 @@
                              [self layoutIfNeeded];
                          }];
     }
-}
-
-// pass all touch events to the delegate, which in this case is the augmented reality view
-- (void) touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    if ([delegate respondsToSelector:@selector(touchesBegan:withEvent:)]) [delegate touchesBegan:touches withEvent:event];
-}
-
-- (void) touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    if ([delegate respondsToSelector:@selector(touchesMoved:withEvent:)]) [delegate touchesMoved:touches withEvent:event];
-}
-
-- (void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    if ([delegate respondsToSelector:@selector(touchesEnded:withEvent:)]) [delegate touchesEnded:touches withEvent:event];
-}
-
-- (void) touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
-{
-    if ([delegate respondsToSelector:@selector(touchesCancelled:withEvent:)]) [delegate touchesCancelled:touches withEvent:event];
 }
 
 @end

@@ -173,7 +173,7 @@ static transition transitions[] =
     if(oldSetup.sensorFusion && !newSetup.sensorFusion)
         [self stopSensorFusion];
     if(oldSetup.features && !newSetup.features)
-        [arView hideFeatures]; [arView resetSelectedFeatures];
+        [arView hideFeatures];
     if(!oldSetup.features && newSetup.features)
         [self.arView showFeatures];
     if(oldSetup.progress != newSetup.progress)
@@ -311,19 +311,6 @@ static transition transitions[] =
 {
     LOGME
 	[super viewDidLoad];
-    
-    // determine if we have an internet connection for playing the tutorial video
-//    if ([[NSUserDefaults standardUserDefaults] integerForKey:PREF_TUTORIAL_ANSWER] == MPTutorialAnswerNotNow)
-//    {
-//            MPLocalMoviePlayer* movieController = [self.storyboard instantiateViewControllerWithIdentifier:@"MoviePlayer"];
-//            [self presentMoviePlayerViewControllerAnimated:movieController];
-//    } else if ([[NSUserDefaults standardUserDefaults] boolForKey:PREF_SHOW_INSTRUCTIONS])
-//    {
-//        [self showInstructionsDialog];
-//    }
-    
-    arView.delegate = self;
-    containerView.delegate = arView;
     
     sensorDelegate = [SensorDelegate sharedInstance];
     
@@ -514,22 +501,6 @@ static transition transitions[] =
     isQuestionDismissed = YES;
 }
 
-- (void) handleTapGesture:(UIGestureRecognizer *) sender
-{
-    if (sender.state != UIGestureRecognizerStateEnded) return;
-    
-    CGPoint tappedPoint = [sender locationInView:self.arView];
-    if (currentState == ST_FINISHED)
-    {
-        [arView handleFeatureTapped:tappedPoint];
-    }
-    else if (currentState == ST_READY)
-    {
-//        CGPoint point = [self.arView.featuresLayer cameraPointFromScreenPoint:tappedPoint];
-//        [SENSOR_FUSION selectUserFeatureWithX:point.x withY:point.y];
-    }
-}
-
 - (void) handleMoveStart
 {
     LOGME
@@ -639,11 +610,6 @@ static transition transitions[] =
 }
 
 #pragma mark -
-
-- (void) featureTapped
-{
-    if (questionTimer && questionTimer.isValid) [questionTimer invalidate];
-}
 
 - (void) measurementCompleted
 {

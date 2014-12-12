@@ -796,10 +796,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Users/benhirashima/Documents/Development/RealityCap/rcmain/rc3dk-lib",
-					"/Users/benhirashima/Documents/Development/RealityCap/rcmain/rc3dk-plus-lib",
-					"/Users/benhirashima/Documents/Development/RealityCap/rcmain/rc3dk-plus-lib-no-license",
-					"/Users/benhirashima/Documents/Development/RealityCap/rcmain/rc3dk-plus-lib-offline",
+					"$(SRCROOT)/../rc3dk-plus-lib-offline",
 				);
 				OTHER_LDFLAGS = "-lc++";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -819,10 +816,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Users/benhirashima/Documents/Development/RealityCap/rcmain/rc3dk-lib",
-					"/Users/benhirashima/Documents/Development/RealityCap/rcmain/rc3dk-plus-lib",
-					"/Users/benhirashima/Documents/Development/RealityCap/rcmain/rc3dk-plus-lib-no-license",
-					"/Users/benhirashima/Documents/Development/RealityCap/rcmain/rc3dk-plus-lib-offline",
+					"$(SRCROOT)/../rc3dk-plus-lib-offline",
 				);
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-lc++";
@@ -914,10 +908,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Users/benhirashima/Documents/Development/RealityCap/rcmain/rc3dk-lib",
-					"/Users/benhirashima/Documents/Development/RealityCap/rcmain/rc3dk-plus-lib",
-					"/Users/benhirashima/Documents/Development/RealityCap/rcmain/rc3dk-plus-lib-no-license",
-					"/Users/benhirashima/Documents/Development/RealityCap/rcmain/rc3dk-plus-lib-offline",
+					"$(SRCROOT)/../rc3dk-plus-lib-offline",
 				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "-lc++";

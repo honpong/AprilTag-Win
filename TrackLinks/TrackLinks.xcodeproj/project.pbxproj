@@ -29,7 +29,7 @@
 		323BD1011A253B0D00313573 /* CATCapturePhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0E71A253B0D00313573 /* CATCapturePhoto.m */; };
 		323BD1031A253B0D00313573 /* CATEditPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0EC1A253B0D00313573 /* CATEditPhoto.m */; };
 		323BD1111A253B9A00313573 /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 323BD10D1A253B9A00313573 /* MainStoryboard.storyboard */; };
-		327524791A3271E400459B79 /* libRC3DKPlus.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 327524781A3271DC00459B79 /* libRC3DKPlus.a */; };
+		327524D11A3A61CE00459B79 /* libRC3DKPlus.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 327524D01A3A61CE00459B79 /* libRC3DKPlus.a */; };
 		32BFDDAB1A2E433D00D03F44 /* Calibration.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 32BFDD9F1A2E433D00D03F44 /* Calibration.storyboard */; };
 		32BFDDAC1A2E433D00D03F44 /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32BFDDA01A2E433D00D03F44 /* holding_landscape.jpg */; };
 		32BFDDAD1A2E433D00D03F44 /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32BFDDA11A2E433D00D03F44 /* holding_portrait.jpg */; };
@@ -90,34 +90,6 @@
 			remoteGlobalIDString = 323BD0851A25324800313573;
 			remoteInfo = TrackLinks;
 		};
-		323BD0B41A25387500313573 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 323BD0AF1A25387500313573 /* RC3DK.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 327B54DF18EB4CC90001CCE1;
-			remoteInfo = RC3DK;
-		};
-		323BD0B61A25387500313573 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 323BD0AF1A25387500313573 /* RC3DK.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 327B54EF18EB4CC90001CCE1;
-			remoteInfo = RC3DKTests;
-		};
-		327524731A3271DC00459B79 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 323BD0AF1A25387500313573 /* RC3DK.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = D3B4EABE1A1E7DE100BE0443;
-			remoteInfo = RC3DKPlus;
-		};
-		327524771A3271DC00459B79 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 323BD0AF1A25387500313573 /* RC3DK.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D3B4EB591A1E7DE100BE0443;
-			remoteInfo = RC3DKPlus;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -130,7 +102,6 @@
 		323BD09F1A25324800313573 /* TrackLinksTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TrackLinksTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		323BD0A41A25324800313573 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		323BD0A51A25324800313573 /* TrackLinksTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TrackLinksTests.m; sourceTree = "<group>"; };
-		323BD0AF1A25387500313573 /* RC3DK.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RC3DK.xcodeproj; path = ../rc3dk/RC3DK.xcodeproj; sourceTree = "<group>"; };
 		323BD0BC1A253AEC00313573 /* depth_data.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = depth_data.js; sourceTree = "<group>"; };
 		323BD0BD1A253AEC00313573 /* fastclick.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = fastclick.js; sourceTree = "<group>"; };
 		323BD0BE1A253AEC00313573 /* global_variables.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = global_variables.js; sourceTree = "<group>"; };
@@ -152,6 +123,25 @@
 		323BD0EB1A253B0D00313573 /* CATEditPhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = CATEditPhoto.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		323BD0EC1A253B0D00313573 /* CATEditPhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = CATEditPhoto.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		323BD10E1A253B9A00313573 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/MainStoryboard.storyboard; sourceTree = "<group>"; };
+		327524BE1A3A61CE00459B79 /* RC3DK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RC3DK.h; sourceTree = "<group>"; };
+		327524BF1A3A61CE00459B79 /* RC3DKPlus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RC3DKPlus.h; sourceTree = "<group>"; };
+		327524C01A3A61CE00459B79 /* RCCameraParameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCameraParameters.h; sourceTree = "<group>"; };
+		327524C11A3A61CE00459B79 /* RCDeviceInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDeviceInfo.h; sourceTree = "<group>"; };
+		327524C21A3A61CE00459B79 /* RCFeaturePoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCFeaturePoint.h; sourceTree = "<group>"; };
+		327524C31A3A61CE00459B79 /* RCLicenseError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCLicenseError.h; sourceTree = "<group>"; };
+		327524C41A3A61CE00459B79 /* RCPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCPoint.h; sourceTree = "<group>"; };
+		327524C51A3A61CE00459B79 /* RCRotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCRotation.h; sourceTree = "<group>"; };
+		327524C61A3A61CE00459B79 /* RCScalar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCScalar.h; sourceTree = "<group>"; };
+		327524C71A3A61CE00459B79 /* RCSensorFusion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusion.h; sourceTree = "<group>"; };
+		327524C81A3A61CE00459B79 /* RCSensorFusionData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusionData.h; sourceTree = "<group>"; };
+		327524C91A3A61CE00459B79 /* RCSensorFusionError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusionError.h; sourceTree = "<group>"; };
+		327524CA1A3A61CE00459B79 /* RCSensorFusionInternals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusionInternals.h; sourceTree = "<group>"; };
+		327524CB1A3A61CE00459B79 /* RCSensorFusionStatus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusionStatus.h; sourceTree = "<group>"; };
+		327524CC1A3A61CE00459B79 /* RCStereo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCStereo.h; sourceTree = "<group>"; };
+		327524CD1A3A61CE00459B79 /* RCTransformation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTransformation.h; sourceTree = "<group>"; };
+		327524CE1A3A61CE00459B79 /* RCTranslation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTranslation.h; sourceTree = "<group>"; };
+		327524CF1A3A61CE00459B79 /* RCVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVector.h; sourceTree = "<group>"; };
+		327524D01A3A61CE00459B79 /* libRC3DKPlus.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libRC3DKPlus.a; sourceTree = "<group>"; };
 		32BFDD9F1A2E433D00D03F44 /* Calibration.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Calibration.storyboard; sourceTree = "<group>"; };
 		32BFDDA01A2E433D00D03F44 /* holding_landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_landscape.jpg; sourceTree = "<group>"; };
 		32BFDDA11A2E433D00D03F44 /* holding_portrait.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_portrait.jpg; sourceTree = "<group>"; };
@@ -214,7 +204,6 @@
 		32BFDDFD1A2E4B2200D03F44 /* RCVideoPreview.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoPreview.m; sourceTree = "<group>"; };
 		32BFDE161A2E528F00D03F44 /* UIImage+RCImageFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+RCImageFile.h"; sourceTree = "<group>"; };
 		32BFDE171A2E528F00D03F44 /* UIImage+RCImageFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+RCImageFile.m"; sourceTree = "<group>"; };
-		32BFDE191A2E807A00D03F44 /* RC3DK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RC3DK.h; sourceTree = "<group>"; };
 		32BFDE1E1A2E83F000D03F44 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
 		32BFDE211A2E83F600D03F44 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		32C951E71A365E02005E1BFB /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
@@ -248,6 +237,7 @@
 				32EC394D1A3623B0004C31C0 /* Foundation.framework in Frameworks */,
 				32EC394B1A362393004C31C0 /* CoreMotion.framework in Frameworks */,
 				32EC39491A362366004C31C0 /* libz.dylib in Frameworks */,
+				327524D11A3A61CE00459B79 /* libRC3DKPlus.a in Frameworks */,
 				32EC39471A361FA1004C31C0 /* CoreGraphics.framework in Frameworks */,
 				32EC39451A361F96004C31C0 /* Accelerate.framework in Frameworks */,
 				32EC39431A361F89004C31C0 /* CoreImage.framework in Frameworks */,
@@ -259,7 +249,6 @@
 				32EC39391A361F51004C31C0 /* QuartzCore.framework in Frameworks */,
 				32EC39371A361F45004C31C0 /* Security.framework in Frameworks */,
 				32EC39351A361F39004C31C0 /* SystemConfiguration.framework in Frameworks */,
-				327524791A3271E400459B79 /* libRC3DKPlus.a in Frameworks */,
 				32BFDE221A2E83F600D03F44 /* AVFoundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -277,7 +266,7 @@
 		323BD07D1A25324800313573 = {
 			isa = PBXGroup;
 			children = (
-				323BD0AF1A25387500313573 /* RC3DK.xcodeproj */,
+				327524BB1A3A61CE00459B79 /* 3DKPlus */,
 				32BFDDF71A2E4B2200D03F44 /* AugmentedReality */,
 				32BFDDC81A2E44F000D03F44 /* ThirdParty */,
 				32BFDDB31A2E43A700D03F44 /* SensorManagers */,
@@ -316,7 +305,6 @@
 				323BD10D1A253B9A00313573 /* MainStoryboard.storyboard */,
 				32EC392E1A361792004C31C0 /* NSString+RCString.h */,
 				32EC392F1A361792004C31C0 /* NSString+RCString.m */,
-				32BFDE191A2E807A00D03F44 /* RC3DK.h */,
 				32BFDE161A2E528F00D03F44 /* UIImage+RCImageFile.h */,
 				32BFDE171A2E528F00D03F44 /* UIImage+RCImageFile.m */,
 			);
@@ -349,16 +337,6 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		323BD0B01A25387500313573 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				323BD0B51A25387500313573 /* libRC3DK.a */,
-				323BD0B71A25387500313573 /* RC3DKTests.xctest */,
-				327524781A3271DC00459B79 /* libRC3DKPlus.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		323BD0BB1A253AEC00313573 /* HTML */ = {
 			isa = PBXGroup;
 			children = (
@@ -380,6 +358,49 @@
 			);
 			name = HTML;
 			path = TrackLinks/HTML;
+			sourceTree = "<group>";
+		};
+		327524BB1A3A61CE00459B79 /* 3DKPlus */ = {
+			isa = PBXGroup;
+			children = (
+				327524BC1A3A61CE00459B79 /* include */,
+				327524D01A3A61CE00459B79 /* libRC3DKPlus.a */,
+			);
+			name = 3DKPlus;
+			path = "../rc3dk-plus-lib";
+			sourceTree = "<group>";
+		};
+		327524BC1A3A61CE00459B79 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				327524BD1A3A61CE00459B79 /* RC3DKPlus */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		327524BD1A3A61CE00459B79 /* RC3DKPlus */ = {
+			isa = PBXGroup;
+			children = (
+				327524BE1A3A61CE00459B79 /* RC3DK.h */,
+				327524BF1A3A61CE00459B79 /* RC3DKPlus.h */,
+				327524C01A3A61CE00459B79 /* RCCameraParameters.h */,
+				327524C11A3A61CE00459B79 /* RCDeviceInfo.h */,
+				327524C21A3A61CE00459B79 /* RCFeaturePoint.h */,
+				327524C31A3A61CE00459B79 /* RCLicenseError.h */,
+				327524C41A3A61CE00459B79 /* RCPoint.h */,
+				327524C51A3A61CE00459B79 /* RCRotation.h */,
+				327524C61A3A61CE00459B79 /* RCScalar.h */,
+				327524C71A3A61CE00459B79 /* RCSensorFusion.h */,
+				327524C81A3A61CE00459B79 /* RCSensorFusionData.h */,
+				327524C91A3A61CE00459B79 /* RCSensorFusionError.h */,
+				327524CA1A3A61CE00459B79 /* RCSensorFusionInternals.h */,
+				327524CB1A3A61CE00459B79 /* RCSensorFusionStatus.h */,
+				327524CC1A3A61CE00459B79 /* RCStereo.h */,
+				327524CD1A3A61CE00459B79 /* RCTransformation.h */,
+				327524CE1A3A61CE00459B79 /* RCTranslation.h */,
+				327524CF1A3A61CE00459B79 /* RCVector.h */,
+			);
+			path = RC3DKPlus;
 			sourceTree = "<group>";
 		};
 		32BFDD9E1A2E433D00D03F44 /* Calibration */ = {
@@ -528,7 +549,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				327524741A3271DC00459B79 /* PBXTargetDependency */,
 			);
 			name = TrackLinks;
 			productName = TrackLinks;
@@ -584,12 +604,6 @@
 			mainGroup = 323BD07D1A25324800313573;
 			productRefGroup = 323BD0871A25324800313573 /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = 323BD0B01A25387500313573 /* Products */;
-					ProjectRef = 323BD0AF1A25387500313573 /* RC3DK.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				323BD0851A25324800313573 /* TrackLinks */,
@@ -597,30 +611,6 @@
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		323BD0B51A25387500313573 /* libRC3DK.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libRC3DK.a;
-			remoteRef = 323BD0B41A25387500313573 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		323BD0B71A25387500313573 /* RC3DKTests.xctest */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = RC3DKTests.xctest;
-			remoteRef = 323BD0B61A25387500313573 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		327524781A3271DC00459B79 /* libRC3DKPlus.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libRC3DKPlus.a;
-			remoteRef = 327524771A3271DC00459B79 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		323BD0841A25324800313573 /* Resources */ = {
@@ -716,11 +706,6 @@
 			isa = PBXTargetDependency;
 			target = 323BD0851A25324800313573 /* TrackLinks */;
 			targetProxy = 323BD0A01A25324800313573 /* PBXContainerItemProxy */;
-		};
-		327524741A3271DC00459B79 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = RC3DKPlus;
-			targetProxy = 327524731A3271DC00459B79 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -824,6 +809,11 @@
 				INFOPLIST_FILE = TrackLinks/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Users/benhirashima/Documents/Development/RealityCap/rcmain/rc3dk-lib",
+					"/Users/benhirashima/Documents/Development/RealityCap/rcmain/rc3dk-plus-lib",
+				);
 				OTHER_LDFLAGS = "-lc++";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "";
@@ -840,6 +830,11 @@
 				INFOPLIST_FILE = TrackLinks/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Users/benhirashima/Documents/Development/RealityCap/rcmain/rc3dk-lib",
+					"/Users/benhirashima/Documents/Development/RealityCap/rcmain/rc3dk-plus-lib",
+				);
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = "-lc++";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -928,6 +923,11 @@
 				INFOPLIST_FILE = TrackLinks/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Users/benhirashima/Documents/Development/RealityCap/rcmain/rc3dk-lib",
+					"/Users/benhirashima/Documents/Development/RealityCap/rcmain/rc3dk-plus-lib",
+				);
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "-lc++";
 				PRODUCT_NAME = "$(TARGET_NAME)";

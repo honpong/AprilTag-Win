@@ -43,6 +43,7 @@
         [NSUserDefaults.standardUserDefaults registerDefaults:appDefaults];
     });
     
+    [SENSOR_FUSION setLicenseKey:RC3DK_LICENSE_KEY];
     mySensorDelegate = [SensorDelegate sharedInstance];
     
     mainViewController = self.window.rootViewController;

@@ -12,7 +12,6 @@
 #import "RCSensorDelegate.h"
 #import "RCDebugLog.h"
 #import <CoreLocation/CoreLocation.h>
-#import <RC3DKPlus/RC3DKPlus.h>
 #import "RCLocationManager.h"
 
 static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationLandscapeRight;
@@ -358,9 +357,10 @@ static transition transitions[] =
 
 - (void) sensorFusionDidChangeStatus:(RCSensorFusionStatus *)status
 {
+    if (status.error) DLog(@"Sensor fusion error: %@", status.error);
+    
     if ([status.error isKindOfClass:[RCSensorFusionError class]])
     {
-        DLog(@"ERROR code %ld", status.error.code);
         lastErrorCode = (RCSensorFusionErrorCode)status.error.code;
         
         if(status.error.code == RCSensorFusionErrorCodeTooFast) {

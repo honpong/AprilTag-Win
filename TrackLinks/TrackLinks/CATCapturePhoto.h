@@ -14,6 +14,7 @@
 #import "MBProgressHUD.h"
 #import "CATConstants.h"
 #import "RCVideoPreview.h"
+#import "RC3DKPlus.h"
 
 @interface CATCapturePhoto : UIViewController <RCSensorFusionDelegate, RCStereoDelegate>
 

@@ -23,15 +23,15 @@ function build_rc_menu() {
             h=0; v=1;
         }
         
-        var v_offset = v * (window.innerHeight - button_size * 6) / 12;
-        var h_offset = h * (window.innerWidth - button_size * 6) / 12;
+        var v_offset = v * (window.innerHeight - button_size * 5) / 10;
+        var h_offset = h * (window.innerWidth - button_size * 5) / 10;
         rc_menu.menu_background.size(menu_svg.width(), menu_svg.height());
         rc_menu.button1.move(h_offset + 0 * button_size * h, v_offset + 0 * button_size * v + 1);
         rc_menu.button2.move(h_offset*3 + 1 * button_size * h, v_offset + 1 * button_size * v + 1);
         rc_menu.button3.move(h_offset*5 + 2 * button_size * h, v_offset + 2 * button_size * v + 1);
         rc_menu.button4.move(h_offset*7 + 3 * button_size * h, v_offset + 3 * button_size * v + 1);
         rc_menu.button5.move(h_offset*9 + 4 * button_size * h, v_offset + 4 * button_size * v + 1);
-        rc_menu.button6.move(h_offset*11 + 5 * button_size * h, v_offset + 5 * button_size * v + 1);
+        //rc_menu.button6.move(h_offset*11 + 5 * button_size * h, v_offset + 5 * button_size * v + 1);
         //button7.move(h_offset + 6 * button_size * h, v_offset + 6 * button_size * v);
         //button8.move(h_offset + 7 * button_size * h, v_offset + 7 * button_size * v);
         if ( ! draw.node.contains(menu_svg.node)) {draw.node.appendChild(menu_svg.node);}
@@ -44,7 +44,7 @@ function build_rc_menu() {
     rc_menu.button3 = menu_svg.group();
     rc_menu.button4 = menu_svg.group();
     rc_menu.button5 = menu_svg.group();
-    rc_menu.button6 = menu_svg.group();
+    //rc_menu.button6 = menu_svg.group();
     //var rc_menu.button7 = menu_svg.group();
     //var rc_menu.button8 = menu_svg.group();
 
@@ -53,7 +53,7 @@ function build_rc_menu() {
     rc_menu.button3.add(menu_svg.rect(button_size -2, button_size -2).stroke({ color: button_outline_color, opacity: button_fill_opacity, width: 1 }).fill({color: button_fill_color, opacity: button_fill_opacity}));
     rc_menu.button4.add(menu_svg.rect(button_size -2, button_size -2).stroke({ color: button_outline_color, opacity: button_fill_opacity, width: 1 }).fill({color: button_fill_color, opacity: button_fill_opacity}));
     rc_menu.button5.add(menu_svg.rect(button_size -2, button_size -2).stroke({ color: button_outline_color, opacity: button_fill_opacity, width: 1 }).fill({color: button_fill_color, opacity: button_fill_opacity}));
-    rc_menu.button6.add(menu_svg.rect(button_size -2, button_size -2).stroke({ color: button_outline_color, opacity: button_fill_opacity, width: 1 }).fill({color: button_fill_color, opacity: button_fill_opacity}));
+    //rc_menu.button6.add(menu_svg.rect(button_size -2, button_size -2).stroke({ color: button_outline_color, opacity: button_fill_opacity, width: 1 }).fill({color: button_fill_color, opacity: button_fill_opacity}));
     //rc_menu.button7.add(menu_svg.rect(button_size -2, button_size -2).stroke({ color: button_outline_color, opacity: 1, width: 3 }).fill(button_fill_color));
     //rc_menu.button8.add(menu_svg.rect(button_size -2, button_size -2).stroke({ color: button_outline_color, opacity: 1, width: 3 }).fill(button_fill_color));
 
@@ -72,8 +72,8 @@ function build_rc_menu() {
         }
     }
     
-    // add 3d button to button 6
-    draw_3d_axis( rc_menu.button6);
+    // add 3d button to button 1
+    //draw_3d_axis( rc_menu.button1);
 
     //add line icon to button1
     function draw_line_icon (button) {

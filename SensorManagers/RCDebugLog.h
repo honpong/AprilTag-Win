@@ -10,6 +10,10 @@
 #ifndef RCDebugLog_h
     #define RCDebugLog_h
 
+    #ifdef LIBRARY
+        #define LOGME // do nothing
+        #define DLog(fmt, ...) // do nothing
+        #define NSLog(...) // do nothing
     #ifdef ARCHIVE
         #define LOGME // do nothing
         #define DLog(fmt, ...) // do nothing

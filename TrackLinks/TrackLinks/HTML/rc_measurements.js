@@ -9,13 +9,6 @@ rcMeasurements = {
 };
 
 
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                                                                      //
-//          LINEAR MEASUREMENTS                                                                                                         //
-//                                                                                                                                      //
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 // instantiate a measurement and add it to the measurment list
 // takes image locations
 rcMeasurements.new_measurement = function (iX1, iY1, iX2, iY2, measured_svg){
@@ -201,14 +194,6 @@ rcMeasurements.redraw_lines = function(m) {
 // this clears all measurements, used when we are switching between measured photos but not reloading the app
 rcMeasurements.reset = function () {
 }
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                                                                      //
-//          EDITING AND DYNAMIC PRESENTATION OF LINEAR MEAUREMENTS                                                                      //
-//                                                                                                                                      //
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 
 
 rcMeasurements.move_measurement = function (m, nx1, ny1, nx2, ny2) {

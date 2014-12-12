@@ -21,7 +21,6 @@
 		323BD0D61A253AEC00313573 /* measured_photo_svg.html in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0C31A253AEC00313573 /* measured_photo_svg.html */; };
 		323BD0D71A253AEC00313573 /* numeric_keypad.js in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0C41A253AEC00313573 /* numeric_keypad.js */; };
 		323BD0D81A253AEC00313573 /* rc_measurements.js in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0C51A253AEC00313573 /* rc_measurements.js */; };
-		323BD0DA1A253AEC00313573 /* rc_messages.js in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0C71A253AEC00313573 /* rc_messages.js */; };
 		323BD0DB1A253AEC00313573 /* request_animation_frame.js in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0C81A253AEC00313573 /* request_animation_frame.js */; };
 		323BD0DC1A253AEC00313573 /* scale_and_rotate.js in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0C91A253AEC00313573 /* scale_and_rotate.js */; };
 		323BD0DD1A253AEC00313573 /* svgjs.js in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0CA1A253AEC00313573 /* svgjs.js */; };
@@ -112,7 +111,6 @@
 		323BD0C31A253AEC00313573 /* measured_photo_svg.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = measured_photo_svg.html; sourceTree = "<group>"; };
 		323BD0C41A253AEC00313573 /* numeric_keypad.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = numeric_keypad.js; sourceTree = "<group>"; };
 		323BD0C51A253AEC00313573 /* rc_measurements.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = rc_measurements.js; sourceTree = "<group>"; };
-		323BD0C71A253AEC00313573 /* rc_messages.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = rc_messages.js; sourceTree = "<group>"; };
 		323BD0C81A253AEC00313573 /* request_animation_frame.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = request_animation_frame.js; sourceTree = "<group>"; };
 		323BD0C91A253AEC00313573 /* scale_and_rotate.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = scale_and_rotate.js; sourceTree = "<group>"; };
 		323BD0CA1A253AEC00313573 /* svgjs.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = svgjs.js; sourceTree = "<group>"; };
@@ -350,7 +348,6 @@
 				323BD0C31A253AEC00313573 /* measured_photo_svg.html */,
 				323BD0C41A253AEC00313573 /* numeric_keypad.js */,
 				323BD0C51A253AEC00313573 /* rc_measurements.js */,
-				323BD0C71A253AEC00313573 /* rc_messages.js */,
 				323BD0C81A253AEC00313573 /* request_animation_frame.js */,
 				323BD0C91A253AEC00313573 /* scale_and_rotate.js */,
 				323BD0CA1A253AEC00313573 /* svgjs.js */,
@@ -637,7 +634,6 @@
 				323BD0D51A253AEC00313573 /* main_function.js in Resources */,
 				323BD0D01A253AEC00313573 /* fastclick.js in Resources */,
 				323BD0D41A253AEC00313573 /* json2.js in Resources */,
-				323BD0DA1A253AEC00313573 /* rc_messages.js in Resources */,
 				323BD0DB1A253AEC00313573 /* request_animation_frame.js in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

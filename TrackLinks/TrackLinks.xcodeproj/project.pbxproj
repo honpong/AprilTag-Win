@@ -7,6 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		17759E0A1A3B965D00DA7944 /* rc_menu.js in Resources */ = {isa = PBXBuildFile; fileRef = 17759E071A3B965D00DA7944 /* rc_menu.js */; };
+		17759E0B1A3B965D00DA7944 /* rc_messages.js in Resources */ = {isa = PBXBuildFile; fileRef = 17759E081A3B965D00DA7944 /* rc_messages.js */; };
+		17759E0C1A3B965D00DA7944 /* web_view_rotation.js in Resources */ = {isa = PBXBuildFile; fileRef = 17759E091A3B965D00DA7944 /* web_view_rotation.js */; };
+		17759E0E1A3B966E00DA7944 /* numeric_keypad.js in Resources */ = {isa = PBXBuildFile; fileRef = 17759E0D1A3B966E00DA7944 /* numeric_keypad.js */; };
+		17759E111A3B968300DA7944 /* svgjs_filter.js in Resources */ = {isa = PBXBuildFile; fileRef = 17759E0F1A3B968300DA7944 /* svgjs_filter.js */; };
+		17759E121A3B968300DA7944 /* fastclick.js in Resources */ = {isa = PBXBuildFile; fileRef = 17759E101A3B968300DA7944 /* fastclick.js */; };
+		17759E141A3B968E00DA7944 /* svgjs_fornobj.js in Resources */ = {isa = PBXBuildFile; fileRef = 17759E131A3B968D00DA7944 /* svgjs_fornobj.js */; };
 		323BD08C1A25324800313573 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD08B1A25324800313573 /* main.m */; };
 		323BD08F1A25324800313573 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD08E1A25324800313573 /* AppDelegate.m */; };
 		323BD0971A25324800313573 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0961A25324800313573 /* Images.xcassets */; };
@@ -89,6 +96,13 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		17759E071A3B965D00DA7944 /* rc_menu.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = rc_menu.js; sourceTree = "<group>"; };
+		17759E081A3B965D00DA7944 /* rc_messages.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = rc_messages.js; sourceTree = "<group>"; };
+		17759E091A3B965D00DA7944 /* web_view_rotation.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = web_view_rotation.js; sourceTree = "<group>"; };
+		17759E0D1A3B966E00DA7944 /* numeric_keypad.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = numeric_keypad.js; sourceTree = "<group>"; };
+		17759E0F1A3B968300DA7944 /* svgjs_filter.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = svgjs_filter.js; sourceTree = "<group>"; };
+		17759E101A3B968300DA7944 /* fastclick.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = fastclick.js; sourceTree = "<group>"; };
+		17759E131A3B968D00DA7944 /* svgjs_fornobj.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = svgjs_fornobj.js; sourceTree = "<group>"; };
 		323BD0861A25324800313573 /* TrackLinks.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TrackLinks.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		323BD08A1A25324800313573 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		323BD08B1A25324800313573 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -335,9 +349,16 @@
 				323BD0BC1A253AEC00313573 /* depth_data.js */,
 				323BD0BE1A253AEC00313573 /* global_variables.js */,
 				323BD0BF1A253AEC00313573 /* hammer.js */,
+				17759E071A3B965D00DA7944 /* rc_menu.js */,
+				17759E081A3B965D00DA7944 /* rc_messages.js */,
+				17759E091A3B965D00DA7944 /* web_view_rotation.js */,
+				17759E0D1A3B966E00DA7944 /* numeric_keypad.js */,
 				323BD0C01A253AEC00313573 /* jquery-2.1.1.min.js */,
 				323BD0C11A253AEC00313573 /* json2.js */,
 				323BD0C21A253AEC00313573 /* main_function.js */,
+				17759E0F1A3B968300DA7944 /* svgjs_filter.js */,
+				17759E131A3B968D00DA7944 /* svgjs_fornobj.js */,
+				17759E101A3B968300DA7944 /* fastclick.js */,
 				323BD0C31A253AEC00313573 /* measured_photo_svg.html */,
 				323BD0C51A253AEC00313573 /* rc_measurements.js */,
 				323BD0C81A253AEC00313573 /* request_animation_frame.js */,
@@ -606,18 +627,25 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				17759E111A3B968300DA7944 /* svgjs_filter.js in Resources */,
 				323BD0CF1A253AEC00313573 /* depth_data.js in Resources */,
 				323BD0DD1A253AEC00313573 /* svgjs.js in Resources */,
 				323BD0D31A253AEC00313573 /* jquery-2.1.1.min.js in Resources */,
 				32BFDDAB1A2E433D00D03F44 /* Calibration.storyboard in Resources */,
 				32BFDDAD1A2E433D00D03F44 /* holding_portrait.jpg in Resources */,
 				32BFDDAC1A2E433D00D03F44 /* holding_landscape.jpg in Resources */,
+				17759E0C1A3B965D00DA7944 /* web_view_rotation.js in Resources */,
 				323BD0D21A253AEC00313573 /* hammer.js in Resources */,
+				17759E0E1A3B966E00DA7944 /* numeric_keypad.js in Resources */,
 				32BFDDAE1A2E433D00D03F44 /* ipad_on_table.jpg in Resources */,
 				323BD1111A253B9A00313573 /* MainStoryboard.storyboard in Resources */,
 				323BD0DC1A253AEC00313573 /* scale_and_rotate.js in Resources */,
+				17759E0B1A3B965D00DA7944 /* rc_messages.js in Resources */,
 				323BD0D61A253AEC00313573 /* measured_photo_svg.html in Resources */,
+				17759E141A3B968E00DA7944 /* svgjs_fornobj.js in Resources */,
 				323BD0D81A253AEC00313573 /* rc_measurements.js in Resources */,
+				17759E121A3B968300DA7944 /* fastclick.js in Resources */,
+				17759E0A1A3B965D00DA7944 /* rc_menu.js in Resources */,
 				323BD0D11A253AEC00313573 /* global_variables.js in Resources */,
 				323BD0971A25324800313573 /* Images.xcassets in Resources */,
 				323BD0D51A253AEC00313573 /* main_function.js in Resources */,

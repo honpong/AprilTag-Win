@@ -1,13 +1,14 @@
-//  Copyright (c) 2014 Caterpillar. All rights reserved.
-
+//Copywrite (c) 2014 by RealityCap, Inc. Written by Jordan Miller for the exclusive use of RealityCap, Inc.
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////                        CODE TO DO PAN AND ZOOM ANIMATIONS , scalling,                 ////////////
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-// draw is the primary SVG node. it contains the img_container
+// draw is the primary SVG node. it contains menu_svg and the img_container
+// menu_svg contains the menu, so it can be scaled independendtly of the img_container
 // img_container contains the images and the measurements
 // draw_g is an svg group that is inside img_container.
 // draw_g has the measurements and the image and depth map as members.
+// draw_g is rotated durring mobile orientation changes. rotations are applied after panning operations.
 // draw_g is scaled durring zoom operations.
 // zoom_factor is the ratio between the number of screen pixels along a line over image pixels.
 // draw_g is panned and centered by x and y offsets which are in screen pixels rather than image pixels.
@@ -16,10 +17,16 @@
 
 var last_bounce_animation_time = 10;
 var pan_bounce_frame_start = null;
+var landscape_offset = 0;
+var portrait_offset = 0;
 
 function calculate_min_zoom(){
     var effective_width = img_container.width();
     var effective_height = img_container.height();
+    if (last_orientation == 3 || last_orientation == 4){
+        effective_width = img_container.height();
+        effective_height = img_container.width();
+    }
     
     var z_factor;
     if ((image_width)/(image_height) >= effective_width/effective_height) { //image is too wide for screen, scale by width
@@ -35,9 +42,27 @@ function calculate_min_zoom(){
 function scaleImageToMatchScreen() {
     //console.log('scale image to match screen');
     if (draw_g.node.contains(measured_svg.node)) {draw_g.node.removeChild(measured_svg.node);}
+    var changing_orientation = false;
     
-    img_container.size(window.innerWidth, window.innerHeight);
-    img_container.move(0,0);
+    if(window.innerHeight > window.innerWidth){
+        portrait_offset = button_size;
+        landscape_offset = 0;
+        //console.log('img_container sizing portrate');
+        img_container.size(window.innerWidth, window.innerHeight - button_size);
+        img_container.move(0,0);
+        if (orientation_drawn_landsacep == true) {changing_orientation = true;}
+        orientation_drawn_landsacep = false;
+    }
+    else {
+        portrait_offset = 0;
+        landscape_offset = button_size;
+        //console.log('img_container sizing landsape');
+        img_container.size(window.innerWidth - button_size, window.innerHeight);
+        img_container.move(button_size, 0);
+        if (orientation_drawn_landsacep == false) {changing_orientation = true;}
+        orientation_drawn_landsacep = true;
+    }
+    
     
     //scale image to match screen
     if (initial_load) {
@@ -46,11 +71,23 @@ function scaleImageToMatchScreen() {
         zoom_factor = calculate_min_zoom();
         min_zoom = zoom_factor; //we never want to let the user go smaller than this.
     }
+    else { //TODO: comment why this is doing this... is it for forced ortientatino change? or tablet browser uncontroled orientation change?
+        if (changing_orientation && orientation_drawn_landsacep) { //going from portrait to landscape
+            x_offset = x_offset - (img_container.width() - prior_window_inner_width)/1.1;
+        }
+        else if (changing_orientation && !orientation_drawn_landsacep) { //going from landscape to portrait
+            x_offset = x_offset - (img_container.width() - prior_window_inner_width)/2.5;
+        }
+    }
+    prior_window_inner_width = img_container.width();
+    prior_window_inner_height = img_container.height();
     
-    calculate_zoom_boundaries(); //set the max/min zoom offsets
+    calculate_zoom_boundaries(last_orientation); //set the max/min zoom offsets
     draw_g.scale(zoom_factor);
     drawing_pan_offset();
     
+    
+    //redraw_all_measurements(); //i think this is no longer necessary as we are doing image based location in the svg
     draw_g.node.appendChild(measured_svg.node);
     initial_load = false;
     
@@ -146,8 +183,9 @@ function animate_zoom_return(unused_time) {
 }
 
 
-function calculate_zoom_boundaries() {
+function calculate_zoom_boundaries(orientation) {
     //calculate zoom offsets
+    //if (orientation == 1 || orientation == 2) { //coordinate system is not rotated... origin is in upper left of screen
     max_x_offset = Math.max( image_width*zoom_factor/2, img_container.width()/2   );
     max_y_offset = Math.max( image_height*zoom_factor/2,  img_container.height()/2 );
     
@@ -157,7 +195,28 @@ function calculate_zoom_boundaries() {
     
     if (img_container.height() < image_height * zoom_factor) {
         min_y_offset = img_container.height() - image_height * zoom_factor / 2;}
-    else { min_y_offset = Math.max( 0 - image_height * zoom_factor / 2,  img_container.height()/2);}
+    else { min_y_offset = Math.max( portrait_offset - image_height * zoom_factor / 2,  img_container.height()/2);}
+    //}
+    if (orientation == 3) { //origin is rotaed + 90% from center of screen.... potentially plus or minus some prior offset
+        if (image_width * zoom_factor > img_container.height()){
+            max_x_offset = img_container.width()/2 - img_container.height()/2 + image_width*zoom_factor/2;
+            min_x_offset = img_container.width()/2 + img_container.height()/2 - image_width*zoom_factor/2;
+        }
+        if (image_height * zoom_factor > img_container.width()){
+            max_y_offset = img_container.height()/2 - img_container.width()/2 + image_height*zoom_factor/2;
+            min_y_offset = img_container.height()/2 + img_container.width()/2 - image_height*zoom_factor/2;
+        }
+    }
+    else if (orientation == 4) { //origin is rotaed - 90% from center of screen.... potentially plus or minus some offset
+        if (image_width * zoom_factor > img_container.height()){
+            max_x_offset = img_container.width()/2 - img_container.height()/2 + image_width*zoom_factor/2;
+            min_x_offset = img_container.width()/2 + img_container.height()/2 - image_width*zoom_factor/2;
+        }
+        if (image_height * zoom_factor > img_container.width()){
+            max_y_offset = img_container.height()/2 - img_container.width()/2 + image_height*zoom_factor/2;
+            min_y_offset = img_container.height()/2 + img_container.width()/2 - image_height*zoom_factor/2;
+        }
+    }
     
 }
 
@@ -184,22 +243,113 @@ function drawing_pan_offset() {
     
 }
 
-// method to keep track of how screen is changing with regrads zoom and pan
+// helper method to keep track of how screen is changing with regrads zoom and pan
 // returns an image coordinate given a pixel coordinate
 function pxl_to_img_xy(pX, pY){
     var iX, iY;
+    if (last_orientation == 1) { //regular portrait
         iX = (pX - x_offset - img_container.x())/zoom_factor + image_width/2; //we add half image width because x_offset is relative to image center
         iY = (pY - y_offset)/zoom_factor + image_height/2;
+    }
+    else if (last_orientation == 2) { //upside down portrait
+        iX = (img_container.width() - pX - x_offset+ img_container.x())/zoom_factor + image_width/2;
+        iY = (img_container.height()  - pY - y_offset)/zoom_factor + image_height/2;
+    }
+    else if (last_orientation == 3 ) {
+        iX = (pY - x_offset + (img_container.width() - img_container.height())/2)/zoom_factor + image_width/2;
+        iY = ((img_container.width() - pX) + img_container.x() - y_offset + (img_container.height() - img_container.width())/2)/zoom_factor + image_height/2; //the top of the image is to the right of the screen
+    }
+    else {  //last orientation == 4
+        iX = ((img_container.height() - pY) - x_offset + (img_container.width() - img_container.height())/2)/zoom_factor + image_width/2;
+        iY = (pX - img_container.x() - y_offset + (img_container.height() - img_container.width())/2)/zoom_factor + image_height/2;
+    }
     return {'x':iX, 'y':iY};
 }
 
-// method to keep track of how screen is changing with regrads zoom, pan, and rotation.
+// helper method to keep track of how screen is changing with regrads zoom, pan, and rotation.
 // returns a pixel coordinate given an image coordinate
 function img_to_pxl_xy(iX, iY){
     //console.log(JSON.stringify({'ix':iX, 'iy':iY}))
     var pX, pY;
+    if (last_orientation == 1) { //regular portrait
         pX = (iX - image_width/2)*zoom_factor + x_offset + img_container.x();
         pY = ( iY - image_height/2 ) * zoom_factor + y_offset;
+    }
+    else if (last_orientation == 2) { //upside down portrait
+        pX = (image_width/2 - iX)  * zoom_factor + img_container.width()  - x_offset + img_container.x();
+        pY = (image_height/2 - iY) * zoom_factor + img_container.height() - y_offset;
+    }
+    else if (last_orientation == 3 ) {
+        pY = (iX - image_width/2)*zoom_factor + x_offset - (img_container.width() - img_container.height())/2;
+        pX = (image_height/2 - iY)*zoom_factor + img_container.width() + img_container.x() - y_offset + (img_container.height() - img_container.width())/2; //the top of the image is to the right of the screen
+    }
+    else {  //last orientation == 4
+        pY = (image_width/2 - iX)*zoom_factor + img_container.height() - x_offset + (img_container.width() - img_container.height())/2;
+        pX = (iY - image_height/2) * zoom_factor + img_container.x() + y_offset - (img_container.height() - img_container.width())/2 ;
+    }
+    //console.log(JSON.stringify(window.innerHeight))
+    //console.log(JSON.stringify({'px':pX, 'py':pY}))
     return {'x':pX, 'y':pY};
+}
+
+
+
+//move the number being edited into the center of the screen not obscured by number pad
+var pre_np_x, pre_np_y, pre_np_min_x, pre_np_min_y, pre_np_max_x, pre_np_max_y;
+function move_image_for_number_pad(edited_number_x, edited_number_y){
+    //save the current image pan, and min x/y values
+    pre_np_x = x_offset;
+    pre_np_y = y_offset;
+    pre_np_min_x = min_x_offset;
+    pre_np_min_y = min_y_offset;
+    pre_np_max_x = max_x_offset;
+    pre_np_max_y = max_y_offset;
+    //calculate the new x/y offsets, change min x/y to allow for image to be moved appropriately
+    var pxY = img_to_pxl_xy(edited_number_x, edited_number_y)
+    if (last_orientation == 1) {
+        if (pxY.y > (window.innerHeight - np_svg.height() - 15 )) { // only move it if the number is obscured by the number pad
+            y_offset = y_offset -  np_svg.height();
+            min_y_offset = min_y_offset - np_svg.height();
+        }
+    }
+    else if (last_orientation == 2) {
+        if (pxY.y < (np_svg.height() + 15 )) { // only move it if the number is obscured by the number pad
+            y_offset = y_offset - np_svg.height();
+            min_y_offset = min_y_offset - np_svg.height();
+        }
+    }
+    else if (last_orientation == 3) {
+        if (pxY.x <  (np_svg.width() + 15 )) { // only move it if the number is obscured by the number pad
+            y_offset = y_offset -  np_svg.width();
+            min_y_offset = min_y_offset - np_svg.width();
+        }
+    }
+    else if (last_orientation == 4) {
+        if (pxY.x > (window.innerWidth - np_svg.width() - 15 )) { // only move it if the number is obscured by the number pad
+            y_offset = y_offset -  np_svg.width();
+            min_y_offset = min_y_offset - np_svg.width();
+        }
+    }
+
+    
+    
+    //animate move to new location
+    drawing_pan_offset();
+}
+
+//return scree position to where it was pre number edit operation
+function return_image_after_number_pad() {
+    //animate reuturn to saved x,y position with restored mix x/y values
+    x_offset = pre_np_x;
+    y_offset = pre_np_y;
+    min_x_offset = pre_np_min_x;
+    min_y_offset = pre_np_min_y;
+    max_x_offset = pre_np_max_x;
+    max_y_offset = pre_np_max_y;
+
+    drawing_pan_offset();
+    
+
+    
 }
 

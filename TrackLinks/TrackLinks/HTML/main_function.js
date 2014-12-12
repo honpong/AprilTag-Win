@@ -50,7 +50,7 @@ function rc_initialize(){
     /* create an svg drawing */
     draw = SVG('drawing').size(window.innerWidth, window.innerHeight);
     img_container = draw.nested();
-    img_container.size(window.innerWidth, window.innerHeight); //initialize, this will change later depending on orientation
+    img_container.size(window.innerWidth, window.innerHeight);
     draw_g = img_container.group();
     measured_svg = img_container.nested();
     draw_g.add(measured_svg);
@@ -134,23 +134,9 @@ function rc_initialize(){
                          }
                          
                          //when we started using a transmormation with an origin property via the svg library, our x and y offsets started acting strangely when the image was rotated
-                         // this conditional statement causes panning gestures and mouse movements to behave correctly when we have a forced orientation change.
-                         if (last_orientation == 1) {
                          x_offset = x_offset + x_pan;
                          y_offset = y_offset + y_pan;
-                         }
-                         else if (last_orientation == 2) {
-                         x_offset = x_offset - x_pan;
-                         y_offset = y_offset - y_pan;
-                         }
-                         else if (last_orientation == 3) {
-                         x_offset = x_offset + y_pan;
-                         y_offset = y_offset + -x_pan;
-                         }
-                         else if (last_orientation == 4) {
-                         x_offset = x_offset + -y_pan;
-                         y_offset = y_offset + x_pan;
-                         }
+                         
                          if (scale_change != 1 ) {
                          window.requestAnimationFrame(function(unused_time){
                                                       zoom( scale_change, e.gesture.center.pageX, e.gesture.center.pageY);  }); }
@@ -254,10 +240,6 @@ function rc_initialize(){
     //prevent scrolling
     document.body.addEventListener('touchstart', function(e){ e.stopPropagation(); e.preventDefault(); });
 
-    window.addEventListener('resize', function(event){
-                            doOnOrientationChange();
-                            start_pan_bounce(); start_zoom_return();
-                            });
     
     dm_initialize();
     

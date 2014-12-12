@@ -27,14 +27,6 @@ var measured_svg; //a nested svg object inside draw_g that contains the measurem
 var image;  // the image that goes in the svg node
 var bounce_animation_id = null; // allows tracking and canceling of the pan bounce animation
 
-
-//variables for tracking and instantiating measurements
-var current_measurement = null;
-var lineNotStarted = true; //tracking user behavior to know what actions to take TODO: replace w/ null check on click_image_x1
-var click_image_x1, click_image_y1; //tracing of first point
-var marker; //svg element which should apear at imate cooridnates of click_image_x1, click_image_y1
-
-
 // color constants
 var shadow_color = '#222';
 var highlight_color = '#992';

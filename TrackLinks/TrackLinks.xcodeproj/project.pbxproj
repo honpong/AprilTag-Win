@@ -12,19 +12,16 @@
 		323BD0971A25324800313573 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0961A25324800313573 /* Images.xcassets */; };
 		323BD0A61A25324800313573 /* TrackLinksTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0A51A25324800313573 /* TrackLinksTests.m */; };
 		323BD0CF1A253AEC00313573 /* depth_data.js in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0BC1A253AEC00313573 /* depth_data.js */; };
-		323BD0D01A253AEC00313573 /* fastclick.js in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0BD1A253AEC00313573 /* fastclick.js */; };
 		323BD0D11A253AEC00313573 /* global_variables.js in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0BE1A253AEC00313573 /* global_variables.js */; };
 		323BD0D21A253AEC00313573 /* hammer.js in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0BF1A253AEC00313573 /* hammer.js */; };
 		323BD0D31A253AEC00313573 /* jquery-2.1.1.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0C01A253AEC00313573 /* jquery-2.1.1.min.js */; };
 		323BD0D41A253AEC00313573 /* json2.js in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0C11A253AEC00313573 /* json2.js */; };
 		323BD0D51A253AEC00313573 /* main_function.js in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0C21A253AEC00313573 /* main_function.js */; };
 		323BD0D61A253AEC00313573 /* measured_photo_svg.html in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0C31A253AEC00313573 /* measured_photo_svg.html */; };
-		323BD0D71A253AEC00313573 /* numeric_keypad.js in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0C41A253AEC00313573 /* numeric_keypad.js */; };
 		323BD0D81A253AEC00313573 /* rc_measurements.js in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0C51A253AEC00313573 /* rc_measurements.js */; };
 		323BD0DB1A253AEC00313573 /* request_animation_frame.js in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0C81A253AEC00313573 /* request_animation_frame.js */; };
 		323BD0DC1A253AEC00313573 /* scale_and_rotate.js in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0C91A253AEC00313573 /* scale_and_rotate.js */; };
 		323BD0DD1A253AEC00313573 /* svgjs.js in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0CA1A253AEC00313573 /* svgjs.js */; };
-		323BD0DF1A253AEC00313573 /* svgjs_fornobj.js in Resources */ = {isa = PBXBuildFile; fileRef = 323BD0CC1A253AEC00313573 /* svgjs_fornobj.js */; };
 		323BD1011A253B0D00313573 /* CATCapturePhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0E71A253B0D00313573 /* CATCapturePhoto.m */; };
 		323BD1031A253B0D00313573 /* CATEditPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 323BD0EC1A253B0D00313573 /* CATEditPhoto.m */; };
 		323BD1111A253B9A00313573 /* MainStoryboard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 323BD10D1A253B9A00313573 /* MainStoryboard.storyboard */; };
@@ -102,19 +99,16 @@
 		323BD0A41A25324800313573 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		323BD0A51A25324800313573 /* TrackLinksTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TrackLinksTests.m; sourceTree = "<group>"; };
 		323BD0BC1A253AEC00313573 /* depth_data.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = depth_data.js; sourceTree = "<group>"; };
-		323BD0BD1A253AEC00313573 /* fastclick.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = fastclick.js; sourceTree = "<group>"; };
 		323BD0BE1A253AEC00313573 /* global_variables.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = global_variables.js; sourceTree = "<group>"; };
 		323BD0BF1A253AEC00313573 /* hammer.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = hammer.js; sourceTree = "<group>"; };
 		323BD0C01A253AEC00313573 /* jquery-2.1.1.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "jquery-2.1.1.min.js"; sourceTree = "<group>"; };
 		323BD0C11A253AEC00313573 /* json2.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = json2.js; sourceTree = "<group>"; };
 		323BD0C21A253AEC00313573 /* main_function.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = main_function.js; sourceTree = "<group>"; };
 		323BD0C31A253AEC00313573 /* measured_photo_svg.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = measured_photo_svg.html; sourceTree = "<group>"; };
-		323BD0C41A253AEC00313573 /* numeric_keypad.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = numeric_keypad.js; sourceTree = "<group>"; };
 		323BD0C51A253AEC00313573 /* rc_measurements.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = rc_measurements.js; sourceTree = "<group>"; };
 		323BD0C81A253AEC00313573 /* request_animation_frame.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = request_animation_frame.js; sourceTree = "<group>"; };
 		323BD0C91A253AEC00313573 /* scale_and_rotate.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = scale_and_rotate.js; sourceTree = "<group>"; };
 		323BD0CA1A253AEC00313573 /* svgjs.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = svgjs.js; sourceTree = "<group>"; };
-		323BD0CC1A253AEC00313573 /* svgjs_fornobj.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = svgjs_fornobj.js; sourceTree = "<group>"; };
 		323BD0E61A253B0D00313573 /* CATCapturePhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATCapturePhoto.h; sourceTree = "<group>"; };
 		323BD0E71A253B0D00313573 /* CATCapturePhoto.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CATCapturePhoto.m; sourceTree = "<group>"; };
 		323BD0E81A253B0D00313573 /* CATConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CATConstants.h; sourceTree = "<group>"; };
@@ -339,19 +333,16 @@
 			isa = PBXGroup;
 			children = (
 				323BD0BC1A253AEC00313573 /* depth_data.js */,
-				323BD0BD1A253AEC00313573 /* fastclick.js */,
 				323BD0BE1A253AEC00313573 /* global_variables.js */,
 				323BD0BF1A253AEC00313573 /* hammer.js */,
 				323BD0C01A253AEC00313573 /* jquery-2.1.1.min.js */,
 				323BD0C11A253AEC00313573 /* json2.js */,
 				323BD0C21A253AEC00313573 /* main_function.js */,
 				323BD0C31A253AEC00313573 /* measured_photo_svg.html */,
-				323BD0C41A253AEC00313573 /* numeric_keypad.js */,
 				323BD0C51A253AEC00313573 /* rc_measurements.js */,
 				323BD0C81A253AEC00313573 /* request_animation_frame.js */,
 				323BD0C91A253AEC00313573 /* scale_and_rotate.js */,
 				323BD0CA1A253AEC00313573 /* svgjs.js */,
-				323BD0CC1A253AEC00313573 /* svgjs_fornobj.js */,
 			);
 			name = HTML;
 			path = TrackLinks/HTML;
@@ -618,9 +609,7 @@
 				323BD0CF1A253AEC00313573 /* depth_data.js in Resources */,
 				323BD0DD1A253AEC00313573 /* svgjs.js in Resources */,
 				323BD0D31A253AEC00313573 /* jquery-2.1.1.min.js in Resources */,
-				323BD0D71A253AEC00313573 /* numeric_keypad.js in Resources */,
 				32BFDDAB1A2E433D00D03F44 /* Calibration.storyboard in Resources */,
-				323BD0DF1A253AEC00313573 /* svgjs_fornobj.js in Resources */,
 				32BFDDAD1A2E433D00D03F44 /* holding_portrait.jpg in Resources */,
 				32BFDDAC1A2E433D00D03F44 /* holding_landscape.jpg in Resources */,
 				323BD0D21A253AEC00313573 /* hammer.js in Resources */,
@@ -632,7 +621,6 @@
 				323BD0D11A253AEC00313573 /* global_variables.js in Resources */,
 				323BD0971A25324800313573 /* Images.xcassets in Resources */,
 				323BD0D51A253AEC00313573 /* main_function.js in Resources */,
-				323BD0D01A253AEC00313573 /* fastclick.js in Resources */,
 				323BD0D41A253AEC00313573 /* json2.js in Resources */,
 				323BD0DB1A253AEC00313573 /* request_animation_frame.js in Resources */,
 			);

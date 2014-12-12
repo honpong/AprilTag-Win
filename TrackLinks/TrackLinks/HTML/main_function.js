@@ -27,17 +27,6 @@ function doOnOrientationChange()
 var switch_image_depthmap; //declaring this in the global scope for later initialization
 var dm_mask_fade_animaiton_id; //used for iterative callback for animating the mask fade.
 
-function clear_tool_data(){ //this should be called whenever theres a switch in tools
-    //line tool data
-    //console.log('starting clear_tool_data');
-    lineNotStarted = true;
-    click_image_x1 = null;
-    click_image_y1 = null;
-    if(marker) { marker.remove(); }
-    //text annotation data
-    rcMeasurements.endNoteEdit();
-}
-
 
 function rc_initialize(){
     //console.log = logNative;
@@ -149,10 +138,6 @@ function rc_initialize(){
     
     console.log('done with hammer, starting line handler');
     
-    
-    FastClick.attach(document.body);
-
-    
     switch_image_depthmap = function () { //we move the image svg off the dom, and move the depthmap on the dom.
         //console.log('switch_image_depthmap()');
         //remove image from dom tree put mask in its place
@@ -261,16 +246,10 @@ function clear_all(){
         measured_svg = img_container.nested();
         draw_g.add(measured_svg);
         rcMeasurements.reset();
-
-        // reset tool data / button data
-        clear_tool_data();
     
         // reset the depth map
         dm_initialize();
-    
-        // removed numberpad if attached
-        if(draw.node.contains(np_svg.node)) {draw.node.removeChild(np_svg.node);}
-        
+            
         //remove the image
         image.remove();
         image = null;

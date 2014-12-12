@@ -8,12 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
-
-@protocol RCCameraManagerDelegate <NSObject>
-
-- (void) focusOperationFinished:(bool)timedOut;
-
-@end
+#import <functional>
 
 @interface RCCameraManager : NSObject
 
@@ -22,9 +17,7 @@
 - (void) setVideoDevice:(AVCaptureDevice *)device;
 - (void) releaseVideoDevice;
 
-- (void) focusOnceAndLock;
-- (void) lockFocus;
-
-@property (weak, nonatomic) id<RCCameraManagerDelegate> delegate;
+- (void) focusOnceAndLockWithCallback:(std::function<void (uint64_t, float)>)callback;
+- (void) lockFocusWithCallback:(std::function<void (uint64_t, float)>)callback;
 
 @end

@@ -32,8 +32,7 @@ camera_control_interface::~camera_control_interface()
 
 void camera_control_interface::focus_lock_at_current_position(std::function<void (uint64_t, float)> callback)
 {
-    [(__bridge RCCameraManager *)platform_ptr lockFocus];
-    //TODO: pass callback
+    [(__bridge RCCameraManager *)platform_ptr lockFocusWithCallback:callback];
 }
 
 void camera_control_interface::focus_lock_at_position(float position, std::function<void (uint64_t)> callback)
@@ -43,8 +42,7 @@ void camera_control_interface::focus_lock_at_position(float position, std::funct
 
 void camera_control_interface::focus_once_and_lock(std::function<void (uint64_t, float)> callback)
 {
-    [(__bridge RCCameraManager *)platform_ptr focusOnceAndLock];
-    //TODO: pass callback
+    [(__bridge RCCameraManager *)platform_ptr focusOnceAndLockWithCallback:callback];
 }
 
 void camera_control_interface::focus_unlock()
@@ -66,11 +64,10 @@ typedef NS_ENUM(int, RCCameraManagerOperationType) {
 
     BOOL isFocusing;
     RCCameraManagerOperationType pendingOperation;
+    std::function<void (uint64_t, float)> callback;
 
     NSTimer * timeoutTimer;
 }
-
-@synthesize delegate;
 
 + (id) sharedInstance
 {
@@ -80,6 +77,14 @@ typedef NS_ENUM(int, RCCameraManagerOperationType) {
         instance = [[self alloc] init];
     });
     return instance;
+}
+
+- (void)performCallbackWithTime:(uint64_t)timestamp withFocalLength:(float)focal_length
+{
+    if(callback)
+        callback(timestamp, focal_length);
+    callback = nil;
+    pendingOperation = RCCameraManagerOperationNone;
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
@@ -102,9 +107,7 @@ typedef NS_ENUM(int, RCCameraManagerOperationType) {
                     [videoDevice unlockForConfiguration];
                 }
             }
-            if(delegate)
-                [delegate focusOperationFinished:false];
-            pendingOperation = RCCameraManagerOperationNone;
+            [self performCallbackWithTime:0 withFocalLength:0];
         }
     }
 }
@@ -116,8 +119,7 @@ typedef NS_ENUM(int, RCCameraManagerOperationType) {
         // For some reason, even though we've requested it, the focus event isn't happening, give up and continue
         pendingOperation = RCCameraManagerOperationNone;
         DLog(@"Focus timed out, continuing");
-        if(delegate)
-            [delegate focusOperationFinished:true];
+        [self performCallbackWithTime:0 withFocalLength:0];
     }
 }
 
@@ -155,23 +157,23 @@ typedef NS_ENUM(int, RCCameraManagerOperationType) {
     }
 }
 
-- (void) focusOperation:(RCCameraManagerOperationType)operation
+- (void) focusOperation:(RCCameraManagerOperationType)operation withCallback:(std::function<void (uint64_t, float)>)focus_callback
 {
     // Only one operation can be performed at a time
     if(pendingOperation)
         return;
 
+    callback = focus_callback;
+
     if(!isFocusCapable) {
         DLog(@"INFO: Doesn't support focus, starting without");
-        if(delegate)
-            [delegate focusOperationFinished:false];
+        [self performCallbackWithTime:0 withFocalLength:0];
     }
     else if(operation == RCCameraManagerOperationFocusLock &&
             videoDevice.focusMode == AVCaptureFocusModeLocked && !videoDevice.adjustingFocus) {
         // Focus is already locked and we requested a lock
         DLog(@"INFO: Focus is already locked, starting");
-        if(delegate)
-            [delegate focusOperationFinished:false];
+        [self performCallbackWithTime:0 withFocalLength:0];
     }
     else {
         if ([videoDevice lockForConfiguration:nil]) {
@@ -187,16 +189,16 @@ typedef NS_ENUM(int, RCCameraManagerOperationType) {
 
 }
 
-- (void) focusOnceAndLock
+- (void) focusOnceAndLockWithCallback:(std::function<void (uint64_t, float)>)focus_callback
 {
     DLog(@"Focus once and lock requested");
-    [self focusOperation:RCCameraManagerOperationFocusOnce];
+    [self focusOperation:RCCameraManagerOperationFocusOnce withCallback:focus_callback];
 }
 
-- (void) lockFocus
+- (void) lockFocusWithCallback:(std::function<void (uint64_t, float)>)focus_callback
 {
     DLog(@"Focus lock requested");
-    [self focusOperation:RCCameraManagerOperationFocusLock];
+    [self focusOperation:RCCameraManagerOperationFocusLock withCallback:focus_callback];
 }
 
 @end

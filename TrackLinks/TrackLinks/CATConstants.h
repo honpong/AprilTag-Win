@@ -30,5 +30,3 @@
 typedef enum {
     UnitsMetric = 0, UnitsImperial = 1
 } Units;
-
-#define RC3DK_LICENSE_KEY @"C4c5C2Ae73eD8c3EdAAFDC75df12DC"

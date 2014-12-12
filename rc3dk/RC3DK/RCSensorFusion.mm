@@ -118,6 +118,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
         return;
     }
 
+#if !SKIP_LICENSE_CHECK
     if (apiKey == nil || apiKey.length == 0)
     {
         if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorMissingKey userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. License key was nil or zero length.", NSLocalizedFailureReasonErrorKey: @"License key was nil or zero length."}]);
@@ -234,6 +235,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
          }
      }
      ];
+#endif
 }
 
 - (void) validateLicenseInternal

@@ -903,7 +903,7 @@ static transition transitions[] =
         if (color == ColorRed)
             self.messageLabel.backgroundColor = [UIColor colorWithRed:1 green:0 blue:0 alpha:.8];
         else if (color == ColorYellow)
-            self.messageLabel.backgroundColor = [UIColor colorWithRed:1 green:1 blue:0 alpha:.8];
+            self.messageLabel.backgroundColor = [UIColor colorWithRed:.7 green:.6 blue:0 alpha:.9];
         else
             self.messageLabel.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:.3];
         

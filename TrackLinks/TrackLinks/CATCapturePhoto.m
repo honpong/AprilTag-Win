@@ -14,7 +14,7 @@
 #import <CoreLocation/CoreLocation.h>
 #import "RCLocationManager.h"
 
-static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationLandscapeRight;
+static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationLandscapeLeft;
 
 @implementation CATCapturePhoto
 {

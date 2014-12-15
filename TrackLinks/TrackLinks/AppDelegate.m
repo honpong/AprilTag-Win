@@ -26,6 +26,8 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    [SENSOR_FUSION setLicenseKey:@"C4c5C2Ae73eD8c3EdAAFDC75df12DC"]; // this is Caterpillar's evaluation license key for 3DKPlus
+    
     dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
         // Register the preference defaults early.
         NSString* locale = [[NSLocale currentLocale] localeIdentifier];

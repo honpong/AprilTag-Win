@@ -63,21 +63,6 @@
     return fileUrl.path;
 }
 
-- (NSString*) annotationsFileName
-{
-    NSString* fileName = [NSString stringWithFormat:@"%@-annotations.json", self.id_guid];
-    NSURL* fileUrl = [WORKING_DIRECTORY_URL URLByAppendingPathComponent:fileName];
-    return fileUrl.path;
-}
-
-- (BOOL) writeAnnotationsToFile:(NSString*)jsonString
-{
-    NSError* error = nil;
-    BOOL result = [jsonString writeToFile:[self annotationsFileName] atomically:NO encoding:NSUTF8StringEncoding error:&error];
-    if (error) DLog(@"%@", error);
-    return result;
-}
-
 - (BOOL) deleteAssociatedFiles
 {
     BOOL isSuccess = YES;

@@ -19,9 +19,6 @@ static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationLandscapeLe
 @implementation CATCapturePhoto
 {
     BOOL useLocation;
-    double lastTransitionTime;
-    int filterStatusCode;
-    BOOL isAligned;
     RCTransformation *initialCamera;
     
     MBProgressHUD *progressView;
@@ -31,7 +28,6 @@ static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationLandscapeLe
     
     CATMeasuredPhoto* measuredPhoto;
     
-    BOOL didGetVisionError;
     RCSensorFusionErrorCode lastErrorCode;
 }
 @synthesize videoView;
@@ -149,7 +145,6 @@ static transition transitions[] =
     if(!oldSetup.showInstructions && newSetup.showInstructions)
         self.progressBar.hidden = NO;
 
-    lastTransitionTime = CACurrentMediaTime();
     currentState = newState;
 }
 
@@ -161,7 +156,6 @@ static transition transitions[] =
     if (newState == ST_READY)
     {
         lastErrorCode = RCSensorFusionErrorCodeNone;
-        didGetVisionError = NO;
     }
     else if(newState == ST_PROCESSING)
     {
@@ -279,10 +273,6 @@ static transition transitions[] =
     [self handleStateEvent:EV_SHUTTER_TAP];
 }
 
-- (void) handleMoveStart
-{
-}
-
 - (void) handleCaptureFinished
 {
     measuredPhoto = [self saveMeasuredPhoto];
@@ -368,7 +358,6 @@ static transition transitions[] =
         } else if(status.error.code == RCSensorFusionErrorCodeOther) {
             [self handleStateEvent:EV_FAIL];
         } else if(status.error.code == RCSensorFusionErrorCodeVision) {
-            didGetVisionError = YES;
             [self handleStateEvent:EV_VISIONFAIL];
         }
     }

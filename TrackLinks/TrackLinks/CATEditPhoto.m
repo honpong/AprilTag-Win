@@ -7,12 +7,6 @@
 #import "CATConstants.h"
 #import "NSString+RCString.h"
 
-@interface CATEditPhoto ()
-
-@property (nonatomic, readwrite) UIDeviceOrientation currentUIOrientation;
-
-@end
-
 @implementation CATEditPhoto
 {
     BOOL isWebViewLoaded;
@@ -33,11 +27,6 @@
     self.webView.scalesPageToFit = NO;
     self.webView.delegate = self;
     [self.webView loadRequest:[NSURLRequest requestWithURL:htmlUrl]];
-}
-
-- (void) viewWillAppear:(BOOL)animated
-{
-    
 }
 
 - (void) viewDidDisappear:(BOOL)animated
@@ -74,9 +63,8 @@
     if (self.measuredPhoto)
     {
         Units units = (Units)[NSUserDefaults.standardUserDefaults integerForKey:PREF_UNITS];
-        NSString* javascript = [NSString stringWithFormat:@"loadMPhoto('%@', '%@', '%@', '%@', %i);", self.measuredPhoto.imageFileName, self.measuredPhoto.depthFileName, self.measuredPhoto.annotationsFileName, self.measuredPhoto.id_guid, units == UnitsMetric];
+        NSString* javascript = [NSString stringWithFormat:@"loadMPhoto('%@', '%@', '%@', '%@', %i);", self.measuredPhoto.imageFileName, self.measuredPhoto.depthFileName, nil, self.measuredPhoto.id_guid, units == UnitsMetric];
         [self.webView stringByEvaluatingJavaScriptFromString: javascript];
-//        DLog(@"%@", javascript);
     }
     else
     {
@@ -108,18 +96,7 @@
     {
         return YES; // allow loading local files
     }
-    else if ([request.URL.scheme isEqualToString:@"native"]) // do something on native://something links
-    {
-//        if ([request.URL.host isEqualToString:@"finish"]) [self finish];
-        
-        return NO; // indicates web view should not load the content of the link
-    }
     else return NO; // disallow loading of http and all other types of links
-}
-
-- (void) webViewLog:(NSString*)message
-{
-    if (message && message.length > 0) DLog(@"%@", message);
 }
 
 @end

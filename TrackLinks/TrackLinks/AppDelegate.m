@@ -19,7 +19,6 @@
 
 @implementation AppDelegate
 {
-    UIAlertView *locationAlert;
     UIViewController* mainViewController;
     id<RCSensorDelegate> mySensorDelegate;
 }
@@ -114,30 +113,15 @@
 
 - (void) calibrationDidFinish:(UIViewController*)lastViewController
 {
-    LOGME
     [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_IS_CALIBRATED];
     
     [lastViewController presentViewController:mainViewController animated:YES completion:nil];
-}
-
-#pragma mark - RCCalibrationDelegate
-
-- (void) calibrationScreenDidAppear:(NSString *)screenName
-{
-    // log to analytics if desired
-}
-
-- (void) calibrationDidFail:(NSError *)error
-{
-    DLog(@"Calibration failed: %@", error);
-    // TODO: implement
 }
 
 #pragma mark -
 
 - (void)applicationWillResignActive:(UIApplication *)application
 {
-    LOGME
     if (MOTION_MANAGER.isCapturing) [MOTION_MANAGER stopMotionCapture];
 }
 

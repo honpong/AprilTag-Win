@@ -13,9 +13,9 @@ extern "C" {
 #include "filter_setup.h"
 #include <mach/mach_time.h>
 #import "RCCalibration.h"
-#import "RCCameraManager.h"
 #import "RCPrivateHTTPClient.h"
 #import "NSString+RCString.h"
+#include <functional>
 
 uint64_t get_timestamp()
 {
@@ -75,7 +75,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
 
 @end
 
-@interface RCSensorFusion () <RCCameraManagerDelegate>
+@interface RCSensorFusion ()
 
 @property (nonatomic) RCLicenseType licenseType;
 
@@ -372,8 +372,9 @@ typedef NS_ENUM(int, RCLicenseStatus)
 {
 }
 
-- (void) focusOperationFinished:(bool)timedOut
+- (void) focusOperationFinishedAtTime:(uint64_t)timestamp withLensPosition:(float)lens_position
 {
+    NSLog(@"Focus operation finished at %llu with %f, starting processing", timestamp, lens_position);
     // startProcessingVideo
     if(processingVideoRequested && !isProcessingVideo) {
         isProcessingVideo = true;
@@ -396,13 +397,17 @@ typedef NS_ENUM(int, RCLicenseStatus)
         filter_start_hold_steady(&_cor_setup->sfm);
     });
     
-    RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
-
     isProcessingVideo = false;
     processingVideoRequested = true;
-    cameraManager.delegate = self;
-    [cameraManager setVideoDevice:device];
-    [cameraManager lockFocus];
+
+    _cor_setup->sfm.camera_control.init((__bridge void *)device);
+    __weak typeof(self) weakself = self;
+    std::function<void (uint64_t, float)> callback = [weakself](uint64_t timestamp, float position)
+    {
+        [weakself focusOperationFinishedAtTime:timestamp withLensPosition:position];
+    };
+    _cor_setup->sfm.camera_control.focus_lock_at_current_position(callback);
+
     isSensorFusionRunning = true;
     
     [self validateLicenseInternal];
@@ -418,14 +423,18 @@ typedef NS_ENUM(int, RCLicenseStatus)
         dispatch_async(queue, ^{
             filter_start_dynamic(&_cor_setup->sfm);
         });
-        RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
         
         isProcessingVideo = false;
         processingVideoRequested = true;
         isSensorFusionRunning = true;
-        cameraManager.delegate = self;
-        [cameraManager setVideoDevice:device];
-        [cameraManager lockFocus];
+        
+        _cor_setup->sfm.camera_control.init((__bridge void *)device);
+        __weak typeof(self) weakself = self;
+        std::function<void (uint64_t, float)> callback = [weakself](uint64_t timestamp, float position)
+        {
+            [weakself focusOperationFinishedAtTime:timestamp withLensPosition:position];
+        };
+        _cor_setup->sfm.camera_control.focus_lock_at_current_position(callback);
     }
     else if ([self.delegate respondsToSelector:@selector(sensorFusionDidChangeStatus:)])
     {
@@ -469,8 +478,10 @@ typedef NS_ENUM(int, RCLicenseStatus)
             pixelBufferCached = nil;
         }
     });
-    RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
-    [cameraManager releaseVideoDevice];
+
+    _cor_setup->sfm.camera_control.focus_unlock();
+    _cor_setup->sfm.camera_control.release_platform_specific_object();
+
     isProcessingVideo = false;
     processingVideoRequested = false;
 }
@@ -516,14 +527,18 @@ typedef NS_ENUM(int, RCLicenseStatus)
         });
     }
     
-    if((errorCode == RCSensorFusionErrorCodeVision && f->run_state != RCSensorFusionRunStateRunning) || (f->run_state == RCSensorFusionRunStateSteadyInitialization && converged < .1)) {
+    if((errorCode == RCSensorFusionErrorCodeVision && f->run_state != RCSensorFusionRunStateRunning)) {
         //refocus if either we tried to detect and failed, or if we've recently moved during initialization
         isProcessingVideo = false;
         processingVideoRequested = true;
         
         // Request a refocus
-        RCCameraManager * cameraManager = [RCCameraManager sharedInstance];
-        [cameraManager focusOnceAndLock];
+        __weak typeof(self) weakself = self;
+        std::function<void (uint64_t, float)> callback = [weakself](uint64_t timestamp, float position)
+        {
+            [weakself focusOperationFinishedAtTime:timestamp withLensPosition:position];
+        };
+        _cor_setup->sfm.camera_control.focus_once_and_lock(callback);        
     }
     
     if((converged != lastProgress) || (errorCode != lastErrorCode) || (f->run_state != lastRunState))

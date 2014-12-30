@@ -1,0 +1,736 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		321910611A52328D00AEF550 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 321910601A52328D00AEF550 /* main.m */; };
+		321910641A52328D00AEF550 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 321910631A52328D00AEF550 /* AppDelegate.m */; };
+		321910671A52328D00AEF550 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 321910661A52328D00AEF550 /* ViewController.m */; };
+		3219106A1A52328D00AEF550 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 321910681A52328D00AEF550 /* Main.storyboard */; };
+		3219106C1A52328D00AEF550 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3219106B1A52328D00AEF550 /* Images.xcassets */; };
+		3219106F1A52328D00AEF550 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3219106D1A52328D00AEF550 /* LaunchScreen.xib */; };
+		3219107B1A52328E00AEF550 /* SunlayarTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3219107A1A52328E00AEF550 /* SunlayarTests.m */; };
+		3219108B1A52330500AEF550 /* RCGLManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 321910861A52330500AEF550 /* RCGLManagerFactory.m */; };
+		3219108C1A52330500AEF550 /* RCGLShaderProgram.m in Sources */ = {isa = PBXBuildFile; fileRef = 321910881A52330500AEF550 /* RCGLShaderProgram.m */; };
+		3219108D1A52330500AEF550 /* RCVideoPreview.m in Sources */ = {isa = PBXBuildFile; fileRef = 3219108A1A52330500AEF550 /* RCVideoPreview.m */; };
+		3219109B1A52330F00AEF550 /* Calibration.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3219108F1A52330F00AEF550 /* Calibration.storyboard */; };
+		3219109C1A52330F00AEF550 /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 321910901A52330F00AEF550 /* holding_landscape.jpg */; };
+		3219109D1A52330F00AEF550 /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 321910911A52330F00AEF550 /* holding_portrait.jpg */; };
+		3219109E1A52330F00AEF550 /* ipad_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 321910921A52330F00AEF550 /* ipad_on_table.jpg */; };
+		3219109F1A52330F00AEF550 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 321910941A52330F00AEF550 /* MBProgressHUD.m */; };
+		321910A01A52330F00AEF550 /* RCCalibration1.m in Sources */ = {isa = PBXBuildFile; fileRef = 321910961A52330F00AEF550 /* RCCalibration1.m */; };
+		321910A11A52330F00AEF550 /* RCCalibration2.m in Sources */ = {isa = PBXBuildFile; fileRef = 321910981A52330F00AEF550 /* RCCalibration2.m */; };
+		321910A21A52330F00AEF550 /* RCCalibration3.m in Sources */ = {isa = PBXBuildFile; fileRef = 3219109A1A52330F00AEF550 /* RCCalibration3.m */; };
+		321910B01A52332100AEF550 /* RCAVSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 321910A51A52332100AEF550 /* RCAVSessionManager.m */; };
+		321910B11A52332100AEF550 /* RCLocationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 321910A81A52332100AEF550 /* RCLocationManager.m */; };
+		321910B21A52332100AEF550 /* RCMotionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 321910AA1A52332100AEF550 /* RCMotionManager.m */; };
+		321910B31A52332100AEF550 /* RCSensorDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 321910AC1A52332100AEF550 /* RCSensorDelegate.m */; };
+		321910B41A52332100AEF550 /* RCVideoManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 321910AF1A52332100AEF550 /* RCVideoManager.m */; };
+		321910CF1A52345A00AEF550 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 321910CE1A52345A00AEF550 /* GLKit.framework */; };
+		321910D11A52346000AEF550 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 321910D01A52346000AEF550 /* OpenGLES.framework */; };
+		321910D51A52347300AEF550 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 321910D21A52347300AEF550 /* AVFoundation.framework */; };
+		321910D61A52347300AEF550 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 321910D31A52347300AEF550 /* CoreFoundation.framework */; };
+		321910D71A52347300AEF550 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 321910D41A52347300AEF550 /* Foundation.framework */; };
+		321910E51A52350300AEF550 /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 321910D81A52350300AEF550 /* Accelerate.framework */; };
+		321910E61A52350300AEF550 /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 321910D91A52350300AEF550 /* CFNetwork.framework */; };
+		321910E71A52350300AEF550 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 321910DA1A52350300AEF550 /* CoreGraphics.framework */; };
+		321910E81A52350300AEF550 /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 321910DB1A52350300AEF550 /* CoreImage.framework */; };
+		321910E91A52350300AEF550 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 321910DC1A52350300AEF550 /* CoreLocation.framework */; };
+		321910EA1A52350300AEF550 /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 321910DD1A52350300AEF550 /* CoreMedia.framework */; };
+		321910EB1A52350300AEF550 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 321910DE1A52350300AEF550 /* CoreMotion.framework */; };
+		321910EC1A52350300AEF550 /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 321910DF1A52350300AEF550 /* CoreVideo.framework */; };
+		321910ED1A52350300AEF550 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 321910E01A52350300AEF550 /* MobileCoreServices.framework */; };
+		321910EE1A52350300AEF550 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 321910E11A52350300AEF550 /* QuartzCore.framework */; };
+		321910EF1A52350300AEF550 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 321910E21A52350300AEF550 /* Security.framework */; };
+		321910F01A52350300AEF550 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 321910E31A52350300AEF550 /* SystemConfiguration.framework */; };
+		321910F11A52350300AEF550 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 321910E41A52350300AEF550 /* UIKit.framework */; };
+		321911011A52392E00AEF550 /* libRC3DKPlus.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 321910FE1A52391C00AEF550 /* libRC3DKPlus.a */; };
+		321911051A523AFA00AEF550 /* shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 321911031A523AFA00AEF550 /* shader.fsh */; };
+		321911061A523AFA00AEF550 /* shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 321911041A523AFA00AEF550 /* shader.vsh */; };
+		321F682F1A523C520016D985 /* libz.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 321F682E1A523C520016D985 /* libz.dylib */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		321910751A52328E00AEF550 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 321910531A52328D00AEF550 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3219105A1A52328D00AEF550;
+			remoteInfo = Sunlayar;
+		};
+		321910F91A52391C00AEF550 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 321910F31A52391C00AEF550 /* RC3DK.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 327B54DF18EB4CC90001CCE1;
+			remoteInfo = RC3DK;
+		};
+		321910FB1A52391C00AEF550 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 321910F31A52391C00AEF550 /* RC3DK.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 327B54EF18EB4CC90001CCE1;
+			remoteInfo = RC3DKTests;
+		};
+		321910FD1A52391C00AEF550 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 321910F31A52391C00AEF550 /* RC3DK.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D3B4EB591A1E7DE100BE0443;
+			remoteInfo = RC3DKPlus;
+		};
+		321910FF1A52392700AEF550 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 321910F31A52391C00AEF550 /* RC3DK.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = D3B4EABE1A1E7DE100BE0443;
+			remoteInfo = RC3DKPlus;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		3219105B1A52328D00AEF550 /* Sunlayar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sunlayar.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3219105F1A52328D00AEF550 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		321910601A52328D00AEF550 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		321910621A52328D00AEF550 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		321910631A52328D00AEF550 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		321910651A52328D00AEF550 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		321910661A52328D00AEF550 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		321910691A52328D00AEF550 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		3219106B1A52328D00AEF550 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		3219106E1A52328D00AEF550 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
+		321910741A52328E00AEF550 /* SunlayarTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SunlayarTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		321910791A52328E00AEF550 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		3219107A1A52328E00AEF550 /* SunlayarTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SunlayarTests.m; sourceTree = "<group>"; };
+		321910851A52330500AEF550 /* RCGLManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCGLManagerFactory.h; sourceTree = "<group>"; };
+		321910861A52330500AEF550 /* RCGLManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCGLManagerFactory.m; sourceTree = "<group>"; };
+		321910871A52330500AEF550 /* RCGLShaderProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCGLShaderProgram.h; sourceTree = "<group>"; };
+		321910881A52330500AEF550 /* RCGLShaderProgram.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCGLShaderProgram.m; sourceTree = "<group>"; };
+		321910891A52330500AEF550 /* RCVideoPreview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoPreview.h; sourceTree = "<group>"; };
+		3219108A1A52330500AEF550 /* RCVideoPreview.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoPreview.m; sourceTree = "<group>"; };
+		3219108F1A52330F00AEF550 /* Calibration.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Calibration.storyboard; sourceTree = "<group>"; };
+		321910901A52330F00AEF550 /* holding_landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_landscape.jpg; sourceTree = "<group>"; };
+		321910911A52330F00AEF550 /* holding_portrait.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_portrait.jpg; sourceTree = "<group>"; };
+		321910921A52330F00AEF550 /* ipad_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = ipad_on_table.jpg; sourceTree = "<group>"; };
+		321910931A52330F00AEF550 /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
+		321910941A52330F00AEF550 /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
+		321910951A52330F00AEF550 /* RCCalibration1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration1.h; sourceTree = "<group>"; };
+		321910961A52330F00AEF550 /* RCCalibration1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration1.m; sourceTree = "<group>"; };
+		321910971A52330F00AEF550 /* RCCalibration2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration2.h; sourceTree = "<group>"; };
+		321910981A52330F00AEF550 /* RCCalibration2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration2.m; sourceTree = "<group>"; };
+		321910991A52330F00AEF550 /* RCCalibration3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration3.h; sourceTree = "<group>"; };
+		3219109A1A52330F00AEF550 /* RCCalibration3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration3.m; sourceTree = "<group>"; };
+		321910A41A52332100AEF550 /* RCAVSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAVSessionManager.h; sourceTree = "<group>"; };
+		321910A51A52332100AEF550 /* RCAVSessionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAVSessionManager.m; sourceTree = "<group>"; };
+		321910A61A52332100AEF550 /* RCDebugLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDebugLog.h; sourceTree = "<group>"; };
+		321910A71A52332100AEF550 /* RCLocationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCLocationManager.h; sourceTree = "<group>"; };
+		321910A81A52332100AEF550 /* RCLocationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCLocationManager.m; sourceTree = "<group>"; };
+		321910A91A52332100AEF550 /* RCMotionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMotionManager.h; sourceTree = "<group>"; };
+		321910AA1A52332100AEF550 /* RCMotionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCMotionManager.m; sourceTree = "<group>"; };
+		321910AB1A52332100AEF550 /* RCSensorDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorDelegate.h; sourceTree = "<group>"; };
+		321910AC1A52332100AEF550 /* RCSensorDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCSensorDelegate.m; sourceTree = "<group>"; };
+		321910AD1A52332100AEF550 /* RCVideoFrameProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoFrameProvider.h; sourceTree = "<group>"; };
+		321910AE1A52332100AEF550 /* RCVideoManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoManager.h; sourceTree = "<group>"; };
+		321910AF1A52332100AEF550 /* RCVideoManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoManager.m; sourceTree = "<group>"; };
+		321910CE1A52345A00AEF550 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
+		321910D01A52346000AEF550 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
+		321910D21A52347300AEF550 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		321910D31A52347300AEF550 /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
+		321910D41A52347300AEF550 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		321910D81A52350300AEF550 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
+		321910D91A52350300AEF550 /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
+		321910DA1A52350300AEF550 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		321910DB1A52350300AEF550 /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
+		321910DC1A52350300AEF550 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		321910DD1A52350300AEF550 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
+		321910DE1A52350300AEF550 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
+		321910DF1A52350300AEF550 /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
+		321910E01A52350300AEF550 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = System/Library/Frameworks/MobileCoreServices.framework; sourceTree = SDKROOT; };
+		321910E11A52350300AEF550 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		321910E21A52350300AEF550 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		321910E31A52350300AEF550 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		321910E41A52350300AEF550 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		321910F31A52391C00AEF550 /* RC3DK.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RC3DK.xcodeproj; path = ../rc3dk/RC3DK.xcodeproj; sourceTree = "<group>"; };
+		321911021A52396C00AEF550 /* RC3DK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RC3DK.h; sourceTree = "<group>"; };
+		321911031A523AFA00AEF550 /* shader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.fsh; sourceTree = "<group>"; };
+		321911041A523AFA00AEF550 /* shader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.vsh; sourceTree = "<group>"; };
+		321F682E1A523C520016D985 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		321910581A52328D00AEF550 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				321F682F1A523C520016D985 /* libz.dylib in Frameworks */,
+				321911011A52392E00AEF550 /* libRC3DKPlus.a in Frameworks */,
+				321910E51A52350300AEF550 /* Accelerate.framework in Frameworks */,
+				321910E61A52350300AEF550 /* CFNetwork.framework in Frameworks */,
+				321910E71A52350300AEF550 /* CoreGraphics.framework in Frameworks */,
+				321910E81A52350300AEF550 /* CoreImage.framework in Frameworks */,
+				321910E91A52350300AEF550 /* CoreLocation.framework in Frameworks */,
+				321910EA1A52350300AEF550 /* CoreMedia.framework in Frameworks */,
+				321910EB1A52350300AEF550 /* CoreMotion.framework in Frameworks */,
+				321910EC1A52350300AEF550 /* CoreVideo.framework in Frameworks */,
+				321910ED1A52350300AEF550 /* MobileCoreServices.framework in Frameworks */,
+				321910EE1A52350300AEF550 /* QuartzCore.framework in Frameworks */,
+				321910EF1A52350300AEF550 /* Security.framework in Frameworks */,
+				321910F01A52350300AEF550 /* SystemConfiguration.framework in Frameworks */,
+				321910F11A52350300AEF550 /* UIKit.framework in Frameworks */,
+				321910D51A52347300AEF550 /* AVFoundation.framework in Frameworks */,
+				321910D61A52347300AEF550 /* CoreFoundation.framework in Frameworks */,
+				321910D71A52347300AEF550 /* Foundation.framework in Frameworks */,
+				321910D11A52346000AEF550 /* OpenGLES.framework in Frameworks */,
+				321910CF1A52345A00AEF550 /* GLKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		321910711A52328E00AEF550 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		321910521A52328D00AEF550 = {
+			isa = PBXGroup;
+			children = (
+				321910F31A52391C00AEF550 /* RC3DK.xcodeproj */,
+				3219105D1A52328D00AEF550 /* Sunlayar */,
+				321910771A52328E00AEF550 /* SunlayarTests */,
+				321910F21A52353900AEF550 /* Frameworks */,
+				3219105C1A52328D00AEF550 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		3219105C1A52328D00AEF550 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3219105B1A52328D00AEF550 /* Sunlayar.app */,
+				321910741A52328E00AEF550 /* SunlayarTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		3219105D1A52328D00AEF550 /* Sunlayar */ = {
+			isa = PBXGroup;
+			children = (
+				321910A31A52332100AEF550 /* SensorManagers */,
+				321910841A52330500AEF550 /* AugmentedReality */,
+				3219108E1A52330F00AEF550 /* Calibration */,
+				3219105E1A52328D00AEF550 /* Supporting Files */,
+				321910621A52328D00AEF550 /* AppDelegate.h */,
+				321910631A52328D00AEF550 /* AppDelegate.m */,
+				321910651A52328D00AEF550 /* ViewController.h */,
+				321910661A52328D00AEF550 /* ViewController.m */,
+				321910681A52328D00AEF550 /* Main.storyboard */,
+				3219106B1A52328D00AEF550 /* Images.xcassets */,
+				3219106D1A52328D00AEF550 /* LaunchScreen.xib */,
+				321911021A52396C00AEF550 /* RC3DK.h */,
+			);
+			path = Sunlayar;
+			sourceTree = "<group>";
+		};
+		3219105E1A52328D00AEF550 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				3219105F1A52328D00AEF550 /* Info.plist */,
+				321910601A52328D00AEF550 /* main.m */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		321910771A52328E00AEF550 /* SunlayarTests */ = {
+			isa = PBXGroup;
+			children = (
+				3219107A1A52328E00AEF550 /* SunlayarTests.m */,
+				321910781A52328E00AEF550 /* Supporting Files */,
+			);
+			path = SunlayarTests;
+			sourceTree = "<group>";
+		};
+		321910781A52328E00AEF550 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				321910791A52328E00AEF550 /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		321910841A52330500AEF550 /* AugmentedReality */ = {
+			isa = PBXGroup;
+			children = (
+				321911031A523AFA00AEF550 /* shader.fsh */,
+				321911041A523AFA00AEF550 /* shader.vsh */,
+				321910851A52330500AEF550 /* RCGLManagerFactory.h */,
+				321910861A52330500AEF550 /* RCGLManagerFactory.m */,
+				321910871A52330500AEF550 /* RCGLShaderProgram.h */,
+				321910881A52330500AEF550 /* RCGLShaderProgram.m */,
+				321910891A52330500AEF550 /* RCVideoPreview.h */,
+				3219108A1A52330500AEF550 /* RCVideoPreview.m */,
+			);
+			name = AugmentedReality;
+			path = ../../AugmentedReality;
+			sourceTree = "<group>";
+		};
+		3219108E1A52330F00AEF550 /* Calibration */ = {
+			isa = PBXGroup;
+			children = (
+				3219108F1A52330F00AEF550 /* Calibration.storyboard */,
+				321910901A52330F00AEF550 /* holding_landscape.jpg */,
+				321910911A52330F00AEF550 /* holding_portrait.jpg */,
+				321910921A52330F00AEF550 /* ipad_on_table.jpg */,
+				321910931A52330F00AEF550 /* MBProgressHUD.h */,
+				321910941A52330F00AEF550 /* MBProgressHUD.m */,
+				321910951A52330F00AEF550 /* RCCalibration1.h */,
+				321910961A52330F00AEF550 /* RCCalibration1.m */,
+				321910971A52330F00AEF550 /* RCCalibration2.h */,
+				321910981A52330F00AEF550 /* RCCalibration2.m */,
+				321910991A52330F00AEF550 /* RCCalibration3.h */,
+				3219109A1A52330F00AEF550 /* RCCalibration3.m */,
+			);
+			name = Calibration;
+			path = ../../Calibration;
+			sourceTree = "<group>";
+		};
+		321910A31A52332100AEF550 /* SensorManagers */ = {
+			isa = PBXGroup;
+			children = (
+				321910A41A52332100AEF550 /* RCAVSessionManager.h */,
+				321910A51A52332100AEF550 /* RCAVSessionManager.m */,
+				321910A61A52332100AEF550 /* RCDebugLog.h */,
+				321910A71A52332100AEF550 /* RCLocationManager.h */,
+				321910A81A52332100AEF550 /* RCLocationManager.m */,
+				321910A91A52332100AEF550 /* RCMotionManager.h */,
+				321910AA1A52332100AEF550 /* RCMotionManager.m */,
+				321910AB1A52332100AEF550 /* RCSensorDelegate.h */,
+				321910AC1A52332100AEF550 /* RCSensorDelegate.m */,
+				321910AD1A52332100AEF550 /* RCVideoFrameProvider.h */,
+				321910AE1A52332100AEF550 /* RCVideoManager.h */,
+				321910AF1A52332100AEF550 /* RCVideoManager.m */,
+			);
+			name = SensorManagers;
+			path = ../../SensorManagers;
+			sourceTree = "<group>";
+		};
+		321910F21A52353900AEF550 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				321F682E1A523C520016D985 /* libz.dylib */,
+				321910D81A52350300AEF550 /* Accelerate.framework */,
+				321910D21A52347300AEF550 /* AVFoundation.framework */,
+				321910D91A52350300AEF550 /* CFNetwork.framework */,
+				321910D31A52347300AEF550 /* CoreFoundation.framework */,
+				321910DA1A52350300AEF550 /* CoreGraphics.framework */,
+				321910DB1A52350300AEF550 /* CoreImage.framework */,
+				321910DC1A52350300AEF550 /* CoreLocation.framework */,
+				321910DD1A52350300AEF550 /* CoreMedia.framework */,
+				321910DE1A52350300AEF550 /* CoreMotion.framework */,
+				321910DF1A52350300AEF550 /* CoreVideo.framework */,
+				321910D41A52347300AEF550 /* Foundation.framework */,
+				321910CE1A52345A00AEF550 /* GLKit.framework */,
+				321910E01A52350300AEF550 /* MobileCoreServices.framework */,
+				321910D01A52346000AEF550 /* OpenGLES.framework */,
+				321910E11A52350300AEF550 /* QuartzCore.framework */,
+				321910E21A52350300AEF550 /* Security.framework */,
+				321910E31A52350300AEF550 /* SystemConfiguration.framework */,
+				321910E41A52350300AEF550 /* UIKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		321910F41A52391C00AEF550 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				321910FA1A52391C00AEF550 /* libRC3DK.a */,
+				321910FC1A52391C00AEF550 /* RC3DKTests.xctest */,
+				321910FE1A52391C00AEF550 /* libRC3DKPlus.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		3219105A1A52328D00AEF550 /* Sunlayar */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3219107E1A52328E00AEF550 /* Build configuration list for PBXNativeTarget "Sunlayar" */;
+			buildPhases = (
+				321910571A52328D00AEF550 /* Sources */,
+				321910581A52328D00AEF550 /* Frameworks */,
+				321910591A52328D00AEF550 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				321911001A52392700AEF550 /* PBXTargetDependency */,
+			);
+			name = Sunlayar;
+			productName = Sunlayar;
+			productReference = 3219105B1A52328D00AEF550 /* Sunlayar.app */;
+			productType = "com.apple.product-type.application";
+		};
+		321910731A52328E00AEF550 /* SunlayarTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 321910811A52328E00AEF550 /* Build configuration list for PBXNativeTarget "SunlayarTests" */;
+			buildPhases = (
+				321910701A52328E00AEF550 /* Sources */,
+				321910711A52328E00AEF550 /* Frameworks */,
+				321910721A52328E00AEF550 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				321910761A52328E00AEF550 /* PBXTargetDependency */,
+			);
+			name = SunlayarTests;
+			productName = SunlayarTests;
+			productReference = 321910741A52328E00AEF550 /* SunlayarTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		321910531A52328D00AEF550 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				CLASSPREFIX = SL;
+				LastUpgradeCheck = 0610;
+				ORGANIZATIONNAME = Sunlayar;
+				TargetAttributes = {
+					3219105A1A52328D00AEF550 = {
+						CreatedOnToolsVersion = 6.1.1;
+					};
+					321910731A52328E00AEF550 = {
+						CreatedOnToolsVersion = 6.1.1;
+						TestTargetID = 3219105A1A52328D00AEF550;
+					};
+				};
+			};
+			buildConfigurationList = 321910561A52328D00AEF550 /* Build configuration list for PBXProject "Sunlayar" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 321910521A52328D00AEF550;
+			productRefGroup = 3219105C1A52328D00AEF550 /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 321910F41A52391C00AEF550 /* Products */;
+					ProjectRef = 321910F31A52391C00AEF550 /* RC3DK.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				3219105A1A52328D00AEF550 /* Sunlayar */,
+				321910731A52328E00AEF550 /* SunlayarTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		321910FA1A52391C00AEF550 /* libRC3DK.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRC3DK.a;
+			remoteRef = 321910F91A52391C00AEF550 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		321910FC1A52391C00AEF550 /* RC3DKTests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = RC3DKTests.xctest;
+			remoteRef = 321910FB1A52391C00AEF550 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		321910FE1A52391C00AEF550 /* libRC3DKPlus.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRC3DKPlus.a;
+			remoteRef = 321910FD1A52391C00AEF550 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXResourcesBuildPhase section */
+		321910591A52328D00AEF550 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				321911051A523AFA00AEF550 /* shader.fsh in Resources */,
+				3219106A1A52328D00AEF550 /* Main.storyboard in Resources */,
+				3219109C1A52330F00AEF550 /* holding_landscape.jpg in Resources */,
+				3219109B1A52330F00AEF550 /* Calibration.storyboard in Resources */,
+				3219109E1A52330F00AEF550 /* ipad_on_table.jpg in Resources */,
+				3219106F1A52328D00AEF550 /* LaunchScreen.xib in Resources */,
+				3219109D1A52330F00AEF550 /* holding_portrait.jpg in Resources */,
+				321911061A523AFA00AEF550 /* shader.vsh in Resources */,
+				3219106C1A52328D00AEF550 /* Images.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		321910721A52328E00AEF550 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		321910571A52328D00AEF550 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				321910671A52328D00AEF550 /* ViewController.m in Sources */,
+				321910A21A52330F00AEF550 /* RCCalibration3.m in Sources */,
+				321910A01A52330F00AEF550 /* RCCalibration1.m in Sources */,
+				321910B21A52332100AEF550 /* RCMotionManager.m in Sources */,
+				321910641A52328D00AEF550 /* AppDelegate.m in Sources */,
+				321910B31A52332100AEF550 /* RCSensorDelegate.m in Sources */,
+				321910A11A52330F00AEF550 /* RCCalibration2.m in Sources */,
+				3219108C1A52330500AEF550 /* RCGLShaderProgram.m in Sources */,
+				321910B41A52332100AEF550 /* RCVideoManager.m in Sources */,
+				321910B01A52332100AEF550 /* RCAVSessionManager.m in Sources */,
+				321910B11A52332100AEF550 /* RCLocationManager.m in Sources */,
+				3219108B1A52330500AEF550 /* RCGLManagerFactory.m in Sources */,
+				321910611A52328D00AEF550 /* main.m in Sources */,
+				3219108D1A52330500AEF550 /* RCVideoPreview.m in Sources */,
+				3219109F1A52330F00AEF550 /* MBProgressHUD.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		321910701A52328E00AEF550 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3219107B1A52328E00AEF550 /* SunlayarTests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		321910761A52328E00AEF550 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3219105A1A52328D00AEF550 /* Sunlayar */;
+			targetProxy = 321910751A52328E00AEF550 /* PBXContainerItemProxy */;
+		};
+		321911001A52392700AEF550 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = RC3DKPlus;
+			targetProxy = 321910FF1A52392700AEF550 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		321910681A52328D00AEF550 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				321910691A52328D00AEF550 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		3219106D1A52328D00AEF550 /* LaunchScreen.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				3219106E1A52328D00AEF550 /* Base */,
+			);
+			name = LaunchScreen.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		3219107C1A52328E00AEF550 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		3219107D1A52328E00AEF550 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		3219107F1A52328E00AEF550 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = Sunlayar/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../rc3dk-plus-lib",
+				);
+				OTHER_LDFLAGS = "-lc++";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		321910801A52328E00AEF550 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				INFOPLIST_FILE = Sunlayar/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../rc3dk-plus-lib",
+				);
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = "-lc++";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		321910821A52328E00AEF550 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = SunlayarTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Sunlayar.app/Sunlayar";
+			};
+			name = Debug;
+		};
+		321910831A52328E00AEF550 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				INFOPLIST_FILE = SunlayarTests/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Sunlayar.app/Sunlayar";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		321910561A52328D00AEF550 /* Build configuration list for PBXProject "Sunlayar" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3219107C1A52328E00AEF550 /* Debug */,
+				3219107D1A52328E00AEF550 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3219107E1A52328E00AEF550 /* Build configuration list for PBXNativeTarget "Sunlayar" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3219107F1A52328E00AEF550 /* Debug */,
+				321910801A52328E00AEF550 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		321910811A52328E00AEF550 /* Build configuration list for PBXNativeTarget "SunlayarTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				321910821A52328E00AEF550 /* Debug */,
+				321910831A52328E00AEF550 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 321910531A52328D00AEF550 /* Project object */;
+}

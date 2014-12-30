@@ -469,23 +469,23 @@
 		32BFDE231A2E840700D03F44 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				32C951E71A365E02005E1BFB /* GLKit.framework */,
-				32EC394E1A3623B5004C31C0 /* UIKit.framework */,
-				32EC394C1A3623B0004C31C0 /* Foundation.framework */,
-				32EC394A1A362393004C31C0 /* CoreMotion.framework */,
-				32EC39481A362366004C31C0 /* libz.dylib */,
-				32EC39461A361FA1004C31C0 /* CoreGraphics.framework */,
 				32EC39441A361F96004C31C0 /* Accelerate.framework */,
+				32BFDE211A2E83F600D03F44 /* AVFoundation.framework */,
+				32EC39461A361FA1004C31C0 /* CoreGraphics.framework */,
 				32EC39421A361F89004C31C0 /* CoreImage.framework */,
+				32BFDE1E1A2E83F000D03F44 /* CoreLocation.framework */,
 				32EC39401A361F7B004C31C0 /* CoreMedia.framework */,
+				32EC394A1A362393004C31C0 /* CoreMotion.framework */,
 				32EC393E1A361F74004C31C0 /* CoreVideo.framework */,
+				32EC394C1A3623B0004C31C0 /* Foundation.framework */,
+				32C951E71A365E02005E1BFB /* GLKit.framework */,
+				32EC39481A362366004C31C0 /* libz.dylib */,
 				32EC393C1A361F6A004C31C0 /* MobileCoreServices.framework */,
 				32EC393A1A361F60004C31C0 /* OpenGLES.framework */,
 				32EC39381A361F51004C31C0 /* QuartzCore.framework */,
 				32EC39361A361F45004C31C0 /* Security.framework */,
 				32EC39341A361F39004C31C0 /* SystemConfiguration.framework */,
-				32BFDE211A2E83F600D03F44 /* AVFoundation.framework */,
-				32BFDE1E1A2E83F000D03F44 /* CoreLocation.framework */,
+				32EC394E1A3623B5004C31C0 /* UIKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";

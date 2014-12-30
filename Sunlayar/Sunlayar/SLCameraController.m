@@ -6,13 +6,15 @@
 //  Copyright (c) 2014 Sunlayar. All rights reserved.
 //
 
-#import "ViewController.h"
+#import "SLCameraController.h"
+#import "SLConstants.h"
+#import "RCDebugLog.h"
 
-@interface ViewController ()
+@interface SLCameraController ()
 
 @end
 
-@implementation ViewController
+@implementation SLCameraController
 
 - (void)viewDidLoad {
     [super viewDidLoad];

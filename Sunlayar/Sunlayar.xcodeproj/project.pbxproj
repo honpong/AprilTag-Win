@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		321910611A52328D00AEF550 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 321910601A52328D00AEF550 /* main.m */; };
 		321910641A52328D00AEF550 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 321910631A52328D00AEF550 /* AppDelegate.m */; };
-		321910671A52328D00AEF550 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 321910661A52328D00AEF550 /* ViewController.m */; };
+		321910671A52328D00AEF550 /* SLCameraController.m in Sources */ = {isa = PBXBuildFile; fileRef = 321910661A52328D00AEF550 /* SLCameraController.m */; };
 		3219106A1A52328D00AEF550 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 321910681A52328D00AEF550 /* Main.storyboard */; };
 		3219106C1A52328D00AEF550 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3219106B1A52328D00AEF550 /* Images.xcassets */; };
 		3219106F1A52328D00AEF550 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3219106D1A52328D00AEF550 /* LaunchScreen.xib */; };
@@ -98,8 +98,8 @@
 		321910601A52328D00AEF550 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		321910621A52328D00AEF550 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		321910631A52328D00AEF550 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		321910651A52328D00AEF550 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		321910661A52328D00AEF550 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		321910651A52328D00AEF550 /* SLCameraController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SLCameraController.h; sourceTree = "<group>"; };
+		321910661A52328D00AEF550 /* SLCameraController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SLCameraController.m; sourceTree = "<group>"; };
 		321910691A52328D00AEF550 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		3219106B1A52328D00AEF550 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		3219106E1A52328D00AEF550 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
@@ -160,6 +160,7 @@
 		321911041A523AFA00AEF550 /* shader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.vsh; sourceTree = "<group>"; };
 		321F682E1A523C520016D985 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
 		321F68301A523E180016D985 /* SLConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLConstants.h; sourceTree = "<group>"; };
+		321F68311A5244910016D985 /* RC3DKPlus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RC3DKPlus.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -229,13 +230,12 @@
 				3219105E1A52328D00AEF550 /* Supporting Files */,
 				321910621A52328D00AEF550 /* AppDelegate.h */,
 				321910631A52328D00AEF550 /* AppDelegate.m */,
-				321910651A52328D00AEF550 /* ViewController.h */,
-				321910661A52328D00AEF550 /* ViewController.m */,
+				321F68301A523E180016D985 /* SLConstants.h */,
+				321910651A52328D00AEF550 /* SLCameraController.h */,
+				321910661A52328D00AEF550 /* SLCameraController.m */,
 				321910681A52328D00AEF550 /* Main.storyboard */,
 				3219106B1A52328D00AEF550 /* Images.xcassets */,
 				3219106D1A52328D00AEF550 /* LaunchScreen.xib */,
-				321911021A52396C00AEF550 /* RC3DK.h */,
-				321F68301A523E180016D985 /* SLConstants.h */,
 			);
 			path = Sunlayar;
 			sourceTree = "<group>";
@@ -243,6 +243,8 @@
 		3219105E1A52328D00AEF550 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				321911021A52396C00AEF550 /* RC3DK.h */,
+				321F68311A5244910016D985 /* RC3DKPlus.h */,
 				3219105F1A52328D00AEF550 /* Info.plist */,
 				321910601A52328D00AEF550 /* main.m */,
 			);
@@ -496,7 +498,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				321910671A52328D00AEF550 /* ViewController.m in Sources */,
+				321910671A52328D00AEF550 /* SLCameraController.m in Sources */,
 				321910A21A52330F00AEF550 /* RCCalibration3.m in Sources */,
 				321910A01A52330F00AEF550 /* RCCalibration1.m in Sources */,
 				321910B21A52332100AEF550 /* RCMotionManager.m in Sources */,

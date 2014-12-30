@@ -1,15 +1,14 @@
 //
-//  ViewController.h
+//  RC3DKPlus.h
 //  Sunlayar
 //
 //  Created by Ben Hirashima on 12/29/14.
 //  Copyright (c) 2014 Sunlayar. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
+#ifndef Sunlayar_RC3DKPlus_h
+#define Sunlayar_RC3DKPlus_h
 
-@interface ViewController : UIViewController
+#import <RC3DKPlus/RC3DKPlus.h>
 
-
-@end
-
+#endif

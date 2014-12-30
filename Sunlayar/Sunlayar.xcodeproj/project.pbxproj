@@ -159,6 +159,7 @@
 		321911031A523AFA00AEF550 /* shader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.fsh; sourceTree = "<group>"; };
 		321911041A523AFA00AEF550 /* shader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.vsh; sourceTree = "<group>"; };
 		321F682E1A523C520016D985 /* libz.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.dylib; path = usr/lib/libz.dylib; sourceTree = SDKROOT; };
+		321F68301A523E180016D985 /* SLConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLConstants.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -234,6 +235,7 @@
 				3219106B1A52328D00AEF550 /* Images.xcassets */,
 				3219106D1A52328D00AEF550 /* LaunchScreen.xib */,
 				321911021A52396C00AEF550 /* RC3DK.h */,
+				321F68301A523E180016D985 /* SLConstants.h */,
 			);
 			path = Sunlayar;
 			sourceTree = "<group>";

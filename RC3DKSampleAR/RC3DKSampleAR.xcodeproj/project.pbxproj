@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		D324412A1A0D13D4001A487D /* QRDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D32441291A0D13D4001A487D /* QRDelegate.m */; };
-		D3CEE3C41A3989FF00A79A7F /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D3CEE3BE1A39006C00A79A7F /* libiconv.dylib */; };
 		D901456719F9A00F004E7CE2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D901456619F9A00F004E7CE2 /* main.m */; };
 		D901456A19F9A00F004E7CE2 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D901456919F9A00F004E7CE2 /* AppDelegate.m */; };
 		D901456D19F9A00F004E7CE2 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D901456C19F9A00F004E7CE2 /* ViewController.m */; };
@@ -177,7 +176,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D3CEE3C41A3989FF00A79A7F /* libiconv.dylib in Frameworks */,
 				D985D7DA1A153F0800067557 /* libRC3DK.a in Frameworks */,
 				D963096B1A01BC9800F92929 /* GLKit.framework in Frameworks */,
 				D90145F019F9A23E004E7CE2 /* UIKit.framework in Frameworks */,

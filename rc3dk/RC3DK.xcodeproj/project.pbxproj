@@ -381,8 +381,6 @@
 		D3CEE3B51A38FA5100A79A7F /* ResultPoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3CEE2291A38FA5100A79A7F /* ResultPoint.cpp */; };
 		D3CEE3B61A38FA5100A79A7F /* ResultPointCallback.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3CEE22B1A38FA5100A79A7F /* ResultPointCallback.cpp */; };
 		D3CEE3B71A38FA5100A79A7F /* ResultPointCallback.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3CEE22B1A38FA5100A79A7F /* ResultPointCallback.cpp */; };
-		D3CEE3BC1A39005500A79A7F /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D3CEE3BB1A39005500A79A7F /* libiconv.dylib */; };
-		D3CEE3BD1A39005E00A79A7F /* libiconv.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = D3CEE3BB1A39005500A79A7F /* libiconv.dylib */; };
 		D953126F1A15AE63004D6068 /* homography.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D953126D1A15AE63004D6068 /* homography.cpp */; };
 		D97AEF8118F7613F00573148 /* device_parameters.c in Sources */ = {isa = PBXBuildFile; fileRef = D97AEF8018F7613F00573148 /* device_parameters.c */; };
 		D9CCDC7E192E887F00A41329 /* scaled_mask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9CCDC7C192E887F00A41329 /* scaled_mask.cpp */; };
@@ -799,7 +797,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D3CEE3BD1A39005E00A79A7F /* libiconv.dylib in Frameworks */,
 				327B563918EB5F0A0001CCE1 /* OpenGLES.framework in Frameworks */,
 				327B54E318EB4CC90001CCE1 /* Foundation.framework in Frameworks */,
 			);
@@ -821,7 +818,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D3CEE3BC1A39005500A79A7F /* libiconv.dylib in Frameworks */,
 				D3B4EB3E1A1E7DE100BE0443 /* OpenGLES.framework in Frameworks */,
 				D3B4EB3F1A1E7DE100BE0443 /* Foundation.framework in Frameworks */,
 			);
@@ -2190,6 +2186,10 @@
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/src/",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-DNO_ICONV",
+				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-all_load",
@@ -2328,6 +2328,10 @@
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/src/",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-DNO_ICONV",
+				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-all_load",
@@ -2358,6 +2362,10 @@
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/src/",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-DNO_ICONV",
+				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-all_load",
@@ -2474,6 +2482,10 @@
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/src/",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-DNO_ICONV",
+				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-all_load",
@@ -2533,6 +2545,7 @@
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
 					"-DMACOSX",
+					"-DNO_ICONV",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -2573,6 +2586,7 @@
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
 					"-DMACOSX",
+					"-DNO_ICONV",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -2614,6 +2628,7 @@
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
 					"-DMACOSX",
+					"-DNO_ICONV",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -2656,6 +2671,7 @@
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
 					"-DMACOSX",
+					"-DNO_ICONV",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",

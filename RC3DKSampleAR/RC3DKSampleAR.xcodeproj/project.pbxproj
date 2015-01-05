@@ -98,6 +98,7 @@
 /* Begin PBXFileReference section */
 		D32441281A0D13D4001A487D /* QRDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QRDelegate.h; sourceTree = "<group>"; };
 		D32441291A0D13D4001A487D /* QRDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QRDelegate.m; sourceTree = "<group>"; };
+		D3BD8D6C1A5B52F9008B30F8 /* RC3DK.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RC3DK.h; sourceTree = "<group>"; };
 		D3CEE3BE1A39006C00A79A7F /* libiconv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiconv.dylib; path = usr/lib/libiconv.dylib; sourceTree = SDKROOT; };
 		D901456119F9A00F004E7CE2 /* RealityCap AR Sample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "RealityCap AR Sample.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D901456519F9A00F004E7CE2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -250,6 +251,7 @@
 				D901457119F9A00F004E7CE2 /* Images.xcassets */,
 				D901456419F9A00F004E7CE2 /* Supporting Files */,
 				D90145DF19F9A23E004E7CE2 /* Frameworks */,
+				D3BD8D6C1A5B52F9008B30F8 /* RC3DK.h */,
 			);
 			path = RC3DKSampleAR;
 			sourceTree = "<group>";

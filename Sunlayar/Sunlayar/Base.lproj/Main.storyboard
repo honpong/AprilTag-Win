@@ -34,7 +34,7 @@
                                             <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                         </state>
                                         <userDefinedRuntimeAttributes>
-                                            <userDefinedRuntimeAttribute type="number" keyPath="keyPath">
+                                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
                                                 <integer key="value" value="20"/>
                                             </userDefinedRuntimeAttribute>
                                         </userDefinedRuntimeAttributes>
@@ -43,7 +43,7 @@
                                         </connections>
                                     </button>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="F9S-ql-n9h">
-                                        <rect key="frame" x="8" y="8" width="584" height="40"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="600" height="40"/>
                                         <color key="backgroundColor" white="1" alpha="0.80000000000000004" colorSpace="calibratedWhite"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="40" id="7nB-uh-os8"/>
@@ -65,10 +65,10 @@
                                     </progressView>
                                 </subviews>
                                 <constraints>
-                                    <constraint firstItem="F9S-ql-n9h" firstAttribute="top" secondItem="ghk-cG-jES" secondAttribute="top" constant="8" id="5lI-RN-AF7"/>
-                                    <constraint firstAttribute="trailing" secondItem="F9S-ql-n9h" secondAttribute="trailing" constant="8" id="DpG-o6-eXt"/>
+                                    <constraint firstItem="F9S-ql-n9h" firstAttribute="top" secondItem="ghk-cG-jES" secondAttribute="top" id="5lI-RN-AF7"/>
+                                    <constraint firstAttribute="trailing" secondItem="F9S-ql-n9h" secondAttribute="trailing" id="DpG-o6-eXt"/>
                                     <constraint firstAttribute="centerY" secondItem="MHe-ey-dgr" secondAttribute="centerY" id="DrQ-xf-uKn"/>
-                                    <constraint firstItem="F9S-ql-n9h" firstAttribute="leading" secondItem="ghk-cG-jES" secondAttribute="leading" constant="8" id="bg9-T6-orl"/>
+                                    <constraint firstItem="F9S-ql-n9h" firstAttribute="leading" secondItem="ghk-cG-jES" secondAttribute="leading" id="bg9-T6-orl"/>
                                     <constraint firstAttribute="trailing" secondItem="27L-Kv-gPR" secondAttribute="trailing" constant="8" id="ptA-2I-qLj"/>
                                     <constraint firstAttribute="centerY" secondItem="27L-Kv-gPR" secondAttribute="centerY" id="qXF-cQ-BDX"/>
                                     <constraint firstAttribute="centerX" secondItem="MHe-ey-dgr" secondAttribute="centerX" id="r22-F7-Zsq"/>
@@ -99,6 +99,58 @@
                 <placeholder placeholderIdentifier="IBFirstResponder" id="FlP-qP-R0M" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="-1853" y="-118"/>
+        </scene>
+        <!--EditPhoto-->
+        <scene sceneID="PPl-hz-MYO">
+            <objects>
+                <viewController storyboardIdentifier="Roof" title="EditPhoto" useStoryboardIdentifierAsRestorationIdentifier="YES" id="DVV-uI-RPF" customClass="SLRoofController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="Lvx-LM-qzt"/>
+                        <viewControllerLayoutGuide type="bottom" id="IEg-zP-Acv"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="jQK-oK-svE">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                        <subviews>
+                            <webView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dfM-tf-8fd">
+                                <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                            </webView>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yNV-6T-aMw" userLabel="CameraButton" customClass="CATRotatingButton">
+                                <rect key="frame" x="20" y="4" width="75" height="44"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="44" id="P6E-KJ-bnk"/>
+                                    <constraint firstAttribute="width" constant="75" id="w9i-RX-Ep8"/>
+                                </constraints>
+                                <state key="normal" title="&lt; Back">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <action selector="handleBackButton:" destination="DVV-uI-RPF" eventType="touchUpInside" id="qnL-lk-Apm"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="dfM-tf-8fd" secondAttribute="trailing" id="BIQ-7o-EnR"/>
+                            <constraint firstItem="yNV-6T-aMw" firstAttribute="top" secondItem="Lvx-LM-qzt" secondAttribute="bottom" constant="4" id="QBE-Ez-RMj"/>
+                            <constraint firstItem="yNV-6T-aMw" firstAttribute="leading" secondItem="jQK-oK-svE" secondAttribute="leading" constant="20" id="T9T-yW-BEc"/>
+                            <constraint firstItem="dfM-tf-8fd" firstAttribute="leading" secondItem="jQK-oK-svE" secondAttribute="leading" id="eIf-bf-J9a"/>
+                            <constraint firstAttribute="bottom" secondItem="dfM-tf-8fd" secondAttribute="bottom" id="gNn-8q-39o"/>
+                            <constraint firstItem="dfM-tf-8fd" firstAttribute="top" secondItem="Lvx-LM-qzt" secondAttribute="bottom" id="xxp-kw-oz9"/>
+                        </constraints>
+                    </view>
+                    <extendedEdge key="edgesForExtendedLayout" bottom="YES"/>
+                    <toolbarItems/>
+                    <nil key="simulatedStatusBarMetrics"/>
+                    <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
+                    <connections>
+                        <outlet property="webView" destination="dfM-tf-8fd" id="ftv-MJ-2J1"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="9KR-XA-sd6" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="-1179" y="-118"/>
         </scene>
     </scenes>
 </document>

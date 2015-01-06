@@ -4,12 +4,14 @@ SWIG := swig
 WXGLADE := wxglade
 CC := gcc
 CXX := g++
-PYTHON_CFLAGS := `python-config --includes` -I/opt/local/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/site-packages/numpy/core/include
-PYTHON_LDFLAGS := `python-config --libs`
+PYTHON_CFLAGS := $(shell python-config --includes) -I$(shell python -c 'import numpy; print numpy.__path__[0] + "/core/include"')
+PYTHON_LDFLAGS := $(shell python-config --libs)
 # -ftree-vectorize -ffast-math 
-CPPFLAGS := -Wall -pthread -g -I../corvis/src -I../corvis/src/cor -fPIC -march=core2 -mfpmath=sse -O0 -D DEBUG $(PYTHON_CFLAGS) -I/opt/local/include -I/opt/local/include/freetype2 -I/opt/local/include/FTGL 
+CPPFLAGS := -Wall -g -I../corvis/src -I../corvis/src/cor -fPIC -march=core2 -mfpmath=sse -O0 -D DEBUG $(PYTHON_CFLAGS) \
+        $(addprefix -I,$(wildcard $(shell brew --prefix boost 2>/dev/null)/include /opt/local/include)) \
+        $(shell pkg-config freetype2 --cflags) $(shell pkg-config ftgl --cflags) # freetype2 must come before ftgl on a case insensitive fs
 CFLAGS := -std=gnu99
-LDFLAGS := -pthread -lpthread --warn-unresolved-symbols -O0 $(PYTHON_LDFLAGS) -framework Accelerate -framework OpenGL -framework GLUT -L/opt/local/lib -lftgl -lfreetype
+LDFLAGS := -pthread -lpthread --warn-unresolved-symbols -O0 $(PYTHON_LDFLAGS) -framework Accelerate -framework OpenGL -framework GLUT $(shell pkg-config freetype2 ftgl --libs)
 SWIGFLAGS := -Wall
 
 ####################### RULES ######################################

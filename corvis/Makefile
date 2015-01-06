@@ -275,4 +275,4 @@ all: $(TARGETS)
 clean:
 	rm -rf build bin
 
-include $(DEPS)
+-include $(DEPS)

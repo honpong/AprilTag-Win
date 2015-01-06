@@ -104,4 +104,4 @@ clean:
 	rm -f $(addsuffix /*.d.*, $(SUBDIRS))
 	rm -f $(addsuffix /*.pyc, $(SUBDIRS))
 
-include $(DEPS)
+-include $(DEPS)

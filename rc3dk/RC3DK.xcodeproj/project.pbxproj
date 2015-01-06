@@ -783,7 +783,6 @@
 		D3CEE2281A38FA5100A79A7F /* ResultIO.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ResultIO.cpp; path = zxing/ResultIO.cpp; sourceTree = "<group>"; };
 		D3CEE2291A38FA5100A79A7F /* ResultPoint.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ResultPoint.cpp; path = zxing/ResultPoint.cpp; sourceTree = "<group>"; };
 		D3CEE22B1A38FA5100A79A7F /* ResultPointCallback.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ResultPointCallback.cpp; path = zxing/ResultPointCallback.cpp; sourceTree = "<group>"; };
-		D3CEE3BB1A39005500A79A7F /* libiconv.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libiconv.dylib; path = usr/lib/libiconv.dylib; sourceTree = SDKROOT; };
 		D953126D1A15AE63004D6068 /* homography.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = homography.cpp; sourceTree = "<group>"; };
 		D953126E1A15AE63004D6068 /* homography.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = homography.h; sourceTree = "<group>"; };
 		D97AEF8018F7613F00573148 /* device_parameters.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = device_parameters.c; sourceTree = "<group>"; };
@@ -850,7 +849,6 @@
 		327B54E118EB4CC90001CCE1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				D3CEE3BB1A39005500A79A7F /* libiconv.dylib */,
 				327B563518EB5ECA0001CCE1 /* OpenGLES.framework */,
 				327B54E218EB4CC90001CCE1 /* Foundation.framework */,
 				327B54F018EB4CC90001CCE1 /* XCTest.framework */,

@@ -1,4 +1,4 @@
-//  Copyright (c) 2014 Sunlayar. All rights reserved.
+//Copywrite (c) 2014 by RealityCap, Inc. Written by Jordan Miller for the exclusive use of RealityCap, Inc.
 
 doing_orientatino_change = false;
 function doOnOrientationChange()
@@ -23,6 +23,9 @@ function doOnOrientationChange()
         console.log("done with orientation change");
     }
 }
+
+var switch_image_depthmap; //declaring this in the global scope for later initialization
+var dm_mask_fade_animaiton_id; //used for iterative callback for animating the mask fade.
 
 
 function rc_initialize(){
@@ -133,9 +136,90 @@ function rc_initialize(){
                          });
     
     
-    console.log('done with hammer');
+    console.log('done with hammer, starting line handler');
     
+    switch_image_depthmap = function () { //we move the image svg off the dom, and move the depthmap on the dom.
+        //console.log('switch_image_depthmap()');
+        //remove image from dom tree put mask in its place
+        if (draw.node.contains(image.node)) {
+            show_dm_mask();
+        }
+        //remove image mask put depthmap in its place
+        else if(draw.node.contains(dm_mask_svg.node)) {
+            draw_g.node.insertBefore(dm_svg.node,dm_mask_svg.node);
+            draw_g.node.removeChild(dm_mask_svg.node);
+            //start depthmap calculation if not yet done.
+            if (!dm_drawn) {fill_depth_map();}
+        }
+        //remove depthmap from dom tree put image in its place
+        else if(draw.node.contains(dm_svg.node)){
+            draw_g.node.insertBefore(image.node,dm_svg.node);
+            draw_g.node.removeChild(dm_svg.node);
+            
+        }
+    }
     
+    show_dm_mask = function () {
+        //console.log('show_dm_mask()');
+        //make the dm_mask_svg node the current image svg node
+        if (draw.node.contains(image.node)) {
+            draw_g.node.insertBefore(dm_mask_svg.node,image.node);
+            draw_g.node.removeChild(image.node);
+        }
+        else if(draw.node.contains(dm_svg.node)){
+            draw_g.node.insertBefore(dm_mask_svg.node,dm_svg.node);
+            draw_g.node.removeChild(dm_svg.node);
+            
+        }
+        if (!dm_mask_drawn) {fill_dm_mask();}
+        
+        //if an animation is happening we need to stop it
+        if (dm_mask_fade_animaiton_id) {
+            window.cancelAnimationFrame(dm_mask_fade_animaiton_id);
+            dm_mask_fade_animaiton_id = null;
+            if(dm_masking_image) {dm_masking_image.opacity(1);}
+        }
+
+        
+    }
+    
+    start_dm_mask_fade_out = function () {
+        //console.log('start_dm_mask_fade_out()');
+        //start the fade out animation
+        if (dm_mask_fade_animaiton_id) {window.cancelAnimationFrame(dm_mask_fade_animaiton_id);}
+        dm_mask_fade_animaiton_id = window.requestAnimationFrame(fade_dm_mask_step_animation);
+    }
+    
+    fade_dm_mask_step_animation = function () {
+        var current_mask_opacity = dm_masking_image.opacity();
+        //console.log('dm_masking_image_opacity ' + current_mask_opacity.toFixed(2));
+        //make the mask progresively more transparent, unill full transparency is reached
+        if (current_mask_opacity > 0) { //if we havn't hit zero transparency, then make it more transparent, and call again
+            var next_opicity = Math.max(0, current_mask_opacity - 0.01);
+            dm_masking_image.opacity(next_opicity);
+            dm_mask_fade_animaiton_id = window.requestAnimationFrame(fade_dm_mask_step_animation);
+        }
+        else {
+            fade_dm_mask_stop_animation();
+        }
+    }
+    
+    fade_dm_mask_stop_animation = function () {
+        ////console.log('fade_dm_mask_stop_animation()');
+        //terminate the iteration of the animation step
+        if (dm_mask_fade_animaiton_id) {
+            window.cancelAnimationFrame(dm_mask_fade_animaiton_id);
+            dm_mask_fade_animaiton_id = null;
+        }
+        //remove dm_svg.node as main image, restore image.node
+        if (draw.node.contains(dm_mask_svg.node)) {
+            //console.log('removing depth mask')
+            draw_g.node.insertBefore(image.node, dm_mask_svg.node);
+            draw_g.node.removeChild(dm_mask_svg.node);
+        }
+        //restore the opacity of the mask.
+        if(dm_masking_image) {dm_masking_image.opacity(1);}
+    }
     
     
     //prevent scrolling
@@ -189,6 +273,7 @@ function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric)
     //console.log("startin loadMPhoto()");
     window.setTimeout( function () {
         rc_img_url_glbl = rc_img_url;
+        m_photo_guid = guid;
         if (typeof use_metric === "undefined" || use_metric === null) { default_units_metric = false; } //metric is our default if not set
                       else {default_units_metric = use_metric; }//set default if provided.
         // only call initialization once.
@@ -212,7 +297,7 @@ function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric)
                                                            
                                                   doOnOrientationChange();
                                                            
-                                                  rcMeasurements.new_measurement(image_width/4,image_height/2, 3*image_width/4, image_height/2, measured_svg);
+                                                  rcMeasurements.new_measurement(image_width/4,image_height/4, 3*image_width/4, image_height/4, 3*image_width/4,3*image_height/4, image_width/4, 3*image_height/4, measured_svg);
 
                                                   });
         

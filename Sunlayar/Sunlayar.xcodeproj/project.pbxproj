@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		17C429A61A5C7C3D004201CF /* fastclick.js in Resources */ = {isa = PBXBuildFile; fileRef = 17C429A51A5C7C3D004201CF /* fastclick.js */; };
 		321910611A52328D00AEF550 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 321910601A52328D00AEF550 /* main.m */; };
 		321910641A52328D00AEF550 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 321910631A52328D00AEF550 /* AppDelegate.m */; };
 		3219106A1A52328D00AEF550 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 321910681A52328D00AEF550 /* Main.storyboard */; };
@@ -122,6 +123,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		17C429A51A5C7C3D004201CF /* fastclick.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = fastclick.js; sourceTree = "<group>"; };
 		3219105B1A52328D00AEF550 /* Sunlayar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sunlayar.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3219105F1A52328D00AEF550 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		321910601A52328D00AEF550 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -463,6 +465,7 @@
 		324751EE1A5BCB3000A0EC98 /* HTML */ = {
 			isa = PBXGroup;
 			children = (
+				17C429A51A5C7C3D004201CF /* fastclick.js */,
 				324751EF1A5BCB3000A0EC98 /* depth_data.js */,
 				324751F01A5BCB3000A0EC98 /* global_variables.js */,
 				324751F11A5BCB3000A0EC98 /* hammer.js */,
@@ -649,6 +652,7 @@
 				3219109D1A52330F00AEF550 /* holding_portrait.jpg in Resources */,
 				321911061A523AFA00AEF550 /* shader.vsh in Resources */,
 				3247521E1A5BCB3000A0EC98 /* global_variables.js in Resources */,
+				17C429A61A5C7C3D004201CF /* fastclick.js in Resources */,
 				3219106C1A52328D00AEF550 /* Images.xcassets in Resources */,
 				324752201A5BCB3000A0EC98 /* jquery-2.1.1.min.js in Resources */,
 			);

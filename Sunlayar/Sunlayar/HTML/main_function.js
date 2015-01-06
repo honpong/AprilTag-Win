@@ -138,6 +138,8 @@ function rc_initialize(){
     
     console.log('done with hammer, starting line handler');
     
+    FastClick.attach(document.body);
+    
     switch_image_depthmap = function () { //we move the image svg off the dom, and move the depthmap on the dom.
         //console.log('switch_image_depthmap()');
         //remove image from dom tree put mask in its place
@@ -226,10 +228,37 @@ function rc_initialize(){
     document.body.addEventListener('touchstart', function(e){ e.stopPropagation(); e.preventDefault(); });
 
     
+    
     dm_initialize();
     
     doOnOrientationChange();
 
+}
+
+//define next button - next button function
+var nextContaner, nextButton;
+function create_next_button() {
+    nextContaner = draw.nested('message');
+    nextContaner.size(window.innerWidth, window.innerHeight)
+    nextButton = nextContaner.text('Next >').font({
+                                                       family: rcMeasurements.font_family,
+                                                       size: 15
+                                                       , anchor: 'middle'
+                                                       , leading: 1
+                                                       }).fill({ color: '#FFFFFF', opacity: 1 });
+    nextButton.move(425,10);
+    nextButton.click(next_button_pressed); //call the next button pressed function when the next button is clicked.
+}
+
+function next_button_pressed() {
+    console.log('next_button_pressed()');
+    if (rcMeasurements.roof_measurement.isValid) {
+        //request a URL to signal to main app to start AR session
+        $.ajax({ type: "GET", url: rc_server_location + "proceed_to_ar/"});
+    }
+    else {
+        alert("roof object is missing data, please try again");
+    }
 }
 
 
@@ -300,7 +329,7 @@ function loadMPhoto(rc_img_url,rc_data_url, rc_annotation_url, guid, use_metric)
                                                   rcMeasurements.new_measurement(image_width/4,image_height/4, 3*image_width/4, image_height/4, 3*image_width/4,3*image_height/4, image_width/4, 3*image_height/4, measured_svg);
 
                                                   });
-        
+            create_next_button(); //we do this last so its at the bottom of the dom and hence apears on top of all other content
             return 0;
         }
         catch(err) {

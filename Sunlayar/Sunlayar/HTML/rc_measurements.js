@@ -11,11 +11,11 @@ rcMeasurements = {
 
 
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                                                                      //
-//          LINEAR MEASUREMENTS                                                                                                         //
-//                                                                                                                                      //
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                                                      //
+//          Roof Object                                                                                                //
+//                                                                                                                     //
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // instantiate a measurement and add it to the measurment list
 // takes image locations
@@ -31,18 +31,25 @@ rcMeasurements.new_measurement = function (iX1, iY1, iX2, iY2, iX3, iY3, iX4, iY
     m.x4 = iX4;
     m.y4 = iY4;
     m.units_metric = default_units_metric;
-
+    
     rcMeasurements.draw_measurement(m, measured_svg);
     rcMeasurements.roof_measurement = m;
 }
 
+rcMeasurements.roof_object_valid = function () {
+    return rcMeasurements.roof_measurement.isValid;
+}
+
 rcMeasurements.saveable_liniar_measurement = function (m) {
     m.coords3D = [[0,0,0],[0,0,0],[0,0,0],[0,0,0]]; //we need this for the AR engine
-    try{m.coords3D[0] = dm_3d_location_from_pixel_location(m.x1,m.y1)} catch(err) {}
-    try{m.coords3D[1] = dm_3d_location_from_pixel_location(m.x2,m.y2)} catch(err) {}
-    try{m.coords3D[2] = dm_3d_location_from_pixel_location(m.x3,m.y3)} catch(err) {}
-    try{m.coords3D[3] = dm_3d_location_from_pixel_location(m.x4,m.y4)} catch(err) {}
-
+    m.isValid = true;
+    try{m.coords3D[0] = dm_3d_location_from_pixel_location(m.x1,m.y1)} catch(err) {m.isValid = false;}
+    try{m.coords3D[1] = dm_3d_location_from_pixel_location(m.x2,m.y2)} catch(err) {m.isValid = false;}
+    try{m.coords3D[2] = dm_3d_location_from_pixel_location(m.x3,m.y3)} catch(err) {m.isValid = false;}
+    try{m.coords3D[3] = dm_3d_location_from_pixel_location(m.x4,m.y4)} catch(err) {m.isValid = false;}
+    if (!m.coords3D[0] || !m.coords3D[1] || !m.coords3D[2] || !m.coords3D[3]) {m.isValid = false} //check for null results. 
+    
+    
     //we only want a subset of the measurements content, so we create a temp object we write the content we want to keep into
     return { gutter_length:m.distance, gutter_length_overwriten:m.overwriten, x1:m.x1, y1:m.y1, x2:m.x2, y2:m.y2, x3:m.x3, y3:m.y3, x4:m.x4, y4:m.y4, coords3D: m.coords3D};
 }
@@ -74,6 +81,12 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
     m.font_offset_y = 10;
     m.mid_x = m.x3 + (m.x4 - m.x3)/2;   //midpoint of gutter line
     m.mid_y = m.y3 + (m.y4 - m.y3)/2;
+
+    
+    m.circle1 = measured_svg.circle(10).move(m.x1-5,m.y1-3).stroke({ color: shadow_color, width : 1.5 }).fill({ color: line_color , opacity:1});
+    m.circle2 = measured_svg.circle(10).move(m.x2-5,m.y2-3).stroke({ color: shadow_color, width : 1.5 }).fill({ color: line_color , opacity:1 });
+    m.circle3 = measured_svg.circle(10).move(m.x3-5,m.y3-3).stroke({ color: shadow_color, width : 1.5 }).fill({ color: line_color , opacity:1});
+    m.circle4 = measured_svg.circle(10).move(m.x4-5,m.y4-3).stroke({ color: shadow_color, width : 1.5 }).fill({ color: line_color , opacity:1 });
 
     
     //move text to correct location
@@ -141,6 +154,10 @@ rcMeasurements.redraw_measurement = function (m) {
     m.text_shadow.x(m.mid_x + m.font_offset_x).dy(m.mid_y + - m.text.node.attributes.y.value + m.font_offset_y);
     m.text.x(m.mid_x + m.font_offset_x).dy(m.mid_y + - m.text.node.attributes.y.value + m.font_offset_y); //hacky thing because move has a bug
     
+    m.circle1.move(m.x1-5,m.y1-5);
+    m.circle2.move(m.x2-5,m.y2-5);
+    m.circle3.move(m.x3-5,m.y3-5);
+    m.circle4.move(m.x4-5,m.y4-5);
     m.selector_circle1.move(m.x1-15,m.y1-15);
     m.selector_circle2.move(m.x2-15,m.y2-15);
     m.selector_circle3.move(m.x3-15,m.y3-15);
@@ -217,11 +234,11 @@ rcMeasurements.isNumber = function  (n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
 }
 
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                                                                      //
-//          SAVING, UNDOING, DATA MANAGEMENT                                                                                            //
-//                                                                                                                                      //
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                                                                                             //
+//          SAVING, UNDOING, DATA MANAGEMENT                                                                  //
+//                                                                                                           //
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -237,6 +254,7 @@ rcMeasurements.to_json = function () {
 rcMeasurements.save_measurements = function (optional_not_undoable_flag) {
     jsonStr = rcMeasurements.to_json();
     console.log(jsonStr);
+    try{
     $.ajax({ type: "PUT", url: rc_server_location + "true_measure/api/v1/m_photo/" + m_photo_guid + "/annotations/", contentType: "application/json", processData: false, dataType: "json", data: jsonStr })
     .done(function(data, textStatus, jqXHR) {
           //alert(textStatus + ": " + JSON.stringify(data));
@@ -245,5 +263,6 @@ rcMeasurements.save_measurements = function (optional_not_undoable_flag) {
           //alert(textStatus + ": " + JSON.stringify(jqXHR));
           })
     ;
+    } catch (err) {}
 }
 

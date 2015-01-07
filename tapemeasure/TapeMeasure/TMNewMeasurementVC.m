@@ -7,13 +7,11 @@
 //
 
 #import "TMNewMeasurementVC.h"
-#import <RCCore/RCCore.h>
-#import <RC3DK/RC3DK.h>
-#import "RCCore/RCGeocoder.h"
-#import "RCCore/RCSensorDelegate.h"
 #import "TMLocalMoviePlayer.h"
 #import "TMLocationIntro.h"
 #import "TMHistoryVC.h"
+#import "RCCore/RCGeocoder.h"
+#import "RCCore/RCSensorDelegate.h"
 
 @implementation TMNewMeasurementVC
 {

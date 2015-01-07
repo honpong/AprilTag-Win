@@ -13,7 +13,6 @@
 #import "TMLocation+TMLocationSync.h"
 #import "TMSyncable+TMSyncableExt.h"
 #import "TMSyncable+TMSyncableSync.h"
-#import <RC3DK/RC3DK.h>
 #import "TMAppDelegate.h"
 #import "TMDataManagerFactory.h"
 #import "TMViewController.h"

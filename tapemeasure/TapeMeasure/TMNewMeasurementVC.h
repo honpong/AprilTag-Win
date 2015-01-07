@@ -20,14 +20,12 @@
 #import "TMResultsVC.h"
 #import "TMLocation+TMLocationExt.h"
 #import <CoreLocation/CoreLocation.h>
-#import <RC3DK/RC3DK.h>
 #import "TMDataManagerFactory.h"
 #import "TMMeasurement+TMMeasurementExt.h"
 #import "TMSyncable+TMSyncableSync.h"
 #import "MBProgressHUD.h"
 #import "TMServerOpsFactory.h"
 #import "TMVideoPreview.h"
-#import "RCCore/RCDistanceLabel.h"
 #import "TMAugmentedRealityView.h"
 #import "TM2DTapeView.h"
 

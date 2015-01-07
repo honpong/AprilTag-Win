@@ -6,8 +6,6 @@
 //  Copyright (c) 2012 RealityCap. All rights reserved.
 //
 
-#import "RCCore/RCUserManager.h"
-#import <RC3DK/RC3DK.h>
 #import "TMMeasurement.h"
 #import "TMMeasurement+TMMeasurementExt.h"
 #import "Flurry.h"

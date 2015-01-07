@@ -10,14 +10,12 @@
 #import "TMAppDelegate.h"
 #import "TMResultsVC.h"
 #import "TMAppDelegate.h"
-#import <RC3DK/RC3DK.h>
 #import "TMDataManagerFactory.h"
 #import "TMMeasurement+TMMeasurementExt.h"
 #import "TMMeasurement+TMMeasurementSync.h"
 #import "TMSyncable+TMSyncableSync.h"
 #import "MBProgressHUD.h"
 #import "TMServerOpsFactory.h"
-#import "RCCore/RCUserManager.h"
 #import "TMTableViewController.h"
 #import "TMShareSheet.h"
 

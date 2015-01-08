@@ -254,7 +254,7 @@ function next_button_pressed() {
     console.log('next_button_pressed()');
     if (rcMeasurements.roof_measurement.isValid) {
         //request a URL to signal to main app to start AR session
-        $.ajax({ type: "GET", url: rc_server_location + "proceed_to_ar/"});
+        $.ajax({ type: "GET", url: rc_server_location + "next/"});
     }
     else {
         alert("roof object is missing data, please try again");

@@ -114,6 +114,10 @@ build/test/%.dcc: ../gtest/%.cc
         sed 's,\($*\)\.dpp[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
         rm -f $@.$$$$
 
+%.a:
+	@mkdir -p $(@D)
+	ar crv $@ $^
+
 %.so:
 	@mkdir -p $(@D)
 	$(CC) -shared -undefined suppress -flat_namespace $(LDFLAGS) $(PYTHON_LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
@@ -169,7 +173,7 @@ DEPS := $(DEPS) build/_numerics.ipp.d
 
 d := filter
 
-FILTER_CXX_SOURCES := $(addprefix src/$(d)/, filter.cpp state_vision.cpp state_motion.cpp state.cpp observation.cpp filter_setup.cpp fast_detector/fast_9.cpp scaled_mask.cpp homography.cpp) build/$(d)/_filter.cpp
+FILTER_CXX_SOURCES := $(addprefix src/$(d)/, filter.cpp state_vision.cpp state_motion.cpp state.cpp observation.cpp filter_setup.cpp fast_detector/fast_9.cpp scaled_mask.cpp homography.cpp code_detect.cpp) build/$(d)/_filter.cpp
 
 FILTER_SOURCES := $(addprefix src/$(d)/, device_parameters.c)
 
@@ -180,13 +184,52 @@ build/$(d)/_filter.cpp: swig/_filter.ipp
 	$(SWIG) -python -c++ -threads $(SWIGFLAGS) -Isrc/filter -o $@ -outdir bin/filter $<
 
 #bin/$(d)/_filter.so: LDFLAGS := $(LDFLAGS) `pkg-config --libs opencv`
-bin/$(d)/_filter.so:$(patsubst src/%,build/%,$(FILTER_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(FILTER_SOURCES:.c=.o))
+bin/$(d)/_filter.so:$(patsubst src/%,build/%,$(FILTER_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(FILTER_SOURCES:.c=.o)) bin/libzxing-cpp/_libzxing.a
 
 TARGETS := $(TARGETS) bin/$(d)/_filter.so bin/$(d)/__init__.py
 CXX_SOURCES := $(CXX_SOURCES) $(FILTER_CXX_SOURCES)
 SOURCES := $(SOURCES) $(FILTER_SOURCES)
 DEPS := $(DEPS) build/_filter.ipp.d
 
+############################## LIBZXING ##########################
+
+d := libzxing-cpp
+
+CPPFLAGS := $(CPPFLAGS) -Isrc/$(d)/ -DNO_ICONV
+
+LIBZXING_CXX_SOURCES := $(addprefix src/$(d)/zxing/, BarcodeFormat.cpp Binarizer.cpp BinaryBitmap.cpp ChecksumException.cpp DecodeHints.cpp Exception.cpp FormatException.cpp InvertedLuminanceSource.cpp LuminanceSource.cpp MultiFormatReader.cpp Reader.cpp Result.cpp ResultIO.cpp ResultPoint.cpp ResultPointCallback.cpp)
+
+# Common
+LIBZXING_CXX_SOURCES := $(LIBZXING_CXX_SOURCES) $(addprefix src/$(d)/zxing/common/, BitArray.cpp BitArrayIO.cpp BitMatrix.cpp BitSource.cpp CharacterSetECI.cpp DecoderResult.cpp DetectorResult.cpp GlobalHistogramBinarizer.cpp GreyscaleLuminanceSource.cpp GreyscaleRotatedLuminanceSource.cpp GridSampler.cpp HybridBinarizer.cpp IllegalArgumentException.cpp PerspectiveTransform.cpp Str.cpp StringUtils.cpp detector/MonochromeRectangleDetector.cpp detector/WhiteRectangleDetector.cpp reedsolomon/GenericGF.cpp reedsolomon/GenericGFPoly.cpp reedsolomon/ReedSolomonDecoder.cpp reedsolomon/ReedSolomonException.cpp)
+
+# qrcode
+LIBZXING_CXX_SOURCES := $(LIBZXING_CXX_SOURCES) $(addprefix src/$(d)/zxing/qrcode/, ErrorCorrectionLevel.cpp FormatInformation.cpp QRCodeReader.cpp Version.cpp decoder/BitMatrixParser.cpp decoder/DataBlock.cpp decoder/DataMask.cpp decoder/DecodedBitStreamParser.cpp decoder/Decoder.cpp decoder/Mode.cpp detector/AlignmentPattern.cpp detector/AlignmentPatternFinder.cpp detector/Detector.cpp detector/FinderPattern.cpp detector/FinderPatternFinder.cpp detector/FinderPatternInfo.cpp)
+
+# datamatrix
+LIBZXING_CXX_SOURCES := $(LIBZXING_CXX_SOURCES) $(addprefix src/$(d)/zxing/datamatrix/, DataMatrixReader.cpp Version.cpp decoder/BitMatrixParser.cpp decoder/DataBlock.cpp decoder/DecodedBitStreamParser.cpp decoder/Decoder.cpp detector/CornerPoint.cpp detector/Detector.cpp detector/DetectorException.cpp)
+
+# pdf417
+LIBZXING_CXX_SOURCES := $(LIBZXING_CXX_SOURCES) $(addprefix src/$(d)/zxing/pdf417/, PDF417Reader.cpp decoder/BitMatrixParser.cpp decoder/DecodedBitStreamParser.cpp decoder/Decoder.cpp decoder/ec/ErrorCorrection.cpp decoder/ec/ModulusGF.cpp decoder/ec/ModulusPoly.cpp detector/Detector.cpp detector/LinesSampler.cpp)
+
+# oned
+LIBZXING_CXX_SOURCES := $(LIBZXING_CXX_SOURCES) $(addprefix src/$(d)/zxing/oned/, CodaBarReader.cpp Code128Reader.cpp Code39Reader.cpp Code93Reader.cpp EAN13Reader.cpp EAN8Reader.cpp ITFReader.cpp MultiFormatOneDReader.cpp MultiFormatUPCEANReader.cpp OneDReader.cpp OneDResultPoint.cpp UPCAReader.cpp UPCEANReader.cpp UPCEReader.cpp)
+
+# multi
+LIBZXING_CXX_SOURCES := $(LIBZXING_CXX_SOURCES) $(addprefix src/$(d)/zxing/multi/, ByQuadrantReader.cpp GenericMultipleBarcodeReader.cpp MultipleBarcodeReader.cpp qrcode/detector/MultiDetector.cpp qrcode/detector/MultiFinderPatternFinder.cpp qrcode/QRCodeMultiReader.cpp)
+
+# multi
+LIBZXING_CXX_SOURCES := $(LIBZXING_CXX_SOURCES) $(addprefix src/$(d)/zxing/aztec/, AztecDetectorResult.cpp AztecReader.cpp decoder/Decoder.cpp detector/Detector.cpp)
+
+# bigint
+LIBZXING_CXX_SOURCES := $(LIBZXING_CXX_SOURCES) $(addprefix src/$(d)/bigint/, BigIntegerAlgorithms.cpp BigIntegerUtils.cpp BigInteger.cpp BigUnsignedInABase.cpp BigUnsigned.cpp)
+
+LIBZXING_SOURCES :=
+
+bin/$(d)/_libzxing.a:$(patsubst src/%,build/%,$(LIBZXING_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(LIBZXING_SOURCES:.c=.o))
+
+TARGETS := $(TARGETS) bin/$(d)/_libzxing.a
+CXX_SOURCES := $(CXX_SOURCES) $(LIBZXING_CXX_SOURCES)
+SOURCES := $(SOURCES) $(LIBZXING_SOURCES)
 
 ############################## STEREO ############################
 

@@ -13,8 +13,10 @@
 @property (nonatomic) NSTimeInterval created_at;
 
 - (BOOL) writeImagetoJpeg:(CMSampleBufferRef)sampleBuffer withOrientation:(UIDeviceOrientation)orientation;
+- (BOOL) writeAnnotationsToFile:(NSString*)jsonString;
 - (BOOL) deleteAssociatedFiles;
 - (NSString*) imageFileName;
 - (NSString*) depthFileName;
+- (NSString*) annotationsFileName;
 
 @end

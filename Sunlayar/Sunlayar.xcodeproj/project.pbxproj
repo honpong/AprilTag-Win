@@ -82,6 +82,8 @@
 		324752331A5BCB3000A0EC98 /* SBJsonWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 324752131A5BCB3000A0EC98 /* SBJsonWriter.m */; };
 		324752341A5BCB3000A0EC98 /* NSString+RCString.m in Sources */ = {isa = PBXBuildFile; fileRef = 324752151A5BCB3000A0EC98 /* NSString+RCString.m */; };
 		324752351A5BCB3000A0EC98 /* UIImage+RCImageFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 324752171A5BCB3000A0EC98 /* UIImage+RCImageFile.m */; };
+		32545AB21A5F9E7C00A08564 /* ARNativeAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 32545AB11A5F9E7C00A08564 /* ARNativeAction.m */; };
+		32545AB71A5F9E8E00A08564 /* RCHttpInterceptor.m in Sources */ = {isa = PBXBuildFile; fileRef = 32545AB61A5F9E8E00A08564 /* RCHttpInterceptor.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -241,6 +243,10 @@
 		324752151A5BCB3000A0EC98 /* NSString+RCString.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+RCString.m"; sourceTree = "<group>"; };
 		324752161A5BCB3000A0EC98 /* UIImage+RCImageFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+RCImageFile.h"; sourceTree = "<group>"; };
 		324752171A5BCB3000A0EC98 /* UIImage+RCImageFile.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+RCImageFile.m"; sourceTree = "<group>"; };
+		32545AB01A5F9E7C00A08564 /* ARNativeAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARNativeAction.h; sourceTree = "<group>"; };
+		32545AB11A5F9E7C00A08564 /* ARNativeAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARNativeAction.m; sourceTree = "<group>"; };
+		32545AB51A5F9E8E00A08564 /* RCHttpInterceptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCHttpInterceptor.h; sourceTree = "<group>"; };
+		32545AB61A5F9E8E00A08564 /* RCHttpInterceptor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCHttpInterceptor.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -326,6 +332,8 @@
 				321F68301A523E180016D985 /* SLConstants.h */,
 				324752161A5BCB3000A0EC98 /* UIImage+RCImageFile.h */,
 				324752171A5BCB3000A0EC98 /* UIImage+RCImageFile.m */,
+				32545AB51A5F9E8E00A08564 /* RCHttpInterceptor.h */,
+				32545AB61A5F9E8E00A08564 /* RCHttpInterceptor.m */,
 			);
 			path = Sunlayar;
 			sourceTree = "<group>";
@@ -516,6 +524,8 @@
 		324752381A5BCB3600A0EC98 /* ThirdParty */ = {
 			isa = PBXGroup;
 			children = (
+				32545AB01A5F9E7C00A08564 /* ARNativeAction.h */,
+				32545AB11A5F9E7C00A08564 /* ARNativeAction.m */,
 				324751FA1A5BCB3000A0EC98 /* JSON */,
 				324751E81A5BCB3000A0EC98 /* GTM */,
 			);
@@ -693,6 +703,7 @@
 				324752301A5BCB3000A0EC98 /* SBJsonStreamWriterState.m in Sources */,
 				321910A11A52330F00AEF550 /* RCCalibration2.m in Sources */,
 				3247522D1A5BCB3000A0EC98 /* SBJsonStreamParserState.m in Sources */,
+				32545AB21A5F9E7C00A08564 /* ARNativeAction.m in Sources */,
 				3219108C1A52330500AEF550 /* RCGLShaderProgram.m in Sources */,
 				324752331A5BCB3000A0EC98 /* SBJsonWriter.m in Sources */,
 				324752281A5BCB3000A0EC98 /* NSObject+SBJson.m in Sources */,
@@ -702,6 +713,7 @@
 				321910B11A52332100AEF550 /* RCLocationManager.m in Sources */,
 				324752321A5BCB3000A0EC98 /* SBJsonUTF8Stream.m in Sources */,
 				3219108B1A52330500AEF550 /* RCGLManagerFactory.m in Sources */,
+				32545AB71A5F9E8E00A08564 /* RCHttpInterceptor.m in Sources */,
 				321910611A52328D00AEF550 /* main.m in Sources */,
 				3219108D1A52330500AEF550 /* RCVideoPreview.m in Sources */,
 				3219109F1A52330F00AEF550 /* MBProgressHUD.m in Sources */,

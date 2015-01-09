@@ -14,6 +14,7 @@
 #import "RCDebugLog.h"
 #import "RCMotionManager.h"
 #import "RCAVSessionManager.h"
+#import "RCHttpInterceptor.h"
 
 #if TARGET_IPHONE_SIMULATOR
 #define SKIP_CALIBRATION YES // skip calibration when running on emulator because it cannot calibrate
@@ -51,6 +52,8 @@
         
         [NSUserDefaults.standardUserDefaults registerDefaults:appDefaults];
     });
+    
+    [NSURLProtocol registerClass:[RCHttpInterceptor class]];
     
     mySensorDelegate = [SensorDelegate sharedInstance];
     

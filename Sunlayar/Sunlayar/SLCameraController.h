@@ -16,8 +16,9 @@
 #import "SLConstants.h"
 #import "RCVideoPreview.h"
 #import "RC3DKPlus.h"
+#import "SLRoofController.h"
 
-@interface SLCameraController : UIViewController <RCSensorFusionDelegate, RCStereoDelegate>
+@interface SLCameraController : UIViewController <RCSensorFusionDelegate, RCStereoDelegate, SLRoofControllerDelegate>
 
 - (void)handlePause;
 - (void)handleResume;

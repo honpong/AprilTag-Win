@@ -5,8 +5,15 @@
 
 #import "RC3DK.h"
 #import "SLMeasuredPhoto.h"
+#import "RCHttpInterceptor.h"
 
-@interface SLRoofController : UIViewController <UIWebViewDelegate, UITextFieldDelegate>
+@protocol SLRoofControllerDelegate <NSObject>
+
+- (void) roofDefinitionComplete;
+
+@end
+
+@interface SLRoofController : UIViewController <UIWebViewDelegate, UITextFieldDelegate, RCHttpInterceptorDelegate>
 
 @property (weak, nonatomic) IBOutlet UIWebView *webView;
 @property (weak, nonatomic) IBOutlet UIButton *cameraButton;

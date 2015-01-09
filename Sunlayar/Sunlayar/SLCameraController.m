@@ -45,7 +45,7 @@ typedef NS_ENUM(int, MessageColor) {
 };
 
 enum state { ST_STARTUP, ST_READY, ST_INITIALIZING, ST_MOVING, ST_CAPTURE, ST_PROCESSING, ST_ERROR, ST_DISK_SPACE, ST_FINISHED, ST_ANY } currentState;
-enum event { EV_RESUME, EV_FIRSTTIME, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_SHUTTER_TAP, EV_PAUSE, EV_CANCEL, EV_MOVE_DONE, EV_MOVE_UNDONE, EV_PROCESSING_FINISHED, EV_INITIALIZED, EV_STEREOFAIL, EV_DISK_SPACE };
+enum event { EV_RESUME, EV_FIRSTTIME, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_SHUTTER_TAP, EV_PAUSE, EV_CANCEL, EV_MOVE_DONE, EV_MOVE_UNDONE, EV_PROCESSING_FINISHED, EV_INITIALIZED, EV_STEREOFAIL, EV_DISK_SPACE, EV_ROOF_DEFINED };
 
 typedef struct { enum state state; enum event event; enum state newstate; } transition;
 
@@ -415,6 +415,13 @@ static transition transitions[] =
         
         if(setups[currentState].stereo) [STEREO processFrame:data withFinal:false];
     }
+}
+
+#pragma mark - SLRoofControllerDelegate
+
+- (void) roofDefinitionComplete
+{
+    [self handleStateEvent:EV_ROOF_DEFINED];
 }
 
 #pragma mark - Misc

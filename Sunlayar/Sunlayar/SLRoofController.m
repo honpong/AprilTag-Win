@@ -19,6 +19,8 @@
 {
     LOGME
     [super viewDidLoad];
+    
+    [RCHttpInterceptor setDelegate:self];
           
     NSURL *htmlUrl = [[NSBundle mainBundle] URLForResource:@"measured_photo_svg" withExtension:@"html"]; // url of the html file bundled with the app
     
@@ -57,7 +59,7 @@
     [self.presentingViewController dismissViewControllerAnimated:NO completion:nil];
 }
 
-#pragma mark -
+#pragma mark - Misc
 
 - (void) loadMeasuredPhoto
 {
@@ -71,6 +73,13 @@
     {
         DLog(@"ERROR: Failed to load web view because measuredPhoto is nil");
     }
+}
+
+- (void) returnToCameraController
+{
+    SLCameraController* camController = (SLCameraController*)self.presentingViewController;
+    if ([camController respondsToSelector:@selector(roofDefinitionComplete)]) [camController roofDefinitionComplete];
+    [camController dismissViewControllerAnimated:NO completion:nil];
 }
 
 #pragma mark - UIWebViewDelegate
@@ -98,6 +107,47 @@
         return YES; // allow loading local files
     }
     else return NO; // disallow loading of http and all other types of links
+}
+
+#pragma mark - RCHttpInterceptorDelegate
+
+- (NSDictionary *)handleAction:(ARNativeAction *)nativeAction error:(NSError **)error
+{
+    if ([nativeAction.request.URL.description endsWithString:@"/annotations/"] && [nativeAction.method isEqualToString:@"PUT"])
+    {
+        BOOL result = [self.measuredPhoto writeAnnotationsToFile:nativeAction.body];
+        
+        if (result == YES)
+        {
+            return @{ @"message": @"Annotations saved" };
+        }
+        else
+        {
+            NSDictionary* userInfo = @{ NSLocalizedDescriptionKey: @"Failed to write depth file" };
+            *error = [NSError errorWithDomain:ERROR_DOMAIN code:500 userInfo:userInfo];
+        }
+    }
+    else if ([nativeAction.request.URL.description endsWithString:@"/next/"])
+    {
+        [self returnToCameraController];
+        return @{ @"message": @"Proceeding to next" };
+    }
+    else if ([nativeAction.request.URL.description endsWithString:@"/log/"] && [nativeAction.method isEqualToString:@"POST"])
+    {
+        [self webViewLog:[nativeAction.params objectForKey:@"message"]];
+        return @{ @"message": @"Write to log successful" };
+    }
+    else
+    {
+        return @{ @"message": @"Invalid URL" };
+    }
+    
+    return nil;
+}
+
+- (void) webViewLog:(NSString*)message
+{
+    if (message && message.length > 0) DLog(@"%@", message);
 }
 
 @end

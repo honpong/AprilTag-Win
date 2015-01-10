@@ -67,7 +67,7 @@
 - (NSString*) annotationsFileName
 {
     NSString* fileName = [NSString stringWithFormat:@"%@-annotations.json", self.id_guid];
-    NSURL* fileUrl = [DOCUMENTS_DIRECTORY_URL URLByAppendingPathComponent:fileName];
+    NSURL* fileUrl = [WORKING_DIRECTORY_URL URLByAppendingPathComponent:fileName];
     return fileUrl.path;
 }
 

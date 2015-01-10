@@ -13,6 +13,7 @@
 #import "RCDebugLog.h"
 #import <CoreLocation/CoreLocation.h>
 #import "RCLocationManager.h"
+#import "SLARDelegate.h"
 
 static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationLandscapeLeft;
 
@@ -29,6 +30,8 @@ static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationLandscapeLe
     SLMeasuredPhoto* measuredPhoto;
     
     RCSensorFusionErrorCode lastErrorCode;
+    
+    SLARDelegate *arDelegate;
 }
 @synthesize videoView;
 
@@ -44,8 +47,8 @@ typedef NS_ENUM(int, MessageColor) {
     ColorRed
 };
 
-enum state { ST_STARTUP, ST_READY, ST_INITIALIZING, ST_MOVING, ST_CAPTURE, ST_PROCESSING, ST_ERROR, ST_DISK_SPACE, ST_FINISHED, ST_ANY } currentState;
-enum event { EV_RESUME, EV_FIRSTTIME, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_SHUTTER_TAP, EV_PAUSE, EV_CANCEL, EV_MOVE_DONE, EV_MOVE_UNDONE, EV_PROCESSING_FINISHED, EV_INITIALIZED, EV_STEREOFAIL, EV_DISK_SPACE, EV_ROOF_DEFINED };
+enum state { ST_STARTUP, ST_READY, ST_INITIALIZING, ST_MOVING, ST_CAPTURE, ST_PROCESSING, ST_ROOFREADY, ST_ROOFINIT, ST_ROOFALIGN, ST_ROOFVIS, ST_ROOFERROR, ST_ERROR, ST_DISK_SPACE, ST_FINISHED, ST_ANY } currentState;
+enum event { EV_RESUME, EV_FIRSTTIME, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_SHUTTER_TAP, EV_PAUSE, EV_CANCEL, EV_MOVE_DONE, EV_MOVE_UNDONE, EV_PROCESSING_FINISHED, EV_INITIALIZED, EV_STEREOFAIL, EV_DISK_SPACE, EV_ROOF_DEFINED, EV_ROOF_FAIL };
 
 typedef struct { enum state state; enum event event; enum state newstate; } transition;
 
@@ -70,6 +73,11 @@ static statesetup setups[] =
     { ST_MOVING,        true,   true,    true,   SpinnerTypeNone,          true,   ColorWhite,    "Move sideways left or right until the progress bar is full." },
     { ST_CAPTURE,       true,   true,    true,   SpinnerTypeNone,          true,   ColorWhite,    "Press the button to finish." },
     { ST_PROCESSING,    false,  false,   false,  SpinnerTypeDeterminate,   false,  ColorWhite,    "Please wait" },
+    { ST_ROOFREADY,     true,   false,   false,  SpinnerTypeNone,          false,  ColorWhite,    "Point the camera at the roof, then press the button." },
+    { ST_ROOFINIT,      true,   true,    false,  SpinnerTypeDeterminate,   false,  ColorWhite,    "Hold still" },
+    { ST_ROOFALIGN,     true,   true,    true,   SpinnerTypeNone,          true,   ColorWhite,    "Align the roof with the outline." },
+    { ST_ROOFVIS,       true,   true,    true,   SpinnerTypeNone,          true,   ColorWhite,    "Roof visualization active." },
+    { ST_ROOFERROR,     true,   false,   false,  SpinnerTypeNone,          false,  ColorRed,      "Roof wasn't properly defined. Try again." },
     { ST_ERROR,         true,   false,   false,  SpinnerTypeNone,          false,  ColorRed,      "Whoops, something went wrong. Try again." },
     { ST_DISK_SPACE,    true,   false,   false,  SpinnerTypeNone,          false,  ColorRed,      "Your device is low on storage space. Free up some space first." },
     { ST_FINISHED,      false,  false,   false,  SpinnerTypeNone,          false,  ColorWhite,    "" }
@@ -81,19 +89,25 @@ static transition transitions[] =
     { ST_READY, EV_SHUTTER_TAP, ST_INITIALIZING },
     { ST_INITIALIZING, EV_INITIALIZED, ST_MOVING },
     { ST_MOVING, EV_MOVE_DONE, ST_CAPTURE },
-    { ST_MOVING, EV_FAIL, ST_ERROR },
-    { ST_MOVING, EV_FASTFAIL, ST_ERROR },
     { ST_CAPTURE, EV_SHUTTER_TAP, ST_PROCESSING },
     { ST_CAPTURE, EV_MOVE_UNDONE, ST_MOVING },
-    { ST_CAPTURE, EV_FAIL, ST_ERROR },
-    { ST_CAPTURE, EV_FASTFAIL, ST_ERROR },
     { ST_PROCESSING, EV_PROCESSING_FINISHED, ST_FINISHED },
     { ST_PROCESSING, EV_STEREOFAIL, ST_ERROR },
+
+    { ST_STARTUP, EV_ROOF_DEFINED, ST_ROOFREADY },
+    { ST_STARTUP, EV_ROOF_FAIL, ST_ROOFERROR },
+    { ST_ROOFREADY, EV_SHUTTER_TAP, ST_ROOFINIT },
+    { ST_ROOFINIT, EV_INITIALIZED, ST_ROOFALIGN },
+    { ST_ROOFALIGN, EV_SHUTTER_TAP, ST_ROOFVIS },
+    { ST_ROOFVIS, EV_SHUTTER_TAP, ST_FINISHED },
+    
     { ST_ERROR, EV_SHUTTER_TAP, ST_READY },
     { ST_FINISHED, EV_SHUTTER_TAP, ST_READY },
     { ST_FINISHED, EV_PAUSE, ST_FINISHED },
     { ST_ANY, EV_PAUSE, ST_STARTUP },
     { ST_ANY, EV_CANCEL, ST_STARTUP },
+    { ST_ANY, EV_FAIL, ST_ERROR },
+    { ST_ANY, EV_FASTFAIL, ST_ERROR },
     { ST_ANY, EV_DISK_SPACE, ST_DISK_SPACE }
 };
 
@@ -184,7 +198,10 @@ static transition transitions[] =
             }
         }
     }
-    if(newState != currentState) [self transitionToState:newState];
+    if(newState != currentState) {
+        NSLog(@"state event %d, old state %d, new state %d\n", event, currentState, newState);
+        [self transitionToState:newState];
+    }
 }
 
 #pragma mark - View Controller
@@ -209,6 +226,9 @@ static transition transitions[] =
     [self.uiContainer addSubview:progressView];
     
     self.videoView.orientation = UIInterfaceOrientationLandscapeRight;
+    
+    arDelegate = [[SLARDelegate alloc] init];
+    videoView.delegate = arDelegate;
 }
 
 - (void) viewDidAppear:(BOOL)animated
@@ -364,7 +384,7 @@ static transition transitions[] =
     
     [self updateProgress:status.progress];
     
-    if(currentState == ST_INITIALIZING && status.runState == RCSensorFusionRunStateRunning)
+    if((currentState == ST_INITIALIZING || currentState == ST_ROOFINIT) && status.runState == RCSensorFusionRunStateRunning)
     {
         [self handleStateEvent:EV_INITIALIZED];
     }
@@ -402,6 +422,8 @@ static transition transitions[] =
 
         float progress = fabs(dx);
         self.progressBar.progress = progress;
+        
+        if(currentState == ST_CAPTURE) [arDelegate setInitialCamera:data.cameraTransformation];
         
         if(currentState == ST_MOVING && progress >= 1.) [self handleStateEvent:EV_MOVE_DONE];
         if(currentState == ST_CAPTURE && progress < 1.) [self handleStateEvent:EV_MOVE_UNDONE];
@@ -448,22 +470,30 @@ static transition transitions[] =
     }
     
     NSNumber* gutterLength = roofData[@"gutter_length"];
-    NSNumber* x1 = roofData[@"x1"];
-    NSNumber* x2 = roofData[@"x2"];
-    NSNumber* x3 = roofData[@"x3"];
-    NSNumber* x4 = roofData[@"x4"];
-    NSNumber* y1 = roofData[@"y1"];
-    NSNumber* y2 = roofData[@"y2"];
-    NSNumber* y3 = roofData[@"y3"];
-    NSNumber* y4 = roofData[@"y4"];
-    // do something with these values
+
+    float roof2D[8];
+    float roof3D[12];
+
+    roof2D[0 * 2 + 0] = [(NSNumber *)roofData[@"x1"] floatValue];
+    roof2D[0 * 2 + 1] = [(NSNumber *)roofData[@"y1"] floatValue];
+    roof2D[1 * 2 + 0] = [(NSNumber *)roofData[@"x2"] floatValue];
+    roof2D[1 * 2 + 1] = [(NSNumber *)roofData[@"y2"] floatValue];
+    roof2D[2 * 2 + 0] = [(NSNumber *)roofData[@"x3"] floatValue];
+    roof2D[2 * 2 + 1] = [(NSNumber *)roofData[@"y3"] floatValue];
+    roof2D[3 * 2 + 0] = [(NSNumber *)roofData[@"x4"] floatValue];
+    roof2D[3 * 2 + 1] = [(NSNumber *)roofData[@"y4"] floatValue];
     
-    NSDictionary* coords3D = (NSDictionary*)[roofData objectForKey:@"coords3D"];
-    if (coords3D == nil)
+    for(int corner = 0; corner < 4; ++corner)
     {
-        DLog(@"JSON deserialization failure for coords3D");
-        return NO;
+        for(int dimension = 0; dimension < 3; ++dimension)
+        {
+            roof3D[corner * 3 + dimension] = [(NSNumber *)roofData[@"coords3D"][corner][dimension] floatValue];
+        }
     }
+    
+    [arDelegate setRoof3DCoordinates:roof3D with2DCoordinates:roof2D];
+    
+    NSLog(@"state is %d\n", currentState);
     
     return YES;
 }

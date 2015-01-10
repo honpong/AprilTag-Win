@@ -33,5 +33,5 @@ void main()
     highp vec4 ambient = light_ambient * material_ambient;
     highp vec4 diffuse = diffuse_intensity * light_diffuse * material_diffuse;
     highp vec4 specular = specular_intensity * light_specular * material_specular;
-    gl_FragColor = ambient + diffuse + specular; //The ones that should be varying across the surface are not. Why?
+    gl_FragColor = ambient + diffuse + specular;
 }

@@ -421,10 +421,52 @@ static transition transitions[] =
 
 - (void) roofDefinitionComplete
 {
-    [self handleStateEvent:EV_ROOF_DEFINED];
+    if ([self readRoofFileData])
+    {
+        [self handleStateEvent:EV_ROOF_DEFINED];
+    }
 }
 
 #pragma mark - Misc
+
+/**
+ @returns YES if parsing succeeds
+ */
+- (BOOL) readRoofFileData
+{
+    NSDictionary *jsonDict = [measuredPhoto getRoofJsonDict];
+    if (jsonDict == nil)
+        return NO;
+    else
+        DLog(@"%@", jsonDict);
+    
+    NSDictionary* roofData = (NSDictionary*)[jsonDict objectForKey:@"roof_object"];
+    if (roofData == nil)
+    {
+        DLog(@"JSON deserialization failure for roofData");
+        return NO;
+    }
+    
+    NSNumber* gutterLength = roofData[@"gutter_length"];
+    NSNumber* x1 = roofData[@"x1"];
+    NSNumber* x2 = roofData[@"x2"];
+    NSNumber* x3 = roofData[@"x3"];
+    NSNumber* x4 = roofData[@"x4"];
+    NSNumber* y1 = roofData[@"y1"];
+    NSNumber* y2 = roofData[@"y2"];
+    NSNumber* y3 = roofData[@"y3"];
+    NSNumber* y4 = roofData[@"y4"];
+    // do something with these values
+    
+    NSDictionary* coords3D = (NSDictionary*)[roofData objectForKey:@"coords3D"];
+    if (coords3D == nil)
+    {
+        DLog(@"JSON deserialization failure for coords3D");
+        return NO;
+    }
+    
+    return YES;
+}
 
 - (void) moveComplete
 {

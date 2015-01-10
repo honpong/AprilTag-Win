@@ -115,4 +115,35 @@
     return result;
 }
 
+- (NSDictionary*) getRoofJsonDict
+{
+    NSError* fileError;
+    NSData* jsonData = [NSData dataWithContentsOfFile:[self annotationsFileName] options:0 error:&fileError];
+    if (fileError)
+    {
+        DLog(@"File read error: %@", fileError);
+        return nil;
+    }
+    else if (jsonData == nil)
+    {
+        DLog(@"File read failure");
+        return nil;
+    }
+    
+    NSError* serializationError;
+    NSDictionary *jsonDict = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&serializationError];
+    if (serializationError)
+    {
+        DLog(@"JSON deserialization error: %@", serializationError);
+        return nil;
+    }
+    else if (jsonDict == nil)
+    {
+        DLog(@"JSON deserialization failure.");
+        return nil;
+    }
+    
+    return jsonDict;
+}
+
 @end

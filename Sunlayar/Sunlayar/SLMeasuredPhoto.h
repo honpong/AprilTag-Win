@@ -15,6 +15,8 @@
 - (BOOL) writeImagetoJpeg:(CMSampleBufferRef)sampleBuffer withOrientation:(UIDeviceOrientation)orientation;
 - (BOOL) writeAnnotationsToFile:(NSString*)jsonString;
 - (BOOL) deleteAssociatedFiles;
+- (NSDictionary*) getRoofJsonDict;
+
 - (NSString*) imageFileName;
 - (NSString*) depthFileName;
 - (NSString*) annotationsFileName;

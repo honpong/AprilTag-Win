@@ -84,6 +84,7 @@
 		324752351A5BCB3000A0EC98 /* UIImage+RCImageFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 324752171A5BCB3000A0EC98 /* UIImage+RCImageFile.m */; };
 		32545AB21A5F9E7C00A08564 /* ARNativeAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 32545AB11A5F9E7C00A08564 /* ARNativeAction.m */; };
 		32545AB71A5F9E8E00A08564 /* RCHttpInterceptor.m in Sources */ = {isa = PBXBuildFile; fileRef = 32545AB61A5F9E8E00A08564 /* RCHttpInterceptor.m */; };
+		D927F0B91A61A8BE00344165 /* SLARDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D927F0B81A61A8BE00344165 /* SLARDelegate.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -247,6 +248,8 @@
 		32545AB11A5F9E7C00A08564 /* ARNativeAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARNativeAction.m; sourceTree = "<group>"; };
 		32545AB51A5F9E8E00A08564 /* RCHttpInterceptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCHttpInterceptor.h; sourceTree = "<group>"; };
 		32545AB61A5F9E8E00A08564 /* RCHttpInterceptor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCHttpInterceptor.m; sourceTree = "<group>"; };
+		D927F0B71A61A8BE00344165 /* SLARDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLARDelegate.h; sourceTree = "<group>"; };
+		D927F0B81A61A8BE00344165 /* SLARDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLARDelegate.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -318,6 +321,8 @@
 				324752381A5BCB3600A0EC98 /* ThirdParty */,
 				321910621A52328D00AEF550 /* AppDelegate.h */,
 				321910631A52328D00AEF550 /* AppDelegate.m */,
+				D927F0B71A61A8BE00344165 /* SLARDelegate.h */,
+				D927F0B81A61A8BE00344165 /* SLARDelegate.m */,
 				324751E21A5BCB3000A0EC98 /* SLCameraController.h */,
 				324751E31A5BCB3000A0EC98 /* SLCameraController.m */,
 				324751E41A5BCB3000A0EC98 /* SLRoofController.h */,
@@ -708,6 +713,7 @@
 				324752331A5BCB3000A0EC98 /* SBJsonWriter.m in Sources */,
 				324752281A5BCB3000A0EC98 /* NSObject+SBJson.m in Sources */,
 				321910B41A52332100AEF550 /* RCVideoManager.m in Sources */,
+				D927F0B91A61A8BE00344165 /* SLARDelegate.m in Sources */,
 				324752291A5BCB3000A0EC98 /* SBJsonParser.m in Sources */,
 				321910B01A52332100AEF550 /* RCAVSessionManager.m in Sources */,
 				321910B11A52332100AEF550 /* RCLocationManager.m in Sources */,

@@ -96,10 +96,10 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
     poly_str = m.x1.toFixed() +','+m.y1.toFixed()+' '+m.x2.toFixed()+','+ m.y2.toFixed()+' '+ m.x3.toFixed()+','+ m.y3.toFixed()+' '+m.x4.toFixed()+','+m.y4.toFixed()
     m.polygon = measured_svg.polygon(poly_str).stroke({ color: line_color, width: 2 }).fill({ color: '#008899', opacity: 0.3 });
     
-    m.selector_circle1 = measured_svg.circle(30).move(m.x1-15,m.y1-15).fill({opacity:0});
-    m.selector_circle2 = measured_svg.circle(30).move(m.x2-15,m.y2-15).fill({opacity:0});
-    m.selector_circle3 = measured_svg.circle(30).move(m.x3-15,m.y3-15).fill({opacity:0});
-    m.selector_circle4 = measured_svg.circle(30).move(m.x4-15,m.y4-15).fill({opacity:0});
+    m.selector_circle1 = measured_svg.circle(40).move(m.x1-20,m.y1-20).fill({opacity:0});
+    m.selector_circle2 = measured_svg.circle(40).move(m.x2-20,m.y2-20).fill({opacity:0});
+    m.selector_circle3 = measured_svg.circle(40).move(m.x3-20,m.y3-20).fill({opacity:0});
+    m.selector_circle4 = measured_svg.circle(40).move(m.x4-20,m.y4-20).fill({opacity:0});
     
     
     
@@ -158,10 +158,10 @@ rcMeasurements.redraw_measurement = function (m) {
     m.circle2.move(m.x2-5,m.y2-5);
     m.circle3.move(m.x3-5,m.y3-5);
     m.circle4.move(m.x4-5,m.y4-5);
-    m.selector_circle1.move(m.x1-15,m.y1-15);
-    m.selector_circle2.move(m.x2-15,m.y2-15);
-    m.selector_circle3.move(m.x3-15,m.y3-15);
-    m.selector_circle4.move(m.x4-15,m.y4-15);
+    m.selector_circle1.move(m.x1-20,m.y1-20);
+    m.selector_circle2.move(m.x2-20,m.y2-20);
+    m.selector_circle3.move(m.x3-20,m.y3-20);
+    m.selector_circle4.move(m.x4-20,m.y4-20);
     
     m.polygon.plot([[m.x1,m.y1], [m.x2,m.y2], [m.x3,m.y3], [m.x4,m.y4]])
     

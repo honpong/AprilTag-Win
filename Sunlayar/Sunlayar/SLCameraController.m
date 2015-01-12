@@ -22,6 +22,8 @@ static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationLandscapeLe
     BOOL useLocation;
     RCTransformation *initialCamera;
     
+    RCTransformation *stereoTransformation;
+    
     MBProgressHUD *progressView;
     RCSensorFusionData* lastSensorFusionDataWithImage;
 
@@ -58,6 +60,7 @@ typedef struct
     bool sensorCapture;
     bool sensorFusion;
     bool showInstructions;
+    bool showAR;
     SpinnerType progress;
     bool stereo;
     MessageColor messageColor;
@@ -66,21 +69,21 @@ typedef struct
 
 static statesetup setups[] =
 {
-    //                  sensors fusion   instrct prgrs                     stereo  messageColor  message
-    { ST_STARTUP,       false,  false,   false,  SpinnerTypeNone,          false,  ColorWhite,    "Loading" },
-    { ST_READY,         true,   false,   false,  SpinnerTypeNone,          false,  ColorWhite,    "Point the camera at the roof, then press the button." },
-    { ST_INITIALIZING,  true,   true,    false,  SpinnerTypeDeterminate,   false,  ColorWhite,    "Hold still" },
-    { ST_MOVING,        true,   true,    true,   SpinnerTypeNone,          true,   ColorWhite,    "Move sideways left or right until the progress bar is full." },
-    { ST_CAPTURE,       true,   true,    true,   SpinnerTypeNone,          true,   ColorWhite,    "Press the button to finish." },
-    { ST_PROCESSING,    false,  false,   false,  SpinnerTypeDeterminate,   false,  ColorWhite,    "Please wait" },
-    { ST_ROOFREADY,     true,   false,   false,  SpinnerTypeNone,          false,  ColorWhite,    "Point the camera at the roof, then press the button." },
-    { ST_ROOFINIT,      true,   true,    false,  SpinnerTypeDeterminate,   false,  ColorWhite,    "Hold still" },
-    { ST_ROOFALIGN,     true,   true,    true,   SpinnerTypeNone,          true,   ColorWhite,    "Align the roof with the outline." },
-    { ST_ROOFVIS,       true,   true,    true,   SpinnerTypeNone,          true,   ColorWhite,    "Roof visualization active." },
-    { ST_ROOFERROR,     true,   false,   false,  SpinnerTypeNone,          false,  ColorRed,      "Roof wasn't properly defined. Try again." },
-    { ST_ERROR,         true,   false,   false,  SpinnerTypeNone,          false,  ColorRed,      "Whoops, something went wrong. Try again." },
-    { ST_DISK_SPACE,    true,   false,   false,  SpinnerTypeNone,          false,  ColorRed,      "Your device is low on storage space. Free up some space first." },
-    { ST_FINISHED,      false,  false,   false,  SpinnerTypeNone,          false,  ColorWhite,    "" }
+    //                  sensors fusion   instrct AR     prgrs                     stereo  messageColor  message
+    { ST_STARTUP,       false,  false,   false,  false, SpinnerTypeNone,          false,  ColorWhite,    "Loading" },
+    { ST_READY,         true,   false,   false,  false, SpinnerTypeNone,          false,  ColorWhite,    "Point the camera at the roof, then press the button." },
+    { ST_INITIALIZING,  true,   true,    false,  false, SpinnerTypeDeterminate,   false,  ColorWhite,    "Hold still" },
+    { ST_MOVING,        true,   true,    true,   false, SpinnerTypeNone,          true,   ColorWhite,    "Move sideways left or right until the progress bar is full." },
+    { ST_CAPTURE,       true,   true,    true,   false, SpinnerTypeNone,          true,   ColorWhite,    "Press the button to finish." },
+    { ST_PROCESSING,    false,  false,   false,  false, SpinnerTypeDeterminate,   false,  ColorWhite,    "Please wait" },
+    { ST_ROOFREADY,     true,   false,   false,  true,  SpinnerTypeNone,          false,  ColorWhite,    "Point the camera at the roof, then press the button." },
+    { ST_ROOFINIT,      true,   true,    false,  true,  SpinnerTypeDeterminate,   false,  ColorWhite,    "Hold still" },
+    { ST_ROOFALIGN,     true,   true,    true,   true,  SpinnerTypeNone,          true,   ColorWhite,    "Align the outline with the roof." },
+    { ST_ROOFVIS,       true,   true,    true,   true,  SpinnerTypeNone,          true,   ColorWhite,    "Roof visualization active." },
+    { ST_ROOFERROR,     true,   false,   false,  false, SpinnerTypeNone,          false,  ColorRed,      "Roof wasn't properly defined. Try again." },
+    { ST_ERROR,         true,   false,   false,  false, SpinnerTypeNone,          false,  ColorRed,      "Whoops, something went wrong. Try again." },
+    { ST_DISK_SPACE,    true,   false,   false,  false, SpinnerTypeNone,          false,  ColorRed,      "Your device is low on storage space. Free up some space first." },
+    { ST_FINISHED,      false,  false,   false,  true,  SpinnerTypeNone,          false,  ColorWhite,    "" }
 };
 
 static transition transitions[] =
@@ -136,6 +139,12 @@ static transition transitions[] =
         [self stopSensors];
     if(oldSetup.sensorFusion && !newSetup.sensorFusion)
         [self stopSensorFusion];
+    if(oldSetup.showAR && !newSetup.showAR)
+        videoView.delegate = nil;
+    if(!oldSetup.showAR && newSetup.showAR)
+        videoView.delegate = arDelegate;
+
+    
     if(oldSetup.progress != newSetup.progress)
     {
         if (newSetup.progress == SpinnerTypeDeterminate)
@@ -199,7 +208,6 @@ static transition transitions[] =
         }
     }
     if(newState != currentState) {
-        NSLog(@"state event %d, old state %d, new state %d\n", event, currentState, newState);
         [self transitionToState:newState];
     }
 }
@@ -228,7 +236,6 @@ static transition transitions[] =
     self.videoView.orientation = UIInterfaceOrientationLandscapeRight;
     
     arDelegate = [[SLARDelegate alloc] init];
-    videoView.delegate = arDelegate;
 }
 
 - (void) viewDidAppear:(BOOL)animated
@@ -423,12 +430,16 @@ static transition transitions[] =
         float progress = fabs(dx);
         self.progressBar.progress = progress;
         
-        if(currentState == ST_CAPTURE) [arDelegate setInitialCamera:data.cameraTransformation];
-        
         if(currentState == ST_MOVING && progress >= 1.) [self handleStateEvent:EV_MOVE_DONE];
         if(currentState == ST_CAPTURE && progress < 1.) [self handleStateEvent:EV_MOVE_UNDONE];
     }
+
+    if(currentState == ST_CAPTURE) stereoTransformation = [[RCTransformation alloc] initWithTranslation:[[RCTranslation alloc] init] withRotation:data.cameraTransformation.rotation];
     
+    if(currentState == ST_ROOFALIGN)
+        [arDelegate setInitialCamera:data.cameraTransformation]; //[data.cameraTransformation composeWithTransformation:stereoTransformation]];
+    // if(currentState == ST_CAPTURE) [arDelegate setInitialCamera:[[RCTransformation alloc] initWithTranslation:[[RCTranslation alloc] init] withRotation:data.cameraTransformation.rotation]];
+
     if(data.sampleBuffer)
     {
         lastSensorFusionDataWithImage = data;
@@ -492,8 +503,6 @@ static transition transitions[] =
     }
     
     [arDelegate setRoof3DCoordinates:roof3D with2DCoordinates:roof2D];
-    
-    NSLog(@"state is %d\n", currentState);
     
     return YES;
 }

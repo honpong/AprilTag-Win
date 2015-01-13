@@ -9,7 +9,9 @@ bool debug_triangulate = false;
 bool enable_jitter = false;
 bool enable_distortion_correction = false;
 bool enable_eight_point_motion = false;
-#ifndef ARCHIVE
+// If DEBUG or RELEASE are set, we are not in LIBRARY (building the RC3DK static library)
+// or ARCHIVE (packaging an app for the store with RC3DK as a subproject).
+#if DEBUG || RELEASE
 bool enable_debug_files = true;
 #else
 bool enable_debug_files = false;

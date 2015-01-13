@@ -233,7 +233,7 @@ v4 integrate_angular_velocity(const v4 &W, const v4 &w)
     f_t gamma, eta;
     if(theta2 * theta2 * (1./120.) <= EPS) {
         gamma = 2. - theta2 / 6.;
-        eta = sum(W * w) * (60. + theta2) / 360.;
+        eta = sum(W * w) * (-60. - theta2) / 360.;
     } else {
         f_t theta = sqrt(theta2),
             sinp = sin(.5 * theta),
@@ -253,10 +253,10 @@ void linearize_angular_integration(const v4 &W, const v4 &w, m4 &dW_dW, m4 &dW_d
     v4 dg_dW, de_dW, de_dw;
     if(theta2 * theta2 * (1./120.) <= EPS) {
         gamma = 2. - theta2 / 6.;
-        eta = sum(W * w) * (60. + theta2) / 360.;
+        eta = sum(W * w) * (-60. - theta2) / 360.;
         dg_dW = W * -(1./3.);
-        de_dW = sum(W * w) * W * (1./180.) + w * (60. + theta2) / 360.;
-        de_dw = W * (60. + theta2) / 360.;
+        de_dW = sum(W * w) * W * (-1./180.) + w * (-60. - theta2) / 360.;
+        de_dw = W * (-60. - theta2) / 360.;
     } else {
         f_t theta = sqrt(theta2),
             sinp = sin(.5 * theta),

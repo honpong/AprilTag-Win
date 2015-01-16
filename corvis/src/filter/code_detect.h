@@ -18,6 +18,7 @@ struct qr_detection {
     feature_t upper_right;
     feature_t lower_right;
     feature_t lower_left;
+    char data[1024];
 };
 
 vector<struct qr_detection> code_detect_qr(const uint8_t * image, int width, int height);

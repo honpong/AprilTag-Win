@@ -87,7 +87,14 @@ filter(bool estimate_calibration): s(estimate_calibration, cov)
     uint64_t active_time;
     
     bool estimating_Tc;
-    
+
+    bool detecting_qr;
+    bool qr_valid;
+    quaternion qr_Q;
+    v4 qr_T;
+    float qr_size;
+    char qr_data[1024];
+
     v4 a_bias_start, w_bias_start; //for tracking calibration progress
     
     observation_queue observations;
@@ -101,8 +108,10 @@ void filter_compute_gravity(struct filter *f, double latitude, double altitude);
 void filter_start_static_calibration(struct filter *f);
 void filter_start_hold_steady(struct filter *f);
 void filter_start_dynamic(struct filter *f);
+void filter_start_qr_detection(struct filter *f, const char * data, float dimension);
+void filter_stop_qr_detection(struct filter *f);
 bool filter_get_qr_code_transformation(struct filter *f, float qr_size, float corner_x[4], float corner_y[4], m4 &R, v4 &T);
-
+bool filter_get_qr_code_origin(struct filter *f, struct qr_detection detection, float qr_size, quaternion &Q, v4 &T);
 
 #ifdef SWIG
 %callback("%s_cb");

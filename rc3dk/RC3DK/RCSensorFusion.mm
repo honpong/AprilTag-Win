@@ -766,13 +766,19 @@ typedef NS_ENUM(int, RCLicenseStatus)
     //Need to send the data before we modify it or else we recursively fail
     [QRSync addSensorFusionTransformation:[transformation composeWithTransformation:camTransform]  withSampleBuffer:sampleBuffer withCameraParameters:camParams];
     
-    if(QRSync.QRID_origin != nil)
+    NSString * qrDetected = nil;
+    if(f->qr_valid)
     {
-        transformation = [QRSync.originTransform composeWithTransformation:transformation];
+        NSLog(@"Detection");
+        RCRotation* originRotation = [[RCRotation alloc] initWithQuaternionW:f->qr_Q.w() withX:f->qr_Q.x() withY:f->qr_Q.y() withZ:f->qr_Q.z()];
+        RCTranslation* originTranslation = [[RCTranslation alloc] initWithX:f->qr_T[0] withY:f->qr_T[1] withZ:f->qr_T[2]];
+        RCTransformation * originTransform = [[RCTransformation alloc] initWithTranslation:originTranslation withRotation:originRotation];
+        transformation = [originTransform composeWithTransformation:transformation];
+        qrDetected = [NSString stringWithCString:f->qr_data encoding:NSUTF8StringEncoding];
     }
-    
+
     RCTransformation *cameraTransformation = [transformation composeWithTransformation:camTransform];
-    RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithTransformation:transformation withCameraTransformation:cameraTransformation withCameraParameters:camParams withTotalPath:totalPath withFeatures:[self getFeaturesArray] withSampleBuffer:sampleBuffer withTimestamp:f->last_time withOriginQRCode:QRSync.QRID_origin];
+    RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithTransformation:transformation withCameraTransformation:cameraTransformation withCameraParameters:camParams withTotalPath:totalPath withFeatures:[self getFeaturesArray] withSampleBuffer:sampleBuffer withTimestamp:f->last_time withOriginQRCode:qrDetected];
 
     //send the callback to the main/ui thread
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -989,11 +995,25 @@ typedef NS_ENUM(int, RCLicenseStatus)
 }
 */
 
-#pragma mark - QR Code handling for ViewAR
+#pragma mark - QR Code handling
 - (void) requestTransformationForQRCodeObservation:(AVMetadataMachineReadableCodeObject *)observation withDimension:(float)QRDimension
 {
     if(observation.stringValue == nil) return;
     [QRSync observeQR:observation withDimension:QRDimension];
+}
+
+- (void) startQRDetectionWithData:(NSString *)data withDimension:(float)dimension
+{
+    dispatch_sync(queue, ^{
+        filter_start_qr_detection(&_cor_setup->sfm, data.UTF8String, dimension);
+    });
+}
+
+- (void) stopQRDetection
+{
+    dispatch_sync(queue, ^{
+        filter_stop_qr_detection(&_cor_setup->sfm);
+    });
 }
 
 @end

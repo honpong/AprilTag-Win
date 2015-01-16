@@ -72,22 +72,26 @@
  */
 - (void) startStaticCalibration;
 
-/** Requests that future transformations be reported relative to an observed QR code
- 
- RCSensorFusion will attempt to associate the supplied QR code observation with its current pose estimate. This may not always be successful because QR code observations are delivered asynchronously, and decoding or association may fail.
- 
- If decoding and association is successful, RCSensorFusionData.originQRCode will be set to the payload of the QR code, and future instances of RCSensorFusionData.transformation and RCSensorFusionData.cameraTransformation will be modified with the origin fixed to the center of the QR code, positive y pointing toward the canonical "top" of the QR code, and positive x pointing toward the canonical "right" side of the QR code. with positive z pointing opposite gravity.
- 
-            [ ]  ^+y [ ]
-                 |
-                 o--->+x
- 
-            [ ]
- 
- @param observation The qr code data provided by iOS
- @param QRDimension The size of the QR code (width = height) in meters
-  */
 - (void) requestTransformationForQRCodeObservation:(AVMetadataMachineReadableCodeObject *)observation withDimension:(float)QRDimension;
+
+/** Starts to search for a QR code detection and once detected reports future transformations relative to the observed QR code.
+
+ RCSensorFusion will attempt to detect a supplied QR code until it is found or stopQRDetection is called. Once the code has been observed, future instances of RCSensorFusionData.transformation and RCSensorFusionData.cameraTransformation will be modified with the origin fixed to the center of the QR code, positive y pointing toward the canonical "top" of the QR code, and positive x pointing toward the canonical "right" side of the QR code. with positive z pointing opposite gravity.
+
+ [ ]  ^+y [ ]
+ |
+ o--->+x
+
+ [ ]
+
+ @param data The expected value of the QR code
+ @param dimension The size of the QR code (width = height) in meters
+ */
+- (void) startQRDetectionWithData:(NSString *)data withDimension:(float)dimension;
+
+/** Stops searching for QR codes.
+ */
+- (void) stopQRDetection;
 
 /** Prepares the object to receive video and inertial data, and starts sensor fusion updates.
  

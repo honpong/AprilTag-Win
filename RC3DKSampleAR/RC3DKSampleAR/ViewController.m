@@ -111,6 +111,7 @@
     // object types can only be set after an output has been hooked up
     detector.metadataObjectTypes = @[AVMetadataObjectTypeQRCode];
     detectorActive = true;
+    [[RCSensorFusion sharedInstance] startQRDetectionWithData:@"http://realitycap.com/" withDimension:0.1825];
 
     statusLabel.text = @"Initializing. Hold the device steady.";
 }
@@ -124,6 +125,7 @@
     detector.metadataObjectTypes = @[];
     [[RCAVSessionManager sharedInstance] removeOutput:detector];
     detectorActive = false;
+    [[RCSensorFusion sharedInstance] stopQRDetection];
 
     isStarted = false;
 }

@@ -77,6 +77,7 @@ vector<Ref<Result> > detect_qr(Ref<LuminanceSource> source, bool hybrid) {
         res = -5;
     }
 
+    /*
     for (size_t i = 0; i < results.size(); i++) {
         cout << "  Format: " << BarcodeFormat::barcodeFormatNames[results[i]->getBarcodeFormat()];
         for (int j = 0; j < results[i]->getResultPoints()->size(); j++) {
@@ -86,6 +87,7 @@ vector<Ref<Result> > detect_qr(Ref<LuminanceSource> source, bool hybrid) {
         }
         cout << results[i]->getText()->getText() << endl;
     }
+    */
 
     return results;
 }
@@ -93,10 +95,37 @@ vector<Ref<Result> > detect_qr(Ref<LuminanceSource> source, bool hybrid) {
 vector<struct qr_detection> code_detect_qr(const uint8_t * image, int width, int height)
 {
     vector<struct qr_detection> results;
-    fprintf(stderr, "starting detection");
     ArrayRef<char> image_ref = ArrayRef<char>((char *)image, width*height);
     Ref<GreyscaleLuminanceSource> source = Ref<GreyscaleLuminanceSource>(new GreyscaleLuminanceSource(GreyscaleLuminanceSource(image_ref, width, height, 0, 0, width, height)));
     vector<Ref<Result> > result = detect_qr(source, true);
+    for(int i = 0; i < result.size(); i++) {
+        struct qr_detection d;
+        ArrayRef<Ref<zxing::ResultPoint>> res = result[i]->getResultPoints();
+        if(res->size() == 4) {
+            d.lower_left.x = res[0]->getX();
+            d.lower_left.y = res[0]->getY();
+            d.upper_left.x = res[1]->getX();
+            d.upper_left.y = res[1]->getY();
+            d.upper_right.x = res[2]->getX();
+            d.upper_right.y = res[2]->getY();
+            d.lower_right.x = res[3]->getX();
+            d.lower_right.y = res[3]->getY();
+            Ref<zxing::String> data = result[i]->getText();
+            strncpy(d.data, data->getText().c_str(), 1024);
+            
+            results.push_back(d);
+        }
+        else {
+            fprintf(stderr, "Warning: qr detected, but with %d points\n", res->size());
+        }
+    }
+
+    for(int i = 0; i < results.size(); i++) {
+        fprintf(stderr, "UL %f %f\n", results[i].upper_left.x, results[i].upper_left.y);
+        fprintf(stderr, "UR %f %f\n", results[i].upper_right.x, results[i].upper_right.y);
+        fprintf(stderr, "LR %f %f\n", results[i].lower_right.x, results[i].lower_right.y);
+        fprintf(stderr, "LL %f %f\n", results[i].lower_left.x, results[i].lower_left.y);
+    }
 
     return results;
 }

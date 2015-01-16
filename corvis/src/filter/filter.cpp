@@ -879,6 +879,7 @@ extern "C" void filter_control_packet(void *_f, packet_t *p)
 
 #include <mach/mach.h>
 
+#include "code_detect.h"
 bool filter_image_measurement(struct filter *f, unsigned char *data, int width, int height, int stride, uint64_t time)
 {
     if(f->run_state == RCSensorFusionRunStateInactive) return false;
@@ -888,6 +889,19 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     if(!f->valid_time) {
         f->first_time = time;
         f->valid_time = true;
+    }
+
+    if(f->detecting_qr) {
+        vector<qr_detection> codes = code_detect_qr(data, width, height);
+        for(int i = 0; i < codes.size(); i++) {
+            if(strncmp(codes[i].data, f->qr_data, 1024)==0) {
+                if(filter_get_qr_code_origin(f, codes[i], f->qr_size, f->qr_Q, f->qr_T)) {
+                    f->detecting_qr = false;
+                    f->qr_valid = true;
+                    break;
+                }
+            }
+        }
     }
 
     f->got_image = true;
@@ -1236,6 +1250,8 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->track.height = device.image_height;
     f->track.stride = f->track.width;
     f->track.init();
+
+    f->detecting_qr = false;
     
     state_node::statesize = 0;
     f->s.enable_orientation_only();
@@ -1350,8 +1366,69 @@ void filter_select_feature(struct filter *f, float x, float y)
     f->s.remap();
 }
 
+void filter_start_qr_detection(struct filter *f, const char * data, float dimension)
+{
+    strncpy(f->qr_data, data, 1024);
+    f->qr_size = dimension;
+    f->detecting_qr = true;
+}
+
+void filter_stop_qr_detection(struct filter *f)
+{
+    f->detecting_qr = false;
+}
 
 #include "homography.h"
+
+/*
+ R and T provided by qr code transform: X_cam = Rq * X_new_world + Tq
+ Saved transformation: X_old_world = Rs * X_cam + Ts
+
+ So result is X_old_world = Rs * (Rq * X_new_world + Tq) + Ts
+ We want zaxis new = zaxis old, so we will find an Rd that aligns them, and set Rq = Rq * Rd
+ */
+
+bool filter_get_qr_code_origin(struct filter *f, struct qr_detection detection, float qr_size, quaternion &Q, v4 &T)
+{
+    feature_t image_corners[4];
+    feature_t calibrated[4];
+
+    image_corners[0].x = detection.upper_left.x;
+    image_corners[0].y = detection.upper_left.y;
+    image_corners[1].x = detection.lower_left.x;
+    image_corners[1].y = detection.lower_left.y;
+    image_corners[2].x = detection.lower_right.x;
+    image_corners[2].y = detection.lower_right.y;
+    image_corners[3].x = detection.upper_right.x;
+    image_corners[3].y = detection.upper_right.y;
+
+    for(int c = 0; c < 4; c++)
+        calibrated[c] = f->s.calibrate_feature(image_corners[c]);
+
+    m4 Rq; v4 Tq;
+    fprintf(stderr, "solving QR\n");
+    if(homography_solve_qr(calibrated, qr_size, Rq, Tq)) {
+        quaternion Qq = to_quaternion(Rq);
+        quaternion Qs = to_quaternion(f->s.W.v);
+        quaternion Qsq = quaternion_product(Qs, Qq);
+
+        v4 Tsq = f->s.T.v + quaternion_rotate(Qs, Tq);
+
+        v4 z_old(0., 0., 1., 0.);
+        v4 z_new = quaternion_rotate(conjugate(Qsq), z_old);
+        quaternion Qd = rotation_between_two_vectors_normalized(z_old, z_new);
+        quaternion Qsqd = quaternion_product(Qsq, Qd);
+
+        T = Tsq;
+        Q = Qsqd;
+        fprintf(stderr, "QR success\n");
+        return true;
+    }
+    else {
+        fprintf(stderr, "QR failed\n");
+        return false;
+    }
+}
 
 bool filter_get_qr_code_transformation(struct filter *f, float qr_size, float corner_x[4], float corner_y[4], m4 &R, v4 &T)
 {

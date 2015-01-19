@@ -120,12 +120,5 @@ vector<struct qr_detection> code_detect_qr(const uint8_t * image, int width, int
         }
     }
 
-    for(int i = 0; i < results.size(); i++) {
-        fprintf(stderr, "UL %f %f\n", results[i].upper_left.x, results[i].upper_left.y);
-        fprintf(stderr, "UR %f %f\n", results[i].upper_right.x, results[i].upper_right.y);
-        fprintf(stderr, "LR %f %f\n", results[i].lower_right.x, results[i].lower_right.y);
-        fprintf(stderr, "LL %f %f\n", results[i].lower_left.x, results[i].lower_left.y);
-    }
-
     return results;
 }

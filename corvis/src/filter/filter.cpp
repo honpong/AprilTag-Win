@@ -1420,15 +1420,13 @@ bool filter_get_qr_code_origin(struct filter *f, struct qr_detection detection, 
     for(int i = 0; i < 4; i++) {
         ideal[i].x = (ideal[i].x/div_by - offset)*qr_size;
         ideal[i].y = (ideal[i].y/div_by - offset)*qr_size;
-        fprintf(stderr, "mapping %f %f to %f %f\n", calibrated[i].x, calibrated[i].y, ideal[i].x, ideal[i].y);
     }
 
     m4 Rq; v4 Tq;
-    fprintf(stderr, "solving QR\n");
     if(homography_compute(ideal, calibrated, Rq, Tq)) {
         // Include the translation from the camera origin to the image plane
         Tq = Tq + Rq*v4(0, 0, 1, 0);
-        fprintf(stderr, "final T: %f %f %f %f", Tq[0], Tq[1], Tq[2], Tq[3]);
+        //fprintf(stderr, "final T: %f %f %f %f", Tq[0], Tq[1], Tq[2], Tq[3]);
 
         quaternion Qq = to_quaternion(Rq);
         quaternion Qs = to_quaternion(f->s.W.v);
@@ -1443,13 +1441,10 @@ bool filter_get_qr_code_origin(struct filter *f, struct qr_detection detection, 
 
         T = Tsq;
         Q = Qsqd;
-        fprintf(stderr, "QR success\n");
         return true;
     }
-    else {
-        fprintf(stderr, "QR failed\n");
+    else
         return false;
-    }
 }
 
 bool filter_get_qr_code_transformation(struct filter *f, float qr_size, float corner_x[4], float corner_y[4], m4 &R, v4 &T)

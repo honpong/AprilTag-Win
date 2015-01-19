@@ -769,7 +769,6 @@ typedef NS_ENUM(int, RCLicenseStatus)
     NSString * qrDetected = nil;
     if(f->qr_valid)
     {
-        NSLog(@"Detection");
         RCRotation* originRotation = [[RCRotation alloc] initWithQuaternionW:f->qr_Q.w() withX:f->qr_Q.x() withY:f->qr_Q.y() withZ:f->qr_Q.z()];
         RCTranslation* originTranslation = [[RCTranslation alloc] initWithX:f->qr_T[0] withY:f->qr_T[1] withZ:f->qr_T[2]];
         RCTransformation * originTransform = [[RCTransformation alloc] initWithTranslation:originTranslation withRotation:originRotation];

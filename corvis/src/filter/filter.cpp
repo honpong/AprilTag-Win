@@ -1402,13 +1402,34 @@ bool filter_get_qr_code_origin(struct filter *f, struct qr_detection detection, 
     image_corners[2].y = detection.lower_right.y;
     image_corners[3].x = detection.upper_right.x;
     image_corners[3].y = detection.upper_right.y;
-
     for(int c = 0; c < 4; c++)
         calibrated[c] = f->s.calibrate_feature(image_corners[c]);
 
+    // Ideal points are the QR code viewed from the bottom with
+    // +z going out of the code toward the viewer
+    // libzxing detects the center of the three markers and the center of the
+    // lower right marker (LR) which is closer to the center of the code than
+    // the rest
+    feature_t ideal[4];
+    float div_by = 33;
+    float offset = 0.5f;
+    ideal[0] = (feature_t){.x = 3.5f, .y = 29.5f}; // UL
+    ideal[1] = (feature_t){.x = 3.5f, .y = 3.5f}; // LL
+    ideal[2] = (feature_t){.x = 26.5f, .y = 6.5f}; // LR
+    ideal[3] = (feature_t){.x = 29.5f,  .y = 29.5f}; // UR
+    for(int i = 0; i < 4; i++) {
+        ideal[i].x = (ideal[i].x/div_by - offset)*qr_size;
+        ideal[i].y = (ideal[i].y/div_by - offset)*qr_size;
+        fprintf(stderr, "mapping %f %f to %f %f\n", calibrated[i].x, calibrated[i].y, ideal[i].x, ideal[i].y);
+    }
+
     m4 Rq; v4 Tq;
     fprintf(stderr, "solving QR\n");
-    if(homography_solve_qr(calibrated, qr_size, Rq, Tq)) {
+    if(homography_compute(ideal, calibrated, Rq, Tq)) {
+        // Include the translation from the camera origin to the image plane
+        Tq = Tq + Rq*v4(0, 0, 1, 0);
+        fprintf(stderr, "final T: %f %f %f %f", Tq[0], Tq[1], Tq[2], Tq[3]);
+
         quaternion Qq = to_quaternion(Rq);
         quaternion Qs = to_quaternion(f->s.W.v);
         quaternion Qsq = quaternion_product(Qs, Qq);

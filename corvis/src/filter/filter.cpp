@@ -1252,6 +1252,7 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->track.init();
 
     f->detecting_qr = false;
+    f->qr_valid = false;
     
     state_node::statesize = 0;
     f->s.enable_orientation_only();

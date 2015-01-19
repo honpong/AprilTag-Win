@@ -81,199 +81,6 @@ typedef NS_ENUM(int, RCLicenseStatus)
 
 @end
 
-#pragma mark - QR Code detection stuff for ViewAR
-
-@interface QRDetection : NSObject
-
-@property NSString * code;
-@property NSArray * corners;
-@property uint64_t time;
-@property float dimension;
-
-@property RCTransformation* transformation;
-
-@end
-
-@implementation QRDetection
-
-@end
-
-@interface QRSyncData : NSObject
-
-@property NSMutableArray * savedTransformations;
-@property NSMutableArray * savedTimes;
-@property NSMutableArray * detections;
-@property RCCameraParameters * camera;
-@property size_t imageWidth, imageHeight;
-@property struct filter *sfm;
-@property RCTransformation *originTransform;
-@property NSString *QRID_origin;
-
-@end
-
-@implementation QRSyncData
-@synthesize savedTransformations, savedTimes, detections, camera, imageWidth, imageHeight, sfm, originTransform, QRID_origin;
-
--(id)init
-{
-    if (self = [super init])
-    {
-        savedTransformations = [NSMutableArray array];
-        savedTimes = [NSMutableArray array];
-        detections = [NSMutableArray array];
-        QRID_origin = nil;
-    }
-    return self;
-}
-
-- (void) handleSyncedDetection:(QRDetection *)detection
-{
-    CGPoint topleft, bottomleft, bottomright, topright;
-    CGPointMakeWithDictionaryRepresentation((CFDictionaryRef)[detection.corners objectAtIndex:0], &topleft);
-    CGPointMakeWithDictionaryRepresentation((CFDictionaryRef)[detection.corners objectAtIndex:1], &bottomleft);
-    CGPointMakeWithDictionaryRepresentation((CFDictionaryRef)[detection.corners objectAtIndex:2], &bottomright);
-    CGPointMakeWithDictionaryRepresentation((CFDictionaryRef)[detection.corners objectAtIndex:3], &topright);
-    
-    NSLog(@"Code detected %@ at %llu, corners (%f, %f), (%f, %f), (%f, %f), (%f, %f)", detection.code, detection.time, topleft.x * imageWidth, topleft.y * imageHeight, bottomleft.x * imageWidth, bottomleft.y * imageHeight, bottomright.x * imageWidth, bottomright.y * imageHeight, topright.x * imageWidth, topright.y * imageHeight);
-    
-    float corner_x[4], corner_y[4];
-    corner_x[0] = topleft.x*imageWidth;
-    corner_x[1] = bottomleft.x*imageWidth;
-    corner_x[2] = bottomright.x*imageWidth;
-    corner_x[3] = topright.x*imageWidth;
-    corner_y[0] = topleft.y*imageHeight;
-    corner_y[1] = bottomleft.y*imageHeight;
-    corner_y[2] = bottomright.y*imageHeight;
-    corner_y[3] = topright.y*imageHeight;
-    
-    m4 Rq;
-    v4 Tq;
-    
-    /*
-     R and T provided by qr code transform: X_cam = Rq * X_new_world + Tq
-     Saved transformation: X_old_world = Rs * X_cam + Ts
-     
-     So result is X_old_world = Rs * (Rq * X_new_world + Tq) + Ts
-     We want zaxis new = zaxis old, so we will find an Rd that aligns them, and set Rq = Rq * Rd
-     */
-    
-    if(filter_get_qr_code_transformation(sfm, detection.dimension, corner_x, corner_y, Rq, Tq))
-    {
-        quaternion Qq = to_quaternion(Rq);
-        quaternion Qs = quaternion(detection.transformation.rotation.quaternionW, detection.transformation.rotation.quaternionX, detection.transformation.rotation.quaternionY, detection.transformation.rotation.quaternionZ);
-        quaternion Qsq = quaternion_product(Qs, Qq);
-        v4 Tsq = v4(detection.transformation.translation.vector) + quaternion_rotate(Qs, Tq);
-
-        v4 z_old(0., 0., 1., 0.);
-        v4 z_new = quaternion_rotate(conjugate(Qsq), z_old);
-        quaternion Qd = rotation_between_two_vectors_normalized(z_old, z_new);
-        quaternion Qsqd = quaternion_product(Qsq, Qd);
-
-        RCTranslation * translation = [[RCTranslation alloc] initWithX:Tsq[0] withY:Tsq[1] withZ:Tsq[2]];
-        RCRotation * rotation = [[RCRotation alloc] initWithQuaternionW:Qsqd.w() withX:Qsqd.x() withY:Qsqd.y() withZ:Qsqd.z()];
-        
-        originTransform = [[[RCTransformation alloc] initWithTranslation:translation withRotation:rotation] getInverse];
-        
-        QRID_origin = detection.code;
-    }
-}
-
-- (void) syncDetections
-{
-    if(![savedTimes count] || ![detections count]) return;
-    
-    NSMutableArray * emitObjects = [NSMutableArray array];
-    NSMutableArray * deleteObjects = [NSMutableArray array];
-    for(QRDetection * detection in detections)
-    {
-        NSNumber * time = [NSNumber numberWithUnsignedLongLong:detection.time];
-        if(time > [savedTimes lastObject]) // haven't received sensor fusion data yet
-            continue;
-        
-        if(time < [savedTimes firstObject]) {
-            NSLog(@"Warning: dropping a detection, didn't associate it in time");
-            [deleteObjects addObject:detection];
-            continue;
-        }
-        
-        NSRange searchRange = NSMakeRange(0, [savedTimes count]);
-        NSUInteger findIndex = [savedTimes indexOfObject:time
-                                           inSortedRange:searchRange
-                                                 options:NSBinarySearchingFirstEqual
-                                         usingComparator:^(id obj1, id obj2)
-                                {
-                                    return [obj1 compare:obj2];
-                                }];
-        
-        if(findIndex != NSNotFound) {
-            detection.transformation = [savedTransformations objectAtIndex:findIndex];
-            [emitObjects addObject:detection];
-        }
-    }
-    
-    for(QRDetection * detection in emitObjects) {
-        [self handleSyncedDetection:detection];
-    }
-
-    [detections removeObjectsInArray:emitObjects];
-    [detections removeObjectsInArray:deleteObjects];
-}
-
-- (BOOL) detectionIsLate:(uint64_t)timestamp {
-    if ([savedTimes count]) {
-        NSNumber * startNum = [savedTimes objectAtIndex:0];
-        uint64_t start = [startNum unsignedLongLongValue];
-        if(timestamp < start)
-            return true;
-    }
-    return false;
-}
-
-- (void) addSensorFusionTransformation:(RCTransformation *)cameraTransformation withSampleBuffer:(CMSampleBufferRef)sampleBuffer withCameraParameters:(RCCameraParameters *)cameraParameters
-{
-    @synchronized(savedTimes) {
-        camera = cameraParameters;
-        CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
-        
-        imageWidth = CVPixelBufferGetWidth(pixelBuffer);
-        imageHeight = CVPixelBufferGetHeight(pixelBuffer);
-        
-        CMTime time = CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
-        uint64_t time_us = time.value / (time.timescale / 1000000.);
-        [savedTransformations addObject:cameraTransformation];
-        [savedTimes addObject:[NSNumber numberWithUnsignedLongLong:time_us]];
-        if([savedTransformations count] > 100)
-            [savedTransformations removeObjectAtIndex:0];
-        if([savedTimes count] > 100)
-            [savedTimes removeObjectAtIndex:0];
-        
-        [self syncDetections];
-    }
-}
-
-- (void) observeQR:(AVMetadataMachineReadableCodeObject *)QRData withDimension:(float)dimension
-{
-    @synchronized(savedTimes) {
-        uint64_t timestamp = QRData.time.value / (QRData.time.timescale / 1000000.);
-        
-        if([self detectionIsLate:timestamp]) {
-            NSLog(@"Warning: Detection came too late");
-            return;
-        }
-        
-        QRDetection * detection = [[QRDetection alloc] init];
-        detection.code = QRData.stringValue;
-        detection.time = timestamp;
-        detection.corners = QRData.corners;
-        detection.dimension = dimension;
-        [detections addObject:detection];
-        
-        [self syncDetections];
-    }
-}
-
-@end
-
 #pragma mark -
 
 @interface RCSensorFusion () <RCCameraManagerDelegate>
@@ -297,7 +104,6 @@ typedef NS_ENUM(int, RCLicenseStatus)
     RCSensorFusionErrorCode lastErrorCode;
     float lastProgress;
     NSString* licenseKey;
-    QRSyncData *QRSync;
 }
 
 - (void) setLicenseKey:(NSString*)licenseKey_
@@ -501,9 +307,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
         lastErrorCode = RCSensorFusionErrorCodeNone;
         lastProgress = 0.;
         licenseKey = nil;
-        
-        QRSync = [[QRSyncData alloc] init];
-        
+
         [RCPrivateHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
         
         dispatch_async(queue, ^{
@@ -511,7 +315,6 @@ typedef NS_ENUM(int, RCLicenseStatus)
             _cor_setup = new filter_setup(&dc);
             cor_time_init();
             plugins_start();
-            QRSync.sfm = &_cor_setup->sfm;
         });
     }
     
@@ -677,8 +480,6 @@ typedef NS_ENUM(int, RCLicenseStatus)
     [cameraManager releaseVideoDevice];
     isProcessingVideo = false;
     processingVideoRequested = false;
-    QRSync = [[QRSyncData alloc] init];
-    QRSync.sfm = &_cor_setup->sfm;
 }
 
 - (void) stopSensorFusion
@@ -763,9 +564,6 @@ typedef NS_ENUM(int, RCLicenseStatus)
     
     RCCameraParameters *camParams = [[RCCameraParameters alloc] initWithFocalLength:f->s.focal_length.v withOpticalCenterX:f->s.center_x.v withOpticalCenterY:f->s.center_y.v withRadialSecondDegree:f->s.k1.v withRadialFourthDegree:f->s.k2.v];
 
-    //Need to send the data before we modify it or else we recursively fail
-    [QRSync addSensorFusionTransformation:[transformation composeWithTransformation:camTransform]  withSampleBuffer:sampleBuffer withCameraParameters:camParams];
-    
     NSString * qrDetected = nil;
     if(f->qr_valid)
     {
@@ -995,11 +793,6 @@ typedef NS_ENUM(int, RCLicenseStatus)
 */
 
 #pragma mark - QR Code handling
-- (void) requestTransformationForQRCodeObservation:(AVMetadataMachineReadableCodeObject *)observation withDimension:(float)QRDimension
-{
-    if(observation.stringValue == nil) return;
-    [QRSync observeQR:observation withDimension:QRDimension];
-}
 
 - (void) startQRDetectionWithData:(NSString *)data withDimension:(float)dimension
 {

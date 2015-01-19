@@ -11,7 +11,6 @@
 #import "RCSensorDelegate.h"
 #import "RCAVSessionManager.h"
 #import "ARDelegate.h"
-#import "QRDelegate.h"
 
 @implementation ViewController
 {
@@ -21,9 +20,6 @@
     RCVideoPreview *videoPreview;
     ARDelegate *arDelegate;
     RCSensorFusionRunState currentRunState;
-    QRDelegate *qrDelegate;
-    AVCaptureMetadataOutput * detector;
-    bool detectorActive;
 }
 
 @synthesize statusLabel, progressBar;
@@ -44,11 +40,6 @@
     
     arDelegate = [[ARDelegate alloc] init];
     videoPreview.delegate = arDelegate;
-
-    qrDelegate = [[QRDelegate alloc] init];
-
-    detector = [[AVCaptureMetadataOutput alloc] init];
-    [detector setMetadataObjectsDelegate:qrDelegate queue:dispatch_get_main_queue()];
 
     [self.view addSubview:videoPreview];
     [self.view sendSubviewToBack:videoPreview];
@@ -107,10 +98,6 @@
     [[RCSensorFusion sharedInstance] startSensorFusionWithDevice:[[RCAVSessionManager sharedInstance] videoDevice]];
     [progressBar setHidden:false];
 
-    [[RCAVSessionManager sharedInstance] addOutput:detector];
-    // object types can only be set after an output has been hooked up
-    detector.metadataObjectTypes = @[AVMetadataObjectTypeQRCode];
-    detectorActive = true;
     [[RCSensorFusion sharedInstance] startQRDetectionWithData:@"http://realitycap.com/" withDimension:0.1825];
 
     statusLabel.text = @"Initializing. Hold the device steady.";
@@ -122,9 +109,6 @@
     [sensorFusion stopSensorFusion];
     [[sensorDelegate getVideoProvider] setDelegate:videoPreview];
 
-    detector.metadataObjectTypes = @[];
-    [[RCAVSessionManager sharedInstance] removeOutput:detector];
-    detectorActive = false;
     [[RCSensorFusion sharedInstance] stopQRDetection];
 
     isStarted = false;
@@ -137,14 +121,7 @@
 {
     //as long as we are initializing, update the initial camera pose
     if(currentRunState == RCSensorFusionRunStateSteadyInitialization) arDelegate.initialCamera = data.cameraTransformation;
-    
-    if(data.originQRCode != nil && detectorActive)
-    {
-        //This appears to cause the session to be reconfigured so causes a flash in the video.
-        detector.metadataObjectTypes = @[];
-        detectorActive = false;
-    }
-    
+
     [videoPreview displaySensorFusionData:data];
 }
 

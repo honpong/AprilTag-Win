@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		D324412A1A0D13D4001A487D /* QRDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D32441291A0D13D4001A487D /* QRDelegate.m */; };
 		D901456719F9A00F004E7CE2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D901456619F9A00F004E7CE2 /* main.m */; };
 		D901456A19F9A00F004E7CE2 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D901456919F9A00F004E7CE2 /* AppDelegate.m */; };
 		D901456D19F9A00F004E7CE2 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D901456C19F9A00F004E7CE2 /* ViewController.m */; };
@@ -95,8 +94,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		D32441281A0D13D4001A487D /* QRDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QRDelegate.h; sourceTree = "<group>"; };
-		D32441291A0D13D4001A487D /* QRDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = QRDelegate.m; sourceTree = "<group>"; };
 		D3BD8D6C1A5B52F9008B30F8 /* RC3DK.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RC3DK.h; sourceTree = "<group>"; };
 		D901456119F9A00F004E7CE2 /* RealityCap AR Sample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "RealityCap AR Sample.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D901456519F9A00F004E7CE2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -241,8 +238,6 @@
 				D901456C19F9A00F004E7CE2 /* ViewController.m */,
 				D901460619F9C2D8004E7CE2 /* ARDelegate.h */,
 				D901460719F9C2D8004E7CE2 /* ARDelegate.m */,
-				D32441281A0D13D4001A487D /* QRDelegate.h */,
-				D32441291A0D13D4001A487D /* QRDelegate.m */,
 				D901456E19F9A00F004E7CE2 /* Main.storyboard */,
 				D901457119F9A00F004E7CE2 /* Images.xcassets */,
 				D901456419F9A00F004E7CE2 /* Supporting Files */,
@@ -520,7 +515,6 @@
 				D90145C019F9A094004E7CE2 /* RCCalibration3.m in Sources */,
 				D90145FE19F9A5EF004E7CE2 /* RCGLManagerFactory.m in Sources */,
 				D901456A19F9A00F004E7CE2 /* AppDelegate.m in Sources */,
-				D324412A1A0D13D4001A487D /* QRDelegate.m in Sources */,
 				D90145C819F9A184004E7CE2 /* LicenseHelper.m in Sources */,
 				D9E8C4871A03FAFA002EDA05 /* RCGLShaderProgram.m in Sources */,
 				D901456719F9A00F004E7CE2 /* main.m in Sources */,

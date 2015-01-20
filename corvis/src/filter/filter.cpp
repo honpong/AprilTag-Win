@@ -1426,21 +1426,23 @@ bool filter_get_qr_code_origin(struct filter *f, struct qr_detection detection, 
     if(homography_compute(ideal, calibrated, Rq, Tq)) {
         // Include the translation from the camera origin to the image plane
         Tq = Tq + Rq*v4(0, 0, 1, 0);
-        //fprintf(stderr, "final T: %f %f %f %f", Tq[0], Tq[1], Tq[2], Tq[3]);
+
+        quaternion Qw = to_quaternion(f->s.W.v);
+        quaternion Qs = quaternion_product(Qw, to_quaternion(f->s.Wc.v));
 
         quaternion Qq = to_quaternion(Rq);
-        quaternion Qs = to_quaternion(f->s.W.v);
         quaternion Qsq = quaternion_product(Qs, Qq);
 
-        v4 Tsq = f->s.T.v + quaternion_rotate(Qs, Tq);
+        v4 Tsq = f->s.T.v + quaternion_rotate(Qw, f->s.Tc.v) + quaternion_rotate(Qs, Tq);
 
         v4 z_old(0., 0., 1., 0.);
         v4 z_new = quaternion_rotate(conjugate(Qsq), z_old);
         quaternion Qd = rotation_between_two_vectors_normalized(z_old, z_new);
         quaternion Qsqd = quaternion_product(Qsq, Qd);
 
-        T = Tsq;
-        Q = Qsqd;
+        // inverse of transformation specified by Qsqd, Tsq
+        Q = conjugate(Qsqd);
+        T = quaternion_rotate(Q, -Tsq);
         return true;
     }
     else

@@ -100,7 +100,7 @@ vector<struct qr_detection> code_detect_qr(const uint8_t * image, int width, int
     vector<Ref<Result> > result = detect_qr(source, true);
     for(int i = 0; i < result.size(); i++) {
         struct qr_detection d;
-        ArrayRef<Ref<zxing::ResultPoint>> res = result[i]->getResultPoints();
+        ArrayRef<Ref<zxing::ResultPoint> > res = result[i]->getResultPoints();
         if(res->size() == 4) {
             d.lower_left.x = res[0]->getX();
             d.lower_left.y = res[0]->getY();

@@ -8,7 +8,7 @@ PYTHON_CFLAGS := $(shell python-config --includes) -I$(shell python -c 'import n
 PYTHON_LDFLAGS := $(shell python-config --libs)
 # -ftree-vectorize -ffast-math 
 CPPFLAGS := -Wall -g -I../corvis/src -I../corvis/src/cor -fPIC -march=core2 -mfpmath=sse -O0 -D DEBUG $(PYTHON_CFLAGS) \
-        $(addprefix -I,$(wildcard $(shell brew --prefix boost 2>/dev/null)/include /opt/local/include)) \
+        $(patsubst %,-I%/include,$(wildcard $(shell brew --prefix boost 2>/dev/null) /opt/local)) \
         $(shell pkg-config freetype2 --cflags) $(shell pkg-config ftgl --cflags) # freetype2 must come before ftgl on a case insensitive fs
 CFLAGS := -std=gnu99
 LDFLAGS := -pthread -lpthread --warn-unresolved-symbols -O0 $(PYTHON_LDFLAGS) -framework Accelerate -framework OpenGL -framework GLUT $(shell pkg-config freetype2 ftgl --libs)

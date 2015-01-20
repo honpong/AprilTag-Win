@@ -1,4 +1,4 @@
-#!/opt/local/bin/python2.7
+#!/usr/bin/env python
 # Copyright (c) 2008-2012, Eagle Jones
 # All rights reserved.
 #

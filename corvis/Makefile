@@ -10,7 +10,7 @@ PYTHON_CFLAGS := $(shell python-config --includes) -I$(shell python -c 'import n
 PYTHON_LDFLAGS := $(shell python-config --libs)
 # -ftree-vectorize -ffast-math 
 CPPFLAGS := -Wall -g -fPIC -march=core2 -mfpmath=sse -O3 -D DEBUG $(PYTHON_CFLAGS) \
-        $(addprefix -I,$(wildcard $(shell brew --prefix boost 2>/dev/null)/include /opt/local/include)) \
+        $(patsubst %,-I%/include,$(wildcard $(shell brew --prefix boost 2>/dev/null) /opt/local)) \
         $(shell pkg-config ftgl --cflags) -Isrc/cor -Wdeprecated-writable-strings
 CFLAGS := -std=gnu99
 LDFLAGS := -pthread -lpthread --warn-unresolved-symbols -O3 $(PYTHON_LDFLAGS) -framework Accelerate -framework OpenGL -framework GLUT $(shell pkg-config ftgl --libs)

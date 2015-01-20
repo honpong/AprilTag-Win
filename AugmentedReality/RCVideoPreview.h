@@ -40,6 +40,10 @@
  The delegate will have an opportunity to render on top of each frame before it is displayed.
  */
 @property (nonatomic) id<RCVideoPreviewDelegate> delegate;
+/**
+ The orientation of the video, I.E. portrait/landscape. Defaults to portrait.
+ */
+@property (nonatomic) UIInterfaceOrientation orientation;
 
 /**
  Pass CMSampleBufferRef video frames to this method. Will not cause the delegate's render method to be called.

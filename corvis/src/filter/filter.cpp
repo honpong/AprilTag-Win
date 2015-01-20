@@ -24,7 +24,7 @@ int state_node::statesize;
 int state_node::maxstatesize;
 
 const static uint64_t min_steady_time = 100000; //time held steady before we start treating it as steady
-const static uint64_t steady_converge_time = 2000000; //time that user needs to hold steady (us)
+const static uint64_t steady_converge_time = 200000; //time that user needs to hold steady (us)
 const static int calibration_converge_samples = 200; //number of accelerometer readings needed to converge in calibration mode
 const static f_t accelerometer_steady_var = .15*.15; //variance when held steady, based on std dev measurement of iphone 5s held in hand
 const static f_t velocity_steady_var = .1 * .1; //initial var of state.V when steady

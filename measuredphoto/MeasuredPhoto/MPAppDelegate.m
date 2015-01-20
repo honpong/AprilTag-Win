@@ -16,6 +16,9 @@
 #import "MPHttpInterceptor.h"
 #import "MPIntroScreen.h"
 #import "Flurry.h"
+#import "MPGalleryController.h"
+#import "RCCalibration2.h"
+#import "RCCalibration3.h"
 
 #if TARGET_IPHONE_SIMULATOR
 #define SKIP_CALIBRATION YES // skip calibration when running on emulator because it cannot calibrate
@@ -26,7 +29,7 @@
 @implementation MPAppDelegate
 {
     UIAlertView *locationAlert;
-    UIViewController* mainViewController;
+    MPGalleryController* galleryController;
     id<RCSensorDelegate> mySensorDelegate;
 }
 
@@ -67,7 +70,7 @@
     
     mySensorDelegate = [SensorDelegate sharedInstance];
     
-    mainViewController = self.window.rootViewController;
+    galleryController = (MPGalleryController*)self.window.rootViewController;
 
     [Flurry setSecureTransportEnabled:YES];
     [Flurry setCrashReportingEnabled:YES];
@@ -111,7 +114,7 @@
 
 - (void) gotoGallery
 {
-    self.window.rootViewController = mainViewController;
+    self.window.rootViewController = galleryController;
 }
 
 - (void) gotoCalibration
@@ -125,7 +128,7 @@
 
 - (void) gotoIntroScreen
 {
-    MPIntroScreen* vc = [mainViewController.storyboard instantiateViewControllerWithIdentifier:@"IntroScreen"];
+    MPIntroScreen* vc = [galleryController.storyboard instantiateViewControllerWithIdentifier:@"IntroScreen"];
     vc.calibrationDelegate = self;
     vc.sensorDelegate = mySensorDelegate;
     self.window.rootViewController = vc;
@@ -133,14 +136,14 @@
 
 - (void) gotoTutorialVideo
 {
-    MPLocalMoviePlayer* movieController = [mainViewController.storyboard instantiateViewControllerWithIdentifier:@"Tutorial"];
+    MPLocalMoviePlayer* movieController = [galleryController.storyboard instantiateViewControllerWithIdentifier:@"Tutorial"];
     movieController.delegate = self;
     self.window.rootViewController = movieController;
 }
 
 #pragma mark RCCalibrationDelegate methods
 
-- (void) calibrationDidFinish
+- (void) calibrationDidFinish:(UIViewController*)lastViewController
 {
     LOGME
     [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_IS_CALIBRATED];
@@ -156,34 +159,27 @@
     }
 }
 
-#pragma mark - TMLocalMoviePlayerDelegate
+- (void) calibrationScreenDidAppear:(UIViewController*)lastViewController
+{
+    if ([lastViewController isKindOfClass:[RCCalibration1 class]])
+        [MPAnalytics logEvent:@"View.Calibration1"];
+    else if ([lastViewController isKindOfClass:[RCCalibration2 class]])
+        [MPAnalytics logEvent:@"View.Calibration2"];
+    else if ([lastViewController isKindOfClass:[RCCalibration3 class]])
+        [MPAnalytics logEvent:@"View.Calibration3"];
+}
+
+#pragma mark - RCLocalMoviePlayerDelegate
 
 - (void) moviePlayerDismissed
 {
-    [self gotoGallery];
+    self.window.rootViewController = galleryController;
+    [galleryController gotoCapturePhoto];
 }
 
 - (void) moviePlayBackDidFinish
 {
     [MPAnalytics logEvent:@"View.Tutorial.MovieFinished"];
-}
-
-#pragma mark - RCCalibrationDelegate
-
-- (void) calibrationScreenDidAppear:(NSString *)screenName
-{
-    if ([screenName isEqualToString:@"Calibration1"])
-        [MPAnalytics logEvent:@"View.Calibration1"];
-    else if ([screenName isEqualToString:@"Calibration2"])
-        [MPAnalytics logEvent:@"View.Calibration2"];
-    else if ([screenName isEqualToString:@"Calibration3"])
-        [MPAnalytics logEvent:@"View.Calibration3"];
-}
-
-- (void) calibrationDidFail:(NSError *)error
-{
-    DLog(@"Calibration failed: %@", error);
-    // TODO: implement
 }
 
 #pragma mark -

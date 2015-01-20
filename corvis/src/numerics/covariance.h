@@ -3,7 +3,7 @@
 //  RC3DK
 //
 //  Created by Eagle Jones on 1/29/14.
-//  Copyright (c) 2014 Caterpillar. All rights reserved.
+//  Copyright (c) 2014 RealityCap. All rights reserved.
 //
 
 #ifndef RC3DK_covariance_h

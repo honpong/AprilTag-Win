@@ -15,13 +15,6 @@
 
 #define FEATURE_COUNT 200
 
-@protocol MPAugRealityViewDelegate <NSObject>
-
-- (void) featureTapped;
-- (void) measurementCompleted;
-
-@end
-
 @interface MPAugmentedRealityView : ACMagnifyingView
 
 @property (weak, nonatomic) IBOutlet UIImageView *distanceBg;
@@ -35,15 +28,9 @@
 @property (readonly) UIView* featuresView;
 @property (readonly) MPImageView* photoView;
 @property (nonatomic, getter = isMagGlassEnabled) BOOL magGlassEnabled;
-@property (nonatomic) id<MPAugRealityViewDelegate> delegate;
 
 - (void) initialize;
 - (void) showFeatures;
 - (void) hideFeatures;
-- (RCFeaturePoint*) selectFeatureNearest:(CGPoint)coordinateTapped;
-- (void) selectFeature:(RCFeaturePoint*)point;
-- (void) clearSelectedFeatures;
-- (void) handleFeatureTapped:(CGPoint)coordinateTapped;
-- (void) resetSelectedFeatures;
 
 @end

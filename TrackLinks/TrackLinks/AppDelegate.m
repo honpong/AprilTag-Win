@@ -1,8 +1,4 @@
-//
-//  AppDelegate.m
-//  TrackLinks
-//
-//  Created by Ben Hirashima on 11/25/14.
+
 //  Copyright (c) 2014 Caterpillar. All rights reserved.
 //
 
@@ -10,11 +6,10 @@
 #import "CATConstants.h"
 #import "RCSensorDelegate.h"
 #import "RCLocationManager.h"
-#import "CATHttpInterceptor.h"
 #import "RC3DK.h"
-#import "RCCalibration1.h"
 #import "RCDebugLog.h"
 #import "RCMotionManager.h"
+#import "RCAVSessionManager.h"
 
 #if TARGET_IPHONE_SIMULATOR
 #define SKIP_CALIBRATION YES // skip calibration when running on emulator because it cannot calibrate
@@ -24,13 +19,14 @@
 
 @implementation AppDelegate
 {
-    UIAlertView *locationAlert;
     UIViewController* mainViewController;
     id<RCSensorDelegate> mySensorDelegate;
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    [SENSOR_FUSION setLicenseKey:@"C4c5C2Ae73eD8c3EdAAFDC75df12DC"]; // this is Caterpillar's evaluation license key for 3DKPlus
+    
     dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
         // Register the preference defaults early.
         NSString* locale = [[NSLocale currentLocale] localeIdentifier];
@@ -43,39 +39,48 @@
         }
         
         NSDictionary *appDefaults = @{PREF_UNITS: [NSNumber numberWithInt:defaultUnits],
-                                      PREF_ADD_LOCATION: @YES,
-                                      PREF_SHOW_LOCATION_NAG: @YES,
-                                      PREF_LAST_TRANS_ID: @0,
-                                      PREF_IS_CALIBRATED: @NO,
-                                      PREF_TUTORIAL_ANSWER: @0,
-                                      PREF_SHOW_INSTRUCTIONS: @YES,
-                                      PREF_SHOW_ACCURACY_QUESTION: @NO, // TODO: change to YES for prod
-                                      PREF_IS_FIRST_START: @YES,
-                                      PREF_RATE_NAG_TIMESTAMP : @0,
-                                      PREF_LOCATION_NAG_TIMESTAMP: @0,};
+                                      PREF_IS_CALIBRATED: @NO};
         
         [NSUserDefaults.standardUserDefaults registerDefaults:appDefaults];
-        
-        // for testing only
-        #ifndef ARCHIVE
-        //        [NSUserDefaults.standardUserDefaults setObject:@YES forKey:PREF_IS_FIRST_START];
-        #endif
     });
     
     mySensorDelegate = [SensorDelegate sharedInstance];
     
     mainViewController = self.window.rootViewController;
-    
-    [NSURLProtocol registerClass:[CATHttpInterceptor class]];
-    
+        
     BOOL calibratedFlag = [NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_CALIBRATED];
     BOOL hasCalibration = [SENSOR_FUSION hasCalibrationData];
     
-    if ([LOCATION_MANAGER isLocationExplicitlyAllowed])
+    [RCAVSessionManager requestCameraAccessWithCompletion:^(BOOL granted){
+        if(!granted)
+        {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"No camera access."
+                                                                message:@"This app cannot function without camera access. Turn it on in Settings/Privacy/Camera."
+                                                               delegate:nil
+                                                      cancelButtonTitle:@"OK"
+                                                      otherButtonTitles:nil];
+                [alert show];
+            });
+        }
+    }];
+    
+    if (![LOCATION_MANAGER isLocationDisallowed])
     {
-        // location already authorized. go ahead.
-        LOCATION_MANAGER.delegate = self;
-        [LOCATION_MANAGER startLocationUpdates];
+        if ([LOCATION_MANAGER isLocationExplicitlyAllowed])
+        {
+            [LOCATION_MANAGER startLocationUpdates];
+        }
+        else
+        {
+            [LOCATION_MANAGER requestLocationAccessWithCompletion:^(BOOL granted)
+             {
+                 if(granted)
+                 {
+                     [LOCATION_MANAGER startLocationUpdates];
+                 }
+             }];
+        }        
     }
     
     if (SKIP_CALIBRATION || (calibratedFlag && hasCalibration) )
@@ -106,32 +111,17 @@
 
 #pragma mark RCCalibrationDelegate methods
 
-- (void) calibrationDidFinish
+- (void) calibrationDidFinish:(UIViewController*)lastViewController
 {
-    LOGME
     [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_IS_CALIBRATED];
     
-    [self gotoCaptureScreen];
-}
-
-#pragma mark - RCCalibrationDelegate
-
-- (void) calibrationScreenDidAppear:(NSString *)screenName
-{
-    // log to analytics if desired
-}
-
-- (void) calibrationDidFail:(NSError *)error
-{
-    DLog(@"Calibration failed: %@", error);
-    // TODO: implement
+    [lastViewController presentViewController:mainViewController animated:YES completion:nil];
 }
 
 #pragma mark -
 
 - (void)applicationWillResignActive:(UIApplication *)application
 {
-    LOGME
     if (MOTION_MANAGER.isCapturing) [MOTION_MANAGER stopMotionCapture];
 }
 

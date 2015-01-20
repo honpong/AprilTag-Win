@@ -7,6 +7,7 @@
 //
 
 #import "TMServerOpsFactory.h"
+#import "RCCore/RCUserManager.h"
 
 @interface TMServerOpsImpl : NSObject <TMServerOps>
 {

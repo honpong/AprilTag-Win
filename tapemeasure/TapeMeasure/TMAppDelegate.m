@@ -17,6 +17,8 @@
 #import "TMNewMeasurementVC.h"
 #import "TMHistoryVC.h"
 #import "TMLocationIntro.h"
+#import "RCCalibration2.h"
+#import "RCCalibration3.h"
 
 #if TARGET_IPHONE_SIMULATOR
 #define SKIP_CALIBRATION YES // skip calibration when running on emulator because it cannot calibrate
@@ -165,7 +167,7 @@
 
 #pragma mark - RCCalibrationDelegate
 
-- (void) calibrationDidFinish
+- (void) calibrationDidFinish:(UIViewController*)lastViewController
 {
     LOGME
     [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_IS_CALIBRATED];
@@ -181,13 +183,13 @@
     }
 }
 
-- (void) calibrationScreenDidAppear:(NSString*)screenName
+- (void) calibrationScreenDidAppear:(UIViewController*)lastViewController
 {
-    if ([screenName isEqualToString:@"Calibration1"])
+    if ([lastViewController isKindOfClass:[RCCalibration1 class]])
         [TMAnalytics logEvent:@"View.Calibration1"];
-    else if ([screenName isEqualToString:@"Calibration2"])
+    else if ([lastViewController isKindOfClass:[RCCalibration2 class]])
         [TMAnalytics logEvent:@"View.Calibration2"];
-    else if ([screenName isEqualToString:@"Calibration3"])
+    else if ([lastViewController isKindOfClass:[RCCalibration3 class]])
         [TMAnalytics logEvent:@"View.Calibration3"];
 }
 

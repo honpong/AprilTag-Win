@@ -977,7 +977,7 @@
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <size key="titleShadowOffset" width="1" height="1"/>
-                                <state key="normal" title="Play Again">
+                                <state key="normal" title="Play again">
                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                     <color key="titleShadowColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
@@ -999,7 +999,7 @@
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <size key="titleShadowOffset" width="1" height="1"/>
-                                <state key="normal" title="Take a measurement">
+                                <state key="normal" title="Take a photo">
                                     <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                     <color key="titleShadowColor" white="0.33333333333333331" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
@@ -1136,7 +1136,7 @@
         <image name="menu" width="17" height="17"/>
         <image name="photos-icon-nav-bar" width="32" height="32"/>
         <image name="photos-icon-toolbar" width="50" height="50"/>
-        <image name="tutorial_screenshot.jpg" width="1920" height="1080"/>
+        <image name="tutorial_screenshot.jpg" width="854" height="480"/>
     </resources>
     <simulatedMetricsContainer key="defaultSimulatedMetrics">
         <simulatedStatusBarMetrics key="statusBar"/>

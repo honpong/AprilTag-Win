@@ -11,7 +11,7 @@
 #import "MPUndoOverlay.h"
 #import "MPShareSheet.h"
 
-@interface MPGalleryController : UIViewController <UICollectionViewDataSource, UICollectionViewDelegate, MPUndoOverlayDelegate, UIActionSheetDelegate, MPShareSheetDelegate>
+@interface MPGalleryController : UIViewController <UICollectionViewDataSource, UICollectionViewDelegate, MPUndoOverlayDelegate, UIActionSheetDelegate, MPShareSheetDelegate, RCLocalMoviePlayerDelegate>
 
 @property (weak, nonatomic) IBOutlet UIButton *cameraButton;
 @property (weak, nonatomic) IBOutlet UIButton *menuButton;
@@ -24,5 +24,6 @@
 - (IBAction)handleCameraButton:(id)sender;
 - (IBAction)handleImageButton:(id)sender;
 - (void) hideZoomedThumbnail;
+- (void) gotoCapturePhoto;
 
 @end

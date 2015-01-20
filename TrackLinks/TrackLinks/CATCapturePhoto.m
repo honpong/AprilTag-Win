@@ -1,75 +1,42 @@
-//
-//  TMViewController.m
-//  TapeMeasure
-//
-//  Created by Ben Hirashima on 10/2/12.
-//  Copyright (c) 2012 RealityCap. All rights reserved.
+
+//  Copyright (c) 2014 Caterpillar. All rights reserved.
 //
 
 #import "CATConstants.h"
 #import "CATCapturePhoto.h"
 #import "math.h"
-#import "UIImage+MPImageFile.h"
+#import "UIImage+RCImageFile.h"
 #import "MBProgressHUD.h"
 #import "CATEditPhoto.h"
 #import "RC3DK.h"
 #import "RCSensorDelegate.h"
 #import "RCDebugLog.h"
 #import <CoreLocation/CoreLocation.h>
-#import <RC3DKPlus/RC3DKPlus.h>
 #import "RCLocationManager.h"
-#import "UIView+RCOrientationRotation.h"
-#import "UIView+RCViewFade.h"
-#import "MPARDelegate.h"
 
-static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationPortrait;
-
-typedef enum
-{
-    MOVING_START, MOVING_VERTICAL, MOVING_HORIZONTAL
-} movement_status;
+static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationLandscapeLeft;
 
 @implementation CATCapturePhoto
 {
     BOOL useLocation;
-    double lastTransitionTime;
-    int filterStatusCode;
-    BOOL isAligned;
-    BOOL isQuestionDismissed;
+    RCTransformation *initialCamera;
     
     MBProgressHUD *progressView;
     RCSensorFusionData* lastSensorFusionDataWithImage;
-    NSTimer* questionTimer;
-    NSMutableArray *goodPoints;
-    UIImage * lastImage;
 
     id<RCSensorDelegate> sensorDelegate;
     
-    MPDMeasuredPhoto* measuredPhoto;
+    CATMeasuredPhoto* measuredPhoto;
     
-    BOOL didGetVisionError;
     RCSensorFusionErrorCode lastErrorCode;
-    
-    movement_status moving_state;
 }
-@synthesize toolbar, galleryButton, shutterButton, messageLabel, arView, containerView;
-
-typedef NS_ENUM(int, AlertTag) {
-    AlertTagTutorial = 0,
-    AlertTagInstructions = 1
-};
+@synthesize videoView;
 
 #pragma mark - State Machine
 
-typedef enum
-{
-    BUTTON_SHUTTER, BUTTON_SHUTTER_DISABLED, BUTTON_DELETE, BUTTON_CANCEL, BUTTON_SHUTTER_ANIMATED
-} ButtonImage;
-
 typedef NS_ENUM(int, SpinnerType) {
     SpinnerTypeNone,
-    SpinnerTypeDeterminate,
-    SpinnerTypeIndeterminate
+    SpinnerTypeDeterminate
 };
 
 typedef NS_ENUM(int, MessageColor) {
@@ -85,35 +52,27 @@ typedef struct { enum state state; enum event event; enum state newstate; } tran
 typedef struct
 {
     enum state state;
-    ButtonImage buttonImage;
     bool sensorCapture;
     bool sensorFusion;
-    bool showMeasurements;
-    bool showBadFeatures;
-    bool showSlideInstructions;
-    bool features;
+    bool showInstructions;
     SpinnerType progress;
-    bool autohide; // auto hide message
-    bool showStillPhoto;
     bool stereo;
-    bool showGalleryButton;
-    const char *title;
     MessageColor messageColor;
     const char *message;
 } statesetup;
 
 static statesetup setups[] =
 {
-    //                  button image               sensors fusion   shw-msmnts  badfeat  instrct ftrs    prgrs                     autohide stillPhoto  stereo  showGalleryButton title           messageColor                                       message
-    { ST_STARTUP,       BUTTON_SHUTTER_DISABLED,   false,  false,   false,      false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  true,             "Startup",      ColorGray,    "Loading" },
-    { ST_READY,         BUTTON_SHUTTER,            true,   false,   false,      false,   false,  false,  SpinnerTypeNone,          true,    false,      false,  true,             "Ready",        ColorGray,    "Point the camera at the scene you want to capture, then press the button." },
-    { ST_INITIALIZING,  BUTTON_SHUTTER_DISABLED,   true,   true,    false,      true,    false,  true,   SpinnerTypeDeterminate,   true,    false,      false,  true,             "Initializing", ColorGray,    "Hold still" },
-    { ST_MOVING,        BUTTON_DELETE,             true,   true,    false,      true,    true,   true,   SpinnerTypeNone,          false,   false,      true,   false,            "Moving",       ColorGray,    "Move up, down, or sideways. Press the button to cancel." },
-    { ST_CAPTURE,       BUTTON_SHUTTER_ANIMATED,   true,   true,    false,      true,    true,   true,   SpinnerTypeNone,          false,   false,      true,   false,            "Capture",      ColorGray,    "Press the button to capture a photo." },
-    { ST_PROCESSING,    BUTTON_SHUTTER_DISABLED,   false,  false,   false,      false,   false,  false,  SpinnerTypeDeterminate,   true,    true,       false,  false,            "Processing",   ColorGray,    "Please wait" },
-    { ST_ERROR,         BUTTON_DELETE,             true,   false,   true,       false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  true,             "Error",        ColorRed,     "Whoops, something went wrong. Try again." },
-    { ST_DISK_SPACE,    BUTTON_SHUTTER_DISABLED,   true,   false,   true,       false,   false,  false,  SpinnerTypeNone,          false,   false,      false,  true,             "Error",        ColorRed,     "Your device is low on storage space. Free up some space first." },
-    { ST_FINISHED,      BUTTON_DELETE,             false,  false,   true,       false,   false,  false,  SpinnerTypeNone,          true,    true,       false,  true,             "Finished",     ColorGray,    "Tap anywhere to start a measurement, then tap again to finish it" }
+    //                  sensors fusion   instrct prgrs                     stereo  messageColor  message
+    { ST_STARTUP,       false,  false,   false,  SpinnerTypeNone,          false,  ColorGray,    "Loading" },
+    { ST_READY,         true,   false,   false,  SpinnerTypeNone,          false,  ColorGray,    "Point the camera at the track link, then press the button." },
+    { ST_INITIALIZING,  true,   true,    false,  SpinnerTypeDeterminate,   false,  ColorGray,    "Hold still" },
+    { ST_MOVING,        true,   true,    true,   SpinnerTypeNone,          true,   ColorGray,    "Move sideways left or right until the progress bar is full." },
+    { ST_CAPTURE,       true,   true,    true,   SpinnerTypeNone,          true,   ColorGray,    "Press the button to finish." },
+    { ST_PROCESSING,    false,  false,   false,  SpinnerTypeDeterminate,   false,  ColorGray,    "Please wait" },
+    { ST_ERROR,         true,   false,   false,  SpinnerTypeNone,          false,  ColorRed,     "Whoops, something went wrong. Try again." },
+    { ST_DISK_SPACE,    true,   false,   false,  SpinnerTypeNone,          false,  ColorRed,     "Your device is low on storage space. Free up some space first." },
+    { ST_FINISHED,      false,  false,   false,  SpinnerTypeNone,          false,  ColorGray,    "" }
 };
 
 static transition transitions[] =
@@ -121,7 +80,6 @@ static transition transitions[] =
     { ST_STARTUP, EV_RESUME, ST_READY },
     { ST_READY, EV_SHUTTER_TAP, ST_INITIALIZING },
     { ST_INITIALIZING, EV_INITIALIZED, ST_MOVING },
-    { ST_MOVING, EV_SHUTTER_TAP, ST_READY },
     { ST_MOVING, EV_MOVE_DONE, ST_CAPTURE },
     { ST_MOVING, EV_FAIL, ST_ERROR },
     { ST_MOVING, EV_FASTFAIL, ST_ERROR },
@@ -154,7 +112,6 @@ static transition transitions[] =
     statesetup oldSetup = setups[currentState];
     statesetup newSetup = setups[newState];
 
-    DLog(@"Transitioning from %s to %s", oldSetup.title, newSetup.title);
     if (![self handleStateTransition:newState]) return;
 
     if(!oldSetup.sensorCapture && newSetup.sensorCapture)
@@ -165,51 +122,29 @@ static transition transitions[] =
         [self stopSensors];
     if(oldSetup.sensorFusion && !newSetup.sensorFusion)
         [self stopSensorFusion];
-    if(oldSetup.features && !newSetup.features)
-        [arView hideFeatures];
-    if(!oldSetup.features && newSetup.features)
-        [self.arView showFeatures];
     if(oldSetup.progress != newSetup.progress)
     {
         if (newSetup.progress == SpinnerTypeDeterminate)
             [self showProgressWithTitle:@(newSetup.message)];
-        else if (newSetup.progress == SpinnerTypeIndeterminate)
-            [self showIndeterminateProgress:@(newSetup.message)];
         else
             [self hideProgress];
     }
-    if(oldSetup.showBadFeatures && !newSetup.showBadFeatures)
-        self.arView.initializingFeaturesLayer.hidden = YES;
-    if(!oldSetup.showBadFeatures && newSetup.showBadFeatures)
-        self.arView.initializingFeaturesLayer.hidden = NO;
-//    if(!oldSetup.showSlideInstructions && newSetup.showSlideInstructions)
-//        instructionsView.hidden = NO;
-//    if(oldSetup.showSlideInstructions && !newSetup.showSlideInstructions)
-//        instructionsView.hidden = YES;
     if(!oldSetup.stereo && newSetup.stereo)
         [[RCStereo sharedInstance] reset];
     if (newSetup.progress == SpinnerTypeNone)
     {
         NSString* message = @(newSetup.message);
-        [self showMessage:message withTitle:@"" withColor:newSetup.messageColor autoHide:newSetup.autohide];
+        [self showMessage:message withColor:newSetup.messageColor];
     }
     else
     {
         [self hideMessage];
     }
-    if(oldSetup.showSlideInstructions && !newSetup.showSlideInstructions)
-        [self.arView.AROverlay setHidden:true];
-    if(!oldSetup.showSlideInstructions && newSetup.showSlideInstructions)
-        [self.arView.AROverlay setHidden:false];
-    
-    [self switchButtonImage:newSetup.buttonImage];
-    
-    if (!oldSetup.showGalleryButton && newSetup.showGalleryButton)
-        self.galleryButton.enabled = YES;
-    if (oldSetup.showGalleryButton && !newSetup.showGalleryButton)
-        self.galleryButton.enabled = NO;
-    
-    lastTransitionTime = CACurrentMediaTime();
+    if(oldSetup.showInstructions && !newSetup.showInstructions)
+        self.progressBar.hidden = YES;
+    if(!oldSetup.showInstructions && newSetup.showInstructions)
+        self.progressBar.hidden = NO;
+
     currentState = newState;
 }
 
@@ -221,10 +156,7 @@ static transition transitions[] =
     if (newState == ST_READY)
     {
         lastErrorCode = RCSensorFusionErrorCodeNone;
-        didGetVisionError = NO;
     }
-    else if(newState == ST_CAPTURE)
-        [self handleMoveFinished];
     else if(newState == ST_PROCESSING)
     {
         if (IS_DISK_SPACE_LOW)
@@ -236,10 +168,6 @@ static transition transitions[] =
         {
             [self handleCaptureFinished];
         }
-    }
-    else if(currentState == ST_FINISHED && newState == ST_READY)
-    {
-        [self handlePhotoDeleted];
     }
     
     return YES;
@@ -268,33 +196,19 @@ static transition transitions[] =
     LOGME
 	[super viewDidLoad];
     
-    containerView.delegate = arView;
-    
     sensorDelegate = [SensorDelegate sharedInstance];
     
     [self validateStateMachine];
     
     useLocation = [LOCATION_MANAGER isLocationExplicitlyAllowed] && [NSUserDefaults.standardUserDefaults boolForKey:PREF_USE_LOCATION];
     
-    [[sensorDelegate getVideoProvider] setDelegate:self.arView.videoView];
+    [[sensorDelegate getVideoProvider] setDelegate:self.videoView];
     
-    progressView = [[MBProgressHUD alloc] initWithView:self.containerView];
+    progressView = [[MBProgressHUD alloc] initWithView:self.uiContainer];
     progressView.mode = MBProgressHUDModeAnnularDeterminate;
-    [self.containerView addSubview:progressView];
+    [self.uiContainer addSubview:progressView];
     
-    [self.arView.AROverlay setHidden:true];
-}
-
-- (void)viewDidUnload
-{
-	LOGME
-	[super viewDidUnload];
-}
-
-- (void)viewWillAppear:(BOOL)animated
-{
-    [self.navigationController setToolbarHidden:YES animated:animated];
-    [super viewWillAppear:animated];
+    self.videoView.orientation = UIInterfaceOrientationLandscapeRight;
 }
 
 - (void) viewDidAppear:(BOOL)animated
@@ -311,10 +225,6 @@ static transition transitions[] =
                                              selector:@selector(handleResume)
                                                  name:UIApplicationDidBecomeActiveNotification
                                                object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(handleOrientationChange)
-                                                 name:UIDeviceOrientationDidChangeNotification
-                                               object:nil];
     
     [self handleResume];
 }
@@ -327,46 +237,12 @@ static transition transitions[] =
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
-- (void) viewDidDisappear:(BOOL)animated
-{
-    [super viewDidDisappear:animated];
-}
-
-#pragma mark - Orientation
-
-- (BOOL) shouldAutorotate
-{
-    return NO;
-}
-
-+ (UIDeviceOrientation) getCurrentUIOrientation
-{
-    return currentUIOrientation;
-}
-
 - (NSUInteger)supportedInterfaceOrientations
 {
-    return UIInterfaceOrientationMaskPortrait;
+    return UIInterfaceOrientationMaskLandscapeRight;
 }
 
-- (void) handleOrientationChange
-{
-    UIDeviceOrientation newOrientation = [[UIDevice currentDevice] orientation];
-    if (currentUIOrientation != newOrientation && (newOrientation == UIDeviceOrientationPortrait || newOrientation == UIDeviceOrientationPortraitUpsideDown || newOrientation == UIDeviceOrientationLandscapeLeft || newOrientation == UIDeviceOrientationLandscapeRight))
-    {
-        currentUIOrientation = newOrientation;
-        [self setOrientation:currentUIOrientation animated:YES];
-    }
-}
-
-- (void) setOrientation:(UIDeviceOrientation)orientation animated:(BOOL)animated
-{
-    [self.view rotateChildViews:orientation animated:animated];
-    CATOrientationChangeData* data = [CATOrientationChangeData dataWithOrientation:orientation animated:animated];
-    [[NSNotificationCenter defaultCenter] postNotificationName:CATUIOrientationDidChangeNotification object:data];
-}
-
-#pragma mark -
+#pragma mark - App lifecycle
 
 - (void)handlePause
 {
@@ -388,73 +264,46 @@ static transition transitions[] =
     	else
         	[self handleStateEvent:EV_RESUME];
     }
-    
-    [self handleOrientationChange]; // ensures that UI is in correct orientation
 }
+
+#pragma mark - Event handlers
 
 - (IBAction)handleShutterButton:(id)sender
 {
     [self handleStateEvent:EV_SHUTTER_TAP];
 }
 
-- (IBAction)handleGalleryButton:(id)sender
-{
-    
-}
-
-- (void) handleMoveStart
-{
-    LOGME
-    moving_state = MOVING_START;
-}
-
-- (void) handleMoveFinished
-{
-    LOGME
-//    [instructionsView moveDotToCenter];
-}
-
 - (void) handleCaptureFinished
 {
-    LOGME
-    
     measuredPhoto = [self saveMeasuredPhoto];
 
     RCStereo * stereo = [RCStereo sharedInstance];
-    [stereo setGuid: measuredPhoto.id_guid];
-    [stereo processFrame:lastSensorFusionDataWithImage withFinal:true];
-    UIDeviceOrientation orientation = [CATCapturePhoto getCurrentUIOrientation];
-    [stereo setOrientation:orientation];
     stereo.delegate = self;
+    [stereo setWorkingDirectory:WORKING_DIRECTORY_URL andGuid:measuredPhoto.id_guid andOrientation:currentUIOrientation];
+    [stereo processFrame:lastSensorFusionDataWithImage withFinal:true];
+    
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-        [measuredPhoto writeImagetoJpeg:lastSensorFusionDataWithImage.sampleBuffer withOrientation:orientation];
-        // TODO: Handle potential stereo failure here (this function will return false)
+        [measuredPhoto writeImagetoJpeg:lastSensorFusionDataWithImage.sampleBuffer withOrientation:stereo.orientation];
         [stereo preprocess];
     });
 }
 
 - (void) gotoEditPhotoScreen
 {
-    CATEditPhoto* editPhotoController = (CATEditPhoto*)self.presentingViewController;
+    CATEditPhoto* editPhotoController = (CATEditPhoto*)[self.storyboard instantiateViewControllerWithIdentifier:@"EditPhoto"];
     editPhotoController.measuredPhoto = measuredPhoto;
-    [self.presentingViewController dismissViewControllerAnimated:YES completion:nil];
+    [self presentViewController:editPhotoController animated:YES completion:nil];
 }
 
-- (void) handlePhotoDeleted
+- (CATMeasuredPhoto*) saveMeasuredPhoto
 {
-    [self hideMessage];
-}
-
-- (MPDMeasuredPhoto*) saveMeasuredPhoto
-{
-    return [MPDMeasuredPhoto new];;
+    return [CATMeasuredPhoto new];
 }
 
 #pragma mark - RCStereoDelegate
 
 - (void) stereoDidUpdateProgress:(float)progress
 {
-    // Update modal view
     [progressView setProgress:progress];
 }
 
@@ -462,13 +311,6 @@ static transition transitions[] =
 {
     [self handleStateEvent:EV_PROCESSING_FINISHED];
     [self gotoEditPhotoScreen];
-}
-
-#pragma mark -
-
-- (void) featureTapped
-{
-    if (questionTimer && questionTimer.isValid) [questionTimer invalidate];
 }
 
 #pragma mark - 3DK Stuff
@@ -487,7 +329,6 @@ static transition transitions[] =
 
 - (void)startSensorFusion
 {
-    LOGME
     [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
     SENSOR_FUSION.delegate = self;
     [[sensorDelegate getVideoProvider] setDelegate:nil];
@@ -497,9 +338,8 @@ static transition transitions[] =
 
 - (void)stopSensorFusion
 {
-    LOGME
     [SENSOR_FUSION stopSensorFusion];
-    [[sensorDelegate getVideoProvider] setDelegate:self.arView.videoView];
+    [[sensorDelegate getVideoProvider] setDelegate:self.videoView];
     [[UIApplication sharedApplication] setIdleTimerDisabled:NO];
 }
 
@@ -507,9 +347,10 @@ static transition transitions[] =
 
 - (void) sensorFusionDidChangeStatus:(RCSensorFusionStatus *)status
 {
+    if (status.error) DLog(@"Sensor fusion error: %@", status.error);
+    
     if ([status.error isKindOfClass:[RCSensorFusionError class]])
     {
-        DLog(@"ERROR code %ld", status.error.code);
         lastErrorCode = (RCSensorFusionErrorCode)status.error.code;
         
         if(status.error.code == RCSensorFusionErrorCodeTooFast) {
@@ -517,41 +358,27 @@ static transition transitions[] =
         } else if(status.error.code == RCSensorFusionErrorCodeOther) {
             [self handleStateEvent:EV_FAIL];
         } else if(status.error.code == RCSensorFusionErrorCodeVision) {
-            didGetVisionError = YES;
             [self handleStateEvent:EV_VISIONFAIL];
         }
     }
+    
     [self updateProgress:status.progress];
-    if(currentState == ST_INITIALIZING && status.runState == RCSensorFusionRunStateRunning) {
+    
+    if(currentState == ST_INITIALIZING && status.runState == RCSensorFusionRunStateRunning)
+    {
         [self handleStateEvent:EV_INITIALIZED];
     }
 }
 
 - (void) sensorFusionDidUpdateData:(RCSensorFusionData*)data
 {
-    goodPoints = [[NSMutableArray alloc] init];
-    NSMutableArray *badPoints = [[NSMutableArray alloc] init];
+    if(currentState == ST_INITIALIZING) initialCamera = data.cameraTransformation;
     NSMutableArray *depths = [[NSMutableArray alloc] init];
-    
-    float mean;
-    float sum = 0.;
-    int count = 0;
+
     for(RCFeaturePoint *feature in data.featurePoints)
     {
         [depths addObject:[NSNumber numberWithFloat:feature.originalDepth.scalar]];
-        sum += feature.originalDepth.scalar;
-        count++;
-        
-        if((feature.originalDepth.standardDeviation / feature.originalDepth.scalar < .01 || feature.originalDepth.standardDeviation < .004) && feature.initialized)
-        {
-            [goodPoints addObject:feature];
-        } else
-        {
-            [badPoints addObject:feature];
-        }
     }
-    
-    mean = sum / count;
     
     NSNumber *median;
     if([depths count]) {
@@ -565,61 +392,32 @@ static transition transitions[] =
         //Compute the capture progress here
         float depth = [median floatValue];
         
-        RCPoint *projectedpt = [[arView.AROverlay.initialCamera.rotation getInverse] transformPoint:[data.transformation.translation transformPoint:[[RCPoint alloc] initWithX:0. withY:0. withZ:0.]]];
+        RCPoint *projectedpt = [[initialCamera.rotation getInverse] transformPoint:[data.transformation.translation transformPoint:[[RCPoint alloc] initWithX:0. withY:0. withZ:0.]]];
         
         float targetDist = log(depth / 8. + 1.) + .05; // require movement of at least 5cm
         
         float dx = projectedpt.x / targetDist;
-        float dy = projectedpt.y / targetDist;
         if(dx > 1.) dx = 1.;
         if(dx < -1.) dx = -1.;
-        if(dy > 1.) dy = 1.;
-        if(dy < -1.) dy = -1.;
-        //hysteresis
-        if(moving_state == MOVING_START)
-        {
-            moving_state = (fabs(dx) > fabs(dy)) ? MOVING_HORIZONTAL : MOVING_VERTICAL;
-        }
-        else if(moving_state == MOVING_HORIZONTAL)
-        {
-            if(fabs(dy) > fabs(dx) + .05) moving_state = MOVING_VERTICAL;
-        }
-        else if(moving_state == MOVING_VERTICAL)
-        {
-            if(fabs(dx) > fabs(dy) + .05) moving_state = MOVING_HORIZONTAL;
-        }
+
+        float progress = fabs(dx);
+        self.progressBar.progress = progress;
         
-        float progress;
-        if(moving_state == MOVING_HORIZONTAL)
-        {
-            progress = fabs(dx);
-            [arView.AROverlay setProgressHorizontal:dx withVertical:0.];
-        }
-        else
-        {
-            progress = fabs(dy);
-            [arView.AROverlay setProgressHorizontal:0. withVertical:dy];
-        }
         if(currentState == ST_MOVING && progress >= 1.) [self handleStateEvent:EV_MOVE_DONE];
         if(currentState == ST_CAPTURE && progress < 1.) [self handleStateEvent:EV_MOVE_UNDONE];
     }
-    
-    if(currentState == ST_INITIALIZING) [arView.AROverlay setInitialCamera:data.cameraTransformation];
     
     if(data.sampleBuffer)
     {
         lastSensorFusionDataWithImage = data;
         
-        [self.arView.videoView displaySensorFusionData:data];
-        
-        [self.arView.featuresLayer updateFeatures:goodPoints];
-        [self.arView.initializingFeaturesLayer updateFeatures:badPoints];
+        [self.videoView displaySensorFusionData:data];
         
         if(setups[currentState].stereo) [STEREO processFrame:data withFinal:false];
     }
 }
 
-#pragma mark -
+#pragma mark - Misc
 
 /** delegate method of MPInstructionsViewDelegate. tells us when the dot has reached the edge of the circle. */
 - (void) moveComplete
@@ -635,13 +433,6 @@ static transition transitions[] =
     [progressView show:YES];
 }
 
-- (void)showIndeterminateProgress:(NSString*)title
-{
-    progressView.labelText = title;
-    progressView.mode = MBProgressHUDModeIndeterminate;
-    [progressView show:YES];
-}
-
 - (void)hideProgress
 {
     [progressView hide:YES];
@@ -652,7 +443,7 @@ static transition transitions[] =
     [progressView setProgress:progress];
 }
 
-- (void)showMessage:(NSString*)message withTitle:(NSString*)title withColor:(MessageColor)color autoHide:(BOOL)hide
+- (void)showMessage:(NSString*)message withColor:(MessageColor)color
 {
     if (message && message.length > 0)
     {
@@ -664,8 +455,6 @@ static transition transitions[] =
             self.messageLabel.backgroundColor = [UIColor colorWithRed:1 green:0 blue:0 alpha:.8];
         else
             self.messageLabel.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:.3];
-        
-        if (hide) [self.messageLabel fadeOutWithDuration:2 andWait:5];
     }
     else
     {
@@ -675,53 +464,7 @@ static transition transitions[] =
 
 - (void)hideMessage
 {
-    [self.messageLabel fadeOutWithDuration:0.5 andWait:0];
-}
-
-- (void) switchButtonImage:(ButtonImage)imageType
-{
-    NSString* imageName;
-    
-    [self.expandingCircleView stopHighlightAnimation];
-    
-    switch (imageType) {
-        case BUTTON_DELETE:
-            imageName = @"MobileMailSettings_trashmbox";
-            shutterButton.alpha = 1.;
-            shutterButton.enabled = YES;
-            break;
-            
-        case BUTTON_SHUTTER_DISABLED:
-            imageName = @"PLCameraFloatingShutterButton";
-            shutterButton.alpha = .3;
-            shutterButton.enabled = NO;
-            break;
-            
-        case BUTTON_CANCEL:
-            imageName = @"BackButton";
-            shutterButton.alpha = 1.;
-            shutterButton.enabled = YES;
-            break;
-            
-        case BUTTON_SHUTTER_ANIMATED:
-            imageName = @"PLCameraFloatingShutterButton";
-            shutterButton.alpha = 1.;
-            shutterButton.enabled = YES;
-            [self.expandingCircleView startHighlightAnimation];
-            break;
-            
-        default:
-            imageName = @"PLCameraFloatingShutterButton";
-            shutterButton.alpha = 1.;
-            shutterButton.enabled = YES;
-            break;
-    }
-    
-    UIImage* image = [UIImage imageNamed:imageName];
-    CGRect buttonFrame = shutterButton.bounds;
-    buttonFrame.size = image.size;
-    shutterButton.frame = buttonFrame;
-    [shutterButton setImage:[UIImage imageNamed:imageName] forState:UIControlStateNormal];
+    self.messageLabel.hidden = YES;
 }
 
 @end

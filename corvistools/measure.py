@@ -1,4 +1,4 @@
-#!/opt/local/bin/python2.7
+#!/usr/bin/env python
 # Created by Brian Fulkerson
 # Copyright (c) 2013. RealityCap, Inc.
 # All rights reserved.

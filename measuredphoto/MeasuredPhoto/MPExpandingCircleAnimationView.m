@@ -13,8 +13,6 @@
     CAShapeLayer* animationLayer;
     CABasicAnimation* scaleAnimation;
     CABasicAnimation* fadeAnimation;
-    CGMutablePathRef smallCircle;
-    CGMutablePathRef largeCircle;
     NSTimer* timer;
 }
 
@@ -22,6 +20,9 @@
 {
     if (self = [super initWithCoder:aDecoder])
     {
+        CGMutablePathRef smallCircle;
+        CGMutablePathRef largeCircle;
+        
         smallCircle = CGPathCreateMutable();
         CGPathAddArc(smallCircle, NULL, self.bounds.size.width / 2, self.bounds.size.height / 2, 32, (float)M_PI, -(float)M_PI, NO);
         
@@ -51,12 +52,6 @@
         fadeAnimation.toValue = [NSDecimalNumber numberWithFloat:0];
     }
     return self;
-}
-
-- (void) dealloc
-{
-    CFRelease(smallCircle);
-    CFRelease(largeCircle);
 }
 
 - (void) startHighlightAnimation

@@ -138,7 +138,6 @@
 		D90145D019F9A23E004E7CE2 /* MobileCoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = MobileCoreServices.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/System/Library/Frameworks/MobileCoreServices.framework; sourceTree = "<absolute>"; };
 		D90145D119F9A23E004E7CE2 /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/System/Library/Frameworks/Accelerate.framework; sourceTree = "<absolute>"; };
 		D90145D219F9A23E004E7CE2 /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/System/Library/Frameworks/AVFoundation.framework; sourceTree = "<absolute>"; };
-		D90145D319F9A23E004E7CE2 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/System/Library/Frameworks/CoreGraphics.framework; sourceTree = "<absolute>"; };
 		D90145D419F9A23E004E7CE2 /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/System/Library/Frameworks/CoreImage.framework; sourceTree = "<absolute>"; };
 		D90145D519F9A23E004E7CE2 /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/System/Library/Frameworks/CoreLocation.framework; sourceTree = "<absolute>"; };
 		D90145D619F9A23E004E7CE2 /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/System/Library/Frameworks/CoreMedia.framework; sourceTree = "<absolute>"; };
@@ -316,20 +315,19 @@
 		D90145DF19F9A23E004E7CE2 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				D963096A1A01BC9800F92929 /* GLKit.framework */,
-				D90145CD19F9A23E004E7CE2 /* OpenGLES.framework */,
-				D90145CE19F9A23E004E7CE2 /* CoreFoundation.framework */,
-				D90145CF19F9A23E004E7CE2 /* CFNetwork.framework */,
-				D90145D019F9A23E004E7CE2 /* MobileCoreServices.framework */,
 				D90145D119F9A23E004E7CE2 /* Accelerate.framework */,
 				D90145D219F9A23E004E7CE2 /* AVFoundation.framework */,
-				D90145D319F9A23E004E7CE2 /* CoreGraphics.framework */,
+				D90145CF19F9A23E004E7CE2 /* CFNetwork.framework */,
+				D90145CE19F9A23E004E7CE2 /* CoreFoundation.framework */,
 				D90145D419F9A23E004E7CE2 /* CoreImage.framework */,
 				D90145D519F9A23E004E7CE2 /* CoreLocation.framework */,
 				D90145D619F9A23E004E7CE2 /* CoreMedia.framework */,
 				D90145D719F9A23E004E7CE2 /* CoreMotion.framework */,
 				D90145D819F9A23E004E7CE2 /* CoreVideo.framework */,
 				D90145D919F9A23E004E7CE2 /* Foundation.framework */,
+				D963096A1A01BC9800F92929 /* GLKit.framework */,
+				D90145D019F9A23E004E7CE2 /* MobileCoreServices.framework */,
+				D90145CD19F9A23E004E7CE2 /* OpenGLES.framework */,
 				D90145DA19F9A23E004E7CE2 /* QuartzCore.framework */,
 				D90145DB19F9A23E004E7CE2 /* Security.framework */,
 				D90145DC19F9A23E004E7CE2 /* SystemConfiguration.framework */,

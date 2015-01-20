@@ -179,11 +179,12 @@ function rc_initialize(){
         //test if we have depth information at this point. if not show the depth mask then animate its fade and give error message
         if (! distanceTo(i.x,i.y)) {
             show_dm_mask();
-            start_dm_mask_fade_out();
-            rcMessage.post("Sorry, no measurement data there.",2000);
+            window.setTimeout( start_dm_mask_fade_out, 2000);
+            rcMessage.post("Sorry, no measurement data there.",4000);
         }
         
         if (lineNotStarted){
+            if (! distanceTo(i.x,i.y)) {return;} //don't allow a measurement to be started in a dead area
             lineNotStarted = false;
             click_image_x1 = i.x; //we map into image coordinates here, incase scale factor chagnes between clicks
             click_image_y1 = i.y;
@@ -285,7 +286,7 @@ function rc_initialize(){
         if (current_mask_opacity > 0) { //if we havn't hit zero transparency, then make it more transparent, and call again
             var next_opicity = Math.max(0, current_mask_opacity - 0.01);
             dm_masking_image.opacity(next_opicity);
-            dm_mask_fade_animaiton_id = window.requestAnimationFrame(fade_dm_mask_step_animation);
+            window.setTimeout(function (){dm_mask_fade_animaiton_id = window.requestAnimationFrame(fade_dm_mask_step_animation);},10);
         }
         else {
             fade_dm_mask_stop_animation();

@@ -46,6 +46,17 @@
 #define API_LICENSING_POST @"api/v1/licensing/"
 #define API_DATUM_LOGGED @"api/v1/datum_logged/"
 
-#define ERROR_DOMAIN @"com.realitycap.TrueMeasure.ErrorDomain"
+#define ERROR_DOMAIN @"com.realitycap.ErrorDomain"
+
+#ifdef OFFLINE
+    #define SKIP_LICENSE_CHECK YES
+#else
+    #ifdef LIBRARY
+        #define SKIP_LICENSE_CHECK NO
+    #else
+        #define SKIP_LICENSE_CHECK YES
+    #endif
+#endif
 
 #endif
+

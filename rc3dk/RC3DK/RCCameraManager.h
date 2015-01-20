@@ -3,17 +3,12 @@
 //  RC3DK
 //
 //  Created by Brian on 1/9/14.
-//  Copyright (c) 2014 Caterpillar. All rights reserved.
+//  Copyright (c) 2014 RealityCap. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
-
-@protocol RCCameraManagerDelegate <NSObject>
-
-- (void) focusOperationFinished:(bool)timedOut;
-
-@end
+#import <functional>
 
 @interface RCCameraManager : NSObject
 
@@ -22,9 +17,10 @@
 - (void) setVideoDevice:(AVCaptureDevice *)device;
 - (void) releaseVideoDevice;
 
-- (void) focusOnceAndLock;
-- (void) lockFocus;
-
-@property (weak, nonatomic) id<RCCameraManagerDelegate> delegate;
+- (void) focusOnceAndLockWithCallback:(std::function<void (uint64_t, float)>)callback;
+- (void) lockFocusWithCallback:(std::function<void (uint64_t, float)>)callback;
+- (void) lockFocusCurrentWithCallback:(std::function<void (uint64_t, float)>)callback;
+- (void) lockFocusToPosition:(float)position withCallback:(std::function<void (uint64_t, float)>)callback;
+- (void) unlockFocus;
 
 @end

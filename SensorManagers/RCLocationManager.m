@@ -93,7 +93,7 @@
     LOGME
     if (isUpdating || [self isLocationDisallowed]) return;
     isUpdating = YES;
-    [_sysLocationMan startUpdatingLocation];
+    [_sysLocationMan startUpdatingLocation]; // if location permission dialog doesn't appear, make sure you have the NSLocationWhenInUseUsageDescription in the plist for iOS >= 8
 }
 
 - (void)stopLocationUpdates

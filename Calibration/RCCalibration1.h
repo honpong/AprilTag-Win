@@ -14,15 +14,17 @@
 
 @required
 /**
- Called when all three calibration steps have been completed.
+ Called when all three calibration steps have been completed. 
+ @returns A reference to the last view controller in the calibration sequence.
  */
-- (void) calibrationDidFinish;
+- (void) calibrationDidFinish:(UIViewController*)lastViewController;
 
 @optional
 /**
  For notifying the delegate when calibration progresses from one step (view controller) to another
  */
-- (void) calibrationScreenDidAppear:(NSString*)screenName;
+- (void) calibrationScreenDidAppear:(UIViewController*)lastViewController;
+
 @end
 
 /**

@@ -1,10 +1,6 @@
-//
-//  TMViewController.h
-//  TapeMeasure
-//
-//  Created by Ben Hirashima on 10/2/12.
-//  Copyright (c) 2012 RealityCap. All rights reserved.
-//
+
+//  Copyright (c) 2014 Caterpillar. All rights reserved.
+
 
 #import <GLKit/GLKit.h>
 #import <AVFoundation/AVFoundation.h>
@@ -16,29 +12,19 @@
 #import <CoreGraphics/CoreGraphics.h>
 #import <CoreLocation/CoreLocation.h>
 #import "MBProgressHUD.h"
-#import "CATAugmentedRealityView.h"
-#import "CATToolbarView.h"
-#import "CATGalleryButton.h"
-#import "CATShutterButton.h"
-#import "CATOrientationChangeData.h"
-#import "CATContainerView.h"
 #import "CATConstants.h"
-#import "MPExpandingCircleAnimationView.h"
+#import "RCVideoPreview.h"
+#import "RC3DKPlus.h"
 
-@interface CATCapturePhoto : UIViewController <RCSensorFusionDelegate, RCStereoDelegate, UIAlertViewDelegate>
+@interface CATCapturePhoto : UIViewController <RCSensorFusionDelegate, RCStereoDelegate>
 
-+ (UIDeviceOrientation) getCurrentUIOrientation;
 - (void)handlePause;
 - (void)handleResume;
 - (IBAction)handleShutterButton:(id)sender;
-- (void) setOrientation:(UIDeviceOrientation)orientation animated:(BOOL)animated;
 
-@property (nonatomic) IBOutlet CATAugmentedRealityView *arView;
-@property (weak, nonatomic) IBOutlet CATShutterButton *shutterButton;
-@property (weak, nonatomic) IBOutlet CATGalleryButton *galleryButton;
+@property (nonatomic) IBOutlet RCVideoPreview *videoView;
 @property (weak, nonatomic) IBOutlet UILabel *messageLabel;
-@property (weak, nonatomic) IBOutlet CATToolbarView *toolbar;
-@property (weak, nonatomic) IBOutlet CATContainerView *containerView;
-@property (weak, nonatomic) IBOutlet MPExpandingCircleAnimationView *expandingCircleView;
+@property (weak, nonatomic) IBOutlet UIView *uiContainer;
+@property (weak, nonatomic) IBOutlet UIProgressView *progressBar;
 
 @end

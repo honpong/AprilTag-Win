@@ -27,6 +27,7 @@
 
 #define DOCUMENTS_DIRECTORY_URL [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject]
 #define CACHE_DIRECTORY_URL [[[NSFileManager defaultManager] URLsForDirectory:NSCachesDirectory inDomains:NSUserDomainMask] lastObject]
+#define WORKING_DIRECTORY_URL [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] lastObject]
 
 #define PREF_UNITS @"units_preference"
 #define PREF_ADD_LOCATION @"addlocation_preference"
@@ -87,8 +88,8 @@ static NSString * const MPCapturePhotoDidAppearNotification = @"com.realitycap.M
 #define URL_SHARING @"http://app.realitycap.com/3Dimension"
 #define URL_APPSTORE @"itms-apps://itunes.com/apps/3Dimension"
 
-static NSString* RCApplicationCredential_Facebook_Key = @"671645849539796";
-static NSString* RCApplicationCredential_Facebook_Secret = @"827cfb4e92aff3551ffeb3618be46e08"; // TODO: this is for ETM. change to TM.
+static NSString* RCApplicationCredential_Facebook_Key = @"319631631561155";
+static NSString* RCApplicationCredential_Facebook_Secret = @"b9e0aab41c060755551521b325e693f1"; 
 
 #define IS_DISK_SPACE_LOW [RCDeviceInfo getFreeDiskSpaceInBytes] < 10000000
 

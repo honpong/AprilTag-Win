@@ -72,8 +72,6 @@
  */
 - (void) startStaticCalibration;
 
-- (void) requestTransformationForQRCodeObservation:(AVMetadataMachineReadableCodeObject *)observation withDimension:(float)QRDimension;
-
 /** Starts to search for a QR code detection and once detected reports future transformations relative to the observed QR code.
 
  RCSensorFusion will attempt to detect a supplied QR code until it is found or stopQRDetection is called. Once the code has been observed, future instances of RCSensorFusionData.transformation and RCSensorFusionData.cameraTransformation will be modified with the origin fixed to the center of the QR code, positive y pointing toward the canonical "top" of the QR code, and positive x pointing toward the canonical "right" side of the QR code. with positive z pointing opposite gravity.

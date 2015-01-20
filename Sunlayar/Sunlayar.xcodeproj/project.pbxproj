@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		17AB2D3D1A6DE54F00BB11F1 /* svg_number_pad.js in Resources */ = {isa = PBXBuildFile; fileRef = 17AB2D3C1A6DE54F00BB11F1 /* svg_number_pad.js */; };
 		17C429A61A5C7C3D004201CF /* fastclick.js in Resources */ = {isa = PBXBuildFile; fileRef = 17C429A51A5C7C3D004201CF /* fastclick.js */; };
 		321910611A52328D00AEF550 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 321910601A52328D00AEF550 /* main.m */; };
 		321910641A52328D00AEF550 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 321910631A52328D00AEF550 /* AppDelegate.m */; };
@@ -64,7 +65,7 @@
 		324752211A5BCB3000A0EC98 /* json2.js in Resources */ = {isa = PBXBuildFile; fileRef = 324751F31A5BCB3000A0EC98 /* json2.js */; };
 		324752221A5BCB3000A0EC98 /* main_function.js in Resources */ = {isa = PBXBuildFile; fileRef = 324751F41A5BCB3000A0EC98 /* main_function.js */; };
 		324752231A5BCB3000A0EC98 /* measured_photo_svg.html in Resources */ = {isa = PBXBuildFile; fileRef = 324751F51A5BCB3000A0EC98 /* measured_photo_svg.html */; };
-		324752241A5BCB3000A0EC98 /* rc_measurements.js in Resources */ = {isa = PBXBuildFile; fileRef = 324751F61A5BCB3000A0EC98 /* rc_measurements.js */; };
+		324752241A5BCB3000A0EC98 /* svg_measurements.js in Resources */ = {isa = PBXBuildFile; fileRef = 324751F61A5BCB3000A0EC98 /* svg_measurements.js */; };
 		324752251A5BCB3000A0EC98 /* request_animation_frame.js in Resources */ = {isa = PBXBuildFile; fileRef = 324751F71A5BCB3000A0EC98 /* request_animation_frame.js */; };
 		324752261A5BCB3000A0EC98 /* scale_and_rotate.js in Resources */ = {isa = PBXBuildFile; fileRef = 324751F81A5BCB3000A0EC98 /* scale_and_rotate.js */; };
 		324752271A5BCB3000A0EC98 /* svgjs.js in Resources */ = {isa = PBXBuildFile; fileRef = 324751F91A5BCB3000A0EC98 /* svgjs.js */; };
@@ -126,6 +127,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		17AB2D3C1A6DE54F00BB11F1 /* svg_number_pad.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = svg_number_pad.js; sourceTree = "<group>"; };
 		17C429A51A5C7C3D004201CF /* fastclick.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = fastclick.js; sourceTree = "<group>"; };
 		3219105B1A52328D00AEF550 /* Sunlayar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sunlayar.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3219105F1A52328D00AEF550 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
@@ -211,7 +213,7 @@
 		324751F31A5BCB3000A0EC98 /* json2.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = json2.js; sourceTree = "<group>"; };
 		324751F41A5BCB3000A0EC98 /* main_function.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = main_function.js; sourceTree = "<group>"; };
 		324751F51A5BCB3000A0EC98 /* measured_photo_svg.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = measured_photo_svg.html; sourceTree = "<group>"; };
-		324751F61A5BCB3000A0EC98 /* rc_measurements.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = rc_measurements.js; sourceTree = "<group>"; };
+		324751F61A5BCB3000A0EC98 /* svg_measurements.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = svg_measurements.js; sourceTree = "<group>"; };
 		324751F71A5BCB3000A0EC98 /* request_animation_frame.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = request_animation_frame.js; sourceTree = "<group>"; };
 		324751F81A5BCB3000A0EC98 /* scale_and_rotate.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = scale_and_rotate.js; sourceTree = "<group>"; };
 		324751F91A5BCB3000A0EC98 /* svgjs.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = svgjs.js; sourceTree = "<group>"; };
@@ -486,10 +488,11 @@
 				324751F31A5BCB3000A0EC98 /* json2.js */,
 				324751F41A5BCB3000A0EC98 /* main_function.js */,
 				324751F51A5BCB3000A0EC98 /* measured_photo_svg.html */,
-				324751F61A5BCB3000A0EC98 /* rc_measurements.js */,
+				324751F61A5BCB3000A0EC98 /* svg_measurements.js */,
 				324751F71A5BCB3000A0EC98 /* request_animation_frame.js */,
 				324751F81A5BCB3000A0EC98 /* scale_and_rotate.js */,
 				324751F91A5BCB3000A0EC98 /* svgjs.js */,
+				17AB2D3C1A6DE54F00BB11F1 /* svg_number_pad.js */,
 			);
 			path = HTML;
 			sourceTree = "<group>";
@@ -653,11 +656,12 @@
 				324752221A5BCB3000A0EC98 /* main_function.js in Resources */,
 				324752261A5BCB3000A0EC98 /* scale_and_rotate.js in Resources */,
 				3247521D1A5BCB3000A0EC98 /* depth_data.js in Resources */,
+				17AB2D3D1A6DE54F00BB11F1 /* svg_number_pad.js in Resources */,
 				321911051A523AFA00AEF550 /* shader.fsh in Resources */,
 				3247521F1A5BCB3000A0EC98 /* hammer.js in Resources */,
 				3219106A1A52328D00AEF550 /* Main.storyboard in Resources */,
 				3219109C1A52330F00AEF550 /* holding_landscape.jpg in Resources */,
-				324752241A5BCB3000A0EC98 /* rc_measurements.js in Resources */,
+				324752241A5BCB3000A0EC98 /* svg_measurements.js in Resources */,
 				3219109B1A52330F00AEF550 /* Calibration.storyboard in Resources */,
 				3219109E1A52330F00AEF550 /* ipad_on_table.jpg in Resources */,
 				324752231A5BCB3000A0EC98 /* measured_photo_svg.html in Resources */,

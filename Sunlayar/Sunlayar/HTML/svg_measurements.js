@@ -31,6 +31,7 @@ rcMeasurements.new_measurement = function (iX1, iY1, iX2, iY2, iX3, iY3, iX4, iY
     m.x4 = iX4;
     m.y4 = iY4;
     m.units_metric = default_units_metric;
+    m.overwriten = false;
     
     rcMeasurements.draw_measurement(m, measured_svg);
     rcMeasurements.roof_measurement = m;
@@ -101,6 +102,24 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
     m.selector_circle3 = measured_svg.circle(40).move(m.x3-20,m.y3-20).fill({opacity:0});
     m.selector_circle4 = measured_svg.circle(40).move(m.x4-20,m.y4-20).fill({opacity:0});
     
+    //text editing
+    m.text.click(function (e) {
+                     setTimeout(function(){ return false;},1);
+                     rcMeasurements.start_distance_change_dialouge(m);
+                     e.stopPropagation(); e.preventDefault();
+                 })
+    //cursor for text editing 
+    m.text_cursor = measured_svg.line(0,0,0,24);
+    m.place_cursor = function() {
+        var u_offset;
+        if (m.units_metric) {u_offset = 23}
+        else {u_offset = 12}
+        var c_offset = m.text.node.offsetWidth/2 - u_offset;
+        m.text_cursor.move(m.mid_x + m.font_offset_x + c_offset, m.mid_y + m.font_offset_y);
+    }
+    m.place_cursor();
+    m.text_cursor.stroke({ color: shadow_color, opacity: 0, width: 2 });
+
     
     
     //draging measurement end points.
@@ -264,5 +283,142 @@ rcMeasurements.save_measurements = function (optional_not_undoable_flag) {
           })
     ;
     } catch (err) {}
+}
+
+
+//////////////////////////////////////////////////////////////////////
+//
+//  number pad functions
+//
+///////////////////////////////////////////////////////////////////
+
+
+rcMeasurements.setText = function (m, str) {
+    m.text_shadow.text(str);
+    m.text.text(str);
+}
+
+
+rcMeasurements.start_distance_change_dialouge = function (m) {
+    rcMeasurements.measurement_being_edited = m;
+    draw.node.appendChild(np_svg.node); //show number pad
+    //move_image_for_number_pad(m.text.x(), m.text.y());
+    //rcMeasurements.start_cursor_animation(m);
+    
+}
+
+rcMeasurements.end_measurement_edit = function (){
+    if (rcMeasurements.measurement_being_edited) {
+        if(draw.node.contains(np_svg.node)) {draw.node.removeChild(np_svg.node);} //hide number pad
+        //return_image_after_number_pad();
+        //rcMeasurements.stop_cursor_animation(rcMeasurements.measurement_being_edited);
+        setTimeout( function () {rcMeasurements.save_measurements();}, 0)
+        
+    }
+    rcMeasurements.measurement_being_edited = null; //so we know wether or not we have a sesion open.
+}
+
+rcMeasurements.switch_units = function () {
+    var parsed_distance = rcMeasurements.parse_dist(rcMeasurements.measurement_being_edited.text.text(), rcMeasurements.measurement_being_edited.units_metric);
+    if (parsed_distance == 'err') {
+        setTimeout(function () { alert("Invalid number entered, please correct before proceeding"); }, 0);
+    }
+    else  {
+        rcMeasurements.measurement_being_edited.distance = parsed_distance;
+        if(rcMeasurements.measurement_being_edited.units_metric == true){ rcMeasurements.measurement_being_edited.units_metric = false; }
+        else{ rcMeasurements.measurement_being_edited.units_metric = true; }
+        rcMeasurements.setText(rcMeasurements.measurement_being_edited, rcMeasurements.format_dist(rcMeasurements.measurement_being_edited));
+    }
+    rcMeasurements.measurement_being_edited.place_cursor();
+}
+
+
+rcMeasurements.add_character = function (key) {
+    var str      = rcMeasurements.measurement_being_edited.text.text();
+    var unit_str = str.substring(str.length - 2);
+    str = str.substring(0, str.length - 2);
+    
+    if (str == '?') { rcMeasurements.setText(rcMeasurements.measurement_being_edited, key + unit_str); }
+    else {rcMeasurements.setText(rcMeasurements.measurement_being_edited,  str + key + unit_str);}
+    rcMeasurements.measurement_being_edited.place_cursor();
+    //rcMeasurements.redraw_measurement(rcMeasurements.measurement_being_edited);
+    
+}
+rcMeasurements.del_character = function (key) {
+    var str      = rcMeasurements.measurement_being_edited.text.text();
+    var unit_str = str.substring(str.length - 2);
+    str = str.substring(0, str.length - 2);
+    
+    if (str.length <= 1) { rcMeasurements.setText(rcMeasurements.measurement_being_edited, '?' + unit_str); }
+    else{
+        rcMeasurements.setText( rcMeasurements.measurement_being_edited,  str.substring(0, str.length - 1) + unit_str );
+    }
+    rcMeasurements.measurement_being_edited.place_cursor();
+    //rcMeasurements.redraw_measurement(rcMeasurements.measurement_being_edited);
+}
+
+// called on distance before drawn to screen
+rcMeasurements.format_dist = function (m){
+    
+    if (m.distance) {
+        if (m.units_metric) {
+            if ( m.distance >= 0.995) {
+                return m.distance.toFixed(2)+' m';
+            }
+            else {
+                return (100 * m.distance).toFixed(0)+' cm';
+            }
+        }
+        else {
+            if ((m.distance * rcMeasurements.inches_to_meter) >= 23.95) {
+                var inches = m.distance * rcMeasurements.inches_to_meter;
+                var feet = Math.floor( (inches + 0.5) / 12);
+                var remaining_inches = Math.max(0,(inches - feet * 12));
+                return feet.toFixed(0) + " ' " + remaining_inches.toFixed(0) + ' "';
+            }
+            else {
+                return (m.distance * rcMeasurements.inches_to_meter).toFixed(1) + ' "';
+            }
+        }
+    }
+    else {
+        if (m.units_metric) { return '? m'; }
+        else { return '? "'; }
+    }
+    
+}
+
+// sets distance for a measurement based on the value of a string
+rcMeasurements.parse_dist = function (str, units_metric){
+    str = str.substring(0, str.length - 2);
+    if (str == '?') {
+        return null;
+    }
+    else if ( rcMeasurements.isNumber( str ) ) {
+        if (units_metric) { return parseFloat(str); }
+        else { return parseFloat(str) / rcMeasurements.inches_to_meter; }
+    }
+    else{
+        return 'err';
+    }
+}
+
+
+rcMeasurements.isNumber = function  (n) {
+    return !isNaN(parseFloat(n)) && isFinite(n);
+}
+rcMeasurements.finish_number_operation = function (){
+    //we need to check the validity of the input. if not a valid number, then raise a warning to the user, and either cancel or return to eiditing, if valid, update measuremnt
+    var parsed_distance = rcMeasurements.parse_dist(rcMeasurements.measurement_being_edited.text.text(), rcMeasurements.measurement_being_edited.units_metric);
+    if (parsed_distance == 'err') {
+        setTimeout(function () { alert("invalid number, please correct before proceeding"); }, 0);
+    }
+    else  {
+        rcMeasurements.measurement_being_edited.distance = parsed_distance;
+        rcMeasurements.measurement_being_edited.overwriten = true;
+        rcMeasurements.redraw_measurement(rcMeasurements.measurement_being_edited);
+        rcMeasurements.measurement_being_edited.saveable_copy = rcMeasurements.saveable_liniar_measurement(rcMeasurements.measurement_being_edited);
+        rcMeasurements.end_measurement_edit();
+    }
 }
 

@@ -15,12 +15,9 @@ function doOnOrientationChange()
         draw.node.style.height = window.innerHeight;
         draw.node.style.width = window.innerWidth;
         draw.size(window.innerWidth, window.innerHeight);
-        
-        console.log("starting scaleImage");
-        
         scaleImageToMatchScreen();
         doing_orientatino_change = false;
-        console.log("done with orientation change");
+        np_to_landscape_bottom(); //function in svg_number_page.js
     }
 }
 
@@ -227,7 +224,11 @@ function rc_initialize(){
     //prevent scrolling
     document.body.addEventListener('touchstart', function(e){ e.stopPropagation(); e.preventDefault(); });
 
-    
+    np_call_back_add = rcMeasurements.add_character;
+    np_call_back_del = rcMeasurements.del_character;
+    np_call_back_ent = rcMeasurements.finish_number_operation;
+    np_add_listeners(); //attach events to nuber pad
+
     
     dm_initialize();
     
@@ -252,6 +253,7 @@ function create_next_button() {
 
 function next_button_pressed() {
     console.log('next_button_pressed()');
+    //location.reload(); // useful for debuging if things are very broken
     if (rcMeasurements.roof_measurement.isValid) {
         //request a URL to signal to main app to start AR session
         $.ajax({ type: "GET", url: rc_server_location + "next/"});
@@ -283,6 +285,9 @@ function clear_all(){
         image.remove();
         image = null;
     
+        //remove the svg number pad
+        if(draw.node.contains(np_svg.node)) {draw.node.removeChild(np_svg.node);}
+                      
         //window.setTimeout( function() {alert('completed clear_all');}, 0)
         return 0;
                       

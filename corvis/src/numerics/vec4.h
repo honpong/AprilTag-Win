@@ -497,6 +497,18 @@ inline static v4 invskew3(const m4 &V)
               0);
 }
 
+inline static f_t determinant_minor(const m4 &m, const int a, const int b)
+{
+    return (m[1][a] * m[2][b] - m[1][b] * m[2][a]);
+}
+
+inline static f_t determinant3(const m4 &m)
+{
+    return m[0][0] * determinant_minor(m, 1, 2)
+    - m[0][1] * determinant_minor(m, 0, 2)
+    + m[0][2] * determinant_minor(m, 0, 1);
+}
+
 m4 rodrigues(const v4 W, m4v4 *dR_dW);
 v4 invrodrigues(const m4 R, v4m4 *_dW_dR);
 

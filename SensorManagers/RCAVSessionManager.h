@@ -25,7 +25,8 @@
 - (BOOL) startSession;
 - (void) endSession;
 - (BOOL) isRunning;
-- (BOOL) addOutput:(AVCaptureVideoDataOutput*)output;
+- (BOOL) addOutput:(AVCaptureOutput*)output;
+- (void) removeOutput:(AVCaptureOutput*)output;
 - (bool) isImageClean;
 
 + (RCAVSessionManager*) sharedInstance;

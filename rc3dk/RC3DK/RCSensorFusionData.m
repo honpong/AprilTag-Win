@@ -13,7 +13,7 @@
 
 }
 
-- (id) initWithTransformation:(RCTransformation*)transformation withCameraTransformation:cameraTransformation withCameraParameters:(RCCameraParameters *)cameraParameters withTotalPath:(RCScalar *)totalPath withFeatures:(NSArray*)featurePoints withSampleBuffer:(CMSampleBufferRef)sampleBuffer withTimestamp:(uint64_t)timestamp
+- (id) initWithTransformation:(RCTransformation*)transformation withCameraTransformation:cameraTransformation withCameraParameters:(RCCameraParameters *)cameraParameters withTotalPath:(RCScalar *)totalPath withFeatures:(NSArray*)featurePoints withSampleBuffer:(CMSampleBufferRef)sampleBuffer withTimestamp:(uint64_t)timestamp withOriginQRCode:(NSString *)originQRCode
 {
     if(self = [super init])
     {
@@ -24,6 +24,7 @@
         _featurePoints = featurePoints;
         if (sampleBuffer) _sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
         _timestamp = timestamp;
+        _originQRCode = originQRCode;
     }
     return self;
 }

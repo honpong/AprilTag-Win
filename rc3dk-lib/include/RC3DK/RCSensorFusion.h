@@ -72,6 +72,23 @@
  */
 - (void) startStaticCalibration;
 
+/** Requests that future transformations be reported relative to an observed QR code
+ 
+ RCSensorFusion will attempt to associate the supplied QR code observation with its current pose estimate. This may not always be successful because QR code observations are delivered asynchronously, and decoding or association may fail.
+ 
+ If decoding and association is successful, RCSensorFusionData.originQRCode will be set to the payload of the QR code, and future instances of RCSensorFusionData.transformation and RCSensorFusionData.cameraTransformation will be modified with the origin fixed to the center of the QR code, positive y pointing toward the canonical "top" of the QR code, and positive x pointing toward the canonical "right" side of the QR code. with positive z pointing opposite gravity.
+ 
+            [ ]  ^+y [ ]
+                 |
+                 o--->+x
+ 
+            [ ]
+ 
+ @param observation The qr code data provided by iOS
+ @param QRDimension The size of the QR code (width = height) in meters
+  */
+- (void) requestTransformationForQRCodeObservation:(AVMetadataMachineReadableCodeObject *)observation withDimension:(float)QRDimension;
+
 /** Prepares the object to receive video and inertial data, and starts sensor fusion updates.
  
  This method should be called when you are ready to begin receiving sensor fusion updates and your user is aware to point the camera at an appropriate visual scene. After you call this method you should immediately begin passing video, accelerometer, and gyro data using receiveVideoFrame, receiveAccelerometerData, and receiveGyroData respectively. Full processing will not begin until the user has held the device steady for a two second initialization period (this occurs concurrently with focusing the camera). The device does not need to be perfectly still; minor shake from the device being held in hand is acceptable. If the user moves during this time, the two second timer will start again. The progress of this timer is provided as a float between 0 and 1 in [RCSensorFusionStatus progress].

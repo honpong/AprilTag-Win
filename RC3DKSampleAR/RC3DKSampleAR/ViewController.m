@@ -40,7 +40,7 @@
     
     arDelegate = [[ARDelegate alloc] init];
     videoPreview.delegate = arDelegate;
-    
+
     [self.view addSubview:videoPreview];
     [self.view sendSubviewToBack:videoPreview];
     [videoPreview setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
@@ -102,6 +102,9 @@
     [[sensorDelegate getVideoProvider] setDelegate:nil];
     [[RCSensorFusion sharedInstance] startSensorFusionWithDevice:[[RCAVSessionManager sharedInstance] videoDevice]];
     [progressBar setHidden:false];
+
+    [[RCSensorFusion sharedInstance] startQRDetectionWithData:@"http://realitycap.com/" withDimension:0.1825];
+
     statusLabel.text = @"Initializing. Hold the device steady.";
 }
 
@@ -110,6 +113,9 @@
     [progressBar setHidden:true];
     [sensorFusion stopSensorFusion];
     [[sensorDelegate getVideoProvider] setDelegate:videoPreview];
+
+    [[RCSensorFusion sharedInstance] stopQRDetection];
+
     isStarted = false;
 }
 
@@ -120,7 +126,7 @@
 {
     //as long as we are initializing, update the initial camera pose
     if(currentRunState == RCSensorFusionRunStateSteadyInitialization) arDelegate.initialCamera = data.cameraTransformation;
-    
+
     [videoPreview displaySensorFusionData:data];
 }
 

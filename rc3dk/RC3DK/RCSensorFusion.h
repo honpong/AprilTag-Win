@@ -72,6 +72,25 @@
  */
 - (void) startStaticCalibration;
 
+/** Starts to search for a QR code detection and once detected reports future transformations relative to the observed QR code.
+
+ RCSensorFusion will attempt to detect a supplied QR code until it is found or stopQRDetection is called. Once the code has been observed, future instances of RCSensorFusionData.transformation and RCSensorFusionData.cameraTransformation will be modified with the origin fixed to the center of the QR code, positive y pointing toward the canonical "top" of the QR code, and positive x pointing toward the canonical "right" side of the QR code and with positive z opposite gravity. The QR code is assumed to be anchored to the ground, so that positive z will be pointed out of the ground.
+
+ [ ]  ^+y [ ]
+      |
+      o--->+x
+
+ [ ]
+
+ @param data The expected value of the QR code
+ @param dimension The size of the QR code (width = height) in meters
+ */
+- (void) startQRDetectionWithData:(NSString *)data withDimension:(float)dimension;
+
+/** Stops searching for QR codes.
+ */
+- (void) stopQRDetection;
+
 /** Prepares the object to receive video and inertial data, and starts sensor fusion updates.
  
  This method should be called when you are ready to begin receiving sensor fusion updates and your user is aware to point the camera at an appropriate visual scene. After you call this method you should immediately begin passing video, accelerometer, and gyro data using receiveVideoFrame, receiveAccelerometerData, and receiveGyroData respectively. Full processing will not begin until the user has held the device steady for a brief initialization period (this occurs concurrently with focusing the camera). The device does not need to be perfectly still; minor shake from the device being held in hand is acceptable. If the user moves during this time, the timer will start again. The progress of this timer is provided as a float between 0 and 1 in [RCSensorFusionStatus progress].

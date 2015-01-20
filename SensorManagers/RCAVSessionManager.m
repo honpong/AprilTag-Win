@@ -128,7 +128,7 @@
     return session ? session.isRunning : false;
 }
 
-- (BOOL) addOutput:(AVCaptureVideoDataOutput*)output
+- (BOOL) addOutput:(AVCaptureOutput*)output
 {
     if (!session)
     {
@@ -147,6 +147,12 @@
     }
     
     return true;
+}
+
+- (void) removeOutput:(AVCaptureOutput *)output
+{
+    if (session)
+        [session removeOutput:output];
 }
 
 - (bool) isImageClean

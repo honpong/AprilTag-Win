@@ -192,7 +192,7 @@ void main()
 
 - (void) displaySampleBuffer:(CMSampleBufferRef)sampleBuffer
 {
-    [self displaySensorFusionData:[[RCSensorFusionData alloc] initWithTransformation:nil withCameraTransformation:nil withCameraParameters:nil withTotalPath:nil withFeatures:nil withSampleBuffer:sampleBuffer withTimestamp:0]];
+    [self displaySensorFusionData:[[RCSensorFusionData alloc] initWithTransformation:nil withCameraTransformation:nil withCameraParameters:nil withTotalPath:nil withFeatures:nil withSampleBuffer:sampleBuffer withTimestamp:0 withOriginQRCode:nil]];
 }
 
 - (void)setWhiteness:(float)w

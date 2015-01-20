@@ -60,24 +60,26 @@
 		327B55FB18EB503A0001CCE1 /* RCDeviceInfoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B55F418EB503A0001CCE1 /* RCDeviceInfoTests.m */; };
 		327B55FC18EB503A0001CCE1 /* RCSensorFusion+RCSensorFusionMock.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B55F718EB503A0001CCE1 /* RCSensorFusion+RCSensorFusionMock.m */; };
 		327B55FD18EB503A0001CCE1 /* RCSensorFusionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B55F818EB503A0001CCE1 /* RCSensorFusionTests.m */; };
-		327B560118EB57830001CCE1 /* RCCameraParameters.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B554C18EB4DC20001CCE1 /* RCCameraParameters.h */; };
-		327B560218EB57830001CCE1 /* RCFeaturePoint.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B555118EB4DC20001CCE1 /* RCFeaturePoint.h */; };
-		327B560318EB57830001CCE1 /* RCPoint.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B555518EB4DC20001CCE1 /* RCPoint.h */; };
-		327B560418EB57830001CCE1 /* RCRotation.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B555918EB4DC20001CCE1 /* RCRotation.h */; };
-		327B560518EB57830001CCE1 /* RCScalar.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B555B18EB4DC20001CCE1 /* RCScalar.h */; };
-		327B560618EB57830001CCE1 /* RCSensorFusionData.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B555F18EB4DC20001CCE1 /* RCSensorFusionData.h */; };
-		327B560718EB57830001CCE1 /* RCSensorFusionStatus.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B556118EB4DC20001CCE1 /* RCSensorFusionStatus.h */; };
-		327B560818EB57830001CCE1 /* RCTransformation.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B556318EB4DC20001CCE1 /* RCTransformation.h */; };
-		327B560918EB57830001CCE1 /* RCTranslation.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B556518EB4DC20001CCE1 /* RCTranslation.h */; };
-		327B560A18EB57830001CCE1 /* RCVector.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B556718EB4DC20001CCE1 /* RCVector.h */; };
-		327B560B18EB57830001CCE1 /* RCSensorFusion.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B555D18EB4DC20001CCE1 /* RCSensorFusion.h */; };
-		327B560D18EB57970001CCE1 /* RC3DK.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B554718EB4DC20001CCE1 /* RC3DK.h */; };
-		327B560E18EB57A50001CCE1 /* RCDeviceInfo.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B554F18EB4DC20001CCE1 /* RCDeviceInfo.h */; };
+		327B560118EB57830001CCE1 /* RCCameraParameters.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B554C18EB4DC20001CCE1 /* RCCameraParameters.h */; };
+		327B560218EB57830001CCE1 /* RCFeaturePoint.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B555118EB4DC20001CCE1 /* RCFeaturePoint.h */; };
+		327B560318EB57830001CCE1 /* RCPoint.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B555518EB4DC20001CCE1 /* RCPoint.h */; };
+		327B560418EB57830001CCE1 /* RCRotation.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B555918EB4DC20001CCE1 /* RCRotation.h */; };
+		327B560518EB57830001CCE1 /* RCScalar.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B555B18EB4DC20001CCE1 /* RCScalar.h */; };
+		327B560618EB57830001CCE1 /* RCSensorFusionData.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B555F18EB4DC20001CCE1 /* RCSensorFusionData.h */; };
+		327B560718EB57830001CCE1 /* RCSensorFusionStatus.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B556118EB4DC20001CCE1 /* RCSensorFusionStatus.h */; };
+		327B560818EB57830001CCE1 /* RCTransformation.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B556318EB4DC20001CCE1 /* RCTransformation.h */; };
+		327B560918EB57830001CCE1 /* RCTranslation.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B556518EB4DC20001CCE1 /* RCTranslation.h */; };
+		327B560A18EB57830001CCE1 /* RCVector.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B556718EB4DC20001CCE1 /* RCVector.h */; };
+		327B560B18EB57830001CCE1 /* RCSensorFusion.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B555D18EB4DC20001CCE1 /* RCSensorFusion.h */; };
+		327B560D18EB57970001CCE1 /* RC3DK.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B554718EB4DC20001CCE1 /* RC3DK.h */; };
+		327B560E18EB57A50001CCE1 /* RCDeviceInfo.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B554F18EB4DC20001CCE1 /* RCDeviceInfo.h */; };
 		327B563918EB5F0A0001CCE1 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B563518EB5ECA0001CCE1 /* OpenGLES.framework */; };
 		328A4DD21950D52000587949 /* RCSensorFusionError.m in Sources */ = {isa = PBXBuildFile; fileRef = 328A4DD11950D52000587949 /* RCSensorFusionError.m */; };
 		328A4DD51950D5F400587949 /* RCLicenseError.m in Sources */ = {isa = PBXBuildFile; fileRef = 328A4DD41950D5F400587949 /* RCLicenseError.m */; };
-		328A4DD61950DB2200587949 /* RCSensorFusionError.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 328A4DD01950D52000587949 /* RCSensorFusionError.h */; };
-		328A4DD71950DB2E00587949 /* RCLicenseError.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 328A4DD31950D5F400587949 /* RCLicenseError.h */; };
+		328A4DD61950DB2200587949 /* RCSensorFusionError.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 328A4DD01950D52000587949 /* RCSensorFusionError.h */; };
+		328A4DD71950DB2E00587949 /* RCLicenseError.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 328A4DD31950D5F400587949 /* RCLicenseError.h */; };
+		D31EC5381A5F1E5B0003379A /* libzxing.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D31EC5371A5F1E5B0003379A /* libzxing.a */; };
+		D31EC5391A5F1E9E0003379A /* libzxing.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D31EC5371A5F1E5B0003379A /* libzxing.a */; };
 		D321AD3E1A323C17003AEA77 /* camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D321AD301A323BF7003AEA77 /* camera.cpp */; };
 		D321AD3F1A323C17003AEA77 /* fundamental.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D321AD311A323BF7003AEA77 /* fundamental.cpp */; };
 		D321AD401A323C17003AEA77 /* stereo_features.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D321AD331A323BF7003AEA77 /* stereo_features.cpp */; };
@@ -111,6 +113,7 @@
 		D3588F091A20C4B800CA10E7 /* stat.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F79E1A1E010E00BBB1FF /* stat.c */; };
 		D3588F0A1A20C4CB00CA10E7 /* io.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7951A1E010E00BBB1FF /* io.c */; };
 		D3588F0B1A20C50200CA10E7 /* usermem.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7A01A1E010E00BBB1FF /* usermem.c */; };
+		D364AFBD1A37A21700E39511 /* homography.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D953126D1A15AE63004D6068 /* homography.cpp */; };
 		D3931E1B1A2217E5008F8940 /* random.c in Sources */ = {isa = PBXBuildFile; fileRef = D3931E191A2217D8008F8940 /* random.c */; };
 		D3931E1E1A221853008F8940 /* host.c in Sources */ = {isa = PBXBuildFile; fileRef = D3931E1C1A221850008F8940 /* host.c */; };
 		D3B4EAC91A1E7DE100BE0443 /* inbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B558B18EB4F250001CCE1 /* inbuffer.c */; };
@@ -178,9 +181,12 @@
 		D3B4EB4F1A1E7DE100BE0443 /* RCVector.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B556718EB4DC20001CCE1 /* RCVector.h */; };
 		D3B4EB501A1E7DE100BE0443 /* RCSensorFusion.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B555D18EB4DC20001CCE1 /* RCSensorFusion.h */; };
 		D3B4EB511A1E7DE100BE0443 /* RCDeviceInfo.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B554F18EB4DC20001CCE1 /* RCDeviceInfo.h */; };
+		D3C0EDFA1A37B4DC00423EDE /* code_detect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3C0EDF81A37B4DC00423EDE /* code_detect.cpp */; };
+		D3C0EDFB1A37B4DC00423EDE /* code_detect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3C0EDF81A37B4DC00423EDE /* code_detect.cpp */; };
+		D953126F1A15AE63004D6068 /* homography.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D953126D1A15AE63004D6068 /* homography.cpp */; };
 		D97AEF8118F7613F00573148 /* device_parameters.c in Sources */ = {isa = PBXBuildFile; fileRef = D97AEF8018F7613F00573148 /* device_parameters.c */; };
 		D9CCDC7E192E887F00A41329 /* scaled_mask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9CCDC7C192E887F00A41329 /* scaled_mask.cpp */; };
-		D9FE87B619427F190052B8D8 /* RCSensorFusionInternals.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D9FE87B519410AB40052B8D8 /* RCSensorFusionInternals.h */; };
+		D9FE87B619427F190052B8D8 /* RCSensorFusionInternals.h in Copy Files */ = {isa = PBXBuildFile; fileRef = D9FE87B519410AB40052B8D8 /* RCSensorFusionInternals.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -194,29 +200,30 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		327B54DD18EB4CC90001CCE1 /* CopyFiles */ = {
+		327B54DD18EB4CC90001CCE1 /* Copy Files */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
-				328A4DD61950DB2200587949 /* RCSensorFusionError.h in CopyFiles */,
-				D9FE87B619427F190052B8D8 /* RCSensorFusionInternals.h in CopyFiles */,
-				327B560D18EB57970001CCE1 /* RC3DK.h in CopyFiles */,
-				327B560118EB57830001CCE1 /* RCCameraParameters.h in CopyFiles */,
-				327B560218EB57830001CCE1 /* RCFeaturePoint.h in CopyFiles */,
-				327B560318EB57830001CCE1 /* RCPoint.h in CopyFiles */,
-				327B560418EB57830001CCE1 /* RCRotation.h in CopyFiles */,
-				327B560518EB57830001CCE1 /* RCScalar.h in CopyFiles */,
-				327B560618EB57830001CCE1 /* RCSensorFusionData.h in CopyFiles */,
-				327B560718EB57830001CCE1 /* RCSensorFusionStatus.h in CopyFiles */,
-				328A4DD71950DB2E00587949 /* RCLicenseError.h in CopyFiles */,
-				327B560818EB57830001CCE1 /* RCTransformation.h in CopyFiles */,
-				327B560918EB57830001CCE1 /* RCTranslation.h in CopyFiles */,
-				327B560A18EB57830001CCE1 /* RCVector.h in CopyFiles */,
-				327B560B18EB57830001CCE1 /* RCSensorFusion.h in CopyFiles */,
-				327B560E18EB57A50001CCE1 /* RCDeviceInfo.h in CopyFiles */,
+				328A4DD61950DB2200587949 /* RCSensorFusionError.h in Copy Files */,
+				D9FE87B619427F190052B8D8 /* RCSensorFusionInternals.h in Copy Files */,
+				327B560D18EB57970001CCE1 /* RC3DK.h in Copy Files */,
+				327B560118EB57830001CCE1 /* RCCameraParameters.h in Copy Files */,
+				327B560218EB57830001CCE1 /* RCFeaturePoint.h in Copy Files */,
+				327B560318EB57830001CCE1 /* RCPoint.h in Copy Files */,
+				327B560418EB57830001CCE1 /* RCRotation.h in Copy Files */,
+				327B560518EB57830001CCE1 /* RCScalar.h in Copy Files */,
+				327B560618EB57830001CCE1 /* RCSensorFusionData.h in Copy Files */,
+				327B560718EB57830001CCE1 /* RCSensorFusionStatus.h in Copy Files */,
+				328A4DD71950DB2E00587949 /* RCLicenseError.h in Copy Files */,
+				327B560818EB57830001CCE1 /* RCTransformation.h in Copy Files */,
+				327B560918EB57830001CCE1 /* RCTranslation.h in Copy Files */,
+				327B560A18EB57830001CCE1 /* RCVector.h in Copy Files */,
+				327B560B18EB57830001CCE1 /* RCSensorFusion.h in Copy Files */,
+				327B560E18EB57A50001CCE1 /* RCDeviceInfo.h in Copy Files */,
 			);
+			name = "Copy Files";
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		D3B4EB401A1E7DE100BE0443 /* CopyFiles */ = {
@@ -380,6 +387,7 @@
 		328A4DD31950D5F400587949 /* RCLicenseError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCLicenseError.h; path = ../../rc3dk/RC3DK/RCLicenseError.h; sourceTree = "<group>"; };
 		328A4DD41950D5F400587949 /* RCLicenseError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCLicenseError.m; path = ../../rc3dk/RC3DK/RCLicenseError.m; sourceTree = "<group>"; };
 		32F7D56219D49E14002239FF /* RCDebugLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCDebugLog.h; path = ../../SensorManagers/RCDebugLog.h; sourceTree = "<group>"; };
+		D31EC5371A5F1E5B0003379A /* libzxing.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libzxing.a; sourceTree = "<group>"; };
 		D321AD301A323BF7003AEA77 /* camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = camera.cpp; sourceTree = "<group>"; };
 		D321AD311A323BF7003AEA77 /* fundamental.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fundamental.cpp; sourceTree = "<group>"; };
 		D321AD321A323BF7003AEA77 /* fundamental.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fundamental.h; sourceTree = "<group>"; };
@@ -474,7 +482,11 @@
 		D3931E1C1A221850008F8940 /* host.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = host.c; sourceTree = "<group>"; };
 		D3B4EABD1A1E7DCC00BE0443 /* RC3DKPlus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RC3DKPlus.h; path = RC3DK/RC3DKPlus.h; sourceTree = "<group>"; };
 		D3B4EB591A1E7DE100BE0443 /* libRC3DKPlus.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRC3DKPlus.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		D3C0EDF81A37B4DC00423EDE /* code_detect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = code_detect.cpp; sourceTree = "<group>"; };
+		D3C0EDF91A37B4DC00423EDE /* code_detect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = code_detect.h; sourceTree = "<group>"; };
 		D90D18C01A3A03B500D1AFE4 /* camera_control_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = camera_control_interface.h; path = ../../shared_corvis_3dk/camera_control_interface.h; sourceTree = "<group>"; };
+		D953126D1A15AE63004D6068 /* homography.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = homography.cpp; sourceTree = "<group>"; };
+		D953126E1A15AE63004D6068 /* homography.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = homography.h; sourceTree = "<group>"; };
 		D97AEF8018F7613F00573148 /* device_parameters.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = device_parameters.c; sourceTree = "<group>"; };
 		D9CCDC7C192E887F00A41329 /* scaled_mask.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scaled_mask.cpp; sourceTree = "<group>"; };
 		D9CCDC7D192E887F00A41329 /* scaled_mask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scaled_mask.h; sourceTree = "<group>"; };
@@ -487,6 +499,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				327B563918EB5F0A0001CCE1 /* OpenGLES.framework in Frameworks */,
+				D31EC5381A5F1E5B0003379A /* libzxing.a in Frameworks */,
 				327B54E318EB4CC90001CCE1 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -508,6 +521,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D3B4EB3E1A1E7DE100BE0443 /* OpenGLES.framework in Frameworks */,
+				D31EC5391A5F1E9E0003379A /* libzxing.a in Frameworks */,
 				D3B4EB3F1A1E7DE100BE0443 /* Foundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -539,6 +553,7 @@
 		327B54E118EB4CC90001CCE1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D31EC5371A5F1E5B0003379A /* libzxing.a */,
 				327B563518EB5ECA0001CCE1 /* OpenGLES.framework */,
 				327B54E218EB4CC90001CCE1 /* Foundation.framework */,
 				327B54F018EB4CC90001CCE1 /* XCTest.framework */,
@@ -726,6 +741,8 @@
 				327B559D18EB4F3A0001CCE1 /* device_parameters.h */,
 				D97AEF8018F7613F00573148 /* device_parameters.c */,
 				327B55A618EB4F3A0001CCE1 /* feature_info.h */,
+				D953126D1A15AE63004D6068 /* homography.cpp */,
+				D953126E1A15AE63004D6068 /* homography.h */,
 				327B55A718EB4F3A0001CCE1 /* filter.cpp */,
 				327B55A818EB4F3A0001CCE1 /* filter.h */,
 				327B55A918EB4F3A0001CCE1 /* filter_setup.cpp */,
@@ -741,6 +758,8 @@
 				327B55B518EB4F3A0001CCE1 /* tracker.h */,
 				D9CCDC7C192E887F00A41329 /* scaled_mask.cpp */,
 				D9CCDC7D192E887F00A41329 /* scaled_mask.h */,
+				D3C0EDF81A37B4DC00423EDE /* code_detect.cpp */,
+				D3C0EDF91A37B4DC00423EDE /* code_detect.h */,
 			);
 			name = filter;
 			path = ../../corvis/src/filter;
@@ -960,7 +979,7 @@
 			buildPhases = (
 				327B54DB18EB4CC90001CCE1 /* Sources */,
 				327B54DC18EB4CC90001CCE1 /* Frameworks */,
-				327B54DD18EB4CC90001CCE1 /* CopyFiles */,
+				327B54DD18EB4CC90001CCE1 /* Copy Files */,
 				327B565418EB655C0001CCE1 /* Library Sanity Check */,
 				327B565518EB66F00001CCE1 /* Warnings for TODOs */,
 				32CF889E1A31094B0044B17B /* Open built library folder */,
@@ -1145,6 +1164,7 @@
 				D9CCDC7E192E887F00A41329 /* scaled_mask.cpp in Sources */,
 				327B55BD18EB4F3A0001CCE1 /* fast_9.cpp in Sources */,
 				327B557718EB4DC20001CCE1 /* RCSensorFusion.mm in Sources */,
+				D3C0EDFA1A37B4DC00423EDE /* code_detect.cpp in Sources */,
 				327B55D318EB4F430001CCE1 /* kalman.cpp in Sources */,
 				327B553818EB4D720001CCE1 /* RCAFNetworkActivityIndicatorManager.m in Sources */,
 				327B556C18EB4DC20001CCE1 /* NSString+RCString.m in Sources */,
@@ -1167,6 +1187,7 @@
 				327B553918EB4D720001CCE1 /* RCAFPropertyListRequestOperation.m in Sources */,
 				327B557818EB4DC20001CCE1 /* RCSensorFusionData.m in Sources */,
 				327B557918EB4DC20001CCE1 /* RCSensorFusionStatus.m in Sources */,
+				D953126F1A15AE63004D6068 /* homography.cpp in Sources */,
 				327B556F18EB4DC20001CCE1 /* RCCameraParameters.m in Sources */,
 				327B557518EB4DC20001CCE1 /* RCRotation.mm in Sources */,
 				327B553518EB4D720001CCE1 /* RCAFHTTPRequestOperation.m in Sources */,
@@ -1194,6 +1215,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D364AFBD1A37A21700E39511 /* homography.cpp in Sources */,
 				D3588F071A20C47100CA10E7 /* merge.c in Sources */,
 				D3588EF81A20C08F00CA10E7 /* properties.cpp in Sources */,
 				D3588F051A20C44900CA10E7 /* geom.c in Sources */,
@@ -1244,6 +1266,7 @@
 				D33B005A1A20CACE00287FC9 /* imopv.c in Sources */,
 				D3B4EB071A1E7DE100BE0443 /* RCAFXMLRequestOperation.m in Sources */,
 				D3B4EB091A1E7DE100BE0443 /* state_motion.cpp in Sources */,
+				D3C0EDFB1A37B4DC00423EDE /* code_detect.cpp in Sources */,
 				D3B4EB0A1A1E7DE100BE0443 /* debug.c in Sources */,
 				D3B4EB0B1A1E7DE100BE0443 /* packet.c in Sources */,
 				D3B4EB0E1A1E7DE100BE0443 /* RCSensorFusionError.m in Sources */,
@@ -1319,7 +1342,7 @@
 				ENABLE_NS_ASSERTIONS = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PREPROCESSOR_DEFINITIONS = "ARCHIVE=1";
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
@@ -1352,7 +1375,16 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "LIBRARY=1";
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)",
+				);
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-all_load",
@@ -1412,7 +1444,7 @@
 					"$(inherited)",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
@@ -1452,7 +1484,7 @@
 				COPY_PHASE_STRIP = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
@@ -1485,7 +1517,16 @@
 				FRAMEWORK_VERSION = 0.6.1;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)",
+				);
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-all_load",
@@ -1511,7 +1552,16 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "RELEASE=1";
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)",
+				);
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-all_load",
@@ -1590,7 +1640,7 @@
 				ENABLE_NS_ASSERTIONS = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PREPROCESSOR_DEFINITIONS = "ARCHIVE=1";
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
@@ -1622,7 +1672,16 @@
 				FRAMEWORK_VERSION = 0.6.1;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)",
+				);
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-all_load",
@@ -1713,7 +1772,15 @@
 					"LIBRARY=1",
 					"OFFLINE=1",
 				);
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)",
+				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-all_load",
@@ -1769,6 +1836,7 @@
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include/",
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
+					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -1808,14 +1876,17 @@
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include/",
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
+					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/ios/",
+					"$(SRCROOT)",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
 					"-DMACOSX",
+					"-DNO_ICONV",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -1848,14 +1919,17 @@
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include/",
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
+					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/ios/",
+					"$(SRCROOT)",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
 					"-DMACOSX",
+					"-DNO_ICONV",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -1888,14 +1962,17 @@
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include/",
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
+					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/ios/",
+					"$(SRCROOT)",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
 					"-DMACOSX",
+					"-DNO_ICONV",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -1929,14 +2006,17 @@
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include/",
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
+					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/ios/",
+					"$(SRCROOT)",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
 					"-DMACOSX",
+					"-DNO_ICONV",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",

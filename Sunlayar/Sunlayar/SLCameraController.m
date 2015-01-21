@@ -59,7 +59,7 @@ typedef struct
     enum state state;
     bool sensorCapture;
     bool sensorFusion;
-    bool showInstructions;
+    bool showCaptureProgress;
     bool showAR;
     SpinnerType progress;
     bool stereo;
@@ -69,7 +69,7 @@ typedef struct
 
 static statesetup setups[] =
 {
-    //                  sensors fusion   instrct AR     prgrs                     stereo  messageColor  message
+    //                  sensors fusion   cptrprg AR     prgrs                     stereo  messageColor  message
     { ST_STARTUP,       false,  false,   false,  false, SpinnerTypeNone,          false,  ColorWhite,    "Loading" },
     { ST_READY,         true,   false,   false,  false, SpinnerTypeNone,          false,  ColorWhite,    "Point the camera at the roof, then press the button." },
     { ST_INITIALIZING,  true,   true,    false,  false, SpinnerTypeDeterminate,   false,  ColorWhite,    "Hold still" },
@@ -78,8 +78,8 @@ static statesetup setups[] =
     { ST_PROCESSING,    false,  false,   false,  false, SpinnerTypeDeterminate,   false,  ColorWhite,    "Please wait" },
     { ST_ROOFREADY,     true,   false,   false,  true,  SpinnerTypeNone,          false,  ColorWhite,    "Point the camera at the roof, then press the button." },
     { ST_ROOFINIT,      true,   true,    false,  true,  SpinnerTypeDeterminate,   false,  ColorWhite,    "Hold still" },
-    { ST_ROOFALIGN,     true,   true,    true,   true,  SpinnerTypeNone,          true,   ColorWhite,    "Align the outline with the roof." },
-    { ST_ROOFVIS,       true,   true,    true,   true,  SpinnerTypeNone,          true,   ColorWhite,    "Roof visualization active." },
+    { ST_ROOFALIGN,     true,   true,    false,  true,  SpinnerTypeNone,          true,   ColorWhite,    "Align the outline with the roof." },
+    { ST_ROOFVIS,       true,   true,    false,  true,  SpinnerTypeNone,          true,   ColorWhite,    "Roof visualization active." },
     { ST_ROOFERROR,     true,   false,   false,  false, SpinnerTypeNone,          false,  ColorRed,      "Roof wasn't properly defined. Try again." },
     { ST_ERROR,         true,   false,   false,  false, SpinnerTypeNone,          false,  ColorRed,      "Whoops, something went wrong. Try again." },
     { ST_DISK_SPACE,    true,   false,   false,  false, SpinnerTypeNone,          false,  ColorRed,      "Your device is low on storage space. Free up some space first." },
@@ -163,9 +163,9 @@ static transition transitions[] =
     {
         [self hideMessage];
     }
-    if(oldSetup.showInstructions && !newSetup.showInstructions)
+    if(oldSetup.showCaptureProgress && !newSetup.showCaptureProgress)
         self.progressBar.hidden = YES;
-    if(!oldSetup.showInstructions && newSetup.showInstructions)
+    if(!oldSetup.showCaptureProgress && newSetup.showCaptureProgress)
         self.progressBar.hidden = NO;
 
     currentState = newState;

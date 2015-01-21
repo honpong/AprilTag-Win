@@ -241,13 +241,20 @@ var nextContaner, nextButton;
 function create_next_button() {
     nextContaner = draw.nested('message');
     nextContaner.size(window.innerWidth, window.innerHeight)
+    nextButtonShadow = nextContaner.text('Next >').font({
+                                                        family: rcMeasurements.font_family,
+                                                        size: 15
+                                                        , anchor: 'middle'
+                                                        , leading: 1
+                                                        }).stroke({ color: '#000', opacity: 1 , width: 3});
     nextButton = nextContaner.text('Next >').font({
                                                        family: rcMeasurements.font_family,
                                                        size: 15
                                                        , anchor: 'middle'
                                                        , leading: 1
                                                        }).fill({ color: '#FFFFFF', opacity: 1 });
-    nextButton.move(425,10);
+    nextButton.move(window.innerWidth-30,window.innerHeight/2);
+    nextButtonShadow.move(window.innerWidth-30,window.innerHeight/2);
     nextButton.click(next_button_pressed); //call the next button pressed function when the next button is clicked.
 }
 

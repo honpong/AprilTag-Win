@@ -51,8 +51,11 @@ rcMeasurements.slope_angle = function (m) {
     dm_sub(v13, v3, v1);      // dm_sub and dm_cross are defined in depth_data.js
     dm_cross(norm_vec, v12, v13);
     norm_vec_length = Math.sqrt( norm_vec[0]*norm_vec[0] + norm_vec[1]*norm_vec[1] + norm_vec[2]*norm_vec[2] );
-
-    return Math.acos(norm_vec[1]/norm_vec_length) * 180 / Math.PI; //take the inverse cosine of the z normal to determine slope
+    norm_vec[0] = norm_vec[0]/norm_vec_length;
+    norm_vec[1] = norm_vec[1]/norm_vec_length;
+    norm_vec[2] = norm_vec[2]/norm_vec_length;
+    
+    return Math.acos(dm_dot(norm_vec, spatial_data.gravity)) * 180 / Math.PI; //take the inverse cosine of the z normal to determine slope
 }
 
 rcMeasurements.saveable_liniar_measurement = function (m) {

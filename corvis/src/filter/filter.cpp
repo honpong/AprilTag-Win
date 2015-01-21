@@ -1367,11 +1367,12 @@ void filter_select_feature(struct filter *f, float x, float y)
     f->s.remap();
 }
 
-void filter_start_qr_detection(struct filter *f, const char * data, float dimension)
+void filter_start_qr_detection(struct filter *f, const char * data, float dimension, bool use_gravity)
 {
     strncpy(f->qr_data, data, 1024);
     f->qr_size = dimension;
     f->detecting_qr = true;
+    f->qr_use_gravity = use_gravity;
 }
 
 void filter_stop_qr_detection(struct filter *f)
@@ -1451,10 +1452,13 @@ bool filter_get_qr_code_origin(struct filter *f, struct qr_detection detection, 
 
         v4 Tsq = f->s.T.v + quaternion_rotate(Qw, f->s.Tc.v) + quaternion_rotate(Qs, Tq);
 
-        v4 z_old(0., 0., 1., 0.);
-        v4 z_new = quaternion_rotate(conjugate(Qsq), z_old);
-        quaternion Qd = rotation_between_two_vectors_normalized(z_old, z_new);
-        quaternion Qsqd = quaternion_product(Qsq, Qd);
+        quaternion Qsqd = Qsq;
+        if(f->qr_use_gravity) {
+            v4 z_old(0., 0., 1., 0.);
+            v4 z_new = quaternion_rotate(conjugate(Qsq), z_old);
+            quaternion Qd = rotation_between_two_vectors_normalized(z_old, z_new);
+            Qsqd = quaternion_product(Qsq, Qd);
+        }
 
         // inverse of transformation specified by Qsqd, Tsq
         Q = conjugate(Qsqd);

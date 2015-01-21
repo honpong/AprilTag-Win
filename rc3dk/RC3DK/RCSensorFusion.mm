@@ -808,10 +808,10 @@ typedef NS_ENUM(int, RCLicenseStatus)
 
 #pragma mark - QR Code handling
 
-- (void) startQRDetectionWithData:(NSString *)data withDimension:(float)dimension
+- (void) startQRDetectionWithData:(NSString *)data withDimension:(float)dimension withGravity:(bool)use_gravity
 {
     dispatch_sync(queue, ^{
-        filter_start_qr_detection(&_cor_setup->sfm, data.UTF8String, dimension);
+        filter_start_qr_detection(&_cor_setup->sfm, data.UTF8String, dimension, use_gravity);
     });
 }
 

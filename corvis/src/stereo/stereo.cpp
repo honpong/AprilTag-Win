@@ -513,6 +513,9 @@ bool stereo::preprocess_internal(const stereo_frame &from, stereo_frame &to, m4 
 
 void stereo::transform_to_reference(const stereo_frame * transform_to)
 {
+    Rw = to_rotation_matrix(transform_to->W);
+    Tw = transform_to->T;
+
     quaternion toQ = conjugate(to_quaternion(transform_to->W));
 
     target->T = quaternion_rotate(toQ, (target->T - transform_to->T));

@@ -72,6 +72,8 @@ public:
     v4 dT;
     stereo_frame *target, *reference;
     stereo_mesh mesh;
+    m4 Rw; // set in transform_to_reference
+    v4 Tw;
     enum stereo_orientation orientation;
 
     void process_frame(const class camera &c, const v4 & T, const rotation_vector & W, const uint8_t *data, list<stereo_feature> &features, bool final);

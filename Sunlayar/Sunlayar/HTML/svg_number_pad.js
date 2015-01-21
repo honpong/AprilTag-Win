@@ -51,7 +51,7 @@ var np_t_prd = np_prd.text(".").fill(np_b_tc).move(np_b_w/2, 0).font({ family:'H
 var np_t_del = np_del.text("Del").fill(np_b_tc).move(np_b_w/2, np_b_h/7).font({ family:'Helvetica', size:15, anchor:'middle', leading:'1.5em'});
 var np_t_ent = np_ent.text("Ent").fill(np_b_tc).move(np_b_w/2, np_b_h/2).font({ family:'Helvetica', size:15, anchor:'middle', leading:'1.5em'});
 var np_t_unt = np_unt.text("Units").fill(np_b_tc).move(np_b_w/2, np_b_h/7).font({ family:'Helvetica', size:15, anchor:'middle', leading:'1.5em'});
-var np_t_oth = np_oth.text("Color").fill(np_b_tc).move(np_b_w/2, np_b_h/7).font({ family:'Helvetica', size:15, anchor:'middle', leading:'1.5em'});
+var np_t_oth = np_oth.text("'").fill(np_b_tc).move(np_b_w/2, np_b_h/7).font({ family:'Helvetica', size:15, anchor:'middle', leading:'1.5em'});
 
 //add listeners to buttons
 
@@ -140,7 +140,6 @@ function np_to_landscape_right(){
 
 var np_call_back_add = null;
 var np_call_back_del = null;
-var np_call_back_oth = null;
 var np_call_back_unt = null;
 var np_call_back_ent = null;
 function np_add_listeners() {
@@ -156,7 +155,7 @@ function np_add_listeners() {
     np_0.click   (function (e) { if(np_call_back_add){np_call_back_add('0');} e.stopPropagation(); e.preventDefault();});
     np_prd.click (function (e) { if(np_call_back_add){np_call_back_add('.');} e.stopPropagation(); e.preventDefault();});
     np_del.click (function (e) { if(np_call_back_del){np_call_back_del();} e.stopPropagation(); e.preventDefault();});
-    np_oth.click (function (e) { if(np_call_back_oth){np_call_back_oth();} e.stopPropagation(); e.preventDefault();});
+    np_oth.click (function (e) { if(np_call_back_add){np_call_back_add("'");} e.stopPropagation(); e.preventDefault();});
     np_unt.click (function (e) { if(np_call_back_unt){np_call_back_unt();} e.stopPropagation(); e.preventDefault();});
     np_ent.click (function (e) { if(np_call_back_ent){np_call_back_ent();} e.stopPropagation(); e.preventDefault();});
 }

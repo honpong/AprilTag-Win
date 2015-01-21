@@ -42,12 +42,12 @@ rcMeasurements.roof_object_valid = function () {
 }
 
 rcMeasurements.saveable_liniar_measurement = function (m) {
-    m.coords3D = [[0,0,0],[0,0,0],[0,0,0],[0,0,0]]; //we need this for the AR engine
+    m.coords3D = [null,null,null,null]; //we need this for the AR engine
     m.isValid = true;
-    try{m.coords3D[0] = dm_3d_location_from_pixel_location(m.x1,m.y1)} catch(err) {m.isValid = false;}
-    try{m.coords3D[1] = dm_3d_location_from_pixel_location(m.x2,m.y2)} catch(err) {m.isValid = false;}
-    try{m.coords3D[2] = dm_3d_location_from_pixel_location(m.x3,m.y3)} catch(err) {m.isValid = false;}
-    try{m.coords3D[3] = dm_3d_location_from_pixel_location(m.x4,m.y4)} catch(err) {m.isValid = false;}
+    try{m.coords3D[0] = dm_3d_location_from_pixel_location(m.x1,m.y1)} catch(err) {m.isValid = false; m.coords3D[0] = null;}
+    try{m.coords3D[1] = dm_3d_location_from_pixel_location(m.x2,m.y2)} catch(err) {m.isValid = false; m.coords3D[1] = null;}
+    try{m.coords3D[2] = dm_3d_location_from_pixel_location(m.x3,m.y3)} catch(err) {m.isValid = false; m.coords3D[2] = null;}
+    try{m.coords3D[3] = dm_3d_location_from_pixel_location(m.x4,m.y4)} catch(err) {m.isValid = false; m.coords3D[3] = null;}
     if (!m.coords3D[0] || !m.coords3D[1] || !m.coords3D[2] || !m.coords3D[3]) {m.isValid = false} //check for null results. 
     
     
@@ -84,10 +84,10 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
     m.mid_y = m.y3 + (m.y4 - m.y3)/2;
 
     
-    m.circle1 = measured_svg.circle(10).move(m.x1-5,m.y1-3).stroke({ color: shadow_color, width : 1.5 }).fill({ color: line_color , opacity:1});
-    m.circle2 = measured_svg.circle(10).move(m.x2-5,m.y2-3).stroke({ color: shadow_color, width : 1.5 }).fill({ color: line_color , opacity:1 });
-    m.circle3 = measured_svg.circle(10).move(m.x3-5,m.y3-3).stroke({ color: shadow_color, width : 1.5 }).fill({ color: line_color , opacity:1});
-    m.circle4 = measured_svg.circle(10).move(m.x4-5,m.y4-3).stroke({ color: shadow_color, width : 1.5 }).fill({ color: line_color , opacity:1 });
+    m.circle1 = measured_svg.circle(10).move(m.x1-5,m.y1-3).stroke({ color: shadow_color, width : 1.5 }).fill({ color: valid_color , opacity:1});
+    m.circle2 = measured_svg.circle(10).move(m.x2-5,m.y2-3).stroke({ color: shadow_color, width : 1.5 }).fill({ color: valid_color , opacity:1 });
+    m.circle3 = measured_svg.circle(10).move(m.x3-5,m.y3-3).stroke({ color: shadow_color, width : 1.5 }).fill({ color: valid_color , opacity:1});
+    m.circle4 = measured_svg.circle(10).move(m.x4-5,m.y4-3).stroke({ color: shadow_color, width : 1.5 }).fill({ color: valid_color , opacity:1 });
 
     
     //move text to correct location
@@ -144,6 +144,13 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
     
     m.saveable_copy = rcMeasurements.saveable_liniar_measurement(m)
 
+    //highlight invalid corners
+    if (!m.coords3D[0]) { m.circle1.fill({ color: invalid_color , opacity:1}); }
+    if (!m.coords3D[1]) { m.circle2.fill({ color: invalid_color , opacity:1}); }
+    if (!m.coords3D[2]) { m.circle3.fill({ color: invalid_color , opacity:1}); }
+    if (!m.coords3D[3]) { m.circle4.fill({ color: invalid_color , opacity:1}); }
+
+    
 }
 
 rcMeasurements.dragEndHandler = function (m, e) {
@@ -184,7 +191,12 @@ rcMeasurements.redraw_measurement = function (m) {
     
     m.polygon.plot([[m.x1,m.y1], [m.x2,m.y2], [m.x3,m.y3], [m.x4,m.y4]])
     
-    m.saveable_copy = rcMeasurements.saveable_liniar_measurement(m)
+
+    //highlight valid/invalid corners
+    if (!m.coords3D[0]) { m.circle1.fill({ color: invalid_color , opacity:1}); } else {m.circle1.fill({ color: valid_color , opacity:1});}
+    if (!m.coords3D[1]) { m.circle2.fill({ color: invalid_color , opacity:1}); } else {m.circle2.fill({ color: valid_color , opacity:1});}
+    if (!m.coords3D[2]) { m.circle3.fill({ color: invalid_color , opacity:1}); } else {m.circle3.fill({ color: valid_color , opacity:1});}
+    if (!m.coords3D[3]) { m.circle4.fill({ color: invalid_color , opacity:1}); } else {m.circle4.fill({ color: valid_color , opacity:1});}
 
     
 }
@@ -210,7 +222,9 @@ rcMeasurements.move_measurement = function (m, nx1, ny1, nx2, ny2, nx3, ny3, nx4
     m.y3 = ny3;
     m.x4 = nx4;
     m.y4 = ny4;
-    if (!m.overwriten){ m.distance = distanceBetween(m.x3, m.y3, m.x4, m.x4); } //distanceBetween is defineed in depth_data.js
+    if (!m.overwriten){ m.distance = distanceBetween(m.x3, m.y3, m.x4, m.y4); } //distanceBetween is defineed in depth_data.js
+    m.saveable_copy = rcMeasurements.saveable_liniar_measurement(m)
+    
     
     rcMeasurements.redraw_measurement(m);
 }
@@ -390,16 +404,39 @@ rcMeasurements.format_dist = function (m){
 
 // sets distance for a measurement based on the value of a string
 rcMeasurements.parse_dist = function (str, units_metric){
-    str = str.substring(0, str.length - 2);
-    if (str == '?') {
+    if (str.indexOf('?') > -1) {   //if theirs a question mark we have no distance
         return null;
     }
-    else if ( rcMeasurements.isNumber( str ) ) {
-        if (units_metric) { return parseFloat(str); }
-        else { return parseFloat(str) / rcMeasurements.inches_to_meter; }
+    var split_str;
+    if (units_metric) {  //if units are metric we parse this way
+        str = str.substring(0, str.length - 2); //strip of the final 'm'
+        if ( rcMeasurements.isNumber( str ) ) {
+            return parseFloat(str);
+        }
+        else{
+            return 'err';
+        }
     }
-    else{
-        return 'err';
+    else {   //parse imperial units
+        str = str.substring(0, str.length - 2); //strip of the final ' " '
+        split_str = str.split("'");
+        if( split_str.length > 1){ // string had feet and inches
+            if (rcMeasurements.isNumber( split_str[0]) && rcMeasurements.isNumber( split_str[1])){  //both " and ' are valid numbers
+                return ( parseFloat(split_str[0])*12 + parseFloat(split_str[1]) ) / rcMeasurements.inches_to_meter;
+            }
+            else{ //fail becasue non numeric
+                return 'err';
+            }
+        }
+        else { //only " no '
+            if (rcMeasurements.isNumber( split_str[0]) ){  // "  are valid numbers
+                return parseFloat(str) / rcMeasurements.inches_to_meter;
+            }
+            else{ //fail becasue non numeric
+                return 'err';
+            }
+        }
+        
     }
 }
 

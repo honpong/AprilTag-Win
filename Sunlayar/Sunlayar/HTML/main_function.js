@@ -253,7 +253,7 @@ function create_next_button() {
 
 function next_button_pressed() {
     console.log('next_button_pressed()');
-    //location.reload(); // useful for debuging if things are very broken
+    location.reload(); // useful for debuging if things are very broken
     if (rcMeasurements.roof_measurement.isValid) {
         //request a URL to signal to main app to start AR session
         $.ajax({ type: "GET", url: rc_server_location + "next/"});

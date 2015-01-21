@@ -29,6 +29,8 @@ var bounce_animation_id = null; // allows tracking and canceling of the pan boun
 var shadow_color = '#222';
 var highlight_color = '#992';
 var line_color = '#ca0';
+var valid_color = '#0f0';
+var invalid_color = '#f00';
 
 
 //unit display

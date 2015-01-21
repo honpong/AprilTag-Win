@@ -66,7 +66,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		D3BD8D6C1A5B52F9008B30F8 /* RC3DK.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RC3DK.h; sourceTree = "<group>"; };
 		D901456119F9A00F004E7CE2 /* RealityCap AR Sample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "RealityCap AR Sample.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D901456519F9A00F004E7CE2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D901456619F9A00F004E7CE2 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -230,7 +229,6 @@
 				D901457119F9A00F004E7CE2 /* Images.xcassets */,
 				D901456419F9A00F004E7CE2 /* Supporting Files */,
 				D90145DF19F9A23E004E7CE2 /* Frameworks */,
-				D3BD8D6C1A5B52F9008B30F8 /* RC3DK.h */,
 			);
 			path = RC3DKSampleAR;
 			sourceTree = "<group>";

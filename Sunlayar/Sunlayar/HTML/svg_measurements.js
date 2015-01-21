@@ -32,6 +32,7 @@ rcMeasurements.new_measurement = function (iX1, iY1, iX2, iY2, iX3, iY3, iX4, iY
     m.y4 = iY4;
     m.units_metric = default_units_metric;
     m.overwriten = false;
+    m.saveable_copy = rcMeasurements.saveable_liniar_measurement(m)
     
     rcMeasurements.draw_measurement(m, measured_svg);
     rcMeasurements.roof_measurement = m;
@@ -39,6 +40,18 @@ rcMeasurements.new_measurement = function (iX1, iY1, iX2, iY2, iX3, iY3, iX4, iY
 
 rcMeasurements.roof_object_valid = function () {
     return rcMeasurements.roof_measurement.isValid;
+}
+
+
+rcMeasurements.slope_angle = function (m) {
+    var v1 = m.coords3D[1], v2 = m.coords3D[2], v3 = m.coords3D[3];
+    
+    var v12=[0,0,0], v13=[0,0,0], norm_vec = [0,0,0];
+    dm_sub(v12, v2, v1);      //calculate cross product of edge vectors to get normal vector.
+    dm_sub(v13, v3, v1);      // dm_sub and dm_cross are defined in depth_data.js
+    dm_cross(norm_vec, v12, v13);
+
+    return Math.asin(norm_vec[2]) * 180 / Math.PI; //take the inverse cosine of the z normal to determine slope
 }
 
 rcMeasurements.saveable_liniar_measurement = function (m) {
@@ -49,7 +62,7 @@ rcMeasurements.saveable_liniar_measurement = function (m) {
     try{m.coords3D[2] = dm_3d_location_from_pixel_location(m.x3,m.y3)} catch(err) {m.isValid = false; m.coords3D[2] = null;}
     try{m.coords3D[3] = dm_3d_location_from_pixel_location(m.x4,m.y4)} catch(err) {m.isValid = false; m.coords3D[3] = null;}
     if (!m.coords3D[0] || !m.coords3D[1] || !m.coords3D[2] || !m.coords3D[3]) {m.isValid = false} //check for null results. 
-    
+    if (m.isValid){ m.slope_angle = rcMeasurements.slope_angle(m);} else {m.slope_angle = null;}
     
     //we only want a subset of the measurements content, so we create a temp object we write the content we want to keep into
     return { gutter_length:m.distance, gutter_length_overwriten:m.overwriten, x1:m.x1, y1:m.y1, x2:m.x2, y2:m.y2, x3:m.x3, y3:m.y3, x4:m.x4, y4:m.y4, coords3D: m.coords3D};
@@ -61,6 +74,8 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
     
     //we need to write gutter distance onto screen
     var d_string = rcMeasurements.format_dist(m);
+    var s_string; //slope
+    if (m.slope_angle) {s_string = m.slope_angle.toFixed();} else {s_string = "no slope";}
     m.text_shadow = measured_svg.text(d_string);
     m.text_shadow.font({
                        family: rcMeasurements.font_family,
@@ -76,6 +91,23 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
                 , anchor: 'middle'
                 , leading: 1
                 }).fill({ color: line_color, opacity: 1});
+
+    m.slope_shadow = measured_svg.text(s_string);
+    m.slope_shadow.font({
+                       family: rcMeasurements.font_family,
+                       size: 25
+                       , anchor: 'middle'
+                       , leading: 1
+                       }).stroke({ color: shadow_color, opacity: 1, width: 2.5 });
+    
+    m.slope_text = measured_svg.text(s_string);
+    m.slope_text.font({
+                family: rcMeasurements.font_family,
+                size: 25
+                , anchor: 'middle'
+                , leading: 1
+                }).fill({ color: line_color, opacity: 1});
+
     
     
     m.font_offset_x = 0;
@@ -93,6 +125,8 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
     //move text to correct location
     m.text_shadow.move(m.mid_x + m.font_offset_x, m.mid_y + m.font_offset_y);
     m.text.move(m.mid_x + m.font_offset_x, m.mid_y + m.font_offset_y);
+    m.slope_shadow.move(image_width - 30, image_height - 25);
+    m.slope_text.move(image_width - 30, image_height - 25);
 
     poly_str = m.x1.toFixed() +','+m.y1.toFixed()+' '+m.x2.toFixed()+','+ m.y2.toFixed()+' '+ m.x3.toFixed()+','+ m.y3.toFixed()+' '+m.x4.toFixed()+','+m.y4.toFixed()
     m.polygon = measured_svg.polygon(poly_str).stroke({ color: line_color, width: 2 }).fill({ color: '#008899', opacity: 0.3 });
@@ -142,7 +176,6 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
                                        e.stopPropagation(); e.preventDefault();}).on("dragend", function(e) {rcMeasurements.dragEndHandler(m,e);});
 
     
-    m.saveable_copy = rcMeasurements.saveable_liniar_measurement(m)
 
     //highlight invalid corners
     if (!m.coords3D[0]) { m.circle1.fill({ color: invalid_color , opacity:1}); }
@@ -165,6 +198,10 @@ rcMeasurements.redraw_measurement = function (m) {
     
     m.text_shadow.text(rcMeasurements.format_dist(m));
     m.text.text(rcMeasurements.format_dist(m));
+    var s_string; //slope
+    if (m.slope_angle) {s_string = m.slope_angle.toFixed();} else {s_string = "no slope";}
+    m.slope_shadow.text(s_string);
+    m.slope_text.text(s_string);
     
     
     m.font_offset_x = 0;

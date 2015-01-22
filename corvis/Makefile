@@ -28,6 +28,7 @@ _CC := $(CC)
 _CXX := $(CXX)
 _SWIG := $(SWIG)
 _AS := $(AS)
+_AR := $(AR)
 _WXGLADE := $(WXGLADE)
 
 %.o: override CC=$(Q)printf "%32s %s\n" "Compiling" $<; $(_CC)
@@ -39,6 +40,7 @@ _WXGLADE := $(WXGLADE)
 %.i.d: override SWIG=printf "%32s %s\n" "Checking dependencies" $<; $(_SWIG)
 %.o: override AS=$(Q)printf "%32s %s\n" "Assembling" $<; $(_AS)
 %.so: override CC=$(Q)printf "%32s %s\n" "Linking" $(@); $(_CC)
+%.a: override AR=$(Q)printf "%32s %s\n" "Archving" $(@); $(_AR)
 cor/cor:override CC=$(Q)printf "%32s %s\n" "Linking" $(@); $(_CC)
 
 #%.cpp:
@@ -119,7 +121,7 @@ build/test/%.dcc: ../gtest/%.cc
 
 %.a:
 	@mkdir -p $(@D)
-	ar crv $@ $^
+	$(AR) cr $@ $^
 
 %.so:
 	@mkdir -p $(@D)

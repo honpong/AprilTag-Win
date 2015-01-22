@@ -61,12 +61,26 @@ rcMeasurements.slope_angle = function (m) {
 rcMeasurements.saveable_liniar_measurement = function (m) {
     m.coords3D = [null,null,null,null]; //we need this for the AR engine
     m.isValid = true;
+    var gutter_adj_ratio = 1;
+    if (m.overwriten){
+        gutter_adj_ratio = m.distance / distanceBetween(m.x3, m.y3, m.x4, m.y4);
+    }
     try{m.coords3D[0] = dm_3d_location_from_pixel_location(m.x1,m.y1)} catch(err) {m.isValid = false; m.coords3D[0] = null;}
     try{m.coords3D[1] = dm_3d_location_from_pixel_location(m.x2,m.y2)} catch(err) {m.isValid = false; m.coords3D[1] = null;}
     try{m.coords3D[2] = dm_3d_location_from_pixel_location(m.x3,m.y3)} catch(err) {m.isValid = false; m.coords3D[2] = null;}
     try{m.coords3D[3] = dm_3d_location_from_pixel_location(m.x4,m.y4)} catch(err) {m.isValid = false; m.coords3D[3] = null;}
     if (!m.coords3D[0] || !m.coords3D[1] || !m.coords3D[2] || !m.coords3D[3]) {m.isValid = false} //check for null results. 
-    if (m.isValid){ m.slope_angle = rcMeasurements.slope_angle(m);} else {m.slope_angle = null;}
+    if (m.isValid){
+        m.slope_angle = rcMeasurements.slope_angle(m);
+        
+        for (i = 0; i < 4; i++) {
+            for (j = 0; j < 3; j++) {
+                m.coords3D[i][j] = m.coords3D[i][j] * gutter_adj_ratio;
+            }
+        }
+    }
+    else {m.slope_angle = null;}
+    
     
     //we only want a subset of the measurements content, so we create a temp object we write the content we want to keep into
     return { gutter_length:m.distance, gutter_length_overwriten:m.overwriten, x1:m.x1, y1:m.y1, x2:m.x2, y2:m.y2, x3:m.x3, y3:m.y3, x4:m.x4, y4:m.y4, coords3D: m.coords3D};
@@ -79,7 +93,7 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
     //we need to write gutter distance onto screen
     var d_string = rcMeasurements.format_dist(m);
     var s_string; //slope
-    if (m.slope_angle) {s_string = m.slope_angle.toFixed();} else {s_string = "no slope";}
+    if (m.slope_angle) {s_string = m.slope_angle.toFixed() + "\u00B0";} else {s_string = "no slope";}
     m.text_shadow = measured_svg.text(d_string);
     m.text_shadow.font({
                        family: rcMeasurements.font_family,
@@ -148,8 +162,8 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
     //move text to correct location
     m.text_shadow.move(m.mid_x + m.font_offset_x, m.mid_y + m.font_offset_y);
     m.text.move(m.mid_x + m.font_offset_x, m.mid_y + m.font_offset_y);
-    m.slope_shadow.move(image_width - 30, image_height - 25);
-    m.slope_text.move(image_width - 30, image_height - 25);
+    m.slope_shadow.move(image_width - 40, image_height - 30);
+    m.slope_text.move(image_width - 40, image_height - 30);
 
     poly_str = m.x1.toFixed() +','+m.y1.toFixed()+' '+m.x2.toFixed()+','+ m.y2.toFixed()+' '+ m.x3.toFixed()+','+ m.y3.toFixed()+' '+m.x4.toFixed()+','+m.y4.toFixed()
     m.polygon = measured_svg.polygon(poly_str).stroke({ color: line_color, width: 2 }).fill({ color: '#008899', opacity: 0.3 });
@@ -218,7 +232,7 @@ rcMeasurements.redraw_measurement = function (m) {
     m.text_shadow.text(rcMeasurements.format_dist(m));
     m.text.text(rcMeasurements.format_dist(m));
     var s_string; //slope
-    if (m.slope_angle) {s_string = m.slope_angle.toFixed();} else {s_string = "no slope";}
+    if (m.slope_angle) {s_string = m.slope_angle.toFixed() + "\u00B0";} else {s_string = "no slope";}
     m.slope_shadow.text(s_string);
     m.slope_text.text(s_string);
     

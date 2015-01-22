@@ -1112,7 +1112,7 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->w_variance = device.w_meas_var;
     f->a_variance = device.a_meas_var;
 
-    state_vision_feature::initial_depth_meters = M_E;
+    state_vision_feature::initial_depth_meters = 20;
     state_vision_feature::initial_var = .75;
     state_vision_feature::initial_process_noise = 1.e-20;
     state_vision_feature::measurement_var = 1.5 * 1.5;

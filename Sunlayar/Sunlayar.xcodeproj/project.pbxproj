@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		175A2F881A706ED3001AC184 /* fp_left.png in Resources */ = {isa = PBXBuildFile; fileRef = 175A2F871A706ED3001AC184 /* fp_left.png */; };
+		175A2F8C1A70749A001AC184 /* fp_r_btm.png in Resources */ = {isa = PBXBuildFile; fileRef = 175A2F891A70749A001AC184 /* fp_r_btm.png */; };
+		175A2F8D1A70749A001AC184 /* fp_l_btm.png in Resources */ = {isa = PBXBuildFile; fileRef = 175A2F8A1A70749A001AC184 /* fp_l_btm.png */; };
+		175A2F8E1A70749A001AC184 /* fp_right.png in Resources */ = {isa = PBXBuildFile; fileRef = 175A2F8B1A70749A001AC184 /* fp_right.png */; };
 		17AB2D3D1A6DE54F00BB11F1 /* svg_number_pad.js in Resources */ = {isa = PBXBuildFile; fileRef = 17AB2D3C1A6DE54F00BB11F1 /* svg_number_pad.js */; };
 		17C429A61A5C7C3D004201CF /* fastclick.js in Resources */ = {isa = PBXBuildFile; fileRef = 17C429A51A5C7C3D004201CF /* fastclick.js */; };
 		321910611A52328D00AEF550 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 321910601A52328D00AEF550 /* main.m */; };
@@ -127,6 +131,10 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		175A2F871A706ED3001AC184 /* fp_left.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = fp_left.png; sourceTree = "<group>"; };
+		175A2F891A70749A001AC184 /* fp_r_btm.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = fp_r_btm.png; sourceTree = "<group>"; };
+		175A2F8A1A70749A001AC184 /* fp_l_btm.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = fp_l_btm.png; sourceTree = "<group>"; };
+		175A2F8B1A70749A001AC184 /* fp_right.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = fp_right.png; sourceTree = "<group>"; };
 		17AB2D3C1A6DE54F00BB11F1 /* svg_number_pad.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = svg_number_pad.js; sourceTree = "<group>"; };
 		17C429A51A5C7C3D004201CF /* fastclick.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = fastclick.js; sourceTree = "<group>"; };
 		3219105B1A52328D00AEF550 /* Sunlayar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Sunlayar.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -480,6 +488,10 @@
 		324751EE1A5BCB3000A0EC98 /* HTML */ = {
 			isa = PBXGroup;
 			children = (
+				175A2F891A70749A001AC184 /* fp_r_btm.png */,
+				175A2F8A1A70749A001AC184 /* fp_l_btm.png */,
+				175A2F8B1A70749A001AC184 /* fp_right.png */,
+				175A2F871A706ED3001AC184 /* fp_left.png */,
 				17C429A51A5C7C3D004201CF /* fastclick.js */,
 				324751EF1A5BCB3000A0EC98 /* depth_data.js */,
 				324751F01A5BCB3000A0EC98 /* global_variables.js */,
@@ -652,12 +664,15 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				175A2F8E1A70749A001AC184 /* fp_right.png in Resources */,
+				175A2F8C1A70749A001AC184 /* fp_r_btm.png in Resources */,
 				324752271A5BCB3000A0EC98 /* svgjs.js in Resources */,
 				324752221A5BCB3000A0EC98 /* main_function.js in Resources */,
 				324752261A5BCB3000A0EC98 /* scale_and_rotate.js in Resources */,
 				3247521D1A5BCB3000A0EC98 /* depth_data.js in Resources */,
 				17AB2D3D1A6DE54F00BB11F1 /* svg_number_pad.js in Resources */,
 				321911051A523AFA00AEF550 /* shader.fsh in Resources */,
+				175A2F8D1A70749A001AC184 /* fp_l_btm.png in Resources */,
 				3247521F1A5BCB3000A0EC98 /* hammer.js in Resources */,
 				3219106A1A52328D00AEF550 /* Main.storyboard in Resources */,
 				3219109C1A52330F00AEF550 /* holding_landscape.jpg in Resources */,
@@ -673,6 +688,7 @@
 				3247521E1A5BCB3000A0EC98 /* global_variables.js in Resources */,
 				17C429A61A5C7C3D004201CF /* fastclick.js in Resources */,
 				3219106C1A52328D00AEF550 /* Images.xcassets in Resources */,
+				175A2F881A706ED3001AC184 /* fp_left.png in Resources */,
 				324752201A5BCB3000A0EC98 /* jquery-2.1.1.min.js in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

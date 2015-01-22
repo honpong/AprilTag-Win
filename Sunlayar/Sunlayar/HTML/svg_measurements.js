@@ -124,6 +124,25 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
     m.circle2 = measured_svg.circle(10).move(m.x2-5,m.y2-3).stroke({ color: shadow_color, width : 1.5 }).fill({ color: valid_color , opacity:1 });
     m.circle3 = measured_svg.circle(10).move(m.x3-5,m.y3-3).stroke({ color: shadow_color, width : 1.5 }).fill({ color: valid_color , opacity:1});
     m.circle4 = measured_svg.circle(10).move(m.x4-5,m.y4-3).stroke({ color: shadow_color, width : 1.5 }).fill({ color: valid_color , opacity:1 });
+    m.fp_x_off = 85;
+    m.fp_y_off = 105;
+    m.fingerprint1 = measured_svg.image("fp_left.png");
+    m.fingerprint2 = measured_svg.image("fp_right.png");
+    m.fingerprint3 = measured_svg.image("fp_r_btm.png");
+    m.fingerprint4 = measured_svg.image("fp_l_btm.png");
+    if (window.innerWidth > 700) { //make the fingerprint buttons smaller on bigger screens
+        m.fp_x_off = 42.5;
+        m.fp_y_off = 52.5;
+        m.fingerprint1.scale(0.5);
+        m.fingerprint2.scale(0.5);
+        m.fingerprint3.scale(0.5);
+        m.fingerprint4.scale(0.5);
+    }
+    m.fingerprint1.move(m.x1 - m.fp_x_off,m.y1-m.fp_y_off);
+    m.fingerprint2.move(m.x2,m.y2-m.fp_y_off);
+    m.fingerprint3.move(m.x3,m.y3);
+    m.fingerprint4.move(m.x4 - m.fp_x_off,m.y4);
+
 
     
     //move text to correct location
@@ -135,10 +154,6 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
     poly_str = m.x1.toFixed() +','+m.y1.toFixed()+' '+m.x2.toFixed()+','+ m.y2.toFixed()+' '+ m.x3.toFixed()+','+ m.y3.toFixed()+' '+m.x4.toFixed()+','+m.y4.toFixed()
     m.polygon = measured_svg.polygon(poly_str).stroke({ color: line_color, width: 2 }).fill({ color: '#008899', opacity: 0.3 });
     
-    m.selector_circle1 = measured_svg.circle(40).move(m.x1-20,m.y1-20).fill({opacity:0});
-    m.selector_circle2 = measured_svg.circle(40).move(m.x2-20,m.y2-20).fill({opacity:0});
-    m.selector_circle3 = measured_svg.circle(40).move(m.x3-20,m.y3-20).fill({opacity:0});
-    m.selector_circle4 = measured_svg.circle(40).move(m.x4-20,m.y4-20).fill({opacity:0});
     
     //text editing
     m.text.click(function (e) {
@@ -161,22 +176,22 @@ rcMeasurements.draw_measurement = function (m, measured_svg){
     
     
     //draging measurement end points.
-    Hammer(m.selector_circle1.node).on("drag",  function(e) {
+    Hammer(m.fingerprint1.node).on("drag",  function(e) {
                                        e.stopPropagation(); e.preventDefault();
                                        i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY);
-                                       rcMeasurements.move_measurement(m, i.x, i.y, m.x2, m.y2, m.x3, m.y3, m.x4, m.y4);
+                                       rcMeasurements.move_measurement(m, i.x+m.fp_x_off/2, i.y+m.fp_y_off/2, m.x2, m.y2, m.x3, m.y3, m.x4, m.y4);
                                        }).on("dragend", function(e) { rcMeasurements.dragEndHandler(m,e); });
-    Hammer(m.selector_circle2.node).on("drag", function(e) {
+    Hammer(m.fingerprint2.node).on("drag", function(e) {
                                        i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY);
-                                       rcMeasurements.move_measurement(m, m.x1, m.y1, i.x, i.y, m.x3, m.y3, m.x4, m.y4);
+                                       rcMeasurements.move_measurement(m, m.x1, m.y1, i.x-m.fp_x_off/2, i.y+m.fp_y_off/2, m.x3, m.y3, m.x4, m.y4);
                                        e.stopPropagation(); e.preventDefault();}).on("dragend", function(e) {rcMeasurements.dragEndHandler(m,e);});
-    Hammer(m.selector_circle3.node).on("drag", function(e) {
+    Hammer(m.fingerprint3.node).on("drag", function(e) {
                                        i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY);
-                                       rcMeasurements.move_measurement(m, m.x1, m.y1, m.x2, m.y2, i.x, i.y, m.x4, m.y4);
+                                       rcMeasurements.move_measurement(m, m.x1, m.y1, m.x2, m.y2, i.x-m.fp_x_off/2, i.y-m.fp_y_off/2, m.x4, m.y4);
                                        e.stopPropagation(); e.preventDefault();}).on("dragend", function(e) {rcMeasurements.dragEndHandler(m,e);});
-    Hammer(m.selector_circle4.node).on("drag", function(e) {
+    Hammer(m.fingerprint4.node).on("drag", function(e) {
                                        i = pxl_to_img_xy(e.gesture.center.pageX, e.gesture.center.pageY);
-                                       rcMeasurements.move_measurement(m, m.x1, m.y1, m.x2, m.y2, m.x3, m.y3, i.x, i.y);
+                                       rcMeasurements.move_measurement(m, m.x1, m.y1, m.x2, m.y2, m.x3, m.y3, i.x+m.fp_x_off/2, i.y-m.fp_y_off/2);
                                        e.stopPropagation(); e.preventDefault();}).on("dragend", function(e) {rcMeasurements.dragEndHandler(m,e);});
 
     
@@ -225,10 +240,11 @@ rcMeasurements.redraw_measurement = function (m) {
     m.circle2.move(m.x2-5,m.y2-5);
     m.circle3.move(m.x3-5,m.y3-5);
     m.circle4.move(m.x4-5,m.y4-5);
-    m.selector_circle1.move(m.x1-20,m.y1-20);
-    m.selector_circle2.move(m.x2-20,m.y2-20);
-    m.selector_circle3.move(m.x3-20,m.y3-20);
-    m.selector_circle4.move(m.x4-20,m.y4-20);
+    m.fingerprint1.move(m.x1-m.fp_x_off,m.y1-m.fp_y_off);
+    m.fingerprint2.move(m.x2,m.y2-m.fp_y_off);
+    m.fingerprint3.move(m.x3,m.y3);
+    m.fingerprint4.move(m.x4-m.fp_x_off,m.y4);
+
     
     m.polygon.plot([[m.x1,m.y1], [m.x2,m.y2], [m.x3,m.y3], [m.x4,m.y4]])
     

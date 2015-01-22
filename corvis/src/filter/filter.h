@@ -7,6 +7,7 @@
 #include "feature_info.h"
 #include "tracker.h"
 #include "scaled_mask.h"
+#include "code_detect.h"
 #include "../../../shared_corvis_3dk/RCSensorFusionInternals.h"
 #include "../../../shared_corvis_3dk/camera_control_interface.h"
 

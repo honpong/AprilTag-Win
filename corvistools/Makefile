@@ -10,6 +10,7 @@ PYTHON_LDFLAGS := $(shell python-config --libs)
 CPPFLAGS := -Wall -g -I../corvis/src -I../corvis/src/cor -fPIC -march=core2 -mfpmath=sse -O0 -D DEBUG $(PYTHON_CFLAGS) \
         $(patsubst %,-I%/include,$(wildcard $(shell brew --prefix boost 2>/dev/null) /opt/local)) \
         $(shell pkg-config freetype2 --cflags) $(shell pkg-config ftgl --cflags) # freetype2 must come before ftgl on a case insensitive fs
+CXXFLAGS := -std=c++11
 CFLAGS := -std=gnu99
 LDFLAGS := -lpthread --warn-unresolved-symbols -O0 $(PYTHON_LDFLAGS) -framework Accelerate -framework OpenGL -framework GLUT $(shell pkg-config freetype2 ftgl --libs)
 SWIGFLAGS := -Wall

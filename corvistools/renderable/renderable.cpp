@@ -344,13 +344,13 @@ void filter_state::render() {
 
 point3d_vector_t structure::get_features()
 {
-    point3d_vector_t rv= { features.size(), (float *)&features[0] };
+    point3d_vector_t rv= { static_cast<int>(features.size()), &features[0].data[0] };
     return rv;
 }
 
 point3d_vector_t motion::get_path()
 {
-    point3d_vector_t rv = { location.size(), (float *)&location[0] };
+    point3d_vector_t rv = { static_cast<int>(location.size()), &location[0].data[0] };
     return rv;
 }
 

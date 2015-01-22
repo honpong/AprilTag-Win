@@ -35,7 +35,7 @@ TEST(Camera, UndistortImagePointNoDistortion) {
     for(x = 0; x < width; x++)
         for(y = 0; y < height; y++); {
             feature_t point = nodistortion.undistort_image_point(x, y);
-            feature_t expected = {.x = x, .y = y};
+            feature_t expected = {.x = (float)x, .y = (float)y};
             camera_test_feature_t_equal(expected, point);
         }
 }

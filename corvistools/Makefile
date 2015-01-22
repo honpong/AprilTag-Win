@@ -11,7 +11,7 @@ CPPFLAGS := -Wall -g -I../corvis/src -I../corvis/src/cor -fPIC -march=core2 -mfp
         $(patsubst %,-I%/include,$(wildcard $(shell brew --prefix boost 2>/dev/null) /opt/local)) \
         $(shell pkg-config freetype2 --cflags) $(shell pkg-config ftgl --cflags) # freetype2 must come before ftgl on a case insensitive fs
 CFLAGS := -std=gnu99
-LDFLAGS := -pthread -lpthread --warn-unresolved-symbols -O0 $(PYTHON_LDFLAGS) -framework Accelerate -framework OpenGL -framework GLUT $(shell pkg-config freetype2 ftgl --libs)
+LDFLAGS := -lpthread --warn-unresolved-symbols -O0 $(PYTHON_LDFLAGS) -framework Accelerate -framework OpenGL -framework GLUT $(shell pkg-config freetype2 ftgl --libs)
 SWIGFLAGS := -Wall
 
 ####################### RULES ######################################

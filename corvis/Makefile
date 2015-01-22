@@ -13,7 +13,7 @@ CPPFLAGS := -Wall -g -fPIC -march=core2 -mfpmath=sse -O3 -D DEBUG $(PYTHON_CFLAG
         $(patsubst %,-I%/include,$(wildcard $(shell brew --prefix boost 2>/dev/null) /opt/local)) \
         $(shell pkg-config ftgl --cflags) -Isrc/cor -Wdeprecated-writable-strings
 CFLAGS := -std=gnu99
-LDFLAGS := -pthread -lpthread --warn-unresolved-symbols -O3 $(PYTHON_LDFLAGS) -framework Accelerate -framework OpenGL -framework GLUT $(shell pkg-config ftgl --libs)
+LDFLAGS := -lpthread --warn-unresolved-symbols -O3 $(PYTHON_LDFLAGS) -framework Accelerate -framework OpenGL -framework GLUT $(shell pkg-config ftgl --libs)
 SWIGFLAGS := -w403,362,389,503,401,462,472,314,509,204
 
 ####################### RULES ######################################

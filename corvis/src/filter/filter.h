@@ -115,7 +115,6 @@ void filter_start_hold_steady(struct filter *f);
 void filter_start_dynamic(struct filter *f);
 void filter_start_qr_detection(struct filter *f, const char * data, float dimension, bool use_gravity);
 void filter_stop_qr_detection(struct filter *f);
-bool filter_get_qr_code_transformation(struct filter *f, float qr_size, float corner_x[4], float corner_y[4], m4 &R, v4 &T);
 bool filter_get_qr_code_origin(struct filter *f, struct qr_detection detection, float qr_size, quaternion &Q, v4 &T);
 
 #ifdef SWIG

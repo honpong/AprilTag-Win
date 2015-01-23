@@ -894,7 +894,7 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     if(f->detecting_qr) {
         vector<qr_detection> codes = code_detect_qr(data, width, height);
         for(int i = 0; i < codes.size(); i++) {
-            if(strncmp(codes[i].data, f->qr_data, 1024)==0) {
+            if(!f->qr_filter || (f->qr_filter && strncmp(codes[i].data, f->qr_data, 1024)==0)) {
                 if(filter_get_qr_code_origin(f, codes[i], f->qr_size, f->qr_Q, f->qr_T)) {
                     f->detecting_qr = false;
                     f->qr_valid = true;
@@ -1253,6 +1253,7 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
 
     f->detecting_qr = false;
     f->qr_valid = false;
+    f->qr_filter = false;
     
     state_node::statesize = 0;
     f->s.enable_orientation_only();
@@ -1369,7 +1370,11 @@ void filter_select_feature(struct filter *f, float x, float y)
 
 void filter_start_qr_detection(struct filter *f, const char * data, float dimension, bool use_gravity)
 {
-    strncpy(f->qr_data, data, 1024);
+    f->qr_filter = false;
+    if(data != NULL) {
+        f->qr_filter = true;
+        strncpy(f->qr_data, data, 1024);
+    }
     f->qr_size = dimension;
     f->detecting_qr = true;
     f->qr_use_gravity = use_gravity;

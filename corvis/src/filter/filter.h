@@ -96,6 +96,7 @@ filter(bool estimate_calibration): s(estimate_calibration, cov)
     v4 qr_T;
     float qr_size;
     bool qr_use_gravity;
+    bool qr_filter;
     char qr_data[1024];
 
     v4 a_bias_start, w_bias_start; //for tracking calibration progress

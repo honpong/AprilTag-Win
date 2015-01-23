@@ -82,7 +82,7 @@
 
  [ ]
 
- @param data The expected value of the QR code
+ @param data The expected value of the QR code. If nil is passed, the first detected qr code will be used
  @param dimension The size of the QR code (width = height) in meters
  @param use_gravity Should we use gravity to orient the Z axis of the detected coordinate frame
  */

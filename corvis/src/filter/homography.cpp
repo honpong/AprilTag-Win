@@ -150,12 +150,28 @@ bool homography_check_solution(const m4 &R, const v4 &T, const feature_t p1[4], 
         m4 skew_x2 = skew3(x2);
         float alpha1 = -sum((skew_x2*T)*(skew_x2*R*x1))/pow(norm(skew_x2*T), 2);
         float alpha2 =  sum((skew_Rx1*x2)*(skew_Rx1*T))/pow(norm(skew_Rx1*x2), 2);
+        //fprintf(stderr, "alpha1 %f alpha2 %f\n", alpha1, alpha2);
         if(alpha1 > 0 && alpha2 > 0)
             nvalid++;
     }
-    if(nvalid == 4)
-        return true;
-    return false;
+    return nvalid == 4;
+}
+
+float compute_delta2(const m4 &R, const v4 &T, const feature_t p1[4], const feature_t p2[4])
+{
+    float delta2 = 0;
+    for(int i = 0; i < 4; i++)
+    {
+        v4 x1 = v4(p1[i].x, p1[i].y, 1, 0);
+        v4 x2 = v4(p2[i].x, p2[i].y, 1, 0);
+        v4 x1p = R*x1 + T;
+        x1p[0] = x1p[0] / x1p[2];
+        x1p[1] = x1p[1] / x1p[2];
+        x1p[2] = 1;
+        v4 d = x2 - x1p;
+        delta2 += sum(d*d);
+    }
+    return delta2;
 }
 
 m4 homography_estimate_from_constraints(const matrix &X)
@@ -205,7 +221,9 @@ m4 homography_estimate_from_constraints(const matrix &X)
     matrix_svd(Hest_tmp, U, S, Vt);
     
     //Matlab: H = Hest/s(2,2);
-    return Hest * (1. / S[1]);
+    Hest = Hest * (1. / S[1]);
+    Hest[3][3] = 1;
+    return Hest;
 }
 
 void homography_factorize(const m4 &H, m4 Rs[4], v4 Ts[4], v4 Ns[4])
@@ -314,6 +332,69 @@ void homography_factorize(const m4 &H, m4 Rs[4], v4 Ts[4], v4 Ns[4])
     Ns[3] = -N2;
 }
 
+// Assumes p1 used to construct H was N = [0 0 1]', d = 1
+// 
+// H = R + 1/d T N'
+// 
+// since N = [0 0 1]' and d = 1 by definition
+// 
+// H = R + [0 0 T]
+// 
+// Let Ri = the ith column of R, Hi = ith column of H
+// 
+// H = [R1 R2 R3+T]
+//
+// R1 = H1 & R2 = H2
+//
+// R3 = cross(R1, R2)
+//
+// R = [R1 R2 R3]
+//
+// HR = H - R
+//
+// T = HR3
+homography_decomposition homography_decompose_direct(const m4 & H)
+{
+    homography_decomposition d;
+    d.N = v4(0, 0, 1, 0);
+
+    d.R[0] = v4(H[0][0], H[1][0], H[2][0], 0);
+    d.R[1] = v4(H[0][1], H[1][1], H[2][1], 0);
+    d.R[2] = cross(d.R[0], d.R[1]);
+    d.R[3] = v4(0, 0, 0, 1);
+    // since we constructed R with each row corresponding to a column
+    // from the derivation, we need to transpose it
+    d.R = transpose(d.R);
+
+    d.T = v4(H[0][2] - d.R[0][2], H[1][2] - d.R[1][2], H[2][2] - d.R[2][2], 0);
+
+    return d;
+}
+
+void print_decomposition(const homography_decomposition & d)
+{
+    /*
+    fprintf(stderr, "R = "); d.R.print(); fprintf(stderr, "\n");
+    fprintf(stderr, "T = "); d.T.print(); fprintf(stderr, "\n");
+    fprintf(stderr, "N = "); d.N.print(); fprintf(stderr, "\n");
+    */
+}
+
+vector<homography_decomposition> homography_positive_depth(const feature_t p1[4], const feature_t p2[4], const m4 & H, const m4 Rs[4], const v4 Ts[4], const v4 Ns[4])
+{
+    vector<homography_decomposition> results;
+    for(int i = 0; i < 4; ++i)
+    {
+        homography_decomposition d = (homography_decomposition) {.R = Rs[i], .T=Ts[i], .N=Ns[i]};
+        print_decomposition(d);
+        // TODO checking Ns[i][2] should be equivalent to this
+        bool valid = homography_check_solution(d.R, d.T, p1, p2);
+        if(valid)
+            results.push_back(d);
+    }
+    return results;
+}
+
 bool homography_pick_solution(const m4 Rs[4], const v4 Ts[4], const v4 Ns[4], const feature_t p1[4], const feature_t p2[4], m4 &R, v4 &T)
 {
     R = m4_identity;
@@ -418,8 +499,23 @@ bool homography_compute_one_sided(const v4 world_points[4], const feature_t cali
     return homography_pick_solution_one_sided(Rs, Ts, Ns, world_points, calibrated, R, T);
 }
 
+bool homography_should_flip_sign(const m4 & H, const feature_t p1[4], const feature_t p2[4])
+{
+    int poscount = 0;
+    for(int i = 0; i < 4; i++) {
+        v4 x1(p1[i].x, p1[i].y, 1, 0);
+        v4 x2(p2[i].x, p2[i].y, 1, 0);
+        if(sum(x2*H*x1) >= 0)
+            poscount++;
+        else
+            poscount--;
+    }
+
+    return poscount < 0;
+}
+
 //Based on Matlab from http://cs.gmu.edu/%7Ekosecka/examples-code/homography2Motion.m
-bool homography_compute(const feature_t p1[4], const feature_t p2[4], m4 &R, v4 &T)
+m4 homography_compute(const feature_t p1[4], const feature_t p2[4])
 {
     matrix X(8, 9);
     
@@ -435,9 +531,110 @@ bool homography_compute(const feature_t p1[4], const feature_t p2[4], m4 &R, v4 
         //Note: Since we choose X1, this should never be degenerate
         homography_set_correspondence(X, c, p1[c].x, p1[c].y, p2[c].x, p2[c].y);
     }
+    m4 H = homography_estimate_from_constraints(X);
+    if(homography_should_flip_sign(H, p1, p2))
+        H = -H;
+
+    return H;
+}
+
+vector<homography_decomposition> homography_decompose(const feature_t p1[4], const feature_t p2[4], const m4 & H)
+{
     m4 Rs[4];
     v4 Ts[4], Ns[4];
-    m4 H = homography_estimate_from_constraints(X);
     homography_factorize(H, Rs, Ts, Ns);
-    return homography_pick_solution(Rs, Ts, Ns, p1, p2, R, T);
+    return homography_positive_depth(p1, p2, H, Rs, Ts, Ns);
+}
+
+void fill_ideal_points(feature_t ideal[4], float qr_size, bool use_markers)
+{
+    if(use_markers) {
+        // Ideal points are the QR code viewed from the bottom with
+        // +z going out of the code toward the viewer
+        // libzxing detects the center of the three markers and the center of the
+        // lower right marker (LR) which is closer to the center of the code than
+        // the rest
+        float div_by = 33;
+        float offset = 0.5f;
+        ideal[0] = (feature_t){.x = 3.5f,  .y = 3.5f}; // UL
+        ideal[1] = (feature_t){.x = 3.5f,  .y = 29.5f}; // LL
+        ideal[2] = (feature_t){.x = 26.5f, .y = 26.5f}; // LR
+        ideal[3] = (feature_t){.x = 29.5f, .y = 3.5f}; // UR
+        for(int i = 0; i < 4; i++) {
+            ideal[i].x = (ideal[i].x/div_by - offset)*qr_size;
+            ideal[i].y = (ideal[i].y/div_by - offset)*qr_size;
+        }
+    }
+    else {
+        ideal[0] = (feature_t) {.x = -0.5f*qr_size, .y = -0.5f*qr_size}; // UL
+        ideal[1] = (feature_t) {.x = -0.5f*qr_size, .y =  0.5f*qr_size}; // LL
+        ideal[2] = (feature_t) {.x =  0.5f*qr_size, .y =  0.5f*qr_size}; // LR
+        ideal[3] = (feature_t) {.x =  0.5f*qr_size, .y = -0.5f*qr_size}; // UR
+    }
+
+}
+
+#define USE_EASY_DECOMPOSITION 1
+bool homography_align_qr_ideal(const feature_t p2[4], float qr_size, bool use_markers, homography_decomposition & result)
+{
+    feature_t p1[4];
+    fill_ideal_points(p1, qr_size, use_markers);
+
+    m4 H = homography_compute(p1, p2);
+
+#if USE_EASY_DECOMPOSITION
+
+    result = homography_decompose_direct(H);
+    print_decomposition(result);
+    return true;
+
+#else
+
+    vector<homography_decomposition> decompositions = homography_decompose(p1, p2, H);
+    // A good solution should have N close to [0 0 1]
+    float minN2 = 0.98;
+    float bestN = minN2;
+    homography_decomposition best;
+    for(int i = 0; i < decompositions.size(); i++) {
+        if(decompositions[i].N[2] > bestN) {
+            bestN = decompositions[i].N[2];
+            best = decompositions[i];
+            print_decomposition(best);
+        }
+    }
+    if(bestN > minN2) {
+        result = best;
+        return true;
+    }
+    return false;
+
+#endif
+}
+
+void compose_with(m4 & R, v4 & T, const m4 & withR, const v4 & withT)
+{
+    T = R*withT + T;
+    R = R*withR;
+}
+
+void homography_ideal_to_qr(m4 & R, v4 & T)
+{
+    // Riq = 180 degree rotation around X axis
+    m4 Riq = m4_identity;
+    Riq[1][1] = -1; Riq[2][2] = -1;
+    v4 Tiq = v4(0, 0, 1, 0);
+    compose_with(R, T, Riq, Tiq);
+}
+
+bool homography_align_to_qr(const feature_t p2[4], float qr_size, m4 & R, v4 & T)
+{
+    homography_decomposition result;
+    bool use_markers = true;
+    if(homography_align_qr_ideal(p2, qr_size, use_markers, result)) {
+        R = result.R;
+        T = result.T;
+        homography_ideal_to_qr(R, T);
+        return true;
+    }
+    return false;
 }

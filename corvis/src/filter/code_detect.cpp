@@ -34,13 +34,12 @@ using namespace zxing::multi;
 using namespace zxing::qrcode;
 
 vector<Ref<Result> > decode(Ref<BinaryBitmap> image, DecodeHints hints) {
-    Ref<Reader> reader(new MultiFormatReader);
+    Ref<Reader> reader(new QRCodeReader);
     return vector<Ref<Result> >(1, reader->decode(image, hints));
 }
 
 vector<Ref<Result> > decode_multi(Ref<BinaryBitmap> image, DecodeHints hints) {
-    MultiFormatReader delegate;
-    GenericMultipleBarcodeReader reader(delegate);
+    QRCodeMultiReader reader;
     return reader.decodeMultiple(image, hints);
 }
 

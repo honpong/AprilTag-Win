@@ -41,7 +41,7 @@ _WXGLADE := $(WXGLADE)
 %.o: override AS=$(Q)printf "%32s %s\n" "Assembling" $<; $(_AS)
 %.so: override CC=$(Q)printf "%32s %s\n" "Linking" $(@); $(_CC)
 %.a: override AR=$(Q)printf "%32s %s\n" "Archving" $(@); $(_AR)
-cor/cor:override CC=$(Q)printf "%32s %s\n" "Linking" $(@); $(_CC)
+bin/test cor/cor:override CC=$(Q)printf "%32s %s\n" "Linking" $(@); $(_CC)
 
 #%.cpp:
 #	@mkdir -p $(@D)

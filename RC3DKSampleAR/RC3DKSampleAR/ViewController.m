@@ -103,7 +103,7 @@
     [[RCSensorFusion sharedInstance] startSensorFusionWithDevice:[[RCAVSessionManager sharedInstance] videoDevice]];
     [progressBar setHidden:false];
 
-    [[RCSensorFusion sharedInstance] startQRDetectionWithData:@"http://realitycap.com/" withDimension:0.1825 withGravity:false];
+    [[RCSensorFusion sharedInstance] startQRDetectionWithData:nil withDimension:0.1825 withGravity:false];
 
     statusLabel.text = @"Initializing. Hold the device steady.";
 }

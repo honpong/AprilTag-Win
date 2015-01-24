@@ -150,14 +150,15 @@ v4 invrodrigues(const m4 R, v4m4 *dW_dR)
         }
         return v4(0.);
     }
+    v4 s = invskew3(R);
     f_t costheta = (trc - 1.0) / 2.0;
     f_t theta, sintheta;
     if(trc < -1.) {
         theta = M_PI;
         sintheta = 0.;
     } else {
-        theta = acos(costheta),
-        sintheta = sin(theta);
+        sintheta = sqrt(sum(s * s));
+        theta = atan2(sintheta, costheta);
     }
     if(trc <= -1. + .001) {//theta = pi - discontinuity as axis flips; off-axis elements don't give a good vector
         //assert(0 && "need to implement invrodrigues linearization for theta = pi");
@@ -199,7 +200,6 @@ v4 invrodrigues(const m4 R, v4m4 *dW_dR)
         return s * theta;
     }
 
-    v4 s = invskew3(R);
     if(theta * theta < 6 * F_T_EPS) { //theta is small, so we have near-skew-symmetry and discontinuity
         //just use the off-diagonal elements
         if(dW_dR) *dW_dR = invskew3_jacobian;

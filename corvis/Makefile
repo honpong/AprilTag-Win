@@ -9,13 +9,14 @@ CXX := g++
 PYTHON_CFLAGS := $(shell python-config --includes) -I$(shell python -c 'import numpy; print numpy.__path__[0] + "/core/include"')
 PYTHON_LDFLAGS := $(shell python-config --libs)
 # -ftree-vectorize -ffast-math 
-CPPFLAGS := -Wall -g -fPIC -march=core2 -mfpmath=sse -O3 -D DEBUG $(PYTHON_CFLAGS) \
+CPPFLAGS = $(_CPPFLAGS) -Wall -g -fPIC -march=core2 -mfpmath=sse -O3 -D DEBUG $(PYTHON_CFLAGS)
+_CPPFLAGS := \
         $(patsubst %,-I%/include,$(wildcard $(shell brew --prefix boost 2>/dev/null) /opt/local)) \
         $(shell pkg-config ftgl --cflags) -Isrc/cor -Wdeprecated-writable-strings
 CXXFLAGS := -std=c++11
 CFLAGS := -std=gnu99
 LDFLAGS := -lpthread --warn-unresolved-symbols -O3 $(PYTHON_LDFLAGS) -framework Accelerate -framework OpenGL -framework GLUT $(shell pkg-config ftgl --libs)
-SWIGFLAGS := -w403,362,389,503,401,462,472,314,509,204
+SWIGFLAGS = -w403,362,389,503,401,462,472,314,509,204
 
 ####################### RULES ######################################
 
@@ -182,7 +183,7 @@ FILTER_CXX_SOURCES := $(addprefix src/$(d)/, filter.cpp state_vision.cpp state_m
 
 FILTER_SOURCES := $(addprefix src/$(d)/, device_parameters.c)
 
-CPPFLAGS := $(CPPFLAGS) -Isrc/filter
+_CPPFLAGS := $(_CPPFLAGS) -Isrc/filter
 build/$(d)/_filter.cpp: swig/_filter.ipp
 	@mkdir -p $(@D)
 	@mkdir -p bin/filter
@@ -194,13 +195,13 @@ bin/$(d)/_filter.so:$(patsubst src/%,build/%,$(FILTER_CXX_SOURCES:.cpp=.o)) $(pa
 TARGETS := $(TARGETS) bin/$(d)/_filter.so bin/$(d)/__init__.py
 CXX_SOURCES := $(CXX_SOURCES) $(FILTER_CXX_SOURCES)
 SOURCES := $(SOURCES) $(FILTER_SOURCES)
-DEPS := $(DEPS) build/_filter.ipp.d
+DEPS := $(DEPS) build/_filter.cpp.d
 
 ############################## LIBZXING ##########################
 
 d := libzxing-cpp
 
-CPPFLAGS := $(CPPFLAGS) -Isrc/$(d)/ -DNO_ICONV
+_CPPFLAGS := $(_CPPFLAGS) -Isrc/$(d)/ -DNO_ICONV
 
 LIBZXING_CXX_SOURCES := $(addprefix src/$(d)/zxing/, BarcodeFormat.cpp Binarizer.cpp BinaryBitmap.cpp ChecksumException.cpp DecodeHints.cpp Exception.cpp FormatException.cpp InvertedLuminanceSource.cpp LuminanceSource.cpp MultiFormatReader.cpp Reader.cpp Result.cpp ResultIO.cpp ResultPoint.cpp ResultPointCallback.cpp)
 
@@ -244,7 +245,7 @@ STEREO_CXX_SOURCES := $(addprefix src/$(d)/, stereo.cpp stereo_mesh.cpp camera.c
 
 STEREO_SOURCES :=
 
-CPPFLAGS := $(CPPFLAGS) -Isrc/stereo -Isrc/filter -Isrc/qhull/src/libqhull/ -Isrc/vlfeat-0.9.18/vl -Isrc/libDAI-0.3.1/include
+_CPPFLAGS := $(_CPPFLAGS) -Isrc/stereo -Isrc/filter -Isrc/qhull/src/libqhull/ -Isrc/vlfeat-0.9.18/vl -Isrc/libDAI-0.3.1/include
 
 bin/$(d)/_stereo.so:$(patsubst src/%,build/%,$(STEREO_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(STEREO_SOURCES:.c=.o)) bin/libDAI-0.3.1/_libDAI.so bin/vlfeat-0.9.18/_vl.so
 
@@ -257,7 +258,7 @@ d := qhull
 
 QHULL_C_SOURCES := $(addprefix src/$(d)/src/libqhull/, geom.c geom2.c global.c io.c libqhull.c mem.c merge.c poly.c poly2.c qset.c random.c rboxlib.c stat.c user.c usermem.c userprintf.c userprintf_rbox.c)
 
-CPPFLAGS := $(CPPFLAGS)
+_CPPFLAGS := $(_CPPFLAGS)
 
 bin/$(d)/_qhull.so:$(patsubst src/%,build/%,$(QHULL_C_SOURCES:.c=.o))
 
@@ -269,7 +270,7 @@ d := libDAI-0.3.1
 
 DAI_CXX_SOURCES := $(addprefix src/$(d)/src/, alldai.cpp graph.cpp regiongraph.cpp emalg.cpp bipgraph.cpp evidence.cpp io.cpp trwbp.cpp bp.cpp exactinf.cpp util.cpp bp_dual.cpp exceptions.cpp varset.cpp factor.cpp weightedgraph.cpp clustergraph.cpp factorgraph.cpp dag.cpp)
 
-CPPFLAGS := $(CPPFLAGS) -Isrc/$(d)/include -I/usr/local/include -DMACOSX -DDAI_WITH_BP -DDAI_WITH_TRWBP
+_CPPFLAGS := $(_CPPFLAGS) -Isrc/$(d)/include -I/usr/local/include -DMACOSX -DDAI_WITH_BP -DDAI_WITH_TRWBP
 
 bin/$(d)/_libDAI.so:$(patsubst src/%,build/%,$(DAI_CXX_SOURCES:.cpp=.o))
 
@@ -281,7 +282,7 @@ d := vlfeat-0.9.18
  
 VL_C_SOURCES := $(addprefix src/$(d)/, vl/aib.c vl/array.c vl/covdet.c vl/dsift.c vl/fisher.c vl/generic.c vl/getopt_long.c vl/gmm.c vl/hikmeans.c vl/hog.c vl/homkermap.c vl/host.c vl/ikmeans.c vl/imopv.c vl/imopv_sse2.c vl/kdtree.c vl/kmeans.c vl/lbp.c vl/liop.c vl/mathop.c vl/mathop_avx.c vl/mathop_sse2.c vl/mser.c vl/pgm.c vl/quickshift.c vl/random.c vl/rodrigues.c vl/scalespace.c vl/sift.c vl/slic.c vl/stringop.c vl/svm.c vl/svmdataset.c vl/vlad.c)
 
-CPPFLAGS := $(CPPFLAGS)
+_CPPFLAGS := $(_CPPFLAGS)
 
 bin/$(d)/_vl.so:$(patsubst src/%,build/%,$(VL_C_SOURCES:.c=.o))
 
@@ -294,7 +295,7 @@ d := test
 
 TEST_CXX_SOURCES := $(addprefix $(d)/, test.cpp numerics/vec4.cpp stereo/stereo.cpp stereo/camera.cpp numerics/quaternion.cpp filter/homography.cpp)
 
-CPPFLAGS := $(CPPFLAGS) -I../ -Isrc/numerics -Itest
+_CPPFLAGS := $(_CPPFLAGS) -I../ -Isrc/numerics -Itest
 LDFLAGS := $(LDFLAGS) -lstdc++
 
 build/$(d)/%.o: ../gtest/%.cc

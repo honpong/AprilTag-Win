@@ -286,7 +286,7 @@ static inline quaternion to_quaternion(const m4 &m)
 static inline quaternion to_quaternion(const rotation_vector &v) {
     f_t theta2 = v.x()*v.x() + v.y()*v.y() + v.z()*v.z();
     f_t theta = sqrt(theta2);
-    f_t sinterm = (theta2 * theta2 < FLT_EPSILON) ? .5 - theta2 / 48. : sin(.5 * theta) / theta;
+    f_t sinterm = (theta2 * theta2 < 3840 * F_T_EPS) ? .5 - theta2 / 48. : sin(.5 * theta) / theta;
     return quaternion(cos(theta * .5), sinterm * v.x(), sinterm * v.y(), sinterm * v.z());
 }
 

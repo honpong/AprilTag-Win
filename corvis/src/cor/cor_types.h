@@ -65,8 +65,15 @@ typedef struct {
     uint64_t *data;
 } uint64_vector_t;
 
-typedef double f_t;
 #define F_T_IS_DOUBLE
+
+#ifdef F_T_IS_DOUBLE
+typedef double f_t;
+#define F_T_EPS DBL_EPSILON
+#else
+typedef float f_t;
+#define F_T_EPS FLT_EPSILON
+#endif
 
 #ifndef SWIG
 typedef f_t v_intrinsic __attribute__ ((vector_size(sizeof(f_t)*4)));

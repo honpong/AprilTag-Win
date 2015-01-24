@@ -9,11 +9,6 @@
 #include "float.h"
 #include "quaternion.h"
 
-#ifdef F_T_IS_DOUBLE
-#define EPS DBL_EPSILON
-#else
-#define EPS FLT_EPSILON
-#endif
 const m4 m4_identity = { {
         v4(1, 0, 0, 0),
         v4(0, 1, 0, 0),
@@ -92,7 +87,7 @@ m4 rodrigues(const v4 W, m4v4 *dR_dW)
     f_t theta = sqrt(theta2);
     f_t costheta, sintheta, invtheta, sinterm, costerm;
     v4 dsterm_dW, dcterm_dW;
-    bool small = theta2 * theta2 * (1./120.) <= EPS; //120 = 5!, next term of sine expansion
+    bool small = theta2 * theta2 <= 120 * F_T_EPS; //120 = 5!, next term of sine expansion
     if(small) {
         //Taylor expansion: sin = x - x^3 / 6; cos = 1 - x^2 / 2 + x^4 / 24
         sinterm = 1. - theta2 * (1./6.);
@@ -205,7 +200,7 @@ v4 invrodrigues(const m4 R, v4m4 *dW_dR)
     }
 
     v4 s = invskew3(R);
-    if(theta * theta / 6. < EPS) { //theta is small, so we have near-skew-symmetry and discontinuity
+    if(theta * theta < 6 * F_T_EPS) { //theta is small, so we have near-skew-symmetry and discontinuity
         //just use the off-diagonal elements
         if(dW_dR) *dW_dR = invskew3_jacobian;
         return s;
@@ -231,7 +226,7 @@ v4 integrate_angular_velocity(const v4 &W, const v4 &w)
 {
     f_t theta2 = sum(W * W);
     f_t gamma, eta;
-    if(theta2 * theta2 * (1./120.) <= EPS) {
+    if (theta2 * theta2 <= 120 * F_T_EPS) {
         gamma = 2. - theta2 / 6.;
         eta = sum(W * w) * (-60. - theta2) / 360.;
     } else {
@@ -251,7 +246,7 @@ void linearize_angular_integration(const v4 &W, const v4 &w, m4 &dW_dW, m4 &dW_d
     f_t theta2 = sum(W * W); //dtheta2_dW = 2 * W
     f_t gamma, eta;
     v4 dg_dW, de_dW, de_dw;
-    if(theta2 * theta2 * (1./120.) <= EPS) {
+    if(theta2 * theta2 <= 120 * F_T_EPS) {
         gamma = 2. - theta2 / 6.;
         eta = sum(W * w) * (-60. - theta2) / 360.;
         dg_dW = W * -(1./3.);

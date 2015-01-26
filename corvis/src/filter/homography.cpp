@@ -546,7 +546,7 @@ vector<homography_decomposition> homography_decompose(const feature_t p1[4], con
     return homography_positive_depth(p1, p2, H, Rs, Ts, Ns);
 }
 
-void fill_ideal_points(feature_t ideal[4], float qr_size, bool use_markers)
+void fill_ideal_points(feature_t ideal[4], float qr_size_m, bool use_markers, int modules)
 {
     if(use_markers) {
         // Ideal points are the QR code viewed from the bottom with
@@ -554,31 +554,32 @@ void fill_ideal_points(feature_t ideal[4], float qr_size, bool use_markers)
         // libzxing detects the center of the three markers and the center of the
         // lower right marker (LR) which is closer to the center of the code than
         // the rest
-        float div_by = 33;
+        // modules are width/height of the qr code in bars
+        // v2 = 25, v3 = 29, v4 = 33, v10 = 57 (4 * version + 17)
         float offset = 0.5f;
-        ideal[0] = (feature_t){.x = 3.5f,  .y = 3.5f}; // UL
-        ideal[1] = (feature_t){.x = 3.5f,  .y = 29.5f}; // LL
-        ideal[2] = (feature_t){.x = 26.5f, .y = 26.5f}; // LR
-        ideal[3] = (feature_t){.x = 29.5f, .y = 3.5f}; // UR
+        ideal[0] = (feature_t){.x = 3.5f,  .y = 3.5f};                    // UL
+        ideal[1] = (feature_t){.x = 3.5f,  .y = modules - 3.5f};          // LL
+        ideal[2] = (feature_t){.x = modules - 6.5f, .y = modules - 6.5f}; // LR
+        ideal[3] = (feature_t){.x = modules - 3.5f, .y = 3.5f};           // UR
         for(int i = 0; i < 4; i++) {
-            ideal[i].x = (ideal[i].x/div_by - offset)*qr_size;
-            ideal[i].y = (ideal[i].y/div_by - offset)*qr_size;
+            ideal[i].x = (ideal[i].x/modules - offset)*qr_size_m;
+            ideal[i].y = (ideal[i].y/modules - offset)*qr_size_m;
         }
     }
     else {
-        ideal[0] = (feature_t) {.x = -0.5f*qr_size, .y = -0.5f*qr_size}; // UL
-        ideal[1] = (feature_t) {.x = -0.5f*qr_size, .y =  0.5f*qr_size}; // LL
-        ideal[2] = (feature_t) {.x =  0.5f*qr_size, .y =  0.5f*qr_size}; // LR
-        ideal[3] = (feature_t) {.x =  0.5f*qr_size, .y = -0.5f*qr_size}; // UR
+        ideal[0] = (feature_t) {.x = -0.5f*qr_size_m, .y = -0.5f*qr_size_m}; // UL
+        ideal[1] = (feature_t) {.x = -0.5f*qr_size_m, .y =  0.5f*qr_size_m}; // LL
+        ideal[2] = (feature_t) {.x =  0.5f*qr_size_m, .y =  0.5f*qr_size_m}; // LR
+        ideal[3] = (feature_t) {.x =  0.5f*qr_size_m, .y = -0.5f*qr_size_m}; // UR
     }
 
 }
 
 #define USE_EASY_DECOMPOSITION 1
-bool homography_align_qr_ideal(const feature_t p2[4], float qr_size, bool use_markers, homography_decomposition & result)
+bool homography_align_qr_ideal(const feature_t p2[4], float qr_size_m, bool use_markers, int modules, homography_decomposition & result)
 {
     feature_t p1[4];
-    fill_ideal_points(p1, qr_size, use_markers);
+    fill_ideal_points(p1, qr_size_m, use_markers, modules);
 
     m4 H = homography_compute(p1, p2);
 
@@ -626,11 +627,11 @@ void homography_ideal_to_qr(m4 & R, v4 & T)
     compose_with(R, T, Riq, Tiq);
 }
 
-bool homography_align_to_qr(const feature_t p2[4], float qr_size, m4 & R, v4 & T)
+bool homography_align_to_qr(const feature_t p2[4], float qr_size_m, int modules, m4 & R, v4 & T)
 {
     homography_decomposition result;
     bool use_markers = true;
-    if(homography_align_qr_ideal(p2, qr_size, use_markers, result)) {
+    if(homography_align_qr_ideal(p2, qr_size_m, use_markers, modules, result)) {
         R = result.R;
         T = result.T;
         homography_ideal_to_qr(R, T);

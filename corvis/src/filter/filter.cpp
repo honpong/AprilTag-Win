@@ -1411,7 +1411,7 @@ void filter_stop_qr_detection(struct filter *f)
  * We want zaxis new = zaxis old, so we will find an Rd that aligns them, and set Rq = Rq * Rd
  *
  */
-bool filter_get_qr_code_origin(struct filter *f, struct qr_detection detection, float qr_size, quaternion &Q, v4 &T)
+bool filter_get_qr_code_origin(struct filter *f, struct qr_detection detection, float qr_size_m, quaternion &Q, v4 &T)
 {
     feature_t image_corners[4];
     feature_t calibrated[4];
@@ -1429,7 +1429,7 @@ bool filter_get_qr_code_origin(struct filter *f, struct qr_detection detection, 
     }
 
     m4 Rq; v4 Tq;
-    if(homography_align_to_qr(calibrated, qr_size, Rq, Tq)) {
+    if(homography_align_to_qr(calibrated, qr_size_m, detection.modules, Rq, Tq)) {
         quaternion Qw = to_quaternion(f->s.W.v);
         quaternion Qs = quaternion_product(Qw, to_quaternion(f->s.Wc.v));
 

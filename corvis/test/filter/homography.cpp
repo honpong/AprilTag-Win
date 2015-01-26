@@ -4,7 +4,7 @@
 #include "util.h"
 #include "matrix.h"
 
-void fill_qr_ideal(v4 ideal[4], float qr_size, bool use_markers)
+void fill_qr_ideal(v4 ideal[4], float qr_size, bool use_markers, int modules)
 {
     if(use_markers) {
         // Ideal points are the QR code viewed from the bottom with
@@ -12,15 +12,14 @@ void fill_qr_ideal(v4 ideal[4], float qr_size, bool use_markers)
         // libzxing detects the center of the three markers and the center of the
         // lower right marker (LR) which is closer to the center of the code than
         // the rest
-        float div_by = 33;
         float offset = 0.5;
-        ideal[0] = v4(3.5,   3.5, 1, 0); // UL
-        ideal[1] = v4(3.5,  29.5, 1, 0); // LL
-        ideal[2] = v4(26.5, 26.5, 1, 0); // LR
-        ideal[3] = v4(29.5,  3.5, 1, 0); // UR
+        ideal[0] = v4(3.5,   3.5, 1, 0);                   // UL
+        ideal[1] = v4(3.5, modules - 3.5, 1, 0);           // LL
+        ideal[2] = v4(modules - 6.5, modules - 6.5, 1, 0); // LR
+        ideal[3] = v4(modules - 3.5,  3.5, 1, 0);          // UR
         for(int i = 0; i < 4; i++) {
-            ideal[i][0] = (ideal[i][0]/div_by - offset)*qr_size;
-            ideal[i][1] = (ideal[i][1]/div_by - offset)*qr_size;
+            ideal[i][0] = (ideal[i][0]/modules - offset)*qr_size;
+            ideal[i][1] = (ideal[i][1]/modules - offset)*qr_size;
         }
     }
     else {
@@ -49,8 +48,9 @@ void test_qr_with_parameters(const m4 & R, const v4 & T, float qr_size, bool use
 {
     v4 qr[4];
     feature_t qr_image[4];
+    int modules = 21;
 
-    fill_qr_ideal(qr, qr_size, use_markers);
+    fill_qr_ideal(qr, qr_size, use_markers, modules);
 
     for(int i = 0; i < 4; i++)
         qr[i] = R*qr[i] + T;
@@ -58,7 +58,7 @@ void test_qr_with_parameters(const m4 & R, const v4 & T, float qr_size, bool use
     project_points(qr, qr_image);
 
     homography_decomposition result;
-    bool success = homography_align_qr_ideal(qr_image, qr_size, use_markers, result);
+    bool success = homography_align_qr_ideal(qr_image, qr_size, use_markers, modules, result);
 
     EXPECT_EQ(success, true);
 
@@ -179,20 +179,21 @@ TEST(Homography, Real)
     // Rest = ~90 degrees ccw
     // Test = ~.3-.4m in Z
     float qr_size = 0.1825;
+    int modules = 25;
     feature_t calibrated[4];
     calibrated[0] = (feature_t) {.x = -0.351846, .y = 0.206401};
     calibrated[1] = (feature_t) {.x = 0.085983, .y = 0.207428};
     calibrated[2] = (feature_t) {.x = 0.016154, .y = -0.156903};
     calibrated[3] = (feature_t) {.x = -0.348012, .y = -0.233697};
     
-    const m4 Rexpected = (m4) {{v4(-6.047973e-02, -9.941721e-01, 2.305287e-01, 0.000000e+00),
-                                v4(-1.027059e+00, -4.696553e-02, -2.102068e-01, 0.000000e+00),
-                                v4( 1.983362e-01, -2.153856e-01, -1.018233e+00, 0.000000e+00),
+    const m4 Rexpected = (m4) {{v4( 7.240773e-03, -9.991911e-01, 2.042948e-02, 0.000000e+00),
+                                v4(-1.003615e+00, -6.556204e-03, -4.141437e-03, 0.000000e+00),
+                                v4( 4.292099e-03, -2.032784e-02, -1.002851e+00, 0.000000e+00),
                                 v4( 0.000000e+00, 0.000000e+00, 0.000000e+00, 1.000000e+00)}};
-    const v4 Texpected = v4(-4.560994e-02, -4.328812e-03, 3.501591e-01, 0.000000e+00);
+    const v4 Texpected = v4(-3.920247e-02, -3.720683e-03, 3.009674e-01, 0.000000e+00);
 
     m4 R; v4 T;
-    bool success = homography_align_to_qr(calibrated, qr_size, R, T);
+    bool success = homography_align_to_qr(calibrated, qr_size, modules, R, T);
 
     EXPECT_EQ(success, true);
     test_m4_near(R, Rexpected, 1e-3);
@@ -207,8 +208,9 @@ TEST(Homography, AlignToQR)
     float qr_size = 0.50;
     // use_markers must be true for homography_align_to_qr
     bool use_markers = true; 
+    int modules = 25;
 
-    fill_qr_ideal(qr, qr_size, use_markers);
+    fill_qr_ideal(qr, qr_size, use_markers, modules);
 
     // Expected points have +z pointing out of the qr code
     // Since ideal points are 1m away, there is also a composited
@@ -228,7 +230,7 @@ TEST(Homography, AlignToQR)
     project_points(qr, qr_image);
 
     m4 Raligned; v4 Taligned;
-    bool success = homography_align_to_qr(qr_image, qr_size, Raligned, Taligned);
+    bool success = homography_align_to_qr(qr_image, qr_size, modules, Raligned, Taligned);
     EXPECT_EQ(success, true);
 
     m4 Ri = transpose(Raligned);

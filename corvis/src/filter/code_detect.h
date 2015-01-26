@@ -18,6 +18,7 @@ struct qr_detection {
     feature_t upper_right;
     feature_t lower_right;
     feature_t lower_left;
+    int modules;
     char data[1024];
 };
 

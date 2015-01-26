@@ -96,6 +96,7 @@ vector<struct qr_detection> code_detect_qr(const uint8_t * image, int width, int
             d.upper_right.y = res[2]->getY();
             d.lower_right.x = res[3]->getX();
             d.lower_right.y = res[3]->getY();
+            d.modules = result[i]->getVersion()*4 + 17; // size of qr code is defined by the version
             Ref<zxing::String> data = result[i]->getText();
             strncpy(d.data, data->getText().c_str(), 1024);
             

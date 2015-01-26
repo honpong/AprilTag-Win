@@ -37,8 +37,9 @@ namespace zxing {
 			Ref<DetectorResult> detectorResult(detector.detect(hints));
 			ArrayRef< Ref<ResultPoint> > points (detectorResult->getPoints());
 			Ref<DecoderResult> decoderResult(decoder_.decode(detectorResult->getBits()));
+            int version = decoder_.getVersion();
 			Ref<Result> result(
-							   new Result(decoderResult->getText(), decoderResult->getRawBytes(), points, BarcodeFormat::QR_CODE));
+							   new Result(decoderResult->getText(), decoderResult->getRawBytes(), points, BarcodeFormat::QR_CODE, version));
 			return result;
 		}
 		

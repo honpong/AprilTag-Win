@@ -32,12 +32,14 @@ namespace qrcode {
 class Decoder {
 private:
   ReedSolomonDecoder rsDecoder_;
+  int version_;
 
   void correctErrors(ArrayRef<char> bytes, int numDataCodewords);
 
 public:
   Decoder();
   Ref<DecoderResult> decode(Ref<BitMatrix> bits);
+  int getVersion() { return version_; }
 };
 
 }

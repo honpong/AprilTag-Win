@@ -35,18 +35,25 @@ private:
   ArrayRef<char> rawBytes_;
   ArrayRef< Ref<ResultPoint> > resultPoints_;
   BarcodeFormat format_;
+  int version_;
 
 public:
   Result(Ref<String> text,
          ArrayRef<char> rawBytes,
          ArrayRef< Ref<ResultPoint> > resultPoints,
          BarcodeFormat format);
+  Result(Ref<String> text,
+         ArrayRef<char> rawBytes,
+         ArrayRef< Ref<ResultPoint> > resultPoints,
+         BarcodeFormat format,
+         int version);
   ~Result();
   Ref<String> getText();
   ArrayRef<char> getRawBytes();
   ArrayRef< Ref<ResultPoint> > const& getResultPoints() const;
   ArrayRef< Ref<ResultPoint> >& getResultPoints();
   BarcodeFormat getBarcodeFormat() const;
+  int getVersion() {return version_; };
 
   friend std::ostream& operator<<(std::ostream &out, Result& result);
 };

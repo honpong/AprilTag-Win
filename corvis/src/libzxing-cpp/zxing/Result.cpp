@@ -34,7 +34,15 @@ Result::Result(Ref<String> text,
                ArrayRef<char> rawBytes,
                ArrayRef< Ref<ResultPoint> > resultPoints,
                BarcodeFormat format) :
-  text_(text), rawBytes_(rawBytes), resultPoints_(resultPoints), format_(format) {
+  text_(text), rawBytes_(rawBytes), resultPoints_(resultPoints), format_(format), version_(0) {
+}
+
+Result::Result(Ref<String> text,
+               ArrayRef<char> rawBytes,
+               ArrayRef< Ref<ResultPoint> > resultPoints,
+               BarcodeFormat format,
+               int version) :
+text_(text), rawBytes_(rawBytes), resultPoints_(resultPoints), format_(format), version_(version) {
 }
 
 Result::~Result() {

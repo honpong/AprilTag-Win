@@ -124,6 +124,8 @@
 		D34585EE1A5F551B00855504 /* BigIntegerUtils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D34585E91A5F551B00855504 /* BigIntegerUtils.cpp */; };
 		D34585EF1A5F551B00855504 /* BigUnsigned.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D34585EA1A5F551B00855504 /* BigUnsigned.cpp */; };
 		D34585F01A5F551B00855504 /* BigUnsignedInABase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D34585EB1A5F551B00855504 /* BigUnsignedInABase.cpp */; };
+		D38FCB011A7625F0001DACE1 /* HybridFastBinarizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D38FCAFF1A7625F0001DACE1 /* HybridFastBinarizer.cpp */; };
+		D38FCB021A7625F0001DACE1 /* HybridFastBinarizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D38FCAFF1A7625F0001DACE1 /* HybridFastBinarizer.cpp */; };
 		D3B2E8CE1A5F1F7000FC58DB /* Makefile in Sources */ = {isa = PBXBuildFile; fileRef = D3B2E8C61A5F1F7000FC58DB /* Makefile */; };
 		D3F50EE81A5F0DFD00659DC0 /* AztecDetectorResult.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50E101A5F0DFD00659DC0 /* AztecDetectorResult.cpp */; };
 		D3F50EE91A5F0DFD00659DC0 /* AztecReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F50E121A5F0DFD00659DC0 /* AztecReader.cpp */; };
@@ -267,6 +269,8 @@
 		D34585E91A5F551B00855504 /* BigIntegerUtils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BigIntegerUtils.cpp; sourceTree = "<group>"; };
 		D34585EA1A5F551B00855504 /* BigUnsigned.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BigUnsigned.cpp; sourceTree = "<group>"; };
 		D34585EB1A5F551B00855504 /* BigUnsignedInABase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BigUnsignedInABase.cpp; sourceTree = "<group>"; };
+		D38FCAFF1A7625F0001DACE1 /* HybridFastBinarizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HybridFastBinarizer.cpp; sourceTree = "<group>"; };
+		D38FCB001A7625F0001DACE1 /* HybridFastBinarizer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HybridFastBinarizer.h; sourceTree = "<group>"; };
 		D3AC69C11A5F0DAF00566A0E /* libzxing.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libzxing.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		D3AC69D21A5F0DAF00566A0E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D3B2E8B91A5F1F7000FC58DB /* .gitignore */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
@@ -637,6 +641,8 @@
 		D3F50E221A5F0DFD00659DC0 /* common */ = {
 			isa = PBXGroup;
 			children = (
+				D38FCAFF1A7625F0001DACE1 /* HybridFastBinarizer.cpp */,
+				D38FCB001A7625F0001DACE1 /* HybridFastBinarizer.h */,
 				D3F50E231A5F0DFD00659DC0 /* Array.h */,
 				D3F50E241A5F0DFD00659DC0 /* BitArray.cpp */,
 				D3F50E251A5F0DFD00659DC0 /* BitArray.h */,
@@ -1090,6 +1096,7 @@
 				D311294B1A5F2B7C009E5E30 /* GreyscaleRotatedLuminanceSource.cpp in Sources */,
 				D311294C1A5F2B7C009E5E30 /* BitArray.cpp in Sources */,
 				D311294D1A5F2B7C009E5E30 /* DataBlock.cpp in Sources */,
+				D38FCB021A7625F0001DACE1 /* HybridFastBinarizer.cpp in Sources */,
 				D311294E1A5F2B7C009E5E30 /* CharacterSetECI.cpp in Sources */,
 				D311294F1A5F2B7C009E5E30 /* AlignmentPattern.cpp in Sources */,
 				D31129501A5F2B7C009E5E30 /* MultiDetector.cpp in Sources */,
@@ -1126,6 +1133,7 @@
 				D3F50EFC1A5F0DFD00659DC0 /* GridSampler.cpp in Sources */,
 				D3F50F181A5F0DFD00659DC0 /* MultiFinderPatternFinder.cpp in Sources */,
 				D3F50F401A5F0DFD00659DC0 /* QRCodeReader.cpp in Sources */,
+				D38FCB011A7625F0001DACE1 /* HybridFastBinarizer.cpp in Sources */,
 				D3F50F2F1A5F0DFD00659DC0 /* Detector.cpp in Sources */,
 				D3F50F3B1A5F0DFD00659DC0 /* FinderPattern.cpp in Sources */,
 				D3F50F281A5F0DFD00659DC0 /* UPCEReader.cpp in Sources */,

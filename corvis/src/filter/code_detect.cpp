@@ -27,6 +27,7 @@
 #include <zxing/multi/ByQuadrantReader.h>
 #include <zxing/multi/MultipleBarcodeReader.h>
 #include <zxing/multi/GenericMultipleBarcodeReader.h>
+#include <zxing/common/HybridFastBinarizer.h>
 
 using namespace std;
 using namespace zxing;
@@ -43,7 +44,7 @@ vector<Ref<Result> > decode_multi(Ref<BinaryBitmap> image, DecodeHints hints) {
     return reader.decodeMultiple(image, hints);
 }
 
-vector<Ref<Result> > detect_qr(Ref<LuminanceSource> source, bool hybrid) {
+vector<Ref<Result> > detect_qr(const char * image, int width, int height) {
     vector<Ref<Result> > results;
     string cell_result;
     int res = -1;
@@ -51,8 +52,8 @@ vector<Ref<Result> > detect_qr(Ref<LuminanceSource> source, bool hybrid) {
 
     try {
         Ref<Binarizer> binarizer;
-        binarizer = new HybridBinarizer(source);
-        // binarizer = new GlobalHistogramBinarizer(source);
+        Ref<LuminanceSource> source(new DummyLuminanceSource(width, height));
+        binarizer = new HybridFastBinarizer(image, width, height, source);
         DecodeHints hints(DecodeHints::DEFAULT_HINT);
         hints.setTryHarder(false);
         Ref<BinaryBitmap> binary(new BinaryBitmap(binarizer));
@@ -94,9 +95,8 @@ vector<Ref<Result> > detect_qr(Ref<LuminanceSource> source, bool hybrid) {
 vector<struct qr_detection> code_detect_qr(const uint8_t * image, int width, int height)
 {
     vector<struct qr_detection> results;
-    ArrayRef<char> image_ref = ArrayRef<char>((char *)image, width*height);
-    Ref<GreyscaleLuminanceSource> source = Ref<GreyscaleLuminanceSource>(new GreyscaleLuminanceSource(GreyscaleLuminanceSource(image_ref, width, height, 0, 0, width, height)));
-    vector<Ref<Result> > result = detect_qr(source, true);
+
+    vector<Ref<Result> > result = detect_qr((const char *)image, width, height);
     for(int i = 0; i < result.size(); i++) {
         struct qr_detection d;
         ArrayRef<Ref<zxing::ResultPoint> > res = result[i]->getResultPoints();

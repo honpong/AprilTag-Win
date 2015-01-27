@@ -37,6 +37,7 @@ const static f_t min_a_bias_var = 1.e-4; // calibration will finish immediately 
 const static f_t min_w_bias_var = 1.e-6; // variance of w_bias is reset to this between each run
 const static f_t max_accel_delta = 10.; //This is biggest jump seen in hard shaking of device
 const static f_t max_gyro_delta = 5.; //This is biggest jump seen in hard shaking of device
+const static uint64_t qr_detect_period = 100000; //Time between checking frames for QR codes to reduce CPU usage
 //TODO: homogeneous coordinates.
 
 /*
@@ -891,7 +892,8 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
         f->valid_time = true;
     }
 
-    if(f->detecting_qr) {
+    if(f->detecting_qr && (time - f->last_qr_time > qr_detect_period)) {
+        f->last_qr_time = time;
         vector<qr_detection> codes = code_detect_qr(data, width, height);
         for(int i = 0; i < codes.size(); i++) {
             if(!f->qr_filter || (f->qr_filter && strncmp(codes[i].data, f->qr_data, 1024)==0)) {
@@ -1254,6 +1256,7 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->detecting_qr = false;
     f->qr_valid = false;
     f->qr_filter = false;
+    f->last_qr_time = 0;
     
     state_node::statesize = 0;
     f->s.enable_orientation_only();
@@ -1378,6 +1381,7 @@ void filter_start_qr_detection(struct filter *f, const char * data, float dimens
     f->qr_size = dimension;
     f->detecting_qr = true;
     f->qr_use_gravity = use_gravity;
+    f->last_qr_time = 0;
 }
 
 void filter_stop_qr_detection(struct filter *f)

@@ -89,7 +89,6 @@
 		D310779D18B3A74300722B92 /* ReplayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReplayViewController.m; sourceTree = "<group>"; };
 		D31419A218BBB0E100C29E28 /* MainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainViewController.h; sourceTree = "<group>"; };
 		D31419A318BBB0E100C29E28 /* MainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainViewController.m; sourceTree = "<group>"; };
-		D330DD9617F590F4006BA4B2 /* libRC3DK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRC3DK.a; path = "../RC3DK/build/Debug-iphoneos/libRC3DK.a"; sourceTree = "<group>"; };
 		D33A23E017F58700003ACD42 /* RCUtility.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RCUtility.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D33A23E317F58700003ACD42 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		D33A23E517F58700003ACD42 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
@@ -120,6 +119,7 @@
 		D3A6AAD618CDDE5C0075AA78 /* WorldState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WorldState.m; sourceTree = "<group>"; };
 		D3A6AADC18CDE4A10075AA78 /* Shader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Shader.fsh; sourceTree = "<group>"; };
 		D3A6AADD18CDE4A10075AA78 /* Shader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Shader.vsh; sourceTree = "<group>"; };
+		D3C573791A77BAD100F05746 /* RC3DK.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RC3DK.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -188,6 +188,7 @@
 		D33A23D717F58700003ACD42 = {
 			isa = PBXGroup;
 			children = (
+				D3C573791A77BAD100F05746 /* RC3DK.h */,
 				D372EC0017F5874A001A987A /* RCCore.xcodeproj */,
 				D33A23E917F58700003ACD42 /* RCUtility */,
 				D33A240B17F58700003ACD42 /* RCCaptureTests */,
@@ -208,7 +209,6 @@
 		D33A23E217F58700003ACD42 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				D330DD9617F590F4006BA4B2 /* libRC3DK.a */,
 				D33A23E317F58700003ACD42 /* Foundation.framework */,
 				D33A23E517F58700003ACD42 /* CoreGraphics.framework */,
 				D33A23E717F58700003ACD42 /* UIKit.framework */,

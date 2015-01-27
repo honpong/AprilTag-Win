@@ -43,9 +43,7 @@
 
     isStarted = false;
 
-    // start the capture session running, note this is an async operation
-    // status is provided via notifications such as AVCaptureSessionDidStartRunningNotification/AVCaptureSessionDidStopRunningNotification
-    [session startRunning];
+    [SESSION_MANAGER startSession];
 }
 
 - (void) viewDidLayoutSubviews

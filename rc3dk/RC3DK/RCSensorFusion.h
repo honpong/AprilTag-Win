@@ -74,7 +74,7 @@
 
 /** Starts to search for a QR code detection and once detected reports future transformations relative to the observed QR code.
 
- RCSensorFusion will attempt to detect a supplied QR code until it is found or stopQRDetection is called. Once the code has been observed, future instances of RCSensorFusionData.transformation and RCSensorFusionData.cameraTransformation will be modified with the origin fixed to the center of the QR code, positive y pointing toward the canonical "top" of the QR code, and positive x pointing toward the canonical "right" side of the QR code and with positive z opposite gravity. If use_gravity is true, the QR code is assumed to be anchored to the ground, so that positive z will be pointed out of the ground. Otherwise, positive Z will point out of the QR code.
+ RCSensorFusion will attempt to detect a QR code until one is found or stopQRDetection is called. Once the code has been detected, RCSensorFusionData.originQRCode will be set to the payload of the QR code, and future instances of RCSensorFusionData.transformation and RCSensorFusionData.cameraTransformation will be modified with the origin fixed to the center of the QR code. If alignGravity is false, then positive x will point toward the canonical "right" side of the QR code, positive y will point toward the canonical "top" of the QR code, and positive z will point out of the plane of the QR code. If alignGravity is true (recommended), the coordinates will be rotated so that the positive z axis points opposite to gravity.
 
  [ ]  ^+y [ ]
       |
@@ -84,9 +84,9 @@
 
  @param data The expected value of the QR code. If nil is passed, the first detected qr code will be used
  @param dimension The size of the QR code (width = height) in meters
- @param use_gravity Should we use gravity to orient the Z axis of the detected coordinate frame
+ @param alignGravity If true (recommended), the z axis will be aligned with gravity; if false the z axis will be perpindicular to the QR code
  */
-- (void) startQRDetectionWithData:(NSString *)data withDimension:(float)dimension withGravity:(bool)use_gravity;
+- (void) startQRDetectionWithData:(NSString *)data withDimension:(float)dimension withAlignGravity:(bool)alignGravity;
 
 /** Stops searching for QR codes.
  */

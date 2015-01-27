@@ -68,30 +68,33 @@
 
 /** Starts a special one-time static calibration mode.
  
- This method may be called to estimate internal parameters; running it once on a particular device should improve the quality of output for that device. Initially the device should be placed on a solid surface (not held in the hand), and left completely still. The camera is not used in this mode, so it is OK if the device is placed on its back. Check [RCSensorFusionStatus progress] to determine calibration progress. When finished, RCSensorFusion will automatically transition to handheld portrait and landscape calibration modes, where the device should be heald steady in each orientation. Your app should monitor [RCSensorFusionStatus runState] to determine the proper instructions to provide the user. See the provided calibration source code for details. You do not need to call startSensorFusion or stopSensorFusion when running calibration.
+ This method may be called to estimate internal parameters; running it once on a particular device should improve the quality of output for that device. The device should be placed on a solid surface (not held in the hand), and left completely still for the duration of the static calibration. The camera is not used in this mode, so it is OK if the device is placed on its back. Check [RCSensorFusionStatus progress] to determine calibration progress. When finished, RCSensorFusion will automatically transition to handheld portrait and landscape calibration modes, where the device should be heald steady in each orientation. Your app should monitor [RCSensorFusionStatus runState] to determine the proper instructions to provide the user. See the provided calibration source code for details. You do not need to call startSensorFusion or stopSensorFusion when running calibration.
  */
 - (void) startStaticCalibration;
 
-/** Requests that future transformations be reported relative to an observed QR code
- 
- RCSensorFusion will attempt to associate the supplied QR code observation with its current pose estimate. This may not always be successful because QR code observations are delivered asynchronously, and decoding or association may fail.
- 
- If decoding and association is successful, RCSensorFusionData.originQRCode will be set to the payload of the QR code, and future instances of RCSensorFusionData.transformation and RCSensorFusionData.cameraTransformation will be modified with the origin fixed to the center of the QR code, positive y pointing toward the canonical "top" of the QR code, and positive x pointing toward the canonical "right" side of the QR code. with positive z pointing opposite gravity.
- 
-            [ ]  ^+y [ ]
-                 |
-                 o--->+x
- 
-            [ ]
- 
- @param observation The qr code data provided by iOS
- @param QRDimension The size of the QR code (width = height) in meters
-  */
-- (void) requestTransformationForQRCodeObservation:(AVMetadataMachineReadableCodeObject *)observation withDimension:(float)QRDimension;
+/** Starts to search for a QR code detection and once detected reports future transformations relative to the observed QR code.
+
+ RCSensorFusion will attempt to detect a QR code until one is found or stopQRDetection is called. Once the code has been detected, RCSensorFusionData.originQRCode will be set to the payload of the QR code, and future instances of RCSensorFusionData.transformation and RCSensorFusionData.cameraTransformation will be modified with the origin fixed to the center of the QR code. If alignGravity is false, then positive x will point toward the canonical "right" side of the QR code, positive y will point toward the canonical "top" of the QR code, and positive z will point out of the plane of the QR code. If alignGravity is true (recommended), the coordinates will be rotated so that the positive z axis points opposite to gravity.
+
+ [ ]  ^+y [ ]
+      |
+      o--->+x
+
+ [ ]
+
+ @param data The expected value of the QR code. If nil is passed, the first detected qr code will be used
+ @param dimension The size of the QR code (width = height) in meters
+ @param alignGravity If true (recommended), the z axis will be aligned with gravity; if false the z axis will be perpindicular to the QR code
+ */
+- (void) startQRDetectionWithData:(NSString *)data withDimension:(float)dimension withAlignGravity:(bool)alignGravity;
+
+/** Stops searching for QR codes.
+ */
+- (void) stopQRDetection;
 
 /** Prepares the object to receive video and inertial data, and starts sensor fusion updates.
  
- This method should be called when you are ready to begin receiving sensor fusion updates and your user is aware to point the camera at an appropriate visual scene. After you call this method you should immediately begin passing video, accelerometer, and gyro data using receiveVideoFrame, receiveAccelerometerData, and receiveGyroData respectively. Full processing will not begin until the user has held the device steady for a two second initialization period (this occurs concurrently with focusing the camera). The device does not need to be perfectly still; minor shake from the device being held in hand is acceptable. If the user moves during this time, the two second timer will start again. The progress of this timer is provided as a float between 0 and 1 in [RCSensorFusionStatus progress].
+ This method should be called when you are ready to begin receiving sensor fusion updates and your user is aware to point the camera at an appropriate visual scene. After you call this method you should immediately begin passing video, accelerometer, and gyro data using receiveVideoFrame, receiveAccelerometerData, and receiveGyroData respectively. Full processing will not begin until the user has held the device steady for a brief initialization period (this occurs concurrently with focusing the camera). The device does not need to be perfectly still; minor shake from the device being held in hand is acceptable. If the user moves during this time, the timer will start again. The progress of this timer is provided as a float between 0 and 1 in [RCSensorFusionStatus progress].
  
  @param device The camera device to be used for capture. This function will lock the focus on the camera device (if the device is capable of focusing) before starting video processing. No other modifications to the camera settings are made.
  */
@@ -99,7 +102,7 @@
 
 /** Prepares the object to receive video and inertial data, and starts sensor fusion updates.
  
- This method may be called when you are ready to begin receiving sensor fusion updates and your user is aware to point the camera at an appropriate visual scene. After you call this method you should immediately begin passing video, accelerometer, and gyro data using receiveVideoFrame, receiveAccelerometerData, and receiveGyroData respectively. It is strongly recommended to call [startSensorFusionWithDevice:] rather than this function, unless it is absolutely impossible for the device to be held steady for two seconds while initializing (for example, in a moving vehicle). There will be a delay after calling this function before video processing begins, while the camera is focused and sensor fusion is initialized.
+ This method may be called when you are ready to begin receiving sensor fusion updates and your user is aware to point the camera at an appropriate visual scene. After you call this method you should immediately begin passing video, accelerometer, and gyro data using receiveVideoFrame, receiveAccelerometerData, and receiveGyroData respectively. It is strongly recommended to call [startSensorFusionWithDevice:] rather than this function, unless it is absolutely impossible for the device to be held steady while initializing (for example, in a moving vehicle). There will be a delay after calling this function before video processing begins, while the camera is focused and sensor fusion is initialized.
  
  @param device The camera device to be used for capture. This function will lock the focus on the camera device (if the device is capable of focusing) before starting video processing. No other modifications to the camera settings are made.
  @note It is strongly recommended to call [startSensorFusionWithDevice:] rather than this function

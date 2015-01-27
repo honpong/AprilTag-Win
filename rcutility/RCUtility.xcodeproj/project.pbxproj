@@ -102,7 +102,7 @@
 		D3A6AAD618CDDE5C0075AA78 /* WorldState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WorldState.m; sourceTree = "<group>"; };
 		D3A6AADC18CDE4A10075AA78 /* Shader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Shader.fsh; sourceTree = "<group>"; };
 		D3A6AADD18CDE4A10075AA78 /* Shader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Shader.vsh; sourceTree = "<group>"; };
-		D3C573791A77BAD100F05746 /* RC3DK.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RC3DK.h; sourceTree = "<group>"; };
+		D3C573791A77BAD100F05746 /* RC3DK.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RC3DK.h; path = ../RC3DK.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -161,7 +161,6 @@
 		D33A23D717F58700003ACD42 = {
 			isa = PBXGroup;
 			children = (
-				D3C573791A77BAD100F05746 /* RC3DK.h */,
 				D372EC0017F5874A001A987A /* RCCore.xcodeproj */,
 				D33A23E917F58700003ACD42 /* RCUtility */,
 				D33A23E217F58700003ACD42 /* Frameworks */,
@@ -202,6 +201,7 @@
 				D3A6AACF18CDDE5C0075AA78 /* RoundedButton.h */,
 				D3A6AAD018CDDE5C0075AA78 /* RoundedButton.m */,
 				32D9864218EB750E00CFCB7A /* RCConstants.h */,
+				D3C573791A77BAD100F05746 /* RC3DK.h */,
 				D33A23FE17F58700003ACD42 /* Images.xcassets */,
 				D33A23EA17F58700003ACD42 /* Supporting Files */,
 			);

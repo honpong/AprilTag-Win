@@ -147,6 +147,7 @@
 		D901460719F9C2D8004E7CE2 /* ARDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARDelegate.m; sourceTree = "<group>"; };
 		D901460919F9C43B004E7CE2 /* shader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = shader.fsh; path = ../RC3DKSampleAR/RC3DKSampleAR/shader.fsh; sourceTree = "<group>"; };
 		D901460A19F9C43B004E7CE2 /* shader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = shader.vsh; path = ../RC3DKSampleAR/RC3DKSampleAR/shader.vsh; sourceTree = "<group>"; };
+		D94299AB1A77189C001711FE /* Balloon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Balloon.h; sourceTree = "<group>"; };
 		D963096A1A01BC9800F92929 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		D9AA84BC1A042DBE004C61D0 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		D9E8C4821A02B143002EDA05 /* RC3DKSampleAR-prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RC3DKSampleAR-prefix.pch"; sourceTree = "<group>"; };
@@ -225,6 +226,7 @@
 				D901456C19F9A00F004E7CE2 /* ViewController.m */,
 				D901460619F9C2D8004E7CE2 /* ARDelegate.h */,
 				D901460719F9C2D8004E7CE2 /* ARDelegate.m */,
+				D94299AB1A77189C001711FE /* Balloon.h */,
 				D901456E19F9A00F004E7CE2 /* Main.storyboard */,
 				D901457119F9A00F004E7CE2 /* Images.xcassets */,
 				D901456419F9A00F004E7CE2 /* Supporting Files */,

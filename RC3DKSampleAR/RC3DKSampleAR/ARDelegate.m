@@ -11,6 +11,10 @@
 #import "RCGLManagerFactory.h"
 #import "RCGLShaderProgram.h"
 #include "RCDebugLog.h"
+#include "Balloon.h"
+
+//Uncomment this line to show the origin / axes of the coordinate system
+//#define SHOW_AXES
 
 @implementation ARDelegate
 {
@@ -28,54 +32,6 @@
     }
     return self;
 }
-
-const static int vertex_count = 6*6;
-
-const static GLfloat cube_vertices[vertex_count * 3] = {
-    //top
-    1,1,1, -1,1,1, -1,-1,1,
-    -1,-1,1, 1,-1,1, 1,1,1,
-    //bottom
-    1,1,-1, 1,-1,-1, -1,-1,-1,
-    -1,-1,-1, -1,1,-1, 1,1,-1,
-    
-    //left
-    -1,1,1, -1,1,-1, -1,-1,-1,
-    -1,-1,-1, -1,-1,1, -1,1,1,
-    //right
-    1,1,1, 1,-1,1, 1,-1,-1,
-    1,-1,-1, 1,1,-1, 1,1,1,
-    
-    //back
-    1,-1,1, -1,-1,1, -1,-1,-1,
-    -1,-1,-1, 1,-1,-1, 1,-1,1,
-    //front
-    1,1,1, 1,1,-1, -1,1,-1,
-    -1,1,-1, -1,1,1, 1,1,1
-};
-
-const static GLfloat cube_normals[vertex_count * 3] = {
-    //top
-    0,0,1, 0,0,1, 0,0,1,
-    0,0,1, 0,0,1, 0,0,1,
-    //bottom
-    0,0,-1, 0,0,-1, 0,0,-1,
-    0,0,-1, 0,0,-1, 0,0,-1,
-    
-    //left
-    -1,0,0, -1,0,0, -1,0,0,
-    -1,0,0, -1,0,0, -1,0,0,
-    //right
-    1,0,0, 1,0,0, 1,0,0,
-    1,0,0, 1,0,0, 1,0,0,
-    
-    //back
-    0,-1,0, 0,-1,0, 0,-1,0,
-    0,-1,0, 0,-1,0, 0,-1,0,
-    //front
-    0,1,0, 0,1,0, 0,1,0,
-    0,1,0, 0,1,0, 0,1,0,
-};
 
 const static GLfloat x_vertex[6] = {
     0., 0., 0.,
@@ -108,14 +64,15 @@ const static GLfloat z_vertex[6] = {
     glUniform4f([program getUniformLocation:@"light_diffuse"], .8, .8, .8, 1);
     glUniform4f([program getUniformLocation:@"light_specular"], .8, .8, .8, 1);
     
-    
-    
     glUniform4f([program getUniformLocation:@"material_ambient"], 1., 0., 0., 1);
     glUniform4f([program getUniformLocation:@"material_diffuse"], 0., 0., 0., 1);
     glUniform4f([program getUniformLocation:@"material_specular"], 1., 1., 1., 1);
     glUniform1f([program getUniformLocation:@"material_shininess"], 200.);
+
     GLKMatrix4 model = GLKMatrix4Identity;
     glUniformMatrix4fv([program getUniformLocation:@"model_matrix"], 1, false, model.m);
+
+#ifdef SHOW_AXES
     glEnableVertexAttribArray([program getAttribLocation:@"position"]);
     glVertexAttribPointer([program getAttribLocation:@"position"], 3, GL_FLOAT, 0, 0, x_vertex);
     glDrawArrays(GL_LINES, 0, 2);
@@ -128,7 +85,7 @@ const static GLfloat z_vertex[6] = {
     glUniform4f([program getUniformLocation:@"material_ambient"], 0., 0., 1., 1);
     glVertexAttribPointer([program getAttribLocation:@"position"], 3, GL_FLOAT, 0, 0, z_vertex);
     glDrawArrays(GL_LINES, 0, 2);
-
+#endif
     
     glUniform4f([program getUniformLocation:@"material_ambient"], 0., 0., 1., 1);
     glUniform4f([program getUniformLocation:@"material_diffuse"], 0., 0.5, 1., 1);
@@ -148,20 +105,21 @@ const static GLfloat z_vertex[6] = {
         model = GLKMatrix4Multiply(model, inverseInitialCameraRotation);
     }
     
-    //Position it with the bottom face on the ground
-    model = GLKMatrix4Translate(model, 0., 0., .05);
-    //Scale our cube so it's 10 cm on a side
-    model = GLKMatrix4Scale(model, .05, .05, .05);
-
+    //Position it at the origin
+    //model = GLKMatrix4Translate(model, 0., 0., 0.);
+    //Scale our model so it's 10 cm on a side
+    model = GLKMatrix4Scale(model, .25, .25, .25);
+    model = GLKMatrix4RotateX(model, M_PI_2);
+    
     glUniformMatrix4fv([program getUniformLocation:@"model_matrix"], 1, false, model.m);
     
     glEnableVertexAttribArray([program getAttribLocation:@"position"]);
     glEnableVertexAttribArray([program getAttribLocation:@"normal"]);
 
-    glVertexAttribPointer([program getAttribLocation:@"position"], 3, GL_FLOAT, 0, 0, cube_vertices);
-    glVertexAttribPointer([program getAttribLocation:@"normal"], 3, GL_FLOAT, 0, 0, cube_normals);
+    glVertexAttribPointer([program getAttribLocation:@"position"], 3, GL_FLOAT, 0, 0, BalloonVerts);
+    glVertexAttribPointer([program getAttribLocation:@"normal"], 3, GL_FLOAT, 0, 0, BalloonNormals);
     
-    glDrawArrays(GL_TRIANGLES, 0, vertex_count);
+    glDrawArrays(GL_TRIANGLES, 0, BalloonNumVerts);
 
     glDisableVertexAttribArray([program getAttribLocation:@"position"]);
     glDisableVertexAttribArray([program getAttribLocation:@"normal"]);

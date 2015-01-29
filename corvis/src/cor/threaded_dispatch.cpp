@@ -5,6 +5,7 @@
 //  Copyright (c) 2015 Realitycap. All rights reserved.
 //
 
+#include "intel_interface.h"
 #include "threaded_dispatch.h"
 #include <cassert>
 

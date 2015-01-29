@@ -13,5 +13,3 @@
     #import <Foundation/Foundation.h>
     #import "RC3DK.h"
 #endif
-
-#define LOGME NSLog(@"%s", __PRETTY_FUNCTION__);

@@ -106,6 +106,7 @@
 		D3C573791A77BAD100F05746 /* RC3DK.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RC3DK.h; path = ../RC3DK.h; sourceTree = "<group>"; };
 		D927F0A91A5C649F00344165 /* threaded_dispatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = threaded_dispatch.cpp; path = ../corvis/src/cor/threaded_dispatch.cpp; sourceTree = "<group>"; };
 		D927F0AA1A5C649F00344165 /* threaded_dispatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = threaded_dispatch.h; path = ../corvis/src/cor/threaded_dispatch.h; sourceTree = "<group>"; };
+		D96801AF1A7AC2750081EED1 /* intel_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = intel_interface.h; path = ../corvis/src/filter/intel_interface.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -166,6 +167,7 @@
 			children = (
 				D927F0A91A5C649F00344165 /* threaded_dispatch.cpp */,
 				D927F0AA1A5C649F00344165 /* threaded_dispatch.h */,
+				D96801AF1A7AC2750081EED1 /* intel_interface.h */,
 				D372EC0017F5874A001A987A /* RCCore.xcodeproj */,
 				D33A23E917F58700003ACD42 /* RCUtility */,
 				D33A23E217F58700003ACD42 /* Frameworks */,

@@ -76,6 +76,10 @@ filter(bool estimate_calibration): s(estimate_calibration, cov)
     stdev_vector gyro_stability, accel_stability;
     uint64_t stable_start;
     bool calibration_bad;
+    
+    float max_velocity;
+    float median_depth_variance;
+    bool has_converged;
 
     scaled_mask *scaled_mask;
     

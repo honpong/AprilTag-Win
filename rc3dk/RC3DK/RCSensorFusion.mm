@@ -96,6 +96,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
     bool isStableStart;
     RCSensorFusionRunState lastRunState;
     RCSensorFusionErrorCode lastErrorCode;
+    RCSensorFusionConfidence lastConfidence;
     float lastProgress;
     NSString* licenseKey;
 }
@@ -249,7 +250,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
         
         if ([self.delegate respondsToSelector:@selector(sensorFusionDidChangeStatus:)])
         {
-            RCSensorFusionStatus* status = [[RCSensorFusionStatus alloc] initWithRunState:RCSensorFusionRunStateInactive withProgress:0 withError:error];
+            RCSensorFusionStatus* status = [[RCSensorFusionStatus alloc] initWithRunState:RCSensorFusionRunStateInactive withProgress:0 withConfidence:RCSensorFusionConfidenceNone withError:error];
             [self.delegate sensorFusionDidChangeStatus:status];
         }
     }
@@ -299,6 +300,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
         inputQueue = dispatch_queue_create("com.realitycap.sensorfusion.input", DISPATCH_QUEUE_SERIAL);
         lastRunState = RCSensorFusionRunStateInactive;
         lastErrorCode = RCSensorFusionErrorCodeNone;
+        lastConfidence = RCSensorFusionConfidenceNone;
         lastProgress = 0.;
         licenseKey = nil;
         
@@ -441,7 +443,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
     else if ([self.delegate respondsToSelector:@selector(sensorFusionDidChangeStatus:)])
     {
         RCLicenseError* error = [RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCSensorFusionErrorCodeLicense userInfo:nil]; // TODO: use real error code
-        RCSensorFusionStatus *status = [[RCSensorFusionStatus alloc] initWithRunState:_cor_setup->sfm.run_state withProgress:_cor_setup->get_filter_converged() withError:error];
+        RCSensorFusionStatus *status = [[RCSensorFusionStatus alloc] initWithRunState:RCSensorFusionRunStateInactive withProgress:0. withConfidence:RCSensorFusionConfidenceNone withError:error];
         [self.delegate sensorFusionDidChangeStatus:status];
     }
 }
@@ -512,7 +514,24 @@ typedef NS_ENUM(int, RCLicenseStatus)
     RCSensorFusionErrorCode errorCode = _cor_setup->get_error();
     float converged = _cor_setup->get_filter_converged();
     
-    if((converged == lastProgress) && (errorCode == lastErrorCode) && (f->run_state == lastRunState)) return;
+    RCSensorFusionConfidence confidence = RCSensorFusionConfidenceNone;
+    if(f->run_state == RCSensorFusionRunStateRunning)
+    {
+        if(errorCode == RCSensorFusionErrorCodeVision)
+        {
+            confidence = RCSensorFusionConfidenceLow;
+        }
+        else if(f->has_converged)
+        {
+            confidence = RCSensorFusionConfidenceHigh;
+        }
+        else
+        {
+            confidence = RCSensorFusionConfidenceMedium;
+        }
+    }
+    
+    if((converged == lastProgress) && (errorCode == lastErrorCode) && (f->run_state == lastRunState) && (confidence == lastConfidence)) return;
 
     // queue actions related to failures before queuing callbacks to the sdk client.
     if(errorCode == RCSensorFusionErrorCodeTooFast || errorCode == RCSensorFusionErrorCodeOther)
@@ -521,7 +540,8 @@ typedef NS_ENUM(int, RCLicenseStatus)
         dispatch_async(dispatch_get_main_queue(), ^{
             [self flushAndReset];
         });
-    } else if(lastRunState == RCSensorFusionRunStateStaticCalibration && f->run_state == RCSensorFusionRunStateInactive && errorCode == RCSensorFusionErrorCodeNone)
+    }
+    else if(lastRunState == RCSensorFusionRunStateStaticCalibration && f->run_state == RCSensorFusionRunStateInactive && errorCode == RCSensorFusionErrorCodeNone)
     {
         isSensorFusionRunning = false;
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -543,18 +563,20 @@ typedef NS_ENUM(int, RCLicenseStatus)
         _cor_setup->sfm.camera_control.focus_once_and_lock(callback);        
     }
     
-    if((converged != lastProgress) || (errorCode != lastErrorCode) || (f->run_state != lastRunState))
+    if((converged != lastProgress) || (errorCode != lastErrorCode) || (f->run_state != lastRunState) || (confidence != lastConfidence))
     {
+        fprintf(stderr, "confidence is %d\n", confidence);
         RCSensorFusionError* error = nil;
         if (errorCode != RCSensorFusionErrorCodeNone) error = [RCSensorFusionError errorWithDomain:ERROR_DOMAIN code:errorCode userInfo:nil];
         
-        RCSensorFusionStatus* status = [[RCSensorFusionStatus alloc] initWithRunState:f->run_state withProgress:converged withError:error];
+        RCSensorFusionStatus* status = [[RCSensorFusionStatus alloc] initWithRunState:f->run_state withProgress:converged withConfidence:confidence withError:error];
         dispatch_async(dispatch_get_main_queue(), ^{
             if ([self.delegate respondsToSelector:@selector(sensorFusionDidChangeStatus:)]) [self.delegate sensorFusionDidChangeStatus:status];
         });
     }
     lastErrorCode = errorCode;
     lastRunState = f->run_state;
+    lastConfidence = confidence;
     lastProgress = converged;
 }
 

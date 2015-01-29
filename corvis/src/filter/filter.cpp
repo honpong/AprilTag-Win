@@ -38,6 +38,8 @@ const static f_t min_w_bias_var = 1.e-6; // variance of w_bias is reset to this 
 const static f_t max_accel_delta = 10.; //This is biggest jump seen in hard shaking of device
 const static f_t max_gyro_delta = 5.; //This is biggest jump seen in hard shaking of device
 const static uint64_t qr_detect_period = 100000; //Time between checking frames for QR codes to reduce CPU usage
+const static f_t convergence_minimum_velocity = 0.3; //Minimum speed (m/s) that the user must have traveled to consider the filter converged
+const static f_t convergence_maximum_depth_variance = .001; //Median feature depth must have been under this to consider the filter converged
 //TODO: homogeneous coordinates.
 
 /*
@@ -601,6 +603,13 @@ static int filter_process_features(struct filter *f, uint64_t time)
     }
 
     int features_used = f->s.process_features(time);
+    if(!features_used)
+    {
+        //Lost all features - reset convergence
+        f->has_converged = false;
+        f->max_velocity = 0.;
+        f->median_depth_variance = 1.;
+    }
 
     //clean up dropped features and groups
     list<state_vision_feature *>::iterator fi = f->s.features.begin();
@@ -1035,7 +1044,27 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
             f->detector_failed = false;
         }
     }
-
+    
+    vector<state_vision_feature *> useful_feats;
+    for(auto i: f->s.features)
+    {
+        if(i->is_initialized()) useful_feats.push_back(i);
+    }
+    
+    if(useful_feats.size())
+    {
+        sort(useful_feats.begin(), useful_feats.end(), [](state_vision_feature *a, state_vision_feature *b) { return a->variance() < b->variance(); });
+        f->median_depth_variance = useful_feats[useful_feats.size() / 2]->variance();
+    }
+    else
+    {
+        f->median_depth_variance = 1.;
+    }
+    float velocity = norm(f->s.V.v);
+    if(velocity > f->max_velocity) f->max_velocity = velocity;
+    
+    if(f->max_velocity > convergence_minimum_velocity && f->median_depth_variance < convergence_maximum_depth_variance) f->has_converged = true;
+    
     return true;
 }
 
@@ -1257,6 +1286,10 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->qr_valid = false;
     f->qr_filter = false;
     f->last_qr_time = 0;
+    
+    f->max_velocity = 0.;
+    f->median_depth_variance = 1.;
+    f->has_converged = false;
     
     state_node::statesize = 0;
     f->s.enable_orientation_only();

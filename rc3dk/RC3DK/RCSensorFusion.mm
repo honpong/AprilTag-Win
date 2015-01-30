@@ -601,13 +601,13 @@ typedef NS_ENUM(int, RCLicenseStatus)
     RCCameraParameters *camParams = [[RCCameraParameters alloc] initWithFocalLength:f->s.focal_length.v withOpticalCenterX:f->s.center_x.v withOpticalCenterY:f->s.center_y.v withRadialSecondDegree:f->s.k1.v withRadialFourthDegree:f->s.k2.v];
 
     NSString * qrDetected = nil;
-    if(f->qr_valid)
+    if(f->qr.valid)
     {
-        RCRotation* originRotation = [[RCRotation alloc] initWithQuaternionW:f->qr_Q.w() withX:f->qr_Q.x() withY:f->qr_Q.y() withZ:f->qr_Q.z()];
-        RCTranslation* originTranslation = [[RCTranslation alloc] initWithX:f->qr_T[0] withY:f->qr_T[1] withZ:f->qr_T[2]];
+        RCRotation* originRotation = [[RCRotation alloc] initWithQuaternionW:f->qr.Q.w() withX:f->qr.Q.x() withY:f->qr.Q.y() withZ:f->qr.Q.z()];
+        RCTranslation* originTranslation = [[RCTranslation alloc] initWithX:f->qr.T[0] withY:f->qr.T[1] withZ:f->qr.T[2]];
         RCTransformation * originTransform = [[RCTransformation alloc] initWithTranslation:originTranslation withRotation:originRotation];
         transformation = [originTransform composeWithTransformation:transformation];
-        qrDetected = [NSString stringWithCString:f->qr_data encoding:NSUTF8StringEncoding];
+        qrDetected = [NSString stringWithCString:f->qr.data encoding:NSUTF8StringEncoding];
     }
 
     RCTransformation *cameraTransformation = [transformation composeWithTransformation:camTransform];

@@ -1288,7 +1288,9 @@ float filter_converged(struct filter *f)
 {
     if(f->run_state == RCSensorFusionRunStateSteadyInitialization) {
         if(f->stable_start == 0) return 0.;
-        return (f->last_time - f->stable_start) / (f_t)steady_converge_time;
+        float progress = (f->last_time - f->stable_start) / (f_t)steady_converge_time;
+        if(progress >= .99) return 0.99; //If focus takes a long time, we won't know how long it will take
+        return progress;
     } else if(f->run_state == RCSensorFusionRunStatePortraitCalibration) {
         return get_bias_convergence(f, 1);
     } else if(f->run_state == RCSensorFusionRunStateLandscapeCalibration) {

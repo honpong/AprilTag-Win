@@ -24,7 +24,7 @@ struct qr_detection {
     char data[1024];
 };
 
-vector<struct qr_detection> qr_detect(const uint8_t * image, int width, int height);
+bool qr_detect_one(const uint8_t * image, int width, int height, struct qr_detection & detection);
 
 bool qr_code_homography(const struct filter *f, struct qr_detection detection, float qr_size_m, quaternion &Q, v4 &T);
 bool qr_code_origin(const struct filter *f, struct qr_detection detection, float qr_size_m, bool use_gravity, quaternion &Q, v4 &T);
@@ -66,13 +66,12 @@ struct qr_detector {
 
     void process_frame(const struct filter * f, const uint8_t * image, int width, int height)
     {
-        vector<qr_detection> codes = qr_detect(image, width, height);
-        for(int i = 0; i < codes.size(); i++) {
-            if(!filter || (filter && strncmp(codes[i].data, data, 1024)==0)) {
-                if(qr_code_origin(f, codes[i], size_m, use_gravity, Q, T)) {
+        qr_detection d;
+        if(qr_detect_one(image, width, height, d)) {
+            if(!filter || (filter && strncmp(d.data, data, 1024)==0)) {
+                if(qr_code_origin(f, d, size_m, use_gravity, Q, T)) {
                     running = false;
                     valid = true;
-                    break;
                 }
             }
         }

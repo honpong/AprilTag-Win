@@ -80,14 +80,11 @@ vector<Ref<Result> > detect_qr(const char * image, int width, int height) {
     return results;
 }
 
-vector<struct qr_detection> qr_detect(const uint8_t * image, int width, int height)
+bool qr_detect_one(const uint8_t * image, int width, int height, struct qr_detection & d)
 {
-    vector<struct qr_detection> results;
-
-    vector<Ref<Result> > result = detect_qr((const char *)image, width, height);
-    for(int i = 0; i < result.size(); i++) {
-        struct qr_detection d;
-        ArrayRef<Ref<zxing::ResultPoint> > res = result[i]->getResultPoints();
+    vector<Ref<Result> > results = detect_qr((const char *)image, width, height);
+    if(results.size() > 0) {
+        ArrayRef<Ref<zxing::ResultPoint> > res = results[0]->getResultPoints();
         if(res->size() == 4) {
             d.lower_left.x = res[0]->getX();
             d.lower_left.y = res[0]->getY();
@@ -97,18 +94,17 @@ vector<struct qr_detection> qr_detect(const uint8_t * image, int width, int heig
             d.upper_right.y = res[2]->getY();
             d.lower_right.x = res[3]->getX();
             d.lower_right.y = res[3]->getY();
-            d.modules = result[i]->getVersion()*4 + 17; // size of qr code is defined by the version
-            Ref<zxing::String> data = result[i]->getText();
+            d.modules = results[0]->getVersion()*4 + 17; // size of qr code is defined by the version
+            Ref<zxing::String> data = results[0]->getText();
             strncpy(d.data, data->getText().c_str(), 1024);
-            
-            results.push_back(d);
+            return true;
         }
         else {
             fprintf(stderr, "Warning: qr detected, but with %d points\n", res->size());
         }
     }
 
-    return results;
+    return false;
 }
 
 #include "homography.h"

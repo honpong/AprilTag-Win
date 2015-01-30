@@ -1,11 +1,11 @@
-//  code_detect.h
+//  qr.h
 //
 //  Created by Brian on 12/9/14.
 //  Copyright (c) 2014 RealityCap. All rights reserved.
 //
 
-#ifndef __CODE_DETECT_H__
-#define __CODE_DETECT_H__
+#ifndef __QR_H__
+#define __QR_H__
 
 #include "../cor/cor_types.h"
 #include "../numerics/vec4.h"
@@ -24,7 +24,7 @@ struct qr_detection {
     char data[1024];
 };
 
-vector<struct qr_detection> code_detect_qr(const uint8_t * image, int width, int height);
+vector<struct qr_detection> qr_detect(const uint8_t * image, int width, int height);
 
 bool qr_code_homography(const struct filter *f, struct qr_detection detection, float qr_size_m, quaternion &Q, v4 &T);
 bool qr_code_origin(const struct filter *f, struct qr_detection detection, float qr_size_m, bool use_gravity, quaternion &Q, v4 &T);
@@ -66,7 +66,7 @@ struct qr_detector {
 
     void process_frame(const struct filter * f, const uint8_t * image, int width, int height)
     {
-        vector<qr_detection> codes = code_detect_qr(image, width, height);
+        vector<qr_detection> codes = qr_detect(image, width, height);
         for(int i = 0; i < codes.size(); i++) {
             if(!filter || (filter && strncmp(codes[i].data, data, 1024)==0)) {
                 if(qr_code_origin(f, codes[i], size_m, use_gravity, Q, T)) {

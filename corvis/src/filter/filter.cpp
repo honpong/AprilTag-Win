@@ -889,7 +889,6 @@ extern "C" void filter_control_packet(void *_f, packet_t *p)
 
 #include <mach/mach.h>
 
-#include "code_detect.h"
 bool filter_image_measurement(struct filter *f, unsigned char *data, int width, int height, int stride, uint64_t time)
 {
     if(f->run_state == RCSensorFusionRunStateInactive) return false;

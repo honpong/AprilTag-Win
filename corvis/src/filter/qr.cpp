@@ -1,11 +1,11 @@
-//  code_detect.cpp
+//  qr.cpp
 //
 //  Created by Brian on 12/9/14.
 //  Copyright (c) 2014 RealityCap. All rights reserved.
 //
 //  Adapted from /cpp/cli/src/main.cpp
 
-#include "code_detect.h"
+#include "qr.h"
 #include "filter.h"
 
 #include <zxing/Result.h>
@@ -80,7 +80,7 @@ vector<Ref<Result> > detect_qr(const char * image, int width, int height) {
     return results;
 }
 
-vector<struct qr_detection> code_detect_qr(const uint8_t * image, int width, int height)
+vector<struct qr_detection> qr_detect(const uint8_t * image, int width, int height)
 {
     vector<struct qr_detection> results;
 

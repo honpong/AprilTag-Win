@@ -181,8 +181,8 @@
 		D3B4EB4F1A1E7DE100BE0443 /* RCVector.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B556718EB4DC20001CCE1 /* RCVector.h */; };
 		D3B4EB501A1E7DE100BE0443 /* RCSensorFusion.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B555D18EB4DC20001CCE1 /* RCSensorFusion.h */; };
 		D3B4EB511A1E7DE100BE0443 /* RCDeviceInfo.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B554F18EB4DC20001CCE1 /* RCDeviceInfo.h */; };
-		D3C0EDFA1A37B4DC00423EDE /* code_detect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3C0EDF81A37B4DC00423EDE /* code_detect.cpp */; };
-		D3C0EDFB1A37B4DC00423EDE /* code_detect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3C0EDF81A37B4DC00423EDE /* code_detect.cpp */; };
+		D3C0EDFA1A37B4DC00423EDE /* qr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3C0EDF81A37B4DC00423EDE /* qr.cpp */; };
+		D3C0EDFB1A37B4DC00423EDE /* qr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3C0EDF81A37B4DC00423EDE /* qr.cpp */; };
 		D953126F1A15AE63004D6068 /* homography.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D953126D1A15AE63004D6068 /* homography.cpp */; };
 		D97AEF8118F7613F00573148 /* device_parameters.c in Sources */ = {isa = PBXBuildFile; fileRef = D97AEF8018F7613F00573148 /* device_parameters.c */; };
 		D9CCDC7E192E887F00A41329 /* scaled_mask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9CCDC7C192E887F00A41329 /* scaled_mask.cpp */; };
@@ -482,8 +482,8 @@
 		D3931E1C1A221850008F8940 /* host.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = host.c; sourceTree = "<group>"; };
 		D3B4EABD1A1E7DCC00BE0443 /* RC3DKPlus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RC3DKPlus.h; path = RC3DK/RC3DKPlus.h; sourceTree = "<group>"; };
 		D3B4EB591A1E7DE100BE0443 /* libRC3DKPlus.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRC3DKPlus.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		D3C0EDF81A37B4DC00423EDE /* code_detect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = code_detect.cpp; sourceTree = "<group>"; };
-		D3C0EDF91A37B4DC00423EDE /* code_detect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = code_detect.h; sourceTree = "<group>"; };
+		D3C0EDF81A37B4DC00423EDE /* qr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = qr.cpp; sourceTree = "<group>"; };
+		D3C0EDF91A37B4DC00423EDE /* qr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = qr.h; sourceTree = "<group>"; };
 		D90D18C01A3A03B500D1AFE4 /* camera_control_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = camera_control_interface.h; path = ../../shared_corvis_3dk/camera_control_interface.h; sourceTree = "<group>"; };
 		D953126D1A15AE63004D6068 /* homography.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = homography.cpp; sourceTree = "<group>"; };
 		D953126E1A15AE63004D6068 /* homography.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = homography.h; sourceTree = "<group>"; };
@@ -758,8 +758,8 @@
 				327B55B518EB4F3A0001CCE1 /* tracker.h */,
 				D9CCDC7C192E887F00A41329 /* scaled_mask.cpp */,
 				D9CCDC7D192E887F00A41329 /* scaled_mask.h */,
-				D3C0EDF81A37B4DC00423EDE /* code_detect.cpp */,
-				D3C0EDF91A37B4DC00423EDE /* code_detect.h */,
+				D3C0EDF81A37B4DC00423EDE /* qr.cpp */,
+				D3C0EDF91A37B4DC00423EDE /* qr.h */,
 			);
 			name = filter;
 			path = ../../corvis/src/filter;
@@ -1164,7 +1164,7 @@
 				D9CCDC7E192E887F00A41329 /* scaled_mask.cpp in Sources */,
 				327B55BD18EB4F3A0001CCE1 /* fast_9.cpp in Sources */,
 				327B557718EB4DC20001CCE1 /* RCSensorFusion.mm in Sources */,
-				D3C0EDFA1A37B4DC00423EDE /* code_detect.cpp in Sources */,
+				D3C0EDFA1A37B4DC00423EDE /* qr.cpp in Sources */,
 				327B55D318EB4F430001CCE1 /* kalman.cpp in Sources */,
 				327B553818EB4D720001CCE1 /* RCAFNetworkActivityIndicatorManager.m in Sources */,
 				327B556C18EB4DC20001CCE1 /* NSString+RCString.m in Sources */,
@@ -1266,7 +1266,7 @@
 				D33B005A1A20CACE00287FC9 /* imopv.c in Sources */,
 				D3B4EB071A1E7DE100BE0443 /* RCAFXMLRequestOperation.m in Sources */,
 				D3B4EB091A1E7DE100BE0443 /* state_motion.cpp in Sources */,
-				D3C0EDFB1A37B4DC00423EDE /* code_detect.cpp in Sources */,
+				D3C0EDFB1A37B4DC00423EDE /* qr.cpp in Sources */,
 				D3B4EB0A1A1E7DE100BE0443 /* debug.c in Sources */,
 				D3B4EB0B1A1E7DE100BE0443 /* packet.c in Sources */,
 				D3B4EB0E1A1E7DE100BE0443 /* RCSensorFusionError.m in Sources */,

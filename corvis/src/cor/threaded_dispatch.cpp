@@ -17,9 +17,9 @@ sensor_queue<T, size>::sensor_queue(std::mutex &mx, std::condition_variable &cnd
 template<typename T, int size>
 bool sensor_queue<T, size>::push(const T& x)
 {
-    if(count == size || time < last_time) return false;
+    if(count == size || x.timestamp < last_time) return false;
 
-    std::unique_lock<std::mutex> lock(cond);
+    std::unique_lock<std::mutex> lock(mutex);
     //these two lines could be outside of the mutex, except that we can flush everything
     storage[writepos] = x;
     writepos = (writepos + 1) % size;
@@ -95,6 +95,10 @@ bool fusion_queue::can_dispatch()
            accel_queue.ok_to_dispatch(min_time) &&
            gyro_queue.ok_to_dispatch(min_time));
 }
+
+void fusion_queue::receive_camera(const camera_data &x) { camera_queue.push(x); }
+void fusion_queue::receive_accelerometer(const accelerometer_data &x) { accel_queue.push(x); }
+void fusion_queue::receive_gyro(const gyro_data &x) { gyro_queue.push(x); }
 
 void fusion_queue::dispatch()
 {

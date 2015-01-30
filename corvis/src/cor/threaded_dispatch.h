@@ -72,6 +72,9 @@ public:
     void dispatch_next();
     bool can_dispatch();
     void send_control();
+    void receive_camera(const camera_data &x);
+    void receive_accelerometer(const accelerometer_data &x);
+    void receive_gyro(const gyro_data &x);
     
 private:
     std::mutex mutex;

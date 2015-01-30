@@ -75,16 +75,18 @@ build/%.o: src/%.cpp
 d := cor
 
 COR_SOURCES := $(addprefix src/$(d)/, packet.c mapbuffer.c inbuffer.c timestamp.c plugins.c dispatch.c debug.c) build/$(d)/_cor.c
+COR_CXX_SOURCES := $(addprefix src/$(d)/, threaded_dispatch.cpp)
 
 build/$(d)/_cor.c: swig/_cor.i
 	@mkdir -p $(@D)
 	@mkdir -p bin/cor
 	$(SWIG) -python -threads $(SWIGFLAGS) -Isrc/cor -o $@ -outdir bin/cor $<
 
-bin/$(d)/_cor.so: $(patsubst src/%,build/%,$(COR_SOURCES:.c=.o))
+bin/$(d)/_cor.so: $(patsubst src/%,build/%,$(COR_SOURCES:.c=.o)) $(patsubst src/%,build/%,$(COR_CXX_SOURCES:.cpp=.o))
 
 TARGETS := $(TARGETS) bin/$(d)/_cor.so bin/$(d)/__init__.py
 SOURCES := $(SOURCES) $(COR_SOURCES) build/cor/_cor.c
+CXX_SOURCES := $(CXX_SOURCES) $(COR_CXX_SOURCES)
 DEPS := $(DEPS) build/$(d)/_cor.c.d
 
 ############################## NUMERICS ############################
@@ -222,7 +224,7 @@ SOURCES := $(SOURCES) $(VL_C_SOURCES)
 
 d := test
 
-TEST_CXX_SOURCES := $(addprefix $(d)/, test.cpp numerics/vec4.cpp stereo/stereo.cpp stereo/camera.cpp numerics/quaternion.cpp filter/homography.cpp)
+TEST_CXX_SOURCES := $(addprefix $(d)/, test.cpp numerics/vec4.cpp stereo/stereo.cpp stereo/camera.cpp numerics/quaternion.cpp filter/homography.cpp cor/threaded_dispatch.cpp)
 
 _CPPFLAGS := $(_CPPFLAGS) -I../ -Isrc/numerics -Itest
 LDFLAGS := $(LDFLAGS) -lstdc++
@@ -235,7 +237,7 @@ build/$(d)/%.o: $(d)/%.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 
-bin/test: build/$(d)/gtest_main.o build/$(d)/gtest-all.o $(patsubst test/%,build/test/%,$(TEST_CXX_SOURCES:.cpp=.o)) $(addprefix build/numerics/, vec4.o matrix.o) $(addprefix build/filter/, fast_detector/fast_9.o scaled_mask.o homography.o) bin/stereo/_stereo.so bin/libDAI-0.3.1/_libDAI.so bin/qhull/_qhull.so
+bin/test: build/$(d)/gtest_main.o build/$(d)/gtest-all.o $(patsubst test/%,build/test/%,$(TEST_CXX_SOURCES:.cpp=.o)) $(addprefix build/numerics/, vec4.o matrix.o) $(addprefix build/filter/, fast_detector/fast_9.o scaled_mask.o homography.o) $(addprefix build/cor/, threaded_dispatch.o) bin/stereo/_stereo.so bin/libDAI-0.3.1/_libDAI.so bin/qhull/_qhull.so
 	@mkdir -p $(@D)
 	$(CC) $(LDFLAGS) $(PYTHON_LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
 

@@ -565,7 +565,6 @@ typedef NS_ENUM(int, RCLicenseStatus)
     
     if((converged != lastProgress) || (errorCode != lastErrorCode) || (f->run_state != lastRunState) || (confidence != lastConfidence))
     {
-        fprintf(stderr, "confidence is %d\n", confidence);
         RCSensorFusionError* error = nil;
         if (errorCode != RCSensorFusionErrorCodeNone) error = [RCSensorFusionError errorWithDomain:ERROR_DOMAIN code:errorCode userInfo:nil];
         

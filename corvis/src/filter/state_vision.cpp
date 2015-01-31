@@ -94,33 +94,25 @@ state_vision_group::state_vision_group(const state_vector &T, const state_rotati
 
 void state_vision_group::make_empty()
 {
-    for(list <state_vision_feature *>::iterator fiter = features.children.begin(); fiter != features.children.end(); fiter = features.children.erase(fiter)) {
-        state_vision_feature *f = *fiter;
+    for(state_vision_feature *f : features.children)
         f->dropping_group();
-    }
+    features.children.clear();
     status = group_empty;
 }
 
 int state_vision_group::process_features()
 {
-    int ingroup = 0;
     int good_in_group = 0;
-    list<state_vision_feature *>::iterator fiter = features.children.begin(); 
-    while(fiter != features.children.end()) {
-        state_vision_feature *f = *fiter;
-        if(f->should_drop()) {
-            fiter = features.children.erase(fiter);
-        } else {
-            if(f->is_good()) ++good_in_group;
-            ++ingroup;
-            ++fiter;
-        }
-    }
-    if(ingroup < min_feats) {
+    features.children.remove_if([&](state_vision_feature *f) {
+        if(f->is_good())
+            ++good_in_group;
+        return f->should_drop();
+    });
+    if(features.children.size() < min_feats) {
         return 0;
     }
     health = good_in_group;
-    return ingroup;
+    return features.children.size();
 }
 
 int state_vision_group::make_reference()
@@ -129,13 +121,12 @@ int state_vision_group::make_reference()
     assert(status == group_normal);
     status = group_reference;
     int normals = 0;
-    for(list <state_vision_feature *>::iterator fiter = features.children.begin(); fiter != features.children.end(); fiter++) {
-        if((*fiter)->is_initialized()) ++normals;
-    }
+    for(state_vision_feature *f : features.children)
+        if(f->is_initialized()) ++normals;
     if(normals < 3) {
-        for(list<state_vision_feature *>::iterator fiter = features.children.begin(); fiter != features.children.end(); fiter++) {
-            if(!(*fiter)->is_initialized()) {
-                if ((*fiter)->force_initialize()) ++normals;
+        for(state_vision_feature *f : features.children) {
+            if(!f>is_initialized()) {
+                if (f->force_initialize()) ++normals;
                 if(normals >= 3) break;
             }
         }

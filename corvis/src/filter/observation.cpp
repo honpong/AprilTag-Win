@@ -9,54 +9,52 @@ int observation_queue::preprocess()
 {
     stable_sort(observations.begin(), observations.end(), observation_comp_apparent);
     int size = 0;
-    for(vector<observation *>::iterator obs = observations.begin(); obs != observations.end(); obs++) {
-        size += (*obs)->size;
-    }
+    for(observation *o : observations)
+        size += o->size;
     return size;
 }
 
 void observation_queue::clear()
 {
-    for(vector<observation *>::iterator obs = observations.begin(); obs != observations.end(); obs++) delete *obs;
+    for(observation *o : observations)
+        delete o;
     observations.clear();
 }
 
 void observation_queue::predict()
 {
-    for(vector<observation *>::iterator obs = observations.begin(); obs != observations.end(); obs++) {
-        (*obs)->predict();
-    }
+    for(observation *o : observations)
+        o->predict();
 }
 
 void observation_queue::measure()
 {
     //measure; calculate innovation and covariance
-    for(vector<observation *>::iterator obs = observations.begin(); obs != observations.end(); ++obs) {
-        (*obs)->measure();
-    }
+    for(observation *o : observations)
+        o->measure();
 }
 
 void observation_queue::compute_innovation(matrix &inn)
 {
     int count = 0;
-    for(vector<observation *>::iterator obs = observations.begin(); obs != observations.end(); ++obs) {
-        (*obs)->compute_innovation();
-        for(int i = 0; i < (*obs)->size; ++i) {
-            inn[count + i] = (*obs)->innovation(i);
+    for(observation *o : observations) {
+        o->compute_innovation();
+        for(int i = 0; i < o->size; ++i) {
+            inn[count + i] = o->innovation(i);
         }
-        count += (*obs)->size;
+        count += o->size;
     }
 }
 
 void observation_queue::compute_measurement_covariance(matrix &m_cov)
 {
     int count = 0;
-    for(vector<observation *>::iterator obs = observations.begin(); obs != observations.end(); obs++) {
-        (*obs)->compute_measurement_covariance();
-        for(int i = 0; i < (*obs)->size; ++i) {
-            m_cov[count + i] = (*obs)->measurement_covariance(i);
+    for(observation *o : observations) {
+        o->compute_measurement_covariance();
+        for(int i = 0; i < o->size; ++i) {
+            m_cov[count + i] = o->measurement_covariance(i);
         }
-        count += (*obs)->size;
+        count += o->size;
     }
 }
 
@@ -66,22 +64,22 @@ void observation_queue::compute_prediction_covariance(const state &s, int meas_s
     // matrix_product(LC, lp, A, false, false);
     int statesize = s.cov.size();
     int index = 0;
-    for(vector<observation *>::iterator obs = observations.begin(); obs != observations.end(); ++obs) {
-        if((*obs)->size) {
-            matrix dst(&LC(index, 0), (*obs)->size, statesize, LC.maxrows, LC.stride);
-            (*obs)->cache_jacobians();
-            (*obs)->project_covariance(dst, s.cov.cov);
-            index += (*obs)->size;
+    for(observation *o : observations) {
+        if(o->size) {
+            matrix dst(&LC(index, 0), o->size, statesize, LC.maxrows, LC.stride);
+            o->cache_jacobians();
+            o->project_covariance(dst, s.cov.cov);
+            index += o->size;
         }
     }
     
     //project cov(state, meas)=(LC)' onto meas to get cov(meas, meas)
     index = 0;
-    for(vector<observation *>::iterator obs = observations.begin(); obs != observations.end(); ++obs) {
-        if((*obs)->size) {
-            matrix dst(&res_cov(index, 0), (*obs)->size, meas_size, res_cov.maxrows, res_cov.stride);
-            (*obs)->project_covariance(dst, LC);
-            index += (*obs)->size;
+    for(observation *o : observations) {
+        if(o->size) {
+            matrix dst(&res_cov(index, 0), o->size, meas_size, res_cov.maxrows, res_cov.stride);
+            o->project_covariance(dst, LC);
+            index += o->size;
         }
     }
     
@@ -93,21 +91,21 @@ void observation_queue::compute_prediction_covariance(const state &s, int meas_s
     }
     
     index = 0;
-    for(vector<observation *>::iterator obs = observations.begin(); obs != observations.end(); ++obs) {
-        if((*obs)->size) (*obs)->set_prediction_covariance(res_cov, index);
-        index += (*obs)->size;
+    for(observation *o : observations) {
+        if(o->size) o->set_prediction_covariance(res_cov, index);
+        index += o->size;
     }
 }
 
 void observation_queue::compute_innovation_covariance(const matrix &m_cov)
 {
     int index = 0;
-    for(vector<observation *>::iterator obs = observations.begin(); obs != observations.end(); ++obs) {
-        for(int i = 0; i < (*obs)->size; ++i) {
+    for(observation *o : observations) {
+        for(int i = 0; i < o->size; ++i) {
             res_cov(index + i, index + i) += m_cov[index + i];
         }
-        (*obs)->innovation_covariance_hook(res_cov, index);
-        index += (*obs)->size;
+        o->innovation_covariance_hook(res_cov, index);
+        index += o->size;
     }
 }
 
@@ -116,9 +114,9 @@ int observation_queue::remove_invalid_measurements(const state &s, int orig_size
     int map[orig_size];
     int src = 0;
     int new_size = 0;
-    for(vector<observation *>::iterator obs = observations.begin(); obs != observations.end(); ++obs) {
-        for(int i = 0; i < (*obs)->size; ++i) {
-            if((*obs)->valid) map[new_size++] = src;
+    for(observation *o : observations) {
+        for(int i = 0; i < o->size; ++i) {
+            if(o->valid) map[new_size++] = src;
             ++src;
         }
     }
@@ -188,7 +186,7 @@ bool observation_queue::process(state &s, uint64_t time)
         LC.resize(meas_size, statesize);
         res_cov.resize(meas_size, meas_size);
 
-        //TODO: implement (*obs)->time_apparent != (*obs)->time_actual
+        //TODO: implement o->time_apparent != o->time_actual
         predict();
         measure();
         compute_innovation(inn);

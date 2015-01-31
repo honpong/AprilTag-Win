@@ -449,13 +449,11 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
         }
         
         //fix up groups and features that have already been added
-/*        for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
-            state_vision_group *g = *giter;
+/*        for(state_vision_group *g : f->s.groups.children) {
             g->Wr.v = f->s.W.v;
         }
         
-        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-            state_vision_feature *i = *fiter;
+        for(state_vision_feature *i : f->s.features) {
             i->initial = i->current;
             i->Wr = f->s.W.v;
         }*/
@@ -545,15 +543,15 @@ static int filter_process_features(struct filter *f, uint64_t time)
     if(toobig > 0) {
         int dropped = 0;
         vector<f_t> vars;
-        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-            vars.push_back((*fiter)->variance());
+        for(state_vision_feature *i : f->s.features) {
+            vars.push_back(i->variance());
         }
         std::sort(vars.begin(), vars.end());
         if(vars.size() > toobig) {
             f_t min = vars[vars.size() - toobig];
-            for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-                if((*fiter)->variance() >= min) {
-                    (*fiter)->status = feature_empty;
+            for(state_vision_feature *i : f->s.features) {
+                if(i->variance() >= min) {
+                    i->status = feature_empty;
                     ++dropped;
                     if(dropped >= toobig) break;
                 }
@@ -561,8 +559,7 @@ static int filter_process_features(struct filter *f, uint64_t time)
             if (log_enabled) fprintf(stderr, "state is %d too big, dropped %d features, min variance %f\n",toobig, dropped, min);
         }
     }
-    for(list<state_vision_feature *>::iterator fi = f->s.features.begin(); fi != f->s.features.end(); ++fi) {
-        state_vision_feature *i = *fi;
+    for(state_vision_feature *i : f->s.features) {
         if(i->current[0] == INFINITY) {
             ++track_fail;
             if(i->is_good()) ++useful_drops;
@@ -586,8 +583,7 @@ static int filter_process_features(struct filter *f, uint64_t time)
         intensity->header.user = useful_drops;
         float (*world)[3] = (float (*)[3])sp->data;
         int nfeats = 0;
-        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-            state_vision_feature *i = *fiter;
+        for(state_vision_feature *i : f->s.features) {
             if(i->status == feature_gooddrop) {
                 world[nfeats][0] = i->world[0];
                 world[nfeats][1] = i->world[1];
@@ -612,9 +608,7 @@ static int filter_process_features(struct filter *f, uint64_t time)
     }
 
     //clean up dropped features and groups
-    list<state_vision_feature *>::iterator fi = f->s.features.begin();
-    while(fi != f->s.features.end()) {
-        state_vision_feature *i = *fi;
+    f->s.features.remove_if([f,time](state_vision_feature *i) {
         if(i->status == feature_gooddrop) {
             if(f->recognition_buffer) {
                 packet_recognition_feature_t *rp = (packet_recognition_feature_t *)mapbuffer_alloc(f->recognition_buffer, packet_recognition_feature, sizeof(packet_recognition_feature_t));
@@ -637,13 +631,12 @@ static int filter_process_features(struct filter *f, uint64_t time)
         if(i->status == feature_reject) i->status = feature_empty;
         if(i->status == feature_empty) {
             delete i;
-            fi = f->s.features.erase(fi);
-        } else ++fi;
-    }
+            return true;
+        } else
+            return false;
+    });
 
-    list<state_vision_group *>::iterator giter = f->s.groups.children.begin();
-    while(giter != f->s.groups.children.end()) {
-        state_vision_group *g = *giter;
+    f->s.groups.children.remove_if([f,time](state_vision_group *g) {
         if(g->status == group_empty) {
             if(f->recognition_buffer) {
                 packet_recognition_group_t *pg = (packet_recognition_group_t *)mapbuffer_alloc(f->recognition_buffer, packet_recognition_group, sizeof(packet_recognition_group_t));
@@ -652,18 +645,18 @@ static int filter_process_features(struct filter *f, uint64_t time)
                 mapbuffer_enqueue(f->recognition_buffer, (packet_t *)pg, time);
             }
             delete g;
-            giter = f->s.groups.children.erase(giter);
+            return true;
         } else {
             if(g->status == group_initializing) {
-                for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
+                for(state_vision_feature *i : g->features.children) {
                     if (log_enabled) fprintf(stderr, "calling triangulate feature from process\n");
                     assert(0);
-                    //triangulate_feature(&(f->s), i);
+                    (void)i; //triangulate_feature(&(f->s), i);
                 }
             }
-            ++giter;
+            return false;
         }
-    }
+    });
 
     f->s.remap();
 
@@ -682,11 +675,9 @@ void filter_setup_next_frame(struct filter *f, uint64_t time)
 
     if(feats_used) {
         int fi = 0;
-        for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
-            state_vision_group *g = *giter;
+        for(state_vision_group *g : f->s.groups.children) {
             if(!g->status || g->status == group_initializing) continue;
-            for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
-                state_vision_feature *i = *fiter;
+            for(state_vision_feature *i : g->features.children) {
                 uint64_t extra_time = f->shutter_delay + i->current[1]/f->image_height * f->shutter_period;
                 observation_vision_feature *obs = new observation_vision_feature(f->s, time + extra_time, time);
                 obs->state_group = g;
@@ -712,11 +703,9 @@ void filter_send_output(struct filter *f, uint64_t time)
     size_t nfeats = f->s.features.size();
     packet_filter_current_t *cp = (packet_filter_current_t *)mapbuffer_alloc(f->output, packet_filter_current, (uint32_t)(sizeof(packet_filter_current) - 16 + nfeats * 3 * sizeof(float)));
     int n_good_feats = 0;
-    for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
-        state_vision_group *g = *giter;
+    for(state_vision_group *g : f->s.groups.children) {
         if(g->status == group_initializing) continue;
-        for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
-            state_vision_feature *i = *fiter;
+        for(state_vision_feature *i : g->features.children) {
             if(!i->status || i->status == feature_reject) continue;
             cp->points[n_good_feats][0] = i->world[0];
             cp->points[n_good_feats][1] = i->world[1];
@@ -733,11 +722,9 @@ void filter_send_output(struct filter *f, uint64_t time)
         visible->W[i] = f->s.W.v.raw_vector()[i];
     }
     n_good_feats = 0;
-    for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
-        state_vision_group *g = *giter;
+    for(state_vision_group *g : f->s.groups.children) {
         if(g->status == group_initializing) continue;
-        for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
-            state_vision_feature *i = *fiter;
+        for(state_vision_feature *i : g->features.children) {
             if(!i->status || i->status == feature_reject) continue;
             visible->feature_id[n_good_feats] = i->id;
             ++n_good_feats;
@@ -757,8 +744,8 @@ static void addfeatures(struct filter *f, size_t newfeats, unsigned char *img, u
     // existing features are located
     if(!f->scaled_mask) f->scaled_mask = new scaled_mask(width, height);
     f->scaled_mask->initialize();
-    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-        f->scaled_mask->clear((*fiter)->current[0], (*fiter)->current[1]);
+    for(state_vision_feature *i : f->s.features) {
+        f->scaled_mask->clear(i->current[0], i->current[1]);
     }
 
     // Run detector
@@ -814,11 +801,11 @@ void send_current_features_packet(struct filter *f, uint64_t time)
     if(f->visbuf) {
         packet_feature_prediction_variance_t *predicted = (packet_feature_prediction_variance_t *)mapbuffer_alloc(f->track.sink, packet_feature_prediction_variance, (uint32_t)(f->s.features.size() * sizeof(feature_covariance_t)));
         int nfeats = 0;
-        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+        for(state_vision_feature *i : f->s.features) {
             //http://math.stackexchange.com/questions/8672/eigenvalues-and-eigenvectors-of-2-times-2-matrix
-            f_t x = (*fiter)->innovation_variance_x;
-            f_t y = (*fiter)->innovation_variance_y;
-            f_t xy = (*fiter)->innovation_variance_xy;
+            f_t x = i->innovation_variance_x;
+            f_t y = i->innovation_variance_y;
+            f_t xy = i->innovation_variance_xy;
             f_t tau = (y - x) / xy / 2.;
             f_t t = (tau >= 0.) ? (1. / (fabs(tau) + sqrt(1. + tau * tau))) : (-1. / (fabs(tau) + sqrt(1. + tau * tau)));
             f_t c = 1. / sqrt(1 + tau * tau);
@@ -827,8 +814,8 @@ void send_current_features_packet(struct filter *f, uint64_t time)
             f_t l2 = y + t * xy;
             f_t theta = atan2(-s, c);
             
-            predicted->covariance[nfeats].x = (*fiter)->prediction.x;
-            predicted->covariance[nfeats].y = (*fiter)->prediction.y;
+            predicted->covariance[nfeats].x = i->prediction.x;
+            predicted->covariance[nfeats].y = i->prediction.y;
             predicted->covariance[nfeats].cx = 2. * sqrt(l1 * chi_square_95);
             predicted->covariance[nfeats].cy = 2. * sqrt(l2 * chi_square_95);
             predicted->covariance[nfeats].cxy = theta;
@@ -838,9 +825,9 @@ void send_current_features_packet(struct filter *f, uint64_t time)
         mapbuffer_enqueue(f->track.sink, (packet_t *)predicted, time);
         packet_t *status = mapbuffer_alloc(f->visbuf, packet_feature_status, (uint32_t)f->s.features.size());
         nfeats = 0;
-        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-            if((*fiter)->outlier) status->data[nfeats] = 0;
-            else if((*fiter)->is_initialized()) status->data[nfeats] = 1;
+        for(state_vision_feature *i : f->s.features) {
+            if(i->outlier) status->data[nfeats] = 0;
+            else if(i->is_initialized()) status->data[nfeats] = 1;
             else status->data[nfeats] = 2;
             ++nfeats;
         }
@@ -851,9 +838,9 @@ void send_current_features_packet(struct filter *f, uint64_t time)
     packet_t *tracked = mapbuffer_alloc(f->track.sink, packet_feature_track, (uint32_t)(f->s.features.size() * sizeof(feature_t)));
     feature_t *trackedfeats = (feature_t *)tracked->data;
     int nfeats = 0;
-    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-        trackedfeats[nfeats].x = (*fiter)->current[0];
-        trackedfeats[nfeats].y = (*fiter)->current[1];
+    for(state_vision_feature *i : f->s.features) {
+        trackedfeats[nfeats].x = i->current[0];
+        trackedfeats[nfeats].y = i->current[1];
         ++nfeats;
     }
     tracked->header.user = f->s.features.size();
@@ -1312,16 +1299,16 @@ bool filter_is_steady(struct filter *f)
 int filter_get_features(struct filter *f, struct corvis_feature_info *features, int max)
 {
     int index = 0;
-    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+    for(state_vision_feature *i : f->s.features) {
         if(index >= max) break;
-        features[index].id = (*fiter)->id;
-        features[index].x = (*fiter)->current[0];
-        features[index].y = (*fiter)->current[1];
-        features[index].wx = (*fiter)->world[0];
-        features[index].wy = (*fiter)->world[1];
-        features[index].wz = (*fiter)->world[2];
-        features[index].depth = (*fiter)->depth;
-        features[index].stdev = (*fiter)->v.stdev_meters(sqrt((*fiter)->variance()));
+        features[index].id = i->id;
+        features[index].x = i->current[0];
+        features[index].y = i->current[1];
+        features[index].wx = i->world[0];
+        features[index].wy = i->world[1];
+        features[index].wz = i->world[2];
+        features[index].depth = i->depth;
+        features[index].stdev = i->v.stdev_meters(sqrt(i->variance()));
         ++index;
     }
     return index;
@@ -1368,8 +1355,7 @@ void filter_select_feature(struct filter *f, float x, float y)
     //first, see if we already have a feature there
     float mydist = 8; // 8 pixel radius max
     state_vision_feature *myfeat = 0;
-    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-        state_vision_feature *feat = *fiter;
+    for(state_vision_feature *feat : f->s.features) {
         if(feat->status != feature_normal && feat->status != feature_ready && feat->status != feature_initializing) continue;
         float dx = fabs(feat->current[0] - x);
         float dy = fabs(feat->current[1] - y);

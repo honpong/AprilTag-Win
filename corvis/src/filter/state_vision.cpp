@@ -121,11 +121,12 @@ int state_vision_group::make_reference()
     assert(status == group_normal);
     status = group_reference;
     int normals = 0;
-    for(state_vision_feature *f : features.children)
+    for(state_vision_feature *f : features.children) {
         if(f->is_initialized()) ++normals;
+    }
     if(normals < 3) {
         for(state_vision_feature *f : features.children) {
-            if(!f>is_initialized()) {
+            if(!f->is_initialized()) {
                 if (f->force_initialize()) ++normals;
                 if(normals >= 3) break;
             }
@@ -163,16 +164,12 @@ state_vision::state_vision(bool _estimate_calibration, covariance &c): state_mot
 
 void state_vision::clear_features_and_groups()
 {
-    list<state_vision_group *>::iterator giter = groups.children.begin();
-    while(giter != groups.children.end()) {
-        delete *giter;
-        giter = groups.children.erase(giter);
-    }
-    list<state_vision_feature *>::iterator fiter = features.begin();
-    while(fiter != features.end()) {
-        delete *fiter;
-        fiter = features.erase(fiter);
-    }
+    for(state_vision_group *g : groups.children)
+        delete g;
+    groups.children.clear();
+    for(state_vision_feature *i : features)
+        delete i;
+    features.clear();
 }
 
 state_vision::~state_vision()
@@ -202,8 +199,7 @@ int state_vision::process_features(uint64_t time)
     state_vision_group *best_group = 0;
     int best_health = -1;
     int normal_groups = 0;
-    for(list<state_vision_group *>::iterator giter = groups.children.begin(); giter != groups.children.end(); ++giter) {
-        state_vision_group *g = *giter;
+    for(state_vision_group *g : groups.children) {
         int feats = g->process_features();
         if(g->status && g->status != group_initializing) feats_used += feats;
         if(!feats) {
@@ -257,8 +253,7 @@ void state_vision::project_new_group_covariance(const state_vision_group &g)
 state_vision_group * state_vision::add_group(uint64_t time)
 {
     state_vision_group *g = new state_vision_group(T, W);
-    for(list<state_vision_group *>::iterator giter = groups.children.begin(); giter != groups.children.end(); ++giter) {
-        state_vision_group *neighbor = *giter;
+    for(state_vision_group *neighbor : groups.children) {
         g->old_neighbors.push_back(neighbor->id);
         neighbor->neighbors.push_back(g->id);
     }
@@ -325,8 +320,7 @@ void state_vision::add_non_orientation_states()
 
 void state_vision::evolve_state(f_t dt)
 {
-    for(list<state_vision_group *>::iterator giter = groups.children.begin(); giter != groups.children.end(); ++giter) {
-        state_vision_group *g = *giter;
+    for(state_vision_group *g : groups.children) {
         m4 Rr = to_rotation_matrix(g->Wr.v);
         g->Tr.v = g->Tr.v + Rr * Rt * dT;
         g->Wr.v = integrate_angular_velocity(g->Wr.v, dW);
@@ -338,8 +332,7 @@ void state_vision::cache_jacobians(f_t dt)
 {
     state_motion::cache_jacobians(dt);
 
-    for(list<state_vision_group *>::iterator giter = groups.children.begin(); giter != groups.children.end(); ++giter) {
-        state_vision_group *g = *giter;
+    for(state_vision_group *g : groups.children) {
         integrate_angular_velocity_jacobian(g->Wr.v, dW, g->dWrp_dWr, g->dWrp_dwdt);
         g->Rr = to_rotation_matrix(g->Wr.v);
         m4v4 dRr_dWr = to_rotation_matrix_jacobian(g->Wr.v);
@@ -351,8 +344,7 @@ void state_vision::cache_jacobians(f_t dt)
 
 void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t dt)
 {
-    for(list<state_vision_group *>::iterator giter = groups.children.begin(); giter != groups.children.end(); ++giter) {
-        state_vision_group *g = *giter;
+    for(state_vision_group *g : groups.children) {
         for(int i = 0; i < src.rows; ++i) {
             v4 cov_Tr = g->Tr.copy_cov_from_row(src, i);
             v4 cov_Wr = g->Wr.copy_cov_from_row(src, i);

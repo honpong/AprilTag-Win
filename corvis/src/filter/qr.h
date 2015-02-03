@@ -10,6 +10,7 @@
 #include "../cor/cor_types.h"
 #include "../numerics/vec4.h"
 #include "../numerics/quaternion.h"
+#include "../numerics/transformation.h"
 
 #include <vector>
 
@@ -76,6 +77,20 @@ struct qr_detector {
             }
         }
     }
+};
+
+class qr_benchmark {
+public:
+    bool enabled;
+    float size_m;
+
+    transformation origin_qr;
+    transformation origin_state;
+    bool origin_valid;
+
+    qr_benchmark() : enabled(false), origin_valid(false) {};
+    void start(float dimension) { size_m = dimension; enabled = true; };
+    void process_frame(const struct filter * f, const uint8_t * image, int width, int height);
 };
 
 #endif

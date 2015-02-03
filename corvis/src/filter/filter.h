@@ -96,6 +96,7 @@ filter(bool estimate_calibration): s(estimate_calibration, cov)
 
     qr_detector qr;
     uint64_t last_qr_time;
+    qr_benchmark qr_bench;
 
     v4 a_bias_start, w_bias_start; //for tracking calibration progress
     
@@ -114,6 +115,7 @@ void filter_start_hold_steady(struct filter *f);
 void filter_start_dynamic(struct filter *f);
 void filter_start_qr_detection(struct filter *f, const char * data, float dimension, bool use_gravity);
 void filter_stop_qr_detection(struct filter *f);
+void filter_start_qr_benchmark(struct filter *f, float dimension);
 
 #ifdef SWIG
 %callback("%s_cb");

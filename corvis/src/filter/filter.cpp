@@ -891,6 +891,8 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
         f->last_qr_time = time;
         f->qr.process_frame(f, data, width, height);
     }
+    if(f->qr_bench.enabled)
+        f->qr_bench.process_frame(f, data, width, height);
 
     f->got_image = true;
     if(f->run_state == RCSensorFusionRunStateDynamicInitialization) {
@@ -1389,4 +1391,9 @@ void filter_start_qr_detection(struct filter *f, const char * data, float dimens
 void filter_stop_qr_detection(struct filter *f)
 {
     f->qr.stop();
+}
+
+void filter_start_qr_benchmark(struct filter * f, float qr_size_m)
+{
+    f->qr_bench.start(qr_size_m);
 }

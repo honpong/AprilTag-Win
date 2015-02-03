@@ -188,3 +188,31 @@ bool qr_code_origin(const struct filter *f, struct qr_detection detection, float
         return false;
 }
 
+void qr_benchmark::process_frame(const struct filter * f, const uint8_t * image, int width, int height)
+{
+    qr_detection d;
+    quaternion Q;
+    v4 T;
+    if(qr_detect_one(image, width, height, d)) {
+        if(qr_code_homography(f, d, size_m, Q, T)) {
+            if(!origin_valid) {
+                origin_valid = true;
+
+                origin_qr = transformation(Q, T);
+                origin_state = compose(transformation(f->s.W.v, f->s.T.v), transformation(f->s.Wc.v, f->s.Tc.v));
+            }
+            else {
+                transformation now_qr = transformation(Q, T);
+                transformation now_state = compose(transformation(f->s.W.v, f->s.T.v), transformation(f->s.Wc.v, f->s.Tc.v));
+
+                transformation now_state_est = compose(origin_state, compose(origin_qr, invert(now_qr)));
+
+                quaternion dQ = quaternion_product(now_state_est.Q, conjugate(now_state.Q));
+                v4 dT = now_state_est.T - quaternion_rotate(dQ, now_state.T);
+                fprintf(stderr, "dR="); to_rotation_matrix(dQ).print(); fprintf(stderr, ";\n");
+                fprintf(stderr, "dT="); dT.print(); fprintf(stderr, ";\n");
+                fprintf(stderr, "norm(dT)=%f;\n", norm(dT));
+            }
+        }
+    }
+}

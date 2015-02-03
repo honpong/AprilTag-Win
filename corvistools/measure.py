@@ -36,6 +36,7 @@ def measure(filename, configuration_name):
     fc.sfm.ignore_lateness = True
 
     cor.cor_time_init()
+    #filter.filter_start_qr_benchmark(fc.sfm, 0.1825)
     filter.filter_start_dynamic(fc.sfm)
     cor.plugins_start()
 

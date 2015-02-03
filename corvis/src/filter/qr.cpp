@@ -133,7 +133,7 @@ bool qr_detect_one(const uint8_t * image, int width, int height, struct qr_detec
  * We want zaxis new = zaxis old, so we will find an Rd that aligns them, and set Rq = Rq * Rd
  */
 
-bool qr_code_homography(const struct filter *f, struct qr_detection detection, float qr_size_m, quaternion &Q, v4 &T)
+bool qr_code_homography(const struct filter *f, struct qr_detection detection, float qr_size_m, transformation & T)
 {
     feature_t image_corners[4];
     feature_t calibrated[4];
@@ -152,57 +152,60 @@ bool qr_code_homography(const struct filter *f, struct qr_detection detection, f
 
     m4 Rq; v4 Tq;
     if(homography_align_to_qr(calibrated, qr_size_m, detection.modules, Rq, Tq)) {
-        Q = to_quaternion(Rq);
-        T = Tq;
+        T = transformation(Rq, Tq);
         return true;
     }
     return false;
 }
 
-bool qr_code_origin(const struct filter *f, struct qr_detection detection, float qr_size_m, bool use_gravity, quaternion &Q, v4 &T)
+bool qr_code_origin(const struct filter *f, struct qr_detection detection, float qr_size_m, bool use_gravity, transformation & origin)
 {
-    quaternion Qq;
-    v4 Tq;
-    if(qr_code_homography(f, detection, qr_size_m, Qq, Tq)) {
-        quaternion Qw = to_quaternion(f->s.W.v);
-        quaternion Qc = to_quaternion(f->s.Wc.v);
+    transformation qr;
+    if(qr_code_homography(f, detection, qr_size_m, qr)) {
+        transformation world = compose(transformation(f->s.W.v, f->s.T.v), transformation(f->s.Wc.v, f->s.Tc.v));
+        transformation world_qr = compose(world, qr);
 
-        quaternion Qsq = quaternion_product(Qw, quaternion_product(Qc, Qq));
-
-        v4 Tsq = f->s.T.v + quaternion_rotate(Qw, f->s.Tc.v + quaternion_rotate(Qc, Tq));
-
-        quaternion Qsqd = Qsq;
         if(use_gravity) {
             v4 z_old(0., 0., 1., 0.);
-            v4 z_new = quaternion_rotate(conjugate(Qsq), z_old);
+            v4 z_new = quaternion_rotate(conjugate(world_qr.Q), z_old);
             quaternion Qd = rotation_between_two_vectors_normalized(z_old, z_new);
-            Qsqd = quaternion_product(Qsq, Qd);
+            world_qr.Q = quaternion_product(world_qr.Q, Qd);
         }
 
-        // inverse of transformation specified by Qsqd, Tsq
-        Q = conjugate(Qsqd);
-        T = quaternion_rotate(Q, -Tsq);
+        origin = invert(world_qr);
         return true;
     }
     else
         return false;
 }
 
+void qr_detector::process_frame(const struct filter * f, const uint8_t * image, int width, int height)
+{
+    qr_detection d;
+    if(qr_detect_one(image, width, height, d)) {
+        if(!filter || (filter && strncmp(d.data, data, 1024)==0)) {
+            if(qr_code_origin(f, d, size_m, use_gravity, origin)) {
+                running = false;
+                valid = true;
+            }
+        }
+    }
+}
+
 void qr_benchmark::process_frame(const struct filter * f, const uint8_t * image, int width, int height)
 {
     qr_detection d;
-    quaternion Q;
-    v4 T;
+    transformation t_qr;
     if(qr_detect_one(image, width, height, d)) {
-        if(qr_code_homography(f, d, size_m, Q, T)) {
+        if(qr_code_homography(f, d, size_m, t_qr)) {
             if(!origin_valid) {
                 origin_valid = true;
 
-                origin_qr = transformation(Q, T);
+                origin_qr = t_qr;
                 origin_state = compose(transformation(f->s.W.v, f->s.T.v), transformation(f->s.Wc.v, f->s.Tc.v));
             }
             else {
-                transformation now_qr = transformation(Q, T);
+                transformation now_qr = t_qr;
                 transformation now_state = compose(transformation(f->s.W.v, f->s.T.v), transformation(f->s.Wc.v, f->s.Tc.v));
 
                 transformation now_state_est = compose(origin_state, compose(origin_qr, invert(now_qr)));

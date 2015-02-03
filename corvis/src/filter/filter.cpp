@@ -1262,7 +1262,6 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->track.init();
 
     f->last_qr_time = 0;
-    f->qr.init();
     
     f->max_velocity = 0.;
     f->median_depth_variance = 1.;

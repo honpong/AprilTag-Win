@@ -8,8 +8,6 @@
 #define __QR_H__
 
 #include "../cor/cor_types.h"
-#include "../numerics/vec4.h"
-#include "../numerics/quaternion.h"
 #include "../numerics/transformation.h"
 
 #include <vector>
@@ -27,25 +25,21 @@ struct qr_detection {
 
 bool qr_detect_one(const uint8_t * image, int width, int height, struct qr_detection & detection);
 
-bool qr_code_homography(const struct filter *f, struct qr_detection detection, float qr_size_m, quaternion &Q, v4 &T);
-bool qr_code_origin(const struct filter *f, struct qr_detection detection, float qr_size_m, bool use_gravity, quaternion &Q, v4 &T);
+bool qr_code_homography(const struct filter *f, struct qr_detection detection, float qr_size_m, transformation & qr);
+bool qr_code_origin(const struct filter *f, struct qr_detection detection, float qr_size_m, transformation & origin);
 
-struct qr_detector {
+class qr_detector {
+public:
     bool valid;
     bool running;
-    quaternion Q;
-    v4 T;
+    transformation origin;
 
     float size_m;
     bool use_gravity;
     bool filter;
     char data[1024];
 
-    void init()
-    {
-        running = false;
-        valid = false;
-    }
+    qr_detector() : valid(false), running(false) {};
 
     void start(const char * desired_code, float dimension, bool gravity)
     {
@@ -60,23 +54,8 @@ struct qr_detector {
         running = true;
     }
 
-    void stop()
-    {
-        running = false;
-    }
-
-    void process_frame(const struct filter * f, const uint8_t * image, int width, int height)
-    {
-        qr_detection d;
-        if(qr_detect_one(image, width, height, d)) {
-            if(!filter || (filter && strncmp(d.data, data, 1024)==0)) {
-                if(qr_code_origin(f, d, size_m, use_gravity, Q, T)) {
-                    running = false;
-                    valid = true;
-                }
-            }
-        }
-    }
+    void stop() { running = false; }
+    void process_frame(const struct filter * f, const uint8_t * image, int width, int height);
 };
 
 class qr_benchmark {

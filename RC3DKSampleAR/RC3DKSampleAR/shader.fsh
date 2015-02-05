@@ -18,6 +18,10 @@ varying highp vec3 varying_normal;
 varying highp vec3 varying_camera_direction;
 varying highp vec3 varying_light_direction;
 
+uniform sampler2D texture_value;
+
+varying mediump vec2 coordinate;
+
 void main()
 {
     highp vec3 normal = normalize(varying_normal);
@@ -30,8 +34,8 @@ void main()
     diffuse_intensity = clamp(diffuse_intensity, 0., 1.);
     specular_intensity = clamp(specular_intensity, 0., 1.);
     
-    highp vec4 ambient = light_ambient * material_ambient;
-    highp vec4 diffuse = diffuse_intensity * light_diffuse * material_diffuse;
+    highp vec4 ambient = light_ambient * texture2D(texture_value, coordinate);
+    highp vec4 diffuse = diffuse_intensity * light_diffuse * texture2D(texture_value, coordinate);
     highp vec4 specular = specular_intensity * light_specular * material_specular;
     gl_FragColor = ambient + diffuse + specular; //The ones that should be varying across the surface are not. Why?
 }

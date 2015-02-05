@@ -61,6 +61,8 @@ def set_device_parameters(dc, config_name):
         dc.w_bias[2] = -0.003;
 #set_initialized(dc)
 
+    elif config_name == 'iphone5c':
+        filter.get_parameters_for_device(filter.DEVICE_TYPE_IPHONE5C, dc)
 
     elif config_name == 'iphone5s':
         filter.get_parameters_for_device(filter.DEVICE_TYPE_IPHONE5S, dc)
@@ -95,6 +97,11 @@ def set_device_parameters(dc, config_name):
         dc.w_bias[2] = -0.017;
         set_initialized(dc)
 
+    elif config_name == 'iphone6':
+        filter.get_parameters_for_device(filter.DEVICE_TYPE_IPHONE6, dc)
+
+    elif config_name == 'iphone6plus':
+        filter.get_parameters_for_device(filter.DEVICE_TYPE_IPHONE6PLUS, dc)
 
     elif config_name == 'ipad2':
         filter.get_parameters_for_device(filter.DEVICE_TYPE_IPAD2, dc)
@@ -162,6 +169,10 @@ def set_device_parameters(dc, config_name):
         set_initialized(dc)
 
 
+    elif config_name == 'ipadair2':
+        filter.get_parameters_for_device(filter.DEVICE_TYPE_IPADAIR2, dc)
+
+
     elif config_name == 'ipadmini':
         filter.get_parameters_for_device(filter.DEVICE_TYPE_IPADMINI, dc)
 
@@ -188,6 +199,10 @@ def set_device_parameters(dc, config_name):
         dc.w_bias[1] = -0.015
         dc.w_bias[2] = -0.026
         set_initialized(dc)
+
+
+    elif config_name == 'ipadminiretina2':
+        filter.get_parameters_for_device(filter.DEVICE_TYPE_IPADMINIRETINA2, dc)
 
 
     elif config_name == 'ipod5' or config_name == 'ipodtouch':

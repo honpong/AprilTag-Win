@@ -65,7 +65,7 @@
     float _zNear;
     float _zFar;
     
-    float _cameraZ;
+    float _cameraX, _cameraY, _cameraZ;
     float _timeDelta;
     
     float _yawLimit;
@@ -79,6 +79,10 @@
     int _score;
     float _objectDistance;
     float _floorDepth;
+    
+    RCSensorFusion* sensorFusion;
+    id<RCSensorDelegate> sensorDelegate;
+    BOOL isSensorFusionRunning;
 }
 
 @end
@@ -97,7 +101,10 @@
     _zNear = 0.1f;
     _zFar = 100.0f;
     
+    _cameraX = 0.0f;
+    _cameraY = 0.0f;
     _cameraZ = 0.01f;
+    
     _timeDelta = 1.0f;
     
     _yawLimit = 0.12f;
@@ -108,6 +115,17 @@
     // We keep the light always position just above the user.
     _lightPositionInWorldSpace = GLKVector4Make(0.0f, 2.0f, 0.0f, 1.0f);
     _lightPositionInEyeSpace = GLKVector4Make(0.0f, 0.0f, 0.0f, 0.0f);
+    
+    sensorDelegate = [SensorDelegate sharedInstance];
+    sensorFusion = [RCSensorFusion sharedInstance];
+    sensorFusion.delegate = self;
+    
+    isSensorFusionRunning = NO;
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handlePause)
+                                                 name:UIApplicationWillResignActiveNotification
+                                               object:nil];
 
     return self;
 }
@@ -136,6 +154,10 @@
     _modelCeiling = GLKMatrix4Translate(_modelFloor, 0, _floorDepth * 2.0, 0); // Ceiling appears above user.
 
     GLCheckForError();
+    
+    UITapGestureRecognizer *tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTap:)];
+    tapRecognizer.numberOfTapsRequired = 1;
+    [GLView addGestureRecognizer:tapRecognizer];
 }
 
 - (BOOL)setupPrograms
@@ -501,9 +523,12 @@
     _modelCube = GLKMatrix4Rotate(_modelCube, GLKMathDegreesToRadians(_timeDelta), 0.5f, 0.5f, 1.0f);
     
     // Build the camera matrix and apply it to the ModelView.
-    _camera = GLKMatrix4MakeLookAt(0, 0, _cameraZ,
-                                   0, 0, 0,
-                                   0, 1.0f, 0);
+//    _camera = GLKMatrix4MakeLookAt(0, 0, _cameraZ,
+//                                   0, 0, 0,
+//                                   0, 1.0f, 0);
+    
+    _camera = GLKMatrix4MakeTranslation(_cameraX, _cameraY, _cameraZ);
+    
     _headView = headViewMatrix;
     
     GLCheckForError();
@@ -683,19 +708,50 @@ float randomFloat()
 
 - (void)magneticTriggerPressed
 {
-    if ([self isLookingAtCube])
+    [self toggleSensorFusion];
+}
+
+- (void)handleTap:(UITapGestureRecognizer *)sender
+{
+    if (sender.state == UIGestureRecognizerStateEnded)
     {
-        _score++;
-        // mOverlayView.show3DToast("Found it! Look around for another one.\nScore = " + mScore);
-        [self hideCube];
-    } else {
-        // mOverlayView.show3DToast("Look around to find the object!");
+        [self toggleSensorFusion];
     }
-    
-    // Always give user feedback.
-    AudioServicesPlayAlertSound(kSystemSoundID_Vibrate);
-    
-    DLog(@"Score: %d", _score);
+}
+
+#pragma mark - RC Sensor Fusion
+
+- (void) toggleSensorFusion
+{
+    if (isSensorFusionRunning)
+        [self stopSensorFusion];
+    else
+        [self startSensorFusion];
+}
+
+- (void)startSensorFusion
+{
+    if (!isSensorFusionRunning)
+    {
+        [sensorDelegate startAllSensors];
+        [sensorFusion startSensorFusionWithDevice:[[RCAVSessionManager sharedInstance] videoDevice]];
+        isSensorFusionRunning = YES;
+    }
+}
+
+- (void)stopSensorFusion
+{
+    if (isSensorFusionRunning)
+    {
+        [sensorFusion stopSensorFusion];
+        [sensorDelegate stopAllSensors];
+        isSensorFusionRunning = NO;
+    }
+}
+
+- (void) handlePause
+{
+    [self stopSensorFusion];
 }
 
 #pragma mark - RCSensorFusionDelegate methods
@@ -703,10 +759,9 @@ float randomFloat()
 // Called after each video frame is processed ~ 30hz.
 - (void)sensorFusionDidUpdateData:(RCSensorFusionData *)data
 {
-    float distanceFromStartPoint = sqrt(data.transformation.translation.x * data.transformation.translation.x + data.transformation.translation.y * data.transformation.translation.y + data.transformation.translation.z * data.transformation.translation.z);
-    DLog(@"distanceFromStartPoint %f", distanceFromStartPoint);
-    
-//    _cameraZ = distanceFromStartPoint * 10.;
+    _cameraX = data.cameraTransformation.translation.y * 100.;
+    _cameraY = -data.transformation.translation.z * 100.;
+    _cameraZ = data.cameraTransformation.translation.x * 100.;
 }
 
 // Called when sensor fusion status changes, including when errors occur.
@@ -724,10 +779,6 @@ float randomFloat()
     {
         DLog(@"Initializing %.0f%% complete.", status.progress * 100.);
     }
-    else if(status.runState == RCSensorFusionRunStateRunning)
-    {
-//        statusLabel.text = @"Move the device to measure the distance.";
-    }
 }
 
 @end
@@ -741,10 +792,6 @@ float randomFloat()
 
 
 @implementation TreasureViewController
-{
-    RCSensorFusion* sensorFusion;
-    id<RCSensorDelegate> sensorDelegate;
-}
 
 - (instancetype)init
 {
@@ -754,48 +801,7 @@ float randomFloat()
     self.treasureRenderer = [TreasureRenderer new];
     self.stereoRendererDelegate = self.treasureRenderer;
     
-    sensorDelegate = [SensorDelegate sharedInstance];
-    sensorFusion = [RCSensorFusion sharedInstance]; // The main class of the 3DK framework
-    sensorFusion.delegate = self.treasureRenderer; // Tells RCSensorFusion where to send data to
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(handlePause)
-                                                 name:UIApplicationWillResignActiveNotification
-                                               object:nil];
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(handleResume)
-                                                 name:UIApplicationWillResignActiveNotification
-                                               object:nil];
     return self;
-}
-
-- (void)viewDidAppear:(BOOL)animated
-{
-    [self startSensorFusion];
-}
-
-- (void) handlePause
-{
-    [self stopSensorFusion];
-}
-
-- (void) handleResume
-{
-    [self startSensorFusion];
-}
-
-#pragma mark - RC Sensor Fusion
-
-- (void)startSensorFusion
-{
-    [sensorDelegate startAllSensors];
-    [[RCSensorFusion sharedInstance] startSensorFusionWithDevice:[[RCAVSessionManager sharedInstance] videoDevice]];
-}
-
-- (void)stopSensorFusion
-{
-    [sensorFusion stopSensorFusion];
-    [sensorDelegate stopAllSensors];
 }
 
 @end

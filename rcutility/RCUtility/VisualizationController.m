@@ -10,6 +10,7 @@
 #import "ArcBall.h"
 #import "WorldState.h"
 #import "MBProgressHUD.h"
+#import <RCCore/RCSensorDelegate.h>
 
 #define INITIAL_LIMITS 3.
 #define POINT_SIZE 3.0
@@ -51,10 +52,7 @@ static VertexData axisVertex[] = {
 
 @interface VisualizationController () {
     /* RC3DK */
-    RCAVSessionManager* avSessionManager;
-    RCMotionManager* motionManager;
-    RCLocationManager* locationManager;
-    RCVideoManager* videoManager;
+    id<RCSensorDelegate> sensorDelegate;
     RCSensorFusion* sensorFusion;
     bool isStarted; // Keeps track of whether the start button has been pressed
 
@@ -96,18 +94,9 @@ static VertexData axisVertex[] = {
     [super viewDidLoad];
 
     /* RC3DK Setup */
-
-    avSessionManager = SESSION_MANAGER; // Manages the AV session
-    videoManager = VIDEO_MANAGER; // Manages video capture
-    motionManager = [RCMotionManager sharedInstance]; // Manages motion capture
-    locationManager = [RCLocationManager sharedInstance]; // Manages location aquisition
+    sensorDelegate = [SensorDelegate sharedInstance];
     sensorFusion = [RCSensorFusion sharedInstance]; // The main class of the 3DK framework
     sensorFusion.delegate = self; // Tells RCSensorFusion where to send data to
-
-    [videoManager setupWithSession:avSessionManager.session]; // The video manager must be initialized with an AVCaptureSession object
-
-    [motionManager startMotionCapture]; // Starts sending accelerometer and gyro updates to RCSensorFusion
-    [locationManager startLocationUpdates]; // Asynchronously gets the device's location and stores it
 
     isStarted = false;
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
@@ -184,7 +173,7 @@ static VertexData axisVertex[] = {
 
 - (void) appWillResignActive
 {
-    [self stopFullSensorFusion];
+    [self stopSensorFusion];
 }
 
 - (void) doSanityCheck
@@ -200,30 +189,36 @@ static VertexData axisVertex[] = {
 #endif
 }
 
-- (void)startFullSensorFusion
+- (void)startSensorFusion
 {
     [state reset];
-    // Setting the location helps improve accuracy by adjusting for altitude and how far you are from the equator
-    CLLocation *currentLocation = [locationManager getStoredLocation];
-    [sensorFusion setLocation:currentLocation];
-
-    [[RCSensorFusion sharedInstance] startSensorFusionWithDevice:[SESSION_MANAGER videoDevice]];
-    [avSessionManager startSession]; // Starts the AV session
-    [videoManager startVideoCapture]; // Starts sending video frames to RCSensorFusion
-    statusLabel.text = @"";
+    [self beginHoldingPeriod];
+    [sensorDelegate startAllSensors];
     [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
     isStarted = YES;
-    
+    statusLabel.text = @"";
+    [[RCSensorFusion sharedInstance] startSensorFusionWithDevice:[[RCAVSessionManager sharedInstance] videoDevice]];
+}
+
+- (void) beginHoldingPeriod
+{
+    [self hideMessage];
     [self showProgressWithTitle:@"Hold still"];
 }
 
-- (void)stopFullSensorFusion
+- (void) endHoldingPeriod
 {
-    [videoManager stopVideoCapture]; // Stops sending video frames to RCSensorFusion
-    [sensorFusion stopSensorFusion]; // Ends full sensor fusion
-    [avSessionManager endSession]; // Stops the AV session
+    [self hideProgress];
+    [self showMessage:@"Move around. The blue line is the path the device traveled. The dots are visual features being tracked. The grid lines are 1 meter apart." autoHide:NO];
+}
+
+- (void)stopSensorFusion
+{
+    [sensorFusion stopSensorFusion];
+    [sensorDelegate stopAllSensors];
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
     isStarted = NO;
+    [self hideProgress];
 }
 
 // RCSensorFusionDelegate delegate method. Called after each video frame is processed ~ 30hz.
@@ -321,11 +316,11 @@ static VertexData axisVertex[] = {
 {
     if (isStarted)
     {
-        [self stopFullSensorFusion];
+        [self stopSensorFusion];
     }
     else
     {
-        [self startFullSensorFusion];
+        [self startSensorFusion];
     }
 }
 

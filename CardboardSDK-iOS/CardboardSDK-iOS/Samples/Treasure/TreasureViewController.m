@@ -202,7 +202,7 @@
 
     _cubeProgram = glCreateProgram();
     glAttachShader(_cubeProgram, vertexShader);
-    glAttachShader(_cubeProgram, highlightFragmentShader);
+    glAttachShader(_cubeProgram, passthroughFragmentShader);
     GLLinkProgram(_cubeProgram);
     glUseProgram(_cubeProgram);
     
@@ -570,7 +570,7 @@
     _modelView = GLKMatrix4Multiply(_view, _modelCube);
     _modelViewProjection = GLKMatrix4Multiply(_perspective, _modelView);
 
-    if ([self isLookingAtCube])
+    if (isSensorFusionRunning)
     {
         glUseProgram(_highlightedCubeProgram);
     }

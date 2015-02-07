@@ -804,4 +804,11 @@ float randomFloat()
     return self;
 }
 
+- (NSUInteger)supportedInterfaceOrientations
+{
+    return UIInterfaceOrientationMaskLandscapeRight;
+}
+
+- (BOOL)shouldAutorotate { return YES; }
+
 @end

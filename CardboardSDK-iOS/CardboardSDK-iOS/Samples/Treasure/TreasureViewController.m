@@ -746,6 +746,10 @@ float randomFloat()
         [sensorFusion stopSensorFusion];
         [sensorDelegate stopAllSensors];
         isSensorFusionRunning = NO;
+        
+        _camera = GLKMatrix4MakeLookAt(0, 0, _cameraZ,
+                                       0, 0, 0,
+                                       0, 1.0f, 0);
     }
 }
 

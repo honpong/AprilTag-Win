@@ -42,16 +42,24 @@
 		BC67336F1A5D90C700C6D79B /* Vector3d.mm in Sources */ = {isa = PBXBuildFile; fileRef = BC67335A1A5D90C700C6D79B /* Vector3d.mm */; };
 		BC6733701A5D90C700C6D79B /* MagnetSensor.mm in Sources */ = {isa = PBXBuildFile; fileRef = BC67335C1A5D90C700C6D79B /* MagnetSensor.mm */; };
 		BC6733711A5D90C700C6D79B /* Viewport.mm in Sources */ = {isa = PBXBuildFile; fileRef = BC67335E1A5D90C700C6D79B /* Viewport.mm */; };
-		BC763B2C1A655D1E00463823 /* grid_fragment.shader in Resources */ = {isa = PBXBuildFile; fileRef = BC763B291A655D1E00463823 /* grid_fragment.shader */; };
-		BC763B2D1A655D1E00463823 /* light_vertex.shader in Resources */ = {isa = PBXBuildFile; fileRef = BC763B2A1A655D1E00463823 /* light_vertex.shader */; };
-		BC763B2E1A655D1E00463823 /* passthrough_fragment.shader in Resources */ = {isa = PBXBuildFile; fileRef = BC763B2B1A655D1E00463823 /* passthrough_fragment.shader */; };
 		BC763B311A655D7600463823 /* GLHelpers.m in Sources */ = {isa = PBXBuildFile; fileRef = BC763B301A655D7600463823 /* GLHelpers.m */; };
-		BC763B341A655EB700463823 /* TreasureViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = BC763B331A655EB700463823 /* TreasureViewController.m */; };
 		BC763B391A66BBBC00463823 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BC763B381A66BBBC00463823 /* Images.xcassets */; };
-		BC763B3B1A66D13300463823 /* highlight_fragment.shader in Resources */ = {isa = PBXBuildFile; fileRef = BC763B3A1A66D13300463823 /* highlight_fragment.shader */; };
 		BC763B3D1A6828DA00463823 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BC763B3C1A6828DA00463823 /* AudioToolbox.framework */; };
 		BC7687261A81985E00FE215B /* CardboardUnity.mm in Sources */ = {isa = PBXBuildFile; fileRef = BC7687241A81985E00FE215B /* CardboardUnity.mm */; };
-		BCDBD2611A7BC0B300A51284 /* light_vertex_grid.shader in Resources */ = {isa = PBXBuildFile; fileRef = BCDBD2601A7BC0B300A51284 /* light_vertex_grid.shader */; };
+		D95EB1401A86C9CD00ADFC20 /* grid_fragment.shader in Resources */ = {isa = PBXBuildFile; fileRef = D95EB13B1A86C9CD00ADFC20 /* grid_fragment.shader */; };
+		D95EB1411A86C9CD00ADFC20 /* highlight_fragment.shader in Resources */ = {isa = PBXBuildFile; fileRef = D95EB13C1A86C9CD00ADFC20 /* highlight_fragment.shader */; };
+		D95EB1421A86C9CD00ADFC20 /* light_vertex_grid.shader in Resources */ = {isa = PBXBuildFile; fileRef = D95EB13D1A86C9CD00ADFC20 /* light_vertex_grid.shader */; };
+		D95EB1431A86C9CD00ADFC20 /* light_vertex.shader in Resources */ = {isa = PBXBuildFile; fileRef = D95EB13E1A86C9CD00ADFC20 /* light_vertex.shader */; };
+		D95EB1441A86C9CD00ADFC20 /* passthrough_fragment.shader in Resources */ = {isa = PBXBuildFile; fileRef = D95EB13F1A86C9CD00ADFC20 /* passthrough_fragment.shader */; };
+		D9D66FFF1A86C1D000764F9A /* chair_chesterfield_d.png in Resources */ = {isa = PBXBuildFile; fileRef = D9D66FF71A86C1D000764F9A /* chair_chesterfield_d.png */; };
+		D9D670051A86C1D000764F9A /* TreasureViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D9D66FFE1A86C1D000764F9A /* TreasureViewController.m */; };
+		D9D670081A86C29400764F9A /* shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = D9D670061A86C29400764F9A /* shader.fsh */; };
+		D9D670091A86C29400764F9A /* shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = D9D670071A86C29400764F9A /* shader.vsh */; };
+		D9D670131A86C33A00764F9A /* RCGLShaderProgram.m in Sources */ = {isa = PBXBuildFile; fileRef = D9D6700B1A86C33A00764F9A /* RCGLShaderProgram.m */; };
+		D9D670141A86C33A00764F9A /* RCGLManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = D9D6700D1A86C33A00764F9A /* RCGLManagerFactory.m */; };
+		D9D670151A86C33A00764F9A /* RCVideoPreview.m in Sources */ = {isa = PBXBuildFile; fileRef = D9D6700F1A86C33A00764F9A /* RCVideoPreview.m */; };
+		D9D670161A86C33A00764F9A /* shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = D9D670101A86C33A00764F9A /* shader.fsh */; };
+		D9D670171A86C33A00764F9A /* shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = D9D670111A86C33A00764F9A /* shader.vsh */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -155,21 +163,33 @@
 		BC67335C1A5D90C700C6D79B /* MagnetSensor.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = MagnetSensor.mm; sourceTree = "<group>"; };
 		BC67335D1A5D90C700C6D79B /* Viewport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Viewport.h; sourceTree = "<group>"; };
 		BC67335E1A5D90C700C6D79B /* Viewport.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = Viewport.mm; sourceTree = "<group>"; };
-		BC763B291A655D1E00463823 /* grid_fragment.shader */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = grid_fragment.shader; sourceTree = "<group>"; };
-		BC763B2A1A655D1E00463823 /* light_vertex.shader */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = light_vertex.shader; sourceTree = "<group>"; };
-		BC763B2B1A655D1E00463823 /* passthrough_fragment.shader */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = passthrough_fragment.shader; sourceTree = "<group>"; };
 		BC763B2F1A655D7600463823 /* GLHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GLHelpers.h; sourceTree = "<group>"; };
 		BC763B301A655D7600463823 /* GLHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GLHelpers.m; sourceTree = "<group>"; };
-		BC763B321A655EB700463823 /* TreasureViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TreasureViewController.h; sourceTree = "<group>"; };
-		BC763B331A655EB700463823 /* TreasureViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TreasureViewController.m; sourceTree = "<group>"; };
 		BC763B361A66A1D100463823 /* DebugUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DebugUtils.h; sourceTree = "<group>"; };
 		BC763B381A66BBBC00463823 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		BC763B3A1A66D13300463823 /* highlight_fragment.shader */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = highlight_fragment.shader; sourceTree = "<group>"; };
 		BC763B3C1A6828DA00463823 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		BC7687241A81985E00FE215B /* CardboardUnity.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CardboardUnity.mm; sourceTree = "<group>"; };
 		BC7687251A81985E00FE215B /* CardboardUnity.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CardboardUnity.h; sourceTree = "<group>"; };
 		BCCBC5821A5D93170093F31A /* LaunchScreen.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LaunchScreen.xib; sourceTree = "<group>"; };
-		BCDBD2601A7BC0B300A51284 /* light_vertex_grid.shader */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = light_vertex_grid.shader; sourceTree = "<group>"; };
+		D95EB13B1A86C9CD00ADFC20 /* grid_fragment.shader */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = grid_fragment.shader; sourceTree = "<group>"; };
+		D95EB13C1A86C9CD00ADFC20 /* highlight_fragment.shader */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = highlight_fragment.shader; sourceTree = "<group>"; };
+		D95EB13D1A86C9CD00ADFC20 /* light_vertex_grid.shader */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = light_vertex_grid.shader; sourceTree = "<group>"; };
+		D95EB13E1A86C9CD00ADFC20 /* light_vertex.shader */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = light_vertex.shader; sourceTree = "<group>"; };
+		D95EB13F1A86C9CD00ADFC20 /* passthrough_fragment.shader */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = passthrough_fragment.shader; sourceTree = "<group>"; };
+		D9D66FF61A86C1D000764F9A /* chair_chesterfield.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = chair_chesterfield.h; sourceTree = "<group>"; };
+		D9D66FF71A86C1D000764F9A /* chair_chesterfield_d.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = chair_chesterfield_d.png; sourceTree = "<group>"; };
+		D9D66FFD1A86C1D000764F9A /* TreasureViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TreasureViewController.h; sourceTree = "<group>"; };
+		D9D66FFE1A86C1D000764F9A /* TreasureViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TreasureViewController.m; sourceTree = "<group>"; };
+		D9D670061A86C29400764F9A /* shader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.fsh; sourceTree = "<group>"; };
+		D9D670071A86C29400764F9A /* shader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.vsh; sourceTree = "<group>"; };
+		D9D6700A1A86C33A00764F9A /* RCGLShaderProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCGLShaderProgram.h; sourceTree = "<group>"; };
+		D9D6700B1A86C33A00764F9A /* RCGLShaderProgram.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCGLShaderProgram.m; sourceTree = "<group>"; };
+		D9D6700C1A86C33A00764F9A /* RCGLManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCGLManagerFactory.h; sourceTree = "<group>"; };
+		D9D6700D1A86C33A00764F9A /* RCGLManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCGLManagerFactory.m; sourceTree = "<group>"; };
+		D9D6700E1A86C33A00764F9A /* RCVideoPreview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoPreview.h; sourceTree = "<group>"; };
+		D9D6700F1A86C33A00764F9A /* RCVideoPreview.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoPreview.m; sourceTree = "<group>"; };
+		D9D670101A86C33A00764F9A /* shader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = shader.fsh; path = ../RC3DKSampleAR/RC3DKSampleAR/shader.fsh; sourceTree = "<group>"; };
+		D9D670111A86C33A00764F9A /* shader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = shader.vsh; path = ../RC3DKSampleAR/RC3DKSampleAR/shader.vsh; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -200,6 +220,7 @@
 		32B5A7791A8434DC001C318D /* RealityCap */ = {
 			isa = PBXGroup;
 			children = (
+				D9D670121A86C33A00764F9A /* AugmentedReality */,
 				32B5A78F1A843509001C318D /* SensorManagers */,
 				32B5A77A1A8434EA001C318D /* Calibration */,
 			);
@@ -361,20 +382,6 @@
 			path = Misc;
 			sourceTree = "<group>";
 		};
-		BC763B281A655D1E00463823 /* Treasure */ = {
-			isa = PBXGroup;
-			children = (
-				BC763B291A655D1E00463823 /* grid_fragment.shader */,
-				BC763B3A1A66D13300463823 /* highlight_fragment.shader */,
-				BCDBD2601A7BC0B300A51284 /* light_vertex_grid.shader */,
-				BC763B2A1A655D1E00463823 /* light_vertex.shader */,
-				BC763B2B1A655D1E00463823 /* passthrough_fragment.shader */,
-				BC763B321A655EB700463823 /* TreasureViewController.h */,
-				BC763B331A655EB700463823 /* TreasureViewController.m */,
-			);
-			path = Treasure;
-			sourceTree = "<group>";
-		};
 		BCCBC5811A5D92450093F31A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -388,10 +395,44 @@
 		BCCBC5841A5D94100093F31A /* Samples */ = {
 			isa = PBXGroup;
 			children = (
-				BC763B281A655D1E00463823 /* Treasure */,
+				D9D66FF51A86C1D000764F9A /* Chair */,
 			);
 			path = Samples;
 			sourceTree = "<group>";
+		};
+		D9D66FF51A86C1D000764F9A /* Chair */ = {
+			isa = PBXGroup;
+			children = (
+				D9D66FF61A86C1D000764F9A /* chair_chesterfield.h */,
+				D9D66FF71A86C1D000764F9A /* chair_chesterfield_d.png */,
+				D9D670061A86C29400764F9A /* shader.fsh */,
+				D9D670071A86C29400764F9A /* shader.vsh */,
+				D95EB13B1A86C9CD00ADFC20 /* grid_fragment.shader */,
+				D95EB13C1A86C9CD00ADFC20 /* highlight_fragment.shader */,
+				D95EB13D1A86C9CD00ADFC20 /* light_vertex_grid.shader */,
+				D95EB13E1A86C9CD00ADFC20 /* light_vertex.shader */,
+				D95EB13F1A86C9CD00ADFC20 /* passthrough_fragment.shader */,
+				D9D66FFD1A86C1D000764F9A /* TreasureViewController.h */,
+				D9D66FFE1A86C1D000764F9A /* TreasureViewController.m */,
+			);
+			path = Chair;
+			sourceTree = "<group>";
+		};
+		D9D670121A86C33A00764F9A /* AugmentedReality */ = {
+			isa = PBXGroup;
+			children = (
+				D9D6700A1A86C33A00764F9A /* RCGLShaderProgram.h */,
+				D9D6700B1A86C33A00764F9A /* RCGLShaderProgram.m */,
+				D9D6700C1A86C33A00764F9A /* RCGLManagerFactory.h */,
+				D9D6700D1A86C33A00764F9A /* RCGLManagerFactory.m */,
+				D9D6700E1A86C33A00764F9A /* RCVideoPreview.h */,
+				D9D6700F1A86C33A00764F9A /* RCVideoPreview.m */,
+				D9D670101A86C33A00764F9A /* shader.fsh */,
+				D9D670111A86C33A00764F9A /* shader.vsh */,
+			);
+			name = AugmentedReality;
+			path = /Users/eagle/projects/rcmain/RC3DKSampleAR/RC3DKSampleAR/../../AugmentedReality;
+			sourceTree = "<absolute>";
 		};
 /* End PBXGroup section */
 
@@ -482,16 +523,21 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BC763B2E1A655D1E00463823 /* passthrough_fragment.shader in Resources */,
+				D9D670171A86C33A00764F9A /* shader.vsh in Resources */,
+				D95EB1431A86C9CD00ADFC20 /* light_vertex.shader in Resources */,
+				D95EB1411A86C9CD00ADFC20 /* highlight_fragment.shader in Resources */,
+				D9D66FFF1A86C1D000764F9A /* chair_chesterfield_d.png in Resources */,
+				D9D670091A86C29400764F9A /* shader.vsh in Resources */,
+				D9D670161A86C33A00764F9A /* shader.fsh in Resources */,
+				D95EB1441A86C9CD00ADFC20 /* passthrough_fragment.shader in Resources */,
 				32B5A7891A8434EA001C318D /* holding_portrait.jpg in Resources */,
-				BC763B2D1A655D1E00463823 /* light_vertex.shader in Resources */,
 				32B5A7871A8434EA001C318D /* Calibration.storyboard in Resources */,
+				D95EB1421A86C9CD00ADFC20 /* light_vertex_grid.shader in Resources */,
+				D9D670081A86C29400764F9A /* shader.fsh in Resources */,
 				32B5A7881A8434EA001C318D /* holding_landscape.jpg in Resources */,
 				BC763B391A66BBBC00463823 /* Images.xcassets in Resources */,
-				BCDBD2611A7BC0B300A51284 /* light_vertex_grid.shader in Resources */,
 				32B5A78A1A8434EA001C318D /* ipad_on_table.jpg in Resources */,
-				BC763B2C1A655D1E00463823 /* grid_fragment.shader in Resources */,
-				BC763B3B1A66D13300463823 /* highlight_fragment.shader in Resources */,
+				D95EB1401A86C9CD00ADFC20 /* grid_fragment.shader in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -507,15 +553,18 @@
 				BC67336F1A5D90C700C6D79B /* Vector3d.mm in Sources */,
 				32B5A78E1A8434EA001C318D /* RCCalibration3.m in Sources */,
 				32B5A78B1A8434EA001C318D /* MBProgressHUD.m in Sources */,
-				BC763B341A655EB700463823 /* TreasureViewController.m in Sources */,
+				D9D670131A86C33A00764F9A /* RCGLShaderProgram.m in Sources */,
 				BC6733601A5D90C700C6D79B /* main.m in Sources */,
 				32B5A79D1A843509001C318D /* RCLocationManager.m in Sources */,
 				BC0B3DF41A6D7C7C00ADD925 /* Eye.mm in Sources */,
 				BC763B311A655D7600463823 /* GLHelpers.m in Sources */,
 				BC67336C1A5D90C700C6D79B /* Matrix3x3d.mm in Sources */,
+				D9D670151A86C33A00764F9A /* RCVideoPreview.m in Sources */,
+				D9D670051A86C1D000764F9A /* TreasureViewController.m in Sources */,
 				32B5A79C1A843509001C318D /* RCAVSessionManager.m in Sources */,
 				BC6733711A5D90C700C6D79B /* Viewport.mm in Sources */,
 				BC6733641A5D90C700C6D79B /* DistortionRenderer.mm in Sources */,
+				D9D670141A86C33A00764F9A /* RCGLManagerFactory.m in Sources */,
 				32B5A79E1A843509001C318D /* RCMotionManager.m in Sources */,
 				BC67336E1A5D90C700C6D79B /* SO3Util.mm in Sources */,
 				32B5A7A01A843509001C318D /* RCVideoManager.m in Sources */,

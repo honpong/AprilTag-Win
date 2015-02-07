@@ -21,6 +21,9 @@
 
 #include "GLHelpers.h"
 
+#import "RC3DK.h"
+#import "RCSensorDelegate.h"
+#import "RCAVSessionManager.h"
 
 @interface EyeWrapper ()
 
@@ -84,7 +87,7 @@
 @end
 
 
-@interface CardboardViewController () <GLKViewControllerDelegate>
+@interface CardboardViewController () <GLKViewControllerDelegate, RCSensorFusionDelegate>
 {
     MagnetSensor *_magnetSensor;
     HeadTracker *_headTracker;
@@ -105,6 +108,11 @@
     BOOL _projectionChanged;
     
     BOOL _frameParamentersReady;
+    
+    RCSensorFusion* sensorFusion;
+    id<RCSensorDelegate> sensorDelegate;
+    BOOL isSensorFusionRunning;
+
 }
 
 @property (nonatomic) NSRecursiveLock *glLock;
@@ -157,6 +165,12 @@
     
     _headTracker->startTracking([UIApplication sharedApplication].statusBarOrientation);
     _magnetSensor->start();
+    
+    sensorDelegate = [SensorDelegate sharedInstance];
+    sensorFusion = [RCSensorFusion sharedInstance];
+    sensorFusion.delegate = self;
+    
+    isSensorFusionRunning = NO;
 
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(magneticTriggerPressed:)
@@ -166,6 +180,11 @@
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(orientationDidChange:)
                                                  name:UIApplicationDidChangeStatusBarOrientationNotification
+                                               object:nil];
+    
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handlePause)
+                                                 name:UIApplicationWillResignActiveNotification
                                                object:nil];
 
     return self;
@@ -344,7 +363,6 @@
 {
     CardboardDeviceParams *cardboardDeviceParams = _headMountedDisplay->getCardboard();
     
-    headTransform->setHeadView(_headTracker->lastHeadView());
     float halfInterLensDistance = cardboardDeviceParams->interLensDistance() * 0.5f;
     
     // NSLog(@"%@", NSStringFromGLKMatrix4(_headTracker->lastHeadView()));
@@ -548,6 +566,71 @@
     std::copy(leftEyePerspective.m, leftEyePerspective.m + 16, frameParemeters + 32);
     std::copy(rightEyeView.m, rightEyeView.m + 16, frameParemeters + 48);
     std::copy(rightEyePerspective.m, rightEyePerspective.m + 16, frameParemeters + 64);
+}
+
+#pragma mark - RC Sensor Fusion
+
+- (void)startTracking
+{
+    if (!isSensorFusionRunning)
+    {
+        [sensorDelegate startAllSensors];
+        [sensorFusion startSensorFusionWithDevice:[[RCAVSessionManager sharedInstance] videoDevice]];
+        isSensorFusionRunning = YES;
+    }
+}
+
+- (void)stopTracking
+{
+    if (isSensorFusionRunning)
+    {
+        [sensorFusion stopSensorFusion];
+        [sensorDelegate stopAllSensors];
+        isSensorFusionRunning = NO;
+    }
+}
+
+- (void) handlePause
+{
+    [self stopTracking];
+}
+
+#pragma mark - RCSensorFusionDelegate methods
+
+// Called after each video frame is processed ~ 30hz.
+- (void)sensorFusionDidUpdateData:(RCSensorFusionData *)data
+{
+    GLKMatrix4 headview;
+    GLKMatrix4 cam;
+    //cardboard's coordinates are x right, y up, z back
+    headview = GLKMatrix4Identity;
+    headview = GLKMatrix4RotateZ(headview, M_PI_2);
+    [[[data transformation] getInverse] getOpenGLMatrix:cam.m];
+    headview = GLKMatrix4Multiply(headview, cam);
+    headview = GLKMatrix4RotateX(headview, M_PI_2);
+    //NSLog(NSStringFromGLKMatrix4(headview));
+    _headTransform->setHeadView(headview);
+
+    //_cameraX = data.cameraTransformation.translation.y * 100.;
+    //_cameraY = -data.transformation.translation.z * 100.;
+    //_cameraZ = data.cameraTransformation.translation.x * 100.;
+}
+
+// Called when sensor fusion status changes, including when errors occur.
+- (void)sensorFusionDidChangeStatus:(RCSensorFusionStatus *)status
+{
+    if ([status.error isKindOfClass:[RCSensorFusionError class]])
+    {
+        DLog(@"%@", status.error);
+    }
+    else if ([status.error isKindOfClass:[RCLicenseError class]])
+    {
+        DLog(@"%@", status.error);
+    }
+    else if(status.runState == RCSensorFusionRunStateSteadyInitialization)
+    {
+        DLog(@"Initializing %.0f%% complete.", status.progress * 100.);
+    }
 }
 
 @end

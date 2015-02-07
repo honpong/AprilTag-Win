@@ -55,5 +55,7 @@ typedef NS_ENUM(NSInteger, EyeType)
 @property (nonatomic) BOOL neckModelEnabled;
 
 - (void)getFrameParameters:(float *)frameParemeters;
+- (void)startTracking;
+- (void)stopTracking;
 
 @end

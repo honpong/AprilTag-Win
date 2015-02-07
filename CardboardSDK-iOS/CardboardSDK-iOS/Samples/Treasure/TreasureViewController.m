@@ -11,11 +11,7 @@
 #import <AudioToolbox/AudioServices.h>
 #import <OpenGLES/ES2/glext.h>
 
-#import "RC3DK.h"
-#import "RCSensorDelegate.h"
-#import "RCAVSessionManager.h"
-
-@interface TreasureRenderer : NSObject <StereoRendererDelegate, RCSensorFusionDelegate>
+@interface TreasureRenderer : NSObject <StereoRendererDelegate>
 {
     GLuint _cubeVertexArray;
     GLuint _cubeVertexBuffer;
@@ -65,7 +61,7 @@
     float _zNear;
     float _zFar;
     
-    float _cameraX, _cameraY, _cameraZ;
+    float _cameraZ;
     float _timeDelta;
     
     float _yawLimit;
@@ -80,10 +76,10 @@
     float _objectDistance;
     float _floorDepth;
     
-    RCSensorFusion* sensorFusion;
-    id<RCSensorDelegate> sensorDelegate;
     BOOL isSensorFusionRunning;
 }
+
+@property (weak, nonatomic) CardboardViewController *cardboard;
 
 @end
 
@@ -96,13 +92,11 @@
     if (!self) { return nil; }
     
     _objectDistance = 12.0f;
-    _floorDepth = 20.0f;
+    _floorDepth = 1.5f;
     
     _zNear = 0.1f;
     _zFar = 100.0f;
     
-    _cameraX = 0.0f;
-    _cameraY = 0.0f;
     _cameraZ = 0.01f;
     
     _timeDelta = 1.0f;
@@ -116,16 +110,7 @@
     _lightPositionInWorldSpace = GLKVector4Make(0.0f, 2.0f, 0.0f, 1.0f);
     _lightPositionInEyeSpace = GLKVector4Make(0.0f, 0.0f, 0.0f, 0.0f);
     
-    sensorDelegate = [SensorDelegate sharedInstance];
-    sensorFusion = [RCSensorFusion sharedInstance];
-    sensorFusion.delegate = self;
-    
     isSensorFusionRunning = NO;
-    
-    [[NSNotificationCenter defaultCenter] addObserver:self
-                                             selector:@selector(handlePause)
-                                                 name:UIApplicationWillResignActiveNotification
-                                               object:nil];
 
     return self;
 }
@@ -152,7 +137,7 @@
     _modelFloor = GLKMatrix4Translate(_modelFloor, 0, -_floorDepth, 0); // Floor appears below user.
 
     _modelCeiling = GLKMatrix4Identity;
-    _modelCeiling = GLKMatrix4Translate(_modelFloor, 0, _floorDepth * 2.0, 0); // Ceiling appears above user.
+    _modelCeiling = GLKMatrix4Translate(_modelFloor, 0, 1.5 * _floorDepth, 0); // Ceiling appears above user.
 
     GLCheckForError();
     
@@ -524,11 +509,9 @@
     _modelCube = GLKMatrix4Rotate(_modelCube, GLKMathDegreesToRadians(_timeDelta), 0.5f, 0.5f, 1.0f);
     
     // Build the camera matrix and apply it to the ModelView.
-//    _camera = GLKMatrix4MakeLookAt(0, 0, _cameraZ,
-//                                   0, 0, 0,
-//                                   0, 1.0f, 0);
-    
-    _camera = GLKMatrix4MakeTranslation(_cameraX, _cameraY, _cameraZ);
+    _camera = GLKMatrix4MakeLookAt(0, 0, _cameraZ,
+                                   0, 0, 0,
+                                   0, 1.0f, 0);
     
     _headView = headViewMatrix;
     
@@ -720,8 +703,6 @@ float randomFloat()
     }
 }
 
-#pragma mark - RC Sensor Fusion
-
 - (void) toggleSensorFusion
 {
     if (isSensorFusionRunning)
@@ -734,8 +715,8 @@ float randomFloat()
 {
     if (!isSensorFusionRunning)
     {
-        [sensorDelegate startAllSensors];
-        [sensorFusion startSensorFusionWithDevice:[[RCAVSessionManager sharedInstance] videoDevice]];
+        [self.cardboard startTracking];
+
         isSensorFusionRunning = YES;
     }
 }
@@ -744,45 +725,8 @@ float randomFloat()
 {
     if (isSensorFusionRunning)
     {
-        [sensorFusion stopSensorFusion];
-        [sensorDelegate stopAllSensors];
+        [self.cardboard stopTracking];
         isSensorFusionRunning = NO;
-        
-        _camera = GLKMatrix4MakeLookAt(0, 0, _cameraZ,
-                                       0, 0, 0,
-                                       0, 1.0f, 0);
-    }
-}
-
-- (void) handlePause
-{
-    [self stopSensorFusion];
-}
-
-#pragma mark - RCSensorFusionDelegate methods
-
-// Called after each video frame is processed ~ 30hz.
-- (void)sensorFusionDidUpdateData:(RCSensorFusionData *)data
-{
-    _cameraX = data.cameraTransformation.translation.y * 100.;
-    _cameraY = -data.transformation.translation.z * 100.;
-    _cameraZ = data.cameraTransformation.translation.x * 100.;
-}
-
-// Called when sensor fusion status changes, including when errors occur.
-- (void)sensorFusionDidChangeStatus:(RCSensorFusionStatus *)status
-{
-    if ([status.error isKindOfClass:[RCSensorFusionError class]])
-    {
-        DLog(@"%@", status.error);
-    }
-    else if ([status.error isKindOfClass:[RCLicenseError class]])
-    {
-        DLog(@"%@", status.error);
-    }
-    else if(status.runState == RCSensorFusionRunStateSteadyInitialization)
-    {
-        DLog(@"Initializing %.0f%% complete.", status.progress * 100.);
     }
 }
 
@@ -805,6 +749,7 @@ float randomFloat()
     
     self.treasureRenderer = [TreasureRenderer new];
     self.stereoRendererDelegate = self.treasureRenderer;
+    self.treasureRenderer.cardboard = self;
     
     return self;
 }

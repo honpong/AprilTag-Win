@@ -146,6 +146,7 @@
     // Object first appears directly in front of user.
     _modelCube = GLKMatrix4Identity;
     _modelCube = GLKMatrix4Translate(_modelCube, 0, 0, -_objectDistance);
+    _modelCube = GLKMatrix4Scale(_modelCube, 2., 2., 2.);
     
     _modelFloor = GLKMatrix4Identity;
     _modelFloor = GLKMatrix4Translate(_modelFloor, 0, -_floorDepth, 0); // Floor appears below user.
@@ -201,7 +202,7 @@
 
     _cubeProgram = glCreateProgram();
     glAttachShader(_cubeProgram, vertexShader);
-    glAttachShader(_cubeProgram, passthroughFragmentShader);
+    glAttachShader(_cubeProgram, highlightFragmentShader);
     GLLinkProgram(_cubeProgram);
     glUseProgram(_cubeProgram);
     

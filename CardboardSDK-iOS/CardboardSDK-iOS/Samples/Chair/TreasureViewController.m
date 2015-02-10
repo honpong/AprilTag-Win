@@ -19,9 +19,14 @@
     GLuint _cubeVertexArray;
     GLuint _cubeVertexBuffer;
     GLuint _cubeColorBuffer;
-    GLuint _cubeFoundColorBuffer;
     GLuint _cubeNormalBuffer;
 
+    GLuint _chairVertexArray;
+    GLuint _chairVertexBuffer;
+    GLuint _chairTextureBuffer;
+    GLuint _chairNormalBuffer;
+
+    
     GLuint _floorVertexArray;
     GLuint _floorVertexBuffer;
     GLuint _floorColorBuffer;
@@ -36,7 +41,11 @@
     GLint _cubePositionLocation;
     GLint _cubeNormalLocation;
     GLint _cubeColorLocation;
-    
+
+    GLint _chairPositionLocation;
+    GLint _chairNormalLocation;
+    GLint _chairTextureLocation;
+
     GLint _cubeModelLocation;
     GLint _cubeModelViewLocation;
     GLint _cubeModelViewProjectionLocation;
@@ -463,6 +472,48 @@
     glBindVertexArrayOES(0);
     
     
+    
+    
+    // Chair VAO setup
+    glGenVertexArraysOES(1, &_chairVertexArray);
+    glBindVertexArrayOES(_chairVertexArray);
+    
+    
+    _chairPositionLocation = glGetAttribLocation(program.program, "position");
+    _chairNormalLocation = glGetAttribLocation(program.program, "normal");
+    _chairTextureLocation = glGetAttribLocation(program.program, "texture_coordinate");
+    
+    
+    glEnableVertexAttribArray(_chairPositionLocation);
+    glEnableVertexAttribArray(_chairNormalLocation);
+    glEnableVertexAttribArray(_chairTextureLocation);
+    
+    
+    glGenBuffers(1, &_chairVertexBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, _chairVertexBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(chair_chesterfieldVerts), chair_chesterfieldVerts, GL_STATIC_DRAW);
+    
+    // Set the position of the cube
+    glVertexAttribPointer(_chairPositionLocation, _coordsPerVertex, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
+    
+    glGenBuffers(1, &_chairNormalBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, _chairNormalBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(chair_chesterfieldNormals), chair_chesterfieldNormals, GL_STATIC_DRAW);
+    
+    // Set the normal positions of the cube, again for shading
+    glVertexAttribPointer(_chairNormalLocation, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
+    
+    glGenBuffers(1, &_chairTextureBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, _chairTextureBuffer);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(chair_chesterfieldTexCoords), chair_chesterfieldTexCoords, GL_STATIC_DRAW);
+    
+    glVertexAttribPointer(_chairTextureLocation, 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
+    
+    GLCheckForError();
+    
+    glBindVertexArrayOES(0);
+    
+    
     // Floor VAO setup
     glGenVertexArraysOES(1, &_floorVertexArray);
     glBindVertexArrayOES(_floorVertexArray);
@@ -547,57 +598,16 @@
     const float zNear = 0.1f;
     const float zFar = 100.0f;
     _perspective = [eye perspectiveMatrixWithZNear:zNear zFar:zFar];
-    [self drawCube];
     
     [self drawFloorAndCeiling];
+
+    [self drawCube];
     
     //[self drawChair];
 }
 
 - (void)finishFrameWithViewportRect:(CGRect)viewPort
 {
-}
-
-// Draw the cube.
-// We've set all of our transformation matrices. Now we simply pass them into the shader.
-- (void)drawCube
-{
-    // Build the ModelView and ModelViewProjection matrices
-    // for calculating cube position and light.
-    _modelView = GLKMatrix4Multiply(_view, _modelCube);
-    _modelViewProjection = GLKMatrix4Multiply(_perspective, _modelView);
-
-    if (isSensorFusionRunning)
-    {
-        glUseProgram(_highlightedCubeProgram);
-    }
-    else
-    {
-        glUseProgram(_cubeProgram);
-    }
-    
-    glBindVertexArrayOES(_cubeVertexArray);
-
-    glUniform3f(_cubeLightPositionLocation,
-                _lightPositionInEyeSpace.x,
-                _lightPositionInEyeSpace.y,
-                _lightPositionInEyeSpace.z);
-    
-    // Set the Model in the shader, used to calculate lighting
-    glUniformMatrix4fv(_cubeModelLocation, 1, GL_FALSE, _modelCube.m);
-    
-    // Set the ModelView in the shader, used to calculate lighting
-    glUniformMatrix4fv(_cubeModelViewLocation, 1, GL_FALSE, _modelView.m);
-    
-    // Set the ModelViewProjection matrix in the shader.
-    glUniformMatrix4fv(_cubeModelViewProjectionLocation, 1, GL_FALSE, _modelViewProjection.m);
-    
-    glDrawArrays(GL_TRIANGLES, 0, chair_chesterfieldNumVerts);
-    
-    GLCheckForError();
-    
-    glBindVertexArrayOES(0);
-    glUseProgram(0);
 }
 
 // Draw the floor.
@@ -645,6 +655,99 @@
     
     GLCheckForError();
     
+    
+    glBindVertexArrayOES(0);
+    glUseProgram(0);
+}
+
+// Draw the cube.
+// We've set all of our transformation matrices. Now we simply pass them into the shader.
+- (void)drawCube
+{
+    // Build the ModelView and ModelViewProjection matrices
+    // for calculating cube position and light.
+    _modelView = GLKMatrix4Multiply(_view, _modelCube);
+    _modelViewProjection = GLKMatrix4Multiply(_perspective, _modelView);
+    
+    glUseProgram(_cubeProgram);
+    
+    glBindVertexArrayOES(_cubeVertexArray);
+    
+    glUniform3f(_cubeLightPositionLocation,
+                _lightPositionInEyeSpace.x,
+                _lightPositionInEyeSpace.y,
+                _lightPositionInEyeSpace.z);
+    
+    // Set the Model in the shader, used to calculate lighting
+    glUniformMatrix4fv(_cubeModelLocation, 1, GL_FALSE, _modelCube.m);
+    
+    // Set the ModelView in the shader, used to calculate lighting
+    glUniformMatrix4fv(_cubeModelViewLocation, 1, GL_FALSE, _modelView.m);
+    
+    // Set the ModelViewProjection matrix in the shader.
+    glUniformMatrix4fv(_cubeModelViewProjectionLocation, 1, GL_FALSE, _modelViewProjection.m);
+    
+    GLuint tloc = glGetUniformLocation(_cubeProgram, "texture_value");
+    
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(texture.target, texture.name);
+    glUniform1i(tloc, 0);
+    
+    glDrawArrays(GL_TRIANGLES, 0, chair_chesterfieldNumVerts);
+    
+    GLCheckForError();
+    
+    glBindVertexArrayOES(0);
+    glUseProgram(0);
+}
+
+
+// Draw the cube.
+// We've set all of our transformation matrices. Now we simply pass them into the shader.
+- (void)drawCube2
+{
+    // Build the ModelView and ModelViewProjection matrices
+    // for calculating cube position and light.
+    _modelView = GLKMatrix4Multiply(_view, _modelCube);
+    _modelViewProjection = GLKMatrix4Multiply(_perspective, _modelView);
+    
+    glUseProgram(program.program);
+    
+    glBindVertexArrayOES(_chairVertexArray);
+
+    
+    glUniformMatrix4fv([program getUniformLocation:@"projection_matrix"], 1, false, _perspective.m);
+    
+    glUniformMatrix4fv([program getUniformLocation:@"camera_matrix"], 1, false, _view.m);
+    
+    
+    glUniform3f([program getUniformLocation:@"light_direction"], 0, 0, 1);
+    glUniform4f([program getUniformLocation:@"light_ambient"], .8, .8, .8, 1);
+    glUniform4f([program getUniformLocation:@"light_diffuse"], .8, .8, .8, 1);
+    glUniform4f([program getUniformLocation:@"light_specular"], .8, .8, .8, 1);
+    glUniform4f([program getUniformLocation:@"material_specular"], .1, .1, .1, 1);
+    glUniform1f([program getUniformLocation:@"material_shininess"], 20.);
+    
+    //Concatenating GLKit matrices goes left to right, and our shaders multiply with matrices on the left and vectors on the right.
+    //So the last transformation listed is applied to our vertices first
+
+    GLKMatrix4 model = GLKMatrix4Identity;
+    model = GLKMatrix4Translate(model, 0., 1.5, -1.5);
+    model = GLKMatrix4Scale(model, 1.1, 1.1, 1.1);
+    model = GLKMatrix4Translate(model, 0., 0., .5);
+    model = GLKMatrix4RotateZ(model, M_PI);
+    model = GLKMatrix4RotateX(model, M_PI_2);
+    glUniformMatrix4fv([program getUniformLocation:@"model_matrix"], 1, false, model.m);
+    
+    
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(texture.target, texture.name);
+    glUniform1i([program getUniformLocation:@"texture_value"], 0);
+    
+    glDrawArrays(GL_TRIANGLES, 0, chair_chesterfieldNumVerts);
+
+    
+    GLCheckForError();
     
     glBindVertexArrayOES(0);
     glUseProgram(0);

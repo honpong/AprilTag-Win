@@ -25,7 +25,7 @@ static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationLandscapeLe
     
     MBProgressHUD *progressView;
     RCSensorFusionData* lastSensorFusionDataWithImage;
-
+    
     id<RCSensorDelegate> sensorDelegate;
     
     SLMeasuredPhoto* measuredPhoto;
@@ -33,6 +33,8 @@ static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationLandscapeLe
     RCSensorFusionErrorCode lastErrorCode;
     
     SLARDelegate *arDelegate;
+    
+    UIWebView* webView;
 }
 @synthesize videoView;
 
@@ -95,7 +97,7 @@ static transition transitions[] =
     { ST_CAPTURE, EV_MOVE_UNDONE, ST_MOVING },
     { ST_PROCESSING, EV_PROCESSING_FINISHED, ST_FINISHED },
     { ST_PROCESSING, EV_STEREOFAIL, ST_ERROR },
-
+    
     { ST_STARTUP, EV_ROOF_DEFINED, ST_ROOFREADY },
     { ST_STARTUP, EV_ROOF_FAIL, ST_ROOFERROR },
     { ST_ROOFREADY, EV_SHUTTER_TAP, ST_ROOFINIT },
@@ -127,9 +129,9 @@ static transition transitions[] =
     if(currentState == newState) return;
     statesetup oldSetup = setups[currentState];
     statesetup newSetup = setups[newState];
-
+    
     if (![self handleStateTransition:newState]) return;
-
+    
     if(!oldSetup.sensorCapture && newSetup.sensorCapture)
         [self startSensors];
     if(!oldSetup.sensorFusion && newSetup.sensorFusion)
@@ -142,7 +144,7 @@ static transition transitions[] =
         videoView.delegate = nil;
     if(!oldSetup.showAR && newSetup.showAR)
         videoView.delegate = arDelegate;
-
+    
     
     if(oldSetup.progress != newSetup.progress)
     {
@@ -166,7 +168,7 @@ static transition transitions[] =
         self.progressBar.hidden = YES;
     if(!oldSetup.showCaptureProgress && newSetup.showCaptureProgress)
         self.progressBar.hidden = NO;
-
+    
     currentState = newState;
 }
 
@@ -218,7 +220,7 @@ static transition transitions[] =
 - (void)viewDidLoad
 {
     LOGME
-	[super viewDidLoad];
+    [super viewDidLoad];
     
     sensorDelegate = [SensorDelegate sharedInstance];
     
@@ -235,6 +237,20 @@ static transition transitions[] =
     self.videoView.orientation = UIInterfaceOrientationLandscapeRight;
     
     arDelegate = [[SLARDelegate alloc] init];
+    
+    // setup web view
+    NSURL *htmlUrl = [[NSBundle mainBundle] URLForResource:@"webgl" withExtension:@"html"];
+    
+    webView = [UIWebView new];
+    webView.scalesPageToFit = NO;
+//    webView.delegate = self;
+    webView.opaque = NO;
+    webView.backgroundColor = [UIColor clearColor];
+    webView.userInteractionEnabled = NO;
+    webView.frame = self.view.frame;
+    [self.view addSubview:webView];
+    [self.view bringSubviewToFront:webView];
+    [webView loadRequest:[NSURLRequest requestWithURL:htmlUrl]];
 }
 
 - (void) viewDidAppear:(BOOL)animated
@@ -272,7 +288,7 @@ static transition transitions[] =
 
 - (void)handlePause
 {
-	LOGME
+    LOGME
     if(currentState != ST_PROCESSING)
         [self handleStateEvent:EV_PAUSE];
 }
@@ -286,9 +302,9 @@ static transition transitions[] =
     if(currentState != ST_PROCESSING)
     {
         if ([RCDeviceInfo getFreeDiskSpaceInBytes] < 5000000)
-        	[self handleStateEvent:EV_DISK_SPACE];
-    	else
-        	[self handleStateEvent:EV_RESUME];
+            [self handleStateEvent:EV_DISK_SPACE];
+        else
+            [self handleStateEvent:EV_RESUME];
     }
 }
 
@@ -302,7 +318,7 @@ static transition transitions[] =
 - (void) handleCaptureFinished
 {
     measuredPhoto = [self saveMeasuredPhoto];
-
+    
     RCStereo * stereo = [RCStereo sharedInstance];
     stereo.delegate = self;
     [stereo setWorkingDirectory:WORKING_DIRECTORY_URL andGuid:measuredPhoto.id_guid andOrientation:currentUIOrientation];
@@ -400,7 +416,7 @@ static transition transitions[] =
 {
     if(currentState == ST_INITIALIZING) initialCamera = data.cameraTransformation;
     NSMutableArray *depths = [[NSMutableArray alloc] init];
-
+    
     for(RCFeaturePoint *feature in data.featurePoints)
     {
         [depths addObject:[NSNumber numberWithFloat:feature.originalDepth.scalar]];
@@ -425,20 +441,20 @@ static transition transitions[] =
         float dx = projectedpt.x / targetDist;
         if(dx > 1.) dx = 1.;
         if(dx < -1.) dx = -1.;
-
+        
         float progress = fabs(dx);
         self.progressBar.progress = progress;
         
         if(currentState == ST_MOVING && progress >= 1.) [self handleStateEvent:EV_MOVE_DONE];
         if(currentState == ST_CAPTURE && progress < 1.) [self handleStateEvent:EV_MOVE_UNDONE];
     }
-
+    
     if(currentState == ST_CAPTURE) stereoTransformation = [[RCTransformation alloc] initWithTranslation:[[RCTranslation alloc] init] withRotation:data.cameraTransformation.rotation];
     
     if(currentState == ST_ROOFALIGN)
         [arDelegate setInitialCamera:data.cameraTransformation]; //[data.cameraTransformation composeWithTransformation:stereoTransformation]];
     // if(currentState == ST_CAPTURE) [arDelegate setInitialCamera:[[RCTransformation alloc] initWithTranslation:[[RCTranslation alloc] init] withRotation:data.cameraTransformation.rotation]];
-
+    
     if(data.sampleBuffer)
     {
         lastSensorFusionDataWithImage = data;
@@ -480,10 +496,10 @@ static transition transitions[] =
     }
     
     NSNumber* gutterLength = roofData[@"gutter_length"];
-
+    
     float roof2D[8];
     float roof3D[12];
-
+    
     roof2D[0 * 2 + 0] = [(NSNumber *)roofData[@"x1"] floatValue];
     roof2D[0 * 2 + 1] = [(NSNumber *)roofData[@"y1"] floatValue];
     roof2D[1 * 2 + 0] = [(NSNumber *)roofData[@"x2"] floatValue];

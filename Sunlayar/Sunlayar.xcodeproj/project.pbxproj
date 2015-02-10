@@ -89,6 +89,8 @@
 		324752351A5BCB3000A0EC98 /* UIImage+RCImageFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 324752171A5BCB3000A0EC98 /* UIImage+RCImageFile.m */; };
 		32545AB21A5F9E7C00A08564 /* ARNativeAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 32545AB11A5F9E7C00A08564 /* ARNativeAction.m */; };
 		32545AB71A5F9E8E00A08564 /* RCHttpInterceptor.m in Sources */ = {isa = PBXBuildFile; fileRef = 32545AB61A5F9E8E00A08564 /* RCHttpInterceptor.m */; };
+		329A47C21A8A934D0048DA77 /* three.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 329A47C01A8A934D0048DA77 /* three.min.js */; };
+		329A47C31A8A934D0048DA77 /* webgl.html in Resources */ = {isa = PBXBuildFile; fileRef = 329A47C11A8A934D0048DA77 /* webgl.html */; };
 		D927F0B91A61A8BE00344165 /* SLARDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D927F0B81A61A8BE00344165 /* SLARDelegate.m */; };
 /* End PBXBuildFile section */
 
@@ -246,6 +248,8 @@
 		32545AB11A5F9E7C00A08564 /* ARNativeAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARNativeAction.m; sourceTree = "<group>"; };
 		32545AB51A5F9E8E00A08564 /* RCHttpInterceptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCHttpInterceptor.h; sourceTree = "<group>"; };
 		32545AB61A5F9E8E00A08564 /* RCHttpInterceptor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCHttpInterceptor.m; sourceTree = "<group>"; };
+		329A47C01A8A934D0048DA77 /* three.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = three.min.js; sourceTree = "<group>"; };
+		329A47C11A8A934D0048DA77 /* webgl.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = webgl.html; sourceTree = "<group>"; };
 		D927F0B71A61A8BE00344165 /* SLARDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLARDelegate.h; sourceTree = "<group>"; };
 		D927F0B81A61A8BE00344165 /* SLARDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLARDelegate.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -507,6 +511,8 @@
 		324751EE1A5BCB3000A0EC98 /* HTML */ = {
 			isa = PBXGroup;
 			children = (
+				329A47C01A8A934D0048DA77 /* three.min.js */,
+				329A47C11A8A934D0048DA77 /* webgl.html */,
 				175A2F891A70749A001AC184 /* fp_r_btm.png */,
 				175A2F8A1A70749A001AC184 /* fp_l_btm.png */,
 				175A2F8B1A70749A001AC184 /* fp_right.png */,
@@ -652,6 +658,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				329A47C21A8A934D0048DA77 /* three.min.js in Resources */,
+				329A47C31A8A934D0048DA77 /* webgl.html in Resources */,
 				175A2F8E1A70749A001AC184 /* fp_right.png in Resources */,
 				175A2F8C1A70749A001AC184 /* fp_r_btm.png in Resources */,
 				324752271A5BCB3000A0EC98 /* svgjs.js in Resources */,

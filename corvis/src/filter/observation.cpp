@@ -230,8 +230,7 @@ void observation_vision_feature::predict()
     Rrt = transpose(Rr);
     Rbc = to_rotation_matrix(state.Wc.v);
     Rcb = transpose(Rbc);
-    RcbRrt = Rcb * Rrt;
-    Rtot = RcbRrt * Rbc;
+    Rtot = Rcb * Rrt * Rbc;
     Ttot = Rcb * (Rrt * (state.Tc.v - state_group->Tr.v) - state.Tc.v);
 
     norm_initial.x = (feature->initial[0] - state.center_x.v) / state.focal_length.v;

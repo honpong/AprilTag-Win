@@ -107,7 +107,7 @@
     self = [super init];
     if (!self) { return nil; }
     
-    _objectDistance = 1.0f;
+    _objectDistance = 1.5f;
     _floorDepth = 1.5f;
     
     _zNear = 0.1f;
@@ -142,18 +142,20 @@
     // Etc
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.2f, 0.2f, 0.2f, 0.5f); // Dark background so text shows up well.
-
     
     // Object first appears directly in front of user.
     _modelCube = GLKMatrix4Identity;
-    _modelCube = GLKMatrix4Translate(_modelCube, 0, 0, -_objectDistance);
-    _modelCube = GLKMatrix4Scale(_modelCube, 2., 2., 2.);
+    _modelCube = GLKMatrix4Translate(_modelCube, 0, -_floorDepth, -_objectDistance);
+    _modelCube = GLKMatrix4Scale(_modelCube, 1.3, 1.3, 1.3);
+    _modelCube = GLKMatrix4Translate(_modelCube, 0., .5, 0.);
+    _modelCube = GLKMatrix4RotateY(_modelCube, M_PI);
+
     
     _modelFloor = GLKMatrix4Identity;
     _modelFloor = GLKMatrix4Translate(_modelFloor, 0, -_floorDepth, 0); // Floor appears below user.
 
     _modelCeiling = GLKMatrix4Identity;
-    _modelCeiling = GLKMatrix4Translate(_modelFloor, 0, 1.5 * _floorDepth, 0); // Ceiling appears above user.
+    _modelCeiling = GLKMatrix4Translate(_modelFloor, 0, 2. * _floorDepth, 0); // Ceiling appears above user.
 
     GLCheckForError();
     
@@ -392,12 +394,12 @@
     
     const GLfloat floorVertices[] =
     {
-        200.0f,  0.0f, -200.0f,
-        -200.0f,  0.0f, -200.0f,
-        -200.0f,  0.0f,  200.0f,
-        200.0f,  0.0f, -200.0f,
-        -200.0f,  0.0f,  200.0f,
-        200.0f,  0.0f,  200.0f,
+        5.0f,  0.0f, -5.0f,
+        -5.0f,  0.0f, -5.0f,
+        -5.0f,  0.0f,  5.0f,
+        5.0f,  0.0f, -5.0f,
+        -5.0f,  0.0f,  5.0f,
+        5.0f,  0.0f,  5.0f,
     };
     
     const GLfloat floorNormals[] =
@@ -828,60 +830,6 @@
     glDisableVertexAttribArray([program getAttribLocation:@"normal"]);
     glDisableVertexAttribArray([program getAttribLocation:@"texture_coordinate"]);
     
-}
-
-// Check if user is looking at object by calculating where the object is in eye-space.
-// @return true if the user is looking at the object.
-- (BOOL)isLookingAtCube
-{
-    GLKVector4 initVector = { 0, 0, 0, 1.0f };
-
-    // Convert object space to camera space. Use the headView from onNewFrame.
-    _modelView = GLKMatrix4Multiply(_headView, _modelCube);
-    GLKVector4 objectPositionVector = GLKMatrix4MultiplyVector4(_modelView, initVector);
-    
-    float pitch = atan2f(objectPositionVector.y, -objectPositionVector.z);
-    float yaw = atan2f(objectPositionVector.x, -objectPositionVector.z);
-    
-    const float yawLimit = 0.12f;
-    const float pitchLimit = 0.12f;
-
-    return fabs(pitch) < pitchLimit && fabs(yaw) < yawLimit;
-}
-
-#define ARC4RANDOM_MAX 0x100000000
-// Return a random float in the range [0.0, 1.0]
-float randomFloat()
-{
-    return ((double)arc4random() / ARC4RANDOM_MAX);
-}
-
-// Find a new random position for the object.
-// We'll rotate it around the Y-axis so it's out of sight, and then up or down by a little bit.
-- (void)hideCube
-{
-    // First rotate in XZ plane, between 90 and 270 deg away, and scale so that we vary
-    // the object's distance from the user.
-    float angleXZ = randomFloat() * 180 + 90;
-    GLKMatrix4 transformationMatrix = GLKMatrix4MakeRotation(GLKMathDegreesToRadians(angleXZ), 0.0f, 1.0f, 0.0f);
-    float oldObjectDistance = _objectDistance;
-    _objectDistance = randomFloat() * 15 + 5;
-    float objectScalingFactor = _objectDistance / oldObjectDistance;
-    transformationMatrix = GLKMatrix4Scale(transformationMatrix, objectScalingFactor, objectScalingFactor,
-                  objectScalingFactor);
-    GLKVector4 positionVector = GLKMatrix4MultiplyVector4(transformationMatrix,
-                                                          GLKVector4Make(_modelCube.m30,
-                                                                         _modelCube.m31,
-                                                                         _modelCube.m32,
-                                                                         _modelCube.m33));
-    
-    // Now get the up or down angle, between -20 and 20 degrees.
-    float angleY = randomFloat() * 80 - 40; // Angle in Y plane, between -40 and 40.
-    angleY = GLKMathDegreesToRadians(angleY);
-    float newY = tanf(angleY) * _objectDistance;
-    
-    _modelCube = GLKMatrix4Identity;
-    _modelCube = GLKMatrix4Translate(_modelCube, positionVector.x, newY, positionVector.z);
 }
 
 - (void)magneticTriggerPressed

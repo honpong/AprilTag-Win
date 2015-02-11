@@ -34,22 +34,13 @@
 
     GLuint _ceilingColorBuffer;
 
-    GLuint _cubeProgram;
     GLuint _highlightedCubeProgram;
     GLuint _floorProgram;
     
-    GLint _cubePositionLocation;
-    GLint _cubeNormalLocation;
-    GLint _cubeColorLocation;
 
     GLint _chairPositionLocation;
     GLint _chairNormalLocation;
     GLint _chairTextureLocation;
-
-    GLint _cubeModelLocation;
-    GLint _cubeModelViewLocation;
-    GLint _cubeModelViewProjectionLocation;
-    GLint _cubeLightPositionLocation;
 
     GLint _floorPositionLocation;
     GLint _floorNormalLocation;
@@ -88,7 +79,7 @@
     float _objectDistance;
     float _floorDepth;
     
-    
+    RCGLShaderProgram *cubeProgram;
     RCGLShaderProgram *program;
     GLKTextureInfo *texture;
 
@@ -150,7 +141,6 @@
     _modelCube = GLKMatrix4Translate(_modelCube, 0., .5, 0.);
     _modelCube = GLKMatrix4RotateY(_modelCube, M_PI);
 
-    
     _modelFloor = GLKMatrix4Identity;
     _modelFloor = GLKMatrix4Translate(_modelFloor, 0, -_floorDepth, 0); // Floor appears below user.
 
@@ -203,11 +193,8 @@
         return NO;
     }
     
-    _cubeProgram = glCreateProgram();
-    glAttachShader(_cubeProgram, vertexShader);
-    glAttachShader(_cubeProgram, passthroughFragmentShader);
-    GLLinkProgram(_cubeProgram);
-    glUseProgram(_cubeProgram);
+    cubeProgram = [[RCGLShaderProgram alloc] init];
+    [cubeProgram buildWithVertexFileName:@"light_vertex.shader" withFragmentFileName:@"passthrough_fragment.shader"];
     
     GLCheckForError();
     
@@ -436,38 +423,29 @@
     glGenVertexArraysOES(1, &_cubeVertexArray);
     glBindVertexArrayOES(_cubeVertexArray);
     
-    _cubePositionLocation = glGetAttribLocation(_cubeProgram, "a_Position");
-    _cubeNormalLocation = glGetAttribLocation(_cubeProgram, "a_Normal");
-    _cubeColorLocation = glGetAttribLocation(_cubeProgram, "a_Color");
-    
-    _cubeModelLocation = glGetUniformLocation(_cubeProgram, "u_Model");
-    _cubeModelViewLocation = glGetUniformLocation(_cubeProgram, "u_MVMatrix");
-    _cubeModelViewProjectionLocation = glGetUniformLocation(_cubeProgram, "u_MVP");
-    _cubeLightPositionLocation = glGetUniformLocation(_cubeProgram, "u_LightPos");
-    
-    glEnableVertexAttribArray(_cubePositionLocation);
-    glEnableVertexAttribArray(_cubeNormalLocation);
-    glEnableVertexAttribArray(_cubeColorLocation);
+    glEnableVertexAttribArray([cubeProgram getAttribLocation:@"a_Position"]);
+    glEnableVertexAttribArray([cubeProgram getAttribLocation:@"a_Normal"]);
+    glEnableVertexAttribArray([cubeProgram getAttribLocation:@"a_Color"]);
     
     glGenBuffers(1, &_cubeVertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, _cubeVertexBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(chair_chesterfieldVerts), chair_chesterfieldVerts, GL_STATIC_DRAW);
     
     // Set the position of the cube
-    glVertexAttribPointer(_cubePositionLocation, _coordsPerVertex, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
+    glVertexAttribPointer([cubeProgram getAttribLocation:@"a_Position"], _coordsPerVertex, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
     
     glGenBuffers(1, &_cubeNormalBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, _cubeNormalBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(chair_chesterfieldNormals), chair_chesterfieldNormals, GL_STATIC_DRAW);
     
     // Set the normal positions of the cube, again for shading
-    glVertexAttribPointer(_cubeNormalLocation, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
+    glVertexAttribPointer([cubeProgram getAttribLocation:@"a_Normal"], 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
     
     glGenBuffers(1, &_cubeColorBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, _cubeColorBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(chair_chesterfieldTexCoords), chair_chesterfieldTexCoords, GL_STATIC_DRAW);
     
-    glVertexAttribPointer(_cubeColorLocation, 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
+    glVertexAttribPointer([cubeProgram getAttribLocation:@"a_Color"], 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
     
     GLCheckForError();
     
@@ -671,25 +649,22 @@
     _modelView = GLKMatrix4Multiply(_view, _modelCube);
     _modelViewProjection = GLKMatrix4Multiply(_perspective, _modelView);
     
-    glUseProgram(_cubeProgram);
+    glUseProgram(cubeProgram.program);
     
     glBindVertexArrayOES(_cubeVertexArray);
     
-    glUniform3f(_cubeLightPositionLocation,
+    glUniform3f([cubeProgram getUniformLocation:@"u_LightPos"],
                 _lightPositionInEyeSpace.x,
                 _lightPositionInEyeSpace.y,
                 _lightPositionInEyeSpace.z);
     
-    // Set the Model in the shader, used to calculate lighting
-    glUniformMatrix4fv(_cubeModelLocation, 1, GL_FALSE, _modelCube.m);
-    
     // Set the ModelView in the shader, used to calculate lighting
-    glUniformMatrix4fv(_cubeModelViewLocation, 1, GL_FALSE, _modelView.m);
+    glUniformMatrix4fv([cubeProgram getUniformLocation:@"u_MVMatrix"], 1, GL_FALSE, _modelView.m);
     
     // Set the ModelViewProjection matrix in the shader.
-    glUniformMatrix4fv(_cubeModelViewProjectionLocation, 1, GL_FALSE, _modelViewProjection.m);
+    glUniformMatrix4fv([cubeProgram getUniformLocation:@"u_MVP"], 1, GL_FALSE, _modelViewProjection.m);
     
-    GLuint tloc = glGetUniformLocation(_cubeProgram, "texture_value");
+    GLuint tloc = [cubeProgram getUniformLocation:@"texture_value"];
     
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(texture.target, texture.name);

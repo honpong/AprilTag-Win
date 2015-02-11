@@ -16,16 +16,10 @@
 
 @interface TreasureRenderer : NSObject <StereoRendererDelegate>
 {
-    GLuint _cubeVertexArray;
-    GLuint _cubeVertexBuffer;
-    GLuint _cubeColorBuffer;
-    GLuint _cubeNormalBuffer;
-
     GLuint _chairVertexArray;
     GLuint _chairVertexBuffer;
-    GLuint _chairTextureBuffer;
+    GLuint _chairColorBuffer;
     GLuint _chairNormalBuffer;
-
     
     GLuint _floorVertexArray;
     GLuint _floorVertexBuffer;
@@ -34,13 +28,8 @@
 
     GLuint _ceilingColorBuffer;
 
-    GLuint _highlightedCubeProgram;
     GLuint _floorProgram;
     
-
-    GLint _chairPositionLocation;
-    GLint _chairNormalLocation;
-    GLint _chairTextureLocation;
 
     GLint _floorPositionLocation;
     GLint _floorNormalLocation;
@@ -52,7 +41,7 @@
     GLint _floorLightPositionLocation;
 
     GLKMatrix4 _perspective;
-    GLKMatrix4 _modelCube;
+    GLKMatrix4 _modelChair;
     GLKMatrix4 _camera;
     GLKMatrix4 _view;
     GLKMatrix4 _modelViewProjection;
@@ -79,8 +68,7 @@
     float _objectDistance;
     float _floorDepth;
     
-    RCGLShaderProgram *cubeProgram;
-    RCGLShaderProgram *program;
+    RCGLShaderProgram *chairProgram;
     GLKTextureInfo *texture;
 
     BOOL isSensorFusionRunning;
@@ -135,11 +123,11 @@
     glClearColor(0.2f, 0.2f, 0.2f, 0.5f); // Dark background so text shows up well.
     
     // Object first appears directly in front of user.
-    _modelCube = GLKMatrix4Identity;
-    _modelCube = GLKMatrix4Translate(_modelCube, 0, -_floorDepth, -_objectDistance);
-    _modelCube = GLKMatrix4Scale(_modelCube, 1.3, 1.3, 1.3);
-    _modelCube = GLKMatrix4Translate(_modelCube, 0., .5, 0.);
-    _modelCube = GLKMatrix4RotateY(_modelCube, M_PI);
+    _modelChair = GLKMatrix4Identity;
+    _modelChair = GLKMatrix4Translate(_modelChair, 0, -_floorDepth, -_objectDistance);
+    _modelChair = GLKMatrix4Scale(_modelChair, 1.3, 1.3, 1.3);
+    _modelChair = GLKMatrix4Translate(_modelChair, 0., .5, 0.);
+    _modelChair = GLKMatrix4RotateY(_modelChair, M_PI);
 
     _modelFloor = GLKMatrix4Identity;
     _modelFloor = GLKMatrix4Translate(_modelFloor, 0, -_floorDepth, 0); // Floor appears below user.
@@ -193,16 +181,9 @@
         return NO;
     }
     
-    cubeProgram = [[RCGLShaderProgram alloc] init];
-    [cubeProgram buildWithVertexFileName:@"light_vertex.shader" withFragmentFileName:@"passthrough_fragment.shader"];
-    
-    GLCheckForError();
-    
-    _highlightedCubeProgram = glCreateProgram();
-    glAttachShader(_highlightedCubeProgram, vertexShader);
-    glAttachShader(_highlightedCubeProgram, highlightFragmentShader);
-    GLLinkProgram(_highlightedCubeProgram);
-    glUseProgram(_highlightedCubeProgram);
+    chairProgram = [[RCGLShaderProgram alloc] init];
+    [chairProgram buildWithVertexFileName:@"shader.vsh" withFragmentFileName:@"shader.fsh"];
+    glUseProgram(chairProgram.program);
     
     GLCheckForError();
     
@@ -216,9 +197,6 @@
     
     glUseProgram(0);
     
-    program = [[RCGLShaderProgram alloc] init];
-    [program buildWithVertexFileName:@"shader.vsh" withFragmentFileName:@"shader.fsh"];
-    
     texture = [GLKTextureLoader textureWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"chair_chesterfield_d.png" ofType: nil] options:NULL error:NULL];
     
     return YES;
@@ -226,159 +204,6 @@
 
 - (void)setupVAOS
 {
-    const GLfloat cubeVertices[] =
-    {
-        // Front face
-        -1.0f, 1.0f, 1.0f,
-        -1.0f, -1.0f, 1.0f,
-        1.0f, 1.0f, 1.0f,
-        -1.0f, -1.0f, 1.0f,
-        1.0f, -1.0f, 1.0f,
-        1.0f, 1.0f, 1.0f,
-        
-        // Right face
-        1.0f, 1.0f, 1.0f,
-        1.0f, -1.0f, 1.0f,
-        1.0f, 1.0f, -1.0f,
-        1.0f, -1.0f, 1.0f,
-        1.0f, -1.0f, -1.0f,
-        1.0f, 1.0f, -1.0f,
-        
-        // Back face
-        1.0f, 1.0f, -1.0f,
-        1.0f, -1.0f, -1.0f,
-        -1.0f, 1.0f, -1.0f,
-        1.0f, -1.0f, -1.0f,
-        -1.0f, -1.0f, -1.0f,
-        -1.0f, 1.0f, -1.0f,
-        
-        // Left face
-        -1.0f, 1.0f, -1.0f,
-        -1.0f, -1.0f, -1.0f,
-        -1.0f, 1.0f, 1.0f,
-        -1.0f, -1.0f, -1.0f,
-        -1.0f, -1.0f, 1.0f,
-        -1.0f, 1.0f, 1.0f,
-        
-        // Top face
-        -1.0f, 1.0f, -1.0f,
-        -1.0f, 1.0f, 1.0f,
-        1.0f, 1.0f, -1.0f,
-        -1.0f, 1.0f, 1.0f,
-        1.0f, 1.0f, 1.0f,
-        1.0f, 1.0f, -1.0f,
-        
-        // Bottom face
-        1.0f, -1.0f, -1.0f,
-        1.0f, -1.0f, 1.0f,
-        -1.0f, -1.0f, -1.0f,
-        1.0f, -1.0f, 1.0f,
-        -1.0f, -1.0f, 1.0f,
-        -1.0f, -1.0f, -1.0f,
-    };
-    
-    const GLfloat cubeColors[] =
-    {
-        // front, green
-        0.0f, 0.5273f, 0.2656f, 1.0f,
-        0.0f, 0.5273f, 0.2656f, 1.0f,
-        0.0f, 0.5273f, 0.2656f, 1.0f,
-        0.0f, 0.5273f, 0.2656f, 1.0f,
-        0.0f, 0.5273f, 0.2656f, 1.0f,
-        0.0f, 0.5273f, 0.2656f, 1.0f,
-        
-        // right, blue
-        0.0f, 0.3398f, 0.9023f, 1.0f,
-        0.0f, 0.3398f, 0.9023f, 1.0f,
-        0.0f, 0.3398f, 0.9023f, 1.0f,
-        0.0f, 0.3398f, 0.9023f, 1.0f,
-        0.0f, 0.3398f, 0.9023f, 1.0f,
-        0.0f, 0.3398f, 0.9023f, 1.0f,
-        
-        // back, also green
-        0.0f, 0.5273f, 0.2656f, 1.0f,
-        0.0f, 0.5273f, 0.2656f, 1.0f,
-        0.0f, 0.5273f, 0.2656f, 1.0f,
-        0.0f, 0.5273f, 0.2656f, 1.0f,
-        0.0f, 0.5273f, 0.2656f, 1.0f,
-        0.0f, 0.5273f, 0.2656f, 1.0f,
-        
-        // left, also blue
-        0.0f, 0.3398f, 0.9023f, 1.0f,
-        0.0f, 0.3398f, 0.9023f, 1.0f,
-        0.0f, 0.3398f, 0.9023f, 1.0f,
-        0.0f, 0.3398f, 0.9023f, 1.0f,
-        0.0f, 0.3398f, 0.9023f, 1.0f,
-        0.0f, 0.3398f, 0.9023f, 1.0f,
-        
-        // top, red
-        0.8359375f,  0.17578125f,  0.125f, 1.0f,
-        0.8359375f,  0.17578125f,  0.125f, 1.0f,
-        0.8359375f,  0.17578125f,  0.125f, 1.0f,
-        0.8359375f,  0.17578125f,  0.125f, 1.0f,
-        0.8359375f,  0.17578125f,  0.125f, 1.0f,
-        0.8359375f,  0.17578125f,  0.125f, 1.0f,
-        
-        // bottom, also red
-        0.8359375f,  0.17578125f,  0.125f, 1.0f,
-        0.8359375f,  0.17578125f,  0.125f, 1.0f,
-        0.8359375f,  0.17578125f,  0.125f, 1.0f,
-        0.8359375f,  0.17578125f,  0.125f, 1.0f,
-        0.8359375f,  0.17578125f,  0.125f, 1.0f,
-        0.8359375f,  0.17578125f,  0.125f, 1.0f,
-    };
-        
-    const GLfloat cubeNormals[] =
-    {
-        // Front face
-        0.0f, 0.0f, 1.0f,
-        0.0f, 0.0f, 1.0f,
-        0.0f, 0.0f, 1.0f,
-        0.0f, 0.0f, 1.0f,
-        0.0f, 0.0f, 1.0f,
-        0.0f, 0.0f, 1.0f,
-        
-        // Right face
-        1.0f, 0.0f, 0.0f,
-        1.0f, 0.0f, 0.0f,
-        1.0f, 0.0f, 0.0f,
-        1.0f, 0.0f, 0.0f,
-        1.0f, 0.0f, 0.0f,
-        1.0f, 0.0f, 0.0f,
-        
-        // Back face
-        0.0f, 0.0f, -1.0f,
-        0.0f, 0.0f, -1.0f,
-        0.0f, 0.0f, -1.0f,
-        0.0f, 0.0f, -1.0f,
-        0.0f, 0.0f, -1.0f,
-        0.0f, 0.0f, -1.0f,
-        
-        // Left face
-        -1.0f, 0.0f, 0.0f,
-        -1.0f, 0.0f, 0.0f,
-        -1.0f, 0.0f, 0.0f,
-        -1.0f, 0.0f, 0.0f,
-        -1.0f, 0.0f, 0.0f,
-        -1.0f, 0.0f, 0.0f,
-        
-        // Top face
-        0.0f, 1.0f, 0.0f,
-        0.0f, 1.0f, 0.0f,
-        0.0f, 1.0f, 0.0f,
-        0.0f, 1.0f, 0.0f,
-        0.0f, 1.0f, 0.0f,
-        0.0f, 1.0f, 0.0f,
-        
-        // Bottom face
-        0.0f, -1.0f, 0.0f,
-        0.0f, -1.0f, 0.0f,
-        0.0f, -1.0f, 0.0f,
-        0.0f, -1.0f, 0.0f,
-        0.0f, -1.0f, 0.0f,
-        0.0f, -1.0f, 0.0f
-    };
-    
     const GLfloat floorVertices[] =
     {
         5.0f,  0.0f, -5.0f,
@@ -419,79 +244,38 @@
         0.0f, 0.6f, 0.0f, 1.0f,
     };
 
-    // Cube VAO setup
-    glGenVertexArraysOES(1, &_cubeVertexArray);
-    glBindVertexArrayOES(_cubeVertexArray);
-    
-    glEnableVertexAttribArray([cubeProgram getAttribLocation:@"a_Position"]);
-    glEnableVertexAttribArray([cubeProgram getAttribLocation:@"a_Normal"]);
-    glEnableVertexAttribArray([cubeProgram getAttribLocation:@"a_Color"]);
-    
-    glGenBuffers(1, &_cubeVertexBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, _cubeVertexBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(chair_chesterfieldVerts), chair_chesterfieldVerts, GL_STATIC_DRAW);
-    
-    // Set the position of the cube
-    glVertexAttribPointer([cubeProgram getAttribLocation:@"a_Position"], _coordsPerVertex, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
-    
-    glGenBuffers(1, &_cubeNormalBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, _cubeNormalBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(chair_chesterfieldNormals), chair_chesterfieldNormals, GL_STATIC_DRAW);
-    
-    // Set the normal positions of the cube, again for shading
-    glVertexAttribPointer([cubeProgram getAttribLocation:@"a_Normal"], 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
-    
-    glGenBuffers(1, &_cubeColorBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, _cubeColorBuffer);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(chair_chesterfieldTexCoords), chair_chesterfieldTexCoords, GL_STATIC_DRAW);
-    
-    glVertexAttribPointer([cubeProgram getAttribLocation:@"a_Color"], 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
-    
-    GLCheckForError();
-    
-    glBindVertexArrayOES(0);
-    
-    
-    
-    
     // Chair VAO setup
     glGenVertexArraysOES(1, &_chairVertexArray);
     glBindVertexArrayOES(_chairVertexArray);
     
-    
-    _chairPositionLocation = glGetAttribLocation(program.program, "position");
-    _chairNormalLocation = glGetAttribLocation(program.program, "normal");
-    _chairTextureLocation = glGetAttribLocation(program.program, "texture_coordinate");
-    
-    
-    glEnableVertexAttribArray(_chairPositionLocation);
-    glEnableVertexAttribArray(_chairNormalLocation);
-    glEnableVertexAttribArray(_chairTextureLocation);
-    
+    glEnableVertexAttribArray([chairProgram getAttribLocation:@"position"]);
+    glEnableVertexAttribArray([chairProgram getAttribLocation:@"normal"]);
+    glEnableVertexAttribArray([chairProgram getAttribLocation:@"texture_coordinate"]);
     
     glGenBuffers(1, &_chairVertexBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, _chairVertexBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(chair_chesterfieldVerts), chair_chesterfieldVerts, GL_STATIC_DRAW);
     
     // Set the position of the cube
-    glVertexAttribPointer(_chairPositionLocation, _coordsPerVertex, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
+    glVertexAttribPointer([chairProgram getAttribLocation:@"position"], _coordsPerVertex, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
     
     glGenBuffers(1, &_chairNormalBuffer);
     glBindBuffer(GL_ARRAY_BUFFER, _chairNormalBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(chair_chesterfieldNormals), chair_chesterfieldNormals, GL_STATIC_DRAW);
     
     // Set the normal positions of the cube, again for shading
-    glVertexAttribPointer(_chairNormalLocation, 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
+    glVertexAttribPointer([chairProgram getAttribLocation:@"normal"], 3, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
     
-    glGenBuffers(1, &_chairTextureBuffer);
-    glBindBuffer(GL_ARRAY_BUFFER, _chairTextureBuffer);
+    glGenBuffers(1, &_chairColorBuffer);
+    glBindBuffer(GL_ARRAY_BUFFER, _chairColorBuffer);
     glBufferData(GL_ARRAY_BUFFER, sizeof(chair_chesterfieldTexCoords), chair_chesterfieldTexCoords, GL_STATIC_DRAW);
     
-    glVertexAttribPointer(_chairTextureLocation, 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
+    glVertexAttribPointer([chairProgram getAttribLocation:@"texture_coordinate"], 2, GL_FLOAT, GL_FALSE, 0, BUFFER_OFFSET(0));
     
     GLCheckForError();
     
     glBindVertexArrayOES(0);
+
     
     
     // Floor VAO setup
@@ -581,9 +365,7 @@
     
     [self drawFloorAndCeiling];
 
-    [self drawCube];
-    
-    //[self drawChair];
+    [self drawChair];
 }
 
 - (void)finishFrameWithViewportRect:(CGRect)viewPort
@@ -642,29 +424,33 @@
 
 // Draw the cube.
 // We've set all of our transformation matrices. Now we simply pass them into the shader.
-- (void)drawCube
+- (void)drawChair
 {
     // Build the ModelView and ModelViewProjection matrices
     // for calculating cube position and light.
-    _modelView = GLKMatrix4Multiply(_view, _modelCube);
+    _modelView = GLKMatrix4Multiply(_view, _modelChair);
     _modelViewProjection = GLKMatrix4Multiply(_perspective, _modelView);
     
-    glUseProgram(cubeProgram.program);
+    glUseProgram(chairProgram.program);
     
-    glBindVertexArrayOES(_cubeVertexArray);
+    glBindVertexArrayOES(_chairVertexArray);
     
-    glUniform3f([cubeProgram getUniformLocation:@"u_LightPos"],
-                _lightPositionInEyeSpace.x,
-                _lightPositionInEyeSpace.y,
-                _lightPositionInEyeSpace.z);
     
-    // Set the ModelView in the shader, used to calculate lighting
-    glUniformMatrix4fv([cubeProgram getUniformLocation:@"u_MVMatrix"], 1, GL_FALSE, _modelView.m);
+    glUniformMatrix4fv([chairProgram getUniformLocation:@"projection_matrix"], 1, false, _perspective.m);
     
-    // Set the ModelViewProjection matrix in the shader.
-    glUniformMatrix4fv([cubeProgram getUniformLocation:@"u_MVP"], 1, GL_FALSE, _modelViewProjection.m);
+    glUniformMatrix4fv([chairProgram getUniformLocation:@"camera_matrix"], 1, false, _view.m);
+
+    glUniformMatrix4fv([chairProgram getUniformLocation:@"model_matrix"], 1, false, _modelChair.m);
     
-    GLuint tloc = [cubeProgram getUniformLocation:@"texture_value"];
+    glUniform3f([chairProgram getUniformLocation:@"light_direction"], 0, 0, 1);
+    glUniform4f([chairProgram getUniformLocation:@"light_ambient"], .8, .8, .8, 1);
+    glUniform4f([chairProgram getUniformLocation:@"light_diffuse"], .8, .8, .8, 1);
+    glUniform4f([chairProgram getUniformLocation:@"light_specular"], .8, .8, .8, 1);
+    glUniform4f([chairProgram getUniformLocation:@"material_specular"], .1, .1, .1, 1);
+    glUniform1f([chairProgram getUniformLocation:@"material_shininess"], 20.);
+    
+    
+    GLuint tloc = [chairProgram getUniformLocation:@"texture_value"];
     
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(texture.target, texture.name);
@@ -676,135 +462,6 @@
     
     glBindVertexArrayOES(0);
     glUseProgram(0);
-}
-
-
-// Draw the cube.
-// We've set all of our transformation matrices. Now we simply pass them into the shader.
-- (void)drawCube2
-{
-    // Build the ModelView and ModelViewProjection matrices
-    // for calculating cube position and light.
-    _modelView = GLKMatrix4Multiply(_view, _modelCube);
-    _modelViewProjection = GLKMatrix4Multiply(_perspective, _modelView);
-    
-    glUseProgram(program.program);
-    
-    glBindVertexArrayOES(_chairVertexArray);
-
-    
-    glUniformMatrix4fv([program getUniformLocation:@"projection_matrix"], 1, false, _perspective.m);
-    
-    glUniformMatrix4fv([program getUniformLocation:@"camera_matrix"], 1, false, _view.m);
-    
-    
-    glUniform3f([program getUniformLocation:@"light_direction"], 0, 0, 1);
-    glUniform4f([program getUniformLocation:@"light_ambient"], .8, .8, .8, 1);
-    glUniform4f([program getUniformLocation:@"light_diffuse"], .8, .8, .8, 1);
-    glUniform4f([program getUniformLocation:@"light_specular"], .8, .8, .8, 1);
-    glUniform4f([program getUniformLocation:@"material_specular"], .1, .1, .1, 1);
-    glUniform1f([program getUniformLocation:@"material_shininess"], 20.);
-    
-    //Concatenating GLKit matrices goes left to right, and our shaders multiply with matrices on the left and vectors on the right.
-    //So the last transformation listed is applied to our vertices first
-
-    GLKMatrix4 model = GLKMatrix4Identity;
-    model = GLKMatrix4Translate(model, 0., 1.5, -1.5);
-    model = GLKMatrix4Scale(model, 1.1, 1.1, 1.1);
-    model = GLKMatrix4Translate(model, 0., 0., .5);
-    model = GLKMatrix4RotateZ(model, M_PI);
-    model = GLKMatrix4RotateX(model, M_PI_2);
-    glUniformMatrix4fv([program getUniformLocation:@"model_matrix"], 1, false, model.m);
-    
-    
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(texture.target, texture.name);
-    glUniform1i([program getUniformLocation:@"texture_value"], 0);
-    
-    glDrawArrays(GL_TRIANGLES, 0, chair_chesterfieldNumVerts);
-
-    
-    GLCheckForError();
-    
-    glBindVertexArrayOES(0);
-    glUseProgram(0);
-}
-
-- (void)drawChair
-{
-    glUseProgram(program.program);
-
-    glUniformMatrix4fv([program getUniformLocation:@"projection_matrix"], 1, false, _perspective.m);
-
-    glUniformMatrix4fv([program getUniformLocation:@"camera_matrix"], 1, false, _view.m);
-
-    
-    glUniform3f([program getUniformLocation:@"light_direction"], 0, 0, 1);
-    glUniform4f([program getUniformLocation:@"light_ambient"], .8, .8, .8, 1);
-    glUniform4f([program getUniformLocation:@"light_diffuse"], .8, .8, .8, 1);
-    glUniform4f([program getUniformLocation:@"light_specular"], .8, .8, .8, 1);
-    
-    //    glUniform4f([program getUniformLocation:@"material_ambient"], 1., 0., 0., 1);
-    //    glUniform4f([program getUniformLocation:@"material_diffuse"], 0., 0., 0., 1);
-    glUniform4f([program getUniformLocation:@"material_specular"], 1., 1., 1., 1);
-    glUniform1f([program getUniformLocation:@"material_shininess"], 200.);
-    
-    GLKMatrix4 model = GLKMatrix4Identity;
-    glUniformMatrix4fv([program getUniformLocation:@"model_matrix"], 1, false, model.m);
- 
-#ifdef SHOW_AXES
-    glEnableVertexAttribArray([program getAttribLocation:@"position"]);
-    glVertexAttribPointer([program getAttribLocation:@"position"], 3, GL_FLOAT, 0, 0, x_vertex);
-    glDrawArrays(GL_LINES, 0, 2);
-    
-    
-    glUniform4f([program getUniformLocation:@"material_ambient"], 0., 1., 0., 1);
-    glVertexAttribPointer([program getAttribLocation:@"position"], 3, GL_FLOAT, 0, 0, y_vertex);
-    glDrawArrays(GL_LINES, 0, 2);
-    
-    glUniform4f([program getUniformLocation:@"material_ambient"], 0., 0., 1., 1);
-    glVertexAttribPointer([program getAttribLocation:@"position"], 3, GL_FLOAT, 0, 0, z_vertex);
-    glDrawArrays(GL_LINES, 0, 2);
-#endif
-    
-    //    glUniform4f([program getUniformLocation:@"material_ambient"], 0.25, 0.125, .05, 1);
-    //    glUniform4f([program getUniformLocation:@"material_diffuse"], 0.25, 0.125, .05, 1);
-    glUniform4f([program getUniformLocation:@"material_specular"], .1, .1, .1, 1);
-    glUniform1f([program getUniformLocation:@"material_shininess"], 20.);
-    
-    //Concatenating GLKit matrices goes left to right, and our shaders multiply with matrices on the left and vectors on the right.
-    //So the last transformation listed is applied to our vertices first
-    
-    model = GLKMatrix4Translate(model, 0., 1.5, -1.5);
-    
-    //Position it at the origin
-    //model = GLKMatrix4Translate(model, 0., 0., 0.);
-    //Scale our model so it's 10 cm on a side
-    model = GLKMatrix4Scale(model, 1.1, 1.1, 1.1);
-    model = GLKMatrix4Translate(model, 0., 0., .5);
-    model = GLKMatrix4RotateZ(model, M_PI);
-    model = GLKMatrix4RotateX(model, M_PI_2);
-    
-    glUniformMatrix4fv([program getUniformLocation:@"model_matrix"], 1, false, model.m);
-    
-    glEnableVertexAttribArray([program getAttribLocation:@"position"]);
-    glEnableVertexAttribArray([program getAttribLocation:@"normal"]);
-    glEnableVertexAttribArray([program getAttribLocation:@"texture_coordinate"]);
-    
-    glVertexAttribPointer([program getAttribLocation:@"position"], 3, GL_FLOAT, 0, 0, chair_chesterfieldVerts);
-    glVertexAttribPointer([program getAttribLocation:@"normal"], 3, GL_FLOAT, 0, 0, chair_chesterfieldNormals);
-    glVertexAttribPointer([program getAttribLocation:@"texture_coordinate"], 2, GL_FLOAT, 0, 0, chair_chesterfieldTexCoords);
-    
-    glActiveTexture(GL_TEXTURE0);
-    glBindTexture(texture.target, texture.name);
-    glUniform1i([program getUniformLocation:@"texture_value"], 0);
-    
-    //glDrawArrays(GL_TRIANGLES, 0, chair_chesterfieldNumVerts);
-    
-    glDisableVertexAttribArray([program getAttribLocation:@"position"]);
-    glDisableVertexAttribArray([program getAttribLocation:@"normal"]);
-    glDisableVertexAttribArray([program getAttribLocation:@"texture_coordinate"]);
-    
 }
 
 - (void)magneticTriggerPressed

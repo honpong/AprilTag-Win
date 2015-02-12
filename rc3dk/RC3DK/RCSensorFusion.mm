@@ -668,12 +668,15 @@ typedef NS_ENUM(int, RCLicenseStatus)
         return;
     }
     CMTime timestamp = (CMTime)CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
-    uint64_t time_us = timestamp.value / (timestamp.timescale / 1000000.);
-    uint64_t now = get_timestamp();
-    if(now - time_us > 100000)
+    if(!_cor_setup->sfm.ignore_lateness)
     {
-        DLog(@"Warning, got an old video frame - timestamp %lld, now %lld\n", time_us, now);
-        return;
+        uint64_t time_us = timestamp.value / (timestamp.timescale / 1000000.);
+        uint64_t now = get_timestamp();
+        if(now - time_us > 100000)
+        {
+            DLog(@"Warning, got an old video frame - timestamp %lld, now %lld\n", time_us, now);
+            return;
+        }
     }
     
     if (sampleBuffer) sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
@@ -754,12 +757,15 @@ typedef NS_ENUM(int, RCLicenseStatus)
 - (void) receiveAccelerometerData:(CMAccelerometerData *)accelerationData;
 {
     if(!isSensorFusionRunning) return;
-    uint64_t time_us = accelerationData.timestamp * 1000000;
-    uint64_t now = get_timestamp();
-    if(now - time_us > 40000)
+    if(!_cor_setup->sfm.ignore_lateness)
     {
-        DLog(@"Warning, got an old accelerometer sample - timestamp %lld, now %lld\n", time_us, now);
-        return;
+        uint64_t time_us = accelerationData.timestamp * 1000000;
+        uint64_t now = get_timestamp();
+        if(now - time_us > 40000)
+        {
+            DLog(@"Warning, got an old accelerometer sample - timestamp %lld, now %lld\n", time_us, now);
+            return;
+        }
     }
     dispatch_async(inputQueue, ^{
         if (!isSensorFusionRunning) return;
@@ -782,12 +788,15 @@ typedef NS_ENUM(int, RCLicenseStatus)
 - (void) receiveGyroData:(CMGyroData *)gyroData
 {
     if(!isSensorFusionRunning) return;
-    uint64_t time_us = gyroData.timestamp * 1000000;
-    uint64_t now = get_timestamp();
-    if(now - time_us > 40000)
+    if(!_cor_setup->sfm.ignore_lateness)
     {
-        DLog(@"Warning, got an old gyro sample - timestamp %lld, now %lld\n", time_us, now);
-        return;
+        uint64_t time_us = gyroData.timestamp * 1000000;
+        uint64_t now = get_timestamp();
+        if(now - time_us > 40000)
+        {
+            DLog(@"Warning, got an old gyro sample - timestamp %lld, now %lld\n", time_us, now);
+            return;
+        }
     }
     dispatch_async(inputQueue, ^{
         if (!isSensorFusionRunning) return;

@@ -47,7 +47,7 @@ typedef NS_ENUM(int, MessageColor) {
 };
 
 enum state { ST_STARTUP, ST_READY, ST_INITIALIZING, ST_FIRST_MOVE, ST_SECOND_MOVE, ST_CAPTURE, ST_PROCESSING, ST_ERROR, ST_DISK_SPACE, ST_FINISHED, ST_ANY } currentState;
-enum event { EV_RESUME, EV_FIRSTTIME, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_SHUTTER_TAP, EV_PAUSE, EV_CANCEL, EV_MOVE_DONE, EV_MOVE_UNDONE, EV_PROCESSING_FINISHED, EV_INITIALIZED, EV_STEREOFAIL, EV_DISK_SPACE };
+enum event { EV_RESUME, EV_FIRSTTIME, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_SHUTTER_TAP, EV_PAUSE, EV_CANCEL, EV_MOVE_DONE, EV_MOVE_UNDONE, EV_PROCESSING_FINISHED, EV_INITIALIZED, EV_STEREOFAIL, EV_DISK_SPACE, EV_NOT_CONFIDENT };
 
 typedef struct { enum state state; enum event event; enum state newstate; } transition;
 
@@ -89,6 +89,7 @@ static transition transitions[] =
     { ST_SECOND_MOVE, EV_MOVE_DONE, ST_CAPTURE },
     { ST_SECOND_MOVE, EV_FAIL, ST_ERROR },
     { ST_SECOND_MOVE, EV_FASTFAIL, ST_ERROR },
+    { ST_SECOND_MOVE, EV_NOT_CONFIDENT, ST_ERROR },
     { ST_CAPTURE, EV_SHUTTER_TAP, ST_PROCESSING },
     { ST_CAPTURE, EV_MOVE_UNDONE, ST_SECOND_MOVE },
     { ST_CAPTURE, EV_FAIL, ST_ERROR },
@@ -175,9 +176,13 @@ static transition transitions[] =
             [self handleCaptureFinished];
         }
     }
+    else if(newState == ST_FIRST_MOVE)
+    {
+        firstStereoSensorFusionData = nil;
+    }
     else if(newState == ST_SECOND_MOVE)
     {
-        firstStereoSensorFusionData = lastStereoSensorFusionData;
+        if (firstStereoSensorFusionData == nil) firstStereoSensorFusionData = lastStereoSensorFusionData;
     }
     
     return YES;
@@ -378,6 +383,11 @@ static transition transitions[] =
     {
         [self handleStateEvent:EV_INITIALIZED];
     }
+    
+    if(currentState == ST_SECOND_MOVE && status.confidence != RCSensorFusionConfidenceHigh)
+    {
+        [self handleStateEvent:EV_NOT_CONFIDENT];
+    }
 }
 
 - (void) sensorFusionDidUpdateData:(RCSensorFusionData*)data
@@ -401,32 +411,51 @@ static transition transitions[] =
     {
         //Compute the capture progress here
         float depth = [median floatValue];
+        float progress = 0;
         
         RCPoint *projectedpt = [[initialCamera.rotation getInverse] transformPoint:[data.transformation.translation transformPoint:[[RCPoint alloc] initWithX:0. withY:0. withZ:0.]]];
         
         float targetDist = log(depth / 8. + 1.) + .05; // require movement of at least 5cm
         
-        float dx = projectedpt.x / targetDist;
-        if(dx > 1.) dx = 1.;
-        if(dx < -1.) dx = -1.;
-
-        float progress = fabs(dx);
-        
-        float const distThreshold = .05; // it's very difficult to get back to zero, so we need this threshold
-        
         if(currentState == ST_FIRST_MOVE)
         {
+            float dx = projectedpt.x / targetDist;
+            if(dx > 1.) dx = 1.;
+            if(dx < -1.) dx = -1.;
+            
+            progress = fabs(dx);
+            
             if (progress < 1.) self.progressBar.progress = progress;
             else [self handleStateEvent:EV_MOVE_DONE];
         }
-        else if(currentState == ST_SECOND_MOVE)
+        else
         {
-            if (progress > distThreshold) self.progressBar.progress = 1. - progress;
-            else [self handleStateEvent:EV_MOVE_DONE];
-        }
-        else if(currentState == ST_CAPTURE)
-        {
-            if (progress > distThreshold) [self handleStateEvent:EV_MOVE_UNDONE];
+            RCPoint* turnPoint = [firstStereoSensorFusionData.transformation.translation transformPoint:[RCPoint new]];
+            RCPoint* currentPosition = [data.transformation.translation transformPoint:[RCPoint new]];
+            RCTranslation* secondMove = [RCTranslation translationFromPoint:turnPoint toPoint:currentPosition];
+            
+            float distFromTurnPoint = [secondMove getDistance].scalar;
+            float distFirstMove = [firstStereoSensorFusionData.transformation.translation getDistance].scalar;
+            float distFromOrigin = [data.transformation.translation getDistance].scalar;
+            
+            if (distFromOrigin > distFirstMove)
+                progress = 0; // don't update progress if they're moving beyond the turn point
+            else
+                progress = distFromTurnPoint / targetDist;
+            
+            if(currentState == ST_SECOND_MOVE)
+            {
+                if (progress < 1.) self.progressBar.progress = progress;
+                else
+                {
+                    self.progressBar.progress = 1.;
+                    [self handleStateEvent:EV_MOVE_DONE];
+                }
+            }
+            else if(currentState == ST_CAPTURE)
+            {
+                if (progress < 1.) [self handleStateEvent:EV_MOVE_UNDONE];
+            }
         }
     }
     

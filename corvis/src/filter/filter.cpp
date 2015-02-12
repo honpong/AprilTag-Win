@@ -979,7 +979,7 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     filter_send_output(f, time);
     send_current_features_packet(f, time);
 
-    if(f->s.estimate_calibration && !f->estimating_Tc && time - f->active_time > 2000000)
+    if(estimate_camera_extrinsics && !f->estimating_Tc && time - f->active_time > 2000000)
     {
         //TODO: leaving Tc out of the state now. This gain scheduling is wrong (crash when adding tc back in if state is full).
         f->s.children.push_back(&f->s.Tc);
@@ -995,7 +995,7 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
             if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def before disabling orient only\n");
 #endif
             f->s.disable_orientation_only();
-            if(f->s.estimate_calibration) {
+            if(estimate_camera_extrinsics) {
                 f->s.remove_child(&(f->s.Tc));
                 f->s.remap();
                 f->estimating_Tc = false;

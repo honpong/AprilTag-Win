@@ -12,7 +12,7 @@
 #include "../../../shared_corvis_3dk/camera_control_interface.h"
 
 struct filter {
-filter(bool estimate_calibration): s(estimate_calibration, cov)
+filter(): s(cov)
     {
         //make sure all pointers are null
         output = 0;

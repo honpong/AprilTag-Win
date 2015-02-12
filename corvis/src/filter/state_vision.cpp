@@ -145,17 +145,18 @@ int state_vision_group::make_normal()
     return 0;
 }
 
-state_vision::state_vision(bool _estimate_calibration, covariance &c): state_motion(c), Tc("Tc"), Wc("Wc"), focal_length("focal_length"), center_x("center_x"), center_y("center_y"), k1("k1"), k2("k2"), k3("k3")
+state_vision::state_vision(covariance &c): state_motion(c), Tc("Tc"), Wc("Wc"), focal_length("focal_length"), center_x("center_x"), center_y("center_y"), k1("k1"), k2("k2"), k3("k3")
 {
-    estimate_calibration = _estimate_calibration;
     reference = NULL;
-    children.push_back(&focal_length);
-    children.push_back(&center_x);
-    children.push_back(&center_y);
-    children.push_back(&k1);
-    children.push_back(&k2);
-    //children.push_back(&k3);
-    if(estimate_calibration) {
+    if(estimate_camera_intrinsics)
+    {
+        children.push_back(&focal_length);
+        children.push_back(&center_x);
+        children.push_back(&center_y);
+        children.push_back(&k1);
+        children.push_back(&k2);
+    }
+    if(estimate_camera_extrinsics) {
         children.push_back(&Tc);
         children.push_back(&Wc);
     }
@@ -289,15 +290,18 @@ feature_t state_vision::calibrate_feature(const feature_t &initial) const
 
 void state_vision::remove_non_orientation_states()
 {
-    if(estimate_calibration) {
+    if(estimate_camera_extrinsics) {
         remove_child(&Tc);
         remove_child(&Wc);
     }
-    remove_child(&focal_length);
-    remove_child(&center_x);
-    remove_child(&center_y);
-    remove_child(&k1);
-    remove_child(&k2);
+    if(estimate_camera_intrinsics)
+    {
+        remove_child(&focal_length);
+        remove_child(&center_x);
+        remove_child(&center_y);
+        remove_child(&k1);
+        remove_child(&k2);
+    }
     remove_child(&groups);
     state_motion::remove_non_orientation_states();
 }
@@ -306,15 +310,18 @@ void state_vision::add_non_orientation_states()
 {
     state_motion::add_non_orientation_states();
 
-    if(estimate_calibration) {
+    if(estimate_camera_extrinsics) {
         children.push_back(&Tc);
         children.push_back(&Wc);
     }
-    children.push_back(&focal_length);
-    children.push_back(&center_x);
-    children.push_back(&center_y);
-    children.push_back(&k1);
-    children.push_back(&k2);
+    if(estimate_camera_intrinsics)
+    {
+        children.push_back(&focal_length);
+        children.push_back(&center_x);
+        children.push_back(&center_y);
+        children.push_back(&k1);
+        children.push_back(&k2);
+    }
     children.push_back(&groups);
 }
 

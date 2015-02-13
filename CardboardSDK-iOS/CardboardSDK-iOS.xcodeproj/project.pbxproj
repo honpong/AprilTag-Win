@@ -431,8 +431,8 @@
 				D9D670111A86C33A00764F9A /* shader.vsh */,
 			);
 			name = AugmentedReality;
-			path = /Users/eagle/projects/rcmain/RC3DKSampleAR/RC3DKSampleAR/../../AugmentedReality;
-			sourceTree = "<absolute>";
+			path = ../../AugmentedReality;
+			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 

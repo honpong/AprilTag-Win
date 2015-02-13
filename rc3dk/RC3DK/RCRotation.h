@@ -47,6 +47,12 @@
  */
 - (RCRotation *) getInverse;
 
+/** Flip one axis of the coordinate system to move between left and right handed coordinates.
+ @param axis The zero-based index of the axis (x = 0, y = 1, z = 2). Other values produced undefined behavior.
+ @returns The rotation in the mirrored coordinate system.
+ */
+- (RCRotation *)flipAxis:(int)axis;
+
 /** Compute the composition of two rotations.
  
  The composition is performed in such a way that, if R1 and R2 are RCRotation objects, and pt is an RCPoint object, the following two lines would produce the same results (up to numerical precision):

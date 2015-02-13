@@ -40,13 +40,22 @@
     return [[RCTransformation alloc] initWithTranslation:trans withRotation:rot];
 }
 
+- (RCTransformation *) flipAxis:(int)axis
+{
+    return [[RCTransformation alloc] initWithTranslation:[self.translation flipAxis:axis] withRotation:[self.rotation flipAxis:axis]];
+}
+
+- (RCTransformation *) transformCoordinates:(RCTransformation *)transformBy
+{
+    return [transformBy composeWithTransformation:[self composeWithTransformation:[transformBy getInverse]]];
+}
+
 - (RCTransformation *) composeWithTransformation:(RCTransformation *)other
 {
     RCRotation *rot = [_rotation composeWithRotation:other.rotation];
     RCTranslation *trans = [_translation composeWithTranslation:[_rotation transformTranslation:other.translation]];
     return [[RCTransformation alloc] initWithTranslation:trans withRotation:rot];    
 }
-
 
 - (NSDictionary *) dictionaryRepresentation
 {

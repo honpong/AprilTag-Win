@@ -85,6 +85,15 @@
     return [[RCRotation alloc] initWithQuaternionW:a.w() withX:a.x() withY:a.y() withZ:a.z()];
 }
 
+- (RCRotation *)flipAxis:(int)axis
+{
+    m4 R = to_rotation_matrix(q);
+    m4 flip = m4_identity;
+    flip[axis][axis] = -1;
+    quaternion res = to_quaternion(flip * R);
+    return [[RCRotation alloc] initWithQuaternionW:res.w() withX:res.x() withY:res.y() withZ:res.z()];
+}
+
 - (NSDictionary*) dictionaryRepresentation
 {
     //create a dictionary and add the two memebers of this class as floats

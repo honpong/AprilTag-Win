@@ -43,6 +43,21 @@
     return self;
 }
 
+- (id) initWithAxisX:(float)ax withAxisY:(float)ay withAxisZ:(float)az withAngle:(float)theta
+{
+    if(self = [super init])
+    {
+        float st = sin(theta/2.);
+        float w = cos(theta/2.);
+        float x = ax * st;
+        float y = ay * st;
+        float z = az * st;
+        q = quaternion(w, x, y, z);
+    }
+    return self;
+}
+
+
 - (void) getOpenGLMatrix:(float[16])matrix
 {
     m4 rot = to_rotation_matrix(q);

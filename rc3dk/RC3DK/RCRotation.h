@@ -13,6 +13,7 @@
 
 /** Instantiate an RCRotation with the given quaternion parameters. */
 - (id) initWithQuaternionW:(float)w withX:(float)x withY:(float)y withZ:(float)z;
+- (id) initWithAxisX:(float)ax withAxisY:(float)ay withAxisZ:(float)az withAngle:(float)theta;
 
 /** The w element of the quaternion. */
 @property (nonatomic, readonly) float quaternionW;

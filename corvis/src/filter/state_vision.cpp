@@ -102,17 +102,15 @@ void state_vision_group::make_empty()
 
 int state_vision_group::process_features()
 {
-    int good_in_group = 0;
     features.children.remove_if([&](state_vision_feature *f) {
-        if(f->is_good())
-            ++good_in_group;
         return f->should_drop();
     });
-    if(features.children.size() < min_feats) {
-        return 0;
-    }
-    health = good_in_group;
-    return features.children.size();
+
+    health = features.children.size();
+    if(health < min_feats)
+        health = 0;
+
+    return health;
 }
 
 int state_vision_group::make_reference()

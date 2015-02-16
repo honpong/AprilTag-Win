@@ -193,41 +193,47 @@ void state_vision::reset_position()
 
 int state_vision::process_features(uint64_t time)
 {
-    int feats_used = 0;
+    int total_health = 0;
     bool need_reference = true;
     state_vision_group *best_group = 0;
     int best_health = -1;
     int normal_groups = 0;
+
     for(state_vision_group *g : groups.children) {
-        int feats = g->process_features();
-        if(g->status && g->status != group_initializing) feats_used += feats;
-        if(!feats) {
-            if(g->status == group_reference) {
-                reference = 0;
-            }
+        // Delete the features we marked to drop, return the health of
+        // the group (the number of features)
+        int health = g->process_features();
+
+        if(g->status && g->status != group_initializing)
+            total_health += health;
+
+        // Notify features that this group is about to disappear
+        // This sets group_empty (even if group_reference)
+        if(!health)
             g->make_empty();
-        }
-        if(g->status == group_reference) need_reference = false;
-        if(g->status == group_initializing) {
-            if(g->health >= g->min_feats) {
-                g->make_normal();
-            }
-        }
+
+        // Found our reference group
+        if(g->status == group_reference)
+            need_reference = false;
+
+        // If we have enough features to initialize the group, do it
+        if(g->status == group_initializing && health >= g->min_feats)
+            g->make_normal();
+
         if(g->status == group_normal) {
             ++normal_groups;
-            if(g->health > best_health) {
+            if(health > best_health) {
                 best_group = g;
                 best_health = g->health;
             }
         }
     }
+
     if(best_group && need_reference) {
-        feats_used += best_group->make_reference();
+        total_health += best_group->make_reference();
         reference = best_group;
-    } else if(!normal_groups && best_group) {
-        best_group->make_normal();
     }
-    return feats_used;
+    return total_health;
 }
 
 state_vision_feature * state_vision::add_feature(f_t initialx, f_t initialy)

@@ -505,6 +505,8 @@ typedef NS_ENUM(int, RCLicenseStatus)
     [self flushAndReset];
 }
 
+#pragma mark - RCSensorFusionDelegate handling
+
 - (void) sendStatus
 {
     //perform these operations synchronously in the calling (filter) thread
@@ -618,6 +620,8 @@ typedef NS_ENUM(int, RCLicenseStatus)
         if(sampleBuffer) CFRelease(sampleBuffer);
     });
 }
+
+#pragma mark -
 
 //needs to be called from the filter thread
 - (NSArray*) getFeaturesArray

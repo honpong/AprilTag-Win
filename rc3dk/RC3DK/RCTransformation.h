@@ -51,7 +51,7 @@
  */
 - (RCTransformation *)flipAxis:(int)axis;
 
-- (RCTransformation *) transformCoordinates:(RCTransformation *)transformBy
+- (RCTransformation *) transformCoordinates:(RCTransformation *)transformBy;
 
 /** Compute the composition of two transformations.
  

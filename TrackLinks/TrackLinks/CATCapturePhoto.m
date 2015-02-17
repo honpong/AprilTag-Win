@@ -32,7 +32,7 @@ static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationLandscapeLe
     CATMeasuredPhoto* measuredPhoto;
     
     RCSensorFusionErrorCode lastErrorCode;
-    bool isConfident;
+    BOOL isConfident;
 }
 @synthesize videoView;
 
@@ -89,14 +89,15 @@ static transition transitions[] =
     { ST_FIRST_MOVE, EV_MOVE_DONE, ST_FIRST_CAPTURE },
     { ST_FIRST_MOVE, EV_FAIL, ST_ERROR },
     { ST_FIRST_MOVE, EV_FASTFAIL, ST_ERROR },
-    { ST_FIRST_MOVE, EV_NOT_CONFIDENT, ST_ERROR },
     { ST_FIRST_CAPTURE, EV_SHUTTER_TAP, ST_SECOND_MOVE },
     { ST_FIRST_CAPTURE, EV_MOVE_UNDONE, ST_FIRST_MOVE },
     { ST_FIRST_CAPTURE, EV_FAIL, ST_ERROR },
     { ST_FIRST_CAPTURE, EV_FASTFAIL, ST_ERROR },
+    { ST_SECOND_MOVE, EV_NOT_CONFIDENT, ST_ERROR },
     { ST_SECOND_MOVE, EV_MOVE_DONE, ST_SECOND_CAPTURE },
     { ST_SECOND_MOVE, EV_FAIL, ST_ERROR },
     { ST_SECOND_MOVE, EV_FASTFAIL, ST_ERROR },
+    { ST_SECOND_CAPTURE, EV_NOT_CONFIDENT, ST_ERROR },
     { ST_SECOND_CAPTURE, EV_SHUTTER_TAP, ST_PROCESSING },
     { ST_SECOND_CAPTURE, EV_MOVE_UNDONE, ST_SECOND_MOVE },
     { ST_SECOND_CAPTURE, EV_FAIL, ST_ERROR },
@@ -192,6 +193,8 @@ static transition transitions[] =
     {
         if (firstPosition == nil) firstPosition = lastStereoSensorFusionData.transformation.translation;
     }
+    
+    DLog("newState = %i", newState);
     
     return YES;
 }
@@ -435,16 +438,18 @@ static transition transitions[] =
                 else
                 {
                     self.progressBar.progress = 1.;
-                    if(!isConfident) [self handleStateEvent:EV_NOT_CONFIDENT];
-                    else [self handleStateEvent:EV_MOVE_DONE];
+                    [self handleStateEvent:EV_MOVE_DONE];
                 }
-            } else if(currentState == ST_FIRST_CAPTURE)
+            }
+            else if(currentState == ST_FIRST_CAPTURE)
             {
                 if(progress < 1.) [self handleStateEvent:EV_MOVE_UNDONE];
             }
         }
-        else
+        else if(currentState == ST_SECOND_MOVE || currentState == ST_SECOND_CAPTURE)
         {
+            if(!isConfident) [self handleStateEvent:EV_NOT_CONFIDENT];
+            
             RCPoint* turnPoint = [firstPosition transformPoint:[RCPoint new]];
             RCPoint* currentPosition = [data.transformation.translation transformPoint:[RCPoint new]];
             RCTranslation* secondMove = [RCTranslation translationFromPoint:turnPoint toPoint:currentPosition];
@@ -460,7 +465,10 @@ static transition transitions[] =
             
             if(currentState == ST_SECOND_MOVE)
             {
-                if (progress < 1.) self.progressBar.progress = progress;
+                if (progress < 1.)
+                {
+                    self.progressBar.progress = progress;
+                }
                 else
                 {
                     self.progressBar.progress = 1.;

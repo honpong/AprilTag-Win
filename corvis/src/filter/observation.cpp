@@ -240,7 +240,6 @@ void observation_vision_feature::predict()
     state.fill_calibration(norm_initial, r2, r4, r6, kr);
     X0 = v4(norm_initial.x / kr, norm_initial.y / kr, 1., 0.);
 
-    X = Rtot * feature->calibrated + Ttot * feature->v.invdepth();
     v4 X0_unscale = X0 * feature->v.depth(); //not homog in v4
 
     //Inverse depth
@@ -248,6 +247,8 @@ void observation_vision_feature::predict()
     //(This is not the same as saying that RX+T = R(X/p) + T/p, which is false)
     //Have verified that the above identity is numerically identical in my results
     v4 X_unscale = Rtot * X0_unscale + Ttot;
+
+    X = X_unscale * feature->v.invdepth();
 
     feature->calibrated = X0;
     feature->relative = Rbc * X0_unscale + state.Tc.v;

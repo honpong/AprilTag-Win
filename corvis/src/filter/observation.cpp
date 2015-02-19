@@ -238,11 +238,10 @@ void observation_vision_feature::predict()
 
     f_t r2, r4, r6, kr;
     state.fill_calibration(norm_initial, r2, r4, r6, kr);
-    feature->calibrated = v4(norm_initial.x / kr, norm_initial.y / kr, 1., 0.);
+    X0 = v4(norm_initial.x / kr, norm_initial.y / kr, 1., 0.);
 
-    v4 X0_unscale = feature->calibrated * feature->v.depth(); //not homog in v4
-    X0 = feature->calibrated;
     X = Rtot * feature->calibrated + Ttot * feature->v.invdepth();
+    v4 X0_unscale = X0 * feature->v.depth(); //not homog in v4
 
     //Inverse depth
     //Should work because projection(R X + T) = projection(R (X/p) + T/p)
@@ -250,6 +249,7 @@ void observation_vision_feature::predict()
     //Have verified that the above identity is numerically identical in my results
     v4 X_unscale = Rtot * X0_unscale + Ttot;
 
+    feature->calibrated = X0;
     feature->relative = Rbc * X0_unscale + state.Tc.v;
     feature->local = Rrt * (feature->relative - state_group->Tr.v);
     feature->world = R * feature->local + state.T.v;
@@ -308,11 +308,11 @@ void observation_vision_feature::cache_jacobians()
     f_t invrho = feature->v.invdepth();
     if(!feature->is_initialized()) {
 #if estimate_camera_extrinsics
-        dx_dWc = dx_dX * (dRtot_dWc * feature->calibrated);
-        dy_dWc = dy_dX * (dRtot_dWc * feature->calibrated);
+        dx_dWc = dx_dX * (dRtot_dWc * X0);
+        dy_dWc = dy_dX * (dRtot_dWc * X0);
 #endif
-        dx_dWr = dx_dX * (dRtot_dWr * feature->calibrated);
-        dy_dWr = dy_dX * (dRtot_dWr * feature->calibrated);
+        dx_dWr = dx_dX * (dRtot_dWr * X0);
+        dy_dWr = dy_dX * (dRtot_dWr * X0);
         //dy_dT = m4(0.);
         //dy_dT = m4(0.);
         //dy_dTr = m4(0.);
@@ -439,7 +439,7 @@ void observation_vision_feature::update_initializing()
     f_t min = 0.01; //infinity-ish (100m)
     f_t max = 10.; //1/.10 for 10cm
     f_t min_d2, max_d2;
-    v4 X_inf = Rtot * feature->calibrated;
+    v4 X_inf = Rtot * X0;
     
     v4 X_inf_proj = X_inf / X_inf[2];
     v4 X_0 = X_inf + max * Ttot;

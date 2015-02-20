@@ -102,17 +102,15 @@ void state_vision_group::make_empty()
 
 int state_vision_group::process_features()
 {
-    int good_in_group = 0;
     features.children.remove_if([&](state_vision_feature *f) {
-        if(f->is_good())
-            ++good_in_group;
         return f->should_drop();
     });
-    if(features.children.size() < min_feats) {
-        return 0;
-    }
-    health = good_in_group;
-    return features.children.size();
+
+    health = features.children.size();
+    if(health < min_feats)
+        health = 0;
+
+    return health;
 }
 
 int state_vision_group::make_reference()
@@ -145,17 +143,18 @@ int state_vision_group::make_normal()
     return 0;
 }
 
-state_vision::state_vision(bool _estimate_calibration, covariance &c): state_motion(c), Tc("Tc"), Wc("Wc"), focal_length("focal_length"), center_x("center_x"), center_y("center_y"), k1("k1"), k2("k2"), k3("k3")
+state_vision::state_vision(covariance &c): state_motion(c), Tc("Tc"), Wc("Wc"), focal_length("focal_length"), center_x("center_x"), center_y("center_y"), k1("k1"), k2("k2"), k3("k3")
 {
-    estimate_calibration = _estimate_calibration;
     reference = NULL;
-    children.push_back(&focal_length);
-    children.push_back(&center_x);
-    children.push_back(&center_y);
-    children.push_back(&k1);
-    children.push_back(&k2);
-    //children.push_back(&k3);
-    if(estimate_calibration) {
+    if(estimate_camera_intrinsics)
+    {
+        children.push_back(&focal_length);
+        children.push_back(&center_x);
+        children.push_back(&center_y);
+        children.push_back(&k1);
+        children.push_back(&k2);
+    }
+    if(estimate_camera_extrinsics) {
         children.push_back(&Tc);
         children.push_back(&Wc);
     }
@@ -194,41 +193,47 @@ void state_vision::reset_position()
 
 int state_vision::process_features(uint64_t time)
 {
-    int feats_used = 0;
+    int total_health = 0;
     bool need_reference = true;
     state_vision_group *best_group = 0;
     int best_health = -1;
     int normal_groups = 0;
+
     for(state_vision_group *g : groups.children) {
-        int feats = g->process_features();
-        if(g->status && g->status != group_initializing) feats_used += feats;
-        if(!feats) {
-            if(g->status == group_reference) {
-                reference = 0;
-            }
+        // Delete the features we marked to drop, return the health of
+        // the group (the number of features)
+        int health = g->process_features();
+
+        if(g->status && g->status != group_initializing)
+            total_health += health;
+
+        // Notify features that this group is about to disappear
+        // This sets group_empty (even if group_reference)
+        if(!health)
             g->make_empty();
-        }
-        if(g->status == group_reference) need_reference = false;
-        if(g->status == group_initializing) {
-            if(g->health >= g->min_feats) {
-                g->make_normal();
-            }
-        }
+
+        // Found our reference group
+        if(g->status == group_reference)
+            need_reference = false;
+
+        // If we have enough features to initialize the group, do it
+        if(g->status == group_initializing && health >= g->min_feats)
+            g->make_normal();
+
         if(g->status == group_normal) {
             ++normal_groups;
-            if(g->health > best_health) {
+            if(health > best_health) {
                 best_group = g;
                 best_health = g->health;
             }
         }
     }
+
     if(best_group && need_reference) {
-        feats_used += best_group->make_reference();
+        total_health += best_group->make_reference();
         reference = best_group;
-    } else if(!normal_groups && best_group) {
-        best_group->make_normal();
     }
-    return feats_used;
+    return total_health;
 }
 
 state_vision_feature * state_vision::add_feature(f_t initialx, f_t initialy)
@@ -289,15 +294,18 @@ feature_t state_vision::calibrate_feature(const feature_t &initial) const
 
 void state_vision::remove_non_orientation_states()
 {
-    if(estimate_calibration) {
+    if(estimate_camera_extrinsics) {
         remove_child(&Tc);
         remove_child(&Wc);
     }
-    remove_child(&focal_length);
-    remove_child(&center_x);
-    remove_child(&center_y);
-    remove_child(&k1);
-    remove_child(&k2);
+    if(estimate_camera_intrinsics)
+    {
+        remove_child(&focal_length);
+        remove_child(&center_x);
+        remove_child(&center_y);
+        remove_child(&k1);
+        remove_child(&k2);
+    }
     remove_child(&groups);
     state_motion::remove_non_orientation_states();
 }
@@ -306,15 +314,18 @@ void state_vision::add_non_orientation_states()
 {
     state_motion::add_non_orientation_states();
 
-    if(estimate_calibration) {
+    if(estimate_camera_extrinsics) {
         children.push_back(&Tc);
         children.push_back(&Wc);
     }
-    children.push_back(&focal_length);
-    children.push_back(&center_x);
-    children.push_back(&center_y);
-    children.push_back(&k1);
-    children.push_back(&k2);
+    if(estimate_camera_intrinsics)
+    {
+        children.push_back(&focal_length);
+        children.push_back(&center_x);
+        children.push_back(&center_y);
+        children.push_back(&k1);
+        children.push_back(&k2);
+    }
     children.push_back(&groups);
 }
 

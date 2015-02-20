@@ -63,10 +63,17 @@ class observation_vision_feature: public observation_storage<2> {
     struct tracker tracker;
     m4 Rtot;
     v4 Ttot;
-    f_t dx_dp, dy_dp, dx_dF, dy_dF;
 
+    f_t dx_dp, dy_dp;
+    v4 dx_dWr, dy_dWr, dx_dTr, dy_dTr;
+
+#if estimate_camera_intrinsics
+    f_t dx_dF, dy_dF;
     f_t dx_dk1, dy_dk1, dx_dk2, dy_dk2, dx_dcx, dy_dcx, dx_dcy, dy_dcy;
-    v4 dx_dWc, dy_dWc, dx_dTc, dy_dTc, dx_dWr, dy_dWr, dx_dTr, dy_dTr;
+#endif
+#if estimate_camera_extrinsics
+    v4 dx_dWc, dy_dWc, dx_dTc, dy_dTc;
+#endif
 
     state_vision_group *state_group;
     state_vision_feature *feature;

@@ -4,6 +4,7 @@
 //
 
 #import "GLHelpers.h"
+#import <OpenGLES/ES2/glext.h>
 
 
 #if defined(DEBUG)
@@ -13,6 +14,7 @@ void GLCheckForError()
     if (err != GL_NO_ERROR)
     {
         NSLog(@"glError: 0x%04X", err);
+        glInsertEventMarkerEXT(0, "com.apple.GPUTools.event.debug-frame");
         // assert(NO);
     }
 }

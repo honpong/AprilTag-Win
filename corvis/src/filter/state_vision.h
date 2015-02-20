@@ -17,6 +17,9 @@ extern "C" {
 #include "state_motion.h"
 #include "tracker.h"
 
+#define estimate_camera_intrinsics false
+#define estimate_camera_extrinsics false
+
 using namespace std;
 
 enum group_flag {
@@ -179,13 +182,12 @@ class state_vision: public state_motion {
     state_branch<state_vision_group *> groups;
     list<state_vision_feature *> features;
     
-    state_vision(bool estimate_calibration, covariance &c);
+    state_vision(covariance &c);
     ~state_vision();
     int process_features(uint64_t time);
     state_vision_feature *add_feature(f_t initialx, f_t initialy);
     state_vision_group *add_group(uint64_t time);
 
-    bool estimate_calibration;
     float total_distance;
     v4 last_position;
     m4 camera_matrix;

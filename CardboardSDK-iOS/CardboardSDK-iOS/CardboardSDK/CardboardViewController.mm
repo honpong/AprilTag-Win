@@ -608,6 +608,7 @@
     [[[data transformation] getInverse] getOpenGLMatrix:cam.m];
     headview = GLKMatrix4Multiply(headview, cam);
     headview = GLKMatrix4RotateX(headview, M_PI_2);
+    headview = GLKMatrix4RotateY(headview, -M_PI_2);
     //NSLog(NSStringFromGLKMatrix4(headview));
     _headTransform->setHeadView(headview);
 

@@ -40,6 +40,7 @@
 
 @synthesize sortKeys;
 @synthesize humanReadable;
+@synthesize quoteKeys;
 
 @synthesize error;
 @synthesize maxDepth;
@@ -49,7 +50,8 @@
 - (id)init {
     self = [super init];
     if (self) {
-        self.maxDepth = 32u;        
+        self.maxDepth = 32u;
+        self.quoteKeys = YES;
     }
     return self;
 }
@@ -86,6 +88,7 @@
 	streamWriter.sortKeysComparator = self.sortKeysComparator;
 	streamWriter.humanReadable = self.humanReadable;
     streamWriter.delegate = accumulator;
+    streamWriter.quoteKeys = self.quoteKeys;
 	
 	BOOL ok = NO;
 	if ([object isKindOfClass:[NSDictionary class]])

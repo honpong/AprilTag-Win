@@ -45,6 +45,15 @@
  */
 - (NSString *)JSONRepresentation;
 
+/**
+ @brief Encodes the receiver into a Javascript object string
+ 
+ Although defined as a category on NSObject it is only defined for NSArray and NSDictionary.
+ 
+ @return A string containing a Javascript object, or nil on error.
+ */
+- (NSString *)JavascriptObjRepresentation;
+
 @end
 
 

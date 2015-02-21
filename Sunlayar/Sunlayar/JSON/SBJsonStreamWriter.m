@@ -49,6 +49,7 @@ static NSNumber *kNegativeInfinity;
 @synthesize humanReadable;
 @synthesize sortKeys;
 @synthesize sortKeysComparator;
+@synthesize quoteKeys;
 
 + (void)initialize {
 	kNotANumber = [NSDecimalNumber notANumber];
@@ -69,6 +70,7 @@ static NSNumber *kNegativeInfinity;
         stateStack = [[NSMutableArray alloc] initWithCapacity:maxDepth];
         state = [SBJsonStreamWriterStateStart sharedInstance];
         cache = [[NSMutableDictionary alloc] initWithCapacity:32];
+        quoteKeys = YES;
     }
 	return self;
 }
@@ -292,7 +294,8 @@ static const char *strForChar(int c) {
         NSUInteger written = 0, i = 0;
 
         buf = [NSMutableData dataWithCapacity:(NSUInteger)(len * 1.1f)];
-        [buf appendBytes:"\"" length:1];
+
+        if (quoteKeys) [buf appendBytes:"\"" length:1];
 
         for (i = 0; i < len; i++) {
             int c = utf8[i];
@@ -310,7 +313,8 @@ static const char *strForChar(int c) {
         if (i - written)
             [buf appendBytes:utf8 + written length:i - written];
 
-        [buf appendBytes:"\"" length:1];
+        if (quoteKeys) [buf appendBytes:"\"" length:1];
+
         [cache setObject:buf forKey:string];
     }
 

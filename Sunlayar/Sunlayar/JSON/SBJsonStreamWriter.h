@@ -129,6 +129,14 @@
  */
 @property (copy) NSComparator sortKeysComparator;
 
+/**
+ @brief Whether or not to put quotes around keys in the output.
+ 
+ If this is set to NO, the dictionary keys in the JSON output will not be surrounded with quotes.
+ (This is useful if you want a Javascript object, instead of JSON) The default is YES.
+ */
+@property BOOL quoteKeys;
+
 /// Contains the error description after an error has occured.
 @property (copy) NSString *error;
 

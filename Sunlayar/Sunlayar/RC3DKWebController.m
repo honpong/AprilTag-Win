@@ -12,6 +12,7 @@
 #import "ARNativeAction.h"
 #import "NSString+RCString.h"
 #import "RCLocationManager.h"
+#import "SLConstants.h"
 #import "NSObject+SBJson.h"
 
 @implementation RC3DKWebController
@@ -88,15 +89,15 @@
 
 - (void) sensorFusionDidChangeStatus:(RCSensorFusionStatus *)status
 {
-    NSString* statusJson = [[status dictionaryRepresentation] JSONRepresentation]; // expensive
+    NSString* statusJson = [[status dictionaryRepresentation] JavascriptObjRepresentation]; // expensive
     NSString* javascript = [NSString stringWithFormat:@"sensorFusionDidChangeStatus(%@);", statusJson];
-//    DLog(@"%@", javascript);
+    DLog(@"%@", javascript);
     [self.webView stringByEvaluatingJavaScriptFromString: javascript];
 }
 
 - (void) sensorFusionDidUpdateData:(RCSensorFusionData*)data
 {
-    NSString* dataJson = [[data dictionaryRepresentation] JSONRepresentation]; // expensive
+    NSString* dataJson = [[data dictionaryRepresentation] JavascriptObjRepresentation]; // expensive
     NSString* javascript = [NSString stringWithFormat:@"sensorFusionDidUpdateData(%@);", dataJson];
 //    DLog(@"%@", javascript);
     [self.webView stringByEvaluatingJavaScriptFromString: javascript];

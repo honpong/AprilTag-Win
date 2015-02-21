@@ -41,6 +41,15 @@
     return json;
 }
 
+- (NSString *)JavascriptObjRepresentation {
+    SBJsonWriter *writer = [[SBJsonWriter alloc] init];
+    writer.quoteKeys = NO;
+    NSString *json = [writer stringWithObject:self];
+    if (!json)
+        NSLog(@"-JavascriptObjRepresentation failed. Error is: %@", writer.error);
+    return json;
+}
+
 @end
 
 

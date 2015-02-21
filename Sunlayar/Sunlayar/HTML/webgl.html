@@ -51,7 +51,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0">
             
             
-<!--            <script src="jquery-2.1.1.min.js"></script>-->
+            <script src="jquery-2.1.1.min.js"></script>
 <!--            <script src="json2.js"></script>-->
 <!--            <script src="svgjs.js"></script>-->
 <!--            <script src="hammer.js"></script>-->
@@ -87,6 +87,9 @@
                     renderer.render( scene, camera );
                 }
                 render();
+
+                $.ajax({ type: "GET", url: "http://internal.realitycap.com/startSensors/"});
+                $.ajax({ type: "GET", url: "http://internal.realitycap.com/startSensorFusion/"});
             
             </script>
             <div id="drawing"><font size=50 color="#FF0000">Web View</font></div>

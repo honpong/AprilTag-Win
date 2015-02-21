@@ -15,7 +15,7 @@
 #import "MBProgressHUD.h"
 #import "SLConstants.h"
 #import "RCVideoPreview.h"
-#import "RC3DKPlus.h"
+#import "RC3DK.h"
 #import "SLRoofController.h"
 
 @interface SLCameraController : UIViewController <RCSensorFusionDelegate, RCStereoDelegate, SLRoofControllerDelegate>

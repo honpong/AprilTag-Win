@@ -15,6 +15,7 @@
 #import "RCMotionManager.h"
 #import "RCAVSessionManager.h"
 #import "RCHttpInterceptor.h"
+#import "SLARWebViewController.h"
 
 #if TARGET_IPHONE_SIMULATOR
 #define SKIP_CALIBRATION YES // skip calibration when running on emulator because it cannot calibrate
@@ -108,7 +109,7 @@
 
 - (void) gotoCaptureScreen
 {
-    self.window.rootViewController = mainViewController;
+    self.window.rootViewController = [SLARWebViewController new];
 }
 
 - (void) gotoCalibration

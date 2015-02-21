@@ -45,6 +45,7 @@
         if ([NSUserDefaults.standardUserDefaults objectForKey:PREF_UNITS] == nil)
         {
             [NSUserDefaults.standardUserDefaults setInteger:defaultUnits forKey:PREF_UNITS];
+            [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_USE_LOCATION];
             [NSUserDefaults.standardUserDefaults synchronize];
         }
         

@@ -55,6 +55,42 @@
     self.webView.frame = self.view.frame;
 }
 
+- (void) viewDidAppear:(BOOL)animated
+{
+    [super viewDidAppear:animated];
+    
+    //register to receive notifications of pause/resume events
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handlePause)
+                                                 name:UIApplicationWillResignActiveNotification
+                                               object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(handleResume)
+                                                 name:UIApplicationDidBecomeActiveNotification
+                                               object:nil];
+    
+    [self handleResume];
+}
+
+- (void) viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+#pragma mark - App lifecycle
+
+- (void)handlePause
+{
+    [self stopSensorFusion];
+    [self stopSensors];
+}
+
+- (void)handleResume
+{
+    if (useLocation) [LOCATION_MANAGER startLocationUpdates];
+}
+
 #pragma mark - 3DK Stuff
 
 - (void) startSensors
@@ -71,6 +107,7 @@
 
 - (void)startSensorFusion
 {
+    LOGME
     [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
     SENSOR_FUSION.delegate = self;
     [[sensorDelegate getVideoProvider] setDelegate:nil];
@@ -80,6 +117,7 @@
 
 - (void)stopSensorFusion
 {
+    LOGME
     [SENSOR_FUSION stopSensorFusion];
     [[sensorDelegate getVideoProvider] setDelegate:self.videoView];
     [[UIApplication sharedApplication] setIdleTimerDisabled:NO];

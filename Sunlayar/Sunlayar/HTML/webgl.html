@@ -91,28 +91,34 @@
                 $.ajax({ type: "GET", url: "http://internal.realitycap.com/startSensors/"});
                 $.ajax({ type: "GET", url: "http://internal.realitycap.com/startSensorFusion/"});
                 
+                /*
+                 the status object has the same stucture and content as RCSensorFusionStatus
+                 ex: {progress:0.87356501817703247,confidence:0,runState:2}
+                 */
                 function sensorFusionDidChangeStatus(status)
                 {
-                    // the status object has the same stucture and content as RCSensorFusionStatus
-                    // ex: {progress:0.87356501817703247,confidence:0,runState:2}
+                    
                 }
             
+                /*
+                 the data object has the same stucture and content as RCSensorFusionData, minus the featurePoints. ex:
+                    {
+                        transformation:{
+                            rotation:{qx:-0.012587299570441246,qw:0.99985092878341675,qz:0.00024901828146539629,qy:-0.011816162616014481},
+                            translation:{v2:0.0001231919159181416,v0:0.002296853344887495,std1:0.001661463757045567,v3:0,std2:0.0026393774896860123,v1:-0.0022083036601543427,std3:0,std0:0.0014444828266277909}
+                        },
+                        cameraParameters:{radialFouthDegree:-0.2295377254486084,radialSecondDegree:0.11349671334028244,opticalCenterY:247.20547485351562,opticalCenterX:325.925048828125,focalLength:587.55810546875},
+                        cameraTransformation:{
+                            rotation:{qx:0.70717746019363403,qw:0.00054524908773601055,qz:0.017255853861570358,qy:-0.70682525634765625},
+                            translation:{v2:-0.0017100467812269926,v0:-0.00071634328924119473,std1:0.057653535157442093,v3:0,std2:0.072655044496059418,v1:0.067767113447189331,std3:0,std0:0.053758375346660614}
+                        },
+                        timestamp:248998938250,
+                        totalPathLength:{scalar:0,standardDeviation:0}
+                    }
+                 */
                 function sensorFusionDidUpdateData(data)
                 {
-                    // the data object has the same stucture and content as RCSensorFusionData, minus the featurePoints.
-                    //{
-                    //    transformation:{
-                    //        rotation:{qx:-0.012587299570441246,qw:0.99985092878341675,qz:0.00024901828146539629,qy:-0.011816162616014481},
-                    //        translation:{v2:0.0001231919159181416,v0:0.002296853344887495,std1:0.001661463757045567,v3:0,std2:0.0026393774896860123,v1:-0.0022083036601543427,std3:0,std0:0.0014444828266277909}
-                    //    },
-                    //    cameraParameters:{radialFouthDegree:-0.2295377254486084,radialSecondDegree:0.11349671334028244,opticalCenterY:247.20547485351562,opticalCenterX:325.925048828125,focalLength:587.55810546875},
-                    //    cameraTransformation:{
-                    //        rotation:{qx:0.70717746019363403,qw:0.00054524908773601055,qz:0.017255853861570358,qy:-0.70682525634765625},
-                    //        translation:{v2:-0.0017100467812269926,v0:-0.00071634328924119473,std1:0.057653535157442093,v3:0,std2:0.072655044496059418,v1:0.067767113447189331,std3:0,std0:0.053758375346660614}
-                    //    },
-                    //    timestamp:248998938250,
-                    //    totalPathLength:{scalar:0,standardDeviation:0}
-                    //}
+                    
                 }
             
             </script>

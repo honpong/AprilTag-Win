@@ -55,4 +55,9 @@
  @returns A CGPoint that represents the coordinates contained in this object. */
 - (CGPoint) makeCGPoint;
 
+/**
+ @returns A dictionary representation of the object for the purposes of JSON serialization.
+ */
+- (NSDictionary*) proxyForJson;
+
 @end

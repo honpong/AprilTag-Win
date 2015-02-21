@@ -36,15 +36,32 @@
 
 - (NSDictionary *)dictionaryRepresentation
 {
-    NSDictionary* dict = @{
-                           @"transformation": [self.transformation dictionaryRepresentation],
-                           @"cameraTransformation" : [self.cameraTransformation dictionaryRepresentation],
-                           @"cameraParameters": [self.cameraParameters dictionaryRepresentation],
-                           @"featurePoints": self.featurePoints,
-                           @"totalPathLength": [self.totalPathLength dictionaryRepresentation],
-                           @"timestamp": @(self.timestamp),
-                           @"originQRCode" : self.originQRCode
-                           };
+    NSDictionary* dict;
+    
+    if (self.originQRCode)
+    {
+        dict = @{
+               @"transformation": [self.transformation dictionaryRepresentation],
+               @"cameraTransformation" : [self.cameraTransformation dictionaryRepresentation],
+               @"cameraParameters": [self.cameraParameters dictionaryRepresentation],
+//               @"featurePoints": self.featurePoints, // expensive
+               @"totalPathLength": [self.totalPathLength dictionaryRepresentation],
+               @"timestamp": @(self.timestamp),
+               @"originQRCode" : self.originQRCode
+               };
+    }
+    else
+    {
+        dict = @{
+               @"transformation": [self.transformation dictionaryRepresentation],
+               @"cameraTransformation" : [self.cameraTransformation dictionaryRepresentation],
+               @"cameraParameters": [self.cameraParameters dictionaryRepresentation],
+//               @"featurePoints": self.featurePoints, // expensive
+               @"totalPathLength": [self.totalPathLength dictionaryRepresentation],
+               @"timestamp": @(self.timestamp)
+               };
+    }
+    
     return dict;
 }
 

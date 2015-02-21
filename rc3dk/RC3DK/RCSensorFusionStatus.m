@@ -27,12 +27,24 @@
 
 - (NSDictionary *)dictionaryRepresentation
 {
-    NSDictionary* dict = @{
-                           @"runState": @(self.runState),
-                           @"progress": @(self.progress),
-                           @"confidence": @(self.confidence),
-                           @"error": [self.error dictionaryRepresentation]
-                           };
+    NSDictionary* dict;
+    if (self.error)
+    {
+        dict = @{
+                 @"runState": @(self.runState),
+                 @"progress": @(self.progress),
+                 @"confidence": @(self.confidence),
+                 @"error": [self.error dictionaryRepresentation]
+                 };
+    }
+    else
+    {
+        dict = @{
+                 @"runState": @(self.runState),
+                 @"progress": @(self.progress),
+                 @"confidence": @(self.confidence)
+                 };
+    }
     return dict;
 }
 

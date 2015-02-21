@@ -51,4 +51,16 @@
     return CGPointMake(self.x, self.y);
 }
 
+- (NSDictionary *)proxyForJson
+{
+    NSDictionary* dict = @{
+                           @"x": @(self.x),
+                           @"y": @(self.y),
+                           @"originalDepth": [self.originalDepth dictionaryRepresentation],
+                           @"worldPoint": [self.worldPoint dictionaryRepresentation],
+                           @"initialized": @(self.initialized)
+                           };
+    return dict;
+}
+
 @end

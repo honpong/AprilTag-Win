@@ -34,4 +34,18 @@
     if (_sampleBuffer) CFRelease(_sampleBuffer);
 }
 
+- (NSDictionary *)dictionaryRepresentation
+{
+    NSDictionary* dict = @{
+                           @"transformation": [self.transformation dictionaryRepresentation],
+                           @"cameraTransformation" : [self.cameraTransformation dictionaryRepresentation],
+                           @"cameraParameters": [self.cameraParameters dictionaryRepresentation],
+                           @"featurePoints": self.featurePoints,
+                           @"totalPathLength": [self.totalPathLength dictionaryRepresentation],
+                           @"timestamp": @(self.timestamp),
+                           @"originQRCode" : self.originQRCode
+                           };
+    return dict;
+}
+
 @end

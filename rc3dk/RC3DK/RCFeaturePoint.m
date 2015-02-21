@@ -29,17 +29,16 @@
 
 - (NSDictionary*) dictionaryRepresentation
 {
-    //instead of making this flat, we're going to call a function which recursively calls to_dictionary on other classes.
-    NSMutableDictionary *tmpDic = [NSMutableDictionary dictionaryWithCapacity:6];
-    tmpDic[@"id"] = [NSNumber numberWithUnsignedInt:self.id];
-    tmpDic[@"x"] = @(self.x);
-    tmpDic[@"y"] = @(self.y);
-    tmpDic[@"originalDepth"] = [self.originalDepth dictionaryRepresentation];
-    tmpDic[@"worldPoint"] = [self.worldPoint dictionaryRepresentation];
-    tmpDic[@"initialized"] = @(self.initialized);
+    NSDictionary* dict = @{
+                        @"id": @(self.id),
+                        @"x": @(self.x),
+                        @"y": @(self.y),
+                        @"originalDepth": [self.originalDepth dictionaryRepresentation],
+                        @"worldPoint": [self.worldPoint dictionaryRepresentation],
+                        @"initialized": @(self.initialized)
+                        };
     
-    //we return an immutable version
-    return [NSDictionary dictionaryWithDictionary:tmpDic];
+    return dict;
 }
 
 - (float) pixelDistanceToPoint:(CGPoint)cgPoint

@@ -236,8 +236,8 @@ void observation_vision_feature::predict()
     norm_initial.x = (feature->initial[0] - state.center_x.v) / state.focal_length.v;
     norm_initial.y = (feature->initial[1] - state.center_y.v) / state.focal_length.v;
 
-    f_t r2, r4, r6, kr;
-    state.fill_calibration(norm_initial, r2, r4, r6, kr);
+    f_t r2, kr;
+    state.fill_calibration(norm_initial, r2, kr);
     X0 = v4(norm_initial.x / kr, norm_initial.y / kr, 1., 0.);
 
     v4 X0_unscale = X0 * feature->v.depth(); //not homog in v4
@@ -263,7 +263,7 @@ void observation_vision_feature::predict()
     norm_predicted.x = ippred[0];
     norm_predicted.y = ippred[1];
 
-    state.fill_calibration(norm_predicted, r2, r4, r6, kr);
+    state.fill_calibration(norm_predicted, r2, kr);
     feature->prediction.x = pred[0] = norm_predicted.x * kr * state.focal_length.v + state.center_x.v;
     feature->prediction.y = pred[1] = norm_predicted.y * kr * state.focal_length.v + state.center_y.v;
 }
@@ -271,14 +271,14 @@ void observation_vision_feature::predict()
 void observation_vision_feature::cache_jacobians()
 {
     //initial = (uncal - center) / (focal_length * kr)
-    f_t r2, r4, r6, kr;
-    state.fill_calibration(norm_initial, r2, r4, r6, kr);
+    f_t r2, kr;
+    state.fill_calibration(norm_initial, r2, kr);
 #if estimate_camera_intrinsics
     v4 dX_dcx = Rtot * v4(-1. / (kr * state.focal_length.v), 0., 0., 0.);
     v4 dX_dcy = Rtot * v4(0., -1. / (kr * state.focal_length.v), 0., 0.);
     v4 dX_dF = Rtot * v4(-X0[0] / state.focal_length.v, -X0[1] / state.focal_length.v, 0., 0.);
     v4 dX_dk1 = Rtot * v4(-X0[0] / kr * r2, -X0[1] / kr * r2, 0., 0.);
-    v4 dX_dk2 = Rtot * v4(-X0[0] / kr * r4, -X0[1] / kr * r4, 0., 0.);
+    v4 dX_dk2 = Rtot * v4(-X0[0] / kr * (r2 * r2), -X0[1] / kr * (r2 * r2), 0., 0.);
 #endif
     
     m4v4 dRr_dWr = to_rotation_matrix_jacobian(state_group->Wr.v);
@@ -297,7 +297,7 @@ void observation_vision_feature::cache_jacobians()
     m4 dTtot_dTc = Rcb * Rrt - Rcb;
 #endif
     
-    state.fill_calibration(norm_predicted, r2, r4, r6, kr);
+    state.fill_calibration(norm_predicted, r2, kr);
     f_t invZ = 1. / X[2];
     v4 dx_dX, dy_dX;
     dx_dX = kr * state.focal_length.v * v4(invZ, 0., -X[0] * invZ * invZ, 0.);
@@ -321,10 +321,10 @@ void observation_vision_feature::cache_jacobians()
 #if estimate_camera_intrinsics
         dx_dF = norm_predicted.x * kr + sum(dx_dX * dX_dF);
         dy_dF = norm_predicted.y * kr + sum(dy_dX * dX_dF);
-        dx_dk1 = norm_predicted.x * state.focal_length.v * r2 + sum(dx_dX * dX_dk1);
-        dy_dk1 = norm_predicted.y * state.focal_length.v * r2 + sum(dy_dX * dX_dk1);
-        dx_dk2 = norm_predicted.x * state.focal_length.v * r4 + sum(dx_dX * dX_dk2);
-        dy_dk2 = norm_predicted.y * state.focal_length.v * r4 + sum(dy_dX * dX_dk2);
+        dx_dk1 = norm_predicted.x * state.focal_length.v * r2        + sum(dx_dX * dX_dk1);
+        dy_dk1 = norm_predicted.y * state.focal_length.v * r2        + sum(dy_dX * dX_dk1);
+        dx_dk2 = norm_predicted.x * state.focal_length.v * (r2 * r2) + sum(dx_dX * dX_dk2);
+        dy_dk2 = norm_predicted.y * state.focal_length.v * (r2 * r2) + sum(dy_dX * dX_dk2);
         dx_dcx = 1. + sum(dx_dX * dX_dcx);
         dx_dcy = sum(dx_dX * dX_dcy);
         dy_dcx = sum(dy_dX * dX_dcx);
@@ -420,12 +420,12 @@ f_t observation_vision_feature::projection_residual(const v4 & X_inf, const f_t 
         fprintf(stderr, "FAILURE in feature projection in observation_vision_feature::predict\n");
     }
     feature_t norm, uncalib;
-    f_t r2, r4, r6, kr;
+    f_t r2, kr;
     
     norm.x = ippred[0];
     norm.y = ippred[1];
     
-    state.fill_calibration(norm, r2, r4, r6, kr);
+    state.fill_calibration(norm, r2, kr);
     
     uncalib.x = norm.x * kr * state.focal_length.v + state.center_x.v;
     uncalib.y = norm.y * kr * state.focal_length.v + state.center_y.v;

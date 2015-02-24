@@ -192,7 +192,7 @@ class state_vision: public state_motion {
     v4 last_position;
     m4 camera_matrix;
     state_vision_group *reference;
-    void fill_calibration(feature_t &initial, f_t &r2, f_t &r4, f_t &r6, f_t &kr) const;
+    void fill_calibration(feature_t &initial, f_t &r2, f_t &kr) const;
     feature_t calibrate_feature(const feature_t &initial) const;
     
     virtual void reset();

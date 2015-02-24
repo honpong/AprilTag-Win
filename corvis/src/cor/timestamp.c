@@ -92,12 +92,12 @@ void cor_time_pb_unpause()
 
 void cor_time_pb_forward()
 {
-    cor_time_pb_control(false, 1);
+    cor_time_pb_control(cor_time_pb_paused, 1);
 }
 
 void cor_time_pb_reverse()
 {
-    cor_time_pb_control(false, -1);
+    cor_time_pb_control(cor_time_pb_paused, -1);
 }
 
 void cor_time_pb_togglerealtime()

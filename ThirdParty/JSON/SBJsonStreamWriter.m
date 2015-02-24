@@ -102,7 +102,7 @@ static NSNumber *kNegativeInfinity;
 			return NO;
 		}
 
-		if (![self writeString:k])
+		if (![self writeString:k withQuotes:self.quoteKeys])
 			return NO;
 		if (![self writeValue:[dict objectForKey:k]])
 			return NO;
@@ -282,6 +282,10 @@ static const char *strForChar(int c) {
 }
 
 - (BOOL)writeString:(NSString*)string {
+    return [self writeString:string withQuotes:YES];
+}
+
+- (BOOL)writeString:(NSString*)string withQuotes:(BOOL)shouldQuoteString {
 	if ([state isInvalidState:self]) return NO;
 	[state appendSeparator:self];
 	if (humanReadable) [state appendWhitespace:self];
@@ -295,7 +299,7 @@ static const char *strForChar(int c) {
 
         buf = [NSMutableData dataWithCapacity:(NSUInteger)(len * 1.1f)];
 
-        if (quoteKeys) [buf appendBytes:"\"" length:1];
+        if (shouldQuoteString) [buf appendBytes:"\"" length:1];
 
         for (i = 0; i < len; i++) {
             int c = utf8[i];
@@ -313,7 +317,7 @@ static const char *strForChar(int c) {
         if (i - written)
             [buf appendBytes:utf8 + written length:i - written];
 
-        if (quoteKeys) [buf appendBytes:"\"" length:1];
+        if (shouldQuoteString) [buf appendBytes:"\"" length:1];
 
         [cache setObject:buf forKey:string];
     }

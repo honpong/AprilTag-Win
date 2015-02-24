@@ -57,10 +57,6 @@
                 renderer.setSize( window.innerWidth, window.innerHeight );
                 document.body.appendChild( renderer.domElement );
 
-//                var geometry = new THREE.BoxGeometry( 1, 1, 1 );
-//                var material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-//                var cube = new THREE.Mesh( geometry, material );
-
                 var cube = new THREE.Mesh(
                         new THREE.CubeGeometry( 1, 1, 1 ),
                         new THREE.MeshLambertMaterial( { color: 0xFFFFFF } )
@@ -111,10 +107,17 @@
 
                 /*
                  the status object has the same stucture and content as RCSensorFusionStatus
-                 ex: {progress:0.87356501817703247,confidence:0,runState:2}
+                 ex: {runState:4,confidence:1,error:{class:"RCSensorFusionError",code:1},progress:1}
                  */
+                var currentStatus = 0;
                 function sensorFusionDidChangeStatus(status)
                 {
+                    if (status.error && status.error.code > 1)
+                    {
+                        RC3DK.stopSensorFusion();
+                        RC3DK.stopSensors();
+                        alert(status.error.class + ":" + status.error.code);
+                    }
                 }
             
                 /*
@@ -133,7 +136,7 @@
                         totalPathLength:{scalar:0,standardDeviation:0}
                     }
                  */
-                var exFactor = 15;
+                var exFactor = 15; // exaggeration factor
                 function sensorFusionDidUpdateData(data)
                 {
 //                    if (data.transformation.rotation)

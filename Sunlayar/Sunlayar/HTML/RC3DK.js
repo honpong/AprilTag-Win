@@ -55,6 +55,15 @@ console.log("Loading RC3DK.js");
                 })
             ;
         };
+
+        this.logNative = function (message) {
+            var jsonData = { "message": message };
+            $.ajax({ type: "POST", url: baseUrl + "log", contentType: "application/json", processData: false, dataType: "json", data: JSON.stringify(jsonData) })
+                .fail(function (jqXHR, textStatus, errorThrown) {
+                    alert(textStatus + ": " + JSON.stringify(jqXHR));
+                })
+            ;
+        };
     }
 
     if (!window.RC3DK) window.RC3DK = new RC3DK();

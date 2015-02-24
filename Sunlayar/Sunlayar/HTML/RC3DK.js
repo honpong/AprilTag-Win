@@ -57,6 +57,6 @@ console.log("Loading RC3DK.js");
         };
     }
 
-    window.RC3DK = new RC3DK();
+    if (!window.RC3DK) window.RC3DK = new RC3DK();
 
 })(window);

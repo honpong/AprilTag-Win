@@ -89,8 +89,14 @@
                 }
                 render();
 
-                window.RC3DK.startSensors();
-                window.RC3DK.startSensorFusion();
+                window.RC3DK.setLicenseKey("aF9cE0B536c84aE6F500509E8aBCcC"); // Sunlayar license key
+                window.RC3DK.hasCalibrationData(function(isCalibrated) {
+                    if (isCalibrated)
+                    {
+                        window.RC3DK.startSensors();
+                        window.RC3DK.startSensorFusion();
+                    }
+                });
 
                 /*
                  the status object has the same stucture and content as RCSensorFusionStatus

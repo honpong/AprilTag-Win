@@ -129,7 +129,7 @@
 {
     NSString* statusJson = [[status dictionaryRepresentation] JavascriptObjRepresentation]; // expensive
     NSString* javascript = [NSString stringWithFormat:@"sensorFusionDidChangeStatus(%@);", statusJson];
-    DLog(@"%@", javascript);
+//    DLog(@"%@", javascript);
     [self.webView stringByEvaluatingJavaScriptFromString: javascript];
 }
 
@@ -173,50 +173,42 @@
     if ([nativeAction.request.URL.description endsWithString:@"/startSensors"])
     {
         [self startSensors];
-        return @{ @"message": @"Starting all sensors" };
+        return @{ @"result": @YES };
     }
     else if ([nativeAction.request.URL.description endsWithString:@"/stopSensors"])
     {
         [self stopSensors];
-        return @{ @"message": @"Stopping all sensors" };
+        return @{ @"result": @YES };
     }
     else if ([nativeAction.request.URL.description endsWithString:@"/startSensorFusion"])
     {
         [self startSensorFusion];
-        return @{ @"message": @"Starting sensor fusion" };
+        return @{ @"result": @YES };
     }
     else if ([nativeAction.request.URL.description endsWithString:@"/stopSensorFusion"])
     {
         [self stopSensorFusion];
-        return @{ @"message": @"Stopping sensor fusion" };
+        return @{ @"result": @YES };
     }
     else if ([nativeAction.request.URL.description endsWithString:@"/setLicenseKey"] && [nativeAction.method isEqualToString:@"POST"])
     {
-        [self webViewLog:[nativeAction.params objectForKey:@"licenseKey"]];
-        return @{ @"return": @YES };
+        [SENSOR_FUSION setLicenseKey:[nativeAction.params objectForKey:@"licenseKey"]];
+        return @{ @"result": @YES };
+    }
+    else if ([nativeAction.request.URL.description endsWithString:@"/hasCalibrationData"])
+    {
+        return @{ @"result": @([SENSOR_FUSION hasCalibrationData]) };
+    }
+    else if ([nativeAction.request.URL.description endsWithString:@"/startStaticCalibration"])
+    {
+        [SENSOR_FUSION startStaticCalibration];
+        return @{ @"result": @YES };
     }
     else if ([nativeAction.request.URL.description endsWithString:@"/log"] && [nativeAction.method isEqualToString:@"POST"])
     {
         [self webViewLog:[nativeAction.params objectForKey:@"message"]];
-        return @{ @"message": @"Write to log successful" };
+        return @{ @"result": @YES };
     }
-
-    
-//    if ([nativeAction.request.URL.description endsWithString:@"/annotations/"] && [nativeAction.method isEqualToString:@"PUT"])
-//    {
-//        BOOL result = [self.measuredPhoto writeAnnotationsToFile:nativeAction.body];
-//        
-//        if (result == YES)
-//        {
-//            return @{ @"message": @"Annotations saved" };
-//        }
-//        else
-//        {
-//            NSDictionary* userInfo = @{ NSLocalizedDescriptionKey: @"Failed to write depth file" };
-//            *error = [NSError errorWithDomain:ERROR_DOMAIN code:500 userInfo:userInfo];
-//        }
-//    }
-    
     
     return nil;
 }

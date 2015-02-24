@@ -27,11 +27,15 @@ console.log("Loading RC3DK.js");
             $.ajax({ type: "GET", url: baseUrl + "stopSensorFusion"});
         };
 
+        this.startStaticCalibration = function () {
+            $.ajax({ type: "GET", url: baseUrl + "startStaticCalibration"});
+        };
+
         this.setLicenseKey = function (licenseKey) {
             var jsonData = { "licenseKey": licenseKey };
             $.ajax({ type: "POST", url: baseUrl + "setLicenseKey", contentType: "application/json", processData: false, dataType: "json", data: JSON.stringify(jsonData) })
-                .done(function (data, textStatus, jqXHR) {
-                    alert(textStatus + ": " + JSON.stringify(data));
+                .done(function (data, textStatus, jqXHR) { // on a post, data is an object
+                    if (!data.result) alert(textStatus + ": " + JSON.stringify(data));
                 })
                 .fail(function (jqXHR, textStatus, errorThrown) {
                     alert(textStatus + ": " + JSON.stringify(jqXHR));
@@ -39,14 +43,18 @@ console.log("Loading RC3DK.js");
             ;
         };
 
-        function logNative(message) {
-            var jsonData = { "message": message };
-            $.ajax({ type: "POST", url: baseUrl + "log", contentType: "application/json", processData: false, dataType: "json", data: JSON.stringify(jsonData) })
+        this.hasCalibrationData = function (callback) {
+            var isCalibrated = false;
+            $.ajax({ type: "GET", url: baseUrl + "hasCalibrationData"})
+                .done(function (data, textStatus, jqXHR) { // on a get, data is a string
+                    var resultObj = JSON.parse(data);
+                    callback(resultObj.result);
+                })
                 .fail(function (jqXHR, textStatus, errorThrown) {
                     alert(textStatus + ": " + JSON.stringify(jqXHR));
                 })
             ;
-        }
+        };
     }
 
     window.RC3DK = new RC3DK();

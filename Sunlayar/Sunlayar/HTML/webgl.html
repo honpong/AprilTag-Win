@@ -64,6 +64,7 @@
 <!--            <script src="svg_measurements.js"></script>-->
 <!--            <script src="main_function.js"></script>-->
             <script src="three.min.js"></script>
+            <script src="RC3DK.js"></script>
             </head>
     
 <!--    <body onload = 'rc_initialize();'>-->
@@ -88,9 +89,9 @@
                 }
                 render();
 
-                $.ajax({ type: "GET", url: "http://internal.realitycap.com/startSensors/"});
-                $.ajax({ type: "GET", url: "http://internal.realitycap.com/startSensorFusion/"});
-                
+                window.RC3DK.startSensors();
+                window.RC3DK.startSensorFusion();
+
                 /*
                  the status object has the same stucture and content as RCSensorFusionStatus
                  ex: {progress:0.87356501817703247,confidence:0,runState:2}

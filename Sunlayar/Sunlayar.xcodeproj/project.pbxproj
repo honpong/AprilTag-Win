@@ -93,6 +93,7 @@
 		32E7575C1A9BAAAB004BA247 /* SBJsonUTF8Stream.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E7574A1A9BAAAB004BA247 /* SBJsonUTF8Stream.m */; };
 		32E7575D1A9BAAAB004BA247 /* SBJsonWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E7574C1A9BAAAB004BA247 /* SBJsonWriter.m */; };
 		32E7575E1A9BAAAB004BA247 /* ARNativeAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E7574F1A9BAAAB004BA247 /* ARNativeAction.m */; };
+		32E757601A9BAB08004BA247 /* RC3DK.js in Resources */ = {isa = PBXBuildFile; fileRef = 32E7575F1A9BAB08004BA247 /* RC3DK.js */; };
 		D927F0B91A61A8BE00344165 /* SLARDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D927F0B81A61A8BE00344165 /* SLARDelegate.m */; };
 /* End PBXBuildFile section */
 
@@ -267,6 +268,7 @@
 		32E7574C1A9BAAAB004BA247 /* SBJsonWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonWriter.m; sourceTree = "<group>"; };
 		32E7574E1A9BAAAB004BA247 /* ARNativeAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARNativeAction.h; sourceTree = "<group>"; };
 		32E7574F1A9BAAAB004BA247 /* ARNativeAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARNativeAction.m; sourceTree = "<group>"; };
+		32E7575F1A9BAB08004BA247 /* RC3DK.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = RC3DK.js; sourceTree = "<group>"; };
 		D927F0B71A61A8BE00344165 /* SLARDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLARDelegate.h; sourceTree = "<group>"; };
 		D927F0B81A61A8BE00344165 /* SLARDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLARDelegate.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -498,6 +500,7 @@
 				324751F81A5BCB3000A0EC98 /* scale_and_rotate.js */,
 				324751F91A5BCB3000A0EC98 /* svgjs.js */,
 				17AB2D3C1A6DE54F00BB11F1 /* svg_number_pad.js */,
+				32E7575F1A9BAB08004BA247 /* RC3DK.js */,
 			);
 			path = HTML;
 			sourceTree = "<group>";
@@ -725,6 +728,7 @@
 				3219106C1A52328D00AEF550 /* Images.xcassets in Resources */,
 				175A2F881A706ED3001AC184 /* fp_left.png in Resources */,
 				324752201A5BCB3000A0EC98 /* jquery-2.1.1.min.js in Resources */,
+				32E757601A9BAB08004BA247 /* RC3DK.js in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

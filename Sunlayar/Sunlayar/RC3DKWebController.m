@@ -170,26 +170,53 @@
 {
     DLog(@"%@", nativeAction.request.URL.description);
     
-    if ([nativeAction.request.URL.description endsWithString:@"/startSensors/"])
+    if ([nativeAction.request.URL.description endsWithString:@"/startSensors"])
     {
         [self startSensors];
         return @{ @"message": @"Starting all sensors" };
     }
-    else if ([nativeAction.request.URL.description endsWithString:@"/stopSensors/"])
+    else if ([nativeAction.request.URL.description endsWithString:@"/stopSensors"])
     {
         [self stopSensors];
         return @{ @"message": @"Stopping all sensors" };
     }
-    else if ([nativeAction.request.URL.description endsWithString:@"/startSensorFusion/"])
+    else if ([nativeAction.request.URL.description endsWithString:@"/startSensorFusion"])
     {
         [self startSensorFusion];
         return @{ @"message": @"Starting sensor fusion" };
     }
-    else if ([nativeAction.request.URL.description endsWithString:@"/stopSensorFusion/"])
+    else if ([nativeAction.request.URL.description endsWithString:@"/stopSensorFusion"])
     {
         [self stopSensorFusion];
         return @{ @"message": @"Stopping sensor fusion" };
     }
+    else if ([nativeAction.request.URL.description endsWithString:@"/setLicenseKey"] && [nativeAction.method isEqualToString:@"POST"])
+    {
+        [self webViewLog:[nativeAction.params objectForKey:@"licenseKey"]];
+        return @{ @"return": @YES };
+    }
+    else if ([nativeAction.request.URL.description endsWithString:@"/log"] && [nativeAction.method isEqualToString:@"POST"])
+    {
+        [self webViewLog:[nativeAction.params objectForKey:@"message"]];
+        return @{ @"message": @"Write to log successful" };
+    }
+
+    
+//    if ([nativeAction.request.URL.description endsWithString:@"/annotations/"] && [nativeAction.method isEqualToString:@"PUT"])
+//    {
+//        BOOL result = [self.measuredPhoto writeAnnotationsToFile:nativeAction.body];
+//        
+//        if (result == YES)
+//        {
+//            return @{ @"message": @"Annotations saved" };
+//        }
+//        else
+//        {
+//            NSDictionary* userInfo = @{ NSLocalizedDescriptionKey: @"Failed to write depth file" };
+//            *error = [NSError errorWithDomain:ERROR_DOMAIN code:500 userInfo:userInfo];
+//        }
+//    }
+    
     
     return nil;
 }

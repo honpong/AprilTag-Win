@@ -270,12 +270,6 @@ state_vision_group * state_vision::add_group(uint64_t time)
     return g;
 }
 
-void state_vision::fill_calibration(feature_t &initial, f_t &r2, f_t &kr) const
-{
-    r2 = initial.x * initial.x + initial.y * initial.y;
-    kr = 1. + r2 * (k1.v + r2 * (k2.v + r2 * k3.v));
-}
-
 feature_t state_vision::calibrate_feature(const feature_t &initial) const
 {
     feature_t norm, calib;

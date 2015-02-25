@@ -5,6 +5,7 @@ console.log("Loading RC3DK.js");
 
     var RC3DK = function () {
         var baseUrl = "http://internal.realitycap.com/";
+        var statusUpdateCallback, dataUpdateCallback;
 
         if (RC3DK.prototype._singletonInstance) {
             return RC3DK.prototype_singletonInstance;
@@ -54,6 +55,26 @@ console.log("Loading RC3DK.js");
                     alert(textStatus + ": " + JSON.stringify(jqXHR));
                 })
             ;
+        };
+
+        this.sensorFusionDidChangeStatus = function (status)
+        {
+            if (statusUpdateCallback) statusUpdateCallback(status);
+        };
+
+        this.sensorFusionDidUpdateData = function (data)
+        {
+            if (dataUpdateCallback) dataUpdateCallback(data);
+        };
+
+        this.onStatusUpdate = function (callback)
+        {
+            statusUpdateCallback = callback;
+        };
+
+        this.onDataUpdate = function (callback)
+        {
+            dataUpdateCallback = callback;
         };
 
         this.logNative = function (message) {

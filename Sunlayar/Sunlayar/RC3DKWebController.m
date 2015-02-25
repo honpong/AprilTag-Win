@@ -128,7 +128,7 @@
 - (void) sensorFusionDidChangeStatus:(RCSensorFusionStatus *)status
 {
     NSString* statusJson = [[status dictionaryRepresentation] JavascriptObjRepresentation]; // expensive
-    NSString* javascript = [NSString stringWithFormat:@"sensorFusionDidChangeStatus(%@);", statusJson];
+    NSString* javascript = [NSString stringWithFormat:@"RC3DK.sensorFusionDidChangeStatus(%@);", statusJson];
 //    DLog(@"%@", javascript);
     [self.webView stringByEvaluatingJavaScriptFromString: javascript];
 }
@@ -136,7 +136,7 @@
 - (void) sensorFusionDidUpdateData:(RCSensorFusionData*)data
 {
     NSString* dataJson = [[data dictionaryRepresentation] JavascriptObjRepresentation]; // expensive
-    NSString* javascript = [NSString stringWithFormat:@"sensorFusionDidUpdateData(%@);", dataJson];
+    NSString* javascript = [NSString stringWithFormat:@"RC3DK.sensorFusionDidUpdateData(%@);", dataJson];
 //    DLog(@"%@", javascript);
     [self.webView stringByEvaluatingJavaScriptFromString: javascript];
     

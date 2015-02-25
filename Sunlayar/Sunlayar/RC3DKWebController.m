@@ -25,7 +25,7 @@
 {
     [super viewDidLoad];
     
-//    [NSURLProtocol registerClass:[RCHttpInterceptor class]];
+    [NSURLProtocol registerClass:[RCHttpInterceptor class]];
     [RCHttpInterceptor setDelegate:self];
     
     useLocation = [LOCATION_MANAGER isLocationExplicitlyAllowed] && [NSUserDefaults.standardUserDefaults boolForKey:PREF_USE_LOCATION];

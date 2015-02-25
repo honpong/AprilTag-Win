@@ -54,9 +54,7 @@
         
         [NSUserDefaults.standardUserDefaults registerDefaults:appDefaults];
     });
-    
-    [NSURLProtocol registerClass:[RCHttpInterceptor class]];
-    
+        
     mySensorDelegate = [SensorDelegate sharedInstance];
     
     mainViewController = self.window.rootViewController;

@@ -268,7 +268,7 @@
 		32E7574C1A9BAAAB004BA247 /* SBJsonWriter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SBJsonWriter.m; sourceTree = "<group>"; };
 		32E7574E1A9BAAAB004BA247 /* ARNativeAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARNativeAction.h; sourceTree = "<group>"; };
 		32E7574F1A9BAAAB004BA247 /* ARNativeAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARNativeAction.m; sourceTree = "<group>"; };
-		32E7575F1A9BAB08004BA247 /* RC3DK.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = RC3DK.js; sourceTree = "<group>"; };
+		32E7575F1A9BAB08004BA247 /* RC3DK.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = RC3DK.js; path = HTML/RC3DK.js; sourceTree = "<group>"; };
 		D927F0B71A61A8BE00344165 /* SLARDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLARDelegate.h; sourceTree = "<group>"; };
 		D927F0B81A61A8BE00344165 /* SLARDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLARDelegate.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -334,7 +334,7 @@
 		3219105D1A52328D00AEF550 /* Sunlayar */ = {
 			isa = PBXGroup;
 			children = (
-				32E757081A97D0EC004BA247 /* RealityCap */,
+				32E757081A97D0EC004BA247 /* 3DKJavascriptAPI */,
 				321910841A52330500AEF550 /* AugmentedReality */,
 				3219108E1A52330F00AEF550 /* Calibration */,
 				324751EE1A5BCB3000A0EC98 /* HTML */,
@@ -359,10 +359,6 @@
 				321F68301A523E180016D985 /* SLConstants.h */,
 				324752161A5BCB3000A0EC98 /* UIImage+RCImageFile.h */,
 				324752171A5BCB3000A0EC98 /* UIImage+RCImageFile.m */,
-				32545AB51A5F9E8E00A08564 /* RCHttpInterceptor.h */,
-				32545AB61A5F9E8E00A08564 /* RCHttpInterceptor.m */,
-				32E757051A97C764004BA247 /* RC3DKWebController.h */,
-				32E757061A97C764004BA247 /* RC3DKWebController.m */,
 				32E757231A980670004BA247 /* RC3DK.h */,
 				32E7572A1A980C31004BA247 /* SLARWebViewController.h */,
 				32E7572B1A980C31004BA247 /* SLARWebViewController.m */,
@@ -500,7 +496,6 @@
 				324751F81A5BCB3000A0EC98 /* scale_and_rotate.js */,
 				324751F91A5BCB3000A0EC98 /* svgjs.js */,
 				17AB2D3C1A6DE54F00BB11F1 /* svg_number_pad.js */,
-				32E7575F1A9BAB08004BA247 /* RC3DK.js */,
 			);
 			path = HTML;
 			sourceTree = "<group>";
@@ -515,11 +510,16 @@
 			name = ThirdParty;
 			sourceTree = "<group>";
 		};
-		32E757081A97D0EC004BA247 /* RealityCap */ = {
+		32E757081A97D0EC004BA247 /* 3DKJavascriptAPI */ = {
 			isa = PBXGroup;
 			children = (
+				32E7575F1A9BAB08004BA247 /* RC3DK.js */,
+				32545AB51A5F9E8E00A08564 /* RCHttpInterceptor.h */,
+				32545AB61A5F9E8E00A08564 /* RCHttpInterceptor.m */,
+				32E757051A97C764004BA247 /* RC3DKWebController.h */,
+				32E757061A97C764004BA247 /* RC3DKWebController.m */,
 			);
-			name = RealityCap;
+			name = 3DKJavascriptAPI;
 			sourceTree = "<group>";
 		};
 		32E757171A980655004BA247 /* Products */ = {

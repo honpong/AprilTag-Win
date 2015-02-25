@@ -4,7 +4,7 @@ console.log("Loading RC3DK.js");
     "use strict";
 
     var RC3DK = function () {
-        var baseUrl = "http://internal.realitycap.com/";
+        var baseUrl = "http://dummy.realitycap.com/";
         var statusUpdateCallback, dataUpdateCallback;
 
         if (RC3DK.prototype._singletonInstance) {

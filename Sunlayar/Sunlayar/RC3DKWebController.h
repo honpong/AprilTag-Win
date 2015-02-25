@@ -20,5 +20,7 @@
 
 @property (nonatomic, readonly) UIWebView* webView;
 @property (nonatomic, readonly) RCVideoPreview* videoView;
+@property (nonatomic, readonly) BOOL isSensorFusionRunning;
+@property (nonatomic) BOOL isVideoViewShowing;
 
 @end

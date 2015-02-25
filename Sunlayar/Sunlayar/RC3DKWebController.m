@@ -20,6 +20,18 @@
     id<RCSensorDelegate> sensorDelegate;
     BOOL useLocation;
 }
+@synthesize isSensorFusionRunning;
+
+- (instancetype)init
+{
+    self = [super init];
+    if (!self) return nil;
+    
+    _isVideoViewShowing = NO;
+    isSensorFusionRunning = NO;
+    
+    return self;
+}
 
 - (void) viewDidLoad
 {
@@ -32,11 +44,7 @@
     
     sensorDelegate = [SensorDelegate sharedInstance];
     
-    _videoView = [[RCVideoPreview alloc] initWithFrame:self.view.frame];
-    self.videoView.orientation = UIInterfaceOrientationLandscapeRight;
-    [self.view addSubview:self.videoView];
-    
-    [[sensorDelegate getVideoProvider] setDelegate:self.videoView];
+    _isVideoViewShowing ? [self showVideoView] : [self hideVideoView];
     
     // setup web view
     _webView = [UIWebView new];
@@ -91,6 +99,38 @@
     if (useLocation) [LOCATION_MANAGER startLocationUpdates];
 }
 
+#pragma mark - Video view
+
+- (void) setIsVideoViewShowing:(BOOL)newValue
+{
+    if (newValue != _isVideoViewShowing) newValue ? [self showVideoView] : [self hideVideoView];
+}
+
+- (void) showVideoView
+{
+    if (!self.videoView.superview)
+    {
+        if (!self.videoView) _videoView = [[RCVideoPreview alloc] initWithFrame:self.view.frame];
+        self.videoView.orientation = UIInterfaceOrientationLandscapeRight; // TODO handle other orientations
+        [self.view insertSubview:self.videoView belowSubview:self.webView];
+        
+        if (!isSensorFusionRunning) [[sensorDelegate getVideoProvider] setDelegate:self.videoView];
+        
+        _isVideoViewShowing = YES;
+    }
+}
+
+- (void) hideVideoView
+{
+    if (self.videoView.superview)
+    {
+        [[sensorDelegate getVideoProvider] setDelegate:nil];
+        [self.videoView removeFromSuperview];
+        _videoView = nil;
+        _isVideoViewShowing = NO;
+    }
+}
+
 #pragma mark - 3DK Stuff
 
 - (void) startSensors
@@ -113,6 +153,7 @@
     [[sensorDelegate getVideoProvider] setDelegate:nil];
     if (useLocation) [SENSOR_FUSION setLocation:[LOCATION_MANAGER getStoredLocation]];
     [SENSOR_FUSION startSensorFusionWithDevice:[sensorDelegate getVideoDevice]];
+    isSensorFusionRunning = YES;
 }
 
 - (void)stopSensorFusion
@@ -121,6 +162,7 @@
     [SENSOR_FUSION stopSensorFusion];
     [[sensorDelegate getVideoProvider] setDelegate:self.videoView];
     [[UIApplication sharedApplication] setIdleTimerDisabled:NO];
+    isSensorFusionRunning = NO;
 }
 
 #pragma mark - RCSensorFusionDelegate
@@ -207,6 +249,16 @@
     else if ([nativeAction.request.URL.description endsWithString:@"/log"] && [nativeAction.method isEqualToString:@"POST"])
     {
         [self webViewLog:[nativeAction.params objectForKey:@"message"]];
+        return @{ @"result": @YES };
+    }
+    else if ([nativeAction.request.URL.description endsWithString:@"/showVideoView"])
+    {
+        [self showVideoView];
+        return @{ @"result": @YES };
+    }
+    else if ([nativeAction.request.URL.description endsWithString:@"/hideVideoView"])
+    {
+        [self hideVideoView];
         return @{ @"result": @YES };
     }
     

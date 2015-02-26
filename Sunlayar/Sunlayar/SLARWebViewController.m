@@ -15,7 +15,7 @@
     self = [super init];
     if (!self) return nil;
     
-    pageURL = [[NSBundle mainBundle] URLForResource:@"webgl" withExtension:@"html"];
+    pageURL = [[NSBundle mainBundle] URLForResource:@"capture" withExtension:@"html"];
     
     return self;
 }
@@ -24,5 +24,9 @@
 {
     [super viewDidLoad];
 }
+
+- (BOOL)prefersStatusBarHidden { return YES; }
+
+- (NSUInteger)supportedInterfaceOrientations { return UIInterfaceOrientationMaskLandscapeRight; }
 
 @end

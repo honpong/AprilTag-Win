@@ -1,4 +1,8 @@
-console.log("Loading RC3DKPlus.js");
+//
+//  Created by Ben Hirashima on 2/25/15.
+//  Copyright (c) 2015 RealityCap. All rights reserved.
+//
+// depends on JQuery 2.0+
 
 (function (window) {
     "use strict";

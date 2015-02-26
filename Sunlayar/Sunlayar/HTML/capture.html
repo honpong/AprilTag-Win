@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<!-- Copyright (c) 2015 Sunlayar. All rights reserved. -->
+<html>
+<head>
+    <style type="text/css">
+        body {
+            position:absolute;
+            top:0px;
+            left:0px;
+            background-color: rgb(85,85,85);
+            margin:0px 0px 0px 0px;
+            padding:0px 0px 0px 0px;
+            -webkit-touch-callout: none;
+            -webkit-text-size-adjust: none;
+            -webkit-user-select: none;
+            -webkit-highlight: none;
+            overflow: hidden;
+        }
+
+        html{
+            overflow: hidden;
+            height: 100%;
+        }
+
+        canvas { width: 100%; height: 100% }
+
+        #shutterButton {
+            width: 60px;
+            height: 40px;
+            margin: 10px;
+        }
+
+        #message {
+            padding: 10px;
+            width: 1000px;
+            height: 40px;
+            color: #FFFFFF;
+            background-color: #000000;
+            opacity: 0.5;
+        }
+
+    </style>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0">
+
+    <script src="jquery-2.1.1.min.js"></script>
+    <script src="RC3DK.js"></script>
+    <script src="RC3DKPlus.js"></script>
+
+</head>
+
+<body style="background-color: transparent;">
+<script>
+    $(document).ready(function()
+    {
+        var currentRunState = RC3DK.SensorFusionRunState.Inactive;
+
+        resetWorkflow();
+
+        $("#shutterButton").on( "click", function() {
+            switch (currentRunState)
+            {
+                case RC3DK.SensorFusionRunState.Inactive:
+                    initializeSensorFusion();
+            }
+        });
+
+        RC3DK.onStatusUpdate(function (status)
+        {
+            if (status.runState !== currentRunState) currentRunState = status.runState;
+
+            if (status.error)
+            {
+                if (status.error.class === RC3DK.RCLicenseErrorClass)
+                {
+                    handleSensorFusionError(status.error);
+                }
+                else if (status.error.class === RC3DK.RCLicenseErrorClass)
+                {
+                    handleLicenseError(status.error);
+                }
+            }
+            else
+            {
+                switch (status.runState)
+                {
+                    case RC3DK.SensorFusionRunState.SteadyInitialization:
+                        updateInitializationProgress(status.progress);
+                }
+            }
+        });
+
+        RC3DK.onDataUpdate(function (data)
+        {
+
+        });
+    });
+
+    function showMessage(message)
+    {
+        $("#message").html(message);
+    }
+
+    function handleSensorFusionError(error)
+    {
+        if (error.code > 1)
+        {
+            RC3DK.stopSensorFusion();
+            RC3DK.stopSensors();
+            alert(status.error.class + ":" + status.error.code);
+        }
+    }
+
+    function handleLicenseError(error)
+    {
+        alert(status.error.class + ":" + status.error.code);
+    }
+
+    function resetWorkflow()
+    {
+        showMessage("Point the camera at the roof, then press the button.");
+
+        RC3DK.stopSensorFusion();
+        RC3DK.showVideoView();
+        RC3DK.startSensors();
+    }
+
+    function initializeSensorFusion()
+    {
+        showMessage("Hold still");
+        RC3DK.startSensorFusion();
+    }
+
+    function updateInitializationProgress(progress)
+    {
+        var percentage = progress * 100;
+        showMessage("Hold still " + Math.ceil(percentage) + "%");
+    }
+
+</script>
+<form>
+    <input type="button" id="shutterButton" value="Shutter"/><span id="message">Hello</span>
+</form>
+</body>
+</html>

@@ -1,7 +1,6 @@
 <!DOCTYPE html>
-<!-- Copyright (c) 2014 Sunlayar. All rights reserved. -->
+<!-- Copyright (c) 2015 Sunlayar. All rights reserved. -->
 <html>
-    
     <head>
         <style type="text/css">
             body {
@@ -18,154 +17,141 @@
                 overflow: hidden;
             }
         
-        html{
-            overflow: hidden;
-            height: 100%;
-        }
-        
-        drawing {
-            position:absolute;
-            top:0px;
-            left:0px;
-            height:100%;
-            width:100%;
-            background-color: rgb(85,85,85);
-            margin:0px 0px 0px 0px;
-            padding:0px 0px 0px 0px;
-            -webkit-touch-callout: none;
-            -webkit-text-size-adjust: none;
-            -webkit-user-select: none;
-            -webkit-highlight: none;
-            overflow: hidden;
-        }
+            html{
+                overflow: hidden;
+                height: 100%;
+            }
 
-        canvas { width: 100%; height: 100% }
+            drawing {
+                position:absolute;
+                top:0px;
+                left:0px;
+                height:100%;
+                width:100%;
+                background-color: rgb(85,85,85);
+                margin:0px 0px 0px 0px;
+                padding:0px 0px 0px 0px;
+                -webkit-touch-callout: none;
+                -webkit-text-size-adjust: none;
+                -webkit-user-select: none;
+                -webkit-highlight: none;
+                overflow: hidden;
+            }
+
+            canvas { width: 100%; height: 100% }
+
+            #shutterButton { width: 50px; height: 40px; }
         
-            </style>
+        </style>
+
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0">
 
-            <script src="jquery-2.1.1.min.js"></script>
-            <script src="three.min.js"></script>
-            <script src="RC3DK.js"></script>
-            </head>
+        <script src="jquery-2.1.1.min.js"></script>
+        <script src="three.min.js"></script>
+        <script src="RC3DK.js"></script>
+        <script src="RC3DKPlus.js"></script>
 
-        <body style="background-color: transparent;">
-            <script>
-                var scene = new THREE.Scene();
-                var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-                var renderer = new THREE.WebGLRenderer();
-                renderer.setSize( window.innerWidth, window.innerHeight );
-                document.body.appendChild( renderer.domElement );
+    </head>
 
-                var cube = new THREE.Mesh(
-                        new THREE.CubeGeometry( 1, 1, 1 ),
-                        new THREE.MeshLambertMaterial( { color: 0xFFFFFF } )
-                );
-                scene.add( cube );
-                cube.position.z = -5;
+    <body style="background-color: transparent;">
+        <script>
+            var scene = new THREE.Scene();
+            var camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+            var renderer = new THREE.WebGLRenderer();
+            renderer.setSize( window.innerWidth, window.innerHeight );
+            document.body.appendChild( renderer.domElement );
 
-                var light;
+            var cube = new THREE.Mesh(
+                    new THREE.CubeGeometry( 1, 1, 1 ),
+                    new THREE.MeshLambertMaterial( { color: 0xFFFFFF } )
+            );
+            scene.add( cube );
+            cube.position.z = -5;
 
-                // top
-                light = new THREE.DirectionalLight( 0x0DEDDF );
-                light.position.set( 0, 1, 0 );
-                scene.add( light );
+            var light;
 
-                // bottom
-                light = new THREE.DirectionalLight( 0x0DEDDF );
-                light.position.set( 0, -1, 0 );
-                scene.add( light );
+            // top
+            light = new THREE.DirectionalLight( 0x0DEDDF );
+            light.position.set( 0, 1, 0 );
+            scene.add( light );
 
-                // back
-                light = new THREE.DirectionalLight( 0xB685F3 );
-                light.position.set( 1, 0, 0 );
-                scene.add( light );
+            // bottom
+            light = new THREE.DirectionalLight( 0x0DEDDF );
+            light.position.set( 0, -1, 0 );
+            scene.add( light );
 
-                // front
-                light = new THREE.DirectionalLight( 0xB685F3 );
-                light.position.set( -1, 0, 0 );
-                scene.add( light );
+            // back
+            light = new THREE.DirectionalLight( 0xB685F3 );
+            light.position.set( 1, 0, 0 );
+            scene.add( light );
 
-                // right
-                light = new THREE.DirectionalLight( 0x89A7F5 );
-                light.position.set( 0, 0, 1 );
-                scene.add( light );
+            // front
+            light = new THREE.DirectionalLight( 0xB685F3 );
+            light.position.set( -1, 0, 0 );
+            scene.add( light );
 
-                // left
-                light = new THREE.DirectionalLight( 0x89A7F5 );
-                light.position.set( 0, 0, -1 );
-                scene.add( light );
+            // right
+            light = new THREE.DirectionalLight( 0x89A7F5 );
+            light.position.set( 0, 0, 1 );
+            scene.add( light );
 
-                RC3DK.setLicenseKey("aF9cE0B536c84aE6F500509E8aBCcC"); // Sunlayar license key
-                RC3DK.hasCalibrationData(function (isCalibrated)
+            // left
+            light = new THREE.DirectionalLight( 0x89A7F5 );
+            light.position.set( 0, 0, -1 );
+            scene.add( light );
+
+            RC3DK.setLicenseKey("aF9cE0B536c84aE6F500509E8aBCcC"); // Sunlayar license key
+            RC3DK.hasCalibrationData(function (isCalibrated)
+            {
+                if (isCalibrated)
                 {
-                    if (isCalibrated)
-                    {
-                        RC3DK.showVideoView();
-                        RC3DK.startSensors();
-                        RC3DK.startSensorFusion();
-                    }
-                });
+                    RC3DK.showVideoView();
+                    RC3DK.startSensors();
+                    RC3DK.startSensorFusion();
+                }
+            });
 
-                /*
-                 the status object has the same stucture and content as RCSensorFusionStatus. the error object may not be present.
-                 ex: {runState:4,confidence:1,error:{class:"RCSensorFusionError",code:1},progress:1}
-                 */
-                RC3DK.onStatusUpdate(function (status)
+            RC3DK.onStatusUpdate(function (status)
+            {
+                if (status.error)
                 {
-                    if (status.error)
+                    if (status.error.class == "RCSensorFusionError")
                     {
-                        if (status.error.class == "RCSensorFusionError")
-                        {
-                            if (status.error.code > 1)
-                            {
-                                RC3DK.stopSensorFusion();
-                                RC3DK.stopSensors();
-                                alert(status.error.class + ":" + status.error.code);
-                            }
-                        }
-                        else
+                        if (status.error.code > 1)
                         {
                             RC3DK.stopSensorFusion();
                             RC3DK.stopSensors();
                             alert(status.error.class + ":" + status.error.code);
                         }
                     }
-                });
+                    else
+                    {
+                        RC3DK.stopSensorFusion();
+                        RC3DK.stopSensors();
+                        alert(status.error.class + ":" + status.error.code);
+                    }
+                }
+            });
 
-                /*
-                 the data object has the same stucture and content as RCSensorFusionData, minus the featurePoints. ex:
-                 {
-                 transformation:{
-                     rotation:{qx:-0.012587299570441246,qw:0.99985092878341675,qz:0.00024901828146539629,qy:-0.011816162616014481},
-                     translation:{v2:0.0001231919159181416,v0:0.002296853344887495,std1:0.001661463757045567,v3:0,std2:0.0026393774896860123,v1:-0.0022083036601543427,std3:0,std0:0.0014444828266277909}
-                 },
-                 cameraParameters:{radialFouthDegree:-0.2295377254486084,radialSecondDegree:0.11349671334028244,opticalCenterY:247.20547485351562,opticalCenterX:325.925048828125,focalLength:587.55810546875},
-                 cameraTransformation:{
-                     rotation:{qx:0.70717746019363403,qw:0.00054524908773601055,qz:0.017255853861570358,qy:-0.70682525634765625},
-                     translation:{v2:-0.0017100467812269926,v0:-0.00071634328924119473,std1:0.057653535157442093,v3:0,std2:0.072655044496059418,v1:0.067767113447189331,std3:0,std0:0.053758375346660614}
-                 },
-                 timestamp:248998938250,
-                 totalPathLength:{scalar:0,standardDeviation:0}
-                 }
-                 */
-                var exFactor = 15; // translation exaggeration factor
-                RC3DK.onDataUpdate(function (data)
-                {
+            var exFactor = 15; // translation exaggeration factor
+            RC3DK.onDataUpdate(function (data)
+            {
 //                    if (data.transformation.rotation)
 //                    {
 //                        camera.quaternion.set(data.transformation.rotation.qy, data.transformation.rotation.qz, data.transformation.rotation.qx, data.transformation.rotation.qw);
 //                    }
 
-                    if (data.transformation.translation)
-                    {
-                        camera.position.set(-data.cameraTransformation.translation.v1 * exFactor, data.cameraTransformation.translation.v2 * exFactor, -data.cameraTransformation.translation.v0 * exFactor);
-                    }
+                if (data.transformation.translation)
+                {
+                    camera.position.set(-data.cameraTransformation.translation.v1 * exFactor, data.cameraTransformation.translation.v2 * exFactor, -data.cameraTransformation.translation.v0 * exFactor);
+                }
 
-                    renderer.render( scene, camera );
-                });
+                renderer.render( scene, camera );
+            });
 
-            </script>
-            <div id="drawing"></div>
-        </body>
+        </script>
+        <form>
+        <input type="button" id="shutterButton" value="Shutter" height="40"/><span id="message">Hello</span>
+        </form>
+    </body>
 </html>

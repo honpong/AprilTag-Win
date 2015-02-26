@@ -96,6 +96,7 @@
 		32E757601A9BAB08004BA247 /* RC3DK.js in Resources */ = {isa = PBXBuildFile; fileRef = 32E7575F1A9BAB08004BA247 /* RC3DK.js */; };
 		32E757631A9E7730004BA247 /* RC3DKPlusWebController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E757621A9E7730004BA247 /* RC3DKPlusWebController.m */; };
 		32E757671A9EAFF0004BA247 /* RC3DKPlus.js in Resources */ = {isa = PBXBuildFile; fileRef = 32E757661A9EAFF0004BA247 /* RC3DKPlus.js */; };
+		32E757691A9FA2AB004BA247 /* capture.html in Resources */ = {isa = PBXBuildFile; fileRef = 32E757681A9FA2AB004BA247 /* capture.html */; };
 		D927F0B91A61A8BE00344165 /* SLARDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D927F0B81A61A8BE00344165 /* SLARDelegate.m */; };
 /* End PBXBuildFile section */
 
@@ -274,6 +275,7 @@
 		32E757611A9E7730004BA247 /* RC3DKPlusWebController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RC3DKPlusWebController.h; sourceTree = "<group>"; };
 		32E757621A9E7730004BA247 /* RC3DKPlusWebController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RC3DKPlusWebController.m; sourceTree = "<group>"; };
 		32E757661A9EAFF0004BA247 /* RC3DKPlus.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = RC3DKPlus.js; path = HTML/RC3DKPlus.js; sourceTree = "<group>"; };
+		32E757681A9FA2AB004BA247 /* capture.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = capture.html; sourceTree = "<group>"; };
 		D927F0B71A61A8BE00344165 /* SLARDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLARDelegate.h; sourceTree = "<group>"; };
 		D927F0B81A61A8BE00344165 /* SLARDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLARDelegate.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -482,6 +484,7 @@
 		324751EE1A5BCB3000A0EC98 /* HTML */ = {
 			isa = PBXGroup;
 			children = (
+				32E757681A9FA2AB004BA247 /* capture.html */,
 				329A47C01A8A934D0048DA77 /* three.min.js */,
 				329A47C11A8A934D0048DA77 /* webgl.html */,
 				175A2F891A70749A001AC184 /* fp_r_btm.png */,
@@ -711,6 +714,7 @@
 				329A47C21A8A934D0048DA77 /* three.min.js in Resources */,
 				329A47C31A8A934D0048DA77 /* webgl.html in Resources */,
 				175A2F8E1A70749A001AC184 /* fp_right.png in Resources */,
+				32E757691A9FA2AB004BA247 /* capture.html in Resources */,
 				175A2F8C1A70749A001AC184 /* fp_r_btm.png in Resources */,
 				324752271A5BCB3000A0EC98 /* svgjs.js in Resources */,
 				324752221A5BCB3000A0EC98 /* main_function.js in Resources */,

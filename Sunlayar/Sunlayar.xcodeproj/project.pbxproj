@@ -94,6 +94,8 @@
 		32E7575D1A9BAAAB004BA247 /* SBJsonWriter.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E7574C1A9BAAAB004BA247 /* SBJsonWriter.m */; };
 		32E7575E1A9BAAAB004BA247 /* ARNativeAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E7574F1A9BAAAB004BA247 /* ARNativeAction.m */; };
 		32E757601A9BAB08004BA247 /* RC3DK.js in Resources */ = {isa = PBXBuildFile; fileRef = 32E7575F1A9BAB08004BA247 /* RC3DK.js */; };
+		32E757631A9E7730004BA247 /* RC3DKPlusWebController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E757621A9E7730004BA247 /* RC3DKPlusWebController.m */; };
+		32E757671A9EAFF0004BA247 /* RC3DKPlus.js in Resources */ = {isa = PBXBuildFile; fileRef = 32E757661A9EAFF0004BA247 /* RC3DKPlus.js */; };
 		D927F0B91A61A8BE00344165 /* SLARDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D927F0B81A61A8BE00344165 /* SLARDelegate.m */; };
 /* End PBXBuildFile section */
 
@@ -269,6 +271,9 @@
 		32E7574E1A9BAAAB004BA247 /* ARNativeAction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARNativeAction.h; sourceTree = "<group>"; };
 		32E7574F1A9BAAAB004BA247 /* ARNativeAction.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARNativeAction.m; sourceTree = "<group>"; };
 		32E7575F1A9BAB08004BA247 /* RC3DK.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = RC3DK.js; path = HTML/RC3DK.js; sourceTree = "<group>"; };
+		32E757611A9E7730004BA247 /* RC3DKPlusWebController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RC3DKPlusWebController.h; sourceTree = "<group>"; };
+		32E757621A9E7730004BA247 /* RC3DKPlusWebController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RC3DKPlusWebController.m; sourceTree = "<group>"; };
+		32E757661A9EAFF0004BA247 /* RC3DKPlus.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = RC3DKPlus.js; path = HTML/RC3DKPlus.js; sourceTree = "<group>"; };
 		D927F0B71A61A8BE00344165 /* SLARDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLARDelegate.h; sourceTree = "<group>"; };
 		D927F0B81A61A8BE00344165 /* SLARDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLARDelegate.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -514,10 +519,13 @@
 			isa = PBXGroup;
 			children = (
 				32E7575F1A9BAB08004BA247 /* RC3DK.js */,
+				32E757661A9EAFF0004BA247 /* RC3DKPlus.js */,
 				32545AB51A5F9E8E00A08564 /* RCHttpInterceptor.h */,
 				32545AB61A5F9E8E00A08564 /* RCHttpInterceptor.m */,
 				32E757051A97C764004BA247 /* RC3DKWebController.h */,
 				32E757061A97C764004BA247 /* RC3DKWebController.m */,
+				32E757611A9E7730004BA247 /* RC3DKPlusWebController.h */,
+				32E757621A9E7730004BA247 /* RC3DKPlusWebController.m */,
 			);
 			name = 3DKJavascriptAPI;
 			sourceTree = "<group>";
@@ -723,6 +731,7 @@
 				3219106F1A52328D00AEF550 /* LaunchScreen.xib in Resources */,
 				3219109D1A52330F00AEF550 /* holding_portrait.jpg in Resources */,
 				321911061A523AFA00AEF550 /* shader.vsh in Resources */,
+				32E757671A9EAFF0004BA247 /* RC3DKPlus.js in Resources */,
 				3247521E1A5BCB3000A0EC98 /* global_variables.js in Resources */,
 				17C429A61A5C7C3D004201CF /* fastclick.js in Resources */,
 				3219106C1A52328D00AEF550 /* Images.xcassets in Resources */,
@@ -783,6 +792,7 @@
 				321910611A52328D00AEF550 /* main.m in Sources */,
 				32E757531A9BAAAB004BA247 /* SBJsonParser.m in Sources */,
 				3219108D1A52330500AEF550 /* RCVideoPreview.m in Sources */,
+				32E757631A9E7730004BA247 /* RC3DKPlusWebController.m in Sources */,
 				3219109F1A52330F00AEF550 /* MBProgressHUD.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

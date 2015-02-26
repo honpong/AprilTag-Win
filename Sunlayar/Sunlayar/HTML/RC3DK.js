@@ -4,7 +4,7 @@
 //
 // depends on JQuery 2.0+
 
-(function (window) {
+;(function (window) {
     "use strict";
 
     var RC3DK = function () {
@@ -122,9 +122,9 @@
          totalPathLength:{scalar:0,standardDeviation:0}
          }
          */
-        this.sensorFusionDidUpdateData = function (data)
+        this.sensorFusionDidUpdateData = function (data, medianFeatureDepth)
         {
-            if (dataUpdateCallback) dataUpdateCallback(data);
+            if (dataUpdateCallback) dataUpdateCallback(data, medianFeatureDepth);
         };
 
         this.onStatusUpdate = function (callback)

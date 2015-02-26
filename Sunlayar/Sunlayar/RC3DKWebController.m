@@ -177,12 +177,42 @@
 
 - (void) sensorFusionDidUpdateData:(RCSensorFusionData*)data
 {
-    NSString* dataJson = [[data dictionaryRepresentation] JavascriptObjRepresentation]; // expensive
-    NSString* javascript = [NSString stringWithFormat:@"RC3DK.sensorFusionDidUpdateData(%@);", dataJson];
-//    DLog(@"%@", javascript);
-    [self.webView stringByEvaluatingJavaScriptFromString: javascript];
+    [self sendDataToWebView:data];
     
     if(data.sampleBuffer) [self.videoView displaySensorFusionData:data];
+}
+
+- (void) sendDataToWebView:(RCSensorFusionData*)data
+{
+    NSNumber* medianFeatureDepth = [self calculateMedianFeatureDepth:data.featurePoints];
+    
+    NSString* dataJson = [[data dictionaryRepresentation] JavascriptObjRepresentation]; // expensive
+    NSString* javascript = [NSString stringWithFormat:@"RC3DK.sensorFusionDidUpdateData(%@, %f);", dataJson, medianFeatureDepth.floatValue];
+    //    DLog(@"%@", javascript);
+    
+    [self.webView stringByEvaluatingJavaScriptFromString: javascript];
+}
+
+- (NSNumber*) calculateMedianFeatureDepth:(NSArray*)featurePoints
+{
+    NSMutableArray *depths = [[NSMutableArray alloc] init];
+    
+    for(RCFeaturePoint *feature in featurePoints)
+    {
+        [depths addObject:[NSNumber numberWithFloat:feature.originalDepth.scalar]];
+    }
+    
+    NSNumber *medianFeatureDepth;
+    if([depths count])
+    {
+        NSArray *sorted = [depths sortedArrayUsingSelector:@selector(compare:)];
+        long middle = [sorted count] / 2;
+        medianFeatureDepth = [sorted objectAtIndex:middle];
+    }
+    else
+        medianFeatureDepth = [NSNumber numberWithFloat:2.];
+    
+    return medianFeatureDepth;
 }
 
 #pragma mark - UIWebViewDelegate

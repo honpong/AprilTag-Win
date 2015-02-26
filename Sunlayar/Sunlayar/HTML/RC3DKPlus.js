@@ -4,7 +4,7 @@
 //
 // depends on JQuery 2.0+
 
-(function (window) {
+;(function (window) {
     "use strict";
 
     var RC3DKPlus = function () {

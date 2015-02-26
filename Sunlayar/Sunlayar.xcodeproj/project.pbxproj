@@ -97,6 +97,8 @@
 		32E757631A9E7730004BA247 /* RC3DKPlusWebController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E757621A9E7730004BA247 /* RC3DKPlusWebController.m */; };
 		32E757671A9EAFF0004BA247 /* RC3DKPlus.js in Resources */ = {isa = PBXBuildFile; fileRef = 32E757661A9EAFF0004BA247 /* RC3DKPlus.js */; };
 		32E757691A9FA2AB004BA247 /* capture.html in Resources */ = {isa = PBXBuildFile; fileRef = 32E757681A9FA2AB004BA247 /* capture.html */; };
+		32E7576B1A9FD834004BA247 /* capture_controller.js in Resources */ = {isa = PBXBuildFile; fileRef = 32E7576A1A9FD834004BA247 /* capture_controller.js */; };
+		32E7576D1A9FD9CC004BA247 /* capture_state_machine.js in Resources */ = {isa = PBXBuildFile; fileRef = 32E7576C1A9FD9CC004BA247 /* capture_state_machine.js */; };
 		D927F0B91A61A8BE00344165 /* SLARDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D927F0B81A61A8BE00344165 /* SLARDelegate.m */; };
 /* End PBXBuildFile section */
 
@@ -276,6 +278,8 @@
 		32E757621A9E7730004BA247 /* RC3DKPlusWebController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RC3DKPlusWebController.m; sourceTree = "<group>"; };
 		32E757661A9EAFF0004BA247 /* RC3DKPlus.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = RC3DKPlus.js; path = HTML/RC3DKPlus.js; sourceTree = "<group>"; };
 		32E757681A9FA2AB004BA247 /* capture.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = capture.html; sourceTree = "<group>"; };
+		32E7576A1A9FD834004BA247 /* capture_controller.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = capture_controller.js; sourceTree = "<group>"; };
+		32E7576C1A9FD9CC004BA247 /* capture_state_machine.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = capture_state_machine.js; sourceTree = "<group>"; };
 		D927F0B71A61A8BE00344165 /* SLARDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLARDelegate.h; sourceTree = "<group>"; };
 		D927F0B81A61A8BE00344165 /* SLARDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLARDelegate.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -484,26 +488,28 @@
 		324751EE1A5BCB3000A0EC98 /* HTML */ = {
 			isa = PBXGroup;
 			children = (
+				32E7576A1A9FD834004BA247 /* capture_controller.js */,
+				32E7576C1A9FD9CC004BA247 /* capture_state_machine.js */,
 				32E757681A9FA2AB004BA247 /* capture.html */,
-				329A47C01A8A934D0048DA77 /* three.min.js */,
-				329A47C11A8A934D0048DA77 /* webgl.html */,
-				175A2F891A70749A001AC184 /* fp_r_btm.png */,
-				175A2F8A1A70749A001AC184 /* fp_l_btm.png */,
-				175A2F8B1A70749A001AC184 /* fp_right.png */,
-				175A2F871A706ED3001AC184 /* fp_left.png */,
-				17C429A51A5C7C3D004201CF /* fastclick.js */,
 				324751EF1A5BCB3000A0EC98 /* depth_data.js */,
+				17C429A51A5C7C3D004201CF /* fastclick.js */,
+				175A2F8A1A70749A001AC184 /* fp_l_btm.png */,
+				175A2F871A706ED3001AC184 /* fp_left.png */,
+				175A2F891A70749A001AC184 /* fp_r_btm.png */,
+				175A2F8B1A70749A001AC184 /* fp_right.png */,
 				324751F01A5BCB3000A0EC98 /* global_variables.js */,
 				324751F11A5BCB3000A0EC98 /* hammer.js */,
 				324751F21A5BCB3000A0EC98 /* jquery-2.1.1.min.js */,
 				324751F31A5BCB3000A0EC98 /* json2.js */,
 				324751F41A5BCB3000A0EC98 /* main_function.js */,
 				324751F51A5BCB3000A0EC98 /* measured_photo_svg.html */,
-				324751F61A5BCB3000A0EC98 /* svg_measurements.js */,
 				324751F71A5BCB3000A0EC98 /* request_animation_frame.js */,
 				324751F81A5BCB3000A0EC98 /* scale_and_rotate.js */,
-				324751F91A5BCB3000A0EC98 /* svgjs.js */,
+				324751F61A5BCB3000A0EC98 /* svg_measurements.js */,
 				17AB2D3C1A6DE54F00BB11F1 /* svg_number_pad.js */,
+				324751F91A5BCB3000A0EC98 /* svgjs.js */,
+				329A47C01A8A934D0048DA77 /* three.min.js */,
+				329A47C11A8A934D0048DA77 /* webgl.html */,
 			);
 			path = HTML;
 			sourceTree = "<group>";
@@ -730,10 +736,12 @@
 				3219109B1A52330F00AEF550 /* Calibration.storyboard in Resources */,
 				3219109E1A52330F00AEF550 /* ipad_on_table.jpg in Resources */,
 				324752231A5BCB3000A0EC98 /* measured_photo_svg.html in Resources */,
+				32E7576D1A9FD9CC004BA247 /* capture_state_machine.js in Resources */,
 				324752211A5BCB3000A0EC98 /* json2.js in Resources */,
 				324752251A5BCB3000A0EC98 /* request_animation_frame.js in Resources */,
 				3219106F1A52328D00AEF550 /* LaunchScreen.xib in Resources */,
 				3219109D1A52330F00AEF550 /* holding_portrait.jpg in Resources */,
+				32E7576B1A9FD834004BA247 /* capture_controller.js in Resources */,
 				321911061A523AFA00AEF550 /* shader.vsh in Resources */,
 				32E757671A9EAFF0004BA247 /* RC3DKPlus.js in Resources */,
 				3247521E1A5BCB3000A0EC98 /* global_variables.js in Resources */,

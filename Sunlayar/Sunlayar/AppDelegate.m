@@ -15,7 +15,7 @@
 #import "RCMotionManager.h"
 #import "RCAVSessionManager.h"
 #import "RCHttpInterceptor.h"
-#import "SLARWebViewController.h"
+#import "SLCaptureController.h"
 
 #if TARGET_IPHONE_SIMULATOR
 #define SKIP_CALIBRATION YES // skip calibration when running on emulator because it cannot calibrate
@@ -54,7 +54,9 @@
         
         [NSUserDefaults.standardUserDefaults registerDefaults:appDefaults];
     });
-        
+    
+    [NSURLProtocol registerClass:[RCHttpInterceptor class]];
+    
     mySensorDelegate = [SensorDelegate sharedInstance];
     
     mainViewController = self.window.rootViewController;
@@ -108,7 +110,7 @@
 
 - (void) gotoCaptureScreen
 {
-    self.window.rootViewController = [SLARWebViewController new];
+    self.window.rootViewController = [SLCaptureController new];
 }
 
 - (void) gotoCalibration

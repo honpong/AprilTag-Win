@@ -65,7 +65,7 @@
 		324752201A5BCB3000A0EC98 /* jquery-2.1.1.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 324751F21A5BCB3000A0EC98 /* jquery-2.1.1.min.js */; };
 		324752211A5BCB3000A0EC98 /* json2.js in Resources */ = {isa = PBXBuildFile; fileRef = 324751F31A5BCB3000A0EC98 /* json2.js */; };
 		324752221A5BCB3000A0EC98 /* main_function.js in Resources */ = {isa = PBXBuildFile; fileRef = 324751F41A5BCB3000A0EC98 /* main_function.js */; };
-		324752231A5BCB3000A0EC98 /* measured_photo_svg.html in Resources */ = {isa = PBXBuildFile; fileRef = 324751F51A5BCB3000A0EC98 /* measured_photo_svg.html */; };
+		324752231A5BCB3000A0EC98 /* roof_definition.html in Resources */ = {isa = PBXBuildFile; fileRef = 324751F51A5BCB3000A0EC98 /* roof_definition.html */; };
 		324752241A5BCB3000A0EC98 /* svg_measurements.js in Resources */ = {isa = PBXBuildFile; fileRef = 324751F61A5BCB3000A0EC98 /* svg_measurements.js */; };
 		324752251A5BCB3000A0EC98 /* request_animation_frame.js in Resources */ = {isa = PBXBuildFile; fileRef = 324751F71A5BCB3000A0EC98 /* request_animation_frame.js */; };
 		324752261A5BCB3000A0EC98 /* scale_and_rotate.js in Resources */ = {isa = PBXBuildFile; fileRef = 324751F81A5BCB3000A0EC98 /* scale_and_rotate.js */; };
@@ -77,7 +77,7 @@
 		329A47C31A8A934D0048DA77 /* webgl.html in Resources */ = {isa = PBXBuildFile; fileRef = 329A47C11A8A934D0048DA77 /* webgl.html */; };
 		32E757071A97C764004BA247 /* RC3DKWebController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E757061A97C764004BA247 /* RC3DKWebController.m */; };
 		32E757271A980698004BA247 /* libRC3DKPlus.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32E757211A980655004BA247 /* libRC3DKPlus.a */; };
-		32E7572C1A980C31004BA247 /* SLARWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E7572B1A980C31004BA247 /* SLARWebViewController.m */; };
+		32E7572C1A980C31004BA247 /* SLCaptureController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E7572B1A980C31004BA247 /* SLCaptureController.m */; };
 		32E757501A9BAAAB004BA247 /* GTMNSDictionary+URLArguments.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E757301A9BAAAB004BA247 /* GTMNSDictionary+URLArguments.m */; };
 		32E757511A9BAAAB004BA247 /* GTMNSString+URLArguments.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E757321A9BAAAB004BA247 /* GTMNSString+URLArguments.m */; };
 		32E757521A9BAAAB004BA247 /* NSObject+SBJson.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E757351A9BAAAB004BA247 /* NSObject+SBJson.m */; };
@@ -98,6 +98,9 @@
 		32E757671A9EAFF0004BA247 /* RC3DKPlus.js in Resources */ = {isa = PBXBuildFile; fileRef = 32E757661A9EAFF0004BA247 /* RC3DKPlus.js */; };
 		32E757691A9FA2AB004BA247 /* capture.html in Resources */ = {isa = PBXBuildFile; fileRef = 32E757681A9FA2AB004BA247 /* capture.html */; };
 		32E7576B1A9FD834004BA247 /* capture_controller.js in Resources */ = {isa = PBXBuildFile; fileRef = 32E7576A1A9FD834004BA247 /* capture_controller.js */; };
+		32E757731AA10EDD004BA247 /* SLAugRealityController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E757721AA10EDD004BA247 /* SLAugRealityController.m */; };
+		32E757751AA10F06004BA247 /* aug_reality.html in Resources */ = {isa = PBXBuildFile; fileRef = 32E757741AA10F06004BA247 /* aug_reality.html */; };
+		32E757771AA10F67004BA247 /* aug_reality_controller.js in Resources */ = {isa = PBXBuildFile; fileRef = 32E757761AA10F67004BA247 /* aug_reality_controller.js */; };
 		D927F0B91A61A8BE00344165 /* SLARDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D927F0B81A61A8BE00344165 /* SLARDelegate.m */; };
 /* End PBXBuildFile section */
 
@@ -221,7 +224,7 @@
 		324751F21A5BCB3000A0EC98 /* jquery-2.1.1.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = "jquery-2.1.1.min.js"; sourceTree = "<group>"; };
 		324751F31A5BCB3000A0EC98 /* json2.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = json2.js; sourceTree = "<group>"; };
 		324751F41A5BCB3000A0EC98 /* main_function.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = main_function.js; sourceTree = "<group>"; };
-		324751F51A5BCB3000A0EC98 /* measured_photo_svg.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = measured_photo_svg.html; sourceTree = "<group>"; };
+		324751F51A5BCB3000A0EC98 /* roof_definition.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = roof_definition.html; sourceTree = "<group>"; };
 		324751F61A5BCB3000A0EC98 /* svg_measurements.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = svg_measurements.js; sourceTree = "<group>"; };
 		324751F71A5BCB3000A0EC98 /* request_animation_frame.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = request_animation_frame.js; sourceTree = "<group>"; };
 		324751F81A5BCB3000A0EC98 /* scale_and_rotate.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = scale_and_rotate.js; sourceTree = "<group>"; };
@@ -238,8 +241,8 @@
 		32E757061A97C764004BA247 /* RC3DKWebController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RC3DKWebController.m; sourceTree = "<group>"; };
 		32E757161A980655004BA247 /* RC3DK.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RC3DK.xcodeproj; path = ../rc3dk/RC3DK.xcodeproj; sourceTree = "<group>"; };
 		32E757231A980670004BA247 /* RC3DK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RC3DK.h; sourceTree = "<group>"; };
-		32E7572A1A980C31004BA247 /* SLARWebViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLARWebViewController.h; sourceTree = "<group>"; };
-		32E7572B1A980C31004BA247 /* SLARWebViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLARWebViewController.m; sourceTree = "<group>"; };
+		32E7572A1A980C31004BA247 /* SLCaptureController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLCaptureController.h; sourceTree = "<group>"; };
+		32E7572B1A980C31004BA247 /* SLCaptureController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLCaptureController.m; sourceTree = "<group>"; };
 		32E7572E1A9BAAAB004BA247 /* GTMDefines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GTMDefines.h; sourceTree = "<group>"; };
 		32E7572F1A9BAAAB004BA247 /* GTMNSDictionary+URLArguments.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "GTMNSDictionary+URLArguments.h"; sourceTree = "<group>"; };
 		32E757301A9BAAAB004BA247 /* GTMNSDictionary+URLArguments.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "GTMNSDictionary+URLArguments.m"; sourceTree = "<group>"; };
@@ -278,6 +281,10 @@
 		32E757661A9EAFF0004BA247 /* RC3DKPlus.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = RC3DKPlus.js; path = HTML/RC3DKPlus.js; sourceTree = "<group>"; };
 		32E757681A9FA2AB004BA247 /* capture.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = capture.html; sourceTree = "<group>"; };
 		32E7576A1A9FD834004BA247 /* capture_controller.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = capture_controller.js; sourceTree = "<group>"; };
+		32E757711AA10EDD004BA247 /* SLAugRealityController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLAugRealityController.h; sourceTree = "<group>"; };
+		32E757721AA10EDD004BA247 /* SLAugRealityController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLAugRealityController.m; sourceTree = "<group>"; };
+		32E757741AA10F06004BA247 /* aug_reality.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = aug_reality.html; sourceTree = "<group>"; };
+		32E757761AA10F67004BA247 /* aug_reality_controller.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = aug_reality_controller.js; sourceTree = "<group>"; };
 		D927F0B71A61A8BE00344165 /* SLARDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLARDelegate.h; sourceTree = "<group>"; };
 		D927F0B81A61A8BE00344165 /* SLARDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLARDelegate.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -369,8 +376,10 @@
 				324752161A5BCB3000A0EC98 /* UIImage+RCImageFile.h */,
 				324752171A5BCB3000A0EC98 /* UIImage+RCImageFile.m */,
 				32E757231A980670004BA247 /* RC3DK.h */,
-				32E7572A1A980C31004BA247 /* SLARWebViewController.h */,
-				32E7572B1A980C31004BA247 /* SLARWebViewController.m */,
+				32E7572A1A980C31004BA247 /* SLCaptureController.h */,
+				32E7572B1A980C31004BA247 /* SLCaptureController.m */,
+				32E757711AA10EDD004BA247 /* SLAugRealityController.h */,
+				32E757721AA10EDD004BA247 /* SLAugRealityController.m */,
 			);
 			path = Sunlayar;
 			sourceTree = "<group>";
@@ -499,7 +508,7 @@
 				324751F21A5BCB3000A0EC98 /* jquery-2.1.1.min.js */,
 				324751F31A5BCB3000A0EC98 /* json2.js */,
 				324751F41A5BCB3000A0EC98 /* main_function.js */,
-				324751F51A5BCB3000A0EC98 /* measured_photo_svg.html */,
+				324751F51A5BCB3000A0EC98 /* roof_definition.html */,
 				324751F71A5BCB3000A0EC98 /* request_animation_frame.js */,
 				324751F81A5BCB3000A0EC98 /* scale_and_rotate.js */,
 				324751F61A5BCB3000A0EC98 /* svg_measurements.js */,
@@ -507,6 +516,8 @@
 				324751F91A5BCB3000A0EC98 /* svgjs.js */,
 				329A47C01A8A934D0048DA77 /* three.min.js */,
 				329A47C11A8A934D0048DA77 /* webgl.html */,
+				32E757741AA10F06004BA247 /* aug_reality.html */,
+				32E757761AA10F67004BA247 /* aug_reality_controller.js */,
 			);
 			path = HTML;
 			sourceTree = "<group>";
@@ -722,6 +733,7 @@
 				324752271A5BCB3000A0EC98 /* svgjs.js in Resources */,
 				324752221A5BCB3000A0EC98 /* main_function.js in Resources */,
 				324752261A5BCB3000A0EC98 /* scale_and_rotate.js in Resources */,
+				32E757751AA10F06004BA247 /* aug_reality.html in Resources */,
 				3247521D1A5BCB3000A0EC98 /* depth_data.js in Resources */,
 				17AB2D3D1A6DE54F00BB11F1 /* svg_number_pad.js in Resources */,
 				321911051A523AFA00AEF550 /* shader.fsh in Resources */,
@@ -730,9 +742,10 @@
 				3219106A1A52328D00AEF550 /* Main.storyboard in Resources */,
 				3219109C1A52330F00AEF550 /* holding_landscape.jpg in Resources */,
 				324752241A5BCB3000A0EC98 /* svg_measurements.js in Resources */,
+				32E757771AA10F67004BA247 /* aug_reality_controller.js in Resources */,
 				3219109B1A52330F00AEF550 /* Calibration.storyboard in Resources */,
 				3219109E1A52330F00AEF550 /* ipad_on_table.jpg in Resources */,
-				324752231A5BCB3000A0EC98 /* measured_photo_svg.html in Resources */,
+				324752231A5BCB3000A0EC98 /* roof_definition.html in Resources */,
 				324752211A5BCB3000A0EC98 /* json2.js in Resources */,
 				324752251A5BCB3000A0EC98 /* request_animation_frame.js in Resources */,
 				3219106F1A52328D00AEF550 /* LaunchScreen.xib in Resources */,
@@ -789,7 +802,7 @@
 				D927F0B91A61A8BE00344165 /* SLARDelegate.m in Sources */,
 				321910B01A52332100AEF550 /* RCAVSessionManager.m in Sources */,
 				321910B11A52332100AEF550 /* RCLocationManager.m in Sources */,
-				32E7572C1A980C31004BA247 /* SLARWebViewController.m in Sources */,
+				32E7572C1A980C31004BA247 /* SLCaptureController.m in Sources */,
 				32E757071A97C764004BA247 /* RC3DKWebController.m in Sources */,
 				32E757521A9BAAAB004BA247 /* NSObject+SBJson.m in Sources */,
 				32E7575D1A9BAAAB004BA247 /* SBJsonWriter.m in Sources */,
@@ -800,6 +813,7 @@
 				321910611A52328D00AEF550 /* main.m in Sources */,
 				32E757531A9BAAAB004BA247 /* SBJsonParser.m in Sources */,
 				3219108D1A52330500AEF550 /* RCVideoPreview.m in Sources */,
+				32E757731AA10EDD004BA247 /* SLAugRealityController.m in Sources */,
 				32E757631A9E7730004BA247 /* RC3DKPlusWebController.m in Sources */,
 				3219109F1A52330F00AEF550 /* MBProgressHUD.m in Sources */,
 			);

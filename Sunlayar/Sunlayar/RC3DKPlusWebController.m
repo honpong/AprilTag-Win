@@ -18,8 +18,8 @@
 @implementation RC3DKPlusWebController
 {
     RCSensorFusionData* lastSensorFusionDataWithImage;
-    SLMeasuredPhoto* measuredPhoto;
 }
+@synthesize measuredPhoto;
 
 - (void)viewDidLoad
 {

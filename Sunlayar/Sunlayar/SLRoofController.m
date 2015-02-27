@@ -7,10 +7,21 @@
 #import "SLConstants.h"
 #import "NSString+RCString.h"
 #import "RCDebugLog.h"
+#import "SLAugRealityController.h"
 
 @implementation SLRoofController
 {
     BOOL isWebViewLoaded;
+}
+
+- (instancetype)init
+{
+    self = [super init];
+    if (!self) return nil;
+    
+    _webView = [UIWebView new];
+        
+    return self;
 }
 
 - (BOOL) prefersStatusBarHidden { return YES; }
@@ -22,14 +33,21 @@
     
     [RCHttpInterceptor setDelegate:self];
           
-    NSURL *htmlUrl = [[NSBundle mainBundle] URLForResource:@"measured_photo_svg" withExtension:@"html"]; // url of the html file bundled with the app
+    NSURL *htmlUrl = [[NSBundle mainBundle] URLForResource:@"roof_definition" withExtension:@"html"]; // url of the html file bundled with the app
     
     isWebViewLoaded = NO;
     
     // setup web view
     self.webView.scalesPageToFit = NO;
     self.webView.delegate = self;
+    [self.view addSubview:self.webView];
     [self.webView loadRequest:[NSURLRequest requestWithURL:htmlUrl]];
+}
+
+
+- (void)viewDidLayoutSubviews
+{
+    self.webView.frame = self.view.frame;
 }
 
 - (void) viewDidDisappear:(BOOL)animated
@@ -51,13 +69,13 @@
     return UIInterfaceOrientationMaskLandscapeRight;
 }
 
-#pragma mark - Event handlers
-
-- (IBAction)handleBackButton:(id)sender
-{
-    [self.measuredPhoto deleteAssociatedFiles];
-    [self.presentingViewController dismissViewControllerAnimated:NO completion:nil];
-}
+//#pragma mark - Event handlers
+//
+//- (IBAction)handleBackButton:(id)sender
+//{
+//    [self.measuredPhoto deleteAssociatedFiles];
+//    [self.presentingViewController dismissViewControllerAnimated:NO completion:nil];
+//}
 
 #pragma mark - Misc
 
@@ -75,11 +93,14 @@
     }
 }
 
-- (void) returnToCameraController
+- (void) finishAndGotoNext
 {
-    SLCameraController* camController = (SLCameraController*)self.presentingViewController;
-    if ([camController respondsToSelector:@selector(roofDefinitionComplete)]) [camController roofDefinitionComplete];
-    [camController dismissViewControllerAnimated:NO completion:nil];
+    // prevents crash
+    self.webView.delegate = nil;
+    [self.webView stopLoading];
+    
+    SLAugRealityController* arController = [SLAugRealityController new];
+    [self presentViewController:arController animated:YES completion:nil];
 }
 
 #pragma mark - UIWebViewDelegate
@@ -113,7 +134,7 @@
 
 - (NSDictionary *)handleAction:(ARNativeAction *)nativeAction error:(NSError **)error
 {
-    if ([nativeAction.request.URL.description endsWithString:@"/annotations/"] && [nativeAction.method isEqualToString:@"PUT"])
+    if ([nativeAction.request.URL.relativePath endsWithString:@"/annotations"] && [nativeAction.method isEqualToString:@"PUT"])
     {
         BOOL result = [self.measuredPhoto writeAnnotationsToFile:nativeAction.body];
         
@@ -127,12 +148,15 @@
             *error = [NSError errorWithDomain:ERROR_DOMAIN code:500 userInfo:userInfo];
         }
     }
-    else if ([nativeAction.request.URL.description endsWithString:@"/next/"])
+    else if ([nativeAction.request.URL.relativePath endsWithString:@"/next"])
     {
-        [self returnToCameraController];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self finishAndGotoNext];
+        });
+        
         return @{ @"message": @"Proceeding to next" };
     }
-    else if ([nativeAction.request.URL.description endsWithString:@"/log/"] && [nativeAction.method isEqualToString:@"POST"])
+    else if ([nativeAction.request.URL.relativePath endsWithString:@"/log"] && [nativeAction.method isEqualToString:@"POST"])
     {
         [self webViewLog:[nativeAction.params objectForKey:@"message"]];
         return @{ @"message": @"Write to log successful" };

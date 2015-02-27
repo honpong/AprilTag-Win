@@ -7,9 +7,11 @@
 //
 
 #import "RC3DKWebController.h"
+#import "SLMeasuredPhoto.h"
 
 @interface RC3DKPlusWebController : RC3DKWebController <RCStereoDelegate>
 
 @property (readonly) BOOL isStereoRunning;
+@property (nonatomic, readonly) SLMeasuredPhoto* measuredPhoto;
 
 @end

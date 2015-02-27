@@ -28,6 +28,7 @@
     
     _isVideoViewShowing = NO;
     isSensorFusionRunning = NO;
+    _webView = [UIWebView new];
     
     return self;
 }
@@ -36,7 +37,6 @@
 {
     [super viewDidLoad];
     
-    [NSURLProtocol registerClass:[RCHttpInterceptor class]];
     [RCHttpInterceptor setDelegate:self];
     
     useLocation = [LOCATION_MANAGER isLocationExplicitlyAllowed] && [NSUserDefaults.standardUserDefaults boolForKey:PREF_USE_LOCATION];
@@ -46,7 +46,6 @@
     _isVideoViewShowing ? [self showVideoView] : [self hideVideoView];
     
     // setup web view
-    _webView = [UIWebView new];
     self.webView.scalesPageToFit = NO;
     self.webView.delegate = self;
     self.webView.opaque = NO;

@@ -15,10 +15,7 @@
 
 @interface SLRoofController : UIViewController <UIWebViewDelegate, UITextFieldDelegate, RCHttpInterceptorDelegate>
 
-@property (weak, nonatomic) IBOutlet UIWebView *webView;
-@property (weak, nonatomic) IBOutlet UIButton *cameraButton;
+@property (nonatomic) UIWebView *webView;
 @property (nonatomic) SLMeasuredPhoto* measuredPhoto;
-
-- (IBAction)handleBackButton:(id)sender;
 
 @end

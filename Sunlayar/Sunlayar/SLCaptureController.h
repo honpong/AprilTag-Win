@@ -8,6 +8,6 @@
 
 #import "RC3DKPlusWebController.h"
 
-@interface SLARWebViewController : RC3DKPlusWebController
+@interface SLCaptureController : RC3DKPlusWebController 
 
 @end

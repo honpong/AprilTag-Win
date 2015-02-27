@@ -2,7 +2,7 @@
 #include "threaded_dispatch.h"
 #include "util.h"
 
-TEST(ThreadedDispatch, None)
+TEST(ThreadedDispatch, Reorder)
 {
     uint64_t last_time = 0;
     auto camf = [&last_time](const camera_data &x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; };
@@ -10,6 +10,9 @@ TEST(ThreadedDispatch, None)
     auto gyrf = [&last_time](const gyro_data &x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; };
     
     fusion_queue q(camf, accf, gyrf, 33000, 10000, 5000);
+    
+    q.start(true);
+
     struct gyro_data g;
     g.timestamp = 0;
     q.receive_gyro(g);
@@ -52,6 +55,140 @@ TEST(ThreadedDispatch, None)
     g.timestamp = 50000;
     q.receive_gyro(g);
     
-    q.dispatch();
-    EXPECT_EQ(1,1);
+    q.stop();
+    q.wait_until_finished();
+}
+
+TEST(ThreadedDispatch, Threading)
+{
+    uint64_t last_time = 0;
+    
+    //Times in us
+    //Thread time isn't really how long we'll spend since we just sleep for interval us
+    const uint64_t thread_time = 100000;
+    const uint64_t camera_interval = 33;
+    const uint64_t inertial_interval = 10;
+    const uint64_t jitter = 5;
+    
+    int camcount = thread_time / camera_interval;
+    int gyrcount = thread_time / inertial_interval;
+    int acccount = thread_time / inertial_interval;
+    
+    auto camf = [&last_time, &camcount](const camera_data &x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; --camcount; };
+    auto accf = [&last_time, &acccount](const accelerometer_data &x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; --acccount; };
+    auto gyrf = [&last_time, &gyrcount](const gyro_data &x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; --gyrcount; };
+
+    fusion_queue q(camf, accf, gyrf, camera_interval, inertial_interval, jitter);
+
+    auto start = std::chrono::steady_clock::now();
+    
+    q.start(true);
+    
+    std::thread camthread([&q, start, camera_interval, camcount]{
+        struct camera_data x;
+        for(int i = 0; i < camcount; ++i)
+        {
+            auto now = std::chrono::steady_clock::now();
+            auto duration = now - start;
+            auto micros = std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
+            x.timestamp = micros;
+            q.receive_camera(x);
+            std::this_thread::sleep_for(std::chrono::microseconds(camera_interval));
+        }
+    });
+    std::thread gyrothread([&q, start, inertial_interval, gyrcount]{
+        struct gyro_data x;
+        for(int i = 0; i < gyrcount; ++i)
+        {
+            auto now = std::chrono::steady_clock::now();
+            auto duration = now - start;
+            auto micros = std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
+            x.timestamp = micros;
+            q.receive_gyro(x);
+            std::this_thread::sleep_for(std::chrono::microseconds(inertial_interval));
+        }
+    });
+    std::thread accelthread([&q, start, inertial_interval, gyrcount]{
+        struct accelerometer_data x;
+        for(int i = 0; i < gyrcount; ++i)
+        {
+            auto now = std::chrono::steady_clock::now();
+            auto duration = now - start;
+            auto micros = std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
+            x.timestamp = micros;
+            q.receive_accelerometer(x);
+            std::this_thread::sleep_for(std::chrono::microseconds(inertial_interval));
+        }
+    });
+    
+    camthread.join();
+    gyrothread.join();
+    accelthread.join();
+    q.stop();
+    q.wait_until_finished();
+    fprintf(stderr, "%d items dropped\n", camcount + gyrcount + acccount);
+}
+
+TEST(ThreadedDispatch, DropLate)
+{
+    uint64_t last_time = 0;
+    auto camf = [&last_time](const camera_data &x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; };
+    auto accf = [&last_time](const accelerometer_data &x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; EXPECT_NE(x.timestamp, 17000); };
+    auto gyrf = [&last_time](const gyro_data &x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; EXPECT_NE(x.timestamp, 40000); };
+    
+    fusion_queue q(camf, accf, gyrf, 33000, 10000, 5000);
+    
+    q.start(true);
+    
+    struct gyro_data g;
+    g.timestamp = 0;
+    q.receive_gyro(g);
+    
+    g.timestamp = 10000;
+    q.receive_gyro(g);
+    
+    struct accelerometer_data a;
+    a.timestamp = 8000;
+    q.receive_accelerometer(a);
+    
+    struct camera_data c;
+    c.timestamp = 5000;
+    q.receive_camera(c);
+    
+    a.timestamp = 18000;
+    q.receive_accelerometer(a);
+
+    g.timestamp = 20000;
+    q.receive_gyro(g);
+
+    a.timestamp = 17000;
+    q.receive_accelerometer(a);
+    
+    a.timestamp = 28000;
+    q.receive_accelerometer(a);
+    
+    a.timestamp = 38000;
+    q.receive_accelerometer(a);
+    
+    c.timestamp = 38000;
+    q.receive_camera(c);
+
+    a.timestamp = 48000;
+    q.receive_accelerometer(a);
+    
+    //NOTE: This makes this test a little non-deterministic - if it fails due to the 40000 timestamp showing up this could be why
+    //If we remove the sleep, everything gets into the queue before the dispatch thread even starts, so everything shows up on the other side in order
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
+    g.timestamp = 30000;
+    q.receive_gyro(g);
+
+    g.timestamp = 40000;
+    q.receive_gyro(g);
+
+    g.timestamp = 50000;
+    q.receive_gyro(g);
+    
+    q.stop();
+    q.wait_until_finished();
 }

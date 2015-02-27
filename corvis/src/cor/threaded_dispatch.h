@@ -17,18 +17,20 @@ template<typename T, int size>
 class sensor_queue
 {
 public:
-    sensor_queue(std::mutex &mx, std::condition_variable &cnd, uint64_t expected_period, uint64_t max_jitter);
+    sensor_queue(std::mutex &mx, std::condition_variable &cnd, const volatile bool &actv, volatile uint64_t &latest_received, const volatile uint64_t &last_dispatched, uint64_t expected_period, uint64_t max_jitter);
     bool push(const T& x); //Doesn't block. Returns false if the queue is full or data arrived out of order
-    T pop(); // assumes the lock is already held
-    bool empty() const { return count; }
+    T pop(std::unique_lock<std::mutex> &lock); // assumes the lock is already held
+    bool empty() const { return count == 0; }
     bool ok_to_dispatch(const uint64_t time) const;
     uint64_t get_next_time() const { return count ? storage[readpos].timestamp : UINT64_MAX; }
-    
 private:
     std::array<T, size> storage;
 
     std::mutex &mutex;
     std::condition_variable &cond;
+    const volatile bool &active;
+    volatile uint64_t &global_latest_received;
+    const volatile uint64_t &global_last_dispatched;
 
     static_assert(ATOMIC_INT_LOCK_FREE, "This assumes that basic operations on ints are atomic!\n");
     uint64_t last_time;
@@ -68,8 +70,13 @@ public:
                  uint64_t camera_period,
                  uint64_t inertial_period,
                  uint64_t max_jitter);
-    void dispatch();
-    void dispatch_next();
+    
+    void start(bool synchronous = false);
+    void stop(bool syncrhonous = false);
+    void busy_wait_until_active();
+    void wait_until_finished();
+    void runloop();
+    void dispatch_next(std::unique_lock<std::mutex> &lock);
     bool can_dispatch();
     void send_control();
     void receive_camera(const camera_data &x);
@@ -79,6 +86,7 @@ public:
 private:
     std::mutex mutex;
     std::condition_variable cond;
+    std::thread thread;
     
     std::function<void(camera_data)> camera_receiver;
     std::function<void(accelerometer_data)> accel_receiver;
@@ -88,7 +96,10 @@ private:
     sensor_queue<gyro_data, 10> gyro_queue;
     sensor_queue<camera_data, 3> camera_queue;
     std::function<void()> control_func;
-    bool active;
+    volatile bool active;
+    
+    volatile uint64_t latest_received;
+    volatile uint64_t last_dispatched;
 };
 
 #endif /* defined(__threaded_dispatch__) */

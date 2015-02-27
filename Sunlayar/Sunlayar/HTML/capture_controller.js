@@ -5,7 +5,7 @@
 // depends on JQuery 2.0+, RC3DK.js, RC3DKPlus.js, three.js
 
 ;
-var CaptureController = (function ($, window, THREE)
+var CaptureController = (function ($, window, RC3DK, THREE)
 {
     "use strict";
 
@@ -202,4 +202,4 @@ var CaptureController = (function ($, window, THREE)
 
     return module;
 
-})(jQuery, window, THREE);
+})(jQuery, window, RC3DK, THREE);

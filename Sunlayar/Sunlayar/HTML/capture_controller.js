@@ -40,6 +40,10 @@ var CaptureController = (function ($, window, THREE)
                 case WorkflowStates.FRAMING:
                     enterProcessingState();
                     break;
+
+                case WorkflowStates.ERROR:
+                    enterReadyState();
+                    break;
             }
         });
 
@@ -54,11 +58,11 @@ var CaptureController = (function ($, window, THREE)
 
             if (status.error)
             {
-                if (status.error.class === RC3DK.RCLicenseErrorClass)
+                if (status.error.class == RC3DK.RCSensorFusionErrorClass)
                 {
                     handleSensorFusionError(status.error);
                 }
-                else if (status.error.class === RC3DK.RCLicenseErrorClass)
+                else if (status.error.class == RC3DK.RCLicenseErrorClass)
                 {
                     handleLicenseError(status.error);
                 }
@@ -169,13 +173,13 @@ var CaptureController = (function ($, window, THREE)
     {
         if (error.code > 1)
         {
-            enterErrorState(status.error.class + ": " + status.error.code);
+            enterErrorState(error.class + ": " + error.code);
         }
     }
 
     function handleLicenseError(error)
     {
-        enterErrorState(status.error.class + ": " + status.error.code);
+        enterErrorState(error.class + ": " + error.code);
     }
 
     function updateInitializationProgress(progress)

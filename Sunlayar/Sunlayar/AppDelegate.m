@@ -16,6 +16,7 @@
 #import "RCAVSessionManager.h"
 #import "RCHttpInterceptor.h"
 #import "SLCaptureController.h"
+#import "SLAugRealityController.h"
 
 #if TARGET_IPHONE_SIMULATOR
 #define SKIP_CALIBRATION YES // skip calibration when running on emulator because it cannot calibrate
@@ -111,6 +112,7 @@
 - (void) gotoCaptureScreen
 {
     self.window.rootViewController = [SLCaptureController new];
+//    self.window.rootViewController = [SLAugRealityController new]; // for testing
 }
 
 - (void) gotoCalibration

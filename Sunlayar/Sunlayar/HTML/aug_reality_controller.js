@@ -24,6 +24,8 @@ var ARController = (function ($, window, RC3DK, THREE)
     var currentRunState = RC3DK.SensorFusionRunState.Inactive;
     var workflowState = WorkflowStates.READY;
 
+    var scene, camera, renderer;
+
     $(document).ready(function()
     {
         enterReadyState();
@@ -65,12 +67,16 @@ var ARController = (function ($, window, RC3DK, THREE)
 
         RC3DK.onDataUpdate(function (data, medianFeatureDepth)
         {
-            if (workflowState === WorkflowStates.VISUALIZATION)
-            {
-                // do the AR magic! example code for using three.js' vector class
-                var currentPosition = new THREE.Vector3(data.transformation.translation.v0, data.transformation.translation.v1, data.transformation.translation.v2);
-            }
+//            if (workflowState === WorkflowStates.VISUALIZATION)
+//            {
+//                // do the AR magic! example code for using three.js' vector class
+//                var currentPosition = new THREE.Vector3(data.transformation.translation.v0, data.transformation.translation.v1, data.transformation.translation.v2);
+//            }
+
+            updateWebGLView(data);
         });
+
+        setupWebGLView();
     });
 
     function handleNewSensorFusionRunState(runState)
@@ -144,6 +150,70 @@ var ARController = (function ($, window, RC3DK, THREE)
     {
         var percentage = progress * 100;
         showMessage("Hold still " + Math.ceil(percentage) + "%");
+    }
+
+    function setupWebGLView()
+    {
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+        renderer = new THREE.WebGLRenderer();
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        window.document.body.appendChild( renderer.domElement );
+
+        var cube = new THREE.Mesh(
+            new THREE.CubeGeometry( 1, 1, 1 ),
+            new THREE.MeshLambertMaterial( { color: 0xFFFFFF } )
+        );
+        scene.add( cube );
+        cube.position.z = -5;
+
+        var light;
+
+        // top
+        light = new THREE.DirectionalLight( 0x0DEDDF );
+        light.position.set( 0, 1, 0 );
+        scene.add( light );
+
+        // bottom
+        light = new THREE.DirectionalLight( 0x0DEDDF );
+        light.position.set( 0, -1, 0 );
+        scene.add( light );
+
+        // back
+        light = new THREE.DirectionalLight( 0xB685F3 );
+        light.position.set( 1, 0, 0 );
+        scene.add( light );
+
+        // front
+        light = new THREE.DirectionalLight( 0xB685F3 );
+        light.position.set( -1, 0, 0 );
+        scene.add( light );
+
+        // right
+        light = new THREE.DirectionalLight( 0x89A7F5 );
+        light.position.set( 0, 0, 1 );
+        scene.add( light );
+
+        // left
+        light = new THREE.DirectionalLight( 0x89A7F5 );
+        light.position.set( 0, 0, -1 );
+        scene.add( light );
+    }
+
+    var exFactor = 15; // translation exaggeration factor
+    function updateWebGLView(data)
+    {
+        if (data.transformation.translation)
+        {
+            camera.position.set(-data.cameraTransformation.translation.v1 * exFactor, data.cameraTransformation.translation.v2 * exFactor, -data.cameraTransformation.translation.v0 * exFactor);
+        }
+
+//        if (data.transformation.rotation)
+//        {
+//            camera.quaternion.set(data.transformation.rotation.qy, data.transformation.rotation.qz, data.transformation.rotation.qx, data.transformation.rotation.qw);
+//        }
+
+        renderer.render( scene, camera );
     }
 
     return module;

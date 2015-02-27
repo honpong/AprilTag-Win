@@ -5,7 +5,7 @@
 // depends on JQuery 2.0+, RC3DK.js, RC3DKPlus.js, three.js
 
 ;
-var CaptureController = (function ($, window)
+var CaptureController = (function ($, window, THREE)
 {
     "use strict";
 
@@ -79,12 +79,12 @@ var CaptureController = (function ($, window)
             }
         });
 
-        RC3DKPlus.onStereoProgressUpdated(function (progress)
+        RC3DK.onStereoProgressUpdated(function (progress)
         {
              if (workflowState === WorkflowStates.PROCESSING) updateProcessingProgress(progress);
         });
 
-        RC3DKPlus.onStereoProcessingFinished(function ()
+        RC3DK.onStereoProcessingFinished(function ()
         {
             if (workflowState === WorkflowStates.PROCESSING) enterFinishedState();
         });
@@ -121,7 +121,7 @@ var CaptureController = (function ($, window)
 
     function enterMovingState()
     {
-        RC3DKPlus.startStereoCapture(function (success){
+        RC3DK.startStereoCapture(function (success){
             showMessage("Moving state");
             if (success)
                 workflowState = WorkflowStates.MOVING;
@@ -139,7 +139,7 @@ var CaptureController = (function ($, window)
     function enterProcessingState()
     {
         showMessage("Please wait...");
-        RC3DKPlus.finishStereoCapture(function (guid){
+        RC3DK.finishStereoCapture(function (guid){
             photoGuid = guid;
         });
 
@@ -198,4 +198,4 @@ var CaptureController = (function ($, window)
 
     return module;
 
-})(jQuery, window);
+})(jQuery, window, THREE);

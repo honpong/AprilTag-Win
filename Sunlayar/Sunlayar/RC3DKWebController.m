@@ -194,6 +194,8 @@
 
 - (NSNumber*) calculateMedianFeatureDepth:(NSArray*)featurePoints
 {
+    if (!featurePoints || featurePoints.count == 0) return 0;
+    
     NSMutableArray *depths = [[NSMutableArray alloc] init];
     
     for(RCFeaturePoint *feature in featurePoints)

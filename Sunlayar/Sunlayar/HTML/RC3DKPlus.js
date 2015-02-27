@@ -2,79 +2,61 @@
 //  Created by Ben Hirashima on 2/25/15.
 //  Copyright (c) 2015 RealityCap. All rights reserved.
 //
-// depends on JQuery 2.0+
+// depends on JQuery 2.0+, RC3DK.js
 
-;(function (window) {
+;(function (window, $, RC3DK) {
     "use strict";
 
-    var RC3DKPlus = function () {
-        var baseUrl = "http://dummy.realitycap.com/";
-        var stereoDidUpdateProgressCallback, stereoDidFinishCallback;
+    RC3DK.startStereoCapture = function (callback) {
+        $.ajax({ type: "GET", url: RC3DK.baseUrl + "startStereoCapture"})
+            .done(function (data, textStatus, jqXHR) { // on a get, data is a string
+                var resultObj = JSON.parse(data);
+                callback(resultObj.result);
+            })
+            .fail(function (jqXHR, textStatus, errorThrown) {
+                RC3DK.logNative(textStatus + ": " + JSON.stringify(jqXHR));
+            })
+        ;
+    };
 
-        if (RC3DKPlus.prototype._singletonInstance) {
-            return RC3DKPlus.prototype_singletonInstance;
-        }
-        RC3DKPlus.prototype._singletonInstance = this;
+    RC3DK.finishStereoCapture = function (callback) {
+        $.ajax({ type: "GET", url: RC3DK.baseUrl + "finishStereoCapture"})
+            .done(function (data, textStatus, jqXHR) { // on a get, data is a string
+                var resultObj = JSON.parse(data);
+                callback(resultObj.result);
+            })
+            .fail(function (jqXHR, textStatus, errorThrown) {
+                RC3DK.logNative(textStatus + ": " + JSON.stringify(jqXHR));
+            })
+        ;
+    };
 
-        this.startStereoCapture = function (callback) {
-            $.ajax({ type: "GET", url: baseUrl + "startStereoCapture"})
-                .done(function (data, textStatus, jqXHR) { // on a get, data is a string
-                    var resultObj = JSON.parse(data);
-                    callback(resultObj.result);
-                })
-                .fail(function (jqXHR, textStatus, errorThrown) {
-                    logNative(textStatus + ": " + JSON.stringify(jqXHR));
-                })
-            ;
-        };
+    RC3DK.cancelStereoCapture = function () {
+        $.ajax({ type: "GET", url: RC3DK.baseUrl + "cancelStereoCapture"})
+            .fail(function (jqXHR, textStatus, errorThrown) {
+                RC3DK.logNative(textStatus + ": " + JSON.stringify(jqXHR));
+            })
+        ;
+    };
 
-        this.finishStereoCapture = function (callback) {
-            $.ajax({ type: "GET", url: baseUrl + "finishStereoCapture"})
-                .done(function (data, textStatus, jqXHR) { // on a get, data is a string
-                    var resultObj = JSON.parse(data);
-                    callback(resultObj.result);
-                })
-                .fail(function (jqXHR, textStatus, errorThrown) {
-                    logNative(textStatus + ": " + JSON.stringify(jqXHR));
-                })
-            ;
-        };
+    RC3DK.stereoDidUpdateProgress = function (progress)
+    {
+        if (RC3DK.stereoDidUpdateProgressCallback) RC3DK.stereoDidUpdateProgressCallback(progress);
+    };
 
-        this.cancelStereoCapture = function () {
-            $.ajax({ type: "GET", url: baseUrl + "cancelStereoCapture"})
-                .fail(function (jqXHR, textStatus, errorThrown) {
-                    logNative(textStatus + ": " + JSON.stringify(jqXHR));
-                })
-            ;
-        };
+    RC3DK.stereoDidFinish = function ()
+    {
+        if (RC3DK.stereoDidFinishCallback) RC3DK.stereoDidFinishCallback();
+    };
 
-        this.stereoDidUpdateProgress = function (progress)
-        {
-            if (stereoDidUpdateProgressCallback) stereoDidUpdateProgressCallback(progress);
-        };
+    RC3DK.onStereoProgressUpdated = function (callback)
+    {
+        RC3DK.stereoDidUpdateProgressCallback = callback;
+    };
 
-        this.stereoDidFinish = function ()
-        {
-            if (stereoDidFinishCallback) stereoDidFinishCallback();
-        };
+    RC3DK.onStereoProcessingFinished = function (callback)
+    {
+        RC3DK.stereoDidFinishCallback = callback;
+    };
 
-        this.onStereoProgressUpdated = function (callback)
-        {
-            stereoDidUpdateProgressCallback = callback;
-        };
-
-        this.onStereoProcessingFinished = function (callback)
-        {
-            stereoDidFinishCallback = callback;
-        };
-
-        this.logNative = function (message) {
-            console.log(message);
-            var jsonData = { "message": message };
-            $.ajax({ type: "POST", url: baseUrl + "log", contentType: "application/json", processData: false, dataType: "json", data: JSON.stringify(jsonData) });
-        };
-    }
-
-    if (!window.RC3DKPlus) window.RC3DKPlus = new RC3DKPlus();
-
-})(window);
+})(window, jQuery, RC3DK);

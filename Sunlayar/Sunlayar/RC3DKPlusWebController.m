@@ -68,15 +68,15 @@
 
 - (void) stereoDidUpdateProgress:(float)progress
 {
-    NSString* javascript = [NSString stringWithFormat:@"RC3DKPlus.stereoDidUpdateProgress(%f);", progress];
-    DLog(@"%@", javascript);
+    NSString* javascript = [NSString stringWithFormat:@"RC3DK.stereoDidUpdateProgress(%f);", progress];
+//    DLog(@"%@", javascript);
     [self.webView stringByEvaluatingJavaScriptFromString: javascript];
 }
 
 - (void) stereoDidFinish
 {
     LOGME
-    [self.webView stringByEvaluatingJavaScriptFromString: @"RC3DKPlus.stereoDidFinish();"];
+    [self.webView stringByEvaluatingJavaScriptFromString: @"RC3DK.stereoDidFinish();"];
 }
 
 #pragma mark - RCSensorFusionDelegate

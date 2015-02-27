@@ -4,20 +4,22 @@
 //
 // depends on JQuery 2.0+
 
-;(function (window) {
+;(function (window, $) {
     "use strict";
 
-    var RC3DK = function () {
-        var baseUrl = "http://dummy.realitycap.com/";
-        var statusUpdateCallback, dataUpdateCallback;
-
+    var RC3DK = function ()
+    {
         if (RC3DK.prototype._singletonInstance) {
             return RC3DK.prototype_singletonInstance;
         }
         RC3DK.prototype._singletonInstance = this;
 
+        var statusUpdateCallback, dataUpdateCallback;
+
+        this.baseUrl = "http://dummy.realitycap.com/";
+
         this.startSensors = function () {
-            $.ajax({ type: "GET", url: baseUrl + "startSensors"})
+            $.ajax({ type: "GET", url: this.baseUrl + "startSensors"})
                 .fail(function (jqXHR, textStatus, errorThrown) {
                     logNative(textStatus + ": " + JSON.stringify(jqXHR));
                 })
@@ -25,7 +27,7 @@
         };
 
         this.startSensorFusion = function () {
-            $.ajax({ type: "GET", url: baseUrl + "startSensorFusion"})
+            $.ajax({ type: "GET", url: this.baseUrl + "startSensorFusion"})
                 .fail(function (jqXHR, textStatus, errorThrown) {
                     logNative(textStatus + ": " + JSON.stringify(jqXHR));
                 })
@@ -33,7 +35,7 @@
         };
 
         this.stopSensors = function () {
-            $.ajax({ type: "GET", url: baseUrl + "stopSensors"})
+            $.ajax({ type: "GET", url: this.baseUrl + "stopSensors"})
                 .fail(function (jqXHR, textStatus, errorThrown) {
                     logNative(textStatus + ": " + JSON.stringify(jqXHR));
                 })
@@ -41,7 +43,7 @@
         };
 
         this.stopSensorFusion = function () {
-            $.ajax({ type: "GET", url: baseUrl + "stopSensorFusion"})
+            $.ajax({ type: "GET", url: this.baseUrl + "stopSensorFusion"})
                 .fail(function (jqXHR, textStatus, errorThrown) {
                     logNative(textStatus + ": " + JSON.stringify(jqXHR));
                 })
@@ -49,7 +51,7 @@
         };
 
         this.startStaticCalibration = function () {
-            $.ajax({ type: "GET", url: baseUrl + "startStaticCalibration"})
+            $.ajax({ type: "GET", url: this.baseUrl + "startStaticCalibration"})
                 .fail(function (jqXHR, textStatus, errorThrown) {
                     logNative(textStatus + ": " + JSON.stringify(jqXHR));
                 })
@@ -57,7 +59,7 @@
         };
 
         this.showVideoView = function () {
-            $.ajax({ type: "GET", url: baseUrl + "showVideoView"})
+            $.ajax({ type: "GET", url: this.baseUrl + "showVideoView"})
                 .fail(function (jqXHR, textStatus, errorThrown) {
                     logNative(textStatus + ": " + JSON.stringify(jqXHR));
                 })
@@ -74,7 +76,7 @@
 
         this.setLicenseKey = function (licenseKey) {
             var jsonData = { "licenseKey": licenseKey };
-            $.ajax({ type: "POST", url: baseUrl + "setLicenseKey", contentType: "application/json", processData: false, dataType: "json", data: JSON.stringify(jsonData) })
+            $.ajax({ type: "POST", url: this.baseUrl + "setLicenseKey", contentType: "application/json", processData: false, dataType: "json", data: JSON.stringify(jsonData) })
                 .done(function (data, textStatus, jqXHR) { // on a post, data is an object
                     if (!data.result) alert(textStatus + ": " + JSON.stringify(data));
                 })
@@ -86,7 +88,7 @@
 
         this.hasCalibrationData = function (callback) {
             var isCalibrated = false;
-            $.ajax({ type: "GET", url: baseUrl + "hasCalibrationData"})
+            $.ajax({ type: "GET", url: this.baseUrl + "hasCalibrationData"})
                 .done(function (data, textStatus, jqXHR) { // on a get, data is a string
                     var resultObj = JSON.parse(data);
                     callback(resultObj.result);
@@ -167,4 +169,4 @@
 
     if (!window.RC3DK) window.RC3DK = new RC3DK();
 
-})(window);
+})(window, jQuery);

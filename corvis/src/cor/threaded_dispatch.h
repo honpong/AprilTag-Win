@@ -72,18 +72,18 @@ public:
                  uint64_t max_jitter);
     
     void start(bool synchronous = false);
-    void stop(bool syncrhonous = false);
-    void busy_wait_until_active();
+    void stop(bool synchronous = false);
     void wait_until_finished();
-    void runloop();
-    void dispatch_next(std::unique_lock<std::mutex> &lock);
-    bool can_dispatch();
-    void send_control();
+
     void receive_camera(const camera_data &x);
     void receive_accelerometer(const accelerometer_data &x);
     void receive_gyro(const gyro_data &x);
     
 private:
+    void runloop();
+    void dispatch_next(std::unique_lock<std::mutex> &lock);
+    bool can_dispatch();
+
     std::mutex mutex;
     std::condition_variable cond;
     std::thread thread;

@@ -6,8 +6,8 @@
 //  Copyright (c) 2015 Sunlayar. All rights reserved.
 //
 
-#import "RC3DKWebController.h"
+#import "RC3DKPlusWebController.h"
 
-@interface SLARWebViewController : RC3DKWebController
+@interface SLARWebViewController : RC3DKPlusWebController
 
 @end

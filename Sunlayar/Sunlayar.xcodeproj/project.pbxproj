@@ -98,7 +98,6 @@
 		32E757671A9EAFF0004BA247 /* RC3DKPlus.js in Resources */ = {isa = PBXBuildFile; fileRef = 32E757661A9EAFF0004BA247 /* RC3DKPlus.js */; };
 		32E757691A9FA2AB004BA247 /* capture.html in Resources */ = {isa = PBXBuildFile; fileRef = 32E757681A9FA2AB004BA247 /* capture.html */; };
 		32E7576B1A9FD834004BA247 /* capture_controller.js in Resources */ = {isa = PBXBuildFile; fileRef = 32E7576A1A9FD834004BA247 /* capture_controller.js */; };
-		32E7576D1A9FD9CC004BA247 /* capture_state_machine.js in Resources */ = {isa = PBXBuildFile; fileRef = 32E7576C1A9FD9CC004BA247 /* capture_state_machine.js */; };
 		D927F0B91A61A8BE00344165 /* SLARDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D927F0B81A61A8BE00344165 /* SLARDelegate.m */; };
 /* End PBXBuildFile section */
 
@@ -279,7 +278,6 @@
 		32E757661A9EAFF0004BA247 /* RC3DKPlus.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; name = RC3DKPlus.js; path = HTML/RC3DKPlus.js; sourceTree = "<group>"; };
 		32E757681A9FA2AB004BA247 /* capture.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = capture.html; sourceTree = "<group>"; };
 		32E7576A1A9FD834004BA247 /* capture_controller.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = capture_controller.js; sourceTree = "<group>"; };
-		32E7576C1A9FD9CC004BA247 /* capture_state_machine.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = capture_state_machine.js; sourceTree = "<group>"; };
 		D927F0B71A61A8BE00344165 /* SLARDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLARDelegate.h; sourceTree = "<group>"; };
 		D927F0B81A61A8BE00344165 /* SLARDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLARDelegate.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -489,7 +487,6 @@
 			isa = PBXGroup;
 			children = (
 				32E7576A1A9FD834004BA247 /* capture_controller.js */,
-				32E7576C1A9FD9CC004BA247 /* capture_state_machine.js */,
 				32E757681A9FA2AB004BA247 /* capture.html */,
 				324751EF1A5BCB3000A0EC98 /* depth_data.js */,
 				17C429A51A5C7C3D004201CF /* fastclick.js */,
@@ -736,7 +733,6 @@
 				3219109B1A52330F00AEF550 /* Calibration.storyboard in Resources */,
 				3219109E1A52330F00AEF550 /* ipad_on_table.jpg in Resources */,
 				324752231A5BCB3000A0EC98 /* measured_photo_svg.html in Resources */,
-				32E7576D1A9FD9CC004BA247 /* capture_state_machine.js in Resources */,
 				324752211A5BCB3000A0EC98 /* json2.js in Resources */,
 				324752251A5BCB3000A0EC98 /* request_animation_frame.js in Resources */,
 				3219106F1A52328D00AEF550 /* LaunchScreen.xib in Resources */,

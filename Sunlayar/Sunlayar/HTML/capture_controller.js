@@ -2,7 +2,7 @@
 //  Created by Ben Hirashima on 2/25/15.
 //  Copyright (c) 2015 RealityCap. All rights reserved.
 //
-// depends on JQuery 2.0+, RC3DK.js, RC3DKPlus.js
+// depends on JQuery 2.0+, RC3DK.js, RC3DKPlus.js, three.js
 
 ;
 var CaptureController = (function ($, window)
@@ -11,98 +11,189 @@ var CaptureController = (function ($, window)
 
     var module = {};
 
+    var WorkflowStates =
+    {
+        READY:          1,
+        INITIALIZING:   2,
+        MOVING:         3,
+        FRAMING:        4,
+        PROCESSING:     5,
+        FINISHED:       6,
+        ERROR:          7
+    };
+
     var currentRunState = RC3DK.SensorFusionRunState.Inactive;
+    var workflowState = WorkflowStates.STARTUP;
+    var photoGuid;
 
     $(document).ready(function()
     {
-        console.log("documentReady()");
-
-        module.resetWorkflow();
+        enterReadyState();
 
         $("#shutterButton").on( "click", function() {
-            switch (currentRunState)
+            switch (workflowState)
             {
-                case RC3DK.SensorFusionRunState.Inactive:
-                    module.initializeSensorFusion();
+                case WorkflowStates.READY:
+                    enterInitializationState();
+                    break;
+
+                case WorkflowStates.FRAMING:
+                    enterProcessingState();
                     break;
             }
         });
 
         RC3DK.onStatusUpdate(function (status)
         {
-            if (status.runState !== currentRunState) currentRunState = status.runState;
+            if (status.runState !== currentRunState) handleNewSensorFusionRunState(status.runState);
 
-            switch (status.runState)
+            if (status.runState === RC3DK.SensorFusionRunState.SteadyInitialization && workflowState === WorkflowStates.INITIALIZING)
             {
-                case RC3DK.SensorFusionRunState.SteadyInitialization:
-                    module.updateInitializationProgress(status.progress);
-                    break;
+                updateInitializationProgress(status.progress);
             }
 
             if (status.error)
             {
                 if (status.error.class === RC3DK.RCLicenseErrorClass)
                 {
-                    module.handleSensorFusionError(status.error);
+                    handleSensorFusionError(status.error);
                 }
                 else if (status.error.class === RC3DK.RCLicenseErrorClass)
                 {
-                    module.handleLicenseError(status.error);
+                    handleLicenseError(status.error);
                 }
             }
         });
 
         RC3DK.onDataUpdate(function (data, medianFeatureDepth)
         {
-//                var currentPosition = new Vector3(data.transformation.translation.x, data.transformation.translation.y, data.transformation.translation.z);
+            if (workflowState === WorkflowStates.MOVING)
+            {
+                var currentPosition = new THREE.Vector3(data.transformation.translation.v0, data.transformation.translation.v1, data.transformation.translation.v2);
+                var progress = currentPosition.length() / .1; // TODO: calculate based on median feature depth
 
+                if (progress < 1)
+                    updateMoveProgress(progress);
+                else
+                    enterFramingState();
+            }
+        });
+
+        RC3DKPlus.onStereoProgressUpdated(function (progress)
+        {
+             if (workflowState === WorkflowStates.PROCESSING) updateProcessingProgress(progress);
+        });
+
+        RC3DKPlus.onStereoProcessingFinished(function ()
+        {
+            if (workflowState === WorkflowStates.PROCESSING) enterFinishedState();
         });
     });
 
-    module.showMessage = function(message)
+    function handleNewSensorFusionRunState(runState)
     {
-        $("#message").html(message);
-    }
+        currentRunState = runState;
 
-    module.handleSensorFusionError = function(error)
-    {
-        if (error.code > 1)
+        switch (runState)
         {
-            RC3DK.stopSensorFusion();
-            RC3DK.stopSensors();
-            alert(status.error.class + ":" + status.error.code);
+            case RC3DK.SensorFusionRunState.Running:
+                enterMovingState();
+                break;
         }
     }
 
-    module.handleLicenseError = function(error)
+    function enterReadyState()
     {
-        alert(status.error.class + ":" + status.error.code);
-    }
-
-    module.resetWorkflow = function()
-    {
-        module.showMessage("Point the camera at the roof, then press the button.");
+        showMessage("Point the camera at the roof, then press the button.");
 
         RC3DK.stopSensorFusion();
         RC3DK.showVideoView();
         RC3DK.startSensors();
+
+        workflowState = WorkflowStates.READY;
     }
 
-    module.initializeSensorFusion = function()
+    function enterInitializationState()
     {
-        module.showMessage("Hold still");
         RC3DK.startSensorFusion();
+        workflowState = WorkflowStates.INITIALIZING;
     }
 
-    module.updateInitializationProgress = function(progress)
+    function enterMovingState()
+    {
+        RC3DKPlus.startStereoCapture(function (success){
+            showMessage("Moving state");
+            if (success)
+                workflowState = WorkflowStates.MOVING;
+            else
+                enterErrorState("Failed to start stereo capture.");
+        });
+    }
+
+    function enterFramingState()
+    {
+        showMessage("Press the button to finish.");
+        workflowState = WorkflowStates.FRAMING;
+    }
+
+    function enterProcessingState()
+    {
+        showMessage("Please wait...");
+        RC3DKPlus.finishStereoCapture(function (guid){
+            photoGuid = guid;
+        });
+
+        workflowState = WorkflowStates.PROCESSING;
+    }
+
+    function enterFinishedState()
+    {
+        showMessage("Finished");
+        workflowState = WorkflowStates.FINISHED;
+    }
+
+    function enterErrorState(message)
+    {
+        if (!message) message = "Whoops, something went wrong.";
+        showMessage(message);
+        RC3DK.stopSensorFusion();
+        workflowState = WorkflowStates.ERROR;
+    }
+
+    function showMessage(message)
+    {
+        $("#message").html(message);
+    }
+
+    function handleSensorFusionError(error)
+    {
+        if (error.code > 1)
+        {
+            enterErrorState(status.error.class + ": " + status.error.code);
+        }
+    }
+
+    function handleLicenseError(error)
+    {
+        enterErrorState(status.error.class + ": " + status.error.code);
+    }
+
+    function updateInitializationProgress(progress)
     {
         var percentage = progress * 100;
-        module.showMessage("Hold still " + Math.ceil(percentage) + "%");
+        showMessage("Hold still " + Math.ceil(percentage) + "%");
     }
 
-    module.updateMoveProgress = function(progress)
+    function updateMoveProgress(progress)
     {
-        module.showMessage("Move sideways left or right until the progress bar is full. " + Math.ceil(percentage) + "%")
+        var percentage = progress * 100;
+        showMessage("Move sideways left or right... " + Math.ceil(percentage) + "%")
+    }
+
+    function updateProcessingProgress(progress)
+    {
+        var percentage = progress * 100;
+        showMessage("Please wait... " + Math.ceil(percentage) + "%")
     }
 
     return module;

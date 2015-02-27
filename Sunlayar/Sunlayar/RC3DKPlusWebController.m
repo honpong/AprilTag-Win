@@ -10,7 +10,6 @@
 #import <RC3DKPlus/RC3DKPlus.h>
 #import "SLMeasuredPhoto.h"
 #import "RCDebugLog.h"
-#import "NSString+RCString.h"
 
 @interface RC3DKPlusWebController ()
 
@@ -100,21 +99,21 @@
 
 #pragma mark - RCHttpInterceptorDelegate
 
-- (NSDictionary *)handleAction:(ARNativeAction *)action error:(NSError *__autoreleasing *)error
+- (NSDictionary *)handleAction:(ARNativeAction *)nativeAction error:(NSError **)error
 {
     // allow superclass to handle this action. if it doesn't, then handle it ourselves.
-    NSDictionary* result = [super handleAction:action error:error];
+    NSDictionary* result = [super handleAction:nativeAction error:error];
     if (result) return result;
     
-    if ([action.request.URL.description endsWithString:@"/startStereoCapture"])
+    if ([nativeAction.request.URL.relativePath isEqualToString:@"/startStereoCapture"])
     {
         return @{ @"result": @([self startStereoCapture]) };
     }
-    else if ([action.request.URL.description endsWithString:@"/finishStereoCapture"])
+    else if ([nativeAction.request.URL.relativePath isEqualToString:@"/finishStereoCapture"])
     {
         return @{ @"result": [self finishStereoCapture] };
     }
-    else if ([action.request.URL.description endsWithString:@"/cancelStereoCapture"])
+    else if ([nativeAction.request.URL.relativePath isEqualToString:@"/cancelStereoCapture"])
     {
         [self cancelStereoCapture];
         return @{ @"result": @YES };

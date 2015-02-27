@@ -10,7 +10,6 @@
 #import "RCSensorDelegate.h"
 #import "RCDebugLog.h"
 #import "ARNativeAction.h"
-#import "NSString+RCString.h"
 #import "RCLocationManager.h"
 #import "SLConstants.h"
 #import "NSObject+SBJson.h"
@@ -188,7 +187,7 @@
     
     NSString* dataJson = [[data dictionaryRepresentation] JavascriptObjRepresentation]; // expensive
     NSString* javascript = [NSString stringWithFormat:@"RC3DK.sensorFusionDidUpdateData(%@, %f);", dataJson, medianFeatureDepth.floatValue];
-    //    DLog(@"%@", javascript);
+//    DLog(@"%@", javascript);
     
     [self.webView stringByEvaluatingJavaScriptFromString: javascript];
 }
@@ -240,53 +239,53 @@
 
 - (NSDictionary *)handleAction:(ARNativeAction *)nativeAction error:(NSError **)error
 {
-    DLog(@"%@", nativeAction.request.URL.description);
+    DLog(@"%@", nativeAction.request.URL.relativePath);
     
-    if ([nativeAction.request.URL.description endsWithString:@"/startSensors"])
+    if ([nativeAction.request.URL.relativePath isEqualToString:@"/startSensors"])
     {
         [self startSensors];
         return @{ @"result": @YES };
     }
-    else if ([nativeAction.request.URL.description endsWithString:@"/stopSensors"])
+    else if ([nativeAction.request.URL.relativePath isEqualToString:@"/stopSensors"])
     {
         [self stopSensors];
         return @{ @"result": @YES };
     }
-    else if ([nativeAction.request.URL.description endsWithString:@"/startSensorFusion"])
+    else if ([nativeAction.request.URL.relativePath isEqualToString:@"/startSensorFusion"])
     {
         [self startSensorFusion];
         return @{ @"result": @YES };
     }
-    else if ([nativeAction.request.URL.description endsWithString:@"/stopSensorFusion"])
+    else if ([nativeAction.request.URL.relativePath isEqualToString:@"/stopSensorFusion"])
     {
         [self stopSensorFusion];
         return @{ @"result": @YES };
     }
-    else if ([nativeAction.request.URL.description endsWithString:@"/setLicenseKey"] && [nativeAction.method isEqualToString:@"POST"])
+    else if ([nativeAction.request.URL.relativePath isEqualToString:@"/setLicenseKey"] && [nativeAction.method isEqualToString:@"POST"])
     {
         [SENSOR_FUSION setLicenseKey:[nativeAction.params objectForKey:@"licenseKey"]];
         return @{ @"result": @YES };
     }
-    else if ([nativeAction.request.URL.description endsWithString:@"/hasCalibrationData"])
+    else if ([nativeAction.request.URL.relativePath isEqualToString:@"/hasCalibrationData"])
     {
         return @{ @"result": @([SENSOR_FUSION hasCalibrationData]) };
     }
-    else if ([nativeAction.request.URL.description endsWithString:@"/startStaticCalibration"])
+    else if ([nativeAction.request.URL.relativePath isEqualToString:@"/startStaticCalibration"])
     {
         [SENSOR_FUSION startStaticCalibration];
         return @{ @"result": @YES };
     }
-    else if ([nativeAction.request.URL.description endsWithString:@"/log"] && [nativeAction.method isEqualToString:@"POST"])
+    else if ([nativeAction.request.URL.relativePath isEqualToString:@"/log"] && [nativeAction.method isEqualToString:@"POST"])
     {
         [self webViewLog:[nativeAction.params objectForKey:@"message"]];
         return @{ @"result": @YES };
     }
-    else if ([nativeAction.request.URL.description endsWithString:@"/showVideoView"])
+    else if ([nativeAction.request.URL.relativePath isEqualToString:@"/showVideoView"])
     {
         [self showVideoView];
         return @{ @"result": @YES };
     }
-    else if ([nativeAction.request.URL.description endsWithString:@"/hideVideoView"])
+    else if ([nativeAction.request.URL.relativePath isEqualToString:@"/hideVideoView"])
     {
         [self hideVideoView];
         return @{ @"result": @YES };

@@ -22,13 +22,17 @@ static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationLandscapeLe
     RCTransformation *initialCamera;
     
     MBProgressHUD *progressView;
-    RCSensorFusionData* lastSensorFusionDataWithImage;
+    
+    RCTranslation *firstPosition;
+    RCTranslation *secondPosition;
+    RCSensorFusionData *lastStereoSensorFusionData;
 
     id<RCSensorDelegate> sensorDelegate;
     
     CATMeasuredPhoto* measuredPhoto;
     
     RCSensorFusionErrorCode lastErrorCode;
+    BOOL isConfident;
 }
 @synthesize videoView;
 
@@ -44,8 +48,8 @@ typedef NS_ENUM(int, MessageColor) {
     ColorRed
 };
 
-enum state { ST_STARTUP, ST_READY, ST_INITIALIZING, ST_MOVING, ST_CAPTURE, ST_PROCESSING, ST_ERROR, ST_DISK_SPACE, ST_FINISHED, ST_ANY } currentState;
-enum event { EV_RESUME, EV_FIRSTTIME, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_SHUTTER_TAP, EV_PAUSE, EV_CANCEL, EV_MOVE_DONE, EV_MOVE_UNDONE, EV_PROCESSING_FINISHED, EV_INITIALIZED, EV_STEREOFAIL, EV_DISK_SPACE };
+enum state { ST_STARTUP, ST_READY, ST_INITIALIZING, ST_FIRST_MOVE, ST_FIRST_CAPTURE, ST_SECOND_MOVE, ST_SECOND_CAPTURE, ST_PROCESSING, ST_ERROR, ST_DISK_SPACE, ST_FINISHED, ST_ANY } currentState;
+enum event { EV_RESUME, EV_FIRSTTIME, EV_VISIONFAIL, EV_FASTFAIL, EV_FAIL, EV_SHUTTER_TAP, EV_PAUSE, EV_CANCEL, EV_MOVE_DONE, EV_MOVE_UNDONE, EV_PROCESSING_FINISHED, EV_INITIALIZED, EV_STEREOFAIL, EV_DISK_SPACE, EV_NOT_CONFIDENT };
 
 typedef struct { enum state state; enum event event; enum state newstate; } transition;
 
@@ -67,8 +71,10 @@ static statesetup setups[] =
     { ST_STARTUP,       false,  false,   false,  SpinnerTypeNone,          false,  ColorGray,    "Loading" },
     { ST_READY,         true,   false,   false,  SpinnerTypeNone,          false,  ColorGray,    "Point the camera at the track link, then press the button." },
     { ST_INITIALIZING,  true,   true,    false,  SpinnerTypeDeterminate,   false,  ColorGray,    "Hold still" },
-    { ST_MOVING,        true,   true,    true,   SpinnerTypeNone,          true,   ColorGray,    "Move sideways left or right until the progress bar is full." },
-    { ST_CAPTURE,       true,   true,    true,   SpinnerTypeNone,          true,   ColorGray,    "Press the button to finish." },
+    { ST_FIRST_MOVE,    true,   true,    true,   SpinnerTypeNone,          false,  ColorGray,    "Move sideways left or right until the progress bar is full." },
+    { ST_FIRST_CAPTURE,       true,   true,    true,   SpinnerTypeNone,    false,   ColorGray,   "Hold still and press the button." },
+    { ST_SECOND_MOVE,   true,   true,    true,   SpinnerTypeNone,          true,   ColorGray,    "Move back to where you started." },
+    { ST_SECOND_CAPTURE,       true,   true,    true,   SpinnerTypeNone,   true,   ColorGray,    "Press the button to finish." },
     { ST_PROCESSING,    false,  false,   false,  SpinnerTypeDeterminate,   false,  ColorGray,    "Please wait" },
     { ST_ERROR,         true,   false,   false,  SpinnerTypeNone,          false,  ColorRed,     "Whoops, something went wrong. Try again." },
     { ST_DISK_SPACE,    true,   false,   false,  SpinnerTypeNone,          false,  ColorRed,     "Your device is low on storage space. Free up some space first." },
@@ -79,14 +85,23 @@ static transition transitions[] =
 {
     { ST_STARTUP, EV_RESUME, ST_READY },
     { ST_READY, EV_SHUTTER_TAP, ST_INITIALIZING },
-    { ST_INITIALIZING, EV_INITIALIZED, ST_MOVING },
-    { ST_MOVING, EV_MOVE_DONE, ST_CAPTURE },
-    { ST_MOVING, EV_FAIL, ST_ERROR },
-    { ST_MOVING, EV_FASTFAIL, ST_ERROR },
-    { ST_CAPTURE, EV_SHUTTER_TAP, ST_PROCESSING },
-    { ST_CAPTURE, EV_MOVE_UNDONE, ST_MOVING },
-    { ST_CAPTURE, EV_FAIL, ST_ERROR },
-    { ST_CAPTURE, EV_FASTFAIL, ST_ERROR },
+    { ST_INITIALIZING, EV_INITIALIZED, ST_FIRST_MOVE },
+    { ST_FIRST_MOVE, EV_MOVE_DONE, ST_FIRST_CAPTURE },
+    { ST_FIRST_MOVE, EV_FAIL, ST_ERROR },
+    { ST_FIRST_MOVE, EV_FASTFAIL, ST_ERROR },
+    { ST_FIRST_CAPTURE, EV_SHUTTER_TAP, ST_SECOND_MOVE },
+    { ST_FIRST_CAPTURE, EV_MOVE_UNDONE, ST_FIRST_MOVE },
+    { ST_FIRST_CAPTURE, EV_FAIL, ST_ERROR },
+    { ST_FIRST_CAPTURE, EV_FASTFAIL, ST_ERROR },
+    { ST_SECOND_MOVE, EV_NOT_CONFIDENT, ST_ERROR },
+    { ST_SECOND_MOVE, EV_MOVE_DONE, ST_SECOND_CAPTURE },
+    { ST_SECOND_MOVE, EV_FAIL, ST_ERROR },
+    { ST_SECOND_MOVE, EV_FASTFAIL, ST_ERROR },
+    { ST_SECOND_CAPTURE, EV_NOT_CONFIDENT, ST_ERROR },
+    { ST_SECOND_CAPTURE, EV_SHUTTER_TAP, ST_PROCESSING },
+    { ST_SECOND_CAPTURE, EV_MOVE_UNDONE, ST_SECOND_MOVE },
+    { ST_SECOND_CAPTURE, EV_FAIL, ST_ERROR },
+    { ST_SECOND_CAPTURE, EV_FASTFAIL, ST_ERROR },
     { ST_PROCESSING, EV_PROCESSING_FINISHED, ST_FINISHED },
     { ST_PROCESSING, EV_STEREOFAIL, ST_ERROR },
     { ST_ERROR, EV_SHUTTER_TAP, ST_READY },
@@ -156,6 +171,7 @@ static transition transitions[] =
     if (newState == ST_READY)
     {
         lastErrorCode = RCSensorFusionErrorCodeNone;
+        isConfident = false;
     }
     else if(newState == ST_PROCESSING)
     {
@@ -169,6 +185,16 @@ static transition transitions[] =
             [self handleCaptureFinished];
         }
     }
+    else if(newState == ST_FIRST_MOVE)
+    {
+        firstPosition = nil;
+    }
+    else if(newState == ST_SECOND_MOVE)
+    {
+        if (firstPosition == nil) firstPosition = lastStereoSensorFusionData.transformation.translation;
+    }
+    
+    DLog("newState = %i", newState);
     
     return YES;
 }
@@ -280,10 +306,10 @@ static transition transitions[] =
     RCStereo * stereo = [RCStereo sharedInstance];
     stereo.delegate = self;
     [stereo setWorkingDirectory:WORKING_DIRECTORY_URL andGuid:measuredPhoto.id_guid andOrientation:currentUIOrientation];
-    [stereo processFrame:lastSensorFusionDataWithImage withFinal:true];
+    [stereo processFrame:lastStereoSensorFusionData withFinal:true];
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-        [measuredPhoto writeImagetoJpeg:lastSensorFusionDataWithImage.sampleBuffer withOrientation:stereo.orientation];
+        [measuredPhoto writeImagetoJpeg:lastStereoSensorFusionData.sampleBuffer withOrientation:stereo.orientation];
         [stereo preprocess];
     });
 }
@@ -368,6 +394,8 @@ static transition transitions[] =
     {
         [self handleStateEvent:EV_INITIALIZED];
     }
+    
+    isConfident = (status.confidence == RCSensorFusionConfidenceHigh);
 }
 
 - (void) sensorFusionDidUpdateData:(RCSensorFusionData*)data
@@ -387,29 +415,76 @@ static transition transitions[] =
         median = [sorted objectAtIndex:middle];
     } else median = [NSNumber numberWithFloat:2.];
     
-    if (currentState == ST_MOVING || currentState == ST_CAPTURE)
+    if (currentState == ST_FIRST_MOVE || currentState == ST_SECOND_MOVE || currentState == ST_FIRST_CAPTURE || currentState == ST_SECOND_CAPTURE)
     {
         //Compute the capture progress here
         float depth = [median floatValue];
+        float progress = 0;
         
         RCPoint *projectedpt = [[initialCamera.rotation getInverse] transformPoint:[data.transformation.translation transformPoint:[[RCPoint alloc] initWithX:0. withY:0. withZ:0.]]];
         
         float targetDist = log(depth / 8. + 1.) + .05; // require movement of at least 5cm
         
-        float dx = projectedpt.x / targetDist;
-        if(dx > 1.) dx = 1.;
-        if(dx < -1.) dx = -1.;
-
-        float progress = fabs(dx);
-        self.progressBar.progress = progress;
-        
-        if(currentState == ST_MOVING && progress >= 1.) [self handleStateEvent:EV_MOVE_DONE];
-        if(currentState == ST_CAPTURE && progress < 1.) [self handleStateEvent:EV_MOVE_UNDONE];
+        if(currentState == ST_FIRST_MOVE || currentState == ST_FIRST_CAPTURE)
+        {
+            float dx = projectedpt.x / targetDist;
+            if(dx > 1.) dx = 1.;
+            if(dx < -1.) dx = -1.;
+            
+            progress = fabs(dx);
+            if(currentState == ST_FIRST_MOVE)
+            {
+                if (progress < 1.) self.progressBar.progress = progress;
+                else
+                {
+                    self.progressBar.progress = 1.;
+                    [self handleStateEvent:EV_MOVE_DONE];
+                }
+            }
+            else if(currentState == ST_FIRST_CAPTURE)
+            {
+                if(progress < 1.) [self handleStateEvent:EV_MOVE_UNDONE];
+            }
+        }
+        else if(currentState == ST_SECOND_MOVE || currentState == ST_SECOND_CAPTURE)
+        {
+            if(!isConfident) [self handleStateEvent:EV_NOT_CONFIDENT];
+            
+            RCPoint* turnPoint = [firstPosition transformPoint:[RCPoint new]];
+            RCPoint* currentPosition = [data.transformation.translation transformPoint:[RCPoint new]];
+            RCTranslation* secondMove = [RCTranslation translationFromPoint:turnPoint toPoint:currentPosition];
+            
+            float distFromTurnPoint = [secondMove getDistance].scalar;
+            float distFirstMove = [firstPosition getDistance].scalar;
+            float distFromOrigin = [data.transformation.translation getDistance].scalar;
+            
+            if (distFromOrigin > distFirstMove)
+                progress = 0; // don't update progress if they're moving beyond the turn point
+            else
+                progress = distFromTurnPoint / targetDist;
+            
+            if(currentState == ST_SECOND_MOVE)
+            {
+                if (progress < 1.)
+                {
+                    self.progressBar.progress = progress;
+                }
+                else
+                {
+                    self.progressBar.progress = 1.;
+                    [self handleStateEvent:EV_MOVE_DONE];
+                }
+            }
+            else if(currentState == ST_SECOND_CAPTURE)
+            {
+                if (progress < 1.) [self handleStateEvent:EV_MOVE_UNDONE];
+            }
+        }
     }
     
     if(data.sampleBuffer)
     {
-        lastSensorFusionDataWithImage = data;
+        lastStereoSensorFusionData = data;
         
         [self.videoView displaySensorFusionData:data];
         

@@ -33,6 +33,13 @@
     return [[RCTranslation alloc] initWithVector:-self.vector withStandardDeviation:self.standardDeviation];
 }
 
+- (RCTranslation *)flipAxis:(int) axis
+{
+    vFloat res = self.vector;
+    res[axis] = -res[axis];
+    return [[RCTranslation alloc] initWithVector:res withStandardDeviation:self.standardDeviation];
+}
+
 - (RCTranslation *)composeWithTranslation:(RCTranslation *)other
 {
     //vFloat stdSum = vsqrtf(other.standardDeviation * other.standardDeviation + self.standardDeviation * self.standardDeviation);

@@ -9,54 +9,52 @@ int observation_queue::preprocess()
 {
     stable_sort(observations.begin(), observations.end(), observation_comp_apparent);
     int size = 0;
-    for(vector<observation *>::iterator obs = observations.begin(); obs != observations.end(); obs++) {
-        size += (*obs)->size;
-    }
+    for(observation *o : observations)
+        size += o->size;
     return size;
 }
 
 void observation_queue::clear()
 {
-    for(vector<observation *>::iterator obs = observations.begin(); obs != observations.end(); obs++) delete *obs;
+    for(observation *o : observations)
+        delete o;
     observations.clear();
 }
 
 void observation_queue::predict()
 {
-    for(vector<observation *>::iterator obs = observations.begin(); obs != observations.end(); obs++) {
-        (*obs)->predict();
-    }
+    for(observation *o : observations)
+        o->predict();
 }
 
 void observation_queue::measure()
 {
     //measure; calculate innovation and covariance
-    for(vector<observation *>::iterator obs = observations.begin(); obs != observations.end(); ++obs) {
-        (*obs)->measure();
-    }
+    for(observation *o : observations)
+        o->measure();
 }
 
 void observation_queue::compute_innovation(matrix &inn)
 {
     int count = 0;
-    for(vector<observation *>::iterator obs = observations.begin(); obs != observations.end(); ++obs) {
-        (*obs)->compute_innovation();
-        for(int i = 0; i < (*obs)->size; ++i) {
-            inn[count + i] = (*obs)->innovation(i);
+    for(observation *o : observations) {
+        o->compute_innovation();
+        for(int i = 0; i < o->size; ++i) {
+            inn[count + i] = o->innovation(i);
         }
-        count += (*obs)->size;
+        count += o->size;
     }
 }
 
 void observation_queue::compute_measurement_covariance(matrix &m_cov)
 {
     int count = 0;
-    for(vector<observation *>::iterator obs = observations.begin(); obs != observations.end(); obs++) {
-        (*obs)->compute_measurement_covariance();
-        for(int i = 0; i < (*obs)->size; ++i) {
-            m_cov[count + i] = (*obs)->measurement_covariance(i);
+    for(observation *o : observations) {
+        o->compute_measurement_covariance();
+        for(int i = 0; i < o->size; ++i) {
+            m_cov[count + i] = o->measurement_covariance(i);
         }
-        count += (*obs)->size;
+        count += o->size;
     }
 }
 
@@ -66,22 +64,22 @@ void observation_queue::compute_prediction_covariance(const state &s, int meas_s
     // matrix_product(LC, lp, A, false, false);
     int statesize = s.cov.size();
     int index = 0;
-    for(vector<observation *>::iterator obs = observations.begin(); obs != observations.end(); ++obs) {
-        if((*obs)->size) {
-            matrix dst(&LC(index, 0), (*obs)->size, statesize, LC.maxrows, LC.stride);
-            (*obs)->cache_jacobians();
-            (*obs)->project_covariance(dst, s.cov.cov);
-            index += (*obs)->size;
+    for(observation *o : observations) {
+        if(o->size) {
+            matrix dst(&LC(index, 0), o->size, statesize, LC.maxrows, LC.stride);
+            o->cache_jacobians();
+            o->project_covariance(dst, s.cov.cov);
+            index += o->size;
         }
     }
     
     //project cov(state, meas)=(LC)' onto meas to get cov(meas, meas)
     index = 0;
-    for(vector<observation *>::iterator obs = observations.begin(); obs != observations.end(); ++obs) {
-        if((*obs)->size) {
-            matrix dst(&res_cov(index, 0), (*obs)->size, meas_size, res_cov.maxrows, res_cov.stride);
-            (*obs)->project_covariance(dst, LC);
-            index += (*obs)->size;
+    for(observation *o : observations) {
+        if(o->size) {
+            matrix dst(&res_cov(index, 0), o->size, meas_size, res_cov.maxrows, res_cov.stride);
+            o->project_covariance(dst, LC);
+            index += o->size;
         }
     }
     
@@ -93,21 +91,21 @@ void observation_queue::compute_prediction_covariance(const state &s, int meas_s
     }
     
     index = 0;
-    for(vector<observation *>::iterator obs = observations.begin(); obs != observations.end(); ++obs) {
-        if((*obs)->size) (*obs)->set_prediction_covariance(res_cov, index);
-        index += (*obs)->size;
+    for(observation *o : observations) {
+        if(o->size) o->set_prediction_covariance(res_cov, index);
+        index += o->size;
     }
 }
 
 void observation_queue::compute_innovation_covariance(const matrix &m_cov)
 {
     int index = 0;
-    for(vector<observation *>::iterator obs = observations.begin(); obs != observations.end(); ++obs) {
-        for(int i = 0; i < (*obs)->size; ++i) {
+    for(observation *o : observations) {
+        for(int i = 0; i < o->size; ++i) {
             res_cov(index + i, index + i) += m_cov[index + i];
         }
-        (*obs)->innovation_covariance_hook(res_cov, index);
-        index += (*obs)->size;
+        o->innovation_covariance_hook(res_cov, index);
+        index += o->size;
     }
 }
 
@@ -116,9 +114,9 @@ int observation_queue::remove_invalid_measurements(const state &s, int orig_size
     int map[orig_size];
     int src = 0;
     int new_size = 0;
-    for(vector<observation *>::iterator obs = observations.begin(); obs != observations.end(); ++obs) {
-        for(int i = 0; i < (*obs)->size; ++i) {
-            if((*obs)->valid) map[new_size++] = src;
+    for(observation *o : observations) {
+        for(int i = 0; i < o->size; ++i) {
+            if(o->valid) map[new_size++] = src;
             ++src;
         }
     }
@@ -188,7 +186,7 @@ bool observation_queue::process(state &s, uint64_t time)
         LC.resize(meas_size, statesize);
         res_cov.resize(meas_size, meas_size);
 
-        //TODO: implement (*obs)->time_apparent != (*obs)->time_actual
+        //TODO: implement o->time_apparent != o->time_actual
         predict();
         measure();
         compute_innovation(inn);
@@ -275,23 +273,29 @@ void observation_vision_feature::cache_jacobians()
     //initial = (uncal - center) / (focal_length * kr)
     f_t r2, r4, r6, kr;
     state.fill_calibration(norm_initial, r2, r4, r6, kr);
+#if estimate_camera_intrinsics
     v4 dX_dcx = Rtot * v4(-1. / (kr * state.focal_length.v), 0., 0., 0.);
     v4 dX_dcy = Rtot * v4(0., -1. / (kr * state.focal_length.v), 0., 0.);
     v4 dX_dF = Rtot * v4(-X0[0] / state.focal_length.v, -X0[1] / state.focal_length.v, 0., 0.);
     v4 dX_dk1 = Rtot * v4(-X0[0] / kr * r2, -X0[1] / kr * r2, 0., 0.);
     v4 dX_dk2 = Rtot * v4(-X0[0] / kr * r4, -X0[1] / kr * r4, 0., 0.);
+#endif
     
     m4v4 dRr_dWr = to_rotation_matrix_jacobian(state_group->Wr.v);
-    m4v4 dRbc_dWc = to_rotation_matrix_jacobian(state.Wc.v);
     m4v4 dRrt_dWr = transpose(dRr_dWr);
+#if estimate_camera_extrinsics
+    m4v4 dRbc_dWc = to_rotation_matrix_jacobian(state.Wc.v);
     m4v4 dRcb_dWc = transpose(dRbc_dWc);
+#endif
     
     m4v4 dRtot_dWr  = Rcb * dRrt_dWr * Rbc;
+    m4 dTtot_dWr  = Rcb * (dRrt_dWr * (state.Tc.v - state_group->Tr.v));
+    m4 dTtot_dTr = -Rcb * Rrt;
+#if estimate_camera_extrinsics
     m4v4 dRtot_dWc = dRcb_dWc * (Rrt * Rbc) + (Rcb * Rrt) * dRbc_dWc;
     m4 dTtot_dWc = dRcb_dWc * (Rrt * (state.Tc.v - state_group->Tr.v) - state.Tc.v);
-    m4 dTtot_dWr  = Rcb * (dRrt_dWr * (state.Tc.v - state_group->Tr.v));
     m4 dTtot_dTc = Rcb * Rrt - Rcb;
-    m4 dTtot_dTr = -Rcb * Rrt;
+#endif
     
     state.fill_calibration(norm_predicted, r2, r4, r6, kr);
     f_t invZ = 1. / X[2];
@@ -304,14 +308,17 @@ void observation_vision_feature::cache_jacobians()
     dy_dp = sum(dy_dX * dX_dp);
     f_t invrho = feature->v.invdepth();
     if(!feature->is_initialized()) {
+#if estimate_camera_extrinsics
         dx_dWc = dx_dX * (dRtot_dWc * feature->calibrated);
-        dx_dWr = dx_dX * (dRtot_dWr * feature->calibrated);
         dy_dWc = dy_dX * (dRtot_dWc * feature->calibrated);
+#endif
+        dx_dWr = dx_dX * (dRtot_dWr * feature->calibrated);
         dy_dWr = dy_dX * (dRtot_dWr * feature->calibrated);
         //dy_dT = m4(0.);
         //dy_dT = m4(0.);
         //dy_dTr = m4(0.);
     } else {
+#if estimate_camera_intrinsics
         dx_dF = norm_predicted.x * kr + sum(dx_dX * dX_dF);
         dy_dF = norm_predicted.y * kr + sum(dy_dX * dX_dF);
         dx_dk1 = norm_predicted.x * state.focal_length.v * r2 + sum(dx_dX * dX_dk1);
@@ -322,14 +329,18 @@ void observation_vision_feature::cache_jacobians()
         dx_dcy = sum(dx_dX * dX_dcy);
         dy_dcx = sum(dy_dX * dX_dcx);
         dy_dcy = 1. + sum(dy_dX * dX_dcy);
-        dx_dWc = dx_dX * (dRtot_dWc * X0 + dTtot_dWc * invrho);
+#endif
         dx_dWr = dx_dX * (dRtot_dWr * X0 + dTtot_dWr * invrho);
-        dx_dTc = dx_dX * dTtot_dTc * invrho;
         dx_dTr = dx_dX * dTtot_dTr * invrho;
-        dy_dWc = dy_dX * (dRtot_dWc * X0 + dTtot_dWc * invrho);
         dy_dWr = dy_dX * (dRtot_dWr * X0 + dTtot_dWr * invrho);
-        dy_dTc = dy_dX * dTtot_dTc * invrho;
         dy_dTr = dy_dX * dTtot_dTr * invrho;
+#if estimate_camera_extrinsics
+        dx_dWc = dx_dX * (dRtot_dWc * X0 + dTtot_dWc * invrho);
+        dx_dTc = dx_dX * dTtot_dTc * invrho;
+        dy_dWc = dy_dX * (dRtot_dWc * X0 + dTtot_dWc * invrho);
+        dy_dTc = dy_dX * dTtot_dTc * invrho;
+#endif
+
     }
 }
 
@@ -341,44 +352,59 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
             v4 cov_Wc = state.Wc.copy_cov_from_row(src, j);
             v4 cov_Wr = state_group->Wr.copy_cov_from_row(src, j);
             dst(0, j) =
+#if estimate_camera_extrinsics
             sum(dx_dWc * cov_Wc) +
+#endif
             sum(dx_dWr * cov_Wr);
             dst(1, j) =
+#if estimate_camera_extrinsics
             sum(dy_dWc * cov_Wc) +
+#endif
             sum(dy_dWr * cov_Wr);
         }
     } else {
         for(int j = 0; j < dst.cols; ++j) {
             f_t cov_feat = feature->copy_cov_from_row(src, j);
+            v4 cov_Wr = state_group->Wr.copy_cov_from_row(src, j);
+            v4 cov_Tr = state_group->Tr.copy_cov_from_row(src, j);
+
+#if estimate_camera_intrinsics
             f_t cov_F = state.focal_length.copy_cov_from_row(src, j);
             f_t cov_cx = state.center_x.copy_cov_from_row(src, j);
             f_t cov_cy = state.center_y.copy_cov_from_row(src, j);
             f_t cov_k1 = state.k1.copy_cov_from_row(src, j);
             f_t cov_k2 = state.k2.copy_cov_from_row(src, j);
+#endif
+#if estimate_camera_extrinsics
             v4 cov_Wc = state.Wc.copy_cov_from_row(src, j);
-            v4 cov_Wr = state_group->Wr.copy_cov_from_row(src, j);
             v4 cov_Tc = state.Tc.copy_cov_from_row(src, j);
-            v4 cov_Tr = state_group->Tr.copy_cov_from_row(src, j);
+#endif
             dst(0, j) = dx_dp * cov_feat +
+#if estimate_camera_intrinsics
             dx_dF * cov_F +
             dx_dcx * cov_cx +
             dx_dcy * cov_cy +
             dx_dk1 * cov_k1 +
             dx_dk2 * cov_k2 +
-            //dy_dk3[i] * p[state.k3.index] +
+#endif
+#if estimate_camera_extrinsics
             sum(dx_dWc * cov_Wc) +
             sum(dx_dTc * cov_Tc) +
+#endif
             sum(dx_dWr * cov_Wr) +
             sum(dx_dTr * cov_Tr);
             dst(1, j) = dy_dp * cov_feat +
+#if estimate_camera_intrinsics
             dy_dF * cov_F +
             dy_dcx * cov_cx +
             dy_dcy * cov_cy +
             dy_dk1 * cov_k1 +
             dy_dk2 * cov_k2 +
-            //dy_dk3[i] * p[state.k3.index] +
+#endif
+#if estimate_camera_extrinsics
             sum(dy_dWc * cov_Wc) +
             sum(dy_dTc * cov_Tc) +
+#endif
             sum(dy_dWr * cov_Wr) +
             sum(dy_dTr * cov_Tr);
         }

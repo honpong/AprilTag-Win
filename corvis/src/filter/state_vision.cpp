@@ -94,33 +94,23 @@ state_vision_group::state_vision_group(const state_vector &T, const state_rotati
 
 void state_vision_group::make_empty()
 {
-    for(list <state_vision_feature *>::iterator fiter = features.children.begin(); fiter != features.children.end(); fiter = features.children.erase(fiter)) {
-        state_vision_feature *f = *fiter;
+    for(state_vision_feature *f : features.children)
         f->dropping_group();
-    }
+    features.children.clear();
     status = group_empty;
 }
 
 int state_vision_group::process_features()
 {
-    int ingroup = 0;
-    int good_in_group = 0;
-    list<state_vision_feature *>::iterator fiter = features.children.begin(); 
-    while(fiter != features.children.end()) {
-        state_vision_feature *f = *fiter;
-        if(f->should_drop()) {
-            fiter = features.children.erase(fiter);
-        } else {
-            if(f->is_good()) ++good_in_group;
-            ++ingroup;
-            ++fiter;
-        }
-    }
-    if(ingroup < min_feats) {
-        return 0;
-    }
-    health = good_in_group;
-    return ingroup;
+    features.children.remove_if([&](state_vision_feature *f) {
+        return f->should_drop();
+    });
+
+    health = features.children.size();
+    if(health < min_feats)
+        health = 0;
+
+    return health;
 }
 
 int state_vision_group::make_reference()
@@ -129,13 +119,13 @@ int state_vision_group::make_reference()
     assert(status == group_normal);
     status = group_reference;
     int normals = 0;
-    for(list <state_vision_feature *>::iterator fiter = features.children.begin(); fiter != features.children.end(); fiter++) {
-        if((*fiter)->is_initialized()) ++normals;
+    for(state_vision_feature *f : features.children) {
+        if(f->is_initialized()) ++normals;
     }
     if(normals < 3) {
-        for(list<state_vision_feature *>::iterator fiter = features.children.begin(); fiter != features.children.end(); fiter++) {
-            if(!(*fiter)->is_initialized()) {
-                if ((*fiter)->force_initialize()) ++normals;
+        for(state_vision_feature *f : features.children) {
+            if(!f->is_initialized()) {
+                if (f->force_initialize()) ++normals;
                 if(normals >= 3) break;
             }
         }
@@ -153,17 +143,18 @@ int state_vision_group::make_normal()
     return 0;
 }
 
-state_vision::state_vision(bool _estimate_calibration, covariance &c): state_motion(c), Tc("Tc"), Wc("Wc"), focal_length("focal_length"), center_x("center_x"), center_y("center_y"), k1("k1"), k2("k2"), k3("k3")
+state_vision::state_vision(covariance &c): state_motion(c), Tc("Tc"), Wc("Wc"), focal_length("focal_length"), center_x("center_x"), center_y("center_y"), k1("k1"), k2("k2"), k3("k3")
 {
-    estimate_calibration = _estimate_calibration;
     reference = NULL;
-    children.push_back(&focal_length);
-    children.push_back(&center_x);
-    children.push_back(&center_y);
-    children.push_back(&k1);
-    children.push_back(&k2);
-    //children.push_back(&k3);
-    if(estimate_calibration) {
+    if(estimate_camera_intrinsics)
+    {
+        children.push_back(&focal_length);
+        children.push_back(&center_x);
+        children.push_back(&center_y);
+        children.push_back(&k1);
+        children.push_back(&k2);
+    }
+    if(estimate_camera_extrinsics) {
         children.push_back(&Tc);
         children.push_back(&Wc);
     }
@@ -172,16 +163,12 @@ state_vision::state_vision(bool _estimate_calibration, covariance &c): state_mot
 
 void state_vision::clear_features_and_groups()
 {
-    list<state_vision_group *>::iterator giter = groups.children.begin();
-    while(giter != groups.children.end()) {
-        delete *giter;
-        giter = groups.children.erase(giter);
-    }
-    list<state_vision_feature *>::iterator fiter = features.begin();
-    while(fiter != features.end()) {
-        delete *fiter;
-        fiter = features.erase(fiter);
-    }
+    for(state_vision_group *g : groups.children)
+        delete g;
+    groups.children.clear();
+    for(state_vision_feature *i : features)
+        delete i;
+    features.clear();
 }
 
 state_vision::~state_vision()
@@ -206,42 +193,47 @@ void state_vision::reset_position()
 
 int state_vision::process_features(uint64_t time)
 {
-    int feats_used = 0;
+    int total_health = 0;
     bool need_reference = true;
     state_vision_group *best_group = 0;
     int best_health = -1;
     int normal_groups = 0;
-    for(list<state_vision_group *>::iterator giter = groups.children.begin(); giter != groups.children.end(); ++giter) {
-        state_vision_group *g = *giter;
-        int feats = g->process_features();
-        if(g->status && g->status != group_initializing) feats_used += feats;
-        if(!feats) {
-            if(g->status == group_reference) {
-                reference = 0;
-            }
+
+    for(state_vision_group *g : groups.children) {
+        // Delete the features we marked to drop, return the health of
+        // the group (the number of features)
+        int health = g->process_features();
+
+        if(g->status && g->status != group_initializing)
+            total_health += health;
+
+        // Notify features that this group is about to disappear
+        // This sets group_empty (even if group_reference)
+        if(!health)
             g->make_empty();
-        }
-        if(g->status == group_reference) need_reference = false;
-        if(g->status == group_initializing) {
-            if(g->health >= g->min_feats) {
-                g->make_normal();
-            }
-        }
+
+        // Found our reference group
+        if(g->status == group_reference)
+            need_reference = false;
+
+        // If we have enough features to initialize the group, do it
+        if(g->status == group_initializing && health >= g->min_feats)
+            g->make_normal();
+
         if(g->status == group_normal) {
             ++normal_groups;
-            if(g->health > best_health) {
+            if(health > best_health) {
                 best_group = g;
                 best_health = g->health;
             }
         }
     }
+
     if(best_group && need_reference) {
-        feats_used += best_group->make_reference();
+        total_health += best_group->make_reference();
         reference = best_group;
-    } else if(!normal_groups && best_group) {
-        best_group->make_normal();
     }
-    return feats_used;
+    return total_health;
 }
 
 state_vision_feature * state_vision::add_feature(f_t initialx, f_t initialy)
@@ -266,8 +258,7 @@ void state_vision::project_new_group_covariance(const state_vision_group &g)
 state_vision_group * state_vision::add_group(uint64_t time)
 {
     state_vision_group *g = new state_vision_group(T, W);
-    for(list<state_vision_group *>::iterator giter = groups.children.begin(); giter != groups.children.end(); ++giter) {
-        state_vision_group *neighbor = *giter;
+    for(state_vision_group *neighbor : groups.children) {
         g->old_neighbors.push_back(neighbor->id);
         neighbor->neighbors.push_back(g->id);
     }
@@ -287,7 +278,7 @@ void state_vision::fill_calibration(feature_t &initial, f_t &r2, f_t &r4, f_t &r
     kr = 1. + r2 * k1.v + r4 * k2.v + r6 * k3.v;
 }
 
-feature_t state_vision::calibrate_feature(const feature_t &initial)
+feature_t state_vision::calibrate_feature(const feature_t &initial) const
 {
     feature_t norm, calib;
     
@@ -303,15 +294,18 @@ feature_t state_vision::calibrate_feature(const feature_t &initial)
 
 void state_vision::remove_non_orientation_states()
 {
-    if(estimate_calibration) {
+    if(estimate_camera_extrinsics) {
         remove_child(&Tc);
         remove_child(&Wc);
     }
-    remove_child(&focal_length);
-    remove_child(&center_x);
-    remove_child(&center_y);
-    remove_child(&k1);
-    remove_child(&k2);
+    if(estimate_camera_intrinsics)
+    {
+        remove_child(&focal_length);
+        remove_child(&center_x);
+        remove_child(&center_y);
+        remove_child(&k1);
+        remove_child(&k2);
+    }
     remove_child(&groups);
     state_motion::remove_non_orientation_states();
 }
@@ -320,22 +314,24 @@ void state_vision::add_non_orientation_states()
 {
     state_motion::add_non_orientation_states();
 
-    if(estimate_calibration) {
+    if(estimate_camera_extrinsics) {
         children.push_back(&Tc);
         children.push_back(&Wc);
     }
-    children.push_back(&focal_length);
-    children.push_back(&center_x);
-    children.push_back(&center_y);
-    children.push_back(&k1);
-    children.push_back(&k2);
+    if(estimate_camera_intrinsics)
+    {
+        children.push_back(&focal_length);
+        children.push_back(&center_x);
+        children.push_back(&center_y);
+        children.push_back(&k1);
+        children.push_back(&k2);
+    }
     children.push_back(&groups);
 }
 
 void state_vision::evolve_state(f_t dt)
 {
-    for(list<state_vision_group *>::iterator giter = groups.children.begin(); giter != groups.children.end(); ++giter) {
-        state_vision_group *g = *giter;
+    for(state_vision_group *g : groups.children) {
         m4 Rr = to_rotation_matrix(g->Wr.v);
         g->Tr.v = g->Tr.v + Rr * Rt * dT;
         g->Wr.v = integrate_angular_velocity(g->Wr.v, dW);
@@ -347,8 +343,7 @@ void state_vision::cache_jacobians(f_t dt)
 {
     state_motion::cache_jacobians(dt);
 
-    for(list<state_vision_group *>::iterator giter = groups.children.begin(); giter != groups.children.end(); ++giter) {
-        state_vision_group *g = *giter;
+    for(state_vision_group *g : groups.children) {
         integrate_angular_velocity_jacobian(g->Wr.v, dW, g->dWrp_dWr, g->dWrp_dwdt);
         g->Rr = to_rotation_matrix(g->Wr.v);
         m4v4 dRr_dWr = to_rotation_matrix_jacobian(g->Wr.v);
@@ -360,8 +355,7 @@ void state_vision::cache_jacobians(f_t dt)
 
 void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t dt)
 {
-    for(list<state_vision_group *>::iterator giter = groups.children.begin(); giter != groups.children.end(); ++giter) {
-        state_vision_group *g = *giter;
+    for(state_vision_group *g : groups.children) {
         for(int i = 0; i < src.rows; ++i) {
             v4 cov_Tr = g->Tr.copy_cov_from_row(src, i);
             v4 cov_Wr = g->Wr.copy_cov_from_row(src, i);

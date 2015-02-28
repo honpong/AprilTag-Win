@@ -9,6 +9,7 @@
 #import "AppDelegate.h"
 
 #define PREF_DEVICE_PARAMS @"DeviceCalibration"
+#define PREF_IS_CALIBRATED @"PREF_IS_CALIBRATED"
 
 #import "ReplayViewController.h"
 
@@ -20,10 +21,25 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    NSDictionary *appDefaults = [NSDictionary dictionaryWithObjectsAndKeys:
+                                 [NSNumber numberWithBool:NO], PREF_IS_CALIBRATED,
+                                 nil];
+    [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
+
     mainView = self.window.rootViewController;
     sensorDelegate = [SensorDelegate sharedInstance];
     [sensorDelegate startLocationUpdatesIfAllowed];
-    [self startFromHome];
+
+    // determine if calibration has been done
+    BOOL isCalibrated = [[NSUserDefaults standardUserDefaults] boolForKey:PREF_IS_CALIBRATED]; // gets set to YES when calibration completes
+    BOOL hasStoredCalibrationData = [[RCSensorFusion sharedInstance] hasCalibrationData]; // checks if calibration data can be retrieved
+
+    if (!isCalibrated || !hasStoredCalibrationData)
+    {
+        if (!hasStoredCalibrationData) [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_IS_CALIBRATED]; // ensures calibration is not marked as finished until it's completely finished
+        [self startFromCalibration];
+    }
+
     return YES;
 }
 
@@ -82,7 +98,8 @@
 - (void) calibrationDidFinish:(UIViewController*)lastViewController
 {
     // Save calibration data
-    
+    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:PREF_IS_CALIBRATED]; // set a flag to indicate calibration completed
+
     NSString * vendorId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
     NSDictionary * calibrationData = [[NSUserDefaults standardUserDefaults] objectForKey:PREF_DEVICE_PARAMS];
     NSMutableDictionary * dict = [calibrationData mutableCopy];

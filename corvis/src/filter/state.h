@@ -50,44 +50,39 @@ public:
     typedef typename list<T>::iterator iterator;
 
     void copy_state_to_array(matrix &state) {
-        for(iterator j = children.begin(); j != children.end(); ++j) {
-            (*j)->copy_state_to_array(state);
-        }
+        for(T c : children)
+            c->copy_state_to_array(state);
     }
 
     virtual void copy_state_from_array(matrix &state) {
-        for(iterator j = children.begin(); j != children.end(); ++j) {
-            (*j)->copy_state_from_array(state);
-        }
+        for(T c : children)
+            c->copy_state_from_array(state);
     }
     
     int remap_dynamic(int i, covariance &cov) {
         int start = i;
-        for(iterator j = children.begin(); j != children.end(); ++j)  {
-            i = (*j)->remap_dynamic(i, cov);
-        }
+        for(T c : children)
+            i = c->remap_dynamic(i, cov);
         dynamic_statesize = i - start;
         return i;
     }
     
     int remap_static(int i, covariance &cov) {
-        for(iterator j = children.begin(); j != children.end(); ++j) {
-            i = (*j)->remap_static(i, cov);
-        }
+        for(T c : children)
+            i = c->remap_static(i, cov);
         return i;
     }
 
     virtual void reset() {
-        for(iterator j = children.begin(); j != children.end(); ++j) {
-            (*j)->reset();
-        }
+        for(T c : children)
+            c->reset();
     }
     
     virtual void remove()
     {
-        for(iterator j = children.begin(); j != children.end(); j = children.erase(j)) {
-            (*j)->remove();
-        }
+        for(T c : children)
+            c->remove();
+        children.clear();
     }
     
     void remove_child(const T n)
@@ -98,9 +93,8 @@ public:
     
     virtual void print()
     {
-        for(iterator j = children.begin(); j != children.end(); ++j) {
-            (*j)->print();
-        }
+        for(T c : children)
+            c->print();
     }
     
     list<T> children;

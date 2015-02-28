@@ -43,6 +43,21 @@
     return self;
 }
 
+- (id) initWithAxisX:(float)ax withAxisY:(float)ay withAxisZ:(float)az withAngle:(float)theta
+{
+    if(self = [super init])
+    {
+        float st = sin(theta/2.);
+        float w = cos(theta/2.);
+        float x = ax * st;
+        float y = ay * st;
+        float z = az * st;
+        q = quaternion(w, x, y, z);
+    }
+    return self;
+}
+
+
 - (void) getOpenGLMatrix:(float[16])matrix
 {
     m4 rot = to_rotation_matrix(q);
@@ -83,6 +98,15 @@
     //TODO: standard deviation
     quaternion a = quaternion_product(q, quaternion(other.quaternionW, other.quaternionX, other.quaternionY, other.quaternionZ));
     return [[RCRotation alloc] initWithQuaternionW:a.w() withX:a.x() withY:a.y() withZ:a.z()];
+}
+
+- (RCRotation *)flipAxis:(int)axis
+{
+    m4 R = to_rotation_matrix(q);
+    m4 flip = m4_identity;
+    flip[axis][axis] = -1;
+    quaternion res = to_quaternion(flip * R * flip);
+    return [[RCRotation alloc] initWithQuaternionW:res.w() withX:res.x() withY:res.y() withZ:res.z()];
 }
 
 - (NSDictionary*) dictionaryRepresentation

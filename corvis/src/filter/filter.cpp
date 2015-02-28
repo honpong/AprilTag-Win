@@ -449,13 +449,11 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
         }
         
         //fix up groups and features that have already been added
-/*        for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
-            state_vision_group *g = *giter;
+/*        for(state_vision_group *g : f->s.groups.children) {
             g->Wr.v = f->s.W.v;
         }
         
-        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-            state_vision_feature *i = *fiter;
+        for(state_vision_feature *i : f->s.features) {
             i->initial = i->current;
             i->Wr = f->s.W.v;
         }*/
@@ -545,15 +543,15 @@ static int filter_process_features(struct filter *f, uint64_t time)
     if(toobig > 0) {
         int dropped = 0;
         vector<f_t> vars;
-        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-            vars.push_back((*fiter)->variance());
+        for(state_vision_feature *i : f->s.features) {
+            vars.push_back(i->variance());
         }
         std::sort(vars.begin(), vars.end());
         if(vars.size() > toobig) {
             f_t min = vars[vars.size() - toobig];
-            for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-                if((*fiter)->variance() >= min) {
-                    (*fiter)->status = feature_empty;
+            for(state_vision_feature *i : f->s.features) {
+                if(i->variance() >= min) {
+                    i->status = feature_empty;
                     ++dropped;
                     if(dropped >= toobig) break;
                 }
@@ -561,8 +559,7 @@ static int filter_process_features(struct filter *f, uint64_t time)
             if (log_enabled) fprintf(stderr, "state is %d too big, dropped %d features, min variance %f\n",toobig, dropped, min);
         }
     }
-    for(list<state_vision_feature *>::iterator fi = f->s.features.begin(); fi != f->s.features.end(); ++fi) {
-        state_vision_feature *i = *fi;
+    for(state_vision_feature *i : f->s.features) {
         if(i->current[0] == INFINITY) {
             ++track_fail;
             if(i->is_good()) ++useful_drops;
@@ -586,8 +583,7 @@ static int filter_process_features(struct filter *f, uint64_t time)
         intensity->header.user = useful_drops;
         float (*world)[3] = (float (*)[3])sp->data;
         int nfeats = 0;
-        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-            state_vision_feature *i = *fiter;
+        for(state_vision_feature *i : f->s.features) {
             if(i->status == feature_gooddrop) {
                 world[nfeats][0] = i->world[0];
                 world[nfeats][1] = i->world[1];
@@ -612,9 +608,7 @@ static int filter_process_features(struct filter *f, uint64_t time)
     }
 
     //clean up dropped features and groups
-    list<state_vision_feature *>::iterator fi = f->s.features.begin();
-    while(fi != f->s.features.end()) {
-        state_vision_feature *i = *fi;
+    f->s.features.remove_if([f,time](state_vision_feature *i) {
         if(i->status == feature_gooddrop) {
             if(f->recognition_buffer) {
                 packet_recognition_feature_t *rp = (packet_recognition_feature_t *)mapbuffer_alloc(f->recognition_buffer, packet_recognition_feature, sizeof(packet_recognition_feature_t));
@@ -637,13 +631,12 @@ static int filter_process_features(struct filter *f, uint64_t time)
         if(i->status == feature_reject) i->status = feature_empty;
         if(i->status == feature_empty) {
             delete i;
-            fi = f->s.features.erase(fi);
-        } else ++fi;
-    }
+            return true;
+        } else
+            return false;
+    });
 
-    list<state_vision_group *>::iterator giter = f->s.groups.children.begin();
-    while(giter != f->s.groups.children.end()) {
-        state_vision_group *g = *giter;
+    f->s.groups.children.remove_if([f,time](state_vision_group *g) {
         if(g->status == group_empty) {
             if(f->recognition_buffer) {
                 packet_recognition_group_t *pg = (packet_recognition_group_t *)mapbuffer_alloc(f->recognition_buffer, packet_recognition_group, sizeof(packet_recognition_group_t));
@@ -652,18 +645,18 @@ static int filter_process_features(struct filter *f, uint64_t time)
                 mapbuffer_enqueue(f->recognition_buffer, (packet_t *)pg, time);
             }
             delete g;
-            giter = f->s.groups.children.erase(giter);
+            return true;
         } else {
             if(g->status == group_initializing) {
-                for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
+                for(state_vision_feature *i : g->features.children) {
                     if (log_enabled) fprintf(stderr, "calling triangulate feature from process\n");
                     assert(0);
-                    //triangulate_feature(&(f->s), i);
+                    (void)i; //triangulate_feature(&(f->s), i);
                 }
             }
-            ++giter;
+            return false;
         }
-    }
+    });
 
     f->s.remap();
 
@@ -682,11 +675,9 @@ void filter_setup_next_frame(struct filter *f, uint64_t time)
 
     if(feats_used) {
         int fi = 0;
-        for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
-            state_vision_group *g = *giter;
+        for(state_vision_group *g : f->s.groups.children) {
             if(!g->status || g->status == group_initializing) continue;
-            for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
-                state_vision_feature *i = *fiter;
+            for(state_vision_feature *i : g->features.children) {
                 uint64_t extra_time = f->shutter_delay + i->current[1]/f->image_height * f->shutter_period;
                 observation_vision_feature *obs = new observation_vision_feature(f->s, time + extra_time, time);
                 obs->state_group = g;
@@ -712,11 +703,9 @@ void filter_send_output(struct filter *f, uint64_t time)
     size_t nfeats = f->s.features.size();
     packet_filter_current_t *cp = (packet_filter_current_t *)mapbuffer_alloc(f->output, packet_filter_current, (uint32_t)(sizeof(packet_filter_current) - 16 + nfeats * 3 * sizeof(float)));
     int n_good_feats = 0;
-    for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
-        state_vision_group *g = *giter;
+    for(state_vision_group *g : f->s.groups.children) {
         if(g->status == group_initializing) continue;
-        for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
-            state_vision_feature *i = *fiter;
+        for(state_vision_feature *i : g->features.children) {
             if(!i->status || i->status == feature_reject) continue;
             cp->points[n_good_feats][0] = i->world[0];
             cp->points[n_good_feats][1] = i->world[1];
@@ -733,11 +722,9 @@ void filter_send_output(struct filter *f, uint64_t time)
         visible->W[i] = f->s.W.v.raw_vector()[i];
     }
     n_good_feats = 0;
-    for(list<state_vision_group *>::iterator giter = f->s.groups.children.begin(); giter != f->s.groups.children.end(); ++giter) {
-        state_vision_group *g = *giter;
+    for(state_vision_group *g : f->s.groups.children) {
         if(g->status == group_initializing) continue;
-        for(list<state_vision_feature *>::iterator fiter = g->features.children.begin(); fiter != g->features.children.end(); ++fiter) {
-            state_vision_feature *i = *fiter;
+        for(state_vision_feature *i : g->features.children) {
             if(!i->status || i->status == feature_reject) continue;
             visible->feature_id[n_good_feats] = i->id;
             ++n_good_feats;
@@ -757,8 +744,8 @@ static void addfeatures(struct filter *f, size_t newfeats, unsigned char *img, u
     // existing features are located
     if(!f->scaled_mask) f->scaled_mask = new scaled_mask(width, height);
     f->scaled_mask->initialize();
-    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-        f->scaled_mask->clear((*fiter)->current[0], (*fiter)->current[1]);
+    for(state_vision_feature *i : f->s.features) {
+        f->scaled_mask->clear(i->current[0], i->current[1]);
     }
 
     // Run detector
@@ -814,11 +801,11 @@ void send_current_features_packet(struct filter *f, uint64_t time)
     if(f->visbuf) {
         packet_feature_prediction_variance_t *predicted = (packet_feature_prediction_variance_t *)mapbuffer_alloc(f->track.sink, packet_feature_prediction_variance, (uint32_t)(f->s.features.size() * sizeof(feature_covariance_t)));
         int nfeats = 0;
-        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+        for(state_vision_feature *i : f->s.features) {
             //http://math.stackexchange.com/questions/8672/eigenvalues-and-eigenvectors-of-2-times-2-matrix
-            f_t x = (*fiter)->innovation_variance_x;
-            f_t y = (*fiter)->innovation_variance_y;
-            f_t xy = (*fiter)->innovation_variance_xy;
+            f_t x = i->innovation_variance_x;
+            f_t y = i->innovation_variance_y;
+            f_t xy = i->innovation_variance_xy;
             f_t tau = (y - x) / xy / 2.;
             f_t t = (tau >= 0.) ? (1. / (fabs(tau) + sqrt(1. + tau * tau))) : (-1. / (fabs(tau) + sqrt(1. + tau * tau)));
             f_t c = 1. / sqrt(1 + tau * tau);
@@ -827,8 +814,8 @@ void send_current_features_packet(struct filter *f, uint64_t time)
             f_t l2 = y + t * xy;
             f_t theta = atan2(-s, c);
             
-            predicted->covariance[nfeats].x = (*fiter)->prediction.x;
-            predicted->covariance[nfeats].y = (*fiter)->prediction.y;
+            predicted->covariance[nfeats].x = i->prediction.x;
+            predicted->covariance[nfeats].y = i->prediction.y;
             predicted->covariance[nfeats].cx = 2. * sqrt(l1 * chi_square_95);
             predicted->covariance[nfeats].cy = 2. * sqrt(l2 * chi_square_95);
             predicted->covariance[nfeats].cxy = theta;
@@ -838,9 +825,9 @@ void send_current_features_packet(struct filter *f, uint64_t time)
         mapbuffer_enqueue(f->track.sink, (packet_t *)predicted, time);
         packet_t *status = mapbuffer_alloc(f->visbuf, packet_feature_status, (uint32_t)f->s.features.size());
         nfeats = 0;
-        for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-            if((*fiter)->outlier) status->data[nfeats] = 0;
-            else if((*fiter)->is_initialized()) status->data[nfeats] = 1;
+        for(state_vision_feature *i : f->s.features) {
+            if(i->outlier) status->data[nfeats] = 0;
+            else if(i->is_initialized()) status->data[nfeats] = 1;
             else status->data[nfeats] = 2;
             ++nfeats;
         }
@@ -851,9 +838,9 @@ void send_current_features_packet(struct filter *f, uint64_t time)
     packet_t *tracked = mapbuffer_alloc(f->track.sink, packet_feature_track, (uint32_t)(f->s.features.size() * sizeof(feature_t)));
     feature_t *trackedfeats = (feature_t *)tracked->data;
     int nfeats = 0;
-    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-        trackedfeats[nfeats].x = (*fiter)->current[0];
-        trackedfeats[nfeats].y = (*fiter)->current[1];
+    for(state_vision_feature *i : f->s.features) {
+        trackedfeats[nfeats].x = i->current[0];
+        trackedfeats[nfeats].y = i->current[1];
         ++nfeats;
     }
     tracked->header.user = f->s.features.size();
@@ -889,7 +876,6 @@ extern "C" void filter_control_packet(void *_f, packet_t *p)
 
 #include <mach/mach.h>
 
-#include "code_detect.h"
 bool filter_image_measurement(struct filter *f, unsigned char *data, int width, int height, int stride, uint64_t time)
 {
     if(f->run_state == RCSensorFusionRunStateInactive) return false;
@@ -901,19 +887,12 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
         f->valid_time = true;
     }
 
-    if(f->detecting_qr && (time - f->last_qr_time > qr_detect_period)) {
+    if(f->qr.running && (time - f->last_qr_time > qr_detect_period)) {
         f->last_qr_time = time;
-        vector<qr_detection> codes = code_detect_qr(data, width, height);
-        for(int i = 0; i < codes.size(); i++) {
-            if(!f->qr_filter || (f->qr_filter && strncmp(codes[i].data, f->qr_data, 1024)==0)) {
-                if(filter_get_qr_code_origin(f, codes[i], f->qr_size, f->qr_Q, f->qr_T)) {
-                    f->detecting_qr = false;
-                    f->qr_valid = true;
-                    break;
-                }
-            }
-        }
+        f->qr.process_frame(f, data, width, height);
     }
+    if(f->qr_bench.enabled)
+        f->qr_bench.process_frame(f, data, width, height);
 
     f->got_image = true;
     if(f->run_state == RCSensorFusionRunStateDynamicInitialization) {
@@ -1000,7 +979,7 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     filter_send_output(f, time);
     send_current_features_packet(f, time);
 
-    if(f->s.estimate_calibration && !f->estimating_Tc && time - f->active_time > 2000000)
+    if(estimate_camera_extrinsics && !f->estimating_Tc && time - f->active_time > 2000000)
     {
         //TODO: leaving Tc out of the state now. This gain scheduling is wrong (crash when adding tc back in if state is full).
         f->s.children.push_back(&f->s.Tc);
@@ -1016,7 +995,7 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
             if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def before disabling orient only\n");
 #endif
             f->s.disable_orientation_only();
-            if(f->s.estimate_calibration) {
+            if(estimate_camera_extrinsics) {
                 f->s.remove_child(&(f->s.Tc));
                 f->s.remap();
                 f->estimating_Tc = false;
@@ -1282,9 +1261,6 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->track.stride = f->track.width;
     f->track.init();
 
-    f->detecting_qr = false;
-    f->qr_valid = false;
-    f->qr_filter = false;
     f->last_qr_time = 0;
     
     f->max_velocity = 0.;
@@ -1300,7 +1276,9 @@ float filter_converged(struct filter *f)
 {
     if(f->run_state == RCSensorFusionRunStateSteadyInitialization) {
         if(f->stable_start == 0) return 0.;
-        return (f->last_time - f->stable_start) / (f_t)steady_converge_time;
+        float progress = (f->last_time - f->stable_start) / (f_t)steady_converge_time;
+        if(progress >= .99) return 0.99; //If focus takes a long time, we won't know how long it will take
+        return progress;
     } else if(f->run_state == RCSensorFusionRunStatePortraitCalibration) {
         return get_bias_convergence(f, 1);
     } else if(f->run_state == RCSensorFusionRunStateLandscapeCalibration) {
@@ -1322,16 +1300,16 @@ bool filter_is_steady(struct filter *f)
 int filter_get_features(struct filter *f, struct corvis_feature_info *features, int max)
 {
     int index = 0;
-    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
+    for(state_vision_feature *i : f->s.features) {
         if(index >= max) break;
-        features[index].id = (*fiter)->id;
-        features[index].x = (*fiter)->current[0];
-        features[index].y = (*fiter)->current[1];
-        features[index].wx = (*fiter)->world[0];
-        features[index].wy = (*fiter)->world[1];
-        features[index].wz = (*fiter)->world[2];
-        features[index].depth = (*fiter)->depth;
-        features[index].stdev = (*fiter)->v.stdev_meters(sqrt((*fiter)->variance()));
+        features[index].id = i->id;
+        features[index].x = i->current[0];
+        features[index].y = i->current[1];
+        features[index].wx = i->world[0];
+        features[index].wy = i->world[1];
+        features[index].wz = i->world[2];
+        features[index].depth = i->depth;
+        features[index].stdev = i->v.stdev_meters(sqrt(i->variance()));
         ++index;
     }
     return index;
@@ -1378,8 +1356,7 @@ void filter_select_feature(struct filter *f, float x, float y)
     //first, see if we already have a feature there
     float mydist = 8; // 8 pixel radius max
     state_vision_feature *myfeat = 0;
-    for(list<state_vision_feature *>::iterator fiter = f->s.features.begin(); fiter != f->s.features.end(); ++fiter) {
-        state_vision_feature *feat = *fiter;
+    for(state_vision_feature *feat : f->s.features) {
         if(feat->status != feature_normal && feat->status != feature_ready && feat->status != feature_initializing) continue;
         float dx = fabs(feat->current[0] - x);
         float dy = fabs(feat->current[1] - y);
@@ -1406,88 +1383,16 @@ void filter_select_feature(struct filter *f, float x, float y)
 
 void filter_start_qr_detection(struct filter *f, const char * data, float dimension, bool use_gravity)
 {
-    f->qr_filter = false;
-    if(data != NULL) {
-        f->qr_filter = true;
-        strncpy(f->qr_data, data, 1024);
-    }
-    f->qr_size = dimension;
-    f->detecting_qr = true;
-    f->qr_use_gravity = use_gravity;
+    f->qr.start(data, dimension, use_gravity);
     f->last_qr_time = 0;
 }
 
 void filter_stop_qr_detection(struct filter *f)
 {
-    f->detecting_qr = false;
+    f->qr.stop();
 }
 
-#include "homography.h"
-
-/*
- * Computes a homography between calibrated image points and a fake image.
- * The fake image is generated by a virtual camera located at the world
- * coord (0, 0, -1), aligned with the world axis, looking at a qr code on the
- * plane z=0.
- *
- * This homography is decomposed into a rotation and translation, which is
- * the rotation and translation to bring a point from the virtual
- * camera frame to the camera frame which generated the calibrated points.
- *
- * The translation is then composed with a translation from the origin of the
- * fake camera to its image plane, so the resulting R&T represent the
- * transformation required to take the camera which took the calibrated
- * points to the center of the qr code.
- *
- * qr_size is the width in meters of the qr code in world coordinates.
- *
- * R and T provided by qr code transform: X_cam = Rq * X_new_world + Tq
- * Saved transformation: X_old_world = Rs * X_cam + Ts
- *
- * So result is X_old_world = Rs * (Rq * X_new_world + Tq) + Ts
- * We want zaxis new = zaxis old, so we will find an Rd that aligns them, and set Rq = Rq * Rd
- *
- */
-bool filter_get_qr_code_origin(struct filter *f, struct qr_detection detection, float qr_size_m, quaternion &Q, v4 &T)
+void filter_start_qr_benchmark(struct filter * f, float qr_size_m)
 {
-    feature_t image_corners[4];
-    feature_t calibrated[4];
-
-    image_corners[0].x = detection.upper_left.x;
-    image_corners[0].y = detection.upper_left.y;
-    image_corners[1].x = detection.lower_left.x;
-    image_corners[1].y = detection.lower_left.y;
-    image_corners[2].x = detection.lower_right.x;
-    image_corners[2].y = detection.lower_right.y;
-    image_corners[3].x = detection.upper_right.x;
-    image_corners[3].y = detection.upper_right.y;
-    for(int c = 0; c < 4; c++) {
-        calibrated[c] = f->s.calibrate_feature(image_corners[c]);
-    }
-
-    m4 Rq; v4 Tq;
-    if(homography_align_to_qr(calibrated, qr_size_m, detection.modules, Rq, Tq)) {
-        quaternion Qw = to_quaternion(f->s.W.v);
-        quaternion Qs = quaternion_product(Qw, to_quaternion(f->s.Wc.v));
-
-        quaternion Qq = to_quaternion(Rq);
-        quaternion Qsq = quaternion_product(Qs, Qq);
-
-        v4 Tsq = f->s.T.v + quaternion_rotate(Qw, f->s.Tc.v) + quaternion_rotate(Qs, Tq);
-
-        quaternion Qsqd = Qsq;
-        if(f->qr_use_gravity) {
-            v4 z_old(0., 0., 1., 0.);
-            v4 z_new = quaternion_rotate(conjugate(Qsq), z_old);
-            quaternion Qd = rotation_between_two_vectors_normalized(z_old, z_new);
-            Qsqd = quaternion_product(Qsq, Qd);
-        }
-
-        // inverse of transformation specified by Qsqd, Tsq
-        Q = conjugate(Qsqd);
-        T = quaternion_rotate(Q, -Tsq);
-        return true;
-    }
-    else
-        return false;
+    f->qr_bench.start(qr_size_m);
 }

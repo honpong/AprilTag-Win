@@ -14,6 +14,8 @@ uniform mat4 projection_matrix;
 uniform mat4 camera_matrix;
 uniform mat4 model_matrix;
 
+attribute mediump vec4 texture_coordinate;
+varying mediump vec2 coordinate;
 varying vec3 varying_normal;
 varying vec3 varying_camera_direction;
 varying vec3 varying_light_direction;
@@ -27,4 +29,5 @@ void main()
     //This could be precomputed, but for point lights we'd do this anyway
     varying_light_direction = normalize(vec3(camera_matrix * vec4(light_direction, 0.)));
     varying_camera_direction = normalize(-vec3(camera_matrix * model_matrix * position));
+    coordinate = texture_coordinate.xy;
 }

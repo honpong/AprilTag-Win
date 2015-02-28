@@ -505,6 +505,8 @@ typedef NS_ENUM(int, RCLicenseStatus)
     [self flushAndReset];
 }
 
+#pragma mark - RCSensorFusionDelegate handling
+
 - (void) sendStatus
 {
     //perform these operations synchronously in the calling (filter) thread
@@ -565,7 +567,6 @@ typedef NS_ENUM(int, RCLicenseStatus)
     
     if((converged != lastProgress) || (errorCode != lastErrorCode) || (f->run_state != lastRunState) || (confidence != lastConfidence))
     {
-        fprintf(stderr, "confidence is %d\n", confidence);
         RCSensorFusionError* error = nil;
         if (errorCode != RCSensorFusionErrorCodeNone) error = [RCSensorFusionError errorWithDomain:ERROR_DOMAIN code:errorCode userInfo:nil];
         
@@ -601,13 +602,13 @@ typedef NS_ENUM(int, RCLicenseStatus)
     RCCameraParameters *camParams = [[RCCameraParameters alloc] initWithFocalLength:f->s.focal_length.v withOpticalCenterX:f->s.center_x.v withOpticalCenterY:f->s.center_y.v withRadialSecondDegree:f->s.k1.v withRadialFourthDegree:f->s.k2.v];
 
     NSString * qrDetected = nil;
-    if(f->qr_valid)
+    if(f->qr.valid)
     {
-        RCRotation* originRotation = [[RCRotation alloc] initWithQuaternionW:f->qr_Q.w() withX:f->qr_Q.x() withY:f->qr_Q.y() withZ:f->qr_Q.z()];
-        RCTranslation* originTranslation = [[RCTranslation alloc] initWithX:f->qr_T[0] withY:f->qr_T[1] withZ:f->qr_T[2]];
+        RCRotation* originRotation = [[RCRotation alloc] initWithQuaternionW:f->qr.origin.Q.w() withX:f->qr.origin.Q.x() withY:f->qr.origin.Q.y() withZ:f->qr.origin.Q.z()];
+        RCTranslation* originTranslation = [[RCTranslation alloc] initWithX:f->qr.origin.T[0] withY:f->qr.origin.T[1] withZ:f->qr.origin.T[2]];
         RCTransformation * originTransform = [[RCTransformation alloc] initWithTranslation:originTranslation withRotation:originRotation];
         transformation = [originTransform composeWithTransformation:transformation];
-        qrDetected = [NSString stringWithCString:f->qr_data encoding:NSUTF8StringEncoding];
+        qrDetected = [NSString stringWithCString:f->qr.data encoding:NSUTF8StringEncoding];
     }
 
     RCTransformation *cameraTransformation = [transformation composeWithTransformation:camTransform];
@@ -619,6 +620,8 @@ typedef NS_ENUM(int, RCLicenseStatus)
         if(sampleBuffer) CFRelease(sampleBuffer);
     });
 }
+
+#pragma mark -
 
 //needs to be called from the filter thread
 - (NSArray*) getFeaturesArray
@@ -669,12 +672,15 @@ typedef NS_ENUM(int, RCLicenseStatus)
         return;
     }
     CMTime timestamp = (CMTime)CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
-    uint64_t time_us = timestamp.value / (timestamp.timescale / 1000000.);
-    uint64_t now = get_timestamp();
-    if(now - time_us > 100000)
+    if(!_cor_setup->sfm.ignore_lateness)
     {
-        DLog(@"Warning, got an old video frame - timestamp %lld, now %lld\n", time_us, now);
-        return;
+        uint64_t time_us = timestamp.value / (timestamp.timescale / 1000000.);
+        uint64_t now = get_timestamp();
+        if(now - time_us > 100000)
+        {
+            DLog(@"Warning, got an old video frame - timestamp %lld, now %lld\n", time_us, now);
+            return;
+        }
     }
     
     if (sampleBuffer) sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
@@ -755,12 +761,15 @@ typedef NS_ENUM(int, RCLicenseStatus)
 - (void) receiveAccelerometerData:(CMAccelerometerData *)accelerationData;
 {
     if(!isSensorFusionRunning) return;
-    uint64_t time_us = accelerationData.timestamp * 1000000;
-    uint64_t now = get_timestamp();
-    if(now - time_us > 40000)
+    if(!_cor_setup->sfm.ignore_lateness)
     {
-        DLog(@"Warning, got an old accelerometer sample - timestamp %lld, now %lld\n", time_us, now);
-        return;
+        uint64_t time_us = accelerationData.timestamp * 1000000;
+        uint64_t now = get_timestamp();
+        if(now - time_us > 40000)
+        {
+            DLog(@"Warning, got an old accelerometer sample - timestamp %lld, now %lld\n", time_us, now);
+            return;
+        }
     }
     dispatch_async(inputQueue, ^{
         if (!isSensorFusionRunning) return;
@@ -783,12 +792,15 @@ typedef NS_ENUM(int, RCLicenseStatus)
 - (void) receiveGyroData:(CMGyroData *)gyroData
 {
     if(!isSensorFusionRunning) return;
-    uint64_t time_us = gyroData.timestamp * 1000000;
-    uint64_t now = get_timestamp();
-    if(now - time_us > 40000)
+    if(!_cor_setup->sfm.ignore_lateness)
     {
-        DLog(@"Warning, got an old gyro sample - timestamp %lld, now %lld\n", time_us, now);
-        return;
+        uint64_t time_us = gyroData.timestamp * 1000000;
+        uint64_t now = get_timestamp();
+        if(now - time_us > 40000)
+        {
+            DLog(@"Warning, got an old gyro sample - timestamp %lld, now %lld\n", time_us, now);
+            return;
+        }
     }
     dispatch_async(inputQueue, ^{
         if (!isSensorFusionRunning) return;

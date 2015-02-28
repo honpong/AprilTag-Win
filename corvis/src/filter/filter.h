@@ -7,12 +7,12 @@
 #include "feature_info.h"
 #include "tracker.h"
 #include "scaled_mask.h"
-#include "code_detect.h"
+#include "qr.h"
 #include "../../../shared_corvis_3dk/RCSensorFusionInternals.h"
 #include "../../../shared_corvis_3dk/camera_control_interface.h"
 
 struct filter {
-filter(bool estimate_calibration): s(estimate_calibration, cov)
+filter(): s(cov)
     {
         //make sure all pointers are null
         output = 0;
@@ -94,15 +94,9 @@ filter(bool estimate_calibration): s(estimate_calibration, cov)
     
     bool estimating_Tc;
 
-    bool detecting_qr;
-    bool qr_valid;
-    quaternion qr_Q;
-    v4 qr_T;
-    float qr_size;
-    bool qr_use_gravity;
-    bool qr_filter;
-    char qr_data[1024];
+    qr_detector qr;
     uint64_t last_qr_time;
+    qr_benchmark qr_bench;
 
     v4 a_bias_start, w_bias_start; //for tracking calibration progress
     
@@ -121,7 +115,7 @@ void filter_start_hold_steady(struct filter *f);
 void filter_start_dynamic(struct filter *f);
 void filter_start_qr_detection(struct filter *f, const char * data, float dimension, bool use_gravity);
 void filter_stop_qr_detection(struct filter *f);
-bool filter_get_qr_code_origin(struct filter *f, struct qr_detection detection, float qr_size_m, quaternion &Q, v4 &T);
+void filter_start_qr_benchmark(struct filter *f, float dimension);
 
 #ifdef SWIG
 %callback("%s_cb");

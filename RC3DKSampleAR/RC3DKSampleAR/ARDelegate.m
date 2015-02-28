@@ -11,14 +11,38 @@
 #import "RCGLManagerFactory.h"
 #import "RCGLShaderProgram.h"
 #include "RCDebugLog.h"
-#include "Balloon.h"
+#include "chair_chesterfield.h"
 
 //Uncomment this line to show the origin / axes of the coordinate system
 //#define SHOW_AXES
 
+#pragma mark - Shader source
+
+static const char *vertSrc = SHADER_STRINGIFY(
+                                              attribute vec4 position;
+                                              
+                                              uniform mat4 projection_matrix;
+                                              uniform mat4 camera_matrix;
+                                              uniform mat4 model_matrix;
+                                              
+void main()
+{
+    gl_Position = projection_matrix * camera_matrix * model_matrix * position;
+});
+
+static const GLchar *fragSrc = SHADER_STRINGIFY(
+void main()
+{
+    gl_FragColor = vec4(0., 0., 0., .2);
+});
+
+#pragma mark - ARDelegate
+
 @implementation ARDelegate
 {
     RCGLShaderProgram *program;
+    //RCGLShaderProgram *shadowprogram;
+    GLKTextureInfo *texture;
 }
 
 @synthesize initialCamera;
@@ -29,23 +53,23 @@
     {
         program = [[RCGLShaderProgram alloc] init];
         [program buildWithVertexFileName:@"shader.vsh" withFragmentFileName:@"shader.fsh"];
+        
+        texture = [GLKTextureLoader textureWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"chair_chesterfield_d.png" ofType: nil] options:NULL error:NULL];
+
+        //shadowprogram = [[RCGLShaderProgram alloc] init];
+        //[shadowprogram buildWithVertexSource:vertSrc withFragmentSource:fragSrc];
+
     }
     return self;
 }
 
-const static GLfloat x_vertex[6] = {
-    0., 0., 0.,
-    1., 0., 0.
-};
-
-const static GLfloat y_vertex[6] = {
-    0., 0., 0.,
-    0., 1., 0.
-};
-
-const static GLfloat z_vertex[6] = {
-    0., 0., 0.,
-    0., 0., 1.
+const static GLfloat squarevertex[] = {
+    -.5, -.5, 0.,
+    .5, -.5, 0.,
+    -.5, .5, 0.,
+    .5, .5, 0.,
+    -.5, .5, 0.,
+    .5, -.5, 0.
 };
 
 - (void)renderWithSensorFusionData:(RCSensorFusionData *)data withCameraToScreenMatrix:(GLKMatrix4)cameraToScreen
@@ -64,8 +88,8 @@ const static GLfloat z_vertex[6] = {
     glUniform4f([program getUniformLocation:@"light_diffuse"], .8, .8, .8, 1);
     glUniform4f([program getUniformLocation:@"light_specular"], .8, .8, .8, 1);
     
-    glUniform4f([program getUniformLocation:@"material_ambient"], 1., 0., 0., 1);
-    glUniform4f([program getUniformLocation:@"material_diffuse"], 0., 0., 0., 1);
+//    glUniform4f([program getUniformLocation:@"material_ambient"], 1., 0., 0., 1);
+//    glUniform4f([program getUniformLocation:@"material_diffuse"], 0., 0., 0., 1);
     glUniform4f([program getUniformLocation:@"material_specular"], 1., 1., 1., 1);
     glUniform1f([program getUniformLocation:@"material_shininess"], 200.);
 
@@ -87,10 +111,10 @@ const static GLfloat z_vertex[6] = {
     glDrawArrays(GL_LINES, 0, 2);
 #endif
     
-    glUniform4f([program getUniformLocation:@"material_ambient"], 0., 0., 1., 1);
-    glUniform4f([program getUniformLocation:@"material_diffuse"], 0., 0.5, 1., 1);
-    glUniform4f([program getUniformLocation:@"material_specular"], 1., 1., 1., 1);
-    glUniform1f([program getUniformLocation:@"material_shininess"], 200.);
+//    glUniform4f([program getUniformLocation:@"material_ambient"], 0.25, 0.125, .05, 1);
+//    glUniform4f([program getUniformLocation:@"material_diffuse"], 0.25, 0.125, .05, 1);
+    glUniform4f([program getUniformLocation:@"material_specular"], .1, .1, .1, 1);
+    glUniform1f([program getUniformLocation:@"material_shininess"], 20.);
     
     //Concatenating GLKit matrices goes left to right, and our shaders multiply with matrices on the left and vectors on the right.
     //So the last transformation listed is applied to our vertices first
@@ -98,31 +122,59 @@ const static GLfloat z_vertex[6] = {
     if(data.originQRCode == nil)
     {
         //Place it 1/2 meter in front of the initial camera position
-        [initialCamera getOpenGLMatrix:model.m];
+        /*[initialCamera getOpenGLMatrix:model.m];
         model = GLKMatrix4Translate(model, 0, 0, .5);
         GLKMatrix4 inverseInitialCameraRotation;
         [[initialCamera.rotation getInverse] getOpenGLMatrix:inverseInitialCameraRotation.m];
-        model = GLKMatrix4Multiply(model, inverseInitialCameraRotation);
+        model = GLKMatrix4Multiply(model, inverseInitialCameraRotation);*/
+        model = GLKMatrix4Translate(model, 0., 1.5, -1.5);
     }
     
     //Position it at the origin
     //model = GLKMatrix4Translate(model, 0., 0., 0.);
     //Scale our model so it's 10 cm on a side
-    model = GLKMatrix4Scale(model, .25, .25, .25);
+    model = GLKMatrix4Scale(model, 1.1, 1.1, 1.1);
+    model = GLKMatrix4Translate(model, 0., 0., .5);
+    model = GLKMatrix4RotateZ(model, M_PI);
     model = GLKMatrix4RotateX(model, M_PI_2);
     
     glUniformMatrix4fv([program getUniformLocation:@"model_matrix"], 1, false, model.m);
     
     glEnableVertexAttribArray([program getAttribLocation:@"position"]);
     glEnableVertexAttribArray([program getAttribLocation:@"normal"]);
+    glEnableVertexAttribArray([program getAttribLocation:@"texture_coordinate"]);
 
-    glVertexAttribPointer([program getAttribLocation:@"position"], 3, GL_FLOAT, 0, 0, BalloonVerts);
-    glVertexAttribPointer([program getAttribLocation:@"normal"], 3, GL_FLOAT, 0, 0, BalloonNormals);
+    glVertexAttribPointer([program getAttribLocation:@"position"], 3, GL_FLOAT, 0, 0, chair_chesterfieldVerts);
+    glVertexAttribPointer([program getAttribLocation:@"normal"], 3, GL_FLOAT, 0, 0, chair_chesterfieldNormals);
+    glVertexAttribPointer([program getAttribLocation:@"texture_coordinate"], 2, GL_FLOAT, 0, 0, chair_chesterfieldTexCoords);
     
-    glDrawArrays(GL_TRIANGLES, 0, BalloonNumVerts);
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(texture.target, texture.name);
+    glUniform1i([program getUniformLocation:@"texture_value"], 0);
+    
+    glDrawArrays(GL_TRIANGLES, 0, chair_chesterfieldNumVerts);
 
     glDisableVertexAttribArray([program getAttribLocation:@"position"]);
     glDisableVertexAttribArray([program getAttribLocation:@"normal"]);
+    glDisableVertexAttribArray([program getAttribLocation:@"texture_coordinate"]);
+    
+    
+    /*glUseProgram(shadowprogram.program);
+    
+    model = GLKMatrix4Identity;
+    model = GLKMatrix4Translate(model, 0., 1.5, -1.5);
+    model = GLKMatrix4Scale(model, .66, .66, .66);
+    
+    glEnableVertexAttribArray([shadowprogram getAttribLocation:@"position"]);
+    glUniformMatrix4fv([shadowprogram getUniformLocation:@"camera_matrix"], 1, false, camera.m);
+    glUniformMatrix4fv([shadowprogram getUniformLocation:@"model_matrix"], 1, false, model.m);
+    glUniformMatrix4fv([shadowprogram getUniformLocation:@"projection_matrix"], 1, false, cameraToScreen.m);
+
+    glVertexAttribPointer([shadowprogram getAttribLocation:@"position"], 3, GL_FLOAT, 0, 0, squarevertex);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glEnableVertexAttribArray([shadowprogram getAttribLocation:@"position"]);*/
+    
+
 
 }
 

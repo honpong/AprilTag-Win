@@ -215,6 +215,12 @@ typedef NS_ENUM(int, RCCameraManagerOperationType) {
 
 - (void) lockLensPosition:(float)position withCallback:(std::function<void (uint64_t, float)>)focus_callback
 {
+    if(!isFocusCapable) {
+        DLog(@"INFO: Doesn't support focus, starting without");
+        focus_callback(0, 1);
+        return;
+    }
+
     if(position == AVCaptureLensPositionCurrent)
         pendingOperation = RCCameraManagerOperationFocusCurrent;
     else

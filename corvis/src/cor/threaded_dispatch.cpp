@@ -136,9 +136,11 @@ void fusion_queue::start(bool synchronous)
 
 void fusion_queue::stop(bool synchronous)
 {
+    std::unique_lock<std::mutex> lock(mutex);
     active = false;
+    lock.unlock();
     cond.notify_one();
-    wait_until_finished();
+    if(synchronous) wait_until_finished();
 }
 
 void fusion_queue::wait_until_finished()

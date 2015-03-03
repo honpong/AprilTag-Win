@@ -13,6 +13,7 @@ var ARController = (function ($, window, RC3DK, THREE)
 
     var WorkflowStates =
     {
+        STARTUP:        0,
         READY:          1,
         INITIALIZING:   2,
         ALIGN:          3,
@@ -22,13 +23,18 @@ var ARController = (function ($, window, RC3DK, THREE)
     };
 
     var currentRunState = RC3DK.SensorFusionRunState.Inactive;
-    var workflowState = WorkflowStates.READY;
+    var workflowState = WorkflowStates.STARTUP;
 
     var scene, camera, renderer;
 
+    var roofJson;
+
     $(document).ready(function()
     {
-        enterReadyState();
+        loadRoofJsonFile(function (data){
+            roofJson = data;
+            enterReadyState();
+        });
 
         $("#shutterButton").on( "click", function() {
             switch (workflowState)
@@ -78,6 +84,27 @@ var ARController = (function ($, window, RC3DK, THREE)
 
         setupWebGLView();
     });
+
+    function loadRoofJsonFile(callback)
+    {
+        // get path of json file
+        $.ajax({ type: "GET", dataType: "json", url: RC3DK.baseUrl + "getRoofJsonFilePath"})
+            .done(function (data, textStatus, jqXHR) {
+                // load json file
+                $.ajax({ type: "GET", dataType: "json", url: data.filePath })
+                    .done(function (data, textStatus, jqXHR) {
+                        callback(data);
+                    })
+                    .fail(function (jqXHR, textStatus, errorThrown) {
+                        alert(textStatus + ": " + errorThrown + ": " + JSON.stringify(jqXHR));
+                    })
+                ;
+            })
+            .fail(function (jqXHR, textStatus, errorThrown) {
+                alert(textStatus + ": " + JSON.stringify(jqXHR));
+            })
+        ;
+    }
 
     function handleNewSensorFusionRunState(runState)
     {

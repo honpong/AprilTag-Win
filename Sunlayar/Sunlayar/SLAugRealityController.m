@@ -7,6 +7,7 @@
 //
 
 #import "SLAugRealityController.h"
+#import "RCDebugLog.h"
 
 @interface SLAugRealityController ()
 
@@ -27,5 +28,21 @@
 - (BOOL)prefersStatusBarHidden { return YES; }
 
 - (NSUInteger)supportedInterfaceOrientations { return UIInterfaceOrientationMaskLandscapeRight; }
+
+#pragma mark - RCHttpInterceptorDelegate
+
+- (NSDictionary *)handleAction:(ARNativeAction *)nativeAction error:(NSError **)error
+{
+    // allow superclass to handle this action. if it doesn't, then handle it ourselves.
+    NSDictionary* result = [super handleAction:nativeAction error:error];
+    if (result) return result;
+    
+    if ([nativeAction.request.URL.relativePath isEqualToString:@"/getRoofJsonFilePath"])
+    {
+        return @{ @"filePath": self.measuredPhoto.annotationsFileName };
+    }
+    
+    return nil;
+}
 
 @end

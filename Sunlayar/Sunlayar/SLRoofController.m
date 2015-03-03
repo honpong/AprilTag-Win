@@ -3,7 +3,6 @@
 //
 
 #import "SLRoofController.h"
-#import "SLCameraController.h"
 #import "SLConstants.h"
 #import "NSString+RCString.h"
 #import "RCDebugLog.h"
@@ -69,14 +68,6 @@
     return UIInterfaceOrientationMaskLandscapeRight;
 }
 
-//#pragma mark - Event handlers
-//
-//- (IBAction)handleBackButton:(id)sender
-//{
-//    [self.measuredPhoto deleteAssociatedFiles];
-//    [self.presentingViewController dismissViewControllerAnimated:NO completion:nil];
-//}
-
 #pragma mark - Misc
 
 - (void) loadMeasuredPhoto
@@ -100,6 +91,7 @@
     [self.webView stopLoading];
     
     SLAugRealityController* arController = [SLAugRealityController new];
+    arController.measuredPhoto = self.measuredPhoto;
     [self presentViewController:arController animated:YES completion:nil];
 }
 

@@ -30,14 +30,11 @@
 
 @implementation AppDelegate
 {
-    UIViewController* mainViewController;
     id<RCSensorDelegate> mySensorDelegate;
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    [SENSOR_FUSION setLicenseKey:@"aF9cE0B536c84aE6F500509E8aBCcC"]; // Sunlayar's evaluation license key for 3DKPlus
-    
     dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
         // Register the preference defaults early.
         NSString* locale = [[NSLocale currentLocale] localeIdentifier];
@@ -59,8 +56,6 @@
     [NSURLProtocol registerClass:[RCHttpInterceptor class]];
     
     mySensorDelegate = [SensorDelegate sharedInstance];
-    
-    mainViewController = self.window.rootViewController;
     
     BOOL calibratedFlag = [NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_CALIBRATED];
     BOOL hasCalibration = [SENSOR_FUSION hasCalibrationData];
@@ -130,7 +125,7 @@
 {
     [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_IS_CALIBRATED];
     
-    [lastViewController presentViewController:mainViewController animated:YES completion:nil];
+    [self gotoCaptureScreen];
 }
 
 #pragma mark -

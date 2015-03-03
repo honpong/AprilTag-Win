@@ -7,7 +7,10 @@
 //
 
 #import "RC3DKWebController.h"
+#import "SLMeasuredPhoto.h"
 
 @interface SLAugRealityController : RC3DKWebController
+
+@property (nonatomic, retain) SLMeasuredPhoto* measuredPhoto;
 
 @end

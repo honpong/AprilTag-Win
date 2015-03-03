@@ -18,6 +18,8 @@ extern "C" {
 #include "stdio.h"
 }
 
+#include <ostream>
+
 class v4 {
  public:
     //initializers

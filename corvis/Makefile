@@ -9,13 +9,13 @@ CXX := g++
 PYTHON_CFLAGS := $(shell python-config --includes) -I$(shell python -c 'import numpy; print numpy.__path__[0] + "/core/include"')
 PYTHON_LDFLAGS := $(shell python-config --libs)
 # -ftree-vectorize -ffast-math 
-CPPFLAGS = $(_CPPFLAGS) -Wall -g -fPIC -march=core2 -mfpmath=sse -O3 -D DEBUG $(PYTHON_CFLAGS)
+CPPFLAGS = $(_CPPFLAGS) -Wall -g -fPIC -march=core2 -mfpmath=sse -O3 -D DEBUG
 _CPPFLAGS := \
         $(patsubst %,-I%/include,$(wildcard $(shell brew --prefix boost 2>/dev/null) /opt/local)) \
         $(shell pkg-config ftgl --cflags) -Isrc/cor -Wdeprecated-writable-strings
 CXXFLAGS := -std=c++11
 CFLAGS := -std=gnu99
-LDFLAGS := -lpthread --warn-unresolved-symbols -O3 $(PYTHON_LDFLAGS) -framework Accelerate -framework OpenGL -framework GLUT $(shell pkg-config ftgl --libs)
+LDFLAGS := -lpthread --warn-unresolved-symbols -O3 -framework Accelerate -framework OpenGL -framework GLUT $(shell pkg-config ftgl --libs)
 SWIGFLAGS = -w403,362,389,503,401,462,472,314,509,204
 
 CPPFLAGS  += -MP -MMD -MF $@.d
@@ -55,7 +55,19 @@ bin/test cor/cor:override CC=$(Q)printf "%32s %s\n" "Linking" $(@); $(_CC)
 
 %.so:
 	@mkdir -p $(@D)
-	$(CC) -shared -undefined suppress -flat_namespace $(LDFLAGS) $(PYTHON_LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
+	$(CC) -shared -undefined suppress -flat_namespace $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+bin/corvis/_%.so: LDGLAGS += $(PYTHON_LDFLAGS)
+
+build/swig/%.o: CPPFLAGS += $(PYTHON_CFLAGS)
+
+build/swig/_%.c: swig/_%.i
+	@mkdir -p $(@D) bin/corvis
+	$(SWIG) -python      -threads $(SWIGFLAGS) -o $@ -outdir bin/corvis -Isrc/$(*F) $<
+
+build/swig/_%.cpp: swig/_%.ipp
+	@mkdir -p $(@D) bin/corvis
+	$(SWIG) -python -c++ -threads $(SWIGFLAGS) -o $@ -outdir bin/corvis -Isrc/$(*F) $<
 
 build/%.o: src/%.c
 	@mkdir -p $(@D)
@@ -72,59 +84,36 @@ build/%.o: src/%.cpp
 
 ############################## COR ############################
 
-d := cor
+COR_SOURCES := $(addprefix src/cor/, packet.c mapbuffer.c inbuffer.c timestamp.c plugins.c dispatch.c debug.c) build/swig/_cor.c
+bin/corvis/_cor.so: $(patsubst src/%,build/%,$(COR_SOURCES:.c=.o)) $(patsubst src/%,build/%,$(COR_CXX_SOURCES:.cpp=.o))
 
-COR_SOURCES := $(addprefix src/$(d)/, packet.c mapbuffer.c inbuffer.c timestamp.c plugins.c dispatch.c debug.c) build/$(d)/_cor.c
-
-build/$(d)/_cor.c: swig/_cor.i
-	@mkdir -p $(@D)
-	@mkdir -p bin/cor
-	$(SWIG) -python -threads $(SWIGFLAGS) -Isrc/cor -o $@ -outdir bin/cor $<
-
-bin/$(d)/_cor.so: $(patsubst src/%,build/%,$(COR_SOURCES:.c=.o))
-
-TARGETS := $(TARGETS) bin/$(d)/_cor.so bin/$(d)/__init__.py
-SOURCES := $(SOURCES) $(COR_SOURCES) build/cor/_cor.c
-DEPS := $(DEPS) build/$(d)/_cor.c.d
+TARGETS := $(TARGETS) build/swig/_cor.c bin/corvis/_cor.so bin/corvis/__init__.py
+SOURCES := $(SOURCES) $(COR_SOURCES)
+DEPS := $(DEPS) build/swig/_cor.c.d
 
 ############################## NUMERICS ############################
-d := numerics
 
-NUMERICS_CXX_SOURCES := $(addprefix src/$(d)/, vec4.cpp matrix.cpp kalman.cpp) build/$(d)/_numerics.cpp
+NUMERICS_CXX_SOURCES := $(addprefix src/numerics/, vec4.cpp matrix.cpp kalman.cpp) build/swig/_numerics.cpp
+bin/corvis/_numerics.so: LDFLAGS := $(LDFLAGS) -lm -lcblas -llapack -lstdc++
+bin/corvis/_numerics.so: $(patsubst src/%,build/%,$(NUMERICS_CXX_SOURCES:.cpp=.o))
 
-build/$(d)/_numerics.cpp: swig/_numerics.ipp
-	@mkdir -p $(@D)
-	@mkdir -p bin/numerics
-	$(SWIG) -python -c++ -threads $(SWIGFLAGS) -Isrc/numerics -o $@ -outdir bin/numerics $<
-
-bin/$(d)/_numerics.so: LDFLAGS := $(LDFLAGS) -lm -lcblas -llapack -lstdc++
-bin/$(d)/_numerics.so: $(patsubst src/%,build/%,$(NUMERICS_CXX_SOURCES:.cpp=.o))
-
-TARGETS := $(TARGETS) bin/$(d)/_numerics.so bin/$(d)/__init__.py
+TARGETS := $(TARGETS) build/swig/_numerics.cpp bin/corvis/_numerics.so bin/corvis/__init__.py
 CXX_SOURCES := $(CXX_SOURCES) $(NUMERICS_CXX_SOURCES)
-DEPS := $(DEPS) build/$(d)/_numerics.cpp.d
+DEPS := $(DEPS) build/swig/_numerics.cpp.d
 
 ############################## FILTER ############################
 
-d := filter
+FILTER_CXX_SOURCES := $(addprefix src/filter/, filter.cpp state_vision.cpp state_motion.cpp state.cpp observation.cpp filter_setup.cpp fast_detector/fast_9.cpp scaled_mask.cpp camera_control_interface_dummy.cpp homography.cpp qr.cpp) build/swig/_filter.cpp
 
-FILTER_CXX_SOURCES := $(addprefix src/$(d)/, filter.cpp state_vision.cpp state_motion.cpp state.cpp observation.cpp filter_setup.cpp fast_detector/fast_9.cpp scaled_mask.cpp camera_control_interface_dummy.cpp homography.cpp qr.cpp) build/_filter.cpp
+FILTER_SOURCES := $(addprefix src/filter/, device_parameters.c)
 
-FILTER_SOURCES := $(addprefix src/$(d)/, device_parameters.c)
+#bin/swig/_filter.so: LDFLAGS := $(LDFLAGS) `pkg-config --libs opencv`
+bin/corvis/_filter.so:$(patsubst src/%,build/%,$(FILTER_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(FILTER_SOURCES:.c=.o)) bin/libzxing-cpp/_libzxing.a
 
-_CPPFLAGS := $(_CPPFLAGS) -Isrc/filter
-build/_filter.cpp: swig/_filter.ipp
-	@mkdir -p $(@D)
-	@mkdir -p bin/filter
-	$(SWIG) -python -c++ -threads $(SWIGFLAGS) -Isrc/filter -o $@ -outdir bin/filter $<
-
-#bin/$(d)/_filter.so: LDFLAGS := $(LDFLAGS) `pkg-config --libs opencv`
-bin/$(d)/_filter.so:$(patsubst src/%,build/%,$(FILTER_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(FILTER_SOURCES:.c=.o)) bin/libzxing-cpp/_libzxing.a
-
-TARGETS := $(TARGETS) bin/$(d)/_filter.so bin/$(d)/__init__.py
+TARGETS := $(TARGETS) build/swig/_filter.cpp bin/corvis/_filter.so bin/corvis/__init__.py
 CXX_SOURCES := $(CXX_SOURCES) $(FILTER_CXX_SOURCES)
 SOURCES := $(SOURCES) $(FILTER_SOURCES)
-DEPS := $(DEPS) build/_filter.cpp.d
+DEPS := $(DEPS) build/swig/_filter.cpp.d
 
 ############################## LIBZXING ##########################
 

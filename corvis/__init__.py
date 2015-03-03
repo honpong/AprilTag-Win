@@ -1,3 +1,3 @@
-import bin.cor.cor as cor
-import bin.numerics.numerics as numerics
-import bin.filter.filter as filter
+import bin.corvis.cor as cor
+import bin.corvis.numerics as numerics
+import bin.corvis.filter as filter

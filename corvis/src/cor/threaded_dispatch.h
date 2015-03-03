@@ -12,6 +12,7 @@
 #include <mutex>
 #include <thread>
 #include <atomic>
+#include <condition_variable>
 
 template<typename T, int size>
 class sensor_queue

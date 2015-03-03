@@ -108,7 +108,7 @@ FILTER_CXX_SOURCES := $(addprefix src/filter/, filter.cpp state_vision.cpp state
 FILTER_SOURCES := $(addprefix src/filter/, device_parameters.c)
 
 #bin/swig/_filter.so: LDFLAGS := $(LDFLAGS) `pkg-config --libs opencv`
-bin/corvis/_filter.so:$(patsubst src/%,build/%,$(FILTER_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(FILTER_SOURCES:.c=.o)) bin/libzxing-cpp/_libzxing.a
+bin/corvis/_filter.so:$(patsubst src/%,build/%,$(FILTER_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(FILTER_SOURCES:.c=.o)) bin/_libzxing.a
 
 TARGETS := $(TARGETS) build/swig/_filter.cpp bin/corvis/_filter.so bin/corvis/__init__.py
 CXX_SOURCES := $(CXX_SOURCES) $(FILTER_CXX_SOURCES)
@@ -149,9 +149,9 @@ LIBZXING_CXX_SOURCES := $(LIBZXING_CXX_SOURCES) $(addprefix src/$(d)/bigint/, Bi
 
 LIBZXING_SOURCES :=
 
-bin/$(d)/_libzxing.a:$(patsubst src/%,build/%,$(LIBZXING_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(LIBZXING_SOURCES:.c=.o))
+bin/_libzxing.a:$(patsubst src/%,build/%,$(LIBZXING_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(LIBZXING_SOURCES:.c=.o))
 
-TARGETS := $(TARGETS) bin/$(d)/_libzxing.a
+TARGETS := $(TARGETS) bin/_libzxing.a
 CXX_SOURCES := $(CXX_SOURCES) $(LIBZXING_CXX_SOURCES)
 SOURCES := $(SOURCES) $(LIBZXING_SOURCES)
 
@@ -165,9 +165,9 @@ STEREO_SOURCES :=
 
 _CPPFLAGS := $(_CPPFLAGS) -Isrc/stereo -Isrc/filter -Isrc/qhull/src/libqhull/ -Isrc/vlfeat-0.9.18/vl -Isrc/libDAI-0.3.1/include
 
-bin/$(d)/_stereo.so:$(patsubst src/%,build/%,$(STEREO_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(STEREO_SOURCES:.c=.o)) bin/libDAI-0.3.1/_libDAI.so bin/vlfeat-0.9.18/_vl.so
+bin/_stereo.so:$(patsubst src/%,build/%,$(STEREO_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(STEREO_SOURCES:.c=.o)) bin/_libDAI.so bin/_vl.so
 
-TARGETS := $(TARGETS) bin/$(d)/_stereo.so bin/$(d)/__init__.py
+TARGETS := $(TARGETS) bin/_stereo.so bin/corvis/__init__.py
 CXX_SOURCES := $(CXX_SOURCES) $(STEREO_CXX_SOURCES)
 SOURCES := $(SOURCES) $(STEREO_SOURCES)
 
@@ -178,9 +178,9 @@ QHULL_C_SOURCES := $(addprefix src/$(d)/src/libqhull/, geom.c geom2.c global.c i
 
 _CPPFLAGS := $(_CPPFLAGS)
 
-bin/$(d)/_qhull.so:$(patsubst src/%,build/%,$(QHULL_C_SOURCES:.c=.o))
+bin/_qhull.so:$(patsubst src/%,build/%,$(QHULL_C_SOURCES:.c=.o))
 
-TARGETS := $(TARGETS) bin/$(d)/_qhull.so
+TARGETS := $(TARGETS) bin/_qhull.so
 SOURCES := $(SOURCES) $(QHULL_C_SOURCES)
 
 ############################## DAI ############################
@@ -190,9 +190,9 @@ DAI_CXX_SOURCES := $(addprefix src/$(d)/src/, alldai.cpp graph.cpp regiongraph.c
 
 _CPPFLAGS := $(_CPPFLAGS) -Isrc/$(d)/include -I/usr/local/include -DMACOSX -DDAI_WITH_BP -DDAI_WITH_TRWBP
 
-bin/$(d)/_libDAI.so:$(patsubst src/%,build/%,$(DAI_CXX_SOURCES:.cpp=.o))
+bin/_libDAI.so:$(patsubst src/%,build/%,$(DAI_CXX_SOURCES:.cpp=.o))
 
-TARGETS := $(TARGETS) bin/$(d)/_libDAI.so
+TARGETS := $(TARGETS) bin/_libDAI.so
 CXX_SOURCES := $(CXX_SOURCES) $(DAI_CXX_SOURCES)
 
 ############################## VLFEAT ############################
@@ -202,9 +202,9 @@ VL_C_SOURCES := $(addprefix src/$(d)/, vl/aib.c vl/array.c vl/covdet.c vl/dsift.
 
 _CPPFLAGS := $(_CPPFLAGS)
 
-bin/$(d)/_vl.so:$(patsubst src/%,build/%,$(VL_C_SOURCES:.c=.o))
+bin/_vl.so:$(patsubst src/%,build/%,$(VL_C_SOURCES:.c=.o))
 
-TARGETS := $(TARGETS) bin/$(d)/_vl.so
+TARGETS := $(TARGETS) bin/_vl.so
 SOURCES := $(SOURCES) $(VL_C_SOURCES)
 
 ############################## TEST ############################
@@ -224,7 +224,7 @@ build/$(d)/%.o: $(d)/%.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 
-bin/test: build/$(d)/gtest_main.o build/$(d)/gtest-all.o $(patsubst test/%,build/test/%,$(TEST_CXX_SOURCES:.cpp=.o)) $(addprefix build/numerics/, vec4.o matrix.o) $(addprefix build/filter/, fast_detector/fast_9.o scaled_mask.o homography.o) bin/stereo/_stereo.so bin/libDAI-0.3.1/_libDAI.so bin/qhull/_qhull.so
+bin/test: build/$(d)/gtest_main.o build/$(d)/gtest-all.o $(patsubst test/%,build/test/%,$(TEST_CXX_SOURCES:.cpp=.o)) $(addprefix build/numerics/, vec4.o matrix.o) $(addprefix build/filter/, fast_detector/fast_9.o scaled_mask.o homography.o) bin/_stereo.so bin/_libDAI.so bin/_qhull.so
 	@mkdir -p $(@D)
 	$(CC) $(LDFLAGS) $(PYTHON_LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
 

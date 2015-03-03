@@ -88,10 +88,9 @@
 
         this.hasCalibrationData = function (callback) {
             var isCalibrated = false;
-            $.ajax({ type: "GET", url: this.baseUrl + "hasCalibrationData"})
-                .done(function (data, textStatus, jqXHR) { // on a get, data is a string
-                    var resultObj = JSON.parse(data);
-                    callback(resultObj.result);
+            $.ajax({ type: "GET", dataType: "json", url: this.baseUrl + "hasCalibrationData"})
+                .done(function (data, textStatus, jqXHR) {
+                    callback(data.result);
                 })
                 .fail(function (jqXHR, textStatus, errorThrown) {
                     logNative(textStatus + ": " + JSON.stringify(jqXHR));

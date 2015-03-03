@@ -8,10 +8,9 @@
     "use strict";
 
     RC3DK.startStereoCapture = function (callback) {
-        $.ajax({ type: "GET", url: RC3DK.baseUrl + "startStereoCapture"})
-            .done(function (data, textStatus, jqXHR) { // on a get, data is a string
-                var resultObj = JSON.parse(data);
-                callback(resultObj.result);
+        $.ajax({ type: "GET", dataType: "json", url: RC3DK.baseUrl + "startStereoCapture"})
+            .done(function (data, textStatus, jqXHR) {
+                callback(data.result);
             })
             .fail(function (jqXHR, textStatus, errorThrown) {
                 RC3DK.logNative(textStatus + ": " + JSON.stringify(jqXHR));
@@ -20,10 +19,9 @@
     };
 
     RC3DK.finishStereoCapture = function (callback) {
-        $.ajax({ type: "GET", url: RC3DK.baseUrl + "finishStereoCapture"})
-            .done(function (data, textStatus, jqXHR) { // on a get, data is a string
-                var resultObj = JSON.parse(data);
-                callback(resultObj.result);
+        $.ajax({ type: "GET", dataType: "json", url: RC3DK.baseUrl + "finishStereoCapture"})
+            .done(function (data, textStatus, jqXHR) {
+                callback(data.result);
             })
             .fail(function (jqXHR, textStatus, errorThrown) {
                 RC3DK.logNative(textStatus + ": " + JSON.stringify(jqXHR));

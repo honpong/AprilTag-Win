@@ -9,6 +9,7 @@
 
 #include "../cor/cor_types.h"
 #include <assert.h>
+#include <string.h>
 #include "vec4.h"
 
 class matrix {

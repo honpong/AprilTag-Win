@@ -56,4 +56,7 @@
 /** @returns A dictionary representation of the object, minus the sampleBuffer. */
 - (NSDictionary*) dictionaryRepresentation;
 
+/** @returns A dictionary representation of the object, minus the sampleBuffer and feature points. */
+- (NSDictionary *)dictionaryRepresentationForJsonSerialization;
+
 @end

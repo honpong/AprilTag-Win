@@ -38,13 +38,14 @@
 {
     NSDictionary* dict;
     
+    // although this code is repetitive, it might be faster than using a NSMutableDictionary
     if (self.originQRCode)
     {
         dict = @{
                @"transformation": [self.transformation dictionaryRepresentation],
                @"cameraTransformation" : [self.cameraTransformation dictionaryRepresentation],
                @"cameraParameters": [self.cameraParameters dictionaryRepresentation],
-//               @"featurePoints": self.featurePoints, // expensive
+               @"featurePoints": self.featurePoints, // expensive
                @"totalPathLength": [self.totalPathLength dictionaryRepresentation],
                @"timestamp": @(self.timestamp),
                @"originQRCode" : self.originQRCode
@@ -56,10 +57,40 @@
                @"transformation": [self.transformation dictionaryRepresentation],
                @"cameraTransformation" : [self.cameraTransformation dictionaryRepresentation],
                @"cameraParameters": [self.cameraParameters dictionaryRepresentation],
-//               @"featurePoints": self.featurePoints, // expensive
+               @"featurePoints": self.featurePoints, // expensive
                @"totalPathLength": [self.totalPathLength dictionaryRepresentation],
                @"timestamp": @(self.timestamp)
                };
+    }
+    
+    return dict;
+}
+
+- (NSDictionary *)dictionaryRepresentationForJsonSerialization
+{
+    NSDictionary* dict;
+    
+    // although this code is repetitive, it might be faster than using a NSMutableDictionary
+    if (self.originQRCode)
+    {
+        dict = @{
+                 @"transformation": [self.transformation dictionaryRepresentation],
+                 @"cameraTransformation" : [self.cameraTransformation dictionaryRepresentation],
+                 @"cameraParameters": [self.cameraParameters dictionaryRepresentation],
+                 @"totalPathLength": [self.totalPathLength dictionaryRepresentation],
+                 @"timestamp": @(self.timestamp),
+                 @"originQRCode" : self.originQRCode
+                 };
+    }
+    else
+    {
+        dict = @{
+                 @"transformation": [self.transformation dictionaryRepresentation],
+                 @"cameraTransformation" : [self.cameraTransformation dictionaryRepresentation],
+                 @"cameraParameters": [self.cameraParameters dictionaryRepresentation],
+                 @"totalPathLength": [self.totalPathLength dictionaryRepresentation],
+                 @"timestamp": @(self.timestamp)
+                 };
     }
     
     return dict;

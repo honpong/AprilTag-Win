@@ -23,4 +23,7 @@
 @property (nonatomic, readonly) BOOL isSensorFusionRunning;
 @property (nonatomic) BOOL isVideoViewShowing;
 
+- (void) showVideoView;
+- (void) hideVideoView;
+
 @end

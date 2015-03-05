@@ -120,7 +120,7 @@
 
 - (void) hideVideoView
 {
-    if (self.videoView.superview)
+    if (self.videoView)
     {
         [[sensorDelegate getVideoProvider] setDelegate:nil];
         [self.videoView removeFromSuperview];

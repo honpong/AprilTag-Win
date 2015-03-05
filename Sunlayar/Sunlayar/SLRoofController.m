@@ -92,7 +92,7 @@
     
     SLAugRealityController* arController = [SLAugRealityController new];
     arController.measuredPhoto = self.measuredPhoto;
-    [self presentViewController:arController animated:YES completion:nil];
+    self.view.window.rootViewController = arController;
 }
 
 #pragma mark - UIWebViewDelegate

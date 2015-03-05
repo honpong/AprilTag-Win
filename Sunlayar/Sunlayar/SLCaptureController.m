@@ -28,16 +28,19 @@
 - (void) stereoDidFinish
 {
     [super stereoDidFinish];
+    [self performSelectorOnMainThread:@selector(gotoRoofController) withObject:nil waitUntilDone:NO];
+}
+
+- (void) gotoRoofController
+{
+    // cleanup
+    self.webView.delegate = nil;
+    [self.webView stopLoading];
+    [self hideVideoView];
     
-    dispatch_async(dispatch_get_main_queue(), ^{
-        // prevents crash
-        self.webView.delegate = nil;
-        [self.webView stopLoading];
-        
-        SLRoofController* vc = [SLRoofController new];
-        vc.measuredPhoto = self.measuredPhoto;
-        [self presentViewController:vc animated:YES completion:nil];
-    });    
+    SLRoofController* vc = [SLRoofController new];
+    vc.measuredPhoto = self.measuredPhoto;
+    self.view.window.rootViewController = vc;
 }
 
 @end

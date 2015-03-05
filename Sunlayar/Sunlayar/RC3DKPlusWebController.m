@@ -7,7 +7,7 @@
 //
 
 #import "RC3DKPlusWebController.h"
-#import <RC3DKPlus/RC3DKPlus.h>
+#import "RC3DK.h"
 #import "SLMeasuredPhoto.h"
 #import "RCDebugLog.h"
 

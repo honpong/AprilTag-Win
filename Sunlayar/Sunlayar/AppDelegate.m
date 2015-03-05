@@ -35,6 +35,8 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    [SENSOR_FUSION setLicenseKey:@"aF9cE0B536c84aE6F500509E8aBCcC"]; // Sunlayar's evaluation license key for 3DKPlus
+
     dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
         // Register the preference defaults early.
         NSString* locale = [[NSLocale currentLocale] localeIdentifier];

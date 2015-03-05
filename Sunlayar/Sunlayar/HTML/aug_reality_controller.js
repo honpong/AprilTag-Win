@@ -31,10 +31,12 @@ var ARController = (function ($, window, RC3DK, THREE)
 
     $(document).ready(function()
     {
-        loadRoofJsonFile(function (data){
-            roofJson = data;
-            enterReadyState();
-        });
+//        loadRoofJsonFile(function (data){
+//            roofJson = data;
+//            enterReadyState();
+//        });
+
+        enterReadyState();
 
         $("#shutterButton").on( "click", function() {
             switch (workflowState)
@@ -73,12 +75,6 @@ var ARController = (function ($, window, RC3DK, THREE)
 
         RC3DK.onDataUpdate(function (data, medianFeatureDepth)
         {
-//            if (workflowState === WorkflowStates.VISUALIZATION)
-//            {
-//                // do the AR magic! example code for using three.js' vector class
-//                var currentPosition = new THREE.Vector3(data.transformation.translation.v0, data.transformation.translation.v1, data.transformation.translation.v2);
-//            }
-
             updateWebGLView(data);
         });
 
@@ -235,6 +231,7 @@ var ARController = (function ($, window, RC3DK, THREE)
             camera.position.set(-data.cameraTransformation.translation.v1 * exFactor, data.cameraTransformation.translation.v2 * exFactor, -data.cameraTransformation.translation.v0 * exFactor);
         }
 
+        // the rotation is not working correctly yet. it needs to be converted into the WebGL coordinate system.
 //        if (data.transformation.rotation)
 //        {
 //            camera.quaternion.set(data.transformation.rotation.qy, data.transformation.rotation.qz, data.transformation.rotation.qx, data.transformation.rotation.qw);

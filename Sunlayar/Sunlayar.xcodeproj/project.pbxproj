@@ -73,7 +73,6 @@
 		32545AB71A5F9E8E00A08564 /* RCHttpInterceptor.m in Sources */ = {isa = PBXBuildFile; fileRef = 32545AB61A5F9E8E00A08564 /* RCHttpInterceptor.m */; };
 		329A47C21A8A934D0048DA77 /* three.min.js in Resources */ = {isa = PBXBuildFile; fileRef = 329A47C01A8A934D0048DA77 /* three.min.js */; };
 		32E757071A97C764004BA247 /* RC3DKWebController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E757061A97C764004BA247 /* RC3DKWebController.m */; };
-		32E757271A980698004BA247 /* libRC3DKPlus.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32E757211A980655004BA247 /* libRC3DKPlus.a */; };
 		32E7572C1A980C31004BA247 /* SLCaptureController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E7572B1A980C31004BA247 /* SLCaptureController.m */; };
 		32E757501A9BAAAB004BA247 /* GTMNSDictionary+URLArguments.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E757301A9BAAAB004BA247 /* GTMNSDictionary+URLArguments.m */; };
 		32E757511A9BAAAB004BA247 /* GTMNSString+URLArguments.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E757321A9BAAAB004BA247 /* GTMNSString+URLArguments.m */; };
@@ -98,7 +97,7 @@
 		32E757731AA10EDD004BA247 /* SLAugRealityController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E757721AA10EDD004BA247 /* SLAugRealityController.m */; };
 		32E757751AA10F06004BA247 /* aug_reality.html in Resources */ = {isa = PBXBuildFile; fileRef = 32E757741AA10F06004BA247 /* aug_reality.html */; };
 		32E757771AA10F67004BA247 /* aug_reality_controller.js in Resources */ = {isa = PBXBuildFile; fileRef = 32E757761AA10F67004BA247 /* aug_reality_controller.js */; };
-		D927F0B91A61A8BE00344165 /* SLARDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D927F0B81A61A8BE00344165 /* SLARDelegate.m */; };
+		32E757911AA7E11B004BA247 /* libRC3DKPlus.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32E757901AA7E11B004BA247 /* libRC3DKPlus.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -108,34 +107,6 @@
 			proxyType = 1;
 			remoteGlobalIDString = 3219105A1A52328D00AEF550;
 			remoteInfo = Sunlayar;
-		};
-		32E7571C1A980655004BA247 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 32E757161A980655004BA247 /* RC3DK.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 327B54DF18EB4CC90001CCE1;
-			remoteInfo = RC3DK;
-		};
-		32E7571E1A980655004BA247 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 32E757161A980655004BA247 /* RC3DK.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 327B54EF18EB4CC90001CCE1;
-			remoteInfo = RC3DKTests;
-		};
-		32E757201A980655004BA247 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 32E757161A980655004BA247 /* RC3DK.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = D3B4EB591A1E7DE100BE0443;
-			remoteInfo = RC3DKPlus;
-		};
-		32E757281A98069E004BA247 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 32E757161A980655004BA247 /* RC3DK.xcodeproj */;
-			proxyType = 1;
-			remoteGlobalIDString = D3B4EABE1A1E7DE100BE0443;
-			remoteInfo = RC3DKPlus;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -232,7 +203,6 @@
 		329A47C01A8A934D0048DA77 /* three.min.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = three.min.js; sourceTree = "<group>"; };
 		32E757051A97C764004BA247 /* RC3DKWebController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RC3DKWebController.h; sourceTree = "<group>"; };
 		32E757061A97C764004BA247 /* RC3DKWebController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RC3DKWebController.m; sourceTree = "<group>"; };
-		32E757161A980655004BA247 /* RC3DK.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RC3DK.xcodeproj; path = ../rc3dk/RC3DK.xcodeproj; sourceTree = "<group>"; };
 		32E757231A980670004BA247 /* RC3DK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RC3DK.h; sourceTree = "<group>"; };
 		32E7572A1A980C31004BA247 /* SLCaptureController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLCaptureController.h; sourceTree = "<group>"; };
 		32E7572B1A980C31004BA247 /* SLCaptureController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLCaptureController.m; sourceTree = "<group>"; };
@@ -278,8 +248,25 @@
 		32E757721AA10EDD004BA247 /* SLAugRealityController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLAugRealityController.m; sourceTree = "<group>"; };
 		32E757741AA10F06004BA247 /* aug_reality.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = aug_reality.html; sourceTree = "<group>"; };
 		32E757761AA10F67004BA247 /* aug_reality_controller.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = aug_reality_controller.js; sourceTree = "<group>"; };
-		D927F0B71A61A8BE00344165 /* SLARDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SLARDelegate.h; sourceTree = "<group>"; };
-		D927F0B81A61A8BE00344165 /* SLARDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SLARDelegate.m; sourceTree = "<group>"; };
+		32E7577E1AA7E11B004BA247 /* RC3DK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RC3DK.h; sourceTree = "<group>"; };
+		32E7577F1AA7E11B004BA247 /* RC3DKPlus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RC3DKPlus.h; sourceTree = "<group>"; };
+		32E757801AA7E11B004BA247 /* RCCameraParameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCameraParameters.h; sourceTree = "<group>"; };
+		32E757811AA7E11B004BA247 /* RCDeviceInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDeviceInfo.h; sourceTree = "<group>"; };
+		32E757821AA7E11B004BA247 /* RCFeaturePoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCFeaturePoint.h; sourceTree = "<group>"; };
+		32E757831AA7E11B004BA247 /* RCLicenseError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCLicenseError.h; sourceTree = "<group>"; };
+		32E757841AA7E11B004BA247 /* RCPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCPoint.h; sourceTree = "<group>"; };
+		32E757851AA7E11B004BA247 /* RCRotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCRotation.h; sourceTree = "<group>"; };
+		32E757861AA7E11B004BA247 /* RCScalar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCScalar.h; sourceTree = "<group>"; };
+		32E757871AA7E11B004BA247 /* RCSensorFusion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusion.h; sourceTree = "<group>"; };
+		32E757881AA7E11B004BA247 /* RCSensorFusionData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusionData.h; sourceTree = "<group>"; };
+		32E757891AA7E11B004BA247 /* RCSensorFusionError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusionError.h; sourceTree = "<group>"; };
+		32E7578A1AA7E11B004BA247 /* RCSensorFusionInternals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusionInternals.h; sourceTree = "<group>"; };
+		32E7578B1AA7E11B004BA247 /* RCSensorFusionStatus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusionStatus.h; sourceTree = "<group>"; };
+		32E7578C1AA7E11B004BA247 /* RCStereo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCStereo.h; sourceTree = "<group>"; };
+		32E7578D1AA7E11B004BA247 /* RCTransformation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTransformation.h; sourceTree = "<group>"; };
+		32E7578E1AA7E11B004BA247 /* RCTranslation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTranslation.h; sourceTree = "<group>"; };
+		32E7578F1AA7E11B004BA247 /* RCVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVector.h; sourceTree = "<group>"; };
+		32E757901AA7E11B004BA247 /* libRC3DKPlus.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libRC3DKPlus.a; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -287,7 +274,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				32E757271A980698004BA247 /* libRC3DKPlus.a in Frameworks */,
 				321F682F1A523C520016D985 /* libz.dylib in Frameworks */,
 				321910E51A52350300AEF550 /* Accelerate.framework in Frameworks */,
 				321910E61A52350300AEF550 /* CFNetwork.framework in Frameworks */,
@@ -299,6 +285,7 @@
 				321910EC1A52350300AEF550 /* CoreVideo.framework in Frameworks */,
 				321910ED1A52350300AEF550 /* MobileCoreServices.framework in Frameworks */,
 				321910EE1A52350300AEF550 /* QuartzCore.framework in Frameworks */,
+				32E757911AA7E11B004BA247 /* libRC3DKPlus.a in Frameworks */,
 				321910EF1A52350300AEF550 /* Security.framework in Frameworks */,
 				321910F01A52350300AEF550 /* SystemConfiguration.framework in Frameworks */,
 				321910F11A52350300AEF550 /* UIKit.framework in Frameworks */,
@@ -323,7 +310,6 @@
 		321910521A52328D00AEF550 = {
 			isa = PBXGroup;
 			children = (
-				32E757161A980655004BA247 /* RC3DK.xcodeproj */,
 				3219105D1A52328D00AEF550 /* Sunlayar */,
 				321910771A52328E00AEF550 /* SunlayarTests */,
 				321910F21A52353900AEF550 /* Frameworks */,
@@ -343,6 +329,7 @@
 		3219105D1A52328D00AEF550 /* Sunlayar */ = {
 			isa = PBXGroup;
 			children = (
+				32E7577B1AA7E11B004BA247 /* 3DKPlus */,
 				32E757081A97D0EC004BA247 /* 3DKJavascriptAPI */,
 				321910841A52330500AEF550 /* AugmentedReality */,
 				3219108E1A52330F00AEF550 /* Calibration */,
@@ -352,8 +339,6 @@
 				324752381A5BCB3600A0EC98 /* ThirdParty */,
 				321910621A52328D00AEF550 /* AppDelegate.h */,
 				321910631A52328D00AEF550 /* AppDelegate.m */,
-				D927F0B71A61A8BE00344165 /* SLARDelegate.h */,
-				D927F0B81A61A8BE00344165 /* SLARDelegate.m */,
 				324751E41A5BCB3000A0EC98 /* SLRoofController.h */,
 				324751E51A5BCB3000A0EC98 /* SLRoofController.m */,
 				324751E61A5BCB3000A0EC98 /* SLMeasuredPhoto.h */,
@@ -536,16 +521,6 @@
 			name = 3DKJavascriptAPI;
 			sourceTree = "<group>";
 		};
-		32E757171A980655004BA247 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				32E7571D1A980655004BA247 /* libRC3DK.a */,
-				32E7571F1A980655004BA247 /* RC3DKTests.xctest */,
-				32E757211A980655004BA247 /* libRC3DKPlus.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		32E7572D1A9BAAAB004BA247 /* GTM */ = {
 			isa = PBXGroup;
 			children = (
@@ -602,6 +577,49 @@
 			path = ../../ThirdParty/NativeAction;
 			sourceTree = "<group>";
 		};
+		32E7577B1AA7E11B004BA247 /* 3DKPlus */ = {
+			isa = PBXGroup;
+			children = (
+				32E7577C1AA7E11B004BA247 /* include */,
+				32E757901AA7E11B004BA247 /* libRC3DKPlus.a */,
+			);
+			name = 3DKPlus;
+			path = "../../rc3dk-plus-sunlayar";
+			sourceTree = "<group>";
+		};
+		32E7577C1AA7E11B004BA247 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				32E7577D1AA7E11B004BA247 /* RC3DKPlus */,
+			);
+			path = include;
+			sourceTree = "<group>";
+		};
+		32E7577D1AA7E11B004BA247 /* RC3DKPlus */ = {
+			isa = PBXGroup;
+			children = (
+				32E7577E1AA7E11B004BA247 /* RC3DK.h */,
+				32E7577F1AA7E11B004BA247 /* RC3DKPlus.h */,
+				32E757801AA7E11B004BA247 /* RCCameraParameters.h */,
+				32E757811AA7E11B004BA247 /* RCDeviceInfo.h */,
+				32E757821AA7E11B004BA247 /* RCFeaturePoint.h */,
+				32E757831AA7E11B004BA247 /* RCLicenseError.h */,
+				32E757841AA7E11B004BA247 /* RCPoint.h */,
+				32E757851AA7E11B004BA247 /* RCRotation.h */,
+				32E757861AA7E11B004BA247 /* RCScalar.h */,
+				32E757871AA7E11B004BA247 /* RCSensorFusion.h */,
+				32E757881AA7E11B004BA247 /* RCSensorFusionData.h */,
+				32E757891AA7E11B004BA247 /* RCSensorFusionError.h */,
+				32E7578A1AA7E11B004BA247 /* RCSensorFusionInternals.h */,
+				32E7578B1AA7E11B004BA247 /* RCSensorFusionStatus.h */,
+				32E7578C1AA7E11B004BA247 /* RCStereo.h */,
+				32E7578D1AA7E11B004BA247 /* RCTransformation.h */,
+				32E7578E1AA7E11B004BA247 /* RCTranslation.h */,
+				32E7578F1AA7E11B004BA247 /* RCVector.h */,
+			);
+			path = RC3DKPlus;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -616,7 +634,6 @@
 			buildRules = (
 			);
 			dependencies = (
-				32E757291A98069E004BA247 /* PBXTargetDependency */,
 			);
 			name = Sunlayar;
 			productName = Sunlayar;
@@ -671,12 +688,6 @@
 			mainGroup = 321910521A52328D00AEF550;
 			productRefGroup = 3219105C1A52328D00AEF550 /* Products */;
 			projectDirPath = "";
-			projectReferences = (
-				{
-					ProductGroup = 32E757171A980655004BA247 /* Products */;
-					ProjectRef = 32E757161A980655004BA247 /* RC3DK.xcodeproj */;
-				},
-			);
 			projectRoot = "";
 			targets = (
 				3219105A1A52328D00AEF550 /* Sunlayar */,
@@ -684,30 +695,6 @@
 			);
 		};
 /* End PBXProject section */
-
-/* Begin PBXReferenceProxy section */
-		32E7571D1A980655004BA247 /* libRC3DK.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libRC3DK.a;
-			remoteRef = 32E7571C1A980655004BA247 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		32E7571F1A980655004BA247 /* RC3DKTests.xctest */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = RC3DKTests.xctest;
-			remoteRef = 32E7571E1A980655004BA247 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		32E757211A980655004BA247 /* libRC3DKPlus.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libRC3DKPlus.a;
-			remoteRef = 32E757201A980655004BA247 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		321910591A52328D00AEF550 /* Resources */ = {
@@ -785,7 +772,6 @@
 				32E7575A1A9BAAAB004BA247 /* SBJsonStreamWriterState.m in Sources */,
 				3219108C1A52330500AEF550 /* RCGLShaderProgram.m in Sources */,
 				321910B41A52332100AEF550 /* RCVideoManager.m in Sources */,
-				D927F0B91A61A8BE00344165 /* SLARDelegate.m in Sources */,
 				321910B01A52332100AEF550 /* RCAVSessionManager.m in Sources */,
 				321910B11A52332100AEF550 /* RCLocationManager.m in Sources */,
 				32E7572C1A980C31004BA247 /* SLCaptureController.m in Sources */,
@@ -820,11 +806,6 @@
 			isa = PBXTargetDependency;
 			target = 3219105A1A52328D00AEF550 /* Sunlayar */;
 			targetProxy = 321910751A52328E00AEF550 /* PBXContainerItemProxy */;
-		};
-		32E757291A98069E004BA247 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			name = RC3DKPlus;
-			targetProxy = 32E757281A98069E004BA247 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

@@ -9,6 +9,6 @@
 #ifndef Sunlayar_RC3DK_h
 #define Sunlayar_RC3DK_h
 
-#import <RC3DKPlus/RC3DKPlus.h>
+#import "RC3DKPlus.h"
 
 #endif

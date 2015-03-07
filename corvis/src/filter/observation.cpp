@@ -602,7 +602,20 @@ bool observation_accelerometer::measure()
     if(!state.orientation_initialized)
     {
         //first measurement - use to determine orientation
-        state.W.v = to_rotation_vector(rotation_between_two_vectors(meas, v4(0., 0., 1., 0.)));
+        v4 z(0., 0., 1., 0.);
+        quaternion q = rotation_between_two_vectors(meas, z);
+        //we want camera to face positive y, so device faces negative y
+        v4 y(0., -1., 0., 0.);
+        v4 zt = quaternion_rotate(q, z);
+        //project the transformed z vector onto the x-y plane
+        zt[2] = 0.;
+        f_t len = norm(zt);
+        if(len > 1.e-6) // otherwise we're looking straight up or down, so don't make any changes
+        {
+            quaternion dq = rotation_between_two_vectors_normalized(zt / len, y);
+            q = quaternion_product(q, dq);
+        }
+        state.W.v = to_rotation_vector(q);
         state.orientation_initialized = true;
         valid = false;
         return false;

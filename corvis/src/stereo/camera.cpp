@@ -3,9 +3,7 @@
 f_t estimate_kr(f_t x, f_t y, f_t k1, f_t k2, f_t k3)
 {
     f_t r2 = x*x + y*y;
-    f_t r4 = r2 * r2;
-    f_t r6 = r4 * r2;
-    f_t kr = 1. + r2 * k1 + r4 * k2 + r6 * k3;
+    f_t kr = 1. + r2 * (k1 + r2 * (k2 + r2 * k3));
     return kr;
 }
 v4 camera::project_image_point(f_t x, f_t y) const
@@ -27,9 +25,7 @@ feature_t camera::undistort_image_point(f_t x, f_t y) const
     f_t projected_y = (y - center_y)/focal_length;
     // Estimate kr
     f_t r2 = projected_x*projected_x + projected_y*projected_y;
-    f_t r4 = r2 * r2;
-    f_t r6 = r4 * r2;
-    f_t kr = 1. + r2 * k1 + r4 * k2 + r6 * k3;
+    f_t kr = 1. + r2 * (k1 + r2 * (k2 + r2 * k3));
 
     // Adjust distorted projection by kr, and back project to image
     feature_t undistorted;

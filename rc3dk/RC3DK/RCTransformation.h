@@ -51,6 +51,8 @@
  */
 - (RCTransformation *)flipAxis:(int)axis;
 
+- (RCTransformation *) transformCoordinates:(RCTransformation *)transformBy;
+
 /** Compute the composition of two transformations.
  
  The composition is performed in such a way that, if T1 and T2 are RCTransformation objects, and pt is an RCPoint object, the following two lines would produce the same results (up to numerical precision):

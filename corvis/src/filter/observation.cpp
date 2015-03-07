@@ -230,20 +230,17 @@ void observation_vision_feature::predict()
     Rrt = transpose(Rr);
     Rbc = to_rotation_matrix(state.Wc.v);
     Rcb = transpose(Rbc);
-    RcbRrt = Rcb * Rrt;
-    Rtot = RcbRrt * Rbc;
+    Rtot = Rcb * Rrt * Rbc;
     Ttot = Rcb * (Rrt * (state.Tc.v - state_group->Tr.v) - state.Tc.v);
 
     norm_initial.x = (feature->initial[0] - state.center_x.v) / state.focal_length.v;
     norm_initial.y = (feature->initial[1] - state.center_y.v) / state.focal_length.v;
 
-    f_t r2, r4, r6, kr;
-    state.fill_calibration(norm_initial, r2, r4, r6, kr);
-    feature->calibrated = v4(norm_initial.x / kr, norm_initial.y / kr, 1., 0.);
+    f_t r2, kr;
+    state.fill_calibration(norm_initial, r2, kr);
+    X0 = v4(norm_initial.x / kr, norm_initial.y / kr, 1., 0.);
 
-    v4 X0_unscale = feature->calibrated * feature->v.depth(); //not homog in v4
-    X0 = feature->calibrated;
-    X = Rtot * feature->calibrated + Ttot * feature->v.invdepth();
+    v4 X0_unscale = X0 * feature->v.depth(); //not homog in v4
 
     //Inverse depth
     //Should work because projection(R X + T) = projection(R (X/p) + T/p)
@@ -251,6 +248,9 @@ void observation_vision_feature::predict()
     //Have verified that the above identity is numerically identical in my results
     v4 X_unscale = Rtot * X0_unscale + Ttot;
 
+    X = X_unscale * feature->v.invdepth();
+
+    feature->calibrated = X0;
     feature->relative = Rbc * X0_unscale + state.Tc.v;
     feature->local = Rrt * (feature->relative - state_group->Tr.v);
     feature->world = R * feature->local + state.T.v;
@@ -263,7 +263,7 @@ void observation_vision_feature::predict()
     norm_predicted.x = ippred[0];
     norm_predicted.y = ippred[1];
 
-    state.fill_calibration(norm_predicted, r2, r4, r6, kr);
+    state.fill_calibration(norm_predicted, r2, kr);
     feature->prediction.x = pred[0] = norm_predicted.x * kr * state.focal_length.v + state.center_x.v;
     feature->prediction.y = pred[1] = norm_predicted.y * kr * state.focal_length.v + state.center_y.v;
 }
@@ -271,14 +271,14 @@ void observation_vision_feature::predict()
 void observation_vision_feature::cache_jacobians()
 {
     //initial = (uncal - center) / (focal_length * kr)
-    f_t r2, r4, r6, kr;
-    state.fill_calibration(norm_initial, r2, r4, r6, kr);
+    f_t r2, kr;
+    state.fill_calibration(norm_initial, r2, kr);
 #if estimate_camera_intrinsics
     v4 dX_dcx = Rtot * v4(-1. / (kr * state.focal_length.v), 0., 0., 0.);
     v4 dX_dcy = Rtot * v4(0., -1. / (kr * state.focal_length.v), 0., 0.);
     v4 dX_dF = Rtot * v4(-X0[0] / state.focal_length.v, -X0[1] / state.focal_length.v, 0., 0.);
     v4 dX_dk1 = Rtot * v4(-X0[0] / kr * r2, -X0[1] / kr * r2, 0., 0.);
-    v4 dX_dk2 = Rtot * v4(-X0[0] / kr * r4, -X0[1] / kr * r4, 0., 0.);
+    v4 dX_dk2 = Rtot * v4(-X0[0] / kr * (r2 * r2), -X0[1] / kr * (r2 * r2), 0., 0.);
 #endif
     
     m4v4 dRr_dWr = to_rotation_matrix_jacobian(state_group->Wr.v);
@@ -297,7 +297,7 @@ void observation_vision_feature::cache_jacobians()
     m4 dTtot_dTc = Rcb * Rrt - Rcb;
 #endif
     
-    state.fill_calibration(norm_predicted, r2, r4, r6, kr);
+    state.fill_calibration(norm_predicted, r2, kr);
     f_t invZ = 1. / X[2];
     v4 dx_dX, dy_dX;
     dx_dX = kr * state.focal_length.v * v4(invZ, 0., -X[0] * invZ * invZ, 0.);
@@ -309,11 +309,11 @@ void observation_vision_feature::cache_jacobians()
     f_t invrho = feature->v.invdepth();
     if(!feature->is_initialized()) {
 #if estimate_camera_extrinsics
-        dx_dWc = dx_dX * (dRtot_dWc * feature->calibrated);
-        dy_dWc = dy_dX * (dRtot_dWc * feature->calibrated);
+        dx_dWc = dx_dX * (dRtot_dWc * X0);
+        dy_dWc = dy_dX * (dRtot_dWc * X0);
 #endif
-        dx_dWr = dx_dX * (dRtot_dWr * feature->calibrated);
-        dy_dWr = dy_dX * (dRtot_dWr * feature->calibrated);
+        dx_dWr = dx_dX * (dRtot_dWr * X0);
+        dy_dWr = dy_dX * (dRtot_dWr * X0);
         //dy_dT = m4(0.);
         //dy_dT = m4(0.);
         //dy_dTr = m4(0.);
@@ -321,10 +321,10 @@ void observation_vision_feature::cache_jacobians()
 #if estimate_camera_intrinsics
         dx_dF = norm_predicted.x * kr + sum(dx_dX * dX_dF);
         dy_dF = norm_predicted.y * kr + sum(dy_dX * dX_dF);
-        dx_dk1 = norm_predicted.x * state.focal_length.v * r2 + sum(dx_dX * dX_dk1);
-        dy_dk1 = norm_predicted.y * state.focal_length.v * r2 + sum(dy_dX * dX_dk1);
-        dx_dk2 = norm_predicted.x * state.focal_length.v * r4 + sum(dx_dX * dX_dk2);
-        dy_dk2 = norm_predicted.y * state.focal_length.v * r4 + sum(dy_dX * dX_dk2);
+        dx_dk1 = norm_predicted.x * state.focal_length.v * r2        + sum(dx_dX * dX_dk1);
+        dy_dk1 = norm_predicted.y * state.focal_length.v * r2        + sum(dy_dX * dX_dk1);
+        dx_dk2 = norm_predicted.x * state.focal_length.v * (r2 * r2) + sum(dx_dX * dX_dk2);
+        dy_dk2 = norm_predicted.y * state.focal_length.v * (r2 * r2) + sum(dy_dX * dX_dk2);
         dx_dcx = 1. + sum(dx_dX * dX_dcx);
         dx_dcy = sum(dx_dX * dX_dcy);
         dy_dcx = sum(dy_dX * dX_dcx);
@@ -420,12 +420,12 @@ f_t observation_vision_feature::projection_residual(const v4 & X_inf, const f_t 
         fprintf(stderr, "FAILURE in feature projection in observation_vision_feature::predict\n");
     }
     feature_t norm, uncalib;
-    f_t r2, r4, r6, kr;
+    f_t r2, kr;
     
     norm.x = ippred[0];
     norm.y = ippred[1];
     
-    state.fill_calibration(norm, r2, r4, r6, kr);
+    state.fill_calibration(norm, r2, kr);
     
     uncalib.x = norm.x * kr * state.focal_length.v + state.center_x.v;
     uncalib.y = norm.y * kr * state.focal_length.v + state.center_y.v;
@@ -440,7 +440,7 @@ void observation_vision_feature::update_initializing()
     f_t min = 0.01; //infinity-ish (100m)
     f_t max = 10.; //1/.10 for 10cm
     f_t min_d2, max_d2;
-    v4 X_inf = Rtot * feature->calibrated;
+    v4 X_inf = Rtot * X0;
     
     v4 X_inf_proj = X_inf / X_inf[2];
     v4 X_0 = X_inf + max * Ttot;
@@ -602,7 +602,20 @@ bool observation_accelerometer::measure()
     if(!state.orientation_initialized)
     {
         //first measurement - use to determine orientation
-        state.W.v = to_rotation_vector(rotation_between_two_vectors(meas, v4(0., 0., 1., 0.)));
+        v4 z(0., 0., 1., 0.);
+        quaternion q = rotation_between_two_vectors(meas, z);
+        //we want camera to face positive y, so device faces negative y
+        v4 y(0., -1., 0., 0.);
+        v4 zt = quaternion_rotate(q, z);
+        //project the transformed z vector onto the x-y plane
+        zt[2] = 0.;
+        f_t len = norm(zt);
+        if(len > 1.e-6) // otherwise we're looking straight up or down, so don't make any changes
+        {
+            quaternion dq = rotation_between_two_vectors_normalized(zt / len, y);
+            q = quaternion_product(q, dq);
+        }
+        state.W.v = to_rotation_vector(q);
         state.orientation_initialized = true;
         valid = false;
         return false;

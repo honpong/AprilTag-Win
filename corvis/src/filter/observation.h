@@ -57,7 +57,7 @@ class observation_vision_feature: public observation_storage<2> {
     const state_vision &state;
  public:
     static stdev_scalar stdev[2], inn_stdev[2];
-    m4 Rrt, Rbc, Rcb, RcbRrt;
+    m4 Rrt, Rbc, Rcb;
     v4 X0, X;
     uint8_t *im1, *im2;
     struct tracker tracker;

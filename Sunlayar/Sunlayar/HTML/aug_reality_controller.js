@@ -243,7 +243,9 @@ var ARController = (function ($, window, RC3DK, THREE)
 
     function matrix4FromPlainObject(plainObject)
     {
-        return new THREE.Matrix4(plainObject.m00, plainObject.m01, plainObject.m02, plainObject.m03, plainObject.m10, plainObject.m11, plainObject.m12, plainObject.m13, plainObject.m20, plainObject.m21, plainObject.m22, plainObject.m23, plainObject.m30, plainObject.m31, plainObject.m32, plainObject.m33);
+        var matrix = new THREE.Matrix4();
+        matrix.set(plainObject.m00, plainObject.m01, plainObject.m02, plainObject.m03, plainObject.m10, plainObject.m11, plainObject.m12, plainObject.m13, plainObject.m20, plainObject.m21, plainObject.m22, plainObject.m23, plainObject.m30, plainObject.m31, plainObject.m32, plainObject.m33);
+        return  matrix;
     }
 
     return module;

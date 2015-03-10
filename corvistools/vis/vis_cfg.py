@@ -14,8 +14,8 @@ cor.plugins_register(mvp)
 
 import ImagePanel
 ip = myvis.frame_1.image_widget
-imageover = ImagePanel.ImageOverlay()
-featover = ImagePanel.FeatureOverlay()
+imageover = ImagePanel.ImageOverlay(ip)
+featover = ImagePanel.FeatureOverlay(ip)
 
 ip.renderables.append(imageover)
 ip.renderables.append(featover)

@@ -56,7 +56,6 @@ class PlotNotebook(wx.Panel, Mouse.Wheel, Mouse.Drag):
         self.SetSizer(sizer)
         self.Connect(-1, -1, EVT_CREATE_PLOT, self.OnCreatePlot)
         self.plots = dict()
-        self.Bind(wx.EVT_IDLE, self.OnIdle)
         self.zoomfactor = 1.0
         self.origin = numpy.array([0,0])
         self.latest = 0.
@@ -67,24 +66,28 @@ class PlotNotebook(wx.Panel, Mouse.Wheel, Mouse.Drag):
         return plot
 
     def plot_dispatch(self, packet):
+        update = False
         if packet.header.type == cor.packet_plot:
             plot = self.plots[packet.header.user]
             self.latest = packet.header.time/1000000.
             plot.packet_plot(packet)
+            update = True
         elif packet.header.type == cor.packet_plot_info:
             plot = self.add(packet.identity, packet.nominal)
             self.plots[packet.header.user] = plot
+            update = True
         elif packet.header.type == cor.packet_plot_drop:
             plot = self.plots[packet.header.user]
             self.plots.pop(plot)
+            update = True
 
-    def OnIdle(self, event):
-        page = self.nb.GetCurrentPage()
-        if page is not None:
-            stop = self.latest + self.origin[0];
-            start = stop - 1./self.zoomfactor;
-            page.update(start, stop)
-        wx.WakeUpIdle()
+        if update:
+            page = self.nb.GetCurrentPage()
+            if page is not None:
+                stop = self.latest + self.origin[0];
+                start = stop - 1./self.zoomfactor;
+                page.update(start, stop)
+            self.Update()
         
     def OnMotion(self, event):
         Mouse.Drag.OnMotion(self, event)

@@ -81,7 +81,9 @@ var ARController = (function ($, window, RC3DK, THREE)
 
         RC3DK.onMatricesUpdate(function (matrices)
         {
-            updateWebGLView(matrices);
+            var projectionMatrix = matrix4FromPlainObject(matrices.projection);
+            var cameraMatrix = matrix4FromPlainObject(matrices.camera);
+            updateWebGLView(projectionMatrix, cameraMatrix);
         });
     });
 
@@ -227,12 +229,9 @@ var ARController = (function ($, window, RC3DK, THREE)
         scene.add( light );
     }
 
-    function updateWebGLView(matrices)
+    function updateWebGLView(projectionMatrix, cameraMatrix)
     {
-        var projectionMatrix = matrix4FromPlainObject(matrices.projection);
         if (!projectionMatrix) alert("no proj matrix");
-
-        var cameraMatrix = matrix4FromPlainObject(matrices.camera);
         if (!cameraMatrix) alert("no camera matrix");
 
         camera.projectionMatrix = projectionMatrix;

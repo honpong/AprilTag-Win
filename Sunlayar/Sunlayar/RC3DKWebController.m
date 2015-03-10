@@ -18,6 +18,7 @@
 {
     id<RCSensorDelegate> sensorDelegate;
     BOOL useLocation;
+    RCSensorFusionStatus* currentStatus;
 }
 @synthesize isSensorFusionRunning;
 
@@ -110,6 +111,7 @@
     {
         if (!self.videoView) _videoView = [[RCVideoPreview alloc] initWithFrame:self.view.frame];
         self.videoView.orientation = UIInterfaceOrientationLandscapeRight; // TODO handle other orientations
+        self.videoView.delegate = self;
         [self.view insertSubview:self.videoView belowSubview:self.webView];
         
         if (!isSensorFusionRunning) [[sensorDelegate getVideoProvider] setDelegate:self.videoView];
@@ -127,6 +129,32 @@
         _videoView = nil;
         _isVideoViewShowing = NO;
     }
+}
+
+#pragma mark - RCVideoPreviewDelegate
+
+- (void)renderWithSensorFusionData:(RCSensorFusionData *)data withCameraToScreenMatrix:(GLKMatrix4)cameraToScreen
+{
+    if (currentStatus.runState == RCSensorFusionRunStateRunning)
+    {
+        GLKMatrix4 camera;
+        [[data.cameraTransformation getInverse] getOpenGLMatrix:camera.m];
+        
+        NSString* jsObjectString = [NSString stringWithFormat:@"{ projection : %@, camera : %@ }",
+                                    [self matrixToJavascriptObjectString:cameraToScreen],
+                                    [self matrixToJavascriptObjectString:camera]];
+        
+        NSString* javascript = [NSString stringWithFormat:@"RC3DK.sensorFusionDidUpdateMatrices(%@);", jsObjectString];
+//        DLog(@"%@", javascript);
+        NSString* result = [self.webView stringByEvaluatingJavaScriptFromString: javascript];
+        if (!result) DLog(@"Web view error while executing: %@", javascript);
+    }
+}
+
+- (NSString*) matrixToJavascriptObjectString:(GLKMatrix4)matrix
+{
+    return [NSString stringWithFormat:@"{ m00: %f, m01: %f, m02: %f, m03: %f, m10: %f, m11: %f, m12: %f, m13: %f, m20: %f, m21: %f, m22: %f, m23: %f, m30: %f, m31: %f, m32: %f, m33: %f }",
+            matrix.m00, matrix.m01, matrix.m02, matrix.m03, matrix.m10, matrix.m11, matrix.m12, matrix.m13, matrix.m20, matrix.m21, matrix.m22, matrix.m23, matrix.m30, matrix.m31, matrix.m32, matrix.m33];
 }
 
 #pragma mark - 3DK Stuff
@@ -167,6 +195,8 @@
 
 - (void) sensorFusionDidChangeStatus:(RCSensorFusionStatus *)status
 {
+    currentStatus = status;
+    
     NSString* statusJson = [[status dictionaryRepresentation] JavascriptObjRepresentation]; // expensive
     NSString* javascript = [NSString stringWithFormat:@"RC3DK.sensorFusionDidChangeStatus(%@);", statusJson];
 //    DLog(@"%@", javascript);
@@ -184,7 +214,7 @@
 {
     NSNumber* medianFeatureDepth = [self calculateMedianFeatureDepth:data.featurePoints];
     
-    NSString* dataJson = [[data dictionaryRepresentation] JavascriptObjRepresentation]; // expensive
+    NSString* dataJson = [[data dictionaryRepresentationForJsonSerialization] JavascriptObjRepresentation];
     NSString* javascript = [NSString stringWithFormat:@"RC3DK.sensorFusionDidUpdateData(%@, %f);", dataJson, medianFeatureDepth.floatValue];
 //    DLog(@"%@", javascript);
     

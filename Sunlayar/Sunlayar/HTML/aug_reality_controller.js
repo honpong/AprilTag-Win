@@ -36,6 +36,7 @@ var ARController = (function ($, window, RC3DK, THREE)
 //            enterReadyState();
 //        });
 
+        setupWebGLView();
         enterReadyState();
 
         $("#shutterButton").on( "click", function() {
@@ -75,10 +76,13 @@ var ARController = (function ($, window, RC3DK, THREE)
 
         RC3DK.onDataUpdate(function (data, medianFeatureDepth)
         {
-            updateWebGLView(data);
+            // do something with the data
         });
 
-        setupWebGLView();
+        RC3DK.onMatricesUpdate(function (matrices)
+        {
+            updateWebGLView(matrices);
+        });
     });
 
     function loadRoofJsonFile(callback)
@@ -223,21 +227,23 @@ var ARController = (function ($, window, RC3DK, THREE)
         scene.add( light );
     }
 
-    var exFactor = 15; // translation exaggeration factor
-    function updateWebGLView(data)
+    function updateWebGLView(matrices)
     {
-        if (data.transformation.translation)
-        {
-            camera.position.set(-data.cameraTransformation.translation.v1 * exFactor, data.cameraTransformation.translation.v2 * exFactor, -data.cameraTransformation.translation.v0 * exFactor);
-        }
+        var projectionMatrix = matrix4FromPlainObject(matrices.projection);
+        if (!projectionMatrix) alert("no proj matrix");
 
-        // the rotation is not working correctly yet. it needs to be converted into the WebGL coordinate system.
-//        if (data.transformation.rotation)
-//        {
-//            camera.quaternion.set(data.transformation.rotation.qy, data.transformation.rotation.qz, data.transformation.rotation.qx, data.transformation.rotation.qw);
-//        }
+        var cameraMatrix = matrix4FromPlainObject(matrices.camera);
+        if (!cameraMatrix) alert("no camera matrix");
+
+        camera.projectionMatrix = projectionMatrix;
+        camera.matrixWorldInverse = cameraMatrix;
 
         renderer.render( scene, camera );
+    }
+
+    function matrix4FromPlainObject(plainObject)
+    {
+        return new THREE.Matrix4(plainObject.m00, plainObject.m01, plainObject.m02, plainObject.m03, plainObject.m10, plainObject.m11, plainObject.m12, plainObject.m13, plainObject.m20, plainObject.m21, plainObject.m22, plainObject.m23, plainObject.m30, plainObject.m31, plainObject.m32, plainObject.m33);
     }
 
     return module;

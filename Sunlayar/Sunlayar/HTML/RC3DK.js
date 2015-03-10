@@ -14,7 +14,7 @@
         }
         RC3DK.prototype._singletonInstance = this;
 
-        var statusUpdateCallback, dataUpdateCallback;
+        var statusUpdateCallback, dataUpdateCallback, matricesUpdateCallback;
 
         this.baseUrl = "http://dummy.realitycap.com/";
 
@@ -128,6 +128,14 @@
             if (dataUpdateCallback) dataUpdateCallback(data, medianFeatureDepth);
         };
 
+        /*
+        the data object contains two matrices: projection and camera. each matrix has the properties m00...m33
+         */
+        this.sensorFusionDidUpdateMatrices = function (matrices)
+        {
+            if (matricesUpdateCallback) matricesUpdateCallback(matrices);
+        };
+
         this.onStatusUpdate = function (callback)
         {
             statusUpdateCallback = callback;
@@ -136,6 +144,11 @@
         this.onDataUpdate = function (callback)
         {
             dataUpdateCallback = callback;
+        };
+
+        this.onMatricesUpdate = function(callback)
+        {
+            matricesUpdateCallback = callback;
         };
 
         this.logNative = function (message) {

@@ -13,7 +13,7 @@
 #import "RC3DK.h"
 #import "RCHttpInterceptor.h"
 
-@interface RC3DKWebController : UIViewController <RCSensorFusionDelegate, UIWebViewDelegate, RCHttpInterceptorDelegate>
+@interface RC3DKWebController : UIViewController <RCSensorFusionDelegate, UIWebViewDelegate, RCHttpInterceptorDelegate, RCVideoPreviewDelegate>
 {
     NSURL* pageURL;
 }

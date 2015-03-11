@@ -142,7 +142,7 @@
         
         NSString* jsObjectString = [NSString stringWithFormat:@"{ projection : %@, camera : %@ }",
                                     [self matrixToJavascriptObjectString:cameraToScreen],
-                                    [self matrixToJavascriptObjectString:camera]];
+                                    [self matrixToJavascriptObjectString:GLKMatrix4Transpose(camera)]];
         
         NSString* javascript = [NSString stringWithFormat:@"RC3DK.sensorFusionDidUpdateMatrices(%@);", jsObjectString];
 //        DLog(@"%@", javascript);

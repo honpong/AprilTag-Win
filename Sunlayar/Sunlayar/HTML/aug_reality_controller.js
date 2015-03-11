@@ -190,11 +190,11 @@ var ARController = (function ($, window, RC3DK, THREE)
         window.document.body.appendChild( renderer.domElement );
 
         var cube = new THREE.Mesh(
-            new THREE.CubeGeometry( 1, 1, 1 ),
+            new THREE.CubeGeometry( .1, .1, .1 ),
             new THREE.MeshLambertMaterial( { color: 0xFFFFFF } )
         );
         scene.add( cube );
-        cube.position.z = -5;
+        cube.position.y = 1;
 
         var light;
 
@@ -234,9 +234,9 @@ var ARController = (function ($, window, RC3DK, THREE)
         if (!projectionMatrix) alert("no proj matrix");
         if (!cameraMatrix) alert("no camera matrix");
 
-        camera.projectionMatrix = projectionMatrix;
-        camera.matrixWorldInverse = cameraMatrix;
-
+        //camera.projectionMatrix = projectionMatrix;
+        camera.matrixAutoUpdate = false;
+        camera.matrixWorld = cameraMatrix;
         renderer.render( scene, camera );
     }
 

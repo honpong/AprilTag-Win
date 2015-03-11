@@ -154,7 +154,7 @@
         this.logNative = function (message) {
             console.log(message);
             var jsonData = { "message": message };
-            $.ajax({ type: "POST", url: baseUrl + "log", contentType: "application/json", processData: false, dataType: "json", data: JSON.stringify(jsonData) });
+            $.ajax({ type: "POST", url: this.baseUrl + "log", contentType: "application/json", processData: false, dataType: "json", data: JSON.stringify(jsonData) });
         };
 
         this.SensorFusionRunState = {

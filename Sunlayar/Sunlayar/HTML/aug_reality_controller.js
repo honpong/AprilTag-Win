@@ -194,7 +194,7 @@ var ARController = (function ($, window, RC3DK, THREE)
             new THREE.MeshLambertMaterial( { color: 0xFFFFFF } )
         );
         scene.add( cube );
-        cube.position.y = 1;
+        cube.position.x = 1;
 
         var light;
 
@@ -234,7 +234,7 @@ var ARController = (function ($, window, RC3DK, THREE)
         if (!projectionMatrix) alert("no proj matrix");
         if (!cameraMatrix) alert("no camera matrix");
 
-        //camera.projectionMatrix = projectionMatrix;
+        camera.projectionMatrix = projectionMatrix;
         camera.matrixAutoUpdate = false;
         camera.matrixWorld = cameraMatrix;
         renderer.render( scene, camera );

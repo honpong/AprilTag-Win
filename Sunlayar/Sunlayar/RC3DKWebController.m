@@ -138,10 +138,10 @@
     if (currentStatus.runState == RCSensorFusionRunStateRunning)
     {
         GLKMatrix4 camera;
-        [[data.cameraTransformation getInverse] getOpenGLMatrix:camera.m];
+        [data.cameraTransformation getOpenGLMatrix:camera.m];
         
         NSString* jsObjectString = [NSString stringWithFormat:@"{ projection : %@, camera : %@ }",
-                                    [self matrixToJavascriptObjectString:cameraToScreen],
+                                    [self matrixToJavascriptObjectString:GLKMatrix4Transpose(cameraToScreen)],
                                     [self matrixToJavascriptObjectString:GLKMatrix4Transpose(camera)]];
         
         NSString* javascript = [NSString stringWithFormat:@"RC3DK.sensorFusionDidUpdateMatrices(%@);", jsObjectString];

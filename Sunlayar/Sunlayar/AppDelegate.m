@@ -108,8 +108,8 @@
 
 - (void) gotoCaptureScreen
 {
-//    self.window.rootViewController = [SLCaptureController new];
-    self.window.rootViewController = [SLAugRealityController new]; // for testing
+    self.window.rootViewController = [SLCaptureController new];
+//    self.window.rootViewController = [SLAugRealityController new]; // for testing
 }
 
 - (void) gotoCalibration

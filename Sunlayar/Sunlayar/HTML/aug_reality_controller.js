@@ -31,13 +31,12 @@ var ARController = (function ($, window, RC3DK, THREE)
 
     $(document).ready(function()
     {
-//        loadRoofJsonFile(function (data){
-//            roofJson = data;
-//            enterReadyState();
-//        });
-
         setupWebGLView();
-        enterReadyState();
+    
+        loadRoofJsonFile(function (data){
+            roofJson = data;
+            enterReadyState();
+        });
 
         $("#shutterButton").on( "click", function() {
             switch (workflowState)

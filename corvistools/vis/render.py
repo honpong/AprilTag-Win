@@ -48,6 +48,7 @@ class MyGLCanvas(LockPaint, GLCanvas, Mouse.Wheel, Mouse.Drag):
         self.context = GLContext(self)
 #        self.InitGL()
 	self.init = 0
+	self.zoomfactor = 50
 	return
 
     def add_renderable(self, renderable, name = "unnamed"):

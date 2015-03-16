@@ -63,6 +63,7 @@ static inline v4 &operator+=(v4 &a, const v4 &other) { a.data += other.data; ret
 static inline v4 &operator-=(v4 &a, const v4 &other) { a.data -= other.data; return a; }
 static inline f_t sum(const v4 &v) { return v[0] + v[1] + v[2] + v[3]; }
 static inline f_t norm(const v4 &v) { return sqrt(sum(v*v)); }
+static inline v4 normalize(const v4 x) { return x / norm(x); }
 static inline v4 v4_sqrt(const v4 &v) { return v4(sqrt(v[0]), sqrt(v[1]), sqrt(v[2]), sqrt(v[3])); }
 static inline v4 operator-(const v4 &v) { return v4(-v.data); }
 static inline bool operator==(const v4 &a, const v4 &b) { return a[0] == b[0] && a[1] == b[1] && a[2] == b[2] && a[3] == b[3]; }

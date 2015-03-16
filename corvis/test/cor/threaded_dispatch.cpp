@@ -9,7 +9,7 @@ TEST(ThreadedDispatch, Reorder)
     auto accf = [&last_time](const accelerometer_data &x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; };
     auto gyrf = [&last_time](const gyro_data &x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; };
     
-    fusion_queue q(camf, accf, gyrf, 33000, 10000, 5000);
+    fusion_queue q(camf, accf, gyrf);
     
     q.start(true);
 
@@ -61,24 +61,25 @@ TEST(ThreadedDispatch, Reorder)
 
 TEST(ThreadedDispatch, Threading)
 {
-    uint64_t last_time = 0;
+    uint64_t last_cam_time = 0;
+    uint64_t last_acc_time = 0;
+    uint64_t last_gyr_time = 0;
     
     //Times in us
     //Thread time isn't really how long we'll spend since we just sleep for interval us
     const uint64_t thread_time = 100000;
     const uint64_t camera_interval = 33;
     const uint64_t inertial_interval = 10;
-    const uint64_t jitter = 5;
     
     int camcount = thread_time / camera_interval;
     int gyrcount = thread_time / inertial_interval;
     int acccount = thread_time / inertial_interval;
     
-    auto camf = [&last_time, &camcount](const camera_data &x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; --camcount; };
-    auto accf = [&last_time, &acccount](const accelerometer_data &x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; --acccount; };
-    auto gyrf = [&last_time, &gyrcount](const gyro_data &x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; --gyrcount; };
+    auto camf = [&last_cam_time, &camcount](const camera_data &x) { EXPECT_GE(x.timestamp, last_cam_time); last_cam_time = x.timestamp; --camcount; };
+    auto accf = [&last_acc_time, &acccount](const accelerometer_data &x) { EXPECT_GE(x.timestamp, last_acc_time); last_acc_time = x.timestamp; --acccount; };
+    auto gyrf = [&last_gyr_time, &gyrcount](const gyro_data &x) { EXPECT_GE(x.timestamp, last_gyr_time); last_gyr_time = x.timestamp; --gyrcount; };
 
-    fusion_queue q(camf, accf, gyrf, camera_interval, inertial_interval, jitter);
+    fusion_queue q(camf, accf, gyrf);
 
     auto start = std::chrono::steady_clock::now();
     
@@ -129,66 +130,3 @@ TEST(ThreadedDispatch, Threading)
     fprintf(stderr, "%d items dropped\n", camcount + gyrcount + acccount);
 }
 
-TEST(ThreadedDispatch, DropLate)
-{
-    uint64_t last_time = 0;
-    auto camf = [&last_time](const camera_data &x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; };
-    auto accf = [&last_time](const accelerometer_data &x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; EXPECT_NE(x.timestamp, 17000); };
-    auto gyrf = [&last_time](const gyro_data &x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; EXPECT_NE(x.timestamp, 40000); };
-    
-    fusion_queue q(camf, accf, gyrf, 33000, 10000, 5000);
-    
-    q.start(true);
-    
-    struct gyro_data g;
-    g.timestamp = 0;
-    q.receive_gyro(g);
-    
-    g.timestamp = 10000;
-    q.receive_gyro(g);
-    
-    struct accelerometer_data a;
-    a.timestamp = 8000;
-    q.receive_accelerometer(a);
-    
-    struct camera_data c;
-    c.timestamp = 5000;
-    q.receive_camera(c);
-    
-    a.timestamp = 18000;
-    q.receive_accelerometer(a);
-
-    g.timestamp = 20000;
-    q.receive_gyro(g);
-
-    a.timestamp = 17000;
-    q.receive_accelerometer(a);
-    
-    a.timestamp = 28000;
-    q.receive_accelerometer(a);
-    
-    a.timestamp = 38000;
-    q.receive_accelerometer(a);
-    
-    c.timestamp = 38000;
-    q.receive_camera(c);
-
-    a.timestamp = 48000;
-    q.receive_accelerometer(a);
-    
-    //NOTE: This makes this test a little non-deterministic - if it fails due to the 40000 timestamp showing up this could be why
-    //If we remove the sleep, everything gets into the queue before the dispatch thread even starts, so everything shows up on the other side in order
-    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
-    g.timestamp = 30000;
-    q.receive_gyro(g);
-
-    g.timestamp = 40000;
-    q.receive_gyro(g);
-
-    g.timestamp = 50000;
-    q.receive_gyro(g);
-    
-    q.stop();
-    q.wait_until_finished();
-}

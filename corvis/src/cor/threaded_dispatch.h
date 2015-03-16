@@ -18,28 +18,21 @@ template<typename T, int size>
 class sensor_queue
 {
 public:
-    sensor_queue(std::mutex &mx, std::condition_variable &cnd, const volatile bool &actv, volatile uint64_t &latest_received, const volatile uint64_t &last_dispatched, uint64_t expected_period, uint64_t max_jitter);
+    sensor_queue(std::mutex &mx, std::condition_variable &cnd, const bool &actv);
+    bool empty() const { return count == 0; }
     bool push(const T& x); //Doesn't block. Returns false if the queue is full or data arrived out of order
     T pop(std::unique_lock<std::mutex> &lock); // assumes the lock is already held
-    bool empty() const { return count == 0; }
-    bool ok_to_dispatch(const uint64_t time) const;
-    uint64_t get_next_time() const { return count ? storage[readpos].timestamp : UINT64_MAX; }
+    uint64_t get_next_time(std::unique_lock<std::mutex> &lock) const { return count ? storage[readpos].timestamp : UINT64_MAX; }
 private:
     std::array<T, size> storage;
 
     std::mutex &mutex;
     std::condition_variable &cond;
-    const volatile bool &active;
-    volatile uint64_t &global_latest_received;
-    const volatile uint64_t &global_last_dispatched;
+    const bool &active;
 
-    static_assert(ATOMIC_INT_LOCK_FREE, "This assumes that basic operations on ints are atomic!\n");
-    uint64_t last_time;
-    uint64_t period;
-    uint64_t jitter;
     int readpos;
     int writepos;
-    int count;
+    std::atomic<int> count;
 };
 
 struct accelerometer_data
@@ -59,6 +52,7 @@ struct camera_data
     uint64_t timestamp;
     const char *image;
     void *image_handle;
+    
     int width, height, stride;
 };
 
@@ -67,10 +61,7 @@ class fusion_queue
 public:
     fusion_queue(const std::function<void(const camera_data &)> &camera_func,
                  const std::function<void(const accelerometer_data &)> &accelerometer_func,
-                 const std::function<void(const gyro_data &)> &gyro_func,
-                 uint64_t camera_period,
-                 uint64_t inertial_period,
-                 uint64_t max_jitter);
+                 const std::function<void(const gyro_data &)> &gyro_func);
     
     void start(bool synchronous = false);
     void stop(bool synchronous = false);
@@ -83,7 +74,7 @@ public:
 private:
     void runloop();
     void dispatch_next(std::unique_lock<std::mutex> &lock);
-    bool can_dispatch();
+    bool can_dispatch(std::unique_lock<std::mutex> &lock);
 
     std::mutex mutex;
     std::condition_variable cond;
@@ -97,10 +88,7 @@ private:
     sensor_queue<gyro_data, 10> gyro_queue;
     sensor_queue<camera_data, 3> camera_queue;
     std::function<void()> control_func;
-    volatile bool active;
-    
-    volatile uint64_t latest_received;
-    volatile uint64_t last_dispatched;
+    bool active;    
 };
 
 #endif /* defined(__threaded_dispatch__) */

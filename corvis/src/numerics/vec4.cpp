@@ -48,30 +48,6 @@ const v4m4 invskew3_jacobian = { {
 }
 };
 
-/*
-    if(V2) {
-
-    }
-}
-*/
-
-                               /*
-v4 quaternion_from_axis_angle(const v4 W, m4 *dQ_dW)
-{
-    v4 W2 = W * W;
-    f_t theta2 = sum(W2);
-    if(theta2 <= 0.) {
-        return (v4) { 1., 0., 0., 0. };
-    }
-    f_t theta = sqrt(theta2),
-        cos_theta = cos(theta / 2.),
-        sin_theta = sin(theta / 2.),
-        sterm = sin_theta / theta;
-    
-    return (v4) { cos_theta, W[0] * sterm, W[1] * sterm, W[2] * sterm };
-}
-                               */
-
 m4 rodrigues(const v4 W, m4v4 *dR_dW)
 {
     v4 W2 = W * W;

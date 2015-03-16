@@ -241,28 +241,20 @@ void test_rotation(const v4 &vec)
     {
         SCOPED_TRACE("rodrigues = to_rotation_matrix");
         m4v4 rodjac;
-        EXPECT_EQ(rodrigues(vec, &rodjac), rotmat);
+        test_m4_near(rodrigues(vec, &rodjac), rotmat, F_T_EPS);
         EXPECT_EQ(rodjac, dR_dW);
     }
     
     {
         SCOPED_TRACE("rot_vec(quaternion(vec)) = vec");
-        EXPECT_EQ(to_rotation_vector(to_quaternion(rvec)), rvec);
+        test_rotation_vector_near(to_rotation_vector(to_quaternion(rvec)), rvec, F_T_EPS);
     }
     
-    //Inverse rodrigues is bad and no longer used.
-    /*v4 inv = invrodrigues(rotmat, &dW_dR);
-     //if it's close to pi, regularize it
-     if(norm(vec) > M_PI - .001) {
-     for(int i = 0; i < 3; ++i) {
-     if(vec[i] * inv[i] < 0.) inv = -inv;
-     }
-     }
-     
-     {
-     SCOPED_TRACE("vec = invrod(rod(vec))");
-     test_v4_near(vec, inv, 1.e-7);
-     }*/
+    {
+        rotation_vector inv = to_rotation_vector(rotmat);
+        SCOPED_TRACE("vec = invrod(rod(vec))");
+        test_rotation_vector_near(rvec, inv, 4*F_T_EPS);
+    }
     
     //The next two fail the normal float comparison due to matrix product - (TODO: rearrange matrix operations?)
     {
@@ -391,7 +383,7 @@ TEST(Matrix4, Rotation) {
     {
         SCOPED_TRACE("identity matrix = 0 rotation vector");
         EXPECT_EQ(rodrigues(v4(0.), NULL), m4_identity);
-        EXPECT_EQ(invrodrigues(m4_identity, NULL), v4(0., 0., 0., 0.));
+        test_rotation_vector_near(to_rotation_vector(m4_identity), rotation_vector(0., 0., 0.), 0);
     }
     
     {

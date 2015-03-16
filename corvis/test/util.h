@@ -30,6 +30,17 @@ static inline void test_quaternion_near(const quaternion &a, const quaternion &b
     EXPECT_NEAR(a.z(), b.z(), bounds) << "Where index is z";
 }
 
+static inline void test_rotation_vector_near(const rotation_vector &a, const rotation_vector &b, const f_t bounds)
+{
+    v4 A(a.x(), a.y(), a.z(), 0), B(b.x(), b.y(), b.z(), 0);
+    if (A == v4() || B == v4()) {
+        EXPECT_NEAR(fmod(norm(A), 2*M_PI), 0, bounds)                 << "Where a = " << a;
+        EXPECT_NEAR(fmod(norm(B), 2*M_PI), 0, bounds)                 << "Where b = " << b;
+    } else
+        EXPECT_NEAR(fabs(dot(normalize(A), normalize(B))), 1, bounds) << "Where a = " << a << " b = " << b;
+    EXPECT_NEAR(fmod(norm(A-B), 2*M_PI), 0, bounds)                   << "Where a = " << a << " b = " << b;
+}
+
 static inline void test_quaternion_near_rotation(const quaternion &a, const quaternion &b, const f_t bounds)
 {
     //interpreted as rotations, q = -q

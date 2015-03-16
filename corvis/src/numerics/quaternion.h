@@ -293,6 +293,11 @@ static inline rotation_vector to_rotation_vector(const quaternion &q) {
     return rotation_vector(q.x() * scale, q.y() * scale, q.z() * scale);
 }
 
+static inline rotation_vector to_rotation_vector(const m4 &R)
+{
+    return to_rotation_vector(to_quaternion(R));
+}
+
 static inline quaternion integrate_angular_velocity(const quaternion &Q, const v4 &w)
 {
     return quaternion(Q.w() + .5 * (-Q.x() * w[0] - Q.y() * w[1] - Q.z() * w[2]),

@@ -667,7 +667,7 @@ bool feature_variance_comp(state_vision_feature *p1, state_vision_feature *p2) {
     return p1->variance() < p2->variance();
 }
 
-void filter_setup_next_frame(struct filter *f, uint64_t time)
+void filter_setup_next_frame(struct filter *f, uint8_t *image, uint64_t time)
 {
     size_t feats_used = f->s.features.size();
 
@@ -684,8 +684,7 @@ void filter_setup_next_frame(struct filter *f, uint64_t time)
                 obs->feature = i;
                 obs->meas[0] = i->current[0];
                 obs->meas[1] = i->current[1];
-                obs->im1 = f->track.im1;
-                obs->im2 = f->track.im2;
+                obs->image = image;
                 obs->tracker = f->track;
 
                 f->observations.observations.push_back(obs);
@@ -960,10 +959,8 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
         }
     }
 
-    f->track.im1 = f->track.im2;
-    f->track.im2 = data;
 
-    filter_setup_next_frame(f, time);
+    filter_setup_next_frame(f, data, time);
 
     if(show_tuning) {
         fprintf(stderr, "vision:\n");
@@ -1351,6 +1348,7 @@ void filter_start_dynamic(struct filter *f)
     f->run_state = RCSensorFusionRunStateDynamicInitialization;
 }
 
+/*
 void filter_select_feature(struct filter *f, float x, float y)
 {
     //first, see if we already have a feature there
@@ -1379,7 +1377,7 @@ void filter_select_feature(struct filter *f, float x, float y)
     if(!myfeat) return; //couldn't find anything
     myfeat->user = true;
     f->s.remap();
-}
+}*/
 
 void filter_start_qr_detection(struct filter *f, const char * data, float dimension, bool use_gravity)
 {

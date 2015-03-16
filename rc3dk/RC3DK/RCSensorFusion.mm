@@ -89,7 +89,6 @@ typedef NS_ENUM(int, RCLicenseStatus)
     bool isSensorFusionRunning;
     bool isProcessingVideo;
     bool processingVideoRequested;
-    CVPixelBufferRef pixelBufferCached;
     dispatch_queue_t queue, inputQueue;
     NSMutableArray *dataWaiting;
     BOOL isLicenseValid;
@@ -320,12 +319,6 @@ typedef NS_ENUM(int, RCLicenseStatus)
 
 - (void) dealloc
 {
-    if (pixelBufferCached)
-    {
-        CVPixelBufferUnlockBaseAddress(pixelBufferCached, kCVPixelBufferLock_ReadOnly);
-        CVPixelBufferRelease(pixelBufferCached);
-    }
-
     dispatch_sync(queue, ^{
         plugins_stop();
         if(_cor_setup) delete _cor_setup;
@@ -462,11 +455,11 @@ typedef NS_ENUM(int, RCLicenseStatus)
  @param x The requested vertical location, in pixels relative to the image coordinate frame.
  */
 //- (void) selectUserFeatureWithX:(float)x withY:(float)Y;
-- (void) selectUserFeatureWithX:(float)x withY:(float)y
+/*- (void) selectUserFeatureWithX:(float)x withY:(float)y
 {
     if(!isProcessingVideo) return;
     dispatch_async(queue, ^{ filter_select_feature(&_cor_setup->sfm, x, y); });
-}
+}*/
 
 - (void) flushAndReset
 {
@@ -476,11 +469,6 @@ typedef NS_ENUM(int, RCLicenseStatus)
     });
     dispatch_sync(queue, ^{
         filter_initialize(&_cor_setup->sfm, _cor_setup->device);
-        if(pixelBufferCached) {
-            CVPixelBufferUnlockBaseAddress(pixelBufferCached, kCVPixelBufferLock_ReadOnly);
-            CVPixelBufferRelease(pixelBufferCached);
-            pixelBufferCached = nil;
-        }
     });
 
     _cor_setup->sfm.camera_control.focus_unlock();
@@ -731,7 +719,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
             {
                 CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
                 CVPixelBufferRelease(pixelBuffer);
-                if (sampleBuffer) CFRelease(sampleBuffer);
+                if(sampleBuffer) CFRelease(sampleBuffer);
                 return;
             } else if(isProcessingVideo) {
                 docallback = filter_image_measurement(&_cor_setup->sfm, pixel, (int)width, (int)height, (int)stride, offset_time);
@@ -739,21 +727,11 @@ typedef NS_ENUM(int, RCLicenseStatus)
                 //We're not actually running, but we do want to send updates for the video preview. Make sure that rotation is initialized.
                 docallback =  _cor_setup->sfm.gravity_init;
             }
-            if(docallback) {
-                if(pixelBufferCached) {
-                    CVPixelBufferUnlockBaseAddress(pixelBufferCached, kCVPixelBufferLock_ReadOnly);
-                    CVPixelBufferRelease(pixelBufferCached);
-                }
-                pixelBufferCached = pixelBuffer;
-                [self sendStatus];
-                [self sendDataWithSampleBuffer:sampleBuffer];
-                if (sampleBuffer) CFRelease(sampleBuffer);
-            } else {
-                CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
-                CVPixelBufferRelease(pixelBuffer);
-                if (sampleBuffer) CFRelease(sampleBuffer);
-                [self sendStatus];
-            }
+            CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
+            CVPixelBufferRelease(pixelBuffer);
+            [self sendStatus];
+            if(docallback) [self sendDataWithSampleBuffer:sampleBuffer];
+            if(sampleBuffer) CFRelease(sampleBuffer);
         });
     });
 }

@@ -13,7 +13,6 @@ struct tracker {
     int height;
     int stride;
     const static int half_patch_width = 3;
-    uint8_t *im1, *im2;
     struct mapbuffer *sink;
     fast_detector_9 fast;
     

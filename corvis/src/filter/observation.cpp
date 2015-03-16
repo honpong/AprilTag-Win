@@ -349,7 +349,9 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
 
     if(!feature->is_initialized()) {
         for(int j = 0; j < dst.cols; ++j) {
+#if estimate_camera_extrinsics
             v4 cov_Wc = state.Wc.copy_cov_from_row(src, j);
+#endif
             v4 cov_Wr = state_group->Wr.copy_cov_from_row(src, j);
             dst(0, j) =
 #if estimate_camera_extrinsics

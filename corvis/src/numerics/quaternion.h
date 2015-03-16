@@ -36,10 +36,6 @@ static inline std::ostream& operator<<(std::ostream &stream, const quaternion &q
     return stream << "[" << q.w() << ", (" << q.x() << ", " << q.y() << ", " << q.z() << ")]";
 }
 
-/*static inline quaternion operator*(const quaternion &a, const f_t other) { return quaternion(a.data * v4(other).data); }
-static inline quaternion operator*(const f_t other, const quaternion &a) { return quaternion(a.data * v4(other).data); }
-static inline quaternion operator+(const quaternion &a, const quaternion &other) { return quaternion(a.data + other.data); }*/
-
 static inline bool operator==(const quaternion &a, const quaternion &b)
 {
     return a.w() == b.w() && a.x() == b.x() && a.y() == b.y() && a.z() == b.z();

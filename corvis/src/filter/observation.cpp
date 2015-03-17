@@ -1,6 +1,7 @@
 #include "observation.h"
 #include "tracker.h"
 #include "kalman.h"
+#include "utils.h"
 
 stdev_scalar observation_vision_feature::stdev[2], observation_vision_feature::inn_stdev[2];
 stdev_vector observation_accelerometer::stdev, observation_accelerometer::inn_stdev, observation_gyroscope::stdev, observation_gyroscope::inn_stdev;
@@ -603,21 +604,7 @@ bool observation_accelerometer::measure()
     stdev.data(v4(meas[0], meas[1], meas[2], 0.));
     if(!state.orientation_initialized)
     {
-        //first measurement - use to determine orientation
-        v4 z(0., 0., 1., 0.);
-        quaternion q = rotation_between_two_vectors(meas, z);
-        //we want camera to face positive y, so device faces negative y
-        v4 y(0., -1., 0., 0.);
-        v4 zt = quaternion_rotate(q, z);
-        //project the transformed z vector onto the x-y plane
-        zt[2] = 0.;
-        f_t len = norm(zt);
-        if(len > 1.e-6) // otherwise we're looking straight up or down, so don't make any changes
-        {
-            quaternion dq = rotation_between_two_vectors_normalized(zt / len, y);
-            q = quaternion_product(q, dq);
-        }
-        state.W.v = to_rotation_vector(q);
+        state.W.v = to_rotation_vector(initial_orientation_from_gravity(meas));
         state.orientation_initialized = true;
         valid = false;
         return false;

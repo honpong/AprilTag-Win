@@ -13,14 +13,14 @@ TEST(ThreadedDispatch, Reorder)
     
     q.start(true);
 
-    struct gyro_data g;
+    gyro_data g;
     g.timestamp = 0;
     q.receive_gyro(std::move(g));
 
     g.timestamp = 10000;
     q.receive_gyro(std::move(g));
 
-    struct accelerometer_data a;
+    accelerometer_data a;
     a.timestamp = 8000;
     q.receive_accelerometer(std::move(a));
 
@@ -98,7 +98,7 @@ TEST(ThreadedDispatch, Threading)
         }
     });
     std::thread gyrothread([&q, start, inertial_interval, gyrcount]{
-        struct gyro_data x;
+        gyro_data x;
         for(int i = 0; i < gyrcount; ++i)
         {
             auto now = std::chrono::steady_clock::now();
@@ -110,7 +110,7 @@ TEST(ThreadedDispatch, Threading)
         }
     });
     std::thread accelthread([&q, start, inertial_interval, gyrcount]{
-        struct accelerometer_data x;
+        accelerometer_data x;
         for(int i = 0; i < gyrcount; ++i)
         {
             auto now = std::chrono::steady_clock::now();

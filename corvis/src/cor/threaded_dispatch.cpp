@@ -193,14 +193,14 @@ void fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock)
     {
         accelerometer_data data = accel_queue.pop(lock);
         lock.unlock();
-        accel_receiver(data);
+        accel_receiver(std::move(data));
         lock.lock();
     }
     else
     {
         gyro_data data = gyro_queue.pop(lock);
         lock.unlock();
-        gyro_receiver(data);
+        gyro_receiver(std::move(data));
         lock.lock();
     }
 }

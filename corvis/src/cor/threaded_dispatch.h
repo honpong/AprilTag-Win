@@ -13,7 +13,7 @@
 #include <thread>
 #include <atomic>
 #include <condition_variable>
-#include "platform/camera_data.h"
+#include "platform/sensor_data.h"
 
 template<typename T, int size>
 class sensor_queue
@@ -34,18 +34,6 @@ private:
     int readpos;
     int writepos;
     std::atomic<int> count;
-};
-
-struct accelerometer_data
-{
-    uint64_t timestamp;
-    float accel_m__s2[3];
-};
-
-struct gyro_data
-{
-    uint64_t timestamp;
-    float angvel_rad__s[3];
 };
 
 class fusion_queue

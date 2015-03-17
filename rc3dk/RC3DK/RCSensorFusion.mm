@@ -707,15 +707,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
         }
     }
     
-    accelerometer_data data;
-    data.timestamp = accelerationData.timestamp * 1000000;
-    //ios gives acceleration in g-units, so multiply by standard gravity in m/s^2
-    //it appears that accelerometer axes are flipped
-    data.accel_m__s2[0] = -accelerationData.acceleration.x * 9.80665;
-    data.accel_m__s2[1] = -accelerationData.acceleration.y * 9.80665;
-    data.accel_m__s2[2] = -accelerationData.acceleration.z * 9.80665;
-    
-    queue->receive_accelerometer(std::move(data));
+    queue->receive_accelerometer(accelerometer_data((__bridge void *)accelerationData));
 }
 
 - (void) receiveGyroData:(CMGyroData *)gyroData
@@ -732,39 +724,8 @@ typedef NS_ENUM(int, RCLicenseStatus)
         }
     }
     
-    gyro_data data;
-    data.timestamp = gyroData.timestamp * 1000000;
-    //ios gives acceleration in g-units, so multiply by standard gravity in m/s^2
-    //it appears that accelerometer axes are flipped
-    data.angvel_rad__s[0] = gyroData.rotationRate.x;
-    data.angvel_rad__s[1] = gyroData.rotationRate.y;
-    data.angvel_rad__s[2] = gyroData.rotationRate.z;
-    
-    queue->receive_gyro(std::move(data));
+    queue->receive_gyro(gyro_data((__bridge void *)gyroData));
 }
-
-/*
-- (void) receiveMotionData:(CMDeviceMotion *)motionData
-{
-    if(!isSensorFusionRunning) return;
-    if(isnan(motionData.gravity.x) || isnan(motionData.gravity.y) || isnan(motionData.gravity.z) || isnan(motionData.userAcceleration.x) || isnan(motionData.userAcceleration.y) || isnan(motionData.userAcceleration.z) || isnan(motionData.rotationRate.x) || isnan(motionData.rotationRate.y) || isnan(motionData.rotationRate.z)) return;
-    dispatch_async(inputQueue, ^{
-        if (!isSensorFusionRunning) return;
-        uint64_t time = motionData.timestamp * 1000000;
-        [self flushOperationsBeforeTime:time - 40000];
-        [self enqueueOperation:[[RCSensorFusionOperation alloc] initWithBlock:^{
-            float rot[3], grav[3];
-            rot[0] = motionData.rotationRate.x;
-            rot[1] = motionData.rotationRate.y;
-            rot[2] = motionData.rotationRate.z;
-            grav[0] = -motionData.gravity.x * 9.80665;
-            grav[1] = -motionData.gravity.y * 9.80665;
-            grav[2] = -motionData.gravity.z * 9.80665;
-            filter_core_motion_measurement(&_cor_setup->sfm, rot, grav, time);
-        } withTime:time]];
-    });
-}
-*/
 
 #pragma mark - QR Code handling
 

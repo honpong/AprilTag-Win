@@ -127,17 +127,6 @@ f_t test_m4_linearization(const v4 &base, v4 (*nonlinear)(const v4 &base, const 
     return max_err;
 }
 
-v4 iavr_angle_stub(const v4 &base, const void *other)
-{
-    return integrate_angular_velocity_rodrigues(base, *(v4 *)other);
-}
-
-v4 iavr_vel_stub(const v4 &base, const void *other)
-{
-    return integrate_angular_velocity_rodrigues(*(v4 *)other, base);
-}
-
-
 v4 iavq_angle_stub(const v4 &base, const void *other)
 {
     quaternion q(base[0], base[1], base[2], base[3]);
@@ -163,44 +152,6 @@ v4 iav_vel_stub(const v4 &base, const void *other)
 {
     return integrate_angular_velocity(*(v4 *)other, base);
 }
-
-/*TEST(Vector4, AngularVelocityIntegration) {
-    v4 rotvec(.55, -1.2, -.15, 0.);
-    v4 angvel(-.0514, .023, -.065, 0.);
-
-    m4 dW_dW, dW_dw;
-    linearize_angular_integration(rotvec, angvel, dW_dW, dW_dw);
-    {
-        SCOPED_TRACE("integrate_angular_velocity(W + delta, w) = iav(W, w) + jacobian * delta");
-        f_t err = test_m4_linearization(rotvec, iav_angle_stub, dW_dW, &angvel);
-        fprintf(stderr, "Angular velocity integration linearization max error (angle) is %.1f%%\n", err * 100);
-    }
-    {
-        SCOPED_TRACE("integrate_angular_velocity(W, w + delta) = iav(W, w) + jacobian * delta");
-        f_t err = test_m4_linearization(angvel, iav_vel_stub, dW_dw, &rotvec);
-        fprintf(stderr, "Angular velocity integration linearization max error (velocity) is %.1f%%\n", err * 100);
-    }
-    
-}*/
-
-/*TEST(Vector4, AngularVelocityIntegrationRodrigues) {
-    v4 rotvec(.55, -1.2, -.15, 0.);
-    v4 angvel(-.00514, .0023, -.0065, 0.);
-    
-    m4 dW_dW, dW_dw;
-    linearize_angular_integration_rodrigues(rotvec, angvel, dW_dW, dW_dw);
-    {
-        SCOPED_TRACE("integrate_angular_velocity(W + delta, w) = iav(W, w) + jacobian * delta");
-        f_t err = test_m4_linearization(rotvec, iavr_angle_stub, dW_dW, &angvel);
-        fprintf(stderr, "Angular velocity integration linearization max error (angle) is %.1f%%\n", err * 100);
-    }
-    {
-        SCOPED_TRACE("integrate_angular_velocity(W, w + delta) = iav(W, w) + jacobian * delta");
-        f_t err = test_m4_linearization(angvel, iavr_vel_stub, dW_dW, &rotvec);
-        fprintf(stderr, "Angular velocity integration linearization max error (velocity) is %.1f%%\n", err * 100);
-    }
-}*/
-
 
 void test_rotation(const v4 &vec)
 {
@@ -273,20 +224,6 @@ void test_rotation(const v4 &vec)
         m4 jacpert = rotmat + apply_jacobian_m4v4(dR_dW, v4_delta);
         test_m4_near(jacpert, rodpert, .001);
     }
-    /*
-     {
-     SCOPED_TRACE("invrod(m + delta) ~= invrod(m) + jacobian * delta");
-     v4 inv = invrodrigues(rotmat + m4_delta, NULL);
-     v4 jacvec = vec + apply_jacobian_v4m4(dW_dR, m4_delta);
-     f_t theta = norm(jacvec);
-     if(theta > M_PI) {
-     jacvec = -(jacvec / theta) * (2. * M_PI - theta);
-     }
-     test_v4_near(inv, jacvec, .0001);
-     vec.print();
-     inv.print();
-     jacvec.print();
-     }*/
     
     v4 angvel(-.0514, .023, -.065, 0.);
     
@@ -360,20 +297,6 @@ void test_rotation(const v4 &vec)
         v4 vq2(q2.w(), q2.x(), q2.y(), q2.z());
         test_v4_near(vq1, vq2, 1.e-15);
     }
-    
-    /*
-    linearize_angular_integration_rodrigues(vec, angvel, dW_dW, dW_dw);
-    {
-        SCOPED_TRACE("integrate_angular_velocity(W + delta, w) = iavr(W, w) + jacobian * delta");
-        f_t err = test_m4_linearization(vec, iavr_angle_stub, dW_dW, &angvel);
-        fprintf(stderr, "Rodrigues angular velocity integration linearization max error (angle) is %.1f%%\n", err * 100);
-    }
-    {
-        SCOPED_TRACE("integrate_angular_velocity(W, w + delta) = iavr(W, w) + jacobian * delta");
-        f_t err = test_m4_linearization(angvel, iavr_vel_stub, dW_dw, (void *)&vec);
-        fprintf(stderr, "Rodrigues angular velocity integration linearization max error (velocity) is %.1f%%\n", err * 100);
-    }
-    */
 }
 
 

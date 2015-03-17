@@ -33,7 +33,6 @@
 		D3A6AADA18CDDE5C0075AA78 /* WorldState.m in Sources */ = {isa = PBXBuildFile; fileRef = D3A6AAD618CDDE5C0075AA78 /* WorldState.m */; };
 		D3A6AAE018CDE4B30075AA78 /* Shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = D3A6AADC18CDE4A10075AA78 /* Shader.fsh */; };
 		D3A6AAE118CDE4B30075AA78 /* Shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = D3A6AADD18CDE4A10075AA78 /* Shader.vsh */; };
-		D927F0AB1A5C649F00344165 /* threaded_dispatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D927F0A91A5C649F00344165 /* threaded_dispatch.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -104,8 +103,6 @@
 		D3A6AADC18CDE4A10075AA78 /* Shader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Shader.fsh; sourceTree = "<group>"; };
 		D3A6AADD18CDE4A10075AA78 /* Shader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Shader.vsh; sourceTree = "<group>"; };
 		D3C573791A77BAD100F05746 /* RC3DK.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RC3DK.h; path = ../RC3DK.h; sourceTree = "<group>"; };
-		D927F0A91A5C649F00344165 /* threaded_dispatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = threaded_dispatch.cpp; path = ../corvis/src/cor/threaded_dispatch.cpp; sourceTree = "<group>"; };
-		D927F0AA1A5C649F00344165 /* threaded_dispatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = threaded_dispatch.h; path = ../corvis/src/cor/threaded_dispatch.h; sourceTree = "<group>"; };
 		D96801AF1A7AC2750081EED1 /* intel_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = intel_interface.h; path = ../corvis/src/filter/intel_interface.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -165,8 +162,6 @@
 		D33A23D717F58700003ACD42 = {
 			isa = PBXGroup;
 			children = (
-				D927F0A91A5C649F00344165 /* threaded_dispatch.cpp */,
-				D927F0AA1A5C649F00344165 /* threaded_dispatch.h */,
 				D96801AF1A7AC2750081EED1 /* intel_interface.h */,
 				D372EC0017F5874A001A987A /* RCCore.xcodeproj */,
 				D33A23E917F58700003ACD42 /* RCUtility */,
@@ -357,7 +352,6 @@
 				D31419A418BBB0E100C29E28 /* MainViewController.m in Sources */,
 				32D9864018EB747100CFCB7A /* RCCalibration2.m in Sources */,
 				D3A6AAD818CDDE5C0075AA78 /* ArcBall.m in Sources */,
-				D927F0AB1A5C649F00344165 /* threaded_dispatch.cpp in Sources */,
 				D3A6AADA18CDDE5C0075AA78 /* WorldState.m in Sources */,
 				D3A6AAD918CDDE5C0075AA78 /* VisualizationController.m in Sources */,
 				D33A23FD17F58700003ACD42 /* CaptureViewController.m in Sources */,

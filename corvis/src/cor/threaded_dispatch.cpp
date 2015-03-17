@@ -79,6 +79,20 @@ void fusion_queue::receive_camera(const camera_data &x) { camera_queue.push(x); 
 void fusion_queue::receive_accelerometer(const accelerometer_data &x) { accel_queue.push(x); }
 void fusion_queue::receive_gyro(const gyro_data &x) { gyro_queue.push(x); }
 
+void fusion_queue::dispatch_sync(std::function<void()> fn)
+{
+    std::unique_lock<std::mutex> lock(mutex);
+    fn();
+    lock.unlock();
+}
+
+void fusion_queue::dispatch_async(std::function<void()> fn)
+{
+    std::unique_lock<std::mutex> lock(mutex);
+    control_func = fn;
+    lock.unlock();
+}
+
 void fusion_queue::start(bool synchronous)
 {
     if(!thread.joinable())

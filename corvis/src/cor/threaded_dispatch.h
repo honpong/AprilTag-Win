@@ -50,7 +50,7 @@ struct gyro_data
 struct camera_data
 {
     uint64_t timestamp;
-    const char *image;
+    const unsigned char *image;
     void *image_handle;
     
     int width, height, stride;
@@ -70,6 +70,8 @@ public:
     void receive_camera(const camera_data &x);
     void receive_accelerometer(const accelerometer_data &x);
     void receive_gyro(const gyro_data &x);
+    void dispatch_sync(std::function<void()> fn);
+    void dispatch_async(std::function<void()> fn);
     
 private:
     void runloop();

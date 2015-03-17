@@ -418,7 +418,7 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, v4 meas, u
     return f->a_variance;
 }
 
-void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t time)
+void filter_accelerometer_measurement(struct filter *f, const float data[3], uint64_t time)
 {
     v4 meas(data[0], data[1], data[2], 0.);
     v4 accel_delta = meas - f->last_accel_meas;
@@ -488,7 +488,7 @@ extern "C" void filter_gyroscope_packet(void *_f, packet_t *p)
     filter_gyroscope_measurement((struct filter *)_f, (float *)&p->data, p->header.time);
 }
 
-void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time)
+void filter_gyroscope_measurement(struct filter *f, const float data[3], uint64_t time)
 {
     v4 meas(data[0], data[1], data[2], 0.);
     v4 gyro_delta = meas - f->last_gyro_meas;
@@ -667,7 +667,7 @@ bool feature_variance_comp(state_vision_feature *p1, state_vision_feature *p2) {
     return p1->variance() < p2->variance();
 }
 
-void filter_setup_next_frame(struct filter *f, uint8_t *image, uint64_t time)
+void filter_setup_next_frame(struct filter *f, const uint8_t *image, uint64_t time)
 {
     size_t feats_used = f->s.features.size();
 
@@ -734,7 +734,7 @@ void filter_send_output(struct filter *f, uint64_t time)
 }
 
 //features are added to the state immediately upon detection - handled with triangulation in observation_vision_feature::predict - but what is happening with the empty row of the covariance matrix during that time?
-static void addfeatures(struct filter *f, size_t newfeats, unsigned char *img, unsigned int width, int height, uint64_t time)
+static void addfeatures(struct filter *f, size_t newfeats, const unsigned char *img, unsigned int width, int height, uint64_t time)
 {
 #ifdef TEST_POSDEF
     if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def before adding features\n");
@@ -875,7 +875,7 @@ extern "C" void filter_control_packet(void *_f, packet_t *p)
 
 #include <mach/mach.h>
 
-bool filter_image_measurement(struct filter *f, unsigned char *data, int width, int height, int stride, uint64_t time)
+bool filter_image_measurement(struct filter *f, const unsigned char *data, int width, int height, int stride, uint64_t time)
 {
     if(f->run_state == RCSensorFusionRunStateInactive) return false;
     if(!check_packet_time(f, time, packet_camera)) return false;

@@ -184,6 +184,10 @@
 		D3C0EDFA1A37B4DC00423EDE /* qr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3C0EDF81A37B4DC00423EDE /* qr.cpp */; };
 		D3C0EDFB1A37B4DC00423EDE /* qr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3C0EDF81A37B4DC00423EDE /* qr.cpp */; };
 		D953126F1A15AE63004D6068 /* homography.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D953126D1A15AE63004D6068 /* homography.cpp */; };
+		D95EB1871AA5038600ADFC20 /* threaded_dispatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D95EB1851AA5038600ADFC20 /* threaded_dispatch.cpp */; };
+		D95EB1881AA5038600ADFC20 /* threaded_dispatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D95EB1851AA5038600ADFC20 /* threaded_dispatch.cpp */; };
+		D95EB18C1AA50AF200ADFC20 /* sensor_fusion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D95EB18A1AA50AF200ADFC20 /* sensor_fusion.cpp */; };
+		D95EB18D1AA50AF200ADFC20 /* sensor_fusion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D95EB18A1AA50AF200ADFC20 /* sensor_fusion.cpp */; };
 		D97AEF8118F7613F00573148 /* device_parameters.c in Sources */ = {isa = PBXBuildFile; fileRef = D97AEF8018F7613F00573148 /* device_parameters.c */; };
 		D9CCDC7E192E887F00A41329 /* scaled_mask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9CCDC7C192E887F00A41329 /* scaled_mask.cpp */; };
 		D9FE87B619427F190052B8D8 /* RCSensorFusionInternals.h in Copy Files */ = {isa = PBXBuildFile; fileRef = D9FE87B519410AB40052B8D8 /* RCSensorFusionInternals.h */; };
@@ -488,6 +492,10 @@
 		D90D18C01A3A03B500D1AFE4 /* camera_control_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = camera_control_interface.h; path = ../../shared_corvis_3dk/camera_control_interface.h; sourceTree = "<group>"; };
 		D953126D1A15AE63004D6068 /* homography.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = homography.cpp; sourceTree = "<group>"; };
 		D953126E1A15AE63004D6068 /* homography.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = homography.h; sourceTree = "<group>"; };
+		D95EB1851AA5038600ADFC20 /* threaded_dispatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = threaded_dispatch.cpp; sourceTree = "<group>"; };
+		D95EB1861AA5038600ADFC20 /* threaded_dispatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = threaded_dispatch.h; sourceTree = "<group>"; };
+		D95EB18A1AA50AF200ADFC20 /* sensor_fusion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sensor_fusion.cpp; path = ../../shared_corvis_3dk/sensor_fusion.cpp; sourceTree = "<group>"; };
+		D95EB18B1AA50AF200ADFC20 /* sensor_fusion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sensor_fusion.h; path = ../../shared_corvis_3dk/sensor_fusion.h; sourceTree = "<group>"; };
 		D97AEF8018F7613F00573148 /* device_parameters.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = device_parameters.c; sourceTree = "<group>"; };
 		D9CCDC7C192E887F00A41329 /* scaled_mask.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scaled_mask.cpp; sourceTree = "<group>"; };
 		D9CCDC7D192E887F00A41329 /* scaled_mask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scaled_mask.h; sourceTree = "<group>"; };
@@ -704,6 +712,8 @@
 			isa = PBXGroup;
 			children = (
 				D90D18C01A3A03B500D1AFE4 /* camera_control_interface.h */,
+				D95EB18A1AA50AF200ADFC20 /* sensor_fusion.cpp */,
+				D95EB18B1AA50AF200ADFC20 /* sensor_fusion.h */,
 				327B558418EB4F250001CCE1 /* cor */,
 				327B559C18EB4F3A0001CCE1 /* filter */,
 				327B55C718EB4F430001CCE1 /* numerics */,
@@ -728,6 +738,8 @@
 				327B559018EB4F250001CCE1 /* packet.h */,
 				327B559118EB4F250001CCE1 /* plugins.c */,
 				327B559218EB4F250001CCE1 /* plugins.h */,
+				D95EB1851AA5038600ADFC20 /* threaded_dispatch.cpp */,
+				D95EB1861AA5038600ADFC20 /* threaded_dispatch.h */,
 				327B559318EB4F250001CCE1 /* timestamp.c */,
 				327B559418EB4F250001CCE1 /* timestamp.h */,
 			);
@@ -1188,7 +1200,9 @@
 				327B559618EB4F250001CCE1 /* dispatch.c in Sources */,
 				327B553918EB4D720001CCE1 /* RCAFPropertyListRequestOperation.m in Sources */,
 				327B557818EB4DC20001CCE1 /* RCSensorFusionData.m in Sources */,
+				D95EB18C1AA50AF200ADFC20 /* sensor_fusion.cpp in Sources */,
 				327B557918EB4DC20001CCE1 /* RCSensorFusionStatus.m in Sources */,
+				D95EB1871AA5038600ADFC20 /* threaded_dispatch.cpp in Sources */,
 				D953126F1A15AE63004D6068 /* homography.cpp in Sources */,
 				327B556F18EB4DC20001CCE1 /* RCCameraParameters.m in Sources */,
 				327B557518EB4DC20001CCE1 /* RCRotation.mm in Sources */,
@@ -1232,6 +1246,7 @@
 				D3588EFA1A20C0B900CA10E7 /* daialg.cpp in Sources */,
 				D321AD3F1A323C17003AEA77 /* fundamental.cpp in Sources */,
 				D3B4EAD11A1E7DE100BE0443 /* RCVector.m in Sources */,
+				D95EB1881AA5038600ADFC20 /* threaded_dispatch.cpp in Sources */,
 				D3588F091A20C4B800CA10E7 /* stat.c in Sources */,
 				D3B4EAD21A1E7DE100BE0443 /* filter.cpp in Sources */,
 				D3B4EAD31A1E7DE100BE0443 /* RCAFImageRequestOperation.m in Sources */,
@@ -1295,6 +1310,7 @@
 				D3588F081A20C4A400CA10E7 /* global.c in Sources */,
 				D3588EFB1A20C0D200CA10E7 /* util.cpp in Sources */,
 				D3588F011A20C39F00CA10E7 /* geom2.c in Sources */,
+				D95EB18D1AA50AF200ADFC20 /* sensor_fusion.cpp in Sources */,
 				D3B4EB371A1E7DE100BE0443 /* RCPrivateHTTPClient.m in Sources */,
 				D3B4EB391A1E7DE100BE0443 /* timestamp.c in Sources */,
 				D3B4EB3A1A1E7DE100BE0443 /* mapbuffer.c in Sources */,
@@ -1368,6 +1384,7 @@
 		32671B101901E1D4000DFAAC /* Library */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 3;
 				DEPLOYMENT_POSTPROCESSING = YES;
@@ -1511,6 +1528,7 @@
 		327B550318EB4CC90001CCE1 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CURRENT_PROJECT_VERSION = 3;
 				DEAD_CODE_STRIPPING = NO;
 				DEPLOYMENT_POSTPROCESSING = NO;
@@ -1546,6 +1564,7 @@
 		327B550418EB4CC90001CCE1 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CURRENT_PROJECT_VERSION = 3;
 				DEPLOYMENT_POSTPROCESSING = NO;
 				DSTROOT = /tmp/RC3DK.dst;
@@ -1666,6 +1685,7 @@
 		327B55FF18EB50A30001CCE1 /* Archive */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 3;
 				DEPLOYMENT_POSTPROCESSING = YES;
@@ -1762,6 +1782,7 @@
 		32D8A0341A3B924C00EAB150 /* LibraryOffline */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				COPY_PHASE_STRIP = NO;
 				CURRENT_PROJECT_VERSION = 3;
 				DEPLOYMENT_POSTPROCESSING = YES;

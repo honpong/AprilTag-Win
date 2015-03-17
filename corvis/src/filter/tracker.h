@@ -21,7 +21,7 @@ struct tracker {
         fast.init(width, height, stride, half_patch_width * 2 + 1, half_patch_width);
     }
     
-    xy track(uint8_t * im1, uint8_t * im2, float predx, float predy, float radius, float min_score)
+    xy track(const uint8_t * im1, const uint8_t * im2, float predx, float predy, float radius, float min_score)
     {
         int bthresh = 10;
         return fast.track(im1, im2, half_patch_width, half_patch_width, predx, predy, radius, bthresh, min_score);

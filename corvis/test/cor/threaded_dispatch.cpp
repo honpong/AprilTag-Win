@@ -15,45 +15,45 @@ TEST(ThreadedDispatch, Reorder)
 
     struct gyro_data g;
     g.timestamp = 0;
-    q.receive_gyro(g);
+    q.receive_gyro(std::move(g));
 
     g.timestamp = 10000;
-    q.receive_gyro(g);
+    q.receive_gyro(std::move(g));
 
     struct accelerometer_data a;
     a.timestamp = 8000;
-    q.receive_accelerometer(a);
+    q.receive_accelerometer(std::move(a));
 
-    struct camera_data c;
+    camera_data c;
     c.timestamp = 5000;
-    q.receive_camera(c);
+    q.receive_camera(std::move(c));
 
     a.timestamp = 18000;
-    q.receive_accelerometer(a);
+    q.receive_accelerometer(std::move(a));
 
     g.timestamp = 20000;
-    q.receive_gyro(g);
+    q.receive_gyro(std::move(g));
     
     g.timestamp = 30000;
-    q.receive_gyro(g);
+    q.receive_gyro(std::move(g));
 
     a.timestamp = 28000;
-    q.receive_accelerometer(a);
+    q.receive_accelerometer(std::move(a));
 
     a.timestamp = 38000;
-    q.receive_accelerometer(a);
+    q.receive_accelerometer(std::move(a));
     
     g.timestamp = 40000;
-    q.receive_gyro(g);
+    q.receive_gyro(std::move(g));
 
     a.timestamp = 48000;
-    q.receive_accelerometer(a);
+    q.receive_accelerometer(std::move(a));
     
     c.timestamp = 38000;
-    q.receive_camera(c);
+    q.receive_camera(std::move(c));
     
     g.timestamp = 50000;
-    q.receive_gyro(g);
+    q.receive_gyro(std::move(g));
     
     q.stop();
     q.wait_until_finished();
@@ -86,14 +86,14 @@ TEST(ThreadedDispatch, Threading)
     q.start(true);
     
     std::thread camthread([&q, start, camera_interval, camcount]{
-        struct camera_data x;
+        camera_data x;
         for(int i = 0; i < camcount; ++i)
         {
             auto now = std::chrono::steady_clock::now();
             auto duration = now - start;
             auto micros = std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
             x.timestamp = micros;
-            q.receive_camera(x);
+            q.receive_camera(std::move(x));
             std::this_thread::sleep_for(std::chrono::microseconds(camera_interval));
         }
     });
@@ -105,7 +105,7 @@ TEST(ThreadedDispatch, Threading)
             auto duration = now - start;
             auto micros = std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
             x.timestamp = micros;
-            q.receive_gyro(x);
+            q.receive_gyro(std::move(x));
             std::this_thread::sleep_for(std::chrono::microseconds(inertial_interval));
         }
     });
@@ -117,7 +117,7 @@ TEST(ThreadedDispatch, Threading)
             auto duration = now - start;
             auto micros = std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
             x.timestamp = micros;
-            q.receive_accelerometer(x);
+            q.receive_accelerometer(std::move(x));
             std::this_thread::sleep_for(std::chrono::microseconds(inertial_interval));
         }
     });

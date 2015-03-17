@@ -15,7 +15,7 @@ sensor_queue<T, size>::sensor_queue(std::mutex &mx, std::condition_variable &cnd
 }
 
 template<typename T, int size>
-bool sensor_queue<T, size>::push(const T& x)
+bool sensor_queue<T, size>::push(T&& x)
 {
     std::unique_lock<std::mutex> lock(mutex);
     if(!active)
@@ -24,7 +24,7 @@ bool sensor_queue<T, size>::push(const T& x)
         return false;
     }
     
-    storage[writepos] = x;
+    storage[writepos] = std::move(x);
     writepos = (writepos + 1) % size;
 
     if(count == size)
@@ -50,7 +50,7 @@ T sensor_queue<T, size>::pop(std::unique_lock<std::mutex> &lock)
     --count;
     int oldpos = readpos;
     readpos = (readpos + 1) % size;
-    return storage[oldpos];
+    return std::move(storage[oldpos]);
 }
 
 fusion_queue::fusion_queue(const std::function<void(const camera_data &)> &camera_func,
@@ -75,9 +75,9 @@ bool fusion_queue::can_dispatch(std::unique_lock<std::mutex> &lock)
         gyro_queue.get_next_time(lock) != UINT64_MAX;
 }
 
-void fusion_queue::receive_camera(const camera_data &x) { camera_queue.push(x); }
-void fusion_queue::receive_accelerometer(const accelerometer_data &x) { accel_queue.push(x); }
-void fusion_queue::receive_gyro(const gyro_data &x) { gyro_queue.push(x); }
+void fusion_queue::receive_camera(camera_data&& x) { camera_queue.push(std::move(x)); }
+void fusion_queue::receive_accelerometer(accelerometer_data&& x) { accel_queue.push(std::move(x)); }
+void fusion_queue::receive_gyro(gyro_data&& x) { gyro_queue.push(std::move(x)); }
 
 void fusion_queue::dispatch_sync(std::function<void()> fn)
 {
@@ -171,7 +171,7 @@ void fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock)
     {
         camera_data data = camera_queue.pop(lock);
         lock.unlock();
-        camera_receiver(data);
+        camera_receiver(std::move(data));
         
         /* In camera_receiver:
          receiver.process_camera(data);

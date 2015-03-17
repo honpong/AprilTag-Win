@@ -280,7 +280,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
         auto cam_fn = [self](const camera_data &data)
         {
             bool docallback = true;
-            CMSampleBufferRef sampleBuffer = (CMSampleBufferRef)data.image_handle;
+            CMSampleBufferRef sampleBuffer = (CMSampleBufferRef)data.image_handle.get();
             if(!isSensorFusionRunning)
             {
             } else if(isProcessingVideo) {
@@ -293,11 +293,6 @@ typedef NS_ENUM(int, RCLicenseStatus)
                 [self sendStatus];
                 if(docallback) [self sendDataWithSampleBuffer:sampleBuffer];
             }
-            
-            CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
-            CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
-            CVPixelBufferRelease(pixelBuffer);
-            if(sampleBuffer) CFRelease(sampleBuffer);
         };
         
         auto acc_fn = [self](const accelerometer_data &data)
@@ -694,44 +689,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
     
     if (sampleBuffer)
     {
-        sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
-        camera_data cam;
-        
-        CMTime timestamp = (CMTime)CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
-
-        //capture image meta data
-        //        CFDictionaryRef metadataDict = CMGetAttachment(sampleBuffer, kCGImagePropertyExifDictionary , NULL);
-        //        DLog(@"metadata: %@", metadataDict);
-
-        CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
-        pixelBuffer = (CVPixelBufferRef)CVPixelBufferRetain(pixelBuffer);
-
-        cam.width = CVPixelBufferGetWidth(pixelBuffer);
-        cam.height = CVPixelBufferGetHeight(pixelBuffer);
-        CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
-
-        if(CVPixelBufferIsPlanar(pixelBuffer))
-        {
-            cam.stride = CVPixelBufferGetBytesPerRowOfPlane(pixelBuffer, 0);
-            cam.image = (unsigned char *)CVPixelBufferGetBaseAddressOfPlane(pixelBuffer,0);
-        }
-        else
-        {
-            cam.stride = CVPixelBufferGetBytesPerRow(pixelBuffer);
-            cam.image = (unsigned char *)CVPixelBufferGetBaseAddress(pixelBuffer);
-        }
-        
-        if(cam.width != 640 || cam.height != 480 || cam.stride != 640) {
-            NSLog(@"Image dimensions are incorrect! Make sure you're using the right video preset and not changing the orientation on the capture connection.\n");
-            abort();
-        }
-        uint64_t time_us = timestamp.value / (timestamp.timescale / 1000000.);
-
-        cam.timestamp = time_us + 16667;
-        
-        cam.image_handle = sampleBuffer;
-        
-        queue->receive_camera(cam);
+        queue->receive_camera(camera_data(sampleBuffer));
     }
 }
 
@@ -757,7 +715,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
     data.accel_m__s2[1] = -accelerationData.acceleration.y * 9.80665;
     data.accel_m__s2[2] = -accelerationData.acceleration.z * 9.80665;
     
-    queue->receive_accelerometer(data);
+    queue->receive_accelerometer(std::move(data));
 }
 
 - (void) receiveGyroData:(CMGyroData *)gyroData
@@ -782,7 +740,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
     data.angvel_rad__s[1] = gyroData.rotationRate.y;
     data.angvel_rad__s[2] = gyroData.rotationRate.z;
     
-    queue->receive_gyro(data);
+    queue->receive_gyro(std::move(data));
 }
 
 /*

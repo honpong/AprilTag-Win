@@ -13,6 +13,7 @@
 #include <thread>
 #include <atomic>
 #include <condition_variable>
+#include "platform/camera_data.h"
 
 template<typename T, int size>
 class sensor_queue
@@ -20,7 +21,7 @@ class sensor_queue
 public:
     sensor_queue(std::mutex &mx, std::condition_variable &cnd, const bool &actv);
     bool empty() const { return count == 0; }
-    bool push(const T& x); //Doesn't block. Returns false if the queue is full or data arrived out of order
+    bool push(T&& x); //Doesn't block. Returns false if the queue is full or data arrived out of order
     T pop(std::unique_lock<std::mutex> &lock); // assumes the lock is already held
     uint64_t get_next_time(std::unique_lock<std::mutex> &lock) const { return count ? storage[readpos].timestamp : UINT64_MAX; }
 private:
@@ -47,15 +48,6 @@ struct gyro_data
     float angvel_rad__s[3];
 };
 
-struct camera_data
-{
-    uint64_t timestamp;
-    const unsigned char *image;
-    void *image_handle;
-    
-    int width, height, stride;
-};
-
 class fusion_queue
 {
 public:
@@ -67,9 +59,9 @@ public:
     void stop(bool synchronous = false);
     void wait_until_finished();
 
-    void receive_camera(const camera_data &x);
-    void receive_accelerometer(const accelerometer_data &x);
-    void receive_gyro(const gyro_data &x);
+    void receive_camera(camera_data&& x);
+    void receive_accelerometer(accelerometer_data&& x);
+    void receive_gyro(gyro_data&& x);
     void dispatch_sync(std::function<void()> fn);
     void dispatch_async(std::function<void()> fn);
     

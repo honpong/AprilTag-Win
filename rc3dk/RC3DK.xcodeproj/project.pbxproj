@@ -184,6 +184,7 @@
 		D3C0EDFA1A37B4DC00423EDE /* qr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3C0EDF81A37B4DC00423EDE /* qr.cpp */; };
 		D3C0EDFB1A37B4DC00423EDE /* qr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3C0EDF81A37B4DC00423EDE /* qr.cpp */; };
 		D953126F1A15AE63004D6068 /* homography.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D953126D1A15AE63004D6068 /* homography.cpp */; };
+		D95E92DB1AB86D4600EAB109 /* camera_data.mm in Sources */ = {isa = PBXBuildFile; fileRef = D95E92D91AB86D4600EAB109 /* camera_data.mm */; };
 		D95EB1871AA5038600ADFC20 /* threaded_dispatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D95EB1851AA5038600ADFC20 /* threaded_dispatch.cpp */; };
 		D95EB1881AA5038600ADFC20 /* threaded_dispatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D95EB1851AA5038600ADFC20 /* threaded_dispatch.cpp */; };
 		D95EB18C1AA50AF200ADFC20 /* sensor_fusion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D95EB18A1AA50AF200ADFC20 /* sensor_fusion.cpp */; };
@@ -492,6 +493,8 @@
 		D90D18C01A3A03B500D1AFE4 /* camera_control_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = camera_control_interface.h; path = ../../shared_corvis_3dk/camera_control_interface.h; sourceTree = "<group>"; };
 		D953126D1A15AE63004D6068 /* homography.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = homography.cpp; sourceTree = "<group>"; };
 		D953126E1A15AE63004D6068 /* homography.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = homography.h; sourceTree = "<group>"; };
+		D95E92D91AB86D4600EAB109 /* camera_data.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = camera_data.mm; path = ../../corvis/src/cor/platform/ios/camera_data.mm; sourceTree = "<group>"; };
+		D95E92DA1AB86D4600EAB109 /* camera_data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = camera_data.h; path = ../../corvis/src/cor/platform/camera_data.h; sourceTree = "<group>"; };
 		D95EB1851AA5038600ADFC20 /* threaded_dispatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = threaded_dispatch.cpp; sourceTree = "<group>"; };
 		D95EB1861AA5038600ADFC20 /* threaded_dispatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = threaded_dispatch.h; sourceTree = "<group>"; };
 		D95EB18A1AA50AF200ADFC20 /* sensor_fusion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sensor_fusion.cpp; path = ../../shared_corvis_3dk/sensor_fusion.cpp; sourceTree = "<group>"; };
@@ -574,6 +577,8 @@
 		327B54E418EB4CC90001CCE1 /* RC3DK */ = {
 			isa = PBXGroup;
 			children = (
+				D95E92D91AB86D4600EAB109 /* camera_data.mm */,
+				D95E92DA1AB86D4600EAB109 /* camera_data.h */,
 				327B552218EB4D720001CCE1 /* AFNetworking */,
 				327B558318EB4F130001CCE1 /* Corvis */,
 				327B558018EB4E3A0001CCE1 /* Data Classes */,
@@ -1205,6 +1210,7 @@
 				D95EB1871AA5038600ADFC20 /* threaded_dispatch.cpp in Sources */,
 				D953126F1A15AE63004D6068 /* homography.cpp in Sources */,
 				327B556F18EB4DC20001CCE1 /* RCCameraParameters.m in Sources */,
+				D95E92DB1AB86D4600EAB109 /* camera_data.mm in Sources */,
 				327B557518EB4DC20001CCE1 /* RCRotation.mm in Sources */,
 				327B553518EB4D720001CCE1 /* RCAFHTTPRequestOperation.m in Sources */,
 				327B557618EB4DC20001CCE1 /* RCScalar.m in Sources */,

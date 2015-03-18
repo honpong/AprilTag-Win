@@ -25,17 +25,18 @@ var ARController = (function ($, window, RC3DK, THREE)
     var currentRunState = RC3DK.SensorFusionRunState.Inactive;
     var workflowState = WorkflowStates.STARTUP;
 
-    var scene, camera, renderer;
+    var scene, camera, renderer, roof;
+    var initialCamera;
 
     var roofJson;
 
     $(document).ready(function()
     {
-        setupWebGLView();
     
         loadRoofJsonFile(function (data){
             roofJson = data;
             enterReadyState();
+            setupWebGLView();
         });
 
         $("#shutterButton").on( "click", function() {
@@ -44,6 +45,10 @@ var ARController = (function ($, window, RC3DK, THREE)
                 case WorkflowStates.READY:
                     enterInitializationState();
                     break;
+		
+		case WorkflowStates.ALIGN:
+		    enterVisualizationState();
+		    break;
 
                 case WorkflowStates.ERROR:
                     enterReadyState();
@@ -187,44 +192,31 @@ var ARController = (function ($, window, RC3DK, THREE)
         renderer = new THREE.WebGLRenderer();
         renderer.setSize( window.innerWidth, window.innerHeight );
         window.document.body.appendChild( renderer.domElement );
+	
+	var roofGeometry = new THREE.Geometry();
+	roofGeometry.vertices.push(
+	    new THREE.Vector3(roofJson.roof_object.coords3D[0][0], roofJson.roof_object.coords3D[0][1], roofJson.roof_object.coords3D[0][2]),
+            new THREE.Vector3(roofJson.roof_object.coords3D[1][0], roofJson.roof_object.coords3D[1][1], roofJson.roof_object.coords3D[1][2]),
+            new THREE.Vector3(roofJson.roof_object.coords3D[2][0], roofJson.roof_object.coords3D[2][1], roofJson.roof_object.coords3D[2][2]),
+            new THREE.Vector3(roofJson.roof_object.coords3D[3][0], roofJson.roof_object.coords3D[3][1], roofJson.roof_object.coords3D[3][2])
+	);
+	roofGeometry.faces.push(
+	    new THREE.Face3(0, 1, 2),
+	    new THREE.Face3(0, 2, 3)
+	);
+	roof = new THREE.Mesh(roofGeometry, new THREE.MeshLambertMaterial( { color: 0x00FFFF, side: THREE.DoubleSide, opacity: 0.5, transparent: true } ));
 
-        var cube = new THREE.Mesh(
-            new THREE.CubeGeometry( .1, .1, .1 ),
-            new THREE.MeshLambertMaterial( { color: 0xFFFFFF } )
-        );
-        scene.add( cube );
-        cube.position.x = 1;
+	scene.add( roof );
 
+        roof.matrixAutoUpdate = false;
         var light;
 
         // top
-        light = new THREE.DirectionalLight( 0x0DEDDF );
+        light = new THREE.DirectionalLight( 0xCDEDDF );
         light.position.set( 0, 1, 0 );
         scene.add( light );
 
-        // bottom
-        light = new THREE.DirectionalLight( 0x0DEDDF );
-        light.position.set( 0, -1, 0 );
-        scene.add( light );
-
-        // back
-        light = new THREE.DirectionalLight( 0xB685F3 );
-        light.position.set( 1, 0, 0 );
-        scene.add( light );
-
-        // front
-        light = new THREE.DirectionalLight( 0xB685F3 );
-        light.position.set( -1, 0, 0 );
-        scene.add( light );
-
-        // right
-        light = new THREE.DirectionalLight( 0x89A7F5 );
-        light.position.set( 0, 0, 1 );
-        scene.add( light );
-
-        // left
-        light = new THREE.DirectionalLight( 0x89A7F5 );
-        light.position.set( 0, 0, -1 );
+	light = new THREE.AmbientLight( 0x404040 );
         scene.add( light );
     }
 
@@ -236,6 +228,9 @@ var ARController = (function ($, window, RC3DK, THREE)
         camera.projectionMatrix = projectionMatrix;
         camera.matrixAutoUpdate = false;
         camera.matrixWorld = cameraMatrix;
+        if(workflowState == WorkflowStates.ALIGN) initialCamera = cameraMatrix.clone();
+        roof.matrix = initialCamera.clone();
+
         renderer.render( scene, camera );
     }
 

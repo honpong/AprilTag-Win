@@ -514,8 +514,6 @@ m4 rodrigues(const v4 W, m4v4 *dR_dW);
 
 v4 integrate_angular_velocity(const v4 &W, const v4 &w);
 void linearize_angular_integration(const v4 &W, const v4 &w, m4 &dW_dW, m4 &dW_dw);
-v4 integrate_angular_velocity_rodrigues(const v4 &W, const v4 &w);
-void linearize_angular_integration_rodrigues(const v4 &W, const v4 &w, m4 &dW_dW, m4 &dW_dw);
 
 /*
     a->v[i][j] = sum(b[i][:] * c[:][j])

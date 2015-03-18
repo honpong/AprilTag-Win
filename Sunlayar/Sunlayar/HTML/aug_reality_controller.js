@@ -189,35 +189,36 @@ var ARController = (function ($, window, RC3DK, THREE)
     {
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
-        renderer = new THREE.WebGLRenderer();
+
+        var canvas = document.getElementById("webGLCanvas");
+        renderer = new THREE.WebGLRenderer({ canvas: canvas });
         renderer.setSize( window.innerWidth, window.innerHeight );
-        window.document.body.appendChild( renderer.domElement );
 	
-	var roofGeometry = new THREE.Geometry();
-	roofGeometry.vertices.push(
-	    new THREE.Vector3(roofJson.roof_object.coords3D[0][0], roofJson.roof_object.coords3D[0][1], roofJson.roof_object.coords3D[0][2]),
-            new THREE.Vector3(roofJson.roof_object.coords3D[1][0], roofJson.roof_object.coords3D[1][1], roofJson.roof_object.coords3D[1][2]),
-            new THREE.Vector3(roofJson.roof_object.coords3D[2][0], roofJson.roof_object.coords3D[2][1], roofJson.roof_object.coords3D[2][2]),
-            new THREE.Vector3(roofJson.roof_object.coords3D[3][0], roofJson.roof_object.coords3D[3][1], roofJson.roof_object.coords3D[3][2])
-	);
-	roofGeometry.faces.push(
-	    new THREE.Face3(0, 1, 2),
-	    new THREE.Face3(0, 2, 3)
-	);
-	roof = new THREE.Mesh(roofGeometry, new THREE.MeshLambertMaterial( { color: 0x00FFFF, side: THREE.DoubleSide, opacity: 0.5, transparent: true } ));
+        var roofGeometry = new THREE.Geometry();
+        roofGeometry.vertices.push(
+            new THREE.Vector3(roofJson.roof_object.coords3D[0][0], roofJson.roof_object.coords3D[0][1], roofJson.roof_object.coords3D[0][2]),
+                new THREE.Vector3(roofJson.roof_object.coords3D[1][0], roofJson.roof_object.coords3D[1][1], roofJson.roof_object.coords3D[1][2]),
+                new THREE.Vector3(roofJson.roof_object.coords3D[2][0], roofJson.roof_object.coords3D[2][1], roofJson.roof_object.coords3D[2][2]),
+                new THREE.Vector3(roofJson.roof_object.coords3D[3][0], roofJson.roof_object.coords3D[3][1], roofJson.roof_object.coords3D[3][2])
+        );
+        roofGeometry.faces.push(
+            new THREE.Face3(0, 1, 2),
+            new THREE.Face3(0, 2, 3)
+        );
+        roof = new THREE.Mesh(roofGeometry, new THREE.MeshLambertMaterial( { color: 0x00FFFF, side: THREE.DoubleSide, opacity: 0.5, transparent: true } ));
 
-	scene.add( roof );
+        scene.add( roof );
 
-        roof.matrixAutoUpdate = false;
-        var light;
+            roof.matrixAutoUpdate = false;
+            var light;
 
-        // top
-        light = new THREE.DirectionalLight( 0xCDEDDF );
-        light.position.set( 0, 1, 0 );
-        scene.add( light );
+            // top
+            light = new THREE.DirectionalLight( 0xCDEDDF );
+            light.position.set( 0, 1, 0 );
+            scene.add( light );
 
-	light = new THREE.AmbientLight( 0x404040 );
-        scene.add( light );
+        light = new THREE.AmbientLight( 0x404040 );
+            scene.add( light );
     }
 
     function updateWebGLView(projectionMatrix, cameraMatrix)

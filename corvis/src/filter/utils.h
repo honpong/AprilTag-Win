@@ -17,7 +17,7 @@ static inline quaternion initial_orientation_from_gravity(const v4 gravity)
     if(len > 1.e-6) // otherwise we're looking straight up or down, so don't make any changes
         {
             quaternion dq = rotation_between_two_vectors_normalized(zt / len, y);
-            q = quaternion_product(q, dq);
+            q = quaternion_product(dq, q);
         }
     return q;
 }

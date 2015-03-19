@@ -336,7 +336,7 @@ void state_vision::cache_jacobians(f_t dt)
     state_motion::cache_jacobians(dt);
 
     for(state_vision_group *g : groups.children) {
-        integrate_angular_velocity_jacobian(g->Wr.v, dW, g->dWrp_dWr, g->dWrp_dwdt);
+        integrate_angular_velocity_jacobian(g->Wr.v, dW, g->dWrp_dWr, g->dWrp_ddW);
         g->Rr = to_rotation_matrix(g->Wr.v);
         m4v4 dRr_dWr = to_rotation_matrix_jacobian(g->Wr.v);
         g->dTrp_dV = g->Rr * Rt * dt;
@@ -362,7 +362,8 @@ void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t
             g->dTrp_dWr * cov_Wr +
             g->dTrp_dW * cov_W;
             g->Tr.copy_cov_to_col(dst, i, cov_Tp);
-            g->Wr.copy_cov_to_col(dst, i, g->dWrp_dWr * cov_Wr + g->dWrp_dwdt * dt * (cov_w + dt/2. * cov_dw));
+            v4 cov_dW = dt * (cov_w + dt/2. * cov_dw);
+            g->Wr.copy_cov_to_col(dst, i, g->dWrp_dWr * cov_Wr + g->dWrp_ddW * cov_dW);
         }
     }
     state_motion::project_motion_covariance(dst, src, dt);

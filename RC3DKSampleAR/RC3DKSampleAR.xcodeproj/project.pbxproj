@@ -670,7 +670,7 @@
 					"-objC",
 					"-lc++",
 				);
-				PRODUCT_NAME = "RealityCap AR Sample";
+				PRODUCT_NAME = RC3DKSampleAR;
 				PROVISIONING_PROFILE = "";
 			};
 			name = Release;

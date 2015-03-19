@@ -45,19 +45,16 @@ class MyGLCanvas(LockPaint, GLCanvas, Mouse.Wheel, Mouse.Drag):
         self.view_transform = numpy.identity(4, 'f')
 	self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_SIZE, self.OnSize)
-        self.Bind(wx.EVT_IDLE, self.OnIdle)
         self.context = GLContext(self)
 #        self.InitGL()
 	self.init = 0
+	self.zoomfactor = 50
 	return
 
     def add_renderable(self, renderable, name = "unnamed"):
         r = Renderable(renderable, name)
         self.renderables.append(r)
         return r
-
-    def OnIdle(self, event):
-        self.Refresh()
 
     def OnRightDown(self, event):
         Mouse.Drag.OnRightDown(self, event)
@@ -178,6 +175,9 @@ class MyGLCanvas(LockPaint, GLCanvas, Mouse.Wheel, Mouse.Drag):
     def packet_world(self, packet):
         if packet.header.type == cor.packet_filter_reconstruction:
             self.world = cor.packet_filter_reconstruction_t_points(packet)
+        self.Update()
+        self.Refresh()
+
 
     def DrawCurrent(self):
         try:

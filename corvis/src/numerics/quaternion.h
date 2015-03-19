@@ -36,10 +36,6 @@ static inline std::ostream& operator<<(std::ostream &stream, const quaternion &q
     return stream << "[" << q.w() << ", (" << q.x() << ", " << q.y() << ", " << q.z() << ")]";
 }
 
-/*static inline quaternion operator*(const quaternion &a, const f_t other) { return quaternion(a.data * v4(other).data); }
-static inline quaternion operator*(const f_t other, const quaternion &a) { return quaternion(a.data * v4(other).data); }
-static inline quaternion operator+(const quaternion &a, const quaternion &other) { return quaternion(a.data + other.data); }*/
-
 static inline bool operator==(const quaternion &a, const quaternion &b)
 {
     return a.w() == b.w() && a.x() == b.x() && a.y() == b.y() && a.z() == b.z();
@@ -295,6 +291,11 @@ static inline rotation_vector to_rotation_vector(const quaternion &q) {
     if(denom == 0.) return rotation_vector(q.x(), q.y(), q.z());
     f_t scale = 2. * acos(q.w()) / denom;
     return rotation_vector(q.x() * scale, q.y() * scale, q.z() * scale);
+}
+
+static inline rotation_vector to_rotation_vector(const m4 &R)
+{
+    return to_rotation_vector(to_quaternion(R));
 }
 
 static inline quaternion integrate_angular_velocity(const quaternion &Q, const v4 &w)

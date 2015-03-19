@@ -496,8 +496,7 @@ bool stereo::preprocess_internal(const stereo_frame &from, stereo_frame &to, m4 
         if(enable_eight_point_motion) {
             m4 Rto = transpose(R_eight_point);
             v4 Tto = -transpose(R_eight_point)*T_eight_point;
-            v4 Rvec = invrodrigues(Rto, NULL);
-            to.W = rotation_vector(Rvec[0], Rvec[1], Rvec[2]);
+            to.W = to_rotation_vector(Rto);
             to.T = Tto * norm(to.T); // keep the magnitude of T
         }
     }

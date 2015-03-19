@@ -18,13 +18,16 @@ def parsepgm(header):
     return width, height
 
 class PacketQueue(Queue):
-    def __init__(self, ptype):
+    def __init__(self, ptype, widget):
         Queue.__init__(self, 0)
         self.ptype = ptype
         self.latest_time = 0
         self.current_time = 0
+        self.widget = widget
 
     def put(self, packet):
+        self.widget.Refresh()
+        self.widget.Update()
         if packet.header.type == self.ptype:
             self.latest_time = packet.header.time
             Queue.put(self, packet)
@@ -43,9 +46,9 @@ class PacketQueue(Queue):
             raise Empty, "nothing for that time"
 
 class Overlay:
-    def __init__(self, ptype):
+    def __init__(self, ptype, widget):
         self.time = 0
-        self.queue = PacketQueue(ptype)
+        self.queue = PacketQueue(ptype, widget)
 
     def draw(self, dc, time):
         if time != self.time:
@@ -62,10 +65,10 @@ class Overlay:
         return self.queue.latest_time
 
 class FeatureOverlay(Overlay):
-    def __init__(self):
-        Overlay.__init__(self, cor.packet_feature_track)
-        self.status_queue = PacketQueue(cor.packet_feature_status)
-        self.pred_queue = PacketQueue(cor.packet_feature_prediction_variance)
+    def __init__(self, widget):
+        Overlay.__init__(self, cor.packet_feature_track, widget)
+        self.status_queue = PacketQueue(cor.packet_feature_status, widget)
+        self.pred_queue = PacketQueue(cor.packet_feature_prediction_variance, widget)
 
     def get_latest(self):
         if(self.status_queue.latest_time):
@@ -143,8 +146,8 @@ class FeatureOverlay(Overlay):
 
 
 class ImageOverlay(Overlay):
-    def __init__(self):
-        Overlay.__init__(self, cor.packet_camera)
+    def __init__(self, widget):
+        Overlay.__init__(self, cor.packet_camera, widget)
 
     def process_packet(self, packet):
         image = cor.packet_camera_t_image(packet)
@@ -167,11 +170,6 @@ class ImagePanel(LockPaint, wx.Panel, Mouse.Wheel, Mouse.Drag):
         self.origin = numpy.array([0,0])
         Mouse.Wheel.__init__(self, *args, **kwds)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
-        self.Bind(wx.EVT_IDLE, self.OnIdle)
-
-    def OnIdle(self, event):
-        self.Refresh(True)
-        wx.WakeUpIdle()
 
     def OnPaint(self, event):
         self.BeginPaint()

@@ -12,6 +12,10 @@
 #include <sys/time.h>
 #include <pthread.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 uint64_t cor_time_init();
 uint64_t cor_time();
 int64_t cor_time_since_prev(uint64_t *prev_us);
@@ -39,5 +43,9 @@ void cor_time_pb_togglerealtime();
 void cor_time_pb_seek(int index);
 void cor_time_pb_seekend();
 void cor_time_pb_seekbeg();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __COR_TIME_PB_H__ */

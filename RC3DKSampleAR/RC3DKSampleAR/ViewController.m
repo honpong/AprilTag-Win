@@ -55,6 +55,11 @@
     [self handleResume];
 }
 
+- (NSUInteger)supportedInterfaceOrientations
+{
+    return UIInterfaceOrientationMaskPortrait;
+}
+
 - (void) handleResume
 {
     [sensorDelegate startAllSensors];

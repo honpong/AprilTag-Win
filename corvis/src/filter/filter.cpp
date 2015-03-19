@@ -441,11 +441,15 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
     if(!f->gravity_init) {
         f->gravity_init = true;
         //set up plots
-        if(f->visbuf) {
+        if(plot_enabled && f->visbuf) {
             packet_plot_setup(f->visbuf, time, packet_plot_meas_a, "Meas-alpha", sqrt(f->a_variance));
             packet_plot_setup(f->visbuf, time, packet_plot_meas_w, "Meas-omega", sqrt(f->w_variance));
             packet_plot_setup(f->visbuf, time, packet_plot_inn_a, "Inn-alpha", sqrt(f->a_variance));
             packet_plot_setup(f->visbuf, time, packet_plot_inn_w, "Inn-omega", sqrt(f->w_variance));
+            packet_plot_setup(f->visbuf, time, packet_plot_var_T, "Var-T", 1);
+            packet_plot_setup(f->visbuf, time, packet_plot_var_W, "Var-W", 1);
+            packet_plot_setup(f->visbuf, time, packet_plot_var_a, "Var-a", 1);
+            packet_plot_setup(f->visbuf, time, packet_plot_var_w, "Var-w", 1);
         }
         
         //fix up groups and features that have already been added
@@ -469,6 +473,13 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
     f->observations.observations.push_back(obs_a);
     
     obs_a->variance = get_accelerometer_variance_for_run_state(f, meas, time);
+    if(plot_enabled && f->visbuf) {
+        float a_inn[3];
+        float a_meas[3] = {data[0], data[1], data[2]};
+        obs_a->copy_innovation_to_array(a_inn);
+        packet_plot_send(f->visbuf, time, packet_plot_inn_a, 3, a_inn);
+        packet_plot_send(f->visbuf, time, packet_plot_meas_a, 3, a_meas);
+    }
 
     if(show_tuning) fprintf(stderr, "accelerometer:\n");
     process_observation_queue(f, time);
@@ -514,7 +525,15 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
     }
     obs_w->variance = f->w_variance;
     f->observations.observations.push_back(obs_w);
-    
+
+    if(plot_enabled && f->visbuf) {
+        float w_inn[3];
+        float w_meas[3] = {data[0], data[1], data[2]};
+        obs_w->copy_innovation_to_array(w_inn);
+        packet_plot_send(f->visbuf, time, packet_plot_inn_w, 3, w_inn);
+        packet_plot_send(f->visbuf, time, packet_plot_meas_w, 3, w_meas);
+    }
+
     if(f->run_state == RCSensorFusionRunStateStaticCalibration) {
         f->gyro_stability.data(meas);
     }
@@ -700,6 +719,19 @@ void filter_setup_next_frame(struct filter *f, uint64_t time)
 void filter_send_output(struct filter *f, uint64_t time)
 {
     if(!f->output) return;
+
+    if(plot_enabled && f->visbuf) {
+        float tv[3];
+        for(int i = 0; i < 3; ++i) tv[i] = f->s.T.variance()[i];
+        packet_plot_send(f->visbuf, time, packet_plot_var_T, 3, tv);
+        for(int i = 0; i < 3; ++i) tv[i] = f->s.W.variance()[i];
+        packet_plot_send(f->visbuf, time, packet_plot_var_W, 3, tv);
+        for(int i = 0; i < 3; ++i) tv[i] = f->s.a.variance()[i];
+        packet_plot_send(f->visbuf, time, packet_plot_var_a, 3, tv);
+        for(int i = 0; i < 3; ++i) tv[i] = f->s.w.variance()[i];
+        packet_plot_send(f->visbuf, time, packet_plot_var_w, 3, tv);
+    }
+
     size_t nfeats = f->s.features.size();
     packet_filter_current_t *cp = (packet_filter_current_t *)mapbuffer_alloc(f->output, packet_filter_current, (uint32_t)(sizeof(packet_filter_current) - 16 + nfeats * 3 * sizeof(float)));
     int n_good_feats = 0;

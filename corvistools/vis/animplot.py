@@ -33,7 +33,8 @@ class animplot(object):
             self.maxy = 1
         self.posnomplot.set_xdata((start, stop))
         self.negnomplot.set_xdata((start, stop))
-        self.axes.set_ylim(self.miny, self.maxy)
+        buffer_area = (self.maxy - self.miny)*.05
+        self.axes.set_ylim(self.miny-buffer_area, self.maxy+buffer_area)
         self.axes.set_xlim(start, stop)
 
     def packet_plot(self, packet):

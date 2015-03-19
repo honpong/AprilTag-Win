@@ -68,6 +68,6 @@ class animplot(object):
         yr = ydata[left:right]
         line.set_data(xr, yr)
         if(len(yr)):
-            self.miny = min(self.miny, min(yr))
-            self.maxy = max(self.maxy, max(yr))
+            self.miny = min(self.miny, min(ma.masked_invalid(yr)))
+            self.maxy = max(self.maxy, max(ma.masked_invalid(yr)))
 

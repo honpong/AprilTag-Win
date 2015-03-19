@@ -500,21 +500,20 @@ bool observation_vision_feature::measure()
     else
         bestkp = bestkp2;
 
-    if(bestkp.x == INFINITY) {
-        feature->image_velocity.x = 0;
-        feature->image_velocity.y = 0;
-    }
-    else {
+    valid = bestkp.x != INFINITY;
+
+    if(valid) {
         feature->image_velocity.x  = bestkp.x - feature->current[0];
         feature->image_velocity.y  = bestkp.y - feature->current[1];
+    }
+    else {
+        feature->image_velocity.x = 0;
+        feature->image_velocity.y = 0;
     }
 
     meas[0] = feature->current[0] = bestkp.x;
     meas[1] = feature->current[1] = bestkp.y;
 
-    meas[0] = feature->current[0];
-    meas[1] = feature->current[1];
-    valid = meas[0] != INFINITY;
     if(valid) {
         stdev[0].data(meas[0]);
         stdev[1].data(meas[1]);

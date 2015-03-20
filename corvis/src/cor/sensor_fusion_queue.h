@@ -1,12 +1,12 @@
 //
-//  threaded_dispatch.h
+//  sensor_fusion_queue.h
 //
 //  Created by Eagle Jones on 1/6/15.
 //  Copyright (c) 2015 Realitycap. All rights reserved.
 //
 
-#ifndef __threaded_dispatch__
-#define __threaded_dispatch__
+#ifndef __sensor_fusion_queue__
+#define __sensor_fusion_queue__
 
 #include <array>
 #include <mutex>
@@ -73,4 +73,4 @@ private:
     bool active;    
 };
 
-#endif /* defined(__threaded_dispatch__) */
+#endif /* defined(__sensor_fusion_queue__) */

@@ -1,8 +1,8 @@
 #include "gtest/gtest.h"
-#include "threaded_dispatch.h"
+#include "sensor_fusion_queue.h"
 #include "util.h"
 
-TEST(ThreadedDispatch, Reorder)
+TEST(SensorFusionQueue, Reorder)
 {
     uint64_t last_time = 0;
     auto camf = [&last_time](const camera_data &x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; };
@@ -59,7 +59,7 @@ TEST(ThreadedDispatch, Reorder)
     q.wait_until_finished();
 }
 
-TEST(ThreadedDispatch, Threading)
+TEST(SensorFusionQueue, Threading)
 {
     uint64_t last_cam_time = 0;
     uint64_t last_acc_time = 0;

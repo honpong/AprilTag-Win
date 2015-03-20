@@ -185,8 +185,8 @@
 		D3C0EDFB1A37B4DC00423EDE /* qr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3C0EDF81A37B4DC00423EDE /* qr.cpp */; };
 		D953126F1A15AE63004D6068 /* homography.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D953126D1A15AE63004D6068 /* homography.cpp */; };
 		D95E92DB1AB86D4600EAB109 /* sensor_data.mm in Sources */ = {isa = PBXBuildFile; fileRef = D95E92D91AB86D4600EAB109 /* sensor_data.mm */; };
-		D95EB1871AA5038600ADFC20 /* threaded_dispatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D95EB1851AA5038600ADFC20 /* threaded_dispatch.cpp */; };
-		D95EB1881AA5038600ADFC20 /* threaded_dispatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D95EB1851AA5038600ADFC20 /* threaded_dispatch.cpp */; };
+		D95EB1871AA5038600ADFC20 /* sensor_fusion_queue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D95EB1851AA5038600ADFC20 /* sensor_fusion_queue.cpp */; };
+		D95EB1881AA5038600ADFC20 /* sensor_fusion_queue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D95EB1851AA5038600ADFC20 /* sensor_fusion_queue.cpp */; };
 		D95EB18C1AA50AF200ADFC20 /* sensor_fusion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D95EB18A1AA50AF200ADFC20 /* sensor_fusion.cpp */; };
 		D95EB18D1AA50AF200ADFC20 /* sensor_fusion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D95EB18A1AA50AF200ADFC20 /* sensor_fusion.cpp */; };
 		D97AEF8118F7613F00573148 /* device_parameters.c in Sources */ = {isa = PBXBuildFile; fileRef = D97AEF8018F7613F00573148 /* device_parameters.c */; };
@@ -495,8 +495,8 @@
 		D953126E1A15AE63004D6068 /* homography.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = homography.h; sourceTree = "<group>"; };
 		D95E92D91AB86D4600EAB109 /* sensor_data.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = sensor_data.mm; path = ../../corvis/src/cor/platform/ios/sensor_data.mm; sourceTree = "<group>"; };
 		D95E92DA1AB86D4600EAB109 /* sensor_data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sensor_data.h; path = ../../corvis/src/cor/platform/sensor_data.h; sourceTree = "<group>"; };
-		D95EB1851AA5038600ADFC20 /* threaded_dispatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = threaded_dispatch.cpp; sourceTree = "<group>"; };
-		D95EB1861AA5038600ADFC20 /* threaded_dispatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = threaded_dispatch.h; sourceTree = "<group>"; };
+		D95EB1851AA5038600ADFC20 /* sensor_fusion_queue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sensor_fusion_queue.cpp; sourceTree = "<group>"; };
+		D95EB1861AA5038600ADFC20 /* sensor_fusion_queue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sensor_fusion_queue.h; sourceTree = "<group>"; };
 		D95EB18A1AA50AF200ADFC20 /* sensor_fusion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sensor_fusion.cpp; path = ../../shared_corvis_3dk/sensor_fusion.cpp; sourceTree = "<group>"; };
 		D95EB18B1AA50AF200ADFC20 /* sensor_fusion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sensor_fusion.h; path = ../../shared_corvis_3dk/sensor_fusion.h; sourceTree = "<group>"; };
 		D97AEF8018F7613F00573148 /* device_parameters.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = device_parameters.c; sourceTree = "<group>"; };
@@ -743,8 +743,8 @@
 				327B559018EB4F250001CCE1 /* packet.h */,
 				327B559118EB4F250001CCE1 /* plugins.c */,
 				327B559218EB4F250001CCE1 /* plugins.h */,
-				D95EB1851AA5038600ADFC20 /* threaded_dispatch.cpp */,
-				D95EB1861AA5038600ADFC20 /* threaded_dispatch.h */,
+				D95EB1851AA5038600ADFC20 /* sensor_fusion_queue.cpp */,
+				D95EB1861AA5038600ADFC20 /* sensor_fusion_queue.h */,
 				327B559318EB4F250001CCE1 /* timestamp.c */,
 				327B559418EB4F250001CCE1 /* timestamp.h */,
 			);
@@ -1207,7 +1207,7 @@
 				327B557818EB4DC20001CCE1 /* RCSensorFusionData.m in Sources */,
 				D95EB18C1AA50AF200ADFC20 /* sensor_fusion.cpp in Sources */,
 				327B557918EB4DC20001CCE1 /* RCSensorFusionStatus.m in Sources */,
-				D95EB1871AA5038600ADFC20 /* threaded_dispatch.cpp in Sources */,
+				D95EB1871AA5038600ADFC20 /* sensor_fusion_queue.cpp in Sources */,
 				D953126F1A15AE63004D6068 /* homography.cpp in Sources */,
 				327B556F18EB4DC20001CCE1 /* RCCameraParameters.m in Sources */,
 				D95E92DB1AB86D4600EAB109 /* sensor_data.mm in Sources */,
@@ -1252,7 +1252,7 @@
 				D3588EFA1A20C0B900CA10E7 /* daialg.cpp in Sources */,
 				D321AD3F1A323C17003AEA77 /* fundamental.cpp in Sources */,
 				D3B4EAD11A1E7DE100BE0443 /* RCVector.m in Sources */,
-				D95EB1881AA5038600ADFC20 /* threaded_dispatch.cpp in Sources */,
+				D95EB1881AA5038600ADFC20 /* sensor_fusion_queue.cpp in Sources */,
 				D3588F091A20C4B800CA10E7 /* stat.c in Sources */,
 				D3B4EAD21A1E7DE100BE0443 /* filter.cpp in Sources */,
 				D3B4EAD31A1E7DE100BE0443 /* RCAFImageRequestOperation.m in Sources */,

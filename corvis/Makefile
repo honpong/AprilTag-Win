@@ -75,7 +75,7 @@ build/%.o: src/%.cpp
 d := cor
 
 COR_SOURCES := $(addprefix src/$(d)/, packet.c mapbuffer.c inbuffer.c timestamp.c plugins.c dispatch.c debug.c) build/$(d)/_cor.c
-COR_CXX_SOURCES := $(addprefix src/$(d)/, threaded_dispatch.cpp platform/shell/sensor_data.cpp)
+COR_CXX_SOURCES := $(addprefix src/$(d)/, sensor_fusion_queue.cpp platform/shell/sensor_data.cpp)
 
 build/$(d)/_cor.c: swig/_cor.i
 	@mkdir -p $(@D)
@@ -224,7 +224,7 @@ SOURCES := $(SOURCES) $(VL_C_SOURCES)
 
 d := test
 
-TEST_CXX_SOURCES := $(addprefix $(d)/, test.cpp numerics/vec4.cpp stereo/stereo.cpp stereo/camera.cpp numerics/quaternion.cpp filter/homography.cpp cor/threaded_dispatch.cpp)
+TEST_CXX_SOURCES := $(addprefix $(d)/, test.cpp numerics/vec4.cpp stereo/stereo.cpp stereo/camera.cpp numerics/quaternion.cpp filter/homography.cpp cor/sensor_fusion_queue.cpp)
 
 _CPPFLAGS := $(_CPPFLAGS) -I../ -Isrc/numerics -Itest
 LDFLAGS := $(LDFLAGS) -lstdc++
@@ -237,7 +237,7 @@ build/$(d)/%.o: $(d)/%.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 
-bin/test: build/$(d)/gtest_main.o build/$(d)/gtest-all.o $(patsubst test/%,build/test/%,$(TEST_CXX_SOURCES:.cpp=.o)) $(addprefix build/numerics/, vec4.o matrix.o) $(addprefix build/filter/, fast_detector/fast_9.o scaled_mask.o homography.o) $(addprefix build/cor/, threaded_dispatch.o platform/shell/sensor_data.o) bin/stereo/_stereo.so bin/libDAI-0.3.1/_libDAI.so bin/qhull/_qhull.so
+bin/test: build/$(d)/gtest_main.o build/$(d)/gtest-all.o $(patsubst test/%,build/test/%,$(TEST_CXX_SOURCES:.cpp=.o)) $(addprefix build/numerics/, vec4.o matrix.o) $(addprefix build/filter/, fast_detector/fast_9.o scaled_mask.o homography.o) $(addprefix build/cor/, sensor_fusion_queue.o platform/shell/sensor_data.o) bin/stereo/_stereo.so bin/libDAI-0.3.1/_libDAI.so bin/qhull/_qhull.so
 	@mkdir -p $(@D)
 	$(CC) $(LDFLAGS) $(PYTHON_LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
 

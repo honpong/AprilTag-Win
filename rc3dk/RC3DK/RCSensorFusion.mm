@@ -10,7 +10,7 @@
 extern "C" {
 #import "cor.h"
 }
-#include "threaded_dispatch.h"
+#include "sensor_fusion_queue.h"
 #include "filter_setup.h"
 #include <mach/mach_time.h>
 #import "RCCalibration.h"

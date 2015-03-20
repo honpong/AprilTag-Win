@@ -1,12 +1,12 @@
 //
-//  threaded_dispatch.cpp
+//  sensor_fusion_queue.cpp
 //
 //  Created by Eagle Jones on 1/6/15.
 //  Copyright (c) 2015 Realitycap. All rights reserved.
 //
 
 //#include "intel_interface.h"
-#include "threaded_dispatch.h"
+#include "sensor_fusion_queue.h"
 #include <cassert>
 
 template<typename T, int size>

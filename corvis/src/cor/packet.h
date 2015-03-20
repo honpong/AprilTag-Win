@@ -211,11 +211,14 @@ typedef struct {
 } packet_ground_truth_t;
 
 enum packet_plot_type {
+    packet_plot_var_T,
+    packet_plot_var_W,
+    packet_plot_var_a,
+    packet_plot_var_w,
     packet_plot_inn_a,
     packet_plot_inn_w,
     packet_plot_meas_a,
     packet_plot_meas_w,
-    packet_plot_inn_v, //do not add new plots past this one - groups are defined as packet_plot_inn_v + i
     packet_plot_unknown = 256
 };
 

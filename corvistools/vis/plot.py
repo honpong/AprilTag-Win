@@ -59,6 +59,7 @@ class PlotNotebook(wx.Panel, Mouse.Wheel, Mouse.Drag):
         self.zoomfactor = 1.0
         self.origin = numpy.array([0,0])
         self.latest = 0.
+        self.latest_update = 0.
 
     def add(self, name="plot", nominal = 0.):
         plot = animplot(name, nominal)
@@ -71,7 +72,10 @@ class PlotNotebook(wx.Panel, Mouse.Wheel, Mouse.Drag):
             plot = self.plots[packet.header.user]
             self.latest = packet.header.time/1000000.
             plot.packet_plot(packet)
-            update = True
+            #max 30Hz update
+            if self.latest > self.latest_update + 1/30.:
+                self.latest_update = self.latest
+                update = True
         elif packet.header.type == cor.packet_plot_info:
             plot = self.add(packet.identity, packet.nominal)
             self.plots[packet.header.user] = plot

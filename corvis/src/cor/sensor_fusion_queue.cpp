@@ -5,12 +5,11 @@
 //  Copyright (c) 2015 Realitycap. All rights reserved.
 //
 
-//#include "intel_interface.h"
 #include "sensor_fusion_queue.h"
 #include <cassert>
 
 template<typename T, int size>
-sensor_queue<T, size>::sensor_queue(std::mutex &mx, std::condition_variable &cnd, const bool &actv): mutex(mx), cond(cnd), active(actv), readpos(0), writepos(0), count(0)
+sensor_queue<T, size>::sensor_queue(std::mutex &mx, std::condition_variable &cnd, const bool &actv, uint64_t &latest_received, const uint64_t &last_dispatched, uint64_t expected_period, uint64_t max_jitter): mutex(mx), cond(cnd), active(actv), global_latest_received(latest_received), global_last_dispatched(last_dispatched), last_time(0), period(expected_period), jitter(max_jitter), readpos(0), writepos(0), count(0)
 {
 }
 
@@ -18,11 +17,14 @@ template<typename T, int size>
 bool sensor_queue<T, size>::push(T&& x)
 {
     std::unique_lock<std::mutex> lock(mutex);
-    if(!active)
+    if(!active || x.timestamp < last_time || x.timestamp < global_last_dispatched)
     {
         lock.unlock();
         return false;
     }
+    
+    if(x.timestamp > global_latest_received) global_latest_received = x.timestamp;
+    last_time = x.timestamp;
     
     storage[writepos] = std::move(x);
     writepos = (writepos + 1) % size;
@@ -53,26 +55,57 @@ T sensor_queue<T, size>::pop(std::unique_lock<std::mutex> &lock)
     return std::move(storage[oldpos]);
 }
 
+
+//Get this working again, but then move it out to fusion queue and make sure camera latency doesn't invoke global_latest_received thing
+template<typename T, int size>
+bool sensor_queue<T, size>::ok_to_dispatch(const uint64_t time) const
+{
+#ifdef DEBUG
+    //This should only be called with the first available item (which could be ours)
+    if(count) assert(time <= storage[readpos].timestamp);
+#endif
+    //if we aren't debugging, let it go even if it's out of order
+    if(count) return true;
+    //if it's far enough ahead of when we expect our next data, then go ahead
+    if(time <= last_time + period - jitter) return true;
+    //we're late and next piece of data will probably be dropped! let this go ahead
+    if(global_latest_received > last_time + period + jitter) return true;
+    //otherwise, our next piece of data could be timestamped around the same time, so wait...
+    return false;
+}
+
 fusion_queue::fusion_queue(const std::function<void(const camera_data &)> &camera_func,
                            const std::function<void(const accelerometer_data &)> &accelerometer_func,
-                           const std::function<void(const gyro_data &)> &gyro_func):
+                           const std::function<void(const gyro_data &)> &gyro_func,
+                           uint64_t camera_period,
+                           uint64_t inertial_period,
+                           uint64_t max_jitter):
                 camera_receiver(camera_func),
                 accel_receiver(accelerometer_func),
                 gyro_receiver(gyro_func),
-                accel_queue(mutex, cond, active),
-                gyro_queue(mutex, cond, active),
-                camera_queue(mutex, cond, active),
+                accel_queue(mutex, cond, active, latest_received, last_dispatched, inertial_period, max_jitter),
+                gyro_queue(mutex, cond, active, latest_received, last_dispatched, inertial_period, max_jitter),
+                camera_queue(mutex, cond, active, latest_received, last_dispatched, camera_period, max_jitter),
                 control_func(nullptr),
-                active(false)
+                active(false),
+                latest_received(0),
+                last_dispatched(0)
 {
 }
 
 bool fusion_queue::can_dispatch(std::unique_lock<std::mutex> &lock)
 {
-    return
-        camera_queue.get_next_time(lock) != UINT64_MAX ||
-        accel_queue.get_next_time(lock) != UINT64_MAX ||
-        gyro_queue.get_next_time(lock) != UINT64_MAX;
+    uint64_t min_time = camera_queue.get_next_time(lock);
+    uint64_t accel_time = accel_queue.get_next_time(lock);
+    if(accel_time < min_time) min_time = accel_time;
+    uint64_t gyro_time = gyro_queue.get_next_time(lock);
+    if(gyro_time < min_time) min_time = gyro_time;
+    
+    if(min_time == UINT64_MAX) return false; //nothing ready
+    
+    return(camera_queue.ok_to_dispatch(min_time) &&
+           accel_queue.ok_to_dispatch(min_time) &&
+           gyro_queue.ok_to_dispatch(min_time));
 }
 
 void fusion_queue::receive_camera(camera_data&& x) { camera_queue.push(std::move(x)); }
@@ -170,6 +203,7 @@ void fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock)
     if(camera_time <= accel_time && camera_time <= gyro_time)
     {
         camera_data data = camera_queue.pop(lock);
+        last_dispatched = data.timestamp;
         lock.unlock();
         camera_receiver(std::move(data));
         
@@ -192,6 +226,7 @@ void fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock)
     else if(accel_time <= gyro_time)
     {
         accelerometer_data data = accel_queue.pop(lock);
+        last_dispatched = data.timestamp;
         lock.unlock();
         accel_receiver(std::move(data));
         lock.lock();
@@ -199,6 +234,7 @@ void fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock)
     else
     {
         gyro_data data = gyro_queue.pop(lock);
+        last_dispatched = data.timestamp;
         lock.unlock();
         gyro_receiver(std::move(data));
         lock.lock();

@@ -10,35 +10,28 @@ int observation_queue::preprocess()
 {
     stable_sort(observations.begin(), observations.end(), observation_comp_apparent);
     int size = 0;
-    for(observation *o : observations)
+    for(auto &o : observations)
         size += o->size;
     return size;
 }
 
-void observation_queue::clear()
-{
-    for(observation *o : observations)
-        delete o;
-    observations.clear();
-}
-
 void observation_queue::predict()
 {
-    for(observation *o : observations)
+    for(auto &o : observations)
         o->predict();
 }
 
 void observation_queue::measure()
 {
     //measure; calculate innovation and covariance
-    for(observation *o : observations)
+    for(auto &o : observations)
         o->measure();
 }
 
 void observation_queue::compute_innovation(matrix &inn)
 {
     int count = 0;
-    for(observation *o : observations) {
+    for(auto &o : observations) {
         o->compute_innovation();
         for(int i = 0; i < o->size; ++i) {
             inn[count + i] = o->innovation(i);
@@ -50,7 +43,7 @@ void observation_queue::compute_innovation(matrix &inn)
 void observation_queue::compute_measurement_covariance(matrix &m_cov)
 {
     int count = 0;
-    for(observation *o : observations) {
+    for(auto &o : observations) {
         o->compute_measurement_covariance();
         for(int i = 0; i < o->size; ++i) {
             m_cov[count + i] = o->measurement_covariance(i);
@@ -65,7 +58,7 @@ void observation_queue::compute_prediction_covariance(const state &s, int meas_s
     // matrix_product(LC, lp, A, false, false);
     int statesize = s.cov.size();
     int index = 0;
-    for(observation *o : observations) {
+    for(auto &o : observations) {
         if(o->size) {
             matrix dst(&LC(index, 0), o->size, statesize, LC.maxrows, LC.stride);
             o->cache_jacobians();
@@ -76,7 +69,7 @@ void observation_queue::compute_prediction_covariance(const state &s, int meas_s
     
     //project cov(state, meas)=(LC)' onto meas to get cov(meas, meas)
     index = 0;
-    for(observation *o : observations) {
+    for(auto &o : observations) {
         if(o->size) {
             matrix dst(&res_cov(index, 0), o->size, meas_size, res_cov.maxrows, res_cov.stride);
             o->project_covariance(dst, LC);
@@ -92,7 +85,7 @@ void observation_queue::compute_prediction_covariance(const state &s, int meas_s
     }
     
     index = 0;
-    for(observation *o : observations) {
+    for(auto &o : observations) {
         if(o->size) o->set_prediction_covariance(res_cov, index);
         index += o->size;
     }
@@ -101,7 +94,7 @@ void observation_queue::compute_prediction_covariance(const state &s, int meas_s
 void observation_queue::compute_innovation_covariance(const matrix &m_cov)
 {
     int index = 0;
-    for(observation *o : observations) {
+    for(auto &o : observations) {
         for(int i = 0; i < o->size; ++i) {
             res_cov(index + i, index + i) += m_cov[index + i];
         }
@@ -115,7 +108,7 @@ int observation_queue::remove_invalid_measurements(const state &s, int orig_size
     int map[orig_size];
     int src = 0;
     int new_size = 0;
-    for(observation *o : observations) {
+    for(auto &o : observations) {
         for(int i = 0; i < o->size; ++i) {
             if(o->valid) map[new_size++] = src;
             ++src;
@@ -202,7 +195,7 @@ bool observation_queue::process(state &s, uint64_t time)
         }
     }
     
-    clear();
+    observations.clear();
     f_t delta_T = norm(s.T.v - s.last_position);
     if(delta_T > .01) {
         s.total_distance += norm(s.T.v - s.last_position);

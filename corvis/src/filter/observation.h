@@ -153,9 +153,8 @@ class observation_queue {
 public:
     observation_queue();
     bool process(state &s, uint64_t time);
-    vector<observation *> observations;
-    void clear();
-    
+    vector<unique_ptr<observation>> observations;
+
 protected:
     int preprocess();
     void predict();
@@ -171,8 +170,8 @@ protected:
     matrix K;
     matrix res_cov;
 #endif
-    static bool observation_comp_actual(observation *p1, observation *p2) { return p1->time_actual < p2->time_actual; }
-    static bool observation_comp_apparent(observation *p1, observation *p2) { return p1->time_apparent < p2->time_apparent; }
+    static bool observation_comp_actual(const unique_ptr<observation> &p1, const unique_ptr<observation> &p2) { return p1->time_actual < p2->time_actual; }
+    static bool observation_comp_apparent(const unique_ptr <observation> &p1, const unique_ptr<observation> &p2) { return p1->time_apparent < p2->time_apparent; }
     
     v_intrinsic LC_storage[MAXOBSERVATIONSIZE * MAXSTATESIZE / 4];
     v_intrinsic K_storage[MAXOBSERVATIONSIZE * MAXSTATESIZE / 4];

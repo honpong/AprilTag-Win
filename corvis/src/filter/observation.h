@@ -19,7 +19,6 @@ class observation {
     const int size;
     uint64_t time_actual;
     uint64_t time_apparent;
-    bool valid;
 
     virtual void predict() = 0;
     virtual void compute_innovation() = 0;
@@ -32,7 +31,7 @@ class observation {
     virtual f_t innovation(const int i) const = 0;
     virtual f_t measurement_covariance(const int i) const = 0;
     
-    observation(int _size, uint64_t _time_actual, uint64_t _time_apparent): size(_size), time_actual(_time_actual), time_apparent(_time_apparent), valid(true) {}
+    observation(int _size, uint64_t _time_actual, uint64_t _time_apparent): size(_size), time_actual(_time_actual), time_apparent(_time_apparent) {}
     virtual ~observation() {};
 };
 
@@ -156,9 +155,9 @@ public:
     vector<unique_ptr<observation>> observations;
 
 protected:
-    int preprocess();
+    int size();
     void predict();
-    void measure();
+    void measure_and_prune();
     void compute_innovation(matrix &inn);
     void compute_measurement_covariance(matrix &m_cov);
     void compute_prediction_covariance(const state &s, int meas_size);

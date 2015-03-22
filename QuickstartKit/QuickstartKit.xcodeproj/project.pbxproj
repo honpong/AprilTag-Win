@@ -139,7 +139,6 @@
 		3296F2651A8BD8E20092D808 /* QuickstartResources.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QuickstartResources.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		3296F2681A8BD8E20092D808 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3296F28E1A8C07A00092D808 /* QuickstartKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuickstartKit.h; sourceTree = "<group>"; };
-		3296F2B31A8C0CA10092D808 /* RC3DK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RC3DK.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -187,7 +186,6 @@
 				3296F2251A8BD6EF0092D808 /* Calibration */,
 				3296F20A1A8BD6D90092D808 /* SensorManagers */,
 				3296F28E1A8C07A00092D808 /* QuickstartKit.h */,
-				3296F2B31A8C0CA10092D808 /* RC3DK.h */,
 			);
 			path = QuickstartKit;
 			sourceTree = "<group>";

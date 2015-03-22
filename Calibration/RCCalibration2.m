@@ -15,15 +15,18 @@
     RCSensorFusion* sensorFusion;
     float currentProgress;
 }
-@synthesize messageLabel;
+
+- (id)initWithCoder:(NSCoder *)aDecoder
+{
+    self = [super initWithCoder:aDecoder];
+    if (!self) return nil;
+    
+    sensorFusion = [RCSensorFusion sharedInstance];
+    
+    return self;
+}
 
 - (BOOL) prefersStatusBarHidden { return YES; }
-
-- (void) viewDidLoad
-{
-    [super viewDidLoad];
-    sensorFusion = [RCSensorFusion sharedInstance];
-}
 
 - (void) viewDidAppear:(BOOL)animated
 {

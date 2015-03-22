@@ -16,13 +16,17 @@
 }
 @synthesize messageLabel;
 
-- (BOOL) prefersStatusBarHidden { return YES; }
-
-- (void) viewDidLoad
+- (id)initWithCoder:(NSCoder *)aDecoder
 {
-    [super viewDidLoad];
+    self = [super initWithCoder:aDecoder];
+    if (!self) return nil;
+    
     sensorFusion = [RCSensorFusion sharedInstance];
+    
+    return self;
 }
+
+- (BOOL) prefersStatusBarHidden { return YES; }
 
 - (void) viewDidAppear:(BOOL)animated
 {

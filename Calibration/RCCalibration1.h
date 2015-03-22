@@ -8,7 +8,7 @@
 #import <UIKit/UIKit.h>
 #import "MBProgressHUD.h"
 #import "RCSensorDelegate.h"
-#import "RC3DK.h"
+#import <RC3DK/RC3DK.h>
 
 @protocol RCCalibrationDelegate <NSObject>
 

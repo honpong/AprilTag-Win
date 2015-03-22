@@ -26,26 +26,35 @@
     return (RCCalibration1 *)[calibrationStoryBoard instantiateInitialViewController];
 }
 
-- (BOOL) prefersStatusBarHidden { return YES; }
-
-- (NSUInteger) supportedInterfaceOrientations { return UIInterfaceOrientationMaskPortrait; }
-
-- (void) viewDidLoad
+- (id)initWithCoder:(NSCoder *)aDecoder
 {
-    [super viewDidLoad];
+    self = [super initWithCoder:aDecoder];
+    if (!self) return nil;
     
     sensorFusion = [RCSensorFusion sharedInstance];
     sensorFusion.delegate = self;
     currentRunState = RCSensorFusionRunStateInactive;
     currentProgress = 0.;
     
-	isCalibrating = NO;
+    isCalibrating = NO;
+    
+    return self;
 }
+
+- (BOOL) prefersStatusBarHidden { return YES; }
+
+- (NSUInteger) supportedInterfaceOrientations { return UIInterfaceOrientationMaskPortrait; }
 
 - (void) viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    [messageLabel setText:@"We need to calibrate your sensors just once. Place the device on a flat, stable surface, like a table."];
+    [self.messageLabel setText:@"We need to calibrate your sensors just once. Place the device on a flat, stable surface, like a table."];
+    sensorFusion = [RCSensorFusion sharedInstance];
+    sensorFusion.delegate = self;
+    currentRunState = RCSensorFusionRunStateInactive;
+    currentProgress = 0.;
+    
+    isCalibrating = NO;
 }
 
 - (void) viewDidAppear:(BOOL)animated

@@ -77,6 +77,8 @@
 
 - (void) gotoNextScreen
 {
+    messageLabel.text = @"Please wait...";
+    
     [[NSNotificationCenter defaultCenter] removeObserver:self
                                                     name:UIApplicationWillResignActiveNotification
                                                   object:nil];

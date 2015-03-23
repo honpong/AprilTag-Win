@@ -19,7 +19,6 @@ class observation {
     const int size;
     uint64_t time_actual;
     uint64_t time_apparent;
-    bool valid;
 
     virtual void predict() = 0;
     virtual void compute_innovation() = 0;
@@ -32,7 +31,7 @@ class observation {
     virtual f_t innovation(const int i) const = 0;
     virtual f_t measurement_covariance(const int i) const = 0;
     
-    observation(int _size, uint64_t _time_actual, uint64_t _time_apparent): size(_size), time_actual(_time_actual), time_apparent(_time_apparent), valid(true) {}
+    observation(int _size, uint64_t _time_actual, uint64_t _time_apparent): size(_size), time_actual(_time_actual), time_apparent(_time_apparent) {}
     virtual ~observation() {};
 };
 
@@ -46,6 +45,7 @@ public:
     f_t meas[_size];
     virtual void set_prediction_covariance(const matrix &cov, const int index) { for(int i = 0; i < size; ++i) for(int j = 0; j < size; ++j) pred_cov[i][j] = cov(index + i, index + j); }
     virtual void compute_innovation() { for(int i = 0; i < size; ++i) inn[i] = meas[i] - pred[i]; }
+    virtual void copy_innovation_to_array(float inn_out[_size]) const { for(int i = 0; i < _size; ++i) inn_out[i] = inn[i]; }
     virtual f_t innovation(const int i) const { return inn[i]; }
     virtual f_t measurement_covariance(const int i) const { return m_cov[i]; }
     observation_storage(uint64_t _time_actual, uint64_t _time_apparent): observation(_size, _time_actual, _time_apparent) {}
@@ -152,13 +152,12 @@ class observation_queue {
 public:
     observation_queue();
     bool process(state &s, uint64_t time);
-    vector<observation *> observations;
-    void clear();
-    
+    vector<unique_ptr<observation>> observations;
+
 protected:
-    int preprocess();
+    int size();
     void predict();
-    void measure();
+    void measure_and_prune();
     void compute_innovation(matrix &inn);
     void compute_measurement_covariance(matrix &m_cov);
     void compute_prediction_covariance(const state &s, int meas_size);
@@ -170,8 +169,8 @@ protected:
     matrix K;
     matrix res_cov;
 #endif
-    static bool observation_comp_actual(observation *p1, observation *p2) { return p1->time_actual < p2->time_actual; }
-    static bool observation_comp_apparent(observation *p1, observation *p2) { return p1->time_apparent < p2->time_apparent; }
+    static bool observation_comp_actual(const unique_ptr<observation> &p1, const unique_ptr<observation> &p2) { return p1->time_actual < p2->time_actual; }
+    static bool observation_comp_apparent(const unique_ptr <observation> &p1, const unique_ptr<observation> &p2) { return p1->time_apparent < p2->time_apparent; }
     
     v_intrinsic LC_storage[MAXOBSERVATIONSIZE * MAXSTATESIZE / 4];
     v_intrinsic K_storage[MAXOBSERVATIONSIZE * MAXSTATESIZE / 4];

@@ -6,39 +6,31 @@
 stdev_scalar observation_vision_feature::stdev[2], observation_vision_feature::inn_stdev[2];
 stdev_vector observation_accelerometer::stdev, observation_accelerometer::inn_stdev, observation_gyroscope::stdev, observation_gyroscope::inn_stdev;
 
-int observation_queue::preprocess()
+int observation_queue::size()
 {
-    stable_sort(observations.begin(), observations.end(), observation_comp_apparent);
     int size = 0;
-    for(observation *o : observations)
+    for(auto &o : observations)
         size += o->size;
     return size;
 }
 
-void observation_queue::clear()
-{
-    for(observation *o : observations)
-        delete o;
-    observations.clear();
-}
-
 void observation_queue::predict()
 {
-    for(observation *o : observations)
+    for(auto &o : observations)
         o->predict();
 }
 
-void observation_queue::measure()
+void observation_queue::measure_and_prune()
 {
-    //measure; calculate innovation and covariance
-    for(observation *o : observations)
-        o->measure();
+    observations.erase(remove_if(observations.begin(), observations.end(), [](auto &o) {
+       return !o->measure();
+    }), observations.end());
 }
 
 void observation_queue::compute_innovation(matrix &inn)
 {
     int count = 0;
-    for(observation *o : observations) {
+    for(auto &o : observations) {
         o->compute_innovation();
         for(int i = 0; i < o->size; ++i) {
             inn[count + i] = o->innovation(i);
@@ -50,7 +42,7 @@ void observation_queue::compute_innovation(matrix &inn)
 void observation_queue::compute_measurement_covariance(matrix &m_cov)
 {
     int count = 0;
-    for(observation *o : observations) {
+    for(auto &o : observations) {
         o->compute_measurement_covariance();
         for(int i = 0; i < o->size; ++i) {
             m_cov[count + i] = o->measurement_covariance(i);
@@ -65,7 +57,7 @@ void observation_queue::compute_prediction_covariance(const state &s, int meas_s
     // matrix_product(LC, lp, A, false, false);
     int statesize = s.cov.size();
     int index = 0;
-    for(observation *o : observations) {
+    for(auto &o : observations) {
         if(o->size) {
             matrix dst(&LC(index, 0), o->size, statesize, LC.maxrows, LC.stride);
             o->cache_jacobians();
@@ -76,7 +68,7 @@ void observation_queue::compute_prediction_covariance(const state &s, int meas_s
     
     //project cov(state, meas)=(LC)' onto meas to get cov(meas, meas)
     index = 0;
-    for(observation *o : observations) {
+    for(auto &o : observations) {
         if(o->size) {
             matrix dst(&res_cov(index, 0), o->size, meas_size, res_cov.maxrows, res_cov.stride);
             o->project_covariance(dst, LC);
@@ -92,7 +84,7 @@ void observation_queue::compute_prediction_covariance(const state &s, int meas_s
     }
     
     index = 0;
-    for(observation *o : observations) {
+    for(auto &o : observations) {
         if(o->size) o->set_prediction_covariance(res_cov, index);
         index += o->size;
     }
@@ -101,48 +93,13 @@ void observation_queue::compute_prediction_covariance(const state &s, int meas_s
 void observation_queue::compute_innovation_covariance(const matrix &m_cov)
 {
     int index = 0;
-    for(observation *o : observations) {
+    for(auto &o : observations) {
         for(int i = 0; i < o->size; ++i) {
             res_cov(index + i, index + i) += m_cov[index + i];
         }
         o->innovation_covariance_hook(res_cov, index);
         index += o->size;
     }
-}
-
-int observation_queue::remove_invalid_measurements(const state &s, int orig_size, matrix &inn)
-{
-    int map[orig_size];
-    int src = 0;
-    int new_size = 0;
-    for(observation *o : observations) {
-        for(int i = 0; i < o->size; ++i) {
-            if(o->valid) map[new_size++] = src;
-            ++src;
-        }
-    }
-
-    for(int i = 0; i < new_size; ++i)
-    {
-        inn[i] = inn[map[i]];
-    }
-    inn.resize(new_size);
-
-    for(int i = 0; i < new_size; ++i)
-    {
-        memcpy(&LC(i, 0), &LC(map[i], 0), sizeof(f_t) * LC.stride);
-    }
-    LC.resize(new_size, LC.cols);
-
-    for(int i = 0; i < new_size; ++i)
-    {
-        for(int j = 0; j < new_size; ++j)
-        {
-            res_cov(i, j) = res_cov(map[i], map[j]);
-        }
-    }
-    res_cov.resize(new_size, new_size);
-    return new_size;
 }
 
 bool observation_queue::update_state_and_covariance(state &s, const matrix &inn)
@@ -177,10 +134,16 @@ bool observation_queue::process(state &s, uint64_t time)
 #endif
     bool success = true;
     s.time_update(time);
-    if(!observations.size()) return success;
-    int statesize = s.cov.size();
 
-    int meas_size = preprocess();
+    stable_sort(observations.begin(), observations.end(), observation_comp_apparent);
+
+    predict();
+
+    int orig_meas_size = size();
+
+    measure_and_prune();
+
+    int meas_size = size(), statesize = s.cov.size();
     if(meas_size) {
         matrix inn(1, meas_size);
         matrix m_cov(1, meas_size);
@@ -188,21 +151,16 @@ bool observation_queue::process(state &s, uint64_t time)
         res_cov.resize(meas_size, meas_size);
 
         //TODO: implement o->time_apparent != o->time_actual
-        predict();
-        measure();
         compute_innovation(inn);
         compute_measurement_covariance(m_cov);
         compute_prediction_covariance(s, meas_size);
         compute_innovation_covariance(m_cov);
-        int count = remove_invalid_measurements(s, meas_size, inn);
-        if(count) {
-            success = update_state_and_covariance(s, inn);
-        } else {
-            if(log_enabled && meas_size != 3) fprintf(stderr, "In Kalman update, original measurement size was %d, ended up with 0 measurements!\n", meas_size);
-        }
+        success = update_state_and_covariance(s, inn);
+    } else if(orig_meas_size != 3) {
+        if(log_enabled) fprintf(stderr, "In Kalman update, original measurement size was %d, ended up with 0 measurements!\n", orig_meas_size);
     }
     
-    clear();
+    observations.clear();
     f_t delta_T = norm(s.T.v - s.last_position);
     if(delta_T > .01) {
         s.total_distance += norm(s.T.v - s.last_position);
@@ -500,7 +458,7 @@ bool observation_vision_feature::measure()
     else
         bestkp = bestkp2;
 
-    valid = bestkp.x != INFINITY;
+    bool valid = bestkp.x != INFINITY;
 
     if(valid) {
         feature->image_velocity.x  = bestkp.x - feature->current[0];
@@ -605,7 +563,6 @@ bool observation_accelerometer::measure()
     {
         state.W.v = to_rotation_vector(initial_orientation_from_gravity(meas));
         state.orientation_initialized = true;
-        valid = false;
         return false;
     } else return observation_spatial::measure();
 }

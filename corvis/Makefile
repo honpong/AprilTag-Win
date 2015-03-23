@@ -13,7 +13,7 @@ CPPFLAGS = $(_CPPFLAGS) -Wall -g -fPIC -march=core2 -mfpmath=sse -O3 -D DEBUG
 _CPPFLAGS := \
         $(patsubst %,-I%/include,$(wildcard $(shell brew --prefix boost 2>/dev/null) /opt/local)) \
         $(shell pkg-config ftgl --cflags) -Isrc/cor -Wdeprecated-writable-strings
-CXXFLAGS := -std=c++11
+CXXFLAGS := -std=c++1y
 CFLAGS := -std=gnu99
 LDFLAGS := -lpthread --warn-unresolved-symbols -O3 -framework Accelerate -framework OpenGL -framework GLUT $(shell pkg-config ftgl --libs)
 SWIGFLAGS = -w403,362,389,503,401,462,472,314,509,204

@@ -37,6 +37,16 @@
     [self doSanityCheck];
 }
 
+- (void)viewDidAppear:(BOOL)animated
+{
+    // check for camera permission
+    [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (!granted) statusLabel.text = @"Error: This app won't work without camera permission.";
+        });
+    }];
+}
+
 - (void) doSanityCheck
 {
     if ([RCDeviceInfo getDeviceType] == DeviceTypeUnknown)

@@ -8,7 +8,7 @@
 
 #import "ViewController.h"
 #import "LicenseHelper.h"
-#import "RCSensorDelegate.h"
+#import <QuickstartKit/QuickstartKit.h>
 
 @implementation ViewController
 {

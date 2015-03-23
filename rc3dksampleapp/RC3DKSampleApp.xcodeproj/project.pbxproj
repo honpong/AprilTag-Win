@@ -7,10 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3207A54A1AC0CD4200792F30 /* libQuickstartKit.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3207A51C1AC0C7AF00792F30 /* libQuickstartKit.a */; };
 		32700D9017DFEFFE006E5F16 /* README.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 32700D8F17DFEFFE006E5F16 /* README.rtf */; };
 		327B563818EB5EE70001CCE1 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B563718EB5EE70001CCE1 /* OpenGLES.framework */; };
-		328D2CCF1AAB7052000ED57C /* libQuickstartKit.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 328D2CCD1AAB7052000ED57C /* libQuickstartKit.a */; };
-		328D2CD01AAB7052000ED57C /* QuickstartResources.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 328D2CCE1AAB7052000ED57C /* QuickstartResources.bundle */; };
 		32EEE05C1799ACFC00E83642 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE05B1799ACFC00E83642 /* UIKit.framework */; };
 		32EEE05E1799ACFC00E83642 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE05D1799ACFC00E83642 /* Foundation.framework */; };
 		32EEE0661799ACFC00E83642 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 32EEE0641799ACFC00E83642 /* InfoPlist.strings */; };
@@ -37,42 +36,34 @@
 		D39409F217CCE64B007BCF1C /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D39409F117CCE64B007BCF1C /* CoreFoundation.framework */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		3207A51B1AC0C7AF00792F30 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3207A5151AC0C7AF00792F30 /* QuickstartKit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3296F1DB1A8BD68F0092D808;
+			remoteInfo = QuickstartKit;
+		};
+		3207A51D1AC0C7AF00792F30 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3207A5151AC0C7AF00792F30 /* QuickstartKit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3296F2651A8BD8E20092D808;
+			remoteInfo = QuickstartResources;
+		};
+		3207A55D1AC0CF9600792F30 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3207A5151AC0C7AF00792F30 /* QuickstartKit.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 3296F1DA1A8BD68F0092D808;
+			remoteInfo = QuickstartKit;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		3207A5151AC0C7AF00792F30 /* QuickstartKit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = QuickstartKit.xcodeproj; path = ../QuickstartKit/QuickstartKit.xcodeproj; sourceTree = "<group>"; };
 		32700D8F17DFEFFE006E5F16 /* README.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = README.rtf; sourceTree = "<group>"; };
 		327B563718EB5EE70001CCE1 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
-		328D2CAD1AAB7052000ED57C /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
-		328D2CAE1AAB7052000ED57C /* QuickstartKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuickstartKit.h; sourceTree = "<group>"; };
-		328D2CAF1AAB7052000ED57C /* RCAVSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAVSessionManager.h; sourceTree = "<group>"; };
-		328D2CB01AAB7052000ED57C /* RCCalibration1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration1.h; sourceTree = "<group>"; };
-		328D2CB11AAB7052000ED57C /* RCCalibration2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration2.h; sourceTree = "<group>"; };
-		328D2CB21AAB7052000ED57C /* RCCalibration3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration3.h; sourceTree = "<group>"; };
-		328D2CB31AAB7052000ED57C /* RCDebugLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDebugLog.h; sourceTree = "<group>"; };
-		328D2CB41AAB7052000ED57C /* RCGLManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCGLManagerFactory.h; sourceTree = "<group>"; };
-		328D2CB51AAB7052000ED57C /* RCGLShaderProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCGLShaderProgram.h; sourceTree = "<group>"; };
-		328D2CB61AAB7052000ED57C /* RCLocationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCLocationManager.h; sourceTree = "<group>"; };
-		328D2CB71AAB7052000ED57C /* RCMotionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMotionManager.h; sourceTree = "<group>"; };
-		328D2CB81AAB7052000ED57C /* RCSensorDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorDelegate.h; sourceTree = "<group>"; };
-		328D2CB91AAB7052000ED57C /* RCVideoFrameProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoFrameProvider.h; sourceTree = "<group>"; };
-		328D2CBA1AAB7052000ED57C /* RCVideoManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoManager.h; sourceTree = "<group>"; };
-		328D2CBB1AAB7052000ED57C /* RCVideoPreview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoPreview.h; sourceTree = "<group>"; };
-		328D2CBD1AAB7052000ED57C /* RC3DK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RC3DK.h; sourceTree = "<group>"; };
-		328D2CBE1AAB7052000ED57C /* RCCameraParameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCameraParameters.h; sourceTree = "<group>"; };
-		328D2CBF1AAB7052000ED57C /* RCDeviceInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDeviceInfo.h; sourceTree = "<group>"; };
-		328D2CC01AAB7052000ED57C /* RCFeaturePoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCFeaturePoint.h; sourceTree = "<group>"; };
-		328D2CC11AAB7052000ED57C /* RCLicenseError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCLicenseError.h; sourceTree = "<group>"; };
-		328D2CC21AAB7052000ED57C /* RCPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCPoint.h; sourceTree = "<group>"; };
-		328D2CC31AAB7052000ED57C /* RCRotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCRotation.h; sourceTree = "<group>"; };
-		328D2CC41AAB7052000ED57C /* RCScalar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCScalar.h; sourceTree = "<group>"; };
-		328D2CC51AAB7052000ED57C /* RCSensorFusion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusion.h; sourceTree = "<group>"; };
-		328D2CC61AAB7052000ED57C /* RCSensorFusionData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusionData.h; sourceTree = "<group>"; };
-		328D2CC71AAB7052000ED57C /* RCSensorFusionError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusionError.h; sourceTree = "<group>"; };
-		328D2CC81AAB7052000ED57C /* RCSensorFusionInternals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusionInternals.h; sourceTree = "<group>"; };
-		328D2CC91AAB7052000ED57C /* RCSensorFusionStatus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusionStatus.h; sourceTree = "<group>"; };
-		328D2CCA1AAB7052000ED57C /* RCTransformation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTransformation.h; sourceTree = "<group>"; };
-		328D2CCB1AAB7052000ED57C /* RCTranslation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTranslation.h; sourceTree = "<group>"; };
-		328D2CCC1AAB7052000ED57C /* RCVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVector.h; sourceTree = "<group>"; };
-		328D2CCD1AAB7052000ED57C /* libQuickstartKit.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libQuickstartKit.a; sourceTree = "<group>"; };
-		328D2CCE1AAB7052000ED57C /* QuickstartResources.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = QuickstartResources.bundle; sourceTree = "<group>"; };
 		32EEE0581799ACFC00E83642 /* 3DK Sample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "3DK Sample.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		32EEE05B1799ACFC00E83642 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		32EEE05D1799ACFC00E83642 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
@@ -112,11 +103,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3207A54A1AC0CD4200792F30 /* libQuickstartKit.a in Frameworks */,
 				327B563818EB5EE70001CCE1 /* OpenGLES.framework in Frameworks */,
 				D39409F217CCE64B007BCF1C /* CoreFoundation.framework in Frameworks */,
 				D39409F017CCBAEC007BCF1C /* CFNetwork.framework in Frameworks */,
 				32EEE0A51799AEA100E83642 /* Security.framework in Frameworks */,
-				328D2CCF1AAB7052000ED57C /* libQuickstartKit.a in Frameworks */,
 				32EEE05C1799ACFC00E83642 /* UIKit.framework in Frameworks */,
 				32EEE05E1799ACFC00E83642 /* Foundation.framework in Frameworks */,
 				32EEE09C1799AEA100E83642 /* Accelerate.framework in Frameworks */,
@@ -135,74 +126,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		328D2CAA1AAB7052000ED57C /* 3DK-QuickStart-Lib */ = {
+		3207A5161AC0C7AF00792F30 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				328D2CAB1AAB7052000ED57C /* include */,
-				328D2CCD1AAB7052000ED57C /* libQuickstartKit.a */,
-				328D2CCE1AAB7052000ED57C /* QuickstartResources.bundle */,
+				3207A51C1AC0C7AF00792F30 /* libQuickstartKit.a */,
+				3207A51E1AC0C7AF00792F30 /* QuickstartResources.bundle */,
 			);
-			name = "3DK-QuickStart-Lib";
-			path = "../../quickstart-lib";
-			sourceTree = "<group>";
-		};
-		328D2CAB1AAB7052000ED57C /* include */ = {
-			isa = PBXGroup;
-			children = (
-				328D2CAC1AAB7052000ED57C /* QuickstartKit */,
-				328D2CBC1AAB7052000ED57C /* RC3DK */,
-			);
-			path = include;
-			sourceTree = "<group>";
-		};
-		328D2CAC1AAB7052000ED57C /* QuickstartKit */ = {
-			isa = PBXGroup;
-			children = (
-				328D2CAD1AAB7052000ED57C /* MBProgressHUD.h */,
-				328D2CAE1AAB7052000ED57C /* QuickstartKit.h */,
-				328D2CAF1AAB7052000ED57C /* RCAVSessionManager.h */,
-				328D2CB01AAB7052000ED57C /* RCCalibration1.h */,
-				328D2CB11AAB7052000ED57C /* RCCalibration2.h */,
-				328D2CB21AAB7052000ED57C /* RCCalibration3.h */,
-				328D2CB31AAB7052000ED57C /* RCDebugLog.h */,
-				328D2CB41AAB7052000ED57C /* RCGLManagerFactory.h */,
-				328D2CB51AAB7052000ED57C /* RCGLShaderProgram.h */,
-				328D2CB61AAB7052000ED57C /* RCLocationManager.h */,
-				328D2CB71AAB7052000ED57C /* RCMotionManager.h */,
-				328D2CB81AAB7052000ED57C /* RCSensorDelegate.h */,
-				328D2CB91AAB7052000ED57C /* RCVideoFrameProvider.h */,
-				328D2CBA1AAB7052000ED57C /* RCVideoManager.h */,
-				328D2CBB1AAB7052000ED57C /* RCVideoPreview.h */,
-			);
-			path = QuickstartKit;
-			sourceTree = "<group>";
-		};
-		328D2CBC1AAB7052000ED57C /* RC3DK */ = {
-			isa = PBXGroup;
-			children = (
-				328D2CBD1AAB7052000ED57C /* RC3DK.h */,
-				328D2CBE1AAB7052000ED57C /* RCCameraParameters.h */,
-				328D2CBF1AAB7052000ED57C /* RCDeviceInfo.h */,
-				328D2CC01AAB7052000ED57C /* RCFeaturePoint.h */,
-				328D2CC11AAB7052000ED57C /* RCLicenseError.h */,
-				328D2CC21AAB7052000ED57C /* RCPoint.h */,
-				328D2CC31AAB7052000ED57C /* RCRotation.h */,
-				328D2CC41AAB7052000ED57C /* RCScalar.h */,
-				328D2CC51AAB7052000ED57C /* RCSensorFusion.h */,
-				328D2CC61AAB7052000ED57C /* RCSensorFusionData.h */,
-				328D2CC71AAB7052000ED57C /* RCSensorFusionError.h */,
-				328D2CC81AAB7052000ED57C /* RCSensorFusionInternals.h */,
-				328D2CC91AAB7052000ED57C /* RCSensorFusionStatus.h */,
-				328D2CCA1AAB7052000ED57C /* RCTransformation.h */,
-				328D2CCB1AAB7052000ED57C /* RCTranslation.h */,
-				328D2CCC1AAB7052000ED57C /* RCVector.h */,
-			);
-			path = RC3DK;
+			name = Products;
 			sourceTree = "<group>";
 		};
 		32EEE04F1799ACFC00E83642 = {
 			isa = PBXGroup;
 			children = (
+				3207A5151AC0C7AF00792F30 /* QuickstartKit.xcodeproj */,
 				32EEE0611799ACFC00E83642 /* RC3DKSampleApp */,
 				32EEE05A1799ACFC00E83642 /* Frameworks */,
 				32EEE0591799ACFC00E83642 /* Products */,
@@ -245,7 +181,6 @@
 		32EEE0611799ACFC00E83642 /* RC3DKSampleApp */ = {
 			isa = PBXGroup;
 			children = (
-				328D2CAA1AAB7052000ED57C /* 3DK-QuickStart-Lib */,
 				32EEE0621799ACFC00E83642 /* Supporting Files */,
 				D3643BD517DE41D500E38C7A /* LicenseHelper.h */,
 				D3643BD617DE41D500E38C7A /* LicenseHelper.m */,
@@ -287,6 +222,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				3207A55E1AC0CF9600792F30 /* PBXTargetDependency */,
 			);
 			name = RC3DKSampleApp;
 			productName = RC3DKSampleApp;
@@ -312,12 +248,35 @@
 			mainGroup = 32EEE04F1799ACFC00E83642;
 			productRefGroup = 32EEE0591799ACFC00E83642 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 3207A5161AC0C7AF00792F30 /* Products */;
+					ProjectRef = 3207A5151AC0C7AF00792F30 /* QuickstartKit.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				32EEE0571799ACFC00E83642 /* RC3DKSampleApp */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		3207A51C1AC0C7AF00792F30 /* libQuickstartKit.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libQuickstartKit.a;
+			remoteRef = 3207A51B1AC0C7AF00792F30 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		3207A51E1AC0C7AF00792F30 /* QuickstartResources.bundle */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = QuickstartResources.bundle;
+			remoteRef = 3207A51D1AC0C7AF00792F30 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		32EEE0561799ACFC00E83642 /* Resources */ = {
@@ -327,7 +286,6 @@
 				32EEE0661799ACFC00E83642 /* InfoPlist.strings in Resources */,
 				32EEE06E1799ACFC00E83642 /* Default.png in Resources */,
 				32EEE0701799ACFC00E83642 /* Default@2x.png in Resources */,
-				328D2CD01AAB7052000ED57C /* QuickstartResources.bundle in Resources */,
 				32EEE0721799ACFC00E83642 /* Default-568h@2x.png in Resources */,
 				32700D9017DFEFFE006E5F16 /* README.rtf in Resources */,
 				32EEE0751799ACFC00E83642 /* MainStoryboard_iPhone.storyboard in Resources */,
@@ -349,6 +307,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		3207A55E1AC0CF9600792F30 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = QuickstartKit;
+			targetProxy = 3207A55D1AC0CF9600792F30 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		32EEE0641799ACFC00E83642 /* InfoPlist.strings */ = {
@@ -436,18 +402,20 @@
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DKSampleApp/RC3DKSampleApp-Prefix.pch";
-				INFOPLIST_FILE = "RC3DKSampleApp/RC3DKSampleApp-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
-				LIBRARY_SEARCH_PATHS = (
+				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../quickstart-lib",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 				);
+				INFOPLIST_FILE = "RC3DKSampleApp/RC3DKSampleApp-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = (
 					"-lc++",
 					"-ObjC",
 				);
 				PRODUCT_NAME = "3DK Sample";
 				TARGETED_DEVICE_FAMILY = 1;
+				USER_HEADER_SEARCH_PATHS = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -458,12 +426,13 @@
 				FRAMEWORK_SEARCH_PATHS = "$(inherited)";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DKSampleApp/RC3DKSampleApp-Prefix.pch";
-				INFOPLIST_FILE = "RC3DKSampleApp/RC3DKSampleApp-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
-				LIBRARY_SEARCH_PATHS = (
+				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../quickstart-lib",
+					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 				);
+				INFOPLIST_FILE = "RC3DKSampleApp/RC3DKSampleApp-Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-lc++",
@@ -471,6 +440,7 @@
 				);
 				PRODUCT_NAME = "3DK Sample";
 				TARGETED_DEVICE_FAMILY = 1;
+				USER_HEADER_SEARCH_PATHS = "";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

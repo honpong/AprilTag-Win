@@ -9,8 +9,7 @@
 #import "AppDelegate.h"
 #import "ViewController.h"
 #import "LicenseHelper.h"
-#import "RCSensorDelegate.h"
-#import "RCDebugLog.h"
+#import <QuickstartKit/QuickstartKit.h>
 
 #define PREF_IS_CALIBRATED @"PREF_IS_CALIBRATED"
 #define PREF_SHOW_LOCATION_EXPLANATION @"RC_SHOW_LOCATION_EXPLANATION"

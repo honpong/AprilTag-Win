@@ -7,7 +7,7 @@
 
 #import "RCVideoManager.h"
 #import "RCDebugLog.h"
-#import <RC3DK/RC3DK.h>
+#import "RC3DK.h"
 
 @implementation RCVideoManager
 {

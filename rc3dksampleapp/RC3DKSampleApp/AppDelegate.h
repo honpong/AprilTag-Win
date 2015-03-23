@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "RCCalibration1.h"
+#import <QuickstartKit/QuickstartKit.h>
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate, RCCalibrationDelegate>
 

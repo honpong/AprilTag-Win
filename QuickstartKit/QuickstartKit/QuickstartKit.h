@@ -9,10 +9,10 @@
 #ifndef QuickstartKit_RCQuickstartKit_h
 #define QuickstartKit_RCQuickstartKit_h
 
-#import <RC3DK/RC3DK.h>
-#import "RCGLManagerFactory.h"
-#import "RCGLShaderProgram.h"
-#import "RCVideoPreview.h"
+#import "RC3DK.h"
+//#import "RCGLManagerFactory.h"
+//#import "RCGLShaderProgram.h"
+//#import "RCVideoPreview.h"
 #import "MBProgressHUD.h"
 #import "RCCalibration1.h"
 #import "RCCalibration2.h"

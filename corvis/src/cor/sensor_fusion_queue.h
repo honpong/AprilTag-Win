@@ -81,6 +81,7 @@ private:
     void runloop();
     bool run_control(const std::unique_lock<std::mutex> &lock);
     bool dispatch_next(std::unique_lock<std::mutex> &lock, bool force);
+    uint64_t global_latest_received() const;
 
     std::mutex mutex;
     std::condition_variable cond;

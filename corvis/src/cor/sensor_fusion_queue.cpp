@@ -27,9 +27,12 @@ bool sensor_queue<T, size>::push(T&& x)
 #ifdef DEBUG
     assert(time >= last_in);
 #endif
-    uint64_t delta = time - last_in;
-    const float alpha = .1;
-    period = alpha * delta + (1. - alpha) * period;
+    if(last_in != 0)
+    {
+        uint64_t delta = time - last_in;
+        const float alpha = .1;
+        period = alpha * delta + (1. - alpha) * period;
+    }
     last_in = time;
 
     ++total_in;
@@ -58,17 +61,6 @@ uint64_t sensor_queue<T, size>::get_next_time(const std::unique_lock<std::mutex>
     return count ? storage[readpos].timestamp : UINT64_MAX;
 }
 
-template<> uint64_t sensor_queue<camera_data, 8>::get_next_time(const std::unique_lock<std::mutex> &lock, uint64_t last_global_time)
-{
-    while(count && storage[readpos].timestamp < last_global_time) {
-        pop(lock);
-        ++drop_late;
-    }
-    return count ? storage[readpos].timestamp : UINT64_MAX;
-}
-
-
-//NOTE: this doesn't actually do anything with the lock - we just ask for it to make sure the caller owns it
 template<typename T, int size>
 T sensor_queue<T, size>::pop(const std::unique_lock<std::mutex> &lock)
 {
@@ -185,10 +177,18 @@ void fusion_queue::runloop()
     }
     //flush any remaining data
     while (dispatch_next(lock, true));
-    lock.unlock();
+    
     fprintf(stderr, "Camera: "); camera_queue.print_stats();
     fprintf(stderr, "Accel: "); accel_queue.print_stats();
     fprintf(stderr, "Gyro: "); gyro_queue.print_stats();
+    lock.unlock();
+}
+
+uint64_t fusion_queue::global_latest_received() const
+{
+    if(camera_queue.last_in >= gyro_queue.last_in && camera_queue.last_in >= accel_queue.last_in) return camera_queue.last_in;
+    else if(accel_queue.last_in >= gyro_queue.last_in) return accel_queue.last_in;
+    return gyro_queue.last_in;
 }
 
 bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock, bool force)
@@ -201,13 +201,23 @@ bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock, bool force)
     {
         if(camera_time == UINT64_MAX) return false; // Only need this in one case because comparison is <=, so == case results in camera data every time
         /*
-         We would process an image as soon as we get it because:
-         -We can assume that camera latency is longer than gyro/accel latency
+         Camera gets special treatment because:
          -A dropped inertial sample is less critical than a dropped camera frame
          -Camera processing is most expensive, so we should always start it as soon as we can
-         However, the latency assumption does not appear to be true on iOS
+         However, we can't go too far, because it turns out that camera latency (including offset) is not significantly longer than gyro/accel latency in iOS
          */
+        //we always dispatch if we are forced, or if we already have the other data
+        if(!force && (accel_time == UINT64_MAX || gyro_time == UINT64_MAX))
+        {
+            //Don't dispatch if we haven't got the next piece of data from the other queues and we are close to their expected arrival
+            if(accel_time == UINT64_MAX && camera_time > accel_queue.last_out + accel_queue.period - 1000 && global_latest_received() < accel_queue.last_out + accel_queue.period + jitter) return false;
+            if(gyro_time == UINT64_MAX && camera_time > gyro_queue.last_out + gyro_queue.period - 1000 && global_latest_received() < gyro_queue.last_out + gyro_queue.period + jitter) return false;
+        }
+
         camera_data data = camera_queue.pop(lock);
+#ifdef DEBUG
+        assert(data.timestamp >= last_dispatched);
+#endif
         last_dispatched = data.timestamp;
         lock.unlock();
         camera_receiver(std::move(data));
@@ -230,16 +240,22 @@ bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock, bool force)
     }
     else if(accel_time <= gyro_time)
     {
-        //we always dispatch if we are forced, or if we are blocking a camera frame
-        if(!force && camera_time == UINT64_MAX)
+        if(!force && (camera_time == UINT64_MAX || gyro_time == UINT64_MAX))
         {
-            //Don't dispatch if we haven't got the next piece of data from the other queues and we are close to or later than their expected arrival, always wait for the first camera frame
-            if(camera_queue.last_in == 0) return false;
-            if(accel_time > camera_queue.last_out + camera_period_expected - jitter) return false;
-            if(gyro_time == UINT64_MAX && accel_time > gyro_queue.last_out + gyro_queue.period - jitter) return false;
+            //if we aren't getting camera data, then we may never (inertial-only mode for calibration), and we need to dispatch if we've waited too long
+            if(camera_queue.last_in == 0 && accel_time > camera_queue.last_out + camera_queue.period - jitter && global_latest_received() < camera_queue.last_out + camera_queue.period + jitter) return false;
+            //if we are getting camera data, we always wait if we're close to or later than the expected frame
+            if(camera_queue.last_in != 0 && camera_time == UINT64_MAX && accel_time > camera_queue.last_out + camera_queue.period - 1000) return false;
+            //if we are holding up a camera frame, we are more stringent about dropping the gyro sample
+            if(gyro_time == UINT64_MAX && camera_time != UINT64_MAX && accel_time > gyro_queue.last_out + gyro_queue.period - 1000 && global_latest_received() < gyro_queue.last_out + gyro_queue.period + jitter) return false;
+            //if we are not holding up a camera frame, we can be more forgiving of the gyro sample being late
+            if(gyro_time == UINT64_MAX && camera_time == UINT64_MAX && accel_time > gyro_queue.last_out + gyro_queue.period - jitter) return false;
         }
         
         accelerometer_data data = accel_queue.pop(lock);
+#ifdef DEBUG
+        assert(data.timestamp >= last_dispatched);
+#endif
         last_dispatched = data.timestamp;
         lock.unlock();
         accel_receiver(std::move(data));
@@ -247,16 +263,22 @@ bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock, bool force)
     }
     else
     {
-        //we always dispatch if we are forced, or if we are blocking a camera frame
-        if(!force && camera_time == UINT64_MAX)
+        if(!force && (camera_time == UINT64_MAX || accel_time == UINT64_MAX))
         {
-            //Don't dispatch if we haven't got the next piece of data from the other queues and we are close to or later than their expected arrival, always wait for the first camera frame
-            if(camera_queue.last_in == 0) return false;
-            if(gyro_time > camera_queue.last_out + camera_period_expected - jitter) return false;
-            if(accel_time == UINT64_MAX && gyro_time > accel_queue.last_out + accel_queue.period - jitter) return false;
+            //if we aren't getting camera data, then we may never (inertial-only mode for calibration), and we need to dispatch if we've waited too long
+            if(camera_queue.last_in == 0 && gyro_time > camera_queue.last_out + camera_queue.period - jitter && global_latest_received() < camera_queue.last_out + camera_queue.period + jitter) return false;
+            //if we are getting camera data, we always wait if we're close to or later than the expected frame
+            if(camera_queue.last_in != 0 && camera_time == UINT64_MAX && gyro_time > camera_queue.last_out + camera_queue.period - 1000) return false;
+            //if we are holding up a camera frame, we are more stringent about dropping the accel sample
+            if(accel_time == UINT64_MAX && camera_time != UINT64_MAX && gyro_time > accel_queue.last_out + accel_queue.period - 1000 && global_latest_received() < accel_queue.last_out + accel_queue.period + jitter) return false;
+            //if we are not holding up a camera frame, we can be more forgiving of the accel sample being late
+            if(accel_time == UINT64_MAX && camera_time == UINT64_MAX && gyro_time > accel_queue.last_out + accel_queue.period - jitter) return false;
         }
 
         gyro_data data = gyro_queue.pop(lock);
+#ifdef DEBUG
+        assert(data.timestamp >= last_dispatched);
+#endif
         last_dispatched = data.timestamp;
         lock.unlock();
         gyro_receiver(std::move(data));

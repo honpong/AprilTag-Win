@@ -21,9 +21,10 @@
 
 + (RCCalibration1 *)instantiateViewController
 {
-    UIStoryboard * calibrationStoryBoard;
-    calibrationStoryBoard = [UIStoryboard storyboardWithName:@"Calibration" bundle:nil];
-    return (RCCalibration1 *)[calibrationStoryBoard instantiateInitialViewController];
+    NSBundle* quickstartBundle = [NSBundle bundleWithURL:[[NSBundle mainBundle] URLForResource:@"QuickstartResources" withExtension:@"bundle"]];
+    UIStoryboard* calStoryboard = [UIStoryboard storyboardWithName:@"Calibration" bundle:quickstartBundle];
+    RCCalibration1* calibration1 = [calStoryboard instantiateInitialViewController];
+    return calibration1;
 }
 
 - (id)initWithCoder:(NSCoder *)aDecoder

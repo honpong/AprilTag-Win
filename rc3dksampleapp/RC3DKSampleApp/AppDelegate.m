@@ -61,11 +61,8 @@
 
 - (void) gotoCalibration
 {
-    // presents the first of three calibration view controllers
-    
-    NSBundle* quickstartBundle = [NSBundle bundleWithURL:[[NSBundle mainBundle] URLForResource:@"QuickstartResources" withExtension:@"bundle"]];
-    UIStoryboard* calStoryboard = [UIStoryboard storyboardWithName:@"Calibration" bundle:quickstartBundle];
-    RCCalibration1* calibration1 = [calStoryboard instantiateInitialViewController];    
+    // presents the first of three calibration view controllers    
+    RCCalibration1* calibration1 = [RCCalibration1 instantiateViewController];
     calibration1.calibrationDelegate = self;
     calibration1.sensorDelegate = mySensorDelegate;
     calibration1.modalPresentationStyle = UIModalPresentationFullScreen;

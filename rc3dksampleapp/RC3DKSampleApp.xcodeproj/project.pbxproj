@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3207A54A1AC0CD4200792F30 /* libQuickstartKit.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3207A51C1AC0C7AF00792F30 /* libQuickstartKit.a */; };
+		3207A5741AC0DAAB00792F30 /* QuickstartResources.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 3207A51E1AC0C7AF00792F30 /* QuickstartResources.bundle */; };
 		32700D9017DFEFFE006E5F16 /* README.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 32700D8F17DFEFFE006E5F16 /* README.rtf */; };
 		327B563818EB5EE70001CCE1 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B563718EB5EE70001CCE1 /* OpenGLES.framework */; };
 		32EEE05C1799ACFC00E83642 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32EEE05B1799ACFC00E83642 /* UIKit.framework */; };
@@ -57,6 +58,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 3296F1DA1A8BD68F0092D808;
 			remoteInfo = QuickstartKit;
+		};
+		3207A56F1AC0D5D300792F30 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3207A5151AC0C7AF00792F30 /* QuickstartKit.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 3296F2641A8BD8E20092D808;
+			remoteInfo = QuickstartResources;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -222,6 +230,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				3207A5701AC0D5D300792F30 /* PBXTargetDependency */,
 				3207A55E1AC0CF9600792F30 /* PBXTargetDependency */,
 			);
 			name = RC3DKSampleApp;
@@ -283,6 +292,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3207A5741AC0DAAB00792F30 /* QuickstartResources.bundle in Resources */,
 				32EEE0661799ACFC00E83642 /* InfoPlist.strings in Resources */,
 				32EEE06E1799ACFC00E83642 /* Default.png in Resources */,
 				32EEE0701799ACFC00E83642 /* Default@2x.png in Resources */,
@@ -313,6 +323,11 @@
 			isa = PBXTargetDependency;
 			name = QuickstartKit;
 			targetProxy = 3207A55D1AC0CF9600792F30 /* PBXContainerItemProxy */;
+		};
+		3207A5701AC0D5D300792F30 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = QuickstartResources;
+			targetProxy = 3207A56F1AC0D5D300792F30 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

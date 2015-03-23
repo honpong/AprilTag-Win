@@ -10,8 +10,7 @@
 #import "LicenseHelper.h"
 #import "ArcBall.h"
 #import "WorldState.h"
-#import "MBProgressHUD.h"
-#import "RCSensorDelegate.h"
+#import <QuickstartKit/QuickstartKit.h>
 
 #define INITIAL_LIMITS 3.
 #define POINT_SIZE 3.0
@@ -173,6 +172,7 @@ static VertexData axisVertex[] = {
                                                object:nil];
     
     [self showInstructions];
+    [self requestCameraPermission];
 }
 
 - (void) viewWillDisappear:(BOOL)animated
@@ -183,6 +183,16 @@ static VertexData axisVertex[] = {
 - (void) appWillResignActive
 {
     [self stopSensorFusion];
+}
+
+- (void) requestCameraPermission
+{
+    [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (!granted) [self showMessage:@"Error: This app won't work without camera permission." autoHide:NO];
+            self.startStopButton.enabled = granted;
+        });
+    }];
 }
 
 - (void)showProgressWithTitle:(NSString*)title

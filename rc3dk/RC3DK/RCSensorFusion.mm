@@ -308,7 +308,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
             filter_gyroscope_measurement(&_cor_setup->sfm, data.angvel_rad__s, data.timestamp);
         };
 
-        queue = std::make_unique<fusion_queue>(cam_fn, acc_fn, gyr_fn);
+        queue = std::make_unique<fusion_queue>(cam_fn, acc_fn, gyr_fn, 41667, 10000, 10000);
         lastRunState = RCSensorFusionRunStateInactive;
         lastErrorCode = RCSensorFusionErrorCodeNone;
         lastConfidence = RCSensorFusionConfidenceNone;

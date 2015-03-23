@@ -4,19 +4,85 @@
 # This file is a part of the corvis framework, and is made available
 # under the BSD license; please see LICENSE file for full text
 
+
 import wx
-import wx.aui
-import matplotlib as mpl
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as Canvas
-from matplotlib.backends.backend_wxagg import NavigationToolbar2Wx as Toolbar
 import numpy
-from animplot import animplot
-#myEVT_TYPE = wx.NewEventType()
-#EVT_MY_EVENT = wx.PyEventBinder(myEVT_TYPE, 1)
-from corvis import cor
 from LockPaint import LockPaint
 import Mouse
 EVT_CREATE_PLOT = wx.NewId()
+
+from numpy import *
+import matplotlib as mpl
+from bisect import *
+
+if __name__ == "__main__":
+    import sys
+    sys.path.extend(['../'])
+
+from corvis import cor
+
+class animplot(object):
+    def __init__(self, name, nominal = 0., dpi=None):
+        self.figure = mpl.figure.Figure(dpi=dpi, figsize=(2,2))
+        self.axes = self.figure.gca()
+        self.axes.set_color_cycle(("red", "green", "blue"))
+        self.name = name
+        self.xdata = list()
+        self.miny = 0
+        self.maxy = 0
+        self.count = 0
+        self.plots= list()
+        self.posnomplot, = self.axes.plot((0, 0), (nominal, nominal), 'r--')
+        self.negnomplot, = self.axes.plot((0, 0), (-nominal, -nominal), 'r--')
+
+    def refresh(self,start, stop):
+        self.miny = 0
+        self.maxy = 0
+        for p in self.plots:
+            self.refreshhist(p,start,stop)
+        if self.miny == self.maxy:
+            self.maxy = 1
+        self.posnomplot.set_xdata((start, stop))
+        self.negnomplot.set_xdata((start, stop))
+        buffer_area = (self.maxy - self.miny)*.05
+        self.axes.set_ylim(self.miny-buffer_area, self.maxy+buffer_area)
+        self.axes.set_xlim(start, stop)
+
+    def packet_plot(self, packet):
+        if self.count < packet.count:
+            for i in xrange(self.count, packet.count):
+                self.plots.append(self.addhist())
+            self.count = packet.count
+        i = 0
+        data = cor.packet_plot_t_data(packet)
+        self.xdata.append(packet.header.time / 1000000.)
+        for p in self.plots:
+            if i >= packet.count:
+                break
+            p[0].append(data[i])
+            i += 1
+
+    def addhist(self):
+        data = list()
+        line, = self.axes.plot((0,0), (0,0))
+        return (data, line)
+
+    def refreshhist(self, plot, start, stop):
+        ydata, line = plot
+        left = bisect_left(self.xdata, start, 0, len(ydata))
+        if(left > 0):
+            left -= 1
+        right = bisect(self.xdata, stop, 0, len(ydata))
+        if(right < len(ydata)):
+            right += 1
+        xr = self.xdata[left:right]
+        yr = ydata[left:right]
+        line.set_data(xr, yr)
+        if(len(yr)):
+            self.miny = min(self.miny, min(ma.masked_invalid(yr)))
+            self.maxy = max(self.maxy, max(ma.masked_invalid(yr)))
+
 
 class CreatePlotEvent(wx.PyEvent):
     def __init__(self, data):
@@ -32,12 +98,9 @@ class Plot(LockPaint, wx.Panel):
         self.axes = plot.axes
         self.axes.set_position([.05,.05,.9,.9])
         self.canvas = Canvas(self, -1, self.figure)
-        #self.toolbar = Toolbar(self.canvas)
-        #self.toolbar.Realize()
 
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(self.canvas,1,wx.EXPAND)
-        #sizer.Add(self.toolbar, 0 , wx.LEFT | wx.EXPAND)
         self.SetSizer(sizer)
 
     def update(self, start, stop):
@@ -109,12 +172,12 @@ class PlotNotebook(wx.Panel, Mouse.Wheel, Mouse.Drag):
 
 
 def demo():
-    app = wx.PySimpleApp()
+    app = wx.App(False)
     frame = wx.Frame(None,-1,'Plotter')
     plotter = PlotNotebook(frame)
-    axes1 = plotter.add('figure 1').gca()
+    axes1 = plotter.add('figure 1').axes
     axes1.plot([1,2,3],[2,1,4])
-    axes2 = plotter.add('figure 2').gca()
+    axes2 = plotter.add('figure 2').axes
     axes2.plot([1,2,3,4,5],[2,1,4,2,3])
     #axes1.figure.canvas.draw()
     #axes2.figure.canvas.draw()

@@ -136,6 +136,10 @@ class PlotNotebook(wx.Panel, Mouse.Wheel, Mouse.Drag):
         return plot
 
     def plot_dispatch(self, packet):
+        # This can happen when wxpython closes the window but we are
+        # in the middle of dispatching a packet.
+        if not self:
+            return
         if packet.header.type == cor.packet_plot:
             plot = self.plots[packet.header.user]
             self.latest = packet.header.time/1000000.

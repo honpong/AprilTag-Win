@@ -51,4 +51,6 @@
 /** You will not typically need to instantiate this class yourself. */
 - (id) initWithRunState:(RCSensorFusionRunState)runState withProgress:(float)progress withConfidence:(RCSensorFusionConfidence)confidence withError:(NSError*)error;
 
+- (NSDictionary*) dictionaryRepresentation;
+
 @end

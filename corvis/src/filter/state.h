@@ -249,6 +249,7 @@ protected:
 };
 
 #ifdef SWIG
+%template(state_leaf_rotation_vector) state_leaf<rotation_vector, 3>;
 %template(state_leaf_vec) state_leaf<v4, 3>;
 %template(state_leaf_sca) state_leaf<f_t, 1>;
 %template(state_branch_node) state_branch<state_node *>;

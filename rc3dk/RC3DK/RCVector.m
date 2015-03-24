@@ -115,19 +115,17 @@
 
 - (NSDictionary*) dictionaryRepresentation
 {
-    //create a dictionary and add the two memebers of this class as floats
-    NSMutableDictionary *tmpDic = [NSMutableDictionary dictionaryWithCapacity:8];
-    tmpDic[@"v0"] = @(self.x);
-    tmpDic[@"v1"] = @(self.y);
-    tmpDic[@"v2"] = @(self.z);
-    tmpDic[@"v3"] = @(self.v3);
-    tmpDic[@"std0"] = @(self.stdx);
-    tmpDic[@"std1"] = @(self.stdy);
-    tmpDic[@"std2"] = @(self.stdz);
-    tmpDic[@"std3"] = @(self.std3);
-
-    //we return an immutable version
-    return [NSDictionary dictionaryWithDictionary:tmpDic];
+    NSDictionary* dict = @{
+                           @"v0": @(self.x),
+                           @"v1": @(self.y),
+                           @"v2": @(self.z),
+                           @"v3": @(self.v3),
+                           @"std0": @(self.stdx),
+                           @"std1": @(self.stdy),
+                           @"std2": @(self.stdz),
+                           @"std3": @(self.std3)
+                           };
+    return dict;
 }
 
 @end

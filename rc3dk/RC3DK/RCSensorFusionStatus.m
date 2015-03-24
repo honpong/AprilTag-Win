@@ -6,6 +6,7 @@
 //
 
 #import "RCSensorFusionStatus.h"
+#import "NSError+RCDictionaryRepresentation.h"
 
 @implementation RCSensorFusionStatus
 {
@@ -22,6 +23,29 @@
         _error = error;
     }
     return self;
+}
+
+- (NSDictionary *)dictionaryRepresentation
+{
+    NSDictionary* dict;
+    if (self.error)
+    {
+        dict = @{
+                 @"runState": @(self.runState),
+                 @"progress": @(self.progress),
+                 @"confidence": @(self.confidence),
+                 @"error": [self.error dictionaryRepresentation]
+                 };
+    }
+    else
+    {
+        dict = @{
+                 @"runState": @(self.runState),
+                 @"progress": @(self.progress),
+                 @"confidence": @(self.confidence)
+                 };
+    }
+    return dict;
 }
 
 @end

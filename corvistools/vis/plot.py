@@ -96,7 +96,6 @@ class Plot(LockPaint, wx.Panel):
         self.plot = plot
         self.figure = plot.figure
         self.axes = plot.axes
-        self.axes.set_position([.05,.05,.9,.9])
         self.canvas = Canvas(self, -1, self.figure)
 
         sizer = wx.BoxSizer(wx.VERTICAL)

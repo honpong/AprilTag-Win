@@ -8,7 +8,7 @@ import wx
 from corvis import cor
 import numpy
 import Mouse
-from LockPaint import LockPaint
+from threading import Lock
 from Queue import *
 
 def parsepgm(header):
@@ -26,8 +26,6 @@ class PacketQueue(Queue):
         self.widget = widget
 
     def put(self, packet):
-        self.widget.Refresh()
-        self.widget.Update()
         if packet.header.type == self.ptype:
             self.latest_time = packet.header.time
             Queue.put(self, packet)
@@ -162,7 +160,7 @@ class ImageOverlay(Overlay):
 
 import math
 
-class ImagePanel(LockPaint, wx.Panel, Mouse.Wheel, Mouse.Drag):
+class ImagePanel(wx.Panel, Mouse.Wheel, Mouse.Drag):
     def __init__(self, *args, **kwds):
         super(ImagePanel, self).__init__(*args, **kwds)
         self.renderables = list()
@@ -170,27 +168,29 @@ class ImagePanel(LockPaint, wx.Panel, Mouse.Wheel, Mouse.Drag):
         self.origin = numpy.array([0,0])
         Mouse.Wheel.__init__(self, *args, **kwds)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
+        self.lock = Lock()
 
     def OnPaint(self, event):
-        self.BeginPaint()
-        dc = wx.AutoBufferedPaintDCFactory(self)
-        # python can run out of memory or churn cpu forever if we go overboard
-        if(self.zoomfactor > 4.0):
-            self.zoomfactor = 4.0
-        if(self.zoomfactor < .1):
-            self.zoomfactor = .1
-        scale = 2 ** math.floor(math.log(self.zoomfactor,2) + .5)
-        dc.SetUserScale(scale, scale)
-        dc.SetDeviceOriginPoint(self.origin)
-        times = [i.get_latest() for i in self.renderables]
-        try:
-            latest = min([i for i in times if i != 0])
-        except ValueError:
-            self.EndPaint()
+        if not self.lock.acquire():
             return
-        for i in self.renderables:
-            i.draw(dc, latest)
-        self.EndPaint()
+        try:
+            dc = wx.AutoBufferedPaintDCFactory(self)
+            # python can run out of memory or churn cpu forever if we go overboard
+            if(self.zoomfactor > 4.0):
+                self.zoomfactor = 4.0
+            if(self.zoomfactor < .1):
+                self.zoomfactor = .1
+            scale = 2 ** math.floor(math.log(self.zoomfactor,2) + .5)
+            dc.SetUserScale(scale, scale)
+            dc.SetDeviceOriginPoint(self.origin)
+            times = [i.get_latest() for i in self.renderables]
+            times = [i for i in times if i != 0]
+            if times:
+                latest = min(times)
+                for i in self.renderables:
+                    i.draw(dc, latest)
+        finally:
+            self.lock.release()
 
     def OnMotion(self, event):
         Mouse.Drag.OnMotion(self, event)

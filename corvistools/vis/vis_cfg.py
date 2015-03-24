@@ -4,7 +4,7 @@
 # This file is a part of the corvis framework, and is made available
 # under the BSD license; please see LICENSE file for full text
 
-sys.path.extend(["vis/", "vis/.libs"])
+sys.path.extend(["vis/"])
 from vis import Vis
 
 myvis = Vis()
@@ -13,7 +13,7 @@ mvp.priority = 0
 cor.plugins_register(mvp)
 
 import ImagePanel
-ip = myvis.frame_1.image_widget
+ip = myvis.frame.image_widget
 imageover = ImagePanel.ImageOverlay(ip)
 featover = ImagePanel.FeatureOverlay(ip)
 

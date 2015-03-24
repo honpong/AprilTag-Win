@@ -14,8 +14,8 @@ from ArcBall import ArcBallT
 import numpy
 from math import cos,sin
 import Mouse
-from LockPaint import LockPaint
 from corvis import cor
+from threading import Lock
 
 name = 'ball_glut'
 from numpy import *
@@ -33,7 +33,7 @@ class Renderable:
         if self.on:
             self.callback()
 
-class MyGLCanvas(LockPaint, GLCanvas, Mouse.Wheel, Mouse.Drag):
+class MyGLCanvas(GLCanvas, Mouse.Wheel, Mouse.Drag):
     def __init__(self, *args, **kwds):
         super(MyGLCanvas, self).__init__(*args, **kwds)
         # wxpy doesn't use super, so
@@ -46,6 +46,7 @@ class MyGLCanvas(LockPaint, GLCanvas, Mouse.Wheel, Mouse.Drag):
 	self.Bind(wx.EVT_PAINT, self.OnPaint)
         self.Bind(wx.EVT_SIZE, self.OnSize)
         self.context = GLContext(self)
+        self.lock = Lock()
 #        self.InitGL()
 	self.init = 0
 	self.zoomfactor = 50
@@ -78,15 +79,18 @@ class MyGLCanvas(LockPaint, GLCanvas, Mouse.Wheel, Mouse.Drag):
         self.init = 0
 
     def OnPaint(self,event):
-        self.BeginPaint()
-	dc = wx.PaintDC(self)
-	self.SetCurrent(self.context)
-        
-	if not self.init:
-	    self.InitGL()
-	    self.init = 1
-	self.OnDraw()
-        self.EndPaint()
+        if not self.lock.acquire(False):
+            return
+        try:
+            dc = wx.PaintDC(self)
+            self.SetCurrent(self.context)
+            
+            if not self.init:
+                self.InitGL()
+                self.init = 1
+            self.OnDraw()
+        finally:
+            self.lock.release()
 
     def OnDraw(self):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
@@ -175,8 +179,6 @@ class MyGLCanvas(LockPaint, GLCanvas, Mouse.Wheel, Mouse.Drag):
     def packet_world(self, packet):
         if packet.header.type == cor.packet_filter_reconstruction:
             self.world = cor.packet_filter_reconstruction_t_points(packet)
-        self.Update()
-        self.Refresh()
 
 
     def DrawCurrent(self):

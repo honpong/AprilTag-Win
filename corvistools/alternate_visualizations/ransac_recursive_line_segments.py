@@ -122,7 +122,7 @@ for i in range(30):
     if len(ransac_data['inliers']) < d:
         break
 
-    myvis.frame_1.render_widget.add_renderable(
+    myvis.frame.render_widget.add_renderable(
                                                line_segment(
                                                             [ransac_fit[0][0],ransac_fit[0][1], 0.],
                                                             [ransac_fit[1][0],ransac_fit[1][1], 0.],
@@ -137,4 +137,4 @@ for i in range(30):
 #ransac_fit_render_lines = []
     #for i, ln in enumerate(ransac_fit):
     #ransac_fit_render_lines.append(line_segment([ln[0][0],ln[0][1], 0.], [ln[1][0],ln[1][1], 0.]))
-#myvis.frame_1.render_widget.add_renderable(ransac_fit_render_lines[i].render)
+#myvis.frame.render_widget.add_renderable(ransac_fit_render_lines[i].render)

@@ -101,8 +101,8 @@ if runvis:
     capturepydispatch.threaded = True
     cor.plugins_register(cor.dispatch_init(capturepydispatch))
 
-    cor.dispatch_addpython(visdispatch, myvis.frame_1.window_3.plot_dispatch);
-    cor.dispatch_addpython(visdispatch, myvis.frame_1.render_widget.packet_world);
+    cor.dispatch_addpython(visdispatch, myvis.frame.window_3.plot_dispatch);
+    cor.dispatch_addpython(visdispatch, myvis.frame.render_widget.packet_world);
     cor.dispatch_addpython(visdispatch, featover.status_queue.put);
     cor.dispatch_addpython(capturepydispatch, imageover.queue.put);
 
@@ -122,11 +122,11 @@ if runvis:
     from render_visibility import render_visibility
     visibility = render_visibility()
     cor.dispatch_addpython(solution.dispatch, visibility.receive_packet)
-    myvis.frame_1.render_widget.add_renderable(visibility.render, "Visibility")
+    myvis.frame.render_widget.add_renderable(visibility.render, "Visibility")
 
-    myvis.frame_1.render_widget.add_renderable(structure.render, "Structure")
-    myvis.frame_1.render_widget.add_renderable(motion.render, "Motion")
-    myvis.frame_1.render_widget.add_renderable(filter_render.render, "Filter state")
+    myvis.frame.render_widget.add_renderable(structure.render, "Structure")
+    myvis.frame.render_widget.add_renderable(motion.render, "Motion")
+    myvis.frame.render_widget.add_renderable(filter_render.render, "Filter state")
 
     cor.dispatch_addclient(solution.dispatch, structure, renderable.structure_packet)
     cor.dispatch_addclient(solution.dispatch, motion, renderable.motion_packet)

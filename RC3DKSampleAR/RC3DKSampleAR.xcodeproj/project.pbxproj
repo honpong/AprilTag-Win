@@ -106,7 +106,6 @@
 		D901460619F9C2D8004E7CE2 /* ARDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARDelegate.h; sourceTree = "<group>"; };
 		D901460719F9C2D8004E7CE2 /* ARDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARDelegate.m; sourceTree = "<group>"; };
 		D91216791A83360D008E5356 /* chair_chesterfield_d.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = chair_chesterfield_d.png; sourceTree = "<group>"; };
-		D94299AB1A77189C001711FE /* Balloon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Balloon.h; sourceTree = "<group>"; };
 		D963096A1A01BC9800F92929 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		D9AA84BC1A042DBE004C61D0 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		D9D66FF21A86C15C00764F9A /* chair_chesterfield.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = chair_chesterfield.h; sourceTree = "<group>"; };
@@ -192,7 +191,6 @@
 				D901456C19F9A00F004E7CE2 /* ViewController.m */,
 				D901460619F9C2D8004E7CE2 /* ARDelegate.h */,
 				D901460719F9C2D8004E7CE2 /* ARDelegate.m */,
-				D94299AB1A77189C001711FE /* Balloon.h */,
 				D9D66FF21A86C15C00764F9A /* chair_chesterfield.h */,
 				D901456E19F9A00F004E7CE2 /* Main.storyboard */,
 				D901457119F9A00F004E7CE2 /* Images.xcassets */,

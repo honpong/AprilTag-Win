@@ -8,7 +8,7 @@
 import wx
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as Canvas
 import numpy
-from LockPaint import LockPaint
+from threading import Lock
 import Mouse
 EVT_CREATE_PLOT = wx.NewId()
 
@@ -24,7 +24,7 @@ from corvis import cor
 
 class animplot(object):
     def __init__(self, name, nominal = 0., dpi=None):
-        self.figure = mpl.figure.Figure(dpi=dpi, figsize=(2,2))
+        self.figure = mpl.figure.Figure()
         self.axes = self.figure.gca()
         self.axes.set_color_cycle(("red", "green", "blue"))
         self.name = name
@@ -90,7 +90,7 @@ class CreatePlotEvent(wx.PyEvent):
         self.SetEventType(EVT_CREATE_PLOT)
         self.data = data
 
-class Plot(LockPaint, wx.Panel):
+class Plot(wx.Panel):
     def __init__(self, plot, *args, **kwds):
         super(Plot, self).__init__(*args, **kwds)
         self.plot = plot
@@ -101,12 +101,19 @@ class Plot(LockPaint, wx.Panel):
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(self.canvas,1,wx.EXPAND)
         self.SetSizer(sizer)
+        self.Bind(wx.EVT_PAINT, self.OnPaint)
+        self.lock = Lock()
 
     def update(self, start, stop):
-        self.BeginPaint()
         self.plot.refresh(start, stop)
-        self.figure.canvas.draw()
-        self.EndPaint()
+
+    def OnPaint(self, event):
+        if not self.lock.acquire(False):
+            return
+        try:
+            self.figure.canvas.draw()
+        finally:
+            self.lock.release()
 
 class PlotNotebook(wx.Panel, Mouse.Wheel, Mouse.Drag):
     def __init__(self, *args, **kwargs):
@@ -121,7 +128,7 @@ class PlotNotebook(wx.Panel, Mouse.Wheel, Mouse.Drag):
         self.zoomfactor = 1.0
         self.origin = numpy.array([0,0])
         self.latest = 0.
-        self.latest_update = 0.
+        self.Bind(wx.EVT_PAINT, self.OnPaint)
 
     def add(self, name="plot", nominal = 0.):
         plot = animplot(name, nominal)
@@ -129,32 +136,25 @@ class PlotNotebook(wx.Panel, Mouse.Wheel, Mouse.Drag):
         return plot
 
     def plot_dispatch(self, packet):
-        update = False
         if packet.header.type == cor.packet_plot:
             plot = self.plots[packet.header.user]
             self.latest = packet.header.time/1000000.
             plot.packet_plot(packet)
-            #max 30Hz update
-            if self.latest > self.latest_update + 1/30.:
-                self.latest_update = self.latest
-                update = True
         elif packet.header.type == cor.packet_plot_info:
             plot = self.add(packet.identity, packet.nominal)
             self.plots[packet.header.user] = plot
-            update = True
         elif packet.header.type == cor.packet_plot_drop:
             plot = self.plots[packet.header.user]
             self.plots.pop(plot)
-            update = True
 
-        if update:
-            page = self.nb.GetCurrentPage()
-            if page is not None:
-                stop = self.latest + self.origin[0];
-                start = stop - 1./self.zoomfactor;
-                page.update(start, stop)
-            self.Update()
-        
+    def OnPaint(self, event):
+        page = self.nb.GetCurrentPage()
+        if page:
+            stop = self.latest + self.origin[0];
+            start = stop - 1./self.zoomfactor;
+            page.update(start, stop)
+            wx.PostEvent(page, event)
+
     def OnMotion(self, event):
         Mouse.Drag.OnMotion(self, event)
         if(self.left_button):
@@ -166,7 +166,6 @@ class PlotNotebook(wx.Panel, Mouse.Wheel, Mouse.Drag):
     def OnCreatePlot(self, event):
         page = Plot(event.data, self.nb)
         self.nb.AddPage(page, event.data.name)
-
 
 def demo():
     app = wx.App(False)

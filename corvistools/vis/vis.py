@@ -13,6 +13,11 @@ class Vis:
         self.frame = vis_gui(None, -1, "")
         self.app.SetTopWindow(self.frame)
         self.frame.Show()
+        self.on_timer()
+
+    def on_timer(self):
+        self.frame.Refresh(False)
+        wx.CallLater(33, self.on_timer)
 
     def stop(self):
         pass

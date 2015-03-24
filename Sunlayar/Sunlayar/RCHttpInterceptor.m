@@ -31,8 +31,6 @@
 #import "GTMNSDictionary+URLArguments.h"
 #import "SBJsonWriter.h"
 
-static NSString *RNCachingURLHeader = @"X-RNCache";
-
 static id<RCHttpInterceptorDelegate> delegate;
 
 @interface RCHttpInterceptor ()
@@ -57,12 +55,10 @@ static id<RCHttpInterceptorDelegate> delegate;
 
 + (BOOL)canInitWithRequest:(NSURLRequest *)request
 {
-  // only handle http requests we haven't marked with our header.
-  if ([[[request URL] scheme] isEqualToString:@"http"] && ([request valueForHTTPHeaderField:RNCachingURLHeader] == nil))
-  {
-    return YES;
-  }
-  return NO;
+    if ([request.URL.host isEqualToString:@"dummy.realitycap.com"])
+        return YES;
+    else
+        return NO;
 }
 
 + (NSURLRequest *)canonicalRequestForRequest:(NSURLRequest *)request

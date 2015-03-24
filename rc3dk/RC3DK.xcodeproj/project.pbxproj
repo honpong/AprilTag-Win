@@ -78,6 +78,7 @@
 		328A4DD51950D5F400587949 /* RCLicenseError.m in Sources */ = {isa = PBXBuildFile; fileRef = 328A4DD41950D5F400587949 /* RCLicenseError.m */; };
 		328A4DD61950DB2200587949 /* RCSensorFusionError.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 328A4DD01950D52000587949 /* RCSensorFusionError.h */; };
 		328A4DD71950DB2E00587949 /* RCLicenseError.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 328A4DD31950D5F400587949 /* RCLicenseError.h */; };
+		32E757151A980149004BA247 /* NSError+RCDictionaryRepresentation.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E757141A980149004BA247 /* NSError+RCDictionaryRepresentation.m */; };
 		D31EC5381A5F1E5B0003379A /* libzxing.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D31EC5371A5F1E5B0003379A /* libzxing.a */; };
 		D31EC5391A5F1E9E0003379A /* libzxing.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D31EC5371A5F1E5B0003379A /* libzxing.a */; };
 		D321AD3E1A323C17003AEA77 /* camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D321AD301A323BF7003AEA77 /* camera.cpp */; };
@@ -386,6 +387,8 @@
 		328A4DD11950D52000587949 /* RCSensorFusionError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCSensorFusionError.m; path = ../../rc3dk/RC3DK/RCSensorFusionError.m; sourceTree = "<group>"; };
 		328A4DD31950D5F400587949 /* RCLicenseError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCLicenseError.h; path = ../../rc3dk/RC3DK/RCLicenseError.h; sourceTree = "<group>"; };
 		328A4DD41950D5F400587949 /* RCLicenseError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCLicenseError.m; path = ../../rc3dk/RC3DK/RCLicenseError.m; sourceTree = "<group>"; };
+		32E757131A980149004BA247 /* NSError+RCDictionaryRepresentation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSError+RCDictionaryRepresentation.h"; sourceTree = "<group>"; };
+		32E757141A980149004BA247 /* NSError+RCDictionaryRepresentation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSError+RCDictionaryRepresentation.m"; sourceTree = "<group>"; };
 		32F7D56219D49E14002239FF /* RCDebugLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCDebugLog.h; path = ../../SensorManagers/RCDebugLog.h; sourceTree = "<group>"; };
 		D31EC5371A5F1E5B0003379A /* libzxing.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libzxing.a; sourceTree = "<group>"; };
 		D321AD301A323BF7003AEA77 /* camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = camera.cpp; sourceTree = "<group>"; };
@@ -696,6 +699,8 @@
 				327B554918EB4DC20001CCE1 /* RCCalibration.mm */,
 				327B554F18EB4DC20001CCE1 /* RCDeviceInfo.h */,
 				327B555018EB4DC20001CCE1 /* RCDeviceInfo.m */,
+				32E757131A980149004BA247 /* NSError+RCDictionaryRepresentation.h */,
+				32E757141A980149004BA247 /* NSError+RCDictionaryRepresentation.m */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";
@@ -1154,6 +1159,7 @@
 				327B559718EB4F260001CCE1 /* inbuffer.c in Sources */,
 				328A4DD51950D5F400587949 /* RCLicenseError.m in Sources */,
 				327B559A18EB4F260001CCE1 /* plugins.c in Sources */,
+				32E757151A980149004BA247 /* NSError+RCDictionaryRepresentation.m in Sources */,
 				327B557C18EB4DC20001CCE1 /* RCVector.m in Sources */,
 				327B55BE18EB4F3A0001CCE1 /* filter.cpp in Sources */,
 				327B553618EB4D720001CCE1 /* RCAFImageRequestOperation.m in Sources */,

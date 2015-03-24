@@ -111,15 +111,7 @@
 
 - (NSDictionary*) dictionaryRepresentation
 {
-    //create a dictionary and add the two memebers of this class as floats
-    NSMutableDictionary *tmpDic = [NSMutableDictionary dictionaryWithCapacity:8];
-    tmpDic[@"qw"] = @(self.quaternionW);
-    tmpDic[@"qx"] = @(self.quaternionX);
-    tmpDic[@"qy"] = @(self.quaternionY);
-    tmpDic[@"qz"] = @(self.quaternionZ);
-    
-    //we return an immutable version
-    return [NSDictionary dictionaryWithDictionary:tmpDic];
+    return @{ @"qw": @(self.quaternionW), @"qx": @(self.quaternionX), @"qy": @(self.quaternionY), @"qz": @(self.quaternionZ) };
 }
 
 @end

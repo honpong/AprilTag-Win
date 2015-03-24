@@ -471,9 +471,10 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
     
     obs_a->variance = get_accelerometer_variance_for_run_state(f, meas, time);
     if(plot_enabled && f->visbuf) {
-        float a_inn[3];
-        float a_meas[3] = {data[0], data[1], data[2]};
-        obs_a->copy_innovation_to_array(a_inn);
+        obs_a->predict(); // FIXME: these get called again for real but are idempotent and we want to plot them here and now
+        obs_a->compute_innovation();
+        float a_inn[3] = { (float)obs_a->innovation(0), (float)obs_a->innovation(1), (float)obs_a->innovation(2) };
+        float a_meas[3] = { (float)obs_a->meas[0], (float)obs_a->meas[1], (float)obs_a->meas[2] };
         packet_plot_send(f->visbuf, time, packet_plot_inn_a, 3, a_inn);
         packet_plot_send(f->visbuf, time, packet_plot_meas_a, 3, a_meas);
     }
@@ -525,9 +526,10 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
     obs_w->variance = f->w_variance;
 
     if(plot_enabled && f->visbuf) {
-        float w_inn[3];
-        float w_meas[3] = {data[0], data[1], data[2]};
-        obs_w->copy_innovation_to_array(w_inn);
+        obs_w->predict(); // FIXME: these get called again for real but are idempotent and we want to plot them here and now
+        obs_w->compute_innovation();
+        float w_inn[3] = { (float)obs_w->innovation(0), (float)obs_w->innovation(1),(float)obs_w->innovation(2) };
+        float w_meas[3] = {(float)obs_w->meas[0], (float)obs_w->meas[1], (float)obs_w->meas[2]};
         packet_plot_send(f->visbuf, time, packet_plot_inn_w, 3, w_inn);
         packet_plot_send(f->visbuf, time, packet_plot_meas_w, 3, w_meas);
     }

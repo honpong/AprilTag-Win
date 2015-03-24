@@ -13,7 +13,7 @@ mvp.priority = 0
 cor.plugins_register(mvp)
 
 import ImagePanel
-ip = myvis.frame_1.image_widget
+ip = myvis.frame.image_widget
 imageover = ImagePanel.ImageOverlay(ip)
 featover = ImagePanel.FeatureOverlay(ip)
 

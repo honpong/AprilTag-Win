@@ -9,10 +9,7 @@
 #import "AppDelegate.h"
 #import "ViewController.h"
 #import "LicenseHelper.h"
-#import "RCSensorDelegate.h"
-#import "RCLocationManager.h"
-#import "RCCalibration1.h"
-#import "RCAVSessionManager.h"
+#import <QuickstartKit/QuickstartKit.h>
 
 #define PREF_IS_CALIBRATED @"PREF_IS_CALIBRATED"
 

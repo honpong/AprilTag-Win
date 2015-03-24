@@ -15,7 +15,6 @@
 #ifdef __OBJC__
 #import <UIKit/UIKit.h>
 #import <Foundation/Foundation.h>
-#import "RC3DK.h"
 #endif
 
 #endif

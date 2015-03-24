@@ -8,9 +8,7 @@
 
 #import "ARDelegate.h"
 #import <QuartzCore/CAEAGLLayer.h>
-#import "RCGLManagerFactory.h"
-#import "RCGLShaderProgram.h"
-#include "RCDebugLog.h"
+#import <QuickstartKit/QuickstartKit.h>
 #include "chair_chesterfield.h"
 
 //Uncomment this line to show the origin / axes of the coordinate system

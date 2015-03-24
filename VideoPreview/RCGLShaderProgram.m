@@ -38,9 +38,7 @@
 
 - (NSString *)readFile:(NSString *)name
 {
-    NSString *path;
-    
-    path = [[NSBundle mainBundle] pathForResource:name ofType: nil];
+    NSString *path = [[NSBundle mainBundle] pathForResource:name ofType: nil];
     return [NSString stringWithContentsOfFile:path encoding:NSUTF8StringEncoding error:nil];
 }
 

@@ -25,6 +25,12 @@
 		3207A5581AC0CE4D00792F30 /* RCTransformation.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207A5401AC0CC1200792F30 /* RCTransformation.h */; };
 		3207A5591AC0CE4E00792F30 /* RCTranslation.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207A5411AC0CC1200792F30 /* RCTranslation.h */; };
 		3207A55A1AC0CE4F00792F30 /* RCVector.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207A5421AC0CC1200792F30 /* RCVector.h */; };
+		3207A5C61AC0EDCB00792F30 /* RCVideoPreview.m in Sources */ = {isa = PBXBuildFile; fileRef = 3207A5BB1AC0EB5900792F30 /* RCVideoPreview.m */; };
+		3207A5C71AC0EDCD00792F30 /* RCGLShaderProgram.m in Sources */ = {isa = PBXBuildFile; fileRef = 3207A5B91AC0EB5900792F30 /* RCGLShaderProgram.m */; };
+		3207A5C81AC0EDCE00792F30 /* RCGLManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 3207A5B71AC0EB5900792F30 /* RCGLManagerFactory.m */; };
+		3207A5CB1AC0EDF600792F30 /* RCGLManagerFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207A5B61AC0EB5900792F30 /* RCGLManagerFactory.h */; };
+		3207A5CC1AC0EDF900792F30 /* RCGLShaderProgram.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207A5B81AC0EB5900792F30 /* RCGLShaderProgram.h */; };
+		3207A5CD1AC0EDFB00792F30 /* RCVideoPreview.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207A5BA1AC0EB5900792F30 /* RCVideoPreview.h */; };
 		3296F2171A8BD6D90092D808 /* RCAVSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3296F20C1A8BD6D90092D808 /* RCAVSessionManager.m */; };
 		3296F2181A8BD6D90092D808 /* RCLocationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3296F20F1A8BD6D90092D808 /* RCLocationManager.m */; };
 		3296F2191A8BD6D90092D808 /* RCMotionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 3296F2111A8BD6D90092D808 /* RCMotionManager.m */; };
@@ -59,6 +65,9 @@
 			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
+				3207A5CD1AC0EDFB00792F30 /* RCVideoPreview.h in CopyFiles */,
+				3207A5CC1AC0EDF900792F30 /* RCGLShaderProgram.h in CopyFiles */,
+				3207A5CB1AC0EDF600792F30 /* RCGLManagerFactory.h in CopyFiles */,
 				3207A54B1AC0CE3800792F30 /* RC3DK.h in CopyFiles */,
 				3207A54C1AC0CE3A00792F30 /* RCCameraParameters.h in CopyFiles */,
 				3207A55A1AC0CE4F00792F30 /* RCVector.h in CopyFiles */,
@@ -111,6 +120,12 @@
 		3207A5421AC0CC1200792F30 /* RCVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVector.h; sourceTree = "<group>"; };
 		3207A5431AC0CC1200792F30 /* libRC3DK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libRC3DK.a; sourceTree = "<group>"; };
 		3207A5441AC0CC1200792F30 /* LICENSE.rtf */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.rtf; path = LICENSE.rtf; sourceTree = "<group>"; };
+		3207A5B61AC0EB5900792F30 /* RCGLManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCGLManagerFactory.h; sourceTree = "<group>"; };
+		3207A5B71AC0EB5900792F30 /* RCGLManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCGLManagerFactory.m; sourceTree = "<group>"; };
+		3207A5B81AC0EB5900792F30 /* RCGLShaderProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCGLShaderProgram.h; sourceTree = "<group>"; };
+		3207A5B91AC0EB5900792F30 /* RCGLShaderProgram.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCGLShaderProgram.m; sourceTree = "<group>"; };
+		3207A5BA1AC0EB5900792F30 /* RCVideoPreview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoPreview.h; sourceTree = "<group>"; };
+		3207A5BB1AC0EB5900792F30 /* RCVideoPreview.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoPreview.m; sourceTree = "<group>"; };
 		3296F1DB1A8BD68F0092D808 /* libQuickstartKit.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libQuickstartKit.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		3296F20B1A8BD6D90092D808 /* RCAVSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAVSessionManager.h; sourceTree = "<group>"; };
 		3296F20C1A8BD6D90092D808 /* RCAVSessionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAVSessionManager.m; sourceTree = "<group>"; };
@@ -202,6 +217,20 @@
 			path = RC3DK;
 			sourceTree = "<group>";
 		};
+		3207A5B51AC0EB5900792F30 /* VideoPreview */ = {
+			isa = PBXGroup;
+			children = (
+				3207A5B61AC0EB5900792F30 /* RCGLManagerFactory.h */,
+				3207A5B71AC0EB5900792F30 /* RCGLManagerFactory.m */,
+				3207A5B81AC0EB5900792F30 /* RCGLShaderProgram.h */,
+				3207A5B91AC0EB5900792F30 /* RCGLShaderProgram.m */,
+				3207A5BA1AC0EB5900792F30 /* RCVideoPreview.h */,
+				3207A5BB1AC0EB5900792F30 /* RCVideoPreview.m */,
+			);
+			name = VideoPreview;
+			path = ../../VideoPreview;
+			sourceTree = "<group>";
+		};
 		3296F1D21A8BD68F0092D808 = {
 			isa = PBXGroup;
 			children = (
@@ -226,6 +255,7 @@
 				3207A5301AC0CC1200792F30 /* 3DK */,
 				3296F2251A8BD6EF0092D808 /* Calibration */,
 				3296F20A1A8BD6D90092D808 /* SensorManagers */,
+				3207A5B51AC0EB5900792F30 /* VideoPreview */,
 				3296F28E1A8C07A00092D808 /* QuickstartKit.h */,
 			);
 			path = QuickstartKit;
@@ -382,8 +412,11 @@
 				3296F2171A8BD6D90092D808 /* RCAVSessionManager.m in Sources */,
 				3296F2181A8BD6D90092D808 /* RCLocationManager.m in Sources */,
 				3296F21B1A8BD6D90092D808 /* RCVideoManager.m in Sources */,
+				3207A5C81AC0EDCE00792F30 /* RCGLManagerFactory.m in Sources */,
+				3207A5C71AC0EDCD00792F30 /* RCGLShaderProgram.m in Sources */,
 				3296F2381A8BD6EF0092D808 /* RCCalibration3.m in Sources */,
 				3296F21A1A8BD6D90092D808 /* RCSensorDelegate.m in Sources */,
+				3207A5C61AC0EDCB00792F30 /* RCVideoPreview.m in Sources */,
 				3296F2191A8BD6D90092D808 /* RCMotionManager.m in Sources */,
 				3296F2371A8BD6EF0092D808 /* RCCalibration2.m in Sources */,
 				3296F2351A8BD6EF0092D808 /* MBProgressHUD.m in Sources */,
@@ -632,7 +665,7 @@
 					"$(inherited)",
 					"../rc3dk-lib",
 				);
-				ONLY_ACTIVE_ARCH = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
@@ -651,7 +684,7 @@
 					"$(inherited)",
 					"../rc3dk-lib",
 				);
-				ONLY_ACTIVE_ARCH = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",

@@ -60,15 +60,27 @@ private:
 class fusion_queue
 {
 public:
+    enum class latency_strategy
+    {
+        ELIMINATE_LATENCY, //Immediate dispatch. Not recommended. May fail entirely depending on relative latencies as all data from one sensor is dropped.
+        MINIMIZE_LATENCY, //Only wait if we are less than 1 ms before or less than jitter ms after the expected arrival of future data. Generally results in 10-20% dropped data
+        BALANCED, //Blends strategy of minimize drops when we aren't blocking vision processing and minimize latency when we are blocking vision. Generally low rate of dropped data.
+        MINIMIZE_DROPS, //we'll only drop if something arrives earlier than expected. Almost never drops, but may drop tdue
+        ELIMINATE_DROPS //we always wait until the data in the other queues is ready,
+    };
+
     fusion_queue(const std::function<void(const camera_data &)> &camera_func,
                  const std::function<void(const accelerometer_data &)> &accelerometer_func,
                  const std::function<void(const gyro_data &)> &gyro_func,
+                 latency_strategy s,
                  uint64_t camera_period,
                  uint64_t inertial_period,
                  uint64_t max_jitter);
     
-    void start(bool synchronous = false);
-    void stop(bool synchronous = false);
+    void start_async(bool expect_camera);
+    void start_sync(bool expect_camera);
+    void stop_async();
+    void stop_sync();
     void wait_until_finished();
 
     void receive_camera(camera_data&& x);
@@ -80,6 +92,7 @@ public:
 private:
     void runloop();
     bool run_control(const std::unique_lock<std::mutex> &lock);
+    bool ok_to_dispatch(uint64_t time);
     bool dispatch_next(std::unique_lock<std::mutex> &lock, bool force);
     uint64_t global_latest_received() const;
 
@@ -91,11 +104,14 @@ private:
     std::function<void(accelerometer_data)> accel_receiver;
     std::function<void(gyro_data)> gyro_receiver;
     
-    sensor_queue<accelerometer_data, 64> accel_queue;
-    sensor_queue<gyro_data, 64> gyro_queue;
+    sensor_queue<accelerometer_data, 32> accel_queue;
+    sensor_queue<gyro_data, 32> gyro_queue;
     sensor_queue<camera_data, 8> camera_queue;
     std::function<void()> control_func;
     bool active;
+    bool wait_for_camera;
+    
+    latency_strategy strategy;
     
     uint64_t camera_period_expected;
     uint64_t inertial_period_expected;

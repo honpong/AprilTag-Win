@@ -9,9 +9,9 @@ TEST(SensorFusionQueue, Reorder)
     auto accf = [&last_time](const accelerometer_data &x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; };
     auto gyrf = [&last_time](const gyro_data &x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; };
     
-    fusion_queue q(camf, accf, gyrf, 33000, 10000, 5000);
+    fusion_queue q(camf, accf, gyrf, fusion_queue::latency_strategy::BALANCED, 33000, 10000, 5000);
     
-    q.start(true);
+    q.start_sync(true);
 
     gyro_data g;
     g.timestamp = 0;
@@ -55,8 +55,7 @@ TEST(SensorFusionQueue, Reorder)
     g.timestamp = 50000;
     q.receive_gyro(std::move(g));
     
-    q.stop();
-    q.wait_until_finished();
+    q.stop_sync();
 }
 
 TEST(SensorFusionQueue, Threading)
@@ -86,11 +85,11 @@ TEST(SensorFusionQueue, Threading)
     auto accf = [&last_acc_time, &accrcv](const accelerometer_data &x) { EXPECT_GE(x.timestamp, last_acc_time); last_acc_time = x.timestamp; ++accrcv; };
     auto gyrf = [&last_gyr_time, &gyrrcv](const gyro_data &x) { EXPECT_GE(x.timestamp, last_gyr_time); last_gyr_time = x.timestamp; ++gyrrcv; };
 
-    fusion_queue q(camf, accf, gyrf, camera_interval, inertial_interval, jitter);
+    fusion_queue q(camf, accf, gyrf, fusion_queue::latency_strategy::BALANCED, camera_interval, inertial_interval, jitter);
 
     auto start = std::chrono::steady_clock::now();
     
-    q.start(true);
+    q.start_sync(true);
     
     std::thread camthread([&q, start, camera_interval, cam_latency, &camsent, thread_time]{
         camera_data x;
@@ -142,8 +141,7 @@ TEST(SensorFusionQueue, Threading)
     camthread.join();
     gyrothread.join();
     accelthread.join();
-    q.stop();
-    q.wait_until_finished();
+    q.stop_sync();
 }
 
 TEST(ThreadedDispatch, DropLate)
@@ -153,9 +151,9 @@ TEST(ThreadedDispatch, DropLate)
     auto accf = [&last_time](const accelerometer_data &x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; EXPECT_NE(x.timestamp, 17000); };
     auto gyrf = [&last_time](const gyro_data &x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; EXPECT_NE(x.timestamp, 30000); };
     
-    fusion_queue q(camf, accf, gyrf, 33000, 10000, 5000);
+    fusion_queue q(camf, accf, gyrf, fusion_queue::latency_strategy::BALANCED, 33000, 10000, 5000);
     
-    q.start(true);
+    q.start_sync(true);
     
     gyro_data g;
     g.timestamp = 0;
@@ -206,7 +204,6 @@ TEST(ThreadedDispatch, DropLate)
     g.timestamp = 50000;
     q.receive_gyro(std::move(g));
     
-    q.stop();
-    q.wait_until_finished();
+    q.stop_sync();
 }
 

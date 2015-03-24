@@ -308,7 +308,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
             filter_gyroscope_measurement(&_cor_setup->sfm, data.angvel_rad__s, data.timestamp);
         };
 
-        queue = std::make_unique<fusion_queue>(cam_fn, acc_fn, gyr_fn, 41667, 10000, 10000);
+        queue = std::make_unique<fusion_queue>(cam_fn, acc_fn, gyr_fn, fusion_queue::latency_strategy::MINIMIZE_DROPS, 33333, 10000, 10000); //Have to make jitter high - ipad air 2 accelerometer has high latency, we lose about 10% of samples with jitter at 8000
         lastRunState = RCSensorFusionRunStateInactive;
         lastErrorCode = RCSensorFusionErrorCodeNone;
         lastConfidence = RCSensorFusionConfidenceNone;
@@ -365,6 +365,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
 - (void) startStaticCalibration
 {
     if(isSensorFusionRunning) return;
+    queue->start_async(false);
     queue->dispatch_async([self]{
         [RCCalibration clearCalibrationData];
         _cor_setup->device = [RCCalibration getCalibrationData];
@@ -401,7 +402,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
     
     isStableStart = true;
 
-    queue->start(false);
+    queue->start_async(true);
 
     queue->dispatch_async([self]{
         filter_start_hold_steady(&_cor_setup->sfm);
@@ -431,7 +432,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
     {
         isLicenseValid = NO; // evaluation license must be checked every time. need more logic here for other license types.
 
-        queue->start(false);
+        queue->start_async(true);
 
         queue->dispatch_async([self]{
             filter_start_dynamic(&_cor_setup->sfm);
@@ -482,7 +483,7 @@ typedef NS_ENUM(int, RCLicenseStatus)
 - (void) flushAndReset
 {
     isSensorFusionRunning = false;
-    queue->stop(true);
+    queue->stop_sync();
     queue->dispatch_sync([self]{
         filter_initialize(&_cor_setup->sfm, _cor_setup->device);
     });

@@ -7,7 +7,7 @@
 
 #include "sensor_fusion_queue.h"
 #include <cassert>
-#define DEBUG
+
 template<typename T, int size>
 sensor_queue<T, size>::sensor_queue(std::mutex &mx, std::condition_variable &cnd, const bool &actv, const sensor_clock::duration expected_period): period(expected_period), mutex(mx), cond(cnd), active(actv), readpos(0), writepos(0), count(0)
 {
@@ -208,6 +208,12 @@ bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
     //We test the proposed queue against itself, but immediately green light it because queue won't be empty anyway
     if(camera_queue.empty() && wait_for_camera)
     {
+        /*
+         Camera gets special treatment because:
+         -A dropped inertial sample is less critical than a dropped camera frame
+         -Camera processing is most expensive, so we should always start it as soon as we can
+         However, we can't go too far, because it turns out that camera latency (including offset) is not significantly longer than gyro/accel latency in iOS
+         */
         if(strategy == latency_strategy::ELIMINATE_DROPS) return false;
         if(time > camera_queue.last_out + camera_queue.period - std::chrono::milliseconds(1))
         {
@@ -250,12 +256,6 @@ bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock, bool force)
     
     if(!camera_queue.empty() && (accel_queue.empty() || camera_time <= accel_time) && (gyro_queue.empty() || camera_time <= gyro_time))
     {
-        /*
-         Camera gets special treatment because:
-         -A dropped inertial sample is less critical than a dropped camera frame
-         -Camera processing is most expensive, so we should always start it as soon as we can
-         However, we can't go too far, because it turns out that camera latency (including offset) is not significantly longer than gyro/accel latency in iOS
-         */
         if(!force && !ok_to_dispatch(camera_time)) return false;
 
         camera_data data = camera_queue.pop(lock);

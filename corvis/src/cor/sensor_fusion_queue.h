@@ -65,9 +65,10 @@ public:
     {
         ELIMINATE_LATENCY, //Immediate dispatch. Not recommended. May fail entirely depending on relative latencies as all data from one sensor is dropped.
         MINIMIZE_LATENCY, //Only wait if we are less than 1 ms before or less than jitter ms after the expected arrival of future data. Generally results in 10-20% dropped data
-        BALANCED, //Blends strategy of minimize drops when we aren't blocking vision processing and minimize latency when we are blocking vision. Generally low rate of dropped data.
-        MINIMIZE_DROPS, //we'll only drop if something arrives earlier than expected. Almost never drops, but may drop tdue
-        ELIMINATE_DROPS //we always wait until the data in the other queues is ready,
+        BALANCED, //Blends strategy of minimize drops when we aren't blocking vision processing and minimize latency when we are blocking vision. Generally low rate, <5% of dropped data.
+        MINIMIZE_DROPS, //we'll only drop if something arrives earlier than expected. Almost never drops
+        ELIMINATE_DROPS //we always wait until the data in the other queues is ready
+        //Both minimize_drops and eliminate_drops may exhibit spurious drops due to different latencies in startup time of sensors. Since they wait for future data to show up, if that other data stream hasn't started yet, then the other buffers can fill up and drop due to being full.
     };
 
     fusion_queue(const std::function<void(const camera_data &)> &camera_func,

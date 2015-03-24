@@ -72,11 +72,11 @@ class extents:
 def do_rotation(thetax, thetay, thetaz):
     dr = numerics.rodrigues([thetax / steps, thetay / steps, thetaz / steps, 0.], None)
     for i in xrange(steps):
-        myvis.frame_1.render_widget.view_transform = dot(myvis.frame_1.render_widget.view_transform, dr)
+        myvis.frame.render_widget.view_transform = dot(myvis.frame.render_widget.view_transform, dr)
         time.sleep(1./fps)
 
 def restore_rotation(old):
-    vn = myvis.frame_1.render_widget.view_transform
+    vn = myvis.frame.render_widget.view_transform
     old1 = eye(4)
     old1[:3,:3] = old[:3,:3]
     vn1 = eye(4)
@@ -84,9 +84,9 @@ def restore_rotation(old):
     dr = numerics.rodrigues(numerics.invrodrigues(dot(vn1.T, old1), None) / steps, None)
 
     for i in xrange(steps):
-        myvis.frame_1.render_widget.view_transform = dot(myvis.frame_1.render_widget.view_transform, dr)
+        myvis.frame.render_widget.view_transform = dot(myvis.frame.render_widget.view_transform, dr)
         time.sleep(1./fps)
-    myvis.frame_1.render_widget.view_transform = old
+    myvis.frame.render_widget.view_transform = old
 
 def fade_color(object, color):
     delta = (color - object.color[3]) / steps
@@ -96,8 +96,8 @@ def fade_color(object, color):
     object.color[3] = color
 
 
-vt = myvis.frame_1.render_widget.view_transform
-zf = myvis.frame_1.render_widget.zoomfactor
+vt = myvis.frame.render_widget.view_transform
+zf = myvis.frame.render_widget.zoomfactor
 dz = (150. - zf) / steps
 
 #get path
@@ -108,11 +108,11 @@ extbound = renderable.bounding_box(pathext.vertices[0], pathext.vertices[1], pat
 extbound.color = [1., 1., 1., .25]
 extbound.show_faces = False
 pathext.labelz.color[3] = 0.
-myvis.frame_1.render_widget.add_renderable(pathext.labelx.render, "Path extents X label");
-myvis.frame_1.render_widget.add_renderable(pathext.labely.render, "Path extents Y label");
-myvis.frame_1.render_widget.add_renderable(pathext.labelz.render, "Path extents Z label");
+myvis.frame.render_widget.add_renderable(pathext.labelx.render, "Path extents X label");
+myvis.frame.render_widget.add_renderable(pathext.labely.render, "Path extents Y label");
+myvis.frame.render_widget.add_renderable(pathext.labelz.render, "Path extents Z label");
 
-myvis.frame_1.render_widget.add_renderable(extbound.render, "Path extents bounding box")
+myvis.frame.render_widget.add_renderable(extbound.render, "Path extents bounding box")
 
 #rotate, showing motion only
 fade_color(pathext.labely, 0.)

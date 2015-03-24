@@ -166,8 +166,6 @@ class PlotNotebook(wx.Panel, Mouse.Wheel, Mouse.Drag):
     def OnCreatePlot(self, event):
         page = Plot(event.data, self.nb)
         self.nb.AddPage(page, event.data.name)
-#        plot = event.data
-#        plot.axes = page.figure
 
 
 def demo():
@@ -178,8 +176,6 @@ def demo():
     axes1.plot([1,2,3],[2,1,4])
     axes2 = plotter.add('figure 2').axes
     axes2.plot([1,2,3,4,5],[2,1,4,2,3])
-    #axes1.figure.canvas.draw()
-    #axes2.figure.canvas.draw()
     frame.Show()
     app.MainLoop()
 

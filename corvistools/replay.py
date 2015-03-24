@@ -102,4 +102,4 @@ thread = Thread(target = shell_function)
 thread.setDaemon(True)
 thread.start()
 
-myvis.app.MainLoop()()
+myvis.app.MainLoop()

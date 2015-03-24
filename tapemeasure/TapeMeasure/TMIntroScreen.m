@@ -39,7 +39,6 @@
                 
                 TMLocationIntro* vc = [self.storyboard instantiateViewControllerWithIdentifier:@"LocationIntro"];
                 vc.calibrationDelegate = self.calibrationDelegate;
-                vc.sensorDelegate = self.sensorDelegate;
                 [self presentViewController:vc animated:YES completion:nil];
             });
         }

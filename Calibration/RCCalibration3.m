@@ -131,7 +131,7 @@
 {
     sensorFusion.delegate = nil;
     [self hideProgressView];
-    [self.sensorDelegate stopAllSensors];
+    [self.calibrationDelegate stopMotionSensors];
     [sensorFusion stopSensorFusion];
 }
 

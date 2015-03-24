@@ -75,7 +75,7 @@
 		3207A5981AC0EAFB00792F30 /* QuickstartKit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = QuickstartKit.xcodeproj; path = ../QuickstartKit/QuickstartKit.xcodeproj; sourceTree = "<group>"; };
 		3207A5D21AC1D3E700792F30 /* shader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.fsh; sourceTree = "<group>"; };
 		3207A5D31AC1D3E700792F30 /* shader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.vsh; sourceTree = "<group>"; };
-		D901456119F9A00F004E7CE2 /* RC3DKSampleAR.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RC3DKSampleAR.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D901456119F9A00F004E7CE2 /* RC3DKSampleAR.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = RC3DKSampleAR.app; path = "3DK AR Sample.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D901456519F9A00F004E7CE2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D901456619F9A00F004E7CE2 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		D901456819F9A00F004E7CE2 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };

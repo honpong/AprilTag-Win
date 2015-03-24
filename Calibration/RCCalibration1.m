@@ -19,7 +19,7 @@
 }
 @synthesize messageLabel;
 
-+ (RCCalibration1 *)instantiateViewController
++ (RCCalibration1 *)instantiateFromQuickstartKit
 {
     NSBundle* quickstartBundle = [NSBundle bundleWithURL:[[NSBundle mainBundle] URLForResource:@"QuickstartResources" withExtension:@"bundle"]];
     UIStoryboard* calStoryboard = [UIStoryboard storyboardWithName:@"Calibration" bundle:quickstartBundle];
@@ -140,8 +140,7 @@
 {
     isCalibrating = YES;
     [self createProgressViewWithTitle:@"Calibrating"];
-    //This calibration step only requires motion data, no video
-    [self.sensorDelegate startMotionSensors];
+    [self.calibrationDelegate startMotionSensors];
     sensorFusion.delegate = self;
     [sensorFusion startStaticCalibration];
 }
@@ -150,19 +149,17 @@
 {
     isCalibrating = NO;
     
-    [self.sensorDelegate stopAllSensors];
+    [self.calibrationDelegate stopMotionSensors];
     [sensorFusion stopSensorFusion];
     sensorFusion.delegate = nil;
     
     [self hideProgressView];
-    
 }
 
 - (void) gotoNextScreen
 {
     RCCalibration2* cal2 = [self.storyboard instantiateViewControllerWithIdentifier:@"Calibration2"];
     cal2.calibrationDelegate = self.calibrationDelegate; // pass the RCCalibrationDelegate object on to the next view controller
-    cal2.sensorDelegate = self.sensorDelegate; // pass the RCSensorDelegate object on to the next view controller
     sensorFusion.delegate = cal2;
     [self presentViewController:cal2 animated:YES completion:nil];
 }

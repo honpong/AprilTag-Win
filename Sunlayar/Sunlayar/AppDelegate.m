@@ -114,14 +114,24 @@
 
 - (void) gotoCalibration
 {
-    RCCalibration1 * vc = [RCCalibration1 instantiateViewController];
+    UIStoryboard* calStoryboard = [UIStoryboard storyboardWithName:@"Calibration" bundle:[NSBundle mainBundle]];
+    RCCalibration1* vc = [calStoryboard instantiateViewControllerWithIdentifier:@"Calibration1"];
     vc.calibrationDelegate = self;
-    vc.sensorDelegate = mySensorDelegate;
     vc.modalPresentationStyle = UIModalPresentationFullScreen;
     self.window.rootViewController = vc;
 }
 
 #pragma mark RCCalibrationDelegate methods
+
+- (void)startMotionSensors
+{
+    [mySensorDelegate startMotionSensors];
+}
+
+- (void)stopMotionSensors
+{
+    [mySensorDelegate stopAllSensors];
+}
 
 - (void) calibrationDidFinish:(UIViewController*)lastViewController
 {

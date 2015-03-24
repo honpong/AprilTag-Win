@@ -11,8 +11,9 @@
 #import "Flurry.h"
 #import "TMIntroScreen.h"
 #import "TMLocalMoviePlayer.h"
+#import "RCCalibration1.h"
 
-@interface TMAppDelegate : UIResponder <UIApplicationDelegate, CLLocationManagerDelegate, RCLocalMoviePlayerDelegate>
+@interface TMAppDelegate : UIResponder <UIApplicationDelegate, CLLocationManagerDelegate, RCLocalMoviePlayerDelegate, RCCalibrationDelegate>
 
 @property (strong, nonatomic) UIWindow *window;
 

@@ -78,7 +78,6 @@
 {
     RCCalibration3* cal3 = [self.storyboard instantiateViewControllerWithIdentifier:@"Calibration3"];
     cal3.calibrationDelegate = self.calibrationDelegate;
-    cal3.sensorDelegate = self.sensorDelegate;
     sensorFusion.delegate = cal3;
     [self presentViewController:cal3 animated:YES completion:nil];
 }
@@ -122,7 +121,7 @@
 - (void) stopCalibration
 {
     [self hideProgressView];
-    [self.sensorDelegate stopAllSensors];
+    [self.calibrationDelegate stopMotionSensors];
     [sensorFusion stopSensorFusion];
 }
 

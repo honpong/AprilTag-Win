@@ -30,7 +30,6 @@
 {
     UIAlertView *locationAlert;
     MPGalleryController* galleryController;
-    id<RCSensorDelegate> mySensorDelegate;
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -67,8 +66,6 @@
         
         [RCHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
     });
-    
-    mySensorDelegate = [SensorDelegate sharedInstance];
     
     galleryController = (MPGalleryController*)self.window.rootViewController;
 
@@ -119,9 +116,9 @@
 
 - (void) gotoCalibration
 {
-    RCCalibration1 * vc = [RCCalibration1 instantiateViewController];
+    UIStoryboard* calStoryboard = [UIStoryboard storyboardWithName:@"Calibration" bundle:[NSBundle mainBundle]];
+    RCCalibration1 * vc = [calStoryboard instantiateViewControllerWithIdentifier:@"Calibration1"];
     vc.calibrationDelegate = self;
-    vc.sensorDelegate = mySensorDelegate;
     vc.modalPresentationStyle = UIModalPresentationFullScreen;
     self.window.rootViewController = vc;
 }
@@ -130,7 +127,6 @@
 {
     MPIntroScreen* vc = [galleryController.storyboard instantiateViewControllerWithIdentifier:@"IntroScreen"];
     vc.calibrationDelegate = self;
-    vc.sensorDelegate = mySensorDelegate;
     self.window.rootViewController = vc;
 }
 
@@ -142,6 +138,16 @@
 }
 
 #pragma mark RCCalibrationDelegate methods
+
+- (void)startMotionSensors
+{
+    [MOTION_MANAGER startMotionCapture];
+}
+
+- (void)stopMotionSensors
+{
+    [MOTION_MANAGER stopMotionCapture];
+}
 
 - (void) calibrationDidFinish:(UIViewController*)lastViewController
 {

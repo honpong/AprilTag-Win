@@ -43,7 +43,7 @@
     // determine if calibration has been done
     BOOL isCalibrated = [[NSUserDefaults standardUserDefaults] boolForKey:PREF_IS_CALIBRATED]; // gets set to YES when calibration completes
     BOOL hasStoredCalibrationData = [[RCSensorFusion sharedInstance] hasCalibrationData]; // checks if calibration data can be retrieved
-
+    
     // if calibration hasn't been done, or can't be retrieved, start calibration
     if (!isCalibrated || !hasStoredCalibrationData)
     {
@@ -62,9 +62,8 @@
 - (void) gotoCalibration
 {
     // presents the first of three calibration view controllers    
-    RCCalibration1* calibration1 = [RCCalibration1 instantiateViewController];
+    RCCalibration1* calibration1 = [RCCalibration1 instantiateFromQuickstartKit];
     calibration1.calibrationDelegate = self;
-    calibration1.sensorDelegate = mySensorDelegate;
     calibration1.modalPresentationStyle = UIModalPresentationFullScreen;
     self.window.rootViewController = calibration1;
 }
@@ -104,6 +103,18 @@
         [[NSUserDefaults standardUserDefaults] synchronize];
         [mySensorDelegate startLocationUpdatesIfAllowed];
     }
+}
+
+#pragma mark - RCCalibrationDelegate
+
+- (void)startMotionSensors
+{
+    [mySensorDelegate startMotionSensors];
+}
+
+- (void)stopMotionSensors
+{
+    [mySensorDelegate stopAllSensors];
 }
 
 - (void) calibrationDidFinish:(UIViewController*)lastViewController

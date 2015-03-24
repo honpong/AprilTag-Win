@@ -14,20 +14,21 @@
 #include <atomic>
 #include <condition_variable>
 #include "platform/sensor_data.h"
+#include "platform/sensor_clock.h"
 
 template<typename T, int size>
 class sensor_queue
 {
 public:
-    sensor_queue(std::mutex &mx, std::condition_variable &cnd, const bool &actv, const uint64_t expected_period);
+    sensor_queue(std::mutex &mx, std::condition_variable &cnd, const bool &actv, const sensor_clock::duration expected_period);
     bool empty() const { return count == 0; }
     bool push(T&& x); //Doesn't block. Returns false if the queue is full or data arrived out of order
     T pop(const std::unique_lock<std::mutex> &lock); // assumes the lock is already held
-    uint64_t get_next_time(const std::unique_lock<std::mutex> &lock, uint64_t last_global_dispatched);
+    sensor_clock::time_point get_next_time(const std::unique_lock<std::mutex> &lock, sensor_clock::time_point last_global_dispatched);
 
-    uint64_t period;
-    uint64_t last_in;
-    uint64_t last_out;
+    std::chrono::duration<double, std::micro> period;
+    sensor_clock::time_point last_in;
+    sensor_clock::time_point last_out;
     
     uint64_t drop_full = 0;
     uint64_t drop_late = 0;
@@ -36,7 +37,7 @@ public:
 
     void print_stats()
     {
-        fprintf(stderr, "period %lld, total in %lld, total out %lld, drop full %lld, drop late %lld\n", period, total_in, total_out, drop_full, drop_late);
+        fprintf(stderr, "period %f, total in %lld, total out %lld, drop full %lld, drop late %lld\n", period.count(), total_in, total_out, drop_full, drop_late);
     }
     
 private:
@@ -73,9 +74,9 @@ public:
                  const std::function<void(const accelerometer_data &)> &accelerometer_func,
                  const std::function<void(const gyro_data &)> &gyro_func,
                  latency_strategy s,
-                 uint64_t camera_period,
-                 uint64_t inertial_period,
-                 uint64_t max_jitter);
+                 sensor_clock::duration camera_period,
+                 sensor_clock::duration inertial_period,
+                 sensor_clock::duration max_jitter);
     
     void start_async(bool expect_camera);
     void start_sync(bool expect_camera);
@@ -92,9 +93,9 @@ public:
 private:
     void runloop();
     bool run_control(const std::unique_lock<std::mutex> &lock);
-    bool ok_to_dispatch(uint64_t time);
+    bool ok_to_dispatch(sensor_clock::time_point time);
     bool dispatch_next(std::unique_lock<std::mutex> &lock, bool force);
-    uint64_t global_latest_received() const;
+    sensor_clock::time_point global_latest_received() const;
 
     std::mutex mutex;
     std::condition_variable cond;
@@ -113,11 +114,11 @@ private:
     
     latency_strategy strategy;
     
-    uint64_t camera_period_expected;
-    uint64_t inertial_period_expected;
-    uint64_t last_dispatched;
+    sensor_clock::duration camera_period_expected;
+    sensor_clock::duration inertial_period_expected;
+    sensor_clock::time_point last_dispatched;
     
-    uint64_t jitter;
+    sensor_clock::duration jitter;
 };
 
 #endif /* defined(__sensor_fusion_queue__) */

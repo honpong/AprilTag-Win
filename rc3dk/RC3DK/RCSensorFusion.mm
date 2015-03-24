@@ -284,7 +284,8 @@ typedef NS_ENUM(int, RCLicenseStatus)
             if(!isSensorFusionRunning)
             {
             } else if(isProcessingVideo) {
-                docallback = filter_image_measurement(&_cor_setup->sfm, data.image, data.width, data.height, data.stride, data.timestamp);
+                auto micros = std::chrono::duration_cast<std::chrono::microseconds>(data.timestamp.time_since_epoch()).count();
+                docallback = filter_image_measurement(&_cor_setup->sfm, data.image, data.width, data.height, data.stride, micros);
                 [self sendStatus];
                 if(docallback) [self sendDataWithSampleBuffer:sampleBuffer];
             } else {
@@ -298,17 +299,19 @@ typedef NS_ENUM(int, RCLicenseStatus)
         auto acc_fn = [self](const accelerometer_data &data)
         {
             if(!isSensorFusionRunning) return;
-            filter_accelerometer_measurement(&_cor_setup->sfm, data.accel_m__s2, data.timestamp);
+            auto micros = std::chrono::duration_cast<std::chrono::microseconds>(data.timestamp.time_since_epoch()).count();
+            filter_accelerometer_measurement(&_cor_setup->sfm, data.accel_m__s2, micros);
             [self sendStatus];
         };
 
         auto gyr_fn = [self](const gyro_data &data)
         {
             if(!isSensorFusionRunning) return;
-            filter_gyroscope_measurement(&_cor_setup->sfm, data.angvel_rad__s, data.timestamp);
+            auto micros = std::chrono::duration_cast<std::chrono::microseconds>(data.timestamp.time_since_epoch()).count();
+            filter_gyroscope_measurement(&_cor_setup->sfm, data.angvel_rad__s, micros);
         };
 
-        queue = std::make_unique<fusion_queue>(cam_fn, acc_fn, gyr_fn, fusion_queue::latency_strategy::MINIMIZE_DROPS, 33333, 10000, 10000); //Have to make jitter high - ipad air 2 accelerometer has high latency, we lose about 10% of samples with jitter at 8000
+        queue = std::make_unique<fusion_queue>(cam_fn, acc_fn, gyr_fn, fusion_queue::latency_strategy::MINIMIZE_DROPS, std::chrono::microseconds(33333), std::chrono::microseconds(10000), std::chrono::microseconds(10000)); //Have to make jitter high - ipad air 2 accelerometer has high latency, we lose about 10% of samples with jitter at 8000
         lastRunState = RCSensorFusionRunStateInactive;
         lastErrorCode = RCSensorFusionErrorCodeNone;
         lastConfidence = RCSensorFusionConfidenceNone;

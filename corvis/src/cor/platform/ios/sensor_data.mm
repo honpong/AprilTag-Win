@@ -10,6 +10,21 @@
 #import <CoreMedia/CoreMedia.h>
 #import <CoreMotion/CoreMotion.h>
 
+static sensor_clock::time_point time_point_from_CMTime(const CMTime &time)
+{
+    uint64_t time_ns;
+    if(time.timescale == 1000000000) time_ns = time.value;
+    else time_ns = time.value / (time.timescale / 1000000000.);
+
+    return sensor_clock::time_point(std::chrono::nanoseconds(time_ns + 16667000));
+}
+
+static sensor_clock::time_point time_point_fromNSTimeInterval(const NSTimeInterval &time)
+{
+    uint64_t time_ns = time * 1000000000;
+    return sensor_clock::time_point(std::chrono::nanoseconds(time_ns));
+}
+
 camera_data::camera_data(void *h): image_handle((void *)CFRetain(h), [](void *h) {CFRelease(h);})
 {
     auto sampleBuffer = (CMSampleBufferRef)image_handle.get();
@@ -41,9 +56,8 @@ camera_data::camera_data(void *h): image_handle((void *)CFRetain(h), [](void *h)
         NSLog(@"Image dimensions are incorrect! Make sure you're using the right video preset and not changing the orientation on the capture connection.\n");
         abort();
     }
-    uint64_t time_us = time.value / (time.timescale / 1000000.);
     
-    timestamp = time_us + 16667;
+    timestamp = time_point_from_CMTime(time) + std::chrono::microseconds(16667);
 }
 
 camera_data::~camera_data()
@@ -60,7 +74,7 @@ camera_data::~camera_data()
 accelerometer_data::accelerometer_data(void *handle)
 {
     auto accelerationData = (__bridge CMAccelerometerData *)handle;
-    timestamp = accelerationData.timestamp * 1000000;
+    timestamp = time_point_fromNSTimeInterval(accelerationData.timestamp);
     //ios gives acceleration in g-units, so multiply by standard gravity in m/s^2
     //it appears that accelerometer axes are flipped
     accel_m__s2[0] = -accelerationData.acceleration.x * 9.80665;
@@ -71,7 +85,7 @@ accelerometer_data::accelerometer_data(void *handle)
 gyro_data::gyro_data(void *handle)
 {
     auto gyroData = (__bridge CMGyroData *)handle;
-    timestamp = gyroData.timestamp * 1000000;
+    timestamp = time_point_fromNSTimeInterval(gyroData.timestamp);
     angvel_rad__s[0] = gyroData.rotationRate.x;
     angvel_rad__s[1] = gyroData.rotationRate.y;
     angvel_rad__s[2] = gyroData.rotationRate.z;

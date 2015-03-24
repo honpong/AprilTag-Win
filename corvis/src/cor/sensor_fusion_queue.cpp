@@ -7,9 +7,9 @@
 
 #include "sensor_fusion_queue.h"
 #include <cassert>
-
+#define DEBUG
 template<typename T, int size>
-sensor_queue<T, size>::sensor_queue(std::mutex &mx, std::condition_variable &cnd, const bool &actv, const uint64_t expected_period): period(expected_period), last_in(0), last_out(0), mutex(mx), cond(cnd), active(actv), readpos(0), writepos(0), count(0)
+sensor_queue<T, size>::sensor_queue(std::mutex &mx, std::condition_variable &cnd, const bool &actv, const sensor_clock::duration expected_period): period(expected_period), mutex(mx), cond(cnd), active(actv), readpos(0), writepos(0), count(0)
 {
 }
 
@@ -23,13 +23,13 @@ bool sensor_queue<T, size>::push(T&& x)
         return false;
     }
     
-    uint64_t time = x.timestamp;
+    sensor_clock::time_point time = x.timestamp;
 #ifdef DEBUG
     assert(time >= last_in);
 #endif
-    if(last_in != 0)
+    if(last_in != sensor_clock::time_point())
     {
-        uint64_t delta = time - last_in;
+        sensor_clock::duration delta = time - last_in;
         const float alpha = .1;
         period = alpha * delta + (1. - alpha) * period;
     }
@@ -52,13 +52,13 @@ bool sensor_queue<T, size>::push(T&& x)
 }
 
 template<typename T, int size>
-uint64_t sensor_queue<T, size>::get_next_time(const std::unique_lock<std::mutex> &lock, uint64_t last_global_time)
+sensor_clock::time_point sensor_queue<T, size>::get_next_time(const std::unique_lock<std::mutex> &lock, sensor_clock::time_point last_global_dispatched)
 {
-    while(count && storage[readpos].timestamp < last_global_time) {
+    while(count && storage[readpos].timestamp < last_global_dispatched) {
         pop(lock);
         ++drop_late;
     }
-    return count ? storage[readpos].timestamp : UINT64_MAX;
+    return count ? storage[readpos].timestamp : sensor_clock::time_point();
 }
 
 template<typename T, int size>
@@ -81,9 +81,9 @@ fusion_queue::fusion_queue(const std::function<void(const camera_data &)> &camer
                            const std::function<void(const accelerometer_data &)> &accelerometer_func,
                            const std::function<void(const gyro_data &)> &gyro_func,
                            latency_strategy s,
-                           uint64_t cam_period,
-                           uint64_t inertial_period,
-                           uint64_t max_jitter):
+                           sensor_clock::duration cam_period,
+                           sensor_clock::duration inertial_period,
+                           sensor_clock::duration max_jitter):
                 camera_receiver(camera_func),
                 accel_receiver(accelerometer_func),
                 gyro_receiver(gyro_func),
@@ -95,7 +95,6 @@ fusion_queue::fusion_queue(const std::function<void(const camera_data &)> &camer
                 strategy(s),
                 camera_period_expected(cam_period),
                 inertial_period_expected(inertial_period),
-                last_dispatched(0),
                 jitter(max_jitter)
 {
 }
@@ -195,14 +194,14 @@ void fusion_queue::runloop()
     lock.unlock();
 }
 
-uint64_t fusion_queue::global_latest_received() const
+sensor_clock::time_point  fusion_queue::global_latest_received() const
 {
     if(camera_queue.last_in >= gyro_queue.last_in && camera_queue.last_in >= accel_queue.last_in) return camera_queue.last_in;
     else if(accel_queue.last_in >= gyro_queue.last_in) return accel_queue.last_in;
     return gyro_queue.last_in;
 }
 
-bool fusion_queue::ok_to_dispatch(uint64_t time)
+bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
 {
     if(strategy == latency_strategy::ELIMINATE_LATENCY) return true; //always dispatch if we are eliminating latency
 
@@ -210,7 +209,7 @@ bool fusion_queue::ok_to_dispatch(uint64_t time)
     if(camera_queue.empty() && wait_for_camera)
     {
         if(strategy == latency_strategy::ELIMINATE_DROPS) return false;
-        if(time > camera_queue.last_out + camera_queue.period - 1000)
+        if(time > camera_queue.last_out + camera_queue.period - std::chrono::milliseconds(1))
         {
             //If we are in balanced mode, camera gets special treatment to be like minimize_drops
             if(strategy == latency_strategy::BALANCED || strategy == latency_strategy::MINIMIZE_DROPS) return false;
@@ -221,7 +220,7 @@ bool fusion_queue::ok_to_dispatch(uint64_t time)
     if(accel_queue.empty())
     {
         if(strategy == latency_strategy::ELIMINATE_DROPS) return false;
-        if(time > accel_queue.last_out + accel_queue.period - 1000)
+        if(time > accel_queue.last_out + accel_queue.period - std::chrono::milliseconds(1))
         {
             if(strategy == latency_strategy::MINIMIZE_DROPS) return false;
             if(strategy == latency_strategy::BALANCED && wait_for_camera && camera_queue.empty()) return false; //In balanced strategy, we wait longer, as long as we aren't blocking a camera frame, otherwise fall through to minimize latency
@@ -232,7 +231,7 @@ bool fusion_queue::ok_to_dispatch(uint64_t time)
     if(gyro_queue.empty())
     {
         if(strategy == latency_strategy::ELIMINATE_DROPS) return false;
-        if(time > gyro_queue.last_out + gyro_queue.period - 1000) //OK to dispatch if it's far enough ahead of when we expect the other
+        if(time > gyro_queue.last_out + gyro_queue.period - std::chrono::milliseconds(1)) //OK to dispatch if it's far enough ahead of when we expect the other
         {
             if(strategy == latency_strategy::MINIMIZE_DROPS) return false;
             if(strategy == latency_strategy::BALANCED && wait_for_camera && camera_queue.empty()) return false; //In balanced strategy, if we aren't holding up a camera frame, wait
@@ -245,13 +244,12 @@ bool fusion_queue::ok_to_dispatch(uint64_t time)
 
 bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock, bool force)
 {
-    uint64_t camera_time = camera_queue.get_next_time(lock, last_dispatched);
-    uint64_t accel_time = accel_queue.get_next_time(lock, last_dispatched);
-    uint64_t gyro_time = gyro_queue.get_next_time(lock, last_dispatched);
+    sensor_clock::time_point camera_time = camera_queue.get_next_time(lock, last_dispatched);
+    sensor_clock::time_point accel_time = accel_queue.get_next_time(lock, last_dispatched);
+    sensor_clock::time_point gyro_time = gyro_queue.get_next_time(lock, last_dispatched);
     
-    if(camera_time <= accel_time && camera_time <= gyro_time)
+    if(!camera_queue.empty() && (accel_queue.empty() || camera_time <= accel_time) && (gyro_queue.empty() || camera_time <= gyro_time))
     {
-        if(camera_time == UINT64_MAX) return false; // Only need this in one case because comparison is <=, so == case results in camera data every time
         /*
          Camera gets special treatment because:
          -A dropped inertial sample is less critical than a dropped camera frame
@@ -284,7 +282,7 @@ bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock, bool force)
          */
         lock.lock();
     }
-    else if(accel_time <= gyro_time)
+    else if(!accel_queue.empty() && (gyro_queue.empty() || accel_time <= gyro_time))
     {
         if(!force && !ok_to_dispatch(accel_time)) return false;
         
@@ -297,7 +295,7 @@ bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock, bool force)
         accel_receiver(std::move(data));
         lock.lock();
     }
-    else
+    else if(!gyro_queue.empty())
     {
         if(!force && !ok_to_dispatch(gyro_time)) return false;
 
@@ -310,5 +308,6 @@ bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock, bool force)
         gyro_receiver(std::move(data));
         lock.lock();
     }
+    else return false;
     return true;
 }

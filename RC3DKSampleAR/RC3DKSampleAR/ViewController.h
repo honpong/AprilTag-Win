@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <QuickstartKit/QuickstartKit.h>
 
 @interface ViewController : UIViewController <RCSensorFusionDelegate>
 

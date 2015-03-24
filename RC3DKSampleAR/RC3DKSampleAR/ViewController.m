@@ -8,8 +8,6 @@
 
 #import "ViewController.h"
 #import "LicenseHelper.h"
-#import "RCSensorDelegate.h"
-#import "RCAVSessionManager.h"
 #import "ARDelegate.h"
 
 @implementation ViewController

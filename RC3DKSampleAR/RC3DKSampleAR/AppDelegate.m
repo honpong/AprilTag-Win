@@ -9,10 +9,7 @@
 #import "AppDelegate.h"
 #import "ViewController.h"
 #import "LicenseHelper.h"
-#import "RCSensorDelegate.h"
-#import "RCLocationManager.h"
-#import "RCCalibration1.h"
-#import "RCAVSessionManager.h"
+#import <QuickstartKit/QuickstartKit.h>
 
 #define PREF_IS_CALIBRATED @"PREF_IS_CALIBRATED"
 
@@ -63,9 +60,8 @@
 - (void) gotoCalibration
 {
     // presents the first of three calibration view controllers
-    RCCalibration1 *calibration1 = [RCCalibration1 instantiateViewController];
+    RCCalibration1 *calibration1 = [RCCalibration1 instantiateFromQuickstartKit];
     calibration1.calibrationDelegate = self;
-    calibration1.sensorDelegate = mySensorDelegate;
     calibration1.modalPresentationStyle = UIModalPresentationFullScreen;
     self.window.rootViewController = calibration1;
 }
@@ -88,6 +84,18 @@
         }
     }];
     
+}
+
+#pragma mark - RCCalibrationDelegate
+
+- (void)startMotionSensors
+{
+    [mySensorDelegate startMotionSensors];
+}
+
+- (void)stopMotionSensors
+{
+    [mySensorDelegate stopAllSensors];
 }
 
 - (void) calibrationDidFinish:(UIViewController*)lastViewController

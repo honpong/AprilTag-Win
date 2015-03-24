@@ -15,7 +15,6 @@
 @property (weak, nonatomic) IBOutlet UIButton *nextButton;
 @property (weak, nonatomic) IBOutlet UILabel *textLabel;
 @property (weak, nonatomic) id<RCCalibrationDelegate> calibrationDelegate;
-@property (weak, nonatomic) id<RCSensorDelegate> sensorDelegate;
 
 - (IBAction)handleNextButton:(id)sender;
 

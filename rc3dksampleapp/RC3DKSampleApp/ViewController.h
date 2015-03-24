@@ -7,10 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "RCAVSessionManager.h"
-#import "RCLocationManager.h"
-#import "RCMotionManager.h"
-#import "RCVideoManager.h"
+#import <QuickstartKit/QuickstartKit.h>
 
 @interface ViewController : UIViewController <RCSensorFusionDelegate>
 

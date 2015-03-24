@@ -206,7 +206,6 @@ static const CLLocationDegrees startingLongitude = 43.;
 {
     RCCalibration1 * calibration1 = [RCCalibration1 instantiateViewController];
     calibration1.calibrationDelegate = self.calibrationDelegate;
-    calibration1.sensorDelegate = self.sensorDelegate;
     calibration1.modalPresentationStyle = UIModalPresentationFullScreen;
     [self presentViewController:calibration1 animated:YES completion:nil];
 }

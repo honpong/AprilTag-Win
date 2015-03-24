@@ -7,12 +7,19 @@
 
 #import <UIKit/UIKit.h>
 #import "MBProgressHUD.h"
-#import "../SensorManagers/RCSensorDelegate.h"
 #import "RC3DK.h"
 
 @protocol RCCalibrationDelegate <NSObject>
 
 @required
+/**
+ Starts the AV session, video capture, and motion capture
+ */
+- (void) startMotionSensors;
+/**
+ Stops the AV session, video capture, and motion capture
+ */
+- (void) stopMotionSensors;
 /**
  Called when all three calibration steps have been completed. 
  @returns A reference to the last view controller in the calibration sequence.
@@ -36,9 +43,8 @@
 @interface RCCalibration1 : UIViewController <RCSensorFusionDelegate>
 
 @property (weak, nonatomic) id<RCCalibrationDelegate> calibrationDelegate;
-@property (weak, nonatomic) id<RCSensorDelegate> sensorDelegate;
 @property (weak, nonatomic) IBOutlet UILabel *messageLabel;
 
-+ (RCCalibration1 *)instantiateViewController;
++ (RCCalibration1 *)instantiateFromQuickstartKit;
 
 @end

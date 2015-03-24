@@ -10,7 +10,6 @@
 @interface RCCalibration3 : UIViewController <RCSensorFusionDelegate>
 
 @property (weak, nonatomic) id<RCCalibrationDelegate> calibrationDelegate;
-@property (weak, nonatomic) id<RCSensorDelegate> sensorDelegate;
 @property (weak, nonatomic) IBOutlet UILabel *messageLabel;
 
 @end

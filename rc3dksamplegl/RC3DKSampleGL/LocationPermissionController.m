@@ -7,8 +7,7 @@
 //
 
 #import "LocationPermissionController.h"
-#import "RCLocationManager.h"
-#import "RCCalibration1.h"
+#import <QuickstartKit/QuickstartKit.h>
 
 @implementation LocationPermissionController
 {

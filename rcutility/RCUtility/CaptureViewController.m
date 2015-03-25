@@ -21,7 +21,7 @@
 
 @implementation CaptureViewController
 
-@synthesize previewView, startStopButton;
+@synthesize previewView, frameRateSelector, startStopButton;
 
 - (void)viewDidLoad
 {
@@ -79,12 +79,14 @@
 - (void) captureDidStart
 {
     [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
+    [frameRateSelector setHidden:true];
 }
 
 - (void) captureDidStop
 {
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
     [startStopButton setEnabled:true];
+    [frameRateSelector setHidden:false];
     AppDelegate * app = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     [app startFromHome];
 }
@@ -93,9 +95,13 @@
 {
     if (!isStarted)
     {
-        NSURL * fileurl = [AppDelegate timeStampedURLWithSuffix:@".capture"];
+        int framerate = 30;
+        if(frameRateSelector.selectedSegmentIndex == 1)
+            framerate = 60;
+
+        NSURL * fileurl = [AppDelegate timeStampedURLWithSuffix:[NSString stringWithFormat:@"_%dHz.capture", framerate]];
         [startStopButton setTitle:@"Starting..." forState:UIControlStateNormal];
-        [captureController startCapture:fileurl.path withSession:[SESSION_MANAGER session] withDevice:[SESSION_MANAGER videoDevice] withMaxFrameRate:30 withDelegate:self];
+        [captureController startCapture:fileurl.path withSession:[SESSION_MANAGER session] withDevice:[SESSION_MANAGER videoDevice] withMaxFrameRate:framerate withDelegate:self];
     }
     else
     {

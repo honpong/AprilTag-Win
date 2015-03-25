@@ -17,6 +17,8 @@ extern "C" {
 #import "NSString+RCString.h"
 #include <functional>
 
+#define PREF_LICENSE_VALIDATED @"3DK_License_Validated"
+
 uint64_t get_timestamp()
 {
     static mach_timebase_info_data_t s_timebase_info;
@@ -192,10 +194,13 @@ typedef NS_ENUM(int, RCLicenseStatus)
          int licenseStatus = [licenseStatusString intValue];
          int licenseType = [licenseTypeString intValue];
          
+         [NSUserDefaults.standardUserDefaults setBool:NO forKey:PREF_LICENSE_VALIDATED];
+         
          switch (licenseStatus)
          {
              case RCLicenseStatusOK:
                  isLicenseValid = YES;
+                 [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_LICENSE_VALIDATED];
                  if (completionBlock) completionBlock(licenseType, licenseStatus);
                  break;
                  
@@ -223,6 +228,14 @@ typedef NS_ENUM(int, RCLicenseStatus)
      failure:^(RCAFHTTPRequestOperation *operation, NSError *error)
      {
          DLog(@"License failure: %li\n%@", (long)operation.response.statusCode, operation.responseString);
+
+#ifdef LAX_LICENSE_VALIDATION
+         if ([NSUserDefaults.standardUserDefaults boolForKey:PREF_LICENSE_VALIDATED])
+         {
+             if (completionBlock) completionBlock(-1, RCLicenseStatusOK);
+             return;
+         }
+#endif
          if (errorBlock)
          {
              NSMutableDictionary* userInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. HTTPS request failed.", NSLocalizedDescriptionKey, @"HTTPS request failed. See underlying error.", NSLocalizedFailureReasonErrorKey, nil];

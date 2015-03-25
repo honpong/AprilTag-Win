@@ -213,7 +213,8 @@ static const CLLocationDegrees startingLongitude = 43.;
 
 - (void) gotoCalibration
 {
-    RCCalibration1 * calibration1 = [RCCalibration1 instantiateViewController];
+    UIStoryboard* calStoryboard = [UIStoryboard storyboardWithName:@"Calibration" bundle:[NSBundle mainBundle]];
+    RCCalibration1 * calibration1 = [calStoryboard instantiateViewControllerWithIdentifier:@"Calibration1"];
     calibration1.calibrationDelegate = self.calibrationDelegate;
     calibration1.modalPresentationStyle = UIModalPresentationFullScreen;
     [self presentViewController:calibration1 animated:YES completion:nil];

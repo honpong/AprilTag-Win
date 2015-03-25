@@ -74,8 +74,40 @@
     }
 }
 
-- (void) startVideoCapture:(AVCaptureSession *)avSession withDevice:(AVCaptureDevice *)avDevice
+- (void)configureCameraForFrameRate:(AVCaptureDevice *)capdevice withMaxFrameRate:(int)rate withWidth:(int)width withHeight:(int)height
 {
+    CMTime minFrameDuration = CMTimeMake(1, rate);
+    AVCaptureDeviceFormat *bestFormat = nil;
+    AVFrameRateRange *bestFrameRateRange = nil;
+    for ( AVCaptureDeviceFormat *format in [capdevice formats] ) {
+        CMVideoDimensions sz = CMVideoFormatDescriptionGetDimensions(format.formatDescription);
+        if(sz.height != height || sz.width != width)
+            continue;
+
+        for ( AVFrameRateRange *range in format.videoSupportedFrameRateRanges ) {
+            if ( range.maxFrameRate > bestFrameRateRange.maxFrameRate ) {
+                bestFormat = format;
+                bestFrameRateRange = range;
+            }
+        }
+    }
+    if ( bestFormat ) {
+        if ( [capdevice lockForConfiguration:NULL] == YES ) {
+            // If our desired rate is faster than the fastest rate we can set then
+            // use the fastest one we can set instead
+            if(CMTimeCompare(minFrameDuration, bestFrameRateRange.minFrameDuration) < 0)
+                minFrameDuration = bestFrameRateRange.minFrameDuration;
+            capdevice.activeFormat = bestFormat;
+            capdevice.activeVideoMinFrameDuration = minFrameDuration;
+            capdevice.activeVideoMaxFrameDuration = minFrameDuration;
+            [capdevice unlockForConfiguration];
+        }
+    }
+}
+
+- (void) startVideoCapture:(AVCaptureSession *)avSession withDevice:(AVCaptureDevice *)avDevice withMaxFrameRate:(int)maxFrameRate
+{
+    [self configureCameraForFrameRate:avDevice withMaxFrameRate:maxFrameRate withWidth:640 withHeight:480];
     AVCaptureVideoDataOutput* avOutput = [[AVCaptureVideoDataOutput alloc] init];
     [output setAlwaysDiscardsLateVideoFrames:YES];
     [output setVideoSettings:@{(id)kCVPixelBufferPixelFormatTypeKey: [NSNumber numberWithInt:'420f']}];
@@ -285,7 +317,7 @@ packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
     });
 }
 
-- (void)startCapture:(NSString *)path withSession:(AVCaptureSession *)avSession withDevice:(AVCaptureDevice *)avDevice withDelegate:(id<RCCaptureManagerDelegate>)captureDelegate
+- (void)startCapture:(NSString *)path withSession:(AVCaptureSession *)avSession withDevice:(AVCaptureDevice *)avDevice withMaxFrameRate:(int)maxFrameRate withDelegate:(id<RCCaptureManagerDelegate>)captureDelegate
 {
     if (isCapturing) return;
 
@@ -294,7 +326,7 @@ packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
     self.delegate = captureDelegate;
     [self startMotionCapture];
     // isCapturing is set after focus finishes
-    [self startVideoCapture:avSession withDevice:avDevice];
+    [self startVideoCapture:avSession withDevice:avDevice withMaxFrameRate:maxFrameRate];
 }
 
 - (void) stopCapture

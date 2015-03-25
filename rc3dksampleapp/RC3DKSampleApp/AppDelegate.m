@@ -17,7 +17,7 @@
 @implementation AppDelegate
 {
     UIViewController * mainViewController;
-    id<RCSensorDelegate> mySensorDelegate;
+    RCSensorManager* sensorManager;
     RCLocationManager * locationManager;
 }
 
@@ -34,7 +34,7 @@
     [[RCSensorFusion sharedInstance] setLicenseKey:SDK_LICENSE_KEY];
 
     // Create a sensor delegate to manage the sensors
-    mySensorDelegate = [SensorDelegate sharedInstance];
+    sensorManager = [RCSensorManager sharedInstance];
     locationManager = [RCLocationManager sharedInstance];
 
     // save a reference to the main view controller. we use this after calibration has finished.
@@ -86,7 +86,7 @@
     else
     {
         //Does nothing if location is not authorized. The SensorDelegate calls [RCSensorFusion setLocation] automatically. If you do not use the SensorDelegate, make sure you pass the location to RCSensorFusion before starting sensor fusion.
-        [mySensorDelegate startLocationUpdatesIfAllowed];
+        [sensorManager startLocationUpdatesIfAllowed];
     }
 }
 
@@ -101,7 +101,7 @@
     {
         [[NSUserDefaults standardUserDefaults] setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
         [[NSUserDefaults standardUserDefaults] synchronize];
-        [mySensorDelegate startLocationUpdatesIfAllowed];
+        [sensorManager startLocationUpdatesIfAllowed];
     }
 }
 
@@ -109,12 +109,12 @@
 
 - (void)startMotionSensors
 {
-    [mySensorDelegate startMotionSensors];
+    [sensorManager startMotionSensors];
 }
 
 - (void)stopMotionSensors
 {
-    [mySensorDelegate stopAllSensors];
+    [sensorManager stopAllSensors];
 }
 
 - (void) calibrationDidFinish:(UIViewController*)lastViewController

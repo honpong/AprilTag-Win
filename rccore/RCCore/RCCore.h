@@ -20,6 +20,7 @@
 #import "RCVideoManager.h"
 #import "RCCaptureManager.h"
 #import "RCReplayManager.h"
+#import "RCSensorManager.h"
 
 #import "RCVideoPreviewCRT.h"
 

@@ -21,7 +21,7 @@
 #import "RCDebugLog.h"
 #import "RCLocationManager.h"
 #import "RCMotionManager.h"
-#import "RCSensorDelegate.h"
+#import "RCSensorManager.h"
 #import "RCVideoFrameProvider.h"
 #import "RCVideoManager.h"
 

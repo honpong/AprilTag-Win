@@ -11,7 +11,7 @@
 #import "TMLocationIntro.h"
 #import "TMHistoryVC.h"
 #import "RCCore/RCGeocoder.h"
-#import "RCCore/RCSensorDelegate.h"
+#import "RCCore/RCSensorManager.h"
 
 @implementation TMNewMeasurementVC
 {
@@ -26,7 +26,7 @@
     double lastFailTime;
     int filterStatusCode;
     
-    id<RCSensorDelegate>sensorDelegate;
+    RCSensorManager*sensorManager;
     
     RCTipView* tipsView;
     
@@ -245,7 +245,7 @@ static transition transitions[] =
     
     [self validateStateMachine];
     
-    sensorDelegate = [SensorDelegate sharedInstance];
+    sensorManager = [RCSensorManager sharedInstance];
     
     //setup screen tap detection
     UITapGestureRecognizer *tapGesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(handleTapGesture:)];
@@ -254,7 +254,7 @@ static transition transitions[] =
     
     if (newMeasurement.units == UnitsImperial) self.distanceLabel.centerAlignmentExcludesFraction = YES;
     
-    [[sensorDelegate getVideoProvider] setDelegate:self.arView.videoView];
+    [[sensorManager getVideoProvider] setDelegate:self.arView.videoView];
     
     progressView = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
     [self.view addSubview:progressView];
@@ -460,13 +460,13 @@ static transition transitions[] =
 - (void) startSensors
 {
     LOGME
-    [sensorDelegate startAllSensors];
+    [sensorManager startAllSensors];
 }
 
 - (void)stopSensors
 {
     LOGME
-    [sensorDelegate stopAllSensors];
+    [sensorManager stopAllSensors];
 }
 
 - (void)startMeasuring
@@ -485,15 +485,15 @@ static transition transitions[] =
 {
     LOGME
     [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
-    [[sensorDelegate getVideoProvider] setDelegate:nil];
-    [SENSOR_FUSION startSensorFusionWithDevice:[sensorDelegate getVideoDevice]];
+    [[sensorManager getVideoProvider] setDelegate:nil];
+    [SENSOR_FUSION startSensorFusionWithDevice:[sensorManager getVideoDevice]];
 }
 
 - (void)stopSensorFusion
 {
     LOGME
     [SENSOR_FUSION stopSensorFusion];
-    [[sensorDelegate getVideoProvider] setDelegate:self.arView.videoView];
+    [[sensorManager getVideoProvider] setDelegate:self.arView.videoView];
     [[UIApplication sharedApplication] setIdleTimerDisabled:NO];
 }
 

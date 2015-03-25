@@ -53,7 +53,7 @@ static VertexData axisVertex[] = {
 @interface VisualizationController () {
     /* RC3DK */
     RCSensorFusion* sensorFusion;
-    id<RCSensorDelegate> sensorDelegate;
+    RCSensorManager* sensorManager;
     bool isStarted; // Keeps track of whether the start button has been pressed
 
     /* OpenGL */
@@ -97,7 +97,7 @@ static VertexData axisVertex[] = {
 {
     [super viewDidLoad];
 
-    sensorDelegate = [SensorDelegate sharedInstance];
+    sensorManager = [RCSensorManager sharedInstance];
     /* RC3DK Setup */
     sensorFusion = [RCSensorFusion sharedInstance]; // The main class of the 3DK framework
     sensorFusion.delegate = self; // Tells RCSensorFusion where to send data to
@@ -234,7 +234,7 @@ static VertexData axisVertex[] = {
 {
     [state reset];
     [self beginHoldingPeriod];
-    [sensorDelegate startAllSensors];
+    [sensorManager startAllSensors];
     [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
     isStarted = YES;
     statusLabel.text = @"";
@@ -256,7 +256,7 @@ static VertexData axisVertex[] = {
 - (void)stopSensorFusion
 {
     [sensorFusion stopSensorFusion];
-    [sensorDelegate stopAllSensors];
+    [sensorManager stopAllSensors];
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
     [self showInstructions];
     isStarted = NO;

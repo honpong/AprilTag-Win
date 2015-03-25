@@ -14,7 +14,7 @@
 {
     RCSensorFusion* sensorFusion;
     bool isStarted; // Keeps track of whether the start button has been pressed
-    id<RCSensorDelegate> sensorDelegate;
+    RCSensorManager* sensorManager;
 }
 @synthesize startStopButton, distanceText, statusLabel;
 
@@ -22,7 +22,7 @@
 {
     [super viewDidLoad];
 
-    sensorDelegate = [SensorDelegate sharedInstance];
+    sensorManager = [RCSensorManager sharedInstance];
     sensorFusion = [RCSensorFusion sharedInstance]; // The main class of the 3DK framework
     sensorFusion.delegate = self; // Tells RCSensorFusion where to send data to
     
@@ -64,14 +64,14 @@
 {
     isStarted = true;
     [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
-    [sensorDelegate startAllSensors];
+    [sensorManager startAllSensors];
     [[RCSensorFusion sharedInstance] startSensorFusionWithDevice:[[RCAVSessionManager sharedInstance] videoDevice]];
 }
 
 - (void)stopSensorFusion
 {
     [sensorFusion stopSensorFusion];
-    [sensorDelegate stopAllSensors];
+    [sensorManager stopAllSensors];
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
     isStarted = false;
 }

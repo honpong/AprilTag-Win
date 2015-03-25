@@ -8,7 +8,7 @@
 
 #import "AppDelegate.h"
 #import "SLConstants.h"
-#import "RCSensorDelegate.h"
+#import "RCSensorManager.h"
 #import "RCLocationManager.h"
 #import "RC3DK.h"
 #import "RCDebugLog.h"
@@ -30,7 +30,7 @@
 
 @implementation AppDelegate
 {
-    id<RCSensorDelegate> mySensorDelegate;
+    RCSensorManager* sensorManager;
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -57,7 +57,7 @@
     
     [NSURLProtocol registerClass:[RCHttpInterceptor class]];
     
-    mySensorDelegate = [SensorDelegate sharedInstance];
+    sensorManager = [RCSensorManager sharedInstance];
     
     BOOL calibratedFlag = [NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_CALIBRATED];
     BOOL hasCalibration = [SENSOR_FUSION hasCalibrationData];
@@ -125,12 +125,12 @@
 
 - (void)startMotionSensors
 {
-    [mySensorDelegate startMotionSensors];
+    [sensorManager startMotionSensors];
 }
 
 - (void)stopMotionSensors
 {
-    [mySensorDelegate stopAllSensors];
+    [sensorManager stopAllSensors];
 }
 
 - (void) calibrationDidFinish:(UIViewController*)lastViewController

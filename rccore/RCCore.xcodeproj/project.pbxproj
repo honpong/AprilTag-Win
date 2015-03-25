@@ -142,6 +142,8 @@
 		32CBDFCE16D55C3F000B3ADB /* KeychainItemWrapper.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32C4493816D5457C00984BEC /* KeychainItemWrapper.h */; };
 		32CD632316CC015100496D46 /* RCDateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 32CD632216CC015100496D46 /* RCDateFormatter.m */; };
 		32CD632516CC022600496D46 /* RCDateFormatter.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32CD632116CC015100496D46 /* RCDateFormatter.h */; };
+		32CDE6781AC338EE00FB467F /* RCSensorManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32CDE6771AC338EE00FB467F /* RCSensorManager.m */; };
+		32CDE6791AC3398900FB467F /* RCSensorManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32CDE6761AC338EE00FB467F /* RCSensorManager.h */; };
 		32CF88A81A310D220044B17B /* RC3DK.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32CF88981A31066E0044B17B /* RC3DK.h */; };
 		32D83D7319E8629600F20DC4 /* RCModalCoverVerticalTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D83D7219E8629600F20DC4 /* RCModalCoverVerticalTransition.m */; };
 		32D83D7719E862E900F20DC4 /* RCModalCoverVerticalAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D83D7619E862E900F20DC4 /* RCModalCoverVerticalAnimation.m */; };
@@ -171,8 +173,6 @@
 		D38126FC18CA239800E635C3 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = D38126FB18CA239800E635C3 /* GCDAsyncSocket.m */; };
 		D94ECE6D194CC171008F2F9A /* RCGeocoder.m in Sources */ = {isa = PBXBuildFile; fileRef = D94ECE6C194CC171008F2F9A /* RCGeocoder.m */; };
 		D94ECE6F194CCA78008F2F9A /* RCGeocoder.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D94ECE6B194CC171008F2F9A /* RCGeocoder.h */; };
-		D94ECE72194CD626008F2F9A /* RCSensorDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D94ECE71194CD626008F2F9A /* RCSensorDelegate.m */; };
-		D94ECE73194CD653008F2F9A /* RCSensorDelegate.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D94ECE70194CD626008F2F9A /* RCSensorDelegate.h */; };
 		D991D4F719D0D35100CC0195 /* RCVideoFrameProvider.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D90C5A2619D0D1D2002CCC73 /* RCVideoFrameProvider.h */; };
 		D99CE19C19D4992700510B81 /* RCVideoPreviewCRT.m in Sources */ = {isa = PBXBuildFile; fileRef = D99CE19B19D4992700510B81 /* RCVideoPreviewCRT.m */; };
 		D99CE1AC19D4A80B00510B81 /* RCVideoPreviewCRT.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D99CE19A19D4992700510B81 /* RCVideoPreviewCRT.h */; };
@@ -233,10 +233,10 @@
 				32F01D4919DE050F000585FB /* NSLayoutConstraint+RCAutoLayoutDebugging.h in CopyFiles */,
 				32D83D8219E8AD6000F20DC4 /* UIView+RCTappableView.h in CopyFiles */,
 				32D83D7919E864A300F20DC4 /* RCModalCoverVerticalAnimation.h in CopyFiles */,
+				32CDE6791AC3398900FB467F /* RCSensorManager.h in CopyFiles */,
 				32BAC58B19E347680042E345 /* UINavigationController+RCNavConExtensions.h in CopyFiles */,
 				328C7DE219D1FF4C0079BA40 /* RCLocalMoviePlayer.h in CopyFiles */,
 				32F01D4A19DE0512000585FB /* UIView+RCAutoLayoutDebugging.h in CopyFiles */,
-				D94ECE73194CD653008F2F9A /* RCSensorDelegate.h in CopyFiles */,
 				D94ECE6F194CCA78008F2F9A /* RCGeocoder.h in CopyFiles */,
 				D3217E1918BE306F00762A31 /* CaptureFile.h in CopyFiles */,
 				D3217E1718BE2FA700762A31 /* RCCaptureManager.h in CopyFiles */,
@@ -443,6 +443,8 @@
 		32CBDFCB16D55921000B3ADB /* RCConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCConstants.h; sourceTree = "<group>"; };
 		32CD632116CC015100496D46 /* RCDateFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDateFormatter.h; sourceTree = "<group>"; };
 		32CD632216CC015100496D46 /* RCDateFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDateFormatter.m; sourceTree = "<group>"; };
+		32CDE6761AC338EE00FB467F /* RCSensorManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCSensorManager.h; path = ../../SensorManagers/RCSensorManager.h; sourceTree = "<group>"; };
+		32CDE6771AC338EE00FB467F /* RCSensorManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCSensorManager.m; path = ../../SensorManagers/RCSensorManager.m; sourceTree = "<group>"; };
 		32CF88981A31066E0044B17B /* RC3DK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RC3DK.h; sourceTree = "<group>"; };
 		32D83D7119E8629600F20DC4 /* RCModalCoverVerticalTransition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCModalCoverVerticalTransition.h; path = ../../rccore/RCCore/RCModalCoverVerticalTransition.h; sourceTree = "<group>"; };
 		32D83D7219E8629600F20DC4 /* RCModalCoverVerticalTransition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCModalCoverVerticalTransition.m; path = ../../rccore/RCCore/RCModalCoverVerticalTransition.m; sourceTree = "<group>"; };
@@ -476,8 +478,6 @@
 		D90C5A2619D0D1D2002CCC73 /* RCVideoFrameProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RCVideoFrameProvider.h; path = ../../SensorManagers/RCVideoFrameProvider.h; sourceTree = "<group>"; };
 		D94ECE6B194CC171008F2F9A /* RCGeocoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCGeocoder.h; sourceTree = "<group>"; };
 		D94ECE6C194CC171008F2F9A /* RCGeocoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCGeocoder.m; sourceTree = "<group>"; };
-		D94ECE70194CD626008F2F9A /* RCSensorDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCSensorDelegate.h; path = ../../SensorManagers/RCSensorDelegate.h; sourceTree = "<group>"; };
-		D94ECE71194CD626008F2F9A /* RCSensorDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCSensorDelegate.m; path = ../../SensorManagers/RCSensorDelegate.m; sourceTree = "<group>"; };
 		D99CE19A19D4992700510B81 /* RCVideoPreviewCRT.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoPreviewCRT.h; sourceTree = "<group>"; };
 		D99CE19B19D4992700510B81 /* RCVideoPreviewCRT.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoPreviewCRT.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -618,9 +618,9 @@
 		325FC8BF16D6FFFA003A00BE /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				32CDE6761AC338EE00FB467F /* RCSensorManager.h */,
+				32CDE6771AC338EE00FB467F /* RCSensorManager.m */,
 				32F7D56319D49E23002239FF /* RCDebugLog.h */,
-				D94ECE70194CD626008F2F9A /* RCSensorDelegate.h */,
-				D94ECE71194CD626008F2F9A /* RCSensorDelegate.m */,
 				D3217E1118BE2E0100762A31 /* CaptureFile.h */,
 				322B8A8E17DC2AE8008FED6E /* CLPlacemark+RCPlacemark.h */,
 				322B8A8F17DC2AE8008FED6E /* CLPlacemark+RCPlacemark.m */,
@@ -1070,7 +1070,6 @@
 				3207A65B1AC20BFD00792F30 /* RCVideoPreview.m in Sources */,
 				32D83D7719E862E900F20DC4 /* RCModalCoverVerticalAnimation.m in Sources */,
 				3280BB301919B0C300338A38 /* UIView+RCViewFade.m in Sources */,
-				D94ECE72194CD626008F2F9A /* RCSensorDelegate.m in Sources */,
 				D99CE19C19D4992700510B81 /* RCVideoPreviewCRT.m in Sources */,
 				324FF85A18ECB5BE00DC5E7F /* UIView+RCConstraints.m in Sources */,
 				3267A2E916C46D9A001E14C7 /* AFNetworkActivityIndicatorManager.m in Sources */,
@@ -1091,6 +1090,7 @@
 				32C4493B16D5457C00984BEC /* KeychainItemWrapper.m in Sources */,
 				328ACC1416D5953900BC7142 /* RCUser.m in Sources */,
 				32C3892E16DD429100BD995C /* NSString+RCString.m in Sources */,
+				32CDE6781AC338EE00FB467F /* RCSensorManager.m in Sources */,
 				D38126F618CA234200E635C3 /* RCConnectionManager.m in Sources */,
 				3281B0FD174ED5EB0080D07E /* RCDistanceMetric.m in Sources */,
 				3281B100174EDB5C0080D07E /* RCDistanceImperial.m in Sources */,

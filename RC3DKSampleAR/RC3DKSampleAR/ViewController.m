@@ -14,7 +14,7 @@
 {
     RCSensorFusion* sensorFusion;
     bool isStarted; // Keeps track of whether the start button has been pressed
-    id<RCSensorDelegate> sensorDelegate;
+    RCSensorManager* sensorManager;
     RCVideoPreview *videoPreview;
     ARDelegate *arDelegate;
     RCSensorFusionRunState currentRunState;
@@ -27,14 +27,14 @@
     [super viewDidLoad];
     [progressBar setHidden:true];
     
-    sensorDelegate = [SensorDelegate sharedInstance];
+    sensorManager = [RCSensorManager sharedInstance];
     sensorFusion = [RCSensorFusion sharedInstance]; // The main class of the 3DK framework
     sensorFusion.delegate = self; // Tells RCSensorFusion where to send data to
     
     isStarted = false;
     
     videoPreview = [[RCVideoPreview alloc] initWithFrame:self.view.frame];
-    [[sensorDelegate getVideoProvider] setDelegate:videoPreview];
+    [[sensorManager getVideoProvider] setDelegate:videoPreview];
     
     arDelegate = [[ARDelegate alloc] init];
     videoPreview.delegate = arDelegate;
@@ -60,7 +60,7 @@
 
 - (void) handleResume
 {
-    [sensorDelegate startAllSensors];
+    [sensorManager startAllSensors];
     [self setInitialText];
 }
 
@@ -102,7 +102,7 @@
 - (void)startSensorFusion
 {
     isStarted = true;
-    [[sensorDelegate getVideoProvider] setDelegate:nil];
+    [[sensorManager getVideoProvider] setDelegate:nil];
     [[RCSensorFusion sharedInstance] startSensorFusionWithDevice:[[RCAVSessionManager sharedInstance] videoDevice]];
     [progressBar setHidden:false];
 
@@ -115,7 +115,7 @@
 {
     [progressBar setHidden:true];
     [sensorFusion stopSensorFusion];
-    [[sensorDelegate getVideoProvider] setDelegate:videoPreview];
+    [[sensorManager getVideoProvider] setDelegate:videoPreview];
 
     [[RCSensorFusion sharedInstance] stopQRDetection];
 
@@ -205,7 +205,7 @@
 - (void) handlePause
 {
     if(isStarted) [self stopSensorFusion];
-    [sensorDelegate stopAllSensors];
+    [sensorManager stopAllSensors];
 }
 
 @end

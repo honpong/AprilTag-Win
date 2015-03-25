@@ -32,7 +32,7 @@
 		321910B01A52332100AEF550 /* RCAVSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 321910A51A52332100AEF550 /* RCAVSessionManager.m */; };
 		321910B11A52332100AEF550 /* RCLocationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 321910A81A52332100AEF550 /* RCLocationManager.m */; };
 		321910B21A52332100AEF550 /* RCMotionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 321910AA1A52332100AEF550 /* RCMotionManager.m */; };
-		321910B31A52332100AEF550 /* RCSensorDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 321910AC1A52332100AEF550 /* RCSensorDelegate.m */; };
+		321910B31A52332100AEF550 /* RCSensorManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 321910AC1A52332100AEF550 /* RCSensorManager.m */; };
 		321910B41A52332100AEF550 /* RCVideoManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 321910AF1A52332100AEF550 /* RCVideoManager.m */; };
 		321910CF1A52345A00AEF550 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 321910CE1A52345A00AEF550 /* GLKit.framework */; };
 		321910D11A52346000AEF550 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 321910D01A52346000AEF550 /* OpenGLES.framework */; };
@@ -150,8 +150,8 @@
 		321910A81A52332100AEF550 /* RCLocationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCLocationManager.m; sourceTree = "<group>"; };
 		321910A91A52332100AEF550 /* RCMotionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMotionManager.h; sourceTree = "<group>"; };
 		321910AA1A52332100AEF550 /* RCMotionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCMotionManager.m; sourceTree = "<group>"; };
-		321910AB1A52332100AEF550 /* RCSensorDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorDelegate.h; sourceTree = "<group>"; };
-		321910AC1A52332100AEF550 /* RCSensorDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCSensorDelegate.m; sourceTree = "<group>"; };
+		321910AB1A52332100AEF550 /* RCSensorManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorManager.h; sourceTree = "<group>"; };
+		321910AC1A52332100AEF550 /* RCSensorManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCSensorManager.m; sourceTree = "<group>"; };
 		321910AD1A52332100AEF550 /* RCVideoFrameProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoFrameProvider.h; sourceTree = "<group>"; };
 		321910AE1A52332100AEF550 /* RCVideoManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoManager.h; sourceTree = "<group>"; };
 		321910AF1A52332100AEF550 /* RCVideoManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoManager.m; sourceTree = "<group>"; };
@@ -425,8 +425,8 @@
 				321910A81A52332100AEF550 /* RCLocationManager.m */,
 				321910A91A52332100AEF550 /* RCMotionManager.h */,
 				321910AA1A52332100AEF550 /* RCMotionManager.m */,
-				321910AB1A52332100AEF550 /* RCSensorDelegate.h */,
-				321910AC1A52332100AEF550 /* RCSensorDelegate.m */,
+				321910AB1A52332100AEF550 /* RCSensorManager.h */,
+				321910AC1A52332100AEF550 /* RCSensorManager.m */,
 				321910AD1A52332100AEF550 /* RCVideoFrameProvider.h */,
 				321910AE1A52332100AEF550 /* RCVideoManager.h */,
 				321910AF1A52332100AEF550 /* RCVideoManager.m */,
@@ -756,7 +756,7 @@
 				3207A6821AC215D600792F30 /* RCGLManagerFactory.m in Sources */,
 				324752341A5BCB3000A0EC98 /* NSString+RCString.m in Sources */,
 				32E7575C1A9BAAAB004BA247 /* SBJsonUTF8Stream.m in Sources */,
-				321910B31A52332100AEF550 /* RCSensorDelegate.m in Sources */,
+				321910B31A52332100AEF550 /* RCSensorManager.m in Sources */,
 				321910A11A52330F00AEF550 /* RCCalibration2.m in Sources */,
 				32E757561A9BAAAB004BA247 /* SBJsonStreamParserAdapter.m in Sources */,
 				32E757551A9BAAAB004BA247 /* SBJsonStreamParserAccumulator.m in Sources */,

@@ -7,7 +7,7 @@
 //
 
 #import "RC3DKWebController.h"
-#import "RCSensorDelegate.h"
+#import "RCSensorManager.h"
 #import "RCDebugLog.h"
 #import "ARNativeAction.h"
 #import "RCLocationManager.h"
@@ -16,7 +16,7 @@
 
 @implementation RC3DKWebController
 {
-    id<RCSensorDelegate> sensorDelegate;
+    RCSensorManager* sensorManager;
     BOOL useLocation;
     RCSensorFusionStatus* currentStatus;
 }
@@ -42,7 +42,7 @@
     
     useLocation = [LOCATION_MANAGER isLocationExplicitlyAllowed] && [NSUserDefaults.standardUserDefaults boolForKey:PREF_USE_LOCATION];
     
-    sensorDelegate = [SensorDelegate sharedInstance];
+    sensorManager = [RCSensorManager sharedInstance];
     
     _isVideoViewShowing ? [self showVideoView] : [self hideVideoView];
     
@@ -114,7 +114,7 @@
         self.videoView.delegate = self;
         [self.view insertSubview:self.videoView belowSubview:self.webView];
         
-        if (!isSensorFusionRunning) [[sensorDelegate getVideoProvider] setDelegate:self.videoView];
+        if (!isSensorFusionRunning) [[sensorManager getVideoProvider] setDelegate:self.videoView];
         
         _isVideoViewShowing = YES;
     }
@@ -124,7 +124,7 @@
 {
     if (self.videoView)
     {
-        [[sensorDelegate getVideoProvider] setDelegate:nil];
+        [[sensorManager getVideoProvider] setDelegate:nil];
         [self.videoView removeFromSuperview];
         _videoView = nil;
         _isVideoViewShowing = NO;
@@ -162,13 +162,13 @@
 - (void) startSensors
 {
     LOGME
-    [sensorDelegate startAllSensors];
+    [sensorManager startAllSensors];
 }
 
 - (void)stopSensors
 {
     LOGME
-    [sensorDelegate stopAllSensors];
+    [sensorManager stopAllSensors];
 }
 
 - (void)startSensorFusion
@@ -176,9 +176,9 @@
     LOGME
     [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
     SENSOR_FUSION.delegate = self;
-    [[sensorDelegate getVideoProvider] setDelegate:nil];
+    [[sensorManager getVideoProvider] setDelegate:nil];
     if (useLocation) [SENSOR_FUSION setLocation:[LOCATION_MANAGER getStoredLocation]];
-    [SENSOR_FUSION startSensorFusionWithDevice:[sensorDelegate getVideoDevice]];
+    [SENSOR_FUSION startSensorFusionWithDevice:[sensorManager getVideoDevice]];
     isSensorFusionRunning = YES;
 }
 
@@ -186,7 +186,7 @@
 {
     LOGME
     [SENSOR_FUSION stopSensorFusion];
-    [[sensorDelegate getVideoProvider] setDelegate:self.videoView];
+    [[sensorManager getVideoProvider] setDelegate:self.videoView];
     [[UIApplication sharedApplication] setIdleTimerDisabled:NO];
     isSensorFusionRunning = NO;
 }

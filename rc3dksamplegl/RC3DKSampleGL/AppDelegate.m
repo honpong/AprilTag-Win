@@ -16,7 +16,7 @@
 @implementation AppDelegate
 {
     UIViewController * mainViewController;
-    id<RCSensorDelegate> mySensorDelegate;
+    RCSensorManager* sensorManager;
     RCLocationManager * locationManager;
 }
 
@@ -33,7 +33,7 @@
     [[RCSensorFusion sharedInstance] setLicenseKey:SDK_LICENSE_KEY];
 
     // Create a sensor delegate to manage the sensors
-    mySensorDelegate = [SensorDelegate sharedInstance];
+    sensorManager = [RCSensorManager sharedInstance];
     locationManager = [RCLocationManager sharedInstance];
 
     // save a reference to the main view controller. we use this after calibration has finished.
@@ -96,12 +96,12 @@
 
 - (void)startMotionSensors
 {
-    [mySensorDelegate startMotionSensors];
+    [sensorManager startMotionSensors];
 }
 
 - (void)stopMotionSensors
 {
-    [mySensorDelegate stopAllSensors];
+    [sensorManager stopAllSensors];
 }
 
 - (void) calibrationDidFinish:(UIViewController*)lastViewController

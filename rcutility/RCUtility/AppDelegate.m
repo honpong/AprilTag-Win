@@ -16,7 +16,6 @@
 @implementation AppDelegate
 {
     UIViewController * mainView;
-    id<RCSensorDelegate> sensorDelegate;
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -27,8 +26,6 @@
     [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
 
     mainView = self.window.rootViewController;
-    sensorDelegate = [SensorDelegate sharedInstance];
-    [sensorDelegate startLocationUpdatesIfAllowed];
 
     // determine if calibration has been done
     BOOL isCalibrated = [[NSUserDefaults standardUserDefaults] boolForKey:PREF_IS_CALIBRATED]; // gets set to YES when calibration completes
@@ -57,12 +54,11 @@
 
 - (void) startFromCalibration
 {
-    RCCalibration1 *calibration1 = [RCCalibration1 instantiateViewController];
-    calibration1.calibrationDelegate = self;
-    calibration1.sensorDelegate = sensorDelegate;
-    
-    calibration1.modalPresentationStyle = UIModalPresentationFullScreen;
-    self.window.rootViewController = calibration1;
+    UIStoryboard* calStoryboard = [UIStoryboard storyboardWithName:@"Calibration" bundle:[NSBundle mainBundle]];
+    RCCalibration1 * vc = [calStoryboard instantiateViewControllerWithIdentifier:@"Calibration1"];
+    vc.calibrationDelegate = self;
+    vc.modalPresentationStyle = UIModalPresentationFullScreen;
+    self.window.rootViewController = vc;
 }
 
 - (void) startFromCapture
@@ -93,6 +89,19 @@
     NSURL *fileUrl = [documentURL URLByAppendingPathComponent:filename];
 
     return fileUrl;
+}
+
+#pragma mark - RCCalibrationDelegate
+
+
+- (void)startMotionSensors
+{
+    [[RCMotionManager sharedInstance] startMotionCapture];
+}
+
+- (void)stopMotionSensors
+{
+    [[RCMotionManager sharedInstance] stopMotionCapture];
 }
 
 - (void) calibrationDidFinish:(UIViewController*)lastViewController

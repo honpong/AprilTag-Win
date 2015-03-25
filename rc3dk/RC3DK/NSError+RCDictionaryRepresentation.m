@@ -14,7 +14,7 @@
 {
     NSDictionary* dict = @{
                            @"class": [self.class description],
-                           @"code": self.code,
+                           @"code": @(self.code),
                            @"description": self.description
                            };
     return dict;

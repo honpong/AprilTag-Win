@@ -14,28 +14,6 @@
 //Uncomment this line to show the origin / axes of the coordinate system
 //#define SHOW_AXES
 
-#pragma mark - Shader source
-
-static const char *vertSrc = SHADER_STRINGIFY(
-                                              attribute vec4 position;
-                                              
-                                              uniform mat4 projection_matrix;
-                                              uniform mat4 camera_matrix;
-                                              uniform mat4 model_matrix;
-                                              
-void main()
-{
-    gl_Position = projection_matrix * camera_matrix * model_matrix * position;
-});
-
-static const GLchar *fragSrc = SHADER_STRINGIFY(
-void main()
-{
-    gl_FragColor = vec4(0., 0., 0., .2);
-});
-
-#pragma mark - ARDelegate
-
 @implementation ARDelegate
 {
     RCGLShaderProgram *program;
@@ -61,15 +39,6 @@ void main()
     return self;
 }
 
-const static GLfloat squarevertex[] = {
-    -.5, -.5, 0.,
-    .5, -.5, 0.,
-    -.5, .5, 0.,
-    .5, .5, 0.,
-    -.5, .5, 0.,
-    .5, -.5, 0.
-};
-
 - (void)renderWithSensorFusionData:(RCSensorFusionData *)data withCameraToScreenMatrix:(GLKMatrix4)cameraToScreen
 {
     if(!data.cameraParameters || !data.cameraTransformation) return;
@@ -86,8 +55,6 @@ const static GLfloat squarevertex[] = {
     glUniform4f([program getUniformLocation:@"light_diffuse"], .8, .8, .8, 1);
     glUniform4f([program getUniformLocation:@"light_specular"], .8, .8, .8, 1);
     
-//    glUniform4f([program getUniformLocation:@"material_ambient"], 1., 0., 0., 1);
-//    glUniform4f([program getUniformLocation:@"material_diffuse"], 0., 0., 0., 1);
     glUniform4f([program getUniformLocation:@"material_specular"], 1., 1., 1., 1);
     glUniform1f([program getUniformLocation:@"material_shininess"], 200.);
 
@@ -109,8 +76,6 @@ const static GLfloat squarevertex[] = {
     glDrawArrays(GL_LINES, 0, 2);
 #endif
     
-//    glUniform4f([program getUniformLocation:@"material_ambient"], 0.25, 0.125, .05, 1);
-//    glUniform4f([program getUniformLocation:@"material_diffuse"], 0.25, 0.125, .05, 1);
     glUniform4f([program getUniformLocation:@"material_specular"], .1, .1, .1, 1);
     glUniform1f([program getUniformLocation:@"material_shininess"], 20.);
     
@@ -119,17 +84,9 @@ const static GLfloat squarevertex[] = {
     
     if(data.originQRCode == nil)
     {
-        //Place it 1/2 meter in front of the initial camera position
-        /*[initialCamera getOpenGLMatrix:model.m];
-        model = GLKMatrix4Translate(model, 0, 0, .5);
-        GLKMatrix4 inverseInitialCameraRotation;
-        [[initialCamera.rotation getInverse] getOpenGLMatrix:inverseInitialCameraRotation.m];
-        model = GLKMatrix4Multiply(model, inverseInitialCameraRotation);*/
         model = GLKMatrix4Translate(model, 0., 1.5, -1.5);
     }
     
-    //Position it at the origin
-    //model = GLKMatrix4Translate(model, 0., 0., 0.);
     //Scale our model so it's 10 cm on a side
     model = GLKMatrix4Scale(model, 1.1, 1.1, 1.1);
     model = GLKMatrix4Translate(model, 0., 0., .5);
@@ -155,25 +112,6 @@ const static GLfloat squarevertex[] = {
     glDisableVertexAttribArray([program getAttribLocation:@"position"]);
     glDisableVertexAttribArray([program getAttribLocation:@"normal"]);
     glDisableVertexAttribArray([program getAttribLocation:@"texture_coordinate"]);
-    
-    
-    /*glUseProgram(shadowprogram.program);
-    
-    model = GLKMatrix4Identity;
-    model = GLKMatrix4Translate(model, 0., 1.5, -1.5);
-    model = GLKMatrix4Scale(model, .66, .66, .66);
-    
-    glEnableVertexAttribArray([shadowprogram getAttribLocation:@"position"]);
-    glUniformMatrix4fv([shadowprogram getUniformLocation:@"camera_matrix"], 1, false, camera.m);
-    glUniformMatrix4fv([shadowprogram getUniformLocation:@"model_matrix"], 1, false, model.m);
-    glUniformMatrix4fv([shadowprogram getUniformLocation:@"projection_matrix"], 1, false, cameraToScreen.m);
-
-    glVertexAttribPointer([shadowprogram getAttribLocation:@"position"], 3, GL_FLOAT, 0, 0, squarevertex);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
-    glEnableVertexAttribArray([shadowprogram getAttribLocation:@"position"]);*/
-    
-
-
 }
 
 

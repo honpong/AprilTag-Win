@@ -17,7 +17,6 @@
 @implementation ARDelegate
 {
     RCGLShaderProgram *program;
-    //RCGLShaderProgram *shadowprogram;
     GLKTextureInfo *texture;
 }
 
@@ -31,10 +30,6 @@
         [program buildWithVertexFileName:@"shader.vsh" withFragmentFileName:@"shader.fsh"];
         
         texture = [GLKTextureLoader textureWithContentsOfFile:[[NSBundle mainBundle] pathForResource:@"chair_chesterfield_d.png" ofType: nil] options:NULL error:NULL];
-
-        //shadowprogram = [[RCGLShaderProgram alloc] init];
-        //[shadowprogram buildWithVertexSource:vertSrc withFragmentSource:fragSrc];
-
     }
     return self;
 }

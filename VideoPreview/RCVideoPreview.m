@@ -174,10 +174,14 @@ void main()
                         //call AR delegate
                         GLKMatrix4 perspective = [weakSelf getPerspectiveMatrixWithCameraParameters:localData.cameraParameters withNear:.01 withFar:100.];
                         GLKMatrix4 camera_screen = [weakSelf getScreenRotationForOrientation:self.orientation];
-                        [weakSelf endFrame];
                         
                         if([weakSelf.delegate respondsToSelector:@selector(renderWithSensorFusionData:withCameraToScreenMatrix:)])
                             [weakSelf.delegate renderWithSensorFusionData:localData withCameraToScreenMatrix:GLKMatrix4Multiply(camera_screen, perspective)];
+                        [weakSelf endFrame];
+                        if([weakSelf.delegate respondsToSelector:@selector(didRenderWithSensorFusionData:withCameraToScreenMatrix:)])
+                            [weakSelf.delegate didRenderWithSensorFusionData:localData withCameraToScreenMatrix:GLKMatrix4Multiply(camera_screen, perspective)];
+
+
                     }
                 }
                 CFRelease(pixBuf);

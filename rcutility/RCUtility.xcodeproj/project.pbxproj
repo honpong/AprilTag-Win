@@ -72,7 +72,6 @@
 		32D9863718EB747100CFCB7A /* RCCalibration2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration2.m; sourceTree = "<group>"; };
 		32D9863818EB747100CFCB7A /* RCCalibration3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration3.h; sourceTree = "<group>"; };
 		32D9863918EB747100CFCB7A /* RCCalibration3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration3.m; sourceTree = "<group>"; };
-		32D9864218EB750E00CFCB7A /* RCConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = RCConstants.h; sourceTree = "<group>"; };
 		D310779C18B3A74300722B92 /* ReplayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplayViewController.h; sourceTree = "<group>"; };
 		D310779D18B3A74300722B92 /* ReplayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReplayViewController.m; sourceTree = "<group>"; };
 		D31419A218BBB0E100C29E28 /* MainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainViewController.h; sourceTree = "<group>"; };
@@ -200,7 +199,6 @@
 				D31419A318BBB0E100C29E28 /* MainViewController.m */,
 				D3A6AACF18CDDE5C0075AA78 /* RoundedButton.h */,
 				D3A6AAD018CDDE5C0075AA78 /* RoundedButton.m */,
-				32D9864218EB750E00CFCB7A /* RCConstants.h */,
 				D3C573791A77BAD100F05746 /* RC3DK.h */,
 				D33A23FE17F58700003ACD42 /* Images.xcassets */,
 				D33A23EA17F58700003ACD42 /* Supporting Files */,

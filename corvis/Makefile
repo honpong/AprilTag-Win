@@ -255,6 +255,10 @@ TARGETS := $(TARGETS) bin/test
 
 TARGETS := $(TARGETS) bin/__init__.py
 
+TARGETS := $(TARGETS) __init__.py
+__init__.py: bin/corvis/_cor.so bin/corvis/_filter.so bin/corvis/_numerics.so
+	$(Q)cd .. && python -c 'import corvis'
+
 DEPS := $(DEPS) $(patsubst src/%,build/%, $(SOURCES:.c=.o.d) $(CXX_SOURCES:.cpp=.o.d)) build/test/gtest_main.o.d build/test/gtest-all.o.d $(patsubst test/%,build/test/%, $(TEST_CXX_SOURCES:.cpp=.o.d))
 
 all: $(TARGETS)

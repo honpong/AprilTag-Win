@@ -306,8 +306,8 @@ packet_t * packet_read(FILE * file)
         isRunning = TRUE;
 
         // Reset device calibration
-        NSLog(@"Reset device calibration");
-        [[NSUserDefaults standardUserDefaults] removeObjectForKey:PREF_DEVICE_PARAMS];
+        //NSLog(@"Reset device calibration");
+        //[[NSUserDefaults standardUserDefaults] removeObjectForKey:PREF_DEVICE_PARAMS];
 
         // Initialize sensor fusion.
         sensorFusion = [RCSensorFusion sharedInstance];

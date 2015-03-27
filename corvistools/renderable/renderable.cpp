@@ -9,7 +9,7 @@ extern "C" {
 }
 #include "renderable.h"
 
-const static int point_size = 2.;
+const static int point_size = 3.;
 const static float line_width = 3;
 
 void structure::new_point(float x, float y, float z)

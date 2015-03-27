@@ -565,10 +565,11 @@ void observation_accelerometer::project_covariance(matrix &dst, const matrix &sr
 
 bool observation_accelerometer::measure()
 {
-    stdev.data(v4(meas[0], meas[1], meas[2], 0.));
+    v4 g(meas[0], meas[1], meas[2], 0);
+    stdev.data(g);
     if(!state.orientation_initialized)
     {
-        state.W.v = to_rotation_vector(initial_orientation_from_gravity(meas));
+        state.W.v = to_rotation_vector(initial_orientation_from_gravity(g));
         state.orientation_initialized = true;
         return false;
     } else return observation_spatial::measure();

@@ -7,7 +7,6 @@
 //
 
 #import "RCReplayManager.h"
-#define DISPATCH_SDK 1
 #define PREF_DEVICE_PARAMS @"DeviceCalibration"
 
 @interface RCReplayManager () {

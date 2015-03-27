@@ -4,20 +4,19 @@
 #include "quaternion.h"
 #include "utils.h"
 
-static void check_initial_orientation_from_gravity(v4 gravity)
+static void check_initial_orientation_from_gravity(const v4 gravity, const v4 facing)
 {
-    v4 facing(0,1,0,0);
     v4 camera(0,0,-1,0), z(0,0,1,0), facing_perp(-facing[1], facing[0], 0, 0);
-    quaternion q = initial_orientation_from_gravity(gravity);
+    quaternion q = initial_orientation_from_gravity_facing(gravity, facing);
 
     // gravity should point in the z direction
-    test_v4_near(normalize(quaternion_rotate(q, gravity)), z, 2*F_T_EPS);
+    test_v4_near(normalize(quaternion_rotate(q, gravity)), z, 4*F_T_EPS);
 
     // the camera should be aligned with facing
     EXPECT_GE(dot(quaternion_rotate(q, camera), facing), 0);
 
     // and have no conponent in the facing_perp direction
-    EXPECT_NEAR(dot(quaternion_rotate(q, camera), facing_perp), 0, 2*F_T_EPS);
+    EXPECT_NEAR(dot(quaternion_rotate(q, camera), facing_perp), 0, 4*F_T_EPS);
 }
 
 TEST(Filter, InitialOrientation)
@@ -51,5 +50,6 @@ TEST(Filter, InitialOrientation)
     };
 
     for (v4 g : gravities)
-        check_initial_orientation_from_gravity(g);
+        for (int i=0; i<10; i++)
+            check_initial_orientation_from_gravity(g, v4(cos(i*2*M_PI/10), sin(i*2*M_PI/10), 0, 0));
 }

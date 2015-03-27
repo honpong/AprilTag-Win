@@ -238,9 +238,6 @@ packet_t * packet_read(FILE * file)
     struct timeval time_started, now;
     gettimeofday(&time_started, NULL);
 
-    //kCVPixelFormatType_OneComponent8
-    //kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange
-
     pixelBufferAttributes = CFBridgingRetain(@{(id)kCVPixelBufferWidthKey: @640.0f,
                                               (id)kCVPixelBufferHeightKey: @480.0f,
                                               (id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_OneComponent8)});

@@ -96,6 +96,7 @@ class structure: public renderable {
     vector<point> features;
     vector<point> current;
     vector<struct color> colors;
+    vector<struct color> current_colors;
  public:
     point3d_vector_t get_features();
     void render();

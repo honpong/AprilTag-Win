@@ -9,6 +9,17 @@
 #import "RCReplayManager.h"
 #define PREF_DEVICE_PARAMS @"DeviceCalibration"
 
+// TODO: Unify this with RCSensorFusion.mm get_timestamp which should probably be moved to a platform specific place as part of the porting branch
+#include <mach/mach_time.h>
+uint64_t get_timestamp()
+{
+    static mach_timebase_info_data_t s_timebase_info;
+    if (s_timebase_info.denom == 0) {
+        mach_timebase_info(&s_timebase_info);
+    }
+    return mach_absolute_time() * s_timebase_info.numer / s_timebase_info.denom / 1000;
+}
+
 @interface RCReplayManager () {
     NSFileHandle * replayFile;
     RCSensorFusion * sensorFusion;
@@ -234,9 +245,8 @@ packet_t * packet_read(FILE * file)
 
 - (void)replayLoop
 {
-    uint64_t first_timestamp;
-    struct timeval time_started, now;
-    gettimeofday(&time_started, NULL);
+    uint64_t first_timestamp, realtime_offset;
+    uint64_t time_started, now;
 
     pixelBufferAttributes = CFBridgingRetain(@{(id)kCVPixelBufferWidthKey: @640.0f,
                                               (id)kCVPixelBufferHeightKey: @480.0f,
@@ -247,6 +257,15 @@ packet_t * packet_read(FILE * file)
     packet_header_t * packetHeader = (packet_header_t *)headerData.bytes;
     first_timestamp = packetHeader->time;
     NSLog(@"First_timestamp %llu", packetHeader->time);
+    time_started = get_timestamp();
+    now = time_started;
+
+    // filter->ignore_lateness is not set on realtime replay, so we must adjust
+    // the timestamps to be relative to the current system time
+    realtime_offset = 0;
+    if(isRealtime)
+        realtime_offset = now - first_timestamp;
+
     while (isRunning && headerData.length == 16) {
         NSData * packetData = [replayFile readDataOfLength:(packetHeader->bytes - 16)];
         if(packetData.length != packetHeader->bytes - 16) {
@@ -258,17 +277,15 @@ packet_t * packet_read(FILE * file)
         memcpy(&packet->header, headerData.bytes, 16);
         memcpy(packet->data, packetData.bytes, packetHeader->bytes - 16);
 
-        gettimeofday(&now,NULL);
-        // Camera packets can appear after imu packets because they take longer to acquire
-        if(packet->header.time < first_timestamp)
-            first_timestamp = packet->header.time;
+        // Adjust the time of the packet to be consistent with the start time of replay
+        packet->header.time += realtime_offset;
 
-        uint64_t delta_packet = packet->header.time - first_timestamp;
-        uint64_t delta_now = (now.tv_sec*1e6 + now.tv_usec) - (time_started.tv_sec*1e6 + time_started.tv_usec);
-        float delta_seconds = (1.*delta_packet - delta_now)/1e6;
-        if(isRealtime && delta_packet > delta_now) {
+        now = get_timestamp();
+        float delta_seconds = (1.*packet->header.time - now)/1e6;
+        if(isRealtime && delta_seconds > 0) {
             [NSThread sleepForTimeInterval:delta_seconds];
         }
+
 
         [self dispatchNextPacket:packet];
         free(packet);

@@ -13,7 +13,7 @@
 #import <AVFoundation/AVFoundation.h>
 #import <QuickstartKit/QuickstartKit.h>
 
-@interface ARDelegate : NSObject <RCVideoPreviewDelegate>
+@interface ARRenderer : NSObject <RCVideoPreviewDelegate>
 
 @property RCTransformation *initialCamera;
 

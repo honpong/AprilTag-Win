@@ -34,7 +34,7 @@
 		D90145EF19F9A23E004E7CE2 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D90145DC19F9A23E004E7CE2 /* SystemConfiguration.framework */; };
 		D90145F019F9A23E004E7CE2 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D90145DD19F9A23E004E7CE2 /* UIKit.framework */; };
 		D90145F119F9A23E004E7CE2 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D90145DE19F9A23E004E7CE2 /* CoreGraphics.framework */; };
-		D901460819F9C2D8004E7CE2 /* ARDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D901460719F9C2D8004E7CE2 /* ARDelegate.m */; };
+		D901460819F9C2D8004E7CE2 /* ARRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = D901460719F9C2D8004E7CE2 /* ARRenderer.m */; };
 		D912167A1A83360D008E5356 /* chair_chesterfield_d.png in Resources */ = {isa = PBXBuildFile; fileRef = D91216791A83360D008E5356 /* chair_chesterfield_d.png */; };
 		D963096B1A01BC9800F92929 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D963096A1A01BC9800F92929 /* GLKit.framework */; };
 		D9AA84BD1A042DBE004C61D0 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = D9AA84BC1A042DBE004C61D0 /* Default-568h@2x.png */; };
@@ -103,8 +103,8 @@
 		D90145DC19F9A23E004E7CE2 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = "<absolute>"; };
 		D90145DD19F9A23E004E7CE2 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = "<absolute>"; };
 		D90145DE19F9A23E004E7CE2 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/System/Library/Frameworks/CoreGraphics.framework; sourceTree = "<absolute>"; };
-		D901460619F9C2D8004E7CE2 /* ARDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARDelegate.h; sourceTree = "<group>"; };
-		D901460719F9C2D8004E7CE2 /* ARDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARDelegate.m; sourceTree = "<group>"; };
+		D901460619F9C2D8004E7CE2 /* ARRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARRenderer.h; sourceTree = "<group>"; };
+		D901460719F9C2D8004E7CE2 /* ARRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARRenderer.m; sourceTree = "<group>"; };
 		D91216791A83360D008E5356 /* chair_chesterfield_d.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = chair_chesterfield_d.png; sourceTree = "<group>"; };
 		D963096A1A01BC9800F92929 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		D9AA84BC1A042DBE004C61D0 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
@@ -189,8 +189,8 @@
 				D90145C719F9A184004E7CE2 /* LicenseHelper.m */,
 				D901456B19F9A00F004E7CE2 /* ViewController.h */,
 				D901456C19F9A00F004E7CE2 /* ViewController.m */,
-				D901460619F9C2D8004E7CE2 /* ARDelegate.h */,
-				D901460719F9C2D8004E7CE2 /* ARDelegate.m */,
+				D901460619F9C2D8004E7CE2 /* ARRenderer.h */,
+				D901460719F9C2D8004E7CE2 /* ARRenderer.m */,
 				D9D66FF21A86C15C00764F9A /* chair_chesterfield.h */,
 				D901456E19F9A00F004E7CE2 /* Main.storyboard */,
 				D901457119F9A00F004E7CE2 /* Images.xcassets */,
@@ -339,7 +339,7 @@
 				D901456A19F9A00F004E7CE2 /* AppDelegate.m in Sources */,
 				D90145C819F9A184004E7CE2 /* LicenseHelper.m in Sources */,
 				D901456719F9A00F004E7CE2 /* main.m in Sources */,
-				D901460819F9C2D8004E7CE2 /* ARDelegate.m in Sources */,
+				D901460819F9C2D8004E7CE2 /* ARRenderer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

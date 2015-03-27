@@ -6,7 +6,7 @@
 //  Copyright (c) 2014 RealityCap. All rights reserved.
 //
 
-#import "ARDelegate.h"
+#import "ARRenderer.h"
 #import <QuartzCore/CAEAGLLayer.h>
 #import <QuickstartKit/QuickstartKit.h>
 #include "chair_chesterfield.h"
@@ -14,7 +14,7 @@
 //Uncomment this line to show the origin / axes of the coordinate system
 //#define SHOW_AXES
 
-@implementation ARDelegate
+@implementation ARRenderer
 {
     RCGLShaderProgram *program;
     GLKTextureInfo *texture;

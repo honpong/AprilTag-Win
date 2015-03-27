@@ -8,7 +8,7 @@
 
 #import "ViewController.h"
 #import "LicenseHelper.h"
-#import "ARDelegate.h"
+#import "ARRenderer.h"
 
 @implementation ViewController
 {
@@ -16,7 +16,7 @@
     bool isStarted; // Keeps track of whether the start button has been pressed
     RCSensorManager* sensorManager;
     RCVideoPreview *videoPreview;
-    ARDelegate *arDelegate;
+    ARRenderer *arDelegate;
     RCSensorFusionRunState currentRunState;
 }
 
@@ -36,7 +36,7 @@
     videoPreview = [[RCVideoPreview alloc] initWithFrame:self.view.frame];
     [[sensorManager getVideoProvider] setDelegate:videoPreview];
     
-    arDelegate = [[ARDelegate alloc] init];
+    arDelegate = [[ARRenderer alloc] init];
     videoPreview.delegate = arDelegate;
 
     [self.view addSubview:videoPreview];

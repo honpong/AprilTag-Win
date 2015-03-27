@@ -34,8 +34,8 @@
         LOGME
         
         AVCaptureVideoDataOutput* avOutput = [[AVCaptureVideoDataOutput alloc] init];
-        [output setAlwaysDiscardsLateVideoFrames:YES];
-        [output setVideoSettings:@{(id)kCVPixelBufferPixelFormatTypeKey: [NSNumber numberWithInt:'420f']}];
+        [avOutput setAlwaysDiscardsLateVideoFrames:YES];
+        [avOutput setVideoSettings:@{(id)kCVPixelBufferPixelFormatTypeKey: [NSNumber numberWithInt:'420f']}];
         
         [self setupWithSession:avSession withOutput:avOutput];
     });

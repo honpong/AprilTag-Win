@@ -30,17 +30,63 @@
     [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:handler];
 }
 
-
-+ (void)configureCameraForFrameRate:(AVCaptureDevice *)capdevice withMaxFrameRate:(int)rate withWidth:(int)width withHeight:(int)height
+- (void)configureCameraForFrameRate:(AVCaptureDevice *)capdevice withMaxFrameRate:(int)rate withWidth:(int)width withHeight:(int)height
 {
     CMTime minFrameDuration = CMTimeMake(1, rate);
     AVCaptureDeviceFormat *bestFormat = nil;
     AVFrameRateRange *bestFrameRateRange = nil;
+
+    NSMutableArray *possibleFormats = [[NSMutableArray alloc] init];
+    AVCaptureDeviceFormat *vga = nil;
+
+    //Identify VGA mode and get resolution / 420f matches
     for ( AVCaptureDeviceFormat *format in [capdevice formats] ) {
         CMVideoDimensions sz = CMVideoFormatDescriptionGetDimensions(format.formatDescription);
-        if(sz.height != height || sz.width != width)
+        FourCharCode fcc = CMVideoFormatDescriptionGetCodecType(format.formatDescription);
+        if(sz.width == 640 && sz.height == 480 && fcc == '420f')
+        {
+            //Find the highest FOV vga format
+            if(vga != nil)
+            {
+                if(format.videoFieldOfView > vga.videoFieldOfView) vga = format;
+            }
+            else
+            {
+                vga = format;
+            }
+        }
+        if(sz.height != height || sz.width != width || fcc != '420f')
             continue;
+        [possibleFormats addObject:format];
+    }
+    
+    NSMutableArray *fovFormats = [[NSMutableArray alloc] init];
+    for ( AVCaptureDeviceFormat *format in possibleFormats ) {
+        if(format.videoFieldOfView == vga.videoFieldOfView) [fovFormats addObject:format];
+    }
+    possibleFormats = fovFormats;
+    
+    NSMutableArray *binnedFormats = [[NSMutableArray alloc] init];
+    for ( AVCaptureDeviceFormat *format in possibleFormats ) {
+        if(!format.isVideoBinned)
+            continue;
+        [binnedFormats addObject:format];
+    }
+    if(binnedFormats.count > 0) possibleFormats = binnedFormats;
+    
+    NSMutableArray *rateFormats = [[NSMutableArray alloc] init];
+    for ( AVCaptureDeviceFormat *format in possibleFormats ) {
+        for ( AVFrameRateRange *range in format.videoSupportedFrameRateRanges ) {
+            if(range.maxFrameRate >= rate && range.minFrameRate <= rate)
+            {
+                [rateFormats addObject:format];
+                break;
+            }
+        }
+    }
+    if(rateFormats.count > 0) possibleFormats = rateFormats;
 
+    for ( AVCaptureDeviceFormat *format in possibleFormats ) {
         for ( AVFrameRateRange *range in format.videoSupportedFrameRateRanges ) {
             if ( range.maxFrameRate > bestFrameRateRange.maxFrameRate ) {
                 bestFormat = format;
@@ -48,7 +94,9 @@
             }
         }
     }
+    
     if ( bestFormat ) {
+        DLog(@"Best format found:\n%@", bestFormat.description);
         if ( [capdevice lockForConfiguration:NULL] == YES ) {
             // If our desired rate is faster than the fastest rate we can set then
             // use the fastest one we can set instead
@@ -59,6 +107,11 @@
             capdevice.activeVideoMaxFrameDuration = minFrameDuration;
             [capdevice unlockForConfiguration];
         }
+    }
+    else
+    {
+        DLog(@"Format not found, defaulting to 640x480 preset.");
+        [session setSessionPreset:AVCaptureSessionPreset640x480];
     }
 }
 
@@ -81,7 +134,7 @@
         
         session = [[AVCaptureSession alloc] init];
         
-        [session setSessionPreset:AVCaptureSessionPreset640x480]; // 640x480 required
+        [session setSessionPreset:AVCaptureSessionPresetInputPriority]; // 640x480 required
         
         hasInput = false;
     }
@@ -99,20 +152,6 @@
 {
     videoDevice = [self cameraWithPosition:AVCaptureDevicePositionBack];
 
-    if ([videoDevice lockForConfiguration:nil]) {
-        if([videoDevice isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus])
-            [videoDevice setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
-        if([videoDevice isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure])
-            [videoDevice setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
-        if([videoDevice isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance])
-            [videoDevice setWhiteBalanceMode:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance];
-        [videoDevice unlockForConfiguration];
-        [RCAVSessionManager configureCameraForFrameRate:videoDevice withMaxFrameRate:30 withWidth:640 withHeight:480];
-    } else {
-        DLog(@"error while configuring camera");
-        return;
-    }
-    
     if (videoDevice)
     {
         NSError *error;
@@ -129,6 +168,20 @@
     else
     {
         DLog(@"Couldn't get video device");
+        return;
+    }
+
+    if ([videoDevice lockForConfiguration:nil]) {
+        if([videoDevice isFocusModeSupported:AVCaptureFocusModeContinuousAutoFocus])
+            [videoDevice setFocusMode:AVCaptureFocusModeContinuousAutoFocus];
+        if([videoDevice isExposureModeSupported:AVCaptureExposureModeContinuousAutoExposure])
+            [videoDevice setExposureMode:AVCaptureExposureModeContinuousAutoExposure];
+        if([videoDevice isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance])
+            [videoDevice setWhiteBalanceMode:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance];
+        [videoDevice unlockForConfiguration];
+        [self configureCameraForFrameRate:videoDevice withMaxFrameRate:30 withWidth:640 withHeight:480];
+    } else {
+        DLog(@"error while configuring camera");
         return;
     }
 }

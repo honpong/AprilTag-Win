@@ -267,35 +267,37 @@ packet_t * packet_read(FILE * file)
         realtime_offset = now - first_timestamp;
 
     while (isRunning && headerData.length == 16) {
-        NSData * packetData = [replayFile readDataOfLength:(packetHeader->bytes - 16)];
-        if(packetData.length != packetHeader->bytes - 16) {
-            NSLog(@"ERROR: Malformed packet");
-            break;
+        @autoreleasepool {
+            NSData * packetData = [replayFile readDataOfLength:(packetHeader->bytes - 16)];
+            if(packetData.length != packetHeader->bytes - 16) {
+                NSLog(@"ERROR: Malformed packet");
+                break;
+            }
+
+            packet_t * packet = (packet_t *)malloc(packetHeader->bytes);
+            memcpy(&packet->header, headerData.bytes, 16);
+            memcpy(packet->data, packetData.bytes, packetHeader->bytes - 16);
+
+            // Adjust the time of the packet to be consistent with the start time of replay
+            packet->header.time += realtime_offset;
+
+            now = get_timestamp();
+            float delta_seconds = (1.*packet->header.time - now)/1e6;
+            if(isRealtime && delta_seconds > 0) {
+                [NSThread sleepForTimeInterval:delta_seconds];
+            }
+
+
+            [self dispatchNextPacket:packet];
+            free(packet);
+
+            bytesDispatched += packetHeader->bytes;
+            packetsDispatched++;
+            [self updateProgressWithBytes:bytesDispatched];
+
+            headerData = [replayFile readDataOfLength:16];
+            packetHeader = (packet_header_t *)headerData.bytes;
         }
-
-        packet_t * packet = (packet_t *)malloc(packetHeader->bytes);
-        memcpy(&packet->header, headerData.bytes, 16);
-        memcpy(packet->data, packetData.bytes, packetHeader->bytes - 16);
-
-        // Adjust the time of the packet to be consistent with the start time of replay
-        packet->header.time += realtime_offset;
-
-        now = get_timestamp();
-        float delta_seconds = (1.*packet->header.time - now)/1e6;
-        if(isRealtime && delta_seconds > 0) {
-            [NSThread sleepForTimeInterval:delta_seconds];
-        }
-
-
-        [self dispatchNextPacket:packet];
-        free(packet);
-
-        bytesDispatched += packetHeader->bytes;
-        packetsDispatched++;
-        [self updateProgressWithBytes:bytesDispatched];
-
-        headerData = [replayFile readDataOfLength:16];
-        packetHeader = (packet_header_t *)headerData.bytes;
     }
     NSLog(@"Dispatched %d packets %.2f Mbytes", packetsDispatched, bytesDispatched/1.e6);
 }

@@ -133,7 +133,7 @@
 
 #pragma mark - RCVideoPreviewDelegate
 
-- (void)renderWithSensorFusionData:(RCSensorFusionData *)data withCameraToScreenMatrix:(GLKMatrix4)cameraToScreen
+- (void)didRenderWithSensorFusionData:(RCSensorFusionData *)data withCameraToScreenMatrix:(GLKMatrix4)cameraToScreen
 {
     if (currentStatus.runState == RCSensorFusionRunStateRunning)
     {

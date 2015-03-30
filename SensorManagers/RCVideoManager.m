@@ -34,9 +34,6 @@
         LOGME
         
         AVCaptureVideoDataOutput* avOutput = [[AVCaptureVideoDataOutput alloc] init];
-        [output setAlwaysDiscardsLateVideoFrames:YES];
-        [output setVideoSettings:@{(id)kCVPixelBufferPixelFormatTypeKey: [NSNumber numberWithInt:'420f']}];
-        
         [self setupWithSession:avSession withOutput:avOutput];
     });
 }
@@ -51,6 +48,9 @@
     //causes lag
     [self.session addOutput:self.output];
     
+    [avOutput setAlwaysDiscardsLateVideoFrames:YES];
+    [avOutput setVideoSettings:@{(id)kCVPixelBufferPixelFormatTypeKey: [NSNumber numberWithInt:'420f']}];
+
     AVCaptureConnection *videoConnection = [self.output connectionWithMediaType:AVMediaTypeVideo];
     videoOrientation = [videoConnection videoOrientation];
             

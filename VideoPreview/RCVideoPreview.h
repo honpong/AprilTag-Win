@@ -18,6 +18,8 @@
 
 @protocol RCVideoPreviewDelegate <NSObject>
 
+@optional
+
 /** This will be called after drawing the background video, before the GL render buffer is presented.
  @param data The RCSensorFusionData object from [RCSensorFusionDelegate sensorFusionDidUpdateData:]
  @param cameraToScreen A matrix incorporating the perspective transform (as defined by data.cameraParameters), and any rotation necessary to display the scene in the current device orientation. The camera reference frame is right-handed, with positive x to the right, positive y down, and positive z pointing forward out of the camera.
@@ -25,6 +27,14 @@
  @note The transformation from the fixed world reference frame to the camera reference frame is specified by data.cameraTransformation. See RCSensorFusionData documentation for the specification of the world reference frame.
  */
 - (void) renderWithSensorFusionData:(RCSensorFusionData *)data withCameraToScreenMatrix:(GLKMatrix4)cameraToScreen;
+
+/** This will be called after the GL render buffer is presented.
+ @param data The RCSensorFusionData object from [RCSensorFusionDelegate sensorFusionDidUpdateData:]
+ @param cameraToScreen A matrix incorporating the perspective transform (as defined by data.cameraParameters), and any rotation necessary to display the scene in the current device orientation. The camera reference frame is right-handed, with positive x to the right, positive y down, and positive z pointing forward out of the camera.
+ 
+ @note The transformation from the fixed world reference frame to the camera reference frame is specified by data.cameraTransformation. See RCSensorFusionData documentation for the specification of the world reference frame.
+ */
+- (void) didRenderWithSensorFusionData:(RCSensorFusionData *)data withCameraToScreenMatrix:(GLKMatrix4)cameraToScreen;
 
 @end
 
@@ -37,9 +47,10 @@
 @interface RCVideoPreview : UIView <RCVideoFrameDelegate>
 
 /**
- The delegate will have an opportunity to render on top of each frame before it is displayed.
+ The delegate will have an opportunity to render on top of each frame.
  */
 @property (nonatomic) id<RCVideoPreviewDelegate> delegate;
+
 /**
  The orientation of the video, I.E. portrait/landscape. Defaults to portrait.
  */

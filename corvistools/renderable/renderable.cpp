@@ -9,7 +9,7 @@ extern "C" {
 }
 #include "renderable.h"
 
-const static int point_size = 2.;
+const static int point_size = 3.;
 const static float line_width = 3;
 
 void structure::new_point(float x, float y, float z)
@@ -49,8 +49,10 @@ void motion::new_position(float x, float y, float z, float u, float v, float w)
 void structure::set_current(int points, point c[])
 {
     current.resize(points);
+    current_colors.resize(points);
     for(int i = 0; i < points; ++i) {
         current[i] = c[i];
+        current_colors[i] = (struct color){{247, 88, 98, 255}};
     }
 }
 
@@ -419,8 +421,11 @@ void structure::render()
         //glColorPointer(4, GL_UNSIGNED_BYTE, 0, &colors[0]);
         glDrawArrays(GL_POINTS, 0, features.size());
         //glDisableClientState(GL_COLOR_ARRAY);
+        glEnableClientState(GL_COLOR_ARRAY);
         glVertexPointer(3, GL_FLOAT, 0, &current[0]);
+        glColorPointer(4, GL_UNSIGNED_BYTE, 0, &current_colors[0]);
         glDrawArrays(GL_POINTS, 0, current.size());
+        glDisableClientState(GL_COLOR_ARRAY);
         glDisableClientState(GL_VERTEX_ARRAY);
     } glPopMatrix();
 }

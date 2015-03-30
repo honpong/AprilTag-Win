@@ -446,7 +446,7 @@ void observation_vision_feature::update_initializing()
 }
 
 const float tracker_min_match = 0.4;
-const float tracker_good_match = 0.7;
+const float tracker_good_match = 0.75;
 const float tracker_radius = 5.5;
 bool observation_vision_feature::measure()
 {

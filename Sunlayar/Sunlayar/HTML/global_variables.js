@@ -5,7 +5,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 var is_touch_device = 'ontouchstart' in document.documentElement; //boolean value which determins if we need to show custom softkeyboard
-var rc_server_location = 'http://localhost:8000/'; //this is used for putting data, can be changed dinamically
+var rc_server_location = 'http://dummy.realitycap.com/'; //this is used for putting data, can be changed dinamically
 
 var image_width, image_height;  //the actual size of the image
 var image; //the svg image element, tracked to allow resets

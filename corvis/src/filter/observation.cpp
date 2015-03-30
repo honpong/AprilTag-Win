@@ -1,43 +1,36 @@
 #include "observation.h"
 #include "tracker.h"
 #include "kalman.h"
+#include "utils.h"
 
 stdev_scalar observation_vision_feature::stdev[2], observation_vision_feature::inn_stdev[2];
 stdev_vector observation_accelerometer::stdev, observation_accelerometer::inn_stdev, observation_gyroscope::stdev, observation_gyroscope::inn_stdev;
 
-int observation_queue::preprocess()
+int observation_queue::size()
 {
-    stable_sort(observations.begin(), observations.end(), observation_comp_apparent);
     int size = 0;
-    for(observation *o : observations)
+    for(auto &o : observations)
         size += o->size;
     return size;
 }
 
-void observation_queue::clear()
-{
-    for(observation *o : observations)
-        delete o;
-    observations.clear();
-}
-
 void observation_queue::predict()
 {
-    for(observation *o : observations)
+    for(auto &o : observations)
         o->predict();
 }
 
-void observation_queue::measure()
+void observation_queue::measure_and_prune()
 {
-    //measure; calculate innovation and covariance
-    for(observation *o : observations)
-        o->measure();
+    observations.erase(remove_if(observations.begin(), observations.end(), [](auto &o) {
+       return !o->measure();
+    }), observations.end());
 }
 
 void observation_queue::compute_innovation(matrix &inn)
 {
     int count = 0;
-    for(observation *o : observations) {
+    for(auto &o : observations) {
         o->compute_innovation();
         for(int i = 0; i < o->size; ++i) {
             inn[count + i] = o->innovation(i);
@@ -49,7 +42,7 @@ void observation_queue::compute_innovation(matrix &inn)
 void observation_queue::compute_measurement_covariance(matrix &m_cov)
 {
     int count = 0;
-    for(observation *o : observations) {
+    for(auto &o : observations) {
         o->compute_measurement_covariance();
         for(int i = 0; i < o->size; ++i) {
             m_cov[count + i] = o->measurement_covariance(i);
@@ -64,7 +57,7 @@ void observation_queue::compute_prediction_covariance(const state &s, int meas_s
     // matrix_product(LC, lp, A, false, false);
     int statesize = s.cov.size();
     int index = 0;
-    for(observation *o : observations) {
+    for(auto &o : observations) {
         if(o->size) {
             matrix dst(&LC(index, 0), o->size, statesize, LC.maxrows, LC.stride);
             o->cache_jacobians();
@@ -75,7 +68,7 @@ void observation_queue::compute_prediction_covariance(const state &s, int meas_s
     
     //project cov(state, meas)=(LC)' onto meas to get cov(meas, meas)
     index = 0;
-    for(observation *o : observations) {
+    for(auto &o : observations) {
         if(o->size) {
             matrix dst(&res_cov(index, 0), o->size, meas_size, res_cov.maxrows, res_cov.stride);
             o->project_covariance(dst, LC);
@@ -91,7 +84,7 @@ void observation_queue::compute_prediction_covariance(const state &s, int meas_s
     }
     
     index = 0;
-    for(observation *o : observations) {
+    for(auto &o : observations) {
         if(o->size) o->set_prediction_covariance(res_cov, index);
         index += o->size;
     }
@@ -100,48 +93,13 @@ void observation_queue::compute_prediction_covariance(const state &s, int meas_s
 void observation_queue::compute_innovation_covariance(const matrix &m_cov)
 {
     int index = 0;
-    for(observation *o : observations) {
+    for(auto &o : observations) {
         for(int i = 0; i < o->size; ++i) {
             res_cov(index + i, index + i) += m_cov[index + i];
         }
         o->innovation_covariance_hook(res_cov, index);
         index += o->size;
     }
-}
-
-int observation_queue::remove_invalid_measurements(const state &s, int orig_size, matrix &inn)
-{
-    int map[orig_size];
-    int src = 0;
-    int new_size = 0;
-    for(observation *o : observations) {
-        for(int i = 0; i < o->size; ++i) {
-            if(o->valid) map[new_size++] = src;
-            ++src;
-        }
-    }
-
-    for(int i = 0; i < new_size; ++i)
-    {
-        inn[i] = inn[map[i]];
-    }
-    inn.resize(new_size);
-
-    for(int i = 0; i < new_size; ++i)
-    {
-        memcpy(&LC(i, 0), &LC(map[i], 0), sizeof(f_t) * LC.stride);
-    }
-    LC.resize(new_size, LC.cols);
-
-    for(int i = 0; i < new_size; ++i)
-    {
-        for(int j = 0; j < new_size; ++j)
-        {
-            res_cov(i, j) = res_cov(map[i], map[j]);
-        }
-    }
-    res_cov.resize(new_size, new_size);
-    return new_size;
 }
 
 bool observation_queue::update_state_and_covariance(state &s, const matrix &inn)
@@ -176,10 +134,16 @@ bool observation_queue::process(state &s, uint64_t time)
 #endif
     bool success = true;
     s.time_update(time);
-    if(!observations.size()) return success;
-    int statesize = s.cov.size();
 
-    int meas_size = preprocess();
+    stable_sort(observations.begin(), observations.end(), observation_comp_apparent);
+
+    predict();
+
+    int orig_meas_size = size();
+
+    measure_and_prune();
+
+    int meas_size = size(), statesize = s.cov.size();
     if(meas_size) {
         matrix inn(1, meas_size);
         matrix m_cov(1, meas_size);
@@ -187,21 +151,16 @@ bool observation_queue::process(state &s, uint64_t time)
         res_cov.resize(meas_size, meas_size);
 
         //TODO: implement o->time_apparent != o->time_actual
-        predict();
-        measure();
         compute_innovation(inn);
         compute_measurement_covariance(m_cov);
         compute_prediction_covariance(s, meas_size);
         compute_innovation_covariance(m_cov);
-        int count = remove_invalid_measurements(s, meas_size, inn);
-        if(count) {
-            success = update_state_and_covariance(s, inn);
-        } else {
-            if(log_enabled && meas_size != 3) fprintf(stderr, "In Kalman update, original measurement size was %d, ended up with 0 measurements!\n", meas_size);
-        }
+        success = update_state_and_covariance(s, inn);
+    } else if(orig_meas_size != 3) {
+        if(log_enabled) fprintf(stderr, "In Kalman update, original measurement size was %d, ended up with 0 measurements!\n", orig_meas_size);
     }
     
-    clear();
+    observations.clear();
     f_t delta_T = norm(s.T.v - s.last_position);
     if(delta_T > .01) {
         s.total_distance += norm(s.T.v - s.last_position);
@@ -230,20 +189,17 @@ void observation_vision_feature::predict()
     Rrt = transpose(Rr);
     Rbc = to_rotation_matrix(state.Wc.v);
     Rcb = transpose(Rbc);
-    RcbRrt = Rcb * Rrt;
-    Rtot = RcbRrt * Rbc;
+    Rtot = Rcb * Rrt * Rbc;
     Ttot = Rcb * (Rrt * (state.Tc.v - state_group->Tr.v) - state.Tc.v);
 
     norm_initial.x = (feature->initial[0] - state.center_x.v) / state.focal_length.v;
     norm_initial.y = (feature->initial[1] - state.center_y.v) / state.focal_length.v;
 
-    f_t r2, r4, r6, kr;
-    state.fill_calibration(norm_initial, r2, r4, r6, kr);
-    feature->calibrated = v4(norm_initial.x / kr, norm_initial.y / kr, 1., 0.);
+    f_t r2, kr;
+    state.fill_calibration(norm_initial, r2, kr);
+    X0 = v4(norm_initial.x / kr, norm_initial.y / kr, 1., 0.);
 
-    v4 X0_unscale = feature->calibrated * feature->v.depth(); //not homog in v4
-    X0 = feature->calibrated;
-    X = Rtot * feature->calibrated + Ttot * feature->v.invdepth();
+    v4 X0_unscale = X0 * feature->v.depth(); //not homog in v4
 
     //Inverse depth
     //Should work because projection(R X + T) = projection(R (X/p) + T/p)
@@ -251,6 +207,9 @@ void observation_vision_feature::predict()
     //Have verified that the above identity is numerically identical in my results
     v4 X_unscale = Rtot * X0_unscale + Ttot;
 
+    X = X_unscale * feature->v.invdepth();
+
+    feature->calibrated = X0;
     feature->relative = Rbc * X0_unscale + state.Tc.v;
     feature->local = Rrt * (feature->relative - state_group->Tr.v);
     feature->world = R * feature->local + state.T.v;
@@ -263,7 +222,7 @@ void observation_vision_feature::predict()
     norm_predicted.x = ippred[0];
     norm_predicted.y = ippred[1];
 
-    state.fill_calibration(norm_predicted, r2, r4, r6, kr);
+    state.fill_calibration(norm_predicted, r2, kr);
     feature->prediction.x = pred[0] = norm_predicted.x * kr * state.focal_length.v + state.center_x.v;
     feature->prediction.y = pred[1] = norm_predicted.y * kr * state.focal_length.v + state.center_y.v;
 }
@@ -271,14 +230,14 @@ void observation_vision_feature::predict()
 void observation_vision_feature::cache_jacobians()
 {
     //initial = (uncal - center) / (focal_length * kr)
-    f_t r2, r4, r6, kr;
-    state.fill_calibration(norm_initial, r2, r4, r6, kr);
+    f_t r2, kr;
+    state.fill_calibration(norm_initial, r2, kr);
 #if estimate_camera_intrinsics
     v4 dX_dcx = Rtot * v4(-1. / (kr * state.focal_length.v), 0., 0., 0.);
     v4 dX_dcy = Rtot * v4(0., -1. / (kr * state.focal_length.v), 0., 0.);
     v4 dX_dF = Rtot * v4(-X0[0] / state.focal_length.v, -X0[1] / state.focal_length.v, 0., 0.);
     v4 dX_dk1 = Rtot * v4(-X0[0] / kr * r2, -X0[1] / kr * r2, 0., 0.);
-    v4 dX_dk2 = Rtot * v4(-X0[0] / kr * r4, -X0[1] / kr * r4, 0., 0.);
+    v4 dX_dk2 = Rtot * v4(-X0[0] / kr * (r2 * r2), -X0[1] / kr * (r2 * r2), 0., 0.);
 #endif
     
     m4v4 dRr_dWr = to_rotation_matrix_jacobian(state_group->Wr.v);
@@ -297,7 +256,7 @@ void observation_vision_feature::cache_jacobians()
     m4 dTtot_dTc = Rcb * Rrt - Rcb;
 #endif
     
-    state.fill_calibration(norm_predicted, r2, r4, r6, kr);
+    state.fill_calibration(norm_predicted, r2, kr);
     f_t invZ = 1. / X[2];
     v4 dx_dX, dy_dX;
     dx_dX = kr * state.focal_length.v * v4(invZ, 0., -X[0] * invZ * invZ, 0.);
@@ -309,11 +268,11 @@ void observation_vision_feature::cache_jacobians()
     f_t invrho = feature->v.invdepth();
     if(!feature->is_initialized()) {
 #if estimate_camera_extrinsics
-        dx_dWc = dx_dX * (dRtot_dWc * feature->calibrated);
-        dy_dWc = dy_dX * (dRtot_dWc * feature->calibrated);
+        dx_dWc = dx_dX * (dRtot_dWc * X0);
+        dy_dWc = dy_dX * (dRtot_dWc * X0);
 #endif
-        dx_dWr = dx_dX * (dRtot_dWr * feature->calibrated);
-        dy_dWr = dy_dX * (dRtot_dWr * feature->calibrated);
+        dx_dWr = dx_dX * (dRtot_dWr * X0);
+        dy_dWr = dy_dX * (dRtot_dWr * X0);
         //dy_dT = m4(0.);
         //dy_dT = m4(0.);
         //dy_dTr = m4(0.);
@@ -321,10 +280,10 @@ void observation_vision_feature::cache_jacobians()
 #if estimate_camera_intrinsics
         dx_dF = norm_predicted.x * kr + sum(dx_dX * dX_dF);
         dy_dF = norm_predicted.y * kr + sum(dy_dX * dX_dF);
-        dx_dk1 = norm_predicted.x * state.focal_length.v * r2 + sum(dx_dX * dX_dk1);
-        dy_dk1 = norm_predicted.y * state.focal_length.v * r2 + sum(dy_dX * dX_dk1);
-        dx_dk2 = norm_predicted.x * state.focal_length.v * r4 + sum(dx_dX * dX_dk2);
-        dy_dk2 = norm_predicted.y * state.focal_length.v * r4 + sum(dy_dX * dX_dk2);
+        dx_dk1 = norm_predicted.x * state.focal_length.v * r2        + sum(dx_dX * dX_dk1);
+        dy_dk1 = norm_predicted.y * state.focal_length.v * r2        + sum(dy_dX * dX_dk1);
+        dx_dk2 = norm_predicted.x * state.focal_length.v * (r2 * r2) + sum(dx_dX * dX_dk2);
+        dy_dk2 = norm_predicted.y * state.focal_length.v * (r2 * r2) + sum(dy_dX * dX_dk2);
         dx_dcx = 1. + sum(dx_dX * dX_dcx);
         dx_dcy = sum(dx_dX * dX_dcy);
         dy_dcx = sum(dy_dX * dX_dcx);
@@ -349,7 +308,9 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
 
     if(!feature->is_initialized()) {
         for(int j = 0; j < dst.cols; ++j) {
+#if estimate_camera_extrinsics
             v4 cov_Wc = state.Wc.copy_cov_from_row(src, j);
+#endif
             v4 cov_Wr = state_group->Wr.copy_cov_from_row(src, j);
             dst(0, j) =
 #if estimate_camera_extrinsics
@@ -420,12 +381,12 @@ f_t observation_vision_feature::projection_residual(const v4 & X_inf, const f_t 
         fprintf(stderr, "FAILURE in feature projection in observation_vision_feature::predict\n");
     }
     feature_t norm, uncalib;
-    f_t r2, r4, r6, kr;
+    f_t r2, kr;
     
     norm.x = ippred[0];
     norm.y = ippred[1];
     
-    state.fill_calibration(norm, r2, r4, r6, kr);
+    state.fill_calibration(norm, r2, kr);
     
     uncalib.x = norm.x * kr * state.focal_length.v + state.center_x.v;
     uncalib.y = norm.y * kr * state.focal_length.v + state.center_y.v;
@@ -440,7 +401,7 @@ void observation_vision_feature::update_initializing()
     f_t min = 0.01; //infinity-ish (100m)
     f_t max = 10.; //1/.10 for 10cm
     f_t min_d2, max_d2;
-    v4 X_inf = Rtot * feature->calibrated;
+    v4 X_inf = Rtot * X0;
     
     v4 X_inf_proj = X_inf / X_inf[2];
     v4 X_0 = X_inf + max * Ttot;
@@ -484,34 +445,40 @@ void observation_vision_feature::update_initializing()
     predict();
 }
 
+const float tracker_min_match = 0.4;
+const float tracker_good_match = 0.75;
+const float tracker_radius = 5.5;
 bool observation_vision_feature::measure()
 {
-    xy bestkp, bestkp1, bestkp2;
+    xy bestkp = tracker.track(feature->patch, image, feature->current[0] + feature->image_velocity.x, feature->current[1] + feature->image_velocity.y, tracker_radius, tracker_min_match);
 
-    bestkp1 = tracker.track(feature->patch, image, pred[0], pred[1], 5.5, .40);
-
-    bestkp2 = tracker.track(feature->patch, image, feature->current[0] + feature->image_velocity.x, feature->current[1] + feature->image_velocity.y, 5.5, bestkp1.score);
-
-    if(bestkp1.score >= bestkp2.score)
-        bestkp = bestkp1;
-    else
-        bestkp = bestkp2;
-
-    if(bestkp.x == INFINITY) {
-        feature->image_velocity.x = 0;
-        feature->image_velocity.y = 0;
+    // Not a good enough match, try the filter prediction
+    if(bestkp.score < tracker_good_match) {
+        xy bestkp2 = tracker.track(feature->patch, image, pred[0], pred[1], tracker_radius, bestkp.score);
+        if(bestkp2.score > bestkp.score)
+            bestkp = bestkp2;
     }
-    else {
+    // Still no match? Guess that we haven't moved at all
+    if(bestkp.score < tracker_min_match) {
+        xy bestkp2 = tracker.track(feature->patch, image, feature->current[0], feature->current[1], 5.5, bestkp.score);
+        if(bestkp2.score > bestkp.score)
+            bestkp = bestkp2;
+    }
+
+    bool valid = bestkp.x != INFINITY;
+
+    if(valid) {
         feature->image_velocity.x  = bestkp.x - feature->current[0];
         feature->image_velocity.y  = bestkp.y - feature->current[1];
+    }
+    else {
+        feature->image_velocity.x = 0;
+        feature->image_velocity.y = 0;
     }
 
     meas[0] = feature->current[0] = bestkp.x;
     meas[1] = feature->current[1] = bestkp.y;
 
-    meas[0] = feature->current[0];
-    meas[1] = feature->current[1];
-    valid = meas[0] != INFINITY;
     if(valid) {
         stdev[0].data(meas[0]);
         stdev[1].data(meas[1]);
@@ -601,10 +568,8 @@ bool observation_accelerometer::measure()
     stdev.data(v4(meas[0], meas[1], meas[2], 0.));
     if(!state.orientation_initialized)
     {
-        //first measurement - use to determine orientation
-        state.W.v = to_rotation_vector(rotation_between_two_vectors(meas, v4(0., 0., 1., 0.)));
+        state.W.v = to_rotation_vector(initial_orientation_from_gravity(meas));
         state.orientation_initialized = true;
-        valid = false;
         return false;
     } else return observation_spatial::measure();
 }

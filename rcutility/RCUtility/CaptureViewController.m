@@ -21,14 +21,14 @@
 
 @implementation CaptureViewController
 
-@synthesize previewView, startStopButton;
+@synthesize previewView, frameRateSelector, startStopButton;
 
 - (void)viewDidLoad
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
 
-	AVCaptureSession *session = [SESSION_MANAGER session];
+	AVCaptureSession *session = [[RCAVSessionManager sharedInstance] session];
 
 	// Make a preview layer so we can see the visual output of an AVCaptureSession
 	previewLayer = [[AVCaptureVideoPreviewLayer alloc] initWithSession:session];
@@ -43,7 +43,7 @@
 
     isStarted = false;
 
-    [SESSION_MANAGER startSession];
+    [[RCAVSessionManager sharedInstance] startSession];
 }
 
 - (void) viewDidLayoutSubviews
@@ -79,12 +79,14 @@
 - (void) captureDidStart
 {
     [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
+    [frameRateSelector setHidden:true];
 }
 
 - (void) captureDidStop
 {
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
     [startStopButton setEnabled:true];
+    [frameRateSelector setHidden:false];
     AppDelegate * app = (AppDelegate *)[[UIApplication sharedApplication] delegate];
     [app startFromHome];
 }
@@ -93,9 +95,13 @@
 {
     if (!isStarted)
     {
-        NSURL * fileurl = [AppDelegate timeStampedURLWithSuffix:@".capture"];
+        int framerate = 30;
+        if(frameRateSelector.selectedSegmentIndex == 1)
+            framerate = 60;
+
+        NSURL * fileurl = [AppDelegate timeStampedURLWithSuffix:[NSString stringWithFormat:@"_%dHz.capture", framerate]];
         [startStopButton setTitle:@"Starting..." forState:UIControlStateNormal];
-        [captureController startCapture:fileurl.path withSession:[SESSION_MANAGER session] withDevice:[SESSION_MANAGER videoDevice] withDelegate:self];
+        [captureController startCapture:fileurl.path withSession:[[RCAVSessionManager sharedInstance] session] withDevice:[[RCAVSessionManager sharedInstance] videoDevice] withMaxFrameRate:framerate withDelegate:self];
     }
     else
     {

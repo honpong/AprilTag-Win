@@ -59,13 +59,7 @@
 
 - (NSDictionary *) dictionaryRepresentation
 {
-    //create a dictionary and add the two memebers of this class as floats
-    NSMutableDictionary *tmpDic = [NSMutableDictionary dictionaryWithCapacity:2];
-    tmpDic[@"rotation"] = [[self rotation] dictionaryRepresentation];
-    tmpDic[@"translation"] = [[self translation] dictionaryRepresentation];
-
-    //we return an immutable version
-    return [NSDictionary dictionaryWithDictionary:tmpDic];
+    return @{ @"rotation": [self.rotation dictionaryRepresentation], @"translation": [self.translation dictionaryRepresentation] };
 }
 
 @end

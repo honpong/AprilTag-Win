@@ -26,7 +26,6 @@
 @property (weak, nonatomic) IBOutlet UILabel *introLabel;
 @property (weak, nonatomic) IBOutlet MKMapView *mapView;
 @property (weak, nonatomic) id<RCCalibrationDelegate> calibrationDelegate;
-@property (weak, nonatomic) id<RCSensorDelegate> sensorDelegate;
 
 - (IBAction)handleNextButton:(id)sender;
 - (IBAction)handleLaterButton:(id)sender;

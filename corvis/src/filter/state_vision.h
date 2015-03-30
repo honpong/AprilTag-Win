@@ -167,7 +167,7 @@ class state_vision_group: public state_branch<state_node *> {
     
     //cached data
     m4 Rr;    
-    m4 dWrp_dWr, dWrp_dwdt;
+    m4 dWrp_dWr, dWrp_ddW;
     m4 dTrp_dV, dTrp_dWr, dTrp_dW;
 };
 
@@ -192,7 +192,10 @@ class state_vision: public state_motion {
     v4 last_position;
     m4 camera_matrix;
     state_vision_group *reference;
-    void fill_calibration(feature_t &initial, f_t &r2, f_t &r4, f_t &r6, f_t &kr) const;
+    void fill_calibration(feature_t &initial, f_t &r2, f_t &kr) const {
+        r2 = initial.x * initial.x + initial.y * initial.y;
+        kr = 1. + r2 * (k1.v + r2 * (k2.v + r2 * k3.v));
+    }
     feature_t calibrate_feature(const feature_t &initial) const;
     
     virtual void reset();

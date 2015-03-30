@@ -12,7 +12,6 @@
 #include "TargetConditionals.h"
 #endif
 #import "TMAnalytics.h"
-#import "RCCalibration1.h"
 #import "TMMeasurementTypeVC.h"
 #import "TMNewMeasurementVC.h"
 #import "TMHistoryVC.h"
@@ -29,7 +28,6 @@
 @implementation TMAppDelegate
 {
     UINavigationController* navigationController;
-    id<RCSensorDelegate> mySensorDelegate;
     bool waitingForLocationAuthorization;
 }
 
@@ -93,11 +91,9 @@
     
     navigationController = (UINavigationController*)self.window.rootViewController;
     
-    mySensorDelegate = SENSOR_DELEGATE;
-    
     BOOL calibratedFlag = [NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_CALIBRATED];
     BOOL hasCalibration = [SENSOR_FUSION hasCalibrationData];
-    
+    hasCalibration= NO;
     if([NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_FIRST_LAUNCH])
     {
         [self gotoIntroScreen];
@@ -131,9 +127,9 @@
 
 - (void) gotoCalibration
 {
-    RCCalibration1 * calibration1 = [RCCalibration1 instantiateViewController];
+    UIStoryboard* calStoryboard = [UIStoryboard storyboardWithName:@"Calibration" bundle:[NSBundle mainBundle]];
+    RCCalibration1 * calibration1 = [calStoryboard instantiateViewControllerWithIdentifier:@"Calibration1"];
     calibration1.calibrationDelegate = self;
-    calibration1.sensorDelegate = mySensorDelegate;
     calibration1.modalPresentationStyle = UIModalPresentationFullScreen;
     self.window.rootViewController = calibration1;
 }
@@ -142,7 +138,6 @@
 {
     TMIntroScreen* vc = (TMIntroScreen*)[navigationController.storyboard instantiateViewControllerWithIdentifier:@"IntroScreen"];
     vc.calibrationDelegate = self;
-    vc.sensorDelegate = mySensorDelegate;
     self.window.rootViewController = vc;
 }
 
@@ -166,6 +161,16 @@
 }
 
 #pragma mark - RCCalibrationDelegate
+
+- (void)startMotionSensors
+{
+    [MOTION_MANAGER startMotionCapture];
+}
+
+- (void)stopMotionSensors
+{
+    [MOTION_MANAGER stopMotionCapture];
+}
 
 - (void) calibrationDidFinish:(UIViewController*)lastViewController
 {

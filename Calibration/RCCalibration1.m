@@ -19,33 +19,43 @@
 }
 @synthesize messageLabel;
 
-+ (RCCalibration1 *)instantiateViewController
++ (RCCalibration1 *)instantiateFromQuickstartKit
 {
-    UIStoryboard * calibrationStoryBoard;
-    calibrationStoryBoard = [UIStoryboard storyboardWithName:@"Calibration" bundle:nil];
-    return (RCCalibration1 *)[calibrationStoryBoard instantiateInitialViewController];
+    NSBundle* quickstartBundle = [NSBundle bundleWithURL:[[NSBundle mainBundle] URLForResource:@"QuickstartResources" withExtension:@"bundle"]];
+    UIStoryboard* calStoryboard = [UIStoryboard storyboardWithName:@"Calibration" bundle:quickstartBundle];
+    RCCalibration1* calibration1 = [calStoryboard instantiateInitialViewController];
+    return calibration1;
 }
 
-- (BOOL) prefersStatusBarHidden { return YES; }
-
-- (NSUInteger) supportedInterfaceOrientations { return UIInterfaceOrientationMaskPortrait; }
-
-- (void) viewDidLoad
+- (id)initWithCoder:(NSCoder *)aDecoder
 {
-    [super viewDidLoad];
+    self = [super initWithCoder:aDecoder];
+    if (!self) return nil;
     
     sensorFusion = [RCSensorFusion sharedInstance];
     sensorFusion.delegate = self;
     currentRunState = RCSensorFusionRunStateInactive;
     currentProgress = 0.;
     
-	isCalibrating = NO;
+    isCalibrating = NO;
+    
+    return self;
 }
+
+- (BOOL) prefersStatusBarHidden { return YES; }
+
+- (NSUInteger) supportedInterfaceOrientations { return UIInterfaceOrientationMaskPortrait; }
 
 - (void) viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-    [messageLabel setText:@"We need to calibrate your sensors just once. Place the device on a flat, stable surface, like a table."];
+    [self.messageLabel setText:@"We need to calibrate your sensors just once. Place the device on a flat, stable surface, like a table."];
+    sensorFusion = [RCSensorFusion sharedInstance];
+    sensorFusion.delegate = self;
+    currentRunState = RCSensorFusionRunStateInactive;
+    currentProgress = 0.;
+    
+    isCalibrating = NO;
 }
 
 - (void) viewDidAppear:(BOOL)animated
@@ -130,8 +140,7 @@
 {
     isCalibrating = YES;
     [self createProgressViewWithTitle:@"Calibrating"];
-    //This calibration step only requires motion data, no video
-    [self.sensorDelegate startMotionSensors];
+    [self.calibrationDelegate startMotionSensors];
     sensorFusion.delegate = self;
     [sensorFusion startStaticCalibration];
 }
@@ -140,19 +149,17 @@
 {
     isCalibrating = NO;
     
-    [self.sensorDelegate stopAllSensors];
+    [self.calibrationDelegate stopMotionSensors];
     [sensorFusion stopSensorFusion];
     sensorFusion.delegate = nil;
     
     [self hideProgressView];
-    
 }
 
 - (void) gotoNextScreen
 {
     RCCalibration2* cal2 = [self.storyboard instantiateViewControllerWithIdentifier:@"Calibration2"];
     cal2.calibrationDelegate = self.calibrationDelegate; // pass the RCCalibrationDelegate object on to the next view controller
-    cal2.sensorDelegate = self.sensorDelegate; // pass the RCSensorDelegate object on to the next view controller
     sensorFusion.delegate = cal2;
     [self presentViewController:cal2 animated:YES completion:nil];
 }

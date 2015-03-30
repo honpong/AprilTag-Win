@@ -507,12 +507,12 @@ class RealFilter(FullFilter):
         self.imustack = list()
         self.firstimu = True
 
-        self.plotinna = myvis.frame_1.window_3.add("INN-a")
+        self.plotinna = myvis.frame.window_3.add("INN-a")
         self.plotinna.x = self.plotinna.addhist('r')
         self.plotinna.y = self.plotinna.addhist('g')
         self.plotinna.z = self.plotinna.addhist('b')
 
-        self.plotinno = myvis.frame_1.window_3.add("INN-w")
+        self.plotinno = myvis.frame.window_3.add("INN-w")
         self.plotinno.x = self.plotinno.addhist('r')
         self.plotinno.y = self.plotinno.addhist('g')
         self.plotinno.z = self.plotinno.addhist('b')

@@ -212,6 +212,12 @@ static int convert_float_array(PyObject *input, float *ptr, int size) {
                  ad[i][j][k] = $1[i][j][k];
 }
 
+%typemap(out) rotation_vector {
+  npy_intp dims[1] = { 3 }; v4 v = $1.raw_vector();
+  $result = PyArray_SimpleNew(1,dims, sizeof(v.data[0]) == 4 ? NPY_FLOAT : NPY_DOUBLE);
+  memcpy(PyArray_DATA((PyArrayObject *)$result), &(v.data), 3*sizeof(v.data[0]));
+}
+
 %typemap(out) f_t [ANY] {
   npy_intp dims[1] = { $1_dim0 };
   //this allows us to modify in-place, but is not particularly safe

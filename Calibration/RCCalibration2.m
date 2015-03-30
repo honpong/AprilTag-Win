@@ -15,15 +15,18 @@
     RCSensorFusion* sensorFusion;
     float currentProgress;
 }
-@synthesize messageLabel;
+
+- (id)initWithCoder:(NSCoder *)aDecoder
+{
+    self = [super initWithCoder:aDecoder];
+    if (!self) return nil;
+    
+    sensorFusion = [RCSensorFusion sharedInstance];
+    
+    return self;
+}
 
 - (BOOL) prefersStatusBarHidden { return YES; }
-
-- (void) viewDidLoad
-{
-    [super viewDidLoad];
-    sensorFusion = [RCSensorFusion sharedInstance];
-}
 
 - (void) viewDidAppear:(BOOL)animated
 {
@@ -75,7 +78,6 @@
 {
     RCCalibration3* cal3 = [self.storyboard instantiateViewControllerWithIdentifier:@"Calibration3"];
     cal3.calibrationDelegate = self.calibrationDelegate;
-    cal3.sensorDelegate = self.sensorDelegate;
     sensorFusion.delegate = cal3;
     [self presentViewController:cal3 animated:YES completion:nil];
 }
@@ -119,7 +121,7 @@
 - (void) stopCalibration
 {
     [self hideProgressView];
-    [self.sensorDelegate stopAllSensors];
+    [self.calibrationDelegate stopMotionSensors];
     [sensorFusion stopSensorFusion];
 }
 

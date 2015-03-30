@@ -8,13 +8,15 @@
 
 #import "AppDelegate.h"
 #import "SLConstants.h"
-#import "RCSensorDelegate.h"
+#import "RCSensorManager.h"
 #import "RCLocationManager.h"
 #import "RC3DK.h"
 #import "RCDebugLog.h"
 #import "RCMotionManager.h"
 #import "RCAVSessionManager.h"
 #import "RCHttpInterceptor.h"
+#import "SLCaptureController.h"
+#import "SLAugRealityController.h"
 
 #if TARGET_IPHONE_SIMULATOR
 #define SKIP_CALIBRATION YES // skip calibration when running on emulator because it cannot calibrate
@@ -28,14 +30,13 @@
 
 @implementation AppDelegate
 {
-    UIViewController* mainViewController;
-    id<RCSensorDelegate> mySensorDelegate;
+    RCSensorManager* sensorManager;
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     [SENSOR_FUSION setLicenseKey:@"aF9cE0B536c84aE6F500509E8aBCcC"]; // Sunlayar's evaluation license key for 3DKPlus
-    
+
     dispatch_async(dispatch_get_global_queue( DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
         // Register the preference defaults early.
         NSString* locale = [[NSLocale currentLocale] localeIdentifier];
@@ -44,6 +45,7 @@
         if ([NSUserDefaults.standardUserDefaults objectForKey:PREF_UNITS] == nil)
         {
             [NSUserDefaults.standardUserDefaults setInteger:defaultUnits forKey:PREF_UNITS];
+            [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_USE_LOCATION];
             [NSUserDefaults.standardUserDefaults synchronize];
         }
         
@@ -55,9 +57,7 @@
     
     [NSURLProtocol registerClass:[RCHttpInterceptor class]];
     
-    mySensorDelegate = [SensorDelegate sharedInstance];
-    
-    mainViewController = self.window.rootViewController;
+    sensorManager = [RCSensorManager sharedInstance];
     
     BOOL calibratedFlag = [NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_CALIBRATED];
     BOOL hasCalibration = [SENSOR_FUSION hasCalibrationData];
@@ -108,25 +108,36 @@
 
 - (void) gotoCaptureScreen
 {
-    self.window.rootViewController = mainViewController;
+    self.window.rootViewController = [SLCaptureController new];
+//    self.window.rootViewController = [SLAugRealityController new]; // for testing
 }
 
 - (void) gotoCalibration
 {
-    RCCalibration1 * vc = [RCCalibration1 instantiateViewController];
+    UIStoryboard* calStoryboard = [UIStoryboard storyboardWithName:@"Calibration" bundle:[NSBundle mainBundle]];
+    RCCalibration1* vc = [calStoryboard instantiateViewControllerWithIdentifier:@"Calibration1"];
     vc.calibrationDelegate = self;
-    vc.sensorDelegate = mySensorDelegate;
     vc.modalPresentationStyle = UIModalPresentationFullScreen;
     self.window.rootViewController = vc;
 }
 
 #pragma mark RCCalibrationDelegate methods
 
+- (void)startMotionSensors
+{
+    [sensorManager startMotionSensors];
+}
+
+- (void)stopMotionSensors
+{
+    [sensorManager stopAllSensors];
+}
+
 - (void) calibrationDidFinish:(UIViewController*)lastViewController
 {
     [NSUserDefaults.standardUserDefaults setBool:YES forKey:PREF_IS_CALIBRATED];
     
-    [lastViewController presentViewController:mainViewController animated:YES completion:nil];
+    [self gotoCaptureScreen];
 }
 
 #pragma mark -

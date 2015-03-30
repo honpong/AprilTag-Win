@@ -7,26 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3207A5A51AC0EB0E00792F30 /* QuickstartResources.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 3207A5A01AC0EAFB00792F30 /* QuickstartResources.bundle */; };
+		3207A5A61AC0EB1700792F30 /* libQuickstartKit.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3207A59E1AC0EAFB00792F30 /* libQuickstartKit.a */; };
+		3207A5D41AC1D3E700792F30 /* shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = 3207A5D21AC1D3E700792F30 /* shader.fsh */; };
+		3207A5D51AC1D3E700792F30 /* shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = 3207A5D31AC1D3E700792F30 /* shader.vsh */; };
 		D901456719F9A00F004E7CE2 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D901456619F9A00F004E7CE2 /* main.m */; };
 		D901456A19F9A00F004E7CE2 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D901456919F9A00F004E7CE2 /* AppDelegate.m */; };
 		D901456D19F9A00F004E7CE2 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D901456C19F9A00F004E7CE2 /* ViewController.m */; };
 		D901457019F9A00F004E7CE2 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D901456E19F9A00F004E7CE2 /* Main.storyboard */; };
 		D901457219F9A00F004E7CE2 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D901457119F9A00F004E7CE2 /* Images.xcassets */; };
-		D901458119F9A00F004E7CE2 /* RC3DKSampleARTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D901458019F9A00F004E7CE2 /* RC3DKSampleARTests.m */; };
-		D901459F19F9A07D004E7CE2 /* libRC3DK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D901459D19F9A07D004E7CE2 /* libRC3DK.a */; };
-		D90145B919F9A094004E7CE2 /* Calibration.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D90145A019F9A094004E7CE2 /* Calibration.storyboard */; };
-		D90145BA19F9A094004E7CE2 /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D90145A119F9A094004E7CE2 /* holding_landscape.jpg */; };
-		D90145BB19F9A094004E7CE2 /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D90145A219F9A094004E7CE2 /* holding_portrait.jpg */; };
-		D90145BC19F9A094004E7CE2 /* ipad_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D90145A319F9A094004E7CE2 /* ipad_on_table.jpg */; };
-		D90145BD19F9A094004E7CE2 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = D90145A519F9A094004E7CE2 /* MBProgressHUD.m */; };
-		D90145BE19F9A094004E7CE2 /* RCCalibration1.m in Sources */ = {isa = PBXBuildFile; fileRef = D90145A719F9A094004E7CE2 /* RCCalibration1.m */; };
-		D90145BF19F9A094004E7CE2 /* RCCalibration2.m in Sources */ = {isa = PBXBuildFile; fileRef = D90145A919F9A094004E7CE2 /* RCCalibration2.m */; };
-		D90145C019F9A094004E7CE2 /* RCCalibration3.m in Sources */ = {isa = PBXBuildFile; fileRef = D90145AB19F9A094004E7CE2 /* RCCalibration3.m */; };
-		D90145C119F9A094004E7CE2 /* RCSensorDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D90145AE19F9A094004E7CE2 /* RCSensorDelegate.m */; };
-		D90145C219F9A094004E7CE2 /* RCAVSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D90145B119F9A094004E7CE2 /* RCAVSessionManager.m */; };
-		D90145C319F9A094004E7CE2 /* RCLocationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D90145B319F9A094004E7CE2 /* RCLocationManager.m */; };
-		D90145C419F9A094004E7CE2 /* RCMotionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D90145B519F9A094004E7CE2 /* RCMotionManager.m */; };
-		D90145C519F9A094004E7CE2 /* RCVideoManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D90145B719F9A094004E7CE2 /* RCVideoManager.m */; };
 		D90145C819F9A184004E7CE2 /* LicenseHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = D90145C719F9A184004E7CE2 /* LicenseHelper.m */; };
 		D90145E019F9A23E004E7CE2 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D90145CD19F9A23E004E7CE2 /* OpenGLES.framework */; };
 		D90145E119F9A23E004E7CE2 /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D90145CE19F9A23E004E7CE2 /* CoreFoundation.framework */; };
@@ -45,29 +34,48 @@
 		D90145EF19F9A23E004E7CE2 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D90145DC19F9A23E004E7CE2 /* SystemConfiguration.framework */; };
 		D90145F019F9A23E004E7CE2 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D90145DD19F9A23E004E7CE2 /* UIKit.framework */; };
 		D90145F119F9A23E004E7CE2 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D90145DE19F9A23E004E7CE2 /* CoreGraphics.framework */; };
-		D90145FE19F9A5EF004E7CE2 /* RCGLManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = D90145F419F9A5EF004E7CE2 /* RCGLManagerFactory.m */; };
-		D90145FF19F9A5EF004E7CE2 /* RCVideoPreview.m in Sources */ = {isa = PBXBuildFile; fileRef = D90145F619F9A5EF004E7CE2 /* RCVideoPreview.m */; };
-		D901460819F9C2D8004E7CE2 /* ARDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D901460719F9C2D8004E7CE2 /* ARDelegate.m */; };
-		D901460B19F9C43B004E7CE2 /* shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = D901460919F9C43B004E7CE2 /* shader.fsh */; };
-		D901460C19F9C43B004E7CE2 /* shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = D901460A19F9C43B004E7CE2 /* shader.vsh */; };
+		D901460819F9C2D8004E7CE2 /* ARRenderer.m in Sources */ = {isa = PBXBuildFile; fileRef = D901460719F9C2D8004E7CE2 /* ARRenderer.m */; };
 		D912167A1A83360D008E5356 /* chair_chesterfield_d.png in Resources */ = {isa = PBXBuildFile; fileRef = D91216791A83360D008E5356 /* chair_chesterfield_d.png */; };
 		D963096B1A01BC9800F92929 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D963096A1A01BC9800F92929 /* GLKit.framework */; };
 		D9AA84BD1A042DBE004C61D0 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = D9AA84BC1A042DBE004C61D0 /* Default-568h@2x.png */; };
-		D9E8C4871A03FAFA002EDA05 /* RCGLShaderProgram.m in Sources */ = {isa = PBXBuildFile; fileRef = D9E8C4861A03FAFA002EDA05 /* RCGLShaderProgram.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		D901457B19F9A00F004E7CE2 /* PBXContainerItemProxy */ = {
+		3207A59D1AC0EAFB00792F30 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = D901455919F9A00F004E7CE2 /* Project object */;
+			containerPortal = 3207A5981AC0EAFB00792F30 /* QuickstartKit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3296F1DB1A8BD68F0092D808;
+			remoteInfo = QuickstartKit;
+		};
+		3207A59F1AC0EAFB00792F30 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3207A5981AC0EAFB00792F30 /* QuickstartKit.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 3296F2651A8BD8E20092D808;
+			remoteInfo = QuickstartResources;
+		};
+		3207A5A11AC0EB0600792F30 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3207A5981AC0EAFB00792F30 /* QuickstartKit.xcodeproj */;
 			proxyType = 1;
-			remoteGlobalIDString = D901456019F9A00F004E7CE2;
-			remoteInfo = RC3DKSampleAR;
+			remoteGlobalIDString = 3296F1DA1A8BD68F0092D808;
+			remoteInfo = QuickstartKit;
+		};
+		3207A5A31AC0EB0800792F30 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3207A5981AC0EAFB00792F30 /* QuickstartKit.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = 3296F2641A8BD8E20092D808;
+			remoteInfo = QuickstartResources;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		D901456119F9A00F004E7CE2 /* RC3DKSampleAR.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RC3DKSampleAR.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		3207A5981AC0EAFB00792F30 /* QuickstartKit.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = QuickstartKit.xcodeproj; path = ../QuickstartKit/QuickstartKit.xcodeproj; sourceTree = "<group>"; };
+		3207A5D21AC1D3E700792F30 /* shader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.fsh; sourceTree = "<group>"; };
+		3207A5D31AC1D3E700792F30 /* shader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = shader.vsh; sourceTree = "<group>"; };
+		D901456119F9A00F004E7CE2 /* RC3DKSampleAR.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; name = RC3DKSampleAR.app; path = "3DK AR Sample.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		D901456519F9A00F004E7CE2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D901456619F9A00F004E7CE2 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		D901456819F9A00F004E7CE2 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -76,50 +84,6 @@
 		D901456C19F9A00F004E7CE2 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		D901456F19F9A00F004E7CE2 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		D901457119F9A00F004E7CE2 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
-		D901457A19F9A00F004E7CE2 /* RC3DKSampleARTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RC3DKSampleARTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		D901457F19F9A00F004E7CE2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		D901458019F9A00F004E7CE2 /* RC3DKSampleARTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RC3DKSampleARTests.m; sourceTree = "<group>"; };
-		D901458A19F9A07D004E7CE2 /* RC3DK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RC3DK.h; sourceTree = "<group>"; };
-		D901458B19F9A07D004E7CE2 /* RCCameraParameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCameraParameters.h; sourceTree = "<group>"; };
-		D901458C19F9A07D004E7CE2 /* RCDeviceInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDeviceInfo.h; sourceTree = "<group>"; };
-		D901458D19F9A07D004E7CE2 /* RCFeaturePoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCFeaturePoint.h; sourceTree = "<group>"; };
-		D901458E19F9A07D004E7CE2 /* RCLicenseError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCLicenseError.h; sourceTree = "<group>"; };
-		D901458F19F9A07D004E7CE2 /* RCPoint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCPoint.h; sourceTree = "<group>"; };
-		D901459019F9A07D004E7CE2 /* RCRotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCRotation.h; sourceTree = "<group>"; };
-		D901459119F9A07D004E7CE2 /* RCScalar.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCScalar.h; sourceTree = "<group>"; };
-		D901459219F9A07D004E7CE2 /* RCSensorFusion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusion.h; sourceTree = "<group>"; };
-		D901459319F9A07D004E7CE2 /* RCSensorFusionData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusionData.h; sourceTree = "<group>"; };
-		D901459419F9A07D004E7CE2 /* RCSensorFusionError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusionError.h; sourceTree = "<group>"; };
-		D901459519F9A07D004E7CE2 /* RCSensorFusionInternals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusionInternals.h; sourceTree = "<group>"; };
-		D901459619F9A07D004E7CE2 /* RCSensorFusionStatus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorFusionStatus.h; sourceTree = "<group>"; };
-		D901459719F9A07D004E7CE2 /* RCTransformation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTransformation.h; sourceTree = "<group>"; };
-		D901459819F9A07D004E7CE2 /* RCTranslation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCTranslation.h; sourceTree = "<group>"; };
-		D901459919F9A07D004E7CE2 /* RCVector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVector.h; sourceTree = "<group>"; };
-		D901459A19F9A07D004E7CE2 /* RCVideoPreview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoPreview.h; sourceTree = "<group>"; };
-		D901459D19F9A07D004E7CE2 /* libRC3DK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libRC3DK.a; sourceTree = "<group>"; };
-		D90145A019F9A094004E7CE2 /* Calibration.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Calibration.storyboard; sourceTree = "<group>"; };
-		D90145A119F9A094004E7CE2 /* holding_landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_landscape.jpg; sourceTree = "<group>"; };
-		D90145A219F9A094004E7CE2 /* holding_portrait.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_portrait.jpg; sourceTree = "<group>"; };
-		D90145A319F9A094004E7CE2 /* ipad_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = ipad_on_table.jpg; sourceTree = "<group>"; };
-		D90145A419F9A094004E7CE2 /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
-		D90145A519F9A094004E7CE2 /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
-		D90145A619F9A094004E7CE2 /* RCCalibration1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration1.h; sourceTree = "<group>"; };
-		D90145A719F9A094004E7CE2 /* RCCalibration1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration1.m; sourceTree = "<group>"; };
-		D90145A819F9A094004E7CE2 /* RCCalibration2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration2.h; sourceTree = "<group>"; };
-		D90145A919F9A094004E7CE2 /* RCCalibration2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration2.m; sourceTree = "<group>"; };
-		D90145AA19F9A094004E7CE2 /* RCCalibration3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration3.h; sourceTree = "<group>"; };
-		D90145AB19F9A094004E7CE2 /* RCCalibration3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration3.m; sourceTree = "<group>"; };
-		D90145AD19F9A094004E7CE2 /* RCSensorDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCSensorDelegate.h; path = ../../SensorManagers/RCSensorDelegate.h; sourceTree = "<group>"; };
-		D90145AE19F9A094004E7CE2 /* RCSensorDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCSensorDelegate.m; path = ../../SensorManagers/RCSensorDelegate.m; sourceTree = "<group>"; };
-		D90145AF19F9A094004E7CE2 /* RCDebugLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCDebugLog.h; path = ../../SensorManagers/RCDebugLog.h; sourceTree = "<group>"; };
-		D90145B019F9A094004E7CE2 /* RCAVSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCAVSessionManager.h; path = ../../SensorManagers/RCAVSessionManager.h; sourceTree = "<group>"; };
-		D90145B119F9A094004E7CE2 /* RCAVSessionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCAVSessionManager.m; path = ../../SensorManagers/RCAVSessionManager.m; sourceTree = "<group>"; };
-		D90145B219F9A094004E7CE2 /* RCLocationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCLocationManager.h; path = ../../SensorManagers/RCLocationManager.h; sourceTree = "<group>"; };
-		D90145B319F9A094004E7CE2 /* RCLocationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCLocationManager.m; path = ../../SensorManagers/RCLocationManager.m; sourceTree = "<group>"; };
-		D90145B419F9A094004E7CE2 /* RCMotionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCMotionManager.h; path = ../../SensorManagers/RCMotionManager.h; sourceTree = "<group>"; };
-		D90145B519F9A094004E7CE2 /* RCMotionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCMotionManager.m; path = ../../SensorManagers/RCMotionManager.m; sourceTree = "<group>"; };
-		D90145B619F9A094004E7CE2 /* RCVideoManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCVideoManager.h; path = ../../SensorManagers/RCVideoManager.h; sourceTree = "<group>"; };
-		D90145B719F9A094004E7CE2 /* RCVideoManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCVideoManager.m; path = ../../SensorManagers/RCVideoManager.m; sourceTree = "<group>"; };
 		D90145C619F9A184004E7CE2 /* LicenseHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LicenseHelper.h; sourceTree = "<group>"; };
 		D90145C719F9A184004E7CE2 /* LicenseHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LicenseHelper.m; sourceTree = "<group>"; };
 		D90145CD19F9A23E004E7CE2 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/System/Library/Frameworks/OpenGLES.framework; sourceTree = "<absolute>"; };
@@ -139,23 +103,13 @@
 		D90145DC19F9A23E004E7CE2 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/System/Library/Frameworks/SystemConfiguration.framework; sourceTree = "<absolute>"; };
 		D90145DD19F9A23E004E7CE2 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/System/Library/Frameworks/UIKit.framework; sourceTree = "<absolute>"; };
 		D90145DE19F9A23E004E7CE2 /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS8.1.sdk/System/Library/Frameworks/CoreGraphics.framework; sourceTree = "<absolute>"; };
-		D90145F319F9A5EF004E7CE2 /* RCGLManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCGLManagerFactory.h; sourceTree = "<group>"; };
-		D90145F419F9A5EF004E7CE2 /* RCGLManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCGLManagerFactory.m; sourceTree = "<group>"; };
-		D90145F519F9A5EF004E7CE2 /* RCVideoPreview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoPreview.h; sourceTree = "<group>"; };
-		D90145F619F9A5EF004E7CE2 /* RCVideoPreview.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoPreview.m; sourceTree = "<group>"; };
-		D901460519F9A997004E7CE2 /* RCVideoFrameProvider.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RCVideoFrameProvider.h; path = ../../SensorManagers/RCVideoFrameProvider.h; sourceTree = "<group>"; };
-		D901460619F9C2D8004E7CE2 /* ARDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARDelegate.h; sourceTree = "<group>"; };
-		D901460719F9C2D8004E7CE2 /* ARDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARDelegate.m; sourceTree = "<group>"; };
-		D901460919F9C43B004E7CE2 /* shader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = shader.fsh; path = ../RC3DKSampleAR/RC3DKSampleAR/shader.fsh; sourceTree = "<group>"; };
-		D901460A19F9C43B004E7CE2 /* shader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = shader.vsh; path = ../RC3DKSampleAR/RC3DKSampleAR/shader.vsh; sourceTree = "<group>"; };
+		D901460619F9C2D8004E7CE2 /* ARRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARRenderer.h; sourceTree = "<group>"; };
+		D901460719F9C2D8004E7CE2 /* ARRenderer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARRenderer.m; sourceTree = "<group>"; };
 		D91216791A83360D008E5356 /* chair_chesterfield_d.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = chair_chesterfield_d.png; sourceTree = "<group>"; };
-		D94299AB1A77189C001711FE /* Balloon.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Balloon.h; sourceTree = "<group>"; };
 		D963096A1A01BC9800F92929 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		D9AA84BC1A042DBE004C61D0 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		D9D66FF21A86C15C00764F9A /* chair_chesterfield.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = chair_chesterfield.h; sourceTree = "<group>"; };
 		D9E8C4821A02B143002EDA05 /* RC3DKSampleAR-prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RC3DKSampleAR-prefix.pch"; sourceTree = "<group>"; };
-		D9E8C4851A03FAFA002EDA05 /* RCGLShaderProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCGLShaderProgram.h; sourceTree = "<group>"; };
-		D9E8C4861A03FAFA002EDA05 /* RCGLShaderProgram.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCGLShaderProgram.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -163,8 +117,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3207A5A61AC0EB1700792F30 /* libQuickstartKit.a in Frameworks */,
 				D963096B1A01BC9800F92929 /* GLKit.framework in Frameworks */,
-				D901459F19F9A07D004E7CE2 /* libRC3DK.a in Frameworks */,
 				D90145F019F9A23E004E7CE2 /* UIKit.framework in Frameworks */,
 				D90145E919F9A23E004E7CE2 /* CoreMedia.framework in Frameworks */,
 				D90145E019F9A23E004E7CE2 /* OpenGLES.framework in Frameworks */,
@@ -185,22 +139,34 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		D901457719F9A00F004E7CE2 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3207A5991AC0EAFB00792F30 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3207A59E1AC0EAFB00792F30 /* libQuickstartKit.a */,
+				3207A5A01AC0EAFB00792F30 /* QuickstartResources.bundle */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		3207A5D61AC1D3EF00792F30 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				3207A5D21AC1D3E700792F30 /* shader.fsh */,
+				3207A5D31AC1D3E700792F30 /* shader.vsh */,
+				D91216791A83360D008E5356 /* chair_chesterfield_d.png */,
+			);
+			name = Resources;
+			sourceTree = "<group>";
+		};
 		D901455819F9A00F004E7CE2 = {
 			isa = PBXGroup;
 			children = (
+				3207A5981AC0EAFB00792F30 /* QuickstartKit.xcodeproj */,
 				D9AA84BC1A042DBE004C61D0 /* Default-568h@2x.png */,
 				D901456319F9A00F004E7CE2 /* RC3DKSampleAR */,
-				D901457D19F9A00F004E7CE2 /* RC3DKSampleARTests */,
 				D901456219F9A00F004E7CE2 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -209,7 +175,6 @@
 			isa = PBXGroup;
 			children = (
 				D901456119F9A00F004E7CE2 /* RC3DKSampleAR.app */,
-				D901457A19F9A00F004E7CE2 /* RC3DKSampleARTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -217,19 +182,15 @@
 		D901456319F9A00F004E7CE2 /* RC3DKSampleAR */ = {
 			isa = PBXGroup;
 			children = (
-				D90145F219F9A5EF004E7CE2 /* AugmentedReality */,
-				D901459E19F9A07D004E7CE2 /* 3DK */,
-				D90145AC19F9A094004E7CE2 /* Calibration */,
-				D90145B819F9A094004E7CE2 /* Sensor Managers */,
+				3207A5D61AC1D3EF00792F30 /* Resources */,
 				D901456819F9A00F004E7CE2 /* AppDelegate.h */,
 				D901456919F9A00F004E7CE2 /* AppDelegate.m */,
 				D90145C619F9A184004E7CE2 /* LicenseHelper.h */,
 				D90145C719F9A184004E7CE2 /* LicenseHelper.m */,
 				D901456B19F9A00F004E7CE2 /* ViewController.h */,
 				D901456C19F9A00F004E7CE2 /* ViewController.m */,
-				D901460619F9C2D8004E7CE2 /* ARDelegate.h */,
-				D901460719F9C2D8004E7CE2 /* ARDelegate.m */,
-				D94299AB1A77189C001711FE /* Balloon.h */,
+				D901460619F9C2D8004E7CE2 /* ARRenderer.h */,
+				D901460719F9C2D8004E7CE2 /* ARRenderer.m */,
 				D9D66FF21A86C15C00764F9A /* chair_chesterfield.h */,
 				D901456E19F9A00F004E7CE2 /* Main.storyboard */,
 				D901457119F9A00F004E7CE2 /* Images.xcassets */,
@@ -242,110 +203,11 @@
 		D901456419F9A00F004E7CE2 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				D91216791A83360D008E5356 /* chair_chesterfield_d.png */,
 				D9E8C4821A02B143002EDA05 /* RC3DKSampleAR-prefix.pch */,
 				D901456519F9A00F004E7CE2 /* Info.plist */,
 				D901456619F9A00F004E7CE2 /* main.m */,
 			);
 			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		D901457D19F9A00F004E7CE2 /* RC3DKSampleARTests */ = {
-			isa = PBXGroup;
-			children = (
-				D901458019F9A00F004E7CE2 /* RC3DKSampleARTests.m */,
-				D901457E19F9A00F004E7CE2 /* Supporting Files */,
-			);
-			path = RC3DKSampleARTests;
-			sourceTree = "<group>";
-		};
-		D901457E19F9A00F004E7CE2 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				D901457F19F9A00F004E7CE2 /* Info.plist */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		D901459B19F9A07D004E7CE2 /* RC3DK */ = {
-			isa = PBXGroup;
-			children = (
-				D901458A19F9A07D004E7CE2 /* RC3DK.h */,
-				D901458B19F9A07D004E7CE2 /* RCCameraParameters.h */,
-				D901458C19F9A07D004E7CE2 /* RCDeviceInfo.h */,
-				D901458D19F9A07D004E7CE2 /* RCFeaturePoint.h */,
-				D901458E19F9A07D004E7CE2 /* RCLicenseError.h */,
-				D901458F19F9A07D004E7CE2 /* RCPoint.h */,
-				D901459019F9A07D004E7CE2 /* RCRotation.h */,
-				D901459119F9A07D004E7CE2 /* RCScalar.h */,
-				D901459219F9A07D004E7CE2 /* RCSensorFusion.h */,
-				D901459319F9A07D004E7CE2 /* RCSensorFusionData.h */,
-				D901459419F9A07D004E7CE2 /* RCSensorFusionError.h */,
-				D901459519F9A07D004E7CE2 /* RCSensorFusionInternals.h */,
-				D901459619F9A07D004E7CE2 /* RCSensorFusionStatus.h */,
-				D901459719F9A07D004E7CE2 /* RCTransformation.h */,
-				D901459819F9A07D004E7CE2 /* RCTranslation.h */,
-				D901459919F9A07D004E7CE2 /* RCVector.h */,
-				D901459A19F9A07D004E7CE2 /* RCVideoPreview.h */,
-			);
-			path = RC3DK;
-			sourceTree = "<group>";
-		};
-		D901459C19F9A07D004E7CE2 /* include */ = {
-			isa = PBXGroup;
-			children = (
-				D901459B19F9A07D004E7CE2 /* RC3DK */,
-			);
-			path = include;
-			sourceTree = "<group>";
-		};
-		D901459E19F9A07D004E7CE2 /* 3DK */ = {
-			isa = PBXGroup;
-			children = (
-				D901459C19F9A07D004E7CE2 /* include */,
-				D901459D19F9A07D004E7CE2 /* libRC3DK.a */,
-			);
-			name = 3DK;
-			path = "../../rc3dk-lib";
-			sourceTree = "<group>";
-		};
-		D90145AC19F9A094004E7CE2 /* Calibration */ = {
-			isa = PBXGroup;
-			children = (
-				D90145A019F9A094004E7CE2 /* Calibration.storyboard */,
-				D90145A119F9A094004E7CE2 /* holding_landscape.jpg */,
-				D90145A219F9A094004E7CE2 /* holding_portrait.jpg */,
-				D90145A319F9A094004E7CE2 /* ipad_on_table.jpg */,
-				D90145A419F9A094004E7CE2 /* MBProgressHUD.h */,
-				D90145A519F9A094004E7CE2 /* MBProgressHUD.m */,
-				D90145A619F9A094004E7CE2 /* RCCalibration1.h */,
-				D90145A719F9A094004E7CE2 /* RCCalibration1.m */,
-				D90145A819F9A094004E7CE2 /* RCCalibration2.h */,
-				D90145A919F9A094004E7CE2 /* RCCalibration2.m */,
-				D90145AA19F9A094004E7CE2 /* RCCalibration3.h */,
-				D90145AB19F9A094004E7CE2 /* RCCalibration3.m */,
-			);
-			name = Calibration;
-			path = ../../Calibration;
-			sourceTree = "<group>";
-		};
-		D90145B819F9A094004E7CE2 /* Sensor Managers */ = {
-			isa = PBXGroup;
-			children = (
-				D90145AD19F9A094004E7CE2 /* RCSensorDelegate.h */,
-				D90145AE19F9A094004E7CE2 /* RCSensorDelegate.m */,
-				D90145AF19F9A094004E7CE2 /* RCDebugLog.h */,
-				D90145B019F9A094004E7CE2 /* RCAVSessionManager.h */,
-				D90145B119F9A094004E7CE2 /* RCAVSessionManager.m */,
-				D90145B219F9A094004E7CE2 /* RCLocationManager.h */,
-				D90145B319F9A094004E7CE2 /* RCLocationManager.m */,
-				D90145B419F9A094004E7CE2 /* RCMotionManager.h */,
-				D90145B519F9A094004E7CE2 /* RCMotionManager.m */,
-				D901460519F9A997004E7CE2 /* RCVideoFrameProvider.h */,
-				D90145B619F9A094004E7CE2 /* RCVideoManager.h */,
-				D90145B719F9A094004E7CE2 /* RCVideoManager.m */,
-			);
-			name = "Sensor Managers";
 			sourceTree = "<group>";
 		};
 		D90145DF19F9A23E004E7CE2 /* Frameworks */ = {
@@ -373,22 +235,6 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
-		D90145F219F9A5EF004E7CE2 /* AugmentedReality */ = {
-			isa = PBXGroup;
-			children = (
-				D9E8C4851A03FAFA002EDA05 /* RCGLShaderProgram.h */,
-				D9E8C4861A03FAFA002EDA05 /* RCGLShaderProgram.m */,
-				D90145F319F9A5EF004E7CE2 /* RCGLManagerFactory.h */,
-				D90145F419F9A5EF004E7CE2 /* RCGLManagerFactory.m */,
-				D90145F519F9A5EF004E7CE2 /* RCVideoPreview.h */,
-				D90145F619F9A5EF004E7CE2 /* RCVideoPreview.m */,
-				D901460919F9C43B004E7CE2 /* shader.fsh */,
-				D901460A19F9C43B004E7CE2 /* shader.vsh */,
-			);
-			name = AugmentedReality;
-			path = ../../AugmentedReality;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -403,29 +249,13 @@
 			buildRules = (
 			);
 			dependencies = (
+				3207A5A41AC0EB0800792F30 /* PBXTargetDependency */,
+				3207A5A21AC0EB0600792F30 /* PBXTargetDependency */,
 			);
 			name = RC3DKSampleAR;
 			productName = RC3DKSampleAR;
 			productReference = D901456119F9A00F004E7CE2 /* RC3DKSampleAR.app */;
 			productType = "com.apple.product-type.application";
-		};
-		D901457919F9A00F004E7CE2 /* RC3DKSampleARTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = D901458719F9A00F004E7CE2 /* Build configuration list for PBXNativeTarget "RC3DKSampleARTests" */;
-			buildPhases = (
-				D901457619F9A00F004E7CE2 /* Sources */,
-				D901457719F9A00F004E7CE2 /* Frameworks */,
-				D901457819F9A00F004E7CE2 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				D901457C19F9A00F004E7CE2 /* PBXTargetDependency */,
-			);
-			name = RC3DKSampleARTests;
-			productName = RC3DKSampleARTests;
-			productReference = D901457A19F9A00F004E7CE2 /* RC3DKSampleARTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -440,11 +270,6 @@
 						CreatedOnToolsVersion = 6.1;
 						DevelopmentTeam = 7CKC6G36R8;
 					};
-					D901457919F9A00F004E7CE2 = {
-						CreatedOnToolsVersion = 6.1;
-						DevelopmentTeam = 7CKC6G36R8;
-						TestTargetID = D901456019F9A00F004E7CE2;
-					};
 				};
 			};
 			buildConfigurationList = D901455C19F9A00F004E7CE2 /* Build configuration list for PBXProject "RC3DKSampleAR" */;
@@ -458,36 +283,48 @@
 			mainGroup = D901455819F9A00F004E7CE2;
 			productRefGroup = D901456219F9A00F004E7CE2 /* Products */;
 			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = 3207A5991AC0EAFB00792F30 /* Products */;
+					ProjectRef = 3207A5981AC0EAFB00792F30 /* QuickstartKit.xcodeproj */;
+				},
+			);
 			projectRoot = "";
 			targets = (
 				D901456019F9A00F004E7CE2 /* RC3DKSampleAR */,
-				D901457919F9A00F004E7CE2 /* RC3DKSampleARTests */,
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		3207A59E1AC0EAFB00792F30 /* libQuickstartKit.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libQuickstartKit.a;
+			remoteRef = 3207A59D1AC0EAFB00792F30 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		3207A5A01AC0EAFB00792F30 /* QuickstartResources.bundle */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = QuickstartResources.bundle;
+			remoteRef = 3207A59F1AC0EAFB00792F30 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
 		D901455F19F9A00F004E7CE2 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3207A5A51AC0EB0E00792F30 /* QuickstartResources.bundle in Resources */,
 				D901457019F9A00F004E7CE2 /* Main.storyboard in Resources */,
-				D90145BA19F9A094004E7CE2 /* holding_landscape.jpg in Resources */,
+				3207A5D41AC1D3E700792F30 /* shader.fsh in Resources */,
 				D912167A1A83360D008E5356 /* chair_chesterfield_d.png in Resources */,
+				3207A5D51AC1D3E700792F30 /* shader.vsh in Resources */,
 				D9AA84BD1A042DBE004C61D0 /* Default-568h@2x.png in Resources */,
-				D90145B919F9A094004E7CE2 /* Calibration.storyboard in Resources */,
-				D90145BC19F9A094004E7CE2 /* ipad_on_table.jpg in Resources */,
-				D901460C19F9C43B004E7CE2 /* shader.vsh in Resources */,
-				D90145BB19F9A094004E7CE2 /* holding_portrait.jpg in Resources */,
-				D901460B19F9C43B004E7CE2 /* shader.fsh in Resources */,
 				D901457219F9A00F004E7CE2 /* Images.xcassets in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		D901457819F9A00F004E7CE2 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -498,41 +335,26 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D90145BF19F9A094004E7CE2 /* RCCalibration2.m in Sources */,
-				D90145C219F9A094004E7CE2 /* RCAVSessionManager.m in Sources */,
-				D90145C519F9A094004E7CE2 /* RCVideoManager.m in Sources */,
-				D90145BE19F9A094004E7CE2 /* RCCalibration1.m in Sources */,
-				D90145C419F9A094004E7CE2 /* RCMotionManager.m in Sources */,
-				D90145FF19F9A5EF004E7CE2 /* RCVideoPreview.m in Sources */,
-				D90145C319F9A094004E7CE2 /* RCLocationManager.m in Sources */,
 				D901456D19F9A00F004E7CE2 /* ViewController.m in Sources */,
-				D90145C019F9A094004E7CE2 /* RCCalibration3.m in Sources */,
-				D90145FE19F9A5EF004E7CE2 /* RCGLManagerFactory.m in Sources */,
 				D901456A19F9A00F004E7CE2 /* AppDelegate.m in Sources */,
 				D90145C819F9A184004E7CE2 /* LicenseHelper.m in Sources */,
-				D9E8C4871A03FAFA002EDA05 /* RCGLShaderProgram.m in Sources */,
 				D901456719F9A00F004E7CE2 /* main.m in Sources */,
-				D901460819F9C2D8004E7CE2 /* ARDelegate.m in Sources */,
-				D90145BD19F9A094004E7CE2 /* MBProgressHUD.m in Sources */,
-				D90145C119F9A094004E7CE2 /* RCSensorDelegate.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		D901457619F9A00F004E7CE2 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				D901458119F9A00F004E7CE2 /* RC3DKSampleARTests.m in Sources */,
+				D901460819F9C2D8004E7CE2 /* ARRenderer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		D901457C19F9A00F004E7CE2 /* PBXTargetDependency */ = {
+		3207A5A21AC0EB0600792F30 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = D901456019F9A00F004E7CE2 /* RC3DKSampleAR */;
-			targetProxy = D901457B19F9A00F004E7CE2 /* PBXContainerItemProxy */;
+			name = QuickstartKit;
+			targetProxy = 3207A5A11AC0EB0600792F30 /* PBXContainerItemProxy */;
+		};
+		3207A5A41AC0EB0800792F30 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = QuickstartResources;
+			targetProxy = 3207A5A31AC0EB0800792F30 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -637,16 +459,14 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DKSampleAR/RC3DKSampleAR-Prefix.pch";
 				INFOPLIST_FILE = RC3DKSampleAR/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)/../rc3dk-lib",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = (
-					"-objC",
+					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_NAME = RC3DKSampleAR;
+				PRODUCT_NAME = "3DK AR Sample";
 				PROVISIONING_PROFILE = "";
 			};
 			name = Debug;
@@ -661,57 +481,15 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DKSampleAR/RC3DKSampleAR-Prefix.pch";
 				INFOPLIST_FILE = RC3DKSampleAR/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)/../rc3dk-lib",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = (
-					"-objC",
+					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_NAME = "RealityCap AR Sample";
+				PRODUCT_NAME = "3DK AR Sample";
 				PROVISIONING_PROFILE = "";
-			};
-			name = Release;
-		};
-		D901458819F9A00F004E7CE2 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = RC3DKSampleARTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RC3DKSampleAR.app/RC3DKSampleAR";
-			};
-			name = Debug;
-		};
-		D901458919F9A00F004E7CE2 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = RC3DKSampleARTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RC3DKSampleAR.app/RC3DKSampleAR";
 			};
 			name = Release;
 		};
@@ -761,35 +539,15 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DKSampleAR/RC3DKSampleAR-Prefix.pch";
 				INFOPLIST_FILE = RC3DKSampleAR/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(SRCROOT)/../rc3dk-lib",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_LDFLAGS = (
-					"-objC",
+					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "3DK AR Sample";
 				PROVISIONING_PROFILE = "";
-			};
-			name = Archive;
-		};
-		D973AB421A1EDCAD000CC4AD /* Archive */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = RC3DKSampleARTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RC3DKSampleAR.app/RC3DKSampleAR";
 			};
 			name = Archive;
 		};
@@ -812,16 +570,6 @@
 				D901458519F9A00F004E7CE2 /* Debug */,
 				D901458619F9A00F004E7CE2 /* Release */,
 				D973AB411A1EDCAD000CC4AD /* Archive */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		D901458719F9A00F004E7CE2 /* Build configuration list for PBXNativeTarget "RC3DKSampleARTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				D901458819F9A00F004E7CE2 /* Debug */,
-				D901458919F9A00F004E7CE2 /* Release */,
-				D973AB421A1EDCAD000CC4AD /* Archive */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

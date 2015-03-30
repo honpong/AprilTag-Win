@@ -9,8 +9,7 @@
 #import "AppDelegate.h"
 #import "ViewController.h"
 #import "LicenseHelper.h"
-#import "RCSensorDelegate.h"
-#import "RCDebugLog.h"
+#import <QuickstartKit/QuickstartKit.h>
 
 #define PREF_IS_CALIBRATED @"PREF_IS_CALIBRATED"
 #define PREF_SHOW_LOCATION_EXPLANATION @"RC_SHOW_LOCATION_EXPLANATION"
@@ -18,7 +17,7 @@
 @implementation AppDelegate
 {
     UIViewController * mainViewController;
-    id<RCSensorDelegate> mySensorDelegate;
+    RCSensorManager* sensorManager;
     RCLocationManager * locationManager;
 }
 
@@ -35,7 +34,7 @@
     [[RCSensorFusion sharedInstance] setLicenseKey:SDK_LICENSE_KEY];
 
     // Create a sensor delegate to manage the sensors
-    mySensorDelegate = [SensorDelegate sharedInstance];
+    sensorManager = [RCSensorManager sharedInstance];
     locationManager = [RCLocationManager sharedInstance];
 
     // save a reference to the main view controller. we use this after calibration has finished.
@@ -44,7 +43,7 @@
     // determine if calibration has been done
     BOOL isCalibrated = [[NSUserDefaults standardUserDefaults] boolForKey:PREF_IS_CALIBRATED]; // gets set to YES when calibration completes
     BOOL hasStoredCalibrationData = [[RCSensorFusion sharedInstance] hasCalibrationData]; // checks if calibration data can be retrieved
-
+    
     // if calibration hasn't been done, or can't be retrieved, start calibration
     if (!isCalibrated || !hasStoredCalibrationData)
     {
@@ -62,10 +61,9 @@
 
 - (void) gotoCalibration
 {
-    // presents the first of three calibration view controllers
-    RCCalibration1 *calibration1 = [RCCalibration1 instantiateViewController];
+    // presents the first of three calibration view controllers    
+    RCCalibration1* calibration1 = [RCCalibration1 instantiateFromQuickstartKit];
     calibration1.calibrationDelegate = self;
-    calibration1.sensorDelegate = mySensorDelegate;
     calibration1.modalPresentationStyle = UIModalPresentationFullScreen;
     self.window.rootViewController = calibration1;
 }
@@ -88,7 +86,7 @@
     else
     {
         //Does nothing if location is not authorized. The SensorDelegate calls [RCSensorFusion setLocation] automatically. If you do not use the SensorDelegate, make sure you pass the location to RCSensorFusion before starting sensor fusion.
-        [mySensorDelegate startLocationUpdatesIfAllowed];
+        [sensorManager startLocationUpdatesIfAllowed];
     }
 }
 
@@ -103,8 +101,20 @@
     {
         [[NSUserDefaults standardUserDefaults] setBool:NO forKey:PREF_SHOW_LOCATION_EXPLANATION];
         [[NSUserDefaults standardUserDefaults] synchronize];
-        [mySensorDelegate startLocationUpdatesIfAllowed];
+        [sensorManager startLocationUpdatesIfAllowed];
     }
+}
+
+#pragma mark - RCCalibrationDelegate
+
+- (void)startMotionSensors
+{
+    [sensorManager startMotionSensors];
+}
+
+- (void)stopMotionSensors
+{
+    [sensorManager stopAllSensors];
 }
 
 - (void) calibrationDidFinish:(UIViewController*)lastViewController

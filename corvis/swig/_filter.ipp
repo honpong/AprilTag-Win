@@ -23,6 +23,8 @@
 
 %include "cor_typemaps.i"
 
+%ignore observations;
+
 %typemap(out) matrix {
   npy_intp dims[2] = { $1.rows, $1.cols };
   npy_intp strides[2] = { sizeof(f_t) * $1.stride, sizeof(f_t) };

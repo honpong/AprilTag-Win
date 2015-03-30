@@ -22,6 +22,7 @@ using namespace std;
 
 #define log_enabled false
 #define show_tuning false
+#define plot_enabled true
 
 //minstatesize = base (38) + 2xref (12) + full group(40) + min group (6) = 96
 #define MINSTATESIZE 96
@@ -151,6 +152,7 @@ public:
             if(!test_posdef(cov.cov)) fprintf(stderr, "not pos def before explicit time update\n");
 #endif
             f_t dt = ((f_t)time - (f_t)current_time) / 1000000.;
+            if(log_enabled && dt > .025) fprintf(stderr, "Time step is %f\n", dt);
             evolve(dt);
 #ifdef TEST_POSDEF
             if(!test_posdef(cov.cov)) fprintf(stderr, "not pos def after explicit time update\n");
@@ -248,6 +250,7 @@ protected:
 };
 
 #ifdef SWIG
+%template(state_leaf_rotation_vector) state_leaf<rotation_vector, 3>;
 %template(state_leaf_vec) state_leaf<v4, 3>;
 %template(state_leaf_sca) state_leaf<f_t, 1>;
 %template(state_branch_node) state_branch<state_node *>;

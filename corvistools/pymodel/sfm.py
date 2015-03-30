@@ -16,7 +16,7 @@ import pylab
 import readchar
 import intrinsics
 from IPython.Debugger import Tracer
-from animplot import animplot
+from plot import animplot
 from playerparse import *
 
 debug_here=Tracer()

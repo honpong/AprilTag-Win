@@ -201,7 +201,6 @@ void process_observation_queue(struct filter *f, uint64_t time)
         f->numeric_failed = true;
         f->calibration_bad = true;
     }
-    filter_update_outputs(f, time);
 }
 
 void filter_compute_gravity(struct filter *f, double latitude, double altitude)
@@ -441,11 +440,15 @@ void filter_accelerometer_measurement(struct filter *f, const float data[3], uin
     if(!f->gravity_init) {
         f->gravity_init = true;
         //set up plots
-        if(f->visbuf) {
+        if(plot_enabled && f->visbuf) {
             packet_plot_setup(f->visbuf, time, packet_plot_meas_a, "Meas-alpha", sqrt(f->a_variance));
             packet_plot_setup(f->visbuf, time, packet_plot_meas_w, "Meas-omega", sqrt(f->w_variance));
             packet_plot_setup(f->visbuf, time, packet_plot_inn_a, "Inn-alpha", sqrt(f->a_variance));
             packet_plot_setup(f->visbuf, time, packet_plot_inn_w, "Inn-omega", sqrt(f->w_variance));
+            packet_plot_setup(f->visbuf, time, packet_plot_var_T, "Var-T", 1);
+            packet_plot_setup(f->visbuf, time, packet_plot_var_W, "Var-W", 1);
+            packet_plot_setup(f->visbuf, time, packet_plot_var_a, "Var-a", 1);
+            packet_plot_setup(f->visbuf, time, packet_plot_var_w, "Var-w", 1);
         }
         
         //fix up groups and features that have already been added
@@ -459,16 +462,23 @@ void filter_accelerometer_measurement(struct filter *f, const float data[3], uin
         }*/
     }
     
-    observation_spatial *obs_a;
-    obs_a = new observation_accelerometer(f->s, time, time);
+    auto obs_a = std::make_unique<observation_accelerometer>(f->s, time, time);
     
     for(int i = 0; i < 3; ++i) {
         obs_a->meas[i] = data[i];
     }
     
-    f->observations.observations.push_back(obs_a);
-    
     obs_a->variance = get_accelerometer_variance_for_run_state(f, meas, time);
+    if(plot_enabled && f->visbuf) {
+        obs_a->predict(); // FIXME: these get called again for real but are idempotent and we want to plot them here and now
+        obs_a->compute_innovation();
+        float a_inn[3] = { (float)obs_a->innovation(0), (float)obs_a->innovation(1), (float)obs_a->innovation(2) };
+        float a_meas[3] = { (float)obs_a->meas[0], (float)obs_a->meas[1], (float)obs_a->meas[2] };
+        packet_plot_send(f->visbuf, time, packet_plot_inn_a, 3, a_inn);
+        packet_plot_send(f->visbuf, time, packet_plot_meas_a, 3, a_meas);
+    }
+
+    f->observations.observations.push_back(std::move(obs_a));
 
     if(show_tuning) fprintf(stderr, "accelerometer:\n");
     process_observation_queue(f, time);
@@ -508,13 +518,23 @@ void filter_gyroscope_measurement(struct filter *f, const float data[3], uint64_
         return;
     }
 
-    observation_gyroscope *obs_w = new observation_gyroscope(f->s, time, time);
+    auto obs_w = std::make_unique<observation_gyroscope>(f->s, time, time);
     for(int i = 0; i < 3; ++i) {
         obs_w->meas[i] = data[i];
     }
     obs_w->variance = f->w_variance;
-    f->observations.observations.push_back(obs_w);
-    
+
+    if(plot_enabled && f->visbuf) {
+        obs_w->predict(); // FIXME: these get called again for real but are idempotent and we want to plot them here and now
+        obs_w->compute_innovation();
+        float w_inn[3] = { (float)obs_w->innovation(0), (float)obs_w->innovation(1),(float)obs_w->innovation(2) };
+        float w_meas[3] = {(float)obs_w->meas[0], (float)obs_w->meas[1], (float)obs_w->meas[2]};
+        packet_plot_send(f->visbuf, time, packet_plot_inn_w, 3, w_inn);
+        packet_plot_send(f->visbuf, time, packet_plot_meas_w, 3, w_meas);
+    }
+
+    f->observations.observations.push_back(std::move(obs_w));
+
     if(f->run_state == RCSensorFusionRunStateStaticCalibration) {
         f->gyro_stability.data(meas);
     }
@@ -679,7 +699,7 @@ void filter_setup_next_frame(struct filter *f, const uint8_t *image, uint64_t ti
             if(!g->status || g->status == group_initializing) continue;
             for(state_vision_feature *i : g->features.children) {
                 uint64_t extra_time = f->shutter_delay + i->current[1]/f->image_height * f->shutter_period;
-                observation_vision_feature *obs = new observation_vision_feature(f->s, time + extra_time, time);
+                auto obs = std::make_unique<observation_vision_feature>(f->s, time + extra_time, time);
                 obs->state_group = g;
                 obs->feature = i;
                 obs->meas[0] = i->current[0];
@@ -687,7 +707,7 @@ void filter_setup_next_frame(struct filter *f, const uint8_t *image, uint64_t ti
                 obs->image = image;
                 obs->tracker = f->track;
 
-                f->observations.observations.push_back(obs);
+                f->observations.observations.push_back(std::move(obs));
 
                 fi += 2;
             }
@@ -699,6 +719,19 @@ void filter_setup_next_frame(struct filter *f, const uint8_t *image, uint64_t ti
 void filter_send_output(struct filter *f, uint64_t time)
 {
     if(!f->output) return;
+
+    if(plot_enabled && f->visbuf) {
+        float tv[3];
+        for(int i = 0; i < 3; ++i) tv[i] = f->s.T.variance()[i];
+        packet_plot_send(f->visbuf, time, packet_plot_var_T, 3, tv);
+        for(int i = 0; i < 3; ++i) tv[i] = f->s.W.variance()[i];
+        packet_plot_send(f->visbuf, time, packet_plot_var_W, 3, tv);
+        for(int i = 0; i < 3; ++i) tv[i] = f->s.a.variance()[i];
+        packet_plot_send(f->visbuf, time, packet_plot_var_a, 3, tv);
+        for(int i = 0; i < 3; ++i) tv[i] = f->s.w.variance()[i];
+        packet_plot_send(f->visbuf, time, packet_plot_var_w, 3, tv);
+    }
+
     size_t nfeats = f->s.features.size();
     packet_filter_current_t *cp = (packet_filter_current_t *)mapbuffer_alloc(f->output, packet_filter_current, (uint32_t)(sizeof(packet_filter_current) - 16 + nfeats * 3 * sizeof(float)));
     int n_good_feats = 0;
@@ -1041,6 +1074,13 @@ bool filter_image_measurement(struct filter *f, const unsigned char *data, int w
     
     if(f->max_velocity > convergence_minimum_velocity && f->median_depth_variance < convergence_maximum_depth_variance) f->has_converged = true;
     
+    filter_update_outputs(f, time);
+    f_t delta_T = norm(f->s.T.v - f->s.last_position);
+    if(delta_T > .01) {
+        f->s.total_distance += norm(f->s.T.v - f->s.last_position);
+        f->s.last_position = f->s.T.v;
+    }
+
     return true;
 }
 
@@ -1184,7 +1224,7 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
         f->scaled_mask = 0;
     }
     
-    f->observations.clear();
+    f->observations.observations.clear();
 
     f->s.reset();
     f->s.maxstatesize = 120;

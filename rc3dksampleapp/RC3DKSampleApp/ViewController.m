@@ -8,13 +8,13 @@
 
 #import "ViewController.h"
 #import "LicenseHelper.h"
-#import "RCSensorDelegate.h"
+#import <QuickstartKit/QuickstartKit.h>
 
 @implementation ViewController
 {
     RCSensorFusion* sensorFusion;
     bool isStarted; // Keeps track of whether the start button has been pressed
-    id<RCSensorDelegate> sensorDelegate;
+    RCSensorManager* sensorManager;
 }
 @synthesize startStopButton, distanceText, statusLabel;
 
@@ -22,7 +22,7 @@
 {
     [super viewDidLoad];
 
-    sensorDelegate = [SensorDelegate sharedInstance];
+    sensorManager = [RCSensorManager sharedInstance];
     sensorFusion = [RCSensorFusion sharedInstance]; // The main class of the 3DK framework
     sensorFusion.delegate = self; // Tells RCSensorFusion where to send data to
     
@@ -35,6 +35,16 @@
                                                object:nil];
 
     [self doSanityCheck];
+}
+
+- (void)viewDidAppear:(BOOL)animated
+{
+    // check for camera permission
+    [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (!granted) statusLabel.text = @"Error: This app won't work without camera permission.";
+        });
+    }];
 }
 
 - (void) doSanityCheck
@@ -54,14 +64,14 @@
 {
     isStarted = true;
     [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
-    [sensorDelegate startAllSensors];
+    [sensorManager startAllSensors];
     [[RCSensorFusion sharedInstance] startSensorFusionWithDevice:[[RCAVSessionManager sharedInstance] videoDevice]];
 }
 
 - (void)stopSensorFusion
 {
     [sensorFusion stopSensorFusion];
-    [sensorDelegate stopAllSensors];
+    [sensorManager stopAllSensors];
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
     isStarted = false;
 }

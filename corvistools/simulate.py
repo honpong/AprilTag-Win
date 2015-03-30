@@ -49,8 +49,8 @@ cor.plugins_register(cor.mapbuffer_open(visbuf))
 
 execfile("vis/vis_cfg.py")
 
-cor.dispatch_addpython(visbuf.dispatch, myvis.frame_1.window_3.plot_dispatch);
-cor.dispatch_addpython(visbuf.dispatch, myvis.frame_1.render_widget.packet_world);
+cor.dispatch_addpython(visbuf.dispatch, myvis.frame.window_3.plot_dispatch);
+cor.dispatch_addpython(visbuf.dispatch, myvis.frame.render_widget.packet_world);
 cor.dispatch_addpython(visbuf.dispatch, featover.status_queue.put);
 
 sys.path.extend(["renderable/", "renderable/.libs"])
@@ -64,11 +64,11 @@ measurement.color=[0.,1.,0.,1.]
 
 filter_render = renderable.filter_state(fc.sfm)
 
-myvis.frame_1.render_widget.add_renderable(structure.render, "Structure")
-myvis.frame_1.render_widget.add_renderable(motion.render, "Motion")
-myvis.frame_1.render_widget.add_renderable(measurement.render, "Measurement")
+myvis.frame.render_widget.add_renderable(structure.render, "Structure")
+myvis.frame.render_widget.add_renderable(motion.render, "Motion")
+myvis.frame.render_widget.add_renderable(measurement.render, "Measurement")
 
-myvis.frame_1.render_widget.add_renderable(filter_render.render, "Filter state")
+myvis.frame.render_widget.add_renderable(filter_render.render, "Filter state")
 cor.dispatch_addclient(fc.solution.dispatch, structure, renderable.structure_packet)
 cor.dispatch_addclient(fc.solution.dispatch, motion, renderable.motion_packet)
 cor.dispatch_addclient(fc.solution.dispatch, measurement, renderable.measurement_packet)
@@ -120,7 +120,7 @@ class render_ground_truth:
 
 
 gt_render = render_ground_truth()
-myvis.frame_1.render_widget.add_renderable(gt_render.render, "Simulation truth")
+myvis.frame.render_widget.add_renderable(gt_render.render, "Simulation truth")
 cor.dispatch_addpython(capture.dispatch, gt_render.receive_packet);
 
 
@@ -186,7 +186,7 @@ signal.signal(signal.SIGINT, signal_handler)
 def window_closed(event):
     stop_and_exit()
 
-myvis.frame_1.Bind(wx.EVT_CLOSE, window_closed)
+myvis.frame.Bind(wx.EVT_CLOSE, window_closed)
 """
 
 myvis.app.MainLoop()()

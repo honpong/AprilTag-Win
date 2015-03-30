@@ -50,4 +50,6 @@ typedef NS_ENUM(int, RCLicenseErrorCode)
  */
 - (NSInteger) code;
 
+- (NSDictionary*) dictionaryRepresentation;
+
 @end

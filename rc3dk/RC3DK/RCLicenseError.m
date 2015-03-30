@@ -15,4 +15,13 @@
     return [super code];
 }
 
+- (NSDictionary*) dictionaryRepresentation
+{
+    NSDictionary* dict = @{
+                           @"class": [self.class description],
+                           @"code": @(self.code)
+                           };
+    return dict;
+}
+
 @end

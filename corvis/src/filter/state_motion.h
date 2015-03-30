@@ -54,7 +54,7 @@ protected:
     v4 dW;
 private:
     f_t gravity_magnitude;
-    m4 dWp_dW, dWp_dw, dWp_ddw;
+    m4 dWp_dW, dWp_ddW;
 };
 
 class state_motion: public state_motion_orientation {

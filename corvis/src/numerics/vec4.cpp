@@ -48,30 +48,6 @@ const v4m4 invskew3_jacobian = { {
 }
 };
 
-/*
-    if(V2) {
-
-    }
-}
-*/
-
-                               /*
-v4 quaternion_from_axis_angle(const v4 W, m4 *dQ_dW)
-{
-    v4 W2 = W * W;
-    f_t theta2 = sum(W2);
-    if(theta2 <= 0.) {
-        return (v4) { 1., 0., 0., 0. };
-    }
-    f_t theta = sqrt(theta2),
-        cos_theta = cos(theta / 2.),
-        sin_theta = sin(theta / 2.),
-        sterm = sin_theta / theta;
-    
-    return (v4) { cos_theta, W[0] * sterm, W[1] * sterm, W[2] * sterm };
-}
-                               */
-
 m4 rodrigues(const v4 W, m4v4 *dR_dW)
 {
     v4 W2 = W * W;
@@ -140,88 +116,6 @@ m4 rodrigues(const v4 W, m4v4 *dR_dW)
     return m4_identity + V * sinterm + V2 * costerm;
 }
 
-v4 invrodrigues(const m4 R, v4m4 *dW_dR)
-{
-    f_t trc = trace3(R);
-    //sin theta can be zero if:
-    if(trc >= 3.) { //theta = 0, so sin = 0
-        if(dW_dR) {
-            *dW_dR = invskew3_jacobian;
-        }
-        return v4(0.);
-    }
-    v4 s = invskew3(R);
-    f_t costheta = (trc - 1.0) / 2.0;
-    f_t theta, sintheta;
-    if(trc < -1.) {
-        theta = M_PI;
-        sintheta = 0.;
-    } else {
-        sintheta = sqrt(sum(s * s));
-        theta = atan2(sintheta, costheta);
-    }
-    if(trc <= -1. + .001) {//theta = pi - discontinuity as axis flips; off-axis elements don't give a good vector
-        //assert(0 && "need to implement invrodrigues linearization for theta = pi");
-        //pick the largest diagonal - then average off-diagonal elements
-        // http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToAngle/
-        v4 s(0.);
-        if(dW_dR) *dW_dR = v4m4();
-        if(R[0][0] > R[1][1] && R[0][0] > R[2][2]) { //x is largest
-            s[0] = sqrt((R[0][0] + 1.) / 2.);
-            s[1] = (R[0][1] + R[1][0]) / (4. * s[0]);
-            s[2] = (R[0][2] + R[2][0]) / (4. * s[0]);
-            if(dW_dR) {
-                (*dW_dR)[0][0][0] = 1. / (4. * sqrt((R[0][0] + 1.) / 2.));
-                (*dW_dR)[1][0][0] = -s[1] / s[0] * (*dW_dR)[0][0][0];
-                (*dW_dR)[2][0][0] = -s[2] / s[0] * (*dW_dR)[0][0][0];
-                (*dW_dR)[1][0][1] = (*dW_dR)[1][1][0] = (*dW_dR)[2][0][2] = (*dW_dR)[2][2][0] = 1. / (4. * s[0]);
-            }
-        } else if(R[1][1] > R[2][2]) { // y is largest
-            s[1] = sqrt((R[1][1] + 1.) / 2.);
-            s[0] = (R[1][0] + R[0][1]) / (4. * s[1]);
-            s[2] = (R[1][2] + R[2][1]) / (4. * s[1]);
-            if(dW_dR) {
-                (*dW_dR)[1][1][1] = 1. / (4. * sqrt((R[1][1] + 1.) / 2.));
-                (*dW_dR)[0][1][1] = -s[0] / s[1] * (*dW_dR)[1][1][1];
-                (*dW_dR)[2][1][1] = -s[2] / s[1] * (*dW_dR)[1][1][1];
-                (*dW_dR)[0][1][0] = (*dW_dR)[0][0][1] = (*dW_dR)[2][1][2] = (*dW_dR)[2][2][1] = 1. / (4. * s[1]);
-            }
-        } else { // z is largest
-            s[2] = sqrt((R[2][2] + 1.) / 2.);
-            s[0] = (R[2][0] + R[0][2]) / (4. * s[2]);
-            s[1] = (R[2][1] + R[1][2]) / (4. * s[2]);
-            if(dW_dR) {
-                (*dW_dR)[2][2][2] = 1. / (4. * sqrt((R[2][2] + 1.) / 2.));
-                (*dW_dR)[0][2][2] = -s[0] / s[2] * (*dW_dR)[2][2][2];
-                (*dW_dR)[1][2][2] = -s[1] / s[2] * (*dW_dR)[2][2][2];
-                (*dW_dR)[0][2][0] = (*dW_dR)[0][0][2] = (*dW_dR)[1][2][1] = (*dW_dR)[1][1][2] = 1. / (4. * s[2]);
-            }
-        }
-        return s * theta;
-    }
-
-    if(theta * theta < 6 * F_T_EPS) { //theta is small, so we have near-skew-symmetry and discontinuity
-        //just use the off-diagonal elements
-        if(dW_dR) *dW_dR = invskew3_jacobian;
-        return s;
-    }
-    f_t invsintheta = 1. / sintheta,
-        invsin2theta = invsintheta * invsintheta,
-        thetaf = theta * invsintheta;
-
-    if(dW_dR) {
-        *dW_dR = v4m4();
-        f_t
-            dtheta_dtrc = -0.5 * invsintheta,
-            dtf_dt = invsintheta - theta * costheta * invsin2theta;
-
-        m4 dtheta_dR = m4_identity * dtheta_dtrc;
-
-        *dW_dR = invskew3_jacobian * thetaf + outer_product(dtheta_dR, s*dtf_dt);
-    }
-    return s * thetaf;
-}
-
 v4 integrate_angular_velocity(const v4 &W, const v4 &w)
 {
     f_t theta2 = sum(W * W);
@@ -275,29 +169,3 @@ void linearize_angular_integration(const v4 &W, const v4 &w, m4 &dW_dW, m4 &dW_d
     dW_dW = m4_identity + .5 * ((m4){{dg_dW * w[0], dg_dW * w[1], dg_dW * w[2], dg_dW * w[3]}} - (eta * m3_identity + (m4){{de_dW * W[0], de_dW * W[1], de_dW * W[2], de_dW * W[3]}}) - skew3(w));
     dW_dw = .5 * (gamma * m3_identity - ((m4){{de_dw * W[0], de_dw * W[1], de_dw * W[2], de_dw * W[3]}}) + skew3(W));
 }
-
-v4 integrate_angular_velocity_rodrigues(const v4 &W, const v4 &w)
-{
-    return invrodrigues(rodrigues(W, NULL) * rodrigues(w, NULL), NULL);
-}
-
-void linearize_angular_integration_rodrigues(const v4 &W, const v4 &w, m4 &dW_dW, m4 &dW_dw)
-{
-    m4v4 dR_dW, dr_dw;
-    v4m4 dWp_dRp;
-    
-    m4
-    R = rodrigues(W, &dR_dW),
-    r = rodrigues(w, &dr_dw);
-    
-    m4 Rp = R * r;
-    invrodrigues(Rp, &dWp_dRp);
-    
-    m4v4
-    dRp_dW = dR_dW * r,
-    dRp_dw = R * (dr_dw);
-    
-    dW_dW = dWp_dRp * dRp_dW,
-    dW_dw = dWp_dRp * dRp_dw;
-}
-

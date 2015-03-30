@@ -10,7 +10,7 @@
 #import "ArcBall.h"
 #import "WorldState.h"
 #import "MBProgressHUD.h"
-#import <RCCore/RCSensorDelegate.h>
+#import <RCCore/RCSensorManager.h>
 
 #define INITIAL_LIMITS 3.
 #define POINT_SIZE 3.0
@@ -52,7 +52,7 @@ static VertexData axisVertex[] = {
 
 @interface VisualizationController () {
     /* RC3DK */
-    id<RCSensorDelegate> sensorDelegate;
+    RCSensorManager* sensorManager;
     RCSensorFusion* sensorFusion;
     bool isStarted; // Keeps track of whether the start button has been pressed
 
@@ -94,7 +94,7 @@ static VertexData axisVertex[] = {
     [super viewDidLoad];
 
     /* RC3DK Setup */
-    sensorDelegate = [SensorDelegate sharedInstance];
+    sensorManager = [RCSensorManager sharedInstance];
     sensorFusion = [RCSensorFusion sharedInstance]; // The main class of the 3DK framework
     sensorFusion.delegate = self; // Tells RCSensorFusion where to send data to
 
@@ -193,7 +193,7 @@ static VertexData axisVertex[] = {
 {
     [state reset];
     [self beginHoldingPeriod];
-    [sensorDelegate startAllSensors];
+    [sensorManager startAllSensors];
     [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
     isStarted = YES;
     statusLabel.text = @"";
@@ -215,7 +215,7 @@ static VertexData axisVertex[] = {
 - (void)stopSensorFusion
 {
     [sensorFusion stopSensorFusion];
-    [sensorDelegate stopAllSensors];
+    [sensorManager stopAllSensors];
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
     isStarted = NO;
     [self hideProgress];

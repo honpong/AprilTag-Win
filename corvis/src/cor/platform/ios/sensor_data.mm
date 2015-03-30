@@ -30,6 +30,7 @@ camera_data::camera_data(void *h): image_handle((void *)CFRetain(h), [](void *h)
     auto sampleBuffer = (CMSampleBufferRef)image_handle.get();
     CMTime time = (CMTime)CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
     
+    //TODO: get actual exposure time from ExposureTime field of exif metadata dictionary
     //capture image meta data
     //        CFDictionaryRef metadataDict = CMGetAttachment(sampleBuffer, kCGImagePropertyExifDictionary , NULL);
     //        DLog(@"metadata: %@", metadataDict);

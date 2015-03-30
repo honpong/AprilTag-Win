@@ -8,7 +8,7 @@ import wx
 from corvis import cor
 import numpy
 import Mouse
-from LockPaint import LockPaint
+from threading import Lock
 from Queue import *
 
 def parsepgm(header):
@@ -18,11 +18,12 @@ def parsepgm(header):
     return width, height
 
 class PacketQueue(Queue):
-    def __init__(self, ptype):
+    def __init__(self, ptype, widget):
         Queue.__init__(self, 0)
         self.ptype = ptype
         self.latest_time = 0
         self.current_time = 0
+        self.widget = widget
 
     def put(self, packet):
         if packet.header.type == self.ptype:
@@ -43,9 +44,9 @@ class PacketQueue(Queue):
             raise Empty, "nothing for that time"
 
 class Overlay:
-    def __init__(self, ptype):
+    def __init__(self, ptype, widget):
         self.time = 0
-        self.queue = PacketQueue(ptype)
+        self.queue = PacketQueue(ptype, widget)
 
     def draw(self, dc, time):
         if time != self.time:
@@ -62,10 +63,10 @@ class Overlay:
         return self.queue.latest_time
 
 class FeatureOverlay(Overlay):
-    def __init__(self):
-        Overlay.__init__(self, cor.packet_feature_track)
-        self.status_queue = PacketQueue(cor.packet_feature_status)
-        self.pred_queue = PacketQueue(cor.packet_feature_prediction_variance)
+    def __init__(self, widget):
+        Overlay.__init__(self, cor.packet_feature_track, widget)
+        self.status_queue = PacketQueue(cor.packet_feature_status, widget)
+        self.pred_queue = PacketQueue(cor.packet_feature_prediction_variance, widget)
 
     def get_latest(self):
         if(self.status_queue.latest_time):
@@ -143,8 +144,8 @@ class FeatureOverlay(Overlay):
 
 
 class ImageOverlay(Overlay):
-    def __init__(self):
-        Overlay.__init__(self, cor.packet_camera)
+    def __init__(self, widget):
+        Overlay.__init__(self, cor.packet_camera, widget)
 
     def process_packet(self, packet):
         image = cor.packet_camera_t_image(packet)
@@ -159,7 +160,7 @@ class ImageOverlay(Overlay):
 
 import math
 
-class ImagePanel(LockPaint, wx.Panel, Mouse.Wheel, Mouse.Drag):
+class ImagePanel(wx.Panel, Mouse.Wheel, Mouse.Drag):
     def __init__(self, *args, **kwds):
         super(ImagePanel, self).__init__(*args, **kwds)
         self.renderables = list()
@@ -167,32 +168,29 @@ class ImagePanel(LockPaint, wx.Panel, Mouse.Wheel, Mouse.Drag):
         self.origin = numpy.array([0,0])
         Mouse.Wheel.__init__(self, *args, **kwds)
         self.Bind(wx.EVT_PAINT, self.OnPaint)
-        self.Bind(wx.EVT_IDLE, self.OnIdle)
-
-    def OnIdle(self, event):
-        self.Refresh(True)
-        wx.WakeUpIdle()
+        self.lock = Lock()
 
     def OnPaint(self, event):
-        self.BeginPaint()
-        dc = wx.AutoBufferedPaintDCFactory(self)
-        # python can run out of memory or churn cpu forever if we go overboard
-        if(self.zoomfactor > 4.0):
-            self.zoomfactor = 4.0
-        if(self.zoomfactor < .1):
-            self.zoomfactor = .1
-        scale = 2 ** math.floor(math.log(self.zoomfactor,2) + .5)
-        dc.SetUserScale(scale, scale)
-        dc.SetDeviceOriginPoint(self.origin)
-        times = [i.get_latest() for i in self.renderables]
-        try:
-            latest = min([i for i in times if i != 0])
-        except ValueError:
-            self.EndPaint()
+        if not self.lock.acquire():
             return
-        for i in self.renderables:
-            i.draw(dc, latest)
-        self.EndPaint()
+        try:
+            dc = wx.AutoBufferedPaintDCFactory(self)
+            # python can run out of memory or churn cpu forever if we go overboard
+            if(self.zoomfactor > 4.0):
+                self.zoomfactor = 4.0
+            if(self.zoomfactor < .1):
+                self.zoomfactor = .1
+            scale = 2 ** math.floor(math.log(self.zoomfactor,2) + .5)
+            dc.SetUserScale(scale, scale)
+            dc.SetDeviceOriginPoint(self.origin)
+            times = [i.get_latest() for i in self.renderables]
+            times = [i for i in times if i != 0]
+            if times:
+                latest = min(times)
+                for i in self.renderables:
+                    i.draw(dc, latest)
+        finally:
+            self.lock.release()
 
     def OnMotion(self, event):
         Mouse.Drag.OnMotion(self, event)

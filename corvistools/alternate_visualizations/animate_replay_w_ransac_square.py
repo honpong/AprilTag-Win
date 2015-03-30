@@ -133,5 +133,5 @@ vertices.append(array([ransac_fit[3][0][0], ransac_fit[3][0][1], 0, 1.]))
 extbound = renderable.bounding_box(vertices[0], vertices[1], vertices[2], vertices[3], vertices[4], vertices[5], vertices[6], vertices[7]);
 extbound.color = [1., 1., 1., .25]
 extbound.show_faces = False
-myvis.frame_1.render_widget.add_renderable(extbound.render, "Bounding box")
+myvis.frame.render_widget.add_renderable(extbound.render, "Bounding box")
 fade_color(extbound, .25)

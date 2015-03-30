@@ -10,8 +10,7 @@
 #import "LicenseHelper.h"
 #import "ArcBall.h"
 #import "WorldState.h"
-#import "MBProgressHUD.h"
-#import "RCSensorDelegate.h"
+#import <QuickstartKit/QuickstartKit.h>
 
 #define INITIAL_LIMITS 3.
 #define POINT_SIZE 3.0
@@ -54,7 +53,7 @@ static VertexData axisVertex[] = {
 @interface VisualizationController () {
     /* RC3DK */
     RCSensorFusion* sensorFusion;
-    id<RCSensorDelegate> sensorDelegate;
+    RCSensorManager* sensorManager;
     bool isStarted; // Keeps track of whether the start button has been pressed
 
     /* OpenGL */
@@ -98,7 +97,7 @@ static VertexData axisVertex[] = {
 {
     [super viewDidLoad];
 
-    sensorDelegate = [SensorDelegate sharedInstance];
+    sensorManager = [RCSensorManager sharedInstance];
     /* RC3DK Setup */
     sensorFusion = [RCSensorFusion sharedInstance]; // The main class of the 3DK framework
     sensorFusion.delegate = self; // Tells RCSensorFusion where to send data to
@@ -173,6 +172,7 @@ static VertexData axisVertex[] = {
                                                object:nil];
     
     [self showInstructions];
+    [self requestCameraPermission];
 }
 
 - (void) viewWillDisappear:(BOOL)animated
@@ -183,6 +183,16 @@ static VertexData axisVertex[] = {
 - (void) appWillResignActive
 {
     [self stopSensorFusion];
+}
+
+- (void) requestCameraPermission
+{
+    [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            if (!granted) [self showMessage:@"Error: This app won't work without camera permission." autoHide:NO];
+            self.startStopButton.enabled = granted;
+        });
+    }];
 }
 
 - (void)showProgressWithTitle:(NSString*)title
@@ -224,7 +234,7 @@ static VertexData axisVertex[] = {
 {
     [state reset];
     [self beginHoldingPeriod];
-    [sensorDelegate startAllSensors];
+    [sensorManager startAllSensors];
     [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
     isStarted = YES;
     statusLabel.text = @"";
@@ -246,7 +256,7 @@ static VertexData axisVertex[] = {
 - (void)stopSensorFusion
 {
     [sensorFusion stopSensorFusion];
-    [sensorDelegate stopAllSensors];
+    [sensorManager stopAllSensors];
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
     [self showInstructions];
     isStarted = NO;

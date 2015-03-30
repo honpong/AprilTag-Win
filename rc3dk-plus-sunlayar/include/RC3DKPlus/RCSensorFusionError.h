@@ -19,4 +19,6 @@
  */
 - (NSInteger) code;
 
+- (NSDictionary*) dictionaryRepresentation;
+
 @end

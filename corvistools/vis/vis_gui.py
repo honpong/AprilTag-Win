@@ -38,7 +38,7 @@ class vis_gui(wx.Frame):
 
     def __set_properties(self):
         # begin wxGlade: vis_gui.__set_properties
-        self.SetTitle("frame_1")
+        self.SetTitle("Realitycap Replayer")
         self.SetSize((919, 605))
         # end wxGlade
 
@@ -76,7 +76,7 @@ class vis_gui(wx.Frame):
 if __name__ == "__main__":
     app = wx.PySimpleApp(0)
     wx.InitAllImageHandlers()
-    frame_1 = vis_gui(None, -1, "")
-    app.SetTopWindow(frame_1)
-    frame_1.Show()
+    frame = vis_gui(None, -1, "")
+    app.SetTopWindow(frame)
+    frame.Show()
     app.MainLoop()

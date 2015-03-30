@@ -12,9 +12,7 @@ void state_motion_orientation::cache_jacobians(f_t dt)
 {
     m4 dWp_dwdt;
     dW = (w.v + dt/2. * dw.v) * dt;
-    integrate_angular_velocity_jacobian(W.v, dW, dWp_dW, dWp_dwdt);
-    dWp_dw = dWp_dwdt * dt;
-    dWp_ddw = dWp_dw * (dt/2.);
+    integrate_angular_velocity_jacobian(W.v, dW, dWp_dW, dWp_ddW);
     Rt = transpose(to_rotation_matrix(W.v));
     dRt_dW = transpose(to_rotation_matrix_jacobian(W.v));
 }
@@ -26,7 +24,8 @@ void state_motion_orientation::project_motion_covariance(matrix &dst, const matr
         v4 cov_w = w.copy_cov_from_row(src, i);
         v4 cov_dw = dw.copy_cov_from_row(src, i);
         w.copy_cov_to_col(dst, i, cov_w + dt * cov_dw);
-        W.copy_cov_to_col(dst, i, dWp_dW * cov_W + dWp_dw * cov_w + dWp_ddw * cov_dw);
+        v4 cov_dW = (cov_w + dt/2 * cov_dw) * dt;
+        W.copy_cov_to_col(dst, i, dWp_dW * cov_W + dWp_ddW * cov_dW);
     }
 }
 

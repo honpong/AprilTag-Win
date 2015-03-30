@@ -13,7 +13,7 @@
 #import "MPLocalMoviePlayer.h"
 #import "UIImage+MPImageFile.h"
 #import "MPSurveyAnswer.h"
-#import "RCCore/RCSensorDelegate.h"
+#import "RCCore/RCSensorManager.h"
 #import "MPDMeasuredPhoto.h"
 #import "MPDLocation.h"
 #import "CoreData+MagicalRecord.h"
@@ -44,7 +44,7 @@ typedef enum
     NSMutableArray *goodPoints;
     UIImage * lastImage;
 
-    id<RCSensorDelegate> sensorDelegate;
+    RCSensorManager* sensorManager;
     
     MPDMeasuredPhoto* measuredPhoto;
     
@@ -312,13 +312,13 @@ static transition transitions[] =
     LOGME
 	[super viewDidLoad];
     
-    sensorDelegate = [SensorDelegate sharedInstance];
+    sensorManager = [RCSensorManager sharedInstance];
     
     [self validateStateMachine];
     
     useLocation = [LOCATION_MANAGER isLocationExplicitlyAllowed] && [NSUserDefaults.standardUserDefaults boolForKey:PREF_USE_LOCATION];
     
-    [[sensorDelegate getVideoProvider] setDelegate:self.arView.videoView];
+    [[sensorManager getVideoProvider] setDelegate:self.arView.videoView];
     
     if (SYSTEM_VERSION_LESS_THAN(@"7")) questionSegButton.tintColor = [UIColor darkGrayColor];
     
@@ -683,13 +683,13 @@ static transition transitions[] =
 - (void) startSensors
 {
     LOGME
-    [sensorDelegate startAllSensors];
+    [sensorManager startAllSensors];
 }
 
 - (void)stopSensors
 {
     LOGME
-    [sensorDelegate stopAllSensors];
+    [sensorManager stopAllSensors];
 }
 
 - (void)startSensorFusion
@@ -697,16 +697,16 @@ static transition transitions[] =
     LOGME
     [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
     SENSOR_FUSION.delegate = self;
-    [[sensorDelegate getVideoProvider] setDelegate:nil];
+    [[sensorManager getVideoProvider] setDelegate:nil];
     if (useLocation) [SENSOR_FUSION setLocation:[LOCATION_MANAGER getStoredLocation]];
-    [SENSOR_FUSION startSensorFusionWithDevice:[sensorDelegate getVideoDevice]];
+    [SENSOR_FUSION startSensorFusionWithDevice:[sensorManager getVideoDevice]];
 }
 
 - (void)stopSensorFusion
 {
     LOGME
     [SENSOR_FUSION stopSensorFusion];
-    [[sensorDelegate getVideoProvider] setDelegate:self.arView.videoView];
+    [[sensorManager getVideoProvider] setDelegate:self.arView.videoView];
     [[UIApplication sharedApplication] setIdleTimerDisabled:NO];
 }
 

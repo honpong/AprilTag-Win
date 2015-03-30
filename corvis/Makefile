@@ -37,6 +37,10 @@ _WXGLADE := $(WXGLADE)
 
 %.o: override CC=$(Q)printf "%32s %s\n" "Compiling" $<; $(_CC)
 %.o: override CXX=$(Q)printf "%32s %s\n" "Compiling" $<; $(_CXX)
+%.S: override CC=$(Q)printf "%32s %s\n" "Generating Code" $<; $(_CC)
+%.S: override CXX=$(Q)printf "%32s %s\n" "Generating code" $<; $(_CXX)
+%.E: override CC=$(Q)printf "%32s %s\n" "Preprocessing" $<; $(_CC)
+%.E: override CXX=$(Q)printf "%32s %s\n" "Preprocessing" $<; $(_CXX)
 %.c: override SWIG=$(Q)printf "%32s %s\n" "SWIG Wrapping" $<; $(_SWIG)
 %.cpp: override SWIG=$(Q)printf "%32s %s\n" "SWIG Wrapping" $<; $(_SWIG)
 %.py: override WXGLADE=$(Q)printf "%32s %s\n" "Generating GUI" $<; $(_WXGLADE)
@@ -73,9 +77,25 @@ build/%.o: src/%.c
 	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
 
+build/%.E: src/%.c
+	@mkdir -p $(@D)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -E -o $@ $<
+
+build/%.S: src/%.c
+	@mkdir -p $(@D)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -S -o $@ $<
+
 build/%.o: src/%.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o $@ $<
+
+build/%.E: src/%.cpp
+	@mkdir -p $(@D)
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -E -o $@ $<
+
+build/%.S: src/%.cpp
+	@mkdir -p $(@D)
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -S -o $@ $<
 
 %/__init__.py:
 	@mkdir -p $(@D)

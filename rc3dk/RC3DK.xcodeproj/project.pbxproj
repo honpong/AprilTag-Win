@@ -7,8 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		32036E951ACB2A5700FC0588 /* RC3DK_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32036E941ACB2A5700FC0588 /* RC3DK_Tests.m */; };
 		32036E961ACB2A5700FC0588 /* libRC3DK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B54DF18EB4CC90001CCE1 /* libRC3DK.a */; };
+		32036EA41ACB452000FC0588 /* RCLicenseValidator.m in Sources */ = {isa = PBXBuildFile; fileRef = 32036EA31ACB452000FC0588 /* RCLicenseValidator.m */; };
+		32036EA51ACB452000FC0588 /* RCLicenseValidator.m in Sources */ = {isa = PBXBuildFile; fileRef = 32036EA31ACB452000FC0588 /* RCLicenseValidator.m */; };
+		32036EA81ACB5C1B00FC0588 /* RCLicenseValidatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32036EA71ACB5C1B00FC0588 /* RCLicenseValidatorTests.m */; };
 		327B54E318EB4CC90001CCE1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B54E218EB4CC90001CCE1 /* Foundation.framework */; };
 		327B553418EB4D720001CCE1 /* RCAFHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B552518EB4D720001CCE1 /* RCAFHTTPClient.m */; };
 		327B553518EB4D720001CCE1 /* RCAFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B552718EB4D720001CCE1 /* RCAFHTTPRequestOperation.m */; };
@@ -250,7 +252,9 @@
 /* Begin PBXFileReference section */
 		32036E901ACB2A5700FC0588 /* RC3DK Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "RC3DK Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		32036E931ACB2A5700FC0588 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		32036E941ACB2A5700FC0588 /* RC3DK_Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RC3DK_Tests.m; sourceTree = "<group>"; };
+		32036EA21ACB452000FC0588 /* RCLicenseValidator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCLicenseValidator.h; sourceTree = "<group>"; };
+		32036EA31ACB452000FC0588 /* RCLicenseValidator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCLicenseValidator.m; sourceTree = "<group>"; };
+		32036EA71ACB5C1B00FC0588 /* RCLicenseValidatorTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCLicenseValidatorTests.m; sourceTree = "<group>"; };
 		327B54DF18EB4CC90001CCE1 /* libRC3DK.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRC3DK.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		327B54E218EB4CC90001CCE1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		327B54E618EB4CC90001CCE1 /* RC3DK-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RC3DK-Prefix.pch"; sourceTree = "<group>"; };
@@ -525,8 +529,8 @@
 		32036E911ACB2A5700FC0588 /* RC3DK Tests */ = {
 			isa = PBXGroup;
 			children = (
-				32036E941ACB2A5700FC0588 /* RC3DK_Tests.m */,
 				32036E921ACB2A5700FC0588 /* Supporting Files */,
+				32036EA71ACB5C1B00FC0588 /* RCLicenseValidatorTests.m */,
 			);
 			path = "RC3DK Tests";
 			sourceTree = "<group>";
@@ -708,6 +712,8 @@
 				327B555018EB4DC20001CCE1 /* RCDeviceInfo.m */,
 				32E757131A980149004BA247 /* NSError+RCDictionaryRepresentation.h */,
 				32E757141A980149004BA247 /* NSError+RCDictionaryRepresentation.m */,
+				32036EA21ACB452000FC0588 /* RCLicenseValidator.h */,
+				32036EA31ACB452000FC0588 /* RCLicenseValidator.m */,
 			);
 			name = Utilities;
 			sourceTree = "<group>";
@@ -1167,7 +1173,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				32036E951ACB2A5700FC0588 /* RC3DK_Tests.m in Sources */,
+				32036EA81ACB5C1B00FC0588 /* RCLicenseValidatorTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1193,6 +1199,7 @@
 				327B557718EB4DC20001CCE1 /* RCSensorFusion.mm in Sources */,
 				D3C0EDFA1A37B4DC00423EDE /* qr.cpp in Sources */,
 				327B55D318EB4F430001CCE1 /* kalman.cpp in Sources */,
+				32036EA41ACB452000FC0588 /* RCLicenseValidator.m in Sources */,
 				327B553818EB4D720001CCE1 /* RCAFNetworkActivityIndicatorManager.m in Sources */,
 				327B556C18EB4DC20001CCE1 /* NSString+RCString.m in Sources */,
 				327B55C018EB4F3A0001CCE1 /* state_vision.cpp in Sources */,
@@ -1312,6 +1319,7 @@
 				D3B4EB391A1E7DE100BE0443 /* timestamp.c in Sources */,
 				D3B4EB3A1A1E7DE100BE0443 /* mapbuffer.c in Sources */,
 				D3B4EB3B1A1E7DE100BE0443 /* RCFeaturePoint.m in Sources */,
+				32036EA51ACB452000FC0588 /* RCLicenseValidator.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1347,12 +1355,19 @@
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
 				);
-				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"TEST=1",
+				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				INFOPLIST_FILE = "RC3DK Tests/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = YES;
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lc++",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -1368,12 +1383,19 @@
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
 				);
-				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"TEST=1",
+				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				INFOPLIST_FILE = "RC3DK Tests/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lc++",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -1390,12 +1412,19 @@
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
 				);
-				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"TEST=1",
+				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				INFOPLIST_FILE = "RC3DK Tests/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lc++",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -1412,13 +1441,20 @@
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
 				);
-				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"TEST=1",
+				);
 				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "$(inherited)";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				INFOPLIST_FILE = "RC3DK Tests/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lc++",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -1435,12 +1471,19 @@
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
 				);
-				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"TEST=1",
+				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				INFOPLIST_FILE = "RC3DK Tests/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lc++",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				VALIDATE_PRODUCT = YES;
 			};
@@ -1457,12 +1500,19 @@
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
 				);
-				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"TEST=1",
+				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				INFOPLIST_FILE = "RC3DK Tests/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lc++",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				VALIDATE_PRODUCT = YES;
 			};

@@ -119,6 +119,12 @@ typedef NS_ENUM(int, RCLicenseStatus)
     }
     // everything below here should get optimized out by the compiler if we're skipping the license check
     
+    BOOL isLax = NO;
+    
+#ifdef LAX_LICENSE_VALIDATION
+    isLax = YES;
+#endif
+    
     if (apiKey == nil || apiKey.length == 0)
     {
         if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorMissingKey userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. License key was nil or zero length.", NSLocalizedFailureReasonErrorKey: @"License key was nil or zero length."}]);
@@ -159,13 +165,15 @@ typedef NS_ENUM(int, RCLicenseStatus)
          DLog(@"License completion %li\n%@", (long)operation.response.statusCode, operation.responseString);
          if (operation.response.statusCode != 200)
          {
-             if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorHttpError userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Failed to validate license. HTTP response code %li.", (long)operation.response.statusCode], NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:@"HTTP status %li: %@", (long)operation.response.statusCode, operation.responseString]}]);
+             if (isLax) completionBlock(-1, RCLicenseStatusOK);
+             else if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorHttpError userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Failed to validate license. HTTP response code %li.", (long)operation.response.statusCode], NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:@"HTTP status %li: %@", (long)operation.response.statusCode, operation.responseString]}]);
              return;
          }
          
          if (JSON == nil)
          {
-             if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorEmptyResponse userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. Response body was empty.", NSLocalizedFailureReasonErrorKey: @"Response body was empty."}]);
+             if (isLax) completionBlock(-1, RCLicenseStatusOK);
+             else if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorEmptyResponse userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. Response body was empty.", NSLocalizedFailureReasonErrorKey: @"Response body was empty."}]);
              return;
          }
          
@@ -173,7 +181,8 @@ typedef NS_ENUM(int, RCLicenseStatus)
          NSDictionary *response = [NSJSONSerialization JSONObjectWithData:JSON options:NSJSONWritingPrettyPrinted error:&serializationError];
          if (serializationError || response == nil)
          {
-             if (errorBlock)
+             if (isLax) completionBlock(-1, RCLicenseStatusOK);
+             else if (errorBlock)
              {
                  NSMutableDictionary* userInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. Failed to deserialize response.", NSLocalizedDescriptionKey, @"Failed to deserialize response.", NSLocalizedFailureReasonErrorKey, nil];
                  if (serializationError) userInfo[NSUnderlyingErrorKey] = serializationError;
@@ -187,7 +196,8 @@ typedef NS_ENUM(int, RCLicenseStatus)
          
          if (licenseStatusString == nil || licenseTypeString == nil)
          {
-             if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorInvalidResponse userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. Invalid response from server.", NSLocalizedFailureReasonErrorKey: @"Invalid response from server."}]);
+             if (isLax) completionBlock(-1, RCLicenseStatusOK);
+             else if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorInvalidResponse userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. Invalid response from server.", NSLocalizedFailureReasonErrorKey: @"Invalid response from server."}]);
              return;
          }
          
@@ -221,7 +231,8 @@ typedef NS_ENUM(int, RCLicenseStatus)
                  break;
                  
              default:
-                 if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorUnknown userInfo:nil]);
+                 if (isLax) completionBlock(-1, RCLicenseStatusOK);
+                 else if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorUnknown userInfo:nil]);
                  break;
          }
      }
@@ -229,13 +240,12 @@ typedef NS_ENUM(int, RCLicenseStatus)
      {
          DLog(@"License failure: %li\n%@", (long)operation.response.statusCode, operation.responseString);
 
-#ifdef LAX_LICENSE_VALIDATION
-         if ([NSUserDefaults.standardUserDefaults boolForKey:PREF_LICENSE_VALIDATED])
+         if (isLax)
          {
              if (completionBlock) completionBlock(-1, RCLicenseStatusOK);
              return;
          }
-#endif
+         
          if (errorBlock)
          {
              NSMutableDictionary* userInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. HTTPS request failed.", NSLocalizedDescriptionKey, @"HTTPS request failed. See underlying error.", NSLocalizedFailureReasonErrorKey, nil];

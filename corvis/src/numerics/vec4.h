@@ -18,6 +18,8 @@ extern "C" {
 #include "stdio.h"
 }
 
+#include <iostream>
+
 class v4 {
  public:
     //initializers
@@ -92,7 +94,7 @@ public:
     v4 variance, stdev;
     uint64_t count;
     stdev_vector(): sum(0.), mean(0.), M2(0.), max(0.), variance(0.), stdev(0.), count(0) {}
-    void print() { fprintf(stderr, "mean is: "); mean.print(); fprintf(stderr, ", stdev is: "); stdev.print(); fprintf(stderr, ", max is: %f\n", max); }
+    void print() { std::cerr << "mean is: " << mean << ", stdev is: " << stdev << ", max is: " << max << std::endl; }
     void data(const v4 &x) { 
         ++count;
         v4 delta = x - mean;
@@ -141,9 +143,14 @@ static inline v4 relative_rotation(const v4 &first, const v4 &second)
 
 class m4 {
  public:
-    v4 & operator[](const int i) { return data[i]; }
-    const v4 & operator[](const int i) const { return data[i]; }
-    v4 get_col(const int c) const { return v4( (v_intrinsic) { data[0][c], data[1][c], data[2][c], data[3][c] }); }
+    //v4 & operator[](const int i) { return data[i]; }
+    //const v4 & operator[](const int i) const { return data[i]; }
+    const f_t& operator()(const int i, const int j) const { return data[i][j]; }
+    f_t& operator()(const int i, const int j) { return data[i][j]; }
+    v4 col(const int c) const { return v4( (v_intrinsic) { data[0][c], data[1][c], data[2][c], data[3][c] }); }
+    
+    v4& row(const int i) { return data[i]; }
+    const v4& row(const int i) const { return data[i]; }
 
     void print() const {
         fprintf(stderr, "[");
@@ -163,63 +170,63 @@ class m4 {
 static inline bool operator==(const m4 &a, const m4 &b)
 {
     bool res = true;
-    for(int i = 0; i < 4; ++i) res &= (a[i] == b[i]);
+    for(int i = 0; i < 4; ++i) res &= (a.row(i) == b.row(i));
     return res;
 }
 
 static inline std::ostream& operator<<(std::ostream &stream, const m4 &m)
 {
-    return stream  << "(" << m[0] << "\n " << m[1] << "\n " << m[2] << "\n " << m[3] << ")";
+    return stream  << "(" << m.row(0) << "\n " << m.row(1) << "\n " << m.row(2) << "\n " << m.row(3) << ")";
 }
 
 static inline m4 operator*(const m4 &a, const f_t s)  {
-    return (m4) { { a[0] * s, a[1] * s, a[2] * s, a[3] * s }};
+    return (m4) { { a.row(0) * s, a.row(1) * s, a.row(2) * s, a.row(3) * s }};
 }
 
 static inline m4 operator*(const f_t s, const m4 &a)  {
-    return (m4) { { a[0] * s, a[1] * s, a[2] * s, a[3] * s }};
+    return (m4) { { a.row(0) * s, a.row(1) * s, a.row(2) * s, a.row(3) * s }};
 }
 
 static inline m4 operator*(const m4 &b, const m4 &other) {
     m4 a;
     for(int j = 0; j < 4; ++j) {
-        const v4 col = other.get_col(j);
+        const v4 col = other.col(j);
         for(int i = 0; i < 4; ++i) {
-            a[i][j] = sum(b[i] * col);
+            a(i, j) = sum(b.row(i) * col);
         }
     }
     return a;
 }
 
 static inline v4 operator*(const m4 &a, const v4 &other) {
-    return v4( sum(a[0] * other),
-               sum(a[1] * other),
-               sum(a[2] * other),
-               sum(a[3] * other));
+    return v4( sum(a.row(0) * other),
+               sum(a.row(1) * other),
+               sum(a.row(2) * other),
+               sum(a.row(3) * other));
 }
 
 static inline m4 operator+(const m4 &a, const m4 &c) {
     return (m4) { {
-            a[0] + c[0],
-            a[1] + c[1],
-            a[2] + c[2],
-            a[3] + c[3] }
+            a.row(0) + c.row(0),
+            a.row(1) + c.row(1),
+            a.row(2) + c.row(2),
+            a.row(3) + c.row(3) }
     };
 }
 
 static inline m4 operator-(const m4 &a, const m4 &c) {
     return (m4) { {
-            a[0] - c[0],
-            a[1] - c[1],
-            a[2] - c[2],
-            a[3] - c[3] }
+            a.row(0) - c.row(0),
+            a.row(1) - c.row(1),
+            a.row(2) - c.row(2),
+            a.row(3) - c.row(3) }
     };
 }
 
 
 extern m4 const m4_identity;
 
-static inline f_t norm(const m4 &m) { return sqrt(sum(m[0]*m[0] + m[1]*m[1] + m[2]*m[2] + m[3]*m[3])); }
+static inline f_t norm(const m4 &m) { return sqrt(sum(m.row(0)*m.row(0) + m.row(1)*m.row(1) + m.row(2)*m.row(2) + m.row(3)*m.row(3))); }
 
 static inline m4 operator-(const m4 &m) {
     return (m4) { {
@@ -243,15 +250,11 @@ class m4v4 {
     }
 
     void print() const {
-        fprintf(stderr, "[");
-        data[0].print();
-        fprintf(stderr, ",\n");
-        data[1].print();
-        fprintf(stderr, ",\n");
-        data[2].print();
-        fprintf(stderr, ",\n");
-        data[3].print();
-        fprintf(stderr, "]");
+        std::cerr << "[" <<
+        data[0] << ",\n" <<
+        data[1] << ",\n" <<
+        data[2] << ",\n" <<
+        data[3] << "]";
     }
 
     m4 data[4];
@@ -276,15 +279,11 @@ class v4m4 {
     }
 
     void print() const {
-        fprintf(stderr, "[");
-        data[0].print();
-        fprintf(stderr, ",\n");
-        data[1].print();
-        fprintf(stderr, ",\n");
-        data[2].print();
-        fprintf(stderr, ",\n");
-        data[3].print();
-        fprintf(stderr, "]");
+        std::cerr << "[" <<
+        data[0] << ",\n" <<
+        data[1] << ",\n" <<
+        data[2] << ",\n" <<
+        data[3] << "]";
     }
     m4 data[4];
 };
@@ -307,7 +306,7 @@ inline static m4 outer_product(const v4 &b, const v4 &c)
 
 inline static m4v4 outer_product(const v4 &b, const m4 &c)
 {
-    return (m4v4) {{ outer_product(b, c[0]), outer_product(b, c[1]), outer_product(b, c[2]), outer_product(b, c[3]) }};
+    return (m4v4) {{ outer_product(b, c.row(0)), outer_product(b, c.row(1)), outer_product(b, c.row(2)), outer_product(b, c.row(3)) }};
 }
 
 inline static v4m4 outer_product(const m4 &b, const v4 &c)
@@ -317,16 +316,16 @@ inline static v4m4 outer_product(const m4 &b, const v4 &c)
 
 inline static m4 transpose(const m4 &b)
 {
-    return (m4) {{ b.get_col(0), b.get_col(1), b.get_col(2), b.get_col(3) }};
+    return (m4) {{ b.col(0), b.col(1), b.col(2), b.col(3) }};
 }
 
 inline static m4v4 transpose(const m4v4 &b)
 {
     return (m4v4) {{
-            { {b[0][0], b[1][0], b[2][0], b[3][0]} },
-                { {b[0][1], b[1][1], b[2][1], b[3][1]} },
-                    { {b[0][2], b[1][2], b[2][2], b[3][2]} },
-                        { {b[0][3], b[1][3], b[2][3], b[3][3]} }}};
+            { {b[0].row(0), b[1].row(0), b[2].row(0), b[3].row(0)} },
+                { {b[0].row(1), b[1].row(1), b[2].row(1), b[3].row(1)} },
+                    { {b[0].row(2), b[1].row(2), b[2].row(2), b[3].row(2)} },
+                        { {b[0].row(3), b[1].row(3), b[2].row(3), b[3].row(3)} }}};
 }
 
 //a[i][j][:] = vecsum(b[i][...][:] * (scalar->vec)c[...][j])
@@ -335,16 +334,16 @@ inline static m4v4 operator*(const m4v4 &b, const m4 &c)
     m4v4 a;
     for(int j = 0; j < 4; ++j) {
         v4
-            t0(c[0][j]),
-            t1(c[1][j]),
-            t2(c[2][j]),
-            t3(c[3][j]);
+            t0(c(0, j)),
+            t1(c(1, j)),
+            t2(c(2, j)),
+            t3(c(3, j));
         for(int i = 0; i < 4; ++i) {
-            a[i][j] = 
-                b[i][0] * t0 +
-                b[i][1] * t1 +
-                b[i][2] * t2 +
-                b[i][3] * t3;
+            a[i].row(j) =
+                b[i].row(0) * t0 +
+                b[i].row(1) * t1 +
+                b[i].row(2) * t2 +
+                b[i].row(3) * t3;
         }
     }
     return a;
@@ -356,16 +355,16 @@ inline static m4v4 operator*(const m4 &b, const m4v4 &c)
     m4v4 a;
     for(int i = 0; i < 4; ++i) {
         v4
-            t0(b[i][0]),
-            t1(b[i][1]),
-            t2(b[i][2]),
-            t3(b[i][3]);
+            t0(b(i, 0)),
+            t1(b(i, 1)),
+            t2(b(i, 2)),
+            t3(b(i, 3));
         for(int j = 0; j < 4; ++j) {
-            a[i][j] = 
-                t0 * c[0][j] +
-                t1 * c[1][j] +
-                t2 * c[2][j] +
-                t3 * c[3][j];
+            a[i].row(j) =
+                t0 * c[0].row(j) +
+                t1 * c[1].row(j) +
+                t2 * c[2].row(j) +
+                t3 * c[3].row(j);
         }
     }
     return a;
@@ -378,7 +377,7 @@ inline static m4 operator*(const v4m4 &b, const m4v4 &c)
     for(int k = 0; k < 4; ++k) {
         for(int i = 0; i < 4; ++i) {
             for(int j = 0; j < 4; ++j) {
-                a[k] += c[i][j] * b[k][i][j];
+                a.row(k) += c[i].row(j) * b[k](i, j);
             }
         }
     }
@@ -409,10 +408,10 @@ inline static m4 operator*(const v4m4 &b, const m4v4 &c)
 inline static v4 operator*(const v4 &b, const m4 &c)
 {
     return
-        c[0] * b[0] +
-        c[1] * b[1] +
-        c[2] * b[2] +
-        c[3] * b[3];
+        c.row(0) * b[0] +
+        c.row(1) * b[1] +
+        c.row(2) * b[2] +
+        c.row(3) * b[3];
 }
 
 
@@ -432,11 +431,11 @@ inline static m4 operator*(const m4v4 &b, const v4 &c)
         t3(c[3]);
     
     for(int i = 0; i < 4; ++i) {
-        a[i] = 
-            b[i][0] * t0 +
-            b[i][1] * t1 +
-            b[i][2] * t2 +
-            b[i][3] * t3;
+        a.row(i) =
+            b[i].row(0) * t0 +
+            b[i].row(1) * t1 +
+            b[i].row(2) * t2 +
+            b[i].row(3) * t3;
     }
     return a;
 }
@@ -446,7 +445,7 @@ inline static m4 apply_jacobian_m4v4(const m4v4 &b, const v4 &c)
     m4 a;
     for(int i = 0; i < 4; ++i) {
         for(int j = 0; j < 4; ++j) {
-            a[i][j] = sum(b[i][j] * c);
+            a(i, j) = sum(b[i].row(j) * c);
         }
     }
     return a;
@@ -456,7 +455,7 @@ inline static v4 apply_jacobian_v4m4(const v4m4 &b, const m4 &c)
 {
     v4 a;
     for(int i = 0; i < 4; ++i) {
-        a[i] = sum(b[i][0] * c[0] + b[i][1] * c[1] + b[i][2] * c[2] + b[i][3] * c[3]);
+        a[i] = sum(b[i].row(0) * c.row(0) + b[i].row(1) * c.row(1) + b[i].row(2) * c.row(2) + b[i].row(3) * c.row(3));
     }
     return a;
 }
@@ -473,41 +472,41 @@ inline static m4 diag(const v4 &b)
 
 inline static v4 m4_diag(const m4 b)
 {
-    return v4(b[0][0], b[1][1], b[2][2], b[3][3]);
+    return v4(b(0, 0), b(1, 1), b(2, 2), b(3, 3));
 }
 
 static inline f_t trace3(const m4 R)
 { 
-    return R[0][0] + R[1][1] + R[2][2];
+    return R(0, 0) + R(1, 1) + R(2, 2);
 }
 
 inline static m4 skew3(const v4 &v)
 {
     m4 V;
-    V[1][2] = -(V[2][1] = v[0]);
-    V[2][0] = -(V[0][2] = v[1]);
-    V[0][1] = -(V[1][0] = v[2]);
+    V(1, 2) = -(V(2, 1) = v[0]);
+    V(2, 0) = -(V(0, 2) = v[1]);
+    V(0, 1) = -(V(1, 0) = v[2]);
     return V;
 }
 
 inline static v4 invskew3(const m4 &V)
 {
-    return v4(.5 * (V[2][1] - V[1][2]),
-              .5 * (V[0][2] - V[2][0]),
-              .5 * (V[1][0] - V[0][1]),
+    return v4(.5 * (V(2, 1) - V(1, 2)),
+              .5 * (V(0, 2) - V(2, 0)),
+              .5 * (V(1, 0) - V(0, 1)),
               0);
 }
 
 inline static f_t determinant_minor(const m4 &m, const int a, const int b)
 {
-    return (m[1][a] * m[2][b] - m[1][b] * m[2][a]);
+    return (m(1, a) * m(2, b) - m(1, b) * m(2, a));
 }
 
 inline static f_t determinant3(const m4 &m)
 {
-    return m[0][0] * determinant_minor(m, 1, 2)
-    - m[0][1] * determinant_minor(m, 0, 2)
-    + m[0][2] * determinant_minor(m, 0, 1);
+    return m(0, 0) * determinant_minor(m, 1, 2)
+    - m(0, 1) * determinant_minor(m, 0, 2)
+    + m(0, 2) * determinant_minor(m, 0, 1);
 }
 
 m4 rodrigues(const v4 W, m4v4 *dR_dW);

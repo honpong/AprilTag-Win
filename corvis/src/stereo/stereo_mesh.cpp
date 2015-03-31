@@ -152,10 +152,10 @@ void stereo_mesh_write_rotated_json(const char * filename, const stereo_mesh & m
     // Calculate rotation
     m4 R;
     float radians = degrees*M_PI/180;
-    R[0][0] = cos(radians); R[0][1] = -sin(radians); R[0][2] = 0; R[0][3] = 0;
-    R[1][0] = sin(radians); R[1][1] = cos(radians); R[1][2] = 0; R[1][3] = 0;
-    R[2][0] = 0; R[2][1] = 0; R[2][2] = 1; R[2][3] = 0;
-    R[3][0] = 0; R[3][1] = 0; R[3][2] = 0; R[3][3] = 1;
+    R(0, 0) = cos(radians); R(0, 1) = -sin(radians); R(0, 2) = 0; R(0, 3) = 0;
+    R(1, 0) = sin(radians); R(1, 1) = cos(radians); R(1, 2) = 0; R(1, 3) = 0;
+    R(2, 0) = 0; R(2, 1) = 0; R(2, 2) = 1; R(2, 3) = 0;
+    R(3, 0) = 0; R(3, 1) = 0; R(3, 2) = 0; R(3, 3) = 1;
 
     // Transform center point to rotated pixel coordinates
     // rotate around width/2 height/2
@@ -185,10 +185,10 @@ void stereo_mesh_write_rotated_json(const char * filename, const stereo_mesh & m
 
     m4 Rr = g.Rw*transpose(R); // Rotation to world frame including undoing camera rotation
     fprintf(vertices, "\"world\": { ");
-    fprintf(vertices, "\"R\" : [[%g, %g, %g, %g], \n", Rr[0][0], Rr[0][1], Rr[0][2], Rr[0][3]);
-    fprintf(vertices, "         [%g, %g, %g, %g], \n", Rr[1][0], Rr[1][1], Rr[1][2], Rr[1][3]);
-    fprintf(vertices, "         [%g, %g, %g, %g], \n", Rr[2][0], Rr[2][1], Rr[2][2], Rr[2][3]);
-    fprintf(vertices, "         [%g, %g, %g, %g]],\n", Rr[3][0], Rr[3][1], Rr[3][2], Rr[3][3]);
+    fprintf(vertices, "\"R\" : [[%g, %g, %g, %g], \n", Rr(0, 0), Rr(0, 1), Rr(0, 2), Rr(0, 3));
+    fprintf(vertices, "         [%g, %g, %g, %g], \n", Rr(1, 0), Rr(1, 1), Rr(1, 2), Rr(1, 3));
+    fprintf(vertices, "         [%g, %g, %g, %g], \n", Rr(2, 0), Rr(2, 1), Rr(2, 2), Rr(2, 3));
+    fprintf(vertices, "         [%g, %g, %g, %g]],\n", Rr(3, 0), Rr(3, 1), Rr(3, 2), Rr(3, 3));
     fprintf(vertices, "\"T\": [%g, %g, %g, %g] }, \n", g.Tw[0], g.Tw[1], g.Tw[2], g.Tw[3]);
 
     v4 gravity = transpose(Rr)*v4(0,0,-1,0);

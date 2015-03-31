@@ -41,9 +41,9 @@ void test_stereo_m4_equal(const m4 &a, const m4 &b)
     for(int i = 0; i < 4; ++i) {
         for(int j = 0; j < 4; ++j) {
 #ifdef F_T_IS_DOUBLE
-            EXPECT_DOUBLE_EQ(a[i][j], b[i][j]) << "Where i is " << i << " and j is " << j;
+            EXPECT_DOUBLE_EQ(a(i, j), b(i, j)) << "Where i is " << i << " and j is " << j;
 #else
-            EXPECT_FLOAT_EQ(a[i][j], b[i][j]) << "Where i is " << i << " and j is " << j;
+            EXPECT_FLOAT_EQ(a(i, j), b(i, j)) << "Where i is " << i << " and j is " << j;
 
 #endif
         }
@@ -113,13 +113,13 @@ TEST(Stereo, DecomposeF) {
 
     for(int r = 0; r < 4; r++)
         for(int c = 0; c < 4; c++)
-            EXPECT_FLOAT_EQ(R_gt[r][c], R[r][c]);
+            EXPECT_FLOAT_EQ(R_gt(r, c), R(r, c));
 
     for(int i = 0; i < 4; i++)
         EXPECT_FLOAT_EQ(T2_gt[i], T2[i]);
 
     for(int r = 0; r < 4; r++)
         for(int c = 0; c < 4; c++)
-            EXPECT_FLOAT_EQ(R2_gt[r][c], R2[r][c]);
+            EXPECT_FLOAT_EQ(R2_gt(r, c), R2(r, c));
 
 }

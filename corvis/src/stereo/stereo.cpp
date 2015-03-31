@@ -719,7 +719,7 @@ void m4_file_print(FILE * fp, const char * name, m4 M)
     fprintf(fp, "%s = [", name);
     for(int r=0; r<4; r++) {
         for(int c=0; c<4; c++) {
-            fprintf(fp, " %g ", M[r][c]);
+            fprintf(fp, " %g ", M(r, c));
         }
         if(r == 3)
             fprintf(fp, "];\n");

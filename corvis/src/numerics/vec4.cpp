@@ -79,12 +79,12 @@ m4 rodrigues(const v4 W, m4v4 *dR_dW)
     }
     m4 V = skew3(W);
     m4 V2;
-    V2[0][0] = -W2[1] - W2[2];
-    V2[1][1] = -W2[2] - W2[0];
-    V2[2][2] = -W2[0] - W2[1];
-    V2[2][1] = V2[1][2] = W[1]*W[2];
-    V2[0][2] = V2[2][0] = W[0]*W[2];
-    V2[1][0] = V2[0][1] = W[0]*W[1];
+    V2(0, 0) = -W2[1] - W2[2];
+    V2(1, 1) = -W2[2] - W2[0];
+    V2(2, 2) = -W2[0] - W2[1];
+    V2(2, 1) = V2(1, 2) = W[1]*W[2];
+    V2(0, 2) = V2(2, 0) = W[0]*W[2];
+    V2(1, 0) = V2(0, 1) = W[0]*W[1];
  
     if(dR_dW) {
         v4 ds_dW, dc_dW;
@@ -100,16 +100,16 @@ m4 rodrigues(const v4 W, m4v4 *dR_dW)
             dc_dW = dc_dt * dt_dW;
         }
         m4v4 dV2_dW;
-        dV2_dW[0][0] = v4(0., -2*W[1], -2*W[2], 0.);
-        dV2_dW[1][1] = v4(-2*W[0], 0., -2*W[2], 0.);
-        dV2_dW[2][2] = v4(-2*W[0], -2*W[1], 0., 0.);
+        dV2_dW[0].row(0) = v4(0., -2*W[1], -2*W[2], 0.);
+        dV2_dW[1].row(1) = v4(-2*W[0], 0., -2*W[2], 0.);
+        dV2_dW[2].row(2) = v4(-2*W[0], -2*W[1], 0., 0.);
         //don't do multiple assignment to avoid gcc bug
-        dV2_dW[2][1] = v4(0., W[2], W[1], 0);
-        dV2_dW[1][2] = v4(0., W[2], W[1], 0);
-        dV2_dW[0][2] = v4(W[2], 0., W[0], 0);
-        dV2_dW[2][0] = v4(W[2], 0., W[0], 0);
-        dV2_dW[1][0] = v4(W[1], W[0], 0., 0);
-        dV2_dW[0][1] = v4(W[1], W[0], 0., 0);
+        dV2_dW[2].row(1) = v4(0., W[2], W[1], 0);
+        dV2_dW[1].row(2) = v4(0., W[2], W[1], 0);
+        dV2_dW[0].row(2) = v4(W[2], 0., W[0], 0);
+        dV2_dW[2].row(0) = v4(W[2], 0., W[0], 0);
+        dV2_dW[1].row(0) = v4(W[1], W[0], 0., 0);
+        dV2_dW[0].row(1) = v4(W[1], W[0], 0., 0);
         
         *dR_dW = skew3_jacobian * sinterm + outer_product(ds_dW, V) + dV2_dW * costerm + outer_product(dc_dW, V2);
     }
@@ -165,7 +165,7 @@ void linearize_angular_integration(const v4 &W, const v4 &w, m4 &dW_dW, m4 &dW_d
     }
 
     m4 m3_identity = m4_identity;
-    m3_identity[3][3] = 0.;
+    m3_identity(3, 3) = 0.;
     dW_dW = m4_identity + .5 * ((m4){{dg_dW * w[0], dg_dW * w[1], dg_dW * w[2], dg_dW * w[3]}} - (eta * m3_identity + (m4){{de_dW * W[0], de_dW * W[1], de_dW * W[2], de_dW * W[3]}}) - skew3(w));
     dW_dw = .5 * (gamma * m3_identity - ((m4){{de_dw * W[0], de_dw * W[1], de_dw * W[2], de_dw * W[3]}}) + skew3(W));
 }

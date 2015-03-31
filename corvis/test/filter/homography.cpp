@@ -82,8 +82,8 @@ TEST(Homography, R)
     float theta = M_PI/2;
     m4 R = m4_identity;
     v4 T = v4(0, 0, 0, 0);
-    R[0][0] = cos(theta); R[0][1] = -sin(theta);
-    R[1][0] = sin(theta); R[1][1] =  cos(theta);
+    R(0, 0) = cos(theta); R(0, 1) = -sin(theta);
+    R(1, 0) = sin(theta); R(1, 1) =  cos(theta);
 
     test_qr_with_parameters(R, T, qr_size, use_markers);
 }
@@ -105,8 +105,8 @@ TEST(Homography, SimpleRT)
     float theta = M_PI/3;
     m4 R = m4_identity;
     v4 T = v4(0.1, 0.2, 0, 0);
-    R[0][0] = cos(theta); R[0][1] = -sin(theta);
-    R[1][0] = sin(theta); R[1][1] =  cos(theta);
+    R(0, 0) = cos(theta); R(0, 1) = -sin(theta);
+    R(1, 0) = sin(theta); R(1, 1) =  cos(theta);
 
     test_qr_with_parameters(R, T, qr_size, use_markers);
 }
@@ -131,8 +131,8 @@ TEST(Homography, HSignFlip)
     float theta = -M_PI/2;
     m4 R = m4_identity;
     v4 T = v4(0, 0, -0.2, 0);
-    R[0][0] = cos(theta); R[0][1] = -sin(theta);
-    R[1][0] = sin(theta); R[1][1] =  cos(theta);
+    R(0, 0) = cos(theta); R(0, 1) = -sin(theta);
+    R(1, 0) = sin(theta); R(1, 1) =  cos(theta);
 
     test_qr_with_parameters(R, T, qr_size, use_markers);
 }
@@ -181,7 +181,7 @@ TEST(Homography, AlignToQR)
     // Expected points have +z pointing out of the qr code
     // Since ideal points are 1m away, there is also a composited
     // translation
-    m4 Rq = m4_identity; Rq[1][1] = -1; Rq[2][2] = -1;
+    m4 Rq = m4_identity; Rq(1, 1) = -1; Rq(2, 2) = -1;
     v4 Tq = v4(0, 0, 1, 0);
     for(int i = 0; i < 4; i++) {
         qr_expected[i] = Rq*qr[i] + Tq;
@@ -215,10 +215,10 @@ TEST(Homography, Factorize)
     v4 Ts[4];
     v4 Ns[4];
     // From MaSKS pg 138 example 5.20
-    H[0] = 0.25*v4(5.404, 0, 4.436, 0);
-    H[1] = 0.25*v4(0, 4, 0, 0);
-    H[2] = 0.25*v4(-1.236, 0, 3.804, 0);
-    H[3] = 0.25*v4(0, 0, 0, 1);
+    H.row(0) = 0.25*v4(5.404, 0, 4.436, 0);
+    H.row(1) = 0.25*v4(0, 4, 0, 0);
+    H.row(2) = 0.25*v4(-1.236, 0, 3.804, 0);
+    H.row(3) = 0.25*v4(0, 0, 0, 1);
 
     homography_factorize(H, Rs, Ts, Ns);
 

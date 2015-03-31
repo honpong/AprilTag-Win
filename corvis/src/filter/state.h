@@ -522,9 +522,9 @@ public:
         }
         
         m4 self_cov;
-        for(int i = 0; i < size; ++i) self_cov[i] = copy_cov_from_row(tmp, i);
+        for(int i = 0; i < size; ++i) self_cov.row(i) = copy_cov_from_row(tmp, i);
         self_cov = self_cov * dWn_dW;
-        for(int i = 0; i < size; ++i) copy_cov_to_row(tmp, i, self_cov[i]);
+        for(int i = 0; i < size; ++i) copy_cov_to_row(tmp, i, self_cov.row(i));
 
         for(int i = 0; i < size; ++i) {
             for(int j = 0; j < cov->size(); ++j) {

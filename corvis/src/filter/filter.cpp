@@ -151,10 +151,10 @@ void filter_update_outputs(struct filter *f, uint64_t time)
 
     f->s.camera_matrix = RcbRt;
     v4 T = Rcb * ((Rt * -f->s.T.v) - f->s.Tc.v);
-    f->s.camera_matrix[0][3] = T[0];
-    f->s.camera_matrix[1][3] = T[1];
-    f->s.camera_matrix[2][3] = T[2];
-    f->s.camera_matrix[3][3] = 1.;
+    f->s.camera_matrix(0, 3) = T[0];
+    f->s.camera_matrix(1, 3) = T[1];
+    f->s.camera_matrix(2, 3) = T[2];
+    f->s.camera_matrix(3, 3) = 1.;
 
     bool old_speedfail = f->speed_failed;
     f->speed_failed = false;
@@ -1366,7 +1366,7 @@ void filter_get_camera_parameters(struct filter *f, float matrix[16], float foca
     //transpose for opengl
     for(int i = 0; i < 4; ++i) {
         for(int j = 0; j < 4; ++j) {
-            matrix[j * 4 + i] = f->s.camera_matrix[i][j];
+            matrix[j * 4 + i] = f->s.camera_matrix(i, j);
         }
     }
 }

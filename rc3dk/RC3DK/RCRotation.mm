@@ -64,7 +64,7 @@
     //transpose for OpenGL
     for(int i = 0; i < 4; ++i) {
         for(int j = 0; j < 4; ++j) {
-            matrix[j * 4 + i] = rot[i][j];
+            matrix[j * 4 + i] = rot(i, j);
         }
     }
 }
@@ -104,7 +104,7 @@
 {
     m4 R = to_rotation_matrix(q);
     m4 flip = m4_identity;
-    flip[axis][axis] = -1;
+    flip(axis, axis) = -1;
     quaternion res = to_quaternion(flip * R * flip);
     return [[RCRotation alloc] initWithQuaternionW:res.w() withX:res.x() withY:res.y() withZ:res.z()];
 }

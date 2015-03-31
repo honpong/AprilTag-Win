@@ -103,8 +103,8 @@ m4 eight_point_F(v4 p1[], v4 p2[], int npts)
     m4 estimatedF;
     for(int i = 0; i < 3; i++)
       for(int j = 0; j < 3; j++)
-        estimatedF[i][j] = F(i,j);
-    estimatedF[3][3] = 1;
+        estimatedF(i, j) = F(i,j);
+    estimatedF(3, 3) = 1;
 
     return estimatedF;
 }
@@ -144,20 +144,20 @@ bool validate_RT(const m4 & R, const v4 & T, const v4 & p1, const v4 & p2)
 bool decompose_F(const m4 & F, float focal_length, float center_x, float center_y, const v4 & p1, const v4 & p2, m4 & R, v4 & T)
 {
     m4 Kinv;
-    Kinv[0][0] = 1./focal_length;
-    Kinv[1][1] = 1./focal_length;
-    Kinv[0][2] = -center_x/focal_length;
-    Kinv[1][2] = -center_y/focal_length;
-    Kinv[2][2] = 1;
-    Kinv[3][3] = 1;
+    Kinv(0, 0) = 1./focal_length;
+    Kinv(1, 1) = 1./focal_length;
+    Kinv(0, 2) = -center_x/focal_length;
+    Kinv(1, 2) = -center_y/focal_length;
+    Kinv(2, 2) = 1;
+    Kinv(3, 3) = 1;
 
     m4 K;
-    K[0][0] = focal_length;
-    K[1][1] = focal_length;
-    K[0][2] = center_x;
-    K[1][2] = center_y;
-    K[2][2] = 1;
-    K[3][3] = 1;
+    K(0, 0) = focal_length;
+    K(1, 1) = focal_length;
+    K(0, 2) = center_x;
+    K(1, 2) = center_y;
+    K(2, 2) = 1;
+    K(3, 3) = 1;
 
     m4 E4 = transpose(K)*F*K;
     v4 p1p = Kinv*p1;
@@ -169,7 +169,7 @@ bool decompose_F(const m4 & F, float focal_length, float center_x, float center_
     matrix E(3, 3);
     for(int i = 0; i < 3; i++)
         for(int j = 0; j < 3; j++)
-            E(i,j) = E4[i][j];
+            E(i,j) = E4(i, j);
 
     matrix W(3, 3);
     W(0,0) = 0; W(0,1) = -1; W(0,2) = 0;
@@ -237,18 +237,18 @@ bool decompose_F(const m4 & F, float focal_length, float center_x, float center_
     matrix_product(temp2, U, temp1);
     for(int row = 0; row < 3; row++)
         for(int col = 0; col < 3; col++) {
-            R1[row][col] = temp2(row,col);
+            R1(row, col) = temp2(row,col);
         }
-    R1[3][0] = 0; R1[3][1] = 0; R1[3][2] = 0; R1[3][3] = 1;
+    R1(3, 0) = 0; R1(3, 1) = 0; R1(3, 2) = 0; R1(3, 3) = 1;
 
     // R2 = UW'V'
     matrix_product(temp1, Wt, Vt);
     matrix_product(temp2, U, temp1);
     for(int row = 0; row < 3; row++)
         for(int col = 0; col < 3; col++) {
-            R2[row][col] = temp2(row,col);
+            R2(row, col) = temp2(row,col);
         }
-    R2[3][0] = 0; R2[3][1] = 0; R2[3][2] = 0; R2[3][3] = 1;
+    R2(3, 0) = 0; R2(3, 1) = 0; R2(3, 2) = 0; R2(3, 3) = 1;
 
     int nvalid = 0;
     if(validate_RT(R1, T1, p1p, p2p)) {
@@ -412,12 +412,12 @@ m4 estimate_F(const camera &g, const stereo_frame &reference, const stereo_frame
     m4 E21 = skew3(dT) * dR;
 
     m4 Kinv;
-    Kinv[0][0] = 1./g.focal_length;
-    Kinv[1][1] = 1./g.focal_length;
-    Kinv[0][2] = -g.center_x/g.focal_length;
-    Kinv[1][2] = -g.center_y/g.focal_length;
-    Kinv[2][2] = 1;
-    Kinv[3][3] = 1;
+    Kinv(0, 0) = 1./g.focal_length;
+    Kinv(1, 1) = 1./g.focal_length;
+    Kinv(0, 2) = -g.center_x/g.focal_length;
+    Kinv(1, 2) = -g.center_y/g.focal_length;
+    Kinv(2, 2) = 1;
+    Kinv(3, 3) = 1;
 
     m4 F21 = transpose(Kinv)*E21*Kinv;
 
@@ -426,15 +426,15 @@ m4 estimate_F(const camera &g, const stereo_frame &reference, const stereo_frame
     float Fnorm = 0;
     for(int i = 0; i < 3; i++)
         for(int j = 0; j < 3; j++)
-            Fnorm += F21[i][j]*F21[i][j];
+            Fnorm += F21(i, j)*F21(i, j);
     Fnorm = sqrt(Fnorm);
 
-    if(F21[2][2] < 0)
+    if(F21(2, 2) < 0)
         Fnorm = -Fnorm;
 
     for(int i = 0; i < 3; i++)
         for(int j = 0; j < 3; j++)
-            F21[i][j] = F21[i][j] / Fnorm;
+            F21(i, j) = F21(i, j) / Fnorm;
 
     return F21;
 }

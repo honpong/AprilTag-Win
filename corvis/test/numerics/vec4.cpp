@@ -48,7 +48,7 @@ TEST(Matrix4, Equality)
     EXPECT_EQ(m1, m2);
     for(int i = 0; i < 4; ++i) {
         for(int j = 0; j < 4; ++j) {
-            m2[i][j]++;
+            m2(i, j)++;
             EXPECT_FALSE(m1 == m2);
             m2 = m1;
         }
@@ -312,7 +312,7 @@ TEST(Matrix4, Rotation) {
     {
         SCOPED_TRACE("invskew * skew = I");
         m4 m3_identity = m4_identity;
-        m3_identity[3][3] = 0.;
+        m3_identity(3, 3) = 0.;
         EXPECT_EQ(m3_identity, invskew3_jacobian * skew3_jacobian);
     }
     

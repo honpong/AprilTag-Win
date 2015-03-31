@@ -106,7 +106,7 @@ static int convert_float_array(PyObject *input, float *ptr, int size) {
 
     for(int i = 0; i < 4; ++i) {
         for(int j = 0; j < 4; ++j) {
-            temp[i][j] = ad[i][j];
+            temp(i,j) = ad[i][j];
         }
     }
     $1 = temp;
@@ -179,7 +179,7 @@ static int convert_float_array(PyObject *input, float *ptr, int size) {
      f_t (*ad)[4] = (f_t (*)[4])PyArray_DATA((PyArrayObject *)$result);
      for(int i = 0; i < 4; ++i)
          for(int j = 0; j < 4; ++j)
-             ad[i][j] = $1[i][j];
+             ad[i][j] = $1(i,j);
 }
 
 %typemap(out) m4v4 {
@@ -194,7 +194,7 @@ static int convert_float_array(PyObject *input, float *ptr, int size) {
      for(int i = 0; i < 4; ++i)
          for(int j = 0; j < 4; ++j)
              for(int k = 0; k < 4; ++k)
-                 ad[i][j][k] = $1[i][j][k];
+                 ad[i][j][k] = $1[i](j, k);
 }
 
 %typemap(out) v4m4 {
@@ -209,7 +209,7 @@ static int convert_float_array(PyObject *input, float *ptr, int size) {
      for(int i = 0; i < 4; ++i)
          for(int j = 0; j < 4; ++j)
              for(int k = 0; k < 4; ++k)
-                 ad[i][j][k] = $1[i][j][k];
+                 ad[i][j][k] = $1[i](j, k);
 }
 
 %typemap(out) rotation_vector {

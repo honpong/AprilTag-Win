@@ -4,6 +4,11 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
+		<key>RC3DK Tests.xcscheme</key>
+		<dict>
+			<key>orderHint</key>
+			<integer>5</integer>
+		</dict>
 		<key>RC3DK-Library.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
@@ -32,6 +37,11 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
+		<key>32036E8F1ACB2A5700FC0588</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
 		<key>327B54DE18EB4CC90001CCE1</key>
 		<dict>
 			<key>primary</key>

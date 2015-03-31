@@ -7,12 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		32036E951ACB2A5700FC0588 /* RC3DK_Tests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32036E941ACB2A5700FC0588 /* RC3DK_Tests.m */; };
+		32036E961ACB2A5700FC0588 /* libRC3DK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B54DF18EB4CC90001CCE1 /* libRC3DK.a */; };
 		327B54E318EB4CC90001CCE1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B54E218EB4CC90001CCE1 /* Foundation.framework */; };
-		327B54F118EB4CC90001CCE1 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B54F018EB4CC90001CCE1 /* XCTest.framework */; };
-		327B54F218EB4CC90001CCE1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B54E218EB4CC90001CCE1 /* Foundation.framework */; };
-		327B54F418EB4CC90001CCE1 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B54F318EB4CC90001CCE1 /* UIKit.framework */; };
-		327B54F718EB4CC90001CCE1 /* libRC3DK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B54DF18EB4CC90001CCE1 /* libRC3DK.a */; };
-		327B54FD18EB4CC90001CCE1 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 327B54FB18EB4CC90001CCE1 /* InfoPlist.strings */; };
 		327B553418EB4D720001CCE1 /* RCAFHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B552518EB4D720001CCE1 /* RCAFHTTPClient.m */; };
 		327B553518EB4D720001CCE1 /* RCAFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B552718EB4D720001CCE1 /* RCAFHTTPRequestOperation.m */; };
 		327B553618EB4D720001CCE1 /* RCAFImageRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B552918EB4D720001CCE1 /* RCAFImageRequestOperation.m */; };
@@ -54,12 +51,6 @@
 		327B55D318EB4F430001CCE1 /* kalman.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55CA18EB4F430001CCE1 /* kalman.cpp */; };
 		327B55D418EB4F430001CCE1 /* matrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55CC18EB4F430001CCE1 /* matrix.cpp */; };
 		327B55D518EB4F430001CCE1 /* vec4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55D118EB4F430001CCE1 /* vec4.cpp */; };
-		327B55DF18EB4FB20001CCE1 /* libOCMock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B55D718EB4FB20001CCE1 /* libOCMock.a */; };
-		327B55F918EB503A0001CCE1 /* NSObject+SupersequentImplementation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B55F018EB503A0001CCE1 /* NSObject+SupersequentImplementation.m */; };
-		327B55FA18EB503A0001CCE1 /* RCCalibrationTests.mm in Sources */ = {isa = PBXBuildFile; fileRef = 327B55F218EB503A0001CCE1 /* RCCalibrationTests.mm */; };
-		327B55FB18EB503A0001CCE1 /* RCDeviceInfoTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B55F418EB503A0001CCE1 /* RCDeviceInfoTests.m */; };
-		327B55FC18EB503A0001CCE1 /* RCSensorFusion+RCSensorFusionMock.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B55F718EB503A0001CCE1 /* RCSensorFusion+RCSensorFusionMock.m */; };
-		327B55FD18EB503A0001CCE1 /* RCSensorFusionTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B55F818EB503A0001CCE1 /* RCSensorFusionTests.m */; };
 		327B560118EB57830001CCE1 /* RCCameraParameters.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B554C18EB4DC20001CCE1 /* RCCameraParameters.h */; };
 		327B560218EB57830001CCE1 /* RCFeaturePoint.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B555118EB4DC20001CCE1 /* RCFeaturePoint.h */; };
 		327B560318EB57830001CCE1 /* RCPoint.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B555518EB4DC20001CCE1 /* RCPoint.h */; };
@@ -191,7 +182,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		327B54F518EB4CC90001CCE1 /* PBXContainerItemProxy */ = {
+		32036E971ACB2A5700FC0588 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 327B54D718EB4CC90001CCE1 /* Project object */;
 			proxyType = 1;
@@ -257,10 +248,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		32036E901ACB2A5700FC0588 /* RC3DK Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "RC3DK Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		32036E931ACB2A5700FC0588 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		32036E941ACB2A5700FC0588 /* RC3DK_Tests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = RC3DK_Tests.m; sourceTree = "<group>"; };
 		327B54DF18EB4CC90001CCE1 /* libRC3DK.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRC3DK.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		327B54E218EB4CC90001CCE1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		327B54E618EB4CC90001CCE1 /* RC3DK-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RC3DK-Prefix.pch"; sourceTree = "<group>"; };
-		327B54EF18EB4CC90001CCE1 /* RC3DKTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RC3DKTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		327B54F018EB4CC90001CCE1 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		327B54F318EB4CC90001CCE1 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		327B54FA18EB4CC90001CCE1 /* RC3DKTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RC3DKTests-Info.plist"; sourceTree = "<group>"; };
@@ -498,6 +491,14 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		32036E8D1ACB2A5700FC0588 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				32036E961ACB2A5700FC0588 /* libRC3DK.a in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		327B54DC18EB4CC90001CCE1 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -505,18 +506,6 @@
 				327B563918EB5F0A0001CCE1 /* OpenGLES.framework in Frameworks */,
 				D31EC5381A5F1E5B0003379A /* libzxing.a in Frameworks */,
 				327B54E318EB4CC90001CCE1 /* Foundation.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		327B54EC18EB4CC90001CCE1 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				327B54F118EB4CC90001CCE1 /* XCTest.framework in Frameworks */,
-				327B54F418EB4CC90001CCE1 /* UIKit.framework in Frameworks */,
-				327B54F218EB4CC90001CCE1 /* Foundation.framework in Frameworks */,
-				327B54F718EB4CC90001CCE1 /* libRC3DK.a in Frameworks */,
-				327B55DF18EB4FB20001CCE1 /* libOCMock.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -533,12 +522,30 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		32036E911ACB2A5700FC0588 /* RC3DK Tests */ = {
+			isa = PBXGroup;
+			children = (
+				32036E941ACB2A5700FC0588 /* RC3DK_Tests.m */,
+				32036E921ACB2A5700FC0588 /* Supporting Files */,
+			);
+			path = "RC3DK Tests";
+			sourceTree = "<group>";
+		};
+		32036E921ACB2A5700FC0588 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				32036E931ACB2A5700FC0588 /* Info.plist */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
 		327B54D618EB4CC90001CCE1 = {
 			isa = PBXGroup;
 			children = (
 				D35C16FA1A20B1510048C5BC /* RC3DKPlus */,
 				327B54E418EB4CC90001CCE1 /* RC3DK */,
 				327B54F818EB4CC90001CCE1 /* RC3DKTests */,
+				32036E911ACB2A5700FC0588 /* RC3DK Tests */,
 				327B54E118EB4CC90001CCE1 /* Frameworks */,
 				327B54E018EB4CC90001CCE1 /* Products */,
 			);
@@ -548,8 +555,8 @@
 			isa = PBXGroup;
 			children = (
 				327B54DF18EB4CC90001CCE1 /* libRC3DK.a */,
-				327B54EF18EB4CC90001CCE1 /* RC3DKTests.xctest */,
 				D3B4EB591A1E7DE100BE0443 /* libRC3DKPlus.a */,
+				32036E901ACB2A5700FC0588 /* RC3DK Tests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -980,6 +987,24 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		32036E8F1ACB2A5700FC0588 /* RC3DK Tests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 32036E991ACB2A5700FC0588 /* Build configuration list for PBXNativeTarget "RC3DK Tests" */;
+			buildPhases = (
+				32036E8C1ACB2A5700FC0588 /* Sources */,
+				32036E8D1ACB2A5700FC0588 /* Frameworks */,
+				32036E8E1ACB2A5700FC0588 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				32036E981ACB2A5700FC0588 /* PBXTargetDependency */,
+			);
+			name = "RC3DK Tests";
+			productName = "RC3DK Tests";
+			productReference = 32036E901ACB2A5700FC0588 /* RC3DK Tests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		327B54DE18EB4CC90001CCE1 /* RC3DK */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 327B550218EB4CC90001CCE1 /* Build configuration list for PBXNativeTarget "RC3DK" */;
@@ -999,24 +1024,6 @@
 			productName = RC3DK;
 			productReference = 327B54DF18EB4CC90001CCE1 /* libRC3DK.a */;
 			productType = "com.apple.product-type.library.static";
-		};
-		327B54EE18EB4CC90001CCE1 /* RC3DKTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 327B550518EB4CC90001CCE1 /* Build configuration list for PBXNativeTarget "RC3DKTests" */;
-			buildPhases = (
-				327B54EB18EB4CC90001CCE1 /* Sources */,
-				327B54EC18EB4CC90001CCE1 /* Frameworks */,
-				327B54ED18EB4CC90001CCE1 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				327B54F618EB4CC90001CCE1 /* PBXTargetDependency */,
-			);
-			name = RC3DKTests;
-			productName = RC3DKTests;
-			productReference = 327B54EF18EB4CC90001CCE1 /* RC3DKTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		D3B4EABE1A1E7DE100BE0443 /* RC3DKPlus */ = {
 			isa = PBXNativeTarget;
@@ -1045,6 +1052,11 @@
 			attributes = {
 				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = RealityCap;
+				TargetAttributes = {
+					32036E8F1ACB2A5700FC0588 = {
+						CreatedOnToolsVersion = 6.1.1;
+					};
+				};
 			};
 			buildConfigurationList = 327B54DA18EB4CC90001CCE1 /* Build configuration list for PBXProject "RC3DK" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -1059,18 +1071,17 @@
 			projectRoot = "";
 			targets = (
 				327B54DE18EB4CC90001CCE1 /* RC3DK */,
-				327B54EE18EB4CC90001CCE1 /* RC3DKTests */,
 				D3B4EABE1A1E7DE100BE0443 /* RC3DKPlus */,
+				32036E8F1ACB2A5700FC0588 /* RC3DK Tests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		327B54ED18EB4CC90001CCE1 /* Resources */ = {
+		32036E8E1ACB2A5700FC0588 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				327B54FD18EB4CC90001CCE1 /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1152,6 +1163,14 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		32036E8C1ACB2A5700FC0588 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				32036E951ACB2A5700FC0588 /* RC3DK_Tests.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		327B54DB18EB4CC90001CCE1 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -1204,18 +1223,6 @@
 				327B559B18EB4F260001CCE1 /* timestamp.c in Sources */,
 				327B559818EB4F260001CCE1 /* mapbuffer.c in Sources */,
 				327B557118EB4DC20001CCE1 /* RCFeaturePoint.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		327B54EB18EB4CC90001CCE1 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				327B55FB18EB503A0001CCE1 /* RCDeviceInfoTests.m in Sources */,
-				327B55FC18EB503A0001CCE1 /* RCSensorFusion+RCSensorFusionMock.m in Sources */,
-				327B55F918EB503A0001CCE1 /* NSObject+SupersequentImplementation.m in Sources */,
-				327B55FD18EB503A0001CCE1 /* RCSensorFusionTests.m in Sources */,
-				327B55FA18EB503A0001CCE1 /* RCCalibrationTests.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1311,10 +1318,10 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		327B54F618EB4CC90001CCE1 /* PBXTargetDependency */ = {
+		32036E981ACB2A5700FC0588 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 327B54DE18EB4CC90001CCE1 /* RC3DK */;
-			targetProxy = 327B54F518EB4CC90001CCE1 /* PBXContainerItemProxy */;
+			targetProxy = 32036E971ACB2A5700FC0588 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1330,6 +1337,137 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
+		32036E9A1ACB2A5700FC0588 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				INFOPLIST_FILE = "RC3DK Tests/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		32036E9B1ACB2A5700FC0588 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				COPY_PHASE_STRIP = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				INFOPLIST_FILE = "RC3DK Tests/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		32036E9C1ACB2A5700FC0588 /* Archive */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				COPY_PHASE_STRIP = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				INFOPLIST_FILE = "RC3DK Tests/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Archive;
+		};
+		32036E9D1ACB2A5700FC0588 /* Library */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				COPY_PHASE_STRIP = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
+				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "$(inherited)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				INFOPLIST_FILE = "RC3DK Tests/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Library;
+		};
+		32036E9E1ACB2A5700FC0588 /* LibraryLax */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				COPY_PHASE_STRIP = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				INFOPLIST_FILE = "RC3DK Tests/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = LibraryLax;
+		};
+		32036E9F1ACB2A5700FC0588 /* LibraryOffline */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				COPY_PHASE_STRIP = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				INFOPLIST_FILE = "RC3DK Tests/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = LibraryOffline;
+		};
 		32671B0F1901E1D4000DFAAC /* Library */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1349,7 +1487,7 @@
 				COPY_PHASE_STRIP = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_PREPROCESSOR_DEFINITIONS = "ARCHIVE=1";
+				GCC_PREPROCESSOR_DEFINITIONS = "LIBRARY=1";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -1384,7 +1522,7 @@
 				FRAMEWORK_VERSION = 0.7.2;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = "LIBRARY=1";
+				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -1406,26 +1544,6 @@
 				STRIP_INSTALLED_PRODUCT = YES;
 				STRIP_STYLE = "non-global";
 				VERSIONING_SYSTEM = "apple-generic";
-			};
-			name = Library;
-		};
-		32671B111901E1D4000DFAAC /* Library */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
-				INFOPLIST_FILE = "RC3DKTests/RC3DKTests-Info.plist";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/OCMock",
-				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				WRAPPER_EXTENSION = xctest;
 			};
 			name = Library;
 		};
@@ -1494,6 +1612,7 @@
 				COPY_PHASE_STRIP = NO;
 				ENABLE_NS_ASSERTIONS = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PREPROCESSOR_DEFINITIONS = "RELEASE=1";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -1566,7 +1685,7 @@
 				FRAMEWORK_VERSION = 0.7.2;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = "RELEASE=1";
+				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -1588,50 +1707,6 @@
 				STRIP_INSTALLED_PRODUCT = NO;
 				STRIP_STYLE = "non-global";
 				VERSIONING_SYSTEM = "apple-generic";
-			};
-			name = Release;
-		};
-		327B550618EB4CC90001CCE1 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = "RC3DKTests/RC3DKTests-Info.plist";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/OCMock",
-				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				WRAPPER_EXTENSION = xctest;
-			};
-			name = Debug;
-		};
-		327B550718EB4CC90001CCE1 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
-				INFOPLIST_FILE = "RC3DKTests/RC3DKTests-Info.plist";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/OCMock",
-				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				WRAPPER_EXTENSION = xctest;
 			};
 			name = Release;
 		};
@@ -1689,7 +1764,7 @@
 				FRAMEWORK_VERSION = 0.7.2;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = "ARCHIVE=1";
+				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -1714,26 +1789,6 @@
 			};
 			name = Archive;
 		};
-		327B560018EB50A30001CCE1 /* Archive */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
-				INFOPLIST_FILE = "RC3DKTests/RC3DKTests-Info.plist";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/OCMock",
-				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				WRAPPER_EXTENSION = xctest;
-			};
-			name = Archive;
-		};
 		32CF160F1AC35E51008D13BD /* LibraryLax */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1753,7 +1808,10 @@
 				COPY_PHASE_STRIP = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_PREPROCESSOR_DEFINITIONS = "ARCHIVE=1";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"LIBRARY=1",
+					"LAX_LICENSE_VALIDATION=1",
+				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -1788,10 +1846,7 @@
 				FRAMEWORK_VERSION = 0.7.2;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"LIBRARY=1",
-					"LAX_LICENSE_VALIDATION=1",
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -1816,26 +1871,6 @@
 			};
 			name = LibraryLax;
 		};
-		32CF16111AC35E51008D13BD /* LibraryLax */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
-				INFOPLIST_FILE = "RC3DKTests/RC3DKTests-Info.plist";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/OCMock",
-				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				WRAPPER_EXTENSION = xctest;
-			};
-			name = LibraryLax;
-		};
 		32CF16121AC35E51008D13BD /* LibraryLax */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1848,7 +1883,7 @@
 				FRAMEWORK_VERSION = 0.7.2;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = "LIBRARY=1";
+				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -1899,7 +1934,10 @@
 				COPY_PHASE_STRIP = YES;
 				ENABLE_NS_ASSERTIONS = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_PREPROCESSOR_DEFINITIONS = "ARCHIVE=1";
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"LIBRARY=1",
+					"OFFLINE=1",
+				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -1934,10 +1972,7 @@
 				FRAMEWORK_VERSION = 0.7.2;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"LIBRARY=1",
-					"OFFLINE=1",
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -1961,26 +1996,6 @@
 			};
 			name = LibraryOffline;
 		};
-		32D8A0351A3B924C00EAB150 /* LibraryOffline */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-					"$(DEVELOPER_FRAMEWORKS_DIR)",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
-				INFOPLIST_FILE = "RC3DKTests/RC3DKTests-Info.plist";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(PROJECT_DIR)/OCMock",
-				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				WRAPPER_EXTENSION = xctest;
-			};
-			name = LibraryOffline;
-		};
 		32D8A0361A3B924C00EAB150 /* LibraryOffline */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -1993,10 +2008,7 @@
 				FRAMEWORK_VERSION = 0.7.2;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"LIBRARY=1",
-					"OFFLINE=1",
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -2037,6 +2049,7 @@
 				FRAMEWORK_VERSION = 0.7.2;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -2079,7 +2092,7 @@
 				FRAMEWORK_VERSION = 0.7.2;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = "RELEASE=1";
+				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -2123,6 +2136,7 @@
 				FRAMEWORK_VERSION = 0.7.2;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -2166,7 +2180,8 @@
 				FRAMEWORK_VERSION = 0.7.2;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
-				GCC_PREPROCESSOR_DEFINITIONS = "LIBRARY=1";
+				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
+				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
@@ -2201,6 +2216,18 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		32036E991ACB2A5700FC0588 /* Build configuration list for PBXNativeTarget "RC3DK Tests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				32036E9A1ACB2A5700FC0588 /* Debug */,
+				32036E9B1ACB2A5700FC0588 /* Release */,
+				32036E9C1ACB2A5700FC0588 /* Archive */,
+				32036E9D1ACB2A5700FC0588 /* Library */,
+				32036E9E1ACB2A5700FC0588 /* LibraryLax */,
+				32036E9F1ACB2A5700FC0588 /* LibraryOffline */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
 		327B54DA18EB4CC90001CCE1 /* Build configuration list for PBXProject "RC3DK" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -2223,19 +2250,6 @@
 				32671B101901E1D4000DFAAC /* Library */,
 				32CF16101AC35E51008D13BD /* LibraryLax */,
 				32D8A0341A3B924C00EAB150 /* LibraryOffline */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		327B550518EB4CC90001CCE1 /* Build configuration list for PBXNativeTarget "RC3DKTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				327B550618EB4CC90001CCE1 /* Debug */,
-				327B550718EB4CC90001CCE1 /* Release */,
-				327B560018EB50A30001CCE1 /* Archive */,
-				32671B111901E1D4000DFAAC /* Library */,
-				32CF16111AC35E51008D13BD /* LibraryLax */,
-				32D8A0351A3B924C00EAB150 /* LibraryOffline */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

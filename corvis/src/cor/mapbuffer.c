@@ -40,7 +40,7 @@ void mapbuffer_close(struct mapbuffer *mb)
     munmap(mb->buffer, mb->size);
     munmap(mb->buffer + mb->size, mb->size);
     close(mb->shm_fd);
-    shm_unlink(mb->shm_filename);
+    unlink(mb->shm_filename);
     //fprintf(stderr, "mapbuffer had %lld total bytes", mb->total_bytes);
 }
 

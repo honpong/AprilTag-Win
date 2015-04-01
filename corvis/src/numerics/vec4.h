@@ -39,10 +39,6 @@ class v4 {
     f_t & operator[](const int i) { return ((f_t *)&data)[i]; }
     const f_t & operator[](const int i) const { return ((f_t *)&data)[i]; }
 
-    void print() const {
-        fprintf(stderr, "[ %e, %e, %e, %e ]", (*this)[0], (*this)[1], (*this)[2], (*this)[3]);
-    }
-
     f_t absmax() const {
         f_t max = fabs((*this)[0]) > fabs((*this)[1]) ? fabs((*this)[0]) : fabs((*this)[1]);
         max = max > fabs((*this)[2]) ? max : fabs((*this)[2]);
@@ -94,8 +90,7 @@ public:
     v4 variance, stdev;
     uint64_t count;
     stdev_vector(): sum(0.), mean(0.), M2(0.), max(0.), variance(0.), stdev(0.), count(0) {}
-    void print() { std::cerr << "mean is: " << mean << ", stdev is: " << stdev << ", max is: " << max << std::endl; }
-    void data(const v4 &x) { 
+    void data(const v4 &x) {
         ++count;
         v4 delta = x - mean;
         mean = mean + delta / count;
@@ -106,6 +101,11 @@ public:
     }
 };
 
+static inline std::ostream& operator<<(std::ostream &stream, const stdev_vector &v)
+{
+    return stream << "mean is: " << v.mean << ", stdev is: " << v.stdev << ", max is: " << v.max << std::endl;
+}
+
 class stdev_scalar
 {
 public:
@@ -114,8 +114,7 @@ public:
     f_t variance, stdev;
     uint64_t count;
     stdev_scalar(): sum(0.), mean(0.), M2(0.), max(0.), variance(0.), stdev(0.), count(0) {}
-    void print() { fprintf(stderr, "mean is: %f, stdev is: %f, max is: %f\n", mean, stdev, max); }
-    void data(const f_t &x) { 
+    void data(const f_t &x) {
         ++count;
         double delta = x - mean;
         mean = mean + delta / count;
@@ -125,6 +124,11 @@ public:
         stdev = sqrt(variance);
     }
 };
+
+static inline std::ostream& operator<<(std::ostream &stream, const stdev_scalar &s)
+{
+    return stream << "mean is: " << s.mean << ", stdev is: " << s.stdev << ", max is: " << s.max << std::endl;
+}
 
 class v4_lowpass {
 public:
@@ -151,18 +155,6 @@ class m4 {
     
     v4& row(const int i) { return data[i]; }
     const v4& row(const int i) const { return data[i]; }
-
-    void print() const {
-        fprintf(stderr, "[");
-        data[0].print();
-        fprintf(stderr, ",\n");
-        data[1].print();
-        fprintf(stderr, ",\n");
-        data[2].print();
-        fprintf(stderr, ",\n");
-        data[3].print();
-        fprintf(stderr, "]");
-    }
 
     v4 data[4];
 };
@@ -249,16 +241,17 @@ class m4v4 {
         return (m4v4) { { data[0] * c, data[1] * c, data[2] * c, data[3] * c } };
     }
 
-    void print() const {
-        std::cerr << "[" <<
-        data[0] << ",\n" <<
-        data[1] << ",\n" <<
-        data[2] << ",\n" <<
-        data[3] << "]";
-    }
-
     m4 data[4];
 };
+
+static inline std::ostream& operator<<(std::ostream &stream, const m4v4 &v)
+{
+    return stream << "[" <<
+    v.data[0] << ",\n" <<
+    v.data[1] << ",\n" <<
+    v.data[2] << ",\n" <<
+    v.data[3] << "]\n";
+}
 
 static inline bool operator==(const m4v4 &a, const m4v4 &b)
 {
@@ -278,15 +271,17 @@ class v4m4 {
         return (v4m4) { { data[0] * c, data[1] * c, data[2] * c, data[3] * c } };
     }
 
-    void print() const {
-        std::cerr << "[" <<
-        data[0] << ",\n" <<
-        data[1] << ",\n" <<
-        data[2] << ",\n" <<
-        data[3] << "]";
-    }
     m4 data[4];
 };
+
+static inline std::ostream& operator<<(std::ostream &stream, const v4m4 &v)
+{
+    return stream << "[" <<
+    v.data[0] << ",\n" <<
+    v.data[1] << ",\n" <<
+    v.data[2] << ",\n" <<
+    v.data[3] << "]\n";
+}
 
 extern m4v4 const skew3_jacobian;
 extern v4m4 const invskew3_jacobian;

@@ -324,7 +324,7 @@ class state_vector: public state_leaf<v4, 3> {
     
     virtual void print()
     {
-        fprintf(stderr, "%s: ", name); v.print(); variance().print(); fprintf(stderr, "(vector)\n");
+        std::cerr << name << v << variance() << " (vector)\n";
     }
 };
 
@@ -403,7 +403,7 @@ public:
     
     virtual void print()
     {
-        fprintf(stderr, "%s: ", name); v.raw_vector().print(); variance().print(); fprintf(stderr, "(rot vec)\n");
+        cerr << name << v.raw_vector() << variance() << " (rot vec)\n";
     }
 
 protected:
@@ -493,7 +493,7 @@ public:
     virtual void print()
     {
         v4 data(v.w(), v.x(), v.y(), v.z());
-        fprintf(stderr, "%s: ", name); data.print(); variance().print(); fprintf(stderr, "(quaternion)\n");
+        std::cerr << name << data << variance() << " (quaternion)\n";
     }
     
     void normalize()

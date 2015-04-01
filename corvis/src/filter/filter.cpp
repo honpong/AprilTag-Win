@@ -287,10 +287,10 @@ uint64_t steady_time(struct filter *f, stdev_vector &stdev, v4 meas, f_t varianc
 
 static void print_calibration(struct filter *f)
 {
-    fprintf(stderr, "w bias is: "); f->s.w_bias.v.print(); fprintf(stderr, "\n");
-    fprintf(stderr, "w bias var is: "); f->s.w_bias.variance().print(); fprintf(stderr, "\n");
-    fprintf(stderr, "a bias is: "); f->s.a_bias.v.print(); fprintf(stderr, "\n");
-    fprintf(stderr, "a bias var is: "); f->s.a_bias.variance().print(); fprintf(stderr, "\n");
+    cerr << "w bias is: " << f->s.w_bias.v << "\n";
+    cerr << "w bias var is: " << f->s.w_bias.variance() << "\n";
+    cerr << "a bias is: " << f->s.a_bias.v << "\n";
+    cerr << "a bias var is: " << f->s.a_bias.variance() << "\n";
 }
 
 static float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
@@ -483,12 +483,12 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
     if(show_tuning) fprintf(stderr, "accelerometer:\n");
     process_observation_queue(f, time);
     if(show_tuning) {
-        fprintf(stderr, " actual innov stdev is:\n");
-        observation_accelerometer::inn_stdev.print();
-        fprintf(stderr, " signal stdev is:\n");
-        observation_accelerometer::stdev.print();
-        fprintf(stderr, " bias is:\n");
-        f->s.a_bias.v.print(); v4(f->s.a_bias.variance()).print();
+        cerr << " actual innov stdev is:\n" <<
+        observation_accelerometer::inn_stdev <<
+        " signal stdev is:\n" <<
+        observation_accelerometer::stdev <<
+        " bias is:\n" <<
+        f->s.a_bias.v << f->s.a_bias.variance();
     }
 }
 
@@ -542,13 +542,12 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
     if(show_tuning) fprintf(stderr, "gyroscope:\n");
     process_observation_queue(f, time);
     if(show_tuning) {
-        fprintf(stderr, " actual innov stdev is:\n");
-        observation_gyroscope::inn_stdev.print();
-        fprintf(stderr, " signal stdev is:\n");
-        observation_gyroscope::stdev.print();
-        fprintf(stderr, " bias is:\n");
-        f->s.w_bias.v.print(); v4(f->s.w_bias.variance()).print();
-        fprintf(stderr, "\n");
+        cerr << " actual innov stdev is:\n" <<
+        observation_gyroscope::inn_stdev <<
+        " signal stdev is:\n" <<
+        observation_gyroscope::stdev <<
+        " bias is:\n" <<
+        f->s.w_bias.v << f->s.w_bias.variance();
     }
 }
 
@@ -1004,8 +1003,8 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     process_observation_queue(f, time);
     if(show_tuning) {
         fprintf(stderr, " actual innov stdev is:\n");
-        observation_vision_feature::inn_stdev[0].print();
-        observation_vision_feature::inn_stdev[1].print();
+        cerr << observation_vision_feature::inn_stdev[0];
+        cerr << observation_vision_feature::inn_stdev[1];
     }
 
     filter_process_features(f, time);

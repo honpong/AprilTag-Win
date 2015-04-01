@@ -84,8 +84,7 @@ bool stereo_mesh_triangulate(const stereo_mesh & mesh, const stereo &g, int x, i
     // Get calibrated camera2 point
     v4 calibrated_point = g.camera.calibrate_image_point(x, y);
     if(debug_triangulate_mesh) {
-        fprintf(stderr, "calibrated_point: ");
-        calibrated_point.print();
+        cerr << "calibrated_point: " << calibrated_point;
     }
 
     // Rotate the point into the world reference frame and translate
@@ -98,9 +97,7 @@ bool stereo_mesh_triangulate(const stereo_mesh & mesh, const stereo &g, int x, i
     v4 o2 = T;
     if(debug_triangulate_mesh) {
         fprintf(stderr, "Line direction, world_point, o2: ");
-        line_direction.print();
-        world_point.print();
-        o2.print();
+        cerr << line_direction << world_point << o2;
     }
 
     bool success = point_mesh_intersect(mesh, o2, line_direction, intersection);

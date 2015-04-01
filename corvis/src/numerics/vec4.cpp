@@ -44,7 +44,7 @@ m4 rodrigues(const v4& W, m4v4 *dR_dW)
 {
     v4 W2 = W * W;
 
-    f_t theta2 = sum(W2);
+    f_t theta2 = W2.sum();
     //1/theta ?= 0
     if(theta2 <= 0.) {
         if(dR_dW) {

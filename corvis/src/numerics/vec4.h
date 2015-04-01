@@ -33,6 +33,7 @@ class v4 {
     f_t & operator[](const int i) { return ((f_t *)&vec)[i]; }
     const f_t & operator[](const int i) const { return ((f_t *)&vec)[i]; }
     f_t dot(const v4& other) const { v_intrinsic tmp = vec * other.vec; return tmp[0] + tmp[1] + tmp[2] + tmp[3]; }
+    f_t sum() const { return vec[0] + vec[1] + vec[2] + vec[3]; }
     f_t absmax() const {
         f_t max = fabs((*this)[0]) > fabs((*this)[1]) ? fabs((*this)[0]) : fabs((*this)[1]);
         max = max > fabs((*this)[2]) ? max : fabs((*this)[2]);
@@ -59,8 +60,7 @@ protected:
 };
 
 //v4 math
-static inline f_t sum(const v4 &v) { return v[0] + v[1] + v[2] + v[3]; }
-static inline f_t norm(const v4 &v) { return sqrt(sum(v*v)); }
+static inline f_t norm(const v4 &v) { return sqrt(v.dot(v)); }
 static inline v4 normalize(const v4 x) { return x / v4::Constant(norm(x)); }
 static inline v4 v4_sqrt(const v4 &v) { return v4(sqrt(v[0]), sqrt(v[1]), sqrt(v[2]), sqrt(v[3])); }
 static inline v4 operator*(const f_t other, const v4 &a) { return v4(a[0] * other, a[1] * other, a[2] * other, a[3] * other ); }
@@ -192,17 +192,17 @@ static inline m4 operator*(const m4 &b, const m4 &other) {
     for(int j = 0; j < 4; ++j) {
         const v4 col = other.col(j);
         for(int i = 0; i < 4; ++i) {
-            a(i, j) = sum(b.row(i) * col);
+            a(i, j) = b.row(i).dot(col);
         }
     }
     return a;
 }
 
 static inline v4 operator*(const m4 &a, const v4 &other) {
-    return v4( sum(a.row(0) * other),
-               sum(a.row(1) * other),
-               sum(a.row(2) * other),
-               sum(a.row(3) * other));
+    return v4( a.row(0).dot(other),
+               a.row(1).dot(other),
+               a.row(2).dot(other),
+               a.row(3).dot(other));
 }
 
 static inline m4 operator+(const m4 &a, const m4 &c) {
@@ -223,7 +223,7 @@ static inline m4 operator-(const m4 &a, const m4 &c) {
     };
 }
 
-static inline f_t norm(const m4 &m) { return sqrt(sum(m.row(0)*m.row(0) + m.row(1)*m.row(1) + m.row(2)*m.row(2) + m.row(3)*m.row(3))); }
+static inline f_t norm(const m4 &m) { return sqrt((m.row(0)*m.row(0) + m.row(1)*m.row(1) + m.row(2)*m.row(2) + m.row(3)*m.row(3)).sum()); }
 
 static inline m4 operator-(const m4 &m) {
     return (m4) { {
@@ -429,7 +429,7 @@ inline static m4 apply_jacobian_m4v4(const m4v4 &b, const v4 &c)
     m4 a;
     for(int i = 0; i < 4; ++i) {
         for(int j = 0; j < 4; ++j) {
-            a(i, j) = sum(b[i].row(j) * c);
+            a(i, j) = b[i].row(j).dot(c);
         }
     }
     return a;
@@ -439,7 +439,7 @@ inline static v4 apply_jacobian_v4m4(const v4m4 &b, const m4 &c)
 {
     v4 a;
     for(int i = 0; i < 4; ++i) {
-        a[i] = sum(b[i].row(0) * c.row(0) + b[i].row(1) * c.row(1) + b[i].row(2) * c.row(2) + b[i].row(3) * c.row(3));
+        a[i] = (b[i].row(0) * c.row(0) + b[i].row(1) * c.row(1) + b[i].row(2) * c.row(2) + b[i].row(3) * c.row(3)).sum();
     }
     return a;
 }

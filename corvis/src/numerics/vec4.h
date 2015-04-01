@@ -39,6 +39,7 @@ class v4 {
     f_t & operator[](const int i) { return ((f_t *)&data)[i]; }
     const f_t & operator[](const int i) const { return ((f_t *)&data)[i]; }
 
+    f_t dot(const v4& other) const { v_intrinsic tmp = data * other.data; return tmp[0] + tmp[1] + tmp[2] + tmp[3]; }
     f_t absmax() const {
         f_t max = fabs((*this)[0]) > fabs((*this)[1]) ? fabs((*this)[0]) : fabs((*this)[1]);
         max = max > fabs((*this)[2]) ? max : fabs((*this)[2]);
@@ -70,10 +71,6 @@ static inline std::ostream& operator<<(std::ostream &stream, const v4 &v)
     return stream  << "(" << v[0] << ", " << v[1] << ", " << v[2] << ", " << v[3] << ")";
 }
 
-static inline f_t dot(const v4 &a, const v4 &b)
-{
-    return a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-}
 
 static inline v4 cross(const v4 &a, const v4 &b) {
     return v4(a[1] * b[2] - a[2] * b[1],

@@ -327,7 +327,7 @@ static inline void integrate_angular_velocity_jacobian(const quaternion &Q, cons
 static inline quaternion rotation_between_two_vectors_normalized(const v4 &a, const v4 &b)
 {
     quaternion res;
-    f_t d = dot(a,b);
+    f_t d = a.dot(b);
     v4 axis;
     if( d >= 1.) //the two vectors are aligned)
     {

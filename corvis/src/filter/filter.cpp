@@ -277,7 +277,7 @@ uint64_t steady_time(struct filter *f, stdev_vector &stdev, v4 meas, f_t varianc
         //face up -> (0, 0, 1)
         //portrait -> (0, 1, 0)
         //landscape -> (1, 0, 0)
-        f_t costheta = sum(orientation * local_up);
+        f_t costheta = orientation.dot(local_up);
         if(fabs(costheta) < .71) return 0; //don't start since we aren't in orientation +/- 6 deg
     }
     stdev.data(meas);

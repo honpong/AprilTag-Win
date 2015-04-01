@@ -58,8 +58,8 @@ bool homography_check_solution(const m4 &R, const v4 &T, const feature_t p1[4], 
         v4 x2 = v4(p2[i].x, p2[i].y, 1, 0);
         m4 skew_Rx1 = skew3(R*x1);
         m4 skew_x2 = skew3(x2);
-        float alpha1 = -sum((skew_x2*T)*(skew_x2*R*x1))/pow(norm(skew_x2*T), 2);
-        float alpha2 =  sum((skew_Rx1*x2)*(skew_Rx1*T))/pow(norm(skew_Rx1*x2), 2);
+        float alpha1 = -(skew_x2*T).dot(skew_x2*R*x1)/pow(norm(skew_x2*T), 2);
+        float alpha2 =  (skew_Rx1*x2).dot(skew_Rx1*T)/pow(norm(skew_Rx1*x2), 2);
         //fprintf(stderr, "alpha1 %f alpha2 %f\n", alpha1, alpha2);
         if(alpha1 > 0 && alpha2 > 0)
             nvalid++;
@@ -294,7 +294,7 @@ bool homography_should_flip_sign(const m4 & H, const feature_t p1[4], const feat
     for(int i = 0; i < 4; i++) {
         v4 x1(p1[i].x, p1[i].y, 1, 0);
         v4 x2(p2[i].x, p2[i].y, 1, 0);
-        if(sum(x2*H*x1) >= 0)
+        if(x2.dot(H*x1) >= 0)
             poscount++;
         else
             poscount--;

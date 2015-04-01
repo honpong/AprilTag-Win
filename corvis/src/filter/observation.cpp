@@ -263,8 +263,8 @@ void observation_vision_feature::cache_jacobians()
     dy_dX = kr * state.focal_length.v * v4(0., invZ, -X[1] * invZ * invZ, 0.);
 
     v4 dX_dp = Ttot * feature->v.invdepth_jacobian();
-    dx_dp = sum(dx_dX * dX_dp);
-    dy_dp = sum(dy_dX * dX_dp);
+    dx_dp = dx_dX.dot(dX_dp);
+    dy_dp = dy_dX.dot(dX_dp);
     f_t invrho = feature->v.invdepth();
     if(!feature->is_initialized()) {
 #if estimate_camera_extrinsics
@@ -314,14 +314,14 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
             v4 cov_Wr = state_group->Wr.copy_cov_from_row(src, j);
             dst(0, j) =
 #if estimate_camera_extrinsics
-            sum(dx_dWc * cov_Wc) +
+            dx_dWc.dot(cov_Wc) +
 #endif
-            sum(dx_dWr * cov_Wr);
+            dx_dWr.dot(cov_Wr);
             dst(1, j) =
 #if estimate_camera_extrinsics
-            sum(dy_dWc * cov_Wc) +
+            dy_dWc.dot(cov_Wc) +
 #endif
-            sum(dy_dWr * cov_Wr);
+            dy_dWr.dot(cov_Wr);
         }
     } else {
         for(int j = 0; j < dst.cols; ++j) {
@@ -349,11 +349,11 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
             dx_dk2 * cov_k2 +
 #endif
 #if estimate_camera_extrinsics
-            sum(dx_dWc * cov_Wc) +
-            sum(dx_dTc * cov_Tc) +
+            dx_dWc.dot(cov_Wc) +
+            dx_dTc.dot(cov_Tc) +
 #endif
-            sum(dx_dWr * cov_Wr) +
-            sum(dx_dTr * cov_Tr);
+            dx_dWr.dot(cov_Wr) +
+            dx_dTr.dot(cov_Tr);
             dst(1, j) = dy_dp * cov_feat +
 #if estimate_camera_intrinsics
             dy_dF * cov_F +
@@ -363,11 +363,11 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
             dy_dk2 * cov_k2 +
 #endif
 #if estimate_camera_extrinsics
-            sum(dy_dWc * cov_Wc) +
-            sum(dy_dTc * cov_Tc) +
+            dy_dWc.dot(cov_Wc) +
+            dy_dTc.dot(cov_Tc) +
 #endif
-            sum(dy_dWr * cov_Wr) +
-            sum(dy_dTr * cov_Tr);
+            dy_dWr.dot(cov_Wr) +
+            dy_dTr.dot(cov_Tr);
         }
     }
 }

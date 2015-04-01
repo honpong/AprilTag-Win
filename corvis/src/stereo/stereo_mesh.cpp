@@ -25,27 +25,27 @@ bool ray_triangle_intersect(const v4 & p, const v4 & d, const v4 & v0, const v4 
     v4 e1 = v1 - v0;
     v4 e2 = v2 - v0;
     v4 h = cross(d, e2);
-    float a = sum(e1*h);
+    float a = e1.dot(h);
 
 	if (a > -0.00001 && a < 0.00001)
 		return false;
 
 	float f = 1/a;
     v4 s = p - v0;
-	u = f * sum(s*h);
+	u = f * s.dot(h);
 
 	if (u < 0.0 || u > 1.0)
 		return false;
 
     v4 q = cross(s, e1);
-	v = f * sum(d*q);
+	v = f * d.dot(q);
 
 	if (v < 0.0 || u + v > 1.0)
 		return false;
 
 	// at this stage we can compute t to find out where
 	// the intersection point is on the line
-	t = f * sum(e2 * q);
+	t = f * e2.dot(q);
 
 	if (t > 0.00001) { // ray intersection
         intersection = p + t*d;
@@ -287,7 +287,7 @@ bool check_triangle(const stereo &g, const stereo_mesh & mesh, const stereo_tria
         // line_direction is no longer in homogeneous coordinates
         line_direction[3] = 0;
         line_direction = line_direction / norm(line_direction);
-        float dot = fabs(sum(normal*line_direction));
+        float dot = fabs(normal.dot(line_direction));
         if(dot < dot_thresh) {
             return false;
         }

@@ -15,8 +15,8 @@ m4 eight_point_F(v4 p1[], v4 p2[], int npts)
     center1 /= npts;
     center2 /= npts;
     for(int i = 0; i < npts; i++) {
-        norm1 += sum((p1[i] - center1)*(p1[i] - center1));
-        norm2 += sum((p2[i] - center1)*(p2[i] - center2));
+        norm1 += (p1[i] - center1).dot(p1[i] - center1);
+        norm2 += (p2[i] - center1).dot(p2[i] - center2);
     }
     norm1 = sqrt(2.*npts / norm1);
     norm2 = sqrt(2.*npts / norm2);
@@ -289,10 +289,9 @@ int compute_inliers(const v4 from [], const v4 to [], int nmatches, const m4 & F
     int ninliers = 0;
     for(int i = 0; i < nmatches; i++) {
         // Sampson distance x2*F*x1 / (sum((Fx1).^2) + sum((F'x2).^2))
-        v4 pfp = to[i]*F*from[i];
         v4 el1 = F*from[i];
         v4 el2 = transpose(F)*to[i];
-        float distance = sum(pfp);
+        float distance = to[i].dot(F*from[i]);
         distance = distance*distance;
         distance = distance / (el1[0]*el1[0] + el1[1]*el1[1] + el2[0]* el2[0] + el2[1]*el2[1]);
 

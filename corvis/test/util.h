@@ -37,7 +37,7 @@ static inline void test_rotation_vector_near(const rotation_vector &a, const rot
         EXPECT_NEAR(fmod(norm(A), 2*M_PI), 0, bounds)                 << "Where a = " << a;
         EXPECT_NEAR(fmod(norm(B), 2*M_PI), 0, bounds)                 << "Where b = " << b;
     } else
-        EXPECT_NEAR(fabs(dot(normalize(A), normalize(B))), 1, bounds) << "Where a = " << a << " b = " << b;
+        EXPECT_NEAR(fabs(normalize(A).dot(normalize(B))), 1, bounds) << "Where a = " << a << " b = " << b;
     EXPECT_NEAR(fmod(norm(A-B), 2*M_PI), 0, bounds)                   << "Where a = " << a << " b = " << b;
 }
 

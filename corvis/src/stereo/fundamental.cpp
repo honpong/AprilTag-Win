@@ -12,8 +12,8 @@ m4 eight_point_F(v4 p1[], v4 p2[], int npts)
         center1 += p1[i];
         center2 += p2[i];
     }
-    center1 /= npts;
-    center2 /= npts;
+    center1 = center1 / npts;
+    center2 = center2 / npts;
     for(int i = 0; i < npts; i++) {
         norm1 += (p1[i] - center1).dot(p1[i] - center1);
         norm2 += (p2[i] - center1).dot(p2[i] - center2);

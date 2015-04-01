@@ -40,7 +40,7 @@ const v4m4 invskew3_jacobian = { {
 }
 };
 
-m4 rodrigues(const v4 W, m4v4 *dR_dW)
+m4 rodrigues(const v4& W, m4v4 *dR_dW)
 {
     v4 W2 = W * W;
 
@@ -88,8 +88,8 @@ m4 rodrigues(const v4 W, m4v4 *dR_dW)
                 ds_dt(v4::Constant((costheta - sinterm) * invtheta)),
                 dc_dt(v4::Constant((sinterm - 2*costerm) * invtheta)),
                 dt_dW = W * invtheta;
-            ds_dW = ds_dt.cwiseProduct(dt_dW);
-            dc_dW = dc_dt.cwiseProduct(dt_dW);
+            ds_dW = ds_dt * dt_dW;
+            dc_dW = dc_dt * dt_dW;
         }
         m4v4 dV2_dW;
         dV2_dW[0].row(0) = v4(0., -2*W[1], -2*W[2], 0.);

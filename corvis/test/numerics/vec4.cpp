@@ -112,7 +112,7 @@ f_t test_m4_linearization(const v4 &base, v4 (*nonlinear)(const v4 &base, const 
     const f_t eps = .1;
     f_t max_err = 0.;
     for(int i = 0; i < 3; ++i) {
-        v4 pert(0.);
+        v4 pert(v4::Zero());
         pert[i] = base[i] * eps + 1.e-5;
         v4 delta = nonlinear(base + pert, other) - nonlinear(base, other);
         v4 lindelta = jacobian * pert;

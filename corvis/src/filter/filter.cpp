@@ -158,7 +158,7 @@ void filter_update_outputs(struct filter *f, uint64_t time)
 
     bool old_speedfail = f->speed_failed;
     f->speed_failed = false;
-    f_t speed = norm(f->s.V.v);
+    f_t speed = f->s.V.v.norm();
     if(speed > 3.) { //1.4m/s is normal walking speed
         if (log_enabled && !old_speedfail) fprintf(stderr, "Velocity %f m/s exceeds max bound\n", speed);
         f->speed_failed = true;
@@ -168,7 +168,7 @@ void filter_update_outputs(struct filter *f, uint64_t time)
         f->speed_warning = true;
         f->speed_warning_time = time;
     }
-    f_t accel = norm(f->s.a.v);
+    f_t accel = f->s.a.v.norm();
     if(accel > 9.8) { //1g would saturate sensor anyway
         if (log_enabled && !old_speedfail) fprintf(stderr, "Acceleration exceeds max bound\n");
         f->speed_failed = true;
@@ -178,7 +178,7 @@ void filter_update_outputs(struct filter *f, uint64_t time)
         f->speed_warning = true;
         f->speed_warning_time = time;
     }
-    f_t ang_vel = norm(f->s.w.v);
+    f_t ang_vel = f->s.w.v.norm();
     if(ang_vel > 5.) { //sensor saturation - 250/180*pi
         if (log_enabled && !old_speedfail) fprintf(stderr, "Angular velocity exceeds max bound\n");
         f->speed_failed = true;
@@ -1071,15 +1071,15 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     {
         f->median_depth_variance = 1.;
     }
-    float velocity = norm(f->s.V.v);
+    float velocity = f->s.V.v.norm();
     if(velocity > f->max_velocity) f->max_velocity = velocity;
     
     if(f->max_velocity > convergence_minimum_velocity && f->median_depth_variance < convergence_maximum_depth_variance) f->has_converged = true;
     
     filter_update_outputs(f, time);
-    f_t delta_T = norm(f->s.T.v - f->s.last_position);
+    f_t delta_T = (f->s.T.v - f->s.last_position).norm();
     if(delta_T > .01) {
-        f->s.total_distance += norm(f->s.T.v - f->s.last_position);
+        f->s.total_distance += (f->s.T.v - f->s.last_position).norm();
         f->s.last_position = f->s.T.v;
     }
 
@@ -1332,8 +1332,8 @@ float filter_converged(struct filter *f)
 bool filter_is_steady(struct filter *f)
 {
     return
-        norm(f->s.V.v) < .1 &&
-        norm(f->s.w.v) < .1;
+        f->s.V.v.norm() < .1 &&
+        f->s.w.v.norm() < .1;
 }
 
 int filter_get_features(struct filter *f, struct corvis_feature_info *features, int max)

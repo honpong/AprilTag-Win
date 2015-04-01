@@ -33,6 +33,8 @@ class v4 {
     f_t & operator[](const int i) { return ((f_t *)&vec)[i]; }
     const f_t & operator[](const int i) const { return ((f_t *)&vec)[i]; }
     f_t dot(const v4& other) const { v_intrinsic tmp = vec * other.vec; return tmp[0] + tmp[1] + tmp[2] + tmp[3]; }
+    f_t norm() const { return sqrt(this->dot(*this)); }
+    v4 normalized() const { return *this / v4::Constant(norm()); }
     f_t sum() const { return vec[0] + vec[1] + vec[2] + vec[3]; }
     f_t absmax() const {
         f_t max = fabs((*this)[0]) > fabs((*this)[1]) ? fabs((*this)[0]) : fabs((*this)[1]);
@@ -59,9 +61,6 @@ protected:
     v_intrinsic vec;
 };
 
-//v4 math
-static inline f_t norm(const v4 &v) { return sqrt(v.dot(v)); }
-static inline v4 normalize(const v4 x) { return x / v4::Constant(norm(x)); }
 static inline v4 v4_sqrt(const v4 &v) { return v4(sqrt(v[0]), sqrt(v[1]), sqrt(v[2]), sqrt(v[3])); }
 static inline v4 operator*(const f_t other, const v4 &a) { return v4(a[0] * other, a[1] * other, a[2] * other, a[3] * other ); }
 static inline bool operator==(const v4 &a, const v4 &b) { return a[0] == b[0] && a[1] == b[1] && a[2] == b[2] && a[3] == b[3]; }
@@ -100,7 +99,7 @@ public:
         v4 delta = x - mean;
         mean = mean + delta / count;
         M2 = M2 + delta * (x - mean);
-        if(norm(x) > max) max = norm(x);
+        if(x.norm() > max) max = x.norm();
         variance = M2 / (count - 1);
         stdev = v4(sqrt(variance[0]), sqrt(variance[1]), sqrt(variance[2]), sqrt(variance[3]));
     }
@@ -145,8 +144,8 @@ public:
 
 static inline v4 relative_rotation(const v4 &first, const v4 &second)
 {
-    v4 rv = cross(first/norm(first), second/norm(second));
-    f_t sina = norm(rv);
+    v4 rv = cross(first.normalized(), second.normalized());
+    f_t sina = rv.norm();
     return rv / sina * asin(sina);
 }
 

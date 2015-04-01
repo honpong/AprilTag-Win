@@ -161,9 +161,9 @@ bool observation_queue::process(state &s, uint64_t time)
     }
     
     observations.clear();
-    f_t delta_T = norm(s.T.v - s.last_position);
+    f_t delta_T = (s.T.v - s.last_position).norm();
     if(delta_T > .01) {
-        s.total_distance += norm(s.T.v - s.last_position);
+        s.total_distance += delta_T;
         s.last_position = s.T.v;
     }
 #ifdef TEST_POSDEF

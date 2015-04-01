@@ -453,7 +453,7 @@ bool stereo::triangulate_internal(const stereo_frame & reference, const stereo_f
         return false;
     }
 
-    error = norm(pa - pb);
+    error = (pa - pb).norm();
     v4 cam1_intersect = transpose(R1w) * (pa - reference.T);
     v4 cam2_intersect = transpose(R2w) * (pb - target.T);
     if(debug_triangulate)
@@ -497,7 +497,7 @@ bool stereo::preprocess_internal(const stereo_frame &from, stereo_frame &to, m4 
             m4 Rto = transpose(R_eight_point);
             v4 Tto = -transpose(R_eight_point)*T_eight_point;
             to.W = to_rotation_vector(Rto);
-            to.T = Tto * norm(to.T); // keep the magnitude of T
+            to.T = Tto * (to.T).norm(); // keep the magnitude of T
         }
     }
     else

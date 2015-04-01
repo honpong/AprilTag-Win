@@ -92,7 +92,7 @@ bool stereo_mesh_triangulate(const stereo_mesh & mesh, const stereo &g, int x, i
     v4 line_direction = R*calibrated_point;
     // line_direction is no longer in homogeneous coordinates
     line_direction[3] = 0;
-    line_direction = line_direction / norm(line_direction);
+    line_direction = line_direction.normalized();
     v4 world_point = R*calibrated_point + T;
     v4 o2 = T;
     if(debug_triangulate_mesh) {
@@ -272,7 +272,7 @@ bool check_triangle(const stereo &g, const stereo_mesh & mesh, const stereo_tria
     v4 v1 = mesh.vertices[t.vertices[1]];
     v4 v2 = mesh.vertices[t.vertices[2]];
     v4 normal = cross(v1 - v0, v2 - v0);
-    normal = normal / norm(normal);
+    normal = normal.normalized();
     
     for(int v = 0; v < 3; v++) {
         float x = mesh.vertices_image[t.vertices[v]].x;
@@ -286,7 +286,7 @@ bool check_triangle(const stereo &g, const stereo_mesh & mesh, const stereo_tria
         v4 line_direction = R*calibrated_point;
         // line_direction is no longer in homogeneous coordinates
         line_direction[3] = 0;
-        line_direction = line_direction / norm(line_direction);
+        line_direction = line_direction.normalized();
         float dot = fabs(normal.dot(line_direction));
         if(dot < dot_thresh) {
             return false;
@@ -450,7 +450,7 @@ double pairwise_cost(int pix1, int pix2, int i, int j)
 
     v4 point1 = stereo_grid_matches[pix1][i].point;
     v4 point2 = stereo_grid_matches[pix2][j].point;
-    float dist = norm(point1 - point2);
+    float dist = (point1 - point2).norm();
 
     xy p1 = stereo_grid_locations[pix1];
     xy p2 = stereo_grid_locations[pix2];

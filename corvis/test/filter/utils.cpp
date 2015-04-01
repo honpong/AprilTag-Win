@@ -10,7 +10,7 @@ static void check_initial_orientation_from_gravity(v4 gravity)
     quaternion q = initial_orientation_from_gravity(gravity);
 
     // gravity should point in the z direction
-    test_v4_near(normalize(quaternion_rotate(q, gravity)), z, 2*F_T_EPS);
+    test_v4_near(quaternion_rotate(q, gravity).normalized(), z, 2*F_T_EPS);
 
     // the camera should be aligned with y (i.e. have no conponent in the x direction)
     EXPECT_NEAR(quaternion_rotate(q, camera).dot(x), 0, 2*F_T_EPS);

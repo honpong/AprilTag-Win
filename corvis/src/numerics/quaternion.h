@@ -355,7 +355,7 @@ static inline quaternion rotation_between_two_vectors(const v4 &a, const v4 &b)
     //make sure the 3rd element is zero and normalize
     v4 an(a[0], a[1], a[2], 0.);
     v4 bn(b[0], b[1], b[2], 0.);
-    return rotation_between_two_vectors_normalized(an / norm(an), bn / norm(bn));
+    return rotation_between_two_vectors_normalized(an.normalized(), bn.normalized());
 }
 
 #endif

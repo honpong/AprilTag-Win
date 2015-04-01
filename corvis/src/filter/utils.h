@@ -13,7 +13,7 @@ static inline quaternion initial_orientation_from_gravity(const v4 gravity)
     v4 zt = quaternion_rotate(q, z);
     //project the transformed z vector onto the x-y plane
     zt[2] = 0.;
-    f_t len = norm(zt);
+    f_t len = zt.norm();
     if(len > 1.e-6) // otherwise we're looking straight up or down, so don't make any changes
         {
             quaternion dq = rotation_between_two_vectors_normalized(zt / len, y);

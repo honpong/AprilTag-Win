@@ -214,7 +214,7 @@ void qr_benchmark::process_frame(const struct filter * f, const uint8_t * image,
                 v4 dT = now_state_est.T - quaternion_rotate(dQ, now_state.T);
                 cerr << "dR=" << to_rotation_matrix(dQ) << ";\n";
                 cerr << "dT=" << dT << ";\n";
-                fprintf(stderr, "norm(dT)=%f;\n", norm(dT));
+                cerr << "norm(dT)=" <<dT.norm() << endl;
             }
         }
     }

@@ -120,7 +120,7 @@ f_t test_m4_linearization(const v4 &base, v4 (*nonlinear)(const v4 &base, const 
         for(int j = 0; j < 3; ++j) {
             EXPECT_PRED2(same_sign, delta[j], lindelta[j]) << "Sign flip, where i is " << i << " and j is " << j;
         }
-        f_t vec_pct_err = norm(delta - lindelta) / norm(delta);
+        f_t vec_pct_err = (delta - lindelta).norm() / delta.norm();
         EXPECT_LT(vec_pct_err, .10);
         if(vec_pct_err > max_err) max_err = vec_pct_err;
     }
@@ -336,6 +336,6 @@ TEST(Matrix4, Rotation) {
     }
     {
         SCOPED_TRACE("pi-offaxis vector");
-        test_rotation(rotvec / norm(rotvec) * (M_PI));
+        test_rotation(rotvec.normalized() * (M_PI));
     }
 }

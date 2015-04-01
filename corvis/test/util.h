@@ -34,11 +34,11 @@ static inline void test_rotation_vector_near(const rotation_vector &a, const rot
 {
     v4 A(a.x(), a.y(), a.z(), 0), B(b.x(), b.y(), b.z(), 0);
     if (A == v4() || B == v4()) {
-        EXPECT_NEAR(fmod(norm(A), 2*M_PI), 0, bounds)                 << "Where a = " << a;
-        EXPECT_NEAR(fmod(norm(B), 2*M_PI), 0, bounds)                 << "Where b = " << b;
+        EXPECT_NEAR(fmod(A.norm(), 2*M_PI), 0, bounds)                 << "Where a = " << a;
+        EXPECT_NEAR(fmod(B.norm(), 2*M_PI), 0, bounds)                 << "Where b = " << b;
     } else
-        EXPECT_NEAR(fabs(normalize(A).dot(normalize(B))), 1, bounds) << "Where a = " << a << " b = " << b;
-    EXPECT_NEAR(fmod(norm(A-B), 2*M_PI), 0, bounds)                   << "Where a = " << a << " b = " << b;
+        EXPECT_NEAR(fabs(A.normalized().dot(B.normalized())), 1, bounds) << "Where a = " << a << " b = " << b;
+    EXPECT_NEAR(fmod((A-B).norm(), 2*M_PI), 0, bounds)                   << "Where a = " << a << " b = " << b;
 }
 
 static inline void test_quaternion_near_rotation(const quaternion &a, const quaternion &b, const f_t bounds)

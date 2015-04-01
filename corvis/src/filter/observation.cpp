@@ -209,7 +209,6 @@ void observation_vision_feature::predict()
 
     X = X_unscale * feature->v.invdepth();
 
-    feature->calibrated = X0;
     feature->relative = Rbc * X0_unscale + state.Tc.v;
     feature->local = Rrt * (feature->relative - state_group->Tr.v);
     feature->world = R * feature->local + state.T.v;

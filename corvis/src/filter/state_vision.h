@@ -58,7 +58,6 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     f_t outlier;
     v4 initial;
     v4 current;
-    v4 calibrated;
     feature_t prediction;
     f_t innovation_variance_x, innovation_variance_y, innovation_variance_xy;
     static uint64_t counter;

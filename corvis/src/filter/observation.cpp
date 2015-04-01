@@ -372,9 +372,8 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
     }
 }
 
-f_t observation_vision_feature::projection_residual(const v4 & X_inf, const f_t inv_depth, const xy &found)
+f_t observation_vision_feature::projection_residual(const v4 & X, const xy &found)
 {
-    v4 X = X_inf + inv_depth * Ttot;
     f_t invZ = 1./X[2];
     v4 ippred = X * invZ; //in the image plane
     if(fabs(ippred[2]-1.) > 1.e-7 || ippred[3] != 0.) {
@@ -417,21 +416,21 @@ void observation_vision_feature::update_initializing()
     bestkp.x = meas[0];
     bestkp.y = meas[1];
     
-    min_d2 = projection_residual(X_inf, min, bestkp);
-    max_d2 = projection_residual(X_inf, max, bestkp);
+    min_d2 = projection_residual(X_inf + min * Ttot, bestkp);
+    max_d2 = projection_residual(X_inf + max * Ttot, bestkp);
     f_t best = min;
     f_t best_d2 = min_d2;
     for(int i = 0; i < 10; ++i) { //10 iterations = 1024 segments
         if(min_d2 < max_d2) {
             max = (min + max) / 2.;
-            max_d2 = projection_residual(X_inf, max, bestkp);
+            max_d2 = projection_residual(X_inf + max * Ttot, bestkp);
             if(min_d2 < best_d2) {
                 best_d2 = min_d2;
                 best = min;
             }
         } else {
             min = (min + max) / 2.;
-            min_d2 = projection_residual(X_inf, min, bestkp);
+            min_d2 = projection_residual(X_inf + min * Ttot, bestkp);
             if(max_d2 < best_d2) {
                 best_d2 = max_d2;
                 best = max;

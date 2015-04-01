@@ -13,6 +13,7 @@
 #import "RCConstants.h"
 #import "RCLicenseError.h"
 #import "Nocilla.h"
+#import "OCMock.h"
 
 #define TIMEOUT 10.
 #define URL_LICENSING @"https://app.realitycap.com/api/v1/licensing/"
@@ -47,36 +48,23 @@
     [super tearDown];
 }
 
-- (BOOL)waitForCompletion:(NSTimeInterval)timeoutSecs
+- (void) stubValidLicenseResponse
 {
-    NSDate *timeoutDate = [NSDate dateWithTimeIntervalSinceNow:timeoutSecs];
-    
-    do {
-        [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:timeoutDate];
-        if([timeoutDate timeIntervalSinceNow] < 0.0)
-            break;
-    } while (!done);
-    
-    return done;
+    [self stubLicenseResponse:RCLicenseStatusOK];
 }
 
-- (void)testLicenseValid
+- (void) stubOfflineResponse
+{
+    stubRequest(@"POST", URL_LICENSING).
+    andFailWithError([NSError errorWithDomain:@"HTTPS request failed" code:1 userInfo:nil]);
+}
+
+- (void) stubLicenseResponse:(RCLicenseStatus)statusCode
 {
     stubRequest(@"POST", URL_LICENSING).
     andReturn(200).
     withHeaders(@{@"Content-Type": @"application/json"}).
-    withBody(@"{\"license_type\":0,\"license_status\":0}");
-    
-    RCLicenseValidator* validator = [RCLicenseValidator initWithBundleId:BUNDLE_ID withVendorId:VENDOR_ID withHTTPClient:HTTP_CLIENT withUserDefaults:NSUserDefaults.standardUserDefaults];
-    
-    [validator validateLicense:VALID_LICENSE_KEY withCompletionBlock:^(int licenseType, int licenseStatus) {
-        [responseArrived fulfill];
-    } withErrorBlock:^(NSError* error) {
-        [responseArrived fulfill];
-        XCTFail(@"%@", error.description);
-    }];
-    
-    [self waitForExpectationsWithTimeout:TIMEOUT handler:nil];
+    withBody([NSString stringWithFormat:@"{\"license_type\":0,\"license_status\":%i}", statusCode]);
 }
 
 - (void) testMissingKey
@@ -150,6 +138,151 @@
     
     [self waitForExpectationsWithTimeout:TIMEOUT handler:nil];
 }
+
+- (void) testLicenseValid
+{
+    [self stubValidLicenseResponse];
+    
+    RCLicenseValidator* validator = [RCLicenseValidator initWithBundleId:BUNDLE_ID withVendorId:VENDOR_ID withHTTPClient:HTTP_CLIENT withUserDefaults:NSUserDefaults.standardUserDefaults];
+    
+    [validator validateLicense:VALID_LICENSE_KEY withCompletionBlock:^(int licenseType, int licenseStatus) {
+        [responseArrived fulfill];
+    } withErrorBlock:^(NSError* error) {
+        [responseArrived fulfill];
+        XCTFail(@"%@", error.description);
+    }];
+    
+    [self waitForExpectationsWithTimeout:TIMEOUT handler:nil];
+}
+
+- (void) testLicenseOverLimit
+{
+    [self stubLicenseResponse:RCLicenseStatusOverLimit];
+    
+    RCLicenseValidator* validator = [RCLicenseValidator initWithBundleId:BUNDLE_ID withVendorId:VENDOR_ID withHTTPClient:HTTP_CLIENT withUserDefaults:NSUserDefaults.standardUserDefaults];
+    
+    [validator validateLicense:VALID_LICENSE_KEY withCompletionBlock:^(int licenseType, int licenseStatus) {
+        [responseArrived fulfill];
+        XCTFail(@"Completion block should not be called");
+    } withErrorBlock:^(NSError* error) {
+        [responseArrived fulfill];
+        XCTAssertEqual(error.code, RCLicenseErrorOverLimit);
+    }];
+    
+    [self waitForExpectationsWithTimeout:TIMEOUT handler:nil];
+}
+
+- (void) testLicenseRateLimited
+{
+    [self stubLicenseResponse:RCLicenseStatusRateLimited];
+    
+    RCLicenseValidator* validator = [RCLicenseValidator initWithBundleId:BUNDLE_ID withVendorId:VENDOR_ID withHTTPClient:HTTP_CLIENT withUserDefaults:NSUserDefaults.standardUserDefaults];
+    
+    [validator validateLicense:VALID_LICENSE_KEY withCompletionBlock:^(int licenseType, int licenseStatus) {
+        [responseArrived fulfill];
+        XCTFail(@"Completion block should not be called");
+    } withErrorBlock:^(NSError* error) {
+        [responseArrived fulfill];
+        XCTAssertEqual(error.code, RCLicenseErrorRateLimited);
+    }];
+    
+    [self waitForExpectationsWithTimeout:TIMEOUT handler:nil];
+}
+
+- (void) testLicenseSuspended
+{
+    [self stubLicenseResponse:RCLicenseStatusSuspended];
+    
+    RCLicenseValidator* validator = [RCLicenseValidator initWithBundleId:BUNDLE_ID withVendorId:VENDOR_ID withHTTPClient:HTTP_CLIENT withUserDefaults:NSUserDefaults.standardUserDefaults];
+    
+    [validator validateLicense:VALID_LICENSE_KEY withCompletionBlock:^(int licenseType, int licenseStatus) {
+        [responseArrived fulfill];
+        XCTFail(@"Completion block should not be called");
+    } withErrorBlock:^(NSError* error) {
+        [responseArrived fulfill];
+        XCTAssertEqual(error.code, RCLicenseErrorSuspended);
+    }];
+    
+    [self waitForExpectationsWithTimeout:TIMEOUT handler:nil];
+}
+
+- (void) testLicenseInvalid
+{
+    [self stubLicenseResponse:RCLicenseStatusInvalid];
+    
+    RCLicenseValidator* validator = [RCLicenseValidator initWithBundleId:BUNDLE_ID withVendorId:VENDOR_ID withHTTPClient:HTTP_CLIENT withUserDefaults:NSUserDefaults.standardUserDefaults];
+    
+    [validator validateLicense:VALID_LICENSE_KEY withCompletionBlock:^(int licenseType, int licenseStatus) {
+        [responseArrived fulfill];
+        XCTFail(@"Completion block should not be called");
+    } withErrorBlock:^(NSError* error) {
+        [responseArrived fulfill];
+        XCTAssertEqual(error.code, RCLicenseErrorInvalidKey);
+    }];
+    
+    [self waitForExpectationsWithTimeout:TIMEOUT handler:nil];
+}
+
+- (void) testLaxOffline
+{
+    [self stubOfflineResponse];
+    
+    RCLicenseValidator* validator = [RCLicenseValidator initWithBundleId:BUNDLE_ID withVendorId:VENDOR_ID withHTTPClient:HTTP_CLIENT withUserDefaults:NSUserDefaults.standardUserDefaults];
+    validator.isLax = YES;
+    
+    [validator validateLicense:VALID_LICENSE_KEY withCompletionBlock:^(int licenseType, int licenseStatus) {
+        [responseArrived fulfill];
+    } withErrorBlock:^(NSError* error) {
+        [responseArrived fulfill];
+        XCTFail(@"%@", error.description);
+    }];
+    
+    [self waitForExpectationsWithTimeout:TIMEOUT handler:nil];
+}
+
+- (void) testLaxOfflineWithPreviousFailure
+{
+    [self stubOfflineResponse];
+    
+    id userDefaults = OCMStrictClassMock([NSUserDefaults class]);
+    [[[userDefaults stub] andReturnValue:@YES] boolForKey:PREF_LICENSE_INVALID];
+    
+    RCLicenseValidator* validator = [RCLicenseValidator initWithBundleId:BUNDLE_ID withVendorId:VENDOR_ID withHTTPClient:HTTP_CLIENT withUserDefaults:userDefaults];
+    validator.isLax = YES;
+    
+    [validator validateLicense:VALID_LICENSE_KEY withCompletionBlock:^(int licenseType, int licenseStatus) {
+        [responseArrived fulfill];
+        XCTFail(@"Completion block should not be called");
+    } withErrorBlock:^(NSError* error) {
+        [responseArrived fulfill];
+        XCTAssertEqual(error.code, RCLicenseErrorHttpFailure);
+    }];
+    
+    [self waitForExpectationsWithTimeout:TIMEOUT handler:nil];
+}
+
+- (void) testLaxOnlineWithPreviousFailure
+{
+    [self stubValidLicenseResponse];
+    
+    id userDefaults = OCMStrictClassMock([NSUserDefaults class]);
+    [[[userDefaults stub] andReturnValue:@YES] boolForKey:PREF_LICENSE_INVALID];
+    [[userDefaults stub] setBool:NO forKey:PREF_LICENSE_INVALID];
+    
+    RCLicenseValidator* validator = [RCLicenseValidator initWithBundleId:BUNDLE_ID withVendorId:VENDOR_ID withHTTPClient:HTTP_CLIENT withUserDefaults:userDefaults];
+    validator.isLax = YES;
+    
+    [validator validateLicense:VALID_LICENSE_KEY withCompletionBlock:^(int licenseType, int licenseStatus) {
+        [responseArrived fulfill];
+    } withErrorBlock:^(NSError* error) {
+        [responseArrived fulfill];
+        XCTFail(@"%@", error.description);
+    }];
+    
+    [self waitForExpectationsWithTimeout:TIMEOUT handler:nil];
+}
+
+
 
 
 

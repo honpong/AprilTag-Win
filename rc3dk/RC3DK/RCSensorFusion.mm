@@ -86,6 +86,9 @@ uint64_t get_timestamp()
 - (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int licenseType, int licenseStatus))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock
 {
     RCLicenseValidator* validator = [RCLicenseValidator initWithBundleId:[[NSBundle mainBundle] bundleIdentifier] withVendorId:[[[UIDevice currentDevice] identifierForVendor] UUIDString] withHTTPClient:HTTP_CLIENT withUserDefaults:NSUserDefaults.standardUserDefaults];
+#ifdef LAX_LICENSE_VALIDATION
+    validator.isLax = YES;
+#endif
     [validator validateLicense:apiKey withCompletionBlock:completionBlock withErrorBlock:errorBlock];
 }
 

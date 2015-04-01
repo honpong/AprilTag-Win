@@ -9,6 +9,8 @@
 #import <Foundation/Foundation.h>
 #import "RCPrivateHTTPClient.h"
 
+#define PREF_LICENSE_INVALID @"&C55YqEFpDH5" // nonsense, so that it's meaning is obfuscated
+
 typedef NS_ENUM(int, RCLicenseType)
 {
     /** This license provide full access with a limited number of uses per month. */
@@ -34,6 +36,8 @@ typedef NS_ENUM(int, RCLicenseStatus)
 };
 
 @interface RCLicenseValidator : NSObject
+
+@property (nonatomic) BOOL isLax;
 
 + (RCLicenseValidator*) initWithBundleId:(NSString*)bundleId withVendorId:(NSString*)vendorId withHTTPClient:(RCAFHTTPClient*)httpClient withUserDefaults:(NSUserDefaults*)userDefaults;
 

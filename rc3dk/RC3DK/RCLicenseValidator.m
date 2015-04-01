@@ -10,8 +10,6 @@
 #import "RCConstants.h"
 #import "RCSensorFusion.h"
 
-#define PREF_LICENSE_INVALID @"&C55YqEFpDH5" // nonsense, so that it's meaning is obfuscated
-
 @implementation RCLicenseValidator
 {
     NSString* bundleId;
@@ -19,6 +17,7 @@
     NSUserDefaults* userDefaults;
     NSString* vendorId;
 }
+@synthesize isLax;
 
 + (RCLicenseValidator*) initWithBundleId:(NSString*)bundleId withVendorId:(NSString*)vendorId withHTTPClient:(RCAFHTTPClient*)httpClient withUserDefaults:(NSUserDefaults*)userDefaults
 {
@@ -34,6 +33,7 @@
     httpClient = httpClient_;
     userDefaults = userDefaults_;
     vendorId = vendorId_;
+    isLax = NO;
     
     return self;
 }
@@ -47,12 +47,6 @@
         return;
     }
     // everything below here should get optimized out by the compiler if we're skipping the license check
-    
-    BOOL isLax = NO;
-    
-#ifdef LAX_LICENSE_VALIDATION
-    isLax = YES;
-#endif
     
     if (apiKey == nil || apiKey.length == 0)
     {

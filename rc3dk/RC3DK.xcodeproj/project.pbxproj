@@ -11,8 +11,8 @@
 		32036EA41ACB452000FC0588 /* RCLicenseValidator.m in Sources */ = {isa = PBXBuildFile; fileRef = 32036EA31ACB452000FC0588 /* RCLicenseValidator.m */; };
 		32036EA51ACB452000FC0588 /* RCLicenseValidator.m in Sources */ = {isa = PBXBuildFile; fileRef = 32036EA31ACB452000FC0588 /* RCLicenseValidator.m */; };
 		32036EA81ACB5C1B00FC0588 /* RCLicenseValidatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32036EA71ACB5C1B00FC0588 /* RCLicenseValidatorTests.m */; };
+		321A28D61ACBBADE009406A2 /* libOCMock.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 321A28CB1ACBBADE009406A2 /* libOCMock.a */; };
 		325F2EAF1ACB7DAA00145B9C /* libNocilla.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 325F2E9F1ACB7DAA00145B9C /* libNocilla.a */; };
-		325F2EB01ACB7DAA00145B9C /* NocillaTests.xctest in Resources */ = {isa = PBXBuildFile; fileRef = 325F2EA01ACB7DAA00145B9C /* NocillaTests.xctest */; };
 		327B54E318EB4CC90001CCE1 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B54E218EB4CC90001CCE1 /* Foundation.framework */; };
 		327B553418EB4D720001CCE1 /* RCAFHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B552518EB4D720001CCE1 /* RCAFHTTPClient.m */; };
 		327B553518EB4D720001CCE1 /* RCAFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B552718EB4D720001CCE1 /* RCAFHTTPRequestOperation.m */; };
@@ -257,9 +257,18 @@
 		32036EA21ACB452000FC0588 /* RCLicenseValidator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCLicenseValidator.h; sourceTree = "<group>"; };
 		32036EA31ACB452000FC0588 /* RCLicenseValidator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCLicenseValidator.m; sourceTree = "<group>"; };
 		32036EA71ACB5C1B00FC0588 /* RCLicenseValidatorTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCLicenseValidatorTests.m; sourceTree = "<group>"; };
+		321A28CB1ACBBADE009406A2 /* libOCMock.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libOCMock.a; sourceTree = "<group>"; };
+		321A28CD1ACBBADE009406A2 /* NSNotificationCenter+OCMAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSNotificationCenter+OCMAdditions.h"; sourceTree = "<group>"; };
+		321A28CE1ACBBADE009406A2 /* OCMArg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMArg.h; sourceTree = "<group>"; };
+		321A28CF1ACBBADE009406A2 /* OCMConstraint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMConstraint.h; sourceTree = "<group>"; };
+		321A28D01ACBBADE009406A2 /* OCMLocation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMLocation.h; sourceTree = "<group>"; };
+		321A28D11ACBBADE009406A2 /* OCMMacroState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMMacroState.h; sourceTree = "<group>"; };
+		321A28D21ACBBADE009406A2 /* OCMock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMock.h; sourceTree = "<group>"; };
+		321A28D31ACBBADE009406A2 /* OCMockObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMockObject.h; sourceTree = "<group>"; };
+		321A28D41ACBBADE009406A2 /* OCMRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMRecorder.h; sourceTree = "<group>"; };
+		321A28D51ACBBADE009406A2 /* OCMStubRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMStubRecorder.h; sourceTree = "<group>"; };
 		325F2E831ACB7D1D00145B9C /* libNocilla.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libNocilla.a; path = ../Nocilla/libNocilla.a; sourceTree = "<group>"; };
 		325F2E9F1ACB7DAA00145B9C /* libNocilla.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libNocilla.a; sourceTree = "<group>"; };
-		325F2EA01ACB7DAA00145B9C /* NocillaTests.xctest */ = {isa = PBXFileReference; lastKnownFileType = wrapper; path = NocillaTests.xctest; sourceTree = "<group>"; };
 		325F2EC91ACB813000145B9C /* ASIHTTPRequestStub.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ASIHTTPRequestStub.h; sourceTree = "<group>"; };
 		325F2ECA1ACB813000145B9C /* DSL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DSL.h; sourceTree = "<group>"; };
 		325F2ECB1ACB813000145B9C /* LSASIHTTPRequestAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LSASIHTTPRequestAdapter.h; sourceTree = "<group>"; };
@@ -296,8 +305,6 @@
 		327B54E618EB4CC90001CCE1 /* RC3DK-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RC3DK-Prefix.pch"; sourceTree = "<group>"; };
 		327B54F018EB4CC90001CCE1 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		327B54F318EB4CC90001CCE1 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
-		327B54FA18EB4CC90001CCE1 /* RC3DKTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "RC3DKTests-Info.plist"; sourceTree = "<group>"; };
-		327B54FC18EB4CC90001CCE1 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		327B552318EB4D720001CCE1 /* AFNetworking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworking.h; sourceTree = "<group>"; };
 		327B552418EB4D720001CCE1 /* RCAFHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAFHTTPClient.h; sourceTree = "<group>"; };
 		327B552518EB4D720001CCE1 /* RCAFHTTPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAFHTTPClient.m; sourceTree = "<group>"; };
@@ -398,23 +405,6 @@
 		327B55D018EB4F430001CCE1 /* rotation_vector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rotation_vector.h; sourceTree = "<group>"; };
 		327B55D118EB4F430001CCE1 /* vec4.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vec4.cpp; sourceTree = "<group>"; };
 		327B55D218EB4F430001CCE1 /* vec4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vec4.h; sourceTree = "<group>"; };
-		327B55D718EB4FB20001CCE1 /* libOCMock.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libOCMock.a; sourceTree = "<group>"; };
-		327B55D918EB4FB20001CCE1 /* NSNotificationCenter+OCMAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSNotificationCenter+OCMAdditions.h"; sourceTree = "<group>"; };
-		327B55DA18EB4FB20001CCE1 /* OCMArg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMArg.h; sourceTree = "<group>"; };
-		327B55DB18EB4FB20001CCE1 /* OCMConstraint.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMConstraint.h; sourceTree = "<group>"; };
-		327B55DC18EB4FB20001CCE1 /* OCMock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMock.h; sourceTree = "<group>"; };
-		327B55DD18EB4FB20001CCE1 /* OCMockObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMockObject.h; sourceTree = "<group>"; };
-		327B55DE18EB4FB20001CCE1 /* OCMockRecorder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OCMockRecorder.h; sourceTree = "<group>"; };
-		327B55EF18EB503A0001CCE1 /* NSObject+SupersequentImplementation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+SupersequentImplementation.h"; sourceTree = "<group>"; };
-		327B55F018EB503A0001CCE1 /* NSObject+SupersequentImplementation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+SupersequentImplementation.m"; sourceTree = "<group>"; };
-		327B55F118EB503A0001CCE1 /* RCCalibrationTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibrationTests.h; sourceTree = "<group>"; };
-		327B55F218EB503A0001CCE1 /* RCCalibrationTests.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RCCalibrationTests.mm; sourceTree = "<group>"; };
-		327B55F318EB503A0001CCE1 /* RCDeviceInfoTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDeviceInfoTests.h; sourceTree = "<group>"; };
-		327B55F418EB503A0001CCE1 /* RCDeviceInfoTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDeviceInfoTests.m; sourceTree = "<group>"; };
-		327B55F518EB503A0001CCE1 /* RCMockSingleton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMockSingleton.h; sourceTree = "<group>"; };
-		327B55F618EB503A0001CCE1 /* RCSensorFusion+RCSensorFusionMock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "RCSensorFusion+RCSensorFusionMock.h"; sourceTree = "<group>"; };
-		327B55F718EB503A0001CCE1 /* RCSensorFusion+RCSensorFusionMock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "RCSensorFusion+RCSensorFusionMock.m"; sourceTree = "<group>"; };
-		327B55F818EB503A0001CCE1 /* RCSensorFusionTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCSensorFusionTests.m; sourceTree = "<group>"; };
 		327B563518EB5ECA0001CCE1 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		328A4DD01950D52000587949 /* RCSensorFusionError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCSensorFusionError.h; path = ../../rc3dk/RC3DK/RCSensorFusionError.h; sourceTree = "<group>"; };
 		328A4DD11950D52000587949 /* RCSensorFusionError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCSensorFusionError.m; path = ../../rc3dk/RC3DK/RCSensorFusionError.m; sourceTree = "<group>"; };
@@ -535,6 +525,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				321A28D61ACBBADE009406A2 /* libOCMock.a in Frameworks */,
 				325F2EAF1ACB7DAA00145B9C /* libNocilla.a in Frameworks */,
 				32036E961ACB2A5700FC0588 /* libRC3DK.a in Frameworks */,
 			);
@@ -566,6 +557,7 @@
 		32036E911ACB2A5700FC0588 /* RC3DK Tests */ = {
 			isa = PBXGroup;
 			children = (
+				321A28CA1ACBBADE009406A2 /* OCMock */,
 				32036E921ACB2A5700FC0588 /* Supporting Files */,
 				325F2E9B1ACB7DAA00145B9C /* Nocilla */,
 				32036EA71ACB5C1B00FC0588 /* RCLicenseValidatorTests.m */,
@@ -581,12 +573,37 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		321A28CA1ACBBADE009406A2 /* OCMock */ = {
+			isa = PBXGroup;
+			children = (
+				321A28CB1ACBBADE009406A2 /* libOCMock.a */,
+				321A28CC1ACBBADE009406A2 /* OCMock */,
+			);
+			name = OCMock;
+			path = ../../OCMock;
+			sourceTree = "<group>";
+		};
+		321A28CC1ACBBADE009406A2 /* OCMock */ = {
+			isa = PBXGroup;
+			children = (
+				321A28CD1ACBBADE009406A2 /* NSNotificationCenter+OCMAdditions.h */,
+				321A28CE1ACBBADE009406A2 /* OCMArg.h */,
+				321A28CF1ACBBADE009406A2 /* OCMConstraint.h */,
+				321A28D01ACBBADE009406A2 /* OCMLocation.h */,
+				321A28D11ACBBADE009406A2 /* OCMMacroState.h */,
+				321A28D21ACBBADE009406A2 /* OCMock.h */,
+				321A28D31ACBBADE009406A2 /* OCMockObject.h */,
+				321A28D41ACBBADE009406A2 /* OCMRecorder.h */,
+				321A28D51ACBBADE009406A2 /* OCMStubRecorder.h */,
+			);
+			path = OCMock;
+			sourceTree = "<group>";
+		};
 		325F2E9B1ACB7DAA00145B9C /* Nocilla */ = {
 			isa = PBXGroup;
 			children = (
 				325F2EC81ACB813000145B9C /* PublicHeaders */,
 				325F2E9F1ACB7DAA00145B9C /* libNocilla.a */,
-				325F2EA01ACB7DAA00145B9C /* NocillaTests.xctest */,
 			);
 			name = Nocilla;
 			path = ../../Nocilla;
@@ -635,7 +652,6 @@
 			children = (
 				D35C16FA1A20B1510048C5BC /* RC3DKPlus */,
 				327B54E418EB4CC90001CCE1 /* RC3DK */,
-				327B54F818EB4CC90001CCE1 /* RC3DKTests */,
 				32036E911ACB2A5700FC0588 /* RC3DK Tests */,
 				327B54E118EB4CC90001CCE1 /* Frameworks */,
 				327B54E018EB4CC90001CCE1 /* Products */,
@@ -687,34 +703,6 @@
 			children = (
 				327B557E18EB4DDE0001CCE1 /* RC3DK-Info.plist */,
 				327B54E618EB4CC90001CCE1 /* RC3DK-Prefix.pch */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		327B54F818EB4CC90001CCE1 /* RC3DKTests */ = {
-			isa = PBXGroup;
-			children = (
-				327B55D618EB4FB20001CCE1 /* OCMock */,
-				327B54F918EB4CC90001CCE1 /* Supporting Files */,
-				327B55EF18EB503A0001CCE1 /* NSObject+SupersequentImplementation.h */,
-				327B55F018EB503A0001CCE1 /* NSObject+SupersequentImplementation.m */,
-				327B55F118EB503A0001CCE1 /* RCCalibrationTests.h */,
-				327B55F218EB503A0001CCE1 /* RCCalibrationTests.mm */,
-				327B55F318EB503A0001CCE1 /* RCDeviceInfoTests.h */,
-				327B55F418EB503A0001CCE1 /* RCDeviceInfoTests.m */,
-				327B55F518EB503A0001CCE1 /* RCMockSingleton.h */,
-				327B55F618EB503A0001CCE1 /* RCSensorFusion+RCSensorFusionMock.h */,
-				327B55F718EB503A0001CCE1 /* RCSensorFusion+RCSensorFusionMock.m */,
-				327B55F818EB503A0001CCE1 /* RCSensorFusionTests.m */,
-			);
-			path = RC3DKTests;
-			sourceTree = "<group>";
-		};
-		327B54F918EB4CC90001CCE1 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				327B54FA18EB4CC90001CCE1 /* RC3DKTests-Info.plist */,
-				327B54FB18EB4CC90001CCE1 /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -901,28 +889,6 @@
 			);
 			name = numerics;
 			path = ../../corvis/src/numerics;
-			sourceTree = "<group>";
-		};
-		327B55D618EB4FB20001CCE1 /* OCMock */ = {
-			isa = PBXGroup;
-			children = (
-				327B55D718EB4FB20001CCE1 /* libOCMock.a */,
-				327B55D818EB4FB20001CCE1 /* OCMock */,
-			);
-			path = OCMock;
-			sourceTree = SOURCE_ROOT;
-		};
-		327B55D818EB4FB20001CCE1 /* OCMock */ = {
-			isa = PBXGroup;
-			children = (
-				327B55D918EB4FB20001CCE1 /* NSNotificationCenter+OCMAdditions.h */,
-				327B55DA18EB4FB20001CCE1 /* OCMArg.h */,
-				327B55DB18EB4FB20001CCE1 /* OCMConstraint.h */,
-				327B55DC18EB4FB20001CCE1 /* OCMock.h */,
-				327B55DD18EB4FB20001CCE1 /* OCMockObject.h */,
-				327B55DE18EB4FB20001CCE1 /* OCMockRecorder.h */,
-			);
-			path = OCMock;
 			sourceTree = "<group>";
 		};
 		D321AD2E1A323B6D003AEA77 /* Corvis */ = {
@@ -1176,7 +1142,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				325F2EB01ACB7DAA00145B9C /* NocillaTests.xctest in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1422,23 +1387,13 @@
 		};
 /* End PBXTargetDependency section */
 
-/* Begin PBXVariantGroup section */
-		327B54FB18EB4CC90001CCE1 /* InfoPlist.strings */ = {
-			isa = PBXVariantGroup;
-			children = (
-				327B54FC18EB4CC90001CCE1 /* en */,
-			);
-			name = InfoPlist.strings;
-			sourceTree = "<group>";
-		};
-/* End PBXVariantGroup section */
-
 /* Begin XCBuildConfiguration section */
 		32036E9A1ACB2A5700FC0588 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
+				DEAD_CODE_STRIPPING = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
@@ -1454,7 +1409,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/Users/benhirashima/Documents/Development/RealityCap/rcmain/Nocilla,
+					../Nocilla,
+					../OCMock,
 				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = (
@@ -1462,6 +1418,8 @@
 					"-lc++",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_INSTALLED_PRODUCT = NO;
+				VALIDATE_PRODUCT = NO;
 			};
 			name = Debug;
 		};
@@ -1470,7 +1428,8 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
-				COPY_PHASE_STRIP = YES;
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
@@ -1486,7 +1445,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/Users/benhirashima/Documents/Development/RealityCap/rcmain/Nocilla,
+					../Nocilla,
+					../OCMock,
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = (
@@ -1494,7 +1454,8 @@
 					"-lc++",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				VALIDATE_PRODUCT = YES;
+				STRIP_INSTALLED_PRODUCT = NO;
+				VALIDATE_PRODUCT = NO;
 			};
 			name = Release;
 		};
@@ -1503,7 +1464,8 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
-				COPY_PHASE_STRIP = YES;
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
@@ -1519,15 +1481,18 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/Users/benhirashima/Documents/Development/RealityCap/rcmain/Nocilla,
+					../Nocilla,
+					../OCMock,
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				VALIDATE_PRODUCT = YES;
+				STRIP_INSTALLED_PRODUCT = NO;
+				VALIDATE_PRODUCT = NO;
 			};
 			name = Archive;
 		};
@@ -1536,7 +1501,8 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
-				COPY_PHASE_STRIP = YES;
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
@@ -1553,15 +1519,18 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/Users/benhirashima/Documents/Development/RealityCap/rcmain/Nocilla,
+					../Nocilla,
+					../OCMock,
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				VALIDATE_PRODUCT = YES;
+				STRIP_INSTALLED_PRODUCT = NO;
+				VALIDATE_PRODUCT = NO;
 			};
 			name = Library;
 		};
@@ -1570,7 +1539,8 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
-				COPY_PHASE_STRIP = YES;
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
@@ -1586,15 +1556,18 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/Users/benhirashima/Documents/Development/RealityCap/rcmain/Nocilla,
+					../Nocilla,
+					../OCMock,
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				VALIDATE_PRODUCT = YES;
+				STRIP_INSTALLED_PRODUCT = NO;
+				VALIDATE_PRODUCT = NO;
 			};
 			name = LibraryLax;
 		};
@@ -1603,7 +1576,8 @@
 			buildSettings = {
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
-				COPY_PHASE_STRIP = YES;
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
@@ -1619,15 +1593,18 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/Users/benhirashima/Documents/Development/RealityCap/rcmain/Nocilla,
+					../Nocilla,
+					../OCMock,
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_LDFLAGS = (
 					"-ObjC",
 					"-lc++",
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				VALIDATE_PRODUCT = YES;
+				STRIP_INSTALLED_PRODUCT = NO;
+				VALIDATE_PRODUCT = NO;
 			};
 			name = LibraryOffline;
 		};

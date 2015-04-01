@@ -126,7 +126,7 @@ void homography_factorize(const m4 &H, m4 Rs[4], v4 Ts[4], v4 Ns[4])
     matrix Vt(3, 3);
     //Matlab: [u,s,v] = svd(H'*H);
     m4 HtH = transpose(H) * H;
-    matrix HtH_tmp(&(HtH.data[0][0]), 3, 3, 4, 4);
+    matrix HtH_tmp(HtH.data(), 3, 3, 4, 4);
     matrix_svd(HtH_tmp, U, S, Vt);
     
     //Matlab: s1 = s(1,1); s2 = s(2,2); s3 = s(3,3); - ignore, just use S(1)

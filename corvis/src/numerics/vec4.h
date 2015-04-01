@@ -25,42 +25,45 @@ class v4 {
     static v4 Zero() { return v4(0., 0., 0., 0.); }
     static v4 Constant(const f_t x) { return v4(x, x, x, x); }
     //initializers
- v4(): data((v_intrinsic){ 0., 0., 0., 0.}) {}
- v4(const v_intrinsic &other): data(other) {}
- v4(const f_t other[4]): data((v_intrinsic) {other[0], other[1], other[2], other[3]}) {}
- v4(const f_t other0, const f_t other1, const f_t other2, const f_t other3): data((v_intrinsic) { other0, other1, other2, other3 }) {}
+ v4(): vec((v_intrinsic){ 0., 0., 0., 0.}) {}
+ v4(const v_intrinsic &other): vec(other) {}
+ v4(const f_t other[4]): vec((v_intrinsic) {other[0], other[1], other[2], other[3]}) {}
+ v4(const f_t other0, const f_t other1, const f_t other2, const f_t other3): vec((v_intrinsic) { other0, other1, other2, other3 }) {}
     //member access
-    f_t & operator[](const int i) { return ((f_t *)&data)[i]; }
-    const f_t & operator[](const int i) const { return ((f_t *)&data)[i]; }
-
-    f_t dot(const v4& other) const { v_intrinsic tmp = data * other.data; return tmp[0] + tmp[1] + tmp[2] + tmp[3]; }
+    f_t & operator[](const int i) { return ((f_t *)&vec)[i]; }
+    const f_t & operator[](const int i) const { return ((f_t *)&vec)[i]; }
+    f_t dot(const v4& other) const { v_intrinsic tmp = vec * other.vec; return tmp[0] + tmp[1] + tmp[2] + tmp[3]; }
     f_t absmax() const {
         f_t max = fabs((*this)[0]) > fabs((*this)[1]) ? fabs((*this)[0]) : fabs((*this)[1]);
         max = max > fabs((*this)[2]) ? max : fabs((*this)[2]);
         return max;
     }
-
-    v_intrinsic data;
+    
+    f_t *data() { return (f_t *) &vec; }
+    
+    v4 operator*(const f_t other) const { return v4(vec * v4::Constant(other).vec); }
+    v4 operator*(const v4 &other) const { return v4(vec * other.vec); }
+    v4 operator/(const f_t other) const { return v4(vec / v4::Constant(other).vec); }
+    v4 operator/(const v4 &other) const { return v4(vec / other.vec); }
+    v4 operator+(const v4 &other) const { return v4(vec + other.vec); }
+    v4 operator-(const v4 &other) const { return v4(vec - other.vec); }
+    v4 &operator*=(const f_t other) { vec *= v4::Constant(other).vec; return *this; }
+    v4 &operator*=(const v4 &other) { vec *= other.vec; return *this; }
+    v4 &operator/=(const v4 &other) { vec /= other.vec; return *this; }
+    v4 &operator+=(const v4 &other) { vec += other.vec; return *this; }
+    v4 &operator-=(const v4 &other) { vec -= other.vec; return *this; }
+    v4 operator-() const { return v4(-vec); }
+    
+protected:
+    v_intrinsic vec;
 };
 
 //v4 math
-static inline v4 operator*(const v4 &a, const f_t other) { return v4(a.data * v4::Constant(other).data); }
-static inline v4 operator*(const f_t other, const v4 &a) { return v4(a.data * v4::Constant(other).data); }
-static inline v4 operator*(const v4 &a, const v4 &other) { return v4(a.data * other.data); }
-static inline v4 operator/(const v4 &a, const f_t other) { return v4(a.data / v4::Constant(other).data); }
-static inline v4 operator/(const v4 &a, const v4 &other) { return v4(a.data / other.data); }
-static inline v4 operator+(const v4 &a, const v4 &other) { return v4(a.data + other.data); }
-static inline v4 operator-(const v4 &a, const v4 &other) { return v4(a.data - other.data); }
-static inline v4 &operator*=(v4 &a, const f_t other) { a.data *= v4::Constant(other).data; return a; }
-static inline v4 &operator*=(v4 &a, const v4 &other) { a.data *= other.data; return a; }
-static inline v4 &operator/=(v4 &a, const v4 &other) { a.data /= other.data; return a; }
-static inline v4 &operator+=(v4 &a, const v4 &other) { a.data += other.data; return a; }
-static inline v4 &operator-=(v4 &a, const v4 &other) { a.data -= other.data; return a; }
 static inline f_t sum(const v4 &v) { return v[0] + v[1] + v[2] + v[3]; }
 static inline f_t norm(const v4 &v) { return sqrt(sum(v*v)); }
 static inline v4 normalize(const v4 x) { return x / v4::Constant(norm(x)); }
 static inline v4 v4_sqrt(const v4 &v) { return v4(sqrt(v[0]), sqrt(v[1]), sqrt(v[2]), sqrt(v[3])); }
-static inline v4 operator-(const v4 &v) { return v4(-v.data); }
+static inline v4 operator*(const f_t other, const v4 &a) { return v4(a[0] * other, a[1] * other, a[2] * other, a[3] * other ); }
 static inline bool operator==(const v4 &a, const v4 &b) { return a[0] == b[0] && a[1] == b[1] && a[2] == b[2] && a[3] == b[3]; }
 static inline std::ostream& operator<<(std::ostream &stream, const v4 &v)
 {
@@ -153,14 +156,15 @@ class m4 {
     static m4 Identity() { return (m4) {{{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}}}; }
     //v4 & operator[](const int i) { return data[i]; }
     //const v4 & operator[](const int i) const { return data[i]; }
-    const f_t& operator()(const int i, const int j) const { return data[i][j]; }
-    f_t& operator()(const int i, const int j) { return data[i][j]; }
-    v4 col(const int c) const { return v4( (v_intrinsic) { data[0][c], data[1][c], data[2][c], data[3][c] }); }
+    const f_t& operator()(const int i, const int j) const { return vec[i][j]; }
+    f_t& operator()(const int i, const int j) { return vec[i][j]; }
+    v4 col(const int c) const { return v4( (v_intrinsic) { vec[0][c], vec[1][c], vec[2][c], vec[3][c] }); }
     
-    v4& row(const int i) { return data[i]; }
-    const v4& row(const int i) const { return data[i]; }
+    v4& row(const int i) { return vec[i]; }
+    const v4& row(const int i) const { return vec[i]; }
+    f_t * data() { return (f_t *) vec; }
 
-    v4 data[4];
+    v4 vec[4];
 };
 
 static inline bool operator==(const m4 &a, const m4 &b)
@@ -223,10 +227,10 @@ static inline f_t norm(const m4 &m) { return sqrt(sum(m.row(0)*m.row(0) + m.row(
 
 static inline m4 operator-(const m4 &m) {
     return (m4) { {
-                -m.data[0],
-                -m.data[1],
-                -m.data[2],
-                -m.data[3] }
+                -m.vec[0],
+                -m.vec[1],
+                -m.vec[2],
+                -m.vec[3] }
     };
 }
 

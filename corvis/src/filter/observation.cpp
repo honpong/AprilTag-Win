@@ -186,9 +186,9 @@ void observation_vision_feature::predict()
 {
     m4 Rr = to_rotation_matrix(state_group->Wr.v);
     m4 R = to_rotation_matrix(state.W.v);
-    Rrt = transpose(Rr);
+    Rrt = Rr.transpose();
     Rbc = to_rotation_matrix(state.Wc.v);
-    Rcb = transpose(Rbc);
+    Rcb = Rbc.transpose();
     Rtot = Rcb * Rrt * Rbc;
     Ttot = Rcb * (Rrt * (state.Tc.v - state_group->Tr.v) - state.Tc.v);
 
@@ -512,7 +512,7 @@ void observation_vision_feature::compute_measurement_covariance()
 }
 void observation_accelerometer::predict()
 {
-    Rt = transpose(to_rotation_matrix(state.W.v));
+    Rt = to_rotation_matrix(state.W.v).transpose();
     v4 acc = v4(0., 0., state.g.v, 0.);
     if(!state.orientation_only)
     {

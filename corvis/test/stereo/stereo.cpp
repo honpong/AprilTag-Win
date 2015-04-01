@@ -96,8 +96,8 @@ TEST(Stereo, DecomposeF) {
         v4(0.042225916, 0.092352889, 0.99483061, 0),
         v4(0, 0, 0, 1)
     }};
-    const m4 R2_gt = transpose(R_gt);
-    const v4 T2_gt = -transpose(R_gt)*T_gt;
+    const m4 R2_gt = R_gt.transpose();
+    const v4 T2_gt = -R_gt.transpose()*T_gt;
 
     m4 R, R2;
     v4 T, T2;
@@ -106,7 +106,7 @@ TEST(Stereo, DecomposeF) {
     decompose_F(F, focal_length, center_x, center_y, p1, p2, R, T);
 
     // Check the opposite direction
-    decompose_F(transpose(F), focal_length, center_x, center_y, p2, p1, R2, T2);
+    decompose_F(F.transpose(), focal_length, center_x, center_y, p2, p1, R2, T2);
 
     for(int i = 0; i < 4; i++)
         EXPECT_FLOAT_EQ(T_gt[i], T[i]);

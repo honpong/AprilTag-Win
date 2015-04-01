@@ -454,8 +454,8 @@ bool stereo::triangulate_internal(const stereo_frame & reference, const stereo_f
     }
 
     error = (pa - pb).norm();
-    v4 cam1_intersect = transpose(R1w) * (pa - reference.T);
-    v4 cam2_intersect = transpose(R2w) * (pb - target.T);
+    v4 cam1_intersect = R1w.transpose() * (pa - reference.T);
+    v4 cam2_intersect = R2w.transpose() * (pb - target.T);
     if(debug_triangulate)
         fprintf(stderr, "Lines were %.2fcm from intersecting at a depth of %.2fcm\n", error*100, cam1_intersect[2]*100);
 
@@ -494,8 +494,8 @@ bool stereo::preprocess_internal(const stereo_frame &from, stereo_frame &to, m4 
     if(valid) {
         F = F_eight_point;
         if(enable_eight_point_motion) {
-            m4 Rto = transpose(R_eight_point);
-            v4 Tto = -transpose(R_eight_point)*T_eight_point;
+            m4 Rto = R_eight_point.transpose();
+            v4 Tto = -R_eight_point.transpose()*T_eight_point;
             to.W = to_rotation_vector(Rto);
             to.T = Tto * (to.T).norm(); // keep the magnitude of T
         }

@@ -158,9 +158,12 @@ class m4 {
     const f_t& operator()(const int i, const int j) const { return vec[i][j]; }
     f_t& operator()(const int i, const int j) { return vec[i][j]; }
     v4 col(const int c) const { return v4( (v_intrinsic) { vec[0][c], vec[1][c], vec[2][c], vec[3][c] }); }
-    
     v4& row(const int i) { return vec[i]; }
     const v4& row(const int i) const { return vec[i]; }
+    m4 transpose() const
+    {
+        return (m4) {{ col(0), col(1), col(2), col(3) }};
+    }
     f_t * data() { return (f_t *) vec; }
 
     v4 vec[4];
@@ -311,11 +314,6 @@ inline static m4v4 outer_product(const v4 &b, const m4 &c)
 inline static v4m4 outer_product(const m4 &b, const v4 &c)
 {
     return (v4m4) {{ b * c[0], b * c[1], b * c[2], b * c[3] }};
-}
-
-inline static m4 transpose(const m4 &b)
-{
-    return (m4) {{ b.col(0), b.col(1), b.col(2), b.col(3) }};
 }
 
 inline static m4v4 transpose(const m4v4 &b)

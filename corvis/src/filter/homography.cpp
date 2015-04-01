@@ -125,7 +125,7 @@ void homography_factorize(const m4 &H, m4 Rs[4], v4 Ts[4], v4 Ns[4])
     matrix S(1, 3);
     matrix Vt(3, 3);
     //Matlab: [u,s,v] = svd(H'*H);
-    m4 HtH = transpose(H) * H;
+    m4 HtH = H.transpose() * H;
     matrix HtH_tmp(HtH.data(), 3, 3, 4, 4);
     matrix_svd(HtH_tmp, U, S, Vt);
     
@@ -166,28 +166,28 @@ void homography_factorize(const m4 &H, m4 Rs[4], v4 Ts[4], v4 Ns[4])
     U1.row(0) = v2;
     U1.row(1) = u1;
     U1.row(2) = skew3(v2) * u1;
-    U1 = transpose(U1);
+    U1 = U1.transpose();
     
     //Matlab: U2 = [v2, u2, skew(v2)*u2];
     m4 U2;
     U2.row(0) = v2;
     U2.row(1) = u2;
     U2.row(2) = skew3(v2) * u2;
-    U2 = transpose(U2);
+    U2 = U2.transpose();
     
     //Matlab: W1 = [H*v2, H*u1, skew(H*v2)*H*u1];
     m4 W1;
     W1.row(0) = H * v2;
     W1.row(1) = H * u1;
     W1.row(2) = skew3(H * v2) * H * u1;
-    W1 = transpose(W1);
+    W1 = W1.transpose();
     
     //Matlab: W2 = [H*v2, H*u2, skew(H*v2)*H*u2];
     m4 W2;
     W2.row(0) = H * v2;
     W2.row(1) = H * u2;
     W2.row(2) = skew3(H * v2) * H * u2;
-    W2 = transpose(W2);
+    W2 = W2.transpose();
     
     //Matlab: N1 = skew(v2)*u1;
     v4 N1 = skew3(v2) * u1;
@@ -200,10 +200,10 @@ void homography_factorize(const m4 &H, m4 Rs[4], v4 Ts[4], v4 Ns[4])
      Sol(:,:,3) = [W1*U1', -(H - W1*U1')*N1, -N1];
      Sol(:,:,4) = [W2*U2', -(H - W2*U2')*N2, -N2];
      */
-    Rs[0] = W1 * transpose(U1);
-    Rs[1] = W2 * transpose(U2);
-    Rs[2] = W1 * transpose(U1);
-    Rs[3] = W2 * transpose(U2);
+    Rs[0] = W1 * U1.transpose();
+    Rs[1] = W2 * U2.transpose();
+    Rs[2] = W1 * U1.transpose();
+    Rs[3] = W2 * U2.transpose();
     
     for(int i = 0; i < 4; ++i)
     {
@@ -257,7 +257,7 @@ homography_decomposition homography_decompose_direct(const m4 & H)
     d.R.row(3) = v4(0, 0, 0, 1);
     // since we constructed R with each row corresponding to a column
     // from the derivation, we need to transpose it
-    d.R = transpose(d.R);
+    d.R = d.R.transpose();
 
     d.T = v4(H(0, 2) - d.R(0, 2), H(1, 2) - d.R(1, 2), H(2, 2) - d.R(2, 2), 0);
 

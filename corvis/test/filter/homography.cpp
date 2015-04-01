@@ -199,8 +199,8 @@ TEST(Homography, AlignToQR)
     bool success = homography_align_to_qr(qr_image, qr_size, modules, Raligned, Taligned);
     EXPECT_EQ(success, true);
 
-    m4 Ri = transpose(Raligned);
-    v4 Ti = -transpose(Raligned)*Taligned;
+    m4 Ri = Raligned.transpose();
+    v4 Ti = -Raligned.transpose()*Taligned;
     for(int i = 0; i < 4; i++) {
         test_v4_near(Ri*qr[i] + Ti, qr_expected[i], 1e-3);
     }

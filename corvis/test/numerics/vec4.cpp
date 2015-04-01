@@ -18,7 +18,7 @@ const static m4 bar = { {
     v4(-3.4, .8, .2, 0.)
 } };
 
-const static m4 symmetric = foo * transpose(foo);
+const static m4 symmetric = foo * foo.transpose();
 
 const static v4 vec(1.5, -.64, 4.1, 0.);
 
@@ -64,9 +64,9 @@ TEST(Matrix4, Identity) {
     EXPECT_EQ((m4)(foo - foo), (m4)m4::Zero());
     EXPECT_EQ((foo + bar) + m4::Identity(), foo + (bar + m4::Identity()));
     EXPECT_EQ(m4::Identity() * m4::Identity(), m4::Identity());
-    EXPECT_EQ(transpose(transpose(foo)), foo);
-    EXPECT_EQ(transpose(foo * bar), transpose(bar) * transpose(foo));
-    EXPECT_EQ(transpose(symmetric), symmetric);
+    EXPECT_EQ(foo.transpose().transpose(), foo);
+    EXPECT_EQ((foo * bar).transpose(), bar.transpose() * foo.transpose());
+    EXPECT_EQ(symmetric.transpose(), symmetric);
 }
 
 TEST(Matrix4, Determinant) {
@@ -88,7 +88,7 @@ TEST(Vector4, Cross) {
     }
     {
         SCOPED_TRACE("a x b = skew(b)^T * a");
-        EXPECT_EQ(cross(vec, vec2), transpose(skew3(vec2)) * vec);
+        EXPECT_EQ(cross(vec, vec2), skew3(vec2).transpose() * vec);
     }
 }
 
@@ -210,12 +210,12 @@ void test_rotation(const v4 &vec)
     //The next two fail the normal float comparison due to matrix product - (TODO: rearrange matrix operations?)
     {
         SCOPED_TRACE("R'R = I");
-        test_m4_near(m4::Identity(), transpose(rotmat) * rotmat, 1.e-15);
+        test_m4_near(m4::Identity(), rotmat.transpose() * rotmat, 1.e-15);
     }
     
     {
         SCOPED_TRACE("R'Rv = v");
-        test_v4_near(vec, transpose(rotmat) * (rotmat * vec), 1.e-15);
+        test_v4_near(vec, rotmat.transpose() * (rotmat * vec), 1.e-15);
     }
     
     {

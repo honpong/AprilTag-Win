@@ -132,7 +132,7 @@ bool validate_RT(const m4 & R, const v4 & T, const v4 & p1, const v4 & p2)
     if(!success) return false;
 
     // switch to camera relative coordinates
-    pa = transpose(R)*(pa - T);
+    pa = R.transpose()*(pa - T);
 
     //fprintf(stderr, "intersection says %d, alpha says %f %f\n", (pa[2] > 0 & pb[2] > 0), alpha1, alpha2);
 
@@ -159,7 +159,7 @@ bool decompose_F(const m4 & F, float focal_length, float center_x, float center_
     K(2, 2) = 1;
     K(3, 3) = 1;
 
-    m4 E4 = transpose(K)*F*K;
+    m4 E4 = K.transpose()*F*K;
     v4 p1p = Kinv*p1;
     v4 p2p = Kinv*p2;
 
@@ -290,7 +290,7 @@ int compute_inliers(const v4 from [], const v4 to [], int nmatches, const m4 & F
     for(int i = 0; i < nmatches; i++) {
         // Sampson distance x2*F*x1 / (sum((Fx1).^2) + sum((F'x2).^2))
         v4 el1 = F*from[i];
-        v4 el2 = transpose(F)*to[i];
+        v4 el2 = F.transpose()*to[i];
         float distance = to[i].dot(F*from[i]);
         distance = distance*distance;
         distance = distance / (el1[0]*el1[0] + el1[1]*el1[1] + el2[0]* el2[0] + el2[1]*el2[1]);
@@ -404,8 +404,8 @@ m4 estimate_F(const camera &g, const stereo_frame &reference, const stereo_frame
     */
     m4 R1w = to_rotation_matrix(reference.W);
     m4 R2w = to_rotation_matrix(target.W);
-    dR = transpose(R2w)*R1w;
-    dT = transpose(R2w) * (reference.T - target.T);
+    dR = R2w.transpose()*R1w;
+    dT = R2w.transpose() * (reference.T - target.T);
 
     // E21 is 3x3
     m4 E21 = skew3(dT) * dR;
@@ -418,7 +418,7 @@ m4 estimate_F(const camera &g, const stereo_frame &reference, const stereo_frame
     Kinv(2, 2) = 1;
     Kinv(3, 3) = 1;
 
-    m4 F21 = transpose(Kinv)*E21*Kinv;
+    m4 F21 = Kinv.transpose()*E21*Kinv;
 
     // for numerical conditioning
     // F = F / norm(F) / sign(F(3,3))

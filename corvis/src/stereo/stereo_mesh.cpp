@@ -180,7 +180,7 @@ void stereo_mesh_write_rotated_json(const char * filename, const stereo_mesh & m
     fprintf(vertices, "\"k2\": %g,\n", g.camera.k2);
     fprintf(vertices, "\"k3\": %g,\n", g.camera.k3);
 
-    m4 Rr = g.Rw*transpose(R); // Rotation to world frame including undoing camera rotation
+    m4 Rr = g.Rw*R.transpose(); // Rotation to world frame including undoing camera rotation
     fprintf(vertices, "\"world\": { ");
     fprintf(vertices, "\"R\" : [[%g, %g, %g, %g], \n", Rr(0, 0), Rr(0, 1), Rr(0, 2), Rr(0, 3));
     fprintf(vertices, "         [%g, %g, %g, %g], \n", Rr(1, 0), Rr(1, 1), Rr(1, 2), Rr(1, 3));
@@ -188,7 +188,7 @@ void stereo_mesh_write_rotated_json(const char * filename, const stereo_mesh & m
     fprintf(vertices, "         [%g, %g, %g, %g]],\n", Rr(3, 0), Rr(3, 1), Rr(3, 2), Rr(3, 3));
     fprintf(vertices, "\"T\": [%g, %g, %g, %g] }, \n", g.Tw[0], g.Tw[1], g.Tw[2], g.Tw[3]);
 
-    v4 gravity = transpose(Rr)*v4(0,0,-1,0);
+    v4 gravity = Rr.transpose()*v4(0,0,-1,0);
     fprintf(vertices, "\"gravity\": [%g, %g, %g, %g], \n", gravity[0], gravity[1], gravity[2], gravity[3]);
 
     fprintf(vertices, "\"vertices\" : [\n");

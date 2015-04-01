@@ -74,7 +74,7 @@
     m4 R = to_rotation_matrix(q);
     v4 rotated = R * v4_from_vFloat(point.vector);
     //TODO: account for standard deviation of rotation in addition to that of the point
-    v4 stdev = (R * v4_from_vFloat(point.standardDeviation)) * transpose(R);
+    v4 stdev = (R * v4_from_vFloat(point.standardDeviation)) * R.transpose();
     return [[RCPoint alloc] initWithVector:vFloat_from_v4(rotated) withStandardDeviation:vFloat_from_v4(stdev)];
 }
 
@@ -83,7 +83,7 @@
     m4 R = to_rotation_matrix(q);
     v4 rotated = R * v4_from_vFloat(translation.vector);
     //TODO: account for standard deviation of rotation in addition to that of the point
-    v4 stdev = (R * v4_from_vFloat(translation.standardDeviation)) * transpose(R);
+    v4 stdev = (R * v4_from_vFloat(translation.standardDeviation)) * R.transpose();
     return [[RCTranslation alloc] initWithVector:vFloat_from_v4(rotated) withStandardDeviation:vFloat_from_v4(stdev)];
 }
 

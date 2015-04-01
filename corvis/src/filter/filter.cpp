@@ -144,9 +144,9 @@ void filter_update_outputs(struct filter *f, uint64_t time)
     }
     m4 
         R = to_rotation_matrix(f->s.W.v),
-        Rt = transpose(R),
+        Rt = R.transpose(),
         Rbc = to_rotation_matrix(f->s.Wc.v),
-        Rcb = transpose(Rbc),
+        Rcb = Rbc.transpose(),
         RcbRt = Rcb * Rt;
 
     f->s.camera_matrix = RcbRt;
@@ -273,7 +273,7 @@ uint64_t steady_time(struct filter *f, stdev_vector &stdev, v4 meas, f_t varianc
     }
     if(!stdev.count && use_orientation) {
         if(!f->s.orientation_initialized) return 0;
-        v4 local_up = transpose(to_rotation_matrix(f->s.W.v)) * v4(0., 0., 1., 0.);
+        v4 local_up = to_rotation_matrix(f->s.W.v).transpose() * v4(0., 0., 1., 0.);
         //face up -> (0, 0, 1)
         //portrait -> (0, 1, 0)
         //landscape -> (1, 0, 0)

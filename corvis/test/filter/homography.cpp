@@ -284,8 +284,8 @@ TEST(Homography, Decomposition)
     // contains the correct one.
     for(int i = 0; i < decompositions.size(); i++) {
         homography_decomposition result = decompositions[i];
-        float dT2 = sum((result.T*d - T)*(result.T*d - T));
-        float dN2 = sum((result.N - N)*(result.N - N));
+        float dT2 = (result.T*d - T).dot(result.T*d - T);
+        float dN2 = (result.N - N).dot(result.N - N);
         if(dN2 < margin2 && dT2 < margin2) {
             test_m4_near(result.R, R, 1e-3);
             found = true;

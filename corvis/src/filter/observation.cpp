@@ -408,7 +408,7 @@ void observation_vision_feature::update_initializing()
     
     v4 X_0_proj = X_0 / X_0[2];
     v4 delta = (X_inf_proj - X_0_proj);
-    f_t pixelvar = sum(delta * delta) * state.focal_length.v * state.focal_length.v;
+    f_t pixelvar = delta.dot(delta) * state.focal_length.v * state.focal_length.v;
     if(pixelvar > 5. * 5. * state_vision_feature::measurement_var) { //tells us if we have enough baseline
         feature->status = feature_normal;
     }
@@ -565,10 +565,11 @@ void observation_accelerometer::project_covariance(matrix &dst, const matrix &sr
 
 bool observation_accelerometer::measure()
 {
-    stdev.data(v4(meas[0], meas[1], meas[2], 0.));
+    v4 tmp(meas[0], meas[1], meas[2], 0.);
+    stdev.data(tmp);
     if(!state.orientation_initialized)
     {
-        state.W.v = to_rotation_vector(initial_orientation_from_gravity(meas));
+        state.W.v = to_rotation_vector(initial_orientation_from_gravity(tmp));
         state.orientation_initialized = true;
         return false;
     } else return observation_spatial::measure();

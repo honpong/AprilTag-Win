@@ -85,11 +85,11 @@ m4 rodrigues(const v4 W, m4v4 *dR_dW)
             dc_dW = W * -(1./12.);
         } else {
             v4
-                ds_dt = (costheta - sinterm) * invtheta,
-                dc_dt = (sinterm - 2*costerm) * invtheta,
+                ds_dt(v4::Constant((costheta - sinterm) * invtheta)),
+                dc_dt(v4::Constant((sinterm - 2*costerm) * invtheta)),
                 dt_dW = W * invtheta;
-            ds_dW = ds_dt * dt_dW;
-            dc_dW = dc_dt * dt_dW;
+            ds_dW = ds_dt.cwiseProduct(dt_dW);
+            dc_dW = dc_dt.cwiseProduct(dt_dW);
         }
         m4v4 dV2_dW;
         dV2_dW[0].row(0) = v4(0., -2*W[1], -2*W[2], 0.);
@@ -110,7 +110,7 @@ m4 rodrigues(const v4 W, m4v4 *dR_dW)
 
 v4 integrate_angular_velocity(const v4 &W, const v4 &w)
 {
-    f_t theta2 = sum(W * W);
+    f_t theta2 = W.dot(W);
     f_t gamma, eta;
     if (theta2 * theta2 <= 120 * F_T_EPS) {
         gamma = 2. - theta2 / 6.;
@@ -129,7 +129,7 @@ v4 integrate_angular_velocity(const v4 &W, const v4 &w)
 
 void linearize_angular_integration(const v4 &W, const v4 &w, m4 &dW_dW, m4 &dW_dw)
 {
-    f_t theta2 = sum(W * W); //dtheta2_dW = 2 * W
+    f_t theta2 = W.dot(W); //dtheta2_dW = 2 * W
     f_t gamma, eta;
     v4 dg_dW, de_dW, de_dw;
     if(theta2 * theta2 <= 120 * F_T_EPS) {

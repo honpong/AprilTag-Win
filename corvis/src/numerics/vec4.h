@@ -475,7 +475,7 @@ static inline f_t trace3(const m4 R)
 
 inline static m4 skew3(const v4 &v)
 {
-    m4 V;
+    m4 V = m4::Zero();
     V(1, 2) = -(V(2, 1) = v[0]);
     V(2, 0) = -(V(0, 2) = v[1]);
     V(0, 1) = -(V(1, 0) = v[2]);
@@ -502,7 +502,7 @@ inline static f_t determinant3(const m4 &m)
     + m(0, 2) * determinant_minor(m, 0, 1);
 }
 
-m4 rodrigues(const v4 W, m4v4 *dR_dW);
+m4 rodrigues(const v4& W, m4v4 *dR_dW);
 
 v4 integrate_angular_velocity(const v4 &W, const v4 &w);
 void linearize_angular_integration(const v4 &W, const v4 &w, m4 &dW_dW, m4 &dW_dw);

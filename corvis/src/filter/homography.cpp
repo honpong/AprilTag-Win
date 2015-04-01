@@ -88,7 +88,7 @@ m4 homography_estimate_from_constraints(const matrix &X)
     //    Hest = transpose(reshape(h,[3,3]));
     // Hest is not transposed below because the transpose from matlab
     // is just to undo what reshape has done
-    m4 Hest = m4_identity;
+    m4 Hest = m4::Identity();
     for(int i = 0; i < 3; ++i)
     {
         for(int j = 0; j < 3; ++j)
@@ -410,7 +410,7 @@ void compose_with(m4 & R, v4 & T, const m4 & withR, const v4 & withT)
 void homography_ideal_to_qr(m4 & R, v4 & T)
 {
     // Riq = 180 degree rotation around X axis
-    m4 Riq = m4_identity;
+    m4 Riq = m4::Identity();
     Riq(1, 1) = -1; Riq(2, 2) = -1;
     v4 Tiq = v4(0, 0, 1, 0);
     compose_with(R, T, Riq, Tiq);

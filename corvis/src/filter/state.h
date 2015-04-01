@@ -273,7 +273,7 @@ class state_vector: public state_leaf<v4, 3> {
     
     inline v4 copy_cov_from_row(const matrix &cov, const int i) const
     {
-        if(index < 0) return v4(0.);
+        if(index < 0) return v4::Zero();
         return v4(cov(i, index), cov(i, index+1), cov(i, index+2), 0.);
     }
     
@@ -295,7 +295,7 @@ class state_vector: public state_leaf<v4, 3> {
 
     void reset() {
         index = -1;
-        v = 0.;
+        v = v4::Zero();
     }
     
     void perturb_variance() {
@@ -513,7 +513,7 @@ public:
         //dn(x)/dw = -x / (2 * sqrt(...) * (...)) * 2w
         // = -xw / (sqrt(...) * (...))
         v4 qvec = v4(v.w(), v.x(), v.y(), v.z());
-        dWn_dW = (m4_identity - outer_product(qvec, qvec)) * (1. / (sqrt(ss) * ss));
+        dWn_dW = (m4::Identity() - outer_product(qvec, qvec)) * (1. / (sqrt(ss) * ss));
         matrix tmp(size, cov->size());
         for(int i = 0; i < cov->size(); ++i) {
             v4 cov_Q = copy_cov_from_row(cov->cov, i);

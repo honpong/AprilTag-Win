@@ -57,13 +57,13 @@ TEST(Matrix4, Equality)
 
 TEST(Matrix4, Identity) {
     EXPECT_EQ(foo, foo);
-    EXPECT_EQ(foo, foo * m4_identity);
-    EXPECT_EQ(foo, m4_identity * foo);
+    EXPECT_EQ(foo, foo * m4::Identity());
+    EXPECT_EQ(foo, m4::Identity() * foo);
     EXPECT_EQ(foo + bar, bar + foo);
     EXPECT_EQ(foo + m4(), foo);
-    EXPECT_EQ(foo - foo, m4());
-    EXPECT_EQ((foo + bar) + m4_identity, foo + (bar + m4_identity));
-    EXPECT_EQ(m4_identity * m4_identity, m4_identity);
+    EXPECT_EQ((m4)(foo - foo), (m4)m4::Zero());
+    EXPECT_EQ((foo + bar) + m4::Identity(), foo + (bar + m4::Identity()));
+    EXPECT_EQ(m4::Identity() * m4::Identity(), m4::Identity());
     EXPECT_EQ(transpose(transpose(foo)), foo);
     EXPECT_EQ(transpose(foo * bar), transpose(bar) * transpose(foo));
     EXPECT_EQ(transpose(symmetric), symmetric);
@@ -210,7 +210,7 @@ void test_rotation(const v4 &vec)
     //The next two fail the normal float comparison due to matrix product - (TODO: rearrange matrix operations?)
     {
         SCOPED_TRACE("R'R = I");
-        test_m4_near(m4_identity, transpose(rotmat) * rotmat, 1.e-15);
+        test_m4_near(m4::Identity(), transpose(rotmat) * rotmat, 1.e-15);
     }
     
     {
@@ -305,13 +305,13 @@ TEST(Matrix4, Rotation) {
     
     {
         SCOPED_TRACE("identity matrix = 0 rotation vector");
-        EXPECT_EQ(rodrigues(v4(0.), NULL), m4_identity);
-        test_rotation_vector_near(to_rotation_vector(m4_identity), rotation_vector(0., 0., 0.), 0);
+        EXPECT_EQ(rodrigues(v4(v4::Zero()), NULL), (m4)m4::Identity());
+        test_rotation_vector_near(to_rotation_vector(m4::Identity()), rotation_vector(0., 0., 0.), 0);
     }
     
     {
         SCOPED_TRACE("invskew * skew = I");
-        m4 m3_identity = m4_identity;
+        m4 m3_identity = m4::Identity();
         m3_identity(3, 3) = 0.;
         EXPECT_EQ(m3_identity, invskew3_jacobian * skew3_jacobian);
     }
@@ -323,7 +323,7 @@ TEST(Matrix4, Rotation) {
     }
     {
         SCOPED_TRACE("zero vector");
-        test_rotation(v4(0.));
+        test_rotation(v4(v4::Zero()));
     }
     {
         SCOPED_TRACE("+pi vector");

@@ -71,7 +71,7 @@ TEST(Homography, I)
     float qr_size = 0.15;
     bool use_markers = false;
     
-    test_qr_with_parameters(m4_identity, v4(0,0,0,0), qr_size, use_markers);
+    test_qr_with_parameters(m4::Identity(), v4(0,0,0,0), qr_size, use_markers);
 }
 
 // This test case is degenerate with MaSKS homography decomposition
@@ -80,7 +80,7 @@ TEST(Homography, R)
     float qr_size = 0.38;
     bool use_markers = true;
     float theta = M_PI/2;
-    m4 R = m4_identity;
+    m4 R = m4::Identity();
     v4 T = v4(0, 0, 0, 0);
     R(0, 0) = cos(theta); R(0, 1) = -sin(theta);
     R(1, 0) = sin(theta); R(1, 1) =  cos(theta);
@@ -92,7 +92,7 @@ TEST(Homography, SimpleT)
 {
     float qr_size = 0.15;
     bool use_markers = true;
-    m4 R = m4_identity;
+    m4 R = m4::Identity();
     v4 T = v4(0.4, -0.33, -0.8, 0);
 
     test_qr_with_parameters(R, T, qr_size, use_markers);
@@ -103,7 +103,7 @@ TEST(Homography, SimpleRT)
     float qr_size = 0.15;
     bool use_markers = true;
     float theta = M_PI/3;
-    m4 R = m4_identity;
+    m4 R = m4::Identity();
     v4 T = v4(0.1, 0.2, 0, 0);
     R(0, 0) = cos(theta); R(0, 1) = -sin(theta);
     R(1, 0) = sin(theta); R(1, 1) =  cos(theta);
@@ -129,7 +129,7 @@ TEST(Homography, HSignFlip)
     float qr_size = 0.15;
     bool use_markers = true;
     float theta = -M_PI/2;
-    m4 R = m4_identity;
+    m4 R = m4::Identity();
     v4 T = v4(0, 0, -0.2, 0);
     R(0, 0) = cos(theta); R(0, 1) = -sin(theta);
     R(1, 0) = sin(theta); R(1, 1) =  cos(theta);
@@ -181,7 +181,7 @@ TEST(Homography, AlignToQR)
     // Expected points have +z pointing out of the qr code
     // Since ideal points are 1m away, there is also a composited
     // translation
-    m4 Rq = m4_identity; Rq(1, 1) = -1; Rq(2, 2) = -1;
+    m4 Rq = m4::Identity(); Rq(1, 1) = -1; Rq(2, 2) = -1;
     v4 Tq = v4(0, 0, 1, 0);
     for(int i = 0; i < 4; i++) {
         qr_expected[i] = Rq*qr[i] + Tq;

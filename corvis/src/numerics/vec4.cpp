@@ -9,14 +9,6 @@
 #include "float.h"
 #include "quaternion.h"
 
-const m4 m4_identity = { {
-        v4(1, 0, 0, 0),
-        v4(0, 1, 0, 0),
-        v4(0, 0, 1, 0),
-        v4(0, 0, 0, 1)
-    }
-};
-
 const m4v4 skew3_jacobian = { {
     {{v4(0., 0., 0., 0.), v4(0., 0.,-1., 0.), v4( 0., 1., 0., 0.), v4(0., 0., 0., 0.)}},
     {{v4(0., 0., 1., 0.), v4(0., 0., 0., 0.), v4(-1., 0., 0., 0.), v4(0., 0., 0., 0.)}},
@@ -58,7 +50,7 @@ m4 rodrigues(const v4 W, m4v4 *dR_dW)
         if(dR_dW) {
             *dR_dW = skew3_jacobian;
         }
-        return m4_identity;
+        return m4::Identity();
     }
     f_t theta = sqrt(theta2);
     f_t costheta, sintheta, invtheta, sinterm, costerm;
@@ -113,7 +105,7 @@ m4 rodrigues(const v4 W, m4v4 *dR_dW)
         
         *dR_dW = skew3_jacobian * sinterm + outer_product(ds_dW, V) + dV2_dW * costerm + outer_product(dc_dW, V2);
     }
-    return m4_identity + V * sinterm + V2 * costerm;
+    return m4::Identity() + V * sinterm + V2 * costerm;
 }
 
 v4 integrate_angular_velocity(const v4 &W, const v4 &w)
@@ -164,8 +156,8 @@ void linearize_angular_integration(const v4 &W, const v4 &w, m4 &dW_dW, m4 &dW_d
         de_dw = W * invtheta * (cotp - 2. * invtheta);
     }
 
-    m4 m3_identity = m4_identity;
+    m4 m3_identity = m4::Identity();
     m3_identity(3, 3) = 0.;
-    dW_dW = m4_identity + .5 * ((m4){{dg_dW * w[0], dg_dW * w[1], dg_dW * w[2], dg_dW * w[3]}} - (eta * m3_identity + (m4){{de_dW * W[0], de_dW * W[1], de_dW * W[2], de_dW * W[3]}}) - skew3(w));
+    dW_dW = m4::Identity() + .5 * ((m4){{dg_dW * w[0], dg_dW * w[1], dg_dW * w[2], dg_dW * w[3]}} - (eta * m3_identity + (m4){{de_dW * W[0], de_dW * W[1], de_dW * W[2], de_dW * W[3]}}) - skew3(w));
     dW_dw = .5 * (gamma * m3_identity - ((m4){{de_dw * W[0], de_dw * W[1], de_dw * W[2], de_dw * W[3]}}) + skew3(W));
 }

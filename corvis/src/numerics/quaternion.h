@@ -209,7 +209,7 @@ static inline m4 to_rotation_matrix(const quaternion &q)
         v4(q.x() * q.z(), q.y() * q.z(), -q.x() * q.x() - q.y() * q.y(), 0.),
         v4(0., 0., 0., 0.)
     }};
-    m4 m3_identity = m4_identity;
+    m4 m3_identity = m4::Identity();
     m3_identity[3][3] = 0.;
     return m3_identity + 2. * dwqv_dv + 2. * dqqv_dv;
      */
@@ -308,7 +308,7 @@ static inline quaternion integrate_angular_velocity(const quaternion &Q, const v
 
 static inline void integrate_angular_velocity_jacobian(const quaternion &Q, const v4 &w, m4 &dQ_dQ, m4 &dQ_dw)
 {
-    dQ_dQ = m4_identity + .5 *
+    dQ_dQ = m4::Identity() + .5 *
     (m4){{
         v4(0., -w[0], -w[1], w[2]),
         v4(w[0], 0., w[2], -w[1]),

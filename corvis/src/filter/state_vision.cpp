@@ -186,9 +186,9 @@ void state_vision::reset()
 
 void state_vision::reset_position()
 {
-    T.v = 0.;
+    T.v = v4::Zero();
     total_distance = 0.;
-    last_position = 0.;
+    last_position = v4::Zero();
 }
 
 int state_vision::process_features(uint64_t time)

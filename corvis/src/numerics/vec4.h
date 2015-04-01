@@ -22,6 +22,8 @@ extern "C" {
 
 class v4 {
  public:
+    static v4 Zero() { return v4(0., 0., 0., 0.); }
+    static v4 Constant(const f_t x) { return v4(x, x, x, x); }
     //initializers
  v4(): data((v_intrinsic){ 0., 0., 0., 0.}) {}
  v4(const v_intrinsic &other): data(other) {}
@@ -144,6 +146,8 @@ static inline v4 relative_rotation(const v4 &first, const v4 &second)
 
 class m4 {
  public:
+    static m4 Zero() { return (m4) {{{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}}; }
+    static m4 Identity() { return (m4) {{{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}}}; }
     //v4 & operator[](const int i) { return data[i]; }
     //const v4 & operator[](const int i) const { return data[i]; }
     const f_t& operator()(const int i, const int j) const { return data[i][j]; }
@@ -211,9 +215,6 @@ static inline m4 operator-(const m4 &a, const m4 &c) {
             a.row(3) - c.row(3) }
     };
 }
-
-
-extern m4 const m4_identity;
 
 static inline f_t norm(const m4 &m) { return sqrt(sum(m.row(0)*m.row(0) + m.row(1)*m.row(1) + m.row(2)*m.row(2) + m.row(3)*m.row(3))); }
 

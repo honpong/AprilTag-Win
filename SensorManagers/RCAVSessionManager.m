@@ -43,21 +43,16 @@
     for ( AVCaptureDeviceFormat *format in [capdevice formats] ) {
         CMVideoDimensions sz = CMVideoFormatDescriptionGetDimensions(format.formatDescription);
         FourCharCode fcc = CMVideoFormatDescriptionGetCodecType(format.formatDescription);
-        if(sz.width == 640 && sz.height == 480 && fcc == '420f')
-        {
+        if(sz.width == width && sz.height == height && fcc == '420f') {
             //Find the highest FOV vga format
-            if(vga != nil)
-            {
-                if(format.videoFieldOfView > vga.videoFieldOfView) vga = format;
-            }
-            else
-            {
+            if(vga == nil)
                 vga = format;
-            }
+
+            if(format.videoFieldOfView > vga.videoFieldOfView)
+                vga = format;
+
+            [possibleFormats addObject:format];
         }
-        if(sz.height != height || sz.width != width || fcc != '420f')
-            continue;
-        [possibleFormats addObject:format];
     }
     
     NSMutableArray *fovFormats = [[NSMutableArray alloc] init];

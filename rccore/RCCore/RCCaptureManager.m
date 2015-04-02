@@ -77,7 +77,7 @@
 
 - (void) startVideoCapture:(AVCaptureSession *)avSession withDevice:(AVCaptureDevice *)avDevice withMaxFrameRate:(int)maxFrameRate
 {
-    [RCAVSessionManager configureCameraForFrameRate:avDevice withMaxFrameRate:maxFrameRate withWidth:640 withHeight:480];
+    [[RCAVSessionManager sharedInstance] configureCameraForFrameRate:avDevice withMaxFrameRate:maxFrameRate withWidth:640 withHeight:480];
     AVCaptureVideoDataOutput* avOutput = [[AVCaptureVideoDataOutput alloc] init];
     [output setAlwaysDiscardsLateVideoFrames:YES];
     [output setVideoSettings:@{(id)kCVPixelBufferPixelFormatTypeKey: [NSNumber numberWithInt:'420f']}];

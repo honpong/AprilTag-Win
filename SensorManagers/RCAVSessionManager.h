@@ -30,7 +30,7 @@
 - (bool) isImageClean;
 
 /** Sets the camera to a fixed frame rate which is either the fastest rate supported by the camera, or the rate parameter. */
-+ (void)configureCameraForFrameRate:(AVCaptureDevice *)capdevice withMaxFrameRate:(int)rate withWidth:(int)width withHeight:(int)height;
+- (void)configureCameraForFrameRate:(AVCaptureDevice *)capdevice withMaxFrameRate:(int)rate withWidth:(int)width withHeight:(int)height;
 
 + (RCAVSessionManager*) sharedInstance;
 

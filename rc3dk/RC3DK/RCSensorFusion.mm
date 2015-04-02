@@ -258,6 +258,12 @@ uint64_t get_timestamp()
     isStableStart = true;
 
     dispatch_async(queue, ^{
+
+        CMVideoDimensions sz = CMVideoFormatDescriptionGetDimensions(device.activeFormat.formatDescription);
+        DLog(@"Starting with %d width x %d height", sz.width, sz.height);
+        device_set_resolution(&_cor_setup->device, sz.width, sz.height);
+        device_set_framerate(&_cor_setup->device, 0, 31000);
+        filter_initialize(&_cor_setup->sfm, _cor_setup->device);
         filter_start_hold_steady(&_cor_setup->sfm);
     });
     

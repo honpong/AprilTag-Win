@@ -9,6 +9,26 @@
 #include "device_parameters.h"
 #include <math.h>
 
+void device_set_resolution(struct corvis_device_parameters *dc, int image_width, int image_height)
+{
+    int max_old_dim = dc->image_width > dc->image_height ? dc->image_width : dc->image_height;
+    int max_new_dim = image_width > image_height ? image_width : image_height;
+
+    dc->image_width = image_width;
+    dc->image_height = image_height;
+    dc->Cx = (dc->image_width - 1)/2.;
+    dc->Cy = (dc->image_height - 1)/2.;
+    // Scale the focal length depending on the resolution
+    dc->Fx = dc->Fx * max_new_dim / max_old_dim;
+    dc->Fy = dc->Fx;
+}
+
+void device_set_framerate(struct corvis_device_parameters *dc, int shutter_delay, int shutter_period)
+{
+    dc->shutter_delay = 0;
+    dc->shutter_period = 31000;
+}
+
 bool get_parameters_for_device(corvis_device_type type, struct corvis_device_parameters *dc)
 {
     dc->px = 0.;
@@ -27,10 +47,6 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
     dc->image_height = 480;
     int max_dim = dc->image_width > dc->image_height ? dc->image_width : dc->image_height;
 
-    dc->Cx = (dc->image_width - 1)/2.;
-    dc->Cy = (dc->image_height - 1)/2.;
-    dc->shutter_delay = 0;
-    dc->shutter_period = 31000;
 
     for(int i = 0; i < 3; ++i) {
         dc->a_bias[i] = 0.;

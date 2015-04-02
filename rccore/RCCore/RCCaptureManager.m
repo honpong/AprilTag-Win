@@ -75,16 +75,16 @@
     }
 }
 
-- (void) startVideoCapture:(AVCaptureSession *)avSession withDevice:(AVCaptureDevice *)avDevice withMaxFrameRate:(int)maxFrameRate
+- (void) startVideoCaptureWithMaxFrameRate:(int)maxFrameRate withWidth:(int)width withHeight:(int)height
 {
-    [[RCAVSessionManager sharedInstance] configureCameraForFrameRate:avDevice withMaxFrameRate:maxFrameRate withWidth:640 withHeight:480];
-    AVCaptureVideoDataOutput* avOutput = [[AVCaptureVideoDataOutput alloc] init];
+    session = [RCAVSessionManager sharedInstance].session;
+    device = [RCAVSessionManager sharedInstance].videoDevice;
+
+    [[RCAVSessionManager sharedInstance] configureCameraForFrameRate:device withMaxFrameRate:maxFrameRate withWidth:width withHeight:height];
+
+    output = [[AVCaptureVideoDataOutput alloc] init];
     [output setAlwaysDiscardsLateVideoFrames:YES];
     [output setVideoSettings:@{(id)kCVPixelBufferPixelFormatTypeKey: [NSNumber numberWithInt:'420f']}];
-
-    session = avSession;
-    output = avOutput;
-    device = avDevice;
 
     [device addObserver:self forKeyPath:@"adjustingFocus" options:NSKeyValueObservingOptionNew context:nil];
     if(![device isFocusModeSupported:AVCaptureFocusModeAutoFocus]) {
@@ -287,7 +287,7 @@ packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
     });
 }
 
-- (void)startCapture:(NSString *)path withSession:(AVCaptureSession *)avSession withDevice:(AVCaptureDevice *)avDevice withMaxFrameRate:(int)maxFrameRate withDelegate:(id<RCCaptureManagerDelegate>)captureDelegate
+- (void)startCaptureWithPath:(NSString *)path withMaxFrameRate:(int)maxFrameRate withWidth:(int)width withHeight:(int)height withDelegate:(id<RCCaptureManagerDelegate>)captureDelegate;
 {
     if (isCapturing) return;
 
@@ -296,7 +296,7 @@ packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
     self.delegate = captureDelegate;
     [self startMotionCapture];
     // isCapturing is set after focus finishes
-    [self startVideoCapture:avSession withDevice:avDevice withMaxFrameRate:maxFrameRate];
+    [self startVideoCaptureWithMaxFrameRate:maxFrameRate withWidth:width withHeight:height];
 }
 
 - (void) stopCapture

@@ -95,13 +95,15 @@
 {
     if (!isStarted)
     {
+        int width = 640;
+        int height = 480;
         int framerate = 30;
         if(frameRateSelector.selectedSegmentIndex == 1)
             framerate = 60;
 
-        NSURL * fileurl = [AppDelegate timeStampedURLWithSuffix:[NSString stringWithFormat:@"_%dHz.capture", framerate]];
+        NSURL * fileurl = [AppDelegate timeStampedURLWithSuffix:[NSString stringWithFormat:@"_%d_%dHz.capture", width, framerate]];
         [startStopButton setTitle:@"Starting..." forState:UIControlStateNormal];
-        [captureController startCapture:fileurl.path withSession:[[RCAVSessionManager sharedInstance] session] withDevice:[[RCAVSessionManager sharedInstance] videoDevice] withMaxFrameRate:framerate withDelegate:self];
+        [captureController startCaptureWithPath:fileurl.path withMaxFrameRate:framerate withWidth:width withHeight:height withDelegate:self];
     }
     else
     {

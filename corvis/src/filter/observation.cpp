@@ -248,7 +248,7 @@ void observation_vision_feature::cache_jacobians()
 #endif
     
     m4v4 dRtot_dWr  = Rcb * dRrt_dWr * Rbc;
-    m4 dTtot_dWr  = Rcb * (dRrt_dWr * (state.Tc.v - state_group->Tr.v));
+    m4 dTtot_dWr  = Rcb * (dRrt_dWr * (v4)(state.Tc.v - state_group->Tr.v));
     m4 dTtot_dTr = -Rcb * Rrt;
 #if estimate_camera_extrinsics
     m4v4 dRtot_dWc = dRcb_dWc * (Rrt * Rbc) + (Rcb * Rrt) * dRbc_dWc;
@@ -268,11 +268,11 @@ void observation_vision_feature::cache_jacobians()
     f_t invrho = feature->v.invdepth();
     if(!feature->is_initialized()) {
 #if estimate_camera_extrinsics
-        dx_dWc = dx_dX * (dRtot_dWc * X0);
-        dy_dWc = dy_dX * (dRtot_dWc * X0);
+        dx_dWc = dx_dX.transpose() * (dRtot_dWc * X0);
+        dy_dWc = dy_dX.transpose() * (dRtot_dWc * X0);
 #endif
-        dx_dWr = dx_dX * (dRtot_dWr * X0);
-        dy_dWr = dy_dX * (dRtot_dWr * X0);
+        dx_dWr = dx_dX.transpose() * (dRtot_dWr * X0);
+        dy_dWr = dy_dX.transpose() * (dRtot_dWr * X0);
         //dy_dT = m4(0.);
         //dy_dT = m4(0.);
         //dy_dTr = m4(0.);
@@ -289,15 +289,15 @@ void observation_vision_feature::cache_jacobians()
         dy_dcx = sum(dy_dX * dX_dcx);
         dy_dcy = 1. + sum(dy_dX * dX_dcy);
 #endif
-        dx_dWr = dx_dX * (dRtot_dWr * X0 + dTtot_dWr * invrho);
-        dx_dTr = dx_dX * dTtot_dTr * invrho;
-        dy_dWr = dy_dX * (dRtot_dWr * X0 + dTtot_dWr * invrho);
-        dy_dTr = dy_dX * dTtot_dTr * invrho;
+        dx_dWr = dx_dX.transpose() * (dRtot_dWr * X0 + dTtot_dWr * invrho);
+        dx_dTr = dx_dX.transpose() * dTtot_dTr * invrho;
+        dy_dWr = dy_dX.transpose() * (dRtot_dWr * X0 + dTtot_dWr * invrho);
+        dy_dTr = dy_dX.transpose() * dTtot_dTr * invrho;
 #if estimate_camera_extrinsics
-        dx_dWc = dx_dX * (dRtot_dWc * X0 + dTtot_dWc * invrho);
-        dx_dTc = dx_dX * dTtot_dTc * invrho;
-        dy_dWc = dy_dX * (dRtot_dWc * X0 + dTtot_dWc * invrho);
-        dy_dTc = dy_dX * dTtot_dTc * invrho;
+        dx_dWc = dx_dX.transpose() * (dRtot_dWc * X0 + dTtot_dWc * invrho);
+        dx_dTc = dx_dX.transpose() * dTtot_dTc * invrho;
+        dy_dWc = dy_dX.transpose() * (dRtot_dWc * X0 + dTtot_dWc * invrho);
+        dy_dTc = dy_dX.transpose() * dTtot_dTc * invrho;
 #endif
 
     }
@@ -555,7 +555,7 @@ void observation_accelerometer::project_covariance(matrix &dst, const matrix &sr
         for(int j = 0; j < dst.cols; ++j) {
             v4 cov_a_bias = state.a_bias.copy_cov_from_row(src, j);
             v4 cov_W = state.W.copy_cov_from_row(src, j);
-            v4 res = state.estimate_bias ? cov_a_bias + dya_dW * cov_W : dya_dW * cov_W;
+            v4 res = state.estimate_bias ? (v4)(cov_a_bias + dya_dW * cov_W) : (v4)(dya_dW * cov_W);
             for(int i = 0; i < 3; ++i) {
                 dst(i, j) = res[i];
             }

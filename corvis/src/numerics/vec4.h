@@ -20,54 +20,15 @@ extern "C" {
 
 #include <iostream>
 
-class v4 {
- public:
-    static v4 Zero() { return v4(0., 0., 0., 0.); }
-    static v4 Constant(const f_t x) { return v4(x, x, x, x); }
-    //initializers
- v4(): vec((v_intrinsic){ 0., 0., 0., 0.}) {}
- v4(const v_intrinsic &other): vec(other) {}
- v4(const f_t other[4]): vec((v_intrinsic) {other[0], other[1], other[2], other[3]}) {}
- v4(const f_t other0, const f_t other1, const f_t other2, const f_t other3): vec((v_intrinsic) { other0, other1, other2, other3 }) {}
-    //member access
-    f_t & operator[](const int i) { return ((f_t *)&vec)[i]; }
-    const f_t & operator[](const int i) const { return ((f_t *)&vec)[i]; }
-    f_t dot(const v4& other) const { v_intrinsic tmp = vec * other.vec; return tmp[0] + tmp[1] + tmp[2] + tmp[3]; }
-    f_t norm() const { return sqrt(this->dot(*this)); }
-    v4 normalized() const { return *this / v4::Constant(norm()); }
-    f_t sum() const { return vec[0] + vec[1] + vec[2] + vec[3]; }
-    f_t absmax() const {
-        f_t max = fabs((*this)[0]) > fabs((*this)[1]) ? fabs((*this)[0]) : fabs((*this)[1]);
-        max = max > fabs((*this)[2]) ? max : fabs((*this)[2]);
-        return max;
-    }
-    
-    f_t *data() { return (f_t *) &vec; }
-    
-    v4 operator*(const f_t other) const { return v4(vec * v4::Constant(other).vec); }
-    v4 operator*(const v4 &other) const { return v4(vec * other.vec); }
-    v4 operator/(const f_t other) const { return v4(vec / v4::Constant(other).vec); }
-    v4 operator/(const v4 &other) const { return v4(vec / other.vec); }
-    v4 operator+(const v4 &other) const { return v4(vec + other.vec); }
-    v4 operator-(const v4 &other) const { return v4(vec - other.vec); }
-    v4 &operator*=(const f_t other) { vec *= v4::Constant(other).vec; return *this; }
-    v4 &operator*=(const v4 &other) { vec *= other.vec; return *this; }
-    v4 &operator/=(const v4 &other) { vec /= other.vec; return *this; }
-    v4 &operator+=(const v4 &other) { vec += other.vec; return *this; }
-    v4 &operator-=(const v4 &other) { vec -= other.vec; return *this; }
-    v4 operator-() const { return v4(-vec); }
-    
-protected:
-    v_intrinsic vec;
-};
+#define EIGEN_NO_AUTOMATIC_RESIZING
+//#define EIGEN_INITIALIZE_MATRICES_BY_ZERO
+#define EIGEN_DEFAULT_TO_ROW_MAJOR
+#include "../Eigen/Dense"
+
+typedef Eigen::Matrix<f_t, 4, 1> v4;
+//typedef Eigen::Matrix<f_t, 4, 4> m4;
 
 static inline v4 v4_sqrt(const v4 &v) { return v4(sqrt(v[0]), sqrt(v[1]), sqrt(v[2]), sqrt(v[3])); }
-static inline v4 operator*(const f_t other, const v4 &a) { return v4(a[0] * other, a[1] * other, a[2] * other, a[3] * other ); }
-static inline bool operator==(const v4 &a, const v4 &b) { return a[0] == b[0] && a[1] == b[1] && a[2] == b[2] && a[3] == b[3]; }
-static inline std::ostream& operator<<(std::ostream &stream, const v4 &v)
-{
-    return stream  << "(" << v[0] << ", " << v[1] << ", " << v[2] << ", " << v[3] << ")";
-}
 
 static inline v4 v4_from_vFloat(const vFloat &other)
 {
@@ -98,7 +59,7 @@ public:
         ++count;
         v4 delta = x - mean;
         mean = mean + delta / count;
-        M2 = M2 + delta * (x - mean);
+        M2 = M2 + delta.cwiseProduct(x - mean);
         if(x.norm() > max) max = x.norm();
         variance = M2 / (count - 1);
         stdev = v4(sqrt(variance[0]), sqrt(variance[1]), sqrt(variance[2]), sqrt(variance[3]));
@@ -157,7 +118,7 @@ class m4 {
     //const v4 & operator[](const int i) const { return data[i]; }
     const f_t& operator()(const int i, const int j) const { return vec[i][j]; }
     f_t& operator()(const int i, const int j) { return vec[i][j]; }
-    v4 col(const int c) const { return v4( (v_intrinsic) { vec[0][c], vec[1][c], vec[2][c], vec[3][c] }); }
+    v4 col(const int c) const { return v4(vec[0][c], vec[1][c], vec[2][c], vec[3][c]); }
     v4& row(const int i) { return vec[i]; }
     const v4& row(const int i) const { return vec[i]; }
     m4 transpose() const
@@ -225,7 +186,7 @@ static inline m4 operator-(const m4 &a, const m4 &c) {
     };
 }
 
-static inline f_t norm(const m4 &m) { return sqrt((m.row(0)*m.row(0) + m.row(1)*m.row(1) + m.row(2)*m.row(2) + m.row(3)*m.row(3)).sum()); }
+static inline f_t norm(const m4 &m) { return sqrt(m.row(0).dot(m.row(0)) + m.row(1).dot(m.row(1)) + m.row(2).dot(m.row(2)) + m.row(3).dot(m.row(3))); }
 
 static inline m4 operator-(const m4 &m) {
     return (m4) { {
@@ -308,7 +269,7 @@ inline static m4 outer_product(const v4 &b, const v4 &c)
 
 inline static m4v4 outer_product(const v4 &b, const m4 &c)
 {
-    return (m4v4) {{ outer_product(b, c.row(0)), outer_product(b, c.row(1)), outer_product(b, c.row(2)), outer_product(b, c.row(3)) }};
+    return (m4v4) {{ outer_product(b, (v4)c.row(0)), outer_product(b, (v4)c.row(1)), outer_product(b, (v4)c.row(2)), outer_product(b, (v4)c.row(3)) }};
 }
 
 inline static v4m4 outer_product(const m4 &b, const v4 &c)
@@ -436,7 +397,7 @@ inline static v4 apply_jacobian_v4m4(const v4m4 &b, const m4 &c)
 {
     v4 a;
     for(int i = 0; i < 4; ++i) {
-        a[i] = (b[i].row(0) * c.row(0) + b[i].row(1) * c.row(1) + b[i].row(2) * c.row(2) + b[i].row(3) * c.row(3)).sum();
+        a[i] = (b[i].row(0).cwiseProduct(c.row(0)) + b[i].row(1).cwiseProduct(c.row(1)) + b[i].row(2).cwiseProduct(c.row(2)) + b[i].row(3).cwiseProduct(c.row(3))).sum();
     }
     return a;
 }

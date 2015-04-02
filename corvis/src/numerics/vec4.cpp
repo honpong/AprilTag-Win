@@ -76,7 +76,7 @@ m4 rodrigues(const v4& W, m4v4 *dR_dW)
         costerm = (1. - costheta) / theta2;
     }
     m4 V = skew3(W);
-    m4 V2;
+    m4 V2 = m4::Zero();
     V2(0, 0) = -W2[1] - W2[2];
     V2(1, 1) = -W2[2] - W2[0];
     V2(2, 2) = -W2[0] - W2[1];
@@ -108,6 +108,11 @@ m4 rodrigues(const v4& W, m4v4 *dR_dW)
         dV2_dW[2].row(0) = v4(W[2], 0., W[0], 0);
         dV2_dW[1].row(0) = v4(W[1], W[0], 0., 0);
         dV2_dW[0].row(1) = v4(W[1], W[0], 0., 0);
+        
+        dV2_dW[0].row(3) = v4::Zero();
+        dV2_dW[1].row(3) = v4::Zero();
+        dV2_dW[2].row(3) = v4::Zero();
+        dV2_dW[3] = m4::Zero();
         
         *dR_dW = skew3_jacobian * sinterm + outer_product(ds_dW, V) + dV2_dW * costerm + outer_product(dc_dW, V2);
     }

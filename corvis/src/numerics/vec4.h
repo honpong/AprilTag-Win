@@ -360,7 +360,7 @@ inline static m4v4 operator*(const m4 &b, const m4v4 &c)
 //a_k,... = sum_i(sum_j(b[k][i][j] * c[i][j][...]))
 inline static m4 operator*(const v4m4 &b, const m4v4 &c)
 {
-    m4 a;
+    m4 a(m4::Zero());
     for(int k = 0; k < 4; ++k) {
         for(int i = 0; i < 4; ++i) {
             for(int j = 0; j < 4; ++j) {

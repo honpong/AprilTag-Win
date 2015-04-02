@@ -100,7 +100,7 @@ m4 eight_point_F(v4 p1[], v4 p2[], int npts)
         for(int j = 0; j < 3; j++)
             F(i,j) = F(i,j) / Fnorm;
 
-    m4 estimatedF;
+    m4 estimatedF = m4::Zero();
     for(int i = 0; i < 3; i++)
       for(int j = 0; j < 3; j++)
         estimatedF(i, j) = F(i,j);
@@ -143,7 +143,7 @@ bool validate_RT(const m4 & R, const v4 & T, const v4 & p1, const v4 & p2)
 
 bool decompose_F(const m4 & F, float focal_length, float center_x, float center_y, const v4 & p1, const v4 & p2, m4 & R, v4 & T)
 {
-    m4 Kinv;
+    m4 Kinv = m4::Zero();
     Kinv(0, 0) = 1./focal_length;
     Kinv(1, 1) = 1./focal_length;
     Kinv(0, 2) = -center_x/focal_length;
@@ -151,7 +151,7 @@ bool decompose_F(const m4 & F, float focal_length, float center_x, float center_
     Kinv(2, 2) = 1;
     Kinv(3, 3) = 1;
 
-    m4 K;
+    m4 K = m4::Zero();
     K(0, 0) = focal_length;
     K(1, 1) = focal_length;
     K(0, 2) = center_x;
@@ -197,9 +197,6 @@ bool decompose_F(const m4 & F, float focal_length, float center_x, float center_
     // V = Vt'
     matrix_transpose(V, Vt);
 
-    m4 R1, R2;
-    v4 T1, T2;
-
     float det_U = matrix_3x3_determinant(U);
     float det_V = matrix_3x3_determinant(V);
     if(det_U < 0 && det_V < 0) {
@@ -227,10 +224,9 @@ bool decompose_F(const m4 & F, float focal_length, float center_x, float center_
     matrix_transpose(Vt, V);
 
     // T = u_3
-    T1[0] = U(0,2);
-    T1[1] = U(1,2);
-    T1[2] = U(2,2);
-    T2 = -T1;
+    m4 R1(m4::Identity()), R2(m4::Identity());
+    v4 T1 { U(0, 2), U(1,2), U(2,2), 0. };
+    v4 T2 = -T1;
 
     // R1 = UWV'
     matrix_product(temp1, W, Vt);
@@ -239,7 +235,6 @@ bool decompose_F(const m4 & F, float focal_length, float center_x, float center_
         for(int col = 0; col < 3; col++) {
             R1(row, col) = temp2(row,col);
         }
-    R1(3, 0) = 0; R1(3, 1) = 0; R1(3, 2) = 0; R1(3, 3) = 1;
 
     // R2 = UW'V'
     matrix_product(temp1, Wt, Vt);
@@ -248,7 +243,6 @@ bool decompose_F(const m4 & F, float focal_length, float center_x, float center_
         for(int col = 0; col < 3; col++) {
             R2(row, col) = temp2(row,col);
         }
-    R2(3, 0) = 0; R2(3, 1) = 0; R2(3, 2) = 0; R2(3, 3) = 1;
 
     int nvalid = 0;
     if(validate_RT(R1, T1, p1p, p2p)) {

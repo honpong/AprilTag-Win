@@ -21,6 +21,16 @@
    fun:drmCommandWriteRead
    obj:/usr/lib/dri/i915_dri.so
 }
+
+#############
+{
+SSEstringops
+   Memcheck:Cond
+   fun:_platform_memchr$VARIANT$Haswell
+}
+
+
+
 ##################opencv:
 {
    cvsqrt1

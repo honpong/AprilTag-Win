@@ -80,7 +80,7 @@
     session = [RCAVSessionManager sharedInstance].session;
     device = [RCAVSessionManager sharedInstance].videoDevice;
 
-    [[RCAVSessionManager sharedInstance] configureCameraForFrameRate:device withMaxFrameRate:maxFrameRate withWidth:width withHeight:height];
+    [[RCAVSessionManager sharedInstance] configureCameraWithFrameRate:maxFrameRate withWidth:width withHeight:height];
 
     output = [[AVCaptureVideoDataOutput alloc] init];
     [output setAlwaysDiscardsLateVideoFrames:YES];

@@ -114,6 +114,9 @@
                                     <segment title="720"/>
                                     <segment title="1080"/>
                                 </segments>
+                                <connections>
+                                    <action selector="cameraConfigureClick:" destination="vXZ-lx-hvc" eventType="valueChanged" id="Aqd-JN-d4v"/>
+                                </connections>
                             </segmentedControl>
                             <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="xEb-pN-AfD">
                                 <rect key="frame" x="24" y="40" width="91" height="29"/>
@@ -122,6 +125,9 @@
                                     <segment title="30Hz"/>
                                     <segment title="60Hz"/>
                                 </segments>
+                                <connections>
+                                    <action selector="cameraConfigureClick:" destination="vXZ-lx-hvc" eventType="valueChanged" id="m6p-Q0-bZx"/>
+                                </connections>
                             </segmentedControl>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aff-gQ-ods">
                                 <rect key="frame" x="85" y="518" width="150" height="30"/>

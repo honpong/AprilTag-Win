@@ -15,6 +15,9 @@
     bool isStarted;
     AVCaptureVideoPreviewLayer * previewLayer;
     RCCaptureManager * captureController;
+    int width;
+    int height;
+    int framerate;
 }
 
 @end
@@ -42,6 +45,9 @@
     captureController = [[RCCaptureManager alloc] init];
 
     isStarted = false;
+    framerate = 30;
+    width = 640;
+    height = 480;
 
     [[RCAVSessionManager sharedInstance] startSession];
 }
@@ -93,27 +99,34 @@
     [app startFromHome];
 }
 
+- (IBAction)cameraConfigureClick:(id)sender
+{
+    if(frameRateSelector.selectedSegmentIndex == 0)
+        framerate = 30;
+    else if(frameRateSelector.selectedSegmentIndex == 1)
+        framerate = 60;
+    if(resolutionSelector.selectedSegmentIndex == 0) {
+        width = 640;
+        height = 480;
+    }
+    else if(resolutionSelector.selectedSegmentIndex == 1) {
+        width = 1280;
+        height = 720;
+    }
+    else if(resolutionSelector.selectedSegmentIndex == 2) {
+        width = 1920;
+        height = 1080;
+    }
+    [[RCAVSessionManager sharedInstance] configureCameraWithFrameRate:framerate withWidth:width withHeight:height];
+}
+
 - (IBAction)startStopClicked:(id)sender
 {
     if (!isStarted)
     {
-        int width = 640;
-        int height = 480;
-        int framerate = 30;
-        if(frameRateSelector.selectedSegmentIndex == 1)
-            framerate = 60;
-        if(resolutionSelector.selectedSegmentIndex == 1) {
-            width = 1280;
-            height = 720;
-        }
-        else if(resolutionSelector.selectedSegmentIndex == 2) {
-            width = 1920;
-            height = 1080;
-        }
-
         NSURL * fileurl = [AppDelegate timeStampedURLWithSuffix:[NSString stringWithFormat:@"_%d_%dHz.capture", width, framerate]];
         [startStopButton setTitle:@"Starting..." forState:UIControlStateNormal];
-        [captureController startCaptureWithPath:fileurl.path withMaxFrameRate:framerate withWidth:width withHeight:height withDelegate:self];
+        [captureController startCaptureWithPath:fileurl.path withDelegate:self];
     }
     else
     {

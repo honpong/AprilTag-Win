@@ -75,12 +75,10 @@
     }
 }
 
-- (void) startVideoCaptureWithMaxFrameRate:(int)maxFrameRate withWidth:(int)width withHeight:(int)height
+- (void) startVideoCaptureAutofocus
 {
     session = [RCAVSessionManager sharedInstance].session;
     device = [RCAVSessionManager sharedInstance].videoDevice;
-
-    [[RCAVSessionManager sharedInstance] configureCameraWithFrameRate:maxFrameRate withWidth:width withHeight:height];
 
     output = [[AVCaptureVideoDataOutput alloc] init];
     [output setAlwaysDiscardsLateVideoFrames:YES];
@@ -287,7 +285,7 @@ packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
     });
 }
 
-- (void)startCaptureWithPath:(NSString *)path withMaxFrameRate:(int)maxFrameRate withWidth:(int)width withHeight:(int)height withDelegate:(id<RCCaptureManagerDelegate>)captureDelegate;
+- (void)startCaptureWithPath:(NSString *)path withDelegate:(id<RCCaptureManagerDelegate>)captureDelegate;
 {
     if (isCapturing) return;
 
@@ -296,7 +294,7 @@ packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
     self.delegate = captureDelegate;
     [self startMotionCapture];
     // isCapturing is set after focus finishes
-    [self startVideoCaptureWithMaxFrameRate:maxFrameRate withWidth:width withHeight:height];
+    [self startVideoCaptureAutofocus];
 }
 
 - (void) stopCapture

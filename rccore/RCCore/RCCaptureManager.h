@@ -23,7 +23,7 @@
 
 @property (weak, nonatomic) id<RCCaptureManagerDelegate> delegate;
 
-- (void)startCaptureWithPath:(NSString *)path withMaxFrameRate:(int)maxFrameRate withWidth:(int)width withHeight:(int)height withDelegate:(id<RCCaptureManagerDelegate>)captureDelegate;
+- (void)startCaptureWithPath:(NSString *)path withDelegate:(id<RCCaptureManagerDelegate>)captureDelegate;
 - (void)stopCapture;
 
 @end

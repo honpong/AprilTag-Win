@@ -206,6 +206,8 @@ uint64_t get_timestamp()
 
 - (void) setLocation:(CLLocation*)location
 {
+    _location = location;
+    
     if(location)
     {
         dispatch_async(queue, ^{ filter_compute_gravity(&_cor_setup->sfm, location.coordinate.latitude, location.altitude); } );

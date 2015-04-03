@@ -191,7 +191,7 @@ static const CLLocationDegrees startingLongitude = 43.;
 - (void) gotoNextScreen
 {
     #if TARGET_IPHONE_SIMULATOR
-    [self.calibrationDelegate calibrationDidFinish];
+    [self.calibrationDelegate calibrationDidFinish:self];
     #else
     if ([self.presentingViewController isKindOfClass:[TMIntroScreen class]])
     {

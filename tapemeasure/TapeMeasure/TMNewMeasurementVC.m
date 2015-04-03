@@ -486,6 +486,7 @@ static transition transitions[] =
     LOGME
     [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
     [[sensorManager getVideoProvider] setDelegate:nil];
+    if (SENSOR_FUSION.location == nil) DLog(@"WARNING: No location is set for sensor fusion");
     [SENSOR_FUSION startSensorFusionWithDevice:[sensorManager getVideoDevice]];
 }
 

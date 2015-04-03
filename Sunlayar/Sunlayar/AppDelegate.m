@@ -76,24 +76,6 @@
         }
     }];
     
-    if (![LOCATION_MANAGER isLocationDisallowed])
-    {
-        if ([LOCATION_MANAGER isLocationExplicitlyAllowed])
-        {
-            [LOCATION_MANAGER startLocationUpdates];
-        }
-        else
-        {
-            [LOCATION_MANAGER requestLocationAccessWithCompletion:^(BOOL granted)
-             {
-                 if(granted)
-                 {
-                     [LOCATION_MANAGER startLocationUpdates];
-                 }
-             }];
-        }
-    }
-    
     if (SKIP_CALIBRATION || (calibratedFlag && hasCalibration) )
     {
         [self gotoCaptureScreen];
@@ -141,6 +123,27 @@
 }
 
 #pragma mark -
+
+- (void)applicationDidBecomeActive:(UIApplication *)application
+{
+    if (![LOCATION_MANAGER isLocationDisallowed])
+    {
+        if ([LOCATION_MANAGER isLocationExplicitlyAllowed])
+        {
+            [LOCATION_MANAGER startLocationUpdates];
+        }
+        else
+        {
+            [LOCATION_MANAGER requestLocationAccessWithCompletion:^(BOOL granted)
+             {
+                 if(granted)
+                 {
+                     [LOCATION_MANAGER startLocationUpdates];
+                 }
+             }];
+        }
+    }
+}
 
 - (void)applicationWillResignActive:(UIApplication *)application
 {

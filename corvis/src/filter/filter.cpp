@@ -285,6 +285,7 @@ uint64_t steady_time(struct filter *f, stdev_vector &stdev, v4 meas, f_t varianc
     return time - f->stable_start;
 }
 
+#if log_enabled
 static void print_calibration(struct filter *f)
 {
     fprintf(stderr, "w bias is: "); f->s.w_bias.v.print(); fprintf(stderr, "\n");
@@ -292,6 +293,7 @@ static void print_calibration(struct filter *f)
     fprintf(stderr, "a bias is: "); f->s.a_bias.v.print(); fprintf(stderr, "\n");
     fprintf(stderr, "a bias var is: "); f->s.a_bias.variance().print(); fprintf(stderr, "\n");
 }
+#endif
 
 static float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
 {

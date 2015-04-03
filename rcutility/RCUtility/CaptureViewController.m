@@ -124,7 +124,7 @@
 {
     if (!isStarted)
     {
-        NSURL * fileurl = [AppDelegate timeStampedURLWithSuffix:[NSString stringWithFormat:@"_%d_%dHz.capture", width, framerate]];
+        NSURL * fileurl = [AppDelegate timeStampedURLWithSuffix:[NSString stringWithFormat:@"_%d_%dHz.capture", height, framerate]];
         [startStopButton setTitle:@"Starting..." forState:UIControlStateNormal];
         [captureController startCaptureWithPath:fileurl.path withDelegate:self];
     }

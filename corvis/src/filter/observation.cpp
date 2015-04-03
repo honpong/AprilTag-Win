@@ -251,7 +251,7 @@ void observation_vision_feature::cache_jacobians()
     m4 dTtot_dTr = -Rcb * Rrt;
 #if estimate_camera_extrinsics
     m4v4 dRtot_dWc = dRcb_dWc * (Rrt * Rbc) + (Rcb * Rrt) * dRbc_dWc;
-    m4 dTtot_dWc = dRcb_dWc * (Rrt * (state.Tc.v - state_group->Tr.v) - state.Tc.v);
+    m4 dTtot_dWc = dRcb_dWc * (Rbc * Ttot);
     m4 dTtot_dTc = Rcb * Rrt - Rcb;
 #endif
     

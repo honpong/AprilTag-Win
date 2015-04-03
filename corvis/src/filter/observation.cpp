@@ -187,10 +187,10 @@ void observation_vision_feature::predict()
     m4 Rr = to_rotation_matrix(state_group->Wr.v);
     m4 R = to_rotation_matrix(state.W.v);
     Rrt = transpose(Rr);
-    Rbc = to_rotation_matrix(state.Wc.v);
-    Rcb = transpose(Rbc);
-    Rtot = Rcb * Rrt * Rbc;
-    Ttot = Rcb * (Rrt * (state.Tc.v - state_group->Tr.v) - state.Tc.v);
+    Rc = to_rotation_matrix(state.Wc.v);
+    Rct = transpose(Rc);
+    Rtot = Rct * Rrt * Rc;
+    Ttot = Rct * (Rrt * (state.Tc.v - state_group->Tr.v) - state.Tc.v);
 
     norm_initial.x = (feature->initial[0] - state.center_x.v) / state.focal_length.v;
     norm_initial.y = (feature->initial[1] - state.center_y.v) / state.focal_length.v;
@@ -209,7 +209,7 @@ void observation_vision_feature::predict()
 
     X = X_unscale * feature->v.invdepth();
 
-    feature->relative = Rbc * X0_unscale + state.Tc.v;
+    feature->relative = Rc * X0_unscale + state.Tc.v;
     feature->local = Rrt * (feature->relative - state_group->Tr.v);
     feature->world = R * feature->local + state.T.v;
     feature->depth = X_unscale[2];
@@ -242,17 +242,17 @@ void observation_vision_feature::cache_jacobians()
     m4v4 dRr_dWr = to_rotation_matrix_jacobian(state_group->Wr.v);
     m4v4 dRrt_dWr = transpose(dRr_dWr);
 #if estimate_camera_extrinsics
-    m4v4 dRbc_dWc = to_rotation_matrix_jacobian(state.Wc.v);
-    m4v4 dRcb_dWc = transpose(dRbc_dWc);
+    m4v4 dRc_dWc = to_rotation_matrix_jacobian(state.Wc.v);
+    m4v4 dRct_dWc = transpose(dRc_dWc);
 #endif
     
-    m4v4 dRtot_dWr  = Rcb * dRrt_dWr * Rbc;
-    m4 dTtot_dWr  = Rcb * (dRrt_dWr * (state.Tc.v - state_group->Tr.v));
-    m4 dTtot_dTr = -Rcb * Rrt;
+    m4v4 dRtot_dWr  = Rct * dRrt_dWr * Rc;
+    m4 dTtot_dWr  = Rct * (dRrt_dWr * (state.Tc.v - state_group->Tr.v));
+    m4 dTtot_dTr = -Rct * Rrt;
 #if estimate_camera_extrinsics
-    m4v4 dRtot_dWc = dRcb_dWc * (Rrt * Rbc) + (Rcb * Rrt) * dRbc_dWc;
-    m4 dTtot_dWc = dRcb_dWc * (Rbc * Ttot);
-    m4 dTtot_dTc = Rcb * Rrt - Rcb;
+    m4v4 dRtot_dWc = dRct_dWc * (Rrt * Rc) + (Rct * Rrt) * dRc_dWc;
+    m4 dTtot_dWc = dRct_dWc * (Rc * Ttot);
+    m4 dTtot_dTc = Rct * Rrt - Rct;
 #endif
     
     state.fill_calibration(norm_predicted, r2, kr);

@@ -36,8 +36,10 @@ outname = replay_file + "_solution"
 
 dc = filter.corvis_device_parameters()
 
-from util.device_parameters import set_device_parameters
+from util.device_parameters import set_device_parameters, set_device_resolution
 set_device_parameters(dc, configuration_name) 
+set_device_resolution(dc, 640, 480)
+
 
 fc = filter.filter_setup(capture.dispatch, outname, dc)
 fc.sfm.ignore_lateness = True

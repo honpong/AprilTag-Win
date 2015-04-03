@@ -10,6 +10,9 @@ def set_initialized(dc):
         dc.a_bias_var[i] = 6.4e-3
         dc.w_bias_var[i] = 1.e-4 #5.e-5
 
+def set_device_resolution(dc, width, height):
+    filter.device_set_resolution(dc, width, height)
+
 def set_device_parameters(dc, config_name):
     if config_name == 'iphone4s':
         filter.get_parameters_for_device(filter.DEVICE_TYPE_IPHONE4S, dc)

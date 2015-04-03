@@ -1091,13 +1091,15 @@ extern "C" void filter_image_packet(void *_f, packet_t *p)
 {
     if(p->header.type != packet_camera) return;
     struct filter *f = (struct filter *)_f;
+    int packet_width, packet_height;
+    sscanf((char *)p->data, "P5 %d %d", &packet_width, &packet_height);
     if(!f->track.width) {
-        int width, height;
-        sscanf((char *)p->data, "P5 %d %d", &width, &height);
-        f->track.width = width;
-        f->track.height = height;
-        f->track.stride = width;
+        f->track.width = packet_width;
+        f->track.height = packet_height;
+        f->track.stride = packet_width;
     }
+    else
+        assert(packet_width == f->track.width && packet_height == f->track.height);
     filter_image_measurement(f, p->data + 16, f->track.width, f->track.height, f->track.stride, p->header.time);
 }
 

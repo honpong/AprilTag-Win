@@ -213,21 +213,34 @@ static inline m4 to_rotation_matrix(const quaternion &q)
     yz = q.y()*q.z();
     
     return (m4) {{
-        v4(1. - 2. * (yy+zz), 2. * (xy-wz), 2. * (xz+wy), 0.),
-        v4(2. * (xy+wz), 1. - 2. * (xx+zz), 2. * (yz-wx), 0.),
-        v4(2. * (xz-wy), 2. * (yz+wx), 1. - 2. * (xx+yy), 0.),
-        v4(0., 0., 0., 1.)
+        {1. - 2. * (yy+zz), 2. * (xy-wz), 2. * (xz+wy), 0.},
+        {2. * (xy+wz), 1. - 2. * (xx+zz), 2. * (yz-wx), 0.},
+        {2. * (xz-wy), 2. * (yz+wx), 1. - 2. * (xx+yy), 0.},
+        {0., 0., 0., 1.}
     }};
 }
 
 static inline m4v4 to_rotation_matrix_jacobian(const quaternion &q)
 {
-    return (m4v4) {{
-        {{-2. * v4(0., 0., 2.*q.y(), 2.*q.z()), 2. * v4(-q.z(), q.y(), q.x(), -q.w()), 2. * v4(q.y(), q.z(), q.w(), q.x()), v4::Zero()}},
-        {{2. * v4(q.z(), q.y(), q.x(), q.w()), -2. * v4(0., 2.*q.x(), 0., 2.*q.z()), 2. * v4(-q.x(), -q.w(), q.z(), q.y()), v4::Zero()}},
-        {{2. * v4(-q.y(), q.z(), -q.w(), q.x()), 2. * v4(q.x(), q.w(), q.z(), q.y()), -2. * v4(0., 2.*q.x(), 2.*q.y(), 0.), v4::Zero()}},
-        m4::Zero()
-    }};
+    m4v4 res;
+    res[0].row(0) = -2. * v4(0., 0., 2.*q.y(), 2.*q.z());
+    res[0].row(1) = 2. * v4(-q.z(), q.y(), q.x(), -q.w());
+    res[0].row(2) = 2. * v4(q.y(), q.z(), q.w(), q.x());
+    res[0].row(3) = v4::Zero();
+    
+    res[1].row(0) = 2. * v4(q.z(), q.y(), q.x(), q.w());
+    res[1].row(1) = -2. * v4(0., 2.*q.x(), 0., 2.*q.z());
+    res[1].row(2) = 2. * v4(-q.x(), -q.w(), q.z(), q.y());
+    res[1].row(3) = v4::Zero();
+    
+    res[2].row(0) = 2. * v4(-q.y(), q.z(), -q.w(), q.x());
+    res[2].row(1) = 2. * v4(q.x(), q.w(), q.z(), q.y());
+    res[2].row(2) = -2. * v4(0., 2.*q.x(), 2.*q.y(), 0.);
+    res[2].row(3) = v4::Zero();
+    
+    res[3] = m4::Zero();
+    
+    return res;
 }
 
 static inline quaternion to_quaternion(const m4 &m)

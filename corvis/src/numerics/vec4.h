@@ -279,11 +279,29 @@ inline static v4m4 outer_product(const m4 &b, const v4 &c)
 
 inline static m4v4 transpose(const m4v4 &b)
 {
-    return (m4v4) {{
-            { {b[0].row(0), b[1].row(0), b[2].row(0), b[3].row(0)} },
-                { {b[0].row(1), b[1].row(1), b[2].row(1), b[3].row(1)} },
-                    { {b[0].row(2), b[1].row(2), b[2].row(2), b[3].row(2)} },
-                        { {b[0].row(3), b[1].row(3), b[2].row(3), b[3].row(3)} }}};
+    m4v4 res;
+    
+    res[0].row(0) = b[0].row(0);
+    res[0].row(1) = b[1].row(0);
+    res[0].row(2) = b[2].row(0);
+    res[0].row(3) = b[3].row(0);
+    
+    res[1].row(0) = b[0].row(1);
+    res[1].row(1) = b[1].row(1);
+    res[1].row(2) = b[2].row(1);
+    res[1].row(3) = b[3].row(1);
+    
+    res[2].row(0) = b[0].row(2);
+    res[2].row(1) = b[1].row(2);
+    res[2].row(2) = b[2].row(2);
+    res[2].row(3) = b[3].row(2);
+    
+    res[3].row(0) = b[0].row(3);
+    res[3].row(1) = b[1].row(3);
+    res[3].row(2) = b[2].row(3);
+    res[3].row(3) = b[3].row(3);
+    
+    return res;
 }
 
 //a[i][j][:] = vecsum(b[i][...][:] * (scalar->vec)c[...][j])
@@ -405,11 +423,11 @@ inline static v4 apply_jacobian_v4m4(const v4m4 &b, const m4 &c)
 inline static m4 diag(const v4 &b)
 { 
     return (m4) { {
-            v4(b[0], 0., 0., 0.),
-            v4(0., b[1], 0., 0.),
-            v4(0., 0., b[2], 0.),
-            v4(0., 0., 0., b[3]) }
-    };
+        {b[0], 0., 0., 0.},
+        {0., b[1], 0., 0.},
+        {0., 0., b[2], 0.},
+        {0., 0., 0., b[3]}
+    } };
 }
 
 inline static v4 m4_diag(const m4 b)

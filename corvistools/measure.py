@@ -2,18 +2,16 @@
 # Created by Brian Fulkerson
 # Copyright (c) 2013. RealityCap, Inc.
 # All rights reserved.
-#
-# This file is a part of the corvis framework, and is made available
-# under the BSD license; please see LICENSE file for full text
+
 import sys
 import time
 from numpy import *
 
-def measure(filename, configuration_name):
+def measure(filename, configuration_name, realtime=False, shell=False, vis=False):
     sys.path.extend(['../'])
     from corvis import cor, filter
 
-    cor.cvar.cor_time_pb_real = False
+    cor.cvar.cor_time_pb_real = realtime
 
     capture = cor.mapbuffer()
     capture.filename = filename
@@ -36,11 +34,6 @@ def measure(filename, configuration_name):
     fc = filter.filter_setup(capture.dispatch, outname, dc)
     fc.sfm.ignore_lateness = True
 
-    cor.cor_time_init()
-    #filter.filter_start_qr_benchmark(fc.sfm, 0.1825)
-    filter.filter_start_dynamic(fc.sfm)
-    cor.plugins_start()
-
     from util.script_tools import feature_stats
     fs = feature_stats(fc.sfm)
     cor.dispatch_addpython(fc.solution.dispatch, fs.packet);
@@ -54,26 +47,101 @@ def measure(filename, configuration_name):
     mc = monitor(capture)
     cor.dispatch_addpython(fc.solution.dispatch, mc.finished)
 
-    last_bytes = 0
-    last_time = 0
-    while capture.dispatch.progress < 1.0:
-        if last_bytes == mc.bytes_dispatched and mc.percent > 90:
-            if last_time == 0: 
-                last_time = time.time()
-            if time.time() - last_time > 2:
-                print "No packets received recently, stopping"
-                break
-        else:
-            last_time = 0
-            
-        last_bytes = mc.bytes_dispatched
-        time.sleep(0.1)
+    if vis:
+        visbuf = cor.mapbuffer()
+        visbuf.size = 64 * 1024
+        visbuf.dispatch = cor.dispatch_t()
+        cor.plugins_register(cor.mapbuffer_open(visbuf))
 
-    cor.plugins_stop()
+        from vis.vis import Vis
+        import vis.ImagePanel
+        myvis = Vis()
+        mvp = cor.plugins_initialize_python(None, myvis.stop)
+        mvp.priority = 0
+        cor.plugins_register(mvp)
 
-    print "Filename:", filename
-    fs.print_stats()
-    ss.print_stats()
+        ip = myvis.frame.image_widget
+        imageover = vis.ImagePanel.ImageOverlay(ip)
+        featover = vis.ImagePanel.FeatureOverlay(ip)
+
+        ip.renderables.append(imageover)
+        ip.renderables.append(featover)
+
+        cor.dispatch_addpython(visbuf.dispatch, myvis.frame.window_3.plot_dispatch);
+        cor.dispatch_addpython(visbuf.dispatch, myvis.frame.render_widget.packet_world);
+        cor.dispatch_addpython(visbuf.dispatch, featover.status_queue.put);
+        cor.dispatch_addpython(capture.dispatch, imageover.queue.put);
+
+        cor.dispatch_addpython(fc.trackdata.dispatch, featover.queue.put)
+        cor.dispatch_addpython(fc.trackdata.dispatch, featover.pred_queue.put)
+        sys.path.extend(["renderable/", "renderable/.libs"])
+        import renderable
+        structure = renderable.structure()
+        motion = renderable.motion()
+        motion.color=[0.,0.,1.,1.]
+
+        measurement = renderable.measurement("/Library/Fonts/Tahoma.ttf", 12.)
+        measurement.color=[0.,1.,0.,1.]
+
+        filter_render = renderable.filter_state(fc.sfm)
+
+        myvis.frame.render_widget.add_renderable(structure.render, "Structure")
+        myvis.frame.render_widget.add_renderable(motion.render, "Motion")
+        myvis.frame.render_widget.add_renderable(measurement.render, "Measurement")
+        myvis.frame.render_widget.add_renderable(filter_render.render, "Filter state")
+        cor.dispatch_addclient(fc.solution.dispatch, structure, renderable.structure_packet)
+        cor.dispatch_addclient(fc.solution.dispatch, motion, renderable.motion_packet)
+        cor.dispatch_addclient(fc.solution.dispatch, measurement, renderable.measurement_packet)
+
+        fc.sfm.visbuf = visbuf
+
+        cor.cor_time_init()
+        filter.filter_start_dynamic(fc.sfm)
+        cor.plugins_start()
+
+        if shell:
+            from IPython.terminal.embed import InteractiveShellEmbed
+            from threading import Thread
+            def shell_function():
+                # refer to variables we might want to access in the
+                # shell
+                dummy = (myvis, fc, cor, filter)
+                ipshell = InteractiveShellEmbed(display_banner=False)
+                ipshell()
+
+            thread = Thread(target = shell_function)
+            thread.setDaemon(True)
+            thread.start()
+
+
+        myvis.app.MainLoop()
+    else: # no visualization
+        cor.cor_time_init()
+        #filter.filter_start_qr_benchmark(fc.sfm, 0.1825)
+        filter.filter_start_dynamic(fc.sfm)
+        cor.plugins_start()
+
+        last_bytes = 0
+        last_time = 0
+        while capture.dispatch.progress < 1.0:
+            if last_bytes == mc.bytes_dispatched and mc.percent > 90:
+                if last_time == 0: 
+                    last_time = time.time()
+                if time.time() - last_time > 2:
+                    print "No packets received recently, stopping"
+                    break
+            else:
+                last_time = 0
+                
+            last_bytes = mc.bytes_dispatched
+            time.sleep(0.1)
+
+        cor.plugins_stop()
+
+        print "Filename:", filename
+        fs.print_stats()
+        ss.print_stats()
+
     distance = float(fc.sfm.s.total_distance)*100.
     measurement = float(sqrt(sum(fc.sfm.s.T.v**2)))*100.
     return (distance, measurement)

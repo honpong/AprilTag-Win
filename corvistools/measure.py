@@ -7,11 +7,8 @@ import sys
 import time
 from numpy import *
 
-def measure(filename, configuration_name, realtime=False, shell=False, vis=False):
-    sys.path.extend(['../'])
-    from corvis import cor, filter
-
-    cor.cvar.cor_time_pb_real = realtime
+def configure_mapbuffer(filename):
+    from corvis import cor
 
     capture = cor.mapbuffer()
     capture.filename = filename
@@ -24,14 +21,78 @@ def measure(filename, configuration_name, realtime=False, shell=False, vis=False
     cor.dispatch_init(capture.dispatch);
     cor.plugins_register(cor.mapbuffer_open(capture))
 
+    return capture
+
+def configure_device(configuration_name, width=640, height=480, framerate=30):
+    from corvis import filter
     dc = filter.corvis_device_parameters()
 
     from util.device_parameters import set_device_parameters, set_device_resolution
     set_device_parameters(dc, configuration_name)
-    set_device_resolution(dc, 640, 480)
+    set_device_resolution(dc, width, height)
 
-    outname = filename + "_solution"
-    fc = filter.filter_setup(capture.dispatch, outname, dc)
+    return dc
+
+def configure_visualization(capture, fc):
+    from corvis import cor
+    visbuf = cor.mapbuffer()
+    visbuf.size = 64 * 1024
+    visbuf.dispatch = cor.dispatch_t()
+    cor.plugins_register(cor.mapbuffer_open(visbuf))
+
+    from vis.vis import Vis
+    import vis.ImagePanel
+    myvis = Vis()
+    mvp = cor.plugins_initialize_python(None, myvis.stop)
+    mvp.priority = 0
+    cor.plugins_register(mvp)
+
+    ip = myvis.frame.image_widget
+    imageover = vis.ImagePanel.ImageOverlay(ip)
+    featover = vis.ImagePanel.FeatureOverlay(ip)
+
+    ip.renderables.append(imageover)
+    ip.renderables.append(featover)
+
+    cor.dispatch_addpython(visbuf.dispatch, myvis.frame.window_3.plot_dispatch);
+    cor.dispatch_addpython(visbuf.dispatch, myvis.frame.render_widget.packet_world);
+    cor.dispatch_addpython(visbuf.dispatch, featover.status_queue.put);
+    cor.dispatch_addpython(capture.dispatch, imageover.queue.put);
+
+    cor.dispatch_addpython(fc.trackdata.dispatch, featover.queue.put)
+    cor.dispatch_addpython(fc.trackdata.dispatch, featover.pred_queue.put)
+    sys.path.extend(["renderable/", "renderable/.libs"])
+    import renderable
+    structure = renderable.structure()
+    motion = renderable.motion()
+    motion.color=[0.,0.,1.,1.]
+
+    measurement = renderable.measurement("/Library/Fonts/Tahoma.ttf", 12.)
+    measurement.color=[0.,1.,0.,1.]
+
+    filter_render = renderable.filter_state(fc.sfm)
+
+    myvis.frame.render_widget.add_renderable(structure.render, "Structure")
+    myvis.frame.render_widget.add_renderable(motion.render, "Motion")
+    myvis.frame.render_widget.add_renderable(measurement.render, "Measurement")
+    myvis.frame.render_widget.add_renderable(filter_render.render, "Filter state")
+    cor.dispatch_addclient(fc.solution.dispatch, structure, renderable.structure_packet)
+    cor.dispatch_addclient(fc.solution.dispatch, motion, renderable.motion_packet)
+    cor.dispatch_addclient(fc.solution.dispatch, measurement, renderable.measurement_packet)
+
+    return (visbuf, myvis)
+
+
+def measure(filename, configuration_name, realtime=False, shell=False, vis=False):
+    sys.path.extend(['../'])
+    from corvis import cor, filter
+
+    cor.cvar.cor_time_pb_real = realtime
+
+    capture = configure_mapbuffer(filename)
+    dc = configure_device(configuration_name)
+
+    fc = filter.filter_setup(capture.dispatch, dc)
     fc.sfm.ignore_lateness = True
 
     from util.script_tools import feature_stats
@@ -48,79 +109,33 @@ def measure(filename, configuration_name, realtime=False, shell=False, vis=False
     cor.dispatch_addpython(fc.solution.dispatch, mc.finished)
 
     if vis:
-        visbuf = cor.mapbuffer()
-        visbuf.size = 64 * 1024
-        visbuf.dispatch = cor.dispatch_t()
-        cor.plugins_register(cor.mapbuffer_open(visbuf))
-
-        from vis.vis import Vis
-        import vis.ImagePanel
-        myvis = Vis()
-        mvp = cor.plugins_initialize_python(None, myvis.stop)
-        mvp.priority = 0
-        cor.plugins_register(mvp)
-
-        ip = myvis.frame.image_widget
-        imageover = vis.ImagePanel.ImageOverlay(ip)
-        featover = vis.ImagePanel.FeatureOverlay(ip)
-
-        ip.renderables.append(imageover)
-        ip.renderables.append(featover)
-
-        cor.dispatch_addpython(visbuf.dispatch, myvis.frame.window_3.plot_dispatch);
-        cor.dispatch_addpython(visbuf.dispatch, myvis.frame.render_widget.packet_world);
-        cor.dispatch_addpython(visbuf.dispatch, featover.status_queue.put);
-        cor.dispatch_addpython(capture.dispatch, imageover.queue.put);
-
-        cor.dispatch_addpython(fc.trackdata.dispatch, featover.queue.put)
-        cor.dispatch_addpython(fc.trackdata.dispatch, featover.pred_queue.put)
-        sys.path.extend(["renderable/", "renderable/.libs"])
-        import renderable
-        structure = renderable.structure()
-        motion = renderable.motion()
-        motion.color=[0.,0.,1.,1.]
-
-        measurement = renderable.measurement("/Library/Fonts/Tahoma.ttf", 12.)
-        measurement.color=[0.,1.,0.,1.]
-
-        filter_render = renderable.filter_state(fc.sfm)
-
-        myvis.frame.render_widget.add_renderable(structure.render, "Structure")
-        myvis.frame.render_widget.add_renderable(motion.render, "Motion")
-        myvis.frame.render_widget.add_renderable(measurement.render, "Measurement")
-        myvis.frame.render_widget.add_renderable(filter_render.render, "Filter state")
-        cor.dispatch_addclient(fc.solution.dispatch, structure, renderable.structure_packet)
-        cor.dispatch_addclient(fc.solution.dispatch, motion, renderable.motion_packet)
-        cor.dispatch_addclient(fc.solution.dispatch, measurement, renderable.measurement_packet)
+        (visbuf, myvis) = configure_visualization(capture, fc)
 
         fc.sfm.visbuf = visbuf
 
-        cor.cor_time_init()
-        filter.filter_start_dynamic(fc.sfm)
-        cor.plugins_start()
+    cor.cor_time_init()
+    #filter.filter_start_qr_benchmark(fc.sfm, 0.1825)
+    filter.filter_start_dynamic(fc.sfm)
+    cor.plugins_start()
 
-        if shell:
-            from IPython.terminal.embed import InteractiveShellEmbed
-            from threading import Thread
-            def shell_function():
-                # refer to variables we might want to access in the
-                # shell
-                dummy = (myvis, fc, cor, filter)
-                ipshell = InteractiveShellEmbed(display_banner=False)
-                ipshell()
+    if shell:
+        from IPython.terminal.embed import InteractiveShellEmbed
+        from threading import Thread
+        def shell_function():
+            # refer to variables we might want to access in the
+            # shell
+            dummy = (fc, cor, filter)
+            ipshell = InteractiveShellEmbed(display_banner=False)
+            ipshell()
 
-            thread = Thread(target = shell_function)
-            thread.setDaemon(True)
-            thread.start()
+        thread = Thread(target = shell_function)
+        thread.setDaemon(True)
+        thread.start()
 
-
+    if vis:
         myvis.app.MainLoop()
-    else: # no visualization
-        cor.cor_time_init()
-        #filter.filter_start_qr_benchmark(fc.sfm, 0.1825)
-        filter.filter_start_dynamic(fc.sfm)
-        cor.plugins_start()
 
+    else: # no visualization
         last_bytes = 0
         last_time = 0
         while capture.dispatch.progress < 1.0:

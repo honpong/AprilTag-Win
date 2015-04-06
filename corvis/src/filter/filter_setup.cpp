@@ -9,7 +9,7 @@ filter_setup::filter_setup(corvis_device_parameters *device_params)
     solution.dispatch = 0;
 }
 
-filter_setup::filter_setup(dispatch_t *_input, const char *outfn, struct corvis_device_parameters *device_params)
+filter_setup::filter_setup(dispatch_t *_input, struct corvis_device_parameters *device_params)
 {
     device = *device_params;
     input = _input;
@@ -23,7 +23,6 @@ filter_setup::filter_setup(dispatch_t *_input, const char *outfn, struct corvis_
     solution.size = 1 * 1024 * 1024;
     solution.filename = NULL;
     solution.replay = false;
-    //solution.filename = outfn;
     solution.dispatch =  new dispatch_t();
     plugins_register(mapbuffer_open(&solution));
 

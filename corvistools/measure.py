@@ -83,39 +83,74 @@ def configure_visualization(capture, fc):
     return (visbuf, myvis)
 
 
-def measure(filename, configuration_name, realtime=False, shell=False, vis=False):
+def measure(filename, configuration_name, realtime=False, shell=False,
+        vis=False, sim=False):
     sys.path.extend(['../'])
     from corvis import cor, filter
 
     cor.cvar.cor_time_pb_real = realtime
 
-    capture = configure_mapbuffer(filename)
+    if not sim:
+        capture = configure_mapbuffer(filename)
+    else:
+        sys.path.extend(["alternate_visualizations/pylib/"])
+        from simulator import simulator
+        capture = configure_mapbuffer("simulator/data/dummy")
+        """
+        # function based simulator
+        sim = simulator.simulator()
+        sim.trackbuf = capture
+        sim.imubuf = capture
+        Tcb = array([ 0.150,  -0.069,  0.481, 0.])
+        Wcb = array([0.331, -2.372, 2.363, 0. ])
+        sim.Tc = Tcb[:3] # + random.randn(3)*.1
+        import rodrigues
+        sim.Rc = rodrigues.rodrigues(Wcb[:3]) # + random.randn(3)*.05)
+        """
+        # data based simulator
+        sim = simulator.data_simulator(filename)
+        sim.imubuf = capture
+
+        simp = cor.plugins_initialize_python(sim.run, None)
+        cor.plugins_register(simp)
+
     dc = configure_device(configuration_name)
 
     fc = filter.filter_setup(capture.dispatch, dc)
     fc.sfm.ignore_lateness = True
 
-    from util.script_tools import feature_stats
-    fs = feature_stats(fc.sfm)
-    cor.dispatch_addpython(fc.solution.dispatch, fs.packet);
-    cor.dispatch_addpython(capture.dispatch, fs.capture_packet)
+    if not vis:
+        from util.script_tools import feature_stats
+        fs = feature_stats(fc.sfm)
+        cor.dispatch_addpython(fc.solution.dispatch, fs.packet);
+        cor.dispatch_addpython(capture.dispatch, fs.capture_packet)
 
-    from util.script_tools import sequence_stats
-    ss = sequence_stats()
-    cor.dispatch_addpython(capture.dispatch, ss.packet);
+        from util.script_tools import sequence_stats
+        ss = sequence_stats()
+        cor.dispatch_addpython(capture.dispatch, ss.packet);
 
-    from util.script_tools import monitor
-    mc = monitor(capture)
-    cor.dispatch_addpython(fc.solution.dispatch, mc.finished)
+        from util.script_tools import monitor
+        mc = monitor(capture)
+        cor.dispatch_addpython(fc.solution.dispatch, mc.finished)
 
     if vis:
         (visbuf, myvis) = configure_visualization(capture, fc)
 
         fc.sfm.visbuf = visbuf
 
+        if sim:
+            import vis.simulator
+            gt_render = vis.simulator.simulator_ground_truth()
+            myvis.frame.render_widget.add_renderable(gt_render.render, "Simulation truth")
+            cor.dispatch_addpython(capture.dispatch, gt_render.receive_packet);
+
     cor.cor_time_init()
     #filter.filter_start_qr_benchmark(fc.sfm, 0.1825)
-    filter.filter_start_dynamic(fc.sfm)
+    if not sim:
+        filter.filter_start_dynamic(fc.sfm)
+    if sim:
+        filter.filter_start_simulator(fc.sfm)
+
     cor.plugins_start()
 
     if shell:

@@ -552,6 +552,11 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
         f->s.w_bias.v.print(); v4(f->s.w_bias.variance()).print();
         fprintf(stderr, "\n");
     }
+
+    // Simulator should update outputs because it doesn't produce
+    // images, which are the only time outputs are normally sent
+    if(f->using_simulator)
+        filter_update_outputs(f, time);
 }
 
 static int filter_process_features(struct filter *f, uint64_t time)
@@ -1306,6 +1311,8 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->track.init();
 
     f->last_qr_time = 0;
+
+    f->using_simulator = false;
     
     f->max_velocity = 0.;
     f->median_depth_variance = 1.;
@@ -1393,6 +1400,14 @@ void filter_start_dynamic(struct filter *f)
 {
     f->want_start = f->last_time;
     f->run_state = RCSensorFusionRunStateDynamicInitialization;
+}
+
+void filter_start_simulator(struct filter *f)
+{
+    f->want_start = f->last_time;
+    f->s.disable_orientation_only();
+    f->run_state = RCSensorFusionRunStateRunning;
+    f->using_simulator = true;
 }
 
 void filter_select_feature(struct filter *f, float x, float y)

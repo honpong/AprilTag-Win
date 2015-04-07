@@ -27,9 +27,10 @@ def configure_device(configuration_name, width=640, height=480, framerate=30):
     from corvis import filter
     dc = filter.corvis_device_parameters()
 
-    from util.device_parameters import set_device_parameters, set_device_resolution
+    from util.device_parameters import set_device_parameters
     set_device_parameters(dc, configuration_name)
-    set_device_resolution(dc, width, height)
+    filter.device_set_resolution(dc, width, height)
+    filter.device_set_framerate(dc, 0, 1/framerate)
 
     return dc
 

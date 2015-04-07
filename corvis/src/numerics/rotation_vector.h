@@ -24,8 +24,11 @@ public:
     f_t &x() { return data[0]; }
     f_t &y() { return data[1]; }
     f_t &z() { return data[2]; }
-    
+
+    inline const rotation_vector operator-() const { return rotation_vector(-data); }
+    inline const f_t norm2() const { return data[0]*data[0] + data[1]*data[1] + data[2]*data[2]; }
 private:
+    rotation_vector(const v4 &v) : data(v) {}
     v4 data;
 };
 

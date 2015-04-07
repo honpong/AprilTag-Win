@@ -6,6 +6,17 @@
 import sys
 import time
 from numpy import *
+import re
+
+def get_parameters_for_filename(filename):
+    # Parse filenames in the form _<width>_<height>_<rate>Hz
+    width, height, framerate = (640, 480, 30)
+    match = re.match(".*_(\d+)_(\d+)_(\d+)Hz.*", filename)
+    if match:
+        width = int(match.group(1))
+        height = int(match.group(2))
+        framerate = int(match.group(3))
+    return (width, height, framerate)
 
 def configure_mapbuffer(filename):
     from corvis import cor
@@ -115,7 +126,8 @@ def measure(filename, configuration_name, realtime=False, shell=False,
         simp = cor.plugins_initialize_python(sim.run, None)
         cor.plugins_register(simp)
 
-    dc = configure_device(configuration_name)
+    (width, height, framerate) = get_parameters_for_filename(filename)
+    dc = configure_device(configuration_name, width, height, framerate)
 
     fc = filter.filter_setup(capture.dispatch, dc)
     fc.sfm.ignore_lateness = True

@@ -23,10 +23,10 @@ void device_set_resolution(struct corvis_device_parameters *dc, int image_width,
     dc->Fy = dc->Fx;
 }
 
-void device_set_framerate(struct corvis_device_parameters *dc, int shutter_delay, int shutter_period)
+void device_set_framerate(struct corvis_device_parameters *dc, float framerate_hz)
 {
     dc->shutter_delay = 0;
-    dc->shutter_period = 31000;
+    dc->shutter_period = 1e6 * 1./framerate_hz;
 }
 
 bool get_parameters_for_device(corvis_device_type type, struct corvis_device_parameters *dc)
@@ -207,6 +207,9 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
             dc->Tc[2] = 0.0;
             return false;
     }
+
+    device_set_resolution(dc, 640, 480);
+    device_set_framerate(dc, 30);
 }
 
 

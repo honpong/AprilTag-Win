@@ -53,7 +53,7 @@ typedef enum
 bool get_parameters_for_device(corvis_device_type type, struct corvis_device_parameters *dc);
 
 void device_set_resolution(struct corvis_device_parameters *dc, int image_width, int image_height);
-void device_set_framerate(struct corvis_device_parameters *dc, int shutter_delay, int shutter_period);
+void device_set_framerate(struct corvis_device_parameters *dc, float framerate_hz);
 
 #ifdef __cplusplus
 }

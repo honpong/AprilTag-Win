@@ -41,7 +41,7 @@ def configure_device(configuration_name, width=640, height=480, framerate=30):
     from util.device_parameters import set_device_parameters
     set_device_parameters(dc, configuration_name)
     filter.device_set_resolution(dc, width, height)
-    filter.device_set_framerate(dc, 0, 1/framerate)
+    filter.device_set_framerate(dc, framerate)
 
     return dc
 

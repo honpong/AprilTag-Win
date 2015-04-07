@@ -7,7 +7,6 @@
 #include "vec4.h"
 #include <assert.h>
 #include "float.h"
-#include "quaternion.h"
 
 const m4 m4_identity = { {
         v4(1, 0, 0, 0),

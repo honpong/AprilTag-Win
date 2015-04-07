@@ -289,9 +289,6 @@ class v4m4 {
     m4 data[4];
 };
 
-extern m4v4 const skew3_jacobian;
-extern v4m4 const invskew3_jacobian;
-
 class m4m4 {
  public:
     v4m4 & operator[](const int i) {return data[i]; }
@@ -509,8 +506,6 @@ inline static f_t determinant3(const m4 &m)
     - m[0][1] * determinant_minor(m, 0, 2)
     + m[0][2] * determinant_minor(m, 0, 1);
 }
-
-m4 rodrigues(const v4 W, m4v4 *dR_dW);
 
 v4 integrate_angular_velocity(const v4 &W, const v4 &w);
 void linearize_angular_integration(const v4 &W, const v4 &w, m4 &dW_dW, m4 &dW_dw);

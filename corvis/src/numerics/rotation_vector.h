@@ -47,13 +47,6 @@ m4  to_rotation_matrix(const rotation_vector &v); // e^\hat{v}
 m4 to_spatial_jacobian(const rotation_vector &v); // \unhat{(d e^\hat{ v})  e^\hat{-v}} == to_spatial_jacobian(v) dv
 m4    to_body_jacobian(const rotation_vector &v); // \unhat{   e^\hat{-v} d e^\hat{ v}} ==    to_body_jacobian(v) dv
 
-static inline m4v4 to_rotation_matrix_jacobian(const rotation_vector &v)
-{
-    m4v4 res;
-    rodrigues(v4(v.x(), v.y(), v.z(), 0.), &res);
-    return res;
-}
-
 static inline rotation_vector integrate_angular_velocity(const rotation_vector &V, const v4 &w)
 {
     v4 res = integrate_angular_velocity(v4(V.x(), V.y(), V.z(), 0.), w);

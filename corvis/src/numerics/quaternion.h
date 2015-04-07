@@ -233,16 +233,6 @@ static inline m4 to_rotation_matrix(const quaternion &q)
     }};
 }
 
-static inline m4v4 to_rotation_matrix_jacobian(const quaternion &q)
-{
-    return (m4v4) {{
-        {{-2. * v4(0., 0., 2.*q.y(), 2.*q.z()), 2. * v4(-q.z(), q.y(), q.x(), -q.w()), 2. * v4(q.y(), q.z(), q.w(), q.x()), v4(0.)}},
-        {{2. * v4(q.z(), q.y(), q.x(), q.w()), -2. * v4(0., 2.*q.x(), 0., 2.*q.z()), 2. * v4(-q.x(), -q.w(), q.z(), q.y()), v4(0.)}},
-        {{2. * v4(-q.y(), q.z(), -q.w(), q.x()), 2. * v4(q.x(), q.w(), q.z(), q.y()), -2. * v4(0., 2.*q.x(), 2.*q.y(), 0.), v4(0.)}},
-        {{v4(0.), v4(0.), v4(0.), v4(0.)}}
-    }};
-}
-
 static inline quaternion to_quaternion(const m4 &m)
 {
     v4 tr;

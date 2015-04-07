@@ -74,6 +74,7 @@
 		328A4DD61950DB2200587949 /* RCSensorFusionError.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 328A4DD01950D52000587949 /* RCSensorFusionError.h */; };
 		328A4DD71950DB2E00587949 /* RCLicenseError.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 328A4DD31950D5F400587949 /* RCLicenseError.h */; };
 		32E757151A980149004BA247 /* NSError+RCDictionaryRepresentation.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E757141A980149004BA247 /* NSError+RCDictionaryRepresentation.m */; };
+		38EDF0771AD43D2500F0A322 /* rotation_vector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 38EDF0761AD43D2400F0A322 /* rotation_vector.cpp */; };
 		D31EC5381A5F1E5B0003379A /* libzxing.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D31EC5371A5F1E5B0003379A /* libzxing.a */; };
 		D31EC5391A5F1E9E0003379A /* libzxing.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D31EC5371A5F1E5B0003379A /* libzxing.a */; };
 		D321AD3E1A323C17003AEA77 /* camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D321AD301A323BF7003AEA77 /* camera.cpp */; };
@@ -413,6 +414,7 @@
 		32E757131A980149004BA247 /* NSError+RCDictionaryRepresentation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSError+RCDictionaryRepresentation.h"; sourceTree = "<group>"; };
 		32E757141A980149004BA247 /* NSError+RCDictionaryRepresentation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSError+RCDictionaryRepresentation.m"; sourceTree = "<group>"; };
 		32F7D56219D49E14002239FF /* RCDebugLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCDebugLog.h; path = ../../SensorManagers/RCDebugLog.h; sourceTree = "<group>"; };
+		38EDF0761AD43D2400F0A322 /* rotation_vector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rotation_vector.cpp; sourceTree = "<group>"; };
 		D31EC5371A5F1E5B0003379A /* libzxing.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libzxing.a; sourceTree = "<group>"; };
 		D321AD301A323BF7003AEA77 /* camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = camera.cpp; sourceTree = "<group>"; };
 		D321AD311A323BF7003AEA77 /* fundamental.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fundamental.cpp; sourceTree = "<group>"; };
@@ -883,6 +885,7 @@
 				327B55CE18EB4F430001CCE1 /* quaternion.h */,
 				327B55CF18EB4F430001CCE1 /* rotation.h */,
 				327B55D018EB4F430001CCE1 /* rotation_vector.h */,
+				38EDF0761AD43D2400F0A322 /* rotation_vector.cpp */,
 				D3DE5D081A80E301000EF94D /* transformation.h */,
 				327B55D118EB4F430001CCE1 /* vec4.cpp */,
 				327B55D218EB4F430001CCE1 /* vec4.h */,
@@ -1273,6 +1276,7 @@
 				327B553A18EB4D720001CCE1 /* RCAFURLConnectionOperation.m in Sources */,
 				327B559618EB4F250001CCE1 /* dispatch.c in Sources */,
 				327B553918EB4D720001CCE1 /* RCAFPropertyListRequestOperation.m in Sources */,
+				38EDF0771AD43D2500F0A322 /* rotation_vector.cpp in Sources */,
 				327B557818EB4DC20001CCE1 /* RCSensorFusionData.m in Sources */,
 				327B557918EB4DC20001CCE1 /* RCSensorFusionStatus.m in Sources */,
 				D953126F1A15AE63004D6068 /* homography.cpp in Sources */,

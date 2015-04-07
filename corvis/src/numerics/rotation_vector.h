@@ -43,10 +43,9 @@ static inline bool operator==(const rotation_vector &a, const rotation_vector &b
     return a.x() == b.x() && a.y() == b.y() && a.z() == b.z();
 }
 
-static inline m4 to_rotation_matrix(const rotation_vector &v)
-{
-    return rodrigues(v4(v.x(), v.y(), v.z(), 0.), NULL);
-}
+m4  to_rotation_matrix(const rotation_vector &v); // e^\hat{v}
+m4 to_spatial_jacobian(const rotation_vector &v); // \unhat{(d e^\hat{ v})  e^\hat{-v}} == to_spatial_jacobian(v) dv
+m4    to_body_jacobian(const rotation_vector &v); // \unhat{   e^\hat{-v} d e^\hat{ v}} ==    to_body_jacobian(v) dv
 
 static inline m4v4 to_rotation_matrix_jacobian(const rotation_vector &v)
 {

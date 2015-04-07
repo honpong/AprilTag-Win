@@ -15,6 +15,7 @@
     bool isStarted;
     AVCaptureVideoPreviewLayer * previewLayer;
     RCCaptureManager * captureController;
+    NSURL * fileURL;
     int width;
     int height;
     int framerate;
@@ -89,14 +90,83 @@
     [resolutionSelector setHidden:true];
 }
 
+- (void) presentRenameAlert
+{
+    NSString * path = [fileURL.path stringByDeletingLastPathComponent];
+    NSString * filename = [fileURL.path lastPathComponent];
+    NSString * basename = nil, *widthText, *heightText, *frameRateText;
+
+    NSRegularExpression * filename_parse = [NSRegularExpression regularExpressionWithPattern:@"(.*)_(\\d+)_(\\d+)_(\\d+)Hz.capture" options:0 error:nil];
+    NSArray * matches = [filename_parse matchesInString:filename options:0 range:NSMakeRange(0, filename.length)];
+    for(NSTextCheckingResult* match in matches) {
+        basename = [filename substringWithRange:[match rangeAtIndex:1]];
+        widthText = [filename substringWithRange:[match rangeAtIndex:2]];
+        heightText = [filename substringWithRange:[match rangeAtIndex:3]];
+        frameRateText = [filename substringWithRange:[match rangeAtIndex:4]];
+    }
+    NSString * message = [NSString stringWithFormat:@"Add a length, path length, or rename\n%@x%@ @ %@Hz", widthText, heightText, frameRateText];
+
+    UIAlertController * alert = [UIAlertController
+                                 alertControllerWithTitle:@"Edit measurement"
+                                 message:message
+                                 preferredStyle:UIAlertControllerStyleAlert];
+
+    UIAlertAction* save = [UIAlertAction actionWithTitle:@"Save" style:UIAlertActionStyleDefault
+                                                 handler:^(UIAlertAction * action)
+                           {
+                               UITextField * nameTextField = alert.textFields[0];
+                               UITextField * lengthTextField = alert.textFields[1];
+                               UITextField * plTextField = alert.textFields[2];
+                               NSString * newName = basename;
+                               if(nameTextField.hasText)
+                                   newName = nameTextField.text;
+                               NSString * newFilename = [NSString stringWithFormat:@"%@_%@_%@_%@Hz.capture", newName, widthText, heightText, frameRateText];
+                               if(lengthTextField.hasText)
+                                   newFilename = [NSString stringWithFormat:@"%@_L%@", newFilename, lengthTextField.text];
+                               if(plTextField.hasText)
+                                   newFilename = [NSString stringWithFormat:@"%@_PL%@", newFilename, plTextField.text];
+                               NSString * newPath = [NSString pathWithComponents:[NSArray arrayWithObjects:path, newFilename, nil]];
+                               [[NSFileManager defaultManager] moveItemAtPath:fileURL.path toPath:newPath error:nil];
+                               [alert dismissViewControllerAnimated:YES completion:nil];
+                           }];
+    UIAlertAction* delete = [UIAlertAction actionWithTitle:@"Delete" style:UIAlertActionStyleDestructive
+                                                   handler:^(UIAlertAction * action)
+                             {
+                                 [[NSFileManager defaultManager] removeItemAtPath:fileURL.path error:nil];
+                                 [alert dismissViewControllerAnimated:YES completion:nil];
+                             }];
+
+    [alert addTextFieldWithConfigurationHandler:^(UITextField *textField)
+     {
+         textField.placeholder = @"Filename";
+         textField.text = basename;
+     }];
+
+    [alert addTextFieldWithConfigurationHandler:^(UITextField *textField)
+     {
+         textField.placeholder = @"Length in cm";
+         textField.keyboardType = UIKeyboardTypeDecimalPad;
+     }];
+
+    [alert addTextFieldWithConfigurationHandler:^(UITextField *textField)
+     {
+         textField.placeholder = @"Path length in cm";
+         textField.keyboardType = UIKeyboardTypeDecimalPad;
+     }];
+
+    [alert addAction:save];
+    [alert addAction:delete];
+
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
 - (void) captureDidStop
 {
+    [self presentRenameAlert];
     [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
     [startStopButton setEnabled:true];
     [frameRateSelector setHidden:false];
     [resolutionSelector setHidden:false];
-    AppDelegate * app = (AppDelegate *)[[UIApplication sharedApplication] delegate];
-    [app startFromHome];
 }
 
 - (IBAction)cameraConfigureClick:(id)sender
@@ -124,9 +194,9 @@
 {
     if (!isStarted)
     {
-        NSURL * fileurl = [AppDelegate timeStampedURLWithSuffix:[NSString stringWithFormat:@"_%d_%d_%dHz.capture", width, height, framerate]];
+        fileURL = [AppDelegate timeStampedURLWithSuffix:[NSString stringWithFormat:@"_%d_%d_%dHz.capture", width, height, framerate]];
         [startStopButton setTitle:@"Starting..." forState:UIControlStateNormal];
-        [captureController startCaptureWithPath:fileurl.path withDelegate:self];
+        [captureController startCaptureWithPath:fileURL.path withDelegate:self];
     }
     else
     {

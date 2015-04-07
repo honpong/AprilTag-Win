@@ -47,7 +47,7 @@
 
 - (void) startFromReplay
 {
-    UIStoryboard * mainStoryBoard = [UIStoryboard storyboardWithName:@"Main_iPhone" bundle:nil];
+    UIStoryboard * mainStoryBoard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
     ReplayViewController * rc = (ReplayViewController *)[mainStoryBoard instantiateViewControllerWithIdentifier:@"ReplayView"];
     self.window.rootViewController = rc;
 }
@@ -63,14 +63,14 @@
 
 - (void) startFromCapture
 {
-    UIStoryboard * mainStoryBoard = [UIStoryboard storyboardWithName:@"Main_iPhone" bundle:nil];
+    UIStoryboard * mainStoryBoard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
     ReplayViewController * rc = (ReplayViewController *)[mainStoryBoard instantiateViewControllerWithIdentifier:@"CaptureView"];
     self.window.rootViewController = rc;
 }
 
 - (void) startFromLive
 {
-    UIStoryboard * mainStoryBoard = [UIStoryboard storyboardWithName:@"Main_iPhone" bundle:nil];
+    UIStoryboard * mainStoryBoard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
     ReplayViewController * rc = (ReplayViewController *)[mainStoryBoard instantiateViewControllerWithIdentifier:@"LiveView"];
     self.window.rootViewController = rc;
 }

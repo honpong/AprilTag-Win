@@ -10,6 +10,7 @@
 #define __QUATERNION_H
 
 #include "vec4.h"
+#include "sinc.h"
 #include "rotation.h"
 #include "rotation_vector.h"
 
@@ -280,17 +281,16 @@ static inline quaternion to_quaternion(const m4 &m)
 }
 
 static inline quaternion to_quaternion(const rotation_vector &v) {
-    f_t theta2 = v.x()*v.x() + v.y()*v.y() + v.z()*v.z();
-    f_t theta = sqrt(theta2);
-    f_t sinterm = (theta2 * theta2 < 3840 * F_T_EPS) ? .5 - theta2 / 48. : sin(.5 * theta) / theta;
-    return quaternion(cos(theta * .5), sinterm * v.x(), sinterm * v.y(), sinterm * v.z());
+    rotation_vector w(.5 * v.x(), .5 * v.y(), .5 * v.z());
+    f_t th2, th = sqrt(th2=w.norm2()), C = cos(th), S = sinc(th,th2);
+    return quaternion(C, S * w.x(), S * w.y(), S * w.z()); // e^(v/2)
 }
 
 static inline rotation_vector to_rotation_vector(const quaternion &q) {
     f_t denom = sqrt(q.x()*q.x() + q.y()*q.y() + q.z()*q.z());
     if(denom == 0.) return rotation_vector(q.x(), q.y(), q.z());
     f_t scale = 2. * acos(q.w()) / denom;
-    return rotation_vector(q.x() * scale, q.y() * scale, q.z() * scale);
+    return rotation_vector(q.x() * scale, q.y() * scale, q.z() * scale); // 2 log(q)
 }
 
 static inline rotation_vector to_rotation_vector(const m4 &R)

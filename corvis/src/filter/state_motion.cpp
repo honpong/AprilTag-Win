@@ -13,8 +13,8 @@ void state_motion_orientation::cache_jacobians(f_t dt)
     m4 dWp_dwdt;
     dW = (w.v + dt/2. * dw.v) * dt;
     integrate_angular_velocity_jacobian(W.v, dW, dWp_dW, dWp_ddW);
-    Rt = transpose(to_rotation_matrix(W.v));
-    dRt_dW = transpose(to_rotation_matrix_jacobian(W.v));
+    Rt = to_rotation_matrix(-W.v);
+    Rt_dR_dW = to_body_jacobian(W.v);
 }
 
 void state_motion_orientation::project_motion_covariance(matrix &dst, const matrix &src, f_t dt)

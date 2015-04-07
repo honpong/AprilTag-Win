@@ -239,20 +239,19 @@ void observation_vision_feature::cache_jacobians()
     v4 dX_dk2 = Rtot * v4(-X0[0] / kr * (r2 * r2), -X0[1] / kr * (r2 * r2), 0., 0.);
 #endif
     
-    m4v4 dRr_dWr = to_rotation_matrix_jacobian(state_group->Wr.v);
-    m4v4 dRrt_dWr = transpose(dRr_dWr);
+    v4 RtotX0 = Rtot * X0;
+    m4 Rrt_dRr_dWr = to_body_jacobian(state_group->Wr.v);
 #if estimate_camera_extrinsics
-    m4v4 dRc_dWc = to_rotation_matrix_jacobian(state.Wc.v);
-    m4v4 dRct_dWc = transpose(dRc_dWc);
+    m4 Rct_dRc_dWc = to_body_jacobian(state.Wc.v);
 #endif
     
-    m4v4 dRtot_dWr  = Rct * dRrt_dWr * Rc;
-    m4 dTtot_dWr  = Rct * (dRrt_dWr * (state.Tc.v - state_group->Tr.v));
+    m4 dRtotX0_dWr = skew3(RtotX0) * (Rct * Rrt_dRr_dWr);
+    m4 dTtot_dWr = Rct * skew3(Rrt * (state.Tc.v - state_group->Tr.v)) * Rrt_dRr_dWr;
     m4 dTtot_dTr = -Rct * Rrt;
 #if estimate_camera_extrinsics
-    m4v4 dRtot_dWc = dRct_dWc * (Rrt * Rc) + (Rct * Rrt) * dRc_dWc;
-    m4 dTtot_dWc = dRct_dWc * (Rc * Ttot);
-    m4 dTtot_dTc = Rct * Rrt - Rct;
+    m4 dRtotX0_dWc = skew3(RtotX0) * (Rct_dRc_dWc - Rtot * Rct_dRc_dWc);
+    m4 dTtot_dWc = skew3(Ttot) * Rct_dRc_dWc;
+    m4 dTtot_dTc = Rct * (Rrt - m4_identity);
 #endif
     
     state.fill_calibration(norm_predicted, r2, kr);
@@ -267,11 +266,11 @@ void observation_vision_feature::cache_jacobians()
     f_t invrho = feature->v.invdepth();
     if(!feature->is_initialized()) {
 #if estimate_camera_extrinsics
-        dx_dWc = dx_dX * (dRtot_dWc * X0);
-        dy_dWc = dy_dX * (dRtot_dWc * X0);
+        dx_dWc = dx_dX * dRtotX0_dWc;
+        dy_dWc = dy_dX * dRtotX0_dWc;
 #endif
-        dx_dWr = dx_dX * (dRtot_dWr * X0);
-        dy_dWr = dy_dX * (dRtot_dWr * X0);
+        dx_dWr = dx_dX * dRtotX0_dWr;
+        dy_dWr = dy_dX * dRtotX0_dWr;
         //dy_dT = m4(0.);
         //dy_dT = m4(0.);
         //dy_dTr = m4(0.);
@@ -288,14 +287,14 @@ void observation_vision_feature::cache_jacobians()
         dy_dcx = sum(dy_dX * dX_dcx);
         dy_dcy = 1. + sum(dy_dX * dX_dcy);
 #endif
-        dx_dWr = dx_dX * (dRtot_dWr * X0 + dTtot_dWr * invrho);
+        dx_dWr = dx_dX * (dRtotX0_dWr + dTtot_dWr * invrho);
         dx_dTr = dx_dX * dTtot_dTr * invrho;
-        dy_dWr = dy_dX * (dRtot_dWr * X0 + dTtot_dWr * invrho);
+        dy_dWr = dy_dX * (dRtotX0_dWr + dTtot_dWr * invrho);
         dy_dTr = dy_dX * dTtot_dTr * invrho;
 #if estimate_camera_extrinsics
-        dx_dWc = dx_dX * (dRtot_dWc * X0 + dTtot_dWc * invrho);
+        dx_dWc = dx_dX * (dRtotX0_dWc + dTtot_dWc * invrho);
         dx_dTc = dx_dX * dTtot_dTc * invrho;
-        dy_dWc = dy_dX * (dRtot_dWc * X0 + dTtot_dWc * invrho);
+        dy_dWc = dy_dX * (dRtotX0_dWc + dTtot_dWc * invrho);
         dy_dTc = dy_dX * dTtot_dTc * invrho;
 #endif
 
@@ -524,13 +523,13 @@ void observation_accelerometer::predict()
 
 void observation_accelerometer::cache_jacobians()
 {
-    dR_dW = to_rotation_matrix_jacobian(state.W.v);
     v4 acc = v4(0., 0., state.g.v, 0.);
     if(!state.orientation_only)
     {
         acc += state.a.v;
     }
-    dya_dW = transpose(dR_dW) * acc;
+    m4 Rt_dR_dW = to_body_jacobian(state.W.v);
+    da_dW = skew3(Rt * acc) * Rt_dR_dW;
 }
 
 void observation_accelerometer::project_covariance(matrix &dst, const matrix &src)
@@ -544,7 +543,7 @@ void observation_accelerometer::project_covariance(matrix &dst, const matrix &sr
             v4 cov_W = state.W.copy_cov_from_row(src, j);
             v4 cov_a = state.a.copy_cov_from_row(src, j);
             f_t cov_g = state.g.copy_cov_from_row(src, j);
-            v4 res = cov_a_bias + dya_dW * cov_W + Rt * (cov_a + v4(0., 0., cov_g, 0.));
+            v4 res = cov_a_bias + da_dW * cov_W + Rt * (cov_a + v4(0., 0., cov_g, 0.));
             for(int i = 0; i < 3; ++i) {
                 dst(i, j) = res[i];
             }
@@ -553,7 +552,7 @@ void observation_accelerometer::project_covariance(matrix &dst, const matrix &sr
         for(int j = 0; j < dst.cols; ++j) {
             v4 cov_a_bias = state.a_bias.copy_cov_from_row(src, j);
             v4 cov_W = state.W.copy_cov_from_row(src, j);
-            v4 res = state.estimate_bias ? cov_a_bias + dya_dW * cov_W : dya_dW * cov_W;
+            v4 res = (state.estimate_bias ? cov_a_bias : v4(0,0,0,0)) + da_dW * cov_W;
             for(int i = 0; i < 3; ++i) {
                 dst(i, j) = res[i];
             }

@@ -165,7 +165,7 @@ class state_vision_group: public state_branch<state_node *> {
     static f_t min_feats;
     
     //cached data
-    m4 Rr;    
+    m4 Rr;
     m4 dWrp_dWr, dWrp_ddW;
     m4 dTrp_dV, dTrp_dWr, dTrp_dW;
 };

@@ -110,9 +110,7 @@ class observation_spatial: public observation_storage<3> {
 class observation_accelerometer: public observation_spatial {
 protected:
     state_motion &state;
-    m4 Rt;
-    m4v4 dR_dW;
-    m4 dya_dW;
+    m4 Rt, da_dW;
  public:
     static stdev_vector stdev, inn_stdev;
     virtual void predict();

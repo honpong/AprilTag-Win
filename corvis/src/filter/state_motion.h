@@ -49,8 +49,7 @@ protected:
     virtual void evolve_state(f_t dt);
     void evolve_covariance(f_t dt);
     virtual void cache_jacobians(f_t dt);
-    m4 Rt;
-    m4v4 dRt_dW;
+    m4 Rt, Rt_dR_dW;
     v4 dW;
 private:
     f_t gravity_magnitude;

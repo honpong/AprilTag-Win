@@ -75,16 +75,14 @@
     }
 }
 
-- (void) startVideoCapture:(AVCaptureSession *)avSession withDevice:(AVCaptureDevice *)avDevice withMaxFrameRate:(int)maxFrameRate
+- (void) startVideoCaptureAutofocus
 {
-    [[RCAVSessionManager sharedInstance] configureCameraForFrameRate:avDevice withMaxFrameRate:maxFrameRate withWidth:640 withHeight:480];
-    AVCaptureVideoDataOutput* avOutput = [[AVCaptureVideoDataOutput alloc] init];
+    session = [RCAVSessionManager sharedInstance].session;
+    device = [RCAVSessionManager sharedInstance].videoDevice;
+
+    output = [[AVCaptureVideoDataOutput alloc] init];
     [output setAlwaysDiscardsLateVideoFrames:YES];
     [output setVideoSettings:@{(id)kCVPixelBufferPixelFormatTypeKey: [NSNumber numberWithInt:'420f']}];
-
-    session = avSession;
-    output = avOutput;
-    device = avDevice;
 
     [device addObserver:self forKeyPath:@"adjustingFocus" options:NSKeyValueObservingOptionNew context:nil];
     if(![device isFocusModeSupported:AVCaptureFocusModeAutoFocus]) {
@@ -287,7 +285,7 @@ packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
     });
 }
 
-- (void)startCapture:(NSString *)path withSession:(AVCaptureSession *)avSession withDevice:(AVCaptureDevice *)avDevice withMaxFrameRate:(int)maxFrameRate withDelegate:(id<RCCaptureManagerDelegate>)captureDelegate
+- (void)startCaptureWithPath:(NSString *)path withDelegate:(id<RCCaptureManagerDelegate>)captureDelegate;
 {
     if (isCapturing) return;
 
@@ -296,7 +294,7 @@ packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
     self.delegate = captureDelegate;
     [self startMotionCapture];
     // isCapturing is set after focus finishes
-    [self startVideoCapture:avSession withDevice:avDevice withMaxFrameRate:maxFrameRate];
+    [self startVideoCaptureAutofocus];
 }
 
 - (void) stopCapture

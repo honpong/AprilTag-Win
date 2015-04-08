@@ -15,6 +15,7 @@
 		32D9863F18EB747100CFCB7A /* RCCalibration1.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D9863518EB747100CFCB7A /* RCCalibration1.m */; };
 		32D9864018EB747100CFCB7A /* RCCalibration2.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D9863718EB747100CFCB7A /* RCCalibration2.m */; };
 		32D9864118EB747100CFCB7A /* RCCalibration3.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D9863918EB747100CFCB7A /* RCCalibration3.m */; };
+		D300B7A51AD5805600517DC2 /* CaptureFilename.m in Sources */ = {isa = PBXBuildFile; fileRef = D300B7A41AD5805600517DC2 /* CaptureFilename.m */; };
 		D310779E18B3A74300722B92 /* ReplayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D310779D18B3A74300722B92 /* ReplayViewController.m */; };
 		D31419A418BBB0E100C29E28 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D31419A318BBB0E100C29E28 /* MainViewController.m */; };
 		D330DD9517F590F3006BA4B2 /* libRCCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D372EC0717F5874B001A987A /* libRCCore.a */; };
@@ -24,7 +25,6 @@
 		D33A23EE17F58700003ACD42 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = D33A23EC17F58700003ACD42 /* InfoPlist.strings */; };
 		D33A23F017F58700003ACD42 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D33A23EF17F58700003ACD42 /* main.m */; };
 		D33A23F417F58700003ACD42 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D33A23F317F58700003ACD42 /* AppDelegate.m */; };
-		D33A23F717F58700003ACD42 /* Main_iPhone.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D33A23F517F58700003ACD42 /* Main_iPhone.storyboard */; };
 		D33A23FD17F58700003ACD42 /* CaptureViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D33A23FC17F58700003ACD42 /* CaptureViewController.m */; };
 		D33A23FF17F58700003ACD42 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D33A23FE17F58700003ACD42 /* Images.xcassets */; };
 		D3A6AAD718CDDE5C0075AA78 /* RoundedButton.m in Sources */ = {isa = PBXBuildFile; fileRef = D3A6AAD018CDDE5C0075AA78 /* RoundedButton.m */; };
@@ -33,6 +33,7 @@
 		D3A6AADA18CDDE5C0075AA78 /* WorldState.m in Sources */ = {isa = PBXBuildFile; fileRef = D3A6AAD618CDDE5C0075AA78 /* WorldState.m */; };
 		D3A6AAE018CDE4B30075AA78 /* Shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = D3A6AADC18CDE4A10075AA78 /* Shader.fsh */; };
 		D3A6AAE118CDE4B30075AA78 /* Shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = D3A6AADD18CDE4A10075AA78 /* Shader.vsh */; };
+		D3BE9F0F1AD4363D00A88F5B /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D3BE9F0D1AD4363D00A88F5B /* Main.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -72,6 +73,7 @@
 		32D9863718EB747100CFCB7A /* RCCalibration2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration2.m; sourceTree = "<group>"; };
 		32D9863818EB747100CFCB7A /* RCCalibration3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration3.h; sourceTree = "<group>"; };
 		32D9863918EB747100CFCB7A /* RCCalibration3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration3.m; sourceTree = "<group>"; };
+		D300B7A41AD5805600517DC2 /* CaptureFilename.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CaptureFilename.m; sourceTree = "<group>"; };
 		D310779C18B3A74300722B92 /* ReplayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplayViewController.h; sourceTree = "<group>"; };
 		D310779D18B3A74300722B92 /* ReplayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReplayViewController.m; sourceTree = "<group>"; };
 		D31419A218BBB0E100C29E28 /* MainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainViewController.h; sourceTree = "<group>"; };
@@ -86,11 +88,11 @@
 		D33A23F117F58700003ACD42 /* RCUtility-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RCUtility-Prefix.pch"; sourceTree = "<group>"; };
 		D33A23F217F58700003ACD42 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		D33A23F317F58700003ACD42 /* AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
-		D33A23F617F58700003ACD42 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main_iPhone.storyboard; sourceTree = "<group>"; };
 		D33A23FB17F58700003ACD42 /* CaptureViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CaptureViewController.h; sourceTree = "<group>"; };
 		D33A23FC17F58700003ACD42 /* CaptureViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; lineEnding = 0; path = CaptureViewController.m; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objc; };
 		D33A23FE17F58700003ACD42 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		D372EC0017F5874A001A987A /* RCCore.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCCore.xcodeproj; path = ../rccore/RCCore.xcodeproj; sourceTree = "<group>"; };
+		D3A65FBD1AD57C60009DA92A /* CaptureFilename.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CaptureFilename.h; sourceTree = "<group>"; };
 		D3A6AACF18CDDE5C0075AA78 /* RoundedButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RoundedButton.h; sourceTree = "<group>"; };
 		D3A6AAD018CDDE5C0075AA78 /* RoundedButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RoundedButton.m; sourceTree = "<group>"; };
 		D3A6AAD118CDDE5C0075AA78 /* ArcBall.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ArcBall.h; sourceTree = "<group>"; };
@@ -101,6 +103,7 @@
 		D3A6AAD618CDDE5C0075AA78 /* WorldState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WorldState.m; sourceTree = "<group>"; };
 		D3A6AADC18CDE4A10075AA78 /* Shader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Shader.fsh; sourceTree = "<group>"; };
 		D3A6AADD18CDE4A10075AA78 /* Shader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Shader.vsh; sourceTree = "<group>"; };
+		D3BE9F0E1AD4363D00A88F5B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = RCUtility/Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		D3C573791A77BAD100F05746 /* RC3DK.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RC3DK.h; path = ../RC3DK.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -188,13 +191,15 @@
 		D33A23E917F58700003ACD42 /* RCUtility */ = {
 			isa = PBXGroup;
 			children = (
+				D3A65FBD1AD57C60009DA92A /* CaptureFilename.h */,
+				D300B7A41AD5805600517DC2 /* CaptureFilename.m */,
 				32D9862D18EB747100CFCB7A /* Calibration */,
 				D3A6AACE18CDD95D0075AA78 /* Live */,
 				D31419A118BBAD4B00C29E28 /* Capture */,
 				D310779F18B3D91400722B92 /* Replay */,
+				D3BE9F0D1AD4363D00A88F5B /* Main.storyboard */,
 				D33A23F217F58700003ACD42 /* AppDelegate.h */,
 				D33A23F317F58700003ACD42 /* AppDelegate.m */,
-				D33A23F517F58700003ACD42 /* Main_iPhone.storyboard */,
 				D31419A218BBB0E100C29E28 /* MainViewController.h */,
 				D31419A318BBB0E100C29E28 /* MainViewController.m */,
 				D3A6AACF18CDDE5C0075AA78 /* RoundedButton.h */,
@@ -328,10 +333,10 @@
 				D3A6AAE018CDE4B30075AA78 /* Shader.fsh in Resources */,
 				D3A6AAE118CDE4B30075AA78 /* Shader.vsh in Resources */,
 				D33A23FF17F58700003ACD42 /* Images.xcassets in Resources */,
-				D33A23F717F58700003ACD42 /* Main_iPhone.storyboard in Resources */,
 				32D9863C18EB747100CFCB7A /* holding_portrait.jpg in Resources */,
 				32D9863D18EB747100CFCB7A /* ipad_on_table.jpg in Resources */,
 				D33A23EE17F58700003ACD42 /* InfoPlist.strings in Resources */,
+				D3BE9F0F1AD4363D00A88F5B /* Main.storyboard in Resources */,
 				32D9863B18EB747100CFCB7A /* holding_landscape.jpg in Resources */,
 				32D9863A18EB747100CFCB7A /* Calibration.storyboard in Resources */,
 			);
@@ -351,6 +356,7 @@
 				D3A6AADA18CDDE5C0075AA78 /* WorldState.m in Sources */,
 				D3A6AAD918CDDE5C0075AA78 /* VisualizationController.m in Sources */,
 				D33A23FD17F58700003ACD42 /* CaptureViewController.m in Sources */,
+				D300B7A51AD5805600517DC2 /* CaptureFilename.m in Sources */,
 				32D9863F18EB747100CFCB7A /* RCCalibration1.m in Sources */,
 				D33A23F417F58700003ACD42 /* AppDelegate.m in Sources */,
 				D33A23F017F58700003ACD42 /* main.m in Sources */,
@@ -379,12 +385,13 @@
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
-		D33A23F517F58700003ACD42 /* Main_iPhone.storyboard */ = {
+		D3BE9F0D1AD4363D00A88F5B /* Main.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				D33A23F617F58700003ACD42 /* Base */,
+				D3BE9F0E1AD4363D00A88F5B /* Base */,
 			);
-			name = Main_iPhone.storyboard;
+			name = Main.storyboard;
+			path = ..;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -475,7 +482,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRIP_INSTALLED_PRODUCT = NO;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -493,7 +500,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRIP_INSTALLED_PRODUCT = NO;
-				TARGETED_DEVICE_FAMILY = 1;
+				TARGETED_DEVICE_FAMILY = "1,2";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

@@ -30,7 +30,7 @@
     [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:handler];
 }
 
-- (void)configureCameraForFrameRate:(AVCaptureDevice *)capdevice withMaxFrameRate:(int)rate withWidth:(int)width withHeight:(int)height
+- (void) configureCameraWithFrameRate:(int)rate withWidth:(int)width withHeight:(int)height
 {
     CMTime minFrameDuration = CMTimeMake(1, rate);
     AVCaptureDeviceFormat *bestFormat = nil;
@@ -40,7 +40,7 @@
     AVCaptureDeviceFormat *vga = nil;
 
     //Identify VGA mode and get resolution / 420f matches
-    for ( AVCaptureDeviceFormat *format in [capdevice formats] ) {
+    for ( AVCaptureDeviceFormat *format in [videoDevice formats] ) {
         CMVideoDimensions sz = CMVideoFormatDescriptionGetDimensions(format.formatDescription);
         FourCharCode fcc = CMVideoFormatDescriptionGetCodecType(format.formatDescription);
         if(sz.width == width && sz.height == height && fcc == '420f') {
@@ -92,15 +92,15 @@
     
     if ( bestFormat ) {
         DLog(@"Best format found:\n%@", bestFormat.description);
-        if ( [capdevice lockForConfiguration:NULL] == YES ) {
+        if ( [videoDevice lockForConfiguration:NULL] == YES ) {
             // If our desired rate is faster than the fastest rate we can set then
             // use the fastest one we can set instead
             if(CMTimeCompare(minFrameDuration, bestFrameRateRange.minFrameDuration) < 0)
                 minFrameDuration = bestFrameRateRange.minFrameDuration;
-            capdevice.activeFormat = bestFormat;
-            capdevice.activeVideoMinFrameDuration = minFrameDuration;
-            capdevice.activeVideoMaxFrameDuration = minFrameDuration;
-            [capdevice unlockForConfiguration];
+            videoDevice.activeFormat = bestFormat;
+            videoDevice.activeVideoMinFrameDuration = minFrameDuration;
+            videoDevice.activeVideoMaxFrameDuration = minFrameDuration;
+            [videoDevice unlockForConfiguration];
         }
     }
     else
@@ -143,7 +143,7 @@
     [self endSession];
 }
 
-- (void) addInputToSession
+- (void) addInputToSessionWithFrameRate:(int)frameRate withWidth:(int)width withHeight:(int)height
 {
     videoDevice = [self cameraWithPosition:AVCaptureDevicePositionBack];
 
@@ -174,14 +174,14 @@
         if([videoDevice isWhiteBalanceModeSupported:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance])
             [videoDevice setWhiteBalanceMode:AVCaptureWhiteBalanceModeContinuousAutoWhiteBalance];
         [videoDevice unlockForConfiguration];
-        [self configureCameraForFrameRate:videoDevice withMaxFrameRate:30 withWidth:640 withHeight:480];
+        [self configureCameraWithFrameRate:frameRate withWidth:width withHeight:height];
     } else {
         DLog(@"error while configuring camera");
         return;
     }
 }
 
-- (BOOL) startSession
+- (BOOL) startSessionWithFrameRate:(int)frameRate withWidth:(int)width withHeight:(int)height
 {
     LOGME
     
@@ -191,11 +191,16 @@
         return false;
     }
     
-    if(!hasInput) [self addInputToSession];
+    if(!hasInput) [self addInputToSessionWithFrameRate:frameRate withWidth:width withHeight:height];
     
     if (![session isRunning]) [session startRunning];
     
     return true;
+}
+
+- (BOOL) startSession
+{
+    return [self startSessionWithFrameRate:30 withWidth:640 withHeight:480];
 }
 
 - (void) endSession

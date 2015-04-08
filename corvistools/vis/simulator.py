@@ -11,7 +11,7 @@ class simulator_ground_truth:
     def receive_packet(self, packet):
         if packet.header.type == cor.packet_ground_truth:
            self.positions.append(packet.T[:])
-           self.rotation = packet.rotation[:]
+           self.rotations.append(packet.rotation[:])
 
     def render(self):
         if len(self.rotations) == 0:
@@ -27,8 +27,8 @@ class simulator_ground_truth:
         glPushAttrib(GL_ENABLE_BIT)
 
         glEnable(GL_LINE_STIPPLE)
-        axis = self.rotation[:3] 
-        angle = self.rotation[3] * 180. / pi
+        axis = self.rotations[-1][:3]
+        angle = self.rotations[-1][3] * 180. / pi
         glTranslatef(self.positions[-1][0], self.positions[-1][1], self.positions[-1][2]);
         glRotatef(angle, axis[0], axis[1], axis[2])
         glLineStipple(3, 0xAAAA)

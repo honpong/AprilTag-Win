@@ -22,7 +22,7 @@
 
 @property (weak, nonatomic) id<RCReplayManagerDelegate> delegate;
 
-- (void)setupWithPath:(NSString *)path withRealtime:(BOOL)isRealtime;
+- (void)setupWithPath:(NSString *)path withRealtime:(BOOL)isRealtime withWidth:(int)width withHeight:(int)height withFramerate:(int)framerate;
 - (void)startReplay;
 - (void)stopReplay;
 

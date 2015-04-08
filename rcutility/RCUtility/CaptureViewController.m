@@ -9,6 +9,7 @@
 #import <RCCore/RCCore.h>
 #import "CaptureViewController.h"
 #import "AppDelegate.h"
+#import "CaptureFilename.h"
 
 @interface CaptureViewController ()
 {
@@ -94,17 +95,9 @@
 {
     NSString * path = [fileURL.path stringByDeletingLastPathComponent];
     NSString * filename = [fileURL.path lastPathComponent];
-    NSString * basename = nil, *widthText, *heightText, *frameRateText;
 
-    NSRegularExpression * filename_parse = [NSRegularExpression regularExpressionWithPattern:@"(.*)_(\\d+)_(\\d+)_(\\d+)Hz.capture" options:0 error:nil];
-    NSArray * matches = [filename_parse matchesInString:filename options:0 range:NSMakeRange(0, filename.length)];
-    for(NSTextCheckingResult* match in matches) {
-        basename = [filename substringWithRange:[match rangeAtIndex:1]];
-        widthText = [filename substringWithRange:[match rangeAtIndex:2]];
-        heightText = [filename substringWithRange:[match rangeAtIndex:3]];
-        frameRateText = [filename substringWithRange:[match rangeAtIndex:4]];
-    }
-    NSString * message = [NSString stringWithFormat:@"Add a length, path length, or rename\n%@x%@ @ %@Hz", widthText, heightText, frameRateText];
+    NSMutableDictionary * parameters = [NSMutableDictionary dictionaryWithDictionary:[CaptureFilename parseFilename:filename]];
+    NSString * message = [NSString stringWithFormat:@"Add a length, path length, or rename\n%@x%@ @ %@Hz", parameters[@"width"], parameters[@"height"], parameters[@"framerate"]];
 
     UIAlertController * alert = [UIAlertController
                                  alertControllerWithTitle:@"Edit measurement"
@@ -117,14 +110,13 @@
                                UITextField * nameTextField = alert.textFields[0];
                                UITextField * lengthTextField = alert.textFields[1];
                                UITextField * plTextField = alert.textFields[2];
-                               NSString * newName = basename;
                                if(nameTextField.hasText)
-                                   newName = nameTextField.text;
-                               NSString * newFilename = [NSString stringWithFormat:@"%@_%@_%@_%@Hz.capture", newName, widthText, heightText, frameRateText];
+                                   parameters[@"basename"] = nameTextField.text;
                                if(lengthTextField.hasText)
-                                   newFilename = [NSString stringWithFormat:@"%@_L%@", newFilename, lengthTextField.text];
+                                   parameters[@"length"] = lengthTextField.text;
                                if(plTextField.hasText)
-                                   newFilename = [NSString stringWithFormat:@"%@_PL%@", newFilename, plTextField.text];
+                                   parameters[@"pathlength"] = plTextField.text;
+                               NSString * newFilename = [CaptureFilename filenameFromParameters:parameters];
                                NSString * newPath = [NSString pathWithComponents:[NSArray arrayWithObjects:path, newFilename, nil]];
                                [[NSFileManager defaultManager] moveItemAtPath:fileURL.path toPath:newPath error:nil];
                                [alert dismissViewControllerAnimated:YES completion:nil];
@@ -139,7 +131,7 @@
     [alert addTextFieldWithConfigurationHandler:^(UITextField *textField)
      {
          textField.placeholder = @"Filename";
-         textField.text = basename;
+         textField.text = parameters[@"basename"];
      }];
 
     [alert addTextFieldWithConfigurationHandler:^(UITextField *textField)

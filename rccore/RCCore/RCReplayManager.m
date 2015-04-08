@@ -333,7 +333,7 @@ packet_t * packet_read(FILE * file)
     }
 }
 
-- (void)setupWithPath:(NSString *)path withRealtime:(BOOL)realtime
+- (void)setupWithPath:(NSString *)path withRealtime:(BOOL)realtime withWidth:(int)_width withHeight:(int)_height withFramerate:(int)_framerate
 {
     NSLog(@"Setup replay with %@", path);
 
@@ -346,9 +346,9 @@ packet_t * packet_read(FILE * file)
     packetsDispatched = 0;
     bytesDispatched = 0;
     currentProgress = 0;
-    width = 640;
-    height = 480;
-    framerate = 30;
+    width = _width;
+    height = _height;
+    framerate = _framerate;
     isRealtime = realtime;
 }
 

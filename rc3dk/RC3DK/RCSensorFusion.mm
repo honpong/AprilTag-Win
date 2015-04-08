@@ -193,10 +193,13 @@ uint64_t get_timestamp()
     });
 }
 
-- (void) startReplay
+- (void) startReplayWithRealtime:(bool)realtime withWidth:(int)width withHeight:(int)height withFramerate:(int)framerate
 {
     dispatch_sync(queue, ^{
-        _cor_setup->sfm.ignore_lateness = true;
+        _cor_setup->sfm.ignore_lateness = !realtime;
+        device_set_resolution(&_cor_setup->device, width, height);
+        device_set_framerate(&_cor_setup->device, framerate);
+        filter_initialize(&_cor_setup->sfm, _cor_setup->device);
     });
 }
 

@@ -81,6 +81,7 @@ public:
     
     void start_async(bool expect_camera);
     void start_sync(bool expect_camera);
+    void start_offline(bool expect_camera);
     void stop_async();
     void stop_sync();
     void wait_until_finished();
@@ -90,6 +91,7 @@ public:
     void receive_gyro(gyro_data&& x);
     void dispatch_sync(std::function<void()> fn);
     void dispatch_async(std::function<void()> fn);
+    bool dispatch_offline(bool force);
     
 private:
     void runloop();

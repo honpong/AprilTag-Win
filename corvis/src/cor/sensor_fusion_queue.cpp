@@ -92,6 +92,7 @@ fusion_queue::fusion_queue(const std::function<void(const camera_data &)> &camer
                 camera_queue(mutex, cond, active, cam_period),
                 control_func(nullptr),
                 active(false),
+                wait_for_camera(true),
                 strategy(s),
                 camera_period_expected(cam_period),
                 inertial_period_expected(inertial_period),
@@ -139,6 +140,12 @@ void fusion_queue::start_sync(bool expect_camera)
             cond.wait(lock);
         }
     }
+}
+
+void fusion_queue::start_offline(bool expect_camera)
+{
+    wait_for_camera = expect_camera;
+    active = true;
 }
 
 void fusion_queue::stop_async()
@@ -311,3 +318,12 @@ bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock, bool force)
     else return false;
     return true;
 }
+
+bool fusion_queue::dispatch_offline(bool force)
+{
+    std::unique_lock<std::mutex> lock(mutex);
+    bool ret = dispatch_next(lock, force);
+    lock.unlock();
+    return ret;
+}
+

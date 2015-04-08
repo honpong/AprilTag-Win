@@ -337,11 +337,11 @@ void state_vision::cache_jacobians(f_t dt)
 
     for(state_vision_group *g : groups.children) {
         integrate_angular_velocity_jacobian(g->Wr.v, dW, g->dWrp_dWr, g->dWrp_ddW);
+        m4 Rrt_dRr_dWr = to_body_jacobian(g->Wr.v);
         g->Rr = to_rotation_matrix(g->Wr.v);
-        m4v4 dRr_dWr = to_rotation_matrix_jacobian(g->Wr.v);
         g->dTrp_dV = g->Rr * Rt * dt;
-        g->dTrp_dWr = dRr_dWr * Rt * dT;
-        g->dTrp_dW = g->Rr * dRt_dW * dT;
+        g->dTrp_dWr = g->Rr * skew3(Rt * -dT) * Rrt_dRr_dWr;
+        g->dTrp_dW = g->Rr * skew3(Rt * dT) * Rt_dR_dW;
     }
 }
 

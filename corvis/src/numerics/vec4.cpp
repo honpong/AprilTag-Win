@@ -7,7 +7,6 @@
 #include "vec4.h"
 #include <assert.h>
 #include "float.h"
-#include "quaternion.h"
 
 const m4 m4_identity = { {
         v4(1, 0, 0, 0),
@@ -16,105 +15,6 @@ const m4 m4_identity = { {
         v4(0, 0, 0, 1)
     }
 };
-
-const m4v4 skew3_jacobian = { {
-    {{v4(0., 0., 0., 0.), v4(0., 0.,-1., 0.), v4( 0., 1., 0., 0.), v4(0., 0., 0., 0.)}},
-    {{v4(0., 0., 1., 0.), v4(0., 0., 0., 0.), v4(-1., 0., 0., 0.), v4(0., 0., 0., 0.)}},
-    {{v4(0.,-1., 0., 0.), v4(1., 0., 0., 0.), v4( 0., 0., 0., 0.), v4(0., 0., 0., 0.)}},
-    {{v4(0., 0., 0., 0.), v4(0., 0., 0., 0.), v4( 0., 0., 0., 0.), v4(0., 0., 0., 0.)}}
-}
-};
-
-const v4m4 invskew3_jacobian = { {
-    {{v4(0., 0., 0., 0.),
-      v4(0., 0.,-.5, 0.),
-      v4(0., .5, 0., 0.),
-      v4(0., 0., 0., 0.)}},
-    
-    {{v4(0., 0., .5, 0.),
-      v4(0., 0., 0., 0.),
-      v4(-.5, 0., 0.,0.),
-      v4(0., 0., 0., 0.)}},
-    
-    {{v4(0.,-.5, 0., 0.),
-      v4(.5, 0., 0., 0.),
-      v4(0., 0., 0., 0.),
-      v4(0., 0., 0., 0.)}},
-    
-    {{v4(0., 0., 0., 0.),
-      v4(0., 0., 0., 0.),
-      v4(0., 0., 0., 0.),
-      v4(0., 0., 0., 0.)}}
-}
-};
-
-m4 rodrigues(const v4 W, m4v4 *dR_dW)
-{
-    v4 W2 = W * W;
-
-    f_t theta2 = sum(W2);
-    //1/theta ?= 0
-    if(theta2 <= 0.) {
-        if(dR_dW) {
-            *dR_dW = skew3_jacobian;
-        }
-        return m4_identity;
-    }
-    f_t theta = sqrt(theta2);
-    f_t costheta, sintheta, invtheta, sinterm, costerm;
-    v4 dsterm_dW, dcterm_dW;
-    bool small = theta2 * theta2 <= 120 * F_T_EPS; //120 = 5!, next term of sine expansion
-    if(small) {
-        //Taylor expansion: sin = x - x^3 / 6; cos = 1 - x^2 / 2 + x^4 / 24
-        sinterm = 1. - theta2 * (1./6.);
-        costerm = 0.5 - theta2 * (1./24.);
-        invtheta = 0.;
-        costheta = 0.;
-    } else {
-        invtheta = 1. / theta;
-        sintheta = sin(theta);
-        costheta = cos(theta);
-        sinterm = sintheta * invtheta;
-        costerm = (1. - costheta) / theta2;
-    }
-    m4 V = skew3(W);
-    m4 V2;
-    V2[0][0] = -W2[1] - W2[2];
-    V2[1][1] = -W2[2] - W2[0];
-    V2[2][2] = -W2[0] - W2[1];
-    V2[2][1] = V2[1][2] = W[1]*W[2];
-    V2[0][2] = V2[2][0] = W[0]*W[2];
-    V2[1][0] = V2[0][1] = W[0]*W[1];
- 
-    if(dR_dW) {
-        v4 ds_dW, dc_dW;
-        if(small) {
-            ds_dW = W * -(1./3.);
-            dc_dW = W * -(1./12.);
-        } else {
-            v4
-                ds_dt = (costheta - sinterm) * invtheta,
-                dc_dt = (sinterm - 2*costerm) * invtheta,
-                dt_dW = W * invtheta;
-            ds_dW = ds_dt * dt_dW;
-            dc_dW = dc_dt * dt_dW;
-        }
-        m4v4 dV2_dW;
-        dV2_dW[0][0] = v4(0., -2*W[1], -2*W[2], 0.);
-        dV2_dW[1][1] = v4(-2*W[0], 0., -2*W[2], 0.);
-        dV2_dW[2][2] = v4(-2*W[0], -2*W[1], 0., 0.);
-        //don't do multiple assignment to avoid gcc bug
-        dV2_dW[2][1] = v4(0., W[2], W[1], 0);
-        dV2_dW[1][2] = v4(0., W[2], W[1], 0);
-        dV2_dW[0][2] = v4(W[2], 0., W[0], 0);
-        dV2_dW[2][0] = v4(W[2], 0., W[0], 0);
-        dV2_dW[1][0] = v4(W[1], W[0], 0., 0);
-        dV2_dW[0][1] = v4(W[1], W[0], 0., 0);
-        
-        *dR_dW = skew3_jacobian * sinterm + outer_product(ds_dW, V) + dV2_dW * costerm + outer_product(dc_dW, V2);
-    }
-    return m4_identity + V * sinterm + V2 * costerm;
-}
 
 v4 integrate_angular_velocity(const v4 &W, const v4 &w)
 {

@@ -251,6 +251,16 @@ uint64_t get_timestamp()
     [self startSensorFusionWithDevice:device];
 }
 
+- (void) configureCameraWithDevice:(AVCaptureDevice *)device
+{
+    CMVideoDimensions sz = CMVideoFormatDescriptionGetDimensions(device.activeFormat.formatDescription);
+    Float64 frame_duration = (CMTimeGetSeconds(device.activeVideoMinFrameDuration) + CMTimeGetSeconds(device.activeVideoMaxFrameDuration))/2;
+    DLog(@"Starting with %d width x %d height", sz.width, sz.height);
+    device_set_resolution(&_cor_setup->device, sz.width, sz.height);
+    device_set_framerate(&_cor_setup->device, 1/frame_duration);
+    filter_initialize(&_cor_setup->sfm, _cor_setup->device);
+}
+
 - (void) startSensorFusionWithDevice:(AVCaptureDevice *)device
 {
     if(isProcessingVideo || processingVideoRequested || isSensorFusionRunning) return;
@@ -258,13 +268,7 @@ uint64_t get_timestamp()
     isStableStart = true;
 
     dispatch_async(queue, ^{
-
-        CMVideoDimensions sz = CMVideoFormatDescriptionGetDimensions(device.activeFormat.formatDescription);
-        Float64 frame_duration = (CMTimeGetSeconds(device.activeVideoMinFrameDuration) + CMTimeGetSeconds(device.activeVideoMaxFrameDuration))/2;
-        DLog(@"Starting with %d width x %d height", sz.width, sz.height);
-        device_set_resolution(&_cor_setup->device, sz.width, sz.height);
-        device_set_framerate(&_cor_setup->device, 1/frame_duration);
-        filter_initialize(&_cor_setup->sfm, _cor_setup->device);
+        [self configureCameraWithDevice:device];
         filter_start_hold_steady(&_cor_setup->sfm);
     });
     
@@ -292,6 +296,9 @@ uint64_t get_timestamp()
     {
         isLicenseValid = NO; // evaluation license must be checked every time. need more logic here for other license types.
         dispatch_async(queue, ^{
+            if(device) { // replay starts with device = nil
+                [self configureCameraWithDevice:device];
+            }
             filter_start_dynamic(&_cor_setup->sfm);
         });
         

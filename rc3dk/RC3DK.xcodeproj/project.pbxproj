@@ -183,6 +183,7 @@
 		D953126F1A15AE63004D6068 /* homography.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D953126D1A15AE63004D6068 /* homography.cpp */; };
 		D97AEF8118F7613F00573148 /* device_parameters.c in Sources */ = {isa = PBXBuildFile; fileRef = D97AEF8018F7613F00573148 /* device_parameters.c */; };
 		D9CCDC7E192E887F00A41329 /* scaled_mask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9CCDC7C192E887F00A41329 /* scaled_mask.cpp */; };
+		D9CFC1061AD5ABFC00445A80 /* rotation_vector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 38EDF0761AD43D2400F0A322 /* rotation_vector.cpp */; };
 		D9FE87B619427F190052B8D8 /* RCSensorFusionInternals.h in Copy Files */ = {isa = PBXBuildFile; fileRef = D9FE87B519410AB40052B8D8 /* RCSensorFusionInternals.h */; };
 /* End PBXBuildFile section */
 
@@ -1295,6 +1296,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D9CFC1061AD5ABFC00445A80 /* rotation_vector.cpp in Sources */,
 				D364AFBD1A37A21700E39511 /* homography.cpp in Sources */,
 				D3588F071A20C47100CA10E7 /* merge.c in Sources */,
 				D3588EF81A20C08F00CA10E7 /* properties.cpp in Sources */,

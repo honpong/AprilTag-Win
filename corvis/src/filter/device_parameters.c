@@ -8,6 +8,38 @@
 
 #include "device_parameters.h"
 #include <math.h>
+#include <string.h>
+
+corvis_device_type get_device_by_name(char *name)
+{
+    if(!name) return DEVICE_TYPE_UNKNOWN;
+    
+    /*
+     ******** IMPORTANT! *************
+     Longer variants (iphone5s, iphone5c) have to come before the shorter variants (iphone5), since we only match the start of the name
+     */
+    if(!strncmp(name, "ipodtouch", 9)) return DEVICE_TYPE_IPOD5;
+    if(!strncmp(name, "ipod5", 5)) return DEVICE_TYPE_IPOD5;
+
+    if(!strncmp(name, "iphone4s", 8)) return DEVICE_TYPE_IPHONE4S;
+    if(!strncmp(name, "iphone5c", 8)) return DEVICE_TYPE_IPHONE5C;
+    if(!strncmp(name, "iphone5s", 8)) return DEVICE_TYPE_IPHONE5S;
+    if(!strncmp(name, "iphone5", 7)) return DEVICE_TYPE_IPHONE5;
+    if(!strncmp(name, "iphone6plus", 11)) return DEVICE_TYPE_IPHONE6PLUS;
+    if(!strncmp(name, "iphone6", 7)) return DEVICE_TYPE_IPHONE6;
+    
+    if(!strncmp(name, "ipad2", 5)) return DEVICE_TYPE_IPAD2;
+    if(!strncmp(name, "ipad3", 5)) return DEVICE_TYPE_IPAD3;
+    if(!strncmp(name, "ipad4", 5)) return DEVICE_TYPE_IPAD4;
+    
+    if(!strncmp(name, "ipadair2", 8)) return DEVICE_TYPE_IPADAIR2;
+    if(!strncmp(name, "ipadair", 7)) return DEVICE_TYPE_IPADAIR;
+    if(!strncmp(name, "ipadminiretina2", 15)) return DEVICE_TYPE_IPADMINIRETINA2;
+    if(!strncmp(name, "ipadminiretina", 14)) return DEVICE_TYPE_IPADMINIRETINA;
+    if(!strncmp(name, "ipadmini", 8)) return DEVICE_TYPE_IPADMINI;
+
+    return DEVICE_TYPE_UNKNOWN;
+}
 
 bool get_parameters_for_device(corvis_device_type type, struct corvis_device_parameters *dc)
 {

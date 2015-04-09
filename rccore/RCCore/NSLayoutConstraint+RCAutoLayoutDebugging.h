@@ -10,6 +10,8 @@
 
 @interface NSLayoutConstraint (RCAutoLayoutDebugging)
 
-- (NSString *)asciiArtDescription;
+#ifdef DEBUG
+- (NSString *)description;
+#endif
 
 @end

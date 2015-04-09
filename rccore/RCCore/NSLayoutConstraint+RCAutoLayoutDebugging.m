@@ -9,6 +9,10 @@
 #import "NSLayoutConstraint+RCAutoLayoutDebugging.h"
 #import "UIView+RCAutoLayoutDebugging.h"
 
+@interface NSLayoutConstraint ()
+- (NSString *)asciiArtDescription;
+@end
+
 @implementation NSLayoutConstraint (RCAutoLayoutDebugging)
 
 #ifdef DEBUG

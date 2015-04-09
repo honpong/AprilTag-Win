@@ -210,19 +210,19 @@ bin/_vl.so:$(patsubst src/%,build/%,$(VL_C_SOURCES:.c=.o))
 TARGETS := $(TARGETS) bin/_vl.so
 SOURCES := $(SOURCES) $(VL_C_SOURCES)
 
-############################## REPLAY ############################
+############################## MEASURE ############################
 
-REPLAY_SOURCES := $(FILTER_SOURCES) $(COR_SOURCES)
-REPLAY_CXX_SOURCES := src/filter/replay.cpp $(FILTER_CXX_SOURCES) $(NUMERICS_CXX_SOURCES) $(COR_CXX_SOURCES)
+MEASURE_SOURCES := $(FILTER_SOURCES) $(COR_SOURCES)
+MEASURE_CXX_SOURCES := src/tools/measure.cpp src/filter/replay.cpp $(FILTER_CXX_SOURCES) $(NUMERICS_CXX_SOURCES) $(COR_CXX_SOURCES)
 
 LDFLAGS := $(LDFLAGS) -lstdc++
 
-bin/replay: $(patsubst src/%,build/%,$(REPLAY_SOURCES:.c=.o)) $(patsubst src/%,build/%,$(REPLAY_CXX_SOURCES:.cpp=.o)) bin/_libzxing.a
+bin/measure: $(patsubst src/%,build/%,$(MEASURE_SOURCES:.c=.o)) $(patsubst src/%,build/%,$(MEASURE_CXX_SOURCES:.cpp=.o)) bin/_libzxing.a
 	@mkdir -p $(@D)
 	$(CC) $(LDFLAGS) $(PYTHON_LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
 
-TARGETS := $(TARGETS) bin/replay
-CXX_SOURCES := $(CXX_SOURCES) $(cor/replay.cpp)
+TARGETS := $(TARGETS) bin/measure
+#CXX_SOURCES := $(CXX_SOURCES) src/filter/replay.cpp src/tools/measure.cpp
 
 ############################## TEST ############################
 

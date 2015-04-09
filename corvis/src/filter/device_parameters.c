@@ -10,7 +10,7 @@
 #include <math.h>
 #include <string.h>
 
-corvis_device_type get_device_by_name(char *name)
+corvis_device_type get_device_by_name(const char *name)
 {
     if(!name) return DEVICE_TYPE_UNKNOWN;
     

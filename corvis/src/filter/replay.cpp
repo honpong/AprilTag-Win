@@ -7,57 +7,52 @@
 
 #include "replay.h"
 
-#include <iostream>
-#include <fstream>
 #include <string.h>
-#include "filter_setup.h"
 #include "device_parameters.h"
 #include "cor.h"
 #include "packet.h"
-#include "sensor_fusion_queue.h"
 
-int main(int argc, char **argv)
+
+bool replay::open(const char *name)
 {
-    if(argc != 3)
-    {
-        cerr << "Usage: replay filename device.\n";
-        return -1;
-    }
-    ifstream file(argv[1], ios::binary | ios::ate);
+    file.open(name, ios::binary);
     if(file.bad())
     {
-        cerr << "Couldn't open file " << argv[1] << " for reading.\n";
-        return -1;
+        cerr << "Couldn't open file " << name << " for reading.\n";
+        return false;
     }
+    file.seekg(0, ios::end);
     auto end = file.tellg();
     file.seekg (0, ios::beg);
     auto begin = file.tellg();
+    size = end - begin;
+    cerr << "size is: " << size << " bytes.\n";
+    return true;
+}
 
-    cerr << "size is: " << (end-begin) << " bytes.\n";
-    
-    int packets_dispatched = 0;
-    uint64_t bytes_dispatched = 0;
-    bool is_running = true;
-    
-    corvis_device_type device_type = get_device_by_name(argv[2]);
+void replay::set_device(const char *name)
+{
+    corvis_device_type device_type = get_device_by_name(name);
     corvis_device_parameters dc;
     get_parameters_for_device(device_type, &dc);
-    filter_setup cor_setup(&dc);
-    
-    
-    auto camf = [&cor_setup](const camera_data &x) { filter_image_measurement(&cor_setup.sfm, x.image, x.width, x.height, x.stride, std::chrono::duration_cast<std::chrono::microseconds>(x.timestamp.time_since_epoch()).count()); };
-    auto accf = [&cor_setup](const accelerometer_data &x) { filter_accelerometer_measurement(&cor_setup.sfm, x.accel_m__s2, std::chrono::duration_cast<std::chrono::microseconds>(x.timestamp.time_since_epoch()).count()); };
-    auto gyrf = [&cor_setup](const gyro_data &x) { filter_gyroscope_measurement(&cor_setup.sfm, x.angvel_rad__s, std::chrono::duration_cast<std::chrono::microseconds>(x.timestamp.time_since_epoch()).count()); };
-    
-    fusion_queue queue(camf, accf, gyrf, fusion_queue::latency_strategy::ELIMINATE_DROPS, std::chrono::microseconds(33000), std::chrono::microseconds(10000), std::chrono::microseconds(5000));
-    
-    queue.start_offline(true);
-    
-    cor_setup.sfm.ignore_lateness = true;
+    cor_setup = std::make_unique<filter_setup>(&dc);
+}
+
+void replay::setup_filter()
+{
+    auto camf = [this](const camera_data &x) { filter_image_measurement(&cor_setup->sfm, x.image, x.width, x.height, x.stride, std::chrono::duration_cast<std::chrono::microseconds>(x.timestamp.time_since_epoch()).count()); };
+    auto accf = [this](const accelerometer_data &x) { filter_accelerometer_measurement(&cor_setup->sfm, x.accel_m__s2, std::chrono::duration_cast<std::chrono::microseconds>(x.timestamp.time_since_epoch()).count()); };
+    auto gyrf = [this](const gyro_data &x) { filter_gyroscope_measurement(&cor_setup->sfm, x.angvel_rad__s, std::chrono::duration_cast<std::chrono::microseconds>(x.timestamp.time_since_epoch()).count()); };
+
+    queue = make_unique<fusion_queue>(camf, accf, gyrf, fusion_queue::latency_strategy::ELIMINATE_DROPS, std::chrono::microseconds(33000), std::chrono::microseconds(10000), std::chrono::microseconds(5000));
+    queue->start_offline(true);
+    cor_setup->sfm.ignore_lateness = true;
     cor_time_init();
-    filter_start_dynamic(&cor_setup.sfm);
-    
-    uint64_t first_timestamp;
+    filter_start_dynamic(&cor_setup->sfm);
+}
+
+void replay::runloop()
+{
     /*, realtime_offset;
      uint64_t time_started, now;*/
     
@@ -112,7 +107,7 @@ int main(int argc, char **argv)
                     d.stride = width;
                     d.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time));
                     d.image_handle = std::unique_ptr<void, void(*)(void *)>(packet, free);
-                    queue.receive_camera(std::move(d));
+                    queue->receive_camera(std::move(d));
                     //                    filter_image_measurement(&cor_setup.sfm, packet->data + 16, width, height, width, header.time);
                     break;
                 }
@@ -123,7 +118,7 @@ int main(int argc, char **argv)
                     d.accel_m__s2[1] = ((float *)packet->data)[1];
                     d.accel_m__s2[2] = ((float *)packet->data)[2];
                     d.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time));
-                    queue.receive_accelerometer(std::move(d));
+                    queue->receive_accelerometer(std::move(d));
                     free(packet);
                     break;
                 }
@@ -134,12 +129,12 @@ int main(int argc, char **argv)
                     d.angvel_rad__s[1] = ((float *)packet->data)[1];
                     d.angvel_rad__s[2] = ((float *)packet->data)[2];
                     d.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time));
-                    queue.receive_gyro(std::move(d));
+                    queue->receive_gyro(std::move(d));
                     free(packet);
                     break;
                 }
             }
-            queue.dispatch_offline(false);
+            queue->dispatch_offline(false);
             bytes_dispatched += header.bytes;
             packets_dispatched++;
         }
@@ -147,8 +142,16 @@ int main(int argc, char **argv)
         file.read((char *)&header, 16);
         if(file.bad() || file.eof()) is_running = false;
     }
-    while(queue.dispatch_offline(true)) {}
-    fprintf(stderr, "Distance is %f cm, total path length %f cm\n", cor_setup.sfm.s.total_distance * 100, norm(cor_setup.sfm.s.T.v) * 100);
+    while(queue->dispatch_offline(true)) {}
+    fprintf(stderr, "Distance is %f cm, total path length %f cm\n", cor_setup->sfm.s.total_distance * 100, norm(cor_setup->sfm.s.T.v) * 100);
     fprintf(stderr, "Dispatched %d packets %.2f Mbytes\n", packets_dispatched, bytes_dispatched/1.e6);
-    return 0;
 }
+
+bool replay::configure_all(const char *filename, const char *devicename)
+{
+    if(!open(filename)) return false;
+    set_device(devicename);
+    setup_filter();
+    return true;
+}
+

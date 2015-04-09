@@ -178,18 +178,7 @@ class data_simulator:
         self.time = self.accel[0][0]
         self.w = self.gyro[0][1:]
         self.a = self.accel[0][1:]
-        self.calc_gravity(10)
         self.imubuf = None
-
-    def calc_gravity(self, num_measurements):
-        # alpha is calculated as t / (t + dT)
-        # with t, the low-pass filter's time-constant
-        # and dT, the event delivery rate
-        alpha = 0.8
-        gravity = array(self.accel[0][1:]);
-        for i in range(num_measurements):
-            gravity = alpha*gravity + (1 - alpha)*array(self.accel[i][1:])
-        self.g = gravity
 
     def gt_meas(self, i):
         packet_size = 3*4 + 3*4 + 4*4 + 3*4 + 3*4

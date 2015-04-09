@@ -43,11 +43,11 @@ filter(): s(cov)
     uint64_t last_packet_time;
     int last_packet_type;
 #ifdef SWIG
-    %readonly
+    %immutable;
 #endif
     state s;
 #ifdef SWIG
-    %readwrite
+    %mutable;
 #endif
     
     covariance cov;

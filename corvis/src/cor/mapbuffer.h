@@ -26,13 +26,7 @@ struct mapbuffer {
     bool replay;
     bool block_when_full;
     bool has_blocked;
-#ifdef SWIG
-    %immutable;
-#endif
     const char *filename;
-#ifdef SWIG
-    %mutable;
-#endif
     char shm_filename[13];
     int shm_fd;
 };

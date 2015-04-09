@@ -33,13 +33,7 @@ struct inbuffer {
     bool file_writable;
     bool threaded;
     bool single_packet;
-#ifdef SWIG
-    %immutable;
-#endif
     const char *filename;
-#ifdef SWIG
-    %mutable;
-#endif
     uint64_t *index;
 };
 

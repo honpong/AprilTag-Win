@@ -10,6 +10,7 @@
 
 camera_control_interface::camera_control_interface(): platform_ptr(NULL)
 {
+    platform_ptr = NULL;
 }
 
 camera_control_interface::~camera_control_interface()

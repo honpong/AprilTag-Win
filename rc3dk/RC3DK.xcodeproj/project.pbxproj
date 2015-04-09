@@ -194,6 +194,8 @@
 		D97AEF8118F7613F00573148 /* device_parameters.c in Sources */ = {isa = PBXBuildFile; fileRef = D97AEF8018F7613F00573148 /* device_parameters.c */; };
 		D992CC361AD5BA6A00AA2259 /* sensor_data.mm in Sources */ = {isa = PBXBuildFile; fileRef = D95E92D91AB86D4600EAB109 /* sensor_data.mm */; };
 		D992CC371AD5BA8500AA2259 /* sensor_clock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D95409AE1AC1019200706A24 /* sensor_clock.cpp */; };
+		D992CC3D1AD5C46A00AA2259 /* replay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D992CC3B1AD5C46A00AA2259 /* replay.cpp */; };
+		D992CC3E1AD5C46A00AA2259 /* replay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D992CC3B1AD5C46A00AA2259 /* replay.cpp */; };
 		D9CCDC7E192E887F00A41329 /* scaled_mask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9CCDC7C192E887F00A41329 /* scaled_mask.cpp */; };
 		D9FE87B619427F190052B8D8 /* RCSensorFusionInternals.h in Copy Files */ = {isa = PBXBuildFile; fileRef = D9FE87B519410AB40052B8D8 /* RCSensorFusionInternals.h */; };
 /* End PBXBuildFile section */
@@ -508,6 +510,8 @@
 		D95EB18A1AA50AF200ADFC20 /* sensor_fusion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sensor_fusion.cpp; path = ../../shared_corvis_3dk/sensor_fusion.cpp; sourceTree = "<group>"; };
 		D95EB18B1AA50AF200ADFC20 /* sensor_fusion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sensor_fusion.h; path = ../../shared_corvis_3dk/sensor_fusion.h; sourceTree = "<group>"; };
 		D97AEF8018F7613F00573148 /* device_parameters.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = device_parameters.c; sourceTree = "<group>"; };
+		D992CC3B1AD5C46A00AA2259 /* replay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = replay.cpp; path = ../filter/replay.cpp; sourceTree = "<group>"; };
+		D992CC3C1AD5C46A00AA2259 /* replay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = replay.h; path = ../filter/replay.h; sourceTree = "<group>"; };
 		D9CCDC7C192E887F00A41329 /* scaled_mask.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scaled_mask.cpp; sourceTree = "<group>"; };
 		D9CCDC7D192E887F00A41329 /* scaled_mask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scaled_mask.h; sourceTree = "<group>"; };
 		D9FE87B519410AB40052B8D8 /* RCSensorFusionInternals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCSensorFusionInternals.h; path = ../../shared_corvis_3dk/RCSensorFusionInternals.h; sourceTree = "<group>"; };
@@ -753,6 +757,8 @@
 				327B559018EB4F250001CCE1 /* packet.h */,
 				327B559118EB4F250001CCE1 /* plugins.c */,
 				327B559218EB4F250001CCE1 /* plugins.h */,
+				D992CC3B1AD5C46A00AA2259 /* replay.cpp */,
+				D992CC3C1AD5C46A00AA2259 /* replay.h */,
 				D95EB1851AA5038600ADFC20 /* sensor_fusion_queue.cpp */,
 				D95EB1861AA5038600ADFC20 /* sensor_fusion_queue.h */,
 				D95409AE1AC1019200706A24 /* sensor_clock.cpp */,
@@ -1196,6 +1202,7 @@
 				D9CCDC7E192E887F00A41329 /* scaled_mask.cpp in Sources */,
 				327B55BD18EB4F3A0001CCE1 /* fast_9.cpp in Sources */,
 				327B557718EB4DC20001CCE1 /* RCSensorFusion.mm in Sources */,
+				D992CC3D1AD5C46A00AA2259 /* replay.cpp in Sources */,
 				D3C0EDFA1A37B4DC00423EDE /* qr.cpp in Sources */,
 				327B55D318EB4F430001CCE1 /* kalman.cpp in Sources */,
 				327B553818EB4D720001CCE1 /* RCAFNetworkActivityIndicatorManager.m in Sources */,
@@ -1315,6 +1322,7 @@
 				D3588EFC1A20C31300CA10E7 /* libqhull.c in Sources */,
 				D3B4EB151A1E7DE100BE0443 /* matrix.cpp in Sources */,
 				D3588F021A20C3BE00CA10E7 /* mem.c in Sources */,
+				D992CC3E1AD5C46A00AA2259 /* replay.cpp in Sources */,
 				D3588F0A1A20C4CB00CA10E7 /* io.c in Sources */,
 				D3B4EB181A1E7DE100BE0443 /* RCAFURLConnectionOperation.m in Sources */,
 				D3588EF91A20C09C00CA10E7 /* weightedgraph.cpp in Sources */,

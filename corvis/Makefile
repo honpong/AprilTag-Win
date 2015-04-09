@@ -84,10 +84,10 @@ build/%.o: src/%.cpp
 
 ############################## COR ############################
 
-COR_SOURCES := $(addprefix src/cor/, packet.c mapbuffer.c inbuffer.c timestamp.c plugins.c dispatch.c debug.c) build/swig/_cor.c
+COR_SOURCES := $(addprefix src/cor/, packet.c mapbuffer.c inbuffer.c timestamp.c plugins.c dispatch.c debug.c)
 COR_CXX_SOURCES := $(addprefix src/cor/, sensor_fusion_queue.cpp platform/shell/sensor_data.cpp platform/shell/sensor_clock.cpp)
 
-bin/corvis/_cor.so: $(patsubst src/%,build/%,$(COR_SOURCES:.c=.o)) $(patsubst src/%,build/%,$(COR_CXX_SOURCES:.cpp=.o))
+bin/corvis/_cor.so: $(patsubst src/%,build/%,$(COR_SOURCES:.c=.o)) $(patsubst src/%,build/%,$(COR_CXX_SOURCES:.cpp=.o)) build/swig/_cor.o
 
 TARGETS := $(TARGETS) build/swig/_cor.c bin/corvis/_cor.so bin/corvis/__init__.py
 SOURCES := $(SOURCES) $(COR_SOURCES)
@@ -96,9 +96,9 @@ DEPS := $(DEPS) build/swig/_cor.c.d
 
 ############################## NUMERICS ############################
 
-NUMERICS_CXX_SOURCES := $(addprefix src/numerics/, vec4.cpp matrix.cpp kalman.cpp) build/swig/_numerics.cpp
+NUMERICS_CXX_SOURCES := $(addprefix src/numerics/, vec4.cpp matrix.cpp kalman.cpp)
 bin/corvis/_numerics.so: LDFLAGS := $(LDFLAGS) -lm -lcblas -llapack -lstdc++
-bin/corvis/_numerics.so: $(patsubst src/%,build/%,$(NUMERICS_CXX_SOURCES:.cpp=.o))
+bin/corvis/_numerics.so: $(patsubst src/%,build/%,$(NUMERICS_CXX_SOURCES:.cpp=.o)) build/swig/_numerics.o
 
 TARGETS := $(TARGETS) build/swig/_numerics.cpp bin/corvis/_numerics.so bin/corvis/__init__.py
 CXX_SOURCES := $(CXX_SOURCES) $(NUMERICS_CXX_SOURCES)
@@ -106,12 +106,12 @@ DEPS := $(DEPS) build/swig/_numerics.cpp.d
 
 ############################## FILTER ############################
 
-FILTER_CXX_SOURCES := $(addprefix src/filter/, filter.cpp state_vision.cpp state_motion.cpp state.cpp observation.cpp filter_setup.cpp fast_detector/fast_9.cpp scaled_mask.cpp camera_control_interface_dummy.cpp homography.cpp qr.cpp) build/swig/_filter.cpp
+FILTER_CXX_SOURCES := $(addprefix src/filter/, filter.cpp state_vision.cpp state_motion.cpp state.cpp observation.cpp filter_setup.cpp fast_detector/fast_9.cpp scaled_mask.cpp camera_control_interface_dummy.cpp homography.cpp qr.cpp)
 
 FILTER_SOURCES := $(addprefix src/filter/, device_parameters.c)
 
 #bin/swig/_filter.so: LDFLAGS := $(LDFLAGS) `pkg-config --libs opencv`
-bin/corvis/_filter.so:$(patsubst src/%,build/%,$(FILTER_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(FILTER_SOURCES:.c=.o)) bin/_libzxing.a
+bin/corvis/_filter.so:$(patsubst src/%,build/%,$(FILTER_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(FILTER_SOURCES:.c=.o)) bin/_libzxing.a build/swig/_filter.o
 
 TARGETS := $(TARGETS) build/swig/_filter.cpp bin/corvis/_filter.so bin/corvis/__init__.py
 CXX_SOURCES := $(CXX_SOURCES) $(FILTER_CXX_SOURCES)
@@ -209,6 +209,20 @@ bin/_vl.so:$(patsubst src/%,build/%,$(VL_C_SOURCES:.c=.o))
 
 TARGETS := $(TARGETS) bin/_vl.so
 SOURCES := $(SOURCES) $(VL_C_SOURCES)
+
+############################## REPLAY ############################
+
+REPLAY_SOURCES := $(FILTER_SOURCES) $(COR_SOURCES)
+REPLAY_CXX_SOURCES := src/filter/replay.cpp $(FILTER_CXX_SOURCES) $(NUMERICS_CXX_SOURCES) $(COR_CXX_SOURCES)
+
+LDFLAGS := $(LDFLAGS) -lstdc++
+
+bin/replay: $(patsubst src/%,build/%,$(REPLAY_SOURCES:.c=.o)) $(patsubst src/%,build/%,$(REPLAY_CXX_SOURCES:.cpp=.o)) bin/_libzxing.a
+	@mkdir -p $(@D)
+	$(CC) $(LDFLAGS) $(PYTHON_LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+TARGETS := $(TARGETS) bin/replay
+CXX_SOURCES := $(CXX_SOURCES) $(cor/replay.cpp)
 
 ############################## TEST ############################
 

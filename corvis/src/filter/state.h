@@ -176,7 +176,13 @@ template <class T, int _size> class state_leaf: public state_node {
     
     covariance *cov;
     
+#ifdef SWIG
+    %immutable;
+#endif
     const char *name;
+#ifdef SWIG
+    %mutable;
+#endif
     
     void set_process_noise(f_t x)
     {

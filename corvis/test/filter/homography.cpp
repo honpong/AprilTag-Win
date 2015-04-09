@@ -62,8 +62,8 @@ void test_qr_with_parameters(const m4 & R, const v4 & T, float qr_size, bool use
 
     EXPECT_EQ(success, true);
 
-    test_m4_near(result.R, R, 1.e-3);
-    test_v4_near(result.T, T, 1.e-3);
+    EXPECT_M4_NEAR(result.R, R, 1.e-3);
+    EXPECT_V4_NEAR(result.T, T, 1.e-3);
 }
 
 TEST(Homography, I)
@@ -162,8 +162,8 @@ TEST(Homography, Real)
     bool success = homography_align_to_qr(calibrated, qr_size, modules, R, T);
 
     EXPECT_EQ(success, true);
-    test_m4_near(R, Rexpected, 1e-3);
-    test_v4_near(T, Texpected, 1e-3);
+    EXPECT_M4_NEAR(R, Rexpected, 1e-3);
+    EXPECT_V4_NEAR(T, Texpected, 1e-3);
 }
 
 TEST(Homography, AlignToQR)
@@ -202,7 +202,7 @@ TEST(Homography, AlignToQR)
     m4 Ri = transpose(Raligned);
     v4 Ti = -transpose(Raligned)*Taligned;
     for(int i = 0; i < 4; i++) {
-        test_v4_near(Ri*qr[i] + Ti, qr_expected[i], 1e-3);
+        EXPECT_V4_NEAR(Ri*qr[i] + Ti, qr_expected[i], 1e-3);
     }
 }
 
@@ -241,9 +241,9 @@ TEST(Homography, Factorize)
     Ne[3] = v4( 0.447, 0,  0.894, 0);
 
     for(int i = 0; i < 4; i++) {
-        test_m4_near(Rs[i], Re[i], 1e-3);
-        test_v4_near(Ts[i], Te[i], 1e-3);
-        test_v4_near(Ns[i], Ne[i], 1e-3);
+        EXPECT_M4_NEAR(Rs[i], Re[i], 1e-3);
+        EXPECT_V4_NEAR(Ts[i], Te[i], 1e-3);
+        EXPECT_V4_NEAR(Ns[i], Ne[i], 1e-3);
     }
 
 }
@@ -276,7 +276,7 @@ TEST(Homography, Decomposition)
     project_points(P2, p2);
 
     m4 H = homography_compute(p1, p2);
-    test_m4_near(H, He, 1e-3);
+    EXPECT_M4_NEAR(H, He, 1e-3);
     vector<homography_decomposition> decompositions = homography_decompose(p1, p2, H);
     bool found = false;
     float margin2 = 1e-3 * 1e-3;
@@ -287,7 +287,7 @@ TEST(Homography, Decomposition)
         float dT2 = sum((result.T*d - T)*(result.T*d - T));
         float dN2 = sum((result.N - N)*(result.N - N));
         if(dN2 < margin2 && dT2 < margin2) {
-            test_m4_near(result.R, R, 1e-3);
+            EXPECT_M4_NEAR(result.R, R, 1e-3);
             found = true;
         }
 

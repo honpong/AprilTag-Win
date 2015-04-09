@@ -82,14 +82,8 @@ TEST(Matrix4, Determinant) {
 
 TEST(Vector4, Cross) {
     v4 vec2(.08, 1.2, -.23, 0.);
-    {
-        SCOPED_TRACE("a x b = skew(a) * b");
-        EXPECT_EQ(cross(vec, vec2), skew3(vec) * vec2);
-    }
-    {
-        SCOPED_TRACE("a x b = skew(b)^T * a");
-        EXPECT_EQ(cross(vec, vec2), transpose(skew3(vec2)) * vec);
-    }
+    EXPECT_EQ(cross(vec, vec2), skew3(vec) * vec2) << "a x b = skew(a) * b";
+    EXPECT_EQ(cross(vec, vec2), transpose(skew3(vec2)) * vec) << "a x b = skew(b)^T * a";
 }
 
 bool same_sign(f_t first, f_t second)
@@ -156,10 +150,7 @@ v4 iav_vel_stub(const v4 &base, const void *other)
 void test_rotation(const v4 &vec)
 {
     m4 skewmat = skew3(vec);
-    {
-        SCOPED_TRACE("invskew(skew(vec)) = vec");
-        EXPECT_EQ(vec, invskew3(skewmat));
-    }
+    EXPECT_EQ(vec, invskew3(skewmat)) << "invskew(skew(vec)) = vec";
     
     rotation_vector rvec(vec[0], vec[1], vec[2]);
     m4 rotmat = to_rotation_matrix(rvec);
@@ -171,28 +162,12 @@ void test_rotation(const v4 &vec)
         EXPECT_EQ(rvec.raw_vector(), vec);
     }
     
-    {
-        SCOPED_TRACE("rot_vec(quaternion(vec)) = vec");
-        test_rotation_vector_near(to_rotation_vector(to_quaternion(rvec)), rvec, F_T_EPS);
-    }
-    
-    {
-        rotation_vector inv = to_rotation_vector(rotmat);
-        SCOPED_TRACE("vec = invrod(rod(vec))");
-        test_rotation_vector_near(rvec, inv, 4*F_T_EPS);
-    }
-    
-    //The next two fail the normal float comparison due to matrix product - (TODO: rearrange matrix operations?)
-    {
-        SCOPED_TRACE("R'R = I");
-        test_m4_near(m4_identity, transpose(rotmat) * rotmat, 1.e-15);
-    }
-    
-    {
-        SCOPED_TRACE("R'Rv = v");
-        test_v4_near(vec, transpose(rotmat) * (rotmat * vec), 1.e-15);
-    }
-    
+    EXPECT_ROTATION_VECTOR_NEAR(to_rotation_vector(to_quaternion(rvec)), rvec, F_T_EPS) << "rot_vec(quaternion(vec)) = vec";
+    EXPECT_ROTATION_VECTOR_NEAR(rvec, to_rotation_vector(rotmat), 4*F_T_EPS) << "vec = invrod(rod(vec))";
+
+    EXPECT_M4_NEAR(m4_identity, transpose(rotmat) * rotmat, 1.e-15) << "R'R = I";
+    EXPECT_V4_NEAR(vec, transpose(rotmat) * (rotmat * vec), 1.e-15) << "R'Rv = v";
+
     v4 angvel(-.0514, .023, -.065, 0.);
     
     m4 dW_dW, dW_dw;
@@ -207,34 +182,27 @@ void test_rotation(const v4 &vec)
         f_t err = test_m4_linearization(angvel, iav_vel_stub, dW_dw, (void *)&vec);
         fprintf(stderr, "Angular velocity integration linearization max error (velocity) is %.1f%%\n", err * 100);
     }
-    {
-        SCOPED_TRACE("integrate_angular_velocity(v4) = integrate_angular_velocity(rotvec)");
-        EXPECT_EQ(integrate_angular_velocity(vec, angvel), integrate_angular_velocity(rvec, angvel).raw_vector());
-    }
+
+    EXPECT_EQ(integrate_angular_velocity(vec, angvel), integrate_angular_velocity(rvec, angvel).raw_vector())
+        << "integrate_angular_velocity(v4) = integrate_angular_velocity(rotvec)";
 
     quaternion quat = to_quaternion(rvec);
-    {
-        SCOPED_TRACE("rot_mat(rotvec_to_quat(v)) = rodrigues(v)");
-        test_m4_near(to_rotation_matrix(quat), to_rotation_matrix(rvec), 1.e-15);
-    }
+    EXPECT_M4_NEAR(to_rotation_matrix(quat), to_rotation_matrix(rvec), 1.e-15) << "rot_mat(rotvec_to_quat(v)) = rodrigues(v)";
     quaternion qinv = to_quaternion(rotmat);
-    {
-        SCOPED_TRACE("q = to_quaternion(to_rotation_matrix(q))");
-        test_quaternion_near_rotation(quat, qinv, 1.e-15);
-    }
+    EXPECT_QUATERNION_ROTATION_NEAR(quat, qinv, 1.e-15) << "q = to_quaternion(to_rotation_matrix(q))";
 
     {
         const v4 lvec(1.5, -.64, 4.1, 0.);
         v4 vrot = quaternion_rotate(quat, lvec);
-        SCOPED_TRACE("q * vec = rotation_between_two_vectors(vec, quaternion_rotation(q, vec)) * vec");
-        test_v4_near(vrot, quaternion_rotate(rotation_between_two_vectors(lvec, vrot), lvec), 1.e-12);
+        EXPECT_V4_NEAR(vrot, quaternion_rotate(rotation_between_two_vectors(lvec, vrot), lvec), 1.e-12)
+            << "q * vec = rotation_between_two_vectors(vec, quaternion_rotation(q, vec)) * vec";
     }
     
     {
         const v4 up(0., 0., 1., 0.);
         v4 newup = quaternion_rotate(quat, up);
-        SCOPED_TRACE("up = quaternion_rotate(rotation_between_two_vectors(quaternion_rotate(q, up), up), quaternion_rotate(q, up))");
-        test_v4_near(up, quaternion_rotate(rotation_between_two_vectors(newup, up), newup) , 1.e-12);
+        EXPECT_V4_NEAR(up, quaternion_rotate(rotation_between_two_vectors(newup, up), newup) , 1.e-12)
+            << "up = quaternion_rotate(rotation_between_two_vectors(quaternion_rotate(q, up), up), quaternion_rotate(q, up))";
     }
     
     integrate_angular_velocity_jacobian(quat, angvel, dW_dW, dW_dw);
@@ -251,12 +219,10 @@ void test_rotation(const v4 &vec)
     }
 
     {
-        SCOPED_TRACE("integrate_angular_velocity(W, w) = W * integrate_angular_velocity(I, w)");
         quaternion q1 = integrate_angular_velocity(quat, angvel);
         quaternion q2 = quaternion_product(quat, integrate_angular_velocity(quaternion(1., 0., 0., 0.), angvel));
-        v4 vq1(q1.w(), q1.x(), q1.y(), q1.z());
-        v4 vq2(q2.w(), q2.x(), q2.y(), q2.z());
-        test_v4_near(vq1, vq2, 1.e-15);
+        EXPECT_QUATERNION_ROTATION_NEAR(q1,q2, 1.e-15)
+            << "integrate_angular_velocity(W, w) = W * integrate_angular_velocity(I, w)";
     }
 }
 
@@ -266,7 +232,7 @@ TEST(Matrix4, Rotation) {
     
     {
         SCOPED_TRACE("identity matrix = 0 rotation vector");
-        test_rotation_vector_near(to_rotation_vector(m4_identity), rotation_vector(0., 0., 0.), 0);
+        EXPECT_ROTATION_VECTOR_NEAR(to_rotation_vector(m4_identity), rotation_vector(0., 0., 0.), 0);
     }
     
     {

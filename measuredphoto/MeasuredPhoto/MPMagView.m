@@ -35,16 +35,11 @@
 - (void) setPhotoWithSampleBuffer:(CMSampleBufferRef)sampleBuffer
 {
     if (sampleBuffer == nil) return;
-    sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
     
     CVImageBufferRef pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
-    
-    pixelBuffer = (CVImageBufferRef)CFRetain(pixelBuffer);
-    CFRelease(sampleBuffer);
+    if(!pixelBuffer) return;
     
     CIImage *ciImage = [CIImage imageWithCVPixelBuffer:pixelBuffer];
-    
-    CFRelease(pixelBuffer);
     
     CIContext *context = [CIContext contextWithOptions:nil];
     CGImageRef cgImageRef = [context createCGImage:ciImage fromRect:CGRectMake(0, 0, CVPixelBufferGetWidth(pixelBuffer), CVPixelBufferGetHeight(pixelBuffer))];

@@ -562,8 +562,10 @@ uint64_t get_timestamp()
         }
     }
     
-    if (sampleBuffer) sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
+    if (!sampleBuffer) return;
     CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
+    if(!pixelBuffer) return;
+    sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
     pixelBuffer = (CVPixelBufferRef)CVPixelBufferRetain(pixelBuffer);
 
     dispatch_async(inputQueue, ^{

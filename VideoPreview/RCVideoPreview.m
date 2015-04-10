@@ -166,25 +166,29 @@ void main()
                     localData = dataQueued;
                     dataQueued = nil;
                 }
-                CVPixelBufferRef pixBuf = (CVPixelBufferRef)CFRetain(CMSampleBufferGetImageBuffer(localData.sampleBuffer)); //This can be a zombie object if the pixel buffer was already invalidated (finalized)
-                if(CMSampleBufferIsValid(localData.sampleBuffer)) //We put this after retaining the pixel buffer to make sure that invalidate doesn't get called between the check and our retain
+                CVPixelBufferRef pixBuf = (CMSampleBufferGetImageBuffer(localData.sampleBuffer)); //This can be a zombie object if the pixel buffer was already invalidated (finalized)
+                if(pixBuf)
                 {
-                    if([weakSelf beginFrame]) {
-                        [weakSelf displayPixelBuffer:pixBuf];
-                        //call AR delegate
-                        GLKMatrix4 perspective = [weakSelf getPerspectiveMatrixWithCameraParameters:localData.cameraParameters withNear:.01 withFar:100.];
-                        GLKMatrix4 camera_screen = [weakSelf getScreenRotationForOrientation:self.orientation];
-                        
-                        if([weakSelf.delegate respondsToSelector:@selector(renderWithSensorFusionData:withCameraToScreenMatrix:)])
-                            [weakSelf.delegate renderWithSensorFusionData:localData withCameraToScreenMatrix:GLKMatrix4Multiply(camera_screen, perspective)];
-                        [weakSelf endFrame];
-                        if([weakSelf.delegate respondsToSelector:@selector(didRenderWithSensorFusionData:withCameraToScreenMatrix:)])
-                            [weakSelf.delegate didRenderWithSensorFusionData:localData withCameraToScreenMatrix:GLKMatrix4Multiply(camera_screen, perspective)];
-
-
+                    pixBuf = (CVPixelBufferRef)CFRetain(pixBuf);
+                    if(CMSampleBufferIsValid(localData.sampleBuffer)) //We put this after retaining the pixel buffer to make sure that invalidate doesn't get called between the check and our retain
+                    {
+                        if([weakSelf beginFrame]) {
+                            [weakSelf displayPixelBuffer:pixBuf];
+                            //call AR delegate
+                            GLKMatrix4 perspective = [weakSelf getPerspectiveMatrixWithCameraParameters:localData.cameraParameters withNear:.01 withFar:100.];
+                            GLKMatrix4 camera_screen = [weakSelf getScreenRotationForOrientation:self.orientation];
+                            
+                            if([weakSelf.delegate respondsToSelector:@selector(renderWithSensorFusionData:withCameraToScreenMatrix:)])
+                                [weakSelf.delegate renderWithSensorFusionData:localData withCameraToScreenMatrix:GLKMatrix4Multiply(camera_screen, perspective)];
+                            [weakSelf endFrame];
+                            if([weakSelf.delegate respondsToSelector:@selector(didRenderWithSensorFusionData:withCameraToScreenMatrix:)])
+                                [weakSelf.delegate didRenderWithSensorFusionData:localData withCameraToScreenMatrix:GLKMatrix4Multiply(camera_screen, perspective)];
+                            
+                            
+                        }
                     }
+                    CFRelease(pixBuf);
                 }
-                CFRelease(pixBuf);
 
             });
         }

@@ -139,9 +139,8 @@ packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
         NSLog( @"sample buffer is not ready. Skipping sample" );
         return;
     }
-    CFRetain(sampleBuffer);
     CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
-    CVPixelBufferRetain(pixelBuffer);
+    if(!pixelBuffer) return;
 
     CMTime timestamp = (CMTime)CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
 
@@ -162,8 +161,6 @@ packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
     unsigned char *outbase = buf->data + 16;
     memcpy(outbase, pixel, width*height);
     CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
-    CVPixelBufferRelease(pixelBuffer);
-    CFRelease(sampleBuffer);
 
     // 16 bytes for pgm header, 16 bytes for header
     dispatch_data_t data = dispatch_data_create(buf, buf->header.bytes, 0, DISPATCH_DATA_DESTRUCTOR_FREE);

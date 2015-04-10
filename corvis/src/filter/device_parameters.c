@@ -77,6 +77,8 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
     dc->a_meas_var = a_stdev * a_stdev;
     dc->image_width = 640;
     dc->image_height = 480;
+    dc->Cx = (dc->image_width - 1)/2.;
+    dc->Cy = (dc->image_height - 1)/2.;
     int max_dim = dc->image_width > dc->image_height ? dc->image_width : dc->image_height;
 
 

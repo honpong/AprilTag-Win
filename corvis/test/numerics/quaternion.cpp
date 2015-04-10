@@ -44,19 +44,19 @@ TEST(Quaternion, ProductJacobian)
         SCOPED_TRACE("left");
         v4 a = v4(q.w(), q.x(), q.y(), q.z());
         v4 b = quaternion_product_left_jacobian(q2) * a;
-        EXPECT_EQ(quaternion_product(q, q2), quaternion(b[0], b[1], b[2], b[3]));
+        EXPECT_QUATERNION_NEAR(quaternion_product(q, q2), quaternion(b[0], b[1], b[2], b[3]), 1.e-15);
         a = v4(q2.w(), q2.x(), q2.y(), q2.z());
         b = quaternion_product_left_jacobian(q) * a;
-        EXPECT_EQ(quaternion_product(q2, q), quaternion(b[0], b[1], b[2], b[3]));
+        EXPECT_QUATERNION_NEAR(quaternion_product(q2, q), quaternion(b[0], b[1], b[2], b[3]), 1.e-15);
     }
     {
         SCOPED_TRACE("right");
         v4 a = v4(q2.w(), q2.x(), q2.y(), q2.z());
         v4 b = quaternion_product_right_jacobian(q) * a;
-        EXPECT_EQ(quaternion_product(q, q2), quaternion(b[0], b[1], b[2], b[3]));
+        EXPECT_QUATERNION_NEAR(quaternion_product(q, q2), quaternion(b[0], b[1], b[2], b[3]), 1.e-15);
         a = v4(q.w(), q.x(), q.y(), q.z());
         b = quaternion_product_right_jacobian(q2) * a;
-        EXPECT_EQ(quaternion_product(q2, q), quaternion(b[0], b[1], b[2], b[3]));
+        EXPECT_QUATERNION_NEAR(quaternion_product(q2, q), quaternion(b[0], b[1], b[2], b[3]), 1.e-15);
     }
 }
 

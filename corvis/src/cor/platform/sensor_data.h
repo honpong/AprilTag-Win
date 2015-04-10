@@ -16,6 +16,11 @@ class camera_data
 {
 public:
     camera_data(): image_handle(nullptr, nullptr), image(nullptr), width(0), height(0), stride(0) { }
+    /**
+     Constructs camera_data using a platform-specific pointer.
+     May throw std::runtime_error if the passed handle is invalid or the necessary data could not be extracted.
+     @param handle A platform specific handle. CMSampleBufferRef for iOS.
+     */
     camera_data(void *handle);
     ~camera_data();
     camera_data(camera_data&& other) = default;

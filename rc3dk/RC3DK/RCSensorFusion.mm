@@ -706,9 +706,12 @@ typedef NS_ENUM(int, RCLicenseStatus)
     
     if (sampleBuffer)
     {
-        queue->receive_camera(camera_data(sampleBuffer));
+        try {
+            queue->receive_camera(camera_data(sampleBuffer));
+        } catch (std::runtime_error) {
+            //do nothing - indicates the sample / image buffer was not valid.
+        }
     }
-
 }
 
 - (void) receiveAccelerometerData:(CMAccelerometerData *)accelerationData;

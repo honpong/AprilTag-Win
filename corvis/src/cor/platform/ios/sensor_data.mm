@@ -9,6 +9,7 @@
 #include "sensor_data.h"
 #import <CoreMedia/CoreMedia.h>
 #import <CoreMotion/CoreMotion.h>
+#include <stdexcept>
 
 static sensor_clock::time_point time_point_from_CMTime(const CMTime &time)
 {
@@ -28,6 +29,7 @@ static sensor_clock::time_point time_point_fromNSTimeInterval(const NSTimeInterv
 camera_data::camera_data(void *h): image_handle((void *)CFRetain(h), [](void *h) {CFRelease(h);})
 {
     auto sampleBuffer = (CMSampleBufferRef)image_handle.get();
+    if(!sampleBuffer) throw std::runtime_error("Null sample buffer");
     CMTime time = (CMTime)CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
     
     //TODO: get actual exposure time from ExposureTime field of exif metadata dictionary
@@ -36,6 +38,7 @@ camera_data::camera_data(void *h): image_handle((void *)CFRetain(h), [](void *h)
     //        DLog(@"metadata: %@", metadataDict);
     
     CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
+    if(!pixelBuffer) throw std::runtime_error("Null image buffer");
     pixelBuffer = (CVPixelBufferRef)CVPixelBufferRetain(pixelBuffer);
     
     width = CVPixelBufferGetWidth(pixelBuffer);

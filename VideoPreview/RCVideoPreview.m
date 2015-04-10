@@ -152,7 +152,7 @@ void main()
 
 - (void) displaySensorFusionData:(RCSensorFusionData *)data
 {
-    @synchronized(dataQueued)
+    @synchronized(self)
     {
         if(!dataQueued) //no previous frame - enqueue it and send the render block.
         {
@@ -161,7 +161,7 @@ void main()
             
             dispatch_async(dispatch_get_main_queue(), ^{
                 RCSensorFusionData *localData;
-                @synchronized(dataQueued)
+                @synchronized(self)
                 {
                     localData = dataQueued;
                     dataQueued = nil;

@@ -143,7 +143,7 @@ void replay::runloop()
         if(file.bad() || file.eof()) is_running = false;
     }
     while(queue->dispatch_offline(true)) {}
-    fprintf(stderr, "Distance is %f cm, total path length %f cm\n", cor_setup->sfm.s.total_distance * 100, norm(cor_setup->sfm.s.T.v) * 100);
+    fprintf(stderr, "Straight-line length is %f cm, total path length %f cm\n", norm(cor_setup->sfm.s.T.v) * 100, cor_setup->sfm.s.total_distance * 100);
     fprintf(stderr, "Dispatched %d packets %.2f Mbytes\n", packets_dispatched, bytes_dispatched/1.e6);
 }
 

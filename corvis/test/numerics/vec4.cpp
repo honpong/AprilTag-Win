@@ -60,7 +60,7 @@ TEST(Matrix4, Identity) {
     EXPECT_EQ(foo, foo * m4::Identity());
     EXPECT_EQ(foo, m4::Identity() * foo);
     EXPECT_EQ(foo + bar, bar + foo);
-    EXPECT_EQ(foo + m4(), foo);
+    EXPECT_EQ(foo + m4::Zero(), foo);
     EXPECT_EQ((m4)(foo - foo), (m4)m4::Zero());
     EXPECT_EQ((foo + bar) + m4::Identity(), foo + (bar + m4::Identity()));
     EXPECT_EQ(m4::Identity() * m4::Identity(), m4::Identity());

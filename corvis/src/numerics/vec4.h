@@ -21,7 +21,7 @@ extern "C" {
 #include <ostream>
 
 #define EIGEN_NO_AUTOMATIC_RESIZING
-#define EIGEN_INITIALIZE_MATRICES_BY_ZERO
+//#define EIGEN_INITIALIZE_MATRICES_BY_ZERO
 #define EIGEN_DEFAULT_TO_ROW_MAJOR
 #define EIGEN_MATRIX_PLUGIN "../../../numerics/eigen_initializer_list.h"
 #include "../Eigen/Dense"

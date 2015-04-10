@@ -491,6 +491,7 @@
 		D90D18C01A3A03B500D1AFE4 /* camera_control_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = camera_control_interface.h; path = ../../shared_corvis_3dk/camera_control_interface.h; sourceTree = "<group>"; };
 		D953126D1A15AE63004D6068 /* homography.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = homography.cpp; sourceTree = "<group>"; };
 		D953126E1A15AE63004D6068 /* homography.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = homography.h; sourceTree = "<group>"; };
+		D96055841ACDFEF500E72711 /* eigen_initializer_list.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = eigen_initializer_list.h; sourceTree = "<group>"; };
 		D97AEF8018F7613F00573148 /* device_parameters.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = device_parameters.c; sourceTree = "<group>"; };
 		D9CCDC7C192E887F00A41329 /* scaled_mask.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scaled_mask.cpp; sourceTree = "<group>"; };
 		D9CCDC7D192E887F00A41329 /* scaled_mask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scaled_mask.h; sourceTree = "<group>"; };
@@ -797,6 +798,7 @@
 				D3DE5D081A80E301000EF94D /* transformation.h */,
 				327B55D118EB4F430001CCE1 /* vec4.cpp */,
 				327B55D218EB4F430001CCE1 /* vec4.h */,
+				D96055841ACDFEF500E72711 /* eigen_initializer_list.h */,
 			);
 			name = numerics;
 			path = ../../corvis/src/numerics;

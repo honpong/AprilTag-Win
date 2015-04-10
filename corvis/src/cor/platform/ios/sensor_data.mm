@@ -56,11 +56,6 @@ camera_data::camera_data(void *h): image_handle((void *)CFRetain(h), [](void *h)
         image = (unsigned char *)CVPixelBufferGetBaseAddress(pixelBuffer);
     }
     
-    if(width != 640 || height != 480 || stride != 640) {
-        NSLog(@"Image dimensions are incorrect! Make sure you're using the right video preset and not changing the orientation on the capture connection.\n");
-        abort();
-    }
-    
     timestamp = time_point_from_CMTime(time) + std::chrono::microseconds(16667);
 }
 

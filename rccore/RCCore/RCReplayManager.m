@@ -32,12 +32,18 @@ uint64_t get_timestamp()
     dispatch_queue_t queue;
 
     float pathLength;
+    int width, height;
+    int framerate;
 
     CFDictionaryRef pixelBufferAttributes;
     CVPixelBufferPoolRef pixelBufferPool;
 }
 @end
 
+
+@interface RCSensorFusion (CategoryInternal)
+- (void) startReplayWithRealtime:(bool)realtime withWidth:(int)width withHeight:(int)height withFramerate:(int)framerate;
+@end
 
 // No need to override the videodevice, as passing nil returns false for supports focus
 
@@ -158,13 +164,13 @@ packet_t * packet_read(FILE * file)
         baseAddress = CVPixelBufferGetBaseAddressOfPlane(imageBuffer, 0);
     else
         baseAddress = CVPixelBufferGetBaseAddress(imageBuffer);
-    memcpy(baseAddress, packet->data + 16, 640*480); // +16 bytes to skip P5 pgm header
+    memcpy(baseAddress, packet->data + 16, width*height); // +16 bytes to skip P5 pgm header
     CVPixelBufferUnlockBaseAddress(imageBuffer, 0);
 
     CMVideoFormatDescriptionRef formatDescription;
     CMVideoFormatDescriptionCreateForImageBuffer(kCFAllocatorDefault, imageBuffer, &formatDescription);
     CMSampleTimingInfo sampleTiming;
-    sampleTiming.duration = CMTimeMake(1, 30); // 30fps
+    sampleTiming.duration = CMTimeMake(1, framerate);
     sampleTiming.decodeTimeStamp = CMTimeMake((packet->header.time)*1.e3, 1.e9); // time in 1/1e9 sec
     sampleTiming.presentationTimeStamp = sampleTiming.decodeTimeStamp;
 
@@ -248,8 +254,10 @@ packet_t * packet_read(FILE * file)
     uint64_t first_timestamp, realtime_offset;
     uint64_t time_started, now;
 
-    pixelBufferAttributes = CFBridgingRetain(@{(id)kCVPixelBufferWidthKey: @640.0f,
-                                              (id)kCVPixelBufferHeightKey: @480.0f,
+    NSNumber * nsWidth = [NSNumber numberWithInt:width];
+    NSNumber * nsHeight = [NSNumber numberWithInt:height];
+    pixelBufferAttributes = CFBridgingRetain(@{(id)kCVPixelBufferWidthKey: nsWidth,
+                                              (id)kCVPixelBufferHeightKey: nsHeight,
                                               (id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_OneComponent8)});
     CVPixelBufferPoolCreate (kCFAllocatorDefault, nil, pixelBufferAttributes, &pixelBufferPool);
     NSData * headerData;
@@ -314,8 +322,8 @@ packet_t * packet_read(FILE * file)
         // Initialize sensor fusion.
         sensorFusion = [RCSensorFusion sharedInstance];
         sensorFusion.delegate = self;
-        if(!isRealtime)
-            [sensorFusion performSelector:@selector(startReplay)];
+
+        [sensorFusion startReplayWithRealtime:isRealtime withWidth:width withHeight:height withFramerate:framerate];
         [sensorFusion startSensorFusionUnstableWithDevice:nil];
 
         dispatch_async(queue, ^(void) {
@@ -325,7 +333,7 @@ packet_t * packet_read(FILE * file)
     }
 }
 
-- (void)setupWithPath:(NSString *)path withRealtime:(BOOL)realtime
+- (void)setupWithPath:(NSString *)path withRealtime:(BOOL)realtime withWidth:(int)_width withHeight:(int)_height withFramerate:(int)_framerate
 {
     NSLog(@"Setup replay with %@", path);
 
@@ -338,6 +346,9 @@ packet_t * packet_read(FILE * file)
     packetsDispatched = 0;
     bytesDispatched = 0;
     currentProgress = 0;
+    width = _width;
+    height = _height;
+    framerate = _framerate;
     isRealtime = realtime;
 }
 

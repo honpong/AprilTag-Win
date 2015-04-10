@@ -37,6 +37,10 @@ _WXGLADE := $(WXGLADE)
 
 %.o: override CC=$(Q)printf "%32s %s\n" "Compiling" $<; $(_CC)
 %.o: override CXX=$(Q)printf "%32s %s\n" "Compiling" $<; $(_CXX)
+%.S: override CC=$(Q)printf "%32s %s\n" "Generating Code" $<; $(_CC)
+%.S: override CXX=$(Q)printf "%32s %s\n" "Generating code" $<; $(_CXX)
+%.E: override CC=$(Q)printf "%32s %s\n" "Preprocessing" $<; $(_CC)
+%.E: override CXX=$(Q)printf "%32s %s\n" "Preprocessing" $<; $(_CXX)
 %.c: override SWIG=$(Q)printf "%32s %s\n" "SWIG Wrapping" $<; $(_SWIG)
 %.cpp: override SWIG=$(Q)printf "%32s %s\n" "SWIG Wrapping" $<; $(_SWIG)
 %.py: override WXGLADE=$(Q)printf "%32s %s\n" "Generating GUI" $<; $(_WXGLADE)
@@ -73,9 +77,25 @@ build/%.o: src/%.c
 	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) $(CPPFLAGS) -c -o $@ $<
 
+build/%.E: src/%.c
+	@mkdir -p $(@D)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -E -o $@ $<
+
+build/%.S: src/%.c
+	@mkdir -p $(@D)
+	$(CC) $(CFLAGS) $(CPPFLAGS) -S -o $@ $<
+
 build/%.o: src/%.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c -o $@ $<
+
+build/%.E: src/%.cpp
+	@mkdir -p $(@D)
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -E -o $@ $<
+
+build/%.S: src/%.cpp
+	@mkdir -p $(@D)
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -S -o $@ $<
 
 %/__init__.py:
 	@mkdir -p $(@D)
@@ -96,7 +116,7 @@ DEPS := $(DEPS) build/swig/_cor.c.d
 
 ############################## NUMERICS ############################
 
-NUMERICS_CXX_SOURCES := $(addprefix src/numerics/, vec4.cpp matrix.cpp kalman.cpp)
+NUMERICS_CXX_SOURCES := $(addprefix src/numerics/, rotation_vector.cpp vec4.cpp matrix.cpp kalman.cpp)
 bin/corvis/_numerics.so: LDFLAGS := $(LDFLAGS) -lm -lcblas -llapack -lstdc++
 bin/corvis/_numerics.so: $(patsubst src/%,build/%,$(NUMERICS_CXX_SOURCES:.cpp=.o)) build/swig/_numerics.o
 
@@ -228,7 +248,7 @@ TARGETS := $(TARGETS) bin/measure
 
 d := test
 
-TEST_CXX_SOURCES := $(addprefix $(d)/, test.cpp numerics/vec4.cpp stereo/stereo.cpp stereo/camera.cpp numerics/quaternion.cpp filter/homography.cpp filter/utils.cpp cor/sensor_fusion_queue.cpp)
+TEST_CXX_SOURCES := $(addprefix $(d)/, test.cpp util.cpp numerics/vec4.cpp numerics/rotation_vector.cpp stereo/stereo.cpp stereo/camera.cpp numerics/quaternion.cpp filter/homography.cpp filter/utils.cpp cor/sensor_fusion_queue.cpp)
 
 _CPPFLAGS := $(_CPPFLAGS) -I../ -Isrc/numerics -Itest
 LDFLAGS := $(LDFLAGS) -lstdc++
@@ -241,7 +261,7 @@ build/$(d)/%.o: $(d)/%.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 
-bin/test: build/$(d)/gtest_main.o build/$(d)/gtest-all.o $(patsubst test/%,build/test/%,$(TEST_CXX_SOURCES:.cpp=.o)) $(addprefix build/numerics/, vec4.o matrix.o) $(addprefix build/filter/, fast_detector/fast_9.o scaled_mask.o homography.o) $(addprefix build/cor/, sensor_fusion_queue.o platform/shell/sensor_data.o platform/shell/sensor_clock.o) bin/_stereo.so bin/_libDAI.so bin/_qhull.so
+bin/test: build/$(d)/gtest_main.o build/$(d)/gtest-all.o $(patsubst test/%,build/test/%,$(TEST_CXX_SOURCES:.cpp=.o)) $(addprefix build/numerics/, rotation_vector.o vec4.o matrix.o) $(addprefix build/filter/, fast_detector/fast_9.o scaled_mask.o homography.o) $(addprefix build/cor/, sensor_fusion_queue.o platform/shell/sensor_data.o platform/shell/sensor_clock.o) bin/_stereo.so bin/_libDAI.so bin/_qhull.so
 	@mkdir -p $(@D)
 	$(CC) $(LDFLAGS) $(PYTHON_LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
 
@@ -251,6 +271,10 @@ TARGETS := $(TARGETS) bin/test
 ##################################################################
 
 TARGETS := $(TARGETS) bin/__init__.py
+
+TARGETS := $(TARGETS) __init__.py
+__init__.py: bin/corvis/_cor.so bin/corvis/_filter.so bin/corvis/_numerics.so
+	$(Q)cd .. && python -c 'import corvis'
 
 DEPS := $(DEPS) $(patsubst src/%,build/%, $(SOURCES:.c=.o.d) $(CXX_SOURCES:.cpp=.o.d)) build/test/gtest_main.o.d build/test/gtest-all.o.d $(patsubst test/%,build/test/%, $(TEST_CXX_SOURCES:.cpp=.o.d))
 

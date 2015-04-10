@@ -190,17 +190,12 @@
 
 - (NSData*) sampleBufferToNSData:(CMSampleBufferRef)sampleBuffer
 {
-    if (sampleBuffer)
-    {
-        sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
-    }
-    else
-    {
-        return nil;
-    }
+    if (!sampleBuffer) return nil;
     
     //inside RCSensorFusionData we have a CMSampleBufferRef from which we can get CVImageBufferRef
     CVImageBufferRef pixBuf = CMSampleBufferGetImageBuffer(sampleBuffer);
+    if(!pixBuf) return nil;
+    
     //we then need to turn that CVImageBuffer into an UIImage, which can be written to NSData as a JPG
     CIImage *ciImage = [CIImage imageWithCVPixelBuffer:pixBuf];
     
@@ -213,7 +208,6 @@
     
     UIImage *uiImage = [UIImage imageWithCGImage:videoImage];
     CFRelease(videoImage);
-    CFRelease(sampleBuffer);
     return UIImagePNGRepresentation(uiImage);
 }
 

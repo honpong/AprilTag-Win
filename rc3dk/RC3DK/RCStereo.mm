@@ -70,7 +70,9 @@
 
 - (void) writeSampleBuffer:(CMSampleBufferRef)sampleBuffer withFilename:(NSString *)filename
 {
+    if(!sampleBuffer) return;
     CVImageBufferRef imageBuffer = CMSampleBufferGetImageBuffer(sampleBuffer);
+    if(!imageBuffer) return;
     CVPixelBufferLockBaseAddress(imageBuffer, 0);
     CIImage * image = [CIImage imageWithCVPixelBuffer:imageBuffer];
     CIContext *context = [CIContext contextWithOptions:nil];
@@ -95,7 +97,9 @@
     camera s;
     
     CMSampleBufferRef sampleBuffer = data.sampleBuffer;
+    if(!sampleBuffer) return;
     CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
+    if(!pixelBuffer) return;
     CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
     unsigned char *pixel = (unsigned char *)CVPixelBufferGetBaseAddressOfPlane(pixelBuffer,0);
     

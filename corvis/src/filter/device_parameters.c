@@ -41,10 +41,28 @@ corvis_device_type get_device_by_name(const char *name)
     return DEVICE_TYPE_UNKNOWN;
 }
 
+void device_set_resolution(struct corvis_device_parameters *dc, int image_width, int image_height)
+{
+    int max_old_dim = dc->image_width > dc->image_height ? dc->image_width : dc->image_height;
+    int max_new_dim = image_width > image_height ? image_width : image_height;
+
+    dc->image_width = image_width;
+    dc->image_height = image_height;
+    dc->Cx = (dc->image_width - 1)/2.;
+    dc->Cy = (dc->image_height - 1)/2.;
+    // Scale the focal length depending on the resolution
+    dc->Fx = dc->Fx * max_new_dim / max_old_dim;
+    dc->Fy = dc->Fx;
+}
+
+void device_set_framerate(struct corvis_device_parameters *dc, float framerate_hz)
+{
+    dc->shutter_delay = 0;
+    dc->shutter_period = 1e6 * 1./framerate_hz;
+}
+
 bool get_parameters_for_device(corvis_device_type type, struct corvis_device_parameters *dc)
 {
-    dc->Cx = 319.5;
-    dc->Cy = 239.5;
     dc->px = 0.;
     dc->py = 0.;
     dc->K[2] = 0.;
@@ -59,8 +77,8 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
     dc->a_meas_var = a_stdev * a_stdev;
     dc->image_width = 640;
     dc->image_height = 480;
-    dc->shutter_delay = 0;
-    dc->shutter_period = 31000;
+    int max_dim = dc->image_width > dc->image_height ? dc->image_width : dc->image_height;
+
 
     for(int i = 0; i < 3; ++i) {
         dc->a_bias[i] = 0.;
@@ -75,8 +93,8 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
     switch(type)
     {
         case DEVICE_TYPE_IPHONE4S: //Tc from new sequence appears reasonably consistent with teardown
-            dc->Fx = 606.;
-            dc->Fy = 606.;
+            dc->Fx = 606./640 * max_dim;
+            dc->Fy = dc->Fx;
             dc->K[0] = .21;
             dc->K[1] = -.45;
             dc->Tc[0] = 0.010;
@@ -84,8 +102,8 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
             dc->Tc[2] = 0.000;
             return true;
         case DEVICE_TYPE_IPHONE5: //Tc from new sequence is consistent with teardown
-            dc->Fx = 596.;
-            dc->Fy = 596.;
+            dc->Fx = 596./640 * max_dim;
+            dc->Fy = dc->Fx;
             dc->K[0] = .12;
             dc->K[1] = -.20;
             dc->Tc[0] = 0.010;
@@ -93,8 +111,8 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
             dc->Tc[2] = 0.000;
             return true;
         case DEVICE_TYPE_IPHONE5C: //Guess from teardown - Tc is different from iphone 5
-            dc->Fx = 596.;
-            dc->Fy = 596.;
+            dc->Fx = 596./640 * max_dim;
+            dc->Fy = dc->Fx;
             dc->K[0] = .12;
             dc->K[1] = -.20;
             dc->Tc[0] = 0.005;
@@ -103,8 +121,8 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
             return true;
         case DEVICE_TYPE_IPHONE5S: //Tc from sequence appears consistent with teardown; static calibration for my 5s is not right for older sequences
             //iphone5s_sam is a bit different, but within range
-            dc->Fx = 547.;
-            dc->Fy = 547.;
+            dc->Fx = 547./640 * max_dim;
+            dc->Fy = dc->Fx;
             dc->K[0] = .09;
             dc->K[1] = -.15;
             dc->Tc[0] = 0.015;
@@ -112,8 +130,8 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
             dc->Tc[2] = 0.000;
             return true;
         case DEVICE_TYPE_IPHONE6: //Calibrated on Eagle's iPhone 6; consistent with teardwon
-            dc->Fx = 548.;
-            dc->Fy = 548.;
+            dc->Fx = 548./640 * max_dim;
+            dc->Fy = dc->Fx;
             dc->K[0] = .10;
             dc->K[1] = -.15;
             dc->Tc[0] = 0.015;
@@ -121,8 +139,8 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
             dc->Tc[2] = 0.000;
             return true;
         case DEVICE_TYPE_IPHONE6PLUS: //Based on 6, but calibrated with real iPhone 6 plus
-            dc->Fx = 548.;
-            dc->Fy = 548.;
+            dc->Fx = 548./640 * max_dim;
+            dc->Fy = dc->Fx;
             dc->K[0] = .10;
             dc->K[1] = -.15;
             dc->Tc[0] = 0.008;
@@ -130,8 +148,8 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
             dc->Tc[2] = 0.000;
             return true;
         case DEVICE_TYPE_IPOD5: //Tc is reasonably consistent with teardown
-            dc->Fx = 591.;
-            dc->Fy = 591.;
+            dc->Fx = 591./640 * max_dim;
+            dc->Fy = dc->Fx;
             dc->K[0] = .18;
             dc->K[1] = -.37;
             dc->Tc[0] = 0.043;
@@ -139,8 +157,8 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
             dc->Tc[2] = 0.000;
             return true;
         case DEVICE_TYPE_IPAD2: //Tc from sequence appears consistent with teardown, except x offset seems a bit large
-            dc->Fx = 782.;
-            dc->Fy = 782.;
+            dc->Fx = 782./640 * max_dim;
+            dc->Fy = dc->Fx;
             dc->K[0] = .03;
             dc->K[1] = -.21;
             dc->Tc[0] = -0.030;
@@ -148,8 +166,8 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
             dc->Tc[2] = 0.;
             return true;
         case DEVICE_TYPE_IPAD3: //Tc from sequence seems stable, but can't see on teardown. y offset seems hard to estimate, not sure if it's right
-            dc->Fx = 627.;
-            dc->Fy = 627.;
+            dc->Fx = 627./640 * max_dim;
+            dc->Fy = dc->Fx;
             dc->K[0] = .17;
             dc->K[1] = -.38;
             dc->Tc[0] = 0.064;
@@ -157,8 +175,8 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
             dc->Tc[2] = 0.;
             return true;
         case DEVICE_TYPE_IPAD4: //Tc from sequence seems stable, but can't see on teardown.
-            dc->Fx = 594.;
-            dc->Fy = 594.;
+            dc->Fx = 594./640 * max_dim;
+            dc->Fy = dc->Fx;
             dc->K[0] = .17;
             dc->K[1] = -.47;
             dc->Tc[0] = .010;
@@ -166,8 +184,8 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
             dc->Tc[2] = 0.;
             return true;
         case DEVICE_TYPE_IPADAIR: //Tc from sequence appears consistent with teardown
-            dc->Fx = 582.;
-            dc->Fy = 582.;
+            dc->Fx = 582./640 * max_dim;
+            dc->Fy = dc->Fx;
             dc->K[0] = .12;
             dc->K[1] = -.25;
             dc->Tc[0] = -.012;
@@ -175,8 +193,8 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
             dc->Tc[2] = .000;
             return true;
         case DEVICE_TYPE_IPADAIR2: //Calibrated from device; very similar to old
-            dc->Fx = 573.;
-            dc->Fy = 573.;
+            dc->Fx = 573./640 * max_dim;
+            dc->Fy = dc->Fx;
             dc->K[0] = .13;
             dc->K[1] = -.26;
             dc->Tc[0] = -.003;
@@ -184,8 +202,8 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
             dc->Tc[2] = .000;
             return true;
         case DEVICE_TYPE_IPADMINI: //Tc from sequence is consistent with teardown
-            dc->Fx = 583.;
-            dc->Fy = 583.;
+            dc->Fx = 583./640 * max_dim;
+            dc->Fy = dc->Fx;
             dc->K[0] = .13;
             dc->K[1] = -.21;
             dc->Tc[0] = -0.014;
@@ -193,8 +211,8 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
             dc->Tc[2] = 0.;
             return true;
         case DEVICE_TYPE_IPADMINIRETINA: //Tc from sequence is consistent with teardown
-            dc->Fx = 580.;
-            dc->Fy = 580.;
+            dc->Fx = 580./640 * max_dim;
+            dc->Fy = dc->Fx;
             dc->K[0] = .14;
             dc->K[1] = -.33;
             dc->Tc[0] = -0.003;
@@ -202,8 +220,8 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
             dc->Tc[2] = 0.000;
             return true;
         case DEVICE_TYPE_IPADMINIRETINA2: //Just copied from old
-            dc->Fx = 580.;
-            dc->Fy = 580.;
+            dc->Fx = 580./640 * max_dim;
+            dc->Fy = dc->Fx;
             dc->K[0] = .14;
             dc->K[1] = -.33;
             dc->Tc[0] = -0.003;
@@ -212,8 +230,8 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
             return true;
         case DEVICE_TYPE_UNKNOWN:
         default:
-            dc->Fx = 600.;
-            dc->Fy = 600.;
+            dc->Fx = 600./640 * max_dim;
+            dc->Fy = dc->Fx;
             dc->K[0] = .20;
             dc->K[1] = -.20;
             dc->Tc[0] = 0.01;
@@ -221,6 +239,9 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
             dc->Tc[2] = 0.0;
             return false;
     }
+
+    device_set_resolution(dc, 640, 480);
+    device_set_framerate(dc, 30);
 }
 
 

@@ -93,20 +93,13 @@
     
     BOOL calibratedFlag = [NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_CALIBRATED];
     BOOL hasCalibration = [SENSOR_FUSION hasCalibrationData];
-    hasCalibration= NO;
+    
     if([NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_FIRST_LAUNCH])
     {
         [self gotoIntroScreen];
     }
     else
     {
-        if ([LOCATION_MANAGER isLocationExplicitlyAllowed] && [NSUserDefaults.standardUserDefaults boolForKey:PREF_USE_LOCATION])
-        {
-            // location already authorized. go ahead.
-            LOCATION_MANAGER.delegate = self;
-            [LOCATION_MANAGER startLocationUpdates];
-        }
-        
         if (SKIP_CALIBRATION || (calibratedFlag && hasCalibration) )
         {
             [self gotoMainViewController];
@@ -202,7 +195,16 @@
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
-   LOGME
+    LOGME
+    
+    BOOL useLocation = [NSUserDefaults.standardUserDefaults boolForKey:PREF_USE_LOCATION];
+    BOOL locationAllowed = [LOCATION_MANAGER isLocationExplicitlyAllowed];
+    if (locationAllowed && useLocation)
+    {
+        // location already authorized. go ahead.
+        LOCATION_MANAGER.delegate = self;
+        [LOCATION_MANAGER startLocationUpdates];
+    }
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application

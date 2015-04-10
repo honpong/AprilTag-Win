@@ -58,7 +58,6 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     f_t outlier;
     v4 initial;
     v4 current;
-    v4 calibrated;
     feature_t prediction;
     f_t innovation_variance_x, innovation_variance_y, innovation_variance_xy;
     static uint64_t counter;
@@ -166,7 +165,7 @@ class state_vision_group: public state_branch<state_node *> {
     static f_t min_feats;
     
     //cached data
-    m4 Rr;    
+    m4 Rr;
     m4 dWrp_dWr, dWrp_ddW;
     m4 dTrp_dV, dTrp_dWr, dTrp_dW;
 };

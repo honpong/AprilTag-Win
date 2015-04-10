@@ -24,8 +24,11 @@ public:
     f_t &x() { return data[0]; }
     f_t &y() { return data[1]; }
     f_t &z() { return data[2]; }
-    
+
+    inline const rotation_vector operator-() const { return rotation_vector(-data); }
+    inline const f_t norm2() const { return data[0]*data[0] + data[1]*data[1] + data[2]*data[2]; }
 private:
+    rotation_vector(const v4 &v) : data(v) {}
     v4 data;
 };
 
@@ -40,17 +43,9 @@ static inline bool operator==(const rotation_vector &a, const rotation_vector &b
     return a.x() == b.x() && a.y() == b.y() && a.z() == b.z();
 }
 
-static inline m4 to_rotation_matrix(const rotation_vector &v)
-{
-    return rodrigues(v4(v.x(), v.y(), v.z(), 0.), NULL);
-}
-
-static inline m4v4 to_rotation_matrix_jacobian(const rotation_vector &v)
-{
-    m4v4 res;
-    rodrigues(v4(v.x(), v.y(), v.z(), 0.), &res);
-    return res;
-}
+m4  to_rotation_matrix(const rotation_vector &v); // e^\hat{v}
+m4 to_spatial_jacobian(const rotation_vector &v); // \unhat{(d e^\hat{ v})  e^\hat{-v}} == to_spatial_jacobian(v) dv
+m4    to_body_jacobian(const rotation_vector &v); // \unhat{   e^\hat{-v} d e^\hat{ v}} ==    to_body_jacobian(v) dv
 
 static inline rotation_vector integrate_angular_velocity(const rotation_vector &V, const v4 &w)
 {

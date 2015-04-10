@@ -8,8 +8,6 @@
 
 #import "RCInvertButton.h"
 
-static const NSTimeInterval highlightDelay = .3;
-
 @implementation RCInvertButton
 
 - (id)initWithFrame:(CGRect)frame

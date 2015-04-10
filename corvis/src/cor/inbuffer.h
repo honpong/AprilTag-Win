@@ -33,7 +33,7 @@ struct inbuffer {
     bool file_writable;
     bool threaded;
     bool single_packet;
-    const char *filename;
+    char *filename;
     uint64_t *index;
 };
 

@@ -43,11 +43,11 @@ filter(): s(cov)
     uint64_t last_packet_time;
     int last_packet_type;
 #ifdef SWIG
-    %readonly
+    %immutable;
 #endif
     state s;
 #ifdef SWIG
-    %readwrite
+    %mutable;
 #endif
     
     covariance cov;
@@ -98,6 +98,8 @@ filter(): s(cov)
     uint64_t last_qr_time;
     qr_benchmark qr_bench;
 
+    bool using_simulator;
+
     v4 a_bias_start, w_bias_start; //for tracking calibration progress
     
     observation_queue observations;
@@ -113,6 +115,7 @@ void filter_compute_gravity(struct filter *f, double latitude, double altitude);
 void filter_start_static_calibration(struct filter *f);
 void filter_start_hold_steady(struct filter *f);
 void filter_start_dynamic(struct filter *f);
+void filter_start_simulator(struct filter *f);
 void filter_start_qr_detection(struct filter *f, const char * data, float dimension, bool use_gravity);
 void filter_stop_qr_detection(struct filter *f);
 void filter_start_qr_benchmark(struct filter *f, float dimension);

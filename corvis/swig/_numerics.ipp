@@ -34,20 +34,3 @@
 }
 
 %include "vec4.h"
-
-v4m4 v4m4_get_array(v4m4 *data);
-
-%{
-v4m4 v4m4_get_array(v4m4 *data) {
-     return *data;
-}
-%}
-
-m4v4 m4v4_get_array(m4v4 *data);
-
-%{
-m4v4 m4v4_get_array(m4v4 *data) {
-     return *data;
-}
-%}
-

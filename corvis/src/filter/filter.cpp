@@ -145,12 +145,12 @@ void filter_update_outputs(struct filter *f, uint64_t time)
     m4 
         R = to_rotation_matrix(f->s.W.v),
         Rt = transpose(R),
-        Rbc = to_rotation_matrix(f->s.Wc.v),
-        Rcb = transpose(Rbc),
-        RcbRt = Rcb * Rt;
+        Rc = to_rotation_matrix(f->s.Wc.v),
+        Rct = transpose(Rc),
+        RctRt = Rct * Rt;
 
-    f->s.camera_matrix = RcbRt;
-    v4 T = Rcb * ((Rt * -f->s.T.v) - f->s.Tc.v);
+    f->s.camera_matrix = RctRt;
+    v4 T = Rct * ((Rt * -f->s.T.v) - f->s.Tc.v);
     f->s.camera_matrix[0][3] = T[0];
     f->s.camera_matrix[1][3] = T[1];
     f->s.camera_matrix[2][3] = T[2];
@@ -285,6 +285,7 @@ uint64_t steady_time(struct filter *f, stdev_vector &stdev, v4 meas, f_t varianc
     return time - f->stable_start;
 }
 
+#if log_enabled
 static void print_calibration(struct filter *f)
 {
     fprintf(stderr, "w bias is: "); f->s.w_bias.v.print(); fprintf(stderr, "\n");
@@ -292,6 +293,7 @@ static void print_calibration(struct filter *f)
     fprintf(stderr, "a bias is: "); f->s.a_bias.v.print(); fprintf(stderr, "\n");
     fprintf(stderr, "a bias var is: "); f->s.a_bias.variance().print(); fprintf(stderr, "\n");
 }
+#endif
 
 static float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
 {
@@ -550,6 +552,11 @@ void filter_gyroscope_measurement(struct filter *f, const float data[3], uint64_
         f->s.w_bias.v.print(); v4(f->s.w_bias.variance()).print();
         fprintf(stderr, "\n");
     }
+
+    // Simulator should update outputs because it doesn't produce
+    // images, which are the only time outputs are normally sent
+    if(f->using_simulator)
+        filter_update_outputs(f, time);
 }
 
 static int filter_process_features(struct filter *f, uint64_t time)
@@ -1088,13 +1095,15 @@ extern "C" void filter_image_packet(void *_f, packet_t *p)
 {
     if(p->header.type != packet_camera) return;
     struct filter *f = (struct filter *)_f;
+    int packet_width, packet_height;
+    sscanf((char *)p->data, "P5 %d %d", &packet_width, &packet_height);
     if(!f->track.width) {
-        int width, height;
-        sscanf((char *)p->data, "P5 %d %d", &width, &height);
-        f->track.width = width;
-        f->track.height = height;
-        f->track.stride = width;
+        f->track.width = packet_width;
+        f->track.height = packet_height;
+        f->track.stride = packet_width;
     }
+    else
+        assert(packet_width == f->track.width && packet_height == f->track.height);
     filter_image_measurement(f, p->data + 16, f->track.width, f->track.height, f->track.stride, p->header.time);
 }
 
@@ -1299,6 +1308,8 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->track.init();
 
     f->last_qr_time = 0;
+
+    f->using_simulator = false;
     
     f->max_velocity = 0.;
     f->median_depth_variance = 1.;
@@ -1386,6 +1397,14 @@ void filter_start_dynamic(struct filter *f)
 {
     f->want_start = f->last_time;
     f->run_state = RCSensorFusionRunStateDynamicInitialization;
+}
+
+void filter_start_simulator(struct filter *f)
+{
+    f->want_start = f->last_time;
+    f->s.disable_orientation_only();
+    f->run_state = RCSensorFusionRunStateRunning;
+    f->using_simulator = true;
 }
 
 /*

@@ -53,11 +53,11 @@ public:
 
 class observation_vision_feature: public observation_storage<2> {
  private:
-    f_t projection_residual(const v4 & X_inf, const f_t inv_depth, const xy &found);
+    f_t projection_residual(const v4 & X, const xy &found);
     const state_vision &state;
  public:
     static stdev_scalar stdev[2], inn_stdev[2];
-    m4 Rrt, Rbc, Rcb;
+    m4 Rrt, Rc, Rct;
     v4 X0, X;
     const uint8_t *image;
     struct tracker tracker;
@@ -110,9 +110,7 @@ class observation_spatial: public observation_storage<3> {
 class observation_accelerometer: public observation_spatial {
 protected:
     state_motion &state;
-    m4 Rt;
-    m4v4 dR_dW;
-    m4 dya_dW;
+    m4 Rt, da_dW;
  public:
     static stdev_vector stdev, inn_stdev;
     virtual void predict();

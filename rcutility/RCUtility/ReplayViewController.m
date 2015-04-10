@@ -8,6 +8,7 @@
 
 #import "ReplayViewController.h"
 #import <RCCore/RCCore.h>
+#import "CaptureFilename.h"
 
 @interface ReplayViewController ()
 {
@@ -35,7 +36,11 @@
 {
     NSLog(@"Start replay");
     BOOL isRealtime = [_realtimeSwitch isOn];
-    [controller setupWithPath:replayFilename withRealtime:isRealtime];
+    NSDictionary * parameters = [CaptureFilename parseFilename:replayFilename];
+    [controller setupWithPath:replayFilename withRealtime:isRealtime
+                    withWidth:[(NSNumber *)[parameters objectForKey:@"width"] intValue]
+                   withHeight:[(NSNumber *)[parameters objectForKey:@"height"] intValue]
+                withFramerate:[(NSNumber *)[parameters objectForKey:@"framerate"] intValue]];
     [controller startReplay];
     [startButton setTitle:@"Stop" forState:UIControlStateNormal];
     isStarted = TRUE;

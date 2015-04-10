@@ -144,21 +144,21 @@ void filter_update_outputs(struct filter *f, uint64_t time)
     }
     m4 
         R = to_rotation_matrix(f->s.W.v),
-        Rt = transpose(R),
+        Rt = R.transpose(),
         Rc = to_rotation_matrix(f->s.Wc.v),
-        Rct = transpose(Rc),
+        Rct = Rc.transpose(),
         RctRt = Rct * Rt;
 
     f->s.camera_matrix = RctRt;
     v4 T = Rct * ((Rt * -f->s.T.v) - f->s.Tc.v);
-    f->s.camera_matrix[0][3] = T[0];
-    f->s.camera_matrix[1][3] = T[1];
-    f->s.camera_matrix[2][3] = T[2];
-    f->s.camera_matrix[3][3] = 1.;
+    f->s.camera_matrix(0, 3) = T[0];
+    f->s.camera_matrix(1, 3) = T[1];
+    f->s.camera_matrix(2, 3) = T[2];
+    f->s.camera_matrix(3, 3) = 1.;
 
     bool old_speedfail = f->speed_failed;
     f->speed_failed = false;
-    f_t speed = norm(f->s.V.v);
+    f_t speed = f->s.V.v.norm();
     if(speed > 3.) { //1.4m/s is normal walking speed
         if (log_enabled && !old_speedfail) fprintf(stderr, "Velocity %f m/s exceeds max bound\n", speed);
         f->speed_failed = true;
@@ -168,7 +168,7 @@ void filter_update_outputs(struct filter *f, uint64_t time)
         f->speed_warning = true;
         f->speed_warning_time = time;
     }
-    f_t accel = norm(f->s.a.v);
+    f_t accel = f->s.a.v.norm();
     if(accel > 9.8) { //1g would saturate sensor anyway
         if (log_enabled && !old_speedfail) fprintf(stderr, "Acceleration exceeds max bound\n");
         f->speed_failed = true;
@@ -178,7 +178,7 @@ void filter_update_outputs(struct filter *f, uint64_t time)
         f->speed_warning = true;
         f->speed_warning_time = time;
     }
-    f_t ang_vel = norm(f->s.w.v);
+    f_t ang_vel = f->s.w.v.norm();
     if(ang_vel > 5.) { //sensor saturation - 250/180*pi
         if (log_enabled && !old_speedfail) fprintf(stderr, "Angular velocity exceeds max bound\n");
         f->speed_failed = true;
@@ -273,11 +273,11 @@ uint64_t steady_time(struct filter *f, stdev_vector &stdev, v4 meas, f_t varianc
     }
     if(!stdev.count && use_orientation) {
         if(!f->s.orientation_initialized) return 0;
-        v4 local_up = transpose(to_rotation_matrix(f->s.W.v)) * v4(0., 0., 1., 0.);
+        v4 local_up = to_rotation_matrix(f->s.W.v).transpose() * v4(0., 0., 1., 0.);
         //face up -> (0, 0, 1)
         //portrait -> (0, 1, 0)
         //landscape -> (1, 0, 0)
-        f_t costheta = sum(orientation * local_up);
+        f_t costheta = orientation.dot(local_up);
         if(fabs(costheta) < .71) return 0; //don't start since we aren't in orientation +/- 6 deg
     }
     stdev.data(meas);
@@ -288,10 +288,10 @@ uint64_t steady_time(struct filter *f, stdev_vector &stdev, v4 meas, f_t varianc
 #if log_enabled
 static void print_calibration(struct filter *f)
 {
-    fprintf(stderr, "w bias is: "); f->s.w_bias.v.print(); fprintf(stderr, "\n");
-    fprintf(stderr, "w bias var is: "); f->s.w_bias.variance().print(); fprintf(stderr, "\n");
-    fprintf(stderr, "a bias is: "); f->s.a_bias.v.print(); fprintf(stderr, "\n");
-    fprintf(stderr, "a bias var is: "); f->s.a_bias.variance().print(); fprintf(stderr, "\n");
+    cerr << "w bias is: " << f->s.w_bias.v << "\n";
+    cerr << "w bias var is: " << f->s.w_bias.variance() << "\n";
+    cerr << "a bias is: " << f->s.a_bias.v << "\n";
+    cerr << "a bias var is: " << f->s.a_bias.variance() << "\n";
 }
 #endif
 
@@ -485,12 +485,12 @@ void filter_accelerometer_measurement(struct filter *f, const float data[3], uin
     if(show_tuning) fprintf(stderr, "accelerometer:\n");
     process_observation_queue(f, time);
     if(show_tuning) {
-        fprintf(stderr, " actual innov stdev is:\n");
-        observation_accelerometer::inn_stdev.print();
-        fprintf(stderr, " signal stdev is:\n");
-        observation_accelerometer::stdev.print();
-        fprintf(stderr, " bias is:\n");
-        f->s.a_bias.v.print(); v4(f->s.a_bias.variance()).print();
+        cerr << " actual innov stdev is:\n" <<
+        observation_accelerometer::inn_stdev <<
+        " signal stdev is:\n" <<
+        observation_accelerometer::stdev <<
+        " bias is:\n" <<
+        f->s.a_bias.v << f->s.a_bias.variance();
     }
 }
 
@@ -544,13 +544,12 @@ void filter_gyroscope_measurement(struct filter *f, const float data[3], uint64_
     if(show_tuning) fprintf(stderr, "gyroscope:\n");
     process_observation_queue(f, time);
     if(show_tuning) {
-        fprintf(stderr, " actual innov stdev is:\n");
-        observation_gyroscope::inn_stdev.print();
-        fprintf(stderr, " signal stdev is:\n");
-        observation_gyroscope::stdev.print();
-        fprintf(stderr, " bias is:\n");
-        f->s.w_bias.v.print(); v4(f->s.w_bias.variance()).print();
-        fprintf(stderr, "\n");
+        cerr << " actual innov stdev is:\n" <<
+        observation_gyroscope::inn_stdev <<
+        " signal stdev is:\n" <<
+        observation_gyroscope::stdev <<
+        " bias is:\n" <<
+        f->s.w_bias.v << f->s.w_bias.variance();
     }
 
     // Simulator should update outputs because it doesn't produce
@@ -1008,8 +1007,8 @@ bool filter_image_measurement(struct filter *f, const unsigned char *data, int w
     process_observation_queue(f, time);
     if(show_tuning) {
         fprintf(stderr, " actual innov stdev is:\n");
-        observation_vision_feature::inn_stdev[0].print();
-        observation_vision_feature::inn_stdev[1].print();
+        cerr << observation_vision_feature::inn_stdev[0];
+        cerr << observation_vision_feature::inn_stdev[1];
     }
 
     filter_process_features(f, time);
@@ -1076,15 +1075,15 @@ bool filter_image_measurement(struct filter *f, const unsigned char *data, int w
     {
         f->median_depth_variance = 1.;
     }
-    float velocity = norm(f->s.V.v);
+    float velocity = f->s.V.v.norm();
     if(velocity > f->max_velocity) f->max_velocity = velocity;
     
     if(f->max_velocity > convergence_minimum_velocity && f->median_depth_variance < convergence_maximum_depth_variance) f->has_converged = true;
     
     filter_update_outputs(f, time);
-    f_t delta_T = norm(f->s.T.v - f->s.last_position);
+    f_t delta_T = (f->s.T.v - f->s.last_position).norm();
     if(delta_T > .01) {
-        f->s.total_distance += norm(f->s.T.v - f->s.last_position);
+        f->s.total_distance += (f->s.T.v - f->s.last_position).norm();
         f->s.last_position = f->s.T.v;
     }
 
@@ -1341,8 +1340,8 @@ float filter_converged(struct filter *f)
 bool filter_is_steady(struct filter *f)
 {
     return
-        norm(f->s.V.v) < .1 &&
-        norm(f->s.w.v) < .1;
+        f->s.V.v.norm() < .1 &&
+        f->s.w.v.norm() < .1;
 }
 
 int filter_get_features(struct filter *f, struct corvis_feature_info *features, int max)
@@ -1374,7 +1373,7 @@ void filter_get_camera_parameters(struct filter *f, float matrix[16], float foca
     //transpose for opengl
     for(int i = 0; i < 4; ++i) {
         for(int j = 0; j < 4; ++j) {
-            matrix[j * 4 + i] = f->s.camera_matrix[i][j];
+            matrix[j * 4 + i] = f->s.camera_matrix(i, j);
         }
     }
 }

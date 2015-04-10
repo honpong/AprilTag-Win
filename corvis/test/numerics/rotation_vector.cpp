@@ -12,7 +12,7 @@ TEST(RotationVector, Exponential)
             { 0,                    0,                   0,                   1},
     }};
     EXPECT_M4_NEAR(R, to_rotation_matrix(w), F_T_EPS);
-    EXPECT_EQ(to_rotation_matrix(rotation_vector(0,0,0)), m4_identity);
+    EXPECT_EQ(to_rotation_matrix(rotation_vector(0,0,0)), m4::Identity());
 }
 
 TEST(RotationVector, ExactJacobians)
@@ -35,8 +35,8 @@ TEST(RotationVector, NumericalJacobians)
         v4 dx = eps * n, wdx = w.raw_vector()+dx; rotation_vector w_dx(wdx[0], wdx[1], wdx[2]);
         m4 Rt_dR = to_rotation_matrix(-w) * ((to_rotation_matrix(w_dx) - to_rotation_matrix(w)) * (1 / eps));
         m4 dR_Rt = ((to_rotation_matrix(w_dx) - to_rotation_matrix(w)) * (1 / eps)) * to_rotation_matrix(-w);
-        EXPECT_M4_NEAR(-transpose(Rt_dR), Rt_dR, 2*eps) << "Jim was here";
-        EXPECT_M4_NEAR(-transpose(dR_Rt), dR_Rt, 2*eps);
+        EXPECT_M4_NEAR(-Rt_dR.transpose(), Rt_dR, 2*eps) << "Jim was here";
+        EXPECT_M4_NEAR(-dR_Rt.transpose(), dR_Rt, 2*eps);
         EXPECT_V4_NEAR(invskew3(Rt_dR),    to_body_jacobian(w) * n, eps);
         EXPECT_V4_NEAR(invskew3(dR_Rt), to_spatial_jacobian(w) * n, eps);
     }

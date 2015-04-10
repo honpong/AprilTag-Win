@@ -58,8 +58,8 @@ bool homography_check_solution(const m4 &R, const v4 &T, const feature_t p1[4], 
         v4 x2 = v4(p2[i].x, p2[i].y, 1, 0);
         m4 skew_Rx1 = skew3(R*x1);
         m4 skew_x2 = skew3(x2);
-        float alpha1 = -sum((skew_x2*T)*(skew_x2*R*x1))/pow(norm(skew_x2*T), 2);
-        float alpha2 =  sum((skew_Rx1*x2)*(skew_Rx1*T))/pow(norm(skew_Rx1*x2), 2);
+        float alpha1 = -(skew_x2*T).dot(skew_x2*R*x1)/pow((skew_x2*T).norm(), 2);
+        float alpha2 =  (skew_Rx1*x2).dot(skew_Rx1*T)/pow((skew_Rx1*x2).norm(), 2);
         //fprintf(stderr, "alpha1 %f alpha2 %f\n", alpha1, alpha2);
         if(alpha1 > 0 && alpha2 > 0)
             nvalid++;
@@ -88,12 +88,12 @@ m4 homography_estimate_from_constraints(const matrix &X)
     //    Hest = transpose(reshape(h,[3,3]));
     // Hest is not transposed below because the transpose from matlab
     // is just to undo what reshape has done
-    m4 Hest = m4_identity;
+    m4 Hest = m4::Identity();
     for(int i = 0; i < 3; ++i)
     {
         for(int j = 0; j < 3; ++j)
         {
-            Hest[i][j] = Vt(8, i*3+j);
+            Hest(i, j) = Vt(8, i*3+j);
         }
     }
     
@@ -106,7 +106,7 @@ m4 homography_estimate_from_constraints(const matrix &X)
     {
         for(int j = 0; j < 3; ++j)
         {
-            Hest_tmp(i, j) = Hest[i][j];
+            Hest_tmp(i, j) = Hest(i, j);
         }
     }
     
@@ -115,7 +115,7 @@ m4 homography_estimate_from_constraints(const matrix &X)
     
     //Matlab: H = Hest/s(2,2);
     Hest = Hest * (1. / S[1]);
-    Hest[3][3] = 1;
+    Hest(3, 3) = 1;
     return Hest;
 }
 
@@ -125,8 +125,8 @@ void homography_factorize(const m4 &H, m4 Rs[4], v4 Ts[4], v4 Ns[4])
     matrix S(1, 3);
     matrix Vt(3, 3);
     //Matlab: [u,s,v] = svd(H'*H);
-    m4 HtH = transpose(H) * H;
-    matrix HtH_tmp(&(HtH.data[0][0]), 3, 3, 4, 4);
+    m4 HtH = H.transpose() * H;
+    matrix HtH_tmp(HtH.data(), 3, 3, 4, 4);
     matrix_svd(HtH_tmp, U, S, Vt);
     
     //Matlab: s1 = s(1,1); s2 = s(2,2); s3 = s(3,3); - ignore, just use S(1)
@@ -139,7 +139,7 @@ void homography_factorize(const m4 &H, m4 Rs[4], v4 Ts[4], v4 Ns[4])
     {
         for(int j = 0; j < 3; ++j)
         {
-            Utmp[i][j] = U(i, j);
+            Utmp(i, j) = U(i, j);
         }
     }
     //float usign = (determinant3(Utmp) < 0.) ? 1. : -1.;
@@ -162,32 +162,29 @@ void homography_factorize(const m4 &H, m4 Rs[4], v4 Ts[4], v4 Ns[4])
     v4 u2 = (v1 * sqrt(1 - S[2]) - v3 * sqrt(S[0] - 1)) / sqrt(S[0] - S[2]);
     
     //Matlab: U1 = [v2, u1, skew(v2)*u1];
-    m4 U1;
-    U1[0] = v2;
-    U1[1] = u1;
-    U1[2] = skew3(v2) * u1;
-    U1 = transpose(U1);
+    m4 Ut = m4::Zero();
+    Ut.row(0) = v2;
+    Ut.row(1) = u1;
+    Ut.row(2) = skew3(v2) * u1;
+    m4 U1 = Ut.transpose();
     
     //Matlab: U2 = [v2, u2, skew(v2)*u2];
-    m4 U2;
-    U2[0] = v2;
-    U2[1] = u2;
-    U2[2] = skew3(v2) * u2;
-    U2 = transpose(U2);
+    Ut.row(0) = v2;
+    Ut.row(1) = u2;
+    Ut.row(2) = skew3(v2) * u2;
+    m4 U2 = Ut.transpose();
     
     //Matlab: W1 = [H*v2, H*u1, skew(H*v2)*H*u1];
-    m4 W1;
-    W1[0] = H * v2;
-    W1[1] = H * u1;
-    W1[2] = skew3(H * v2) * H * u1;
-    W1 = transpose(W1);
+    Ut.row(0) = H * v2;
+    Ut.row(1) = H * u1;
+    Ut.row(2) = skew3(H * v2) * H * u1;
+    m4 W1 = Ut.transpose();
     
     //Matlab: W2 = [H*v2, H*u2, skew(H*v2)*H*u2];
-    m4 W2;
-    W2[0] = H * v2;
-    W2[1] = H * u2;
-    W2[2] = skew3(H * v2) * H * u2;
-    W2 = transpose(W2);
+    Ut.row(0) = H * v2;
+    Ut.row(1) = H * u2;
+    Ut.row(2) = skew3(H * v2) * H * u2;
+    m4 W2 = Ut.transpose();
     
     //Matlab: N1 = skew(v2)*u1;
     v4 N1 = skew3(v2) * u1;
@@ -200,18 +197,18 @@ void homography_factorize(const m4 &H, m4 Rs[4], v4 Ts[4], v4 Ns[4])
      Sol(:,:,3) = [W1*U1', -(H - W1*U1')*N1, -N1];
      Sol(:,:,4) = [W2*U2', -(H - W2*U2')*N2, -N2];
      */
-    Rs[0] = W1 * transpose(U1);
-    Rs[1] = W2 * transpose(U2);
-    Rs[2] = W1 * transpose(U1);
-    Rs[3] = W2 * transpose(U2);
+    Rs[0] = W1 * U1.transpose();
+    Rs[1] = W2 * U2.transpose();
+    Rs[2] = W1 * U1.transpose();
+    Rs[3] = W2 * U2.transpose();
     
     for(int i = 0; i < 4; ++i)
     {
         for(int j = 0; j < 3; ++j)
         {
-            Rs[i][3][j] = 0.;
+            Rs[i](3, j) = 0.;
         }
-        Rs[i][3][3] = 1.;
+        Rs[i](3, 3) = 1.;
     }
     
     Ts[0] = (H - Rs[0]) * N1;
@@ -251,15 +248,19 @@ homography_decomposition homography_decompose_direct(const m4 & H)
     homography_decomposition d;
     d.N = v4(0, 0, 1, 0);
 
-    d.R[0] = v4(H[0][0], H[1][0], H[2][0], 0);
-    d.R[1] = v4(H[0][1], H[1][1], H[2][1], 0);
-    d.R[2] = cross(d.R[0], d.R[1]);
-    d.R[3] = v4(0, 0, 0, 1);
+    v4 r0(H(0, 0), H(1, 0), H(2, 0), 0);
+    v4 r1(H(0, 1), H(1, 1), H(2, 1), 0);
+    v4 r2 = cross(r0, r1);
+    m4 Rt;
+    Rt.row(0) = r0;
+    Rt.row(1) = r1;
+    Rt.row(2) = r2;
+    Rt.row(3) = v4(0, 0, 0, 1);
     // since we constructed R with each row corresponding to a column
     // from the derivation, we need to transpose it
-    d.R = transpose(d.R);
+    d.R = Rt.transpose();
 
-    d.T = v4(H[0][2] - d.R[0][2], H[1][2] - d.R[1][2], H[2][2] - d.R[2][2], 0);
+    d.T = v4(H(0, 2) - d.R(0, 2), H(1, 2) - d.R(1, 2), H(2, 2) - d.R(2, 2), 0);
 
     return d;
 }
@@ -294,7 +295,7 @@ bool homography_should_flip_sign(const m4 & H, const feature_t p1[4], const feat
     for(int i = 0; i < 4; i++) {
         v4 x1(p1[i].x, p1[i].y, 1, 0);
         v4 x2(p2[i].x, p2[i].y, 1, 0);
-        if(sum(x2*H*x1) >= 0)
+        if(x2.dot(H*x1) >= 0)
             poscount++;
         else
             poscount--;
@@ -410,8 +411,8 @@ void compose_with(m4 & R, v4 & T, const m4 & withR, const v4 & withT)
 void homography_ideal_to_qr(m4 & R, v4 & T)
 {
     // Riq = 180 degree rotation around X axis
-    m4 Riq = m4_identity;
-    Riq[1][1] = -1; Riq[2][2] = -1;
+    m4 Riq = m4::Identity();
+    Riq(1, 1) = -1; Riq(2, 2) = -1;
     v4 Tiq = v4(0, 0, 1, 0);
     compose_with(R, T, Riq, Tiq);
 }

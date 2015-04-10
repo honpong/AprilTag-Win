@@ -2,11 +2,11 @@
 #include "stereo.h"
 #include "fundamental.h"
 
-const static m4 result = { {
-    v4(4.7050659665283991e-06, -3.608920748657601e-04, 0.034825532535250781, 0),
-    v4(3.6443240696172532e-04, 3.3651208688602836e-06, -0.093723138797686997, 0),
-    v4(-0.042549276793071709, 0.09930259761635167, 0.98910642230355439, 0),
-    v4(0, 0, 0, 1)
+const static m4 result = {{
+    {4.7050659665283991e-06, -3.608920748657601e-04, 0.034825532535250781, 0},
+    {3.6443240696172532e-04, 3.3651208688602836e-06, -0.093723138797686997, 0},
+    {-0.042549276793071709, 0.09930259761635167, 0.98910642230355439, 0},
+    {0, 0, 0, 1}
 }};
 
 const static int npts = 10;
@@ -41,9 +41,9 @@ void test_stereo_m4_equal(const m4 &a, const m4 &b)
     for(int i = 0; i < 4; ++i) {
         for(int j = 0; j < 4; ++j) {
 #ifdef F_T_IS_DOUBLE
-            EXPECT_DOUBLE_EQ(a[i][j], b[i][j]) << "Where i is " << i << " and j is " << j;
+            EXPECT_DOUBLE_EQ(a(i, j), b(i, j)) << "Where i is " << i << " and j is " << j;
 #else
-            EXPECT_FLOAT_EQ(a[i][j], b[i][j]) << "Where i is " << i << " and j is " << j;
+            EXPECT_FLOAT_EQ(a(i, j), b(i, j)) << "Where i is " << i << " and j is " << j;
 
 #endif
         }
@@ -76,11 +76,11 @@ TEST(Stereo, LineEndpoints) {
 
 TEST(Stereo, DecomposeF) {
 
-    const m4 F = {{ 
-        v4(1.78401e-06,   1.80498e-05,  0.00438624,  0), 
-        v4(-1.58894e-05,  1.76122e-06,  0.00939954,  0),
-        v4(-0.00715472,  -0.0100469,    0.99987,     0),
-        v4(0, 0, 0, 1)
+    const m4 F = {{
+        {1.78401e-06,   1.80498e-05,  0.00438624,  0},
+        {-1.58894e-05,  1.76122e-06,  0.00939954,  0},
+        {-0.00715472,  -0.0100469,    0.99987,     0},
+        {0, 0, 0, 1}
     }};
 
     float focal_length = 525.851;
@@ -91,13 +91,13 @@ TEST(Stereo, DecomposeF) {
 
     const v4 T_gt = v4(-0.30957282,0.73110586,-0.60798758,0);
     const m4 R_gt = {{
-        v4(0.99746948, -0.060900524, -0.03668436, 0),
-        v4(0.057197798, 0.99386221,  -0.09469077, 0),
-        v4(0.042225916, 0.092352889, 0.99483061, 0),
-        v4(0, 0, 0, 1)
+        {0.99746948, -0.060900524, -0.03668436, 0},
+        {0.057197798, 0.99386221,  -0.09469077, 0},
+        {0.042225916, 0.092352889, 0.99483061, 0},
+        {0, 0, 0, 1}
     }};
-    const m4 R2_gt = transpose(R_gt);
-    const v4 T2_gt = -transpose(R_gt)*T_gt;
+    const m4 R2_gt = R_gt.transpose();
+    const v4 T2_gt = -R_gt.transpose()*T_gt;
 
     m4 R, R2;
     v4 T, T2;
@@ -106,20 +106,20 @@ TEST(Stereo, DecomposeF) {
     decompose_F(F, focal_length, center_x, center_y, p1, p2, R, T);
 
     // Check the opposite direction
-    decompose_F(transpose(F), focal_length, center_x, center_y, p2, p1, R2, T2);
+    decompose_F(F.transpose(), focal_length, center_x, center_y, p2, p1, R2, T2);
 
     for(int i = 0; i < 4; i++)
         EXPECT_FLOAT_EQ(T_gt[i], T[i]);
 
     for(int r = 0; r < 4; r++)
         for(int c = 0; c < 4; c++)
-            EXPECT_FLOAT_EQ(R_gt[r][c], R[r][c]);
+            EXPECT_FLOAT_EQ(R_gt(r, c), R(r, c));
 
     for(int i = 0; i < 4; i++)
         EXPECT_FLOAT_EQ(T2_gt[i], T2[i]);
 
     for(int r = 0; r < 4; r++)
         for(int c = 0; c < 4; c++)
-            EXPECT_FLOAT_EQ(R2_gt[r][c], R2[r][c]);
+            EXPECT_FLOAT_EQ(R2_gt(r, c), R2(r, c));
 
 }

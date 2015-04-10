@@ -100,7 +100,7 @@ class homogeneous:public m4 {
 
 class homogeneous_transformation: public homogeneous {
  public:
- homogeneous_transformation(): homogeneous(m4_identity) { }
+    homogeneous_transformation(): homogeneous(m4::Identity()) { }
  homogeneous_transformation(const m4& initial): homogeneous(initial) {}
     homogeneous_transformation(const m4 &R, const vect &T) {
         set_rotation(R);
@@ -190,7 +190,7 @@ static inline transformation_variance inverse(const transformation_variance &tv)
 /*class homogeneous {
  public:
     homogeneous() {
-        R = m4_identity;
+        R = m4::Identity();
         T = v4(0.);
     };
 

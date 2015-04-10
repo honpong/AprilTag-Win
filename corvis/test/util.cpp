@@ -6,12 +6,12 @@
 {
     for(int i = 0; i < 4; ++i)
         for(int j = 0; j < 4; ++j)
-            if(fabs(a[i][j] - b[i][j]) > bounds)
+            if(fabs(a(i,j) - b(i,j)) > bounds)
                 return ::testing::AssertionFailure()
                     << "The difference between\n"
-                    <<  " " << a[i][j] << " = " << expr1 << "[" << i << "][" << j << "]\n"
-                    <<  " " << b[i][j] << " = " << expr2 << "[" << i << "][" << j << "]\n"
-                    << "is " << fabs(a[i][j] - b[i][j]) << "\n"
+                    <<  " " << a(i,j) << " = " << expr1 << "(" << i << "," << j << ")\n"
+                    <<  " " << b(i,j) << " = " << expr2 << "(" << i << "," << j << ")\n"
+                    << "is " << fabs(a(i,j) - b(i,j)) << "\n"
                     << "where\n"
                     << " " << expr1 << " =\n"
                     << a << "\n"
@@ -64,11 +64,11 @@
 {
     v4 A(a.x(), a.y(), a.z(), 0), B(b.x(), b.y(), b.z(), 0);
     if (A == v4() || B == v4()) {
-        EXPECT_NEAR(fmod(norm(A), 2*M_PI), 0, bounds)                 << "In " << expr1 << " " << expr2 << " where a = " << a;
-        EXPECT_NEAR(fmod(norm(B), 2*M_PI), 0, bounds)                 << "In " << expr1 << " " << expr2 << " where b = " << b;
+        EXPECT_NEAR(fmod(A.norm(), 2*M_PI), 0, bounds)                 << "In " << expr1 << " " << expr2 << " where a = " << a;
+        EXPECT_NEAR(fmod(B.norm(), 2*M_PI), 0, bounds)                 << "In " << expr1 << " " << expr2 << " where b = " << b;
     } else
-        EXPECT_NEAR(fabs(dot(normalize(A), normalize(B))), 1, bounds) << "In " << expr1 << " " << expr2 << " where a = " << a << " b = " << b;
-    EXPECT_NEAR(fmod(norm(A-B), 2*M_PI), 0, bounds)                   << "In " << expr1 << " " << expr2 << " where a = " << a << " b = " << b;
+        EXPECT_NEAR(fabs(A.normalized().dot(B.normalized())), 1, bounds) << "In " << expr1 << " " << expr2 << " where a = " << a << " b = " << b;
+    EXPECT_NEAR(fmod((A-B).norm(), 2*M_PI), 0, bounds)                   << "In " << expr1 << " " << expr2 << " where a = " << a << " b = " << b;
     return ::testing::AssertionSuccess();
 }
 

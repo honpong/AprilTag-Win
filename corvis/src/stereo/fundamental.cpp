@@ -12,11 +12,11 @@ m4 eight_point_F(v4 p1[], v4 p2[], int npts)
         center1 += p1[i];
         center2 += p2[i];
     }
-    center1 /= npts;
-    center2 /= npts;
+    center1 = center1 / npts;
+    center2 = center2 / npts;
     for(int i = 0; i < npts; i++) {
-        norm1 += sum((p1[i] - center1)*(p1[i] - center1));
-        norm2 += sum((p2[i] - center1)*(p2[i] - center2));
+        norm1 += (p1[i] - center1).dot(p1[i] - center1);
+        norm2 += (p2[i] - center1).dot(p2[i] - center2);
     }
     norm1 = sqrt(2.*npts / norm1);
     norm2 = sqrt(2.*npts / norm2);
@@ -100,11 +100,11 @@ m4 eight_point_F(v4 p1[], v4 p2[], int npts)
         for(int j = 0; j < 3; j++)
             F(i,j) = F(i,j) / Fnorm;
 
-    m4 estimatedF;
+    m4 estimatedF = m4::Zero();
     for(int i = 0; i < 3; i++)
       for(int j = 0; j < 3; j++)
-        estimatedF[i][j] = F(i,j);
-    estimatedF[3][3] = 1;
+        estimatedF(i, j) = F(i,j);
+    estimatedF(3, 3) = 1;
 
     return estimatedF;
 }
@@ -132,7 +132,7 @@ bool validate_RT(const m4 & R, const v4 & T, const v4 & p1, const v4 & p2)
     if(!success) return false;
 
     // switch to camera relative coordinates
-    pa = transpose(R)*(pa - T);
+    pa = R.transpose()*(pa - T);
 
     //fprintf(stderr, "intersection says %d, alpha says %f %f\n", (pa[2] > 0 & pb[2] > 0), alpha1, alpha2);
 
@@ -143,23 +143,23 @@ bool validate_RT(const m4 & R, const v4 & T, const v4 & p1, const v4 & p2)
 
 bool decompose_F(const m4 & F, float focal_length, float center_x, float center_y, const v4 & p1, const v4 & p2, m4 & R, v4 & T)
 {
-    m4 Kinv;
-    Kinv[0][0] = 1./focal_length;
-    Kinv[1][1] = 1./focal_length;
-    Kinv[0][2] = -center_x/focal_length;
-    Kinv[1][2] = -center_y/focal_length;
-    Kinv[2][2] = 1;
-    Kinv[3][3] = 1;
+    m4 Kinv = m4::Zero();
+    Kinv(0, 0) = 1./focal_length;
+    Kinv(1, 1) = 1./focal_length;
+    Kinv(0, 2) = -center_x/focal_length;
+    Kinv(1, 2) = -center_y/focal_length;
+    Kinv(2, 2) = 1;
+    Kinv(3, 3) = 1;
 
-    m4 K;
-    K[0][0] = focal_length;
-    K[1][1] = focal_length;
-    K[0][2] = center_x;
-    K[1][2] = center_y;
-    K[2][2] = 1;
-    K[3][3] = 1;
+    m4 K = m4::Zero();
+    K(0, 0) = focal_length;
+    K(1, 1) = focal_length;
+    K(0, 2) = center_x;
+    K(1, 2) = center_y;
+    K(2, 2) = 1;
+    K(3, 3) = 1;
 
-    m4 E4 = transpose(K)*F*K;
+    m4 E4 = K.transpose()*F*K;
     v4 p1p = Kinv*p1;
     v4 p2p = Kinv*p2;
 
@@ -169,7 +169,7 @@ bool decompose_F(const m4 & F, float focal_length, float center_x, float center_
     matrix E(3, 3);
     for(int i = 0; i < 3; i++)
         for(int j = 0; j < 3; j++)
-            E(i,j) = E4[i][j];
+            E(i,j) = E4(i, j);
 
     matrix W(3, 3);
     W(0,0) = 0; W(0,1) = -1; W(0,2) = 0;
@@ -196,9 +196,6 @@ bool decompose_F(const m4 & F, float focal_length, float center_x, float center_
     matrix_svd(E, U, S, Vt);
     // V = Vt'
     matrix_transpose(V, Vt);
-
-    m4 R1, R2;
-    v4 T1, T2;
 
     float det_U = matrix_3x3_determinant(U);
     float det_V = matrix_3x3_determinant(V);
@@ -227,28 +224,25 @@ bool decompose_F(const m4 & F, float focal_length, float center_x, float center_
     matrix_transpose(Vt, V);
 
     // T = u_3
-    T1[0] = U(0,2);
-    T1[1] = U(1,2);
-    T1[2] = U(2,2);
-    T2 = -T1;
+    m4 R1(m4::Identity()), R2(m4::Identity());
+    v4 T1 { U(0, 2), U(1,2), U(2,2), 0. };
+    v4 T2 = -T1;
 
     // R1 = UWV'
     matrix_product(temp1, W, Vt);
     matrix_product(temp2, U, temp1);
     for(int row = 0; row < 3; row++)
         for(int col = 0; col < 3; col++) {
-            R1[row][col] = temp2(row,col);
+            R1(row, col) = temp2(row,col);
         }
-    R1[3][0] = 0; R1[3][1] = 0; R1[3][2] = 0; R1[3][3] = 1;
 
     // R2 = UW'V'
     matrix_product(temp1, Wt, Vt);
     matrix_product(temp2, U, temp1);
     for(int row = 0; row < 3; row++)
         for(int col = 0; col < 3; col++) {
-            R2[row][col] = temp2(row,col);
+            R2(row, col) = temp2(row,col);
         }
-    R2[3][0] = 0; R2[3][1] = 0; R2[3][2] = 0; R2[3][3] = 1;
 
     int nvalid = 0;
     if(validate_RT(R1, T1, p1p, p2p)) {
@@ -289,10 +283,9 @@ int compute_inliers(const v4 from [], const v4 to [], int nmatches, const m4 & F
     int ninliers = 0;
     for(int i = 0; i < nmatches; i++) {
         // Sampson distance x2*F*x1 / (sum((Fx1).^2) + sum((F'x2).^2))
-        v4 pfp = to[i]*F*from[i];
         v4 el1 = F*from[i];
-        v4 el2 = transpose(F)*to[i];
-        float distance = sum(pfp);
+        v4 el2 = F.transpose()*to[i];
+        float distance = to[i].dot(F*from[i]);
         distance = distance*distance;
         distance = distance / (el1[0]*el1[0] + el1[1]*el1[1] + el2[0]* el2[0] + el2[1]*el2[1]);
 
@@ -405,36 +398,36 @@ m4 estimate_F(const camera &g, const stereo_frame &reference, const stereo_frame
     */
     m4 R1w = to_rotation_matrix(reference.W);
     m4 R2w = to_rotation_matrix(target.W);
-    dR = transpose(R2w)*R1w;
-    dT = transpose(R2w) * (reference.T - target.T);
+    dR = R2w.transpose()*R1w;
+    dT = R2w.transpose() * (reference.T - target.T);
 
     // E21 is 3x3
     m4 E21 = skew3(dT) * dR;
 
     m4 Kinv;
-    Kinv[0][0] = 1./g.focal_length;
-    Kinv[1][1] = 1./g.focal_length;
-    Kinv[0][2] = -g.center_x/g.focal_length;
-    Kinv[1][2] = -g.center_y/g.focal_length;
-    Kinv[2][2] = 1;
-    Kinv[3][3] = 1;
+    Kinv(0, 0) = 1./g.focal_length;
+    Kinv(1, 1) = 1./g.focal_length;
+    Kinv(0, 2) = -g.center_x/g.focal_length;
+    Kinv(1, 2) = -g.center_y/g.focal_length;
+    Kinv(2, 2) = 1;
+    Kinv(3, 3) = 1;
 
-    m4 F21 = transpose(Kinv)*E21*Kinv;
+    m4 F21 = Kinv.transpose()*E21*Kinv;
 
     // for numerical conditioning
     // F = F / norm(F) / sign(F(3,3))
     float Fnorm = 0;
     for(int i = 0; i < 3; i++)
         for(int j = 0; j < 3; j++)
-            Fnorm += F21[i][j]*F21[i][j];
+            Fnorm += F21(i, j)*F21(i, j);
     Fnorm = sqrt(Fnorm);
 
-    if(F21[2][2] < 0)
+    if(F21(2, 2) < 0)
         Fnorm = -Fnorm;
 
     for(int i = 0; i < 3; i++)
         for(int j = 0; j < 3; j++)
-            F21[i][j] = F21[i][j] / Fnorm;
+            F21(i, j) = F21(i, j) / Fnorm;
 
     return F21;
 }

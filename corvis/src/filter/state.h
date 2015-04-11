@@ -519,7 +519,7 @@ public:
         //dn(x)/dw = -x / (2 * sqrt(...) * (...)) * 2w
         // = -xw / (sqrt(...) * (...))
         v4 qvec = v4(v.w(), v.x(), v.y(), v.z());
-        dWn_dW = (m4::Identity() - outer_product(qvec, qvec)) * (1. / (sqrt(ss) * ss));
+        dWn_dW = (m4::Identity() - qvec * qvec.transpose()) * (1. / (sqrt(ss) * ss));
         matrix tmp(size, cov->size());
         for(int i = 0; i < cov->size(); ++i) {
             v4 cov_Q = copy_cov_from_row(cov->cov, i);

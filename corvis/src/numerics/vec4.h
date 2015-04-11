@@ -20,14 +20,14 @@ extern "C" {
 
 #include <ostream>
 
-#define EIGEN_NO_AUTOMATIC_RESIZING
 //#define EIGEN_INITIALIZE_MATRICES_BY_ZERO
+#define EIGEN_NO_AUTOMATIC_RESIZING
 #define EIGEN_DEFAULT_TO_ROW_MAJOR
 #define EIGEN_MATRIX_PLUGIN "../../../numerics/eigen_initializer_list.h"
 #include "../Eigen/Dense"
 
 typedef Eigen::Matrix<f_t, 4, 1> v4;
-//typedef Eigen::Matrix<f_t, 4, 4> m4;
+typedef Eigen::Matrix<f_t, 4, 4> m4;
 
 static inline v4 v4_sqrt(const v4 &v) { return v4(sqrt(v[0]), sqrt(v[1]), sqrt(v[2]), sqrt(v[3])); }
 
@@ -109,128 +109,6 @@ static inline v4 relative_rotation(const v4 &first, const v4 &second)
     v4 rv = cross(first.normalized(), second.normalized());
     f_t sina = rv.norm();
     return rv / sina * asin(sina);
-}
-
-class m4 {
- public:
-    static m4 Zero() { return (m4) {{{0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}, {0, 0, 0, 0}}}; }
-    static m4 Identity() { return (m4) {{{1, 0, 0, 0}, {0, 1, 0, 0}, {0, 0, 1, 0}, {0, 0, 0, 1}}}; }
-    //v4 & operator[](const int i) { return data[i]; }
-    //const v4 & operator[](const int i) const { return data[i]; }
-    const f_t& operator()(const int i, const int j) const { return vec[i][j]; }
-    f_t& operator()(const int i, const int j) { return vec[i][j]; }
-    v4 col(const int c) const { return v4(vec[0][c], vec[1][c], vec[2][c], vec[3][c]); }
-    v4& row(const int i) { return vec[i]; }
-    const v4& row(const int i) const { return vec[i]; }
-    m4 transpose() const
-    {
-        return (m4) {{ col(0), col(1), col(2), col(3) }};
-    }
-    f_t * data() { return (f_t *) vec; }
-
-    v4 vec[4];
-};
-
-static inline bool operator==(const m4 &a, const m4 &b)
-{
-    bool res = true;
-    for(int i = 0; i < 4; ++i) res &= (a.row(i) == b.row(i));
-    return res;
-}
-
-static inline std::ostream& operator<<(std::ostream &stream, const m4 &m)
-{
-    return stream  << "(" << m.row(0) << "\n " << m.row(1) << "\n " << m.row(2) << "\n " << m.row(3) << ")";
-}
-
-static inline m4 operator*(const m4 &a, const f_t s)  {
-    return (m4) { { a.row(0) * s, a.row(1) * s, a.row(2) * s, a.row(3) * s }};
-}
-
-static inline m4 operator*(const f_t s, const m4 &a)  {
-    return (m4) { { a.row(0) * s, a.row(1) * s, a.row(2) * s, a.row(3) * s }};
-}
-
-static inline m4 operator*(const m4 &b, const m4 &other) {
-    m4 a;
-    for(int j = 0; j < 4; ++j) {
-        const v4 col = other.col(j);
-        for(int i = 0; i < 4; ++i) {
-            a(i, j) = b.row(i).dot(col);
-        }
-    }
-    return a;
-}
-
-static inline v4 operator*(const m4 &a, const v4 &other) {
-    return v4( a.row(0).dot(other),
-               a.row(1).dot(other),
-               a.row(2).dot(other),
-               a.row(3).dot(other));
-}
-
-static inline m4 operator+(const m4 &a, const m4 &c) {
-    return (m4) { {
-            a.row(0) + c.row(0),
-            a.row(1) + c.row(1),
-            a.row(2) + c.row(2),
-            a.row(3) + c.row(3) }
-    };
-}
-
-static inline m4 operator-(const m4 &a, const m4 &c) {
-    return (m4) { {
-            a.row(0) - c.row(0),
-            a.row(1) - c.row(1),
-            a.row(2) - c.row(2),
-            a.row(3) - c.row(3) }
-    };
-}
-
-static inline f_t norm(const m4 &m) { return sqrt(m.row(0).dot(m.row(0)) + m.row(1).dot(m.row(1)) + m.row(2).dot(m.row(2)) + m.row(3).dot(m.row(3))); }
-
-static inline m4 operator-(const m4 &m) {
-    return (m4) { {
-                -m.vec[0],
-                -m.vec[1],
-                -m.vec[2],
-                -m.vec[3] }
-    };
-}
-
-inline static m4 outer_product(const v4 &b, const v4 &c)
-{
-    return (m4) {{ b * c[0], b * c[1], b * c[2], b * c[3] }};
-}
-
-//right-multiply row vector * matrix -> same as matrix^T * (col vector)
-inline static v4 operator*(const v4 &b, const m4 &c)
-{
-    return
-        c.row(0) * b[0] +
-        c.row(1) * b[1] +
-        c.row(2) * b[2] +
-        c.row(3) * b[3];
-}
-
-inline static m4 diag(const v4 &b)
-{ 
-    return (m4) { {
-        {b[0], 0., 0., 0.},
-        {0., b[1], 0., 0.},
-        {0., 0., b[2], 0.},
-        {0., 0., 0., b[3]}
-    } };
-}
-
-inline static v4 m4_diag(const m4 b)
-{
-    return v4(b(0, 0), b(1, 1), b(2, 2), b(3, 3));
-}
-
-static inline f_t trace3(const m4 R)
-{ 
-    return R(0, 0) + R(1, 1) + R(2, 2);
 }
 
 inline static m4 skew3(const v4 &v)

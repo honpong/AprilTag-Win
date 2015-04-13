@@ -279,7 +279,7 @@ class state_vector: public state_leaf<v4, 3> {
     
     inline v4 copy_cov_from_row(const matrix &cov, const int i) const
     {
-        if(index < 0) return v4(0.);
+        if(index < 0) return v4::Zero();
         return v4(cov(i, index), cov(i, index+1), cov(i, index+2), 0.);
     }
     
@@ -301,7 +301,7 @@ class state_vector: public state_leaf<v4, 3> {
 
     void reset() {
         index = -1;
-        v = 0.;
+        v = v4::Zero();
     }
     
     void perturb_variance() {
@@ -330,7 +330,7 @@ class state_vector: public state_leaf<v4, 3> {
     
     virtual void print()
     {
-        fprintf(stderr, "%s: ", name); v.print(); variance().print(); fprintf(stderr, "(vector)\n");
+        std::cerr << name << v << variance() << " (vector)\n";
     }
 };
 
@@ -356,7 +356,7 @@ public:
     
     inline v4 copy_cov_from_row(const matrix &cov, const int i) const
     {
-        if(index < 0) return v4(0.);
+        if(index < 0) return v4::Zero();
         return v4(cov(i, index), cov(i, index+1), saturated ? 0. : cov(i, index+2), 0.);
     }
     
@@ -409,7 +409,7 @@ public:
     
     virtual void print()
     {
-        fprintf(stderr, "%s: ", name); v.raw_vector().print(); variance().print(); fprintf(stderr, "(rot vec)\n");
+        cerr << name << v.raw_vector() << variance() << " (rot vec)\n";
     }
 
 protected:
@@ -439,7 +439,7 @@ public:
     
     inline v4 copy_cov_from_row(const matrix &cov, const int i) const
     {
-        if(index < 0) return v4(0.);
+        if(index < 0) return v4::Zero();
         return v4(cov(i, index), cov(i, index+1), cov(i, index+2), saturated ? 0. : cov(i, index+3));
     }
     
@@ -499,7 +499,7 @@ public:
     virtual void print()
     {
         v4 data(v.w(), v.x(), v.y(), v.z());
-        fprintf(stderr, "%s: ", name); data.print(); variance().print(); fprintf(stderr, "(quaternion)\n");
+        std::cerr << name << data << variance() << " (quaternion)\n";
     }
     
     void normalize()
@@ -519,7 +519,7 @@ public:
         //dn(x)/dw = -x / (2 * sqrt(...) * (...)) * 2w
         // = -xw / (sqrt(...) * (...))
         v4 qvec = v4(v.w(), v.x(), v.y(), v.z());
-        dWn_dW = (m4_identity - outer_product(qvec, qvec)) * (1. / (sqrt(ss) * ss));
+        dWn_dW = (m4::Identity() - qvec * qvec.transpose()) * (1. / (sqrt(ss) * ss));
         matrix tmp(size, cov->size());
         for(int i = 0; i < cov->size(); ++i) {
             v4 cov_Q = copy_cov_from_row(cov->cov, i);
@@ -528,9 +528,9 @@ public:
         }
         
         m4 self_cov;
-        for(int i = 0; i < size; ++i) self_cov[i] = copy_cov_from_row(tmp, i);
+        for(int i = 0; i < size; ++i) self_cov.row(i) = copy_cov_from_row(tmp, i);
         self_cov = self_cov * dWn_dW;
-        for(int i = 0; i < size; ++i) copy_cov_to_row(tmp, i, self_cov[i]);
+        for(int i = 0; i < size; ++i) copy_cov_to_row(tmp, i, self_cov.row(i));
 
         for(int i = 0; i < size; ++i) {
             for(int j = 0; j < cov->size(); ++j) {

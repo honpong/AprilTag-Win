@@ -25,27 +25,27 @@ bool ray_triangle_intersect(const v4 & p, const v4 & d, const v4 & v0, const v4 
     v4 e1 = v1 - v0;
     v4 e2 = v2 - v0;
     v4 h = cross(d, e2);
-    float a = sum(e1*h);
+    float a = e1.dot(h);
 
 	if (a > -0.00001 && a < 0.00001)
 		return false;
 
 	float f = 1/a;
     v4 s = p - v0;
-	u = f * sum(s*h);
+	u = f * s.dot(h);
 
 	if (u < 0.0 || u > 1.0)
 		return false;
 
     v4 q = cross(s, e1);
-	v = f * sum(d*q);
+	v = f * d.dot(q);
 
 	if (v < 0.0 || u + v > 1.0)
 		return false;
 
 	// at this stage we can compute t to find out where
 	// the intersection point is on the line
-	t = f * sum(e2 * q);
+	t = f * e2.dot(q);
 
 	if (t > 0.00001) { // ray intersection
         intersection = p + t*d;
@@ -84,8 +84,7 @@ bool stereo_mesh_triangulate(const stereo_mesh & mesh, const stereo &g, int x, i
     // Get calibrated camera2 point
     v4 calibrated_point = g.camera.calibrate_image_point(x, y);
     if(debug_triangulate_mesh) {
-        fprintf(stderr, "calibrated_point: ");
-        calibrated_point.print();
+        cerr << "calibrated_point: " << calibrated_point;
     }
 
     // Rotate the point into the world reference frame and translate
@@ -93,14 +92,12 @@ bool stereo_mesh_triangulate(const stereo_mesh & mesh, const stereo &g, int x, i
     v4 line_direction = R*calibrated_point;
     // line_direction is no longer in homogeneous coordinates
     line_direction[3] = 0;
-    line_direction = line_direction / norm(line_direction);
+    line_direction = line_direction.normalized();
     v4 world_point = R*calibrated_point + T;
     v4 o2 = T;
     if(debug_triangulate_mesh) {
         fprintf(stderr, "Line direction, world_point, o2: ");
-        line_direction.print();
-        world_point.print();
-        o2.print();
+        cerr << line_direction << world_point << o2;
     }
 
     bool success = point_mesh_intersect(mesh, o2, line_direction, intersection);
@@ -152,10 +149,10 @@ void stereo_mesh_write_rotated_json(const char * filename, const stereo_mesh & m
     // Calculate rotation
     m4 R;
     float radians = degrees*M_PI/180;
-    R[0][0] = cos(radians); R[0][1] = -sin(radians); R[0][2] = 0; R[0][3] = 0;
-    R[1][0] = sin(radians); R[1][1] = cos(radians); R[1][2] = 0; R[1][3] = 0;
-    R[2][0] = 0; R[2][1] = 0; R[2][2] = 1; R[2][3] = 0;
-    R[3][0] = 0; R[3][1] = 0; R[3][2] = 0; R[3][3] = 1;
+    R(0, 0) = cos(radians); R(0, 1) = -sin(radians); R(0, 2) = 0; R(0, 3) = 0;
+    R(1, 0) = sin(radians); R(1, 1) = cos(radians); R(1, 2) = 0; R(1, 3) = 0;
+    R(2, 0) = 0; R(2, 1) = 0; R(2, 2) = 1; R(2, 3) = 0;
+    R(3, 0) = 0; R(3, 1) = 0; R(3, 2) = 0; R(3, 3) = 1;
 
     // Transform center point to rotated pixel coordinates
     // rotate around width/2 height/2
@@ -183,15 +180,15 @@ void stereo_mesh_write_rotated_json(const char * filename, const stereo_mesh & m
     fprintf(vertices, "\"k2\": %g,\n", g.camera.k2);
     fprintf(vertices, "\"k3\": %g,\n", g.camera.k3);
 
-    m4 Rr = g.Rw*transpose(R); // Rotation to world frame including undoing camera rotation
+    m4 Rr = g.Rw*R.transpose(); // Rotation to world frame including undoing camera rotation
     fprintf(vertices, "\"world\": { ");
-    fprintf(vertices, "\"R\" : [[%g, %g, %g, %g], \n", Rr[0][0], Rr[0][1], Rr[0][2], Rr[0][3]);
-    fprintf(vertices, "         [%g, %g, %g, %g], \n", Rr[1][0], Rr[1][1], Rr[1][2], Rr[1][3]);
-    fprintf(vertices, "         [%g, %g, %g, %g], \n", Rr[2][0], Rr[2][1], Rr[2][2], Rr[2][3]);
-    fprintf(vertices, "         [%g, %g, %g, %g]],\n", Rr[3][0], Rr[3][1], Rr[3][2], Rr[3][3]);
+    fprintf(vertices, "\"R\" : [[%g, %g, %g, %g], \n", Rr(0, 0), Rr(0, 1), Rr(0, 2), Rr(0, 3));
+    fprintf(vertices, "         [%g, %g, %g, %g], \n", Rr(1, 0), Rr(1, 1), Rr(1, 2), Rr(1, 3));
+    fprintf(vertices, "         [%g, %g, %g, %g], \n", Rr(2, 0), Rr(2, 1), Rr(2, 2), Rr(2, 3));
+    fprintf(vertices, "         [%g, %g, %g, %g]],\n", Rr(3, 0), Rr(3, 1), Rr(3, 2), Rr(3, 3));
     fprintf(vertices, "\"T\": [%g, %g, %g, %g] }, \n", g.Tw[0], g.Tw[1], g.Tw[2], g.Tw[3]);
 
-    v4 gravity = transpose(Rr)*v4(0,0,-1,0);
+    v4 gravity = Rr.transpose()*v4(0,0,-1,0);
     fprintf(vertices, "\"gravity\": [%g, %g, %g, %g], \n", gravity[0], gravity[1], gravity[2], gravity[3]);
 
     fprintf(vertices, "\"vertices\" : [\n");
@@ -275,7 +272,7 @@ bool check_triangle(const stereo &g, const stereo_mesh & mesh, const stereo_tria
     v4 v1 = mesh.vertices[t.vertices[1]];
     v4 v2 = mesh.vertices[t.vertices[2]];
     v4 normal = cross(v1 - v0, v2 - v0);
-    normal = normal / norm(normal);
+    normal = normal.normalized();
     
     for(int v = 0; v < 3; v++) {
         float x = mesh.vertices_image[t.vertices[v]].x;
@@ -289,8 +286,8 @@ bool check_triangle(const stereo &g, const stereo_mesh & mesh, const stereo_tria
         v4 line_direction = R*calibrated_point;
         // line_direction is no longer in homogeneous coordinates
         line_direction[3] = 0;
-        line_direction = line_direction / norm(line_direction);
-        float dot = fabs(sum(normal*line_direction));
+        line_direction = line_direction.normalized();
+        float dot = fabs(normal.dot(line_direction));
         if(dot < dot_thresh) {
             return false;
         }
@@ -453,7 +450,7 @@ double pairwise_cost(int pix1, int pix2, int i, int j)
 
     v4 point1 = stereo_grid_matches[pix1][i].point;
     v4 point2 = stereo_grid_matches[pix2][j].point;
-    float dist = norm(point1 - point2);
+    float dist = (point1 - point2).norm();
 
     xy p1 = stereo_grid_locations[pix1];
     xy p2 = stereo_grid_locations[pix2];

@@ -10,12 +10,14 @@
 extern "C" {
 #import "cor.h"
 }
+#include "sensor_fusion_queue.h"
 #include "filter_setup.h"
 #include <mach/mach_time.h>
 #import "RCCalibration.h"
 #import "RCPrivateHTTPClient.h"
 #import "NSString+RCString.h"
 #include <functional>
+#include <memory>
 #import "RCLicenseValidator.h"
 
 uint64_t get_timestamp()
@@ -66,9 +68,7 @@ uint64_t get_timestamp()
     bool isSensorFusionRunning;
     bool isProcessingVideo;
     bool processingVideoRequested;
-    CVPixelBufferRef pixelBufferCached;
-    dispatch_queue_t queue, inputQueue;
-    NSMutableArray *dataWaiting;
+    std::unique_ptr<fusion_queue> queue;
     BOOL isLicenseValid;
     bool isStableStart;
     RCSensorFusionRunState lastRunState;
@@ -116,25 +116,6 @@ uint64_t get_timestamp()
     }
 }
 
-- (void) enqueueOperation:(RCSensorFusionOperation *)operation
-{
-    int index;
-    for(index = 0; index < [dataWaiting count]; ++index) {
-        if(operation.time < ((RCSensorFusionOperation *)dataWaiting[index]).time) break;
-    }
-    [dataWaiting insertObject:operation atIndex:index];
-}
-
-- (void) flushOperationsBeforeTime:(uint64_t)time
-{
-    while([dataWaiting count]) {
-        RCSensorFusionOperation *op = (RCSensorFusionOperation *)dataWaiting[0];
-        if(time && op.time >= time) break;
-        dispatch_async(queue, op.block);
-        [dataWaiting removeObjectAtIndex:0];
-    }
-}
-
 + (id) sharedInstance
 {
     static RCSensorFusion *instance = nil;
@@ -155,9 +136,42 @@ uint64_t get_timestamp()
         isLicenseValid = NO;
         isSensorFusionRunning = NO;
         isProcessingVideo = NO;
-        dataWaiting = [NSMutableArray arrayWithCapacity:10];
-        queue = dispatch_queue_create("com.realitycap.sensorfusion", DISPATCH_QUEUE_SERIAL);
-        inputQueue = dispatch_queue_create("com.realitycap.sensorfusion.input", DISPATCH_QUEUE_SERIAL);
+        
+        auto cam_fn = [self](const camera_data &data)
+        {
+            bool docallback = true;
+            CMSampleBufferRef sampleBuffer = (CMSampleBufferRef)data.image_handle.get();
+            if(!isSensorFusionRunning)
+            {
+            } else if(isProcessingVideo) {
+                auto micros = std::chrono::duration_cast<std::chrono::microseconds>(data.timestamp.time_since_epoch()).count();
+                docallback = filter_image_measurement(&_cor_setup->sfm, data.image, data.width, data.height, data.stride, micros);
+                [self sendStatus];
+                if(docallback) [self sendDataWithSampleBuffer:sampleBuffer];
+            } else {
+                //We're not yet processing video, but we do want to send updates for the video preview. Make sure that rotation is initialized.
+                docallback =  _cor_setup->sfm.gravity_init;
+                [self sendStatus];
+                if(docallback) [self sendDataWithSampleBuffer:sampleBuffer];
+            }
+        };
+        
+        auto acc_fn = [self](const accelerometer_data &data)
+        {
+            if(!isSensorFusionRunning) return;
+            auto micros = std::chrono::duration_cast<std::chrono::microseconds>(data.timestamp.time_since_epoch()).count();
+            filter_accelerometer_measurement(&_cor_setup->sfm, data.accel_m__s2, micros);
+            [self sendStatus];
+        };
+
+        auto gyr_fn = [self](const gyro_data &data)
+        {
+            if(!isSensorFusionRunning) return;
+            auto micros = std::chrono::duration_cast<std::chrono::microseconds>(data.timestamp.time_since_epoch()).count();
+            filter_gyroscope_measurement(&_cor_setup->sfm, data.angvel_rad__s, micros);
+        };
+
+        queue = std::make_unique<fusion_queue>(cam_fn, acc_fn, gyr_fn, fusion_queue::latency_strategy::MINIMIZE_DROPS, std::chrono::microseconds(33333), std::chrono::microseconds(10000), std::chrono::microseconds(10000)); //Have to make jitter high - ipad air 2 accelerometer has high latency, we lose about 10% of samples with jitter at 8000
         lastRunState = RCSensorFusionRunStateInactive;
         lastErrorCode = RCSensorFusionErrorCodeNone;
         lastConfidence = RCSensorFusionConfidenceNone;
@@ -167,12 +181,11 @@ uint64_t get_timestamp()
 #if !SKIP_LICENSE_CHECK
         [RCPrivateHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
 #endif
-        dispatch_async(queue, ^{
-            corvis_device_parameters dc = [RCCalibration getCalibrationData];
-            _cor_setup = new filter_setup(&dc);
-            cor_time_init();
-            plugins_start();
-        });
+        
+        corvis_device_parameters dc = [RCCalibration getCalibrationData];
+        _cor_setup = new filter_setup(&dc);
+        cor_time_init();
+        plugins_start();
     }
     
     return self;
@@ -180,22 +193,14 @@ uint64_t get_timestamp()
 
 - (void) dealloc
 {
-    if (pixelBufferCached)
-    {
-        CVPixelBufferUnlockBaseAddress(pixelBufferCached, kCVPixelBufferLock_ReadOnly);
-        CVPixelBufferRelease(pixelBufferCached);
-    }
-
-    dispatch_sync(queue, ^{
-        plugins_stop();
-        if(_cor_setup) delete _cor_setup;
-        plugins_clear();
-    });
+    plugins_stop();
+    if(_cor_setup) delete _cor_setup;
+    plugins_clear();
 }
 
 - (void) startReplayWithRealtime:(bool)realtime withWidth:(int)width withHeight:(int)height withFramerate:(int)framerate
 {
-    dispatch_sync(queue, ^{
+    queue->dispatch_sync([self, realtime, width, height, framerate]{
         _cor_setup->sfm.ignore_lateness = !realtime;
         device_set_resolution(&_cor_setup->device, width, height);
         device_set_framerate(&_cor_setup->device, framerate);
@@ -213,7 +218,9 @@ uint64_t get_timestamp()
     
     if(location)
     {
-        dispatch_async(queue, ^{ filter_compute_gravity(&_cor_setup->sfm, location.coordinate.latitude, location.altitude); } );
+        queue->dispatch_async([self, location]{
+            filter_compute_gravity(&_cor_setup->sfm, location.coordinate.latitude, location.altitude);
+        });
         DLog(@"Sensor fusion location set: %@", location);
     }
 }
@@ -226,7 +233,8 @@ uint64_t get_timestamp()
 - (void) startStaticCalibration
 {
     if(isSensorFusionRunning) return;
-    dispatch_async(queue, ^{
+    queue->start_async(false);
+    queue->dispatch_async([self]{
         [RCCalibration clearCalibrationData];
         _cor_setup->device = [RCCalibration getCalibrationData];
         filter_initialize(&_cor_setup->sfm, _cor_setup->device);
@@ -272,7 +280,9 @@ uint64_t get_timestamp()
     
     isStableStart = true;
 
-    dispatch_async(queue, ^{
+    queue->start_async(true);
+
+    queue->dispatch_async([self, device]{
         [self configureCameraWithDevice:device];
         filter_start_hold_steady(&_cor_setup->sfm);
     });
@@ -300,7 +310,10 @@ uint64_t get_timestamp()
     if (SKIP_LICENSE_CHECK || isLicenseValid)
     {
         isLicenseValid = NO; // evaluation license must be checked every time. need more logic here for other license types.
-        dispatch_async(queue, ^{
+
+        queue->start_async(true);
+
+        queue->dispatch_async([self, device]{
             if(device) { // replay starts with device = nil
                 [self configureCameraWithDevice:device];
             }
@@ -341,25 +354,20 @@ uint64_t get_timestamp()
  @param x The requested vertical location, in pixels relative to the image coordinate frame.
  */
 //- (void) selectUserFeatureWithX:(float)x withY:(float)Y;
-- (void) selectUserFeatureWithX:(float)x withY:(float)y
+/*- (void) selectUserFeatureWithX:(float)x withY:(float)y
 {
     if(!isProcessingVideo) return;
-    dispatch_async(queue, ^{ filter_select_feature(&_cor_setup->sfm, x, y); });
-}
+    queue->dispatch_async([=]{
+        filter_select_feature(&_cor_setup->sfm, x, y);
+    });
+}*/
 
 - (void) flushAndReset
 {
     isSensorFusionRunning = false;
-    dispatch_sync(inputQueue, ^{
-        [self flushOperationsBeforeTime:0];
-    });
-    dispatch_sync(queue, ^{
+    queue->stop_sync();
+    queue->dispatch_sync([self]{
         filter_initialize(&_cor_setup->sfm, _cor_setup->device);
-        if(pixelBufferCached) {
-            CVPixelBufferUnlockBaseAddress(pixelBufferCached, kCVPixelBufferLock_ReadOnly);
-            CVPixelBufferRelease(pixelBufferCached);
-            pixelBufferCached = nil;
-        }
     });
 
     _cor_setup->sfm.camera_control.focus_unlock();
@@ -466,12 +474,12 @@ uint64_t get_timestamp()
     struct filter *f = &(_cor_setup->sfm);
     
     if (sampleBuffer) sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
-    RCTranslation* translation = [[RCTranslation alloc] initWithVector:f->s.T.v withStandardDeviation:v4_sqrt(f->s.T.variance())];
+    RCTranslation* translation = [[RCTranslation alloc] initWithVector:vFloat_from_v4(f->s.T.v) withStandardDeviation:vFloat_from_v4(v4_sqrt(f->s.T.variance()))];
     quaternion q = to_quaternion(f->s.W.v);
     RCRotation* rotation = [[RCRotation alloc] initWithQuaternionW:q.w() withX:q.x() withY:q.y() withZ:q.z()];
     RCTransformation* transformation = [[RCTransformation alloc] initWithTranslation:translation withRotation:rotation];
 
-    RCTranslation* camT = [[RCTranslation alloc] initWithVector:f->s.Tc.v withStandardDeviation:v4_sqrt(f->s.Tc.variance())];
+    RCTranslation* camT = [[RCTranslation alloc] initWithVector:vFloat_from_v4(f->s.Tc.v) withStandardDeviation:vFloat_from_v4(v4_sqrt(f->s.Tc.variance()))];
     q = to_quaternion(f->s.Wc.v);
     RCRotation* camR = [[RCRotation alloc] initWithQuaternionW:q.w() withX:q.x() withY:q.y() withZ:q.z()];
     RCTransformation* camTransform = [[RCTransformation alloc] initWithTranslation:camT withRotation:camR];
@@ -532,9 +540,9 @@ uint64_t get_timestamp()
 - (bool) saveCalibration
 {
     LOGME
-    __block struct corvis_device_parameters finalDeviceParameters;
-    __block bool parametersGood;
-    dispatch_sync(queue, ^{
+    struct corvis_device_parameters finalDeviceParameters;
+    bool parametersGood;
+    queue->dispatch_sync([&]{
         finalDeviceParameters = _cor_setup->get_device_parameters();
         parametersGood = !_cor_setup->get_failure_code() && !_cor_setup->sfm.calibration_bad;
     });
@@ -545,6 +553,7 @@ uint64_t get_timestamp()
 - (void) receiveVideoFrame:(CMSampleBufferRef)sampleBuffer
 {
     if(!isSensorFusionRunning) return;
+    if (!sampleBuffer) return;
     if(!CMSampleBufferDataIsReady(sampleBuffer) )
     {
         DLog( @"Sample buffer is not ready. Skipping sample." );
@@ -562,82 +571,11 @@ uint64_t get_timestamp()
         }
     }
     
-    if (!sampleBuffer) return;
-    CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
-    if(!pixelBuffer) return;
-    sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
-    pixelBuffer = (CVPixelBufferRef)CVPixelBufferRetain(pixelBuffer);
-
-    dispatch_async(inputQueue, ^{
-        if (!isSensorFusionRunning) {
-            CVPixelBufferRelease(pixelBuffer);
-            CFRelease(sampleBuffer);
-            return;
-        }
-
-        CMTime timestamp = (CMTime)CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
-
-        //TODO: get actual exposure time from ExposureTime field of exif metadata dictionary
-        //capture image meta data
-        //        CFDictionaryRef metadataDict = CMGetAttachment(sampleBuffer, kCGImagePropertyExifDictionary , NULL);
-        //        DLog(@"metadata: %@", metadataDict);
-
-        size_t width = CVPixelBufferGetWidth(pixelBuffer);
-        size_t height = CVPixelBufferGetHeight(pixelBuffer);
-        bool isPlanar = CVPixelBufferIsPlanar(pixelBuffer);
-        size_t stride;
-        if(isPlanar)
-            stride = CVPixelBufferGetBytesPerRowOfPlane(pixelBuffer, 0);
-        else
-            stride = CVPixelBufferGetBytesPerRow(pixelBuffer);
-
-        if(width != _cor_setup->device.image_width || height != _cor_setup->device.image_height || stride != _cor_setup->device.image_width) {
-            NSLog(@"Image dimensions are incorrect! Make sure you're using the right video preset and not changing the orientation on the capture connection.\n");
-            abort();
-        }
-        uint64_t time_us = timestamp.value / (timestamp.timescale / 1000000.);
-
-        CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
-        unsigned char * pixel;
-        if(isPlanar)
-            pixel = (unsigned char *)CVPixelBufferGetBaseAddressOfPlane(pixelBuffer,0);
-        else
-            pixel = (unsigned char *)CVPixelBufferGetBaseAddress(pixelBuffer);
-
-        uint64_t offset_time = time_us + 16667;
-        //TODO: sometimes we are getting packets out of order, so add a 10 ms delay to dispatch of video frames to make sure we get next accel/gyro frame. tricky because we need to clean up if it gets stuck in the queue, which we don't need to do for accel/gyro
-        [self flushOperationsBeforeTime:offset_time];
-        dispatch_async(queue, ^{
-            bool docallback = true;
-            if(!isSensorFusionRunning)
-            {
-                CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
-                CVPixelBufferRelease(pixelBuffer);
-                if (sampleBuffer) CFRelease(sampleBuffer);
-                return;
-            } else if(isProcessingVideo) {
-                docallback = filter_image_measurement(&_cor_setup->sfm, pixel, (int)width, (int)height, (int)stride, offset_time);
-            } else {
-                //We're not actually running, but we do want to send updates for the video preview. Make sure that rotation is initialized.
-                docallback =  _cor_setup->sfm.gravity_init;
-            }
-            if(docallback) {
-                if(pixelBufferCached) {
-                    CVPixelBufferUnlockBaseAddress(pixelBufferCached, kCVPixelBufferLock_ReadOnly);
-                    CVPixelBufferRelease(pixelBufferCached);
-                }
-                pixelBufferCached = pixelBuffer;
-                [self sendStatus];
-                [self sendDataWithSampleBuffer:sampleBuffer];
-                if (sampleBuffer) CFRelease(sampleBuffer);
-            } else {
-                CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
-                CVPixelBufferRelease(pixelBuffer);
-                if (sampleBuffer) CFRelease(sampleBuffer);
-                [self sendStatus];
-            }
-        });
-    });
+    try {
+        queue->receive_camera(camera_data(sampleBuffer));
+    } catch (std::runtime_error) {
+        //do nothing - indicates the sample / image buffer was not valid.
+    }
 }
 
 - (void) receiveAccelerometerData:(CMAccelerometerData *)accelerationData;
@@ -653,22 +591,8 @@ uint64_t get_timestamp()
             return;
         }
     }
-    dispatch_async(inputQueue, ^{
-        if (!isSensorFusionRunning) return;
-        uint64_t time = accelerationData.timestamp * 1000000;
-        [self flushOperationsBeforeTime:time - 40000];
-        [self enqueueOperation:[[RCSensorFusionOperation alloc] initWithBlock:^{
-            if(!isSensorFusionRunning) return;
-            float data[3];
-            //ios gives acceleration in g-units, so multiply by standard gravity in m/s^2
-            //it appears that accelerometer axes are flipped
-            data[0] = -accelerationData.acceleration.x * 9.80665;
-            data[1] = -accelerationData.acceleration.y * 9.80665;
-            data[2] = -accelerationData.acceleration.z * 9.80665;
-            filter_accelerometer_measurement(&_cor_setup->sfm, data, time);
-            [self sendStatus];
-        } withTime:time]];
-    });
+    
+    queue->receive_accelerometer(accelerometer_data((__bridge void *)accelerationData));
 }
 
 - (void) receiveGyroData:(CMGyroData *)gyroData
@@ -684,56 +608,23 @@ uint64_t get_timestamp()
             return;
         }
     }
-    dispatch_async(inputQueue, ^{
-        if (!isSensorFusionRunning) return;
-        uint64_t time = gyroData.timestamp * 1000000;
-        [self flushOperationsBeforeTime:time - 40000];
-        [self enqueueOperation:[[RCSensorFusionOperation alloc] initWithBlock:^{
-            if(!isSensorFusionRunning) return;
-            float data[3];
-            data[0] = gyroData.rotationRate.x;
-            data[1] = gyroData.rotationRate.y;
-            data[2] = gyroData.rotationRate.z;
-            filter_gyroscope_measurement(&_cor_setup->sfm, data, time);
-        } withTime:time]];
-    });
+    
+    queue->receive_gyro(gyro_data((__bridge void *)gyroData));
 }
-
-/*
-- (void) receiveMotionData:(CMDeviceMotion *)motionData
-{
-    if(!isSensorFusionRunning) return;
-    if(isnan(motionData.gravity.x) || isnan(motionData.gravity.y) || isnan(motionData.gravity.z) || isnan(motionData.userAcceleration.x) || isnan(motionData.userAcceleration.y) || isnan(motionData.userAcceleration.z) || isnan(motionData.rotationRate.x) || isnan(motionData.rotationRate.y) || isnan(motionData.rotationRate.z)) return;
-    dispatch_async(inputQueue, ^{
-        if (!isSensorFusionRunning) return;
-        uint64_t time = motionData.timestamp * 1000000;
-        [self flushOperationsBeforeTime:time - 40000];
-        [self enqueueOperation:[[RCSensorFusionOperation alloc] initWithBlock:^{
-            float rot[3], grav[3];
-            rot[0] = motionData.rotationRate.x;
-            rot[1] = motionData.rotationRate.y;
-            rot[2] = motionData.rotationRate.z;
-            grav[0] = -motionData.gravity.x * 9.80665;
-            grav[1] = -motionData.gravity.y * 9.80665;
-            grav[2] = -motionData.gravity.z * 9.80665;
-            filter_core_motion_measurement(&_cor_setup->sfm, rot, grav, time);
-        } withTime:time]];
-    });
-}
-*/
 
 #pragma mark - QR Code handling
 
 - (void) startQRDetectionWithData:(NSString *)data withDimension:(float)dimension withAlignGravity:(bool)alignGravity
 {
-    dispatch_sync(queue, ^{
-        filter_start_qr_detection(&_cor_setup->sfm, data.UTF8String, dimension, alignGravity);
+    const char *code = data.UTF8String;
+    queue->dispatch_sync([=]() {
+        filter_start_qr_detection(&_cor_setup->sfm, code, dimension, alignGravity);
     });
 }
 
 - (void) stopQRDetection
 {
-    dispatch_sync(queue, ^{
+    queue->dispatch_sync([self]() {
         filter_stop_qr_detection(&_cor_setup->sfm);
     });
 }

@@ -107,9 +107,9 @@ filter(): s(cov)
     camera_control_interface camera_control;
 };
 
-bool filter_image_measurement(struct filter *f, unsigned char *data, int width, int height, int stride, uint64_t time);
-void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t time);
-void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time);
+bool filter_image_measurement(struct filter *f, const unsigned char *data, int width, int height, int stride, uint64_t time);
+void filter_accelerometer_measurement(struct filter *f, const float data[3], uint64_t time);
+void filter_gyroscope_measurement(struct filter *f, const float data[3], uint64_t time);
 void filter_set_reference(struct filter *f);
 void filter_compute_gravity(struct filter *f, double latitude, double altitude);
 void filter_start_static_calibration(struct filter *f);
@@ -138,6 +138,6 @@ float filter_converged(struct filter *f);
 bool filter_is_steady(struct filter *f);
 int filter_get_features(struct filter *f, struct corvis_feature_info *features, int max);
 void filter_get_camera_parameters(struct filter *f, float matrix[16], float focal_center_radial[5]);
-void filter_select_feature(struct filter *f, float x, float y);
+//void filter_select_feature(struct filter *f, float x, float y);
 
 #endif

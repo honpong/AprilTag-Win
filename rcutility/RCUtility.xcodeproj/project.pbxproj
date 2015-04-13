@@ -105,6 +105,7 @@
 		D3A6AADD18CDE4A10075AA78 /* Shader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; path = Shader.vsh; sourceTree = "<group>"; };
 		D3BE9F0E1AD4363D00A88F5B /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = RCUtility/Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		D3C573791A77BAD100F05746 /* RC3DK.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = RC3DK.h; path = ../RC3DK.h; sourceTree = "<group>"; };
+		D96801AF1A7AC2750081EED1 /* intel_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = intel_interface.h; path = ../corvis/src/filter/intel_interface.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -163,6 +164,7 @@
 		D33A23D717F58700003ACD42 = {
 			isa = PBXGroup;
 			children = (
+				D96801AF1A7AC2750081EED1 /* intel_interface.h */,
 				D372EC0017F5874A001A987A /* RCCore.xcodeproj */,
 				D33A23E917F58700003ACD42 /* RCUtility */,
 				D33A23E217F58700003ACD42 /* Frameworks */,

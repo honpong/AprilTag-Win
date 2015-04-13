@@ -66,7 +66,7 @@ typedef struct {
 } uint64_vector_t;
 
 #define F_T_IS_DOUBLE
-
+#include <float.h>
 #ifdef F_T_IS_DOUBLE
 typedef double f_t;
 #define F_T_EPS DBL_EPSILON

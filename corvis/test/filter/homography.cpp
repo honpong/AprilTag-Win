@@ -71,7 +71,7 @@ TEST(Homography, I)
     float qr_size = 0.15;
     bool use_markers = false;
     
-    test_qr_with_parameters(m4_identity, v4(0,0,0,0), qr_size, use_markers);
+    test_qr_with_parameters(m4::Identity(), v4(0,0,0,0), qr_size, use_markers);
 }
 
 // This test case is degenerate with MaSKS homography decomposition
@@ -80,10 +80,10 @@ TEST(Homography, R)
     float qr_size = 0.38;
     bool use_markers = true;
     float theta = M_PI/2;
-    m4 R = m4_identity;
+    m4 R = m4::Identity();
     v4 T = v4(0, 0, 0, 0);
-    R[0][0] = cos(theta); R[0][1] = -sin(theta);
-    R[1][0] = sin(theta); R[1][1] =  cos(theta);
+    R(0, 0) = cos(theta); R(0, 1) = -sin(theta);
+    R(1, 0) = sin(theta); R(1, 1) =  cos(theta);
 
     test_qr_with_parameters(R, T, qr_size, use_markers);
 }
@@ -92,7 +92,7 @@ TEST(Homography, SimpleT)
 {
     float qr_size = 0.15;
     bool use_markers = true;
-    m4 R = m4_identity;
+    m4 R = m4::Identity();
     v4 T = v4(0.4, -0.33, -0.8, 0);
 
     test_qr_with_parameters(R, T, qr_size, use_markers);
@@ -103,10 +103,10 @@ TEST(Homography, SimpleRT)
     float qr_size = 0.15;
     bool use_markers = true;
     float theta = M_PI/3;
-    m4 R = m4_identity;
+    m4 R = m4::Identity();
     v4 T = v4(0.1, 0.2, 0, 0);
-    R[0][0] = cos(theta); R[0][1] = -sin(theta);
-    R[1][0] = sin(theta); R[1][1] =  cos(theta);
+    R(0, 0) = cos(theta); R(0, 1) = -sin(theta);
+    R(1, 0) = sin(theta); R(1, 1) =  cos(theta);
 
     test_qr_with_parameters(R, T, qr_size, use_markers);
 }
@@ -129,10 +129,10 @@ TEST(Homography, HSignFlip)
     float qr_size = 0.15;
     bool use_markers = true;
     float theta = -M_PI/2;
-    m4 R = m4_identity;
+    m4 R = m4::Identity();
     v4 T = v4(0, 0, -0.2, 0);
-    R[0][0] = cos(theta); R[0][1] = -sin(theta);
-    R[1][0] = sin(theta); R[1][1] =  cos(theta);
+    R(0, 0) = cos(theta); R(0, 1) = -sin(theta);
+    R(1, 0) = sin(theta); R(1, 1) =  cos(theta);
 
     test_qr_with_parameters(R, T, qr_size, use_markers);
 }
@@ -152,10 +152,12 @@ TEST(Homography, Real)
     calibrated[2] = (feature_t) {.x = 0.016154, .y = -0.156903};
     calibrated[3] = (feature_t) {.x = -0.348012, .y = -0.233697};
     
-    const m4 Rexpected = (m4) {{v4( 7.240773e-03, -9.991911e-01, 2.042948e-02, 0.000000e+00),
-                                v4(-1.003615e+00, -6.556204e-03, -4.141437e-03, 0.000000e+00),
-                                v4( 4.292099e-03, -2.032784e-02, -1.002851e+00, 0.000000e+00),
-                                v4( 0.000000e+00, 0.000000e+00, 0.000000e+00, 1.000000e+00)}};
+    const m4 Rexpected = {{
+        {7.240773e-03, -9.991911e-01, 2.042948e-02, 0.000000e+00},
+        {-1.003615e+00, -6.556204e-03, -4.141437e-03, 0.000000e+00},
+        {4.292099e-03, -2.032784e-02, -1.002851e+00, 0.000000e+00},
+        {0.000000e+00, 0.000000e+00, 0.000000e+00, 1.000000e+00}
+    }};
     const v4 Texpected = v4(-3.920247e-02, -3.720683e-03, 3.009674e-01, 0.000000e+00);
 
     m4 R; v4 T;
@@ -181,7 +183,7 @@ TEST(Homography, AlignToQR)
     // Expected points have +z pointing out of the qr code
     // Since ideal points are 1m away, there is also a composited
     // translation
-    m4 Rq = m4_identity; Rq[1][1] = -1; Rq[2][2] = -1;
+    m4 Rq = m4::Identity(); Rq(1, 1) = -1; Rq(2, 2) = -1;
     v4 Tq = v4(0, 0, 1, 0);
     for(int i = 0; i < 4; i++) {
         qr_expected[i] = Rq*qr[i] + Tq;
@@ -199,8 +201,8 @@ TEST(Homography, AlignToQR)
     bool success = homography_align_to_qr(qr_image, qr_size, modules, Raligned, Taligned);
     EXPECT_EQ(success, true);
 
-    m4 Ri = transpose(Raligned);
-    v4 Ti = -transpose(Raligned)*Taligned;
+    m4 Ri = Raligned.transpose();
+    v4 Ti = -Raligned.transpose()*Taligned;
     for(int i = 0; i < 4; i++) {
         EXPECT_V4_NEAR(Ri*qr[i] + Ti, qr_expected[i], 1e-3);
     }
@@ -215,18 +217,18 @@ TEST(Homography, Factorize)
     v4 Ts[4];
     v4 Ns[4];
     // From MaSKS pg 138 example 5.20
-    H[0] = 0.25*v4(5.404, 0, 4.436, 0);
-    H[1] = 0.25*v4(0, 4, 0, 0);
-    H[2] = 0.25*v4(-1.236, 0, 3.804, 0);
-    H[3] = 0.25*v4(0, 0, 0, 1);
+    H.row(0) = 0.25*v4(5.404, 0, 4.436, 0);
+    H.row(1) = 0.25*v4(0, 4, 0, 0);
+    H.row(2) = 0.25*v4(-1.236, 0, 3.804, 0);
+    H.row(3) = 0.25*v4(0, 0, 0, 1);
 
     homography_factorize(H, Rs, Ts, Ns);
 
     m4 Re[4];
-    Re[0] = (m4) {{v4(0.704, 0, 0.710, 0), v4(0, 1, 0, 0), v4(-0.710, 0, 0.704, 0), v4(0, 0, 0, 1)}};
-    Re[1] = (m4) {{v4(0.951, 0, 0.309, 0), v4(0, 1, 0, 0), v4(-0.309, 0, 0.951, 0), v4(0, 0, 0, 1)}};
-    Re[2] = (m4) {{v4(0.704, 0, 0.710, 0), v4(0, 1, 0, 0), v4(-0.710, 0, 0.704, 0), v4(0, 0, 0, 1)}};
-    Re[3] = (m4) {{v4(0.951, 0, 0.309, 0), v4(0, 1, 0, 0), v4(-0.309, 0, 0.951, 0), v4(0, 0, 0, 1)}};
+    Re[0] = {{ {0.704, 0, 0.710, 0}, {0, 1, 0, 0}, {-0.710, 0, 0.704, 0}, {0, 0, 0, 1} }};
+    Re[1] = {{ {0.951, 0, 0.309, 0}, {0, 1, 0, 0}, {-0.309, 0, 0.951, 0}, {0, 0, 0, 1} }};
+    Re[2] = {{ {0.704, 0, 0.710, 0}, {0, 1, 0, 0}, {-0.710, 0, 0.704, 0}, {0, 0, 0, 1} }};
+    Re[3] = {{ {0.951, 0, 0.309, 0}, {0, 1, 0, 0}, {-0.309, 0, 0.951, 0}, {0, 0, 0, 1} }};
 
     v4 Te[4];
     Te[0] = v4( 0.760, 0,  0.471, 0);
@@ -251,11 +253,13 @@ TEST(Homography, Factorize)
 TEST(Homography, Decomposition)
 {
 
-    m4 He = (m4) {{v4(1.134393e+00, -4.521915e-16, 6.756220e-01, 0.000000e+00),
-                   v4(-1.503590e-15, 1.000000e+00, 2.147986e-16, 0.000000e+00),
-                   v4(-3.089999e-01, 1.068114e-16, 9.510000e-01, 0.000000e+00),
-                   v4(0.000000e+00, 0.000000e+00, 0.000000e+00, 1.000000e+00)}};
-    m4 R = (m4) {{v4(0.951, 0, 0.309, 0), v4(0, 1, 0, 0), v4(-0.309, 0, 0.951, 0), v4(0, 0, 0, 1)}};
+    m4 He = {{
+        {1.134393e+00, -4.521915e-16, 6.756220e-01, 0.000000e+00},
+        {-1.503590e-15, 1.000000e+00, 2.147986e-16, 0.000000e+00},
+        {-3.089999e-01, 1.068114e-16, 9.510000e-01, 0.000000e+00},
+        {0.000000e+00, 0.000000e+00, 0.000000e+00, 1.000000e+00}
+    }};
+    m4 R = {{ {0.951, 0, 0.309, 0}, {0, 1, 0, 0}, {-0.309, 0, 0.951, 0}, {0, 0, 0, 1} }};
     v4 T = v4( 2.05, 0,      0, 0);
     v4 N = v4( 0.4473, 0,  0.8942, 0);
     float d = 5;
@@ -284,8 +288,8 @@ TEST(Homography, Decomposition)
     // contains the correct one.
     for(int i = 0; i < decompositions.size(); i++) {
         homography_decomposition result = decompositions[i];
-        float dT2 = sum((result.T*d - T)*(result.T*d - T));
-        float dN2 = sum((result.N - N)*(result.N - N));
+        float dT2 = (result.T*d - T).dot(result.T*d - T);
+        float dN2 = (result.N - N).dot(result.N - N);
         if(dN2 < margin2 && dT2 < margin2) {
             EXPECT_M4_NEAR(result.R, R, 1e-3);
             found = true;

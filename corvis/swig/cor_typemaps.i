@@ -80,14 +80,14 @@ static int convert_float_array(PyObject *input, float *ptr, int size) {
 }
 
 %typemap(in) v4 (v4 temp) {
-    if (!convert_f_t_array($input,(f_t *)&temp.data,4)) {
+    if (!convert_f_t_array($input, temp.data(),4)) {
       return NULL;
    }
    $1 = temp;
 }
 
 %typemap(in) v3 (v3 temp) {
-    if (!convert_f_t_array($input,temp.data,3)) {
+    if (!convert_f_t_array($input, temp.data(),3)) {
       return NULL;
    }
    $1 = temp;
@@ -106,7 +106,7 @@ static int convert_float_array(PyObject *input, float *ptr, int size) {
 
     for(int i = 0; i < 4; ++i) {
         for(int j = 0; j < 4; ++j) {
-            temp[i][j] = ad[i][j];
+            temp(i,j) = ad[i][j];
         }
     }
     $1 = temp;
@@ -165,7 +165,7 @@ static int convert_float_array(PyObject *input, float *ptr, int size) {
 %#ifdef F_T_IS_SINGLE
   $result = PyArray_SimpleNew(1,dims,NPY_FLOAT);
 %#endif
-     memcpy(PyArray_DATA((PyArrayObject *)$result), &($1.data), sizeof($1));
+   memcpy(PyArray_DATA((PyArrayObject *)$result), $1.data(), sizeof($1));
 }
 
 %typemap(out) m4 {
@@ -179,7 +179,7 @@ static int convert_float_array(PyObject *input, float *ptr, int size) {
      f_t (*ad)[4] = (f_t (*)[4])PyArray_DATA((PyArrayObject *)$result);
      for(int i = 0; i < 4; ++i)
          for(int j = 0; j < 4; ++j)
-             ad[i][j] = $1[i][j];
+             ad[i][j] = $1(i,j);
 }
 
 %typemap(out) m4v4 {
@@ -194,7 +194,7 @@ static int convert_float_array(PyObject *input, float *ptr, int size) {
      for(int i = 0; i < 4; ++i)
          for(int j = 0; j < 4; ++j)
              for(int k = 0; k < 4; ++k)
-                 ad[i][j][k] = $1[i][j][k];
+                 ad[i][j][k] = $1[i](j, k);
 }
 
 %typemap(out) v4m4 {
@@ -209,13 +209,13 @@ static int convert_float_array(PyObject *input, float *ptr, int size) {
      for(int i = 0; i < 4; ++i)
          for(int j = 0; j < 4; ++j)
              for(int k = 0; k < 4; ++k)
-                 ad[i][j][k] = $1[i][j][k];
+                 ad[i][j][k] = $1[i](j, k);
 }
 
 %typemap(out) rotation_vector {
   npy_intp dims[1] = { 3 }; v4 v = $1.raw_vector();
-  $result = PyArray_SimpleNew(1,dims, sizeof(v.data[0]) == 4 ? NPY_FLOAT : NPY_DOUBLE);
-  memcpy(PyArray_DATA((PyArrayObject *)$result), &(v.data), 3*sizeof(v.data[0]));
+  $result = PyArray_SimpleNew(1,dims, sizeof(v.data()[0]) == 4 ? NPY_FLOAT : NPY_DOUBLE);
+  memcpy(PyArray_DATA((PyArrayObject *)$result), v.data(), 3*sizeof(v.data()[0]));
 }
 
 %typemap(out) f_t [ANY] {

@@ -50,6 +50,7 @@ typedef enum
     DEVICE_TYPE_IPADMINIRETINA2,
 } corvis_device_type;
 
+corvis_device_type get_device_by_name(const char *name);
 bool get_parameters_for_device(corvis_device_type type, struct corvis_device_parameters *dc);
 
 void device_set_resolution(struct corvis_device_parameters *dc, int image_width, int image_height);

@@ -105,7 +105,7 @@
     
     s.width = (int)CVPixelBufferGetWidth(pixelBuffer);
     s.height = (int)CVPixelBufferGetHeight(pixelBuffer);
-    v4 T = data.cameraTransformation.translation.vector;
+    v4 T = v4_from_vFloat(data.cameraTransformation.translation.vector);
     rotation_vector W = to_rotation_vector(quaternion(data.cameraTransformation.rotation.quaternionW, data.cameraTransformation.rotation.quaternionX, data.cameraTransformation.rotation.quaternionY, data.cameraTransformation.rotation.quaternionZ));
     s.focal_length = data.cameraParameters.focalLength;
     s.center_x = data.cameraParameters.opticalCenterX;

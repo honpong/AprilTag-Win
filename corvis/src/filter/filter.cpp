@@ -144,21 +144,21 @@ void filter_update_outputs(struct filter *f, uint64_t time)
     }
     m4 
         R = to_rotation_matrix(f->s.W.v),
-        Rt = transpose(R),
+        Rt = R.transpose(),
         Rc = to_rotation_matrix(f->s.Wc.v),
-        Rct = transpose(Rc),
+        Rct = Rc.transpose(),
         RctRt = Rct * Rt;
 
     f->s.camera_matrix = RctRt;
     v4 T = Rct * ((Rt * -f->s.T.v) - f->s.Tc.v);
-    f->s.camera_matrix[0][3] = T[0];
-    f->s.camera_matrix[1][3] = T[1];
-    f->s.camera_matrix[2][3] = T[2];
-    f->s.camera_matrix[3][3] = 1.;
+    f->s.camera_matrix(0, 3) = T[0];
+    f->s.camera_matrix(1, 3) = T[1];
+    f->s.camera_matrix(2, 3) = T[2];
+    f->s.camera_matrix(3, 3) = 1.;
 
     bool old_speedfail = f->speed_failed;
     f->speed_failed = false;
-    f_t speed = norm(f->s.V.v);
+    f_t speed = f->s.V.v.norm();
     if(speed > 3.) { //1.4m/s is normal walking speed
         if (log_enabled && !old_speedfail) fprintf(stderr, "Velocity %f m/s exceeds max bound\n", speed);
         f->speed_failed = true;
@@ -168,7 +168,7 @@ void filter_update_outputs(struct filter *f, uint64_t time)
         f->speed_warning = true;
         f->speed_warning_time = time;
     }
-    f_t accel = norm(f->s.a.v);
+    f_t accel = f->s.a.v.norm();
     if(accel > 9.8) { //1g would saturate sensor anyway
         if (log_enabled && !old_speedfail) fprintf(stderr, "Acceleration exceeds max bound\n");
         f->speed_failed = true;
@@ -178,7 +178,7 @@ void filter_update_outputs(struct filter *f, uint64_t time)
         f->speed_warning = true;
         f->speed_warning_time = time;
     }
-    f_t ang_vel = norm(f->s.w.v);
+    f_t ang_vel = f->s.w.v.norm();
     if(ang_vel > 5.) { //sensor saturation - 250/180*pi
         if (log_enabled && !old_speedfail) fprintf(stderr, "Angular velocity exceeds max bound\n");
         f->speed_failed = true;
@@ -273,11 +273,11 @@ uint64_t steady_time(struct filter *f, stdev_vector &stdev, v4 meas, f_t varianc
     }
     if(!stdev.count && use_orientation) {
         if(!f->s.orientation_initialized) return 0;
-        v4 local_up = transpose(to_rotation_matrix(f->s.W.v)) * v4(0., 0., 1., 0.);
+        v4 local_up = to_rotation_matrix(f->s.W.v).transpose() * v4(0., 0., 1., 0.);
         //face up -> (0, 0, 1)
         //portrait -> (0, 1, 0)
         //landscape -> (1, 0, 0)
-        f_t costheta = sum(orientation * local_up);
+        f_t costheta = orientation.dot(local_up);
         if(fabs(costheta) < .71) return 0; //don't start since we aren't in orientation +/- 6 deg
     }
     stdev.data(meas);
@@ -288,10 +288,10 @@ uint64_t steady_time(struct filter *f, stdev_vector &stdev, v4 meas, f_t varianc
 #if log_enabled
 static void print_calibration(struct filter *f)
 {
-    fprintf(stderr, "w bias is: "); f->s.w_bias.v.print(); fprintf(stderr, "\n");
-    fprintf(stderr, "w bias var is: "); f->s.w_bias.variance().print(); fprintf(stderr, "\n");
-    fprintf(stderr, "a bias is: "); f->s.a_bias.v.print(); fprintf(stderr, "\n");
-    fprintf(stderr, "a bias var is: "); f->s.a_bias.variance().print(); fprintf(stderr, "\n");
+    cerr << "w bias is: " << f->s.w_bias.v << "\n";
+    cerr << "w bias var is: " << f->s.w_bias.variance() << "\n";
+    cerr << "a bias is: " << f->s.a_bias.v << "\n";
+    cerr << "a bias var is: " << f->s.a_bias.variance() << "\n";
 }
 #endif
 
@@ -419,7 +419,7 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, v4 meas, u
     return f->a_variance;
 }
 
-void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t time)
+void filter_accelerometer_measurement(struct filter *f, const float data[3], uint64_t time)
 {
     v4 meas(data[0], data[1], data[2], 0.);
     v4 accel_delta = meas - f->last_accel_meas;
@@ -485,12 +485,12 @@ void filter_accelerometer_measurement(struct filter *f, float data[3], uint64_t 
     if(show_tuning) fprintf(stderr, "accelerometer:\n");
     process_observation_queue(f, time);
     if(show_tuning) {
-        fprintf(stderr, " actual innov stdev is:\n");
-        observation_accelerometer::inn_stdev.print();
-        fprintf(stderr, " signal stdev is:\n");
-        observation_accelerometer::stdev.print();
-        fprintf(stderr, " bias is:\n");
-        f->s.a_bias.v.print(); v4(f->s.a_bias.variance()).print();
+        cerr << " actual innov stdev is:\n" <<
+        observation_accelerometer::inn_stdev <<
+        " signal stdev is:\n" <<
+        observation_accelerometer::stdev <<
+        " bias is:\n" <<
+        f->s.a_bias.v << f->s.a_bias.variance();
     }
 }
 
@@ -500,7 +500,7 @@ extern "C" void filter_gyroscope_packet(void *_f, packet_t *p)
     filter_gyroscope_measurement((struct filter *)_f, (float *)&p->data, p->header.time);
 }
 
-void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time)
+void filter_gyroscope_measurement(struct filter *f, const float data[3], uint64_t time)
 {
     v4 meas(data[0], data[1], data[2], 0.);
     v4 gyro_delta = meas - f->last_gyro_meas;
@@ -544,13 +544,12 @@ void filter_gyroscope_measurement(struct filter *f, float data[3], uint64_t time
     if(show_tuning) fprintf(stderr, "gyroscope:\n");
     process_observation_queue(f, time);
     if(show_tuning) {
-        fprintf(stderr, " actual innov stdev is:\n");
-        observation_gyroscope::inn_stdev.print();
-        fprintf(stderr, " signal stdev is:\n");
-        observation_gyroscope::stdev.print();
-        fprintf(stderr, " bias is:\n");
-        f->s.w_bias.v.print(); v4(f->s.w_bias.variance()).print();
-        fprintf(stderr, "\n");
+        cerr << " actual innov stdev is:\n" <<
+        observation_gyroscope::inn_stdev <<
+        " signal stdev is:\n" <<
+        observation_gyroscope::stdev <<
+        " bias is:\n" <<
+        f->s.w_bias.v << f->s.w_bias.variance();
     }
 
     // Simulator should update outputs because it doesn't produce
@@ -694,7 +693,7 @@ bool feature_variance_comp(state_vision_feature *p1, state_vision_feature *p2) {
     return p1->variance() < p2->variance();
 }
 
-void filter_setup_next_frame(struct filter *f, uint64_t time)
+void filter_setup_next_frame(struct filter *f, const uint8_t *image, uint64_t time)
 {
     size_t feats_used = f->s.features.size();
 
@@ -711,8 +710,7 @@ void filter_setup_next_frame(struct filter *f, uint64_t time)
                 obs->feature = i;
                 obs->meas[0] = i->current[0];
                 obs->meas[1] = i->current[1];
-                obs->im1 = f->track.im1;
-                obs->im2 = f->track.im2;
+                obs->image = image;
                 obs->tracker = f->track;
 
                 f->observations.observations.push_back(std::move(obs));
@@ -775,7 +773,7 @@ void filter_send_output(struct filter *f, uint64_t time)
 }
 
 //features are added to the state immediately upon detection - handled with triangulation in observation_vision_feature::predict - but what is happening with the empty row of the covariance matrix during that time?
-static void addfeatures(struct filter *f, size_t newfeats, unsigned char *img, unsigned int width, int height, uint64_t time)
+static void addfeatures(struct filter *f, size_t newfeats, const unsigned char *img, unsigned int width, int height, uint64_t time)
 {
 #ifdef TEST_POSDEF
     if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def before adding features\n");
@@ -916,7 +914,7 @@ extern "C" void filter_control_packet(void *_f, packet_t *p)
 
 #include <mach/mach.h>
 
-bool filter_image_measurement(struct filter *f, unsigned char *data, int width, int height, int stride, uint64_t time)
+bool filter_image_measurement(struct filter *f, const unsigned char *data, int width, int height, int stride, uint64_t time)
 {
     if(f->run_state == RCSensorFusionRunStateInactive) return false;
     if(!check_packet_time(f, time, packet_camera)) return false;
@@ -1000,10 +998,8 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
         }
     }
 
-    f->track.im1 = f->track.im2;
-    f->track.im2 = data;
 
-    filter_setup_next_frame(f, time);
+    filter_setup_next_frame(f, data, time);
 
     if(show_tuning) {
         fprintf(stderr, "vision:\n");
@@ -1011,8 +1007,8 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     process_observation_queue(f, time);
     if(show_tuning) {
         fprintf(stderr, " actual innov stdev is:\n");
-        observation_vision_feature::inn_stdev[0].print();
-        observation_vision_feature::inn_stdev[1].print();
+        cerr << observation_vision_feature::inn_stdev[0];
+        cerr << observation_vision_feature::inn_stdev[1];
     }
 
     filter_process_features(f, time);
@@ -1079,15 +1075,15 @@ bool filter_image_measurement(struct filter *f, unsigned char *data, int width, 
     {
         f->median_depth_variance = 1.;
     }
-    float velocity = norm(f->s.V.v);
+    float velocity = f->s.V.v.norm();
     if(velocity > f->max_velocity) f->max_velocity = velocity;
     
     if(f->max_velocity > convergence_minimum_velocity && f->median_depth_variance < convergence_maximum_depth_variance) f->has_converged = true;
     
     filter_update_outputs(f, time);
-    f_t delta_T = norm(f->s.T.v - f->s.last_position);
+    f_t delta_T = (f->s.T.v - f->s.last_position).norm();
     if(delta_T > .01) {
-        f->s.total_distance += norm(f->s.T.v - f->s.last_position);
+        f->s.total_distance += (f->s.T.v - f->s.last_position).norm();
         f->s.last_position = f->s.T.v;
     }
 
@@ -1344,8 +1340,8 @@ float filter_converged(struct filter *f)
 bool filter_is_steady(struct filter *f)
 {
     return
-        norm(f->s.V.v) < .1 &&
-        norm(f->s.w.v) < .1;
+        f->s.V.v.norm() < .1 &&
+        f->s.w.v.norm() < .1;
 }
 
 int filter_get_features(struct filter *f, struct corvis_feature_info *features, int max)
@@ -1377,7 +1373,7 @@ void filter_get_camera_parameters(struct filter *f, float matrix[16], float foca
     //transpose for opengl
     for(int i = 0; i < 4; ++i) {
         for(int j = 0; j < 4; ++j) {
-            matrix[j * 4 + i] = f->s.camera_matrix[i][j];
+            matrix[j * 4 + i] = f->s.camera_matrix(i, j);
         }
     }
 }
@@ -1410,6 +1406,7 @@ void filter_start_simulator(struct filter *f)
     f->using_simulator = true;
 }
 
+/*
 void filter_select_feature(struct filter *f, float x, float y)
 {
     //first, see if we already have a feature there
@@ -1438,7 +1435,7 @@ void filter_select_feature(struct filter *f, float x, float y)
     if(!myfeat) return; //couldn't find anything
     myfeat->user = true;
     f->s.remap();
-}
+}*/
 
 void filter_start_qr_detection(struct filter *f, const char * data, float dimension, bool use_gravity)
 {

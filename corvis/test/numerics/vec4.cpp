@@ -4,31 +4,31 @@
 #include "util.h"
 #include "rotation_vector.h"
 
-const static m4 foo = { {
-    v4(12.3, 0., -5., .001),
-    v4(1., 1., 1., 1.),
-    v4(-69., 1.e-4, 12.3e5, -1.11),
-    v4(.2, -8.8, -22.2, 0.01)
-} };
+const static m4 foo = {{
+    {12.3, 0., -5., .001},
+    {1., 1., 1., 1.},
+    {-69., 1.e-4, 12.3e5, -1.11},
+    {.2, -8.8, -22.2, 0.01}
+}};
 
-const static m4 bar = { {
-    v4(123, 1., 5., -1.),
-    v4(.1, .88, -1123.1, 1.123),
-    v4(-69., 1.e4, -3.e5, -1.11),
-    v4(-3.4, .8, .2, 0.)
-} };
+const static m4 bar = {{
+    {123, 1., 5., -1.},
+    {.1, .88, -1123.1, 1.123},
+    {-69., 1.e4, -3.e5, -1.11},
+    {-3.4, .8, .2, 0.}
+}};
 
-const static m4 symmetric = foo * transpose(foo);
+const static m4 symmetric = foo * foo.transpose();
 
 const static v4 vec(1.5, -.64, 4.1, 0.);
 
 const static v4 v4_delta = v4(.01, -.01, .01, 0.);
 
-const static m4 m4_delta = { {
-    v4(0., .01, -.01, 0),
-    v4(-.01, -.01, .01, 0),
-    v4(-.01, 0., -.01, 0),
-    v4(0, 0, 0, 0)
+const static m4 m4_delta = {{
+    {0., .01, -.01, 0},
+    {-.01, -.01, .01, 0},
+    {-.01, 0., -.01, 0},
+    {0, 0, 0, 0}
 }};
 
 TEST(Vector4, Equality)
@@ -48,7 +48,7 @@ TEST(Matrix4, Equality)
     EXPECT_EQ(m1, m2);
     for(int i = 0; i < 4; ++i) {
         for(int j = 0; j < 4; ++j) {
-            m2[i][j]++;
+            m2(i, j)++;
             EXPECT_FALSE(m1 == m2);
             m2 = m1;
         }
@@ -57,23 +57,23 @@ TEST(Matrix4, Equality)
 
 TEST(Matrix4, Identity) {
     EXPECT_EQ(foo, foo);
-    EXPECT_EQ(foo, foo * m4_identity);
-    EXPECT_EQ(foo, m4_identity * foo);
+    EXPECT_EQ(foo, foo * m4::Identity());
+    EXPECT_EQ(foo, m4::Identity() * foo);
     EXPECT_EQ(foo + bar, bar + foo);
-    EXPECT_EQ(foo + m4(), foo);
-    EXPECT_EQ(foo - foo, m4());
-    EXPECT_EQ((foo + bar) + m4_identity, foo + (bar + m4_identity));
-    EXPECT_EQ(m4_identity * m4_identity, m4_identity);
-    EXPECT_EQ(transpose(transpose(foo)), foo);
-    EXPECT_EQ(transpose(foo * bar), transpose(bar) * transpose(foo));
-    EXPECT_EQ(transpose(symmetric), symmetric);
+    EXPECT_EQ(foo + m4::Zero(), foo);
+    EXPECT_EQ((m4)(foo - foo), (m4)m4::Zero());
+    EXPECT_EQ((foo + bar) + m4::Identity(), foo + (bar + m4::Identity()));
+    EXPECT_EQ(m4::Identity() * m4::Identity(), m4::Identity());
+    EXPECT_EQ(foo.transpose().transpose(), foo);
+    EXPECT_EQ((foo * bar).transpose(), bar.transpose() * foo.transpose());
+    EXPECT_EQ(symmetric.transpose(), symmetric);
 }
 
 TEST(Matrix4, Determinant) {
-    m4 a = { {v4(5., -2., 1., 0.), v4(0., 3., -1., 0.), v4(2., 0., 7., 0.), v4(0., 0., 0., 0.) }};
+    m4 a = {{ {5., -2., 1., 0.}, {0., 3., -1., 0.}, {2., 0., 7., 0.}, {0., 0., 0., 0.} }};
     EXPECT_FLOAT_EQ(determinant3(a), 103);
     
-    m4 b = { {v4(1, 2, 3, 0), v4(0, -4, 1, 0), v4(0, 3, -1, 0), v4(0, 0, 0 ,0) }};
+    m4 b = {{ {1, 2, 3, 0}, {0, -4, 1, 0}, {0, 3, -1, 0}, {0, 0, 0 ,0} }};
     EXPECT_FLOAT_EQ(determinant3(b), 1);
 
     EXPECT_FLOAT_EQ(determinant3(foo), 15128654.998270018);
@@ -83,7 +83,7 @@ TEST(Matrix4, Determinant) {
 TEST(Vector4, Cross) {
     v4 vec2(.08, 1.2, -.23, 0.);
     EXPECT_EQ(cross(vec, vec2), skew3(vec) * vec2) << "a x b = skew(a) * b";
-    EXPECT_EQ(cross(vec, vec2), transpose(skew3(vec2)) * vec) << "a x b = skew(b)^T * a";
+    EXPECT_EQ(cross(vec, vec2), skew3(vec2).transpose() * vec) << "a x b = skew(b)^T * a";
 }
 
 bool same_sign(f_t first, f_t second)
@@ -106,7 +106,7 @@ f_t test_m4_linearization(const v4 &base, v4 (*nonlinear)(const v4 &base, const 
     const f_t eps = .1;
     f_t max_err = 0.;
     for(int i = 0; i < 3; ++i) {
-        v4 pert(0.);
+        v4 pert(v4::Zero());
         pert[i] = base[i] * eps + 1.e-5;
         v4 delta = nonlinear(base + pert, other) - nonlinear(base, other);
         v4 lindelta = jacobian * pert;
@@ -114,7 +114,7 @@ f_t test_m4_linearization(const v4 &base, v4 (*nonlinear)(const v4 &base, const 
         for(int j = 0; j < 3; ++j) {
             EXPECT_PRED2(same_sign, delta[j], lindelta[j]) << "Sign flip, where i is " << i << " and j is " << j;
         }
-        f_t vec_pct_err = norm(delta - lindelta) / norm(delta);
+        f_t vec_pct_err = (delta - lindelta).norm() / delta.norm();
         EXPECT_LT(vec_pct_err, .10);
         if(vec_pct_err > max_err) max_err = vec_pct_err;
     }
@@ -165,8 +165,8 @@ void test_rotation(const v4 &vec)
     EXPECT_ROTATION_VECTOR_NEAR(to_rotation_vector(to_quaternion(rvec)), rvec, F_T_EPS) << "rot_vec(quaternion(vec)) = vec";
     EXPECT_ROTATION_VECTOR_NEAR(rvec, to_rotation_vector(rotmat), 4*F_T_EPS) << "vec = invrod(rod(vec))";
 
-    EXPECT_M4_NEAR(m4_identity, transpose(rotmat) * rotmat, 1.e-15) << "R'R = I";
-    EXPECT_V4_NEAR(vec, transpose(rotmat) * (rotmat * vec), 1.e-15) << "R'Rv = v";
+    EXPECT_M4_NEAR(m4::Identity(), rotmat.transpose() * rotmat, 1.e-15) << "R'R = I";
+    EXPECT_V4_NEAR(vec, rotmat.transpose() * (rotmat * vec), 1.e-15) << "R'Rv = v";
 
     v4 angvel(-.0514, .023, -.065, 0.);
     
@@ -232,7 +232,7 @@ TEST(Matrix4, Rotation) {
     
     {
         SCOPED_TRACE("identity matrix = 0 rotation vector");
-        EXPECT_ROTATION_VECTOR_NEAR(to_rotation_vector(m4_identity), rotation_vector(0., 0., 0.), 0);
+        EXPECT_ROTATION_VECTOR_NEAR(to_rotation_vector(m4::Identity()), rotation_vector(0., 0., 0.), 0);
     }
     
     {
@@ -242,7 +242,7 @@ TEST(Matrix4, Rotation) {
     }
     {
         SCOPED_TRACE("zero vector");
-        test_rotation(v4(0.));
+        test_rotation(v4(v4::Zero()));
     }
     {
         SCOPED_TRACE("+pi vector");
@@ -255,6 +255,6 @@ TEST(Matrix4, Rotation) {
     }
     {
         SCOPED_TRACE("pi-offaxis vector");
-        test_rotation(rotvec / norm(rotvec) * (M_PI));
+        test_rotation(rotvec.normalized() * (M_PI));
     }
 }

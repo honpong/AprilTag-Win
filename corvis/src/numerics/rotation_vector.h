@@ -13,7 +13,7 @@
 
 class rotation_vector {
 public:
-    rotation_vector(): data(0.) {}
+    rotation_vector(): data(v4::Zero()) {}
     rotation_vector(const f_t other0, const f_t other1, const f_t other2): data(other0, other1, other2, 0.) {}
     
     v4 raw_vector() { return data; }

@@ -59,7 +59,7 @@ class observation_vision_feature: public observation_storage<2> {
     static stdev_scalar stdev[2], inn_stdev[2];
     m4 Rrt, Rc, Rct;
     v4 X0, X;
-    uint8_t *im1, *im2;
+    const uint8_t *image;
     struct tracker tracker;
     m4 Rtot;
     v4 Ttot;

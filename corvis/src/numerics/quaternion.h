@@ -47,17 +47,6 @@ static inline quaternion conjugate(const quaternion &q)
     return quaternion(q.w(), -q.x(), -q.y(), -q.z());
 }
 
-static inline m4 conjugate(const m4 &m)
-{
-    return (m4) {{
-        v4(m[0][0], -m[0][1], -m[0][2], -m[0][3]),
-        v4(m[1][0], -m[1][1], -m[1][2], -m[1][3]),
-        v4(m[2][0], -m[2][1], -m[2][2], -m[2][3]),
-        v4(m[3][0], -m[3][1], -m[3][2], -m[3][3])
-    }};
-}
-
-
 static inline quaternion quaternion_product(const quaternion &a, const quaternion &b) {
     return quaternion(a.w() * b.w() - a.x() * b.x() - a.y() * b.y() - a.z() * b.z(),
                       a.w() * b.x() + a.x() * b.w() + a.y() * b.z() - a.z() * b.y(),
@@ -66,20 +55,20 @@ static inline quaternion quaternion_product(const quaternion &a, const quaternio
 }
 
 static inline m4 quaternion_product_left_jacobian(const quaternion &b) {
-    return (m4) {{
-        v4(b.w(), -b.x(), -b.y(), -b.z()),
-        v4(b.x(), b.w(), b.z(), -b.y()),
-        v4(b.y(), -b.z(), b.w(), b.x()),
-        v4(b.z(), b.y(), -b.x(), b.w())
+    return {{
+        {b.w(), -b.x(), -b.y(), -b.z()},
+        {b.x(), b.w(), b.z(), -b.y()},
+        {b.y(), -b.z(), b.w(), b.x()},
+        {b.z(), b.y(), -b.x(), b.w()}
     }};
 }
 
 static inline m4 quaternion_product_right_jacobian(const quaternion &a) {
-    return (m4) {{
-        v4(a.w(), -a.x(), -a.y(), -a.z()),
-        v4(a.x(), a.w(), -a.z(), a.y()),
-        v4(a.y(), a.z(), a.w(), -a.x()),
-        v4(a.z(), -a.y(), a.x(), a.w())
+    return {{
+        {a.w(), -a.x(), -a.y(), -a.z()},
+        {a.x(), a.w(), -a.z(), a.y()},
+        {a.y(), a.z(), a.w(), -a.x()},
+        {a.z(), -a.y(), a.x(), a.w()}
     }};
 }
 
@@ -186,12 +175,11 @@ static inline m4 quaternion_rotate_left_jacobian(const quaternion &q, const v4 &
     z2 = q.z()*v[2];
     
     return 2. * (m4) {{
-        v4(y2-z1, y1+z2, w2+x1-2*y0, -w1+x2-2*z0),
-        v4(z0-x2, -w2+y0-2*x1, z2+x0, w0+y2-2*z1),
-        v4(x1-y0, w1+z0-2*x2, -w0+z1-2*y2, x0+y1),
-        v4(0., 0., 0., 0.)
+        {y2-z1, y1+z2, w2+x1-2*y0, -w1+x2-2*z0},
+        {z0-x2, -w2+y0-2*x1, z2+x0, w0+y2-2*z1},
+        {x1-y0, w1+z0-2*x2, -w0+z1-2*y2, x0+y1},
+        {0., 0., 0., 0.}
     }};
-
 }
 
 //This is the same as the right jacobian of quaternion_rotate
@@ -210,7 +198,7 @@ static inline m4 to_rotation_matrix(const quaternion &q)
         v4(q.x() * q.z(), q.y() * q.z(), -q.x() * q.x() - q.y() * q.y(), 0.),
         v4(0., 0., 0., 0.)
     }};
-    m4 m3_identity = m4_identity;
+    m4 m3_identity = m4::Identity();
     m3_identity[3][3] = 0.;
     return m3_identity + 2. * dwqv_dv + 2. * dqqv_dv;
      */
@@ -226,10 +214,10 @@ static inline m4 to_rotation_matrix(const quaternion &q)
     yz = q.y()*q.z();
     
     return (m4) {{
-        v4(1. - 2. * (yy+zz), 2. * (xy-wz), 2. * (xz+wy), 0.),
-        v4(2. * (xy+wz), 1. - 2. * (xx+zz), 2. * (yz-wx), 0.),
-        v4(2. * (xz-wy), 2. * (yz+wx), 1. - 2. * (xx+yy), 0.),
-        v4(0., 0., 0., 1.)
+        {1. - 2. * (yy+zz), 2. * (xy-wz), 2. * (xz+wy), 0.},
+        {2. * (xy+wz), 1. - 2. * (xx+zz), 2. * (yz-wx), 0.},
+        {2. * (xz-wy), 2. * (yz+wx), 1. - 2. * (xx+yy), 0.},
+        {0., 0., 0., 1.}
     }};
 }
 
@@ -237,34 +225,34 @@ static inline quaternion to_quaternion(const m4 &m)
 {
     v4 tr;
     quaternion res;
-    tr[0] = ( m[0][0] + m[1][1] + m[2][2]);
-    tr[1] = ( m[0][0] - m[1][1] - m[2][2]);
-    tr[2] = (-m[0][0] + m[1][1] - m[2][2]);
-    tr[3] = (-m[0][0] - m[1][1] + m[2][2]);
+    tr[0] = ( m(0, 0) + m(1, 1) + m(2, 2));
+    tr[1] = ( m(0, 0) - m(1, 1) - m(2, 2));
+    tr[2] = (-m(0, 0) + m(1, 1) - m(2, 2));
+    tr[3] = (-m(0, 0) - m(1, 1) + m(2, 2));
     if(tr[0] >= tr[1] && tr[0]>= tr[2] && tr[0] >= tr[3])
     {
         f_t s = 2. * sqrt(tr[0] + 1);
         res.w() = .25 * s;
-        res.x() = (m[2][1] - m[1][2]) / s;
-        res.y() = (m[0][2] - m[2][0]) / s;
-        res.z() = (m[1][0] - m[0][1]) / s;
+        res.x() = (m(2, 1) - m(1, 2)) / s;
+        res.y() = (m(0, 2) - m(2, 0)) / s;
+        res.z() = (m(1, 0) - m(0, 1)) / s;
     } else if(tr[1] >= tr[2] && tr[1] >= tr[3]) {
         f_t s = 2. * sqrt(tr[1] + 1);
-        res.w() = (m[2][1] - m[1][2]) / s;
+        res.w() = (m(2, 1) - m(1, 2)) / s;
         res.x() = .25 * s;
-        res.y() = (m[1][0] + m[0][1]) / s;
-        res.z() = (m[2][0] + m[0][2]) / s;
+        res.y() = (m(1, 0) + m(0, 1)) / s;
+        res.z() = (m(2, 0) + m(0, 2)) / s;
     } else if(tr[2] >= tr[3]) {
         f_t s = 2. * sqrt(tr[2] + 1.);
-        res.w() = (m[0][2] - m[2][0]) / s;
-        res.x() = (m[1][0] + m[0][1]) / s;
+        res.w() = (m(0, 2) - m(2, 0)) / s;
+        res.x() = (m(1, 0) + m(0, 1)) / s;
         res.y() = .25 * s;
-        res.z() = (m[1][2] + m[2][1]) / s;
+        res.z() = (m(1, 2) + m(2, 1)) / s;
     } else {
         f_t s = 2. * sqrt(tr[3] + 1.);
-        res.w() = (m[1][0] - m[0][1]) / s;
-        res.x() = (m[0][2] + m[2][0]) / s;
-        res.y() = (m[1][2] + m[2][1]) / s;
+        res.w() = (m(1, 0) - m(0, 1)) / s;
+        res.x() = (m(0, 2) + m(2, 0)) / s;
+        res.y() = (m(1, 2) + m(2, 1)) / s;
         res.z() = .25 * s;
     }
     return normalize(res);
@@ -298,18 +286,17 @@ static inline quaternion integrate_angular_velocity(const quaternion &Q, const v
 
 static inline void integrate_angular_velocity_jacobian(const quaternion &Q, const v4 &w, m4 &dQ_dQ, m4 &dQ_dw)
 {
-    dQ_dQ = m4_identity + .5 *
-    (m4){{
-        v4(0., -w[0], -w[1], w[2]),
-        v4(w[0], 0., w[2], -w[1]),
-        v4(w[1], -w[2], 0., w[0]),
-        v4(w[2], w[1], -w[0], 0.)
+    dQ_dQ = m4::Identity() + .5 * (m4) {{
+        {0., -w[0], -w[1], w[2]},
+        {w[0], 0., w[2], -w[1]},
+        {w[1], -w[2], 0., w[0]},
+        {w[2], w[1], -w[0], 0.}
     }};
     dQ_dw = .5 * (m4) {{
-        v4(-Q.x(), -Q.y(), -Q.z(), 0.),
-        v4(Q.w(), -Q.z(), Q.y(), 0.),
-        v4(Q.z(), Q.w(), -Q.x(), 0.),
-        v4(-Q.y(), Q.x(), Q.w(), 0.)
+        {-Q.x(), -Q.y(), -Q.z(), 0.},
+        {Q.w(), -Q.z(), Q.y(), 0.},
+        {Q.z(), Q.w(), -Q.x(), 0.},
+        {-Q.y(), Q.x(), Q.w(), 0.}
     }};
 }
 
@@ -317,7 +304,7 @@ static inline void integrate_angular_velocity_jacobian(const quaternion &Q, cons
 static inline quaternion rotation_between_two_vectors_normalized(const v4 &a, const v4 &b)
 {
     quaternion res;
-    f_t d = dot(a,b);
+    f_t d = a.dot(b);
     v4 axis;
     if( d >= 1.) //the two vectors are aligned)
     {
@@ -345,7 +332,7 @@ static inline quaternion rotation_between_two_vectors(const v4 &a, const v4 &b)
     //make sure the 3rd element is zero and normalize
     v4 an(a[0], a[1], a[2], 0.);
     v4 bn(b[0], b[1], b[2], 0.);
-    return rotation_between_two_vectors_normalized(an / norm(an), bn / norm(bn));
+    return rotation_between_two_vectors_normalized(an.normalized(), bn.normalized());
 }
 
 #endif

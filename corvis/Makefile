@@ -104,18 +104,21 @@ build/%.S: src/%.cpp
 
 ############################## COR ############################
 
-COR_SOURCES := $(addprefix src/cor/, packet.c mapbuffer.c inbuffer.c timestamp.c plugins.c dispatch.c debug.c) build/swig/_cor.c
-bin/corvis/_cor.so: $(patsubst src/%,build/%,$(COR_SOURCES:.c=.o)) $(patsubst src/%,build/%,$(COR_CXX_SOURCES:.cpp=.o))
+COR_SOURCES := $(addprefix src/cor/, packet.c mapbuffer.c inbuffer.c timestamp.c plugins.c dispatch.c debug.c)
+COR_CXX_SOURCES := $(addprefix src/cor/, sensor_fusion_queue.cpp platform/shell/sensor_data.cpp platform/shell/sensor_clock.cpp)
+
+bin/corvis/_cor.so: $(patsubst src/%,build/%,$(COR_SOURCES:.c=.o)) $(patsubst src/%,build/%,$(COR_CXX_SOURCES:.cpp=.o)) build/swig/_cor.o
 
 TARGETS := $(TARGETS) build/swig/_cor.c bin/corvis/_cor.so bin/corvis/__init__.py
 SOURCES := $(SOURCES) $(COR_SOURCES)
+CXX_SOURCES := $(CXX_SOURCES) $(COR_CXX_SOURCES)
 DEPS := $(DEPS) build/swig/_cor.c.d
 
 ############################## NUMERICS ############################
 
-NUMERICS_CXX_SOURCES := $(addprefix src/numerics/, rotation_vector.cpp vec4.cpp matrix.cpp kalman.cpp) build/swig/_numerics.cpp
+NUMERICS_CXX_SOURCES := $(addprefix src/numerics/, rotation_vector.cpp vec4.cpp matrix.cpp kalman.cpp)
 bin/corvis/_numerics.so: LDFLAGS := $(LDFLAGS) -lm -lcblas -llapack -lstdc++
-bin/corvis/_numerics.so: $(patsubst src/%,build/%,$(NUMERICS_CXX_SOURCES:.cpp=.o))
+bin/corvis/_numerics.so: $(patsubst src/%,build/%,$(NUMERICS_CXX_SOURCES:.cpp=.o)) build/swig/_numerics.o
 
 TARGETS := $(TARGETS) build/swig/_numerics.cpp bin/corvis/_numerics.so bin/corvis/__init__.py
 CXX_SOURCES := $(CXX_SOURCES) $(NUMERICS_CXX_SOURCES)
@@ -123,12 +126,12 @@ DEPS := $(DEPS) build/swig/_numerics.cpp.d
 
 ############################## FILTER ############################
 
-FILTER_CXX_SOURCES := $(addprefix src/filter/, filter.cpp state_vision.cpp state_motion.cpp state.cpp observation.cpp filter_setup.cpp fast_detector/fast_9.cpp scaled_mask.cpp camera_control_interface_dummy.cpp homography.cpp qr.cpp) build/swig/_filter.cpp
+FILTER_CXX_SOURCES := $(addprefix src/filter/, filter.cpp state_vision.cpp state_motion.cpp state.cpp observation.cpp filter_setup.cpp fast_detector/fast_9.cpp scaled_mask.cpp camera_control_interface_dummy.cpp homography.cpp qr.cpp)
 
 FILTER_SOURCES := $(addprefix src/filter/, device_parameters.c)
 
 #bin/swig/_filter.so: LDFLAGS := $(LDFLAGS) `pkg-config --libs opencv`
-bin/corvis/_filter.so:$(patsubst src/%,build/%,$(FILTER_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(FILTER_SOURCES:.c=.o)) bin/_libzxing.a
+bin/corvis/_filter.so:$(patsubst src/%,build/%,$(FILTER_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(FILTER_SOURCES:.c=.o)) bin/_libzxing.a build/swig/_filter.o
 
 TARGETS := $(TARGETS) build/swig/_filter.cpp bin/corvis/_filter.so bin/corvis/__init__.py
 CXX_SOURCES := $(CXX_SOURCES) $(FILTER_CXX_SOURCES)
@@ -227,11 +230,25 @@ bin/_vl.so:$(patsubst src/%,build/%,$(VL_C_SOURCES:.c=.o))
 TARGETS := $(TARGETS) bin/_vl.so
 SOURCES := $(SOURCES) $(VL_C_SOURCES)
 
+############################## MEASURE ############################
+
+MEASURE_SOURCES := $(FILTER_SOURCES) $(COR_SOURCES)
+MEASURE_CXX_SOURCES := src/tools/measure.cpp src/filter/replay.cpp $(FILTER_CXX_SOURCES) $(NUMERICS_CXX_SOURCES) $(COR_CXX_SOURCES)
+
+LDFLAGS := $(LDFLAGS) -lstdc++
+
+bin/measure: $(patsubst src/%,build/%,$(MEASURE_SOURCES:.c=.o)) $(patsubst src/%,build/%,$(MEASURE_CXX_SOURCES:.cpp=.o)) bin/_libzxing.a
+	@mkdir -p $(@D)
+	$(CC) $(LDFLAGS) $(PYTHON_LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
+
+TARGETS := $(TARGETS) bin/measure
+#CXX_SOURCES := $(CXX_SOURCES) src/filter/replay.cpp src/tools/measure.cpp
+
 ############################## TEST ############################
 
 d := test
 
-TEST_CXX_SOURCES := $(addprefix $(d)/, test.cpp util.cpp numerics/vec4.cpp numerics/rotation_vector.cpp stereo/stereo.cpp stereo/camera.cpp numerics/quaternion.cpp filter/homography.cpp filter/utils.cpp)
+TEST_CXX_SOURCES := $(addprefix $(d)/, test.cpp util.cpp numerics/vec4.cpp numerics/rotation_vector.cpp stereo/stereo.cpp stereo/camera.cpp numerics/quaternion.cpp filter/homography.cpp filter/utils.cpp cor/sensor_fusion_queue.cpp)
 
 _CPPFLAGS := $(_CPPFLAGS) -I../ -Isrc/numerics -Itest
 LDFLAGS := $(LDFLAGS) -lstdc++
@@ -244,7 +261,7 @@ build/$(d)/%.o: $(d)/%.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 
-bin/test: build/$(d)/gtest_main.o build/$(d)/gtest-all.o $(patsubst test/%,build/test/%,$(TEST_CXX_SOURCES:.cpp=.o)) $(addprefix build/numerics/, rotation_vector.o vec4.o matrix.o) $(addprefix build/filter/, fast_detector/fast_9.o scaled_mask.o homography.o) bin/_stereo.so bin/_libDAI.so bin/_qhull.so
+bin/test: build/$(d)/gtest_main.o build/$(d)/gtest-all.o $(patsubst test/%,build/test/%,$(TEST_CXX_SOURCES:.cpp=.o)) $(addprefix build/numerics/, rotation_vector.o vec4.o matrix.o) $(addprefix build/filter/, fast_detector/fast_9.o scaled_mask.o homography.o) $(addprefix build/cor/, sensor_fusion_queue.o platform/shell/sensor_data.o platform/shell/sensor_clock.o) bin/_stereo.so bin/_libDAI.so bin/_qhull.so
 	@mkdir -p $(@D)
 	$(CC) $(LDFLAGS) $(PYTHON_LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
 

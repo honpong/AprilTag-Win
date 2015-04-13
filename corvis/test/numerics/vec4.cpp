@@ -220,7 +220,7 @@ void test_rotation(const v4 &vec)
 
     {
         quaternion q1 = integrate_angular_velocity(quat, angvel);
-        quaternion q2 = quaternion_product(quat, integrate_angular_velocity(quaternion(1., 0., 0., 0.), angvel));
+        quaternion q2 = quat * integrate_angular_velocity(quaternion(1., 0., 0., 0.), angvel);
         EXPECT_QUATERNION_ROTATION_NEAR(q1,q2, 1.e-15)
             << "integrate_angular_velocity(W, w) = W * integrate_angular_velocity(I, w)";
     }

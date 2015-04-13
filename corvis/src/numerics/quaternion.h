@@ -27,7 +27,14 @@ public:
     f_t &x() { return data[1]; }
     f_t &y() { return data[2]; }
     f_t &z() { return data[3]; }
-    
+
+    const quaternion operator*(const quaternion &q) const {
+        return quaternion(w() * q.w() - x() * q.x() - y() * q.y() - z() * q.z(),
+                          x() * q.w() + w() * q.x() - z() * q.y() + y() * q.z(),
+                          y() * q.w() + z() * q.x() + w() * q.y() - x() * q.z(),
+                          z() * q.w() - y() * q.x() + x() * q.y() + w() * q.z());
+    }
+
 private:
     v4 data;
 };
@@ -45,13 +52,6 @@ static inline bool operator==(const quaternion &a, const quaternion &b)
 static inline quaternion conjugate(const quaternion &q)
 {
     return quaternion(q.w(), -q.x(), -q.y(), -q.z());
-}
-
-static inline quaternion quaternion_product(const quaternion &a, const quaternion &b) {
-    return quaternion(a.w() * b.w() - a.x() * b.x() - a.y() * b.y() - a.z() * b.z(),
-                      a.w() * b.x() + a.x() * b.w() + a.y() * b.z() - a.z() * b.y(),
-                      a.w() * b.y() + a.y() * b.w() + a.z() * b.x() - a.x() * b.z(),
-                      a.w() * b.z() + a.z() * b.w() + a.x() * b.y() - a.y() * b.x());
 }
 
 static inline m4 quaternion_product_left_jacobian(const quaternion &b) {

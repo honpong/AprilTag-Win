@@ -169,7 +169,7 @@ bool qr_code_origin(const struct filter *f, struct qr_detection detection, float
             v4 z_old(0., 0., 1., 0.);
             v4 z_new = quaternion_rotate(conjugate(world_qr.Q), z_old);
             quaternion Qd = rotation_between_two_vectors_normalized(z_old, z_new);
-            world_qr.Q = quaternion_product(world_qr.Q, Qd);
+            world_qr.Q = world_qr.Q * Qd;
         }
 
         origin = invert(world_qr);
@@ -210,7 +210,7 @@ void qr_benchmark::process_frame(const struct filter * f, const uint8_t * image,
 
                 transformation now_state_est = compose(origin_state, compose(origin_qr, invert(now_qr)));
 
-                quaternion dQ = quaternion_product(now_state_est.Q, conjugate(now_state.Q));
+                quaternion dQ = now_state_est.Q * conjugate(now_state.Q);
                 v4 dT = now_state_est.T - quaternion_rotate(dQ, now_state.T);
                 cerr << "dR=" << to_rotation_matrix(dQ) << ";\n";
                 cerr << "dT=" << dT << ";\n";

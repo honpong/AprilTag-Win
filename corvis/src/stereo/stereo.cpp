@@ -518,10 +518,10 @@ void stereo::transform_to_reference(const stereo_frame * transform_to)
     quaternion toQ = conjugate(to_quaternion(transform_to->W));
 
     target->T = quaternion_rotate(toQ, (target->T - transform_to->T));
-    target->W = to_rotation_vector(quaternion_product(toQ, to_quaternion(target->W)));
+    target->W = to_rotation_vector(toQ * to_quaternion(target->W));
 
     reference->T = quaternion_rotate(toQ, (reference->T - transform_to->T));
-    reference->W = to_rotation_vector(quaternion_product(toQ, to_quaternion(reference->W)));
+    reference->W = to_rotation_vector(toQ * to_quaternion(reference->W));
 }
 
 bool stereo::triangulate_mesh(int reference_x, int reference_y, v4 & intersection) const

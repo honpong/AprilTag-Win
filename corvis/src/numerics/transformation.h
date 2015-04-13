@@ -46,7 +46,7 @@ static inline v4 transformation_apply(const transformation & t, const v4 & apply
 
 static inline transformation compose(const transformation & t1, const transformation & t2)
 {
-    return transformation(quaternion_product(t1.Q, t2.Q), t1.T + quaternion_rotate(t1.Q, t2.T));
+    return transformation(t1.Q * t2.Q, t1.T + quaternion_rotate(t1.Q, t2.T));
 }
 
 #endif

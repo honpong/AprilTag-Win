@@ -22,7 +22,7 @@ private:
     std::atomic<uint64_t> bytes_dispatched{0};
     std::atomic<float> path_length{0};
     std::atomic<float> length{0};
-    std::atomic<bool> is_running;
+    std::atomic<bool> is_running{false};
     bool is_realtime = false;
     std::unique_ptr<filter_setup> cor_setup;
     std::unique_ptr<fusion_queue> queue;

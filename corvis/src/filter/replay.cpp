@@ -53,6 +53,10 @@ void replay::setup_filter()
 void replay::start()
 {
     is_running = true;
+    path_length = 0;
+    length = 0;
+    packets_dispatched = 0;
+    bytes_dispatched = 0;
 
     packet_header_t header;
     file.read((char *)&header, 16);
@@ -142,6 +146,7 @@ void replay::start()
         if(file.bad() || file.eof()) is_running = false;
     }
     while(queue->dispatch_offline(true)) {}
+    file.close();
 
     length = cor_setup->sfm.s.T.v.norm() * 100;
     path_length = cor_setup->sfm.s.total_distance * 100;

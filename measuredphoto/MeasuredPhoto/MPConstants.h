@@ -6,8 +6,6 @@
 //  Copyright (c) 2012 RealityCap. All rights reserved.
 //
 
-#include "RCDebugLog.h"
-
 #ifndef TapeMeasure_Constants_h
 #define TapeMeasure_Constants_h
 #endif

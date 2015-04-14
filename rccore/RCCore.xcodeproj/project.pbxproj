@@ -156,6 +156,7 @@
 		D37A66FE1A20B33A0019778E /* libRC3DKPlus.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D37A66FD1A20B3290019778E /* libRC3DKPlus.a */; };
 		D38126F618CA234200E635C3 /* RCConnectionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D38126F518CA234200E635C3 /* RCConnectionManager.m */; };
 		D38126FC18CA239800E635C3 /* GCDAsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = D38126FB18CA239800E635C3 /* GCDAsyncSocket.m */; };
+		D38FA8FE1ADD341900002EB3 /* RCDebugLog.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D38FA8FA1ADD317300002EB3 /* RCDebugLog.h */; };
 		D94ECE6D194CC171008F2F9A /* RCGeocoder.m in Sources */ = {isa = PBXBuildFile; fileRef = D94ECE6C194CC171008F2F9A /* RCGeocoder.m */; };
 		D94ECE6F194CCA78008F2F9A /* RCGeocoder.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D94ECE6B194CC171008F2F9A /* RCGeocoder.h */; };
 		D99CE19C19D4992700510B81 /* RCVideoPreviewCRT.m in Sources */ = {isa = PBXBuildFile; fileRef = D99CE19B19D4992700510B81 /* RCVideoPreviewCRT.m */; };
@@ -214,6 +215,7 @@
 			dstPath = "include/${PRODUCT_NAME}";
 			dstSubfolderSpec = 16;
 			files = (
+				D38FA8FE1ADD341900002EB3 /* RCDebugLog.h in CopyFiles */,
 				32CF88A81A310D220044B17B /* RC3DK.h in CopyFiles */,
 				D99CE1AC19D4A80B00510B81 /* RCVideoPreviewCRT.h in CopyFiles */,
 				3207A65C1AC20C0A00792F30 /* RCGLManagerFactory.h in CopyFiles */,
@@ -441,6 +443,7 @@
 		D38126F518CA234200E635C3 /* RCConnectionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCConnectionManager.m; sourceTree = "<group>"; };
 		D38126FA18CA239800E635C3 /* GCDAsyncSocket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = GCDAsyncSocket.h; path = GCDAsyncSocket/GCDAsyncSocket.h; sourceTree = "<group>"; };
 		D38126FB18CA239800E635C3 /* GCDAsyncSocket.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = GCDAsyncSocket.m; path = GCDAsyncSocket/GCDAsyncSocket.m; sourceTree = "<group>"; };
+		D38FA8FA1ADD317300002EB3 /* RCDebugLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCDebugLog.h; path = ../../rc3dk/RC3DK/RCDebugLog.h; sourceTree = "<group>"; };
 		D94ECE6B194CC171008F2F9A /* RCGeocoder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCGeocoder.h; sourceTree = "<group>"; };
 		D94ECE6C194CC171008F2F9A /* RCGeocoder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCGeocoder.m; sourceTree = "<group>"; };
 		D99CE19A19D4992700510B81 /* RCVideoPreviewCRT.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoPreviewCRT.h; sourceTree = "<group>"; };
@@ -570,6 +573,7 @@
 		325FC8BF16D6FFFA003A00BE /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				D38FA8FA1ADD317300002EB3 /* RCDebugLog.h */,
 				322B8A8E17DC2AE8008FED6E /* CLPlacemark+RCPlacemark.h */,
 				322B8A8F17DC2AE8008FED6E /* CLPlacemark+RCPlacemark.m */,
 				32C4493616D5457C00984BEC /* Guid.h */,

@@ -10,6 +10,7 @@
 #define PREF_DEVICE_PARAMS @"DeviceCalibration"
 
 #import "RCSensorFusion.h"
+#include "RCCaptureFile.h"
 
 // TODO: Unify this with RCSensorFusion.mm get_timestamp which should probably be moved to a platform specific place as part of the porting branch
 #include <mach/mach_time.h>

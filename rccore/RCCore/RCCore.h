@@ -14,14 +14,6 @@
 #import <SystemConfiguration/SystemConfiguration.h>
 #import <MobileCoreServices/MobileCoreServices.h>
 
-#import "RCAVSessionManager.h"
-#import "RCLocationManager.h"
-#import "RCMotionManager.h"
-#import "RCVideoManager.h"
-#import "RCCaptureManager.h"
-#import "RCReplayManager.h"
-#import "RCSensorManager.h"
-
 #import "RCVideoPreviewCRT.h"
 
 #import "RCDistance.h"

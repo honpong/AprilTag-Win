@@ -9,8 +9,6 @@
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
 
-#import "RCCaptureFile.h"
-
 @protocol RCCaptureManagerDelegate <NSObject>
 
 - (void) captureDidStop;

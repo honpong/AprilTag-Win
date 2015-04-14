@@ -10,8 +10,6 @@
 
 #import "RCSensorFusion.h"
 
-#include "RCCaptureFile.h"
-
 @protocol RCReplayManagerDelegate <NSObject>
 
 @optional

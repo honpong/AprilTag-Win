@@ -13,7 +13,6 @@
 #import "MPLocalMoviePlayer.h"
 #import "UIImage+MPImageFile.h"
 #import "MPSurveyAnswer.h"
-#import "RCCore/RCSensorManager.h"
 #import "MPDMeasuredPhoto.h"
 #import "MPDLocation.h"
 #import "CoreData+MagicalRecord.h"

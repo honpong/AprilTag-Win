@@ -10,6 +10,7 @@
 
 #import "RCAVSessionManager.h"
 #import "RCCaptureManager.h"
+#import "RCCaptureFile.h"
 
 #define POLL
 

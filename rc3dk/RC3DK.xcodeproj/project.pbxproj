@@ -523,7 +523,7 @@
 		D33E9D1D1ADD14600085F35C /* RCSensorManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCSensorManager.h; path = ../../rc3dk/RC3DK/SensorManagers/RCSensorManager.h; sourceTree = "<group>"; };
 		D33E9D1E1ADD14600085F35C /* RCSensorManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCSensorManager.m; path = ../../rc3dk/RC3DK/SensorManagers/RCSensorManager.m; sourceTree = "<group>"; };
 		D33E9D1F1ADD14600085F35C /* RCVideoManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCVideoManager.m; path = ../../rc3dk/RC3DK/SensorManagers/RCVideoManager.m; sourceTree = "<group>"; };
-		D33E9D201ADD14600085F35C /* RCDebugLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCDebugLog.h; path = ../../rc3dk/RC3DK/SensorManagers/RCDebugLog.h; sourceTree = "<group>"; };
+		D33E9D201ADD14600085F35C /* RCDebugLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCDebugLog.h; path = ../../rc3dk/RC3DK/RCDebugLog.h; sourceTree = "<group>"; };
 		D33E9D211ADD14600085F35C /* RCLocationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCLocationManager.h; path = ../../rc3dk/RC3DK/SensorManagers/RCLocationManager.h; sourceTree = "<group>"; };
 		D33E9D221ADD14600085F35C /* RCLocationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCLocationManager.m; path = ../../rc3dk/RC3DK/SensorManagers/RCLocationManager.m; sourceTree = "<group>"; };
 		D33E9D231ADD14600085F35C /* RCMotionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCMotionManager.m; path = ../../rc3dk/RC3DK/SensorManagers/RCMotionManager.m; sourceTree = "<group>"; };
@@ -951,6 +951,7 @@
 		327B558218EB4E690001CCE1 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				D33E9D201ADD14600085F35C /* RCDebugLog.h */,
 				D33E9D311ADD14C30085F35C /* RCCaptureFile.h */,
 				327B554518EB4DC20001CCE1 /* NSString+RCString.h */,
 				327B554618EB4DC20001CCE1 /* NSString+RCString.m */,
@@ -1150,7 +1151,6 @@
 				D33E9D1D1ADD14600085F35C /* RCSensorManager.h */,
 				D33E9D1E1ADD14600085F35C /* RCSensorManager.m */,
 				D33E9D1F1ADD14600085F35C /* RCVideoManager.m */,
-				D33E9D201ADD14600085F35C /* RCDebugLog.h */,
 				D33E9D211ADD14600085F35C /* RCLocationManager.h */,
 				D33E9D221ADD14600085F35C /* RCLocationManager.m */,
 				D33E9D231ADD14600085F35C /* RCMotionManager.m */,

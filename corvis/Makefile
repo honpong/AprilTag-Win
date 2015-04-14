@@ -47,7 +47,7 @@ _WXGLADE := $(WXGLADE)
 %.o: override AS=$(Q)printf "%32s %s\n" "Assembling" $<; $(_AS)
 %.so: override CC=$(Q)printf "%32s %s\n" "Linking" $(@); $(_CC)
 %.a: override AR=$(Q)printf "%32s %s\n" "Archiving" $(@); $(_AR)
-bin/test cor/cor:override CC=$(Q)printf "%32s %s\n" "Linking" $(@); $(_CC)
+bin/%:override CC=$(Q)printf "%32s %s\n" "Linking" $(@); $(_CC)
 
 %.py: %.wxg
 	@mkdir -p $(@D)

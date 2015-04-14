@@ -193,16 +193,14 @@ void test_rotation(const v4 &vec)
 
     {
         const v4 lvec(1.5, -.64, 4.1, 0.);
-        v4 vrot = quaternion_rotate(quat, lvec);
-        EXPECT_V4_NEAR(vrot, quaternion_rotate(rotation_between_two_vectors(lvec, vrot), lvec), 1.e-12)
+        v4 vrot = quat * lvec;
+        EXPECT_V4_NEAR(vrot, rotation_between_two_vectors(lvec, vrot) * lvec, 1.e-12)
             << "q * vec = rotation_between_two_vectors(vec, quaternion_rotation(q, vec)) * vec";
     }
     
     {
         const v4 up(0., 0., 1., 0.);
-        v4 newup = quaternion_rotate(quat, up);
-        EXPECT_V4_NEAR(up, quaternion_rotate(rotation_between_two_vectors(newup, up), newup) , 1.e-12)
-            << "up = quaternion_rotate(rotation_between_two_vectors(quaternion_rotate(q, up), up), quaternion_rotate(q, up))";
+        EXPECT_V4_NEAR(up, rotation_between_two_vectors(quat * up, up) * (quat * up) , 1.e-12);
     }
     
     integrate_angular_velocity_jacobian(quat, angvel, dW_dW, dW_dw);

@@ -23,8 +23,10 @@ TEST(Quaternion, Cross)
 TEST(Quaternion, Rotation)
 {
     quaternion rotq = normalize(q);
-    v4 v(-1.5, 1.6, -.2, 0.);
-    EXPECT_V4_NEAR(quaternion_rotate(rotq,v), to_rotation_matrix(rotq)*v, 1.e-15);
+    v4 v(-1.5, 1.6, -.2, 0.); quaternion w(0, v[0], v[1], v[2]);
+    quaternion rotv = rotq * w * conjugate(rotq); v4 rotw(rotv.x(), rotv.y(),rotv.z(), rotv.w());
+    EXPECT_V4_NEAR(rotq * v, rotw, 1.e-15) << "rotq * v == unqaternion(rotq * quaternion(v) * conjugate(rotq))";
+    EXPECT_V4_NEAR(rotq * v, to_rotation_matrix(rotq) * v, 1.e-15);
 }
 
 TEST(Quaternion, IntegrateAngularVelocity)

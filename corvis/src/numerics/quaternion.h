@@ -66,25 +66,6 @@ static inline v4 qvec_cross(const quaternion &a, const v4 &b) {
               0);
 }
 
-static inline v4 quaternion_rotate(const quaternion &q, const v4 &v) {
-    f_t
-    w = q.w(),
-    x = q.x(),
-    y = q.y(),
-    z = q.z(),
-    x1 = q.x()*v[1],
-    x2 = q.x()*v[2],
-    y0 = q.y()*v[0],
-    y2 = q.y()*v[2],
-    z0 = q.z()*v[0],
-    z1 = q.z()*v[1];
-    v4 rhs(w*(y2-z1) + y*(x1-y0) - z*(z0-x2),
-           w*(z0-x2) + z*(y2-z1) - x*(x1-y0),
-           w*(x1-y0) + x*(z0-x2) - y*(y2-z1),
-           0.);
-    return v + 2. * rhs;
-}
-
 //This is the same as the right jacobian of quaternion_rotate
 static inline m4 to_rotation_matrix(const quaternion &q)
 {
@@ -105,6 +86,12 @@ static inline m4 to_rotation_matrix(const quaternion &q)
         {2. * (xz-wy), 2. * (yz+wx), 1. - 2. * (xx+yy), 0.},
         {0., 0., 0., 1.}
     }};
+}
+
+// Assumes q is unit
+static inline const v4 operator*(const quaternion &q, const v4 &v)
+{
+    return to_rotation_matrix(q) * v;
 }
 
 static inline quaternion to_quaternion(const m4 &m)

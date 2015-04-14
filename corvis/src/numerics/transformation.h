@@ -36,17 +36,17 @@ static inline bool operator==(const transformation & a, const transformation &b)
 
 static inline transformation invert(const transformation & t)
 {
-    return transformation(conjugate(t.Q), -quaternion_rotate(conjugate(t.Q), t.T));
+    return transformation(conjugate(t.Q), conjugate(t.Q) * -t.T);
 }
 
 static inline v4 transformation_apply(const transformation & t, const v4 & apply_to)
 {
-    return quaternion_rotate(t.Q, apply_to) + t.T;
+    return t.Q * apply_to + t.T;
 }
 
 static inline transformation compose(const transformation & t1, const transformation & t2)
 {
-    return transformation(t1.Q * t2.Q, t1.T + quaternion_rotate(t1.Q, t2.T));
+    return transformation(t1.Q * t2.Q, t1.T + t1.Q * t2.T);
 }
 
 #endif

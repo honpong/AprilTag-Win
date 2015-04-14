@@ -6,6 +6,8 @@
 //  Copyright (c) 2015 Realitycap. All rights reserved.
 //
 
+#import <Foundation/Foundation.h>
+
 @interface CaptureFilename : NSObject
 
 + (NSDictionary *) parseFilename:(NSString *)filename;

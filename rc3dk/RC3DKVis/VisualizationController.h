@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 #import <GLKit/GLKit.h>
 
-#import <RCCore/RCCore.h>
+#import "RC3DK.h"
 
 @interface VisualizationController : GLKViewController <RCSensorFusionDelegate, UIGestureRecognizerDelegate>
 

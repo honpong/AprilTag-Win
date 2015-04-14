@@ -13,6 +13,8 @@
 
 // singletons
 #import "RCSensorFusion.h"
+#import "RCCaptureManager.h"
+#import "RCReplayManager.h"
 
 // data classes
 #import "RCFeaturePoint.h"
@@ -32,5 +34,13 @@
 
 // misc
 #import "RCDeviceInfo.h"
+
+// sensor managers
+#import "RCAVSessionManager.h"
+#import "RCSensorManager.h"
+#import "RCVideoManager.h"
+#import "RCLocationManager.h"
+#import "RCMotionManager.h"
+#import "RCVideoFrameProvider.h"
 
 #endif

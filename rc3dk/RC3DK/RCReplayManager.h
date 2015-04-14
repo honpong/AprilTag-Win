@@ -8,7 +8,9 @@
 
 #import <Foundation/Foundation.h>
 
-#include "CaptureFile.h"
+#import "RCSensorFusion.h"
+
+#include "RCCaptureFile.h"
 
 @protocol RCReplayManagerDelegate <NSObject>
 

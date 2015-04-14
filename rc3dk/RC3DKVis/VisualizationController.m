@@ -10,7 +10,7 @@
 #import "ArcBall.h"
 #import "WorldState.h"
 #import "MBProgressHUD.h"
-#import <RCCore/RCSensorManager.h>
+#import "RC3DK.h"
 
 #define INITIAL_LIMITS 3.
 #define POINT_SIZE 3.0

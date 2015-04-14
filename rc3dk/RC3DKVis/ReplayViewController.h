@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <RCCore/RCCore.h>
+#import "RC3DK.h"
 
 @interface ReplayViewController : UIViewController <RCReplayManagerDelegate, UITableViewDataSource, UITableViewDelegate>
 

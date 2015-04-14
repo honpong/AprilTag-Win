@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
 
-#import "CaptureFile.h"
+#import "RCCaptureFile.h"
 
 @protocol RCCaptureManagerDelegate <NSObject>
 

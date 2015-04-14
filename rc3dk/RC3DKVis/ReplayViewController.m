@@ -7,7 +7,7 @@
 //
 
 #import "ReplayViewController.h"
-#import <RCCore/RCCore.h>
+#import "RC3DK.h"
 #import "CaptureFilename.h"
 
 @interface ReplayViewController ()

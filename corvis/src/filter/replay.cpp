@@ -61,6 +61,7 @@ void replay::start()
     auto first_timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time));
     auto start_time = sensor_clock::now();
     auto now = start_time;
+    auto last_progress = now;
     auto realtime_offset = now - first_timestamp;
     if(!is_realtime)
         realtime_offset = std::chrono::microseconds(0);
@@ -125,8 +126,16 @@ void replay::start()
             queue->dispatch_offline(false);
             bytes_dispatched += header.bytes;
             packets_dispatched++;
-            if(progress_callback)
+
+            now = sensor_clock::now();
+            // Update progress at most at 30Hz or if we are almost done
+            if(progress_callback &&
+               (now - last_progress > std::chrono::milliseconds(33) ||
+                1.*bytes_dispatched / size > 0.99))
+            {
+                last_progress = now;
                 progress_callback(1.*bytes_dispatched / size);
+            }
         }
         
         file.read((char *)&header, 16);

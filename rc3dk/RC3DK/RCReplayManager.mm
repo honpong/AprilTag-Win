@@ -71,11 +71,6 @@
     __weak typeof(self) weakself = self;
     std::function<void (float)> callback = [weakself](float progress)
     {
-        static float last_progress = 0;
-        if(last_progress + 0.005 > progress) // only update every 0.5%
-            return;
-
-        last_progress = progress;
         if(weakself.delegate &&
            [weakself.delegate respondsToSelector:@selector(replayProgress:)]) {
             dispatch_async(dispatch_get_main_queue(), ^{

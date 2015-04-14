@@ -85,24 +85,6 @@ static inline v4 qvec_cross(const quaternion &a, const v4 &b) {
 }
 
 static inline v4 quaternion_rotate(const quaternion &q, const v4 &v) {
-    /* original quaternion_rotate:
-     v4 qv = qvec_cross(q, v);
-     v4 qqv = qvec_cross(q, qv);
-     return v + 2. * q.w() * qv + 2. * qqv;
-     */
-   /* v4 wqv = v4(q.w() * (q.y() * v[2] - q.z() * v[1]),
-                q.w() * (q.z() * v[0] - q.x() * v[2]),
-                q.w() * (q.x() * v[1] - q.y() * v[0]),
-                0);
-    
-    v4 qqv = v4(q.y() * (q.x() * v[1] - q.y() * v[0]) - q.z() * (q.z() * v[0] - q.x() * v[2]),
-                q.z() * (q.y() * v[2] - q.z() * v[1]) - q.x() * (q.x() * v[1] - q.y() * v[0]),
-                q.x() * (q.z() * v[0] - q.x() * v[2]) - q.y() * (q.y() * v[2] - q.z() * v[1]),
-                0);
-    
-    return v + 2. * (wqv + qqv);
-    */
-    
     f_t
     w = q.w(),
     x = q.x(),
@@ -114,22 +96,10 @@ static inline v4 quaternion_rotate(const quaternion &q, const v4 &v) {
     y2 = q.y()*v[2],
     z0 = q.z()*v[0],
     z1 = q.z()*v[1];
-    
-    //wqv
-    //w*(y2-z1)
-    //w*(z0-x2)
-    //w*(x1-y0)
-    
-    //qqv
-    //y*(x1-y0) - z*(z0-x2)
-    //z*(y2-z1) - x*(x1-y0)
-    //x*(z0-x2) - y*(y2-z1)
-    
     v4 rhs(w*(y2-z1) + y*(x1-y0) - z*(z0-x2),
            w*(z0-x2) + z*(y2-z1) - x*(x1-y0),
            w*(x1-y0) + x*(z0-x2) - y*(y2-z1),
            0.);
-    
     return v + 2. * rhs;
 }
 
@@ -185,23 +155,6 @@ static inline m4 quaternion_rotate_left_jacobian(const quaternion &q, const v4 &
 //This is the same as the right jacobian of quaternion_rotate
 static inline m4 to_rotation_matrix(const quaternion &q)
 {
-    /*
-    m4 dwqv_dv = {{
-        v4(0., -q.w() * q.z(), q.w() * q.y(), 0.),
-        v4(q.w() * q.z(), 0., -q.w() * q.x(), 0.),
-        v4(-q.w() * q.y(), q.w() * q.x(), 0., 0.),
-        v4(0., 0., 0., 0.)
-    }};
-    m4 dqqv_dv = {{
-        v4(-q.y() * q.y() - q.z() * q.z(), q.y() * q.x(), q.z() * q.x(), 0.),
-        v4(q.x() * q.y(), -q.z() * q.z() - q.x() * q.x(), q.z() * q.y(), 0.),
-        v4(q.x() * q.z(), q.y() * q.z(), -q.x() * q.x() - q.y() * q.y(), 0.),
-        v4(0., 0., 0., 0.)
-    }};
-    m4 m3_identity = m4::Identity();
-    m3_identity[3][3] = 0.;
-    return m3_identity + 2. * dwqv_dv + 2. * dqqv_dv;
-     */
     f_t
     xx = q.x()*q.x(),
     yy = q.y()*q.y(),
@@ -212,7 +165,7 @@ static inline m4 to_rotation_matrix(const quaternion &q)
     xy = q.x()*q.y(),
     xz = q.x()*q.z(),
     yz = q.y()*q.z();
-    
+
     return (m4) {{
         {1. - 2. * (yy+zz), 2. * (xy-wz), 2. * (xz+wy), 0.},
         {2. * (xy+wz), 1. - 2. * (xx+zz), 2. * (yz-wx), 0.},

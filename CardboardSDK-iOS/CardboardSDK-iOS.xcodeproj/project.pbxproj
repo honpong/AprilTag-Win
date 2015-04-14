@@ -70,13 +70,6 @@
 			remoteGlobalIDString = 327B54DF18EB4CC90001CCE1;
 			remoteInfo = RC3DK;
 		};
-		32B5A7711A8433F1001C318D /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 32B5A75E1A8433ED001C318D /* RC3DK.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 327B54EF18EB4CC90001CCE1;
-			remoteInfo = RC3DKTests;
-		};
 		32B5A7731A8433F1001C318D /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 32B5A75E1A8433ED001C318D /* RC3DK.xcodeproj */;
@@ -211,7 +204,6 @@
 			isa = PBXGroup;
 			children = (
 				32B5A7701A8433F1001C318D /* libRC3DK.a */,
-				32B5A7721A8433F1001C318D /* RC3DKTests.xctest */,
 				32B5A7741A8433F1001C318D /* libRC3DKPlus.a */,
 			);
 			name = Products;
@@ -500,13 +492,6 @@
 			fileType = archive.ar;
 			path = libRC3DK.a;
 			remoteRef = 32B5A76F1A8433F1001C318D /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		32B5A7721A8433F1001C318D /* RC3DKTests.xctest */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = RC3DKTests.xctest;
-			remoteRef = 32B5A7711A8433F1001C318D /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		32B5A7741A8433F1001C318D /* libRC3DKPlus.a */ = {

@@ -87,10 +87,10 @@
 		D33B00581A20CA8E00287FC9 /* sift.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7FB1A1E010E00BBB1FF /* sift.c */; };
 		D33B00591A20CAB700287FC9 /* generic.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7C91A1E010E00BBB1FF /* generic.c */; };
 		D33B005A1A20CACE00287FC9 /* imopv.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7DD1A1E010E00BBB1FF /* imopv.c */; };
+		D33E61DD1ADD4ABA00569C82 /* RCReplayManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = D33E61DC1ADD4ABA00569C82 /* RCReplayManager.mm */; };
+		D33E61DE1ADD4AE600569C82 /* RCReplayManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = D33E61DC1ADD4ABA00569C82 /* RCReplayManager.mm */; };
 		D33E9D121ADD13110085F35C /* RCCaptureManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D33E9D0F1ADD13110085F35C /* RCCaptureManager.m */; };
-		D33E9D131ADD13110085F35C /* RCReplayManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D33E9D111ADD13110085F35C /* RCReplayManager.m */; };
 		D33E9D181ADD134D0085F35C /* RCCaptureManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D33E9D0F1ADD13110085F35C /* RCCaptureManager.m */; };
-		D33E9D191ADD134D0085F35C /* RCReplayManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D33E9D111ADD13110085F35C /* RCReplayManager.m */; };
 		D33E9D271ADD14600085F35C /* RCAVSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D33E9D1C1ADD14600085F35C /* RCAVSessionManager.m */; };
 		D33E9D281ADD14600085F35C /* RCAVSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D33E9D1C1ADD14600085F35C /* RCAVSessionManager.m */; };
 		D33E9D291ADD14600085F35C /* RCSensorManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D33E9D1E1ADD14600085F35C /* RCSensorManager.m */; };
@@ -514,10 +514,10 @@
 		D321AD361A323BF7003AEA77 /* stereo_mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stereo_mesh.h; sourceTree = "<group>"; };
 		D321AD371A323BF7003AEA77 /* stereo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stereo.cpp; sourceTree = "<group>"; };
 		D321AD381A323BF7003AEA77 /* stereo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stereo.h; sourceTree = "<group>"; };
+		D33E61DC1ADD4ABA00569C82 /* RCReplayManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RCReplayManager.mm; sourceTree = "<group>"; };
 		D33E9D0E1ADD13110085F35C /* RCCaptureManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCCaptureManager.h; path = ../../rc3dk/RC3DK/RCCaptureManager.h; sourceTree = "<group>"; };
 		D33E9D0F1ADD13110085F35C /* RCCaptureManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCCaptureManager.m; path = ../../rc3dk/RC3DK/RCCaptureManager.m; sourceTree = "<group>"; };
 		D33E9D101ADD13110085F35C /* RCReplayManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCReplayManager.h; path = ../../rc3dk/RC3DK/RCReplayManager.h; sourceTree = "<group>"; };
-		D33E9D111ADD13110085F35C /* RCReplayManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCReplayManager.m; path = ../../rc3dk/RC3DK/RCReplayManager.m; sourceTree = "<group>"; };
 		D33E9D1B1ADD14600085F35C /* RCAVSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCAVSessionManager.h; path = ../../rc3dk/RC3DK/SensorManagers/RCAVSessionManager.h; sourceTree = "<group>"; };
 		D33E9D1C1ADD14600085F35C /* RCAVSessionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCAVSessionManager.m; path = ../../rc3dk/RC3DK/SensorManagers/RCAVSessionManager.m; sourceTree = "<group>"; };
 		D33E9D1D1ADD14600085F35C /* RCSensorManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCSensorManager.h; path = ../../rc3dk/RC3DK/SensorManagers/RCSensorManager.h; sourceTree = "<group>"; };
@@ -937,7 +937,7 @@
 				D33E9D0E1ADD13110085F35C /* RCCaptureManager.h */,
 				D33E9D0F1ADD13110085F35C /* RCCaptureManager.m */,
 				D33E9D101ADD13110085F35C /* RCReplayManager.h */,
-				D33E9D111ADD13110085F35C /* RCReplayManager.m */,
+				D33E61DC1ADD4ABA00569C82 /* RCReplayManager.mm */,
 				327B554A18EB4DC20001CCE1 /* RCCameraManager.h */,
 				327B554B18EB4DC20001CCE1 /* RCCameraManager.mm */,
 				327B555718EB4DC20001CCE1 /* RCPrivateHTTPClient.h */,
@@ -1604,8 +1604,8 @@
 				327B559918EB4F260001CCE1 /* packet.c in Sources */,
 				328A4DD21950D52000587949 /* RCSensorFusionError.m in Sources */,
 				327B553418EB4D720001CCE1 /* RCAFHTTPClient.m in Sources */,
+				D33E61DD1ADD4ABA00569C82 /* RCReplayManager.mm in Sources */,
 				327B55BF18EB4F3A0001CCE1 /* filter_setup.cpp in Sources */,
-				D33E9D131ADD13110085F35C /* RCReplayManager.m in Sources */,
 				D33E9D2B1ADD14600085F35C /* RCVideoManager.m in Sources */,
 				327B55D418EB4F430001CCE1 /* matrix.cpp in Sources */,
 				327B553A18EB4D720001CCE1 /* RCAFURLConnectionOperation.m in Sources */,
@@ -1680,6 +1680,7 @@
 				D3588F091A20C4B800CA10E7 /* stat.c in Sources */,
 				D3B4EAD21A1E7DE100BE0443 /* filter.cpp in Sources */,
 				D3B4EAD31A1E7DE100BE0443 /* RCAFImageRequestOperation.m in Sources */,
+				D33E61DE1ADD4AE600569C82 /* RCReplayManager.mm in Sources */,
 				D3B4EAD61A1E7DE100BE0443 /* observation.cpp in Sources */,
 				D3588F061A20C45F00CA10E7 /* random.c in Sources */,
 				D3B4EAD81A1E7DE100BE0443 /* RCAFJSONRequestOperation.m in Sources */,
@@ -1740,7 +1741,6 @@
 				D3B4EB291A1E7DE100BE0443 /* RCCameraParameters.m in Sources */,
 				D33E9D281ADD14600085F35C /* RCAVSessionManager.m in Sources */,
 				D3B4EB2A1A1E7DE100BE0443 /* RCRotation.mm in Sources */,
-				D33E9D191ADD134D0085F35C /* RCReplayManager.m in Sources */,
 				D3B4EB2F1A1E7DE100BE0443 /* RCAFHTTPRequestOperation.m in Sources */,
 				D3B4EB351A1E7DE100BE0443 /* RCScalar.m in Sources */,
 				D3588F081A20C4A400CA10E7 /* global.c in Sources */,

@@ -18,7 +18,7 @@
 
 @end
 
-@interface RCReplayManager : NSObject <RCSensorFusionDelegate>
+@interface RCReplayManager : NSObject
 
 @property (weak, nonatomic) id<RCReplayManagerDelegate> delegate;
 

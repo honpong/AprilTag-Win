@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 
 #import "RC3DK.h"
+#import "RCCaptureManager.h"
 
 @interface CaptureViewController : UIViewController <RCCaptureManagerDelegate>
 

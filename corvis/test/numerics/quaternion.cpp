@@ -25,39 +25,6 @@ TEST(Quaternion, Rotation)
     quaternion rotq = normalize(q);
     v4 v(-1.5, 1.6, -.2, 0.);
     EXPECT_V4_NEAR(quaternion_rotate(rotq,v), to_rotation_matrix(rotq)*v, 1.e-15);
-
-    {
-        v4 delta(.01, -.01, .01, .01);
-        quaternion qpert(rotq.w() + delta[0], rotq.x() + delta[1], rotq.y() + delta[2], rotq.z() + delta[3]);
-        EXPECT_V4_NEAR(quaternion_rotate(qpert, v), quaternion_rotate(rotq, v) + quaternion_rotate_left_jacobian(rotq, v) * delta, .001)
-            << "left jacobian";
-    }
-
-    EXPECT_V4_NEAR(quaternion_rotate(rotq, v), to_rotation_matrix(rotq) * v, 1.e-15)
-        << "right jacobian (rotation matrix)";
-}
-
-TEST(Quaternion, ProductJacobian)
-{
-    quaternion q2(.1, -4.5, .0001, 1.493);
-    {
-        SCOPED_TRACE("left");
-        v4 a = v4(q.w(), q.x(), q.y(), q.z());
-        v4 b = quaternion_product_left_jacobian(q2) * a;
-        EXPECT_QUATERNION_NEAR(q * q2, quaternion(b[0], b[1], b[2], b[3]), 1.e-15);
-        a = v4(q2.w(), q2.x(), q2.y(), q2.z());
-        b = quaternion_product_left_jacobian(q) * a;
-        EXPECT_QUATERNION_NEAR(q2 * q, quaternion(b[0], b[1], b[2], b[3]), 1.e-15);
-    }
-    {
-        SCOPED_TRACE("right");
-        v4 a = v4(q2.w(), q2.x(), q2.y(), q2.z());
-        v4 b = quaternion_product_right_jacobian(q) * a;
-        EXPECT_QUATERNION_NEAR(q * q2, quaternion(b[0], b[1], b[2], b[3]), 1.e-15);
-        a = v4(q.w(), q.x(), q.y(), q.z());
-        b = quaternion_product_right_jacobian(q2) * a;
-        EXPECT_QUATERNION_NEAR(q2 * q, quaternion(b[0], b[1], b[2], b[3]), 1.e-15);
-    }
 }
 
 TEST(Quaternion, IntegrateAngularVelocity)

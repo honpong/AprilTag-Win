@@ -54,24 +54,6 @@ static inline quaternion conjugate(const quaternion &q)
     return quaternion(q.w(), -q.x(), -q.y(), -q.z());
 }
 
-static inline m4 quaternion_product_left_jacobian(const quaternion &b) {
-    return {{
-        {b.w(), -b.x(), -b.y(), -b.z()},
-        {b.x(), b.w(), b.z(), -b.y()},
-        {b.y(), -b.z(), b.w(), b.x()},
-        {b.z(), b.y(), -b.x(), b.w()}
-    }};
-}
-
-static inline m4 quaternion_product_right_jacobian(const quaternion &a) {
-    return {{
-        {a.w(), -a.x(), -a.y(), -a.z()},
-        {a.x(), a.w(), -a.z(), a.y()},
-        {a.y(), a.z(), a.w(), -a.x()},
-        {a.z(), -a.y(), a.x(), a.w()}
-    }};
-}
-
 static inline quaternion normalize(const quaternion &a) {
     f_t norm = 1. / sqrt(a.w() * a.w() + a.x() * a.x() + a.y() * a.y() + a.z() * a.z());
     return quaternion(a.w() * norm, a.x() * norm, a.y() * norm, a.z() * norm);
@@ -101,55 +83,6 @@ static inline v4 quaternion_rotate(const quaternion &q, const v4 &v) {
            w*(x1-y0) + x*(z0-x2) - y*(y2-z1),
            0.);
     return v + 2. * rhs;
-}
-
-
-static inline m4 quaternion_rotate_left_jacobian(const quaternion &q, const v4 &v) {
-    /*
-     m4 dwqv_dq = {{
-     v4((q.y() * v[2] - q.z() * v[1]), 0., q.w() * v[2], -q.w() * v[1]),
-     v4((q.z() * v[0] - q.x() * v[2]), -q.w() * v[2], 0., q.w() * v[0]),
-     v4((q.x() * v[1] - q.y() * v[0]), q.w() * v[1], -q.w() * v[0], 0.),
-     v4(0., 0., 0., 0.)
-     }};
-     m4 dqqv_dq = {{
-     v4(0., q.y() * v[1] + q.z() * v[2], q.x() * v[1] - 2. * q.y() * v[0], q.x() * v[2] - 2. * q.z() * v[0]),
-     v4(0., q.y() * v[0] - 2. * q.x() * v[1], q.z() * v[2] + q.x() * v[0], q.y() * v[2] - 2. * q.z() * v[1]),
-     v4(0., q.z() * v[0] - 2. * q.x() * v[2], q.z() * v[1] - 2. * q.y() * v[2], q.x() * v[0] + q.y() * v[1]),
-     v4(0., 0., 0., 0.)
-     }};
-     return 2. * dwqv_dq + 2. * dqqv_dq;
-     */
-    //dwqv_dq
-    //y2 - z1, 0., w2, -w1
-    //z0 - x2, -w2, 0., w0
-    //x1 - y0, w1, -w0, 0.
-    
-    //dqqv_dq
-    //0., y1 + z2, x1 - 2*y0, x2 - 2*z0
-    //0., y0 - 2*x1, z2 + x0, y2 - 2*z1
-    //0., z0 - 2*x2, z1 - 2*y2, x0 + y1
-
-    f_t
-    w0 = q.w()*v[0],
-    w1 = q.w()*v[1],
-    w2 = q.w()*v[2],
-    x0 = q.x()*v[0],
-    x1 = q.x()*v[1],
-    x2 = q.x()*v[2],
-    y0 = q.y()*v[0],
-    y1 = q.y()*v[1],
-    y2 = q.y()*v[2],
-    z0 = q.z()*v[0],
-    z1 = q.z()*v[1],
-    z2 = q.z()*v[2];
-    
-    return 2. * (m4) {{
-        {y2-z1, y1+z2, w2+x1-2*y0, -w1+x2-2*z0},
-        {z0-x2, -w2+y0-2*x1, z2+x0, w0+y2-2*z1},
-        {x1-y0, w1+z0-2*x2, -w0+z1-2*y2, x0+y1},
-        {0., 0., 0., 0.}
-    }};
 }
 
 //This is the same as the right jacobian of quaternion_rotate

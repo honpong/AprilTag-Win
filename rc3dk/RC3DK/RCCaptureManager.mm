@@ -10,12 +10,15 @@
 
 #import "RCAVSessionManager.h"
 #import "RCCaptureManager.h"
-#import "RCCaptureFile.h"
+
+#include "capture.h"
 
 #define POLL
 
 @interface RCCaptureManager ()
 {
+    capture cp;
+    
     AVCaptureSession * session;
     AVCaptureVideoDataOutput * output;
     AVCaptureDevice * device;
@@ -27,9 +30,6 @@
     bool isCapturing;
     bool isFocusing;
     bool hasFocused;
-
-    dispatch_io_t outputChannel;
-    dispatch_queue_t outputQueue;
 }
 @end
 
@@ -118,67 +118,12 @@
     [session removeOutput:output];
 }
 
-packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
-{
-    //add 7 and mask to pad to 8-byte boundary
-    bytes = ((bytes + 7) & 0xfffffff8u);
-    //header
-    bytes += 16;
-
-    packet_t * ptr = malloc(bytes);
-    ptr->header.type = type;
-    ptr->header.bytes = bytes;
-    ptr->header.time = time;
-    ptr->header.user = 0;
-    return ptr;
-}
-
-- (void) writeFrame:(CMSampleBufferRef)sampleBuffer
-{
-    if(!CMSampleBufferDataIsReady(sampleBuffer) )
-    {
-        NSLog( @"sample buffer is not ready. Skipping sample" );
-        return;
-    }
-    CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
-    if(!pixelBuffer) return;
-
-    CMTime timestamp = (CMTime)CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
-
-    //capture image meta data
-    //        CFDictionaryRef metadataDict = CMGetAttachment(sampleBuffer, kCGImagePropertyExifDictionary , NULL);
-    //        DLog(@"metadata: %@", metadataDict);
-
-    uint32_t width = (uint32_t)CVPixelBufferGetWidth(pixelBuffer);
-    uint32_t height = (uint32_t)CVPixelBufferGetHeight(pixelBuffer);
-    uint64_t time_us = timestamp.value / (timestamp.timescale / 1000000.);
-
-    CVPixelBufferLockBaseAddress(pixelBuffer, 0);
-    unsigned char *pixel = (unsigned char *)CVPixelBufferGetBaseAddressOfPlane(pixelBuffer,0);
-
-    packet_t *buf = packet_alloc(packet_camera, width*height+16, time_us); // 16 bytes for pgm header
-
-    sprintf((char *)buf->data, "P5 %4d %3d %d\n", width, height, 255);
-    unsigned char *outbase = buf->data + 16;
-    memcpy(outbase, pixel, width*height);
-    CVPixelBufferUnlockBaseAddress(pixelBuffer, 0);
-
-    // 16 bytes for pgm header, 16 bytes for header
-    dispatch_data_t data = dispatch_data_create(buf, buf->header.bytes, 0, DISPATCH_DATA_DESTRUCTOR_FREE);
-    dispatch_io_write(outputChannel, 0, data, outputQueue, ^(bool done, dispatch_data_t data, int error) {
-        if(done && error)
-            NSLog(@"Error %d on write", error);
-    });
-
-}
-
-//called on each video frame
 -(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
 {
-	if (isCapturing) // && !isFocusing would not log video during autofocus events
-    {
-        [self writeFrame:sampleBuffer];
-    }
+	if(!isCapturing)
+        return;
+
+    cp.receive_camera(camera_data(sampleBuffer));
 }
 
 - (void)timerCallback:(id)userInfo
@@ -189,34 +134,14 @@ packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
     CMGyroData *gyroData = cmMotionManager.gyroData;
     if(gyroData && gyroData.timestamp != lastGyro)
     {
-        uint64_t time = gyroData.timestamp * 1000000;
-        packet_t *p = packet_alloc(packet_gyroscope, 3*4, time);
-        ((float*)p->data)[0] = gyroData.rotationRate.x;
-        ((float*)p->data)[1] = gyroData.rotationRate.y;
-        ((float*)p->data)[2] = gyroData.rotationRate.z;
-        dispatch_data_t data = dispatch_data_create(p, p->header.bytes, 0, DISPATCH_DATA_DESTRUCTOR_FREE);
-        dispatch_io_write(outputChannel, 0, data, outputQueue, ^(bool done, dispatch_data_t data, int error) {
-            if(done && error)
-                NSLog(@"Error %d on write", error);
-        });
-
+        cp.receive_gyro(gyro_data((__bridge void *)gyroData));
         lastGyro = gyroData.timestamp;
     }
+
     CMAccelerometerData *accelerometerData = cmMotionManager.accelerometerData;
     if(accelerometerData && accelerometerData.timestamp != lastAccelerometer)
     {
-        // Copies the data and frees it once written, can use DISPATCH_DATA_DESTRUCTOR_FREE to pass in a pointer for the destructor to free
-        uint64_t time = accelerometerData.timestamp * 1000000;
-        packet_t *p = packet_alloc(packet_accelerometer, 3*4, time);
-        ((float*)p->data)[0] = -accelerometerData.acceleration.x * 9.80665;
-        ((float*)p->data)[1] = -accelerometerData.acceleration.y * 9.80665;
-        ((float*)p->data)[2] = -accelerometerData.acceleration.z * 9.80665;
-        dispatch_data_t data = dispatch_data_create(p, p->header.bytes, 0, DISPATCH_DATA_DESTRUCTOR_FREE);
-        dispatch_io_write(outputChannel, 0, data, outputQueue, ^(bool done, dispatch_data_t data, int error) {
-            if(done && error)
-                NSLog(@"Error %d on write", error);
-        });
-
+        cp.receive_accelerometer(accelerometer_data((__bridge void *)accelerometerData));
         lastAccelerometer = accelerometerData.timestamp;
     }
 }
@@ -268,27 +193,13 @@ packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
     timerMotion = nil;
 }
 
-- (void) openStream:(const char *)path
-{
-    outputQueue = dispatch_queue_create("CaptureStreamQueue", DISPATCH_QUEUE_SERIAL);
-    outputChannel = dispatch_io_create_with_path(DISPATCH_IO_STREAM, path,  O_CREAT | O_RDWR | O_TRUNC, 0644, outputQueue, ^(int error){
-        if(error)
-            NSLog(@"Closed with error %d", error);
-        else if(delegate) {
-            //send the callback to the main/ui thread
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [delegate captureDidStop];
-            });
-        }
-    });
-}
-
 - (void)startCaptureWithPath:(NSString *)path withDelegate:(id<RCCaptureManagerDelegate>)captureDelegate;
 {
     if (isCapturing) return;
 
     hasFocused = false;
-    [self openStream:[path cStringUsingEncoding:NSUTF8StringEncoding]];
+    cp.start([path UTF8String]);
+
     self.delegate = captureDelegate;
     [self startMotionCapture];
     // isCapturing is set after focus finishes
@@ -303,7 +214,11 @@ packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
         [self stopMotionCapture];
 
         isCapturing = NO;
-        dispatch_io_close(outputChannel, 0); // DISPATCH_IO_STOP
+        cp.stop();
+        if([delegate respondsToSelector:@selector(captureDidStop)])
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [delegate captureDidStop];
+            });
     }
 }
 

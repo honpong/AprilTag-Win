@@ -198,16 +198,6 @@ uint64_t get_timestamp()
     plugins_clear();
 }
 
-- (void) startReplayWithRealtime:(bool)realtime withWidth:(int)width withHeight:(int)height withFramerate:(int)framerate
-{
-    queue->dispatch_sync([self, realtime, width, height, framerate]{
-        _cor_setup->sfm.ignore_lateness = !realtime;
-        device_set_resolution(&_cor_setup->device, width, height);
-        device_set_framerate(&_cor_setup->device, framerate);
-        filter_initialize(&_cor_setup->sfm, _cor_setup->device);
-    });
-}
-
 - (void) startInertialOnlyFusion __attribute((deprecated("No longer needed; does nothing.")))
 {
 }

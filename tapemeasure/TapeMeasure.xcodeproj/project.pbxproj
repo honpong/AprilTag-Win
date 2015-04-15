@@ -475,7 +475,6 @@
 		32C242F0170B7ED200738BCD /* TMMeasurementTypeCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurementTypeCell.h; sourceTree = "<group>"; };
 		32C242F1170B7ED200738BCD /* TMMeasurementTypeCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurementTypeCell.m; sourceTree = "<group>"; };
 		32C41CB6166815750002A8AB /* TMConstants.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TMConstants.h; sourceTree = "<group>"; };
-		32C539DB16701FEC00A14137 /* TapeMeasureTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TapeMeasureTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		32C539DC16701FEC00A14137 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
 		32C5662E17692EA100FB3CD4 /* TMAugmentedRealityView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMAugmentedRealityView.h; sourceTree = "<group>"; };
 		32C5662F17692EA100FB3CD4 /* TMAugmentedRealityView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMAugmentedRealityView.m; sourceTree = "<group>"; };
@@ -915,7 +914,6 @@
 			isa = PBXGroup;
 			children = (
 				3280F7DF161BBB3200B5C8A8 /* Tape Measure.app */,
-				32C539DB16701FEC00A14137 /* TapeMeasureTests.octest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1524,25 +1522,6 @@
 			productReference = 3280F7DF161BBB3200B5C8A8 /* Tape Measure.app */;
 			productType = "com.apple.product-type.application";
 		};
-		32C539DA16701FEC00A14137 /* TapeMeasureTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 32C539EA16701FEC00A14137 /* Build configuration list for PBXNativeTarget "TapeMeasureTests" */;
-			buildPhases = (
-				32C539D616701FEC00A14137 /* Sources */,
-				32C539D716701FEC00A14137 /* Frameworks */,
-				32C539D816701FEC00A14137 /* Resources */,
-				32C539D916701FEC00A14137 /* ShellScript */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				328258E31ADDE0DC00CCAAAA /* PBXTargetDependency */,
-			);
-			name = TapeMeasureTests;
-			productName = TapeMeasureTests;
-			productReference = 32C539DB16701FEC00A14137 /* TapeMeasureTests.octest */;
-			productType = "com.apple.product-type.bundle.ocunit-test";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -1578,7 +1557,6 @@
 			projectRoot = "";
 			targets = (
 				3280F7DE161BBB3200B5C8A8 /* TapeMeasure */,
-				32C539DA16701FEC00A14137 /* TapeMeasureTests */,
 			);
 		};
 /* End PBXProject section */
@@ -2054,36 +2032,6 @@
 			};
 			name = Archive;
 		};
-		32803A6F18DBC992002F54B5 /* Archive */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/TapeMeasure.app/TapeMeasure";
-				CLANG_ENABLE_MODULES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
-					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "TapeMeasureTests/TapeMeasureTests-Prefix.pch";
-				HEADER_SEARCH_PATHS = "$(SRCROOT)/OCMock/OCMock";
-				INFOPLIST_FILE = "TapeMeasureTests/TapeMeasureTests-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/OCMock\"",
-					"\"$(SRCROOT)/TapeMeasure/Flurry\"",
-				);
-				OTHER_LDFLAGS = (
-					"-force_load",
-					"$(SRCROOT)/OCMock/libOCMock.a",
-					"-lc++",
-				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = octest;
-			};
-			name = Archive;
-		};
 		3280F804161BBB3200B5C8A8 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2219,67 +2167,6 @@
 			};
 			name = Release;
 		};
-		32C539EB16701FEC00A14137 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/TapeMeasure.app/TapeMeasure";
-				CLANG_ENABLE_MODULES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
-					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "TapeMeasureTests/TapeMeasureTests-Prefix.pch";
-				HEADER_SEARCH_PATHS = "$(SRCROOT)/OCMock/OCMock";
-				INFOPLIST_FILE = "TapeMeasureTests/TapeMeasureTests-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/OCMock\"",
-					"\"$(SRCROOT)/TapeMeasure/Flurry\"",
-				);
-				ONLY_ACTIVE_ARCH = YES;
-				OTHER_LDFLAGS = (
-					"-force_load",
-					"$(SRCROOT)/OCMock/libOCMock.a",
-					"-lc++",
-				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = octest;
-			};
-			name = Debug;
-		};
-		32C539EC16701FEC00A14137 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/TapeMeasure.app/TapeMeasure";
-				CLANG_ENABLE_MODULES = YES;
-				FRAMEWORK_SEARCH_PATHS = (
-					"\"$(SDKROOT)/Developer/Library/Frameworks\"",
-					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
-				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "TapeMeasureTests/TapeMeasureTests-Prefix.pch";
-				HEADER_SEARCH_PATHS = "$(SRCROOT)/OCMock/OCMock";
-				INFOPLIST_FILE = "TapeMeasureTests/TapeMeasureTests-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					"\"$(SRCROOT)/OCMock\"",
-					"\"$(SRCROOT)/TapeMeasure/Flurry\"",
-				);
-				OTHER_LDFLAGS = (
-					"-force_load",
-					"$(SRCROOT)/OCMock/libOCMock.a",
-					"-lc++",
-				);
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = octest;
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -2299,16 +2186,6 @@
 				3280F807161BBB3200B5C8A8 /* Debug */,
 				3280F808161BBB3200B5C8A8 /* Release */,
 				32803A6E18DBC992002F54B5 /* Archive */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		32C539EA16701FEC00A14137 /* Build configuration list for PBXNativeTarget "TapeMeasureTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				32C539EB16701FEC00A14137 /* Debug */,
-				32C539EC16701FEC00A14137 /* Release */,
-				32803A6F18DBC992002F54B5 /* Archive */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

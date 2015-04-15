@@ -37,14 +37,14 @@ public:
         cov_scratch.data = cov.data;
         cov.data = temp;
         
-        cov_scratch.resize(cov.rows, cov.cols);
+        cov_scratch.resize(cov.rows(), cov.cols());
         cov.resize(size, size);
         
         temp = process_scratch.data;
         process_scratch.data = process_noise.data;
         process_noise.data = temp;
         
-        process_scratch.resize(process_noise.cols);
+        process_scratch.resize(process_noise.cols());
         process_noise.resize(size);
         
         for(int i = 0; i < size; ++i) {
@@ -60,7 +60,7 @@ public:
     
     int add(int newindex, int size)
     {
-        int oldsize = cov.rows;
+        int oldsize = cov.rows();
         resize(oldsize + size);
 
         for(int j = 0; j < size; ++j) {
@@ -84,7 +84,7 @@ public:
     
     int size() const
     {
-        return cov.cols;
+        return cov.cols();
     }
 };
 

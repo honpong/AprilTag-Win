@@ -16,133 +16,46 @@ class matrix {
 protected:
     v_intrinsic *storage;
     
-public:
-    int rows;
-    int cols;
+    int _rows;
+    int _cols;
     int stride;
     int maxrows;
     f_t *data;
 
-    /*    class const_index {
-    public:
-        const matrix &m;
-        const int i, j, rows, cols;
-
-    const_index(const matrix &mat, const int a, const int b, const int c, const int d): m(mat), i(a), j(b), rows(c), cols(d) {
-            assert(i < m.rows && j < m.cols && i + rows <= m.rows && j + cols <= m.cols);
-        }
-
-        operator v4() const {
-            v4 v;
-            assert(rows == 1 || cols == 1);
-            assert(rows <= 4 && cols <= 4);
-            int el = 0;
-            for(int ix = i; ix < i + rows; ++ix) {
-                for(int jx = j; jx < j + cols; ++jx) {
-                    v[el++] = m(ix, jx);
-                }
-            }
-            return v;
-        }
-
-        operator m4() const {
-            m4 res;
-            assert(rows <= 4 && cols <= 4);
-            for(int ix = 0; ix < rows; ++ix) {
-                for(int jx = 0; jx < cols; ++jx) {
-                    res[ix][jx] = m(i+ix, j+jx);
-                }
-            }
-            return res;
-        }
-    };
-
-    class index {
-    public:
-        matrix &m;
-        const int i, j, rows, cols;
-
-        index(matrix &mat, const int a, const int b, const int c, const int d): m(mat), i(a), j(b), rows(c), cols(d) {
-            assert(i < m.rows && j < m.cols && i + rows <= m.rows && j + cols <= m.cols);
-        }
-
-        index &operator=(const v4 &v) {
-            assert(rows == 1 || cols == 1);
-            assert(rows <= 4 && cols <= 4);
-            int el = 0;
-            for(int ix = i; ix < i + rows; ++ix) {
-                for(int jx = j; jx < j + cols; ++jx) {
-                    m(ix, jx) = v[el++];
-                }
-            }
-            return *this;
-        }
-  
-        index &operator=(const_index &other) {
-            assert(rows == other.rows && cols == other.cols);
-            for(int ix = 0; ix < rows; ++ix) {
-                for(int jx = 0; jx < cols; ++jx) {
-                    m(i+ix, j+jx) = other.m(other.i+ix, other.j+jx);
-                }
-            }
-            return *this;
-        }
-
-        index &operator=(index &other) {
-            assert(rows == other.rows && cols == other.cols);
-            for(int ix = 0; ix < rows; ++ix) {
-                for(int jx = 0; jx < cols; ++jx) {
-                    m(i+ix, j+jx) = other.m(other.i+ix, other.j+jx);
-                }
-            }
-            return *this;
-        }
-
-        index &operator=(const m4 &other) {
-            assert(rows <= 4 && cols <= 4);
-            for(int ix = 0; ix < rows; ++ix) {
-                for(int jx = 0; jx < cols; ++jx) {
-                    m(i+ix, j+jx) = other[ix][jx];
-                }
-            }
-            return *this;
-            }
-            };*/
-
-    void clear() { memset(data, 0, rows * stride * sizeof(f_t)); }
-    void resize(const int c) {assert(c <= stride && rows == 1); cols = c; }
-    void resize(const int r, const int c) { assert(c <= stride && r <= maxrows); rows = r; cols = c; }
+public:
+    int get_stride() const { return stride; }
+    int rows() const { return _rows; }
+    int cols() const { return _cols; }
+    void resize(const int c) {assert(c <= stride && _rows == 1); _cols = c; }
+    void resize(const int r, const int c) { assert(c <= stride && r <= maxrows); _rows = r; _cols = c; }
 #ifdef DEBUG
-    f_t &operator[] (const int i) { assert(i >= 0 && i < cols && rows == 1); return data[i]; }
-    const f_t &operator[] (const int i) const { assert(i >= 0 && i < cols && rows == 1); return data[i]; }
-    f_t &operator() (const int i, const int j) { assert(i >= 0 && j >= 0 && i < rows && j < cols); return data[i * stride + j]; }
-    const f_t &operator() (const int i, const int j) const { assert(i >= 0 && j >= 0 && i < rows && j < cols); return data[i * stride + j]; }
+    f_t &operator[] (const int i) { assert(i >= 0 && i < _cols && _rows == 1); return data[i]; }
+    const f_t &operator[] (const int i) const { assert(i >= 0 && i < _cols && _rows == 1); return data[i]; }
+    f_t &operator() (const int i, const int j) { assert(i >= 0 && j >= 0 && i < _rows && j < _cols); return data[i * stride + j]; }
+    const f_t &operator() (const int i, const int j) const { assert(i >= 0 && j >= 0 && i < _rows && j < _cols); return data[i * stride + j]; }
 #else
     inline f_t &operator[] (const int i) { return data[i]; }
     inline const f_t &operator[] (const int i) const { return data[i]; }
     inline f_t &operator() (const int i, const int j) { return data[i * stride + j]; }
     inline const f_t &operator() (const int i, const int j) const { return data[i * stride + j]; }
 #endif
-
-//index operator() (const int ix, const int jx, const int r, const int c) { return index(*this, ix, jx, r, c); }
-//const const_index operator() (const int ix, const int jx, const int r, const int c) const { return const_index(*this, ix, jx, r, c); }
     
- matrix(f_t *d, const int r, const int c, const int mr, const int mc): storage(NULL), rows(r), cols(c), stride(mc), maxrows(mr), data(d) {}
- matrix(f_t *d, const int r, const int c): storage(NULL), rows(r), cols(c), stride(c), maxrows(r), data(d) {}
- matrix(f_t *d, const int size): storage(NULL), rows(1), cols(size), stride(size), maxrows(1), data(d) {}
- matrix(): storage(NULL), rows(0), cols(0), stride(0), maxrows(0), data(NULL) {}
- matrix(matrix &other, const int startrow, const int startcol, const int rows, const int cols): storage(NULL), rows(rows), cols(cols), stride(other.stride), maxrows(rows), data(&other(startrow, startcol)) {}
+ matrix(f_t *d, const int r, const int c, const int mr, const int mc): storage(NULL), _rows(r), _cols(c), stride(mc), maxrows(mr), data(d) {}
+ matrix(f_t *d, const int r, const int c): storage(NULL), _rows(r), _cols(c), stride(c), maxrows(r), data(d) {}
+ matrix(f_t *d, const int size): storage(NULL), _rows(1), _cols(size), stride(size), maxrows(1), data(d) {}
+ matrix(): storage(NULL), _rows(0), _cols(0), stride(0), maxrows(0), data(NULL) {}
+ matrix(matrix &other, const int startrow, const int startcol, const int rows, const int cols): storage(NULL), _rows(rows), _cols(cols), stride(other.stride), maxrows(rows), data(&other(startrow, startcol)) {}
     
-  matrix(const int nrows, const int ncols): storage(new v_intrinsic[nrows * ((ncols+3)/4)]), rows(nrows), cols(ncols), stride(((ncols+3)/4)*4), maxrows(nrows), data((f_t *)storage) { }
+  matrix(const int nrows, const int ncols): storage(new v_intrinsic[nrows * ((ncols+3)/4)]), _rows(nrows), _cols(ncols), stride(((ncols+3)/4)*4), maxrows(nrows), data((f_t *)storage) { }
 
-    matrix(const matrix &other): storage(new v_intrinsic[other.rows * ((other.cols+3)/4)]), rows(other.rows), cols(other.cols), stride(((other.cols+3)/4)*4), maxrows(other.rows), data((f_t *)storage)
+    matrix(const matrix &other): storage(new v_intrinsic[other._rows * ((other._cols+3)/4)]), _rows(other._rows), _cols(other._cols), stride(((other._cols+3)/4)*4), maxrows(other._rows), data((f_t *)storage)
     { *this = other; }
     
     matrix &operator=(const matrix &other)
     {
-        assert(rows == other.rows && cols == other.cols);
-        for(int i = 0; i < rows; ++i) {
-            memcpy(data + i * stride, other.data + i * other.stride, cols * sizeof(f_t));
+        assert(_rows == other._rows && _cols == other._cols);
+        for(int i = 0; i < _rows; ++i) {
+            memcpy(data + i * stride, other.data + i * other.stride, _cols * sizeof(f_t));
         }
         return *this;
     }
@@ -153,6 +66,28 @@ public:
     void print() const;
     void print_high() const;
     void print_diag() const;
+    
+    
+    
+    friend void matrix_product(matrix &res, const matrix &A, const matrix &B, bool trans1, bool trans2, const f_t dst_scale, const f_t scale);
+    friend bool matrix_svd(matrix &A, matrix &U, matrix &S, matrix &Vt);
+    friend bool matrix_invert(matrix &m);
+    friend void matrix_transpose(matrix &dst, const matrix &src);
+    friend void matrix_negate(matrix & A);
+    friend bool matrix_cholesky(matrix &A);
+    friend void test_cholesky(matrix &A);
+    friend f_t matrix_check_condition(matrix &A);
+    friend bool matrix_is_symmetric(matrix &m);
+    friend bool matrix_solve(matrix &A, matrix &B);
+    friend bool matrix_solve_svd(matrix &A, matrix &B);
+    friend bool matrix_solve_syt(matrix &A, matrix &B);
+    friend bool matrix_solve_extra(matrix &A, matrix &B);
+    friend bool matrix_solve_refine(matrix &A, matrix &B);
+    friend f_t matrix_3x3_determinant(const matrix & A);
+    
+    friend bool test_posdef(const matrix &m);
+    
+    friend class covariance;
 };
 
 matrix &matrix_dereference(matrix *m);

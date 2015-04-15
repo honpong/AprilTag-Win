@@ -241,7 +241,7 @@ template <class T, int _size> class state_leaf: public state_node {
         covariance_m(i, i) = covariance_m(old_i, old_i);
         process_noise_m[i] = process_noise_m[old_i];
         //fix everything that will come after us
-        for(int j = old_i + 1; j < covariance_m.rows; ++j) {
+        for(int j = old_i + 1; j < covariance_m.rows(); ++j) {
             covariance_m(i, j) = covariance_m(old_i, j);
             covariance_m(j, i) = covariance_m(j, old_i);
         }

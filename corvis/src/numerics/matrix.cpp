@@ -87,8 +87,8 @@ extern "C" {
 
 bool matrix::is_symmetric(f_t eps = 1.e-5) const
 {
-    for(int i = 0; i < rows; ++i) {
-        for(int j = i; j < cols; ++j) {
+    for(int i = 0; i < _rows; ++i) {
+        for(int j = i; j < _cols; ++j) {
             if(fabs((*this)(i,j) - (*this)(j,i)) > eps) return false;
         }
     }
@@ -97,8 +97,8 @@ bool matrix::is_symmetric(f_t eps = 1.e-5) const
 
 void matrix::print() const
 {
-    for(int i = 0; i < rows; ++i) {
-        for(int j = 0; j < cols; ++j) {
+    for(int i = 0; i < _rows; ++i) {
+        for(int j = 0; j < _cols; ++j) {
             f_t v = (*this)(i, j);
             if(i == j) fprintf(stderr, "[% .1e]", v);
             else if(v == 0) fprintf(stderr, "     0    ");
@@ -110,8 +110,8 @@ void matrix::print() const
 
 void matrix::print_high() const
 {
-    for(int i = 0; i < rows; ++i) {
-        for(int j = 0; j < cols; ++j) {
+    for(int i = 0; i < _rows; ++i) {
+        for(int j = 0; j < _cols; ++j) {
             f_t v = (*this)(i, j);
             if(i == j) fprintf(stderr, "[% .10e]", v);
             else if(v == 0) fprintf(stderr, "     0    ");
@@ -123,7 +123,7 @@ void matrix::print_high() const
 
 void matrix::print_diag() const
 {
-    for(int i = 0; i < rows; ++i) {
+    for(int i = 0; i < _rows; ++i) {
         fprintf(stderr, "% .1e ", (*this)(i, i));
     }
     fprintf(stderr, "\n");
@@ -133,25 +133,25 @@ void matrix_product(matrix &res, const matrix &A, const matrix &B, bool trans1, 
 {
     int d1, d2, d3, d4;
     if(trans1) {
-        d1 = A.cols;
-        d2 = A.rows;
+        d1 = A._cols;
+        d2 = A._rows;
     } else {
-        d1 = A.rows;
-        d2 = A.cols;
+        d1 = A._rows;
+        d2 = A._cols;
     }
     if(trans2) {
-        d3 = B.cols;
-        d4 = B.rows;
+        d3 = B._cols;
+        d4 = B._rows;
     } else {
-        d3 = B.rows;
-        d4 = B.cols;
+        d3 = B._rows;
+        d4 = B._cols;
     }
     assert(d2 == d3);
-    assert(res.rows == d1);
-    assert(res.cols == d4);
+    assert(res._rows == d1);
+    assert(res._cols == d4);
 #ifdef F_T_IS_DOUBLE
     cblas_dgemm(CblasRowMajor, trans1?CblasTrans:CblasNoTrans, trans2?CblasTrans:CblasNoTrans, 
-                res.rows, res.cols, A.cols, 
+                res._rows, res._cols, A._cols,
                 scale, A.data, A.stride,
                 B.data, B.stride, 
                 dst_scale, res.data, res.stride);
@@ -174,7 +174,7 @@ bool matrix_invert(matrix &m)
     const char *name = "DSYTRF";
     const char *tp = "U";
     __CLPK_integer ispec = 1;
-    __CLPK_integer n = m.cols;
+    __CLPK_integer n = m._cols;
     __CLPK_integer lda = m.stride;
     __CLPK_integer lwork = m.stride * ilaenv_(&ispec, (char *)name, (char *)tp, &n, &ign, &ign, &ign);
     if(lwork < 1) lwork = m.stride*4;
@@ -193,8 +193,8 @@ bool matrix_invert(matrix &m)
         return false;
     }
     //only generates half the matrix. so-called upper is actually lower (fortran)
-    for(int i = 0; i < m.rows; ++i) {
-        for(int j = i+1; j < m.rows; ++j) {
+    for(int i = 0; i < m._rows; ++i) {
+        for(int j = i+1; j < m._rows; ++j) {
             m(i, j) = m(j, i);
         }
     }
@@ -212,7 +212,7 @@ bool matrix_solve_syt(matrix &A, matrix &B)
     const char *name = "DSYTRF";
     const char *tp = "U";
     __CLPK_integer ispec = 1;
-    __CLPK_integer n = A.cols;
+    __CLPK_integer n = A._cols;
     __CLPK_integer lda = A.stride;
     __CLPK_integer lwork = A.stride * ilaenv_(&ispec, (char *)name, (char *)tp, &n, &ign, &ign, &ign);
     if(lwork < 1) lwork = A.stride*4;
@@ -224,7 +224,7 @@ bool matrix_solve_syt(matrix &A, matrix &B)
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return false;
     }
-    __CLPK_integer nrhs = B.rows;
+    __CLPK_integer nrhs = B._rows;
     __CLPK_integer ldb = B.stride;
     sytrs(&uplo, &n, &nrhs, A.data, &lda, ipiv, B.data, &ldb, &info);
     if(info) {
@@ -273,9 +273,9 @@ bool matrix_solve_semidefinite(matrix &A, matrix &B)
 
 void test_cholesky(matrix &A)
 {
-    assert(A.rows = A.cols);
+    assert(A._rows = A._cols);
     assert(A.is_symmetric());
-    __CLPK_integer N = A.rows;
+    __CLPK_integer N = A._rows;
     matrix res(N, N);
     matrix B(N, N);
     fprintf(stderr, "original matrix is: \n");
@@ -328,7 +328,7 @@ bool matrix_cholesky(matrix &A)
     //A.print();
     char uplo = 'U';
     __CLPK_integer info;
-    __CLPK_integer n = A.cols;
+    __CLPK_integer n = A._cols;
     __CLPK_integer lda = A.stride;
     potrf(&uplo, &n, A.data, &lda, &info);
     if(info) {
@@ -338,8 +338,8 @@ bool matrix_cholesky(matrix &A)
     }
     //potrf only computes upper fortran (so really lower) triangle
     //clear out any leftover data in the upper part of A
-    for(int i = 0; i < A.rows; ++i) {
-        for(int j = i + 1; j < A.rows; ++j) {
+    for(int i = 0; i < A._rows; ++i) {
+        for(int j = i + 1; j < A._rows; ++j) {
             A(i, j) = 0.;
         }
     }
@@ -350,12 +350,12 @@ f_t matrix_check_condition(matrix &A)
 {
     f_t anorm = 0.;
     
-    matrix tmp(A.rows, A.cols);
+    matrix tmp(A._rows, A._cols);
 
-    for(int i = 0; i < A.rows; ++i)
+    for(int i = 0; i < A._rows; ++i)
     {
         f_t sum = 0.;
-        for(int j = 0; j < A.cols; ++j)
+        for(int j = 0; j < A._cols; ++j)
         {
             sum += A(i, j);
             tmp(i, j) = A(i, j);
@@ -365,7 +365,7 @@ f_t matrix_check_condition(matrix &A)
     
     char uplo = 'U';
     __CLPK_integer info;
-    __CLPK_integer n = tmp.cols;
+    __CLPK_integer n = tmp._cols;
     __CLPK_integer lda = tmp.stride;
     potrf(&uplo, &n, tmp.data, &lda, &info);
     f_t rcond = 1.;
@@ -390,7 +390,7 @@ bool matrix_solve(matrix &A, matrix &B)
 {
     char uplo = 'U';
     __CLPK_integer info;
-    __CLPK_integer n = A.cols;
+    __CLPK_integer n = A._cols;
     __CLPK_integer lda = A.stride;
     potrf(&uplo, &n, A.data, &lda, &info);
     if(info) {
@@ -398,7 +398,7 @@ bool matrix_solve(matrix &A, matrix &B)
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return false; //could return matrix_solve_syt here instead
     }
-    __CLPK_integer nrhs = B.rows;
+    __CLPK_integer nrhs = B._rows;
     __CLPK_integer ldb = B.stride;
     potrs(&uplo, &n, &nrhs, A.data, &lda, B.data, &ldb, &info);
     if(info) {
@@ -413,11 +413,11 @@ bool matrix_solve_refine(matrix &A, matrix &B)
 {
     char uplo = 'U';
     __CLPK_integer info;
-    __CLPK_integer n = A.cols;
+    __CLPK_integer n = A._cols;
     __CLPK_integer lda = A.stride;
-    matrix AF(A.rows, A.cols);
-    for(int i = 0; i < A.rows; ++i) {
-        for(int j = 0; j < A.cols; ++j) {
+    matrix AF(A._rows, A._cols);
+    for(int i = 0; i < A._rows; ++i) {
+        for(int j = 0; j < A._cols; ++j) {
             AF(i, j) = A(i, j);
         }
     }
@@ -428,11 +428,11 @@ bool matrix_solve_refine(matrix &A, matrix &B)
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return false; //could return matrix_solve_syt here instead
     }
-    __CLPK_integer nrhs = B.rows;
+    __CLPK_integer nrhs = B._rows;
     __CLPK_integer ldb = B.stride;
-    matrix X(B.rows, B.cols);
-    for(int i = 0; i < B.rows; ++i) {
-        for(int j = 0; j < B.cols; ++j) {
+    matrix X(B._rows, B._cols);
+    for(int i = 0; i < B._rows; ++i) {
+        for(int j = 0; j < B._cols; ++j) {
             X(i, j) = B(i, j);
         }
     }
@@ -452,8 +452,8 @@ bool matrix_solve_refine(matrix &A, matrix &B)
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return false;
     }
-    for(int i = 0; i < B.rows; ++i) {
-        for(int j = 0; j < B.cols; ++j) {
+    for(int i = 0; i < B._rows; ++i) {
+        for(int j = 0; j < B._cols; ++j) {
             B(i, j) = X(i, j);
         }
     }
@@ -467,13 +467,13 @@ bool matrix_solve_extra(matrix &A, matrix &B)
     char uplo = 'U';
     char equed = 'N';
     __CLPK_integer info;
-    __CLPK_integer n = A.cols;
+    __CLPK_integer n = A._cols;
     __CLPK_integer lda = A.stride;
-    matrix AF(A.rows, A.cols);
+    matrix AF(A._rows, A._cols);
     __CLPK_integer ldaf = A.stride;
-    __CLPK_integer nrhs = B.rows;
+    __CLPK_integer nrhs = B._rows;
     __CLPK_integer ldb = B.stride;
-    matrix X(B.rows, B.cols);
+    matrix X(B._rows, B._cols);
     __CLPK_integer ldx = X.stride;
     f_t ferr[nrhs], berr[nrhs];
     __CLPK_integer iwork[n];
@@ -486,8 +486,8 @@ bool matrix_solve_extra(matrix &A, matrix &B)
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return false;
     }
-    for(int i = 0; i < B.rows; ++i) {
-        for(int j = 0; j < B.cols; ++j) {
+    for(int i = 0; i < B._rows; ++i) {
+        for(int j = 0; j < B._cols; ++j) {
             B(i, j) = X(i, j);
         }
     }
@@ -498,13 +498,13 @@ bool matrix_solve_extra(matrix &A, matrix &B)
 bool matrix_solve_svd(matrix &A, matrix &B)
 {
     __CLPK_integer info;
-    f_t sv[A.rows];
+    f_t sv[A._rows];
     __CLPK_integer rank;
     f_t rcond = -1;
     __CLPK_integer lwork = -1;
-    __CLPK_integer n = A.cols;
+    __CLPK_integer n = A._cols;
     __CLPK_integer lda = A.stride;
-    __CLPK_integer nrhs = B.rows;
+    __CLPK_integer nrhs = B._rows;
     __CLPK_integer ldb = B.stride;
     f_t work0;
     gelsd(&n, &n, &nrhs, A.data, &lda, B.data, &ldb, sv, &rcond, &rank, &work0, &lwork, 0, &info);
@@ -531,10 +531,10 @@ bool matrix_svd(matrix &A, matrix &U, matrix &S, matrix &Vt)
 
     __CLPK_integer lwork = -1;
     f_t work0;
-    __CLPK_integer iwork[8 * A.cols];
+    __CLPK_integer iwork[8 * A._cols];
     //gesvd/dd is fortran, so V^T and U are swapped
-    __CLPK_integer n = A.rows;
-    __CLPK_integer m = A.cols;
+    __CLPK_integer n = A._rows;
+    __CLPK_integer m = A._cols;
     __CLPK_integer lda = A.stride;
     __CLPK_integer ldVt = Vt.stride;
     __CLPK_integer ldU = U.stride;
@@ -553,8 +553,8 @@ bool matrix_svd(matrix &A, matrix &U, matrix &S, matrix &Vt)
 
 void matrix_negate(matrix & mat)
 {
-    for(int r = 0; r < mat.rows; r++) {
-        for(int c = 0; c < mat.cols; c++) {
+    for(int r = 0; r < mat._rows; r++) {
+        for(int c = 0; c < mat._cols; c++) {
             mat(r,c) = -mat(r,c);
         }
     }
@@ -562,9 +562,9 @@ void matrix_negate(matrix & mat)
 
 void matrix_transpose(matrix &dst, const matrix &src)
 {
-    assert(dst.cols == src.rows && dst.rows == src.cols);
-    for(int i = 0; i < dst.rows; ++i) {
-        for(int j = 0; j < dst.cols; ++j) {
+    assert(dst._cols == src._rows && dst._rows == src._cols);
+    for(int i = 0; i < dst._rows; ++i) {
+        for(int j = 0; j < dst._cols; ++j) {
             dst(i, j) = src(j, i);
         }
     }
@@ -577,7 +577,7 @@ matrix &matrix_dereference(matrix *m)
 
 f_t matrix_3x3_determinant(const matrix & A)
 {
-    assert(A.cols == 3 && A.rows == 3);
+    assert(A._cols == 3 && A._rows == 3);
 
     return A(0,0)*(A(1,1)*A(2,2) - A(1,2)*A(2,1)) -
            A(0,1)*(A(1,0)*A(2,2) - A(1,2)*A(2,0)) +
@@ -587,16 +587,16 @@ f_t matrix_3x3_determinant(const matrix & A)
 //need to put this test around every operation that affects cov. (possibly with #defines, google test?)
 bool test_posdef(const matrix &m)
 {
-    matrix tmp(m.rows, m.cols);
+    matrix tmp(m._rows, m._cols);
     bool ret = true;
-    for(int i = 0; i < m.rows; ++i)
+    for(int i = 0; i < m._rows; ++i)
     {
         if(m(i, i) < 0.) {
             fprintf(stderr, "negative diagonal element: %d is %e\n", i, m(i, i));
             ret = false;
         }
         tmp(i, i) = m(i, i);
-        for(int j = i + 1; j < m.cols; ++j)
+        for(int j = i + 1; j < m._cols; ++j)
         {
             if(m(i, j) != m(j, i)) {
                 fprintf(stderr, "not symmetric: m(%d, %d) = %e; m(%d, %d) = %e\n", i, j, m(i, j), j, i, m(j, i));

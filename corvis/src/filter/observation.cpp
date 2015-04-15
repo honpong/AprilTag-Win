@@ -59,7 +59,7 @@ void observation_queue::compute_prediction_covariance(const state &s, int meas_s
     int index = 0;
     for(auto &o : observations) {
         if(o->size) {
-            matrix dst(&LC(index, 0), o->size, statesize, LC.maxrows, LC.stride);
+            matrix dst(&LC(index, 0), o->size, statesize, statesize, LC.get_stride());
             o->cache_jacobians();
             o->project_covariance(dst, s.cov.cov);
             index += o->size;
@@ -70,15 +70,15 @@ void observation_queue::compute_prediction_covariance(const state &s, int meas_s
     index = 0;
     for(auto &o : observations) {
         if(o->size) {
-            matrix dst(&res_cov(index, 0), o->size, meas_size, res_cov.maxrows, res_cov.stride);
+            matrix dst(&res_cov(index, 0), o->size, meas_size, meas_size, res_cov.get_stride());
             o->project_covariance(dst, LC);
             index += o->size;
         }
     }
     
     //enforce symmetry
-    for(int i = 0; i < res_cov.rows; ++i) {
-        for(int j = i + 1; j < res_cov.cols; ++j) {
+    for(int i = 0; i < res_cov.rows(); ++i) {
+        for(int j = i + 1; j < res_cov.cols(); ++j) {
             res_cov(i, j) = res_cov(j, i);
         }
     }
@@ -305,7 +305,7 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
 {
 
     if(!feature->is_initialized()) {
-        for(int j = 0; j < dst.cols; ++j) {
+        for(int j = 0; j < dst.cols(); ++j) {
 #if estimate_camera_extrinsics
             v4 cov_Wc = state.Wc.copy_cov_from_row(src, j);
 #endif
@@ -322,7 +322,7 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
             dy_dWr.dot(cov_Wr);
         }
     } else {
-        for(int j = 0; j < dst.cols; ++j) {
+        for(int j = 0; j < dst.cols(); ++j) {
             f_t cov_feat = feature->copy_cov_from_row(src, j);
             v4 cov_Wr = state_group->Wr.copy_cov_from_row(src, j);
             v4 cov_Tr = state_group->Tr.copy_cov_from_row(src, j);
@@ -535,10 +535,10 @@ void observation_accelerometer::cache_jacobians()
 void observation_accelerometer::project_covariance(matrix &dst, const matrix &src)
 {
     //input matrix is either symmetric (covariance) or is implicitly transposed (L * C)
-    assert(dst.cols == src.rows);
+    assert(dst.cols() == src.rows());
     if(!state.orientation_only)
     {
-        for(int j = 0; j < dst.cols; ++j) {
+        for(int j = 0; j < dst.cols(); ++j) {
             v4 cov_a_bias = state.a_bias.copy_cov_from_row(src, j);
             v4 cov_W = state.W.copy_cov_from_row(src, j);
             v4 cov_a = state.a.copy_cov_from_row(src, j);
@@ -549,7 +549,7 @@ void observation_accelerometer::project_covariance(matrix &dst, const matrix &sr
             }
         }
     } else {
-        for(int j = 0; j < dst.cols; ++j) {
+        for(int j = 0; j < dst.cols(); ++j) {
             v4 cov_a_bias = state.a_bias.copy_cov_from_row(src, j);
             v4 cov_W = state.W.copy_cov_from_row(src, j);
             v4 res = (state.estimate_bias ? cov_a_bias : v4(0,0,0,0)) + da_dW * cov_W;
@@ -588,7 +588,7 @@ void observation_gyroscope::cache_jacobians()
 void observation_gyroscope::project_covariance(matrix &dst, const matrix &src)
 {
     //input matrix is either symmetric (covariance) or is implicitly transposed (L * C)
-    for(int j = 0; j < dst.cols; ++j) {
+    for(int j = 0; j < dst.cols(); ++j) {
         v4 cov_w = state.w.copy_cov_from_row(src, j);
         v4 cov_wbias = state.w_bias.copy_cov_from_row(src, j);
         v4 res = cov_w + cov_wbias;

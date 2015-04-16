@@ -8,9 +8,9 @@
 
 #import "VisualizationController.h"
 #import "ArcBall.h"
-#import "WorldState.h"
 #import "MBProgressHUD.h"
 #import "RC3DK.h"
+#include "world_state.h"
 
 #define INITIAL_LIMITS 3.
 #define POINT_SIZE 3.0
@@ -63,7 +63,7 @@ static VertexData axisVertex[] = {
     RCFeatureFilter featuresFilter;
     float currentScale;
     float viewpointTime;
-    WorldState * state;
+    world_state state;
 
     ArcBall * arcball;
 
@@ -117,7 +117,7 @@ static VertexData axisVertex[] = {
     view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
     view.drawableMultisample = GLKViewDrawableMultisample4X;
 
-    state = [WorldState sharedInstance];
+    //state = [WorldState sharedInstance];
 
     [self setupGL];
 
@@ -191,7 +191,7 @@ static VertexData axisVertex[] = {
 
 - (void)startSensorFusion
 {
-    [state reset];
+    state.reset();
     [self beginHoldingPeriod];
     [sensorManager startAllSensors];
     [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
@@ -248,11 +248,11 @@ static VertexData axisVertex[] = {
                 break;
             case RCSensorFusionErrorCodeTooFast:
                 [self showMessage:@"Error: The device was moved too fast. Try moving slower and smoother." autoHide:YES];
-                [state reset];
+                state.reset();
                 break;
             case RCSensorFusionErrorCodeOther:
                 [self showMessage:@"Error: A fatal error has occured." autoHide:YES];
-                [state reset];
+                state.reset();
                 break;
             case RCSensorFusionErrorCodeLicense:
                 [self showMessage:@"Error: License was not validated before startProcessingVideo was called." autoHide:YES];
@@ -270,8 +270,6 @@ static VertexData axisVertex[] = {
 // Transmits 3DK output data to the remote visualization app running on a desktop machine on the same wifi network
 - (void)updateVisualization:(RCSensorFusionData *)data
 {
-    double time = data.timestamp / 1.0e6;
-
     for (id object in data.featurePoints)
     {
         RCFeaturePoint * p = object;
@@ -284,11 +282,12 @@ static VertexData axisVertex[] = {
             float depth = p.originalDepth.scalar;
             float stddev = p.originalDepth.standardDeviation;
             bool good = stddev / depth < .02;
-            [state observeFeatureWithId:p.id x:x y:y z:z lastSeen:time good:good];
+            state.observe_feature(data.timestamp, p.id, x, y, z, good);
         }
     }
-    [state observePathWithTranslationX:data.transformation.translation.x y:data.transformation.translation.y z:data.transformation.translation.z time:time];
-    [state observeTime:time];
+    RCRotation * R = data.transformation.rotation;
+    RCTranslation * T = data.transformation.translation;
+    state.observe_position(data.timestamp, T.x, T.y, T.z, R.quaternionW, R.quaternionX, R.quaternionY, R.quaternionZ);
 }
 
 // Transmits 3DK output data to the remote visualization app running on a desktop machine on the same wifi network
@@ -328,7 +327,7 @@ static VertexData axisVertex[] = {
 {
     int nextView = currentViewpoint + 1;
     if(nextView > RCViewpointSide) nextView = 0;
-    [self setViewpoint:nextView];
+    [self setViewpoint:(RCViewpoint)nextView];
 }
 
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer
@@ -395,8 +394,8 @@ static VertexData axisVertex[] = {
     yMin = -INITIAL_LIMITS;
     yMax = INITIAL_LIMITS;
 
-    pathVertex = calloc(sizeof(VertexData), npathalloc);
-    featureVertex = calloc(sizeof(VertexData), nfeaturesalloc);
+    pathVertex = (VertexData *)calloc(sizeof(VertexData), npathalloc);
+    featureVertex = (VertexData *)calloc(sizeof(VertexData), nfeaturesalloc);
     [self buildGridVertexData];
 }
 
@@ -435,7 +434,7 @@ void setColor(VertexData * vertex, GLuint r, GLuint g, GLuint b, GLuint alpha)
 - (void)buildGridVertexData {
     float scale = 1; /* meter */
     ngrid = 21*16; /* -10 to 10 with 16 each iteration */
-    gridVertex = calloc(sizeof(VertexData), ngrid);
+    gridVertex = (VertexData *)calloc(sizeof(VertexData), ngrid);
     /* Grid */
     int idx = 0;
     GLuint gridColor[4] = {122, 126, 146, 255};
@@ -552,30 +551,27 @@ void setColor(VertexData * vertex, GLuint r, GLuint g, GLuint b, GLuint alpha)
     /*
      * Build vertex arrays for feature and path data
      */
-    NSDictionary * features = [state getFeatures];
-    NSArray *path = [state getPath];
-    float renderTime = [state getTime];
+    state.display_lock.lock();
     int idx;
 
     // reallocate if we now have more data than room for vertices
-    if(nfeaturesalloc < [features count]) {
-        featureVertex = realloc(featureVertex, sizeof(VertexData)*[features count]*1.5);
+    if(nfeaturesalloc < state.features.size()) {
+        featureVertex = (VertexData *)realloc(featureVertex, sizeof(VertexData)*state.features.size()*1.5);
     }
-    if(npathalloc < [path count]) {
-        pathVertex = realloc(pathVertex, sizeof(VertexData)*[path count]*1.5);
+    if(npathalloc < state.path.size()) {
+        pathVertex = (VertexData *)realloc(pathVertex, sizeof(VertexData)*state.features.size()*1.5);
     }
 
     idx = 0;
-    for(id key in features) {
-        Feature f;
-        NSValue * value = [features objectForKey:key];
-        [value getValue:&f];
-        if (f.lastSeen == renderTime)
-            setColor(&featureVertex[idx], 247, 88, 98, 255); // bad feature
+    for(auto const & item : state.features) {
+        //auto feature_id = item.first;
+        auto f = item.second;
+        if (f.last_seen == state.current_feature_timestamp)
+            setColor(&featureVertex[idx], 247, 88, 98, 255);
         else {
             if (featuresFilter == RCFeatureFilterShowGood && !f.good)
                 continue;
-            setColor(&featureVertex[idx], 255, 255, 255, 255); // good feature
+            setColor(&featureVertex[idx], 255, 255, 255, 255);
         }
         setPosition(&featureVertex[idx], f.x, f.y, f.z);
         idx++;
@@ -583,19 +579,17 @@ void setColor(VertexData * vertex, GLuint r, GLuint g, GLuint b, GLuint alpha)
     nfeatures = idx;
 
     idx = 0;
-    for(id location in path)
+    for(auto p : state.path)
     {
-        Translation t;
-        NSValue * value = location;
-        [value getValue:&t];
-        if (t.time == renderTime)
+        if (p.timestamp == state.current_timestamp)
             setColor(&pathVertex[idx], 0, 255, 0, 255);
         else
             setColor(&pathVertex[idx], 0, 178, 206, 255); // path color
-        setPosition(&pathVertex[idx], t.x, t.y, t.z);
+        setPosition(&pathVertex[idx], p.g.T.x(), p.g.T.y(), p.g.T.z());
         idx++;
     }
     npath = idx;
+    state.display_lock.unlock();
 
     /*
      * Build modelView matrix

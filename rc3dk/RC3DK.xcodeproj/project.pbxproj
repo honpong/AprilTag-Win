@@ -121,6 +121,9 @@
 		D33E9D401ADD18710085F35C /* RCCaptureManager.h in Copy Files */ = {isa = PBXBuildFile; fileRef = D33E9D0E1ADD13110085F35C /* RCCaptureManager.h */; };
 		D33E9D411ADD18710085F35C /* RCReplayManager.h in Copy Files */ = {isa = PBXBuildFile; fileRef = D33E9D101ADD13110085F35C /* RCReplayManager.h */; };
 		D33E9D501ADD1F070085F35C /* libRC3DKPlus.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D3B4EB591A1E7DE100BE0443 /* libRC3DKPlus.a */; };
+		D34A0BE51ADFDB04008DFCCF /* VisualizationController.mm in Sources */ = {isa = PBXBuildFile; fileRef = D34A0BE41ADFDB04008DFCCF /* VisualizationController.mm */; };
+		D34A0BE81ADFE621008DFCCF /* world_state.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D34A0BE71ADFE621008DFCCF /* world_state.cpp */; };
+		D34A0BE91ADFE665008DFCCF /* world_state.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D34A0BE71ADFE621008DFCCF /* world_state.cpp */; };
 		D351C6171A1E7EF7003DF3F3 /* RC3DKPlus.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D3B4EABD1A1E7DCC00BE0443 /* RC3DKPlus.h */; };
 		D3588EF31A20C04000CA10E7 /* bp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F7A41A1E010E00BBB1FF /* bp.cpp */; };
 		D3588EF41A20C04300CA10E7 /* trwbp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F7B71A1E010E00BBB1FF /* trwbp.cpp */; };
@@ -156,8 +159,6 @@
 		D35BF0E61ADD11DB00BF3CB0 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D35BF0D61ADD11DB00BF3CB0 /* MainViewController.m */; };
 		D35BF0E71ADD11DB00BF3CB0 /* ReplayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D35BF0D71ADD11DB00BF3CB0 /* ReplayViewController.m */; };
 		D35BF0E81ADD11DB00BF3CB0 /* RoundedButton.m in Sources */ = {isa = PBXBuildFile; fileRef = D35BF0D81ADD11DB00BF3CB0 /* RoundedButton.m */; };
-		D35BF0E91ADD11DB00BF3CB0 /* VisualizationController.m in Sources */ = {isa = PBXBuildFile; fileRef = D35BF0D91ADD11DB00BF3CB0 /* VisualizationController.m */; };
-		D35BF0EA1ADD11DB00BF3CB0 /* WorldState.m in Sources */ = {isa = PBXBuildFile; fileRef = D35BF0DA1ADD11DB00BF3CB0 /* WorldState.m */; };
 		D35BF0F81ADD122800BF3CB0 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = D35BF0ED1ADD122800BF3CB0 /* MBProgressHUD.m */; };
 		D35BF0F91ADD122800BF3CB0 /* RCCalibration1.m in Sources */ = {isa = PBXBuildFile; fileRef = D35BF0EE1ADD122800BF3CB0 /* RCCalibration1.m */; };
 		D35BF0FA1ADD122800BF3CB0 /* RCCalibration2.m in Sources */ = {isa = PBXBuildFile; fileRef = D35BF0F11ADD122800BF3CB0 /* RCCalibration2.m */; };
@@ -535,6 +536,9 @@
 		D33E9D241ADD14600085F35C /* RCVideoFrameProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCVideoFrameProvider.h; path = ../../rc3dk/RC3DK/SensorManagers/RCVideoFrameProvider.h; sourceTree = "<group>"; };
 		D33E9D251ADD14600085F35C /* RCVideoManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCVideoManager.h; path = ../../rc3dk/RC3DK/SensorManagers/RCVideoManager.h; sourceTree = "<group>"; };
 		D33E9D261ADD14600085F35C /* RCMotionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCMotionManager.h; path = ../../rc3dk/RC3DK/SensorManagers/RCMotionManager.h; sourceTree = "<group>"; };
+		D34A0BE41ADFDB04008DFCCF /* VisualizationController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VisualizationController.mm; sourceTree = "<group>"; };
+		D34A0BE61ADFE621008DFCCF /* world_state.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = world_state.h; path = ../../corvis/src/vis/world_state.h; sourceTree = "<group>"; };
+		D34A0BE71ADFE621008DFCCF /* world_state.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = world_state.cpp; path = ../../corvis/src/vis/world_state.cpp; sourceTree = "<group>"; };
 		D35BF0A51ADD111500BF3CB0 /* RC3DKVis.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RC3DKVis.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D35BF0A81ADD111500BF3CB0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D35BF0A91ADD111500BF3CB0 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -548,8 +552,6 @@
 		D35BF0D61ADD11DB00BF3CB0 /* MainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MainViewController.m; path = ../../rc3dk/RC3DKVis/MainViewController.m; sourceTree = "<group>"; };
 		D35BF0D71ADD11DB00BF3CB0 /* ReplayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReplayViewController.m; sourceTree = "<group>"; };
 		D35BF0D81ADD11DB00BF3CB0 /* RoundedButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RoundedButton.m; path = ../../rc3dk/RC3DKVis/RoundedButton.m; sourceTree = "<group>"; };
-		D35BF0D91ADD11DB00BF3CB0 /* VisualizationController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = VisualizationController.m; sourceTree = "<group>"; };
-		D35BF0DA1ADD11DB00BF3CB0 /* WorldState.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = WorldState.m; sourceTree = "<group>"; };
 		D35BF0DB1ADD11DB00BF3CB0 /* ArcBall.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ArcBall.h; sourceTree = "<group>"; };
 		D35BF0DC1ADD11DB00BF3CB0 /* CaptureFilename.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CaptureFilename.h; sourceTree = "<group>"; };
 		D35BF0DD1ADD11DB00BF3CB0 /* CaptureViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CaptureViewController.h; sourceTree = "<group>"; };
@@ -557,7 +559,6 @@
 		D35BF0DF1ADD11DB00BF3CB0 /* ReplayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplayViewController.h; sourceTree = "<group>"; };
 		D35BF0E01ADD11DB00BF3CB0 /* RoundedButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RoundedButton.h; path = ../../rc3dk/RC3DKVis/RoundedButton.h; sourceTree = "<group>"; };
 		D35BF0E11ADD11DB00BF3CB0 /* VisualizationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VisualizationController.h; sourceTree = "<group>"; };
-		D35BF0E21ADD11DB00BF3CB0 /* WorldState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = WorldState.h; sourceTree = "<group>"; };
 		D35BF0EC1ADD122800BF3CB0 /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MBProgressHUD.h; path = ../../Calibration/MBProgressHUD.h; sourceTree = "<group>"; };
 		D35BF0ED1ADD122800BF3CB0 /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MBProgressHUD.m; path = ../../Calibration/MBProgressHUD.m; sourceTree = "<group>"; };
 		D35BF0EE1ADD122800BF3CB0 /* RCCalibration1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCCalibration1.m; path = ../../Calibration/RCCalibration1.m; sourceTree = "<group>"; };
@@ -978,6 +979,7 @@
 				327B558418EB4F250001CCE1 /* cor */,
 				327B559C18EB4F3A0001CCE1 /* filter */,
 				327B55C718EB4F430001CCE1 /* numerics */,
+				D326CED81ADFD82C003B026B /* vis */,
 			);
 			name = Corvis;
 			sourceTree = "<group>";
@@ -1102,12 +1104,10 @@
 			isa = PBXGroup;
 			children = (
 				D30560101ADD256A002BD682 /* Shaders */,
-				D35BF0D31ADD11DB00BF3CB0 /* ArcBall.m */,
-				D35BF0D91ADD11DB00BF3CB0 /* VisualizationController.m */,
-				D35BF0DA1ADD11DB00BF3CB0 /* WorldState.m */,
 				D35BF0DB1ADD11DB00BF3CB0 /* ArcBall.h */,
+				D35BF0D31ADD11DB00BF3CB0 /* ArcBall.m */,
 				D35BF0E11ADD11DB00BF3CB0 /* VisualizationController.h */,
-				D35BF0E21ADD11DB00BF3CB0 /* WorldState.h */,
+				D34A0BE41ADFDB04008DFCCF /* VisualizationController.mm */,
 			);
 			name = Live;
 			sourceTree = "<group>";
@@ -1145,6 +1145,15 @@
 			);
 			name = stereo;
 			path = ../../corvis/src/stereo;
+			sourceTree = "<group>";
+		};
+		D326CED81ADFD82C003B026B /* vis */ = {
+			isa = PBXGroup;
+			children = (
+				D34A0BE61ADFE621008DFCCF /* world_state.h */,
+				D34A0BE71ADFE621008DFCCF /* world_state.cpp */,
+			);
+			name = vis;
 			sourceTree = "<group>";
 		};
 		D33E9D1A1ADD144D0085F35C /* Sensor Managers */ = {
@@ -1611,6 +1620,7 @@
 				327B553418EB4D720001CCE1 /* RCAFHTTPClient.m in Sources */,
 				D33E61DD1ADD4ABA00569C82 /* RCReplayManager.mm in Sources */,
 				327B55BF18EB4F3A0001CCE1 /* filter_setup.cpp in Sources */,
+				D34A0BE81ADFE621008DFCCF /* world_state.cpp in Sources */,
 				D33E9D2B1ADD14600085F35C /* RCVideoManager.m in Sources */,
 				327B55D418EB4F430001CCE1 /* matrix.cpp in Sources */,
 				327B553A18EB4D720001CCE1 /* RCAFURLConnectionOperation.m in Sources */,
@@ -1646,7 +1656,6 @@
 				D35BF0AD1ADD111500BF3CB0 /* AppDelegate.m in Sources */,
 				D35BF0AA1ADD111500BF3CB0 /* main.m in Sources */,
 				D35BF0E61ADD11DB00BF3CB0 /* MainViewController.m in Sources */,
-				D35BF0E91ADD11DB00BF3CB0 /* VisualizationController.m in Sources */,
 				D35BF0F81ADD122800BF3CB0 /* MBProgressHUD.m in Sources */,
 				D35BF0E71ADD11DB00BF3CB0 /* ReplayViewController.m in Sources */,
 				D35BF0F91ADD122800BF3CB0 /* RCCalibration1.m in Sources */,
@@ -1654,7 +1663,7 @@
 				D35BF0FB1ADD122800BF3CB0 /* RCCalibration3.m in Sources */,
 				D326CED71ADFC62C003B026B /* CaptureViewController.mm in Sources */,
 				D35BF0FA1ADD122800BF3CB0 /* RCCalibration2.m in Sources */,
-				D35BF0EA1ADD11DB00BF3CB0 /* WorldState.m in Sources */,
+				D34A0BE51ADFDB04008DFCCF /* VisualizationController.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1714,6 +1723,7 @@
 				D3588EF51A20C04600CA10E7 /* factorgraph.cpp in Sources */,
 				D3B4EAFC1A1E7DE100BE0443 /* RCTransformation.m in Sources */,
 				D321AD411A323C17003AEA77 /* stereo_mesh.cpp in Sources */,
+				D34A0BE91ADFE665008DFCCF /* world_state.cpp in Sources */,
 				D3B4EB021A1E7DE100BE0443 /* vec4.cpp in Sources */,
 				D3B4EB031A1E7DE100BE0443 /* RCPoint.m in Sources */,
 				D3588F041A20C42C00CA10E7 /* poly2.c in Sources */,

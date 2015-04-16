@@ -11,6 +11,7 @@
 #import <ImageIO/ImageIO.h>
 #import "RCAVSessionManager.h"
 #import "RCVideoFrameProvider.h"
+#import "RC3DK.h"
 
 /** 
  Handles getting video frames from the AV session, and passes them directly to the RCSensorFusion shared instance.
@@ -21,6 +22,7 @@
 - (bool) startVideoCapture;
 - (void) stopVideoCapture;
 - (BOOL) isCapturing;
+- (void) setDataDelegate:(id <RCSensorDataDelegate>)delegate;
 
 #ifdef DEBUG
 - (void) setupWithSession:(AVCaptureSession *)avSession withOutput:(AVCaptureVideoDataOutput *)avOutput;

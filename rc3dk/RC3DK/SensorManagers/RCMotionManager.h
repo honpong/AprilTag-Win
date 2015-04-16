@@ -6,6 +6,7 @@
 //
 
 #import <CoreMotion/CoreMotion.h>
+#import "RC3DK.h"
 
 /** Handles getting IMU data from the system, and passes it directly to the RCSensorFusion shared instance.
  
@@ -17,6 +18,7 @@
 - (BOOL) startMotionCapture;
 - (void) stopMotionCapture;
 - (BOOL) isCapturing;
+- (void) setDataDelegate:(id <RCSensorDataDelegate>)delegate;
 
 #ifdef DEBUG
 - (BOOL) startMotionCapWithQueue:(NSOperationQueue*)queue;

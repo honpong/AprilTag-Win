@@ -84,6 +84,7 @@
 		D321AD401A323C17003AEA77 /* stereo_features.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D321AD331A323BF7003AEA77 /* stereo_features.cpp */; };
 		D321AD411A323C17003AEA77 /* stereo_mesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D321AD351A323BF7003AEA77 /* stereo_mesh.cpp */; };
 		D321AD421A323C17003AEA77 /* stereo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D321AD371A323BF7003AEA77 /* stereo.cpp */; };
+		D326CED71ADFC62C003B026B /* CaptureViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = D326CED61ADFC62C003B026B /* CaptureViewController.mm */; };
 		D33B00581A20CA8E00287FC9 /* sift.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7FB1A1E010E00BBB1FF /* sift.c */; };
 		D33B00591A20CAB700287FC9 /* generic.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7C91A1E010E00BBB1FF /* generic.c */; };
 		D33B005A1A20CACE00287FC9 /* imopv.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7DD1A1E010E00BBB1FF /* imopv.c */; };
@@ -152,7 +153,6 @@
 		D35BF0B81ADD111500BF3CB0 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = D35BF0B61ADD111500BF3CB0 /* LaunchScreen.xib */; };
 		D35BF0E31ADD11DB00BF3CB0 /* ArcBall.m in Sources */ = {isa = PBXBuildFile; fileRef = D35BF0D31ADD11DB00BF3CB0 /* ArcBall.m */; };
 		D35BF0E41ADD11DB00BF3CB0 /* CaptureFilename.m in Sources */ = {isa = PBXBuildFile; fileRef = D35BF0D41ADD11DB00BF3CB0 /* CaptureFilename.m */; };
-		D35BF0E51ADD11DB00BF3CB0 /* CaptureViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D35BF0D51ADD11DB00BF3CB0 /* CaptureViewController.m */; };
 		D35BF0E61ADD11DB00BF3CB0 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D35BF0D61ADD11DB00BF3CB0 /* MainViewController.m */; };
 		D35BF0E71ADD11DB00BF3CB0 /* ReplayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D35BF0D71ADD11DB00BF3CB0 /* ReplayViewController.m */; };
 		D35BF0E81ADD11DB00BF3CB0 /* RoundedButton.m in Sources */ = {isa = PBXBuildFile; fileRef = D35BF0D81ADD11DB00BF3CB0 /* RoundedButton.m */; };
@@ -516,6 +516,7 @@
 		D321AD361A323BF7003AEA77 /* stereo_mesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stereo_mesh.h; sourceTree = "<group>"; };
 		D321AD371A323BF7003AEA77 /* stereo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stereo.cpp; sourceTree = "<group>"; };
 		D321AD381A323BF7003AEA77 /* stereo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stereo.h; sourceTree = "<group>"; };
+		D326CED61ADFC62C003B026B /* CaptureViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CaptureViewController.mm; sourceTree = "<group>"; };
 		D33E61DC1ADD4ABA00569C82 /* RCReplayManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RCReplayManager.mm; sourceTree = "<group>"; };
 		D33E61DF1ADE632900569C82 /* capture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = capture.h; sourceTree = "<group>"; };
 		D33E61E01ADE632900569C82 /* capture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = capture.cpp; sourceTree = "<group>"; };
@@ -544,7 +545,6 @@
 		D35BF0B71ADD111500BF3CB0 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		D35BF0D31ADD11DB00BF3CB0 /* ArcBall.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ArcBall.m; sourceTree = "<group>"; };
 		D35BF0D41ADD11DB00BF3CB0 /* CaptureFilename.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CaptureFilename.m; sourceTree = "<group>"; };
-		D35BF0D51ADD11DB00BF3CB0 /* CaptureViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CaptureViewController.m; sourceTree = "<group>"; };
 		D35BF0D61ADD11DB00BF3CB0 /* MainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MainViewController.m; path = ../../rc3dk/RC3DKVis/MainViewController.m; sourceTree = "<group>"; };
 		D35BF0D71ADD11DB00BF3CB0 /* ReplayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReplayViewController.m; sourceTree = "<group>"; };
 		D35BF0D81ADD11DB00BF3CB0 /* RoundedButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RoundedButton.m; path = ../../rc3dk/RC3DKVis/RoundedButton.m; sourceTree = "<group>"; };
@@ -1081,8 +1081,8 @@
 		D305600D1ADD2466002BD682 /* Capture */ = {
 			isa = PBXGroup;
 			children = (
+				D326CED61ADFC62C003B026B /* CaptureViewController.mm */,
 				D35BF0D41ADD11DB00BF3CB0 /* CaptureFilename.m */,
-				D35BF0D51ADD11DB00BF3CB0 /* CaptureViewController.m */,
 				D35BF0DC1ADD11DB00BF3CB0 /* CaptureFilename.h */,
 				D35BF0DD1ADD11DB00BF3CB0 /* CaptureViewController.h */,
 			);
@@ -1652,7 +1652,7 @@
 				D35BF0F91ADD122800BF3CB0 /* RCCalibration1.m in Sources */,
 				D35BF0E41ADD11DB00BF3CB0 /* CaptureFilename.m in Sources */,
 				D35BF0FB1ADD122800BF3CB0 /* RCCalibration3.m in Sources */,
-				D35BF0E51ADD11DB00BF3CB0 /* CaptureViewController.m in Sources */,
+				D326CED71ADFC62C003B026B /* CaptureViewController.mm in Sources */,
 				D35BF0FA1ADD122800BF3CB0 /* RCCalibration2.m in Sources */,
 				D35BF0EA1ADD11DB00BF3CB0 /* WorldState.m in Sources */,
 			);

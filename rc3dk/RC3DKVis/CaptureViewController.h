@@ -11,7 +11,7 @@
 #import "RC3DK.h"
 #import "RCCaptureManager.h"
 
-@interface CaptureViewController : UIViewController <RCCaptureManagerDelegate>
+@interface CaptureViewController : UIViewController
 
 - (IBAction)startStopClicked:(id)sender;
 - (IBAction)cameraConfigureClick:(id)sender;

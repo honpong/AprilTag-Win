@@ -10,6 +10,7 @@
 #import "CaptureViewController.h"
 #import "AppDelegate.h"
 #import "CaptureFilename.h"
+#import "RCCameraManager.h"
 
 @interface CaptureViewController ()
 {
@@ -45,13 +46,14 @@
 	[rootLayer addSublayer:previewLayer];
 
     captureController = [[RCCaptureManager alloc] init];
+    [[RCSensorManager sharedInstance] startAllSensors];
+    [[RCAVSessionManager sharedInstance] startSession];
+    [[RCVideoManager sharedInstance] startVideoCapture];
 
     isStarted = false;
     framerate = 30;
     width = 640;
     height = 480;
-
-    [[RCAVSessionManager sharedInstance] startSession];
 }
 
 - (void) viewDidLayoutSubviews
@@ -84,13 +86,6 @@
     // Dispose of any resources that can be recreated.
 }
 
-- (void) captureDidStart
-{
-    [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
-    [frameRateSelector setHidden:true];
-    [resolutionSelector setHidden:true];
-}
-
 - (void) presentRenameAlert
 {
     NSString * path = [fileURL.path stringByDeletingLastPathComponent];
@@ -121,7 +116,7 @@
                                [[NSFileManager defaultManager] moveItemAtPath:fileURL.path toPath:newPath error:nil];
                                [alert dismissViewControllerAnimated:YES completion:nil];
                            }];
-    UIAlertAction* delete = [UIAlertAction actionWithTitle:@"Delete" style:UIAlertActionStyleDestructive
+    UIAlertAction* del = [UIAlertAction actionWithTitle:@"Delete" style:UIAlertActionStyleDestructive
                                                    handler:^(UIAlertAction * action)
                              {
                                  [[NSFileManager defaultManager] removeItemAtPath:fileURL.path error:nil];
@@ -147,19 +142,11 @@
      }];
 
     [alert addAction:save];
-    [alert addAction:delete];
+    [alert addAction:del];
 
     [self presentViewController:alert animated:YES completion:nil];
 }
 
-- (void) captureDidStop
-{
-    [self presentRenameAlert];
-    [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
-    [startStopButton setEnabled:true];
-    [frameRateSelector setHidden:false];
-    [resolutionSelector setHidden:false];
-}
 - (void) updateFramerateButton
 {
     if(framerate == 30)
@@ -200,6 +187,7 @@
         height = 1080;
     }
     [[RCAVSessionManager sharedInstance] configureCameraWithFrameRate:framerate withWidth:width withHeight:height];
+
     // Camera can refuse to be set to the framerate or size we specify
     AVCaptureDevice * device = [RCAVSessionManager sharedInstance].videoDevice;
     CMVideoDimensions sz = CMVideoFormatDescriptionGetDimensions(device.activeFormat.formatDescription);
@@ -210,19 +198,42 @@
     [self updateResolutionButton];
 }
 
+- (void) focusFinished:(uint64_t)time withFocalLength:(float)focal_length
+{
+    [captureController startCaptureWithPath:fileURL.path];
+    [startStopButton setTitle:@"Stop" forState:UIControlStateNormal];
+    [frameRateSelector setHidden:true];
+    [resolutionSelector setHidden:true];
+}
+
 - (IBAction)startStopClicked:(id)sender
 {
     if (!isStarted)
     {
         fileURL = [AppDelegate timeStampedURLWithSuffix:[NSString stringWithFormat:@"_%d_%d_%dHz.capture", width, height, framerate]];
         [startStopButton setTitle:@"Starting..." forState:UIControlStateNormal];
-        [captureController startCaptureWithPath:fileURL.path withDelegate:self];
+
+        [[RCVideoManager sharedInstance] setDataDelegate:captureController];
+        [[RCMotionManager sharedInstance] setDataDelegate:captureController];
+        [[RCCameraManager sharedInstance] setVideoDevice:[[RCSensorManager sharedInstance] getVideoDevice]];
+
+        __weak typeof(self) weakself = self;
+        std::function<void (uint64_t, float)> callback = [weakself](uint64_t timestamp, float position)
+        {
+            [weakself focusFinished:timestamp withFocalLength:position];
+        };
+        [[RCCameraManager sharedInstance] focusOnceAndLockWithCallback:callback];
     }
     else
     {
         [startStopButton setEnabled:false];
         [startStopButton setTitle:@"Stopping..." forState:UIControlStateNormal];
         [captureController stopCapture];
+        [self presentRenameAlert];
+        [startStopButton setTitle:@"Start" forState:UIControlStateNormal];
+        [startStopButton setEnabled:true];
+        [frameRateSelector setHidden:false];
+        [resolutionSelector setHidden:false];
     }
     isStarted = !isStarted;
 }

@@ -11,7 +11,7 @@
 
 @implementation RCVideoManager
 {
-    RCSensorFusion* sensorFusion;
+    id <RCSensorDataDelegate> dataDelegate;
     bool isCapturing;
 }
 @synthesize delegate, videoOrientation, session, output;
@@ -21,9 +21,26 @@
     static RCVideoManager* instance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        instance = [RCVideoManager new];
+        instance = [[RCVideoManager alloc] init];
     });
     return instance;
+}
+
+
+- (id)init
+{
+    if(self = [super init])
+    {
+        LOGME
+        dataDelegate = [RCSensorFusion sharedInstance];
+        isCapturing = NO;
+    }
+    return self;
+}
+
+- (void) setDataDelegate:(id<RCSensorDataDelegate>)videoDelegate
+{
+    dataDelegate = videoDelegate;
 }
 
 /** Invocations after the first have no effect */
@@ -43,7 +60,7 @@
 {
     session = avSession;
     output = avOutput;
-    sensorFusion = [RCSensorFusion sharedInstance];
+    dataDelegate = [RCSensorFusion sharedInstance];
 
     //causes lag
     [self.session addOutput:self.output];
@@ -92,11 +109,11 @@
 -(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
 {
     sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
-    
+
     // send video frames to the 3DK sensor fusion engine
-    if(sensorFusion != nil && isCapturing)
+    if(dataDelegate && isCapturing)
     {
-        [sensorFusion receiveVideoFrame:sampleBuffer];
+        [dataDelegate receiveVideoFrame:sampleBuffer];
     }
     
     // send video frames to the video preview view that is set as this object's delegate

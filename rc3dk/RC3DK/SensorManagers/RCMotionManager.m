@@ -25,6 +25,7 @@
     NSTimeInterval firstGyro, firstAccelerometer;
     int countGyro, countAccelerometer;
 #endif
+    id <RCSensorDataDelegate> dataDelegate;
 }
 @synthesize cmMotionManager;
 
@@ -47,21 +48,21 @@
         isCapturing = NO;
         timerMotion = nil;
         queueMotion = nil;
+        dataDelegate = [RCSensorFusion sharedInstance];
 	}
 	return self;
+}
+
+- (void) setDataDelegate:(id <RCSensorDataDelegate>)delegate
+{
+    dataDelegate = delegate;
 }
 
 /** @returns True if successfully started motion capture. False if setupMotionCapture has not been called, or plugins not started. */
 - (BOOL) startMotionCapture
 {
     LOGME
-    RCSensorFusion* sensorFusion = [RCSensorFusion sharedInstance];
-    
-    if(sensorFusion == nil)
-    {
-        DLog(@"Failed to start motion capture. Couldn't get the RCSensorFusion instance.");
-        return NO;
-    }
+
     if(cmMotionManager == nil)
     {
         DLog(@"Failed to start motion capture. Motion Manager is nil");
@@ -99,13 +100,13 @@
 
 - (void)timerCallback:(id)userInfo
 {
-    RCSensorFusion* sensorFusion = [RCSensorFusion sharedInstance];
     NSTimeInterval now = [[NSProcessInfo processInfo] systemUptime];
     CMGyroData *gyroData = cmMotionManager.gyroData;
     double delta = now - gyroData.timestamp; //make sure the data is not too stale
     if(gyroData && gyroData.timestamp != lastGyro && delta < .04)
     {
-        [sensorFusion receiveGyroData:gyroData];
+        if(dataDelegate)
+            [dataDelegate receiveGyroData:gyroData];
         lastGyro = gyroData.timestamp;
 #ifdef DEBUG_TIMER
         if(!countGyro) firstGyro = lastGyro;
@@ -116,7 +117,8 @@
     delta = now - gyroData.timestamp; //make sure the data is not too stale
     if(accelerometerData && accelerometerData.timestamp != lastAccelerometer && delta < .04)
     {
-        [sensorFusion receiveAccelerometerData:accelerometerData];
+        if(dataDelegate)
+            [dataDelegate receiveAccelerometerData:accelerometerData];
         lastAccelerometer = accelerometerData.timestamp;
 #ifdef DEBUG_TIMER
         if(!countAccelerometer) firstAccelerometer = lastAccelerometer;
@@ -163,8 +165,8 @@
              //                   gyroData.rotationRate.y,
              //                   gyroData.rotationRate.z);
              
-             RCSensorFusion* sensorFusion = [RCSensorFusion sharedInstance];
-             [sensorFusion receiveGyroData:gyroData];
+             if(dataDelegate)
+                 [dataDelegate receiveGyroData:gyroData];
              lastGyro = gyroData.timestamp;
 #ifdef DEBUG_TIMER
              if(!countGyro) firstGyro = gyroData.timestamp;
@@ -184,9 +186,9 @@
              //                    accelerometerData.acceleration.x,
              //                    accelerometerData.acceleration.y,
              //                    accelerometerData.acceleration.z);
-             
-             RCSensorFusion* sensorFusion = [RCSensorFusion sharedInstance];
-             [sensorFusion receiveAccelerometerData:accelerometerData];
+
+             if(dataDelegate)
+                 [dataDelegate receiveAccelerometerData:accelerometerData];
              lastAccelerometer = accelerometerData.timestamp;
 #ifdef DEBUG_TIMER
              if(!countAccelerometer) firstAccelerometer = accelerometerData.timestamp;

@@ -9,19 +9,11 @@
 #import <Foundation/Foundation.h>
 #import <AVFoundation/AVFoundation.h>
 
-@protocol RCCaptureManagerDelegate <NSObject>
+#import "RCSensorFusion.h"
 
-- (void) captureDidStop;
-@optional
-- (void) captureDidStart;
+@interface RCCaptureManager : NSObject <RCSensorDataDelegate>
 
-@end
-
-@interface RCCaptureManager : NSObject <AVCaptureVideoDataOutputSampleBufferDelegate>
-
-@property (weak, nonatomic) id<RCCaptureManagerDelegate> delegate;
-
-- (void)startCaptureWithPath:(NSString *)path withDelegate:(id<RCCaptureManagerDelegate>)captureDelegate;
+- (void)startCaptureWithPath:(NSString *)path;
 - (void)stopCapture;
 
 @end

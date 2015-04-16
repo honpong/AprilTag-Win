@@ -75,8 +75,6 @@
 		328A4DD71950DB2E00587949 /* RCLicenseError.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 328A4DD31950D5F400587949 /* RCLicenseError.h */; };
 		32E757151A980149004BA247 /* NSError+RCDictionaryRepresentation.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E757141A980149004BA247 /* NSError+RCDictionaryRepresentation.m */; };
 		38EDF0771AD43D2500F0A322 /* rotation_vector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 38EDF0761AD43D2400F0A322 /* rotation_vector.cpp */; };
-		D30560131ADD257B002BD682 /* Shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = D30560111ADD257B002BD682 /* Shader.fsh */; };
-		D30560141ADD257B002BD682 /* Shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = D30560121ADD257B002BD682 /* Shader.vsh */; };
 		D31EC5381A5F1E5B0003379A /* libzxing.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D31EC5371A5F1E5B0003379A /* libzxing.a */; };
 		D31EC5391A5F1E9E0003379A /* libzxing.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D31EC5371A5F1E5B0003379A /* libzxing.a */; };
 		D321AD3E1A323C17003AEA77 /* camera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D321AD301A323BF7003AEA77 /* camera.cpp */; };
@@ -86,6 +84,8 @@
 		D321AD421A323C17003AEA77 /* stereo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D321AD371A323BF7003AEA77 /* stereo.cpp */; };
 		D326CED71ADFC62C003B026B /* CaptureViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = D326CED61ADFC62C003B026B /* CaptureViewController.mm */; };
 		D32D21EC1AE003290070A8F0 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D32D21EB1AE003290070A8F0 /* GLKit.framework */; };
+		D32D21EF1AE006E80070A8F0 /* shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = D32D21ED1AE006950070A8F0 /* shader.fsh */; };
+		D32D21F01AE006E80070A8F0 /* shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = D32D21EE1AE006950070A8F0 /* shader.vsh */; };
 		D33B00581A20CA8E00287FC9 /* sift.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7FB1A1E010E00BBB1FF /* sift.c */; };
 		D33B00591A20CAB700287FC9 /* generic.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7C91A1E010E00BBB1FF /* generic.c */; };
 		D33B005A1A20CACE00287FC9 /* imopv.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7DD1A1E010E00BBB1FF /* imopv.c */; };
@@ -507,8 +507,6 @@
 		32E757131A980149004BA247 /* NSError+RCDictionaryRepresentation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSError+RCDictionaryRepresentation.h"; sourceTree = "<group>"; };
 		32E757141A980149004BA247 /* NSError+RCDictionaryRepresentation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSError+RCDictionaryRepresentation.m"; sourceTree = "<group>"; };
 		38EDF0761AD43D2400F0A322 /* rotation_vector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rotation_vector.cpp; sourceTree = "<group>"; };
-		D30560111ADD257B002BD682 /* Shader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Shader.fsh; path = Shaders/Shader.fsh; sourceTree = "<group>"; };
-		D30560121ADD257B002BD682 /* Shader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = Shader.vsh; path = Shaders/Shader.vsh; sourceTree = "<group>"; };
 		D31EC5371A5F1E5B0003379A /* libzxing.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libzxing.a; sourceTree = "<group>"; };
 		D321AD301A323BF7003AEA77 /* camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = camera.cpp; sourceTree = "<group>"; };
 		D321AD311A323BF7003AEA77 /* fundamental.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fundamental.cpp; sourceTree = "<group>"; };
@@ -521,6 +519,8 @@
 		D321AD381A323BF7003AEA77 /* stereo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stereo.h; sourceTree = "<group>"; };
 		D326CED61ADFC62C003B026B /* CaptureViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CaptureViewController.mm; sourceTree = "<group>"; };
 		D32D21EB1AE003290070A8F0 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
+		D32D21ED1AE006950070A8F0 /* shader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = shader.fsh; path = ../../corvis/src/vis/shader.fsh; sourceTree = "<group>"; };
+		D32D21EE1AE006950070A8F0 /* shader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = shader.vsh; path = ../../corvis/src/vis/shader.vsh; sourceTree = "<group>"; };
 		D33E61DC1ADD4ABA00569C82 /* RCReplayManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RCReplayManager.mm; sourceTree = "<group>"; };
 		D33E61DF1ADE632900569C82 /* capture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = capture.h; sourceTree = "<group>"; };
 		D33E61E01ADE632900569C82 /* capture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = capture.cpp; sourceTree = "<group>"; };
@@ -1108,20 +1108,10 @@
 		D305600F1ADD2488002BD682 /* Live */ = {
 			isa = PBXGroup;
 			children = (
-				D30560101ADD256A002BD682 /* Shaders */,
 				D35BF0E11ADD11DB00BF3CB0 /* VisualizationController.h */,
 				D34A0BE41ADFDB04008DFCCF /* VisualizationController.mm */,
 			);
 			name = Live;
-			sourceTree = "<group>";
-		};
-		D30560101ADD256A002BD682 /* Shaders */ = {
-			isa = PBXGroup;
-			children = (
-				D30560111ADD257B002BD682 /* Shader.fsh */,
-				D30560121ADD257B002BD682 /* Shader.vsh */,
-			);
-			name = Shaders;
 			sourceTree = "<group>";
 		};
 		D321AD2E1A323B6D003AEA77 /* Corvis */ = {
@@ -1155,6 +1145,8 @@
 			children = (
 				D34A0BEB1ADFFA33008DFCCF /* arcball.h */,
 				D34A0BEA1ADFFA33008DFCCF /* arcball.cpp */,
+				D32D21ED1AE006950070A8F0 /* shader.fsh */,
+				D32D21EE1AE006950070A8F0 /* shader.vsh */,
 				D34A0BE61ADFE621008DFCCF /* world_state.h */,
 				D34A0BE71ADFE621008DFCCF /* world_state.cpp */,
 			);
@@ -1483,12 +1475,12 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D30560131ADD257B002BD682 /* Shader.fsh in Resources */,
+				D32D21EF1AE006E80070A8F0 /* shader.fsh in Resources */,
+				D32D21F01AE006E80070A8F0 /* shader.vsh in Resources */,
 				D35BF0B31ADD111500BF3CB0 /* Main.storyboard in Resources */,
 				D35BF0FD1ADD122800BF3CB0 /* holding_landscape.jpg in Resources */,
 				D35BF0FC1ADD122800BF3CB0 /* Calibration.storyboard in Resources */,
 				D35BF0FF1ADD122800BF3CB0 /* ipad_on_table.jpg in Resources */,
-				D30560141ADD257B002BD682 /* Shader.vsh in Resources */,
 				D35BF0B81ADD111500BF3CB0 /* LaunchScreen.xib in Resources */,
 				D35BF0FE1ADD122800BF3CB0 /* holding_portrait.jpg in Resources */,
 				D35BF0B51ADD111500BF3CB0 /* Images.xcassets in Resources */,

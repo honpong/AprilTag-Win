@@ -1,11 +1,3 @@
-//
-//  Shader.vsh
-//  RC3DKMobileVis
-//
-//  Created by Brian on 2/28/14.
-//  Copyright (c) 2014 Realitycap. All rights reserved.
-//
-
 attribute vec4 position;
 attribute vec4 color;
 attribute vec3 normal;

@@ -89,23 +89,23 @@ void IMUManager::StopSensors()
 void IMUManager::ReadAccelerometerData(Object^ sender, Object^ e)
 {
 	AccelerometerReading^ reading = accelerometer->GetCurrentReading();
-	String^ timestamp = reading->Timestamp.UniversalTime.ToString();
-	Debug::Log(L"%s\taccel\tx: %1.3f\ty: %1.3f\tz: %1.3f", timestamp->Data(), reading->AccelerationX, reading->AccelerationY, reading->AccelerationZ);
+	long long millisec = reading->Timestamp.UniversalTime / 10000;
+	Debug::Log(L"%lld\taccel\tx: %1.3f\ty: %1.3f\tz: %1.3f", millisec, reading->AccelerationX, reading->AccelerationY, reading->AccelerationZ);
 }
 
 // subscription
 void IMUManager::AccelReadingChanged(Accelerometer^ sender, AccelerometerReadingChangedEventArgs^ e)
 {
 	AccelerometerReading^ reading = e->Reading;
-	String^ timestamp = reading->Timestamp.UniversalTime.ToString();
-	Debug::Log(L"%s\taccel\tx: %1.3f\ty: %1.3f\tz: %1.3f", timestamp->Data(), reading->AccelerationX, reading->AccelerationY, reading->AccelerationZ);
+	long long millisec = reading->Timestamp.UniversalTime / 10000;
+	Debug::Log(L"%lld\taccel\tx: %1.3f\ty: %1.3f\tz: %1.3f", millisec, reading->AccelerationX, reading->AccelerationY, reading->AccelerationZ);
 }
 
 void IMUManager::GyroReadingChanged(Gyrometer^ sender, GyrometerReadingChangedEventArgs^ e)
 {
 	GyrometerReading^ reading = e->Reading;
-	String^ timestamp = reading->Timestamp.UniversalTime.ToString();
-	Debug::Log(L"%s\tgyro\tx: %1.3f\ty: %1.3f\tz: %1.3f", timestamp->Data(), reading->AngularVelocityX, reading->AngularVelocityY, reading->AngularVelocityZ);
+	long long millisec = reading->Timestamp.UniversalTime / 10000;
+	Debug::Log(L"%lld\tgyro\tx: %1.3f\ty: %1.3f\tz: %1.3f", millisec, reading->AngularVelocityX, reading->AngularVelocityY, reading->AngularVelocityZ);
 
 	if (USE_WIN32_AMETER_API) // instead of setting up a timer for polling the ameter, we can use this event handler to poll in sync with the gyro
 	{

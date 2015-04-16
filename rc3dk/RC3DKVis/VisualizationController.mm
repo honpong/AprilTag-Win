@@ -7,10 +7,10 @@
 //
 
 #import "VisualizationController.h"
-#import "ArcBall.h"
 #import "MBProgressHUD.h"
 #import "RC3DK.h"
 #include "world_state.h"
+#include "arcball.h"
 
 #define INITIAL_LIMITS 3.
 #define POINT_SIZE 3.0
@@ -65,7 +65,7 @@ static VertexData axisVertex[] = {
     float viewpointTime;
     world_state state;
 
-    ArcBall * arcball;
+    arcball arc;
 
     GLuint _program;
 
@@ -125,8 +125,6 @@ static VertexData axisVertex[] = {
     [self setViewpoint:RCViewpointManual];
     featuresFilter = RCFeatureFilterShowGood;
 
-    arcball = [[ArcBall alloc] init];
-    
     progressView = [[MBProgressHUD alloc] initWithView:self.view];
     [self.view addSubview:progressView];
 }
@@ -340,9 +338,9 @@ static VertexData axisVertex[] = {
     CGPoint translation = [sender translationInView:self.view];
     
     if (sender.state == UIGestureRecognizerStateBegan)
-        [arcball startRotation:translation];
+        arc.start_rotation(translation.x, translation.y);
     else if (sender.state == UIGestureRecognizerStateChanged)
-        [arcball continueRotation:translation];
+        arc.continue_rotation(translation.x, translation.y);
 }
 
 - (IBAction)handlePinchGesture:(UIPinchGestureRecognizer*)sender
@@ -369,9 +367,9 @@ static VertexData axisVertex[] = {
 - (IBAction)handleRotationGesture:(UIRotationGestureRecognizer*)sender
 {
     if(sender.state == UIGestureRecognizerStateBegan)
-        [arcball startViewRotation:sender.rotation];
+        arc.start_view_rotation(sender.rotation);
     else if(sender.state == UIGestureRecognizerStateChanged)
-        [arcball continueViewRotation:sender.rotation];
+        arc.continue_view_rotation(sender.rotation);
 }
 
 #pragma OpenGL Visualization
@@ -537,7 +535,10 @@ void setColor(VertexData * vertex, GLuint r, GLuint g, GLuint b, GLuint alpha)
         modelView = [self animateCamera:timeSinceLastUpdate withModelView:modelView];
     }
     else { // currentViewpoint == RCViewpointManual
-        modelView = [arcball rotateMatrixByArcBall:modelView];
+        quaternion q = arc.get_quaternion();
+        GLKMatrix4 user_rotation = GLKMatrix4MakeWithQuaternion(GLKQuaternionMake(q.x(), q.y(), q.z(), q.w()));
+
+        modelView = GLKMatrix4Multiply(modelView, user_rotation);
         modelView = GLKMatrix4Multiply(GLKMatrix4MakeTranslation(0, 0, -6), modelView);
     }
 

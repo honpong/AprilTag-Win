@@ -85,6 +85,7 @@
 		D321AD411A323C17003AEA77 /* stereo_mesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D321AD351A323BF7003AEA77 /* stereo_mesh.cpp */; };
 		D321AD421A323C17003AEA77 /* stereo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D321AD371A323BF7003AEA77 /* stereo.cpp */; };
 		D326CED71ADFC62C003B026B /* CaptureViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = D326CED61ADFC62C003B026B /* CaptureViewController.mm */; };
+		D32D21EC1AE003290070A8F0 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D32D21EB1AE003290070A8F0 /* GLKit.framework */; };
 		D33B00581A20CA8E00287FC9 /* sift.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7FB1A1E010E00BBB1FF /* sift.c */; };
 		D33B00591A20CAB700287FC9 /* generic.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7C91A1E010E00BBB1FF /* generic.c */; };
 		D33B005A1A20CACE00287FC9 /* imopv.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7DD1A1E010E00BBB1FF /* imopv.c */; };
@@ -124,6 +125,8 @@
 		D34A0BE51ADFDB04008DFCCF /* VisualizationController.mm in Sources */ = {isa = PBXBuildFile; fileRef = D34A0BE41ADFDB04008DFCCF /* VisualizationController.mm */; };
 		D34A0BE81ADFE621008DFCCF /* world_state.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D34A0BE71ADFE621008DFCCF /* world_state.cpp */; };
 		D34A0BE91ADFE665008DFCCF /* world_state.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D34A0BE71ADFE621008DFCCF /* world_state.cpp */; };
+		D34A0BEC1ADFFA33008DFCCF /* arcball.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D34A0BEA1ADFFA33008DFCCF /* arcball.cpp */; };
+		D34A0BED1ADFFA36008DFCCF /* arcball.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D34A0BEA1ADFFA33008DFCCF /* arcball.cpp */; };
 		D351C6171A1E7EF7003DF3F3 /* RC3DKPlus.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D3B4EABD1A1E7DCC00BE0443 /* RC3DKPlus.h */; };
 		D3588EF31A20C04000CA10E7 /* bp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F7A41A1E010E00BBB1FF /* bp.cpp */; };
 		D3588EF41A20C04300CA10E7 /* trwbp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D392F7B71A1E010E00BBB1FF /* trwbp.cpp */; };
@@ -154,7 +157,6 @@
 		D35BF0B31ADD111500BF3CB0 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D35BF0B11ADD111500BF3CB0 /* Main.storyboard */; };
 		D35BF0B51ADD111500BF3CB0 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = D35BF0B41ADD111500BF3CB0 /* Images.xcassets */; };
 		D35BF0B81ADD111500BF3CB0 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = D35BF0B61ADD111500BF3CB0 /* LaunchScreen.xib */; };
-		D35BF0E31ADD11DB00BF3CB0 /* ArcBall.m in Sources */ = {isa = PBXBuildFile; fileRef = D35BF0D31ADD11DB00BF3CB0 /* ArcBall.m */; };
 		D35BF0E41ADD11DB00BF3CB0 /* CaptureFilename.m in Sources */ = {isa = PBXBuildFile; fileRef = D35BF0D41ADD11DB00BF3CB0 /* CaptureFilename.m */; };
 		D35BF0E61ADD11DB00BF3CB0 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D35BF0D61ADD11DB00BF3CB0 /* MainViewController.m */; };
 		D35BF0E71ADD11DB00BF3CB0 /* ReplayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D35BF0D71ADD11DB00BF3CB0 /* ReplayViewController.m */; };
@@ -518,6 +520,7 @@
 		D321AD371A323BF7003AEA77 /* stereo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = stereo.cpp; sourceTree = "<group>"; };
 		D321AD381A323BF7003AEA77 /* stereo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stereo.h; sourceTree = "<group>"; };
 		D326CED61ADFC62C003B026B /* CaptureViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CaptureViewController.mm; sourceTree = "<group>"; };
+		D32D21EB1AE003290070A8F0 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
 		D33E61DC1ADD4ABA00569C82 /* RCReplayManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RCReplayManager.mm; sourceTree = "<group>"; };
 		D33E61DF1ADE632900569C82 /* capture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = capture.h; sourceTree = "<group>"; };
 		D33E61E01ADE632900569C82 /* capture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = capture.cpp; sourceTree = "<group>"; };
@@ -539,6 +542,8 @@
 		D34A0BE41ADFDB04008DFCCF /* VisualizationController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = VisualizationController.mm; sourceTree = "<group>"; };
 		D34A0BE61ADFE621008DFCCF /* world_state.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = world_state.h; path = ../../corvis/src/vis/world_state.h; sourceTree = "<group>"; };
 		D34A0BE71ADFE621008DFCCF /* world_state.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = world_state.cpp; path = ../../corvis/src/vis/world_state.cpp; sourceTree = "<group>"; };
+		D34A0BEA1ADFFA33008DFCCF /* arcball.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = arcball.cpp; path = ../../corvis/src/vis/arcball.cpp; sourceTree = "<group>"; };
+		D34A0BEB1ADFFA33008DFCCF /* arcball.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = arcball.h; path = ../../corvis/src/vis/arcball.h; sourceTree = "<group>"; };
 		D35BF0A51ADD111500BF3CB0 /* RC3DKVis.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RC3DKVis.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D35BF0A81ADD111500BF3CB0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		D35BF0A91ADD111500BF3CB0 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -547,12 +552,10 @@
 		D35BF0B21ADD111500BF3CB0 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		D35BF0B41ADD111500BF3CB0 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		D35BF0B71ADD111500BF3CB0 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
-		D35BF0D31ADD11DB00BF3CB0 /* ArcBall.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ArcBall.m; sourceTree = "<group>"; };
 		D35BF0D41ADD11DB00BF3CB0 /* CaptureFilename.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CaptureFilename.m; sourceTree = "<group>"; };
 		D35BF0D61ADD11DB00BF3CB0 /* MainViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MainViewController.m; path = ../../rc3dk/RC3DKVis/MainViewController.m; sourceTree = "<group>"; };
 		D35BF0D71ADD11DB00BF3CB0 /* ReplayViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ReplayViewController.m; sourceTree = "<group>"; };
 		D35BF0D81ADD11DB00BF3CB0 /* RoundedButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RoundedButton.m; path = ../../rc3dk/RC3DKVis/RoundedButton.m; sourceTree = "<group>"; };
-		D35BF0DB1ADD11DB00BF3CB0 /* ArcBall.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ArcBall.h; sourceTree = "<group>"; };
 		D35BF0DC1ADD11DB00BF3CB0 /* CaptureFilename.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CaptureFilename.h; sourceTree = "<group>"; };
 		D35BF0DD1ADD11DB00BF3CB0 /* CaptureViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CaptureViewController.h; sourceTree = "<group>"; };
 		D35BF0DE1ADD11DB00BF3CB0 /* MainViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainViewController.h; sourceTree = "<group>"; };
@@ -704,6 +707,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D32D21EC1AE003290070A8F0 /* GLKit.framework in Frameworks */,
 				D33E9D501ADD1F070085F35C /* libRC3DKPlus.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -840,6 +844,7 @@
 		327B54E118EB4CC90001CCE1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D32D21EB1AE003290070A8F0 /* GLKit.framework */,
 				325F2E831ACB7D1D00145B9C /* libNocilla.a */,
 				D31EC5371A5F1E5B0003379A /* libzxing.a */,
 				327B563518EB5ECA0001CCE1 /* OpenGLES.framework */,
@@ -1104,8 +1109,6 @@
 			isa = PBXGroup;
 			children = (
 				D30560101ADD256A002BD682 /* Shaders */,
-				D35BF0DB1ADD11DB00BF3CB0 /* ArcBall.h */,
-				D35BF0D31ADD11DB00BF3CB0 /* ArcBall.m */,
 				D35BF0E11ADD11DB00BF3CB0 /* VisualizationController.h */,
 				D34A0BE41ADFDB04008DFCCF /* VisualizationController.mm */,
 			);
@@ -1150,6 +1153,8 @@
 		D326CED81ADFD82C003B026B /* vis */ = {
 			isa = PBXGroup;
 			children = (
+				D34A0BEB1ADFFA33008DFCCF /* arcball.h */,
+				D34A0BEA1ADFFA33008DFCCF /* arcball.cpp */,
 				D34A0BE61ADFE621008DFCCF /* world_state.h */,
 				D34A0BE71ADFE621008DFCCF /* world_state.cpp */,
 			);
@@ -1588,6 +1593,7 @@
 				327B557C18EB4DC20001CCE1 /* RCVector.m in Sources */,
 				327B55BE18EB4F3A0001CCE1 /* filter.cpp in Sources */,
 				327B553618EB4D720001CCE1 /* RCAFImageRequestOperation.m in Sources */,
+				D34A0BEC1ADFFA33008DFCCF /* arcball.cpp in Sources */,
 				327B55C118EB4F3A0001CCE1 /* observation.cpp in Sources */,
 				327B553718EB4D720001CCE1 /* RCAFJSONRequestOperation.m in Sources */,
 				327B55C218EB4F3A0001CCE1 /* state.cpp in Sources */,
@@ -1651,7 +1657,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D35BF0E31ADD11DB00BF3CB0 /* ArcBall.m in Sources */,
 				D35BF0E81ADD11DB00BF3CB0 /* RoundedButton.m in Sources */,
 				D35BF0AD1ADD111500BF3CB0 /* AppDelegate.m in Sources */,
 				D35BF0AA1ADD111500BF3CB0 /* main.m in Sources */,
@@ -1698,6 +1703,7 @@
 				D3B4EAD61A1E7DE100BE0443 /* observation.cpp in Sources */,
 				D3588F061A20C45F00CA10E7 /* random.c in Sources */,
 				D3B4EAD81A1E7DE100BE0443 /* RCAFJSONRequestOperation.m in Sources */,
+				D34A0BED1ADFFA36008DFCCF /* arcball.cpp in Sources */,
 				D3588EF41A20C04300CA10E7 /* trwbp.cpp in Sources */,
 				D3588F0B1A20C50200CA10E7 /* usermem.c in Sources */,
 				D3588EFE1A20C34400CA10E7 /* qset.c in Sources */,

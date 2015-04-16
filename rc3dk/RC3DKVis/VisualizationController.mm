@@ -132,6 +132,7 @@ GLint uniforms[NUM_UNIFORMS];
 
 - (void) viewDidAppear:(BOOL)animated
 {
+    [super viewDidAppear:animated];
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(appWillResignActive)
                                                  name:UIApplicationWillResignActiveNotification
@@ -140,6 +141,7 @@ GLint uniforms[NUM_UNIFORMS];
 
 - (void) viewWillDisappear:(BOOL)animated
 {
+    [super viewWillDisappear:animated];
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 

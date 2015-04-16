@@ -196,7 +196,24 @@ GLint uniforms[NUM_UNIFORMS];
 // RCSensorFusionDelegate delegate method. Called after each video frame is processed ~ 30hz.
 - (void)sensorFusionDidUpdateData:(RCSensorFusionData *)data
 {
-    [self updateVisualization:data];
+    for (id object in data.featurePoints)
+    {
+        RCFeaturePoint * p = object;
+        if([p initialized])
+        {
+            //NSDictionary * worldPoint = [f objectForKey:@"worldPoint"];
+            float x = p.worldPoint.x;
+            float y = p.worldPoint.y;
+            float z = p.worldPoint.z;
+            float depth = p.originalDepth.scalar;
+            float stddev = p.originalDepth.standardDeviation;
+            bool good = stddev / depth < .02;
+            state.observe_feature(data.timestamp, p.id, x, y, z, good);
+        }
+    }
+    RCRotation * R = data.transformation.rotation;
+    RCTranslation * T = data.transformation.translation;
+    state.observe_position(data.timestamp, T.x, T.y, T.z, R.quaternionW, R.quaternionX, R.quaternionY, R.quaternionZ);
 }
 
 // RCSensorFusionDelegate delegate method. Called when sensor fusion is in an error state.
@@ -236,50 +253,6 @@ GLint uniforms[NUM_UNIFORMS];
                 break;
         }
     }
-}
-
-
-// Transmits 3DK output data to the remote visualization app running on a desktop machine on the same wifi network
-- (void)updateVisualization:(RCSensorFusionData *)data
-{
-    for (id object in data.featurePoints)
-    {
-        RCFeaturePoint * p = object;
-        if([p initialized])
-        {
-            //NSDictionary * worldPoint = [f objectForKey:@"worldPoint"];
-            float x = p.worldPoint.x;
-            float y = p.worldPoint.y;
-            float z = p.worldPoint.z;
-            float depth = p.originalDepth.scalar;
-            float stddev = p.originalDepth.standardDeviation;
-            bool good = stddev / depth < .02;
-            state.observe_feature(data.timestamp, p.id, x, y, z, good);
-        }
-    }
-    RCRotation * R = data.transformation.rotation;
-    RCTranslation * T = data.transformation.translation;
-    state.observe_position(data.timestamp, T.x, T.y, T.z, R.quaternionW, R.quaternionX, R.quaternionY, R.quaternionZ);
-}
-
-// Transmits 3DK output data to the remote visualization app running on a desktop machine on the same wifi network
-- (void)updateRemoteVisualization:(RCSensorFusionData *)data
-{
-    double time = data.timestamp / 1.0e6;
-    NSMutableDictionary * packet = [[NSMutableDictionary alloc] initWithObjectsAndKeys:[NSNumber numberWithDouble:time], @"time", nil];
-    NSMutableArray * features = [[NSMutableArray alloc] initWithCapacity:[data.featurePoints count]];
-    for (id object in data.featurePoints)
-    {
-        RCFeaturePoint * p = object;
-        if([p initialized])
-        {
-            //NSLog(@"%lld %f %f %f", p.id, p.worldPoint.x, p.worldPoint.y, p.worldPoint.z);
-            NSDictionary * f = [p dictionaryRepresentation];
-            [features addObject:f];
-        }
-    }
-    [packet setObject:features forKey:@"features"];
-    [packet setObject:[[data transformation] dictionaryRepresentation] forKey:@"transformation"];
 }
 
 // Event handler for the start/stop button

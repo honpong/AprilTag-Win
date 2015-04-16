@@ -213,7 +213,7 @@
                                     <outlet property="delegate" destination="yZR-x8-t2N" id="fRP-Hc-ABq"/>
                                 </connections>
                             </tableView>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DIo-Tb-4Wb">
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" preferredMaxLayoutWidth="0.0" translatesAutoresizingMaskIntoConstraints="NO" id="DIo-Tb-4Wb">
                                 <rect key="frame" x="20" y="424" width="288" height="64"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="64" id="t4G-Zp-A4X"/>

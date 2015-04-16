@@ -852,12 +852,12 @@
 		327B54E418EB4CC90001CCE1 /* RC3DK */ = {
 			isa = PBXGroup;
 			children = (
-				D33E9D1A1ADD144D0085F35C /* Sensor Managers */,
 				D95E92D91AB86D4600EAB109 /* sensor_data.mm */,
 				D95E92DA1AB86D4600EAB109 /* sensor_data.h */,
 				327B552218EB4D720001CCE1 /* AFNetworking */,
 				327B558318EB4F130001CCE1 /* Corvis */,
 				327B558018EB4E3A0001CCE1 /* Data Classes */,
+				D33E9D1A1ADD144D0085F35C /* Sensor Managers */,
 				327B558118EB4E520001CCE1 /* Singletons */,
 				327B54E518EB4CC90001CCE1 /* Supporting Files */,
 				327B558218EB4E690001CCE1 /* Utilities */,
@@ -1154,13 +1154,13 @@
 				D33E9D1C1ADD14600085F35C /* RCAVSessionManager.m */,
 				D33E9D1D1ADD14600085F35C /* RCSensorManager.h */,
 				D33E9D1E1ADD14600085F35C /* RCSensorManager.m */,
-				D33E9D1F1ADD14600085F35C /* RCVideoManager.m */,
 				D33E9D211ADD14600085F35C /* RCLocationManager.h */,
 				D33E9D221ADD14600085F35C /* RCLocationManager.m */,
+				D33E9D261ADD14600085F35C /* RCMotionManager.h */,
 				D33E9D231ADD14600085F35C /* RCMotionManager.m */,
 				D33E9D241ADD14600085F35C /* RCVideoFrameProvider.h */,
 				D33E9D251ADD14600085F35C /* RCVideoManager.h */,
-				D33E9D261ADD14600085F35C /* RCMotionManager.h */,
+				D33E9D1F1ADD14600085F35C /* RCVideoManager.m */,
 			);
 			name = "Sensor Managers";
 			sourceTree = "<group>";

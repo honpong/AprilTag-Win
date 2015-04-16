@@ -14,7 +14,7 @@
 
 @optional
 - (void) replayProgress:(float)progress;
-- (void) replayFinished;
+- (void) replayFinishedWithLength:(float)length withPathLength:(float)pathLength;
 
 @end
 

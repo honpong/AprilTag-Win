@@ -21,7 +21,7 @@
 
 @implementation ReplayViewController
 
-@synthesize startButton, progressBar, progressText;
+@synthesize startButton, progressBar, progressText, outputLabel;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
@@ -74,9 +74,10 @@
     [self setProgressPercentage:progress];
 }
 
-- (void) replayFinished
+- (void) replayFinishedWithLength:(float)length withPathLength:(float)pathLength
 {
     NSLog(@"Replay finished");
+    [outputLabel setText:[NSString stringWithFormat:@"Straight line length: %f cm\nPath length: %f cm", length, pathLength]];
     [self stopReplay];
 }
 

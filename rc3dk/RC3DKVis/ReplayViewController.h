@@ -15,11 +15,12 @@
 - (IBAction) startStopClicked:(id)sender;
 
 - (void) replayProgress:(float)progress;
-- (void) replayFinished;
+- (void) replayFinishedWithLength:(float)length withPathLength:(float)pathLength;
 
 @property (weak,nonatomic) IBOutlet UILabel * progressText;
 @property (weak,nonatomic) IBOutlet UIProgressView * progressBar;
 @property (weak,nonatomic) IBOutlet UIButton * startButton;
 @property (weak,nonatomic) IBOutlet UISwitch * realtimeSwitch;
 @property (weak,nonatomic) IBOutlet UITableView * replayFilesTableView;
+@property (weak, nonatomic) IBOutlet UILabel *outputLabel;
 @end

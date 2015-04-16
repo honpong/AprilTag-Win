@@ -182,7 +182,7 @@
                                 <rect key="frame" x="20" y="283" width="280" height="2"/>
                             </progressView>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="50%" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="FRH-zw-4N8">
-                                <rect key="frame" x="20" y="254" width="280" height="21"/>
+                                <rect key="frame" x="20" y="254" width="280" height="20.5"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
@@ -200,19 +200,25 @@
                                 <rect key="frame" x="251" y="454" width="51" height="31"/>
                             </switch>
                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Replay in real time" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BiW-zf-94q">
-                                <rect key="frame" x="20" y="459" width="142" height="21"/>
+                                <rect key="frame" x="20" y="459" width="141.5" height="20.5"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="17"/>
                                 <color key="textColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="44" sectionHeaderHeight="22" sectionFooterHeight="22" translatesAutoresizingMaskIntoConstraints="NO" id="rdk-mE-81K">
-                                <rect key="frame" x="20" y="28" width="280" height="218"/>
+                                <rect key="frame" x="20" y="28" width="280" height="218.5"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                 <connections>
                                     <outlet property="dataSource" destination="yZR-x8-t2N" id="eU6-vY-tgj"/>
                                     <outlet property="delegate" destination="yZR-x8-t2N" id="fRP-Hc-ABq"/>
                                 </connections>
                             </tableView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="DIo-Tb-4Wb">
+                                <rect key="frame" x="20" y="382" width="280" height="64"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" cocoaTouchSystemColor="darkTextColor"/>
+                                <nil key="highlightedColor"/>
+                            </label>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
                         <constraints>
@@ -226,7 +232,7 @@
                             <constraint firstAttribute="centerY" secondItem="ChB-Ul-dPe" secondAttribute="centerY" id="TXU-tr-HTr"/>
                             <constraint firstItem="JgN-88-z4I" firstAttribute="top" secondItem="BiW-zf-94q" secondAttribute="bottom" constant="50" id="V8T-74-4Cu"/>
                             <constraint firstAttribute="trailing" secondItem="j8S-e3-i0d" secondAttribute="trailing" constant="20" symbolic="YES" id="WrN-5q-U1u"/>
-                            <constraint firstItem="S4E-W9-zHG" firstAttribute="top" secondItem="JgN-88-z4I" secondAttribute="bottom" constant="20" symbolic="YES" id="Xoo-gX-mjK"/>
+                            <constraint firstItem="S4E-W9-zHG" firstAttribute="top" secondItem="JgN-88-z4I" secondAttribute="bottom" constant="8" symbolic="YES" id="Xoo-gX-mjK"/>
                             <constraint firstAttribute="trailing" secondItem="FRH-zw-4N8" secondAttribute="trailing" constant="20" symbolic="YES" id="Zcd-2E-QOU"/>
                             <constraint firstItem="ChB-Ul-dPe" firstAttribute="top" secondItem="FRH-zw-4N8" secondAttribute="bottom" constant="8" id="igt-EH-0Jj"/>
                             <constraint firstItem="j8S-e3-i0d" firstAttribute="centerY" secondItem="BiW-zf-94q" secondAttribute="centerY" id="kHb-P5-M8v"/>
@@ -236,6 +242,7 @@
                         </constraints>
                     </view>
                     <connections>
+                        <outlet property="outputLabel" destination="DIo-Tb-4Wb" id="phA-JC-WKz"/>
                         <outlet property="progressBar" destination="ChB-Ul-dPe" id="9Id-yP-dee"/>
                         <outlet property="progressText" destination="FRH-zw-4N8" id="WHf-qm-3Tj"/>
                         <outlet property="realtimeSwitch" destination="j8S-e3-i0d" id="04t-Pn-VKH"/>

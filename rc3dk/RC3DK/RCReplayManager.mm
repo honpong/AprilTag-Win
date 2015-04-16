@@ -44,9 +44,9 @@
     NSLog(@"Straight-line length is %.2f cm, total path length %.2f cm\n", rp.get_length(), rp.get_path_length());
     fprintf(stderr, "Dispatched %llu packets %.2f Mbytes\n", rp.get_packets_dispatched(), rp.get_bytes_dispatched()/1.e6);
 
-    if(delegate && [delegate respondsToSelector:@selector(replayFinished)])
+    if(delegate && [delegate respondsToSelector:@selector(replayFinishedWithLength:withPathLength:)])
         dispatch_async(dispatch_get_main_queue(), ^{
-            [delegate replayFinished];
+            [delegate replayFinishedWithLength:rp.get_length() withPathLength:rp.get_path_length()];
         });
 
 }

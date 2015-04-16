@@ -6,6 +6,7 @@
 #include "IMUManager.h"
 #include "AccelerometerManager.h"
 #include "Debug.h"
+#include "LocationManager.h"
 
 #using <Windows.winmd>
 #using <Platform.winmd>
@@ -55,6 +56,9 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 	IMUManager^ imuMan = IMUManager::GetSharedInstance();
 	imuMan->StartSensors();
+
+	LocationManager^ locationManager = LocationManager::GetSharedInstance();
+	locationManager->GetLocationAndCache();
 
 	// Main message loop:
 	while (GetMessage(&msg, NULL, 0, 0))

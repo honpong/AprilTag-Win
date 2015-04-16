@@ -110,6 +110,7 @@
     <ClInclude Include="AccelerometerManager.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="IMUManager.h" />
+    <ClInclude Include="LocationManager.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="SensorIntegration.h" />
     <ClInclude Include="stdafx.h" />
@@ -119,6 +120,7 @@
     <ClCompile Include="AccelerometerManager.cpp" />
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="IMUManager.cpp" />
+    <ClCompile Include="LocationManager.cpp" />
     <ClCompile Include="SensorIntegration.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

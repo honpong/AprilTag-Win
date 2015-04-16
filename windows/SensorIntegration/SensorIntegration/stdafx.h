@@ -28,3 +28,6 @@
 
 #include <PortableDeviceApi.h>
 #include <InitGuid.h> 
+
+#include <collection.h>
+#include <ppltasks.h>

@@ -91,8 +91,6 @@ GLint uniforms[NUM_UNIFORMS];
     view.drawableDepthFormat = GLKViewDrawableDepthFormat24;
     view.drawableMultisample = GLKViewDrawableMultisample4X;
 
-    //state = [WorldState sharedInstance];
-
     [self setupGL];
 
     currentScale = 1;
@@ -183,7 +181,7 @@ GLint uniforms[NUM_UNIFORMS];
 - (void) endHoldingPeriod
 {
     [self hideProgress];
-    [self showMessage:@"Move around. The blue line is the path the device traveled. The dots are visual features being tracked. The grid lines are 1 meter apart." autoHide:NO];
+    [self showMessage:@"Move around. The blue line is the path the device traveled. The dots are visual features being tracked. The grid lines are 1 meter apart." autoHide:YES];
 }
 
 - (void)stopSensorFusion
@@ -227,7 +225,7 @@ GLint uniforms[NUM_UNIFORMS];
     }
     else if (status.runState == RCSensorFusionRunStateRunning)
     {
-        [self hideProgress];
+        [self endHoldingPeriod];
     }
     
     if ([status.error isKindOfClass:[RCSensorFusionError class]])

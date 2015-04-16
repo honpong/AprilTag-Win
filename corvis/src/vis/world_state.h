@@ -5,6 +5,11 @@
 #include <vector>
 #include "../numerics/transformation.h"
 
+typedef struct _VertexData {
+    float position[3];
+    unsigned char color[4];
+} VertexData;
+
 typedef struct _feature {
     float x, y, z;
     uint64_t last_seen;
@@ -18,14 +23,26 @@ typedef struct _position {
 
 class world_state
 {
-public:
-    // TODO: always lock before reading these
+private:
     std::map<uint64_t, Feature> features;
     std::vector<Position> path;
     uint64_t current_feature_timestamp;
     uint64_t current_timestamp;
-    std::mutex display_lock;
+    int path_vertex_alloc = 1000;
+    int feature_vertex_alloc = 1000;
+    void build_grid_vertex_data();
 
+public:
+    std::mutex display_lock;
+    VertexData * grid_vertex;
+    VertexData * axis_vertex;
+    VertexData * path_vertex;
+    VertexData * feature_vertex;
+    int grid_vertex_num, axis_vertex_num, path_vertex_num, feature_vertex_num;
+
+    world_state();
+    ~world_state();
+    void update_vertex_arrays(bool show_only_good=true);
     void observe_feature(uint64_t timestamp, uint64_t feature_id, float x, float y, float z, bool good);
     void observe_position(uint64_t timestamp, float x, float y, float z, float qw, float qx, float qy, float qz);
     void reset() {

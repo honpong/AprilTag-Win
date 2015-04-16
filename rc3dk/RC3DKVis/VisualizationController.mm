@@ -13,7 +13,6 @@
 #include "arcball.h"
 
 #define INITIAL_LIMITS 3.
-#define POINT_SIZE 3.0
 #define PERSPECTIVE
 
 // Uniform index for Shader.vsh
@@ -24,31 +23,6 @@ enum
     NUM_UNIFORMS
 };
 GLint uniforms[NUM_UNIFORMS];
-
-typedef struct _VertexData {
-    GLfloat position[3];
-    GLubyte color[4];
-} VertexData;
-
-static VertexData * featureVertex;
-static int nfeatures;
-static int nfeaturesalloc = 1000;
-
-static VertexData * pathVertex;
-static int npath;
-static int npathalloc = 1000;
-
-static VertexData * gridVertex;
-static int ngrid;
-
-static VertexData axisVertex[] = {
-    {{0, 0, 0}, {221, 141, 81, 255}},
-    {{.5, 0, 0}, {221, 141, 81, 255}},
-    {{0, 0, 0}, {0, 201, 89, 255}},
-    {{0, .5, 0}, {0, 201, 89, 255}},
-    {{0, 0, 0}, {247, 88, 98, 255}},
-    {{0, 0, .5}, {247, 88, 98, 255}},
-};
 
 @interface VisualizationController () {
     /* RC3DK */
@@ -391,86 +365,15 @@ static VertexData axisVertex[] = {
     xMax = INITIAL_LIMITS;
     yMin = -INITIAL_LIMITS;
     yMax = INITIAL_LIMITS;
-
-    pathVertex = (VertexData *)calloc(sizeof(VertexData), npathalloc);
-    featureVertex = (VertexData *)calloc(sizeof(VertexData), nfeaturesalloc);
-    [self buildGridVertexData];
 }
 
 - (void)tearDownGL
 {
     [EAGLContext setCurrentContext:self.context];
-    if(pathVertex)
-        free(pathVertex);
-    if(featureVertex)
-        free(featureVertex);
-    if(gridVertex)
-        free(gridVertex);
 
     if (_program) {
         glDeleteProgram(_program);
         _program = 0;
-    }
-}
-
-
-void setPosition(VertexData * vertex, float x, float y, float z)
-{
-    vertex->position[0] = x;
-    vertex->position[1] = y;
-    vertex->position[2] = z;
-}
-
-void setColor(VertexData * vertex, GLuint r, GLuint g, GLuint b, GLuint alpha)
-{
-    vertex->color[0] = r;
-    vertex->color[1] = g;
-    vertex->color[2] = b;
-    vertex->color[3] = alpha;
-}
-
-- (void)buildGridVertexData {
-    float scale = 1; /* meter */
-    ngrid = 21*16; /* -10 to 10 with 16 each iteration */
-    gridVertex = (VertexData *)calloc(sizeof(VertexData), ngrid);
-    /* Grid */
-    int idx = 0;
-    GLuint gridColor[4] = {122, 126, 146, 255};
-    for(float x = -10*scale; x < 11*scale; x += scale)
-    {
-        setColor(&gridVertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        setPosition(&gridVertex[idx++], x, -10*scale, 0);
-        setColor(&gridVertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        setPosition(&gridVertex[idx++], x, 10*scale, 0);
-        setColor(&gridVertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        setPosition(&gridVertex[idx++], -10*scale, x, 0);
-        setColor(&gridVertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        setPosition(&gridVertex[idx++], 10*scale, x, 0);
-        setColor(&gridVertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        setPosition(&gridVertex[idx++], -0, -10*scale, 0);
-        setColor(&gridVertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        setPosition(&gridVertex[idx++], -0, 10*scale, 0);
-        setColor(&gridVertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        setPosition(&gridVertex[idx++], -10*scale, -0, 0);
-        setColor(&gridVertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        setPosition(&gridVertex[idx++], 10*scale, -0, 0);
-
-        setColor(&gridVertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        setPosition(&gridVertex[idx++], 0, -.1*scale, x);
-        setColor(&gridVertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        setPosition(&gridVertex[idx++], 0, .1*scale, x);
-        setColor(&gridVertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        setPosition(&gridVertex[idx++], -.1*scale, 0, x);
-        setColor(&gridVertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        setPosition(&gridVertex[idx++], .1*scale, 0, x);
-        setColor(&gridVertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        setPosition(&gridVertex[idx++], 0, -.1*scale, -x);
-        setColor(&gridVertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        setPosition(&gridVertex[idx++], 0, .1*scale, -x);
-        setColor(&gridVertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        setPosition(&gridVertex[idx++], -.1*scale, 0, -x);
-        setColor(&gridVertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        setPosition(&gridVertex[idx++], .1*scale, 0, -x);
     }
 }
 
@@ -549,48 +452,8 @@ void setColor(VertexData * vertex, GLuint r, GLuint g, GLuint b, GLuint alpha)
 
 - (void)update
 {
-    /*
-     * Build vertex arrays for feature and path data
-     */
-    state.display_lock.lock();
-    int idx;
 
-    // reallocate if we now have more data than room for vertices
-    if(nfeaturesalloc < state.features.size()) {
-        featureVertex = (VertexData *)realloc(featureVertex, sizeof(VertexData)*state.features.size()*1.5);
-    }
-    if(npathalloc < state.path.size()) {
-        pathVertex = (VertexData *)realloc(pathVertex, sizeof(VertexData)*state.features.size()*1.5);
-    }
-
-    idx = 0;
-    for(auto const & item : state.features) {
-        //auto feature_id = item.first;
-        auto f = item.second;
-        if (f.last_seen == state.current_feature_timestamp)
-            setColor(&featureVertex[idx], 247, 88, 98, 255);
-        else {
-            if (featuresFilter == RCFeatureFilterShowGood && !f.good)
-                continue;
-            setColor(&featureVertex[idx], 255, 255, 255, 255);
-        }
-        setPosition(&featureVertex[idx], f.x, f.y, f.z);
-        idx++;
-    }
-    nfeatures = idx;
-
-    idx = 0;
-    for(auto p : state.path)
-    {
-        if (p.timestamp == state.current_timestamp)
-            setColor(&pathVertex[idx], 0, 255, 0, 255);
-        else
-            setColor(&pathVertex[idx], 0, 178, 206, 255); // path color
-        setPosition(&pathVertex[idx], p.g.T.x(), p.g.T.y(), p.g.T.z());
-        idx++;
-    }
-    npath = idx;
-    state.display_lock.unlock();
+    state.update_vertex_arrays(featuresFilter == RCFeatureFilterShowGood);
 
     /*
      * Build modelView matrix
@@ -637,40 +500,42 @@ void setColor(VertexData * vertex, GLuint r, GLuint g, GLuint b, GLuint alpha)
 
     glUniformMatrix3fv(uniforms[UNIFORM_NORMAL_MATRIX], 1, 0, _normalMatrix.m);
 
-    DrawModel();
+    [self DrawModel];
 }
 
-void DrawModel()
+- (void) DrawModel
 {
-    glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &gridVertex[0].position);
+    state.display_lock.lock();
+    glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &state.grid_vertex[0].position);
     glEnableVertexAttribArray(GLKVertexAttribPosition);
-    glVertexAttribPointer(GLKVertexAttribColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexData), &gridVertex[0].color);
+    glVertexAttribPointer(GLKVertexAttribColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexData), &state.grid_vertex[0].color);
     glEnableVertexAttribArray(GLKVertexAttribColor);
 
     glLineWidth(4.0f);
-    glDrawArrays(GL_LINES, 0, ngrid);
+    glDrawArrays(GL_LINES, 0, state.grid_vertex_num);
 
-    glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &axisVertex[0].position);
+    glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &state.axis_vertex[0].position);
     glEnableVertexAttribArray(GLKVertexAttribPosition);
-    glVertexAttribPointer(GLKVertexAttribColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexData), &axisVertex[0].color);
+    glVertexAttribPointer(GLKVertexAttribColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexData), &state.axis_vertex[0].color);
     glEnableVertexAttribArray(GLKVertexAttribColor);
 
     glLineWidth(8.0f);
-    glDrawArrays(GL_LINES, 0, 6);
+    glDrawArrays(GL_LINES, 0, state.axis_vertex_num);
 
-    glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &featureVertex[0].position);
+    glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &state.feature_vertex[0].position);
     glEnableVertexAttribArray(GLKVertexAttribPosition);
-    glVertexAttribPointer(GLKVertexAttribColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexData), &featureVertex[0].color);
+    glVertexAttribPointer(GLKVertexAttribColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexData), &state.feature_vertex[0].color);
     glEnableVertexAttribArray(GLKVertexAttribColor);
 
-    glDrawArrays(GL_POINTS, 0, nfeatures);
+    glDrawArrays(GL_POINTS, 0, state.feature_vertex_num);
 
-    glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &pathVertex[0].position);
+    glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &state.path_vertex[0].position);
     glEnableVertexAttribArray(GLKVertexAttribPosition);
-    glVertexAttribPointer(GLKVertexAttribColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexData), &pathVertex[0].color);
+    glVertexAttribPointer(GLKVertexAttribColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexData), &state.path_vertex[0].color);
     glEnableVertexAttribArray(GLKVertexAttribColor);
 
-    glDrawArrays(GL_POINTS, 0, npath);
+    glDrawArrays(GL_POINTS, 0, state.path_vertex_num);
+    state.display_lock.unlock();
 }
 
 - (void)setViewpoint:(RCViewpoint)viewpoint

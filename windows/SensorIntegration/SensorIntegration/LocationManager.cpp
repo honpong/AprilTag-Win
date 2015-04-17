@@ -15,15 +15,15 @@ LocationManager::LocationManager()
 {
 }
 
-LocationManager ^ RealityCap::LocationManager::GetSharedInstance()
-{
-	static LocationManager^ _sharedInstance;
-	if (_sharedInstance == nullptr)
-	{
-		_sharedInstance = ref new LocationManager();
-	}
-	return _sharedInstance;
-}
+//LocationManager ^ RealityCap::LocationManager::GetSharedInstance()
+//{
+//	static LocationManager^ _sharedInstance;
+//	if (_sharedInstance == nullptr)
+//	{
+//		_sharedInstance = ref new LocationManager();
+//	}
+//	return _sharedInstance;
+//}
 
 void RealityCap::LocationManager::GetLocationAndCache()
 {

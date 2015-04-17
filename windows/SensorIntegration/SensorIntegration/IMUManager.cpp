@@ -27,17 +27,17 @@ IMUManager::IMUManager()
 	if (gyro == nullptr) Debug::Log(L"ERROR: No gyro found");
 }
 
-IMUManager^ IMUManager::GetSharedInstance()
-{
-	Debug::Log(L"GetSharedInstance");
-	static IMUManager^ _sharedInstance;
-	if (_sharedInstance == nullptr)
-	{
-		Debug::Log(L"Instantiating shared IMUManager instance");
-		_sharedInstance = ref new IMUManager();
-	}
-	return _sharedInstance;
-}
+//IMUManager^ IMUManager::GetSharedInstance()
+//{
+//	Debug::Log(L"GetSharedInstance");
+//	static IMUManager^ _sharedInstance;
+//	if (_sharedInstance == nullptr)
+//	{
+//		Debug::Log(L"Instantiating shared IMUManager instance");
+//		_sharedInstance = ref new IMUManager();
+//	}
+//	return _sharedInstance;
+//}
 
 bool IMUManager::StartSensors()
 {

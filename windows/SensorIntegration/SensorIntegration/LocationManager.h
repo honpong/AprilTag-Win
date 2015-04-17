@@ -15,7 +15,7 @@ namespace RealityCap
 
 	public:
 		LocationManager();
-		static LocationManager^ GetSharedInstance();
+		//static LocationManager^ GetSharedInstance();
 		void GetLocationAndCache();
 		property Windows::Devices::Geolocation::Geoposition^ cachedPosition
 		{

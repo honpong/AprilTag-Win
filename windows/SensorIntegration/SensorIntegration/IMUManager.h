@@ -1,6 +1,5 @@
 #using <Windows.winmd>
 #using <Platform.winmd>
-#include <memory>
 #include "AccelerometerManager.h"
 
 #pragma once
@@ -11,7 +10,7 @@ namespace RealityCap
 	{
 	public:
 		IMUManager();
-		static IMUManager^ GetSharedInstance();
+		//static IMUManager^ GetSharedInstance();
 		bool StartSensors(); // returns true if all sensors started successfully
 		void StopSensors();
 

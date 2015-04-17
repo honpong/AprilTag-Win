@@ -55,10 +55,10 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_SENSORINTEGRATION));
 
-	IMUManager^ imuMan = IMUManager::GetSharedInstance();
+	IMUManager^ imuMan = ref new IMUManager();
 	imuMan->StartSensors();
 
-	LocationManager^ locationMan = LocationManager::GetSharedInstance();
+	LocationManager^ locationMan = ref new LocationManager();
 	locationMan->GetLocationAndCache();
 
 	VideoManager^ videoMan = ref new VideoManager();

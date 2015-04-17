@@ -9,7 +9,6 @@
 #import "RCVideoPreview.h"
 #import <CoreMedia/CoreMedia.h>
 #import "RCGLManagerFactory.h"
-#import "RCDebugLog.h"
 #import <GLKit/GLKit.h>
 #import "RCGLShaderProgram.h"
 
@@ -132,7 +131,7 @@ void main()
     //  Create a new CVOpenGLESTexture cache
     CVReturn errCache = CVOpenGLESTextureCacheCreate(kCFAllocatorDefault, NULL, [[RCGLManagerFactory getInstance] oglContext], NULL, &videoTextureCache);
     if (errCache) {
-        DLog(@"Error at CVOpenGLESTextureCacheCreate %d", errCache);
+        NSLog(@"Error at CVOpenGLESTextureCacheCreate %d", errCache);
     }
     
     delegate = nil;
@@ -235,7 +234,7 @@ void main()
 #ifdef DEBUG
     GLenum err = glGetError();
     if(err != GL_NO_ERROR) {
-        DLog(@"OpenGL Error %d!\n", err);
+        NSLog(@"OpenGL Error %d!\n", err);
         glInsertEventMarkerEXT(0, "com.apple.GPUTools.event.debug-frame");
     }
 #endif
@@ -258,7 +257,7 @@ void main()
     glGetRenderbufferParameteriv(GL_RENDERBUFFER, GL_RENDERBUFFER_HEIGHT, &renderBufferHeight);
 
 	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        DLog(@"Failure with standard framebuffer generation");
+        NSLog(@"Failure with standard framebuffer generation");
 		success = NO;
 	}
 #ifdef MULTISAMPLE
@@ -276,7 +275,7 @@ void main()
     glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, depthRenderBuffer);
 
 	if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        DLog(@"Failure with multisample framebuffer generation");
+        NSLog(@"Failure with multisample framebuffer generation");
 		success = NO;
 	}
 #else
@@ -345,7 +344,7 @@ void main()
 	if (frameBufferHandle == 0) {
 		BOOL success = [self createBuffers];
 		if ( !success ) {
-			DLog(@"Problem initializing OpenGL buffers.");
+			NSLog(@"Problem initializing OpenGL buffers.");
             return false;
 		}
 	}
@@ -429,7 +428,7 @@ void main()
                                                        &lumaTexture);
     if (err)
     {
-        DLog(@"Error at CVOpenGLESTextureCacheCreateTextureFromImage %d", err);
+        NSLog(@"Error at CVOpenGLESTextureCacheCreateTextureFromImage %d", err);
     }
     
     glBindTexture(CVOpenGLESTextureGetTarget(lumaTexture), CVOpenGLESTextureGetName(lumaTexture));
@@ -453,7 +452,7 @@ void main()
                                                        &chromaTexture);
     if (err)
     {
-        DLog(@"Error at CVOpenGLESTextureCacheCreateTextureFromImage %d", err);
+        NSLog(@"Error at CVOpenGLESTextureCacheCreateTextureFromImage %d", err);
     }
     
     glBindTexture(CVOpenGLESTextureGetTarget(chromaTexture), CVOpenGLESTextureGetName(chromaTexture));

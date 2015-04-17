@@ -7,7 +7,6 @@
 //
 
 #import "RCGLManagerFactory.h"
-#import "RCDebugLog.h"
 
 @interface RCGLManagerImpl : NSObject <RCGLManager>
 {
@@ -33,7 +32,7 @@
 {
     oglContext = [[EAGLContext alloc] initWithAPI:kEAGLRenderingAPIOpenGLES2];
     if(!oglContext) {
-        DLog(@"Failed to create OpenGL ES context");
+        NSLog(@"Failed to create OpenGL ES context");
         return false;
     }
     [EAGLContext setCurrentContext:oglContext];

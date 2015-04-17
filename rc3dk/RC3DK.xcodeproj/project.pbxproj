@@ -40,7 +40,6 @@
 		327B557C18EB4DC20001CCE1 /* RCVector.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B556818EB4DC20001CCE1 /* RCVector.m */; };
 		327B559518EB4F250001CCE1 /* debug.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B558718EB4F250001CCE1 /* debug.c */; };
 		327B559618EB4F250001CCE1 /* dispatch.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B558918EB4F250001CCE1 /* dispatch.c */; };
-		327B559718EB4F260001CCE1 /* inbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B558B18EB4F250001CCE1 /* inbuffer.c */; };
 		327B559818EB4F260001CCE1 /* mapbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B558D18EB4F250001CCE1 /* mapbuffer.c */; };
 		327B559918EB4F260001CCE1 /* packet.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B558F18EB4F250001CCE1 /* packet.c */; };
 		327B559A18EB4F260001CCE1 /* plugins.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B559118EB4F250001CCE1 /* plugins.c */; };
@@ -172,7 +171,6 @@
 		D364AFBD1A37A21700E39511 /* homography.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D953126D1A15AE63004D6068 /* homography.cpp */; };
 		D3931E1B1A2217E5008F8940 /* random.c in Sources */ = {isa = PBXBuildFile; fileRef = D3931E191A2217D8008F8940 /* random.c */; };
 		D3931E1E1A221853008F8940 /* host.c in Sources */ = {isa = PBXBuildFile; fileRef = D3931E1C1A221850008F8940 /* host.c */; };
-		D3B4EAC91A1E7DE100BE0443 /* inbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B558B18EB4F250001CCE1 /* inbuffer.c */; };
 		D3B4EACA1A1E7DE100BE0443 /* RCLicenseError.m in Sources */ = {isa = PBXBuildFile; fileRef = 328A4DD41950D5F400587949 /* RCLicenseError.m */; };
 		D3B4EACC1A1E7DE100BE0443 /* plugins.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B559118EB4F250001CCE1 /* plugins.c */; };
 		D3B4EAD11A1E7DE100BE0443 /* RCVector.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B556818EB4DC20001CCE1 /* RCVector.m */; };
@@ -459,8 +457,6 @@
 		327B558818EB4F250001CCE1 /* debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debug.h; sourceTree = "<group>"; };
 		327B558918EB4F250001CCE1 /* dispatch.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dispatch.c; sourceTree = "<group>"; };
 		327B558A18EB4F250001CCE1 /* dispatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dispatch.h; sourceTree = "<group>"; };
-		327B558B18EB4F250001CCE1 /* inbuffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = inbuffer.c; sourceTree = "<group>"; };
-		327B558C18EB4F250001CCE1 /* inbuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = inbuffer.h; sourceTree = "<group>"; };
 		327B558D18EB4F250001CCE1 /* mapbuffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mapbuffer.c; sourceTree = "<group>"; };
 		327B558E18EB4F250001CCE1 /* mapbuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mapbuffer.h; sourceTree = "<group>"; };
 		327B558F18EB4F250001CCE1 /* packet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = packet.c; sourceTree = "<group>"; };
@@ -998,8 +994,6 @@
 				327B558818EB4F250001CCE1 /* debug.h */,
 				327B558918EB4F250001CCE1 /* dispatch.c */,
 				327B558A18EB4F250001CCE1 /* dispatch.h */,
-				327B558B18EB4F250001CCE1 /* inbuffer.c */,
-				327B558C18EB4F250001CCE1 /* inbuffer.h */,
 				327B558D18EB4F250001CCE1 /* mapbuffer.c */,
 				327B558E18EB4F250001CCE1 /* mapbuffer.h */,
 				327B558F18EB4F250001CCE1 /* packet.c */,
@@ -1577,7 +1571,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				327B559718EB4F260001CCE1 /* inbuffer.c in Sources */,
 				328A4DD51950D5F400587949 /* RCLicenseError.m in Sources */,
 				327B559A18EB4F260001CCE1 /* plugins.c in Sources */,
 				D33E61E11ADE632900569C82 /* capture.cpp in Sources */,
@@ -1675,7 +1668,6 @@
 				D3588F071A20C47100CA10E7 /* merge.c in Sources */,
 				D3588EF81A20C08F00CA10E7 /* properties.cpp in Sources */,
 				D3588F051A20C44900CA10E7 /* geom.c in Sources */,
-				D3B4EAC91A1E7DE100BE0443 /* inbuffer.c in Sources */,
 				D3931E1E1A221853008F8940 /* host.c in Sources */,
 				D3588EF71A20C06B00CA10E7 /* bipgraph.cpp in Sources */,
 				D3B4EACA1A1E7DE100BE0443 /* RCLicenseError.m in Sources */,

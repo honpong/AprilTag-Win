@@ -34,6 +34,8 @@
 @property(readonly,nonatomic) float radialFourthDegree;
 
 /** You will not typically need to instantiate this class yourself. */
-- (id) initWithFocalLength:(float)focalLength withOpticalCenterX:(float)opticalCenterX withOpticalCenterY:(float)opticalCenterY withRadialSecondDegree:(float)radialSecondDegree withRadialFourthDegree:(float)radialFouthDegree;
+- (id) initWithFocalLength:(float)focalLength withOpticalCenterX:(float)opticalCenterX withOpticalCenterY:(float)opticalCenterY withRadialSecondDegree:(float)radialSecondDegree withRadialFourthDegree:(float)radialFourthDegree;
+
+- (NSDictionary*) dictionaryRepresentation;
 
 @end

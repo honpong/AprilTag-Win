@@ -44,6 +44,13 @@
 		32B4DA791A8C198000FFBF16 /* RCCalibration1.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3296F22C1A8BD6EF0092D808 /* RCCalibration1.h */; };
 		32B4DA7A1A8C198300FFBF16 /* RCCalibration2.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3296F22E1A8BD6EF0092D808 /* RCCalibration2.h */; };
 		32B4DA7B1A8C198500FFBF16 /* RCCalibration3.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3296F2301A8BD6EF0092D808 /* RCCalibration3.h */; };
+		D3AD9B691AE1568F0096FFCC /* RCAVSessionManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D351F6141AE155AD007DBADD /* RCAVSessionManager.h */; };
+		D3AD9B6A1AE1568F0096FFCC /* RCDebugLog.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D351F6151AE155AD007DBADD /* RCDebugLog.h */; };
+		D3AD9B6B1AE1568F0096FFCC /* RCLocationManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D351F6161AE155AD007DBADD /* RCLocationManager.h */; };
+		D3AD9B6C1AE1568F0096FFCC /* RCMotionManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D351F6171AE155AD007DBADD /* RCMotionManager.h */; };
+		D3AD9B6D1AE1568F0096FFCC /* RCSensorManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D351F6181AE155AD007DBADD /* RCSensorManager.h */; };
+		D3AD9B6E1AE1568F0096FFCC /* RCVideoFrameProvider.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D351F6191AE155AD007DBADD /* RCVideoFrameProvider.h */; };
+		D3AD9B6F1AE1568F0096FFCC /* RCVideoManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D351F61A1AE155AD007DBADD /* RCVideoManager.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -53,6 +60,13 @@
 			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
+				D3AD9B691AE1568F0096FFCC /* RCAVSessionManager.h in CopyFiles */,
+				D3AD9B6A1AE1568F0096FFCC /* RCDebugLog.h in CopyFiles */,
+				D3AD9B6B1AE1568F0096FFCC /* RCLocationManager.h in CopyFiles */,
+				D3AD9B6C1AE1568F0096FFCC /* RCMotionManager.h in CopyFiles */,
+				D3AD9B6D1AE1568F0096FFCC /* RCSensorManager.h in CopyFiles */,
+				D3AD9B6E1AE1568F0096FFCC /* RCVideoFrameProvider.h in CopyFiles */,
+				D3AD9B6F1AE1568F0096FFCC /* RCVideoManager.h in CopyFiles */,
 				3207A5CD1AC0EDFB00792F30 /* RCVideoPreview.h in CopyFiles */,
 				3207A5CC1AC0EDF900792F30 /* RCGLShaderProgram.h in CopyFiles */,
 				3207A5CB1AC0EDF600792F30 /* RCGLManagerFactory.h in CopyFiles */,

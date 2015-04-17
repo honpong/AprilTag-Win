@@ -53,4 +53,10 @@
 /** You will not typically need to instantiate this class yourself. */
 - (id) initWithTransformation:(RCTransformation*)transformation withCameraTransformation:cameraTransformation withCameraParameters:(RCCameraParameters *)cameraParameters withTotalPath:(RCScalar *)totalPath withFeatures:(NSArray*)featurePoints withSampleBuffer:(CMSampleBufferRef)sampleBuffer withTimestamp:(uint64_t)timestamp withOriginQRCode:(NSString *)originQRCode;
 
+/** @returns A dictionary representation of the object, minus the sampleBuffer. */
+- (NSDictionary*) dictionaryRepresentation;
+
+/** @returns A dictionary representation of the object, minus the sampleBuffer and feature points. */
+- (NSDictionary *)dictionaryRepresentationForJsonSerialization;
+
 @end

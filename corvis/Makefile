@@ -104,7 +104,7 @@ build/%.S: src/%.cpp
 
 ############################## COR ############################
 
-COR_SOURCES := $(addprefix src/cor/, packet.c mapbuffer.c inbuffer.c timestamp.c plugins.c dispatch.c debug.c)
+COR_SOURCES := $(addprefix src/cor/, packet.c mapbuffer.c timestamp.c plugins.c dispatch.c debug.c)
 COR_CXX_SOURCES := $(addprefix src/cor/, sensor_fusion_queue.cpp platform/shell/sensor_data.cpp platform/shell/sensor_clock.cpp)
 
 bin/corvis/_cor.so: $(patsubst src/%,build/%,$(COR_SOURCES:.c=.o)) $(patsubst src/%,build/%,$(COR_CXX_SOURCES:.cpp=.o)) build/swig/_cor.o

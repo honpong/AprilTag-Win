@@ -10,9 +10,6 @@
 #import "TreasureViewController.h"
 
 #import "RC3DK.h"
-#import "RCSensorDelegate.h"
-#import "RCDebugLog.h"
-#import "RCLocationManager.h"
 
 //#import "CardboardUnity.h"
 //void _unity_getFrameParameters(float *frameParameters);
@@ -28,7 +25,6 @@
 @implementation AppDelegate
 {
     TreasureViewController *cardboardViewController;
-    id<RCSensorDelegate> mySensorDelegate;
     RCLocationManager * locationManager;
 }
 
@@ -51,7 +47,6 @@
                                  nil];
     [[NSUserDefaults standardUserDefaults] registerDefaults:appDefaults];
     
-    mySensorDelegate = [SensorDelegate sharedInstance];
     locationManager = [RCLocationManager sharedInstance];
     
     // determine if calibration has been done
@@ -77,19 +72,30 @@
     self.window.rootViewController = cardboardViewController;
 }
 
+
 - (void) gotoCalibration
 {
-    // presents the first of three calibration view controllers
-    RCCalibration1 *calibration1 = [RCCalibration1 instantiateViewController];
-    calibration1.calibrationDelegate = self;
-    calibration1.sensorDelegate = mySensorDelegate;
-    calibration1.modalPresentationStyle = UIModalPresentationFullScreen;
-    self.window.rootViewController = calibration1;
+    UIStoryboard* calStoryboard = [UIStoryboard storyboardWithName:@"Calibration" bundle:[NSBundle mainBundle]];
+    RCCalibration1* vc = [calStoryboard instantiateViewControllerWithIdentifier:@"Calibration1"];
+    vc.calibrationDelegate = self;
+    vc.modalPresentationStyle = UIModalPresentationFullScreen;
+    self.window.rootViewController = vc;
+}
+
+#pragma mark RCCalibrationDelegate methods
+
+- (void)startMotionSensors
+{
+    [[RCSensorManager sharedInstance] startMotionSensors];
+}
+
+- (void)stopMotionSensors
+{
+    [[RCSensorManager sharedInstance] stopAllSensors];
 }
 
 - (void) calibrationDidFinish:(UIViewController*)lastViewController
 {
-    LOGME
     [[NSUserDefaults standardUserDefaults] setBool:YES forKey:PREF_IS_CALIBRATED]; // set a flag to indicate calibration completed
     [self gotoMainViewController];
 }

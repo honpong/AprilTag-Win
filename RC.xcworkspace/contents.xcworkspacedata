@@ -28,7 +28,4 @@
    <FileRef
       location = "group:RC3DKSampleAR/RC3DKSampleAR.xcodeproj">
    </FileRef>
-   <FileRef
-      location = "group:rcutility/RCUtility.xcodeproj">
-   </FileRef>
 </Workspace>

@@ -28,6 +28,12 @@
  */
 - (RCTranslation *)getInverse;
 
+/** Flip one axis of the coordinate system to move between left and right handed coordinates.
+ @param axis The zero-based index of the axis (x = 0, y = 1, z = 2). Other values produced undefined behavior.
+ @returns The translation in the mirrored coordinate system.
+ */
+- (RCTranslation *)flipAxis:(int)axis;
+
 /** Compute the composition of two translations.
  
     Composition of transformations is commutative.

@@ -33,4 +33,12 @@
 // misc
 #import "RCDeviceInfo.h"
 
+// sensor managers
+#import "RCAVSessionManager.h"
+#import "RCSensorManager.h"
+#import "RCVideoManager.h"
+#import "RCLocationManager.h"
+#import "RCMotionManager.h"
+#import "RCVideoFrameProvider.h"
+
 #endif

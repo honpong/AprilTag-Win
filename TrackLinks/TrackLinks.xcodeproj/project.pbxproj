@@ -33,11 +33,6 @@
 		32BFDDB01A2E433D00D03F44 /* RCCalibration1.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDA61A2E433D00D03F44 /* RCCalibration1.m */; };
 		32BFDDB11A2E433D00D03F44 /* RCCalibration2.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDA81A2E433D00D03F44 /* RCCalibration2.m */; };
 		32BFDDB21A2E433D00D03F44 /* RCCalibration3.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDAA1A2E433D00D03F44 /* RCCalibration3.m */; };
-		32BFDDC01A2E43A700D03F44 /* RCAVSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDB51A2E43A700D03F44 /* RCAVSessionManager.m */; };
-		32BFDDC11A2E43A700D03F44 /* RCLocationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDB81A2E43A700D03F44 /* RCLocationManager.m */; };
-		32BFDDC21A2E43A700D03F44 /* RCMotionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDBA1A2E43A700D03F44 /* RCMotionManager.m */; };
-		32BFDDC31A2E43A700D03F44 /* RCSensorDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDBC1A2E43A700D03F44 /* RCSensorDelegate.m */; };
-		32BFDDC41A2E43A700D03F44 /* RCVideoManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDBF1A2E43A700D03F44 /* RCVideoManager.m */; };
 		32BFDDE31A2E451E00D03F44 /* NSObject+SBJson.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDCB1A2E451E00D03F44 /* NSObject+SBJson.m */; };
 		32BFDDE41A2E451E00D03F44 /* SBJsonParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDCE1A2E451E00D03F44 /* SBJsonParser.m */; };
 		32BFDDE51A2E451E00D03F44 /* SBJsonStreamParser.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BFDDD01A2E451E00D03F44 /* SBJsonStreamParser.m */; };
@@ -127,18 +122,6 @@
 		32BFDDA81A2E433D00D03F44 /* RCCalibration2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration2.m; sourceTree = "<group>"; };
 		32BFDDA91A2E433D00D03F44 /* RCCalibration3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration3.h; sourceTree = "<group>"; };
 		32BFDDAA1A2E433D00D03F44 /* RCCalibration3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration3.m; sourceTree = "<group>"; };
-		32BFDDB41A2E43A700D03F44 /* RCAVSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAVSessionManager.h; sourceTree = "<group>"; };
-		32BFDDB51A2E43A700D03F44 /* RCAVSessionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAVSessionManager.m; sourceTree = "<group>"; };
-		32BFDDB61A2E43A700D03F44 /* RCDebugLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDebugLog.h; sourceTree = "<group>"; };
-		32BFDDB71A2E43A700D03F44 /* RCLocationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCLocationManager.h; sourceTree = "<group>"; };
-		32BFDDB81A2E43A700D03F44 /* RCLocationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCLocationManager.m; sourceTree = "<group>"; };
-		32BFDDB91A2E43A700D03F44 /* RCMotionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMotionManager.h; sourceTree = "<group>"; };
-		32BFDDBA1A2E43A700D03F44 /* RCMotionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCMotionManager.m; sourceTree = "<group>"; };
-		32BFDDBB1A2E43A700D03F44 /* RCSensorDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorDelegate.h; sourceTree = "<group>"; };
-		32BFDDBC1A2E43A700D03F44 /* RCSensorDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCSensorDelegate.m; sourceTree = "<group>"; };
-		32BFDDBD1A2E43A700D03F44 /* RCVideoFrameProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoFrameProvider.h; sourceTree = "<group>"; };
-		32BFDDBE1A2E43A700D03F44 /* RCVideoManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoManager.h; sourceTree = "<group>"; };
-		32BFDDBF1A2E43A700D03F44 /* RCVideoManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoManager.m; sourceTree = "<group>"; };
 		32BFDDCA1A2E451E00D03F44 /* NSObject+SBJson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+SBJson.h"; sourceTree = "<group>"; };
 		32BFDDCB1A2E451E00D03F44 /* NSObject+SBJson.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+SBJson.m"; sourceTree = "<group>"; };
 		32BFDDCC1A2E451E00D03F44 /* SBJson.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SBJson.h; sourceTree = "<group>"; };
@@ -217,6 +200,13 @@
 		32EC394A1A362393004C31C0 /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
 		32EC394C1A3623B0004C31C0 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		32EC394E1A3623B5004C31C0 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		D3791CA51AE1320000D35EF4 /* RCAVSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAVSessionManager.h; sourceTree = "<group>"; };
+		D3791CA61AE1320000D35EF4 /* RCDebugLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDebugLog.h; sourceTree = "<group>"; };
+		D3791CA71AE1320000D35EF4 /* RCLocationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCLocationManager.h; sourceTree = "<group>"; };
+		D3791CA81AE1320000D35EF4 /* RCMotionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMotionManager.h; sourceTree = "<group>"; };
+		D3791CA91AE1320000D35EF4 /* RCSensorManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorManager.h; sourceTree = "<group>"; };
+		D3791CAA1AE1320000D35EF4 /* RCVideoFrameProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoFrameProvider.h; sourceTree = "<group>"; };
+		D3791CAB1AE1320000D35EF4 /* RCVideoManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoManager.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -259,9 +249,8 @@
 			isa = PBXGroup;
 			children = (
 				327524BB1A3A61CE00459B79 /* 3DKPlus */,
-				32BFDDF71A2E4B2200D03F44 /* AugmentedReality */,
+				32BFDDF71A2E4B2200D03F44 /* VideoPreview */,
 				32BFDDC81A2E44F000D03F44 /* ThirdParty */,
-				32BFDDB31A2E43A700D03F44 /* SensorManagers */,
 				32BFDD9E1A2E433D00D03F44 /* Calibration */,
 				323BD0BB1A253AEC00313573 /* HTML */,
 				323BD0881A25324800313573 /* TrackLinks */,
@@ -378,26 +367,6 @@
 			path = ../Calibration;
 			sourceTree = "<group>";
 		};
-		32BFDDB31A2E43A700D03F44 /* SensorManagers */ = {
-			isa = PBXGroup;
-			children = (
-				32BFDDB41A2E43A700D03F44 /* RCAVSessionManager.h */,
-				32BFDDB51A2E43A700D03F44 /* RCAVSessionManager.m */,
-				32BFDDB61A2E43A700D03F44 /* RCDebugLog.h */,
-				32BFDDB71A2E43A700D03F44 /* RCLocationManager.h */,
-				32BFDDB81A2E43A700D03F44 /* RCLocationManager.m */,
-				32BFDDB91A2E43A700D03F44 /* RCMotionManager.h */,
-				32BFDDBA1A2E43A700D03F44 /* RCMotionManager.m */,
-				32BFDDBB1A2E43A700D03F44 /* RCSensorDelegate.h */,
-				32BFDDBC1A2E43A700D03F44 /* RCSensorDelegate.m */,
-				32BFDDBD1A2E43A700D03F44 /* RCVideoFrameProvider.h */,
-				32BFDDBE1A2E43A700D03F44 /* RCVideoManager.h */,
-				32BFDDBF1A2E43A700D03F44 /* RCVideoManager.m */,
-			);
-			name = SensorManagers;
-			path = ../SensorManagers;
-			sourceTree = "<group>";
-		};
 		32BFDDC81A2E44F000D03F44 /* ThirdParty */ = {
 			isa = PBXGroup;
 			children = (
@@ -452,7 +421,7 @@
 			path = GTM;
 			sourceTree = "<group>";
 		};
-		32BFDDF71A2E4B2200D03F44 /* AugmentedReality */ = {
+		32BFDDF71A2E4B2200D03F44 /* VideoPreview */ = {
 			isa = PBXGroup;
 			children = (
 				32BFDDF81A2E4B2200D03F44 /* RCGLManagerFactory.h */,
@@ -462,8 +431,8 @@
 				32BFDDFC1A2E4B2200D03F44 /* RCVideoPreview.h */,
 				32BFDDFD1A2E4B2200D03F44 /* RCVideoPreview.m */,
 			);
-			name = AugmentedReality;
-			path = ../AugmentedReality;
+			name = VideoPreview;
+			path = ../VideoPreview;
 			sourceTree = "<group>";
 		};
 		32BFDE231A2E840700D03F44 /* Frameworks */ = {
@@ -501,12 +470,16 @@
 		32CC9B1A1A3EA90900494DAD /* RC3DKPlus */ = {
 			isa = PBXGroup;
 			children = (
+				D3791CA51AE1320000D35EF4 /* RCAVSessionManager.h */,
 				32CC9B1B1A3EA90900494DAD /* RC3DK.h */,
 				32CC9B1C1A3EA90900494DAD /* RC3DKPlus.h */,
 				32CC9B1D1A3EA90900494DAD /* RCCameraParameters.h */,
 				32CC9B1E1A3EA90900494DAD /* RCDeviceInfo.h */,
+				D3791CA61AE1320000D35EF4 /* RCDebugLog.h */,
 				32CC9B1F1A3EA90900494DAD /* RCFeaturePoint.h */,
 				32CC9B201A3EA90900494DAD /* RCLicenseError.h */,
+				D3791CA71AE1320000D35EF4 /* RCLocationManager.h */,
+				D3791CA81AE1320000D35EF4 /* RCMotionManager.h */,
 				32CC9B211A3EA90900494DAD /* RCPoint.h */,
 				32CC9B221A3EA90900494DAD /* RCRotation.h */,
 				32CC9B231A3EA90900494DAD /* RCScalar.h */,
@@ -515,10 +488,13 @@
 				32CC9B261A3EA90900494DAD /* RCSensorFusionError.h */,
 				32CC9B271A3EA90900494DAD /* RCSensorFusionInternals.h */,
 				32CC9B281A3EA90900494DAD /* RCSensorFusionStatus.h */,
+				D3791CA91AE1320000D35EF4 /* RCSensorManager.h */,
 				32CC9B291A3EA90900494DAD /* RCStereo.h */,
 				32CC9B2A1A3EA90900494DAD /* RCTransformation.h */,
 				32CC9B2B1A3EA90900494DAD /* RCTranslation.h */,
 				32CC9B2C1A3EA90900494DAD /* RCVector.h */,
+				D3791CAA1AE1320000D35EF4 /* RCVideoFrameProvider.h */,
+				D3791CAB1AE1320000D35EF4 /* RCVideoManager.h */,
 			);
 			path = RC3DKPlus;
 			sourceTree = "<group>";
@@ -644,21 +620,17 @@
 				32BFDDE81A2E451E00D03F44 /* SBJsonStreamParserState.m in Sources */,
 				32BFDE001A2E4B2200D03F44 /* RCVideoPreview.m in Sources */,
 				32BFDDB11A2E433D00D03F44 /* RCCalibration2.m in Sources */,
-				32BFDDC11A2E43A700D03F44 /* RCLocationManager.m in Sources */,
 				323BD1011A253B0D00313573 /* CATCapturePhoto.m in Sources */,
 				32BFDDE51A2E451E00D03F44 /* SBJsonStreamParser.m in Sources */,
 				32BFDDB21A2E433D00D03F44 /* RCCalibration3.m in Sources */,
 				32BFDDE31A2E451E00D03F44 /* NSObject+SBJson.m in Sources */,
-				32BFDDC01A2E43A700D03F44 /* RCAVSessionManager.m in Sources */,
 				32BFDDEE1A2E451E00D03F44 /* SBJsonWriter.m in Sources */,
 				323BD08C1A25324800313573 /* main.m in Sources */,
-				32BFDDC31A2E43A700D03F44 /* RCSensorDelegate.m in Sources */,
 				32BFDDEB1A2E451E00D03F44 /* SBJsonStreamWriterState.m in Sources */,
 				32BFDDFE1A2E4B2200D03F44 /* RCGLManagerFactory.m in Sources */,
 				32EC392B1A3613D7004C31C0 /* CATMeasuredPhoto.m in Sources */,
 				32BFDDEC1A2E451E00D03F44 /* SBJsonTokeniser.m in Sources */,
 				32BFDDED1A2E451E00D03F44 /* SBJsonUTF8Stream.m in Sources */,
-				32BFDDC41A2E43A700D03F44 /* RCVideoManager.m in Sources */,
 				32BFDE181A2E528F00D03F44 /* UIImage+RCImageFile.m in Sources */,
 				32BFDDEA1A2E451E00D03F44 /* SBJsonStreamWriterAccumulator.m in Sources */,
 				32BFDDF61A2E452F00D03F44 /* GTMNSString+URLArguments.m in Sources */,
@@ -666,7 +638,6 @@
 				32BFDDAF1A2E433D00D03F44 /* MBProgressHUD.m in Sources */,
 				32BFDDE41A2E451E00D03F44 /* SBJsonParser.m in Sources */,
 				32BFDDB01A2E433D00D03F44 /* RCCalibration1.m in Sources */,
-				32BFDDC21A2E43A700D03F44 /* RCMotionManager.m in Sources */,
 				323BD1031A253B0D00313573 /* CATEditPhoto.m in Sources */,
 				32BFDDE71A2E451E00D03F44 /* SBJsonStreamParserAdapter.m in Sources */,
 				32BFDDFF1A2E4B2200D03F44 /* RCGLShaderProgram.m in Sources */,

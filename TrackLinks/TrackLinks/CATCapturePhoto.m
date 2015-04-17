@@ -9,7 +9,6 @@
 #import "MBProgressHUD.h"
 #import "CATEditPhoto.h"
 #import "RC3DK.h"
-#import "RCSensorDelegate.h"
 #import "RCDebugLog.h"
 #import <CoreLocation/CoreLocation.h>
 #import "RCLocationManager.h"
@@ -27,7 +26,7 @@ static UIDeviceOrientation currentUIOrientation = UIDeviceOrientationLandscapeLe
     RCTranslation *secondPosition;
     RCSensorFusionData *lastStereoSensorFusionData;
 
-    id<RCSensorDelegate> sensorDelegate;
+    RCSensorManager * sensorDelegate;
     
     CATMeasuredPhoto* measuredPhoto;
     
@@ -222,7 +221,7 @@ static transition transitions[] =
     LOGME
 	[super viewDidLoad];
     
-    sensorDelegate = [SensorDelegate sharedInstance];
+    sensorDelegate = [RCSensorManager sharedInstance];
     
     [self validateStateMachine];
     

@@ -13,6 +13,7 @@
 
 /** Instantiate an RCRotation with the given quaternion parameters. */
 - (id) initWithQuaternionW:(float)w withX:(float)x withY:(float)y withZ:(float)z;
+- (id) initWithAxisX:(float)ax withAxisY:(float)ay withAxisZ:(float)az withAngle:(float)theta;
 
 /** The w element of the quaternion. */
 @property (nonatomic, readonly) float quaternionW;
@@ -46,6 +47,12 @@
  @returns The inverse of the rotation.
  */
 - (RCRotation *) getInverse;
+
+/** Flip one axis of the coordinate system to move between left and right handed coordinates.
+ @param axis The zero-based index of the axis (x = 0, y = 1, z = 2). Other values produced undefined behavior.
+ @returns The rotation in the mirrored coordinate system.
+ */
+- (RCRotation *)flipAxis:(int)axis;
 
 /** Compute the composition of two rotations.
  

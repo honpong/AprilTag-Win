@@ -61,7 +61,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	LocationManager^ locationMan = LocationManager::GetSharedInstance();
 	locationMan->GetLocationAndCache();
 
-	VideoManager^ videoMan = VideoManager::GetSharedInstance();
+	VideoManager^ videoMan = ref new VideoManager();
 	videoMan->StartVideo();
 
 	// Main message loop:

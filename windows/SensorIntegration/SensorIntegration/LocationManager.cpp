@@ -37,15 +37,17 @@ void RealityCap::LocationManager::GetLocationAndCache()
 		{
 			// Get will throw an exception if the task was canceled or failed with an error
 			_cachedPosition = getPosTask.get();			
-			Debug::Log(L"geolocation lat:%3.2f\tlon:%3.2f", cachedPosition->Coordinate->Point->Position.Latitude, cachedPosition->Coordinate->Point->Position.Longitude);
+			if (cachedPosition) Debug::Log(L"geolocation lat:%3.2f\tlon:%3.2f", cachedPosition->Coordinate->Point->Position.Latitude, cachedPosition->Coordinate->Point->Position.Longitude);
 		}
 		catch (AccessDeniedException^)
 		{
 			// TODO: handle error
+			Debug::Log(L"LocationManager: AccessDeniedException");
 		}
 		catch (task_canceled&)
 		{
 			// TODO: handle error
+			Debug::Log(L"LocationManager: task_canceled");
 		}
 		catch (Exception^ ex)
 		{
@@ -59,6 +61,7 @@ void RealityCap::LocationManager::GetLocationAndCache()
 #endif
 			{
 				// TODO: handle error
+				Debug::Log(L"LocationManager: Exception");
 			}
 		}
 	});

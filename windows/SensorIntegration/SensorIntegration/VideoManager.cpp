@@ -1,92 +1,75 @@
 #include "stdafx.h"
 #include "VideoManager.h"
 #include "Debug.h"
+
 #using <Windows.winmd>
 #using <Platform.winmd>
-#include "pxcsensemanager.h"
-#include "pxcmetadata.h"
 
 using namespace Windows::Foundation;
 using namespace Platform;
 using namespace RealityCap;
 using namespace Windows::UI::Xaml;
 
-#define USE_WIN32_AMETER_API true
-static const int DESIRED_FPS = 30;
+static const int IMAGE_WIDTH = 640;
+static const int IMAGE_HEIGHT = 480;
+static const int FPS = 30;
+
+pxcStatus PXCAPI VideoManager::SampleHandler::OnNewSample(pxcUID, PXCCapture::Sample *sample)
+{
+	if (sample)
+	{
+		PXCImage* colorSample = sample->color;
+		if (colorSample) Debug::Log(L"Color video sample received");
+	}
+
+	return PXC_STATUS_NO_ERROR; // return NO ERROR to continue, or any ERROR to exit the loop
+};
 
 VideoManager::VideoManager()
 {
-	pp = PXCSenseManager::CreateInstance();
-	if (!pp) Debug::Log(L"Unable to create the PXCSenseManager\n");
-
-	cm = pp->QueryCaptureManager();
-	if (!cm) Debug::Log(L"Unable to create the PXCCaptureManager\n");
+	senseMan = PXCSenseManager::CreateInstance();
+	if (!senseMan) Debug::Log(L"Unable to create the PXCSenseManager\n");
 }
 
-VideoManager^ VideoManager::GetSharedInstance()
+VideoManager::~VideoManager()
 {
-	static VideoManager^ _sharedInstance;
-	if (_sharedInstance == nullptr)
-	{
-		Debug::Log(L"Instantiating shared VideoManager instance");
-		_sharedInstance = ref new VideoManager();
-	}
-	return _sharedInstance;
+	senseMan->Release();
 }
+
+//VideoManager^ VideoManager::GetSharedInstance()
+//{
+//	static VideoManager^ _sharedInstance;
+//	if (_sharedInstance == nullptr)
+//	{
+//		Debug::Log(L"Instantiating shared VideoManager instance");
+//		_sharedInstance = ref new VideoManager();
+//	}
+//	return _sharedInstance;
+//}
 
 bool VideoManager::StartVideo()
 {
-	bool result = true;
+	if (!senseMan) return false;
 
-	// TODO: spawn a thread for this
-	pxcStatus sts;
-	do {
-		PXCVideoModule::DataDesc desc = {};
-		if (cm->QueryCapture()) {
-			cm->QueryCapture()->QueryDeviceInfo(0, &desc.deviceInfo);
-		}
-		else {
-			desc.deviceInfo.streams = PXCCapture::STREAM_TYPE_COLOR; // | PXCCapture::STREAM_TYPE_DEPTH;
-		}
-		pp->EnableStreams(&desc);
+	senseMan->EnableStream(PXCCapture::STREAM_TYPE_COLOR, IMAGE_WIDTH, IMAGE_HEIGHT, (pxcF32)FPS);
 
-		/* Initializes the pipeline */
-		sts = pp->Init();
+	/* Initializes the pipeline */
+	pxcStatus status;
+	status = senseMan->Init(&sampleHandler);
 
-		if (sts<PXC_STATUS_NO_ERROR) {
-			wprintf_s(L"Failed to locate any video stream(s)\n");
-			break;
-		}
-		pp->QueryCaptureManager()->QueryDevice()->SetMirrorMode(PXCCapture::Device::MirrorMode::MIRROR_MODE_DISABLED);
+	if (status < PXC_STATUS_NO_ERROR)
+	{
+		Debug::Log(L"Failed to locate any video stream(s)\n");
+		return false;
+	}
 
-		/* Stream Data */
-		for (int nframes = 0; nframes < 50000; nframes++) {
-			/* Waits until new frame is available and locks it for application processing */
-			sts = pp->AcquireFrame(false);
+	senseMan->StreamFrames(true);
 
-			if (sts<PXC_STATUS_NO_ERROR) {
-				if (sts == PXC_STATUS_STREAM_CONFIG_CHANGED) {
-					wprintf_s(L"Stream configuration was changed, re-initilizing\n");
-					pp->Close();
-				}
-				break;
-			}
-
-			const PXCCapture::Sample *sample = pp->QuerySample();
-			if (sample) {
-				Debug::Log(L"video sample received");
-			}
-
-			/* Releases lock so pipeline can process next frame */
-			pp->ReleaseFrame();
-		}
-	} while (sts == PXC_STATUS_STREAM_CONFIG_CHANGED);
-
-	return result;
+	return true;
 }
 
 void VideoManager::StopVideo()
 {
-	
+	if (senseMan) senseMan->Close();
 }
 

@@ -168,6 +168,7 @@
 		D35BF0FD1ADD122800BF3CB0 /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D35BF0F51ADD122800BF3CB0 /* holding_landscape.jpg */; };
 		D35BF0FE1ADD122800BF3CB0 /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D35BF0F61ADD122800BF3CB0 /* holding_portrait.jpg */; };
 		D35BF0FF1ADD122800BF3CB0 /* ipad_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D35BF0F71ADD122800BF3CB0 /* ipad_on_table.jpg */; };
+		D35FC6841AE10E0E002E2FA8 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = D35FC6831AE10E0E002E2FA8 /* Default-568h@2x.png */; };
 		D364AFBD1A37A21700E39511 /* homography.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D953126D1A15AE63004D6068 /* homography.cpp */; };
 		D3931E1B1A2217E5008F8940 /* random.c in Sources */ = {isa = PBXBuildFile; fileRef = D3931E191A2217D8008F8940 /* random.c */; };
 		D3931E1E1A221853008F8940 /* host.c in Sources */ = {isa = PBXBuildFile; fileRef = D3931E1C1A221850008F8940 /* host.c */; };
@@ -570,6 +571,7 @@
 		D35BF0F51ADD122800BF3CB0 /* holding_landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = holding_landscape.jpg; path = ../../Calibration/holding_landscape.jpg; sourceTree = "<group>"; };
 		D35BF0F61ADD122800BF3CB0 /* holding_portrait.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = holding_portrait.jpg; path = ../../Calibration/holding_portrait.jpg; sourceTree = "<group>"; };
 		D35BF0F71ADD122800BF3CB0 /* ipad_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = ipad_on_table.jpg; path = ../../Calibration/ipad_on_table.jpg; sourceTree = "<group>"; };
+		D35FC6831AE10E0E002E2FA8 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h@2x.png"; path = "../Default-568h@2x.png"; sourceTree = "<group>"; };
 		D392F7871A1E010E00BBB1FF /* geom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = geom.h; sourceTree = "<group>"; };
 		D392F7881A1E010E00BBB1FF /* io.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = io.h; sourceTree = "<group>"; };
 		D392F7891A1E010E00BBB1FF /* libqhull.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libqhull.h; sourceTree = "<group>"; };
@@ -1189,6 +1191,7 @@
 		D35BF0A71ADD111500BF3CB0 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				D35FC6831AE10E0E002E2FA8 /* Default-568h@2x.png */,
 				D35BF0A81ADD111500BF3CB0 /* Info.plist */,
 				D35BF0A91ADD111500BF3CB0 /* main.m */,
 			);
@@ -1472,6 +1475,7 @@
 				D32D21EF1AE006E80070A8F0 /* shader.fsh in Resources */,
 				D32D21F01AE006E80070A8F0 /* shader.vsh in Resources */,
 				D35BF0B31ADD111500BF3CB0 /* Main.storyboard in Resources */,
+				D35FC6841AE10E0E002E2FA8 /* Default-568h@2x.png in Resources */,
 				D35BF0FD1ADD122800BF3CB0 /* holding_landscape.jpg in Resources */,
 				D35BF0FC1ADD122800BF3CB0 /* Calibration.storyboard in Resources */,
 				D35BF0FF1ADD122800BF3CB0 /* ipad_on_table.jpg in Resources */,

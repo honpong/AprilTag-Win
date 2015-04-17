@@ -7,6 +7,7 @@
 #include "AccelerometerManager.h"
 #include "Debug.h"
 #include "LocationManager.h"
+#include "VideoManager.h"
 
 #using <Windows.winmd>
 #using <Platform.winmd>
@@ -57,8 +58,11 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	IMUManager^ imuMan = IMUManager::GetSharedInstance();
 	imuMan->StartSensors();
 
-	LocationManager^ locationManager = LocationManager::GetSharedInstance();
-	locationManager->GetLocationAndCache();
+	LocationManager^ locationMan = LocationManager::GetSharedInstance();
+	locationMan->GetLocationAndCache();
+
+	VideoManager^ videoMan = VideoManager::GetSharedInstance();
+	videoMan->StartVideo();
 
 	// Main message loop:
 	while (GetMessage(&msg, NULL, 0, 0))

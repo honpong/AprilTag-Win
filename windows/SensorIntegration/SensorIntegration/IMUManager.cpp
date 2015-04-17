@@ -105,7 +105,7 @@ void IMUManager::GyroReadingChanged(Gyrometer^ sender, GyrometerReadingChangedEv
 {
 	GyrometerReading^ reading = e->Reading;
 	long long millisec = reading->Timestamp.UniversalTime / 10000;
-	Debug::Log(L"%lld\tgyro\tx: %1.3f\ty: %1.3f\tz: %1.3f", millisec, reading->AngularVelocityX, reading->AngularVelocityY, reading->AngularVelocityZ);
+	Debug::Log(L"%lld\tgyro\tx: %3.3f\ty: %3.3f\tz: %3.3f", millisec, reading->AngularVelocityX, reading->AngularVelocityY, reading->AngularVelocityZ); // gyro data is in degrees/sec
 
 	if (USE_WIN32_AMETER_API) // instead of setting up a timer for polling the ameter, we can use this event handler to poll in sync with the gyro
 	{

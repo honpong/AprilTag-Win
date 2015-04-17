@@ -840,7 +840,6 @@
 		32E6873B18F617160043D50A /* UIViewController+OSKUtilities.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+OSKUtilities.m"; sourceTree = "<group>"; };
 		32F403331940E326002741C8 /* TMPreferences.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMPreferences.h; sourceTree = "<group>"; };
 		32F403341940E326002741C8 /* TMPreferences.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMPreferences.m; sourceTree = "<group>"; };
-		32F7D56A19D49F8C002239FF /* RCDebugLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCDebugLog.h; path = ../../SensorManagers/RCDebugLog.h; sourceTree = "<group>"; };
 		D9218CB616E847B2006F4591 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		D9557B1316DFDF1500B48C4B /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
 		D9557B1F16DFEDD300B48C4B /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
@@ -970,7 +969,6 @@
 				32B8F67E16E92368001B1962 /* TMServerOpsFactory.m */,
 				3233C7AD16F3B9D700129B99 /* TMAnalytics.h */,
 				3233C7AE16F3B9D700129B99 /* TMAnalytics.m */,
-				32F7D56A19D49F8C002239FF /* RCDebugLog.h */,
 				32803A5F18DB6452002F54B5 /* Images.xcassets */,
 				32CF88AA1A310D500044B17B /* RC3DK.h */,
 			);

@@ -34,15 +34,29 @@
 
 @end
 
+/** RCSensorFusion implements this protocol to receive data from device sensors, see the documentation there for more details on each method. */
+@protocol RCSensorDataDelegate <NSObject>
+
+- (void) receiveVideoFrame:(CMSampleBufferRef)sampleBuffer;
+- (void) receiveAccelerometerData:(CMAccelerometerData *)accelerationData;
+- (void) receiveGyroData:(CMGyroData *)gyroData;
+
+@end
+
 /** This class is the business end of the library, and the only one that you really need to use in order to get data out of it.
  This class is a psuedo-singleton. You shouldn't instantiate this class directly, but rather get an instance of it via the
  sharedInstance class method.
  
  */
-@interface RCSensorFusion : NSObject
+@interface RCSensorFusion : NSObject <RCSensorDataDelegate>
 
 /** Set this property to a delegate object that will receive the sensor fusion updates. The object must implement the RCSensorFusionDelegate protocol. */
 @property (weak) id<RCSensorFusionDelegate> delegate;
+
+/** 
+ The device's current location (including altitude) is used to account for differences in gravity across the earth. If location is unavailable, results may be less accurate. This should be set before starting sensor fusion or calibration.
+ */
+@property (nonatomic, retain) CLLocation* location;
 
 /** Use this method to get a shared instance of this class */
 + (RCSensorFusion *) sharedInstance;
@@ -52,12 +66,6 @@
  @param licenseKey A 30 character string. Obtain a license key by contacting RealityCap.
  */
 - (void) setLicenseKey:(NSString*)licenseKey;
-
-/** Sets the current location of the device.
- 
- @param location The device's current location (including altitude) is used to account for differences in gravity across the earth. If location is unavailable, results may be less accurate. This should be called before starting sensor fusion or calibration.
-*/
-- (void) setLocation:(CLLocation*)location;
 
 /** Determine if valid saved calibration data exists from a previous run.
  
@@ -71,6 +79,26 @@
  This method may be called to estimate internal parameters; running it once on a particular device should improve the quality of output for that device. The device should be placed on a solid surface (not held in the hand), and left completely still for the duration of the static calibration. The camera is not used in this mode, so it is OK if the device is placed on its back. Check [RCSensorFusionStatus progress] to determine calibration progress. When finished, RCSensorFusion will automatically transition to handheld portrait and landscape calibration modes, where the device should be heald steady in each orientation. Your app should monitor [RCSensorFusionStatus runState] to determine the proper instructions to provide the user. See the provided calibration source code for details. You do not need to call startSensorFusion or stopSensorFusion when running calibration.
  */
 - (void) startStaticCalibration;
+
+/** Starts to search for a QR code detection and once detected reports future transformations relative to the observed QR code.
+
+ RCSensorFusion will attempt to detect a QR code until one is found or stopQRDetection is called. Once the code has been detected, RCSensorFusionData.originQRCode will be set to the payload of the QR code, and future instances of RCSensorFusionData.transformation and RCSensorFusionData.cameraTransformation will be modified with the origin fixed to the center of the QR code. If alignGravity is false, then positive x will point toward the canonical "right" side of the QR code, positive y will point toward the canonical "top" of the QR code, and positive z will point out of the plane of the QR code. If alignGravity is true (recommended), the coordinates will be rotated so that the positive z axis points opposite to gravity.
+
+ [ ]  ^+y [ ]
+      |
+      o--->+x
+
+ [ ]
+
+ @param data The expected value of the QR code. If nil is passed, the first detected qr code will be used
+ @param dimension The size of the QR code (width = height) in meters
+ @param alignGravity If true (recommended), the z axis will be aligned with gravity; if false the z axis will be perpindicular to the QR code
+ */
+- (void) startQRDetectionWithData:(NSString *)data withDimension:(float)dimension withAlignGravity:(bool)alignGravity;
+
+/** Stops searching for QR codes.
+ */
+- (void) stopQRDetection;
 
 /** Prepares the object to receive video and inertial data, and starts sensor fusion updates.
  

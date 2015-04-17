@@ -4,7 +4,6 @@
 
 #import "AppDelegate.h"
 #import "CATConstants.h"
-#import "RCSensorDelegate.h"
 #import "RCLocationManager.h"
 #import "RC3DK.h"
 #import "RCDebugLog.h"
@@ -20,7 +19,6 @@
 @implementation AppDelegate
 {
     UIViewController* mainViewController;
-    id<RCSensorDelegate> mySensorDelegate;
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
@@ -43,9 +41,7 @@
         
         [NSUserDefaults.standardUserDefaults registerDefaults:appDefaults];
     });
-    
-    mySensorDelegate = [SensorDelegate sharedInstance];
-    
+
     mainViewController = self.window.rootViewController;
         
     BOOL calibratedFlag = [NSUserDefaults.standardUserDefaults boolForKey:PREF_IS_CALIBRATED];
@@ -102,14 +98,24 @@
 
 - (void) gotoCalibration
 {
-    RCCalibration1 * vc = [RCCalibration1 instantiateViewController];
+    UIStoryboard* calStoryboard = [UIStoryboard storyboardWithName:@"Calibration" bundle:[NSBundle mainBundle]];
+    RCCalibration1* vc = [calStoryboard instantiateViewControllerWithIdentifier:@"Calibration1"];
     vc.calibrationDelegate = self;
-    vc.sensorDelegate = mySensorDelegate;
     vc.modalPresentationStyle = UIModalPresentationFullScreen;
     self.window.rootViewController = vc;
 }
 
 #pragma mark RCCalibrationDelegate methods
+
+- (void)startMotionSensors
+{
+    [[RCSensorManager sharedInstance] startMotionSensors];
+}
+
+- (void)stopMotionSensors
+{
+    [[RCSensorManager sharedInstance] stopAllSensors];
+}
 
 - (void) calibrationDidFinish:(UIViewController*)lastViewController
 {

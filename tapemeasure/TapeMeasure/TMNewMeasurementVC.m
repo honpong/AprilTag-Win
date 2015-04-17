@@ -11,7 +11,6 @@
 #import "TMLocationIntro.h"
 #import "TMHistoryVC.h"
 #import "RCCore/RCGeocoder.h"
-#import "RCCore/RCSensorManager.h"
 
 @implementation TMNewMeasurementVC
 {

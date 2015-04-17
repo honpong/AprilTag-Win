@@ -17,6 +17,5 @@
 #include "plugins.h"
 #include "mapbuffer.h"
 #include "timestamp.h"
-#include "inbuffer.h"
 
 #endif

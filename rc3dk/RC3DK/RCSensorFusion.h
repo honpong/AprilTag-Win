@@ -34,12 +34,21 @@
 
 @end
 
+/** RCSensorFusion implements this protocol to receive data from device sensors, see the documentation there for more details on each method. */
+@protocol RCSensorDataDelegate <NSObject>
+
+- (void) receiveVideoFrame:(CMSampleBufferRef)sampleBuffer;
+- (void) receiveAccelerometerData:(CMAccelerometerData *)accelerationData;
+- (void) receiveGyroData:(CMGyroData *)gyroData;
+
+@end
+
 /** This class is the business end of the library, and the only one that you really need to use in order to get data out of it.
  This class is a psuedo-singleton. You shouldn't instantiate this class directly, but rather get an instance of it via the
  sharedInstance class method.
  
  */
-@interface RCSensorFusion : NSObject
+@interface RCSensorFusion : NSObject <RCSensorDataDelegate>
 
 /** Set this property to a delegate object that will receive the sensor fusion updates. The object must implement the RCSensorFusionDelegate protocol. */
 @property (weak) id<RCSensorFusionDelegate> delegate;

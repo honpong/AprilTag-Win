@@ -18,20 +18,27 @@ class replay
 private:
     std::ifstream file;
     std::ifstream::pos_type size;
-    int packets_dispatched = 0;
-    uint64_t bytes_dispatched = 0;
-    bool is_running = true;
+    std::atomic<uint64_t> packets_dispatched{0};
+    std::atomic<uint64_t> bytes_dispatched{0};
+    std::atomic<float> path_length{0};
+    std::atomic<float> length{0};
+    std::atomic<bool> is_running{false};
+    bool is_realtime = false;
     std::unique_ptr<filter_setup> cor_setup;
     std::unique_ptr<fusion_queue> queue;
-    uint64_t first_timestamp;
+    std::function<void (float)> progress_callback;
 
 public:
     bool open(const char *name);
     void set_device(const char *name);
-    void setup_filter();    
-    bool configure_all(const char *filename, const char *devicename);
-    void runloop();
-    
+    void setup_filter();
+    bool configure_all(const char *filename, const char *devicename, bool realtime=false, std::function<void (float)> progress_callback=NULL);
+    void start();
+    void stop();
+    uint64_t get_bytes_dispatched() { return bytes_dispatched; }
+    uint64_t get_packets_dispatched() { return packets_dispatched; }
+    float get_path_length() { return path_length; }
+    float get_length() { return length; }
 };
 
 #endif /* defined(__RC3DK__replay__) */

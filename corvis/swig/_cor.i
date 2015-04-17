@@ -226,4 +226,3 @@ struct plugin plugins_initialize_python(PyObject *start, PyObject *stop)
 %include "timestamp.h"
 %include "packet.h"
 %include "cor_types.h"
-%include "inbuffer.h"

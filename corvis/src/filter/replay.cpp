@@ -12,7 +12,6 @@
 #include "cor.h"
 #include "packet.h"
 
-
 bool replay::open(const char *name)
 {
     file.open(name, ios::binary);
@@ -51,27 +50,28 @@ void replay::setup_filter()
     filter_start_dynamic(&cor_setup->sfm);
 }
 
-void replay::runloop()
+void replay::start()
 {
-    /*, realtime_offset;
-     uint64_t time_started, now;*/
-    
+    is_running = true;
+    path_length = 0;
+    length = 0;
+    packets_dispatched = 0;
+    bytes_dispatched = 0;
+
     packet_header_t header;
     file.read((char *)&header, 16);
     if(file.bad() || file.eof()) is_running = false;
-    first_timestamp = header.time;
-    cerr << "First timestamp: " << first_timestamp << endl;
+
+    auto first_timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time));
+    auto start_time = sensor_clock::now();
+    auto now = start_time;
+    auto last_progress = now;
+    auto realtime_offset = now - first_timestamp;
+    if(!is_realtime)
+        realtime_offset = std::chrono::microseconds(0);
+
+    cerr << "First timestamp: " << header.time << endl;
     
-    /*
-     time_started = get_timestamp();
-     now = time_started;
-     
-     // filter->ignore_lateness is not set on realtime replay, so we must adjust
-     // the timestamps to be relative to the current system time
-     realtime_offset = 0;
-     if(isRealtime)
-     realtime_offset = now - first_timestamp;
-     */
     while (is_running) {
         packet_t * packet = (packet_t *)malloc(header.bytes);
         packet->header = header;
@@ -83,17 +83,11 @@ void replay::runloop()
         }
         else
         {
-            
-            /*
-             // Adjust the time of the packet to be consistent with the start time of replay
-             packet->header.time += realtime_offset;
-             
-             now = get_timestamp();
-             float delta_seconds = (1.*packet->header.time - now)/1e6;
-             if(isRealtime && delta_seconds > 0) {
-             [NSThread sleepForTimeInterval:delta_seconds];
-             }
-             */
+            auto timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time)) + realtime_offset;
+            now = sensor_clock::now();
+            if(is_realtime && timestamp - now > std::chrono::microseconds(0))
+                std::this_thread::sleep_for(timestamp - now);
+
             switch(header.type)
             {
                 case packet_camera:
@@ -108,7 +102,6 @@ void replay::runloop()
                     d.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time));
                     d.image_handle = std::unique_ptr<void, void(*)(void *)>(packet, free);
                     queue->receive_camera(std::move(d));
-                    //                    filter_image_measurement(&cor_setup.sfm, packet->data + 16, width, height, width, header.time);
                     break;
                 }
                 case packet_accelerometer:
@@ -137,21 +130,39 @@ void replay::runloop()
             queue->dispatch_offline(false);
             bytes_dispatched += header.bytes;
             packets_dispatched++;
+
+            now = sensor_clock::now();
+            // Update progress at most at 30Hz or if we are almost done
+            if(progress_callback &&
+               (now - last_progress > std::chrono::milliseconds(33) ||
+                1.*bytes_dispatched / size > 0.99))
+            {
+                last_progress = now;
+                progress_callback(1.*bytes_dispatched / size);
+            }
         }
         
         file.read((char *)&header, 16);
         if(file.bad() || file.eof()) is_running = false;
     }
     while(queue->dispatch_offline(true)) {}
-    fprintf(stderr, "Straight-line length is %f cm, total path length %f cm\n", cor_setup->sfm.s.T.v.norm() * 100, cor_setup->sfm.s.total_distance * 100);
-    fprintf(stderr, "Dispatched %d packets %.2f Mbytes\n", packets_dispatched, bytes_dispatched/1.e6);
+    file.close();
+
+    length = cor_setup->sfm.s.T.v.norm() * 100;
+    path_length = cor_setup->sfm.s.total_distance * 100;
 }
 
-bool replay::configure_all(const char *filename, const char *devicename)
+bool replay::configure_all(const char *filename, const char *devicename, bool realtime, std::function<void (float)> callback)
 {
     if(!open(filename)) return false;
     set_device(devicename);
     setup_filter();
+    is_realtime = realtime;
+    progress_callback = callback;
     return true;
 }
 
+void replay::stop()
+{
+    is_running = false;
+}

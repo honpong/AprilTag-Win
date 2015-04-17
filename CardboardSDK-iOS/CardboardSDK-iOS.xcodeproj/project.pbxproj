@@ -16,11 +16,6 @@
 		32B5A78C1A8434EA001C318D /* RCCalibration1.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B5A7821A8434EA001C318D /* RCCalibration1.m */; };
 		32B5A78D1A8434EA001C318D /* RCCalibration2.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B5A7841A8434EA001C318D /* RCCalibration2.m */; };
 		32B5A78E1A8434EA001C318D /* RCCalibration3.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B5A7861A8434EA001C318D /* RCCalibration3.m */; };
-		32B5A79C1A843509001C318D /* RCAVSessionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B5A7911A843509001C318D /* RCAVSessionManager.m */; };
-		32B5A79D1A843509001C318D /* RCLocationManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B5A7941A843509001C318D /* RCLocationManager.m */; };
-		32B5A79E1A843509001C318D /* RCMotionManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B5A7961A843509001C318D /* RCMotionManager.m */; };
-		32B5A79F1A843509001C318D /* RCSensorDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B5A7981A843509001C318D /* RCSensorDelegate.m */; };
-		32B5A7A01A843509001C318D /* RCVideoManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B5A79B1A843509001C318D /* RCVideoManager.m */; };
 		35B1883D19ABEF58005A9930 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 35B1883C19ABEF58005A9930 /* AppDelegate.m */; };
 		35B1886119ABF053005A9930 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 35B1886019ABF053005A9930 /* CoreMotion.framework */; };
 		35B1886319ABF059005A9930 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 35B1886219ABF059005A9930 /* GLKit.framework */; };
@@ -84,6 +79,20 @@
 			remoteGlobalIDString = 327B54DE18EB4CC90001CCE1;
 			remoteInfo = RC3DK;
 		};
+		D3791CB01AE1346900D35EF4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 32B5A75E1A8433ED001C318D /* RC3DK.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 32036E901ACB2A5700FC0588;
+			remoteInfo = "RC3DK Tests";
+		};
+		D3791CB21AE1346900D35EF4 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 32B5A75E1A8433ED001C318D /* RC3DK.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D35BF0A51ADD111500BF3CB0;
+			remoteInfo = RC3DKVis;
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -101,18 +110,6 @@
 		32B5A7841A8434EA001C318D /* RCCalibration2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration2.m; sourceTree = "<group>"; };
 		32B5A7851A8434EA001C318D /* RCCalibration3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration3.h; sourceTree = "<group>"; };
 		32B5A7861A8434EA001C318D /* RCCalibration3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration3.m; sourceTree = "<group>"; };
-		32B5A7901A843509001C318D /* RCAVSessionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAVSessionManager.h; sourceTree = "<group>"; };
-		32B5A7911A843509001C318D /* RCAVSessionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAVSessionManager.m; sourceTree = "<group>"; };
-		32B5A7921A843509001C318D /* RCDebugLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDebugLog.h; sourceTree = "<group>"; };
-		32B5A7931A843509001C318D /* RCLocationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCLocationManager.h; sourceTree = "<group>"; };
-		32B5A7941A843509001C318D /* RCLocationManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCLocationManager.m; sourceTree = "<group>"; };
-		32B5A7951A843509001C318D /* RCMotionManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMotionManager.h; sourceTree = "<group>"; };
-		32B5A7961A843509001C318D /* RCMotionManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCMotionManager.m; sourceTree = "<group>"; };
-		32B5A7971A843509001C318D /* RCSensorDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCSensorDelegate.h; sourceTree = "<group>"; };
-		32B5A7981A843509001C318D /* RCSensorDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCSensorDelegate.m; sourceTree = "<group>"; };
-		32B5A7991A843509001C318D /* RCVideoFrameProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoFrameProvider.h; sourceTree = "<group>"; };
-		32B5A79A1A843509001C318D /* RCVideoManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoManager.h; sourceTree = "<group>"; };
-		32B5A79B1A843509001C318D /* RCVideoManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoManager.m; sourceTree = "<group>"; };
 		32B5A7A11A8435F4001C318D /* Constants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constants.h; sourceTree = "<group>"; };
 		35B1883419ABEF58005A9930 /* CardboardSDK-iOS.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "CardboardSDK-iOS.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		35B1883B19ABEF58005A9930 /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -205,6 +202,8 @@
 			children = (
 				32B5A7701A8433F1001C318D /* libRC3DK.a */,
 				32B5A7741A8433F1001C318D /* libRC3DKPlus.a */,
+				D3791CB11AE1346900D35EF4 /* RC3DK Tests.xctest */,
+				D3791CB31AE1346900D35EF4 /* RC3DKVis.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -212,9 +211,8 @@
 		32B5A7791A8434DC001C318D /* RealityCap */ = {
 			isa = PBXGroup;
 			children = (
-				D9D670121A86C33A00764F9A /* AugmentedReality */,
-				32B5A78F1A843509001C318D /* SensorManagers */,
 				32B5A77A1A8434EA001C318D /* Calibration */,
+				D9D670121A86C33A00764F9A /* VideoPreview */,
 			);
 			name = RealityCap;
 			sourceTree = "<group>";
@@ -237,26 +235,6 @@
 			);
 			name = Calibration;
 			path = ../../Calibration;
-			sourceTree = "<group>";
-		};
-		32B5A78F1A843509001C318D /* SensorManagers */ = {
-			isa = PBXGroup;
-			children = (
-				32B5A7901A843509001C318D /* RCAVSessionManager.h */,
-				32B5A7911A843509001C318D /* RCAVSessionManager.m */,
-				32B5A7921A843509001C318D /* RCDebugLog.h */,
-				32B5A7931A843509001C318D /* RCLocationManager.h */,
-				32B5A7941A843509001C318D /* RCLocationManager.m */,
-				32B5A7951A843509001C318D /* RCMotionManager.h */,
-				32B5A7961A843509001C318D /* RCMotionManager.m */,
-				32B5A7971A843509001C318D /* RCSensorDelegate.h */,
-				32B5A7981A843509001C318D /* RCSensorDelegate.m */,
-				32B5A7991A843509001C318D /* RCVideoFrameProvider.h */,
-				32B5A79A1A843509001C318D /* RCVideoManager.h */,
-				32B5A79B1A843509001C318D /* RCVideoManager.m */,
-			);
-			name = SensorManagers;
-			path = ../../SensorManagers;
 			sourceTree = "<group>";
 		};
 		35B1882B19ABEF58005A9930 = {
@@ -410,7 +388,7 @@
 			path = Chair;
 			sourceTree = "<group>";
 		};
-		D9D670121A86C33A00764F9A /* AugmentedReality */ = {
+		D9D670121A86C33A00764F9A /* VideoPreview */ = {
 			isa = PBXGroup;
 			children = (
 				D9D6700A1A86C33A00764F9A /* RCGLShaderProgram.h */,
@@ -422,8 +400,8 @@
 				D9D670101A86C33A00764F9A /* shader.fsh */,
 				D9D670111A86C33A00764F9A /* shader.vsh */,
 			);
-			name = AugmentedReality;
-			path = ../../AugmentedReality;
+			name = VideoPreview;
+			path = ../../VideoPreview;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -501,6 +479,20 @@
 			remoteRef = 32B5A7731A8433F1001C318D /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		D3791CB11AE1346900D35EF4 /* RC3DK Tests.xctest */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.cfbundle;
+			path = "RC3DK Tests.xctest";
+			remoteRef = D3791CB01AE1346900D35EF4 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		D3791CB31AE1346900D35EF4 /* RC3DKVis.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = RC3DKVis.app;
+			remoteRef = D3791CB21AE1346900D35EF4 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
@@ -540,21 +532,16 @@
 				32B5A78B1A8434EA001C318D /* MBProgressHUD.m in Sources */,
 				D9D670131A86C33A00764F9A /* RCGLShaderProgram.m in Sources */,
 				BC6733601A5D90C700C6D79B /* main.m in Sources */,
-				32B5A79D1A843509001C318D /* RCLocationManager.m in Sources */,
 				BC0B3DF41A6D7C7C00ADD925 /* Eye.mm in Sources */,
 				BC763B311A655D7600463823 /* GLHelpers.m in Sources */,
 				BC67336C1A5D90C700C6D79B /* Matrix3x3d.mm in Sources */,
 				D9D670151A86C33A00764F9A /* RCVideoPreview.m in Sources */,
 				D9D670051A86C1D000764F9A /* TreasureViewController.m in Sources */,
-				32B5A79C1A843509001C318D /* RCAVSessionManager.m in Sources */,
 				BC6733711A5D90C700C6D79B /* Viewport.mm in Sources */,
 				BC6733641A5D90C700C6D79B /* DistortionRenderer.mm in Sources */,
 				D9D670141A86C33A00764F9A /* RCGLManagerFactory.m in Sources */,
-				32B5A79E1A843509001C318D /* RCMotionManager.m in Sources */,
 				BC67336E1A5D90C700C6D79B /* SO3Util.mm in Sources */,
-				32B5A7A01A843509001C318D /* RCVideoManager.m in Sources */,
 				BC6733681A5D90C700C6D79B /* HeadMountedDisplay.mm in Sources */,
-				32B5A79F1A843509001C318D /* RCSensorDelegate.m in Sources */,
 				35B1883D19ABEF58005A9930 /* AppDelegate.m in Sources */,
 				BC0B3DF71A6E795D00ADD925 /* GLStateBackup.mm in Sources */,
 				BC6733611A5D90C700C6D79B /* CardboardDeviceParams.mm in Sources */,

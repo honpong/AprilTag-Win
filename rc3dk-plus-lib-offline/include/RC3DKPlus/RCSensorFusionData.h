@@ -28,6 +28,10 @@
 /** An RCTransformation object representing the current camera transformation relative to the global reference frame as defined for the transformation property. */
 @property (nonatomic, readonly) RCTransformation* cameraTransformation;
 
+/** If the origin of cameraTransformation and transformation are currently being reported relative to a QR code, the decoded id of the code. Otherwise, nil.
+ */
+@property (nonatomic, readonly) NSString* originQRCode;
+
 /** An RCCameraParameters object representing the current optical (intrinsic) properties of the camera. */
 @property (nonatomic, readonly) RCCameraParameters *cameraParameters;
 
@@ -47,6 +51,12 @@
 @property (nonatomic, readonly) uint64_t timestamp;
 
 /** You will not typically need to instantiate this class yourself. */
-- (id) initWithTransformation:(RCTransformation*)transformation withCameraTransformation:(RCTransformation*)cameraTransformation withCameraParameters:(RCCameraParameters *)cameraParameters withTotalPath:(RCScalar *)totalPath withFeatures:(NSArray*)featurePoints withSampleBuffer:(CMSampleBufferRef)sampleBuffer withTimestamp:(uint64_t)timestamp;
+- (id) initWithTransformation:(RCTransformation*)transformation withCameraTransformation:cameraTransformation withCameraParameters:(RCCameraParameters *)cameraParameters withTotalPath:(RCScalar *)totalPath withFeatures:(NSArray*)featurePoints withSampleBuffer:(CMSampleBufferRef)sampleBuffer withTimestamp:(uint64_t)timestamp withOriginQRCode:(NSString *)originQRCode;
+
+/** @returns A dictionary representation of the object, minus the sampleBuffer. */
+- (NSDictionary*) dictionaryRepresentation;
+
+/** @returns A dictionary representation of the object, minus the sampleBuffer and feature points. */
+- (NSDictionary *)dictionaryRepresentationForJsonSerialization;
 
 @end

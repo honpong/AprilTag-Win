@@ -110,16 +110,12 @@
 		D33E9D351ADD18510085F35C /* RCVideoFrameProvider.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D33E9D241ADD14600085F35C /* RCVideoFrameProvider.h */; };
 		D33E9D361ADD18510085F35C /* RCVideoManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D33E9D251ADD14600085F35C /* RCVideoManager.h */; };
 		D33E9D371ADD18510085F35C /* RCMotionManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D33E9D261ADD14600085F35C /* RCMotionManager.h */; };
-		D33E9D381ADD18510085F35C /* RCCaptureManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D33E9D0E1ADD13110085F35C /* RCCaptureManager.h */; };
-		D33E9D391ADD18510085F35C /* RCReplayManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D33E9D101ADD13110085F35C /* RCReplayManager.h */; };
 		D33E9D3A1ADD18710085F35C /* RCAVSessionManager.h in Copy Files */ = {isa = PBXBuildFile; fileRef = D33E9D1B1ADD14600085F35C /* RCAVSessionManager.h */; };
 		D33E9D3B1ADD18710085F35C /* RCSensorManager.h in Copy Files */ = {isa = PBXBuildFile; fileRef = D33E9D1D1ADD14600085F35C /* RCSensorManager.h */; };
 		D33E9D3C1ADD18710085F35C /* RCLocationManager.h in Copy Files */ = {isa = PBXBuildFile; fileRef = D33E9D211ADD14600085F35C /* RCLocationManager.h */; };
 		D33E9D3D1ADD18710085F35C /* RCVideoFrameProvider.h in Copy Files */ = {isa = PBXBuildFile; fileRef = D33E9D241ADD14600085F35C /* RCVideoFrameProvider.h */; };
 		D33E9D3E1ADD18710085F35C /* RCVideoManager.h in Copy Files */ = {isa = PBXBuildFile; fileRef = D33E9D251ADD14600085F35C /* RCVideoManager.h */; };
 		D33E9D3F1ADD18710085F35C /* RCMotionManager.h in Copy Files */ = {isa = PBXBuildFile; fileRef = D33E9D261ADD14600085F35C /* RCMotionManager.h */; };
-		D33E9D401ADD18710085F35C /* RCCaptureManager.h in Copy Files */ = {isa = PBXBuildFile; fileRef = D33E9D0E1ADD13110085F35C /* RCCaptureManager.h */; };
-		D33E9D411ADD18710085F35C /* RCReplayManager.h in Copy Files */ = {isa = PBXBuildFile; fileRef = D33E9D101ADD13110085F35C /* RCReplayManager.h */; };
 		D33E9D501ADD1F070085F35C /* libRC3DKPlus.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D3B4EB591A1E7DE100BE0443 /* libRC3DKPlus.a */; };
 		D34A0BE51ADFDB04008DFCCF /* VisualizationController.mm in Sources */ = {isa = PBXBuildFile; fileRef = D34A0BE41ADFDB04008DFCCF /* VisualizationController.mm */; };
 		D34A0BE81ADFE621008DFCCF /* world_state.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D34A0BE71ADFE621008DFCCF /* world_state.cpp */; };
@@ -170,6 +166,8 @@
 		D35BF0FF1ADD122800BF3CB0 /* ipad_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D35BF0F71ADD122800BF3CB0 /* ipad_on_table.jpg */; };
 		D35FC6841AE10E0E002E2FA8 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = D35FC6831AE10E0E002E2FA8 /* Default-568h@2x.png */; };
 		D364AFBD1A37A21700E39511 /* homography.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D953126D1A15AE63004D6068 /* homography.cpp */; };
+		D3791CA21AE1298C00D35EF4 /* RCDebugLog.h in Copy Files */ = {isa = PBXBuildFile; fileRef = D33E9D201ADD14600085F35C /* RCDebugLog.h */; };
+		D3791CA31AE12AE200D35EF4 /* RCDebugLog.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D33E9D201ADD14600085F35C /* RCDebugLog.h */; };
 		D3931E1B1A2217E5008F8940 /* random.c in Sources */ = {isa = PBXBuildFile; fileRef = D3931E191A2217D8008F8940 /* random.c */; };
 		D3931E1E1A221853008F8940 /* host.c in Sources */ = {isa = PBXBuildFile; fileRef = D3931E1C1A221850008F8940 /* host.c */; };
 		D3B4EACA1A1E7DE100BE0443 /* RCLicenseError.m in Sources */ = {isa = PBXBuildFile; fileRef = 328A4DD41950D5F400587949 /* RCLicenseError.m */; };
@@ -279,14 +277,13 @@
 			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
+				D3791CA21AE1298C00D35EF4 /* RCDebugLog.h in Copy Files */,
 				D33E9D3A1ADD18710085F35C /* RCAVSessionManager.h in Copy Files */,
 				D33E9D3B1ADD18710085F35C /* RCSensorManager.h in Copy Files */,
 				D33E9D3C1ADD18710085F35C /* RCLocationManager.h in Copy Files */,
 				D33E9D3D1ADD18710085F35C /* RCVideoFrameProvider.h in Copy Files */,
 				D33E9D3E1ADD18710085F35C /* RCVideoManager.h in Copy Files */,
 				D33E9D3F1ADD18710085F35C /* RCMotionManager.h in Copy Files */,
-				D33E9D401ADD18710085F35C /* RCCaptureManager.h in Copy Files */,
-				D33E9D411ADD18710085F35C /* RCReplayManager.h in Copy Files */,
 				328A4DD61950DB2200587949 /* RCSensorFusionError.h in Copy Files */,
 				D9FE87B619427F190052B8D8 /* RCSensorFusionInternals.h in Copy Files */,
 				327B560D18EB57970001CCE1 /* RC3DK.h in Copy Files */,
@@ -313,14 +310,13 @@
 			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
+				D3791CA31AE12AE200D35EF4 /* RCDebugLog.h in CopyFiles */,
 				D33E9D321ADD18510085F35C /* RCAVSessionManager.h in CopyFiles */,
 				D33E9D331ADD18510085F35C /* RCSensorManager.h in CopyFiles */,
 				D33E9D341ADD18510085F35C /* RCLocationManager.h in CopyFiles */,
 				D33E9D351ADD18510085F35C /* RCVideoFrameProvider.h in CopyFiles */,
 				D33E9D361ADD18510085F35C /* RCVideoManager.h in CopyFiles */,
 				D33E9D371ADD18510085F35C /* RCMotionManager.h in CopyFiles */,
-				D33E9D381ADD18510085F35C /* RCCaptureManager.h in CopyFiles */,
-				D33E9D391ADD18510085F35C /* RCReplayManager.h in CopyFiles */,
 				D351C6171A1E7EF7003DF3F3 /* RC3DKPlus.h in CopyFiles */,
 				D3B4EB411A1E7DE100BE0443 /* RCStereo.h in CopyFiles */,
 				D3B4EB421A1E7DE100BE0443 /* RCSensorFusionError.h in CopyFiles */,

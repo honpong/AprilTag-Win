@@ -33,8 +33,6 @@ filter(): s(cov)
     int min_group_add;
     int max_group_add;
     
-    int maxfeats;
-
     struct mapbuffer * output;
     struct mapbuffer * control;
     struct mapbuffer * visbuf;

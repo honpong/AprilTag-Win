@@ -980,7 +980,6 @@ bool filter_image_measurement(struct filter *f, const unsigned char *data, int w
             if (log_enabled) fprintf(stderr, "old max_state_size was %d\n", f->s.maxstatesize);
             f->s.maxstatesize = f->s.statesize - 1;
             if(f->s.maxstatesize < MINSTATESIZE) f->s.maxstatesize = MINSTATESIZE;
-            f->maxfeats = f->s.maxstatesize - 10;
             if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
             if (log_enabled) fprintf(stderr, "dropping a frame!\n");
             return false;
@@ -988,12 +987,10 @@ bool filter_image_measurement(struct filter *f, const unsigned char *data, int w
         if(lateness > period && f->s.maxstatesize > MINSTATESIZE && f->s.statesize < f->s.maxstatesize) {
             f->s.maxstatesize = f->s.statesize - 1;
             if(f->s.maxstatesize < MINSTATESIZE) f->s.maxstatesize = MINSTATESIZE;
-            f->maxfeats = f->s.maxstatesize - 10;
             if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
         }
         if(lateness < period / 4 && f->s.statesize > f->s.maxstatesize - f->min_group_add && f->s.maxstatesize < MAXSTATESIZE - 1) {
             ++f->s.maxstatesize;
-            f->maxfeats = f->s.maxstatesize - 10;
             if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", lateness, f->s.maxstatesize, f->s.statesize);
         }
     }
@@ -1240,7 +1237,6 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
 
     f->s.reset();
     f->s.maxstatesize = 120;
-    f->maxfeats = 70;
 
     f->s.Tc.v = v4(device.Tc[0], device.Tc[1], device.Tc[2], 0.);
     f->s.Wc.v = rotation_vector(device.Wc[0], device.Wc[1], device.Wc[2]);
@@ -1427,7 +1423,6 @@ void filter_select_feature(struct filter *f, float x, float y)
     }
     if(!myfeat) {
         //didn't find an existing feature - select a new one
-        //f->maxfeats is not necessarily a hard limit, so don't worry if we don't have room for a feature
         vector<xy> kp = f->track.detect(f->track.im2, NULL, 1, x - 8, y - 8, 17, 17);
         if(kp.size() > 0) {
             myfeat = f->s.add_feature(kp[0].x, kp[0].y);

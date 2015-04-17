@@ -8,8 +8,10 @@
 
 #import <Foundation/Foundation.h>
 
+#ifndef SDK_LICENSE_KEY
 #error You must insert your 3DK license key here and delete this line
 #define SDK_LICENSE_KEY @"YOUR_LICENSE_KEY_HERE"
+#endif
 
 @interface LicenseHelper : NSObject
 

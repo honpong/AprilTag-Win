@@ -1,7 +1,6 @@
 
 #include "stdafx.h"
 #include "AccelerometerManager.h"
-#include "atlbase.h"
 
 AccelerometerManager::AccelerometerManager(void)
 {
@@ -14,6 +13,9 @@ AccelerometerManager::~AccelerometerManager(void)
 
 HRESULT AccelerometerManager::Initialize()
 {
+	CComPtr<ISensorManager> pSensorManager;
+	CComPtr<ISensorCollection> pSensorColl;
+
 	// Create the sensor manager.
 	HRESULT hr = ::CoCreateInstance(CLSID_SensorManager, 
 							NULL, CLSCTX_INPROC_SERVER,
@@ -99,7 +101,7 @@ HRESULT AccelerometerManager::SetChangeSensitivity(double sensitivity)
 {
 	// create an IPortableDeviceValues container for holding the <Data Field, Sensitivity> tuples. 
 	HRESULT hr;
-	IPortableDeviceValues* pInSensitivityValues; 
+	CComPtr<IPortableDeviceValues> pInSensitivityValues; 
 	hr = ::CoCreateInstance(CLSID_PortableDeviceValues, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pInSensitivityValues));
 	if (FAILED(hr)) 
 	{ 
@@ -117,7 +119,7 @@ HRESULT AccelerometerManager::SetChangeSensitivity(double sensitivity)
 	pInSensitivityValues->SetValue(SENSOR_DATA_TYPE_ACCELERATION_Z_G, &pv); 
 	
 	// create an IPortableDeviceValues container for holding the <SENSOR_PROPERTY_CHANGE_SENSITIVITY, pInSensitivityValues> tuple. 
-	IPortableDeviceValues* pInValues; 
+	CComPtr<IPortableDeviceValues> pInValues; 
 	hr = ::CoCreateInstance(CLSID_PortableDeviceValues, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pInValues)); 
 	if (FAILED(hr)) 
 	{ 
@@ -129,7 +131,8 @@ HRESULT AccelerometerManager::SetChangeSensitivity(double sensitivity)
 	pInValues->SetIPortableDeviceValuesValue(SENSOR_PROPERTY_CHANGE_SENSITIVITY, pInSensitivityValues); 
 
 	// now actually set the sensitivity 
-	IPortableDeviceValues* pOutValues; hr = pSensor->SetProperties(pInValues, &pOutValues); 
+	CComPtr<IPortableDeviceValues> pOutValues; 
+	hr = pSensor->SetProperties(pInValues, &pOutValues); 
 	if (FAILED(hr)) 
 	{     
 		::MessageBox(NULL, _T("Unable to SetProperties() for Sensitivity."), _T("Sensor C++ Sample"), MB_OK | MB_ICONERROR);     

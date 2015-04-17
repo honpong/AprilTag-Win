@@ -1,5 +1,6 @@
 
 #include "stdafx.h"
+#include "atlbase.h"
 #include <string>
 
 #pragma once
@@ -18,17 +19,11 @@ public:
 	AccelerometerManager(void);
 	~AccelerometerManager(void);
 
-    // Register the window class and call methods for instantiating drawing resources
     HRESULT Initialize();
-
 	AccelSample GetSample();
 	HRESULT SetChangeSensitivity(double sensitivity); // in m/s^2
 
 private:
-
-	// Sensor interface pointers
-	ISensorManager* pSensorManager; 
-	ISensorCollection* pSensorColl;
-	ISensor* pSensor; 
+	CComPtr<ISensor> pSensor; 
 };
 

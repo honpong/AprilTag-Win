@@ -15,7 +15,6 @@ static const int DESIRED_INTERVAL = 16; // desired sensor reporting interval in 
 
 IMUManager::IMUManager()
 {
-	Debug::Log(L"IMUManager");
 
 	if (!USE_WIN32_AMETER_API)
 	{
@@ -29,7 +28,6 @@ IMUManager::IMUManager()
 
 //IMUManager^ IMUManager::GetSharedInstance()
 //{
-//	Debug::Log(L"GetSharedInstance");
 //	static IMUManager^ _sharedInstance;
 //	if (_sharedInstance == nullptr)
 //	{
@@ -41,7 +39,6 @@ IMUManager::IMUManager()
 
 bool IMUManager::StartSensors()
 {
-	Debug::Log(L"StartSensors");
 	bool result = true;
 	
 	if (USE_WIN32_AMETER_API)

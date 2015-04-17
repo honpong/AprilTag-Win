@@ -2913,6 +2913,13 @@
 			};
 			name = LibraryOffline;
 		};
+		D35FC6851AE10E0E002E2FA8 /* LibrarySunlayar */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = RC3DKVis;
+			};
+			name = LibrarySunlayar;
+		};
 		D3B4EB551A1E7DE100BE0443 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -3141,6 +3148,7 @@
 				D35BF0C91ADD111500BF3CB0 /* Library */,
 				D35BF0CA1ADD111500BF3CB0 /* LibraryLax */,
 				D35BF0CB1ADD111500BF3CB0 /* LibraryOffline */,
+				D35FC6851AE10E0E002E2FA8 /* LibrarySunlayar */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

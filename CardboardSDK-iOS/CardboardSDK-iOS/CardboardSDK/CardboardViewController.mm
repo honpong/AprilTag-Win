@@ -22,8 +22,6 @@
 #include "GLHelpers.h"
 
 #import "RC3DK.h"
-#import "RCSensorDelegate.h"
-#import "RCAVSessionManager.h"
 
 @interface EyeWrapper ()
 
@@ -110,7 +108,7 @@
     BOOL _frameParamentersReady;
     
     RCSensorFusion* sensorFusion;
-    id<RCSensorDelegate> sensorDelegate;
+    RCSensorManager * sensorManager;
     BOOL isSensorFusionRunning;
 
 }
@@ -166,7 +164,7 @@
     _headTracker->startTracking([UIApplication sharedApplication].statusBarOrientation);
     _magnetSensor->start();
     
-    sensorDelegate = [SensorDelegate sharedInstance];
+    sensorManager = [RCSensorManager sharedInstance];
     sensorFusion = [RCSensorFusion sharedInstance];
     sensorFusion.delegate = self;
     
@@ -574,7 +572,7 @@
 {
     if (!isSensorFusionRunning)
     {
-        [sensorDelegate startAllSensors];
+        [sensorManager startAllSensors];
         [sensorFusion startSensorFusionWithDevice:[[RCAVSessionManager sharedInstance] videoDevice]];
         isSensorFusionRunning = YES;
     }
@@ -585,7 +583,7 @@
     if (isSensorFusionRunning)
     {
         [sensorFusion stopSensorFusion];
-        [sensorDelegate stopAllSensors];
+        [sensorManager stopAllSensors];
         isSensorFusionRunning = NO;
     }
 }

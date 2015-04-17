@@ -339,7 +339,7 @@ void state_vision::cache_jacobians(f_t dt)
         integrate_angular_velocity_jacobian(g->Wr.v, dW, g->dWrp_dWr, g->dWrp_ddW);
         m4 Rrt_dRr_dWr = to_body_jacobian(g->Wr.v);
         g->Rr = to_rotation_matrix(g->Wr.v);
-        g->dTrp_dV = g->Rr * Rt * dt;
+        g->dTrp_ddT = g->Rr * Rt;
         m4 RrRtdT = g->Rr * skew3(Rt * dT);
         g->dTrp_dWr = RrRtdT * Rrt_dRr_dWr;
         g->dTrp_dW  = RrRtdT * Rt_dR_dW;
@@ -357,9 +357,9 @@ void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t
             v4 cov_a = a.copy_cov_from_row(src, i);
             v4 cov_w = w.copy_cov_from_row(src, i);
             v4 cov_dw = dw.copy_cov_from_row(src, i);
-
+            v4 cov_dT = dt * (cov_V + (dt / 2) * cov_a);
             v4 cov_Tp = cov_Tr +
-            g->dTrp_dV * (cov_V + .5 * dt * cov_a) +
+            g->dTrp_ddT * cov_dT +
             g->dTrp_dW * cov_W - g->dTrp_dWr * cov_Wr;
             g->Tr.copy_cov_to_col(dst, i, cov_Tp);
             v4 cov_dW = dt * (cov_w + dt/2. * cov_dw);

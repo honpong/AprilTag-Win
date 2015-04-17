@@ -167,7 +167,7 @@ class state_vision_group: public state_branch<state_node *> {
     //cached data
     m4 Rr;
     m4 dWrp_dWr, dWrp_ddW;
-    m4 dTrp_dV, dTrp_dWr, dTrp_dW;
+    m4 dTrp_ddT, dTrp_dWr, dTrp_dW;
 };
 
 class state_vision: public state_motion {

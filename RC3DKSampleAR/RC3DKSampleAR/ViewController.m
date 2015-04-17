@@ -10,6 +10,8 @@
 #import "LicenseHelper.h"
 #import "ARRenderer.h"
 
+//#define LOOK_FOR_QR_CODES
+
 @implementation ViewController
 {
     RCSensorFusion* sensorFusion;
@@ -37,7 +39,6 @@
     [[sensorManager getVideoProvider] setDelegate:videoPreview];
     
     arDelegate = [[ARRenderer alloc] init];
-    videoPreview.delegate = arDelegate;
 
     [self.view addSubview:videoPreview];
     [self.view sendSubviewToBack:videoPreview];
@@ -105,20 +106,21 @@
     [[sensorManager getVideoProvider] setDelegate:nil];
     [[RCSensorFusion sharedInstance] startSensorFusionWithDevice:[[RCAVSessionManager sharedInstance] videoDevice]];
     [progressBar setHidden:false];
-
+#ifdef LOOK_FOR_QR_CODES
     [[RCSensorFusion sharedInstance] startQRDetectionWithData:nil withDimension:0.1825 withAlignGravity:true];
-
+#endif
     statusLabel.text = @"Initializing. Hold the device steady.";
 }
 
 - (void)stopSensorFusion
 {
+    videoPreview.delegate = nil;
     [progressBar setHidden:true];
     [sensorFusion stopSensorFusion];
     [[sensorManager getVideoProvider] setDelegate:videoPreview];
-
+#ifdef LOOK_FOR_QR_CODES
     [[RCSensorFusion sharedInstance] stopQRDetection];
-
+#endif
     isStarted = false;
 }
 
@@ -148,8 +150,9 @@
     {
         progressBar.progress = status.progress;
     }
-    else if(status.runState == RCSensorFusionRunStateRunning)
+    else if(status.runState == RCSensorFusionRunStateRunning && currentRunState != RCSensorFusionRunStateRunning)
     {
+        videoPreview.delegate = arDelegate;
         [progressBar setHidden:true];
         statusLabel.text = @"AR view active. Move to view. Tap to stop.";
     }

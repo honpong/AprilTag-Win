@@ -44,6 +44,11 @@
 /** Set this property to a delegate object that will receive the sensor fusion updates. The object must implement the RCSensorFusionDelegate protocol. */
 @property (weak) id<RCSensorFusionDelegate> delegate;
 
+/** 
+ The device's current location (including altitude) is used to account for differences in gravity across the earth. If location is unavailable, results may be less accurate. This should be set before starting sensor fusion or calibration.
+ */
+@property (nonatomic, retain) CLLocation* location;
+
 /** Use this method to get a shared instance of this class */
 + (RCSensorFusion *) sharedInstance;
 
@@ -52,12 +57,6 @@
  @param licenseKey A 30 character string. Obtain a license key by contacting RealityCap.
  */
 - (void) setLicenseKey:(NSString*)licenseKey;
-
-/** Sets the current location of the device.
- 
- @param location The device's current location (including altitude) is used to account for differences in gravity across the earth. If location is unavailable, results may be less accurate. This should be called before starting sensor fusion or calibration.
-*/
-- (void) setLocation:(CLLocation*)location;
 
 /** Determine if valid saved calibration data exists from a previous run.
  

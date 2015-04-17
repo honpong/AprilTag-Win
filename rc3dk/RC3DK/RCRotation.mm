@@ -96,7 +96,7 @@
 - (RCRotation *)composeWithRotation:(RCRotation *)other
 {
     //TODO: standard deviation
-    quaternion a = quaternion_product(q, quaternion(other.quaternionW, other.quaternionX, other.quaternionY, other.quaternionZ));
+    quaternion a = q * quaternion(other.quaternionW, other.quaternionX, other.quaternionY, other.quaternionZ);
     return [[RCRotation alloc] initWithQuaternionW:a.w() withX:a.x() withY:a.y() withZ:a.z()];
 }
 

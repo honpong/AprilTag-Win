@@ -28,16 +28,7 @@
       shouldUseLaunchSchemeArgsEnv = "YES"
       buildConfiguration = "Debug">
       <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "327B54EE18EB4CC90001CCE1"
-               BuildableName = "RC3DKTests.xctest"
-               BlueprintName = "RC3DKTests"
-               ReferencedContainer = "container:RC3DK.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
+
       </Testables>
    </TestAction>
    <LaunchAction

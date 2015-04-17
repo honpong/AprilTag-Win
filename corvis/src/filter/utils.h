@@ -8,7 +8,7 @@ static inline quaternion initial_orientation_from_gravity_facing(const v4 gravit
 {
     v4 z(0., 0., 1., 0.);
     quaternion q = rotation_between_two_vectors(gravity, z);
-    v4 zt = quaternion_rotate(q, -z/*camera in accelerometer frame*/);
+    v4 zt = q * -z/*camera in accelerometer frame*/;
     //project the transformed z vector onto the x-y plane
     zt[2] = 0.;
     f_t len = zt.norm();
@@ -18,7 +18,7 @@ static inline quaternion initial_orientation_from_gravity_facing(const v4 gravit
             f_t d =  (zt / len).dot(facing.normalized()), s = sqrt(2*(1 + d));
             quaternion dq = a.norm() > F_T_EPS ? normalize(quaternion(s/2, a[0]/s, a[1]/s, a[2]/s))
                                               : d > 0 ? quaternion() : quaternion(0,0,0,1);
-            q = quaternion_product(dq, q);
+            q = dq * q;
         }
     return q;
 }

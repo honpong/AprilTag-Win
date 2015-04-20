@@ -138,6 +138,16 @@ CXX_SOURCES := $(CXX_SOURCES) $(FILTER_CXX_SOURCES)
 SOURCES := $(SOURCES) $(FILTER_SOURCES)
 DEPS := $(DEPS) build/swig/_filter.cpp.d
 
+############################## VIS ################################
+
+VIS_CXX_SOURCES := $(addprefix src/vis/, world_state.cpp world_state_render.cpp arcball.cpp offscreen_render.cpp lodepng.cpp)
+bin/corvis/_vis.so: LDFLAGS := $(LDFLAGS) -framework OpenGL
+bin/corvis/_vis.so: $(patsubst src/%,build/%,$(VIS_CXX_SOURCES:.cpp=.o))
+
+TARGETS := $(TARGETS) bin/corvis/_vis.so
+CXX_SOURCES := $(CXX_SOURCES) $(VIS_CXX_SOURCES)
+
+
 ############################## LIBZXING ##########################
 
 d := libzxing-cpp
@@ -233,7 +243,7 @@ SOURCES := $(SOURCES) $(VL_C_SOURCES)
 ############################## MEASURE ############################
 
 MEASURE_SOURCES := $(FILTER_SOURCES) $(COR_SOURCES)
-MEASURE_CXX_SOURCES := src/tools/measure.cpp src/filter/replay.cpp $(FILTER_CXX_SOURCES) $(NUMERICS_CXX_SOURCES) $(COR_CXX_SOURCES)
+MEASURE_CXX_SOURCES := src/tools/measure.cpp src/filter/replay.cpp $(FILTER_CXX_SOURCES) $(NUMERICS_CXX_SOURCES) $(COR_CXX_SOURCES) $(VIS_CXX_SOURCES)
 
 LDFLAGS := $(LDFLAGS) -lstdc++
 

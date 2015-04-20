@@ -1,5 +1,5 @@
-#ifndef __CORVIS_WORLD_H__
-#define __CORVIS_WORLD_H__
+#ifndef __CORVIS_WORLD_STATE_H__
+#define __CORVIS_WORLD_STATE_H__
 
 #include <map>
 #include <vector>

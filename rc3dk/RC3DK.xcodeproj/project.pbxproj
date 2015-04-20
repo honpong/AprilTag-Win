@@ -83,8 +83,6 @@
 		D321AD421A323C17003AEA77 /* stereo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D321AD371A323BF7003AEA77 /* stereo.cpp */; };
 		D326CED71ADFC62C003B026B /* CaptureViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = D326CED61ADFC62C003B026B /* CaptureViewController.mm */; };
 		D32D21EC1AE003290070A8F0 /* GLKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D32D21EB1AE003290070A8F0 /* GLKit.framework */; };
-		D32D21EF1AE006E80070A8F0 /* shader.fsh in Resources */ = {isa = PBXBuildFile; fileRef = D32D21ED1AE006950070A8F0 /* shader.fsh */; };
-		D32D21F01AE006E80070A8F0 /* shader.vsh in Resources */ = {isa = PBXBuildFile; fileRef = D32D21EE1AE006950070A8F0 /* shader.vsh */; };
 		D33B00581A20CA8E00287FC9 /* sift.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7FB1A1E010E00BBB1FF /* sift.c */; };
 		D33B00591A20CAB700287FC9 /* generic.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7C91A1E010E00BBB1FF /* generic.c */; };
 		D33B005A1A20CACE00287FC9 /* imopv.c in Sources */ = {isa = PBXBuildFile; fileRef = D392F7DD1A1E010E00BBB1FF /* imopv.c */; };
@@ -166,6 +164,8 @@
 		D35BF0FF1ADD122800BF3CB0 /* ipad_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D35BF0F71ADD122800BF3CB0 /* ipad_on_table.jpg */; };
 		D35FC6841AE10E0E002E2FA8 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = D35FC6831AE10E0E002E2FA8 /* Default-568h@2x.png */; };
 		D364AFBD1A37A21700E39511 /* homography.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D953126D1A15AE63004D6068 /* homography.cpp */; };
+		D3696BA01AE508880026E67B /* world_state_render.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3696B9E1AE508880026E67B /* world_state_render.cpp */; };
+		D3696BA11AE509670026E67B /* world_state_render.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3696B9E1AE508880026E67B /* world_state_render.cpp */; };
 		D3791CA21AE1298C00D35EF4 /* RCDebugLog.h in Copy Files */ = {isa = PBXBuildFile; fileRef = D33E9D201ADD14600085F35C /* RCDebugLog.h */; };
 		D3791CA31AE12AE200D35EF4 /* RCDebugLog.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D33E9D201ADD14600085F35C /* RCDebugLog.h */; };
 		D3931E1B1A2217E5008F8940 /* random.c in Sources */ = {isa = PBXBuildFile; fileRef = D3931E191A2217D8008F8940 /* random.c */; };
@@ -512,8 +512,6 @@
 		D321AD381A323BF7003AEA77 /* stereo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stereo.h; sourceTree = "<group>"; };
 		D326CED61ADFC62C003B026B /* CaptureViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = CaptureViewController.mm; sourceTree = "<group>"; };
 		D32D21EB1AE003290070A8F0 /* GLKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GLKit.framework; path = System/Library/Frameworks/GLKit.framework; sourceTree = SDKROOT; };
-		D32D21ED1AE006950070A8F0 /* shader.fsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = shader.fsh; path = ../../corvis/src/vis/shader.fsh; sourceTree = "<group>"; };
-		D32D21EE1AE006950070A8F0 /* shader.vsh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = shader.vsh; path = ../../corvis/src/vis/shader.vsh; sourceTree = "<group>"; };
 		D33E61DC1ADD4ABA00569C82 /* RCReplayManager.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RCReplayManager.mm; sourceTree = "<group>"; };
 		D33E61DF1ADE632900569C82 /* capture.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = capture.h; sourceTree = "<group>"; };
 		D33E61E01ADE632900569C82 /* capture.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = capture.cpp; sourceTree = "<group>"; };
@@ -568,6 +566,8 @@
 		D35BF0F61ADD122800BF3CB0 /* holding_portrait.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = holding_portrait.jpg; path = ../../Calibration/holding_portrait.jpg; sourceTree = "<group>"; };
 		D35BF0F71ADD122800BF3CB0 /* ipad_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = ipad_on_table.jpg; path = ../../Calibration/ipad_on_table.jpg; sourceTree = "<group>"; };
 		D35FC6831AE10E0E002E2FA8 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h@2x.png"; path = "../Default-568h@2x.png"; sourceTree = "<group>"; };
+		D3696B9E1AE508880026E67B /* world_state_render.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = world_state_render.cpp; path = ../../corvis/src/vis/world_state_render.cpp; sourceTree = "<group>"; };
+		D3696B9F1AE508880026E67B /* world_state_render.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = world_state_render.h; path = ../../corvis/src/vis/world_state_render.h; sourceTree = "<group>"; };
 		D392F7871A1E010E00BBB1FF /* geom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = geom.h; sourceTree = "<group>"; };
 		D392F7881A1E010E00BBB1FF /* io.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = io.h; sourceTree = "<group>"; };
 		D392F7891A1E010E00BBB1FF /* libqhull.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = libqhull.h; sourceTree = "<group>"; };
@@ -1137,10 +1137,10 @@
 			children = (
 				D34A0BEB1ADFFA33008DFCCF /* arcball.h */,
 				D34A0BEA1ADFFA33008DFCCF /* arcball.cpp */,
-				D32D21ED1AE006950070A8F0 /* shader.fsh */,
-				D32D21EE1AE006950070A8F0 /* shader.vsh */,
 				D34A0BE61ADFE621008DFCCF /* world_state.h */,
 				D34A0BE71ADFE621008DFCCF /* world_state.cpp */,
+				D3696B9E1AE508880026E67B /* world_state_render.cpp */,
+				D3696B9F1AE508880026E67B /* world_state_render.h */,
 			);
 			name = vis;
 			sourceTree = "<group>";
@@ -1468,8 +1468,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D32D21EF1AE006E80070A8F0 /* shader.fsh in Resources */,
-				D32D21F01AE006E80070A8F0 /* shader.vsh in Resources */,
 				D35BF0B31ADD111500BF3CB0 /* Main.storyboard in Resources */,
 				D35FC6841AE10E0E002E2FA8 /* Default-568h@2x.png in Resources */,
 				D35BF0FD1ADD122800BF3CB0 /* holding_landscape.jpg in Resources */,
@@ -1622,6 +1620,7 @@
 				38EDF0771AD43D2500F0A322 /* rotation_vector.cpp in Sources */,
 				327B557818EB4DC20001CCE1 /* RCSensorFusionData.m in Sources */,
 				D95EB18C1AA50AF200ADFC20 /* sensor_fusion.cpp in Sources */,
+				D3696BA01AE508880026E67B /* world_state_render.cpp in Sources */,
 				327B557918EB4DC20001CCE1 /* RCSensorFusionStatus.m in Sources */,
 				D95EB1871AA5038600ADFC20 /* sensor_fusion_queue.cpp in Sources */,
 				D953126F1A15AE63004D6068 /* homography.cpp in Sources */,
@@ -1752,6 +1751,7 @@
 				D3588F081A20C4A400CA10E7 /* global.c in Sources */,
 				D3588EFB1A20C0D200CA10E7 /* util.cpp in Sources */,
 				D3588F011A20C39F00CA10E7 /* geom2.c in Sources */,
+				D3696BA11AE509670026E67B /* world_state_render.cpp in Sources */,
 				D33E9D2E1ADD14600085F35C /* RCLocationManager.m in Sources */,
 				D95EB18D1AA50AF200ADFC20 /* sensor_fusion.cpp in Sources */,
 				D3B4EB371A1E7DE100BE0443 /* RCPrivateHTTPClient.m in Sources */,

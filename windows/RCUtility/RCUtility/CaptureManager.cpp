@@ -10,12 +10,12 @@ using namespace Windows::Foundation;
 using namespace Platform;
 using namespace RealityCap;
 
-CaptureManager::SampleHandler::SampleHandler(CaptureManager^ capMan)
+CaptureManager::VideoFrameHandler::VideoFrameHandler(CaptureManager^ capMan)
 {
 	parent = capMan;
 }
 
-pxcStatus PXCAPI CaptureManager::SampleHandler::OnNewSample(pxcUID, PXCCapture::Sample *sample)
+pxcStatus PXCAPI CaptureManager::VideoFrameHandler::OnNewSample(pxcUID, PXCCapture::Sample *sample)
 {
 	if (sample)
 	{
@@ -26,13 +26,13 @@ pxcStatus PXCAPI CaptureManager::SampleHandler::OnNewSample(pxcUID, PXCCapture::
 	return PXC_STATUS_NO_ERROR; // return NO ERROR to continue, or any ERROR to exit the loop
 };
 
-CaptureManager::CaptureManager()
+CaptureManager::CaptureManager() : frameHandler(this)
 {
 	imuMan = ref new IMUManager();
 	imuMan->OnAmeterSample += ref new AmeterEventHandler(this, &CaptureManager::OnAmeterSample);
 	imuMan->OnGyroSample += ref new GyroEventHandler(this, &CaptureManager::OnGyroSample);
 
-	videoMan.SetDelegate(&sampleHandler);
+	videoMan.SetDelegate(&frameHandler);
 }
 
 void CaptureManager::StartCapture()

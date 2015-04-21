@@ -16,15 +16,15 @@ namespace RealityCap
 		void StopCapture();
 
 	private:
-		class SampleHandler : public PXCSenseManager::Handler
+		class VideoFrameHandler : public PXCSenseManager::Handler
 		{
 		public:
-			SampleHandler(CaptureManager^ capMan);
+			VideoFrameHandler(CaptureManager^ capMan);
 			virtual pxcStatus PXCAPI OnNewSample(pxcUID, PXCCapture::Sample *sample);
 		private:
 			CaptureManager^ parent;
 		};
-		SampleHandler sampleHandler;
+		VideoFrameHandler frameHandler;
 		VideoManager videoMan;
 
 		IMUManager^ imuMan;

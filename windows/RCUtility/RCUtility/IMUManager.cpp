@@ -13,6 +13,8 @@ using namespace Windows::UI::Xaml;
 #define USE_WIN32_AMETER_API true
 static const int DESIRED_INTERVAL = 16; // desired sensor reporting interval in milliseconds
 
+AmeterSample::AmeterSample() {}
+
 IMUManager::IMUManager()
 {
 
@@ -101,12 +103,28 @@ void IMUManager::AccelReadingChanged(Accelerometer^ sender, AccelerometerReading
 void IMUManager::GyroReadingChanged(Gyrometer^ sender, GyrometerReadingChangedEventArgs^ e)
 {
 	GyrometerReading^ reading = e->Reading;
-	long long millisec = reading->Timestamp.UniversalTime / 10000;
-	Debug::Log(L"%lld\tgyro\tx: %3.3f\ty: %3.3f\tz: %3.3f", millisec, reading->AngularVelocityX, reading->AngularVelocityY, reading->AngularVelocityZ); // gyro data is in degrees/sec
+	OnGyroSample(reading);
+	//long long millisec = reading->Timestamp.UniversalTime / 10000;
+	//Debug::Log(L"%lld\tgyro\tx: %3.3f\ty: %3.3f\tz: %3.3f", millisec, reading->AngularVelocityX, reading->AngularVelocityY, reading->AngularVelocityZ); // gyro data is in degrees/sec
 
 	if (USE_WIN32_AMETER_API) // instead of setting up a timer for polling the ameter, we can use this event handler to poll in sync with the gyro
 	{
 		AccelSample sample = accelMan.GetSample();
-		Debug::Log(L"%i:%i:%i\taccel\tx: %1.3f\ty: %1.3f\tz: %1.3f", sample.timestamp.wMinute, sample.timestamp.wSecond, sample.timestamp.wMilliseconds, sample.x, sample.y, sample.z);
+
+		FILETIME ft;
+		SystemTimeToFileTime(&sample.timestamp, &ft); 
+		ULARGE_INTEGER ui;
+		ui.LowPart = ft.dwLowDateTime;
+		ui.HighPart = ft.dwHighDateTime;
+
+		AmeterSample^ aSample = ref new AmeterSample();
+		aSample->AccelerationX = sample.x;
+		aSample->AccelerationY = sample.y;
+		aSample->AccelerationZ = sample.z;
+		aSample->Timestamp = ui.QuadPart / 10000;
+
+		OnAmeterSample(aSample);
+
+		//Debug::Log(L"%i:%i:%i\taccel\tx: %1.3f\ty: %1.3f\tz: %1.3f", sample.timestamp.wMinute, sample.timestamp.wSecond, sample.timestamp.wMilliseconds, sample.x, sample.y, sample.z);
 	}
 }

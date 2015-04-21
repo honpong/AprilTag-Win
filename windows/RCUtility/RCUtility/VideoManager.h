@@ -1,3 +1,5 @@
+#pragma once
+
 #using <Windows.winmd>
 #using <Platform.winmd>
 
@@ -5,27 +7,20 @@
 #include "pxcsensemanager.h"
 #include "pxcmetadata.h"
 
-#pragma once
-
 namespace RealityCap
 {
-	public ref class VideoManager sealed
+	class VideoManager
 	{
-
 	public:
 		VideoManager();
-		virtual ~VideoManager();
-		//static VideoManager^ GetSharedInstance();
+		~VideoManager();
+		
 		bool StartVideo(); // returns true if video started successfully
 		void StopVideo();
+		void SetDelegate(PXCSenseManager::Handler* handler);
 
-	private:
-		class SampleHandler : public PXCSenseManager::Handler 
-		{ 
-		public:
-			virtual pxcStatus PXCAPI OnNewSample(pxcUID, PXCCapture::Sample *sample); 
-		};
+	private:		
 		PXCSenseManager* senseMan;
-		SampleHandler sampleHandler;
+		PXCSenseManager::Handler* sampleHandler;
 	};
 }

@@ -48,6 +48,9 @@
     <ClInclude Include="RCUtility.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="CaptureManager.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -70,6 +73,9 @@
     </ClCompile>
     <ClCompile Include="VideoManager.cpp">
       <Filter>Source Files\SensorManagers</Filter>
+    </ClCompile>
+    <ClCompile Include="CaptureManager.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

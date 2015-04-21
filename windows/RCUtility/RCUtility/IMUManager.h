@@ -1,18 +1,34 @@
+#pragma once
+
 #using <Windows.winmd>
 #using <Platform.winmd>
 #include "AccelerometerManager.h"
 
-#pragma once
-
 namespace RealityCap
 {
-	public ref class IMUManager sealed
+	public ref class AmeterSample sealed
+	{
+	public:
+		AmeterSample();
+		property double AccelerationX;
+		property double AccelerationY;
+		property double AccelerationZ;
+		property uint64 Timestamp;
+	};
+
+	public delegate void AmeterEventHandler(AmeterSample^ sample);
+	public delegate void GyroEventHandler(Windows::Devices::Sensors::GyrometerReading^ sample);
+
+	ref class IMUManager sealed
 	{
 	public:
 		IMUManager();
 		//static IMUManager^ GetSharedInstance();
 		bool StartSensors(); // returns true if all sensors started successfully
 		void StopSensors();
+
+		event AmeterEventHandler^ OnAmeterSample;
+		event GyroEventHandler^ OnGyroSample;
 
 	private:
 		Windows::Devices::Sensors::Accelerometer^ accelerometer;

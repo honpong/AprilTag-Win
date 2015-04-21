@@ -1,15 +1,14 @@
+#pragma once
 
 #include "stdafx.h"
 #include "atlbase.h"
 #include <string>
 
-#pragma once
-
 struct AccelSample
 {
-	float x;
-	float y;
-	float z;
+	double x;
+	double y;
+	double z;
 	SYSTEMTIME timestamp;
 };
 

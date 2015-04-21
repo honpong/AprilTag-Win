@@ -8,6 +8,7 @@
 #include "Debug.h"
 #include "LocationManager.h"
 #include "VideoManager.h"
+#include "CaptureManager.h"
 
 #using <Windows.winmd>
 #using <Platform.winmd>
@@ -55,14 +56,17 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_RCUTILITY));
 
-	IMUManager^ imuMan = ref new IMUManager();
-	imuMan->StartSensors();
+	/*IMUManager^ imuMan = ref new IMUManager();
+	imuMan->StartSensors();*/
 
-	LocationManager^ locationMan = ref new LocationManager();
+	/*LocationManager^ locationMan = ref new LocationManager();
 	locationMan->GetLocationAndCache();
 
 	VideoManager^ videoMan = ref new VideoManager();
-	videoMan->StartVideo();
+	videoMan->StartVideo();*/
+
+	CaptureManager^ capMan = ref new CaptureManager();
+	capMan->StartCapture();
 
 	// Main message loop:
 	while (GetMessage(&msg, NULL, 0, 0))

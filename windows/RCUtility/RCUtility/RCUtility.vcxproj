@@ -89,6 +89,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AccelerometerManager.h" />
+    <ClInclude Include="CaptureManager.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="IMUManager.h" />
     <ClInclude Include="LocationManager.h" />
@@ -100,6 +101,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AccelerometerManager.cpp" />
+    <ClCompile Include="CaptureManager.cpp" />
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="IMUManager.cpp" />
     <ClCompile Include="LocationManager.cpp" />

@@ -1,8 +1,8 @@
+#pragma once
+
 #include "stdafx.h"
 #using <Windows.winmd>
 #using <Platform.winmd>
-
-#pragma once
 
 namespace RealityCap
 {

@@ -64,8 +64,8 @@
 - (void) startFromCapture
 {
     UIStoryboard * mainStoryBoard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
-    ReplayViewController * rc = (ReplayViewController *)[mainStoryBoard instantiateViewControllerWithIdentifier:@"CaptureView"];
-    self.window.rootViewController = rc;
+    UIViewController * vc = [mainStoryBoard instantiateViewControllerWithIdentifier:@"CaptureView"];
+    self.window.rootViewController = vc;
 }
 
 - (void) startFromLive

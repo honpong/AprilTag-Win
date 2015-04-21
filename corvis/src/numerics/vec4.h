@@ -30,7 +30,7 @@ extern "C" {
 
 //These could cause assertion failures, so only turn them on for debug builds
 #ifdef DEBUG
-#define EIGEN_NO_AUTOMATIC_RESIZING
+//#define EIGEN_NO_AUTOMATIC_RESIZING
 #endif
 
 //This, or EIGEN_INITIALIZE_MATRICES_BY_NAN can be used to verify that we are initializing everything correctly
@@ -41,7 +41,9 @@ extern "C" {
 #include "../Eigen/Dense"
 
 typedef Eigen::Matrix<f_t, 4, 1> v4;
+typedef Eigen::Matrix<f_t, 3, 1> v3;
 typedef Eigen::Matrix<f_t, 4, 4> m4;
+typedef Eigen::Matrix<f_t, 3, 3> m3;
 
 static inline v4 v4_sqrt(const v4 &v) { return v4(sqrt(v[0]), sqrt(v[1]), sqrt(v[2]), sqrt(v[3])); }
 

@@ -16,9 +16,6 @@
     <Filter Include="Source Files\SensorManagers">
       <UniqueIdentifier>{11065ee0-20eb-422a-a17d-b60bd63be980}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\SensorManagers">
-      <UniqueIdentifier>{3e1236a6-894b-4210-82ec-77cd7cdb5c92}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -33,23 +30,23 @@
     <ClInclude Include="Resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="RCUtility.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Debug.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="AccelerometerManager.h">
-      <Filter>Header Files\SensorManagers</Filter>
+      <Filter>Source Files\SensorManagers</Filter>
     </ClInclude>
     <ClInclude Include="IMUManager.h">
-      <Filter>Header Files\SensorManagers</Filter>
+      <Filter>Source Files\SensorManagers</Filter>
     </ClInclude>
     <ClInclude Include="LocationManager.h">
-      <Filter>Header Files\SensorManagers</Filter>
+      <Filter>Source Files\SensorManagers</Filter>
     </ClInclude>
     <ClInclude Include="VideoManager.h">
-      <Filter>Header Files\SensorManagers</Filter>
+      <Filter>Source Files\SensorManagers</Filter>
+    </ClInclude>
+    <ClInclude Include="Debug.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RCUtility.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

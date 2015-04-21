@@ -19,7 +19,10 @@ namespace RealityCap
 		class SampleHandler : public PXCSenseManager::Handler
 		{
 		public:
+			SampleHandler(CaptureManager^ capMan);
 			virtual pxcStatus PXCAPI OnNewSample(pxcUID, PXCCapture::Sample *sample);
+		private:
+			CaptureManager^ parent;
 		};
 		SampleHandler sampleHandler;
 		VideoManager videoMan;

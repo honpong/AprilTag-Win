@@ -10,6 +10,11 @@ using namespace Windows::Foundation;
 using namespace Platform;
 using namespace RealityCap;
 
+CaptureManager::SampleHandler::SampleHandler(CaptureManager^ capMan)
+{
+	parent = capMan;
+}
+
 pxcStatus PXCAPI CaptureManager::SampleHandler::OnNewSample(pxcUID, PXCCapture::Sample *sample)
 {
 	if (sample)

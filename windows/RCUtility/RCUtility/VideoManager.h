@@ -17,7 +17,7 @@ namespace RealityCap
 		
 		bool StartVideo(); // returns true if video started successfully
 		void StopVideo();
-		void SetDelegate(PXCSenseManager::Handler* handler);
+		void SetDelegate(PXCSenseManager::Handler* handler); // must be called before StartVideo()
 
 	private:		
 		PXCSenseManager* senseMan;

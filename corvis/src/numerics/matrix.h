@@ -11,10 +11,14 @@
 #include <assert.h>
 #include <string.h>
 #include "vec4.h"
+#include <cstddef>
+
+//typedef Eigen::Matrix<f_t, Eigen::Dynamic, Eigen::Dynamic> matrixtype;
+//typedef Eigen::Map<matrixtype, Eigen::Aligned, Eigen::OuterStride<Eigen::Dynamic>> matrix_map;
 
 class matrix {
 protected:
-    v_intrinsic *storage;
+    f_t *storage;
     
     int _rows;
     int _cols;
@@ -46,9 +50,9 @@ public:
  matrix(): storage(NULL), _rows(0), _cols(0), stride(0), maxrows(0), data(NULL) {}
  matrix(matrix &other, const int startrow, const int startcol, const int rows, const int cols): storage(NULL), _rows(rows), _cols(cols), stride(other.stride), maxrows(rows), data(&other(startrow, startcol)) {}
     
-  matrix(const int nrows, const int ncols): storage(new v_intrinsic[nrows * ((ncols+3)/4)]), _rows(nrows), _cols(ncols), stride(((ncols+3)/4)*4), maxrows(nrows), data((f_t *)storage) { }
+  matrix(const int nrows, const int ncols): storage(new f_t[nrows * ncols]), _rows(nrows), _cols(ncols), stride(ncols), maxrows(nrows), data((f_t *)storage) { }
 
-    matrix(const matrix &other): storage(new v_intrinsic[other._rows * ((other._cols+3)/4)]), _rows(other._rows), _cols(other._cols), stride(((other._cols+3)/4)*4), maxrows(other._rows), data((f_t *)storage)
+    matrix(const matrix &other): storage(new f_t[other._rows * other._cols]), _rows(other._rows), _cols(other._cols), stride(other._cols), maxrows(other._rows), data((f_t *)storage)
     { *this = other; }
     
     matrix &operator=(const matrix &other)

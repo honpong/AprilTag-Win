@@ -75,10 +75,6 @@ typedef float f_t;
 #define F_T_EPS FLT_EPSILON
 #endif
 
-#ifndef SWIG
-typedef f_t v_intrinsic __attribute__ ((vector_size(sizeof(f_t)*4)));
-#endif
-
 //need infinity for eg, to show if a feature is dropped
 #include <math.h>
 

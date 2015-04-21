@@ -20,13 +20,22 @@ extern "C" {
 
 #include <ostream>
 
+//Don't use GPL-licensed pieces of eigen
+#define EIGEN_MPL2_ONLY
+
+//This disables internal asserts which slow eigen down quite a bit
 #ifndef DEBUG
 #define EIGEN_NO_DEBUG
 #endif
 
+//These could cause assertion failures, so only turn them on for debug builds
+#ifdef DEBUG
+#define EIGEN_NO_AUTOMATIC_RESIZING
+#endif
+
+//This, or EIGEN_INITIALIZE_MATRICES_BY_NAN can be used to verify that we are initializing everything correctly
 //#define EIGEN_INITIALIZE_MATRICES_BY_ZERO
 
-#define EIGEN_NO_AUTOMATIC_RESIZING
 #define EIGEN_DEFAULT_TO_ROW_MAJOR
 #define EIGEN_MATRIX_PLUGIN "../../../numerics/eigen_initializer_list.h"
 #include "../Eigen/Dense"

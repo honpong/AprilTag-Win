@@ -13,15 +13,17 @@
 
 #define MAXSTATESIZE 160
 
+//typedef Eigen::Map<matrixtype, Eigen::Aligned, Eigen::OuterStride<MAXSTATESIZE>> covariance_map;
+
 class covariance
 {
 protected:
-    v_intrinsic cov_storage[2][MAXSTATESIZE*MAXSTATESIZE / 4];
-    v_intrinsic p_cov_storage[2][MAXSTATESIZE / 4];
+    f_t cov_storage[2][MAXSTATESIZE*MAXSTATESIZE];
+    f_t p_cov_storage[2][MAXSTATESIZE];
     int map[MAXSTATESIZE];
 
 public:
-    covariance(): cov((f_t*)cov_storage[0], 0, 0, MAXSTATESIZE, MAXSTATESIZE), cov_scratch((f_t*)cov_storage[1], 0, 0, MAXSTATESIZE, MAXSTATESIZE), process_noise((f_t *)p_cov_storage[0], 1, 0, 1, MAXSTATESIZE), process_scratch((f_t*)p_cov_storage[1], 1, 0, 1, MAXSTATESIZE) {}
+    covariance(): cov(cov_storage[0], 0, 0, MAXSTATESIZE, MAXSTATESIZE), cov_scratch(cov_storage[1], 0, 0, MAXSTATESIZE, MAXSTATESIZE), process_noise((f_t *)p_cov_storage[0], 1, 0, 1, MAXSTATESIZE), process_scratch((f_t*)p_cov_storage[1], 1, 0, 1, MAXSTATESIZE) {}
 
     matrix cov;
     matrix cov_scratch;
@@ -39,6 +41,8 @@ public:
         
         cov_scratch.resize(cov.rows(), cov.cols());
         cov.resize(size, size);
+        //new (&cov_scratch) covariance_map(cov.data(), cov.rows(), cov.cols());
+        //new (&cov) covariance_map(temp, size, size);
         
         temp = process_scratch.data;
         process_scratch.data = process_noise.data;

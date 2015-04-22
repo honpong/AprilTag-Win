@@ -20,6 +20,25 @@
     return ::testing::AssertionSuccess();
 }
 
+::testing::AssertionResult test_m3_near(const char* expr1, const char* expr2, const char* bounds_expr,
+                                        const m3 &a, const m3 &b, const f_t bounds)
+{
+    for(int i = 0; i < 3; ++i)
+        for(int j = 0; j < 3; ++j)
+            if(fabs(a(i,j) - b(i,j)) > bounds)
+                return ::testing::AssertionFailure()
+                << "The difference between\n"
+                <<  " " << a(i,j) << " = " << expr1 << "(" << i << "," << j << ")\n"
+                <<  " " << b(i,j) << " = " << expr2 << "(" << i << "," << j << ")\n"
+                << "is " << fabs(a(i,j) - b(i,j)) << "\n"
+                << "where\n"
+                << " " << expr1 << " =\n"
+                << a << "\n"
+                << " " << expr2 << " =\n"
+                << b << ".";
+    return ::testing::AssertionSuccess();
+}
+
 ::testing::AssertionResult test_v4_near(const char* expr1, const char* expr2, const char* bounds_expr,
                                         const v4 &a, const v4 &b, const f_t bounds)
 {
@@ -35,6 +54,24 @@
                 << a << "\n"
                 << " " << expr2 << " =\n"
                 << b << ".";
+    return ::testing::AssertionSuccess();
+}
+
+::testing::AssertionResult test_v3_near(const char* expr1, const char* expr2, const char* bounds_expr,
+                                        const v3 &a, const v3 &b, const f_t bounds)
+{
+    for(int i = 0; i < 3; ++i)
+        if(fabs(a[i] - b[i]) > bounds)
+            return ::testing::AssertionFailure()
+            << "The difference between\n"
+            <<  " " << a[i] << " = " << expr1 << "[" << i << "]\n"
+            <<  " " << b[i] << " = " << expr2 << "[" << i << "]\n"
+            << "is " << fabs(a[i]- b[i]) << "\n"
+            << "where\n"
+            << " " << expr1 << " =\n"
+            << a << "\n"
+            << " " << expr2 << " =\n"
+            << b << ".";
     return ::testing::AssertionSuccess();
 }
 

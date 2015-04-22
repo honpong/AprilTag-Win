@@ -13,7 +13,7 @@
  [0       0       0       -x1      -y1     -1       x1y2    y1y2    y2 ]
  [x1      y1      1        0        0       0      -x1x2   -y1x2   -x2 ]
  */
-static void homography_set_correspondence(matrix &X, int n, float x1, float y1, float x2, float y2)
+static void homography_set_correspondence(Eigen::Matrix<f_t, 8, 9> &X, int n, float x1, float y1, float x2, float y2)
 {
     /* Matlab:
      % set up constraints for homography matrix
@@ -67,55 +67,29 @@ bool homography_check_solution(const m4 &R, const v4 &T, const feature_t p1[4], 
     return nvalid == 4;
 }
 
-m4 homography_estimate_from_constraints(const matrix &X)
+m3 homography_estimate_from_constraints(const Eigen::Matrix<f_t, 8, 9> &X)
 {
     //Matlab: [u,s,v] = svd(B);
-    matrix U(8, 8);
-    matrix S(1, 8);
-    matrix Vt(9, 9);
-    
-    matrix Xtmp(8, 9);
-    //SVD destroys passed in matrix
-    for(int i = 0; i < 8; ++i) {
-        for(int j = 0; j < 9; ++j)
-        {
-            Xtmp(i, j) = X(i, j);
-        }
-    }
-    matrix_svd(Xtmp, U, S, Vt);
-    
+    Eigen::JacobiSVD<Eigen::Matrix<f_t, 8, 9>> svdx(X, Eigen::ComputeFullV);
+    auto V = svdx.matrixV();
     //Matlab: h = v(:,9);
     //    Hest = transpose(reshape(h,[3,3]));
     // Hest is not transposed below because the transpose from matlab
     // is just to undo what reshape has done
-    m4 Hest = m4::Identity();
+    m3 Hest;
     for(int i = 0; i < 3; ++i)
     {
         for(int j = 0; j < 3; ++j)
         {
-            Hest(i, j) = Vt(8, i*3+j);
+            Hest(i, j) = V(i*3+j, 8);
         }
     }
     
     //Matlab: [u,s,v] = svd(Hest);
-    U.resize(3, 3);
-    S.resize(1, 3);
-    Vt.resize(3, 3);
-    matrix Hest_tmp(3,3);
-    for(int i = 0; i < 3; ++i)
-    {
-        for(int j = 0; j < 3; ++j)
-        {
-            Hest_tmp(i, j) = Hest(i, j);
-        }
-    }
-    
-    //Matlab: [u,s,v] = svd(Hest);
-    matrix_svd(Hest_tmp, U, S, Vt);
+    Eigen::JacobiSVD<decltype(Hest)> svdh(Hest);
     
     //Matlab: H = Hest/s(2,2);
-    Hest = Hest * (1. / S[1]);
-    Hest(3, 3) = 1;
+    Hest /= svdh.singularValues()[1];
     return Hest;
 }
 
@@ -307,7 +281,7 @@ bool homography_should_flip_sign(const m4 & H, const feature_t p1[4], const feat
 //Based on Matlab from http://cs.gmu.edu/%7Ekosecka/examples-code/homography2Motion.m
 m4 homography_compute(const feature_t p1[4], const feature_t p2[4])
 {
-    matrix X(8, 9);
+    Eigen::Matrix<f_t, 8, 9> X;
     
     /* Matlab:
      NPOINTS = size(p,2);
@@ -321,7 +295,8 @@ m4 homography_compute(const feature_t p1[4], const feature_t p2[4])
         //Note: Since we choose X1, this should never be degenerate
         homography_set_correspondence(X, c, p1[c].x, p1[c].y, p2[c].x, p2[c].y);
     }
-    m4 H = homography_estimate_from_constraints(X);
+    m4 H = m4::Identity();
+    H.block(0, 0, 3, 3) = homography_estimate_from_constraints(X);
     if(homography_should_flip_sign(H, p1, p2))
         H = -H;
 

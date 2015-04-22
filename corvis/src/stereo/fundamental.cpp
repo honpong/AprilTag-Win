@@ -1,5 +1,7 @@
 #include "fundamental.h"
 
+#include "../Eigen/SVD"
+
 bool debug_eight_point_ransac = false;
 
 m4 eight_point_F(v4 p1[], v4 p2[], int npts)
@@ -21,8 +23,7 @@ m4 eight_point_F(v4 p1[], v4 p2[], int npts)
     norm1 = sqrt(2.*npts / norm1);
     norm2 = sqrt(2.*npts / norm2);
 
-    matrix T1(3, 3);
-    matrix T2(3, 3);
+    m3 T1, T2;
     T1(0, 0) = norm1; T1(0, 1) = 0;     T1(0, 2) = -norm1*center1[0];
     T1(1, 0) = 0;     T1(1, 1) = norm1; T1(1, 2) = -norm1*center1[1];
     T1(2, 0) = 0;     T1(2, 1) = 0;     T1(2, 2) = 1;
@@ -32,7 +33,7 @@ m4 eight_point_F(v4 p1[], v4 p2[], int npts)
     T2(1, 0) = 0;     T2(1, 1) = norm2; T2(1, 2) = -norm2*center2[1];
     T2(2, 0) = 0;     T2(2, 1) = 0;     T2(2, 2) = 1;
 
-    matrix constraints(npts, 9);
+    Eigen::Matrix<f_t, Eigen::Dynamic, 9> constraints(npts, 9);
     for(int i = 0; i < npts; i++) {
         v4 p1n = (p1[i] - center1) * norm1;
         v4 p2n = (p2[i] - center2) * norm2;
@@ -49,56 +50,29 @@ m4 eight_point_F(v4 p1[], v4 p2[], int npts)
 
 
     // some columns of U are inverted compared to matlab
-    matrix U(npts, npts);
-    matrix S(1, min(npts, 9));
-    matrix Vt(9, 9);
+    Eigen::Matrix<f_t, 9, 9> Vt;
 
-    matrix_svd(constraints, U, S, Vt);
-
-    matrix F(3, 3);
+    Eigen::JacobiSVD<decltype(constraints)> svd(constraints, Eigen::ComputeFullV);
+    Vt = svd.matrixV().transpose();
+    
+    m3 F;
     F(0, 0) = Vt(8, 0); F(0, 1) = Vt(8, 1); F(0, 2) = Vt(8, 2);
     F(1, 0) = Vt(8, 3); F(1, 1) = Vt(8, 4); F(1, 2) = Vt(8, 5);
     F(2, 0) = Vt(8, 6); F(2, 1) = Vt(8, 7); F(2, 2) = Vt(8, 8);
 
-    matrix UF(3, 3);
-    matrix SF(1, 3);
-    matrix VFt(3, 3);
-    matrix_svd(F, UF, SF, VFt);
-    matrix SE(3, 3);
-    // Convert S back to a diagonal matrix (matrix_svd fills a vector)
-    for(int i = 0; i < 3; i++)
-        for(int j = 0; j < 3; j++)
-        {
-            if(i == j)
-                SE(i,j) = SF(0,i);
-            else
-                SE(i,j) = 0;
-        }
+    Eigen::JacobiSVD<m3> svdF(F, Eigen::ComputeFullU | Eigen::ComputeFullV);
+    m3 SE = svdF.singularValues().asDiagonal();
     SE(2,2) = 0;
     
     // TODO: there is probably a cleaner way to do this:
     // F = transpose(T2) * U * S * Vt * T1;
-    matrix temp1(3, 3);
-    matrix temp2(3, 3);
-    matrix_product(temp1, VFt, T1);
-    matrix_product(temp2, SE, temp1); 
-    matrix_product(temp1, UF, temp2); 
-    matrix_product(temp2, T2, temp1, true); // transpose T2
-    F = temp2;
+    F.noalias() = T2.transpose() * svdF.matrixU() * SE * svdF.matrixV().transpose() * T1;
 
     // F = F / norm(F) / sign(F(3,3))
-    float Fnorm = 0;
-    for(int i = 0; i < 3; i++)
-        for(int j = 0; j < 3; j++)
-            Fnorm += F(i,j)*F(i,j);
-    Fnorm = sqrt(Fnorm);
-
+    float Fnorm = F.norm();
     if(F(2,2) < 0)
       Fnorm = -Fnorm;
-
-    for(int i = 0; i < 3; i++)
-        for(int j = 0; j < 3; j++)
-            F(i,j) = F(i,j) / Fnorm;
+    F = F / Fnorm;
 
     m4 estimatedF = m4::Zero();
     for(int i = 0; i < 3; i++)
@@ -163,82 +137,58 @@ bool decompose_F(const m4 & F, float focal_length, float center_x, float center_
     v4 p1p = Kinv*p1;
     v4 p2p = Kinv*p2;
 
-    matrix temp1(3,3);
-    matrix temp2(3,3);
+    m3 E;
 
-    matrix E(3, 3);
     for(int i = 0; i < 3; i++)
         for(int j = 0; j < 3; j++)
             E(i,j) = E4(i, j);
 
-    matrix W(3, 3);
+    m3 W;
     W(0,0) = 0; W(0,1) = -1; W(0,2) = 0;
     W(1,0) = 1; W(1,1) = 0;  W(1,2) = 0;
     W(2,0) = 0; W(2,1) = 0;  W(2,2) = 1;
-    matrix Wt(3, 3);
-    matrix_transpose(Wt, W);
 
-    matrix Rzp = W;
-    matrix Rzn(3,3);
+    m3 Rzp = W;
+    m3 Rzn;
     Rzn(0,0) = 0;  Rzn(0,1) = 1; Rzn(0,2) = 0;
     Rzn(1,0) = -1; Rzn(1,1) = 0; Rzn(1,2) = 0;
     Rzn(2,0) = 0;  Rzn(2,1) = 0; Rzn(2,2) = 1;
 
-    matrix Z(3, 3);
+    m3 Z;
     Z(0,0) = 0; Z(0,1) = -1; Z(0,2) = 0;
     Z(1,0) = 1; Z(1,1) = 0;  Z(1,2) = 0;
     Z(2,0) = 0; Z(2,1) = 0;  Z(2,2) = 0;
 
-    matrix U(3, 3);
-    matrix S(1, 3);
-    matrix Vt(3, 3);
-    matrix V(3,3);
-    matrix_svd(E, U, S, Vt);
-    // V = Vt'
-    matrix_transpose(V, Vt);
+    Eigen::JacobiSVD<m3> svd(E, Eigen::ComputeFullV | Eigen::ComputeFullU);
 
-    float det_U = matrix_3x3_determinant(U);
-    float det_V = matrix_3x3_determinant(V);
+    m3 U = svd.matrixU();
+    m3 V = svd.matrixV();
+    float det_U = U.determinant();
+    float det_V = V.determinant();
     if(det_U < 0 && det_V < 0) {
-        matrix_negate(U);
-        matrix_negate(V);
+        U = -U;
+        V = -V;
     }
     else if(det_U < 0 && det_V > 0) {
-        // U = -U*Rzn; V = V*Rzp;
-        matrix_negate(U);
-        matrix_product(temp1, U, Rzn);
-        U = temp1;
-        matrix_product(temp1, V, Rzp);
-        V = temp1;
+        U = -U * Rzn;
+        V = V * Rzp;
     }
     else if(det_U > 0 && det_V < 0) {
-        // U = U*Rzn; V = -V*Rzp;
-        matrix_negate(V);
-        matrix_product(temp1, U, Rzn);
-        U = temp1;
-        matrix_product(temp1, V, Rzp);
-        V = temp1;
+        U = U*Rzn;
+        V = -V*Rzp;
     }
-
-    // Vt = V' after possibly shifting V
-    matrix_transpose(Vt, V);
 
     // T = u_3
     m4 R1(m4::Identity()), R2(m4::Identity());
     v4 T1 { U(0, 2), U(1,2), U(2,2), 0. };
     v4 T2 = -T1;
 
-    // R1 = UWV'
-    matrix_product(temp1, W, Vt);
-    matrix_product(temp2, U, temp1);
+    auto temp = U * W * V.transpose();
     for(int row = 0; row < 3; row++)
         for(int col = 0; col < 3; col++) {
-            R1(row, col) = temp2(row,col);
+            R1(row, col) = temp(row,col);
         }
-
-    // R2 = UW'V'
-    matrix_product(temp1, Wt, Vt);
-    matrix_product(temp2, U, temp1);
+    auto temp2 = U * W.transpose() * V.transpose();
     for(int row = 0; row < 3; row++)
         for(int col = 0; col < 3; col++) {
             R2(row, col) = temp2(row,col);
@@ -416,20 +366,12 @@ m4 estimate_F(const camera &g, const stereo_frame &reference, const stereo_frame
 
     // for numerical conditioning
     // F = F / norm(F) / sign(F(3,3))
-    float Fnorm = 0;
-    for(int i = 0; i < 3; i++)
-        for(int j = 0; j < 3; j++)
-            Fnorm += F21(i, j)*F21(i, j);
-    Fnorm = sqrt(Fnorm);
+    float Fnorm = F21.norm();
 
     if(F21(2, 2) < 0)
         Fnorm = -Fnorm;
 
-    for(int i = 0; i < 3; i++)
-        for(int j = 0; j < 3; j++)
-            F21(i, j) = F21(i, j) / Fnorm;
-
-    return F21;
+    return F21 / Fnorm;
 }
 
 

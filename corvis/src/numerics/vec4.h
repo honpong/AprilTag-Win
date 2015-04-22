@@ -20,19 +20,30 @@ extern "C" {
 
 #include <ostream>
 
+//Don't use GPL-licensed pieces of eigen
+#define EIGEN_MPL2_ONLY
+
+//This disables internal asserts which slow eigen down quite a bit
 #ifndef DEBUG
 #define EIGEN_NO_DEBUG
 #endif
 
+//These could cause assertion failures, so only turn them on for debug builds
+#ifdef DEBUG
+//#define EIGEN_NO_AUTOMATIC_RESIZING
+#endif
+
+//This, or EIGEN_INITIALIZE_MATRICES_BY_NAN can be used to verify that we are initializing everything correctly
 //#define EIGEN_INITIALIZE_MATRICES_BY_ZERO
 
-#define EIGEN_NO_AUTOMATIC_RESIZING
 #define EIGEN_DEFAULT_TO_ROW_MAJOR
 #define EIGEN_MATRIX_PLUGIN "../../../numerics/eigen_initializer_list.h"
 #include "../Eigen/Dense"
 
 typedef Eigen::Matrix<f_t, 4, 1> v4;
+typedef Eigen::Matrix<f_t, 3, 1> v3;
 typedef Eigen::Matrix<f_t, 4, 4> m4;
+typedef Eigen::Matrix<f_t, 3, 3> m3;
 
 static inline v4 v4_sqrt(const v4 &v) { return v4(sqrt(v[0]), sqrt(v[1]), sqrt(v[2]), sqrt(v[3])); }
 
@@ -119,6 +130,15 @@ static inline v4 relative_rotation(const v4 &first, const v4 &second)
 inline static m4 skew3(const v4 &v)
 {
     m4 V = m4::Zero();
+    V(1, 2) = -(V(2, 1) = v[0]);
+    V(2, 0) = -(V(0, 2) = v[1]);
+    V(0, 1) = -(V(1, 0) = v[2]);
+    return V;
+}
+
+inline static m3 skew3_eigen(const v3 &v)
+{
+    m3 V = m3::Zero();
     V(1, 2) = -(V(2, 1) = v[0]);
     V(2, 0) = -(V(0, 2) = v[1]);
     V(0, 1) = -(V(1, 0) = v[2]);

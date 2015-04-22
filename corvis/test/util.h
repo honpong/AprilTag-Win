@@ -12,10 +12,22 @@ test_m4_near(const char* expr1, const char* expr2, const char* bounds_expr,
 #define EXPECT_M4_NEAR(a,b,bounds) EXPECT_PRED_FORMAT3(test_m4_near, a, b, bounds)
 
 ::testing::AssertionResult
+test_m3_near(const char* expr1, const char* expr2, const char* bounds_expr,
+             const m3 &a, const m3 &b, const f_t bounds);
+
+#define EXPECT_M3_NEAR(a,b,bounds) EXPECT_PRED_FORMAT3(test_m3_near, a, b, bounds)
+
+::testing::AssertionResult
 test_v4_near(const char* expr1, const char* expr2, const char* bounds_expr,
              const v4 &a, const v4 &b, const f_t bounds);
 
 #define EXPECT_V4_NEAR(a,b,bounds) EXPECT_PRED_FORMAT3(test_v4_near, a, b, bounds)
+
+::testing::AssertionResult
+test_v3_near(const char* expr1, const char* expr2, const char* bounds_expr,
+             const v3 &a, const v3 &b, const f_t bounds);
+
+#define EXPECT_V3_NEAR(a,b,bounds) EXPECT_PRED_FORMAT3(test_v3_near, a, b, bounds)
 
 ::testing::AssertionResult
 test_quaternion_near(const char* expr1, const char* expr2, const char* bounds_expr,

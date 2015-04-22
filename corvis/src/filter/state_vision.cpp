@@ -247,7 +247,7 @@ state_vision_feature * state_vision::add_feature(f_t initialx, f_t initialy)
 void state_vision::project_new_group_covariance(const state_vision_group &g)
 {
     //Note: this only works to fill in the covariance for Tr, Wr because it fills in cov(T,Tr) etc first (then copies that to cov(Tr,Tr).
-    for(int i = 0; i < cov.cov.rows; ++i)
+    for(int i = 0; i < cov.cov.rows(); ++i)
     {
         v4 cov_W = W.copy_cov_from_row(cov.cov, i);
         g.Wr.copy_cov_to_col(cov.cov, i, cov_W);
@@ -349,7 +349,7 @@ void state_vision::cache_jacobians(f_t dt)
 void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t dt)
 {
     for(state_vision_group *g : groups.children) {
-        for(int i = 0; i < src.rows; ++i) {
+        for(int i = 0; i < src.rows(); ++i) {
             v4 cov_Tr = g->Tr.copy_cov_from_row(src, i);
             v4 cov_Wr = g->Wr.copy_cov_from_row(src, i);
             v4 cov_W = W.copy_cov_from_row(src, i);

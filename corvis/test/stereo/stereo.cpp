@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include "stereo.h"
 #include "fundamental.h"
+#include "util.h"
 
 const static m4 result = {{
     {4.7050659665283991e-06, -3.608920748657601e-04, 0.034825532535250781, 0},
@@ -36,23 +37,9 @@ static v4 p2[] = {
     v4(318.3000,   25.8100,0,0)
 };
 
-void test_stereo_m4_equal(const m4 &a, const m4 &b)
-{
-    for(int i = 0; i < 4; ++i) {
-        for(int j = 0; j < 4; ++j) {
-#ifdef F_T_IS_DOUBLE
-            EXPECT_DOUBLE_EQ(a(i, j), b(i, j)) << "Where i is " << i << " and j is " << j;
-#else
-            EXPECT_FLOAT_EQ(a(i, j), b(i, j)) << "Where i is " << i << " and j is " << j;
-
-#endif
-        }
-    }
-}
-
 TEST(Stereo, EightPointF) {
     m4 F = eight_point_F(p1, p2, npts);
-    test_stereo_m4_equal(F, result);
+    EXPECT_M4_NEAR(F, result, 1.e-13);
 }
 
 TEST(Stereo, LineEndpoints) {

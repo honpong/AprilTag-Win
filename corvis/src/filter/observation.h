@@ -170,9 +170,9 @@ protected:
     static bool observation_comp_actual(const unique_ptr<observation> &p1, const unique_ptr<observation> &p2) { return p1->time_actual < p2->time_actual; }
     static bool observation_comp_apparent(const unique_ptr <observation> &p1, const unique_ptr<observation> &p2) { return p1->time_apparent < p2->time_apparent; }
     
-    v_intrinsic LC_storage[MAXOBSERVATIONSIZE * MAXSTATESIZE / 4];
-    v_intrinsic K_storage[MAXOBSERVATIONSIZE * MAXSTATESIZE / 4];
-    v_intrinsic res_cov_storage[MAXOBSERVATIONSIZE * MAXOBSERVATIONSIZE / 4];
+    f_t LC_storage[MAXOBSERVATIONSIZE * MAXSTATESIZE];
+    f_t K_storage[MAXOBSERVATIONSIZE * MAXSTATESIZE];
+    f_t res_cov_storage[MAXOBSERVATIONSIZE * MAXOBSERVATIONSIZE];
 };
 
 //some object should have functions to evolve the mean and covariance

@@ -19,7 +19,7 @@ void state_motion_orientation::cache_jacobians(f_t dt)
 
 void state_motion_orientation::project_motion_covariance(matrix &dst, const matrix &src, f_t dt)
 {
-    for(int i = 0; i < src.rows; ++i) {
+    for(int i = 0; i < src.rows(); ++i) {
         v4 cov_W = W.copy_cov_from_row(src, i);
         v4 cov_w = w.copy_cov_from_row(src, i);
         v4 cov_dw = dw.copy_cov_from_row(src, i);
@@ -87,7 +87,7 @@ void state_motion::evolve_state(f_t dt)
 
 void state_motion::project_motion_covariance(matrix &dst, const matrix &src, f_t dt)
 {
-    for(int i = 0; i < src.rows; ++i) {
+    for(int i = 0; i < src.rows(); ++i) {
         v4 cov_T = T.copy_cov_from_row(src, i);
         v4 cov_V = V.copy_cov_from_row(src, i);
         v4 cov_a = a.copy_cov_from_row(src, i);

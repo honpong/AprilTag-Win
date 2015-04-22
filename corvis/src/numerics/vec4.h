@@ -136,6 +136,15 @@ inline static m4 skew3(const v4 &v)
     return V;
 }
 
+inline static m3 skew3_eigen(const v3 &v)
+{
+    m3 V = m3::Zero();
+    V(1, 2) = -(V(2, 1) = v[0]);
+    V(2, 0) = -(V(0, 2) = v[1]);
+    V(0, 1) = -(V(1, 0) = v[2]);
+    return V;
+}
+
 inline static v4 invskew3(const m4 &V)
 {
     return v4(.5 * (V(2, 1) - V(1, 2)),

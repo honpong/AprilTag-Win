@@ -10,8 +10,8 @@
 #include <string.h>
 #include "device_parameters.h"
 #include "cor.h"
-#include "packet.h"
-#include "sensor_data.h"
+#include "../cor/packet.h"
+#include "../cor/platform/sensor_data.h"
 
 packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
 {
@@ -43,7 +43,7 @@ void capture::write_camera_data(uint8_t * image, int width, int height, int stri
     packet_t *buf = packet_alloc(packet_camera, width*height+16, timestamp);
 
     // TODO: For 1080 this could be a problem?
-    sprintf((char *)buf->data, "P5 %4d %4d %d\n", width, height, 255);
+    snprintf((char *)buf->data, 16, "P5 %4d %4d %d\n", width, height, 255);
     unsigned char *outbase = buf->data + 16;
     memcpy(outbase, image, width*height);
     write_packet(buf);

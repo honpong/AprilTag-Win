@@ -10,8 +10,8 @@
 
 #include <iostream>
 #include <fstream>
-#include "sensor_fusion_queue.h"
-#include "packet.h"
+#include "../cor/sensor_fusion_queue.h"
+#include "../cor/packet.h"
 
 class capture
 {

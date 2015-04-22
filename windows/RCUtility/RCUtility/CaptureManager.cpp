@@ -50,9 +50,10 @@ void CaptureManager::StopCapture()
 	videoMan.StopVideo();
 }
 
-void CaptureManager::OnAmeterSample(AmeterSample^ sample)
+void CaptureManager::OnAmeterSample(AccelerometerReading^ sample)
 {
-	Debug::Log(L"%lld\taccel\tx: %1.3f\ty: %1.3f\tz: %1.3f", sample->Timestamp, sample->AccelerationX, sample->AccelerationY, sample->AccelerationZ);
+	long long millisec = sample->Timestamp.UniversalTime / 10000;
+	Debug::Log(L"%lld\taccel\tx: %1.3f\ty: %1.3f\tz: %1.3f", millisec, sample->AccelerationX, sample->AccelerationY, sample->AccelerationZ);
 }
 
 void CaptureManager::OnGyroSample(GyrometerReading^ sample)

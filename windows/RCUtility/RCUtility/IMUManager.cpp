@@ -10,7 +10,7 @@ using namespace Platform;
 using namespace RealityCap;
 using namespace Windows::UI::Xaml;
 
-#define USE_WIN32_AMETER_API true
+#define USE_WIN32_AMETER_API false
 static const int DESIRED_INTERVAL = 16; // desired sensor reporting interval in milliseconds
 
 AmeterSample::AmeterSample() {}
@@ -31,20 +31,18 @@ IMUManager::IMUManager()
 bool IMUManager::StartSensors()
 {
 	bool result = true;
+
+	HRESULT hr;
+	hr = accelMan.Initialize();
+	if (!SUCCEEDED(hr)) return false;
+	hr = accelMan.SetChangeSensitivity(0);
+	if (!SUCCEEDED(hr)) return false;
+	hr = accelMan.SetReportInterval(DESIRED_INTERVAL);
+	if (!SUCCEEDED(hr)) return false;
 	
-	if (USE_WIN32_AMETER_API)
+	if (accelerometer != nullptr)
 	{
-		HRESULT hr;
-		hr = accelMan.Initialize();
-		if (!SUCCEEDED(hr)) return false;
-		hr = accelMan.SetChangeSensitivity(0);
-		if (!SUCCEEDED(hr)) return false;
-		hr = accelMan.SetReportInterval(DESIRED_INTERVAL);
-		if (!SUCCEEDED(hr)) return false;
-	}
-	else if (accelerometer != nullptr)
-	{
-		accelerometer->ReportInterval = accelerometer->MinimumReportInterval > DESIRED_INTERVAL ? accelerometer->MinimumReportInterval : DESIRED_INTERVAL;  // milliseconds
+		//accelerometer->ReportInterval = accelerometer->MinimumReportInterval > DESIRED_INTERVAL ? accelerometer->MinimumReportInterval : DESIRED_INTERVAL;  // milliseconds
 		Debug::Log(L"accel reporting interval: %ims", accelerometer->ReportInterval);
 		accelToken = accelerometer->ReadingChanged::add(ref new TypedEventHandler<Accelerometer^, AccelerometerReadingChangedEventArgs^>(this, &IMUManager::AccelReadingChanged));
 	}
@@ -82,16 +80,17 @@ void IMUManager::StopSensors()
 void IMUManager::ReadAccelerometerData(Object^ sender, Object^ e)
 {
 	AccelerometerReading^ reading = accelerometer->GetCurrentReading();
-	long long millisec = reading->Timestamp.UniversalTime / 10000;
-	Debug::Log(L"%lld\taccel\tx: %1.3f\ty: %1.3f\tz: %1.3f", millisec, reading->AccelerationX, reading->AccelerationY, reading->AccelerationZ);
+	//long long millisec = reading->Timestamp.UniversalTime / 10000;
+	//Debug::Log(L"%lld\taccel\tx: %1.3f\ty: %1.3f\tz: %1.3f", millisec, reading->AccelerationX, reading->AccelerationY, reading->AccelerationZ);
 }
 
 // subscription
 void IMUManager::AccelReadingChanged(Accelerometer^ sender, AccelerometerReadingChangedEventArgs^ e)
 {
 	AccelerometerReading^ reading = e->Reading;
-	long long millisec = reading->Timestamp.UniversalTime / 10000;
-	Debug::Log(L"%lld\taccel\tx: %1.3f\ty: %1.3f\tz: %1.3f", millisec, reading->AccelerationX, reading->AccelerationY, reading->AccelerationZ);
+	OnAmeterSample(reading);
+	//long long millisec = reading->Timestamp.UniversalTime / 10000;
+	//Debug::Log(L"%lld\taccel\tx: %1.3f\ty: %1.3f\tz: %1.3f", millisec, reading->AccelerationX, reading->AccelerationY, reading->AccelerationZ);
 }
 
 void IMUManager::GyroReadingChanged(Gyrometer^ sender, GyrometerReadingChangedEventArgs^ e)
@@ -100,25 +99,4 @@ void IMUManager::GyroReadingChanged(Gyrometer^ sender, GyrometerReadingChangedEv
 	OnGyroSample(reading);
 	//long long millisec = reading->Timestamp.UniversalTime / 10000;
 	//Debug::Log(L"%lld\tgyro\tx: %3.3f\ty: %3.3f\tz: %3.3f", millisec, reading->AngularVelocityX, reading->AngularVelocityY, reading->AngularVelocityZ); // gyro data is in degrees/sec
-
-	if (USE_WIN32_AMETER_API) // instead of setting up a timer for polling the ameter, we can use this event handler to poll in sync with the gyro
-	{
-		AccelSample sample = accelMan.GetSample();
-
-		FILETIME ft;
-		SystemTimeToFileTime(&sample.timestamp, &ft); 
-		ULARGE_INTEGER ui;
-		ui.LowPart = ft.dwLowDateTime;
-		ui.HighPart = ft.dwHighDateTime;
-
-		AmeterSample^ aSample = ref new AmeterSample();
-		aSample->AccelerationX = sample.x;
-		aSample->AccelerationY = sample.y;
-		aSample->AccelerationZ = sample.z;
-		aSample->Timestamp = ui.QuadPart / 10000;
-
-		OnAmeterSample(aSample);
-
-		//Debug::Log(L"%i:%i:%i\taccel\tx: %1.3f\ty: %1.3f\tz: %1.3f", sample.timestamp.wMinute, sample.timestamp.wSecond, sample.timestamp.wMilliseconds, sample.x, sample.y, sample.z);
-	}
 }

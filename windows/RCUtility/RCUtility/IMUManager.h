@@ -16,7 +16,7 @@ namespace RealityCap
 		property uint64 Timestamp;
 	};
 
-	public delegate void AmeterEventHandler(AmeterSample^ sample);
+	public delegate void AmeterEventHandler(Windows::Devices::Sensors::AccelerometerReading^ sample);
 	public delegate void GyroEventHandler(Windows::Devices::Sensors::GyrometerReading^ sample);
 
 	ref class IMUManager sealed

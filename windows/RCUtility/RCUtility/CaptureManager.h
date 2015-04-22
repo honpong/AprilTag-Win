@@ -28,7 +28,7 @@ namespace RealityCap
 		VideoManager videoMan;
 
 		IMUManager^ imuMan;
-		void OnAmeterSample(AmeterSample^ sample);
+		void OnAmeterSample(Windows::Devices::Sensors::AccelerometerReading^ sample);
 		void OnGyroSample(Windows::Devices::Sensors::GyrometerReading^ sample);
 	};
 }

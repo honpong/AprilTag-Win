@@ -7,9 +7,19 @@
 //
 
 #include "../sensor_clock.h"
+#include <windows.h>
+
+static double compute_sensor_factor()
+{
+    LARGE_INTEGER frequency;
+    QueryPerformanceFrequency(&frequency);
+    return 1000000000. / frequency.QuadPart;
+}
 
 sensor_clock::time_point sensor_clock::now() noexcept
 {
-    //TODO: this just aliases to the steady_clock, but need the actual windows sensor clock
-    return time_point(std::chrono::steady_clock::now().time_since_epoch());
+    static double factor = compute_sensor_factor();
+    LARGE_INTEGER counter;
+    QueryPerformanceCounter(&counter);
+    return time_point(duration(static_cast<rep>(counter.QuadPart * factor)));
 }

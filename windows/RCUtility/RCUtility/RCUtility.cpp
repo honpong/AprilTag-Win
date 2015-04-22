@@ -65,8 +65,13 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	VideoManager^ videoMan = ref new VideoManager();
 	videoMan->StartVideo();*/
 
+	bool result;
+
 	CaptureManager^ capMan = ref new CaptureManager();
-	capMan->StartCapture();
+	result = capMan->StartSensors();
+	if (!result) Debug::Log(L"Failed to start sensors"); return false;
+	result = capMan->StartCapture();
+	if (!result) Debug::Log(L"Failed to start capture"); return false;
 
 	// Main message loop:
 	while (GetMessage(&msg, NULL, 0, 0))

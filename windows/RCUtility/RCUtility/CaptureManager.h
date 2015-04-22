@@ -5,6 +5,7 @@
 
 #include "IMUManager.h"
 #include "VideoManager.h"
+#include "..\..\..\corvis\src\filter\capture.h"
 
 namespace RealityCap
 {
@@ -12,9 +13,11 @@ namespace RealityCap
 	{
 	public:
 		CaptureManager();
+		bool StartSensors();
+		void StopSensors();
 		bool StartCapture();
 		void StopCapture();
-
+		
 	private:
 		class VideoFrameHandler : public PXCSenseManager::Handler
 		{
@@ -26,9 +29,11 @@ namespace RealityCap
 		};
 		VideoFrameHandler frameHandler;
 		VideoManager videoMan;
-
 		IMUManager^ imuMan;
+		capture cp;
+
 		void OnAmeterSample(Windows::Devices::Sensors::AccelerometerReading^ sample);
 		void OnGyroSample(Windows::Devices::Sensors::GyrometerReading^ sample);
+		void OnVideoFrame(PXCImage* colorSample);
 	};
 }

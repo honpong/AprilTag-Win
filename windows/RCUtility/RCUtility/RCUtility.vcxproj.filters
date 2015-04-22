@@ -54,6 +54,9 @@
     <ClInclude Include="CaptureManager.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\corvis\src\filter\capture.h">
+      <Filter>Source Files\corvis</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">

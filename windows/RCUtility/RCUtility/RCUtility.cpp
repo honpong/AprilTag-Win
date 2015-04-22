@@ -21,12 +21,43 @@ HINSTANCE hInst;								// current instance
 TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 CaptureManager^ capMan;
+bool isCapturing = false;
 
 // Forward declarations of functions included in this code module:
 ATOM				MyRegisterClass(HINSTANCE hInstance);
 BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
+
+void StartCapture()
+{
+	bool result;
+	capMan = ref new CaptureManager();
+
+	result = capMan->StartSensors();
+	if (!result)
+	{
+		Debug::Log(L"Failed to start sensors");
+		return;
+	}
+
+	result = capMan->StartCapture();
+	if (!result)
+	{
+		Debug::Log(L"Failed to start capture");
+		return;
+	}
+
+	if (result) isCapturing = true;
+}
+
+void StopCapture()
+{
+	if (!isCapturing) return;
+	capMan->StopCapture();
+	capMan->StopSensors();
+	isCapturing = false;
+}
 
 [MTAThread] // inits WinRT runtime
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
@@ -53,14 +84,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	}
 
 	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_RCUTILITY));
-
-	bool result;
-	capMan = ref new CaptureManager();
-	result = capMan->StartSensors();
-	if (!result) Debug::Log(L"Failed to start sensors"); return false;
-	result = capMan->StartCapture();
-	if (!result) Debug::Log(L"Failed to start capture"); return false;
-
+		
 	// Main message loop:
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
@@ -175,9 +199,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		PostQuitMessage(0);
 		break;
 	case WM_CLOSE:
-		capMan->StopCapture();
-		capMan->StopSensors();
+		StopCapture();
 		DestroyWindow(hWnd);
+		break;
+	case WM_LBUTTONUP:
+		isCapturing ? StopCapture() : StartCapture();
 		break;
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);

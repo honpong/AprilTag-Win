@@ -44,7 +44,7 @@ bool CaptureManager::StartSensors()
 {
 	bool result;
 	result = imuMan->StartSensors();
-	if (!result) return result;
+	if (!result) return false;
 	result = videoMan.StartVideo();
 	return result;
 }
@@ -98,7 +98,7 @@ void CaptureManager::OnGyroSample(GyrometerReading^ sample)
 
 void CaptureManager::OnVideoFrame(PXCImage* colorSample)
 {
-	cp.receive_camera(camera_data(colorSample));
+	//cp.receive_camera(camera_data(colorSample));
 	Debug::Log(L"Color video sample received");
 }
 

@@ -15,11 +15,8 @@ static const int DESIRED_INTERVAL = 16; // desired sensor reporting interval in 
 
 IMUManager::IMUManager()
 {
-	if (!USE_WIN32_AMETER_API)
-	{
-		accelerometer = Accelerometer::GetDefault();
-		if (accelerometer == nullptr) Debug::Log(L"ERROR: No accelerometer found");
-	}
+	accelerometer = Accelerometer::GetDefault();
+	if (accelerometer == nullptr) Debug::Log(L"ERROR: No accelerometer found");
 	
 	gyro = Gyrometer::GetDefault();
 	if (gyro == nullptr) Debug::Log(L"ERROR: No gyro found");

@@ -35,10 +35,13 @@ CaptureManager::CaptureManager() : frameHandler(this)
 	videoMan.SetDelegate(&frameHandler);
 }
 
-void CaptureManager::StartCapture()
+bool CaptureManager::StartCapture()
 {
-	imuMan->StartSensors();
-	videoMan.StartVideo();
+	bool result;
+	result = imuMan->StartSensors();
+	if (!result) return result;
+	result = videoMan.StartVideo();
+	return result;
 }
 
 void CaptureManager::StopCapture()

@@ -23,7 +23,6 @@ namespace RealityCap
 	{
 	public:
 		IMUManager();
-		//static IMUManager^ GetSharedInstance();
 		bool StartSensors(); // returns true if all sensors started successfully
 		void StopSensors();
 

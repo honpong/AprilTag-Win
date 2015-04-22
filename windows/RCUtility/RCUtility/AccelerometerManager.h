@@ -21,8 +21,10 @@ public:
     HRESULT Initialize();
 	AccelSample GetSample();
 	HRESULT SetChangeSensitivity(double sensitivity); // in m/s^2
+	HRESULT SetReportInterval(ULONG milliseconds); 
 
 private:
 	CComPtr<ISensor> pSensor; 
+	HRESULT SetProperties(IPortableDeviceValues* pInValues);
 };
 

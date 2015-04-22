@@ -12,7 +12,7 @@ namespace RealityCap
 	{
 	public:
 		CaptureManager();
-		void StartCapture();
+		bool StartCapture();
 		void StopCapture();
 
 	private:

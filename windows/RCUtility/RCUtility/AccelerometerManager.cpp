@@ -1,6 +1,7 @@
 
 #include "stdafx.h"
 #include "AccelerometerManager.h"
+#include <cassert>
 
 AccelerometerManager::AccelerometerManager(void)
 {
@@ -105,7 +106,7 @@ HRESULT AccelerometerManager::SetChangeSensitivity(double sensitivity)
 	hr = ::CoCreateInstance(CLSID_PortableDeviceValues, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pInSensitivityValues));
 	if (FAILED(hr)) 
 	{ 
-		::MessageBox(NULL, _T("Unable to CoCreateInstance() a PortableDeviceValues collection."), _T("Sensor C++ Sample"), MB_OK | MB_ICONERROR);
+		::MessageBox(NULL, _T("Unable to CoCreateInstance() a PortableDeviceValues collection."), _T("AccelerometerManager"), MB_OK | MB_ICONERROR);
 		return -1; 
 	} 
 	
@@ -123,33 +124,60 @@ HRESULT AccelerometerManager::SetChangeSensitivity(double sensitivity)
 	hr = ::CoCreateInstance(CLSID_PortableDeviceValues, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pInValues)); 
 	if (FAILED(hr)) 
 	{ 
-		::MessageBox(NULL, _T("Unable to CoCreateInstance() a PortableDeviceValues collection."), _T("Sensor C++ Sample"), MB_OK | MB_ICONERROR);     
+		::MessageBox(NULL, _T("Unable to CoCreateInstance() a PortableDeviceValues collection."), _T("AccelerometerManager"), MB_OK | MB_ICONERROR);     
 		return -1;
 	} 
 
 	// fill it in 
 	pInValues->SetIPortableDeviceValuesValue(SENSOR_PROPERTY_CHANGE_SENSITIVITY, pInSensitivityValues); 
 
-	// now actually set the sensitivity 
-	CComPtr<IPortableDeviceValues> pOutValues; 
-	hr = pSensor->SetProperties(pInValues, &pOutValues); 
-	if (FAILED(hr)) 
-	{     
-		::MessageBox(NULL, _T("Unable to SetProperties() for Sensitivity."), _T("Sensor C++ Sample"), MB_OK | MB_ICONERROR);     
-		return -1; 
-	} 
-	
-	// check to see if any of the setting requests failed 
-	DWORD dwCount = 0; 
-	hr = pOutValues->GetCount(&dwCount); 
-	if (FAILED(hr) || (dwCount > 0)) 
-	{     
-		::MessageBox(NULL, _T("Failed to set one-or-more Sensitivity values."), _T("Sensor C++ Sample"), MB_OK | MB_ICONERROR);     
-		return -1; 
-	} 
+	hr = SetProperties(pInValues);
 	
 	PropVariantClear(&pv);
 
+	return hr;
+}
+
+HRESULT AccelerometerManager::SetReportInterval(ULONG milliseconds)
+{
+	HRESULT hr;
+	CComPtr<IPortableDeviceValues> pInValues;
+	hr = ::CoCreateInstance(CLSID_PortableDeviceValues, NULL, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pInValues));
+	if (FAILED(hr))
+	{
+		::MessageBox(NULL, _T("Unable to CoCreateInstance() a PortableDeviceValues collection."), _T("AccelerometerManager"), MB_OK | MB_ICONERROR);
+		return -1;
+	}
+
+	pInValues->SetUnsignedIntegerValue(SENSOR_PROPERTY_CURRENT_REPORT_INTERVAL, milliseconds);
+	
+	hr = SetProperties(pInValues);
+	
+	return hr;
+}
+
+HRESULT AccelerometerManager::SetProperties(IPortableDeviceValues* pInValues)
+{			
+	assert(pSensor);
+
+	HRESULT hr;
+	CComPtr<IPortableDeviceValues> pOutValues;
+	hr = pSensor->SetProperties(pInValues, &pOutValues);
+	if (FAILED(hr))
+	{
+		::MessageBox(NULL, _T("Unable to SetProperties() for sensor."), _T("AccelerometerManager"), MB_OK | MB_ICONERROR);
+		return -1;
+	}
+
+	// check to see if any of the setting requests failed 
+	DWORD dwCount = 0;
+	hr = pOutValues->GetCount(&dwCount);
+	if (FAILED(hr) || (dwCount > 0))
+	{
+		::MessageBox(NULL, _T("Failed to set one-or-more Sensitivity values."), _T("AccelerometerManager"), MB_OK | MB_ICONERROR);
+		return -1;
+	}
+	
 	return hr;
 }
 

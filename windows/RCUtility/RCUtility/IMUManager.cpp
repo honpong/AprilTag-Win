@@ -28,25 +28,19 @@ IMUManager::IMUManager()
 	if (gyro == nullptr) Debug::Log(L"ERROR: No gyro found");
 }
 
-//IMUManager^ IMUManager::GetSharedInstance()
-//{
-//	static IMUManager^ _sharedInstance;
-//	if (_sharedInstance == nullptr)
-//	{
-//		Debug::Log(L"Instantiating shared IMUManager instance");
-//		_sharedInstance = ref new IMUManager();
-//	}
-//	return _sharedInstance;
-//}
-
 bool IMUManager::StartSensors()
 {
 	bool result = true;
 	
 	if (USE_WIN32_AMETER_API)
 	{
-		accelMan.Initialize();
-		accelMan.SetChangeSensitivity(0);
+		HRESULT hr;
+		hr = accelMan.Initialize();
+		if (!SUCCEEDED(hr)) return false;
+		hr = accelMan.SetChangeSensitivity(0);
+		if (!SUCCEEDED(hr)) return false;
+		hr = accelMan.SetReportInterval(DESIRED_INTERVAL);
+		if (!SUCCEEDED(hr)) return false;
 	}
 	else if (accelerometer != nullptr)
 	{

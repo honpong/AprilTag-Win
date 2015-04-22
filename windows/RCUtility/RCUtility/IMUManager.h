@@ -6,16 +6,6 @@
 
 namespace RealityCap
 {
-	public ref class AmeterSample sealed
-	{
-	public:
-		AmeterSample();
-		property double AccelerationX;
-		property double AccelerationY;
-		property double AccelerationZ;
-		property uint64 Timestamp;
-	};
-
 	public delegate void AmeterEventHandler(Windows::Devices::Sensors::AccelerometerReading^ sample);
 	public delegate void GyroEventHandler(Windows::Devices::Sensors::GyrometerReading^ sample);
 
@@ -36,7 +26,6 @@ namespace RealityCap
 		Windows::Foundation::EventRegistrationToken gyroToken;
 		AccelerometerManager accelMan;
 
-		void ReadAccelerometerData(Object^ sender, Object^ e);
 		void AccelReadingChanged(Windows::Devices::Sensors::Accelerometer^ sender, Windows::Devices::Sensors::AccelerometerReadingChangedEventArgs^ e);
 		void GyroReadingChanged(Windows::Devices::Sensors::Gyrometer^ sender, Windows::Devices::Sensors::GyrometerReadingChangedEventArgs^ e);
 	};

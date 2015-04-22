@@ -10,14 +10,11 @@ using namespace Platform;
 using namespace RealityCap;
 using namespace Windows::UI::Xaml;
 
-#define USE_WIN32_AMETER_API false
+#define USE_WIN32_AMETER_API true
 static const int DESIRED_INTERVAL = 16; // desired sensor reporting interval in milliseconds
-
-AmeterSample::AmeterSample() {}
 
 IMUManager::IMUManager()
 {
-
 	if (!USE_WIN32_AMETER_API)
 	{
 		accelerometer = Accelerometer::GetDefault();
@@ -32,14 +29,17 @@ bool IMUManager::StartSensors()
 {
 	bool result = true;
 
-	HRESULT hr;
-	hr = accelMan.Initialize();
-	if (!SUCCEEDED(hr)) return false;
-	hr = accelMan.SetChangeSensitivity(0);
-	if (!SUCCEEDED(hr)) return false;
-	hr = accelMan.SetReportInterval(DESIRED_INTERVAL);
-	if (!SUCCEEDED(hr)) return false;
-	
+	if (USE_WIN32_AMETER_API)
+	{
+		HRESULT hr;
+		hr = accelMan.Initialize();
+		if (!SUCCEEDED(hr)) return false;
+		hr = accelMan.SetChangeSensitivity(0);
+		if (!SUCCEEDED(hr)) return false;
+		hr = accelMan.SetReportInterval(DESIRED_INTERVAL);
+		if (!SUCCEEDED(hr)) return false;
+	}
+
 	if (accelerometer != nullptr)
 	{
 		//accelerometer->ReportInterval = accelerometer->MinimumReportInterval > DESIRED_INTERVAL ? accelerometer->MinimumReportInterval : DESIRED_INTERVAL;  // milliseconds
@@ -66,7 +66,13 @@ void IMUManager::StopSensors()
 	if (accelerometer != nullptr)
 	{
 		accelerometer->ReadingChanged::remove(accelToken);
-		accelerometer->ReportInterval = 0; // Restore the default report interval to release resources while the sensor is not in use
+		//accelerometer->ReportInterval = 0; // Restore the default report interval to release resources while the sensor is not in use
+	}
+
+	if (USE_WIN32_AMETER_API)
+	{
+		HRESULT hr = accelMan.SetReportInterval(0); // zero means default
+		if (!SUCCEEDED(hr)) Debug::Log(L"Failed to restore default ameter reporting interval.");
 	}
 
 	if (gyro != nullptr)
@@ -76,15 +82,6 @@ void IMUManager::StopSensors()
 	}
 }
 
-// polling
-void IMUManager::ReadAccelerometerData(Object^ sender, Object^ e)
-{
-	AccelerometerReading^ reading = accelerometer->GetCurrentReading();
-	//long long millisec = reading->Timestamp.UniversalTime / 10000;
-	//Debug::Log(L"%lld\taccel\tx: %1.3f\ty: %1.3f\tz: %1.3f", millisec, reading->AccelerationX, reading->AccelerationY, reading->AccelerationZ);
-}
-
-// subscription
 void IMUManager::AccelReadingChanged(Accelerometer^ sender, AccelerometerReadingChangedEventArgs^ e)
 {
 	AccelerometerReading^ reading = e->Reading;

@@ -28,6 +28,7 @@ extern "C" {
     extern int ssytrf_(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *lwork, int *info);
     extern int ssytri_(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *info);
     extern int spotrf_(char *, int *, f_t *, int *, int *);
+    extern int spocon_(char *, int *, f_t *, int *, f_t *, f_t *, f_t *, int *, int *);
     extern int spotri_(char *, int *, f_t *, int *, int *);
     extern int spotrs_(char *, int *, int *, f_t *, int *, f_t *, int *, int *);
     extern int ssytrs_(char *, int *, int *, f_t *, int *, int *, f_t *, int *, int *);
@@ -38,6 +39,7 @@ extern "C" {
     extern int dsytrf_(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *lwork, int *info);
     extern int dsytri_(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *info);
     extern int dpotrf_(char *, int *, f_t *, int *, int *);
+    extern int dpocon_(char *, int *, f_t *, int *, f_t *, f_t *, f_t *, int *, int *);
     extern int dpotri_(char *, int *, f_t *, int *, int *);
     extern int dpotrs_(char *, int *, int *, f_t *, int *, f_t *, int *, int *);
     extern int dsytrs_(char *, int *, int *, f_t *, int *, int *, f_t *, int *, int *);

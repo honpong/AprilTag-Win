@@ -47,6 +47,7 @@ typedef Eigen::Matrix<f_t, 3, 3> m3;
 
 static inline v4 v4_sqrt(const v4 &v) { return v4(sqrt(v[0]), sqrt(v[1]), sqrt(v[2]), sqrt(v[3])); }
 
+#ifdef __ACCELERATE__
 static inline v4 v4_from_vFloat(const vFloat &other)
 {
     return v4(other[0], other[1], other[2], other[3]);
@@ -56,6 +57,7 @@ static inline vFloat vFloat_from_v4(const v4 &other)
 {
     return (vFloat){(float)other[0], (float)other[1], (float)other[2], (float)other[3]};
 }
+#endif
 
 static inline v4 cross(const v4 &a, const v4 &b) {
     return v4(a[1] * b[2] - a[2] * b[1],

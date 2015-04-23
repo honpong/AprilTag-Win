@@ -57,7 +57,7 @@ void CaptureManager::StopSensors()
 
 bool CaptureManager::StartCapture()
 {
-	std::string path = "C:\\Users\\ben_000\\Documents\\Visual Studio 2015\\Projects\\rcmain\\windows\\RCUtility\\Debug\\"; // temp
+	std::string path = "C:\\Users\\ben_000\\Documents\\Visual Studio 2015\\Projects\\rcmain\\windows\\RCUtility\\Debug\\capture"; // temp
 	isCapturing = cp.start(path.c_str());
 	return isCapturing;
 }

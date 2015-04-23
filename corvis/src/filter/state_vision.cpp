@@ -77,7 +77,7 @@ state_vision_group::state_vision_group(const state_vision_group &other): Tr(othe
     children.push_back(&Wr);
 }
 
-state_vision_group::state_vision_group(const state_vector &T, const state_rotation_vector &W): Tr("Tr"), Wr("Wr"), health(0.), status(group_initializing)
+state_vision_group::state_vision_group(): Tr("Tr"), Wr("Wr"), health(0.), status(group_initializing)
 {
     id = counter++;
     Tr.dynamic = true;
@@ -257,7 +257,7 @@ void state_vision::project_new_group_covariance(const state_vision_group &g)
 
 state_vision_group * state_vision::add_group(uint64_t time)
 {
-    state_vision_group *g = new state_vision_group(T, W);
+    state_vision_group *g = new state_vision_group();
     for(state_vision_group *neighbor : groups.children) {
         g->old_neighbors.push_back(neighbor->id);
         neighbor->neighbors.push_back(g->id);

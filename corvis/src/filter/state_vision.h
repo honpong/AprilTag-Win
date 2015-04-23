@@ -156,7 +156,7 @@ class state_vision_group: public state_branch<state_node *> {
     uint64_t id;
 
     state_vision_group(const state_vision_group &other);
-    state_vision_group(const state_vector &T, const state_rotation_vector &W);
+    state_vision_group();
     void make_empty();
     int process_features();
     int make_reference();

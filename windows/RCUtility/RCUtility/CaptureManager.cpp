@@ -58,16 +58,20 @@ void CaptureManager::StopSensors()
 bool CaptureManager::StartCapture()
 {
 	std::string path = "C:\\Users\\ben_000\\Documents\\Visual Studio 2015\\Projects\\rcmain\\windows\\RCUtility\\Debug\\"; // temp
-	return cp.start(path.c_str());
+	isCapturing = cp.start(path.c_str());
+	return isCapturing;
 }
 
 void CaptureManager::StopCapture()
 {
 	cp.stop();
+	isCapturing = false;
 }
 
 void CaptureManager::OnAmeterSample(AccelerometerReading^ sample)
 {
+	//if (!isCapturing) return;
+
     accelerometer_data data;
     //windows gives acceleration in g-units, so multiply by standard gravity in m/s^2
     data.accel_m__s2[0] = sample->AccelerationX * 9.80665;
@@ -77,12 +81,14 @@ void CaptureManager::OnAmeterSample(AccelerometerReading^ sample)
     cp.receive_accelerometer(std::move(data));
 
     std::cerr << "accel timestamp: " << sample->Timestamp.UniversalTime << "\n";
-    //long long millisec = sample->Timestamp.UniversalTime / 10000;
-//	Debug::Log(L"%lld\taccel\tx: %1.3f\ty: %1.3f\tz: %1.3f", millisec, sample->AccelerationX, sample->AccelerationY, sample->AccelerationZ);
+    long long millisec = sample->Timestamp.UniversalTime / 10000;
+	Debug::Log(L"%lld\taccel\tx: %1.3f\ty: %1.3f\tz: %1.3f", millisec, sample->AccelerationX, sample->AccelerationY, sample->AccelerationZ);
 }
 
 void CaptureManager::OnGyroSample(GyrometerReading^ sample)
 {
+	//if (!isCapturing) return;
+
     gyro_data data;
     //windows gives angular velocity in degrees per second
     data.angvel_rad__s[0] = sample->AngularVelocityX * M_PI / 180.;
@@ -92,13 +98,14 @@ void CaptureManager::OnGyroSample(GyrometerReading^ sample)
 	cp.receive_gyro(std::move(data));
 
     std::cerr << "gyro timestamp: " << sample->Timestamp.UniversalTime << "\n";
-    //long long millisec = sample->Timestamp.UniversalTime / 10000;
-    //Debug::Log(L"%lld\tgyro\tx: %3.3f\ty: %3.3f\tz: %3.3f", millisec, sample->AngularVelocityX, sample->AngularVelocityY, sample->AngularVelocityZ); // gyro data is in degrees/sec
+    long long millisec = sample->Timestamp.UniversalTime / 10000;
+    Debug::Log(L"%lld\tgyro\tx: %3.3f\ty: %3.3f\tz: %3.3f", millisec, sample->AngularVelocityX, sample->AngularVelocityY, sample->AngularVelocityZ); // gyro data is in degrees/sec
 }
 
 void CaptureManager::OnVideoFrame(PXCImage* colorSample)
 {
-	//cp.receive_camera(camera_data(colorSample));
+	//if (!isCapturing) return;
+	cp.receive_camera(camera_data(colorSample));
 	Debug::Log(L"Color video sample received");
 }
 

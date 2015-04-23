@@ -34,13 +34,6 @@ void StartCapture()
 	bool result;
 	capMan = ref new CaptureManager();
 
-	result = capMan->StartSensors();
-	if (!result)
-	{
-		Debug::Log(L"Failed to start sensors");
-		return;
-	}
-
 	result = capMan->StartCapture();
 	if (!result)
 	{
@@ -48,7 +41,14 @@ void StartCapture()
 		return;
 	}
 
-	if (result) isCapturing = true;
+	result = capMan->StartSensors();
+	if (!result)
+	{
+		Debug::Log(L"Failed to start sensors");
+		return;
+	}
+
+	isCapturing = result;
 }
 
 void StopCapture()

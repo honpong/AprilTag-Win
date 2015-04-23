@@ -19,7 +19,7 @@ camera_data::camera_data(void *h) : image_handle(h, [](void *h) {})
     PXCImage *pxci = (PXCImage *)h;
     PXCImage::ImageData data;
     auto result = pxci->AcquireAccess(PXCImage::ACCESS_READ, PXCImage::PIXEL_FORMAT_Y8, &data);
-    if(result != PXC_STATUS_NO_ERROR) throw std::runtime_error("PXCImage->AcquireAccess failed!");
+    if(result != PXC_STATUS_NO_ERROR || !data.planes[0]) throw std::runtime_error("PXCImage->AcquireAccess failed!");
     image_handle.reset(new handle_type(pxci, data)); //TODO avoid allocation here?
  
     image = data.planes[0];
@@ -36,6 +36,9 @@ camera_data::camera_data(void *h) : image_handle(h, [](void *h) {})
 camera_data::~camera_data()
 {
     auto h = (handle_type *)image_handle.get();
-    h->first->ReleaseAccess(&(h->second));
-    delete h;
+    if (h)
+    {
+        h->first->ReleaseAccess(&(h->second));
+        delete h;
+    }
 }

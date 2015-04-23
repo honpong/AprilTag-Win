@@ -1,6 +1,4 @@
 #pragma once
-#ifndef VIDEOMANAGER_H
-#define VIDEOMANAGER_H
 
 #include "pch.h"
 #include "pxcsensemanager.h"
@@ -8,25 +6,18 @@
 
 namespace RealityCap
 {
-	public ref class VideoManager sealed
+	class VideoManager
 	{
-
 	public:
 		VideoManager();
-		virtual ~VideoManager();
-		//static VideoManager^ GetSharedInstance();
+		~VideoManager();
+		
 		bool StartVideo(); // returns true if video started successfully
 		void StopVideo();
+		void SetDelegate(PXCSenseManager::Handler* handler); // must be called before StartVideo()
 
-	private:
-		class SampleHandler : public PXCSenseManager::Handler 
-		{ 
-		public:
-			virtual pxcStatus PXCAPI OnNewSample(pxcUID, PXCCapture::Sample *sample); 
-		};
+	private:		
 		PXCSenseManager* senseMan;
-		SampleHandler sampleHandler;
+		PXCSenseManager::Handler* sampleHandler;
 	};
 }
-
-#endif

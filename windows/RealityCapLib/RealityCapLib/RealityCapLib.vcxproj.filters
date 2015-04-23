@@ -1,20 +1,26 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Resources">
-      <UniqueIdentifier>a49e1990-3e7f-4a7b-92c8-5be72f36dc9c</UniqueIdentifier>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tga;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="RealityCapLib.cpp" />
     <ClCompile Include="pch.cpp" />
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="IMUManager.cpp" />
     <ClCompile Include="LocationManager.cpp" />
     <ClCompile Include="VideoManager.cpp" />
+    <ClCompile Include="CaptureManager.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="RealityCapLib.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="CaptureManager.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="IMUManager.h" />
     <ClInclude Include="LocationManager.h" />

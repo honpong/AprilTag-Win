@@ -13,16 +13,6 @@ LocationManager::LocationManager()
 {
 }
 
-//LocationManager ^ RealityCap::LocationManager::GetSharedInstance()
-//{
-//	static LocationManager^ _sharedInstance;
-//	if (_sharedInstance == nullptr)
-//	{
-//		_sharedInstance = ref new LocationManager();
-//	}
-//	return _sharedInstance;
-//}
-
 void RealityCap::LocationManager::GetLocationAndCache()
 {
 	geolocator = ref new Geolocator();

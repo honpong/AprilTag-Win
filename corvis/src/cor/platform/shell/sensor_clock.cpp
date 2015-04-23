@@ -61,6 +61,7 @@ sensor_clock::time_point sensor_clock::now() noexcept
 #else
 
 #include <time.h>
+#include <assert.h>
 
 sensor_clock::time_point sensor_clock::now() noexcept
 {

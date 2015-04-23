@@ -6,6 +6,7 @@
 #include "IMUManager.h"
 #include "Debug.h"
 #include "CaptureManager.h"
+#include "AccelerometerLib.h"
 
 #using <Windows.winmd>
 #using <Platform.winmd>
@@ -33,6 +34,13 @@ void StartCapture()
 {
 	bool result;
 	capMan = ref new CaptureManager();
+
+	result = SetAccelerometerSensitivity(0);
+	if (!result)
+	{
+		Debug::Log(L"Failed to set sensor properties");
+		return;
+	}
 
 	result = capMan->StartCapture();
 	if (!result)

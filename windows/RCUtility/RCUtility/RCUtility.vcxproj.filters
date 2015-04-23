@@ -33,9 +33,6 @@
     <ClInclude Include="Resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AccelerometerManager.h">
-      <Filter>Source Files\SensorManagers</Filter>
-    </ClInclude>
     <ClInclude Include="IMUManager.h">
       <Filter>Source Files\SensorManagers</Filter>
     </ClInclude>
@@ -67,9 +64,6 @@
     </ClCompile>
     <ClCompile Include="Debug.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="AccelerometerManager.cpp">
-      <Filter>Source Files\SensorManagers</Filter>
     </ClCompile>
     <ClCompile Include="IMUManager.cpp">
       <Filter>Source Files\SensorManagers</Filter>

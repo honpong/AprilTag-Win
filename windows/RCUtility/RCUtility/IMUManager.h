@@ -2,7 +2,6 @@
 
 #using <Windows.winmd>
 #using <Platform.winmd>
-#include "AccelerometerManager.h"
 
 namespace RealityCap
 {
@@ -24,7 +23,7 @@ namespace RealityCap
 		Windows::Devices::Sensors::Gyrometer^ gyro;
 		Windows::Foundation::EventRegistrationToken accelToken;
 		Windows::Foundation::EventRegistrationToken gyroToken;
-		AccelerometerManager accelMan;
+		//AccelerometerManager accelMan;
 
 		void AccelReadingChanged(Windows::Devices::Sensors::Accelerometer^ sender, Windows::Devices::Sensors::AccelerometerReadingChangedEventArgs^ e);
 		void GyroReadingChanged(Windows::Devices::Sensors::Gyrometer^ sender, Windows::Devices::Sensors::GyrometerReadingChangedEventArgs^ e);

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "IMUManager.h"
 #include "Debug.h"
+
 #using <Windows.winmd>
 #using <Platform.winmd>
 
@@ -8,9 +9,7 @@ using namespace Windows::Devices::Sensors;
 using namespace Windows::Foundation;
 using namespace Platform;
 using namespace RealityCap;
-using namespace Windows::UI::Xaml;
 
-#define USE_WIN32_AMETER_API true
 static const int DESIRED_INTERVAL = 16; // desired sensor reporting interval in milliseconds
 
 IMUManager::IMUManager()
@@ -26,20 +25,9 @@ bool IMUManager::StartSensors()
 {
 	bool result = true;
 
-	if (USE_WIN32_AMETER_API)
-	{
-		HRESULT hr;
-		hr = accelMan.Initialize();
-		if (!SUCCEEDED(hr)) return false;
-		hr = accelMan.SetChangeSensitivity(0);
-		if (!SUCCEEDED(hr)) return false;
-		hr = accelMan.SetReportInterval(DESIRED_INTERVAL);
-		if (!SUCCEEDED(hr)) return false;
-	}
-
 	if (accelerometer != nullptr)
 	{
-		//accelerometer->ReportInterval = accelerometer->MinimumReportInterval > DESIRED_INTERVAL ? accelerometer->MinimumReportInterval : DESIRED_INTERVAL;  // milliseconds
+		accelerometer->ReportInterval = accelerometer->MinimumReportInterval > DESIRED_INTERVAL ? accelerometer->MinimumReportInterval : DESIRED_INTERVAL;  // milliseconds
 		Debug::Log(L"accel reporting interval: %ims", accelerometer->ReportInterval);
 		accelToken = accelerometer->ReadingChanged::add(ref new TypedEventHandler<Accelerometer^, AccelerometerReadingChangedEventArgs^>(this, &IMUManager::AccelReadingChanged));
 	}
@@ -63,14 +51,9 @@ void IMUManager::StopSensors()
 	if (accelerometer != nullptr)
 	{
 		accelerometer->ReadingChanged::remove(accelToken);
-		//accelerometer->ReportInterval = 0; // Restore the default report interval to release resources while the sensor is not in use
+		accelerometer->ReportInterval = 0; // Restore the default report interval to release resources while the sensor is not in use
 	}
 
-	if (USE_WIN32_AMETER_API)
-	{
-		HRESULT hr = accelMan.SetReportInterval(0); // zero means default
-		if (!SUCCEEDED(hr)) Debug::Log(L"Failed to restore default ameter reporting interval.");
-	}
 
 	if (gyro != nullptr)
 	{

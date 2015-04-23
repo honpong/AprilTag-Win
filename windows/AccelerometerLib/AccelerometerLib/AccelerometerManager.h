@@ -16,6 +16,7 @@ class AccelerometerManager
 public:
 	AccelerometerManager(void);
 	~AccelerometerManager(void);
+	static AccelerometerManager* GetSharedInstance();
 
     HRESULT Initialize();
 	AccelSample GetSample();

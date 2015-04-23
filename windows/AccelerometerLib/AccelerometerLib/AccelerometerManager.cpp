@@ -12,6 +12,16 @@ AccelerometerManager::~AccelerometerManager(void)
 {
 };
 
+AccelerometerManager* AccelerometerManager::GetSharedInstance()
+{
+	static AccelerometerManager* _sharedInstance;
+	if (_sharedInstance == nullptr)
+	{
+		_sharedInstance = new AccelerometerManager();
+	}
+	return _sharedInstance;
+}
+
 HRESULT AccelerometerManager::Initialize()
 {
 	CComPtr<ISensorManager> pSensorManager;

@@ -59,6 +59,7 @@
       <AdditionalUsingDirectories>C:\Program Files %28x86%29\Windows Kits\8.1\References\CommonConfiguration\Neutral;C:\Program Files %28x86%29\Microsoft SDKs\Windows\v8.1\ExtensionSDKs\Microsoft.VCLibs\12.0\References\CommonConfiguration\neutral;%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
       <CompileAsWinRT>true</CompileAsWinRT>
       <MinimalRebuild>false</MinimalRebuild>
+      <AdditionalIncludeDirectories>../../AccelerometerLib/AccelerometerLib/</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -95,7 +96,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\corvis\src\filter\capture.h" />
-    <ClInclude Include="AccelerometerManager.h" />
     <ClInclude Include="CaptureManager.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="IMUManager.h" />
@@ -123,7 +123,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="AccelerometerManager.cpp" />
     <ClCompile Include="CaptureManager.cpp" />
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="IMUManager.cpp" />
@@ -141,6 +140,11 @@
   <ItemGroup>
     <Image Include="RCUtility.ico" />
     <Image Include="small.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\AccelerometerLib\AccelerometerLib\AccelerometerLib.vcxproj">
+      <Project>{be1158fd-a233-4f28-afc6-fe5273c20794}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

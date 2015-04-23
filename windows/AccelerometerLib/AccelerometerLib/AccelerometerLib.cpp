@@ -5,18 +5,16 @@
 #include "AccelerometerLib.h"
 #include "AccelerometerManager.h"
 
-bool SetChangeSensitivity(double sensitivity)
+bool SetAccelerometerSensitivity(double sensitivity)
 {
-	AccelerometerManager ameterMan;
-	HRESULT hr = ameterMan.SetChangeSensitivity(sensitivity);
+	// use shared instance because object must stay alive for settings to stick
+	AccelerometerManager* ameterMan = AccelerometerManager::GetSharedInstance(); 
+	HRESULT hr;
+	hr = ameterMan->Initialize();
+	if (!SUCCEEDED(hr)) return false;
+	hr = ameterMan->SetChangeSensitivity(sensitivity);
 	return SUCCEEDED(hr);
 }
 
-bool SetReportingInterval(ULONG milliseconds)
-{
-	AccelerometerManager ameterMan;
-	HRESULT hr = ameterMan.SetReportInterval(milliseconds);
-	return SUCCEEDED(hr);
-}
 
 

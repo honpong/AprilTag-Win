@@ -59,7 +59,7 @@ bin/%:override CC=$(Q)printf "%32s %s\n" "Linking" $(@); $(_CC)
 
 %.so:
 	@mkdir -p $(@D)
-	$(CC) -shared -undefined suppress -flat_namespace $(LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
+	$(CC) -shared -undefined suppress -flat_namespace $(LDFLAGS) $^ $(LDLIBS) -o $@
 
 bin/corvis/_%.so: LDGLAGS += $(PYTHON_LDFLAGS)
 
@@ -249,7 +249,7 @@ LDFLAGS := $(LDFLAGS) -lstdc++
 
 bin/measure: $(patsubst src/%,build/%,$(MEASURE_SOURCES:.c=.o)) $(patsubst src/%,build/%,$(MEASURE_CXX_SOURCES:.cpp=.o)) bin/_libzxing.a
 	@mkdir -p $(@D)
-	$(CC) $(LDFLAGS) $(PYTHON_LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
+	$(CC) $(LDFLAGS) $(PYTHON_LDFLAGS) $^ $(LDLIBS) -o $@
 
 TARGETS := $(TARGETS) bin/measure
 #CXX_SOURCES := $(CXX_SOURCES) src/filter/replay.cpp src/tools/measure.cpp
@@ -273,7 +273,7 @@ build/$(d)/%.o: $(d)/%.cpp
 
 bin/test: build/$(d)/gtest_main.o build/$(d)/gtest-all.o $(patsubst test/%,build/test/%,$(TEST_CXX_SOURCES:.cpp=.o)) $(addprefix build/numerics/, rotation_vector.o vec4.o matrix.o) $(addprefix build/filter/, fast_detector/fast_9.o scaled_mask.o homography.o) $(addprefix build/cor/, sensor_fusion_queue.o platform/shell/sensor_data.o platform/shell/sensor_clock.o) bin/_stereo.so bin/_libDAI.so bin/_qhull.so
 	@mkdir -p $(@D)
-	$(CC) $(LDFLAGS) $(PYTHON_LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
+	$(CC) $(LDFLAGS) $(PYTHON_LDFLAGS) $^ $(LDLIBS) -o $@
 
 TARGETS := $(TARGETS) bin/test
 #CXX_SOURCES := $(CXX_SOURCES) $(TEST_CXX_SOURCES)

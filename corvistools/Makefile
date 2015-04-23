@@ -74,7 +74,7 @@ cor/cor:override CC=$(Q)printf "%32s %s\n" "Linking" $(@); $(_CC)
         rm -f $@.$$$$
 
 %.so: %.o
-	$(CC) -shared -undefined suppress -flat_namespace $(LDFLAGS) $(PYTHON_LDFLAGS) $^ $(LOADLIBES) $(LDLIBS) -o $@
+	$(CC) -shared -undefined suppress -flat_namespace $(LDFLAGS) $(PYTHON_LDFLAGS) $^ $(LDLIBS) -o $@
 
 ############################## RENDERABLE ############################
 

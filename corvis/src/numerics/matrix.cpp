@@ -24,7 +24,7 @@
 extern "C" {
 
 #ifndef __APPLE__
-    extern int ilaenv_(int *, char *, char *, int *, int *, int *, int *, int, int);
+    extern int ilaenv_(int *, char *, char *, int *, int *, int *, int *);
     extern int ssytrf_(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *lwork, int *info);
     extern int ssytri_(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *info);
     extern int spotrf_(char *, int *, f_t *, int *, int *);

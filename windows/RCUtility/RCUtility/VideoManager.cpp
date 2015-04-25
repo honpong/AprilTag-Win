@@ -14,7 +14,7 @@ static const int IMAGE_WIDTH = 640;
 static const int IMAGE_HEIGHT = 480;
 static const int FPS = 30;
 
-VideoManager::VideoManager()
+VideoManager::VideoManager() : isVideoStreaming(false)
 {
 	senseMan = PXCSenseManager::CreateInstance();
 	if (!senseMan) Debug::Log(L"Unable to create the PXCSenseManager\n");
@@ -25,34 +25,49 @@ VideoManager::~VideoManager()
 	senseMan->Release();
 }
 
-void VideoManager::SetDelegate(PXCSenseManager::Handler* handler)
-{
-	sampleHandler = handler;
-}
-
 bool VideoManager::StartVideo()
 {
-	if (!senseMan || sampleHandler == nullptr) return false;
+	if (!senseMan) return false;
 
 	senseMan->EnableStream(PXCCapture::STREAM_TYPE_COLOR, IMAGE_WIDTH, IMAGE_HEIGHT, (pxcF32)FPS);
 
 	/* Initializes the pipeline */
 	pxcStatus status;
-	status = senseMan->Init(sampleHandler);
+	status = senseMan->Init();
 
 	if (status < PXC_STATUS_NO_ERROR)
 	{
 		Debug::Log(L"Failed to locate any video stream(s)\n");
 		return false;
 	}
+	
+	isVideoStreaming = true;
 
-	senseMan->StreamFrames(true);
+	// poll for frames in a separate thread
+	videoThread = std::thread(&VideoManager::WaitForFrames, this);
 
 	return true;
 }
 
 void VideoManager::StopVideo()
 {
+	isVideoStreaming = false;
 	if (senseMan) senseMan->Close();
+	videoThread.join();
+}
+
+void VideoManager::SetDelegate(PXCSenseManager::Handler* handler)
+{
+	sampleHandler = handler;
+}
+
+void VideoManager::WaitForFrames()
+{
+	while (isVideoStreaming && senseMan->AcquireFrame(true) == PXC_STATUS_NO_ERROR)
+	{
+		PXCCapture::Sample *sample = senseMan->QuerySample();
+		if (sample) sampleHandler->OnNewSample(senseMan->CUID, sample);
+		senseMan->ReleaseFrame();
+	}
 }
 

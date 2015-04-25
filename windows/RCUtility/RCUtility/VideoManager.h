@@ -6,6 +6,7 @@
 #include "stdafx.h"
 #include "pxcsensemanager.h"
 #include "pxcmetadata.h"
+#include <thread>
 
 namespace RealityCap
 {
@@ -22,5 +23,8 @@ namespace RealityCap
 	private:		
 		PXCSenseManager* senseMan;
 		PXCSenseManager::Handler* sampleHandler;
+		std::thread videoThread;
+		void WaitForFrames();
+		bool isVideoStreaming;
 	};
 }

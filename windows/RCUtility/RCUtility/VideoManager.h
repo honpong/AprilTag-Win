@@ -24,7 +24,7 @@ namespace RealityCap
 		PXCSenseManager* senseMan;
 		PXCSenseManager::Handler* sampleHandler;
 		std::thread videoThread;
-		void WaitForFrames();
+		void PollForFrames();
 		bool isVideoStreaming;
 	};
 }

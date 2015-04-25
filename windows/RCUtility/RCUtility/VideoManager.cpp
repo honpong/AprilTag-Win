@@ -44,7 +44,7 @@ bool VideoManager::StartVideo()
 	isVideoStreaming = true;
 
 	// poll for frames in a separate thread
-	videoThread = std::thread(&VideoManager::WaitForFrames, this);
+	videoThread = std::thread(&VideoManager::PollForFrames, this);
 
 	return true;
 }
@@ -61,7 +61,7 @@ void VideoManager::SetDelegate(PXCSenseManager::Handler* handler)
 	sampleHandler = handler;
 }
 
-void VideoManager::WaitForFrames()
+void VideoManager::PollForFrames()
 {
 	while (isVideoStreaming && senseMan->AcquireFrame(true) == PXC_STATUS_NO_ERROR)
 	{

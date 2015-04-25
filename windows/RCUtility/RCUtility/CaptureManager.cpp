@@ -14,6 +14,7 @@ using namespace Windows::Devices::Sensors;
 using namespace Windows::Foundation;
 using namespace Platform;
 using namespace RealityCap;
+using namespace std;
 
 CaptureManager::VideoFrameHandler::VideoFrameHandler(CaptureManager^ capMan)
 {
@@ -58,7 +59,7 @@ void CaptureManager::StopSensors()
 bool CaptureManager::StartCapture()
 {
 	if (isCapturing()) return true;
-	std::string path = "C:\\Users\\ben_000\\Documents\\Visual Studio 2015\\Projects\\rcmain\\windows\\RCUtility\\Debug\\capture"; // temp
+	std::string path = ExePath() + "\\capture"; 
 	_isCapturing = cp.start(path.c_str());
 	return isCapturing();
 }
@@ -73,6 +74,14 @@ void CaptureManager::StopCapture()
 bool RealityCap::CaptureManager::isCapturing()
 {
 	return _isCapturing;
+}
+
+string CaptureManager::ExePath()
+{
+	char buffer[MAX_PATH];
+	GetModuleFileNameA(NULL, buffer, MAX_PATH);
+	string::size_type pos = string(buffer).find_last_of("\\/");
+	return string(buffer).substr(0, pos);
 }
 
 void CaptureManager::OnAmeterSample(AccelerometerReading^ sample)

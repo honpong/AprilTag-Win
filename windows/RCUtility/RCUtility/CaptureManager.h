@@ -34,6 +34,7 @@ namespace RealityCap
 		capture cp;
 		bool _isCapturing;
 
+		std::string ExePath();
 		void OnAmeterSample(Windows::Devices::Sensors::AccelerometerReading^ sample);
 		void OnGyroSample(Windows::Devices::Sensors::GyrometerReading^ sample);
 		void OnVideoFrame(PXCImage* colorSample);

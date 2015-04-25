@@ -52,8 +52,8 @@ bool VideoManager::StartVideo()
 void VideoManager::StopVideo()
 {
 	isVideoStreaming = false;
-	if (senseMan) senseMan->Close();
 	videoThread.join();
+	if (senseMan) senseMan->Close();
 }
 
 void VideoManager::SetDelegate(PXCSenseManager::Handler* handler)

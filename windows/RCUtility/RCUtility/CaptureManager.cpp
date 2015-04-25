@@ -31,7 +31,7 @@ pxcStatus PXCAPI CaptureManager::VideoFrameHandler::OnNewSample(pxcUID, PXCCaptu
 	return PXC_STATUS_NO_ERROR; // return NO ERROR to continue, or any ERROR to exit the loop
 };
 
-CaptureManager::CaptureManager() : frameHandler(this)
+CaptureManager::CaptureManager() : frameHandler(this), _isCapturing(false)
 {
 	imuMan = ref new IMUManager();
 	imuMan->OnAmeterSample += ref new AmeterEventHandler(this, &CaptureManager::OnAmeterSample);
@@ -43,9 +43,9 @@ CaptureManager::CaptureManager() : frameHandler(this)
 bool CaptureManager::StartSensors()
 {
 	bool result;
-	result = imuMan->StartSensors();
-	if (!result) return false;
 	result = videoMan.StartVideo();
+	if (!result) return false;
+	result = imuMan->StartSensors();
 	return result;
 }
 
@@ -57,20 +57,27 @@ void CaptureManager::StopSensors()
 
 bool CaptureManager::StartCapture()
 {
+	if (isCapturing()) return true;
 	std::string path = "C:\\Users\\ben_000\\Documents\\Visual Studio 2015\\Projects\\rcmain\\windows\\RCUtility\\Debug\\capture"; // temp
-	isCapturing = cp.start(path.c_str());
-	return isCapturing;
+	_isCapturing = cp.start(path.c_str());
+	return isCapturing();
 }
 
 void CaptureManager::StopCapture()
 {
+	if (!isCapturing()) return;
 	cp.stop();
-	isCapturing = false;
+	_isCapturing = false;
+}
+
+bool RealityCap::CaptureManager::isCapturing()
+{
+	return _isCapturing;
 }
 
 void CaptureManager::OnAmeterSample(AccelerometerReading^ sample)
 {
-	//if (!isCapturing) return;
+	if (!isCapturing()) return;
 
     accelerometer_data data;
     //windows gives acceleration in g-units, so multiply by standard gravity in m/s^2
@@ -87,7 +94,7 @@ void CaptureManager::OnAmeterSample(AccelerometerReading^ sample)
 
 void CaptureManager::OnGyroSample(GyrometerReading^ sample)
 {
-	//if (!isCapturing) return;
+	if (!isCapturing()) return;
 
     gyro_data data;
     //windows gives angular velocity in degrees per second
@@ -104,8 +111,8 @@ void CaptureManager::OnGyroSample(GyrometerReading^ sample)
 
 void CaptureManager::OnVideoFrame(PXCImage* colorSample)
 {
-	//if (!isCapturing) return;
-	cp.receive_camera(camera_data(colorSample));
+	if (!isCapturing()) return;
+	//cp.receive_camera(camera_data(colorSample));
 	Debug::Log(L"Color video sample received");
 }
 

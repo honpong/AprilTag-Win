@@ -17,6 +17,7 @@ namespace RealityCap
 		void StopSensors();
 		bool StartCapture();
 		void StopCapture();
+		bool isCapturing();
 		
 	private:
 		class VideoFrameHandler : public PXCSenseManager::Handler
@@ -31,7 +32,7 @@ namespace RealityCap
 		VideoManager videoMan;
 		IMUManager^ imuMan;
 		capture cp;
-		bool isCapturing;
+		bool _isCapturing;
 
 		void OnAmeterSample(Windows::Devices::Sensors::AccelerometerReading^ sample);
 		void OnGyroSample(Windows::Devices::Sensors::GyrometerReading^ sample);

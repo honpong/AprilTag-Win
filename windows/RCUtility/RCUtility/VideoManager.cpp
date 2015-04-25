@@ -14,7 +14,7 @@ static const int IMAGE_WIDTH = 640;
 static const int IMAGE_HEIGHT = 480;
 static const int FPS = 30;
 
-VideoManager::VideoManager() : isVideoStreaming(false)
+VideoManager::VideoManager() : _isVideoStreaming(false)
 {
 	senseMan = PXCSenseManager::CreateInstance();
 	if (!senseMan) Debug::Log(L"Unable to create the PXCSenseManager\n");
@@ -27,21 +27,25 @@ VideoManager::~VideoManager()
 
 bool VideoManager::StartVideo()
 {
-	if (!senseMan) return false;
+	if (isVideoStreaming()) return true;
+	if (!senseMan || !sampleHandler) return false;
 
-	senseMan->EnableStream(PXCCapture::STREAM_TYPE_COLOR, IMAGE_WIDTH, IMAGE_HEIGHT, (pxcF32)FPS);
-
-	/* Initializes the pipeline */
 	pxcStatus status;
-	status = senseMan->Init();
-
+	status = senseMan->EnableStream(PXCCapture::STREAM_TYPE_COLOR, IMAGE_WIDTH, IMAGE_HEIGHT, (pxcF32)FPS);
 	if (status < PXC_STATUS_NO_ERROR)
 	{
-		Debug::Log(L"Failed to locate any video stream(s)\n");
+		Debug::Log(L"Failed to enable video stream(s)\n");
+		return false;
+	}
+
+	status = senseMan->Init();
+	if (status < PXC_STATUS_NO_ERROR)
+	{
+		Debug::Log(L"Failed to initialize video pipeline\n");
 		return false;
 	}
 	
-	isVideoStreaming = true;
+	_isVideoStreaming = true;
 
 	// poll for frames in a separate thread
 	videoThread = std::thread(&VideoManager::PollForFrames, this);
@@ -51,7 +55,8 @@ bool VideoManager::StartVideo()
 
 void VideoManager::StopVideo()
 {
-	isVideoStreaming = false;
+	if (!isVideoStreaming()) return;
+	_isVideoStreaming = false;
 	videoThread.join();
 	if (senseMan) senseMan->Close();
 }
@@ -61,9 +66,14 @@ void VideoManager::SetDelegate(PXCSenseManager::Handler* handler)
 	sampleHandler = handler;
 }
 
+bool RealityCap::VideoManager::isVideoStreaming()
+{
+	return _isVideoStreaming;
+}
+
 void VideoManager::PollForFrames()
 {
-	while (isVideoStreaming && senseMan->AcquireFrame(true) == PXC_STATUS_NO_ERROR)
+	while (isVideoStreaming() && senseMan->AcquireFrame(true) == PXC_STATUS_NO_ERROR)
 	{
 		PXCCapture::Sample *sample = senseMan->QuerySample();
 		if (sample) sampleHandler->OnNewSample(senseMan->CUID, sample);

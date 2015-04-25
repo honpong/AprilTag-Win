@@ -42,17 +42,17 @@ void StartCapture()
 		return;
 	}
 
-	result = capMan->StartCapture();
-	if (!result)
-	{
-		Debug::Log(L"Failed to start capture");
-		return;
-	}
-
 	result = capMan->StartSensors();
 	if (!result)
 	{
 		Debug::Log(L"Failed to start sensors");
+		return;
+	}
+
+	result = capMan->StartCapture();
+	if (!result)
+	{
+		Debug::Log(L"Failed to start capture");
 		return;
 	}
 

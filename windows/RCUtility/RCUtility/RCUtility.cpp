@@ -7,6 +7,7 @@
 #include "Debug.h"
 #include "CaptureManager.h"
 #include "AccelerometerLib.h"
+#include <shellapi.h>
 
 #using <Windows.winmd>
 #using <Platform.winmd>
@@ -23,6 +24,7 @@ TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 CaptureManager^ capMan;
 bool isCapturing = false;
+HWND hLabel;
 
 // Forward declarations of functions included in this code module:
 ATOM				MyRegisterClass(HINSTANCE hInstance);
@@ -32,27 +34,32 @@ INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 
 void StartCapture()
 {
+	SetWindowText(hLabel, L"Starting capture...");
 	bool result;
 	capMan = ref new CaptureManager();
 
 	result = SetAccelerometerSensitivity(0);
 	if (!result)
 	{
-		Debug::Log(L"Failed to set sensor properties");
+		SetWindowText(hLabel, L"Failed to set sensor properties");
 		return;
 	}
 
 	result = capMan->StartSensors();
 	if (!result)
 	{
-		Debug::Log(L"Failed to start sensors");
+		SetWindowText(hLabel, L"Failed to start sensors");
 		return;
 	}
 
 	result = capMan->StartCapture();
-	if (!result)
+	if (result)
 	{
-		Debug::Log(L"Failed to start capture");
+		SetWindowText(hLabel, L"Capturing. Tap/click window to stop.");
+	}
+	else
+	{
+		SetWindowText(hLabel, L"Failed to start capture");
 		return;
 	}
 
@@ -61,10 +68,12 @@ void StartCapture()
 
 void StopCapture()
 {
+	SetWindowText(hLabel, L"Stopping capture...");
 	if (!isCapturing) return;
 	capMan->StopCapture();
 	capMan->StopSensors();
 	isCapturing = false;
+	SetWindowText(hLabel, L"Capture complete. Tap/click to restart.");
 }
 
 [MTAThread] // inits WinRT runtime
@@ -158,9 +167,11 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
       return FALSE;
    }
 
-   ShowWindow(hWnd, nCmdShow);
-   UpdateWindow(hWnd);
+   hLabel = CreateWindow(TEXT("static"), TEXT("Tap/click window to start capture."), WS_CHILD | WS_VISIBLE, 10, 10, 500, 20, hWnd, (HMENU)3, NULL, NULL);
 
+   ShowWindow(hWnd, nCmdShow);	
+   UpdateWindow(hWnd);
+   
    return TRUE;
 }
 

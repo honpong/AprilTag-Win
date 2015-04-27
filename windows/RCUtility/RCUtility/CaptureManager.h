@@ -33,8 +33,9 @@ namespace RealityCap
 		IMUManager^ imuMan;
 		capture cp;
 		bool _isCapturing;
+		std::string _captureFilePath;
 
-		std::string ExePath();
+		std::string GetExePath();
 		void OnAmeterSample(Windows::Devices::Sensors::AccelerometerReading^ sample);
 		void OnGyroSample(Windows::Devices::Sensors::GyrometerReading^ sample);
 		void OnVideoFrame(PXCImage* colorSample);

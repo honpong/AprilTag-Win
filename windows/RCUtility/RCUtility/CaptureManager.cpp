@@ -39,6 +39,8 @@ CaptureManager::CaptureManager() : frameHandler(this), _isCapturing(false)
 	imuMan->OnGyroSample += ref new GyroEventHandler(this, &CaptureManager::OnGyroSample);
 
 	videoMan.SetDelegate(&frameHandler);
+
+	_captureFilePath = GetExePath() + "\\capture";
 }
 
 bool CaptureManager::StartSensors()
@@ -59,8 +61,7 @@ void CaptureManager::StopSensors()
 bool CaptureManager::StartCapture()
 {
 	if (isCapturing()) return true;
-	std::string path = ExePath() + "\\capture"; 
-	_isCapturing = cp.start(path.c_str());
+	_isCapturing = cp.start(_captureFilePath.c_str());
 	return isCapturing();
 }
 
@@ -76,7 +77,7 @@ bool RealityCap::CaptureManager::isCapturing()
 	return _isCapturing;
 }
 
-string CaptureManager::ExePath()
+string CaptureManager::GetExePath()
 {
 	char buffer[MAX_PATH];
 	GetModuleFileNameA(NULL, buffer, MAX_PATH);

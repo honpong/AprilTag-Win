@@ -8,7 +8,7 @@
 #include <string.h>
 #include <assert.h>
 extern "C" {
-#include "../cor/cor.h"
+ #include "../cor/mapbuffer.h"
 }
 #include "state_vision.h"
 #include "../numerics/vec4.h"

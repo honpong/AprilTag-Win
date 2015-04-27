@@ -9,7 +9,6 @@
 
 #include <string.h>
 #include "device_parameters.h"
-#include "cor.h"
 #include "../cor/packet.h"
 #include "../cor/platform/sensor_data.h"
 

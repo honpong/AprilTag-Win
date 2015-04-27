@@ -9,7 +9,6 @@
 
 #include <string.h>
 #include "device_parameters.h"
-#include "cor.h"
 #include "packet.h"
 
 bool replay::open(const char *name)

@@ -11,7 +11,6 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include "packet.h"
-#include "cor.h"
 #include "mapbuffer.h"
 
 image_t packet_camera_t_image(packet_camera_t *p)

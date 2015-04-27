@@ -10,7 +10,7 @@
 #include <pthread.h>
 #include <assert.h>
 
-#include "cor.h"
+#include "timestamp.h"
 
 uint64_t cor_time_start = 0;
 

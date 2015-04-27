@@ -2,7 +2,7 @@
 #define __FILTER_SETUP_H
 
 extern "C" {
-#include "../cor/cor.h"
+#include "../cor/mapbuffer.h"
 }
 
 #include "device_parameters.h"

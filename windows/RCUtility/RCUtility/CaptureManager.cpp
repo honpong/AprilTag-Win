@@ -122,7 +122,7 @@ void CaptureManager::OnGyroSample(GyrometerReading^ sample)
 void CaptureManager::OnVideoFrame(PXCImage* colorSample)
 {
 	if (!isCapturing()) return;
-	//cp.receive_camera(camera_data(colorSample));
+	cp.receive_camera(camera_data(colorSample));
 	Debug::Log(L"Color video sample received");
 }
 

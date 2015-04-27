@@ -14,6 +14,8 @@
 #define IDI_SMALL				108
 #define IDC_RCUTILITY			109
 #define IDC_MYICON				2
+#define IDB_CAPTURE				201
+#define	IDB_CALIBRATE			202
 #ifndef IDC_STATIC
 #define IDC_STATIC				-1
 #endif

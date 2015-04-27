@@ -24,7 +24,10 @@ TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 CaptureManager^ capMan;
 bool isCapturing = false;
+bool isCalibrating = false;
 HWND hLabel;
+HWND hCaptureButton;
+HWND hCalibrateButton;
 
 // Forward declarations of functions included in this code module:
 ATOM				MyRegisterClass(HINSTANCE hInstance);
@@ -34,6 +37,8 @@ INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 
 void StartCapture()
 {
+	if (isCapturing || isCalibrating) return;
+
 	SetWindowText(hLabel, L"Starting capture...");
 	bool result;
 	capMan = ref new CaptureManager();
@@ -55,7 +60,7 @@ void StartCapture()
 	result = capMan->StartCapture();
 	if (result)
 	{
-		SetWindowText(hLabel, L"Capturing. Tap/click window to stop.");
+		SetWindowText(hLabel, L"Capturing. Tap/click button again to stop.");
 	}
 	else
 	{
@@ -68,12 +73,26 @@ void StartCapture()
 
 void StopCapture()
 {
-	SetWindowText(hLabel, L"Stopping capture...");
 	if (!isCapturing) return;
+	SetWindowText(hLabel, L"Stopping capture...");
 	capMan->StopCapture();
 	capMan->StopSensors();
 	isCapturing = false;
-	SetWindowText(hLabel, L"Capture complete. Tap/click to restart.");
+	SetWindowText(hLabel, L"Capture complete. Tap/click button to restart.");
+}
+
+void StartCalibration()
+{
+	if (isCalibrating || isCapturing) return;
+	SetWindowText(hLabel, TEXT("Calibrating..."));
+	isCalibrating = true;
+}
+
+void StopCalibration()
+{
+	if (!isCalibrating) return;
+	SetWindowText(hLabel, TEXT("Calibration complete."));
+	isCalibrating = false;
 }
 
 [MTAThread] // inits WinRT runtime
@@ -114,7 +133,6 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 	return (int) msg.wParam;
 }
-
 
 
 //
@@ -167,7 +185,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
       return FALSE;
    }
 
-   hLabel = CreateWindow(TEXT("static"), TEXT("Tap/click window to start capture."), WS_CHILD | WS_VISIBLE, 10, 10, 500, 20, hWnd, (HMENU)3, NULL, NULL);
+   hLabel = CreateWindow(TEXT("static"), TEXT(""), WS_CHILD | WS_VISIBLE, 10, 10, 500, 20, hWnd, (HMENU)3, NULL, NULL);
+   hCaptureButton = CreateWindow(TEXT("button"), TEXT("Capture"), WS_CHILD | WS_VISIBLE, 10, 60, 100, 50, hWnd, (HMENU)IDB_CAPTURE, NULL, NULL);
+   hCalibrateButton = CreateWindow(TEXT("button"), TEXT("Calibrate"), WS_CHILD | WS_VISIBLE, 130, 60, 100, 50, hWnd, (HMENU)IDB_CALIBRATE, NULL, NULL);
 
    ShowWindow(hWnd, nCmdShow);	
    UpdateWindow(hWnd);
@@ -205,6 +225,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case IDM_EXIT:
 			DestroyWindow(hWnd);
 			break;
+		case IDB_CAPTURE:
+			isCapturing ? StopCapture() : StartCapture();
+			break;
+		case IDB_CALIBRATE:
+			isCalibrating ? StopCalibration() : StartCalibration();
+			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
@@ -222,7 +248,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		DestroyWindow(hWnd);
 		break;
 	case WM_LBUTTONUP:
-		isCapturing ? StopCapture() : StartCapture();
+		
 		break;
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);

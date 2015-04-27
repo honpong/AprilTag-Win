@@ -214,7 +214,7 @@
     NSTimeInterval howRecent = [_location.timestamp timeIntervalSinceNow];
     
     // If it's a relatively recent event, turn off updates to save power
-    if (abs(howRecent) < 15.0) {
+    if (fabs(howRecent) < 15.0) {
         if(_location.horizontalAccuracy <= 65)
         {
             if (shouldStopAutomatically) [self stopLocationUpdates];

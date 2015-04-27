@@ -254,7 +254,7 @@ bin/measure: $(patsubst src/%,build/%,$(MEASURE_SOURCES:.c=.o)) $(patsubst src/%
 	$(CC) $(LDFLAGS) $(PYTHON_LDFLAGS) $^ $(LDLIBS) -o $@
 
 TARGETS := $(TARGETS) bin/measure
-#CXX_SOURCES := $(CXX_SOURCES) src/filter/replay.cpp src/tools/measure.cpp
+CXX_SOURCES := $(CXX_SOURCES) src/filter/replay.cpp src/tools/measure.cpp
 
 ############################## TEST ############################
 

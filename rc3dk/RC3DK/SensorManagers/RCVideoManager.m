@@ -117,9 +117,9 @@
     }
     
     // send video frames to the video preview view that is set as this object's delegate
-    if (delegate && [delegate respondsToSelector:@selector(displaySampleBuffer:)])
+    if (delegate && [delegate respondsToSelector:@selector(receiveVideoFrame:)])
     {
-        [delegate displaySampleBuffer:sampleBuffer];
+        [delegate receiveVideoFrame:sampleBuffer];
     }
     
     CFRelease(sampleBuffer);

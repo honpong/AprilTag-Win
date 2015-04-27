@@ -14,6 +14,7 @@
 #import "RCSensorFusionStatus.h"
 #import "RCLicenseError.h"
 #import "RCSensorFusionError.h"
+#import "RCVideoFrameProvider.h"
 
 
 /** The delegate of RCSensorFusion must implement this protocol in order to receive sensor fusion updates. */
@@ -35,9 +36,8 @@
 @end
 
 /** RCSensorFusion implements this protocol to receive data from device sensors, see the documentation there for more details on each method. */
-@protocol RCSensorDataDelegate <NSObject>
+@protocol RCSensorDataDelegate <NSObject, RCVideoFrameDelegate>
 
-- (void) receiveVideoFrame:(CMSampleBufferRef)sampleBuffer;
 - (void) receiveAccelerometerData:(CMAccelerometerData *)accelerationData;
 - (void) receiveGyroData:(CMGyroData *)gyroData;
 

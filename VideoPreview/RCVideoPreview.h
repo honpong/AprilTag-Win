@@ -58,7 +58,7 @@
 /**
  Pass CMSampleBufferRef video frames to this method. Will not cause the delegate's render method to be called.
  */
-- (void) displaySampleBuffer:(CMSampleBufferRef)sampleBuffer;
+- (void)receiveVideoFrame:(CMSampleBufferRef)sampleBuffer;
 /**
  Displays the image in data.sampleBuffer. Use this method to trigger the delegate's render method, using the motion and camera data specified in this update.
  */

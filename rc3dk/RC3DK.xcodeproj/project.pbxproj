@@ -500,6 +500,7 @@
 		32E757131A980149004BA247 /* NSError+RCDictionaryRepresentation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSError+RCDictionaryRepresentation.h"; sourceTree = "<group>"; };
 		32E757141A980149004BA247 /* NSError+RCDictionaryRepresentation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSError+RCDictionaryRepresentation.m"; sourceTree = "<group>"; };
 		38EDF0761AD43D2400F0A322 /* rotation_vector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rotation_vector.cpp; sourceTree = "<group>"; };
+		B984DA46096BC831CC58B1DE /* RCVideoFrameDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoFrameDelegate.h; sourceTree = "<group>"; };
 		D31EC5371A5F1E5B0003379A /* libzxing.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libzxing.a; sourceTree = "<group>"; };
 		D321AD301A323BF7003AEA77 /* camera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = camera.cpp; sourceTree = "<group>"; };
 		D321AD311A323BF7003AEA77 /* fundamental.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fundamental.cpp; sourceTree = "<group>"; };
@@ -1159,6 +1160,7 @@
 				D33E9D241ADD14600085F35C /* RCVideoFrameProvider.h */,
 				D33E9D251ADD14600085F35C /* RCVideoManager.h */,
 				D33E9D1F1ADD14600085F35C /* RCVideoManager.m */,
+				B984DA46096BC831CC58B1DE /* RCVideoFrameDelegate.h */,
 			);
 			name = "Sensor Managers";
 			sourceTree = "<group>";

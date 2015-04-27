@@ -536,7 +536,7 @@ static transition transitions[] =
 
     if(data.sampleBuffer)
     {
-        [self.arView.videoView displaySampleBuffer:data.sampleBuffer];
+        [self.arView.videoView receiveVideoFrame:data.sampleBuffer];
         [self.arView.featuresLayer updateFeatures:data.featurePoints];
     }
     

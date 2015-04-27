@@ -40,5 +40,7 @@
 #import "RCLocationManager.h"
 #import "RCMotionManager.h"
 #import "RCVideoFrameProvider.h"
+#import "RCVideoFrameDelegate.h"
+
 
 #endif

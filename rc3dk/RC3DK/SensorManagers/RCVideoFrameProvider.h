@@ -10,5 +10,8 @@
 
 @protocol RCVideoFrameProvider <NSObject>
 @required
-    @property id<RCVideoFrameDelegate> delegate;
+    @property (readonly) NSArray* delegates;
+
+    - (void) addDelegate:(id <RCVideoFrameDelegate>)delegate;
+    - (void) removeDelegate:(id <RCVideoFrameDelegate>)delegate;
 @end

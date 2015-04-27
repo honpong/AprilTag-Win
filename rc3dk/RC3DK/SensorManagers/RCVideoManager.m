@@ -11,10 +11,10 @@
 
 @implementation RCVideoManager
 {
-    id <RCSensorDataDelegate> dataDelegate;
     bool isCapturing;
+    NSMutableArray *_delegates;
 }
-@synthesize delegate, videoOrientation, session, output;
+@synthesize videoOrientation, session, output;
 
 + (RCVideoManager *) sharedInstance
 {
@@ -32,15 +32,26 @@
     if(self = [super init])
     {
         LOGME
-        dataDelegate = [RCSensorFusion sharedInstance];
         isCapturing = NO;
+        _delegates = [NSMutableArray new];
+        [self addDelegate:[RCSensorFusion sharedInstance]];
     }
     return self;
 }
 
-- (void) setDataDelegate:(id<RCSensorDataDelegate>)videoDelegate
+- (NSArray*) delegates
 {
-    dataDelegate = videoDelegate;
+    return [NSArray arrayWithArray:_delegates];
+}
+
+- (void)addDelegate:(id <RCVideoFrameDelegate>)videoDelegate
+{
+    [_delegates addObject:videoDelegate];
+}
+
+- (void)removeDelegate:(id <RCVideoFrameDelegate>)videoDelegate
+{
+    [_delegates removeObject:videoDelegate];
 }
 
 /** Invocations after the first have no effect */
@@ -55,12 +66,10 @@
     });
 }
 
-// not externally visible in release build. here for testing purposes.
 - (void) setupWithSession:(AVCaptureSession *)avSession withOutput:(AVCaptureVideoDataOutput *)avOutput
 {
     session = avSession;
     output = avOutput;
-    dataDelegate = [RCSensorFusion sharedInstance];
 
     //causes lag
     [self.session addOutput:self.output];
@@ -109,17 +118,10 @@
 -(void)captureOutput:(AVCaptureOutput *)captureOutput didOutputSampleBuffer:(CMSampleBufferRef)sampleBuffer fromConnection:(AVCaptureConnection *)connection
 {
     sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
-
-    // send video frames to the 3DK sensor fusion engine
-    if(dataDelegate && isCapturing)
+  
+    for (id<RCVideoFrameDelegate> delegate in _delegates)
     {
-        [dataDelegate receiveVideoFrame:sampleBuffer];
-    }
-    
-    // send video frames to the video preview view that is set as this object's delegate
-    if (delegate && [delegate respondsToSelector:@selector(receiveVideoFrame:)])
-    {
-        [delegate receiveVideoFrame:sampleBuffer];
+        if ([delegate respondsToSelector:@selector(receiveVideoFrame:)]) [delegate receiveVideoFrame:sampleBuffer];
     }
     
     CFRelease(sampleBuffer);

@@ -213,7 +213,7 @@
         fileURL = [AppDelegate timeStampedURLWithSuffix:[NSString stringWithFormat:@"_%d_%d_%dHz.capture", width, height, framerate]];
         [startStopButton setTitle:@"Starting..." forState:UIControlStateNormal];
 
-        [[RCVideoManager sharedInstance] setDataDelegate:captureController];
+        [[RCVideoManager sharedInstance] addDelegate:captureController];
         [[RCMotionManager sharedInstance] setDataDelegate:captureController];
         [[RCCameraManager sharedInstance] setVideoDevice:[[RCSensorManager sharedInstance] getVideoDevice]];
 

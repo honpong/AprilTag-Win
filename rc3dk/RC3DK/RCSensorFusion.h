@@ -14,7 +14,7 @@
 #import "RCSensorFusionStatus.h"
 #import "RCLicenseError.h"
 #import "RCSensorFusionError.h"
-#import "RCVideoFrameProvider.h"
+#import "RCVideoFrameDelegate.h"
 
 
 /** The delegate of RCSensorFusion must implement this protocol in order to receive sensor fusion updates. */

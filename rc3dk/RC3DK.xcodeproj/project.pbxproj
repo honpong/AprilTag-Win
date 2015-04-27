@@ -72,6 +72,8 @@
 		328A4DD51950D5F400587949 /* RCLicenseError.m in Sources */ = {isa = PBXBuildFile; fileRef = 328A4DD41950D5F400587949 /* RCLicenseError.m */; };
 		328A4DD61950DB2200587949 /* RCSensorFusionError.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 328A4DD01950D52000587949 /* RCSensorFusionError.h */; };
 		328A4DD71950DB2E00587949 /* RCLicenseError.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 328A4DD31950D5F400587949 /* RCLicenseError.h */; };
+		32D1D5921AEEF5B700B76313 /* RCVideoFrameDelegate.h in Copy Files */ = {isa = PBXBuildFile; fileRef = B984DA46096BC831CC58B1DE /* RCVideoFrameDelegate.h */; };
+		32D1D5931AEEF67400B76313 /* RCVideoFrameDelegate.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = B984DA46096BC831CC58B1DE /* RCVideoFrameDelegate.h */; };
 		32E757151A980149004BA247 /* NSError+RCDictionaryRepresentation.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E757141A980149004BA247 /* NSError+RCDictionaryRepresentation.m */; };
 		38EDF0771AD43D2500F0A322 /* rotation_vector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 38EDF0761AD43D2400F0A322 /* rotation_vector.cpp */; };
 		D31EC5381A5F1E5B0003379A /* libzxing.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D31EC5371A5F1E5B0003379A /* libzxing.a */; };
@@ -278,6 +280,7 @@
 			dstSubfolderSpec = 16;
 			files = (
 				D3791CA21AE1298C00D35EF4 /* RCDebugLog.h in Copy Files */,
+				32D1D5921AEEF5B700B76313 /* RCVideoFrameDelegate.h in Copy Files */,
 				D33E9D3A1ADD18710085F35C /* RCAVSessionManager.h in Copy Files */,
 				D33E9D3B1ADD18710085F35C /* RCSensorManager.h in Copy Files */,
 				D33E9D3C1ADD18710085F35C /* RCLocationManager.h in Copy Files */,
@@ -317,6 +320,7 @@
 				D33E9D351ADD18510085F35C /* RCVideoFrameProvider.h in CopyFiles */,
 				D33E9D361ADD18510085F35C /* RCVideoManager.h in CopyFiles */,
 				D33E9D371ADD18510085F35C /* RCMotionManager.h in CopyFiles */,
+				32D1D5931AEEF67400B76313 /* RCVideoFrameDelegate.h in CopyFiles */,
 				D351C6171A1E7EF7003DF3F3 /* RC3DKPlus.h in CopyFiles */,
 				D3B4EB411A1E7DE100BE0443 /* RCStereo.h in CopyFiles */,
 				D3B4EB421A1E7DE100BE0443 /* RCSensorFusionError.h in CopyFiles */,
@@ -1157,9 +1161,9 @@
 				D33E9D221ADD14600085F35C /* RCLocationManager.m */,
 				D33E9D261ADD14600085F35C /* RCMotionManager.h */,
 				D33E9D231ADD14600085F35C /* RCMotionManager.m */,
-				D33E9D241ADD14600085F35C /* RCVideoFrameProvider.h */,
 				D33E9D251ADD14600085F35C /* RCVideoManager.h */,
 				D33E9D1F1ADD14600085F35C /* RCVideoManager.m */,
+				D33E9D241ADD14600085F35C /* RCVideoFrameProvider.h */,
 				B984DA46096BC831CC58B1DE /* RCVideoFrameDelegate.h */,
 			);
 			name = "Sensor Managers";

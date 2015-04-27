@@ -317,7 +317,7 @@ static transition transitions[] =
     
     useLocation = [LOCATION_MANAGER isLocationExplicitlyAllowed] && [NSUserDefaults.standardUserDefaults boolForKey:PREF_USE_LOCATION];
     
-    [[sensorManager getVideoProvider] setDelegate:self.arView.videoView];
+    [[sensorManager getVideoProvider] addDelegate:self.arView.videoView];
     
     if (SYSTEM_VERSION_LESS_THAN(@"7")) questionSegButton.tintColor = [UIColor darkGrayColor];
     
@@ -696,7 +696,7 @@ static transition transitions[] =
     LOGME
     [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
     SENSOR_FUSION.delegate = self;
-    [[sensorManager getVideoProvider] setDelegate:nil];
+    [[sensorManager getVideoProvider] removeDelegate:self.arView.videoView];
     if (useLocation) [SENSOR_FUSION setLocation:[LOCATION_MANAGER getStoredLocation]];
     [SENSOR_FUSION startSensorFusionWithDevice:[sensorManager getVideoDevice]];
 }
@@ -705,7 +705,7 @@ static transition transitions[] =
 {
     LOGME
     [SENSOR_FUSION stopSensorFusion];
-    [[sensorManager getVideoProvider] setDelegate:self.arView.videoView];
+    [[sensorManager getVideoProvider] addDelegate:self.arView.videoView];
     [[UIApplication sharedApplication] setIdleTimerDisabled:NO];
 }
 

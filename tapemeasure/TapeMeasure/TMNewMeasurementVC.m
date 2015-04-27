@@ -253,7 +253,7 @@ static transition transitions[] =
     
     if (newMeasurement.units == UnitsImperial) self.distanceLabel.centerAlignmentExcludesFraction = YES;
     
-    [[sensorManager getVideoProvider] setDelegate:self.arView.videoView];
+    [[sensorManager getVideoProvider] addDelegate:self.arView.videoView];
     
     progressView = [[MBProgressHUD alloc] initWithView:self.navigationController.view];
     [self.view addSubview:progressView];
@@ -484,7 +484,7 @@ static transition transitions[] =
 {
     LOGME
     [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
-    [[sensorManager getVideoProvider] setDelegate:nil];
+    [[sensorManager getVideoProvider] removeDelegate:self.arView.videoView];
     if (SENSOR_FUSION.location == nil) DLog(@"WARNING: No location is set for sensor fusion");
     [SENSOR_FUSION startSensorFusionWithDevice:[sensorManager getVideoDevice]];
 }
@@ -493,7 +493,7 @@ static transition transitions[] =
 {
     LOGME
     [SENSOR_FUSION stopSensorFusion];
-    [[sensorManager getVideoProvider] setDelegate:self.arView.videoView];
+    [[sensorManager getVideoProvider] addDelegate:self.arView.videoView];
     [[UIApplication sharedApplication] setIdleTimerDisabled:NO];
 }
 

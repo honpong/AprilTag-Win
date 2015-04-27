@@ -204,12 +204,12 @@ GLint uniforms[NUM_UNIFORMS];
             float depth = p.originalDepth.scalar;
             float stddev = p.originalDepth.standardDeviation;
             bool good = stddev / depth < .02;
-            state.observe_feature(data.timestamp, p.id, x, y, z, good);
+            state.observe_feature(sensor_clock::micros_to_tp(data.timestamp), p.id, x, y, z, good);
         }
     }
     RCRotation * R = data.transformation.rotation;
     RCTranslation * T = data.transformation.translation;
-    state.observe_position(data.timestamp, T.x, T.y, T.z, R.quaternionW, R.quaternionX, R.quaternionY, R.quaternionZ);
+    state.observe_position(sensor_clock::micros_to_tp(data.timestamp), T.x, T.y, T.z, R.quaternionW, R.quaternionX, R.quaternionY, R.quaternionZ);
 }
 
 // RCSensorFusionDelegate delegate method. Called when sensor fusion is in an error state.

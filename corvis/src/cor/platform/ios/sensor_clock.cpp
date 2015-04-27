@@ -15,7 +15,7 @@
 //   mach_absolute_time() * MachInfo.numer / MachInfo.denom is the number of
 //   nanoseconds since the computer booted up.  MachInfo.numer and MachInfo.denom
 //   are run time constants supplied by the OS.  This clock has no relationship
-//   to the Gregorian calendar.  It's main use is as a high resolution timer.
+//   to the Gregorian calendar.  Its main use is as a high resolution timer.
 
 // MachInfo.numer / MachInfo.denom is often 1 on the latest equipment.  Specialize
 //   for that case as an optimization.

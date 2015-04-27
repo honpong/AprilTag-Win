@@ -16,6 +16,7 @@ extern "C" {
 #include "state.h"
 #include "state_motion.h"
 #include "tracker.h"
+#include "../cor/platform/sensor_clock.h"
 
 #define estimate_camera_intrinsics false
 #define estimate_camera_extrinsics false
@@ -69,7 +70,7 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     f_t depth;
     feature_t image_velocity;
 
-    uint64_t found_time;
+    sensor_clock::time_point found_time;
 
     uint8_t intensity;
 
@@ -183,9 +184,9 @@ class state_vision: public state_motion {
     
     state_vision(covariance &c);
     ~state_vision();
-    int process_features(uint64_t time);
+    int process_features(sensor_clock::time_point time);
     state_vision_feature *add_feature(f_t initialx, f_t initialy);
-    state_vision_group *add_group(uint64_t time);
+    state_vision_group *add_group(sensor_clock::time_point time);
 
     float total_distance;
     v4 last_position;

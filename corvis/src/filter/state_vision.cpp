@@ -191,7 +191,7 @@ void state_vision::reset_position()
     last_position = v4::Zero();
 }
 
-int state_vision::process_features(uint64_t time)
+int state_vision::process_features(sensor_clock::time_point time)
 {
     int total_health = 0;
     bool need_reference = true;
@@ -255,7 +255,7 @@ void state_vision::project_new_group_covariance(const state_vision_group &g)
     }
 }
 
-state_vision_group * state_vision::add_group(uint64_t time)
+state_vision_group * state_vision::add_group(sensor_clock::time_point time)
 {
     state_vision_group *g = new state_vision_group();
     for(state_vision_group *neighbor : groups.children) {

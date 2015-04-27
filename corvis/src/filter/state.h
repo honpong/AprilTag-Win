@@ -14,6 +14,7 @@ extern "C" {
 #include "../numerics/quaternion.h"
 #include "../numerics/rotation_vector.h"
 #include "../numerics/covariance.h"
+#include "../cor/platform/sensor_clock.h"
 
 #include <vector>
 #include <list>
@@ -103,7 +104,7 @@ public:
 
 class state_root: public state_branch<state_node *> {
 public:
-    state_root(covariance &c): cov(c), current_time(0) {}
+    state_root(covariance &c): cov(c), current_time(sensor_clock::micros_to_tp(0)) {}
     
     covariance &cov;
 
@@ -132,7 +133,7 @@ public:
     virtual void reset() {
         cov.resize(0);
         state_branch<state_node *>::reset();
-        current_time = 0;
+        current_time = sensor_clock::micros_to_tp(0);
     }
     
     virtual void evolve(f_t dt)
@@ -141,17 +142,17 @@ public:
         evolve_state(dt);
     }
 
-    void time_update(uint64_t time)
+    void time_update(sensor_clock::time_point time)
     {
         if(time <= current_time) {
-            if(log_enabled && time < current_time) fprintf(stderr, "negative time step: last was %llu, this is %llu, delta %llu\n", current_time, time, current_time - time);
+            if(log_enabled && time < current_time) fprintf(stderr, "negative time step: last was %llu, this is %llu, delta %llu\n", sensor_clock::tp_to_micros(current_time), sensor_clock::tp_to_micros(time), std::chrono::duration_cast<std::chrono::microseconds>(current_time - time).count());
             return;
         }
-        if(current_time) {
+        if(current_time != sensor_clock::micros_to_tp(0)) {
 #ifdef TEST_POSDEF
             if(!test_posdef(cov.cov)) fprintf(stderr, "not pos def before explicit time update\n");
 #endif
-            f_t dt = ((f_t)time - (f_t)current_time) / 1000000.;
+            auto dt = std::chrono::duration_cast<std::chrono::duration<f_t>>(time - current_time).count();
             if(log_enabled && dt > .025) fprintf(stderr, "Time step is %f\n", dt);
             evolve(dt);
 #ifdef TEST_POSDEF
@@ -165,7 +166,7 @@ protected:
     virtual void evolve_covariance(f_t dt) = 0;
     virtual void evolve_state(f_t dt) = 0;
 
-    uint64_t current_time;
+    sensor_clock::time_point current_time;
 };
 
 template <class T, int _size> class state_leaf: public state_node {

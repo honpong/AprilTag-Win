@@ -127,7 +127,7 @@ bool observation_queue::update_state_and_covariance(state &s, const matrix &inn)
 observation_queue::observation_queue(): LC((f_t*)LC_storage, MAXOBSERVATIONSIZE, MAXSTATESIZE, MAXOBSERVATIONSIZE, MAXSTATESIZE), K((f_t*)K_storage, MAXSTATESIZE, MAXOBSERVATIONSIZE, MAXSTATESIZE, MAXOBSERVATIONSIZE), res_cov((f_t*)res_cov_storage, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE, MAXOBSERVATIONSIZE)
  {}
 
-bool observation_queue::process(state &s, uint64_t time)
+bool observation_queue::process(state &s, sensor_clock::time_point time)
 {
 #ifdef TEST_POSDEF
     if(!test_posdef(s.cov.cov)) fprintf(stderr, "not pos def when starting process_observation_queue\n");

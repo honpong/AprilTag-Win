@@ -144,8 +144,7 @@ uint64_t get_timestamp()
             if(!isSensorFusionRunning)
             {
             } else if(isProcessingVideo) {
-                auto micros = std::chrono::duration_cast<std::chrono::microseconds>(data.timestamp.time_since_epoch()).count();
-                docallback = filter_image_measurement(&_cor_setup->sfm, data.image, data.width, data.height, data.stride, micros);
+                docallback = filter_image_measurement(&_cor_setup->sfm, data.image, data.width, data.height, data.stride, data.timestamp);
                 [self sendStatus];
                 if(docallback) [self sendDataWithSampleBuffer:sampleBuffer];
             } else {
@@ -159,16 +158,14 @@ uint64_t get_timestamp()
         auto acc_fn = [self](const accelerometer_data &data)
         {
             if(!isSensorFusionRunning) return;
-            auto micros = std::chrono::duration_cast<std::chrono::microseconds>(data.timestamp.time_since_epoch()).count();
-            filter_accelerometer_measurement(&_cor_setup->sfm, data.accel_m__s2, micros);
+            filter_accelerometer_measurement(&_cor_setup->sfm, data.accel_m__s2, data.timestamp);
             [self sendStatus];
         };
 
         auto gyr_fn = [self](const gyro_data &data)
         {
             if(!isSensorFusionRunning) return;
-            auto micros = std::chrono::duration_cast<std::chrono::microseconds>(data.timestamp.time_since_epoch()).count();
-            filter_gyroscope_measurement(&_cor_setup->sfm, data.angvel_rad__s, micros);
+            filter_gyroscope_measurement(&_cor_setup->sfm, data.angvel_rad__s, data.timestamp);
         };
 
         queue = std::make_unique<fusion_queue>(cam_fn, acc_fn, gyr_fn, fusion_queue::latency_strategy::MINIMIZE_DROPS, std::chrono::microseconds(33333), std::chrono::microseconds(10000), std::chrono::microseconds(10000)); //Have to make jitter high - ipad air 2 accelerometer has high latency, we lose about 10% of samples with jitter at 8000
@@ -489,7 +486,7 @@ uint64_t get_timestamp()
     }
 
     RCTransformation *cameraTransformation = [transformation composeWithTransformation:camTransform];
-    RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithTransformation:transformation withCameraTransformation:cameraTransformation withCameraParameters:camParams withTotalPath:totalPath withFeatures:[self getFeaturesArray] withSampleBuffer:sampleBuffer withTimestamp:f->last_time withOriginQRCode:qrDetected];
+    RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithTransformation:transformation withCameraTransformation:cameraTransformation withCameraParameters:camParams withTotalPath:totalPath withFeatures:[self getFeaturesArray] withSampleBuffer:sampleBuffer withTimestamp:sensor_clock::tp_to_micros(f->last_time) withOriginQRCode:qrDetected];
 
     //send the callback to the main/ui thread
     dispatch_async(dispatch_get_main_queue(), ^{

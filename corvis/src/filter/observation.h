@@ -7,6 +7,7 @@
 #include <vector>
 #include <algorithm>
 #include "tracker.h"
+#include "../cor/platform/sensor_clock.h"
 
 extern "C" {
 #include "../cor/cor_types.h"
@@ -17,8 +18,8 @@ using namespace std;
 class observation {
  public:
     const int size;
-    uint64_t time_actual;
-    uint64_t time_apparent;
+    sensor_clock::time_point time_actual;
+    sensor_clock::time_point time_apparent;
 
     virtual void predict() = 0;
     virtual void compute_innovation() = 0;
@@ -31,7 +32,7 @@ class observation {
     virtual f_t innovation(const int i) const = 0;
     virtual f_t measurement_covariance(const int i) const = 0;
     
-    observation(int _size, uint64_t _time_actual, uint64_t _time_apparent): size(_size), time_actual(_time_actual), time_apparent(_time_apparent) {}
+    observation(int _size, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): size(_size), time_actual(_time_actual), time_apparent(_time_apparent) {}
     virtual ~observation() {};
 };
 
@@ -48,7 +49,7 @@ public:
     virtual void copy_innovation_to_array(float inn_out[_size]) const { for(int i = 0; i < _size; ++i) inn_out[i] = inn[i]; }
     virtual f_t innovation(const int i) const { return inn[i]; }
     virtual f_t measurement_covariance(const int i) const { return m_cov[i]; }
-    observation_storage(uint64_t _time_actual, uint64_t _time_apparent): observation(_size, _time_actual, _time_apparent) {}
+    observation_storage(sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation(_size, _time_actual, _time_apparent) {}
 };
 
 class observation_vision_feature: public observation_storage<2> {
@@ -88,7 +89,7 @@ class observation_vision_feature: public observation_storage<2> {
     virtual void innovation_covariance_hook(const matrix &cov, int index);
     void update_initializing();
 
-    observation_vision_feature(state_vision &_state, uint64_t _time_actual, uint64_t _time_apparent): observation_storage(_time_actual, _time_apparent), state(_state) {}
+    observation_vision_feature(state_vision &_state, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_storage(_time_actual, _time_apparent), state(_state) {}
 };
 
 #ifndef SWIG
@@ -97,7 +98,7 @@ class observation_spatial: public observation_storage<3> {
     f_t variance;
     virtual void compute_measurement_covariance() { for(int i = 0; i < 3; ++i) m_cov[i] = variance; }
     virtual bool measure() { return true; }
-    observation_spatial(uint64_t _time_actual, uint64_t _time_apparent): observation_storage(_time_actual, _time_apparent), variance(0.) {}
+    observation_spatial(sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_storage(_time_actual, _time_apparent), variance(0.) {}
     void innovation_covariance_hook(const matrix &cov, int index)
     {
         if(show_tuning) {
@@ -121,7 +122,7 @@ protected:
     }
     virtual void cache_jacobians();
     virtual void project_covariance(matrix &dst, const matrix &src);
-    observation_accelerometer(state_motion &_state, uint64_t _time_actual, uint64_t _time_apparent): observation_spatial(_time_actual, _time_apparent), state(_state) {}
+    observation_accelerometer(state_motion &_state, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_spatial(_time_actual, _time_apparent), state(_state) {}
 };
 
 class observation_gyroscope: public observation_spatial {
@@ -141,7 +142,7 @@ protected:
     }
     virtual void cache_jacobians();
     virtual void project_covariance(matrix &dst, const matrix &src);
-    observation_gyroscope(state_motion_orientation &_state, uint64_t _time_actual, uint64_t _time_apparent): observation_spatial(_time_actual, _time_apparent), state(_state) {}
+    observation_gyroscope(state_motion_orientation &_state, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_spatial(_time_actual, _time_apparent), state(_state) {}
 };
 
 #define MAXOBSERVATIONSIZE 256
@@ -149,7 +150,7 @@ protected:
 class observation_queue {
 public:
     observation_queue();
-    bool process(state &s, uint64_t time);
+    bool process(state &s, sensor_clock::time_point time);
     vector<unique_ptr<observation>> observations;
 
 protected:

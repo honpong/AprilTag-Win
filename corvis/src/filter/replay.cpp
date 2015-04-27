@@ -39,9 +39,9 @@ void replay::set_device(const char *name)
 
 void replay::setup_filter()
 {
-    auto camf = [this](const camera_data &x) { filter_image_measurement(&cor_setup->sfm, x.image, x.width, x.height, x.stride, std::chrono::duration_cast<std::chrono::microseconds>(x.timestamp.time_since_epoch()).count()); };
-    auto accf = [this](const accelerometer_data &x) { filter_accelerometer_measurement(&cor_setup->sfm, x.accel_m__s2, std::chrono::duration_cast<std::chrono::microseconds>(x.timestamp.time_since_epoch()).count()); };
-    auto gyrf = [this](const gyro_data &x) { filter_gyroscope_measurement(&cor_setup->sfm, x.angvel_rad__s, std::chrono::duration_cast<std::chrono::microseconds>(x.timestamp.time_since_epoch()).count()); };
+    auto camf = [this](const camera_data &x) { filter_image_measurement(&cor_setup->sfm, x.image, x.width, x.height, x.stride, x.timestamp); };
+    auto accf = [this](const accelerometer_data &x) { filter_accelerometer_measurement(&cor_setup->sfm, x.accel_m__s2, x.timestamp); };
+    auto gyrf = [this](const gyro_data &x) { filter_gyroscope_measurement(&cor_setup->sfm, x.angvel_rad__s, x.timestamp); };
 
     queue = make_unique<fusion_queue>(camf, accf, gyrf, fusion_queue::latency_strategy::ELIMINATE_DROPS, std::chrono::microseconds(33000), std::chrono::microseconds(10000), std::chrono::microseconds(5000));
     queue->start_offline(true);

@@ -10,6 +10,7 @@
 #include "qr.h"
 #include "../../../shared_corvis_3dk/RCSensorFusionInternals.h"
 #include "../../../shared_corvis_3dk/camera_control_interface.h"
+#include "../cor/platform/sensor_clock.h"
 
 struct filter {
 filter(): s(cov)
@@ -37,8 +38,8 @@ filter(): s(cov)
     struct mapbuffer * control;
     struct mapbuffer * visbuf;
 
-    uint64_t last_time;
-    uint64_t last_packet_time;
+    sensor_clock::time_point last_time;
+    sensor_clock::time_point last_packet_time;
     int last_packet_type;
 #ifdef SWIG
     %immutable;
@@ -58,21 +59,21 @@ filter(): s(cov)
     bool gravity_init;
     f_t gravity_magnitude;
 
-    uint64_t want_start;
+    sensor_clock::time_point want_start;
     bool got_accelerometer, got_gyroscope, got_image;
     v4 last_gyro_meas, last_accel_meas;
     int image_height, image_width;
-    uint64_t shutter_delay;
-    uint64_t shutter_period;
+    sensor_clock::duration shutter_delay;
+    sensor_clock::duration shutter_period;
     mapbuffer *recognition_buffer;
     bool detector_failed, tracker_failed, tracker_warned;
     bool speed_failed, speed_warning;
     bool numeric_failed;
-    uint64_t speed_warning_time;
+    sensor_clock::time_point speed_warning_time;
     bool ignore_lateness;
     tracker track;
     stdev_vector gyro_stability, accel_stability;
-    uint64_t stable_start;
+    sensor_clock::time_point stable_start;
     bool calibration_bad;
     
     float max_velocity;
@@ -82,18 +83,18 @@ filter(): s(cov)
     scaled_mask *scaled_mask;
     
     bool valid_time;
-    uint64_t first_time;
+    sensor_clock::time_point first_time;
     
-    int64_t mindelta;
+    sensor_clock::duration mindelta;
     bool valid_delta;
-    uint64_t last_arrival;
+    sensor_clock::time_point last_arrival;
     
-    uint64_t active_time;
+    sensor_clock::time_point active_time;
     
     bool estimating_Tc;
 
     qr_detector qr;
-    uint64_t last_qr_time;
+    sensor_clock::time_point last_qr_time;
     qr_benchmark qr_bench;
 
     bool using_simulator;
@@ -105,9 +106,9 @@ filter(): s(cov)
     camera_control_interface camera_control;
 };
 
-bool filter_image_measurement(struct filter *f, const unsigned char *data, int width, int height, int stride, uint64_t time);
-void filter_accelerometer_measurement(struct filter *f, const float data[3], uint64_t time);
-void filter_gyroscope_measurement(struct filter *f, const float data[3], uint64_t time);
+bool filter_image_measurement(struct filter *f, const unsigned char *data, int width, int height, int stride, sensor_clock::time_point time);
+void filter_accelerometer_measurement(struct filter *f, const float data[3], sensor_clock::time_point time);
+void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_clock::time_point time);
 void filter_set_reference(struct filter *f);
 void filter_compute_gravity(struct filter *f, double latitude, double altitude);
 void filter_start_static_calibration(struct filter *f);

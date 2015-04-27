@@ -135,7 +135,7 @@ void world_state::build_grid_vertex_data()
     }
 }
 
-void world_state::observe_feature(uint64_t timestamp, uint64_t feature_id, float x, float y, float z, bool good)
+void world_state::observe_feature(sensor_clock::time_point timestamp, uint64_t feature_id, float x, float y, float z, bool good)
 {
     Feature f;
     f.x = x;
@@ -152,7 +152,7 @@ void world_state::observe_feature(uint64_t timestamp, uint64_t feature_id, float
     display_lock.unlock();
 }
 
-void world_state::observe_position(uint64_t timestamp, float x, float y, float z, float qw, float qx, float qy, float qz)
+void world_state::observe_position(sensor_clock::time_point timestamp, float x, float y, float z, float qw, float qx, float qy, float qz)
 {
     Position p;
     p.timestamp = timestamp;

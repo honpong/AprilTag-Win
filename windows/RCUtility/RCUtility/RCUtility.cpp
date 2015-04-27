@@ -39,6 +39,7 @@ void StartCapture()
 {
 	if (isCapturing || isCalibrating) return;
 
+	SetWindowText(hCaptureButton, L"Stop Capture");
 	SetWindowText(hLabel, L"Starting capture...");
 	bool result;
 	capMan = ref new CaptureManager();
@@ -60,7 +61,7 @@ void StartCapture()
 	result = capMan->StartCapture();
 	if (result)
 	{
-		SetWindowText(hLabel, L"Capturing. Tap/click button again to stop.");
+		SetWindowText(hLabel, L"Capturing.");
 	}
 	else
 	{
@@ -78,12 +79,14 @@ void StopCapture()
 	capMan->StopCapture();
 	capMan->StopSensors();
 	isCapturing = false;
-	SetWindowText(hLabel, L"Capture complete. Tap/click button to restart.");
+	SetWindowText(hLabel, L"Capture complete.");
+	SetWindowText(hCaptureButton, L"Start Capture");
 }
 
 void StartCalibration()
 {
 	if (isCalibrating || isCapturing) return;
+	SetWindowText(hCalibrateButton, L"Stop Calibrating");
 	SetWindowText(hLabel, TEXT("Calibrating..."));
 	isCalibrating = true;
 }
@@ -92,6 +95,7 @@ void StopCalibration()
 {
 	if (!isCalibrating) return;
 	SetWindowText(hLabel, TEXT("Calibration complete."));
+	SetWindowText(hCalibrateButton, L"Start Calibrating");
 	isCalibrating = false;
 }
 
@@ -186,8 +190,8 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    }
 
    hLabel = CreateWindow(TEXT("static"), TEXT(""), WS_CHILD | WS_VISIBLE, 10, 10, 500, 20, hWnd, (HMENU)3, NULL, NULL);
-   hCaptureButton = CreateWindow(TEXT("button"), TEXT("Capture"), WS_CHILD | WS_VISIBLE, 10, 60, 100, 50, hWnd, (HMENU)IDB_CAPTURE, NULL, NULL);
-   hCalibrateButton = CreateWindow(TEXT("button"), TEXT("Calibrate"), WS_CHILD | WS_VISIBLE, 130, 60, 100, 50, hWnd, (HMENU)IDB_CALIBRATE, NULL, NULL);
+   hCaptureButton = CreateWindow(TEXT("button"), TEXT("Start Capture"), WS_CHILD | WS_VISIBLE, 10, 60, 140, 50, hWnd, (HMENU)IDB_CAPTURE, NULL, NULL);
+   hCalibrateButton = CreateWindow(TEXT("button"), TEXT("Start Calibration"), WS_CHILD | WS_VISIBLE, 170, 60, 140, 50, hWnd, (HMENU)IDB_CALIBRATE, NULL, NULL);
 
    ShowWindow(hWnd, nCmdShow);	
    UpdateWindow(hWnd);

@@ -1,0 +1,1 @@
+xcodebuild -workspace RC.xcworkspace -list | tail +3 | sed -e 's/^ *//' -e '/^$/d' | while read s; do xcodebuild -workspace rc.xcworkspace -scheme "$s" -configuration Release 'GCC_PREPROCESSOR_DEFINITIONS=${GCC_PREPROCESSOR_DEFINITIONS} SDK_LICENSE_KEY=@\"C4c5C2Ae73eD8c3EdAAFDC75df12DC\"' > /dev/null && echo $s $'\e[32mBuilt\e[m' || echo $s $'\e[31mFailed\e[m'; done

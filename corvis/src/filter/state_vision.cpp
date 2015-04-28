@@ -292,17 +292,6 @@ state_vision_feature * state_vision::add_feature(f_t initialx, f_t initialy)
     return f;
 }
 
-void state_vision::project_new_group_covariance(const state_vision_group &g)
-{
-    //Note: this only works to fill in the covariance for Tr, Wr because it fills in cov(T,Tr) etc first (then copies that to cov(Tr,Tr).
-    for(int i = 0; i < cov.cov.rows(); ++i)
-    {
-        v4 bcov_Q = Q.copy_cov_from_row(cov.cov, i);
-        g.Qr.copy_cov_to_col(cov.cov, i, bcov_Q);
-        g.Qr.copy_cov_to_row(cov.cov, i, bcov_Q);
-    }
-}
-
 state_vision_group * state_vision::add_group(sensor_clock::time_point time)
 {
     state_vision_group *g = new state_vision_group();

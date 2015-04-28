@@ -274,15 +274,7 @@ public:
         c(index+1, j) = cov_v[1];
         c(index+2, j) = cov_v[2];
     }
-
-    inline void copy_cov_to_row(matrix &c, const int j, const v4 &cov_v) const
-    {
-        if(index < 0) return;
-        c(j, index) = cov_v[0];
-        c(j, index+1) = cov_v[1];
-        c(j, index+2) = cov_v[2];
-    }
-
+    
     void reset() {
         index = -1;
         v = v4::Zero();
@@ -351,14 +343,6 @@ public:
         c(index, j) = cov_v[0];
         c(index+1, j) = cov_v[1];
         if (!saturated) c(index+2, j) = cov_v[2];
-    }
-    
-    inline void copy_cov_to_row(matrix &c, const int j, const v4 &cov_v) const
-    {
-        if(index < 0) return;
-        c(j, index) = cov_v[0];
-        c(j, index+1) = cov_v[1];
-        if (!saturated) c(j, index+2) = cov_v[2];
     }
     
     void reset() {
@@ -435,15 +419,6 @@ public:
         if (!saturated) c(index+2, j) = cov_v[2];
     }
     
-    inline void copy_cov_to_row(matrix &c, const int j, const v4 &cov_v) const
-    {
-        if(index < 0) return;
-        c(j, index) = cov_v[0];
-        c(j, index+1) = cov_v[1];
-        c(j, index+2) = cov_v[2];
-        if(!saturated) c(j, index+3) = cov_v[3];
-    }
-
     void reset() {
         index = -1;
         v = quaternion(1., 0., 0., 0.);
@@ -506,12 +481,6 @@ class state_scalar: public state_leaf<f_t, 1> {
     {
         if(index < 0) return;
         c(index, j) = val;
-    }
-    
-    inline void copy_cov_to_row(matrix &c, const int j, const f_t val) const
-    {
-        if(index < 0) return;
-        c(j, index) = val;
     }
     
     void perturb_variance() {

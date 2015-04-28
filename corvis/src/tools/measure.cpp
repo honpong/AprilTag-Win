@@ -52,8 +52,8 @@ int main(int argc, char **argv)
     float path_length = rp.get_path_length();
     uint64_t packets_dispatched = rp.get_packets_dispatched();
     uint64_t bytes_dispatched = rp.get_bytes_dispatched();
-    fprintf(stderr, "Straight-line length is %.2f cm, total path length %.2f cm\n", length, path_length);
-    fprintf(stderr, "Dispatched %llu packets %.2f Mbytes\n", packets_dispatched, bytes_dispatched/1.e6);
+    printf("Straight-line length is %.2f cm, total path length %.2f cm\n", length, path_length);
+    printf("Dispatched %llu packets %.2f Mbytes\n", packets_dispatched, bytes_dispatched/1.e6);
 
     return 0;
 }

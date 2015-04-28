@@ -24,7 +24,6 @@ bool replay::open(const char *name)
     file.seekg (0, ios::beg);
     auto begin = file.tellg();
     size = end - begin;
-    cerr << "size is: " << size << " bytes.\n";
     return true;
 }
 
@@ -69,8 +68,6 @@ void replay::start()
     if(!is_realtime)
         realtime_offset = std::chrono::microseconds(0);
 
-    cerr << "First timestamp: " << header.time << endl;
-    
     while (is_running) {
         auto phandle = std::unique_ptr<void, void(*)(void *)>(malloc(header.bytes), free);
         auto packet = (packet_t *)phandle.get();

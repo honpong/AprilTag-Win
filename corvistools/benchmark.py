@@ -42,6 +42,21 @@ def run_test_case(test_case):
     print "Running", test_case["path"]
     return measure(test_case["path"], test_case["config"])
 
+import subprocess
+def subprocess_test_case(test_case):
+    print "Running", test_case["path"], "using bin/measure"
+    output = subprocess.check_output("../corvis/bin/measure %s %s" %
+            (test_case["path"], test_case["config"]), stderr=subprocess.STDOUT, shell=True)
+    #"Straight-line length is 89.00 cm, total path length 92.54 cm"
+    res = re.match(".* ([\d\.]+) cm.* ([\d\.]+) cm.*",
+            output, re.MULTILINE | re.DOTALL)
+    (L, PL) = (None, None)
+    if res:
+        L = float(res.group(1))
+        PL = float(res.group(2))
+    print "Finished", test_case["path"], "(%.2fcm, %.2fcm)" % (L, PL)
+    return (L, PL)
+
 import numpy
 def error_histogram(errors, _bins = [0, 3, 10, 25, 50, 100]):
     bins = list(_bins)
@@ -70,6 +85,7 @@ def benchmark(folder_name):
     pool = Pool()
     print "Worker pool size is", pool._processes
     results = pool.map(run_test_case, test_cases)
+    #results = pool.map(subprocess_test_case, test_cases)
 
     L_errors_percent = []
     PL_errors_percent = []

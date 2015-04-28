@@ -46,12 +46,12 @@
 
 - (void)addDelegate:(id <RCVideoFrameDelegate>)videoDelegate
 {
-    [_delegates addObject:videoDelegate];
+    if (videoDelegate) [_delegates addObject:videoDelegate];
 }
 
 - (void)removeDelegate:(id <RCVideoFrameDelegate>)videoDelegate
 {
-    [_delegates removeObject:videoDelegate];
+    if (videoDelegate) [_delegates removeObject:videoDelegate];
 }
 
 /** Invocations after the first have no effect */

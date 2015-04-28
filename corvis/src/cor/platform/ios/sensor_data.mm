@@ -9,6 +9,7 @@
 #include "sensor_data.h"
 #import <CoreMedia/CoreMedia.h>
 #import <CoreMotion/CoreMotion.h>
+#import <ImageIO/ImageIO.h>
 #include <stdexcept>
 
 static sensor_clock::time_point time_point_from_CMTime(const CMTime &time)
@@ -17,7 +18,7 @@ static sensor_clock::time_point time_point_from_CMTime(const CMTime &time)
     if(time.timescale == 1000000000) time_ns = time.value;
     else time_ns = time.value / (time.timescale / 1000000000.);
 
-    return sensor_clock::time_point(std::chrono::nanoseconds(time_ns + 16667000));
+    return sensor_clock::time_point(std::chrono::nanoseconds(time_ns));
 }
 
 static sensor_clock::time_point time_point_fromNSTimeInterval(const NSTimeInterval &time)
@@ -26,17 +27,18 @@ static sensor_clock::time_point time_point_fromNSTimeInterval(const NSTimeInterv
     return sensor_clock::time_point(std::chrono::nanoseconds(time_ns));
 }
 
+#include <iostream>
+
 camera_data::camera_data(void *h): image_handle((void *)CFRetain(h), [](void *h) {CFRelease(h);})
 {
     auto sampleBuffer = (CMSampleBufferRef)image_handle.get();
     if(!sampleBuffer) throw std::runtime_error("Null sample buffer");
     CMTime time = (CMTime)CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
     
-    //TODO: get actual exposure time from ExposureTime field of exif metadata dictionary
-    //capture image meta data
-    //        CFDictionaryRef metadataDict = CMGetAttachment(sampleBuffer, kCGImagePropertyExifDictionary , NULL);
-    //        DLog(@"metadata: %@", metadataDict);
-    
+    CFDictionaryRef metadataDict = (CFDictionaryRef)CMGetAttachment(sampleBuffer, kCGImagePropertyExifDictionary , NULL);
+    float exposure = [(NSString *)CFDictionaryGetValue(metadataDict, kCGImagePropertyExifExposureTime) floatValue];
+    auto duration = std::chrono::duration<float>(exposure);
+
     CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
     if(!pixelBuffer) throw std::runtime_error("Null image buffer");
     pixelBuffer = (CVPixelBufferRef)CVPixelBufferRetain(pixelBuffer);
@@ -56,7 +58,8 @@ camera_data::camera_data(void *h): image_handle((void *)CFRetain(h), [](void *h)
         image = (unsigned char *)CVPixelBufferGetBaseAddress(pixelBuffer);
     }
     
-    timestamp = time_point_from_CMTime(time) + std::chrono::microseconds(16667);
+    //TODO: when we properly handle rolling shutter, propagate timestamps into camera_data class and timestamp at beginning of frame
+    timestamp = time_point_from_CMTime(time) + std::chrono::duration_cast<sensor_clock::duration>(duration * .5);
 }
 
 camera_data::~camera_data()

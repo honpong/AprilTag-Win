@@ -93,8 +93,8 @@
          <ExecutionAction
             ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
             <ActionContent
-               title = "Run Script"
-               scriptText = "open &quot;$BUILT_PRODUCTS_DIR&quot;">
+               title = "Copy library to repo"
+               scriptText = "cp -R -L &quot;$BUILT_PRODUCTS_DIR&quot;/ &quot;$PROJECT_DIR&quot;/../&quot;$SCHEME_NAME&quot;/">
                <EnvironmentBuildable>
                   <BuildableReference
                      BuildableIdentifier = "primary"

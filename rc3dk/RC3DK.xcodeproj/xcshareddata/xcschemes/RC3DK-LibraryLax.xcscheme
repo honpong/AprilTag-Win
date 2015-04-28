@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0610"
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -57,15 +56,6 @@
       useCustomWorkingDirectory = "NO"
       buildConfiguration = "Release"
       debugDocumentVersioning = "YES">
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "327B54DE18EB4CC90001CCE1"
-            BuildableName = "libRC3DK.a"
-            BlueprintName = "RC3DK"
-            ReferencedContainer = "container:RC3DK.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
    </ProfileAction>
    <AnalyzeAction
       buildConfiguration = "Debug">
@@ -77,8 +67,8 @@
          <ExecutionAction
             ActionType = "Xcode.IDEStandardExecutionActionsCore.ExecutionActionType.ShellScriptAction">
             <ActionContent
-               title = "Run Script"
-               scriptText = "open &quot;$BUILT_PRODUCTS_DIR&quot;">
+               title = "Copy library to repo"
+               scriptText = "cp -R -L &quot;$BUILT_PRODUCTS_DIR&quot;/ &quot;$PROJECT_DIR&quot;/../&quot;$SCHEME_NAME&quot;/">
                <EnvironmentBuildable>
                   <BuildableReference
                      BuildableIdentifier = "primary"

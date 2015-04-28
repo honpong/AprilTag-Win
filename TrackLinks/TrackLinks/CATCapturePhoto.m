@@ -193,7 +193,7 @@ static transition transitions[] =
         if (firstPosition == nil) firstPosition = lastStereoSensorFusionData.transformation.translation;
     }
     
-    DLog("newState = %i", newState);
+    DLog(@"newState = %i", newState);
     
     return YES;
 }
@@ -227,7 +227,7 @@ static transition transitions[] =
     
     useLocation = [LOCATION_MANAGER isLocationExplicitlyAllowed] && [NSUserDefaults.standardUserDefaults boolForKey:PREF_USE_LOCATION];
     
-    [[sensorDelegate getVideoProvider] setDelegate:self.videoView];
+    [[sensorDelegate getVideoProvider] addDelegate:self.videoView];
     
     progressView = [[MBProgressHUD alloc] initWithView:self.uiContainer];
     progressView.mode = MBProgressHUDModeAnnularDeterminate;
@@ -356,7 +356,7 @@ static transition transitions[] =
 {
     [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
     SENSOR_FUSION.delegate = self;
-    [[sensorDelegate getVideoProvider] setDelegate:nil];
+    [[sensorDelegate getVideoProvider] removeDelegate:self.videoView];
     if (useLocation) [SENSOR_FUSION setLocation:[LOCATION_MANAGER getStoredLocation]];
     [SENSOR_FUSION startSensorFusionWithDevice:[sensorDelegate getVideoDevice]];
 }
@@ -364,7 +364,7 @@ static transition transitions[] =
 - (void)stopSensorFusion
 {
     [SENSOR_FUSION stopSensorFusion];
-    [[sensorDelegate getVideoProvider] setDelegate:self.videoView];
+    [[sensorDelegate getVideoProvider] addDelegate:self.videoView];
     [[UIApplication sharedApplication] setIdleTimerDisabled:NO];
 }
 

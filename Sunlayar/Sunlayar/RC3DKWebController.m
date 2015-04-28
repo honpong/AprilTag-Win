@@ -114,7 +114,7 @@
         self.videoView.delegate = self;
         [self.view insertSubview:self.videoView belowSubview:self.webView];
         
-        if (!isSensorFusionRunning) [[sensorManager getVideoProvider] setDelegate:self.videoView];
+        if (!isSensorFusionRunning) [[sensorManager getVideoProvider] addDelegate:self.videoView];
         
         _isVideoViewShowing = YES;
     }
@@ -124,7 +124,7 @@
 {
     if (self.videoView)
     {
-        [[sensorManager getVideoProvider] setDelegate:nil];
+        [[sensorManager getVideoProvider] removeDelegate:self.videoView];
         [self.videoView removeFromSuperview];
         _videoView = nil;
         _isVideoViewShowing = NO;
@@ -176,7 +176,7 @@
     LOGME
     [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
     SENSOR_FUSION.delegate = self;
-    [[sensorManager getVideoProvider] setDelegate:nil];
+    [[sensorManager getVideoProvider] removeDelegate:self.videoView];
     if (useLocation) [SENSOR_FUSION setLocation:[LOCATION_MANAGER getStoredLocation]];
     [SENSOR_FUSION startSensorFusionWithDevice:[sensorManager getVideoDevice]];
     isSensorFusionRunning = YES;
@@ -186,7 +186,7 @@
 {
     LOGME
     [SENSOR_FUSION stopSensorFusion];
-    [[sensorManager getVideoProvider] setDelegate:self.videoView];
+    [[sensorManager getVideoProvider] addDelegate:self.videoView];
     [[UIApplication sharedApplication] setIdleTimerDisabled:NO];
     isSensorFusionRunning = NO;
 }

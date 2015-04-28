@@ -36,7 +36,7 @@
     isStarted = false;
     
     videoPreview = [[RCVideoPreview alloc] initWithFrame:self.view.frame];
-    [[sensorManager getVideoProvider] setDelegate:videoPreview];
+    [[sensorManager getVideoProvider] addDelegate:videoPreview];
     
     arDelegate = [[ARRenderer alloc] init];
 
@@ -103,7 +103,7 @@
 - (void)startSensorFusion
 {
     isStarted = true;
-    [[sensorManager getVideoProvider] setDelegate:nil];
+    [[sensorManager getVideoProvider] removeDelegate:videoPreview];
     [[RCSensorFusion sharedInstance] startSensorFusionWithDevice:[[RCAVSessionManager sharedInstance] videoDevice]];
     [progressBar setHidden:false];
 #ifdef LOOK_FOR_QR_CODES
@@ -117,7 +117,7 @@
     videoPreview.delegate = nil;
     [progressBar setHidden:true];
     [sensorFusion stopSensorFusion];
-    [[sensorManager getVideoProvider] setDelegate:videoPreview];
+    [[sensorManager getVideoProvider] addDelegate:videoPreview];
 #ifdef LOOK_FOR_QR_CODES
     [[RCSensorFusion sharedInstance] stopQRDetection];
 #endif

@@ -97,7 +97,7 @@ void replay::start()
                     d.width = width;
                     d.height = height;
                     d.stride = width;
-                    d.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time));
+                    d.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time+16667));
                     d.image_handle = std::move(phandle);
                     queue->receive_camera(std::move(d));
                     break;

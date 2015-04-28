@@ -329,6 +329,7 @@ bool get_parameters_for_device_name(const char * config_name, struct corvis_devi
     }
 
     else if(!strcmp(config_name, "ipad2_ben")) {
+        return true;
         dc->a_bias[0] = -0.114;
         dc->a_bias[1] = -0.171;
         dc->a_bias[2] = 0.226;
@@ -379,6 +380,7 @@ bool get_parameters_for_device_name(const char * config_name, struct corvis_devi
     }
 
     else if(!strcmp(config_name, "ipadmini_ben")) {
+        return true;
         dc->a_bias[0] = 0.075;
         dc->a_bias[1] = 0.07;
         dc->a_bias[2] = 0.015;

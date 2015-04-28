@@ -124,6 +124,31 @@ void replay::start()
                     queue->receive_gyro(std::move(d));
                     break;
                 }
+                case packet_imu:
+                {
+                    accelerometer_data a;
+                    auto imu = (packet_imu_t *)packet;
+                    a.accel_m__s2[0] = imu->a[0];
+                    a.accel_m__s2[1] = imu->a[1];
+                    a.accel_m__s2[2] = imu->a[2];
+                    a.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time));
+                    queue->receive_accelerometer(std::move(a));
+                    gyro_data g;
+                    g.angvel_rad__s[0] = imu->w[0];
+                    g.angvel_rad__s[1] = imu->w[1];
+                    g.angvel_rad__s[2] = imu->w[2];
+                    g.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time));
+                    queue->receive_gyro(std::move(g));
+                    break;
+                }
+                case packet_filter_control:
+                {
+                    if(header.user == 1)
+                    {
+                        //start measuring
+                        queue->dispatch_sync([this] { filter_set_reference(&cor_setup->sfm); });
+                    }
+                }
             }
             queue->dispatch_offline(false);
             bytes_dispatched += header.bytes;

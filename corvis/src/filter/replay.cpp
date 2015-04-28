@@ -29,10 +29,11 @@ bool replay::open(const char *name)
 
 void replay::set_device(const char *name)
 {
-    corvis_device_type device_type = get_device_by_name(name);
     corvis_device_parameters dc;
-    get_parameters_for_device(device_type, &dc);
-    cor_setup = std::make_unique<filter_setup>(&dc);
+    if(get_parameters_for_device_name(name, &dc))
+        cor_setup = std::make_unique<filter_setup>(&dc);
+    else
+        cerr << "Error: no device named " << name;
 }
 
 void replay::setup_filter()

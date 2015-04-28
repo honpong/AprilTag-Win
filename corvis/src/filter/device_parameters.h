@@ -52,6 +52,7 @@ typedef enum
 
 corvis_device_type get_device_by_name(const char *name);
 bool get_parameters_for_device(corvis_device_type type, struct corvis_device_parameters *dc);
+bool get_parameters_for_device_name(const char * name, struct corvis_device_parameters *dc);
 
 void device_set_resolution(struct corvis_device_parameters *dc, int image_width, int image_height);
 void device_set_framerate(struct corvis_device_parameters *dc, float framerate_hz);

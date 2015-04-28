@@ -50,12 +50,12 @@ def subprocess_test_case(test_case):
     #"Straight-line length is 89.00 cm, total path length 92.54 cm"
     res = re.match(".* ([\d\.]+) cm.* ([\d\.]+) cm.*",
             output, re.MULTILINE | re.DOTALL)
-    (L, PL) = (None, None)
+    (PL, L) = (None, None)
     if res:
         L = float(res.group(1))
         PL = float(res.group(2))
     print "Finished", test_case["path"], "(%.2fcm, %.2fcm)" % (L, PL)
-    return (L, PL)
+    return (PL, L)
 
 import numpy
 def error_histogram(errors, _bins = [0, 3, 10, 25, 50, 100]):

@@ -2,6 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:QuickstartKit/QuickstartKit.xcodeproj">
+   </FileRef>
+   <FileRef
       location = "group:rccore/RCCore.xcodeproj">
    </FileRef>
    <FileRef

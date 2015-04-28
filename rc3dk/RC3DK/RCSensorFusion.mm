@@ -16,6 +16,7 @@
 #include <functional>
 #include <memory>
 #import "RCLicenseValidator.h"
+#import <ImageIO/ImageIO.h>
 
 uint64_t get_timestamp()
 {
@@ -556,7 +557,13 @@ uint64_t get_timestamp()
     }
     
     try {
-        queue->receive_camera(camera_data(sampleBuffer));
+        camera_data c(sampleBuffer);
+        CFDictionaryRef metadataDict = (CFDictionaryRef)CMGetAttachment(sampleBuffer, kCGImagePropertyExifDictionary , NULL);
+        float exposure = [(NSString *)CFDictionaryGetValue(metadataDict, kCGImagePropertyExifExposureTime) floatValue];
+        auto duration = std::chrono::duration<float>(exposure);
+        c.timestamp += std::chrono::duration_cast<sensor_clock::duration>(duration * .5);
+
+        queue->receive_camera(std::move(c));
     } catch (std::runtime_error) {
         //do nothing - indicates the sample / image buffer was not valid.
     }

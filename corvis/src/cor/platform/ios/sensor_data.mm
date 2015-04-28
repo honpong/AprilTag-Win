@@ -9,7 +9,6 @@
 #include "sensor_data.h"
 #import <CoreMedia/CoreMedia.h>
 #import <CoreMotion/CoreMotion.h>
-#import <ImageIO/ImageIO.h>
 #include <stdexcept>
 
 static sensor_clock::time_point time_point_from_CMTime(const CMTime &time)
@@ -35,10 +34,6 @@ camera_data::camera_data(void *h): image_handle((void *)CFRetain(h), [](void *h)
     if(!sampleBuffer) throw std::runtime_error("Null sample buffer");
     CMTime time = (CMTime)CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
     
-    CFDictionaryRef metadataDict = (CFDictionaryRef)CMGetAttachment(sampleBuffer, kCGImagePropertyExifDictionary , NULL);
-    float exposure = [(NSString *)CFDictionaryGetValue(metadataDict, kCGImagePropertyExifExposureTime) floatValue];
-    auto duration = std::chrono::duration<float>(exposure);
-
     CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
     if(!pixelBuffer) throw std::runtime_error("Null image buffer");
     pixelBuffer = (CVPixelBufferRef)CVPixelBufferRetain(pixelBuffer);
@@ -58,8 +53,8 @@ camera_data::camera_data(void *h): image_handle((void *)CFRetain(h), [](void *h)
         image = (unsigned char *)CVPixelBufferGetBaseAddress(pixelBuffer);
     }
     
-    //TODO: when we properly handle rolling shutter, propagate timestamps into camera_data class and timestamp at beginning of frame
-    timestamp = time_point_from_CMTime(time) + std::chrono::duration_cast<sensor_clock::duration>(duration * .5);
+    //TODO: when we properly handle rolling shutter, propagate timestamps into camera_data class and timestamp at beginning of frame (pull exif metadata from RCSensorFusion into here)
+    timestamp = time_point_from_CMTime(time);
 }
 
 camera_data::~camera_data()

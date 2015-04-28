@@ -72,7 +72,8 @@ void replay::start()
     cerr << "First timestamp: " << header.time << endl;
     
     while (is_running) {
-        packet_t * packet = (packet_t *)malloc(header.bytes);
+        auto phandle = std::unique_ptr<void, void(*)(void *)>(malloc(header.bytes), free);
+        auto packet = (packet_t *)phandle.get();
         packet->header = header;
         
         file.read((char *)packet->data, header.bytes - 16);
@@ -99,7 +100,7 @@ void replay::start()
                     d.height = height;
                     d.stride = width;
                     d.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time));
-                    d.image_handle = std::unique_ptr<void, void(*)(void *)>(packet, free);
+                    d.image_handle = std::move(phandle);
                     queue->receive_camera(std::move(d));
                     break;
                 }
@@ -111,7 +112,6 @@ void replay::start()
                     d.accel_m__s2[2] = ((float *)packet->data)[2];
                     d.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time));
                     queue->receive_accelerometer(std::move(d));
-                    free(packet);
                     break;
                 }
                 case packet_gyroscope:
@@ -122,7 +122,6 @@ void replay::start()
                     d.angvel_rad__s[2] = ((float *)packet->data)[2];
                     d.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time));
                     queue->receive_gyro(std::move(d));
-                    free(packet);
                     break;
                 }
             }

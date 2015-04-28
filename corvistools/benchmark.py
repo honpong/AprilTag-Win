@@ -84,8 +84,8 @@ def benchmark(folder_name):
     test_cases = scan_tests(folder_name)
     pool = multiprocessing.Pool(multiprocessing.cpu_count() - 1)
     print "Worker pool size is", pool._processes
-    results = pool.map(run_test_case, test_cases)
-    #results = pool.map(subprocess_test_case, test_cases)
+    #results = pool.map(run_test_case, test_cases)
+    results = pool.map(subprocess_test_case, test_cases)
 
     L_errors_percent = []
     PL_errors_percent = []

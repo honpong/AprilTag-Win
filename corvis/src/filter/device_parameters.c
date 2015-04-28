@@ -80,6 +80,7 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
     dc->Cx = (dc->image_width - 1)/2.;
     dc->Cy = (dc->image_height - 1)/2.;
     int max_dim = dc->image_width > dc->image_height ? dc->image_width : dc->image_height;
+    device_set_framerate(dc, 30);
 
 
     for(int i = 0; i < 3; ++i) {
@@ -241,9 +242,6 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
             dc->Tc[2] = 0.0;
             return false;
     }
-
-    device_set_resolution(dc, 640, 480);
-    device_set_framerate(dc, 30);
 }
 
 

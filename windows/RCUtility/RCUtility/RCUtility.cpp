@@ -8,6 +8,7 @@
 #include "CaptureManager.h"
 #include "AccelerometerLib.h"
 #include <shellapi.h>
+#include "CalibrationManager.h"
 
 #using <Windows.winmd>
 #using <Platform.winmd>
@@ -23,6 +24,7 @@ HINSTANCE hInst;								// current instance
 TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 CaptureManager^ capMan;
+CalibrationManager^ calMan;
 bool isCapturing = false;
 bool isCalibrating = false;
 HWND hLabel;
@@ -34,6 +36,35 @@ ATOM				MyRegisterClass(HINSTANCE hInstance);
 BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
+
+class MyCalDelegate : CalibrationManagerDelegate
+{
+public:
+	MyCalDelegate(): CalibrationManagerDelegate() {};
+
+	virtual void OnProgressUpdated(float progress) 
+	{
+		if (progress < 1.)
+		{
+			std::wstring progString = Debug::Log(L"Progress %2.0f%%", progress * 100);
+			SetWindowText(hLabel, progString.c_str());
+		}
+	};
+
+	virtual void OnStatusUpdated(int status) 
+	{
+		switch (status)
+		{
+		case 1:
+			SetWindowText(hLabel, TEXT("Place the device flat on a table."));
+			break;
+		default:
+			break;
+		}		
+	};
+};
+
+MyCalDelegate calDelegate;
 
 void StartCapture()
 {
@@ -47,7 +78,7 @@ void StartCapture()
 	result = SetAccelerometerSensitivity(0);
 	if (!result)
 	{
-		SetWindowText(hLabel, L"Failed to set sensor properties");
+		SetWindowText(hLabel, L"Failed to set accelerometer sensitivity");
 		return;
 	}
 
@@ -78,6 +109,7 @@ void StopCapture()
 	SetWindowText(hLabel, L"Stopping capture...");
 	capMan->StopCapture();
 	capMan->StopSensors();
+	delete capMan;
 	isCapturing = false;
 	SetWindowText(hLabel, L"Capture complete.");
 	SetWindowText(hCaptureButton, L"Start Capture");
@@ -86,14 +118,35 @@ void StopCapture()
 void StartCalibration()
 {
 	if (isCalibrating || isCapturing) return;
-	SetWindowText(hCalibrateButton, L"Stop Calibrating");
-	SetWindowText(hLabel, TEXT("Calibrating..."));
-	isCalibrating = true;
+	SetWindowText(hLabel, TEXT("Starting calibration..."));
+
+	bool result = SetAccelerometerSensitivity(0);
+	if (!result)
+	{
+		SetWindowText(hLabel, L"Failed to set accelerometer sensitivity");
+		return;
+	}
+
+	calMan = ref new CalibrationManager();
+	calMan->SetDelegate(&calDelegate);
+	result = calMan->StartCalibration();
+	if (result)
+	{
+		SetWindowText(hCalibrateButton, L"Stop Calibrating");
+		isCalibrating = true;
+	}
+	else
+	{
+		SetWindowText(hLabel, TEXT("Failed to start calibration."));
+	}
 }
 
 void StopCalibration()
 {
 	if (!isCalibrating) return;
+	SetWindowText(hLabel, TEXT("Stopping calibration..."));
+	calMan->StopCalibration();
+	delete calMan;
 	SetWindowText(hLabel, TEXT("Calibration complete."));
 	SetWindowText(hCalibrateButton, L"Start Calibrating");
 	isCalibrating = false;

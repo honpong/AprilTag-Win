@@ -54,6 +54,12 @@
     <ClInclude Include="..\..\..\corvis\src\filter\capture.h">
       <Filter>Source Files\corvis</Filter>
     </ClInclude>
+    <ClInclude Include="CalibrationManager.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SensorManager.h">
+      <Filter>Source Files\SensorManagers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -88,6 +94,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\corvis\src\cor\platform\win\sensor_data.cpp">
       <Filter>Source Files\corvis</Filter>
+    </ClCompile>
+    <ClCompile Include="CalibrationManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SensorManager.cpp">
+      <Filter>Source Files\SensorManagers</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

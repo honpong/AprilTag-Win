@@ -5,7 +5,7 @@ using namespace RealityCap;
 
 #define BUFFER_LENGTH 1024
 
-void Debug::Log(std::wstring format, ...)
+std::wstring Debug::Log(std::wstring format, ...)
 {
 #if _DEBUG
 	format.append(L"\n");
@@ -16,5 +16,6 @@ void Debug::Log(std::wstring format, ...)
 	va_end(args);
 	buffer[BUFFER_LENGTH - 1] = '\0'; //prevent buffer overflow
 	OutputDebugString(buffer);
+	return std::wstring(buffer);
 #endif
 }

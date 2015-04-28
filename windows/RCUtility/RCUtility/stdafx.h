@@ -23,11 +23,6 @@
 #include <atlstr.h>
 
 // TODO: reference additional headers your program requires here
-#include <SensorsApi.h>
-#include <sensors.h>
-
-#include <PortableDeviceApi.h>
-#include <InitGuid.h> 
 
 #include <collection.h>
 #include <ppltasks.h>

@@ -6,6 +6,9 @@ namespace RealityCap
 	class Debug
 	{
 	public:
-		static void Log(std::wstring format, ...);
+		/**
+		Returns the formatted string.
+		*/
+		static std::wstring Log(std::wstring format, ...);
 	};
 }

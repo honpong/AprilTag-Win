@@ -886,7 +886,12 @@ extern "C" void filter_image_packet(void *_f, packet_t *p)
     if(p->header.type != packet_camera) return;
     struct filter *f = (struct filter *)_f;
     int packet_width, packet_height;
-    sscanf((char *)p->data, "P5 %d %d", &packet_width, &packet_height);
+    char tmp[17];
+    memcpy(tmp, p->data, 16);
+    tmp[16] = 0;
+    std::stringstream parse(tmp);
+    //pgm header is "P5 x y"
+    parse.ignore(3, ' ') >> packet_width >> packet_height;
     if(!f->track.width) {
         f->track.width = packet_width;
         f->track.height = packet_height;

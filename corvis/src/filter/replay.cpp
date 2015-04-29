@@ -93,7 +93,12 @@ void replay::start()
                 case packet_camera:
                 {
                     int width, height;
-                    sscanf((char *)packet->data, "P5 %d %d", &width, &height);
+                    char tmp[17];
+                    memcpy(tmp, packet->data, 16);
+                    tmp[16] = 0;
+                    std::stringstream parse(tmp);
+                    //pgm header is "P5 x y"
+                    parse.ignore(3, ' ') >> width >> height;
                     camera_data d;
                     d.image = packet->data + 16;
                     d.width = width;

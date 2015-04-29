@@ -18,8 +18,8 @@ extern "C" {
 #include "tracker.h"
 #include "../cor/platform/sensor_clock.h"
 
-#define estimate_camera_intrinsics false
-#define estimate_camera_extrinsics false
+#define estimate_camera_intrinsics 0
+#define estimate_camera_extrinsics 0
 
 using namespace std;
 

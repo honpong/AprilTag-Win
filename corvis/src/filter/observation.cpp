@@ -1,6 +1,6 @@
 #include "observation.h"
 #include "tracker.h"
-#include "kalman.h"
+#include "../numerics/kalman.h"
 #include "utils.h"
 
 stdev_scalar observation_vision_feature::stdev[2], observation_vision_feature::inn_stdev[2];

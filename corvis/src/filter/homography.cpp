@@ -253,7 +253,7 @@ vector<homography_decomposition> homography_positive_depth(const feature_t p1[4]
     vector<homography_decomposition> results;
     for(int i = 0; i < 4; ++i)
     {
-        homography_decomposition d = (homography_decomposition) {.R = Rs[i], .T=Ts[i], .N=Ns[i]};
+        homography_decomposition d {Rs[i], Ts[i], Ns[i]};
         print_decomposition(d);
         // TODO checking Ns[i][2] should be equivalent to this
         bool valid = homography_check_solution(d.R, d.T, p1, p2);
@@ -322,20 +322,20 @@ void fill_ideal_points(feature_t ideal[4], float qr_size_m, bool use_markers, in
         // modules are width/height of the qr code in bars
         // v2 = 25, v3 = 29, v4 = 33, v10 = 57 (4 * version + 17)
         float offset = 0.5f;
-        ideal[0] = (feature_t){.x = 3.5f,  .y = 3.5f};                    // UL
-        ideal[1] = (feature_t){.x = 3.5f,  .y = modules - 3.5f};          // LL
-        ideal[2] = (feature_t){.x = modules - 6.5f, .y = modules - 6.5f}; // LR
-        ideal[3] = (feature_t){.x = modules - 3.5f, .y = 3.5f};           // UR
+        ideal[0] = {3.5f,  3.5f};                    // UL
+        ideal[1] = {3.5f,  modules - 3.5f};          // LL
+        ideal[2] = {modules - 6.5f, modules - 6.5f}; // LR
+        ideal[3] = {modules - 3.5f, 3.5f};           // UR
         for(int i = 0; i < 4; i++) {
             ideal[i].x = (ideal[i].x/modules - offset)*qr_size_m;
             ideal[i].y = (ideal[i].y/modules - offset)*qr_size_m;
         }
     }
     else {
-        ideal[0] = (feature_t) {.x = -0.5f*qr_size_m, .y = -0.5f*qr_size_m}; // UL
-        ideal[1] = (feature_t) {.x = -0.5f*qr_size_m, .y =  0.5f*qr_size_m}; // LL
-        ideal[2] = (feature_t) {.x =  0.5f*qr_size_m, .y =  0.5f*qr_size_m}; // LR
-        ideal[3] = (feature_t) {.x =  0.5f*qr_size_m, .y = -0.5f*qr_size_m}; // UR
+        ideal[0] = {-0.5f*qr_size_m, -0.5f*qr_size_m}; // UL
+        ideal[1] = {-0.5f*qr_size_m, 0.5f*qr_size_m}; // LL
+        ideal[2] = {0.5f*qr_size_m, 0.5f*qr_size_m}; // LR
+        ideal[3] = {0.5f*qr_size_m, -0.5f*qr_size_m}; // UR
     }
 
 }

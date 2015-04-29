@@ -8,6 +8,7 @@
 #include <algorithm>
 #include "tracker.h"
 #include "../cor/platform/sensor_clock.h"
+#include <memory>
 
 extern "C" {
 #include "../cor/cor_types.h"

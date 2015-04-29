@@ -3,6 +3,7 @@
 // All Rights Reserved.
 
 #include <algorithm>
+#define _USE_MATH_DEFINES
 #include <math.h>
 #include <stdint.h>
 #include <string.h>
@@ -16,6 +17,7 @@
 #include "../numerics/matrix.h"
 #include "observation.h"
 #include "filter.h"
+#include <memory>
 
 int state_node::statesize;
 int state_node::maxstatesize;

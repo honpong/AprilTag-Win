@@ -10,6 +10,7 @@
 #define __RC3DK__scaled_mask__
 
 #include <assert.h>
+#include <stdint.h>
 
 class scaled_mask
 {

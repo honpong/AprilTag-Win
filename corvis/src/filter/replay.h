@@ -10,9 +10,12 @@
 
 #include <iostream>
 #include <fstream>
+#include <atomic>
+#include <memory>
+#include <functional>
 #include "filter_setup.h"
-#include "packet.h"
-#include "sensor_fusion_queue.h"
+#include "../cor/packet.h"
+#include "../cor/sensor_fusion_queue.h"
 
 class replay
 {

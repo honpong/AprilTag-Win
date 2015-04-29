@@ -2955,7 +2955,7 @@ vector<xy> &fast_detector_9::detect(const unsigned char *im, const scaled_mask *
 		end_if:
 
                         if(bmin == bmax - 1 || bmin == bmax) {
-                            features.push_back((xy){(float)x, (float)y, (float)bmin, 0});
+                            features.push_back({(float)x, (float)y, (float)bmin, 0});
                             push_heap(features.begin(), features.end(), xy_comp);
                             if(features.size() > need) {
                                 pop_heap(features.begin(), features.end(), xy_comp);

@@ -144,6 +144,8 @@ VIS_CXX_SOURCES := $(addprefix src/vis/, world_state.cpp world_state_render.cpp 
 bin/corvis/_vis.so: LDFLAGS := $(LDFLAGS) -framework OpenGL
 bin/corvis/_vis.so: $(patsubst src/%,build/%,$(VIS_CXX_SOURCES:.cpp=.o))
 
+_CPPFLAGS := $(_CPPFLAGS) -Wno-deprecated-declarations
+
 TARGETS := $(TARGETS) bin/corvis/_vis.so
 CXX_SOURCES := $(CXX_SOURCES) $(VIS_CXX_SOURCES)
 

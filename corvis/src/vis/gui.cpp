@@ -3,6 +3,7 @@ gui * gui::static_gui;
 
 #include "offscreen_render.h"
 #include "world_state_render.h"
+#include "../filter/replay.h"
 
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
@@ -67,6 +68,8 @@ void gui::keyboard(unsigned char key, int x, int y)
         scale *= 1/1.1;
     if(key == '-' || key == 's')
         scale *= 1.1;
+    if(key == ' ')
+       replay_control->toggle_pause();
 }
 
 void gui::init_gl()
@@ -119,8 +122,9 @@ void gui::init_glut()
     glutKeyboardFunc(gui::keyboard_callback);
 }
 
-void gui::start()
+void gui::start(replay * rp)
 {
+    replay_control = rp;
     arc.reset();
     init_glut();
     init_gl();

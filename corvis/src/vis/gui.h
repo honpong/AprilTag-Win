@@ -4,6 +4,8 @@
 #include "world_state.h"
 #include "arcball.h"
 
+class replay;
+
 class gui
 {
 private:
@@ -41,11 +43,13 @@ private:
     arcball arc;
     bool is_rotating;
 
+    replay * replay_control;
+
 public:
     gui(world_state * render_state);
     ~gui();
     void queue_render();
-    void start();
+    void start(replay * rp);
 };
 
 #endif

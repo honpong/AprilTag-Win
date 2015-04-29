@@ -38,7 +38,7 @@ int main(int argc, char **argv)
     
     if(enable_gui) { // The GUI must be on the main thread
         std::thread replay_thread([&](void) { rp.start(); });
-        vis.start();
+        vis.start(&rp);
         replay_thread.join();
     }
     else

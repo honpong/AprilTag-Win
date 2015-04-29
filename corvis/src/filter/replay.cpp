@@ -69,6 +69,9 @@ void replay::start()
         realtime_offset = std::chrono::microseconds(0);
 
     while (is_running) {
+        while(is_paused) {
+            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+        }
         auto phandle = std::unique_ptr<void, void(*)(void *)>(malloc(header.bytes), free);
         auto packet = (packet_t *)phandle.get();
         packet->header = header;

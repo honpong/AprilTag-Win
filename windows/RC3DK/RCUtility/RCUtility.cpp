@@ -21,6 +21,15 @@ using namespace Windows::Devices::Sensors;
 
 #define MAX_LOADSTRING 100
 
+typedef enum AppState
+{
+	Idle,
+	Calibrating,
+	Capturing,
+	Live,
+	Replay
+};
+
 // Global Variables:
 HINSTANCE hInst;								// current instance
 TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
@@ -28,14 +37,13 @@ TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 LPCWSTR glWindowClass = L"GLWindow";
 CaptureManager^ capMan;
 CalibrationManager^ calMan;
-bool isCapturing = false;
-bool isCalibrating = false;
 HWND hLabel;
 HWND hCaptureButton;
 HWND hCalibrateButton;
 HWND hLiveButton;
 HWND hReplayButton;
 HWND hGLWindow;
+AppState appState = Idle;
 
 // Forward declarations of functions included in this code module:
 ATOM				MyRegisterClass(HINSTANCE hInstance);
@@ -78,7 +86,7 @@ MyCalDelegate calDelegate;
 
 void StartCapture()
 {
-	if (isCapturing || isCalibrating) return;
+	if (appState != Idle) return;
 
 	SetWindowText(hCaptureButton, L"Stop Capture");
 	SetWindowText(hLabel, L"Starting capture...");
@@ -110,24 +118,24 @@ void StartCapture()
 		return;
 	}
 
-	isCapturing = result;
+	if(result) appState = Capturing;
 }
 
 void StopCapture()
 {
-	if (!isCapturing) return;
+	if (appState != Capturing) return;
 	SetWindowText(hLabel, L"Stopping capture...");
 	capMan->StopCapture();
 	capMan->StopSensors();
 	delete capMan;
-	isCapturing = false;
 	SetWindowText(hLabel, L"Capture complete.");
 	SetWindowText(hCaptureButton, L"Start Capture");
+	appState = Idle;
 }
 
 void StartCalibration()
 {
-	if (isCalibrating || isCapturing) return;
+	if (appState != Idle) return;
 	SetWindowText(hLabel, TEXT("Starting calibration..."));
 
 	bool result = SetAccelerometerSensitivity(0);
@@ -143,7 +151,7 @@ void StartCalibration()
 	if (result)
 	{
 		SetWindowText(hCalibrateButton, L"Stop Calibrating");
-		isCalibrating = true;
+		appState = Calibrating;
 	}
 	else
 	{
@@ -153,18 +161,18 @@ void StartCalibration()
 
 void StopCalibration()
 {
-	if (!isCalibrating) return;
+	if (appState != Calibrating) return;
 	SetWindowText(hLabel, TEXT("Stopping calibration..."));
 	calMan->StopCalibration();
 	delete calMan;
 	SetWindowText(hLabel, TEXT("Calibration complete."));
 	SetWindowText(hCalibrateButton, L"Start Calibrating");
-	isCalibrating = false;
+	appState = Idle;
 }
 
 bool OpenVisualizationWindow()
 {
-	if (isCalibrating || isCapturing || IsWindow(hGLWindow)) return false;
+	if (appState != Idle || IsWindow(hGLWindow)) return false;
 	hGLWindow = CreateWindow(glWindowClass, L"Visualization", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInst, NULL);
 	ShowWindow(hGLWindow, SW_SHOW);
 	UpdateWindow(hGLWindow);
@@ -174,17 +182,31 @@ bool OpenVisualizationWindow()
 void BeginLiveVis()
 {
 	if (!OpenVisualizationWindow()) return;
+	appState = Live;
 	SetWindowText(hLabel, TEXT("Beginning live visualization..."));
 	
 	// run filter
 }
 
+void EndLiveVis()
+{
+	appState = Idle;
+	SetWindowText(hLabel, TEXT(""));
+}
+
 void BeginReplay(const PWSTR filePath)
 {
 	if (!OpenVisualizationWindow()) return;
+	appState = Replay;
 	SetWindowText(hLabel, TEXT("Beginning replay visualization..."));
 
 	// do opengl stuff
+}
+
+void EndReplay()
+{
+	appState = Idle;
+	SetWindowText(hLabel, TEXT(""));
 }
 
 
@@ -254,7 +276,7 @@ HRESULT CDialogEventHandler_CreateInstance(REFIID riid, void **ppv)
 
 HRESULT OpenReplayFilePicker()
 {
-	if (IsWindow(hGLWindow)) return S_FALSE; // don't open picker if vis window is already open
+	if (appState != Idle) return S_FALSE; 
 
 	// CoCreate the File Open Dialog object.
 	IFileDialog *pfd = NULL;
@@ -476,10 +498,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			DestroyWindow(hWnd);
 			break;
 		case IDB_CAPTURE:
-			isCapturing ? StopCapture() : StartCapture();
+			appState == Capturing ? StopCapture() : StartCapture();
 			break;
 		case IDB_CALIBRATE:
-			isCalibrating ? StopCalibration() : StartCalibration();
+			appState == Calibrating ? StopCalibration() : StartCalibration();
 			break;
 		case IDB_LIVE:
 			BeginLiveVis();
@@ -540,6 +562,8 @@ LRESULT CALLBACK WndProcGL(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
 		//PostQuitMessage(0);
 		break;
 	case WM_CLOSE:
+		if (appState == Live) EndLiveVis();
+		else if (appState = Replay) EndReplay();
 		DestroyWindow(hWnd);
 		break;
 	default:

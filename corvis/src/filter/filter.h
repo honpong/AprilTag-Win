@@ -16,11 +16,6 @@ struct filter {
 filter(): s(cov)
     {
         //make sure all pointers are null
-        output = 0;
-        control = 0;
-        visbuf = 0;
-        track.sink = 0;
-        recognition_buffer = 0;
         scaled_mask = 0;
         
         //these need to be initialized to defaults - everything else is handled in filter_initialize that is called every time
@@ -34,10 +29,6 @@ filter(): s(cov)
     int min_group_add;
     int max_group_add;
     
-    struct mapbuffer * output;
-    struct mapbuffer * control;
-    struct mapbuffer * visbuf;
-
     sensor_clock::time_point last_time;
     sensor_clock::time_point last_packet_time;
     int last_packet_type;
@@ -65,7 +56,6 @@ filter(): s(cov)
     int image_height, image_width;
     sensor_clock::duration shutter_delay;
     sensor_clock::duration shutter_period;
-    mapbuffer *recognition_buffer;
     bool detector_failed, tracker_failed, tracker_warned;
     bool speed_failed, speed_warning;
     bool numeric_failed;

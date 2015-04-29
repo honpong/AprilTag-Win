@@ -38,12 +38,7 @@
 		327B557A18EB4DC20001CCE1 /* RCTransformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B556418EB4DC20001CCE1 /* RCTransformation.m */; };
 		327B557B18EB4DC20001CCE1 /* RCTranslation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B556618EB4DC20001CCE1 /* RCTranslation.m */; };
 		327B557C18EB4DC20001CCE1 /* RCVector.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B556818EB4DC20001CCE1 /* RCVector.m */; };
-		327B559518EB4F250001CCE1 /* debug.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B558718EB4F250001CCE1 /* debug.c */; };
-		327B559618EB4F250001CCE1 /* dispatch.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B558918EB4F250001CCE1 /* dispatch.c */; };
-		327B559818EB4F260001CCE1 /* mapbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B558D18EB4F250001CCE1 /* mapbuffer.c */; };
 		327B559918EB4F260001CCE1 /* packet.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B558F18EB4F250001CCE1 /* packet.c */; };
-		327B559A18EB4F260001CCE1 /* plugins.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B559118EB4F250001CCE1 /* plugins.c */; };
-		327B559B18EB4F260001CCE1 /* timestamp.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B559318EB4F250001CCE1 /* timestamp.c */; };
 		327B55BD18EB4F3A0001CCE1 /* fast_9.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55A318EB4F3A0001CCE1 /* fast_9.cpp */; };
 		327B55BE18EB4F3A0001CCE1 /* filter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55A718EB4F3A0001CCE1 /* filter.cpp */; };
 		327B55BF18EB4F3A0001CCE1 /* filter_setup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55A918EB4F3A0001CCE1 /* filter_setup.cpp */; };
@@ -173,7 +168,6 @@
 		D3931E1B1A2217E5008F8940 /* random.c in Sources */ = {isa = PBXBuildFile; fileRef = D3931E191A2217D8008F8940 /* random.c */; };
 		D3931E1E1A221853008F8940 /* host.c in Sources */ = {isa = PBXBuildFile; fileRef = D3931E1C1A221850008F8940 /* host.c */; };
 		D3B4EACA1A1E7DE100BE0443 /* RCLicenseError.m in Sources */ = {isa = PBXBuildFile; fileRef = 328A4DD41950D5F400587949 /* RCLicenseError.m */; };
-		D3B4EACC1A1E7DE100BE0443 /* plugins.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B559118EB4F250001CCE1 /* plugins.c */; };
 		D3B4EAD11A1E7DE100BE0443 /* RCVector.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B556818EB4DC20001CCE1 /* RCVector.m */; };
 		D3B4EAD21A1E7DE100BE0443 /* filter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55A718EB4F3A0001CCE1 /* filter.cpp */; };
 		D3B4EAD31A1E7DE100BE0443 /* RCAFImageRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B552918EB4D720001CCE1 /* RCAFImageRequestOperation.m */; };
@@ -198,14 +192,12 @@
 		D3B4EB031A1E7DE100BE0443 /* RCPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B555618EB4DC20001CCE1 /* RCPoint.m */; };
 		D3B4EB071A1E7DE100BE0443 /* RCAFXMLRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B553318EB4D720001CCE1 /* RCAFXMLRequestOperation.m */; };
 		D3B4EB091A1E7DE100BE0443 /* state_motion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55B118EB4F3A0001CCE1 /* state_motion.cpp */; };
-		D3B4EB0A1A1E7DE100BE0443 /* debug.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B558718EB4F250001CCE1 /* debug.c */; };
 		D3B4EB0B1A1E7DE100BE0443 /* packet.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B558F18EB4F250001CCE1 /* packet.c */; };
 		D3B4EB0E1A1E7DE100BE0443 /* RCSensorFusionError.m in Sources */ = {isa = PBXBuildFile; fileRef = 328A4DD11950D52000587949 /* RCSensorFusionError.m */; };
 		D3B4EB0F1A1E7DE100BE0443 /* RCAFHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B552518EB4D720001CCE1 /* RCAFHTTPClient.m */; };
 		D3B4EB101A1E7DE100BE0443 /* filter_setup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55A918EB4F3A0001CCE1 /* filter_setup.cpp */; };
 		D3B4EB151A1E7DE100BE0443 /* matrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55CC18EB4F430001CCE1 /* matrix.cpp */; };
 		D3B4EB181A1E7DE100BE0443 /* RCAFURLConnectionOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B553118EB4D720001CCE1 /* RCAFURLConnectionOperation.m */; };
-		D3B4EB1D1A1E7DE100BE0443 /* dispatch.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B558918EB4F250001CCE1 /* dispatch.c */; };
 		D3B4EB1E1A1E7DE100BE0443 /* RCAFPropertyListRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B552F18EB4D720001CCE1 /* RCAFPropertyListRequestOperation.m */; };
 		D3B4EB201A1E7DE100BE0443 /* RCSensorFusionData.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B556018EB4DC20001CCE1 /* RCSensorFusionData.m */; };
 		D3B4EB221A1E7DE100BE0443 /* RCSensorFusionStatus.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B556218EB4DC20001CCE1 /* RCSensorFusionStatus.m */; };
@@ -214,8 +206,6 @@
 		D3B4EB2F1A1E7DE100BE0443 /* RCAFHTTPRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B552718EB4D720001CCE1 /* RCAFHTTPRequestOperation.m */; };
 		D3B4EB351A1E7DE100BE0443 /* RCScalar.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B555C18EB4DC20001CCE1 /* RCScalar.m */; };
 		D3B4EB371A1E7DE100BE0443 /* RCPrivateHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B555818EB4DC20001CCE1 /* RCPrivateHTTPClient.m */; };
-		D3B4EB391A1E7DE100BE0443 /* timestamp.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B559318EB4F250001CCE1 /* timestamp.c */; };
-		D3B4EB3A1A1E7DE100BE0443 /* mapbuffer.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B558D18EB4F250001CCE1 /* mapbuffer.c */; };
 		D3B4EB3B1A1E7DE100BE0443 /* RCFeaturePoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B555218EB4DC20001CCE1 /* RCFeaturePoint.m */; };
 		D3B4EB3E1A1E7DE100BE0443 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B563518EB5ECA0001CCE1 /* OpenGLES.framework */; };
 		D3B4EB3F1A1E7DE100BE0443 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B54E218EB4CC90001CCE1 /* Foundation.framework */; };
@@ -452,20 +442,9 @@
 		327B556818EB4DC20001CCE1 /* RCVector.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVector.m; sourceTree = "<group>"; };
 		327B556B18EB4DC20001CCE1 /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 		327B557E18EB4DDE0001CCE1 /* RC3DK-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "RC3DK-Info.plist"; sourceTree = "<group>"; };
-		327B558518EB4F250001CCE1 /* cor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cor.h; sourceTree = "<group>"; };
 		327B558618EB4F250001CCE1 /* cor_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cor_types.h; sourceTree = "<group>"; };
-		327B558718EB4F250001CCE1 /* debug.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = debug.c; sourceTree = "<group>"; };
-		327B558818EB4F250001CCE1 /* debug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = debug.h; sourceTree = "<group>"; };
-		327B558918EB4F250001CCE1 /* dispatch.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dispatch.c; sourceTree = "<group>"; };
-		327B558A18EB4F250001CCE1 /* dispatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dispatch.h; sourceTree = "<group>"; };
-		327B558D18EB4F250001CCE1 /* mapbuffer.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mapbuffer.c; sourceTree = "<group>"; };
-		327B558E18EB4F250001CCE1 /* mapbuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mapbuffer.h; sourceTree = "<group>"; };
 		327B558F18EB4F250001CCE1 /* packet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = packet.c; sourceTree = "<group>"; };
 		327B559018EB4F250001CCE1 /* packet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = packet.h; sourceTree = "<group>"; };
-		327B559118EB4F250001CCE1 /* plugins.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = plugins.c; sourceTree = "<group>"; };
-		327B559218EB4F250001CCE1 /* plugins.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = plugins.h; sourceTree = "<group>"; };
-		327B559318EB4F250001CCE1 /* timestamp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = timestamp.c; sourceTree = "<group>"; };
-		327B559418EB4F250001CCE1 /* timestamp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = timestamp.h; sourceTree = "<group>"; };
 		327B559D18EB4F3A0001CCE1 /* device_parameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = device_parameters.h; sourceTree = "<group>"; };
 		327B559F18EB4F3A0001CCE1 /* fast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fast.h; sourceTree = "<group>"; };
 		327B55A318EB4F3A0001CCE1 /* fast_9.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = fast_9.cpp; sourceTree = "<group>"; };
@@ -991,24 +970,13 @@
 		327B558418EB4F250001CCE1 /* cor */ = {
 			isa = PBXGroup;
 			children = (
-				327B558518EB4F250001CCE1 /* cor.h */,
 				327B558618EB4F250001CCE1 /* cor_types.h */,
-				327B558718EB4F250001CCE1 /* debug.c */,
-				327B558818EB4F250001CCE1 /* debug.h */,
-				327B558918EB4F250001CCE1 /* dispatch.c */,
-				327B558A18EB4F250001CCE1 /* dispatch.h */,
-				327B558D18EB4F250001CCE1 /* mapbuffer.c */,
-				327B558E18EB4F250001CCE1 /* mapbuffer.h */,
 				327B558F18EB4F250001CCE1 /* packet.c */,
 				327B559018EB4F250001CCE1 /* packet.h */,
-				327B559118EB4F250001CCE1 /* plugins.c */,
-				327B559218EB4F250001CCE1 /* plugins.h */,
 				D95EB1851AA5038600ADFC20 /* sensor_fusion_queue.cpp */,
 				D95EB1861AA5038600ADFC20 /* sensor_fusion_queue.h */,
 				D95409AE1AC1019200706A24 /* sensor_clock.cpp */,
 				D95409AF1AC1019200706A24 /* sensor_clock.h */,
-				327B559318EB4F250001CCE1 /* timestamp.c */,
-				327B559418EB4F250001CCE1 /* timestamp.h */,
 			);
 			name = cor;
 			path = ../../corvis/src/cor;
@@ -1576,7 +1544,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				328A4DD51950D5F400587949 /* RCLicenseError.m in Sources */,
-				327B559A18EB4F260001CCE1 /* plugins.c in Sources */,
 				D33E61E11ADE632900569C82 /* capture.cpp in Sources */,
 				32E757151A980149004BA247 /* NSError+RCDictionaryRepresentation.m in Sources */,
 				327B557C18EB4DC20001CCE1 /* RCVector.m in Sources */,
@@ -1608,7 +1575,6 @@
 				327B557318EB4DC20001CCE1 /* RCPoint.m in Sources */,
 				327B553B18EB4D720001CCE1 /* RCAFXMLRequestOperation.m in Sources */,
 				327B55C318EB4F3A0001CCE1 /* state_motion.cpp in Sources */,
-				327B559518EB4F250001CCE1 /* debug.c in Sources */,
 				D33E61E31ADE6A6B00569C82 /* RCCaptureManager.mm in Sources */,
 				327B559918EB4F260001CCE1 /* packet.c in Sources */,
 				328A4DD21950D52000587949 /* RCSensorFusionError.m in Sources */,
@@ -1620,7 +1586,6 @@
 				327B55D418EB4F430001CCE1 /* matrix.cpp in Sources */,
 				327B553A18EB4D720001CCE1 /* RCAFURLConnectionOperation.m in Sources */,
 				D33E9D2F1ADD14600085F35C /* RCMotionManager.m in Sources */,
-				327B559618EB4F250001CCE1 /* dispatch.c in Sources */,
 				D95409B01AC1019200706A24 /* sensor_clock.cpp in Sources */,
 				327B553918EB4D720001CCE1 /* RCAFPropertyListRequestOperation.m in Sources */,
 				38EDF0771AD43D2500F0A322 /* rotation_vector.cpp in Sources */,
@@ -1637,8 +1602,6 @@
 				327B553518EB4D720001CCE1 /* RCAFHTTPRequestOperation.m in Sources */,
 				327B557618EB4DC20001CCE1 /* RCScalar.m in Sources */,
 				327B557418EB4DC20001CCE1 /* RCPrivateHTTPClient.m in Sources */,
-				327B559B18EB4F260001CCE1 /* timestamp.c in Sources */,
-				327B559818EB4F260001CCE1 /* mapbuffer.c in Sources */,
 				327B557118EB4DC20001CCE1 /* RCFeaturePoint.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1676,7 +1639,6 @@
 				D3931E1E1A221853008F8940 /* host.c in Sources */,
 				D3588EF71A20C06B00CA10E7 /* bipgraph.cpp in Sources */,
 				D3B4EACA1A1E7DE100BE0443 /* RCLicenseError.m in Sources */,
-				D3B4EACC1A1E7DE100BE0443 /* plugins.c in Sources */,
 				D3588EF61A20C06600CA10E7 /* exceptions.cpp in Sources */,
 				D33B00581A20CA8E00287FC9 /* sift.c in Sources */,
 				D3931E1B1A2217E5008F8940 /* random.c in Sources */,
@@ -1729,7 +1691,6 @@
 				D3B4EB071A1E7DE100BE0443 /* RCAFXMLRequestOperation.m in Sources */,
 				D3B4EB091A1E7DE100BE0443 /* state_motion.cpp in Sources */,
 				D3C0EDFB1A37B4DC00423EDE /* qr.cpp in Sources */,
-				D3B4EB0A1A1E7DE100BE0443 /* debug.c in Sources */,
 				D3B4EB0B1A1E7DE100BE0443 /* packet.c in Sources */,
 				D3B4EB0E1A1E7DE100BE0443 /* RCSensorFusionError.m in Sources */,
 				D3B4EB0F1A1E7DE100BE0443 /* RCAFHTTPClient.m in Sources */,
@@ -1743,7 +1704,6 @@
 				D3B4EB181A1E7DE100BE0443 /* RCAFURLConnectionOperation.m in Sources */,
 				D3588EF91A20C09C00CA10E7 /* weightedgraph.cpp in Sources */,
 				D321AD401A323C17003AEA77 /* stereo_features.cpp in Sources */,
-				D3B4EB1D1A1E7DE100BE0443 /* dispatch.c in Sources */,
 				D3588EFD1A20C32400CA10E7 /* poly.c in Sources */,
 				D3B4EB1E1A1E7DE100BE0443 /* RCAFPropertyListRequestOperation.m in Sources */,
 				D3588F031A20C3FD00CA10E7 /* userprintf.c in Sources */,
@@ -1761,8 +1721,6 @@
 				D33E9D2E1ADD14600085F35C /* RCLocationManager.m in Sources */,
 				D95EB18D1AA50AF200ADFC20 /* sensor_fusion.cpp in Sources */,
 				D3B4EB371A1E7DE100BE0443 /* RCPrivateHTTPClient.m in Sources */,
-				D3B4EB391A1E7DE100BE0443 /* timestamp.c in Sources */,
-				D3B4EB3A1A1E7DE100BE0443 /* mapbuffer.c in Sources */,
 				D3B4EB3B1A1E7DE100BE0443 /* RCFeaturePoint.m in Sources */,
 				32036EA51ACB452000FC0588 /* RCLicenseValidator.m in Sources */,
 			);

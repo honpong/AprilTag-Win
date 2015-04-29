@@ -45,7 +45,6 @@ void replay::setup_filter()
     queue = make_unique<fusion_queue>(camf, accf, gyrf, fusion_queue::latency_strategy::ELIMINATE_DROPS, std::chrono::microseconds(33000), std::chrono::microseconds(10000), std::chrono::microseconds(5000));
     queue->start_offline(true);
     cor_setup->sfm.ignore_lateness = true;
-    cor_time_init();
     filter_start_dynamic(&cor_setup->sfm);
 }
 

@@ -235,10 +235,6 @@ short_vector_t packet_feature_drop_t_indices(packet_feature_drop_t *p);
 float_vector_t packet_plot_t_data(packet_plot_t *p);
 void packet_camera_write_image(packet_camera_t *p, const char *fn);
 void packet_camera_read_bmp(packet_camera_t *p, const char *name);
-struct mapbuffer;
-void packet_plot_setup(struct mapbuffer *mb, uint64_t time, uint16_t id, const char *name, float nominal);
-void packet_plot_send(struct mapbuffer *mb, uint64_t time, uint16_t id, int count, float *data);
-void packet_plot_stop(struct mapbuffer *mb, uint64_t time, uint16_t id);
 #ifdef SWIG
 %callback("%s_cb");
 #endif

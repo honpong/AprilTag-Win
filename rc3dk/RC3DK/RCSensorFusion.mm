@@ -179,8 +179,6 @@ uint64_t get_timestamp()
         
         corvis_device_parameters dc = [RCCalibration getCalibrationData];
         _cor_setup = new filter_setup(&dc);
-        cor_time_init();
-        plugins_start();
     }
     
     return self;
@@ -188,9 +186,7 @@ uint64_t get_timestamp()
 
 - (void) dealloc
 {
-    plugins_stop();
     if(_cor_setup) delete _cor_setup;
-    plugins_clear();
 }
 
 - (void) startInertialOnlyFusion __attribute((deprecated("No longer needed; does nothing.")))

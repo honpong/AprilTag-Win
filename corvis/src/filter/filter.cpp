@@ -7,9 +7,6 @@
 #include <stdint.h>
 #include <string.h>
 #include <assert.h>
-extern "C" {
- #include "../cor/mapbuffer.h"
-}
 #include "state_vision.h"
 #include "../numerics/vec4.h"
 #include <stdlib.h>
@@ -131,18 +128,7 @@ void test_meas(struct filter *f, int pred_size, int statesize, int (*predict)(st
 void filter_update_outputs(struct filter *f, sensor_clock::time_point time)
 {
     if(f->run_state != RCSensorFusionRunStateRunning) return;
-    if(f->output) {
-        packet_t *packet = mapbuffer_alloc(f->output, packet_filter_position, 6 * sizeof(float));
-        float *output = (float *)packet->data;
-        output[0] = f->s.T.v[0];
-        output[1] = f->s.T.v[1];
-        output[2] = f->s.T.v[2];
-        output[3] = f->s.W.v.raw_vector()[0];
-        output[4] = f->s.W.v.raw_vector()[1];
-        output[5] = f->s.W.v.raw_vector()[2];
-        mapbuffer_enqueue(f->output, packet, sensor_clock::tp_to_micros(time));
-    }
-    m4 
+    m4
         R = to_rotation_matrix(f->s.W.v),
         Rt = R.transpose(),
         Rc = to_rotation_matrix(f->s.Wc.v),
@@ -442,27 +428,6 @@ void filter_accelerometer_measurement(struct filter *f, const float data[3], sen
     auto micros = sensor_clock::tp_to_micros(time);
     if(!f->gravity_init) {
         f->gravity_init = true;
-        //set up plots
-        if(plot_enabled && f->visbuf) {
-            packet_plot_setup(f->visbuf, micros, packet_plot_meas_a, "Meas-alpha", sqrt(f->a_variance));
-            packet_plot_setup(f->visbuf, micros, packet_plot_meas_w, "Meas-omega", sqrt(f->w_variance));
-            packet_plot_setup(f->visbuf, micros, packet_plot_inn_a, "Inn-alpha", sqrt(f->a_variance));
-            packet_plot_setup(f->visbuf, micros, packet_plot_inn_w, "Inn-omega", sqrt(f->w_variance));
-            packet_plot_setup(f->visbuf, micros, packet_plot_var_T, "Var-T", 1);
-            packet_plot_setup(f->visbuf, micros, packet_plot_var_W, "Var-W", 1);
-            packet_plot_setup(f->visbuf, micros, packet_plot_var_a, "Var-a", 1);
-            packet_plot_setup(f->visbuf, micros, packet_plot_var_w, "Var-w", 1);
-        }
-        
-        //fix up groups and features that have already been added
-/*        for(state_vision_group *g : f->s.groups.children) {
-            g->Wr.v = f->s.W.v;
-        }
-        
-        for(state_vision_feature *i : f->s.features) {
-            i->initial = i->current;
-            i->Wr = f->s.W.v;
-        }*/
     }
     
     auto obs_a = std::make_unique<observation_accelerometer>(f->s, time, time);
@@ -472,15 +437,6 @@ void filter_accelerometer_measurement(struct filter *f, const float data[3], sen
     }
     
     obs_a->variance = get_accelerometer_variance_for_run_state(f, meas, time);
-    if(plot_enabled && f->visbuf) {
-        obs_a->predict(); // FIXME: these get called again for real but are idempotent and we want to plot them here and now
-        obs_a->compute_innovation();
-        float a_inn[3] = { (float)obs_a->innovation(0), (float)obs_a->innovation(1), (float)obs_a->innovation(2) };
-        float a_meas[3] = { (float)obs_a->meas[0], (float)obs_a->meas[1], (float)obs_a->meas[2] };
-        packet_plot_send(f->visbuf, micros, packet_plot_inn_a, 3, a_inn);
-        packet_plot_send(f->visbuf, micros, packet_plot_meas_a, 3, a_meas);
-    }
-
     f->observations.observations.push_back(std::move(obs_a));
 
     if(show_tuning) fprintf(stderr, "accelerometer:\n");
@@ -526,15 +482,6 @@ void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_
         obs_w->meas[i] = data[i];
     }
     obs_w->variance = f->w_variance;
-
-    if(plot_enabled && f->visbuf) {
-        obs_w->predict(); // FIXME: these get called again for real but are idempotent and we want to plot them here and now
-        obs_w->compute_innovation();
-        float w_inn[3] = { (float)obs_w->innovation(0), (float)obs_w->innovation(1),(float)obs_w->innovation(2) };
-        float w_meas[3] = {(float)obs_w->meas[0], (float)obs_w->meas[1], (float)obs_w->meas[2]};
-        packet_plot_send(f->visbuf, sensor_clock::tp_to_micros(time), packet_plot_inn_w, 3, w_inn);
-        packet_plot_send(f->visbuf, sensor_clock::tp_to_micros(time), packet_plot_meas_w, 3, w_meas);
-    }
 
     f->observations.observations.push_back(std::move(obs_w));
 
@@ -602,30 +549,6 @@ static int filter_process_features(struct filter *f, sensor_clock::time_point ti
     auto micros = sensor_clock::tp_to_micros(time);
     if(track_fail && !total_feats && log_enabled) fprintf(stderr, "Tracker failed! %d features dropped.\n", track_fail);
     //    if (log_enabled) fprintf(stderr, "outliers: %d/%d (%f%%)\n", outliers, total_feats, outliers * 100. / total_feats);
-    if(useful_drops && f->output) {
-        packet_t *sp = mapbuffer_alloc(f->output, packet_filter_reconstruction, useful_drops * 3 * sizeof(float));
-        sp->header.user = useful_drops;
-        packet_filter_feature_id_association_t *association = (packet_filter_feature_id_association_t *)mapbuffer_alloc(f->output, packet_filter_feature_id_association, useful_drops * sizeof(uint64_t));
-        association->header.user = useful_drops;
-        packet_feature_intensity_t *intensity = (packet_feature_intensity_t *)mapbuffer_alloc(f->output, packet_feature_intensity, useful_drops);
-        intensity->header.user = useful_drops;
-        float (*world)[3] = (float (*)[3])sp->data;
-        int nfeats = 0;
-        for(state_vision_feature *i : f->s.features) {
-            if(i->status == feature_gooddrop) {
-                world[nfeats][0] = i->world[0];
-                world[nfeats][1] = i->world[1];
-                world[nfeats][2] = i->world[2];
-                association->feature_id[nfeats] = i->id;
-                intensity->intensity[nfeats] = i->intensity;
-                ++nfeats;
-            }
-        }
-        mapbuffer_enqueue(f->output, sp, micros);
-        mapbuffer_enqueue(f->output, (packet_t *)association, micros);
-        mapbuffer_enqueue(f->output, (packet_t *)intensity, micros);
-    }
-
     int features_used = f->s.process_features(time);
     if(!features_used)
     {
@@ -637,24 +560,6 @@ static int filter_process_features(struct filter *f, sensor_clock::time_point ti
 
     //clean up dropped features and groups
     f->s.features.remove_if([f,micros](state_vision_feature *i) {
-        if(i->status == feature_gooddrop) {
-            if(f->recognition_buffer) {
-                packet_recognition_feature_t *rp = (packet_recognition_feature_t *)mapbuffer_alloc(f->recognition_buffer, packet_recognition_feature, sizeof(packet_recognition_feature_t));
-                rp->groupid = i->groupid;
-                rp->id = i->id;
-                rp->ix = i->initial[0];
-                rp->iy = i->initial[1];
-                rp->x = i->relative[0];
-                rp->y = i->relative[1];
-                rp->z = i->relative[2];
-                rp->depth = i->v.depth();
-                f_t var = i->measurement_var < i->variance() ? i->variance() : i->measurement_var;
-                //for measurement var, the values are simply scaled by depth, so variance multiplies by depth^2
-                //for depth variance, d/dx = e^x, and the variance is v*(d/dx)^2
-                rp->variance = var * rp->depth * rp->depth;
-                mapbuffer_enqueue(f->recognition_buffer, (packet_t *)rp, micros);
-            }
-        }
         if(i->status == feature_gooddrop) i->status = feature_empty;
         if(i->status == feature_reject) i->status = feature_empty;
         if(i->status == feature_empty) {
@@ -666,12 +571,6 @@ static int filter_process_features(struct filter *f, sensor_clock::time_point ti
 
     f->s.groups.children.remove_if([f,micros](state_vision_group *g) {
         if(g->status == group_empty) {
-            if(f->recognition_buffer) {
-                packet_recognition_group_t *pg = (packet_recognition_group_t *)mapbuffer_alloc(f->recognition_buffer, packet_recognition_group, sizeof(packet_recognition_group_t));
-                pg->id = g->id;
-                pg->header.user = 1;
-                mapbuffer_enqueue(f->recognition_buffer, (packet_t *)pg, micros);
-            }
             delete g;
             return true;
         } else {
@@ -722,57 +621,6 @@ void filter_setup_next_frame(struct filter *f, const uint8_t *image, sensor_cloc
         }
     }
     //TODO: implement feature_single ?
-}
-
-void filter_send_output(struct filter *f, sensor_clock::time_point time)
-{
-    if(!f->output) return;
-
-    auto micros = sensor_clock::tp_to_micros(time);
-    if(plot_enabled && f->visbuf) {
-        float tv[3];
-        for(int i = 0; i < 3; ++i) tv[i] = f->s.T.variance()[i];
-        packet_plot_send(f->visbuf, micros, packet_plot_var_T, 3, tv);
-        for(int i = 0; i < 3; ++i) tv[i] = f->s.W.variance()[i];
-        packet_plot_send(f->visbuf, micros, packet_plot_var_W, 3, tv);
-        for(int i = 0; i < 3; ++i) tv[i] = f->s.a.variance()[i];
-        packet_plot_send(f->visbuf, micros, packet_plot_var_a, 3, tv);
-        for(int i = 0; i < 3; ++i) tv[i] = f->s.w.variance()[i];
-        packet_plot_send(f->visbuf, micros, packet_plot_var_w, 3, tv);
-    }
-
-    size_t nfeats = f->s.features.size();
-    packet_filter_current_t *cp = (packet_filter_current_t *)mapbuffer_alloc(f->output, packet_filter_current, (uint32_t)(sizeof(packet_filter_current) - 16 + nfeats * 3 * sizeof(float)));
-    int n_good_feats = 0;
-    for(state_vision_group *g : f->s.groups.children) {
-        if(g->status == group_initializing) continue;
-        for(state_vision_feature *i : g->features.children) {
-            if(!i->status || i->status == feature_reject) continue;
-            cp->points[n_good_feats][0] = i->world[0];
-            cp->points[n_good_feats][1] = i->world[1];
-            cp->points[n_good_feats][2] = i->world[2];
-            ++n_good_feats;
-        }
-    }
-    cp->header.user = n_good_feats;
-    mapbuffer_enqueue(f->output, (packet_t*)cp, micros);
-    
-    packet_filter_feature_id_visible_t *visible = (packet_filter_feature_id_visible_t *)mapbuffer_alloc(f->output, packet_filter_feature_id_visible, (uint32_t)(sizeof(packet_filter_feature_id_visible_t) - 16 + nfeats * sizeof(uint64_t)));
-    for(int i = 0; i < 3; ++i) {
-        visible->T[i] = f->s.T.v[i];
-        visible->W[i] = f->s.W.v.raw_vector()[i];
-    }
-    n_good_feats = 0;
-    for(state_vision_group *g : f->s.groups.children) {
-        if(g->status == group_initializing) continue;
-        for(state_vision_feature *i : g->features.children) {
-            if(!i->status || i->status == feature_reject) continue;
-            visible->feature_id[n_good_feats] = i->id;
-            ++n_good_feats;
-        }
-    }
-    visible->header.user = n_good_feats;
-    mapbuffer_enqueue(f->output, (packet_t*)visible, micros);
 }
 
 //features are added to the state immediately upon detection - handled with triangulation in observation_vision_feature::predict - but what is happening with the empty row of the covariance matrix during that time?
@@ -831,63 +679,6 @@ static void addfeatures(struct filter *f, size_t newfeats, const unsigned char *
 #ifdef TEST_POSDEF
     if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def after adding features\n");
 #endif
-}
-
-void send_current_features_packet(struct filter *f, sensor_clock::time_point time)
-{
-    const static f_t chi_square_95 = 5.991;
-    //const static f_t chi_suqare_99 = 9.210;
-
-    if(!f->track.sink) return;
-
-    auto micros = sensor_clock::tp_to_micros(time);
-    if(f->visbuf) {
-        packet_feature_prediction_variance_t *predicted = (packet_feature_prediction_variance_t *)mapbuffer_alloc(f->track.sink, packet_feature_prediction_variance, (uint32_t)(f->s.features.size() * sizeof(feature_covariance_t)));
-        int nfeats = 0;
-        for(state_vision_feature *i : f->s.features) {
-            //http://math.stackexchange.com/questions/8672/eigenvalues-and-eigenvectors-of-2-times-2-matrix
-            f_t x = i->innovation_variance_x;
-            f_t y = i->innovation_variance_y;
-            f_t xy = i->innovation_variance_xy;
-            f_t tau = (y - x) / xy / 2.;
-            f_t t = (tau >= 0.) ? (1. / (fabs(tau) + sqrt(1. + tau * tau))) : (-1. / (fabs(tau) + sqrt(1. + tau * tau)));
-            f_t c = 1. / sqrt(1 + tau * tau);
-            f_t s = c * t;
-            f_t l1 = x - t * xy;
-            f_t l2 = y + t * xy;
-            f_t theta = atan2(-s, c);
-            
-            predicted->covariance[nfeats].x = i->prediction.x;
-            predicted->covariance[nfeats].y = i->prediction.y;
-            predicted->covariance[nfeats].cx = 2. * sqrt(l1 * chi_square_95);
-            predicted->covariance[nfeats].cy = 2. * sqrt(l2 * chi_square_95);
-            predicted->covariance[nfeats].cxy = theta;
-            ++nfeats;
-        }
-        predicted->header.user = f->s.features.size();
-        mapbuffer_enqueue(f->track.sink, (packet_t *)predicted, sensor_clock::tp_to_micros(time));
-        packet_t *status = mapbuffer_alloc(f->visbuf, packet_feature_status, (uint32_t)f->s.features.size());
-        nfeats = 0;
-        for(state_vision_feature *i : f->s.features) {
-            if(i->outlier) status->data[nfeats] = 0;
-            else if(i->is_initialized()) status->data[nfeats] = 1;
-            else status->data[nfeats] = 2;
-            ++nfeats;
-        }
-        status->header.user = f->s.features.size();
-        mapbuffer_enqueue(f->visbuf, status, micros);
-    }
-    
-    packet_t *tracked = mapbuffer_alloc(f->track.sink, packet_feature_track, (uint32_t)(f->s.features.size() * sizeof(feature_t)));
-    feature_t *trackedfeats = (feature_t *)tracked->data;
-    int nfeats = 0;
-    for(state_vision_feature *i : f->s.features) {
-        trackedfeats[nfeats].x = i->current[0];
-        trackedfeats[nfeats].y = i->current[1];
-        ++nfeats;
-    }
-    tracked->header.user = f->s.features.size();
-    mapbuffer_enqueue(f->track.sink, tracked, micros);
 }
 
 void filter_set_reference(struct filter *f)
@@ -1012,8 +803,6 @@ bool filter_image_measurement(struct filter *f, const unsigned char *data, int w
     }
 
     filter_process_features(f, time);
-    filter_send_output(f, time);
-    send_current_features_packet(f, time);
 
     if(estimate_camera_extrinsics && !f->estimating_Tc && time - f->active_time > std::chrono::seconds(2))
     {

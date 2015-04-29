@@ -1,10 +1,6 @@
 #ifndef __FILTER_SETUP_H
 #define __FILTER_SETUP_H
 
-extern "C" {
-#include "../cor/mapbuffer.h"
-}
-
 #include "device_parameters.h"
 #include "filter.h"
 
@@ -18,15 +14,8 @@ public:
 #ifdef SWIG
     %mutable;
 #endif
-    mapbuffer calibdata;
-    mapbuffer trackdata;
-    mapbuffer solution;
-    mapbuffer track_control;
-    dispatch_t *input;
     struct corvis_device_parameters device;
     filter_setup(corvis_device_parameters *device_params);
-    filter_setup(dispatch_t *_input, struct corvis_device_parameters * device_parameters);
-    ~filter_setup();
     struct corvis_device_parameters get_device_parameters();
     int get_failure_code();
     bool get_speed_warning();

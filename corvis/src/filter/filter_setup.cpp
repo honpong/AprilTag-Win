@@ -3,41 +3,7 @@
 filter_setup::filter_setup(corvis_device_parameters *device_params)
 {
     device = *device_params;
-    input = NULL;
     filter_initialize(&sfm, device);
-    trackdata.dispatch = 0;
-    solution.dispatch = 0;
-}
-
-filter_setup::filter_setup(dispatch_t *_input, struct corvis_device_parameters *device_params)
-{
-    device = *device_params;
-    input = _input;
-
-    trackdata.size = 512 * 1024;
-    trackdata.filename = NULL;
-    trackdata.replay = false;
-    trackdata.dispatch = new dispatch_t();
-    plugins_register(mapbuffer_open(&trackdata));
-
-    solution.size = 1 * 1024 * 1024;
-    solution.filename = NULL;
-    solution.replay = false;
-    solution.dispatch =  new dispatch_t();
-    plugins_register(mapbuffer_open(&solution));
-
-    sfm.track.sink = &trackdata;
-
-    filter_initialize(&sfm, device);
-
-    sfm.output = &solution;
-
-    dispatch_addclient(input, &sfm, filter_imu_packet);
-    dispatch_addclient(input, &sfm, filter_accelerometer_packet);
-    dispatch_addclient(input, &sfm, filter_gyroscope_packet);
-    dispatch_addclient(input, &sfm, filter_image_packet);
-    dispatch_addclient(input, &sfm, filter_control_packet);
-    dispatch_add_rewrite(input, packet_camera, 16667);
 }
 
 //TODO: Make it so speed error doesn't cause reset?
@@ -117,12 +83,6 @@ struct corvis_device_parameters filter_setup::get_device_parameters()
     return dc;
 }
 
-filter_setup::~filter_setup()
-{
-    if(trackdata.dispatch) delete trackdata.dispatch;
-    if(solution.dispatch) delete solution.dispatch;
-}
-
 #define FAILURE_TRACKER 0x02
 #define FAILURE_DETECTOR 0x04
 #define FAILURE_USER_SPEED 0x08
@@ -136,9 +96,6 @@ filter_setup::~filter_setup()
 int filter_setup::get_failure_code()
 {
     int reason = 0;
-    if(input && input->mb->has_blocked) {
-        reason |= FAILURE_MAPBUFFER;
-    }
 
     if(sfm.detector_failed) {
         reason |= FAILURE_DETECTOR;
@@ -176,7 +133,7 @@ bool filter_setup::get_speed_failure()
 
 bool filter_setup::get_other_failure()
 {
-    return (input && input->mb->has_blocked) || sfm.numeric_failed;
+    return sfm.numeric_failed;
 }
 
 float filter_setup::get_filter_converged()

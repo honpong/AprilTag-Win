@@ -4,7 +4,7 @@
 #include "../numerics/quaternion.h"
 #include "../numerics/vec4.h"
 
-static inline quaternion initial_orientation_from_gravity_facing(const v4 gravity, const v4 facing)
+static inline quaternion initial_orientation_from_gravity_facing(const v4 &gravity, const v4 &facing)
 {
     v4 z(0., 0., 1., 0.);
     quaternion q = rotation_between_two_vectors(gravity, z);
@@ -23,7 +23,7 @@ static inline quaternion initial_orientation_from_gravity_facing(const v4 gravit
     return q;
 }
 
-static inline quaternion initial_orientation_from_gravity(const v4 gravity) {
+static inline quaternion initial_orientation_from_gravity(const v4 &gravity) {
     return initial_orientation_from_gravity_facing(gravity, v4(0,1,0,0)); // camera faces +y
 }
 

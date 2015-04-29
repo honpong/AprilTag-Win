@@ -241,7 +241,7 @@ static void reset_stability(struct filter *f)
     f->stable_start = sensor_clock::time_point(sensor_clock::duration(0));
 }
 
-sensor_clock::duration steady_time(struct filter *f, stdev_vector &stdev, v4 meas, f_t variance, f_t sigma, sensor_clock::time_point time, v4 orientation, bool use_orientation)
+sensor_clock::duration steady_time(struct filter *f, stdev_vector &stdev, const v4 &meas, f_t variance, f_t sigma, sensor_clock::time_point time, const v4 &orientation, bool use_orientation)
 {
     bool steady = false;
     if(stdev.count) {
@@ -299,7 +299,7 @@ static f_t get_bias_convergence(struct filter *f, int dir)
     return max_pct;
 }
 
-static f_t get_accelerometer_variance_for_run_state(struct filter *f, v4 meas, sensor_clock::time_point time)
+static f_t get_accelerometer_variance_for_run_state(struct filter *f, const v4 &meas, sensor_clock::time_point time)
 {
     if(!f->s.orientation_initialized) return accelerometer_inertial_var; //first measurement is not used, so this doesn't actually matter
     switch(f->run_state)

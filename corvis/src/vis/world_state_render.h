@@ -10,6 +10,6 @@ bool world_state_render_init();
 // Deletes the compiled shader program
 void world_state_render_teardown();
 // Render the current world state, passing the modelview projection matrix and the normal matrix to the shaders
-void world_state_render(world_state & world, float * _modelViewProjectionMatrix, float * _normalMatrix);
+void world_state_render(world_state * world, float * _modelViewProjectionMatrix, float * _normalMatrix);
 
 #endif

@@ -212,7 +212,7 @@ void world_state_render_teardown()
     }
 }
 
-void world_state_render(world_state & world, float * _modelViewProjectionMatrix, float * _normalMatrix)
+void world_state_render(world_state * world, float * _modelViewProjectionMatrix, float * _normalMatrix)
 {
     glClearColor(.274, .286, .349, 1.0f); // background color
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -222,26 +222,26 @@ void world_state_render(world_state & world, float * _modelViewProjectionMatrix,
     glUniformMatrix4fv(uniforms[UNIFORM_MODELVIEWPROJECTION_MATRIX], 1, 0, _modelViewProjectionMatrix);
     glUniformMatrix3fv(uniforms[UNIFORM_NORMAL_MATRIX], 1, 0, _normalMatrix);
 
-    world.display_lock.lock();
-    glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &world.grid_vertex[0].position);
+    world->display_lock.lock();
+    glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &world->grid_vertex[0].position);
     glEnableVertexAttribArray(GLKVertexAttribPosition);
-    glVertexAttribPointer(GLKVertexAttribColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexData), &world.grid_vertex[0].color);
+    glVertexAttribPointer(GLKVertexAttribColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexData), &world->grid_vertex[0].color);
     glEnableVertexAttribArray(GLKVertexAttribColor);
 
     glLineWidth(4.0f);
-    glDrawArrays(GL_LINES, 0, world.grid_vertex_num);
+    glDrawArrays(GL_LINES, 0, world->grid_vertex_num);
 
-    glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &world.axis_vertex[0].position);
+    glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &world->axis_vertex[0].position);
     glEnableVertexAttribArray(GLKVertexAttribPosition);
-    glVertexAttribPointer(GLKVertexAttribColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexData), &world.axis_vertex[0].color);
+    glVertexAttribPointer(GLKVertexAttribColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexData), &world->axis_vertex[0].color);
     glEnableVertexAttribArray(GLKVertexAttribColor);
 
     glLineWidth(8.0f);
-    glDrawArrays(GL_LINES, 0, world.axis_vertex_num);
+    glDrawArrays(GL_LINES, 0, world->axis_vertex_num);
 
-    glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &world.feature_vertex[0].position);
+    glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &world->feature_vertex[0].position);
     glEnableVertexAttribArray(GLKVertexAttribPosition);
-    glVertexAttribPointer(GLKVertexAttribColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexData), &world.feature_vertex[0].color);
+    glVertexAttribPointer(GLKVertexAttribColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexData), &world->feature_vertex[0].color);
     glEnableVertexAttribArray(GLKVertexAttribColor);
 
 #if TARGET_OS_IPHONE
@@ -249,14 +249,14 @@ void world_state_render(world_state & world, float * _modelViewProjectionMatrix,
     glPointSize(3.0f);
 #endif
 
-    glDrawArrays(GL_POINTS, 0, world.feature_vertex_num);
+    glDrawArrays(GL_POINTS, 0, world->feature_vertex_num);
 
-    glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &world.path_vertex[0].position);
+    glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &world->path_vertex[0].position);
     glEnableVertexAttribArray(GLKVertexAttribPosition);
-    glVertexAttribPointer(GLKVertexAttribColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexData), &world.path_vertex[0].color);
+    glVertexAttribPointer(GLKVertexAttribColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexData), &world->path_vertex[0].color);
     glEnableVertexAttribArray(GLKVertexAttribColor);
 
-    glDrawArrays(GL_POINTS, 0, world.path_vertex_num);
-    world.display_lock.unlock();
+    glDrawArrays(GL_POINTS, 0, world->path_vertex_num);
+    world->display_lock.unlock();
 }
 

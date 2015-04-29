@@ -5,6 +5,7 @@
 #include <vector>
 #include "../numerics/transformation.h"
 #include "../cor/platform/sensor_clock.h"
+#include "../cor/packet.h"
 
 typedef struct _VertexData {
     float position[3];
@@ -21,6 +22,8 @@ typedef struct _position {
     transformation g;
     sensor_clock::time_point timestamp;
 } Position;
+
+struct filter;
 
 class world_state
 {
@@ -44,6 +47,7 @@ public:
     world_state();
     ~world_state();
     void update_vertex_arrays(bool show_only_good=true);
+    void receive_packet(const filter * f, enum packet_type packet_type);
     void observe_feature(sensor_clock::time_point timestamp, uint64_t feature_id, float x, float y, float z, bool good);
     void observe_position(sensor_clock::time_point timestamp, float x, float y, float z, float qw, float qx, float qy, float qz);
     void reset() {

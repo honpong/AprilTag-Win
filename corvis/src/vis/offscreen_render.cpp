@@ -64,10 +64,10 @@ void init_glut()
     glutCreateWindow("Title");     // param is the title of window
 }
 
-bool offscreen_render_to_file(const char * filename, world_state & world)
+bool offscreen_render_to_file(const char * filename, world_state * world)
 {
-    world.update_vertex_arrays();
-    fprintf(stderr, "Rendering %d path nodes and %d features\n", world.path_vertex_num, world.feature_vertex_num);
+    world->update_vertex_arrays();
+    fprintf(stderr, "Rendering %d path nodes and %d features\n", world->path_vertex_num, world->feature_vertex_num);
 
     int width = 512;
     int height = 512;

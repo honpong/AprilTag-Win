@@ -1,6 +1,7 @@
 #include "../filter/replay.h"
 #include "../vis/world_state.h"
 #include "../vis/offscreen_render.h"
+#include "../vis/gui.h"
 
 int main(int argc, char **argv)
 {
@@ -16,36 +17,34 @@ int main(int argc, char **argv)
 
     bool realtime = false;
     bool enable_offscreen_render = false;
+    bool enable_gui = false;
+
+    if(enable_gui)
+        realtime = true;
+
     std::function<void (float)> progress = NULL;
+    std::function<void (const filter *, enum packet_type)> packet = NULL;
+
+    gui vis(&ws);
 
     // TODO: make this a command line option
     // For command line visualization
-    std::function<void (const filter *, enum packet_type)> packet = NULL;
-    if(enable_offscreen_render)
+    if(enable_offscreen_render || enable_gui)
         packet = [&](const filter * f, enum packet_type packet_type) {
-            if(packet_type == packet_camera) {
-                // Only update position and features on packet camera,
-                // matches what we do in other visualizations
-                for(auto feat : f->s.features) {
-                    if(feat->is_valid()) {
-                        float stdev = feat->v.stdev_meters(sqrt(feat->variance()));
-                        bool good = stdev / feat->v.depth() < .02;
-                        ws.observe_feature(f->last_time, feat->id,
-                                feat->world[0], feat->world[1], feat->world[2], good);
-                    }
-                }
-
-                v4 T = f->s.T.v;
-                quaternion q = to_quaternion(f->s.W.v);
-                ws.observe_position(f->last_time, T[0], T[1], T[2], q.w(), q.x(), q.y(), q.z());
-            }
+            ws.receive_packet(f, packet_type);
         };
 
     if(!rp.configure_all(argv[1], argv[2], realtime, progress, packet)) return -1;
     
-    rp.start();
+    if(enable_gui) { // The GUI must be on the main thread
+        std::thread replay_thread([&](void) { rp.start(); });
+        vis.start();
+        replay_thread.join();
+    }
+    else
+        rp.start();
 
-    if(enable_offscreen_render && !offscreen_render_to_file("render.png", ws))
+    if(enable_offscreen_render && !offscreen_render_to_file("render.png", &ws))
         cerr << "Failed to render\n";
 
     float length = rp.get_length();

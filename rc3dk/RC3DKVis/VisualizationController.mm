@@ -459,7 +459,7 @@ GLint uniforms[NUM_UNIFORMS];
 
     // Render the object with GLKit
     [self.effect prepareToDraw];
-    world_state_render(state, _modelViewProjectionMatrix.m, _normalMatrix.m);
+    world_state_render(&state, _modelViewProjectionMatrix.m, _normalMatrix.m);
 }
 
 - (void)setViewpoint:(RCViewpoint)viewpoint

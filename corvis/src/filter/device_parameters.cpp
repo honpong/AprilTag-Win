@@ -8,35 +8,38 @@
 
 #include "device_parameters.h"
 #include <math.h>
-#include <string.h>
+#include <string>
+#include <iostream>
 
 corvis_device_type get_device_by_name(const char *name)
 {
     if(!name) return DEVICE_TYPE_UNKNOWN;
+
+    std::string device_name(name);
     
     /*
      ******** IMPORTANT! *************
      Longer variants (iphone5s, iphone5c) have to come before the shorter variants (iphone5), since we only match the start of the name
      */
-    if(!strncmp(name, "ipodtouch", 9)) return DEVICE_TYPE_IPOD5;
-    if(!strncmp(name, "ipod5", 5)) return DEVICE_TYPE_IPOD5;
+    if(device_name.find("ipodtouch") == 0) return DEVICE_TYPE_IPOD5;
+    if(device_name.find("ipod5") == 0) return DEVICE_TYPE_IPOD5;
 
-    if(!strncmp(name, "iphone4s", 8)) return DEVICE_TYPE_IPHONE4S;
-    if(!strncmp(name, "iphone5c", 8)) return DEVICE_TYPE_IPHONE5C;
-    if(!strncmp(name, "iphone5s", 8)) return DEVICE_TYPE_IPHONE5S;
-    if(!strncmp(name, "iphone5", 7)) return DEVICE_TYPE_IPHONE5;
-    if(!strncmp(name, "iphone6plus", 11)) return DEVICE_TYPE_IPHONE6PLUS;
-    if(!strncmp(name, "iphone6", 7)) return DEVICE_TYPE_IPHONE6;
-    
-    if(!strncmp(name, "ipad2", 5)) return DEVICE_TYPE_IPAD2;
-    if(!strncmp(name, "ipad3", 5)) return DEVICE_TYPE_IPAD3;
-    if(!strncmp(name, "ipad4", 5)) return DEVICE_TYPE_IPAD4;
-    
-    if(!strncmp(name, "ipadair2", 8)) return DEVICE_TYPE_IPADAIR2;
-    if(!strncmp(name, "ipadair", 7)) return DEVICE_TYPE_IPADAIR;
-    if(!strncmp(name, "ipadminiretina2", 15)) return DEVICE_TYPE_IPADMINIRETINA2;
-    if(!strncmp(name, "ipadminiretina", 14)) return DEVICE_TYPE_IPADMINIRETINA;
-    if(!strncmp(name, "ipadmini", 8)) return DEVICE_TYPE_IPADMINI;
+    if(device_name.find("iphone4s") == 0) return DEVICE_TYPE_IPHONE4S;
+    if(device_name.find("iphone5c") == 0) return DEVICE_TYPE_IPHONE5C;
+    if(device_name.find("iphone5s") == 0) return DEVICE_TYPE_IPHONE5S;
+    if(device_name.find("iphone5") == 0) return DEVICE_TYPE_IPHONE5;
+    if(device_name.find("iphone6plus") == 0) return DEVICE_TYPE_IPHONE6PLUS;
+    if(device_name.find("iphone6") == 0) return DEVICE_TYPE_IPHONE6;
+
+    if(device_name.find("ipad2") == 0) return DEVICE_TYPE_IPAD2;
+    if(device_name.find("ipad3") == 0) return DEVICE_TYPE_IPAD3;
+    if(device_name.find("ipad4") == 0) return DEVICE_TYPE_IPAD4;
+
+    if(device_name.find("ipadair2") == 0) return DEVICE_TYPE_IPADAIR2;
+    if(device_name.find("ipadair") == 0) return DEVICE_TYPE_IPADAIR;
+    if(device_name.find("ipadminiretina2") == 0) return DEVICE_TYPE_IPADMINIRETINA2;
+    if(device_name.find("ipadminiretina") == 0) return DEVICE_TYPE_IPADMINIRETINA;
+    if(device_name.find("ipadmini") == 0) return DEVICE_TYPE_IPADMINI;
 
     return DEVICE_TYPE_UNKNOWN;
 }
@@ -258,7 +261,9 @@ bool get_parameters_for_device_name(const char * config_name, struct corvis_devi
     if(!get_parameters_for_device(device_type, dc))
         return false;
 
-    if(!strcmp(config_name, "iphone4s_camelia")) {
+    std::string device_name(config_name);
+
+    if(device_name == "iphone4s_camelia") {
         dc->a_bias[0] = -0.1241252;
         dc->a_bias[1] = 0.01688302;
         dc->a_bias[2] = 0.3423786;
@@ -268,7 +273,7 @@ bool get_parameters_for_device_name(const char * config_name, struct corvis_devi
         set_initialized(dc);
     }
 
-    else if(!strcmp(config_name, "iphone4s_eagle")) {
+    else if(device_name == "iphone4s_eagle") {
         dc->a_bias[0] = -0.169;
         dc->a_bias[1] = -0.072;
         dc->a_bias[2] = 0.064;
@@ -278,7 +283,7 @@ bool get_parameters_for_device_name(const char * config_name, struct corvis_devi
         set_initialized(dc);
     }
 
-    else if(!strcmp(config_name, "iphone5_jordan")) {
+    else if(device_name == "iphone5_jordan") {
         dc->a_bias[0] = -0.00145;
         dc->a_bias[1] = -0.143;
         dc->a_bias[2] = 0.027;
@@ -288,7 +293,7 @@ bool get_parameters_for_device_name(const char * config_name, struct corvis_devi
         set_initialized(dc);
     }
 
-    else if(!strcmp(config_name, "iphone5_sam")) {
+    else if(device_name == "iphone5_sam") {
         dc->a_bias[0] = -0.127;
         dc->a_bias[1] = -0.139;
         dc->a_bias[2] = -0.003;
@@ -298,7 +303,7 @@ bool get_parameters_for_device_name(const char * config_name, struct corvis_devi
         //set_initialized(dc);
     }
 
-    else if(!strcmp(config_name, "iphone5s_eagle")) {
+    else if(device_name == "iphone5s_eagle") {
         dc->a_bias[0] = 0.036;
         dc->a_bias[1] = -0.012;
         dc->a_bias[2] = -0.096;
@@ -308,7 +313,7 @@ bool get_parameters_for_device_name(const char * config_name, struct corvis_devi
         set_initialized(dc);
     }
 
-    else if(!strcmp(config_name, "iphone5s_sam")) {
+    else if(device_name == "iphone5s_sam") {
         dc->a_bias[0] = 0.047;
         dc->a_bias[1] = 0.028;
         dc->a_bias[2] = -0.027;
@@ -318,7 +323,7 @@ bool get_parameters_for_device_name(const char * config_name, struct corvis_devi
         set_initialized(dc);
     }
 
-    else if(!strcmp(config_name, "iphone5s_brian")) {
+    else if(device_name == "iphone5s_brian") {
         dc->a_bias[0] = -0.036;
         dc->a_bias[1] = 0.015;
         dc->a_bias[2] = -0.07;
@@ -328,7 +333,7 @@ bool get_parameters_for_device_name(const char * config_name, struct corvis_devi
         set_initialized(dc);
     }
 
-    else if(!strcmp(config_name, "ipad2_ben")) {
+    else if(device_name == "ipad2_ben") {
         return true;
         dc->a_bias[0] = -0.114;
         dc->a_bias[1] = -0.171;
@@ -339,7 +344,7 @@ bool get_parameters_for_device_name(const char * config_name, struct corvis_devi
         set_initialized(dc);
     }
 
-    else if(!strcmp(config_name, "ipad2_brian")) {
+    else if(device_name == "ipad2_brian") {
         dc->a_bias[0] = 0.1417;
         dc->a_bias[1] = -0.0874;
         dc->a_bias[2] = 0.2256;
@@ -349,7 +354,7 @@ bool get_parameters_for_device_name(const char * config_name, struct corvis_devi
         set_initialized(dc);
     }
 
-    else if(!strcmp(config_name, "ipad3_eagle")) {
+    else if(device_name == "ipad3_eagle") {
         dc->a_bias[0] = 0.001;
         dc->a_bias[1] = -0.225;
         dc->a_bias[2] = -0.306;
@@ -359,7 +364,7 @@ bool get_parameters_for_device_name(const char * config_name, struct corvis_devi
         set_initialized(dc);
     }
 
-    else if(!strcmp(config_name, "ipad4_jordan")) {
+    else if(device_name == "ipad4_jordan") {
         dc->a_bias[0] = 0.089;
         dc->a_bias[1] = -0.176;
         dc->a_bias[2] = -0.129;
@@ -369,7 +374,7 @@ bool get_parameters_for_device_name(const char * config_name, struct corvis_devi
         set_initialized(dc);
     }
 
-    else if(!strcmp(config_name, "ipadair_eagle")) {
+    else if(device_name == "ipadair_eagle") {
         dc->a_bias[0] = 0.002;
         dc->a_bias[1] = -0.0013;
         dc->a_bias[2] = 0.07;
@@ -379,7 +384,7 @@ bool get_parameters_for_device_name(const char * config_name, struct corvis_devi
         set_initialized(dc);
     }
 
-    else if(!strcmp(config_name, "ipadmini_ben")) {
+    else if(device_name == "ipadmini_ben") {
         return true;
         dc->a_bias[0] = 0.075;
         dc->a_bias[1] = 0.07;
@@ -390,7 +395,7 @@ bool get_parameters_for_device_name(const char * config_name, struct corvis_devi
         set_initialized(dc);
     }
 
-    else if(!strcmp(config_name, "ipadminiretina_ben")) {
+    else if(device_name == "ipadminiretina_ben") {
         dc->a_bias[0] = 0.108;
         dc->a_bias[1] = -.082;
         dc->a_bias[2] = 0.006;
@@ -400,7 +405,7 @@ bool get_parameters_for_device_name(const char * config_name, struct corvis_devi
         set_initialized(dc);
     }
 
-    else if(!strcmp(config_name, "ipodtouch_ben")) {
+    else if(device_name == "ipodtouch_ben") {
         dc->a_bias[0] = -0.092;
         dc->a_bias[1] = 0.053;
         dc->a_bias[2] = 0.104;
@@ -412,7 +417,7 @@ bool get_parameters_for_device_name(const char * config_name, struct corvis_devi
 
     /* These never get used because we don't get an initial
      * device_type
-    else if(!strcmp(config_name, "ipad3-front")) {
+    else if(device_name == "ipad3-front") {
         #parameters for generic ipad 3 - front cam
         dc->Fx = 604.;
         dc->Fy = 604.;
@@ -460,7 +465,7 @@ bool get_parameters_for_device_name(const char * config_name, struct corvis_devi
         dc->shutter_delay = 0;
         dc->shutter_period = 31000;
 
-    else if(!strcmp(config_name, "nexus7-front")) {
+    else if(device_name == "nexus7-front") {
         #parameters for sam's nexus 7 - front cam
         dc->Fx = 604.;
         dc->Fy = 604.;
@@ -508,7 +513,7 @@ bool get_parameters_for_device_name(const char * config_name, struct corvis_devi
         dc->shutter_delay = 0;
         dc->shutter_period = 31000;
 
-    else if(!strcmp(config_name, "simulator")) {
+    else if(device_name == "simulator") {
         dc->Fx = 585.;
         dc->Fy = 585.;
         dc->Cx = 319.5;
@@ -542,7 +547,7 @@ bool get_parameters_for_device_name(const char * config_name, struct corvis_devi
         dc->shutter_delay = 0;
         dc->shutter_period = 31000;
 
-    else if(!strcmp(config_name, "intel")) {
+    else if(device_name == "intel") {
         dc->Fx = 577.;
         dc->Fy = 577.;
         dc->Cx = 319.5;
@@ -580,7 +585,7 @@ bool get_parameters_for_device_name(const char * config_name, struct corvis_devi
         dc->shutter_delay = 0;
         dc->shutter_period = 31000;
 
-    else if(!strcmp(config_name, "intel-blank")) {
+    else if(device_name == "intel-blank") {
         dc->Fx = 580.;
         dc->Fy = 580.;
         dc->Cx = 319.5;
@@ -619,7 +624,7 @@ bool get_parameters_for_device_name(const char * config_name, struct corvis_devi
         dc->shutter_period = 31000;
 
 
-    else if(!strcmp(config_name, "intel-old")) {
+    else if(device_name == "intel-old") {
         dc->Fx = 610.;
         dc->Fy = 610.;
         dc->Cx = 319.5;

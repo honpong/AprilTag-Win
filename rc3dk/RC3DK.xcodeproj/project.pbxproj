@@ -176,7 +176,6 @@
 		D3B4EADA1A1E7DE100BE0443 /* state.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55AF18EB4F3A0001CCE1 /* state.cpp */; };
 		D3B4EADB1A1E7DE100BE0443 /* RCDeviceInfo.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B555018EB4DC20001CCE1 /* RCDeviceInfo.m */; };
 		D3B4EADE1A1E7DE100BE0443 /* RCCalibration.mm in Sources */ = {isa = PBXBuildFile; fileRef = 327B554918EB4DC20001CCE1 /* RCCalibration.mm */; };
-		D3B4EADF1A1E7DE100BE0443 /* device_parameters.c in Sources */ = {isa = PBXBuildFile; fileRef = D97AEF8018F7613F00573148 /* device_parameters.c */; };
 		D3B4EAE01A1E7DE100BE0443 /* scaled_mask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9CCDC7C192E887F00A41329 /* scaled_mask.cpp */; };
 		D3B4EAE81A1E7DE100BE0443 /* fast_9.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55A318EB4F3A0001CCE1 /* fast_9.cpp */; };
 		D3B4EAEA1A1E7DE100BE0443 /* RCSensorFusion.mm in Sources */ = {isa = PBXBuildFile; fileRef = 327B555E18EB4DC20001CCE1 /* RCSensorFusion.mm */; };
@@ -228,6 +227,8 @@
 		D3B4EB511A1E7DE100BE0443 /* RCDeviceInfo.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B554F18EB4DC20001CCE1 /* RCDeviceInfo.h */; };
 		D3C0EDFA1A37B4DC00423EDE /* qr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3C0EDF81A37B4DC00423EDE /* qr.cpp */; };
 		D3C0EDFB1A37B4DC00423EDE /* qr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3C0EDF81A37B4DC00423EDE /* qr.cpp */; };
+		D3F4C7141AF0D48A003D4D0B /* device_parameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F4C7131AF0D48A003D4D0B /* device_parameters.cpp */; };
+		D3F4C7151AF0D492003D4D0B /* device_parameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F4C7131AF0D48A003D4D0B /* device_parameters.cpp */; };
 		D953126F1A15AE63004D6068 /* homography.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D953126D1A15AE63004D6068 /* homography.cpp */; };
 		D95409B01AC1019200706A24 /* sensor_clock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D95409AE1AC1019200706A24 /* sensor_clock.cpp */; };
 		D95E92DB1AB86D4600EAB109 /* sensor_data.mm in Sources */ = {isa = PBXBuildFile; fileRef = D95E92D91AB86D4600EAB109 /* sensor_data.mm */; };
@@ -235,7 +236,6 @@
 		D95EB1881AA5038600ADFC20 /* sensor_fusion_queue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D95EB1851AA5038600ADFC20 /* sensor_fusion_queue.cpp */; };
 		D95EB18C1AA50AF200ADFC20 /* sensor_fusion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D95EB18A1AA50AF200ADFC20 /* sensor_fusion.cpp */; };
 		D95EB18D1AA50AF200ADFC20 /* sensor_fusion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D95EB18A1AA50AF200ADFC20 /* sensor_fusion.cpp */; };
-		D97AEF8118F7613F00573148 /* device_parameters.c in Sources */ = {isa = PBXBuildFile; fileRef = D97AEF8018F7613F00573148 /* device_parameters.c */; };
 		D992CC361AD5BA6A00AA2259 /* sensor_data.mm in Sources */ = {isa = PBXBuildFile; fileRef = D95E92D91AB86D4600EAB109 /* sensor_data.mm */; };
 		D992CC371AD5BA8500AA2259 /* sensor_clock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D95409AE1AC1019200706A24 /* sensor_clock.cpp */; };
 		D992CC3D1AD5C46A00AA2259 /* replay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D992CC3B1AD5C46A00AA2259 /* replay.cpp */; };
@@ -640,6 +640,7 @@
 		D3C0EDF81A37B4DC00423EDE /* qr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = qr.cpp; sourceTree = "<group>"; };
 		D3C0EDF91A37B4DC00423EDE /* qr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = qr.h; sourceTree = "<group>"; };
 		D3DE5D081A80E301000EF94D /* transformation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = transformation.h; sourceTree = "<group>"; };
+		D3F4C7131AF0D48A003D4D0B /* device_parameters.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = device_parameters.cpp; sourceTree = "<group>"; };
 		D90D18C01A3A03B500D1AFE4 /* camera_control_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = camera_control_interface.h; path = ../../shared_corvis_3dk/camera_control_interface.h; sourceTree = "<group>"; };
 		D953126D1A15AE63004D6068 /* homography.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = homography.cpp; sourceTree = "<group>"; };
 		D953126E1A15AE63004D6068 /* homography.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = homography.h; sourceTree = "<group>"; };
@@ -652,7 +653,6 @@
 		D95EB18A1AA50AF200ADFC20 /* sensor_fusion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sensor_fusion.cpp; path = ../../shared_corvis_3dk/sensor_fusion.cpp; sourceTree = "<group>"; };
 		D95EB18B1AA50AF200ADFC20 /* sensor_fusion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sensor_fusion.h; path = ../../shared_corvis_3dk/sensor_fusion.h; sourceTree = "<group>"; };
 		D96055841ACDFEF500E72711 /* eigen_initializer_list.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = eigen_initializer_list.h; sourceTree = "<group>"; };
-		D97AEF8018F7613F00573148 /* device_parameters.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = device_parameters.c; sourceTree = "<group>"; };
 		D992CC3B1AD5C46A00AA2259 /* replay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = replay.cpp; sourceTree = "<group>"; };
 		D992CC3C1AD5C46A00AA2259 /* replay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = replay.h; sourceTree = "<group>"; };
 		D9CCDC7C192E887F00A41329 /* scaled_mask.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scaled_mask.cpp; sourceTree = "<group>"; };
@@ -989,7 +989,7 @@
 				D33E61DF1ADE632900569C82 /* capture.h */,
 				D33E61E01ADE632900569C82 /* capture.cpp */,
 				327B559D18EB4F3A0001CCE1 /* device_parameters.h */,
-				D97AEF8018F7613F00573148 /* device_parameters.c */,
+				D3F4C7131AF0D48A003D4D0B /* device_parameters.cpp */,
 				327B55A618EB4F3A0001CCE1 /* feature_info.h */,
 				D953126D1A15AE63004D6068 /* homography.cpp */,
 				D953126E1A15AE63004D6068 /* homography.h */,
@@ -1555,12 +1555,12 @@
 				327B55C218EB4F3A0001CCE1 /* state.cpp in Sources */,
 				327B557018EB4DC20001CCE1 /* RCDeviceInfo.m in Sources */,
 				327B556D18EB4DC20001CCE1 /* RCCalibration.mm in Sources */,
-				D97AEF8118F7613F00573148 /* device_parameters.c in Sources */,
 				D9CCDC7E192E887F00A41329 /* scaled_mask.cpp in Sources */,
 				D33E9D271ADD14600085F35C /* RCAVSessionManager.m in Sources */,
 				327B55BD18EB4F3A0001CCE1 /* fast_9.cpp in Sources */,
 				327B557718EB4DC20001CCE1 /* RCSensorFusion.mm in Sources */,
 				D992CC3D1AD5C46A00AA2259 /* replay.cpp in Sources */,
+				D3F4C7141AF0D48A003D4D0B /* device_parameters.cpp in Sources */,
 				D3C0EDFA1A37B4DC00423EDE /* qr.cpp in Sources */,
 				327B55D318EB4F430001CCE1 /* kalman.cpp in Sources */,
 				32036EA41ACB452000FC0588 /* RCLicenseValidator.m in Sources */,
@@ -1664,7 +1664,6 @@
 				D33B00591A20CAB700287FC9 /* generic.c in Sources */,
 				D3B4EADE1A1E7DE100BE0443 /* RCCalibration.mm in Sources */,
 				D33E9D2C1ADD14600085F35C /* RCVideoManager.m in Sources */,
-				D3B4EADF1A1E7DE100BE0443 /* device_parameters.c in Sources */,
 				D3B4EAE01A1E7DE100BE0443 /* scaled_mask.cpp in Sources */,
 				D321AD421A323C17003AEA77 /* stereo.cpp in Sources */,
 				D3588EF31A20C04000CA10E7 /* bp.cpp in Sources */,
@@ -1687,6 +1686,7 @@
 				D33E61E51ADE7CD300569C82 /* capture.cpp in Sources */,
 				D3588EFF1A20C36F00CA10E7 /* user.c in Sources */,
 				D33B005A1A20CACE00287FC9 /* imopv.c in Sources */,
+				D3F4C7151AF0D492003D4D0B /* device_parameters.cpp in Sources */,
 				D33E9D2A1ADD14600085F35C /* RCSensorManager.m in Sources */,
 				D3B4EB071A1E7DE100BE0443 /* RCAFXMLRequestOperation.m in Sources */,
 				D3B4EB091A1E7DE100BE0443 /* state_motion.cpp in Sources */,

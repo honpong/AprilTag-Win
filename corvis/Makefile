@@ -126,9 +126,9 @@ DEPS := $(DEPS) build/swig/_numerics.cpp.d
 
 ############################## FILTER ############################
 
-FILTER_CXX_SOURCES := $(addprefix src/filter/, filter.cpp state_vision.cpp state_motion.cpp state.cpp observation.cpp filter_setup.cpp fast_detector/fast_9.cpp scaled_mask.cpp camera_control_interface_dummy.cpp homography.cpp qr.cpp)
+FILTER_CXX_SOURCES := $(addprefix src/filter/, filter.cpp state_vision.cpp state_motion.cpp state.cpp observation.cpp filter_setup.cpp fast_detector/fast_9.cpp scaled_mask.cpp camera_control_interface_dummy.cpp homography.cpp qr.cpp device_parameters.cpp)
 
-FILTER_SOURCES := $(addprefix src/filter/, device_parameters.c)
+FILTER_SOURCES :=
 
 #bin/swig/_filter.so: LDFLAGS := $(LDFLAGS) `pkg-config --libs opencv`
 bin/corvis/_filter.so:$(patsubst src/%,build/%,$(FILTER_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(FILTER_SOURCES:.c=.o)) bin/_libzxing.a build/swig/_filter.o

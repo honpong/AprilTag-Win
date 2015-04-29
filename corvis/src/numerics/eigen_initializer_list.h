@@ -30,8 +30,8 @@ EIGEN_STRONG_INLINE Matrix(std::initializer_list<const Scalar> initlist): Base()
 EIGEN_STRONG_INLINE Matrix(std::initializer_list<std::initializer_list<const Scalar> > initlist): Base()
 {
     Base::_check_template_params();
-    unsigned int rows = initlist.size();
-    unsigned int cols = initlist.begin()->size();
+    auto rows = initlist.size();
+    auto cols = initlist.begin()->size();
     eigen_assert(SizeAtCompileTime == Dynamic || (RowsAtCompileTime == rows && ColsAtCompileTime == cols));
     if(Base::size() == 0) Base::resize(rows, cols);
     eigen_assert(Base::rows() == rows && Base::cols() == cols);

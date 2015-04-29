@@ -39,12 +39,12 @@ def measurement_string(L, L_measured):
     return "%.2fcm actual, %.2fcm measured, %.2fcm error (%.2f%%)" % (L, L_measured, error, error_percent)
 
 def run_test_case(test_case):
-    print "Running", test_case["path"]
+    print "Running", test_case["path"]; sys.stdout.flush();
     return measure(test_case["path"], test_case["config"])
 
 import subprocess
 def subprocess_test_case(test_case):
-    print "Running", test_case["path"], "using bin/measure"
+    print "Running", test_case["path"], "using bin/measure"; sys.stdout.flush();
     output = subprocess.check_output("../corvis/bin/measure %s %s" %
             (test_case["path"], test_case["config"]), stderr=subprocess.STDOUT, shell=True)
     #"Straight-line length is 89.00 cm, total path length 92.54 cm"
@@ -54,7 +54,7 @@ def subprocess_test_case(test_case):
     if res:
         L = float(res.group(1))
         PL = float(res.group(2))
-    print "Finished", test_case["path"], "(%.2fcm, %.2fcm)" % (L, PL)
+    print "Finished", test_case["path"], "(%.2fcm, %.2fcm)" % (L, PL); sys.stdout.flush();
     return (PL, L)
 
 import numpy

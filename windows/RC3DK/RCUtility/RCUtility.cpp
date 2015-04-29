@@ -25,6 +25,7 @@ using namespace Windows::Devices::Sensors;
 HINSTANCE hInst;								// current instance
 TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
+LPCWSTR glWindowClass = L"GLWindow";
 CaptureManager^ capMan;
 CalibrationManager^ calMan;
 bool isCapturing = false;
@@ -34,11 +35,14 @@ HWND hCaptureButton;
 HWND hCalibrateButton;
 HWND hLiveButton;
 HWND hReplayButton;
+HWND hGLWindow;
 
 // Forward declarations of functions included in this code module:
 ATOM				MyRegisterClass(HINSTANCE hInstance);
+ATOM				RegisterGLWinClass(HINSTANCE hInstance);
 BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
+LRESULT CALLBACK	WndProcGL(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 
 class MyCalDelegate : CalibrationManagerDelegate
@@ -158,13 +162,31 @@ void StopCalibration()
 	isCalibrating = false;
 }
 
-void OpenLiveWindow()
+bool OpenVisualizationWindow()
 {
-	if (isCalibrating || isCapturing) return;
-	SetWindowText(hLabel, TEXT("Opening live window..."));
-
-	
+	if (isCalibrating || isCapturing || IsWindow(hGLWindow)) return false;
+	hGLWindow = CreateWindow(glWindowClass, L"Visualization", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInst, NULL);
+	ShowWindow(hGLWindow, SW_SHOW);
+	UpdateWindow(hGLWindow);
+	return true;
 }
+
+void BeginLiveVis()
+{
+	if (!OpenVisualizationWindow()) return;
+	SetWindowText(hLabel, TEXT("Beginning live visualization..."));
+	
+	// run filter
+}
+
+void BeginReplay(const PWSTR filePath)
+{
+	if (!OpenVisualizationWindow()) return;
+	SetWindowText(hLabel, TEXT("Beginning replay visualization..."));
+
+	// do opengl stuff
+}
+
 
 ///////////////////////////////////////// File Picker ///////////////////////////////////////////
 
@@ -232,6 +254,8 @@ HRESULT CDialogEventHandler_CreateInstance(REFIID riid, void **ppv)
 
 HRESULT OpenReplayFilePicker()
 {
+	if (IsWindow(hGLWindow)) return S_FALSE; // don't open picker if vis window is already open
+
 	// CoCreate the File Open Dialog object.
 	IFileDialog *pfd = NULL;
 	HRESULT hr = CoCreateInstance(CLSID_FileOpenDialog,
@@ -278,9 +302,8 @@ HRESULT OpenReplayFilePicker()
 								hr = psiResult->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
 								if (SUCCEEDED(hr))
 								{
-									wchar_t title[1024];
-									_snwprintf_s(title, 1024, L"File: %s", pszFilePath);
-									SetWindowText(hLabel, title);
+									SetWindowText(hLabel, pszFilePath);
+									BeginReplay(pszFilePath);
 									CoTaskMemFree(pszFilePath);
 								}
 								psiResult->Release();
@@ -316,6 +339,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
 	LoadString(hInstance, IDC_RCUTILITY, szWindowClass, MAX_LOADSTRING);
 	MyRegisterClass(hInstance);
+	RegisterGLWinClass(hInstance);
 
 	// Perform application initialization:
 	if (!InitInstance (hInstance, nCmdShow))
@@ -365,6 +389,27 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	return RegisterClassEx(&wcex);
 }
 
+ATOM RegisterGLWinClass(HINSTANCE hInstance)
+{
+	WNDCLASSEX wcex;
+
+	wcex.cbSize = sizeof(WNDCLASSEX);
+
+	wcex.style = CS_HREDRAW | CS_VREDRAW;
+	wcex.lpfnWndProc = WndProcGL;
+	wcex.cbClsExtra = 0;
+	wcex.cbWndExtra = 0;
+	wcex.hInstance = hInstance;
+	wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_RCUTILITY));
+	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	wcex.lpszMenuName = 0;
+	wcex.lpszClassName = glWindowClass;
+	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+
+	return RegisterClassEx(&wcex);
+}
+
 //
 //   FUNCTION: InitInstance(HINSTANCE, int)
 //
@@ -381,8 +426,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
    hInst = hInstance; // Store instance handle in our global variable
 
-   hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-      CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
+   hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
 
    if (!hWnd)
    {
@@ -438,7 +482,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			isCalibrating ? StopCalibration() : StartCalibration();
 			break;
 		case IDB_LIVE:
-			OpenLiveWindow();
+			BeginLiveVis();
 			break;
 		case IDB_REPLAY:
 			OpenReplayFilePicker();
@@ -459,8 +503,44 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		StopCapture();
 		DestroyWindow(hWnd);
 		break;
-	case WM_LBUTTONUP:
-		
+	default:
+		return DefWindowProc(hWnd, message, wParam, lParam);
+	}
+	return 0;
+} 
+
+// window message processor for the GL window
+LRESULT CALLBACK WndProcGL(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	int wmId, wmEvent;
+	PAINTSTRUCT ps;
+	HDC hdc;
+
+	switch (message)
+	{
+	case WM_COMMAND:
+		wmId = LOWORD(wParam);
+		wmEvent = HIWORD(wParam);
+		// Parse the menu selections:
+		switch (wmId)
+		{
+		case IDM_EXIT:
+			DestroyWindow(hWnd);
+			break;
+		default:
+			return DefWindowProc(hWnd, message, wParam, lParam);
+		}
+		break;
+	case WM_PAINT:
+		hdc = BeginPaint(hWnd, &ps);
+		// TODO: Add any drawing code here...
+		EndPaint(hWnd, &ps);
+		break;
+	case WM_DESTROY:
+		//PostQuitMessage(0);
+		break;
+	case WM_CLOSE:
+		DestroyWindow(hWnd);
 		break;
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);

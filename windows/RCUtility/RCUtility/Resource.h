@@ -16,6 +16,8 @@
 #define IDC_MYICON				2
 #define IDB_CAPTURE				201
 #define	IDB_CALIBRATE			202
+#define	IDB_LIVE			203
+#define	IDB_REPLAY			204
 #ifndef IDC_STATIC
 #define IDC_STATIC				-1
 #endif

@@ -9,6 +9,8 @@
 #include "AccelerometerLib.h"
 #include <shellapi.h>
 #include "CalibrationManager.h"
+#include <shlobj.h>
+#include <shlwapi.h>
 
 #using <Windows.winmd>
 #using <Platform.winmd>
@@ -30,6 +32,8 @@ bool isCalibrating = false;
 HWND hLabel;
 HWND hCaptureButton;
 HWND hCalibrateButton;
+HWND hLiveButton;
+HWND hReplayButton;
 
 // Forward declarations of functions included in this code module:
 ATOM				MyRegisterClass(HINSTANCE hInstance);
@@ -152,6 +156,145 @@ void StopCalibration()
 	isCalibrating = false;
 }
 
+void OpenLiveWindow()
+{
+	if (isCalibrating || isCapturing) return;
+	SetWindowText(hLabel, TEXT("Opening live window..."));
+
+	
+}
+
+///////////////////////////////////////// File Picker ///////////////////////////////////////////
+
+class CDialogEventHandler : public IFileDialogEvents, public IFileDialogControlEvents
+{
+public:
+	// IUnknown methods
+	IFACEMETHODIMP QueryInterface(REFIID riid, void** ppv)
+	{
+		static const QITAB qit[] = {
+			QITABENT(CDialogEventHandler, IFileDialogEvents),
+			QITABENT(CDialogEventHandler, IFileDialogControlEvents),
+			{ 0 },
+		};
+		return QISearch(this, qit, riid, ppv);
+	}
+
+	IFACEMETHODIMP_(ULONG) AddRef()
+	{
+		return InterlockedIncrement(&_cRef);
+	}
+
+	IFACEMETHODIMP_(ULONG) Release()
+	{
+		long cRef = InterlockedDecrement(&_cRef);
+		if (!cRef)
+			delete this;
+		return cRef;
+	}
+
+	// IFileDialogEvents methods
+	IFACEMETHODIMP OnFileOk(IFileDialog *) { return S_OK; };
+	IFACEMETHODIMP OnFolderChange(IFileDialog *) { return S_OK; };
+	IFACEMETHODIMP OnFolderChanging(IFileDialog *, IShellItem *) { return S_OK; };
+	IFACEMETHODIMP OnHelp(IFileDialog *) { return S_OK; };
+	IFACEMETHODIMP OnSelectionChange(IFileDialog *) { return S_OK; };
+	IFACEMETHODIMP OnShareViolation(IFileDialog *, IShellItem *, FDE_SHAREVIOLATION_RESPONSE *) { return S_OK; };
+	IFACEMETHODIMP OnTypeChange(IFileDialog *pfd) { return S_OK; };
+	IFACEMETHODIMP OnOverwrite(IFileDialog *, IShellItem *, FDE_OVERWRITE_RESPONSE *) { return S_OK; };
+
+	// IFileDialogControlEvents methods
+	IFACEMETHODIMP OnItemSelected(IFileDialogCustomize *pfdc, DWORD dwIDCtl, DWORD dwIDItem) { return S_OK; };
+	IFACEMETHODIMP OnButtonClicked(IFileDialogCustomize *, DWORD) { return S_OK; };
+	IFACEMETHODIMP OnCheckButtonToggled(IFileDialogCustomize *, DWORD, BOOL) { return S_OK; };
+	IFACEMETHODIMP OnControlActivating(IFileDialogCustomize *, DWORD) { return S_OK; };
+
+	CDialogEventHandler() : _cRef(1) { };
+private:
+	~CDialogEventHandler() { };
+	long _cRef;
+};
+
+HRESULT CDialogEventHandler_CreateInstance(REFIID riid, void **ppv)
+{
+	*ppv = NULL;
+	CDialogEventHandler *pDialogEventHandler = new (std::nothrow) CDialogEventHandler();
+	HRESULT hr = pDialogEventHandler ? S_OK : E_OUTOFMEMORY;
+	if (SUCCEEDED(hr))
+	{
+		hr = pDialogEventHandler->QueryInterface(riid, ppv);
+		pDialogEventHandler->Release();
+	}
+	return hr;
+}
+
+HRESULT OpenReplayFilePicker()
+{
+	// CoCreate the File Open Dialog object.
+	IFileDialog *pfd = NULL;
+	HRESULT hr = CoCreateInstance(CLSID_FileOpenDialog,
+		NULL,
+		CLSCTX_INPROC_SERVER,
+		IID_PPV_ARGS(&pfd));
+	if (SUCCEEDED(hr))
+	{
+		// Create an event handling object, and hook it up to the dialog.
+		IFileDialogEvents *pfde = NULL;
+		hr = CDialogEventHandler_CreateInstance(IID_PPV_ARGS(&pfde));
+		if (SUCCEEDED(hr))
+		{
+			// Hook up the event handler.
+			DWORD dwCookie;
+			hr = pfd->Advise(pfde, &dwCookie);
+			if (SUCCEEDED(hr))
+			{
+				// Set the options on the dialog.
+				DWORD dwFlags;
+
+				// Before setting, always get the options first in order 
+				// not to override existing options.
+				hr = pfd->GetOptions(&dwFlags);
+				if (SUCCEEDED(hr))
+				{
+					// In this case, get shell items only for file system items.
+					hr = pfd->SetOptions(dwFlags | FOS_FORCEFILESYSTEM);
+					if (SUCCEEDED(hr))
+					{
+						hr = pfd->Show(NULL);
+						if (SUCCEEDED(hr))
+						{
+							// Obtain the result once the user clicks 
+							// the 'Open' button.
+							// The result is an IShellItem object.
+							IShellItem *psiResult;
+							hr = pfd->GetResult(&psiResult);
+							if (SUCCEEDED(hr))
+							{
+								// We are just going to print out the 
+								// name of the file for sample sake.
+								PWSTR pszFilePath = NULL;
+								hr = psiResult->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+								if (SUCCEEDED(hr))
+								{
+									SetWindowText(hLabel, Debug::Log(L"File: %s", pszFilePath).c_str());
+									CoTaskMemFree(pszFilePath);
+								}
+								psiResult->Release();
+							}
+						}
+					}
+				}
+				// Unhook the event handler.
+				pfd->Unadvise(dwCookie);
+			}
+			pfde->Release();
+		}
+		pfd->Release();
+	}
+	return hr;
+}
+
+
 [MTAThread] // inits WinRT runtime
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
                      _In_opt_ HINSTANCE hPrevInstance,
@@ -242,9 +385,11 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
       return FALSE;
    }
 
-   hLabel = CreateWindow(TEXT("static"), TEXT(""), WS_CHILD | WS_VISIBLE, 10, 10, 500, 20, hWnd, (HMENU)3, NULL, NULL);
+   hLabel = CreateWindow(TEXT("static"), TEXT(""), WS_CHILD | WS_VISIBLE, 10, 10, 600, 20, hWnd, (HMENU)3, NULL, NULL);
    hCaptureButton = CreateWindow(TEXT("button"), TEXT("Start Capture"), WS_CHILD | WS_VISIBLE, 10, 60, 140, 50, hWnd, (HMENU)IDB_CAPTURE, NULL, NULL);
    hCalibrateButton = CreateWindow(TEXT("button"), TEXT("Start Calibration"), WS_CHILD | WS_VISIBLE, 170, 60, 140, 50, hWnd, (HMENU)IDB_CALIBRATE, NULL, NULL);
+   hLiveButton = CreateWindow(TEXT("button"), TEXT("Live"), WS_CHILD | WS_VISIBLE, 330, 60, 140, 50, hWnd, (HMENU)IDB_LIVE, NULL, NULL);
+   hReplayButton = CreateWindow(TEXT("button"), TEXT("Replay"), WS_CHILD | WS_VISIBLE, 490, 60, 140, 50, hWnd, (HMENU)IDB_REPLAY, NULL, NULL);
 
    ShowWindow(hWnd, nCmdShow);	
    UpdateWindow(hWnd);
@@ -287,6 +432,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			break;
 		case IDB_CALIBRATE:
 			isCalibrating ? StopCalibration() : StartCalibration();
+			break;
+		case IDB_LIVE:
+			OpenLiveWindow();
+			break;
+		case IDB_REPLAY:
+			OpenReplayFilePicker();
 			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);

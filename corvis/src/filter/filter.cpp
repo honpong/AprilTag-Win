@@ -278,7 +278,7 @@ sensor_clock::duration steady_time(struct filter *f, stdev_vector &stdev, v4 mea
         //portrait -> (0, 1, 0)
         //landscape -> (1, 0, 0)
         f_t costheta = orientation.dot(local_up);
-        if(fabs(costheta) < .71) sensor_clock::duration(0); //don't start since we aren't in orientation +/- 6 deg
+        if(fabs(costheta) < .71) return sensor_clock::duration(0); //don't start since we aren't in orientation +/- 6 deg
     }
     stdev.data(meas);
     

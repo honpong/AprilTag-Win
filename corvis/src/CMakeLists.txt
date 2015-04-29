@@ -57,7 +57,6 @@ endif()
 
 add_library(numerics STATIC
   numerics/rotation_vector.cpp
-  numerics/vec4.cpp
   numerics/matrix.cpp
   numerics/kalman.cpp
 )

@@ -143,7 +143,7 @@ void world_state::receive_camera(const filter * f, camera_data &&d)
     if(d.depth) observe_depth(d.depth->timestamp, d.depth->image, d.depth->width, d.depth->height);
     
     v4 T = f->s.T.v;
-    quaternion q = to_quaternion(f->s.W.v);
+    quaternion q = f->s.Q.v;
     observe_position(d.timestamp, (float)T[0], (float)T[1], (float)T[2], (float)q.w(), (float)q.x(), (float)q.y(), (float)q.z());
 
     observe_plot_item(d.timestamp, 0, "Tx", (float)f->s.T.v[0]);

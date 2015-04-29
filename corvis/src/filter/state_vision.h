@@ -142,7 +142,7 @@ public:
 class state_vision_group: public state_branch<state_node *> {
  public:
     state_vector Tr;
-    state_rotation_vector Wr;
+    state_quaternion Qr;
 
     state_branch<state_vision_feature *> features;
     list<uint64_t> neighbors;
@@ -162,9 +162,8 @@ class state_vision_group: public state_branch<state_node *> {
     static f_t min_feats;
     
     //cached data
-    m4 Rr;
-    m4 dWrp_dWr, dWrp_ddW;
-    m4 dTrp_ddT, dTrp_dWr, dTrp_dW;
+    m4 dQrp_s_dW;
+    m4 dTrp_ddT, dTrp_dQr_s_, dTrp_dQ_s;
 
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -174,7 +173,7 @@ class state_vision: public state_motion {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 public:
     state_vector Tc;
-    state_rotation_vector Wc;
+    state_quaternion Qc;
     state_scalar focal_length;
     state_scalar center_x, center_y;
     state_scalar k1, k2, k3;

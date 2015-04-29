@@ -75,26 +75,26 @@ bool state_vision_feature::force_initialize()
 f_t state_vision_group::ref_noise;
 f_t state_vision_group::min_feats;
 
-state_vision_group::state_vision_group(const state_vision_group &other): Tr(other.Tr), Wr(other.Wr), features(other.features), health(other.health), status(other.status)
+state_vision_group::state_vision_group(const state_vision_group &other): Tr(other.Tr), Qr(other.Qr), features(other.features), health(other.health), status(other.status)
 {
     assert(status == group_normal); //only intended for use at initialization
     children.push_back(&Tr);
-    children.push_back(&Wr);
+    children.push_back(&Qr);
 }
 
-state_vision_group::state_vision_group(): Tr("Tr"), Wr("Wr"), health(0), status(group_initializing)
+state_vision_group::state_vision_group(): Tr("Tr"), Qr("Qr"), health(0), status(group_initializing)
 {
     id = counter++;
     Tr.dynamic = true;
-    Wr.dynamic = true;
+    Qr.dynamic = true;
     children.push_back(&Tr);
-    children.push_back(&Wr);
+    children.push_back(&Qr);
     Tr.v = v4(0., 0., 0., 0.);
-    Wr.v = rotation_vector();
+    Qr.v = quaternion();
     Tr.set_initial_variance(0., 0., 0.);
-    Wr.set_initial_variance(0., 0., 0.);
+    Qr.set_initial_variance(0., 0., 0.);
     Tr.set_process_noise(ref_noise);
-    Wr.set_process_noise(ref_noise);
+    Qr.set_process_noise(ref_noise);
 }
 
 void state_vision_group::make_empty()
@@ -136,7 +136,7 @@ int state_vision_group::make_reference()
         }
     }
     //remove_child(&Tr);
-    //Wr.saturate();
+    //Qr.saturate();
     return 0;
 }
 
@@ -148,7 +148,7 @@ int state_vision_group::make_normal()
     return 0;
 }
 
-state_vision::state_vision(covariance &c): state_motion(c), Tc("Tc"), Wc("Wc"), focal_length("focal_length"), center_x("center_x"), center_y("center_y"), k1("k1"), k2("k2"), k3("k3"), fisheye(false), total_distance(0.), last_position(v4::Zero()), reference(nullptr)
+state_vision::state_vision(covariance &c): state_motion(c), Tc("Tc"), Qc("Qc"), focal_length("focal_length"), center_x("center_x"), center_y("center_y"), k1("k1"), k2("k2"), k3("k3"), fisheye(false), total_distance(0.), last_position(v4::Zero()), reference(nullptr)
 {
     reference = NULL;
     if(estimate_camera_intrinsics)
@@ -161,7 +161,7 @@ state_vision::state_vision(covariance &c): state_motion(c), Tc("Tc"), Wc("Wc"), 
     }
     if(estimate_camera_extrinsics) {
         children.push_back(&Tc);
-        children.push_back(&Wc);
+        children.push_back(&Qc);
     }
     children.push_back(&groups);
 }
@@ -297,9 +297,9 @@ void state_vision::project_new_group_covariance(const state_vision_group &g)
     //Note: this only works to fill in the covariance for Tr, Wr because it fills in cov(T,Tr) etc first (then copies that to cov(Tr,Tr).
     for(int i = 0; i < cov.cov.rows(); ++i)
     {
-        v4 cov_W = W.copy_cov_from_row(cov.cov, i);
-        g.Wr.copy_cov_to_col(cov.cov, i, cov_W);
-        g.Wr.copy_cov_to_row(cov.cov, i, cov_W);
+        v4 bcov_Q = Q.copy_cov_from_row(cov.cov, i);
+        g.Qr.copy_cov_to_col(cov.cov, i, bcov_Q);
+        g.Qr.copy_cov_to_row(cov.cov, i, bcov_Q);
     }
 }
 
@@ -381,7 +381,7 @@ void state_vision::remove_non_orientation_states()
 {
     if(estimate_camera_extrinsics) {
         remove_child(&Tc);
-        remove_child(&Wc);
+        remove_child(&Qc);
     }
     if(estimate_camera_intrinsics)
     {
@@ -401,7 +401,7 @@ void state_vision::add_non_orientation_states()
 
     if(estimate_camera_extrinsics) {
         children.push_back(&Tc);
-        children.push_back(&Wc);
+        children.push_back(&Qc);
     }
     if(estimate_camera_intrinsics)
     {
@@ -417,9 +417,9 @@ void state_vision::add_non_orientation_states()
 void state_vision::evolve_state(f_t dt)
 {
     for(state_vision_group *g : groups.children) {
-        m4 Rr = to_rotation_matrix(g->Wr.v);
-        g->Tr.v = g->Tr.v + Rr * Rt * dT;
-        g->Wr.v = integrate_angular_velocity(g->Wr.v, dW);
+        g->Tr.v = g->Tr.v + g->dTrp_ddT * dT;
+        rotation_vector dWr(dW[0], dW[1], dW[2]);
+        g->Qr.v = g->Qr.v * to_quaternion(dWr); // FIXME: cache this?
     }
     state_motion::evolve_state(dt);
 }
@@ -429,13 +429,12 @@ void state_vision::cache_jacobians(f_t dt)
     state_motion::cache_jacobians(dt);
 
     for(state_vision_group *g : groups.children) {
-        integrate_angular_velocity_jacobian(g->Wr.v, dW, g->dWrp_dWr, g->dWrp_ddW);
-        m4 Rrt_dRr_dWr = to_body_jacobian(g->Wr.v);
-        g->Rr = to_rotation_matrix(g->Wr.v);
-        g->dTrp_ddT = g->Rr * Rt;
-        m4 RrRtdT = g->Rr * skew3(Rt * dT);
-        g->dTrp_dWr = RrRtdT * Rrt_dRr_dWr;
-        g->dTrp_dW  = RrRtdT * Rt_dR_dW;
+        m4 Rr = to_rotation_matrix(g->Qr.v);
+        g->dTrp_ddT = to_rotation_matrix(g->Qr.v * conjugate(Q.v));
+        m4 xRrRtdT = skew3(g->dTrp_ddT * dT);
+        g->dTrp_dQr_s_ = xRrRtdT;
+        g->dTrp_dQ_s   = xRrRtdT;
+        g->dQrp_s_dW = Rr * JdW_s;
     }
 }
 
@@ -444,19 +443,16 @@ void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t
     for(state_vision_group *g : groups.children) {
         for(int i = 0; i < src.rows(); ++i) {
             v4 cov_Tr = g->Tr.copy_cov_from_row(src, i);
-            v4 cov_Wr = g->Wr.copy_cov_from_row(src, i);
-            v4 cov_W = W.copy_cov_from_row(src, i);
+            v4 scov_Qr = g->Qr.copy_cov_from_row(src, i);
+            v4 scov_Q = Q.copy_cov_from_row(src, i);
             v4 cov_V = V.copy_cov_from_row(src, i);
             v4 cov_a = a.copy_cov_from_row(src, i);
             v4 cov_w = w.copy_cov_from_row(src, i);
             v4 cov_dw = dw.copy_cov_from_row(src, i);
             v4 cov_dT = dt * (cov_V + (dt / 2) * cov_a);
-            v4 cov_Tp = cov_Tr +
-            g->dTrp_ddT * cov_dT +
-            g->dTrp_dW * cov_W - g->dTrp_dWr * cov_Wr;
-            g->Tr.copy_cov_to_col(dst, i, cov_Tp);
+            g->Tr.copy_cov_to_col(dst, i, cov_Tr - g->dTrp_dQr_s_ * scov_Qr + g->dTrp_dQ_s * scov_Q + g->dTrp_ddT * cov_dT);
             v4 cov_dW = dt * (cov_w + dt/2. * cov_dw);
-            g->Wr.copy_cov_to_col(dst, i, g->dWrp_dWr * cov_Wr + g->dWrp_ddW * cov_dW);
+            g->Qr.copy_cov_to_col(dst, i, scov_Qr + g->dQrp_s_dW * cov_dW);
         }
     }
     state_motion::project_motion_covariance(dst, src, dt);

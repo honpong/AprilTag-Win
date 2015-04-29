@@ -15,17 +15,17 @@
 class state_motion_orientation: public state_root {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 public:
-    state_rotation_vector W;
+    state_quaternion Q;
     state_vector w;
     state_vector dw;
     state_vector w_bias;
     state_vector a_bias;
     state_scalar g;
     
-    state_motion_orientation(covariance &c): state_root(c), W("W"), w("w"), dw("dw"), w_bias("w_bias"), a_bias("a_bias"), g("g"), orientation_initialized(false), gravity_magnitude(9.80665) {
-        W.dynamic = true;
+    state_motion_orientation(covariance &c): state_root(c), Q("Q"), w("w"), dw("dw"), w_bias("w_bias"), a_bias("a_bias"), g("g"), orientation_initialized(false), gravity_magnitude(9.80665) {
+        Q.dynamic = true;
         w.dynamic = true;
-        children.push_back(&W);
+        children.push_back(&Q);
         children.push_back(&w);
         children.push_back(&dw);
         children.push_back(&w_bias);
@@ -51,11 +51,11 @@ protected:
     virtual void evolve_state(f_t dt);
     void evolve_covariance(f_t dt);
     virtual void cache_jacobians(f_t dt);
-    m4 Rt, Rt_dR_dW;
+    m4 Rt;
     v4 dW;
+    m4 JdW_s, dQp_s_dW;
 private:
     f_t gravity_magnitude;
-    m4 dWp_dW, dWp_ddW;
 };
 
 class state_motion: public state_motion_orientation {

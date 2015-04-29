@@ -191,8 +191,8 @@ void observation_vision_feature::innovation_covariance_hook(const matrix &cov, i
 
 void observation_vision_feature::predict()
 {
-    m4 Rr = to_rotation_matrix(state_group->Wr.v);
-    m4 R = to_rotation_matrix(state.W.v);
+    m4 Rr = to_rotation_matrix(state_group->Qr.v);
+    m4 R = to_rotation_matrix(state.Q.v);
     Rrt = Rr.transpose();
     Rtot = Rrt;
     Ttot = Rrt * ( - state_group->Tr.v);
@@ -237,13 +237,12 @@ void observation_vision_feature::cache_jacobians()
     v4 dX_dk1 = Rtot * v4(-X0[0] * kr * r2, -X0[1] * kr * r2, 0., 0.);
     v4 dX_dk2 = Rtot * v4(-X0[0] * kr * (r2 * r2), -X0[1] * kr * (r2 * r2), 0., 0.);
 #endif
-    
+
     v4 RtotX0 = Rtot * X0;
-    m4 Rrt_dRr_dWr = to_body_jacobian(state_group->Wr.v);
-    m4 dRtotX0_dWr = skew3(RtotX0) * Rrt_dRr_dWr;
-    m4 dTtot_dWr = skew3(Ttot) * Rrt_dRr_dWr;
+    m4 dRtotX0_dQr = skew3(RtotX0) * Rrt;
+    m4 dTtot_dQr = skew3(Ttot) * Rrt;
     m4 dTtot_dTr = -Rrt;
-    
+
     state.fill_calibration(norm_predicted, r2, kr);
     f_t invZ = 1. / X[2];
     v4 dx_dX, dy_dX;
@@ -255,8 +254,8 @@ void observation_vision_feature::cache_jacobians()
     dy_dp = dy_dX.dot(dX_dp);
     f_t invrho = feature->v.invdepth();
     if(!feature->is_initialized()) {
-        dx_dWr = dx_dX.transpose() * dRtotX0_dWr;
-        dy_dWr = dy_dX.transpose() * dRtotX0_dWr;
+        dx_dQr = dx_dX.transpose() * dRtotX0_dQr;
+        dy_dQr = dy_dX.transpose() * dRtotX0_dQr;
         //dy_dT = m4(0.);
         //dy_dT = m4(0.);
         //dy_dTr = m4(0.);
@@ -273,9 +272,9 @@ void observation_vision_feature::cache_jacobians()
         dy_dcx = dy_dX.dot(dX_dcx);
         dy_dcy = state.image_height *  + dy_dX.dot(dX_dcy);
 #endif
-        dx_dWr = dx_dX.transpose() * (dRtotX0_dWr + dTtot_dWr * invrho);
+        dx_dQr = dx_dX.transpose() * (dRtotX0_dQr + dTtot_dQr * invrho);
         dx_dTr = dx_dX.transpose() * dTtot_dTr * invrho;
-        dy_dWr = dy_dX.transpose() * (dRtotX0_dWr + dTtot_dWr * invrho);
+        dy_dQr = dy_dX.transpose() * (dRtotX0_dQr + dTtot_dQr * invrho);
         dy_dTr = dy_dX.transpose() * dTtot_dTr * invrho;
     }
 }
@@ -285,16 +284,16 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
 
     if(!feature->is_initialized()) {
         for(int j = 0; j < dst.cols(); ++j) {
-            v4 cov_Wr = state_group->Wr.copy_cov_from_row(src, j);
+            v4 scov_Qr = state_group->Qr.copy_cov_from_row(src, j);
             dst(0, j) =
-            dx_dWr.dot(cov_Wr);
+            dx_dQr.dot(scov_Qr);
             dst(1, j) =
-            dy_dWr.dot(cov_Wr);
+            dy_dQr.dot(scov_Qr);
         }
     } else {
         for(int j = 0; j < dst.cols(); ++j) {
             f_t cov_feat = feature->copy_cov_from_row(src, j);
-            v4 cov_Wr = state_group->Wr.copy_cov_from_row(src, j);
+            v4 scov_Qr = state_group->Qr.copy_cov_from_row(src, j);
             v4 cov_Tr = state_group->Tr.copy_cov_from_row(src, j);
 
 #if estimate_camera_intrinsics
@@ -312,7 +311,7 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
             dx_dk1 * cov_k1 +
             dx_dk2 * cov_k2 +
 #endif
-            dx_dWr.dot(cov_Wr) +
+            dx_dQr.dot(scov_Qr) +
             dx_dTr.dot(cov_Tr);
             dst(1, j) = dy_dp * cov_feat +
 #if estimate_camera_intrinsics
@@ -322,7 +321,7 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
             dy_dk1 * cov_k1 +
             dy_dk2 * cov_k2 +
 #endif
-            dy_dWr.dot(cov_Wr) +
+            dy_dQr.dot(scov_Qr) +
             dy_dTr.dot(cov_Tr);
         }
     }
@@ -468,8 +467,8 @@ void observation_vision_feature::compute_measurement_covariance()
 
 void observation_accelerometer::predict()
 {
-    Rt = to_rotation_matrix(state.W.v).transpose();
-    Rc = to_rotation_matrix(state.Wc.v);
+    Rt = to_rotation_matrix(state.Q.v).transpose();
+    Rc = to_rotation_matrix(state.Qc.v);
     v4 acc = v4(0., 0., state.g.v, 0.);
     if(!state.orientation_only)
     {
@@ -493,11 +492,9 @@ void observation_accelerometer::cache_jacobians()
     {
         acc += state.a.v;
     }
-    m4 Rt_dR_dW = to_body_jacobian(state.W.v);
-    da_dW = skew3(Rc * Rt * acc) * Rc * Rt_dR_dW;
+    da_dQ = Rc * Rt * skew3(acc);
 #if estimate_camera_extrinsics
-    m4 Rc_dRc_dWc = to_spatial_jacobian(state.Wc.v);
-    da_dWc = -skew3(Rc * Rt * acc) * Rc_dRc_dWc;
+    da_dQc = -skew3(Rc * Rt * acc);
     da_dTc = skew3(state.w.v) * skew3(state.w.v) + skew3(state.dw.v);
 #endif
     da_ddw = -skew3(state.Tc.v);
@@ -512,9 +509,9 @@ void observation_accelerometer::project_covariance(matrix &dst, const matrix &sr
     {
         for(int j = 0; j < dst.cols(); ++j) {
             v4 cov_a_bias = state.a_bias.copy_cov_from_row(src, j);
-            v4 cov_W = state.W.copy_cov_from_row(src, j);
+            v4 scov_Q = state.Q.copy_cov_from_row(src, j);
 #if estimate_camera_extrinsics
-            v4 cov_Wc = state.Wc.copy_cov_from_row(src, j);
+            v4 scov_Qc = state.Qc.copy_cov_from_row(src, j);
             v4 cov_Tc = state.Tc.copy_cov_from_row(src, j);
 #endif
             v4 cov_a = state.a.copy_cov_from_row(src, j);
@@ -523,10 +520,10 @@ void observation_accelerometer::project_covariance(matrix &dst, const matrix &sr
             f_t cov_g = state.g.copy_cov_from_row(src, j);
             v4 res =
                 cov_a_bias +
-                da_dW * cov_W +
+                da_dQ * scov_Q +
 #if estimate_camera_extrinsics
-                da_dWc * cov_Wc +
-                da_dTc * cov_Tc +
+                da_dQc * scov_Qc +
+                da_dQc * cov_Tc +
 #endif
                 da_dw * cov_w +
                 da_ddw * cov_dw +
@@ -538,15 +535,15 @@ void observation_accelerometer::project_covariance(matrix &dst, const matrix &sr
     } else {
         for(int j = 0; j < dst.cols(); ++j) {
             v4 cov_a_bias = state.a_bias.copy_cov_from_row(src, j);
-            v4 cov_W = state.W.copy_cov_from_row(src, j);
+            v4 scov_Q = state.Q.copy_cov_from_row(src, j);
 #if estimate_camera_extrinsics
-            v4 cov_Wc = state.Wc.copy_cov_from_row(src, j);
+            v4 cov_Qc = state.Qc.copy_cov_from_row(src, j);
 #endif
             v4 res = (state.estimate_bias ? cov_a_bias : v4(0,0,0,0)) +
 #if estimate_camera_extrinsics
-            da_dWc * cov_Wc +
+            da_dQc * scov_Qc +
 #endif
-            da_dW * cov_W;
+            da_dQ * scov_Q;
             for(int i = 0; i < 3; ++i) {
                 dst(i, j) = res[i];
             }
@@ -560,9 +557,9 @@ bool observation_accelerometer::measure()
     stdev.data(g);
     if(!state.orientation_initialized)
     {
-        m4 Rc = to_rotation_matrix(state.Wc.v);
-        state.initial_orientation = initial_orientation_from_gravity(Rc * g);
-        state.W.v = to_rotation_vector(state.initial_orientation);
+        m4 Rc = to_rotation_matrix(state.Qc.v);
+        state.initial_orientation = initial_orientation_from_gravity(state.Qc.v * g);
+        state.Q.v = state.initial_orientation;
         state.orientation_initialized = true;
         return false;
     } else return observation_spatial::measure();
@@ -570,7 +567,7 @@ bool observation_accelerometer::measure()
 
 void observation_gyroscope::predict()
 {
-    Rc = to_rotation_matrix(state.Wc.v);
+    Rc = to_rotation_matrix(state.Qc.v);
     v4 pred_w = state.w_bias.v + Rc * state.w.v;
 
     for(int i = 0; i < 3; ++i) {
@@ -593,11 +590,11 @@ void observation_gyroscope::project_covariance(matrix &dst, const matrix &src)
         v4 cov_w = state.w.copy_cov_from_row(src, j);
         v4 cov_wbias = state.w_bias.copy_cov_from_row(src, j);
 #if estimate_camera_extrinsics
-        v4 cov_Wc = state.Wc.copy_cov_from_row(src, j);
+        v4 scov_Qc = state.Qc.copy_cov_from_row(src, j);
 #endif
         v4 res = cov_wbias +
 #if estimate_camera_extrinsics
-            dw_dWc * cov_Wc +
+            dw_dQc * scov_Qc +
 #endif
             Rc * cov_w;
         for(int i = 0; i < 3; ++i) {

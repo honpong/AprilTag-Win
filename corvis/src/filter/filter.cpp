@@ -134,7 +134,7 @@ void filter_update_outputs(struct filter *f, sensor_clock::time_point time)
 {
     if(f->run_state != RCSensorFusionRunStateRunning) return;
     m4
-        R = to_rotation_matrix(f->s.W.v),
+        R = to_rotation_matrix(f->s.Q.v),
         Rt = R.transpose();
         
     f->s.camera_matrix = Rt;
@@ -247,7 +247,7 @@ sensor_clock::duration steady_time(struct filter *f, stdev_vector &stdev, const 
     }
     if(!stdev.count && use_orientation) {
         if(!f->s.orientation_initialized) return sensor_clock::duration(0);
-        v4 local_up = to_rotation_matrix(f->s.W.v).transpose() * v4(0., 0., 1., 0.);
+        v4 local_up = to_rotation_matrix(f->s.Q.v).transpose() * v4(0., 0., 1., 0.);
         //face up -> (0, 0, 1)
         //portrait -> (1, 0, 0)
         //landscape -> (0, 1, 0)
@@ -625,7 +625,7 @@ void filter_set_origin(struct filter *f, const transformation &origin, bool grav
 
 void filter_set_reference(struct filter *f)
 {
-    filter_set_origin(f, transformation(f->s.W.v, f->s.T.v), true);
+    filter_set_origin(f, transformation(f->s.Q.v, f->s.T.v), true);
     //f->s.reset_position();
 }
 
@@ -653,13 +653,13 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
     f->got_image = true;
     if(f->run_state == RCSensorFusionRunStateDynamicInitialization) {
         if(f->want_start == sensor_clock::micros_to_tp(0)) f->want_start = time;
-        bool inertial_converged = (f->s.W.variance()[0] < dynamic_W_thresh_variance && f->s.W.variance()[1] < dynamic_W_thresh_variance);
+        bool inertial_converged = (f->s.Q.variance()[0] < dynamic_W_thresh_variance && f->s.Q.variance()[1] < dynamic_W_thresh_variance);
         if(inertial_converged) {
             if(log_enabled) {
                 if(inertial_converged) {
                     fprintf(stderr, "Inertial converged at time %lld\n", (long long)std::chrono::duration_cast<std::chrono::microseconds>(time - f->want_start).count());
                 } else {
-                    fprintf(stderr, "Inertial did not converge %f, %f\n", f->s.W.variance()[0], f->s.W.variance()[1]);
+                    fprintf(stderr, "Inertial did not converge %f, %f\n", f->s.Q.variance()[0], f->s.Q.variance()[1]);
                 }
             }
         } else return true;
@@ -871,10 +871,10 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->s.maxstatesize = 120;
 
     f->s.Tc.v = v4(device.Tc[0], device.Tc[1], device.Tc[2], 0.);
-    f->s.Wc.v = rotation_vector(device.Wc[0], device.Wc[1], device.Wc[2]);
+    f->s.Qc.v = to_quaternion(rotation_vector(device.Wc[0], device.Wc[1], device.Wc[2]));
 
     //TODO: This is wrong
-    f->s.Wc.set_initial_variance(device.Wc_var[0], device.Wc_var[1], device.Wc_var[2]);
+    f->s.Qc.set_initial_variance(device.Wc_var[0], device.Wc_var[1], device.Wc_var[2]);
     f->s.Tc.set_initial_variance(device.Tc_var[0], device.Tc_var[1], device.Tc_var[2]);
     f->s.a_bias.v = v4(device.a_bias[0], device.a_bias[1], device.a_bias[2], 0.);
     f_t tmp[3];
@@ -896,13 +896,13 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->s.g.set_initial_variance(1.e-7);
     
     f->s.T.set_process_noise(0.);
-    f->s.W.set_process_noise(0.);
+    f->s.Q.set_process_noise(0.);
     f->s.V.set_process_noise(0.);
     f->s.w.set_process_noise(0.);
     f->s.dw.set_process_noise(35. * 35.); // this stabilizes dw.stdev around 5-6
     f->s.a.set_process_noise(.6*.6);
     f->s.g.set_process_noise(1.e-30);
-    f->s.Wc.set_process_noise(1.e-30);
+    f->s.Qc.set_process_noise(1.e-30);
     f->s.Tc.set_process_noise(1.e-30);
     f->s.a_bias.set_process_noise(1.e-10);
     f->s.w_bias.set_process_noise(1.e-12);
@@ -916,7 +916,7 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     
     f->s.T.set_initial_variance(1.e-7); // to avoid not being positive definite
     //TODO: This might be wrong. changing this to 10 makes a very different (and not necessarily worse) result.
-    f->s.W.set_initial_variance(10., 10., 1.e-7); // to avoid not being positive definite
+    f->s.Q.set_initial_variance(10., 10., 1.e-7); // to avoid not being positive definite
     f->s.V.set_initial_variance(1. * 1.);
     f->s.w.set_initial_variance(1.e5);
     f->s.dw.set_initial_variance(1.e5); //observed range of variances in sequences is 1-6
@@ -966,9 +966,9 @@ corvis_device_parameters filter_get_device_parameters(const struct filter *f)
     calibration.K[1] = (float)f->s.k2.v;
     calibration.K[2] = (float)f->s.k3.v;
     calibration.fisheye = f->s.fisheye;
-    calibration.Wc[0] = (float)f->s.Wc.v.x();
-    calibration.Wc[1] = (float)f->s.Wc.v.y();
-    calibration.Wc[2] = (float)f->s.Wc.v.z();
+    calibration.Wc[0] = (float)to_rotation_vector(f->s.Qc.v).x();
+    calibration.Wc[1] = (float)to_rotation_vector(f->s.Qc.v).y();
+    calibration.Wc[2] = (float)to_rotation_vector(f->s.Qc.v).z();
     for(int i = 0; i < 3; i++) {
         calibration.a_bias[i] = (float)f->s.a_bias.v[i];
         calibration.a_bias_var[i] = (float)f->s.a_bias.variance()[i];
@@ -976,7 +976,7 @@ corvis_device_parameters filter_get_device_parameters(const struct filter *f)
         calibration.w_bias_var[i] = (float)f->s.w_bias.variance()[i];
         calibration.Tc[i] = (float)f->s.Tc.v[i];
         calibration.Tc_var[i] = (float)f->s.Tc.variance()[i];
-        calibration.Wc_var[i] = (float)f->s.Wc.variance()[i];
+        calibration.Wc_var[i] = (float)f->s.Qc.variance()[i];
     }
     calibration.image_width = f->s.image_width;
     calibration.image_height = f->s.image_height;

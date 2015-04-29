@@ -11,20 +11,22 @@
 void state_motion_orientation::cache_jacobians(f_t dt)
 {
     dW = (w.v + dt/2. * dw.v) * dt;
-    integrate_angular_velocity_jacobian(W.v, dW, dWp_dW, dWp_ddW);
-    Rt = to_rotation_matrix(-W.v);
-    Rt_dR_dW = to_body_jacobian(W.v);
+    rotation_vector dW_(dW[0],dW[1],dW[2]); // FIXME: remove this
+    m4 R = to_rotation_matrix(Q.v);
+    JdW_s = to_spatial_jacobian(dW_/2);
+    dQp_s_dW = R * JdW_s;
+    Rt = R.transpose();  // FIXME: remove this?
 }
 
 void state_motion_orientation::project_motion_covariance(matrix &dst, const matrix &src, f_t dt)
 {
     for(int i = 0; i < src.rows(); ++i) {
-        v4 cov_W = W.copy_cov_from_row(src, i);
+        v4 scov_Q = Q.copy_cov_from_row(src, i);
         v4 cov_w = w.copy_cov_from_row(src, i);
         v4 cov_dw = dw.copy_cov_from_row(src, i);
         w.copy_cov_to_col(dst, i, cov_w + dt * cov_dw);
         v4 cov_dW = (cov_w + dt/2 * cov_dw) * dt;
-        W.copy_cov_to_col(dst, i, dWp_dW * cov_W + dWp_ddW * cov_dW);
+        Q.copy_cov_to_col(dst, i, scov_Q + dQp_s_dW * cov_dW);
     }
 }
 
@@ -58,7 +60,8 @@ void state_motion_orientation::evolve_covariance(f_t dt)
 
 void state_motion_orientation::evolve_state(f_t dt)
 {
-    W.v = integrate_angular_velocity(W.v, dW);
+    rotation_vector dW_(dW[0], dW[1], dW[2]); // FIXME: remove this!
+    Q.v = Q.v * to_quaternion(dW_); // FIXME: use cached value?
     w.v = w.v + dw.v * dt;
 }
 

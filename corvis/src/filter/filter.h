@@ -105,7 +105,7 @@ void filter_start_static_calibration(struct filter *f);
 void filter_start_hold_steady(struct filter *f);
 void filter_start_dynamic(struct filter *f);
 void filter_start_simulator(struct filter *f);
-void filter_start_qr_detection(struct filter *f, const char * data, float dimension, bool use_gravity);
+void filter_start_qr_detection(struct filter *f, const std::string& data, float dimension, bool use_gravity);
 void filter_stop_qr_detection(struct filter *f);
 void filter_start_qr_benchmark(struct filter *f, float dimension);
 

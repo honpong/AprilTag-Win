@@ -1228,7 +1228,7 @@ void filter_select_feature(struct filter *f, float x, float y)
     f->s.remap();
 }*/
 
-void filter_start_qr_detection(struct filter *f, const char * data, float dimension, bool use_gravity)
+void filter_start_qr_detection(struct filter *f, const std::string& data, float dimension, bool use_gravity)
 {
     f->qr.start(data, dimension, use_gravity);
     f->last_qr_time = sensor_clock::micros_to_tp(0);

@@ -92,7 +92,7 @@ class sensor_fusion
      @param size The size of the QR code (width = height) in meters.
      @param align_gravity If true (recommended), the z axis will be aligned with gravity; if false the z axis will be perpindicular to the QR code.
      */
-    void start_qr_detection(const std::string *data, float size, bool align_gravity);
+    void start_qr_detection(const std::string& data, float size, bool align_gravity);
     
     /** Stops searching for QR codes.
      */

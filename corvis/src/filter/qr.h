@@ -20,7 +20,7 @@ struct qr_detection {
     feature_t lower_right;
     feature_t lower_left;
     int modules;
-    char data[1024];
+    string data;
 };
 
 bool qr_detect_one(const uint8_t * image, int width, int height, struct qr_detection & detection);
@@ -36,19 +36,14 @@ public:
 
     float size_m;
     bool use_gravity;
-    bool filter;
-    char data[1024];
+    string data;
 
     qr_detector() : valid(false), running(false) {};
 
-    void start(const char * desired_code, float dimension, bool gravity)
+    void start(const string& desired_code, float dimension, bool gravity)
     {
         valid = false;
-        filter = false;
-        if(desired_code != NULL) {
-            filter = true;
-            strncpy(data, desired_code, 1024);
-        }
+        data = desired_code;
         size_m = dimension;
         use_gravity = gravity;
         running = true;

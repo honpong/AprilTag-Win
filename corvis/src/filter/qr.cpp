@@ -96,7 +96,7 @@ bool qr_detect_one(const uint8_t * image, int width, int height, struct qr_detec
             d.lower_right.y = res[3]->getY();
             d.modules = results[0]->getVersion()*4 + 17; // size of qr code is defined by the version
             Ref<zxing::String> data = results[0]->getText();
-            strncpy(d.data, data->getText().c_str(), 1024);
+            d.data = data->getText();
             return true;
         }
         else {
@@ -183,8 +183,9 @@ void qr_detector::process_frame(const struct filter * f, const uint8_t * image, 
 {
     qr_detection d;
     if(qr_detect_one(image, width, height, d)) {
-        if(!filter || (filter && strncmp(d.data, data, 1024)==0)) {
+        if(data.empty() || (d.data == data)) {
             if(qr_code_origin(f, d, size_m, use_gravity, origin)) {
+                data = d.data;
                 running = false;
                 valid = true;
             }

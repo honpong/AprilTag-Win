@@ -476,7 +476,7 @@ uint64_t get_timestamp()
         RCTranslation* originTranslation = [[RCTranslation alloc] initWithX:f->qr.origin.T[0] withY:f->qr.origin.T[1] withZ:f->qr.origin.T[2]];
         RCTransformation * originTransform = [[RCTransformation alloc] initWithTranslation:originTranslation withRotation:originRotation];
         transformation = [originTransform composeWithTransformation:transformation];
-        qrDetected = [NSString stringWithCString:f->qr.data encoding:NSUTF8StringEncoding];
+        qrDetected = [NSString stringWithCString:f->qr.data.c_str() encoding:NSUTF8StringEncoding];
     }
 
     RCTransformation *cameraTransformation = [transformation composeWithTransformation:camTransform];
@@ -603,7 +603,8 @@ uint64_t get_timestamp()
 
 - (void) startQRDetectionWithData:(NSString *)data withDimension:(float)dimension withAlignGravity:(bool)alignGravity
 {
-    const char *code = data.UTF8String;
+    std::string code;
+    if(data) code = data.UTF8String;
     queue->dispatch_sync([=]() {
         filter_start_qr_detection(&_cor_setup->sfm, code, dimension, alignGravity);
     });

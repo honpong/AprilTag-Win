@@ -31,4 +31,7 @@
    <FileRef
       location = "group:RC3DKSampleAR/RC3DKSampleAR.xcodeproj">
    </FileRef>
+   <FileRef
+      location = "group:corvis/src/libzxing-cpp/zxing.xcodeproj">
+   </FileRef>
 </Workspace>

@@ -427,7 +427,6 @@ void filter_accelerometer_measurement(struct filter *f, const float data[3], sen
         return;
     }
     
-    auto micros = sensor_clock::tp_to_micros(time);
     if(!f->gravity_init) {
         f->gravity_init = true;
     }

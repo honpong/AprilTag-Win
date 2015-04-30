@@ -257,6 +257,15 @@ void world_state_render(world_state * world, float * _modelViewProjectionMatrix,
     glEnableVertexAttribArray(GLKVertexAttribColor);
 
     glDrawArrays(GL_POINTS, 0, world->path_vertex_num);
+
+    glVertexAttribPointer(GLKVertexAttribPosition, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &world->orientation_vertex[0].position);
+    glEnableVertexAttribArray(GLKVertexAttribPosition);
+    glVertexAttribPointer(GLKVertexAttribColor, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexData), &world->orientation_vertex[0].color);
+    glEnableVertexAttribArray(GLKVertexAttribColor);
+
+    glLineWidth(8.0f);
+    glDrawArrays(GL_LINES, 0, world->orientation_vertex_num);
+
     world->display_lock.unlock();
 }
 

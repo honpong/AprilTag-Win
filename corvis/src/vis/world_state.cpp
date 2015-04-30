@@ -11,6 +11,15 @@ static VertexData axis_data[] = {
     {{0, 0, .5}, {247, 88, 98, 255}},
 };
 
+static VertexData orientation_data[] = {
+    {{0, 0, 0}, {221, 141, 81, 255}},
+    {{.5, 0, 0}, {221, 141, 81, 255}},
+    {{0, 0, 0}, {0, 201, 89, 255}},
+    {{0, .5, 0}, {0, 201, 89, 255}},
+    {{0, 0, 0}, {247, 88, 98, 255}},
+    {{0, 0, .5}, {247, 88, 98, 255}},
+};
+
 static int max_plot_samples = 1000;
 void world_state::render_plots(std::function<void (std::string, plot_data)> render_callback)
 {
@@ -67,6 +76,8 @@ world_state::world_state()
     build_grid_vertex_data();
     axis_vertex = axis_data;
     axis_vertex_num = 6;
+    orientation_vertex = orientation_data;
+    orientation_vertex_num = 6;
 }
 
 world_state::~world_state()
@@ -129,8 +140,19 @@ void world_state::update_vertex_arrays(bool show_only_good)
     idx = 0;
     for(auto p : path)
     {
-        if (p.timestamp == current_timestamp)
+        if (p.timestamp == current_timestamp) {
             set_color(&path_vertex[idx], 0, 255, 0, 255);
+            for(int i = 0; i < 6; i++) {
+                v4 vertex(axis_vertex[i].position[0],
+                          axis_vertex[i].position[1],
+                          axis_vertex[i].position[2],
+                          0);
+                vertex = transformation_apply(p.g, vertex);
+                orientation_data[i].position[0] = vertex[0];
+                orientation_data[i].position[1] = vertex[1];
+                orientation_data[i].position[2] = vertex[2];
+            }
+        }
         else
             set_color(&path_vertex[idx], 0, 178, 206, 255); // path color
         set_position(&path_vertex[idx], p.g.T.x(), p.g.T.y(), p.g.T.z());

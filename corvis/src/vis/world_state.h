@@ -49,7 +49,8 @@ public:
     VertexData * axis_vertex;
     VertexData * path_vertex;
     VertexData * feature_vertex;
-    int grid_vertex_num, axis_vertex_num, path_vertex_num, feature_vertex_num;
+    VertexData * orientation_vertex;
+    int grid_vertex_num, axis_vertex_num, path_vertex_num, feature_vertex_num, orientation_vertex_num;
 
     world_state();
     ~world_state();

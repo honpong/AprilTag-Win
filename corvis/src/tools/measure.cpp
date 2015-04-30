@@ -3,21 +3,30 @@
 #include "../vis/offscreen_render.h"
 #include "../vis/gui.h"
 
-int main(int argc, char **argv)
+int main(int c, char **v)
 {
-    if(argc != 3)
-    {
-        cerr << "Usage: " << argv[0] << " filename devicename\n";
-        return -1;
+    if (0) { usage:
+        cerr << "Usage: " << v[0] << " [--gui] [--realtime] [--redner <file.png>] <filename> <devicename>\n";
+        return 1;
     }
+
     replay rp;
-    
-    
+
     world_state ws;
 
     bool realtime = false;
-    bool enable_offscreen_render = false;
     bool enable_gui = false;
+    char *devicename = nullptr, *filename = nullptr, *rendername = nullptr;
+    for (int i=1; i<c; i++)
+        if      (v[i][0] != '-' && !filename) filename = v[i];
+        else if (v[i][0] != '-' && !devicename) devicename = v[i];
+        else if (strcmp(v[i], "--gui") == 0) enable_gui = true;
+        else if (strcmp(v[i], "--realtime") == 0) realtime = true;
+        else if (strcmp(v[i], "--render") == 0 && i+1 < c) rendername = v[++i];
+        else goto usage;
+
+    if (!filename || !devicename)
+        goto usage;
 
     if(enable_gui)
         realtime = true;
@@ -29,12 +38,12 @@ int main(int argc, char **argv)
 
     // TODO: make this a command line option
     // For command line visualization
-    if(enable_offscreen_render || enable_gui)
+    if(rendername || enable_gui)
         packet = [&](const filter * f, sensor_clock::time_point ts, enum packet_type packet_type) {
             ws.receive_packet(f, ts, packet_type);
         };
 
-    if(!rp.configure_all(argv[1], argv[2], realtime, progress, packet)) return -1;
+    if(!rp.configure_all(filename, devicename, realtime, progress, packet)) return -1;
     
     if(enable_gui) { // The GUI must be on the main thread
         std::thread replay_thread([&](void) { rp.start(); });
@@ -44,8 +53,10 @@ int main(int argc, char **argv)
     else
         rp.start();
 
-    if(enable_offscreen_render && !offscreen_render_to_file("render.png", &ws))
+    if(rendername && !offscreen_render_to_file(rendername, &ws)) {
         cerr << "Failed to render\n";
+        return 1;
+    }
 
     float length = rp.get_length();
     float path_length = rp.get_path_length();

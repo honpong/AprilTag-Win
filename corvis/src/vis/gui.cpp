@@ -60,6 +60,57 @@ void gui::mouse(int button, int state, int x, int y)
         is_rotating = false;
     }
 }
+
+#include "lodepng.h"
+#include <mgl2/mgl.h>
+void gui::create_plots()
+{
+    mglGraph gr(0,600,400); // 600x400 graph, plotted to an image
+    int width = gr.GetWidth();
+    int height = gr.GetHeight();
+    unsigned char buffer[width*height*4];
+    unsigned char * buf = buffer;
+
+    // mglData stores the x and y data to be plotted
+    state->render_plots([&] (std::string name, plot_data p) {
+        mglData data_x(p.size());
+        mglData data_y(p.size());
+        gr.NewFrame();
+        gr.Alpha(false);
+        gr.Clf('w');
+        gr.Box();
+        int j = 0;
+        float miny = p.front().second;
+        float maxy = miny;
+        uint64_t last = sensor_clock::tp_to_micros(p.back().first);
+        float total_seconds = (last - sensor_clock::tp_to_micros(p.front().first))/1e6;
+
+        for(auto data : p) {
+            float seconds = -1.*(last - sensor_clock::tp_to_micros(data.first))/1e6;
+            data_x.a[j] = seconds;
+
+            float val = data.second;
+            if(val < miny) miny = val;
+            if(val > maxy) maxy = val;
+            data_y.a[j++] = val;
+        }
+
+        gr.SetRange('x', -total_seconds, 0);
+        gr.SetRange('y', miny, maxy);
+
+        gr.Plot(data_x, data_y,"b");
+        gr.Axis();
+        gr.EndFrame();
+        std::string filename = name + ".png";
+        gr.GetRGBA((char *)buf, width*height*4);
+
+        //Encode the image
+        unsigned error = lodepng::encode(filename.c_str(), buf, width, height);
+        if(error)
+            fprintf(stderr, "encoder error %d: %s\n", error, lodepng_error_text(error));
+    });
+}
+
 void gui::keyboard(unsigned char key, int x, int y)
 {
     if(key == '0')
@@ -70,6 +121,8 @@ void gui::keyboard(unsigned char key, int x, int y)
         scale *= 1.1;
     if(key == ' ')
        replay_control->toggle_pause();
+    if(key == 'p')
+        create_plots();
 }
 
 void gui::init_gl()

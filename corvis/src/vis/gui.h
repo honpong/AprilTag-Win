@@ -26,6 +26,8 @@ private:
     float _normalMatrix[9]; // 3x3
     int window_id;
 
+    void create_plots();
+
     void init_glut();
     void init_gl();
     void configure_view();

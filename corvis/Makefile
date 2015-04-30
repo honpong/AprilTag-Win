@@ -140,8 +140,8 @@ DEPS := $(DEPS) build/swig/_filter.cpp.d
 
 ############################## VIS ################################
 
-VIS_CXX_SOURCES := $(addprefix src/vis/, world_state.cpp world_state_render.cpp arcball.cpp offscreen_render.cpp gui.cpp lodepng.cpp)
-bin/corvis/_vis.so: LDFLAGS := $(LDFLAGS) -framework OpenGL
+VIS_CXX_SOURCES := $(addprefix src/vis/, world_state.cpp world_state_render.cpp arcball.cpp offscreen_render.cpp gui.cpp lodepng.cpp gnuplot_c.cpp)
+bin/corvis/_vis.so: LDFLAGS := $(LDFLAGS) -framework OpenGL -lmgl
 bin/corvis/_vis.so: $(patsubst src/%,build/%,$(VIS_CXX_SOURCES:.cpp=.o))
 
 _CPPFLAGS := $(_CPPFLAGS) -Wno-deprecated-declarations
@@ -249,7 +249,7 @@ MEASURE_CXX_SOURCES := src/tools/measure.cpp src/filter/replay.cpp $(FILTER_CXX_
 SOURCES := $(SOURCES) $(MEASURE_SOURCES)
 CXX_SOURCES := $(CXX_SOURCES) $(MEASURE_CXX_SOURCES)
 
-LDFLAGS := $(LDFLAGS) -lstdc++
+LDFLAGS := $(LDFLAGS) -lstdc++ -lmgl
 
 bin/measure: $(patsubst src/%,build/%,$(MEASURE_SOURCES:.c=.o)) $(patsubst src/%,build/%,$(MEASURE_CXX_SOURCES:.cpp=.o)) bin/_libzxing.a
 	@mkdir -p $(@D)

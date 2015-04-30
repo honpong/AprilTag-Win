@@ -47,7 +47,7 @@ public:
     world_state();
     ~world_state();
     void update_vertex_arrays(bool show_only_good=true);
-    void receive_packet(const filter * f, enum packet_type packet_type);
+    void receive_packet(const filter * f, sensor_clock::time_point timestamp, enum packet_type packet_type);
     void observe_feature(sensor_clock::time_point timestamp, uint64_t feature_id, float x, float y, float z, bool good);
     void observe_position(sensor_clock::time_point timestamp, float x, float y, float z, float qw, float qx, float qy, float qz);
     void reset() {

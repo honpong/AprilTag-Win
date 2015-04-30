@@ -160,7 +160,7 @@ void replay::start()
             packets_dispatched++;
 
             if(packet_callback)
-                packet_callback(&cor_setup->sfm, (enum packet_type)header.type);
+                packet_callback(&cor_setup->sfm, timestamp, (enum packet_type)header.type);
 
             now = sensor_clock::now();
             // Update progress at most at 30Hz or if we are almost done
@@ -183,7 +183,7 @@ void replay::start()
     path_length = cor_setup->sfm.s.total_distance * 100;
 }
 
-bool replay::configure_all(const char *filename, const char *devicename, bool realtime, std::function<void (float)> progress, std::function<void (const filter *, enum packet_type)> packet)
+bool replay::configure_all(const char *filename, const char *devicename, bool realtime, std::function<void (float)> progress, std::function<void (const filter *, sensor_clock::time_point, enum packet_type)> packet)
 {
     if(!open(filename)) return false;
     set_device(devicename);

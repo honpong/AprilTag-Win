@@ -11,7 +11,7 @@ static VertexData axis_data[] = {
     {{0, 0, .5}, {247, 88, 98, 255}},
 };
 
-void world_state::receive_packet(const filter * f, enum packet_type packet_type)
+void world_state::receive_packet(const filter * f, sensor_clock::time_point tp, enum packet_type packet_type)
 {
     if(packet_type == packet_camera) {
         // Only update position and features on packet camera,
@@ -20,14 +20,14 @@ void world_state::receive_packet(const filter * f, enum packet_type packet_type)
             if(feat->is_valid()) {
                 float stdev = feat->v.stdev_meters(sqrt(feat->variance()));
                 bool good = stdev / feat->v.depth() < .02;
-                observe_feature(f->last_time, feat->id,
+                observe_feature(tp, feat->id,
                         feat->world[0], feat->world[1], feat->world[2], good);
             }
         }
 
         v4 T = f->s.T.v;
         quaternion q = to_quaternion(f->s.W.v);
-        observe_position(f->last_time, T[0], T[1], T[2], q.w(), q.x(), q.y(), q.z());
+        observe_position(tp, T[0], T[1], T[2], q.w(), q.x(), q.y(), q.z());
     }
 }
 

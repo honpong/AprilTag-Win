@@ -23,15 +23,15 @@ int main(int argc, char **argv)
         realtime = true;
 
     std::function<void (float)> progress = NULL;
-    std::function<void (const filter *, enum packet_type)> packet = NULL;
+    std::function<void (const filter *, sensor_clock::time_point, enum packet_type)> packet = NULL;
 
     gui vis(&ws);
 
     // TODO: make this a command line option
     // For command line visualization
     if(enable_offscreen_render || enable_gui)
-        packet = [&](const filter * f, enum packet_type packet_type) {
-            ws.receive_packet(f, packet_type);
+        packet = [&](const filter * f, sensor_clock::time_point ts, enum packet_type packet_type) {
+            ws.receive_packet(f, ts, packet_type);
         };
 
     if(!rp.configure_all(argv[1], argv[2], realtime, progress, packet)) return -1;

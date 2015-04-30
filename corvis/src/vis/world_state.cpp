@@ -11,6 +11,27 @@ static VertexData axis_data[] = {
     {{0, 0, .5}, {247, 88, 98, 255}},
 };
 
+static int max_plot_samples = 1000;
+void world_state::render_plots(std::function<void (std::string, plot_data)> render_callback)
+{
+    plot_lock.lock();
+    for(auto kv : plot_items) {
+        render_callback(kv.first, kv.second);
+    }
+    plot_lock.unlock();
+}
+
+void world_state::observe_plot_item(sensor_clock::time_point timestamp, std::string name, float value)
+{
+    plot_lock.lock();
+    auto plot = plot_items[name];
+    plot.push_back(plot_item(timestamp, value));
+    if(plot.size() > max_plot_samples)
+        plot.pop_front();
+    plot_items[name] = plot;
+    plot_lock.unlock();
+}
+
 void world_state::receive_packet(const filter * f, sensor_clock::time_point tp, enum packet_type packet_type)
 {
     if(packet_type == packet_camera) {
@@ -29,6 +50,14 @@ void world_state::receive_packet(const filter * f, sensor_clock::time_point tp, 
         quaternion q = to_quaternion(f->s.W.v);
         observe_position(tp, T[0], T[1], T[2], q.w(), q.x(), q.y(), q.z());
     }
+
+    /*
+    if(packet_type == packet_camera) {
+        // reach into the filter struct and get whatever data you want
+        // to plot, and add it to a named plot (in this case "Tx").
+        observe_plot_item(tp, "Tx", f->s.T.v[0]);
+    }
+    */
 }
 
 world_state::world_state()

@@ -49,42 +49,26 @@ extern "C" {
 #endif
 
 #ifdef F_T_IS_SINGLE
-    static int (*sytrf)(char *uplo, __CLPK_integer *n, f_t *a, __CLPK_integer *lda, __CLPK_integer *ipiv, f_t *work, __CLPK_integer *lwork, __CLPK_integer *info) = ssytrf_;
-    static int (*sytri)(char *uplo, __CLPK_integer *n, f_t *a, __CLPK_integer *lda, __CLPK_integer *ipiv, f_t *work, __CLPK_integer *info) = ssytri_;
-    static int (*sytrs)(char *, __CLPK_integer *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *) = ssytrs_;
-    
-    static int (*pstrf)(char *uplo, __CLPK_integer *n, f_t *a, __CLPK_integer *lda, __CLPK_integer *piv, __CLPK_integer *rank, f_t *tol, f_t * work, __CLPK_integer *info) = spstrf_;
-    
-    static int (*laswp)(__CLPK_integer *n, f_t *a, __CLPK_integer *lda, __CLPK_integer *k1, __CLPK_integer *k2, __CLPK_integer *piv, __CLPK_integer *inc) = slaswp_;
-    
-    static int (*potrf)(char *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *) = spotrf_;
-    static int (*pocon)(char *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, f_t *, f_t *, __CLPK_integer *, __CLPK_integer *) = spocon_;
-    static int (*potri)(char *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *) = spotri_;
-    static int (*potrs)(char *, __CLPK_integer *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *) = spotrs_;
-    
-    static int (*gelsd)(__CLPK_integer *, __CLPK_integer *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *, __CLPK_integer *) = sgelsd_;
-    static int (*gesvd)(char *, char *, __CLPK_integer *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *) = sgesvd_;
-    static int (*gesdd)(char *, __CLPK_integer *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *, __CLPK_integer *) = sgesdd_;
-
+    static auto sytrf = ssytrf_;
+    static auto sytri = ssytri_;
+    static auto sytrs = ssytrs_;
+    static auto potrf = spotrf_;
+    static auto pocon = spocon_;
+    static auto potrs = spotrs_;
+    static auto gelsd = sgelsd_;
+    static auto gesdd = sgesdd_;
 #endif
 #ifdef F_T_IS_DOUBLE
-    static int (*sytrf)(char *uplo, __CLPK_integer *n, f_t *a, __CLPK_integer *lda, __CLPK_integer *ipiv, f_t *work, __CLPK_integer *lwork, __CLPK_integer *info) = dsytrf_;
-    static int (*sytri)(char *uplo, __CLPK_integer *n, f_t *a, __CLPK_integer *lda, __CLPK_integer *ipiv, f_t *work, __CLPK_integer *info) = dsytri_;
-    static int (*sytrs)(char *, __CLPK_integer *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *) = dsytrs_;
-    
-//    static int (*pstrf)(char *uplo, __CLPK_integer *n, f_t *a, __CLPK_integer *lda, __CLPK_integer *piv, __CLPK_integer *rank, f_t *tol, f_t * work, __CLPK_integer *info) = dpstrf_;
-
-//    static int (*laswp)(__CLPK_integer *n, f_t *a, __CLPK_integer *lda, __CLPK_integer *k1, __CLPK_integer *k2, __CLPK_integer *piv, __CLPK_integer *inc) = dlaswp_;
-
-    static int (*potrf)(char *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *) = dpotrf_;
-    static int (*pocon)(char *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, f_t *, f_t *, __CLPK_integer *, __CLPK_integer *) = dpocon_;
-//    static int (*potri)(char *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *) = dpotri_;
-    static int (*potrs)(char *, __CLPK_integer *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *) = dpotrs_;
-    
-    static int (*gelsd)(__CLPK_integer *, __CLPK_integer *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *, __CLPK_integer *) = dgelsd_;
-//    static int (*gesvd)(char *, char *, __CLPK_integer *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *) = dgesvd_;
-    static int (*gesdd)(char *, __CLPK_integer *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, f_t *, __CLPK_integer *, __CLPK_integer *, __CLPK_integer *) = dgesdd_;
+    static auto sytrf = dsytrf_;
+    static auto sytri = dsytri_;
+    static auto sytrs = dsytrs_;
+    static auto potrf = dpotrf_;
+    static auto pocon = dpocon_;
+    static auto potrs = dpotrs_;
+    static auto gelsd = dgelsd_;
+    static auto gesdd = dgesdd_;
 #endif
+    
 }
 
 bool matrix::is_symmetric(f_t eps = 1.e-5) const

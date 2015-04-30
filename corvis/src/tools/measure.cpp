@@ -6,7 +6,7 @@
 int main(int c, char **v)
 {
     if (0) { usage:
-        cerr << "Usage: " << v[0] << " [--gui] [--realtime] [--redner <file.png>] <filename> <devicename>\n";
+        cerr << "Usage: " << v[0] << " [--gui] [--realtime] [--render <file.png>] <filename> <devicename>\n";
         return 1;
     }
 

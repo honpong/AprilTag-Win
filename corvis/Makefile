@@ -11,7 +11,7 @@ PYTHON_LDFLAGS := $(shell python-config --libs)
 # -ftree-vectorize -ffast-math 
 CPPFLAGS = $(_CPPFLAGS) -Wall -g -fPIC -march=core2 -mfpmath=sse -O3 -D DEBUG
 _CPPFLAGS := \
-        $(patsubst %,-I%/include,$(wildcard $(shell brew --prefix boost mathgl gsl 2>/dev/null) /opt/local)) \
+        $(patsubst %,-isystem %/include,$(wildcard $(shell brew --prefix boost mathgl gsl 2>/dev/null) /opt/local)) \
         $(shell pkg-config ftgl --cflags) -Isrc/cor -Wdeprecated-writable-strings
 CXXFLAGS := -std=c++1y
 CFLAGS := -std=gnu99

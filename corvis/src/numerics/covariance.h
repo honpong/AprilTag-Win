@@ -57,7 +57,8 @@ public:
     int add(int newindex, int size)
     {
         int oldsize = cov.rows();
-        resize(oldsize + size);
+        process_noise.resize(oldsize + size);
+        cov.resize(oldsize + size, oldsize + size);
 
         for(int j = 0; j < size; ++j) {
             map[newindex+j] = -(oldsize+j);
@@ -72,10 +73,10 @@ public:
         }
     }
     
-    void resize(const int size)
+    void reset()
     {
-        cov.resize(size, size);
-        process_noise.resize(size);
+        cov.resize(0,0);
+        process_noise.resize(0);
     }
     
     int size() const

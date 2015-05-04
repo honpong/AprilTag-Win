@@ -131,7 +131,7 @@ public:
     }
     
     virtual void reset() {
-        cov.resize(0);
+        cov.reset();
         state_branch<state_node *>::reset();
         current_time = sensor_clock::micros_to_tp(0);
     }

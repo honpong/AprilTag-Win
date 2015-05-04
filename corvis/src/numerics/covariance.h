@@ -35,22 +35,14 @@ public:
 
     void remap(int size)
     {
-        f_t *temp = cov_scratch.data;
-        cov_scratch.data = cov.data;
-        cov.data = temp;
-        
+        std::swap(cov.data, cov_scratch.data);
         cov_scratch.resize(cov.rows(), cov.cols());
         cov.resize(size, size);
-        //new (&cov_scratch) covariance_map(cov.data(), cov.rows(), cov.cols());
-        //new (&cov) covariance_map(temp, size, size);
-        
-        temp = process_scratch.data;
-        process_scratch.data = process_noise.data;
-        process_noise.data = temp;
-        
+
+        std::swap(process_noise.data, process_scratch.data);
         process_scratch.resize(process_noise.cols());
         process_noise.resize(size);
-        
+
         for(int i = 0; i < size; ++i) {
             process_noise[i] = process_scratch[abs(map[i])];
             for(int j = 0; j < size; ++j) {

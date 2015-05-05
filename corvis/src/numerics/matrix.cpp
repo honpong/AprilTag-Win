@@ -20,57 +20,17 @@
 #include <lapacke.h>
 #endif
 
-#include <stdio.h>
-
-extern "C" {
-
-#ifndef __APPLE__
-    extern int ilaenv_(int *, char *, char *, int *, int *, int *, int *);
-    extern int ssytrf_(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *lwork, int *info);
-    extern int ssytri_(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *info);
-    extern int spotrf_(char *, int *, f_t *, int *, int *);
-    extern int spocon_(char *, int *, f_t *, int *, f_t *, f_t *, f_t *, int *, int *);
-    extern int spotri_(char *, int *, f_t *, int *, int *);
-    extern int spotrs_(char *, int *, int *, f_t *, int *, f_t *, int *, int *);
-    extern int ssytrs_(char *, int *, int *, f_t *, int *, int *, f_t *, int *, int *);
-    extern int sgelsd_(int *, int *, int *, f_t *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, int *, int *);
-    extern int sgesvd_(char *, char *, int *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, f_t *, int *, int *);
-    extern int sgesdd_(char *, int *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, f_t *, int *, int *, int *);
-    
-    extern int dsytrf_(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *lwork, int *info);
-    extern int dsytri_(char *uplo, int *n, f_t *a, int *lda, int *ipiv, f_t *work, int *info);
-    extern int dpotrf_(char *, int *, f_t *, int *, int *);
-    extern int dpocon_(char *, int *, f_t *, int *, f_t *, f_t *, f_t *, int *, int *);
-    extern int dpotri_(char *, int *, f_t *, int *, int *);
-    extern int dpotrs_(char *, int *, int *, f_t *, int *, f_t *, int *, int *);
-    extern int dsytrs_(char *, int *, int *, f_t *, int *, int *, f_t *, int *, int *);
-    extern int dgelsd_(int *, int *, int *, f_t *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, int *, int *);
-    extern int dgesvd_(char *, char *, int *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, f_t *, int *, int *);
-    extern int dgesdd_(char *, int *, int *, f_t *, int *, f_t *, f_t *, int *, f_t *, int *, f_t *, int *, int *, int *);
-#endif
-
 #ifdef F_T_IS_SINGLE
-    static auto sytrf = ssytrf_;
-    static auto sytri = ssytri_;
-    static auto sytrs = ssytrs_;
-    static auto potrf = spotrf_;
-    static auto pocon = spocon_;
-    static auto potrs = spotrs_;
-    static auto gelsd = sgelsd_;
-    static auto gesdd = sgesdd_;
+#define F_T_TYPE(prefix,func,suffix) prefix ## s ## func ## suffix
 #endif
 #ifdef F_T_IS_DOUBLE
-    static auto sytrf = dsytrf_;
-    static auto sytri = dsytri_;
-    static auto sytrs = dsytrs_;
-    static auto potrf = dpotrf_;
-    static auto pocon = dpocon_;
-    static auto potrs = dpotrs_;
-    static auto gelsd = dgelsd_;
-    static auto gesdd = dgesdd_;
+#define F_T_TYPE(prefix,func,suffix) prefix ## d ## func ## suffix
 #endif
-    
-}
+
+#define LAPACK_(func) F_T_TYPE(      ,func, _)
+#define cblas_(func)  F_T_TYPE(cblas_,func,  )
+
+#include <stdio.h>
 
 bool matrix::is_symmetric(f_t eps = 1.e-5) const
 {
@@ -136,20 +96,12 @@ void matrix_product(matrix &res, const matrix &A, const matrix &B, bool trans1, 
     assert(d2 == d3);
     assert(res._rows == d1);
     assert(res._cols == d4);
-#ifdef F_T_IS_DOUBLE
-    cblas_dgemm(CblasRowMajor, trans1?CblasTrans:CblasNoTrans, trans2?CblasTrans:CblasNoTrans, 
-                res._rows, res._cols, A._cols,
-                scale, A.data, A.stride,
-                B.data, B.stride, 
-                dst_scale, res.data, res.stride);
-#else
-    cblas_sgemm(CblasRowMajor, trans1?CblasTrans:CblasNoTrans, trans2?CblasTrans:CblasNoTrans, 
-                res.rows, res.cols, A.cols, 
-                scale, A.data, A.stride,
-                B.data, B.stride, 
-                dst_scale, res.data, res.stride);
-#endif
-}    
+    cblas_(gemm)(CblasRowMajor, trans1?CblasTrans:CblasNoTrans, trans2?CblasTrans:CblasNoTrans,
+                 res._rows, res._cols, A._cols,
+                 scale, A.data, A.stride,
+                 B.data, B.stride,
+                 dst_scale, res.data, res.stride);
+}
 
 bool matrix_invert(matrix &m)
 {
@@ -167,13 +119,13 @@ bool matrix_invert(matrix &m)
     if(lwork < 1) lwork = m.stride*4;
     lapack_int work[lwork];
     lapack_int info;
-    sytrf(&uplo, &n, m.data, &lda, ipiv, (f_t *)work, &lwork, &info);
+    LAPACK_(sytrf)(&uplo, &n, m.data, &lda, ipiv, (f_t *)work, &lwork, &info);
     if(info) {
         fprintf(stderr, "matrix_invert: ssytrf failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return false;
     }
-    sytri(&uplo, &n, m.data, &lda, ipiv, (f_t *)work, &info);
+    LAPACK_(sytri)(&uplo, &n, m.data, &lda, ipiv, (f_t *)work, &info);
     if(info) {
         fprintf(stderr, "matrix_invert: ssytri failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
@@ -205,7 +157,7 @@ bool matrix_solve_syt(matrix &A, matrix &B)
     if(lwork < 1) lwork = A.stride*4;
     f_t work[lwork];
     lapack_int info;
-    sytrf(&uplo, &n, A.data, &lda, ipiv, work, &lwork, &info);
+    LAPACK_(sytrf)(&uplo, &n, A.data, &lda, ipiv, work, &lwork, &info);
     if(info) {
         fprintf(stderr, "matrix_solve: sytrf failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
@@ -213,7 +165,7 @@ bool matrix_solve_syt(matrix &A, matrix &B)
     }
     lapack_int nrhs = B._rows;
     lapack_int ldb = B.stride;
-    sytrs(&uplo, &n, &nrhs, A.data, &lda, ipiv, B.data, &ldb, &info);
+    LAPACK_(sytrs)(&uplo, &n, &nrhs, A.data, &lda, ipiv, B.data, &ldb, &info);
     if(info) {
         fprintf(stderr, "matrix_solve: sytrs failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
@@ -234,7 +186,7 @@ bool matrix_solve_semidefinite(matrix &A, matrix &B)
     lapack_int rank;
     lapack_int n = A.cols;
     lapack_int lda = A.stride;
-    pstrf(&uplo, &n, A.data, &lda, piv, &rank, &tol, work, &info);
+    LAPACK_(pstrf)(&uplo, &n, A.data, &lda, piv, &rank, &tol, work, &info);
     if(info) {
         fprintf(stderr, "matrix_solve: pstrf failed: %ld\n", info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
@@ -246,7 +198,7 @@ bool matrix_solve_semidefinite(matrix &A, matrix &B)
     lapack_int ldb = B.stride;
     lapack_int Bcols = B.cols;
     laswp(&Bcols, B.data, &ldb, &k1, &n, piv, &inc);
-    potrs(&uplo, &n, &nrhs, A.data, &lda, B.data, &ldb, &info);
+    LAPACK_(potrs)(&uplo, &n, &nrhs, A.data, &lda, B.data, &ldb, &info);
     if(info) {
         fprintf(stderr, "solve: spotrs failed: %ld\n", info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
@@ -278,7 +230,7 @@ void test_cholesky(matrix &A)
     char uplo = 'U';
     lapack_int info;
     lapack_int ldb;
-    potrf(&uplo, &N, B.data, &ldb, &info);
+    LAPACK_(potrf)(&uplo, &N, B.data, &ldb, &info);
     if(info) {
         fprintf(stderr, "cholesky: potrf failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
@@ -317,7 +269,7 @@ bool matrix_cholesky(matrix &A)
     lapack_int info;
     lapack_int n = A._cols;
     lapack_int lda = A.stride;
-    potrf(&uplo, &n, A.data, &lda, &info);
+    LAPACK_(potrf)(&uplo, &n, A.data, &lda, &info);
     if(info) {
         fprintf(stderr, "cholesky: potrf failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
@@ -354,7 +306,7 @@ f_t matrix_check_condition(matrix &A)
     lapack_int info;
     lapack_int n = tmp._cols;
     lapack_int lda = tmp.stride;
-    potrf(&uplo, &n, tmp.data, &lda, &info);
+    LAPACK_(potrf)(&uplo, &n, tmp.data, &lda, &info);
     f_t rcond = 1.;
     if(info) {
         fprintf(stderr, "check_condition: potrf failed: %d\n", (int)info);
@@ -364,7 +316,7 @@ f_t matrix_check_condition(matrix &A)
     
     lapack_int iwork[n];
     f_t work[3*n];
-    pocon(&uplo, &n, tmp.data, &lda, &anorm, &rcond, work, iwork, &info);
+    LAPACK_(pocon)(&uplo, &n, tmp.data, &lda, &anorm, &rcond, work, iwork, &info);
     if(info) {
         fprintf(stderr, "check_condition: pocon failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
@@ -379,7 +331,7 @@ bool matrix_solve(matrix &A, matrix &B)
     lapack_int info;
     lapack_int n = A._cols;
     lapack_int lda = A.stride;
-    potrf(&uplo, &n, A.data, &lda, &info);
+    LAPACK_(potrf)(&uplo, &n, A.data, &lda, &info);
     if(info) {
         fprintf(stderr, "solve: spotrf failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
@@ -387,7 +339,7 @@ bool matrix_solve(matrix &A, matrix &B)
     }
     lapack_int nrhs = B._rows;
     lapack_int ldb = B.stride;
-    potrs(&uplo, &n, &nrhs, A.data, &lda, B.data, &ldb, &info);
+    LAPACK_(potrs)(&uplo, &n, &nrhs, A.data, &lda, B.data, &ldb, &info);
     if(info) {
         fprintf(stderr, "solve: spotrs failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
@@ -409,7 +361,7 @@ bool matrix_solve_refine(matrix &A, matrix &B)
         }
     }
     lapack_int ldaf = A.stride;
-    potrf(&uplo, &n, AF.data, &ldaf, &info);
+    LAPACK_(potrf)(&uplo, &n, AF.data, &ldaf, &info);
     if(info) {
         fprintf(stderr, "solve: spotrf failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
@@ -424,7 +376,7 @@ bool matrix_solve_refine(matrix &A, matrix &B)
         }
     }
     lapack_int ldx = X.stride;
-    potrs(&uplo, &n, &nrhs, AF.data, &ldaf, X.data, &ldx, &info);
+    LAPACK_(potrs)(&uplo, &n, &nrhs, AF.data, &ldaf, X.data, &ldx, &info);
     if(info) {
         fprintf(stderr, "solve: spotrs failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
@@ -433,7 +385,7 @@ bool matrix_solve_refine(matrix &A, matrix &B)
     f_t ferr[nrhs], berr[nrhs];
     lapack_int iwork[n];
     f_t work[3 * n];
-    dporfs_(&uplo, &n, &nrhs, A.data, &lda, AF.data, &ldaf, B.data, &ldb, X.data, &ldx, ferr, berr, work, iwork, &info);
+    LAPACK_(porfs)(&uplo, &n, &nrhs, A.data, &lda, AF.data, &ldaf, B.data, &ldb, X.data, &ldx, ferr, berr, work, iwork, &info);
     if(info) {
         fprintf(stderr, "solve: porfs failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
@@ -467,7 +419,7 @@ bool matrix_solve_extra(matrix &A, matrix &B)
     f_t work[3 * n];
     f_t s[n];
     f_t rcond;
-    dposvx_(&fact, &uplo, &n, &nrhs, A.data, &lda, AF.data, &ldaf, &equed, s, B.data, &ldb, X.data, &ldx, &rcond, ferr, berr, work, iwork, &info);
+    LAPACK_(posvx)(&fact, &uplo, &n, &nrhs, A.data, &lda, AF.data, &ldaf, &equed, s, B.data, &ldb, X.data, &ldx, &rcond, ferr, berr, work, iwork, &info);
     if(info) {
         fprintf(stderr, "solve: posvx failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
@@ -494,11 +446,11 @@ bool matrix_solve_svd(matrix &A, matrix &B)
     lapack_int nrhs = B._rows;
     lapack_int ldb = B.stride;
     f_t work0;
-    gelsd(&n, &n, &nrhs, A.data, &lda, B.data, &ldb, sv, &rcond, &rank, &work0, &lwork, 0, &info);
+    LAPACK_(gelsd)(&n, &n, &nrhs, A.data, &lda, B.data, &ldb, sv, &rcond, &rank, &work0, &lwork, 0, &info);
     lwork = (int)work0;
     f_t work[lwork];
     lapack_int iwork[lwork];
-    gelsd(&n, &n, &nrhs, A.data, &lda, B.data, &ldb, sv, &rcond, &rank, work, &lwork, iwork, &info);
+    LAPACK_(gelsd)(&n, &n, &nrhs, A.data, &lda, B.data, &ldb, sv, &rcond, &rank, work, &lwork, iwork, &info);
 
     //fprintf(stderr, "svd reported rank: %ld\n", rank);
     if(info) {
@@ -526,10 +478,10 @@ bool matrix_svd(matrix &A, matrix &U, matrix &S, matrix &Vt)
     lapack_int ldVt = Vt.stride;
     lapack_int ldU = U.stride;
 
-    gesdd((char *)"A", &m, &n, A.data, &lda, S.data, Vt.data, &ldVt, U.data, &ldU, &work0, &lwork, iwork, &info);
+    LAPACK_(gesdd)((char *)"A", &m, &n, A.data, &lda, S.data, Vt.data, &ldVt, U.data, &ldU, &work0, &lwork, iwork, &info);
     lwork = (int)work0;
     f_t work[lwork];
-    gesdd((char *)"A", &m, &n, A.data, &lda, S.data, Vt.data, &ldVt, U.data, &ldU, work, &lwork, iwork, &info);
+    LAPACK_(gesdd)((char *)"A", &m, &n, A.data, &lda, S.data, Vt.data, &ldVt, U.data, &ldU, work, &lwork, iwork, &info);
     if(info) {
         fprintf(stderr, "svd: gesvd failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");

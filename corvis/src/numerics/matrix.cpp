@@ -14,9 +14,10 @@
 
 #ifdef __APPLE__
 #include <Accelerate/Accelerate.h>
+#define lapack_int __CLPK_integer
 #else
 #include <cblas.h>
-#include <clapack.h>
+#include <lapacke.h>
 #endif
 
 #include <stdio.h>
@@ -153,19 +154,19 @@ void matrix_product(matrix &res, const matrix &A, const matrix &B, bool trans1, 
 bool matrix_invert(matrix &m)
 {
     char uplo = 'U';
-    __CLPK_integer ipiv[m.stride];
+    lapack_int ipiv[m.stride];
     //just make a work array as big as the input
     //TODO: call ssytrf_ with lwork = -1 -- returns optimal size as work[0] ? wtf?
-    __CLPK_integer ign = -1;
+    lapack_int ign = -1;
     const char *name = "DSYTRF";
     const char *tp = "U";
-    __CLPK_integer ispec = 1;
-    __CLPK_integer n = m._cols;
-    __CLPK_integer lda = m.stride;
-    __CLPK_integer lwork = m.stride * ilaenv_(&ispec, (char *)name, (char *)tp, &n, &ign, &ign, &ign);
+    lapack_int ispec = 1;
+    lapack_int n = m._cols;
+    lapack_int lda = m.stride;
+    lapack_int lwork = m.stride * ilaenv_(&ispec, (char *)name, (char *)tp, &n, &ign, &ign, &ign);
     if(lwork < 1) lwork = m.stride*4;
-    __CLPK_integer work[lwork];
-    __CLPK_integer info;
+    lapack_int work[lwork];
+    lapack_int info;
     sytrf(&uplo, &n, m.data, &lda, ipiv, (f_t *)work, &lwork, &info);
     if(info) {
         fprintf(stderr, "matrix_invert: ssytrf failed: %d\n", (int)info);
@@ -191,27 +192,27 @@ void matrixest();
 bool matrix_solve_syt(matrix &A, matrix &B)
 {
     char uplo = 'U';
-    __CLPK_integer ipiv[A.stride];
+    lapack_int ipiv[A.stride];
     //just make a work array as big as the input
     //TODO: call ssytrf_ with lwork = -1 -- returns optimal size as work[0] ? wtf?
-    __CLPK_integer ign = -1;
+    lapack_int ign = -1;
     const char *name = "DSYTRF";
     const char *tp = "U";
-    __CLPK_integer ispec = 1;
-    __CLPK_integer n = A._cols;
-    __CLPK_integer lda = A.stride;
-    __CLPK_integer lwork = A.stride * ilaenv_(&ispec, (char *)name, (char *)tp, &n, &ign, &ign, &ign);
+    lapack_int ispec = 1;
+    lapack_int n = A._cols;
+    lapack_int lda = A.stride;
+    lapack_int lwork = A.stride * ilaenv_(&ispec, (char *)name, (char *)tp, &n, &ign, &ign, &ign);
     if(lwork < 1) lwork = A.stride*4;
     f_t work[lwork];
-    __CLPK_integer info;
+    lapack_int info;
     sytrf(&uplo, &n, A.data, &lda, ipiv, work, &lwork, &info);
     if(info) {
         fprintf(stderr, "matrix_solve: sytrf failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return false;
     }
-    __CLPK_integer nrhs = B._rows;
-    __CLPK_integer ldb = B.stride;
+    lapack_int nrhs = B._rows;
+    lapack_int ldb = B.stride;
     sytrs(&uplo, &n, &nrhs, A.data, &lda, ipiv, B.data, &ldb, &info);
     if(info) {
         fprintf(stderr, "matrix_solve: sytrs failed: %d\n", (int)info);
@@ -226,24 +227,24 @@ bool matrix_solve_semidefinite(matrix &A, matrix &B)
 {
     assert("Not working - pivot order is wrong?" & 0);
     char uplo = 'U';
-    __CLPK_integer piv[A.cols];
+    lapack_int piv[A.cols];
     f_t work[2 * A.cols];
-    __CLPK_integer info;
+    lapack_int info;
     f_t tol = -1.;
-    __CLPK_integer rank;
-    __CLPK_integer n = A.cols;
-    __CLPK_integer lda = A.stride;
+    lapack_int rank;
+    lapack_int n = A.cols;
+    lapack_int lda = A.stride;
     pstrf(&uplo, &n, A.data, &lda, piv, &rank, &tol, work, &info);
     if(info) {
         fprintf(stderr, "matrix_solve: pstrf failed: %ld\n", info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return false;
     }
-    __CLPK_integer k1 = 1;
-    __CLPK_integer inc = 1;
-    __CLPK_integer nrhs = B.rows;
-    __CLPK_integer ldb = B.stride;
-    __CLPK_integer Bcols = B.cols;
+    lapack_int k1 = 1;
+    lapack_int inc = 1;
+    lapack_int nrhs = B.rows;
+    lapack_int ldb = B.stride;
+    lapack_int Bcols = B.cols;
     laswp(&Bcols, B.data, &ldb, &k1, &n, piv, &inc);
     potrs(&uplo, &n, &nrhs, A.data, &lda, B.data, &ldb, &info);
     if(info) {
@@ -261,7 +262,7 @@ void test_cholesky(matrix &A)
 {
     assert(A._rows = A._cols);
     assert(A.is_symmetric());
-    __CLPK_integer N = A._rows;
+    lapack_int N = A._rows;
     matrix res(N, N);
     matrix B(N, N);
     fprintf(stderr, "original matrix is: \n");
@@ -275,8 +276,8 @@ void test_cholesky(matrix &A)
     }
 
     char uplo = 'U';
-    __CLPK_integer info;
-    __CLPK_integer ldb;
+    lapack_int info;
+    lapack_int ldb;
     potrf(&uplo, &N, B.data, &ldb, &info);
     if(info) {
         fprintf(stderr, "cholesky: potrf failed: %d\n", (int)info);
@@ -313,9 +314,9 @@ bool matrix_cholesky(matrix &A)
     //test_cholesky(A);
     //A.print();
     char uplo = 'U';
-    __CLPK_integer info;
-    __CLPK_integer n = A._cols;
-    __CLPK_integer lda = A.stride;
+    lapack_int info;
+    lapack_int n = A._cols;
+    lapack_int lda = A.stride;
     potrf(&uplo, &n, A.data, &lda, &info);
     if(info) {
         fprintf(stderr, "cholesky: potrf failed: %d\n", (int)info);
@@ -350,9 +351,9 @@ f_t matrix_check_condition(matrix &A)
     }
     
     char uplo = 'U';
-    __CLPK_integer info;
-    __CLPK_integer n = tmp._cols;
-    __CLPK_integer lda = tmp.stride;
+    lapack_int info;
+    lapack_int n = tmp._cols;
+    lapack_int lda = tmp.stride;
     potrf(&uplo, &n, tmp.data, &lda, &info);
     f_t rcond = 1.;
     if(info) {
@@ -361,7 +362,7 @@ f_t matrix_check_condition(matrix &A)
         return 0.;
     }
     
-    __CLPK_integer iwork[n];
+    lapack_int iwork[n];
     f_t work[3*n];
     pocon(&uplo, &n, tmp.data, &lda, &anorm, &rcond, work, iwork, &info);
     if(info) {
@@ -375,17 +376,17 @@ f_t matrix_check_condition(matrix &A)
 bool matrix_solve(matrix &A, matrix &B)
 {
     char uplo = 'U';
-    __CLPK_integer info;
-    __CLPK_integer n = A._cols;
-    __CLPK_integer lda = A.stride;
+    lapack_int info;
+    lapack_int n = A._cols;
+    lapack_int lda = A.stride;
     potrf(&uplo, &n, A.data, &lda, &info);
     if(info) {
         fprintf(stderr, "solve: spotrf failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return false; //could return matrix_solve_syt here instead
     }
-    __CLPK_integer nrhs = B._rows;
-    __CLPK_integer ldb = B.stride;
+    lapack_int nrhs = B._rows;
+    lapack_int ldb = B.stride;
     potrs(&uplo, &n, &nrhs, A.data, &lda, B.data, &ldb, &info);
     if(info) {
         fprintf(stderr, "solve: spotrs failed: %d\n", (int)info);
@@ -398,31 +399,31 @@ bool matrix_solve(matrix &A, matrix &B)
 bool matrix_solve_refine(matrix &A, matrix &B)
 {
     char uplo = 'U';
-    __CLPK_integer info;
-    __CLPK_integer n = A._cols;
-    __CLPK_integer lda = A.stride;
+    lapack_int info;
+    lapack_int n = A._cols;
+    lapack_int lda = A.stride;
     matrix AF(A._rows, A._cols);
     for(int i = 0; i < A._rows; ++i) {
         for(int j = 0; j < A._cols; ++j) {
             AF(i, j) = A(i, j);
         }
     }
-    __CLPK_integer ldaf = A.stride;
+    lapack_int ldaf = A.stride;
     potrf(&uplo, &n, AF.data, &ldaf, &info);
     if(info) {
         fprintf(stderr, "solve: spotrf failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return false; //could return matrix_solve_syt here instead
     }
-    __CLPK_integer nrhs = B._rows;
-    __CLPK_integer ldb = B.stride;
+    lapack_int nrhs = B._rows;
+    lapack_int ldb = B.stride;
     matrix X(B._rows, B._cols);
     for(int i = 0; i < B._rows; ++i) {
         for(int j = 0; j < B._cols; ++j) {
             X(i, j) = B(i, j);
         }
     }
-    __CLPK_integer ldx = X.stride;
+    lapack_int ldx = X.stride;
     potrs(&uplo, &n, &nrhs, AF.data, &ldaf, X.data, &ldx, &info);
     if(info) {
         fprintf(stderr, "solve: spotrs failed: %d\n", (int)info);
@@ -430,7 +431,7 @@ bool matrix_solve_refine(matrix &A, matrix &B)
         return false;
     }
     f_t ferr[nrhs], berr[nrhs];
-    __CLPK_integer iwork[n];
+    lapack_int iwork[n];
     f_t work[3 * n];
     dporfs_(&uplo, &n, &nrhs, A.data, &lda, AF.data, &ldaf, B.data, &ldb, X.data, &ldx, ferr, berr, work, iwork, &info);
     if(info) {
@@ -452,17 +453,17 @@ bool matrix_solve_extra(matrix &A, matrix &B)
     char fact = 'E';
     char uplo = 'U';
     char equed = 'N';
-    __CLPK_integer info;
-    __CLPK_integer n = A._cols;
-    __CLPK_integer lda = A.stride;
+    lapack_int info;
+    lapack_int n = A._cols;
+    lapack_int lda = A.stride;
     matrix AF(A._rows, A._cols);
-    __CLPK_integer ldaf = A.stride;
-    __CLPK_integer nrhs = B._rows;
-    __CLPK_integer ldb = B.stride;
+    lapack_int ldaf = A.stride;
+    lapack_int nrhs = B._rows;
+    lapack_int ldb = B.stride;
     matrix X(B._rows, B._cols);
-    __CLPK_integer ldx = X.stride;
+    lapack_int ldx = X.stride;
     f_t ferr[nrhs], berr[nrhs];
-    __CLPK_integer iwork[n];
+    lapack_int iwork[n];
     f_t work[3 * n];
     f_t s[n];
     f_t rcond;
@@ -483,20 +484,20 @@ bool matrix_solve_extra(matrix &A, matrix &B)
 
 bool matrix_solve_svd(matrix &A, matrix &B)
 {
-    __CLPK_integer info;
+    lapack_int info;
     f_t sv[A._rows];
-    __CLPK_integer rank;
+    lapack_int rank;
     f_t rcond = -1;
-    __CLPK_integer lwork = -1;
-    __CLPK_integer n = A._cols;
-    __CLPK_integer lda = A.stride;
-    __CLPK_integer nrhs = B._rows;
-    __CLPK_integer ldb = B.stride;
+    lapack_int lwork = -1;
+    lapack_int n = A._cols;
+    lapack_int lda = A.stride;
+    lapack_int nrhs = B._rows;
+    lapack_int ldb = B.stride;
     f_t work0;
     gelsd(&n, &n, &nrhs, A.data, &lda, B.data, &ldb, sv, &rcond, &rank, &work0, &lwork, 0, &info);
     lwork = (int)work0;
     f_t work[lwork];
-    __CLPK_integer iwork[lwork];
+    lapack_int iwork[lwork];
     gelsd(&n, &n, &nrhs, A.data, &lda, B.data, &ldb, sv, &rcond, &rank, work, &lwork, iwork, &info);
 
     //fprintf(stderr, "svd reported rank: %ld\n", rank);
@@ -513,17 +514,17 @@ bool matrix_solve_svd(matrix &A, matrix &B)
 // S should have dimension at least max(1, min(m,n))
 bool matrix_svd(matrix &A, matrix &U, matrix &S, matrix &Vt)
 {
-    __CLPK_integer info;
+    lapack_int info;
 
-    __CLPK_integer lwork = -1;
+    lapack_int lwork = -1;
     f_t work0;
-    __CLPK_integer iwork[8 * A._cols];
+    lapack_int iwork[8 * A._cols];
     //gesvd/dd is fortran, so V^T and U are swapped
-    __CLPK_integer n = A._rows;
-    __CLPK_integer m = A._cols;
-    __CLPK_integer lda = A.stride;
-    __CLPK_integer ldVt = Vt.stride;
-    __CLPK_integer ldU = U.stride;
+    lapack_int n = A._rows;
+    lapack_int m = A._cols;
+    lapack_int lda = A.stride;
+    lapack_int ldVt = Vt.stride;
+    lapack_int ldU = U.stride;
 
     gesdd((char *)"A", &m, &n, A.data, &lda, S.data, Vt.data, &ldVt, U.data, &ldU, &work0, &lwork, iwork, &info);
     lwork = (int)work0;

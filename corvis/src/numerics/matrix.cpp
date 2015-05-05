@@ -11,6 +11,7 @@
 
 #include "matrix.h"
 #include <math.h>
+#include <alloca.h>
 
 #ifdef __APPLE__
 #include <Accelerate/Accelerate.h>
@@ -29,6 +30,8 @@
 
 #define LAPACK_(func) F_T_TYPE(      ,func, _)
 #define cblas_(func)  F_T_TYPE(cblas_,func,  )
+
+#define walloca(t,n) (t*)alloca(sizeof(t)*(n))
 
 #include <stdio.h>
 
@@ -314,8 +317,8 @@ f_t matrix_check_condition(matrix &A)
         return 0.;
     }
     
-    lapack_int iwork[n];
-    f_t work[3*n];
+    lapack_int *iwork = walloca(lapack_int, n);
+    f_t *work = walloca(f_t, 3*n);
     LAPACK_(pocon)(&uplo, &n, tmp.data, &lda, &anorm, &rcond, work, iwork, &info);
     if(info) {
         fprintf(stderr, "check_condition: pocon failed: %d\n", (int)info);
@@ -382,9 +385,9 @@ bool matrix_solve_refine(matrix &A, matrix &B)
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
         return false;
     }
-    f_t ferr[nrhs], berr[nrhs];
-    lapack_int iwork[n];
-    f_t work[3 * n];
+    f_t *ferr = walloca(f_t, nrhs), *berr = walloca(f_t,nrhs);
+    lapack_int *iwork = walloca(lapack_int, n);
+    f_t *work = walloca(f_t, 3 * n);
     LAPACK_(porfs)(&uplo, &n, &nrhs, A.data, &lda, AF.data, &ldaf, B.data, &ldb, X.data, &ldx, ferr, berr, work, iwork, &info);
     if(info) {
         fprintf(stderr, "solve: porfs failed: %d\n", (int)info);
@@ -414,10 +417,10 @@ bool matrix_solve_extra(matrix &A, matrix &B)
     lapack_int ldb = B.stride;
     matrix X(B._rows, B._cols);
     lapack_int ldx = X.stride;
-    f_t ferr[nrhs], berr[nrhs];
-    lapack_int iwork[n];
-    f_t work[3 * n];
-    f_t s[n];
+    f_t *ferr = walloca(f_t,nrhs), *berr = walloca(f_t,nrhs);
+    lapack_int *iwork = walloca(lapack_int, n);
+    f_t *work = walloca(f_t, 3 * n);
+    f_t *s = walloca(f_t, n);
     f_t rcond;
     LAPACK_(posvx)(&fact, &uplo, &n, &nrhs, A.data, &lda, AF.data, &ldaf, &equed, s, B.data, &ldb, X.data, &ldx, &rcond, ferr, berr, work, iwork, &info);
     if(info) {
@@ -437,7 +440,7 @@ bool matrix_solve_extra(matrix &A, matrix &B)
 bool matrix_solve_svd(matrix &A, matrix &B)
 {
     lapack_int info;
-    f_t sv[A._rows];
+    f_t *sv = walloca(f_t, A._rows);
     lapack_int rank;
     f_t rcond = -1;
     lapack_int lwork = -1;
@@ -448,8 +451,8 @@ bool matrix_solve_svd(matrix &A, matrix &B)
     f_t work0;
     LAPACK_(gelsd)(&n, &n, &nrhs, A.data, &lda, B.data, &ldb, sv, &rcond, &rank, &work0, &lwork, 0, &info);
     lwork = (int)work0;
-    f_t work[lwork];
-    lapack_int iwork[lwork];
+    f_t *work = walloca(f_t, lwork);
+    lapack_int *iwork = walloca(lapack_int, lwork);
     LAPACK_(gelsd)(&n, &n, &nrhs, A.data, &lda, B.data, &ldb, sv, &rcond, &rank, work, &lwork, iwork, &info);
 
     //fprintf(stderr, "svd reported rank: %ld\n", rank);
@@ -470,7 +473,7 @@ bool matrix_svd(matrix &A, matrix &U, matrix &S, matrix &Vt)
 
     lapack_int lwork = -1;
     f_t work0;
-    lapack_int iwork[8 * A._cols];
+    lapack_int *iwork = walloca(lapack_int, 8 * A._cols);
     //gesvd/dd is fortran, so V^T and U are swapped
     lapack_int n = A._rows;
     lapack_int m = A._cols;
@@ -480,7 +483,7 @@ bool matrix_svd(matrix &A, matrix &U, matrix &S, matrix &Vt)
 
     LAPACK_(gesdd)((char *)"A", &m, &n, A.data, &lda, S.data, Vt.data, &ldVt, U.data, &ldU, &work0, &lwork, iwork, &info);
     lwork = (int)work0;
-    f_t work[lwork];
+    f_t *work = walloca(f_t, lwork);
     LAPACK_(gesdd)((char *)"A", &m, &n, A.data, &lda, S.data, Vt.data, &ldVt, U.data, &ldU, work, &lwork, iwork, &info);
     if(info) {
         fprintf(stderr, "svd: gesvd failed: %d\n", (int)info);

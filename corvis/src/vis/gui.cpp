@@ -61,7 +61,7 @@ void gui::mouse(int button, int state, int x, int y)
     }
 }
 
-#include "lodepng.h"
+/*#include "lodepng.h"
 #include <mgl2/mgl.h>
 void gui::create_plots()
 {
@@ -109,7 +109,7 @@ void gui::create_plots()
         if(error)
             fprintf(stderr, "encoder error %d: %s\n", error, lodepng_error_text(error));
     });
-}
+}*/
 
 void gui::keyboard(unsigned char key, int x, int y)
 {
@@ -121,8 +121,8 @@ void gui::keyboard(unsigned char key, int x, int y)
         scale *= 1.1;
     if(key == ' ')
        replay_control->toggle_pause();
-    if(key == 'p')
-        create_plots();
+    //if(key == 'p')
+     //   create_plots();
 }
 
 void gui::init_gl()

@@ -13,7 +13,7 @@ private:
     void rotate_quaternion_with_delta(float dx, float dy);
 
 public:
-    float radians_per_pixel = M_PI/640.;
+    float radians_per_pixel = (float)(M_PI/640.);
     void reset();
 
     // Rotates by clicking and dragging

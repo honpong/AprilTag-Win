@@ -522,7 +522,7 @@ static int filter_process_features(struct filter *f, sensor_clock::time_point ti
             vars.push_back(i->variance());
         }
         std::sort(vars.begin(), vars.end());
-        if(vars.size() > toobig) {
+        if((int)vars.size() > toobig) {
             f_t min = vars[vars.size() - toobig];
             for(state_vision_feature *i : f->s.features) {
                 if(i->variance() >= min) {
@@ -648,10 +648,10 @@ static void addfeatures(struct filter *f, size_t newfeats, const unsigned char *
     state_vision_group *g = f->s.add_group(time);
 
     int found_feats = 0;
-    for(int i = 0; i < kp.size(); ++i) {
+    for(int i = 0; i < (int)kp.size(); ++i) {
         int x = kp[i].x;
         int y = kp[i].y;
-        if(x > 0 && y > 0 && x < width-1 && y < height-1 && f->scaled_mask->test(x, y)) {
+        if(x > 0 && y > 0 && x < (int)width-1 && y < (int)height-1 && f->scaled_mask->test(x, y)) {
             f->scaled_mask->clear(x, y);
             state_vision_feature *feat = f->s.add_feature(x, y);
             int lx = floor(x);

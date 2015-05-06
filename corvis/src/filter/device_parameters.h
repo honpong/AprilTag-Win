@@ -2,7 +2,7 @@
 #define DEVICE_PARAMETERS_H
 
 #include <stdbool.h>
-#include "sensor_clock.h"
+#include "../cor/platform/sensor_clock.h"
 
 struct corvis_device_parameters
 {

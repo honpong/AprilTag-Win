@@ -14,8 +14,6 @@
 
 #ifndef WIN32
 #include <alloca.h>
-#else
-#define alloca _malloca
 #endif
 
 #ifdef __APPLE__

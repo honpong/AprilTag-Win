@@ -4,6 +4,7 @@
 #include <map>
 #include <vector>
 #include <list>
+#include <mutex>
 #include "../numerics/transformation.h"
 #include "../cor/platform/sensor_clock.h"
 #include "../cor/packet.h"

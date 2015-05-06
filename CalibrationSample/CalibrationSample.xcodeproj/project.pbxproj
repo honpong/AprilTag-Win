@@ -13,20 +13,9 @@
 		32D930621AFA8E4B006ED7D0 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 32D930601AFA8E4B006ED7D0 /* Main.storyboard */; };
 		32D930641AFA8E4B006ED7D0 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 32D930631AFA8E4B006ED7D0 /* Images.xcassets */; };
 		32D930671AFA8E4B006ED7D0 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 32D930651AFA8E4B006ED7D0 /* LaunchScreen.xib */; };
-		32D930731AFA8E4B006ED7D0 /* CalibrationSampleTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D930721AFA8E4B006ED7D0 /* CalibrationSampleTests.m */; };
 		32D930851AFA8FFE006ED7D0 /* include in Resources */ = {isa = PBXBuildFile; fileRef = 32D930831AFA8FFE006ED7D0 /* include */; };
 		32D930861AFA8FFE006ED7D0 /* libRC3DK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 32D930841AFA8FFE006ED7D0 /* libRC3DK.a */; };
 /* End PBXBuildFile section */
-
-/* Begin PBXContainerItemProxy section */
-		32D9306D1AFA8E4B006ED7D0 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 32D9304B1AFA8E4B006ED7D0 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 32D930521AFA8E4B006ED7D0;
-			remoteInfo = CalibrationSample;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		32D930531AFA8E4B006ED7D0 /* CalibrationSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CalibrationSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -39,9 +28,6 @@
 		32D930611AFA8E4B006ED7D0 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		32D930631AFA8E4B006ED7D0 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		32D930661AFA8E4B006ED7D0 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
-		32D9306C1AFA8E4B006ED7D0 /* CalibrationSampleTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CalibrationSampleTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		32D930711AFA8E4B006ED7D0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		32D930721AFA8E4B006ED7D0 /* CalibrationSampleTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CalibrationSampleTests.m; sourceTree = "<group>"; };
 		32D930831AFA8FFE006ED7D0 /* include */ = {isa = PBXFileReference; lastKnownFileType = folder; name = include; path = "../../RC3DK-Library/include"; sourceTree = "<group>"; };
 		32D930841AFA8FFE006ED7D0 /* libRC3DK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRC3DK.a; path = "../../RC3DK-Library/libRC3DK.a"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -55,13 +41,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		32D930691AFA8E4B006ED7D0 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -69,7 +48,6 @@
 			isa = PBXGroup;
 			children = (
 				32D930551AFA8E4B006ED7D0 /* CalibrationSample */,
-				32D9306F1AFA8E4B006ED7D0 /* CalibrationSampleTests */,
 				32D930541AFA8E4B006ED7D0 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -78,7 +56,6 @@
 			isa = PBXGroup;
 			children = (
 				32D930531AFA8E4B006ED7D0 /* CalibrationSample.app */,
-				32D9306C1AFA8E4B006ED7D0 /* CalibrationSampleTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -104,23 +81,6 @@
 			children = (
 				32D930571AFA8E4B006ED7D0 /* Info.plist */,
 				32D930581AFA8E4B006ED7D0 /* main.m */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		32D9306F1AFA8E4B006ED7D0 /* CalibrationSampleTests */ = {
-			isa = PBXGroup;
-			children = (
-				32D930721AFA8E4B006ED7D0 /* CalibrationSampleTests.m */,
-				32D930701AFA8E4B006ED7D0 /* Supporting Files */,
-			);
-			path = CalibrationSampleTests;
-			sourceTree = "<group>";
-		};
-		32D930701AFA8E4B006ED7D0 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				32D930711AFA8E4B006ED7D0 /* Info.plist */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -154,24 +114,6 @@
 			productReference = 32D930531AFA8E4B006ED7D0 /* CalibrationSample.app */;
 			productType = "com.apple.product-type.application";
 		};
-		32D9306B1AFA8E4B006ED7D0 /* CalibrationSampleTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 32D930791AFA8E4B006ED7D0 /* Build configuration list for PBXNativeTarget "CalibrationSampleTests" */;
-			buildPhases = (
-				32D930681AFA8E4B006ED7D0 /* Sources */,
-				32D930691AFA8E4B006ED7D0 /* Frameworks */,
-				32D9306A1AFA8E4B006ED7D0 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				32D9306E1AFA8E4B006ED7D0 /* PBXTargetDependency */,
-			);
-			name = CalibrationSampleTests;
-			productName = CalibrationSampleTests;
-			productReference = 32D9306C1AFA8E4B006ED7D0 /* CalibrationSampleTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -183,10 +125,6 @@
 				TargetAttributes = {
 					32D930521AFA8E4B006ED7D0 = {
 						CreatedOnToolsVersion = 6.3.1;
-					};
-					32D9306B1AFA8E4B006ED7D0 = {
-						CreatedOnToolsVersion = 6.3.1;
-						TestTargetID = 32D930521AFA8E4B006ED7D0;
 					};
 				};
 			};
@@ -204,7 +142,6 @@
 			projectRoot = "";
 			targets = (
 				32D930521AFA8E4B006ED7D0 /* CalibrationSample */,
-				32D9306B1AFA8E4B006ED7D0 /* CalibrationSampleTests */,
 			);
 		};
 /* End PBXProject section */
@@ -221,13 +158,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		32D9306A1AFA8E4B006ED7D0 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -241,23 +171,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		32D930681AFA8E4B006ED7D0 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				32D930731AFA8E4B006ED7D0 /* CalibrationSampleTests.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		32D9306E1AFA8E4B006ED7D0 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 32D930521AFA8E4B006ED7D0 /* CalibrationSample */;
-			targetProxy = 32D9306D1AFA8E4B006ED7D0 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		32D930601AFA8E4B006ED7D0 /* Main.storyboard */ = {
@@ -409,40 +323,6 @@
 			};
 			name = Release;
 		};
-		32D9307A1AFA8E4B006ED7D0 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = CalibrationSampleTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CalibrationSample.app/CalibrationSample";
-			};
-			name = Debug;
-		};
-		32D9307B1AFA8E4B006ED7D0 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = CalibrationSampleTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/CalibrationSample.app/CalibrationSample";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -460,15 +340,6 @@
 			buildConfigurations = (
 				32D930771AFA8E4B006ED7D0 /* Debug */,
 				32D930781AFA8E4B006ED7D0 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		32D930791AFA8E4B006ED7D0 /* Build configuration list for PBXNativeTarget "CalibrationSampleTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				32D9307A1AFA8E4B006ED7D0 /* Debug */,
-				32D9307B1AFA8E4B006ED7D0 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

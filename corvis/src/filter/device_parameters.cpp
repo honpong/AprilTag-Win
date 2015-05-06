@@ -154,7 +154,7 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
             dc->Tc[2] = 0.000f;
             return true;
         case DEVICE_TYPE_IPOD5: //Tc is reasonably consistent with teardown
-            dc->Fx = 591./640.f * max_dim;
+            dc->Fx = 591.f/640.f * max_dim;
             dc->Fy = dc->Fx;
             dc->K[0] = .18f;
             dc->K[1] = -.37f;

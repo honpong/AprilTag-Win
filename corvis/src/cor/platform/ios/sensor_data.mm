@@ -15,14 +15,14 @@ static sensor_clock::time_point time_point_from_CMTime(const CMTime &time)
 {
     uint64_t time_ns;
     if(time.timescale == 1000000000) time_ns = time.value;
-    else time_ns = time.value / (time.timescale / 1000000000.);
+    else time_ns = (uint64_t)(time.value / (time.timescale / 1000000000.));
 
     return sensor_clock::time_point(std::chrono::nanoseconds(time_ns));
 }
 
 static sensor_clock::time_point time_point_fromNSTimeInterval(const NSTimeInterval &time)
 {
-    uint64_t time_ns = time * 1000000000;
+    uint64_t time_ns = (uint64_t)(time * 1000000000);
     return sensor_clock::time_point(std::chrono::nanoseconds(time_ns));
 }
 
@@ -74,17 +74,17 @@ accelerometer_data::accelerometer_data(void *handle)
     timestamp = time_point_fromNSTimeInterval(accelerationData.timestamp);
     //ios gives acceleration in g-units, so multiply by standard gravity in m/s^2
     //it appears that accelerometer axes are flipped
-    accel_m__s2[0] = -accelerationData.acceleration.x * 9.80665;
-    accel_m__s2[1] = -accelerationData.acceleration.y * 9.80665;
-    accel_m__s2[2] = -accelerationData.acceleration.z * 9.80665;
+    accel_m__s2[0] = (float)(-accelerationData.acceleration.x * 9.80665);
+    accel_m__s2[1] = (float)(-accelerationData.acceleration.y * 9.80665);
+    accel_m__s2[2] = (float)(-accelerationData.acceleration.z * 9.80665);
 }
 
 gyro_data::gyro_data(void *handle)
 {
     auto gyroData = (__bridge CMGyroData *)handle;
     timestamp = time_point_fromNSTimeInterval(gyroData.timestamp);
-    angvel_rad__s[0] = gyroData.rotationRate.x;
-    angvel_rad__s[1] = gyroData.rotationRate.y;
-    angvel_rad__s[2] = gyroData.rotationRate.z;
+    angvel_rad__s[0] = (float)gyroData.rotationRate.x;
+    angvel_rad__s[1] = (float)gyroData.rotationRate.y;
+    angvel_rad__s[2] = (float)gyroData.rotationRate.z;
 }
 

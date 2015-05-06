@@ -3083,10 +3083,10 @@ xy fast_detector_9::track(const unsigned char *im1, const unsigned char *im2, in
     
     xy best = {INFINITY, INFINITY, min_score, 0.};
     
-    int x1 = ceil(predx - radius);
-    int x2 = floor(predx + radius);
-    int y1 = ceil(predy - radius);
-    int y2 = floor(predy + radius);
+    int x1 = (int)ceilf(predx - radius);
+    int x2 = (int)floorf(predx + radius);
+    int y1 = (int)ceilf(predy - radius);
+    int y2 = (int)floorf(predy + radius);
     
     int half = patch_win_half_width;
     
@@ -3096,7 +3096,7 @@ xy fast_detector_9::track(const unsigned char *im1, const unsigned char *im2, in
     for(y = y1; y <= y2; y++) {
         for(x = x1; x <= x2; x++) {
             const byte* p = im2 + y*stride + x;
-            byte val = ((uint16_t)p[0] + (((uint16_t)p[-stride] + (uint16_t)p[stride] + (uint16_t)p[-1] + (uint16_t)p[1]) >> 2)) >> 1;
+            byte val = (byte)(((uint16_t)p[0] + (((uint16_t)p[-stride] + (uint16_t)p[stride] + (uint16_t)p[-1] + (uint16_t)p[1]) >> 2)) >> 1);
 		
             int cb = val + b;
             int c_b= val - b;

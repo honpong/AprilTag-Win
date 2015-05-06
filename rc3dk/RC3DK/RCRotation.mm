@@ -16,22 +16,22 @@
 
 - (float) quaternionW
 {
-    return q.w();
+    return (float)q.w();
 }
 
 - (float) quaternionX
 {
-    return q.x();
+    return (float)q.x();
 }
 
 - (float) quaternionY
 {
-    return q.y();
+    return (float)q.y();
 }
 
 - (float) quaternionZ
 {
-    return q.z();
+    return (float)q.z();
 }
 
 - (id) initWithQuaternionW:(float)w withX:(float)x withY:(float)y withZ:(float)z
@@ -47,8 +47,8 @@
 {
     if(self = [super init])
     {
-        float st = sin(theta/2.);
-        float w = cos(theta/2.);
+        float st = sinf(theta/2.f);
+        float w = cosf(theta/2.f);
         float x = ax * st;
         float y = ay * st;
         float z = az * st;
@@ -64,7 +64,7 @@
     //transpose for OpenGL
     for(int i = 0; i < 4; ++i) {
         for(int j = 0; j < 4; ++j) {
-            matrix[j * 4 + i] = rot(i, j);
+            matrix[j * 4 + i] = (float)rot(i, j);
         }
     }
 }
@@ -90,14 +90,14 @@
 - (RCRotation *)getInverse
 {
     quaternion i = conjugate(q);
-    return [[RCRotation alloc] initWithQuaternionW:i.w() withX:i.x() withY:i.y() withZ:i.z()];
+    return [[RCRotation alloc] initWithQuaternionW:(float)i.w() withX:(float)i.x() withY:(float)i.y() withZ:(float)i.z()];
 }
 
 - (RCRotation *)composeWithRotation:(RCRotation *)other
 {
     //TODO: standard deviation
     quaternion a = q * quaternion(other.quaternionW, other.quaternionX, other.quaternionY, other.quaternionZ);
-    return [[RCRotation alloc] initWithQuaternionW:a.w() withX:a.x() withY:a.y() withZ:a.z()];
+    return [[RCRotation alloc] initWithQuaternionW:(float)a.w() withX:(float)a.x() withY:(float)a.y() withZ:(float)a.z()];
 }
 
 - (RCRotation *)flipAxis:(int)axis
@@ -106,7 +106,7 @@
     m4 flip = m4::Identity();
     flip(axis, axis) = -1;
     quaternion res = to_quaternion(flip * R * flip);
-    return [[RCRotation alloc] initWithQuaternionW:res.w() withX:res.x() withY:res.y() withZ:res.z()];
+    return [[RCRotation alloc] initWithQuaternionW:(float)res.w() withX:(float)res.x() withY:(float)res.y() withZ:(float)res.z()];
 }
 
 - (NSDictionary*) dictionaryRepresentation

@@ -222,8 +222,10 @@ void observation_vision_feature::predict()
     norm_predicted.y = (float)ippred[1];
 
     state.fill_calibration(norm_predicted, r2, kr);
-    feature->prediction.x = pred[0] = norm_predicted.x * kr * state.focal_length.v + state.center_x.v;
-    feature->prediction.y = pred[1] = norm_predicted.y * kr * state.focal_length.v + state.center_y.v;
+    pred[0] = norm_predicted.x * kr * state.focal_length.v + state.center_x.v;
+    pred[1] = norm_predicted.y * kr * state.focal_length.v + state.center_y.v;
+    feature->prediction.x = (float)pred[0];
+    feature->prediction.y = (float)pred[1];
 }
 
 void observation_vision_feature::cache_jacobians()
@@ -380,13 +382,13 @@ f_t observation_vision_feature::projection_residual(const v4 & X, const xy &foun
     feature_t norm, uncalib;
     f_t r2, kr;
     
-    norm.x = ippred[0];
-    norm.y = ippred[1];
+    norm.x = (float)ippred[0];
+    norm.y = (float)ippred[1];
     
     state.fill_calibration(norm, r2, kr);
     
-    uncalib.x = norm.x * kr * state.focal_length.v + state.center_x.v;
-    uncalib.y = norm.y * kr * state.focal_length.v + state.center_y.v;
+    uncalib.x = (float)(norm.x * kr * state.focal_length.v + state.center_x.v);
+    uncalib.y = (float)(norm.y * kr * state.focal_length.v + state.center_y.v);
     f_t dx = uncalib.x - found.x;
     f_t dy = uncalib.y - found.y;
     return dx * dx + dy * dy;

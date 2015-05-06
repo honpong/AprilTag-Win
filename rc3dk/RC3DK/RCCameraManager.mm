@@ -236,7 +236,7 @@ typedef NS_ENUM(int, RCCameraManagerOperationType) {
             // The device clock is tied to the input port not the device, apparently at AVCaptureInputPort.clock
             // something like [device.ports objectAtIndex:0] clock] which is also part of the session
             // CMTime converted = CMSyncConvertTime(syncTime, <#CMClockOrTimebaseRef fromClockOrTimebase#>, session.masterClock);
-            uint64_t time_us = syncTime.value / (syncTime.timescale / 1000000.);
+            uint64_t time_us = (uint64_t)(syncTime.value / (syncTime.timescale / 1000000.));
             focus_callback(time_us, strongSelf->videoDevice.lensPosition);
             strongSelf->pendingOperation = RCCameraManagerOperationNone;
         }];

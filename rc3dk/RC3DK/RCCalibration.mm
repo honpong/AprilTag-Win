@@ -203,7 +203,7 @@
             "Tc % .4f % .4f % .4f %.1e %.1e %.1e\n"
             "Wc % .4f % .4f % .4f %.1e %.1e %.1e\n\n"
             
-            "wm %e am %e width %d height %d period %d delay %d\n",
+            "wm %e am %e width %d height %d period %lld delay %lld\n",
             dc.Fx, dc.Fy,
             dc.Cx, dc.Cy,
             dc.px, dc.py,

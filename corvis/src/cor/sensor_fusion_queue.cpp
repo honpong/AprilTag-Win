@@ -30,8 +30,8 @@ bool sensor_queue<T, size>::push(T&& x)
     if(last_in != sensor_clock::time_point())
     {
         sensor_clock::duration delta = time - last_in;
-        const float alpha = .1;
-        period = alpha * delta + (1. - alpha) * period;
+        const float alpha = .1f;
+        period = alpha * delta + (1.f - alpha) * period;
     }
     last_in = time;
 

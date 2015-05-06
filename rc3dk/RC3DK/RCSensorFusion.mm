@@ -248,10 +248,10 @@ uint64_t get_timestamp()
 - (void) configureCameraWithDevice:(AVCaptureDevice *)device
 {
     CMVideoDimensions sz = CMVideoFormatDescriptionGetDimensions(device.activeFormat.formatDescription);
-    Float64 frame_duration = (CMTimeGetSeconds(device.activeVideoMinFrameDuration) + CMTimeGetSeconds(device.activeVideoMaxFrameDuration))/2;
+    double frame_duration = (CMTimeGetSeconds(device.activeVideoMinFrameDuration) + CMTimeGetSeconds(device.activeVideoMaxFrameDuration))/2;
     DLog(@"Starting with %d width x %d height", sz.width, sz.height);
     device_set_resolution(&_cor_setup->device, sz.width, sz.height);
-    device_set_framerate(&_cor_setup->device, 1/frame_duration);
+    device_set_framerate(&_cor_setup->device, (float)(1./frame_duration));
     filter_initialize(&_cor_setup->sfm, _cor_setup->device);
 }
 
@@ -457,23 +457,23 @@ uint64_t get_timestamp()
     if (sampleBuffer) sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
     RCTranslation* translation = [[RCTranslation alloc] initWithVector:vFloat_from_v4(f->s.T.v) withStandardDeviation:vFloat_from_v4(v4_sqrt(f->s.T.variance()))];
     quaternion q = to_quaternion(f->s.W.v);
-    RCRotation* rotation = [[RCRotation alloc] initWithQuaternionW:q.w() withX:q.x() withY:q.y() withZ:q.z()];
+    RCRotation* rotation = [[RCRotation alloc] initWithQuaternionW:(float)q.w() withX:(float)q.x() withY:(float)q.y() withZ:(float)q.z()];
     RCTransformation* transformation = [[RCTransformation alloc] initWithTranslation:translation withRotation:rotation];
 
     RCTranslation* camT = [[RCTranslation alloc] initWithVector:vFloat_from_v4(f->s.Tc.v) withStandardDeviation:vFloat_from_v4(v4_sqrt(f->s.Tc.variance()))];
     q = to_quaternion(f->s.Wc.v);
-    RCRotation* camR = [[RCRotation alloc] initWithQuaternionW:q.w() withX:q.x() withY:q.y() withZ:q.z()];
+    RCRotation* camR = [[RCRotation alloc] initWithQuaternionW:(float)q.w() withX:(float)q.x() withY:(float)q.y() withZ:(float)q.z()];
     RCTransformation* camTransform = [[RCTransformation alloc] initWithTranslation:camT withRotation:camR];
     
     RCScalar *totalPath = [[RCScalar alloc] initWithScalar:f->s.total_distance withStdDev:0.];
     
-    RCCameraParameters *camParams = [[RCCameraParameters alloc] initWithFocalLength:f->s.focal_length.v withOpticalCenterX:f->s.center_x.v withOpticalCenterY:f->s.center_y.v withRadialSecondDegree:f->s.k1.v withRadialFourthDegree:f->s.k2.v];
+    RCCameraParameters *camParams = [[RCCameraParameters alloc] initWithFocalLength:(float)f->s.focal_length.v withOpticalCenterX:(float)f->s.center_x.v withOpticalCenterY:(float)f->s.center_y.v withRadialSecondDegree:(float)f->s.k1.v withRadialFourthDegree:(float)f->s.k2.v];
 
     NSString * qrDetected = nil;
     if(f->qr.valid)
     {
-        RCRotation* originRotation = [[RCRotation alloc] initWithQuaternionW:f->qr.origin.Q.w() withX:f->qr.origin.Q.x() withY:f->qr.origin.Q.y() withZ:f->qr.origin.Q.z()];
-        RCTranslation* originTranslation = [[RCTranslation alloc] initWithX:f->qr.origin.T[0] withY:f->qr.origin.T[1] withZ:f->qr.origin.T[2]];
+        RCRotation* originRotation = [[RCRotation alloc] initWithQuaternionW:(float)f->qr.origin.Q.w() withX:(float)f->qr.origin.Q.x() withY:(float)f->qr.origin.Q.y() withZ:(float)f->qr.origin.Q.z()];
+        RCTranslation* originTranslation = [[RCTranslation alloc] initWithX:(float)f->qr.origin.T[0] withY:(float)f->qr.origin.T[1] withZ:(float)f->qr.origin.T[2]];
         RCTransformation * originTransform = [[RCTransformation alloc] initWithTranslation:originTranslation withRotation:originRotation];
         transformation = [originTransform composeWithTransformation:transformation];
         qrDetected = [NSString stringWithCString:f->qr.data.c_str() encoding:NSUTF8StringEncoding];
@@ -501,7 +501,7 @@ uint64_t get_timestamp()
         if(i->is_valid()) {
             f_t stdev = i->v.stdev_meters(sqrt(i->variance()));
             
-            RCFeaturePoint* feature = [[RCFeaturePoint alloc] initWithId:i->id withX:i->current[0] withY:i->current[1] withOriginalDepth:[[RCScalar alloc] initWithScalar:i->v.depth() withStdDev:stdev] withWorldPoint:[[RCPoint alloc]initWithX:i->world[0] withY:i->world[1] withZ:i->world[2]] withInitialized:i->is_initialized()];
+            RCFeaturePoint* feature = [[RCFeaturePoint alloc] initWithId:i->id withX:(float)i->current[0] withY:(float)i->current[1] withOriginalDepth:[[RCScalar alloc] initWithScalar:(float)i->v.depth() withStdDev:(float)stdev] withWorldPoint:[[RCPoint alloc]initWithX:(float)i->world[0] withY:(float)i->world[1] withZ:(float)i->world[2]] withInitialized:i->is_initialized()];
             [array addObject:feature];
         }
     }
@@ -543,7 +543,7 @@ uint64_t get_timestamp()
     CMTime timestamp = (CMTime)CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
     if(!_cor_setup->sfm.ignore_lateness)
     {
-        uint64_t time_us = timestamp.value / (timestamp.timescale / 1000000.);
+        uint64_t time_us = (uint64_t)(timestamp.value / (timestamp.timescale / 1000000.));
         uint64_t now = get_timestamp();
         if(now - time_us > 100000)
         {
@@ -570,7 +570,7 @@ uint64_t get_timestamp()
     if(!isSensorFusionRunning) return;
     if(!_cor_setup->sfm.ignore_lateness)
     {
-        uint64_t time_us = accelerationData.timestamp * 1000000;
+        uint64_t time_us = (uint64_t)(accelerationData.timestamp * 1000000);
         uint64_t now = get_timestamp();
         if(now - time_us > 40000)
         {
@@ -587,7 +587,7 @@ uint64_t get_timestamp()
     if(!isSensorFusionRunning) return;
     if(!_cor_setup->sfm.ignore_lateness)
     {
-        uint64_t time_us = gyroData.timestamp * 1000000;
+        uint64_t time_us = (uint64_t)(gyroData.timestamp * 1000000);
         uint64_t now = get_timestamp();
         if(now - time_us > 40000)
         {

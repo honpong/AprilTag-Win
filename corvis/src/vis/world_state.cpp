@@ -48,16 +48,16 @@ void world_state::receive_packet(const filter * f, sensor_clock::time_point tp, 
         // matches what we do in other visualizations
         for(auto feat : f->s.features) {
             if(feat->is_valid()) {
-                float stdev = feat->v.stdev_meters(sqrt(feat->variance()));
+                float stdev = (float)feat->v.stdev_meters(sqrt(feat->variance()));
                 bool good = stdev / feat->v.depth() < .02;
                 observe_feature(tp, feat->id,
-                        feat->world[0], feat->world[1], feat->world[2], good);
+                        (float)feat->world[0], (float)feat->world[1], (float)feat->world[2], good);
             }
         }
 
         v4 T = f->s.T.v;
         quaternion q = to_quaternion(f->s.W.v);
-        observe_position(tp, T[0], T[1], T[2], q.w(), q.x(), q.y(), q.z());
+        observe_position(tp, (float)T[0], (float)T[1], (float)T[2], (float)q.w(), (float)q.x(), (float)q.y(), (float)q.z());
     }
 
     /*

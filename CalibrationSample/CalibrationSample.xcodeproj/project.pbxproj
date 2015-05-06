@@ -460,6 +460,7 @@
 				32D930781AFA8E4B006ED7D0 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		32D930791AFA8E4B006ED7D0 /* Build configuration list for PBXNativeTarget "CalibrationSampleTests" */ = {
 			isa = XCConfigurationList;
@@ -468,6 +469,7 @@
 				32D9307B1AFA8E4B006ED7D0 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

@@ -7,9 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "RC3DK.h"
 
-@interface ViewController : UIViewController
+@interface ViewController : UIViewController <RCSensorFusionDelegate>
 
+@property (weak, nonatomic) IBOutlet UILabel *statusLabel;
 
 @end
 

@@ -7,7 +7,6 @@
 //
 
 #import "ViewController.h"
-#import "RC3DK.h"
 
 @interface ViewController ()
 
@@ -15,14 +14,79 @@
 
 @implementation ViewController
 
-- (void)viewDidLoad {
+- (void)viewDidLoad
+{
     [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
+    
+    [self.statusLabel setText:@"Place the device face up on a table."];
+    
+    [self startCalibration];
 }
 
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
+- (void) startCalibration
+{
+    [[RCSensorManager sharedInstance] startMotionSensors];
+    [[RCSensorFusion sharedInstance] setDelegate:self];
+    [[RCSensorFusion sharedInstance] startStaticCalibration];
 }
+
+- (void) stopCalibration
+{
+    [[RCSensorManager sharedInstance] stopAllSensors];
+    [[RCSensorFusion sharedInstance] stopSensorFusion];
+    [[RCSensorFusion sharedInstance] setDelegate:nil];
+}
+
+- (void) updateProgressDisplay:(float) progress
+{
+    NSString* progressString = [NSString stringWithFormat:@"Hold still... 00.0%f%%", progress * 100.];
+    [self.statusLabel setText:progressString];
+}
+
+#pragma mark - RCSensorFusionDelegate methods
+
+- (void)sensorFusionDidChangeStatus:(RCSensorFusionStatus *)status
+{
+    if (status.runState == RCSensorFusionRunStateStaticCalibration)
+    {
+        if (status.progress < 1.)
+        {
+            [self updateProgressDisplay:status.progress];
+        }
+        else
+        {
+            [self.statusLabel setText:@"Hold device in portrait orientation"];
+        }
+    }
+    else if (status.runState == RCSensorFusionRunStatePortraitCalibration)
+    {
+        if (status.progress < 1.)
+        {
+            [self updateProgressDisplay:status.progress];
+        }
+        else
+        {
+            [self.statusLabel setText:@"Hold device in landscape orientation"];
+        }
+    }
+    else if (status.runState == RCSensorFusionRunStateLandscapeCalibration)
+    {
+        if (status.progress < 1.)
+        {
+            [self updateProgressDisplay:status.progress];
+        }
+        else
+        {
+            [self.statusLabel setText:@"Calibration complete"];
+            [self stopCalibration];
+        }
+    }
+}
+
+- (void)sensorFusionDidUpdateData:(RCSensorFusionData *)data
+{
+    
+}
+
 
 @end

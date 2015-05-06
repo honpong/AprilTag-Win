@@ -9,6 +9,6 @@ namespace RealityCap
 		/**
 		Returns the formatted string.
 		*/
-		static std::wstring Log(std::wstring format, ...);
+		static void Log(std::wstring format, ...);
 	};
 }

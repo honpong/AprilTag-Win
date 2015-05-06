@@ -96,6 +96,31 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\corvis\src\filter\capture.h" />
+    <ClInclude Include="..\..\..\corvis\src\filter\device_parameters.h" />
+    <ClInclude Include="..\..\..\corvis\src\filter\fast_detector\fast.h" />
+    <ClInclude Include="..\..\..\corvis\src\filter\feature_info.h" />
+    <ClInclude Include="..\..\..\corvis\src\filter\filter.h" />
+    <ClInclude Include="..\..\..\corvis\src\filter\filter_setup.h" />
+    <ClInclude Include="..\..\..\corvis\src\filter\homography.h" />
+    <ClInclude Include="..\..\..\corvis\src\filter\intel_interface.h" />
+    <ClInclude Include="..\..\..\corvis\src\filter\observation.h" />
+    <ClInclude Include="..\..\..\corvis\src\filter\qr.h" />
+    <ClInclude Include="..\..\..\corvis\src\filter\replay.h" />
+    <ClInclude Include="..\..\..\corvis\src\filter\scaled_mask.h" />
+    <ClInclude Include="..\..\..\corvis\src\filter\state.h" />
+    <ClInclude Include="..\..\..\corvis\src\filter\state_motion.h" />
+    <ClInclude Include="..\..\..\corvis\src\filter\state_vision.h" />
+    <ClInclude Include="..\..\..\corvis\src\filter\tracker.h" />
+    <ClInclude Include="..\..\..\corvis\src\filter\utils.h" />
+    <ClInclude Include="..\..\..\corvis\src\numerics\covariance.h" />
+    <ClInclude Include="..\..\..\corvis\src\numerics\kalman.h" />
+    <ClInclude Include="..\..\..\corvis\src\numerics\matrix.h" />
+    <ClInclude Include="..\..\..\corvis\src\numerics\quaternion.h" />
+    <ClInclude Include="..\..\..\corvis\src\numerics\rotation.h" />
+    <ClInclude Include="..\..\..\corvis\src\numerics\rotation_vector.h" />
+    <ClInclude Include="..\..\..\corvis\src\numerics\sinc.h" />
+    <ClInclude Include="..\..\..\corvis\src\numerics\transformation.h" />
+    <ClInclude Include="..\..\..\corvis\src\numerics\vec4.h" />
     <ClInclude Include="CalibrationManager.h" />
     <ClInclude Include="CaptureManager.h" />
     <ClInclude Include="Debug.h" />
@@ -109,22 +134,27 @@
     <ClInclude Include="VideoManager.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\corvis\src\cor\platform\win\sensor_clock.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\cor\platform\win\sensor_data.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\cor\sensor_fusion_queue.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\filter\capture.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-    </ClCompile>
+    <ClCompile Include="..\..\..\corvis\src\cor\platform\win\sensor_clock.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\cor\platform\win\sensor_data.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\cor\sensor_fusion_queue.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\filter\camera_control_interface_dummy.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\filter\capture.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\filter\device_parameters.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\filter\fast_detector\fast_9.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\filter\filter.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\filter\filter_setup.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\filter\homography.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\filter\observation.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\filter\qr.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\filter\replay.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\filter\scaled_mask.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\filter\state.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\filter\state_motion.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\filter\state_vision.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\numerics\kalman.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\numerics\matrix.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\numerics\rotation_vector.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\numerics\vec4.cpp" />
     <ClCompile Include="CalibrationManager.cpp" />
     <ClCompile Include="CaptureManager.cpp" />
     <ClCompile Include="Debug.cpp" />

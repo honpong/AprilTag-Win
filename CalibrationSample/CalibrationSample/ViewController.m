@@ -58,7 +58,7 @@
 
 - (void)sensorFusionDidChangeStatus:(RCSensorFusionStatus *)status
 {
-    if (status.runState == RCSensorFusionRunStateStaticCalibration) // static calibration is the first of three calibration stages
+    if (status.runState == RCSensorFusionRunStateStaticCalibration) // static calibration (face up) is the first of three calibration stages
     {
         if (status.progress > 0)
         {

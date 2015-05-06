@@ -47,7 +47,6 @@ public:
     f_t meas[_size];
     virtual void set_prediction_covariance(const matrix &cov, const int index) { for(int i = 0; i < size; ++i) for(int j = 0; j < size; ++j) pred_cov[i][j] = cov(index + i, index + j); }
     virtual void compute_innovation() { for(int i = 0; i < size; ++i) inn[i] = meas[i] - pred[i]; }
-    virtual void copy_innovation_to_array(float inn_out[_size]) const { for(int i = 0; i < _size; ++i) inn_out[i] = inn[i]; }
     virtual f_t innovation(const int i) const { return inn[i]; }
     virtual f_t measurement_covariance(const int i) const { return m_cov[i]; }
     observation_storage(sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation(_size, _time_actual, _time_apparent) {}
@@ -103,7 +102,7 @@ class observation_spatial: public observation_storage<3> {
     void innovation_covariance_hook(const matrix &cov, int index)
     {
         if(show_tuning) {
-            fprintf(stderr, " predicted stdev is %e %e %e\n", sqrtf(cov(index, index)), sqrtf(cov(index+1, index+1)), sqrtf(cov(index+2, index+2)));
+            fprintf(stderr, " predicted stdev is %e %e %e\n", sqrt(cov(index, index)), sqrt(cov(index+1, index+1)), sqrt(cov(index+2, index+2)));
         }
     }
 };

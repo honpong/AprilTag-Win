@@ -214,7 +214,7 @@ void world_state_render_teardown()
 
 void world_state_render(world_state * world, float * _modelViewProjectionMatrix, float * _normalMatrix)
 {
-    glClearColor(.274, .286, .349, 1.0f); // background color
+    glClearColor(.274f, .286f, .349f, 1.0f); // background color
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     glUseProgram(_program);

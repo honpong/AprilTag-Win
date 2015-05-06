@@ -96,17 +96,17 @@
     switch ([RCDeviceInfo getDeviceType])
     {
         case DeviceTypeiPadMini:
-            return 0.055;
+            return 0.055f;
         case DeviceTypeiPadMiniRetina:
-            return 0.055;
+            return 0.055f;
         case DeviceTypeiPadMiniRetina2:
-            return 0.055;
+            return 0.055f;
         case DeviceTypeiPhone6:
-            return 0.05852;
+            return 0.05852f;
         case DeviceTypeiPhone6Plus:
-            return 0.06848;
+            return 0.06848f;
         default:
-            return UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? 0.061 : 0.050;
+            return UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad ? 0.061f : 0.050f;
     }
 }
 

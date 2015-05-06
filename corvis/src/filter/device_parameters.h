@@ -1,11 +1,8 @@
 #ifndef DEVICE_PARAMETERS_H
 #define DEVICE_PARAMETERS_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #include <stdbool.h>
+#include "../cor/platform/sensor_clock.h"
 
 struct corvis_device_parameters
 {
@@ -24,7 +21,7 @@ struct corvis_device_parameters
     float Wc[3];
     float Wc_var[3];
     int image_width, image_height;
-    int shutter_delay, shutter_period;
+    sensor_clock::duration shutter_delay, shutter_period;
 };
 
 typedef enum
@@ -56,9 +53,5 @@ bool get_parameters_for_device_name(const char * name, struct corvis_device_para
 
 void device_set_resolution(struct corvis_device_parameters *dc, int image_width, int image_height);
 void device_set_framerate(struct corvis_device_parameters *dc, float framerate_hz);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

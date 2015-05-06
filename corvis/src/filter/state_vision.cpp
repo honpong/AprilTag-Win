@@ -274,13 +274,13 @@ feature_t state_vision::calibrate_feature(const feature_t &initial) const
 {
     feature_t norm, calib;
     
-    norm.x = (initial.x - center_x.v) / focal_length.v;
-    norm.y = (initial.y - center_y.v) / focal_length.v;
+    norm.x = (float)((initial.x - center_x.v) / focal_length.v);
+    norm.y = (float)((initial.y - center_y.v) / focal_length.v);
     
     f_t r2, kr;
     fill_calibration(norm, r2, kr);
-    calib.x = norm.x / kr;
-    calib.y = norm.y / kr;
+    calib.x = (float)(norm.x / kr);
+    calib.y = (float)(norm.y / kr);
     return calib;
 }
 

@@ -178,7 +178,7 @@ void observation_vision_feature::innovation_covariance_hook(const matrix &cov, i
     feature->innovation_variance_y = cov(index + 1, index + 1);
     feature->innovation_variance_xy = cov(index, index +1);
     if(show_tuning) {
-        fprintf(stderr, " predicted stdev is %e %e\n", sqrtf(cov(index, index)), sqrtf(cov(index+1, index+1)));
+        fprintf(stderr, " predicted stdev is %e %e\n", sqrt(cov(index, index)), sqrt(cov(index+1, index+1)));
     }
 }
 
@@ -192,8 +192,8 @@ void observation_vision_feature::predict()
     Rtot = Rct * Rrt * Rc;
     Ttot = Rct * (Rrt * (state.Tc.v - state_group->Tr.v) - state.Tc.v);
 
-    norm_initial.x = (feature->initial[0] - state.center_x.v) / state.focal_length.v;
-    norm_initial.y = (feature->initial[1] - state.center_y.v) / state.focal_length.v;
+    norm_initial.x = (float)((feature->initial[0] - state.center_x.v) / state.focal_length.v);
+    norm_initial.y = (float)((feature->initial[1] - state.center_y.v) / state.focal_length.v);
 
     f_t r2, kr;
     state.fill_calibration(norm_initial, r2, kr);
@@ -218,12 +218,14 @@ void observation_vision_feature::predict()
         fprintf(stderr, "FAILURE in feature projection in observation_vision_feature::predict\n");
     }
 
-    norm_predicted.x = ippred[0];
-    norm_predicted.y = ippred[1];
+    norm_predicted.x = (float)ippred[0];
+    norm_predicted.y = (float)ippred[1];
 
     state.fill_calibration(norm_predicted, r2, kr);
-    feature->prediction.x = pred[0] = norm_predicted.x * kr * state.focal_length.v + state.center_x.v;
-    feature->prediction.y = pred[1] = norm_predicted.y * kr * state.focal_length.v + state.center_y.v;
+    pred[0] = norm_predicted.x * kr * state.focal_length.v + state.center_x.v;
+    pred[1] = norm_predicted.y * kr * state.focal_length.v + state.center_y.v;
+    feature->prediction.x = (float)pred[0];
+    feature->prediction.y = (float)pred[1];
 }
 
 void observation_vision_feature::cache_jacobians()
@@ -380,13 +382,13 @@ f_t observation_vision_feature::projection_residual(const v4 & X, const xy &foun
     feature_t norm, uncalib;
     f_t r2, kr;
     
-    norm.x = ippred[0];
-    norm.y = ippred[1];
+    norm.x = (float)ippred[0];
+    norm.y = (float)ippred[1];
     
     state.fill_calibration(norm, r2, kr);
     
-    uncalib.x = norm.x * kr * state.focal_length.v + state.center_x.v;
-    uncalib.y = norm.y * kr * state.focal_length.v + state.center_y.v;
+    uncalib.x = (float)(norm.x * kr * state.focal_length.v + state.center_x.v);
+    uncalib.y = (float)(norm.y * kr * state.focal_length.v + state.center_y.v);
     f_t dx = uncalib.x - found.x;
     f_t dy = uncalib.y - found.y;
     return dx * dx + dy * dy;
@@ -411,8 +413,8 @@ void observation_vision_feature::update_initializing()
     }
     
     xy bestkp;
-    bestkp.x = meas[0];
-    bestkp.y = meas[1];
+    bestkp.x = (float)meas[0];
+    bestkp.y = (float)meas[1];
     
     min_d2 = projection_residual(X_inf + min * Ttot, bestkp);
     max_d2 = projection_residual(X_inf + max * Ttot, bestkp);
@@ -442,22 +444,22 @@ void observation_vision_feature::update_initializing()
     predict();
 }
 
-const float tracker_min_match = 0.4;
-const float tracker_good_match = 0.75;
-const float tracker_radius = 5.5;
+const float tracker_min_match = 0.4f;
+const float tracker_good_match = 0.75f;
+const float tracker_radius = 5.5f;
 bool observation_vision_feature::measure()
 {
-    xy bestkp = tracker.track(feature->patch, image, feature->current[0] + feature->image_velocity.x, feature->current[1] + feature->image_velocity.y, tracker_radius, tracker_min_match);
+    xy bestkp = tracker.track(feature->patch, image, (float)feature->current[0] + feature->image_velocity.x, (float)feature->current[1] + feature->image_velocity.y, tracker_radius, tracker_min_match);
 
     // Not a good enough match, try the filter prediction
     if(bestkp.score < tracker_good_match) {
-        xy bestkp2 = tracker.track(feature->patch, image, pred[0], pred[1], tracker_radius, bestkp.score);
+        xy bestkp2 = tracker.track(feature->patch, image, (float)pred[0], (float)pred[1], tracker_radius, bestkp.score);
         if(bestkp2.score > bestkp.score)
             bestkp = bestkp2;
     }
     // Still no match? Guess that we haven't moved at all
     if(bestkp.score < tracker_min_match) {
-        xy bestkp2 = tracker.track(feature->patch, image, feature->current[0], feature->current[1], 5.5, bestkp.score);
+        xy bestkp2 = tracker.track(feature->patch, image, (float)feature->current[0], (float)feature->current[1], 5.5, bestkp.score);
         if(bestkp2.score > bestkp.score)
             bestkp = bestkp2;
     }
@@ -465,8 +467,8 @@ bool observation_vision_feature::measure()
     bool valid = bestkp.x != INFINITY;
 
     if(valid) {
-        feature->image_velocity.x  = bestkp.x - feature->current[0];
-        feature->image_velocity.y  = bestkp.y - feature->current[1];
+        feature->image_velocity.x  = bestkp.x - (float)feature->current[0];
+        feature->image_velocity.y  = bestkp.y - (float)feature->current[1];
     }
     else {
         feature->image_velocity.x = 0;

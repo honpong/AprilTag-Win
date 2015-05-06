@@ -169,7 +169,7 @@ void replay::start()
                 1.*bytes_dispatched / size > 0.99))
             {
                 last_progress = now;
-                progress_callback(1.*bytes_dispatched / size);
+                progress_callback(bytes_dispatched / (float)size);
             }
         }
         
@@ -179,7 +179,7 @@ void replay::start()
     while(queue->dispatch_offline(true)) {}
     file.close();
 
-    length = cor_setup->sfm.s.T.v.norm() * 100;
+    length = (float) cor_setup->sfm.s.T.v.norm() * 100;
     path_length = cor_setup->sfm.s.total_distance * 100;
 }
 

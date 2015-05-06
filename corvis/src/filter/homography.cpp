@@ -58,8 +58,8 @@ bool homography_check_solution(const m4 &R, const v4 &T, const feature_t p1[4], 
         v4 x2 = v4(p2[i].x, p2[i].y, 1, 0);
         m4 skew_Rx1 = skew3(R*x1);
         m4 skew_x2 = skew3(x2);
-        float alpha1 = -(skew_x2*T).dot(skew_x2*R*x1)/pow((skew_x2*T).norm(), 2);
-        float alpha2 =  (skew_Rx1*x2).dot(skew_Rx1*T)/pow((skew_Rx1*x2).norm(), 2);
+        float alpha1 = (float)(-(skew_x2*T).dot(skew_x2*R*x1)/pow((skew_x2*T).norm(), 2));
+        float alpha2 =  (float)((skew_Rx1*x2).dot(skew_Rx1*T)/pow((skew_Rx1*x2).norm(), 2));
         //fprintf(stderr, "alpha1 %f alpha2 %f\n", alpha1, alpha2);
         if(alpha1 > 0 && alpha2 > 0)
             nvalid++;

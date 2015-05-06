@@ -54,8 +54,8 @@
         KEY_AMEASVAR: @(params.a_meas_var),
         KEY_IMAGE_WIDTH: @(params.image_width),
         KEY_IMAGE_HEIGHT: @(params.image_height),
-        KEY_SHUTTER_DELAY: @(params.shutter_delay),
-        KEY_SHUTTER_PERIOD: @(params.shutter_period)};
+        KEY_SHUTTER_DELAY: @(std::chrono::duration_cast<std::chrono::microseconds>(params.shutter_delay).count()),
+        KEY_SHUTTER_PERIOD: @(std::chrono::duration_cast<std::chrono::microseconds>(params.shutter_period).count())};
     
     [[NSUserDefaults standardUserDefaults] setObject:data forKey:PREF_DEVICE_PARAMS];
     [[NSUserDefaults standardUserDefaults] synchronize];
@@ -173,8 +173,8 @@
         dc->a_meas_var = [((NSNumber*)data[KEY_AMEASVAR]) floatValue];
         dc->image_width = [((NSNumber*)data[KEY_IMAGE_WIDTH]) intValue];
         dc->image_height = [((NSNumber*)data[KEY_IMAGE_HEIGHT]) intValue];
-        dc->shutter_delay = [((NSNumber*)data[KEY_SHUTTER_DELAY]) intValue];
-        dc->shutter_period = [((NSNumber*)data[KEY_SHUTTER_PERIOD]) intValue];
+        dc->shutter_delay = std::chrono::microseconds([((NSNumber*)data[KEY_SHUTTER_DELAY]) intValue]);
+        dc->shutter_period = std::chrono::microseconds([((NSNumber*)data[KEY_SHUTTER_PERIOD]) intValue]);
     }
     @catch (NSException *exception) {
         DLog(@"Failed to get saved calibration data: %@", exception.debugDescription);
@@ -203,7 +203,7 @@
             "Tc % .4f % .4f % .4f %.1e %.1e %.1e\n"
             "Wc % .4f % .4f % .4f %.1e %.1e %.1e\n\n"
             
-            "wm %e am %e width %d height %d period %d delay %d\n",
+            "wm %e am %e width %d height %d period %lld delay %lld\n",
             dc.Fx, dc.Fy,
             dc.Cx, dc.Cy,
             dc.px, dc.py,
@@ -212,7 +212,7 @@
             dc.w_bias[0], dc.w_bias[1], dc.w_bias[2], dc.w_bias_var[0], dc.w_bias_var[1], dc.w_bias_var[2],
             dc.Tc[0], dc.Tc[1], dc.Tc[2], dc.Tc_var[0], dc.Tc_var[1], dc.Tc_var[2],
             dc.Wc[0], dc.Wc[1], dc.Wc[2], dc.Wc_var[0], dc.Wc_var[1], dc.Wc_var[2],
-            dc.w_meas_var, dc.a_meas_var, dc.image_width, dc.image_height, dc.shutter_period, dc.shutter_delay];
+            dc.w_meas_var, dc.a_meas_var, dc.image_width, dc.image_height, std::chrono::duration_cast<std::chrono::microseconds>(dc.shutter_period).count(), std::chrono::duration_cast<std::chrono::microseconds>(dc.shutter_delay).count()];
 }
 
 + (NSString*) getCalibrationAsString

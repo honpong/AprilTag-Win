@@ -285,17 +285,17 @@ static void print_calibration(struct filter *f)
 
 static float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
 {
-    return current < end ? 1. : (log(begin) - log(current)) / (log(begin) - log(end)); //log here seems to give smoother progress
+    return current < end ? 1.f : (float) ((log(begin) - log(current)) / (log(begin) - log(end))); //log here seems to give smoother progress
 }
 
-static f_t get_bias_convergence(struct filter *f, int dir)
+static float get_bias_convergence(struct filter *f, int dir)
 {
-    f_t max_pct = var_bounds_to_std_percent(f->s.a_bias.variance()[dir], f->a_bias_start[dir], min_a_bias_var);
-    f_t pct = f->accel_stability.count / (f_t)calibration_converge_samples;
-    if(f->last_time - f->stable_start < min_steady_time) pct = 0.;
+    float max_pct = (float)var_bounds_to_std_percent(f->s.a_bias.variance()[dir], f->a_bias_start[dir], min_a_bias_var);
+    float pct = (float)f->accel_stability.count / (float)calibration_converge_samples;
+    if(f->last_time - f->stable_start < min_steady_time) pct = 0.f;
     if(pct > max_pct) max_pct = pct;
-    if(max_pct < 0.) max_pct = 0.;
-    if(max_pct > 1.) max_pct = 1.;
+    if(max_pct < 0.f) max_pct = 0.f;
+    if(max_pct > 1.f) max_pct = 1.f;
     return max_pct;
 }
 
@@ -635,7 +635,7 @@ static void addfeatures(struct filter *f, size_t newfeats, const unsigned char *
     if(!f->scaled_mask) f->scaled_mask = new scaled_mask(width, height);
     f->scaled_mask->initialize();
     for(state_vision_feature *i : f->s.features) {
-        f->scaled_mask->clear(i->current[0], i->current[1]);
+        f->scaled_mask->clear((int)i->current[0], (int)i->current[1]);
     }
 
     // Run detector
@@ -649,21 +649,19 @@ static void addfeatures(struct filter *f, size_t newfeats, const unsigned char *
 
     int found_feats = 0;
     for(int i = 0; i < (int)kp.size(); ++i) {
-        int x = kp[i].x;
-        int y = kp[i].y;
+        int x = (int)kp[i].x;
+        int y = (int)kp[i].y;
         if(x > 0 && y > 0 && x < (int)width-1 && y < (int)height-1 && f->scaled_mask->test(x, y)) {
             f->scaled_mask->clear(x, y);
             state_vision_feature *feat = f->s.add_feature(x, y);
-            int lx = floor(x);
-            int ly = floor(y);
-            feat->intensity = (((unsigned int)img[lx + ly*width]) + img[lx + 1 + ly * width] + img[lx + width + ly * width] + img[lx + 1 + width + ly * width]) >> 2;
+            feat->intensity = (uint8_t)((((unsigned int)img[x + y*width]) + img[x + 1 + y * width] + img[x + width + y * width] + img[x + 1 + width + y * width]) >> 2);
             int half_patch = f->track.half_patch_width;
             int full_patch = 2 * half_patch + 1;
             for(int py = 0; py < full_patch; ++py)
             {
                 for(int px = 0; px <= full_patch; ++px)
                 {
-                    feat->patch[py * full_patch + px] = img[lx + px - half_patch + (ly + py - half_patch) * width];
+                    feat->patch[py * full_patch + px] = img[x + px - half_patch + (y + py - half_patch) * width];
                 }
             }
             g->features.children.push_back(feat);
@@ -859,13 +857,13 @@ bool filter_image_measurement(struct filter *f, const unsigned char *data, int w
     if(useful_feats.size())
     {
         sort(useful_feats.begin(), useful_feats.end(), [](state_vision_feature *a, state_vision_feature *b) { return a->variance() < b->variance(); });
-        f->median_depth_variance = useful_feats[useful_feats.size() / 2]->variance();
+        f->median_depth_variance = (float)useful_feats[useful_feats.size() / 2]->variance();
     }
     else
     {
         f->median_depth_variance = 1.;
     }
-    float velocity = f->s.V.v.norm();
+    float velocity = (float)f->s.V.v.norm();
     if(velocity > f->max_velocity) f->max_velocity = velocity;
     
     if(f->max_velocity > convergence_minimum_velocity && f->median_depth_variance < convergence_maximum_depth_variance) f->has_converged = true;
@@ -1094,8 +1092,8 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->s.k2.set_initial_variance(BEGIN_K2_VAR);
     f->s.k3.set_initial_variance(BEGIN_K3_VAR);
     
-    f->shutter_delay = std::chrono::microseconds(device.shutter_delay);
-    f->shutter_period = std::chrono::microseconds(device.shutter_period);
+    f->shutter_delay = device.shutter_delay;
+    f->shutter_period = device.shutter_period;
     f->image_height = device.image_height;
     f->image_width = device.image_width;
     
@@ -1122,14 +1120,14 @@ float filter_converged(struct filter *f)
     if(f->run_state == RCSensorFusionRunStateSteadyInitialization) {
         if(f->stable_start == sensor_clock::micros_to_tp(0)) return 0.;
         float progress = (f->last_time - f->stable_start) / std::chrono::duration_cast<std::chrono::duration<float>>(steady_converge_time);
-        if(progress >= .99) return 0.99; //If focus takes a long time, we won't know how long it will take
+        if(progress >= .99f) return 0.99f; //If focus takes a long time, we won't know how long it will take
         return progress;
     } else if(f->run_state == RCSensorFusionRunStatePortraitCalibration) {
         return get_bias_convergence(f, 1);
     } else if(f->run_state == RCSensorFusionRunStateLandscapeCalibration) {
         return get_bias_convergence(f, 0);
     } else if(f->run_state == RCSensorFusionRunStateStaticCalibration) {
-        return min(f->accel_stability.count / (f_t)calibration_converge_samples, get_bias_convergence(f, 2));
+        return fmin(f->accel_stability.count / (float)calibration_converge_samples, get_bias_convergence(f, 2));
     } else if(f->run_state == RCSensorFusionRunStateRunning || f->run_state == RCSensorFusionRunStateDynamicInitialization) { // TODO: proper progress for dynamic init, if needed.
         return 1.;
     } else return 0.;
@@ -1148,13 +1146,13 @@ int filter_get_features(struct filter *f, struct corvis_feature_info *features, 
     for(state_vision_feature *i : f->s.features) {
         if(index >= max) break;
         features[index].id = i->id;
-        features[index].x = i->current[0];
-        features[index].y = i->current[1];
-        features[index].wx = i->world[0];
-        features[index].wy = i->world[1];
-        features[index].wz = i->world[2];
-        features[index].depth = i->depth;
-        features[index].stdev = i->v.stdev_meters(sqrt(i->variance()));
+        features[index].x = (float)i->current[0];
+        features[index].y = (float)i->current[1];
+        features[index].wx = (float)i->world[0];
+        features[index].wy = (float)i->world[1];
+        features[index].wz = (float)i->world[2];
+        features[index].depth = (float)i->depth;
+        features[index].stdev = (float)i->v.stdev_meters(sqrt(i->variance()));
         ++index;
     }
     return index;
@@ -1162,16 +1160,16 @@ int filter_get_features(struct filter *f, struct corvis_feature_info *features, 
 
 void filter_get_camera_parameters(struct filter *f, float matrix[16], float focal_center_radial[5])
 {
-    focal_center_radial[0] = f->s.focal_length.v;
-    focal_center_radial[1] = f->s.center_x.v;
-    focal_center_radial[2] = f->s.center_y.v;
-    focal_center_radial[3] = f->s.k1.v;
-    focal_center_radial[4] = f->s.k2.v;
+    focal_center_radial[0] = (float)f->s.focal_length.v;
+    focal_center_radial[1] = (float)f->s.center_x.v;
+    focal_center_radial[2] = (float)f->s.center_y.v;
+    focal_center_radial[3] = (float)f->s.k1.v;
+    focal_center_radial[4] = (float)f->s.k2.v;
 
     //transpose for opengl
     for(int i = 0; i < 4; ++i) {
         for(int j = 0; j < 4; ++j) {
-            matrix[j * 4 + i] = f->s.camera_matrix(i, j);
+            matrix[j * 4 + i] = (float)f->s.camera_matrix(i, j);
         }
     }
 }

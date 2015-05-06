@@ -9,10 +9,8 @@
 
 @implementation RCTranslation
 
-//TODO: Can we use vsqrtf?
 - (RCPoint *)transformPoint:(RCPoint *)point
 {
-    //vFloat stdSum = vsqrtf(point.standardDeviation * point.standardDeviation + self.standardDeviation * self.standardDeviation);
     vFloat sumprod = point.standardDeviation * point.standardDeviation + self.standardDeviation + self.standardDeviation;
     vFloat stdSum = (vFloat) { sqrtf(sumprod[0]), sqrtf(sumprod[1]), sqrtf(sumprod[2]), 0. };
     return [[RCPoint alloc] initWithVector:point.vector + self.vector withStandardDeviation:stdSum];

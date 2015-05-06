@@ -60,8 +60,8 @@ void device_set_resolution(struct corvis_device_parameters *dc, int image_width,
 
 void device_set_framerate(struct corvis_device_parameters *dc, float framerate_hz)
 {
-    dc->shutter_delay = 0;
-    dc->shutter_period = 1e6 * 1./framerate_hz;
+    dc->shutter_delay = sensor_clock::duration(0);
+    dc->shutter_period = std::chrono::duration_cast<sensor_clock::duration>(std::chrono::duration<float>(1.f/framerate_hz));
 }
 
 bool get_parameters_for_device(corvis_device_type type, struct corvis_device_parameters *dc)

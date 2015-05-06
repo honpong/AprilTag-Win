@@ -1094,8 +1094,8 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->s.k2.set_initial_variance(BEGIN_K2_VAR);
     f->s.k3.set_initial_variance(BEGIN_K3_VAR);
     
-    f->shutter_delay = std::chrono::microseconds(device.shutter_delay);
-    f->shutter_period = std::chrono::microseconds(device.shutter_period);
+    f->shutter_delay = device.shutter_delay;
+    f->shutter_period = device.shutter_period;
     f->image_height = device.image_height;
     f->image_width = device.image_width;
     

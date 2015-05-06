@@ -54,8 +54,8 @@
         KEY_AMEASVAR: @(params.a_meas_var),
         KEY_IMAGE_WIDTH: @(params.image_width),
         KEY_IMAGE_HEIGHT: @(params.image_height),
-        KEY_SHUTTER_DELAY: @(params.shutter_delay),
-        KEY_SHUTTER_PERIOD: @(params.shutter_period)};
+        KEY_SHUTTER_DELAY: @(std::chrono::duration_cast<std::chrono::microseconds>(params.shutter_delay).count()),
+        KEY_SHUTTER_PERIOD: @(std::chrono::duration_cast<std::chrono::microseconds>(params.shutter_period).count())};
     
     [[NSUserDefaults standardUserDefaults] setObject:data forKey:PREF_DEVICE_PARAMS];
     [[NSUserDefaults standardUserDefaults] synchronize];
@@ -173,8 +173,8 @@
         dc->a_meas_var = [((NSNumber*)data[KEY_AMEASVAR]) floatValue];
         dc->image_width = [((NSNumber*)data[KEY_IMAGE_WIDTH]) intValue];
         dc->image_height = [((NSNumber*)data[KEY_IMAGE_HEIGHT]) intValue];
-        dc->shutter_delay = [((NSNumber*)data[KEY_SHUTTER_DELAY]) intValue];
-        dc->shutter_period = [((NSNumber*)data[KEY_SHUTTER_PERIOD]) intValue];
+        dc->shutter_delay = std::chrono::microseconds([((NSNumber*)data[KEY_SHUTTER_DELAY]) intValue]);
+        dc->shutter_period = std::chrono::microseconds([((NSNumber*)data[KEY_SHUTTER_PERIOD]) intValue]);
     }
     @catch (NSException *exception) {
         DLog(@"Failed to get saved calibration data: %@", exception.debugDescription);

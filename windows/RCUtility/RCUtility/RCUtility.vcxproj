@@ -59,6 +59,7 @@
       <CompileAsWinRT>true</CompileAsWinRT>
       <MinimalRebuild>false</MinimalRebuild>
       <AdditionalIncludeDirectories>../../AccelerometerLib/AccelerometerLib/;C:\Program Files %28x86%29\Intel\Composer XE 2015\mkl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4200;4244;4305;4458</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -80,6 +81,7 @@
       <AdditionalUsingDirectories>C:\Program Files %28x86%29\Windows Kits\8.1\References\CommonConfiguration\Neutral;C:\Program Files %28x86%29\Microsoft SDKs\Windows\v8.1\ExtensionSDKs\Microsoft.VCLibs\12.0\References\CommonConfiguration\neutral;%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
       <CompileAsWinRT>true</CompileAsWinRT>
       <AdditionalIncludeDirectories>../../AccelerometerLib/AccelerometerLib/;C:\Program Files %28x86%29\Intel\Composer XE 2015\mkl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4200;4244;4305;4458</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

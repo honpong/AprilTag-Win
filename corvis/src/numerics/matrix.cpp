@@ -11,14 +11,23 @@
 
 #include "matrix.h"
 #include <math.h>
+
+#ifndef WIN32
 #include <alloca.h>
+#else
+#define alloca _malloca
+#endif
 
 #ifdef __APPLE__
 #include <Accelerate/Accelerate.h>
 #define lapack_int __CLPK_integer
-#else
+#else // __APPLE__
+#ifdef WIN32
+#include "mkl.h"
+#else // WIN32
 #include <cblas.h>
 #include <lapacke.h>
+#endif
 #endif
 
 #ifdef F_T_IS_SINGLE

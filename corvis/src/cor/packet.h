@@ -11,6 +11,10 @@
 #include <stdbool.h>
 #include "cor_types.h"
 
+#ifdef WIN32
+#pragma warning (push)
+#pragma warning (disable : 4200)
+#endif
 
 //WARNING: Do not change the order of this enum, or insert new packet types in the middle
 //Only append new packet types after the last one previously defined.
@@ -241,6 +245,10 @@ void packet_camera_read_bmp(packet_camera_t *p, const char *name);
 void packet_receive(void *listener, packet_t *p);
 #ifdef SWIG
 %nocallback;
+#endif
+
+#ifdef WIN32
+#pragma warning (pop)
 #endif
 
 #endif

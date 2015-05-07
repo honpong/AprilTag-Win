@@ -77,10 +77,10 @@ public:
     void data(const v4 &x) {
         ++count;
         v4 delta = x - mean;
-        mean = mean + delta / count;
+        mean = mean + delta / (f_t)count;
         M2 = M2 + delta.cwiseProduct(x - mean);
         if(x.norm() > max) max = x.norm();
-        variance = M2 / (count - 1);
+        variance = M2 / (f_t)(count - 1);
         stdev = v4(sqrt(variance[0]), sqrt(variance[1]), sqrt(variance[2]), sqrt(variance[3]));
     }
 };

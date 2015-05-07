@@ -163,7 +163,7 @@ bool observation_queue::process(state &s, sensor_clock::time_point time)
     observations.clear();
     f_t delta_T = (s.T.v - s.last_position).norm();
     if(delta_T > .01) {
-        s.total_distance += delta_T;
+        s.total_distance += (float)delta_T;
         s.last_position = s.T.v;
     }
 #ifdef TEST_POSDEF

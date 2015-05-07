@@ -77,7 +77,7 @@ state_vision_group::state_vision_group(const state_vision_group &other): Tr(othe
     children.push_back(&Wr);
 }
 
-state_vision_group::state_vision_group(): Tr("Tr"), Wr("Wr"), health(0.), status(group_initializing)
+state_vision_group::state_vision_group(): Tr("Tr"), Wr("Wr"), health(0), status(group_initializing)
 {
     id = counter++;
     Tr.dynamic = true;

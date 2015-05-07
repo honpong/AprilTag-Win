@@ -871,7 +871,7 @@ bool filter_image_measurement(struct filter *f, const unsigned char *data, int w
     filter_update_outputs(f, time);
     f_t delta_T = (f->s.T.v - f->s.last_position).norm();
     if(delta_T > .01) {
-        f->s.total_distance += (f->s.T.v - f->s.last_position).norm();
+        f->s.total_distance += (float)(f->s.T.v - f->s.last_position).norm();
         f->s.last_position = f->s.T.v;
     }
 

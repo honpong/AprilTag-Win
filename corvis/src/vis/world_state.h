@@ -39,8 +39,8 @@ private:
     std::vector<Position> path;
     sensor_clock::time_point current_feature_timestamp;
     sensor_clock::time_point current_timestamp;
-    int path_vertex_alloc = 1000;
-    int feature_vertex_alloc = 1000;
+    std::size_t path_vertex_alloc = 1000;
+    std::size_t feature_vertex_alloc = 1000;
     void build_grid_vertex_data();
 
     std::vector<plot> plots;

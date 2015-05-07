@@ -6005,8 +6005,8 @@ xy fast_detector_9::track(const unsigned char *im1, const unsigned char *im2, in
 
         float score = score_match(im1, xcurrent, ycurrent, im2, x, y, best.score);
         if(score > best.score) {
-            best.x = x;
-            best.y = y;
+            best.x = (float)x;
+            best.y = (float)y;
             best.score = score;
         }
         }

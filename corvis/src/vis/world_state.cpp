@@ -20,7 +20,7 @@ static VertexData orientation_data[] = {
     {{0, 0, .5}, {247, 88, 98, 255}},
 };
 
-static int max_plot_samples = 1000;
+static std::size_t max_plot_samples = 1000;
 void world_state::render_plots(std::function<void (plot&)> render_plot)
 {
     plot_lock.lock();
@@ -138,10 +138,10 @@ void world_state::update_vertex_arrays(bool show_only_good)
 
     // reallocate if we now have more data than room for vertices
     if(feature_vertex_alloc < features.size()) {
-        feature_vertex = (VertexData *)realloc(feature_vertex, sizeof(VertexData)*features.size()*1.5);
+        feature_vertex = (VertexData *)realloc(feature_vertex, sizeof(VertexData)*features.size()*2);
     }
     if(path_vertex_alloc < path.size()) {
-        path_vertex = (VertexData *)realloc(path_vertex, sizeof(VertexData)*features.size()*1.5);
+        path_vertex = (VertexData *)realloc(path_vertex, sizeof(VertexData)*features.size()*2);
     }
 
     idx = 0;
@@ -171,9 +171,9 @@ void world_state::update_vertex_arrays(bool show_only_good)
                           axis_vertex[i].position[2],
                           0);
                 vertex = transformation_apply(p.g, vertex);
-                orientation_data[i].position[0] = vertex[0];
-                orientation_data[i].position[1] = vertex[1];
-                orientation_data[i].position[2] = vertex[2];
+                orientation_data[i].position[0] = (float)vertex[0];
+                orientation_data[i].position[1] = (float)vertex[1];
+                orientation_data[i].position[2] = (float)vertex[2];
             }
         }
         else

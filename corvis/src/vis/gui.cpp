@@ -62,10 +62,10 @@ void gui::mouse(int button, int state, int x, int y)
     }
 }
 
-#include "lodepng.h"
+/*#include "lodepng.h"
 #include <mgl2/mgl.h>
 void gui::create_plots()
-{/*
+{
     mglGraph gr(0,600,400); // 600x400 graph, plotted to an image
     int width = gr.GetWidth();
     int height = gr.GetHeight();
@@ -120,7 +120,7 @@ void gui::create_plots()
         if(error)
             fprintf(stderr, "encoder error %d: %s\n", error, lodepng_error_text(error));
     });
-*/}
+}*/
 
 void gui::keyboard(unsigned char key, int x, int y)
 {
@@ -134,8 +134,8 @@ void gui::keyboard(unsigned char key, int x, int y)
        replay_control->toggle_pause();
     if(key == 's')
        replay_control->step();
-    if(key == 'p')
-       create_plots();
+    //if(key == 'p')
+     //   create_plots();
 }
 
 void gui::init_gl()

@@ -14,31 +14,30 @@
 
 typedef std::pair<PXCImage *, PXCImage::ImageData> handle_type;
 
-camera_data::camera_data(void *h) : image_handle(h, [](void *h) {})
+camera_data::camera_data(void *h) : image_handle(new handle_type, [](void *h) { delete (handle_type *)h;  })
 {
-    PXCImage *pxci = (PXCImage *)h;
-    PXCImage::ImageData data;
-    auto result = pxci->AcquireAccess(PXCImage::ACCESS_READ, PXCImage::PIXEL_FORMAT_Y8, &data);
-    if(result != PXC_STATUS_NO_ERROR || !data.planes[0]) throw std::runtime_error("PXCImage->AcquireAccess failed!");
-    image_handle.reset(new handle_type(pxci, data)); //TODO avoid allocation here?
- 
-    image = data.planes[0];
-    stride = data.pitches[0];
-    auto info = pxci->QueryInfo();
+    auto handle = (handle_type *)image_handle.get();
+    handle->first = (PXCImage *)h;
+    auto result = handle->first->AcquireAccess(PXCImage::ACCESS_READ, PXCImage::PIXEL_FORMAT_Y8, &handle->second);
+    if (result != PXC_STATUS_NO_ERROR || !handle->second.planes[0]) throw std::runtime_error("PXCImage->AcquireAccess failed!"); 
+    image = handle->second.planes[0];
+    stride = handle->second.pitches[0];
+    auto info = handle->first->QueryInfo();
     width = info.width;
     height = info.height;
-    auto time = pxci->QueryTimeStamp();
+    auto time = handle->first->QueryTimeStamp();
     std::cerr << "camera timestamp: " << time << "\n";
     //TODO: timestamp
     timestamp = sensor_clock::now();
+    handle->first->AddRef();
 }
 
 camera_data::~camera_data()
 {
-    auto h = (handle_type *)image_handle.get();
-    if (h)
+    auto handle = (handle_type *)image_handle.get();
+    if (handle)
     {
-        h->first->ReleaseAccess(&(h->second));
-        delete h;
+        auto res = handle->first->ReleaseAccess(&handle->second);
+        handle->first->Release();
     }
 }

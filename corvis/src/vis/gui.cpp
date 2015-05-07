@@ -115,12 +115,14 @@ void gui::keyboard(unsigned char key, int x, int y)
 {
     if(key == '0')
         scale = initial_scale;
-    if(key == '+' || key == '=' || key == 'w')
+    if(key == '+' || key == '=')
         scale *= 1/1.1;
-    if(key == '-' || key == 's')
+    if(key == '-')
         scale *= 1.1;
     if(key == ' ')
        replay_control->toggle_pause();
+    if(key == 's')
+       replay_control->step();
     if(key == 'p')
        create_plots();
 }

@@ -69,7 +69,7 @@ void replay::start()
         realtime_offset = std::chrono::microseconds(0);
 
     while (is_running) {
-        while(is_paused) {
+        while(is_paused  && !is_stepping) {
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
         auto phandle = std::unique_ptr<void, void(*)(void *)>(malloc(header.bytes), free);
@@ -107,6 +107,7 @@ void replay::start()
                     d.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time+16667));
                     d.image_handle = std::move(phandle);
                     queue->receive_camera(std::move(d));
+                    is_stepping = false;
                     break;
                 }
                 case packet_accelerometer:

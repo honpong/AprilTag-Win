@@ -28,6 +28,7 @@ private:
     std::atomic<float> length{0};
     std::atomic<bool> is_running{false};
     std::atomic<bool> is_paused{false};
+    std::atomic<bool> is_stepping{false};
     bool is_realtime = false;
     std::unique_ptr<filter_setup> cor_setup;
     std::unique_ptr<fusion_queue> queue;
@@ -42,6 +43,7 @@ public:
     void start();
     void stop();
     void toggle_pause() { is_paused = !is_paused; }
+    void step() { is_paused = is_stepping = true; }
     uint64_t get_bytes_dispatched() { return bytes_dispatched; }
     uint64_t get_packets_dispatched() { return packets_dispatched; }
     float get_path_length() { return path_length; }

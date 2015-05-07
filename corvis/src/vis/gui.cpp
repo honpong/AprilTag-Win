@@ -1,3 +1,4 @@
+#include <limits>
 #include "gui.h"
 gui * gui::static_gui;
 
@@ -72,36 +73,46 @@ void gui::create_plots()
     unsigned char * buf = buffer;
 
     // mglData stores the x and y data to be plotted
-    state->render_plots([&] (std::string name, plot_data p) {
-        mglData data_x(p.size());
-        mglData data_y(p.size());
+    state->render_plots([&] (world_state::plot &plot) {
         gr.NewFrame();
         gr.Alpha(false);
         gr.Clf('w');
         gr.Box();
-        int j = 0;
-        float miny = p.front().second;
-        float maxy = miny;
-        uint64_t last = sensor_clock::tp_to_micros(p.back().first);
-        float total_seconds = (last - sensor_clock::tp_to_micros(p.front().first))/1e6;
+        float minx = std::numeric_limits<float>::max(), maxx = std::numeric_limits<float>::min();
+        float miny = std::numeric_limits<float>::max(), maxy = std::numeric_limits<float>::min();
+        std::string names;
+        const char *colors[] = {"r","g","b"}; int i=0;
 
-        for(auto data : p) {
-            float seconds = -1.*(last - sensor_clock::tp_to_micros(data.first))/1e6;
-            data_x.a[j] = seconds;
+        for (auto &kv : plot) {
+            const std::string &name = kv.first; const plot_data &p = kv.second;
+            names += (names.size() ? "-" : "") + name;
 
-            float val = data.second;
-            if(val < miny) miny = val;
-            if(val > maxy) maxy = val;
-            data_y.a[j++] = val;
+            mglData data_x(p.size());
+            mglData data_y(p.size());
+            auto last = sensor_clock::tp_to_micros(p.back().first);
+
+            int j = 0;
+            for(auto data : p) {
+                float seconds = -1.*(last - sensor_clock::tp_to_micros(data.first))/1e6;
+                if(seconds < minx) minx = seconds;
+                if(seconds > maxx) maxx = seconds;
+                data_x.a[j] = seconds;
+
+                float val = data.second;
+                if(val < miny) miny = val;
+                if(val > maxy) maxy = val;
+                data_y.a[j++] = val;
+            }
+
+            gr.SetRange('x', minx, maxx);
+            gr.SetRange('y', miny, maxy);
+            gr.Plot(data_x, data_y, colors[i++%3]);
         }
 
-        gr.SetRange('x', -total_seconds, 0);
-        gr.SetRange('y', miny, maxy);
 
-        gr.Plot(data_x, data_y,"b");
         gr.Axis();
         gr.EndFrame();
-        std::string filename = name + ".png";
+        std::string filename = names + ".png";
         gr.GetRGBA((char *)buf, width*height*4);
 
         //Encode the image

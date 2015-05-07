@@ -32,6 +32,8 @@ typedef std::list<plot_item > plot_data;
 
 class world_state
 {
+public:
+    typedef std::map<std::string, plot_data> plot;
 private:
     std::map<uint64_t, Feature> features;
     std::vector<Position> path;
@@ -41,7 +43,7 @@ private:
     int feature_vertex_alloc = 1000;
     void build_grid_vertex_data();
 
-    std::map<std::string, plot_data > plot_items;
+    std::vector<plot> plots;
 
 public:
     std::mutex display_lock;
@@ -56,11 +58,11 @@ public:
     world_state();
     ~world_state();
     void update_vertex_arrays(bool show_only_good=true);
-    void render_plots(std::function<void (std::string, plot_data)> render_callback);
+    void render_plots(std::function<void (plot &)> render_callback);
     void receive_packet(const filter * f, sensor_clock::time_point timestamp, enum packet_type packet_type);
     void observe_feature(sensor_clock::time_point timestamp, uint64_t feature_id, float x, float y, float z, bool good);
     void observe_position(sensor_clock::time_point timestamp, float x, float y, float z, float qw, float qx, float qy, float qz);
-    void observe_plot_item(sensor_clock::time_point timestamp, std::string plot_name, float value);
+    void observe_plot_item(sensor_clock::time_point timestamp, int index, std::string plot_name, float value);
     void reset() {
         display_lock.lock();
         features.clear();
@@ -70,7 +72,7 @@ public:
         display_lock.unlock();
 
         plot_lock.lock();
-        plot_items.clear();
+        plots.clear();
         plot_lock.unlock();
     };
 };

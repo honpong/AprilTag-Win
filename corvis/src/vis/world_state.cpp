@@ -21,23 +21,24 @@ static VertexData orientation_data[] = {
 };
 
 static int max_plot_samples = 1000;
-void world_state::render_plots(std::function<void (std::string, plot_data)> render_callback)
+void world_state::render_plots(std::function<void (plot&)> render_plot)
 {
     plot_lock.lock();
-    for(auto kv : plot_items) {
-        render_callback(kv.first, kv.second);
-    }
+    for(auto &plot : plots)
+        render_plot(plot);
     plot_lock.unlock();
 }
 
-void world_state::observe_plot_item(sensor_clock::time_point timestamp, std::string name, float value)
+void world_state::observe_plot_item(sensor_clock::time_point timestamp, int index, std::string name, float value)
 {
     plot_lock.lock();
-    auto plot = plot_items[name];
+    if (index+1 > plots.size())
+        plots.resize(index+1);
+    auto &plot = plots[index][name];
     plot.push_back(plot_item(timestamp, value));
     if(plot.size() > max_plot_samples)
         plot.pop_front();
-    plot_items[name] = plot;
+    plots[index][name] = plot;
     plot_lock.unlock();
 }
 
@@ -64,7 +65,9 @@ void world_state::receive_packet(const filter * f, sensor_clock::time_point tp, 
     if(packet_type == packet_camera) {
         // reach into the filter struct and get whatever data you want
         // to plot, and add it to a named plot (in this case "Tx").
-        observe_plot_item(tp, "Tx", f->s.T.v[0]);
+        observe_plot_item(tp, 0, "Tx", f->s.T.v[0]);
+        observe_plot_item(tp, 0, "Ty", f->s.T.v[1]);
+        observe_plot_item(tp, 0, "Tz", f->s.T.v[2]);
     }
     */
 }

@@ -68,6 +68,26 @@ void world_state::receive_packet(const filter * f, sensor_clock::time_point tp, 
         observe_plot_item(tp, 0, "Tx", f->s.T.v[0]);
         observe_plot_item(tp, 0, "Ty", f->s.T.v[1]);
         observe_plot_item(tp, 0, "Tz", f->s.T.v[2]);
+
+        observe_plot_item(tp, 1, "w_bias_x", f->s.w_bias.v[0]);
+        observe_plot_item(tp, 1, "w_bias_y", f->s.w_bias.v[1]);
+        observe_plot_item(tp, 1, "w_bias_z", f->s.w_bias.v[2]);
+
+        observe_plot_item(tp, 2, "a_bias_x", f->s.a_bias.v[0]);
+        observe_plot_item(tp, 2, "a_bias_y", f->s.a_bias.v[1]);
+        observe_plot_item(tp, 2, "a_bias_z", f->s.a_bias.v[2]);
+
+        observe_plot_item(tp, 3, "a_inn_mean_x", observation_accelerometer::inn_stdev.mean[0]);
+        observe_plot_item(tp, 3, "a_inn_mean_y", observation_accelerometer::inn_stdev.mean[1]);
+        observe_plot_item(tp, 3, "a_inn_mean_z", observation_accelerometer::inn_stdev.mean[2]);
+
+        observe_plot_item(tp, 4, "g_inn_mean_x", observation_gyroscope::inn_stdev.mean[0]);
+        observe_plot_item(tp, 4, "g_inn_mean_y", observation_gyroscope::inn_stdev.mean[1]);
+        observe_plot_item(tp, 4, "g_inn_mean_z", observation_gyroscope::inn_stdev.mean[2]);
+
+        observe_plot_item(tp, 5, "v_inn_mean_x", observation_vision_feature::inn_stdev[0].mean);
+        observe_plot_item(tp, 5, "v_inn_mean_y", observation_vision_feature::inn_stdev[1].mean);
+
     }
     */
 }

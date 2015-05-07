@@ -16,18 +16,6 @@
     <Filter Include="Source Files\SensorManagers">
       <UniqueIdentifier>{11065ee0-20eb-422a-a17d-b60bd63be980}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\corvis">
-      <UniqueIdentifier>{cc861a0a-49cd-4f91-92a8-874fcbedfb9e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\corvis\cor">
-      <UniqueIdentifier>{7ea035a7-4a29-4c16-b416-deeee4698d5e}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\corvis\filter">
-      <UniqueIdentifier>{6c9a63ea-3062-40bb-9a76-2b85f860004f}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\corvis\numerics">
-      <UniqueIdentifier>{1387247b-9710-4fc7-a5c0-4eb234431c9e}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -66,84 +54,6 @@
     <ClInclude Include="SensorManager.h">
       <Filter>Source Files\SensorManagers</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\filter\device_parameters.h">
-      <Filter>Source Files\corvis\filter</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\filter\feature_info.h">
-      <Filter>Source Files\corvis\filter</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\filter\filter.h">
-      <Filter>Source Files\corvis\filter</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\filter\filter_setup.h">
-      <Filter>Source Files\corvis\filter</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\filter\homography.h">
-      <Filter>Source Files\corvis\filter</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\filter\intel_interface.h">
-      <Filter>Source Files\corvis\filter</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\filter\observation.h">
-      <Filter>Source Files\corvis\filter</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\filter\qr.h">
-      <Filter>Source Files\corvis\filter</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\filter\replay.h">
-      <Filter>Source Files\corvis\filter</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\filter\scaled_mask.h">
-      <Filter>Source Files\corvis\filter</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\filter\state.h">
-      <Filter>Source Files\corvis\filter</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\filter\state_motion.h">
-      <Filter>Source Files\corvis\filter</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\filter\state_vision.h">
-      <Filter>Source Files\corvis\filter</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\filter\tracker.h">
-      <Filter>Source Files\corvis\filter</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\filter\capture.h">
-      <Filter>Source Files\corvis\filter</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\numerics\covariance.h">
-      <Filter>Source Files\corvis\numerics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\numerics\kalman.h">
-      <Filter>Source Files\corvis\numerics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\numerics\matrix.h">
-      <Filter>Source Files\corvis\numerics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\numerics\quaternion.h">
-      <Filter>Source Files\corvis\numerics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\numerics\rotation.h">
-      <Filter>Source Files\corvis\numerics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\numerics\rotation_vector.h">
-      <Filter>Source Files\corvis\numerics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\numerics\sinc.h">
-      <Filter>Source Files\corvis\numerics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\numerics\transformation.h">
-      <Filter>Source Files\corvis\numerics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\numerics\vec4.h">
-      <Filter>Source Files\corvis\numerics</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\filter\fast_detector\fast.h">
-      <Filter>Source Files\corvis\filter</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\filter\utils.h">
-      <Filter>Source Files\corvis\filter</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -172,69 +82,6 @@
     </ClCompile>
     <ClCompile Include="SensorManager.cpp">
       <Filter>Source Files\SensorManagers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\cor\platform\win\sensor_clock.cpp">
-      <Filter>Source Files\corvis\cor</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\cor\platform\win\sensor_data.cpp">
-      <Filter>Source Files\corvis\cor</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\cor\sensor_fusion_queue.cpp">
-      <Filter>Source Files\corvis\cor</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\filter\device_parameters.cpp">
-      <Filter>Source Files\corvis\filter</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\filter\filter.cpp">
-      <Filter>Source Files\corvis\filter</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\filter\filter_setup.cpp">
-      <Filter>Source Files\corvis\filter</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\filter\homography.cpp">
-      <Filter>Source Files\corvis\filter</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\filter\observation.cpp">
-      <Filter>Source Files\corvis\filter</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\filter\qr.cpp">
-      <Filter>Source Files\corvis\filter</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\filter\replay.cpp">
-      <Filter>Source Files\corvis\filter</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\filter\scaled_mask.cpp">
-      <Filter>Source Files\corvis\filter</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\filter\state.cpp">
-      <Filter>Source Files\corvis\filter</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\filter\state_motion.cpp">
-      <Filter>Source Files\corvis\filter</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\filter\state_vision.cpp">
-      <Filter>Source Files\corvis\filter</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\filter\capture.cpp">
-      <Filter>Source Files\corvis\filter</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\numerics\kalman.cpp">
-      <Filter>Source Files\corvis\numerics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\numerics\matrix.cpp">
-      <Filter>Source Files\corvis\numerics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\numerics\rotation_vector.cpp">
-      <Filter>Source Files\corvis\numerics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\numerics\vec4.cpp">
-      <Filter>Source Files\corvis\numerics</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\filter\fast_detector\fast_9.cpp">
-      <Filter>Source Files\corvis\filter</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\filter\camera_control_interface_dummy.cpp">
-      <Filter>Source Files\corvis\filter</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

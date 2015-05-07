@@ -58,15 +58,16 @@
       <AdditionalUsingDirectories>C:\Program Files %28x86%29\Windows Kits\8.1\References\CommonConfiguration\Neutral;C:\Program Files %28x86%29\Microsoft SDKs\Windows\v8.1\ExtensionSDKs\Microsoft.VCLibs\12.0\References\CommonConfiguration\neutral;%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
       <CompileAsWinRT>true</CompileAsWinRT>
       <MinimalRebuild>false</MinimalRebuild>
-      <AdditionalIncludeDirectories>../../AccelerometerLib/AccelerometerLib/;C:\Program Files %28x86%29\Intel\Composer XE 2015\mkl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4200;4458</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>../../AccelerometerLib/AccelerometerLib/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>Sensorsapi.lib;PortableDeviceGUIDs.lib;libpxcmd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Program Files %28x86%29\Intel\Composer XE 2015\mkl\lib\ia32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalOptions> mkl_intel_c.lib mkl_core.lib mkl_sequential.lib %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -80,8 +81,9 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalUsingDirectories>C:\Program Files %28x86%29\Windows Kits\8.1\References\CommonConfiguration\Neutral;C:\Program Files %28x86%29\Microsoft SDKs\Windows\v8.1\ExtensionSDKs\Microsoft.VCLibs\12.0\References\CommonConfiguration\neutral;%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
       <CompileAsWinRT>true</CompileAsWinRT>
-      <AdditionalIncludeDirectories>../../AccelerometerLib/AccelerometerLib/;C:\Program Files %28x86%29\Intel\Composer XE 2015\mkl\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <DisableSpecificWarnings>4200;4458</DisableSpecificWarnings>
+      <AdditionalIncludeDirectories>../../AccelerometerLib/AccelerometerLib/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>
+      </DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -89,40 +91,14 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>Sensorsapi.lib;PortableDeviceGUIDs.lib;libpxcmd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>C:\Program Files %28x86%29\Intel\Composer XE 2015\mkl\lib\ia32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalOptions> mkl_intel_c.lib mkl_core.lib mkl_sequential.lib %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalLibraryDirectories>
+      </AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\corvis\src\filter\capture.h" />
-    <ClInclude Include="..\..\..\corvis\src\filter\device_parameters.h" />
-    <ClInclude Include="..\..\..\corvis\src\filter\fast_detector\fast.h" />
-    <ClInclude Include="..\..\..\corvis\src\filter\feature_info.h" />
-    <ClInclude Include="..\..\..\corvis\src\filter\filter.h" />
-    <ClInclude Include="..\..\..\corvis\src\filter\filter_setup.h" />
-    <ClInclude Include="..\..\..\corvis\src\filter\homography.h" />
-    <ClInclude Include="..\..\..\corvis\src\filter\intel_interface.h" />
-    <ClInclude Include="..\..\..\corvis\src\filter\observation.h" />
-    <ClInclude Include="..\..\..\corvis\src\filter\qr.h" />
-    <ClInclude Include="..\..\..\corvis\src\filter\replay.h" />
-    <ClInclude Include="..\..\..\corvis\src\filter\scaled_mask.h" />
-    <ClInclude Include="..\..\..\corvis\src\filter\state.h" />
-    <ClInclude Include="..\..\..\corvis\src\filter\state_motion.h" />
-    <ClInclude Include="..\..\..\corvis\src\filter\state_vision.h" />
-    <ClInclude Include="..\..\..\corvis\src\filter\tracker.h" />
-    <ClInclude Include="..\..\..\corvis\src\filter\utils.h" />
-    <ClInclude Include="..\..\..\corvis\src\numerics\covariance.h" />
-    <ClInclude Include="..\..\..\corvis\src\numerics\kalman.h" />
-    <ClInclude Include="..\..\..\corvis\src\numerics\matrix.h" />
-    <ClInclude Include="..\..\..\corvis\src\numerics\quaternion.h" />
-    <ClInclude Include="..\..\..\corvis\src\numerics\rotation.h" />
-    <ClInclude Include="..\..\..\corvis\src\numerics\rotation_vector.h" />
-    <ClInclude Include="..\..\..\corvis\src\numerics\sinc.h" />
-    <ClInclude Include="..\..\..\corvis\src\numerics\transformation.h" />
-    <ClInclude Include="..\..\..\corvis\src\numerics\vec4.h" />
     <ClInclude Include="CalibrationManager.h" />
     <ClInclude Include="CaptureManager.h" />
     <ClInclude Include="Debug.h" />
@@ -136,27 +112,6 @@
     <ClInclude Include="VideoManager.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\corvis\src\cor\platform\win\sensor_clock.cpp" />
-    <ClCompile Include="..\..\..\corvis\src\cor\platform\win\sensor_data.cpp" />
-    <ClCompile Include="..\..\..\corvis\src\cor\sensor_fusion_queue.cpp" />
-    <ClCompile Include="..\..\..\corvis\src\filter\camera_control_interface_dummy.cpp" />
-    <ClCompile Include="..\..\..\corvis\src\filter\capture.cpp" />
-    <ClCompile Include="..\..\..\corvis\src\filter\device_parameters.cpp" />
-    <ClCompile Include="..\..\..\corvis\src\filter\fast_detector\fast_9.cpp" />
-    <ClCompile Include="..\..\..\corvis\src\filter\filter.cpp" />
-    <ClCompile Include="..\..\..\corvis\src\filter\filter_setup.cpp" />
-    <ClCompile Include="..\..\..\corvis\src\filter\homography.cpp" />
-    <ClCompile Include="..\..\..\corvis\src\filter\observation.cpp" />
-    <ClCompile Include="..\..\..\corvis\src\filter\qr.cpp" />
-    <ClCompile Include="..\..\..\corvis\src\filter\replay.cpp" />
-    <ClCompile Include="..\..\..\corvis\src\filter\scaled_mask.cpp" />
-    <ClCompile Include="..\..\..\corvis\src\filter\state.cpp" />
-    <ClCompile Include="..\..\..\corvis\src\filter\state_motion.cpp" />
-    <ClCompile Include="..\..\..\corvis\src\filter\state_vision.cpp" />
-    <ClCompile Include="..\..\..\corvis\src\numerics\kalman.cpp" />
-    <ClCompile Include="..\..\..\corvis\src\numerics\matrix.cpp" />
-    <ClCompile Include="..\..\..\corvis\src\numerics\rotation_vector.cpp" />
-    <ClCompile Include="..\..\..\corvis\src\numerics\vec4.cpp" />
     <ClCompile Include="CalibrationManager.cpp" />
     <ClCompile Include="CaptureManager.cpp" />
     <ClCompile Include="Debug.cpp" />
@@ -180,6 +135,9 @@
   <ItemGroup>
     <ProjectReference Include="..\..\AccelerometerLib\AccelerometerLib\AccelerometerLib.vcxproj">
       <Project>{be1158fd-a233-4f28-afc6-fe5273c20794}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\RC3DK\RC3DK.vcxproj">
+      <Project>{e4e5a177-07b4-42ae-aa31-db608571e6b6}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

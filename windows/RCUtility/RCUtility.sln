@@ -7,6 +7,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RCUtility", "RCUtility\RCUt
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AccelerometerLib", "..\AccelerometerLib\AccelerometerLib\AccelerometerLib.vcxproj", "{BE1158FD-A233-4F28-AFC6-FE5273C20794}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RC3DK", "RC3DK\RC3DK.vcxproj", "{E4E5A177-07B4-42AE-AA31-DB608571E6B6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -21,6 +23,10 @@ Global
 		{BE1158FD-A233-4F28-AFC6-FE5273C20794}.Debug|Win32.Build.0 = Debug|Win32
 		{BE1158FD-A233-4F28-AFC6-FE5273C20794}.Release|Win32.ActiveCfg = Release|Win32
 		{BE1158FD-A233-4F28-AFC6-FE5273C20794}.Release|Win32.Build.0 = Release|Win32
+		{E4E5A177-07B4-42AE-AA31-DB608571E6B6}.Debug|Win32.ActiveCfg = Debug|Win32
+		{E4E5A177-07B4-42AE-AA31-DB608571E6B6}.Debug|Win32.Build.0 = Debug|Win32
+		{E4E5A177-07B4-42AE-AA31-DB608571E6B6}.Release|Win32.ActiveCfg = Release|Win32
+		{E4E5A177-07B4-42AE-AA31-DB608571E6B6}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

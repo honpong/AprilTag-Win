@@ -72,19 +72,22 @@ void capture::setup_queue()
     auto cam_fn = [this](const camera_data &data)
     {
         auto micros = std::chrono::duration_cast<std::chrono::microseconds>(data.timestamp.time_since_epoch()).count();
-        write_camera_data(data.image, data.width, data.height, data.stride, micros);
+        got_camera = true;
+        if (got_camera && got_accel && got_gyro) write_camera_data(data.image, data.width, data.height, data.stride, micros);
     };
 
     auto acc_fn = [this](const accelerometer_data &data)
     {
         auto micros = std::chrono::duration_cast<std::chrono::microseconds>(data.timestamp.time_since_epoch()).count();
-        write_accelerometer_data(data.accel_m__s2, micros);
+        got_accel = true;
+        if (got_camera && got_accel && got_gyro) write_accelerometer_data(data.accel_m__s2, micros);
     };
 
     auto gyr_fn = [this](const gyro_data &data)
     {
         auto micros = std::chrono::duration_cast<std::chrono::microseconds>(data.timestamp.time_since_epoch()).count();
-        write_gyroscope_data(data.angvel_rad__s, micros);
+        got_gyro = true;
+        if(got_camera && got_accel && got_gyro) write_gyroscope_data(data.angvel_rad__s, micros);
     };
 
     // TODO: configure framerate here?
@@ -100,6 +103,7 @@ bool capture::start(const char *name)
         std::cerr << "Couldn't open file " << name << " for writing.\n";
         return false;
     }
+    got_accel = got_gyro = got_camera = false;
     setup_queue();
     return true;
 }

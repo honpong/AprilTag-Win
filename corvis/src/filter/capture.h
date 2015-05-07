@@ -38,6 +38,9 @@ public:
     void receive_gyro(gyro_data&& x) { queue->receive_gyro(std::move(x)); }
     uint64_t get_bytes_written() { return bytes_written; }
     uint64_t get_packets_written() { return packets_written; }
+    bool got_accel = false;
+    bool got_gyro = false;
+    bool got_camera = false;
 };
 
 #endif /* defined(__RC3DK__capture__) */

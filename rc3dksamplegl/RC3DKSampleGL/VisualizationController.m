@@ -16,6 +16,8 @@
 #define POINT_SIZE 3.0
 #define PERSPECTIVE
 
+#define LOG_DATA
+
 // Uniform index for Shader.vsh
 enum
 {
@@ -80,6 +82,9 @@ static VertexData axisVertex[] = {
     MBProgressHUD* progressView;
     
     RCSensorFusionRunState currentRunState;
+#ifdef LOG_DATA
+    FILE *logFile;
+#endif
 }
 
 @property (strong, nonatomic) EAGLContext *context;
@@ -232,6 +237,13 @@ static VertexData axisVertex[] = {
 
 - (void)startSensorFusion
 {
+#ifdef LOG_DATA
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory,NSUserDomainMask, YES);
+    NSString *documentsDirectory = [paths objectAtIndex:0];
+    NSString *fileName =[NSString stringWithFormat:@"%@.log",[NSDate date]];
+    NSString *logFilePath = [documentsDirectory stringByAppendingPathComponent:fileName];
+    logFile = fopen([logFilePath cStringUsingEncoding:NSASCIIStringEncoding],"a+");
+#endif
     [state reset];
     [self beginHoldingPeriod];
     [sensorManager startAllSensors];
@@ -261,6 +273,9 @@ static VertexData axisVertex[] = {
     [self showInstructions];
     isStarted = NO;
     [self hideProgress];
+#ifdef LOG_DATA
+    fclose(logFile);
+#endif
 }
 
 #pragma mark - RCSensorFusionDelegate
@@ -268,6 +283,15 @@ static VertexData axisVertex[] = {
 // RCSensorFusionDelegate delegate method. Called after each video frame is processed ~ 30hz.
 - (void)sensorFusionDidUpdateData:(RCSensorFusionData *)data
 {
+    float matrix[16];
+    [data.transformation getOpenGLMatrix:matrix];
+#ifdef LOG_DATA
+    fprintf(logFile, "%lld %f %f %f %f %f %f %f %f %f %f %f %f\n",
+          data.timestamp,
+          matrix[0], matrix[4], matrix[8], matrix[12],
+          matrix[1], matrix[5], matrix[9], matrix[13],
+          matrix[2], matrix[6], matrix[10], matrix[14]);
+#endif
     [self updateVisualization:data];
 }
 

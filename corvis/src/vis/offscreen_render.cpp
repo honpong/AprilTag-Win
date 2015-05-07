@@ -3,13 +3,9 @@
 
 #include "lodepng.h"
 
-#ifdef __APPLE__
-#include <OpenGL/gl.h>
+// TODO: figure out why this include needs to exist
 #include <GLUT/glut.h>
-#else
-#include <GL/gl.h>
-#include <GLUT/glut.h>
-#endif
+#include <GLFW/glfw3.h>
 
 float _modelViewProjectionMatrix[16]; // 4x4
 float _normalMatrix[9]; // 3x3
@@ -51,17 +47,9 @@ void init_gl()
     glDepthFunc(GL_LEQUAL);
 }
 
-void init_glut()
+static void error_callback(int error, const char* description)
 {
-    // TODO: Replace glut with whatever fundamentals actually are
-    // needed for offscreen rendering
-    int argc = 0;
-    char ** argv = NULL;
-    glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH);   // display mode
-    glutInitWindowSize(512, 512);              // window size
-    glutInitWindowPosition(100, 100);                           // window location
-    glutCreateWindow("Title");     // param is the title of window
+    fputs(description, stderr);
 }
 
 bool offscreen_render_to_file(const char * filename, world_state * world)
@@ -72,7 +60,18 @@ bool offscreen_render_to_file(const char * filename, world_state * world)
     int width = 512;
     int height = 512;
 
-    init_glut();
+    if (!glfwInit())
+        exit(EXIT_FAILURE);
+
+    glfwSetErrorCallback(error_callback);
+    GLFWwindow* window = glfwCreateWindow(512, 512, "Offscreen Render", NULL, NULL);
+    if (!window)
+    {
+        glfwTerminate();
+        exit(EXIT_FAILURE);
+    }
+    glfwMakeContextCurrent(window);
+
     init_gl();
 
     GLuint framebuffer, renderbuffer;
@@ -113,6 +112,9 @@ bool offscreen_render_to_file(const char * filename, world_state * world)
     // If there's an error, display it
     if(error)
         fprintf(stderr, "encoder error %d: %s\n", error, lodepng_error_text(error));
+
+    glfwDestroyWindow(window);
+    glfwTerminate();
 
     return true;
 }

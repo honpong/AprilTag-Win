@@ -180,7 +180,6 @@ static inline quaternion rotation_between_two_vectors_normalized(const v4 &a, co
 {
     quaternion res;
     f_t d = a.dot(b);
-    v4 axis;
     if( d >= 1.) //the two vectors are aligned)
     {
         return quaternion();

@@ -17,7 +17,7 @@ class scaled_mask
 public:
     void clear(int fx, int fy); //clears the mask at this location, indicating that a feature should not be detected there
     void initialize();
-    inline bool test(int x, int y) const { return mask[(x >> mask_shift) + scaled_width * (y >> mask_shift)]; }
+    inline bool test(int x, int y) const { return mask[(x >> mask_shift) + scaled_width * (y >> mask_shift)] != 0; }
     // mask shift of 3 is 8x8 pixel blocks
     scaled_mask(int _width, int _height, int mask_shift = 3);
     ~scaled_mask();

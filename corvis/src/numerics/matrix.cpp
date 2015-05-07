@@ -11,14 +11,21 @@
 
 #include "matrix.h"
 #include <math.h>
+
+#ifndef WIN32
 #include <alloca.h>
+#endif
 
 #ifdef __APPLE__
 #include <Accelerate/Accelerate.h>
 #define lapack_int __CLPK_integer
-#else
+#else // __APPLE__
+#ifdef WIN32
+#include "mkl.h"
+#else // WIN32
 #include <cblas.h>
 #include <lapacke.h>
+#endif
 #endif
 
 #ifdef F_T_IS_SINGLE
@@ -109,7 +116,7 @@ void matrix_product(matrix &res, const matrix &A, const matrix &B, bool trans1, 
 bool matrix_invert(matrix &m)
 {
     char uplo = 'U';
-    lapack_int ipiv[m.stride];
+    lapack_int * ipiv = walloca(lapack_int, m.stride);
     //just make a work array as big as the input
     //TODO: call ssytrf_ with lwork = -1 -- returns optimal size as work[0] ? wtf?
     lapack_int ign = -1;
@@ -120,7 +127,7 @@ bool matrix_invert(matrix &m)
     lapack_int lda = m.stride;
     lapack_int lwork = m.stride * ilaenv_(&ispec, (char *)name, (char *)tp, &n, &ign, &ign, &ign);
     if(lwork < 1) lwork = m.stride*4;
-    lapack_int work[lwork];
+    lapack_int * work = walloca(lapack_int, lwork);
     lapack_int info;
     LAPACK_(sytrf)(&uplo, &n, m.data, &lda, ipiv, (f_t *)work, &lwork, &info);
     if(info) {
@@ -147,7 +154,7 @@ void matrixest();
 bool matrix_solve_syt(matrix &A, matrix &B)
 {
     char uplo = 'U';
-    lapack_int ipiv[A.stride];
+    lapack_int * ipiv = walloca(lapack_int, A.stride);
     //just make a work array as big as the input
     //TODO: call ssytrf_ with lwork = -1 -- returns optimal size as work[0] ? wtf?
     lapack_int ign = -1;
@@ -158,7 +165,7 @@ bool matrix_solve_syt(matrix &A, matrix &B)
     lapack_int lda = A.stride;
     lapack_int lwork = A.stride * ilaenv_(&ispec, (char *)name, (char *)tp, &n, &ign, &ign, &ign);
     if(lwork < 1) lwork = A.stride*4;
-    f_t work[lwork];
+    f_t * work = walloca(f_t, lwork);
     lapack_int info;
     LAPACK_(sytrf)(&uplo, &n, A.data, &lda, ipiv, work, &lwork, &info);
     if(info) {

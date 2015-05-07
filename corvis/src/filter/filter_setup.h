@@ -26,7 +26,11 @@ public:
     float get_filter_converged();
     bool get_device_steady();
     RCSensorFusionErrorCode get_error();
-protected:
+
+#ifndef SWIG
+public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+#endif
 };
 
 #endif

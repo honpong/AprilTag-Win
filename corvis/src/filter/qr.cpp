@@ -8,6 +8,7 @@
 #include "qr.h"
 #include "filter.h"
 
+#ifndef WIN32
 #include <zxing/Result.h>
 #include <zxing/ReaderException.h>
 #include <zxing/common/IllegalArgumentException.h>
@@ -106,6 +107,13 @@ bool qr_detect_one(const uint8_t * image, int width, int height, struct qr_detec
 
     return false;
 }
+
+#else // if WIN32
+bool qr_detect_one(const uint8_t * image, int width, int height, struct qr_detection & d)
+{
+	return false;
+}
+#endif
 
 #include "homography.h"
 

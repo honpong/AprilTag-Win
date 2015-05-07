@@ -16,9 +16,6 @@
     <Filter Include="Source Files\SensorManagers">
       <UniqueIdentifier>{11065ee0-20eb-422a-a17d-b60bd63be980}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\corvis">
-      <UniqueIdentifier>{cc861a0a-49cd-4f91-92a8-874fcbedfb9e}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -51,9 +48,6 @@
     <ClInclude Include="CaptureManager.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\filter\capture.h">
-      <Filter>Source Files\corvis</Filter>
-    </ClInclude>
     <ClInclude Include="CalibrationManager.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -82,18 +76,6 @@
     </ClCompile>
     <ClCompile Include="CaptureManager.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\cor\sensor_fusion_queue.cpp">
-      <Filter>Source Files\corvis</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\filter\capture.cpp">
-      <Filter>Source Files\corvis</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\cor\platform\win\sensor_clock.cpp">
-      <Filter>Source Files\corvis</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\cor\platform\win\sensor_data.cpp">
-      <Filter>Source Files\corvis</Filter>
     </ClCompile>
     <ClCompile Include="CalibrationManager.cpp">
       <Filter>Source Files</Filter>

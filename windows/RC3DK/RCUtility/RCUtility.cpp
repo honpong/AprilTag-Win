@@ -50,8 +50,10 @@ public:
 	{
 		if (progress < 1.)
 		{
-			std::wstring progString = Debug::Log(L"Progress %2.0f%%", progress * 100);
-			SetWindowText(hLabel, progString.c_str());
+			wchar_t title[1024];
+			_snwprintf_s(title, 1024, L"Progress %2.0f%%", progress * 100);
+			Debug::Log(title);
+			SetWindowText(hLabel, title);
 		}
 	};
 
@@ -276,7 +278,9 @@ HRESULT OpenReplayFilePicker()
 								hr = psiResult->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
 								if (SUCCEEDED(hr))
 								{
-									SetWindowText(hLabel, Debug::Log(L"File: %s", pszFilePath).c_str());
+									wchar_t title[1024];
+									_snwprintf_s(title, 1024, L"File: %s", pszFilePath);
+									SetWindowText(hLabel, title);
 									CoTaskMemFree(pszFilePath);
 								}
 								psiResult->Release();

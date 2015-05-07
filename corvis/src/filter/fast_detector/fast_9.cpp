@@ -2957,7 +2957,7 @@ vector<xy> &fast_detector_9::detect(const unsigned char *im, const scaled_mask *
                         if(bmin == bmax - 1 || bmin == bmax) {
                             features.push_back({(float)x, (float)y, (float)bmin, 0});
                             push_heap(features.begin(), features.end(), xy_comp);
-                            if(features.size() > need) {
+                            if((int)features.size() > need) {
                                 pop_heap(features.begin(), features.end(), xy_comp);
                                 features.pop_back();
                                 bstart = (int)(features[0].score + 1.);
@@ -2967,7 +2967,7 @@ vector<xy> &fast_detector_9::detect(const unsigned char *im, const scaled_mask *
 		b = (bmin + bmax) / 2;
                 }
             }
-    for(int i = 0; i < features.size(); ++i) pop_heap(features.begin(), features.end() - i, xy_comp);
+    for(int i = 0; i < (int)features.size(); ++i) pop_heap(features.begin(), features.end() - i, xy_comp);
     return features;
 }
 

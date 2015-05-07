@@ -245,6 +245,13 @@ bin/_vl.so:$(patsubst src/%,build/%,$(VL_C_SOURCES:.c=.o))
 TARGETS := $(TARGETS) bin/_vl.so
 SOURCES := $(SOURCES) $(VL_C_SOURCES)
 
+############################## libglfw3 ############################
+lib/libglfw3.a:
+	@mkdir -p build/glfw/
+	@cd build/glfw/ && cmake ../../src/glfw/ -DCMAKE_INSTALL_PREFIX=../../
+	@cmake --build build/glfw/ --target glfw
+	@cmake -P build/glfw/cmake_install.cmake
+
 ############################## MEASURE ############################
 
 MEASURE_SOURCES := $(FILTER_SOURCES) $(COR_SOURCES)
@@ -254,9 +261,11 @@ CXX_SOURCES := $(CXX_SOURCES) $(MEASURE_CXX_SOURCES)
 
 LDFLAGS := $(LDFLAGS) -lstdc++ -lmgl
 
-bin/measure: $(patsubst src/%,build/%,$(MEASURE_SOURCES:.c=.o)) $(patsubst src/%,build/%,$(MEASURE_CXX_SOURCES:.cpp=.o)) bin/_libzxing.a
+_CPPFLAGS := $(_CPPFLAGS) -Iinclude
+
+bin/measure: lib/libglfw3.a $(patsubst src/%,build/%,$(MEASURE_SOURCES:.c=.o)) $(patsubst src/%,build/%,$(MEASURE_CXX_SOURCES:.cpp=.o)) bin/_libzxing.a
 	@mkdir -p $(@D)
-	$(CC) $(LDFLAGS) $(PYTHON_LDFLAGS) $^ $(LDLIBS) -o $@
+	$(CC) $(LDFLAGS) $(shell pkg-config lib/pkgconfig/glfw3.pc --static --libs) $(PYTHON_LDFLAGS) $^ $(LDLIBS) -o $@
 
 TARGETS := $(TARGETS) bin/measure
 CXX_SOURCES := $(CXX_SOURCES) src/filter/replay.cpp src/tools/measure.cpp

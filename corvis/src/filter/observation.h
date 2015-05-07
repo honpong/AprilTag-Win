@@ -90,6 +90,11 @@ class observation_vision_feature: public observation_storage<2> {
     void update_initializing();
 
     observation_vision_feature(state_vision &_state, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_storage(_time_actual, _time_apparent), state(_state) {}
+
+#ifndef SWIG
+public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+#endif
 };
 
 #ifndef SWIG
@@ -123,6 +128,11 @@ protected:
     virtual void cache_jacobians();
     virtual void project_covariance(matrix &dst, const matrix &src);
     observation_accelerometer(state_motion &_state, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_spatial(_time_actual, _time_apparent), state(_state) {}
+
+#ifndef SWIG
+public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
+#endif
 };
 
 class observation_gyroscope: public observation_spatial {

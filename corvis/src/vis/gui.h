@@ -5,21 +5,21 @@
 #include "arcball.h"
 
 class replay;
+struct GLFWwindow;
 
 class gui
 {
 private:
     static gui * static_gui;
     static void render_callback() { gui::static_gui->render(); };
-    static void reshape_callback(int w, int h) { gui::static_gui->reshape(w, h); };
-    static void mouse_callback(int button, int state, int x, int y) {
-        gui::static_gui->mouse(button, state, x, y);
+    static void mouse_callback(GLFWwindow * window, int button, int action, int mods) {
+        gui::static_gui->mouse(window, button, action, mods);
     };
-    static void move_callback(int x, int y) {
-        gui::static_gui->mouse_move(x, y);
+    static void move_callback(GLFWwindow * window, double x, double y) {
+        gui::static_gui->mouse_move(window, x, y);
     };
-    static void keyboard_callback(unsigned char key, int x, int y) {
-        gui::static_gui->keyboard(key, x, y);
+    static void keyboard_callback(GLFWwindow * window, int key, int scancode, int action, int mods) {
+        gui::static_gui->keyboard(window, key, scancode, action, mods);
     };
 
     float _modelViewProjectionMatrix[16]; // 4x4
@@ -28,13 +28,13 @@ private:
 
     void create_plots();
 
-    void init_glut();
+    void start_glfw();
     void init_gl();
     void configure_view();
     void reshape(int width, int height);
-    void mouse(int button, int state, int x, int y);
-    void mouse_move(int x, int y);
-    void keyboard(unsigned char key, int x, int y);
+    void mouse(GLFWwindow * window, int button, int action, int mods);
+    void mouse_move(GLFWwindow * window, double x, double y);
+    void keyboard(GLFWwindow * window, int key, int scancode, int action, int mods);
     void render();
     world_state * state;
 

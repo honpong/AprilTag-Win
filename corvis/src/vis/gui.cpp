@@ -6,13 +6,8 @@ gui * gui::static_gui;
 #include "world_state_render.h"
 #include "../filter/replay.h"
 
-#ifdef __APPLE__
-#include <OpenGL/gl.h>
-#include <GLUT/glut.h>
-#else
-#include <GL/gl.h>
-#include <GLUT/glut.h>
-#endif
+#define GLFW_INCLUDE_GLU
+#include <GLFW/glfw3.h>
 
 const static float initial_scale = 5;
 
@@ -38,26 +33,21 @@ void gui::configure_view()
     glGetFloatv(GL_MODELVIEW, _modelViewProjectionMatrix);
 }
 
-void gui::reshape(int w, int h)
-{
-    width = w;
-    height = h;
-    glViewport(0, 0, width, height);
-}
-
-void gui::mouse_move(int x, int y)
+void gui::mouse_move(GLFWwindow * window, double x, double y)
 {
     if(is_rotating)
         arc.continue_rotation(x, y);
 }
 
-void gui::mouse(int button, int state, int x, int y)
+void gui::mouse(GLFWwindow * window, int button, int action, int mods)
 {
-    if(button == GLUT_LEFT_BUTTON && state == GLUT_DOWN) {
+    double x, y;
+    glfwGetCursorPos(window, &x, &y);
+    if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
         arc.start_rotation(x, y);
         is_rotating = true;
     }
-    else if(button == GLUT_LEFT_BUTTON && state == GLUT_UP) {
+    else if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
         is_rotating = false;
     }
 }
@@ -122,7 +112,7 @@ void gui::create_plots()
     });
 }*/
 
-void gui::keyboard(unsigned char key, int x, int y)
+void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int mods)
 {
     if(key == '0')
         scale = initial_scale;
@@ -167,35 +157,53 @@ void gui::render()
     // Draw call
     configure_view();
     world_state_render(state, _modelViewProjectionMatrix, _normalMatrix);
-    glutSwapBuffers();
-    return;
 }
 
-void gui::init_glut()
+static void error_callback(int error, const char* description)
 {
-    int argc = 0;
-    char ** argv = NULL;
-    glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH);   // display mode
-    glutInitWindowSize(width, height);              // window size
-    window_id = glutCreateWindow("Replay");     // param is the title of window
-    // Configure glut callbacks
-    glutDisplayFunc(gui::render_callback);
-    glutIdleFunc(gui::render_callback);
-    glutReshapeFunc(gui::reshape_callback);
-    glutMouseFunc(gui::mouse_callback);
-    glutMotionFunc(gui::move_callback);
-    glutKeyboardFunc(gui::keyboard_callback);
+    fputs(description, stderr);
 }
+
+void gui::start_glfw()
+{
+    if (!glfwInit())
+        exit(EXIT_FAILURE);
+
+    glfwSetErrorCallback(error_callback);
+    GLFWwindow* window = glfwCreateWindow(width, height, "Replay", NULL, NULL);
+    if (!window)
+    {
+        glfwTerminate();
+        exit(EXIT_FAILURE);
+    }
+    glfwMakeContextCurrent(window);
+    glfwSwapInterval(1);
+
+    glfwSetKeyCallback(window, gui::keyboard_callback);
+    glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, 1);
+    glfwSetMouseButtonCallback(window, gui::mouse_callback);
+    glfwSetCursorPosCallback(window, gui::move_callback);
+
+    world_state_render_init();
+    init_gl();
+
+    while (!glfwWindowShouldClose(window))
+    {
+        glfwGetFramebufferSize(window, &width, &height);
+        render();
+        glfwSwapBuffers(window);
+        glfwPollEvents();
+    }
+    glfwDestroyWindow(window);
+    glfwTerminate();
+}
+
 
 void gui::start(replay * rp)
 {
     replay_control = rp;
     arc.reset();
-    init_glut();
-    init_gl();
-    world_state_render_init();
-    glutMainLoop();
+    start_glfw();
 }
 
 gui::gui(world_state * world) : state(world), scale(initial_scale), width(512), height(512)
@@ -206,10 +214,4 @@ gui::gui(world_state * world) : state(world), scale(initial_scale), width(512), 
 gui::~gui()
 {
     world_state_render_teardown();
-}
-
-void gui::queue_render()
-{
-    glutSetWindow(window_id);
-    glutPostRedisplay();
 }

@@ -31,8 +31,8 @@ int main(int c, char **v)
     if(enable_gui)
         realtime = true;
 
-    std::function<void (float)> progress = NULL;
-    std::function<void (const filter *, sensor_clock::time_point, enum packet_type)> packet = NULL;
+    std::function<void (float)> progress;
+    std::function<void (const filter *, sensor_clock::time_point, enum packet_type)> packet;
 
     gui vis(&ws);
 

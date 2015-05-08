@@ -82,11 +82,11 @@ void gui::create_plots()
 
             mglData data_x(p.size());
             mglData data_y(p.size());
-            auto last = sensor_clock::tp_to_micros(p.back().first);
+            auto first = sensor_clock::tp_to_micros(p.front().first);
 
             int j = 0;
             for(auto data : p) {
-                float seconds = -1.*(last - sensor_clock::tp_to_micros(data.first))/1e6;
+                float seconds = (sensor_clock::tp_to_micros(data.first) - first)/1e6;
                 if(seconds < minx) minx = seconds;
                 if(seconds > maxx) maxx = seconds;
                 data_x.a[j] = seconds;

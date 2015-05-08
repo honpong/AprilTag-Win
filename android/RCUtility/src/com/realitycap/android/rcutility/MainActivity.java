@@ -15,7 +15,7 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 public class MainActivity extends Activity
-{	
+{
 	private TextView statusText;
 	private ToggleButton calibrationButton;
 	private ToggleButton captureButton;
@@ -28,12 +28,9 @@ public class MainActivity extends Activity
 	
 	enum AppState
 	{
-		Idle,
-		Calibrating,
-		Capturing,
-		LiveVis,
-		ReplayVis
+		Idle, Calibrating, Capturing, LiveVis, ReplayVis
 	}
+	
 	AppState appState = AppState.Idle;
 	
 	@Override
@@ -50,9 +47,13 @@ public class MainActivity extends Activity
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
 			{
 				if (isChecked)
-					if(!startCalibration()) calibrationButton.setChecked(false);					
+				{
+					if (!startCalibration()) calibrationButton.setChecked(false);
+				}
 				else
+				{
 					stopCalibration();
+				}
 			}
 		});
 		
@@ -62,9 +63,13 @@ public class MainActivity extends Activity
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
 			{
 				if (isChecked)
-					if(!startCapture()) captureButton.setChecked(false);
+				{
+					if (!startCapture()) captureButton.setChecked(false);
+				}
 				else
+				{
 					stopCapture();
+				}
 			}
 		});
 		
@@ -111,7 +116,7 @@ public class MainActivity extends Activity
 		videoPreview.setVisibility(View.INVISIBLE);
 		videoMan.stopVideo();
 	}
-
+	
 	protected boolean startCalibration()
 	{
 		if (appState != AppState.Idle) return false;
@@ -120,7 +125,7 @@ public class MainActivity extends Activity
 		appState = AppState.Calibrating;
 		return true;
 	}
-
+	
 	protected void stopCalibration()
 	{
 		if (appState != AppState.Calibrating) return;
@@ -138,7 +143,7 @@ public class MainActivity extends Activity
 		appState = AppState.Capturing;
 		return true;
 	}
-
+	
 	protected void stopCapture()
 	{
 		if (appState != AppState.Capturing) return;
@@ -146,21 +151,21 @@ public class MainActivity extends Activity
 		stopSensors();
 		appState = AppState.Idle;
 	}
-
+	
 	protected boolean startLiveActivity()
 	{
 		if (appState != AppState.Idle) return false;
 		setStatusText("startLiveActivity");
 		return true;
 	}
-
+	
 	protected boolean openFilePicker()
 	{
 		if (appState != AppState.Idle) return false;
 		setStatusText("openFilePicker");
 		return true;
 	}
-
+	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu)
 	{

@@ -78,15 +78,15 @@ bool offscreen_render_to_file(const char * filename, world_state * world)
     GLenum status;
 
     //Set up a FBO with one renderbuffer attachment
-    glGenFramebuffersEXT(1, &framebuffer);
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, framebuffer);
-    glGenRenderbuffersEXT(1, &renderbuffer);
-    glBindRenderbufferEXT(GL_RENDERBUFFER_EXT, renderbuffer);
-    glRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGBA8, width, height);
-    glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT,
-                     GL_RENDERBUFFER_EXT, renderbuffer);
-    status = glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
-    if (status != GL_FRAMEBUFFER_COMPLETE_EXT)
+    glGenFramebuffers(1, &framebuffer);
+    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    glGenRenderbuffers(1, &renderbuffer);
+    glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer);
+    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, width, height);
+    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
+                     GL_RENDERBUFFER, renderbuffer);
+    status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
+    if (status != GL_FRAMEBUFFER_COMPLETE)
         // Handle errors
         fprintf(stderr, "status %d\n", status);
 
@@ -102,9 +102,9 @@ bool offscreen_render_to_file(const char * filename, world_state * world)
     glReadPixels(0,0,width,height,GL_RGBA,GL_UNSIGNED_BYTE,&data[0]);
 
     // Make the window the target
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
     // Delete the renderbuffer attachment
-    glDeleteRenderbuffersEXT(1, &renderbuffer);
+    glDeleteRenderbuffers(1, &renderbuffer);
 
     //Encode the image
     unsigned error = lodepng::encode(filename, data, width, height);

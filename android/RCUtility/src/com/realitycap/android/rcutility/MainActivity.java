@@ -50,13 +50,9 @@ public class MainActivity extends Activity
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
 			{
 				if (isChecked)
-				{
 					if(!startCalibration()) calibrationButton.setChecked(false);					
-				}
 				else
-				{
 					stopCalibration();
-				}
 			}
 		});
 		
@@ -66,13 +62,9 @@ public class MainActivity extends Activity
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
 			{
 				if (isChecked)
-				{
 					if(!startCapture()) captureButton.setChecked(false);
-				}
 				else
-				{
 					stopCapture();
-				}
 			}
 		});
 		
@@ -124,7 +116,7 @@ public class MainActivity extends Activity
 	{
 		if (appState != AppState.Idle) return false;
 		setStatusText("Starting calibration...");
-		startSensors();
+		imuMan.startSensors();
 		appState = AppState.Calibrating;
 		return true;
 	}
@@ -132,8 +124,8 @@ public class MainActivity extends Activity
 	protected void stopCalibration()
 	{
 		if (appState != AppState.Calibrating) return;
+		imuMan.stopSensors();
 		setStatusText("Calibration stopped.");
-		stopSensors();
 		appState = AppState.Idle;
 	}
 	

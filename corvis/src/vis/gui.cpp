@@ -52,8 +52,11 @@ void gui::mouse(GLFWwindow * window, int button, int action, int mods)
     }
 }
 
-/*#include "lodepng.h"
+#include "lodepng.h"
+#define _MSC_VER 1900 // Force mathgl to avoid C99's typeof
 #include <mgl2/mgl.h>
+#undef _MSC_VER
+
 void gui::create_plots()
 {
     mglGraph gr(0,600,400); // 600x400 graph, plotted to an image
@@ -110,7 +113,7 @@ void gui::create_plots()
         if(error)
             fprintf(stderr, "encoder error %d: %s\n", error, lodepng_error_text(error));
     });
-}*/
+}
 
 void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int mods)
 {
@@ -124,8 +127,8 @@ void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int m
        replay_control->toggle_pause();
     if(key == 's')
        replay_control->step();
-    //if(key == 'p')
-     //   create_plots();
+    if(key == 'p')
+       create_plots();
 }
 
 void gui::init_gl()

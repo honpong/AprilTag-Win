@@ -10,16 +10,31 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
+import android.widget.FrameLayout;
+import android.widget.TextView;
 import android.widget.ToggleButton;
 
 public class MainActivity extends Activity
-{
-	public static final String TAG = "RCUtility";
-	
+{	
+	private TextView statusText;
 	private ToggleButton calibrationButton;
 	private ToggleButton captureButton;
 	private Button liveButton;
 	private Button replayButton;
+	private FrameLayout videoPreview;
+	
+	IMUManager imuMan;
+	VideoManager videoMan;
+	
+	enum AppState
+	{
+		Idle,
+		Calibrating,
+		Capturing,
+		LiveVis,
+		ReplayVis
+	}
+	AppState appState = AppState.Idle;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -27,15 +42,21 @@ public class MainActivity extends Activity
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
+		statusText = (TextView) this.findViewById(R.id.statusText);
+		
 		calibrationButton = (ToggleButton) this.findViewById(R.id.calibrationButton);
 		calibrationButton.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 			@Override
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
 			{
 				if (isChecked)
-					startCalibration();
+				{
+					if(!startCalibration()) calibrationButton.setChecked(false);					
+				}
 				else
+				{
 					stopCalibration();
+				}
 			}
 		});
 		
@@ -45,9 +66,13 @@ public class MainActivity extends Activity
 			public void onCheckedChanged(CompoundButton buttonView, boolean isChecked)
 			{
 				if (isChecked)
-					startCapture();
+				{
+					if(!startCapture()) captureButton.setChecked(false);
+				}
 				else
+				{
 					stopCapture();
+				}
 			}
 		});
 		
@@ -68,36 +93,80 @@ public class MainActivity extends Activity
 				openFilePicker();
 			}
 		});
+		
+		videoPreview = (FrameLayout) this.findViewById(R.id.cameraPreview);
+		
+		imuMan = new IMUManager();
+		videoMan = new VideoManager();
+	}
+	
+	protected void setStatusText(String text)
+	{
+		statusText.setText(text);
+		log(text);
+	}
+	
+	protected void startSensors()
+	{
+		imuMan.startSensors();
+		videoMan.startVideo(videoPreview);
+		videoPreview.setVisibility(View.VISIBLE);
+	}
+	
+	protected void stopSensors()
+	{
+		imuMan.stopSensors();
+		videoPreview.setVisibility(View.INVISIBLE);
+		videoMan.stopVideo();
 	}
 
-	protected void startCalibration()
+	protected boolean startCalibration()
 	{
-		log("startCalibration");
+		if (appState != AppState.Idle) return false;
+		setStatusText("Starting calibration...");
+		startSensors();
+		appState = AppState.Calibrating;
+		return true;
 	}
 
 	protected void stopCalibration()
 	{
-		log("stopCalibration");
+		if (appState != AppState.Calibrating) return;
+		setStatusText("Calibration stopped.");
+		stopSensors();
+		appState = AppState.Idle;
 	}
 	
-	protected void startCapture()
+	protected boolean startCapture()
 	{
-		log("startCapture");
+		if (appState != AppState.Idle) return false;
+		setStatusText("Starting capture...");
+		startSensors();
+		setStatusText("Capturing...");
+		appState = AppState.Capturing;
+		return true;
 	}
 
 	protected void stopCapture()
 	{
-		log("stopCapture");
+		if (appState != AppState.Capturing) return;
+		setStatusText("Capture stopped.");
+		stopSensors();
+		appState = AppState.Idle;
 	}
 
-	protected void startLiveActivity()
+	protected boolean startLiveActivity()
 	{
-		log("startLiveActivity");
+		if (appState != AppState.Idle) return false;
+		setStatusText("startLiveActivity");
+		return true;
 	}
 
-	protected void openFilePicker()
+	protected boolean openFilePicker()
 	{
-		log("openFilePicker");
+		if (appState != AppState.Idle) return false;
+		setStatusText("openFilePicker");
+		return true;
 	}
 
 	@Override
@@ -124,7 +193,7 @@ public class MainActivity extends Activity
 	
 	private void log(String line)
 	{
-		if (line != null) Log.d(TAG, line);
+		if (line != null) Log.d(MyApplication.TAG, line);
 	}
 	
 	private void logError(Exception e)
@@ -134,6 +203,6 @@ public class MainActivity extends Activity
 	
 	private void logError(String line)
 	{
-		if (line != null) Log.e(TAG, line);
+		if (line != null) Log.e(MyApplication.TAG, line);
 	}
 }

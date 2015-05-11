@@ -22,8 +22,8 @@ private:
         gui::static_gui->keyboard(window, key, scancode, action, mods);
     };
 
-    float _modelViewProjectionMatrix[16]; // 4x4
-    float _normalMatrix[9]; // 3x3
+    float _projectionMatrix[16]; // 4x4
+    float _modelViewMatrix[16]; // 4x4
     int window_id;
 
     void create_plots();

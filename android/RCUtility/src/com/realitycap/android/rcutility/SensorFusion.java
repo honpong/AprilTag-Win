@@ -17,7 +17,7 @@ public class SensorFusion implements SensorEventListener, PreviewCallback
 	public native String  stringFromJNI();
 	protected native void receiveAccelerometer(float x, float y, float z, long timestamp);
 	protected native void receiveGyro(float x, float y, float z, long timestamp);
-	protected native void receiveVideoFrame(byte[] data);
+	protected native boolean receiveVideoFrame(byte[] data);
 	
 	public SensorFusion()
 	{
@@ -48,7 +48,8 @@ public class SensorFusion implements SensorEventListener, PreviewCallback
 	@Override
 	public void onPreviewFrame(final byte[] data, Camera camera)
 	{
-		receiveVideoFrame(data);
+		boolean result = receiveVideoFrame(data);
+		if (!result) Log.w(MyApplication.TAG, "receiveVideoFrame() returned FALSE");
 		camera.addCallbackBuffer(data);
 	}
 }

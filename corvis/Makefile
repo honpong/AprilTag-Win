@@ -260,6 +260,8 @@ lib/libglfw3.a:
 	@cmake --build build/glfw/ --target glfw
 	@cmake -P build/glfw/cmake_install.cmake
 
+TARGETS := $(TARGETS) lib/libglfw3.a
+
 ############################## MEASURE ############################
 
 MEASURE_SOURCES := $(FILTER_SOURCES) $(COR_SOURCES)

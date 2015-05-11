@@ -9,17 +9,12 @@
 #include "../sensor_clock.h"
 #include <windows.h>
 
-static double compute_sensor_factor()
-{
-    LARGE_INTEGER frequency;
-    QueryPerformanceFrequency(&frequency);
-    return 1000000000. / frequency.QuadPart;
-}
-
 sensor_clock::time_point sensor_clock::now() noexcept
 {
-    static double factor = compute_sensor_factor();
-    LARGE_INTEGER counter;
-    QueryPerformanceCounter(&counter);
-    return time_point(duration(static_cast<rep>(counter.QuadPart * factor)));
+    FILETIME ft;
+    GetSystemTimePreciseAsFileTime(&ft);
+    ULARGE_INTEGER ftl;
+    ftl.HighPart = ft.dwHighDateTime;
+    ftl.LowPart = ft.dwLowDateTime;
+    return sensor_clock::time_point(sensor_clock::duration(ftl.QuadPart));
 }

@@ -25,10 +25,8 @@ camera_data::camera_data(void *h) : image_handle(new handle_type, [](void *h) { 
     auto info = handle->first->QueryInfo();
     width = info.width;
     height = info.height;
-    auto time = handle->first->QueryTimeStamp();
-    std::cerr << "camera timestamp: " << time << "\n";
-    //TODO: timestamp
-    timestamp = sensor_clock::now();
+    //Subtract off 6370 (blank interval) and half of frame time. Todo: get actual exposure time
+    timestamp = sensor_clock::time_point(sensor_clock::duration(handle->first->QueryTimeStamp() - 6370 - 166670));
     handle->first->AddRef();
 }
 

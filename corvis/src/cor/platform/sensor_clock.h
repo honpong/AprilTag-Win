@@ -14,7 +14,11 @@
 class sensor_clock
 {
 public:
+#ifdef WIN32
+    typedef std::chrono::duration<long long, std::ratio<1, 10000000>> duration;
+#else
     typedef std::chrono::nanoseconds                        duration;
+#endif
     typedef duration::rep                                   rep;
     typedef duration::period                                period;
     typedef std::chrono::time_point<sensor_clock, duration> time_point;

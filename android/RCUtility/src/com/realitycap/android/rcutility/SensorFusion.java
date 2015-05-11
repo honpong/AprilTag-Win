@@ -1,11 +1,13 @@
 package com.realitycap.android.rcutility;
 
+import android.hardware.Camera;
+import android.hardware.Camera.PreviewCallback;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.util.Log;
 
-public class SensorFusion implements SensorEventListener
+public class SensorFusion implements SensorEventListener, PreviewCallback
 {
 	static
 	{
@@ -13,8 +15,9 @@ public class SensorFusion implements SensorEventListener
 	}
 	
 	public native String  stringFromJNI();
-	public native void receiveAccelerometer(float x, float y, float z, long timestamp);
-	public native void receiveGyro(float x, float y, float z, long timestamp);
+	protected native void receiveAccelerometer(float x, float y, float z, long timestamp);
+	protected native void receiveGyro(float x, float y, float z, long timestamp);
+	protected native void receiveVideoFrame(byte[] data);
 	
 	public SensorFusion()
 	{
@@ -40,5 +43,12 @@ public class SensorFusion implements SensorEventListener
 	public void onAccuracyChanged(Sensor sensor, int accuracy)
 	{
 		Log.d(MyApplication.TAG, String.format("onAccuracyChanged(%s, %d)", sensor.getName(), accuracy));
+	}
+	
+	@Override
+	public void onPreviewFrame(final byte[] data, Camera camera)
+	{
+		receiveVideoFrame(data);
+		camera.addCallbackBuffer(data);
 	}
 }

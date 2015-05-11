@@ -99,6 +99,7 @@ public class MainActivity extends Activity
 		sensorFusion = new SensorFusion();
 		
 		imuMan.setSensorEventListener(sensorFusion);
+		videoMan.setVideoSubscriber(sensorFusion);
 		
 		setStatusText(sensorFusion.stringFromJNI());		
 	}

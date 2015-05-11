@@ -9,9 +9,10 @@ import android.widget.FrameLayout;
 
 public class VideoManager
 {
-	protected CameraSurfaceView cameraPreview;
-	protected Camera camera;
-	protected boolean isRunning = false;
+	CameraSurfaceView cameraPreview;
+	Camera camera;
+	boolean isRunning = false;
+	PreviewCallback mPreviewCallback;
 	
 	public VideoManager()
 	{
@@ -31,6 +32,16 @@ public class VideoManager
 			Log.e(MyApplication.TAG, e.toString());
 		}
 		return c; // returns null if camera is unavailable
+	}
+	
+	public PreviewCallback getVideoSubscriber()
+	{
+		return mPreviewCallback;
+	}
+	
+	public void setVideoSubscriber(PreviewCallback callback)
+	{
+		mPreviewCallback = callback;
 	}
 	
 	public void startVideo(FrameLayout previewView)
@@ -68,14 +79,7 @@ public class VideoManager
 			camera.addCallbackBuffer(new byte[dataBufferSize]);
 		}
 		
-		camera.setPreviewCallbackWithBuffer(new PreviewCallback() {
-			@Override
-			public void onPreviewFrame(final byte[] data, Camera camera)
-			{
-				Log.d(MyApplication.TAG, "Camera frame received");
-				camera.addCallbackBuffer(data);
-			}
-		});
+		if (mPreviewCallback != null) camera.setPreviewCallbackWithBuffer(mPreviewCallback);
 		
 		camera.startPreview();
 		isRunning = true;

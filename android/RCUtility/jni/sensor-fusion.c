@@ -21,3 +21,8 @@ void Java_com_realitycap_android_rcutility_SensorFusion_receiveGyro( JNIEnv* env
 {
     LOGV("%li gyro %f, %f, %f", (long)timestamp, x, y, z);
 }
+
+void Java_com_realitycap_android_rcutility_SensorFusion_receiveVideoFrame( JNIEnv* env, jobject thiz, jbyteArray data )
+{
+    LOGV(">>>>>>>>>>> Camera frame received <<<<<<<<<<<<<");
+}

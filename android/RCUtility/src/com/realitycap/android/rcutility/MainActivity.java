@@ -25,6 +25,7 @@ public class MainActivity extends Activity
 	
 	IMUManager imuMan;
 	VideoManager videoMan;
+	SensorFusion sensorFusion;
 	
 	enum AppState
 	{
@@ -95,6 +96,11 @@ public class MainActivity extends Activity
 		
 		imuMan = new IMUManager();
 		videoMan = new VideoManager();
+		sensorFusion = new SensorFusion();
+		
+		imuMan.setSensorEventListener(sensorFusion);
+		
+		setStatusText(sensorFusion.stringFromJNI());		
 	}
 	
 	protected void setStatusText(String text)

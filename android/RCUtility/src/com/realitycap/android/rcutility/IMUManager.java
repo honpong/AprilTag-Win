@@ -2,15 +2,14 @@ package com.realitycap.android.rcutility;
 
 import android.content.Context;
 import android.hardware.Sensor;
-import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.util.Log;
 
-public class IMUManager implements SensorEventListener
+public class IMUManager
 {
 	private static final int SENSOR_REPORT_RATE = 10000; // 100hz
-	private SensorManager mSensorManager;
+	protected SensorManager mSensorManager;
+	protected SensorEventListener mListener;
 	
 	public IMUManager()
 	{
@@ -21,33 +20,24 @@ public class IMUManager implements SensorEventListener
 	public void startSensors()
 	{
 		final Sensor accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-		if (accelerometer != null) mSensorManager.registerListener(this, accelerometer, SENSOR_REPORT_RATE);
+		if (accelerometer != null && mListener != null) mSensorManager.registerListener(mListener, accelerometer, SENSOR_REPORT_RATE);
 		
 		final Sensor gyro = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
-		if (gyro != null) mSensorManager.registerListener(this, gyro, SENSOR_REPORT_RATE);
+		if (gyro != null && mListener != null) mSensorManager.registerListener(mListener, gyro, SENSOR_REPORT_RATE);
 	}
 	
 	public void stopSensors()
 	{
-		mSensorManager.unregisterListener(this);
+		if (mListener != null) mSensorManager.unregisterListener(mListener);
 	}
 	
-	@Override
-	public void onSensorChanged(SensorEvent sensorEvent)
+	public SensorEventListener getSensorEventListener()
 	{
-		if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
-		{
-//			Log.d(MyApplication.TAG, String.format("accel %.3f, %.3f, %.3f", sensorEvent.values[0], sensorEvent.values[1], sensorEvent.values[2]));
-		}
-		else if (sensorEvent.sensor.getType() == Sensor.TYPE_GYROSCOPE || sensorEvent.sensor.getType() == Sensor.TYPE_GYROSCOPE_UNCALIBRATED)
-		{
-//			Log.d(MyApplication.TAG, String.format("gyro %.3f, %.3f, %.3f", sensorEvent.values[0], sensorEvent.values[1], sensorEvent.values[2]));
-		}
+		return mListener;
 	}
 	
-	@Override
-	public void onAccuracyChanged(Sensor sensor, int accuracy)
+	public void setSensorEventListener(SensorEventListener listener)
 	{
-		Log.d(MyApplication.TAG, String.format("onAccuracyChanged(%s, %d)", sensor.getName(), accuracy));
+		mListener = listener;
 	}
 }

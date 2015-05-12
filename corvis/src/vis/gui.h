@@ -43,7 +43,7 @@ private:
 
     // Mouse related
     arcball arc;
-    bool is_rotating;
+    bool is_rotating{false};
 
     replay * replay_control;
 

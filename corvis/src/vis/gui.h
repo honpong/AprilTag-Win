@@ -21,6 +21,9 @@ private:
     static void keyboard_callback(GLFWwindow * window, int key, int scancode, int action, int mods) {
         gui::static_gui->keyboard(window, key, scancode, action, mods);
     };
+    static void scroll_callback(GLFWwindow * window, double dx, double dy) {
+        gui::static_gui->scroll(window, dx, dy);
+    };
 
     float _projectionMatrix[16]; // 4x4
     float _modelViewMatrix[16]; // 4x4
@@ -34,6 +37,7 @@ private:
     void reshape(int width, int height);
     void mouse(GLFWwindow * window, int button, int action, int mods);
     void mouse_move(GLFWwindow * window, double x, double y);
+    void scroll(GLFWwindow * window, double xoffset, double yoffset);
     void keyboard(GLFWwindow * window, int key, int scancode, int action, int mods);
     void render();
     world_state * state;

@@ -31,7 +31,11 @@ static void build_projection_matrix(float * projMatrix, float fov, float ratio, 
 void gui::configure_view()
 {
     float aspect = 1.f*width/height;
-    build_projection_matrix(_projectionMatrix, 60.0f, aspect, 1.0f, 30.0f);
+    float near = 0.1f;
+    float far = 30.f;
+    if(scale > far) far = scale*1.5;
+    if(scale < near) near = scale*0.75;
+    build_projection_matrix(_projectionMatrix, 60.0f, aspect, near, far);
 
     m4 R = to_rotation_matrix(arc.get_quaternion());
     R(2, 3) = -scale; // Translate by -scale
@@ -59,6 +63,11 @@ void gui::mouse(GLFWwindow * window, int button, int action, int mods)
     else if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
         is_rotating = false;
     }
+}
+
+void gui::scroll(GLFWwindow * window, double xoffset, double yoffset)
+{
+    scale *= (1+yoffset*.05);
 }
 
 #include "lodepng.h"
@@ -179,6 +188,7 @@ void gui::start_glfw()
     glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, 1);
     glfwSetMouseButtonCallback(window, gui::mouse_callback);
     glfwSetCursorPosCallback(window, gui::move_callback);
+    glfwSetScrollCallback(window, gui::scroll_callback);
 
     gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
     //fprintf(stderr, "OpenGL Version %d.%d loaded\n", GLVersion.major, GLVersion.minor);

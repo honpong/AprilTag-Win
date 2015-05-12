@@ -72,10 +72,6 @@ bool offscreen_render_to_file(const char * filename, world_state * world)
         exit(EXIT_FAILURE);
     }
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_VISIBLE, GL_FALSE);
 
     glfwSetErrorCallback(error_callback);
@@ -90,30 +86,10 @@ bool offscreen_render_to_file(const char * filename, world_state * world)
     glfwMakeContextCurrent(window);
 
     gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
-    if(!GLAD_GL_VERSION_3_0) {
-        fprintf(stderr, "OpenGL Version %d.%d loaded\n", GLVersion.major, GLVersion.minor);
-        fprintf(stderr, "don't support 3.0\n");
-        exit(EXIT_FAILURE);
-    }
+    //fprintf(stderr, "OpenGL Version %d.%d loaded\n", GLVersion.major, GLVersion.minor);
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 4);      // 4-byte pixel alignment
     glEnable(GL_DEPTH_TEST);
-
-    GLuint framebuffer, renderbuffer;
-    GLenum status;
-
-    //Set up a FBO with one renderbuffer attachment
-    glGenFramebuffers(1, &framebuffer);
-    glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-    glGenRenderbuffers(1, &renderbuffer);
-    glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_RGBA8, width, height);
-    glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0,
-                     GL_RENDERBUFFER, renderbuffer);
-    status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
-    if (status != GL_FRAMEBUFFER_COMPLETE)
-        // Handle errors
-        fprintf(stderr, "status %d\n", status);
 
     world_state_render_init();
 
@@ -123,7 +99,8 @@ bool offscreen_render_to_file(const char * filename, world_state * world)
     glClearColor(0, 0, 0, 0);                   // background color
 
     world_state_render(world, modelview_matrix, projection_matrix);
-    glfwSwapBuffers(window);
+    //Don't swap the buffers since we want to read from the buffer
+    //glfwSwapBuffers(window);
     glfwPollEvents();
 
     // Extract the pixels
@@ -131,10 +108,19 @@ bool offscreen_render_to_file(const char * filename, world_state * world)
     glReadBuffer(GL_COLOR_ATTACHMENT0);
     glReadPixels(0,0,width,height,GL_RGBA,GL_UNSIGNED_BYTE,&data[0]);
 
-    // Make the window the target
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    // Delete the renderbuffer attachment
-    glDeleteRenderbuffers(1, &renderbuffer);
+    // The buffer is y-flipped because the origin of glReadPixels is
+    // the lower left corner of the scene
+    for(int y = 0; y < height/2; y++) {
+        for(int x = 0; x < width; x++) {
+            for(int c = 0; c < 4; c++) {
+                unsigned p1 = y * width * 4 + x * 4 + c;
+                unsigned p2 = (height-y-1) * width * 4 + x * 4 + c;
+                uint8_t temp = data[p1];
+                data[p1] = data[p2];
+                data[p2] = temp;
+            }
+        }
+    }
 
     //Encode the image
     unsigned error = lodepng::encode(filename, data, width, height);

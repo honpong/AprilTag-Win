@@ -22,7 +22,7 @@ enum rc_CameraType
 
 struct rc_Vector
 {
-    double x,y,z;
+    float x,y,z;
 }
 
 /**
@@ -33,7 +33,7 @@ struct rc_Vector
  [R20 R21 R22]
  [T0 T1 T2]
  */
-typedef double rc_Pose[12];
+typedef float rc_Pose[12];
 
 /**
  Timestamp, in nanoseconds

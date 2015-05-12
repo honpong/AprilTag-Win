@@ -52,4 +52,9 @@ public class SensorFusion implements SensorEventListener, PreviewCallback
 		if (!result) Log.w(MyApplication.TAG, "receiveVideoFrame() returned FALSE");
 		camera.addCallbackBuffer(data);
 	}
+	
+	protected void onSensorFusionDataUpdate(SensorFusionData data)
+	{
+		Log.d(MyApplication.TAG, String.format("onSensorFusionDataUpdate %d", data.timestamp));
+	}
 }

@@ -11,6 +11,25 @@
 
 extern "C"
 {
+    void SendFakeDataUpdate(JNIEnv* env, jobject thiz)
+    {
+        // init a SensorFusionData instance
+        jclass dataClass = env->FindClass("com/realitycap/android/rcutility/SensorFusionData");
+        jmethodID initId = env->GetMethodID(dataClass, "<init>", "()V");
+        jobject dataObj = env->NewObject(dataClass, initId);
+        
+        // set the timestamp
+        jmethodID setTimestampId = env->GetMethodID(dataClass, "setTimestamp", "(J)V"); // J means argument is a long. V means return type is void.
+        jvalue longVal;
+        longVal.j = 12345678L;
+        env->CallVoidMethod(dataObj, setTimestampId, longVal);
+        
+        // pass object to the callback
+        jclass sensorFusionClass = env->GetObjectClass(thiz);
+        jmethodID methodId = env->GetMethodID(sensorFusionClass, "onSensorFusionDataUpdate", "(Lcom/realitycap/android/rcutility/SensorFusionData;)V");
+        env->CallVoidMethod(thiz, methodId, dataObj);
+    }
+    
 	JNIEXPORT jstring JNICALL Java_com_realitycap_android_rcutility_SensorFusion_stringFromJNI( JNIEnv* env, jobject thiz )
 	{
 	    return env->NewStringUTF("Ready");
@@ -31,7 +50,7 @@ extern "C"
 	    jbyte* buffer = NULL;
 	    jsize size = env->GetArrayLength(data);
 	    
-	    // check if array size >0 
+	    // check if array size >0
 	    if(size<=0) return(JNI_FALSE);
 	    if(env->ExceptionCheck())
         {
@@ -69,6 +88,8 @@ extern "C"
 	      env->ExceptionClear();
 	      return(JNI_FALSE);
 	    }
+        
+        SendFakeDataUpdate(env, thiz);
         
 	    // All is ok
 	    return(JNI_TRUE);

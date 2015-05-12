@@ -14,13 +14,13 @@ extern "C" {
 
 #include <stdint.h>
 
-enum rc_camera
+enum rc_CameraType
 {
     depth,
     rgb
 };
 
-struct rc_vector
+struct rc_Vector
 {
     double x,y,z;
 }
@@ -33,68 +33,65 @@ struct rc_vector
  [R20 R21 R22]
  [T0 T1 T2]
  */
-struct rc_pose
-{
-    double R[3][3];
-    rc_vector T;
+typedef double rc_Pose[12];
+
+/**
+ Timestamp, in nanoseconds
+ */
+typedef int64_t rc_Timestamp;
+
+enum rc_LogMode {
+    stream,  // log input data
+    trigger, // call log now
+    event,   // call log in future with events
 };
 
-/**
- Timestamp, in microseconds
- */
-typedef uint64_t rc_timestamp;
+struct rc_Tracker;
 
-struct rc_tracker;
-
-struct rc_data;
-
-struct rc_tracker* rc_create();
-void rc_destroy(s)truct rc_tracker *tracker);
-
-//These functions all run synchronously; assume that the start_ functions have not been called yet
-/**
- @param tracker The active rc_tracker instance
- @param camera The camera to configure
- @param pose_m Position (in meters) and orientation of camera relative to reference point
- @param image_width_px Image width in pixels
- @param image_height_px Image height in pixels
- @param focal_length_px Focal length in pixels
- @param principal_x_px Horizontal principal point in pixels
- @param principal_y_px Vertical principal point in pixels
- */
-void rc_configure_camera(struct rc_tracker *tracker, enum rc_camera camera,
-                         const struct rc_pose *pose_m,
-                         int width_px, int height_px,
-                         int principal_x_px, int principal_y_px, int focal_length_px);
-void rc_configure_accelerometer(struct rc_tracker *tracker, const struct rc_pose *pose_m, struct rc_vector *bias_m__s_s, float noise_variance);
-void rc_configure_gyroscope(struct rc_tracker *tracker, const struct rc_pose *pose_m, struct rc_vector *bias_rad__s, float noise_variance);
-
-void rc_set_location(struct rc_tracker *tracker, double latitude_degrees, double longitude_degrees, double altitude_meters);
-//TBD: how to trigger logging for various log modes (events vs stream vs single)
-void rc_set_log(struct rc_tracker *tracker, void (*log)(char *buffer_utf8, size_t length));
-
-//These may all run async
-void rc_start_calibration(struct rc_tracker *tracker);
-void rc_start_inertial_only(struct rc_tracker *tracker);
-void rc_start_full_tracker(struct rc_tracker *tracker);
-
-void rc_receive_image(struct rc_tracker *tracker, rc_camera camera, const rc_pose *pose_estimate_m, rc_timestamp time_us, const uint8_t *image);
-//Acceleration is in m/s^2
-void rc_receive_accelerometer(struct rc_tracker *tracker, rc_timestamp time_us, const rc_vector *acceleration_m__s_s);
-//Angular velocity is in rad/s
-void rc_receive_gyro(struct rc_tracker *tracker, rc_timestamp time_us, const rc_vector *angular_velocity_rad__s);
+struct rc_Tracker* rc_create();
+void rc_destroy(struct rc_Tracker *tracker);
 
 /**
  Resets system, clearing all history and state, and sets initial pose and time.
- System will be stopped until one of the start_ functions is called.
+ System will be stopped until one of the rc_start_ functions is called.
  */
-void reset(struct rc_tracker *tracker, const struct rc_pose *initial_pose_m, rc_timestamp initial_time_us);
+void rc_reset(struct rc_Tracker *tracker, const struct rc_Pose *initialPose_m, rc_Timestamp initialTime_ns);
+void rc_save(struct rc_Tracker *tracker,  void (*write)(void *, void *buffer, size_t length), void *);
+void rc_load(struct rc_Tracker *tracker, size_t (*read)(void *, void *buffer, size_t length), void *);
 
-/* To be implemented with location recognition / loop closure
-void rc_start_mapping_from_pose_estimates(struct rc_tracker *tracker);
-void rc_save_tracker(struct rc_tracker *tracker);
-void rc_load_tracker(struct rc_tracker *tracker);
-*/
+//These functions all run synchronously; assume that the start_ functions have not been called yet
+/**
+ @param tracker The active rc_Tracker instance
+ @param camera The camera to configure
+ @param pose_m Position (in meters) and orientation of camera relative to reference point
+ @param center_px, Horizontal principal point / Vertical principal point / Focal length all in pixels
+ @param image_width_px Image width in pixels
+ @param image_height_px Image height in pixels
+ */
+void rc_configureCamera(struct rc_Tracker *tracker, int index, const struct rc_Pose *pose_m, const struct rc_Vector *center_px,
+                         int width_px, int height_px, enum rc_CameraType camera);
+void rc_configureAccelerometer(struct rc_Tracker *tracker, int index, const struct rc_Pose *pose_m, struct rc_Vector *bias_m__s_s, float noiseVariance);
+void rc_configureGyroscope(struct rc_Tracker *tracker, int index, const struct rc_Pose *pose_m, struct rc_Vector *bias_rad__s, float noiseVariance);
+
+void rc_setLocation(struct rc_Tracker *tracker, double latitude_deg, double longitude_deg, double altitude_m);
+
+void rc_setLog(struct rc_Tracker *tracker, void (*log)(void *, char *buffer_utf8, size_t length), rc_Timestamp period_ns, enum rc_LogMode mode, void *);
+
+//These may all run async
+void rc_startCalibration(struct rc_Tracker *tracker);
+bool rc_getCalibration(struct rc_Tracker *tracker, char **buffer, int *length);
+enum rc_TrackerFlag { rc_start_inertial_only = 1 };
+void rc_start(struct rc_Tracker *tracker, enum rc_TrackerFlag flags);
+
+void rc_receiveImage(struct rc_Tracker *tracker, int index, rc_Timestamp time_ns, const rc_Pose *poseEstimate_m, const uint8_t *image);
+void rc_receiveAccelerometer(struct rc_Tracker *tracker, int index, rc_Timestamp time_ns, const rc_Pose *poseEstimate_m, const rc_Vector *acceleration_m__s_s);
+void rc_receiveGyro(struct rc_Tracker *tracker, int index, rc_Timestamp time_ns, const rc_Pose *poseEstimate_m, const rc_Vector *angular_velocity_rad__s);
+
+struct rc_Feature { int id; float x, y; };
+int rc_getFeatures(struct rc_Tracker *tracker, int index, struct rc_Feature **features_px);
+
+enum rc_PerformFlag { rc_loop_closure=1, rc_relocalization=2 };
+void rc_perform(struct rc_Tracker *tracker, enum rc_PerformFlag flags);
 
 #ifdef __cplusplus
 }

@@ -70,6 +70,10 @@ void gui::scroll(GLFWwindow * window, double xoffset, double yoffset)
     scale *= (1+yoffset*.05);
 }
 
+#ifdef WIN32
+void gui::create_plots() {}
+#else // !WIN32
+
 #include "lodepng.h"
 #define _MSC_VER 1900 // Force mathgl to avoid C99's typeof
 #include <mgl2/mgl.h>
@@ -132,6 +136,7 @@ void gui::create_plots()
             fprintf(stderr, "encoder error %d: %s\n", error, lodepng_error_text(error));
     });
 }
+#endif //WIN32
 
 void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int mods)
 {

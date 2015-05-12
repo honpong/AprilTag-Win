@@ -16,7 +16,7 @@ _CPPFLAGS := \
 CXXFLAGS := -std=c++1y
 CFLAGS := -std=gnu99
 LDFLAGS := -lpthread --warn-unresolved-symbols -O3 \
-        -framework Accelerate -framework OpenGL -framework GLUT \
+        -framework Accelerate \
         $(patsubst %,-L%/lib,$(wildcard $(shell brew --prefix boost mathgl gsl 2>/dev/null) /opt/local)) \
         $(shell pkg-config ftgl --libs)
 SWIGFLAGS = -w403,362,389,503,401,462,472,314,509,204
@@ -245,12 +245,22 @@ bin/_vl.so:$(patsubst src/%,build/%,$(VL_C_SOURCES:.c=.o))
 TARGETS := $(TARGETS) bin/_vl.so
 SOURCES := $(SOURCES) $(VL_C_SOURCES)
 
+############################## libglad ############################
+GLAD_SOURCES := $(addprefix src/glfw/deps/, glad.c)
+
+lib/libglad.a: $(patsubst src/%,build/%,$(GLAD_SOURCES:.c=.o))
+
+SOURCES := $(SOURCES) $(GLAD_SOURCES)
+TARGETS := $(TARGETS) lib/libglad.a
+
 ############################## libglfw3 ############################
 lib/libglfw3.a:
 	@mkdir -p build/glfw/
 	@cd build/glfw/ && cmake ../../src/glfw/ -DCMAKE_INSTALL_PREFIX=../../
 	@cmake --build build/glfw/ --target glfw
 	@cmake -P build/glfw/cmake_install.cmake
+
+TARGETS := $(TARGETS) lib/libglfw3.a
 
 ############################## MEASURE ############################
 
@@ -261,9 +271,9 @@ CXX_SOURCES := $(CXX_SOURCES) $(MEASURE_CXX_SOURCES)
 
 LDFLAGS := $(LDFLAGS) -lstdc++ -lmgl
 
-_CPPFLAGS := $(_CPPFLAGS) -Iinclude
+_CPPFLAGS := $(_CPPFLAGS) -Iinclude -Isrc/glfw/deps/
 
-bin/measure: lib/libglfw3.a $(patsubst src/%,build/%,$(MEASURE_SOURCES:.c=.o)) $(patsubst src/%,build/%,$(MEASURE_CXX_SOURCES:.cpp=.o)) bin/_libzxing.a
+bin/measure: lib/libglfw3.a lib/libglad.a $(patsubst src/%,build/%,$(MEASURE_SOURCES:.c=.o)) $(patsubst src/%,build/%,$(MEASURE_CXX_SOURCES:.cpp=.o)) bin/_libzxing.a
 	@mkdir -p $(@D)
 	$(CC) $(LDFLAGS) $(shell pkg-config lib/pkgconfig/glfw3.pc --static --libs) $(PYTHON_LDFLAGS) $^ $(LDLIBS) -o $@
 

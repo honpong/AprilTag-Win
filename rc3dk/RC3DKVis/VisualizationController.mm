@@ -16,15 +16,6 @@
 #define INITIAL_LIMITS 3.
 #define PERSPECTIVE
 
-// Uniform index for Shader.vsh
-enum
-{
-    UNIFORM_MODELVIEWPROJECTION_MATRIX,
-    UNIFORM_NORMAL_MATRIX,
-    NUM_UNIFORMS
-};
-GLint uniforms[NUM_UNIFORMS];
-
 @interface VisualizationController () {
     /* RC3DK */
     RCSensorManager* sensorManager;
@@ -42,14 +33,14 @@ GLint uniforms[NUM_UNIFORMS];
 
     arcball arc;
 
-    GLKMatrix4 _modelViewProjectionMatrix;
+    GLKMatrix4 _modelViewMatrix;
+    GLKMatrix4 _projectionMatrix;
     GLKMatrix3 _normalMatrix;
     float _rotation;
 
     MBProgressHUD* progressView;
 }
 @property (strong, nonatomic) EAGLContext *context;
-@property (strong, nonatomic) GLKBaseEffect *effect;
 
 - (void)setupGL;
 - (void)tearDownGL;
@@ -323,11 +314,6 @@ GLint uniforms[NUM_UNIFORMS];
 
     world_state_render_init();
 
-    self.effect = [[GLKBaseEffect alloc] init];
-    self.effect.light0.enabled = GL_FALSE;
-    self.effect.light0.ambientColor = GLKVector4Make(1.0f, 1.0f, 1.0f, 1.0f);
-    self.effect.lightModelTwoSided = GL_TRUE;
-
     glEnable(GL_DEPTH_TEST);
 
     xMin = -INITIAL_LIMITS;
@@ -442,14 +428,12 @@ GLint uniforms[NUM_UNIFORMS];
 
     GLKMatrix4 projectionMatrix = GLKMatrix4MakeOrtho(xMin-xoffset,xMax+xoffset, yMin-yoffset,yMax+yoffset, 10000., -10000.);
 #endif
-    self.effect.transform.projectionMatrix = projectionMatrix;
 
 
     GLKMatrix4 modelViewMatrix = GLKMatrix4MakeScale(currentScale, currentScale, currentScale);
     modelViewMatrix = [self rotateCamera:self.timeSinceLastUpdate withModelView:modelViewMatrix];
-    _modelViewProjectionMatrix = GLKMatrix4Multiply(projectionMatrix, modelViewMatrix);
-
-    self.effect.transform.modelviewMatrix = modelViewMatrix;
+    _modelViewMatrix = modelViewMatrix;
+    _projectionMatrix = projectionMatrix;
 }
 
 - (void)glkView:(GLKView *)view drawInRect:(CGRect)rect
@@ -457,9 +441,7 @@ GLint uniforms[NUM_UNIFORMS];
     glClearColor(.274, .286, .349, 1.0f); // background color
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Render the object with GLKit
-    [self.effect prepareToDraw];
-    world_state_render(&state, _modelViewProjectionMatrix.m, _normalMatrix.m);
+    world_state_render(&state, _modelViewMatrix.m, _projectionMatrix.m);
 }
 
 - (void)setViewpoint:(RCViewpoint)viewpoint

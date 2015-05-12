@@ -2,35 +2,44 @@
 #include "gui.h"
 gui * gui::static_gui;
 
-#include "offscreen_render.h"
 #include "world_state_render.h"
 #include "../filter/replay.h"
 
-#define GLFW_INCLUDE_GLU
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 const static float initial_scale = 5;
 
+static void build_projection_matrix(float * projMatrix, float fov, float ratio, float nearP, float farP)
+{
+    float f = 1.0f / tan (fov * (M_PI / 360.0));
+
+    for(int i = 0; i < 16; i++) projMatrix[i] = 0;
+    projMatrix[0] = 1;
+    projMatrix[5] = 1;
+    projMatrix[10] = 1;
+    projMatrix[15] = 1;
+
+    projMatrix[0] = f / ratio;
+    projMatrix[1 * 4 + 1] = f;
+    projMatrix[2 * 4 + 2] = (farP + nearP) / (nearP - farP);
+    projMatrix[3 * 4 + 2] = (2.0f * farP * nearP) / (nearP - farP);
+    projMatrix[2 * 4 + 3] = -1.0f;
+    projMatrix[3 * 4 + 3] = 0.0f;
+}
+
 void gui::configure_view()
 {
     float aspect = 1.f*width/height;
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
+    build_projection_matrix(_projectionMatrix, 60.0f, aspect, 1.0f, 30.0f);
 
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    gluPerspective(65, aspect, 0.1f, 100.0f);
-    glTranslatef(0, 0, -scale);
-    rotation_vector r = to_rotation_vector(arc.get_quaternion());
-    //glScalef(scale, scale, scale);
-    v4 axis = v4(r.x(), r.y(), r.z(), 0);
-    float angle = 0;
-    if(axis.norm() != 0) {
-        angle = axis.norm()*180/M_PI;
-        axis = axis / axis.norm();
+    m4 R = to_rotation_matrix(arc.get_quaternion());
+    R(2, 3) = -scale; // Translate by -scale
+    for(int i = 0; i < 4; i++) {
+        for(int j = 0; j < 4; j++) {
+            _modelViewMatrix[j * 4 + i] = (float)R(i, j);
+        }
     }
-    glRotatef(angle, axis[0], axis[1], axis[2]);
-    glGetFloatv(GL_MODELVIEW, _modelViewProjectionMatrix);
 }
 
 void gui::mouse_move(GLFWwindow * window, double x, double y)
@@ -133,33 +142,17 @@ void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int m
 
 void gui::init_gl()
 {
-    glShadeModel(GL_SMOOTH);                    // shading mathod: GL_SMOOTH or GL_FLAT
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 4);      // 4-byte pixel alignment
-
-    // enable /disable features
-    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
-    glHint(GL_LINE_SMOOTH_HINT, GL_NICEST);
-    glHint(GL_POINT_SMOOTH_HINT, GL_NICEST);
-    glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
     glEnable(GL_DEPTH_TEST);
-
-     // track material ambient and diffuse from surface color, call it before glEnable(GL_COLOR_MATERIAL)
-    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-    glEnable(GL_COLOR_MATERIAL);
-
-    glClearColor(0, 0, 0, 0);                   // background color
-    glClearStencil(0);                          // clear stencil buffer
-    glClearDepth(1.0f);                         // 0 is near, 1 is far
-    glDepthFunc(GL_LEQUAL);
 }
 
 void gui::render()
 {
+    glViewport(0, 0, width, height);
     state->update_vertex_arrays();
 
     // Draw call
     configure_view();
-    world_state_render(state, _modelViewProjectionMatrix, _normalMatrix);
+    world_state_render(state, _modelViewMatrix, _projectionMatrix);
 }
 
 static void error_callback(int error, const char* description)
@@ -186,6 +179,9 @@ void gui::start_glfw()
     glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, 1);
     glfwSetMouseButtonCallback(window, gui::mouse_callback);
     glfwSetCursorPosCallback(window, gui::move_callback);
+
+    gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
+    //fprintf(stderr, "OpenGL Version %d.%d loaded\n", GLVersion.major, GLVersion.minor);
 
     world_state_render_init();
     init_gl();

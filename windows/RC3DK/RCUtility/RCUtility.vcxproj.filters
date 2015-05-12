@@ -16,6 +16,12 @@
     <Filter Include="Source Files\SensorManagers">
       <UniqueIdentifier>{11065ee0-20eb-422a-a17d-b60bd63be980}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\corvis">
+      <UniqueIdentifier>{f7d5db1e-05d5-4940-bca0-d4aeb7d84752}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\corvis\cor">
+      <UniqueIdentifier>{92119e38-956a-499e-b1f9-8d64175a133a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -82,6 +88,9 @@
     </ClCompile>
     <ClCompile Include="SensorManager.cpp">
       <Filter>Source Files\SensorManagers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\corvis\src\cor\platform\win\sensor_data.cpp">
+      <Filter>Source Files\corvis\cor</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -31,11 +31,11 @@ static void build_projection_matrix(float * projMatrix, float fov, float ratio, 
 void gui::configure_view()
 {
     float aspect = 1.f*width/height;
-    float near = 0.1f;
-    float far = 30.f;
-    if(scale > far) far = scale*1.5;
-    if(scale < near) near = scale*0.75;
-    build_projection_matrix(_projectionMatrix, 60.0f, aspect, near, far);
+    float nearclip = 0.1f;
+    float farclip = 30.f;
+    if(scale > farclip) farclip = scale*1.5;
+    if(scale < nearclip) nearclip = scale*0.75;
+    build_projection_matrix(_projectionMatrix, 60.0f, aspect, nearclip, farclip);
 
     m4 R = to_rotation_matrix(arc.get_quaternion());
     R(2, 3) = -scale; // Translate by -scale

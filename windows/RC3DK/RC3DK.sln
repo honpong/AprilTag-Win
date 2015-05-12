@@ -9,24 +9,58 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AccelerometerLib", "..\Acce
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RC3DK", "RC3DK\RC3DK.vcxproj", "{E4E5A177-07B4-42AE-AA31-DB608571E6B6}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Measure", "Measure\Measure.vcxproj", "{FD700A99-42E6-40EF-9663-DB319603756C}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "glfw", "glfw\glfw.vcxproj", "{B78B8421-FAE7-4A5B-B271-8D2CD7C98609}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
+		MinSizeRel|Win32 = MinSizeRel|Win32
 		Release|Win32 = Release|Win32
+		RelWithDebInfo|Win32 = RelWithDebInfo|Win32
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{F91094BA-E455-4881-A5AF-82770B752A21}.Debug|Win32.ActiveCfg = Debug|Win32
 		{F91094BA-E455-4881-A5AF-82770B752A21}.Debug|Win32.Build.0 = Debug|Win32
+		{F91094BA-E455-4881-A5AF-82770B752A21}.MinSizeRel|Win32.ActiveCfg = Release|Win32
+		{F91094BA-E455-4881-A5AF-82770B752A21}.MinSizeRel|Win32.Build.0 = Release|Win32
 		{F91094BA-E455-4881-A5AF-82770B752A21}.Release|Win32.ActiveCfg = Release|Win32
 		{F91094BA-E455-4881-A5AF-82770B752A21}.Release|Win32.Build.0 = Release|Win32
+		{F91094BA-E455-4881-A5AF-82770B752A21}.RelWithDebInfo|Win32.ActiveCfg = Release|Win32
+		{F91094BA-E455-4881-A5AF-82770B752A21}.RelWithDebInfo|Win32.Build.0 = Release|Win32
 		{BE1158FD-A233-4F28-AFC6-FE5273C20794}.Debug|Win32.ActiveCfg = Debug|Win32
 		{BE1158FD-A233-4F28-AFC6-FE5273C20794}.Debug|Win32.Build.0 = Debug|Win32
+		{BE1158FD-A233-4F28-AFC6-FE5273C20794}.MinSizeRel|Win32.ActiveCfg = Release|Win32
+		{BE1158FD-A233-4F28-AFC6-FE5273C20794}.MinSizeRel|Win32.Build.0 = Release|Win32
 		{BE1158FD-A233-4F28-AFC6-FE5273C20794}.Release|Win32.ActiveCfg = Release|Win32
 		{BE1158FD-A233-4F28-AFC6-FE5273C20794}.Release|Win32.Build.0 = Release|Win32
+		{BE1158FD-A233-4F28-AFC6-FE5273C20794}.RelWithDebInfo|Win32.ActiveCfg = Release|Win32
+		{BE1158FD-A233-4F28-AFC6-FE5273C20794}.RelWithDebInfo|Win32.Build.0 = Release|Win32
 		{E4E5A177-07B4-42AE-AA31-DB608571E6B6}.Debug|Win32.ActiveCfg = Debug|Win32
 		{E4E5A177-07B4-42AE-AA31-DB608571E6B6}.Debug|Win32.Build.0 = Debug|Win32
+		{E4E5A177-07B4-42AE-AA31-DB608571E6B6}.MinSizeRel|Win32.ActiveCfg = Release|Win32
+		{E4E5A177-07B4-42AE-AA31-DB608571E6B6}.MinSizeRel|Win32.Build.0 = Release|Win32
 		{E4E5A177-07B4-42AE-AA31-DB608571E6B6}.Release|Win32.ActiveCfg = Release|Win32
 		{E4E5A177-07B4-42AE-AA31-DB608571E6B6}.Release|Win32.Build.0 = Release|Win32
+		{E4E5A177-07B4-42AE-AA31-DB608571E6B6}.RelWithDebInfo|Win32.ActiveCfg = Release|Win32
+		{E4E5A177-07B4-42AE-AA31-DB608571E6B6}.RelWithDebInfo|Win32.Build.0 = Release|Win32
+		{FD700A99-42E6-40EF-9663-DB319603756C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FD700A99-42E6-40EF-9663-DB319603756C}.Debug|Win32.Build.0 = Debug|Win32
+		{FD700A99-42E6-40EF-9663-DB319603756C}.MinSizeRel|Win32.ActiveCfg = Release|Win32
+		{FD700A99-42E6-40EF-9663-DB319603756C}.MinSizeRel|Win32.Build.0 = Release|Win32
+		{FD700A99-42E6-40EF-9663-DB319603756C}.Release|Win32.ActiveCfg = Release|Win32
+		{FD700A99-42E6-40EF-9663-DB319603756C}.Release|Win32.Build.0 = Release|Win32
+		{FD700A99-42E6-40EF-9663-DB319603756C}.RelWithDebInfo|Win32.ActiveCfg = Release|Win32
+		{FD700A99-42E6-40EF-9663-DB319603756C}.RelWithDebInfo|Win32.Build.0 = Release|Win32
+		{B78B8421-FAE7-4A5B-B271-8D2CD7C98609}.Debug|Win32.ActiveCfg = Debug|Win32
+		{B78B8421-FAE7-4A5B-B271-8D2CD7C98609}.Debug|Win32.Build.0 = Debug|Win32
+		{B78B8421-FAE7-4A5B-B271-8D2CD7C98609}.MinSizeRel|Win32.ActiveCfg = MinSizeRel|Win32
+		{B78B8421-FAE7-4A5B-B271-8D2CD7C98609}.MinSizeRel|Win32.Build.0 = MinSizeRel|Win32
+		{B78B8421-FAE7-4A5B-B271-8D2CD7C98609}.Release|Win32.ActiveCfg = Release|Win32
+		{B78B8421-FAE7-4A5B-B271-8D2CD7C98609}.Release|Win32.Build.0 = Release|Win32
+		{B78B8421-FAE7-4A5B-B271-8D2CD7C98609}.RelWithDebInfo|Win32.ActiveCfg = RelWithDebInfo|Win32
+		{B78B8421-FAE7-4A5B-B271-8D2CD7C98609}.RelWithDebInfo|Win32.Build.0 = RelWithDebInfo|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

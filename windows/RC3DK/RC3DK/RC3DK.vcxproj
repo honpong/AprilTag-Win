@@ -91,7 +91,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\corvis\src\cor\platform\win\sensor_clock.cpp" />
-    <ClCompile Include="..\..\..\corvis\src\cor\platform\win\sensor_data.cpp" />
     <ClCompile Include="..\..\..\corvis\src\cor\sensor_fusion_queue.cpp" />
     <ClCompile Include="..\..\..\corvis\src\filter\camera_control_interface_dummy.cpp" />
     <ClCompile Include="..\..\..\corvis\src\filter\capture.cpp" />

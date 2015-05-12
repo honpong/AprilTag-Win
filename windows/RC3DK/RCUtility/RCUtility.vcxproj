@@ -112,6 +112,7 @@
     <ClInclude Include="VideoManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\corvis\src\cor\platform\win\sensor_data.cpp" />
     <ClCompile Include="CalibrationManager.cpp" />
     <ClCompile Include="CaptureManager.cpp" />
     <ClCompile Include="Debug.cpp" />

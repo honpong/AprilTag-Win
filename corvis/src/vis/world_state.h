@@ -8,6 +8,7 @@
 #include "../numerics/transformation.h"
 #include "../cor/platform/sensor_clock.h"
 #include "../cor/packet.h"
+#include "../Eigen/StdVector"
 
 typedef struct _VertexData {
     float position[3];
@@ -36,7 +37,7 @@ public:
     typedef std::map<std::string, plot_data> plot;
 private:
     std::map<uint64_t, Feature> features;
-    std::vector<Position> path;
+    std::vector<Position, Eigen::aligned_allocator<Position> > path;
     sensor_clock::time_point current_feature_timestamp;
     sensor_clock::time_point current_timestamp;
     std::size_t path_vertex_alloc = 1000;

@@ -16,7 +16,7 @@ public class VideoManager
 	
 	public VideoManager()
 	{
-		// TODO Auto-generated constructor stub
+		
 	}
 	
 	protected Camera getCameraInstance()

@@ -14,7 +14,12 @@ public class SensorFusion implements SensorEventListener, PreviewCallback
 		System.loadLibrary("sensor-fusion");
 	}
 	
-	public native String  stringFromJNI();
+	public native boolean startSensorFusion();
+	public native void stopSensorFusion();
+	public native boolean startStaticCalibration();
+	public native boolean startCapture();
+	public native void stopCapture();
+	
 	protected native void receiveAccelerometer(float x, float y, float z, long timestamp);
 	protected native void receiveGyro(float x, float y, float z, long timestamp);
 	protected native boolean receiveVideoFrame(byte[] data);
@@ -23,6 +28,7 @@ public class SensorFusion implements SensorEventListener, PreviewCallback
 	{
 		
 	}
+	
 	
 	@Override
 	public void onSensorChanged(SensorEvent sensorEvent)

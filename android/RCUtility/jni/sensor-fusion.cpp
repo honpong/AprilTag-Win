@@ -30,19 +30,42 @@ extern "C"
         env->CallVoidMethod(thiz, methodId, dataObj);
     }
     
-	JNIEXPORT jstring JNICALL Java_com_realitycap_android_rcutility_SensorFusion_stringFromJNI( JNIEnv* env, jobject thiz )
+	JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_SensorFusion_startSensorFusion( JNIEnv* env, jobject thiz )
 	{
-	    return env->NewStringUTF("Ready");
-	}
+        LOGD("startSensorFusion");
+	    return(JNI_TRUE);
+    }
+    
+    JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_SensorFusion_stopSensorFusion( JNIEnv* env, jobject thiz )
+    {
+        LOGD("stopSensorFusion");
+    }
+    
+    JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_SensorFusion_startStaticCalibration( JNIEnv* env, jobject thiz )
+    {
+        LOGD("startStaticCalibration");
+        return(JNI_TRUE);
+    }
+    
+    JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_SensorFusion_startCapture( JNIEnv* env, jobject thiz )
+    {
+        LOGD("startCapture");
+        return(JNI_TRUE);
+    }
+    
+    JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_SensorFusion_stopCapture( JNIEnv* env, jobject thiz )
+    {
+        LOGD("stopCapture");
+    }
 	
 	JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_SensorFusion_receiveAccelerometer( JNIEnv* env, jobject thiz, jfloat x, jfloat y, jfloat z, jlong timestamp )
 	{
-	    LOGV("%li accel %f, %f, %f", (long)timestamp, x, y, z);
+//	    LOGV("%li accel %f, %f, %f", (long)timestamp, x, y, z);
 	}
 	
 	JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_SensorFusion_receiveGyro( JNIEnv* env, jobject thiz, jfloat x, jfloat y, jfloat z, jlong timestamp )
 	{
-	    LOGV("%li gyro %f, %f, %f", (long)timestamp, x, y, z);
+//	    LOGV("%li gyro %f, %f, %f", (long)timestamp, x, y, z);
 	}
 	
 	JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_SensorFusion_receiveVideoFrame( JNIEnv* env, jobject thiz, jbyteArray data )
@@ -91,7 +114,6 @@ extern "C"
         
         SendFakeDataUpdate(env, thiz);
         
-	    // All is ok
 	    return(JNI_TRUE);
 	}
 }

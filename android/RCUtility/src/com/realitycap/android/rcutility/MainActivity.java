@@ -101,7 +101,7 @@ public class MainActivity extends Activity
 		imuMan.setSensorEventListener(sensorFusion);
 		videoMan.setVideoSubscriber(sensorFusion);
 		
-		setStatusText(sensorFusion.stringFromJNI());		
+		setStatusText("Ready");		
 	}
 	
 	protected void setStatusText(String text)
@@ -129,13 +129,15 @@ public class MainActivity extends Activity
 		if (appState != AppState.Idle) return false;
 		setStatusText("Starting calibration...");
 		imuMan.startSensors();
-		appState = AppState.Calibrating;
-		return true;
+		boolean result = sensorFusion.startStaticCalibration();
+		if (result) appState = AppState.Calibrating;
+		return result;
 	}
 	
 	protected void stopCalibration()
 	{
 		if (appState != AppState.Calibrating) return;
+		sensorFusion.stopSensorFusion();
 		imuMan.stopSensors();
 		setStatusText("Calibration stopped.");
 		appState = AppState.Idle;
@@ -146,6 +148,7 @@ public class MainActivity extends Activity
 		if (appState != AppState.Idle) return false;
 		setStatusText("Starting capture...");
 		startSensors();
+		sensorFusion.startCapture();
 		setStatusText("Capturing...");
 		appState = AppState.Capturing;
 		return true;
@@ -154,8 +157,9 @@ public class MainActivity extends Activity
 	protected void stopCapture()
 	{
 		if (appState != AppState.Capturing) return;
-		setStatusText("Capture stopped.");
+		sensorFusion.stopCapture();
 		stopSensors();
+		setStatusText("Capture stopped.");
 		appState = AppState.Idle;
 	}
 	
@@ -200,6 +204,7 @@ public class MainActivity extends Activity
 		if (line != null) Log.d(MyApplication.TAG, line);
 	}
 	
+	@SuppressWarnings("unused")
 	private void logError(Exception e)
 	{
 		if (e != null) logError(e.getLocalizedMessage());

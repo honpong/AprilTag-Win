@@ -135,7 +135,7 @@ uint64_t get_timestamp()
         isSensorFusionRunning = NO;
         isProcessingVideo = NO;
         
-        auto cam_fn = [self](const camera_data &data)
+        auto cam_fn = [self](camera_data &&data)
         {
             bool docallback = true;
             CMSampleBufferRef sampleBuffer = (CMSampleBufferRef)data.image_handle.get();
@@ -153,14 +153,14 @@ uint64_t get_timestamp()
             }
         };
         
-        auto acc_fn = [self](const accelerometer_data &data)
+        auto acc_fn = [self](accelerometer_data &&data)
         {
             if(!isSensorFusionRunning) return;
             filter_accelerometer_measurement(&_cor_setup->sfm, data.accel_m__s2, data.timestamp);
             [self sendStatus];
         };
 
-        auto gyr_fn = [self](const gyro_data &data)
+        auto gyr_fn = [self](gyro_data &&data)
         {
             if(!isSensorFusionRunning) return;
             filter_gyroscope_measurement(&_cor_setup->sfm, data.angvel_rad__s, data.timestamp);

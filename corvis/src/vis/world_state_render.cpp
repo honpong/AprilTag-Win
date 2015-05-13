@@ -4,10 +4,13 @@
 #include <stdlib.h>
 
 #include "gl_util.h"
+#include "video_render.h"
 
 static GLuint program;
 static GLuint vertexLoc, colorLoc;
 static GLuint projMatrixLoc, viewMatrixLoc;
+
+static video_render frame_render;
 
 typedef struct _draw_item {
     GLuint vertex_buffer_object[2];
@@ -143,6 +146,25 @@ bool world_state_render_init()
 
 void world_state_render_teardown()
 {
+}
+
+bool world_state_render_video_init()
+{
+    frame_render.gl_init(640, 480, true);
+    return true;
+}
+
+void world_state_render_video_teardown()
+{
+    frame_render.gl_destroy();
+}
+
+void world_state_render_video(world_state * world)
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    world->image_lock.lock();
+    frame_render.render(world->last_image.image);
+    world->image_lock.unlock();
 }
 
 void world_state_render(world_state * world, float * viewMatrix, float * projMatrix)

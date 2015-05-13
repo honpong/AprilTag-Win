@@ -32,14 +32,14 @@ private:
     bool is_realtime = false;
     std::unique_ptr<filter_setup> cor_setup;
     std::unique_ptr<fusion_queue> queue;
-    std::function<void (const filter *, sensor_clock::time_point, enum packet_type)> packet_callback;
+    std::function<void (const filter *, sensor_clock::time_point, const packet_t *)> packet_callback;
     std::function<void (float)> progress_callback;
 
 public:
     bool open(const char *name);
     void set_device(const char *name);
     void setup_filter();
-    bool configure_all(const char *filename, const char *devicename, bool realtime=false, std::function<void (float)> progress_callback=NULL, std::function<void (const filter *, sensor_clock::time_point, enum packet_type)> packet_callback=NULL);
+    bool configure_all(const char *filename, const char *devicename, bool realtime=false, std::function<void (float)> progress_callback=NULL, std::function<void (const filter *, sensor_clock::time_point, const packet_t *)> packet_callback=NULL);
     void start();
     void stop();
     void toggle_pause() { is_paused = !is_paused; }

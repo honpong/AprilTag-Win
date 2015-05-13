@@ -32,15 +32,15 @@ int main(int c, char **v)
         realtime = true;
 
     std::function<void (float)> progress;
-    std::function<void (const filter *, sensor_clock::time_point, enum packet_type)> packet;
+    std::function<void (const filter *, sensor_clock::time_point, const packet_t *)> packet;
 
     gui vis(&ws);
 
     // TODO: make this a command line option
     // For command line visualization
     if(rendername || enable_gui)
-        packet = [&](const filter * f, sensor_clock::time_point ts, enum packet_type packet_type) {
-            ws.receive_packet(f, ts, packet_type);
+        packet = [&](const filter * f, sensor_clock::time_point ts, const packet_t * packet) {
+            ws.receive_packet(f, ts, packet);
         };
 
     if(!rp.configure_all(filename, devicename, realtime, progress, packet)) return -1;

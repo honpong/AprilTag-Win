@@ -3,8 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "platform_gl.h"
-#include "shaders.h"
+#include "gl_util.h"
 
 static GLuint program;
 static GLuint vertexLoc, colorLoc;

@@ -118,6 +118,28 @@ void gui::create_plots()
 }
 #endif //WIN32
 
+#include "lodepng.h"
+void gui::write_frame()
+{
+    state->image_lock.lock();
+    int W = 640;
+    int H = 480;
+    uint8_t image[W*H*4];
+    for(int i = 0; i < W*H; i++) {
+        image[i*4 + 0] = state->last_image.image[i];
+        image[i*4 + 1] = state->last_image.image[i];
+        image[i*4 + 2] = state->last_image.image[i];
+        image[i*4 + 3] = 255;
+    }
+
+    state->image_lock.unlock();
+
+    //Encode the image
+    unsigned error = lodepng::encode("last_frame.png", image, 640, 480);
+    if(error)
+        fprintf(stderr, "encoder error %d: %s\n", error, lodepng_error_text(error));
+}
+
 void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int mods)
 {
     if(key == GLFW_KEY_0 && action == GLFW_PRESS)
@@ -132,6 +154,8 @@ void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int m
        replay_control->step();
     if(key == GLFW_KEY_P && action == GLFW_PRESS)
        create_plots();
+    if(key == GLFW_KEY_F && action == GLFW_PRESS)
+       write_frame();
 }
 
 void gui::render_video()

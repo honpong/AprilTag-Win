@@ -39,6 +39,8 @@ private:
     void render();
     void render_video();
 
+    void write_frame();
+
     world_state * state;
 
     float scale;

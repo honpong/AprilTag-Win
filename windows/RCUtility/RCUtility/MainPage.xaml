@@ -7,11 +7,11 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-	<Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-		<Button x:Name="buttonCalibration" Content="Start Calibration" HorizontalAlignment="Right" Margin="0,72,38,0" VerticalAlignment="Top" Height="107" Width="325" FontSize="32" Click="buttonCalibration_Click"/>
-		<Button x:Name="buttonCapture" Content="Start Capture" HorizontalAlignment="Right" Margin="0,257,38,0" VerticalAlignment="Top" Height="107" Width="325" FontSize="32" Click="buttonCapture_Click"/>
-		<Button x:Name="buttonLive" Content="Live" HorizontalAlignment="Right" Margin="0,437,38,0" VerticalAlignment="Top" Height="107" Width="325" FontSize="32" Click="buttonLive_Click"/>
-		<Button x:Name="buttonReplay" Content="Replay" HorizontalAlignment="Right" Margin="0,611,38,0" VerticalAlignment="Top" Height="107" Width="325" FontSize="32" Click="buttonReplay_Click"/>
+	<Grid Background="#FF262626">
+		<Button x:Name="buttonCalibration" Content="Start Calibration" HorizontalAlignment="Right" Margin="0,72,38,0" VerticalAlignment="Top" Height="107" Width="325" FontSize="32" Click="buttonCalibration_Click" Background="#FF003542"/>
+		<Button x:Name="buttonCapture" Content="Start Capture" HorizontalAlignment="Right" Margin="0,257,38,0" VerticalAlignment="Top" Height="107" Width="325" FontSize="32" Click="buttonCapture_Click" Background="#FF003542"/>
+		<Button x:Name="buttonLive" Content="Live" HorizontalAlignment="Right" Margin="0,437,38,0" VerticalAlignment="Top" Height="107" Width="325" FontSize="32" Click="buttonLive_Click" Background="#FF003542"/>
+		<Button x:Name="buttonReplay" Content="Replay" HorizontalAlignment="Right" Margin="0,611,38,0" VerticalAlignment="Top" Height="107" Width="325" FontSize="32" Click="buttonReplay_Click" Background="#FF003542"/>
 		<TextBlock x:Name="statusText" HorizontalAlignment="Left" Margin="50,75,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="79" Width="968" FontSize="29.333" Text="Ready"/>
 	</Grid>
 </Page>

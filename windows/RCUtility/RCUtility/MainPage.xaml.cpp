@@ -137,6 +137,7 @@ bool RCUtility::MainPage::OpenVisualizationWindow()
 
 void RCUtility::MainPage::BeginLiveVis()
 {
+	if (appState != Idle) return;
 	if (!OpenVisualizationWindow()) return;
 	appState = Live;
 	statusText->Text = "Beginning live visualization...";
@@ -146,12 +147,14 @@ void RCUtility::MainPage::BeginLiveVis()
 
 void RCUtility::MainPage::EndLiveVis()
 {
+	if (appState != Live) return;
 	appState = Idle;
 	statusText->Text = "";
 }
 
 void RCUtility::MainPage::BeginReplay()
 {
+	if (appState != Idle) return;
 	if (!OpenVisualizationWindow()) return;
 	appState = Replay;
 	statusText->Text = "Beginning replay visualization...";
@@ -161,6 +164,7 @@ void RCUtility::MainPage::BeginReplay()
 
 void RCUtility::MainPage::EndReplay()
 {
+	if (appState != Replay) return;
 	appState = Idle;
 	statusText->Text = "";
 }

@@ -45,8 +45,8 @@ def run_test_case(test_case):
 import subprocess
 def subprocess_test_case(test_case):
     print "Running", test_case["path"], "using bin/measure"; sys.stdout.flush();
-    output = subprocess.check_output("../corvis/bin/measure %s %s" %
-            (test_case["path"], test_case["config"]), stderr=subprocess.STDOUT, shell=True)
+    output = subprocess.check_output(["../corvis/bin/measure", test_case["path"], test_case["config"]],
+                                     stderr=subprocess.STDOUT)
     #"Straight-line length is 89.00 cm, total path length 92.54 cm"
     res = re.match(".* ([\d\.]+) cm.* ([\d\.]+) cm.*",
             output, re.MULTILINE | re.DOTALL)

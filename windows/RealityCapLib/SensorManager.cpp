@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "SensorManager.h"
 #include "Debug.h"
+#include "pxcsensemanager.h"
+#include "pxcmetadata.h"
 
 using namespace RealityCap;
 
@@ -22,7 +24,7 @@ SensorManager::~SensorManager()
 bool SensorManager::StartVideo()
 {
 	if (isVideoStreaming()) return true;
-	if (!senseMan || !sampleHandler) return false;
+	if (!senseMan) return false;
 
 	pxcStatus status;
 	status = senseMan->EnableStream(PXCCapture::STREAM_TYPE_COLOR, IMAGE_WIDTH, IMAGE_HEIGHT, (pxcF32)FPS);
@@ -55,11 +57,6 @@ void SensorManager::StopVideo()
 	if (senseMan) senseMan->Close();
 }
 
-void SensorManager::SetDelegate(PXCSenseManager::Handler* handler)
-{
-	sampleHandler = handler;
-}
-
 bool SensorManager::isVideoStreaming()
 {
 	return _isVideoStreaming;
@@ -70,7 +67,7 @@ void SensorManager::PollForFrames()
 	while (isVideoStreaming() && senseMan->AcquireFrame(true) == PXC_STATUS_NO_ERROR)
 	{
 		PXCCapture::Sample *sample = senseMan->QuerySample();
-		if (sample) sampleHandler->OnNewSample(senseMan->CUID, sample);
+		//if (sample) sampleHandler->OnNewSample(senseMan->CUID, sample);
 		senseMan->ReleaseFrame();
 	}
 }

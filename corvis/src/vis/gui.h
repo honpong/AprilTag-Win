@@ -37,6 +37,8 @@ private:
     void scroll(GLFWwindow * window, double xoffset, double yoffset);
     void keyboard(GLFWwindow * window, int key, int scancode, int action, int mods);
     void render();
+    void render_video();
+
     world_state * state;
 
     float scale;
@@ -45,6 +47,12 @@ private:
     // Mouse related
     arcball arc;
     bool is_rotating{false};
+
+
+    // Display related
+    GLFWwindow * main_window, * video_window, * plots_window;
+    bool show_main{true}, show_video{true}, show_plots{false};
+
 
     replay * replay_control;
 

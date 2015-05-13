@@ -134,9 +134,10 @@ void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int m
        create_plots();
 }
 
-void gui::init_gl()
+void gui::render_video()
 {
-    glEnable(GL_DEPTH_TEST);
+    glViewport(0, 0, 640, 480);
+    world_state_render_video(state);
 }
 
 void gui::render()
@@ -160,35 +161,64 @@ void gui::start_glfw()
         exit(EXIT_FAILURE);
 
     glfwSetErrorCallback(error_callback);
-    GLFWwindow* window = glfwCreateWindow(width, height, "Replay", NULL, NULL);
-    if (!window)
+
+    glfwWindowHint(GLFW_RESIZABLE, true);
+    glfwWindowHint(GLFW_VISIBLE, show_main);
+    GLFWwindow* main_window = glfwCreateWindow(width, height, "Replay", NULL, NULL);
+    if (!main_window)
     {
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
-    glfwMakeContextCurrent(window);
+    glfwMakeContextCurrent(main_window);
     glfwSwapInterval(1);
 
-    glfwSetKeyCallback(window, gui::keyboard_callback);
-    glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, 1);
-    glfwSetMouseButtonCallback(window, gui::mouse_callback);
-    glfwSetCursorPosCallback(window, gui::move_callback);
-    glfwSetScrollCallback(window, gui::scroll_callback);
+    glfwSetKeyCallback(main_window, gui::keyboard_callback);
+    glfwSetInputMode(main_window, GLFW_STICKY_MOUSE_BUTTONS, 1);
+    glfwSetMouseButtonCallback(main_window, gui::mouse_callback);
+    glfwSetCursorPosCallback(main_window, gui::move_callback);
+    glfwSetScrollCallback(main_window, gui::scroll_callback);
 
     gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
+    world_state_render_init();
+
+    glfwWindowHint(GLFW_RESIZABLE, false);
+    glfwWindowHint(GLFW_VISIBLE, show_video);
+    GLFWwindow* video_window = glfwCreateWindow(640, 480, "Replay Video", NULL, NULL);
+    glfwSetKeyCallback(video_window, gui::keyboard_callback);
+    if (!video_window)
+    {
+        glfwTerminate();
+        exit(EXIT_FAILURE);
+    }
+    glfwMakeContextCurrent(video_window);
+    glfwSwapInterval(1);
+
+    gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
+    world_state_render_video_init();
+
     //fprintf(stderr, "OpenGL Version %d.%d loaded\n", GLVersion.major, GLVersion.minor);
 
-    world_state_render_init();
-    init_gl();
-
-    while (!glfwWindowShouldClose(window))
+    while (!glfwWindowShouldClose(main_window))
     {
-        glfwGetFramebufferSize(window, &width, &height);
-        render();
-        glfwSwapBuffers(window);
+        if(show_main) {
+            glfwMakeContextCurrent(main_window);
+            glfwGetFramebufferSize(main_window, &width, &height);
+            render();
+            glfwSwapBuffers(main_window);
+        }
+        glfwPollEvents();
+ 
+        if(show_video) {
+            glfwMakeContextCurrent(video_window);
+            render_video();
+            glfwSwapBuffers(video_window);
+        }
         glfwPollEvents();
     }
-    glfwDestroyWindow(window);
+    glfwDestroyWindow(main_window);
+    glfwDestroyWindow(video_window);
+    glfwDestroyWindow(plots_window);
     glfwTerminate();
 }
 

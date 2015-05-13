@@ -1,3 +1,5 @@
+#include <cstdint>
+
 #include "video_render.h"
 #include "gl_util.h"
 

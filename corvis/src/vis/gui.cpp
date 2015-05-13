@@ -122,8 +122,8 @@ void gui::create_plots()
 void gui::write_frame()
 {
     state->image_lock.lock();
-    int W = 640;
-    int H = 480;
+    const int W = 640;
+    const int H = 480;
     uint8_t image[W*H*4];
     for(int i = 0; i < W*H; i++) {
         image[i*4 + 0] = state->last_image.image[i];

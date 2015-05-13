@@ -1,3 +1,4 @@
+#define _USE_MATH_DEFINES
 #include "gl_util.h"
 
 #include <math.h>

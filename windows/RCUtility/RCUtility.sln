@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 14.0.22609.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RCUtility", "RCUtility\RCUtility.vcxproj", "{C505C856-EFAF-45E8-82C7-C18EB0C18D3F}"
+	ProjectSection(ProjectDependencies) = postProject
+		{69DB8593-FF2E-45C6-8739-1EA4A539C776} = {69DB8593-FF2E-45C6-8739-1EA4A539C776}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RealityCapLib", "..\RealityCapLib\RealityCapLib.vcxproj", "{69DB8593-FF2E-45C6-8739-1EA4A539C776}"
 EndProject

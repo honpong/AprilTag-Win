@@ -18,6 +18,7 @@ using namespace Windows::UI::Xaml::Data;
 using namespace Windows::UI::Xaml::Input;
 using namespace Windows::UI::Xaml::Media;
 using namespace Windows::UI::Xaml::Navigation;
+using namespace std;
 
 typedef enum AppState
 {
@@ -33,6 +34,7 @@ AppState appState = Idle;
 MainPage::MainPage()
 {
 	InitializeComponent();
+	sensorManager = make_unique<RealityCap::SensorManager>();
 }
 
 void RCUtility::MainPage::buttonCalibration_Click(Platform::Object^ sender, Windows::UI::Xaml::RoutedEventArgs^ e)
@@ -69,7 +71,7 @@ void RCUtility::MainPage::StartCapture()
 	buttonCapture->Content = "Stop Capture";
 	statusText->Text = "Starting capture...";
 	
-	bool result = true;
+	bool result = sensorManager->StartVideo();
 
 	if (!result)
 	{
@@ -94,6 +96,8 @@ void RCUtility::MainPage::StopCapture()
 {
 	if (appState != Capturing) return;
 	statusText->Text = "Stopping capture...";
+
+	sensorManager->StopVideo();
 	
 	statusText->Text = "Capture complete.";
 	buttonCapture->Content = "Start Capture";

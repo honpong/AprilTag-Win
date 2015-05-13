@@ -6,6 +6,8 @@
 #pragma once
 
 #include "MainPage.g.h"
+#include "SensorManager.h"
+#include <memory>
 
 namespace RCUtility
 {
@@ -18,6 +20,8 @@ namespace RCUtility
 		MainPage();
 
 	private:
+		std::unique_ptr<RealityCap::SensorManager> sensorManager;
+
 		void StartCalibration();
 		void StopCalibration();
 		void StartCapture();

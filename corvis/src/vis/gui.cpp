@@ -140,17 +140,17 @@ void gui::create_plots()
 
 void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int mods)
 {
-    if(key == '0')
+    if(key == GLFW_KEY_0 && action == GLFW_PRESS)
         scale = initial_scale;
-    if(key == '+' || key == '=')
+    if(key == GLFW_KEY_EQUAL && action == GLFW_PRESS)
         scale *= 1/1.1;
-    if(key == '-')
+    if(key == GLFW_KEY_MINUS && action == GLFW_PRESS)
         scale *= 1.1;
-    if(key == ' ')
+    if(key == GLFW_KEY_SPACE && action == GLFW_PRESS)
        replay_control->toggle_pause();
-    if(key == 's')
+    if(key == GLFW_KEY_S && action == GLFW_PRESS)
        replay_control->step();
-    if(key == 'p')
+    if(key == GLFW_KEY_P && action == GLFW_PRESS)
        create_plots();
 }
 

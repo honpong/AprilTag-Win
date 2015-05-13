@@ -5,6 +5,8 @@ VisualStudioVersion = 14.0.22609.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RCUtility", "RCUtility\RCUtility.vcxproj", "{C505C856-EFAF-45E8-82C7-C18EB0C18D3F}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RealityCapLib", "..\RealityCapLib\RealityCapLib.vcxproj", "{69DB8593-FF2E-45C6-8739-1EA4A539C776}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM
@@ -33,6 +35,14 @@ Global
 		{C505C856-EFAF-45E8-82C7-C18EB0C18D3F}.Release|x86.ActiveCfg = Release|Win32
 		{C505C856-EFAF-45E8-82C7-C18EB0C18D3F}.Release|x86.Build.0 = Release|Win32
 		{C505C856-EFAF-45E8-82C7-C18EB0C18D3F}.Release|x86.Deploy.0 = Release|Win32
+		{69DB8593-FF2E-45C6-8739-1EA4A539C776}.Debug|ARM.ActiveCfg = Debug|Win32
+		{69DB8593-FF2E-45C6-8739-1EA4A539C776}.Debug|x64.ActiveCfg = Debug|Win32
+		{69DB8593-FF2E-45C6-8739-1EA4A539C776}.Debug|x86.ActiveCfg = Debug|Win32
+		{69DB8593-FF2E-45C6-8739-1EA4A539C776}.Debug|x86.Build.0 = Debug|Win32
+		{69DB8593-FF2E-45C6-8739-1EA4A539C776}.Release|ARM.ActiveCfg = Release|Win32
+		{69DB8593-FF2E-45C6-8739-1EA4A539C776}.Release|x64.ActiveCfg = Release|Win32
+		{69DB8593-FF2E-45C6-8739-1EA4A539C776}.Release|x86.ActiveCfg = Release|Win32
+		{69DB8593-FF2E-45C6-8739-1EA4A539C776}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

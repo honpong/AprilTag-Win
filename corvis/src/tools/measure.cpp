@@ -32,18 +32,18 @@ int main(int c, char **v)
         realtime = true;
 
     std::function<void (float)> progress;
-    std::function<void (const filter *, sensor_clock::time_point, const packet_t *)> packet;
+    std::function<void (const filter *, camera_data &&)> camera_callback;
 
     gui vis(&ws);
 
     // TODO: make this a command line option
     // For command line visualization
     if(rendername || enable_gui)
-        packet = [&](const filter * f, sensor_clock::time_point ts, const packet_t * packet) {
-            ws.receive_packet(f, ts, packet);
+        camera_callback = [&](const filter * f, camera_data &&d) {
+            ws.receive_camera(f, std::move(d));
         };
 
-    if(!rp.configure_all(filename, devicename, realtime, progress, packet)) return -1;
+    if(!rp.configure_all(filename, devicename, realtime, progress, camera_callback)) return -1;
     
     if(enable_gui) { // The GUI must be on the main thread
         std::thread replay_thread([&](void) { rp.start(); });

@@ -58,26 +58,21 @@ void world_state::observe_image(sensor_clock::time_point timestamp, uint8_t * im
     image_lock.unlock();
 }
 
-void world_state::receive_packet(const filter * f, sensor_clock::time_point tp, const packet_t * packet)
+void world_state::receive_camera(const filter * f, camera_data &&d)
 {
-    enum packet_type packet_type = (enum packet_type)packet->header.type;
-    if(packet_type == packet_camera) {
-        // Only update position and features on packet camera,
-        // matches what we do in other visualizations
-        for(auto feat : f->s.features) {
-            if(feat->is_valid()) {
-                float stdev = (float)feat->v.stdev_meters(sqrt(feat->variance()));
-                bool good = stdev / feat->v.depth() < .02;
-                observe_feature(tp, feat->id,
-                        (float)feat->world[0], (float)feat->world[1], (float)feat->world[2], good);
-            }
+    for(auto feat : f->s.features) {
+        if(feat->is_valid()) {
+            float stdev = (float)feat->v.stdev_meters(sqrt(feat->variance()));
+            bool good = stdev / feat->v.depth() < .02;
+            observe_feature(d.timestamp, feat->id,
+                            (float)feat->world[0], (float)feat->world[1], (float)feat->world[2], good);
         }
-        observe_image(tp, (((packet_camera_t *)packet)->data + 16), f->image_width, f->image_height);
-
-        v4 T = f->s.T.v;
-        quaternion q = to_quaternion(f->s.W.v);
-        observe_position(tp, (float)T[0], (float)T[1], (float)T[2], (float)q.w(), (float)q.x(), (float)q.y(), (float)q.z());
     }
+    observe_image(d.timestamp, d.image, d.width, d.height);
+    
+    v4 T = f->s.T.v;
+    quaternion q = to_quaternion(f->s.W.v);
+    observe_position(d.timestamp, (float)T[0], (float)T[1], (float)T[2], (float)q.w(), (float)q.x(), (float)q.y(), (float)q.z());
 
     /*
     if(packet_type == packet_camera) {

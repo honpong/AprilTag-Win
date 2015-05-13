@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-static void printShaderInfoLog(GLuint obj)
+static void print_shader_info_log(GLuint obj)
 {
     int infologLength = 0;
     int charsWritten  = 0;
@@ -16,12 +16,12 @@ static void printShaderInfoLog(GLuint obj)
     {
         infoLog = (char *)malloc(infologLength);
         glGetShaderInfoLog(obj, infologLength, &charsWritten, infoLog);
-        printf("%s\n",infoLog);
+        fprintf(stderr, "%s\n",infoLog);
         free(infoLog);
     }
 }
 
-static void printProgramInfoLog(GLuint obj)
+static void print_program_info_log(GLuint obj)
 {
     int infologLength = 0;
     int charsWritten  = 0;
@@ -33,7 +33,7 @@ static void printProgramInfoLog(GLuint obj)
     {
         infoLog = (char *)malloc(infologLength);
         glGetProgramInfoLog(obj, infologLength, &charsWritten, infoLog);
-        printf("%s\n",infoLog);
+        fprintf(stderr, "%s\n",infoLog);
         free(infoLog);
     }
 }

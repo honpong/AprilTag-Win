@@ -84,15 +84,15 @@ GLuint setupShaders() {
     glCompileShader(v);
     glCompileShader(f);
 
-    printShaderInfoLog(v);
-    printShaderInfoLog(f);
+    print_shader_info_log(v);
+    print_shader_info_log(f);
 
     p = glCreateProgram();
     glAttachShader(p,v);
     glAttachShader(p,f);
 
     glLinkProgram(p);
-    printProgramInfoLog(p);
+    print_program_info_log(p);
 
     vertexLoc = glGetAttribLocation(p,"position");
     colorLoc = glGetAttribLocation(p, "color");

@@ -3,8 +3,7 @@
 
 #include "lodepng.h"
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include "platform_gl.h"
 
 static int width = 512;
 static int height = 512;

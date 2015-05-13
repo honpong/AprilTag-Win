@@ -5,8 +5,7 @@ gui * gui::static_gui;
 #include "world_state_render.h"
 #include "../filter/replay.h"
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include "platform_gl.h"
 
 const static float initial_scale = 5;
 

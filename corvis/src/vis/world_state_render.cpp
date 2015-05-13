@@ -3,16 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef __APPLE__
-#include <TargetConditionals.h>
-#endif
-
-#if TARGET_OS_IPHONE
-#include <OpenGLES/ES2/gl.h>
-#else
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#endif
+#include "platform_gl.h"
 
 static GLuint program;
 static GLuint vertexLoc, colorLoc;

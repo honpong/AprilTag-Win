@@ -8,6 +8,7 @@ from operator import itemgetter
 # L is the measurement length
 # PL is the total path length
 def scan_tests(folder_name):
+    if folder_name[-1] != '/': folder_name += '/' # Allows stripping below
     # Set up the tests by scanning the sequences folder
     configurations = []
     for dirname, dirnames, filenames in os.walk(folder_name, followlinks=True):
@@ -24,8 +25,7 @@ def scan_tests(folder_name):
             if not L_match and not PL_match:
                 print "Malformed data filename:", filename, "skipping"
                 continue
-            
-            test_case = {"config" : config_name, "path" : os.path.join(dirname, filename), "L" : L, "PL" : PL}
+            test_case = {"config" : config_name, "path" : os.path.join(dirname[len(folder_name):],filename), "L" : L, "PL" : PL}
             configurations.append(test_case)
     return sorted(configurations, key=itemgetter('config', 'path'))
 
@@ -49,11 +49,11 @@ class TestRunner(object):
 
   def run(self, test_case):
     print "Running", test_case["path"]; sys.stdout.flush();
-    return measure(test_case["path"], test_case["config"])
+    return measure(os.path.join(self.input_dir, test_case["path"]), test_case["config"])
 
   def run_subprocess(self, test_case):
     print "Running", test_case["path"], "using bin/measure"; sys.stdout.flush();
-    output = subprocess.check_output(["../corvis/bin/measure", test_case["path"], test_case["config"]],
+    output = subprocess.check_output(["../corvis/bin/measure", os.path.join(self.input_dir, test_case["path"]), test_case["config"]],
                                      stderr=subprocess.STDOUT)
     #"Straight-line length is 89.00 cm, total path length 92.54 cm"
     res = re.match(".* ([\d\.]+) cm.* ([\d\.]+) cm.*",

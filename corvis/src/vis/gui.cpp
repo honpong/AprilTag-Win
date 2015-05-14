@@ -263,7 +263,9 @@ void gui::start(replay * rp)
     start_glfw();
 }
 
-gui::gui(world_state * world) : state(world), scale(initial_scale), width(512), height(512)
+gui::gui(world_state * world, bool show_main_, bool show_video_, bool show_plots_)
+    : state(world), scale(initial_scale), width(512), height(512),
+      show_main(show_main_), show_video(show_video_), show_plots(show_plots_)
 {
     static_gui = this;
 }

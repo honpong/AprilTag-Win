@@ -82,8 +82,6 @@ void replay::start()
         auto phandle = std::unique_ptr<void, void(*)(void *)>(malloc(header.bytes), free);
         auto packet = (packet_t *)phandle.get();
         packet->header = header;
-        packet_t * last_packet = (packet_t *)malloc(header.bytes);
-        memcpy(last_packet, packet, header.bytes);
         
         file.read((char *)packet->data, header.bytes - 16);
         if(file.bad() || file.eof())
@@ -179,7 +177,6 @@ void replay::start()
                 progress_callback(bytes_dispatched / (float)size);
             }
         }
-        free(last_packet);
         
         file.read((char *)&header, 16);
         if(file.bad() || file.eof()) is_running = false;

@@ -288,6 +288,15 @@ bool get_parameters_for_device_name(const char * config_name, struct corvis_devi
         set_initialized(dc);
     }
 
+    else if(device_name == "iphone6_jim") {
+        dc->a_bias[0] = -0.01877559f;
+        dc->a_bias[1] = -0.01222747f;
+        dc->a_bias[2] = -0.007556485f;
+        dc->w_bias[0] = -0.02167661f;
+        dc->w_bias[1] = -0.03419807f;
+        dc->w_bias[2] = -0.01573849f;
+        set_initialized(dc);
+    }
     else if(device_name == "iphone5_jordan") {
         dc->a_bias[0] = -0.00145f;
         dc->a_bias[1] = -0.143f;

@@ -42,23 +42,11 @@
     <ClInclude Include="LocationManager.h">
       <Filter>Source Files\SensorManagers</Filter>
     </ClInclude>
-    <ClInclude Include="VideoManager.h">
-      <Filter>Source Files\SensorManagers</Filter>
-    </ClInclude>
     <ClInclude Include="Debug.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="RCUtility.h">
       <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CaptureManager.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CalibrationManager.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SensorManager.h">
-      <Filter>Source Files\SensorManagers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -75,18 +63,6 @@
       <Filter>Source Files\SensorManagers</Filter>
     </ClCompile>
     <ClCompile Include="LocationManager.cpp">
-      <Filter>Source Files\SensorManagers</Filter>
-    </ClCompile>
-    <ClCompile Include="VideoManager.cpp">
-      <Filter>Source Files\SensorManagers</Filter>
-    </ClCompile>
-    <ClCompile Include="CaptureManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CalibrationManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SensorManager.cpp">
       <Filter>Source Files\SensorManagers</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\corvis\src\cor\platform\win\sensor_data.cpp">

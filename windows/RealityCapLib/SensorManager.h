@@ -11,15 +11,14 @@ namespace RealityCap
 {
 	class SensorManager
 	{
-	public:
-		SensorManager();
-		~SensorManager();
-		
+	public:		
 		bool StartSensors(); // returns true if video started successfully
 		void StopSensors();
 		bool isVideoStreaming();
 
 	protected:
+		SensorManager();
+		~SensorManager();
 		virtual void OnColorFrame(PXCImage* colorImage);
 		virtual void OnAmeterSample(struct imu_sample* sample);
 		virtual void OnGyroSample(struct imu_sample* sample);

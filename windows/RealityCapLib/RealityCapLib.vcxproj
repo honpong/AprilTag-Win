@@ -86,6 +86,8 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CalibrationManager.h" />
+    <ClInclude Include="CaptureManager.h" />
     <ClInclude Include="Debug.h" />
     <ClInclude Include="libpxcimu.h" />
     <ClInclude Include="libpxcimu_internal.h" />
@@ -94,6 +96,8 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CalibrationManager.cpp" />
+    <ClCompile Include="CaptureManager.cpp" />
     <ClCompile Include="Debug.cpp" />
     <ClCompile Include="SensorManager.cpp" />
     <ClCompile Include="stdafx.cpp">

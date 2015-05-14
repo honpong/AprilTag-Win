@@ -3,10 +3,8 @@
 
 #include "stdafx.h"
 #include "RCUtility.h"
-#include "IMUManager.h"
 #include "Debug.h"
 #include "CaptureManager.h"
-#include "AccelerometerLib.h"
 #include <shellapi.h>
 #include "CalibrationManager.h"
 #include <shlobj.h>
@@ -35,8 +33,8 @@ HINSTANCE hInst;								// current instance
 TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 LPCWSTR glWindowClass = L"GLWindow";
-CaptureManager^ capMan;
-CalibrationManager^ calMan;
+CaptureManager capMan;
+CalibrationManager calMan;
 HWND hLabel;
 HWND hCaptureButton;
 HWND hCalibrateButton;
@@ -91,23 +89,15 @@ void StartCapture()
 	SetWindowText(hCaptureButton, L"Stop Capture");
 	SetWindowText(hLabel, L"Starting capture...");
 	bool result;
-	capMan = ref new CaptureManager();
 
-	result = SetAccelerometerSensitivity(0);
-	if (!result)
-	{
-		SetWindowText(hLabel, L"Failed to set accelerometer sensitivity");
-		return;
-	}
-
-	result = capMan->StartSensors();
+	result = capMan.StartSensors();
 	if (!result)
 	{
 		SetWindowText(hLabel, L"Failed to start sensors");
 		return;
 	}
 
-	result = capMan->StartCapture();
+	result = capMan.StartCapture();
 	if (result)
 	{
 		SetWindowText(hLabel, L"Capturing.");
@@ -125,9 +115,7 @@ void StopCapture()
 {
 	if (appState != Capturing) return;
 	SetWindowText(hLabel, L"Stopping capture...");
-	capMan->StopCapture();
-	capMan->StopSensors();
-	delete capMan;
+	capMan.StopCapture();
 	SetWindowText(hLabel, L"Capture complete.");
 	SetWindowText(hCaptureButton, L"Start Capture");
 	appState = Idle;
@@ -138,16 +126,8 @@ void StartCalibration()
 	if (appState != Idle) return;
 	SetWindowText(hLabel, TEXT("Starting calibration..."));
 
-	bool result = SetAccelerometerSensitivity(0);
-	if (!result)
-	{
-		SetWindowText(hLabel, L"Failed to set accelerometer sensitivity");
-		return;
-	}
-
-	calMan = ref new CalibrationManager();
-	calMan->SetDelegate(&calDelegate);
-	result = calMan->StartCalibration();
+	//calMan.SetDelegate(&calDelegate);
+	bool result = calMan.StartCalibration();
 	if (result)
 	{
 		SetWindowText(hCalibrateButton, L"Stop Calibrating");
@@ -163,8 +143,7 @@ void StopCalibration()
 {
 	if (appState != Calibrating) return;
 	SetWindowText(hLabel, TEXT("Stopping calibration..."));
-	calMan->StopCalibration();
-	delete calMan;
+	calMan.StopCalibration();
 	SetWindowText(hLabel, TEXT("Calibration complete."));
 	SetWindowText(hCalibrateButton, L"Start Calibrating");
 	appState = Idle;

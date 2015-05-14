@@ -33,6 +33,12 @@
     <ClInclude Include="libpxcimu_internal.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="CalibrationManager.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CaptureManager.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -42,6 +48,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Debug.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CalibrationManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CaptureManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

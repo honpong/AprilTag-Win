@@ -166,8 +166,12 @@ void world_state::update_vertex_arrays(bool show_only_good)
     for(auto const & item : features) {
         //auto feature_id = item.first;
         auto f = item.second;
-        if (f.last_seen == current_feature_timestamp)
-            set_color(&feature_vertex[idx], 247, 88, 98, 255);
+        if (f.last_seen == current_feature_timestamp) {
+            if(f.good)
+                set_color(&feature_vertex[idx], 88, 247, 98, 255);
+            else
+                set_color(&feature_vertex[idx], 247, 88, 98, 255);
+        }
         else {
             if (show_only_good && !f.good)
                 continue;

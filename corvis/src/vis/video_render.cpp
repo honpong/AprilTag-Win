@@ -75,15 +75,8 @@ static GLuint setup_video_shaders() {
     return(p);
 }
 
-void video_render::gl_init(int image_width, int image_height, bool luminance)
+void video_render::gl_init()
 {
-    width = image_width;
-    height = image_height;
-    channels = 4; // RGBA
-    channels = 1;
-    if(luminance)
-        channels = 1; // Luminance only
-
     program = setup_video_shaders();
 
     vertex_loc = glGetAttribLocation(program, "position");
@@ -106,8 +99,12 @@ void video_render::gl_destroy()
 	glDeleteTextures(1, &texture);
 }
 
-void video_render::render(uint8_t * image)
+void video_render::render(uint8_t * image, int width, int height, bool luminance)
 {
+    int channels = 4; // RGBA
+    if(luminance)
+        channels = 1; // Luminance only
+
     glUseProgram(program);
     glBindTexture(GL_TEXTURE_2D, texture);
 

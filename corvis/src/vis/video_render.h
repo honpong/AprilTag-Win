@@ -10,11 +10,10 @@ private:
     GLuint vertex_loc, texture_coord_loc;
     GLuint frame_loc, channels_loc;
     GLuint texture;
-    int width, height, channels;
 
 public:
-    void gl_init(int width, int height, bool luminance);
-    void render(uint8_t * frame);
+    void gl_init();
+    void render(uint8_t * frame, int width, int height, bool luminance);
     void gl_destroy();
 };
 

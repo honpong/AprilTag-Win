@@ -150,7 +150,7 @@ void world_state_render_teardown()
 
 bool world_state_render_video_init()
 {
-    frame_render.gl_init(640, 480, true);
+    frame_render.gl_init();
     return true;
 }
 
@@ -163,7 +163,7 @@ void world_state_render_video(world_state * world)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     world->image_lock.lock();
-    frame_render.render(world->last_image.image);
+    frame_render.render(world->last_image.image, world->last_image.width, world->last_image.height, true);
     world->image_lock.unlock();
 }
 

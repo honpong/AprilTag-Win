@@ -75,7 +75,7 @@ class TestRunner(object):
 
 def write_html(output_dir, test_cases):
     with open(os.path.join(output_dir, "index.html"),'w') as html:
-        html.write("<!doctype html><html><body>%s\n</body></html>" %
+        html.write("<!doctype html><html><body bgcolor='000'>%s\n</body></html>" %
                    "\n".join(map(lambda test_case:
                                  "<img src='%s'>" % os.path.join("%s.png" % test_case["path"]), test_cases)))
 

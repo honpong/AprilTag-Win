@@ -76,9 +76,14 @@ void replay::start()
         realtime_offset = std::chrono::microseconds(0);
 
     while (is_running) {
+        auto start_pause = sensor_clock::now();
+        auto finish_pause = start_pause;
         while(is_paused  && !is_stepping) {
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            finish_pause = sensor_clock::now();
         }
+        realtime_offset += finish_pause - start_pause;
+
         auto phandle = std::unique_ptr<void, void(*)(void *)>(malloc(header.bytes), free);
         auto packet = (packet_t *)phandle.get();
         packet->header = header;

@@ -75,9 +75,12 @@ class TestRunner(object):
 
 def write_html(output_dir, test_cases):
     with open(os.path.join(output_dir, "index.html"),'w') as html:
-        html.write("<!doctype html><html><body bgcolor='000'>%s\n</body></html>" %
+        html.write("""<!doctype html><html><head><style>
+                      body { color: #fff; background: #000; }
+                      </style></head><body>%s</body></html> """ %
                    "\n".join(map(lambda test_case:
-                                 "<img src='%s'>" % os.path.join("%s.png" % test_case["path"]), test_cases)))
+                                 "<img src='%s.png' onclick='this.scrollIntoView(true)'><figcaption>%s</figcaption>" %
+                                 (test_case["path"], test_case["path"]), test_cases)))
 
 import numpy
 def error_histogram(errors, _bins = [0, 3, 10, 25, 50, 100]):

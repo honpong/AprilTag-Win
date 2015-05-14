@@ -96,10 +96,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Debug.h" />
     <ClInclude Include="IMUManager.h" />
     <ClInclude Include="LocationManager.h" />
     <ClInclude Include="RCUtility.h" />
@@ -109,7 +105,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\corvis\src\cor\platform\win\sensor_data.cpp" />
-    <ClCompile Include="Debug.cpp" />
     <ClCompile Include="IMUManager.cpp" />
     <ClCompile Include="LocationManager.cpp" />
     <ClCompile Include="RCUtility.cpp" />

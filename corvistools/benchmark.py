@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import sys, os
 import re
+import subprocess
 from collections import defaultdict
 from operator import itemgetter
 
@@ -38,12 +39,19 @@ def measurement_string(L, L_measured):
     error, error_percent = measurement_error(L, L_measured)
     return "%.2fcm actual, %.2fcm measured, %.2fcm error (%.2f%%)" % (L, L_measured, error, error_percent)
 
-def run_test_case(test_case):
+class TestRunner(object):
+  def  __init__(self, input_dir):
+    self.input_dir = input_dir
+
+  def __call__(self, test_case):
+    #return self.run(test_case)
+    return self.run_subprocess(test_case)
+
+  def run(self, test_case):
     print "Running", test_case["path"]; sys.stdout.flush();
     return measure(test_case["path"], test_case["config"])
 
-import subprocess
-def subprocess_test_case(test_case):
+  def run_subprocess(self, test_case):
     print "Running", test_case["path"], "using bin/measure"; sys.stdout.flush();
     output = subprocess.check_output(["../corvis/bin/measure", test_case["path"], test_case["config"]],
                                      stderr=subprocess.STDOUT)
@@ -81,11 +89,12 @@ import multiprocessing
 from measure import measure
 
 def benchmark(folder_name):
+    test_runner = TestRunner(folder_name)
     test_cases = scan_tests(folder_name)
     pool = multiprocessing.Pool(multiprocessing.cpu_count() - 1)
     print "Worker pool size is", pool._processes
-    #results = pool.map(run_test_case, test_cases)
-    results = pool.map(subprocess_test_case, test_cases)
+
+    results = pool.map(test_runner, test_cases)
 
     L_errors_percent = []
     PL_errors_percent = []

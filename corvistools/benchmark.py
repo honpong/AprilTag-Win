@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import sys, os
+import sys, os, errno
 import re
 import subprocess
 from collections import defaultdict
@@ -40,8 +40,9 @@ def measurement_string(L, L_measured):
     return "%.2fcm actual, %.2fcm measured, %.2fcm error (%.2f%%)" % (L, L_measured, error, error_percent)
 
 class TestRunner(object):
-  def  __init__(self, input_dir):
+  def  __init__(self, input_dir, output_dir = None):
     self.input_dir = input_dir
+    self.output_dir = output_dir
 
   def __call__(self, test_case):
     #return self.run(test_case)
@@ -53,8 +54,15 @@ class TestRunner(object):
 
   def run_subprocess(self, test_case):
     print "Running", test_case["path"], "using bin/measure"; sys.stdout.flush();
-    output = subprocess.check_output(["../corvis/bin/measure", os.path.join(self.input_dir, test_case["path"]), test_case["config"]],
-                                     stderr=subprocess.STDOUT)
+    args = ["../corvis/bin/measure", os.path.join(self.input_dir, test_case["path"]), test_case["config"]]
+    if self.output_dir is not None:
+        test_case["image"] = "%s.png" % test_case["path"]
+        image = os.path.join(output_dir, test_case["image"])
+        try:    os.makedirs(os.path.dirname(image))
+        except OSError as e:
+            if e.errno != errno.EEXIST: raise
+        args.extend(["--render", image])
+    output = subprocess.check_output(args, stderr=subprocess.STDOUT)
     #"Straight-line length is 89.00 cm, total path length 92.54 cm"
     res = re.match(".* ([\d\.]+) cm.* ([\d\.]+) cm.*",
             output, re.MULTILINE | re.DOTALL)
@@ -64,6 +72,12 @@ class TestRunner(object):
         PL = float(res.group(2))
     print "Finished", test_case["path"], "(%.2fcm, %.2fcm)" % (L, PL); sys.stdout.flush();
     return (PL, L)
+
+def write_html(output_dir, test_cases):
+    with open(os.path.join(output_dir, "index.html"),'w') as html:
+        html.write("<!doctype html><html><body>%s\n</body></html>" %
+                   "\n".join(map(lambda test_case:
+                                 "<img src='%s'>" % os.path.join("%s.png" % test_case["path"]), test_cases)))
 
 import numpy
 def error_histogram(errors, _bins = [0, 3, 10, 25, 50, 100]):
@@ -88,11 +102,13 @@ def error_histogram_string(counts, bins):
 import multiprocessing
 from measure import measure
 
-def benchmark(folder_name):
-    test_runner = TestRunner(folder_name)
-    test_cases = scan_tests(folder_name)
+def benchmark(input_dir, output_dir = None):
+    test_runner = TestRunner(input_dir, output_dir)
+    test_cases = scan_tests(input_dir)
     pool = multiprocessing.Pool(multiprocessing.cpu_count() - 1)
     print "Worker pool size is", pool._processes
+
+    if output_dir: write_html(output_dir, test_cases) # do first so you can reload to get progress
 
     results = pool.map(test_runner, test_cases)
 
@@ -165,13 +181,15 @@ def benchmark(folder_name):
     print "Alternate histogram score (lower is better) is %d\n" % altscore
 
 if __name__ == "__main__":
-    if len(sys.argv) != 2:
-        print "Usage:", sys.argv[0], "<sequence folder>"
+    if   len(sys.argv) == 2:
+        sequence_dir, output_dir = sys.argv[1], None
+    elif len(sys.argv) == 3:
+        sequence_dir, output_dir = sys.argv[1], sys.argv[2]
+        os.mkdir(output_dir)
+    else:
+        print "Usage:", sys.argv[0], "<sequence-dir> [<output-dir>]"
         sys.exit(1)
 
-    benchmark(sys.argv[1])
-
-
-
+    benchmark(sequence_dir, output_dir)
 
 

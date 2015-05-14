@@ -13,14 +13,14 @@ static const int COLOR_IMAGE_WIDTH = 640;
 static const int COLOR_IMAGE_HEIGHT = 480;
 static const int FPS = 30;
 
-typedef struct { int metaDataID; char sensorName[20]; PXCCapture::Device::Property deviceProperty; float fMinReportInterval; } pxcIMUsensors;
-pxcIMUsensors selectedSensors[] = {
+typedef struct { int metaDataID; char sensorName[20]; PXCCapture::Device::Property deviceProperty; float fMinReportInterval; } pxcIMUsensor;
+pxcIMUsensor selectedSensors[] = {
 	{ METADATA_IMU_LINEAR_ACCELERATION, "LinAccel", static_cast<PXCCapture::Device::Property>(PROPERTY_SENSORS_LINEAR_ACCELERATION), 0 },
 	{ METADATA_IMU_ANGULAR_VELOCITY,    "AngVel",   static_cast<PXCCapture::Device::Property>(PROPERTY_SENSORS_ANGULAR_VELOCITY),    0 }
 	//	{METADATA_IMU_TILT,				   "Tilt",     static_cast<PXCCapture::Device::Property>(PROPERTY_SENSORS_TILT),                0},
 	//	{METADATA_IMU_GRAVITY,	           "Gravity",  static_cast<PXCCapture::Device::Property>(PROPERTY_SENSORS_GRAVITY),             0}
 };
-const int NUM_OF_REQUESTED_SENSORS = sizeof(selectedSensors) / sizeof(pxcIMUsensors);
+const int NUM_OF_REQUESTED_SENSORS = sizeof(selectedSensors) / sizeof(pxcIMUsensor);
 
 SensorManager::SensorManager() : _isVideoStreaming(false)
 {
@@ -110,15 +110,14 @@ void SensorManager::PollForFrames()
 		PXCImage* depthImage = cameraSample->depth;
 		PXCImage* colorImage = cameraSample->color;
 
-		Debug::Log(L"%lli color sample\n", colorImage->QueryTimeStamp() - 6370); // Taking care of 637 Micro seconds blank interval-> 637000 nanoseconds -> 6370 (one hundred nanoseconds)
-
-		//if (sample) sampleHandler->OnNewSample(senseMan->CUID, cameraFrame);
-
+		OnColorFrame(colorImage);
+		
 		// Get the IMU data for each sensor type
 		PXCMetadata* metadata = (PXCMetadata *)depthImage->QueryInstance(PXCMetadata::CUID);
 		for (int sensorNum = 0; sensorNum < NUM_OF_REQUESTED_SENSORS; sensorNum++) 
 		{
-			pxcStatus result = metadata->QueryBuffer(selectedSensors[sensorNum].metaDataID, (pxcBYTE*)samples[sensorNum], IMU_RING_BUFFER_SAMPLE_COUNT*sizeof(imu_sample_t));
+			pxcIMUsensor* sensor = &selectedSensors[sensorNum];
+			pxcStatus result = metadata->QueryBuffer(sensor->metaDataID, (pxcBYTE*)samples[sensorNum], IMU_RING_BUFFER_SAMPLE_COUNT*sizeof(imu_sample_t));
 			if (result >= PXC_STATUS_NO_ERROR)
 			{
 				// Look for new samples
@@ -131,22 +130,45 @@ void SensorManager::PollForFrames()
 				// sampleNum now represents the number of new samples available
 				for (; sampleNum--;)
 				{
-					if (samples[sensorNum][sampleNum].coordinatedUniversalTime100ns) // If the sample is valid
+					imu_sample_t* sample = &samples[sensorNum][sampleNum];
+					if (sample->coordinatedUniversalTime100ns) // If the sample is valid
 					{
-						Debug::Log(L"%lli %s %0.3f, %0.3f, %0.3f\n", samples[sensorNum][sampleNum].coordinatedUniversalTime100ns, selectedSensors[sensorNum].sensorName, samples[sensorNum][sampleNum].data[0], samples[sensorNum][sampleNum].data[1], samples[sensorNum][sampleNum].data[2]);
+						if (sensor->deviceProperty == PROPERTY_SENSORS_LINEAR_ACCELERATION)
+						{
+							OnAmeterSample(sample);
+						}
+						else if (sensor->deviceProperty == PROPERTY_SENSORS_ANGULAR_VELOCITY)
+						{
+							OnGyroSample(sample);
+						}
 						
 						// Update the last_timestamp for this sensor type
-						last_timestamp[sensorNum] = samples[sensorNum][sampleNum].coordinatedUniversalTime100ns;
+						last_timestamp[sensorNum] = sample->coordinatedUniversalTime100ns;
 					}
 				}
 			}
 			else
 			{
-				Debug::Log(L"%s data not available\n", selectedSensors[sensorNum].sensorName);
+				Debug::Log(L"%s data not available", selectedSensors[sensorNum].sensorName);
 			}
 		}
 
 		senseMan->ReleaseFrame();
 	}
+}
+
+void SensorManager::OnColorFrame(PXCImage * colorImage)
+{
+	Debug::Log(L"%lli color sample", colorImage->QueryTimeStamp() - 6370); // Taking care of 637 Micro seconds blank interval-> 637000 nanoseconds -> 6370 (one hundred nanoseconds)
+}
+
+void SensorManager::OnAmeterSample(imu_sample_t* sample)
+{
+	Debug::Log(L"%lli %s\t%0.3f, %0.3f, %0.3f", sample->coordinatedUniversalTime100ns, L"accel", sample->data[0], sample->data[1], sample->data[2]);
+}
+
+void SensorManager::OnGyroSample(imu_sample_t* sample)
+{
+	Debug::Log(L"%lli %s\t%0.3f, %0.3f, %0.3f", sample->coordinatedUniversalTime100ns, L"gyro", sample->data[0], sample->data[1], sample->data[2]);
 }
 

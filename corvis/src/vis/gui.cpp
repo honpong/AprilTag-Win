@@ -184,16 +184,22 @@ void gui::start_glfw()
     if (!glfwInit())
         exit(EXIT_FAILURE);
 
+    int pos_x = 50;
+    int pos_y = 50;
+
     glfwSetErrorCallback(error_callback);
 
     glfwWindowHint(GLFW_RESIZABLE, true);
-    glfwWindowHint(GLFW_VISIBLE, show_main);
+    glfwWindowHint(GLFW_VISIBLE, false);
     GLFWwindow* main_window = glfwCreateWindow(width, height, "Replay", NULL, NULL);
     if (!main_window)
     {
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
+    glfwSetWindowPos(main_window, pos_x, pos_y);
+    if(show_main)
+        glfwShowWindow(main_window);
     glfwMakeContextCurrent(main_window);
     glfwSwapInterval(1);
 
@@ -207,7 +213,7 @@ void gui::start_glfw()
     world_state_render_init();
 
     glfwWindowHint(GLFW_RESIZABLE, false);
-    glfwWindowHint(GLFW_VISIBLE, show_video);
+    glfwWindowHint(GLFW_VISIBLE, false);
     GLFWwindow* video_window = glfwCreateWindow(640, 480, "Replay Video", NULL, NULL);
     glfwSetKeyCallback(video_window, gui::keyboard_callback);
     if (!video_window)
@@ -215,6 +221,9 @@ void gui::start_glfw()
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
+    glfwSetWindowPos(video_window, pos_x + width + 20, pos_y);
+    if(show_video)
+        glfwShowWindow(video_window);
     glfwMakeContextCurrent(video_window);
     glfwSwapInterval(1);
 

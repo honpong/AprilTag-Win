@@ -143,7 +143,7 @@ DEPS := $(DEPS) build/swig/_filter.cpp.d
 
 ############################## VIS ################################
 
-VIS_CXX_SOURCES := $(addprefix src/vis/, world_state.cpp world_state_render.cpp arcball.cpp offscreen_render.cpp gui.cpp lodepng.cpp gl_util.cpp video_render.cpp)
+VIS_CXX_SOURCES := $(addprefix src/vis/, world_state.cpp world_state_render.cpp arcball.cpp offscreen_render.cpp gui.cpp lodepng.cpp gl_util.cpp render.cpp video_render.cpp)
 bin/corvis/_vis.so: LDFLAGS := $(LDFLAGS) -framework OpenGL -lmgl
 bin/corvis/_vis.so: $(patsubst src/%,build/%,$(VIS_CXX_SOURCES:.cpp=.o))
 

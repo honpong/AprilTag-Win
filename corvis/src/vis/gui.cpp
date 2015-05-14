@@ -122,8 +122,8 @@ void gui::create_plots()
 void gui::write_frame()
 {
     state->image_lock.lock();
-    const int W = 640;
-    const int H = 480;
+    const int W = state->last_image.width;
+    const int H = state->last_image.height;
     uint8_t image[W*H*4];
     for(int i = 0; i < W*H; i++) {
         image[i*4 + 0] = state->last_image.image[i];
@@ -135,7 +135,7 @@ void gui::write_frame()
     state->image_lock.unlock();
 
     //Encode the image
-    unsigned error = lodepng::encode("last_frame.png", image, 640, 480);
+    unsigned error = lodepng::encode("last_frame.png", image, W, H);
     if(error)
         fprintf(stderr, "encoder error %d: %s\n", error, lodepng_error_text(error));
 }

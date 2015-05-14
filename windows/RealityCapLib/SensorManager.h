@@ -13,8 +13,8 @@ namespace RealityCap
 		SensorManager();
 		~SensorManager();
 		
-		bool StartVideo(); // returns true if video started successfully
-		void StopVideo();
+		bool StartSensors(); // returns true if video started successfully
+		void StopSensors();
 		bool isVideoStreaming();
 
 	private:		

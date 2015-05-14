@@ -38,10 +38,17 @@ void replay::set_device(const char *name)
 
 void replay::setup_filter()
 {
-    auto camf = [this](camera_data &&x) { filter_image_measurement(&cor_setup->sfm, x.image, x.width, x.height, x.stride, x.timestamp); };
-    auto accf = [this](accelerometer_data &&x) { filter_accelerometer_measurement(&cor_setup->sfm, x.accel_m__s2, x.timestamp); };
-    auto gyrf = [this](gyro_data &&x) { filter_gyroscope_measurement(&cor_setup->sfm, x.angvel_rad__s, x.timestamp); };
-
+    auto camf = [this](camera_data &&x) {
+        filter_image_measurement(&cor_setup->sfm, x.image, x.width, x.height, x.stride, x.timestamp);
+        if(camera_callback)
+            camera_callback(&cor_setup->sfm, std::move(x));
+    };
+    auto accf = [this](accelerometer_data &&x) {
+        filter_accelerometer_measurement(&cor_setup->sfm, x.accel_m__s2, x.timestamp);
+    };
+    auto gyrf = [this](gyro_data &&x) {
+        filter_gyroscope_measurement(&cor_setup->sfm, x.angvel_rad__s, x.timestamp);
+    };
     queue = make_unique<fusion_queue>(camf, accf, gyrf, fusion_queue::latency_strategy::ELIMINATE_DROPS, std::chrono::microseconds(33000), std::chrono::microseconds(10000), std::chrono::microseconds(5000));
     queue->start_offline(true);
     cor_setup->sfm.ignore_lateness = true;
@@ -75,6 +82,8 @@ void replay::start()
         auto phandle = std::unique_ptr<void, void(*)(void *)>(malloc(header.bytes), free);
         auto packet = (packet_t *)phandle.get();
         packet->header = header;
+        packet_t * last_packet = (packet_t *)malloc(header.bytes);
+        memcpy(last_packet, packet, header.bytes);
         
         file.read((char *)packet->data, header.bytes - 16);
         if(file.bad() || file.eof())
@@ -160,9 +169,6 @@ void replay::start()
             bytes_dispatched += header.bytes;
             packets_dispatched++;
 
-            if(packet_callback)
-                packet_callback(&cor_setup->sfm, timestamp, (enum packet_type)header.type);
-
             now = sensor_clock::now();
             // Update progress at most at 30Hz or if we are almost done
             if(progress_callback &&
@@ -173,6 +179,7 @@ void replay::start()
                 progress_callback(bytes_dispatched / (float)size);
             }
         }
+        free(last_packet);
         
         file.read((char *)&header, 16);
         if(file.bad() || file.eof()) is_running = false;
@@ -184,14 +191,14 @@ void replay::start()
     path_length = cor_setup->sfm.s.total_distance * 100;
 }
 
-bool replay::configure_all(const char *filename, const char *devicename, bool realtime, std::function<void (float)> progress, std::function<void (const filter *, sensor_clock::time_point, enum packet_type)> packet)
+bool replay::configure_all(const char *filename, const char *devicename, bool realtime, std::function<void (float)> progress, std::function<void (const filter *, camera_data)> camera_cb)
 {
     if(!open(filename)) return false;
     set_device(devicename);
     setup_filter();
     is_realtime = realtime;
     progress_callback = progress;
-    packet_callback = packet;
+    camera_callback = camera_cb;
     return true;
 }
 

@@ -229,6 +229,9 @@
 		D3C0EDFB1A37B4DC00423EDE /* qr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3C0EDF81A37B4DC00423EDE /* qr.cpp */; };
 		D3F4C7141AF0D48A003D4D0B /* device_parameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F4C7131AF0D48A003D4D0B /* device_parameters.cpp */; };
 		D3F4C7151AF0D492003D4D0B /* device_parameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F4C7131AF0D48A003D4D0B /* device_parameters.cpp */; };
+		D94AFD831B04048F00CB08C0 /* gl_util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D94AFD811B04048F00CB08C0 /* gl_util.cpp */; };
+		D94AFD841B04048F00CB08C0 /* gl_util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D94AFD811B04048F00CB08C0 /* gl_util.cpp */; };
+		D94AFD851B04048F00CB08C0 /* gl_util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D94AFD811B04048F00CB08C0 /* gl_util.cpp */; };
 		D953126F1A15AE63004D6068 /* homography.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D953126D1A15AE63004D6068 /* homography.cpp */; };
 		D95409B01AC1019200706A24 /* sensor_clock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D95409AE1AC1019200706A24 /* sensor_clock.cpp */; };
 		D95E92DB1AB86D4600EAB109 /* sensor_data.mm in Sources */ = {isa = PBXBuildFile; fileRef = D95E92D91AB86D4600EAB109 /* sensor_data.mm */; };
@@ -642,6 +645,8 @@
 		D3DE5D081A80E301000EF94D /* transformation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = transformation.h; sourceTree = "<group>"; };
 		D3F4C7131AF0D48A003D4D0B /* device_parameters.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = device_parameters.cpp; sourceTree = "<group>"; };
 		D90D18C01A3A03B500D1AFE4 /* camera_control_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = camera_control_interface.h; path = ../../shared_corvis_3dk/camera_control_interface.h; sourceTree = "<group>"; };
+		D94AFD811B04048F00CB08C0 /* gl_util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = gl_util.cpp; path = ../../corvis/src/vis/gl_util.cpp; sourceTree = "<group>"; };
+		D94AFD821B04048F00CB08C0 /* gl_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = gl_util.h; path = ../../corvis/src/vis/gl_util.h; sourceTree = "<group>"; };
 		D953126D1A15AE63004D6068 /* homography.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = homography.cpp; sourceTree = "<group>"; };
 		D953126E1A15AE63004D6068 /* homography.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = homography.h; sourceTree = "<group>"; };
 		D95409AE1AC1019200706A24 /* sensor_clock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sensor_clock.cpp; path = platform/ios/sensor_clock.cpp; sourceTree = "<group>"; };
@@ -1110,6 +1115,8 @@
 			children = (
 				D34A0BEB1ADFFA33008DFCCF /* arcball.h */,
 				D34A0BEA1ADFFA33008DFCCF /* arcball.cpp */,
+				D94AFD811B04048F00CB08C0 /* gl_util.cpp */,
+				D94AFD821B04048F00CB08C0 /* gl_util.h */,
 				D34A0BE61ADFE621008DFCCF /* world_state.h */,
 				D34A0BE71ADFE621008DFCCF /* world_state.cpp */,
 				D3696B9E1AE508880026E67B /* world_state_render.cpp */,
@@ -1567,6 +1574,7 @@
 				327B553818EB4D720001CCE1 /* RCAFNetworkActivityIndicatorManager.m in Sources */,
 				327B556C18EB4DC20001CCE1 /* NSString+RCString.m in Sources */,
 				327B55C018EB4F3A0001CCE1 /* state_vision.cpp in Sources */,
+				D94AFD831B04048F00CB08C0 /* gl_util.cpp in Sources */,
 				D33E9D2D1ADD14600085F35C /* RCLocationManager.m in Sources */,
 				327B556E18EB4DC20001CCE1 /* RCCameraManager.mm in Sources */,
 				327B557B18EB4DC20001CCE1 /* RCTranslation.m in Sources */,
@@ -1612,6 +1620,7 @@
 			files = (
 				D35BF0E81ADD11DB00BF3CB0 /* RoundedButton.m in Sources */,
 				D35BF0AD1ADD111500BF3CB0 /* AppDelegate.m in Sources */,
+				D94AFD851B04048F00CB08C0 /* gl_util.cpp in Sources */,
 				D35BF0AA1ADD111500BF3CB0 /* main.m in Sources */,
 				D35BF0E61ADD11DB00BF3CB0 /* MainViewController.m in Sources */,
 				D35BF0F81ADD122800BF3CB0 /* MBProgressHUD.m in Sources */,
@@ -1673,6 +1682,7 @@
 				D3B4EAF01A1E7DE100BE0443 /* kalman.cpp in Sources */,
 				D3B4EAF11A1E7DE100BE0443 /* RCAFNetworkActivityIndicatorManager.m in Sources */,
 				D3B4EAF31A1E7DE100BE0443 /* NSString+RCString.m in Sources */,
+				D94AFD841B04048F00CB08C0 /* gl_util.cpp in Sources */,
 				D3B4EAF61A1E7DE100BE0443 /* state_vision.cpp in Sources */,
 				D3B4EAF81A1E7DE100BE0443 /* RCCameraManager.mm in Sources */,
 				D3B4EAF91A1E7DE100BE0443 /* RCTranslation.m in Sources */,

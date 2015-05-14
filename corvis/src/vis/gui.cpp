@@ -4,29 +4,9 @@ gui * gui::static_gui;
 
 #include "world_state_render.h"
 #include "../filter/replay.h"
-
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include "gl_util.h"
 
 const static float initial_scale = 5;
-
-static void build_projection_matrix(float * projMatrix, float fov, float ratio, float nearP, float farP)
-{
-    float f = 1.0f / tan (fov * (M_PI / 360.0));
-
-    for(int i = 0; i < 16; i++) projMatrix[i] = 0;
-    projMatrix[0] = 1;
-    projMatrix[5] = 1;
-    projMatrix[10] = 1;
-    projMatrix[15] = 1;
-
-    projMatrix[0] = f / ratio;
-    projMatrix[1 * 4 + 1] = f;
-    projMatrix[2 * 4 + 2] = (farP + nearP) / (nearP - farP);
-    projMatrix[3 * 4 + 2] = (2.0f * farP * nearP) / (nearP - farP);
-    projMatrix[2 * 4 + 3] = -1.0f;
-    projMatrix[3 * 4 + 3] = 0.0f;
-}
 
 void gui::configure_view()
 {
@@ -138,25 +118,50 @@ void gui::create_plots()
 }
 #endif //WIN32
 
-void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int mods)
+#include "lodepng.h"
+void gui::write_frame()
 {
-    if(key == '0')
-        scale = initial_scale;
-    if(key == '+' || key == '=')
-        scale *= 1/1.1;
-    if(key == '-')
-        scale *= 1.1;
-    if(key == ' ')
-       replay_control->toggle_pause();
-    if(key == 's')
-       replay_control->step();
-    if(key == 'p')
-       create_plots();
+    state->image_lock.lock();
+    const int W = 640;
+    const int H = 480;
+    uint8_t image[W*H*4];
+    for(int i = 0; i < W*H; i++) {
+        image[i*4 + 0] = state->last_image.image[i];
+        image[i*4 + 1] = state->last_image.image[i];
+        image[i*4 + 2] = state->last_image.image[i];
+        image[i*4 + 3] = 255;
+    }
+
+    state->image_lock.unlock();
+
+    //Encode the image
+    unsigned error = lodepng::encode("last_frame.png", image, 640, 480);
+    if(error)
+        fprintf(stderr, "encoder error %d: %s\n", error, lodepng_error_text(error));
 }
 
-void gui::init_gl()
+void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int mods)
 {
-    glEnable(GL_DEPTH_TEST);
+    if(key == GLFW_KEY_0 && action == GLFW_PRESS)
+        scale = initial_scale;
+    if(key == GLFW_KEY_EQUAL && action == GLFW_PRESS)
+        scale *= 1/1.1;
+    if(key == GLFW_KEY_MINUS && action == GLFW_PRESS)
+        scale *= 1.1;
+    if(key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+       replay_control->toggle_pause();
+    if(key == GLFW_KEY_S && action == GLFW_PRESS)
+       replay_control->step();
+    if(key == GLFW_KEY_P && action == GLFW_PRESS)
+       create_plots();
+    if(key == GLFW_KEY_F && action == GLFW_PRESS)
+       write_frame();
+}
+
+void gui::render_video()
+{
+    glViewport(0, 0, 640, 480);
+    world_state_render_video(state);
 }
 
 void gui::render()
@@ -180,35 +185,64 @@ void gui::start_glfw()
         exit(EXIT_FAILURE);
 
     glfwSetErrorCallback(error_callback);
-    GLFWwindow* window = glfwCreateWindow(width, height, "Replay", NULL, NULL);
-    if (!window)
+
+    glfwWindowHint(GLFW_RESIZABLE, true);
+    glfwWindowHint(GLFW_VISIBLE, show_main);
+    GLFWwindow* main_window = glfwCreateWindow(width, height, "Replay", NULL, NULL);
+    if (!main_window)
     {
         glfwTerminate();
         exit(EXIT_FAILURE);
     }
-    glfwMakeContextCurrent(window);
+    glfwMakeContextCurrent(main_window);
     glfwSwapInterval(1);
 
-    glfwSetKeyCallback(window, gui::keyboard_callback);
-    glfwSetInputMode(window, GLFW_STICKY_MOUSE_BUTTONS, 1);
-    glfwSetMouseButtonCallback(window, gui::mouse_callback);
-    glfwSetCursorPosCallback(window, gui::move_callback);
-    glfwSetScrollCallback(window, gui::scroll_callback);
+    glfwSetKeyCallback(main_window, gui::keyboard_callback);
+    glfwSetInputMode(main_window, GLFW_STICKY_MOUSE_BUTTONS, 1);
+    glfwSetMouseButtonCallback(main_window, gui::mouse_callback);
+    glfwSetCursorPosCallback(main_window, gui::move_callback);
+    glfwSetScrollCallback(main_window, gui::scroll_callback);
 
     gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
+    world_state_render_init();
+
+    glfwWindowHint(GLFW_RESIZABLE, false);
+    glfwWindowHint(GLFW_VISIBLE, show_video);
+    GLFWwindow* video_window = glfwCreateWindow(640, 480, "Replay Video", NULL, NULL);
+    glfwSetKeyCallback(video_window, gui::keyboard_callback);
+    if (!video_window)
+    {
+        glfwTerminate();
+        exit(EXIT_FAILURE);
+    }
+    glfwMakeContextCurrent(video_window);
+    glfwSwapInterval(1);
+
+    gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
+    world_state_render_video_init();
+
     //fprintf(stderr, "OpenGL Version %d.%d loaded\n", GLVersion.major, GLVersion.minor);
 
-    world_state_render_init();
-    init_gl();
-
-    while (!glfwWindowShouldClose(window))
+    while (!glfwWindowShouldClose(main_window))
     {
-        glfwGetFramebufferSize(window, &width, &height);
-        render();
-        glfwSwapBuffers(window);
+        if(show_main) {
+            glfwMakeContextCurrent(main_window);
+            glfwGetFramebufferSize(main_window, &width, &height);
+            render();
+            glfwSwapBuffers(main_window);
+        }
+        glfwPollEvents();
+ 
+        if(show_video) {
+            glfwMakeContextCurrent(video_window);
+            render_video();
+            glfwSwapBuffers(video_window);
+        }
         glfwPollEvents();
     }
-    glfwDestroyWindow(window);
+    glfwDestroyWindow(main_window);
+    glfwDestroyWindow(video_window);
+    glfwDestroyWindow(plots_window);
     glfwTerminate();
 }
 

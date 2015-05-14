@@ -3,60 +3,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef __APPLE__
-#include <TargetConditionals.h>
-#endif
-
-#if TARGET_OS_IPHONE
-#include <OpenGLES/ES2/gl.h>
-#else
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#endif
+#include "gl_util.h"
+#include "video_render.h"
 
 static GLuint program;
 static GLuint vertexLoc, colorLoc;
 static GLuint projMatrixLoc, viewMatrixLoc;
+
+static video_render frame_render;
 
 typedef struct _draw_item {
     GLuint vertex_buffer_object[2];
 } draw_item;
 
 static draw_item grid_di, axis_di, feature_di, path_di, orientation_di;
-
-void printShaderInfoLog(GLuint obj)
-{
-    int infologLength = 0;
-    int charsWritten  = 0;
-    char *infoLog;
-
-    glGetShaderiv(obj, GL_INFO_LOG_LENGTH,&infologLength);
-
-    if (infologLength > 0)
-    {
-        infoLog = (char *)malloc(infologLength);
-        glGetShaderInfoLog(obj, infologLength, &charsWritten, infoLog);
-        printf("%s\n",infoLog);
-        free(infoLog);
-    }
-}
-
-void printProgramInfoLog(GLuint obj)
-{
-    int infologLength = 0;
-    int charsWritten  = 0;
-    char *infoLog;
-
-    glGetProgramiv(obj, GL_INFO_LOG_LENGTH,&infologLength);
-
-    if (infologLength > 0)
-    {
-        infoLog = (char *)malloc(infologLength);
-        glGetProgramInfoLog(obj, infologLength, &charsWritten, infoLog);
-        printf("%s\n",infoLog);
-        free(infoLog);
-    }
-}
 
 const char * vs =
 "#version 120\n"
@@ -126,15 +86,15 @@ GLuint setupShaders() {
     glCompileShader(v);
     glCompileShader(f);
 
-    printShaderInfoLog(v);
-    printShaderInfoLog(f);
+    print_shader_info_log(v);
+    print_shader_info_log(f);
 
     p = glCreateProgram();
     glAttachShader(p,v);
     glAttachShader(p,f);
 
     glLinkProgram(p);
-    printProgramInfoLog(p);
+    print_program_info_log(p);
 
     vertexLoc = glGetAttribLocation(p,"position");
     colorLoc = glGetAttribLocation(p, "color");
@@ -186,6 +146,25 @@ bool world_state_render_init()
 
 void world_state_render_teardown()
 {
+}
+
+bool world_state_render_video_init()
+{
+    frame_render.gl_init(640, 480, true);
+    return true;
+}
+
+void world_state_render_video_teardown()
+{
+    frame_render.gl_destroy();
+}
+
+void world_state_render_video(world_state * world)
+{
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    world->image_lock.lock();
+    frame_render.render(world->last_image.image);
+    world->image_lock.unlock();
 }
 
 void world_state_render(world_state * world, float * viewMatrix, float * projMatrix)

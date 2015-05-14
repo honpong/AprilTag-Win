@@ -42,24 +42,37 @@ void world_state::observe_plot_item(sensor_clock::time_point timestamp, int inde
     plot_lock.unlock();
 }
 
-void world_state::receive_packet(const filter * f, sensor_clock::time_point tp, enum packet_type packet_type)
+void world_state::observe_image(sensor_clock::time_point timestamp, uint8_t * image, int width, int height)
 {
-    if(packet_type == packet_camera) {
-        // Only update position and features on packet camera,
-        // matches what we do in other visualizations
-        for(auto feat : f->s.features) {
-            if(feat->is_valid()) {
-                float stdev = (float)feat->v.stdev_meters(sqrt(feat->variance()));
-                bool good = stdev / feat->v.depth() < .02;
-                observe_feature(tp, feat->id,
-                        (float)feat->world[0], (float)feat->world[1], (float)feat->world[2], good);
-            }
-        }
+    image_lock.lock();
+    if(last_image.image && (width != last_image.width || height != last_image.height))
+        last_image.image = (uint8_t *)realloc(last_image.image, sizeof(uint8_t)*width*height);
 
-        v4 T = f->s.T.v;
-        quaternion q = to_quaternion(f->s.W.v);
-        observe_position(tp, (float)T[0], (float)T[1], (float)T[2], (float)q.w(), (float)q.x(), (float)q.y(), (float)q.z());
+    if(!last_image.image)
+        last_image.image = (uint8_t *)malloc(sizeof(uint8_t)*width*height);
+
+    memcpy(last_image.image, image, sizeof(uint8_t)*width*height);
+
+    last_image.width = width;
+    last_image.height = height;
+    image_lock.unlock();
+}
+
+void world_state::receive_camera(const filter * f, camera_data &&d)
+{
+    for(auto feat : f->s.features) {
+        if(feat->is_valid()) {
+            float stdev = (float)feat->v.stdev_meters(sqrt(feat->variance()));
+            bool good = stdev / feat->v.depth() < .02;
+            observe_feature(d.timestamp, feat->id,
+                            (float)feat->world[0], (float)feat->world[1], (float)feat->world[2], good);
+        }
     }
+    observe_image(d.timestamp, d.image, d.width, d.height);
+    
+    v4 T = f->s.T.v;
+    quaternion q = to_quaternion(f->s.W.v);
+    observe_position(d.timestamp, (float)T[0], (float)T[1], (float)T[2], (float)q.w(), (float)q.x(), (float)q.y(), (float)q.z());
 
     /*
     if(packet_type == packet_camera) {
@@ -101,6 +114,9 @@ world_state::world_state()
     axis_vertex_num = 6;
     orientation_vertex = orientation_data;
     orientation_vertex_num = 6;
+    last_image.width = 0;
+    last_image.height = 0;
+    last_image.image = NULL;
 }
 
 world_state::~world_state()
@@ -111,6 +127,8 @@ world_state::~world_state()
         free(feature_vertex);
     if(grid_vertex)
         free(grid_vertex);
+    if(last_image.image)
+        free(last_image.image);
 }
 
 static inline void set_position(VertexData * vertex, float x, float y, float z)

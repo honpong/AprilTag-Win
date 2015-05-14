@@ -9,6 +9,7 @@
 #include "../cor/platform/sensor_clock.h"
 #include "../cor/packet.h"
 #include "../Eigen/StdVector"
+#include "../cor/platform/sensor_data.h"
 
 typedef struct _VertexData {
     float position[3];
@@ -25,6 +26,11 @@ typedef struct _position {
     transformation g;
     sensor_clock::time_point timestamp;
 } Position;
+
+typedef struct _ImageData {
+    uint8_t * image;
+    int width, height;
+} ImageData;
 
 struct filter;
 
@@ -47,6 +53,7 @@ private:
     std::vector<plot> plots;
 
 public:
+    std::mutex image_lock;
     std::mutex display_lock;
     std::mutex plot_lock;
     VertexData * grid_vertex;
@@ -54,16 +61,18 @@ public:
     VertexData * path_vertex;
     VertexData * feature_vertex;
     VertexData * orientation_vertex;
+    ImageData last_image;
     int grid_vertex_num, axis_vertex_num, path_vertex_num, feature_vertex_num, orientation_vertex_num;
 
     world_state();
     ~world_state();
     void update_vertex_arrays(bool show_only_good=true);
     void render_plots(std::function<void (plot &)> render_callback);
-    void receive_packet(const filter * f, sensor_clock::time_point timestamp, enum packet_type packet_type);
+    void receive_camera(const filter * f, camera_data &&data);
     void observe_feature(sensor_clock::time_point timestamp, uint64_t feature_id, float x, float y, float z, bool good);
     void observe_position(sensor_clock::time_point timestamp, float x, float y, float z, float qw, float qx, float qy, float qz);
     void observe_plot_item(sensor_clock::time_point timestamp, int index, std::string plot_name, float value);
+    void observe_image(sensor_clock::time_point timestamp, uint8_t * image, int width, int height);
     void reset() {
         display_lock.lock();
         features.clear();

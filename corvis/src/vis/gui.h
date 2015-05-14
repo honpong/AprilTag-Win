@@ -11,7 +11,6 @@ class gui
 {
 private:
     static gui * static_gui;
-    static void render_callback() { gui::static_gui->render(); };
     static void mouse_callback(GLFWwindow * window, int button, int action, int mods) {
         gui::static_gui->mouse(window, button, action, mods);
     };
@@ -27,19 +26,21 @@ private:
 
     float _projectionMatrix[16]; // 4x4
     float _modelViewMatrix[16]; // 4x4
-    int window_id;
 
     void create_plots();
 
     void start_glfw();
     void init_gl();
     void configure_view();
-    void reshape(int width, int height);
     void mouse(GLFWwindow * window, int button, int action, int mods);
     void mouse_move(GLFWwindow * window, double x, double y);
     void scroll(GLFWwindow * window, double xoffset, double yoffset);
     void keyboard(GLFWwindow * window, int key, int scancode, int action, int mods);
     void render();
+    void render_video();
+
+    void write_frame();
+
     world_state * state;
 
     float scale;
@@ -48,6 +49,12 @@ private:
     // Mouse related
     arcball arc;
     bool is_rotating{false};
+
+
+    // Display related
+    GLFWwindow * main_window, * video_window, * plots_window;
+    bool show_main{true}, show_video{true}, show_plots{false};
+
 
     replay * replay_control;
 

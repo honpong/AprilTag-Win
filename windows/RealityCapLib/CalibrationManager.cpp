@@ -11,7 +11,7 @@
 using namespace RealityCap;
 using namespace std;
 
-CalibrationManager::CalibrationManager() : SensorManager(), _isCalibrating(false)
+CalibrationManager::CalibrationManager(PXCSenseManager* senseMan) : SensorManager(senseMan), _isCalibrating(false)
 {
 }
 

@@ -17,14 +17,14 @@ namespace RealityCap
         bool isVideoStreaming();
 
     protected:
-        SensorManager();
+        SensorManager(PXCSenseManager* senseMan);
         ~SensorManager();
         virtual void OnColorFrame(PXCImage* colorImage);
         virtual void OnAmeterSample(struct imu_sample* sample);
         virtual void OnGyroSample(struct imu_sample* sample);
 
     private:
-        PXCSenseManager* senseMan;
+        PXCSenseManager* _senseMan;
         std::thread videoThread;
         void PollForFrames();
         bool _isVideoStreaming;

@@ -8,7 +8,7 @@ namespace RealityCap
     class CaptureManager : virtual public SensorManager
     {
     public:
-        CaptureManager();
+        CaptureManager(PXCSenseManager* senseMan);
         bool StartCapture();
         void StopCapture();
         bool isCapturing();

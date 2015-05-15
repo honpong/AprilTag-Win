@@ -16,7 +16,7 @@ namespace RealityCap
     class CalibrationManager : virtual public SensorManager
     {
     public:
-        CalibrationManager();
+        CalibrationManager(PXCSenseManager* senseMan);
         bool StartCalibration();
         void StopCalibration();
         bool isCalibrating();

@@ -22,21 +22,19 @@ pxcIMUsensor selectedSensors[] = {
 };
 const int NUM_OF_REQUESTED_SENSORS = sizeof(selectedSensors) / sizeof(pxcIMUsensor);
 
-SensorManager::SensorManager() : _isVideoStreaming(false)
+SensorManager::SensorManager(PXCSenseManager* senseMan) : _isVideoStreaming(false)
 {
-    senseMan = PXCSenseManager::CreateInstance();
-    if (!senseMan) Debug::Log(L"Unable to create the PXCSenseManager\n");
+    _senseMan = senseMan;
 }
 
 SensorManager::~SensorManager()
 {
-    senseMan->Release();
 }
 
 bool SensorManager::StartSensors()
 {
     if (isVideoStreaming()) return true;
-    if (!senseMan) return false;
+    if (!_senseMan) return false;
 
     pxcStatus status;
 
@@ -63,7 +61,7 @@ bool SensorManager::StartSensors()
         desc.devCaps[i].value = selectedSensors[i].fMinReportInterval;
     }
 
-    status = senseMan->EnableStreams(&desc);
+    status = _senseMan->EnableStreams(&desc);
 
     if (status < PXC_STATUS_NO_ERROR)
     {
@@ -71,7 +69,7 @@ bool SensorManager::StartSensors()
         return false;
     }
 
-    status = senseMan->Init();
+    status = _senseMan->Init();
     if (status < PXC_STATUS_NO_ERROR)
     {
         Debug::Log(L"Failed to initialize video pipeline\n");
@@ -91,7 +89,7 @@ void SensorManager::StopSensors()
     if (!isVideoStreaming()) return;
     _isVideoStreaming = false;
     videoThread.join();
-    if (senseMan) senseMan->Close();
+    if (_senseMan) _senseMan->Close();
 }
 
 bool SensorManager::isVideoStreaming()
@@ -104,9 +102,9 @@ void SensorManager::PollForFrames()
     imu_sample_t samples[NUM_OF_REQUESTED_SENSORS][IMU_RING_BUFFER_SAMPLE_COUNT];
     __int64 last_timestamp[NUM_OF_REQUESTED_SENSORS] = {};
 
-    while (isVideoStreaming() && senseMan->AcquireFrame(true) == PXC_STATUS_NO_ERROR)
+    while (isVideoStreaming() && _senseMan->AcquireFrame(true) == PXC_STATUS_NO_ERROR)
     {
-        PXCCapture::Sample *cameraSample = senseMan->QuerySample();
+        PXCCapture::Sample *cameraSample = _senseMan->QuerySample();
         PXCImage* depthImage = cameraSample->depth;
         PXCImage* colorImage = cameraSample->color;
 
@@ -153,7 +151,7 @@ void SensorManager::PollForFrames()
             }
         }
 
-        senseMan->ReleaseFrame();
+        _senseMan->ReleaseFrame();
     }
 }
 

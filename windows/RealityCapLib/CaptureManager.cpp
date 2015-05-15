@@ -9,7 +9,7 @@
 using namespace RealityCap;
 using namespace std;
 
-CaptureManager::CaptureManager() : SensorManager(), _isCapturing(false)
+CaptureManager::CaptureManager(PXCSenseManager* senseMan) : SensorManager(senseMan), _isCapturing(false)
 {
     _captureFilePath = GetExePath() + "\\capture";
 }

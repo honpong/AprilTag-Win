@@ -51,12 +51,12 @@ LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK	WndProcGL(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 
-class MyCalDelegate : CalibrationManagerDelegate
+class MyCalDelegate : public CalibrationManagerDelegate
 {
 public:
-	MyCalDelegate(): CalibrationManagerDelegate() {};
+	MyCalDelegate() : CalibrationManagerDelegate() {};
 
-	virtual void OnProgressUpdated(float progress) 
+	virtual void OnProgressUpdated(float progress)
 	{
 		if (progress < 1.)
 		{
@@ -67,7 +67,7 @@ public:
 		}
 	};
 
-	virtual void OnStatusUpdated(int status) 
+	virtual void OnStatusUpdated(int status)
 	{
 		switch (status)
 		{
@@ -76,7 +76,7 @@ public:
 			break;
 		default:
 			break;
-		}		
+		}
 	};
 };
 
@@ -108,7 +108,7 @@ void StartCapture()
 		return;
 	}
 
-	if(result) appState = Capturing;
+	if (result) appState = Capturing;
 }
 
 void StopCapture()
@@ -126,7 +126,7 @@ void StartCalibration()
 	if (appState != Idle) return;
 	SetWindowText(hLabel, TEXT("Starting calibration..."));
 
-	//calMan.SetDelegate(&calDelegate);
+	calMan.SetDelegate(&calDelegate);
 	bool result = calMan.StartCalibration();
 	if (result)
 	{
@@ -163,7 +163,7 @@ void BeginLiveVis()
 	if (!OpenVisualizationWindow()) return;
 	appState = Live;
 	SetWindowText(hLabel, TEXT("Beginning live visualization..."));
-	
+
 	// run filter
 }
 
@@ -255,7 +255,7 @@ HRESULT CDialogEventHandler_CreateInstance(REFIID riid, void **ppv)
 
 HRESULT OpenReplayFilePicker()
 {
-	if (appState != Idle) return S_FALSE; 
+	if (appState != Idle) return S_FALSE;
 
 	// CoCreate the File Open Dialog object.
 	IFileDialog *pfd = NULL;
@@ -325,14 +325,14 @@ HRESULT OpenReplayFilePicker()
 
 [MTAThread] // inits WinRT runtime
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
-                     _In_opt_ HINSTANCE hPrevInstance,
-                     _In_ LPTSTR    lpCmdLine,
-                     _In_ int       nCmdShow)
+	_In_opt_ HINSTANCE hPrevInstance,
+	_In_ LPTSTR    lpCmdLine,
+	_In_ int       nCmdShow)
 {
 	UNREFERENCED_PARAMETER(hPrevInstance);
 	UNREFERENCED_PARAMETER(lpCmdLine);
 
- 	// TODO: Place code here.
+	// TODO: Place code here.
 	MSG msg;
 	HACCEL hAccelTable;
 
@@ -343,13 +343,13 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 	RegisterGLWinClass(hInstance);
 
 	// Perform application initialization:
-	if (!InitInstance (hInstance, nCmdShow))
+	if (!InitInstance(hInstance, nCmdShow))
 	{
 		return FALSE;
 	}
 
 	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_RCUTILITY));
-		
+
 	// Main message loop:
 	while (GetMessage(&msg, NULL, 0, 0))
 	{
@@ -360,7 +360,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 		}
 	}
 
-	return (int) msg.wParam;
+	return (int)msg.wParam;
 }
 
 
@@ -375,17 +375,17 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 
 	wcex.cbSize = sizeof(WNDCLASSEX);
 
-	wcex.style			= CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc	= WndProc;
-	wcex.cbClsExtra		= 0;
-	wcex.cbWndExtra		= 0;
-	wcex.hInstance		= hInstance;
-	wcex.hIcon			= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_RCUTILITY));
-	wcex.hCursor		= LoadCursor(NULL, IDC_ARROW);
-	wcex.hbrBackground	= (HBRUSH)(COLOR_WINDOW+1);
-	wcex.lpszMenuName	= MAKEINTRESOURCE(IDC_RCUTILITY);
-	wcex.lpszClassName	= szWindowClass;
-	wcex.hIconSm		= LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+	wcex.style = CS_HREDRAW | CS_VREDRAW;
+	wcex.lpfnWndProc = WndProc;
+	wcex.cbClsExtra = 0;
+	wcex.cbWndExtra = 0;
+	wcex.hInstance = hInstance;
+	wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_RCUTILITY));
+	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
+	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+	wcex.lpszMenuName = MAKEINTRESOURCE(IDC_RCUTILITY);
+	wcex.lpszClassName = szWindowClass;
+	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
 	return RegisterClassEx(&wcex);
 }
@@ -423,27 +423,27 @@ ATOM RegisterGLWinClass(HINSTANCE hInstance)
 //
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
-   HWND hWnd;
+	HWND hWnd;
 
-   hInst = hInstance; // Store instance handle in our global variable
+	hInst = hInstance; // Store instance handle in our global variable
 
-   hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
+	hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
 
-   if (!hWnd)
-   {
-      return FALSE;
-   }
+	if (!hWnd)
+	{
+		return FALSE;
+	}
 
-   hLabel = CreateWindow(TEXT("static"), TEXT(""), WS_CHILD | WS_VISIBLE, 10, 10, 600, 20, hWnd, (HMENU)3, NULL, NULL);
-   hCaptureButton = CreateWindow(TEXT("button"), TEXT("Start Capture"), WS_CHILD | WS_VISIBLE, 10, 60, 140, 50, hWnd, (HMENU)IDB_CAPTURE, NULL, NULL);
-   hCalibrateButton = CreateWindow(TEXT("button"), TEXT("Start Calibration"), WS_CHILD | WS_VISIBLE, 170, 60, 140, 50, hWnd, (HMENU)IDB_CALIBRATE, NULL, NULL);
-   hLiveButton = CreateWindow(TEXT("button"), TEXT("Live"), WS_CHILD | WS_VISIBLE, 330, 60, 140, 50, hWnd, (HMENU)IDB_LIVE, NULL, NULL);
-   hReplayButton = CreateWindow(TEXT("button"), TEXT("Replay"), WS_CHILD | WS_VISIBLE, 490, 60, 140, 50, hWnd, (HMENU)IDB_REPLAY, NULL, NULL);
+	hLabel = CreateWindow(TEXT("static"), TEXT(""), WS_CHILD | WS_VISIBLE, 10, 10, 600, 20, hWnd, (HMENU)3, NULL, NULL);
+	hCaptureButton = CreateWindow(TEXT("button"), TEXT("Start Capture"), WS_CHILD | WS_VISIBLE, 10, 60, 140, 50, hWnd, (HMENU)IDB_CAPTURE, NULL, NULL);
+	hCalibrateButton = CreateWindow(TEXT("button"), TEXT("Start Calibration"), WS_CHILD | WS_VISIBLE, 170, 60, 140, 50, hWnd, (HMENU)IDB_CALIBRATE, NULL, NULL);
+	hLiveButton = CreateWindow(TEXT("button"), TEXT("Live"), WS_CHILD | WS_VISIBLE, 330, 60, 140, 50, hWnd, (HMENU)IDB_LIVE, NULL, NULL);
+	hReplayButton = CreateWindow(TEXT("button"), TEXT("Replay"), WS_CHILD | WS_VISIBLE, 490, 60, 140, 50, hWnd, (HMENU)IDB_REPLAY, NULL, NULL);
 
-   ShowWindow(hWnd, nCmdShow);	
-   UpdateWindow(hWnd);
-   
-   return TRUE;
+	ShowWindow(hWnd, nCmdShow);
+	UpdateWindow(hWnd);
+
+	return TRUE;
 }
 
 //
@@ -465,7 +465,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	switch (message)
 	{
 	case WM_COMMAND:
-		wmId    = LOWORD(wParam);
+		wmId = LOWORD(wParam);
 		wmEvent = HIWORD(wParam);
 		// Parse the menu selections:
 		switch (wmId)
@@ -508,7 +508,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
 	return 0;
-} 
+}
 
 // window message processor for the GL window
 LRESULT CALLBACK WndProcGL(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)

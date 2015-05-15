@@ -39,6 +39,11 @@ void replay::set_device(const char *name)
 void replay::setup_filter()
 {
     auto camf = [this](camera_data &&x) {
+        if (cor_setup->device.image_height != x.height || cor_setup->device.image_width != x.width) {
+            device_set_resolution(&cor_setup->device, x.width, x.height);
+            filter_initialize(&cor_setup->sfm, cor_setup->device);
+            filter_start_dynamic(&cor_setup->sfm);
+        }
         filter_image_measurement(&cor_setup->sfm, x.image, x.width, x.height, x.stride, x.timestamp);
         if(camera_callback)
             camera_callback(&cor_setup->sfm, std::move(x));

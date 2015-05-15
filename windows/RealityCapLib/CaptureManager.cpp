@@ -11,51 +11,51 @@ using namespace std;
 
 CaptureManager::CaptureManager() : SensorManager(), _isCapturing(false)
 {
-	_captureFilePath = GetExePath() + "\\capture";
+    _captureFilePath = GetExePath() + "\\capture";
 }
 
 bool CaptureManager::StartCapture()
 {
-	if (isCapturing()) return true;
-	if (!isVideoStreaming())
-	{
-		if (!StartSensors()) return false;
-	}
-	_isCapturing = cp.start(_captureFilePath.c_str());
-	return isCapturing();
+    if (isCapturing()) return true;
+    if (!isVideoStreaming())
+    {
+        if (!StartSensors()) return false;
+    }
+    _isCapturing = cp.start(_captureFilePath.c_str());
+    return isCapturing();
 }
 
 void CaptureManager::StopCapture()
 {
-	if (!isCapturing()) return;
-	cp.stop();
-	_isCapturing = false;
-	StopSensors();
+    if (!isCapturing()) return;
+    cp.stop();
+    _isCapturing = false;
+    StopSensors();
 }
 
 bool RealityCap::CaptureManager::isCapturing()
 {
-	return _isCapturing;
+    return _isCapturing;
 }
 
 string CaptureManager::GetExePath()
 {
-	char buffer[MAX_PATH];
-	GetModuleFileNameA(NULL, buffer, MAX_PATH);
-	string::size_type pos = string(buffer).find_last_of("\\/");
-	return string(buffer).substr(0, pos);
+    char buffer[MAX_PATH];
+    GetModuleFileNameA(NULL, buffer, MAX_PATH);
+    string::size_type pos = string(buffer).find_last_of("\\/");
+    return string(buffer).substr(0, pos);
 }
 
 void CaptureManager::OnColorFrame(PXCImage* colorSample)
 {
-	if (!isCapturing()) return;
-	auto data = camera_data(colorSample);
-	cp.receive_camera(std::move(data));
+    if (!isCapturing()) return;
+    auto data = camera_data(colorSample);
+    cp.receive_camera(std::move(data));
 }
 
 void CaptureManager::OnAmeterSample(imu_sample_t* sample)
 {
-	if (!isCapturing()) return;
+    if (!isCapturing()) return;
 
     accelerometer_data data;
     //windows gives acceleration in g-units, so multiply by standard gravity in m/s^2
@@ -68,7 +68,7 @@ void CaptureManager::OnAmeterSample(imu_sample_t* sample)
 
 void CaptureManager::OnGyroSample(imu_sample_t* sample)
 {
-	if (!isCapturing()) return;
+    if (!isCapturing()) return;
 
     gyro_data data;
     //windows gives angular velocity in degrees per second

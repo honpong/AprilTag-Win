@@ -9,24 +9,24 @@ struct imu_sample;
 
 namespace RealityCap
 {
-	class SensorManager
-	{
-	public:		
-		bool StartSensors(); // returns true if video started successfully
-		void StopSensors();
-		bool isVideoStreaming();
+    class SensorManager
+    {
+    public:
+        bool StartSensors(); // returns true if video started successfully
+        void StopSensors();
+        bool isVideoStreaming();
 
-	protected:
-		SensorManager();
-		~SensorManager();
-		virtual void OnColorFrame(PXCImage* colorImage);
-		virtual void OnAmeterSample(struct imu_sample* sample);
-		virtual void OnGyroSample(struct imu_sample* sample);
+    protected:
+        SensorManager();
+        ~SensorManager();
+        virtual void OnColorFrame(PXCImage* colorImage);
+        virtual void OnAmeterSample(struct imu_sample* sample);
+        virtual void OnGyroSample(struct imu_sample* sample);
 
-	private:		
-		PXCSenseManager* senseMan;
-		std::thread videoThread;
-		void PollForFrames();
-		bool _isVideoStreaming;
-	};
+    private:
+        PXCSenseManager* senseMan;
+        std::thread videoThread;
+        void PollForFrames();
+        bool _isVideoStreaming;
+    };
 }

@@ -21,11 +21,11 @@ using namespace Windows::Devices::Sensors;
 
 typedef enum AppState
 {
-	Idle,
-	Calibrating,
-	Capturing,
-	Live,
-	Replay
+    Idle,
+    Calibrating,
+    Capturing,
+    Live,
+    Replay
 };
 
 // Global Variables:
@@ -54,138 +54,138 @@ INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 class MyCalDelegate : public CalibrationManagerDelegate
 {
 public:
-	MyCalDelegate() : CalibrationManagerDelegate() {};
+    MyCalDelegate() : CalibrationManagerDelegate() {};
 
-	virtual void OnProgressUpdated(float progress)
-	{
-		if (progress < 1.)
-		{
-			wchar_t title[1024];
-			_snwprintf_s(title, 1024, L"Progress %2.0f%%", progress * 100);
-			Debug::Log(title);
-			SetWindowText(hLabel, title);
-		}
-	};
+    virtual void OnProgressUpdated(float progress)
+    {
+        if (progress < 1.)
+        {
+            wchar_t title[1024];
+            _snwprintf_s(title, 1024, L"Progress %2.0f%%", progress * 100);
+            Debug::Log(title);
+            SetWindowText(hLabel, title);
+        }
+    };
 
-	virtual void OnStatusUpdated(int status)
-	{
-		switch (status)
-		{
-		case 1:
-			SetWindowText(hLabel, TEXT("Place the device flat on a table."));
-			break;
-		default:
-			break;
-		}
-	};
+    virtual void OnStatusUpdated(int status)
+    {
+        switch (status)
+        {
+        case 1:
+            SetWindowText(hLabel, TEXT("Place the device flat on a table."));
+            break;
+        default:
+            break;
+        }
+    };
 };
 
 MyCalDelegate calDelegate;
 
 void StartCapture()
 {
-	if (appState != Idle) return;
+    if (appState != Idle) return;
 
-	SetWindowText(hCaptureButton, L"Stop Capture");
-	SetWindowText(hLabel, L"Starting capture...");
-	bool result;
+    SetWindowText(hCaptureButton, L"Stop Capture");
+    SetWindowText(hLabel, L"Starting capture...");
+    bool result;
 
-	result = capMan.StartSensors();
-	if (!result)
-	{
-		SetWindowText(hLabel, L"Failed to start sensors");
-		return;
-	}
+    result = capMan.StartSensors();
+    if (!result)
+    {
+        SetWindowText(hLabel, L"Failed to start sensors");
+        return;
+    }
 
-	result = capMan.StartCapture();
-	if (result)
-	{
-		SetWindowText(hLabel, L"Capturing.");
-	}
-	else
-	{
-		SetWindowText(hLabel, L"Failed to start capture");
-		return;
-	}
+    result = capMan.StartCapture();
+    if (result)
+    {
+        SetWindowText(hLabel, L"Capturing.");
+    }
+    else
+    {
+        SetWindowText(hLabel, L"Failed to start capture");
+        return;
+    }
 
-	if (result) appState = Capturing;
+    if (result) appState = Capturing;
 }
 
 void StopCapture()
 {
-	if (appState != Capturing) return;
-	SetWindowText(hLabel, L"Stopping capture...");
-	capMan.StopCapture();
-	SetWindowText(hLabel, L"Capture complete.");
-	SetWindowText(hCaptureButton, L"Start Capture");
-	appState = Idle;
+    if (appState != Capturing) return;
+    SetWindowText(hLabel, L"Stopping capture...");
+    capMan.StopCapture();
+    SetWindowText(hLabel, L"Capture complete.");
+    SetWindowText(hCaptureButton, L"Start Capture");
+    appState = Idle;
 }
 
 void StartCalibration()
 {
-	if (appState != Idle) return;
-	SetWindowText(hLabel, TEXT("Starting calibration..."));
+    if (appState != Idle) return;
+    SetWindowText(hLabel, TEXT("Starting calibration..."));
 
-	calMan.SetDelegate(&calDelegate);
-	bool result = calMan.StartCalibration();
-	if (result)
-	{
-		SetWindowText(hCalibrateButton, L"Stop Calibrating");
-		appState = Calibrating;
-	}
-	else
-	{
-		SetWindowText(hLabel, TEXT("Failed to start calibration."));
-	}
+    calMan.SetDelegate(&calDelegate);
+    bool result = calMan.StartCalibration();
+    if (result)
+    {
+        SetWindowText(hCalibrateButton, L"Stop Calibrating");
+        appState = Calibrating;
+    }
+    else
+    {
+        SetWindowText(hLabel, TEXT("Failed to start calibration."));
+    }
 }
 
 void StopCalibration()
 {
-	if (appState != Calibrating) return;
-	SetWindowText(hLabel, TEXT("Stopping calibration..."));
-	calMan.StopCalibration();
-	SetWindowText(hLabel, TEXT("Calibration complete."));
-	SetWindowText(hCalibrateButton, L"Start Calibrating");
-	appState = Idle;
+    if (appState != Calibrating) return;
+    SetWindowText(hLabel, TEXT("Stopping calibration..."));
+    calMan.StopCalibration();
+    SetWindowText(hLabel, TEXT("Calibration complete."));
+    SetWindowText(hCalibrateButton, L"Start Calibrating");
+    appState = Idle;
 }
 
 bool OpenVisualizationWindow()
 {
-	if (appState != Idle || IsWindow(hGLWindow)) return false;
-	hGLWindow = CreateWindow(glWindowClass, L"Visualization", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInst, NULL);
-	ShowWindow(hGLWindow, SW_SHOW);
-	UpdateWindow(hGLWindow);
-	return true;
+    if (appState != Idle || IsWindow(hGLWindow)) return false;
+    hGLWindow = CreateWindow(glWindowClass, L"Visualization", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInst, NULL);
+    ShowWindow(hGLWindow, SW_SHOW);
+    UpdateWindow(hGLWindow);
+    return true;
 }
 
 void BeginLiveVis()
 {
-	if (!OpenVisualizationWindow()) return;
-	appState = Live;
-	SetWindowText(hLabel, TEXT("Beginning live visualization..."));
+    if (!OpenVisualizationWindow()) return;
+    appState = Live;
+    SetWindowText(hLabel, TEXT("Beginning live visualization..."));
 
-	// run filter
+    // run filter
 }
 
 void EndLiveVis()
 {
-	appState = Idle;
-	SetWindowText(hLabel, TEXT(""));
+    appState = Idle;
+    SetWindowText(hLabel, TEXT(""));
 }
 
 void BeginReplay(const PWSTR filePath)
 {
-	if (!OpenVisualizationWindow()) return;
-	appState = Replay;
-	SetWindowText(hLabel, TEXT("Beginning replay visualization..."));
+    if (!OpenVisualizationWindow()) return;
+    appState = Replay;
+    SetWindowText(hLabel, TEXT("Beginning replay visualization..."));
 
-	// do opengl stuff
+    // do opengl stuff
 }
 
 void EndReplay()
 {
-	appState = Idle;
-	SetWindowText(hLabel, TEXT(""));
+    appState = Idle;
+    SetWindowText(hLabel, TEXT(""));
 }
 
 
@@ -194,173 +194,173 @@ void EndReplay()
 class CDialogEventHandler : public IFileDialogEvents, public IFileDialogControlEvents
 {
 public:
-	// IUnknown methods
-	IFACEMETHODIMP QueryInterface(REFIID riid, void** ppv)
-	{
-		static const QITAB qit[] = {
-			QITABENT(CDialogEventHandler, IFileDialogEvents),
-			QITABENT(CDialogEventHandler, IFileDialogControlEvents),
-			{ 0 },
-		};
-		return QISearch(this, qit, riid, ppv);
-	}
+    // IUnknown methods
+    IFACEMETHODIMP QueryInterface(REFIID riid, void** ppv)
+    {
+        static const QITAB qit[] = {
+            QITABENT(CDialogEventHandler, IFileDialogEvents),
+            QITABENT(CDialogEventHandler, IFileDialogControlEvents),
+            { 0 },
+        };
+        return QISearch(this, qit, riid, ppv);
+    }
 
-	IFACEMETHODIMP_(ULONG) AddRef()
-	{
-		return InterlockedIncrement(&_cRef);
-	}
+    IFACEMETHODIMP_(ULONG) AddRef()
+    {
+        return InterlockedIncrement(&_cRef);
+    }
 
-	IFACEMETHODIMP_(ULONG) Release()
-	{
-		long cRef = InterlockedDecrement(&_cRef);
-		if (!cRef)
-			delete this;
-		return cRef;
-	}
+    IFACEMETHODIMP_(ULONG) Release()
+    {
+        long cRef = InterlockedDecrement(&_cRef);
+        if (!cRef)
+            delete this;
+        return cRef;
+    }
 
-	// IFileDialogEvents methods
-	IFACEMETHODIMP OnFileOk(IFileDialog *) { return S_OK; };
-	IFACEMETHODIMP OnFolderChange(IFileDialog *) { return S_OK; };
-	IFACEMETHODIMP OnFolderChanging(IFileDialog *, IShellItem *) { return S_OK; };
-	IFACEMETHODIMP OnHelp(IFileDialog *) { return S_OK; };
-	IFACEMETHODIMP OnSelectionChange(IFileDialog *) { return S_OK; };
-	IFACEMETHODIMP OnShareViolation(IFileDialog *, IShellItem *, FDE_SHAREVIOLATION_RESPONSE *) { return S_OK; };
-	IFACEMETHODIMP OnTypeChange(IFileDialog *pfd) { return S_OK; };
-	IFACEMETHODIMP OnOverwrite(IFileDialog *, IShellItem *, FDE_OVERWRITE_RESPONSE *) { return S_OK; };
+    // IFileDialogEvents methods
+    IFACEMETHODIMP OnFileOk(IFileDialog *) { return S_OK; };
+    IFACEMETHODIMP OnFolderChange(IFileDialog *) { return S_OK; };
+    IFACEMETHODIMP OnFolderChanging(IFileDialog *, IShellItem *) { return S_OK; };
+    IFACEMETHODIMP OnHelp(IFileDialog *) { return S_OK; };
+    IFACEMETHODIMP OnSelectionChange(IFileDialog *) { return S_OK; };
+    IFACEMETHODIMP OnShareViolation(IFileDialog *, IShellItem *, FDE_SHAREVIOLATION_RESPONSE *) { return S_OK; };
+    IFACEMETHODIMP OnTypeChange(IFileDialog *pfd) { return S_OK; };
+    IFACEMETHODIMP OnOverwrite(IFileDialog *, IShellItem *, FDE_OVERWRITE_RESPONSE *) { return S_OK; };
 
-	// IFileDialogControlEvents methods
-	IFACEMETHODIMP OnItemSelected(IFileDialogCustomize *pfdc, DWORD dwIDCtl, DWORD dwIDItem) { return S_OK; };
-	IFACEMETHODIMP OnButtonClicked(IFileDialogCustomize *, DWORD) { return S_OK; };
-	IFACEMETHODIMP OnCheckButtonToggled(IFileDialogCustomize *, DWORD, BOOL) { return S_OK; };
-	IFACEMETHODIMP OnControlActivating(IFileDialogCustomize *, DWORD) { return S_OK; };
+    // IFileDialogControlEvents methods
+    IFACEMETHODIMP OnItemSelected(IFileDialogCustomize *pfdc, DWORD dwIDCtl, DWORD dwIDItem) { return S_OK; };
+    IFACEMETHODIMP OnButtonClicked(IFileDialogCustomize *, DWORD) { return S_OK; };
+    IFACEMETHODIMP OnCheckButtonToggled(IFileDialogCustomize *, DWORD, BOOL) { return S_OK; };
+    IFACEMETHODIMP OnControlActivating(IFileDialogCustomize *, DWORD) { return S_OK; };
 
-	CDialogEventHandler() : _cRef(1) { };
+    CDialogEventHandler() : _cRef(1) { };
 private:
-	~CDialogEventHandler() { };
-	long _cRef;
+    ~CDialogEventHandler() { };
+    long _cRef;
 };
 
 HRESULT CDialogEventHandler_CreateInstance(REFIID riid, void **ppv)
 {
-	*ppv = NULL;
-	CDialogEventHandler *pDialogEventHandler = new (std::nothrow) CDialogEventHandler();
-	HRESULT hr = pDialogEventHandler ? S_OK : E_OUTOFMEMORY;
-	if (SUCCEEDED(hr))
-	{
-		hr = pDialogEventHandler->QueryInterface(riid, ppv);
-		pDialogEventHandler->Release();
-	}
-	return hr;
+    *ppv = NULL;
+    CDialogEventHandler *pDialogEventHandler = new (std::nothrow) CDialogEventHandler();
+    HRESULT hr = pDialogEventHandler ? S_OK : E_OUTOFMEMORY;
+    if (SUCCEEDED(hr))
+    {
+        hr = pDialogEventHandler->QueryInterface(riid, ppv);
+        pDialogEventHandler->Release();
+    }
+    return hr;
 }
 
 HRESULT OpenReplayFilePicker()
 {
-	if (appState != Idle) return S_FALSE;
+    if (appState != Idle) return S_FALSE;
 
-	// CoCreate the File Open Dialog object.
-	IFileDialog *pfd = NULL;
-	HRESULT hr = CoCreateInstance(CLSID_FileOpenDialog,
-		NULL,
-		CLSCTX_INPROC_SERVER,
-		IID_PPV_ARGS(&pfd));
-	if (SUCCEEDED(hr))
-	{
-		// Create an event handling object, and hook it up to the dialog.
-		IFileDialogEvents *pfde = NULL;
-		hr = CDialogEventHandler_CreateInstance(IID_PPV_ARGS(&pfde));
-		if (SUCCEEDED(hr))
-		{
-			// Hook up the event handler.
-			DWORD dwCookie;
-			hr = pfd->Advise(pfde, &dwCookie);
-			if (SUCCEEDED(hr))
-			{
-				// Set the options on the dialog.
-				DWORD dwFlags;
+    // CoCreate the File Open Dialog object.
+    IFileDialog *pfd = NULL;
+    HRESULT hr = CoCreateInstance(CLSID_FileOpenDialog,
+        NULL,
+        CLSCTX_INPROC_SERVER,
+        IID_PPV_ARGS(&pfd));
+    if (SUCCEEDED(hr))
+    {
+        // Create an event handling object, and hook it up to the dialog.
+        IFileDialogEvents *pfde = NULL;
+        hr = CDialogEventHandler_CreateInstance(IID_PPV_ARGS(&pfde));
+        if (SUCCEEDED(hr))
+        {
+            // Hook up the event handler.
+            DWORD dwCookie;
+            hr = pfd->Advise(pfde, &dwCookie);
+            if (SUCCEEDED(hr))
+            {
+                // Set the options on the dialog.
+                DWORD dwFlags;
 
-				// Before setting, always get the options first in order 
-				// not to override existing options.
-				hr = pfd->GetOptions(&dwFlags);
-				if (SUCCEEDED(hr))
-				{
-					// In this case, get shell items only for file system items.
-					hr = pfd->SetOptions(dwFlags | FOS_FORCEFILESYSTEM);
-					if (SUCCEEDED(hr))
-					{
-						hr = pfd->Show(NULL);
-						if (SUCCEEDED(hr))
-						{
-							// Obtain the result once the user clicks 
-							// the 'Open' button.
-							// The result is an IShellItem object.
-							IShellItem *psiResult;
-							hr = pfd->GetResult(&psiResult);
-							if (SUCCEEDED(hr))
-							{
-								// We are just going to print out the 
-								// name of the file for sample sake.
-								PWSTR pszFilePath = NULL;
-								hr = psiResult->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
-								if (SUCCEEDED(hr))
-								{
-									SetWindowText(hLabel, pszFilePath);
-									BeginReplay(pszFilePath);
-									CoTaskMemFree(pszFilePath);
-								}
-								psiResult->Release();
-							}
-						}
-					}
-				}
-				// Unhook the event handler.
-				pfd->Unadvise(dwCookie);
-			}
-			pfde->Release();
-		}
-		pfd->Release();
-	}
-	return hr;
+                // Before setting, always get the options first in order 
+                // not to override existing options.
+                hr = pfd->GetOptions(&dwFlags);
+                if (SUCCEEDED(hr))
+                {
+                    // In this case, get shell items only for file system items.
+                    hr = pfd->SetOptions(dwFlags | FOS_FORCEFILESYSTEM);
+                    if (SUCCEEDED(hr))
+                    {
+                        hr = pfd->Show(NULL);
+                        if (SUCCEEDED(hr))
+                        {
+                            // Obtain the result once the user clicks 
+                            // the 'Open' button.
+                            // The result is an IShellItem object.
+                            IShellItem *psiResult;
+                            hr = pfd->GetResult(&psiResult);
+                            if (SUCCEEDED(hr))
+                            {
+                                // We are just going to print out the 
+                                // name of the file for sample sake.
+                                PWSTR pszFilePath = NULL;
+                                hr = psiResult->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+                                if (SUCCEEDED(hr))
+                                {
+                                    SetWindowText(hLabel, pszFilePath);
+                                    BeginReplay(pszFilePath);
+                                    CoTaskMemFree(pszFilePath);
+                                }
+                                psiResult->Release();
+                            }
+                        }
+                    }
+                }
+                // Unhook the event handler.
+                pfd->Unadvise(dwCookie);
+            }
+            pfde->Release();
+        }
+        pfd->Release();
+    }
+    return hr;
 }
 
 
 [MTAThread] // inits WinRT runtime
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
-	_In_opt_ HINSTANCE hPrevInstance,
-	_In_ LPTSTR    lpCmdLine,
-	_In_ int       nCmdShow)
+    _In_opt_ HINSTANCE hPrevInstance,
+    _In_ LPTSTR    lpCmdLine,
+    _In_ int       nCmdShow)
 {
-	UNREFERENCED_PARAMETER(hPrevInstance);
-	UNREFERENCED_PARAMETER(lpCmdLine);
+    UNREFERENCED_PARAMETER(hPrevInstance);
+    UNREFERENCED_PARAMETER(lpCmdLine);
 
-	// TODO: Place code here.
-	MSG msg;
-	HACCEL hAccelTable;
+    // TODO: Place code here.
+    MSG msg;
+    HACCEL hAccelTable;
 
-	// Initialize global strings
-	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-	LoadString(hInstance, IDC_RCUTILITY, szWindowClass, MAX_LOADSTRING);
-	MyRegisterClass(hInstance);
-	RegisterGLWinClass(hInstance);
+    // Initialize global strings
+    LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
+    LoadString(hInstance, IDC_RCUTILITY, szWindowClass, MAX_LOADSTRING);
+    MyRegisterClass(hInstance);
+    RegisterGLWinClass(hInstance);
 
-	// Perform application initialization:
-	if (!InitInstance(hInstance, nCmdShow))
-	{
-		return FALSE;
-	}
+    // Perform application initialization:
+    if (!InitInstance(hInstance, nCmdShow))
+    {
+        return FALSE;
+    }
 
-	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_RCUTILITY));
+    hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_RCUTILITY));
 
-	// Main message loop:
-	while (GetMessage(&msg, NULL, 0, 0))
-	{
-		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-	}
+    // Main message loop:
+    while (GetMessage(&msg, NULL, 0, 0))
+    {
+        if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+        {
+            TranslateMessage(&msg);
+            DispatchMessage(&msg);
+        }
+    }
 
-	return (int)msg.wParam;
+    return (int)msg.wParam;
 }
 
 
@@ -371,44 +371,44 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 //
 ATOM MyRegisterClass(HINSTANCE hInstance)
 {
-	WNDCLASSEX wcex;
+    WNDCLASSEX wcex;
 
-	wcex.cbSize = sizeof(WNDCLASSEX);
+    wcex.cbSize = sizeof(WNDCLASSEX);
 
-	wcex.style = CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc = WndProc;
-	wcex.cbClsExtra = 0;
-	wcex.cbWndExtra = 0;
-	wcex.hInstance = hInstance;
-	wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_RCUTILITY));
-	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-	wcex.lpszMenuName = MAKEINTRESOURCE(IDC_RCUTILITY);
-	wcex.lpszClassName = szWindowClass;
-	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+    wcex.style = CS_HREDRAW | CS_VREDRAW;
+    wcex.lpfnWndProc = WndProc;
+    wcex.cbClsExtra = 0;
+    wcex.cbWndExtra = 0;
+    wcex.hInstance = hInstance;
+    wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_RCUTILITY));
+    wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+    wcex.lpszMenuName = MAKEINTRESOURCE(IDC_RCUTILITY);
+    wcex.lpszClassName = szWindowClass;
+    wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
-	return RegisterClassEx(&wcex);
+    return RegisterClassEx(&wcex);
 }
 
 ATOM RegisterGLWinClass(HINSTANCE hInstance)
 {
-	WNDCLASSEX wcex;
+    WNDCLASSEX wcex;
 
-	wcex.cbSize = sizeof(WNDCLASSEX);
+    wcex.cbSize = sizeof(WNDCLASSEX);
 
-	wcex.style = CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc = WndProcGL;
-	wcex.cbClsExtra = 0;
-	wcex.cbWndExtra = 0;
-	wcex.hInstance = hInstance;
-	wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_RCUTILITY));
-	wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-	wcex.lpszMenuName = 0;
-	wcex.lpszClassName = glWindowClass;
-	wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
+    wcex.style = CS_HREDRAW | CS_VREDRAW;
+    wcex.lpfnWndProc = WndProcGL;
+    wcex.cbClsExtra = 0;
+    wcex.cbWndExtra = 0;
+    wcex.hInstance = hInstance;
+    wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_RCUTILITY));
+    wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
+    wcex.lpszMenuName = 0;
+    wcex.lpszClassName = glWindowClass;
+    wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
-	return RegisterClassEx(&wcex);
+    return RegisterClassEx(&wcex);
 }
 
 //
@@ -423,27 +423,27 @@ ATOM RegisterGLWinClass(HINSTANCE hInstance)
 //
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
-	HWND hWnd;
+    HWND hWnd;
 
-	hInst = hInstance; // Store instance handle in our global variable
+    hInst = hInstance; // Store instance handle in our global variable
 
-	hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
+    hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
 
-	if (!hWnd)
-	{
-		return FALSE;
-	}
+    if (!hWnd)
+    {
+        return FALSE;
+    }
 
-	hLabel = CreateWindow(TEXT("static"), TEXT(""), WS_CHILD | WS_VISIBLE, 10, 10, 600, 20, hWnd, (HMENU)3, NULL, NULL);
-	hCaptureButton = CreateWindow(TEXT("button"), TEXT("Start Capture"), WS_CHILD | WS_VISIBLE, 10, 60, 140, 50, hWnd, (HMENU)IDB_CAPTURE, NULL, NULL);
-	hCalibrateButton = CreateWindow(TEXT("button"), TEXT("Start Calibration"), WS_CHILD | WS_VISIBLE, 170, 60, 140, 50, hWnd, (HMENU)IDB_CALIBRATE, NULL, NULL);
-	hLiveButton = CreateWindow(TEXT("button"), TEXT("Live"), WS_CHILD | WS_VISIBLE, 330, 60, 140, 50, hWnd, (HMENU)IDB_LIVE, NULL, NULL);
-	hReplayButton = CreateWindow(TEXT("button"), TEXT("Replay"), WS_CHILD | WS_VISIBLE, 490, 60, 140, 50, hWnd, (HMENU)IDB_REPLAY, NULL, NULL);
+    hLabel = CreateWindow(TEXT("static"), TEXT(""), WS_CHILD | WS_VISIBLE, 10, 10, 600, 20, hWnd, (HMENU)3, NULL, NULL);
+    hCaptureButton = CreateWindow(TEXT("button"), TEXT("Start Capture"), WS_CHILD | WS_VISIBLE, 10, 60, 140, 50, hWnd, (HMENU)IDB_CAPTURE, NULL, NULL);
+    hCalibrateButton = CreateWindow(TEXT("button"), TEXT("Start Calibration"), WS_CHILD | WS_VISIBLE, 170, 60, 140, 50, hWnd, (HMENU)IDB_CALIBRATE, NULL, NULL);
+    hLiveButton = CreateWindow(TEXT("button"), TEXT("Live"), WS_CHILD | WS_VISIBLE, 330, 60, 140, 50, hWnd, (HMENU)IDB_LIVE, NULL, NULL);
+    hReplayButton = CreateWindow(TEXT("button"), TEXT("Replay"), WS_CHILD | WS_VISIBLE, 490, 60, 140, 50, hWnd, (HMENU)IDB_REPLAY, NULL, NULL);
 
-	ShowWindow(hWnd, nCmdShow);
-	UpdateWindow(hWnd);
+    ShowWindow(hWnd, nCmdShow);
+    UpdateWindow(hWnd);
 
-	return TRUE;
+    return TRUE;
 }
 
 //
@@ -458,115 +458,115 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	int wmId, wmEvent;
-	PAINTSTRUCT ps;
-	HDC hdc;
+    int wmId, wmEvent;
+    PAINTSTRUCT ps;
+    HDC hdc;
 
-	switch (message)
-	{
-	case WM_COMMAND:
-		wmId = LOWORD(wParam);
-		wmEvent = HIWORD(wParam);
-		// Parse the menu selections:
-		switch (wmId)
-		{
-		case IDM_ABOUT:
-			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
-			break;
-		case IDM_EXIT:
-			DestroyWindow(hWnd);
-			break;
-		case IDB_CAPTURE:
-			appState == Capturing ? StopCapture() : StartCapture();
-			break;
-		case IDB_CALIBRATE:
-			appState == Calibrating ? StopCalibration() : StartCalibration();
-			break;
-		case IDB_LIVE:
-			BeginLiveVis();
-			break;
-		case IDB_REPLAY:
-			OpenReplayFilePicker();
-			break;
-		default:
-			return DefWindowProc(hWnd, message, wParam, lParam);
-		}
-		break;
-	case WM_PAINT:
-		hdc = BeginPaint(hWnd, &ps);
-		// TODO: Add any drawing code here...
-		EndPaint(hWnd, &ps);
-		break;
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		break;
-	case WM_CLOSE:
-		StopCapture();
-		DestroyWindow(hWnd);
-		break;
-	default:
-		return DefWindowProc(hWnd, message, wParam, lParam);
-	}
-	return 0;
+    switch (message)
+    {
+    case WM_COMMAND:
+        wmId = LOWORD(wParam);
+        wmEvent = HIWORD(wParam);
+        // Parse the menu selections:
+        switch (wmId)
+        {
+        case IDM_ABOUT:
+            DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+            break;
+        case IDM_EXIT:
+            DestroyWindow(hWnd);
+            break;
+        case IDB_CAPTURE:
+            appState == Capturing ? StopCapture() : StartCapture();
+            break;
+        case IDB_CALIBRATE:
+            appState == Calibrating ? StopCalibration() : StartCalibration();
+            break;
+        case IDB_LIVE:
+            BeginLiveVis();
+            break;
+        case IDB_REPLAY:
+            OpenReplayFilePicker();
+            break;
+        default:
+            return DefWindowProc(hWnd, message, wParam, lParam);
+        }
+        break;
+    case WM_PAINT:
+        hdc = BeginPaint(hWnd, &ps);
+        // TODO: Add any drawing code here...
+        EndPaint(hWnd, &ps);
+        break;
+    case WM_DESTROY:
+        PostQuitMessage(0);
+        break;
+    case WM_CLOSE:
+        StopCapture();
+        DestroyWindow(hWnd);
+        break;
+    default:
+        return DefWindowProc(hWnd, message, wParam, lParam);
+    }
+    return 0;
 }
 
 // window message processor for the GL window
 LRESULT CALLBACK WndProcGL(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	int wmId, wmEvent;
-	PAINTSTRUCT ps;
-	HDC hdc;
+    int wmId, wmEvent;
+    PAINTSTRUCT ps;
+    HDC hdc;
 
-	switch (message)
-	{
-	case WM_COMMAND:
-		wmId = LOWORD(wParam);
-		wmEvent = HIWORD(wParam);
-		// Parse the menu selections:
-		switch (wmId)
-		{
-		case IDM_EXIT:
-			DestroyWindow(hWnd);
-			break;
-		default:
-			return DefWindowProc(hWnd, message, wParam, lParam);
-		}
-		break;
-	case WM_PAINT:
-		hdc = BeginPaint(hWnd, &ps);
-		// TODO: Add any drawing code here...
-		EndPaint(hWnd, &ps);
-		break;
-	case WM_DESTROY:
-		//PostQuitMessage(0);
-		break;
-	case WM_CLOSE:
-		if (appState == Live) EndLiveVis();
-		else if (appState = Replay) EndReplay();
-		DestroyWindow(hWnd);
-		break;
-	default:
-		return DefWindowProc(hWnd, message, wParam, lParam);
-	}
-	return 0;
+    switch (message)
+    {
+    case WM_COMMAND:
+        wmId = LOWORD(wParam);
+        wmEvent = HIWORD(wParam);
+        // Parse the menu selections:
+        switch (wmId)
+        {
+        case IDM_EXIT:
+            DestroyWindow(hWnd);
+            break;
+        default:
+            return DefWindowProc(hWnd, message, wParam, lParam);
+        }
+        break;
+    case WM_PAINT:
+        hdc = BeginPaint(hWnd, &ps);
+        // TODO: Add any drawing code here...
+        EndPaint(hWnd, &ps);
+        break;
+    case WM_DESTROY:
+        //PostQuitMessage(0);
+        break;
+    case WM_CLOSE:
+        if (appState == Live) EndLiveVis();
+        else if (appState = Replay) EndReplay();
+        DestroyWindow(hWnd);
+        break;
+    default:
+        return DefWindowProc(hWnd, message, wParam, lParam);
+    }
+    return 0;
 }
 
 // Message handler for about box.
 INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	UNREFERENCED_PARAMETER(lParam);
-	switch (message)
-	{
-	case WM_INITDIALOG:
-		return (INT_PTR)TRUE;
+    UNREFERENCED_PARAMETER(lParam);
+    switch (message)
+    {
+    case WM_INITDIALOG:
+        return (INT_PTR)TRUE;
 
-	case WM_COMMAND:
-		if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
-		{
-			EndDialog(hDlg, LOWORD(wParam));
-			return (INT_PTR)TRUE;
-		}
-		break;
-	}
-	return (INT_PTR)FALSE;
+    case WM_COMMAND:
+        if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
+        {
+            EndDialog(hDlg, LOWORD(wParam));
+            return (INT_PTR)TRUE;
+        }
+        break;
+    }
+    return (INT_PTR)FALSE;
 }

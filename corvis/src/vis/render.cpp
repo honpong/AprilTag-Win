@@ -90,18 +90,13 @@ void render::gl_init()
     program = p;
 }
 
-void render::draw_buffer(draw_item & item, VertexData * data, int number, int gl_type)
+void render::draw_array(VertexData * data, int number, int gl_type)
 {
-    glBindBuffer(GL_ARRAY_BUFFER, item.vertex_buffer_object[0]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData)*number, &data[0].position, GL_DYNAMIC_DRAW);
-    glEnableVertexAttribArray(vertex_loc);
-    glVertexAttribPointer(vertex_loc, 3, GL_FLOAT, 0, sizeof(VertexData), 0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, item.vertex_buffer_object[1]);
-    //TODO: is this copying too much data?
-    glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData)*number - sizeof(data[0].position), &data[0].color, GL_DYNAMIC_DRAW);
-    glEnableVertexAttribArray(color_loc);
-    glVertexAttribPointer(color_loc, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexData), 0);
+    // Draw the frame
+	glVertexAttribPointer(vertex_loc, 3, GL_FLOAT, 0, sizeof(VertexData), &data[0].position);
+	glEnableVertexAttribArray(vertex_loc);
+	glVertexAttribPointer(color_loc, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexData), &data[0].color);
+	glEnableVertexAttribArray(color_loc);
 
     glDrawArrays(gl_type, 0, number);
 }

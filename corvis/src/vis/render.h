@@ -4,10 +4,6 @@
 #include "gl_util.h"
 #include "world_state.h" // for VertexData
 
-typedef struct _draw_item {
-    GLuint vertex_buffer_object[2];
-} draw_item;
-
 class render
 {
 private:
@@ -19,7 +15,7 @@ public:
     void gl_init();
     void start_render(float * view_matrix, float * projection_matrix);
     void gl_destroy();
-    void draw_buffer(draw_item & item, VertexData * data, int number, int gl_type);
+    void draw_array(VertexData * data, int number, int gl_type);
 };
 
 #endif

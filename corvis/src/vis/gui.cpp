@@ -1,3 +1,4 @@
+#include <alloca.h>
 #include <limits>
 #include "gui.h"
 gui * gui::static_gui;
@@ -124,7 +125,7 @@ void gui::write_frame()
     state->image_lock.lock();
     const int W = state->last_image.width;
     const int H = state->last_image.height;
-    uint8_t image[W*H*4];
+    auto image = (uint8_t*)alloca(W*H*4);
     for(int i = 0; i < W*H; i++) {
         image[i*4 + 0] = state->last_image.image[i];
         image[i*4 + 1] = state->last_image.image[i];

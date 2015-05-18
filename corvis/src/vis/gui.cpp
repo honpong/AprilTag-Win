@@ -255,6 +255,7 @@ void gui::start_glfw()
     glfwDestroyWindow(main_window);
     glfwDestroyWindow(video_window);
     glfwTerminate();
+    std::cerr << "GUI closed, replay still running in realtime (press Ctrl+c to quit)\n";
 }
 
 

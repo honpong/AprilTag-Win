@@ -54,6 +54,9 @@
     <ClCompile Include="..\..\..\corvis\src\vis\video_render.cpp">
       <Filter>Source Files\corvis\vis</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\corvis\src\vis\render.cpp">
+      <Filter>Source Files\corvis\vis</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\corvis\src\vis\arcball.h">
@@ -78,6 +81,9 @@
       <Filter>Source Files\corvis\vis</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\corvis\src\vis\video_render.h">
+      <Filter>Source Files\corvis\vis</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\corvis\src\vis\render.h">
       <Filter>Source Files\corvis\vis</Filter>
     </ClInclude>
   </ItemGroup>

@@ -14,6 +14,9 @@ void world_state_render(world_state * world, float * _modelViewMatrix, float * _
 bool world_state_render_video_init();
 void world_state_render_video(world_state * world);
 void world_state_render_video_teardown();
+bool world_state_render_plot_init();
+void world_state_render_plot(world_state * world, int index);
+void world_state_render_plot_teardown();
 
 
 #endif

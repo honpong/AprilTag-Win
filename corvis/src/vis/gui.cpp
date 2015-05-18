@@ -159,6 +159,14 @@ void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int m
        create_plots();
     if(key == GLFW_KEY_F && action == GLFW_PRESS)
        write_frame();
+    if(key == GLFW_KEY_N && action == GLFW_PRESS)
+       current_plot = state->next_plot(current_plot);
+}
+
+void gui::render_plot()
+{
+    glViewport(0, 0, 600, 400);
+    world_state_render_plot(state, current_plot);
 }
 
 void gui::render_video()
@@ -233,6 +241,24 @@ void gui::start_glfw()
     gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
     world_state_render_video_init();
 
+    glfwWindowHint(GLFW_RESIZABLE, false);
+    glfwWindowHint(GLFW_VISIBLE, false);
+    GLFWwindow* plots_window = glfwCreateWindow(600, 400, "Replay Plots", NULL, NULL);
+    glfwSetKeyCallback(plots_window, gui::keyboard_callback);
+    if (!plots_window)
+    {
+        glfwTerminate();
+        exit(EXIT_FAILURE);
+    }
+    glfwSetWindowPos(plots_window, pos_x + width + 20, pos_y + height + 20);
+    if(show_plots)
+        glfwShowWindow(plots_window);
+    glfwMakeContextCurrent(plots_window);
+    glfwSwapInterval(1);
+
+    gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
+    world_state_render_plot_init();
+
     //fprintf(stderr, "OpenGL Version %d.%d loaded\n", GLVersion.major, GLVersion.minor);
 
     while (!glfwWindowShouldClose(main_window))
@@ -251,9 +277,20 @@ void gui::start_glfw()
             glfwSwapBuffers(video_window);
         }
         glfwPollEvents();
+
+        if(show_plots) {
+            std::string plot_title = state->plot_name(current_plot);
+            plot_title = "Plot: " + plot_title;
+            glfwSetWindowTitle(plots_window, plot_title.c_str());
+            glfwMakeContextCurrent(plots_window);
+            render_plot();
+            glfwSwapBuffers(plots_window);
+        }
+        glfwPollEvents();
     }
     glfwDestroyWindow(main_window);
     glfwDestroyWindow(video_window);
+    glfwDestroyWindow(plots_window);
     glfwTerminate();
     std::cerr << "GUI closed, replay still running in realtime (press Ctrl+c to quit)\n";
 }

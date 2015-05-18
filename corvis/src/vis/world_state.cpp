@@ -22,12 +22,39 @@ static VertexData orientation_data[] = {
 
 static std::size_t feature_ellipse_vertex_size = 30; // 15 segments
 static std::size_t max_plot_samples = 1000;
-void world_state::render_plots(std::function<void (plot&)> render_plot)
+void world_state::render_plots(std::function<void (plot&)> render_callback)
 {
     plot_lock.lock();
     for(auto &plot : plots)
-        render_plot(plot);
+        render_callback(plot);
     plot_lock.unlock();
+}
+
+void world_state::render_plot(int index, std::function<void (plot&)> render_callback)
+{
+    plot_lock.lock();
+    render_callback(plots[index]);
+    plot_lock.unlock();
+}
+
+std::string world_state::plot_name(int index)
+{
+    plot_lock.lock();
+    std::string name = "";
+    for(auto item : plots[index])
+        name += item.first + " ";
+    plot_lock.unlock();
+    return name;
+}
+
+int world_state::next_plot(int index)
+{
+    plot_lock.lock();
+    index++;
+    if(index >= (int)plots.size())
+        index = 0;
+    plot_lock.unlock();
+    return index;
 }
 
 void world_state::observe_plot_item(sensor_clock::time_point timestamp, int index, std::string name, float value)

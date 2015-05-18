@@ -38,6 +38,8 @@ private:
     void keyboard(GLFWwindow * window, int key, int scancode, int action, int mods);
     void render();
     void render_video();
+    void render_plot();
+    void next_plot();
 
     void write_frame();
 
@@ -46,6 +48,8 @@ private:
     float scale;
     int width, height;
 
+    std::atomic<int> current_plot{0};
+
     // Mouse related
     arcball arc;
     bool is_rotating{false};
@@ -53,7 +57,7 @@ private:
 
     // Display related
     GLFWwindow * main_window, * video_window, * plots_window;
-    bool show_main{true}, show_video{true}, show_plots{false};
+    bool show_main{true}, show_video{true}, show_plots{true};
 
 
     replay * replay_control;

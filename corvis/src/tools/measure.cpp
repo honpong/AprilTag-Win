@@ -39,8 +39,6 @@ int main(int c, char **v)
 
     gui vis(&ws, show_main, show_video, show_plots);
 
-    // TODO: make this a command line option
-    // For command line visualization
     if(rendername || enable_gui)
         camera_callback = [&](const filter * f, camera_data &&d) {
             ws.receive_camera(f, std::move(d));

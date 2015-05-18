@@ -239,5 +239,4 @@ gui::gui(world_state * world, bool show_main_, bool show_video_, bool show_plots
 
 gui::~gui()
 {
-    world_state_render_teardown();
 }

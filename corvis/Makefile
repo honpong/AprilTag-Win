@@ -2,12 +2,9 @@
 
 ############################ DEFINITIONS ###########################
 
-SWIG := swig
 WXGLADE := wxglade
 CC := gcc
 CXX := g++
-PYTHON_CFLAGS := $(shell python-config --includes) -I$(shell python -c 'import numpy; print numpy.__path__[0] + "/core/include"')
-PYTHON_LDFLAGS := $(shell python-config --libs)
 # -ftree-vectorize -ffast-math 
 CPPFLAGS = $(_CPPFLAGS) -Wall -g -fPIC -march=core2 -mfpmath=sse -O3 -D DEBUG
 _CPPFLAGS := \
@@ -19,10 +16,8 @@ LDFLAGS := -lpthread --warn-unresolved-symbols -O3 \
         -framework Accelerate \
         $(patsubst %,-L%/lib,$(wildcard $(shell brew --prefix boost mathgl gsl 2>/dev/null) /opt/local)) \
         $(shell pkg-config ftgl --libs)
-SWIGFLAGS = -w403,362,389,503,401,462,472,314,509,204
 
 CPPFLAGS  += -MP -MMD -MF $@.d
-SWIGFLAGS += -MP -MMD -MF $@.d
 
 ####################### RULES ######################################
 
@@ -33,7 +28,6 @@ all:
 Q=$(if $V,,@)
 _CC := $(CC)
 _CXX := $(CXX)
-_SWIG := $(SWIG)
 _AS := $(AS)
 _AR := $(AR)
 _WXGLADE := $(WXGLADE)
@@ -44,17 +38,11 @@ _WXGLADE := $(WXGLADE)
 %.S: override CXX=$(Q)printf "%32s %s\n" "Generating code" $<; $(_CXX)
 %.E: override CC=$(Q)printf "%32s %s\n" "Preprocessing" $<; $(_CC)
 %.E: override CXX=$(Q)printf "%32s %s\n" "Preprocessing" $<; $(_CXX)
-%.c: override SWIG=$(Q)printf "%32s %s\n" "SWIG Wrapping" $<; $(_SWIG)
-%.cpp: override SWIG=$(Q)printf "%32s %s\n" "SWIG Wrapping" $<; $(_SWIG)
 %.py: override WXGLADE=$(Q)printf "%32s %s\n" "Generating GUI" $<; $(_WXGLADE)
 %.o: override AS=$(Q)printf "%32s %s\n" "Assembling" $<; $(_AS)
 %.so: override CC=$(Q)printf "%32s %s\n" "Linking" $(@); $(_CC)
 %.a: override AR=$(Q)printf "%32s %s\n" "Archiving" $(@); $(_AR)
 bin/%:override CC=$(Q)printf "%32s %s\n" "Linking" $(@); $(_CC)
-
-%.py: %.wxg
-	@mkdir -p $(@D)
-	$(WXGLADE) -g python -o $@ $<
 
 %.a:
 	@mkdir -p $(@D)
@@ -63,18 +51,6 @@ bin/%:override CC=$(Q)printf "%32s %s\n" "Linking" $(@); $(_CC)
 %.so:
 	@mkdir -p $(@D)
 	$(CC) -shared -undefined suppress -flat_namespace $(LDFLAGS) $^ $(LDLIBS) -o $@
-
-bin/corvis/_%.so: LDGLAGS += $(PYTHON_LDFLAGS)
-
-build/swig/%.o: CPPFLAGS += $(PYTHON_CFLAGS)
-
-build/swig/_%.c: swig/_%.i
-	@mkdir -p $(@D) bin/corvis
-	$(SWIG) -python      -threads $(SWIGFLAGS) -o $@ -outdir bin/corvis -Isrc/$(*F) $<
-
-build/swig/_%.cpp: swig/_%.ipp
-	@mkdir -p $(@D) bin/corvis
-	$(SWIG) -python -c++ -threads $(SWIGFLAGS) -o $@ -outdir bin/corvis -Isrc/$(*F) $<
 
 build/%.o: src/%.c
 	@mkdir -p $(@D)
@@ -100,32 +76,25 @@ build/%.S: src/%.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -S -o $@ $<
 
-%/__init__.py:
-	@mkdir -p $(@D)
-	$(Q)touch $@
-
-
 ############################## COR ############################
 
 COR_SOURCES := $(addprefix src/cor/, packet.c mapbuffer.c timestamp.c plugins.c dispatch.c debug.c)
 COR_CXX_SOURCES := $(addprefix src/cor/, sensor_fusion_queue.cpp platform/shell/sensor_data.cpp platform/shell/sensor_clock.cpp)
 
-bin/corvis/_cor.so: $(patsubst src/%,build/%,$(COR_SOURCES:.c=.o)) $(patsubst src/%,build/%,$(COR_CXX_SOURCES:.cpp=.o)) build/swig/_cor.o
+bin/corvis/_cor.so: $(patsubst src/%,build/%,$(COR_SOURCES:.c=.o)) $(patsubst src/%,build/%,$(COR_CXX_SOURCES:.cpp=.o))
 
-TARGETS := $(TARGETS) build/swig/_cor.c bin/corvis/_cor.so bin/corvis/__init__.py
+TARGETS := $(TARGETS) bin/corvis/_cor.so
 SOURCES := $(SOURCES) $(COR_SOURCES)
 CXX_SOURCES := $(CXX_SOURCES) $(COR_CXX_SOURCES)
-DEPS := $(DEPS) build/swig/_cor.c.d
 
 ############################## NUMERICS ############################
 
 NUMERICS_CXX_SOURCES := $(addprefix src/numerics/, rotation_vector.cpp vec4.cpp matrix.cpp kalman.cpp)
 bin/corvis/_numerics.so: LDFLAGS := $(LDFLAGS) -lm -lcblas -llapack -lstdc++
-bin/corvis/_numerics.so: $(patsubst src/%,build/%,$(NUMERICS_CXX_SOURCES:.cpp=.o)) build/swig/_numerics.o
+bin/corvis/_numerics.so: $(patsubst src/%,build/%,$(NUMERICS_CXX_SOURCES:.cpp=.o))
 
-TARGETS := $(TARGETS) build/swig/_numerics.cpp bin/corvis/_numerics.so bin/corvis/__init__.py
+TARGETS := $(TARGETS) bin/corvis/_numerics.so
 CXX_SOURCES := $(CXX_SOURCES) $(NUMERICS_CXX_SOURCES)
-DEPS := $(DEPS) build/swig/_numerics.cpp.d
 
 ############################## FILTER ############################
 
@@ -133,13 +102,11 @@ FILTER_CXX_SOURCES := $(addprefix src/filter/, filter.cpp state_vision.cpp state
 
 FILTER_SOURCES :=
 
-#bin/swig/_filter.so: LDFLAGS := $(LDFLAGS) `pkg-config --libs opencv`
-bin/corvis/_filter.so:$(patsubst src/%,build/%,$(FILTER_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(FILTER_SOURCES:.c=.o)) bin/_libzxing.a build/swig/_filter.o
+bin/corvis/_filter.so:$(patsubst src/%,build/%,$(FILTER_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(FILTER_SOURCES:.c=.o)) bin/_libzxing.a
 
-TARGETS := $(TARGETS) build/swig/_filter.cpp bin/corvis/_filter.so bin/corvis/__init__.py
+TARGETS := $(TARGETS) bin/corvis/_filter.so
 CXX_SOURCES := $(CXX_SOURCES) $(FILTER_CXX_SOURCES)
 SOURCES := $(SOURCES) $(FILTER_SOURCES)
-DEPS := $(DEPS) build/swig/_filter.cpp.d
 
 ############################## VIS ################################
 
@@ -205,7 +172,7 @@ _CPPFLAGS := $(_CPPFLAGS) -Isrc/stereo -Isrc/filter -Isrc/qhull/src/libqhull/ -I
 
 bin/_stereo.so:$(patsubst src/%,build/%,$(STEREO_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(STEREO_SOURCES:.c=.o)) bin/_libDAI.so bin/_vl.so
 
-TARGETS := $(TARGETS) bin/_stereo.so bin/corvis/__init__.py
+TARGETS := $(TARGETS) bin/_stereo.so
 CXX_SOURCES := $(CXX_SOURCES) $(STEREO_CXX_SOURCES)
 SOURCES := $(SOURCES) $(STEREO_SOURCES)
 
@@ -275,7 +242,7 @@ _CPPFLAGS := $(_CPPFLAGS) -Iinclude -Isrc/glfw/deps/
 
 bin/measure: lib/libglfw3.a lib/libglad.a $(patsubst src/%,build/%,$(MEASURE_SOURCES:.c=.o)) $(patsubst src/%,build/%,$(MEASURE_CXX_SOURCES:.cpp=.o)) bin/_libzxing.a
 	@mkdir -p $(@D)
-	$(CC) $(LDFLAGS) $(shell pkg-config lib/pkgconfig/glfw3.pc --static --libs) $(PYTHON_LDFLAGS) $^ $(LDLIBS) -o $@
+	$(CC) $(LDFLAGS) $(shell pkg-config lib/pkgconfig/glfw3.pc --static --libs) $^ $(LDLIBS) -o $@
 
 TARGETS := $(TARGETS) bin/measure
 CXX_SOURCES := $(CXX_SOURCES) src/filter/replay.cpp src/tools/measure.cpp
@@ -299,18 +266,12 @@ build/$(d)/%.o: $(d)/%.cpp
 
 bin/test: build/$(d)/gtest_main.o build/$(d)/gtest-all.o $(patsubst test/%,build/test/%,$(TEST_CXX_SOURCES:.cpp=.o)) $(addprefix build/numerics/, rotation_vector.o vec4.o matrix.o) $(addprefix build/filter/, fast_detector/fast_9.o scaled_mask.o homography.o) $(addprefix build/cor/, sensor_fusion_queue.o platform/shell/sensor_data.o platform/shell/sensor_clock.o) bin/_stereo.so bin/_libDAI.so bin/_qhull.so
 	@mkdir -p $(@D)
-	$(CC) $(LDFLAGS) $(PYTHON_LDFLAGS) $^ $(LDLIBS) -o $@
+	$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
 TARGETS := $(TARGETS) bin/test
 #CXX_SOURCES := $(CXX_SOURCES) $(TEST_CXX_SOURCES)
 
 ##################################################################
-
-TARGETS := $(TARGETS) bin/__init__.py
-
-TARGETS := $(TARGETS) __init__.py
-__init__.py: bin/corvis/_cor.so bin/corvis/_filter.so bin/corvis/_numerics.so
-	$(Q)cd .. && python -c 'import corvis'
 
 DEPS := $(DEPS) $(patsubst src/%,build/%, $(SOURCES:.c=.o.d) $(CXX_SOURCES:.cpp=.o.d)) build/test/gtest_main.o.d build/test/gtest-all.o.d $(patsubst test/%,build/test/%, $(TEST_CXX_SOURCES:.cpp=.o.d))
 

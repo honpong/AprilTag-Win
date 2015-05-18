@@ -178,12 +178,21 @@ static inline void set_color(VertexData * vertex, unsigned char r, unsigned char
     vertex->color[3] = alpha;
 }
 
-static void rotate(float theta, float & x, float & y) 
+static inline void ellipse_segment(VertexData * v, const Feature & feat, float percent)
 {
-    float x_out = x*cos(theta) - y*sin(theta);
-    float y_out = x*sin(theta) + y*cos(theta);
+    float theta = (float)2*M_PI*percent + feat.ctheta;
+    float x = feat.cx/2.*cos(theta);
+    float y = feat.cy/2.*sin(theta);
+
+    //rotate
+    float x_out = x*cos(feat.ctheta) - y*sin(feat.ctheta);
+    float y_out = x*sin(feat.ctheta) + y*cos(feat.ctheta);
     x = x_out;
     y = y_out;
+
+    x += feat.image_x;
+    y += feat.image_y;
+    set_position(v, x, y, 0);
 }
 
 void world_state::generate_feature_ellipse(const Feature & feat, unsigned char r, unsigned char g, unsigned char b, unsigned char alpha)
@@ -195,21 +204,8 @@ void world_state::generate_feature_ellipse(const Feature & feat, unsigned char r
         VertexData * v2 = &feature_ellipse_vertex[feature_ellipse_vertex_num + i*2+1];
         set_color(v1, r, g, b, alpha);
         set_color(v2, r, g, b, alpha);
-        float theta1 = (float)2*M_PI*i/ellipse_segments + feat.ctheta;
-        float x1 = feat.cx/2.*cos(theta1);
-        float y1 = feat.cy/2.*sin(theta1);
-        rotate(feat.ctheta, x1, y1);
-        x1 += feat.image_x;
-        y1 += feat.image_y;
-        set_position(v1, x1, y1, 0);
-
-        float theta2 = (float)2*M_PI*(i+1)/ellipse_segments + feat.ctheta;
-        float x2 = feat.cx/2.*cos(theta2);
-        float y2 = feat.cy/2.*sin(theta2);
-        rotate(feat.ctheta, x2, y2);
-        x2 += feat.image_x;
-        y2 += feat.image_y;
-        set_position(v2, x2, y2, 0);
+        ellipse_segment(v1, feat, (float)i/ellipse_segments);
+        ellipse_segment(v2, feat, (float)(i+1)/ellipse_segments);
     }
     feature_ellipse_vertex_num += feature_ellipse_vertex_size;
 }

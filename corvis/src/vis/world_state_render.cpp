@@ -36,10 +36,14 @@ void world_state_render_video_teardown()
 
 void world_state_render_video(world_state * world)
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT);
+    world->display_lock.lock();
     world->image_lock.lock();
     frame_render.render(world->last_image.image, world->last_image.width, world->last_image.height, true);
+    glLineWidth(2.0f);
+    frame_render.draw_overlay(world->feature_ellipse_vertex, world->feature_ellipse_vertex_num, GL_LINES);
     world->image_lock.unlock();
+    world->display_lock.unlock();
 }
 
 void world_state_render(world_state * world, float * viewMatrix, float * projMatrix)

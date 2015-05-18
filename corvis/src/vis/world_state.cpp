@@ -20,6 +20,7 @@ static VertexData orientation_data[] = {
     {{0, 0, .5}, {0, 0, 255, 255}},
 };
 
+static std::size_t feature_ellipse_vertex_size = 30; // 15 segments
 static std::size_t max_plot_samples = 1000;
 void world_state::render_plots(std::function<void (plot&)> render_plot)
 {
@@ -58,14 +59,42 @@ void world_state::observe_image(sensor_clock::time_point timestamp, uint8_t * im
     image_lock.unlock();
 }
 
+static inline void compute_covariance_ellipse(state_vision_feature * feat, float & cx, float & cy, float & ctheta)
+{
+    //http://math.stackexchange.com/questions/8672/eigenvalues-and-eigenvectors-of-2-times-2-matrix
+    const static f_t chi_square_95 = 5.991;
+
+    f_t x = feat->innovation_variance_x;
+    f_t y = feat->innovation_variance_y;
+    f_t xy = feat->innovation_variance_xy;
+    f_t tau = 0;
+    if(xy != 0.)
+        tau = (y - x) / xy / 2.;
+    f_t t = (tau >= 0.) ? (1. / (fabs(tau) + sqrt(1. + tau * tau))) : (-1. / (fabs(tau) + sqrt(1. + tau * tau)));
+    f_t c = 1. / sqrt(1 + tau * tau);
+    f_t s = c * t;
+    f_t l1 = x - t * xy;
+    f_t l2 = y + t * xy;
+    f_t theta = atan2(-s, c);
+
+    cx = 2. * sqrt(l1 * chi_square_95); // ellipse width
+    cy = 2. * sqrt(l2 * chi_square_95); // ellipse height
+    ctheta = theta; // rotate
+}
+
 void world_state::receive_camera(const filter * f, camera_data &&d)
 {
     for(auto feat : f->s.features) {
         if(feat->is_valid()) {
             float stdev = (float)feat->v.stdev_meters(sqrt(feat->variance()));
             bool good = stdev / feat->v.depth() < .02;
+            float cx, cy, ctheta;
+            compute_covariance_ellipse(feat, cx, cy, ctheta);
+
             observe_feature(d.timestamp, feat->id,
-                            (float)feat->world[0], (float)feat->world[1], (float)feat->world[2], good);
+                            (float)feat->world[0], (float)feat->world[1], (float)feat->world[2],
+                            (float)feat->current[0], (float)feat->current[1],
+                            cx, cy, ctheta, good);
         }
     }
     observe_image(d.timestamp, d.image, d.width, d.height);
@@ -109,6 +138,7 @@ world_state::world_state()
 {
     path_vertex = (VertexData *)calloc(sizeof(VertexData), path_vertex_alloc);
     feature_vertex = (VertexData *)calloc(sizeof(VertexData), feature_vertex_alloc);
+    feature_ellipse_vertex = (VertexData *)calloc(sizeof(VertexData), feature_ellipse_vertex_alloc);
     build_grid_vertex_data();
     axis_vertex = axis_data;
     axis_vertex_num = 6;
@@ -125,6 +155,8 @@ world_state::~world_state()
         free(path_vertex);
     if(feature_vertex)
         free(feature_vertex);
+    if(feature_ellipse_vertex)
+        free(feature_ellipse_vertex);
     if(grid_vertex)
         free(grid_vertex);
     if(last_image.image)
@@ -146,6 +178,42 @@ static inline void set_color(VertexData * vertex, unsigned char r, unsigned char
     vertex->color[3] = alpha;
 }
 
+static void rotate(float theta, float & x, float & y) 
+{
+    float x_out = x*cos(theta) - y*sin(theta);
+    float y_out = x*sin(theta) + y*cos(theta);
+    x = x_out;
+    y = y_out;
+}
+
+void world_state::generate_feature_ellipse(const Feature & feat, unsigned char r, unsigned char g, unsigned char b, unsigned char alpha)
+{
+    int ellipse_segments = feature_ellipse_vertex_size/2;
+    for(int i = 0; i < ellipse_segments; i++)
+    {
+        VertexData * v1 = &feature_ellipse_vertex[feature_ellipse_vertex_num + i*2];
+        VertexData * v2 = &feature_ellipse_vertex[feature_ellipse_vertex_num + i*2+1];
+        set_color(v1, r, g, b, alpha);
+        set_color(v2, r, g, b, alpha);
+        float theta1 = (float)2*M_PI*i/ellipse_segments + feat.ctheta;
+        float x1 = feat.cx/2.*cos(theta1);
+        float y1 = feat.cy/2.*sin(theta1);
+        rotate(feat.ctheta, x1, y1);
+        x1 += feat.image_x;
+        y1 += feat.image_y;
+        set_position(v1, x1, y1, 0);
+
+        float theta2 = (float)2*M_PI*(i+1)/ellipse_segments + feat.ctheta;
+        float x2 = feat.cx/2.*cos(theta2);
+        float y2 = feat.cy/2.*sin(theta2);
+        rotate(feat.ctheta, x2, y2);
+        x2 += feat.image_x;
+        y2 += feat.image_y;
+        set_position(v2, x2, y2, 0);
+    }
+    feature_ellipse_vertex_num += feature_ellipse_vertex_size;
+}
+
 void world_state::update_vertex_arrays(bool show_only_good)
 {
     /*
@@ -156,21 +224,32 @@ void world_state::update_vertex_arrays(bool show_only_good)
 
     // reallocate if we now have more data than room for vertices
     if(feature_vertex_alloc < features.size()) {
-        feature_vertex = (VertexData *)realloc(feature_vertex, sizeof(VertexData)*features.size()*2);
+        feature_vertex_alloc = features.size()*2;
+        feature_vertex = (VertexData *)realloc(feature_vertex, sizeof(VertexData)*feature_vertex_alloc);
     }
     if(path_vertex_alloc < path.size()) {
-        path_vertex = (VertexData *)realloc(path_vertex, sizeof(VertexData)*features.size()*2);
+        path_vertex_alloc = path.size()*2;
+        path_vertex = (VertexData *)realloc(path_vertex, sizeof(VertexData)*path_vertex_alloc);
+    }
+    if(feature_ellipse_vertex_alloc < features.size()*feature_ellipse_vertex_size) {
+        feature_ellipse_vertex_alloc = features.size()*feature_ellipse_vertex_size*2;
+        feature_ellipse_vertex = (VertexData *)realloc(feature_ellipse_vertex, sizeof(VertexData)*feature_ellipse_vertex_alloc);
     }
 
+    feature_ellipse_vertex_num = 0;
     idx = 0;
     for(auto const & item : features) {
         //auto feature_id = item.first;
         auto f = item.second;
         if (f.last_seen == current_feature_timestamp) {
-            if(f.good)
+            if(f.good) {
+                generate_feature_ellipse(f, 88, 247, 98, 255);
                 set_color(&feature_vertex[idx], 88, 247, 98, 255);
-            else
+            }
+            else {
+                generate_feature_ellipse(f, 247, 88, 98, 255);
                 set_color(&feature_vertex[idx], 247, 88, 98, 255);
+            }
         }
         else {
             if (show_only_good && !f.good)
@@ -253,12 +332,17 @@ void world_state::build_grid_vertex_data()
     }
 }
 
-void world_state::observe_feature(sensor_clock::time_point timestamp, uint64_t feature_id, float x, float y, float z, bool good)
+void world_state::observe_feature(sensor_clock::time_point timestamp, uint64_t feature_id, float x, float y, float z, float image_x, float image_y, float cx, float cy, float ctheta, bool good)
 {
     Feature f;
     f.x = x;
     f.y = y;
     f.z = z;
+    f.image_x = image_x;
+    f.image_y = image_y;
+    f.cx = cx;
+    f.cy = cy;
+    f.ctheta = ctheta;
     f.last_seen = timestamp;
     f.good = good;
     display_lock.lock();

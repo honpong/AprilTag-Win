@@ -104,7 +104,6 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\corvis\src\cor\platform\win\sensor_data.cpp" />
     <ClCompile Include="IMUManager.cpp" />
     <ClCompile Include="LocationManager.cpp" />
     <ClCompile Include="RCUtility.cpp" />

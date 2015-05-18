@@ -87,6 +87,9 @@
     <ClCompile Include="..\..\..\corvis\src\cor\platform\win\sensor_clock.cpp">
       <Filter>Source Files\corvis\cor</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\corvis\src\cor\platform\win\sensor_data.cpp">
+      <Filter>Source Files\corvis\cor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\corvis\src\filter\capture.h">
@@ -166,6 +169,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\corvis\src\numerics\vec4.h">
       <Filter>Source Files\corvis\numerics</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\corvis\src\cor\platform\sensor_data.h">
+      <Filter>Source Files\corvis\cor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\corvis\src\cor\platform\sensor_clock.h">
+      <Filter>Source Files\corvis\cor</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

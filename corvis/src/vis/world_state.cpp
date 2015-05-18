@@ -38,17 +38,6 @@ void world_state::render_plot(int index, std::function<void (plot&)> render_call
     plot_lock.unlock();
 }
 
-std::string world_state::plot_name(int index)
-{
-    plot_lock.lock();
-    std::string name = "";
-    if(index < (int)plots.size() && index >= 0)
-        for(auto item : plots[index])
-            name += item.first + " ";
-    plot_lock.unlock();
-    return name;
-}
-
 int world_state::next_plot(int index)
 {
     plot_lock.lock();

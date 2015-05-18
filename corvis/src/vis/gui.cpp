@@ -209,9 +209,6 @@ void gui::start_glfw()
         glfwPollEvents();
 
         if(show_plots) {
-            std::string plot_title = state->plot_name(current_plot);
-            plot_title = "Plot: " + plot_title;
-            glfwSetWindowTitle(plots_window, plot_title.c_str());
             glfwMakeContextCurrent(plots_window);
             render_plot();
             glfwSwapBuffers(plots_window);

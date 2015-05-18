@@ -54,7 +54,7 @@ class TestRunner(object):
 
   def run_subprocess(self, test_case):
     print "Running ", test_case["path"], "using bin/measure"; sys.stdout.flush();
-    args = ["../corvis/bin/measure", os.path.join(self.input_dir, test_case["path"]), test_case["config"]]
+    args = ["../corvis/bin/measure", os.path.join(self.input_dir, test_case["path"]), test_case["config"], "--no-gui"]
     if self.output_dir is not None:
         test_case["image"] = "%s.png" % test_case["path"]
         image = os.path.join(output_dir, test_case["image"])

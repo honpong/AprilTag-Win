@@ -15,12 +15,12 @@ int main(int c, char **v)
     world_state ws;
 
     bool realtime = false;
-    bool enable_gui = false, show_plots = true, show_video = true, show_main = true;
+    bool enable_gui = true, show_plots = true, show_video = true, show_main = true;
     char *devicename = nullptr, *filename = nullptr, *rendername = nullptr;
     for (int i=1; i<c; i++)
         if      (v[i][0] != '-' && !filename) filename = v[i];
         else if (v[i][0] != '-' && !devicename) devicename = v[i];
-        else if (strcmp(v[i], "--gui") == 0) enable_gui = true;
+        else if (strcmp(v[i], "--no-gui") == 0) enable_gui = false;
         else if (strcmp(v[i], "--realtime") == 0) realtime = true;
         else if (strcmp(v[i], "--no-plots") == 0) show_plots = false;
         else if (strcmp(v[i], "--no-video") == 0) show_video = false;

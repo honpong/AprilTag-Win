@@ -98,12 +98,8 @@ static void create_plot(world_state * state, int index)
     if(!plot_frame)
         plot_frame = (uint8_t *)malloc(plot_width*plot_height*4*sizeof(uint8_t));
 
-    bool has_plot = false;
-
     // mglData stores the x and y data to be plotted
     state->render_plot(index, [&] (world_state::plot &plot) {
-        if(has_plot)
-            return;
         gr.NewFrame();
         gr.Alpha(false);
         gr.Clf('w');
@@ -151,7 +147,6 @@ static void create_plot(world_state * state, int index)
         //unsigned error = lodepng::encode(filename.c_str(), plot_frame, plot_width, plot_height);
         //if(error)
         //    fprintf(stderr, "encoder error %d: %s\n", error, lodepng_error_text(error));
-        has_plot = true;
     });
 }
 #endif //WIN32

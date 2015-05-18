@@ -16,8 +16,8 @@ void gui::configure_view()
     float aspect = 1.f*width/height;
     float nearclip = 0.1f;
     float farclip = 30.f;
-    if(scale > farclip) farclip = scale*1.5;
-    if(scale < nearclip) nearclip = scale*0.75;
+    if(scale > farclip) farclip = scale*1.5f;
+    if(scale < nearclip) nearclip = scale*0.75f;
     build_projection_matrix(_projectionMatrix, 60.0f, aspect, nearclip, farclip);
 
     m4 R = to_rotation_matrix(arc.get_quaternion());
@@ -32,7 +32,7 @@ void gui::configure_view()
 void gui::mouse_move(GLFWwindow * window, double x, double y)
 {
     if(is_rotating)
-        arc.continue_rotation(x, y);
+        arc.continue_rotation((float)x, (float)y);
 }
 
 void gui::mouse(GLFWwindow * window, int button, int action, int mods)
@@ -40,7 +40,7 @@ void gui::mouse(GLFWwindow * window, int button, int action, int mods)
     double x, y;
     glfwGetCursorPos(window, &x, &y);
     if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-        arc.start_rotation(x, y);
+        arc.start_rotation((float)x, (float)y);
         is_rotating = true;
     }
     else if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
@@ -50,7 +50,7 @@ void gui::mouse(GLFWwindow * window, int button, int action, int mods)
 
 void gui::scroll(GLFWwindow * window, double xoffset, double yoffset)
 {
-    scale *= (1+yoffset*.05);
+    scale *= (1 + (float)yoffset*.05f);
 }
 
 #ifdef WIN32
@@ -148,9 +148,9 @@ void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int m
     if(key == GLFW_KEY_0 && action == GLFW_PRESS)
         scale = initial_scale;
     if(key == GLFW_KEY_EQUAL && action == GLFW_PRESS)
-        scale *= 1/1.1;
+        scale *= 1/1.1f;
     if(key == GLFW_KEY_MINUS && action == GLFW_PRESS)
-        scale *= 1.1;
+        scale *= 1.1f;
     if(key == GLFW_KEY_SPACE && action == GLFW_PRESS)
        replay_control->toggle_pause();
     if(key == GLFW_KEY_S && action == GLFW_PRESS)

@@ -147,10 +147,10 @@ void video_render::render(uint8_t * image, int width, int height, bool luminance
     glUniform1f(height_2_loc, height_2);
 
     // Draw the frame
-    video_vertex[0] = 0;     video_vertex[1] = 0; // upper left
-    video_vertex[2] = width; video_vertex[3] = 0; // upper right
-    video_vertex[4] = 0;     video_vertex[5] = height; // lower left
-    video_vertex[6] = width; video_vertex[7] = height; // lower right
+    video_vertex[0] = 0;            video_vertex[1] = 0; // upper left
+    video_vertex[2] = (float)width; video_vertex[3] = 0; // upper right
+    video_vertex[4] = 0;            video_vertex[5] = (float)height; // lower left
+    video_vertex[6] = (float)width; video_vertex[7] = (float)height; // lower right
     glVertexAttribPointer(vertex_loc, 2, GL_FLOAT, 0, 0, video_vertex);
     glEnableVertexAttribArray(vertex_loc);
     glVertexAttribPointer(texture_coord_loc, 2, GL_FLOAT, 0, 0, texture_coord);

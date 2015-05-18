@@ -33,7 +33,7 @@ void world_state::render_plots(std::function<void (plot&)> render_plot)
 void world_state::observe_plot_item(sensor_clock::time_point timestamp, int index, std::string name, float value)
 {
     plot_lock.lock();
-    if (index+1 > plots.size())
+    if (index+1 > (int)plots.size())
         plots.resize(index+1);
     auto &plot = plots[index][name];
     plot.push_back(plot_item(timestamp, value));
@@ -62,24 +62,24 @@ void world_state::observe_image(sensor_clock::time_point timestamp, uint8_t * im
 static inline void compute_covariance_ellipse(state_vision_feature * feat, float & cx, float & cy, float & ctheta)
 {
     //http://math.stackexchange.com/questions/8672/eigenvalues-and-eigenvectors-of-2-times-2-matrix
-    const static f_t chi_square_95 = 5.991;
+    const static float chi_square_95 = 5.991f;
 
-    f_t x = feat->innovation_variance_x;
-    f_t y = feat->innovation_variance_y;
-    f_t xy = feat->innovation_variance_xy;
-    f_t tau = 0;
-    if(xy != 0.)
-        tau = (y - x) / xy / 2.;
-    f_t t = (tau >= 0.) ? (1. / (fabs(tau) + sqrt(1. + tau * tau))) : (-1. / (fabs(tau) + sqrt(1. + tau * tau)));
-    f_t c = 1. / sqrt(1 + tau * tau);
-    f_t s = c * t;
-    f_t l1 = x - t * xy;
-    f_t l2 = y + t * xy;
-    f_t theta = atan2(-s, c);
+    float x = (float)feat->innovation_variance_x;
+    float y = (float)feat->innovation_variance_y;
+    float xy = (float)feat->innovation_variance_xy;
+    float tau = 0;
+    if(xy != 0.f)
+        tau = (y - x) / xy / 2.f;
+    float t = (tau >= 0.) ? (1.f / (fabs(tau) + sqrt(1.f + tau * tau))) : (-1.f / (fabs(tau) + sqrt(1.f + tau * tau)));
+    float c = 1.f / sqrt(1.f + tau * tau);
+    float s = c * t;
+    float l1 = x - t * xy;
+    float l2 = y + t * xy;
+    float theta = atan2(-s, c);
 
-    cx = 2. * sqrt(l1 * chi_square_95); // ellipse width
-    cy = 2. * sqrt(l2 * chi_square_95); // ellipse height
-    ctheta = theta; // rotate
+    cx = (float)2. * sqrt(l1 * chi_square_95); // ellipse width
+    cy = (float)2. * sqrt(l2 * chi_square_95); // ellipse height
+    ctheta = (float)theta; // rotate
 }
 
 void world_state::receive_camera(const filter * f, camera_data &&d)
@@ -180,9 +180,9 @@ static inline void set_color(VertexData * vertex, unsigned char r, unsigned char
 
 static inline void ellipse_segment(VertexData * v, const Feature & feat, float percent)
 {
-    float theta = (float)2*M_PI*percent + feat.ctheta;
-    float x = feat.cx/2.*cos(theta);
-    float y = feat.cy/2.*sin(theta);
+    float theta = (float)(2*M_PI*percent) + feat.ctheta;
+    float x = feat.cx/2.f*cos(theta);
+    float y = feat.cy/2.f*sin(theta);
 
     //rotate
     float x_out = x*cos(feat.ctheta) - y*sin(feat.ctheta);
@@ -275,7 +275,7 @@ void world_state::update_vertex_arrays(bool show_only_good)
         }
         else
             set_color(&path_vertex[idx], 0, 178, 206, 255); // path color
-        set_position(&path_vertex[idx], p.g.T.x(), p.g.T.y(), p.g.T.z());
+        set_position(&path_vertex[idx], (float)p.g.T.x(), (float)p.g.T.y(), (float)p.g.T.z());
         idx++;
     }
     path_vertex_num = idx;
@@ -310,21 +310,21 @@ void world_state::build_grid_vertex_data()
         set_position(&grid_vertex[idx++], 10*scale, -0, 0);
 
         set_color(&grid_vertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&grid_vertex[idx++], 0, -.1*scale, x);
+        set_position(&grid_vertex[idx++], 0, -.1f*scale, x);
         set_color(&grid_vertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&grid_vertex[idx++], 0, .1*scale, x);
+        set_position(&grid_vertex[idx++], 0, .1f*scale, x);
         set_color(&grid_vertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&grid_vertex[idx++], -.1*scale, 0, x);
+        set_position(&grid_vertex[idx++], -.1f*scale, 0, x);
         set_color(&grid_vertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&grid_vertex[idx++], .1*scale, 0, x);
+        set_position(&grid_vertex[idx++], .1f*scale, 0, x);
         set_color(&grid_vertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&grid_vertex[idx++], 0, -.1*scale, -x);
+        set_position(&grid_vertex[idx++], 0, -.1f*scale, -x);
         set_color(&grid_vertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&grid_vertex[idx++], 0, .1*scale, -x);
+        set_position(&grid_vertex[idx++], 0, .1f*scale, -x);
         set_color(&grid_vertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&grid_vertex[idx++], -.1*scale, 0, -x);
+        set_position(&grid_vertex[idx++], -.1f*scale, 0, -x);
         set_color(&grid_vertex[idx], gridColor[0], gridColor[1], gridColor[2], gridColor[3]);
-        set_position(&grid_vertex[idx++], .1*scale, 0, -x);
+        set_position(&grid_vertex[idx++], .1f*scale, 0, -x);
     }
 }
 

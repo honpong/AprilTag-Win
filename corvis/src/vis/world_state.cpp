@@ -33,7 +33,8 @@ void world_state::render_plots(std::function<void (plot&)> render_callback)
 void world_state::render_plot(int index, std::function<void (plot&)> render_callback)
 {
     plot_lock.lock();
-    render_callback(plots[index]);
+    if(index < (int)plots.size() && index >= 0)
+        render_callback(plots[index]);
     plot_lock.unlock();
 }
 
@@ -41,8 +42,9 @@ std::string world_state::plot_name(int index)
 {
     plot_lock.lock();
     std::string name = "";
-    for(auto item : plots[index])
-        name += item.first + " ";
+    if(index < (int)plots.size() && index >= 0)
+        for(auto item : plots[index])
+            name += item.first + " ";
     plot_lock.unlock();
     return name;
 }

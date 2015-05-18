@@ -70,16 +70,16 @@ class stdev_vector
 {
 public:
     v4 sum, mean, M2;
-    f_t max;
+    f_t maximum;
     v4 variance, stdev;
     uint64_t count;
-    stdev_vector(): sum(v4::Zero()), mean(v4::Zero()), M2(v4::Zero()), max(0.), variance(v4::Zero()), stdev(v4::Zero()), count(0) {}
+    stdev_vector(): sum(v4::Zero()), mean(v4::Zero()), M2(v4::Zero()), maximum(0.), variance(v4::Zero()), stdev(v4::Zero()), count(0) {}
     void data(const v4 &x) {
         ++count;
         v4 delta = x - mean;
         mean = mean + delta / (f_t)count;
         M2 = M2 + delta.cwiseProduct(x - mean);
-        if(x.norm() > max) max = x.norm();
+        if(x.norm() > maximum) maximum = x.norm();
         variance = M2 / (f_t)(count - 1);
         stdev = v4(sqrt(variance[0]), sqrt(variance[1]), sqrt(variance[2]), sqrt(variance[3]));
     }
@@ -87,23 +87,23 @@ public:
 
 static inline std::ostream& operator<<(std::ostream &stream, const stdev_vector &v)
 {
-    return stream << "mean is: " << v.mean << ", stdev is: " << v.stdev << ", max is: " << v.max << std::endl;
+    return stream << "mean is: " << v.mean << ", stdev is: " << v.stdev << ", maximum is: " << v.maximum << std::endl;
 }
 
 class stdev_scalar
 {
 public:
     double sum, mean, M2;
-    f_t max;
+    f_t maximum;
     f_t variance, stdev;
     uint64_t count;
-    stdev_scalar(): sum(0.), mean(0.), M2(0.), max(0.), variance(0.), stdev(0.), count(0) {}
+    stdev_scalar(): sum(0.), mean(0.), M2(0.), maximum(0.), variance(0.), stdev(0.), count(0) {}
     void data(const f_t &x) {
         ++count;
         double delta = x - mean;
         mean = mean + delta / count;
         M2 = M2 + delta * (x - mean);
-        if(x > max) max = x;
+        if(x > maximum) maximum = x;
         variance = M2 / (count - 1);
         stdev = sqrt(variance);
     }
@@ -111,7 +111,7 @@ public:
 
 static inline std::ostream& operator<<(std::ostream &stream, const stdev_scalar &s)
 {
-    return stream << "mean is: " << s.mean << ", stdev is: " << s.stdev << ", max is: " << s.max << std::endl;
+    return stream << "mean is: " << s.mean << ", stdev is: " << s.stdev << ", maximum is: " << s.maximum << std::endl;
 }
 
 class v4_lowpass {

@@ -167,6 +167,12 @@
 		D3791CA31AE12AE200D35EF4 /* RCDebugLog.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D33E9D201ADD14600085F35C /* RCDebugLog.h */; };
 		D3931E1B1A2217E5008F8940 /* random.c in Sources */ = {isa = PBXBuildFile; fileRef = D3931E191A2217D8008F8940 /* random.c */; };
 		D3931E1E1A221853008F8940 /* host.c in Sources */ = {isa = PBXBuildFile; fileRef = D3931E1C1A221850008F8940 /* host.c */; };
+		D3AF77121B09E94E00BF9436 /* render.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3AF770E1B09E94E00BF9436 /* render.cpp */; };
+		D3AF77131B09E94E00BF9436 /* video_render.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3AF770F1B09E94E00BF9436 /* video_render.cpp */; };
+		D3AF77141B09ED4800BF9436 /* render.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3AF770E1B09E94E00BF9436 /* render.cpp */; };
+		D3AF77151B09ED5000BF9436 /* render.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3AF770E1B09E94E00BF9436 /* render.cpp */; };
+		D3AF77161B09ED5500BF9436 /* video_render.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3AF770F1B09E94E00BF9436 /* video_render.cpp */; };
+		D3AF77171B09ED5600BF9436 /* video_render.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3AF770F1B09E94E00BF9436 /* video_render.cpp */; };
 		D3B4EACA1A1E7DE100BE0443 /* RCLicenseError.m in Sources */ = {isa = PBXBuildFile; fileRef = 328A4DD41950D5F400587949 /* RCLicenseError.m */; };
 		D3B4EAD11A1E7DE100BE0443 /* RCVector.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B556818EB4DC20001CCE1 /* RCVector.m */; };
 		D3B4EAD21A1E7DE100BE0443 /* filter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55A718EB4F3A0001CCE1 /* filter.cpp */; };
@@ -638,6 +644,10 @@
 		D392F8081A1E010E00BBB1FF /* camera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = camera.h; sourceTree = "<group>"; };
 		D3931E191A2217D8008F8940 /* random.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = random.c; sourceTree = "<group>"; };
 		D3931E1C1A221850008F8940 /* host.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = host.c; sourceTree = "<group>"; };
+		D3AF770E1B09E94E00BF9436 /* render.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = render.cpp; path = ../../corvis/src/vis/render.cpp; sourceTree = "<group>"; };
+		D3AF770F1B09E94E00BF9436 /* video_render.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = video_render.cpp; path = ../../corvis/src/vis/video_render.cpp; sourceTree = "<group>"; };
+		D3AF77101B09E94E00BF9436 /* video_render.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = video_render.h; path = ../../corvis/src/vis/video_render.h; sourceTree = "<group>"; };
+		D3AF77111B09E94E00BF9436 /* render.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = render.h; path = ../../corvis/src/vis/render.h; sourceTree = "<group>"; };
 		D3B4EABD1A1E7DCC00BE0443 /* RC3DKPlus.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RC3DKPlus.h; path = RC3DK/RC3DKPlus.h; sourceTree = "<group>"; };
 		D3B4EB591A1E7DE100BE0443 /* libRC3DKPlus.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRC3DKPlus.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		D3C0EDF81A37B4DC00423EDE /* qr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = qr.cpp; sourceTree = "<group>"; };
@@ -1113,12 +1123,16 @@
 		D326CED81ADFD82C003B026B /* vis */ = {
 			isa = PBXGroup;
 			children = (
-				D34A0BEB1ADFFA33008DFCCF /* arcball.h */,
 				D34A0BEA1ADFFA33008DFCCF /* arcball.cpp */,
+				D34A0BEB1ADFFA33008DFCCF /* arcball.h */,
 				D94AFD811B04048F00CB08C0 /* gl_util.cpp */,
 				D94AFD821B04048F00CB08C0 /* gl_util.h */,
-				D34A0BE61ADFE621008DFCCF /* world_state.h */,
+				D3AF770E1B09E94E00BF9436 /* render.cpp */,
+				D3AF77111B09E94E00BF9436 /* render.h */,
+				D3AF770F1B09E94E00BF9436 /* video_render.cpp */,
+				D3AF77101B09E94E00BF9436 /* video_render.h */,
 				D34A0BE71ADFE621008DFCCF /* world_state.cpp */,
+				D34A0BE61ADFE621008DFCCF /* world_state.h */,
 				D3696B9E1AE508880026E67B /* world_state_render.cpp */,
 				D3696B9F1AE508880026E67B /* world_state_render.h */,
 			);
@@ -1584,6 +1598,7 @@
 				327B553B18EB4D720001CCE1 /* RCAFXMLRequestOperation.m in Sources */,
 				327B55C318EB4F3A0001CCE1 /* state_motion.cpp in Sources */,
 				D33E61E31ADE6A6B00569C82 /* RCCaptureManager.mm in Sources */,
+				D3AF77131B09E94E00BF9436 /* video_render.cpp in Sources */,
 				327B559918EB4F260001CCE1 /* packet.c in Sources */,
 				328A4DD21950D52000587949 /* RCSensorFusionError.m in Sources */,
 				327B553418EB4D720001CCE1 /* RCAFHTTPClient.m in Sources */,
@@ -1597,6 +1612,7 @@
 				D95409B01AC1019200706A24 /* sensor_clock.cpp in Sources */,
 				327B553918EB4D720001CCE1 /* RCAFPropertyListRequestOperation.m in Sources */,
 				38EDF0771AD43D2500F0A322 /* rotation_vector.cpp in Sources */,
+				D3AF77121B09E94E00BF9436 /* render.cpp in Sources */,
 				327B557818EB4DC20001CCE1 /* RCSensorFusionData.m in Sources */,
 				D95EB18C1AA50AF200ADFC20 /* sensor_fusion.cpp in Sources */,
 				D3696BA01AE508880026E67B /* world_state_render.cpp in Sources */,
@@ -1619,6 +1635,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				D35BF0E81ADD11DB00BF3CB0 /* RoundedButton.m in Sources */,
+				D3AF77171B09ED5600BF9436 /* video_render.cpp in Sources */,
 				D35BF0AD1ADD111500BF3CB0 /* AppDelegate.m in Sources */,
 				D94AFD851B04048F00CB08C0 /* gl_util.cpp in Sources */,
 				D35BF0AA1ADD111500BF3CB0 /* main.m in Sources */,
@@ -1627,6 +1644,7 @@
 				D35BF0E71ADD11DB00BF3CB0 /* ReplayViewController.m in Sources */,
 				D35BF0F91ADD122800BF3CB0 /* RCCalibration1.m in Sources */,
 				D35BF0E41ADD11DB00BF3CB0 /* CaptureFilename.m in Sources */,
+				D3AF77151B09ED5000BF9436 /* render.cpp in Sources */,
 				D35BF0FB1ADD122800BF3CB0 /* RCCalibration3.m in Sources */,
 				D326CED71ADFC62C003B026B /* CaptureViewController.mm in Sources */,
 				D35BF0FA1ADD122800BF3CB0 /* RCCalibration2.m in Sources */,
@@ -1665,8 +1683,10 @@
 				D3B4EAD81A1E7DE100BE0443 /* RCAFJSONRequestOperation.m in Sources */,
 				D34A0BED1ADFFA36008DFCCF /* arcball.cpp in Sources */,
 				D3588EF41A20C04300CA10E7 /* trwbp.cpp in Sources */,
+				D3AF77141B09ED4800BF9436 /* render.cpp in Sources */,
 				D3588F0B1A20C50200CA10E7 /* usermem.c in Sources */,
 				D3588EFE1A20C34400CA10E7 /* qset.c in Sources */,
+				D3AF77161B09ED5500BF9436 /* video_render.cpp in Sources */,
 				D3B4EADA1A1E7DE100BE0443 /* state.cpp in Sources */,
 				D33E61E41ADE7C0900569C82 /* RCCaptureManager.mm in Sources */,
 				D3B4EADB1A1E7DE100BE0443 /* RCDeviceInfo.m in Sources */,

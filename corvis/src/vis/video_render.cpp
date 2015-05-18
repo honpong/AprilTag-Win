@@ -9,12 +9,14 @@ static const char * video_vs =
 "attribute vec2 inputTextureCoordinate;\n"
 "attribute vec4 color;\n"
 "varying vec4 color_fs;\n"
+"uniform float width_2;\n"
+"uniform float height_2;\n"
 
 "varying vec2 textureCoordinate;\n"
 
 "void main()\n"
 "{\n"
-"    gl_Position = vec4(videoPosition.xy, 0, 1);\n"
+"    gl_Position = vec4((videoPosition.x - width_2)/width_2, -(videoPosition.y - height_2)/height_2, 0, 1);\n"
 "    textureCoordinate = inputTextureCoordinate.xy;\n"
 "    color_fs = color;\n"
 "}\n";
@@ -42,18 +44,18 @@ static const char * video_fs =
 "  }\n"
 "}";
 
-static const GLfloat video_vertex[] = {
-    -1.0f, -1.0f,
-    1.0f, -1.0f,
+static GLfloat video_vertex[] = {
     -1.0f,  1.0f,
-    1.0f,  1.0f,
+     1.0f,  1.0f,
+    -1.0f, -1.0f,
+     1.0f, -1.0f,
 };
 
 static const GLfloat texture_coord[] = {
-    0.0f,  1.0f,
-    1.0f, 1.0f,
     0.0f,  0.0f,
-    1.0f, 0.0f,
+    1.0f,  0.0f,
+    0.0f,  1.0f,
+    1.0f,  1.0f,
 };
 
 static GLuint setup_video_shaders() {
@@ -96,6 +98,8 @@ void video_render::gl_init()
     channels_loc = glGetUniformLocation(program, "channels");
 
     use_texture_loc = glGetUniformLocation(program, "useTexture");
+    width_2_loc = glGetUniformLocation(program, "width_2");
+    height_2_loc = glGetUniformLocation(program, "height_2");
 
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
@@ -112,6 +116,8 @@ void video_render::gl_destroy()
 
 void video_render::render(uint8_t * image, int width, int height, bool luminance)
 {
+    width_2 = width/2.f;
+    height_2 = height/2.f;
     int use_texture = 1;
     int channels = 4; // RGBA
     if(luminance)
@@ -133,7 +139,14 @@ void video_render::render(uint8_t * image, int width, int height, bool luminance
     glUniform1i(channels_loc, channels);
     glUniform1i(use_texture_loc, use_texture);
 
+    glUniform1f(width_2_loc, width_2);
+    glUniform1f(height_2_loc, height_2);
+
     // Draw the frame
+    video_vertex[0] = 0;     video_vertex[1] = 0; // upper left
+    video_vertex[2] = width; video_vertex[3] = 0; // upper right
+    video_vertex[4] = 0;     video_vertex[5] = height; // lower left
+    video_vertex[6] = width; video_vertex[7] = height; // lower right
     glVertexAttribPointer(vertex_loc, 2, GL_FLOAT, 0, 0, video_vertex);
     glEnableVertexAttribArray(vertex_loc);
     glVertexAttribPointer(texture_coord_loc, 2, GL_FLOAT, 0, 0, texture_coord);
@@ -148,6 +161,8 @@ void video_render::draw_overlay(VertexData * data, int number, int gl_type)
     int use_texture = 0;
     glUseProgram(program);
     glUniform1i(use_texture_loc, use_texture);
+    glUniform1f(width_2_loc, width_2);
+    glUniform1f(height_2_loc, height_2);
 
     // Draw the frame
     glVertexAttribPointer(vertex_loc, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &data[0].position);

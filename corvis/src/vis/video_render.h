@@ -12,6 +12,8 @@ private:
     GLuint frame_loc, channels_loc;
     GLuint color_loc, use_texture_loc;
     GLuint texture;
+    GLuint width_2_loc, height_2_loc;
+    float width_2, height_2;
 
 public:
     void gl_init();

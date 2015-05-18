@@ -1,4 +1,6 @@
+#ifndef WIN32
 #include <alloca.h>
+#endif
 #include <limits>
 #include "gui.h"
 gui * gui::static_gui;

@@ -28,13 +28,6 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--render") == 0 && i+1 < c) rendername = v[++i];
         else goto usage;
 
-// On windows, if we don't specify a device name, silently default to
-// ipad3 configuration
-#ifdef WIN32
-    if (!devicename)
-        devicename = "ipad3";
-#endif
-
     if (!filename || !devicename)
         goto usage;
 

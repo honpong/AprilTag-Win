@@ -107,6 +107,7 @@ static void create_plot(world_state * state, int index)
         gr.NewFrame();
         gr.Alpha(false);
         gr.Clf('w');
+        gr.SubPlot(1,1,0,"T");
         gr.Box();
         float minx = std::numeric_limits<float>::max(), maxx = std::numeric_limits<float>::min();
         float miny = std::numeric_limits<float>::max(), maxy = std::numeric_limits<float>::min();
@@ -115,7 +116,7 @@ static void create_plot(world_state * state, int index)
 
         for (auto &kv : plot) {
             const std::string &name = kv.first; const plot_data &p = kv.second;
-            names += (names.size() ? "-" : "") + name;
+            names += (names.size() ? " " : "") + name;
 
             mglData data_x(p.size());
             mglData data_y(p.size());
@@ -141,11 +142,12 @@ static void create_plot(world_state * state, int index)
 
 
         gr.Axis();
+        gr.Title(names.c_str(),"k",6);
         gr.EndFrame();
-        std::string filename = names + ".png";
         gr.GetRGBA((char *)plot_frame, plot_width*plot_height*4);
 
         //Encode the image
+        //std::string filename = names + ".png";
         //unsigned error = lodepng::encode(filename.c_str(), plot_frame, plot_width, plot_height);
         //if(error)
         //    fprintf(stderr, "encoder error %d: %s\n", error, lodepng_error_text(error));

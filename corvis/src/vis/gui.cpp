@@ -254,7 +254,6 @@ void gui::start_glfw()
     }
     glfwDestroyWindow(main_window);
     glfwDestroyWindow(video_window);
-    glfwDestroyWindow(plots_window);
     glfwTerminate();
 }
 

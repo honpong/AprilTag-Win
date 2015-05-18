@@ -27,8 +27,6 @@ private:
     float _projectionMatrix[16]; // 4x4
     float _modelViewMatrix[16]; // 4x4
 
-    void create_plots();
-
     void start_glfw();
     void init_gl();
     void configure_view();

@@ -38,7 +38,6 @@
 		327B557A18EB4DC20001CCE1 /* RCTransformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B556418EB4DC20001CCE1 /* RCTransformation.m */; };
 		327B557B18EB4DC20001CCE1 /* RCTranslation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B556618EB4DC20001CCE1 /* RCTranslation.m */; };
 		327B557C18EB4DC20001CCE1 /* RCVector.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B556818EB4DC20001CCE1 /* RCVector.m */; };
-		327B559918EB4F260001CCE1 /* packet.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B558F18EB4F250001CCE1 /* packet.c */; };
 		327B55BD18EB4F3A0001CCE1 /* fast_9.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55A318EB4F3A0001CCE1 /* fast_9.cpp */; };
 		327B55BE18EB4F3A0001CCE1 /* filter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55A718EB4F3A0001CCE1 /* filter.cpp */; };
 		327B55BF18EB4F3A0001CCE1 /* filter_setup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55A918EB4F3A0001CCE1 /* filter_setup.cpp */; };
@@ -197,7 +196,6 @@
 		D3B4EB031A1E7DE100BE0443 /* RCPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B555618EB4DC20001CCE1 /* RCPoint.m */; };
 		D3B4EB071A1E7DE100BE0443 /* RCAFXMLRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B553318EB4D720001CCE1 /* RCAFXMLRequestOperation.m */; };
 		D3B4EB091A1E7DE100BE0443 /* state_motion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55B118EB4F3A0001CCE1 /* state_motion.cpp */; };
-		D3B4EB0B1A1E7DE100BE0443 /* packet.c in Sources */ = {isa = PBXBuildFile; fileRef = 327B558F18EB4F250001CCE1 /* packet.c */; };
 		D3B4EB0E1A1E7DE100BE0443 /* RCSensorFusionError.m in Sources */ = {isa = PBXBuildFile; fileRef = 328A4DD11950D52000587949 /* RCSensorFusionError.m */; };
 		D3B4EB0F1A1E7DE100BE0443 /* RCAFHTTPClient.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B552518EB4D720001CCE1 /* RCAFHTTPClient.m */; };
 		D3B4EB101A1E7DE100BE0443 /* filter_setup.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55A918EB4F3A0001CCE1 /* filter_setup.cpp */; };
@@ -452,7 +450,6 @@
 		327B556B18EB4DC20001CCE1 /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 		327B557E18EB4DDE0001CCE1 /* RC3DK-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "RC3DK-Info.plist"; sourceTree = "<group>"; };
 		327B558618EB4F250001CCE1 /* cor_types.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = cor_types.h; sourceTree = "<group>"; };
-		327B558F18EB4F250001CCE1 /* packet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = packet.c; sourceTree = "<group>"; };
 		327B559018EB4F250001CCE1 /* packet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = packet.h; sourceTree = "<group>"; };
 		327B559D18EB4F3A0001CCE1 /* device_parameters.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = device_parameters.h; sourceTree = "<group>"; };
 		327B559F18EB4F3A0001CCE1 /* fast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fast.h; sourceTree = "<group>"; };
@@ -986,7 +983,6 @@
 			isa = PBXGroup;
 			children = (
 				327B558618EB4F250001CCE1 /* cor_types.h */,
-				327B558F18EB4F250001CCE1 /* packet.c */,
 				327B559018EB4F250001CCE1 /* packet.h */,
 				D95EB1851AA5038600ADFC20 /* sensor_fusion_queue.cpp */,
 				D95EB1861AA5038600ADFC20 /* sensor_fusion_queue.h */,
@@ -1599,7 +1595,6 @@
 				327B55C318EB4F3A0001CCE1 /* state_motion.cpp in Sources */,
 				D33E61E31ADE6A6B00569C82 /* RCCaptureManager.mm in Sources */,
 				D3AF77131B09E94E00BF9436 /* video_render.cpp in Sources */,
-				327B559918EB4F260001CCE1 /* packet.c in Sources */,
 				328A4DD21950D52000587949 /* RCSensorFusionError.m in Sources */,
 				327B553418EB4D720001CCE1 /* RCAFHTTPClient.m in Sources */,
 				D33E61DD1ADD4ABA00569C82 /* RCReplayManager.mm in Sources */,
@@ -1721,7 +1716,6 @@
 				D3B4EB071A1E7DE100BE0443 /* RCAFXMLRequestOperation.m in Sources */,
 				D3B4EB091A1E7DE100BE0443 /* state_motion.cpp in Sources */,
 				D3C0EDFB1A37B4DC00423EDE /* qr.cpp in Sources */,
-				D3B4EB0B1A1E7DE100BE0443 /* packet.c in Sources */,
 				D3B4EB0E1A1E7DE100BE0443 /* RCSensorFusionError.m in Sources */,
 				D3B4EB0F1A1E7DE100BE0443 /* RCAFHTTPClient.m in Sources */,
 				D3B4EB101A1E7DE100BE0443 /* filter_setup.cpp in Sources */,

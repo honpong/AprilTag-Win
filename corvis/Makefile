@@ -77,7 +77,7 @@ COR_CXX_SOURCES := $(addprefix src/cor/, sensor_fusion_queue.cpp platform/shell/
 bin/corvis/_cor.so: $(patsubst src/%,build/%,$(COR_CXX_SOURCES:.cpp=.o))
 
 TARGETS := $(TARGETS) bin/corvis/_cor.so
-SOURCES := $(SOURCES) $(COR_SOURCES)
+SOURCES := $(SOURCES)
 CXX_SOURCES := $(CXX_SOURCES) $(COR_CXX_SOURCES)
 
 ############################## NUMERICS ############################
@@ -224,7 +224,7 @@ TARGETS := $(TARGETS) lib/libglfw3.a
 
 ############################## MEASURE ############################
 
-MEASURE_SOURCES := $(FILTER_SOURCES) $(COR_SOURCES)
+MEASURE_SOURCES := $(FILTER_SOURCES)
 MEASURE_CXX_SOURCES := src/tools/measure.cpp src/filter/replay.cpp $(FILTER_CXX_SOURCES) $(NUMERICS_CXX_SOURCES) $(COR_CXX_SOURCES) $(VIS_CXX_SOURCES)
 SOURCES := $(SOURCES) $(MEASURE_SOURCES)
 CXX_SOURCES := $(CXX_SOURCES) $(MEASURE_CXX_SOURCES)

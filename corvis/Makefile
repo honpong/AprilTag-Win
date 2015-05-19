@@ -95,7 +95,7 @@ FILTER_CXX_SOURCES := $(addprefix src/filter/, filter.cpp state_vision.cpp state
 
 FILTER_SOURCES :=
 
-bin/corvis/_filter.so:$(patsubst src/%,build/%,$(FILTER_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(FILTER_SOURCES:.c=.o)) bin/_libzxing.a
+bin/corvis/_filter.so:$(patsubst src/%,build/%,$(FILTER_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(FILTER_SOURCES:.c=.o)) bin/libzxing.a
 
 TARGETS := $(TARGETS) bin/corvis/_filter.so
 CXX_SOURCES := $(CXX_SOURCES) $(FILTER_CXX_SOURCES)
@@ -147,9 +147,9 @@ LIBZXING_CXX_SOURCES := $(LIBZXING_CXX_SOURCES) $(addprefix src/$(d)/bigint/, Bi
 
 LIBZXING_SOURCES :=
 
-bin/_libzxing.a:$(patsubst src/%,build/%,$(LIBZXING_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(LIBZXING_SOURCES:.c=.o))
+bin/libzxing.a:$(patsubst src/%,build/%,$(LIBZXING_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(LIBZXING_SOURCES:.c=.o))
 
-TARGETS := $(TARGETS) bin/_libzxing.a
+TARGETS := $(TARGETS) bin/libzxing.a
 CXX_SOURCES := $(CXX_SOURCES) $(LIBZXING_CXX_SOURCES)
 SOURCES := $(SOURCES) $(LIBZXING_SOURCES)
 
@@ -233,7 +233,7 @@ LDFLAGS := $(LDFLAGS) -lstdc++ -lmgl
 
 _CPPFLAGS := $(_CPPFLAGS) -Iinclude -Isrc/glfw/deps/
 
-bin/measure: lib/libglfw3.a lib/libglad.a $(patsubst src/%,build/%,$(MEASURE_SOURCES:.c=.o)) $(patsubst src/%,build/%,$(MEASURE_CXX_SOURCES:.cpp=.o)) bin/_libzxing.a
+bin/measure: lib/libglfw3.a lib/libglad.a $(patsubst src/%,build/%,$(MEASURE_SOURCES:.c=.o)) $(patsubst src/%,build/%,$(MEASURE_CXX_SOURCES:.cpp=.o)) bin/libzxing.a
 	@mkdir -p $(@D)
 	$(CC) $(LDFLAGS) $(shell pkg-config lib/pkgconfig/glfw3.pc --static --libs) $^ $(LDLIBS) -o $@
 

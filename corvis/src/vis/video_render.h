@@ -10,10 +10,13 @@ private:
     GLuint program;
     GLuint vertex_loc, texture_coord_loc;
     GLuint frame_loc, channels_loc;
-    GLuint color_loc, use_texture_loc;
     GLuint texture;
     GLuint width_2_loc, height_2_loc;
     float width_2, height_2;
+
+    GLuint overlay_program;
+    GLuint overlay_width_2_loc, overlay_height_2_loc;
+    GLuint overlay_vertex_loc, overlay_color_loc;
 
 public:
     void gl_init();

@@ -2,7 +2,6 @@
 
 ############################ DEFINITIONS ###########################
 
-WXGLADE := wxglade
 CC := gcc
 CXX := g++
 # -ftree-vectorize -ffast-math 
@@ -30,7 +29,6 @@ _CC := $(CC)
 _CXX := $(CXX)
 _AS := $(AS)
 _AR := $(AR)
-_WXGLADE := $(WXGLADE)
 
 %.o: override CC=$(Q)printf "%32s %s\n" "Compiling" $<; $(_CC)
 %.o: override CXX=$(Q)printf "%32s %s\n" "Compiling" $<; $(_CXX)
@@ -38,7 +36,6 @@ _WXGLADE := $(WXGLADE)
 %.S: override CXX=$(Q)printf "%32s %s\n" "Generating code" $<; $(_CXX)
 %.E: override CC=$(Q)printf "%32s %s\n" "Preprocessing" $<; $(_CC)
 %.E: override CXX=$(Q)printf "%32s %s\n" "Preprocessing" $<; $(_CXX)
-%.py: override WXGLADE=$(Q)printf "%32s %s\n" "Generating GUI" $<; $(_WXGLADE)
 %.o: override AS=$(Q)printf "%32s %s\n" "Assembling" $<; $(_AS)
 %.so: override CC=$(Q)printf "%32s %s\n" "Linking" $(@); $(_CC)
 %.a: override AR=$(Q)printf "%32s %s\n" "Archiving" $(@); $(_AR)

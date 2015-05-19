@@ -84,8 +84,12 @@ static int plot_width = 600;
 static int plot_height = 400;
 static uint8_t * plot_frame = NULL;
 #ifdef WIN32
-static void create_plot() {}
+static void create_plot(world_state * state, int index) {}
 #else // !WIN32
+
+#if TARGET_OS_IPHONE
+static void create_plot(world_state * state, int index) {}
+#else // !TARGET_OS_IPHONE
 
 #include "lodepng.h"
 #define _MSC_VER 1900 // Force mathgl to avoid C99's typeof
@@ -149,6 +153,7 @@ static void create_plot(world_state * state, int index)
         //    fprintf(stderr, "encoder error %d: %s\n", error, lodepng_error_text(error));
     });
 }
+#endif //TARGET_OS_IPHONE
 #endif //WIN32
 
 void world_state_render_plot(world_state * world, int index)

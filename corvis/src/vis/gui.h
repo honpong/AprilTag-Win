@@ -35,8 +35,8 @@ private:
     void scroll(GLFWwindow * window, double xoffset, double yoffset);
     void keyboard(GLFWwindow * window, int key, int scancode, int action, int mods);
     void render();
-    void render_video();
-    void render_plot();
+    void render_video(int video_width, int video_height);
+    void render_plot(int plots_width, int plots_height);
     void next_plot();
 
     void write_frame();

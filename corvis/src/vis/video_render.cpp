@@ -10,12 +10,14 @@ static const char * overlay_vs =
 "varying vec4 color_fs;\n"
 "uniform float width_2;\n"
 "uniform float height_2;\n"
+"uniform float scale_x;\n"
+"uniform float scale_y;\n"
 
 "varying vec2 textureCoordinate;\n"
 
 "void main()\n"
 "{\n"
-"    gl_Position = vec4((videoPosition.x - width_2)/width_2, -(videoPosition.y - height_2)/height_2, 0, 1);\n"
+"    gl_Position = vec4((videoPosition.x - width_2)*scale_x, -(videoPosition.y - height_2)*scale_y, 0, 1);\n"
 "    color_fs = color;\n"
 "}\n";
 
@@ -34,12 +36,14 @@ static const char * video_vs =
 "attribute vec2 inputTextureCoordinate;\n"
 "uniform float width_2;\n"
 "uniform float height_2;\n"
+"uniform float scale_x;\n"
+"uniform float scale_y;\n"
 
 "varying vec2 textureCoordinate;\n"
 
 "void main()\n"
 "{\n"
-"    gl_Position = vec4((videoPosition.x - width_2)/width_2, -(videoPosition.y - height_2)/height_2, 0, 1);\n"
+"    gl_Position = vec4((videoPosition.x - width_2)*scale_x, -(videoPosition.y - height_2)*scale_y, 0, 1);\n"
 "    textureCoordinate = inputTextureCoordinate.xy;\n"
 "}\n";
 
@@ -129,11 +133,15 @@ void video_render::gl_init()
 
     width_2_loc = glGetUniformLocation(program, "width_2");
     height_2_loc = glGetUniformLocation(program, "height_2");
+    scale_x_loc = glGetUniformLocation(program, "scale_x");
+    scale_y_loc = glGetUniformLocation(program, "scale_y");
 
     overlay_color_loc = glGetAttribLocation(overlay_program, "color");
     overlay_vertex_loc = glGetAttribLocation(overlay_program, "videoPosition");
     overlay_width_2_loc = glGetUniformLocation(overlay_program, "width_2");
     overlay_height_2_loc = glGetUniformLocation(overlay_program, "height_2");
+    overlay_scale_x_loc = glGetUniformLocation(overlay_program, "scale_x");
+    overlay_scale_y_loc = glGetUniformLocation(overlay_program, "scale_y");
 
 
     glGenTextures(1, &texture);
@@ -149,10 +157,23 @@ void video_render::gl_destroy()
     glDeleteTextures(1, &texture);
 }
 
-void video_render::render(uint8_t * image, int width, int height, bool luminance)
+static void calculate_scale(int width, int height, int viewport_width, int viewport_height, float & scale_x, float & scale_y)
 {
-    width_2 = width/2.f;
-    height_2 = height/2.f;
+    scale_x = 1.f / (width/2.f);
+    scale_y = 1.f / (height/2.f);
+    if((float)width/viewport_width > (float)height/viewport_height)
+        scale_y *= ((float)height/width)*viewport_width/viewport_height;
+    else
+        scale_x *= ((float)width/height)*viewport_height/viewport_width;
+}
+
+void video_render::render(uint8_t * image, int width, int height, int viewport_width, int viewport_height, bool luminance)
+{
+    float scale_x, scale_y;
+    calculate_scale(width, height, viewport_width, viewport_height, scale_x, scale_y);
+
+    float width_2 = width/2.f;
+    float height_2 = height/2.f;
     int channels = 4; // RGBA
     if(luminance)
         channels = 1; // Luminance only
@@ -178,6 +199,8 @@ void video_render::render(uint8_t * image, int width, int height, bool luminance
 
     glUniform1f(width_2_loc, width_2);
     glUniform1f(height_2_loc, height_2);
+    glUniform1f(scale_x_loc, scale_x);
+    glUniform1f(scale_y_loc, scale_y);
 
     GLfloat video_vertex[8];
     // Draw the frame
@@ -202,11 +225,20 @@ void video_render::render(uint8_t * image, int width, int height, bool luminance
     glDisable(GL_TEXTURE_2D);
 }
 
-void video_render::draw_overlay(VertexData * data, int number, int gl_type)
+void video_render::draw_overlay(VertexData * data, int number, int gl_type, int width, int height, int viewport_width, int viewport_height)
 {
+    float scale_x, scale_y;
+    calculate_scale(width, height, viewport_width, viewport_height, scale_x, scale_y);
+
+
+    float width_2 = width/2.f;
+    float height_2 = height/2.f;
+
     glUseProgram(overlay_program);
     glUniform1f(overlay_width_2_loc, width_2);
     glUniform1f(overlay_height_2_loc, height_2);
+    glUniform1f(overlay_scale_x_loc, scale_x);
+    glUniform1f(overlay_scale_y_loc, scale_y);
 
     // Draw the frame
     glVertexAttribPointer(overlay_vertex_loc, 3, GL_FLOAT, GL_FALSE, sizeof(VertexData), &data[0].position);

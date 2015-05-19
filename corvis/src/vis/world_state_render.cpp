@@ -35,14 +35,14 @@ void world_state_render_video_teardown()
     frame_render.gl_destroy();
 }
 
-void world_state_render_video(world_state * world)
+void world_state_render_video(world_state * world, int viewport_width, int viewport_height)
 {
     glClear(GL_COLOR_BUFFER_BIT);
     world->display_lock.lock();
     world->image_lock.lock();
-    frame_render.render(world->last_image.image, world->last_image.width, world->last_image.height, true);
+    frame_render.render(world->last_image.image, world->last_image.width, world->last_image.height, viewport_width, viewport_height, true);
     glLineWidth(2.0f);
-    frame_render.draw_overlay(world->feature_ellipse_vertex, world->feature_ellipse_vertex_num, GL_LINES);
+    frame_render.draw_overlay(world->feature_ellipse_vertex, world->feature_ellipse_vertex_num, GL_LINES, world->last_image.width, world->last_image.height, viewport_width, viewport_height);
     world->image_lock.unlock();
     world->display_lock.unlock();
 }
@@ -156,10 +156,10 @@ static void create_plot(world_state * state, int index)
 #endif //TARGET_OS_IPHONE
 #endif //WIN32
 
-void world_state_render_plot(world_state * world, int index)
+void world_state_render_plot(world_state * world, int index, int viewport_width, int viewport_height)
 {
     glClear(GL_COLOR_BUFFER_BIT);
     create_plot(world, index);
     if(plot_frame)
-        plot_render.render(plot_frame, plot_width, plot_height, false);
+        plot_render.render(plot_frame, plot_width, plot_height, viewport_width, viewport_height, false);
 }

@@ -12,10 +12,10 @@ void world_state_render_teardown();
 // Render the current world state, passing the modelview projection matrix and the projection matrix to the shaders
 void world_state_render(world_state * world, float * _modelViewMatrix, float * _projectionMatrix);
 bool world_state_render_video_init();
-void world_state_render_video(world_state * world);
+void world_state_render_video(world_state * world, int viewport_width, int viewport_height);
 void world_state_render_video_teardown();
 bool world_state_render_plot_init();
-void world_state_render_plot(world_state * world, int index);
+void world_state_render_plot(world_state * world, int index, int viewport_width, int viewport_height);
 void world_state_render_plot_teardown();
 
 

@@ -93,16 +93,16 @@ void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int m
        current_plot = state->next_plot(current_plot);
 }
 
-void gui::render_plot()
+void gui::render_plot(int plots_width, int plots_height)
 {
-    glViewport(0, 0, 600, 400);
-    world_state_render_plot(state, current_plot);
+    glViewport(0, 0, plots_width, plots_height);
+    world_state_render_plot(state, current_plot, plots_width, plots_height);
 }
 
-void gui::render_video()
+void gui::render_video(int video_width, int video_height)
 {
-    glViewport(0, 0, 640, 480);
-    world_state_render_video(state);
+    glViewport(0, 0, video_width, video_height);
+    world_state_render_video(state, video_width, video_height);
 }
 
 void gui::render()
@@ -153,7 +153,7 @@ void gui::start_glfw()
     gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
     world_state_render_init();
 
-    glfwWindowHint(GLFW_RESIZABLE, false);
+    glfwWindowHint(GLFW_RESIZABLE, true);
     glfwWindowHint(GLFW_VISIBLE, false);
     GLFWwindow* video_window = glfwCreateWindow(640, 480, "Replay Video", NULL, NULL);
     glfwSetKeyCallback(video_window, gui::keyboard_callback);
@@ -171,7 +171,7 @@ void gui::start_glfw()
     gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
     world_state_render_video_init();
 
-    glfwWindowHint(GLFW_RESIZABLE, false);
+    glfwWindowHint(GLFW_RESIZABLE, true);
     glfwWindowHint(GLFW_VISIBLE, false);
     GLFWwindow* plots_window = glfwCreateWindow(600, 400, "Replay Plots", NULL, NULL);
     glfwSetKeyCallback(plots_window, gui::keyboard_callback);
@@ -203,14 +203,18 @@ void gui::start_glfw()
  
         if(show_video) {
             glfwMakeContextCurrent(video_window);
-            render_video();
+            int video_width, video_height;
+            glfwGetFramebufferSize(video_window, &video_width, &video_height);
+            render_video(video_width, video_height);
             glfwSwapBuffers(video_window);
         }
         glfwPollEvents();
 
         if(show_plots) {
             glfwMakeContextCurrent(plots_window);
-            render_plot();
+            int plots_width, plots_height;
+            glfwGetFramebufferSize(plots_window, &plots_width, &plots_height);
+            render_plot(plots_width, plots_height);
             glfwSwapBuffers(plots_window);
         }
         glfwPollEvents();

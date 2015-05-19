@@ -74,42 +74,38 @@ build/%.S: src/%.cpp
 
 COR_CXX_SOURCES := $(addprefix src/cor/, sensor_fusion_queue.cpp platform/shell/sensor_data.cpp platform/shell/sensor_clock.cpp)
 
-bin/corvis/_cor.so: $(patsubst src/%,build/%,$(COR_CXX_SOURCES:.cpp=.o))
+lib/cor.a: $(patsubst src/%,build/%,$(COR_CXX_SOURCES:.cpp=.o))
 
-TARGETS := $(TARGETS) bin/corvis/_cor.so
-SOURCES := $(SOURCES)
+TARGETS := $(TARGETS) lib/cor.a
 CXX_SOURCES := $(CXX_SOURCES) $(COR_CXX_SOURCES)
 
 ############################## NUMERICS ############################
 
 NUMERICS_CXX_SOURCES := $(addprefix src/numerics/, rotation_vector.cpp vec4.cpp matrix.cpp kalman.cpp)
-bin/corvis/_numerics.so: LDFLAGS := $(LDFLAGS) -lm -lcblas -llapack -lstdc++
-bin/corvis/_numerics.so: $(patsubst src/%,build/%,$(NUMERICS_CXX_SOURCES:.cpp=.o))
+lib/numerics.a: LDFLAGS := $(LDFLAGS) -lm -lcblas -llapack -lstdc++
+lib/numerics.a: $(patsubst src/%,build/%,$(NUMERICS_CXX_SOURCES:.cpp=.o))
 
-TARGETS := $(TARGETS) bin/corvis/_numerics.so
+TARGETS := $(TARGETS) lib/numerics.a
 CXX_SOURCES := $(CXX_SOURCES) $(NUMERICS_CXX_SOURCES)
 
 ############################## FILTER ############################
 
 FILTER_CXX_SOURCES := $(addprefix src/filter/, filter.cpp state_vision.cpp state_motion.cpp state.cpp observation.cpp filter_setup.cpp fast_detector/fast_9.cpp scaled_mask.cpp camera_control_interface_dummy.cpp homography.cpp qr.cpp device_parameters.cpp)
 
-FILTER_SOURCES :=
+lib/filter.a:$(patsubst src/%,build/%,$(FILTER_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(FILTER_SOURCES:.c=.o))
 
-bin/corvis/_filter.so:$(patsubst src/%,build/%,$(FILTER_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(FILTER_SOURCES:.c=.o)) bin/libzxing.a
-
-TARGETS := $(TARGETS) bin/corvis/_filter.so
+TARGETS := $(TARGETS) lib/filter.a
 CXX_SOURCES := $(CXX_SOURCES) $(FILTER_CXX_SOURCES)
-SOURCES := $(SOURCES) $(FILTER_SOURCES)
 
 ############################## VIS ################################
 
 VIS_CXX_SOURCES := $(addprefix src/vis/, world_state.cpp world_state_render.cpp arcball.cpp offscreen_render.cpp gui.cpp lodepng.cpp gl_util.cpp render.cpp video_render.cpp)
-bin/corvis/_vis.so: LDFLAGS := $(LDFLAGS) -framework OpenGL -lmgl
-bin/corvis/_vis.so: $(patsubst src/%,build/%,$(VIS_CXX_SOURCES:.cpp=.o))
+lib/vis.a: LDFLAGS := $(LDFLAGS) -framework OpenGL -lmgl
+lib/vis.a: $(patsubst src/%,build/%,$(VIS_CXX_SOURCES:.cpp=.o))
 
 _CPPFLAGS := $(_CPPFLAGS) -Wno-deprecated-declarations
 
-TARGETS := $(TARGETS) bin/corvis/_vis.so
+TARGETS := $(TARGETS) lib/vis.a
 CXX_SOURCES := $(CXX_SOURCES) $(VIS_CXX_SOURCES)
 
 
@@ -145,13 +141,10 @@ LIBZXING_CXX_SOURCES := $(LIBZXING_CXX_SOURCES) $(addprefix src/$(d)/zxing/aztec
 # bigint
 LIBZXING_CXX_SOURCES := $(LIBZXING_CXX_SOURCES) $(addprefix src/$(d)/bigint/, BigIntegerAlgorithms.cpp BigIntegerUtils.cpp BigInteger.cpp BigUnsignedInABase.cpp BigUnsigned.cpp)
 
-LIBZXING_SOURCES :=
+lib/libzxing.a:$(patsubst src/%,build/%,$(LIBZXING_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(LIBZXING_SOURCES:.c=.o))
 
-bin/libzxing.a:$(patsubst src/%,build/%,$(LIBZXING_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(LIBZXING_SOURCES:.c=.o))
-
-TARGETS := $(TARGETS) bin/libzxing.a
+TARGETS := $(TARGETS) lib/libzxing.a
 CXX_SOURCES := $(CXX_SOURCES) $(LIBZXING_CXX_SOURCES)
-SOURCES := $(SOURCES) $(LIBZXING_SOURCES)
 
 ############################## STEREO ############################
 
@@ -159,15 +152,12 @@ d := stereo
 
 STEREO_CXX_SOURCES := $(addprefix src/$(d)/, stereo.cpp stereo_mesh.cpp camera.cpp fundamental.cpp stereo_features.cpp)
 
-STEREO_SOURCES :=
-
 _CPPFLAGS := $(_CPPFLAGS) -Isrc/stereo -Isrc/filter -Isrc/qhull/src/libqhull/ -Isrc/vlfeat-0.9.18/vl -Isrc/libDAI-0.3.1/include
 
-bin/_stereo.so:$(patsubst src/%,build/%,$(STEREO_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(STEREO_SOURCES:.c=.o)) bin/_libDAI.so bin/_vl.so
+lib/stereo.a:$(patsubst src/%,build/%,$(STEREO_CXX_SOURCES:.cpp=.o)) lib/libDAI.a lib/libvlfeat.a lib/libqhull.a
 
-TARGETS := $(TARGETS) bin/_stereo.so
+TARGETS := $(TARGETS) lib/stereo.a
 CXX_SOURCES := $(CXX_SOURCES) $(STEREO_CXX_SOURCES)
-SOURCES := $(SOURCES) $(STEREO_SOURCES)
 
 ############################## QHull ############################
 d := qhull
@@ -176,21 +166,21 @@ QHULL_C_SOURCES := $(addprefix src/$(d)/src/libqhull/, geom.c geom2.c global.c i
 
 _CPPFLAGS := $(_CPPFLAGS)
 
-bin/_qhull.so:$(patsubst src/%,build/%,$(QHULL_C_SOURCES:.c=.o))
+lib/libqhull.a:$(patsubst src/%,build/%,$(QHULL_C_SOURCES:.c=.o))
 
-TARGETS := $(TARGETS) bin/_qhull.so
+TARGETS := $(TARGETS) lib/libqhull.a
 SOURCES := $(SOURCES) $(QHULL_C_SOURCES)
 
 ############################## DAI ############################
 d := libDAI-0.3.1
 
-DAI_CXX_SOURCES := $(addprefix src/$(d)/src/, alldai.cpp graph.cpp regiongraph.cpp emalg.cpp bipgraph.cpp evidence.cpp io.cpp trwbp.cpp bp.cpp exactinf.cpp util.cpp bp_dual.cpp exceptions.cpp varset.cpp factor.cpp weightedgraph.cpp clustergraph.cpp factorgraph.cpp dag.cpp)
+DAI_CXX_SOURCES := $(addprefix src/$(d)/src/, alldai.cpp graph.cpp regiongraph.cpp emalg.cpp bipgraph.cpp evidence.cpp io.cpp trwbp.cpp bp.cpp exactinf.cpp daialg.cpp properties.cpp util.cpp bp_dual.cpp exceptions.cpp varset.cpp factor.cpp weightedgraph.cpp clustergraph.cpp factorgraph.cpp dag.cpp)
 
 _CPPFLAGS := $(_CPPFLAGS) -Isrc/$(d)/include -I/usr/local/include -DMACOSX -DDAI_WITH_BP -DDAI_WITH_TRWBP
 
-bin/_libDAI.so:$(patsubst src/%,build/%,$(DAI_CXX_SOURCES:.cpp=.o))
+lib/libDAI.a:$(patsubst src/%,build/%,$(DAI_CXX_SOURCES:.cpp=.o))
 
-TARGETS := $(TARGETS) bin/_libDAI.so
+TARGETS := $(TARGETS) lib/libDAI.a
 CXX_SOURCES := $(CXX_SOURCES) $(DAI_CXX_SOURCES)
 
 ############################## VLFEAT ############################
@@ -200,9 +190,9 @@ VL_C_SOURCES := $(addprefix src/$(d)/, vl/aib.c vl/array.c vl/covdet.c vl/dsift.
 
 _CPPFLAGS := $(_CPPFLAGS)
 
-bin/_vl.so:$(patsubst src/%,build/%,$(VL_C_SOURCES:.c=.o))
+lib/libvlfeat.a:$(patsubst src/%,build/%,$(VL_C_SOURCES:.c=.o))
 
-TARGETS := $(TARGETS) bin/_vl.so
+TARGETS := $(TARGETS) lib/libvlfeat.a
 SOURCES := $(SOURCES) $(VL_C_SOURCES)
 
 ############################## libglad ############################
@@ -224,16 +214,15 @@ TARGETS := $(TARGETS) lib/libglfw3.a
 
 ############################## MEASURE ############################
 
-MEASURE_SOURCES := $(FILTER_SOURCES)
 MEASURE_CXX_SOURCES := src/tools/measure.cpp src/filter/replay.cpp $(FILTER_CXX_SOURCES) $(NUMERICS_CXX_SOURCES) $(COR_CXX_SOURCES) $(VIS_CXX_SOURCES)
-SOURCES := $(SOURCES) $(MEASURE_SOURCES)
+SOURCES := $(SOURCES)
 CXX_SOURCES := $(CXX_SOURCES) $(MEASURE_CXX_SOURCES)
 
 LDFLAGS := $(LDFLAGS) -lstdc++ -lmgl
 
 _CPPFLAGS := $(_CPPFLAGS) -Iinclude -Isrc/glfw/deps/
 
-bin/measure: lib/libglfw3.a lib/libglad.a $(patsubst src/%,build/%,$(MEASURE_SOURCES:.c=.o)) $(patsubst src/%,build/%,$(MEASURE_CXX_SOURCES:.cpp=.o)) bin/libzxing.a
+bin/measure: $(patsubst src/%,build/%,$(MEASURE_CXX_SOURCES:.cpp=.o)) lib/libglfw3.a lib/libglad.a lib/filter.a lib/numerics.a lib/cor.a lib/libzxing.a
 	@mkdir -p $(@D)
 	$(CC) $(LDFLAGS) $(shell pkg-config lib/pkgconfig/glfw3.pc --static --libs) $^ $(LDLIBS) -o $@
 
@@ -257,7 +246,7 @@ build/$(d)/%.o: $(d)/%.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 
-bin/test: build/$(d)/gtest_main.o build/$(d)/gtest-all.o $(patsubst test/%,build/test/%,$(TEST_CXX_SOURCES:.cpp=.o)) $(addprefix build/numerics/, rotation_vector.o vec4.o matrix.o) $(addprefix build/filter/, fast_detector/fast_9.o scaled_mask.o homography.o) $(addprefix build/cor/, sensor_fusion_queue.o platform/shell/sensor_data.o platform/shell/sensor_clock.o) bin/_stereo.so bin/_libDAI.so bin/_qhull.so
+bin/test: build/$(d)/gtest_main.o build/$(d)/gtest-all.o $(patsubst test/%,build/test/%,$(TEST_CXX_SOURCES:.cpp=.o)) lib/filter.a lib/stereo.a lib/numerics.a lib/cor.a lib/libzxing.a lib/libDAI.a lib/libvlfeat.a lib/libqhull.a
 	@mkdir -p $(@D)
 	$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@
 

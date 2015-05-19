@@ -4,7 +4,7 @@
 
 using namespace RealityCap;
 
-RCFactory::RCFactory()
+RCFactory::RCFactory() : _senseMan(NULL)
 {
 }
 

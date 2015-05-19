@@ -15,6 +15,7 @@ namespace RealityCap
         bool StartSensors(); // returns true if video started successfully
         void StopSensors();
         bool isVideoStreaming();
+        PXCSenseManager* GetSenseManager() {  return _senseMan; };
 
     protected:
         SensorManager(PXCSenseManager* senseMan);

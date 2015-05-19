@@ -104,7 +104,6 @@
     <ClCompile Include="..\..\..\corvis\src\filter\qr.cpp" />
     <ClCompile Include="..\..\..\corvis\src\filter\replay.cpp" />
     <ClCompile Include="..\..\..\corvis\src\filter\scaled_mask.cpp" />
-    <ClCompile Include="..\..\..\corvis\src\filter\state.cpp" />
     <ClCompile Include="..\..\..\corvis\src\filter\state_motion.cpp" />
     <ClCompile Include="..\..\..\corvis\src\filter\state_vision.cpp" />
     <ClCompile Include="..\..\..\corvis\src\numerics\kalman.cpp" />

@@ -227,25 +227,6 @@ enum packet_plot_type {
 };
 
 #include "cor_types.h"
-cor_size_t packet_camera_t_size(packet_camera_t *p);
-image_t packet_camera_t_image(packet_camera_t *p);
-feature_vector_t packet_feature_track_t_features(packet_feature_track_t *p);
-feature_covariance_vector_t packet_feature_prediction_variance_t_variance(packet_feature_prediction_variance_t *p);
-char_vector_t packet_feature_status_t_status(packet_feature_status_t *p);
-point3d_vector_t packet_filter_reconstruction_t_points(packet_filter_reconstruction_t *p);
-uint64_vector_t packet_filter_feature_id_visible_t_features(packet_filter_feature_id_visible_t *p);
-uint64_vector_t packet_filter_feature_id_association_t_features(packet_filter_feature_id_association_t *p);
-short_vector_t packet_feature_drop_t_indices(packet_feature_drop_t *p);
-float_vector_t packet_plot_t_data(packet_plot_t *p);
-void packet_camera_write_image(packet_camera_t *p, const char *fn);
-void packet_camera_read_bmp(packet_camera_t *p, const char *name);
-#ifdef SWIG
-%callback("%s_cb");
-#endif
-void packet_receive(void *listener, packet_t *p);
-#ifdef SWIG
-%nocallback;
-#endif
 
 #ifdef WIN32
 #pragma warning (pop)

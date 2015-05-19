@@ -63,9 +63,6 @@
     <ClCompile Include="..\..\..\corvis\src\filter\scaled_mask.cpp">
       <Filter>Source Files\corvis\filter</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\filter\state.cpp">
-      <Filter>Source Files\corvis\filter</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\corvis\src\filter\state_motion.cpp">
       <Filter>Source Files\corvis\filter</Filter>
     </ClCompile>

@@ -43,18 +43,15 @@ class TestRunner(object):
   def  __init__(self, input_dir, output_dir = None):
     self.input_dir = input_dir
     self.output_dir = output_dir
+    self.measure_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../bin/measure")
 
   def __call__(self, test_case):
     #return self.run(test_case)
     return self.run_subprocess(test_case)
 
-  def run(self, test_case):
-    print "Running", test_case["path"]; sys.stdout.flush();
-    return measure(os.path.join(self.input_dir, test_case["path"]), test_case["config"])
-
   def run_subprocess(self, test_case):
     print "Running ", test_case["path"], "using bin/measure"; sys.stdout.flush();
-    args = ["../corvis/bin/measure", os.path.join(self.input_dir, test_case["path"]), test_case["config"], "--no-gui"]
+    args = [self.measure_path, os.path.join(self.input_dir, test_case["path"]), test_case["config"], "--no-gui"]
     if self.output_dir is not None:
         test_case["image"] = "%s.png" % test_case["path"]
         image = os.path.join(output_dir, test_case["image"])
@@ -103,7 +100,6 @@ def error_histogram_string(counts, bins):
     return hist_str
 
 import multiprocessing
-from measure import measure
 
 def benchmark(input_dir, output_dir = None):
     test_runner = TestRunner(input_dir, output_dir)

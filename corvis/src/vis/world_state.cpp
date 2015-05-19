@@ -121,28 +121,28 @@ void world_state::receive_camera(const filter * f, camera_data &&d)
     quaternion q = to_quaternion(f->s.W.v);
     observe_position(d.timestamp, (float)T[0], (float)T[1], (float)T[2], (float)q.w(), (float)q.x(), (float)q.y(), (float)q.z());
 
-    observe_plot_item(d.timestamp, 0, "Tx", f->s.T.v[0]);
-    observe_plot_item(d.timestamp, 0, "Ty", f->s.T.v[1]);
-    observe_plot_item(d.timestamp, 0, "Tz", f->s.T.v[2]);
+    observe_plot_item(d.timestamp, 0, "Tx", (float)f->s.T.v[0]);
+    observe_plot_item(d.timestamp, 0, "Ty", (float)f->s.T.v[1]);
+    observe_plot_item(d.timestamp, 0, "Tz", (float)f->s.T.v[2]);
 
-    observe_plot_item(d.timestamp, 1, "wbias_x", f->s.w_bias.v[0]);
-    observe_plot_item(d.timestamp, 1, "wbias_y", f->s.w_bias.v[1]);
-    observe_plot_item(d.timestamp, 1, "wbias_z", f->s.w_bias.v[2]);
+    observe_plot_item(d.timestamp, 1, "wbias_x", (float)f->s.w_bias.v[0]);
+    observe_plot_item(d.timestamp, 1, "wbias_y", (float)f->s.w_bias.v[1]);
+    observe_plot_item(d.timestamp, 1, "wbias_z", (float)f->s.w_bias.v[2]);
 
-    observe_plot_item(d.timestamp, 2, "abias_x", f->s.a_bias.v[0]);
-    observe_plot_item(d.timestamp, 2, "abias_y", f->s.a_bias.v[1]);
-    observe_plot_item(d.timestamp, 2, "abias_z", f->s.a_bias.v[2]);
+    observe_plot_item(d.timestamp, 2, "abias_x", (float)f->s.a_bias.v[0]);
+    observe_plot_item(d.timestamp, 2, "abias_y", (float)f->s.a_bias.v[1]);
+    observe_plot_item(d.timestamp, 2, "abias_z", (float)f->s.a_bias.v[2]);
 
-    observe_plot_item(d.timestamp, 3, "a-inn-mean_x", observation_accelerometer::inn_stdev.mean[0]);
-    observe_plot_item(d.timestamp, 3, "a-inn-mean_y", observation_accelerometer::inn_stdev.mean[1]);
-    observe_plot_item(d.timestamp, 3, "a-inn-mean_z", observation_accelerometer::inn_stdev.mean[2]);
+    observe_plot_item(d.timestamp, 3, "a-inn-mean_x", (float)observation_accelerometer::inn_stdev.mean[0]);
+    observe_plot_item(d.timestamp, 3, "a-inn-mean_y", (float)observation_accelerometer::inn_stdev.mean[1]);
+    observe_plot_item(d.timestamp, 3, "a-inn-mean_z", (float)observation_accelerometer::inn_stdev.mean[2]);
 
-    observe_plot_item(d.timestamp, 4, "g-inn-mean_x", observation_gyroscope::inn_stdev.mean[0]);
-    observe_plot_item(d.timestamp, 4, "g-inn-mean_y", observation_gyroscope::inn_stdev.mean[1]);
-    observe_plot_item(d.timestamp, 4, "g-inn-mean_z", observation_gyroscope::inn_stdev.mean[2]);
+    observe_plot_item(d.timestamp, 4, "g-inn-mean_x", (float)observation_gyroscope::inn_stdev.mean[0]);
+    observe_plot_item(d.timestamp, 4, "g-inn-mean_y", (float)observation_gyroscope::inn_stdev.mean[1]);
+    observe_plot_item(d.timestamp, 4, "g-inn-mean_z", (float)observation_gyroscope::inn_stdev.mean[2]);
 
-    observe_plot_item(d.timestamp, 5, "v-inn-mean_x", observation_vision_feature::inn_stdev[0].mean);
-    observe_plot_item(d.timestamp, 5, "v-inn-mean_y", observation_vision_feature::inn_stdev[1].mean);
+    observe_plot_item(d.timestamp, 5, "v-inn-mean_x", (float)observation_vision_feature::inn_stdev[0].mean);
+    observe_plot_item(d.timestamp, 5, "v-inn-mean_y", (float)observation_vision_feature::inn_stdev[1].mean);
 }
 
 world_state::world_state()

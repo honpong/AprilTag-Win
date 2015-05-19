@@ -4,6 +4,8 @@
 #include "world_state.h"
 #include "arcball.h"
 
+#include <atomic>
+
 class replay;
 struct GLFWwindow;
 

@@ -40,17 +40,16 @@ typedef float rc_Pose[12];
  */
 typedef int64_t rc_Timestamp;
 
-typedef struct rc_Tracker * rc_TrackerRef;
+typedef struct rc_Tracker rc_Tracker;
 
-
-rc_TrackerRef rc_create();
-void rc_destroy(rc_TrackerRef tracker);
+rc_Tracker * rc_create();
+void rc_destroy(rc_Tracker * tracker);
 
 /**
  Resets system, clearing all history and state, and sets initial pose and time.
  System will be stopped until one of the rc_start_ functions is called.
  */
-void rc_reset(rc_TrackerRef tracker, const rc_Pose initialPose_m, rc_Timestamp initialTime_ns);
+void rc_reset(rc_Tracker * tracker, const rc_Pose initialPose_m, rc_Timestamp initialTime_ns);
 
 /**
  @param tracker The active rc_Tracker instance
@@ -62,24 +61,24 @@ void rc_reset(rc_TrackerRef tracker, const rc_Pose initialPose_m, rc_Timestamp i
  @param center_y_px Horizontal principal point of camera in pixels
  @param focal_length_px Focal length of camera in pixels
  */
-void rc_configureCamera(rc_TrackerRef tracker, rc_Camera camera, const rc_Pose pose_m, int width_px, int height_px, float center_x_px, float center_y_px, float focal_length_px);
-void rc_configureAccelerometer(rc_TrackerRef tracker, const rc_Pose pose_m, const rc_Vector bias_m__s2, float noiseVariance_m2__s4);
-void rc_configureGyroscope(rc_TrackerRef tracker, const rc_Pose pose_m, const rc_Vector bias_rad__s, float noiseVariance_m2__s4);
-void rc_configureLocation(rc_TrackerRef tracker, double latitude_deg, double longitude_deg, double altitude_m);
+void rc_configureCamera(rc_Tracker * tracker, rc_Camera camera, const rc_Pose pose_m, int width_px, int height_px, float center_x_px, float center_y_px, float focal_length_px);
+void rc_configureAccelerometer(rc_Tracker * tracker, const rc_Pose pose_m, const rc_Vector bias_m__s2, float noiseVariance_m2__s4);
+void rc_configureGyroscope(rc_Tracker * tracker, const rc_Pose pose_m, const rc_Vector bias_rad__s, float noiseVariance_m2__s4);
+void rc_configureLocation(rc_Tracker * tracker, double latitude_deg, double longitude_deg, double altitude_m);
 
 //TODO: Define calibration interface
-//void rc_startCalibration(rc_TrackerRef tracker);
-//bool rc_getCalibration(rc_TrackerRef tracker, char **buffer, int *length);
+//void rc_startCalibration(rc_Tracker * tracker);
+//bool rc_getCalibration(rc_Tracker * tracker, char **buffer, int *length);
 
 /**
  Starts processing inertial data to estimate the orientation of the device so that initialization of the full tracker can happen more quickly.
  */
-void rc_startInertialOnly(rc_TrackerRef tracker);
+void rc_startInertialOnly(rc_Tracker * tracker);
 
 /**
  Starts the tracker.
  */
-void rc_startTracker(rc_TrackerRef tracker);
+void rc_startTracker(rc_Tracker * tracker);
     
 /**
  @param tracker The active rc_Tracker instance
@@ -91,12 +90,12 @@ void rc_startTracker(rc_TrackerRef tracker);
  @param stride Number of bytes in each line
  @param image Image data.
  */
-void rc_receiveImage(rc_TrackerRef tracker, rc_Camera camera, rc_Timestamp time_ns, rc_Timestamp shutter_time, const rc_Pose poseEstimate_m, bool force_recognition, int stride, const uint8_t *image);
-void rc_receiveAccelerometer(rc_TrackerRef tracker, rc_Timestamp time_ns, const rc_Vector acceleration_m__s2);
-void rc_receiveGyro(rc_TrackerRef tracker, rc_Timestamp time_ns, const rc_Vector angular_velocity_rad__s);
+void rc_receiveImage(rc_Tracker * tracker, rc_Camera camera, rc_Timestamp time_ns, rc_Timestamp shutter_time, const rc_Pose poseEstimate_m, bool force_recognition, int stride, const uint8_t *image);
+void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Timestamp time_ns, const rc_Vector acceleration_m__s2);
+void rc_receiveGyro(rc_Tracker * tracker, rc_Timestamp time_ns, const rc_Vector angular_velocity_rad__s);
 
-void rc_getPose(rc_TrackerRef tracker, rc_Pose pose_m);
-int rc_getFeatures(rc_TrackerRef tracker, struct rc_Feature **features_px);
+void rc_getPose(rc_Tracker * tracker, rc_Pose pose_m);
+int rc_getFeatures(rc_Tracker * tracker, struct rc_Feature **features_px);
     
 /**
  @param tracker The active rc_Tracker instance
@@ -105,20 +104,20 @@ int rc_getFeatures(rc_TrackerRef tracker, struct rc_Feature **features_px);
  @param period_ns If non-zero, log each calculated pose when it has been period_ns or more since the last pose was logged
  @param handle Token to pass to log callback
  */
-void rc_setLog(rc_TrackerRef tracker, void (*log)(void *handle, char *buffer_utf8, size_t length), bool stream, rc_Timestamp period_ns, void *handle);
+void rc_setLog(rc_Tracker * tracker, void (*log)(void *handle, char *buffer_utf8, size_t length), bool stream, rc_Timestamp period_ns, void *handle);
 
 /**
  Immediately outputs the last calculated pose
  */
-void rc_triggerLog(rc_TrackerRef tracker);
+void rc_triggerLog(rc_Tracker * tracker);
 
 /*
  Not yet implemented (depend on loop closure):
 
 //Starts processing inertial data and some image data to build environment representation and enable relocalization / loop closure. Does not run full tracker; instead uses the provided poseEstimates with each image)
-void rc_startMappingFromKnownPoses(rc_TrackerRef tracker);
-void rc_saveMap(rc_TrackerRef tracker,  void (*write)(void *handle, void *buffer, size_t length), void *handle);
-void rc_loadMap(rc_TrackerRef tracker, size_t (*read)(void *handle, void *buffer, size_t length), void *handle);
+void rc_startMappingFromKnownPoses(rc_Tracker * tracker);
+void rc_saveMap(rc_Tracker * tracker,  void (*write)(void *handle, void *buffer, size_t length), void *handle);
+void rc_loadMap(rc_Tracker * tracker, size_t (*read)(void *handle, void *buffer, size_t length), void *handle);
 */
     
 #ifdef __cplusplus

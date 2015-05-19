@@ -1,13 +1,13 @@
 #include "stdafx.h"
 #include "../../gtest/gtest.h"
 #include "CalibrationManager.h"
-#include "pxcsensemanager.h"
+#include "PXCSenseManagerFake.h"
 
 using namespace RealityCap;
 
 TEST(CalibrationManagerTest, isCalibrating)
 {
-    PXCSenseManager* senseMan = PXCSenseManager::CreateInstance();
+    PXCSenseManagerFake* senseMan = new PXCSenseManagerFake();
 
     CalibrationManager calMan(senseMan);
     EXPECT_FALSE(calMan.isCalibrating());

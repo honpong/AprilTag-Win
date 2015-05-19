@@ -6,13 +6,12 @@ CXX := g++
 CPPFLAGS = $(_CPPFLAGS) -Wall -g -fPIC -march=core2 -mfpmath=sse -O3 -D DEBUG
 _CPPFLAGS := \
         $(patsubst %,-isystem %/include,$(wildcard $(shell brew --prefix boost mathgl gsl 2>/dev/null) /opt/local)) \
-        $(shell pkg-config ftgl --cflags) -Isrc/cor -Wdeprecated-writable-strings
+        -Isrc/cor -Wdeprecated-writable-strings
 CXXFLAGS := -std=c++1y
 CFLAGS := -std=gnu99
 LDFLAGS := -lpthread --warn-unresolved-symbols -O3 \
         -framework Accelerate \
         $(patsubst %,-L%/lib,$(wildcard $(shell brew --prefix boost mathgl gsl 2>/dev/null) /opt/local)) \
-        $(shell pkg-config ftgl --libs)
 
 CPPFLAGS  += -MP -MMD -MF $@.d
 

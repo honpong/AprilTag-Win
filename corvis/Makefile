@@ -260,6 +260,6 @@ DEPS := $(DEPS) $(patsubst src/%,build/%, $(SOURCES:.c=.o.d) $(CXX_SOURCES:.cpp=
 all: $(TARGETS)
 
 clean:
-	rm -rf build bin
+	rm -rf build bin lib
 
 -include $(DEPS)

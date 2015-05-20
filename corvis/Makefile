@@ -2,14 +2,14 @@
 
 CC = gcc
 CXX = g++
-_CPPFLAGS := $(patsubst %,-isystem %/include,$(wildcard $(shell brew --prefix boost mathgl gsl 2>/dev/null) /opt/local))
+_CPPFLAGS := $(patsubst %,-isystem %/include,$(wildcard $(shell brew --prefix boost gsl 2>/dev/null) /opt/local))
 CPPFLAGS = $(_CPPFLAGS) -Wall -g -fPIC -march=core2 -mfpmath=sse -O3 -D DEBUG \
         -Wdeprecated-writable-strings
 CXXFLAGS = -std=c++1y
 CFLAGS = -std=gnu99
 LDFLAGS = -lpthread --warn-unresolved-symbols -O3 \
         -framework Accelerate \
-        $(patsubst %,-L%/lib,$(wildcard $(shell brew --prefix boost mathgl gsl 2>/dev/null) /opt/local)) \
+        $(patsubst %,-L%/lib,$(wildcard $(shell brew --prefix boost gsl 2>/dev/null) /opt/local)) \
 
 CPPFLAGS  += -MP -MMD -MF $@.d
 
@@ -99,8 +99,8 @@ CXX_SOURCES += $(FILTER_CXX_SOURCES)
 ############################## VIS ################################
 
 VIS_CXX_SOURCES = $(addprefix src/vis/, world_state.cpp world_state_render.cpp arcball.cpp offscreen_render.cpp gui.cpp lodepng.cpp gl_util.cpp render.cpp video_render.cpp)
-$(VIS_CXX_SOURCES): include/GLFW
-lib/vis.a: LDFLAGS += -framework OpenGL -lmgl
+$(VIS_CXX_SOURCES): include/GLFW include/mgl2
+lib/vis.a: LDFLAGS += -framework OpenGL
 lib/vis.a: CPPFLAGS += -Iinclude -Isrc/glfw/deps/ -Wno-deprecated-declarations
 lib/vis.a: $(patsubst src/%,build/%,$(VIS_CXX_SOURCES:.cpp=.o))
 
@@ -200,14 +200,24 @@ lib/libglfw3.a include/GLFW:
 
 TARGETS += lib/libglfw3.a
 
+############################## libmgl ############################
+lib/libmgl.dylib include/mgl2:
+	@mkdir -p build/mathgl/
+	@cd build/mathgl/ && cmake ../../src/mathgl/ -DCMAKE_INSTALL_PREFIX=../../ -Denable-lgpl:BOOL=true -Denable-openmp:BOOL=false -Denable-pthread:BOOL=false -Denable-opengl:BOOL=false -Denable-mpi:BOOL=false -Denable-all-widgets:BOOL=false -Denable-zlib:BOOL=false -Denable-png:BOOL=false
+	@cmake --build build/mathgl/ --target mgl
+	@cmake --build build/mathgl/ --target mgl-static
+	@cmake -P build/mathgl/cmake_install.cmake
+
+TARGETS += lib/libmgl.dylib
+
 ############################## MEASURE ############################
 
 MEASURE_CXX_SOURCES = src/tools/measure.cpp src/filter/replay.cpp
 CXX_SOURCES += $(MEASURE_CXX_SOURCES)
 
-bin/measure: LDFLAGS += -lstdc++ -lmgl
+bin/measure: LDFLAGS += -lstdc++
 bin/measure: CPPFLAGS += -Iinclude -Isrc/glfw/deps/
-bin/measure: $(patsubst src/%,build/%,$(MEASURE_CXX_SOURCES:.cpp=.o)) lib/libglfw3.a lib/libglad.a lib/filter.a lib/numerics.a lib/cor.a lib/vis.a lib/libzxing.a
+bin/measure: $(patsubst src/%,build/%,$(MEASURE_CXX_SOURCES:.cpp=.o)) lib/libglfw3.a lib/libglad.a lib/filter.a lib/numerics.a lib/cor.a lib/vis.a lib/libzxing.a lib/libmgl.dylib
 	@mkdir -p $(@D)
 	$(CC) $(LDFLAGS) $(shell pkg-config lib/pkgconfig/glfw3.pc --static --libs) $^ $(LDLIBS) -o $@
 

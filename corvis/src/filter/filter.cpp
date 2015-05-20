@@ -22,6 +22,8 @@
 int state_node::statesize;
 int state_node::maxstatesize;
 
+const static sensor_clock::duration max_camera_delay = std::chrono::microseconds(200000); //We drop a frame if it arrives at least this late
+const static sensor_clock::duration max_inertial_delay = std::chrono::microseconds(100000); //We drop inertial data if it arrives at least this late
 const static sensor_clock::duration min_steady_time = std::chrono::microseconds(100000); //time held steady before we start treating it as steady
 const static sensor_clock::duration steady_converge_time = std::chrono::microseconds(200000); //time that user needs to hold steady (us)
 const static int calibration_converge_samples = 200; //number of accelerometer readings needed to converge in calibration mode
@@ -415,6 +417,14 @@ void filter_accelerometer_measurement(struct filter *f, const float data[3], sen
     //This will throw away both the outlier measurement and the next measurement, because we update last every time. This prevents setting last to an outlier and never recovering.
     if(f->run_state == RCSensorFusionRunStateInactive) return;
     if(!check_packet_time(f, time, packet_accelerometer)) return;
+    if(!f->ignore_lateness) {
+        auto current = sensor_clock::now();
+        auto delta = current - time;
+        if(delta > max_inertial_delay) {
+            if(log_enabled) fprintf(stderr, "Warning, dropped an old accel sample - timestamp %lld, now %lld\n", sensor_clock::tp_to_micros(time), sensor_clock::tp_to_micros(current));
+            return;
+        }
+    }
     if(!f->got_accelerometer) { //skip first packet - has been crap from gyro
         f->got_accelerometer = true;
         return;
@@ -466,6 +476,14 @@ void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_
     //This will throw away both the outlier measurement and the next measurement, because we update last every time. This prevents setting last to an outlier and never recovering.
     if(f->run_state == RCSensorFusionRunStateInactive) return;
     if(!check_packet_time(f, time, packet_gyroscope)) return;
+    if(!f->ignore_lateness) {
+        auto current = sensor_clock::now();
+        auto delta = current - time;
+        if(delta > max_inertial_delay) {
+            if(log_enabled) fprintf(stderr, "Warning, dropped an old gyro sample - timestamp %lld, now %lld\n", sensor_clock::tp_to_micros(time), sensor_clock::tp_to_micros(current));
+            return;
+        }
+    }
     if(!f->got_gyroscope) { //skip the first piece of data as it seems to be crap
         f->got_gyroscope = true;
         return;
@@ -758,6 +776,10 @@ bool filter_image_measurement(struct filter *f, const unsigned char *data, int w
         
         auto current = sensor_clock::now();
         auto delta = current - time;
+        if(delta > max_camera_delay) {
+            if(log_enabled) fprintf(stderr, "Warning, dropped an old video frame - timestamp %lld, now %lld\n", sensor_clock::tp_to_micros(time), sensor_clock::tp_to_micros(current));
+            return false;
+        }
         if(!f->valid_delta) {
             f->mindelta = delta;
             f->valid_delta = true;

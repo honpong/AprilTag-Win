@@ -2,9 +2,9 @@
 
 CC = gcc
 CXX = g++
-CPPFLAGS = -Wall -g -fPIC -march=core2 -mfpmath=sse -O3 -D DEBUG \
-        $(patsubst %,-isystem %/include,$(wildcard $(shell brew --prefix boost mathgl gsl 2>/dev/null) /opt/local)) \
-        -Isrc/cor -Wdeprecated-writable-strings
+_CPPFLAGS := $(patsubst %,-isystem %/include,$(wildcard $(shell brew --prefix boost mathgl gsl 2>/dev/null) /opt/local))
+CPPFLAGS = $(_CPPFLAGS) -Wall -g -fPIC -march=core2 -mfpmath=sse -O3 -D DEBUG \
+        -Wdeprecated-writable-strings
 CXXFLAGS = -std=c++1y
 CFLAGS = -std=gnu99
 LDFLAGS = -lpthread --warn-unresolved-symbols -O3 \

@@ -3,8 +3,7 @@
 
 #include "lodepng.h"
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include "gl_util.h"
 
 static int width = 512;
 static int height = 512;
@@ -24,25 +23,6 @@ static GLfloat modelview_matrix[16] = {
     0.0f, 0.0f, 1.0f, 0.0f,
     0.0f, 0.0f, 0.0f, 1.0f
 };
-
-
-static void build_projection_matrix(float * projMatrix, float fov, float ratio, float nearP, float farP)
-{
-    float f = 1.0f / tan (fov * (M_PI / 360.0));
-
-    for(int i = 0; i < 16; i++) projMatrix[i] = 0;
-    projMatrix[0] = 1;
-    projMatrix[5] = 1;
-    projMatrix[10] = 1;
-    projMatrix[15] = 1;
-
-    projMatrix[0] = f / ratio;
-    projMatrix[1 * 4 + 1] = f;
-    projMatrix[2 * 4 + 2] = (farP + nearP) / (nearP - farP);
-    projMatrix[3 * 4 + 2] = (2.0f * farP * nearP) / (nearP - farP);
-    projMatrix[2 * 4 + 3] = -1.0f;
-    projMatrix[3 * 4 + 3] = 0.0f;
-}
 
 void configure_view()
 {

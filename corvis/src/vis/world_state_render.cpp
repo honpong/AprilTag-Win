@@ -3,200 +3,55 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#ifdef __APPLE__
-#include <TargetConditionals.h>
-#endif
+#include "gl_util.h"
+#include "render.h"
+#include "video_render.h"
 
-#if TARGET_OS_IPHONE
-#include <OpenGLES/ES2/gl.h>
-#else
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#endif
-
-static GLuint program;
-static GLuint vertexLoc, colorLoc;
-static GLuint projMatrixLoc, viewMatrixLoc;
-
-typedef struct _draw_item {
-    GLuint vertex_buffer_object[2];
-} draw_item;
-
-static draw_item grid_di, axis_di, feature_di, path_di, orientation_di;
-
-void printShaderInfoLog(GLuint obj)
-{
-    int infologLength = 0;
-    int charsWritten  = 0;
-    char *infoLog;
-
-    glGetShaderiv(obj, GL_INFO_LOG_LENGTH,&infologLength);
-
-    if (infologLength > 0)
-    {
-        infoLog = (char *)malloc(infologLength);
-        glGetShaderInfoLog(obj, infologLength, &charsWritten, infoLog);
-        printf("%s\n",infoLog);
-        free(infoLog);
-    }
-}
-
-void printProgramInfoLog(GLuint obj)
-{
-    int infologLength = 0;
-    int charsWritten  = 0;
-    char *infoLog;
-
-    glGetProgramiv(obj, GL_INFO_LOG_LENGTH,&infologLength);
-
-    if (infologLength > 0)
-    {
-        infoLog = (char *)malloc(infologLength);
-        glGetProgramInfoLog(obj, infologLength, &charsWritten, infoLog);
-        printf("%s\n",infoLog);
-        free(infoLog);
-    }
-}
-
-const char * vs =
-"#version 120\n"
-""
-"uniform mat4 viewMatrix, projMatrix;\n"
-" "
-"attribute vec3 position;\n"
-"attribute vec4 color;\n"
-"varying vec4 color_fs;\n"
-" "
-"void main()\n"
-"{\n"
-"    color_fs = color;\n"
-"    gl_Position = projMatrix * viewMatrix * vec4(position, 1);\n"
-//"    gl_Position = vec4(position[0], position[1], 0, 1.0);\n"
-"    gl_PointSize = 8.;\n"
-"}\n";
-
-const char * fs = ""
-"#version 120\n"
-" "
-"varying vec4 color_fs;\n"
-"varying vec4 color_out;\n"
-" "
-"void main()"
-"{\n"
-"    gl_FragColor = color_fs;\n"
-"}";
-
-const char * vs_es =
-"uniform mat4 viewMatrix, projMatrix;\n"
-" "
-"attribute vec3 position;\n"
-"attribute vec4 color;\n"
-"varying vec4 color_fs;\n"
-" "
-"void main()\n"
-"{\n"
-"    color_fs = color;\n"
-"    gl_Position = projMatrix * viewMatrix * vec4(position, 1);\n"
-"    gl_PointSize = 8.;\n"
-"}\n";
-
-const char * fs_es =
-"varying lowp vec4 color_fs;\n"
-"void main()\n"
-"{\n"
-"    gl_FragColor = color_fs;\n"
-"}";
-
-
-GLuint setupShaders() {
-
-    GLuint p,v,f;
-
-    v = glCreateShader(GL_VERTEX_SHADER);
-    f = glCreateShader(GL_FRAGMENT_SHADER);
-
-#if TARGET_OS_IPHONE
-    glShaderSource(v, 1, &vs_es,NULL);
-    glShaderSource(f, 1, &fs_es,NULL);
-#else
-    glShaderSource(v, 1, &vs,NULL);
-    glShaderSource(f, 1, &fs,NULL);
-#endif
-
-    glCompileShader(v);
-    glCompileShader(f);
-
-    printShaderInfoLog(v);
-    printShaderInfoLog(f);
-
-    p = glCreateProgram();
-    glAttachShader(p,v);
-    glAttachShader(p,f);
-
-    glLinkProgram(p);
-    printProgramInfoLog(p);
-
-    vertexLoc = glGetAttribLocation(p,"position");
-    colorLoc = glGetAttribLocation(p, "color");
-
-    projMatrixLoc = glGetUniformLocation(p, "projMatrix");
-    viewMatrixLoc = glGetUniformLocation(p, "viewMatrix");
-
-    return(p);
-}
-
-static inline void setup_draw_item(draw_item & item)
-{
-    glGenBuffers(2, item.vertex_buffer_object);
-}
-
-void setup_world()
-{
-    setup_draw_item(grid_di);
-    setup_draw_item(axis_di);
-    setup_draw_item(feature_di);
-    setup_draw_item(path_di);
-    setup_draw_item(orientation_di);
-}
-
-static inline void draw_buffer(draw_item & item, VertexData * data, int number, int gl_type)
-{
-    glBindBuffer(GL_ARRAY_BUFFER, item.vertex_buffer_object[0]);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData)*number, &data[0].position, GL_DYNAMIC_DRAW);
-    glEnableVertexAttribArray(vertexLoc);
-    glVertexAttribPointer(vertexLoc, 3, GL_FLOAT, 0, sizeof(VertexData), 0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, item.vertex_buffer_object[1]);
-    //TODO: is this copying too much data?
-    glBufferData(GL_ARRAY_BUFFER, sizeof(VertexData)*number - sizeof(data[0].position), &data[0].color, GL_DYNAMIC_DRAW);
-    glEnableVertexAttribArray(colorLoc);
-    glVertexAttribPointer(colorLoc, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(VertexData), 0);
-
-    glDrawArrays(gl_type, 0, number);
-}
+static video_render frame_render;
+static video_render plot_render;
+static render render;
 
 bool world_state_render_init()
 {
-    program = setupShaders();
+    render.gl_init();
     glEnable(GL_DEPTH_TEST);
 
-    setup_world();
     return true;
 }
 
 void world_state_render_teardown()
 {
+    render.gl_destroy();
+}
+
+bool world_state_render_video_init()
+{
+    frame_render.gl_init();
+    return true;
+}
+
+void world_state_render_video_teardown()
+{
+    frame_render.gl_destroy();
+}
+
+void world_state_render_video(world_state * world, int viewport_width, int viewport_height)
+{
+    glClear(GL_COLOR_BUFFER_BIT);
+    world->display_lock.lock();
+    world->image_lock.lock();
+    frame_render.render(world->last_image.image, world->last_image.width, world->last_image.height, viewport_width, viewport_height, true);
+    glLineWidth(2.0f);
+    frame_render.draw_overlay(world->feature_ellipse_vertex, world->feature_ellipse_vertex_num, GL_LINES, world->last_image.width, world->last_image.height, viewport_width, viewport_height);
+    world->image_lock.unlock();
+    world->display_lock.unlock();
 }
 
 void world_state_render(world_state * world, float * viewMatrix, float * projMatrix)
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glUseProgram(program);
-
-    // must be called after glUseProgram
-    glUniformMatrix4fv(projMatrixLoc,  1, false, projMatrix);
-    glUniformMatrix4fv(viewMatrixLoc,  1, false, viewMatrix);
+    render.start_render(viewMatrix, projMatrix);
 
     world->display_lock.lock();
 
@@ -204,12 +59,107 @@ void world_state_render(world_state * world, float * viewMatrix, float * projMat
     glPointSize(3.0f);
 #endif
     glLineWidth(2.0f);
-    draw_buffer(grid_di, world->grid_vertex, world->grid_vertex_num, GL_LINES);
+    render.draw_array(world->grid_vertex, world->grid_vertex_num, GL_LINES);
     glLineWidth(4.0f);
-    draw_buffer(axis_di, world->axis_vertex, world->axis_vertex_num, GL_LINES);
-    draw_buffer(orientation_di, world->orientation_vertex, world->orientation_vertex_num, GL_LINES);
-    draw_buffer(feature_di, world->feature_vertex, world->feature_vertex_num, GL_POINTS);
-    draw_buffer(path_di, world->path_vertex, world->path_vertex_num, GL_POINTS);
+    render.draw_array(world->axis_vertex, world->axis_vertex_num, GL_LINES);
+    render.draw_array(world->orientation_vertex, world->orientation_vertex_num, GL_LINES);
+    render.draw_array(world->feature_vertex, world->feature_vertex_num, GL_POINTS);
+    render.draw_array(world->path_vertex, world->path_vertex_num, GL_POINTS);
 
     world->display_lock.unlock();
+}
+
+bool world_state_render_plot_init()
+{
+    plot_render.gl_init();
+    return true;
+}
+
+void world_state_render_plot_teardown()
+{
+    plot_render.gl_destroy();
+}
+
+static int plot_width = 600;
+static int plot_height = 400;
+static uint8_t * plot_frame = NULL;
+#ifdef WIN32
+static void create_plot(world_state * state, int index) {}
+#else // !WIN32
+
+#if TARGET_OS_IPHONE
+static void create_plot(world_state * state, int index) {}
+#else // !TARGET_OS_IPHONE
+
+#include "lodepng.h"
+#define _MSC_VER 1900 // Force mathgl to avoid C99's typeof
+#include <mgl2/mgl.h>
+#undef _MSC_VER
+
+static void create_plot(world_state * state, int index)
+{
+    mglGraph gr(0,plot_width,plot_height); // 600x400 graph, plotted to an image
+    if(!plot_frame)
+        plot_frame = (uint8_t *)malloc(plot_width*plot_height*4*sizeof(uint8_t));
+
+    // mglData stores the x and y data to be plotted
+    state->render_plot(index, [&] (world_state::plot &plot) {
+        gr.NewFrame();
+        gr.Alpha(false);
+        gr.Clf('w');
+        gr.SubPlot(1,1,0,"T");
+        gr.Box();
+        float minx = std::numeric_limits<float>::max(), maxx = std::numeric_limits<float>::min();
+        float miny = std::numeric_limits<float>::max(), maxy = std::numeric_limits<float>::min();
+        std::string names;
+        const char *colors[] = {"r","g","b"}; int i=0;
+
+        for (auto &kv : plot) {
+            const std::string &name = kv.first; const plot_data &p = kv.second;
+            names += (names.size() ? " " : "") + name;
+
+            mglData data_x(p.size());
+            mglData data_y(p.size());
+            auto first = sensor_clock::tp_to_micros(p.front().first);
+
+            int j = 0;
+            for(auto data : p) {
+                float seconds = (sensor_clock::tp_to_micros(data.first) - first)/1e6;
+                if(seconds < minx) minx = seconds;
+                if(seconds > maxx) maxx = seconds;
+                data_x.a[j] = seconds;
+
+                float val = data.second;
+                if(val < miny) miny = val;
+                if(val > maxy) maxy = val;
+                data_y.a[j++] = val;
+            }
+
+            gr.SetRange('x', minx, maxx);
+            gr.SetRange('y', miny, maxy);
+            gr.Plot(data_x, data_y, colors[i++%3]);
+        }
+
+
+        gr.Axis();
+        gr.Title(names.c_str(),"k",6);
+        gr.EndFrame();
+        gr.GetRGBA((char *)plot_frame, plot_width*plot_height*4);
+
+        //Encode the image
+        //std::string filename = names + ".png";
+        //unsigned error = lodepng::encode(filename.c_str(), plot_frame, plot_width, plot_height);
+        //if(error)
+        //    fprintf(stderr, "encoder error %d: %s\n", error, lodepng_error_text(error));
+    });
+}
+#endif //TARGET_OS_IPHONE
+#endif //WIN32
+
+void world_state_render_plot(world_state * world, int index, int viewport_width, int viewport_height)
+{
+    glClear(GL_COLOR_BUFFER_BIT);
+    create_plot(world, index);
+    if(plot_frame)
+        plot_render.render(plot_frame, plot_width, plot_height, viewport_width, viewport_height, false);
 }

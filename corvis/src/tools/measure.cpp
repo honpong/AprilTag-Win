@@ -6,7 +6,7 @@
 int main(int c, char **v)
 {
     if (0) { usage:
-        cerr << "Usage: " << v[0] << " [--gui] [--realtime] [--render <file.png>] <filename> <devicename>\n";
+        cerr << "Usage: " << v[0] << " [--no-gui] [--realtime] [--no-plots] [--no-video] [--no-main] [--render <file.png>] <filename> <devicename>\n";
         return 1;
     }
 
@@ -15,13 +15,16 @@ int main(int c, char **v)
     world_state ws;
 
     bool realtime = false;
-    bool enable_gui = false;
+    bool enable_gui = true, show_plots = true, show_video = true, show_main = true;
     char *devicename = nullptr, *filename = nullptr, *rendername = nullptr;
     for (int i=1; i<c; i++)
         if      (v[i][0] != '-' && !filename) filename = v[i];
         else if (v[i][0] != '-' && !devicename) devicename = v[i];
-        else if (strcmp(v[i], "--gui") == 0) enable_gui = true;
+        else if (strcmp(v[i], "--no-gui") == 0) enable_gui = false;
         else if (strcmp(v[i], "--realtime") == 0) realtime = true;
+        else if (strcmp(v[i], "--no-plots") == 0) show_plots = false;
+        else if (strcmp(v[i], "--no-video") == 0) show_video = false;
+        else if (strcmp(v[i], "--no-main")  == 0) show_main  = false;
         else if (strcmp(v[i], "--render") == 0 && i+1 < c) rendername = v[++i];
         else goto usage;
 
@@ -32,18 +35,16 @@ int main(int c, char **v)
         realtime = true;
 
     std::function<void (float)> progress;
-    std::function<void (const filter *, sensor_clock::time_point, enum packet_type)> packet;
+    std::function<void (const filter *, camera_data &&)> camera_callback;
 
-    gui vis(&ws);
+    gui vis(&ws, show_main, show_video, show_plots);
 
-    // TODO: make this a command line option
-    // For command line visualization
     if(rendername || enable_gui)
-        packet = [&](const filter * f, sensor_clock::time_point ts, enum packet_type packet_type) {
-            ws.receive_packet(f, ts, packet_type);
+        camera_callback = [&](const filter * f, camera_data &&d) {
+            ws.receive_camera(f, std::move(d));
         };
 
-    if(!rp.configure_all(filename, devicename, realtime, progress, packet)) return -1;
+    if(!rp.configure_all(filename, devicename, realtime, progress, camera_callback)) return -1;
     
     if(enable_gui) { // The GUI must be on the main thread
         std::thread replay_thread([&](void) { rp.start(); });

@@ -22,7 +22,7 @@ public class IMUManager
 		final Sensor accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		if (accelerometer != null && mListener != null) mSensorManager.registerListener(mListener, accelerometer, SENSOR_REPORT_RATE);
 		
-		final Sensor gyro = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE);
+		final Sensor gyro = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED);
 		if (gyro != null && mListener != null) mSensorManager.registerListener(mListener, gyro, SENSOR_REPORT_RATE);
 	}
 	

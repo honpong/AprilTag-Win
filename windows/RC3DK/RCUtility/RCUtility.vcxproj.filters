@@ -16,15 +16,6 @@
     <Filter Include="Source Files\SensorManagers">
       <UniqueIdentifier>{11065ee0-20eb-422a-a17d-b60bd63be980}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\corvis">
-      <UniqueIdentifier>{f7d5db1e-05d5-4940-bca0-d4aeb7d84752}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\corvis\cor">
-      <UniqueIdentifier>{92119e38-956a-499e-b1f9-8d64175a133a}</UniqueIdentifier>
-    </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -42,23 +33,8 @@
     <ClInclude Include="LocationManager.h">
       <Filter>Source Files\SensorManagers</Filter>
     </ClInclude>
-    <ClInclude Include="VideoManager.h">
-      <Filter>Source Files\SensorManagers</Filter>
-    </ClInclude>
-    <ClInclude Include="Debug.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="RCUtility.h">
       <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CaptureManager.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CalibrationManager.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SensorManager.h">
-      <Filter>Source Files\SensorManagers</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -68,29 +44,11 @@
     <ClCompile Include="RCUtility.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Debug.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="IMUManager.cpp">
       <Filter>Source Files\SensorManagers</Filter>
     </ClCompile>
     <ClCompile Include="LocationManager.cpp">
       <Filter>Source Files\SensorManagers</Filter>
-    </ClCompile>
-    <ClCompile Include="VideoManager.cpp">
-      <Filter>Source Files\SensorManagers</Filter>
-    </ClCompile>
-    <ClCompile Include="CaptureManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CalibrationManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SensorManager.cpp">
-      <Filter>Source Files\SensorManagers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\cor\platform\win\sensor_data.cpp">
-      <Filter>Source Files\corvis\cor</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

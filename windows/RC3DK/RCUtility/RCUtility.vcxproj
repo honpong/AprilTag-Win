@@ -40,12 +40,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(VC_IncludePath);$(UniversalCRT_IncludePath);$(WindowsSDK_IncludePath);$(RSSDK_DIR)\include</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(UniversalCRT_IncludePath);$(WindowsSDK_IncludePath);$(RSSDK_DIR)\include;../../RealityCapLib</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(UniversalCRT_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(RSSDK_DIR)\lib\$(PlatformName)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>$(VC_IncludePath);$(UniversalCRT_IncludePath);$(WindowsSDK_IncludePath);$(RSSDK_DIR)\include</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(UniversalCRT_IncludePath);$(WindowsSDK_IncludePath);$(RSSDK_DIR)\include;../../RealityCapLib</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(UniversalCRT_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(RSSDK_DIR)\lib\$(PlatformName)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -96,35 +96,21 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="CalibrationManager.h" />
-    <ClInclude Include="CaptureManager.h" />
-    <ClInclude Include="Debug.h" />
     <ClInclude Include="IMUManager.h" />
     <ClInclude Include="LocationManager.h" />
     <ClInclude Include="RCUtility.h" />
     <ClInclude Include="Resource.h" />
-    <ClInclude Include="SensorManager.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="VideoManager.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\corvis\src\cor\platform\win\sensor_data.cpp" />
-    <ClCompile Include="CalibrationManager.cpp" />
-    <ClCompile Include="CaptureManager.cpp" />
-    <ClCompile Include="Debug.cpp" />
     <ClCompile Include="IMUManager.cpp" />
     <ClCompile Include="LocationManager.cpp" />
     <ClCompile Include="RCUtility.cpp" />
-    <ClCompile Include="SensorManager.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="VideoManager.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="RCUtility.rc" />
@@ -134,8 +120,8 @@
     <Image Include="small.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\AccelerometerLib\AccelerometerLib\AccelerometerLib.vcxproj">
-      <Project>{be1158fd-a233-4f28-afc6-fe5273c20794}</Project>
+    <ProjectReference Include="..\..\RealityCapLib\RealityCapLib.vcxproj">
+      <Project>{69db8593-ff2e-45c6-8739-1ea4a539c776}</Project>
     </ProjectReference>
     <ProjectReference Include="..\RC3DK\RC3DK.vcxproj">
       <Project>{e4e5a177-07b4-42ae-aa31-db608571e6b6}</Project>

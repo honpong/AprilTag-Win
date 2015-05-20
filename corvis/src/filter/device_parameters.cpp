@@ -46,6 +46,8 @@ corvis_device_type get_device_by_name(const char *name)
     if(device_name.find("ipadminiretina") == 0) return DEVICE_TYPE_IPADMINIRETINA;
     if(device_name.find("ipadmini") == 0) return DEVICE_TYPE_IPADMINI;
 
+    if (device_name.find("gigabyte_s11") == 0) return DEVICE_TYPE_GIGABYTE_S11;
+
     return DEVICE_TYPE_UNKNOWN;
 }
 
@@ -239,6 +241,17 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
             dc->Tc[1] = 0.070f;
             dc->Tc[2] = 0.000f;
             return true;
+
+        case DEVICE_TYPE_GIGABYTE_S11: //TBD
+            dc->Fx = 627.f / 640.f * max_dim;
+            dc->Fy = dc->Fx;
+            dc->K[0] = .17f;
+            dc->K[1] = -.38f;
+            dc->Tc[0] = 0.064f;
+            dc->Tc[1] = -0.017f;
+            dc->Tc[2] = 0.f;
+            return true;
+
         case DEVICE_TYPE_UNKNOWN:
         default:
             dc->Fx = 600.f/640.f * max_dim;
@@ -288,6 +301,15 @@ bool get_parameters_for_device_name(const char * config_name, struct corvis_devi
         set_initialized(dc);
     }
 
+    else if(device_name == "iphone6_jim") {
+        dc->a_bias[0] = -0.01877559f;
+        dc->a_bias[1] = -0.01222747f;
+        dc->a_bias[2] = -0.007556485f;
+        dc->w_bias[0] = -0.02167661f;
+        dc->w_bias[1] = -0.03419807f;
+        dc->w_bias[2] = -0.01573849f;
+        set_initialized(dc);
+    }
     else if(device_name == "iphone5_jordan") {
         dc->a_bias[0] = -0.00145f;
         dc->a_bias[1] = -0.143f;

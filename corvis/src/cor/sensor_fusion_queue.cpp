@@ -77,9 +77,9 @@ T sensor_queue<T, size>::pop(const std::unique_lock<std::mutex> &lock)
     return std::move(storage[oldpos]);
 }
 
-fusion_queue::fusion_queue(const std::function<void(const camera_data &)> &camera_func,
-                           const std::function<void(const accelerometer_data &)> &accelerometer_func,
-                           const std::function<void(const gyro_data &)> &gyro_func,
+fusion_queue::fusion_queue(const std::function<void(camera_data &&)> &camera_func,
+                           const std::function<void(accelerometer_data &&)> &accelerometer_func,
+                           const std::function<void(gyro_data &&)> &gyro_func,
                            latency_strategy s,
                            sensor_clock::duration cam_period,
                            sensor_clock::duration inertial_period,

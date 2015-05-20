@@ -69,21 +69,21 @@ void capture::write_gyroscope_data(const float data[3], uint64_t timestamp)
 
 void capture::setup_queue()
 {
-    auto cam_fn = [this](const camera_data &data)
+    auto cam_fn = [this](camera_data &&data)
     {
         auto micros = std::chrono::duration_cast<std::chrono::microseconds>(data.timestamp.time_since_epoch()).count();
         got_camera = true;
         if (got_camera && got_accel && got_gyro) write_camera_data(data.image, data.width, data.height, data.stride, micros);
     };
 
-    auto acc_fn = [this](const accelerometer_data &data)
+    auto acc_fn = [this](accelerometer_data &&data)
     {
         auto micros = std::chrono::duration_cast<std::chrono::microseconds>(data.timestamp.time_since_epoch()).count();
         got_accel = true;
         if (got_camera && got_accel && got_gyro) write_accelerometer_data(data.accel_m__s2, micros);
     };
 
-    auto gyr_fn = [this](const gyro_data &data)
+    auto gyr_fn = [this](gyro_data &&data)
     {
         auto micros = std::chrono::duration_cast<std::chrono::microseconds>(data.timestamp.time_since_epoch()).count();
         got_gyro = true;

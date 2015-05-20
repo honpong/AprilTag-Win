@@ -19,6 +19,9 @@ state_vision_feature::state_vision_feature(f_t initialx, f_t initialy): state_le
 {
     id = counter++;
     set_initial_variance(initial_var);
+    innovation_variance_x = 0.;
+    innovation_variance_y = 0.;
+    innovation_variance_xy = 0.;
     v.set_depth_meters(initial_depth_meters);
     set_process_noise(initial_process_noise);
     image_velocity.x = 0;

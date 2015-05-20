@@ -1,28 +1,17 @@
-#BUILD_CAMERA:=TRUE
-
 ############################ DEFINITIONS ###########################
 
-SWIG := swig
-WXGLADE := wxglade
-CC := gcc
-CXX := g++
-PYTHON_CFLAGS := $(shell python-config --includes) -I$(shell python -c 'import numpy; print numpy.__path__[0] + "/core/include"')
-PYTHON_LDFLAGS := $(shell python-config --libs)
-# -ftree-vectorize -ffast-math 
-CPPFLAGS = $(_CPPFLAGS) -Wall -g -fPIC -march=core2 -mfpmath=sse -O3 -D DEBUG
-_CPPFLAGS := \
-        $(patsubst %,-isystem %/include,$(wildcard $(shell brew --prefix boost mathgl gsl 2>/dev/null) /opt/local)) \
-        $(shell pkg-config ftgl --cflags) -Isrc/cor -Wdeprecated-writable-strings
-CXXFLAGS := -std=c++1y
-CFLAGS := -std=gnu99
-LDFLAGS := -lpthread --warn-unresolved-symbols -O3 \
+CC = gcc
+CXX = g++
+_CPPFLAGS := $(patsubst %,-isystem %/include,$(wildcard $(shell brew --prefix boost mathgl gsl 2>/dev/null) /opt/local))
+CPPFLAGS = $(_CPPFLAGS) -Wall -g -fPIC -march=core2 -mfpmath=sse -O3 -D DEBUG \
+        -Wdeprecated-writable-strings
+CXXFLAGS = -std=c++1y
+CFLAGS = -std=gnu99
+LDFLAGS = -lpthread --warn-unresolved-symbols -O3 \
         -framework Accelerate \
         $(patsubst %,-L%/lib,$(wildcard $(shell brew --prefix boost mathgl gsl 2>/dev/null) /opt/local)) \
-        $(shell pkg-config ftgl --libs)
-SWIGFLAGS = -w403,362,389,503,401,462,472,314,509,204
 
 CPPFLAGS  += -MP -MMD -MF $@.d
-SWIGFLAGS += -MP -MMD -MF $@.d
 
 ####################### RULES ######################################
 
@@ -33,10 +22,8 @@ all:
 Q=$(if $V,,@)
 _CC := $(CC)
 _CXX := $(CXX)
-_SWIG := $(SWIG)
 _AS := $(AS)
 _AR := $(AR)
-_WXGLADE := $(WXGLADE)
 
 %.o: override CC=$(Q)printf "%32s %s\n" "Compiling" $<; $(_CC)
 %.o: override CXX=$(Q)printf "%32s %s\n" "Compiling" $<; $(_CXX)
@@ -44,17 +31,10 @@ _WXGLADE := $(WXGLADE)
 %.S: override CXX=$(Q)printf "%32s %s\n" "Generating code" $<; $(_CXX)
 %.E: override CC=$(Q)printf "%32s %s\n" "Preprocessing" $<; $(_CC)
 %.E: override CXX=$(Q)printf "%32s %s\n" "Preprocessing" $<; $(_CXX)
-%.c: override SWIG=$(Q)printf "%32s %s\n" "SWIG Wrapping" $<; $(_SWIG)
-%.cpp: override SWIG=$(Q)printf "%32s %s\n" "SWIG Wrapping" $<; $(_SWIG)
-%.py: override WXGLADE=$(Q)printf "%32s %s\n" "Generating GUI" $<; $(_WXGLADE)
 %.o: override AS=$(Q)printf "%32s %s\n" "Assembling" $<; $(_AS)
 %.so: override CC=$(Q)printf "%32s %s\n" "Linking" $(@); $(_CC)
 %.a: override AR=$(Q)printf "%32s %s\n" "Archiving" $(@); $(_AR)
 bin/%:override CC=$(Q)printf "%32s %s\n" "Linking" $(@); $(_CC)
-
-%.py: %.wxg
-	@mkdir -p $(@D)
-	$(WXGLADE) -g python -o $@ $<
 
 %.a:
 	@mkdir -p $(@D)
@@ -63,18 +43,6 @@ bin/%:override CC=$(Q)printf "%32s %s\n" "Linking" $(@); $(_CC)
 %.so:
 	@mkdir -p $(@D)
 	$(CC) -shared -undefined suppress -flat_namespace $(LDFLAGS) $^ $(LDLIBS) -o $@
-
-bin/corvis/_%.so: LDGLAGS += $(PYTHON_LDFLAGS)
-
-build/swig/%.o: CPPFLAGS += $(PYTHON_CFLAGS)
-
-build/swig/_%.c: swig/_%.i
-	@mkdir -p $(@D) bin/corvis
-	$(SWIG) -python      -threads $(SWIGFLAGS) -o $@ -outdir bin/corvis -Isrc/$(*F) $<
-
-build/swig/_%.cpp: swig/_%.ipp
-	@mkdir -p $(@D) bin/corvis
-	$(SWIG) -python -c++ -threads $(SWIGFLAGS) -o $@ -outdir bin/corvis -Isrc/$(*F) $<
 
 build/%.o: src/%.c
 	@mkdir -p $(@D)
@@ -100,223 +68,181 @@ build/%.S: src/%.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -S -o $@ $<
 
-%/__init__.py:
-	@mkdir -p $(@D)
-	$(Q)touch $@
-
-
 ############################## COR ############################
 
-COR_SOURCES := $(addprefix src/cor/, packet.c mapbuffer.c timestamp.c plugins.c dispatch.c debug.c)
-COR_CXX_SOURCES := $(addprefix src/cor/, sensor_fusion_queue.cpp platform/shell/sensor_data.cpp platform/shell/sensor_clock.cpp)
+COR_CXX_SOURCES = $(addprefix src/cor/, sensor_fusion_queue.cpp platform/shell/sensor_data.cpp platform/shell/sensor_clock.cpp)
 
-bin/corvis/_cor.so: $(patsubst src/%,build/%,$(COR_SOURCES:.c=.o)) $(patsubst src/%,build/%,$(COR_CXX_SOURCES:.cpp=.o)) build/swig/_cor.o
+lib/cor.a: $(patsubst src/%,build/%,$(COR_CXX_SOURCES:.cpp=.o))
 
-TARGETS := $(TARGETS) build/swig/_cor.c bin/corvis/_cor.so bin/corvis/__init__.py
-SOURCES := $(SOURCES) $(COR_SOURCES)
-CXX_SOURCES := $(CXX_SOURCES) $(COR_CXX_SOURCES)
-DEPS := $(DEPS) build/swig/_cor.c.d
+TARGETS += lib/cor.a
+CXX_SOURCES += $(COR_CXX_SOURCES)
 
 ############################## NUMERICS ############################
 
-NUMERICS_CXX_SOURCES := $(addprefix src/numerics/, rotation_vector.cpp vec4.cpp matrix.cpp kalman.cpp)
-bin/corvis/_numerics.so: LDFLAGS := $(LDFLAGS) -lm -lcblas -llapack -lstdc++
-bin/corvis/_numerics.so: $(patsubst src/%,build/%,$(NUMERICS_CXX_SOURCES:.cpp=.o)) build/swig/_numerics.o
+NUMERICS_CXX_SOURCES = $(addprefix src/numerics/, rotation_vector.cpp vec4.cpp matrix.cpp kalman.cpp)
+lib/numerics.a: LDFLAGS += -lm -lcblas -llapack -lstdc++
+lib/numerics.a: $(patsubst src/%,build/%,$(NUMERICS_CXX_SOURCES:.cpp=.o))
 
-TARGETS := $(TARGETS) build/swig/_numerics.cpp bin/corvis/_numerics.so bin/corvis/__init__.py
-CXX_SOURCES := $(CXX_SOURCES) $(NUMERICS_CXX_SOURCES)
-DEPS := $(DEPS) build/swig/_numerics.cpp.d
+TARGETS += lib/numerics.a
+CXX_SOURCES += $(NUMERICS_CXX_SOURCES)
 
 ############################## FILTER ############################
 
-FILTER_CXX_SOURCES := $(addprefix src/filter/, filter.cpp state_vision.cpp state_motion.cpp state.cpp observation.cpp filter_setup.cpp fast_detector/fast_9.cpp scaled_mask.cpp camera_control_interface_dummy.cpp homography.cpp qr.cpp device_parameters.cpp)
+FILTER_CXX_SOURCES = $(addprefix src/filter/, filter.cpp state_vision.cpp state_motion.cpp observation.cpp filter_setup.cpp fast_detector/fast_9.cpp scaled_mask.cpp camera_control_interface_dummy.cpp homography.cpp qr.cpp device_parameters.cpp)
 
-FILTER_SOURCES :=
+lib/filter.a: CPPFLAGS += -Isrc/libzxing-cpp/ -Isrc/glfw/deps/
+lib/filter.a:$(patsubst src/%,build/%,$(FILTER_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(FILTER_SOURCES:.c=.o))
 
-#bin/swig/_filter.so: LDFLAGS := $(LDFLAGS) `pkg-config --libs opencv`
-bin/corvis/_filter.so:$(patsubst src/%,build/%,$(FILTER_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(FILTER_SOURCES:.c=.o)) bin/_libzxing.a build/swig/_filter.o
-
-TARGETS := $(TARGETS) build/swig/_filter.cpp bin/corvis/_filter.so bin/corvis/__init__.py
-CXX_SOURCES := $(CXX_SOURCES) $(FILTER_CXX_SOURCES)
-SOURCES := $(SOURCES) $(FILTER_SOURCES)
-DEPS := $(DEPS) build/swig/_filter.cpp.d
+TARGETS += lib/filter.a
+CXX_SOURCES += $(FILTER_CXX_SOURCES)
 
 ############################## VIS ################################
 
-VIS_CXX_SOURCES := $(addprefix src/vis/, world_state.cpp world_state_render.cpp arcball.cpp offscreen_render.cpp gui.cpp lodepng.cpp)
-bin/corvis/_vis.so: LDFLAGS := $(LDFLAGS) -framework OpenGL -lmgl
-bin/corvis/_vis.so: $(patsubst src/%,build/%,$(VIS_CXX_SOURCES:.cpp=.o))
+VIS_CXX_SOURCES = $(addprefix src/vis/, world_state.cpp world_state_render.cpp arcball.cpp offscreen_render.cpp gui.cpp lodepng.cpp gl_util.cpp render.cpp video_render.cpp)
+$(VIS_CXX_SOURCES): include/GLFW
+lib/vis.a: LDFLAGS += -framework OpenGL -lmgl
+lib/vis.a: CPPFLAGS += -Iinclude -Isrc/glfw/deps/ -Wno-deprecated-declarations
+lib/vis.a: $(patsubst src/%,build/%,$(VIS_CXX_SOURCES:.cpp=.o))
 
-_CPPFLAGS := $(_CPPFLAGS) -Wno-deprecated-declarations
-
-TARGETS := $(TARGETS) bin/corvis/_vis.so
-CXX_SOURCES := $(CXX_SOURCES) $(VIS_CXX_SOURCES)
+TARGETS += lib/vis.a
+CXX_SOURCES += $(VIS_CXX_SOURCES)
 
 
 ############################## LIBZXING ##########################
 
-d := libzxing-cpp
-
-_CPPFLAGS := $(_CPPFLAGS) -Isrc/$(d)/ -DNO_ICONV
-
-LIBZXING_CXX_SOURCES := $(addprefix src/$(d)/zxing/, BarcodeFormat.cpp Binarizer.cpp BinaryBitmap.cpp ChecksumException.cpp DecodeHints.cpp Exception.cpp FormatException.cpp InvertedLuminanceSource.cpp LuminanceSource.cpp MultiFormatReader.cpp Reader.cpp Result.cpp ResultIO.cpp ResultPoint.cpp ResultPointCallback.cpp)
+LIBZXING_CXX_SOURCES = $(addprefix src/libzxing-cpp/zxing/, BarcodeFormat.cpp Binarizer.cpp BinaryBitmap.cpp ChecksumException.cpp DecodeHints.cpp Exception.cpp FormatException.cpp InvertedLuminanceSource.cpp LuminanceSource.cpp MultiFormatReader.cpp Reader.cpp Result.cpp ResultIO.cpp ResultPoint.cpp ResultPointCallback.cpp)
 
 # Common
-LIBZXING_CXX_SOURCES := $(LIBZXING_CXX_SOURCES) $(addprefix src/$(d)/zxing/common/, BitArray.cpp BitArrayIO.cpp BitMatrix.cpp BitSource.cpp CharacterSetECI.cpp DecoderResult.cpp DetectorResult.cpp GlobalHistogramBinarizer.cpp GreyscaleLuminanceSource.cpp GreyscaleRotatedLuminanceSource.cpp GridSampler.cpp HybridBinarizer.cpp HybridFastBinarizer.cpp IllegalArgumentException.cpp PerspectiveTransform.cpp Str.cpp StringUtils.cpp detector/MonochromeRectangleDetector.cpp detector/WhiteRectangleDetector.cpp reedsolomon/GenericGF.cpp reedsolomon/GenericGFPoly.cpp reedsolomon/ReedSolomonDecoder.cpp reedsolomon/ReedSolomonException.cpp)
+LIBZXING_CXX_SOURCES += $(addprefix src/libzxing-cpp/zxing/common/, BitArray.cpp BitArrayIO.cpp BitMatrix.cpp BitSource.cpp CharacterSetECI.cpp DecoderResult.cpp DetectorResult.cpp GlobalHistogramBinarizer.cpp GreyscaleLuminanceSource.cpp GreyscaleRotatedLuminanceSource.cpp GridSampler.cpp HybridBinarizer.cpp HybridFastBinarizer.cpp IllegalArgumentException.cpp PerspectiveTransform.cpp Str.cpp StringUtils.cpp detector/MonochromeRectangleDetector.cpp detector/WhiteRectangleDetector.cpp reedsolomon/GenericGF.cpp reedsolomon/GenericGFPoly.cpp reedsolomon/ReedSolomonDecoder.cpp reedsolomon/ReedSolomonException.cpp)
 
 # qrcode
-LIBZXING_CXX_SOURCES := $(LIBZXING_CXX_SOURCES) $(addprefix src/$(d)/zxing/qrcode/, ErrorCorrectionLevel.cpp FormatInformation.cpp QRCodeReader.cpp Version.cpp decoder/BitMatrixParser.cpp decoder/DataBlock.cpp decoder/DataMask.cpp decoder/DecodedBitStreamParser.cpp decoder/Decoder.cpp decoder/Mode.cpp detector/AlignmentPattern.cpp detector/AlignmentPatternFinder.cpp detector/Detector.cpp detector/FinderPattern.cpp detector/FinderPatternFinder.cpp detector/FinderPatternInfo.cpp)
+LIBZXING_CXX_SOURCES += $(addprefix src/libzxing-cpp/zxing/qrcode/, ErrorCorrectionLevel.cpp FormatInformation.cpp QRCodeReader.cpp Version.cpp decoder/BitMatrixParser.cpp decoder/DataBlock.cpp decoder/DataMask.cpp decoder/DecodedBitStreamParser.cpp decoder/Decoder.cpp decoder/Mode.cpp detector/AlignmentPattern.cpp detector/AlignmentPatternFinder.cpp detector/Detector.cpp detector/FinderPattern.cpp detector/FinderPatternFinder.cpp detector/FinderPatternInfo.cpp)
 
 # datamatrix
-LIBZXING_CXX_SOURCES := $(LIBZXING_CXX_SOURCES) $(addprefix src/$(d)/zxing/datamatrix/, DataMatrixReader.cpp Version.cpp decoder/BitMatrixParser.cpp decoder/DataBlock.cpp decoder/DecodedBitStreamParser.cpp decoder/Decoder.cpp detector/CornerPoint.cpp detector/Detector.cpp detector/DetectorException.cpp)
+LIBZXING_CXX_SOURCES += $(addprefix src/libzxing-cpp/zxing/datamatrix/, DataMatrixReader.cpp Version.cpp decoder/BitMatrixParser.cpp decoder/DataBlock.cpp decoder/DecodedBitStreamParser.cpp decoder/Decoder.cpp detector/CornerPoint.cpp detector/Detector.cpp detector/DetectorException.cpp)
 
 # pdf417
-LIBZXING_CXX_SOURCES := $(LIBZXING_CXX_SOURCES) $(addprefix src/$(d)/zxing/pdf417/, PDF417Reader.cpp decoder/BitMatrixParser.cpp decoder/DecodedBitStreamParser.cpp decoder/Decoder.cpp decoder/ec/ErrorCorrection.cpp decoder/ec/ModulusGF.cpp decoder/ec/ModulusPoly.cpp detector/Detector.cpp detector/LinesSampler.cpp)
+LIBZXING_CXX_SOURCES += $(addprefix src/libzxing-cpp/zxing/pdf417/, PDF417Reader.cpp decoder/BitMatrixParser.cpp decoder/DecodedBitStreamParser.cpp decoder/Decoder.cpp decoder/ec/ErrorCorrection.cpp decoder/ec/ModulusGF.cpp decoder/ec/ModulusPoly.cpp detector/Detector.cpp detector/LinesSampler.cpp)
 
 # oned
-LIBZXING_CXX_SOURCES := $(LIBZXING_CXX_SOURCES) $(addprefix src/$(d)/zxing/oned/, CodaBarReader.cpp Code128Reader.cpp Code39Reader.cpp Code93Reader.cpp EAN13Reader.cpp EAN8Reader.cpp ITFReader.cpp MultiFormatOneDReader.cpp MultiFormatUPCEANReader.cpp OneDReader.cpp OneDResultPoint.cpp UPCAReader.cpp UPCEANReader.cpp UPCEReader.cpp)
+LIBZXING_CXX_SOURCES += $(addprefix src/libzxing-cpp/zxing/oned/, CodaBarReader.cpp Code128Reader.cpp Code39Reader.cpp Code93Reader.cpp EAN13Reader.cpp EAN8Reader.cpp ITFReader.cpp MultiFormatOneDReader.cpp MultiFormatUPCEANReader.cpp OneDReader.cpp OneDResultPoint.cpp UPCAReader.cpp UPCEANReader.cpp UPCEReader.cpp)
 
 # multi
-LIBZXING_CXX_SOURCES := $(LIBZXING_CXX_SOURCES) $(addprefix src/$(d)/zxing/multi/, ByQuadrantReader.cpp GenericMultipleBarcodeReader.cpp MultipleBarcodeReader.cpp qrcode/detector/MultiDetector.cpp qrcode/detector/MultiFinderPatternFinder.cpp qrcode/QRCodeMultiReader.cpp)
+LIBZXING_CXX_SOURCES += $(addprefix src/libzxing-cpp/zxing/multi/, ByQuadrantReader.cpp GenericMultipleBarcodeReader.cpp MultipleBarcodeReader.cpp qrcode/detector/MultiDetector.cpp qrcode/detector/MultiFinderPatternFinder.cpp qrcode/QRCodeMultiReader.cpp)
 
 # multi
-LIBZXING_CXX_SOURCES := $(LIBZXING_CXX_SOURCES) $(addprefix src/$(d)/zxing/aztec/, AztecDetectorResult.cpp AztecReader.cpp decoder/Decoder.cpp detector/Detector.cpp)
+LIBZXING_CXX_SOURCES += $(addprefix src/libzxing-cpp/zxing/aztec/, AztecDetectorResult.cpp AztecReader.cpp decoder/Decoder.cpp detector/Detector.cpp)
 
 # bigint
-LIBZXING_CXX_SOURCES := $(LIBZXING_CXX_SOURCES) $(addprefix src/$(d)/bigint/, BigIntegerAlgorithms.cpp BigIntegerUtils.cpp BigInteger.cpp BigUnsignedInABase.cpp BigUnsigned.cpp)
+LIBZXING_CXX_SOURCES += $(addprefix src/libzxing-cpp/bigint/, BigIntegerAlgorithms.cpp BigIntegerUtils.cpp BigInteger.cpp BigUnsignedInABase.cpp BigUnsigned.cpp)
 
-LIBZXING_SOURCES :=
+lib/libzxing.a: CPPFLAGS += -Isrc/libzxing-cpp/ -DNO_ICONV
+lib/libzxing.a:$(patsubst src/%,build/%,$(LIBZXING_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(LIBZXING_SOURCES:.c=.o))
 
-bin/_libzxing.a:$(patsubst src/%,build/%,$(LIBZXING_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(LIBZXING_SOURCES:.c=.o))
-
-TARGETS := $(TARGETS) bin/_libzxing.a
-CXX_SOURCES := $(CXX_SOURCES) $(LIBZXING_CXX_SOURCES)
-SOURCES := $(SOURCES) $(LIBZXING_SOURCES)
+TARGETS += lib/libzxing.a
+CXX_SOURCES += $(LIBZXING_CXX_SOURCES)
 
 ############################## STEREO ############################
 
-d := stereo
+STEREO_CXX_SOURCES = $(addprefix src/stereo/, stereo.cpp stereo_mesh.cpp camera.cpp fundamental.cpp stereo_features.cpp)
 
-STEREO_CXX_SOURCES := $(addprefix src/$(d)/, stereo.cpp stereo_mesh.cpp camera.cpp fundamental.cpp stereo_features.cpp)
+lib/stereo.a: CPPFLAGS += -Isrc/stereo -Isrc/filter -Isrc/qhull/src/libqhull/ -Isrc/vlfeat-0.9.18/vl -Isrc/libDAI-0.3.1/include
+lib/stereo.a:$(patsubst src/%,build/%,$(STEREO_CXX_SOURCES:.cpp=.o)) lib/libDAI.a lib/libvlfeat.a lib/libqhull.a
 
-STEREO_SOURCES :=
-
-_CPPFLAGS := $(_CPPFLAGS) -Isrc/stereo -Isrc/filter -Isrc/qhull/src/libqhull/ -Isrc/vlfeat-0.9.18/vl -Isrc/libDAI-0.3.1/include
-
-bin/_stereo.so:$(patsubst src/%,build/%,$(STEREO_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(STEREO_SOURCES:.c=.o)) bin/_libDAI.so bin/_vl.so
-
-TARGETS := $(TARGETS) bin/_stereo.so bin/corvis/__init__.py
-CXX_SOURCES := $(CXX_SOURCES) $(STEREO_CXX_SOURCES)
-SOURCES := $(SOURCES) $(STEREO_SOURCES)
+TARGETS += lib/stereo.a
+CXX_SOURCES += $(STEREO_CXX_SOURCES)
 
 ############################## QHull ############################
-d := qhull
 
-QHULL_C_SOURCES := $(addprefix src/$(d)/src/libqhull/, geom.c geom2.c global.c io.c libqhull.c mem.c merge.c poly.c poly2.c qset.c random.c rboxlib.c stat.c user.c usermem.c userprintf.c userprintf_rbox.c)
+QHULL_C_SOURCES = $(addprefix src/qhull/src/libqhull/, geom.c geom2.c global.c io.c libqhull.c mem.c merge.c poly.c poly2.c qset.c random.c rboxlib.c stat.c user.c usermem.c userprintf.c userprintf_rbox.c)
 
-_CPPFLAGS := $(_CPPFLAGS)
+lib/libqhull.a:$(patsubst src/%,build/%,$(QHULL_C_SOURCES:.c=.o))
 
-bin/_qhull.so:$(patsubst src/%,build/%,$(QHULL_C_SOURCES:.c=.o))
-
-TARGETS := $(TARGETS) bin/_qhull.so
-SOURCES := $(SOURCES) $(QHULL_C_SOURCES)
+TARGETS += lib/libqhull.a
+SOURCES += $(QHULL_C_SOURCES)
 
 ############################## DAI ############################
-d := libDAI-0.3.1
+d = libDAI-0.3.1
 
-DAI_CXX_SOURCES := $(addprefix src/$(d)/src/, alldai.cpp graph.cpp regiongraph.cpp emalg.cpp bipgraph.cpp evidence.cpp io.cpp trwbp.cpp bp.cpp exactinf.cpp util.cpp bp_dual.cpp exceptions.cpp varset.cpp factor.cpp weightedgraph.cpp clustergraph.cpp factorgraph.cpp dag.cpp)
+DAI_CXX_SOURCES = $(addprefix src/libDAI-0.3.1/src/, alldai.cpp graph.cpp regiongraph.cpp emalg.cpp bipgraph.cpp evidence.cpp io.cpp trwbp.cpp bp.cpp exactinf.cpp daialg.cpp properties.cpp util.cpp bp_dual.cpp exceptions.cpp varset.cpp factor.cpp weightedgraph.cpp clustergraph.cpp factorgraph.cpp dag.cpp)
 
-_CPPFLAGS := $(_CPPFLAGS) -Isrc/$(d)/include -I/usr/local/include -DMACOSX -DDAI_WITH_BP -DDAI_WITH_TRWBP
+CPPFLAGS += -Isrc/libDAI-0.3.1/include -I/usr/local/include -DMACOSX -DDAI_WITH_BP -DDAI_WITH_TRWBP
 
-bin/_libDAI.so:$(patsubst src/%,build/%,$(DAI_CXX_SOURCES:.cpp=.o))
+lib/libDAI.a:$(patsubst src/%,build/%,$(DAI_CXX_SOURCES:.cpp=.o))
 
-TARGETS := $(TARGETS) bin/_libDAI.so
-CXX_SOURCES := $(CXX_SOURCES) $(DAI_CXX_SOURCES)
+TARGETS += lib/libDAI.a
+CXX_SOURCES += $(DAI_CXX_SOURCES)
 
 ############################## VLFEAT ############################
-d := vlfeat-0.9.18
+d = vlfeat-0.9.18
  
-VL_C_SOURCES := $(addprefix src/$(d)/, vl/aib.c vl/array.c vl/covdet.c vl/dsift.c vl/fisher.c vl/generic.c vl/getopt_long.c vl/gmm.c vl/hikmeans.c vl/hog.c vl/homkermap.c vl/host.c vl/ikmeans.c vl/imopv.c vl/imopv_sse2.c vl/kdtree.c vl/kmeans.c vl/lbp.c vl/liop.c vl/mathop.c vl/mathop_avx.c vl/mathop_sse2.c vl/mser.c vl/pgm.c vl/quickshift.c vl/random.c vl/rodrigues.c vl/scalespace.c vl/sift.c vl/slic.c vl/stringop.c vl/svm.c vl/svmdataset.c vl/vlad.c)
+VL_C_SOURCES = $(addprefix src/vlfeat-0.9.18/, vl/aib.c vl/array.c vl/covdet.c vl/dsift.c vl/fisher.c vl/generic.c vl/getopt_long.c vl/gmm.c vl/hikmeans.c vl/hog.c vl/homkermap.c vl/host.c vl/ikmeans.c vl/imopv.c vl/imopv_sse2.c vl/kdtree.c vl/kmeans.c vl/lbp.c vl/liop.c vl/mathop.c vl/mathop_avx.c vl/mathop_sse2.c vl/mser.c vl/pgm.c vl/quickshift.c vl/random.c vl/rodrigues.c vl/scalespace.c vl/sift.c vl/slic.c vl/stringop.c vl/svm.c vl/svmdataset.c vl/vlad.c)
 
-_CPPFLAGS := $(_CPPFLAGS)
+lib/libvlfeat.a:$(patsubst src/%,build/%,$(VL_C_SOURCES:.c=.o))
 
-bin/_vl.so:$(patsubst src/%,build/%,$(VL_C_SOURCES:.c=.o))
-
-TARGETS := $(TARGETS) bin/_vl.so
-SOURCES := $(SOURCES) $(VL_C_SOURCES)
+TARGETS += lib/libvlfeat.a
+SOURCES += $(VL_C_SOURCES)
 
 ############################## libglad ############################
-GLAD_SOURCES := $(addprefix src/glfw/deps/, glad.c)
-
+GLAD_SOURCES = $(addprefix src/glfw/deps/, glad.c)
+lib/libglad.a: CPPFLAGS += -Isrc/glfw/deps/
 lib/libglad.a: $(patsubst src/%,build/%,$(GLAD_SOURCES:.c=.o))
 
-SOURCES := $(SOURCES) $(GLAD_SOURCES)
-TARGETS := $(TARGETS) lib/libglad.a
+SOURCES += $(GLAD_SOURCES)
+TARGETS += lib/libglad.a
 
 ############################## libglfw3 ############################
-lib/libglfw3.a:
+lib/libglfw3.a include/GLFW:
 	@mkdir -p build/glfw/
 	@cd build/glfw/ && cmake ../../src/glfw/ -DCMAKE_INSTALL_PREFIX=../../
 	@cmake --build build/glfw/ --target glfw
 	@cmake -P build/glfw/cmake_install.cmake
 
-TARGETS := $(TARGETS) lib/libglfw3.a
+TARGETS += lib/libglfw3.a
 
 ############################## MEASURE ############################
 
-MEASURE_SOURCES := $(FILTER_SOURCES) $(COR_SOURCES)
-MEASURE_CXX_SOURCES := src/tools/measure.cpp src/filter/replay.cpp $(FILTER_CXX_SOURCES) $(NUMERICS_CXX_SOURCES) $(COR_CXX_SOURCES) $(VIS_CXX_SOURCES)
-SOURCES := $(SOURCES) $(MEASURE_SOURCES)
-CXX_SOURCES := $(CXX_SOURCES) $(MEASURE_CXX_SOURCES)
+MEASURE_CXX_SOURCES = src/tools/measure.cpp src/filter/replay.cpp
+CXX_SOURCES += $(MEASURE_CXX_SOURCES)
 
-LDFLAGS := $(LDFLAGS) -lstdc++ -lmgl
-
-_CPPFLAGS := $(_CPPFLAGS) -Iinclude -Isrc/glfw/deps/
-
-bin/measure: lib/libglfw3.a lib/libglad.a $(patsubst src/%,build/%,$(MEASURE_SOURCES:.c=.o)) $(patsubst src/%,build/%,$(MEASURE_CXX_SOURCES:.cpp=.o)) bin/_libzxing.a
+bin/measure: LDFLAGS += -lstdc++ -lmgl
+bin/measure: CPPFLAGS += -Iinclude -Isrc/glfw/deps/
+bin/measure: $(patsubst src/%,build/%,$(MEASURE_CXX_SOURCES:.cpp=.o)) lib/libglfw3.a lib/libglad.a lib/filter.a lib/numerics.a lib/cor.a lib/vis.a lib/libzxing.a
 	@mkdir -p $(@D)
-	$(CC) $(LDFLAGS) $(shell pkg-config lib/pkgconfig/glfw3.pc --static --libs) $(PYTHON_LDFLAGS) $^ $(LDLIBS) -o $@
+	$(CC) $(LDFLAGS) $(shell pkg-config lib/pkgconfig/glfw3.pc --static --libs) $^ $(LDLIBS) -o $@
 
-TARGETS := $(TARGETS) bin/measure
-CXX_SOURCES := $(CXX_SOURCES) src/filter/replay.cpp src/tools/measure.cpp
+TARGETS += bin/measure
+CXX_SOURCES += src/filter/replay.cpp src/tools/measure.cpp
 
 ############################## TEST ############################
 
-d := test
+TEST_CXX_SOURCES = $(addprefix test/, test.cpp util.cpp numerics/vec4.cpp numerics/rotation_vector.cpp stereo/stereo.cpp stereo/camera.cpp numerics/quaternion.cpp filter/homography.cpp filter/utils.cpp cor/sensor_fusion_queue.cpp)
 
-TEST_CXX_SOURCES := $(addprefix $(d)/, test.cpp util.cpp numerics/vec4.cpp numerics/rotation_vector.cpp stereo/stereo.cpp stereo/camera.cpp numerics/quaternion.cpp filter/homography.cpp filter/utils.cpp cor/sensor_fusion_queue.cpp)
+bin/test: CPPFLAGS += -I../ -Isrc/{cor,numerics,stereo,filter} -Itest
+bin/test: LDFLAGS += -lstdc++
 
-_CPPFLAGS := $(_CPPFLAGS) -I../ -Isrc/numerics -Itest
-LDFLAGS := $(LDFLAGS) -lstdc++
-
-build/$(d)/%.o: ../gtest/%.cc
+build/test/%.o: ../gtest/%.cc
 	@mkdir -p $(@D)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 
-build/$(d)/%.o: $(d)/%.cpp
+build/test/%.o: test/%.cpp
 	@mkdir -p $(@D)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c -o $@ $<
 
-bin/test: build/$(d)/gtest_main.o build/$(d)/gtest-all.o $(patsubst test/%,build/test/%,$(TEST_CXX_SOURCES:.cpp=.o)) $(addprefix build/numerics/, rotation_vector.o vec4.o matrix.o) $(addprefix build/filter/, fast_detector/fast_9.o scaled_mask.o homography.o) $(addprefix build/cor/, sensor_fusion_queue.o platform/shell/sensor_data.o platform/shell/sensor_clock.o) bin/_stereo.so bin/_libDAI.so bin/_qhull.so
+bin/test: build/test/gtest_main.o build/test/gtest-all.o $(patsubst test/%,build/test/%,$(TEST_CXX_SOURCES:.cpp=.o)) lib/filter.a lib/stereo.a lib/numerics.a lib/cor.a lib/libzxing.a lib/libDAI.a lib/libvlfeat.a lib/libqhull.a
 	@mkdir -p $(@D)
-	$(CC) $(LDFLAGS) $(PYTHON_LDFLAGS) $^ $(LDLIBS) -o $@
+	$(CC) $(LDFLAGS) $^ $(LDLIBS) -o $@
 
-TARGETS := $(TARGETS) bin/test
-#CXX_SOURCES := $(CXX_SOURCES) $(TEST_CXX_SOURCES)
+TARGETS += bin/test
+#CXX_SOURCES += $(TEST_CXX_SOURCES)
 
 ##################################################################
 
-TARGETS := $(TARGETS) bin/__init__.py
-
-TARGETS := $(TARGETS) __init__.py
-__init__.py: bin/corvis/_cor.so bin/corvis/_filter.so bin/corvis/_numerics.so
-	$(Q)cd .. && python -c 'import corvis'
-
-DEPS := $(DEPS) $(patsubst src/%,build/%, $(SOURCES:.c=.o.d) $(CXX_SOURCES:.cpp=.o.d)) build/test/gtest_main.o.d build/test/gtest-all.o.d $(patsubst test/%,build/test/%, $(TEST_CXX_SOURCES:.cpp=.o.d))
+DEPS += $(patsubst src/%,build/%, $(SOURCES:.c=.o.d) $(CXX_SOURCES:.cpp=.o.d)) build/test/gtest_main.o.d build/test/gtest-all.o.d $(patsubst test/%,build/test/%, $(TEST_CXX_SOURCES:.cpp=.o.d))
 
 all: $(TARGETS)
 
 clean:
-	rm -rf build bin
+	rm -rf build bin lib include
 
 -include $(DEPS)

@@ -95,17 +95,23 @@
     <ClCompile Include="..\..\..\corvis\src\cor\platform\shell\sensor_data.cpp" />
     <ClCompile Include="..\..\..\corvis\src\tools\measure.cpp" />
     <ClCompile Include="..\..\..\corvis\src\vis\arcball.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\vis\gl_util.cpp" />
     <ClCompile Include="..\..\..\corvis\src\vis\gui.cpp" />
     <ClCompile Include="..\..\..\corvis\src\vis\lodepng.cpp" />
     <ClCompile Include="..\..\..\corvis\src\vis\offscreen_render.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\vis\render.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\vis\video_render.cpp" />
     <ClCompile Include="..\..\..\corvis\src\vis\world_state.cpp" />
     <ClCompile Include="..\..\..\corvis\src\vis\world_state_render.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\corvis\src\vis\arcball.h" />
+    <ClInclude Include="..\..\..\corvis\src\vis\gl_util.h" />
     <ClInclude Include="..\..\..\corvis\src\vis\gui.h" />
     <ClInclude Include="..\..\..\corvis\src\vis\lodepng.h" />
     <ClInclude Include="..\..\..\corvis\src\vis\offscreen_render.h" />
+    <ClInclude Include="..\..\..\corvis\src\vis\render.h" />
+    <ClInclude Include="..\..\..\corvis\src\vis\video_render.h" />
     <ClInclude Include="..\..\..\corvis\src\vis\world_state.h" />
     <ClInclude Include="..\..\..\corvis\src\vis\world_state_render.h" />
   </ItemGroup>

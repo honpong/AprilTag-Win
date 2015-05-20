@@ -71,9 +71,9 @@ public:
         //Both minimize_drops and eliminate_drops may exhibit spurious drops due to different latencies in startup time of sensors. Since they wait for future data to show up, if that other data stream hasn't started yet, then the other buffers can fill up and drop due to being full.
     };
 
-    fusion_queue(const std::function<void(const camera_data &)> &camera_func,
-                 const std::function<void(const accelerometer_data &)> &accelerometer_func,
-                 const std::function<void(const gyro_data &)> &gyro_func,
+    fusion_queue(const std::function<void(camera_data &&)> &camera_func,
+                 const std::function<void(accelerometer_data &&)> &accelerometer_func,
+                 const std::function<void(gyro_data &&)> &gyro_func,
                  latency_strategy s,
                  sensor_clock::duration camera_period,
                  sensor_clock::duration inertial_period,
@@ -104,9 +104,9 @@ private:
     std::condition_variable cond;
     std::thread thread;
     
-    std::function<void(camera_data)> camera_receiver;
-    std::function<void(accelerometer_data)> accel_receiver;
-    std::function<void(gyro_data)> gyro_receiver;
+    std::function<void(camera_data &&)> camera_receiver;
+    std::function<void(accelerometer_data &&)> accel_receiver;
+    std::function<void(gyro_data &&)> gyro_receiver;
     
     sensor_queue<accelerometer_data, 32> accel_queue;
     sensor_queue<gyro_data, 32> gyro_queue;

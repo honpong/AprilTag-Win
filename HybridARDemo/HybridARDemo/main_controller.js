@@ -156,12 +156,12 @@ var MainController = (function ($, window, RC3DK, THREE)
         renderer.setSize( window.innerWidth, window.innerHeight );
 
         cube = new THREE.Mesh(
-            new THREE.CubeGeometry( 1, 1, 1 ),
+            new THREE.CubeGeometry( 0.1, 0.1, 0.1 ),
             new THREE.MeshLambertMaterial( { color: 0xFFFFFF } )
         );
+        cube.position.set(0,0.5,-0.25);
         scene.add( cube );
-        cube.position.z = -5;
-        cube.matrixAutoUpdate = false;
+        //cube.matrixAutoUpdate = false;
 
         var light;
 
@@ -183,7 +183,7 @@ var MainController = (function ($, window, RC3DK, THREE)
         camera.matrixAutoUpdate = false;
         camera.matrixWorld = cameraMatrix;
         if (! initialCamera) {initialCamera = cameraMatrix.clone();}
-        cube.matrix = initialCamera.clone();
+        //cube.matrix = initialCamera.clone();
 
         renderer.render( scene, camera );
     }

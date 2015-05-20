@@ -201,14 +201,14 @@ lib/libglfw3.a include/GLFW:
 TARGETS += lib/libglfw3.a
 
 ############################## libmgl ############################
-lib/libmgl.dylib include/mgl2:
+lib/libmgl.a include/mgl2:
 	@mkdir -p build/mathgl/
 	@cd build/mathgl/ && cmake ../../src/mathgl/ -DCMAKE_INSTALL_PREFIX=../../ -Denable-lgpl:BOOL=true -Denable-openmp:BOOL=false -Denable-pthread:BOOL=false -Denable-opengl:BOOL=false -Denable-mpi:BOOL=false -Denable-all-widgets:BOOL=false -Denable-zlib:BOOL=false -Denable-png:BOOL=false
 	@cmake --build build/mathgl/ --target mgl
 	@cmake --build build/mathgl/ --target mgl-static
 	@cmake -P build/mathgl/cmake_install.cmake
 
-TARGETS += lib/libmgl.dylib
+TARGETS += lib/libmgl.a
 
 ############################## MEASURE ############################
 
@@ -217,7 +217,7 @@ CXX_SOURCES += $(MEASURE_CXX_SOURCES)
 
 bin/measure: LDFLAGS += -lstdc++
 bin/measure: CPPFLAGS += -Iinclude -Isrc/glfw/deps/
-bin/measure: $(patsubst src/%,build/%,$(MEASURE_CXX_SOURCES:.cpp=.o)) lib/libglfw3.a lib/libglad.a lib/filter.a lib/numerics.a lib/cor.a lib/vis.a lib/libzxing.a lib/libmgl.dylib
+bin/measure: $(patsubst src/%,build/%,$(MEASURE_CXX_SOURCES:.cpp=.o)) lib/libglfw3.a lib/libglad.a lib/filter.a lib/numerics.a lib/cor.a lib/vis.a lib/libzxing.a lib/libmgl.a
 	@mkdir -p $(@D)
 	$(CC) $(LDFLAGS) $(shell pkg-config lib/pkgconfig/glfw3.pc --static --libs) $^ $(LDLIBS) -o $@
 

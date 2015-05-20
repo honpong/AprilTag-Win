@@ -203,7 +203,7 @@ TARGETS += lib/libglfw3.a
 ############################## libmgl ############################
 lib/libmgl.a include/mgl2:
 	@mkdir -p build/mathgl/
-	@cd build/mathgl/ && cmake ../../src/mathgl/ -DCMAKE_INSTALL_PREFIX=../../ -Denable-lgpl:BOOL=true -Denable-openmp:BOOL=false -Denable-pthread:BOOL=false -Denable-opengl:BOOL=false -Denable-mpi:BOOL=false -Denable-all-widgets:BOOL=false -Denable-zlib:BOOL=false -Denable-png:BOOL=false
+	@cd build/mathgl/ && cmake ../../src/mathgl/ -DCMAKE_INSTALL_PREFIX=../../ -DMACOSX_RPATH:bool=false -Denable-lgpl:BOOL=true -Denable-openmp:BOOL=false -Denable-pthread:BOOL=false -Denable-opengl:BOOL=false -Denable-mpi:BOOL=false -Denable-all-widgets:BOOL=false -Denable-zlib:BOOL=false -Denable-png:BOOL=false
 	@cmake --build build/mathgl/ --target mgl
 	@cmake --build build/mathgl/ --target mgl-static
 	@cmake -P build/mathgl/cmake_install.cmake

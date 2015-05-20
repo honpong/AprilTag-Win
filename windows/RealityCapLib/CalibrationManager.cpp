@@ -44,6 +44,8 @@ void CalibrationManager::SetDelegate(CalibrationManagerDelegate* del)
 void CalibrationManager::OnColorFrame(PXCImage* colorSample)
 {
     if (!isCalibrating()) return;
+    //SensorManager::OnColorFrame(colorSample); // causes debug logging
+
     /*auto data = camera_data(colorSample);
     cp.receive_camera(std::move(data));*/
 }
@@ -51,6 +53,7 @@ void CalibrationManager::OnColorFrame(PXCImage* colorSample)
 void CalibrationManager::OnAmeterSample(imu_sample_t* sample)
 {
     if (!isCalibrating()) return;
+    //SensorManager::OnAmeterSample(sample); // causes debug logging
 
     //accelerometer_data data;
     ////windows gives acceleration in g-units, so multiply by standard gravity in m/s^2
@@ -64,6 +67,7 @@ void CalibrationManager::OnAmeterSample(imu_sample_t* sample)
 void CalibrationManager::OnGyroSample(imu_sample_t* sample)
 {
     if (!isCalibrating()) return;
+    //SensorManager::OnGyroSample(sample); // causes debug logging
 
     //gyro_data data;
     ////windows gives angular velocity in degrees per second

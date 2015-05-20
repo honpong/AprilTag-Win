@@ -97,10 +97,42 @@ bool SensorManager::isVideoStreaming()
     return _isVideoStreaming;
 }
 
+int CountNewSamples(imu_sample_t samples[], __int64 last_timestamp)
+{
+    int sampleNum = 0;
+    for (; sampleNum < IMU_RING_BUFFER_SAMPLE_COUNT; sampleNum++)
+    {
+        // break when we find the first old sample
+        imu_sample_t sample = samples[sampleNum];
+        if (sample.coordinatedUniversalTime100ns == last_timestamp) break;
+    }
+    return sampleNum;
+}
+
+// returns the number of new samples fetched
+int FetchNewSamplesForSensor(pxcIMUsensor* sensor, PXCImage* depthImage, imu_sample_t samples[], __int64 last_timestamp)
+{
+    PXCMetadata* metadata = (PXCMetadata *)depthImage->QueryInstance(PXCMetadata::CUID);
+
+    // fill buffer with samples
+    pxcStatus result = metadata->QueryBuffer(sensor->metaDataID, (pxcBYTE*)samples, IMU_RING_BUFFER_SAMPLE_COUNT*sizeof(imu_sample_t));
+
+    if (result >= PXC_STATUS_NO_ERROR)
+    {
+        // Look for new samples in the buffer
+        return CountNewSamples(samples, last_timestamp);
+    }
+    else
+    {
+        return 0;
+        Debug::Log(L"%s data not available", sensor->sensorName);
+    }
+}
+
 void SensorManager::PollForFrames()
 {
-    imu_sample_t samples[NUM_OF_REQUESTED_SENSORS][IMU_RING_BUFFER_SAMPLE_COUNT];
-    __int64 last_timestamp[NUM_OF_REQUESTED_SENSORS] = {};
+    imu_sample_t sampleBuffer[NUM_OF_REQUESTED_SENSORS][IMU_RING_BUFFER_SAMPLE_COUNT];
+    __int64 last_timestamp[NUM_OF_REQUESTED_SENSORS];
 
     while (isVideoStreaming() && _senseMan->AcquireFrame(true) == PXC_STATUS_NO_ERROR)
     {
@@ -110,44 +142,29 @@ void SensorManager::PollForFrames()
 
         OnColorFrame(colorImage);
 
-        // Get the IMU data for each sensor type
-        PXCMetadata* metadata = (PXCMetadata *)depthImage->QueryInstance(PXCMetadata::CUID);
+        // process the IMU data for each sensor type        
         for (int sensorNum = 0; sensorNum < NUM_OF_REQUESTED_SENSORS; sensorNum++)
         {
             pxcIMUsensor* sensor = &selectedSensors[sensorNum];
-            pxcStatus result = metadata->QueryBuffer(sensor->metaDataID, (pxcBYTE*)samples[sensorNum], IMU_RING_BUFFER_SAMPLE_COUNT*sizeof(imu_sample_t));
-            if (result >= PXC_STATUS_NO_ERROR)
-            {
-                // Look for new samples
-                int sampleNum;
-                for (sampleNum = 0; sampleNum < IMU_RING_BUFFER_SAMPLE_COUNT; sampleNum++)
-                {
-                    // break when we find the first old sample
-                    if (samples[sensorNum][sampleNum].coordinatedUniversalTime100ns == last_timestamp[sensorNum]) break;
-                }
-                // sampleNum now represents the number of new samples available
-                for (; sampleNum--;)
-                {
-                    imu_sample_t* sample = &samples[sensorNum][sampleNum];
-                    if (sample->coordinatedUniversalTime100ns) // If the sample is valid
-                    {
-                        if (sensor->deviceProperty == PROPERTY_SENSORS_LINEAR_ACCELERATION)
-                        {
-                            OnAmeterSample(sample);
-                        }
-                        else if (sensor->deviceProperty == PROPERTY_SENSORS_ANGULAR_VELOCITY)
-                        {
-                            OnGyroSample(sample);
-                        }
+            const int newSampleCount = FetchNewSamplesForSensor(sensor, depthImage, sampleBuffer[sensorNum], last_timestamp[sensorNum]);
 
-                        // Update the last_timestamp for this sensor type
-                        last_timestamp[sensorNum] = sample->coordinatedUniversalTime100ns;
-                    }
-                }
-            }
-            else
+            for (int sampleNum = newSampleCount - 1; sampleNum >= 0; sampleNum--)
             {
-                Debug::Log(L"%s data not available", selectedSensors[sensorNum].sensorName);
+                imu_sample_t sample = sampleBuffer[sensorNum][sampleNum];
+                if (sample.coordinatedUniversalTime100ns) // If the sample is valid
+                {
+                    if (sensor->deviceProperty == PROPERTY_SENSORS_LINEAR_ACCELERATION)
+                    {
+                        OnAmeterSample(&sample);
+                    }
+                    else if (sensor->deviceProperty == PROPERTY_SENSORS_ANGULAR_VELOCITY)
+                    {
+                        OnGyroSample(&sample);
+                    }
+
+                    // Update the last_timestamp for this sensor type
+                    last_timestamp[sensorNum] = sample.coordinatedUniversalTime100ns;
+                }
             }
         }
 

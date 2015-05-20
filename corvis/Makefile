@@ -253,6 +253,6 @@ DEPS += $(patsubst src/%,build/%, $(SOURCES:.c=.o.d) $(CXX_SOURCES:.cpp=.o.d)) b
 all: $(TARGETS)
 
 clean:
-	rm -rf build bin lib include
+	rm -rf build bin lib include share
 
 -include $(DEPS)

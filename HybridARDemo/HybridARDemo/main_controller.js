@@ -109,6 +109,7 @@ var MainController = (function ($, window, RC3DK, THREE)
 
     function enterAugmentedState()
     {
+        setupWebGLView();
         showMessage("Augmented reality!");
         workflowState = WorkflowStates.AUGMENTED;
     }
@@ -177,12 +178,12 @@ var MainController = (function ($, window, RC3DK, THREE)
     {
         if (!projectionMatrix) alert("no projection matrix");
         if (!cameraMatrix) alert("no camera matrix");
-//
-//        camera.projectionMatrix = projectionMatrix;
-//        camera.matrixAutoUpdate = false;
-//        camera.matrixWorld = cameraMatrix;
-//
-//        cube.matrix = initialCamera.clone();
+
+        camera.projectionMatrix = projectionMatrix;
+        camera.matrixAutoUpdate = false;
+        camera.matrixWorld = cameraMatrix;
+        if (! initialCamera) {initialCamera = cameraMatrix.clone();}
+        cube.matrix = initialCamera.clone();
 
         renderer.render( scene, camera );
     }

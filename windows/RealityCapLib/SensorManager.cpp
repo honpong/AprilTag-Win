@@ -146,9 +146,9 @@ void SensorManager::PollForFrames()
         for (int sensorNum = 0; sensorNum < NUM_OF_REQUESTED_SENSORS; sensorNum++)
         {
             pxcIMUsensor* sensor = &selectedSensors[sensorNum];
-            int newSampleCount = FetchNewSamplesForSensor(sensor, depthImage, sampleBuffer[sensorNum], last_timestamp[sensorNum]);
+            const int newSampleCount = FetchNewSamplesForSensor(sensor, depthImage, sampleBuffer[sensorNum], last_timestamp[sensorNum]);
 
-            for (int sampleNum = newSampleCount; sampleNum > 0; sampleNum--)
+            for (int sampleNum = newSampleCount - 1; sampleNum >= 0; sampleNum--)
             {
                 imu_sample_t sample = sampleBuffer[sensorNum][sampleNum];
                 if (sample.coordinatedUniversalTime100ns) // If the sample is valid

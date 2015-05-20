@@ -218,7 +218,7 @@ CXX_SOURCES += src/filter/replay.cpp src/tools/measure.cpp
 
 TEST_CXX_SOURCES = $(addprefix test/, test.cpp util.cpp numerics/vec4.cpp numerics/rotation_vector.cpp stereo/stereo.cpp stereo/camera.cpp numerics/quaternion.cpp filter/homography.cpp filter/utils.cpp cor/sensor_fusion_queue.cpp)
 
-bin/test: CPPFLAGS += -I../ -Isrc/{numerics,stereo,filter} -Itest
+bin/test: CPPFLAGS += -I../ -Isrc/{cor,numerics,stereo,filter} -Itest
 bin/test: LDFLAGS += -lstdc++
 
 build/test/%.o: ../gtest/%.cc

@@ -43,12 +43,12 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>..\..\..\corvis\src\glfw\include;..\..\..\corvis\src\glfw\deps;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\..\corvis\src\glfw\include;..\..\..\corvis\src\glfw\deps;..\..\..\corvis\src\mathgl\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>..\..\..\corvis\src\glfw\include;..\..\..\corvis\src\glfw\deps;$(IncludePath)</IncludePath>
+    <IncludePath>..\..\..\corvis\src\glfw\include;..\..\..\corvis\src\glfw\deps;..\..\..\corvis\src\mathgl\include;$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -86,6 +86,9 @@
   <ItemGroup>
     <ProjectReference Include="..\glfw\glfw.vcxproj">
       <Project>{b78b8421-fae7-4a5b-b271-8d2cd7c98609}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\mathgl\mathgl.vcxproj">
+      <Project>{c0252d57-c931-4119-82f3-606a5ba994c0}</Project>
     </ProjectReference>
     <ProjectReference Include="..\RC3DK\RC3DK.vcxproj">
       <Project>{e4e5a177-07b4-42ae-aa31-db608571e6b6}</Project>

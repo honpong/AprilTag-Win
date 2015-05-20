@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <limits>
+
 #include "gl_util.h"
 #include "render.h"
 #include "video_render.h"
@@ -83,10 +85,6 @@ void world_state_render_plot_teardown()
 static int plot_width = 600;
 static int plot_height = 400;
 static uint8_t * plot_frame = NULL;
-#ifdef WIN32
-static void create_plot(world_state * state, int index) {}
-#else // !WIN32
-
 #if TARGET_OS_IPHONE
 static void create_plot(world_state * state, int index) {}
 #else // !TARGET_OS_IPHONE
@@ -154,7 +152,6 @@ static void create_plot(world_state * state, int index)
     });
 }
 #endif //TARGET_OS_IPHONE
-#endif //WIN32
 
 void world_state_render_plot(world_state * world, int index, int viewport_width, int viewport_height)
 {

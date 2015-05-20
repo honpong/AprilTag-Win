@@ -17,6 +17,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RealityCapLibTests", "..\Re
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "gmock", "..\ThirdParty\gmock\gmock.vcxproj", "{55872177-C56D-4465-8985-6638CEB170EA}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mathgl", "mathgl\mathgl.vcxproj", "{C0252D57-C931-4119-82F3-606A5BA994C0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -81,6 +83,14 @@ Global
 		{55872177-C56D-4465-8985-6638CEB170EA}.Release|Win32.Build.0 = Release|Win32
 		{55872177-C56D-4465-8985-6638CEB170EA}.RelWithDebInfo|Win32.ActiveCfg = Release|Win32
 		{55872177-C56D-4465-8985-6638CEB170EA}.RelWithDebInfo|Win32.Build.0 = Release|Win32
+		{C0252D57-C931-4119-82F3-606A5BA994C0}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C0252D57-C931-4119-82F3-606A5BA994C0}.Debug|Win32.Build.0 = Debug|Win32
+		{C0252D57-C931-4119-82F3-606A5BA994C0}.MinSizeRel|Win32.ActiveCfg = Release|Win32
+		{C0252D57-C931-4119-82F3-606A5BA994C0}.MinSizeRel|Win32.Build.0 = Release|Win32
+		{C0252D57-C931-4119-82F3-606A5BA994C0}.Release|Win32.ActiveCfg = Release|Win32
+		{C0252D57-C931-4119-82F3-606A5BA994C0}.Release|Win32.Build.0 = Release|Win32
+		{C0252D57-C931-4119-82F3-606A5BA994C0}.RelWithDebInfo|Win32.ActiveCfg = Release|Win32
+		{C0252D57-C931-4119-82F3-606A5BA994C0}.RelWithDebInfo|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

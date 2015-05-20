@@ -109,7 +109,8 @@ int CountNewSamples(imu_sample_t samples[], __int64 last_timestamp)
     return sampleNum;
 }
 
-int CountNewSamplesForSensor(pxcIMUsensor* sensor, PXCImage* depthImage, imu_sample_t samples[], __int64 last_timestamp)
+// returns the number of new samples fetched
+int FetchNewSamplesForSensor(pxcIMUsensor* sensor, PXCImage* depthImage, imu_sample_t samples[], __int64 last_timestamp)
 {
     PXCMetadata* metadata = (PXCMetadata *)depthImage->QueryInstance(PXCMetadata::CUID);
 
@@ -130,7 +131,7 @@ int CountNewSamplesForSensor(pxcIMUsensor* sensor, PXCImage* depthImage, imu_sam
 
 void SensorManager::PollForFrames()
 {
-    imu_sample_t samples[NUM_OF_REQUESTED_SENSORS][IMU_RING_BUFFER_SAMPLE_COUNT];
+    imu_sample_t sampleBuffer[NUM_OF_REQUESTED_SENSORS][IMU_RING_BUFFER_SAMPLE_COUNT];
     __int64 last_timestamp[NUM_OF_REQUESTED_SENSORS];
 
     while (isVideoStreaming() && _senseMan->AcquireFrame(true) == PXC_STATUS_NO_ERROR)
@@ -145,11 +146,11 @@ void SensorManager::PollForFrames()
         for (int sensorNum = 0; sensorNum < NUM_OF_REQUESTED_SENSORS; sensorNum++)
         {
             pxcIMUsensor* sensor = &selectedSensors[sensorNum];
-            int newSampleCount = CountNewSamplesForSensor(sensor, depthImage, samples[sensorNum], last_timestamp[sensorNum]);
+            int newSampleCount = FetchNewSamplesForSensor(sensor, depthImage, sampleBuffer[sensorNum], last_timestamp[sensorNum]);
 
-            for (; newSampleCount--;)
+            for (int sampleNum = newSampleCount; sampleNum > 0; sampleNum--)
             {
-                imu_sample_t sample = samples[sensorNum][newSampleCount];
+                imu_sample_t sample = sampleBuffer[sensorNum][sampleNum];
                 if (sample.coordinatedUniversalTime100ns) // If the sample is valid
                 {
                     if (sensor->deviceProperty == PROPERTY_SENSORS_LINEAR_ACCELERATION)

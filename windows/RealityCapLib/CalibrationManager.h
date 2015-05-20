@@ -23,9 +23,9 @@ namespace RealityCap
         void SetDelegate(CalibrationManagerDelegate* del);
 
     protected:
-        virtual void OnColorFrame(PXCImage* colorImage);
-        virtual void OnAmeterSample(struct imu_sample* sample);
-        virtual void OnGyroSample(struct imu_sample* sample);
+        virtual void OnColorFrame(PXCImage* colorImage) override;
+        virtual void OnAmeterSample(struct imu_sample* sample) override;
+        virtual void OnGyroSample(struct imu_sample* sample) override;
 
     private:
         bool _isCalibrating;

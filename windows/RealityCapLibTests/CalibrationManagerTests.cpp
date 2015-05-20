@@ -5,13 +5,13 @@
 
 using namespace RealityCap;
 
-TEST(CalibrationManagerTest, NewDelete)
+TEST(CalibrationManagerTests, NewDelete)
 {
     CalibrationManager* calMan = new CalibrationManager(NULL);
     delete calMan;
 }
 
-TEST(CalibrationManagerTest, StartStop)
+TEST(CalibrationManagerTests, StartStop)
 {
     PXCSenseManagerFake* senseMan = new PXCSenseManagerFake();
 
@@ -25,7 +25,7 @@ TEST(CalibrationManagerTest, StartStop)
     EXPECT_FALSE(calMan.isCalibrating());
 }
 
-TEST(CalibrationManagerTest, StartFailed)
+TEST(CalibrationManagerTests, StartFailed)
 {
     PXCSenseManagerFake* senseMan = new PXCSenseManagerFake();
     CalibrationManager calMan(senseMan);
@@ -34,7 +34,7 @@ TEST(CalibrationManagerTest, StartFailed)
     EXPECT_FALSE(calMan.isCalibrating());
 }
 
-TEST(CalibrationManagerTest, NullSenseMan)
+TEST(CalibrationManagerTests, NullSenseMan)
 {
     CalibrationManager calMan(NULL);
     EXPECT_FALSE(calMan.StartCalibration());

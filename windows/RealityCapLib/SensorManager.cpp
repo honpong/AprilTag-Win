@@ -174,16 +174,19 @@ void SensorManager::PollForFrames()
 
 void SensorManager::OnColorFrame(PXCImage * colorImage)
 {
+    if (_sensorReceiver) _sensorReceiver->OnColorFrame(colorImage);
     Debug::Log(L"%lli color sample", colorImage->QueryTimeStamp() - 6370); // Taking care of 637 Micro seconds blank interval-> 637000 nanoseconds -> 6370 (one hundred nanoseconds)
 }
 
 void SensorManager::OnAmeterSample(imu_sample_t* sample)
 {
+    if (_sensorReceiver) _sensorReceiver->OnAmeterSample(sample);
     Debug::Log(L"%lli %s\t%0.3f, %0.3f, %0.3f", sample->coordinatedUniversalTime100ns, L"accel", sample->data[0], sample->data[1], sample->data[2]);
 }
 
 void SensorManager::OnGyroSample(imu_sample_t* sample)
 {
+    if (_sensorReceiver) _sensorReceiver->OnGyroSample(sample);
     Debug::Log(L"%lli %s\t%0.3f, %0.3f, %0.3f", sample->coordinatedUniversalTime100ns, L"gyro", sample->data[0], sample->data[1], sample->data[2]);
 }
 

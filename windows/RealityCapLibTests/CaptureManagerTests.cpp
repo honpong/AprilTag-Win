@@ -5,13 +5,13 @@
 
 using namespace RealityCap;
 
-TEST(CaptureManagerTest, NewDelete)
+TEST(CaptureManagerTests, NewDelete)
 {
     CaptureManager* capMan = new CaptureManager(NULL);
     delete capMan;
 }
 
-TEST(CaptureManagerTest, StartStop)
+TEST(CaptureManagerTests, StartStop)
 {
     PXCSenseManagerFake* senseMan = new PXCSenseManagerFake();
 
@@ -25,7 +25,7 @@ TEST(CaptureManagerTest, StartStop)
     EXPECT_FALSE(capMan.isCapturing());
 }
 
-TEST(CaptureManagerTest, StartFailed)
+TEST(CaptureManagerTests, StartFailed)
 {
     PXCSenseManagerFake* senseMan = new PXCSenseManagerFake();
 
@@ -35,7 +35,7 @@ TEST(CaptureManagerTest, StartFailed)
     EXPECT_FALSE(capMan.isCapturing());
 }
 
-TEST(CaptureManagerTest, NullSenseMan)
+TEST(CaptureManagerTests, NullSenseMan)
 {
     CaptureManager capMan(NULL);
     EXPECT_FALSE(capMan.StartCapture());

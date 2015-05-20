@@ -12,7 +12,7 @@ namespace RealityCap
     class SensorManager
     {
     public:
-        bool StartSensors(); // returns true if video started successfully
+        bool StartSensors(); // returns true if sensors started successfully
         void StopSensors();
         bool isVideoStreaming();
 
@@ -26,7 +26,8 @@ namespace RealityCap
     private:
         PXCSenseManager* _senseMan;
         std::thread videoThread;
-        void PollForFrames();
         bool _isVideoStreaming;
+
+        void PollForFrames();
     };
 }

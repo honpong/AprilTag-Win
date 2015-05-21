@@ -110,9 +110,9 @@ void rc_receiveImage(rc_Tracker * tracker, rc_Camera camera, rc_Timestamp time_1
 void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Timestamp time_100_ns, const rc_Vector acceleration_m__s2);
 void rc_receiveGyro(rc_Tracker * tracker, rc_Timestamp time_100_ns, const rc_Vector angular_velocity_rad__s);
 
-void rc_getPose(rc_Tracker * tracker, rc_Pose pose_m);
-int rc_getFeatures(rc_Tracker * tracker, rc_Feature **features_px);
-    
+void rc_getPose(const rc_Tracker * tracker, rc_Pose pose_m);
+int rc_getFeatures(const rc_Tracker * tracker, rc_Feature **features_px);
+
 /**
  @param tracker The active rc_Tracker instance
  @param log The function to call with output
@@ -125,7 +125,7 @@ void rc_setLog(rc_Tracker * tracker, void (*log)(void *handle, char *buffer_utf8
 /**
  Immediately outputs the last calculated pose
  */
-void rc_triggerLog(rc_Tracker * tracker);
+void rc_triggerLog(const rc_Tracker * tracker);
 
 /*
  Not yet implemented (depend on loop closure):

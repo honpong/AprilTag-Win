@@ -15,6 +15,9 @@
 #ifdef __APPLE__
 #import <CoreMedia/CoreMedia.h>
 #endif
+#ifdef WIN32
+class PXCImage;
+#endif
 
 class camera_data
 {
@@ -27,6 +30,9 @@ public:
      */
 #ifdef __APPLE__
     camera_data(CMSampleBufferRef h);
+#endif
+#ifdef WIN32
+    camera_data(PXCImage *h);
 #endif
     camera_data(camera_data&& other) = default;
     camera_data &operator=(camera_data&& other) = default;

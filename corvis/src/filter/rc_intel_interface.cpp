@@ -32,7 +32,7 @@ extern "C" void rc_reset(rc_Tracker * tracker, rc_Timestamp initialTime_ns, cons
             R(i, j) = initialPose_m[i * 4 + j];
         }
     }
-    tracker->reset(sensor_clock::time_point(std::chrono::nanoseconds(initialTime_ns)),     transformation(R, T));
+    tracker->reset(sensor_clock::time_point(sensor_clock::duration(initialTime_ns/100)),     transformation(R, T));
 }
 
 void rc_configureCamera(rc_Tracker * tracker, rc_Camera camera, const rc_Pose pose_m, int width_px, int height_px, float center_x_px, float center_y_px, float focal_length_px)
@@ -93,7 +93,7 @@ void rc_receiveImage(rc_Tracker * tracker, rc_Camera camera, rc_Timestamp time_n
         d.height = tracker->device.image_height;
         // TODO: Check that we support stride
         d.stride = stride;
-        d.timestamp = sensor_clock::time_point(std::chrono::nanoseconds(time_ns));
+        d.timestamp = sensor_clock::time_point(sensor_clock::duration(time_ns/100));
         tracker->receive_image(std::move(d));
     }
 }

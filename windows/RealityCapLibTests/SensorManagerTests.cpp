@@ -5,10 +5,6 @@
 #include "PXCSenseManagerFake.h"
 
 using namespace RealityCap;
-using ::testing::AtLeast;
-using ::testing::A;
-
-bool testComplete = false;
 
 TEST(SensorManagerTests, NewDelete)
 {
@@ -45,4 +41,56 @@ TEST(SensorManagerTests, NullSenseMan)
     SensorManager sensorMan(NULL);
     EXPECT_FALSE(sensorMan.StartSensors());
     EXPECT_FALSE(sensorMan.isVideoStreaming());
+}
+
+class FakeReceiver : public SensorDataReceiver
+{
+public:
+    int colorFramesReceived = 0;
+    int ameterSamplesReceived = 0;
+    int gyroSamplesReceived = 0;
+    const int maxSamples = 3;
+
+    virtual void OnColorFrame(PXCImage* colorFrame)
+    {
+        colorFramesReceived++;
+    }
+    virtual void OnAmeterSample(imu_sample* sample)
+    {
+        ameterSamplesReceived++;
+    }
+    virtual void OnGyroSample(imu_sample* sample)
+    {
+        gyroSamplesReceived++;
+    }
+    bool isTestComplete()
+    {
+        if (colorFramesReceived > 0 && ameterSamplesReceived == maxSamples && gyroSamplesReceived == maxSamples)
+            return true;
+        else
+            return false;
+    }
+};
+
+TEST(SensorManagerTests, SensorData)
+{
+    PXCSenseManagerFake* senseMan = new PXCSenseManagerFake();
+    FakeReceiver receiver;
+
+    SensorManager sensorMan(senseMan);
+    sensorMan.SetReceiver(&receiver);
+    sensorMan.StartSensors();
+
+    int ticks = 0;
+    while (!receiver.isTestComplete() && ticks < 10)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        ticks++;
+    }
+
+    sensorMan.StopSensors();
+
+    EXPECT_LT(ticks, 10);
+
+    delete senseMan;
 }

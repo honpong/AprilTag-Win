@@ -37,37 +37,11 @@ pxcStatus PXCAPI PXCMetadataFake::QueryBuffer(pxcUID id, pxcBYTE * buffer, pxcI3
     static imu_sample_t sample1 = { 10000000, {.1, .1, .1} };
     static imu_sample_t sample2 = { 10000001, {.2, .2, .2} };
     static imu_sample_t sample3 = { 10000002, {.3, .3, .3} };
-    static imu_sample_t sample4 = { 10000000,{ .1, .1, .1 } };
-    static imu_sample_t sample5 = { 10000001,{ .2, .2, .2 } };
-    static imu_sample_t sample6 = { 10000002,{ .3, .3, .3 } };
-    static imu_sample_t sample7 = { 10000000,{ .1, .1, .1 } };
-    static imu_sample_t sample8 = { 10000001,{ .2, .2, .2 } };
-    static imu_sample_t sample9 = { 10000002,{ .3, .3, .3 } };
-    static imu_sample_t sample10 = { 10000000,{ .1, .1, .1 } };
-    static imu_sample_t sample11 = { 10000001,{ .2, .2, .2 } };
-    static imu_sample_t sample12 = { 10000002,{ .3, .3, .3 } };
-    static imu_sample_t sample13 = { 10000000,{ .1, .1, .1 } };
-    static imu_sample_t sample14 = { 10000001,{ .2, .2, .2 } };
-    static imu_sample_t sample15 = { 10000002,{ .3, .3, .3 } };
-    static imu_sample_t sample16 = { 10000000,{ .1, .1, .1 } };
 
     imu_sample_t* sample  = (imu_sample_t*)buffer;
-    sample[0] = sample1;
+    sample[0] = sample3;
     sample[1] = sample2;
-    sample[2] = sample3;
-    sample[3] = sample4;
-    sample[4] = sample5;
-    sample[5] = sample6;
-    sample[6] = sample7;
-    sample[7] = sample8;
-    sample[8] = sample9;
-    sample[9] = sample10;
-    sample[10] = sample11;
-    sample[11] = sample12;
-    sample[12] = sample13;
-    sample[13] = sample14;
-    sample[14] = sample15;
-    sample[15] = sample16;
+    sample[2] = sample1;
 
     return PXC_STATUS_NO_ERROR;
 }

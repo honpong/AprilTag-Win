@@ -68,7 +68,9 @@ void rc_reset(rc_Tracker * tracker, rc_Timestamp initialTime_100_ns, const rc_Po
  @param center_y_px Horizontal principal point of camera in pixels
  @param focal_length_px Focal length of camera in pixels
  */
-void rc_configureCamera(rc_Tracker * tracker, rc_Camera camera, const rc_Pose pose_m, int width_px, int height_px, float center_x_px, float center_y_px, float focal_length_px);
+void rc_configureCamera(rc_Tracker * tracker, rc_Camera camera, const rc_Pose pose_m,
+                        int width_px, int height_px, float center_x_px, float center_y_px,
+                        float focal_length_x_px, float focal_length_xy_px, float focal_length_y_px);
 void rc_configureAccelerometer(rc_Tracker * tracker, const rc_Pose pose_m, const rc_Vector bias_m__s2, float noiseVariance_m2__s4);
 void rc_configureGyroscope(rc_Tracker * tracker, const rc_Pose pose_m, const rc_Vector bias_rad__s, float noiseVariance_rad2__s2);
 void rc_configureLocation(rc_Tracker * tracker, double latitude_deg, double longitude_deg, double altitude_m);

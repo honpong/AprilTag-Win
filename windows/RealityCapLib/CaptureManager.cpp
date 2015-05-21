@@ -59,8 +59,8 @@ void CaptureManager::OnAmeterSample(imu_sample_t* sample)
 
     accelerometer_data data;
     //windows gives acceleration in g-units, so multiply by standard gravity in m/s^2
-    data.accel_m__s2[0] = -sample->data[0] * 9.80665;
-    data.accel_m__s2[1] = sample->data[1] * 9.80665;
+    data.accel_m__s2[0] = -sample->data[1] * 9.80665;
+    data.accel_m__s2[1] = sample->data[0] * 9.80665;
     data.accel_m__s2[2] = -sample->data[2] * 9.80665;
     data.timestamp = sensor_clock::time_point(sensor_clock::duration(sample->coordinatedUniversalTime100ns));
     cp.receive_accelerometer(std::move(data));

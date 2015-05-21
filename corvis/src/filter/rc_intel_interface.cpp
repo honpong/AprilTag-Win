@@ -83,7 +83,7 @@ void rc_stopTracker(rc_Tracker * tracker);
 
 void rc_receiveImage(rc_Tracker * tracker, rc_Camera camera, rc_Timestamp time_100_ns, rc_Timestamp shutter_time, const rc_Pose poseEstimate_m, bool force_recognition, int stride, const uint8_t *image)
 {
-    if(camera == rgb) {
+    if(camera == rc_EGRAY8) {
         camera_data d;
         int bytes = stride*tracker->device.image_height;
         d.image_handle = std::unique_ptr<void, void(*)(void *)>(malloc(bytes), free);

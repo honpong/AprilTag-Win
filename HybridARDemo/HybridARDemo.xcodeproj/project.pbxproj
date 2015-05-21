@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		17A802861B0E674900899E2B /* voxel_sketch.js in Resources */ = {isa = PBXBuildFile; fileRef = 17A802851B0E674900899E2B /* voxel_sketch.js */; };
+		17A802881B0E6C5200899E2B /* square-outline-textured.png in Resources */ = {isa = PBXBuildFile; fileRef = 17A802871B0E6C5200899E2B /* square-outline-textured.png */; };
 		326ED7F01B0BC14600D8B1B8 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 326ED7EF1B0BC14600D8B1B8 /* main.m */; };
 		326ED7F31B0BC14600D8B1B8 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 326ED7F21B0BC14600D8B1B8 /* AppDelegate.m */; };
 		326ED7FB1B0BC14600D8B1B8 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 326ED7FA1B0BC14600D8B1B8 /* Images.xcassets */; };
@@ -61,6 +63,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		17A802851B0E674900899E2B /* voxel_sketch.js */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.javascript; path = voxel_sketch.js; sourceTree = "<group>"; };
+		17A802871B0E6C5200899E2B /* square-outline-textured.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "square-outline-textured.png"; sourceTree = "<group>"; };
 		326ED7EA1B0BC14600D8B1B8 /* HybridARDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HybridARDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		326ED7EE1B0BC14600D8B1B8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		326ED7EF1B0BC14600D8B1B8 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -396,6 +400,8 @@
 		326ED89C1B0BC89E00D8B1B8 /* HTML */ = {
 			isa = PBXGroup;
 			children = (
+				17A802871B0E6C5200899E2B /* square-outline-textured.png */,
+				17A802851B0E674900899E2B /* voxel_sketch.js */,
 				326ED8B31B0BCD2E00D8B1B8 /* jquery-2.1.1.min.js */,
 				326ED8B41B0BCD2E00D8B1B8 /* main_controller.js */,
 				326ED8B51B0BCD2E00D8B1B8 /* three.min.js */,
@@ -489,12 +495,14 @@
 				326ED8511B0BC42F00D8B1B8 /* Calibration.storyboard in Resources */,
 				326ED8541B0BC42F00D8B1B8 /* ipad_on_table.jpg in Resources */,
 				326ED7FE1B0BC14600D8B1B8 /* LaunchScreen.xib in Resources */,
+				17A802861B0E674900899E2B /* voxel_sketch.js in Resources */,
 				326ED8B71B0BCD2E00D8B1B8 /* main_controller.js in Resources */,
 				326ED8531B0BC42F00D8B1B8 /* holding_portrait.jpg in Resources */,
 				326ED7FB1B0BC14600D8B1B8 /* Images.xcassets in Resources */,
 				326ED8B21B0BCD2000D8B1B8 /* RC3DK.js in Resources */,
 				326ED8B61B0BCD2E00D8B1B8 /* jquery-2.1.1.min.js in Resources */,
 				326ED8B81B0BCD2E00D8B1B8 /* three.min.js in Resources */,
+				17A802881B0E6C5200899E2B /* square-outline-textured.png in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -746,6 +754,7 @@
 				326ED80F1B0BC14700D8B1B8 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		326ED8101B0BC14700D8B1B8 /* Build configuration list for PBXNativeTarget "HybridARDemoTests" */ = {
 			isa = XCConfigurationList;
@@ -754,6 +763,7 @@
 				326ED8121B0BC14700D8B1B8 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

@@ -209,12 +209,11 @@ var MainController = (function ($, window, RC3DK, THREE)
         mouse = new THREE.Vector2();
 
         var geometry = new THREE.PlaneBufferGeometry( 1, 1 );
-        var material = new THREE.MeshBasicMaterial( {color: 0xffffff, opacity: 0.05, side: THREE.DoubleSide} );
         geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ) );
 
         plane = new THREE.Mesh( geometry);
         plane.visible = false;
-        plane.position.set(0,0.5,-0.5);
+        plane.position.set(0,0.5,-0.25);
         scene.add( plane );
 
         objects.push( plane );

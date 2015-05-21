@@ -26,6 +26,11 @@ typedef struct
     float x,y,z;
 } rc_Vector;
 
+typedef struct {
+    float x,y;
+    int id;
+} rc_Feature;
+
 /**
  Flat array of 12 floats, corresponding to 3x4 transformation matrix in row-major order:
  

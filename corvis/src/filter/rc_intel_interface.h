@@ -17,8 +17,8 @@ extern "C" {
 
 typedef enum
 {
-    rgb,
-    depth
+    rc_EGRAY8,
+    rc_EDEPTH16,
 } rc_Camera;
 
 typedef struct
@@ -99,7 +99,7 @@ void rc_stopTracker(rc_Tracker * tracker);
  @param stride Number of bytes in each line
  @param image Image data.
  */
-void rc_receiveImage(rc_Tracker * tracker, rc_Camera camera, rc_Timestamp time_100_ns, rc_Timestamp shutter_time_100_ns, const rc_Pose poseEstimate_m, bool force_recognition, int stride, const uint8_t *image);
+void rc_receiveImage(rc_Tracker * tracker, rc_Camera camera, rc_Timestamp time_100_ns, rc_Timestamp shutter_time_100_ns, const rc_Pose poseEstimate_m, bool force_recognition, int stride, const void *image);
 void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Timestamp time_100_ns, const rc_Vector acceleration_m__s2);
 void rc_receiveGyro(rc_Tracker * tracker, rc_Timestamp time_100_ns, const rc_Vector angular_velocity_rad__s);
 

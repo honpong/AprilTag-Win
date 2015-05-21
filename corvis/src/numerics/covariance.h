@@ -54,7 +54,7 @@ public:
         }
     }
     
-    void add(int newindex, int size, f_t p_noise[size], f_t initial_variance[size])
+    void add(int newindex, int size, f_t * p_noise, f_t * initial_variance)
     {
         int oldsize = cov.rows();
         process_noise.resize(oldsize + size);

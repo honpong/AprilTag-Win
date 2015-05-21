@@ -87,6 +87,12 @@
     <ClCompile Include="..\..\..\corvis\src\cor\platform\win\sensor_data.cpp">
       <Filter>Source Files\corvis\cor</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\corvis\src\filter\rc_intel_interface.cpp">
+      <Filter>Source Files\corvis\filter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\corvis\src\filter\sensor_fusion.cpp">
+      <Filter>Source Files\corvis\filter</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\corvis\src\filter\capture.h">
@@ -108,9 +114,6 @@
       <Filter>Source Files\corvis\filter</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\corvis\src\filter\homography.h">
-      <Filter>Source Files\corvis\filter</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\filter\intel_interface.h">
       <Filter>Source Files\corvis\filter</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\corvis\src\filter\observation.h">
@@ -172,6 +175,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\corvis\src\cor\platform\sensor_clock.h">
       <Filter>Source Files\corvis\cor</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\corvis\src\filter\rc_intel_interface.h">
+      <Filter>Source Files\corvis\filter</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\corvis\src\filter\sensor_fusion.h">
+      <Filter>Source Files\corvis\filter</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

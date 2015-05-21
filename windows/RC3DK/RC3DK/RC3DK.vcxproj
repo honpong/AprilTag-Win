@@ -102,8 +102,10 @@
     <ClCompile Include="..\..\..\corvis\src\filter\homography.cpp" />
     <ClCompile Include="..\..\..\corvis\src\filter\observation.cpp" />
     <ClCompile Include="..\..\..\corvis\src\filter\qr.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\filter\rc_intel_interface.cpp" />
     <ClCompile Include="..\..\..\corvis\src\filter\replay.cpp" />
     <ClCompile Include="..\..\..\corvis\src\filter\scaled_mask.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\filter\sensor_fusion.cpp" />
     <ClCompile Include="..\..\..\corvis\src\filter\state_motion.cpp" />
     <ClCompile Include="..\..\..\corvis\src\filter\state_vision.cpp" />
     <ClCompile Include="..\..\..\corvis\src\numerics\kalman.cpp" />
@@ -121,11 +123,12 @@
     <ClInclude Include="..\..\..\corvis\src\filter\filter.h" />
     <ClInclude Include="..\..\..\corvis\src\filter\filter_setup.h" />
     <ClInclude Include="..\..\..\corvis\src\filter\homography.h" />
-    <ClInclude Include="..\..\..\corvis\src\filter\intel_interface.h" />
     <ClInclude Include="..\..\..\corvis\src\filter\observation.h" />
     <ClInclude Include="..\..\..\corvis\src\filter\qr.h" />
+    <ClInclude Include="..\..\..\corvis\src\filter\rc_intel_interface.h" />
     <ClInclude Include="..\..\..\corvis\src\filter\replay.h" />
     <ClInclude Include="..\..\..\corvis\src\filter\scaled_mask.h" />
+    <ClInclude Include="..\..\..\corvis\src\filter\sensor_fusion.h" />
     <ClInclude Include="..\..\..\corvis\src\filter\state.h" />
     <ClInclude Include="..\..\..\corvis\src\filter\state_motion.h" />
     <ClInclude Include="..\..\..\corvis\src\filter\state_vision.h" />

@@ -163,35 +163,37 @@ var MainController = (function ($, window, RC3DK, THREE)
                       
         // roll-over helpers
 
-        rollOverGeo = new THREE.BoxGeometry( 0.1, 0.1, 0.1);
+        rollOverGeo = new THREE.BoxGeometry( 0.05, 0.05, 0.05);
         rollOverMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000, opacity: 0.5, transparent: true } );
         rollOverMesh = new THREE.Mesh( rollOverGeo, rollOverMaterial );
+        rollOverMesh.position.set(0, 0.5, -0.5);
         scene.add( rollOverMesh );
 
         // cubes
 
-        cubeGeo = new THREE.BoxGeometry( 0.1, 0.1, 0.1);
+        cubeGeo = new THREE.BoxGeometry( 0.05, 0.05, 0.05);
         cubeMaterial = new THREE.MeshLambertMaterial( { color: 0xfeb74c, shading: THREE.FlatShading, map: THREE.ImageUtils.loadTexture( "square-outline-textured.png" ) } );
 
         // grid
 
-        var size = 1, step = 0.1;
+        var size = .5, step = 0.05;
 
         var geometry = new THREE.Geometry();
 
         for ( var i = - size; i <= size; i += step ) {
 
-            geometry.vertices.push( new THREE.Vector3( - size, 0, i ) );
-            geometry.vertices.push( new THREE.Vector3(   size, 0, i ) );
+            geometry.vertices.push( new THREE.Vector3( - size, i, 0) );
+            geometry.vertices.push( new THREE.Vector3(   size, i, 0) );
 
-            geometry.vertices.push( new THREE.Vector3( i, 0, - size ) );
-            geometry.vertices.push( new THREE.Vector3( i, 0,   size ) );
+            geometry.vertices.push( new THREE.Vector3( i, - size, 0) );
+            geometry.vertices.push( new THREE.Vector3( i, size, 0) );
 
         }
 
         var material = new THREE.LineBasicMaterial( { color: 0x000000, opacity: 0.2, transparent: true } );
 
         var line = new THREE.Line( geometry, material, THREE.LinePieces );
+        line.position.set(0,0.5,-0.5);
         scene.add( line );
 
         //
@@ -199,11 +201,12 @@ var MainController = (function ($, window, RC3DK, THREE)
         raycaster = new THREE.Raycaster();
         mouse = new THREE.Vector2();
 
-        var geometry = new THREE.PlaneBufferGeometry( 2, 2 );
+        var geometry = new THREE.PlaneBufferGeometry( 1, 1 );
         geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ) );
 
         plane = new THREE.Mesh( geometry );
         plane.visible = false;
+        plane.position.set(0,0.5,-0.25);
         scene.add( plane );
 
         objects.push( plane );

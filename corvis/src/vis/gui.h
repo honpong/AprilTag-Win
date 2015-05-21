@@ -66,7 +66,8 @@ public:
     gui(world_state * render_state, bool show_main, bool show_video, bool show_plots);
     ~gui();
     void queue_render();
-    void start(replay * rp);
+    // If replay is NULL, pause and stepping control is not enabled
+    void start(replay * rp=NULL);
 };
 
 #endif

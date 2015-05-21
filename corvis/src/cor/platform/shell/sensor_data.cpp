@@ -7,11 +7,3 @@
 //
 
 #include "../sensor_data.h"
-
-camera_data::camera_data(void *h): image_handle(h, [](void *h) {})
-{
-}
-
-camera_data::~camera_data()
-{
-}

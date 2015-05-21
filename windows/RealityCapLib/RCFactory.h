@@ -17,6 +17,7 @@ namespace RealityCap
         ~RCFactory();
         unique_ptr<CalibrationManager> CreateCalibrationManager();
         unique_ptr<CaptureManager> CreateCaptureManager();
+        PXCSenseManager* GetSenseManager() { return _senseMan; };
 
     private:
         PXCSenseManager* _senseMan;

@@ -28,9 +28,20 @@ static sensor_clock::time_point time_point_fromNSTimeInterval(const NSTimeInterv
 
 #include <iostream>
 
-camera_data::camera_data(void *h): image_handle((void *)CFRetain(h), [](void *h) {CFRelease(h);})
+static void cleanupSampleBuffer(void *h)
 {
-    auto sampleBuffer = (CMSampleBufferRef)image_handle.get();
+    CMSampleBufferRef sampleBuffer = (CMSampleBufferRef)h;
+    if(sampleBuffer)
+    {
+        CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
+        CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
+        CVPixelBufferRelease(pixelBuffer);
+    }
+    CFRelease(h);
+}
+
+camera_data::camera_data(CMSampleBufferRef sampleBuffer): image_handle((void *)CFRetain(sampleBuffer), cleanupSampleBuffer)
+{
     if(!sampleBuffer) throw std::runtime_error("Null sample buffer");
     CMTime time = (CMTime)CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
     
@@ -55,17 +66,6 @@ camera_data::camera_data(void *h): image_handle((void *)CFRetain(h), [](void *h)
     
     //TODO: when we properly handle rolling shutter, propagate timestamps into camera_data class and timestamp at beginning of frame (pull exif metadata from RCSensorFusion into here)
     timestamp = time_point_from_CMTime(time);
-}
-
-camera_data::~camera_data()
-{
-    CMSampleBufferRef sampleBuffer = (CMSampleBufferRef)image_handle.get();
-    if(sampleBuffer)
-    {
-        CVPixelBufferRef pixelBuffer = (CVPixelBufferRef)CMSampleBufferGetImageBuffer(sampleBuffer);
-        CVPixelBufferUnlockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
-        CVPixelBufferRelease(pixelBuffer);
-    }
 }
 
 accelerometer_data::accelerometer_data(void *handle)

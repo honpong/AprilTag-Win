@@ -4,6 +4,15 @@ set(PACKAGE_NAME "corvis")
 
 project(${PACKAGE_NAME} C CXX)
 
+add_compile_options(-march=native -mfpmath=sse -O3)
+
+# A few hints for the BOOST_ROOT to help find_package(Boost)
+execute_process(COMMAND brew --prefix OUTPUT_VARIABLE BREW_PREFIX OUTPUT_STRIP_TRAILING_WHITESPACE)
+if (BREW_PREFIX)
+  file(GLOB _PREFIX ${BREW_PREFIX} /opt/local)
+  set(BOOST_ROOT ${_PREFIX})
+endif (BREW_PREFIX)
+
 add_subdirectory(src)
 
 add_executable(measure
@@ -18,3 +27,18 @@ target_link_libraries(measure
   mgl
 )
 
+add_executable(spec
+  ../gtest/gtest_main.cc ../gtest/gtest-all.cc
+  test/test.cpp test/util.cpp
+  test/numerics/vec4.cpp test/numerics/rotation_vector.cpp test/numerics/quaternion.cpp
+  test/stereo/stereo.cpp test/stereo/camera.cpp
+  test/filter/homography.cpp test/filter/utils.cpp
+  test/cor/sensor_fusion_queue.cpp
+)
+target_include_directories(spec PRIVATE test ..)
+target_link_libraries(spec
+  cor
+  numerics
+  stereo
+  filter
+)

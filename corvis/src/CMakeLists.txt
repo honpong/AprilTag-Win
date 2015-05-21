@@ -75,10 +75,42 @@ add_library(vis STATIC
   vis/gl_util.cpp
   vis/render.cpp
   vis/video_render.cpp
-  )
+)
 target_link_libraries(vis PRIVATE glad glfw mgl)
 target_link_libraries(vis PRIVATE ${GLFW_LIBRARIES})
 target_compile_options(vis PUBLIC -std=c++14)
+
+add_library(stereo STATIC
+  stereo/stereo.cpp
+  stereo/stereo_mesh.cpp
+  stereo/camera.cpp
+  stereo/fundamental.cpp
+  stereo/stereo_features.cpp
+)
+target_link_libraries(stereo PRIVATE DAI qhullstatic vlfeat)
+target_include_directories(stereo PUBLIC stereo)
+target_compile_options(stereo PUBLIC -std=c++14)
+
+add_subdirectory(qhull)
+set_target_properties(libqhull qhull_p PROPERTIES MACOSX_RPATH ON) # Avoid pointless warning
+get_directory_property(qhull_TARGETS DIRECTORY qhull DEFINITION qhull_TARGETS)
+set_target_properties(${qhull_TARGETS} PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
+target_include_directories(qhullstatic PUBLIC qhull/src/libqhull)
+
+file(GLOB LIBVLFEAT_FILES "vlfeat-0.9.18/vl/*.c")
+add_library(vlfeat STATIC ${LIBVLFEAT_FILES})
+target_include_directories(vlfeat INTERFACE vlfeat-0.9.18/vl)
+
+find_package(Boost REQUIRED)
+foreach(f alldai.cpp graph.cpp regiongraph.cpp emalg.cpp bipgraph.cpp evidence.cpp io.cpp trwbp.cpp bp.cpp exactinf.cpp daialg.cpp properties.cpp util.cpp bp_dual.cpp exceptions.cpp varset.cpp factor.cpp weightedgraph.cpp clustergraph.cpp factorgraph.cpp dag.cpp)
+  list(APPEND DAI_FILES "libDAI-0.3.1/src/${f}")
+endforeach(f)
+add_library(DAI STATIC ${DAI_FILES})
+target_include_directories(DAI PUBLIC
+  libDAI-0.3.1/include
+  "${Boost_INCLUDE_DIRS}"
+  "${Boost_INCLUDE_DIRS}/boost/tr1"
+)
 
 file(GLOB_RECURSE LIBZXING_FILES
     "libzxing-cpp/zxing/*.cpp"

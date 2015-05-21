@@ -36,7 +36,7 @@ typedef struct
 typedef float rc_Pose[12];
 
 /**
- Timestamp, in nanoseconds
+ Timestamp, in nanoseconds * 100
  */
 typedef int64_t rc_Timestamp;
 
@@ -56,7 +56,7 @@ void rc_destroy(rc_Tracker * tracker);
  Resets system, clearing all history and state, and sets initial pose and time.
  System will be stopped until one of the rc_start_ functions is called.
  */
-void rc_reset(rc_Tracker * tracker, rc_Timestamp initialTime_ns, const rc_Pose initialPose_m);
+void rc_reset(rc_Tracker * tracker, rc_Timestamp initialTime_100_ns, const rc_Pose initialPose_m);
 
 /**
  @param tracker The active rc_Tracker instance
@@ -92,16 +92,16 @@ void rc_stopTracker(rc_Tracker * tracker);
 /**
  @param tracker The active rc_Tracker instance
  @param camera The camera from which this frame was received
- @param time_ns Timestamp (in ns) when this frame was received
- @param shutter_time Exposure time (in ns)
+ @param time_100_ns Timestamp (in 100ns) when this frame was received
+ @param shutter_time Exposure time (in 100ns)
  @param poseEstimate_m Position (in meters) and orientation estimate from external tracking system
  @param force_recognition If true, force the tracker instance to perform relocalization / loop closure immediately.
  @param stride Number of bytes in each line
  @param image Image data.
  */
-void rc_receiveImage(rc_Tracker * tracker, rc_Camera camera, rc_Timestamp time_ns, rc_Timestamp shutter_time, const rc_Pose poseEstimate_m, bool force_recognition, int stride, const uint8_t *image);
-void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Timestamp time_ns, const rc_Vector acceleration_m__s2);
-void rc_receiveGyro(rc_Tracker * tracker, rc_Timestamp time_ns, const rc_Vector angular_velocity_rad__s);
+void rc_receiveImage(rc_Tracker * tracker, rc_Camera camera, rc_Timestamp time_100_ns, rc_Timestamp shutter_time_100_ns, const rc_Pose poseEstimate_m, bool force_recognition, int stride, const uint8_t *image);
+void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Timestamp time_100_ns, const rc_Vector acceleration_m__s2);
+void rc_receiveGyro(rc_Tracker * tracker, rc_Timestamp time_100_ns, const rc_Vector angular_velocity_rad__s);
 
 void rc_getPose(rc_Tracker * tracker, rc_Pose pose_m);
 int rc_getFeatures(rc_Tracker * tracker, rc_Feature **features_px);
@@ -110,10 +110,10 @@ int rc_getFeatures(rc_Tracker * tracker, rc_Feature **features_px);
  @param tracker The active rc_Tracker instance
  @param log The function to call with output
  @param stream If true, log every calculated output pose
- @param period_ns If non-zero, log each calculated pose when it has been period_ns or more since the last pose was logged
+ @param period_100_ns If non-zero, log each calculated pose when it has been period_100_ns or more since the last pose was logged
  @param handle Token to pass to log callback
  */
-void rc_setLog(rc_Tracker * tracker, void (*log)(void *handle, char *buffer_utf8, size_t length), bool stream, rc_Timestamp period_ns, void *handle);
+void rc_setLog(rc_Tracker * tracker, void (*log)(void *handle, char *buffer_utf8, size_t length), bool stream, rc_Timestamp period_100_ns, void *handle);
 
 /**
  Immediately outputs the last calculated pose

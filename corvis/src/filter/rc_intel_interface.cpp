@@ -22,7 +22,7 @@ extern "C" void rc_destroy(rc_Tracker * tracker)
     delete tracker;
 }
 
-extern "C" void rc_reset(rc_Tracker * tracker, rc_Timestamp initialTime_ns, const rc_Pose initialPose_m)
+extern "C" void rc_reset(rc_Tracker * tracker, rc_Timestamp initialTime_100_ns, const rc_Pose initialPose_m)
 {
     m4 R = m4::Identity();
     v4 T = v4::Zero();
@@ -32,7 +32,7 @@ extern "C" void rc_reset(rc_Tracker * tracker, rc_Timestamp initialTime_ns, cons
             R(i, j) = initialPose_m[i * 4 + j];
         }
     }
-    tracker->reset(sensor_clock::time_point(sensor_clock::duration(initialTime_ns/100)),     transformation(R, T));
+    tracker->reset(sensor_clock::time_point(sensor_clock::duration(initialTime_100_ns)),     transformation(R, T));
 }
 
 void rc_configureCamera(rc_Tracker * tracker, rc_Camera camera, const rc_Pose pose_m, int width_px, int height_px, float center_x_px, float center_y_px, float focal_length_px)
@@ -81,7 +81,7 @@ void rc_startTracker(rc_Tracker * tracker);
 
 void rc_stopTracker(rc_Tracker * tracker);
 
-void rc_receiveImage(rc_Tracker * tracker, rc_Camera camera, rc_Timestamp time_ns, rc_Timestamp shutter_time, const rc_Pose poseEstimate_m, bool force_recognition, int stride, const uint8_t *image)
+void rc_receiveImage(rc_Tracker * tracker, rc_Camera camera, rc_Timestamp time_100_ns, rc_Timestamp shutter_time, const rc_Pose poseEstimate_m, bool force_recognition, int stride, const uint8_t *image)
 {
     if(camera == rgb) {
         camera_data d;
@@ -93,12 +93,12 @@ void rc_receiveImage(rc_Tracker * tracker, rc_Camera camera, rc_Timestamp time_n
         d.height = tracker->device.image_height;
         // TODO: Check that we support stride
         d.stride = stride;
-        d.timestamp = sensor_clock::time_point(sensor_clock::duration(time_ns/100));
+        d.timestamp = sensor_clock::time_point(sensor_clock::duration(time_100_ns));
         tracker->receive_image(std::move(d));
     }
 }
 
-void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Timestamp time_ns, const rc_Vector acceleration_m__s2)
+void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Timestamp time_100_ns, const rc_Vector acceleration_m__s2)
 {
     accelerometer_data d;
     d.accel_m__s2[0] = acceleration_m__s2.x;
@@ -107,7 +107,7 @@ void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Timestamp time_ns, const r
     tracker->receive_accelerometer(std::move(d));
 }
 
-void rc_receiveGyro(rc_Tracker * tracker, rc_Timestamp time_ns, const rc_Vector angular_velocity_rad__s)
+void rc_receiveGyro(rc_Tracker * tracker, rc_Timestamp time_100_ns, const rc_Vector angular_velocity_rad__s)
 {
     gyro_data d;
     d.angvel_rad__s[0] = angular_velocity_rad__s.x;
@@ -145,7 +145,7 @@ int rc_getFeatures(rc_Tracker * tracker, rc_Feature **features_px)
     return num_features;
 }
 
-void rc_setLog(rc_Tracker * tracker, void (*log)(void *handle, char *buffer_utf8, size_t length), bool stream, rc_Timestamp period_ns, void *handle);
+void rc_setLog(rc_Tracker * tracker, void (*log)(void *handle, char *buffer_utf8, size_t length), bool stream, rc_Timestamp period_100_ns, void *handle);
 
 void rc_triggerLog(rc_Tracker * tracker);
 

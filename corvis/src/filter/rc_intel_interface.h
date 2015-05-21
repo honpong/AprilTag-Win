@@ -40,6 +40,13 @@ typedef float rc_Pose[12];
  */
 typedef int64_t rc_Timestamp;
 
+typedef struct
+{
+    uint64_t id;
+    rc_Vector world;
+    float image_x, image_y;
+} rc_Feature;
+
 typedef struct rc_Tracker rc_Tracker;
 
 rc_Tracker * rc_create();
@@ -97,7 +104,7 @@ void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Timestamp time_ns, const r
 void rc_receiveGyro(rc_Tracker * tracker, rc_Timestamp time_ns, const rc_Vector angular_velocity_rad__s);
 
 void rc_getPose(rc_Tracker * tracker, rc_Pose pose_m);
-int rc_getFeatures(rc_Tracker * tracker, struct rc_Feature **features_px);
+int rc_getFeatures(rc_Tracker * tracker, rc_Feature **features_px);
     
 /**
  @param tracker The active rc_Tracker instance

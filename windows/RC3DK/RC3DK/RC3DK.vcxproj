@@ -65,6 +65,7 @@
     <Lib>
       <AdditionalLibraryDirectories>C:\Program Files %28x86%29\Intel\Composer XE 2015\mkl\lib\ia32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions> mkl_intel_c.lib mkl_core.lib mkl_sequential.lib %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -87,6 +88,7 @@
     <Lib>
       <AdditionalLibraryDirectories>C:\Program Files %28x86%29\Intel\Composer XE 2015\mkl\lib\ia32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions> mkl_intel_c.lib mkl_core.lib mkl_sequential.lib %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -114,6 +116,7 @@
     <ClCompile Include="..\..\..\corvis\src\numerics\vec4.cpp" />
     <ClCompile Include="..\..\..\corvis\src\vis\arcball.cpp" />
     <ClCompile Include="..\..\..\corvis\src\vis\gl_util.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\vis\gui.cpp" />
     <ClCompile Include="..\..\..\corvis\src\vis\lodepng.cpp" />
     <ClCompile Include="..\..\..\corvis\src\vis\offscreen_render.cpp" />
     <ClCompile Include="..\..\..\corvis\src\vis\render.cpp" />
@@ -153,12 +156,18 @@
     <ClInclude Include="..\..\..\corvis\src\numerics\vec4.h" />
     <ClInclude Include="..\..\..\corvis\src\vis\arcball.h" />
     <ClInclude Include="..\..\..\corvis\src\vis\gl_util.h" />
+    <ClInclude Include="..\..\..\corvis\src\vis\gui.h" />
     <ClInclude Include="..\..\..\corvis\src\vis\lodepng.h" />
     <ClInclude Include="..\..\..\corvis\src\vis\offscreen_render.h" />
     <ClInclude Include="..\..\..\corvis\src\vis\render.h" />
     <ClInclude Include="..\..\..\corvis\src\vis\video_render.h" />
     <ClInclude Include="..\..\..\corvis\src\vis\world_state.h" />
     <ClInclude Include="..\..\..\corvis\src\vis\world_state_render.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\glfw\glfw.vcxproj">
+      <Project>{b78b8421-fae7-4a5b-b271-8d2cd7c98609}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

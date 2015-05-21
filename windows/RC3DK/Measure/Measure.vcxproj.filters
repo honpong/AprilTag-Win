@@ -19,9 +19,6 @@
     <Filter Include="Source Files\corvis\cor">
       <UniqueIdentifier>{36bc6737-bbae-4303-abe9-2dad491d2d03}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\corvis\vis">
-      <UniqueIdentifier>{ef0184c3-85ba-4793-a0a6-bf31287b0595}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\corvis\src\tools\measure.cpp">
@@ -30,13 +27,5 @@
     <ClCompile Include="..\..\..\corvis\src\cor\platform\shell\sensor_data.cpp">
       <Filter>Source Files\corvis\cor</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\vis\gui.cpp">
-      <Filter>Source Files\corvis\vis</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\corvis\src\vis\gui.h">
-      <Filter>Source Files\corvis\vis</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

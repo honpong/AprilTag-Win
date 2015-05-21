@@ -84,9 +84,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ProjectReference Include="..\glfw\glfw.vcxproj">
-      <Project>{b78b8421-fae7-4a5b-b271-8d2cd7c98609}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\RC3DK\RC3DK.vcxproj">
       <Project>{e4e5a177-07b4-42ae-aa31-db608571e6b6}</Project>
     </ProjectReference>
@@ -94,10 +91,6 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\corvis\src\cor\platform\shell\sensor_data.cpp" />
     <ClCompile Include="..\..\..\corvis\src\tools\measure.cpp" />
-    <ClCompile Include="..\..\..\corvis\src\vis\gui.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\corvis\src\vis\gui.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

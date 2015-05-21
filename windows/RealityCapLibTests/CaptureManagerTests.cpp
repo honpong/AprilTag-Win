@@ -30,7 +30,7 @@ TEST(CaptureManagerTests, StartFailed)
     PXCSenseManagerFake* senseMan = new PXCSenseManagerFake();
 
     CaptureManager capMan(senseMan);
-    senseMan->FakeStatus = PXC_STATUS_ALLOC_FAILED; // causes EnableStreams to return failure
+    senseMan->fakeStatus = PXC_STATUS_ALLOC_FAILED; // causes EnableStreams to return failure
     EXPECT_FALSE(capMan.StartCapture());
     EXPECT_FALSE(capMan.isCapturing());
 }

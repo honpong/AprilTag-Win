@@ -1,9 +1,14 @@
 #include "stdafx.h"
-#include "../../gtest/gtest.h"
+#include "../../gmock/gtest/gtest.h"
+#include "../../gmock/gmock/gmock.h"
 #include "SensorManager.h"
 #include "PXCSenseManagerFake.h"
 
 using namespace RealityCap;
+using ::testing::AtLeast;
+using ::testing::A;
+
+bool testComplete = false;
 
 TEST(SensorManagerTests, NewDelete)
 {
@@ -30,7 +35,7 @@ TEST(SensorManagerTests, StartFailed)
     PXCSenseManagerFake* senseMan = new PXCSenseManagerFake();
 
     SensorManager sensorMan(senseMan);
-    senseMan->FakeStatus = PXC_STATUS_ALLOC_FAILED; // causes EnableStreams to return failure
+    senseMan->fakeStatus = PXC_STATUS_ALLOC_FAILED; // causes EnableStreams to return failure
     EXPECT_FALSE(sensorMan.StartSensors());
     EXPECT_FALSE(sensorMan.isVideoStreaming());
 }

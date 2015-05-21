@@ -22,7 +22,7 @@ pxcIMUsensor selectedSensors[] = {
 };
 const int NUM_OF_REQUESTED_SENSORS = sizeof(selectedSensors) / sizeof(pxcIMUsensor);
 
-SensorManager::SensorManager(PXCSenseManager* senseMan) : _isVideoStreaming(false)
+SensorManager::SensorManager(PXCSenseManager* senseMan) : _isVideoStreaming(false), _sensorReceiver(NULL)
 {
     _senseMan = senseMan;
 }

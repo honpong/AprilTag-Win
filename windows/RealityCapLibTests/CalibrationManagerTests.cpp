@@ -29,7 +29,7 @@ TEST(CalibrationManagerTests, StartFailed)
 {
     PXCSenseManagerFake* senseMan = new PXCSenseManagerFake();
     CalibrationManager calMan(senseMan);
-    senseMan->FakeStatus = PXC_STATUS_ALLOC_FAILED; // causes EnableStreams to return failure
+    senseMan->fakeStatus = PXC_STATUS_ALLOC_FAILED; // causes EnableStreams to return failure
     EXPECT_FALSE(calMan.StartCalibration());
     EXPECT_FALSE(calMan.isCalibrating());
 }

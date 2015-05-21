@@ -210,6 +210,7 @@ var MainController = (function ($, window, RC3DK, THREE)
 
         var geometry = new THREE.PlaneBufferGeometry( 1, 1 );
         var material = new THREE.MeshBasicMaterial( {color: 0xffffff, opacity: 0.05, side: THREE.DoubleSide} );
+        geometry.applyMatrix( new THREE.Matrix4().makeRotationX( - Math.PI / 2 ) );
 
         plane = new THREE.Mesh( geometry);
         plane.visible = false;

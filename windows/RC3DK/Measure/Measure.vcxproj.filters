@@ -20,7 +20,7 @@
       <UniqueIdentifier>{36bc6737-bbae-4303-abe9-2dad491d2d03}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\corvis\vis">
-      <UniqueIdentifier>{9ba8e0b1-e904-40ad-bf9c-df7c3171966b}</UniqueIdentifier>
+      <UniqueIdentifier>{ef0184c3-85ba-4793-a0a6-bf31287b0595}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -30,60 +30,12 @@
     <ClCompile Include="..\..\..\corvis\src\cor\platform\shell\sensor_data.cpp">
       <Filter>Source Files\corvis\cor</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\vis\arcball.cpp">
-      <Filter>Source Files\corvis\vis</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\corvis\src\vis\gui.cpp">
-      <Filter>Source Files\corvis\vis</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\vis\lodepng.cpp">
-      <Filter>Source Files\corvis\vis</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\vis\offscreen_render.cpp">
-      <Filter>Source Files\corvis\vis</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\vis\world_state.cpp">
-      <Filter>Source Files\corvis\vis</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\vis\world_state_render.cpp">
-      <Filter>Source Files\corvis\vis</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\vis\gl_util.cpp">
-      <Filter>Source Files\corvis\vis</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\vis\video_render.cpp">
-      <Filter>Source Files\corvis\vis</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\vis\render.cpp">
       <Filter>Source Files\corvis\vis</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\corvis\src\vis\arcball.h">
-      <Filter>Source Files\corvis\vis</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\corvis\src\vis\gui.h">
-      <Filter>Source Files\corvis\vis</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\vis\lodepng.h">
-      <Filter>Source Files\corvis\vis</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\vis\offscreen_render.h">
-      <Filter>Source Files\corvis\vis</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\vis\world_state.h">
-      <Filter>Source Files\corvis\vis</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\vis\world_state_render.h">
-      <Filter>Source Files\corvis\vis</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\vis\gl_util.h">
-      <Filter>Source Files\corvis\vis</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\vis\video_render.h">
-      <Filter>Source Files\corvis\vis</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\corvis\src\vis\render.h">
       <Filter>Source Files\corvis\vis</Filter>
     </ClInclude>
   </ItemGroup>

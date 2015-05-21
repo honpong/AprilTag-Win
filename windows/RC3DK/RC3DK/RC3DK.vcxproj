@@ -42,11 +42,11 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(RSSDK_DIR)\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(RSSDK_DIR)\include;..\..\..\corvis\src\glfw\include;..\..\..\corvis\src\glfw\deps;$(IncludePath)</IncludePath>
     <LibraryPath>$(RSSDK_DIR)\lib\$(PlatformName);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(RSSDK_DIR)\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(RSSDK_DIR)\include;..\..\..\corvis\src\glfw\include;..\..\..\corvis\src\glfw\deps;$(IncludePath)</IncludePath>
     <LibraryPath>$(RSSDK_DIR)\lib\$(PlatformName);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -112,6 +112,14 @@
     <ClCompile Include="..\..\..\corvis\src\numerics\matrix.cpp" />
     <ClCompile Include="..\..\..\corvis\src\numerics\rotation_vector.cpp" />
     <ClCompile Include="..\..\..\corvis\src\numerics\vec4.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\vis\arcball.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\vis\gl_util.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\vis\lodepng.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\vis\offscreen_render.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\vis\render.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\vis\video_render.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\vis\world_state.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\vis\world_state_render.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\corvis\src\cor\platform\sensor_clock.h" />
@@ -143,6 +151,14 @@
     <ClInclude Include="..\..\..\corvis\src\numerics\sinc.h" />
     <ClInclude Include="..\..\..\corvis\src\numerics\transformation.h" />
     <ClInclude Include="..\..\..\corvis\src\numerics\vec4.h" />
+    <ClInclude Include="..\..\..\corvis\src\vis\arcball.h" />
+    <ClInclude Include="..\..\..\corvis\src\vis\gl_util.h" />
+    <ClInclude Include="..\..\..\corvis\src\vis\lodepng.h" />
+    <ClInclude Include="..\..\..\corvis\src\vis\offscreen_render.h" />
+    <ClInclude Include="..\..\..\corvis\src\vis\render.h" />
+    <ClInclude Include="..\..\..\corvis\src\vis\video_render.h" />
+    <ClInclude Include="..\..\..\corvis\src\vis\world_state.h" />
+    <ClInclude Include="..\..\..\corvis\src\vis\world_state_render.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -104,6 +104,7 @@ void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Timestamp time_100_ns, con
     d.accel_m__s2[0] = acceleration_m__s2.x;
     d.accel_m__s2[1] = acceleration_m__s2.y;
     d.accel_m__s2[2] = acceleration_m__s2.z;
+    d.timestamp = sensor_clock::time_point(sensor_clock::duration(time_100_ns));
     tracker->receive_accelerometer(std::move(d));
 }
 
@@ -113,6 +114,7 @@ void rc_receiveGyro(rc_Tracker * tracker, rc_Timestamp time_100_ns, const rc_Vec
     d.angvel_rad__s[0] = angular_velocity_rad__s.x;
     d.angvel_rad__s[1] = angular_velocity_rad__s.y;
     d.angvel_rad__s[2] = angular_velocity_rad__s.z;
+    d.timestamp = sensor_clock::time_point(sensor_clock::duration(time_100_ns));
     tracker->receive_gyro(std::move(d));
 }
 

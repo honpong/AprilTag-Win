@@ -9,46 +9,29 @@
 #ifndef __RC3DK__sensor_fusion__
 #define __RC3DK__sensor_fusion__
 
-#include <stdint.h>
 #include <string>
-#include "camera_control_interface.h"
-#include "transformation.h"
+#include "../numerics/transformation.h"
+#include "../cor/platform/sensor_clock.h"
+#include "../cor/platform/sensor_data.h"
+#include "filter_setup.h"
+#include "../cor/sensor_fusion_queue.h"
+#include "device_parameters.h"
 
-enum class camera
+enum class camera_specifier
 {
-    depth,
-    rgb
+    rgb,
+    depth
 };
-
-
-/**
- Timestamp, in microseconds
- */
-typedef uint64_t timestamp_t;
 
 class sensor_fusion
 {
-    //These functions all run synchronously; assume that the start_ functions have not been called yet
-    /**
-     @param source_camera The camera to configure
-     @param image_width Image width in pixels
-     @param image_height Image height in pixels
-     @param focal_length Focal length in pixels
-     @param principal_x Horizontal principal point in pixels
-     @param principal_y Vertical principal point in pixels
-     @param extrinsics Position and orientation of camera relative to reference point
-     */
-    void configure_camera(camera source_camera, int image_width, int image_height, float focal_length, float principal_x, float principal_y, const transformation &extrinsics);
+public:
+    std::function<void(camera_data &&)> camera_callback;
+    std::function<void()> status_callback;
     
-    /** Sets the 3DK license key. Call this once before starting sensor fusion. In most cases, this should be done when your app starts.
-     
-     @param key A 30 character string. Obtain a license key by contacting RealityCap.
-     */
-    void set_license_key(const std::string &key);
+    sensor_fusion();
     
-    void configure_accelerometer(float bias_x, float bias_y, float bias_z, float noise_variance, const transformation &extrinsics);
-    
-    void configure_gyroscope(float bias_x, float bias_y, float bias_z, float noise_variance, const transformation &extrinsics);
+    void set_device(const corvis_device_parameters &dc);
     
     /** Sets the current location of the device.
      
@@ -60,44 +43,11 @@ class sensor_fusion
      */
     void set_location(double latitude_degrees, double longitude_degrees, double altitude_meters);
     
-    /** Determine if valid saved calibration data exists from a previous run.
-     
-     @return If false, it is strongly recommended to perform the calibration procedure by calling start_calibration.
-     @note In some cases, calibration data may become invalid or go out of date, in which case this will return false even if it previously returned true. It is recommended to check hasCalibrationData before each use, even if calibration has previously been run successfully.
-     */
-    bool has_calibration_data();
-    
-    
     //These may all run async
     
-    /**
-     Resets system, clearing all history and state, and sets initial pose and time.
-     System will be stopped until one of the start_ functions is called.
-     */
-    void reset(transformation initial_pose, timestamp_t initial_time);
     void start_calibration();
-    void start_full_processing();
     
-    /** Starts to search for a QR code and once detected reports future transformations relative to the observed QR code.
-     
-     They sensor fusion system will attempt to detect a QR code until one is found or stop_qr_detection is called. Once the code has been detected, sensor_fusion_data.origin_qr_code will be set to the payload of the QR code, and future instances of sensor_fusion_data.transformation and sensor_fusion_data.camera_transformation will be modified with the origin fixed to the center of the QR code. If align_gravity is false, then positive x will point toward the canonical "right" side of the QR code, positive y will point toward the canonical "top" of the QR code, and positive z will point out of the plane of the QR code. If alignGravity is true (recommended), the coordinates will be rotated so that the positive z axis points opposite to gravity.
-     
-     [ ]  ^+y [ ]
-          |
-          o--->+x
-     
-     [ ]
-     
-     @param data The expected payload of the QR code. If nullptr is passed, the first detected QR code will be used.
-     @param size The size of the QR code (width = height) in meters.
-     @param align_gravity If true (recommended), the z axis will be aligned with gravity; if false the z axis will be perpindicular to the QR code.
-     */
-    void start_qr_detection(const std::string& data, float size, bool align_gravity);
-    
-    /** Stops searching for QR codes.
-     */
-    void stop_qr_detection();
-
+    void start_inertial_only();
     
     /** Prepares the object to receive video and inertial data, and starts sensor fusion updates.
      
@@ -105,7 +55,7 @@ class sensor_fusion
      
      @param device The camera_control_interface to be used for capture. This function will lock the focus on the camera device (if the device is capable of focusing) before starting video processing. No other modifications to the camera settings are made.
      */
-    void start_sensor_fusion(camera_control_interface &device);
+    void start(camera_control_interface &device);
     
     /** Prepares the object to receive video and inertial data, and starts sensor fusion updates.
      
@@ -114,10 +64,16 @@ class sensor_fusion
      @param device The camera_control_interface to be used for capture. This function will lock the focus on the camera device (if the device is capable of focusing) before starting video processing. No other modifications to the camera settings are made.
      @note It is strongly recommended to call start_sensor_fusion rather than this function
      */
-    void start_sensor_fusion_unstable(camera_control_interface &device);
+    void start_unstable(camera_control_interface &device);
     
     /** Stops the processing of video and inertial data. */
-    void stop_sensor_fusion();
+    void stop();
+
+    /**
+     Resets system, clearing all history and state, and sets initial pose and time.
+     System will be stopped until one of the start_ functions is called.
+     */
+    void reset(sensor_clock::time_point time, const transformation &initial_pose_m);
     
     /** Once sensor fusion has started, video frames should be passed in as they are received from the camera.
      @param which_camera Specifies which camera generated this image.
@@ -125,31 +81,75 @@ class sensor_fusion
      @param pose Optional estimate of the pose of the device, if available. nullptr if not available.
      @param time Time image was captured, in microseconds.
      */
-    void receive_image(camera which_camera, uint8_t *image, float *pose, timestamp_t time);
+    void receive_image(camera_data &&data);
     
     /** Once sensor fusion has started, acceleration data should be passed in as it's received from the accelerometer.
      @param x Acceleration along the x axis, in m/s^2
      @param y Acceleration along the y axis, in m/s^2
      @param z Acceleration along the z axis, in m/s^2
      */
-    void receive_accelerometer(float x, float y, float z, timestamp_t time);
+    void receive_accelerometer(accelerometer_data &&data);
     
     /** Once sensor fusion has started, angular velocity data should be passed in as it's received from the gyro.
      @param x Angular velocity around the x axis, in rad/s
      @param y Angular velocity around the y axis, in rad/s
      @param z Angular velocity around the z axis, in rad/s
      */
-    void receive_gyro(float x, float y, float z, timestamp_t time);
+    void receive_gyro(gyro_data &&data);
     
-    //These two can be run at the same time or independently
-    void start_mapping_from_pose_estimates();
-    void start_inertial_only();
-    
-    void save_state();
-    void load_state();
-    void log_output();
+    //*************Not yet implemented:
     
     
+    /** Determine if valid saved calibration data exists from a previous run.
+     
+     @return If false, it is strongly recommended to perform the calibration procedure by calling start_calibration.
+     @note In some cases, calibration data may become invalid or go out of date, in which case this will return false even if it previously returned true. It is recommended to check hasCalibrationData before each use, even if calibration has previously been run successfully.
+     */
+//    bool has_calibration_data();
+
+    
+//    void start_mapping_from_pose_estimates();
+    /** Sets the 3DK license key. Call this once before starting sensor fusion. In most cases, this should be done when your app starts.
+     
+     @param key A 30 character string. Obtain a license key by contacting RealityCap.
+     */
+//    void set_license_key(const std::string &key);
+    
+    
+    
+    /** Starts to search for a QR code and once detected reports future transformations relative to the observed QR code.
+     
+     They sensor fusion system will attempt to detect a QR code until one is found or stop_qr_detection is called. Once the code has been detected, sensor_fusion_data.origin_qr_code will be set to the payload of the QR code, and future instances of sensor_fusion_data.transformation and sensor_fusion_data.camera_transformation will be modified with the origin fixed to the center of the QR code. If align_gravity is false, then positive x will point toward the canonical "right" side of the QR code, positive y will point toward the canonical "top" of the QR code, and positive z will point out of the plane of the QR code. If alignGravity is true (recommended), the coordinates will be rotated so that the positive z axis points opposite to gravity.
+     
+     [ ]  ^+y [ ]
+     |
+     o--->+x
+     
+     [ ]
+     
+     @param data The expected payload of the QR code. If nullptr is passed, the first detected QR code will be used.
+     @param size The size of the QR code (width = height) in meters.
+     @param align_gravity If true (recommended), the z axis will be aligned with gravity; if false the z axis will be perpindicular to the QR code.
+     */
+    //void start_qr_detection(const std::string& data, float size, bool align_gravity);
+    
+    /** Stops searching for QR codes.
+     */
+    //void stop_qr_detection();
+
+    //public for now
+    filter sfm;
+    corvis_device_parameters device;
+    
+private:
+    void send_status();
+    void send_data(camera_data &&data);
+    std::atomic<bool> isProcessingVideo, isSensorFusionRunning, processingVideoRequested;
+    std::unique_ptr<fusion_queue> queue;
+    RCSensorFusionRunState lastRunState;
+    RCSensorFusionErrorCode lastErrorCode;
+    RCSensorFusionConfidence lastConfidence;
+    float lastProgress;
 };
 
 #endif /* defined(__RC3DK__sensor_fusion__) */

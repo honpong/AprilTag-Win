@@ -662,8 +662,8 @@
 		D95E92DA1AB86D4600EAB109 /* sensor_data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sensor_data.h; path = ../../corvis/src/cor/platform/sensor_data.h; sourceTree = "<group>"; };
 		D95EB1851AA5038600ADFC20 /* sensor_fusion_queue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sensor_fusion_queue.cpp; sourceTree = "<group>"; };
 		D95EB1861AA5038600ADFC20 /* sensor_fusion_queue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sensor_fusion_queue.h; sourceTree = "<group>"; };
-		D95EB18A1AA50AF200ADFC20 /* sensor_fusion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sensor_fusion.cpp; path = ../../corvis/src/filter/sensor_fusion.cpp; sourceTree = "<group>"; };
-		D95EB18B1AA50AF200ADFC20 /* sensor_fusion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sensor_fusion.h; path = ../../corvis/src/filter/sensor_fusion.h; sourceTree = "<group>"; };
+		D95EB18A1AA50AF200ADFC20 /* sensor_fusion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sensor_fusion.cpp; sourceTree = "<group>"; };
+		D95EB18B1AA50AF200ADFC20 /* sensor_fusion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sensor_fusion.h; sourceTree = "<group>"; };
 		D96055841ACDFEF500E72711 /* eigen_initializer_list.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = eigen_initializer_list.h; sourceTree = "<group>"; };
 		D992CC3B1AD5C46A00AA2259 /* replay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = replay.cpp; sourceTree = "<group>"; };
 		D992CC3C1AD5C46A00AA2259 /* replay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = replay.h; sourceTree = "<group>"; };
@@ -973,8 +973,6 @@
 			isa = PBXGroup;
 			children = (
 				D90D18C01A3A03B500D1AFE4 /* camera_control_interface.h */,
-				D95EB18A1AA50AF200ADFC20 /* sensor_fusion.cpp */,
-				D95EB18B1AA50AF200ADFC20 /* sensor_fusion.h */,
 				327B558418EB4F250001CCE1 /* cor */,
 				327B559C18EB4F3A0001CCE1 /* filter */,
 				327B55C718EB4F430001CCE1 /* numerics */,
@@ -1016,6 +1014,8 @@
 				327B55AE18EB4F3A0001CCE1 /* observation.h */,
 				D992CC3B1AD5C46A00AA2259 /* replay.cpp */,
 				D992CC3C1AD5C46A00AA2259 /* replay.h */,
+				D95EB18A1AA50AF200ADFC20 /* sensor_fusion.cpp */,
+				D95EB18B1AA50AF200ADFC20 /* sensor_fusion.h */,
 				327B55B018EB4F3A0001CCE1 /* state.h */,
 				327B55B118EB4F3A0001CCE1 /* state_motion.cpp */,
 				327B55B218EB4F3A0001CCE1 /* state_motion.h */,

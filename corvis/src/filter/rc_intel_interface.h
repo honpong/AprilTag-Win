@@ -49,7 +49,7 @@ void rc_destroy(rc_Tracker * tracker);
  Resets system, clearing all history and state, and sets initial pose and time.
  System will be stopped until one of the rc_start_ functions is called.
  */
-void rc_reset(rc_Tracker * tracker, const rc_Pose initialPose_m, rc_Timestamp initialTime_ns);
+void rc_reset(rc_Tracker * tracker, rc_Timestamp initialTime_ns, const rc_Pose initialPose_m);
 
 /**
  @param tracker The active rc_Tracker instance
@@ -63,7 +63,7 @@ void rc_reset(rc_Tracker * tracker, const rc_Pose initialPose_m, rc_Timestamp in
  */
 void rc_configureCamera(rc_Tracker * tracker, rc_Camera camera, const rc_Pose pose_m, int width_px, int height_px, float center_x_px, float center_y_px, float focal_length_px);
 void rc_configureAccelerometer(rc_Tracker * tracker, const rc_Pose pose_m, const rc_Vector bias_m__s2, float noiseVariance_m2__s4);
-void rc_configureGyroscope(rc_Tracker * tracker, const rc_Pose pose_m, const rc_Vector bias_rad__s, float noiseVariance_m2__s4);
+void rc_configureGyroscope(rc_Tracker * tracker, const rc_Pose pose_m, const rc_Vector bias_rad__s, float noiseVariance_rad2__s2);
 void rc_configureLocation(rc_Tracker * tracker, double latitude_deg, double longitude_deg, double altitude_m);
 
 //TODO: Define calibration interface
@@ -79,6 +79,8 @@ void rc_startInertialOnly(rc_Tracker * tracker);
  Starts the tracker.
  */
 void rc_startTracker(rc_Tracker * tracker);
+    
+void rc_stopTracker(rc_Tracker * tracker);
     
 /**
  @param tracker The active rc_Tracker instance

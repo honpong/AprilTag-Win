@@ -1,3 +1,5 @@
+#define _USE_MATH_DEFINES
+
 #include "../filter/rc_intel_interface.h"
 
 #include <iostream>
@@ -5,6 +7,7 @@
 #include <string.h>
 #include <assert.h>
 #include <sstream>
+#include <memory>
 #include "../cor/packet.h"
 
 const rc_Pose rc_pose_identity = {1, 0, 0, 0, 

@@ -23,6 +23,7 @@ extern "C" rc_Tracker * rc_create()
     corvis_device_parameters d;
     get_parameters_for_device(DEVICE_TYPE_UNKNOWN, &d);
     tracker->set_device(d);
+    tracker->sfm.ignore_lateness = true; //For RealSense, we don't enforce real time behavior; assume we're good
 
     return tracker;
 }
@@ -120,10 +121,10 @@ void rc_configureLocation(rc_Tracker * tracker, double latitude_deg, double long
 
 void rc_startCalibration(rc_Tracker * tracker);
 
-void rc_startInertialOnly(rc_Tracker * tracker)
+/*void rc_startInertialOnly(rc_Tracker * tracker)
 {
     tracker->start_inertial_only();
-}
+}*/
 
 void rc_startTracker(rc_Tracker * tracker)
 {

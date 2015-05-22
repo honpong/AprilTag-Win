@@ -61,28 +61,39 @@ void sensor_fusion::set_location(double latitude_degrees, double longitude_degre
     });
 }
 
-void sensor_fusion::start_calibration()
+void sensor_fusion::start_calibration(bool threaded)
 {
     isSensorFusionRunning = true;
     isProcessingVideo = false;
     filter_initialize(&sfm, device);
     filter_start_static_calibration(&sfm);
-    queue->start_async(false);
+    if(threaded) queue->start_singlethreaded(false);
+    else queue->start_async(false);
 }
 
-void sensor_fusion::start_inertial_only()
+/*void sensor_fusion::start_inertial_only()
 {
     filter_initialize(&sfm, device);
-    
-}
+}*/
 
-void sensor_fusion::start(camera_control_interface &cam)
+void sensor_fusion::start(bool threaded, camera_control_interface &cam)
 {
     isSensorFusionRunning = true;
     isProcessingVideo = false;
     filter_initialize(&sfm, device);
     filter_start_hold_steady(&sfm);
-    queue->start_async(true);
+    if(threaded) queue->start_async(true);
+    else queue->start_singlethreaded(true);
+}
+
+void sensor_fusion::start_unstable(bool threaded, camera_control_interface &cam)
+{
+    isSensorFusionRunning = true;
+    isProcessingVideo = false;
+    filter_initialize(&sfm, device);
+    filter_start_dynamic(&sfm);
+    if(threaded) queue->start_async(true);
+    else queue->start_singlethreaded(true);
 }
 
 void sensor_fusion::start_offline()
@@ -91,15 +102,6 @@ void sensor_fusion::start_offline()
     sfm.ignore_lateness = true;
     // TODO: Note that we call filter initialize, and this can change
     // device_parameters (specifically a_bias_var and w_bias_var)
-    filter_initialize(&sfm, device);
-    filter_start_dynamic(&sfm);
-    isSensorFusionRunning = true;
-    isProcessingVideo = true;
-}
-
-void sensor_fusion::start_unstable()
-{
-    queue->start_async(true);
     filter_initialize(&sfm, device);
     filter_start_dynamic(&sfm);
     isSensorFusionRunning = true;

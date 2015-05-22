@@ -77,10 +77,10 @@ void rc_configureLocation(rc_Tracker *tracker, double latitude_deg, double longi
 //void rc_startCalibration(rc_Tracker *tracker);
 //bool rc_getCalibration(rc_Tracker *tracker, char **buffer, int *length);
 
-/**
+/** TODO:
  Starts processing inertial data to estimate the orientation of the device so that initialization of the full tracker can happen more quickly.
  */
-void rc_startInertialOnly(rc_Tracker *tracker);
+//void rc_startInertialOnly(rc_Tracker *tracker);
 
 /**
  Starts the tracker.

@@ -15,15 +15,16 @@ static const unsigned T2 = 11;
 
 struct rc_Tracker: public sensor_fusion
 {
+    rc_Tracker(bool immediate_dispatch): sensor_fusion(immediate_dispatch) {}
 };
 
 extern "C" rc_Tracker * rc_create()
 {
-    rc_Tracker * tracker = new rc_Tracker;
+    rc_Tracker * tracker = new rc_Tracker(false); //TODO: when we switch to intel logs, request immediate dispatch
+    tracker->sfm.ignore_lateness = true; //and don't drop frames to keep up
     corvis_device_parameters d;
     get_parameters_for_device(DEVICE_TYPE_UNKNOWN, &d);
     tracker->set_device(d);
-    tracker->sfm.ignore_lateness = true; //For RealSense, we don't enforce real time behavior; assume we're good
 
     return tracker;
 }

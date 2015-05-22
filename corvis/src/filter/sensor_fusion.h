@@ -29,7 +29,7 @@ public:
     std::function<void(camera_data &&)> camera_callback;
     std::function<void()> status_callback;
     
-    sensor_fusion();
+    sensor_fusion(bool immediate_dispatch);
     
     void set_device(const corvis_device_parameters &dc);
     

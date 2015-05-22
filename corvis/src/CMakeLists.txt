@@ -36,6 +36,7 @@ add_library(cor STATIC
   cor/platform/shell/sensor_data.cpp
   cor/platform/shell/sensor_clock.cpp
 )
+target_include_directories(cor PUBLIC cor)
 target_compile_options(cor PUBLIC -std=c++14)
 
 add_library(numerics STATIC
@@ -44,6 +45,7 @@ add_library(numerics STATIC
   numerics/matrix.cpp
   numerics/kalman.cpp
 )
+target_include_directories(numerics INTERFACE numerics)
 target_link_libraries(numerics PUBLIC "-framework Accelerate")
 target_compile_options(numerics PUBLIC -std=c++14)
 
@@ -60,6 +62,7 @@ add_library(filter STATIC
   filter/qr.cpp
   filter/device_parameters.cpp
 )
+target_include_directories(filter PUBLIC filter)
 target_link_libraries(filter PRIVATE libzxing)
 target_compile_options(filter PUBLIC -std=c++14)
 

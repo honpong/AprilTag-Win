@@ -1,7 +1,4 @@
-# add_definitions(-Wno-deprecated-declarations)
-
 set(CMAKE_SKIP_INSTALL_RULES 1) # Avoids warning w/mgl-static and EXCLUDE_FROM_ALL
-
 set(enable-rvalue ON CACHE BOOL "")
 set(enable-lgpl ON CACHE BOOL "")
 set(enable-png OFF CACHE BOOL "")
@@ -17,6 +14,7 @@ target_include_directories(mgl INTERFACE mathgl/include $<BUILD_INTERFACE:${CMAK
 set_target_properties(mgl_example mgl-static PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1 CMAKE_SKIP_INSTALL_RULES 1)
 target_compile_options(mgl PUBLIC -Wno-deprecated-register)
 target_compile_options(mgl PRIVATE -Wno-deprecated-declarations)
+target_compile_options(mgl INTERFACE -Wno-return-type-c-linkage -Wno-parentheses-equality)
 
 set(GLFW_INSTALL OFF CACHE BOOL "")
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "")

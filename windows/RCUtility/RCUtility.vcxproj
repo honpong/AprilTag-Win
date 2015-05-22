@@ -40,7 +40,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(VC_IncludePath);$(UniversalCRT_IncludePath);$(WindowsSDK_IncludePath);$(RSSDK_DIR)\include;../../RealityCapLib</IncludePath>
+    <IncludePath>$(VC_IncludePath);$(UniversalCRT_IncludePath);$(WindowsSDK_IncludePath);$(RSSDK_DIR)\include;../RealityCapLib</IncludePath>
     <LibraryPath>$(VC_LibraryPath_x86);$(UniversalCRT_LibraryPath_x86);$(WindowsSDK_LibraryPath_x86);$(NETFXKitsDir)Lib\um\x86;$(RSSDK_DIR)\lib\$(PlatformName)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -58,14 +58,14 @@
       <AdditionalUsingDirectories>C:\Program Files %28x86%29\Windows Kits\8.1\References\CommonConfiguration\Neutral;C:\Program Files %28x86%29\Microsoft SDKs\Windows\v8.1\ExtensionSDKs\Microsoft.VCLibs\12.0\References\CommonConfiguration\neutral;%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
       <CompileAsWinRT>true</CompileAsWinRT>
       <MinimalRebuild>false</MinimalRebuild>
-      <AdditionalIncludeDirectories>../../AccelerometerLib/AccelerometerLib/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>
       </DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>Sensorsapi.lib;PortableDeviceGUIDs.lib;libpxcmd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>libpxcmd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
     </Link>
@@ -120,11 +120,11 @@
     <Image Include="small.ico" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\RealityCapLib\RealityCapLib.vcxproj">
-      <Project>{69db8593-ff2e-45c6-8739-1ea4a539c776}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\RC3DK\RC3DK.vcxproj">
+    <ProjectReference Include="..\RC3DK\RC3DK\RC3DK.vcxproj">
       <Project>{e4e5a177-07b4-42ae-aa31-db608571e6b6}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\RealityCapLib\RealityCapLib.vcxproj">
+      <Project>{69db8593-ff2e-45c6-8739-1ea4a539c776}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -150,7 +150,6 @@ void rc_receiveImage(rc_Tracker * tracker, rc_Camera camera, rc_Timestamp time_1
         d.stride = stride;
         d.timestamp = sensor_clock::time_point(sensor_clock::duration(time_100_ns));
         tracker->receive_image(std::move(d));
-        tracker->process();
     }
 }
 
@@ -162,7 +161,6 @@ void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Timestamp time_100_ns, con
     d.accel_m__s2[2] = acceleration_m__s2.z;
     d.timestamp = sensor_clock::time_point(sensor_clock::duration(time_100_ns));
     tracker->receive_accelerometer(std::move(d));
-    tracker->process();
 }
 
 void rc_receiveGyro(rc_Tracker * tracker, rc_Timestamp time_100_ns, const rc_Vector angular_velocity_rad__s)
@@ -173,7 +171,6 @@ void rc_receiveGyro(rc_Tracker * tracker, rc_Timestamp time_100_ns, const rc_Vec
     d.angvel_rad__s[2] = angular_velocity_rad__s.z;
     d.timestamp = sensor_clock::time_point(sensor_clock::duration(time_100_ns));
     tracker->receive_gyro(std::move(d));
-    tracker->process();
 }
 
 void rc_getPose(const rc_Tracker * tracker, rc_Pose pose_m)

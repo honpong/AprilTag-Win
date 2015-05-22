@@ -87,7 +87,7 @@ void sensor_fusion::start(camera_control_interface &cam)
 
 void sensor_fusion::start_offline()
 {
-    queue->start_offline(true);
+    queue->start_singlethreaded(true);
     sfm.ignore_lateness = true;
     // TODO: Note that we call filter initialize, and this can change
     // device_parameters (specifically a_bias_var and w_bias_var)
@@ -108,16 +108,9 @@ void sensor_fusion::start_unstable()
 
 void sensor_fusion::stop()
 {
-    while(queue->dispatch_offline(true)) {}
-
     queue->stop_sync();
     isSensorFusionRunning = false;
     isProcessingVideo = false;
-}
-
-void sensor_fusion::process()
-{
-    queue->dispatch_offline(false);
 }
 
 void sensor_fusion::reset(sensor_clock::time_point time, const transformation &initial_pose_m)

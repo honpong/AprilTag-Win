@@ -93,6 +93,7 @@ fusion_queue::fusion_queue(const std::function<void(camera_data &&)> &camera_fun
                 control_func(nullptr),
                 active(false),
                 wait_for_camera(true),
+                singlethreaded(false),
                 strategy(s),
                 camera_period_expected(cam_period),
                 inertial_period_expected(inertial_period),
@@ -101,9 +102,23 @@ fusion_queue::fusion_queue(const std::function<void(camera_data &&)> &camera_fun
 }
 
 
-void fusion_queue::receive_camera(camera_data&& x) { camera_queue.push(std::move(x)); }
-void fusion_queue::receive_accelerometer(accelerometer_data&& x) { accel_queue.push(std::move(x)); }
-void fusion_queue::receive_gyro(gyro_data&& x) { gyro_queue.push(std::move(x)); }
+void fusion_queue::receive_camera(camera_data&& x)
+{
+    camera_queue.push(std::move(x));
+    if(singlethreaded) dispatch_singlethread(false);
+}
+
+void fusion_queue::receive_accelerometer(accelerometer_data&& x)
+{
+    accel_queue.push(std::move(x));
+    if(singlethreaded) dispatch_singlethread(false);
+}
+
+void fusion_queue::receive_gyro(gyro_data&& x)
+{
+    gyro_queue.push(std::move(x));
+    if(singlethreaded) dispatch_singlethread(false);
+}
 
 void fusion_queue::dispatch_sync(std::function<void()> fn)
 {
@@ -117,6 +132,7 @@ void fusion_queue::dispatch_async(std::function<void()> fn)
     std::unique_lock<std::mutex> lock(mutex);
     control_func = fn;
     lock.unlock();
+    if(singlethreaded) dispatch_singlethread(false);
 }
 
 void fusion_queue::start_async(bool expect_camera)
@@ -142,14 +158,20 @@ void fusion_queue::start_sync(bool expect_camera)
     }
 }
 
-void fusion_queue::start_offline(bool expect_camera)
+void fusion_queue::start_singlethreaded(bool expect_camera)
 {
     wait_for_camera = expect_camera;
+    singlethreaded = true;
     active = true;
 }
 
 void fusion_queue::stop_async()
 {
+    if(singlethreaded)
+    {
+        //flush any waiting data
+        while (dispatch_singlethread(true));
+    }
     std::unique_lock<std::mutex> lock(mutex);
     active = false;
     lock.unlock();
@@ -159,7 +181,7 @@ void fusion_queue::stop_async()
 void fusion_queue::stop_sync()
 {
     stop_async();
-    wait_until_finished();
+    if(!singlethreaded) wait_until_finished();
 }
 
 void fusion_queue::wait_until_finished()
@@ -319,7 +341,7 @@ bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock, bool force)
     return true;
 }
 
-bool fusion_queue::dispatch_offline(bool force)
+bool fusion_queue::dispatch_singlethread(bool force)
 {
     std::unique_lock<std::mutex> lock(mutex);
     bool ret = dispatch_next(lock, force);

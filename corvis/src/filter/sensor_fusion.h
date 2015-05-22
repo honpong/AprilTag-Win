@@ -67,7 +67,6 @@ public:
     void start_unstable();
 
     void start_offline();
-    void process();
     
     /** Stops the processing of video and inertial data. */
     void stop();

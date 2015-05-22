@@ -64,7 +64,10 @@ public:
      @param device The camera_control_interface to be used for capture. This function will lock the focus on the camera device (if the device is capable of focusing) before starting video processing. No other modifications to the camera settings are made.
      @note It is strongly recommended to call start_sensor_fusion rather than this function
      */
-    void start_unstable(camera_control_interface &device);
+    void start_unstable();
+
+    void start_offline();
+    void process();
     
     /** Stops the processing of video and inertial data. */
     void stop();
@@ -136,6 +139,29 @@ public:
     /** Stops searching for QR codes.
      */
     //void stop_qr_detection();
+    
+    /** Sets the log function to log the position periodically
+
+        @param log The function to call with output should take:
+            void * handle - any data the callback will need
+            char * buffer_utf8 - The data which is to be written, in the format of http://vision.in.tum.de/data/datasets/rgbd-dataset/file_formats
+            size_t length - how many bytes to be written
+
+        @param stream - If true, log every calculated output pose
+        @param period - If non-zero, log each calculated pose when it has been period_100_ns or more since the last pose was logged
+        @param handle - A void * that will be passed to the logging function each time
+    */
+
+    void set_log_function(std::function<void (void *, const char *, size_t)> log, bool stream, sensor_clock::duration period, void * handle)
+    {
+        log_stream = stream;
+        log_period = period;
+        log_handle = handle;
+        log_function = log;
+    };
+
+    /** Immediately output a position via the log function */
+    void trigger_log() const;
 
     //public for now
     filter sfm;
@@ -150,6 +176,11 @@ private:
     RCSensorFusionErrorCode lastErrorCode;
     RCSensorFusionConfidence lastConfidence;
     float lastProgress;
+
+    std::function<void (void *, const char *, size_t)> log_function;
+    void * log_handle;
+    bool log_stream;
+    sensor_clock::duration log_period;
 };
 
 #endif /* defined(__RC3DK__sensor_fusion__) */

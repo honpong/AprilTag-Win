@@ -112,7 +112,7 @@ int rc_getFeatures(const rc_Tracker *tracker, rc_Feature **features_px);
  @param period_100_ns If non-zero, log each calculated pose when it has been period_100_ns or more since the last pose was logged
  @param handle Token to pass to log callback
  */
-void rc_setLog(rc_Tracker *tracker, void (*log)(void *handle, char *buffer_utf8, size_t length), bool stream, rc_Timestamp period_100_ns, void *handle);
+void rc_setLog(rc_Tracker *tracker, void (*log)(void *handle, const char *buffer_utf8, size_t length), bool stream, rc_Timestamp period_100_ns, void *handle);
 
 /**
  Immediately outputs the last calculated pose

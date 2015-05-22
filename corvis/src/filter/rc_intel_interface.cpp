@@ -7,6 +7,11 @@
 
 #include "rc_intel_interface.h"
 #include "sensor_fusion.h"
+#include "device_parameters.h"
+
+static const unsigned T0 = 3;
+static const unsigned T1 = 7;
+static const unsigned T2 = 11;
 
 struct rc_Tracker: public sensor_fusion
 {
@@ -14,7 +19,12 @@ struct rc_Tracker: public sensor_fusion
 
 extern "C" rc_Tracker * rc_create()
 {
-    return new rc_Tracker;
+    rc_Tracker * tracker = new rc_Tracker;
+    corvis_device_parameters d;
+    get_parameters_for_device(DEVICE_TYPE_UNKNOWN, &d);
+    tracker->set_device(d);
+
+    return tracker;
 }
 
 extern "C" void rc_destroy(rc_Tracker * tracker)
@@ -35,13 +45,51 @@ extern "C" void rc_reset(rc_Tracker * tracker, rc_Timestamp initialTime_100_ns, 
     tracker->reset(sensor_clock::time_point(sensor_clock::duration(initialTime_100_ns)),     transformation(R, T));
 }
 
-void rc_configureCamera(rc_Tracker * tracker, rc_Camera camera, const rc_Pose pose_m, int width_px, int height_px, float center_x_px, float center_y_px, float focal_length_px)
+void rc_printDeviceConfig(rc_Tracker * tracker)
+{
+    corvis_device_parameters device = tracker->device;
+    fprintf(stderr, "Fx, Fy; %f %f\n", device.Fx, device.Fy);
+    fprintf(stderr, "Cx, Cy; %f %f\n", device.Cx, device.Cy);
+    fprintf(stderr, "px, py; %f %f\n", device.px, device.py);
+    fprintf(stderr, "K[3]; %f %f %f\n", device.K[0], device.K[1], device.K[2]);
+    fprintf(stderr, "a_bias[3]; %f %f %f\n", device.a_bias[0], device.a_bias[1], device.a_bias[2]);
+    fprintf(stderr, "a_bias_var[3]; %f %f %f\n", device.a_bias_var[0], device.a_bias_var[1], device.a_bias_var[2]);
+    fprintf(stderr, "w_bias[3]; %f %f %f\n", device.w_bias[0], device.w_bias[1], device.w_bias[2]);
+    fprintf(stderr, "w_bias_var[3]; %f %f %f\n", device.w_bias_var[0], device.w_bias_var[1], device.w_bias_var[2]);
+    fprintf(stderr, "w_meas_var; %f\n", device.w_meas_var);
+    fprintf(stderr, "a_meas_var; %f\n", device.a_meas_var);
+    fprintf(stderr, "Tc[3]; %f %f %f\n", device.Tc[0], device.Tc[1], device.Tc[2]);
+    fprintf(stderr, "Tc_var[3]; %f %f %f\n", device.Tc_var[0], device.Tc_var[1], device.Tc_var[2]);
+    fprintf(stderr, "Wc[3]; %f %f %f\n", device.Wc[0], device.Wc[1], device.Wc[2]);
+    fprintf(stderr, "Wc_var[3]; %f %f %f\n", device.Wc_var[0], device.Wc_var[1], device.Wc_var[2]);
+    fprintf(stderr, "int image_width, image_height; %d %d\n", device.image_width, device.image_height);
+    //fprintf(stderr, "sensor_clock::duration shutter_delay, shutter_period;
+}
+
+void rc_configureCamera(rc_Tracker * tracker, rc_Camera camera, const rc_Pose pose_m, int width_px, int height_px, float center_x_px, float center_y_px, float focal_length_px, float focal_length_xy_px, float focal_length_y_px)
 {
     tracker->device.Cx = center_x_px;
     tracker->device.Cy = center_y_px;
     tracker->device.Fx = tracker->device.Fy = focal_length_px;
     tracker->device.image_width = width_px;
     tracker->device.image_height = height_px;
+    // TODO: remove or set these to zero
+    tracker->device.K[0] = .17f;
+    tracker->device.K[1] = -.38f;
+
+    tracker->device.Tc[0] = pose_m[T0];
+    tracker->device.Tc[1] = pose_m[T1];
+    tracker->device.Tc[2] = pose_m[T2];
+    m4 R = m4::Identity();
+    for(int i = 0; i < 3; i++) {
+        for(int j = 0; j < 3; j++) {
+            R(i, j) = pose_m[i * 4 + j];
+        }
+    }
+    rotation_vector r = to_rotation_vector(R);
+    tracker->device.Wc[0] = r.x();
+    tracker->device.Wc[1] = r.y();
+    tracker->device.Wc[2] = r.z();
 }
 
 
@@ -77,11 +125,18 @@ void rc_startInertialOnly(rc_Tracker * tracker)
     tracker->start_inertial_only();
 }
 
-void rc_startTracker(rc_Tracker * tracker);
+void rc_startTracker(rc_Tracker * tracker)
+{
+    rc_printDeviceConfig(tracker);
+    tracker->start_offline();
+}
 
-void rc_stopTracker(rc_Tracker * tracker);
+void rc_stopTracker(rc_Tracker * tracker)
+{
+    tracker->stop();
+}
 
-void rc_receiveImage(rc_Tracker * tracker, rc_Camera camera, rc_Timestamp time_100_ns, rc_Timestamp shutter_time, const rc_Pose poseEstimate_m, bool force_recognition, int stride, const uint8_t *image)
+void rc_receiveImage(rc_Tracker * tracker, rc_Camera camera, rc_Timestamp time_100_ns, rc_Timestamp shutter_time, const rc_Pose poseEstimate_m, bool force_recognition, int stride, const void *image)
 {
     if(camera == rc_EGRAY8) {
         camera_data d;
@@ -95,6 +150,7 @@ void rc_receiveImage(rc_Tracker * tracker, rc_Camera camera, rc_Timestamp time_1
         d.stride = stride;
         d.timestamp = sensor_clock::time_point(sensor_clock::duration(time_100_ns));
         tracker->receive_image(std::move(d));
+        tracker->process();
     }
 }
 
@@ -106,6 +162,7 @@ void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Timestamp time_100_ns, con
     d.accel_m__s2[2] = acceleration_m__s2.z;
     d.timestamp = sensor_clock::time_point(sensor_clock::duration(time_100_ns));
     tracker->receive_accelerometer(std::move(d));
+    tracker->process();
 }
 
 void rc_receiveGyro(rc_Tracker * tracker, rc_Timestamp time_100_ns, const rc_Vector angular_velocity_rad__s)
@@ -116,13 +173,14 @@ void rc_receiveGyro(rc_Tracker * tracker, rc_Timestamp time_100_ns, const rc_Vec
     d.angvel_rad__s[2] = angular_velocity_rad__s.z;
     d.timestamp = sensor_clock::time_point(sensor_clock::duration(time_100_ns));
     tracker->receive_gyro(std::move(d));
+    tracker->process();
 }
 
-void rc_getPose(rc_Tracker * tracker, rc_Pose pose_m)
+void rc_getPose(const rc_Tracker * tracker, rc_Pose pose_m)
 {
-    pose_m[3] = tracker->sfm.s.T.v[0];
-    pose_m[7] = tracker->sfm.s.T.v[1];
-    pose_m[11] = tracker->sfm.s.T.v[2];
+    pose_m[T0] = tracker->sfm.s.T.v[0];
+    pose_m[T1] = tracker->sfm.s.T.v[1];
+    pose_m[T2] = tracker->sfm.s.T.v[2];
 
     m4 R = to_rotation_matrix(tracker->sfm.s.W.v);
     pose_m[0]  = R(0, 0); pose_m[1]  = R(0, 1); pose_m[2]  = R(0, 2);
@@ -130,7 +188,7 @@ void rc_getPose(rc_Tracker * tracker, rc_Pose pose_m)
     pose_m[8]  = R(2, 0); pose_m[9]  = R(2, 1); pose_m[10] = R(2, 2);
 }
 
-int rc_getFeatures(rc_Tracker * tracker, rc_Feature **features_px)
+int rc_getFeatures(const rc_Tracker * tracker, rc_Feature **features_px)
 {
     int num_features = (int)tracker->sfm.s.features.size();
     *features_px = (rc_Feature *)malloc(num_features*sizeof(rc_Feature));
@@ -147,7 +205,13 @@ int rc_getFeatures(rc_Tracker * tracker, rc_Feature **features_px)
     return num_features;
 }
 
-void rc_setLog(rc_Tracker * tracker, void (*log)(void *handle, char *buffer_utf8, size_t length), bool stream, rc_Timestamp period_100_ns, void *handle);
+void rc_setLog(rc_Tracker * tracker, void (*log)(void *handle, const char *buffer_utf8, size_t length), bool stream, rc_Timestamp period_100_ns, void *handle)
+{
+    tracker->set_log_function(log, stream, std::chrono::duration_cast<sensor_clock::duration>(std::chrono::microseconds(period_100_ns*10)), handle);
+}
 
-void rc_triggerLog(rc_Tracker * tracker);
+void rc_triggerLog(const rc_Tracker * tracker)
+{
+    tracker->trigger_log();
+}
 

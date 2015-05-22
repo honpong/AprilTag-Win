@@ -44,6 +44,7 @@ sensor_fusion::sensor_fusion()
         filter_gyroscope_measurement(&sfm, data.angvel_rad__s, data.timestamp);
     };
     
+    // TODO should this be ELIMINATE_DROPS
     queue = std::make_unique<fusion_queue>(cam_fn, acc_fn, gyr_fn, fusion_queue::latency_strategy::MINIMIZE_DROPS, std::chrono::microseconds(33333), std::chrono::microseconds(10000), std::chrono::microseconds(10000)); //Have to make jitter high - ipad air 2 accelerometer has high latency, we lose about 10% of samples with jitter at 8000
 }
 
@@ -62,6 +63,8 @@ void sensor_fusion::set_location(double latitude_degrees, double longitude_degre
 
 void sensor_fusion::start_calibration()
 {
+    isSensorFusionRunning = true;
+    isProcessingVideo = false;
     filter_initialize(&sfm, device);
     filter_start_static_calibration(&sfm);
     queue->start_async(false);
@@ -69,25 +72,52 @@ void sensor_fusion::start_calibration()
 
 void sensor_fusion::start_inertial_only()
 {
+    filter_initialize(&sfm, device);
     
 }
 
-void sensor_fusion::start(camera_control_interface &device)
+void sensor_fusion::start(camera_control_interface &cam)
 {
+    isSensorFusionRunning = true;
+    isProcessingVideo = false;
+    filter_initialize(&sfm, device);
     filter_start_hold_steady(&sfm);
     queue->start_async(true);
 }
 
-void sensor_fusion::start_unstable(camera_control_interface &device)
+void sensor_fusion::start_offline()
 {
+    queue->start_offline(true);
+    sfm.ignore_lateness = true;
+    // TODO: Note that we call filter initialize, and this can change
+    // device_parameters (specifically a_bias_var and w_bias_var)
+    filter_initialize(&sfm, device);
     filter_start_dynamic(&sfm);
+    isSensorFusionRunning = true;
+    isProcessingVideo = true;
+}
+
+void sensor_fusion::start_unstable()
+{
     queue->start_async(true);
+    filter_initialize(&sfm, device);
+    filter_start_dynamic(&sfm);
+    isSensorFusionRunning = true;
+    isProcessingVideo = true;
 }
 
 void sensor_fusion::stop()
 {
+    while(queue->dispatch_offline(true)) {}
+
     queue->stop_sync();
-    filter_initialize(&sfm, device);
+    isSensorFusionRunning = false;
+    isProcessingVideo = false;
+}
+
+void sensor_fusion::process()
+{
+    queue->dispatch_offline(false);
 }
 
 void sensor_fusion::reset(sensor_clock::time_point time, const transformation &initial_pose_m)
@@ -109,5 +139,27 @@ void sensor_fusion::receive_accelerometer(accelerometer_data &&data)
 void sensor_fusion::receive_gyro(gyro_data &&data)
 {
     queue->receive_gyro(std::move(data));
+}
+
+static sensor_clock::time_point last_log;
+
+// TODO: call trigger_log when we update position if stream is enabled
+// or if period has expired (the SOW also mentions a trigger condition
+// I think?)
+void sensor_fusion::trigger_log() const
+{
+    if(!log_function) return;
+
+    last_log = sensor_clock::now();
+    char buffer[1024];
+    // TODO: should this be time since epoch to now, even if we are
+    // running faster than realtime?
+    float seconds_since_epoch = std::chrono::duration_cast<std::chrono::microseconds>
+        (sensor_clock::now().time_since_epoch()).count()/1.e6;
+    quaternion q = to_quaternion(sfm.s.W.v);
+    //timestamp tx ty tz qx qy qz qw (all floats)
+    sprintf(buffer, "%.9f %.9f %.9f %.9f %.9f %.9f %.9f %.9f\n", seconds_since_epoch, sfm.s.T.v[0], sfm.s.T.v[1], sfm.s.T.v[2], q.x(), q.y(), q.z(), q.w());
+    size_t nbytes = strlen(buffer);
+    log_function(log_handle, buffer, nbytes);
 }
 

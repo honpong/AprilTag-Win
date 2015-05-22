@@ -117,6 +117,9 @@
     <ClInclude Include="..\..\..\corvis\src\filter\utils.h">
       <Filter>Source Files\filter</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\corvis\src\filter\sensor_fusion.h">
+      <Filter>Source Files\filter</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\corvis\src\cor\sensor_fusion_queue.cpp">
@@ -177,6 +180,12 @@
       <Filter>Source Files\filter</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\corvis\src\filter\capture.cpp">
+      <Filter>Source Files\filter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\corvis\src\filter\rc_intel_interface.cpp">
+      <Filter>Source Files\filter</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\corvis\src\filter\sensor_fusion.cpp">
       <Filter>Source Files\filter</Filter>
     </ClCompile>
   </ItemGroup>

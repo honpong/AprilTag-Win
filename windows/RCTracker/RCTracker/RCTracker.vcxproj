@@ -69,6 +69,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>C:\Program Files %28x86%29\Intel\Composer XE 2015\mkl\include;$(RSSDK_DIR)\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -76,6 +77,9 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
+    <Lib>
+      <AdditionalLibraryDirectories>C:\Program Files %28x86%29\Intel\Composer XE 2015\mkl\lib\ia32;$(RSSDK_DIR)\lib\$(PlatformName)</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\corvis\src\cor\platform\sensor_clock.h" />
@@ -93,6 +97,7 @@
     <ClInclude Include="..\..\..\corvis\src\filter\rc_intel_interface.h" />
     <ClInclude Include="..\..\..\corvis\src\filter\replay.h" />
     <ClInclude Include="..\..\..\corvis\src\filter\scaled_mask.h" />
+    <ClInclude Include="..\..\..\corvis\src\filter\sensor_fusion.h" />
     <ClInclude Include="..\..\..\corvis\src\filter\state.h" />
     <ClInclude Include="..\..\..\corvis\src\filter\state_motion.h" />
     <ClInclude Include="..\..\..\corvis\src\filter\state_vision.h" />
@@ -123,8 +128,10 @@
     <ClCompile Include="..\..\..\corvis\src\filter\homography.cpp" />
     <ClCompile Include="..\..\..\corvis\src\filter\observation.cpp" />
     <ClCompile Include="..\..\..\corvis\src\filter\qr.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\filter\rc_intel_interface.cpp" />
     <ClCompile Include="..\..\..\corvis\src\filter\replay.cpp" />
     <ClCompile Include="..\..\..\corvis\src\filter\scaled_mask.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\filter\sensor_fusion.cpp" />
     <ClCompile Include="..\..\..\corvis\src\filter\state_motion.cpp" />
     <ClCompile Include="..\..\..\corvis\src\filter\state_vision.cpp" />
     <ClCompile Include="..\..\..\corvis\src\numerics\kalman.cpp" />

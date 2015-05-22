@@ -153,7 +153,7 @@ void sensor_fusion::trigger_log() const
         (sensor_clock::now().time_since_epoch()).count()/1.e6;
     quaternion q = to_quaternion(sfm.s.W.v);
     //timestamp tx ty tz qx qy qz qw (all floats)
-    sprintf(buffer, "%.9f %.9f %.9f %.9f %.9f %.9f %.9f %.9f\n", seconds_since_epoch, sfm.s.T.v[0], sfm.s.T.v[1], sfm.s.T.v[2], q.x(), q.y(), q.z(), q.w());
+    sprintf_s(buffer, "%.9f %.9f %.9f %.9f %.9f %.9f %.9f %.9f\n", seconds_since_epoch, sfm.s.T.v[0], sfm.s.T.v[1], sfm.s.T.v[2], q.x(), q.y(), q.z(), q.w());
     size_t nbytes = strlen(buffer);
     log_function(log_handle, buffer, nbytes);
 }

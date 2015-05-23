@@ -148,15 +148,17 @@ void sensor_fusion::trigger_log() const
 {
     if(!log_function) return;
 
-    last_log = sensor_clock::now();
+    last_log = sfm.last_time;
     char buffer[1024];
-    // TODO: should this be time since epoch to now, even if we are
-    // running faster than realtime?
-    float seconds_since_epoch = std::chrono::duration_cast<std::chrono::microseconds>
-        (sensor_clock::now().time_since_epoch()).count()/1.e6;
-    quaternion q = to_quaternion(sfm.s.W.v);
-    //timestamp tx ty tz qx qy qz qw (all floats)
-    sprintf_s(buffer, "%.9f %.9f %.9f %.9f %.9f %.9f %.9f %.9f\n", seconds_since_epoch, sfm.s.T.v[0], sfm.s.T.v[1], sfm.s.T.v[2], q.x(), q.y(), q.z(), q.w());
+
+    m4 R = to_rotation_matrix(sfm.s.W.v);
+    v4 T = sfm.s.T.v;
+    sprintf(buffer, "%lld %f %f %f %f %f %f %f %f %f %f %f %f\n",
+            sfm.last_time.time_since_epoch().count(),
+            R(0, 0), R(0, 1), R(0, 2), T(0),
+            R(1, 0), R(1, 1), R(1, 2), T(1),
+            R(2, 0), R(2, 1), R(2, 2), T(2));
+
     size_t nbytes = strlen(buffer);
     log_function(log_handle, buffer, nbytes);
 }

@@ -117,8 +117,8 @@ void rc_configureAccelerometer(rc_Tracker *tracker, const rc_Pose pose_m, const 
 void rc_configureGyroscope(rc_Tracker *tracker, const rc_Pose pose_m, const rc_Vector bias_rad__s, float noiseVariance_rad2__s2);
 void rc_configureLocation(rc_Tracker *tracker, double latitude_deg, double longitude_deg, double altitude_m);
 
+void rc_startCalibration(rc_Tracker *tracker);
 //TODO: Define calibration interface
-//void rc_startCalibration(rc_Tracker *tracker);
 //bool rc_getCalibration(rc_Tracker *tracker, char **buffer, int *length);
 
 /** TODO:

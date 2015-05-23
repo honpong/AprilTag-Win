@@ -14,34 +14,37 @@ const rc_Pose rc_pose_identity = {1, 0, 0, 0,
                                   0, 1, 0, 0,
                                   0, 0, 1, 0}; 
 
-// TODO: What about K[0] and K[1]?
-// These parameters are for ipad3_eagle
-const rc_Pose camera_pose      = { 0,-1,  0, 0.064f, 
+const rc_Pose camera_pose      = { 0,-1,  0, 0.064f,
                                   -1, 0,  0, -0.017f,
                                    0, 0, -1, 0}; 
 
 
 void logger(void * handle, const char * buffer_utf8, size_t length)
 {
-    fprintf(stderr, "%s\n", buffer_utf8);
+    fprintf((FILE *)handle, "%s\n", buffer_utf8);
 }
 
 int main(int c, char **v)
 {
+    if(c < 2)
+    {
+        fprintf(stderr, "specify file name\n");
+        return 0;
+    }
+    const char *name = v[1];
     int width_px = 640;
     int height_px = 480;
-    float center_x_px = (width_px-1) / 2;
-    float center_y_px = (height_px-1) / 2;
+    float center_x_px = (width_px-1) / 2.f;
+    float center_y_px = (height_px-1) / 2.f;
     bool force_recognition = false;
-    double a_bias_stdev = .02 * 9.8 / 2.; //20 mg "typical", assuming that means two-sigma
-    double w_bias_stdev = 10. / 180. * M_PI / 2.; //10 dps typical according to specs, but not in practice - factory or apple calibration? Found some devices with much larger range
+    double a_bias_stdev = .02 * 9.8 / 2.;
+    double w_bias_stdev = 10. / 180. * M_PI / 2.;
 
     rc_Vector bias_m__s2 = {0.001f, -0.225f, -0.306f};
     float noiseVariance_m2__s4 = a_bias_stdev * a_bias_stdev;
     rc_Vector bias_rad__s = {0.016f, -0.015f, 0.011f};
     float noiseVariance_rad2__s2 = w_bias_stdev * w_bias_stdev;
     rc_Camera camera = rc_EGRAY8;
-    const char * name = "/Volumes/1TB/new_test_suite/ipad3_eagle/table_bookcase_calib_L150";
     int focal_length_x_px = 627;
     int focal_length_y_px = 627;
     int focal_length_xy_px = 0;
@@ -49,13 +52,10 @@ int main(int c, char **v)
 
 
     rc_Tracker * tracker = rc_create();
-    bool stream = true;
-    uint64_t period = 1e7; // 1 second in 100ns
-    rc_setLog(tracker, logger, stream, period, NULL);
+    rc_setLog(tracker, logger, false, 0, stderr);
     rc_configureCamera(tracker, camera, camera_pose, width_px, height_px, center_x_px, center_y_px, focal_length_x_px, focal_length_xy_px, focal_length_y_px);
     rc_configureAccelerometer(tracker, rc_pose_identity, bias_m__s2, noiseVariance_m2__s4);
     rc_configureGyroscope(tracker, rc_pose_identity, bias_rad__s, noiseVariance_rad2__s2);
-    //rc_configureLocation(tracker, latitude, longitude, altitude); // TODO: optional?
 
     rc_startTracker(tracker);
 

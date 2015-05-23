@@ -125,7 +125,10 @@ void rc_configureLocation(rc_Tracker * tracker, double latitude_deg, double long
     tracker->set_location(latitude_deg, longitude_deg, altitude_m);
 }
 
-void rc_startCalibration(rc_Tracker * tracker);
+void rc_startCalibration(rc_Tracker * tracker)
+{
+    tracker->start_calibration(false);
+}
 
 /*void rc_startInertialOnly(rc_Tracker * tracker)
 {
@@ -134,7 +137,6 @@ void rc_startCalibration(rc_Tracker * tracker);
 
 void rc_startTracker(rc_Tracker * tracker)
 {
-    rc_printDeviceConfig(tracker);
     tracker->start_offline();
 }
 

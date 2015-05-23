@@ -19,6 +19,50 @@ typedef enum {
     rc_EGRAY8,
     rc_EDEPTH16,
 } rc_Camera;
+    
+
+typedef enum
+{
+    /** rc_Tracker is inactive. */
+    rc_E_INACTIVE = 0,
+    /** rc_Tracker is in static calibration mode. The device should not be moved or touched. */
+    rc_E_STATIC_CALIBRATION = 1,
+    /** startSensorFusionWithDevice: has been called, and rc_Tracker is in the handheld steady initialization phase. */
+    rc_E_STEADY_INITIALIZATION = 2,
+    /** startSensorFusionUnstableWithDevice: has been called, and rc_Tracker is in the handheld dynamic initialization phase. */
+    rc_E_DYNAMIC_INITIALIZATION = 3,
+    /** rc_Tracker is active and updates are being provided with all data. */
+    rc_E_RUNNING = 4,
+    /** rc_Tracker is in handheld portrait calibration mode. The device should be held steady in portrait orientation, perpendicular to the floor. */
+    rc_E_PORTRAIT_CALIBRATION = 5,
+    /** rc_Tracker is in handheld landscape calibration mode. The device should be held steady in landscape orientation, perpendicular to the floor. */
+    rc_E_LANDSCAPE_CALIBRAITON = 6
+} rc_TrackerState;
+
+typedef enum
+{
+    /** No error has occurred. */
+    rc_E_ERROR_NONE = 0,
+    /** No visual features were detected in the most recent image. This is normal in some circumstances, such as quick motion or if the device temporarily looks at a blank wall. */
+    rc_E_ERROR_VISION = 1,
+    /** The device moved more rapidly than expected for typical handheld motion. This may indicate that rc_Tracker has failed and is providing invalid data. */
+    rc_E_ERROR_SPEED = 2,
+    /** A fatal internal error has occured. */
+    rc_E_ERROR_OTHER = 3,
+} rc_TrackerError;
+
+typedef enum
+{
+    /** rc_Tracker is not currently running (possibly due to failure). */
+    RC_E_CONFIDENCE_NONE = 0,
+    /** The data has low confidence. This occurs if no visual features could be detected or tracked. */
+    rc_E_CONFIDENCE_LOW = 1,
+    /** The data has medium confidence. This occurs when rc_Tracker has recently been initialized, or has recovered from having few usable visual features, and continues until the user has moved sufficiently to produce reliable measurements. If the user moves too slowly or features are unreliable, this will not switch to rc_E_CONFIDENCE_HIGH, and measurements may be unreliable. */
+    rc_E_CONFIDENCE_MEDIUM = 2,
+    /** Sufficient visual features and motion have been detected that measurements are likely to be accurate. */
+    rc_E_CONFIDENCE_HIGH = 3
+} rc_TrackerConfidence;
+
 
 typedef struct {
     float x,y,z;
@@ -104,6 +148,9 @@ void rc_receiveGyro(rc_Tracker *tracker, rc_Timestamp time_100_ns, const rc_Vect
 
 void rc_getPose(const rc_Tracker *tracker, rc_Pose pose_m);
 int rc_getFeatures(const rc_Tracker *tracker, rc_Feature **features_px);
+rc_TrackerState rc_getState(const rc_Tracker *tracker);
+rc_TrackerConfidence rc_getConfidence(const rc_Tracker *tracker);
+rc_TrackerError rc_getError(const rc_Tracker *tracker);
 
 /**
  @param tracker The active rc_Tracker instance

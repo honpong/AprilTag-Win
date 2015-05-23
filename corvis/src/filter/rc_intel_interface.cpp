@@ -1,5 +1,5 @@
 //
-//  rc_intel_interface.h
+//  rc_intel_interface.cpp
 //
 //  Created by Eagle Jones on 1/29/15.
 //  Copyright (c) 2015 Realitycap. All rights reserved.
@@ -207,6 +207,48 @@ int rc_getFeatures(const rc_Tracker * tracker, rc_Feature **features_px)
         i++;
     }
     return num_features;
+}
+
+rc_TrackerState rc_getState(const rc_Tracker *tracker)
+{
+    switch(tracker->sfm.run_state)
+    {
+        case RCSensorFusionRunStateDynamicInitialization:
+            return rc_E_DYNAMIC_INITIALIZATION;
+        case RCSensorFusionRunStateInactive:
+            return rc_E_INACTIVE;
+        case RCSensorFusionRunStateLandscapeCalibration:
+            return rc_E_LANDSCAPE_CALIBRAITON;
+        case RCSensorFusionRunStatePortraitCalibration:
+            return rc_E_PORTRAIT_CALIBRATION;
+        case RCSensorFusionRunStateRunning:
+            return rc_E_RUNNING;
+        case RCSensorFusionRunStateStaticCalibration:
+            return rc_E_STATIC_CALIBRATION;
+        case RCSensorFusionRunStateSteadyInitialization:
+            return rc_E_STEADY_INITIALIZATION;
+    }
+}
+
+rc_TrackerConfidence rc_getConfidence(const rc_Tracker *tracker)
+{
+    rc_TrackerConfidence confidence = RC_E_CONFIDENCE_NONE;
+    if(tracker->sfm.run_state == rc_E_RUNNING)
+    {
+        if(tracker->sfm.detector_failed) confidence = rc_E_CONFIDENCE_LOW;
+        else if(tracker->sfm.has_converged) confidence = rc_E_CONFIDENCE_HIGH;
+        else confidence = rc_E_CONFIDENCE_MEDIUM;
+    }
+    return confidence;
+}
+
+rc_TrackerError rc_getError(const rc_Tracker *tracker)
+{
+    rc_TrackerError error = rc_E_ERROR_NONE;
+    if(tracker->sfm.numeric_failed) error = rc_E_ERROR_OTHER;
+    else if(tracker->sfm.speed_failed) error = rc_E_ERROR_SPEED;
+    else if(tracker->sfm.detector_failed) error = rc_E_ERROR_VISION;
+    return error;
 }
 
 void rc_setLog(rc_Tracker * tracker, void (*log)(void *handle, const char *buffer_utf8, size_t length), bool stream, rc_Timestamp period_100_ns, void *handle)

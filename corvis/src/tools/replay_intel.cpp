@@ -45,7 +45,7 @@ int main(int c, char **v)
     int focal_length_x_px = 627;
     int focal_length_y_px = 627;
     int focal_length_xy_px = 0;
-    uint64_t shutter_time_100_ns = 16667 * 1000; // TODO: these are all in nanoseconds on mac
+    uint64_t shutter_time_100_ns = 16667 * 10;
 
 
     rc_Tracker * tracker = rc_create();
@@ -108,13 +108,13 @@ int main(int c, char **v)
                     assert(width_px == camera_width && height_px == camera_height);
                     const uint8_t * image = packet->data + 16;
                     int stride = camera_width;
-                    rc_Timestamp time_100_ns = (header.time + 16667) * 1000;
+                    rc_Timestamp time_100_ns = (header.time + 16667) * 10;
                     rc_receiveImage(tracker, camera, time_100_ns, shutter_time_100_ns, rc_pose_identity, force_recognition, stride, image);
                     break;
                 }
                 case packet_accelerometer:
                 {
-                    rc_Timestamp time_100_ns = header.time * 1000;
+                    rc_Timestamp time_100_ns = header.time * 10;
                     rc_Vector acceleration_m__s2;
                     acceleration_m__s2.x = ((float *)packet->data)[0];
                     acceleration_m__s2.y = ((float *)packet->data)[1];
@@ -124,7 +124,7 @@ int main(int c, char **v)
                 }
                 case packet_gyroscope:
                 {
-                    rc_Timestamp time_100_ns = header.time * 1000;
+                    rc_Timestamp time_100_ns = header.time * 10;
                     rc_Vector angular_velocity_rad__s;
                     angular_velocity_rad__s.x = ((float *)packet->data)[0];
                     angular_velocity_rad__s.y = ((float *)packet->data)[1];
@@ -135,7 +135,7 @@ int main(int c, char **v)
                 case packet_imu:
                 {
                     auto imu = (packet_imu_t *)packet;
-                    rc_Timestamp time_100_ns = header.time * 1000;
+                    rc_Timestamp time_100_ns = header.time * 10;
 
                     rc_Vector acceleration_m__s2;
                     acceleration_m__s2.x = imu->w[0];
@@ -155,12 +155,12 @@ int main(int c, char **v)
                     if(header.user == 1)
                     {
                         //start measuring
-                        rc_Timestamp time_100_ns = header.time * 1000;
+                        rc_Timestamp time_100_ns = header.time * 10;
                         rc_reset(tracker, time_100_ns, rc_pose_identity);
                     }
                 }
                 if(!first_packet) {
-                    rc_Timestamp time_100_ns = header.time * 1000;
+                    rc_Timestamp time_100_ns = header.time * 10;
                     rc_reset(tracker, time_100_ns, rc_pose_identity);
                     first_packet = true;
                 }

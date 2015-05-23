@@ -13,6 +13,11 @@ static const unsigned T0 = 3;
 static const unsigned T1 = 7;
 static const unsigned T2 = 11;
 
+static sensor_clock::time_point time_100_ns_to_tp(rc_Timestamp time_100_ns)
+{
+    return sensor_clock::time_point(std::chrono::duration_cast<sensor_clock::duration>(std::chrono::duration<long long, std::ratio<1, 10000000>>(time_100_ns)));
+}
+
 struct rc_Tracker: public sensor_fusion
 {
     rc_Tracker(bool immediate_dispatch): sensor_fusion(immediate_dispatch) {}
@@ -44,7 +49,7 @@ extern "C" void rc_reset(rc_Tracker * tracker, rc_Timestamp initialTime_100_ns, 
             R(i, j) = initialPose_m[i * 4 + j];
         }
     }
-    tracker->reset(sensor_clock::time_point(sensor_clock::duration(initialTime_100_ns)),     transformation(R, T));
+    tracker->reset(time_100_ns_to_tp(initialTime_100_ns), transformation(R, T));
 }
 
 void rc_printDeviceConfig(rc_Tracker * tracker)
@@ -150,7 +155,7 @@ void rc_receiveImage(rc_Tracker * tracker, rc_Camera camera, rc_Timestamp time_1
         d.height = tracker->device.image_height;
         // TODO: Check that we support stride
         d.stride = stride;
-        d.timestamp = sensor_clock::time_point(sensor_clock::duration(time_100_ns));
+        d.timestamp = time_100_ns_to_tp(time_100_ns);
         tracker->receive_image(std::move(d));
     }
 }
@@ -161,7 +166,7 @@ void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Timestamp time_100_ns, con
     d.accel_m__s2[0] = acceleration_m__s2.x;
     d.accel_m__s2[1] = acceleration_m__s2.y;
     d.accel_m__s2[2] = acceleration_m__s2.z;
-    d.timestamp = sensor_clock::time_point(sensor_clock::duration(time_100_ns));
+    d.timestamp = time_100_ns_to_tp(time_100_ns);
     tracker->receive_accelerometer(std::move(d));
 }
 
@@ -171,7 +176,7 @@ void rc_receiveGyro(rc_Tracker * tracker, rc_Timestamp time_100_ns, const rc_Vec
     d.angvel_rad__s[0] = angular_velocity_rad__s.x;
     d.angvel_rad__s[1] = angular_velocity_rad__s.y;
     d.angvel_rad__s[2] = angular_velocity_rad__s.z;
-    d.timestamp = sensor_clock::time_point(sensor_clock::duration(time_100_ns));
+    d.timestamp = time_100_ns_to_tp(time_100_ns);
     tracker->receive_gyro(std::move(d));
 }
 
@@ -206,7 +211,7 @@ int rc_getFeatures(const rc_Tracker * tracker, rc_Feature **features_px)
 
 void rc_setLog(rc_Tracker * tracker, void (*log)(void *handle, const char *buffer_utf8, size_t length), bool stream, rc_Timestamp period_100_ns, void *handle)
 {
-    tracker->set_log_function(log, stream, std::chrono::duration_cast<sensor_clock::duration>(std::chrono::microseconds(period_100_ns*10)), handle);
+    tracker->set_log_function(log, stream, std::chrono::duration_cast<sensor_clock::duration>(std::chrono::duration<long long, std::ratio<1, 10000000>>(period_100_ns)), handle);
 }
 
 void rc_triggerLog(const rc_Tracker * tracker)

@@ -149,17 +149,16 @@ void sensor_fusion::trigger_log() const
     if(!log_function) return;
 
     last_log = sfm.last_time;
-    char buffer[1024];
 
     m4 R = to_rotation_matrix(sfm.s.W.v);
     v4 T = sfm.s.T.v;
-    sprintf(buffer, "%lld %f %f %f %f %f %f %f %f %f %f %f %f\n",
-            sfm.last_time.time_since_epoch().count(),
-            R(0, 0), R(0, 1), R(0, 2), T(0),
-            R(1, 0), R(1, 1), R(1, 2), T(1),
-            R(2, 0), R(2, 1), R(2, 2), T(2));
 
-    size_t nbytes = strlen(buffer);
-    log_function(log_handle, buffer, nbytes);
+    std::stringstream s(std::stringstream::out);
+    s << sfm.last_time.time_since_epoch().count() << " " << " " <<
+            R(0, 0) << " " << R(0, 1) << " " << R(0, 2) << " " << T(0) << " " <<
+            R(1, 0) << " " << R(1, 1) << " " << R(1, 2) << " " << T(1) << " " <<
+            R(2, 0) << " " << R(2, 1) << " " << R(2, 2) << " " << T(2);
+
+    log_function(log_handle, s.str().c_str(), s.str().length());
 }
 

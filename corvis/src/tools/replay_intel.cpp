@@ -23,7 +23,7 @@ const rc_Pose camera_pose      = { 0,-1,  0, 0.064f,
 
 void logger(void * handle, const char * buffer_utf8, size_t length)
 {
-    fprintf(stderr, "%s", buffer_utf8);
+    fprintf(stderr, "%s\n", buffer_utf8);
 }
 
 int main(int c, char **v)
@@ -50,7 +50,7 @@ int main(int c, char **v)
 
     rc_Tracker * tracker = rc_create();
     bool stream = true;
-    rc_Timestamp period = 1e7; // 1 second in 100ns
+    uint64_t period = 1e7; // 1 second in 100ns
     rc_setLog(tracker, logger, stream, period, NULL);
     rc_configureCamera(tracker, camera, camera_pose, width_px, height_px, center_x_px, center_y_px, focal_length_x_px, focal_length_xy_px, focal_length_y_px);
     rc_configureAccelerometer(tracker, rc_pose_identity, bias_m__s2, noiseVariance_m2__s4);

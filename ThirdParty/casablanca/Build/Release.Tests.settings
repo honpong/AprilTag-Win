@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+  <!-- Ensures that if this file changes it forces a rebuild -->
+  <PropertyGroup>                 
+    <MSBuildAllProjects>
+        $(MSBuildAllProjects);$(MSBuildThisFileFullPath)
+    </MSBuildAllProjects>
+
+    <!--EnableCPPAnalysis is always set false for test assemblies (but not for product assemblies).-->
+    <EnableCPPAnalysis Condition="'$(EnableCPPAnalysis)'==''">false</EnableCPPAnalysis>
+
+  </PropertyGroup>
+
+  <Import Project="$(MSBuildThisFileDirectory)\Common.Build.settings" />
+
+  <PropertyGroup>
+    <CommonTestIncludeDir>$(TestRoot)\Common\utilities\include;$(TestRoot)\Common\UnitTestpp</CommonTestIncludeDir>
+    <TestListenerPath>$(TestRoot)\Functional\http\utilities\testlistener</TestListenerPath>
+    <CasablancaIncludeDir>$(BinariesDirectory)\inc;$(CasablancaIncludeDir);$(TestListenerPath)\include;</CasablancaIncludeDir>
+  </PropertyGroup>
+
+  <!-- Target that can be used to easily strip the AppContainer requirement from a dll -->
+  <Target Name="StripAppContainerOnProjectDll">
+    <Exec Command="link /edit /appcontainer:no $(OutDir)\$(ProjectName).dll" />
+    
+    <!-- In razzle for some reason the output is in sub directory. -->
+    <ItemGroup Condition="'$(BuildInRazzle)'!=''">
+      <ProjectBinaries Include="$(OutDir)\*" />
+    </ItemGroup>
+    <Copy Condition="'$(BuildInRazzle)'!=''" SourceFiles="@(ProjectBinaries)" DestinationFolder="$(OutDir)..\" />
+  </Target>
+  
+</Project>

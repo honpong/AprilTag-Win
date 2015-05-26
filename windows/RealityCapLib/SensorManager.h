@@ -2,10 +2,10 @@
 
 #include "stdafx.h"
 #include <thread>
+#include "pxcsensemanager.h"
+#include "pxcmetadata.h"
+#include "libpxcimu_internal.h"
 
-class PXCSenseManager;
-class PXCImage;
-struct imu_sample;
 
 namespace RealityCap
 {
@@ -16,8 +16,8 @@ namespace RealityCap
 
     public:
         virtual void OnColorFrame(PXCImage* colorImage) {};
-        virtual void OnAmeterSample(struct imu_sample* sample) {};
-        virtual void OnGyroSample(struct imu_sample* sample) {};
+        virtual void OnAmeterSample(imu_sample_t* sample) {};
+        virtual void OnGyroSample(imu_sample_t* sample) {};
     };
 
     class SensorManager : SensorDataReceiver
@@ -28,15 +28,15 @@ namespace RealityCap
         bool StartSensors(); // returns true if sensors started successfully
         void StopSensors();
         bool StartPlayback(const wchar_t *filename);
-        bool SetRecording(const wchar_t *filename)
+        bool SetRecording(const wchar_t *filename);
         bool isVideoStreaming();
         void SetReceiver(SensorDataReceiver* sensorReceiver) { _sensorReceiver = sensorReceiver; };
         PXCSenseManager* GetSenseManager() {  return _senseMan; };
 
     protected:
         virtual void OnColorFrame(PXCImage* colorImage) override;
-        virtual void OnAmeterSample(struct imu_sample* sample) override;
-        virtual void OnGyroSample(struct imu_sample* sample) override;
+        virtual void OnAmeterSample(imu_sample_t* sample) override;
+        virtual void OnGyroSample(imu_sample_t* sample) override;
 
     private:
         PXCSenseManager* _senseMan;

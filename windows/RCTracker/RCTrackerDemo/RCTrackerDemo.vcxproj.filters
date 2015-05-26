@@ -18,9 +18,12 @@
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\corvis\src\filter\rc_intel_interface.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\corvis\src\tools\replay_intel.cpp">
+    <ClCompile Include="replay_rsclip.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

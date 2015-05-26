@@ -157,7 +157,7 @@ void rc_receiveImage(rc_Tracker * tracker, rc_Camera camera, rc_Timestamp time_1
         d.height = tracker->device.image_height;
         // TODO: Check that we support stride
         d.stride = stride;
-        d.timestamp = time_100_ns_to_tp(time_100_ns);
+        d.timestamp = time_100_ns_to_tp(time_100_ns + shutter_time / 2);
         tracker->receive_image(std::move(d));
     }
 }
@@ -220,7 +220,7 @@ rc_TrackerState rc_getState(const rc_Tracker *tracker)
         case RCSensorFusionRunStateInactive:
             return rc_E_INACTIVE;
         case RCSensorFusionRunStateLandscapeCalibration:
-            return rc_E_LANDSCAPE_CALIBRAITON;
+            return rc_E_LANDSCAPE_CALIBRATION;
         case RCSensorFusionRunStatePortraitCalibration:
             return rc_E_PORTRAIT_CALIBRATION;
         case RCSensorFusionRunStateRunning:

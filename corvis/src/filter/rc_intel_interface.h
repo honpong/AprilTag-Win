@@ -36,7 +36,7 @@ typedef enum
     /** rc_Tracker is in handheld portrait calibration mode. The device should be held steady in portrait orientation, perpendicular to the floor. */
     rc_E_PORTRAIT_CALIBRATION = 5,
     /** rc_Tracker is in handheld landscape calibration mode. The device should be held steady in landscape orientation, perpendicular to the floor. */
-    rc_E_LANDSCAPE_CALIBRAITON = 6
+    rc_E_LANDSCAPE_CALIBRATION = 6
 } rc_TrackerState;
 
 typedef enum

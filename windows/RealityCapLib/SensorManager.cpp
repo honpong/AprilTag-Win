@@ -84,6 +84,53 @@ bool SensorManager::StartSensors()
     return true;
 }
 
+bool SensorManager::SetRecording(const wchar_t *filename)
+{
+    PXCCaptureManager *captureMgr = _senseMan->QueryCaptureManager();
+    auto status = captureMgr->SetFileName(filename, true);
+    if (status < PXC_STATUS_NO_ERROR)
+    {
+        Debug::Log(L"Failed to set recording file name\n");
+        return false;
+    }
+}
+
+bool SensorManager::StartPlayback(const wchar_t *filename)
+{
+    if (_isVideoStreaming) return false;
+    PXCCaptureManager *captureMgr = _senseMan->QueryCaptureManager();
+    auto status = captureMgr->SetFileName(filename, false);
+    if (status < PXC_STATUS_NO_ERROR)
+    {
+        Debug::Log(L"Failed to set playback file name\n");
+        return false;
+    }
+
+    captureMgr->SetRealtime(0);
+
+    PXCVideoModule::DataDesc desc = { 0 };
+    captureMgr->QueryCapture()->QueryDeviceInfo(0, &desc.deviceInfo);
+    status = _senseMan->EnableStreams(&desc);
+
+    if (status < PXC_STATUS_NO_ERROR)
+    {
+        Debug::Log(L"Failed to enable stream(s)\n");
+        return false;
+    }
+
+    status = _senseMan->Init();
+    if (status < PXC_STATUS_NO_ERROR)
+    {
+        Debug::Log(L"Failed to initialize video pipeline\n");
+        return false;
+    }
+
+    _isVideoStreaming = true;
+
+    // poll for frames in a separate thread
+    videoThread = std::thread(&SensorManager::PollForFrames, this);
+}
+
 void SensorManager::StopSensors()
 {
     if (!isVideoStreaming()) return;
@@ -140,6 +187,7 @@ void SensorManager::PollForFrames()
         PXCImage* depthImage = cameraSample->depth;
         PXCImage* colorImage = cameraSample->color;
 
+        //TODO: pass the camera frame in the correct order with sensor data
         OnColorFrame(colorImage);
 
         // process the IMU data for each sensor type        

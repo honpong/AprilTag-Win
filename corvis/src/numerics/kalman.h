@@ -1,8 +1,7 @@
-// Copyright (c) 2008-2012, Eagle Jones
+// Written by Eagle Jones
+// Copyright (c) 2012-2015, RealityCap
 // All rights reserved.
 //
-// This file is a part of the corvis framework, and is made available
-// under the BSD license; please see LICENSE file for full text
 
 #ifndef __KALMAN_H
 #define __KALMAN_H

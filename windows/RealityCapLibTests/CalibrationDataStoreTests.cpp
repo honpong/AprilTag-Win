@@ -78,20 +78,6 @@ TEST(CalibrationDataStoreTests, GetCalibration)
     }
 }
 
-TEST(CalibrationDataStoreTests, HasCalibration_MissingFile)
-{
-    CalibrationDataStore calStore;
-    try
-    {
-        calStore.ClearCalibration();
-        EXPECT_FALSE(calStore.HasCalibration());
-    }
-    catch (runtime_error)
-    {
-        FAIL();
-    }
-}
-
 TEST(CalibrationDataStoreTests, HasCalibration_WrongVersion)
 {
     CalibrationDataStore calStore;
@@ -120,6 +106,20 @@ TEST(CalibrationDataStoreTests, HasCalibration)
         get_parameters_for_device(DEVICE_TYPE_GIGABYTE_S11, &cal);
         calStore.SaveCalibration(cal);
         EXPECT_TRUE(calStore.HasCalibration());
+    }
+    catch (runtime_error)
+    {
+        FAIL();
+    }
+}
+
+TEST(CalibrationDataStoreTests, HasCalibration_MissingFile)
+{
+    CalibrationDataStore calStore;
+    try
+    {
+        calStore.ClearCalibration();
+        EXPECT_FALSE(calStore.HasCalibration());
     }
     catch (runtime_error)
     {

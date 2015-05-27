@@ -1,6 +1,9 @@
 #pragma once
 #include "ICalibrationDataStore.h"
 
+#define CALIBRATION_VERSION 7
+#define CALIBRATION_FILE_NAME "calibration.json"
+
 namespace RealityCap
 {
     class CalibrationDataStore : public ICalibrationDataStore

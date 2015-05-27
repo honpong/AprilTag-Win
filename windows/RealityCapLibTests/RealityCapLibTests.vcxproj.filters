@@ -47,5 +47,8 @@
     <ClCompile Include="PXCSenseManagerFake.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CalibrationDataStoreTests.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

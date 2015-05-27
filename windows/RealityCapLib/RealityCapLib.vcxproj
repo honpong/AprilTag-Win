@@ -90,9 +90,11 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CalibrationDataStore.h" />
     <ClInclude Include="CalibrationManager.h" />
     <ClInclude Include="CaptureManager.h" />
     <ClInclude Include="Debug.h" />
+    <ClInclude Include="ICalibrationDataStore.h" />
     <ClInclude Include="RCFactory.h" />
     <ClInclude Include="libpxcimu.h" />
     <ClInclude Include="libpxcimu_internal.h" />
@@ -101,6 +103,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CalibrationDataStore.cpp" />
     <ClCompile Include="CalibrationManager.cpp" />
     <ClCompile Include="CaptureManager.cpp" />
     <ClCompile Include="Debug.cpp" />

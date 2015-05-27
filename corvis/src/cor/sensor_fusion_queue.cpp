@@ -175,7 +175,7 @@ void fusion_queue::stop_async()
         fprintf(stderr, "Camera: "); camera_queue.print_stats();
         fprintf(stderr, "Accel: "); accel_queue.print_stats();
         fprintf(stderr, "Gyro: "); gyro_queue.print_stats();
-#ifdef DEBUG
+#endif
     }
     std::unique_lock<std::mutex> lock(mutex);
     active = false;

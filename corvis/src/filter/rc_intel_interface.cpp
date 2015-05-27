@@ -149,14 +149,15 @@ void rc_receiveImage(rc_Tracker * tracker, rc_Camera camera, rc_Timestamp time_1
 {
     if(camera == rc_EGRAY8) {
         camera_data d;
-        int bytes = stride*tracker->device.image_height;
+        //TODO: don't malloc here
+        int bytes = tracker->device.image_width * tracker->device.image_height;
         d.image_handle = std::unique_ptr<void, void(*)(void *)>(malloc(bytes), free);
         d.image = (uint8_t *)d.image_handle.get();
-        memcpy(d.image, image, bytes);
+        for (int i = 0; i < tracker->device.image_height; i++) memcpy(d.image + i * tracker->device.image_width, ((unsigned char *)image) + i * stride, tracker->device.image_width);
         d.width = tracker->device.image_width;
         d.height = tracker->device.image_height;
         // TODO: Check that we support stride
-        d.stride = stride;
+        d.stride = d.width;
         d.timestamp = time_100_ns_to_tp(time_100_ns + shutter_time / 2);
         tracker->receive_image(std::move(d));
     }

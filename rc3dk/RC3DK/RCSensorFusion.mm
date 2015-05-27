@@ -505,7 +505,7 @@ uint64_t get_timestamp()
             [array addObject:feature];
         }
     }
-    return [NSArray arrayWithArray:array];
+    return array;
 }
 
 - (BOOL) isSensorFusionRunning

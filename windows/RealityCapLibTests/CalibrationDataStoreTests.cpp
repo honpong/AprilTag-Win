@@ -42,17 +42,6 @@ bool nearlyEqual(float a, float b, float epsilon)
     }
 }
 
-void createDefaultCalibrationFile()
-{
-    remove(CALIBRATION_DEFAULTS_FILE_NAME);
-    wstring json = L"{\"Cx\":-107374176,\"Cy\":-107374176,\"Fx\":0.10000000149011612,\"Fy\":-107374176,\"K0\":-107374176,\"K1\":-107374176,\"K2\":-107374176,\"Tc0\":-107374176,\"Tc1\":-107374176,\"Tc2\":-107374176,\"TcVar0\":-107374176,\"TcVar1\":-107374176,\"TcVar2\":-107374176,\"Wc0\":-107374176,\"Wc1\":-107374176,\"Wc2\":-107374176,\"WcVar0\":-107374176,\"WcVar1\":-107374176,\"WcVar2\":-107374176,\"aMeasVar\":-107374176,\"abias0\":-107374176,\"abias1\":-107374176,\"abias2\":-107374176,\"abiasvar0\":-107374176,\"abiasvar1\":-107374176,\"abiasvar2\":-107374176,\"calibrationVersion\":7,\"imageHeight\":-858993460,\"imageWidth\":-858993460,\"px\":-107374176,\"py\":-107374176,\"shutterDelay\":-3.6893488147419104e+17,\"shutterPeriod\":-3.6893488147419104e+17,\"wMeasVar\":-107374176,\"wbias0\":-107374176,\"wbias1\":-107374176,\"wbias2\":-107374176,\"wbiasvar0\":-107374176,\"wbiasvar1\":-107374176,\"wbiasvar2\":-107374176}";
-    
-    wofstream jsonFile;
-    jsonFile.open(CALIBRATION_DEFAULTS_FILE_NAME);
-    jsonFile << json;
-    jsonFile.close();
-}
-
 TEST(CalibrationDataStoreTests, SaveCalibration)
 {
     remove(CALIBRATION_FILE_NAME);

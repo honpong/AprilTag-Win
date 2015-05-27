@@ -4,6 +4,7 @@
 #include <cpprest\details\basic_types.h>
 #include <iostream>
 #include <fstream>
+#include <sys/stat.h>
 
 using namespace RealityCap;
 using namespace web;
@@ -20,14 +21,22 @@ CalibrationDataStore::~CalibrationDataStore()
 {
 }
 
-corvis_device_parameters RealityCap::CalibrationDataStore::GetSavedCalibration()
+bool FileExists(string filename) 
 {
-    // TODO try/catch
+    struct stat fileInfo;
+    return stat(filename.c_str(), &fileInfo) == 0;
+}
+
+corvis_device_parameters ParseCalibrationFile(string fileName)
+{
+    if (!FileExists(fileName)) throw std::runtime_error("Calibration file not found.");
+
     wifstream jsonFile;
-    jsonFile.open(CALIBRATION_FILE_NAME);
+    jsonFile.open(fileName);
+    if (jsonFile.fail()) throw runtime_error("Failed to open calibraiton file.");
     value json = value::parse(jsonFile);
 
-   corvis_device_parameters cal;
+    corvis_device_parameters cal;
     cal.Fx = json[U(KEY_FX)].as_number().to_double();
     cal.Fy = json[U(KEY_FY)].as_number().to_double();
     cal.Cx = json[U(KEY_CX)].as_number().to_double();
@@ -67,14 +76,29 @@ corvis_device_parameters RealityCap::CalibrationDataStore::GetSavedCalibration()
     cal.image_height = json[U(KEY_IMAGE_HEIGHT)].as_number().to_double();
     cal.shutter_delay = std::chrono::microseconds(json[U(KEY_SHUTTER_DELAY)].as_integer());
     cal.shutter_period = std::chrono::microseconds(json[U(KEY_SHUTTER_PERIOD)].as_integer());
-    // TODO check calibraiton version
+    cal.version = json[U(KEY_CALIBRATION_VERSION)].as_number().to_uint32();
 
     return cal;
 }
 
+corvis_device_parameters RealityCap::CalibrationDataStore::GetCalibration()
+{
+    if (FileExists(CALIBRATION_FILE_NAME))
+    {
+        corvis_device_parameters cal = ParseCalibrationFile(CALIBRATION_FILE_NAME);
+        if (cal.version == CALIBRATION_VERSION)
+            return cal;
+        else
+            return ParseCalibrationFile(CALIBRATION_DEFAULTS_FILE_NAME);
+    }
+    else
+    {
+        return ParseCalibrationFile(CALIBRATION_DEFAULTS_FILE_NAME);
+    }
+}
+
 void CalibrationDataStore::SaveCalibration(corvis_device_parameters cal)
 {
-    // TODO try/catch
     value json = value::object();
     json[U(KEY_FX)] = value::number(cal.Fx);
     json[U(KEY_FY)] = value::number(cal.Fy);
@@ -119,15 +143,21 @@ void CalibrationDataStore::SaveCalibration(corvis_device_parameters cal)
 
     wofstream jsonFile;
     jsonFile.open(CALIBRATION_FILE_NAME);
+    if (jsonFile.fail()) 
+        throw runtime_error("Failed to open calibration file for writing.");
     jsonFile << json;
     jsonFile.close();
 }
 
-void RealityCap::CalibrationDataStore::ClearCalibration()
+int RealityCap::CalibrationDataStore::ClearCalibration()
 {
+    return remove(CALIBRATION_FILE_NAME);
 }
 
 bool RealityCap::CalibrationDataStore::HasCalibration()
 {
-    return false;
+    if (!FileExists(CALIBRATION_FILE_NAME)) return false;
+    corvis_device_parameters cal = ParseCalibrationFile(CALIBRATION_FILE_NAME);
+    corvis_device_parameters defaults = ParseCalibrationFile(CALIBRATION_DEFAULTS_FILE_NAME);
+    return is_calibration_valid(cal, defaults);
 }

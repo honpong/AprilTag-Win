@@ -4,6 +4,8 @@
 #include <stdbool.h>
 #include "../cor/platform/sensor_clock.h"
 
+#define CALIBRATION_VERSION 7
+
 #define KEY_FX "Fx"
 #define KEY_FY "Fy"
 #define KEY_CX "Cx"
@@ -63,6 +65,7 @@ struct corvis_device_parameters
     float Wc_var[3];
     int image_width, image_height;
     sensor_clock::duration shutter_delay, shutter_period;
+    unsigned long int version;
 };
 
 typedef enum
@@ -93,6 +96,8 @@ typedef enum
 corvis_device_type get_device_by_name(const char *name);
 bool get_parameters_for_device(corvis_device_type type, struct corvis_device_parameters *dc);
 bool get_parameters_for_device_name(const char * name, struct corvis_device_parameters *dc);
+
+bool is_calibration_valid(const corvis_device_parameters &calibration, const corvis_device_parameters &deviceDefaults);
 
 void device_set_resolution(struct corvis_device_parameters *dc, int image_width, int image_height);
 void device_set_framerate(struct corvis_device_parameters *dc, float framerate_hz);

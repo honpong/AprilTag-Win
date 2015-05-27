@@ -25,8 +25,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "win32", "..\..\ThirdParty\c
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
-		..\..\ThirdParty\casablanca\Release\src\build\win32.vcxitems*{1014c621-bc2d-4813-b8c1-6d83ad6f9249}*SharedItemsImports = 4
 		..\..\ThirdParty\casablanca\Release\src\build\common.vcxitems*{1014c621-bc2d-4813-b8c1-6d83ad6f9249}*SharedItemsImports = 4
+		..\..\ThirdParty\casablanca\Release\src\build\win32.vcxitems*{1014c621-bc2d-4813-b8c1-6d83ad6f9249}*SharedItemsImports = 4
+		..\..\ThirdParty\casablanca\Release\src\build\win32.vcxitems*{f40f4804-50f9-4257-8d74-b9cbb19ac4c3}*SharedItemsImports = 9
+		..\..\ThirdParty\casablanca\Release\src\build\common.vcxitems*{594dcb5f-07e3-4084-a2ce-268611fa629f}*SharedItemsImports = 9
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM

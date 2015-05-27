@@ -1,8 +1,8 @@
 #pragma once
 #include "ICalibrationDataStore.h"
 
-#define CALIBRATION_VERSION 7
 #define CALIBRATION_FILE_NAME "calibration.json"
+#define CALIBRATION_DEFAULTS_FILE_NAME "calibration-defaults.json"
 
 namespace RealityCap
 {
@@ -11,9 +11,9 @@ namespace RealityCap
     public:
         CalibrationDataStore();
         ~CalibrationDataStore();
-        virtual corvis_device_parameters GetSavedCalibration();
-        virtual void SaveCalibration(corvis_device_parameters calibration);
-        virtual void ClearCalibration();
-        virtual bool HasCalibration();
+        virtual corvis_device_parameters GetCalibration() override;
+        virtual void SaveCalibration(corvis_device_parameters calibration) override;
+        virtual int ClearCalibration() override;
+        virtual bool HasCalibration() override;
     };
 }

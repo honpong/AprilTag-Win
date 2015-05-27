@@ -26,6 +26,9 @@ pxcIMUsensor selectedSensors[] = {
 
 const int NUM_OF_REQUESTED_SENSORS = sizeof(selectedSensors) / sizeof(pxcIMUsensor);
 bool verbose = false;
+bool run_tracker = true;
+pxcCHAR     *m_recordedFile = L"capture.rssdk";
+pxcBool        m_bRecord = 0;
 
 const rc_Pose rc_pose_identity = {1, 0, 0, 0, 
                                   0, 1, 0, 0,
@@ -43,7 +46,7 @@ void logger(void * handle, const char * buffer_utf8, size_t length)
 
 int main(int c, char **v)
 {
-    if(c < 2)
+    if(c < 1)
     {
         fprintf(stderr, "specify file name\n");
         return 0;
@@ -57,15 +60,15 @@ int main(int c, char **v)
     double a_bias_stdev = .02 * 9.8 / 2.;
     double w_bias_stdev = 10. / 180. * M_PI / 2.;
 
-    rc_Vector bias_m__s2 = {0.001f, -0.225f, -0.306f};
+    rc_Vector bias_m__s2 = {0.f, 0.f, 0.f};
     float noiseVariance_m2__s4 = a_bias_stdev * a_bias_stdev;
-    rc_Vector bias_rad__s = {0.016f, -0.015f, 0.011f};
+    rc_Vector bias_rad__s = {0.f, 0.f, 0.f};
     float noiseVariance_rad2__s2 = w_bias_stdev * w_bias_stdev;
     rc_Camera camera = rc_EGRAY8;
     int focal_length_x_px = 627;
     int focal_length_y_px = 627;
     int focal_length_xy_px = 0;
-    uint64_t shutter_time_100_ns = 16667 * 10;
+    uint64_t shutter_time_100_ns = 333330;
 
 
     rc_Tracker * tracker = rc_create();
@@ -73,15 +76,13 @@ int main(int c, char **v)
     rc_configureCamera(tracker, camera, camera_pose, width_px, height_px, center_x_px, center_y_px, focal_length_x_px, focal_length_xy_px, focal_length_y_px);
     rc_configureAccelerometer(tracker, rc_pose_identity, bias_m__s2, noiseVariance_m2__s4);
     rc_configureGyroscope(tracker, rc_pose_identity, bias_rad__s, noiseVariance_rad2__s2);
+    rc_reset(tracker, 0, rc_pose_identity);
 
-    rc_startTracker(tracker);
+    if(run_tracker) rc_startTracker(tracker);
 
     bool first_packet = false;
     bool is_running = true;
     int packets_dispatched = 0;
-
-    pxcCHAR     *m_recordedFile = NULL;
-    pxcBool        m_bRecord = 0;
 
     PXCSenseManager* pSenseManager = PXCSenseManager::CreateInstance();
     if (pSenseManager == NULL)
@@ -159,6 +160,15 @@ int main(int c, char **v)
         if (verbose)
             wcout << L"Depth frame " << frame << "           (ts=" << depth->QueryTimeStamp() - 6370 << ")" << endl; //Taking care of 637 Micro seconds blank interval-> 637000 nanoseconds -> 6370 (one hundred nanoseconds)
 
+        PXCImage* depthImage = pSample->depth;
+        PXCImage* colorImage = pSample->color;
+        PXCImage::ImageData data;
+        pxcStatus result = colorImage->AcquireAccess(PXCImage::ACCESS_READ, PXCImage::PIXEL_FORMAT_Y8, &data);
+        if (result != PXC_STATUS_NO_ERROR || !data.planes[0]) throw std::runtime_error("PXCImage->AcquireAccess failed!");
+        uint8_t *image = data.planes[0];
+        int stride = data.pitches[0];
+        if(run_tracker) rc_receiveImage(tracker, rc_EGRAY8, colorImage->QueryTimeStamp() - 6370 - 333330, 333330, NULL, false, stride, image);
+        
         // Get the IMU data for each sensor type
         PXCMetadata* metadata = (PXCMetadata *)depth->QueryInstance(PXCMetadata::CUID);
         // process the IMU data for each sensor type        
@@ -204,7 +214,7 @@ int main(int c, char **v)
                             acceleration_m__s2.x = -s->data[1] * 9.80665;
                             acceleration_m__s2.y = s->data[0] * 9.80665;
                             acceleration_m__s2.z = -s->data[2] * 9.80665;
-                            rc_receiveAccelerometer(tracker, s->coordinatedUniversalTime100ns, acceleration_m__s2);
+                            if(run_tracker) rc_receiveAccelerometer(tracker, s->coordinatedUniversalTime100ns, acceleration_m__s2);
                         }
                         else if (inertial_sensor->deviceProperty == PROPERTY_SENSORS_ANGULAR_VELOCITY)
                         {
@@ -213,7 +223,7 @@ int main(int c, char **v)
                             angular_velocity_rad__s.x = s->data[0] * M_PI / 180.;
                             angular_velocity_rad__s.y = s->data[1] * M_PI / 180.;
                             angular_velocity_rad__s.z = s->data[2] * M_PI / 180.;
-                            rc_receiveGyro(tracker, s->coordinatedUniversalTime100ns, angular_velocity_rad__s);
+                            if(run_tracker) rc_receiveGyro(tracker, s->coordinatedUniversalTime100ns, angular_velocity_rad__s);
                         }
                     }
                 }
@@ -223,20 +233,14 @@ int main(int c, char **v)
                 wcout << L"Depth frame " << frame << " - " << selectedSensors[sensor].sensorName << L" data not available " << endl;
             }
         }
-        PXCImage* depthImage = pSample->depth;
-        PXCImage* colorImage = pSample->color;
-        PXCImage::ImageData data;
-        pxcStatus result = colorImage->AcquireAccess(PXCImage::ACCESS_READ, PXCImage::PIXEL_FORMAT_Y8, &data);
-        if (result != PXC_STATUS_NO_ERROR || !data.planes[0]) throw std::runtime_error("PXCImage->AcquireAccess failed!");
-        uint8_t *image = data.planes[0];
-        int stride = data.pitches[0];
-        rc_receiveImage(tracker, rc_EGRAY8, colorImage->QueryTimeStamp() - 6370 - 333330, 333330, NULL, false, stride, image);
+
+        colorImage->ReleaseAccess(&data);
 
         pSenseManager->ReleaseFrame();
 
         packets_dispatched++;
 
-        rc_triggerLog(tracker);
+        if(run_tracker && packets_dispatched%10 == 0) rc_triggerLog(tracker);
 
 
         if (_kbhit())
@@ -249,8 +253,8 @@ int main(int c, char **v)
 
     pSenseManager->Close();
     pSenseManager->Release();
-    rc_stopTracker(tracker);
-    rc_triggerLog(tracker);
+    if(run_tracker) rc_stopTracker(tracker);
+    if(run_tracker) rc_triggerLog(tracker);
 
     rc_destroy(tracker);
 

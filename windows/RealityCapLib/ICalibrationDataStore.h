@@ -3,6 +3,9 @@
 
 namespace RealityCap
 {
+    /*
+        This interface can be implemented by any type of data store that might be used for calibration data. It allows us to easily change the implementation of the store from JSON to say, a database.
+    */
     class ICalibrationDataStore
     {
     protected:
@@ -14,15 +17,15 @@ namespace RealityCap
         */
         virtual corvis_device_parameters GetCalibration() { return corvis_device_parameters(); };
         /*
-            Saves the calibration to a JSON file.
+            Saves the calibration to the data store.
         */
         virtual void SaveCalibration(corvis_device_parameters calibration) {};
         /*
-            Deletes the calibration JSON file. Returns the result of the remove() function; zero if successful.
+            Deletes the calibration from the data store.
         */
         virtual int ClearCalibration() { return false; };
         /*
-            Returns true if a calibration JSON file exists and is of the current version.
+            Returns true if calibration data exists and is of the current version.
         */
         virtual bool HasCalibration() { return false; };
     };

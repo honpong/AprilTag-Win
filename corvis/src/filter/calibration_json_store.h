@@ -18,7 +18,8 @@ namespace RealityCap
         /*
         Saves the calibration to a JSON file.
         */
-        virtual void SaveCalibration(corvis_device_parameters calibration) override;
+        virtual void SaveCalibration(const corvis_device_parameters &calibration) override;
+        virtual void SaveCalibration(const corvis_device_parameters &calibration, const char* fileName);
         /*
         Deletes the calibration JSON file. Returns the result of the remove() function; zero if successful.
         */

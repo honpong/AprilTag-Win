@@ -97,9 +97,15 @@ corvis_device_parameters RealityCap::calibration_json_store::GetCalibration()
     }
 }
 
-void calibration_json_store::SaveCalibration(corvis_device_parameters cal)
+void calibration_json_store::SaveCalibration(const corvis_device_parameters &cal)
+{
+    SaveCalibration(cal, CALIBRATION_FILE_NAME);
+}
+
+void calibration_json_store::SaveCalibration(const corvis_device_parameters &cal, const char* fileName)
 {
     value json = value::object();
+    json[U(KEY_CALIBRATION_VERSION)] = value::number(CALIBRATION_VERSION);
     json[U(KEY_FX)] = value::number(cal.Fx);
     json[U(KEY_FY)] = value::number(cal.Fy);
     json[U(KEY_CX)] = value::number(cal.Cx);
@@ -139,12 +145,10 @@ void calibration_json_store::SaveCalibration(corvis_device_parameters cal)
     json[U(KEY_IMAGE_HEIGHT)] = value::number(cal.image_height);
     json[U(KEY_SHUTTER_DELAY)] = value::number((double)std::chrono::duration_cast<std::chrono::microseconds>(cal.shutter_delay).count());
     json[U(KEY_SHUTTER_PERIOD)] = value::number((double)std::chrono::duration_cast<std::chrono::microseconds>(cal.shutter_period).count());
-    json[U(KEY_CALIBRATION_VERSION)] = value::number(CALIBRATION_VERSION);
 
     wofstream jsonFile;
-    jsonFile.open(CALIBRATION_FILE_NAME);
-    if (jsonFile.fail()) 
-        throw runtime_error("Failed to open calibration file for writing.");
+    jsonFile.open(fileName);
+    if (jsonFile.fail()) throw runtime_error("Failed to open calibration file for writing.");
     jsonFile << json;
     jsonFile.close();
 }

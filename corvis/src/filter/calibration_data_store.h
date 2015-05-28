@@ -19,7 +19,7 @@ namespace RealityCap
         /*
             Saves the calibration to the data store.
         */
-        virtual void SaveCalibration(corvis_device_parameters calibration) {};
+        virtual void SaveCalibration(const corvis_device_parameters &calibration) {};
         /*
             Deletes the calibration from the data store.
         */

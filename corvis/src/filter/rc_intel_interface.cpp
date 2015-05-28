@@ -25,7 +25,7 @@ struct rc_Tracker: public sensor_fusion
 
 extern "C" rc_Tracker * rc_create()
 {
-    rc_Tracker * tracker = new rc_Tracker(false); //TODO: when we switch to intel logs, request immediate dispatch
+    rc_Tracker * tracker = new rc_Tracker(true);
     tracker->sfm.ignore_lateness = true; //and don't drop frames to keep up
     corvis_device_parameters d;
     get_parameters_for_device(DEVICE_TYPE_UNKNOWN, &d);

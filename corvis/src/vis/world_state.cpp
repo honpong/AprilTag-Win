@@ -143,6 +143,21 @@ void world_state::receive_camera(const filter * f, camera_data &&d)
 
     observe_plot_item(d.timestamp, 5, "v-inn-mean_x", (float)observation_vision_feature::inn_stdev[0].mean);
     observe_plot_item(d.timestamp, 5, "v-inn-mean_y", (float)observation_vision_feature::inn_stdev[1].mean);
+
+    if (f->observations.recent_a.get()) {
+        observe_plot_item(d.timestamp, 6, "a-inn_x", (float)f->observations.recent_a->innovation(0));
+        observe_plot_item(d.timestamp, 6, "a-inn_y", (float)f->observations.recent_a->innovation(1));
+        observe_plot_item(d.timestamp, 6, "a-inn_z", (float)f->observations.recent_a->innovation(2));
+    }
+
+    if (f->observations.recent_g.get()) {
+        observe_plot_item(d.timestamp, 7, "g-inn_x", (float)f->observations.recent_g->innovation(0));
+        observe_plot_item(d.timestamp, 7, "g-inn_y", (float)f->observations.recent_g->innovation(1));
+        observe_plot_item(d.timestamp, 7, "g-inn_z", (float)f->observations.recent_g->innovation(2));
+    }
+
+    for (auto &of : f->observations.recent_f_map)
+        observe_plot_item(d.timestamp, 8, "v-inn " + std::to_string(of.first), of.second->innovation(0));
 }
 
 world_state::world_state()

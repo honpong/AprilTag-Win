@@ -110,8 +110,9 @@ add_library(DAI STATIC ${DAI_FILES})
 target_include_directories(DAI PUBLIC
   libDAI-0.3.1/include
   "${Boost_INCLUDE_DIRS}"
-  "${Boost_INCLUDE_DIRS}/boost/tr1"
 )
+# -DMACOSX forces libDAI to include boost using <boost/tr1/*>
+target_compile_options(DAI PUBLIC -DMACOSX -DDAI_WITH_BP -DDAI_WITH_TRWBP)
 
 file(GLOB_RECURSE LIBZXING_FILES
     "libzxing-cpp/zxing/*.cpp"

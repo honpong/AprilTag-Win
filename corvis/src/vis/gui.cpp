@@ -11,9 +11,9 @@ gui * gui::static_gui;
 
 const static float initial_scale = 5;
 
-void gui::configure_view()
+void gui::configure_view(int view_width, int view_height)
 {
-    float aspect = 1.f*width/height;
+    float aspect = 1.f*view_width/view_height;
     float nearclip = 0.1f;
     float farclip = 30.f;
     if(scale > farclip) farclip = scale*1.5f;
@@ -91,28 +91,16 @@ void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int m
        write_frame();
     if(key == GLFW_KEY_N && action == GLFW_PRESS)
        current_plot = state->next_plot(current_plot);
+    if(key == GLFW_KEY_V && action == GLFW_PRESS)
+        show_video = !show_video;
+    if(key == GLFW_KEY_M && action == GLFW_PRESS)
+        show_main = !show_main;
+    if(key == GLFW_KEY_P && action == GLFW_PRESS)
+        show_plots = !show_plots;
 }
 
-void gui::render_plot(int plots_width, int plots_height)
+void gui::render(int view_width, int view_height)
 {
-    glViewport(0, 0, plots_width, plots_height);
-    world_state_render_plot(state, current_plot, plots_width, plots_height);
-}
-
-void gui::render_video(int video_width, int video_height)
-{
-    glViewport(0, 0, video_width, video_height);
-    world_state_render_video(state, video_width, video_height);
-}
-
-void gui::render()
-{
-    glViewport(0, 0, width, height);
-    state->update_vertex_arrays();
-
-    // Draw call
-    configure_view();
-    world_state_render(state, _modelViewMatrix, _projectionMatrix);
 }
 
 static void error_callback(int error, const char* description)
@@ -131,7 +119,7 @@ void gui::start_glfw()
     glfwSetErrorCallback(error_callback);
 
     glfwWindowHint(GLFW_RESIZABLE, true);
-    glfwWindowHint(GLFW_VISIBLE, false);
+    glfwWindowHint(GLFW_VISIBLE, true);
     GLFWwindow* main_window = glfwCreateWindow(width, height, "Replay", NULL, NULL);
     if (!main_window)
     {
@@ -152,76 +140,76 @@ void gui::start_glfw()
 
     gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
     world_state_render_init();
-
-    glfwWindowHint(GLFW_RESIZABLE, true);
-    glfwWindowHint(GLFW_VISIBLE, false);
-    GLFWwindow* video_window = glfwCreateWindow(640, 480, "Replay Video", NULL, NULL);
-    glfwSetKeyCallback(video_window, gui::keyboard_callback);
-    if (!video_window)
-    {
-        glfwTerminate();
-        exit(EXIT_FAILURE);
-    }
-    glfwSetWindowPos(video_window, pos_x + width + 20, pos_y);
-    if(show_video)
-        glfwShowWindow(video_window);
-    glfwMakeContextCurrent(video_window);
-    glfwSwapInterval(1);
-
-    gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
     world_state_render_video_init();
-
-    glfwWindowHint(GLFW_RESIZABLE, true);
-    glfwWindowHint(GLFW_VISIBLE, false);
-    GLFWwindow* plots_window = glfwCreateWindow(600, 400, "Replay Plots", NULL, NULL);
-    glfwSetKeyCallback(plots_window, gui::keyboard_callback);
-    if (!plots_window)
-    {
-        glfwTerminate();
-        exit(EXIT_FAILURE);
-    }
-    glfwSetWindowPos(plots_window, pos_x + width + 20, pos_y + height + 20);
-    if(show_plots)
-        glfwShowWindow(plots_window);
-    glfwMakeContextCurrent(plots_window);
-    glfwSwapInterval(1);
-
-    gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
     world_state_render_plot_init();
 
     //fprintf(stderr, "OpenGL Version %d.%d loaded\n", GLVersion.major, GLVersion.minor);
 
     while (!glfwWindowShouldClose(main_window))
     {
-        if(show_main) {
-            glfwMakeContextCurrent(main_window);
-            glfwGetFramebufferSize(main_window, &width, &height);
-            render();
-            glfwSwapBuffers(main_window);
-        }
-        glfwPollEvents();
- 
-        if(show_video) {
-            glfwMakeContextCurrent(video_window);
-            int video_width, video_height;
-            glfwGetFramebufferSize(video_window, &video_width, &video_height);
-            render_video(video_width, video_height);
-            glfwSwapBuffers(video_window);
-        }
-        glfwPollEvents();
+        glfwGetFramebufferSize(main_window, &width, &height);
+        glViewport(0, 0, width, height);
+        glEnable(GL_DEPTH_TEST);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        if(show_plots) {
-            glfwMakeContextCurrent(plots_window);
-            int plots_width, plots_height;
-            glfwGetFramebufferSize(plots_window, &plots_width, &plots_height);
-            render_plot(plots_width, plots_height);
-            glfwSwapBuffers(plots_window);
+        // Calculate layout
+        int main_width = width, main_height = height;
+        int video_width = 0, video_height = 0;
+        int plots_width = 0, plots_height = 0;
+        float right_column_percent = .5f;
+        float video_height_percent = .5f;
+        float plots_height_percent = 1.f - video_height_percent;
+
+        if(!show_main)
+            right_column_percent = 1.f;
+        if(!show_plots)
+            video_height_percent = 1.f;
+        if(!show_video)
+            plots_height_percent = .5f;
+        if(show_video) {
+            int frame_width = world_state_render_video_width(state);
+            int frame_height = world_state_render_video_height(state);
+            video_width = width*right_column_percent;
+            video_height = height*video_height_percent;
+            if(1.*video_height/video_width > 1.f*frame_height/frame_width)
+                video_height = video_width *  1.f*frame_height/frame_width;
+            else
+                video_width = video_height * 1.f*frame_width/frame_height;
         }
+        if(show_plots) {
+            plots_width = width*right_column_percent;
+            plots_height = height - video_height;
+            if(show_video)
+                plots_width = video_width;
+            if(!show_video && show_main)
+                plots_height = height*plots_height_percent;
+        }
+        if(show_main && show_video && show_plots)
+            main_width = width - video_width;
+
+        // Update data
+        state->update_vertex_arrays();
+
+        // Draw
+        if(show_main) {
+            glViewport(0, 0, main_width, main_height);
+            configure_view(main_width, main_height);
+            world_state_render(state, _modelViewMatrix, _projectionMatrix);
+        }
+        if(show_video) {
+            // y coordinate is 0 = bottom, height = top (opengl)
+            glViewport(width - video_width, 0, video_width, video_height);
+            world_state_render_video(state, video_width, video_height);
+        }
+        if(show_plots) {
+            // y coordinate is 0 = bottom, height = top (opengl)
+            glViewport(width - plots_width, video_height, plots_width, plots_height);
+            world_state_render_plot(state, current_plot, plots_width, plots_height);
+        }
+        glfwSwapBuffers(main_window);
         glfwPollEvents();
     }
     glfwDestroyWindow(main_window);
-    glfwDestroyWindow(video_window);
-    glfwDestroyWindow(plots_window);
     glfwTerminate();
     std::cerr << "GUI closed, replay still running in realtime (press Ctrl+c to quit)\n";
 }
@@ -235,7 +223,7 @@ void gui::start(replay * rp)
 }
 
 gui::gui(world_state * world, bool show_main_, bool show_video_, bool show_plots_)
-    : state(world), scale(initial_scale), width(512), height(512),
+    : state(world), scale(initial_scale), width(640), height(480),
       show_main(show_main_), show_video(show_video_), show_plots(show_plots_)
 {
     static_gui = this;

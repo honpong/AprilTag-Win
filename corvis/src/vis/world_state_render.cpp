@@ -14,7 +14,6 @@ static render render;
 bool world_state_render_init()
 {
     render.gl_init();
-    glEnable(GL_DEPTH_TEST);
 
     return true;
 }
@@ -37,20 +36,34 @@ void world_state_render_video_teardown()
 
 void world_state_render_video(world_state * world, int viewport_width, int viewport_height)
 {
-    glClear(GL_COLOR_BUFFER_BIT);
     world->display_lock.lock();
     world->image_lock.lock();
     frame_render.render(world->last_image.image, world->last_image.width, world->last_image.height, viewport_width, viewport_height, true);
+    glPointSize(3.0f);
     glLineWidth(2.0f);
     frame_render.draw_overlay(world->feature_ellipse_vertex, world->feature_ellipse_vertex_num, GL_LINES, world->last_image.width, world->last_image.height, viewport_width, viewport_height);
     world->image_lock.unlock();
     world->display_lock.unlock();
 }
 
+int world_state_render_video_width(world_state * world)
+{
+    world->image_lock.lock();
+    int width = world->last_image.width;
+    world->image_lock.unlock();
+    return width;
+}
+
+int world_state_render_video_height(world_state * world)
+{
+    world->image_lock.lock();
+    int height = world->last_image.height;
+    world->image_lock.unlock();
+    return height;
+}
+
 void world_state_render(world_state * world, float * viewMatrix, float * projMatrix)
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     render.start_render(viewMatrix, projMatrix);
 
     world->display_lock.lock();
@@ -158,7 +171,8 @@ static void create_plot(world_state * state, int index)
 
 void world_state_render_plot(world_state * world, int index, int viewport_width, int viewport_height)
 {
-    glClear(GL_COLOR_BUFFER_BIT);
+    plot_width = viewport_width;
+    plot_height = viewport_height;
     create_plot(world, index);
     if(plot_frame)
         plot_render.render(plot_frame, plot_width, plot_height, viewport_width, viewport_height, false);

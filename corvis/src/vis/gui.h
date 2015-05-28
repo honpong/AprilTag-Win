@@ -26,8 +26,8 @@ private:
         gui::static_gui->scroll(window, dx, dy);
     };
 
-    float _projectionMatrix[16]; // 4x4
-    float _modelViewMatrix[16]; // 4x4
+    float projection_matrix[16]; // 4x4
+    float view_matrix[16]; // 4x4
 
     void start_glfw();
     void init_gl();

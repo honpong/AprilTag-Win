@@ -18,13 +18,13 @@ void gui::configure_view(int view_width, int view_height)
     float farclip = 30.f;
     if(scale > farclip) farclip = scale*1.5f;
     if(scale < nearclip) nearclip = scale*0.75f;
-    build_projection_matrix(_projectionMatrix, 60.0f, aspect, nearclip, farclip);
+    build_projection_matrix(projection_matrix, 60.0f, aspect, nearclip, farclip);
 
     m4 R = to_rotation_matrix(arc.get_quaternion());
     R(2, 3) = -scale; // Translate by -scale
     for(int i = 0; i < 4; i++) {
         for(int j = 0; j < 4; j++) {
-            _modelViewMatrix[j * 4 + i] = (float)R(i, j);
+            view_matrix[j * 4 + i] = (float)R(i, j);
         }
     }
 }
@@ -194,7 +194,7 @@ void gui::start_glfw()
         if(show_main) {
             glViewport(0, 0, main_width, main_height);
             configure_view(main_width, main_height);
-            world_state_render(state, _modelViewMatrix, _projectionMatrix);
+            world_state_render(state, view_matrix, projection_matrix);
         }
         if(show_video) {
             // y coordinate is 0 = bottom, height = top (opengl)

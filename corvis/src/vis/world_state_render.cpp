@@ -62,9 +62,9 @@ int world_state_render_video_height(world_state * world)
     return height;
 }
 
-void world_state_render(world_state * world, float * viewMatrix, float * projMatrix)
+void world_state_render(world_state * world, float * view_matrix, float * projection_matrix)
 {
-    render.start_render(viewMatrix, projMatrix);
+    render.start_render(view_matrix, projection_matrix);
 
     world->display_lock.lock();
 

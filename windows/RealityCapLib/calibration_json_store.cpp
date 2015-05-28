@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "CalibrationJsonDataStore.h"
+#include "calibration_json_store.h"
 #include <cpprest\json.h>
 #include <cpprest\details\basic_types.h>
 #include <iostream>
@@ -12,12 +12,12 @@ using namespace web::json;
 using namespace utility;
 using namespace std;
 
-CalibrationJsonDataStore::CalibrationJsonDataStore()
+calibration_json_store::calibration_json_store()
 {
 }
 
 
-CalibrationJsonDataStore::~CalibrationJsonDataStore()
+calibration_json_store::~calibration_json_store()
 {
 }
 
@@ -81,7 +81,7 @@ corvis_device_parameters ParseCalibrationFile(string fileName)
     return cal;
 }
 
-corvis_device_parameters RealityCap::CalibrationJsonDataStore::GetCalibration()
+corvis_device_parameters RealityCap::calibration_json_store::GetCalibration()
 {
     if (FileExists(CALIBRATION_FILE_NAME))
     {
@@ -97,7 +97,7 @@ corvis_device_parameters RealityCap::CalibrationJsonDataStore::GetCalibration()
     }
 }
 
-void CalibrationJsonDataStore::SaveCalibration(corvis_device_parameters cal)
+void calibration_json_store::SaveCalibration(corvis_device_parameters cal)
 {
     value json = value::object();
     json[U(KEY_FX)] = value::number(cal.Fx);
@@ -149,12 +149,12 @@ void CalibrationJsonDataStore::SaveCalibration(corvis_device_parameters cal)
     jsonFile.close();
 }
 
-int RealityCap::CalibrationJsonDataStore::ClearCalibration()
+int RealityCap::calibration_json_store::ClearCalibration()
 {
     return remove(CALIBRATION_FILE_NAME);
 }
 
-bool RealityCap::CalibrationJsonDataStore::HasCalibration()
+bool RealityCap::calibration_json_store::HasCalibration()
 {
     if (!FileExists(CALIBRATION_FILE_NAME)) return false;
     corvis_device_parameters cal = ParseCalibrationFile(CALIBRATION_FILE_NAME);

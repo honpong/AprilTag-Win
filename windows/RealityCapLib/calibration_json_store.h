@@ -6,11 +6,11 @@
 
 namespace RealityCap
 {
-    class CalibrationJsonDataStore : public calibration_data_store
+    class calibration_json_store : public calibration_data_store
     {
     public:
-        CalibrationJsonDataStore();
-        ~CalibrationJsonDataStore();
+        calibration_json_store();
+        ~calibration_json_store();
         /*
         Gets the saved calibration, or if none exists, the default calibration for the current device.
         */

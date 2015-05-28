@@ -90,7 +90,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="CalibrationJsonDataStore.h" />
+    <ClInclude Include="calibration_json_store.h" />
     <ClInclude Include="CalibrationManager.h" />
     <ClInclude Include="CaptureManager.h" />
     <ClInclude Include="Debug.h" />
@@ -103,7 +103,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CalibrationJsonDataStore.cpp" />
+    <ClCompile Include="calibration_json_store.cpp" />
     <ClCompile Include="CalibrationManager.cpp" />
     <ClCompile Include="CaptureManager.cpp" />
     <ClCompile Include="Debug.cpp" />

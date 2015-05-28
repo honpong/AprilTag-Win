@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "../../gtest/gtest.h"
-#include "CalibrationJsonDataStore.h"
+#include "calibration_json_store.h"
 #include <fstream>
 #include <stdio.h>
 #include <iostream>
@@ -13,7 +13,7 @@ const float testFloat = .1;
 
 TEST(CalibrationDataStoreTests, NewDelete)
 {
-    CalibrationJsonDataStore* instance = new CalibrationJsonDataStore();
+    calibration_json_store* instance = new calibration_json_store();
     delete instance;
 }
 
@@ -46,7 +46,7 @@ TEST(CalibrationDataStoreTests, SaveCalibration)
 {
     remove(CALIBRATION_FILE_NAME);
 
-    CalibrationJsonDataStore calStore;
+    calibration_json_store calStore;
     corvis_device_parameters params;
     params.Fx = testFloat;
 
@@ -66,7 +66,7 @@ TEST(CalibrationDataStoreTests, SaveCalibration)
 // there will be an existing calibration file because of above test
 TEST(CalibrationDataStoreTests, GetCalibration)
 {
-    CalibrationJsonDataStore calStore;
+    calibration_json_store calStore;
     try
     {
         corvis_device_parameters cal = calStore.GetCalibration();
@@ -80,7 +80,7 @@ TEST(CalibrationDataStoreTests, GetCalibration)
 
 TEST(CalibrationDataStoreTests, HasCalibration_WrongVersion)
 {
-    CalibrationJsonDataStore calStore;
+    calibration_json_store calStore;
     corvis_device_parameters cal;
     cal.version = CALIBRATION_VERSION - 1;
 
@@ -97,7 +97,7 @@ TEST(CalibrationDataStoreTests, HasCalibration_WrongVersion)
 
 TEST(CalibrationDataStoreTests, HasCalibration)
 {
-    CalibrationJsonDataStore calStore;
+    calibration_json_store calStore;
     corvis_device_parameters cal;
 
     try
@@ -115,7 +115,7 @@ TEST(CalibrationDataStoreTests, HasCalibration)
 
 TEST(CalibrationDataStoreTests, HasCalibration_MissingFile)
 {
-    CalibrationJsonDataStore calStore;
+    calibration_json_store calStore;
     try
     {
         calStore.ClearCalibration();

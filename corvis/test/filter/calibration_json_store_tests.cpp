@@ -1,5 +1,4 @@
-#include "stdafx.h"
-#include "../../gtest/gtest.h"
+#include "gtest/gtest.h"
 #include "calibration_json_store.h"
 #include <fstream>
 #include <stdio.h>

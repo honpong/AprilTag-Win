@@ -1,5 +1,5 @@
 #pragma once
-#include "../../corvis/src/filter/device_parameters.h"
+#include "device_parameters.h"
 
 namespace RealityCap
 {

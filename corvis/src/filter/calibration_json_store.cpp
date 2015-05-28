@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "device_parameters.h"
 #include "calibration_json_store.h"
 #include <cpprest\json.h>
 #include <cpprest\details\basic_types.h>

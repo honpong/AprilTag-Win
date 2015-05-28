@@ -42,12 +42,6 @@
     <ClInclude Include="RCFactory.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="calibration_data_store.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="calibration_json_store.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="stdafx.cpp">
@@ -66,9 +60,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RCFactory.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="calibration_json_store.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -166,6 +166,11 @@ void rc_setLog(rc_Tracker *tracker, void (*log)(void *handle, const char *buffer
  */
 void rc_triggerLog(const rc_Tracker *tracker);
 
+/**
+ If this is set, writes a log file in Realitycap's internal format to the filename specified
+ */
+void rc_setOutputLog(rc_Tracker * tracker, const char * filename);
+
 /*
  Not yet implemented (depend on loop closure):
 

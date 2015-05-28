@@ -52,6 +52,8 @@ int main(int c, char **v)
 
 
     rc_Tracker * tracker = rc_create();
+    if(c == 3)
+        rc_setOutputLog(tracker, v[2]);
     rc_setLog(tracker, logger, false, 0, stderr);
     rc_configureCamera(tracker, camera, camera_pose, width_px, height_px, center_x_px, center_y_px, focal_length_x_px, focal_length_xy_px, focal_length_y_px);
     rc_configureAccelerometer(tracker, rc_pose_identity, bias_m__s2, noiseVariance_m2__s4);

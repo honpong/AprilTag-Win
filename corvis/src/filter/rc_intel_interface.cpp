@@ -143,23 +143,36 @@ void rc_startTracker(rc_Tracker * tracker)
 void rc_stopTracker(rc_Tracker * tracker)
 {
     tracker->stop();
+    if(tracker->output_enabled)
+        tracker->output.stop();
+    tracker->output_enabled = false;
+}
+
+void fill_camera_data(rc_Tracker * tracker, rc_Timestamp time_100_ns, rc_Timestamp shutter_time, int stride, const void *image, camera_data & d)
+{
+    //TODO: don't malloc here
+    int bytes = tracker->device.image_width * tracker->device.image_height;
+    d.image_handle = std::unique_ptr<void, void(*)(void *)>(malloc(bytes), free);
+    d.image = (uint8_t *)d.image_handle.get();
+    for (int i = 0; i < tracker->device.image_height; i++) memcpy(d.image + i * tracker->device.image_width, ((unsigned char *)image) + i * stride, tracker->device.image_width);
+    d.width = tracker->device.image_width;
+    d.height = tracker->device.image_height;
+    // TODO: Check that we support stride
+    d.stride = d.width;
+    d.timestamp = time_100_ns_to_tp(time_100_ns + shutter_time / 2);
 }
 
 void rc_receiveImage(rc_Tracker * tracker, rc_Camera camera, rc_Timestamp time_100_ns, rc_Timestamp shutter_time, const rc_Pose poseEstimate_m, bool force_recognition, int stride, const void *image)
 {
     if(camera == rc_EGRAY8) {
         camera_data d;
-        //TODO: don't malloc here
-        int bytes = tracker->device.image_width * tracker->device.image_height;
-        d.image_handle = std::unique_ptr<void, void(*)(void *)>(malloc(bytes), free);
-        d.image = (uint8_t *)d.image_handle.get();
-        for (int i = 0; i < tracker->device.image_height; i++) memcpy(d.image + i * tracker->device.image_width, ((unsigned char *)image) + i * stride, tracker->device.image_width);
-        d.width = tracker->device.image_width;
-        d.height = tracker->device.image_height;
-        // TODO: Check that we support stride
-        d.stride = d.width;
-        d.timestamp = time_100_ns_to_tp(time_100_ns + shutter_time / 2);
+        fill_camera_data(tracker, time_100_ns, shutter_time, stride, image, d);
         tracker->receive_image(std::move(d));
+        if(tracker->output_enabled) {
+            camera_data d2;
+            fill_camera_data(tracker, time_100_ns, shutter_time, stride, image, d2);
+            tracker->output.receive_camera(std::move(d2));
+        }
     }
 }
 
@@ -170,6 +183,13 @@ void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Timestamp time_100_ns, con
     d.accel_m__s2[1] = acceleration_m__s2.y;
     d.accel_m__s2[2] = acceleration_m__s2.z;
     d.timestamp = time_100_ns_to_tp(time_100_ns);
+    if(tracker->output_enabled) {
+        fprintf(stderr, "accel\n");
+        accelerometer_data d2;
+        memcpy(d2.accel_m__s2, d.accel_m__s2, sizeof(float)*3);
+        d2.timestamp = time_100_ns_to_tp(time_100_ns);
+        tracker->output.receive_accelerometer(std::move(d2));
+    }
     tracker->receive_accelerometer(std::move(d));
 }
 
@@ -180,6 +200,12 @@ void rc_receiveGyro(rc_Tracker * tracker, rc_Timestamp time_100_ns, const rc_Vec
     d.angvel_rad__s[1] = angular_velocity_rad__s.y;
     d.angvel_rad__s[2] = angular_velocity_rad__s.z;
     d.timestamp = time_100_ns_to_tp(time_100_ns);
+    if(tracker->output_enabled) {
+        gyro_data d2;
+        memcpy(d2.angvel_rad__s, d.angvel_rad__s, sizeof(float)*3);
+        d2.timestamp = time_100_ns_to_tp(time_100_ns);
+        tracker->output.receive_gyro(std::move(d2));
+    }
     tracker->receive_gyro(std::move(d));
 }
 
@@ -264,3 +290,8 @@ void rc_triggerLog(const rc_Tracker * tracker)
     tracker->trigger_log();
 }
 
+void rc_setOutputLog(rc_Tracker * tracker, const char * filename)
+{
+    tracker->set_output_log(filename);
+
+}

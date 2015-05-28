@@ -16,6 +16,7 @@
 #include "filter_setup.h"
 #include "../cor/sensor_fusion_queue.h"
 #include "device_parameters.h"
+#include "capture.h"
 
 enum class camera_specifier
 {
@@ -161,6 +162,16 @@ public:
 
     /** Immediately output a position via the log function */
     void trigger_log() const;
+
+    void set_output_log(const char * filename)
+    {
+        if(output.start(filename))
+            output_enabled = true;
+        else
+            fprintf(stderr, "Error opening %s for writing\n", filename);
+    }
+    bool output_enabled{false};
+    capture output;
 
     //public for now
     filter sfm;

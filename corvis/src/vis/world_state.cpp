@@ -22,14 +22,6 @@ static VertexData orientation_data[] = {
 
 static std::size_t feature_ellipse_vertex_size = 30; // 15 segments
 static std::size_t max_plot_samples = 1000;
-void world_state::render_plots(std::function<void (plot&)> render_callback)
-{
-    plot_lock.lock();
-    for(auto &plot : plots)
-        render_callback(plot);
-    plot_lock.unlock();
-}
-
 void world_state::render_plot(int index, std::function<void (plot&)> render_callback)
 {
     plot_lock.lock();

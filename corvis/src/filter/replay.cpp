@@ -72,7 +72,8 @@ void replay::start()
     file.read((char *)&header, 16);
     if(file.bad() || file.eof()) is_running = false;
 
-    auto first_timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time));
+    auto first_time_raw = header.time;
+    auto first_timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time - first_time_raw));
     auto start_time = sensor_clock::now();
     auto now = start_time;
     auto last_progress = now;
@@ -100,7 +101,7 @@ void replay::start()
         }
         else
         {
-            auto timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time)) + realtime_offset;
+            auto timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time - first_time_raw)) + realtime_offset;
             now = sensor_clock::now();
             if(is_realtime && timestamp - now > std::chrono::microseconds(0))
                 std::this_thread::sleep_for(timestamp - now);
@@ -121,7 +122,7 @@ void replay::start()
                     d.width = width;
                     d.height = height;
                     d.stride = width;
-                    d.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time+16667));
+                    d.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time+16667-first_time_raw));
                     d.image_handle = std::move(phandle);
                     queue->receive_camera(std::move(d));
                     is_stepping = false;
@@ -133,7 +134,7 @@ void replay::start()
                     d.accel_m__s2[0] = ((float *)packet->data)[0];
                     d.accel_m__s2[1] = ((float *)packet->data)[1];
                     d.accel_m__s2[2] = ((float *)packet->data)[2];
-                    d.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time));
+                    d.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time-first_time_raw));
                     queue->receive_accelerometer(std::move(d));
                     break;
                 }
@@ -143,7 +144,7 @@ void replay::start()
                     d.angvel_rad__s[0] = ((float *)packet->data)[0];
                     d.angvel_rad__s[1] = ((float *)packet->data)[1];
                     d.angvel_rad__s[2] = ((float *)packet->data)[2];
-                    d.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time));
+                    d.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time-first_time_raw));
                     queue->receive_gyro(std::move(d));
                     break;
                 }
@@ -154,13 +155,13 @@ void replay::start()
                     a.accel_m__s2[0] = imu->a[0];
                     a.accel_m__s2[1] = imu->a[1];
                     a.accel_m__s2[2] = imu->a[2];
-                    a.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time));
+                    a.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time-first_time_raw));
                     queue->receive_accelerometer(std::move(a));
                     gyro_data g;
                     g.angvel_rad__s[0] = imu->w[0];
                     g.angvel_rad__s[1] = imu->w[1];
                     g.angvel_rad__s[2] = imu->w[2];
-                    g.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time));
+                    g.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time-first_time_raw));
                     queue->receive_gyro(std::move(g));
                     break;
                 }

@@ -6,10 +6,10 @@ namespace RealityCap
     /*
         This interface can be implemented by any type of data store that might be used for calibration data. It allows us to easily change the implementation of the store from JSON to say, a database.
     */
-    class ICalibrationDataStore
+    class calibration_data_store
     {
     protected:
-        ICalibrationDataStore() {};
+        calibration_data_store() {};
 
     public:
         /*

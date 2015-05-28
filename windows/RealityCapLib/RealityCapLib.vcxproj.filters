@@ -42,10 +42,10 @@
     <ClInclude Include="RCFactory.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="ICalibrationDataStore.h">
+    <ClInclude Include="CalibrationJsonDataStore.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="CalibrationJsonDataStore.h">
+    <ClInclude Include="calibration_data_store.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

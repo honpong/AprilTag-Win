@@ -68,7 +68,7 @@ int main(int c, char **v)
     int focal_length_x_px = 627;
     int focal_length_y_px = 627;
     int focal_length_xy_px = 0;
-    uint64_t shutter_time_100_ns = 333330;
+    uint64_t shutter_time_us = 33333;
 
 
     rc_Tracker * tracker = rc_create();
@@ -167,7 +167,8 @@ int main(int c, char **v)
         if (result != PXC_STATUS_NO_ERROR || !data.planes[0]) throw std::runtime_error("PXCImage->AcquireAccess failed!");
         uint8_t *image = data.planes[0];
         int stride = data.pitches[0];
-        if(run_tracker) rc_receiveImage(tracker, rc_EGRAY8, colorImage->QueryTimeStamp() - 6370 - 333330, 333330, NULL, false, stride, image);
+        //Timestamp: divide by 10 to go from 100ns to us, subtract 637us blank interval, subtract shutter time to get start of capture
+        if(run_tracker) rc_receiveImage(tracker, rc_EGRAY8, colorImage->QueryTimeStamp() / 10 - 637 - shutter_time_us, shutter_time_us, NULL, false, stride, image);
         
         // Get the IMU data for each sensor type
         PXCMetadata* metadata = (PXCMetadata *)depth->QueryInstance(PXCMetadata::CUID);
@@ -214,7 +215,7 @@ int main(int c, char **v)
                             acceleration_m__s2.x = -s->data[1] * 9.80665;
                             acceleration_m__s2.y = s->data[0] * 9.80665;
                             acceleration_m__s2.z = -s->data[2] * 9.80665;
-                            if(run_tracker) rc_receiveAccelerometer(tracker, s->coordinatedUniversalTime100ns, acceleration_m__s2);
+                            if(run_tracker) rc_receiveAccelerometer(tracker, s->coordinatedUniversalTime100ns / 10, acceleration_m__s2);
                         }
                         else if (inertial_sensor->deviceProperty == PROPERTY_SENSORS_ANGULAR_VELOCITY)
                         {
@@ -223,7 +224,7 @@ int main(int c, char **v)
                             angular_velocity_rad__s.x = s->data[0] * M_PI / 180.;
                             angular_velocity_rad__s.y = s->data[1] * M_PI / 180.;
                             angular_velocity_rad__s.z = s->data[2] * M_PI / 180.;
-                            if(run_tracker) rc_receiveGyro(tracker, s->coordinatedUniversalTime100ns, angular_velocity_rad__s);
+                            if(run_tracker) rc_receiveGyro(tracker, s->coordinatedUniversalTime100ns / 10, angular_velocity_rad__s);
                         }
                     }
                 }

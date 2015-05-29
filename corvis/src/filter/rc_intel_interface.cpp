@@ -13,11 +13,6 @@ static const unsigned T0 = 3;
 static const unsigned T1 = 7;
 static const unsigned T2 = 11;
 
-static sensor_clock::time_point time_100_ns_to_tp(rc_Timestamp time_100_ns)
-{
-    return sensor_clock::ns100_to_tp(time_100_ns);
-}
-
 struct rc_Tracker: public sensor_fusion
 {
     rc_Tracker(bool immediate_dispatch): sensor_fusion(immediate_dispatch) {}
@@ -39,7 +34,7 @@ extern "C" void rc_destroy(rc_Tracker * tracker)
     delete tracker;
 }
 
-extern "C" void rc_reset(rc_Tracker * tracker, rc_Timestamp initialTime_100_ns, const rc_Pose initialPose_m)
+extern "C" void rc_reset(rc_Tracker * tracker, rc_Timestamp initialTime_us, const rc_Pose initialPose_m)
 {
     m4 R = m4::Identity();
     v4 T = v4::Zero();
@@ -49,7 +44,7 @@ extern "C" void rc_reset(rc_Tracker * tracker, rc_Timestamp initialTime_100_ns, 
             R(i, j) = initialPose_m[i * 4 + j];
         }
     }
-    tracker->reset(time_100_ns_to_tp(initialTime_100_ns), transformation(R, T));
+    tracker->reset(sensor_clock::micros_to_tp(initialTime_us), transformation(R, T));
 }
 
 void rc_printDeviceConfig(rc_Tracker * tracker)
@@ -148,7 +143,7 @@ void rc_stopTracker(rc_Tracker * tracker)
     tracker->output_enabled = false;
 }
 
-void fill_camera_data(rc_Tracker * tracker, rc_Timestamp time_100_ns, rc_Timestamp shutter_time, int stride, const void *image, camera_data & d)
+void fill_camera_data(rc_Tracker * tracker, rc_Timestamp time_us, rc_Timestamp shutter_time_us, int stride, const void *image, camera_data & d)
 {
     //TODO: don't malloc here
     int bytes = tracker->device.image_width * tracker->device.image_height;
@@ -159,51 +154,50 @@ void fill_camera_data(rc_Tracker * tracker, rc_Timestamp time_100_ns, rc_Timesta
     d.height = tracker->device.image_height;
     // TODO: Check that we support stride
     d.stride = d.width;
-    d.timestamp = time_100_ns_to_tp(time_100_ns + shutter_time / 2);
+    d.timestamp = sensor_clock::micros_to_tp(time_us + shutter_time_us / 2);
 }
 
-void rc_receiveImage(rc_Tracker * tracker, rc_Camera camera, rc_Timestamp time_100_ns, rc_Timestamp shutter_time, const rc_Pose poseEstimate_m, bool force_recognition, int stride, const void *image)
+void rc_receiveImage(rc_Tracker * tracker, rc_Camera camera, rc_Timestamp time_us, rc_Timestamp shutter_time_us, const rc_Pose poseEstimate_m, bool force_recognition, int stride, const void *image)
 {
     if(camera == rc_EGRAY8) {
         camera_data d;
-        fill_camera_data(tracker, time_100_ns, shutter_time, stride, image, d);
+        fill_camera_data(tracker, time_us, shutter_time_us, stride, image, d);
         tracker->receive_image(std::move(d));
         if(tracker->output_enabled) {
             camera_data d2;
-            fill_camera_data(tracker, time_100_ns, shutter_time, stride, image, d2);
+            fill_camera_data(tracker, time_us, shutter_time_us, stride, image, d2);
             tracker->output.receive_camera(std::move(d2));
         }
     }
 }
 
-void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Timestamp time_100_ns, const rc_Vector acceleration_m__s2)
+void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Timestamp time_us, const rc_Vector acceleration_m__s2)
 {
     accelerometer_data d;
     d.accel_m__s2[0] = acceleration_m__s2.x;
     d.accel_m__s2[1] = acceleration_m__s2.y;
     d.accel_m__s2[2] = acceleration_m__s2.z;
-    d.timestamp = time_100_ns_to_tp(time_100_ns);
+    d.timestamp = sensor_clock::micros_to_tp(time_us);
     if(tracker->output_enabled) {
-        fprintf(stderr, "accel\n");
         accelerometer_data d2;
-        memcpy(d2.accel_m__s2, d.accel_m__s2, sizeof(float)*3);
-        d2.timestamp = time_100_ns_to_tp(time_100_ns);
+        for(int i = 0; i < 3; ++i) d2.accel_m__s2[i] = d.accel_m__s2[i];
+        d2.timestamp = d.timestamp;
         tracker->output.receive_accelerometer(std::move(d2));
     }
     tracker->receive_accelerometer(std::move(d));
 }
 
-void rc_receiveGyro(rc_Tracker * tracker, rc_Timestamp time_100_ns, const rc_Vector angular_velocity_rad__s)
+void rc_receiveGyro(rc_Tracker * tracker, rc_Timestamp time_us, const rc_Vector angular_velocity_rad__s)
 {
     gyro_data d;
     d.angvel_rad__s[0] = angular_velocity_rad__s.x;
     d.angvel_rad__s[1] = angular_velocity_rad__s.y;
     d.angvel_rad__s[2] = angular_velocity_rad__s.z;
-    d.timestamp = time_100_ns_to_tp(time_100_ns);
+    d.timestamp = sensor_clock::micros_to_tp(time_us);
     if(tracker->output_enabled) {
         gyro_data d2;
-        memcpy(d2.angvel_rad__s, d.angvel_rad__s, sizeof(float)*3);
-        d2.timestamp = time_100_ns_to_tp(time_100_ns);
+        for(int i = 0; i < 3; ++i) d2.angvel_rad__s[i] = d.angvel_rad__s[i];
+        d2.timestamp = d.timestamp;
         tracker->output.receive_gyro(std::move(d2));
     }
     tracker->receive_gyro(std::move(d));
@@ -280,9 +274,9 @@ rc_TrackerError rc_getError(const rc_Tracker *tracker)
     return error;
 }
 
-void rc_setLog(rc_Tracker * tracker, void (*log)(void *handle, const char *buffer_utf8, size_t length), bool stream, rc_Timestamp period_100_ns, void *handle)
+void rc_setLog(rc_Tracker * tracker, void (*log)(void *handle, const char *buffer_utf8, size_t length), bool stream, rc_Timestamp period_us, void *handle)
 {
-    tracker->set_log_function(log, stream, std::chrono::duration_cast<sensor_clock::duration>(time_100_ns_to_tp(period_100_ns).time_since_epoch()), handle);
+    tracker->set_log_function(log, stream, std::chrono::duration_cast<sensor_clock::duration>(std::chrono::microseconds(period_us)), handle);
 }
 
 void rc_triggerLog(const rc_Tracker * tracker)

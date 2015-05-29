@@ -48,7 +48,7 @@ int main(int c, char **v)
     int focal_length_x_px = 627;
     int focal_length_y_px = 627;
     int focal_length_xy_px = 0;
-    uint64_t shutter_time_100_ns = 333330;
+    uint64_t shutter_time_us = 33333;
 
 
     rc_Tracker * tracker = rc_create();
@@ -110,46 +110,46 @@ int main(int c, char **v)
                     assert(width_px == camera_width && height_px == camera_height);
                     const uint8_t * image = packet->data + 16;
                     int stride = camera_width;
-                    rc_Timestamp time_100_ns = header.time * 10;
-                    rc_receiveImage(tracker, camera, time_100_ns, shutter_time_100_ns, rc_pose_identity, force_recognition, stride, image);
+                    rc_Timestamp time_us = header.time;
+                    rc_receiveImage(tracker, camera, time_us, shutter_time_us, rc_pose_identity, force_recognition, stride, image);
                     break;
                 }
                 case packet_accelerometer:
                 {
-                    rc_Timestamp time_100_ns = header.time * 10;
+                    rc_Timestamp time_us = header.time;
                     rc_Vector acceleration_m__s2;
                     acceleration_m__s2.x = ((float *)packet->data)[0];
                     acceleration_m__s2.y = ((float *)packet->data)[1];
                     acceleration_m__s2.z = ((float *)packet->data)[2];
-                    rc_receiveAccelerometer(tracker, time_100_ns, acceleration_m__s2);
+                    rc_receiveAccelerometer(tracker, time_us, acceleration_m__s2);
                     break;
                 }
                 case packet_gyroscope:
                 {
-                    rc_Timestamp time_100_ns = header.time * 10;
+                    rc_Timestamp time_us = header.time;
                     rc_Vector angular_velocity_rad__s;
                     angular_velocity_rad__s.x = ((float *)packet->data)[0];
                     angular_velocity_rad__s.y = ((float *)packet->data)[1];
                     angular_velocity_rad__s.z = ((float *)packet->data)[2];
-                    rc_receiveGyro(tracker, time_100_ns, angular_velocity_rad__s);
+                    rc_receiveGyro(tracker, time_us, angular_velocity_rad__s);
                     break;
                 }
                 case packet_imu:
                 {
                     auto imu = (packet_imu_t *)packet;
-                    rc_Timestamp time_100_ns = header.time * 10;
+                    rc_Timestamp time_us = header.time;
 
                     rc_Vector acceleration_m__s2;
                     acceleration_m__s2.x = imu->w[0];
                     acceleration_m__s2.y = imu->w[1];
                     acceleration_m__s2.z = imu->w[2];
-                    rc_receiveAccelerometer(tracker, time_100_ns, acceleration_m__s2);
+                    rc_receiveAccelerometer(tracker, time_us, acceleration_m__s2);
 
                     rc_Vector angular_velocity_rad__s;
                     angular_velocity_rad__s.x = imu->a[0];
                     angular_velocity_rad__s.y = imu->a[1];
                     angular_velocity_rad__s.z = imu->a[2];
-                    rc_receiveGyro(tracker, time_100_ns, angular_velocity_rad__s);
+                    rc_receiveGyro(tracker, time_us, angular_velocity_rad__s);
                     break;
                 }
                 case packet_filter_control:
@@ -157,13 +157,13 @@ int main(int c, char **v)
                     if(header.user == 1)
                     {
                         //start measuring
-                        rc_Timestamp time_100_ns = header.time * 10;
-                        rc_reset(tracker, time_100_ns, rc_pose_identity);
+                        rc_Timestamp time_us = header.time;
+                        rc_reset(tracker, time_us, rc_pose_identity);
                     }
                 }
                 if(!first_packet) {
-                    rc_Timestamp time_100_ns = header.time * 10;
-                    rc_reset(tracker, time_100_ns, rc_pose_identity);
+                    rc_Timestamp time_us = header.time;
+                    rc_reset(tracker, time_us, rc_pose_identity);
                     first_packet = true;
                 }
             }

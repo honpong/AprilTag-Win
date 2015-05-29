@@ -148,7 +148,7 @@ public:
             size_t length - how many bytes to be written
 
         @param stream - If true, log every calculated output pose
-        @param period - If non-zero, log each calculated pose when it has been period_100_ns or more since the last pose was logged
+        @param period - If non-zero, log each calculated pose when it has been period or more since the last pose was logged
         @param handle - A void * that will be passed to the logging function each time
     */
 

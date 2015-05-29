@@ -13,19 +13,10 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Source Files\corvis">
-      <UniqueIdentifier>{49543bf3-384b-4bcf-a5bc-f4f356f154e6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\corvis\cor">
-      <UniqueIdentifier>{36bc6737-bbae-4303-abe9-2dad491d2d03}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\corvis\src\tools\measure.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\corvis\src\cor\platform\shell\sensor_data.cpp">
-      <Filter>Source Files\corvis\cor</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

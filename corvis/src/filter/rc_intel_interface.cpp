@@ -15,7 +15,7 @@ static const unsigned T2 = 11;
 
 static sensor_clock::time_point time_100_ns_to_tp(rc_Timestamp time_100_ns)
 {
-    return sensor_clock::time_point(std::chrono::duration_cast<sensor_clock::duration>(std::chrono::duration<long long, std::ratio<1, 10000000>>(time_100_ns)));
+    return sensor_clock::ns100_to_tp(time_100_ns);
 }
 
 struct rc_Tracker: public sensor_fusion

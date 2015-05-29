@@ -13,7 +13,7 @@
 #include <thread>
 #include <atomic>
 #include <condition_variable>
-#include "platform/sensor_data.h"
+#include "sensor_data.h"
 #include "platform/sensor_clock.h"
 
 template<typename T, int size>

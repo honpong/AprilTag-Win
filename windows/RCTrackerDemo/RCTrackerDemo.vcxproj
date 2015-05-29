@@ -58,7 +58,7 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>../../../corvis/src/;C:\Program Files %28x86%29\Intel\Composer XE 2015\mkl\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\corvis\src\filter;C:\Program Files %28x86%29\Intel\Composer XE 2015\mkl\include;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -78,7 +78,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>../../../corvis/src/;C:\Program Files %28x86%29\Intel\Composer XE 2015\mkl\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\corvis\src\filter;C:\Program Files %28x86%29\Intel\Composer XE 2015\mkl\include;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -92,18 +92,17 @@
     <ProjectReference />
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\corvis\src\filter\rc_intel_interface.h" />
     <ClInclude Include="targetver.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\RCTracker\RCTracker.vcxproj">
-      <Project>{1a173c26-4917-4db4-8434-01cd95cf6838}</Project>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="replay_rsclip.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\RC3DK\RC3DK\RC3DK.vcxproj">
+      <Project>{e4e5a177-07b4-42ae-aa31-db608571e6b6}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -126,6 +126,9 @@
     <ClCompile Include="..\..\..\corvis\src\filter\calibration_json_store.cpp">
       <Filter>Source Files\corvis\filter</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\corvis\src\filter\calibration_data_store.cpp">
+      <Filter>Source Files\corvis\filter</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\corvis\src\filter\capture.h">

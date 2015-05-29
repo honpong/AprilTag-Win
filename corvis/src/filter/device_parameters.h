@@ -3,6 +3,9 @@
 
 #include <stdbool.h>
 #include "../cor/platform/sensor_clock.h"
+#include <unordered_map>
+
+using namespace std;
 
 #define CALIBRATION_VERSION 7
 
@@ -101,5 +104,8 @@ bool is_calibration_valid(const corvis_device_parameters &calibration, const cor
 
 void device_set_resolution(struct corvis_device_parameters *dc, int image_width, int image_height);
 void device_set_framerate(struct corvis_device_parameters *dc, float framerate_hz);
+
+void get_device_type_string_map(unordered_map<corvis_device_type, string> &map);
+string get_device_type_string(corvis_device_type type);
 
 #endif

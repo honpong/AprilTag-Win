@@ -236,12 +236,13 @@
 		D94AFD851B04048F00CB08C0 /* gl_util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D94AFD811B04048F00CB08C0 /* gl_util.cpp */; };
 		D953126F1A15AE63004D6068 /* homography.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D953126D1A15AE63004D6068 /* homography.cpp */; };
 		D95409B01AC1019200706A24 /* sensor_clock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D95409AE1AC1019200706A24 /* sensor_clock.cpp */; };
-		D95E92DB1AB86D4600EAB109 /* sensor_data.mm in Sources */ = {isa = PBXBuildFile; fileRef = D95E92D91AB86D4600EAB109 /* sensor_data.mm */; };
 		D95EB1871AA5038600ADFC20 /* sensor_fusion_queue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D95EB1851AA5038600ADFC20 /* sensor_fusion_queue.cpp */; };
 		D95EB1881AA5038600ADFC20 /* sensor_fusion_queue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D95EB1851AA5038600ADFC20 /* sensor_fusion_queue.cpp */; };
 		D95EB18C1AA50AF200ADFC20 /* sensor_fusion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D95EB18A1AA50AF200ADFC20 /* sensor_fusion.cpp */; };
 		D95EB18D1AA50AF200ADFC20 /* sensor_fusion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D95EB18A1AA50AF200ADFC20 /* sensor_fusion.cpp */; };
-		D992CC361AD5BA6A00AA2259 /* sensor_data.mm in Sources */ = {isa = PBXBuildFile; fileRef = D95E92D91AB86D4600EAB109 /* sensor_data.mm */; };
+		D983B2A81B1695D40013099E /* RCSensorData.mm in Sources */ = {isa = PBXBuildFile; fileRef = D983B2A71B1695D40013099E /* RCSensorData.mm */; };
+		D983B2A91B1695D40013099E /* RCSensorData.mm in Sources */ = {isa = PBXBuildFile; fileRef = D983B2A71B1695D40013099E /* RCSensorData.mm */; };
+		D983B2AA1B1695D40013099E /* RCSensorData.mm in Sources */ = {isa = PBXBuildFile; fileRef = D983B2A71B1695D40013099E /* RCSensorData.mm */; };
 		D992CC371AD5BA8500AA2259 /* sensor_clock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D95409AE1AC1019200706A24 /* sensor_clock.cpp */; };
 		D992CC3D1AD5C46A00AA2259 /* replay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D992CC3B1AD5C46A00AA2259 /* replay.cpp */; };
 		D992CC3E1AD5C46A00AA2259 /* replay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D992CC3B1AD5C46A00AA2259 /* replay.cpp */; };
@@ -658,13 +659,14 @@
 		D953126E1A15AE63004D6068 /* homography.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = homography.h; sourceTree = "<group>"; };
 		D95409AE1AC1019200706A24 /* sensor_clock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sensor_clock.cpp; path = platform/ios/sensor_clock.cpp; sourceTree = "<group>"; };
 		D95409AF1AC1019200706A24 /* sensor_clock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sensor_clock.h; path = platform/sensor_clock.h; sourceTree = "<group>"; };
-		D95E92D91AB86D4600EAB109 /* sensor_data.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = sensor_data.mm; path = ../../corvis/src/cor/platform/ios/sensor_data.mm; sourceTree = "<group>"; };
-		D95E92DA1AB86D4600EAB109 /* sensor_data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sensor_data.h; path = ../../corvis/src/cor/platform/sensor_data.h; sourceTree = "<group>"; };
+		D95E92DA1AB86D4600EAB109 /* sensor_data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sensor_data.h; path = ../../corvis/src/cor/sensor_data.h; sourceTree = "<group>"; };
 		D95EB1851AA5038600ADFC20 /* sensor_fusion_queue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sensor_fusion_queue.cpp; sourceTree = "<group>"; };
 		D95EB1861AA5038600ADFC20 /* sensor_fusion_queue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sensor_fusion_queue.h; sourceTree = "<group>"; };
 		D95EB18A1AA50AF200ADFC20 /* sensor_fusion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sensor_fusion.cpp; sourceTree = "<group>"; };
 		D95EB18B1AA50AF200ADFC20 /* sensor_fusion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sensor_fusion.h; sourceTree = "<group>"; };
 		D96055841ACDFEF500E72711 /* eigen_initializer_list.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = eigen_initializer_list.h; sourceTree = "<group>"; };
+		D983B2A71B1695D40013099E /* RCSensorData.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = RCSensorData.mm; path = ../../rc3dk/RC3DK/RCSensorData.mm; sourceTree = "<group>"; };
+		D983B2AB1B169AE60013099E /* RCSensorData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCSensorData.h; path = ../../rc3dk/RC3DK/RCSensorData.h; sourceTree = "<group>"; };
 		D992CC3B1AD5C46A00AA2259 /* replay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = replay.cpp; sourceTree = "<group>"; };
 		D992CC3C1AD5C46A00AA2259 /* replay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = replay.h; sourceTree = "<group>"; };
 		D9C43E101B0BADF600F48072 /* rc_intel_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rc_intel_interface.h; path = ../../corvis/src/filter/rc_intel_interface.h; sourceTree = "<group>"; };
@@ -852,7 +854,6 @@
 			children = (
 				D9C43E101B0BADF600F48072 /* rc_intel_interface.h */,
 				D9C43E111B0BB0BE00F48072 /* rc_intel_interface.cpp */,
-				D95E92D91AB86D4600EAB109 /* sensor_data.mm */,
 				D95E92DA1AB86D4600EAB109 /* sensor_data.h */,
 				327B552218EB4D720001CCE1 /* AFNetworking */,
 				327B558318EB4F130001CCE1 /* Corvis */,
@@ -954,6 +955,8 @@
 		327B558218EB4E690001CCE1 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				D983B2AB1B169AE60013099E /* RCSensorData.h */,
+				D983B2A71B1695D40013099E /* RCSensorData.mm */,
 				D33E9D201ADD14600085F35C /* RCDebugLog.h */,
 				327B554518EB4DC20001CCE1 /* NSString+RCString.h */,
 				327B554618EB4DC20001CCE1 /* NSString+RCString.m */,
@@ -1587,6 +1590,7 @@
 				327B556C18EB4DC20001CCE1 /* NSString+RCString.m in Sources */,
 				327B55C018EB4F3A0001CCE1 /* state_vision.cpp in Sources */,
 				D94AFD831B04048F00CB08C0 /* gl_util.cpp in Sources */,
+				D983B2A81B1695D40013099E /* RCSensorData.mm in Sources */,
 				D33E9D2D1ADD14600085F35C /* RCLocationManager.m in Sources */,
 				327B556E18EB4DC20001CCE1 /* RCCameraManager.mm in Sources */,
 				327B557B18EB4DC20001CCE1 /* RCTranslation.m in Sources */,
@@ -1596,7 +1600,6 @@
 				327B553B18EB4D720001CCE1 /* RCAFXMLRequestOperation.m in Sources */,
 				327B55C318EB4F3A0001CCE1 /* state_motion.cpp in Sources */,
 				D33E61E31ADE6A6B00569C82 /* RCCaptureManager.mm in Sources */,
-				327B559918EB4F260001CCE1 /* packet.c in Sources */,
 				D9C43E121B0BB0BE00F48072 /* rc_intel_interface.cpp in Sources */,
 				D3AF77131B09E94E00BF9436 /* video_render.cpp in Sources */,
 				328A4DD21950D52000587949 /* RCSensorFusionError.m in Sources */,
@@ -1619,7 +1622,6 @@
 				D95EB1871AA5038600ADFC20 /* sensor_fusion_queue.cpp in Sources */,
 				D953126F1A15AE63004D6068 /* homography.cpp in Sources */,
 				327B556F18EB4DC20001CCE1 /* RCCameraParameters.m in Sources */,
-				D95E92DB1AB86D4600EAB109 /* sensor_data.mm in Sources */,
 				D33E9D291ADD14600085F35C /* RCSensorManager.m in Sources */,
 				327B557518EB4DC20001CCE1 /* RCRotation.mm in Sources */,
 				327B553518EB4D720001CCE1 /* RCAFHTTPRequestOperation.m in Sources */,
@@ -1640,6 +1642,7 @@
 				D35BF0AA1ADD111500BF3CB0 /* main.m in Sources */,
 				D35BF0E61ADD11DB00BF3CB0 /* MainViewController.m in Sources */,
 				D35BF0F81ADD122800BF3CB0 /* MBProgressHUD.m in Sources */,
+				D983B2AA1B1695D40013099E /* RCSensorData.mm in Sources */,
 				D35BF0E71ADD11DB00BF3CB0 /* ReplayViewController.m in Sources */,
 				D35BF0F91ADD122800BF3CB0 /* RCCalibration1.m in Sources */,
 				D35BF0E41ADD11DB00BF3CB0 /* CaptureFilename.m in Sources */,
@@ -1657,7 +1660,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				D992CC371AD5BA8500AA2259 /* sensor_clock.cpp in Sources */,
-				D992CC361AD5BA6A00AA2259 /* sensor_data.mm in Sources */,
 				D9CFC1061AD5ABFC00445A80 /* rotation_vector.cpp in Sources */,
 				D364AFBD1A37A21700E39511 /* homography.cpp in Sources */,
 				D3588F071A20C47100CA10E7 /* merge.c in Sources */,
@@ -1689,6 +1691,7 @@
 				D3AF77161B09ED5500BF9436 /* video_render.cpp in Sources */,
 				D33E61E41ADE7C0900569C82 /* RCCaptureManager.mm in Sources */,
 				D3B4EADB1A1E7DE100BE0443 /* RCDeviceInfo.m in Sources */,
+				D983B2A91B1695D40013099E /* RCSensorData.mm in Sources */,
 				D33B00591A20CAB700287FC9 /* generic.c in Sources */,
 				D3B4EADE1A1E7DE100BE0443 /* RCCalibration.mm in Sources */,
 				D33E9D2C1ADD14600085F35C /* RCVideoManager.m in Sources */,

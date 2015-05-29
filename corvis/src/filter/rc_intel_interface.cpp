@@ -15,7 +15,7 @@ static const unsigned T2 = 11;
 
 static sensor_clock::time_point time_100_ns_to_tp(rc_Timestamp time_100_ns)
 {
-    return sensor_clock::time_point(std::chrono::duration_cast<sensor_clock::duration>(std::chrono::duration<long long, std::ratio<1, 10000000>>(time_100_ns)));
+    return sensor_clock::ns100_to_tp(time_100_ns);
 }
 
 struct rc_Tracker: public sensor_fusion
@@ -282,7 +282,7 @@ rc_TrackerError rc_getError(const rc_Tracker *tracker)
 
 void rc_setLog(rc_Tracker * tracker, void (*log)(void *handle, const char *buffer_utf8, size_t length), bool stream, rc_Timestamp period_100_ns, void *handle)
 {
-    tracker->set_log_function(log, stream, std::chrono::duration_cast<sensor_clock::duration>(std::chrono::duration<long long, std::ratio<1, 10000000>>(period_100_ns)), handle);
+    tracker->set_log_function(log, stream, std::chrono::duration_cast<sensor_clock::duration>(time_100_ns_to_tp(period_100_ns).time_since_epoch()), handle);
 }
 
 void rc_triggerLog(const rc_Tracker * tracker)

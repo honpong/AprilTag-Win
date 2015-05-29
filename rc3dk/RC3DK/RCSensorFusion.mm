@@ -7,6 +7,7 @@
 //
 
 #import "RCSensorFusion.h"
+#import "RCSensorData.h"
 #include "sensor_fusion_queue.h"
 #include "filter_setup.h"
 #include <mach/mach_time.h>
@@ -532,7 +533,7 @@
         return;
     }
     try {
-        camera_data c(sampleBuffer);
+        camera_data c(camera_data_from_CMSampleBufferRef(sampleBuffer));
         CFDictionaryRef metadataDict = (CFDictionaryRef)CMGetAttachment(sampleBuffer, kCGImagePropertyExifDictionary , NULL);
         float exposure = [(NSString *)CFDictionaryGetValue(metadataDict, kCGImagePropertyExifExposureTime) floatValue];
         auto duration = std::chrono::duration<float>(exposure);
@@ -547,13 +548,13 @@
 - (void) receiveAccelerometerData:(CMAccelerometerData *)accelerationData;
 {
     if(!isSensorFusionRunning) return;
-    queue->receive_accelerometer(accelerometer_data((__bridge void *)accelerationData));
+    queue->receive_accelerometer(accelerometer_data_from_CMAccelerometerData(accelerationData));
 }
 
 - (void) receiveGyroData:(CMGyroData *)gyroData
 {
     if(!isSensorFusionRunning) return;
-    queue->receive_gyro(gyro_data((__bridge void *)gyroData));
+    queue->receive_gyro(gyro_data_from_CMGyroData(gyroData));
 }
 
 #pragma mark - QR Code handling

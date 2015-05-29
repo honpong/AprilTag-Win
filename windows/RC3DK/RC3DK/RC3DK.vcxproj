@@ -117,7 +117,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\corvis\src\cor\platform\win\sensor_clock.cpp" />
-    <ClCompile Include="..\..\..\corvis\src\cor\platform\win\sensor_data.cpp" />
     <ClCompile Include="..\..\..\corvis\src\cor\sensor_fusion_queue.cpp" />
     <ClCompile Include="..\..\..\corvis\src\filter\calibration_data_store.cpp" />
     <ClCompile Include="..\..\..\corvis\src\filter\calibration_json_store.cpp" />
@@ -152,7 +151,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\corvis\src\cor\platform\sensor_clock.h" />
-    <ClInclude Include="..\..\..\corvis\src\cor\platform\sensor_data.h" />
     <ClInclude Include="..\..\..\corvis\src\filter\calibration_data_store.h" />
     <ClInclude Include="..\..\..\corvis\src\filter\calibration_json_store.h" />
     <ClInclude Include="..\..\..\corvis\src\filter\capture.h" />

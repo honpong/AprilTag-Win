@@ -12,7 +12,7 @@
 #include <string>
 #include "../numerics/transformation.h"
 #include "../cor/platform/sensor_clock.h"
-#include "../cor/platform/sensor_data.h"
+#include "../cor/sensor_data.h"
 #include "filter_setup.h"
 #include "../cor/sensor_fusion_queue.h"
 #include "device_parameters.h"

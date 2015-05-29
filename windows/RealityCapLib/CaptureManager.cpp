@@ -5,6 +5,7 @@
 #include "Debug.h"
 #include <string>
 #include "libpxcimu_internal.h"
+#include "SensorData.h"
 
 using namespace RealityCap;
 using namespace std;
@@ -49,7 +50,7 @@ string CaptureManager::GetExePath()
 void CaptureManager::OnColorFrame(PXCImage* colorSample)
 {
     if (!isCapturing()) return;
-    auto data = camera_data(colorSample);
+    auto data = camera_data_from_PXCImage(colorSample);
     cp.receive_camera(std::move(data));
 }
 
@@ -57,12 +58,7 @@ void CaptureManager::OnAmeterSample(imu_sample_t* sample)
 {
     if (!isCapturing()) return;
 
-    accelerometer_data data;
-    //windows gives acceleration in g-units, so multiply by standard gravity in m/s^2
-    data.accel_m__s2[0] = -sample->data[1] * 9.80665;
-    data.accel_m__s2[1] = sample->data[0] * 9.80665;
-    data.accel_m__s2[2] = -sample->data[2] * 9.80665;
-    data.timestamp = sensor_clock::time_point(sensor_clock::duration(sample->coordinatedUniversalTime100ns));
+    accelerometer_data data = accelerometer_data_from_imu_sample_t(sample);
     cp.receive_accelerometer(std::move(data));
 }
 
@@ -70,12 +66,7 @@ void CaptureManager::OnGyroSample(imu_sample_t* sample)
 {
     if (!isCapturing()) return;
 
-    gyro_data data;
-    //windows gives angular velocity in degrees per second
-    data.angvel_rad__s[0] = sample->data[0] * M_PI / 180.;
-    data.angvel_rad__s[1] = sample->data[1] * M_PI / 180.;
-    data.angvel_rad__s[2] = sample->data[2] * M_PI / 180.;
-    data.timestamp = sensor_clock::time_point(sensor_clock::duration(sample->coordinatedUniversalTime100ns));
+    gyro_data data = gyro_data_from_imu_sample_t(sample);
     cp.receive_gyro(std::move(data));
 }
 

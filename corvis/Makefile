@@ -70,7 +70,7 @@ build/%.S: src/%.cpp
 
 ############################## COR ############################
 
-COR_CXX_SOURCES = $(addprefix src/cor/, sensor_fusion_queue.cpp platform/shell/sensor_data.cpp platform/shell/sensor_clock.cpp)
+COR_CXX_SOURCES = $(addprefix src/cor/, sensor_fusion_queue.cpp platform/shell/sensor_clock.cpp)
 
 lib/cor.a: $(patsubst src/%,build/%,$(COR_CXX_SOURCES:.cpp=.o))
 

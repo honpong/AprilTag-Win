@@ -13,17 +13,17 @@
 
 static sensor_clock::time_point time_point_from_CMTime(const CMTime &time)
 {
-    uint64_t time_ns;
-    if(time.timescale == 1000000000) time_ns = time.value;
-    else time_ns = (uint64_t)(time.value / (time.timescale / 1000000000.));
+    uint64_t time_us;
+    if(time.timescale == 1000000) time_us = time.value;
+    else time_us = (uint64_t)(time.value / (time.timescale / 1000000.));
 
-    return sensor_clock::time_point(std::chrono::nanoseconds(time_ns));
+    return sensor_clock::time_point(std::chrono::microseconds(time_us));
 }
 
 static sensor_clock::time_point time_point_fromNSTimeInterval(const NSTimeInterval &time)
 {
-    uint64_t time_ns = (uint64_t)(time * 1000000000);
-    return sensor_clock::time_point(std::chrono::nanoseconds(time_ns));
+    uint64_t time_us = (uint64_t)(time * 1000000);
+    return sensor_clock::time_point(std::chrono::microseconds(time_us));
 }
 
 #include <iostream>

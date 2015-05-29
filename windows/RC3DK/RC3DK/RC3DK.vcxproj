@@ -44,10 +44,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <IncludePath>$(RSSDK_DIR)\include;..\..\..\corvis\src\glfw\include;..\..\..\corvis\src\glfw\deps;$(IncludePath)</IncludePath>
     <LibraryPath>$(RSSDK_DIR)\lib\$(PlatformName);$(LibraryPath)</LibraryPath>
+    <CustomBuildAfterTargets>
+    </CustomBuildAfterTargets>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <IncludePath>$(RSSDK_DIR)\include;..\..\..\corvis\src\glfw\include;..\..\..\corvis\src\glfw\deps;$(IncludePath)</IncludePath>
     <LibraryPath>$(RSSDK_DIR)\lib\$(PlatformName);$(LibraryPath)</LibraryPath>
+    <CustomBuildAfterTargets>
+    </CustomBuildAfterTargets>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -67,6 +71,16 @@
       <AdditionalOptions> mkl_intel_c.lib mkl_core.lib mkl_sequential.lib %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>opengl32.lib;glu32.lib;</AdditionalDependencies>
     </Lib>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+    </CustomBuildStep>
+    <PostBuildEvent>
+      <Command>xcopy ..\..\..\corvis\calibration "$(OutDir)" /i /y</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copy calibration JSON files</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -90,6 +104,16 @@
       <AdditionalOptions> mkl_intel_c.lib mkl_core.lib mkl_sequential.lib %(AdditionalOptions)</AdditionalOptions>
       <AdditionalDependencies>opengl32.lib;glu32.lib;</AdditionalDependencies>
     </Lib>
+    <CustomBuildStep>
+      <Command>
+      </Command>
+    </CustomBuildStep>
+    <PostBuildEvent>
+      <Command>xcopy ..\..\..\corvis\calibration "$(OutDir)" /i /y</Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>Copy calibration JSON files</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\corvis\src\cor\platform\win\sensor_clock.cpp" />
@@ -167,6 +191,7 @@
     <ClInclude Include="..\..\..\corvis\src\vis\video_render.h" />
     <ClInclude Include="..\..\..\corvis\src\vis\world_state.h" />
     <ClInclude Include="..\..\..\corvis\src\vis\world_state_render.h" />
+    <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\ThirdParty\casablanca\Release\src\build\vs14\casablanca140.vcxproj">

@@ -46,20 +46,13 @@ void world_state_render_video(world_state * world, int viewport_width, int viewp
     world->display_lock.unlock();
 }
 
-int world_state_render_video_width(world_state * world)
+bool world_state_render_video_get_size(world_state * world, int *width, int *height)
 {
     world->image_lock.lock();
-    int width = world->last_image.width;
+    *width = world->last_image.width;
+    *height = world->last_image.width;
     world->image_lock.unlock();
-    return width;
-}
-
-int world_state_render_video_height(world_state * world)
-{
-    world->image_lock.lock();
-    int height = world->last_image.height;
-    world->image_lock.unlock();
-    return height;
+    return *width && *height;
 }
 
 void world_state_render(world_state * world, float * view_matrix, float * projection_matrix)

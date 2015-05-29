@@ -156,9 +156,12 @@ void gui::start_glfw()
         int main_width = width, main_height = height;
         int video_width = 0, video_height = 0;
         int plots_width = 0, plots_height = 0;
+        int frame_width = 0, frame_height = 0;
         float right_column_percent = .5f;
         float video_height_percent = .5f;
         float plots_height_percent = 1.f - video_height_percent;
+
+        bool show_video = this->show_video && world_state_render_video_get_size(state, &frame_width, &frame_height);
 
         if(!show_main)
             right_column_percent = 1.f;
@@ -166,9 +169,8 @@ void gui::start_glfw()
             video_height_percent = 1.f;
         if(!show_video)
             plots_height_percent = .5f;
+
         if(show_video) {
-            int frame_width = world_state_render_video_width(state);
-            int frame_height = world_state_render_video_height(state);
             video_width = width*right_column_percent;
             video_height = height*video_height_percent;
             if(1.*video_height/video_width > 1.f*frame_height/frame_width)

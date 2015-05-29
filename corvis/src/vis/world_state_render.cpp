@@ -86,15 +86,12 @@ void world_state_render_plot_teardown()
     plot_render.gl_destroy();
 }
 
-static int plot_width = 600;
-static int plot_height = 400;
-static uint8_t * plot_frame = NULL;
 #ifdef WIN32
-static void create_plot(world_state * state, int index) {}
+static void create_plot(world_state * state, int index, uint8_t *plot_frame, int plot_width, int plot_height) {}
 #else // !WIN32
 
 #if TARGET_OS_IPHONE
-static void create_plot(world_state * state, int index) {}
+static void create_plot(world_state * state, int index, uint8_t *plot_frame, int plot_width, int plot_height) {}
 #else // !TARGET_OS_IPHONE
 
 #include "lodepng.h"
@@ -102,11 +99,9 @@ static void create_plot(world_state * state, int index) {}
 #include <mgl2/mgl.h>
 #undef _MSC_VER
 
-static void create_plot(world_state * state, int index)
+static void create_plot(world_state * state, int index, uint8_t *plot_frame, int plot_width, int plot_height)
 {
     mglGraph gr(0,plot_width,plot_height); // 600x400 graph, plotted to an image
-    if(!plot_frame)
-        plot_frame = (uint8_t *)malloc(plot_width*plot_height*4*sizeof(uint8_t));
 
     // mglData stores the x and y data to be plotted
     state->render_plot(index, [&] (world_state::plot &plot) {
@@ -164,9 +159,16 @@ static void create_plot(world_state * state, int index)
 
 void world_state_render_plot(world_state * world, int index, int viewport_width, int viewport_height)
 {
-    plot_width = viewport_width;
-    plot_height = viewport_height;
-    create_plot(world, index);
-    if(plot_frame)
+    static int plot_width = -1, plot_height = -1;
+    static uint8_t *plot_frame;
+    if (plot_width != viewport_width || plot_height != viewport_height) {
+        plot_width = viewport_width;
+        plot_height = viewport_height;
+        free(plot_frame);
+        plot_frame = (uint8_t *)malloc(plot_width*plot_height*4*sizeof(uint8_t));
+    }
+    if (plot_width && plot_height) {
+        create_plot(world, index, plot_frame, plot_width, plot_height);
         plot_render.render(plot_frame, plot_width, plot_height, viewport_width, viewport_height, false);
+    }
 }

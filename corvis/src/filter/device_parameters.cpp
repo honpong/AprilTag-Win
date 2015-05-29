@@ -40,6 +40,7 @@ void get_device_type_string_map(unordered_map<corvis_device_type, string> &map)
     map[DEVICE_TYPE_IPADMINIRETINA] = "ipadminiretina";
     map[DEVICE_TYPE_IPADMINI] = "ipadmini";
     map[DEVICE_TYPE_GIGABYTE_S11] = "gigabyte_s11";
+    map[DEVICE_TYPE_UNKNOWN] = "unknown";
 }
 
 string get_device_type_string(corvis_device_type type)

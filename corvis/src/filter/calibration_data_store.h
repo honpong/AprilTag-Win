@@ -34,8 +34,8 @@ namespace RealityCap
         */
         virtual bool ClearCalibration() { return false; };
         /*
-            Returns true if calibration data exists and is of the current version.
+            Returns true if calibration data exists.
         */
-        virtual bool HasCalibration(corvis_device_type deviceType) { return false; };
+        virtual bool HasCalibration() { return false; };
     };
 }

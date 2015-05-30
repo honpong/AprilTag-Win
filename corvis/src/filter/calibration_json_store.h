@@ -17,6 +17,6 @@ namespace RealityCap
         virtual bool SaveCalibration(const corvis_device_parameters &calibration) override;
         virtual bool SaveCalibration(const corvis_device_parameters &calibration, const char* fileName); // TODO delete
         virtual bool ClearCalibration() override;
-        virtual bool HasCalibration(corvis_device_type deviceType) override;
+        virtual bool HasCalibration() override;
     };
 }

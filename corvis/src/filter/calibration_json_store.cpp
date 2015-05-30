@@ -1,7 +1,7 @@
 #include "device_parameters.h"
 #include "calibration_json_store.h"
-#include <cpprest\json.h>
-#include <cpprest\details\basic_types.h>
+#include "cpprest\json.h"
+#include "cpprest\details\basic_types.h"
 #include <iostream>
 #include <fstream>
 #include <sys/stat.h>
@@ -76,11 +76,11 @@ string GetCalibrationDefaultsFileName(corvis_device_type deviceType)
 
 void ParseCalibrationFile(string fileName, corvis_device_parameters *cal)
 {
-    if (!FileExists(fileName)) throw std::runtime_error("Calibration file not found.");
+    if (!FileExists(fileName)) throw runtime_error("Calibration file not found.");
 
     wifstream jsonFile;
     jsonFile.open(fileName);
-    if (jsonFile.fail()) throw runtime_error("Failed to open calibraiton file.");
+    if (jsonFile.fail()) throw runtime_error("Failed to open calibration file.");
     value json = value::parse(jsonFile);
 
     cal->Fx = json[U(KEY_FX)].as_number().to_double();
@@ -130,6 +130,7 @@ bool RealityCap::calibration_json_store::GetCalibration(struct corvis_device_par
     if (FileExists(CALIBRATION_FILE_NAME))
     {
         ParseCalibrationFile(CALIBRATION_FILE_NAME, cal);
+        return true;
     }
     else
     {
@@ -143,6 +144,7 @@ bool RealityCap::calibration_json_store::GetCalibrationDefaults(corvis_device_ty
     if (FileExists(fileName))
     {
         ParseCalibrationFile(fileName, cal);
+        return true;
     }
     else
     {
@@ -221,15 +223,8 @@ bool RealityCap::calibration_json_store::ClearCalibration()
     return remove(CALIBRATION_FILE_NAME) == 0;
 }
 
-bool RealityCap::calibration_json_store::HasCalibration(corvis_device_type deviceType)
+bool RealityCap::calibration_json_store::HasCalibration()
 {
-    if (!FileExists(CALIBRATION_FILE_NAME)) return false;
-
     corvis_device_parameters cal;
-    if (!GetCalibration(&cal)) return false;
-
-    corvis_device_parameters defaults;
-    if (!GetCalibrationDefaults(deviceType, &defaults)) return false;
-
-    return is_calibration_valid(cal, defaults);
+    return GetCalibration(&cal);
 }

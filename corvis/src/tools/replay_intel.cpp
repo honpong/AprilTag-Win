@@ -111,7 +111,7 @@ int main(int c, char **v)
                     const uint8_t * image = packet->data + 16;
                     int stride = camera_width;
                     rc_Timestamp time_us = header.time;
-                    rc_receiveImage(tracker, camera, time_us, shutter_time_us, rc_pose_identity, force_recognition, stride, image);
+                    rc_receiveImage(tracker, camera, time_us, shutter_time_us, rc_pose_identity, force_recognition, stride, image, free, phandle.release());
                     break;
                 }
                 case packet_accelerometer:

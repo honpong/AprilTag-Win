@@ -44,6 +44,28 @@ void logger(void * handle, const char * buffer_utf8, size_t length)
     fprintf((FILE *)handle, "%s\n", buffer_utf8);
 }
 
+struct SavedImage
+{
+    SavedImage(PXCImage *i): image(i)
+    {
+        pxcStatus result = image->AcquireAccess(PXCImage::ACCESS_READ, PXCImage::PIXEL_FORMAT_Y8, &data);
+        if (result != PXC_STATUS_NO_ERROR || !data.planes[0]) throw std::runtime_error("PXCImage->AcquireAccess failed!");
+        image->AddRef();
+    }
+    ~SavedImage()
+    {
+        image->ReleaseAccess(&data);
+        image->Release();
+    }
+    PXCImage *image;
+    PXCImage::ImageData data;
+};
+
+void releaseSavedImage(void *h)
+{
+    delete (SavedImage *)h;
+}
+
 int main(int c, char **v)
 {
     if(c < 1)
@@ -162,13 +184,10 @@ int main(int c, char **v)
 
         PXCImage* depthImage = pSample->depth;
         PXCImage* colorImage = pSample->color;
-        PXCImage::ImageData data;
-        pxcStatus result = colorImage->AcquireAccess(PXCImage::ACCESS_READ, PXCImage::PIXEL_FORMAT_Y8, &data);
-        if (result != PXC_STATUS_NO_ERROR || !data.planes[0]) throw std::runtime_error("PXCImage->AcquireAccess failed!");
-        uint8_t *image = data.planes[0];
-        int stride = data.pitches[0];
+
+        SavedImage *si = new SavedImage(colorImage);
         //Timestamp: divide by 10 to go from 100ns to us, subtract 637us blank interval, subtract shutter time to get start of capture
-        if(run_tracker) rc_receiveImage(tracker, rc_EGRAY8, colorImage->QueryTimeStamp() / 10 - 637 - shutter_time_us, shutter_time_us, NULL, false, stride, image);
+        if(run_tracker) rc_receiveImage(tracker, rc_EGRAY8, colorImage->QueryTimeStamp() / 10 - 637 - shutter_time_us, shutter_time_us, NULL, false, si->data.pitches[0], si->data.planes[0], releaseSavedImage, (void*)si);
         
         // Get the IMU data for each sensor type
         PXCMetadata* metadata = (PXCMetadata *)depth->QueryInstance(PXCMetadata::CUID);
@@ -235,8 +254,6 @@ int main(int c, char **v)
             }
         }
 
-        colorImage->ReleaseAccess(&data);
-
         pSenseManager->ReleaseFrame();
 
         packets_dispatched++;
@@ -252,12 +269,11 @@ int main(int c, char **v)
         }
     }
 
+    if (run_tracker) rc_stopTracker(tracker);
+    if(run_tracker) rc_triggerLog(tracker);
+    rc_destroy(tracker);
     pSenseManager->Close();
     pSenseManager->Release();
-    if(run_tracker) rc_stopTracker(tracker);
-    if(run_tracker) rc_triggerLog(tracker);
-
-    rc_destroy(tracker);
 
 
     // Report the statistics for each sensor type

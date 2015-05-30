@@ -143,7 +143,7 @@ void rc_stopTracker(rc_Tracker * tracker)
     tracker->output_enabled = false;
 }
 
-void fill_camera_data(rc_Tracker * tracker, rc_Timestamp time_us, rc_Timestamp shutter_time_us, int stride, const void *image, camera_data & d)
+void copy_camera_data(rc_Tracker * tracker, rc_Timestamp time_us, rc_Timestamp shutter_time_us, int stride, const void *image, camera_data & d)
 {
     //TODO: don't malloc here
     int bytes = tracker->device.image_width * tracker->device.image_height;
@@ -157,15 +157,20 @@ void fill_camera_data(rc_Tracker * tracker, rc_Timestamp time_us, rc_Timestamp s
     d.timestamp = sensor_clock::micros_to_tp(time_us + shutter_time_us / 2);
 }
 
-void rc_receiveImage(rc_Tracker * tracker, rc_Camera camera, rc_Timestamp time_us, rc_Timestamp shutter_time_us, const rc_Pose poseEstimate_m, bool force_recognition, int stride, const void *image)
+void rc_receiveImage(rc_Tracker *tracker, rc_Camera camera, rc_Timestamp time_us, rc_Timestamp shutter_time_us, const rc_Pose poseEstimate_m, bool force_recognition, int stride, const void *image, void(*completion_callback)(void *callback_handle), void *callback_handle)
 {
     if(camera == rc_EGRAY8) {
         camera_data d;
-        fill_camera_data(tracker, time_us, shutter_time_us, stride, image, d);
+        d.image_handle = std::unique_ptr<void, void(*)(void *)>(callback_handle, completion_callback);
+        d.image = (uint8_t *)image;
+        d.width = tracker->device.image_width;
+        d.height = tracker->device.image_height;
+        d.stride = stride;
+        d.timestamp = sensor_clock::micros_to_tp(time_us + shutter_time_us / 2);
         tracker->receive_image(std::move(d));
         if(tracker->output_enabled) {
             camera_data d2;
-            fill_camera_data(tracker, time_us, shutter_time_us, stride, image, d2);
+            copy_camera_data(tracker, time_us, shutter_time_us, stride, image, d2);
             tracker->output.receive_camera(std::move(d2));
         }
     }

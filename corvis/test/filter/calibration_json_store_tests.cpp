@@ -81,23 +81,6 @@ TEST(calibration_data_store_tests, GetCalibration)
     }
 }
 
-TEST(calibration_data_store_tests, HasCalibration_WrongVersion)
-{
-    calibration_json_store calStore;
-    corvis_device_parameters cal;
-    cal.version = CALIBRATION_VERSION - 1;
-
-    try
-    {
-        calStore.SaveCalibration(cal);
-        EXPECT_FALSE(calStore.HasCalibration(DEVICE_TYPE_GIGABYTE_S11));
-    }
-    catch (runtime_error)
-    {
-        FAIL();
-    }
-}
-
 TEST(calibration_data_store_tests, HasCalibration)
 {
     calibration_json_store calStore;
@@ -105,10 +88,10 @@ TEST(calibration_data_store_tests, HasCalibration)
 
     try
     {
-        // save the defaults as a valid calibration
+        // save the defaults as a valid calibration. next test cleans up.
         get_parameters_for_device(DEVICE_TYPE_GIGABYTE_S11, &cal);
         calStore.SaveCalibration(cal);
-        EXPECT_TRUE(calStore.HasCalibration(DEVICE_TYPE_GIGABYTE_S11));
+        EXPECT_TRUE(calStore.HasCalibration());
     }
     catch (runtime_error)
     {
@@ -122,7 +105,7 @@ TEST(calibration_data_store_tests, HasCalibration_MissingFile)
     try
     {
         calStore.ClearCalibration();
-        EXPECT_FALSE(calStore.HasCalibration(DEVICE_TYPE_GIGABYTE_S11));
+        EXPECT_FALSE(calStore.HasCalibration());
     }
     catch (runtime_error)
     {

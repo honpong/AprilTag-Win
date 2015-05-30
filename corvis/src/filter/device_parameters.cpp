@@ -67,7 +67,7 @@ corvis_device_type get_device_by_name(const char *name)
     // search map values. slow, but this function will be called infrequently.
     for (unordered_map<corvis_device_type, string>::iterator i = map.begin(); i != map.end(); i++)
     {
-        if (i->second.compare(device_name))
+        if (i->second.compare(device_name) == 0)
         {
             type = i->first;
             break;

@@ -4,7 +4,10 @@ set(PACKAGE_NAME "corvis")
 
 project(${PACKAGE_NAME} C CXX)
 
-add_compile_options(-march=native -mfpmath=sse -O3)
+if(WIN32)
+else()
+    add_compile_options(-march=native -mfpmath=sse -O3)
+endif()
 
 set(ENABLE_STEREO true)
 set(ENABLE_MGL true)

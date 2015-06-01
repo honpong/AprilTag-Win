@@ -26,6 +26,8 @@ add_executable(measure
   src/tools/measure.cpp
   src/filter/replay.cpp
 )
+set_property(TARGET measure PROPERTY CXX_STANDARD 14)
+
 target_link_libraries(measure
   filter
   numerics
@@ -43,6 +45,7 @@ add_executable(spec
   test/filter/homography.cpp test/filter/utils.cpp
   test/cor/sensor_fusion_queue.cpp
 )
+set_property(TARGET spec PROPERTY CXX_STANDARD 14)
 target_include_directories(spec PRIVATE test ..)
 target_link_libraries(spec
   cor
@@ -56,6 +59,7 @@ if(BUILD_STEREO)
       test/test.cpp test/util.cpp
       test/stereo/stereo.cpp
     )
+    set_property(TARGET spec_plus PROPERTY CXX_STANDARD 14)
     target_include_directories(spec_plus PRIVATE test ..)
     target_link_libraries(spec_plus
       cor

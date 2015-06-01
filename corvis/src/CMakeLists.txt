@@ -47,7 +47,7 @@ else()
 endif()
 add_library(cor STATIC ${COR_SOURCES})
 target_include_directories(cor PUBLIC cor)
-target_compile_options(cor PUBLIC -std=c++14)
+set_property(TARGET cor PROPERTY CXX_STANDARD 14)
 
 add_library(numerics STATIC
   numerics/rotation_vector.cpp
@@ -57,7 +57,7 @@ add_library(numerics STATIC
 )
 target_include_directories(numerics INTERFACE numerics)
 target_link_libraries(numerics PUBLIC "-framework Accelerate")
-target_compile_options(numerics PUBLIC -std=c++14)
+set_property(TARGET numerics PROPERTY CXX_STANDARD 14)
 
 add_library(filter STATIC
   filter/filter.cpp
@@ -74,7 +74,7 @@ add_library(filter STATIC
 )
 target_include_directories(filter PUBLIC filter)
 target_link_libraries(filter PRIVATE libzxing)
-target_compile_options(filter PUBLIC -std=c++14)
+set_property(TARGET filter PROPERTY CXX_STANDARD 14)
 
 add_library(vis STATIC
   vis/world_state.cpp
@@ -92,7 +92,7 @@ if(ENABLE_MGL)
     target_link_libraries(vis PRIVATE mgl)
 endif()
 target_link_libraries(vis PRIVATE ${GLFW_LIBRARIES})
-target_compile_options(vis PUBLIC -std=c++14)
+set_property(TARGET vis PROPERTY CXX_STANDARD 14)
 
 if(ENABLE_STEREO)
     add_library(stereo STATIC
@@ -104,7 +104,7 @@ if(ENABLE_STEREO)
     )
     target_link_libraries(stereo PRIVATE DAI qhullstatic vlfeat)
     target_include_directories(stereo PUBLIC stereo)
-    target_compile_options(stereo PUBLIC -std=c++14)
+    set_property(TARGET stereo PROPERTY CXX_STANDARD 14)
 
     add_subdirectory(qhull)
     set_target_properties(libqhull qhull_p PROPERTIES MACOSX_RPATH ON) # Avoid pointless warning

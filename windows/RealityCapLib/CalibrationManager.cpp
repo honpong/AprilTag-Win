@@ -93,6 +93,11 @@ void CalibrationManager::PollForStatusUpdates()
 {
     while (isCalibrating())
     {
+        // check for errors
+        int errorCode = rc_getError(_tracker);
+        if (errorCode && _delegate) _delegate->OnError(errorCode);
+
+        // check for status changes
         rc_TrackerState newState = rc_getState(_tracker);
         if (newState != _trackerState)
         {

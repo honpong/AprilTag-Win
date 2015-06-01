@@ -60,7 +60,7 @@ class MyCalDelegate : public CalibrationManagerDelegate
 public:
     MyCalDelegate() : CalibrationManagerDelegate() {};
 
-    virtual void OnProgressUpdated(float progress)
+    virtual void OnProgressUpdated(float progress) override
     {
         if (progress < 1.)
         {
@@ -71,7 +71,7 @@ public:
         }
     };
 
-    virtual void OnStatusUpdated(int status)
+    virtual void OnStatusUpdated(int status) override
     {
         switch (status)
         {
@@ -87,6 +87,26 @@ public:
             break;
         case 6:
             SetWindowText(hLabel, TEXT("Hold device steady in landscape orientation."));
+            break;
+        default:
+            break;
+        }
+    };
+
+    virtual void OnError(int errorCode) override
+    {
+        switch (errorCode)
+        {
+        case 1:
+            SetWindowText(hLabel, TEXT("Vision error."));
+            break;
+        case 2:
+            StopCalibration();
+            SetWindowText(hLabel, TEXT("Speed error."));
+            break;
+        case 3:
+            StopCalibration();
+            SetWindowText(hLabel, TEXT("Fatal error."));
             break;
         default:
             break;

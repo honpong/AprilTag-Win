@@ -14,6 +14,7 @@ namespace RealityCap
     public:
         virtual void OnProgressUpdated(float progress) {};
         virtual void OnStatusUpdated(int status) {};
+        virtual void OnError(int code) {};
     };
 
     class CalibrationManager : virtual public SensorManager

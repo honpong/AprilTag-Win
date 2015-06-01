@@ -11,3 +11,10 @@ target_link_libraries(RCTracker PRIVATE
 )
 set_property(TARGET RCTracker PROPERTY CXX_STANDARD 14)
 
+add_executable(RCTrackerDemo src/RCTrackerDemo/replay_rsclip.cpp)
+target_link_libraries(RCTrackerDemo RCTracker)
+target_include_directories(RCTrackerDemo PRIVATE ../corvis/src/filter/
+    src/RCTrackerDemo/ "$ENV{RSSDK_DIR}/include/")
+
+link_directories("$ENV{RSSDK_DIR}lib/$(PlatformName)")
+target_link_libraries(RCTrackerDemo "$ENV{RSSDK_DIR}lib/$(PlatformName)/libpxcmd.lib")

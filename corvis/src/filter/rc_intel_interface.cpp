@@ -5,6 +5,7 @@
 //  Copyright (c) 2015 Realitycap. All rights reserved.
 //
 
+#define RCTRACKER_API_EXPORTS
 #include "rc_intel_interface.h"
 #include "sensor_fusion.h"
 #include "device_parameters.h"

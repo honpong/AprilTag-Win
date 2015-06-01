@@ -38,12 +38,10 @@ target_include_directories(glad
 set(COR_SOURCES cor/sensor_fusion_queue.cpp)
 if(WIN32)
     set(COR_SOURCES ${COR_SOURCES}
-      cor/platform/win/sensor_data.cpp
       cor/platform/win/sensor_clock.cpp
     )
 else()
     set(COR_SOURCES ${COR_SOURCES}
-      cor/platform/shell/sensor_data.cpp
       cor/platform/shell/sensor_clock.cpp
     )
 endif()

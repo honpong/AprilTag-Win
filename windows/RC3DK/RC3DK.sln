@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.22609.0
+VisualStudioVersion = 14.0.22823.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RC3DK", "RC3DK\RC3DK.vcxproj", "{E4E5A177-07B4-42AE-AA31-DB608571E6B6}"
 EndProject
@@ -24,6 +24,8 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "win32", "..\..\ThirdParty\casablanca\Release\src\build\win32.vcxitems", "{F40F4804-50F9-4257-8D74-B9CBB19AC4C3}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RCTrackerDemo", "..\RCTrackerDemo\RCTrackerDemo.vcxproj", "{E1ADF094-C658-4350-B54D-57071269759B}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "RC3DKTests", "RC3DKTests\RC3DKTests.vcxproj", "{7555C19F-C574-4EC5-B362-4072E2C62E6D}"
 EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
@@ -231,6 +233,26 @@ Global
 		{E1ADF094-C658-4350-B54D-57071269759B}.RelWithDebInfo|Win32.Build.0 = Release|Win32
 		{E1ADF094-C658-4350-B54D-57071269759B}.RelWithDebInfo|x64.ActiveCfg = Release|Win32
 		{E1ADF094-C658-4350-B54D-57071269759B}.RelWithDebInfo|x64.Build.0 = Release|Win32
+		{7555C19F-C574-4EC5-B362-4072E2C62E6D}.Debug|ARM.ActiveCfg = Debug|Win32
+		{7555C19F-C574-4EC5-B362-4072E2C62E6D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7555C19F-C574-4EC5-B362-4072E2C62E6D}.Debug|Win32.Build.0 = Debug|Win32
+		{7555C19F-C574-4EC5-B362-4072E2C62E6D}.Debug|x64.ActiveCfg = Debug|Win32
+		{7555C19F-C574-4EC5-B362-4072E2C62E6D}.MinSizeRel|ARM.ActiveCfg = Release|Win32
+		{7555C19F-C574-4EC5-B362-4072E2C62E6D}.MinSizeRel|ARM.Build.0 = Release|Win32
+		{7555C19F-C574-4EC5-B362-4072E2C62E6D}.MinSizeRel|Win32.ActiveCfg = Release|Win32
+		{7555C19F-C574-4EC5-B362-4072E2C62E6D}.MinSizeRel|Win32.Build.0 = Release|Win32
+		{7555C19F-C574-4EC5-B362-4072E2C62E6D}.MinSizeRel|x64.ActiveCfg = Release|Win32
+		{7555C19F-C574-4EC5-B362-4072E2C62E6D}.MinSizeRel|x64.Build.0 = Release|Win32
+		{7555C19F-C574-4EC5-B362-4072E2C62E6D}.Release|ARM.ActiveCfg = Release|Win32
+		{7555C19F-C574-4EC5-B362-4072E2C62E6D}.Release|Win32.ActiveCfg = Release|Win32
+		{7555C19F-C574-4EC5-B362-4072E2C62E6D}.Release|Win32.Build.0 = Release|Win32
+		{7555C19F-C574-4EC5-B362-4072E2C62E6D}.Release|x64.ActiveCfg = Release|Win32
+		{7555C19F-C574-4EC5-B362-4072E2C62E6D}.RelWithDebInfo|ARM.ActiveCfg = Release|Win32
+		{7555C19F-C574-4EC5-B362-4072E2C62E6D}.RelWithDebInfo|ARM.Build.0 = Release|Win32
+		{7555C19F-C574-4EC5-B362-4072E2C62E6D}.RelWithDebInfo|Win32.ActiveCfg = Release|Win32
+		{7555C19F-C574-4EC5-B362-4072E2C62E6D}.RelWithDebInfo|Win32.Build.0 = Release|Win32
+		{7555C19F-C574-4EC5-B362-4072E2C62E6D}.RelWithDebInfo|x64.ActiveCfg = Release|Win32
+		{7555C19F-C574-4EC5-B362-4072E2C62E6D}.RelWithDebInfo|x64.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

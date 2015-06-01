@@ -258,7 +258,7 @@ int main(int c, char **v)
 
         packets_dispatched++;
 
-        if(run_tracker && packets_dispatched%10 == 0) rc_triggerLog(tracker);
+        if(run_tracker && packets_dispatched % 10 == 0) rc_triggerLog(tracker);
 
 
         if (_kbhit())

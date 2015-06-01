@@ -53,6 +53,8 @@ LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK	WndProcGL(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 
+void StopCalibration();
+
 class MyCalDelegate : public CalibrationManagerDelegate
 {
 public:
@@ -73,8 +75,18 @@ public:
     {
         switch (status)
         {
+        case 0:
+            StopCalibration();
+            SetWindowText(hLabel, TEXT("Calibration complete."));
+            break;
         case 1:
             SetWindowText(hLabel, TEXT("Place the device flat on a table."));
+            break;
+        case 5:
+            SetWindowText(hLabel, TEXT("Hold device steady in portrait orientation."));
+            break;
+        case 6:
+            SetWindowText(hLabel, TEXT("Hold device steady in landscape orientation."));
             break;
         default:
             break;
@@ -146,7 +158,7 @@ void StopCalibration()
     if (appState != Calibrating) return;
     SetWindowText(hLabel, TEXT("Stopping calibration..."));
     calMan->StopCalibration();
-    SetWindowText(hLabel, TEXT("Calibration complete."));
+    SetWindowText(hLabel, TEXT("Calibration stopped."));
     SetWindowText(hCalibrateButton, L"Start Calibrating");
     appState = Idle;
 }

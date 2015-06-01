@@ -37,9 +37,10 @@ bool CalibrationManager::StartCalibration()
 
     rc_startCalibration(_tracker);
 
+    _isCalibrating = true;
+
     _pollingThread = std::thread(&CalibrationManager::PollForStatusUpdates, this);
 
-    _isCalibrating = true;
     return isCalibrating();
 }
 

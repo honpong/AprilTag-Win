@@ -27,7 +27,6 @@ pxcIMUsensor selectedSensors[] = {
 const int NUM_OF_REQUESTED_SENSORS = sizeof(selectedSensors) / sizeof(pxcIMUsensor);
 bool verbose = false;
 bool run_tracker = true;
-pxcCHAR     *m_recordedFile = L"capture.rssdk";
 pxcBool        m_bRecord = 0;
 
 const rc_Pose rc_pose_identity = {1, 0, 0, 0, 
@@ -66,14 +65,14 @@ void releaseSavedImage(void *h)
     delete (SavedImage *)h;
 }
 
-int main(int c, char **v)
+int wmain(int c, wchar_t **v)
 {
-    if(c < 1)
+    if(c < 2)
     {
         fprintf(stderr, "specify file name\n");
         return 0;
     }
-    const char *name = v[1];
+    const wchar_t *m_recordedFile = v[1];
     int width_px = 640;
     int height_px = 480;
     float center_x_px = (width_px-1) / 2.f;

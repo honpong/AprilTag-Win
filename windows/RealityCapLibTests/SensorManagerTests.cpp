@@ -55,11 +55,11 @@ public:
     {
         colorFramesReceived++;
     }
-    virtual void OnAmeterSample(imu_sample* sample)
+    virtual void OnAmeterSample(imu_sample_t * sample)
     {
         ameterSamplesReceived++;
     }
-    virtual void OnGyroSample(imu_sample* sample)
+    virtual void OnGyroSample(imu_sample_t * sample)
     {
         gyroSamplesReceived++;
     }

@@ -13,7 +13,7 @@
 #include <thread>
 #include <atomic>
 #include <condition_variable>
-#include "platform/sensor_data.h"
+#include "sensor_data.h"
 #include "platform/sensor_clock.h"
 
 template<typename T, int size>
@@ -81,7 +81,7 @@ public:
     
     void start_async(bool expect_camera);
     void start_sync(bool expect_camera);
-    void start_offline(bool expect_camera);
+    void start_singlethreaded(bool expect_camera);
     void stop_async();
     void stop_sync();
     void wait_until_finished();
@@ -91,13 +91,13 @@ public:
     void receive_gyro(gyro_data&& x);
     void dispatch_sync(std::function<void()> fn);
     void dispatch_async(std::function<void()> fn);
-    bool dispatch_offline(bool force);
     
 private:
     void runloop();
     bool run_control(const std::unique_lock<std::mutex> &lock);
     bool ok_to_dispatch(sensor_clock::time_point time);
     bool dispatch_next(std::unique_lock<std::mutex> &lock, bool force);
+    bool dispatch_singlethread(bool force);
     sensor_clock::time_point global_latest_received() const;
 
     std::mutex mutex;
@@ -114,6 +114,7 @@ private:
     std::function<void()> control_func;
     bool active;
     bool wait_for_camera;
+    bool singlethreaded;
     
     latency_strategy strategy;
     

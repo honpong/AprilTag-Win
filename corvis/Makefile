@@ -70,7 +70,7 @@ build/%.S: src/%.cpp
 
 ############################## COR ############################
 
-COR_CXX_SOURCES = $(addprefix src/cor/, sensor_fusion_queue.cpp platform/shell/sensor_data.cpp platform/shell/sensor_clock.cpp)
+COR_CXX_SOURCES = $(addprefix src/cor/, sensor_fusion_queue.cpp platform/shell/sensor_clock.cpp)
 
 lib/cor.a: $(patsubst src/%,build/%,$(COR_CXX_SOURCES:.cpp=.o))
 
@@ -88,7 +88,7 @@ CXX_SOURCES += $(NUMERICS_CXX_SOURCES)
 
 ############################## FILTER ############################
 
-FILTER_CXX_SOURCES = $(addprefix src/filter/, filter.cpp state_vision.cpp state_motion.cpp observation.cpp filter_setup.cpp fast_detector/fast_9.cpp scaled_mask.cpp camera_control_interface_dummy.cpp homography.cpp qr.cpp device_parameters.cpp)
+FILTER_CXX_SOURCES = $(addprefix src/filter/, filter.cpp state_vision.cpp state_motion.cpp observation.cpp filter_setup.cpp fast_detector/fast_9.cpp scaled_mask.cpp camera_control_interface_dummy.cpp homography.cpp qr.cpp device_parameters.cpp sensor_fusion.cpp capture.cpp rc_intel_interface.cpp)
 
 lib/filter.a: CPPFLAGS += -Isrc/libzxing-cpp/ -Isrc/glfw/deps/
 lib/filter.a:$(patsubst src/%,build/%,$(FILTER_CXX_SOURCES:.cpp=.o)) $(patsubst src/%,build/%,$(FILTER_SOURCES:.c=.o))
@@ -223,6 +223,19 @@ bin/measure: $(patsubst src/%,build/%,$(MEASURE_CXX_SOURCES:.cpp=.o)) lib/libglf
 
 TARGETS += bin/measure
 CXX_SOURCES += src/filter/replay.cpp src/tools/measure.cpp
+
+############################## REPLAY_INTEL ############################
+
+REPLAY_INTEL_CXX_SOURCES = src/tools/replay_intel.cpp
+CXX_SOURCES += $(REPLAY_INTEL_CXX_SOURCES)
+
+bin/replay_intel: LDFLAGS += -lstdc++ -lmgl
+bin/replay_intel: CPPFLAGS += -Iinclude -Isrc/glfw/deps/ -Isrc/filter
+bin/replay_intel: $(patsubst src/%,build/%,$(REPLAY_INTEL_CXX_SOURCES:.cpp=.o)) lib/libglfw3.a lib/libglad.a lib/filter.a lib/numerics.a lib/cor.a lib/vis.a lib/libzxing.a
+	@mkdir -p $(@D)
+	$(CC) $(LDFLAGS) $(shell pkg-config lib/pkgconfig/glfw3.pc --static --libs) $^ $(LDLIBS) -o $@
+
+TARGETS += bin/replay_intel
 
 ############################## TEST ############################
 

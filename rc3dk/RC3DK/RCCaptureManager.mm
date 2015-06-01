@@ -7,7 +7,7 @@
 //
 
 #import "RCCaptureManager.h"
-
+#import "RCSensorData.h"
 #include "capture.h"
 
 @interface RCCaptureManager ()
@@ -32,19 +32,19 @@
 - (void) receiveVideoFrame:(CMSampleBufferRef)sampleBuffer;
 {
     if(isCapturing)
-        cp.receive_camera(camera_data(sampleBuffer));
+        cp.receive_camera(camera_data_from_CMSampleBufferRef(sampleBuffer));
 }
 
 - (void) receiveAccelerometerData:(CMAccelerometerData *)accelerationData
 {
     if(isCapturing)
-        cp.receive_accelerometer(accelerometer_data((__bridge void *)accelerationData));
+        cp.receive_accelerometer(accelerometer_data_from_CMAccelerometerData(accelerationData));
 }
 
 - (void) receiveGyroData:(CMGyroData *)gyroData
 {
     if(isCapturing)
-        cp.receive_gyro(gyro_data((__bridge void *)gyroData));
+        cp.receive_gyro(gyro_data_from_CMGyroData(gyroData));
 }
 
 - (void)startCaptureWithPath:(NSString *)path

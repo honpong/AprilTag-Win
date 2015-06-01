@@ -20,9 +20,9 @@
 // MachInfo.numer / MachInfo.denom is often 1 on the latest equipment.  Specialize
 //   for that case as an optimization.
 
-static sensor_clock::rep sensor_simplified()
+static uint64_t sensor_simplified()
 {
-    return static_cast<sensor_clock::rep>(mach_absolute_time());
+    return mach_absolute_time();
 }
 
 static double compute_sensor_factor()
@@ -32,13 +32,13 @@ static double compute_sensor_factor()
     return static_cast<double>(MachInfo.numer) / MachInfo.denom;
 }
 
-static sensor_clock::rep sensor_full()
+static uint64_t sensor_full()
 {
     static const double factor = compute_sensor_factor();
-    return static_cast<sensor_clock::rep>(mach_absolute_time() * factor);
+    return static_cast<uint64_t>(mach_absolute_time() * factor);
 }
 
-typedef sensor_clock::rep (*FP)();
+typedef uint64_t (*FP)();
 
 static FP init_sensor_clock()
 {
@@ -52,5 +52,5 @@ static FP init_sensor_clock()
 sensor_clock::time_point sensor_clock::now() noexcept
 {
     static FP fp = init_sensor_clock();
-    return time_point(duration(fp()));
+    return time_point(std::chrono::duration_cast<duration>(std::chrono::nanoseconds(fp())));
 }

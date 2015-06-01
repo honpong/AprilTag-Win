@@ -196,15 +196,10 @@ template <class T, int _size> class state_leaf: public state_node {
     }
 
     int remap_leaf(int i, covariance &cov) {
-        if(index < 0) {
-            int temploc = cov.add(i, size);
-            for(int j = 0; j < size; ++j) {
-                cov(temploc+j, temploc+j) = initial_variance[j];
-                cov.process_noise[temploc+j] = process_noise[j];
-            }
-        } else {
+        if(index < 0)
+            cov.add(i, size, process_noise, initial_variance);
+        else
             cov.reindex(i, index, size);
-        }
         index = i;
         this->cov = &cov;
         return i + size;

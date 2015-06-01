@@ -10,7 +10,7 @@
 #include <string.h>
 #include "device_parameters.h"
 #include "../cor/packet.h"
-#include "../cor/platform/sensor_data.h"
+#include "../cor/sensor_data.h"
 
 packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
 {

@@ -42,11 +42,11 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>$(RSSDK_DIR)\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(RSSDK_DIR)\include;..\..\..\corvis\src\glfw\include;..\..\..\corvis\src\glfw\deps;$(IncludePath)</IncludePath>
     <LibraryPath>$(RSSDK_DIR)\lib\$(PlatformName);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>$(RSSDK_DIR)\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(RSSDK_DIR)\include;..\..\..\corvis\src\glfw\include;..\..\..\corvis\src\glfw\deps;$(IncludePath)</IncludePath>
     <LibraryPath>$(RSSDK_DIR)\lib\$(PlatformName);$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -55,7 +55,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Program Files %28x86%29\Intel\Composer XE 2015\mkl\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files %28x86%29\Intel\Composer XE 2015\mkl\include;..\..\..\ThirdParty\casablanca\Release\include</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4200;4458</DisableSpecificWarnings>
     </ClCompile>
     <Link>
@@ -65,6 +65,7 @@
     <Lib>
       <AdditionalLibraryDirectories>C:\Program Files %28x86%29\Intel\Composer XE 2015\mkl\lib\ia32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions> mkl_intel_c.lib mkl_core.lib mkl_sequential.lib %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -75,7 +76,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>C:\Program Files %28x86%29\Intel\Composer XE 2015\mkl\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\Program Files %28x86%29\Intel\Composer XE 2015\mkl\include;..\..\..\ThirdParty\casablanca\Release\include</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4200;4458</DisableSpecificWarnings>
     </ClCompile>
     <Link>
@@ -87,12 +88,13 @@
     <Lib>
       <AdditionalLibraryDirectories>C:\Program Files %28x86%29\Intel\Composer XE 2015\mkl\lib\ia32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalOptions> mkl_intel_c.lib mkl_core.lib mkl_sequential.lib %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalDependencies>opengl32.lib;glu32.lib;</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\corvis\src\cor\platform\win\sensor_clock.cpp" />
-    <ClCompile Include="..\..\..\corvis\src\cor\platform\win\sensor_data.cpp" />
     <ClCompile Include="..\..\..\corvis\src\cor\sensor_fusion_queue.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\filter\calibration_json_store.cpp" />
     <ClCompile Include="..\..\..\corvis\src\filter\camera_control_interface_dummy.cpp" />
     <ClCompile Include="..\..\..\corvis\src\filter\capture.cpp" />
     <ClCompile Include="..\..\..\corvis\src\filter\device_parameters.cpp" />
@@ -102,18 +104,30 @@
     <ClCompile Include="..\..\..\corvis\src\filter\homography.cpp" />
     <ClCompile Include="..\..\..\corvis\src\filter\observation.cpp" />
     <ClCompile Include="..\..\..\corvis\src\filter\qr.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\filter\rc_intel_interface.cpp" />
     <ClCompile Include="..\..\..\corvis\src\filter\replay.cpp" />
     <ClCompile Include="..\..\..\corvis\src\filter\scaled_mask.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\filter\sensor_fusion.cpp" />
     <ClCompile Include="..\..\..\corvis\src\filter\state_motion.cpp" />
     <ClCompile Include="..\..\..\corvis\src\filter\state_vision.cpp" />
     <ClCompile Include="..\..\..\corvis\src\numerics\kalman.cpp" />
     <ClCompile Include="..\..\..\corvis\src\numerics\matrix.cpp" />
     <ClCompile Include="..\..\..\corvis\src\numerics\rotation_vector.cpp" />
     <ClCompile Include="..\..\..\corvis\src\numerics\vec4.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\vis\arcball.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\vis\gl_util.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\vis\gui.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\vis\lodepng.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\vis\offscreen_render.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\vis\render.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\vis\video_render.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\vis\world_state.cpp" />
+    <ClCompile Include="..\..\..\corvis\src\vis\world_state_render.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\corvis\src\cor\platform\sensor_clock.h" />
-    <ClInclude Include="..\..\..\corvis\src\cor\platform\sensor_data.h" />
+    <ClInclude Include="..\..\..\corvis\src\filter\calibration_data_store.h" />
+    <ClInclude Include="..\..\..\corvis\src\filter\calibration_json_store.h" />
     <ClInclude Include="..\..\..\corvis\src\filter\capture.h" />
     <ClInclude Include="..\..\..\corvis\src\filter\device_parameters.h" />
     <ClInclude Include="..\..\..\corvis\src\filter\fast_detector\fast.h" />
@@ -121,11 +135,12 @@
     <ClInclude Include="..\..\..\corvis\src\filter\filter.h" />
     <ClInclude Include="..\..\..\corvis\src\filter\filter_setup.h" />
     <ClInclude Include="..\..\..\corvis\src\filter\homography.h" />
-    <ClInclude Include="..\..\..\corvis\src\filter\intel_interface.h" />
     <ClInclude Include="..\..\..\corvis\src\filter\observation.h" />
     <ClInclude Include="..\..\..\corvis\src\filter\qr.h" />
+    <ClInclude Include="..\..\..\corvis\src\filter\rc_intel_interface.h" />
     <ClInclude Include="..\..\..\corvis\src\filter\replay.h" />
     <ClInclude Include="..\..\..\corvis\src\filter\scaled_mask.h" />
+    <ClInclude Include="..\..\..\corvis\src\filter\sensor_fusion.h" />
     <ClInclude Include="..\..\..\corvis\src\filter\state.h" />
     <ClInclude Include="..\..\..\corvis\src\filter\state_motion.h" />
     <ClInclude Include="..\..\..\corvis\src\filter\state_vision.h" />
@@ -140,6 +155,23 @@
     <ClInclude Include="..\..\..\corvis\src\numerics\sinc.h" />
     <ClInclude Include="..\..\..\corvis\src\numerics\transformation.h" />
     <ClInclude Include="..\..\..\corvis\src\numerics\vec4.h" />
+    <ClInclude Include="..\..\..\corvis\src\vis\arcball.h" />
+    <ClInclude Include="..\..\..\corvis\src\vis\gl_util.h" />
+    <ClInclude Include="..\..\..\corvis\src\vis\gui.h" />
+    <ClInclude Include="..\..\..\corvis\src\vis\lodepng.h" />
+    <ClInclude Include="..\..\..\corvis\src\vis\offscreen_render.h" />
+    <ClInclude Include="..\..\..\corvis\src\vis\render.h" />
+    <ClInclude Include="..\..\..\corvis\src\vis\video_render.h" />
+    <ClInclude Include="..\..\..\corvis\src\vis\world_state.h" />
+    <ClInclude Include="..\..\..\corvis\src\vis\world_state_render.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\ThirdParty\casablanca\Release\src\build\vs14\casablanca140.vcxproj">
+      <Project>{1014c621-bc2d-4813-b8c1-6d83ad6f9249}</Project>
+    </ProjectReference>
+    <ProjectReference Include="..\glfw\glfw.vcxproj">
+      <Project>{b78b8421-fae7-4a5b-b271-8d2cd7c98609}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

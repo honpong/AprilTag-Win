@@ -73,6 +73,7 @@ void device_set_framerate(struct corvis_device_parameters *dc, float framerate_h
 
 bool get_parameters_for_device(corvis_device_type type, struct corvis_device_parameters *dc)
 {
+    dc->version = CALIBRATION_VERSION;
     dc->px = 0.;
     dc->py = 0.;
     dc->K[2] = 0.;
@@ -689,6 +690,28 @@ bool get_parameters_for_device_name(const char * config_name, struct corvis_devi
         dc->shutter_delay = 0;
         dc->shutter_period = 31000;
         */
+
+    return true;
+}
+
+bool is_calibration_valid(const corvis_device_parameters &cal, const corvis_device_parameters &deviceDefaults)
+{
+    if (cal.version != CALIBRATION_VERSION) return false;
+
+    //check if biases are within 5 sigma
+    const float sigma = 5.;
+    float a = cal.a_bias[0];
+    if (a * a > sigma * sigma * deviceDefaults.a_bias_var[0]) return false;
+    a = cal.a_bias[1];
+    if (a * a > sigma * sigma * deviceDefaults.a_bias_var[1]) return false;
+    a = cal.a_bias[2];
+    if (a * a > sigma * sigma * deviceDefaults.a_bias_var[2]) return false;
+    a = cal.w_bias[0];
+    if (a * a > sigma * sigma * deviceDefaults.w_bias_var[0]) return false;
+    a = cal.w_bias[1];
+    if (a * a > sigma * sigma * deviceDefaults.w_bias_var[1]) return false;
+    a = cal.w_bias[2];
+    if (a * a > sigma * sigma * deviceDefaults.w_bias_var[2]) return false;
 
     return true;
 }

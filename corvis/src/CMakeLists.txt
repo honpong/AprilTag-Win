@@ -58,6 +58,7 @@ add_library(numerics STATIC
 target_include_directories(numerics INTERFACE numerics)
 set_property(TARGET numerics PROPERTY CXX_STANDARD 14)
 if(WIN32)
+    target_include_directories(numerics PRIVATE "$ENV{RSSDK_DIR}\include")
 else()
     target_link_libraries(numerics PUBLIC "-framework Accelerate")
 endif()

@@ -564,6 +564,7 @@ static int filter_process_features(struct filter *f, sensor_clock::time_point ti
         if(i->status == feature_gooddrop) i->status = feature_empty;
         if(i->status == feature_reject) i->status = feature_empty;
         if(i->status == feature_empty) {
+            f->observations.recent_f_map.erase(i->id);
             delete i;
             return true;
         } else
@@ -744,10 +745,15 @@ bool filter_image_measurement(struct filter *f, const unsigned char *data, int w
         if(time - f->stable_start < steady_converge_time) return true;
     }
     if(f->run_state != RCSensorFusionRunStateRunning && f->run_state != RCSensorFusionRunStateDynamicInitialization && f->run_state != RCSensorFusionRunStateSteadyInitialization) return true; //frame was "processed" so that callbacks still get called
-    if(width != f->track.width || height != f->track.height || stride != f->track.stride) {
+    
+    if(width != f->track.width || height != f->track.height) {
         fprintf(stderr, "Image dimensions don't match what we expect!\n");
         abort();
     }
+    f->track.width = width;
+    f->track.height = height;
+    f->track.stride = stride;
+    f->track.init();
     
     if(!f->ignore_lateness) {
         /*thread_info_data_t thinfo;

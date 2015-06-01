@@ -14,7 +14,18 @@
 
 typedef std::pair<PXCImage *, PXCImage::ImageData> handle_type;
 
-camera_data::camera_data(void *h) : image_handle(new handle_type, [](void *h) { delete (handle_type *)h;  })
+static void cleanup_handle(void *h)
+{
+    auto handle = (handle_type *)h;
+    if (handle)
+    {
+        auto res = handle->first->ReleaseAccess(&handle->second);
+        handle->first->Release();
+    }
+    delete handle;
+}
+
+camera_data::camera_data(PXCImage *h) : image_handle(new handle_type, cleanup_handle)
 {
     auto handle = (handle_type *)image_handle.get();
     handle->first = (PXCImage *)h;
@@ -30,12 +41,3 @@ camera_data::camera_data(void *h) : image_handle(new handle_type, [](void *h) { 
     handle->first->AddRef();
 }
 
-camera_data::~camera_data()
-{
-    auto handle = (handle_type *)image_handle.get();
-    if (handle)
-    {
-        auto res = handle->first->ReleaseAccess(&handle->second);
-        handle->first->Release();
-    }
-}

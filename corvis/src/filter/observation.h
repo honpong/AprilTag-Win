@@ -5,6 +5,7 @@
 #include "../numerics/matrix.h"
 #include "../numerics/vec4.h"
 #include <vector>
+#include <map>
 #include <algorithm>
 #include "tracker.h"
 #include "../cor/platform/sensor_clock.h"
@@ -162,6 +163,9 @@ public:
     observation_queue();
     bool process(state &s, sensor_clock::time_point time);
     vector<unique_ptr<observation>> observations;
+    std::unique_ptr<observation_gyroscope> recent_g;
+    std::unique_ptr<observation_accelerometer> recent_a;
+    std::map<int, std::unique_ptr<observation_vision_feature>> recent_f_map;
 
 protected:
     int size();

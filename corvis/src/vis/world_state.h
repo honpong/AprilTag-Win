@@ -73,7 +73,6 @@ public:
     world_state();
     ~world_state();
     void update_vertex_arrays(bool show_only_good=true);
-    void render_plots(std::function<void (plot &)> render_callback);
     void render_plot(int index, std::function<void (plot&)> render_callback);
     int next_plot(int current_plot);
 

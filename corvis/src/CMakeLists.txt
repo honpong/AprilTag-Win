@@ -23,7 +23,9 @@ set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "")
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "")
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "")
 add_subdirectory(glfw)
-target_compile_options(glfw PRIVATE -Wno-deprecated-declarations)
+if(!WIN32)
+    target_compile_options(glfw PRIVATE -Wno-deprecated-declarations)
+endif()
 target_include_directories(glfw INTERFACE glfw/include)
 
 add_library(glad STATIC

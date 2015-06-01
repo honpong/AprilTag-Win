@@ -24,7 +24,7 @@ namespace RealityCap
     {
     public:
         SensorManager(PXCSenseManager* senseMan);
-        ~SensorManager();
+        virtual ~SensorManager();
         bool StartSensors(); // returns true if sensors started successfully
         void StopSensors();
         bool StartPlayback(const wchar_t *filename);

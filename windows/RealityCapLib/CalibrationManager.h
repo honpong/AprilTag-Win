@@ -1,6 +1,9 @@
 #pragma once
 
 #include "SensorManager.h"
+#include <thread>
+
+class rc_Tracker;
 
 namespace RealityCap
 {
@@ -17,6 +20,7 @@ namespace RealityCap
     {
     public:
         CalibrationManager(PXCSenseManager* senseMan);
+        virtual ~CalibrationManager();
         bool StartCalibration();
         void StopCalibration();
         bool isCalibrating();
@@ -26,9 +30,13 @@ namespace RealityCap
         virtual void OnColorFrame(PXCImage* colorImage) override;
         virtual void OnAmeterSample(imu_sample_t* sample) override;
         virtual void OnGyroSample(imu_sample_t* sample) override;
+        void PollForStatusUpdates();
 
     private:
         bool _isCalibrating;
         CalibrationManagerDelegate* _delegate;
+        rc_Tracker* _tracker;
+        std::thread _pollingThread;
+        int _trackerState;
     };
 }

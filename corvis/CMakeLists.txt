@@ -8,9 +8,11 @@ add_compile_options(-march=native -mfpmath=sse -O3)
 
 set(ENABLE_STEREO true)
 set(ENABLE_MGL true)
+set(ENABLE_ZXING true)
 if(WIN32)
     set(ENABLE_STEREO false)
     set(ENABLE_MGL false)
+    set(ENABLE_ZXING false)
 endif()
 
 # A few hints for the BOOST_ROOT to help find_package(Boost)

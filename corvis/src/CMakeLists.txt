@@ -76,7 +76,9 @@ add_library(filter STATIC
   filter/device_parameters.cpp
 )
 target_include_directories(filter PUBLIC filter)
-target_link_libraries(filter PRIVATE libzxing)
+if(ENABLE_ZXING)
+    target_link_libraries(filter PRIVATE libzxing)
+endif()
 set_property(TARGET filter PROPERTY CXX_STANDARD 14)
 
 add_library(vis STATIC
@@ -132,12 +134,14 @@ if(ENABLE_STEREO)
     target_compile_options(DAI PUBLIC -DMACOSX -DDAI_WITH_BP -DDAI_WITH_TRWBP)
 endif() # WIN32
 
-file(GLOB_RECURSE LIBZXING_FILES
-    "libzxing-cpp/zxing/*.cpp"
-    "libzxing-cpp/bigint/*.cpp"
-)
-add_library(libzxing STATIC ${LIBZXING_FILES})
-target_compile_definitions(libzxing PRIVATE NO_ICONV)
-target_include_directories(libzxing
-  PUBLIC libzxing-cpp
-)
+if(ENABLE_ZXING)
+    file(GLOB_RECURSE LIBZXING_FILES
+        "libzxing-cpp/zxing/*.cpp"
+        "libzxing-cpp/bigint/*.cpp"
+    )
+    add_library(libzxing STATIC ${LIBZXING_FILES})
+    target_compile_definitions(libzxing PRIVATE NO_ICONV)
+    target_include_directories(libzxing
+      PUBLIC libzxing-cpp
+    )
+endif()

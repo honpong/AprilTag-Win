@@ -33,11 +33,19 @@ target_include_directories(glad
   PUBLIC glfw/deps
 )
 
-add_library(cor STATIC
-  cor/sensor_fusion_queue.cpp
-  cor/platform/shell/sensor_data.cpp
-  cor/platform/shell/sensor_clock.cpp
-)
+set(COR_SOURCES cor/sensor_fusion_queue.cpp)
+if(WIN32)
+    set(COR_SOURCES ${COR_SOURCES}
+      cor/platform/win/sensor_data.cpp
+      cor/platform/win/sensor_clock.cpp
+    )
+else()
+    set(COR_SOURCES ${COR_SOURCES}
+      cor/platform/shell/sensor_data.cpp
+      cor/platform/shell/sensor_clock.cpp
+    )
+endif()
+add_library(cor STATIC ${COR_SOURCES})
 target_include_directories(cor PUBLIC cor)
 target_compile_options(cor PUBLIC -std=c++14)
 

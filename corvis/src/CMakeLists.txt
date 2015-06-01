@@ -84,6 +84,8 @@ add_library(filter STATIC
   filter/homography.cpp
   filter/qr.cpp
   filter/device_parameters.cpp
+  filter/sensor_fusion.cpp
+  filter/capture.cpp
 )
 target_include_directories(filter PUBLIC filter)
 if(ENABLE_ZXING)

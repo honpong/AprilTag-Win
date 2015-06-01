@@ -97,6 +97,7 @@ void device_set_framerate(struct corvis_device_parameters *dc, float framerate_h
     dc->shutter_period = std::chrono::duration_cast<sensor_clock::duration>(std::chrono::duration<float>(1.f/framerate_hz));
 }
 
+// TODO: should this go away?
 bool get_parameters_for_device(corvis_device_type type, struct corvis_device_parameters *dc)
 {
     unique_ptr<calibration_data_store> calStore = calibration_data_store::GetStore();

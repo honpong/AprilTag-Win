@@ -56,8 +56,11 @@ add_library(numerics STATIC
   numerics/kalman.cpp
 )
 target_include_directories(numerics INTERFACE numerics)
-target_link_libraries(numerics PUBLIC "-framework Accelerate")
 set_property(TARGET numerics PROPERTY CXX_STANDARD 14)
+if(WIN32)
+else()
+    target_link_libraries(numerics PUBLIC "-framework Accelerate")
+endif()
 
 add_library(filter STATIC
   filter/filter.cpp

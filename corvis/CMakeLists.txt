@@ -43,33 +43,35 @@ if(ENABLE_MGL)
     target_link_libraries(measure mgl)
 endif()
 
-add_executable(spec
-  ../gtest/gtest_main.cc ../gtest/gtest-all.cc
-  test/test.cpp test/util.cpp
-  test/numerics/vec4.cpp test/numerics/rotation_vector.cpp test/numerics/quaternion.cpp
-  test/filter/homography.cpp test/filter/utils.cpp
-  test/cor/sensor_fusion_queue.cpp
-)
-set_property(TARGET spec PROPERTY CXX_STANDARD 14)
-target_include_directories(spec PRIVATE test ..)
-target_link_libraries(spec
-  cor
-  numerics
-  filter
-)
-
-if(BUILD_STEREO)
-    add_executable(spec_plus
+if(!WIN32) # Tests don't build on win32 yet
+    add_executable(spec
       ../gtest/gtest_main.cc ../gtest/gtest-all.cc
       test/test.cpp test/util.cpp
-      test/stereo/stereo.cpp
+      test/numerics/vec4.cpp test/numerics/rotation_vector.cpp test/numerics/quaternion.cpp
+      test/filter/homography.cpp test/filter/utils.cpp
+      test/cor/sensor_fusion_queue.cpp
     )
-    set_property(TARGET spec_plus PROPERTY CXX_STANDARD 14)
-    target_include_directories(spec_plus PRIVATE test ..)
-    target_link_libraries(spec_plus
+    set_property(TARGET spec PROPERTY CXX_STANDARD 14)
+    target_include_directories(spec PRIVATE test ..)
+    target_link_libraries(spec
       cor
       numerics
       filter
-      stereo
     )
+
+    if(BUILD_STEREO)
+        add_executable(spec_plus
+          ../gtest/gtest_main.cc ../gtest/gtest-all.cc
+          test/test.cpp test/util.cpp
+          test/stereo/stereo.cpp
+        )
+        set_property(TARGET spec_plus PROPERTY CXX_STANDARD 14)
+        target_include_directories(spec_plus PRIVATE test ..)
+        target_link_libraries(spec_plus
+          cor
+          numerics
+          filter
+          stereo
+        )
+    endif()
 endif()

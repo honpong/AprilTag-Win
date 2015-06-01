@@ -50,6 +50,9 @@ endif()
 add_library(cor STATIC ${COR_SOURCES})
 target_include_directories(cor PUBLIC cor)
 set_property(TARGET cor PROPERTY CXX_STANDARD 14)
+if(WIN32)
+    target_include_directories(cor PRIVATE "$ENV{RSSDK_DIR}include")
+endif()
 
 add_library(numerics STATIC
   numerics/rotation_vector.cpp

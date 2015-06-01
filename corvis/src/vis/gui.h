@@ -26,20 +26,22 @@ private:
         gui::static_gui->scroll(window, dx, dy);
     };
 
-    float _projectionMatrix[16]; // 4x4
-    float _modelViewMatrix[16]; // 4x4
+    float projection_matrix[16]; // 4x4
+    float view_matrix[16]; // 4x4
 
     void start_glfw();
     void init_gl();
-    void configure_view();
+    void configure_view(int view_width, int view_height);
     void mouse(GLFWwindow * window, int button, int action, int mods);
     void mouse_move(GLFWwindow * window, double x, double y);
     void scroll(GLFWwindow * window, double xoffset, double yoffset);
     void keyboard(GLFWwindow * window, int key, int scancode, int action, int mods);
-    void render();
+    void render(int main_width, int main_height);
     void render_video(int video_width, int video_height);
     void render_plot(int plots_width, int plots_height);
     void next_plot();
+
+    void calculate_viewports();
 
     void write_frame();
 
@@ -56,9 +58,8 @@ private:
 
 
     // Display related
-    GLFWwindow * main_window, * video_window, * plots_window;
-    bool show_main{true}, show_video{true}, show_plots{true};
-
+    GLFWwindow * main_window;
+    bool show_main, show_video, show_plots;
 
     replay * replay_control;
 

@@ -497,7 +497,7 @@
             [array addObject:feature];
         }
     }
-    return [NSArray arrayWithArray:array];
+    return array;
 }
 
 - (BOOL) isSensorFusionRunning

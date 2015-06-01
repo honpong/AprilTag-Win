@@ -22,14 +22,6 @@ static VertexData orientation_data[] = {
 
 static std::size_t feature_ellipse_vertex_size = 30; // 15 segments
 static std::size_t max_plot_samples = 1000;
-void world_state::render_plots(std::function<void (plot&)> render_callback)
-{
-    plot_lock.lock();
-    for(auto &plot : plots)
-        render_callback(plot);
-    plot_lock.unlock();
-}
-
 void world_state::render_plot(int index, std::function<void (plot&)> render_callback)
 {
     plot_lock.lock();
@@ -143,6 +135,25 @@ void world_state::receive_camera(const filter * f, camera_data &&d)
 
     observe_plot_item(d.timestamp, 5, "v-inn-mean_x", (float)observation_vision_feature::inn_stdev[0].mean);
     observe_plot_item(d.timestamp, 5, "v-inn-mean_y", (float)observation_vision_feature::inn_stdev[1].mean);
+
+    if (f->observations.recent_a.get()) {
+        observe_plot_item(d.timestamp, 6, "a-inn_x", (float)f->observations.recent_a->innovation(0));
+        observe_plot_item(d.timestamp, 6, "a-inn_y", (float)f->observations.recent_a->innovation(1));
+        observe_plot_item(d.timestamp, 6, "a-inn_z", (float)f->observations.recent_a->innovation(2));
+    }
+
+    if (f->observations.recent_g.get()) {
+        observe_plot_item(d.timestamp, 7, "g-inn_x", (float)f->observations.recent_g->innovation(0));
+        observe_plot_item(d.timestamp, 7, "g-inn_y", (float)f->observations.recent_g->innovation(1));
+        observe_plot_item(d.timestamp, 7, "g-inn_z", (float)f->observations.recent_g->innovation(2));
+    }
+
+    for (auto &of : f->observations.recent_f_map)
+        observe_plot_item(d.timestamp,  8, "v-inn_x " + std::to_string(of.first), of.second->innovation(0));
+    for (auto &of : f->observations.recent_f_map)
+        observe_plot_item(d.timestamp,  9, "v-inn_y " + std::to_string(of.first), of.second->innovation(1));
+    for (auto &of : f->observations.recent_f_map)
+        observe_plot_item(d.timestamp, 10, "v-inn_r " + std::to_string(of.first), hypot(of.second->innovation(0), of.second->innovation(1)));
 }
 
 world_state::world_state()

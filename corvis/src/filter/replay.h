@@ -36,6 +36,7 @@ private:
     std::function<void (float)> progress_callback;
 
 public:
+    replay(bool start_paused) : is_paused(start_paused) {}
     bool open(const char *name);
     void set_device(const char *name);
     void setup_filter();

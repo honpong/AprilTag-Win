@@ -43,7 +43,7 @@ static const char * video_vs =
 
 "void main()\n"
 "{\n"
-"    gl_Position = vec4((videoPosition.x - width_2)*scale_x, -(videoPosition.y - height_2)*scale_y, 0, 1);\n"
+"    gl_Position = vec4((videoPosition.x - width_2)*scale_x, -(videoPosition.y - height_2)*scale_y, .1, 1);\n"
 "    textureCoordinate = inputTextureCoordinate.xy;\n"
 "}\n";
 
@@ -89,6 +89,11 @@ static GLuint setup_video_shaders() {
     glLinkProgram(p);
     print_program_info_log(p);
 
+    glDetachShader(p,v);
+    glDetachShader(p,f);
+    glDeleteShader(v);
+    glDeleteShader(f);
+
     return(p);
 }
 
@@ -117,6 +122,11 @@ static GLuint setup_overlay_shaders() {
     glLinkProgram(p);
     print_program_info_log(p);
 
+    glDetachShader(p,v);
+    glDetachShader(p,f);
+    glDeleteShader(v);
+    glDeleteShader(f);
+
     return(p);
 }
 
@@ -144,6 +154,7 @@ void video_render::gl_init()
     overlay_scale_y_loc = glGetUniformLocation(overlay_program, "scale_y");
 
 
+    glEnable(GL_TEXTURE_2D);
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

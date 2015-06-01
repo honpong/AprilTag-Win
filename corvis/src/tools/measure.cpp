@@ -6,15 +6,13 @@
 int main(int c, char **v)
 {
     if (0) { usage:
-        cerr << "Usage: " << v[0] << " [--no-gui] [--realtime] [--no-plots] [--no-video] [--no-main] [--render <file.png>] <filename> <devicename>\n";
+        cerr << "Usage: " << v[0] << " [--pause] [--realtime] [--no-gui] [--no-plots] [--no-video] [--no-main] [--render <file.png>] <filename> <devicename>\n";
         return 1;
     }
 
-    replay rp;
-
     world_state ws;
 
-    bool realtime = false;
+    bool realtime = false, start_paused = false;
     bool enable_gui = true, show_plots = false, show_video = true, show_main = true;
     char *devicename = nullptr, *filename = nullptr, *rendername = nullptr;
     for (int i=1; i<c; i++)
@@ -25,6 +23,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--no-plots") == 0) show_plots = false;
         else if (strcmp(v[i], "--no-video") == 0) show_video = false;
         else if (strcmp(v[i], "--no-main")  == 0) show_main  = false;
+        else if (strcmp(v[i], "--pause")  == 0) start_paused  = true;
         else if (strcmp(v[i], "--render") == 0 && i+1 < c) rendername = v[++i];
         else goto usage;
 
@@ -37,6 +36,7 @@ int main(int c, char **v)
     std::function<void (float)> progress;
     std::function<void (const filter *, camera_data &&)> camera_callback;
 
+    replay rp(start_paused);
     gui vis(&ws, show_main, show_video, show_plots);
 
     if(rendername || enable_gui)

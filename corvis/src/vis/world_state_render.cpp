@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <limits>
+
 #include "gl_util.h"
 #include "render.h"
 #include "video_render.h"
@@ -14,7 +16,6 @@ static render render;
 bool world_state_render_init()
 {
     render.gl_init();
-    glEnable(GL_DEPTH_TEST);
 
     return true;
 }
@@ -37,21 +38,28 @@ void world_state_render_video_teardown()
 
 void world_state_render_video(world_state * world, int viewport_width, int viewport_height)
 {
-    glClear(GL_COLOR_BUFFER_BIT);
     world->display_lock.lock();
     world->image_lock.lock();
     frame_render.render(world->last_image.image, world->last_image.width, world->last_image.height, viewport_width, viewport_height, true);
+    glPointSize(3.0f);
     glLineWidth(2.0f);
     frame_render.draw_overlay(world->feature_ellipse_vertex, world->feature_ellipse_vertex_num, GL_LINES, world->last_image.width, world->last_image.height, viewport_width, viewport_height);
     world->image_lock.unlock();
     world->display_lock.unlock();
 }
 
-void world_state_render(world_state * world, float * viewMatrix, float * projMatrix)
+bool world_state_render_video_get_size(world_state * world, int *width, int *height)
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    world->image_lock.lock();
+    *width = world->last_image.width;
+    *height = world->last_image.width;
+    world->image_lock.unlock();
+    return *width && *height;
+}
 
-    render.start_render(viewMatrix, projMatrix);
+void world_state_render(world_state * world, float * view_matrix, float * projection_matrix)
+{
+    render.start_render(view_matrix, projection_matrix);
 
     world->display_lock.lock();
 
@@ -84,11 +92,11 @@ static int plot_width = 600;
 static int plot_height = 400;
 static uint8_t * plot_frame = NULL;
 #ifdef WIN32
-static void create_plot(world_state * state, int index) {}
+static void create_plot(world_state * state, int index, uint8_t *plot_frame, int plot_width, int plot_height) {}
 #else // !WIN32
 
 #if TARGET_OS_IPHONE
-static void create_plot(world_state * state, int index) {}
+static void create_plot(world_state * state, int index, uint8_t *plot_frame, int plot_width, int plot_height) {}
 #else // !TARGET_OS_IPHONE
 
 #include "lodepng.h"
@@ -96,11 +104,9 @@ static void create_plot(world_state * state, int index) {}
 #include <mgl2/mgl.h>
 #undef _MSC_VER
 
-static void create_plot(world_state * state, int index)
+static void create_plot(world_state * state, int index, uint8_t *plot_frame, int plot_width, int plot_height)
 {
     mglGraph gr(0,plot_width,plot_height); // 600x400 graph, plotted to an image
-    if(!plot_frame)
-        plot_frame = (uint8_t *)malloc(plot_width*plot_height*4*sizeof(uint8_t));
 
     // mglData stores the x and y data to be plotted
     state->render_plot(index, [&] (world_state::plot &plot) {
@@ -153,13 +159,21 @@ static void create_plot(world_state * state, int index)
         //    fprintf(stderr, "encoder error %d: %s\n", error, lodepng_error_text(error));
     });
 }
-#endif //TARGET_OS_IPHONE
 #endif //WIN32
+#endif //TARGET_OS_IPHONE
 
 void world_state_render_plot(world_state * world, int index, int viewport_width, int viewport_height)
 {
-    glClear(GL_COLOR_BUFFER_BIT);
-    create_plot(world, index);
-    if(plot_frame)
+    static int plot_width = -1, plot_height = -1;
+    static uint8_t *plot_frame;
+    if (plot_width != viewport_width || plot_height != viewport_height) {
+        plot_width = viewport_width;
+        plot_height = viewport_height;
+        free(plot_frame);
+        plot_frame = (uint8_t *)malloc(plot_width*plot_height*4*sizeof(uint8_t));
+    }
+    if (plot_width && plot_height) {
+        create_plot(world, index, plot_frame, plot_width, plot_height);
         plot_render.render(plot_frame, plot_width, plot_height, viewport_width, viewport_height, false);
+    }
 }

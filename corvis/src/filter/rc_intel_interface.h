@@ -8,13 +8,14 @@
 #ifndef rc_intel_interface_h
 #define rc_intel_interface_h
 
+#include "device_parameters.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include <stddef.h>
 #include <stdint.h>
-#include "device_parameters.h"
 
 typedef enum {
     rc_EGRAY8,

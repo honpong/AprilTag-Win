@@ -7,8 +7,6 @@
 
 #include "rc_intel_interface.h"
 #include "sensor_fusion.h"
-#include "device_parameters.h"
-#include "calibration_data_store.h"
 
 static const unsigned T0 = 3;
 static const unsigned T1 = 7;

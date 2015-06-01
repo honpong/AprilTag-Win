@@ -6,6 +6,13 @@ project(${PACKAGE_NAME} C CXX)
 
 add_compile_options(-march=native -mfpmath=sse -O3)
 
+set(ENABLE_STEREO true)
+set(ENABLE_MGL true)
+if(WIN32)
+    set(ENABLE_STEREO false)
+    set(ENABLE_MGL false)
+endif()
+
 # A few hints for the BOOST_ROOT to help find_package(Boost)
 execute_process(COMMAND brew --prefix OUTPUT_VARIABLE BREW_PREFIX OUTPUT_STRIP_TRAILING_WHITESPACE)
 if (BREW_PREFIX)
@@ -24,14 +31,15 @@ target_link_libraries(measure
   numerics
   cor
   vis
-  mgl
 )
+if(ENABLE_MGL)
+    target_link_libraries(measure mgl)
+endif()
 
 add_executable(spec
   ../gtest/gtest_main.cc ../gtest/gtest-all.cc
   test/test.cpp test/util.cpp
   test/numerics/vec4.cpp test/numerics/rotation_vector.cpp test/numerics/quaternion.cpp
-  test/stereo/stereo.cpp test/stereo/camera.cpp
   test/filter/homography.cpp test/filter/utils.cpp
   test/cor/sensor_fusion_queue.cpp
 )
@@ -39,6 +47,20 @@ target_include_directories(spec PRIVATE test ..)
 target_link_libraries(spec
   cor
   numerics
-  stereo
   filter
 )
+
+if(BUILD_STEREO)
+    add_executable(spec_plus
+      ../gtest/gtest_main.cc ../gtest/gtest-all.cc
+      test/test.cpp test/util.cpp
+      test/stereo/stereo.cpp
+    )
+    target_include_directories(spec_plus PRIVATE test ..)
+    target_link_libraries(spec_plus
+      cor
+      numerics
+      filter
+      stereo
+    )
+endif()

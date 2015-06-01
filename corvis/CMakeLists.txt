@@ -43,7 +43,7 @@ if(ENABLE_MGL)
     target_link_libraries(measure mgl)
 endif()
 
-if(!WIN32) # Tests don't build on win32 yet
+if(NOT WIN32)
     add_executable(spec
       ../gtest/gtest_main.cc ../gtest/gtest-all.cc
       test/test.cpp test/util.cpp

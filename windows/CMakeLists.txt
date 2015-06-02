@@ -39,6 +39,12 @@ target_include_directories(RealityCapLib PRIVATE
 target_compile_definitions(RealityCapLib PRIVATE UNICODE _UNICODE)
 link_directories("$ENV{RSSDK_DIR}lib/$(PlatformName)")
 target_link_libraries(RealityCapLib "$ENV{RSSDK_DIR}lib/$(PlatformName)/libpxcmd.lib")
+target_link_libraries(RealityCapLib RCTracker
+   cor
+   numerics
+   filter
+   vis
+)
 
 add_executable(RCUtility WIN32
 #TODO: IMUManager and LocationManager appear to be unused
@@ -54,26 +60,16 @@ add_executable(RCUtility WIN32
     RCUtility/stdafx.cpp
     RCUtility/stdafx.h
     RCUtility/targetver.h
-    ../corvis/src/filter/rc_intel_interface.cpp
 )
-#target_link_libraries(RCUtility RCTracker)
-target_link_libraries(RCUtility
-   cor
-   numerics
-   filter
-   vis
-   casablanca
-   RealityCapLib
-)
+target_link_libraries(RCUtility RCTracker)
+target_link_libraries(RCUtility RealityCapLib)
 target_compile_options(RCUtility PRIVATE /wd4200 /wd4458)
 target_compile_definitions(RCUtility PRIVATE UNICODE _UNICODE)
 target_compile_options(RCUtility PRIVATE /ZW /EHsc /Gm- "/AIC:/Program Files (x86)/Windows Kits/8.1/References/CommonConfiguration/Neutral"
     "/AIC:/Program Files (x86)/Microsoft SDKs/Windows/v8.1/ExtensionSDKs/Microsoft.VCLibs/12.0/References/CommonConfiguration/neutral")
-target_include_directories(RCUtility PRIVATE ../corvis/src/filter
-    src/RCUtility "$ENV{RSSDK_DIR}/include"
+target_include_directories(RCUtility PRIVATE
+    "$ENV{RSSDK_DIR}/include"
     RealityCapLib/
-    ../corvis/src/
-    ../corvis/src/vis
 )
 link_directories("$ENV{RSSDK_DIR}lib/$(PlatformName)")
 target_link_libraries(RCUtility "$ENV{RSSDK_DIR}lib/$(PlatformName)/libpxcmd.lib")

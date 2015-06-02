@@ -39,10 +39,21 @@ target_compile_definitions(RealityCapLib PRIVATE UNICODE _UNICODE)
 link_directories("$ENV{RSSDK_DIR}lib/$(PlatformName)")
 target_link_libraries(RealityCapLib "$ENV{RSSDK_DIR}lib/$(PlatformName)/libpxcmd.lib")
 
-add_executable(RCUtility WIN32 RCUtility/RCUtility.cpp
+add_executable(RCUtility WIN32
+#TODO: IMUManager and LocationManager appear to be unused
+#      delete them if this is true
+#    RCUtility/IMUManager.cpp
+#    RCUtility/IMUManager.h
+#    RCUtility/LocationManager.cpp
+#    RCUtility/LocationManager.h
+    RCUtility/RCUtility.cpp
+    RCUtility/RCUtility.h
     RCUtility/RCUtility.rc
-RCUtility/LocationManager.cpp
-../corvis/src/filter/rc_intel_interface.cpp
+    RCUtility/Resource.h
+    RCUtility/stdafx.cpp
+    RCUtility/stdafx.h
+    RCUtility/targetver.h
+    ../corvis/src/filter/rc_intel_interface.cpp
 )
 #target_link_libraries(RCUtility RCTracker)
 target_link_libraries(RCUtility

@@ -252,6 +252,8 @@ rc_TrackerState rc_getState(const rc_Tracker *tracker)
             return rc_E_STATIC_CALIBRATION;
         case RCSensorFusionRunStateSteadyInitialization:
             return rc_E_STEADY_INITIALIZATION;
+        default: // This case should never be reached
+            return rc_E_INACTIVE;
     }
 }
 

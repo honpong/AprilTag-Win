@@ -292,11 +292,34 @@ void rc_setOutputLog(rc_Tracker * tracker, const char * filename)
 
 }
 
-// TODO: eagle to implement
-//corvis_device_parameters rc_getCalibration(rc_Tracker *tracker)
-//{
-//    return tracker->get_device_parameters(); 
-//}
+rc_Calibration rc_getCalibration(rc_Tracker *tracker)
+{
+    rc_Calibration calibration;
+    calibration.Fx = tracker->sfm.s.focal_length.v;
+    calibration.Fy = tracker->sfm.s.focal_length.v;
+    calibration.Cx = tracker->sfm.s.center_x.v;
+    calibration.Cy = tracker->sfm.s.center_y.v;
+    calibration.w_meas_var = tracker->sfm.w_variance;
+    calibration.a_meas_var = tracker->sfm.a_variance;
+    calibration.K[0] = tracker->sfm.s.k1.v;
+    calibration.K[1] = tracker->sfm.s.k2.v;
+    calibration.K[2] = tracker->sfm.s.k3.v;
+    calibration.Wc[0] = tracker->sfm.s.Wc.v.x();
+    calibration.Wc[1] = tracker->sfm.s.Wc.v.y();
+    calibration.Wc[2] = tracker->sfm.s.Wc.v.z();
+    for(int i = 0; i < 3; i++) {
+        calibration.a_bias[i] = tracker->sfm.s.a_bias.v[i];
+        calibration.a_bias_var[i] = tracker->sfm.s.a_bias.variance()[i];
+        calibration.w_bias[i] = tracker->sfm.s.w_bias.v[i];
+        calibration.w_bias_var[i] = tracker->sfm.s.w_bias.variance()[i];
+        calibration.Tc[i] = tracker->sfm.s.Tc.v[i];
+        calibration.Tc_var[i] = tracker->sfm.s.Tc.variance()[i];
+        calibration.Wc_var[i] = tracker->sfm.s.Wc.variance()[i];
+    }
+    calibration.image_width = tracker->sfm.image_width;
+    calibration.image_height = tracker->sfm.image_height;
+    return calibration;
+}
 
 void rc_setCalibration(rc_Tracker *tracker, rc_Calibration calibration)
 {

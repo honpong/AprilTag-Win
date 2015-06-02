@@ -200,9 +200,7 @@ RCTRACKER_API void rc_triggerLog(const rc_Tracker *tracker);
  */
 RCTRACKER_API void rc_setOutputLog(rc_Tracker * tracker, const char * filename);
 
-// TODO: eagle to implement
-//corvis_device_parameters rc_getCalibration(rc_Tracker *tracker);
-
+RCTRACKER_API rc_Calibration rc_getCalibration(rc_Tracker *tracker);
 RCTRACKER_API void rc_setCalibration(rc_Tracker *tracker, rc_Calibration calibration);
 
 /*

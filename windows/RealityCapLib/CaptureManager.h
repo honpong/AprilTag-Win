@@ -1,7 +1,7 @@
 #pragma once
 
 #include "SensorManager.h"
-#include "..\..\corvis\src\filter\capture.h"
+//#include "..\..\corvis\src\filter\capture.h"
 
 namespace RealityCap
 {
@@ -19,7 +19,7 @@ namespace RealityCap
         virtual void OnGyroSample(imu_sample_t* sample) override;
 
     private:
-        capture cp;
+        //capture cp;
         bool _isCapturing;
         std::string _captureFilePath;
 

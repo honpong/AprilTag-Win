@@ -22,14 +22,14 @@ bool CaptureManager::StartCapture()
     {
         if (!StartSensors()) return false;
     }
-    _isCapturing = cp.start(_captureFilePath.c_str());
+    //_isCapturing = cp.start(_captureFilePath.c_str());
     return isCapturing();
 }
 
 void CaptureManager::StopCapture()
 {
     if (!isCapturing()) return;
-    cp.stop();
+    //cp.stop();
     _isCapturing = false;
     StopSensors();
 }
@@ -51,7 +51,7 @@ void CaptureManager::OnColorFrame(PXCImage* colorSample)
 {
     if (!isCapturing()) return;
     auto data = camera_data_from_PXCImage(colorSample);
-    cp.receive_camera(std::move(data));
+    //cp.receive_camera(std::move(data));
 }
 
 void CaptureManager::OnAmeterSample(imu_sample_t* sample)
@@ -59,7 +59,7 @@ void CaptureManager::OnAmeterSample(imu_sample_t* sample)
     if (!isCapturing()) return;
 
     accelerometer_data data = accelerometer_data_from_imu_sample_t(sample);
-    cp.receive_accelerometer(std::move(data));
+    //cp.receive_accelerometer(std::move(data));
 }
 
 void CaptureManager::OnGyroSample(imu_sample_t* sample)
@@ -67,6 +67,6 @@ void CaptureManager::OnGyroSample(imu_sample_t* sample)
     if (!isCapturing()) return;
 
     gyro_data data = gyro_data_from_imu_sample_t(sample);
-    cp.receive_gyro(std::move(data));
+    //cp.receive_gyro(std::move(data));
 }
 

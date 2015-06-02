@@ -8,6 +8,7 @@
 #include <string>
 #include "libpxcimu_internal.h"
 #include "rc_intel_interface.h"
+#include "rc_pxc_util.h"
 
 using namespace RealityCap;
 using namespace std;
@@ -70,23 +71,15 @@ void CalibrationManager::OnColorFrame(PXCImage* colorSample)
 void CalibrationManager::OnAmeterSample(imu_sample_t* sample)
 {
     if (!isCalibrating()) return;
-    const rc_Vector vec = { 
-        sample->data[0] * 9.80665,
-        sample->data[1] * 9.80665,
-        sample->data[2] * 9.80665
-    };
-    rc_receiveAccelerometer(_tracker, sample->coordinatedUniversalTime100ns, vec);
+    const rc_Vector vec = rc_convertAcceleration(sample);
+    rc_receiveAccelerometer(_tracker, sample->coordinatedUniversalTime100ns / 10, vec);
 }
 
 void CalibrationManager::OnGyroSample(imu_sample_t* sample)
 {
     if (!isCalibrating()) return;
-    const rc_Vector vec = {
-        sample->data[0] * M_PI / 180.,
-        sample->data[1] * M_PI / 180.,
-        sample->data[2] * M_PI / 180.
-    };
-    rc_receiveAccelerometer(_tracker, sample->coordinatedUniversalTime100ns, vec);
+    const rc_Vector vec = rc_convertAngularVelocity(sample);
+    rc_receiveAccelerometer(_tracker, sample->coordinatedUniversalTime100ns / 10, vec);
 }
 
 void CalibrationManager::PollForStatusUpdates()

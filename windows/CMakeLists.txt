@@ -18,7 +18,9 @@ set_property(TARGET RCTracker PROPERTY CXX_STANDARD 14)
 add_executable(RCTrackerDemo src/RCTrackerDemo/replay_rsclip.cpp)
 target_link_libraries(RCTrackerDemo RCTracker)
 target_include_directories(RCTrackerDemo PRIVATE ../corvis/src/filter/
-    src/RCTrackerDemo/ "$ENV{RSSDK_DIR}/include/")
+    src/RCTrackerDemo/ "$ENV{RSSDK_DIR}/include/"
+    src
+)
 link_directories("$ENV{RSSDK_DIR}lib/$(PlatformName)")
 target_link_libraries(RCTrackerDemo "$ENV{RSSDK_DIR}lib/$(PlatformName)/libpxcmd.lib")
 
@@ -35,6 +37,7 @@ add_library(RealityCapLib
 target_include_directories(RealityCapLib PRIVATE 
   ../corvis/src/filter/
   "$ENV{RSSDK_DIR}/include"
+    src
 )
 target_compile_definitions(RealityCapLib PRIVATE UNICODE _UNICODE)
 link_directories("$ENV{RSSDK_DIR}lib/$(PlatformName)")

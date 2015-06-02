@@ -12,6 +12,7 @@
 #include "libpxcimu_internal.h"
 #include "pxcsensemanager.h"
 #include "stats.h"
+#include "rc_pxc_util.h"
 
 using namespace std;
 
@@ -41,28 +42,6 @@ const rc_Pose camera_pose      = { 0,-1,  0, 0.064f,
 void logger(void * handle, const char * buffer_utf8, size_t length)
 {
     fprintf((FILE *)handle, "%s\n", buffer_utf8);
-}
-
-struct SavedImage
-{
-    SavedImage(PXCImage *i): image(i)
-    {
-        pxcStatus result = image->AcquireAccess(PXCImage::ACCESS_READ, PXCImage::PIXEL_FORMAT_Y8, &data);
-        if (result != PXC_STATUS_NO_ERROR || !data.planes[0]) throw std::runtime_error("PXCImage->AcquireAccess failed!");
-        image->AddRef();
-    }
-    ~SavedImage()
-    {
-        image->ReleaseAccess(&data);
-        image->Release();
-    }
-    PXCImage *image;
-    PXCImage::ImageData data;
-};
-
-void releaseSavedImage(void *h)
-{
-    delete (SavedImage *)h;
 }
 
 int wmain(int c, wchar_t **v)
@@ -184,9 +163,9 @@ int wmain(int c, wchar_t **v)
         PXCImage* depthImage = pSample->depth;
         PXCImage* colorImage = pSample->color;
 
-        SavedImage *si = new SavedImage(colorImage);
+        RCSavedImage *si = new RCSavedImage(colorImage);
         //Timestamp: divide by 10 to go from 100ns to us, subtract 637us blank interval, subtract shutter time to get start of capture
-        if(run_tracker) rc_receiveImage(tracker, rc_EGRAY8, colorImage->QueryTimeStamp() / 10 - 637 - shutter_time_us, shutter_time_us, NULL, false, si->data.pitches[0], si->data.planes[0], releaseSavedImage, (void*)si);
+        if(run_tracker) rc_receiveImage(tracker, rc_EGRAY8, colorImage->QueryTimeStamp() / 10 - 637 - shutter_time_us, shutter_time_us, NULL, false, si->data.pitches[0], si->data.planes[0], RCSavedImage::releaseOpaquePointer, (void*)si);
         
         // Get the IMU data for each sensor type
         PXCMetadata* metadata = (PXCMetadata *)depth->QueryInstance(PXCMetadata::CUID);
@@ -228,20 +207,12 @@ int wmain(int c, wchar_t **v)
 
                         if (inertial_sensor->deviceProperty == PROPERTY_SENSORS_LINEAR_ACCELERATION)
                         {
-                            //windows gives acceleration in g-units, so multiply by standard gravity in m/s^2
-                            rc_Vector acceleration_m__s2;
-                            acceleration_m__s2.x = -s->data[1] * 9.80665;
-                            acceleration_m__s2.y = s->data[0] * 9.80665;
-                            acceleration_m__s2.z = -s->data[2] * 9.80665;
+                            rc_Vector acceleration_m__s2 = rc_convertAcceleration(s);
                             if(run_tracker) rc_receiveAccelerometer(tracker, s->coordinatedUniversalTime100ns / 10, acceleration_m__s2);
                         }
                         else if (inertial_sensor->deviceProperty == PROPERTY_SENSORS_ANGULAR_VELOCITY)
                         {
-                            rc_Vector angular_velocity_rad__s;
-                            //windows gives angular velocity in degrees per second
-                            angular_velocity_rad__s.x = s->data[0] * M_PI / 180.;
-                            angular_velocity_rad__s.y = s->data[1] * M_PI / 180.;
-                            angular_velocity_rad__s.z = s->data[2] * M_PI / 180.;
+                            rc_Vector angular_velocity_rad__s = rc_convertAngularVelocity(s);
                             if(run_tracker) rc_receiveGyro(tracker, s->coordinatedUniversalTime100ns / 10, angular_velocity_rad__s);
                         }
                     }

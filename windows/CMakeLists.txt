@@ -40,6 +40,7 @@ link_directories("$ENV{RSSDK_DIR}lib/$(PlatformName)")
 target_link_libraries(RealityCapLib "$ENV{RSSDK_DIR}lib/$(PlatformName)/libpxcmd.lib")
 
 add_executable(RCUtility WIN32 RCUtility/RCUtility.cpp
+    RCUtility/RCUtility.rc
 RCUtility/LocationManager.cpp
 ../corvis/src/filter/rc_intel_interface.cpp
 )

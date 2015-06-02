@@ -89,7 +89,7 @@ TEST(calibration_data_store_tests, HasCalibration)
     try
     {
         // save the defaults as a valid calibration. next test cleans up.
-        get_parameters_for_device(DEVICE_TYPE_GIGABYTE_S11, &cal);
+        calStore.LoadCalibrationDefaults(DEVICE_TYPE_UNKNOWN, &cal);
         calStore.SaveCalibration(cal);
         EXPECT_TRUE(calStore.HasCalibration());
     }
@@ -111,4 +111,28 @@ TEST(calibration_data_store_tests, HasCalibration_MissingFile)
     {
         FAIL();
     }
+}
+
+TEST(calibration_data_store_tests, Serialization)
+{
+    corvis_device_parameters cal, calDeserialized;
+    calibration_json_store calStore;
+    calStore.LoadCalibrationDefaults(DEVICE_TYPE_UNKNOWN, &cal);
+
+    try
+    {
+        const wstring jsonString = calibration_json_store::SerializeCalibration(&cal);
+        EXPECT_TRUE(jsonString.length()); // expect non-zero length
+
+        calDeserialized = calibration_json_store::DeserializeCalibration(jsonString);
+    }
+    catch (runtime_error)
+    {
+        FAIL();
+    }
+
+    // just do some spot checking
+    EXPECT_EQ(cal.version, calDeserialized.version);
+    EXPECT_TRUE(nearlyEqual(cal.Fx, calDeserialized.Fx, FLT_EPSILON));
+    EXPECT_TRUE(nearlyEqual(cal.Cx, calDeserialized.Cx, FLT_EPSILON));
 }

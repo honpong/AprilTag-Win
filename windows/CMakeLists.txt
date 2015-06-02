@@ -2,6 +2,9 @@ cmake_minimum_required(VERSION 3.2.2 FATAL_ERROR)
 
 add_subdirectory(../corvis "${CMAKE_CURRENT_BINARY_DIR}/corvis")
 
+add_library(pxcmd STATIC IMPORTED)
+set_property(TARGET pxcmd PROPERTY IMPORTED_LOCATION "$ENV{RSSDK_DIR}lib/$(PlatformName)/libpxcmd.lib")
+
 target_compile_options(filter PRIVATE /wd4200 /wd4458)
 target_compile_options(vis PRIVATE /wd4200 /wd4458)
 
@@ -40,9 +43,7 @@ target_include_directories(RealityCapLib PRIVATE
     src
 )
 target_compile_definitions(RealityCapLib PRIVATE UNICODE _UNICODE)
-link_directories("$ENV{RSSDK_DIR}lib/$(PlatformName)")
-target_link_libraries(RealityCapLib "$ENV{RSSDK_DIR}lib/$(PlatformName)/libpxcmd.lib")
-target_link_libraries(RealityCapLib RCTracker)
+target_link_libraries(RealityCapLib RCTracker pxcmd)
 target_compile_options(RealityCapLib PRIVATE /wd4200 /wd4458)
 
 add_executable(RCUtility WIN32
@@ -54,7 +55,7 @@ add_executable(RCUtility WIN32
     RCUtility/stdafx.h
     RCUtility/targetver.h
 )
-target_link_libraries(RCUtility RealityCapLib)
+target_link_libraries(RCUtility RealityCapLib pxcmd)
 target_compile_options(RCUtility PRIVATE /wd4200 /wd4458)
 target_compile_definitions(RCUtility PRIVATE UNICODE _UNICODE)
 target_compile_options(RCUtility PRIVATE /ZW /EHsc /Gm- "/AIC:/Program Files (x86)/Windows Kits/8.1/References/CommonConfiguration/Neutral"
@@ -63,5 +64,3 @@ target_include_directories(RCUtility PRIVATE
     "$ENV{RSSDK_DIR}/include"
     RealityCapLib/
 )
-link_directories("$ENV{RSSDK_DIR}lib/$(PlatformName)")
-target_link_libraries(RCUtility "$ENV{RSSDK_DIR}lib/$(PlatformName)/libpxcmd.lib")

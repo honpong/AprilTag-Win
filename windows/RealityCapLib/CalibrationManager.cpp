@@ -30,12 +30,6 @@ bool CalibrationManager::StartCalibration()
 
     _trackerState = rc_E_INACTIVE;
 
-    rc_Calibration cal;
-    //unique_ptr<calibration_data_store> store = calibration_data_store::GetStore();
-    //corvis_device_parameters cal;
-    //store->GetCalibrationDefaults(DEVICE_TYPE_UNKNOWN, &cal);
-    rc_setCalibration(_tracker, cal);
-
     rc_startCalibration(_tracker);
 
     _isCalibrating = true;
@@ -48,6 +42,8 @@ bool CalibrationManager::StartCalibration()
 void CalibrationManager::StopCalibration()
 {
     if (!isCalibrating()) return;
+    rc_Calibration cal = rc_getCalibration(_tracker);
+    // TODO: write calibration
     rc_stopTracker(_tracker);
     StopSensors();
     _isCalibrating = false;

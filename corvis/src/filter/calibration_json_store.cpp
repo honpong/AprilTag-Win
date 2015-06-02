@@ -169,10 +169,10 @@ std::wstring RealityCap::calibration_json_store::SerializeCalibration(struct cor
     return wstring(json.serialize());
 }
 
-corvis_device_parameters RealityCap::calibration_json_store::DeserializeCalibration(std::wstring jsonString)
+corvis_device_parameters RealityCap::calibration_json_store::DeserializeCalibration(const std::wstring jsonString)
 {
     corvis_device_parameters cal;
-    value json = value(jsonString);
+    value json = value::parse(jsonString);
     CopyJsonToStruct(json, &cal);
     return cal;
 }

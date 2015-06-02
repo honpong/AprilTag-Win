@@ -149,11 +149,11 @@ void world_state::receive_camera(const filter * f, camera_data &&d)
     }
 
     for (auto &of : f->observations.recent_f_map)
-        observe_plot_item(d.timestamp,  8, "v-inn_x " + std::to_string(of.first), of.second->innovation(0));
+      observe_plot_item(d.timestamp,  8, "v-inn_x " + std::to_string(of.first), (float)of.second->innovation(0));
     for (auto &of : f->observations.recent_f_map)
-        observe_plot_item(d.timestamp,  9, "v-inn_y " + std::to_string(of.first), of.second->innovation(1));
+      observe_plot_item(d.timestamp,  9, "v-inn_y " + std::to_string(of.first), (float)of.second->innovation(1));
     for (auto &of : f->observations.recent_f_map)
-        observe_plot_item(d.timestamp, 10, "v-inn_r " + std::to_string(of.first), hypot(of.second->innovation(0), of.second->innovation(1)));
+      observe_plot_item(d.timestamp, 10, "v-inn_r " + std::to_string(of.first), (float)hypot(of.second->innovation(0), of.second->innovation(1)));
 }
 
 world_state::world_state()

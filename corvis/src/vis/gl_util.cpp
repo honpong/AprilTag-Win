@@ -1,11 +1,11 @@
 #define _USE_MATH_DEFINES
 #include "gl_util.h"
 
-#include <math.h>
+#include <cmath>
 
 void build_projection_matrix(float * projMatrix, float fov, float ratio, float nearP, float farP)
 {
-    float f = 1.0f / tan (fov * (M_PI / 360.0));
+    float f = 1.0f / tan (fov * ((float)M_PI / 360.0f));
 
     for(int i = 0; i < 16; i++) projMatrix[i] = 0;
     projMatrix[0] = 1;

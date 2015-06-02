@@ -227,11 +227,11 @@ int rc_getFeatures(const rc_Tracker * tracker, rc_Feature **features_px)
     int i = 0;
     for(auto f : tracker->sfm.s.features) {
         (*features_px)[i].id = f->id;
-        (*features_px)[i].world.x = f->world[0];
-        (*features_px)[i].world.y = f->world[1];
-        (*features_px)[i].world.z = f->world[2];
-        (*features_px)[i].image_x = f->current[0];
-        (*features_px)[i].image_y = f->current[1];
+        (*features_px)[i].world.x = (float)f->world[0];
+        (*features_px)[i].world.y = (float)f->world[1];
+        (*features_px)[i].world.z = (float)f->world[2];
+        (*features_px)[i].image_x = (float)f->current[0];
+        (*features_px)[i].image_y = (float)f->current[1];
         i++;
     }
     return num_features;

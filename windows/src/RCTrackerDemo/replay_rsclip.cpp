@@ -57,8 +57,8 @@ int wmain(int c, wchar_t **v)
     float center_x_px = (width_px-1) / 2.f;
     float center_y_px = (height_px-1) / 2.f;
     bool force_recognition = false;
-    double a_bias_stdev = .02 * 9.8 / 2.;
-    double w_bias_stdev = 10. / 180. * M_PI / 2.;
+    float a_bias_stdev = .02 * 9.8 / 2.;
+    float w_bias_stdev = 10. / 180. * M_PI / 2.;
 
     rc_Vector bias_m__s2 = {0.f, 0.f, 0.f};
     float noiseVariance_m2__s4 = a_bias_stdev * a_bias_stdev;

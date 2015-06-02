@@ -165,7 +165,7 @@ public:
     vector<unique_ptr<observation>> observations;
     std::unique_ptr<observation_gyroscope> recent_g;
     std::unique_ptr<observation_accelerometer> recent_a;
-    std::map<int, std::unique_ptr<observation_vision_feature>> recent_f_map;
+    std::map<uint64_t, std::unique_ptr<observation_vision_feature>> recent_f_map;
 
 protected:
     int size();

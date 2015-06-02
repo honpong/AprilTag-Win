@@ -31,6 +31,7 @@ target_include_directories(glfw INTERFACE glfw/include)
 add_library(glad STATIC
   glfw/deps/glad.c
 )
+target_compile_options(glad PRIVATE $<$<C_COMPILER_ID:MSVC>:/wd4996>)
 target_include_directories(glad
   PUBLIC glfw/deps
 )

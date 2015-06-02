@@ -63,7 +63,7 @@ target_include_directories(numerics INTERFACE numerics)
 set_property(TARGET numerics PROPERTY CXX_STANDARD 14)
 if(WIN32)
     file(GLOB MKLLOCS
-        "C:/Program Files %28x86%29/Intel/Composer XE 2015/mkl"
+        "C:/Program Files (x86)/Intel/Composer XE 2015/mkl"
         "C:/Program Files/Intel/Composer XE 2015/mkl"
     )
     list(GET MKLLOCS 0 MKLLOC)

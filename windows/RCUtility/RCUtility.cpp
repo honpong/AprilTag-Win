@@ -207,6 +207,13 @@ void EndLiveVis()
     SetWindowText(hLabel, TEXT(""));
 }
 
+#if 1
+void BeginReplay(const PWSTR filePath)
+{
+    appState = Replay;
+    SetWindowText(hLabel, TEXT("Beginning replay visualization..."));
+}
+#else
 #include <functional>
 #include <thread>
 #include "replay.h"
@@ -255,6 +262,7 @@ void BeginReplay(const PWSTR filePath)
     else
         rp.start();
 }
+#endif
 
 void EndReplay()
 {

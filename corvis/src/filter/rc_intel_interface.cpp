@@ -119,6 +119,9 @@ void rc_configureLocation(rc_Tracker * tracker, double latitude_deg, double long
 
 void rc_startCalibration(rc_Tracker * tracker)
 {
+    corvis_device_parameters p;
+    get_parameters_for_device_name("gigabyte_s11", &p);
+    tracker->set_device(p);
     tracker->start_calibration(false);
 }
 

@@ -53,12 +53,14 @@ LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK	WndProcGL(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 
+void StopCalibration();
+
 class MyCalDelegate : public CalibrationManagerDelegate
 {
 public:
     MyCalDelegate() : CalibrationManagerDelegate() {};
 
-    virtual void OnProgressUpdated(float progress)
+    virtual void OnProgressUpdated(float progress) override
     {
         if (progress < 1.)
         {
@@ -69,12 +71,42 @@ public:
         }
     };
 
-    virtual void OnStatusUpdated(int status)
+    virtual void OnStatusUpdated(int status) override
     {
         switch (status)
         {
+        case 0:
+            StopCalibration();
+            SetWindowText(hLabel, TEXT("Calibration complete."));
+            break;
         case 1:
             SetWindowText(hLabel, TEXT("Place the device flat on a table."));
+            break;
+        case 5:
+            SetWindowText(hLabel, TEXT("Hold device steady in portrait orientation."));
+            break;
+        case 6:
+            SetWindowText(hLabel, TEXT("Hold device steady in landscape orientation."));
+            break;
+        default:
+            break;
+        }
+    };
+
+    virtual void OnError(int errorCode) override
+    {
+        switch (errorCode)
+        {
+        case 1:
+            SetWindowText(hLabel, TEXT("Vision error."));
+            break;
+        case 2:
+            StopCalibration();
+            SetWindowText(hLabel, TEXT("Speed error."));
+            break;
+        case 3:
+            StopCalibration();
+            SetWindowText(hLabel, TEXT("Fatal error."));
             break;
         default:
             break;
@@ -146,7 +178,7 @@ void StopCalibration()
     if (appState != Calibrating) return;
     SetWindowText(hLabel, TEXT("Stopping calibration..."));
     calMan->StopCalibration();
-    SetWindowText(hLabel, TEXT("Calibration complete."));
+    SetWindowText(hLabel, TEXT("Calibration stopped."));
     SetWindowText(hCalibrateButton, L"Start Calibrating");
     appState = Idle;
 }

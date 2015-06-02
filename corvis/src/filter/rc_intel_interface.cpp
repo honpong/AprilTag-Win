@@ -8,7 +8,6 @@
 #define RCTRACKER_API_EXPORTS
 #include "rc_intel_interface.h"
 #include "sensor_fusion.h"
-#include "device_parameters.h"
 
 static const unsigned T0 = 3;
 static const unsigned T1 = 7;
@@ -23,9 +22,6 @@ extern "C" rc_Tracker * rc_create()
 {
     rc_Tracker * tracker = new rc_Tracker(false); //don't dispatch immediately - intel doesn't really make any data interleaving guarantees
     tracker->sfm.ignore_lateness = true; //and don't drop frames to keep up
-    corvis_device_parameters d;
-    get_parameters_for_device(DEVICE_TYPE_UNKNOWN, &d);
-    tracker->set_device(d);
 
     return tracker;
 }
@@ -294,4 +290,15 @@ void rc_setOutputLog(rc_Tracker * tracker, const char * filename)
 {
     tracker->set_output_log(filename);
 
+}
+
+// TODO: eagle to implement
+//corvis_device_parameters rc_getCalibration(rc_Tracker *tracker)
+//{
+//    return tracker->get_device_parameters(); 
+//}
+
+void rc_setCalibration(rc_Tracker *tracker, corvis_device_parameters calibration)
+{
+    tracker->set_device(calibration);
 }

@@ -1,5 +1,6 @@
 #pragma once
 #include "device_parameters.h"
+#include <memory>
 
 namespace RealityCap
 {
@@ -13,19 +14,27 @@ namespace RealityCap
 
     public:
         /*
-            Gets the saved calibration, or if none exists, the default calibration for the current device.
+            Always use this method to get an instance of a calibration_data_store;
         */
-        virtual corvis_device_parameters GetCalibration() { return corvis_device_parameters(); };
+        static unique_ptr<calibration_data_store> GetStore();
         /*
-            Saves the calibration to the data store.
+            Gets the saved calibration. Check HasCalibration() before calling this method. Returns true if successful.
         */
-        virtual void SaveCalibration(corvis_device_parameters calibration) {};
+        virtual bool GetCalibration(struct corvis_device_parameters *cal) { return false; };
+        /*
+        Gets the default calibration for the specified device. Returns true if successful.
+        */
+        virtual bool GetCalibrationDefaults(corvis_device_type deviceType, struct corvis_device_parameters *cal) { return false; };
+        /*
+            Saves the calibration to the data store. Returns true if successful.
+        */
+        virtual bool SaveCalibration(const corvis_device_parameters &calibration) { return false; };
         /*
             Deletes the calibration from the data store.
         */
-        virtual int ClearCalibration() { return false; };
+        virtual bool ClearCalibration() { return false; };
         /*
-            Returns true if calibration data exists and is of the current version.
+            Returns true if calibration data exists.
         */
         virtual bool HasCalibration() { return false; };
     };

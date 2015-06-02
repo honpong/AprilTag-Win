@@ -8,6 +8,8 @@
 #ifndef rc_intel_interface_h
 #define rc_intel_interface_h
 
+#include "device_parameters.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -181,6 +183,11 @@ RCTRACKER_API void rc_triggerLog(const rc_Tracker *tracker);
  If this is set, writes a log file in Realitycap's internal format to the filename specified
  */
 RCTRACKER_API void rc_setOutputLog(rc_Tracker * tracker, const char * filename);
+
+// TODO: eagle to implement
+//corvis_device_parameters rc_getCalibration(rc_Tracker *tracker);
+
+void rc_setCalibration(rc_Tracker *tracker, corvis_device_parameters calibration);
 
 /*
  Not yet implemented (depend on loop closure):

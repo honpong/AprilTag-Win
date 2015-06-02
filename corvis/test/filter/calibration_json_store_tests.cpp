@@ -10,7 +10,7 @@ using namespace std;
 
 const float testFloat = .1;
 
-TEST(CalibrationDataStoreTests, NewDelete)
+TEST(calibration_data_store_tests, NewDelete)
 {
     calibration_json_store* instance = new calibration_json_store();
     delete instance;
@@ -28,20 +28,23 @@ bool nearlyEqual(float a, float b, float epsilon)
     const float absB = fabs(b);
     const float diff = fabs(a - b);
 
-    if (a == b) { // shortcut, handles infinities
+    if (a == b)  // shortcut, handles infinities
+    {
         return true;
     }
-    else if (a == 0 || b == 0 || diff < FLT_MIN) {
+    else if (a == 0 || b == 0 || diff < FLT_MIN) 
+    {
         // a or b is zero or both are extremely close to it
         // relative error is less meaningful here
         return diff < (epsilon * FLT_MIN);
     }
-    else { // use relative error
+    else  // use relative error
+    {
         return diff / fmin((absA + absB), FLT_MAX) < epsilon;
     }
 }
 
-TEST(CalibrationDataStoreTests, SaveCalibration)
+TEST(calibration_data_store_tests, SaveCalibration)
 {
     remove(CALIBRATION_FILE_NAME);
 
@@ -63,12 +66,13 @@ TEST(CalibrationDataStoreTests, SaveCalibration)
 }
 
 // there will be an existing calibration file because of above test
-TEST(CalibrationDataStoreTests, GetCalibration)
+TEST(calibration_data_store_tests, GetCalibration)
 {
     calibration_json_store calStore;
     try
     {
-        corvis_device_parameters cal = calStore.GetCalibration();
+        corvis_device_parameters cal;
+        calStore.GetCalibration(&cal);
         EXPECT_TRUE(nearlyEqual(testFloat, cal.Fx, FLT_EPSILON));
     }
     catch (runtime_error)
@@ -77,31 +81,14 @@ TEST(CalibrationDataStoreTests, GetCalibration)
     }
 }
 
-TEST(CalibrationDataStoreTests, HasCalibration_WrongVersion)
-{
-    calibration_json_store calStore;
-    corvis_device_parameters cal;
-    cal.version = CALIBRATION_VERSION - 1;
-
-    try
-    {
-        calStore.SaveCalibration(cal);
-        EXPECT_FALSE(calStore.HasCalibration());
-    }
-    catch (runtime_error)
-    {
-        FAIL();
-    }
-}
-
-TEST(CalibrationDataStoreTests, HasCalibration)
+TEST(calibration_data_store_tests, HasCalibration)
 {
     calibration_json_store calStore;
     corvis_device_parameters cal;
 
     try
     {
-        // save the defaults as a valid calibration
+        // save the defaults as a valid calibration. next test cleans up.
         get_parameters_for_device(DEVICE_TYPE_GIGABYTE_S11, &cal);
         calStore.SaveCalibration(cal);
         EXPECT_TRUE(calStore.HasCalibration());
@@ -112,7 +99,7 @@ TEST(CalibrationDataStoreTests, HasCalibration)
     }
 }
 
-TEST(CalibrationDataStoreTests, HasCalibration_MissingFile)
+TEST(calibration_data_store_tests, HasCalibration_MissingFile)
 {
     calibration_json_store calStore;
     try

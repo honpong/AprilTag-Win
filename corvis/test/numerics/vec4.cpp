@@ -25,8 +25,8 @@ TEST(Matrix4, Determinant) {
     m4 b = {{ {1, 2, 3, 0}, {0, -4, 1, 0}, {0, 3, -1, 0}, {0, 0, 0 ,0} }};
     EXPECT_NEAR(determinant3(b), 1, F_T_EPS);
 
-    EXPECT_NEAR(determinant3(foo), 15128654.998270018, 1e-10);
-    EXPECT_NEAR(determinant3(bar), 1349053797.5000024, 1e-6);
+    EXPECT_NEAR(determinant3(foo), 15128654.998270018, 1e-7);
+    EXPECT_NEAR(determinant3(bar), 1349053797.5000024, 1e-5);
 }
 
 TEST(Vector4, Cross) {

@@ -8,6 +8,7 @@
 #define RCTRACKER_API_EXPORTS
 #include "rc_intel_interface.h"
 #include "sensor_fusion.h"
+#include "calibration_json_store.h"
 
 static const unsigned T0 = 3;
 static const unsigned T1 = 7;
@@ -362,12 +363,11 @@ void rc_triggerLog(const rc_Tracker * tracker)
 void rc_setOutputLog(rc_Tracker * tracker, const char * filename)
 {
     tracker->set_output_log(filename);
-
 }
 
-rc_Calibration rc_getCalibration(rc_Tracker *tracker)
+corvis_device_parameters rc_getCalibration(rc_Tracker *tracker)
 {
-    rc_Calibration calibration;
+    corvis_device_parameters calibration;
     calibration.Fx = tracker->sfm.s.focal_length.v;
     calibration.Fy = tracker->sfm.s.focal_length.v;
     calibration.Cx = tracker->sfm.s.center_x.v;
@@ -394,32 +394,20 @@ rc_Calibration rc_getCalibration(rc_Tracker *tracker)
     return calibration;
 }
 
-void rc_setCalibration(rc_Tracker *tracker, rc_Calibration calibration)
+bool rc_getCalibration(rc_Tracker *tracker, wchar_t** buffer, size_t size)
 {
-    corvis_device_parameters p;
-    // Set defaults
-    get_parameters_for_device_name("gigabyte_s11", &p);
-    // Override with device specific configuration
-    p.Fx = calibration.Fx;
-    p.Fy = calibration.Fy;
-    p.Cx = calibration.Cx;
-    p.Cy = calibration.Cy;
-    p.px = calibration.px;
-    p.py = calibration.py;
-    p.w_meas_var = calibration.w_meas_var;
-    p.a_meas_var = calibration.a_meas_var;
-    for(int i = 0; i < 3; i++) {
-        p.K[i] = calibration.K[i];
-        p.a_bias[i] = calibration.a_bias[i];
-        p.a_bias_var[i] = calibration.a_bias_var[i];
-        p.w_bias[i] = calibration.w_bias[i];
-        p.w_bias_var[i] = calibration.w_bias_var[i];
-        p.Tc[i] = calibration.Tc[i];
-        p.Tc_var[i] = calibration.Tc_var[i];
-        p.Wc[i] = calibration.Wc[i];
-        p.Wc_var[i] = calibration.Wc_var[i];
-    }
-    p.image_width = calibration.image_width;
-    p.image_height = calibration.image_height;
-    tracker->set_device(p);
+    corvis_device_parameters cal = rc_getCalibration(tracker);
+    wstring jsonString;
+    bool result = RealityCap::calibration_json_store::SerializeCalibration(cal, jsonString);
+    if (result && jsonString.length() < size) *buffer = &jsonString[0];
+    return result;
+}
+
+bool rc_setCalibration(rc_Tracker *tracker, wchar_t** buffer, size_t size)
+{
+    wstring jsonString(*buffer);
+    corvis_device_parameters cal;
+    bool result = RealityCap::calibration_json_store::DeserializeCalibration(jsonString, cal);
+    if (result) tracker->set_device(cal);
+    return result;
 }

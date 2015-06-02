@@ -42,9 +42,12 @@ bool CalibrationManager::StartCalibration()
 void CalibrationManager::StopCalibration()
 {
     if (!isCalibrating()) return;
-    rc_Calibration cal = rc_getCalibration(_tracker);
+
+    wchar_t* buffer[WCHAR_MAX];
+    bool result = rc_getCalibration(_tracker, buffer, WCHAR_MAX);
     // TODO: write calibration
     rc_stopTracker(_tracker);
+    
     StopSensors();
     _isCalibrating = false;
 }

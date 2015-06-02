@@ -98,24 +98,6 @@ typedef struct
     float image_x, image_y;
 } rc_Feature;
 
-typedef struct {
-    float Fx, Fy;
-    float Cx, Cy;
-    float px, py;
-    float K[3];
-    float a_bias[3];
-    float a_bias_var[3];
-    float w_bias[3];
-    float w_bias_var[3];
-    float w_meas_var;
-    float a_meas_var;
-    float Tc[3];
-    float Tc_var[3];
-    float Wc[3];
-    float Wc_var[3];
-    int image_width, image_height;
-} rc_Calibration;
-
 typedef void(*rc_DataCallback)(rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count);
 typedef void(*rc_StatusCallback)(rc_TrackerState state, rc_TrackerError error, rc_TrackerConfidence confidence, float progress);
     
@@ -206,8 +188,8 @@ RCTRACKER_API void rc_triggerLog(const rc_Tracker *tracker);
  */
 RCTRACKER_API void rc_setOutputLog(rc_Tracker * tracker, const char * filename);
 
-RCTRACKER_API rc_Calibration rc_getCalibration(rc_Tracker *tracker);
-RCTRACKER_API void rc_setCalibration(rc_Tracker *tracker, rc_Calibration calibration);
+RCTRACKER_API bool rc_getCalibration(rc_Tracker *tracker, wchar_t** buffer, size_t size);
+RCTRACKER_API bool rc_setCalibration(rc_Tracker *tracker, wchar_t** buffer, size_t size);
 
 /*
  Not yet implemented (depend on loop closure):

@@ -79,7 +79,7 @@ void CalibrationManager::OnGyroSample(imu_sample_t* sample)
 {
     if (!isCalibrating()) return;
     const rc_Vector vec = rc_convertAngularVelocity(sample);
-    rc_receiveAccelerometer(_tracker, sample->coordinatedUniversalTime100ns / 10, vec);
+    rc_receiveGyro(_tracker, sample->coordinatedUniversalTime100ns / 10, vec);
 }
 
 void CalibrationManager::PollForStatusUpdates()

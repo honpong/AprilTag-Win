@@ -5,6 +5,7 @@ add_subdirectory(../corvis "${CMAKE_CURRENT_BINARY_DIR}/corvis")
 add_library(RCTracker SHARED ../corvis/src/filter/rc_intel_interface.cpp)
 target_link_libraries(RCTracker PRIVATE
   filter
+  casablanca
   numerics
   cor
   vis

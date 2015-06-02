@@ -20,9 +20,44 @@ link_directories("$ENV{RSSDK_DIR}lib/$(PlatformName)")
 target_link_libraries(RCTrackerDemo "$ENV{RSSDK_DIR}lib/$(PlatformName)/libpxcmd.lib")
 
 
-add_executable(RCUtility RCUtility/RCUtility.cpp RCUtility/LocationManager.cpp)
-# target_link_libraries(RCUtility RCTracker)
+add_library(RealityCapLib
+  RealityCapLib/CalibrationManager.cpp
+  RealityCapLib/CaptureManager.cpp
+  RealityCapLib/SensorData.cpp
+  RealityCapLib/SensorManager.cpp
+  RealityCapLib/RCFactory.cpp
+  RealityCapLib/Debug.cpp
+  RealityCapLib/stdafx.cpp
+)
+target_include_directories(RealityCapLib PRIVATE 
+  ../corvis/src/filter                                       
+  "$ENV{RSSDK_DIR}/include"
+)
+target_compile_definitions(RealityCapLib PRIVATE UNICODE _UNICODE)
+link_directories("$ENV{RSSDK_DIR}lib/$(PlatformName)")
+target_link_libraries(RealityCapLib "$ENV{RSSDK_DIR}lib/$(PlatformName)/libpxcmd.lib")
+
+add_executable(RCUtility RCUtility/RCUtility.cpp
+RCUtility/LocationManager.cpp
+../corvis/src/filter/rc_intel_interface.cpp
+)
+#target_link_libraries(RCUtility RCTracker)
+target_link_libraries(RCUtility
+   cor
+   numerics
+   filter
+   vis
+   casablanca
+   RealityCapLib
+)
+target_compile_definitions(RCUtility PRIVATE UNICODE _UNICODE)
+target_compile_options(RCUtility PRIVATE /ZW /EHsc /Gm- "/AIC:/Program Files (x86)/Windows Kits/8.1/References/CommonConfiguration/Neutral"
+    "/AIC:/Program Files (x86)/Microsoft SDKs/Windows/v8.1/ExtensionSDKs/Microsoft.VCLibs/12.0/References/CommonConfiguration/neutral")
 target_include_directories(RCUtility PRIVATE ../corvis/src/filter
-    src/RCUtility "$ENV{RSSDK_DIR}/include")
+    src/RCUtility "$ENV{RSSDK_DIR}/include"
+    RealityCapLib/
+    ../corvis/src/
+    ../corvis/src/vis
+)
 link_directories("$ENV{RSSDK_DIR}lib/$(PlatformName)")
 target_link_libraries(RCUtility "$ENV{RSSDK_DIR}lib/$(PlatformName)/libpxcmd.lib")

@@ -89,6 +89,7 @@ set_property(TARGET casablanca PROPERTY CXX_STANDARD 14)
 if (WIN32)
   target_compile_definitions(casablanca PUBLIC UNICODE _UNICODE)
   target_compile_definitions(casablanca PUBLIC _WINSOCK_DEPRECATED_NO_WARNINGS WIN32)
+  target_compile_definitions(casablanca PRIVATE _NO_ASYNCRTIMP _NO_PPLXIMP)
 else(WIN32)
   find_package(Boost REQUIRED COMPONENTS random chrono system thread locale regex filesystem)
   target_include_directories(casablanca PUBLIC ${Boost_INCLUDE_DIR})
@@ -111,6 +112,7 @@ add_library(filter STATIC
   filter/calibration_data_store.cpp
   filter/sensor_fusion.cpp
   filter/capture.cpp
+  filter/replay.cpp
 )
 target_include_directories(filter PUBLIC filter)
 target_link_libraries(filter PUBLIC casablanca)

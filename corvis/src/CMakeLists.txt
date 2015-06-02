@@ -77,7 +77,6 @@ else()
     target_link_libraries(numerics PUBLIC "-framework Accelerate")
 endif()
 
-find_package(Boost REQUIRED COMPONENTS random chrono system thread locale regex filesystem)
 add_library(casablanca STATIC
   ../../ThirdParty/casablanca/Release/src/json/json.cpp
   ../../ThirdParty/casablanca/Release/src/json/json_parsing.cpp
@@ -86,12 +85,14 @@ add_library(casablanca STATIC
 )
 target_include_directories(casablanca PRIVATE ../../ThirdParty/casablanca/Release/src/pch)
 target_include_directories(casablanca PUBLIC ../../ThirdParty/casablanca/Release/include)
-target_include_directories(casablanca PUBLIC ${Boost_INCLUDE_DIR})
-target_link_libraries(casablanca PRIVATE ${Boost_LIBRARIES} ${Boost_FRAMEWORK})
 set_property(TARGET casablanca PROPERTY CXX_STANDARD 14)
 if (WIN32)
   target_compile_options(casablanca PUBLIC UNICODE _UNICODE)
   target_compile_definitions(casablanca PUBLIC _WINSOCK_DEPRECATED_NO_WARNINGS WIN32)
+else(WIN32)
+  find_package(Boost REQUIRED COMPONENTS random chrono system thread locale regex filesystem)
+  target_include_directories(casablanca PUBLIC ${Boost_INCLUDE_DIR})
+  target_link_libraries(casablanca PRIVATE ${Boost_LIBRARIES} ${Boost_FRAMEWORK})
 endif(WIN32)
 
 add_library(filter STATIC

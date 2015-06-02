@@ -18,57 +18,6 @@ const static m4 bar = {{
     {-3.4, .8, .2, 0.}
 }};
 
-const static m4 symmetric = foo * foo.transpose();
-
-const static v4 vec(1.5, -.64, 4.1, 0.);
-
-const static v4 v4_delta = v4(.01, -.01, .01, 0.);
-
-const static m4 m4_delta = {{
-    {0., .01, -.01, 0},
-    {-.01, -.01, .01, 0},
-    {-.01, 0., -.01, 0},
-    {0, 0, 0, 0}
-}};
-
-TEST(Vector4, Equality)
-{
-    v4 v1 = vec, v2 = v1;
-    EXPECT_EQ(v1, v2);
-    for(int i = 0; i < 4; ++i) {
-        v2[i]++;
-        EXPECT_FALSE(v1 == v2);
-        v2 = v1;
-    }
-}
-
-TEST(Matrix4, Equality)
-{
-    m4 m1 = foo, m2 = m1;
-    EXPECT_EQ(m1, m2);
-    for(int i = 0; i < 4; ++i) {
-        for(int j = 0; j < 4; ++j) {
-            m2(i, j)++;
-            EXPECT_FALSE(m1 == m2);
-            m2 = m1;
-        }
-    }
-}
-
-TEST(Matrix4, Identity) {
-    EXPECT_EQ(foo, foo);
-    EXPECT_EQ(foo, foo * m4::Identity());
-    EXPECT_EQ(foo, m4::Identity() * foo);
-    EXPECT_EQ(foo + bar, bar + foo);
-    EXPECT_EQ(foo + m4::Zero(), foo);
-    EXPECT_EQ((m4)(foo - foo), (m4)m4::Zero());
-    EXPECT_EQ((foo + bar) + m4::Identity(), foo + (bar + m4::Identity()));
-    EXPECT_EQ(m4::Identity() * m4::Identity(), m4::Identity());
-    EXPECT_EQ(foo.transpose().transpose(), foo);
-    EXPECT_EQ((foo * bar).transpose(), bar.transpose() * foo.transpose());
-    EXPECT_EQ(symmetric.transpose(), symmetric);
-}
-
 TEST(Matrix4, Determinant) {
     m4 a = {{ {5., -2., 1., 0.}, {0., 3., -1., 0.}, {2., 0., 7., 0.}, {0., 0., 0., 0.} }};
     EXPECT_FLOAT_EQ(determinant3(a), 103);
@@ -81,6 +30,7 @@ TEST(Matrix4, Determinant) {
 }
 
 TEST(Vector4, Cross) {
+    v4 vec(1.5, -.64, 4.1, 0.);
     v4 vec2(.08, 1.2, -.23, 0.);
     EXPECT_EQ(cross(vec, vec2), skew3(vec) * vec2) << "a x b = skew(a) * b";
     EXPECT_EQ(cross(vec, vec2), skew3(vec2).transpose() * vec) << "a x b = skew(b)^T * a";

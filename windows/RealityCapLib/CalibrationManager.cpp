@@ -8,7 +8,6 @@
 #include <string>
 #include "libpxcimu_internal.h"
 #include "rc_intel_interface.h"
-#include "calibration_data_store.h"
 
 using namespace RealityCap;
 using namespace std;
@@ -30,9 +29,10 @@ bool CalibrationManager::StartCalibration()
 
     _trackerState = rc_E_INACTIVE;
 
-    unique_ptr<calibration_data_store> store = calibration_data_store::GetStore();
-    corvis_device_parameters cal;
-    store->GetCalibrationDefaults(DEVICE_TYPE_UNKNOWN, &cal);
+    rc_Calibration cal;
+    //unique_ptr<calibration_data_store> store = calibration_data_store::GetStore();
+    //corvis_device_parameters cal;
+    //store->GetCalibrationDefaults(DEVICE_TYPE_UNKNOWN, &cal);
     rc_setCalibration(_tracker, cal);
 
     rc_startCalibration(_tracker);

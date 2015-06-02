@@ -298,7 +298,32 @@ void rc_setOutputLog(rc_Tracker * tracker, const char * filename)
 //    return tracker->get_device_parameters(); 
 //}
 
-void rc_setCalibration(rc_Tracker *tracker, corvis_device_parameters calibration)
+void rc_setCalibration(rc_Tracker *tracker, rc_Calibration calibration)
 {
-    tracker->set_device(calibration);
+    corvis_device_parameters p;
+    // Set defaults
+    get_parameters_for_device_name("gigabyte_s11", &p);
+    // Override with device specific configuration
+    p.Fx = calibration.Fx;
+    p.Fy = calibration.Fy;
+    p.Cx = calibration.Cx;
+    p.Cy = calibration.Cy;
+    p.px = calibration.px;
+    p.py = calibration.py;
+    p.w_meas_var = calibration.w_meas_var;
+    p.a_meas_var = calibration.a_meas_var;
+    for(int i = 0; i < 3; i++) {
+        p.K[i] = calibration.K[i];
+        p.a_bias[i] = calibration.a_bias[i];
+        p.a_bias_var[i] = calibration.a_bias_var[i];
+        p.w_bias[i] = calibration.w_bias[i];
+        p.w_bias_var[i] = calibration.w_bias_var[i];
+        p.Tc[i] = calibration.Tc[i];
+        p.Tc_var[i] = calibration.Tc_var[i];
+        p.Wc[i] = calibration.Wc[i];
+        p.Wc_var[i] = calibration.Wc_var[i];
+    }
+    p.image_width = calibration.image_width;
+    p.image_height = calibration.image_height;
+    tracker->set_device(p);
 }

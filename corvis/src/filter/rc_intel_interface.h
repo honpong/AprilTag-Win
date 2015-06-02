@@ -8,8 +8,6 @@
 #ifndef rc_intel_interface_h
 #define rc_intel_interface_h
 
-#include "device_parameters.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -100,6 +98,24 @@ typedef struct
     float image_x, image_y;
 } rc_Feature;
 
+typedef struct {
+    float Fx, Fy;
+    float Cx, Cy;
+    float px, py;
+    float K[3];
+    float a_bias[3];
+    float a_bias_var[3];
+    float w_bias[3];
+    float w_bias_var[3];
+    float w_meas_var;
+    float a_meas_var;
+    float Tc[3];
+    float Tc_var[3];
+    float Wc[3];
+    float Wc_var[3];
+    int image_width, image_height;
+} rc_Calibration;
+
 typedef struct rc_Tracker rc_Tracker;
 
 RCTRACKER_API rc_Tracker * rc_create();
@@ -187,7 +203,7 @@ RCTRACKER_API void rc_setOutputLog(rc_Tracker * tracker, const char * filename);
 // TODO: eagle to implement
 //corvis_device_parameters rc_getCalibration(rc_Tracker *tracker);
 
-RCTRACKER_API void rc_setCalibration(rc_Tracker *tracker, corvis_device_parameters calibration);
+RCTRACKER_API void rc_setCalibration(rc_Tracker *tracker, rc_Calibration calibration);
 
 /*
  Not yet implemented (depend on loop closure):

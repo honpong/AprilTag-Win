@@ -6,9 +6,147 @@
 //  Copyright (c) 2015 RealityCap. All rights reserved.
 //
 
-
+#include <future>
 #include "sensor_fusion.h"
 #include "filter.h"
+
+void sensor_fusion::flush_and_reset()
+{
+    isSensorFusionRunning = false;
+    queue->stop_sync();
+    queue->dispatch_sync([this]{
+        filter_initialize(&sfm, device);
+    });
+    sfm.camera_control.focus_unlock();
+    sfm.camera_control.release_platform_specific_object();
+    
+    isProcessingVideo = false;
+    processingVideoRequested = false;
+}
+
+RCSensorFusionErrorCode sensor_fusion::get_error()
+{
+    RCSensorFusionErrorCode error = RCSensorFusionErrorCodeNone;
+    if(sfm.numeric_failed) error = RCSensorFusionErrorCodeOther;
+    else if(sfm.speed_failed) error = RCSensorFusionErrorCodeTooFast;
+    else if(sfm.detector_failed) error = RCSensorFusionErrorCodeVision;
+    return error;
+}
+
+void sensor_fusion::update_status()
+{
+    status s;
+    //Updates happen synchronously in the calling (filter) thread
+    s.error = get_error();
+    s.progress = filter_converged(&sfm);
+    s.run_state = sfm.run_state;
+    
+    s.confidence = RCSensorFusionConfidenceNone;
+    if(s.run_state == RCSensorFusionRunStateRunning)
+    {
+        if(s.error == RCSensorFusionErrorCodeVision)
+        {
+            s.confidence = RCSensorFusionConfidenceLow;
+        }
+        else if(sfm.has_converged)
+        {
+            s.confidence = RCSensorFusionConfidenceHigh;
+        }
+        else
+        {
+            s.confidence = RCSensorFusionConfidenceMedium;
+        }
+    }
+    if(s == last_status) return;
+    
+    // queue actions related to failures before queuing callbacks to the sdk client.
+    if(s.error == RCSensorFusionErrorCodeTooFast || s.error == RCSensorFusionErrorCodeOther)
+    {
+        //Sensor fusion has already been reset by get_error, but it could have gotten random data inbetween, so do full reset
+        if(threaded) std::async(std::launch::async, [this] { flush_and_reset(); });
+        else flush_and_reset();
+    }
+    else if(last_status.run_state == RCSensorFusionRunStateStaticCalibration && s.run_state == RCSensorFusionRunStateInactive && s.error == RCSensorFusionErrorCodeNone)
+    {
+        isSensorFusionRunning = false;
+        //TODO: save calibration
+    }
+    
+    if((s.error == RCSensorFusionErrorCodeVision && s.run_state != RCSensorFusionRunStateRunning)) {
+        //refocus if either we tried to detect and failed, or if we've recently moved during initialization
+        isProcessingVideo = false;
+        processingVideoRequested = true;
+        
+        // Request a refocus
+        //TODO: is it possible for *this to become invalid before this is called?
+        sfm.camera_control.focus_once_and_lock([this](uint64_t timestamp, float position)
+                                               {
+                                                   if(processingVideoRequested && !isProcessingVideo) {
+                                                       isProcessingVideo = true;
+                                                       processingVideoRequested = false;
+                                                   }
+                                               });
+    }
+    
+    if(status_callback) {
+        if(threaded) std::async(std::launch::async, status_callback, s);
+        else status_callback(s);
+    }
+
+    last_status = s;
+}
+
+void sensor_fusion::update_data(camera_data &&image)
+{
+    data d;
+    
+    //perform these operations synchronously in the calling (filter) thread
+    transformation transform(to_quaternion(sfm.s.W.v), sfm.s.T.v);
+    transformation cam_transform(to_quaternion(sfm.s.Wc.v), sfm.s.Tc.v);
+    d.total_path_m = sfm.s.total_distance;
+    camera_parameters cp;
+    cp.fx = (float)sfm.s.focal_length.v;
+    cp.fy = (float)sfm.s.focal_length.v;
+    cp.cx = (float)sfm.s.center_x.v;
+    cp.cy = (float)sfm.s.center_y.v;
+    cp.skew = 0;
+    cp.k1 = (float)sfm.s.k1.v;
+    cp.k2 = (float)sfm.s.k2.v;
+    cp.k3 = (float)sfm.s.k3.v;
+    d.camera_intrinsics = cp;
+    
+    if(sfm.qr.valid)
+    {
+        transform = compose(sfm.qr.origin, transform);
+        d.origin_qr_code = sfm.qr.data;
+    }
+    
+    d.transform = transform;
+    d.camera_transform = compose(d.transform, cam_transform);
+    d.time = sfm.last_time;
+
+    d.features.reserve(sfm.s.features.size());
+    for(auto i: sfm.s.features)
+    {
+        if(i->is_valid()) {
+            feature_point p;
+            p.id = i->id;
+            p.x = (float)i->current[0];
+            p.y = (float)i->current[1];
+            p.original_depth = (float)i->v.depth();
+            p.stdev = (float)i->v.stdev_meters(sqrt(i->variance()));
+            p.worldx = (float)i->world[0];
+            p.worldy = (float)i->world[1];
+            p.worldz = (float)i->world[2];
+            p.initialized = i->is_initialized();
+            d.features.push_back(p);
+        }
+    }
+    if(camera_callback) {
+        if(threaded) std::async(std::launch::async, camera_callback, d, std::move(image));
+        else camera_callback(d, std::move(image));
+    }
+}
 
 sensor_fusion::sensor_fusion(bool immediate_dispatch)
 {
@@ -21,13 +159,13 @@ sensor_fusion::sensor_fusion(bool immediate_dispatch)
         {
         } else if(isProcessingVideo) {
             docallback = filter_image_measurement(&sfm, data.image, data.width, data.height, data.stride, data.timestamp);
-            if(status_callback) status_callback();
-            if(docallback && camera_callback) camera_callback(std::move(data));
+            update_status();
+            if(docallback) update_data(std::move(data));
         } else {
             //We're not yet processing video, but we do want to send updates for the video preview. Make sure that rotation is initialized.
             docallback =  sfm.gravity_init;
-            if(status_callback) status_callback();
-            if(docallback && camera_callback) camera_callback(std::move(data));
+            update_status();
+            if(docallback) update_data(std::move(data));
         }
     };
     
@@ -35,7 +173,7 @@ sensor_fusion::sensor_fusion(bool immediate_dispatch)
     {
         if(!isSensorFusionRunning) return;
         filter_accelerometer_measurement(&sfm, data.accel_m__s2, data.timestamp);
-        if(status_callback) status_callback();
+        update_status();
     };
     
     auto gyr_fn = [this](gyro_data &&data)
@@ -64,8 +202,9 @@ void sensor_fusion::set_location(double latitude_degrees, double longitude_degre
     });
 }
 
-void sensor_fusion::start_calibration(bool threaded)
+void sensor_fusion::start_calibration(bool thread)
 {
+    threaded = thread;
     isSensorFusionRunning = true;
     isProcessingVideo = false;
     filter_initialize(&sfm, device);
@@ -79,8 +218,9 @@ void sensor_fusion::start_calibration(bool threaded)
     filter_initialize(&sfm, device);
 }*/
 
-void sensor_fusion::start(bool threaded, camera_control_interface &cam)
+void sensor_fusion::start(bool thread, camera_control_interface &cam)
 {
+    threaded = thread;
     isSensorFusionRunning = true;
     isProcessingVideo = false;
     filter_initialize(&sfm, device);
@@ -89,8 +229,9 @@ void sensor_fusion::start(bool threaded, camera_control_interface &cam)
     else queue->start_singlethreaded(true);
 }
 
-void sensor_fusion::start_unstable(bool threaded, camera_control_interface &cam)
+void sensor_fusion::start_unstable(bool thread, camera_control_interface &cam)
 {
+    threaded = thread;
     isSensorFusionRunning = true;
     isProcessingVideo = false;
     filter_initialize(&sfm, device);
@@ -101,6 +242,7 @@ void sensor_fusion::start_unstable(bool threaded, camera_control_interface &cam)
 
 void sensor_fusion::start_offline()
 {
+    threaded = false;
     queue->start_singlethreaded(true);
     sfm.ignore_lateness = true;
     // TODO: Note that we call filter initialize, and this can change

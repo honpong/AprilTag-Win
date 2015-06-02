@@ -116,6 +116,9 @@ typedef struct {
     int image_width, image_height;
 } rc_Calibration;
 
+typedef void(*rc_DataCallback)(rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count);
+typedef void(*rc_StatusCallback)(rc_TrackerState state, rc_TrackerError error, rc_TrackerConfidence confidence, float progress);
+    
 typedef struct rc_Tracker rc_Tracker;
 
 RCTRACKER_API rc_Tracker * rc_create();
@@ -143,6 +146,9 @@ RCTRACKER_API void rc_configureCamera(rc_Tracker *tracker, rc_Camera camera, con
 RCTRACKER_API void rc_configureAccelerometer(rc_Tracker *tracker, const rc_Pose pose_m, const rc_Vector bias_m__s2, float noiseVariance_m2__s4);
 RCTRACKER_API void rc_configureGyroscope(rc_Tracker *tracker, const rc_Pose pose_m, const rc_Vector bias_rad__s, float noiseVariance_rad2__s2);
 RCTRACKER_API void rc_configureLocation(rc_Tracker *tracker, double latitude_deg, double longitude_deg, double altitude_m);
+
+RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callback);
+RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback callback);
 
 RCTRACKER_API void rc_startCalibration(rc_Tracker *tracker);
 //TODO: Define calibration interface

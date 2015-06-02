@@ -13,6 +13,62 @@ static const unsigned T0 = 3;
 static const unsigned T1 = 7;
 static const unsigned T2 = 11;
 
+static rc_TrackerState tracker_state_from_run_state(RCSensorFusionRunState run_state)
+{
+    switch(run_state)
+    {
+        case RCSensorFusionRunStateDynamicInitialization:
+            return rc_E_DYNAMIC_INITIALIZATION;
+        case RCSensorFusionRunStateInactive:
+            return rc_E_INACTIVE;
+        case RCSensorFusionRunStateLandscapeCalibration:
+            return rc_E_LANDSCAPE_CALIBRATION;
+        case RCSensorFusionRunStatePortraitCalibration:
+            return rc_E_PORTRAIT_CALIBRATION;
+        case RCSensorFusionRunStateRunning:
+            return rc_E_RUNNING;
+        case RCSensorFusionRunStateStaticCalibration:
+            return rc_E_STATIC_CALIBRATION;
+        case RCSensorFusionRunStateSteadyInitialization:
+            return rc_E_STEADY_INITIALIZATION;
+        default: // This case should never be reached
+            return rc_E_INACTIVE;
+    }
+}
+
+static rc_TrackerError tracker_error_from_error(RCSensorFusionErrorCode error)
+{
+    switch(error)
+    {
+        case RCSensorFusionErrorCodeNone:
+            return rc_E_ERROR_NONE;
+        case RCSensorFusionErrorCodeOther:
+            return rc_E_ERROR_OTHER;
+        case RCSensorFusionErrorCodeVision:
+            return rc_E_ERROR_VISION;
+        case RCSensorFusionErrorCodeTooFast:
+            return rc_E_ERROR_SPEED;
+        default:
+            return rc_E_ERROR_OTHER;
+    }
+}
+
+static rc_TrackerConfidence tracker_confidence_from_confidence(RCSensorFusionConfidence confidence)
+{
+    switch(confidence)
+    {
+        case RCSensorFusionConfidenceHigh:
+            return rc_E_CONFIDENCE_HIGH;
+        case RCSensorFusionConfidenceMedium:
+            return rc_E_CONFIDENCE_MEDIUM;
+        case RCSensorFusionConfidenceLow:
+            return rc_E_CONFIDENCE_LOW;
+        case RCSensorFusionConfidenceNone:
+        default:
+            return RC_E_CONFIDENCE_NONE;
+    }
+}
+
 struct rc_Tracker: public sensor_fusion
 {
     rc_Tracker(bool immediate_dispatch): sensor_fusion(immediate_dispatch) {}
@@ -115,6 +171,36 @@ void rc_configureGyroscope(rc_Tracker * tracker, const rc_Pose pose_m, const rc_
 void rc_configureLocation(rc_Tracker * tracker, double latitude_deg, double longitude_deg, double altitude_m)
 {
     tracker->set_location(latitude_deg, longitude_deg, altitude_m);
+}
+
+RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callback)
+{
+    if(callback) tracker->camera_callback = [callback](sensor_fusion::data d, camera_data &&i) {
+        uint64_t micros = std::chrono::duration_cast<std::chrono::microseconds>(d.time.time_since_epoch()).count();
+        rc_Pose p;
+        vector<rc_Feature> outfeats;
+        outfeats.reserve(d.features.size());
+        for(auto i: d.features)
+        {
+            rc_Feature f;
+            f.image_x = i.x;
+            f.image_y = i.y;
+            f.world.x = i.worldx;
+            f.world.y = i.worldy;
+            f.world.z = i.worldz;
+            f.id = i.id;
+            outfeats.push_back(f);
+        }
+        callback(micros, p, &outfeats[0], outfeats.size());
+    };
+    else tracker->camera_callback = nullptr;
+}
+
+RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback callback)
+{
+    if(callback) tracker->status_callback = [callback](sensor_fusion::status s) {
+        callback(tracker_state_from_run_state(s.run_state), tracker_error_from_error(s.error), tracker_confidence_from_confidence(s.confidence), s.progress);
+    };
 }
 
 void rc_startCalibration(rc_Tracker * tracker)
@@ -239,25 +325,7 @@ int rc_getFeatures(const rc_Tracker * tracker, rc_Feature **features_px)
 
 rc_TrackerState rc_getState(const rc_Tracker *tracker)
 {
-    switch(tracker->sfm.run_state)
-    {
-        case RCSensorFusionRunStateDynamicInitialization:
-            return rc_E_DYNAMIC_INITIALIZATION;
-        case RCSensorFusionRunStateInactive:
-            return rc_E_INACTIVE;
-        case RCSensorFusionRunStateLandscapeCalibration:
-            return rc_E_LANDSCAPE_CALIBRATION;
-        case RCSensorFusionRunStatePortraitCalibration:
-            return rc_E_PORTRAIT_CALIBRATION;
-        case RCSensorFusionRunStateRunning:
-            return rc_E_RUNNING;
-        case RCSensorFusionRunStateStaticCalibration:
-            return rc_E_STATIC_CALIBRATION;
-        case RCSensorFusionRunStateSteadyInitialization:
-            return rc_E_STEADY_INITIALIZATION;
-        default: // This case should never be reached
-            return rc_E_INACTIVE;
-    }
+    return tracker_state_from_run_state(tracker->sfm.run_state);
 }
 
 rc_TrackerConfidence rc_getConfidence(const rc_Tracker *tracker)

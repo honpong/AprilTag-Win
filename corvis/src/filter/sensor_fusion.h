@@ -10,6 +10,7 @@
 #define __RC3DK__sensor_fusion__
 
 #include <string>
+#include <vector>
 #include "../numerics/transformation.h"
 #include "../cor/platform/sensor_clock.h"
 #include "../cor/sensor_data.h"
@@ -27,8 +28,46 @@ enum class camera_specifier
 class sensor_fusion
 {
 public:
-    std::function<void(camera_data &&)> camera_callback;
-    std::function<void()> status_callback;
+    struct status
+    {
+        RCSensorFusionRunState run_state;
+        RCSensorFusionErrorCode error;
+        RCSensorFusionConfidence confidence;
+        float progress;
+        bool operator==(const struct status & other) { return run_state == other.run_state && error == other.error && confidence == other.confidence && progress == other.progress; }
+    };
+    
+    struct camera_parameters
+    {
+        float fx, fy;
+        float cx, cy;
+        float skew;
+        float k1, k2, k3;
+    };
+    
+    struct feature_point
+    {
+        uint64_t id;
+        float x, y;
+        float original_depth;
+        float stdev;
+        float worldx, worldy, worldz;
+        bool initialized;
+    };
+    
+    struct data
+    {
+        sensor_clock::time_point time;
+        transformation transform;
+        transformation camera_transform;
+        std::string origin_qr_code;
+        camera_parameters camera_intrinsics;
+        float total_path_m;
+        std::vector<feature_point> features;
+    };
+    
+    std::function<void(data, camera_data &&)> camera_callback;
+    std::function<void(status)> status_callback;
     
     sensor_fusion(bool immediate_dispatch);
     
@@ -178,14 +217,15 @@ public:
     corvis_device_parameters device;
     
 private:
-    void send_status();
-    void send_data(camera_data &&data);
+    RCSensorFusionErrorCode get_error();
+    void update_status();
+    void update_data(camera_data &&data);
     std::atomic<bool> isProcessingVideo, isSensorFusionRunning, processingVideoRequested;
     std::unique_ptr<fusion_queue> queue;
-    RCSensorFusionRunState lastRunState;
-    RCSensorFusionErrorCode lastErrorCode;
-    RCSensorFusionConfidence lastConfidence;
-    float lastProgress;
+    status last_status;
+    bool threaded;
+    
+    void flush_and_reset();
 
     std::function<void (void *, const char *, size_t)> log_function;
     void * log_handle;

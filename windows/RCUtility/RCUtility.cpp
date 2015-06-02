@@ -226,7 +226,7 @@ void BeginReplay(const PWSTR filePath)
     std::string filename = converter.to_bytes(filename_w);
     fprintf(stderr, "opening %s", filename.c_str());
 
-    replay rp;
+    replay rp(false);
     world_state ws;
     std::function<void(float)> progress = [&](float progress) {
         wchar_t buffer[100];

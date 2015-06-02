@@ -23,6 +23,8 @@ public:
     static time_point now() noexcept;
     static uint64_t tp_to_micros(const time_point t) { return std::chrono::duration_cast<std::chrono::microseconds>(t.time_since_epoch()).count(); }
     static time_point micros_to_tp(const uint64_t m) { return time_point(std::chrono::microseconds(m)); }
+
+    static time_point ns100_to_tp(uint64_t ns100) { return time_point(std::chrono::duration_cast<duration>(std::chrono::duration<uint64_t, std::ratio<1, 10000000>>(ns100))); }
 };
 
 #endif /* defined(__RC3DK__sensor_clock__) */

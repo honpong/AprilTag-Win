@@ -33,18 +33,13 @@ add_library(RealityCapLib
   RealityCapLib/stdafx.cpp
 )
 target_include_directories(RealityCapLib PRIVATE 
-  ../corvis/src/filter                                       
+  ../corvis/src/filter/
   "$ENV{RSSDK_DIR}/include"
 )
 target_compile_definitions(RealityCapLib PRIVATE UNICODE _UNICODE)
 link_directories("$ENV{RSSDK_DIR}lib/$(PlatformName)")
 target_link_libraries(RealityCapLib "$ENV{RSSDK_DIR}lib/$(PlatformName)/libpxcmd.lib")
-target_link_libraries(RealityCapLib RCTracker
-   cor
-   numerics
-   filter
-   vis
-)
+target_link_libraries(RealityCapLib RCTracker)
 target_compile_options(RealityCapLib PRIVATE /wd4200 /wd4458)
 
 add_executable(RCUtility WIN32
@@ -62,7 +57,6 @@ add_executable(RCUtility WIN32
     RCUtility/stdafx.h
     RCUtility/targetver.h
 )
-target_link_libraries(RCUtility RCTracker)
 target_link_libraries(RCUtility RealityCapLib)
 target_compile_options(RCUtility PRIVATE /wd4200 /wd4458)
 target_compile_definitions(RCUtility PRIVATE UNICODE _UNICODE)

@@ -45,10 +45,10 @@ TEST(device_parameters_tests, is_calibration_valid)
     unique_ptr<calibration_data_store> store = calibration_data_store::GetStore();
 
     corvis_device_parameters cal;
-    store->LoadCalibrationDefaults(DEVICE_TYPE_GIGABYTE_S11, &cal);
+    store->LoadCalibrationDefaults(DEVICE_TYPE_GIGABYTE_S11, cal);
 
     corvis_device_parameters defaults;
-    store->LoadCalibrationDefaults(DEVICE_TYPE_GIGABYTE_S11, &defaults);
+    store->LoadCalibrationDefaults(DEVICE_TYPE_GIGABYTE_S11, defaults);
 
     EXPECT_TRUE(is_calibration_valid(cal, defaults));
 }
@@ -58,11 +58,11 @@ TEST(device_parameters_tests, is_calibration_valid_not)
     unique_ptr<calibration_data_store> store = calibration_data_store::GetStore();
 
     corvis_device_parameters cal;
-    store->LoadCalibrationDefaults(DEVICE_TYPE_IPAD2, &cal);
+    store->LoadCalibrationDefaults(DEVICE_TYPE_IPAD2, cal);
     cal.a_bias[1] = 999; // makes is_calibration_valid() return false
 
     corvis_device_parameters defaults;
-    store->LoadCalibrationDefaults(DEVICE_TYPE_IPAD2, &defaults);
+    store->LoadCalibrationDefaults(DEVICE_TYPE_IPAD2, defaults);
 
     EXPECT_FALSE(is_calibration_valid(cal, defaults));
 }
@@ -72,11 +72,11 @@ TEST(device_parameters_tests, is_calibration_valid_wrong_version)
     unique_ptr<calibration_data_store> store = calibration_data_store::GetStore();
 
     corvis_device_parameters cal;
-    store->LoadCalibrationDefaults(DEVICE_TYPE_IPAD2, &cal);
+    store->LoadCalibrationDefaults(DEVICE_TYPE_IPAD2, cal);
     cal.version = cal.version - 1; // makes is_calibration_valid() return false
 
     corvis_device_parameters defaults;
-    store->LoadCalibrationDefaults(DEVICE_TYPE_IPAD2, &defaults);
+    store->LoadCalibrationDefaults(DEVICE_TYPE_IPAD2, defaults);
 
     EXPECT_FALSE(is_calibration_valid(cal, defaults));
 }

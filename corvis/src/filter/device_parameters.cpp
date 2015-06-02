@@ -101,7 +101,7 @@ void device_set_framerate(struct corvis_device_parameters *dc, float framerate_h
 bool get_parameters_for_device(corvis_device_type type, struct corvis_device_parameters *dc)
 {
     unique_ptr<calibration_data_store> calStore = calibration_data_store::GetStore();
-    return calStore->LoadCalibrationDefaults(type, dc);
+    return calStore->LoadCalibrationDefaults(type, *dc);
 }
 
 void set_initialized(struct corvis_device_parameters *dc)

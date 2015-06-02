@@ -20,11 +20,11 @@ namespace RealityCap
         /*
             Loads the saved calibration. Check HasCalibration() before calling this method. Returns true if successful.
         */
-        virtual bool LoadCalibration(struct corvis_device_parameters *cal) { return false; };
+        virtual bool LoadCalibration(corvis_device_parameters &cal) { return false; };
         /*
             Loads the default calibration for the specified device. Returns true if successful.
         */
-        virtual bool LoadCalibrationDefaults(corvis_device_type deviceType, struct corvis_device_parameters *cal) { return false; };
+        virtual bool LoadCalibrationDefaults(const corvis_device_type deviceType, corvis_device_parameters &cal) { return false; };
         /*
             Saves the calibration to the data store. Returns true if successful.
         */

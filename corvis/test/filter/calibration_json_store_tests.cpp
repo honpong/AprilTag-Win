@@ -72,7 +72,7 @@ TEST(calibration_json_store_tests, LoadCalibration)
     try
     {
         corvis_device_parameters cal;
-        calStore.LoadCalibration(&cal);
+        calStore.LoadCalibration(cal);
         EXPECT_TRUE(nearlyEqual(testFloat, cal.Fx, FLT_EPSILON));
     }
     catch (runtime_error)
@@ -89,7 +89,7 @@ TEST(calibration_json_store_tests, HasCalibration)
     try
     {
         // save the defaults as a valid calibration. next test cleans up.
-        calStore.LoadCalibrationDefaults(DEVICE_TYPE_UNKNOWN, &cal);
+        calStore.LoadCalibrationDefaults(DEVICE_TYPE_UNKNOWN, cal);
         calStore.SaveCalibration(cal);
         EXPECT_TRUE(calStore.HasCalibration());
     }
@@ -117,14 +117,15 @@ TEST(calibration_json_store_tests, Serialization)
 {
     corvis_device_parameters cal, calDeserialized;
     calibration_json_store calStore;
-    calStore.LoadCalibrationDefaults(DEVICE_TYPE_UNKNOWN, &cal);
+    calStore.LoadCalibrationDefaults(DEVICE_TYPE_UNKNOWN, cal);
 
     try
     {
-        const wstring jsonString = calibration_json_store::SerializeCalibration(&cal);
+        wstring jsonString;
+        EXPECT_TRUE(calibration_json_store::SerializeCalibration(cal, jsonString));
         EXPECT_TRUE(jsonString.length()); // expect non-zero length
 
-        calDeserialized = calibration_json_store::DeserializeCalibration(jsonString);
+        EXPECT_TRUE(calibration_json_store::DeserializeCalibration(jsonString, calDeserialized));
     }
     catch (runtime_error)
     {

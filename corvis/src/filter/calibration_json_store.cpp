@@ -74,48 +74,48 @@ string GetCalibrationDefaultsFileName(corvis_device_type deviceType)
     return deviceTypeString.append(".json");
 }
 
-void CopyJsonToStruct(value &json, corvis_device_parameters *cal)
+void CopyJsonToStruct(value &json, corvis_device_parameters &cal)
 {
-    cal->version = json[U(KEY_CALIBRATION_VERSION)].as_number().to_uint32();
-    cal->Fx = json[U(KEY_FX)].as_number().to_double();
-    cal->Fy = json[U(KEY_FY)].as_number().to_double();
-    cal->Cx = json[U(KEY_CX)].as_number().to_double();
-    cal->Cy = json[U(KEY_CY)].as_number().to_double();
-    cal->px = json[U(KEY_PX)].as_number().to_double();
-    cal->py = json[U(KEY_PY)].as_number().to_double();
-    cal->K[0] = json[U(KEY_K0)].as_number().to_double();
-    cal->K[1] = json[U(KEY_K1)].as_number().to_double();
-    cal->K[2] = json[U(KEY_K2)].as_number().to_double();
-    cal->a_bias[0] = json[U(KEY_ABIAS0)].as_number().to_double();
-    cal->a_bias[1] = json[U(KEY_ABIAS1)].as_number().to_double();
-    cal->a_bias[2] = json[U(KEY_ABIAS2)].as_number().to_double();
-    cal->w_bias[0] = json[U(KEY_WBIAS0)].as_number().to_double();
-    cal->w_bias[1] = json[U(KEY_WBIAS1)].as_number().to_double();
-    cal->w_bias[2] = json[U(KEY_WBIAS2)].as_number().to_double();
-    cal->Tc[0] = json[U(KEY_TC0)].as_number().to_double();
-    cal->Tc[1] = json[U(KEY_TC1)].as_number().to_double();
-    cal->Tc[2] = json[U(KEY_TC2)].as_number().to_double();
-    cal->Wc[0] = json[U(KEY_WC0)].as_number().to_double();
-    cal->Wc[1] = json[U(KEY_WC1)].as_number().to_double();
-    cal->Wc[2] = json[U(KEY_WC2)].as_number().to_double();
-    cal->a_bias_var[0] = json[U(KEY_ABIASVAR0)].as_number().to_double();
-    cal->a_bias_var[1] = json[U(KEY_ABIASVAR1)].as_number().to_double();
-    cal->a_bias_var[2] = json[U(KEY_ABIASVAR2)].as_number().to_double();
-    cal->w_bias_var[0] = json[U(KEY_WBIASVAR0)].as_number().to_double();
-    cal->w_bias_var[1] = json[U(KEY_WBIASVAR1)].as_number().to_double();
-    cal->w_bias_var[2] = json[U(KEY_WBIASVAR2)].as_number().to_double();
-    cal->Tc_var[0] = json[U(KEY_TCVAR0)].as_number().to_double();
-    cal->Tc_var[1] = json[U(KEY_TCVAR1)].as_number().to_double();
-    cal->Tc_var[2] = json[U(KEY_TCVAR2)].as_number().to_double();
-    cal->Wc_var[0] = json[U(KEY_WCVAR0)].as_number().to_double();
-    cal->Wc_var[1] = json[U(KEY_WCVAR1)].as_number().to_double();
-    cal->Wc_var[2] = json[U(KEY_WCVAR2)].as_number().to_double();
-    cal->w_meas_var = json[U(KEY_WMEASVAR)].as_number().to_double();
-    cal->a_meas_var = json[U(KEY_AMEASVAR)].as_number().to_double();
-    cal->image_width = json[U(KEY_IMAGE_WIDTH)].as_number().to_double();
-    cal->image_height = json[U(KEY_IMAGE_HEIGHT)].as_number().to_double();
-    cal->shutter_delay = std::chrono::microseconds(json[U(KEY_SHUTTER_DELAY)].as_integer());
-    cal->shutter_period = std::chrono::microseconds(json[U(KEY_SHUTTER_PERIOD)].as_integer());
+    cal.version = json[U(KEY_CALIBRATION_VERSION)].as_number().to_uint32();
+    cal.Fx = json[U(KEY_FX)].as_number().to_double();
+    cal.Fy = json[U(KEY_FY)].as_number().to_double();
+    cal.Cx = json[U(KEY_CX)].as_number().to_double();
+    cal.Cy = json[U(KEY_CY)].as_number().to_double();
+    cal.px = json[U(KEY_PX)].as_number().to_double();
+    cal.py = json[U(KEY_PY)].as_number().to_double();
+    cal.K[0] = json[U(KEY_K0)].as_number().to_double();
+    cal.K[1] = json[U(KEY_K1)].as_number().to_double();
+    cal.K[2] = json[U(KEY_K2)].as_number().to_double();
+    cal.a_bias[0] = json[U(KEY_ABIAS0)].as_number().to_double();
+    cal.a_bias[1] = json[U(KEY_ABIAS1)].as_number().to_double();
+    cal.a_bias[2] = json[U(KEY_ABIAS2)].as_number().to_double();
+    cal.w_bias[0] = json[U(KEY_WBIAS0)].as_number().to_double();
+    cal.w_bias[1] = json[U(KEY_WBIAS1)].as_number().to_double();
+    cal.w_bias[2] = json[U(KEY_WBIAS2)].as_number().to_double();
+    cal.Tc[0] = json[U(KEY_TC0)].as_number().to_double();
+    cal.Tc[1] = json[U(KEY_TC1)].as_number().to_double();
+    cal.Tc[2] = json[U(KEY_TC2)].as_number().to_double();
+    cal.Wc[0] = json[U(KEY_WC0)].as_number().to_double();
+    cal.Wc[1] = json[U(KEY_WC1)].as_number().to_double();
+    cal.Wc[2] = json[U(KEY_WC2)].as_number().to_double();
+    cal.a_bias_var[0] = json[U(KEY_ABIASVAR0)].as_number().to_double();
+    cal.a_bias_var[1] = json[U(KEY_ABIASVAR1)].as_number().to_double();
+    cal.a_bias_var[2] = json[U(KEY_ABIASVAR2)].as_number().to_double();
+    cal.w_bias_var[0] = json[U(KEY_WBIASVAR0)].as_number().to_double();
+    cal.w_bias_var[1] = json[U(KEY_WBIASVAR1)].as_number().to_double();
+    cal.w_bias_var[2] = json[U(KEY_WBIASVAR2)].as_number().to_double();
+    cal.Tc_var[0] = json[U(KEY_TCVAR0)].as_number().to_double();
+    cal.Tc_var[1] = json[U(KEY_TCVAR1)].as_number().to_double();
+    cal.Tc_var[2] = json[U(KEY_TCVAR2)].as_number().to_double();
+    cal.Wc_var[0] = json[U(KEY_WCVAR0)].as_number().to_double();
+    cal.Wc_var[1] = json[U(KEY_WCVAR1)].as_number().to_double();
+    cal.Wc_var[2] = json[U(KEY_WCVAR2)].as_number().to_double();
+    cal.w_meas_var = json[U(KEY_WMEASVAR)].as_number().to_double();
+    cal.a_meas_var = json[U(KEY_AMEASVAR)].as_number().to_double();
+    cal.image_width = json[U(KEY_IMAGE_WIDTH)].as_number().to_double();
+    cal.image_height = json[U(KEY_IMAGE_HEIGHT)].as_number().to_double();
+    cal.shutter_delay = std::chrono::microseconds(json[U(KEY_SHUTTER_DELAY)].as_integer());
+    cal.shutter_period = std::chrono::microseconds(json[U(KEY_SHUTTER_PERIOD)].as_integer());
 }
 
 void CopyStructToJson(const corvis_device_parameters &cal, value &json)
@@ -162,22 +162,38 @@ void CopyStructToJson(const corvis_device_parameters &cal, value &json)
     json[U(KEY_SHUTTER_PERIOD)] = value::number((double)std::chrono::duration_cast<std::chrono::microseconds>(cal.shutter_period).count());
 }
 
-std::wstring RealityCap::calibration_json_store::SerializeCalibration(struct corvis_device_parameters *cal)
+bool RealityCap::calibration_json_store::SerializeCalibration(const corvis_device_parameters &cal, std::wstring &jsonString)
 {
-    value json = value::object();
-    CopyStructToJson(*cal, json);
-    return wstring(json.serialize());
+    try
+    {
+        value json = value::object();
+        CopyStructToJson(cal, json);
+        jsonString = json.serialize();
+    }
+    catch (runtime_error)
+    {
+        return false;
+    }
+
+    return true;
 }
 
-corvis_device_parameters RealityCap::calibration_json_store::DeserializeCalibration(const std::wstring jsonString)
+bool RealityCap::calibration_json_store::DeserializeCalibration(const std::wstring &jsonString, corvis_device_parameters &cal)
 {
-    corvis_device_parameters cal;
-    value json = value::parse(jsonString);
-    CopyJsonToStruct(json, &cal);
-    return cal;
+    try
+    {
+        value json = value::parse(jsonString);
+        CopyJsonToStruct(json, cal);
+    }
+    catch (runtime_error)
+    {
+        return false;
+    }
+
+    return true;
 }
 
-void ParseCalibrationFile(string fileName, corvis_device_parameters *cal)
+void ParseCalibrationFile(string fileName, corvis_device_parameters &cal)
 {
     if (!FileExists(fileName)) throw runtime_error("Calibration file not found.");
 
@@ -189,7 +205,7 @@ void ParseCalibrationFile(string fileName, corvis_device_parameters *cal)
     CopyJsonToStruct(json, cal);
 }
 
-bool RealityCap::calibration_json_store::LoadCalibration(struct corvis_device_parameters *cal)
+bool RealityCap::calibration_json_store::LoadCalibration(corvis_device_parameters &cal)
 {
     if (FileExists(CALIBRATION_FILE_NAME))
     {
@@ -202,7 +218,7 @@ bool RealityCap::calibration_json_store::LoadCalibration(struct corvis_device_pa
     }
 }
 
-bool RealityCap::calibration_json_store::LoadCalibrationDefaults(corvis_device_type deviceType, struct corvis_device_parameters *cal)
+bool RealityCap::calibration_json_store::LoadCalibrationDefaults(const corvis_device_type deviceType, corvis_device_parameters &cal)
 {
     string fileName = GetCalibrationDefaultsFileName(deviceType);
     if (FileExists(fileName))
@@ -251,5 +267,5 @@ bool RealityCap::calibration_json_store::ClearCalibration()
 bool RealityCap::calibration_json_store::HasCalibration()
 {
     corvis_device_parameters cal;
-    return LoadCalibration(&cal);
+    return LoadCalibration(cal);
 }

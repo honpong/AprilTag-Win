@@ -18,13 +18,13 @@ namespace RealityCap
         */
         static unique_ptr<calibration_data_store> GetStore();
         /*
-            Gets the saved calibration. Check HasCalibration() before calling this method. Returns true if successful.
+            Loads the saved calibration. Check HasCalibration() before calling this method. Returns true if successful.
         */
-        virtual bool GetCalibration(struct corvis_device_parameters *cal) { return false; };
+        virtual bool LoadCalibration(struct corvis_device_parameters *cal) { return false; };
         /*
-        Gets the default calibration for the specified device. Returns true if successful.
+            Loads the default calibration for the specified device. Returns true if successful.
         */
-        virtual bool GetCalibrationDefaults(corvis_device_type deviceType, struct corvis_device_parameters *cal) { return false; };
+        virtual bool LoadCalibrationDefaults(corvis_device_type deviceType, struct corvis_device_parameters *cal) { return false; };
         /*
             Saves the calibration to the data store. Returns true if successful.
         */

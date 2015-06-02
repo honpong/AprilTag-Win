@@ -125,7 +125,7 @@ void ParseCalibrationFile(string fileName, corvis_device_parameters *cal)
     cal->version = json[U(KEY_CALIBRATION_VERSION)].as_number().to_uint32();
 }
 
-bool RealityCap::calibration_json_store::GetCalibration(struct corvis_device_parameters *cal)
+bool RealityCap::calibration_json_store::LoadCalibration(struct corvis_device_parameters *cal)
 {
     if (FileExists(CALIBRATION_FILE_NAME))
     {
@@ -138,7 +138,7 @@ bool RealityCap::calibration_json_store::GetCalibration(struct corvis_device_par
     }
 }
 
-bool RealityCap::calibration_json_store::GetCalibrationDefaults(corvis_device_type deviceType, struct corvis_device_parameters *cal)
+bool RealityCap::calibration_json_store::LoadCalibrationDefaults(corvis_device_type deviceType, struct corvis_device_parameters *cal)
 {
     string fileName = GetCalibrationDefaultsFileName(deviceType);
     if (FileExists(fileName))
@@ -226,5 +226,5 @@ bool RealityCap::calibration_json_store::ClearCalibration()
 bool RealityCap::calibration_json_store::HasCalibration()
 {
     corvis_device_parameters cal;
-    return GetCalibration(&cal);
+    return LoadCalibration(&cal);
 }

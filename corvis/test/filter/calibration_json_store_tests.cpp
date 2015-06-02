@@ -66,13 +66,13 @@ TEST(calibration_data_store_tests, SaveCalibration)
 }
 
 // there will be an existing calibration file because of above test
-TEST(calibration_data_store_tests, GetCalibration)
+TEST(calibration_data_store_tests, LoadCalibration)
 {
     calibration_json_store calStore;
     try
     {
         corvis_device_parameters cal;
-        calStore.GetCalibration(&cal);
+        calStore.LoadCalibration(&cal);
         EXPECT_TRUE(nearlyEqual(testFloat, cal.Fx, FLT_EPSILON));
     }
     catch (runtime_error)

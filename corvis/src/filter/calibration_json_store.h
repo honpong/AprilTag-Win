@@ -12,8 +12,8 @@ namespace RealityCap
         calibration_json_store();
         ~calibration_json_store();
         
-        virtual bool GetCalibration(struct corvis_device_parameters *cal) override;
-        virtual bool GetCalibrationDefaults(corvis_device_type deviceType, struct corvis_device_parameters *cal) override;
+        virtual bool LoadCalibration(struct corvis_device_parameters *cal) override;
+        virtual bool LoadCalibrationDefaults(corvis_device_type deviceType, struct corvis_device_parameters *cal) override;
         virtual bool SaveCalibration(const corvis_device_parameters &calibration) override;
         virtual bool SaveCalibration(const corvis_device_parameters &calibration, const char* fileName); // TODO delete
         virtual bool ClearCalibration() override;

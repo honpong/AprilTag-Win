@@ -12,7 +12,7 @@ TEST(RotationVector, Exponential)
             { 0,                    0,                   0,                   1},
     }};
     EXPECT_M4_NEAR(R, to_rotation_matrix(w), F_T_EPS);
-    EXPECT_EQ(to_rotation_matrix(rotation_vector(0,0,0)), m4::Identity());
+    EXPECT_M4_NEAR(to_rotation_matrix(rotation_vector(0,0,0)), m4::Identity(), 0);
 }
 
 TEST(RotationVector, ExactJacobians)

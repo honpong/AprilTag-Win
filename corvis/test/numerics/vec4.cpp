@@ -20,20 +20,20 @@ const static m4 bar = {{
 
 TEST(Matrix4, Determinant) {
     m4 a = {{ {5., -2., 1., 0.}, {0., 3., -1., 0.}, {2., 0., 7., 0.}, {0., 0., 0., 0.} }};
-    EXPECT_FLOAT_EQ(determinant3(a), 103);
+    EXPECT_NEAR(determinant3(a), 103, F_T_EPS);
     
     m4 b = {{ {1, 2, 3, 0}, {0, -4, 1, 0}, {0, 3, -1, 0}, {0, 0, 0 ,0} }};
-    EXPECT_FLOAT_EQ(determinant3(b), 1);
+    EXPECT_NEAR(determinant3(b), 1, F_T_EPS);
 
-    EXPECT_FLOAT_EQ(determinant3(foo), 15128654.998270018);
-    EXPECT_FLOAT_EQ(determinant3(bar), 1349053797.5000024);
+    EXPECT_NEAR(determinant3(foo), 15128654.998270018, F_T_EPS);
+    EXPECT_NEAR(determinant3(bar), 1349053797.5000024, F_T_EPS);
 }
 
 TEST(Vector4, Cross) {
     v4 vec(1.5, -.64, 4.1, 0.);
     v4 vec2(.08, 1.2, -.23, 0.);
-    EXPECT_EQ(cross(vec, vec2), skew3(vec) * vec2) << "a x b = skew(a) * b";
-    EXPECT_EQ(cross(vec, vec2), skew3(vec2).transpose() * vec) << "a x b = skew(b)^T * a";
+    EXPECT_V4_NEAR(cross(vec, vec2), skew3(vec) * vec2, 0) << "a x b = skew(a) * b";
+    EXPECT_V4_NEAR(cross(vec, vec2), skew3(vec2).transpose() * vec, 0) << "a x b = skew(b)^T * a";
 }
 
 bool same_sign(f_t first, f_t second)
@@ -100,16 +100,16 @@ v4 iav_vel_stub(const v4 &base, const void *other)
 void test_rotation(const v4 &vec)
 {
     m4 skewmat = skew3(vec);
-    EXPECT_EQ(vec, invskew3(skewmat)) << "invskew(skew(vec)) = vec";
+    EXPECT_V4_NEAR(vec, invskew3(skewmat), 0) << "invskew(skew(vec)) = vec";
     
     rotation_vector rvec(vec[0], vec[1], vec[2]);
     m4 rotmat = to_rotation_matrix(rvec);
     {
         SCOPED_TRACE("rotation_vector(vec).[xyz] = vec");
-        EXPECT_EQ(rvec.x(), vec[0]);
-        EXPECT_EQ(rvec.y(), vec[1]);
-        EXPECT_EQ(rvec.z(), vec[2]);
-        EXPECT_EQ(rvec.raw_vector(), vec);
+        EXPECT_DOUBLE_EQ(rvec.x(), vec[0]);
+        EXPECT_DOUBLE_EQ(rvec.y(), vec[1]);
+        EXPECT_DOUBLE_EQ(rvec.z(), vec[2]);
+        EXPECT_V4_NEAR(rvec.raw_vector(), vec, 0);
     }
     
     EXPECT_ROTATION_VECTOR_NEAR(to_rotation_vector(to_quaternion(rvec)), rvec, F_T_EPS) << "rot_vec(quaternion(vec)) = vec";
@@ -133,7 +133,7 @@ void test_rotation(const v4 &vec)
         fprintf(stderr, "Angular velocity integration linearization max error (velocity) is %.1f%%\n", err * 100);
     }
 
-    EXPECT_EQ(integrate_angular_velocity(vec, angvel), integrate_angular_velocity(rvec, angvel).raw_vector())
+    EXPECT_V4_NEAR(integrate_angular_velocity(vec, angvel), integrate_angular_velocity(rvec, angvel).raw_vector(), 0)
         << "integrate_angular_velocity(v4) = integrate_angular_velocity(rotvec)";
 
     quaternion quat = to_quaternion(rvec);

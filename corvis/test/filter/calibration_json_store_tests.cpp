@@ -19,7 +19,7 @@ TEST(calibration_data_store_tests, NewDelete)
 fpos_t filesize(const char* filename)
 {
     std::ifstream in(filename, std::ifstream::ate | std::ifstream::binary);
-    return in.tellg().seekpos();
+    return in.tellg();
 }
 
 bool nearlyEqual(float a, float b, float epsilon) 

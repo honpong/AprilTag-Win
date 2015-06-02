@@ -38,6 +38,7 @@ target_link_libraries(measure
   numerics
   cor
   vis
+  casablanca
 )
 if(ENABLE_MGL)
     target_link_libraries(measure mgl)
@@ -59,6 +60,7 @@ if(NOT WIN32)
       cor
       numerics
       filter
+      casablanca
     )
 
     if(BUILD_STEREO)

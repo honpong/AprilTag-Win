@@ -87,7 +87,7 @@ target_include_directories(casablanca PRIVATE ../../ThirdParty/casablanca/Releas
 target_include_directories(casablanca PUBLIC ../../ThirdParty/casablanca/Release/include)
 set_property(TARGET casablanca PROPERTY CXX_STANDARD 14)
 if (WIN32)
-  target_compile_options(casablanca PUBLIC UNICODE _UNICODE)
+  target_compile_definitions(casablanca PUBLIC UNICODE _UNICODE)
   target_compile_definitions(casablanca PUBLIC _WINSOCK_DEPRECATED_NO_WARNINGS WIN32)
 else(WIN32)
   find_package(Boost REQUIRED COMPONENTS random chrono system thread locale regex filesystem)

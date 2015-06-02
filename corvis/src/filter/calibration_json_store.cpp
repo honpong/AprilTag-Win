@@ -78,7 +78,7 @@ void ParseCalibrationFile(string fileName, corvis_device_parameters *cal)
 {
     if (!FileExists(fileName)) throw runtime_error("Calibration file not found.");
 
-    wifstream jsonFile;
+    ifstream jsonFile;
     jsonFile.open(fileName);
     if (jsonFile.fail()) throw runtime_error("Failed to open calibration file.");
     value json = value::parse(jsonFile);
@@ -203,7 +203,7 @@ bool calibration_json_store::SaveCalibration(const corvis_device_parameters &cal
         json[U(KEY_SHUTTER_DELAY)] = value::number((double)std::chrono::duration_cast<std::chrono::microseconds>(cal.shutter_delay).count());
         json[U(KEY_SHUTTER_PERIOD)] = value::number((double)std::chrono::duration_cast<std::chrono::microseconds>(cal.shutter_period).count());
 
-        wofstream jsonFile;
+        ofstream jsonFile;
         jsonFile.open(fileName);
         if (jsonFile.fail()) throw runtime_error("Failed to open calibration file for writing.");
         jsonFile << json;

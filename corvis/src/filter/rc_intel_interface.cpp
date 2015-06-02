@@ -176,12 +176,12 @@ void rc_configureLocation(rc_Tracker * tracker, double latitude_deg, double long
 
 RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callback)
 {
-    if(callback) tracker->camera_callback = [callback](sensor_fusion::data d, camera_data &&i) {
-        uint64_t micros = std::chrono::duration_cast<std::chrono::microseconds>(d.time.time_since_epoch()).count();
+    if(callback) tracker->camera_callback = [callback](std::unique_ptr<sensor_fusion::data> d, camera_data &&i) {
+        uint64_t micros = std::chrono::duration_cast<std::chrono::microseconds>(d->time.time_since_epoch()).count();
         rc_Pose p;
         vector<rc_Feature> outfeats;
-        outfeats.reserve(d.features.size());
-        for(auto i: d.features)
+        outfeats.reserve(d->features.size());
+        for(auto i: d->features)
         {
             rc_Feature f;
             f.image_x = i.x;

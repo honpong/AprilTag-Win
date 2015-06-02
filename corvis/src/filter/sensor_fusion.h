@@ -66,7 +66,7 @@ public:
         std::vector<feature_point> features;
     };
     
-    std::function<void(data, camera_data &&)> camera_callback;
+    std::function<void(std::unique_ptr<data>, camera_data &&)> camera_callback;
     std::function<void(status)> status_callback;
     
     sensor_fusion(bool immediate_dispatch);

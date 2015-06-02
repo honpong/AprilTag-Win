@@ -98,12 +98,12 @@ void sensor_fusion::update_status()
 
 void sensor_fusion::update_data(camera_data &&image)
 {
-    data d;
+    auto d = std::make_unique<data>();
     
     //perform these operations synchronously in the calling (filter) thread
     transformation transform(to_quaternion(sfm.s.W.v), sfm.s.T.v);
     transformation cam_transform(to_quaternion(sfm.s.Wc.v), sfm.s.Tc.v);
-    d.total_path_m = sfm.s.total_distance;
+    d->total_path_m = sfm.s.total_distance;
     camera_parameters cp;
     cp.fx = (float)sfm.s.focal_length.v;
     cp.fy = (float)sfm.s.focal_length.v;
@@ -113,19 +113,19 @@ void sensor_fusion::update_data(camera_data &&image)
     cp.k1 = (float)sfm.s.k1.v;
     cp.k2 = (float)sfm.s.k2.v;
     cp.k3 = (float)sfm.s.k3.v;
-    d.camera_intrinsics = cp;
+    d->camera_intrinsics = cp;
     
     if(sfm.qr.valid)
     {
         transform = compose(sfm.qr.origin, transform);
-        d.origin_qr_code = sfm.qr.data;
+        d->origin_qr_code = sfm.qr.data;
     }
     
-    d.transform = transform;
-    d.camera_transform = compose(d.transform, cam_transform);
-    d.time = sfm.last_time;
+    d->transform = transform;
+    d->camera_transform = compose(d->transform, cam_transform);
+    d->time = sfm.last_time;
 
-    d.features.reserve(sfm.s.features.size());
+    d->features.reserve(sfm.s.features.size());
     for(auto i: sfm.s.features)
     {
         if(i->is_valid()) {
@@ -139,12 +139,12 @@ void sensor_fusion::update_data(camera_data &&image)
             p.worldy = (float)i->world[1];
             p.worldz = (float)i->world[2];
             p.initialized = i->is_initialized();
-            d.features.push_back(p);
+            d->features.push_back(p);
         }
     }
     if(camera_callback) {
-        if(threaded) std::async(std::launch::async, camera_callback, d, std::move(image));
-        else camera_callback(d, std::move(image));
+        if(threaded) std::async(std::launch::async, camera_callback, std::move(d), std::move(image));
+        else camera_callback(std::move(d), std::move(image));
     }
 }
 

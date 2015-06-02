@@ -47,6 +47,7 @@ add_library(RealityCapLib
   RealityCapLib/Debug.cpp
   RealityCapLib/stdafx.cpp
 )
+target_include_directories(RealityCapLib PUBLIC RealityCapLib)
 target_include_directories(RealityCapLib PRIVATE 
   ../corvis/src/filter/
   "$ENV{RSSDK_DIR}/include"
@@ -69,7 +70,4 @@ target_link_libraries(RCUtility RealityCapLib pxcmd)
 target_compile_options(RCUtility PRIVATE /wd4200 /wd4458)
 target_compile_definitions(RCUtility PRIVATE UNICODE _UNICODE)
 target_compile_options(RCUtility PRIVATE /ZW /EHsc /Gm- "/AIC:${PLATFORM_CONFIG_PATH}" "/AIC:${WINDOWS_CONFIG_PATH}")
-target_include_directories(RCUtility PRIVATE
-    "$ENV{RSSDK_DIR}/include"
-    RealityCapLib/
-)
+target_include_directories(RCUtility PRIVATE "$ENV{RSSDK_DIR}/include")

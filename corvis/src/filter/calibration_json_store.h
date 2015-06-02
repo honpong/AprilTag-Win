@@ -10,7 +10,10 @@ namespace RealityCap
     public:
         static unique_ptr<calibration_data_store> GetStore() = delete; // TODO: there's probabaly a better design that doesn't require this
         calibration_json_store();
-        ~calibration_json_store();
+        virtual ~calibration_json_store();
+
+        static std::wstring SerializeCalibration(struct corvis_device_parameters *cal);
+        static corvis_device_parameters DeserializeCalibration(std::wstring jsonString);
         
         virtual bool LoadCalibration(struct corvis_device_parameters *cal) override;
         virtual bool LoadCalibrationDefaults(corvis_device_type deviceType, struct corvis_device_parameters *cal) override;

@@ -88,10 +88,13 @@ add_library(filter STATIC
   filter/homography.cpp
   filter/qr.cpp
   filter/device_parameters.cpp
+  filter/calibration_json_store.cpp
+  filter/calibration_data_store.cpp
   filter/sensor_fusion.cpp
   filter/capture.cpp
 )
 target_include_directories(filter PUBLIC filter)
+target_include_directories(filter PRIVATE ../../ThirdParty/casablanca/Release/include "${BOOST_ROOT}/include")
 if(ENABLE_ZXING)
     target_link_libraries(filter PRIVATE libzxing)
 endif()

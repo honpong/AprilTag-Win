@@ -10,7 +10,7 @@ using namespace std;
 
 const float testFloat = .1;
 
-TEST(calibration_data_store_tests, NewDelete)
+TEST(calibration_json_store_tests, NewDelete)
 {
     calibration_json_store* instance = new calibration_json_store();
     delete instance;
@@ -44,7 +44,7 @@ bool nearlyEqual(float a, float b, float epsilon)
     }
 }
 
-TEST(calibration_data_store_tests, SaveCalibration)
+TEST(calibration_json_store_tests, SaveCalibration)
 {
     remove(CALIBRATION_FILE_NAME);
 
@@ -66,7 +66,7 @@ TEST(calibration_data_store_tests, SaveCalibration)
 }
 
 // there will be an existing calibration file because of above test
-TEST(calibration_data_store_tests, LoadCalibration)
+TEST(calibration_json_store_tests, LoadCalibration)
 {
     calibration_json_store calStore;
     try
@@ -81,7 +81,7 @@ TEST(calibration_data_store_tests, LoadCalibration)
     }
 }
 
-TEST(calibration_data_store_tests, HasCalibration)
+TEST(calibration_json_store_tests, HasCalibration)
 {
     calibration_json_store calStore;
     corvis_device_parameters cal;
@@ -99,7 +99,7 @@ TEST(calibration_data_store_tests, HasCalibration)
     }
 }
 
-TEST(calibration_data_store_tests, HasCalibration_MissingFile)
+TEST(calibration_json_store_tests, HasCalibration_MissingFile)
 {
     calibration_json_store calStore;
     try
@@ -113,7 +113,7 @@ TEST(calibration_data_store_tests, HasCalibration_MissingFile)
     }
 }
 
-TEST(calibration_data_store_tests, Serialization)
+TEST(calibration_json_store_tests, Serialization)
 {
     corvis_device_parameters cal, calDeserialized;
     calibration_json_store calStore;

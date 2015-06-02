@@ -46,12 +46,6 @@ target_link_libraries(RealityCapLib RCTracker)
 target_compile_options(RealityCapLib PRIVATE /wd4200 /wd4458)
 
 add_executable(RCUtility WIN32
-#TODO: IMUManager and LocationManager appear to be unused
-#      delete them if this is true
-#    RCUtility/IMUManager.cpp
-#    RCUtility/IMUManager.h
-#    RCUtility/LocationManager.cpp
-#    RCUtility/LocationManager.h
     RCUtility/RCUtility.cpp
     RCUtility/RCUtility.h
     RCUtility/RCUtility.rc

@@ -70,8 +70,8 @@ void sensor_fusion::start_calibration(bool threaded)
     isProcessingVideo = false;
     filter_initialize(&sfm, device);
     filter_start_static_calibration(&sfm);
-    if(threaded) queue->start_singlethreaded(false);
-    else queue->start_async(false);
+    if(threaded) queue->start_async(false);
+    else queue->start_singlethreaded(false);
 }
 
 /*void sensor_fusion::start_inertial_only()

@@ -29,7 +29,6 @@ typedef enum AppState
 HINSTANCE hInst;								// current instance
 TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
-LPCWSTR glWindowClass = L"GLWindow";
 RCFactory factory;
 auto capMan = factory.CreateCaptureManager();
 auto calMan = factory.CreateCalibrationManager();
@@ -39,22 +38,18 @@ HWND hCaptureButton;
 HWND hCalibrateButton;
 HWND hLiveButton;
 HWND hReplayButton;
-HWND hGLWindow;
 AppState appState = Idle;
 
 // Forward declarations of functions included in this code module:
 ATOM				MyRegisterClass(HINSTANCE hInstance);
-ATOM				RegisterGLWinClass(HINSTANCE hInstance);
 BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
-LRESULT CALLBACK	WndProcGL(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 
 void EnterCapturingState();
 void ExitCapturingState();
 void EnterCalibratingState();
 void ExitCalibratingState();
-bool OpenVisualizationWindow();
 void EnterLiveVisState();
 void ExitLiveVisState();
 void EnterReplayingState(const PWSTR filePath);
@@ -178,18 +173,8 @@ void ExitCalibratingState()
     appState = Idle;
 }
 
-bool OpenVisualizationWindow()
-{
-    if (appState != Idle || IsWindow(hGLWindow)) return false;
-    hGLWindow = CreateWindow(glWindowClass, L"Visualization", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInst, NULL);
-    ShowWindow(hGLWindow, SW_SHOW);
-    UpdateWindow(hGLWindow);
-    return true;
-}
-
 void EnterLiveVisState()
 {
-    if (!OpenVisualizationWindow()) return;
     appState = Live;
     SetWindowText(hLabel, TEXT("Beginning live visualization..."));
 
@@ -365,7 +350,6 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
     LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
     LoadString(hInstance, IDC_RCUTILITY, szWindowClass, MAX_LOADSTRING);
     MyRegisterClass(hInstance);
-    RegisterGLWinClass(hInstance);
 
     // Perform application initialization:
     if (!InitInstance(hInstance, nCmdShow))
@@ -410,27 +394,6 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
     wcex.lpszMenuName = MAKEINTRESOURCE(IDC_RCUTILITY);
     wcex.lpszClassName = szWindowClass;
-    wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
-
-    return RegisterClassEx(&wcex);
-}
-
-ATOM RegisterGLWinClass(HINSTANCE hInstance)
-{
-    WNDCLASSEX wcex;
-
-    wcex.cbSize = sizeof(WNDCLASSEX);
-
-    wcex.style = CS_HREDRAW | CS_VREDRAW;
-    wcex.lpfnWndProc = WndProcGL;
-    wcex.cbClsExtra = 0;
-    wcex.cbWndExtra = 0;
-    wcex.hInstance = hInstance;
-    wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_RCUTILITY));
-    wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-    wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-    wcex.lpszMenuName = 0;
-    wcex.lpszClassName = glWindowClass;
     wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
     return RegisterClassEx(&wcex);
@@ -527,47 +490,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_CLOSE:
         ExitCapturingState();
-        DestroyWindow(hWnd);
-        break;
-    default:
-        return DefWindowProc(hWnd, message, wParam, lParam);
-    }
-    return 0;
-}
-
-// window message processor for the GL window
-LRESULT CALLBACK WndProcGL(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-    int wmId, wmEvent;
-    PAINTSTRUCT ps;
-    HDC hdc;
-
-    switch (message)
-    {
-    case WM_COMMAND:
-        wmId = LOWORD(wParam);
-        wmEvent = HIWORD(wParam);
-        // Parse the menu selections:
-        switch (wmId)
-        {
-        case IDM_EXIT:
-            DestroyWindow(hWnd);
-            break;
-        default:
-            return DefWindowProc(hWnd, message, wParam, lParam);
-        }
-        break;
-    case WM_PAINT:
-        hdc = BeginPaint(hWnd, &ps);
-        // TODO: Add any drawing code here...
-        EndPaint(hWnd, &ps);
-        break;
-    case WM_DESTROY:
-        //PostQuitMessage(0);
-        break;
-    case WM_CLOSE:
-        if (appState == Live) ExitLiveVisState();
-        else if (appState = Replay) ExitReplayingState();
         DestroyWindow(hWnd);
         break;
     default:

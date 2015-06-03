@@ -129,6 +129,7 @@ RCTRACKER_API void rc_configureAccelerometer(rc_Tracker *tracker, const rc_Pose 
 RCTRACKER_API void rc_configureGyroscope(rc_Tracker *tracker, const rc_Pose pose_m, const rc_Vector bias_rad__s, float noiseVariance_rad2__s2);
 RCTRACKER_API void rc_configureLocation(rc_Tracker *tracker, double latitude_deg, double longitude_deg, double altitude_m);
 
+// WARNING: The data callback currently blocks the filter thread due to a bug in visual studio. Don't do significant work in it!
 RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callback);
 RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback callback);
 

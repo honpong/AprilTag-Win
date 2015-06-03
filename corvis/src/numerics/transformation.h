@@ -15,6 +15,7 @@
 
 class transformation {
     public:
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
         transformation(): Q(quaternion()), T(v4(0,0,0,0)) {};
         transformation(const quaternion & Q_, const v4 & T_) : Q(Q_), T(T_) {};
         transformation(const rotation_vector & v, const v4 & T_) : T(T_) { Q = to_quaternion(v); };

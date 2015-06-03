@@ -143,8 +143,9 @@ void sensor_fusion::update_data(camera_data &&image)
         }
     }
     if(camera_callback) {
-        if(threaded) std::async(std::launch::async, camera_callback, std::move(d), std::move(image));
-        else camera_callback(std::move(d), std::move(image));
+        //if(threaded) std::async(std::launch::async, camera_callback, std::move(d), std::move(image));
+        //else
+        camera_callback(std::move(d), std::move(image));
     }
 }
 

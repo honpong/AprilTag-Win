@@ -57,6 +57,7 @@ public:
     
     struct data
     {
+        EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
         sensor_clock::time_point time;
         transformation transform;
         transformation camera_transform;

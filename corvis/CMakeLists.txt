@@ -63,6 +63,7 @@ if(YES)
     )
 
     add_executable(spec_intel
+      ../gtest/gtest_main.cc ../gtest/gtest-all.cc
       src/filter/rc_intel_interface.cpp
       test/filter/rc_intel_interface_tests.cpp
     )

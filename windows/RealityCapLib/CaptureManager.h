@@ -13,16 +13,10 @@ namespace RealityCap
         void StopCapture();
         bool isCapturing();
 
-    protected:
-        virtual void OnColorFrame(PXCImage* colorImage) override;
-        virtual void OnAmeterSample(imu_sample_t* sample) override;
-        virtual void OnGyroSample(imu_sample_t* sample) override;
-
     private:
-        //capture cp;
         bool _isCapturing;
-        std::string _captureFilePath;
+        std::wstring _captureFilePath;
 
-        std::string GetExePath();
+        std::wstring GetExePath();
     };
 }

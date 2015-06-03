@@ -12,7 +12,7 @@ using namespace std;
 
 CaptureManager::CaptureManager(PXCSenseManager* senseMan) : SensorManager(senseMan), _isCapturing(false)
 {
-    _captureFilePath = GetExePath() + "\\capture";
+    _captureFilePath = GetExePath() + TEXT("\\capture");
 }
 
 bool CaptureManager::StartCapture()
@@ -22,7 +22,7 @@ bool CaptureManager::StartCapture()
     {
         if (!StartSensors()) return false;
     }
-    //_isCapturing = cp.start(_captureFilePath.c_str());
+    SetRecording(_captureFilePath.c_str());
     return isCapturing();
 }
 
@@ -39,34 +39,11 @@ bool RealityCap::CaptureManager::isCapturing()
     return _isCapturing;
 }
 
-string CaptureManager::GetExePath()
+wstring CaptureManager::GetExePath()
 {
     char buffer[MAX_PATH];
     GetModuleFileNameA(NULL, buffer, MAX_PATH);
-    string::size_type pos = string(buffer).find_last_of("\\/");
-    return string(buffer).substr(0, pos);
+    string buf(buffer);
+    string::size_type pos = buf.find_last_of("\\/");
+    return wstring(buf.begin(), buf.begin() + pos);
 }
-
-void CaptureManager::OnColorFrame(PXCImage* colorSample)
-{
-    if (!isCapturing()) return;
-    auto data = camera_data_from_PXCImage(colorSample);
-    //cp.receive_camera(std::move(data));
-}
-
-void CaptureManager::OnAmeterSample(imu_sample_t* sample)
-{
-    if (!isCapturing()) return;
-
-    accelerometer_data data = accelerometer_data_from_imu_sample_t(sample);
-    //cp.receive_accelerometer(std::move(data));
-}
-
-void CaptureManager::OnGyroSample(imu_sample_t* sample)
-{
-    if (!isCapturing()) return;
-
-    gyro_data data = gyro_data_from_imu_sample_t(sample);
-    //cp.receive_gyro(std::move(data));
-}
-

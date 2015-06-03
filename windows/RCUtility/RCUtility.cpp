@@ -177,8 +177,17 @@ void EnterLiveVisState()
 {
     appState = Live;
     SetWindowText(hLabel, TEXT("Beginning live visualization..."));
+    bool result = repMan->StartReplay(NULL);
+    if (result)
+    {
+        SetWindowText(hCalibrateButton, TEXT("Running..."));
+        appState = Live;
+    }
+    else
+    {
+        SetWindowText(hLabel, TEXT("Failed to start live."));
+    }
 
-    repMan->StartReplay(NULL);
 }
 
 void ExitLiveVisState()
@@ -191,7 +200,16 @@ void EnterReplayingState(const PWSTR filePath)
 {
     appState = Replay;
     SetWindowText(hLabel, TEXT("Beginning replay visualization..."));
-    repMan->StartReplay(filePath);
+    bool result = repMan->StartReplay(filePath);
+    if (result)
+    {
+        SetWindowText(hCalibrateButton, TEXT("Replaying..."));
+        appState = Replay;
+    }
+    else
+    {
+        SetWindowText(hLabel, TEXT("Failed to start live."));
+    }
 }
 
 void ExitReplayingState()

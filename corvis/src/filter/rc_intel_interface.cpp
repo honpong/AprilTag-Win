@@ -210,7 +210,7 @@ RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback c
 
 void rc_startCalibration(rc_Tracker * tracker)
 {
-    tracker->start_calibration(false);
+    tracker->start_calibration(true);
 }
 
 /*void rc_startInertialOnly(rc_Tracker * tracker)

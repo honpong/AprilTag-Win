@@ -186,7 +186,9 @@ void fusion_queue::stop_async()
 void fusion_queue::stop_sync()
 {
     stop_async();
-    if(!singlethreaded) wait_until_finished();
+    //TODO:
+    //FIXME: this is a temporary hack
+    //if(!singlethreaded) wait_until_finished();
 }
 
 void fusion_queue::wait_until_finished()

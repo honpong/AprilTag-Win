@@ -7,6 +7,7 @@
 #include "CaptureManager.h"
 #include <shellapi.h>
 #include "CalibrationManager.h"
+#include "ReplayManager.h"
 #include <shlobj.h>
 #include <shlwapi.h>
 #include "RCFactory.h"
@@ -32,6 +33,7 @@ LPCWSTR glWindowClass = L"GLWindow";
 RCFactory factory;
 auto capMan = factory.CreateCaptureManager();
 auto calMan = factory.CreateCalibrationManager();
+auto repMan = factory.CreateReplayManager();
 HWND hLabel;
 HWND hCaptureButton;
 HWND hCalibrateButton;
@@ -191,7 +193,7 @@ void EnterLiveVisState()
     appState = Live;
     SetWindowText(hLabel, TEXT("Beginning live visualization..."));
 
-    // work in progress
+    repMan->StartReplay(NULL);
 }
 
 void ExitLiveVisState()
@@ -204,6 +206,7 @@ void EnterReplayingState(const PWSTR filePath)
 {
     appState = Replay;
     SetWindowText(hLabel, TEXT("Beginning replay visualization..."));
+    repMan->StartReplay(filePath);
 }
 
 void ExitReplayingState()

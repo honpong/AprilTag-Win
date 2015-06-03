@@ -11,4 +11,6 @@ TEST(rc_intel_interface_tests, rc_getCalibration)
     wchar_t* buffer;
     size_t size = rc_getCalibration(tracker, &buffer);
     EXPECT_TRUE(size);
+
+    EXPECT_TRUE(rc_setCalibration(tracker, buffer));
 }

@@ -113,25 +113,25 @@ void EnterCapturingState()
 {
     if (appState != Idle) return;
 
-    SetWindowText(hCaptureButton, L"Stop Capture");
-    SetWindowText(hLabel, L"Starting capture...");
+    SetWindowText(hCaptureButton, TEXT("Stop Capture"));
+    SetWindowText(hLabel, TEXT("Starting capture..."));
     bool result;
 
     result = capMan->StartSensors();
     if (!result)
     {
-        SetWindowText(hLabel, L"Failed to start sensors");
+        SetWindowText(hLabel, TEXT("Failed to start sensors"));
         return;
     }
 
     result = capMan->StartCapture();
     if (result)
     {
-        SetWindowText(hLabel, L"Capturing.");
+        SetWindowText(hLabel, TEXT("Capturing."));
     }
     else
     {
-        SetWindowText(hLabel, L"Failed to start capture");
+        SetWindowText(hLabel, TEXT("Failed to start capture"));
         return;
     }
 
@@ -141,10 +141,10 @@ void EnterCapturingState()
 void ExitCapturingState()
 {
     if (appState != Capturing) return;
-    SetWindowText(hLabel, L"Stopping capture...");
+    SetWindowText(hLabel, TEXT("Stopping capture..."));
     capMan->StopCapture();
-    SetWindowText(hLabel, L"Capture complete.");
-    SetWindowText(hCaptureButton, L"Start Capture");
+    SetWindowText(hLabel, TEXT("Capture complete."));
+    SetWindowText(hCaptureButton, TEXT("Start Capture"));
     appState = Idle;
 }
 
@@ -157,7 +157,7 @@ void EnterCalibratingState()
     bool result = calMan->StartCalibration();
     if (result)
     {
-        SetWindowText(hCalibrateButton, L"Stop Calibrating");
+        SetWindowText(hCalibrateButton, TEXT("Stop Calibrating"));
         appState = Calibrating;
     }
     else
@@ -172,7 +172,7 @@ void ExitCalibratingState()
     SetWindowText(hLabel, TEXT("Stopping calibration..."));
     calMan->StopCalibration();
     SetWindowText(hLabel, TEXT("Calibration stopped."));
-    SetWindowText(hCalibrateButton, L"Start Calibrating");
+    SetWindowText(hCalibrateButton, TEXT("Start Calibrating"));
     appState = Idle;
 }
 
@@ -191,7 +191,7 @@ void EnterLiveVisState()
     appState = Live;
     SetWindowText(hLabel, TEXT("Beginning live visualization..."));
 
-    // run filter
+    // work in progress
 }
 
 void ExitLiveVisState()

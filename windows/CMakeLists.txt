@@ -6,13 +6,13 @@ add_library(pxcmd STATIC IMPORTED)
 set_property(TARGET pxcmd PROPERTY IMPORTED_LOCATION "$ENV{RSSDK_DIR}lib/$(PlatformName)/libpxcmd.lib")
 
 file(GLOB PLATFORM_CONFIG_PATH # platform.winmd
-  "/Program Files (x86)/Microsoft SDKs/Windows/v8.1/ExtensionSDKs/Microsoft.VCLibs/12.0/References/CommonConfiguration/neutral"
-  "/Program Files/Microsoft SDKs/Windows/v8.1/ExtensionSDKs/Microsoft.VCLibs/12.0/References/CommonConfiguration/neutral"
+  "C:/Program Files (x86)/Microsoft SDKs/Windows/v8.1/ExtensionSDKs/Microsoft.VCLibs/12.0/References/CommonConfiguration/neutral"
+  "C:/Program Files/Microsoft SDKs/Windows/v8.1/ExtensionSDKs/Microsoft.VCLibs/12.0/References/CommonConfiguration/neutral"
 )
 
 file(GLOB WINDOWS_CONFIG_PATH # Windows.winmd
-  "/Program Files (x86)/Windows Kits/8.1/References/CommonConfiguration/Neutral"
-  "/Program Files/Windows Kits/8.1/References/CommonConfiguration/Neutral"
+  "C:/Program Files (x86)/Windows Kits/8.1/References/CommonConfiguration/Neutral"
+  "C:/Program Files/Windows Kits/8.1/References/CommonConfiguration/Neutral"
 )
 
 target_compile_options(filter PRIVATE /wd4200 /wd4458)
@@ -69,5 +69,5 @@ add_executable(RCUtility WIN32
 target_link_libraries(RCUtility RealityCapLib pxcmd)
 target_compile_options(RCUtility PRIVATE /wd4200 /wd4458)
 target_compile_definitions(RCUtility PRIVATE UNICODE _UNICODE)
-target_compile_options(RCUtility PRIVATE /ZW /EHsc /Gm- "/AIC:${PLATFORM_CONFIG_PATH}" "/AIC:${WINDOWS_CONFIG_PATH}")
+target_compile_options(RCUtility PRIVATE /ZW /EHsc /Gm- "/AI${PLATFORM_CONFIG_PATH}" "/AI${WINDOWS_CONFIG_PATH}")
 target_include_directories(RCUtility PRIVATE "$ENV{RSSDK_DIR}/include")

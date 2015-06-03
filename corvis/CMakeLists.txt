@@ -29,7 +29,6 @@ add_subdirectory(src)
 
 add_executable(measure
   src/tools/measure.cpp
-  src/filter/replay.cpp
 )
 set_property(TARGET measure PROPERTY CXX_STANDARD 14)
 

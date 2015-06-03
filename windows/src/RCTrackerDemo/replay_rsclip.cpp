@@ -78,6 +78,11 @@ int wmain(int c, wchar_t **v)
     rc_configureGyroscope(tracker, rc_pose_identity, bias_rad__s, noiseVariance_rad2__s2);
     rc_reset(tracker, 0, rc_pose_identity);
 
+    std::wifstream t("gigabyte_s11.json");
+    std::wstring calibrationJSON((std::istreambuf_iterator<wchar_t>(t)),
+        std::istreambuf_iterator<wchar_t>());
+    rc_setCalibration(tracker, calibrationJSON.c_str());
+
     if(run_tracker) rc_startTracker(tracker);
 
     bool first_packet = false;

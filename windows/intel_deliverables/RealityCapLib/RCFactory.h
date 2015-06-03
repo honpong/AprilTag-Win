@@ -13,7 +13,9 @@ namespace RealityCap
     public:
         RCFactory();
         virtual ~RCFactory();
-        PXCSenseManager* GetSenseManager() { return CreateSenseManager(); };
+        std::unique_ptr<CalibrationManager> CreateCalibrationManager();
+        std::unique_ptr<CaptureManager> CreateCaptureManager();
+        PXCSenseManager* GetSenseManager() { return _senseMan; };
 
     private:
         PXCSenseManager* _senseMan;

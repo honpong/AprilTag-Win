@@ -18,3 +18,13 @@ PXCSenseManager* RCFactory::CreateSenseManager()
     if (!_senseMan) _senseMan = PXCSenseManager::CreateInstance();
     return _senseMan;
 }
+
+std::unique_ptr<CalibrationManager> RCFactory::CreateCalibrationManager()
+{
+	return std::unique_ptr<CalibrationManager>(new CalibrationManager(CreateSenseManager()));
+}
+
+std::unique_ptr<CaptureManager> RCFactory::CreateCaptureManager()
+{
+    return std::unique_ptr<CaptureManager>(new CaptureManager(CreateSenseManager()));
+}

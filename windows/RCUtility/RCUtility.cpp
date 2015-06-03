@@ -15,7 +15,7 @@ using namespace RealityCap;
 
 #define MAX_LOADSTRING 100
 
-enum AppState
+typedef enum AppState
 {
     Idle,
     Calibrating,
@@ -30,8 +30,8 @@ TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 LPCWSTR glWindowClass = L"GLWindow";
 RCFactory factory;
-CaptureManager capMan(factory.GetSenseManager());
-CalibrationManager calMan(factory.GetSenseManager());
+auto capMan = factory.CreateCaptureManager();
+auto calMan = factory.CreateCalibrationManager();
 HWND hLabel;
 HWND hCaptureButton;
 HWND hCalibrateButton;
@@ -117,14 +117,14 @@ void EnterCapturingState()
     SetWindowText(hLabel, TEXT("Starting capture..."));
     bool result;
 
-    result = capMan.StartSensors();
+    result = capMan->StartSensors();
     if (!result)
     {
         SetWindowText(hLabel, TEXT("Failed to start sensors"));
         return;
     }
 
-    result = capMan.StartCapture();
+    result = capMan->StartCapture();
     if (result)
     {
         SetWindowText(hLabel, TEXT("Capturing."));
@@ -142,7 +142,7 @@ void ExitCapturingState()
 {
     if (appState != Capturing) return;
     SetWindowText(hLabel, TEXT("Stopping capture..."));
-    capMan.StopCapture();
+    capMan->StopCapture();
     SetWindowText(hLabel, TEXT("Capture complete."));
     SetWindowText(hCaptureButton, TEXT("Start Capture"));
     appState = Idle;
@@ -153,8 +153,8 @@ void EnterCalibratingState()
     if (appState != Idle) return;
     SetWindowText(hLabel, TEXT("Starting calibration..."));
 
-    calMan.SetDelegate(&calDelegate);
-    bool result = calMan.StartCalibration();
+    calMan->SetDelegate(&calDelegate);
+    bool result = calMan->StartCalibration();
     if (result)
     {
         SetWindowText(hCalibrateButton, TEXT("Stop Calibrating"));
@@ -170,7 +170,7 @@ void ExitCalibratingState()
 {
     if (appState != Calibrating) return;
     SetWindowText(hLabel, TEXT("Stopping calibration..."));
-    calMan.StopCalibration();
+    calMan->StopCalibration();
     SetWindowText(hLabel, TEXT("Calibration stopped."));
     SetWindowText(hCalibrateButton, TEXT("Start Calibrating"));
     appState = Idle;

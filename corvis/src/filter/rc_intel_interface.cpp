@@ -75,7 +75,7 @@ static rc_TrackerConfidence tracker_confidence_from_confidence(RCSensorFusionCon
 struct rc_Tracker: public sensor_fusion
 {
     rc_Tracker(bool immediate_dispatch): sensor_fusion(immediate_dispatch) {}
-    wstring jsonString;
+    utility::string_t jsonString;
 };
 
 extern "C" rc_Tracker * rc_create()
@@ -401,8 +401,9 @@ size_t rc_getCalibration(rc_Tracker *tracker, const wchar_t** buffer)
     bool result = calibration_json_store::SerializeCalibration(cal, tracker->jsonString);
     if (result)
     {
-        *buffer = tracker->jsonString.c_str();
-        return tracker->jsonString.length();
+        std::wstring wideJsonString = std::wstring(tracker->jsonString.begin(), tracker->jsonString.end());
+        *buffer = wideJsonString.c_str();
+        return wideJsonString.length();
     }
     else
     {
@@ -410,9 +411,18 @@ size_t rc_getCalibration(rc_Tracker *tracker, const wchar_t** buffer)
     }
 }
 
+#include <codecvt>
 bool rc_setCalibration(rc_Tracker *tracker, const wchar_t* buffer)
 {
-    wstring jsonString(buffer);
+#if UNICODE
+    utility::string_t jsonString(buffer);
+#else
+    std::wstring wideJsonString(buffer);
+    typedef std::codecvt_utf8<wchar_t> convert_type;
+    std::wstring_convert<convert_type, wchar_t> converter;
+    std::string converted_str = converter.to_bytes(wideJsonString);
+    utility::string_t jsonString(converted_str);
+#endif
     corvis_device_parameters cal;
     bool result = calibration_json_store::DeserializeCalibration(jsonString, cal);
     if (result) tracker->set_device(cal);

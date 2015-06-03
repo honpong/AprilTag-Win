@@ -162,7 +162,7 @@ void CopyStructToJson(const corvis_device_parameters &cal, value &json)
     json[U(KEY_SHUTTER_PERIOD)] = value::number((double)std::chrono::duration_cast<std::chrono::microseconds>(cal.shutter_period).count());
 }
 
-bool RealityCap::calibration_json_store::SerializeCalibration(const corvis_device_parameters &cal, std::wstring &jsonString)
+bool RealityCap::calibration_json_store::SerializeCalibration(const corvis_device_parameters &cal, utility::string_t &jsonString)
 {
     try
     {
@@ -178,7 +178,7 @@ bool RealityCap::calibration_json_store::SerializeCalibration(const corvis_devic
     return true;
 }
 
-bool RealityCap::calibration_json_store::DeserializeCalibration(const std::wstring &jsonString, corvis_device_parameters &cal)
+bool RealityCap::calibration_json_store::DeserializeCalibration(const utility::string_t &jsonString, corvis_device_parameters &cal)
 {
     try
     {
@@ -197,7 +197,12 @@ void ParseCalibrationFile(string fileName, corvis_device_parameters &cal)
 {
     if (!FileExists(fileName)) throw runtime_error("Calibration file not found.");
 
+#if UNICODE
     wifstream jsonFile;
+#else
+    ifstream jsonFile;
+#endif
+
     jsonFile.open(fileName);
     if (jsonFile.fail()) throw runtime_error("Failed to open calibration file.");
     value json = value::parse(jsonFile);
@@ -244,7 +249,12 @@ bool calibration_json_store::SaveCalibration(const corvis_device_parameters &cal
         value json = value::object();
         CopyStructToJson(cal, json);
 
+#if UNICODE
         wofstream jsonFile;
+#else
+        ofstream jsonFile;
+#endif
+
         jsonFile.open(fileName);
         if (jsonFile.fail()) throw runtime_error("Failed to open calibration file for writing.");
         jsonFile << json;

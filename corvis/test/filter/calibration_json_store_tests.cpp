@@ -121,7 +121,7 @@ TEST(calibration_json_store_tests, Serialization)
 
     try
     {
-        wstring jsonString;
+        utility::string_t jsonString;
         EXPECT_TRUE(calibration_json_store::SerializeCalibration(cal, jsonString));
         EXPECT_TRUE(jsonString.length()); // expect non-zero length
 

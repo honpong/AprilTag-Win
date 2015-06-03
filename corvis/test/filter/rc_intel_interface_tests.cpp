@@ -15,11 +15,12 @@ TEST(rc_intel_interface_tests, rc_setCalibration)
     EXPECT_TRUE(store->LoadCalibrationDefaults(DEVICE_TYPE_GIGABYTE_S11, cal));
 
     // set cal
-    wstring jsonString;
+    utility::string_t jsonString;
     EXPECT_TRUE(calibration_json_store::SerializeCalibration(cal, jsonString));
 
     rc_Tracker *tracker = rc_create();
-    EXPECT_TRUE(rc_setCalibration(tracker, jsonString.c_str()));
+    std::wstring wideJsonString = std::wstring(jsonString.begin(), jsonString.end());
+    EXPECT_TRUE(rc_setCalibration(tracker, wideJsonString.c_str()));
     
     // now read cal back out and compare
     const wchar_t* buffer;

@@ -45,7 +45,6 @@ endif()
 
 if(YES)
     add_executable(spec
-      src/filter/rc_intel_interface.cpp
       ../gtest/gtest_main.cc ../gtest/gtest-all.cc
       test/test.cpp test/util.cpp
       test/numerics/vec4.cpp test/numerics/rotation_vector.cpp test/numerics/quaternion.cpp
@@ -53,7 +52,6 @@ if(YES)
       test/filter/device_parameters_tests.cpp
       test/filter/calibration_json_store_tests.cpp
       test/cor/sensor_fusion_queue.cpp
-      test/filter/rc_intel_interface_tests.cpp
     )
     set_property(TARGET spec PROPERTY CXX_STANDARD 14)
     target_include_directories(spec PRIVATE test ..)
@@ -62,6 +60,20 @@ if(YES)
       numerics
       filter
       casablanca
+    )
+
+    add_executable(spec_intel
+      src/filter/rc_intel_interface.cpp
+      test/filter/rc_intel_interface_tests.cpp
+    )
+    set_property(TARGET spec_intel PROPERTY CXX_STANDARD 14)
+    target_include_directories(spec_intel PRIVATE test ..)
+    target_link_libraries(spec_intel
+      cor
+      numerics
+      filter
+      casablanca
+      vis
     )
 
     if(BUILD_STEREO)

@@ -33,6 +33,13 @@ bool CalibrationManager::StartCalibration()
     if (isCalibrating()) return true;
     if (!StartSensors()) return false;
 
+    PXCCaptureManager *capMan = GetSenseManager()->QueryCaptureManager();
+    PXCCapture::Device *pDevice = capMan->QueryDevice();
+    PXCPointF32 focal = pDevice->QueryColorFocalLength();
+    PXCPointF32 principal = pDevice->QueryColorPrincipalPoint();
+    pxcI32 exposure = pDevice->QueryColorExposure();
+    fprintf(stderr, "focal %f %f, principal %f %f, exposure %d\n", focal.x, focal.y, principal.x, principal.y, exposure);
+
     _trackerState = rc_E_INACTIVE;
     rc_setStatusCallback(_tracker, status_callback, this);
 

@@ -46,6 +46,7 @@ endif()
 
 if(YES)
     add_executable(spec
+      src/filter/rc_intel_interface.cpp
       ../gtest/gtest_main.cc ../gtest/gtest-all.cc
       test/test.cpp test/util.cpp
       test/numerics/vec4.cpp test/numerics/rotation_vector.cpp test/numerics/quaternion.cpp
@@ -62,7 +63,6 @@ if(YES)
       numerics
       filter
       casablanca
-	  RCTracker
     )
 
     if(BUILD_STEREO)

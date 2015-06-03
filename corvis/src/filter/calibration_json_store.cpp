@@ -197,12 +197,7 @@ void ParseCalibrationFile(string fileName, corvis_device_parameters &cal)
 {
     if (!FileExists(fileName)) throw runtime_error("Calibration file not found.");
 
-#if UNICODE
-    wifstream jsonFile;
-#else
-    ifstream jsonFile;
-#endif
-
+    utility::ifstream_t jsonFile;
     jsonFile.open(fileName);
     if (jsonFile.fail()) throw runtime_error("Failed to open calibration file.");
     value json = value::parse(jsonFile);
@@ -249,12 +244,7 @@ bool calibration_json_store::SaveCalibration(const corvis_device_parameters &cal
         value json = value::object();
         CopyStructToJson(cal, json);
 
-#if UNICODE
-        wofstream jsonFile;
-#else
-        ofstream jsonFile;
-#endif
-
+        utility::ofstream_t jsonFile;
         jsonFile.open(fileName);
         if (jsonFile.fail()) throw runtime_error("Failed to open calibration file for writing.");
         jsonFile << json;

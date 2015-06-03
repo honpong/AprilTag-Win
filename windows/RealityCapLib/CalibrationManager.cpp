@@ -47,7 +47,7 @@ void CalibrationManager::StopCalibration()
 {
     if (!isCalibrating()) return;
 
-    wchar_t* buffer;
+    const wchar_t* buffer;
     size_t size = rc_getCalibration(_tracker, &buffer);
     // TODO: write calibration
     rc_stopTracker(_tracker);

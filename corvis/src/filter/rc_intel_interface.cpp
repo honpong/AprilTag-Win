@@ -207,10 +207,10 @@ RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback c
     };
 }
 
-void rc_startCalibration(rc_Tracker * tracker)
+bool rc_startCalibration(rc_Tracker * tracker)
 {
     corvis_device_parameters p;
-    get_parameters_for_device_name("gigabyte_s11", &p);
+    if (!get_parameters_for_device_name("gigabyte_s11", &p)) return false;
     tracker->set_device(p);
     tracker->start_calibration(false);
 }

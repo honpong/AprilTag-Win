@@ -133,7 +133,7 @@ RCTRACKER_API void rc_configureLocation(rc_Tracker *tracker, double latitude_deg
 RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callback, void *handle);
 RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback callback, void *handle);
 
-RCTRACKER_API void rc_startCalibration(rc_Tracker *tracker);
+RCTRACKER_API bool rc_startCalibration(rc_Tracker *tracker);
 //TODO: Define calibration interface
 //bool rc_getCalibration(rc_Tracker *tracker, char **buffer, int *length);
 

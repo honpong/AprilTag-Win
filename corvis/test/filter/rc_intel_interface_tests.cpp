@@ -8,7 +8,7 @@ using namespace std;
 TEST(rc_intel_interface_tests, rc_getCalibration)
 {
     rc_Tracker *tracker = rc_create();
-    wchar_t* buffer;
+    const wchar_t* buffer;
     size_t size = rc_getCalibration(tracker, &buffer);
     EXPECT_TRUE(size);
 

@@ -53,15 +53,15 @@ LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK	WndProcGL(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 
-void StartCapture();
-void StopCapture();
-void StartCalibration();
-void StopCalibration();
+void EnterCapturingState();
+void ExitCapturingState();
+void EnterCalibratingState();
+void ExitCalibratingState();
 bool OpenVisualizationWindow();
-void BeginLiveVis();
-void EndLiveVis();
-void BeginReplay(const PWSTR filePath);
-void EndReplay();
+void EnterLiveVisState();
+void ExitLiveVisState();
+void EnterReplayingState(const PWSTR filePath);
+void ExitReplayingState();
 
 class MyCalDelegate : public CalibrationManagerDelegate
 {
@@ -73,7 +73,7 @@ public:
         switch (status)
         {
         case 0:
-            StopCalibration();
+            ExitCalibratingState();
             SetWindowText(hLabel, TEXT("Calibration complete."));
             break;
         case 1:
@@ -95,14 +95,15 @@ public:
         switch (errorCode)
         {
         case 1:
+            // not fatal
             SetWindowText(hLabel, TEXT("Vision error."));
             break;
         case 2:
-            StopCalibration();
+            ExitCalibratingState();
             SetWindowText(hLabel, TEXT("Speed error."));
             break;
         case 3:
-            StopCalibration();
+            ExitCalibratingState();
             SetWindowText(hLabel, TEXT("Fatal error."));
             break;
         default:
@@ -113,7 +114,7 @@ public:
 
 MyCalDelegate calDelegate;
 
-void StartCapture()
+void EnterCapturingState()
 {
     if (appState != Idle) return;
 
@@ -142,7 +143,7 @@ void StartCapture()
     if (result) appState = Capturing;
 }
 
-void StopCapture()
+void ExitCapturingState()
 {
     if (appState != Capturing) return;
     SetWindowText(hLabel, L"Stopping capture...");
@@ -152,7 +153,7 @@ void StopCapture()
     appState = Idle;
 }
 
-void StartCalibration()
+void EnterCalibratingState()
 {
     if (appState != Idle) return;
     SetWindowText(hLabel, TEXT("Starting calibration..."));
@@ -170,7 +171,7 @@ void StartCalibration()
     }
 }
 
-void StopCalibration()
+void ExitCalibratingState()
 {
     if (appState != Calibrating) return;
     SetWindowText(hLabel, TEXT("Stopping calibration..."));
@@ -189,7 +190,7 @@ bool OpenVisualizationWindow()
     return true;
 }
 
-void BeginLiveVis()
+void EnterLiveVisState()
 {
     if (!OpenVisualizationWindow()) return;
     appState = Live;
@@ -198,14 +199,14 @@ void BeginLiveVis()
     // run filter
 }
 
-void EndLiveVis()
+void ExitLiveVisState()
 {
     appState = Idle;
     SetWindowText(hLabel, TEXT(""));
 }
 
 #if 1
-void BeginReplay(const PWSTR filePath)
+void EnterReplayingState(const PWSTR filePath)
 {
     appState = Replay;
     SetWindowText(hLabel, TEXT("Beginning replay visualization..."));
@@ -219,7 +220,7 @@ void BeginReplay(const PWSTR filePath)
 #include <locale>
 #include <codecvt>
 #include <string>
-void BeginReplay(const PWSTR filePath)
+void EnterReplayingState(const PWSTR filePath)
 {
     //if (!OpenVisualizationWindow()) return;
     appState = Replay;
@@ -261,7 +262,7 @@ void BeginReplay(const PWSTR filePath)
 }
 #endif
 
-void EndReplay()
+void ExitReplayingState()
 {
     appState = Idle;
     SetWindowText(hLabel, TEXT(""));
@@ -383,7 +384,7 @@ HRESULT OpenReplayFilePicker()
                                 if (SUCCEEDED(hr))
                                 {
                                     SetWindowText(hLabel, pszFilePath);
-                                    BeginReplay(pszFilePath);
+                                    EnterReplayingState(pszFilePath);
                                     CoTaskMemFree(pszFilePath);
                                 }
                                 psiResult->Release();
@@ -556,13 +557,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             DestroyWindow(hWnd);
             break;
         case IDB_CAPTURE:
-            appState == Capturing ? StopCapture() : StartCapture();
+            appState == Capturing ? ExitCapturingState() : EnterCapturingState();
             break;
         case IDB_CALIBRATE:
-            appState == Calibrating ? StopCalibration() : StartCalibration();
+            appState == Calibrating ? ExitCalibratingState() : EnterCalibratingState();
             break;
         case IDB_LIVE:
-            BeginLiveVis();
+            EnterLiveVisState();
             break;
         case IDB_REPLAY:
             OpenReplayFilePicker();
@@ -580,7 +581,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         PostQuitMessage(0);
         break;
     case WM_CLOSE:
-        StopCapture();
+        ExitCapturingState();
         DestroyWindow(hWnd);
         break;
     default:
@@ -620,8 +621,8 @@ LRESULT CALLBACK WndProcGL(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam
         //PostQuitMessage(0);
         break;
     case WM_CLOSE:
-        if (appState == Live) EndLiveVis();
-        else if (appState = Replay) EndReplay();
+        if (appState == Live) ExitLiveVisState();
+        else if (appState = Replay) ExitReplayingState();
         DestroyWindow(hWnd);
         break;
     default:

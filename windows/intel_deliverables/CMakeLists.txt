@@ -41,3 +41,9 @@ add_custom_command(TARGET RCUtility POST_BUILD        # Adds a post-build event 
     COMMAND ${CMAKE_COMMAND} -E copy_if_different  # which executes "cmake - E copy_if_different..."
         "${PROJECT_SOURCE_DIR}/RCTracker/RCTracker.dll"      # <--this is in-file
         $<TARGET_FILE_DIR:RCUtility>)                 # <--this is out-file path
+
+add_custom_command(TARGET RCUtility POST_BUILD        # Adds a post-build event to RCUtility
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different  # which executes "cmake - E copy_if_different..."
+        "${PROJECT_SOURCE_DIR}/RCUtility/gigabyte_s11.json"      # <--this is in-file
+        $<TARGET_FILE_DIR:RCUtility>)                 # <--this is out-file path
+

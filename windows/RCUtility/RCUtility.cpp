@@ -200,62 +200,11 @@ void ExitLiveVisState()
     SetWindowText(hLabel, TEXT(""));
 }
 
-#if 1
 void EnterReplayingState(const PWSTR filePath)
 {
     appState = Replay;
     SetWindowText(hLabel, TEXT("Beginning replay visualization..."));
 }
-#else
-#include <functional>
-#include <thread>
-#include "replay.h"
-#include "world_state.h"
-#include "gui.h"
-#include <locale>
-#include <codecvt>
-#include <string>
-void EnterReplayingState(const PWSTR filePath)
-{
-    //if (!OpenVisualizationWindow()) return;
-    appState = Replay;
-    SetWindowText(hLabel, TEXT("Beginning replay visualization..."));
-
-    std::wstring filename_w = std::wstring(filePath);
-    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t> > converter;
-    std::string filename = converter.to_bytes(filename_w);
-    fprintf(stderr, "opening %s", filename.c_str());
-
-    replay rp(false);
-    world_state ws;
-    std::function<void(float)> progress = [&](float progress) {
-        wchar_t buffer[100];
-        wsprintf(buffer, L"Progress: %.1f", progress);
-        SetWindowText(hLabel, buffer);
-    };
-    std::function<void(const filter *, camera_data &&)> camera_callback;
-
-    gui vis(&ws, true, false, false);
-
-    bool enable_gui = false;
-    bool realtime = false;
-    if (enable_gui)
-        camera_callback = [&](const filter * f, camera_data &&d) {
-        ws.receive_camera(f, std::move(d));
-    };
-
-    if (!rp.configure_all(filename.c_str(), "ipad3", realtime, progress, camera_callback))
-        return;
-
-    if (enable_gui) { // The GUI must be on the main thread
-        std::thread replay_thread([&](void) { rp.start(); });
-        vis.start(&rp);
-        replay_thread.join();
-    }
-    else
-        rp.start();
-}
-#endif
 
 void ExitReplayingState()
 {

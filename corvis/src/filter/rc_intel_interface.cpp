@@ -10,6 +10,8 @@
 #include "sensor_fusion.h"
 #include "calibration_json_store.h"
 
+using namespace RealityCap;
+
 static const unsigned T0 = 3;
 static const unsigned T1 = 7;
 static const unsigned T2 = 11;
@@ -394,20 +396,27 @@ corvis_device_parameters rc_getCalibration(rc_Tracker *tracker)
     return calibration;
 }
 
-bool rc_getCalibration(rc_Tracker *tracker, wchar_t** buffer, size_t size)
+size_t rc_getCalibration(rc_Tracker *tracker, wchar_t** buffer)
 {
     corvis_device_parameters cal = rc_getCalibration(tracker);
     wstring jsonString;
-    bool result = RealityCap::calibration_json_store::SerializeCalibration(cal, jsonString);
-    if (result && jsonString.length() < size) *buffer = &jsonString[0];
-    return result;
+    bool result = calibration_json_store::SerializeCalibration(cal, jsonString);
+    if (result)
+    {
+        *buffer = &jsonString[0];
+        return jsonString.length();
+    }
+    else
+    {
+        return 0;
+    }
 }
 
-bool rc_setCalibration(rc_Tracker *tracker, wchar_t** buffer, size_t size)
+bool rc_setCalibration(rc_Tracker *tracker, const wchar_t* buffer)
 {
-    wstring jsonString(*buffer);
+    wstring jsonString(buffer);
     corvis_device_parameters cal;
-    bool result = RealityCap::calibration_json_store::DeserializeCalibration(jsonString, cal);
+    bool result = calibration_json_store::DeserializeCalibration(jsonString, cal);
     if (result) tracker->set_device(cal);
     return result;
 }

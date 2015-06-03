@@ -2076,6 +2076,7 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
+					"../ThirdParty/casablanca/Release/include/cpprest/**",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2206,6 +2207,7 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
+					"../ThirdParty/casablanca/Release/include/cpprest/**",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2244,6 +2246,7 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
+					"../ThirdParty/casablanca/Release/include/cpprest/**",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2327,6 +2330,7 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
+					"../ThirdParty/casablanca/Release/include/cpprest/**",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2410,6 +2414,7 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
+					"../ThirdParty/casablanca/Release/include/cpprest/**",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2452,6 +2457,7 @@
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include/",
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
+					"../ThirdParty/casablanca/Release/include/**",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2579,6 +2585,7 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
+					"../ThirdParty/casablanca/Release/include/cpprest/**",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2618,6 +2625,7 @@
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include/",
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
+					"../ThirdParty/casablanca/Release/include/**",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2707,6 +2715,7 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
+					"../ThirdParty/casablanca/Release/include/cpprest/**",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2745,6 +2754,7 @@
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include/",
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
+					"../ThirdParty/casablanca/Release/include/**",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2938,6 +2948,7 @@
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include/",
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
+					"../ThirdParty/casablanca/Release/include/**",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2981,6 +2992,7 @@
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include/",
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
+					"../ThirdParty/casablanca/Release/include/**",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3025,6 +3037,7 @@
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include/",
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
+					"../ThirdParty/casablanca/Release/include/**",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3069,6 +3082,7 @@
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include/",
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
+					"../ThirdParty/casablanca/Release/include/**",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",

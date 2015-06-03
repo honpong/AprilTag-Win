@@ -98,8 +98,8 @@ typedef struct
     float image_x, image_y;
 } rc_Feature;
 
-typedef void(*rc_DataCallback)(rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count);
-typedef void(*rc_StatusCallback)(rc_TrackerState state, rc_TrackerError error, rc_TrackerConfidence confidence, float progress);
+typedef void(*rc_DataCallback)(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count);
+typedef void(*rc_StatusCallback)(void *handle, rc_TrackerState state, rc_TrackerError error, rc_TrackerConfidence confidence, float progress);
     
 typedef struct rc_Tracker rc_Tracker;
 
@@ -130,8 +130,8 @@ RCTRACKER_API void rc_configureGyroscope(rc_Tracker *tracker, const rc_Pose pose
 RCTRACKER_API void rc_configureLocation(rc_Tracker *tracker, double latitude_deg, double longitude_deg, double altitude_m);
 
 // WARNING: The data callback currently blocks the filter thread due to a bug in visual studio. Don't do significant work in it!
-RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callback);
-RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback callback);
+RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callback, void *handle);
+RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback callback, void *handle);
 
 RCTRACKER_API void rc_startCalibration(rc_Tracker *tracker);
 //TODO: Define calibration interface

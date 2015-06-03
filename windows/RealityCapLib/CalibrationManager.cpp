@@ -23,18 +23,22 @@ RealityCap::CalibrationManager::~CalibrationManager()
     rc_destroy(_tracker);
 }
 
+static void status_callback(void *handle, rc_TrackerState state, rc_TrackerError error, rc_TrackerConfidence confidence, float progress)
+{
+    ((CalibrationManager *)handle)->StatusCallback(state, error, confidence, progress);
+}
+
 bool CalibrationManager::StartCalibration()
 {
     if (isCalibrating()) return true;
     if (!StartSensors()) return false;
 
     _trackerState = rc_E_INACTIVE;
+    rc_setStatusCallback(_tracker, status_callback, this);
 
     rc_startCalibration(_tracker);
 
     _isCalibrating = true;
-
-    _pollingThread = std::thread(&CalibrationManager::PollForStatusUpdates, this);
 
     return isCalibrating();
 }
@@ -47,7 +51,6 @@ void CalibrationManager::StopCalibration()
     size_t size = rc_getCalibration(_tracker, &buffer);
     // TODO: write calibration
     rc_stopTracker(_tracker);
-    
     StopSensors();
     _isCalibrating = false;
 }
@@ -81,23 +84,16 @@ void CalibrationManager::OnGyroSample(imu_sample_t* sample)
     rc_receiveGyro(_tracker, sample->coordinatedUniversalTime100ns / 10, vec);
 }
 
-void CalibrationManager::PollForStatusUpdates()
+void CalibrationManager::StatusCallback(rc_TrackerState newState, rc_TrackerError errorCode, rc_TrackerConfidence confidence, float progress)
 {
-    while (isCalibrating())
+    // check for errors
+    if (errorCode && _delegate) _delegate->OnError(errorCode);
+
+    // check for status changes
+    if (newState != _trackerState)
     {
-        // check for errors
-        int errorCode = rc_getError(_tracker);
-        if (errorCode && _delegate) _delegate->OnError(errorCode);
-
-        // check for status changes
-        rc_TrackerState newState = rc_getState(_tracker);
-        if (newState != _trackerState)
-        {
-            if (_delegate) _delegate->OnStatusUpdated(newState);
+        if (_delegate) _delegate->OnStatusUpdated(newState);
             _trackerState = newState;
-        }
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 }
 

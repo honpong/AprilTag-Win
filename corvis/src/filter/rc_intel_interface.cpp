@@ -176,9 +176,9 @@ void rc_configureLocation(rc_Tracker * tracker, double latitude_deg, double long
     tracker->set_location(latitude_deg, longitude_deg, altitude_m);
 }
 
-RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callback)
+RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callback, void *handle)
 {
-    if(callback) tracker->camera_callback = [callback](std::unique_ptr<sensor_fusion::data> d, camera_data &&i) {
+    if(callback) tracker->camera_callback = [callback, handle](std::unique_ptr<sensor_fusion::data> d, camera_data &&i) {
         uint64_t micros = std::chrono::duration_cast<std::chrono::microseconds>(d->time.time_since_epoch()).count();
         rc_Pose p;
         vector<rc_Feature> outfeats;
@@ -194,15 +194,15 @@ RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callb
             f.id = i.id;
             outfeats.push_back(f);
         }
-        callback(micros, p, &outfeats[0], outfeats.size());
+        callback(handle, micros, p, &outfeats[0], outfeats.size());
     };
     else tracker->camera_callback = nullptr;
 }
 
-RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback callback)
+RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback callback, void *handle)
 {
-    if(callback) tracker->status_callback = [callback](sensor_fusion::status s) {
-        callback(tracker_state_from_run_state(s.run_state), tracker_error_from_error(s.error), tracker_confidence_from_confidence(s.confidence), s.progress);
+    if(callback) tracker->status_callback = [callback, handle](sensor_fusion::status s) {
+        callback(handle, tracker_state_from_run_state(s.run_state), tracker_error_from_error(s.error), tracker_confidence_from_confidence(s.confidence), s.progress);
     };
 }
 

@@ -48,7 +48,7 @@ add_library(RealityCapLib
   RealityCapLib/stdafx.cpp
 )
 target_include_directories(RealityCapLib PUBLIC RealityCapLib)
-target_include_directories(RealityCapLib PRIVATE 
+target_include_directories(RealityCapLib PUBLIC 
   ../corvis/src/filter/
   "$ENV{RSSDK_DIR}/include"
     src

@@ -53,23 +53,20 @@ LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 LRESULT CALLBACK	WndProcGL(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 
+void StartCapture();
+void StopCapture();
+void StartCalibration();
 void StopCalibration();
+bool OpenVisualizationWindow();
+void BeginLiveVis();
+void EndLiveVis();
+void BeginReplay(const PWSTR filePath);
+void EndReplay();
 
 class MyCalDelegate : public CalibrationManagerDelegate
 {
 public:
     MyCalDelegate() : CalibrationManagerDelegate() {};
-
-    virtual void OnProgressUpdated(float progress) override
-    {
-        if (progress < 1.)
-        {
-            wchar_t title[1024];
-            _snwprintf_s(title, 1024, L"Progress %2.0f%%", progress * 100);
-            Debug::Log(title);
-            SetWindowText(hLabel, title);
-        }
-    };
 
     virtual void OnStatusUpdated(int status) override
     {

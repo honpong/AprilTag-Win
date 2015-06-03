@@ -43,8 +43,8 @@ void CalibrationManager::StopCalibration()
 {
     if (!isCalibrating()) return;
 
-    wchar_t* buffer[WCHAR_MAX];
-    bool result = rc_getCalibration(_tracker, buffer, WCHAR_MAX);
+    wchar_t* buffer;
+    size_t size = rc_getCalibration(_tracker, &buffer);
     // TODO: write calibration
     rc_stopTracker(_tracker);
     

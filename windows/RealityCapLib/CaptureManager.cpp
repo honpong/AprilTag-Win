@@ -5,7 +5,6 @@
 #include "Debug.h"
 #include <string>
 #include "libpxcimu_internal.h"
-#include "SensorData.h"
 
 using namespace RealityCap;
 using namespace std;

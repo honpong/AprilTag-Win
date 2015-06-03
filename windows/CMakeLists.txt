@@ -47,7 +47,6 @@ add_library(RealityCapLib
   RealityCapLib/CalibrationManager.cpp
   RealityCapLib/CaptureManager.cpp
   RealityCapLib/ReplayManager.cpp
-  RealityCapLib/SensorData.cpp
   RealityCapLib/SensorManager.cpp
   RealityCapLib/RCFactory.cpp
   RealityCapLib/Debug.cpp

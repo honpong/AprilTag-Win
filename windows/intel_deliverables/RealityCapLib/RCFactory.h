@@ -4,8 +4,6 @@
 #include "CaptureManager.h"
 #include <memory>
 
-using namespace std;
-
 class PXCSenseManager;
 
 namespace RealityCap
@@ -15,9 +13,7 @@ namespace RealityCap
     public:
         RCFactory();
         virtual ~RCFactory();
-        unique_ptr<CalibrationManager> CreateCalibrationManager();
-        unique_ptr<CaptureManager> CreateCaptureManager();
-        PXCSenseManager* GetSenseManager() { return _senseMan; };
+        PXCSenseManager* GetSenseManager() { return CreateSenseManager(); };
 
     private:
         PXCSenseManager* _senseMan;

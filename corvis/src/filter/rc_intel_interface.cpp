@@ -125,16 +125,17 @@ void rc_printDeviceConfig(rc_Tracker * tracker)
     //fprintf(stderr, "sensor_clock::duration shutter_delay, shutter_period;
 }
 
-void rc_configureCamera(rc_Tracker * tracker, rc_Camera camera, const rc_Pose pose_m, int width_px, int height_px, float center_x_px, float center_y_px, float focal_length_px, float focal_length_xy_px, float focal_length_y_px)
+void rc_configureCamera(rc_Tracker * tracker, rc_Camera camera, const rc_Pose pose_m, int width_px, int height_px, float center_x_px, float center_y_px, float focal_length_x_px, float focal_length_y_px, float skew)
 {
     tracker->device.Cx = center_x_px;
     tracker->device.Cy = center_y_px;
-    tracker->device.Fx = tracker->device.Fy = focal_length_px;
+    tracker->device.Fx = focal_length_x_px;
+    tracker->device.Fy = focal_length_y_px;
     tracker->device.image_width = width_px;
     tracker->device.image_height = height_px;
-    // TODO: remove or set these to zero
-    tracker->device.K[0] = .17f;
-    tracker->device.K[1] = -.38f;
+    tracker->device.K[0] = 0;
+    tracker->device.K[1] = 0;
+    tracker->device.K[2] = 0;
 
     tracker->device.Tc[0] = pose_m[T0];
     tracker->device.Tc[1] = pose_m[T1];
@@ -207,11 +208,8 @@ RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback c
     };
 }
 
-bool rc_startCalibration(rc_Tracker * tracker)
+void rc_startCalibration(rc_Tracker * tracker)
 {
-    corvis_device_parameters p;
-    if (!get_parameters_for_device_name("gigabyte_s11", &p)) return false;
-    tracker->set_device(p);
     tracker->start_calibration(false);
 }
 

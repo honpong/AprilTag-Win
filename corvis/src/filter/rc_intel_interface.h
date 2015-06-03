@@ -124,7 +124,7 @@ RCTRACKER_API void rc_reset(rc_Tracker *tracker, rc_Timestamp initialTime_us, co
  */
 RCTRACKER_API void rc_configureCamera(rc_Tracker *tracker, rc_Camera camera, const rc_Pose pose_m,
                         int width_px, int height_px, float center_x_px, float center_y_px,
-                        float focal_length_x_px, float focal_length_xy_px, float focal_length_y_px);
+                        float focal_length_x_px, float focal_length_y_px, float skew);
 RCTRACKER_API void rc_configureAccelerometer(rc_Tracker *tracker, const rc_Pose pose_m, const rc_Vector bias_m__s2, float noiseVariance_m2__s4);
 RCTRACKER_API void rc_configureGyroscope(rc_Tracker *tracker, const rc_Pose pose_m, const rc_Vector bias_rad__s, float noiseVariance_rad2__s2);
 RCTRACKER_API void rc_configureLocation(rc_Tracker *tracker, double latitude_deg, double longitude_deg, double altitude_m);
@@ -133,7 +133,7 @@ RCTRACKER_API void rc_configureLocation(rc_Tracker *tracker, double latitude_deg
 RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callback, void *handle);
 RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback callback, void *handle);
 
-RCTRACKER_API bool rc_startCalibration(rc_Tracker *tracker);
+RCTRACKER_API void rc_startCalibration(rc_Tracker *tracker);
 //TODO: Define calibration interface
 //bool rc_getCalibration(rc_Tracker *tracker, char **buffer, int *length);
 

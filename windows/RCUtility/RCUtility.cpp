@@ -11,12 +11,7 @@
 #include <shlwapi.h>
 #include "RCFactory.h"
 
-#using <Windows.winmd>
-#using <Platform.winmd>
-
 using namespace RealityCap;
-using namespace Platform;
-using namespace Windows::Devices::Sensors;
 
 #define MAX_LOADSTRING 100
 
@@ -402,8 +397,6 @@ HRESULT OpenReplayFilePicker()
     return hr;
 }
 
-
-[MTAThread] // inits WinRT runtime
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
     _In_opt_ HINSTANCE hPrevInstance,
     _In_ LPTSTR    lpCmdLine,

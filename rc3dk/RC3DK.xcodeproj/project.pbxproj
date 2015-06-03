@@ -2076,7 +2076,7 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"../ThirdParty/casablanca/Release/include/cpprest/**",
+					"../ThirdParty/casablanca/Release/include/**",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2207,7 +2207,7 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"../ThirdParty/casablanca/Release/include/cpprest/**",
+					"../ThirdParty/casablanca/Release/include/**",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2246,7 +2246,7 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"../ThirdParty/casablanca/Release/include/cpprest/**",
+					"../ThirdParty/casablanca/Release/include/**",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2330,7 +2330,7 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"../ThirdParty/casablanca/Release/include/cpprest/**",
+					"../ThirdParty/casablanca/Release/include/**",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2414,7 +2414,7 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"../ThirdParty/casablanca/Release/include/cpprest/**",
+					"../ThirdParty/casablanca/Release/include/**",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2585,7 +2585,7 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"../ThirdParty/casablanca/Release/include/cpprest/**",
+					"../ThirdParty/casablanca/Release/include/**",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2715,7 +2715,7 @@
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"../ThirdParty/casablanca/Release/include/cpprest/**",
+					"../ThirdParty/casablanca/Release/include/**",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",

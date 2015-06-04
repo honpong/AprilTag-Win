@@ -106,7 +106,7 @@ bool SensorManager::StartPlayback(const wchar_t *filename)
         return false;
     }
 
-    captureMgr->SetRealtime(0);
+    captureMgr->SetRealtime(true);
 
     PXCVideoModule::DataDesc desc = { 0 };
     captureMgr->QueryCapture()->QueryDeviceInfo(0, &desc.deviceInfo);

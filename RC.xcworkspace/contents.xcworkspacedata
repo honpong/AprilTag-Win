@@ -37,4 +37,10 @@
    <FileRef
       location = "group:TrackLinks/TrackLinks.xcodeproj">
    </FileRef>
+   <FileRef
+      location = "group:CalibrationSample/CalibrationSample.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:QRCodeSample/QRCodeSample.xcodeproj">
+   </FileRef>
 </Workspace>

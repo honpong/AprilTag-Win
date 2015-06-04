@@ -129,6 +129,8 @@ bool SensorManager::StartPlayback(const wchar_t *filename)
 
     // poll for frames in a separate thread
     videoThread = std::thread(&SensorManager::PollForFrames, this);
+
+    return true;
 }
 
 void SensorManager::StopSensors()

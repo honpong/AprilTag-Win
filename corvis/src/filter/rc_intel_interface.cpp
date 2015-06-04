@@ -362,6 +362,11 @@ rc_TrackerError rc_getError(const rc_Tracker *tracker)
     return error;
 }
 
+float rc_getProgress(const rc_Tracker *tracker)
+{
+    return filter_converged(&tracker->sfm);
+}
+
 void rc_setLog(rc_Tracker * tracker, void (*log)(void *handle, const char *buffer_utf8, size_t length), bool stream, rc_Timestamp period_us, void *handle)
 {
     tracker->set_log_function(log, stream, std::chrono::duration_cast<sensor_clock::duration>(std::chrono::microseconds(period_us)), handle);

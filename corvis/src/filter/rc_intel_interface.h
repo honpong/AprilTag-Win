@@ -169,6 +169,7 @@ RCTRACKER_API int rc_getFeatures(const rc_Tracker *tracker, rc_Feature **feature
 RCTRACKER_API rc_TrackerState rc_getState(const rc_Tracker *tracker);
 RCTRACKER_API rc_TrackerConfidence rc_getConfidence(const rc_Tracker *tracker);
 RCTRACKER_API rc_TrackerError rc_getError(const rc_Tracker *tracker);
+RCTRACKER_API float rc_getProgress(const rc_Tracker *tracker);
 
 /**
  @param tracker The active rc_Tracker instance

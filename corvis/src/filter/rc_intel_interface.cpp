@@ -424,7 +424,7 @@ size_t rc_getCalibration(rc_Tracker *tracker, const wchar_t** buffer)
     bool result = calibration_json_store::SerializeCalibration(cal, json);
     if (result)
     {
-        tracker->jsonString.copy(json.begin(), json.end());
+        tracker->jsonString = std::wstring(json.begin(), json.end());
         *buffer = tracker->jsonString.c_str();
         return tracker->jsonString.length();
     }

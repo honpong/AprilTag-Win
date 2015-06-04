@@ -238,6 +238,12 @@ sensor_clock::time_point  fusion_queue::global_latest_received() const
 bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
 {
     if(strategy == latency_strategy::ELIMINATE_LATENCY) return true; //always dispatch if we are eliminating latency
+    
+    if(strategy == latency_strategy::IMAGE_TRIGGER)
+    {
+        if(camera_queue.empty()) return false;
+        else return true;
+    }
 
     //We test the proposed queue against itself, but immediately green light it because queue won't be empty anyway
     if(camera_queue.empty() && wait_for_camera)

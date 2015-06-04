@@ -182,7 +182,18 @@ RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callb
 {
     if(callback) tracker->camera_callback = [callback, handle](std::unique_ptr<sensor_fusion::data> d, camera_data &&i) {
         uint64_t micros = std::chrono::duration_cast<std::chrono::microseconds>(d->time.time_since_epoch()).count();
+
         rc_Pose p;
+        p[T0] = d->transform.T[0];
+        p[T1] = d->transform.T[1];
+        p[T2] = d->transform.T[2];
+        m4 R = to_rotation_matrix(d->transform.Q);
+        for(int i = 0; i < 3; i++) {
+            for(int j = 0; j < 3; j++) {
+                p[i * 4 + j] = R(i, j);
+            }
+        }
+
         vector<rc_Feature> outfeats;
         outfeats.reserve(d->features.size());
         for(auto i: d->features)

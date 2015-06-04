@@ -189,9 +189,6 @@ void SensorManager::PollForFrames()
         PXCImage* depthImage = cameraSample->depth;
         PXCImage* colorImage = cameraSample->color;
 
-        //TODO: pass the camera frame in the correct order with sensor data
-        OnColorFrame(colorImage);
-
         // process the IMU data for each sensor type        
         for (int sensorNum = 0; sensorNum < NUM_OF_REQUESTED_SENSORS; sensorNum++)
         {
@@ -217,6 +214,9 @@ void SensorManager::PollForFrames()
                 }
             }
         }
+
+        //Always pass image data AFTER associated inertial data. This will trigger the update
+        OnColorFrame(colorImage);
 
         _senseMan->ReleaseFrame();
     }

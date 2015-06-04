@@ -27,7 +27,7 @@ RealityCap::CalibrationManager::~CalibrationManager()
 
 static void status_callback(void *handle, rc_TrackerState state, rc_TrackerError error, rc_TrackerConfidence confidence, float progress)
 {
-    ((CalibrationManager *)handle)->StatusCallback(state, error, confidence, progress);
+    ((CalibrationManager *)handle)->UpdateStatus(state, error, confidence, progress);
 }
 
 const rc_Pose camera_pose = { 0, -1, 0, 0,
@@ -52,8 +52,7 @@ bool CalibrationManager::StartCalibration()
     rc_configureCamera(_tracker, rc_EGRAY8, camera_pose, 640, 480, principal.x, principal.y, focal.x, 0, focal.y);
 
     _trackerState = rc_E_INACTIVE;
-    rc_setStatusCallback(_tracker, status_callback, this);
-
+    
     rc_startCalibration(_tracker);
 
     _isCalibrating = true;
@@ -95,6 +94,7 @@ void CalibrationManager::OnAmeterSample(imu_sample_t* sample)
     if (!isCalibrating()) return;
     const rc_Vector vec = rc_convertAcceleration(sample);
     rc_receiveAccelerometer(_tracker, sample->coordinatedUniversalTime100ns / 10, vec);
+    UpdateStatus(rc_getState(_tracker), rc_getError(_tracker), rc_getConfidence(_tracker), rc_getProgress(_tracker));
 }
 
 void CalibrationManager::OnGyroSample(imu_sample_t* sample)
@@ -104,7 +104,7 @@ void CalibrationManager::OnGyroSample(imu_sample_t* sample)
     rc_receiveGyro(_tracker, sample->coordinatedUniversalTime100ns / 10, vec);
 }
 
-void CalibrationManager::StatusCallback(rc_TrackerState newState, rc_TrackerError errorCode, rc_TrackerConfidence confidence, float progress)
+void CalibrationManager::UpdateStatus(rc_TrackerState newState, rc_TrackerError errorCode, rc_TrackerConfidence confidence, float progress)
 {
     // check for errors
     if (errorCode && _delegate) _delegate->OnError(errorCode);

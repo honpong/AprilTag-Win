@@ -74,11 +74,11 @@ public:
     {
         Debug::Log(TEXT("STATUS UPDATE"));
     };
-    virtual void OnData(rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count) override
+    virtual void OnDataUpdated(rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count) override
     {
         wchar_t buffer[1000];
         swprintf(buffer, L"time %llu %f %f %f", time, pose[3], pose[7], pose[11]);
-        Debug::Log(TEXT("OnData"));
+        Debug::Log(TEXT("OnDataUpdated"));
         Debug::Log(buffer);
         visualization_data.update_data(time, pose, features, feature_count);
     };

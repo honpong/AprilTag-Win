@@ -129,5 +129,5 @@ void ReplayManager::StatusCallback(rc_TrackerState newState, rc_TrackerError err
 void ReplayManager::DataCallback(rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count)
 {
     if(_delegate)
-        _delegate->OnData(time, pose, features, feature_count);
+        _delegate->OnDataUpdated(time, pose, features, feature_count);
 }

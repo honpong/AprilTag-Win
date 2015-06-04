@@ -14,7 +14,7 @@ namespace RealityCap
     public:
         virtual void OnError(int code) {};
         virtual void OnStatusUpdated(int status) {};
-        virtual void OnData(rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count) {};
+        virtual void OnDataUpdated(rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count) {};
     };
 
     class ReplayManager : virtual public SensorManager

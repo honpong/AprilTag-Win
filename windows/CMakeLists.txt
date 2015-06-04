@@ -70,8 +70,12 @@ add_executable(RCUtility WIN32
     RCUtility/stdafx.cpp
     RCUtility/stdafx.h
     RCUtility/targetver.h
+    RCUtility/render_data.cpp
+    RCUtility/visualization.cpp
 )
 target_link_libraries(RCUtility RealityCapLib pxcmd)
+target_link_libraries(RCUtility glad glfw)
+target_link_libraries(RCUtility ${GLFW_LIBRARIES})
 target_compile_options(RCUtility PRIVATE /wd4200 /wd4458)
 target_compile_definitions(RCUtility PRIVATE UNICODE _UNICODE)
 target_compile_options(RCUtility PRIVATE /ZW /EHsc /Gm- "/AI${PLATFORM_CONFIG_PATH}" "/AI${WINDOWS_CONFIG_PATH}")

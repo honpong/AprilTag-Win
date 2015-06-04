@@ -55,6 +55,37 @@ void ExitLiveVisState();
 void EnterReplayingState(const PWSTR filePath);
 void ExitReplayingState();
 
+#include "visualization.h"
+#include "render_data.h"
+render_data visualization_data;
+visualization vis(&visualization_data);
+
+#include <wchar.h>
+class MyRepDelegate : public ReplayManagerDelegate
+{
+public:
+    MyRepDelegate() : ReplayManagerDelegate() {};
+
+    virtual void OnError(int code) override
+    {
+        Debug::Log(TEXT("ERROR"));
+    };
+    virtual void OnStatusUpdated(int status) override
+    {
+        Debug::Log(TEXT("STATUS UPDATE"));
+    };
+    virtual void OnData(rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count) override
+    {
+        wchar_t buffer[1000];
+        swprintf(buffer, L"time %llu %f %f %f", time, pose[3], pose[7], pose[11]);
+        Debug::Log(TEXT("OnData"));
+        Debug::Log(buffer);
+        visualization_data.update_data(time, pose, features, feature_count);
+    };
+};
+
+MyRepDelegate repDelegate;
+
 class MyCalDelegate : public CalibrationManagerDelegate
 {
 public:
@@ -177,10 +208,12 @@ void EnterLiveVisState()
 {
     appState = Live;
     SetWindowText(hLabel, TEXT("Beginning live visualization..."));
+    repMan->SetDelegate(&repDelegate);
     bool result = repMan->StartReplay(NULL);
     if (result)
     {
         SetWindowText(hCalibrateButton, TEXT("Running..."));
+        vis.start();
         appState = Live;
     }
     else
@@ -200,10 +233,12 @@ void EnterReplayingState(const PWSTR filePath)
 {
     appState = Replay;
     SetWindowText(hLabel, TEXT("Beginning replay visualization..."));
+    repMan->SetDelegate(&repDelegate);
     bool result = repMan->StartReplay(filePath);
     if (result)
     {
         SetWindowText(hCalibrateButton, TEXT("Replaying..."));
+        vis.start();
         appState = Replay;
     }
     else

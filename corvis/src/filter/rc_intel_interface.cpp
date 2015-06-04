@@ -75,7 +75,7 @@ static rc_TrackerConfidence tracker_confidence_from_confidence(RCSensorFusionCon
 struct rc_Tracker: public sensor_fusion
 {
     rc_Tracker(bool immediate_dispatch): sensor_fusion(immediate_dispatch) {}
-    utility::string_t jsonString;
+    std::wstring jsonString;
 };
 
 extern "C" rc_Tracker * rc_create()
@@ -227,7 +227,7 @@ RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback c
 
 void rc_startCalibration(rc_Tracker * tracker)
 {
-    tracker->start_calibration(false);
+    tracker->start_calibration(true);
 }
 
 /*void rc_startInertialOnly(rc_Tracker * tracker)
@@ -420,12 +420,13 @@ corvis_device_parameters rc_getCalibration(rc_Tracker *tracker)
 size_t rc_getCalibration(rc_Tracker *tracker, const wchar_t** buffer)
 {
     corvis_device_parameters cal = rc_getCalibration(tracker);
-    bool result = calibration_json_store::SerializeCalibration(cal, tracker->jsonString);
+    utility::string_t json;
+    bool result = calibration_json_store::SerializeCalibration(cal, json);
     if (result)
     {
-        std::wstring wideJsonString = std::wstring(tracker->jsonString.begin(), tracker->jsonString.end());
-        *buffer = wideJsonString.c_str();
-        return wideJsonString.length();
+        tracker->jsonString.copy(json.begin(), json.end());
+        *buffer = tracker->jsonString.c_str();
+        return tracker->jsonString.length();
     }
     else
     {

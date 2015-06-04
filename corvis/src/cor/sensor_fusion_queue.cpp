@@ -239,7 +239,7 @@ bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
 {
     if(strategy == latency_strategy::ELIMINATE_LATENCY) return true; //always dispatch if we are eliminating latency
     
-    if(strategy == latency_strategy::IMAGE_TRIGGER)
+    if(strategy == latency_strategy::IMAGE_TRIGGER && wait_for_camera) //if we aren't waiting for camera, then IMAGE_TRIGGER behaves like MINIMIZE_DROPS
     {
         if(camera_queue.empty()) return false;
         else return true;
@@ -268,7 +268,7 @@ bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
         if(strategy == latency_strategy::ELIMINATE_DROPS) return false;
         if(time > accel_queue.last_out + accel_queue.period - std::chrono::milliseconds(1))
         {
-            if(strategy == latency_strategy::MINIMIZE_DROPS) return false;
+            if(strategy == latency_strategy::MINIMIZE_DROPS || strategy == latency_strategy::IMAGE_TRIGGER) return false;
             if(strategy == latency_strategy::BALANCED && wait_for_camera && camera_queue.empty()) return false; //In balanced strategy, we wait longer, as long as we aren't blocking a camera frame, otherwise fall through to minimize latency
             if(global_latest_received() < accel_queue.last_out + accel_queue.period + jitter) return false;
         }
@@ -279,7 +279,7 @@ bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
         if(strategy == latency_strategy::ELIMINATE_DROPS) return false;
         if(time > gyro_queue.last_out + gyro_queue.period - std::chrono::milliseconds(1)) //OK to dispatch if it's far enough ahead of when we expect the other
         {
-            if(strategy == latency_strategy::MINIMIZE_DROPS) return false;
+            if(strategy == latency_strategy::MINIMIZE_DROPS || strategy == latency_strategy::IMAGE_TRIGGER) return false;
             if(strategy == latency_strategy::BALANCED && wait_for_camera && camera_queue.empty()) return false; //In balanced strategy, if we aren't holding up a camera frame, wait
             if(global_latest_received() < accel_queue.last_out + accel_queue.period + jitter) return false; //Otherwise (balanced and minimize latency) wait as long as we aren't likely to be late and dropped
         }

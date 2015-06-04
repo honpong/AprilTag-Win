@@ -70,9 +70,6 @@
 		32DD2AAF1B200AC000B44447 /* RCReplayManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = D33E61DC1ADD4ABA00569C82 /* RCReplayManager.mm */; };
 		32DD2AC41B200B1200B44447 /* arcball.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32DD2AB21B200B1200B44447 /* arcball.cpp */; };
 		32DD2AC51B200B1200B44447 /* gl_util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32DD2AB41B200B1200B44447 /* gl_util.cpp */; };
-		32DD2AC61B200B1200B44447 /* gui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32DD2AB61B200B1200B44447 /* gui.cpp */; };
-		32DD2AC71B200B1200B44447 /* lodepng.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32DD2AB81B200B1200B44447 /* lodepng.cpp */; };
-		32DD2AC81B200B1200B44447 /* offscreen_render.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32DD2ABA1B200B1200B44447 /* offscreen_render.cpp */; };
 		32DD2AC91B200B1200B44447 /* render.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32DD2ABC1B200B1200B44447 /* render.cpp */; };
 		32DD2ACA1B200B1200B44447 /* video_render.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32DD2ABE1B200B1200B44447 /* video_render.cpp */; };
 		32DD2ACB1B200B1200B44447 /* world_state.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32DD2AC01B200B1200B44447 /* world_state.cpp */; };
@@ -481,12 +478,6 @@
 		32DD2AB31B200B1200B44447 /* arcball.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = arcball.h; sourceTree = "<group>"; };
 		32DD2AB41B200B1200B44447 /* gl_util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gl_util.cpp; sourceTree = "<group>"; };
 		32DD2AB51B200B1200B44447 /* gl_util.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gl_util.h; sourceTree = "<group>"; };
-		32DD2AB61B200B1200B44447 /* gui.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gui.cpp; sourceTree = "<group>"; };
-		32DD2AB71B200B1200B44447 /* gui.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gui.h; sourceTree = "<group>"; };
-		32DD2AB81B200B1200B44447 /* lodepng.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = lodepng.cpp; sourceTree = "<group>"; };
-		32DD2AB91B200B1200B44447 /* lodepng.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lodepng.h; sourceTree = "<group>"; };
-		32DD2ABA1B200B1200B44447 /* offscreen_render.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = offscreen_render.cpp; sourceTree = "<group>"; };
-		32DD2ABB1B200B1200B44447 /* offscreen_render.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = offscreen_render.h; sourceTree = "<group>"; };
 		32DD2ABC1B200B1200B44447 /* render.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = render.cpp; sourceTree = "<group>"; };
 		32DD2ABD1B200B1200B44447 /* render.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = render.h; sourceTree = "<group>"; };
 		32DD2ABE1B200B1200B44447 /* video_render.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = video_render.cpp; sourceTree = "<group>"; };
@@ -1070,12 +1061,6 @@
 				32DD2AB31B200B1200B44447 /* arcball.h */,
 				32DD2AB41B200B1200B44447 /* gl_util.cpp */,
 				32DD2AB51B200B1200B44447 /* gl_util.h */,
-				32DD2AB61B200B1200B44447 /* gui.cpp */,
-				32DD2AB71B200B1200B44447 /* gui.h */,
-				32DD2AB81B200B1200B44447 /* lodepng.cpp */,
-				32DD2AB91B200B1200B44447 /* lodepng.h */,
-				32DD2ABA1B200B1200B44447 /* offscreen_render.cpp */,
-				32DD2ABB1B200B1200B44447 /* offscreen_render.h */,
 				32DD2ABC1B200B1200B44447 /* render.cpp */,
 				32DD2ABD1B200B1200B44447 /* render.h */,
 				32DD2ABE1B200B1200B44447 /* video_render.cpp */,
@@ -1621,7 +1606,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				D35BF0E81ADD11DB00BF3CB0 /* RoundedButton.m in Sources */,
-				32DD2AC81B200B1200B44447 /* offscreen_render.cpp in Sources */,
 				32DD2AC41B200B1200B44447 /* arcball.cpp in Sources */,
 				32DD2AAF1B200AC000B44447 /* RCReplayManager.mm in Sources */,
 				D35BF0AD1ADD111500BF3CB0 /* AppDelegate.m in Sources */,
@@ -1637,10 +1621,8 @@
 				32DD2ACC1B200B1200B44447 /* world_state_render.cpp in Sources */,
 				D35BF0FB1ADD122800BF3CB0 /* RCCalibration3.m in Sources */,
 				D326CED71ADFC62C003B026B /* CaptureViewController.mm in Sources */,
-				32DD2AC61B200B1200B44447 /* gui.cpp in Sources */,
 				32DD2ACB1B200B1200B44447 /* world_state.cpp in Sources */,
 				D35BF0FA1ADD122800BF3CB0 /* RCCalibration2.m in Sources */,
-				32DD2AC71B200B1200B44447 /* lodepng.cpp in Sources */,
 				D34A0BE51ADFDB04008DFCCF /* VisualizationController.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

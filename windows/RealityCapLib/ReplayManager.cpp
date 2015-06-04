@@ -69,6 +69,7 @@ bool ReplayManager::StartReplay(const wchar_t * filename)
 
     _trackerState = rc_E_INACTIVE;
     rc_setStatusCallback(_tracker, status_callback, this);
+    rc_setDataCallback(_tracker, data_callback, this);
 
     rc_startTracker(_tracker);
 

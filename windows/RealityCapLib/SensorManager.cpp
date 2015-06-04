@@ -137,8 +137,11 @@ void SensorManager::StopSensors()
 {
     if (!isVideoStreaming()) return;
     _isVideoStreaming = false;
-    videoThread.join();
-    if (_senseMan) _senseMan->Close();
+}
+
+void SensorManager::WaitUntilFinished()
+{
+    if(videoThread.joinable()) videoThread.join();
 }
 
 bool SensorManager::isVideoStreaming()
@@ -220,6 +223,7 @@ void SensorManager::PollForFrames()
 
         _senseMan->ReleaseFrame();
     }
+    _senseMan->Close();
 }
 
 void SensorManager::OnColorFrame(PXCImage * colorImage)

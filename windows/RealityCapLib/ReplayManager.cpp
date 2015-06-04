@@ -54,6 +54,10 @@ bool ReplayManager::StartReplay(const wchar_t * filename)
     std::wifstream t("gigabyte_s11.json");
     std::wstring calibrationJSON((std::istreambuf_iterator<wchar_t>(t)),
         std::istreambuf_iterator<wchar_t>());
+    if (calibrationJSON.length() == 0) {
+        Debug::Log(L"Couldn't open calibration, failing");
+        return false;
+    }
     rc_setCalibration(_tracker, calibrationJSON.c_str());
 
     PXCCaptureManager *capMan = GetSenseManager()->QueryCaptureManager();

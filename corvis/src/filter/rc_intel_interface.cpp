@@ -227,7 +227,7 @@ RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback c
 
 void rc_startCalibration(rc_Tracker * tracker)
 {
-    tracker->start_calibration(true);
+    tracker->start_calibration(false);
 }
 
 /*void rc_startInertialOnly(rc_Tracker * tracker)
@@ -366,6 +366,11 @@ rc_TrackerError rc_getError(const rc_Tracker *tracker)
     else if(tracker->sfm.speed_failed) error = rc_E_ERROR_SPEED;
     else if(tracker->sfm.detector_failed) error = rc_E_ERROR_VISION;
     return error;
+}
+
+float rc_getProgress(const rc_Tracker *tracker)
+{
+    return filter_converged(&tracker->sfm);
 }
 
 void rc_setLog(rc_Tracker * tracker, void (*log)(void *handle, const char *buffer_utf8, size_t length), bool stream, rc_Timestamp period_us, void *handle)

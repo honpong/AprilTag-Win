@@ -290,7 +290,7 @@ static float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
     return current < end ? 1.f : (float) ((log(begin) - log(current)) / (log(begin) - log(end))); //log here seems to give smoother progress
 }
 
-static float get_bias_convergence(struct filter *f, int dir)
+static float get_bias_convergence(const struct filter *f, int dir)
 {
     float max_pct = (float)var_bounds_to_std_percent(f->s.a_bias.variance()[dir], f->a_bias_start[dir], min_a_bias_var);
     float pct = (float)f->accel_stability.count / (float)calibration_converge_samples;
@@ -1143,7 +1143,7 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->s.remap();
 }
 
-float filter_converged(struct filter *f)
+float filter_converged(const struct filter *f)
 {
     if(f->run_state == RCSensorFusionRunStateSteadyInitialization) {
         if(f->stable_start == sensor_clock::micros_to_tp(0)) return 0.;
@@ -1161,14 +1161,14 @@ float filter_converged(struct filter *f)
     } else return 0.;
 }
 
-bool filter_is_steady(struct filter *f)
+bool filter_is_steady(const struct filter *f)
 {
     return
         f->s.V.v.norm() < .1 &&
         f->s.w.v.norm() < .1;
 }
 
-int filter_get_features(struct filter *f, struct corvis_feature_info *features, int max)
+int filter_get_features(const struct filter *f, struct corvis_feature_info *features, int max)
 {
     int index = 0;
     for(state_vision_feature *i : f->s.features) {
@@ -1186,7 +1186,7 @@ int filter_get_features(struct filter *f, struct corvis_feature_info *features, 
     return index;
 }
 
-void filter_get_camera_parameters(struct filter *f, float matrix[16], float focal_center_radial[5])
+void filter_get_camera_parameters(const struct filter *f, float matrix[16], float focal_center_radial[5])
 {
     focal_center_radial[0] = (float)f->s.focal_length.v;
     focal_center_radial[1] = (float)f->s.center_x.v;

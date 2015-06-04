@@ -39,7 +39,10 @@ void world_state_render_video(world_state * world, int viewport_width, int viewp
     world->display_lock.lock();
     world->image_lock.lock();
     frame_render.render(world->last_image.image, world->last_image.width, world->last_image.height, viewport_width, viewport_height, true);
+#if TARGET_OS_IPHONE
+#else
     glPointSize(3.0f);
+#endif
     glLineWidth(2.0f);
     frame_render.draw_overlay(world->feature_ellipse_vertex, world->feature_ellipse_vertex_num, GL_LINES, world->last_image.width, world->last_image.height, viewport_width, viewport_height);
     world->image_lock.unlock();

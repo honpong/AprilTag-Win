@@ -194,20 +194,26 @@ RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callb
             }
         }
 
-        vector<rc_Feature> outfeats;
-        outfeats.reserve(d->features.size());
-        for(auto i: d->features)
+        int fcount = d->features.size();
+        rc_Feature *f = nullptr;
+        if (fcount)
         {
-            rc_Feature f;
-            f.image_x = i.x;
-            f.image_y = i.y;
-            f.world.x = i.worldx;
-            f.world.y = i.worldy;
-            f.world.z = i.worldz;
-            f.id = i.id;
-            outfeats.push_back(f);
+            vector<rc_Feature> outfeats;
+            outfeats.reserve(d->features.size());
+            for (auto i : d->features)
+            {
+                rc_Feature f;
+                f.image_x = i.x;
+                f.image_y = i.y;
+                f.world.x = i.worldx;
+                f.world.y = i.worldy;
+                f.world.z = i.worldz;
+                f.id = i.id;
+                outfeats.push_back(f);
+            }
+            f = &outfeats[0];
         }
-        callback(handle, micros, p, &outfeats[0], outfeats.size());
+        callback(handle, micros, p, f, fcount);
     };
     else tracker->camera_callback = nullptr;
 }

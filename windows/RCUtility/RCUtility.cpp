@@ -521,7 +521,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             appState == Capturing ? ExitCapturingState() : EnterCapturingState();
             break;
         case IDB_CALIBRATE:
-            appState == Calibrating ? ExitCalibratingState() : EnterCalibratingState();
+            if (appState == Calibrating)
+            {
+                ExitCalibratingState();
+                calMan->WaitUntilFinished();
+            } else {
+                EnterCalibratingState();
+            }
             break;
         case IDB_LIVE:
             EnterLiveVisState();

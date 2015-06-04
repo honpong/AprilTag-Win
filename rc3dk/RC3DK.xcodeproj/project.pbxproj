@@ -67,6 +67,14 @@
 		328A4DD71950DB2E00587949 /* RCLicenseError.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 328A4DD31950D5F400587949 /* RCLicenseError.h */; };
 		32D1D5921AEEF5B700B76313 /* RCVideoFrameDelegate.h in Copy Files */ = {isa = PBXBuildFile; fileRef = B984DA46096BC831CC58B1DE /* RCVideoFrameDelegate.h */; };
 		32D1D5931AEEF67400B76313 /* RCVideoFrameDelegate.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = B984DA46096BC831CC58B1DE /* RCVideoFrameDelegate.h */; };
+		32D1E7301B20C3490032AE29 /* Calibration.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 32D1E7241B20C3490032AE29 /* Calibration.storyboard */; };
+		32D1E7311B20C3490032AE29 /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32D1E7251B20C3490032AE29 /* holding_landscape.jpg */; };
+		32D1E7321B20C3490032AE29 /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32D1E7261B20C3490032AE29 /* holding_portrait.jpg */; };
+		32D1E7331B20C3490032AE29 /* ipad_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32D1E7271B20C3490032AE29 /* ipad_on_table.jpg */; };
+		32D1E7341B20C3490032AE29 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D1E7291B20C3490032AE29 /* MBProgressHUD.m */; };
+		32D1E7351B20C3490032AE29 /* RCCalibration1.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D1E72B1B20C3490032AE29 /* RCCalibration1.m */; };
+		32D1E7361B20C3490032AE29 /* RCCalibration2.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D1E72D1B20C3490032AE29 /* RCCalibration2.m */; };
+		32D1E7371B20C3490032AE29 /* RCCalibration3.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D1E72F1B20C3490032AE29 /* RCCalibration3.m */; };
 		32DD2AAF1B200AC000B44447 /* RCReplayManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = D33E61DC1ADD4ABA00569C82 /* RCReplayManager.mm */; };
 		32DD2AC41B200B1200B44447 /* arcball.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32DD2AB21B200B1200B44447 /* arcball.cpp */; };
 		32DD2AC51B200B1200B44447 /* gl_util.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32DD2AB41B200B1200B44447 /* gl_util.cpp */; };
@@ -151,14 +159,6 @@
 		D35BF0E61ADD11DB00BF3CB0 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D35BF0D61ADD11DB00BF3CB0 /* MainViewController.m */; };
 		D35BF0E71ADD11DB00BF3CB0 /* ReplayViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D35BF0D71ADD11DB00BF3CB0 /* ReplayViewController.m */; };
 		D35BF0E81ADD11DB00BF3CB0 /* RoundedButton.m in Sources */ = {isa = PBXBuildFile; fileRef = D35BF0D81ADD11DB00BF3CB0 /* RoundedButton.m */; };
-		D35BF0F81ADD122800BF3CB0 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = D35BF0ED1ADD122800BF3CB0 /* MBProgressHUD.m */; };
-		D35BF0F91ADD122800BF3CB0 /* RCCalibration1.m in Sources */ = {isa = PBXBuildFile; fileRef = D35BF0EE1ADD122800BF3CB0 /* RCCalibration1.m */; };
-		D35BF0FA1ADD122800BF3CB0 /* RCCalibration2.m in Sources */ = {isa = PBXBuildFile; fileRef = D35BF0F11ADD122800BF3CB0 /* RCCalibration2.m */; };
-		D35BF0FB1ADD122800BF3CB0 /* RCCalibration3.m in Sources */ = {isa = PBXBuildFile; fileRef = D35BF0F31ADD122800BF3CB0 /* RCCalibration3.m */; };
-		D35BF0FC1ADD122800BF3CB0 /* Calibration.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D35BF0F41ADD122800BF3CB0 /* Calibration.storyboard */; };
-		D35BF0FD1ADD122800BF3CB0 /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D35BF0F51ADD122800BF3CB0 /* holding_landscape.jpg */; };
-		D35BF0FE1ADD122800BF3CB0 /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D35BF0F61ADD122800BF3CB0 /* holding_portrait.jpg */; };
-		D35BF0FF1ADD122800BF3CB0 /* ipad_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = D35BF0F71ADD122800BF3CB0 /* ipad_on_table.jpg */; };
 		D35FC6841AE10E0E002E2FA8 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = D35FC6831AE10E0E002E2FA8 /* Default-568h@2x.png */; };
 		D364AFBD1A37A21700E39511 /* homography.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D953126D1A15AE63004D6068 /* homography.cpp */; };
 		D3791CA21AE1298C00D35EF4 /* RCDebugLog.h in Copy Files */ = {isa = PBXBuildFile; fileRef = D33E9D201ADD14600085F35C /* RCDebugLog.h */; };
@@ -474,6 +474,18 @@
 		328A4DD11950D52000587949 /* RCSensorFusionError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCSensorFusionError.m; path = ../../rc3dk/RC3DK/RCSensorFusionError.m; sourceTree = "<group>"; };
 		328A4DD31950D5F400587949 /* RCLicenseError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCLicenseError.h; path = ../../rc3dk/RC3DK/RCLicenseError.h; sourceTree = "<group>"; };
 		328A4DD41950D5F400587949 /* RCLicenseError.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCLicenseError.m; path = ../../rc3dk/RC3DK/RCLicenseError.m; sourceTree = "<group>"; };
+		32D1E7241B20C3490032AE29 /* Calibration.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Calibration.storyboard; sourceTree = "<group>"; };
+		32D1E7251B20C3490032AE29 /* holding_landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_landscape.jpg; sourceTree = "<group>"; };
+		32D1E7261B20C3490032AE29 /* holding_portrait.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_portrait.jpg; sourceTree = "<group>"; };
+		32D1E7271B20C3490032AE29 /* ipad_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = ipad_on_table.jpg; sourceTree = "<group>"; };
+		32D1E7281B20C3490032AE29 /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
+		32D1E7291B20C3490032AE29 /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
+		32D1E72A1B20C3490032AE29 /* RCCalibration1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration1.h; sourceTree = "<group>"; };
+		32D1E72B1B20C3490032AE29 /* RCCalibration1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration1.m; sourceTree = "<group>"; };
+		32D1E72C1B20C3490032AE29 /* RCCalibration2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration2.h; sourceTree = "<group>"; };
+		32D1E72D1B20C3490032AE29 /* RCCalibration2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration2.m; sourceTree = "<group>"; };
+		32D1E72E1B20C3490032AE29 /* RCCalibration3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration3.h; sourceTree = "<group>"; };
+		32D1E72F1B20C3490032AE29 /* RCCalibration3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration3.m; sourceTree = "<group>"; };
 		32DD2AB21B200B1200B44447 /* arcball.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = arcball.cpp; sourceTree = "<group>"; };
 		32DD2AB31B200B1200B44447 /* arcball.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = arcball.h; sourceTree = "<group>"; };
 		32DD2AB41B200B1200B44447 /* gl_util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = gl_util.cpp; sourceTree = "<group>"; };
@@ -539,18 +551,6 @@
 		D35BF0DF1ADD11DB00BF3CB0 /* ReplayViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplayViewController.h; sourceTree = "<group>"; };
 		D35BF0E01ADD11DB00BF3CB0 /* RoundedButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RoundedButton.h; path = ../../rc3dk/RC3DKVis/RoundedButton.h; sourceTree = "<group>"; };
 		D35BF0E11ADD11DB00BF3CB0 /* VisualizationController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VisualizationController.h; sourceTree = "<group>"; };
-		D35BF0EC1ADD122800BF3CB0 /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MBProgressHUD.h; path = ../../Calibration/MBProgressHUD.h; sourceTree = "<group>"; };
-		D35BF0ED1ADD122800BF3CB0 /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = MBProgressHUD.m; path = ../../Calibration/MBProgressHUD.m; sourceTree = "<group>"; };
-		D35BF0EE1ADD122800BF3CB0 /* RCCalibration1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCCalibration1.m; path = ../../Calibration/RCCalibration1.m; sourceTree = "<group>"; };
-		D35BF0EF1ADD122800BF3CB0 /* RCCalibration1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCCalibration1.h; path = ../../Calibration/RCCalibration1.h; sourceTree = "<group>"; };
-		D35BF0F01ADD122800BF3CB0 /* RCCalibration2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCCalibration2.h; path = ../../Calibration/RCCalibration2.h; sourceTree = "<group>"; };
-		D35BF0F11ADD122800BF3CB0 /* RCCalibration2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCCalibration2.m; path = ../../Calibration/RCCalibration2.m; sourceTree = "<group>"; };
-		D35BF0F21ADD122800BF3CB0 /* RCCalibration3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCCalibration3.h; path = ../../Calibration/RCCalibration3.h; sourceTree = "<group>"; };
-		D35BF0F31ADD122800BF3CB0 /* RCCalibration3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCCalibration3.m; path = ../../Calibration/RCCalibration3.m; sourceTree = "<group>"; };
-		D35BF0F41ADD122800BF3CB0 /* Calibration.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = Calibration.storyboard; path = ../../Calibration/Calibration.storyboard; sourceTree = "<group>"; };
-		D35BF0F51ADD122800BF3CB0 /* holding_landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = holding_landscape.jpg; path = ../../Calibration/holding_landscape.jpg; sourceTree = "<group>"; };
-		D35BF0F61ADD122800BF3CB0 /* holding_portrait.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = holding_portrait.jpg; path = ../../Calibration/holding_portrait.jpg; sourceTree = "<group>"; };
-		D35BF0F71ADD122800BF3CB0 /* ipad_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = ipad_on_table.jpg; path = ../../Calibration/ipad_on_table.jpg; sourceTree = "<group>"; };
 		D35FC6831AE10E0E002E2FA8 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "Default-568h@2x.png"; path = "../Default-568h@2x.png"; sourceTree = "<group>"; };
 		D392F7871A1E010E00BBB1FF /* geom.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = geom.h; sourceTree = "<group>"; };
 		D392F7881A1E010E00BBB1FF /* io.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = io.h; sourceTree = "<group>"; };
@@ -1046,6 +1046,26 @@
 			path = ../../corvis/src/numerics;
 			sourceTree = "<group>";
 		};
+		32D1E7231B20C3490032AE29 /* Calibration */ = {
+			isa = PBXGroup;
+			children = (
+				32D1E7241B20C3490032AE29 /* Calibration.storyboard */,
+				32D1E7251B20C3490032AE29 /* holding_landscape.jpg */,
+				32D1E7261B20C3490032AE29 /* holding_portrait.jpg */,
+				32D1E7271B20C3490032AE29 /* ipad_on_table.jpg */,
+				32D1E7281B20C3490032AE29 /* MBProgressHUD.h */,
+				32D1E7291B20C3490032AE29 /* MBProgressHUD.m */,
+				32D1E72A1B20C3490032AE29 /* RCCalibration1.h */,
+				32D1E72B1B20C3490032AE29 /* RCCalibration1.m */,
+				32D1E72C1B20C3490032AE29 /* RCCalibration2.h */,
+				32D1E72D1B20C3490032AE29 /* RCCalibration2.m */,
+				32D1E72E1B20C3490032AE29 /* RCCalibration3.h */,
+				32D1E72F1B20C3490032AE29 /* RCCalibration3.m */,
+			);
+			name = Calibration;
+			path = ../../QuickstartKit/QuickstartKit/Calibration;
+			sourceTree = "<group>";
+		};
 		32DD2AB01B200AE800B44447 /* Corvis */ = {
 			isa = PBXGroup;
 			children = (
@@ -1155,7 +1175,7 @@
 				D305600F1ADD2488002BD682 /* Live */,
 				D305600E1ADD2476002BD682 /* Replay */,
 				D305600D1ADD2466002BD682 /* Capture */,
-				D35BF0EB1ADD121000BF3CB0 /* Calibration */,
+				32D1E7231B20C3490032AE29 /* Calibration */,
 				D35BF0DE1ADD11DB00BF3CB0 /* MainViewController.h */,
 				D35BF0D61ADD11DB00BF3CB0 /* MainViewController.m */,
 				D33E9D101ADD13110085F35C /* RCReplayManager.h */,
@@ -1180,25 +1200,6 @@
 				D35BF0A91ADD111500BF3CB0 /* main.m */,
 			);
 			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
-		D35BF0EB1ADD121000BF3CB0 /* Calibration */ = {
-			isa = PBXGroup;
-			children = (
-				D35BF0EC1ADD122800BF3CB0 /* MBProgressHUD.h */,
-				D35BF0ED1ADD122800BF3CB0 /* MBProgressHUD.m */,
-				D35BF0EE1ADD122800BF3CB0 /* RCCalibration1.m */,
-				D35BF0EF1ADD122800BF3CB0 /* RCCalibration1.h */,
-				D35BF0F01ADD122800BF3CB0 /* RCCalibration2.h */,
-				D35BF0F11ADD122800BF3CB0 /* RCCalibration2.m */,
-				D35BF0F21ADD122800BF3CB0 /* RCCalibration3.h */,
-				D35BF0F31ADD122800BF3CB0 /* RCCalibration3.m */,
-				D35BF0F41ADD122800BF3CB0 /* Calibration.storyboard */,
-				D35BF0F51ADD122800BF3CB0 /* holding_landscape.jpg */,
-				D35BF0F61ADD122800BF3CB0 /* holding_portrait.jpg */,
-				D35BF0F71ADD122800BF3CB0 /* ipad_on_table.jpg */,
-			);
-			name = Calibration;
 			sourceTree = "<group>";
 		};
 		D35C16FA1A20B1510048C5BC /* RC3DKPlus */ = {
@@ -1456,13 +1457,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				D35BF0B31ADD111500BF3CB0 /* Main.storyboard in Resources */,
+				32D1E7331B20C3490032AE29 /* ipad_on_table.jpg in Resources */,
 				D35FC6841AE10E0E002E2FA8 /* Default-568h@2x.png in Resources */,
-				D35BF0FD1ADD122800BF3CB0 /* holding_landscape.jpg in Resources */,
-				D35BF0FC1ADD122800BF3CB0 /* Calibration.storyboard in Resources */,
-				D35BF0FF1ADD122800BF3CB0 /* ipad_on_table.jpg in Resources */,
 				D35BF0B81ADD111500BF3CB0 /* LaunchScreen.xib in Resources */,
-				D35BF0FE1ADD122800BF3CB0 /* holding_portrait.jpg in Resources */,
+				32D1E7311B20C3490032AE29 /* holding_landscape.jpg in Resources */,
 				D35BF0B51ADD111500BF3CB0 /* Images.xcassets in Resources */,
+				32D1E7301B20C3490032AE29 /* Calibration.storyboard in Resources */,
+				32D1E7321B20C3490032AE29 /* holding_portrait.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1610,20 +1611,20 @@
 				32DD2AAF1B200AC000B44447 /* RCReplayManager.mm in Sources */,
 				D35BF0AD1ADD111500BF3CB0 /* AppDelegate.m in Sources */,
 				32DD2AC91B200B1200B44447 /* render.cpp in Sources */,
+				32D1E7371B20C3490032AE29 /* RCCalibration3.m in Sources */,
 				32DD2AC51B200B1200B44447 /* gl_util.cpp in Sources */,
 				D35BF0AA1ADD111500BF3CB0 /* main.m in Sources */,
 				D35BF0E61ADD11DB00BF3CB0 /* MainViewController.m in Sources */,
-				D35BF0F81ADD122800BF3CB0 /* MBProgressHUD.m in Sources */,
 				D35BF0E71ADD11DB00BF3CB0 /* ReplayViewController.m in Sources */,
 				32DD2ACA1B200B1200B44447 /* video_render.cpp in Sources */,
-				D35BF0F91ADD122800BF3CB0 /* RCCalibration1.m in Sources */,
 				D35BF0E41ADD11DB00BF3CB0 /* CaptureFilename.m in Sources */,
+				32D1E7351B20C3490032AE29 /* RCCalibration1.m in Sources */,
+				32D1E7361B20C3490032AE29 /* RCCalibration2.m in Sources */,
 				32DD2ACC1B200B1200B44447 /* world_state_render.cpp in Sources */,
-				D35BF0FB1ADD122800BF3CB0 /* RCCalibration3.m in Sources */,
 				D326CED71ADFC62C003B026B /* CaptureViewController.mm in Sources */,
 				32DD2ACB1B200B1200B44447 /* world_state.cpp in Sources */,
-				D35BF0FA1ADD122800BF3CB0 /* RCCalibration2.m in Sources */,
 				D34A0BE51ADFDB04008DFCCF /* VisualizationController.mm in Sources */,
+				32D1E7341B20C3490032AE29 /* MBProgressHUD.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -7,16 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3207A6591AC20BFD00792F30 /* RCGLManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 3207A6541AC20BFD00792F30 /* RCGLManagerFactory.m */; };
-		3207A65A1AC20BFD00792F30 /* RCGLShaderProgram.m in Sources */ = {isa = PBXBuildFile; fileRef = 3207A6561AC20BFD00792F30 /* RCGLShaderProgram.m */; };
-		3207A65B1AC20BFD00792F30 /* RCVideoPreview.m in Sources */ = {isa = PBXBuildFile; fileRef = 3207A6581AC20BFD00792F30 /* RCVideoPreview.m */; };
-		3207A65C1AC20C0A00792F30 /* RCGLManagerFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207A6531AC20BFD00792F30 /* RCGLManagerFactory.h */; };
-		3207A65D1AC20C0C00792F30 /* RCGLShaderProgram.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207A6551AC20BFD00792F30 /* RCGLShaderProgram.h */; };
-		3207A65E1AC20C0D00792F30 /* RCVideoPreview.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207A6571AC20BFD00792F30 /* RCVideoPreview.h */; };
 		320E9C4719A6BB8A00D6153B /* RCSlideBanner.m in Sources */ = {isa = PBXBuildFile; fileRef = 320E9C4619A6BB8A00D6153B /* RCSlideBanner.m */; };
 		320E9C4919A6BE7E00D6153B /* RCSlideBanner.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 320E9C4519A6BB8A00D6153B /* RCSlideBanner.h */; };
 		3215DC351797449D00DD86E4 /* RCMeasuredPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 3215DC341797449D00DD86E4 /* RCMeasuredPhoto.m */; };
-		321F4E27177BA99B00C94BE4 /* NSObject+SupersequentImplementation.m in Sources */ = {isa = PBXBuildFile; fileRef = 321F4E26177BA99B00C94BE4 /* NSObject+SupersequentImplementation.m */; };
 		322B8A9017DC2AE8008FED6E /* CLPlacemark+RCPlacemark.m in Sources */ = {isa = PBXBuildFile; fileRef = 322B8A8F17DC2AE8008FED6E /* CLPlacemark+RCPlacemark.m */; };
 		322B8A9517DC2C68008FED6E /* CLPlacemark+RCPlacemark.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 322B8A8E17DC2AE8008FED6E /* CLPlacemark+RCPlacemark.h */; };
 		323155EC19BA49A300EDC65D /* RCThreeButtonSlideView.m in Sources */ = {isa = PBXBuildFile; fileRef = 323155EB19BA49A300EDC65D /* RCThreeButtonSlideView.m */; };
@@ -101,6 +94,12 @@
 		32CD632316CC015100496D46 /* RCDateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 32CD632216CC015100496D46 /* RCDateFormatter.m */; };
 		32CD632516CC022600496D46 /* RCDateFormatter.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32CD632116CC015100496D46 /* RCDateFormatter.h */; };
 		32CF88A81A310D220044B17B /* RC3DK.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32CF88981A31066E0044B17B /* RC3DK.h */; };
+		32D1E7081B20C2E20032AE29 /* RCGLManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D1E7031B20C2E10032AE29 /* RCGLManagerFactory.m */; };
+		32D1E7091B20C2E20032AE29 /* RCGLShaderProgram.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D1E7051B20C2E10032AE29 /* RCGLShaderProgram.m */; };
+		32D1E70A1B20C2E20032AE29 /* RCVideoPreview.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D1E7071B20C2E20032AE29 /* RCVideoPreview.m */; };
+		32D1E70B1B20C2F80032AE29 /* RCGLManagerFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32D1E7021B20C2E10032AE29 /* RCGLManagerFactory.h */; };
+		32D1E70C1B20C2F80032AE29 /* RCGLShaderProgram.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32D1E7041B20C2E10032AE29 /* RCGLShaderProgram.h */; };
+		32D1E70D1B20C2F80032AE29 /* RCVideoPreview.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32D1E7061B20C2E10032AE29 /* RCVideoPreview.h */; };
 		32D83D7319E8629600F20DC4 /* RCModalCoverVerticalTransition.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D83D7219E8629600F20DC4 /* RCModalCoverVerticalTransition.m */; };
 		32D83D7719E862E900F20DC4 /* RCModalCoverVerticalAnimation.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D83D7619E862E900F20DC4 /* RCModalCoverVerticalAnimation.m */; };
 		32D83D7819E864A200F20DC4 /* RCModalCoverVerticalTransition.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32D83D7119E8629600F20DC4 /* RCModalCoverVerticalTransition.h */; };
@@ -144,6 +143,13 @@
 			remoteGlobalIDString = 328AEA721796144200D9DCB8;
 			remoteInfo = RC3DK;
 		};
+		32D1E6FF1B20C2D60032AE29 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 32BFAEB21796FC230089A7B2 /* RC3DK.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = D35BF0A51ADD111500BF3CB0;
+			remoteInfo = RC3DKVis;
+		};
 		D37A66F81A20B3290019778E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 32BFAEB21796FC230089A7B2 /* RC3DK.xcodeproj */;
@@ -168,11 +174,11 @@
 			dstSubfolderSpec = 16;
 			files = (
 				D38FA8FE1ADD341900002EB3 /* RCDebugLog.h in CopyFiles */,
+				32D1E70B1B20C2F80032AE29 /* RCGLManagerFactory.h in CopyFiles */,
+				32D1E70C1B20C2F80032AE29 /* RCGLShaderProgram.h in CopyFiles */,
+				32D1E70D1B20C2F80032AE29 /* RCVideoPreview.h in CopyFiles */,
 				32CF88A81A310D220044B17B /* RC3DK.h in CopyFiles */,
 				D99CE1AC19D4A80B00510B81 /* RCVideoPreviewCRT.h in CopyFiles */,
-				3207A65C1AC20C0A00792F30 /* RCGLManagerFactory.h in CopyFiles */,
-				3207A65D1AC20C0C00792F30 /* RCGLShaderProgram.h in CopyFiles */,
-				3207A65E1AC20C0D00792F30 /* RCVideoPreview.h in CopyFiles */,
 				32D83D7819E864A200F20DC4 /* RCModalCoverVerticalTransition.h in CopyFiles */,
 				32F01D4919DE050F000585FB /* NSLayoutConstraint+RCAutoLayoutDebugging.h in CopyFiles */,
 				32D83D8219E8AD6000F20DC4 /* UIView+RCTappableView.h in CopyFiles */,
@@ -226,12 +232,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		3207A6531AC20BFD00792F30 /* RCGLManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCGLManagerFactory.h; sourceTree = "<group>"; };
-		3207A6541AC20BFD00792F30 /* RCGLManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCGLManagerFactory.m; sourceTree = "<group>"; };
-		3207A6551AC20BFD00792F30 /* RCGLShaderProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCGLShaderProgram.h; sourceTree = "<group>"; };
-		3207A6561AC20BFD00792F30 /* RCGLShaderProgram.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCGLShaderProgram.m; sourceTree = "<group>"; };
-		3207A6571AC20BFD00792F30 /* RCVideoPreview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoPreview.h; sourceTree = "<group>"; };
-		3207A6581AC20BFD00792F30 /* RCVideoPreview.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoPreview.m; sourceTree = "<group>"; };
 		320E9C4519A6BB8A00D6153B /* RCSlideBanner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCSlideBanner.h; path = ../../rccore/RCCore/RCSlideBanner.h; sourceTree = "<group>"; };
 		320E9C4619A6BB8A00D6153B /* RCSlideBanner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCSlideBanner.m; path = ../../rccore/RCCore/RCSlideBanner.m; sourceTree = "<group>"; };
 		3215DC331797449D00DD86E4 /* RCMeasuredPhoto.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCMeasuredPhoto.h; sourceTree = "<group>"; };
@@ -327,6 +327,12 @@
 		32CD632116CC015100496D46 /* RCDateFormatter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCDateFormatter.h; sourceTree = "<group>"; };
 		32CD632216CC015100496D46 /* RCDateFormatter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCDateFormatter.m; sourceTree = "<group>"; };
 		32CF88981A31066E0044B17B /* RC3DK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RC3DK.h; sourceTree = "<group>"; };
+		32D1E7021B20C2E10032AE29 /* RCGLManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCGLManagerFactory.h; sourceTree = "<group>"; };
+		32D1E7031B20C2E10032AE29 /* RCGLManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCGLManagerFactory.m; sourceTree = "<group>"; };
+		32D1E7041B20C2E10032AE29 /* RCGLShaderProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCGLShaderProgram.h; sourceTree = "<group>"; };
+		32D1E7051B20C2E10032AE29 /* RCGLShaderProgram.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCGLShaderProgram.m; sourceTree = "<group>"; };
+		32D1E7061B20C2E10032AE29 /* RCVideoPreview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoPreview.h; sourceTree = "<group>"; };
+		32D1E7071B20C2E20032AE29 /* RCVideoPreview.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoPreview.m; sourceTree = "<group>"; };
 		32D83D7119E8629600F20DC4 /* RCModalCoverVerticalTransition.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCModalCoverVerticalTransition.h; path = ../../rccore/RCCore/RCModalCoverVerticalTransition.h; sourceTree = "<group>"; };
 		32D83D7219E8629600F20DC4 /* RCModalCoverVerticalTransition.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = RCModalCoverVerticalTransition.m; path = ../../rccore/RCCore/RCModalCoverVerticalTransition.m; sourceTree = "<group>"; };
 		32D83D7519E862E900F20DC4 /* RCModalCoverVerticalAnimation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCModalCoverVerticalAnimation.h; path = ../../rccore/RCCore/RCModalCoverVerticalAnimation.h; sourceTree = "<group>"; };
@@ -383,20 +389,6 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		3207A6521AC20BFD00792F30 /* VideoPreview */ = {
-			isa = PBXGroup;
-			children = (
-				3207A6531AC20BFD00792F30 /* RCGLManagerFactory.h */,
-				3207A6541AC20BFD00792F30 /* RCGLManagerFactory.m */,
-				3207A6551AC20BFD00792F30 /* RCGLShaderProgram.h */,
-				3207A6561AC20BFD00792F30 /* RCGLShaderProgram.m */,
-				3207A6571AC20BFD00792F30 /* RCVideoPreview.h */,
-				3207A6581AC20BFD00792F30 /* RCVideoPreview.m */,
-			);
-			name = VideoPreview;
-			path = ../../VideoPreview;
-			sourceTree = "<group>";
-		};
 		3215DC311797449D00DD86E4 /* DataClasses */ = {
 			isa = PBXGroup;
 			children = (
@@ -595,7 +587,7 @@
 		3287E08B174D62F500373013 /* Views */ = {
 			isa = PBXGroup;
 			children = (
-				3207A6521AC20BFD00792F30 /* VideoPreview */,
+				32D1E7011B20C2E10032AE29 /* VideoPreview */,
 				32A7253D17501B32004C873A /* RCDistanceLabel.h */,
 				32A7253E17501B32004C873A /* RCDistanceLabel.m */,
 				32FA5EB419DE2C6800A5A773 /* RCDistanceLabelContainer.h */,
@@ -652,8 +644,23 @@
 				32BFAEB91796FC230089A7B2 /* libRC3DK.a */,
 				D37A66FD1A20B3290019778E /* libRC3DKPlus.a */,
 				322FD4281ADEEAB60082F58C /* RC3DK Tests.xctest */,
+				32D1E7001B20C2D60032AE29 /* RC3DKVis.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		32D1E7011B20C2E10032AE29 /* VideoPreview */ = {
+			isa = PBXGroup;
+			children = (
+				32D1E7021B20C2E10032AE29 /* RCGLManagerFactory.h */,
+				32D1E7031B20C2E10032AE29 /* RCGLManagerFactory.m */,
+				32D1E7041B20C2E10032AE29 /* RCGLShaderProgram.h */,
+				32D1E7051B20C2E10032AE29 /* RCGLShaderProgram.m */,
+				32D1E7061B20C2E10032AE29 /* RCVideoPreview.h */,
+				32D1E7071B20C2E20032AE29 /* RCVideoPreview.m */,
+			);
+			name = VideoPreview;
+			path = ../../QuickstartKit/QuickstartKit/VideoPreview;
 			sourceTree = "<group>";
 		};
 		D38126F918CA237000E635C3 /* GCDAsyncSocket */ = {
@@ -736,6 +743,13 @@
 			remoteRef = 32BFAEB81796FC230089A7B2 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
+		32D1E7001B20C2D60032AE29 /* RC3DKVis.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = RC3DKVis.app;
+			remoteRef = 32D1E6FF1B20C2D60032AE29 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
 		D37A66FD1A20B3290019778E /* libRC3DKPlus.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -787,22 +801,23 @@
 				3267A2E716C46D9A001E14C7 /* AFImageRequestOperation.m in Sources */,
 				32D83D7319E8629600F20DC4 /* RCModalCoverVerticalTransition.m in Sources */,
 				3267A2E816C46D9A001E14C7 /* AFJSONRequestOperation.m in Sources */,
-				3207A65B1AC20BFD00792F30 /* RCVideoPreview.m in Sources */,
 				32D83D7719E862E900F20DC4 /* RCModalCoverVerticalAnimation.m in Sources */,
 				3280BB301919B0C300338A38 /* UIView+RCViewFade.m in Sources */,
+				32D1E70A1B20C2E20032AE29 /* RCVideoPreview.m in Sources */,
 				D99CE19C19D4992700510B81 /* RCVideoPreviewCRT.m in Sources */,
 				324FF85A18ECB5BE00DC5E7F /* UIView+RCConstraints.m in Sources */,
 				3267A2E916C46D9A001E14C7 /* AFNetworkActivityIndicatorManager.m in Sources */,
 				3267A2EA16C46D9A001E14C7 /* AFPropertyListRequestOperation.m in Sources */,
 				32F01D4719DE04C2000585FB /* NSLayoutConstraint+RCAutoLayoutDebugging.m in Sources */,
 				3267A2EB16C46D9A001E14C7 /* AFURLConnectionOperation.m in Sources */,
+				32D1E7091B20C2E20032AE29 /* RCGLShaderProgram.m in Sources */,
 				3267A2EC16C46D9A001E14C7 /* AFXMLRequestOperation.m in Sources */,
 				320E9C4719A6BB8A00D6153B /* RCSlideBanner.m in Sources */,
 				3267A2ED16C46D9A001E14C7 /* UIImageView+AFNetworking.m in Sources */,
+				32D1E7081B20C2E20032AE29 /* RCGLManagerFactory.m in Sources */,
 				3267A2F116C46DA8001E14C7 /* RCHTTPClient.m in Sources */,
 				32D83D8119E8A96C00F20DC4 /* UIView+RCTappableView.m in Sources */,
 				3267A2F416C46DB7001E14C7 /* RCUserManager.m in Sources */,
-				3207A65A1AC20BFD00792F30 /* RCGLShaderProgram.m in Sources */,
 				3272F74619AD2455001F7AA1 /* RCInvertButton.m in Sources */,
 				32CD632316CC015100496D46 /* RCDateFormatter.m in Sources */,
 				32C4493A16D5457C00984BEC /* Guid.m in Sources */,
@@ -812,7 +827,6 @@
 				D38126F618CA234200E635C3 /* RCConnectionManager.m in Sources */,
 				3281B0FD174ED5EB0080D07E /* RCDistanceMetric.m in Sources */,
 				3281B100174EDB5C0080D07E /* RCDistanceImperial.m in Sources */,
-				3207A6591AC20BFD00792F30 /* RCGLManagerFactory.m in Sources */,
 				3281B103174EE1060080D07E /* RCDistanceImperialFractional.m in Sources */,
 				32FA5EB619DE2C6800A5A773 /* RCDistanceLabelContainer.m in Sources */,
 				32EBA5A719BE1B7D00407D8E /* RCTipView.m in Sources */,

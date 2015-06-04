@@ -208,7 +208,7 @@ void EnterReplayingState(const PWSTR filePath)
     }
     else
     {
-        SetWindowText(hLabel, TEXT("Failed to start live."));
+        SetWindowText(hLabel, TEXT("Failed to start Replay."));
     }
 }
 

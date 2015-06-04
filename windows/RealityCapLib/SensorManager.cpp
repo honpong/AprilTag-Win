@@ -29,6 +29,8 @@ SensorManager::SensorManager(PXCSenseManager* senseMan) : _isVideoStreaming(fals
 
 SensorManager::~SensorManager()
 {
+    StopSensors();
+    WaitUntilFinished();
 }
 
 bool SensorManager::StartSensors()

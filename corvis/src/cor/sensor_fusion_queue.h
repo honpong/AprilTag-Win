@@ -15,6 +15,9 @@
 #include <condition_variable>
 #include "sensor_data.h"
 #include "platform/sensor_clock.h"
+#include "../numerics/vec4.h"
+#include <iostream>
+#include <string>
 
 template<typename T, int size>
 class sensor_queue
@@ -34,10 +37,13 @@ public:
     uint64_t drop_late = 0;
     uint64_t total_in = 0;
     uint64_t total_out = 0;
+    stdev_scalar stats;
 
-    void print_stats()
+    std::string get_stats()
     {
-        fprintf(stderr, "period %f, total in %lld, total out %lld, drop full %lld, drop late %lld\n", period.count(), total_in, total_out, drop_full, drop_late);
+        std::ostringstream os;
+        os << "period " << period.count() << " total in " << total_in << " total out " << total_out << " drop full " << drop_full << " drop late " << drop_late << " timing " << stats;
+        return os.str();
     }
     
 private:

@@ -30,6 +30,7 @@ bool sensor_queue<T, size>::push(T&& x)
     if(last_in != sensor_clock::time_point())
     {
         sensor_clock::duration delta = time - last_in;
+        stats.data(delta.count());
         const float alpha = .1f;
         period = alpha * delta + (1.f - alpha) * period;
     }
@@ -186,9 +187,9 @@ void fusion_queue::stop_async()
         //flush any waiting data
         while (dispatch_singlethread(true));
 #ifdef DEBUG
-        fprintf(stderr, "Camera: "); camera_queue.print_stats();
-        fprintf(stderr, "Accel: "); accel_queue.print_stats();
-        fprintf(stderr, "Gyro: "); gyro_queue.print_stats();
+        std::cerr << "Camera: " << camera_queue.get_stats();
+        std::cerr << "Accel: " << accel_queue.get_stats();
+        std::cerr << "Gyro: " << gyro_queue.get_stats();
 #endif
     }
     stop_immediately();
@@ -232,9 +233,9 @@ void fusion_queue::runloop()
     //flush any remaining data
     while (dispatch_next(lock, true));
 #ifdef DEBUG
-    fprintf(stderr, "Camera: "); camera_queue.print_stats();
-    fprintf(stderr, "Accel: "); accel_queue.print_stats();
-    fprintf(stderr, "Gyro: "); gyro_queue.print_stats();
+    std::cerr << "Camera: " << camera_queue.get_stats();
+    std::cerr << "Accel: " << accel_queue.get_stats();
+    std::cerr << "Gyro: " << gyro_queue.get_stats();
 #endif
     lock.unlock();
 }

@@ -66,12 +66,12 @@ bool TrackerManager::ReadCalibration(std::wstring filename)
 
 bool TrackerManager::LoadDefaultCalibration()
 {
-    return ReadCalibration(GetExePath() + L"gigabyte_s11.json");
+    return ReadCalibration(GetExePath() + L"\\gigabyte_s11.json");
 }
 
 bool TrackerManager::LoadStoredCalibration()
 {
-    return ReadCalibration(GetExePath() + L"stored_calibration.json");
+    return ReadCalibration(GetExePath() + L"\\stored_calibration.json");
 }
 
 bool TrackerManager::WriteCalibration(std::wstring filename)
@@ -88,7 +88,7 @@ bool TrackerManager::WriteCalibration(std::wstring filename)
 
 bool TrackerManager::StoreCurrentCalibration()
 {
-    return WriteCalibration(GetExePath() + L"stored_calibration.json");
+    return WriteCalibration(GetExePath() + L"\\stored_calibration.json");
 }
 
 bool TrackerManager::Start()
@@ -122,9 +122,9 @@ bool TrackerManager::StartCalibration()
     _trackerState = rc_E_INACTIVE;
     _progress = 0.;
 
-    rc_setStatusCallback(_tracker, status_callback, this);
-    rc_setDataCallback(_tracker, data_callback, this);
-    rc_startTracker(_tracker);
+//    rc_setStatusCallback(_tracker, status_callback, this);
+//    rc_setDataCallback(_tracker, data_callback, this);
+    rc_startCalibration(_tracker);
 
     _isRunning = true;
 

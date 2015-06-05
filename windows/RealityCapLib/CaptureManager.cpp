@@ -16,7 +16,7 @@ CaptureManager::CaptureManager(PXCSenseManager* senseMan) : SensorManager(senseM
 bool CaptureManager::StartCapture()
 {
     if (isCapturing()) return true;
-    std::wstring _captureFilePath = TEXT("\\capture.rssdk");
+    std::wstring _captureFilePath = TEXT("capture.rssdk");
     _isCapturing = SetRecording(_captureFilePath.c_str());
     if (!_isCapturing) return false;
     if (!isVideoStreaming())

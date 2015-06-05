@@ -70,6 +70,7 @@ add_executable(RCUtility WIN32
     RCUtility/stdafx.h
     RCUtility/targetver.h
     RCUtility/render_data.cpp
+    RCUtility/arcball.cpp
     RCUtility/visualization.cpp
 )
 target_link_libraries(RCUtility RealityCapLib pxcmd)

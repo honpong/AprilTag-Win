@@ -189,8 +189,29 @@ void visualization::configure_view(int view_width, int view_height)
     view_matrix[5] = 1.f;
     view_matrix[10] = 1.f;
     view_matrix[15] = 1.f;
+
+    arc.get_rotation(view_matrix);
     // Translate by -scale in Z
     view_matrix[14] = -scale;
+}
+
+void visualization::mouse_move(GLFWwindow * window, double x, double y)
+{
+    if(is_rotating)
+        arc.continue_rotation((float)x, (float)y);
+}
+
+void visualization::mouse(GLFWwindow * window, int button, int action, int mods)
+{
+    double x, y;
+    glfwGetCursorPos(window, &x, &y);
+    if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
+        arc.start_rotation((float)x, (float)y);
+        is_rotating = true;
+    }
+    else if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
+        is_rotating = false;
+    }
 }
 
 void visualization::scroll(GLFWwindow * window, double xoffset, double yoffset)
@@ -235,6 +256,8 @@ void visualization::start()
     glfwSetKeyCallback(main_window, visualization::keyboard_callback);
     glfwSetInputMode(main_window, GLFW_STICKY_MOUSE_BUTTONS, 1);
     glfwSetScrollCallback(main_window, visualization::scroll_callback);
+    glfwSetMouseButtonCallback(main_window, visualization::mouse_callback);
+    glfwSetCursorPosCallback(main_window, visualization::move_callback);
 
     gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
     r.gl_init();
@@ -266,7 +289,7 @@ void visualization::start()
 }
 
 visualization::visualization(render_data * _data)
-    : data(_data), scale(initial_scale), width(640), height(480)
+    : data(_data), scale(initial_scale), width(640), height(480), is_rotating(false)
 {
     static_gui = this;
 }

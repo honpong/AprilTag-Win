@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 
 #include "render_data.h"
+#include "arcball.h"
 
 class visualization_render
 {
@@ -23,6 +24,12 @@ class visualization
 {
 private:
     static visualization * static_gui;
+    static void mouse_callback(GLFWwindow * window, int button, int action, int mods) {
+        visualization::static_gui->mouse(window, button, action, mods);
+    };
+    static void move_callback(GLFWwindow * window, double x, double y) {
+        visualization::static_gui->mouse_move(window, x, y);
+    };
     static void keyboard_callback(GLFWwindow * window, int key, int scancode, int action, int mods) {
         visualization::static_gui->keyboard(window, key, scancode, action, mods);
     };
@@ -36,11 +43,16 @@ private:
     void configure_view(int view_width, int view_height);
     void scroll(GLFWwindow * window, double xoffset, double yoffset);
     void keyboard(GLFWwindow * window, int key, int scancode, int action, int mods);
+    void mouse(GLFWwindow * window, int button, int action, int mods);
+    void mouse_move(GLFWwindow * window, double x, double y);
 
     float scale;
     int width, height;
     visualization_render r;
     render_data * data;
+
+    arcball arc;
+    bool is_rotating;
 
     // Display related
     GLFWwindow * main_window;

@@ -11,6 +11,9 @@
 #include <shlobj.h>
 #include <shlwapi.h>
 #include "RCFactory.h"
+#include <wchar.h>
+#include "visualization.h"
+#include "render_data.h"
 
 using namespace RealityCap;
 
@@ -55,12 +58,9 @@ void ExitLiveVisState();
 void EnterReplayingState(const PWSTR filePath);
 void ExitReplayingState();
 
-#include "visualization.h"
-#include "render_data.h"
 render_data visualization_data;
 visualization vis(&visualization_data);
 
-#include <wchar.h>
 class MyRepDelegate : public ReplayManagerDelegate
 {
 public:
@@ -110,6 +110,16 @@ public:
             break;
         default:
             break;
+        }
+    };
+
+    virtual void OnProgressUpdated(float progress) override
+    {
+        if (progress < 1.)
+        {
+            wchar_t title[1024];
+            _snwprintf_s(title, 1024, L"Progress %2.0f%%", progress * 100);
+            SetWindowText(hLabel, title);
         }
     };
 

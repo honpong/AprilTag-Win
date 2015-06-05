@@ -113,7 +113,7 @@ TEST(calibration_json_store_tests, HasCalibration_MissingFile)
     }
 }
 
-TEST(calibration_json_store_tests, Serialization)
+TEST(calibration_json_store_tests, SerializeDeserialize)
 {
     corvis_device_parameters cal, calDeserialized;
     calibration_json_store calStore;
@@ -136,4 +136,19 @@ TEST(calibration_json_store_tests, Serialization)
     EXPECT_EQ(cal.version, calDeserialized.version);
     EXPECT_TRUE(nearlyEqual(cal.Fx, calDeserialized.Fx, FLT_EPSILON));
     EXPECT_TRUE(nearlyEqual(cal.Cx, calDeserialized.Cx, FLT_EPSILON));
+}
+
+TEST(calibration_json_store_tests, DeserializeCalibration)
+{
+    corvis_device_parameters calDeserialized;
+
+    try
+    {
+        utility::string_t jsonString = U("");
+        EXPECT_FALSE(calibration_json_store::DeserializeCalibration(jsonString, calDeserialized));
+    }
+    catch (...)
+    {
+        FAIL();
+    }
 }

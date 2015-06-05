@@ -41,8 +41,10 @@ bool CalibrationManager::StartCalibration()
 
     std::wifstream t("gigabyte_s11.json");
     std::wstring calibrationJSON((std::istreambuf_iterator<wchar_t>(t)),
-        std::istreambuf_iterator<wchar_t>());
-    rc_setCalibration(_tracker, calibrationJSON.c_str());
+    std::istreambuf_iterator<wchar_t>());
+    
+    bool result = rc_setCalibration(_tracker, calibrationJSON.c_str());
+    if (!result) return false;
 
     PXCCaptureManager *capMan = GetSenseManager()->QueryCaptureManager();
     PXCCapture::Device *pDevice = capMan->QueryDevice();

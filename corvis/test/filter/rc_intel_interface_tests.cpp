@@ -30,3 +30,10 @@ TEST(rc_intel_interface_tests, rc_setCalibration)
     // this doesn't work because not all all fields are being extracted from filter at the moment.
     //EXPECT_STREQ(jsonString.c_str(), buffer);
 }
+
+TEST(rc_intel_interface_tests, rc_setCalibration_failure)
+{
+    rc_Tracker *tracker = rc_create();
+    std::wstring wideJsonString = L"";
+    EXPECT_FALSE(rc_setCalibration(tracker, wideJsonString.c_str()));
+}

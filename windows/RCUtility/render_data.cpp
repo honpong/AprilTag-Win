@@ -67,7 +67,7 @@ void render_data::update_data(rc_Timestamp time, rc_Pose pose, rc_Feature * curr
         set_color(&glfeat, 255, 255, 255, 255);
         features.push_back(glfeat);
     }
-    feature_vertex = &features[0];
+    if(features.size()) feature_vertex = &features[0];
     feature_vertex_num = (int) features.size();
 
     data_lock.unlock();

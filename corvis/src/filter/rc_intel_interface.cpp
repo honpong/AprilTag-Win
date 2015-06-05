@@ -279,6 +279,7 @@ void rc_receiveImage(rc_Tracker *tracker, rc_Camera camera, rc_Timestamp time_us
             tracker->output.receive_camera(std::move(d2));
         }
     }
+    tracker->trigger_log();
 }
 
 void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Timestamp time_us, const rc_Vector acceleration_m__s2)

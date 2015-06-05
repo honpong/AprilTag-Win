@@ -16,6 +16,7 @@ class render_data
 private:
     void build_grid_vertex_data();
     std::vector <GLData> path_history;
+    std::vector <GLData> features;
 
 public:
 
@@ -32,6 +33,8 @@ public:
     int grid_vertex_num;
     GLData * path_vertex;
     int path_vertex_num;
+    GLData * feature_vertex;
+    int feature_vertex_num;
 };
 
 #endif

@@ -139,6 +139,7 @@ void visualization_render::gl_render(float * view_matrix, float * projection_mat
 
     glPointSize(2);
     draw_array(vertex_loc, color_loc, data->path_vertex, data->path_vertex_num, GL_POINTS);
+    draw_array(vertex_loc, color_loc, data->feature_vertex, data->feature_vertex_num, GL_POINTS);
 
     data->data_lock.unlock();
 }

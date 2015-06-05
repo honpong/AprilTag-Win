@@ -42,7 +42,7 @@ static inline void set_color(GLData * vertex, unsigned char r, unsigned char g, 
     vertex->color[3] = alpha;
 }
 
-void render_data::update_data(rc_Timestamp time, rc_Pose pose, rc_Feature * features, size_t feature_count)
+void render_data::update_data(rc_Timestamp time, rc_Pose pose, rc_Feature * current_features, size_t current_feature_count)
 {
     data_lock.lock();
 
@@ -57,6 +57,18 @@ void render_data::update_data(rc_Timestamp time, rc_Pose pose, rc_Feature * feat
     path_history.push_back(now);
     path_vertex = &path_history[0];
     path_vertex_num = (int) path_history.size();
+
+    // Current features
+    features.clear();
+    for(int i = 0; i < current_feature_count; i++) {
+        GLData glfeat;
+        rc_Feature * f = &current_features[i];
+        set_position(&glfeat, f->world.x, f->world.y, f->world.z);
+        set_color(&glfeat, 255, 255, 255, 255);
+        features.push_back(glfeat);
+    }
+    feature_vertex = &features[0];
+    feature_vertex_num = (int) features.size();
 
     data_lock.unlock();
 }

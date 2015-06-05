@@ -64,18 +64,18 @@ class MyRepDelegate : public TrackerManagerDelegate
 public:
     virtual void OnError(int code) override
     {
-        Debug::Log(TEXT("ERROR"));
+        Debug::Log(L"ERROR %d", code);
     };
     virtual void OnStatusUpdated(int status) override
     {
-        Debug::Log(TEXT("STATUS UPDATE"));
+        Debug::Log(L"STATUS %d", status);
     };
     virtual void OnDataUpdated(rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count) override
     {
-        wchar_t buffer[1000];
-        swprintf(buffer, L"time %llu %f %f %f", time, pose[3], pose[7], pose[11]);
-        Debug::Log(TEXT("OnDataUpdated"));
-        Debug::Log(buffer);
+        Debug::Log(L"OnDataUpdated time %llu %f %f %f (%u features)", time, pose[3], pose[7], pose[11], feature_count);
+        if (feature_count) {
+            Debug::Log(L"First feature %f %f %f", features[0].world.x, features[0].world.y, features[0].world.z);
+        }
         visualization_data.update_data(time, pose, features, feature_count);
     };
 };

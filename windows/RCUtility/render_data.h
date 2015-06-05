@@ -1,7 +1,7 @@
 #ifndef __RENDER_DATA__
 #define __RENDER_DATA__
 
-#include "../filter/rc_intel_interface.h"
+#include "rc_intel_interface.h"
 #include <mutex>
 #include <vector>
 

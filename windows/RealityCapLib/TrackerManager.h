@@ -38,9 +38,9 @@ namespace RealityCap
         bool LoadStoredCalibration();
         bool WriteCalibration(std::wstring filename);
         bool StoreCurrentCalibration();
-        void SetLog(void(*log)(void * handle, const char * buffer_utf8, size_t length))
+        void SetLog(void(*log)(void * handle, const char * buffer_utf8, size_t length), void *handle)
         {
-            rc_setLog(_tracker, log, true, 0, NULL);
+            rc_setLog(_tracker, log, true, 0, handle);
         }
 
         void UpdateStatus(rc_TrackerState newState, rc_TrackerError errorCode, rc_TrackerConfidence confidence, float progress);

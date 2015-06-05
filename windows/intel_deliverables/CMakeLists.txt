@@ -1,13 +1,15 @@
 cmake_minimum_required(VERSION 2.8.11)
 
+add_subdirectory(ThirdParty "${CMAKE_CURRENT_BINARY_DIR}/ThirdParty")
+
 project(RCUtility)
 
 add_library(pxcmd STATIC IMPORTED)
 set_property(TARGET pxcmd PROPERTY IMPORTED_LOCATION "$ENV{RSSDK_DIR}lib/$(PlatformName)/libpxcmd.lib")
 
 add_library(RealityCapLib
-  RealityCapLib/CalibrationManager.cpp
   RealityCapLib/CaptureManager.cpp
+  RealityCapLib/TrackerManager.cpp
   RealityCapLib/SensorManager.cpp
   RealityCapLib/RCFactory.cpp
   RealityCapLib/Debug.cpp
@@ -31,8 +33,14 @@ add_executable(RCUtility WIN32
     RCUtility/stdafx.cpp
     RCUtility/stdafx.h
     RCUtility/targetver.h
+    RCUtility/render_data.cpp
+    RCUtility/arcball.cpp
+    RCUtility/visualization.cpp
+    RCUtility/FilePicker.h
 )
 target_link_libraries(RCUtility RealityCapLib pxcmd)
+target_link_libraries(RCUtility glad glfw)
+target_link_libraries(RCUtility ${GLFW_LIBRARIES})
 target_compile_options(RCUtility PRIVATE /wd4200 /wd4458)
 target_compile_definitions(RCUtility PRIVATE UNICODE _UNICODE)
 target_include_directories(RCUtility PRIVATE "$ENV{RSSDK_DIR}/include")

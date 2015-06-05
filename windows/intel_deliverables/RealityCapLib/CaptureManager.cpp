@@ -11,12 +11,14 @@ using namespace std;
 
 CaptureManager::CaptureManager(PXCSenseManager* senseMan) : SensorManager(senseMan), _isCapturing(false)
 {
-    _captureFilePath = GetExePath() + "\\capture";
 }
 
 bool CaptureManager::StartCapture()
 {
     if (isCapturing()) return true;
+    std::wstring _captureFilePath = TEXT("capture.rssdk");
+    _isCapturing = SetRecording(_captureFilePath.c_str());
+    if (!_isCapturing) return false;
     if (!isVideoStreaming())
     {
         if (!StartSensors()) return false;
@@ -34,28 +36,5 @@ void CaptureManager::StopCapture()
 bool RealityCap::CaptureManager::isCapturing()
 {
     return _isCapturing;
-}
-
-string CaptureManager::GetExePath()
-{
-    char buffer[MAX_PATH];
-    GetModuleFileNameA(NULL, buffer, MAX_PATH);
-    string::size_type pos = string(buffer).find_last_of("\\/");
-    return string(buffer).substr(0, pos);
-}
-
-void CaptureManager::OnColorFrame(PXCImage* colorSample)
-{
-    if (!isCapturing()) return;
-}
-
-void CaptureManager::OnAmeterSample(imu_sample_t* sample)
-{
-    if (!isCapturing()) return;
-}
-
-void CaptureManager::OnGyroSample(imu_sample_t* sample)
-{
-    if (!isCapturing()) return;
 }
 

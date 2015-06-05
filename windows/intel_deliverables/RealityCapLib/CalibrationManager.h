@@ -26,7 +26,7 @@ namespace RealityCap
         void StopCalibration();
         bool isCalibrating();
         void SetDelegate(CalibrationManagerDelegate* del);
-        void StatusCallback(rc_TrackerState newState, rc_TrackerError errorCode, rc_TrackerConfidence confidence, float progress);
+        void UpdateStatus(rc_TrackerState newState, rc_TrackerError errorCode, rc_TrackerConfidence confidence, float progress);
 
     protected:
         virtual void OnColorFrame(PXCImage* colorImage) override;

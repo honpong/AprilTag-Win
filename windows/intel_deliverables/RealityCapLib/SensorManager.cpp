@@ -29,6 +29,8 @@ SensorManager::SensorManager(PXCSenseManager* senseMan) : _isVideoStreaming(fals
 
 SensorManager::~SensorManager()
 {
+    StopSensors();
+    WaitUntilFinished();
 }
 
 bool SensorManager::StartSensors()
@@ -78,6 +80,8 @@ bool SensorManager::StartSensors()
 
     _isVideoStreaming = true;
 
+    //TODO: this is a hack because we don't properly send updates to the main thread. The main thread should be responsible for calling stopsensors, which should have the join in it
+    if (videoThread.joinable()) videoThread.join();
     // poll for frames in a separate thread
     videoThread = std::thread(&SensorManager::PollForFrames, this);
 
@@ -93,9 +97,10 @@ bool SensorManager::SetRecording(const wchar_t *filename)
         Debug::Log(L"Failed to set recording file name\n");
         return false;
     }
+    return true;
 }
 
-bool SensorManager::StartPlayback(const wchar_t *filename)
+bool SensorManager::StartPlayback(const wchar_t *filename, bool realtime)
 {
     if (_isVideoStreaming) return false;
     PXCCaptureManager *captureMgr = _senseMan->QueryCaptureManager();
@@ -106,7 +111,7 @@ bool SensorManager::StartPlayback(const wchar_t *filename)
         return false;
     }
 
-    captureMgr->SetRealtime(0);
+    captureMgr->SetRealtime(realtime);
 
     PXCVideoModule::DataDesc desc = { 0 };
     captureMgr->QueryCapture()->QueryDeviceInfo(0, &desc.deviceInfo);
@@ -129,14 +134,19 @@ bool SensorManager::StartPlayback(const wchar_t *filename)
 
     // poll for frames in a separate thread
     videoThread = std::thread(&SensorManager::PollForFrames, this);
+
+    return true;
 }
 
 void SensorManager::StopSensors()
 {
     if (!isVideoStreaming()) return;
     _isVideoStreaming = false;
-    videoThread.join();
-    if (_senseMan) _senseMan->Close();
+}
+
+void SensorManager::WaitUntilFinished()
+{
+    if(videoThread.joinable()) videoThread.join();
 }
 
 bool SensorManager::isVideoStreaming()
@@ -187,9 +197,6 @@ void SensorManager::PollForFrames()
         PXCImage* depthImage = cameraSample->depth;
         PXCImage* colorImage = cameraSample->color;
 
-        //TODO: pass the camera frame in the correct order with sensor data
-        OnColorFrame(colorImage);
-
         // process the IMU data for each sensor type        
         for (int sensorNum = 0; sensorNum < NUM_OF_REQUESTED_SENSORS; sensorNum++)
         {
@@ -216,8 +223,12 @@ void SensorManager::PollForFrames()
             }
         }
 
+        //Always pass image data AFTER associated inertial data. This will trigger the update
+        OnColorFrame(colorImage);
+
         _senseMan->ReleaseFrame();
     }
+    _senseMan->Close();
 }
 
 void SensorManager::OnColorFrame(PXCImage * colorImage)

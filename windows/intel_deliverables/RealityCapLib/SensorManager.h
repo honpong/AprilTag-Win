@@ -2,6 +2,7 @@
 
 #include "stdafx.h"
 #include <thread>
+#include <atomic>
 #include "pxcsensemanager.h"
 #include "pxcmetadata.h"
 #include "libpxcimu_internal.h"
@@ -27,7 +28,8 @@ namespace RealityCap
         virtual ~SensorManager();
         bool StartSensors(); // returns true if sensors started successfully
         void StopSensors();
-        bool StartPlayback(const wchar_t *filename);
+        void WaitUntilFinished();
+        bool StartPlayback(const wchar_t *filename, bool realtime);
         bool SetRecording(const wchar_t *filename);
         bool isVideoStreaming();
         void SetReceiver(SensorDataReceiver* sensorReceiver) { _sensorReceiver = sensorReceiver; };
@@ -41,7 +43,7 @@ namespace RealityCap
     private:
         PXCSenseManager* _senseMan;
         std::thread videoThread;
-        bool _isVideoStreaming;
+        std::atomic<bool> _isVideoStreaming;
         SensorDataReceiver* _sensorReceiver;
 
         void PollForFrames();

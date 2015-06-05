@@ -6,10 +6,13 @@
 #include "Debug.h"
 #include "CaptureManager.h"
 #include <shellapi.h>
-#include "CalibrationManager.h"
+#include "TrackerManager.h"
 #include <shlobj.h>
-#include <shlwapi.h>
 #include "RCFactory.h"
+#include <wchar.h>
+#include "visualization.h"
+#include "render_data.h"
+#include "FilePicker.h"
 
 using namespace RealityCap;
 
@@ -28,60 +31,90 @@ typedef enum AppState
 HINSTANCE hInst;								// current instance
 TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
-LPCWSTR glWindowClass = L"GLWindow";
 RCFactory factory;
 auto capMan = factory.CreateCaptureManager();
-auto calMan = factory.CreateCalibrationManager();
-HWND hLabel;
+auto trackMan = factory.CreateTrackerManager();
+HWND hStatusLabel;
+HWND hProgressLabel;
 HWND hCaptureButton;
 HWND hCalibrateButton;
 HWND hLiveButton;
 HWND hReplayButton;
-HWND hGLWindow;
 AppState appState = Idle;
 
 // Forward declarations of functions included in this code module:
 ATOM				MyRegisterClass(HINSTANCE hInstance);
-ATOM				RegisterGLWinClass(HINSTANCE hInstance);
 BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
-LRESULT CALLBACK	WndProcGL(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 
 void EnterCapturingState();
 void ExitCapturingState();
 void EnterCalibratingState();
 void ExitCalibratingState();
-bool OpenVisualizationWindow();
 void EnterLiveVisState();
 void ExitLiveVisState();
 void EnterReplayingState(const PWSTR filePath);
 void ExitReplayingState();
 
-class MyCalDelegate : public CalibrationManagerDelegate
+render_data visualization_data;
+visualization vis(&visualization_data);
+
+class MyRepDelegate : public TrackerManagerDelegate
 {
 public:
-    MyCalDelegate() : CalibrationManagerDelegate() {};
+    virtual void OnError(int code) override
+    {
+        Debug::Log(L"ERROR %d", code);
+    };
+    virtual void OnStatusUpdated(int status) override
+    {
+        Debug::Log(L"STATUS %d", status);
+    };
+    virtual void OnDataUpdated(rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count) override
+    {
+        Debug::Log(L"OnDataUpdated time %llu %f %f %f (%u features)", time, pose[3], pose[7], pose[11], feature_count);
+        if (feature_count) {
+            Debug::Log(L"First feature %f %f %f", features[0].world.x, features[0].world.y, features[0].world.z);
+        }
+        visualization_data.update_data(time, pose, features, feature_count);
+    };
+};
 
+MyRepDelegate repDelegate;
+
+class MyCalDelegate : public TrackerManagerDelegate
+{
+public:
     virtual void OnStatusUpdated(int status) override
     {
         switch (status)
         {
         case 0:
             ExitCalibratingState();
-            SetWindowText(hLabel, TEXT("Calibration complete."));
+            SetWindowText(hStatusLabel, TEXT("Calibration complete."));
             break;
         case 1:
-            SetWindowText(hLabel, TEXT("Place the device flat on a table."));
+            SetWindowText(hStatusLabel, TEXT("Place the device flat on a table."));
             break;
         case 5:
-            SetWindowText(hLabel, TEXT("Hold device steady in portrait orientation."));
+            SetWindowText(hStatusLabel, TEXT("Hold device steady in portrait orientation."));
             break;
         case 6:
-            SetWindowText(hLabel, TEXT("Hold device steady in landscape orientation."));
+            SetWindowText(hStatusLabel, TEXT("Hold device steady in landscape orientation."));
             break;
         default:
             break;
+        }
+    };
+
+    virtual void OnProgressUpdated(float progress) override
+    {
+        if (progress < 1. && appState == Calibrating)
+        {
+            wchar_t title[1024];
+            _snwprintf_s(title, 1024, L"Progress %2.0f%%", progress * 100);
+            SetWindowText(hProgressLabel, title);
         }
     };
 
@@ -91,15 +124,15 @@ public:
         {
         case 1:
             // not fatal
-            SetWindowText(hLabel, TEXT("Vision error."));
+            SetWindowText(hStatusLabel, TEXT("Vision error."));
             break;
         case 2:
             ExitCalibratingState();
-            SetWindowText(hLabel, TEXT("Speed error."));
+            SetWindowText(hStatusLabel, TEXT("Speed error."));
             break;
         case 3:
             ExitCalibratingState();
-            SetWindowText(hLabel, TEXT("Fatal error."));
+            SetWindowText(hStatusLabel, TEXT("Fatal error."));
             break;
         default:
             break;
@@ -114,24 +147,24 @@ void EnterCapturingState()
     if (appState != Idle) return;
 
     SetWindowText(hCaptureButton, TEXT("Stop Capture"));
-    SetWindowText(hLabel, TEXT("Starting capture..."));
+    SetWindowText(hStatusLabel, TEXT("Starting capture..."));
     bool result;
 
     result = capMan->StartSensors();
     if (!result)
     {
-        SetWindowText(hLabel, TEXT("Failed to start sensors"));
+        SetWindowText(hStatusLabel, TEXT("Failed to start sensors"));
         return;
     }
 
     result = capMan->StartCapture();
     if (result)
     {
-        SetWindowText(hLabel, TEXT("Capturing."));
+        SetWindowText(hStatusLabel, TEXT("Capturing."));
     }
     else
     {
-        SetWindowText(hLabel, TEXT("Failed to start capture"));
+        SetWindowText(hStatusLabel, TEXT("Failed to start capture"));
         return;
     }
 
@@ -141,9 +174,9 @@ void EnterCapturingState()
 void ExitCapturingState()
 {
     if (appState != Capturing) return;
-    SetWindowText(hLabel, TEXT("Stopping capture..."));
+    SetWindowText(hStatusLabel, TEXT("Stopping capture..."));
     capMan->StopCapture();
-    SetWindowText(hLabel, TEXT("Capture complete."));
+    SetWindowText(hStatusLabel, TEXT("Capture complete."));
     SetWindowText(hCaptureButton, TEXT("Start Capture"));
     appState = Idle;
 }
@@ -151,10 +184,10 @@ void ExitCapturingState()
 void EnterCalibratingState()
 {
     if (appState != Idle) return;
-    SetWindowText(hLabel, TEXT("Starting calibration..."));
+    SetWindowText(hStatusLabel, TEXT("Starting calibration..."));
 
-    calMan->SetDelegate(&calDelegate);
-    bool result = calMan->StartCalibration();
+    trackMan->SetDelegate(&calDelegate);
+    bool result = trackMan->StartCalibration();
     if (result)
     {
         SetWindowText(hCalibrateButton, TEXT("Stop Calibrating"));
@@ -162,158 +195,75 @@ void EnterCalibratingState()
     }
     else
     {
-        SetWindowText(hLabel, TEXT("Failed to start calibration."));
+        SetWindowText(hStatusLabel, TEXT("Failed to start calibration."));
     }
 }
 
 void ExitCalibratingState()
 {
     if (appState != Calibrating) return;
-    SetWindowText(hLabel, TEXT("Stopping calibration..."));
-    calMan->StopCalibration();
-    SetWindowText(hLabel, TEXT("Calibration stopped."));
+    SetWindowText(hStatusLabel, TEXT("Stopping calibration..."));
+    trackMan->Stop();
+    SetWindowText(hStatusLabel, TEXT("Calibration stopped."));
+    SetWindowText(hProgressLabel, TEXT(""));
     SetWindowText(hCalibrateButton, TEXT("Start Calibrating"));
     appState = Idle;
 }
 
-bool OpenVisualizationWindow()
-{
-    if (appState != Idle || IsWindow(hGLWindow)) return false;
-    hGLWindow = CreateWindow(glWindowClass, L"Visualization", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInst, NULL);
-    ShowWindow(hGLWindow, SW_SHOW);
-    UpdateWindow(hGLWindow);
-    return true;
-}
-
 void EnterLiveVisState()
 {
-    if (!OpenVisualizationWindow()) return;
     appState = Live;
-    SetWindowText(hLabel, TEXT("Beginning live visualization..."));
+    SetWindowText(hStatusLabel, TEXT("Beginning live visualization..."));
+    trackMan->SetDelegate(&repDelegate);
+    bool result = trackMan->Start();
+    if (result)
+    {
+        SetWindowText(hCalibrateButton, TEXT("Running..."));
+        vis.start();
+        appState = Live;
+    }
+    else
+    {
+        SetWindowText(hStatusLabel, TEXT("Failed to start live."));
+    }
 
-    // work in progress
 }
 
 void ExitLiveVisState()
 {
+    if (appState != Live) return;
+    SetWindowText(hStatusLabel, TEXT("Stopping live view..."));
+    trackMan->Stop();
+    SetWindowText(hStatusLabel, TEXT("Live view stopped."));
     appState = Idle;
-    SetWindowText(hLabel, TEXT(""));
 }
 
-#if 1
 void EnterReplayingState(const PWSTR filePath)
 {
     appState = Replay;
-    SetWindowText(hLabel, TEXT("Beginning replay visualization..."));
-}
-#else
-#include <functional>
-#include <thread>
-#include "replay.h"
-#include "world_state.h"
-#include "gui.h"
-#include <locale>
-#include <codecvt>
-#include <string>
-void EnterReplayingState(const PWSTR filePath)
-{
-    //if (!OpenVisualizationWindow()) return;
-    appState = Replay;
-    SetWindowText(hLabel, TEXT("Beginning replay visualization..."));
-
-    std::wstring filename_w = std::wstring(filePath);
-    std::wstring_convert<std::codecvt_utf8_utf16<wchar_t> > converter;
-    std::string filename = converter.to_bytes(filename_w);
-    fprintf(stderr, "opening %s", filename.c_str());
-
-    replay rp(false);
-    world_state ws;
-    std::function<void(float)> progress = [&](float progress) {
-        wchar_t buffer[100];
-        wsprintf(buffer, L"Progress: %.1f", progress);
-        SetWindowText(hLabel, buffer);
-    };
-    std::function<void(const filter *, camera_data &&)> camera_callback;
-
-    gui vis(&ws, true, false, false);
-
-    bool enable_gui = false;
-    bool realtime = false;
-    if (enable_gui)
-        camera_callback = [&](const filter * f, camera_data &&d) {
-        ws.receive_camera(f, std::move(d));
-    };
-
-    if (!rp.configure_all(filename.c_str(), "ipad3", realtime, progress, camera_callback))
-        return;
-
-    if (enable_gui) { // The GUI must be on the main thread
-        std::thread replay_thread([&](void) { rp.start(); });
-        vis.start(&rp);
-        replay_thread.join();
+    SetWindowText(hStatusLabel, TEXT("Beginning replay visualization..."));
+    trackMan->SetDelegate(&repDelegate);
+    bool result = trackMan->StartReplay(filePath, true);
+    if (result)
+    {
+        SetWindowText(hCalibrateButton, TEXT("Replaying..."));
+        vis.start();
+        appState = Replay;
     }
     else
-        rp.start();
+    {
+        SetWindowText(hStatusLabel, TEXT("Failed to start Replay."));
+    }
 }
-#endif
 
 void ExitReplayingState()
 {
+    if (appState != Replay) return;
+    SetWindowText(hStatusLabel, TEXT("Stopping replay..."));
+    trackMan->Stop();
+    SetWindowText(hStatusLabel, TEXT("Replay stopped."));
     appState = Idle;
-    SetWindowText(hLabel, TEXT(""));
 }
-
-
-///////////////////////////////////////// File Picker ///////////////////////////////////////////
-
-class CDialogEventHandler : public IFileDialogEvents, public IFileDialogControlEvents
-{
-public:
-    // IUnknown methods
-    IFACEMETHODIMP QueryInterface(REFIID riid, void** ppv)
-    {
-        static const QITAB qit[] = {
-            QITABENT(CDialogEventHandler, IFileDialogEvents),
-            QITABENT(CDialogEventHandler, IFileDialogControlEvents),
-            { 0 },
-        };
-        return QISearch(this, qit, riid, ppv);
-    }
-
-    IFACEMETHODIMP_(ULONG) AddRef()
-    {
-        return InterlockedIncrement(&_cRef);
-    }
-
-    IFACEMETHODIMP_(ULONG) Release()
-    {
-        long cRef = InterlockedDecrement(&_cRef);
-        if (!cRef)
-            delete this;
-        return cRef;
-    }
-
-    // IFileDialogEvents methods
-    IFACEMETHODIMP OnFileOk(IFileDialog *) { return S_OK; };
-    IFACEMETHODIMP OnFolderChange(IFileDialog *) { return S_OK; };
-    IFACEMETHODIMP OnFolderChanging(IFileDialog *, IShellItem *) { return S_OK; };
-    IFACEMETHODIMP OnHelp(IFileDialog *) { return S_OK; };
-    IFACEMETHODIMP OnSelectionChange(IFileDialog *) { return S_OK; };
-    IFACEMETHODIMP OnShareViolation(IFileDialog *, IShellItem *, FDE_SHAREVIOLATION_RESPONSE *) { return S_OK; };
-    IFACEMETHODIMP OnTypeChange(IFileDialog *pfd) { return S_OK; };
-    IFACEMETHODIMP OnOverwrite(IFileDialog *, IShellItem *, FDE_OVERWRITE_RESPONSE *) { return S_OK; };
-
-    // IFileDialogControlEvents methods
-    IFACEMETHODIMP OnItemSelected(IFileDialogCustomize *pfdc, DWORD dwIDCtl, DWORD dwIDItem) { return S_OK; };
-    IFACEMETHODIMP OnButtonClicked(IFileDialogCustomize *, DWORD) { return S_OK; };
-    IFACEMETHODIMP OnCheckButtonToggled(IFileDialogCustomize *, DWORD, BOOL) { return S_OK; };
-    IFACEMETHODIMP OnControlActivating(IFileDialogCustomize *, DWORD) { return S_OK; };
-
-    CDialogEventHandler() : _cRef(1) { };
-private:
-    ~CDialogEventHandler() { };
-    long _cRef;
-};
 
 HRESULT CDialogEventHandler_CreateInstance(REFIID riid, void **ppv)
 {
@@ -378,7 +328,7 @@ HRESULT OpenReplayFilePicker()
                                 hr = psiResult->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
                                 if (SUCCEEDED(hr))
                                 {
-                                    SetWindowText(hLabel, pszFilePath);
+                                    SetWindowText(hStatusLabel, pszFilePath);
                                     EnterReplayingState(pszFilePath);
                                     CoTaskMemFree(pszFilePath);
                                 }
@@ -413,7 +363,6 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
     LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
     LoadString(hInstance, IDC_RCUTILITY, szWindowClass, MAX_LOADSTRING);
     MyRegisterClass(hInstance);
-    RegisterGLWinClass(hInstance);
 
     // Perform application initialization:
     if (!InitInstance(hInstance, nCmdShow))
@@ -463,27 +412,6 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
     return RegisterClassEx(&wcex);
 }
 
-ATOM RegisterGLWinClass(HINSTANCE hInstance)
-{
-    WNDCLASSEX wcex;
-
-    wcex.cbSize = sizeof(WNDCLASSEX);
-
-    wcex.style = CS_HREDRAW | CS_VREDRAW;
-    wcex.lpfnWndProc = WndProcGL;
-    wcex.cbClsExtra = 0;
-    wcex.cbWndExtra = 0;
-    wcex.hInstance = hInstance;
-    wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_RCUTILITY));
-    wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-    wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-    wcex.lpszMenuName = 0;
-    wcex.lpszClassName = glWindowClass;
-    wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
-
-    return RegisterClassEx(&wcex);
-}
-
 //
 //   FUNCTION: InitInstance(HINSTANCE, int)
 //
@@ -500,18 +428,19 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
     hInst = hInstance; // Store instance handle in our global variable
 
-    hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
+    hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, 660, 200, NULL, NULL, hInstance, NULL);
 
     if (!hWnd)
     {
         return FALSE;
     }
 
-    hLabel = CreateWindow(TEXT("static"), TEXT(""), WS_CHILD | WS_VISIBLE, 10, 10, 600, 20, hWnd, (HMENU)3, NULL, NULL);
-    hCaptureButton = CreateWindow(TEXT("button"), TEXT("Start Capture"), WS_CHILD | WS_VISIBLE, 10, 60, 140, 50, hWnd, (HMENU)IDB_CAPTURE, NULL, NULL);
-    hCalibrateButton = CreateWindow(TEXT("button"), TEXT("Start Calibration"), WS_CHILD | WS_VISIBLE, 170, 60, 140, 50, hWnd, (HMENU)IDB_CALIBRATE, NULL, NULL);
-    hLiveButton = CreateWindow(TEXT("button"), TEXT("Live"), WS_CHILD | WS_VISIBLE, 330, 60, 140, 50, hWnd, (HMENU)IDB_LIVE, NULL, NULL);
-    hReplayButton = CreateWindow(TEXT("button"), TEXT("Replay"), WS_CHILD | WS_VISIBLE, 490, 60, 140, 50, hWnd, (HMENU)IDB_REPLAY, NULL, NULL);
+    hStatusLabel = CreateWindow(TEXT("static"), TEXT(""), WS_CHILD | WS_VISIBLE, 10, 10, 620, 20, hWnd, (HMENU)3, NULL, NULL);
+    hProgressLabel = CreateWindow(TEXT("static"), TEXT(""), WS_CHILD | WS_VISIBLE, 10, 30, 620, 20, hWnd, (HMENU)3, NULL, NULL);
+    hCaptureButton = CreateWindow(TEXT("button"), TEXT("Start Capture"), WS_CHILD | WS_VISIBLE, 10, 80, 140, 50, hWnd, (HMENU)IDB_CAPTURE, NULL, NULL);
+    hCalibrateButton = CreateWindow(TEXT("button"), TEXT("Start Calibration"), WS_CHILD | WS_VISIBLE, 170, 80, 140, 50, hWnd, (HMENU)IDB_CALIBRATE, NULL, NULL);
+    hLiveButton = CreateWindow(TEXT("button"), TEXT("Live"), WS_CHILD | WS_VISIBLE, 330, 80, 140, 50, hWnd, (HMENU)IDB_LIVE, NULL, NULL);
+    hReplayButton = CreateWindow(TEXT("button"), TEXT("Replay"), WS_CHILD | WS_VISIBLE, 490, 80, 140, 50, hWnd, (HMENU)IDB_REPLAY, NULL, NULL);
 
     ShowWindow(hWnd, nCmdShow);
     UpdateWindow(hWnd);
@@ -553,7 +482,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             appState == Capturing ? ExitCapturingState() : EnterCapturingState();
             break;
         case IDB_CALIBRATE:
-            appState == Calibrating ? ExitCalibratingState() : EnterCalibratingState();
+            if (appState == Calibrating)
+            {
+                ExitCalibratingState();
+                trackMan->WaitUntilFinished();
+            } else {
+                EnterCalibratingState();
+            }
             break;
         case IDB_LIVE:
             EnterLiveVisState();
@@ -575,47 +510,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_CLOSE:
         ExitCapturingState();
-        DestroyWindow(hWnd);
-        break;
-    default:
-        return DefWindowProc(hWnd, message, wParam, lParam);
-    }
-    return 0;
-}
-
-// window message processor for the GL window
-LRESULT CALLBACK WndProcGL(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-    int wmId, wmEvent;
-    PAINTSTRUCT ps;
-    HDC hdc;
-
-    switch (message)
-    {
-    case WM_COMMAND:
-        wmId = LOWORD(wParam);
-        wmEvent = HIWORD(wParam);
-        // Parse the menu selections:
-        switch (wmId)
-        {
-        case IDM_EXIT:
-            DestroyWindow(hWnd);
-            break;
-        default:
-            return DefWindowProc(hWnd, message, wParam, lParam);
-        }
-        break;
-    case WM_PAINT:
-        hdc = BeginPaint(hWnd, &ps);
-        // TODO: Add any drawing code here...
-        EndPaint(hWnd, &ps);
-        break;
-    case WM_DESTROY:
-        //PostQuitMessage(0);
-        break;
-    case WM_CLOSE:
-        if (appState == Live) ExitLiveVisState();
-        else if (appState = Replay) ExitReplayingState();
         DestroyWindow(hWnd);
         break;
     default:

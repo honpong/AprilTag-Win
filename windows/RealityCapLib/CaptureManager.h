@@ -15,8 +15,5 @@ namespace RealityCap
 
     private:
         bool _isCapturing;
-        std::wstring _captureFilePath;
-
-        std::wstring GetExePath();
     };
 }

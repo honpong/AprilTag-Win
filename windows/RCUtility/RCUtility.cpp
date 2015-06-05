@@ -6,8 +6,7 @@
 #include "Debug.h"
 #include "CaptureManager.h"
 #include <shellapi.h>
-#include "CalibrationManager.h"
-#include "ReplayManager.h"
+#include "TrackerManager.h"
 #include <shlobj.h>
 #include <shlwapi.h>
 #include "RCFactory.h"
@@ -34,8 +33,7 @@ TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 RCFactory factory;
 auto capMan = factory.CreateCaptureManager();
-auto calMan = factory.CreateCalibrationManager();
-auto repMan = factory.CreateReplayManager();
+auto trackMan = factory.CreateTrackerManager();
 HWND hLabel;
 HWND hCaptureButton;
 HWND hCalibrateButton;
@@ -61,11 +59,9 @@ void ExitReplayingState();
 render_data visualization_data;
 visualization vis(&visualization_data);
 
-class MyRepDelegate : public ReplayManagerDelegate
+class MyRepDelegate : public TrackerManagerDelegate
 {
 public:
-    MyRepDelegate() : ReplayManagerDelegate() {};
-
     virtual void OnError(int code) override
     {
         Debug::Log(TEXT("ERROR"));
@@ -86,11 +82,9 @@ public:
 
 MyRepDelegate repDelegate;
 
-class MyCalDelegate : public CalibrationManagerDelegate
+class MyCalDelegate : public TrackerManagerDelegate
 {
 public:
-    MyCalDelegate() : CalibrationManagerDelegate() {};
-
     virtual void OnStatusUpdated(int status) override
     {
         switch (status)
@@ -191,8 +185,8 @@ void EnterCalibratingState()
     if (appState != Idle) return;
     SetWindowText(hLabel, TEXT("Starting calibration..."));
 
-    calMan->SetDelegate(&calDelegate);
-    bool result = calMan->StartCalibration();
+    trackMan->SetDelegate(&calDelegate);
+    bool result = trackMan->StartCalibration();
     if (result)
     {
         SetWindowText(hCalibrateButton, TEXT("Stop Calibrating"));
@@ -208,7 +202,7 @@ void ExitCalibratingState()
 {
     if (appState != Calibrating) return;
     SetWindowText(hLabel, TEXT("Stopping calibration..."));
-    calMan->StopCalibration();
+    trackMan->Stop();
     SetWindowText(hLabel, TEXT("Calibration stopped."));
     SetWindowText(hCalibrateButton, TEXT("Start Calibrating"));
     appState = Idle;
@@ -218,8 +212,8 @@ void EnterLiveVisState()
 {
     appState = Live;
     SetWindowText(hLabel, TEXT("Beginning live visualization..."));
-    repMan->SetDelegate(&repDelegate);
-    bool result = repMan->StartReplay(NULL);
+    trackMan->SetDelegate(&repDelegate);
+    bool result = trackMan->Start();
     if (result)
     {
         SetWindowText(hCalibrateButton, TEXT("Running..."));
@@ -235,16 +229,19 @@ void EnterLiveVisState()
 
 void ExitLiveVisState()
 {
+    if (appState != Live) return;
+    SetWindowText(hLabel, TEXT("Stopping live view..."));
+    trackMan->Stop();
+    SetWindowText(hLabel, TEXT("Live view stopped."));
     appState = Idle;
-    SetWindowText(hLabel, TEXT(""));
 }
 
 void EnterReplayingState(const PWSTR filePath)
 {
     appState = Replay;
     SetWindowText(hLabel, TEXT("Beginning replay visualization..."));
-    repMan->SetDelegate(&repDelegate);
-    bool result = repMan->StartReplay(filePath);
+    trackMan->SetDelegate(&repDelegate);
+    bool result = trackMan->StartReplay(filePath);
     if (result)
     {
         SetWindowText(hCalibrateButton, TEXT("Replaying..."));
@@ -259,8 +256,11 @@ void EnterReplayingState(const PWSTR filePath)
 
 void ExitReplayingState()
 {
+    if (appState != Replay) return;
+    SetWindowText(hLabel, TEXT("Stopping replay..."));
+    trackMan->Stop();
+    SetWindowText(hLabel, TEXT("Replay stopped."));
     appState = Idle;
-    SetWindowText(hLabel, TEXT(""));
 }
 
 
@@ -534,7 +534,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             if (appState == Calibrating)
             {
                 ExitCalibratingState();
-                calMan->WaitUntilFinished();
+                trackMan->WaitUntilFinished();
             } else {
                 EnterCalibratingState();
             }

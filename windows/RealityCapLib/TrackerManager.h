@@ -29,7 +29,7 @@ namespace RealityCap
 
         bool Start();
         bool StartCalibration();
-        bool StartReplay(const std::wstring filename);
+        bool StartReplay(const std::wstring filename, bool realtime);
         void Stop();
 
         void ConfigureCameraIntrinsics();

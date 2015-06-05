@@ -243,7 +243,7 @@ void EnterReplayingState(const PWSTR filePath)
     appState = Replay;
     SetWindowText(hStatusLabel, TEXT("Beginning replay visualization..."));
     trackMan->SetDelegate(&repDelegate);
-    bool result = trackMan->StartReplay(filePath);
+    bool result = trackMan->StartReplay(filePath, true);
     if (result)
     {
         SetWindowText(hCalibrateButton, TEXT("Replaying..."));

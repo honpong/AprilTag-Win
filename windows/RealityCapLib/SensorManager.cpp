@@ -98,7 +98,7 @@ bool SensorManager::SetRecording(const wchar_t *filename)
     return true;
 }
 
-bool SensorManager::StartPlayback(const wchar_t *filename)
+bool SensorManager::StartPlayback(const wchar_t *filename, bool realtime)
 {
     if (_isVideoStreaming) return false;
     PXCCaptureManager *captureMgr = _senseMan->QueryCaptureManager();
@@ -109,7 +109,7 @@ bool SensorManager::StartPlayback(const wchar_t *filename)
         return false;
     }
 
-    captureMgr->SetRealtime(true);
+    captureMgr->SetRealtime(realtime);
 
     PXCVideoModule::DataDesc desc = { 0 };
     captureMgr->QueryCapture()->QueryDeviceInfo(0, &desc.deviceInfo);

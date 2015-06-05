@@ -101,6 +101,12 @@ fusion_queue::fusion_queue(const std::function<void(camera_data &&)> &camera_fun
 {
 }
 
+fusion_queue::~fusion_queue()
+{
+    stop_immediately();
+    wait_until_finished();
+}
+
 
 void fusion_queue::receive_camera(camera_data&& x)
 {
@@ -165,6 +171,14 @@ void fusion_queue::start_singlethreaded(bool expect_camera)
     active = true;
 }
 
+void fusion_queue::stop_immediately()
+{
+    std::unique_lock<std::mutex> lock(mutex);
+    active = false;
+    lock.unlock();
+    cond.notify_one();
+}
+
 void fusion_queue::stop_async()
 {
     if(singlethreaded)
@@ -177,10 +191,7 @@ void fusion_queue::stop_async()
         fprintf(stderr, "Gyro: "); gyro_queue.print_stats();
 #endif
     }
-    std::unique_lock<std::mutex> lock(mutex);
-    active = false;
-    lock.unlock();
-    cond.notify_one();
+    stop_immediately();
 }
 
 void fusion_queue::stop_sync()

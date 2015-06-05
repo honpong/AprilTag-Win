@@ -79,10 +79,12 @@ public:
                  sensor_clock::duration camera_period,
                  sensor_clock::duration inertial_period,
                  sensor_clock::duration max_jitter);
+    ~fusion_queue();
     
     void start_async(bool expect_camera);
     void start_sync(bool expect_camera);
     void start_singlethreaded(bool expect_camera);
+    void stop_immediately();
     void stop_async();
     void stop_sync();
     void wait_until_finished();

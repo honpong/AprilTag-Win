@@ -80,6 +80,8 @@ bool SensorManager::StartSensors()
 
     _isVideoStreaming = true;
 
+    //TODO: this is a hack because we don't properly send updates to the main thread. The main thread should be responsible for calling stopsensors, which should have the join in it
+    if (videoThread.joinable()) videoThread.join();
     // poll for frames in a separate thread
     videoThread = std::thread(&SensorManager::PollForFrames, this);
 

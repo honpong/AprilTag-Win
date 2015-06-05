@@ -73,6 +73,7 @@ add_executable(RCUtility WIN32
     RCUtility/render_data.cpp
     RCUtility/arcball.cpp
     RCUtility/visualization.cpp
+    RCUtility/FilePicker.h
 )
 target_link_libraries(RCUtility RealityCapLib pxcmd)
 target_link_libraries(RCUtility glad glfw)

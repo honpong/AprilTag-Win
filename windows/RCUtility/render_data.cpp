@@ -46,8 +46,17 @@ void render_data::update_data(rc_Timestamp time, rc_Pose pose, rc_Feature * feat
 {
     data_lock.lock();
 
+    // Position and orientation
     for(int i = 0; i < axis_vertex_num; i++)
         transform_by_pose(pose, axis_vertex[i], pose_vertex[i]);
+
+    // Path history
+    GLData now;
+    set_position(&now, pose[3], pose[7], pose[11]);
+    set_color(&now, 0, 178, 206, 255);
+    path_history.push_back(now);
+    path_vertex = &path_history[0];
+    path_vertex_num = (int) path_history.size();
 
     data_lock.unlock();
 }

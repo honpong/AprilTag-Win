@@ -3,6 +3,7 @@
 
 #include "../filter/rc_intel_interface.h"
 #include <mutex>
+#include <vector>
 
 typedef struct {
     float position[3];
@@ -14,6 +15,7 @@ class render_data
 
 private:
     void build_grid_vertex_data();
+    std::vector <GLData> path_history;
 
 public:
 
@@ -28,6 +30,8 @@ public:
     int pose_vertex_num;
     GLData * grid_vertex;
     int grid_vertex_num;
+    GLData * path_vertex;
+    int path_vertex_num;
 };
 
 #endif

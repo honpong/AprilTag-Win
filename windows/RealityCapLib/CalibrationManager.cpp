@@ -117,5 +117,10 @@ void CalibrationManager::UpdateStatus(rc_TrackerState newState, rc_TrackerError 
         if (_delegate) _delegate->OnStatusUpdated(newState);
             _trackerState = newState;
     }
+
+    if (newState == rc_E_STATIC_CALIBRATION || newState == rc_E_PORTRAIT_CALIBRATION || newState == rc_E_LANDSCAPE_CALIBRATION)
+    {
+        if (_delegate) _delegate->OnProgressUpdated(progress);
+    }
 }
 

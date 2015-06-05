@@ -95,6 +95,7 @@ bool SensorManager::SetRecording(const wchar_t *filename)
         Debug::Log(L"Failed to set recording file name\n");
         return false;
     }
+    return true;
 }
 
 bool SensorManager::StartPlayback(const wchar_t *filename)

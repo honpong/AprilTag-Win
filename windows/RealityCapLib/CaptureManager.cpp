@@ -11,24 +11,24 @@ using namespace std;
 
 CaptureManager::CaptureManager(PXCSenseManager* senseMan) : SensorManager(senseMan), _isCapturing(false)
 {
-    _captureFilePath = GetExePath() + TEXT("\\capture");
+    _captureFilePath = GetExePath() + TEXT("\\capture.rssdk");
 }
 
 bool CaptureManager::StartCapture()
 {
     if (isCapturing()) return true;
+    _isCapturing = SetRecording(_captureFilePath.c_str());
+    if (!_isCapturing) return false;
     if (!isVideoStreaming())
     {
         if (!StartSensors()) return false;
     }
-    SetRecording(_captureFilePath.c_str());
     return isCapturing();
 }
 
 void CaptureManager::StopCapture()
 {
     if (!isCapturing()) return;
-    //cp.stop();
     _isCapturing = false;
     StopSensors();
 }

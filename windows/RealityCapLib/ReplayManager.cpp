@@ -42,13 +42,17 @@ const rc_Pose camera_pose = { 0, -1, 0, 0,
 bool ReplayManager::StartReplay(const wchar_t * filename)
 {
     Debug::Log(TEXT("Starting replay"));
-    if (!filename && !StartSensors()) { // Live
-        Debug::Log(TEXT("Live failed"));
-        return false;
-    }
-    else if (!StartPlayback(filename)) {
-        Debug::Log(TEXT("StartPlayback failed"));
-        return false;
+    if (filename)
+    {
+        if (!StartPlayback(filename)) {
+            Debug::Log(TEXT("StartPlayback failed"));
+            return false;
+        }
+    } else {
+        if (!StartSensors()) { // Live
+            Debug::Log(TEXT("Live failed"));
+            return false;
+        }
     }
 
     std::wifstream t("gigabyte_s11.json");

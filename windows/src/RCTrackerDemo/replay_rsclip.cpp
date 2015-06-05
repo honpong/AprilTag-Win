@@ -35,7 +35,7 @@ int wmain(int c, wchar_t **v)
     RCFactory factory;
     auto trackMan = factory.CreateTrackerManager();
     trackMan->SetLog(logger, stdout);
-    trackMan->Start();
+    trackMan->StartReplay(v[1], false);
     trackMan->WaitUntilFinished();
 
     wcout << L"Exiting" << endl;;

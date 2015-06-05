@@ -34,7 +34,8 @@ TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 RCFactory factory;
 auto capMan = factory.CreateCaptureManager();
 auto trackMan = factory.CreateTrackerManager();
-HWND hLabel;
+HWND hStatusLabel;
+HWND hProgressLabel;
 HWND hCaptureButton;
 HWND hCalibrateButton;
 HWND hLiveButton;
@@ -91,16 +92,16 @@ public:
         {
         case 0:
             ExitCalibratingState();
-            SetWindowText(hLabel, TEXT("Calibration complete."));
+            SetWindowText(hStatusLabel, TEXT("Calibration complete."));
             break;
         case 1:
-            SetWindowText(hLabel, TEXT("Place the device flat on a table."));
+            SetWindowText(hStatusLabel, TEXT("Place the device flat on a table."));
             break;
         case 5:
-            SetWindowText(hLabel, TEXT("Hold device steady in portrait orientation."));
+            SetWindowText(hStatusLabel, TEXT("Hold device steady in portrait orientation."));
             break;
         case 6:
-            SetWindowText(hLabel, TEXT("Hold device steady in landscape orientation."));
+            SetWindowText(hStatusLabel, TEXT("Hold device steady in landscape orientation."));
             break;
         default:
             break;
@@ -109,11 +110,11 @@ public:
 
     virtual void OnProgressUpdated(float progress) override
     {
-        if (progress < 1.)
+        if (progress < 1. && appState == Calibrating)
         {
             wchar_t title[1024];
             _snwprintf_s(title, 1024, L"Progress %2.0f%%", progress * 100);
-            SetWindowText(hLabel, title);
+            SetWindowText(hProgressLabel, title);
         }
     };
 
@@ -123,15 +124,15 @@ public:
         {
         case 1:
             // not fatal
-            SetWindowText(hLabel, TEXT("Vision error."));
+            SetWindowText(hStatusLabel, TEXT("Vision error."));
             break;
         case 2:
             ExitCalibratingState();
-            SetWindowText(hLabel, TEXT("Speed error."));
+            SetWindowText(hStatusLabel, TEXT("Speed error."));
             break;
         case 3:
             ExitCalibratingState();
-            SetWindowText(hLabel, TEXT("Fatal error."));
+            SetWindowText(hStatusLabel, TEXT("Fatal error."));
             break;
         default:
             break;
@@ -146,24 +147,24 @@ void EnterCapturingState()
     if (appState != Idle) return;
 
     SetWindowText(hCaptureButton, TEXT("Stop Capture"));
-    SetWindowText(hLabel, TEXT("Starting capture..."));
+    SetWindowText(hStatusLabel, TEXT("Starting capture..."));
     bool result;
 
     result = capMan->StartSensors();
     if (!result)
     {
-        SetWindowText(hLabel, TEXT("Failed to start sensors"));
+        SetWindowText(hStatusLabel, TEXT("Failed to start sensors"));
         return;
     }
 
     result = capMan->StartCapture();
     if (result)
     {
-        SetWindowText(hLabel, TEXT("Capturing."));
+        SetWindowText(hStatusLabel, TEXT("Capturing."));
     }
     else
     {
-        SetWindowText(hLabel, TEXT("Failed to start capture"));
+        SetWindowText(hStatusLabel, TEXT("Failed to start capture"));
         return;
     }
 
@@ -173,9 +174,9 @@ void EnterCapturingState()
 void ExitCapturingState()
 {
     if (appState != Capturing) return;
-    SetWindowText(hLabel, TEXT("Stopping capture..."));
+    SetWindowText(hStatusLabel, TEXT("Stopping capture..."));
     capMan->StopCapture();
-    SetWindowText(hLabel, TEXT("Capture complete."));
+    SetWindowText(hStatusLabel, TEXT("Capture complete."));
     SetWindowText(hCaptureButton, TEXT("Start Capture"));
     appState = Idle;
 }
@@ -183,7 +184,7 @@ void ExitCapturingState()
 void EnterCalibratingState()
 {
     if (appState != Idle) return;
-    SetWindowText(hLabel, TEXT("Starting calibration..."));
+    SetWindowText(hStatusLabel, TEXT("Starting calibration..."));
 
     trackMan->SetDelegate(&calDelegate);
     bool result = trackMan->StartCalibration();
@@ -194,16 +195,17 @@ void EnterCalibratingState()
     }
     else
     {
-        SetWindowText(hLabel, TEXT("Failed to start calibration."));
+        SetWindowText(hStatusLabel, TEXT("Failed to start calibration."));
     }
 }
 
 void ExitCalibratingState()
 {
     if (appState != Calibrating) return;
-    SetWindowText(hLabel, TEXT("Stopping calibration..."));
+    SetWindowText(hStatusLabel, TEXT("Stopping calibration..."));
     trackMan->Stop();
-    SetWindowText(hLabel, TEXT("Calibration stopped."));
+    SetWindowText(hStatusLabel, TEXT("Calibration stopped."));
+    SetWindowText(hProgressLabel, TEXT(""));
     SetWindowText(hCalibrateButton, TEXT("Start Calibrating"));
     appState = Idle;
 }
@@ -211,7 +213,7 @@ void ExitCalibratingState()
 void EnterLiveVisState()
 {
     appState = Live;
-    SetWindowText(hLabel, TEXT("Beginning live visualization..."));
+    SetWindowText(hStatusLabel, TEXT("Beginning live visualization..."));
     trackMan->SetDelegate(&repDelegate);
     bool result = trackMan->Start();
     if (result)
@@ -222,7 +224,7 @@ void EnterLiveVisState()
     }
     else
     {
-        SetWindowText(hLabel, TEXT("Failed to start live."));
+        SetWindowText(hStatusLabel, TEXT("Failed to start live."));
     }
 
 }
@@ -230,16 +232,16 @@ void EnterLiveVisState()
 void ExitLiveVisState()
 {
     if (appState != Live) return;
-    SetWindowText(hLabel, TEXT("Stopping live view..."));
+    SetWindowText(hStatusLabel, TEXT("Stopping live view..."));
     trackMan->Stop();
-    SetWindowText(hLabel, TEXT("Live view stopped."));
+    SetWindowText(hStatusLabel, TEXT("Live view stopped."));
     appState = Idle;
 }
 
 void EnterReplayingState(const PWSTR filePath)
 {
     appState = Replay;
-    SetWindowText(hLabel, TEXT("Beginning replay visualization..."));
+    SetWindowText(hStatusLabel, TEXT("Beginning replay visualization..."));
     trackMan->SetDelegate(&repDelegate);
     bool result = trackMan->StartReplay(filePath);
     if (result)
@@ -250,16 +252,16 @@ void EnterReplayingState(const PWSTR filePath)
     }
     else
     {
-        SetWindowText(hLabel, TEXT("Failed to start Replay."));
+        SetWindowText(hStatusLabel, TEXT("Failed to start Replay."));
     }
 }
 
 void ExitReplayingState()
 {
     if (appState != Replay) return;
-    SetWindowText(hLabel, TEXT("Stopping replay..."));
+    SetWindowText(hStatusLabel, TEXT("Stopping replay..."));
     trackMan->Stop();
-    SetWindowText(hLabel, TEXT("Replay stopped."));
+    SetWindowText(hStatusLabel, TEXT("Replay stopped."));
     appState = Idle;
 }
 
@@ -326,7 +328,7 @@ HRESULT OpenReplayFilePicker()
                                 hr = psiResult->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
                                 if (SUCCEEDED(hr))
                                 {
-                                    SetWindowText(hLabel, pszFilePath);
+                                    SetWindowText(hStatusLabel, pszFilePath);
                                     EnterReplayingState(pszFilePath);
                                     CoTaskMemFree(pszFilePath);
                                 }
@@ -426,18 +428,19 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
     hInst = hInstance; // Store instance handle in our global variable
 
-    hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
+    hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, 660, 200, NULL, NULL, hInstance, NULL);
 
     if (!hWnd)
     {
         return FALSE;
     }
 
-    hLabel = CreateWindow(TEXT("static"), TEXT(""), WS_CHILD | WS_VISIBLE, 10, 10, 600, 20, hWnd, (HMENU)3, NULL, NULL);
-    hCaptureButton = CreateWindow(TEXT("button"), TEXT("Start Capture"), WS_CHILD | WS_VISIBLE, 10, 60, 140, 50, hWnd, (HMENU)IDB_CAPTURE, NULL, NULL);
-    hCalibrateButton = CreateWindow(TEXT("button"), TEXT("Start Calibration"), WS_CHILD | WS_VISIBLE, 170, 60, 140, 50, hWnd, (HMENU)IDB_CALIBRATE, NULL, NULL);
-    hLiveButton = CreateWindow(TEXT("button"), TEXT("Live"), WS_CHILD | WS_VISIBLE, 330, 60, 140, 50, hWnd, (HMENU)IDB_LIVE, NULL, NULL);
-    hReplayButton = CreateWindow(TEXT("button"), TEXT("Replay"), WS_CHILD | WS_VISIBLE, 490, 60, 140, 50, hWnd, (HMENU)IDB_REPLAY, NULL, NULL);
+    hStatusLabel = CreateWindow(TEXT("static"), TEXT(""), WS_CHILD | WS_VISIBLE, 10, 10, 620, 20, hWnd, (HMENU)3, NULL, NULL);
+    hProgressLabel = CreateWindow(TEXT("static"), TEXT(""), WS_CHILD | WS_VISIBLE, 10, 30, 620, 20, hWnd, (HMENU)3, NULL, NULL);
+    hCaptureButton = CreateWindow(TEXT("button"), TEXT("Start Capture"), WS_CHILD | WS_VISIBLE, 10, 80, 140, 50, hWnd, (HMENU)IDB_CAPTURE, NULL, NULL);
+    hCalibrateButton = CreateWindow(TEXT("button"), TEXT("Start Calibration"), WS_CHILD | WS_VISIBLE, 170, 80, 140, 50, hWnd, (HMENU)IDB_CALIBRATE, NULL, NULL);
+    hLiveButton = CreateWindow(TEXT("button"), TEXT("Live"), WS_CHILD | WS_VISIBLE, 330, 80, 140, 50, hWnd, (HMENU)IDB_LIVE, NULL, NULL);
+    hReplayButton = CreateWindow(TEXT("button"), TEXT("Replay"), WS_CHILD | WS_VISIBLE, 490, 80, 140, 50, hWnd, (HMENU)IDB_REPLAY, NULL, NULL);
 
     ShowWindow(hWnd, nCmdShow);
     UpdateWindow(hWnd);

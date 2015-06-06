@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 2.8.11)
 
-add_subdirectory(ThirdParty "${CMAKE_CURRENT_BINARY_DIR}/ThirdParty")
-
 project(RCUtility)
+
+add_subdirectory(ThirdParty "${CMAKE_CURRENT_BINARY_DIR}/ThirdParty")
 
 add_library(pxcmd STATIC IMPORTED)
 set_property(TARGET pxcmd PROPERTY IMPORTED_LOCATION "$ENV{RSSDK_DIR}lib/$(PlatformName)/libpxcmd.lib")

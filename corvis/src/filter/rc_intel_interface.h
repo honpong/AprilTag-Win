@@ -134,8 +134,6 @@ RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callb
 RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback callback, void *handle);
 
 RCTRACKER_API void rc_startCalibration(rc_Tracker *tracker);
-//TODO: Define calibration interface
-//bool rc_getCalibration(rc_Tracker *tracker, char **buffer, int *length);
 
 /** TODO:
  Starts processing inertial data to estimate the orientation of the device so that initialization of the full tracker can happen more quickly.

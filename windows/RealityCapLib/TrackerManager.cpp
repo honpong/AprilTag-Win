@@ -55,7 +55,7 @@ bool TrackerManager::ReadCalibration(std::wstring filename)
     std::wstring calibrationJSON((std::istreambuf_iterator<wchar_t>(t)),
         std::istreambuf_iterator<wchar_t>());
     if (calibrationJSON.length() == 0) {
-        Debug::Log(L"Couldn't open calibration, failing");
+        Debug::Log(L"Couldn't load calibration, failing");
         return false;
     }
     bool result = rc_setCalibration(_tracker, calibrationJSON.c_str());
@@ -113,9 +113,9 @@ bool TrackerManager::Start()
 bool TrackerManager::StartCalibration()
 {
     if (isRunning()) return false;
+    if (!LoadDefaultCalibration()) return false;
     if (!StartSensors()) return false;
 
-    LoadDefaultCalibration();
     //override the default calibration data with the device-specific camera intrinsics
     ConfigureCameraIntrinsics();
 

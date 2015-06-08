@@ -41,6 +41,7 @@ HWND hCalibrateButton;
 HWND hLiveButton;
 HWND hReplayButton;
 AppState appState = Idle;
+HWND hWnd;
 
 // Forward declarations of functions included in this code module:
 ATOM				MyRegisterClass(HINSTANCE hInstance);
@@ -85,13 +86,13 @@ MyRepDelegate repDelegate;
 
 class MyCalDelegate : public TrackerManagerDelegate
 {
-public:
+public: // these methods get called from the sensor manager thread
     virtual void OnStatusUpdated(int status) override
     {
         switch (status)
         {
         case 0:
-            ExitCalibratingState();
+            SendMessage(hWnd, IDB_EXIT_CALIBRATION, NULL, NULL); // message will be processed on window's main thread
             SetWindowText(hStatusLabel, TEXT("Calibration complete."));
             break;
         case 1:
@@ -424,8 +425,6 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 //
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
-    HWND hWnd;
-
     hInst = hInstance; // Store instance handle in our global variable
 
     hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, 660, 200, NULL, NULL, hInstance, NULL);
@@ -482,10 +481,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             appState == Capturing ? ExitCapturingState() : EnterCapturingState();
             break;
         case IDB_CALIBRATE:
-            if (appState == Calibrating)
-            {
+            if (appState == Calibrating) {
                 ExitCalibratingState();
-                trackMan->WaitUntilFinished();
             } else {
                 EnterCalibratingState();
             }
@@ -502,15 +499,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
         break;
     case WM_PAINT:
         hdc = BeginPaint(hWnd, &ps);
-        // TODO: Add any drawing code here...
         EndPaint(hWnd, &ps);
         break;
     case WM_DESTROY:
         PostQuitMessage(0);
         break;
     case WM_CLOSE:
-        ExitCapturingState();
+        ExitCapturingState(); // TODO: handle other cases
         DestroyWindow(hWnd);
+        break;
+    case IDB_EXIT_CALIBRATION:
+        if (appState == Calibrating) ExitCalibratingState();
         break;
     default:
         return DefWindowProc(hWnd, message, wParam, lParam);

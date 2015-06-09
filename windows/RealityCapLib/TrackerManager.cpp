@@ -155,7 +155,7 @@ void TrackerManager::Stop()
     if (!isRunning()) return;
     rc_stopTracker(_tracker);
     StopSensors();
-    StoreCurrentCalibration();
+    StoreCurrentCalibration(); // TODO: handle failure
     _isRunning = false;
 }
 

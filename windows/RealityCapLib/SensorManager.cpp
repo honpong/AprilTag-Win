@@ -30,7 +30,6 @@ SensorManager::SensorManager(PXCSenseManager* senseMan) : _isVideoStreaming(fals
 SensorManager::~SensorManager()
 {
     StopSensors();
-    WaitUntilFinished();
 }
 
 bool SensorManager::StartSensors()
@@ -80,8 +79,6 @@ bool SensorManager::StartSensors()
 
     _isVideoStreaming = true;
 
-    //TODO: this is a hack because we don't properly send updates to the main thread. The main thread should be responsible for calling stopsensors, which should have the join in it
-    if (videoThread.joinable()) videoThread.join();
     // poll for frames in a separate thread
     videoThread = std::thread(&SensorManager::PollForFrames, this);
 
@@ -142,11 +139,8 @@ void SensorManager::StopSensors()
 {
     if (!isVideoStreaming()) return;
     _isVideoStreaming = false;
-}
-
-void SensorManager::WaitUntilFinished()
-{
-    if(videoThread.joinable()) videoThread.join();
+    if (videoThread.joinable())
+        videoThread.detach(); // let polling thread finish on it's own. join() hangs. not sure why. 
 }
 
 bool SensorManager::isVideoStreaming()
@@ -228,7 +222,9 @@ void SensorManager::PollForFrames()
 
         _senseMan->ReleaseFrame();
     }
+
     _senseMan->Close();
+    Debug::Log(L"Exiting sensor polling thread");
 }
 
 void SensorManager::OnColorFrame(PXCImage * colorImage)

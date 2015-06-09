@@ -28,7 +28,6 @@ namespace RealityCap
         virtual ~SensorManager();
         bool StartSensors(); // returns true if sensors started successfully
         void StopSensors();
-        void WaitUntilFinished();
         bool StartPlayback(const wchar_t *filename, bool realtime);
         bool SetRecording(const wchar_t *filename);
         bool isVideoStreaming();
@@ -43,7 +42,7 @@ namespace RealityCap
     private:
         PXCSenseManager* _senseMan;
         std::thread videoThread;
-        std::atomic<bool> _isVideoStreaming;
+        std::atomic_bool _isVideoStreaming;
         SensorDataReceiver* _sensorReceiver;
 
         void PollForFrames();

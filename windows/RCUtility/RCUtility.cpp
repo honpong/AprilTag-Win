@@ -208,28 +208,29 @@ void ExitCalibratingState()
 void EnterLiveVisState()
 {
     appState = Live;
-    SetWindowText(hStatusLabel, TEXT("Beginning live visualization..."));
+    SetWindowText(hStatusLabel, TEXT("Starting live visualization..."));
     trackMan->SetDelegate(&repDelegate);
     bool result = trackMan->Start();
     if (result)
     {
-        SetWindowText(hCalibrateButton, TEXT("Running..."));
+        SetWindowText(hStatusLabel, TEXT("Running live visualization..."));
+        SetWindowText(hLiveButton, TEXT("Stop Live"));
         vis.start();
         appState = Live;
     }
     else
     {
-        SetWindowText(hStatusLabel, TEXT("Failed to start live."));
+        SetWindowText(hStatusLabel, TEXT("Failed to start live visualization."));
     }
-
 }
 
 void ExitLiveVisState()
 {
     if (appState != Live) return;
-    SetWindowText(hStatusLabel, TEXT("Stopping live view..."));
+    SetWindowText(hStatusLabel, TEXT("Stopping live visualization..."));
     trackMan->Stop();
-    SetWindowText(hStatusLabel, TEXT("Live view stopped."));
+    SetWindowText(hStatusLabel, TEXT("Live visualization stopped."));
+    SetWindowText(hLiveButton, TEXT("Live"));
     appState = Idle;
 }
 
@@ -490,7 +491,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
             break;
         case IDB_LIVE:
-            EnterLiveVisState();
+            appState == Live? ExitLiveVisState() : EnterLiveVisState();
             break;
         case IDB_REPLAY:
             OpenReplayFilePicker();

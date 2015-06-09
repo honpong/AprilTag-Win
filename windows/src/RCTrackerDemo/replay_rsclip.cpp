@@ -15,8 +15,6 @@
 #include "stats.h"
 #include "rc_pxc_util.h"
 #include "RCFactory.h"
-#include <thread>
-#include <chrono>
 
 using namespace std;
 using namespace RealityCap;
@@ -43,11 +41,10 @@ int wmain(int c, wchar_t **v)
         fprintf(stderr, "Failed to start replay.\n");
         return 0;
     }
-    
-    while (trackMan->isVideoStreaming())
-    {
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    }
+
+    while (trackMan->isVideoStreaming()) {}
+
+    trackMan->Stop();
 
     wcout << L"Exiting" << endl;;
 

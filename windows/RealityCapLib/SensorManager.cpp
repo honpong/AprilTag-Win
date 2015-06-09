@@ -223,6 +223,7 @@ void SensorManager::PollForFrames()
         _senseMan->ReleaseFrame();
     }
 
+    _isVideoStreaming = false; // in case we're replaying and we reach EoF
     _senseMan->Close();
     Debug::Log(L"Exiting sensor polling thread");
 }

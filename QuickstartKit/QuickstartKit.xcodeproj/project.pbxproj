@@ -47,6 +47,10 @@
 		32D1E6F71B20C1F90032AE29 /* RCGLManagerFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32D1E6A51B20BF630032AE29 /* RCGLManagerFactory.h */; };
 		32D1E6F81B20C1F90032AE29 /* RCGLShaderProgram.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32D1E6A71B20BF630032AE29 /* RCGLShaderProgram.h */; };
 		32D1E6F91B20C1F90032AE29 /* RCVideoPreview.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32D1E6A91B20BF630032AE29 /* RCVideoPreview.h */; };
+		388999091B26C82F0077DAA7 /* Calibration.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 32D1E6981B20BF630032AE29 /* Calibration.storyboard */; };
+		3889990A1B26C83C0077DAA7 /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32D1E6991B20BF630032AE29 /* holding_landscape.jpg */; };
+		3889990B1B26C83F0077DAA7 /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32D1E69A1B20BF630032AE29 /* holding_portrait.jpg */; };
+		3889990C1B26C8420077DAA7 /* ipad_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32D1E69B1B20BF630032AE29 /* ipad_on_table.jpg */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -365,6 +369,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				388999091B26C82F0077DAA7 /* Calibration.storyboard in Resources */,
+				3889990C1B26C8420077DAA7 /* ipad_on_table.jpg in Resources */,
+				3889990B1B26C83F0077DAA7 /* holding_portrait.jpg in Resources */,
+				3889990A1B26C83C0077DAA7 /* holding_landscape.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

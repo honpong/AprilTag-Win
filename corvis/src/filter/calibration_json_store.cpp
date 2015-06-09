@@ -53,6 +53,8 @@ using namespace std;
 #define KEY_SHUTTER_PERIOD "shutterPeriod"
 #define KEY_CALIBRATION_VERSION "calibrationVersion"
 
+#include "calibration_defaults.h"
+
 calibration_json_store::calibration_json_store()
 {
 }
@@ -235,16 +237,7 @@ bool RealityCap::calibration_json_store::LoadCalibration(corvis_device_parameter
 
 bool RealityCap::calibration_json_store::LoadCalibrationDefaults(const corvis_device_type deviceType, corvis_device_parameters &cal)
 {
-    string fileName = GetCalibrationDefaultsFileName(deviceType);
-    if (FileExists(calibrationLocation + fileName))
-    {
-        ParseCalibrationFile(fileName, cal);
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return RealityCap::calibration_json_store::DeserializeCalibration(calibration_default_json_for_device_type(deviceType), cal);
 }
 
 bool calibration_json_store::SaveCalibration(const corvis_device_parameters &cal)

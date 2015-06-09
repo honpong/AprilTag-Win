@@ -49,7 +49,7 @@ if(YES)
       test/test.cpp test/util.cpp
       test/numerics/vec4.cpp test/numerics/rotation_vector.cpp test/numerics/quaternion.cpp
       test/filter/homography.cpp test/filter/utils.cpp
-      test/filter/device_parameters_tests.cpp
+      test/filter/device_parameters.cpp
       test/filter/calibration_json_store.cpp
       test/cor/sensor_fusion_queue.cpp
     )

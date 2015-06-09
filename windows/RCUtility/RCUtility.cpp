@@ -4,7 +4,6 @@
 #include "stdafx.h"
 #include "RCUtility.h"
 #include "Debug.h"
-#include "CaptureManager.h"
 #include <shellapi.h>
 #include "TrackerManager.h"
 #include <shlobj.h>
@@ -15,6 +14,7 @@
 #include "FilePicker.h"
 
 using namespace RealityCap;
+using namespace std;
 
 #define MAX_LOADSTRING 100
 
@@ -32,7 +32,6 @@ HINSTANCE hInst;								// current instance
 TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 RCFactory factory;
-auto capMan = factory.CreateCaptureManager();
 auto trackMan = factory.CreateTrackerManager();
 HWND hStatusLabel;
 HWND hProgressLabel;
@@ -57,6 +56,7 @@ void EnterLiveVisState();
 void ExitLiveVisState();
 void EnterReplayingState(const PWSTR filePath);
 void ExitReplayingState();
+wstring GetExePath();
 
 render_data visualization_data;
 visualization vis(&visualization_data);
@@ -151,14 +151,8 @@ void EnterCapturingState()
     SetWindowText(hStatusLabel, TEXT("Starting capture..."));
     bool result;
 
-    result = capMan->StartSensors();
-    if (!result)
-    {
-        SetWindowText(hStatusLabel, TEXT("Failed to start sensors"));
-        return;
-    }
-
-    result = capMan->StartCapture();
+    wstring captureFile = GetExePath().append(L"\\capture.rssdk");
+    result = trackMan->StartRecording(captureFile.c_str());
     if (result)
     {
         SetWindowText(hStatusLabel, TEXT("Capturing."));
@@ -176,7 +170,7 @@ void ExitCapturingState()
 {
     if (appState != Capturing) return;
     SetWindowText(hStatusLabel, TEXT("Stopping capture..."));
-    capMan->StopCapture();
+    trackMan->StopSensors();
     SetWindowText(hStatusLabel, TEXT("Capture complete."));
     SetWindowText(hCaptureButton, TEXT("Start Capture"));
     appState = Idle;
@@ -346,6 +340,14 @@ HRESULT OpenReplayFilePicker()
         pfd->Release();
     }
     return hr;
+}
+
+wstring GetExePath()
+{
+    WCHAR buffer[MAX_PATH];
+    GetModuleFileName(NULL, buffer, MAX_PATH);
+    string::size_type pos = wstring(buffer).find_last_of(L"\\/");
+    return wstring(buffer).substr(0, pos);
 }
 
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,

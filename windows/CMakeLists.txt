@@ -45,7 +45,6 @@ add_custom_command(TARGET RCTrackerDemo POST_BUILD        # Adds a post-build ev
 
 
 add_library(RealityCapLib
-  RealityCapLib/CaptureManager.cpp
   RealityCapLib/TrackerManager.cpp
   RealityCapLib/SensorManager.cpp
   RealityCapLib/RCFactory.cpp

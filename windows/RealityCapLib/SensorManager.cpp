@@ -85,15 +85,16 @@ bool SensorManager::StartSensors()
     return true;
 }
 
-bool SensorManager::SetRecording(const wchar_t *filename)
+bool SensorManager::StartRecording(const wchar_t *absFileName)
 {
     PXCCaptureManager *captureMgr = _senseMan->QueryCaptureManager();
-    auto status = captureMgr->SetFileName(filename, true);
+    auto status = captureMgr->SetFileName(absFileName, true);
     if (status < PXC_STATUS_NO_ERROR)
     {
         Debug::Log(L"Failed to set recording file name\n");
         return false;
     }
+    if (!StartSensors()) return false;
     return true;
 }
 

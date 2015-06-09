@@ -24,7 +24,7 @@ std::unique_ptr<TrackerManager> RCFactory::CreateTrackerManager()
 	return std::unique_ptr<TrackerManager>(new TrackerManager(CreateSenseManager()));
 }
 
-std::unique_ptr<CaptureManager> RCFactory::CreateCaptureManager()
+std::unique_ptr<SensorManager> RCFactory::CreateSensorManager()
 {
-    return std::unique_ptr<CaptureManager>(new CaptureManager(CreateSenseManager()));
+    return std::unique_ptr<SensorManager>(new SensorManager(CreateSenseManager()));
 }

@@ -254,9 +254,7 @@
 		D992CC371AD5BA8500AA2259 /* sensor_clock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D95409AE1AC1019200706A24 /* sensor_clock.cpp */; };
 		D992CC3D1AD5C46A00AA2259 /* replay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D992CC3B1AD5C46A00AA2259 /* replay.cpp */; };
 		D992CC3E1AD5C46A00AA2259 /* replay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D992CC3B1AD5C46A00AA2259 /* replay.cpp */; };
-		D9C43E121B0BB0BE00F48072 /* rc_intel_interface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9C43E111B0BB0BE00F48072 /* rc_intel_interface.cpp */; };
 		D9C43E131B0BB0BE00F48072 /* rc_intel_interface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9C43E111B0BB0BE00F48072 /* rc_intel_interface.cpp */; };
-		D9C43E141B0BB0BE00F48072 /* rc_intel_interface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9C43E111B0BB0BE00F48072 /* rc_intel_interface.cpp */; };
 		D9CCDC7E192E887F00A41329 /* scaled_mask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9CCDC7C192E887F00A41329 /* scaled_mask.cpp */; };
 		D9CFC1061AD5ABFC00445A80 /* rotation_vector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 38EDF0761AD43D2400F0A322 /* rotation_vector.cpp */; };
 		D9FE87B619427F190052B8D8 /* RCSensorFusionInternals.h in Copy Files */ = {isa = PBXBuildFile; fileRef = D9FE87B519410AB40052B8D8 /* RCSensorFusionInternals.h */; };

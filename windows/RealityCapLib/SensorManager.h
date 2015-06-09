@@ -29,7 +29,7 @@ namespace RealityCap
         bool StartSensors(); // returns true if sensors started successfully
         void StopSensors();
         bool StartPlayback(const wchar_t *filename, bool realtime);
-        bool SetRecording(const wchar_t *filename);
+        bool StartRecording(const wchar_t *absFileName);
         bool isVideoStreaming();
         void SetReceiver(SensorDataReceiver* sensorReceiver) { _sensorReceiver = sensorReceiver; };
         PXCSenseManager* GetSenseManager() {  return _senseMan; };

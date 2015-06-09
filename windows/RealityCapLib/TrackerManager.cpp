@@ -94,9 +94,8 @@ bool TrackerManager::StoreCurrentCalibration()
 bool TrackerManager::Start()
 {
     if (isRunning()) return false;
+    if (!LoadDefaultCalibration()) return false;
     if (!StartSensors()) return false;
-
-    LoadStoredCalibration();
 
     _trackerState = rc_E_INACTIVE;
     _progress = 0.;
@@ -134,9 +133,8 @@ bool TrackerManager::StartCalibration()
 bool TrackerManager::StartReplay(const std::wstring filename, bool realtime)
 {
     if (isRunning()) return false;
+    if (!LoadStoredCalibration()) return false;
     if (!StartPlayback(filename.c_str(), realtime)) return false;
-
-    LoadStoredCalibration();
 
     _trackerState = rc_E_INACTIVE;
     _progress = 0.;

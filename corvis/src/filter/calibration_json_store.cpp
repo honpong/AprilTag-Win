@@ -162,13 +162,15 @@ void CopyStructToJson(const corvis_device_parameters &cal, value &json)
     json[U(KEY_SHUTTER_PERIOD)] = value::number((double)std::chrono::duration_cast<std::chrono::microseconds>(cal.shutter_period).count());
 }
 
-bool RealityCap::calibration_json_store::SerializeCalibration(const corvis_device_parameters &cal, utility::string_t &jsonString)
+bool RealityCap::calibration_json_store::SerializeCalibration(const corvis_device_parameters &cal, std::wstring &jsonStringW)
 {
     try
     {
         value json = value::object();
         CopyStructToJson(cal, json);
-        jsonString = json.serialize();
+        utility::string_t jsonString = json.serialize();
+        std::wstring wide(jsonString.begin(), jsonString.end());
+        jsonStringW = wide;
         if (!jsonString.length()) return false;
     }
     catch (json_exception)
@@ -179,8 +181,17 @@ bool RealityCap::calibration_json_store::SerializeCalibration(const corvis_devic
     return true;
 }
 
-bool RealityCap::calibration_json_store::DeserializeCalibration(const utility::string_t &jsonString, corvis_device_parameters &cal)
+#include <codecvt>
+bool RealityCap::calibration_json_store::DeserializeCalibration(const std::wstring &jsonStringW, corvis_device_parameters &cal)
 {
+#if UNICODE
+    utility::string_t jsonString(jsonStringW);
+#else
+    typedef std::codecvt_utf8<wchar_t> convert_type;
+    std::wstring_convert<convert_type, wchar_t> converter;
+    std::string converted_str = converter.to_bytes(jsonStringW);
+    utility::string_t jsonString(converted_str);
+#endif
     try
     {
         if (!jsonString.length()) return false;

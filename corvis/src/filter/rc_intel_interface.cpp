@@ -421,7 +421,7 @@ corvis_device_parameters rc_getCalibration(rc_Tracker *tracker)
 size_t rc_getCalibration(rc_Tracker *tracker, const wchar_t** buffer)
 {
     corvis_device_parameters cal = rc_getCalibration(tracker);
-    utility::string_t json;
+    std::wstring json;
     bool result = calibration_json_store::SerializeCalibration(cal, json);
     if (result)
     {
@@ -435,20 +435,10 @@ size_t rc_getCalibration(rc_Tracker *tracker, const wchar_t** buffer)
     }
 }
 
-#include <codecvt>
 bool rc_setCalibration(rc_Tracker *tracker, const wchar_t* buffer)
 {
-#if UNICODE
-    utility::string_t jsonString(buffer);
-#else
-    std::wstring wideJsonString(buffer);
-    typedef std::codecvt_utf8<wchar_t> convert_type;
-    std::wstring_convert<convert_type, wchar_t> converter;
-    std::string converted_str = converter.to_bytes(wideJsonString);
-    utility::string_t jsonString(converted_str);
-#endif
     corvis_device_parameters cal;
-    bool result = calibration_json_store::DeserializeCalibration(jsonString, cal);
+    bool result = calibration_json_store::DeserializeCalibration(std::wstring(buffer), cal);
     if (result) tracker->set_device(cal);
     return result;
 }

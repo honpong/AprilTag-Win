@@ -15,7 +15,7 @@ TEST(rc_intel_interface_tests, rc_setCalibration)
     EXPECT_TRUE(store->LoadCalibrationDefaults(DEVICE_TYPE_GIGABYTE_S11, cal));
 
     // set cal
-    utility::string_t jsonString;
+    std::wstring jsonString;
     EXPECT_TRUE(calibration_json_store::SerializeCalibration(cal, jsonString));
 
     rc_Tracker *tracker = rc_create();

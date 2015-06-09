@@ -17,8 +17,8 @@ namespace RealityCap
         calibration_json_store();
         virtual ~calibration_json_store();
 
-        static bool SerializeCalibration(const corvis_device_parameters &cal, utility::string_t &jsonString);
-        static bool DeserializeCalibration(const utility::string_t &jsonString, corvis_device_parameters &cal);
+        static bool SerializeCalibration(const corvis_device_parameters &cal, std::wstring &jsonString);
+        static bool DeserializeCalibration(const std::wstring &jsonString, corvis_device_parameters &cal);
         
         virtual bool LoadCalibration(corvis_device_parameters &cal) override;
         virtual bool LoadCalibrationDefaults(const corvis_device_type deviceType, corvis_device_parameters &cal) override;

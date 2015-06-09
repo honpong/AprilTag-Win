@@ -122,7 +122,7 @@ TEST(calibration_json_store_tests, SerializeDeserialize)
 
     try
     {
-        utility::string_t jsonString;
+        std::wstring jsonString;
         EXPECT_TRUE(calibration_json_store::SerializeCalibration(cal, jsonString));
         EXPECT_TRUE(jsonString.length()); // expect non-zero length
 
@@ -145,8 +145,8 @@ TEST(calibration_json_store_tests, DeserializeCalibration)
 
     try
     {
-        utility::string_t jsonString = U("");
-        EXPECT_FALSE(calibration_json_store::DeserializeCalibration(jsonString, calDeserialized));
+        std::wstring jsonStringW;
+        EXPECT_FALSE(calibration_json_store::DeserializeCalibration(jsonStringW, calDeserialized));
     }
     catch (...)
     {

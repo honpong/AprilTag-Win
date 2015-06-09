@@ -24,14 +24,6 @@
 		322B815318315A3F006E963E /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32F0753D18033C10001C8355 /* AdSupport.framework */; };
 		322C371418A18AB6001C69C2 /* MPCircleLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 322C371318A18AB6001C69C2 /* MPCircleLayerDelegate.m */; };
 		323BD0111A0D798900313573 /* libFlurry_5.4.0.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 323BD0101A0D798900313573 /* libFlurry_5.4.0.a */; };
-		3244D38F18E60F4600AB0DE0 /* Calibration.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3244D38818E60F4600AB0DE0 /* Calibration.storyboard */; };
-		3244D39018E60F4600AB0DE0 /* RCCalibration1.m in Sources */ = {isa = PBXBuildFile; fileRef = 3244D38A18E60F4600AB0DE0 /* RCCalibration1.m */; };
-		3244D39118E60F4600AB0DE0 /* RCCalibration2.m in Sources */ = {isa = PBXBuildFile; fileRef = 3244D38C18E60F4600AB0DE0 /* RCCalibration2.m */; };
-		3244D39218E60F4600AB0DE0 /* RCCalibration3.m in Sources */ = {isa = PBXBuildFile; fileRef = 3244D38E18E60F4600AB0DE0 /* RCCalibration3.m */; };
-		3244D39518E6134500AB0DE0 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 3244D39418E6134500AB0DE0 /* MBProgressHUD.m */; };
-		3246689418E62B5400A3DF62 /* ipad_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 3246689318E62B5400A3DF62 /* ipad_on_table.jpg */; };
-		3246689B18E62B6700A3DF62 /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 3246689818E62B6700A3DF62 /* holding_landscape.jpg */; };
-		3246689C18E62B6700A3DF62 /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 3246689918E62B6700A3DF62 /* holding_portrait.jpg */; };
 		3248C7DB18A44AE400061D4A /* MPToolbarView.m in Sources */ = {isa = PBXBuildFile; fileRef = 3248C7DA18A44AE400061D4A /* MPToolbarView.m */; };
 		3248C7DE18A4515000061D4A /* MPShutterButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 3248C7DD18A4515000061D4A /* MPShutterButton.m */; };
 		3248C7E118A464BF00061D4A /* MPThumbnailButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 3248C7E018A464BF00061D4A /* MPThumbnailButton.m */; };
@@ -339,6 +331,14 @@
 		32C135CB1892E6F5004DF62B /* kb-loupe-hi.png in Resources */ = {isa = PBXBuildFile; fileRef = 32C135C71892E6F5004DF62B /* kb-loupe-hi.png */; };
 		32C71CA719802F6100947798 /* MPRotatingButton.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C71CA619802F6100947798 /* MPRotatingButton.m */; };
 		32D0F3961A38F8A700066B27 /* Tutorial.mov in Resources */ = {isa = PBXBuildFile; fileRef = 32D0F3951A38F8A700066B27 /* Tutorial.mov */; };
+		32D1E71B1B20C3170032AE29 /* Calibration.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 32D1E70F1B20C3170032AE29 /* Calibration.storyboard */; };
+		32D1E71C1B20C3170032AE29 /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32D1E7101B20C3170032AE29 /* holding_landscape.jpg */; };
+		32D1E71D1B20C3170032AE29 /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32D1E7111B20C3170032AE29 /* holding_portrait.jpg */; };
+		32D1E71E1B20C3170032AE29 /* ipad_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32D1E7121B20C3170032AE29 /* ipad_on_table.jpg */; };
+		32D1E71F1B20C3170032AE29 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D1E7141B20C3170032AE29 /* MBProgressHUD.m */; };
+		32D1E7201B20C3170032AE29 /* RCCalibration1.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D1E7161B20C3170032AE29 /* RCCalibration1.m */; };
+		32D1E7211B20C3170032AE29 /* RCCalibration2.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D1E7181B20C3170032AE29 /* RCCalibration2.m */; };
+		32D1E7221B20C3170032AE29 /* RCCalibration3.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D1E71A1B20C3170032AE29 /* RCCalibration3.m */; };
 		32DB2BE717C28AC9001F7E5D /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 32DB2BE617C28AC9001F7E5D /* Settings.bundle */; };
 		32EEC84F17B97D1900A0DF49 /* MPMeasurementView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32EEC84E17B97D1900A0DF49 /* MPMeasurementView.m */; };
 		32EFECE1196C6C9F00FDC89F /* Model.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 32EFECDF196C6C9F00FDC89F /* Model.xcdatamodeld */; };
@@ -423,13 +423,6 @@
 			remoteGlobalIDString = 32865B6516260B500080BA1A;
 			remoteInfo = RCCore;
 		};
-		32BA434117A2EFF2002BAE13 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 32BA433917A2EFF2002BAE13 /* RCCore.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 32865B7616260B500080BA1A;
-			remoteInfo = RCCoreTests;
-		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
@@ -471,18 +464,6 @@
 		322C372218A194EE001C69C2 /* Reveal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Reveal.framework; sourceTree = "<group>"; };
 		323BD00F1A0D798900313573 /* Flurry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Flurry.h; sourceTree = "<group>"; };
 		323BD0101A0D798900313573 /* libFlurry_5.4.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libFlurry_5.4.0.a; sourceTree = "<group>"; };
-		3244D38818E60F4600AB0DE0 /* Calibration.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Calibration.storyboard; sourceTree = "<group>"; };
-		3244D38918E60F4600AB0DE0 /* RCCalibration1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration1.h; sourceTree = "<group>"; };
-		3244D38A18E60F4600AB0DE0 /* RCCalibration1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration1.m; sourceTree = "<group>"; };
-		3244D38B18E60F4600AB0DE0 /* RCCalibration2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration2.h; sourceTree = "<group>"; };
-		3244D38C18E60F4600AB0DE0 /* RCCalibration2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration2.m; sourceTree = "<group>"; };
-		3244D38D18E60F4600AB0DE0 /* RCCalibration3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration3.h; sourceTree = "<group>"; };
-		3244D38E18E60F4600AB0DE0 /* RCCalibration3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration3.m; sourceTree = "<group>"; };
-		3244D39318E6134500AB0DE0 /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
-		3244D39418E6134500AB0DE0 /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
-		3246689318E62B5400A3DF62 /* ipad_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = ipad_on_table.jpg; sourceTree = "<group>"; };
-		3246689818E62B6700A3DF62 /* holding_landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_landscape.jpg; sourceTree = "<group>"; };
-		3246689918E62B6700A3DF62 /* holding_portrait.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_portrait.jpg; sourceTree = "<group>"; };
 		3248C7D918A44AE400061D4A /* MPToolbarView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPToolbarView.h; sourceTree = "<group>"; };
 		3248C7DA18A44AE400061D4A /* MPToolbarView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPToolbarView.m; sourceTree = "<group>"; };
 		3248C7DC18A4515000061D4A /* MPShutterButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPShutterButton.h; sourceTree = "<group>"; };
@@ -936,6 +917,18 @@
 		32C71CA619802F6100947798 /* MPRotatingButton.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPRotatingButton.m; sourceTree = "<group>"; };
 		32CF88951A31060F0044B17B /* RC3DK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RC3DK.h; sourceTree = "<group>"; };
 		32D0F3951A38F8A700066B27 /* Tutorial.mov */ = {isa = PBXFileReference; lastKnownFileType = video.quicktime; path = Tutorial.mov; sourceTree = "<group>"; };
+		32D1E70F1B20C3170032AE29 /* Calibration.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Calibration.storyboard; sourceTree = "<group>"; };
+		32D1E7101B20C3170032AE29 /* holding_landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_landscape.jpg; sourceTree = "<group>"; };
+		32D1E7111B20C3170032AE29 /* holding_portrait.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_portrait.jpg; sourceTree = "<group>"; };
+		32D1E7121B20C3170032AE29 /* ipad_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = ipad_on_table.jpg; sourceTree = "<group>"; };
+		32D1E7131B20C3170032AE29 /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
+		32D1E7141B20C3170032AE29 /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
+		32D1E7151B20C3170032AE29 /* RCCalibration1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration1.h; sourceTree = "<group>"; };
+		32D1E7161B20C3170032AE29 /* RCCalibration1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration1.m; sourceTree = "<group>"; };
+		32D1E7171B20C3170032AE29 /* RCCalibration2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration2.h; sourceTree = "<group>"; };
+		32D1E7181B20C3170032AE29 /* RCCalibration2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration2.m; sourceTree = "<group>"; };
+		32D1E7191B20C3170032AE29 /* RCCalibration3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration3.h; sourceTree = "<group>"; };
+		32D1E71A1B20C3170032AE29 /* RCCalibration3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration3.m; sourceTree = "<group>"; };
 		32DB2BE617C28AC9001F7E5D /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		32EEC84D17B97D1900A0DF49 /* MPMeasurementView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPMeasurementView.h; sourceTree = "<group>"; };
 		32EEC84E17B97D1900A0DF49 /* MPMeasurementView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPMeasurementView.m; sourceTree = "<group>"; };
@@ -1098,26 +1091,6 @@
 				323BD0101A0D798900313573 /* libFlurry_5.4.0.a */,
 			);
 			path = Flurry;
-			sourceTree = "<group>";
-		};
-		3244D38718E60F4600AB0DE0 /* Calibration */ = {
-			isa = PBXGroup;
-			children = (
-				3246689818E62B6700A3DF62 /* holding_landscape.jpg */,
-				3246689918E62B6700A3DF62 /* holding_portrait.jpg */,
-				3246689318E62B5400A3DF62 /* ipad_on_table.jpg */,
-				3244D39318E6134500AB0DE0 /* MBProgressHUD.h */,
-				3244D39418E6134500AB0DE0 /* MBProgressHUD.m */,
-				3244D38818E60F4600AB0DE0 /* Calibration.storyboard */,
-				3244D38918E60F4600AB0DE0 /* RCCalibration1.h */,
-				3244D38A18E60F4600AB0DE0 /* RCCalibration1.m */,
-				3244D38B18E60F4600AB0DE0 /* RCCalibration2.h */,
-				3244D38C18E60F4600AB0DE0 /* RCCalibration2.m */,
-				3244D38D18E60F4600AB0DE0 /* RCCalibration3.h */,
-				3244D38E18E60F4600AB0DE0 /* RCCalibration3.m */,
-			);
-			name = Calibration;
-			path = ../../Calibration;
 			sourceTree = "<group>";
 		};
 		326ACD5419D2213200B36965 /* CustomIOS7AlertView */ = {
@@ -1603,8 +1576,8 @@
 		32BA42A217A2DF8B002BAE13 /* MeasuredPhoto */ = {
 			isa = PBXGroup;
 			children = (
+				32D1E70E1B20C3170032AE29 /* Calibration */,
 				328C7DD419D1E9B90079BA40 /* Media */,
-				3244D38718E60F4600AB0DE0 /* Calibration */,
 				32934CD218D8D9A1005DC87C /* HTML */,
 				32BA430317A2EDE0002BAE13 /* ThirdParty */,
 				32BA42DC17A2E177002BAE13 /* Models */,
@@ -1767,7 +1740,6 @@
 			isa = PBXGroup;
 			children = (
 				32BA434017A2EFF2002BAE13 /* libRCCore.a */,
-				32BA434217A2EFF2002BAE13 /* RCCoreTests.octest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1791,6 +1763,26 @@
 				32C135C71892E6F5004DF62B /* kb-loupe-hi.png */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		32D1E70E1B20C3170032AE29 /* Calibration */ = {
+			isa = PBXGroup;
+			children = (
+				32D1E70F1B20C3170032AE29 /* Calibration.storyboard */,
+				32D1E7101B20C3170032AE29 /* holding_landscape.jpg */,
+				32D1E7111B20C3170032AE29 /* holding_portrait.jpg */,
+				32D1E7121B20C3170032AE29 /* ipad_on_table.jpg */,
+				32D1E7131B20C3170032AE29 /* MBProgressHUD.h */,
+				32D1E7141B20C3170032AE29 /* MBProgressHUD.m */,
+				32D1E7151B20C3170032AE29 /* RCCalibration1.h */,
+				32D1E7161B20C3170032AE29 /* RCCalibration1.m */,
+				32D1E7171B20C3170032AE29 /* RCCalibration2.h */,
+				32D1E7181B20C3170032AE29 /* RCCalibration2.m */,
+				32D1E7191B20C3170032AE29 /* RCCalibration3.h */,
+				32D1E71A1B20C3170032AE29 /* RCCalibration3.m */,
+			);
+			name = Calibration;
+			path = ../../QuickstartKit/QuickstartKit/Calibration;
 			sourceTree = "<group>";
 		};
 		32EFECE5196C91CE00FDC89F /* MagicalRecord */ = {
@@ -2010,13 +2002,6 @@
 			remoteRef = 32BA433F17A2EFF2002BAE13 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		32BA434217A2EFF2002BAE13 /* RCCoreTests.octest */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = RCCoreTests.octest;
-			remoteRef = 32BA434117A2EFF2002BAE13 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
@@ -2075,7 +2060,6 @@
 				32BA42A717A2DF8B002BAE13 /* InfoPlist.strings in Resources */,
 				326ACF1F19D2221B00B36965 /* osk-icon-border-76@2x.png in Resources */,
 				326ACF0519D2221B00B36965 /* osk-appStoreIcon-76.png in Resources */,
-				3244D38F18E60F4600AB0DE0 /* Calibration.storyboard in Resources */,
 				32BA42B617A2DF8B002BAE13 /* MainStoryboard_iPhone.storyboard in Resources */,
 				17A377BF198307110002CCAA /* rc_measurements.js in Resources */,
 				17152FF61A12C136003AD447 /* rc_messages.js in Resources */,
@@ -2139,6 +2123,7 @@
 				326ACF0C19D2221B00B36965 /* osk-copyIcon-yellow-29.png in Resources */,
 				326ACF3619D2221B00B36965 /* osk-photosIcon-29@2x.png in Resources */,
 				324DB32C195B8D310004567A /* depth_data.js in Resources */,
+				32D1E71B1B20C3170032AE29 /* Calibration.storyboard in Resources */,
 				326ACF0B19D2221B00B36965 /* osk-copyIcon-purple-76@2x.png in Resources */,
 				326ACF6419D2221B00B36965 /* Things-Icon-76.png in Resources */,
 				326ACF0F19D2221B00B36965 /* osk-copyIcon-yellow-76.png in Resources */,
@@ -2166,11 +2151,14 @@
 				326ACF5B19D2221B00B36965 /* ReadingList-Icon-60@2x.png in Resources */,
 				326ACF3F19D2221B00B36965 /* osk-readabilityIcon-29.png in Resources */,
 				326ACEEE19D2221B00B36965 /* Instapaper-Icon-120.png in Resources */,
+				32D1E71D1B20C3170032AE29 /* holding_portrait.jpg in Resources */,
 				32C135CB1892E6F5004DF62B /* kb-loupe-hi.png in Resources */,
 				326ACF2919D2221B00B36965 /* osk-mailIcon-76@2x.png in Resources */,
 				326ACEEF19D2221B00B36965 /* Instapaper-Icon-29.png in Resources */,
 				326ACF6119D2221B00B36965 /* Things-Icon-29.png in Resources */,
 				326ACF4219D2221B00B36965 /* osk-readabilityIcon-76.png in Resources */,
+				32D1E71C1B20C3170032AE29 /* holding_landscape.jpg in Resources */,
+				32D1E71E1B20C3170032AE29 /* ipad_on_table.jpg in Resources */,
 				326ACF5F19D2221B00B36965 /* Riposte-Icon-76.png in Resources */,
 				D9E331C51A0B0DBB0037DFE6 /* shader.vsh in Resources */,
 				326ACF3219D2221B00B36965 /* osk-navbarButton-highlighted@2x.png in Resources */,
@@ -2183,7 +2171,6 @@
 				326ACF3119D2221B00B36965 /* osk-navbarButton-highlighted.png in Resources */,
 				326ACF4619D2221B00B36965 /* osk-safariIcon-60@2x.png in Resources */,
 				326ACEFD19D2221B00B36965 /* osk-airDropIcon-60@2x.png in Resources */,
-				3246689B18E62B6700A3DF62 /* holding_landscape.jpg in Resources */,
 				326ACF0919D2221B00B36965 /* osk-copyIcon-purple-60@2x.png in Resources */,
 				326ACF2819D2221B00B36965 /* osk-mailIcon-76.png in Resources */,
 				326ACF6319D2221B00B36965 /* Things-Icon-60@2x.png in Resources */,
@@ -2203,10 +2190,8 @@
 				326ACF3319D2221B00B36965 /* osk-navbarButton.png in Resources */,
 				326ACEE919D2221B00B36965 /* GooglePlus-Icon-29@2x.png in Resources */,
 				32745D6B18930889000C68F4 /* kb-loupe-hi@2x.png in Resources */,
-				3246689418E62B5400A3DF62 /* ipad_on_table.jpg in Resources */,
 				326ACF6519D2221B00B36965 /* Things-Icon-76@2x.png in Resources */,
 				326ACEEC19D2221B00B36965 /* GooglePlus-Icon-76.png in Resources */,
-				3246689C18E62B6700A3DF62 /* holding_portrait.jpg in Resources */,
 				326ACF4419D2221B00B36965 /* osk-safariIcon-29.png in Resources */,
 				326ACEE619D2221B00B36965 /* Drafts-Icon-76.png in Resources */,
 				326ACEED19D2221B00B36965 /* GooglePlus-Icon-76@2x.png in Resources */,
@@ -2252,6 +2237,7 @@
 				32EFED2E196C91CE00FDC89F /* NSManagedObject+MagicalRequests.m in Sources */,
 				32BA42A917A2DF8B002BAE13 /* main.m in Sources */,
 				32EFEDA619744A9800FDC89F /* MPNativeAction.m in Sources */,
+				32D1E7211B20C3170032AE29 /* RCCalibration2.m in Sources */,
 				326ACFC019D2221B00B36965 /* OSKTwitterTextEntity.m in Sources */,
 				3248C7DE18A4515000061D4A /* MPShutterButton.m in Sources */,
 				32EFED86196E078F00FDC89F /* SBJsonStreamParserState.m in Sources */,
@@ -2265,6 +2251,7 @@
 				32EFED32196C91CE00FDC89F /* NSManagedObjectContext+MagicalThreading.m in Sources */,
 				D9E331C11A0B0D8E0037DFE6 /* MPARDelegate.m in Sources */,
 				32EFED2C196C91CE00FDC89F /* NSManagedObject+MagicalFinders.m in Sources */,
+				32D1E7201B20C3170032AE29 /* RCCalibration1.m in Sources */,
 				326ACF9319D2221B00B36965 /* OSKFacebookUtility.m in Sources */,
 				326ACF7D19D2221B00B36965 /* OSKActivityOperation.m in Sources */,
 				326ACFA619D2221B00B36965 /* OSKPagedHorizontalLayout.m in Sources */,
@@ -2312,7 +2299,6 @@
 				326ACF9919D2221B00B36965 /* OSKLinkShorteningUtility.m in Sources */,
 				326ACF8419D2221B00B36965 /* OSKAlertView.m in Sources */,
 				32EFED23196C91CE00FDC89F /* MagicalImportFunctions.m in Sources */,
-				3244D39218E60F4600AB0DE0 /* RCCalibration3.m in Sources */,
 				326ACFAF19D2221B00B36965 /* OSKRPSTPasswordManagementAppService.m in Sources */,
 				326ACFB819D2221B00B36965 /* OSKSmartPunctuation.m in Sources */,
 				326ACF8319D2221B00B36965 /* OSKAirDropViewController.m in Sources */,
@@ -2320,10 +2306,10 @@
 				32EFED81196E078F00FDC89F /* NSObject+SBJson.m in Sources */,
 				326ACF6C19D2221B00B36965 /* NSString+OSK_UUID.m in Sources */,
 				326ACFBA19D2221B00B36965 /* OSKSystemAccountStore.m in Sources */,
+				32D1E7221B20C3170032AE29 /* RCCalibration3.m in Sources */,
 				326ACF7219D2221B00B36965 /* OSKAccountManagementViewController.m in Sources */,
 				32EFED38196C91CE00FDC89F /* MagicalRecord+iCloud.m in Sources */,
 				32EFED39196C91CE00FDC89F /* MagicalRecord+Options.m in Sources */,
-				3244D39018E60F4600AB0DE0 /* RCCalibration1.m in Sources */,
 				326ACFCC19D2221B00B36965 /* UIDevice+OSKHardware.m in Sources */,
 				326ACF9E19D2221B00B36965 /* OSKMessageComposeViewController.m in Sources */,
 				32EFED27196C91CE00FDC89F /* NSObject+MagicalDataImport.m in Sources */,
@@ -2334,6 +2320,7 @@
 				326ACFC619D2221B00B36965 /* OSKWebViewController.m in Sources */,
 				326ACFCB19D2221B00B36965 /* UIColor+OSKUtility.m in Sources */,
 				32AC641D1991500200699A2E /* MPDLocation.m in Sources */,
+				32D1E71F1B20C3170032AE29 /* MBProgressHUD.m in Sources */,
 				3298E9EF18A58ECC0017209B /* MPDotLayerDelegate.m in Sources */,
 				32EFED31196C91CE00FDC89F /* NSManagedObjectContext+MagicalSaves.m in Sources */,
 				32745D621892EFF5000C68F4 /* MPImageView.m in Sources */,
@@ -2343,7 +2330,6 @@
 				326ACF8D19D2221B00B36965 /* OSKDraftsActivity.m in Sources */,
 				326ACD5119D2212C00B36965 /* CustomIOS7AlertView.m in Sources */,
 				32EFED2F196C91CE00FDC89F /* NSManagedObjectContext+MagicalObserving.m in Sources */,
-				3244D39118E60F4600AB0DE0 /* RCCalibration2.m in Sources */,
 				322C371418A18AB6001C69C2 /* MPCircleLayerDelegate.m in Sources */,
 				326ACFC219D2221B00B36965 /* OSKUITextViewSubstitute.m in Sources */,
 				326ACF7519D2221B00B36965 /* OSKActivitiesManager.m in Sources */,
@@ -2366,7 +2352,6 @@
 				32BA433417A2EF4E002BAE13 /* MPLineLayerDelegate.m in Sources */,
 				32EFED89196E078F00FDC89F /* SBJsonStreamWriterState.m in Sources */,
 				326ACF9019D2221B00B36965 /* OSKFacebookAudienceChooserViewController.m in Sources */,
-				3244D39518E6134500AB0DE0 /* MBProgressHUD.m in Sources */,
 				328C7DD719D1EA420079BA40 /* MPIntroScreen.m in Sources */,
 				326ACFAB19D2221B00B36965 /* OSKPresentationManager.m in Sources */,
 				32745D691892FBCE000C68F4 /* MPLoupe.m in Sources */,

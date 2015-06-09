@@ -8,6 +8,10 @@ namespace RealityCap
 {
     class calibration_json_store : public calibration_data_store
     {
+    private:
+        string calibrationLocation{""};
+        void ParseCalibrationFile(string fileName, corvis_device_parameters &cal);
+
     public:
         static unique_ptr<calibration_data_store> GetStore() = delete; // TODO: there's probabaly a better design that doesn't require this
         calibration_json_store();
@@ -22,5 +26,7 @@ namespace RealityCap
         virtual bool SaveCalibration(const corvis_device_parameters &calibration, const char* fileName); // TODO delete
         virtual bool ClearCalibration() override;
         virtual bool HasCalibration() override;
+
+        void SetCalibrationLocation(string location) { calibrationLocation = location; };
     };
 }

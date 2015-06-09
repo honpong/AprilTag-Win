@@ -196,12 +196,13 @@ bool RealityCap::calibration_json_store::DeserializeCalibration(const utility::s
     return true;
 }
 
-void ParseCalibrationFile(string fileName, corvis_device_parameters &cal)
+void calibration_json_store::ParseCalibrationFile(string fileName, corvis_device_parameters &cal)
 {
-    if (!FileExists(fileName)) throw runtime_error("Calibration file not found.");
+    string fullName = calibrationLocation + fileName;
+    if (!FileExists(fullName)) throw runtime_error("Calibration file not found.");
 
     utility::ifstream_t jsonFile;
-    jsonFile.open(fileName);
+    jsonFile.open(fullName);
     if (jsonFile.fail()) throw runtime_error("Failed to open calibration file.");
     value json = value::parse(jsonFile);
 
@@ -210,7 +211,7 @@ void ParseCalibrationFile(string fileName, corvis_device_parameters &cal)
 
 bool RealityCap::calibration_json_store::LoadCalibration(corvis_device_parameters &cal)
 {
-    if (FileExists(CALIBRATION_FILE_NAME))
+    if (FileExists(calibrationLocation + CALIBRATION_FILE_NAME))
     {
         ParseCalibrationFile(CALIBRATION_FILE_NAME, cal);
         return true;
@@ -224,7 +225,7 @@ bool RealityCap::calibration_json_store::LoadCalibration(corvis_device_parameter
 bool RealityCap::calibration_json_store::LoadCalibrationDefaults(const corvis_device_type deviceType, corvis_device_parameters &cal)
 {
     string fileName = GetCalibrationDefaultsFileName(deviceType);
-    if (FileExists(fileName))
+    if (FileExists(calibrationLocation + fileName))
     {
         ParseCalibrationFile(fileName, cal);
         return true;
@@ -248,7 +249,7 @@ bool calibration_json_store::SaveCalibration(const corvis_device_parameters &cal
         CopyStructToJson(cal, json);
 
         utility::ofstream_t jsonFile;
-        jsonFile.open(fileName);
+        jsonFile.open(calibrationLocation + fileName);
         if (jsonFile.fail()) throw runtime_error("Failed to open calibration file for writing.");
         jsonFile << json;
         jsonFile.close();

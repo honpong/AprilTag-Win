@@ -117,6 +117,7 @@ TEST(calibration_json_store_tests, SerializeDeserialize)
 {
     corvis_device_parameters cal, calDeserialized;
     calibration_json_store calStore;
+    calStore.SetCalibrationLocation("calibration/");
     EXPECT_TRUE(calStore.LoadCalibrationDefaults(DEVICE_TYPE_UNKNOWN, cal));
 
     try

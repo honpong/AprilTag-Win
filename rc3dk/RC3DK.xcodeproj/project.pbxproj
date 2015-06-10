@@ -401,8 +401,6 @@
 		327B54DF18EB4CC90001CCE1 /* libRC3DK.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libRC3DK.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		327B54E218EB4CC90001CCE1 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		327B54E618EB4CC90001CCE1 /* RC3DK-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "RC3DK-Prefix.pch"; sourceTree = "<group>"; };
-		327B54F018EB4CC90001CCE1 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
-		327B54F318EB4CC90001CCE1 /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = Library/Frameworks/UIKit.framework; sourceTree = DEVELOPER_DIR; };
 		327B552318EB4D720001CCE1 /* AFNetworking.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AFNetworking.h; sourceTree = "<group>"; };
 		327B552418EB4D720001CCE1 /* RCAFHTTPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCAFHTTPClient.h; sourceTree = "<group>"; };
 		327B552518EB4D720001CCE1 /* RCAFHTTPClient.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCAFHTTPClient.m; sourceTree = "<group>"; };
@@ -864,8 +862,6 @@
 				D31EC5371A5F1E5B0003379A /* libzxing.a */,
 				327B563518EB5ECA0001CCE1 /* OpenGLES.framework */,
 				327B54E218EB4CC90001CCE1 /* Foundation.framework */,
-				327B54F018EB4CC90001CCE1 /* XCTest.framework */,
-				327B54F318EB4CC90001CCE1 /* UIKit.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";

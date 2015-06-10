@@ -207,7 +207,7 @@ void ExitCalibratingState()
 
 void EnterLiveVisState()
 {
-    appState = Live;
+    if (appState != Idle) return;
     SetWindowText(hStatusLabel, TEXT("Starting live visualization..."));
     trackMan->SetDelegate(&repDelegate);
     bool result = trackMan->Start();
@@ -215,8 +215,9 @@ void EnterLiveVisState()
     {
         SetWindowText(hStatusLabel, TEXT("Running live visualization..."));
         SetWindowText(hLiveButton, TEXT("Stop Live"));
-        vis.start();
         appState = Live;
+        vis.start(); // blocks until vis window is closed
+        ExitLiveVisState();
     }
     else
     {
@@ -491,7 +492,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
             }
             break;
         case IDB_LIVE:
-            appState == Live? ExitLiveVisState() : EnterLiveVisState();
+            EnterLiveVisState();
             break;
         case IDB_REPLAY:
             OpenReplayFilePicker();

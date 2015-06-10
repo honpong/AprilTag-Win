@@ -72,8 +72,6 @@
 		32D1E7321B20C3490032AE29 /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32D1E7261B20C3490032AE29 /* holding_portrait.jpg */; };
 		32D1E7331B20C3490032AE29 /* ipad_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32D1E7271B20C3490032AE29 /* ipad_on_table.jpg */; };
 		32D1E7341B20C3490032AE29 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D1E7291B20C3490032AE29 /* MBProgressHUD.m */; };
-		32D1E7351B20C3490032AE29 /* RCCalibration1.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D1E72B1B20C3490032AE29 /* RCCalibration1.m */; };
-		32D1E7361B20C3490032AE29 /* RCCalibration2.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D1E72D1B20C3490032AE29 /* RCCalibration2.m */; };
 		32D1E7371B20C3490032AE29 /* RCCalibration3.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D1E72F1B20C3490032AE29 /* RCCalibration3.m */; };
 		32DD2AAF1B200AC000B44447 /* RCReplayManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = D33E61DC1ADD4ABA00569C82 /* RCReplayManager.mm */; };
 		32DD2AC41B200B1200B44447 /* arcball.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32DD2AB21B200B1200B44447 /* arcball.cpp */; };
@@ -238,6 +236,8 @@
 		D3B4EB4F1A1E7DE100BE0443 /* RCVector.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B556718EB4DC20001CCE1 /* RCVector.h */; };
 		D3B4EB501A1E7DE100BE0443 /* RCSensorFusion.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B555D18EB4DC20001CCE1 /* RCSensorFusion.h */; };
 		D3B4EB511A1E7DE100BE0443 /* RCDeviceInfo.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 327B554F18EB4DC20001CCE1 /* RCDeviceInfo.h */; };
+		D3B9FCCC1B287FEF00C79FA1 /* RCCalibration1.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D1E72B1B20C3490032AE29 /* RCCalibration1.m */; };
+		D3B9FCCD1B287FEF00C79FA1 /* RCCalibration2.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D1E72D1B20C3490032AE29 /* RCCalibration2.m */; };
 		D3C0EDFA1A37B4DC00423EDE /* qr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3C0EDF81A37B4DC00423EDE /* qr.cpp */; };
 		D3C0EDFB1A37B4DC00423EDE /* qr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3C0EDF81A37B4DC00423EDE /* qr.cpp */; };
 		D3F4C7141AF0D48A003D4D0B /* device_parameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F4C7131AF0D48A003D4D0B /* device_parameters.cpp */; };
@@ -1667,6 +1667,7 @@
 			files = (
 				D35BF0E81ADD11DB00BF3CB0 /* RoundedButton.m in Sources */,
 				32DD2AC41B200B1200B44447 /* arcball.cpp in Sources */,
+				D3B9FCCC1B287FEF00C79FA1 /* RCCalibration1.m in Sources */,
 				32DD2AAF1B200AC000B44447 /* RCReplayManager.mm in Sources */,
 				D35BF0AD1ADD111500BF3CB0 /* AppDelegate.m in Sources */,
 				32DD2AC91B200B1200B44447 /* render.cpp in Sources */,
@@ -1674,16 +1675,15 @@
 				32DD2AC51B200B1200B44447 /* gl_util.cpp in Sources */,
 				D35BF0AA1ADD111500BF3CB0 /* main.m in Sources */,
 				D35BF0E61ADD11DB00BF3CB0 /* MainViewController.m in Sources */,
-				D35BF0F81ADD122800BF3CB0 /* MBProgressHUD.m in Sources */,
 				D983B2AA1B1695D40013099E /* RCSensorData.mm in Sources */,
 				D35BF0E71ADD11DB00BF3CB0 /* ReplayViewController.m in Sources */,
 				32DD2ACA1B200B1200B44447 /* video_render.cpp in Sources */,
 				D35BF0E41ADD11DB00BF3CB0 /* CaptureFilename.m in Sources */,
-				D3AF77151B09ED5000BF9436 /* render.cpp in Sources */,
 				32DD2ACC1B200B1200B44447 /* world_state_render.cpp in Sources */,
 				D326CED71ADFC62C003B026B /* CaptureViewController.mm in Sources */,
 				32DD2ACB1B200B1200B44447 /* world_state.cpp in Sources */,
 				D34A0BE51ADFDB04008DFCCF /* VisualizationController.mm in Sources */,
+				D3B9FCCD1B287FEF00C79FA1 /* RCCalibration2.m in Sources */,
 				32D1E7341B20C3490032AE29 /* MBProgressHUD.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

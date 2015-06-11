@@ -89,7 +89,6 @@
 		388998C31B26B1760077DAA7 /* json.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 388998BE1B26B1760077DAA7 /* json.cpp */; };
 		388998C51B26B1880077DAA7 /* calibration_json_store.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 388998B31B26B0490077DAA7 /* calibration_json_store.cpp */; };
 		388998C61B26B1900077DAA7 /* calibration_data_store.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 388998B11B26B03C0077DAA7 /* calibration_data_store.cpp */; };
-		388998F21B26BCC20077DAA7 /* boost.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 388998F11B26BCC20077DAA7 /* boost.a */; };
 		388998F41B26BDC30077DAA7 /* asyncrt_utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 388998F31B26BDC30077DAA7 /* asyncrt_utils.cpp */; };
 		388998F51B26BDFE0077DAA7 /* asyncrt_utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 388998F31B26BDC30077DAA7 /* asyncrt_utils.cpp */; };
 		388998F61B26BE030077DAA7 /* json_parsing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 388998BC1B26B1760077DAA7 /* json_parsing.cpp */; };
@@ -709,7 +708,6 @@
 				327B563918EB5F0A0001CCE1 /* OpenGLES.framework in Frameworks */,
 				D31EC5381A5F1E5B0003379A /* libzxing.a in Frameworks */,
 				327B54E318EB4CC90001CCE1 /* Foundation.framework in Frameworks */,
-				388998F21B26BCC20077DAA7 /* boost.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2123,7 +2121,6 @@
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../ThirdParty/casablanca/Release/include/",
 					"$(SRCROOT)/../ThirdParty/casablanca/Release/src/pch/",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/include/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2258,7 +2255,6 @@
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../ThirdParty/casablanca/Release/include/",
 					"$(SRCROOT)/../ThirdParty/casablanca/Release/src/pch/",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/include/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2301,7 +2297,6 @@
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../ThirdParty/casablanca/Release/include/",
 					"$(SRCROOT)/../ThirdParty/casablanca/Release/src/pch/",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/include/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2389,7 +2384,6 @@
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../ThirdParty/casablanca/Release/include/",
 					"$(SRCROOT)/../ThirdParty/casablanca/Release/src/pch/",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/include/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2477,7 +2471,6 @@
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../ThirdParty/casablanca/Release/include/",
 					"$(SRCROOT)/../ThirdParty/casablanca/Release/src/pch/",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/include/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2656,7 +2649,6 @@
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../ThirdParty/casablanca/Release/include/",
 					"$(SRCROOT)/../ThirdParty/casablanca/Release/src/pch/",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/include/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2792,7 +2784,6 @@
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../ThirdParty/casablanca/Release/include/",
 					"$(SRCROOT)/../ThirdParty/casablanca/Release/src/pch/",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/include/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",

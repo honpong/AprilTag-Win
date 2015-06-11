@@ -30,11 +30,11 @@ using namespace Platform;
 using namespace Windows::Storage::Streams;
 #endif // #if !defined(__cplusplus_winrt)
 
-#ifndef _WIN32
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/date_time/posix_time/posix_time_io.hpp>
-using namespace boost::locale::conv;
-#endif
+//#ifndef _WIN32
+//#include <boost/date_time/posix_time/posix_time.hpp>
+//#include <boost/date_time/posix_time/posix_time_io.hpp>
+//using namespace boost::locale::conv;
+//#endif
 
 #ifdef __APPLE__
 #include <CoreFoundation/CoreFoundation.h>
@@ -256,244 +256,244 @@ const std::error_category & __cdecl linux_category()
 
 }
 
-utf16string __cdecl conversions::utf8_to_utf16(const std::string &s)
-{
-    if(s.empty())
-    {
-        return utf16string();
-    }
+//utf16string __cdecl conversions::utf8_to_utf16(const std::string &s)
+//{
+//    if(s.empty())
+//    {
+//        return utf16string();
+//    }
+//
+//#ifdef _WIN32
+//    // first find the size
+//    int size = ::MultiByteToWideChar(
+//        CP_UTF8, // convert to utf-8
+//        MB_ERR_INVALID_CHARS, // fail if any characters can't be translated
+//        s.c_str(),
+//        (int)s.size(),
+//        nullptr, 0); // must be null for utf8
+//
+//    if (size == 0)
+//    {
+//        throw utility::details::create_system_error(GetLastError());
+//    }
+//
+//    utf16string buffer;
+//    buffer.resize(size);
+//
+//    // now call again to format the string
+//    const int result = ::MultiByteToWideChar(
+//        CP_UTF8, // convert to utf-8
+//        MB_ERR_INVALID_CHARS, // fail if any characters can't be translated
+//        s.c_str(),
+//        (int)s.size(),
+//        &buffer[0], size); // must be null for utf8
+//    if (result != size)
+//    {
+//        throw utility::details::create_system_error(GetLastError());
+//    }
+//
+//    return buffer;
+//#else
+//    return utf_to_utf<utf16char>(s, stop);
+//#endif
+//}
 
-#ifdef _WIN32
-    // first find the size
-    int size = ::MultiByteToWideChar(
-        CP_UTF8, // convert to utf-8
-        MB_ERR_INVALID_CHARS, // fail if any characters can't be translated
-        s.c_str(),
-        (int)s.size(),
-        nullptr, 0); // must be null for utf8
-
-    if (size == 0)
-    {
-        throw utility::details::create_system_error(GetLastError());
-    }
-
-    utf16string buffer;
-    buffer.resize(size);
-
-    // now call again to format the string
-    const int result = ::MultiByteToWideChar(
-        CP_UTF8, // convert to utf-8
-        MB_ERR_INVALID_CHARS, // fail if any characters can't be translated
-        s.c_str(),
-        (int)s.size(),
-        &buffer[0], size); // must be null for utf8
-    if (result != size)
-    {
-        throw utility::details::create_system_error(GetLastError());
-    }
-
-    return buffer;
-#else
-    return utf_to_utf<utf16char>(s, stop);
-#endif
-}
-
-std::string __cdecl conversions::utf16_to_utf8(const utf16string &w)
-{
-    if(w.empty())
-    {
-        return std::string();
-    }
-
-#ifdef _WIN32
-    // first find the size
-    const int size = ::WideCharToMultiByte(
-        CP_UTF8, // convert to utf-8
-#if _WIN32_WINNT >= _WIN32_WINNT_VISTA
-        WC_ERR_INVALID_CHARS, // fail if any characters can't be translated
-#else
-        0, // ERROR_INVALID_FLAGS is not supported in XP, set this dwFlags to 0
-#endif // _WIN32_WINNT >= _WIN32_WINNT_VISTA
-        w.c_str(),
-        (int)w.size(),
-        nullptr, 0, // find the size required
-        nullptr, nullptr); // must be null for utf8
-
-    if (size == 0)
-    {
-        throw utility::details::create_system_error(GetLastError());
-    }
-
-    std::string buffer;
-    buffer.resize(size);
-
-    // now call again to format the string
-    const int result = ::WideCharToMultiByte(
-        CP_UTF8, // convert to utf-8
-#if _WIN32_WINNT >= _WIN32_WINNT_VISTA
-        WC_ERR_INVALID_CHARS, // fail if any characters can't be translated
-#else
-        0, // ERROR_INVALID_FLAGS is not supported in XP, set this dwFlags to 0
-#endif // _WIN32_WINNT >= _WIN32_WINNT_VISTA
-        w.c_str(),
-        (int)w.size(),
-        &buffer[0], size,
-        nullptr, nullptr); // must be null for utf8
-
-    if (result != size)
-    {
-        throw utility::details::create_system_error(GetLastError());
-    }
-
-    return buffer;
-#else
-    return utf_to_utf<char>(w, stop);
-#endif
-}
-
-utf16string __cdecl conversions::usascii_to_utf16(const std::string &s)
-{
-    if(s.empty())
-    {
-        return utf16string();
-    }
-
-#ifdef _WIN32
-    int size = ::MultiByteToWideChar(
-        20127, // convert from us-ascii
-        MB_ERR_INVALID_CHARS, // fail if any characters can't be translated
-        s.c_str(),
-        (int)s.size(),
-        nullptr, 0);
-
-    if (size == 0)
-    {
-        throw utility::details::create_system_error(GetLastError());
-    }
-
-    // this length includes the terminating null
-    std::wstring buffer;
-    buffer.resize(size);
-
-    // now call again to format the string
-    int result = ::MultiByteToWideChar(
-        20127, // convert from us-ascii
-        MB_ERR_INVALID_CHARS, // fail if any characters can't be translated
-        s.c_str(),
-        (int)s.size(),
-        &buffer[0], size);
-    if (result != size)
-    {
-        throw utility::details::create_system_error(GetLastError());
-    }
-
-    return buffer;
-#else
-    return utf_to_utf<utf16char>(to_utf<char>(s, "ascii", stop));
-#endif
-}
-
-utf16string __cdecl conversions::latin1_to_utf16(const std::string &s)
-{
-    if(s.empty())
-    {
-        return utf16string();
-    }
-
-#ifdef _WIN32
-    int size = ::MultiByteToWideChar(
-        28591, // convert from Latin1
-        MB_ERR_INVALID_CHARS, // fail if any characters can't be translated
-        s.c_str(),
-        (int)s.size(),
-        nullptr, 0);
-
-    if (size == 0)
-    {
-        throw utility::details::create_system_error(GetLastError());
-    }
-
-    // this length includes the terminating null
-    std::wstring buffer;
-    buffer.resize(size);
-
-    // now call again to format the string
-    int result = ::MultiByteToWideChar(
-        28591, // convert from Latin1
-        MB_ERR_INVALID_CHARS, // fail if any characters can't be translated
-        s.c_str(),
-        (int)s.size(),
-        &buffer[0], size);
-
-    if (result != size)
-    {
-        throw utility::details::create_system_error(GetLastError());
-    }
-
-    return buffer;
-#else
-    return utf_to_utf<utf16char>(to_utf<char>(s, "Latin1", stop));
-#endif
-}
-
-utf8string __cdecl conversions::latin1_to_utf8(const std::string &s)
-{
-    if (s.empty())
-    {
-        return utf8string();
-    }
-
-#ifdef _WIN32
-    // Not aware of a Windows function to perform to round trip
-    // the conversion. Latin1 isn't a common case so use easy to code solution.
-    return utf16_to_utf8(latin1_to_utf16(s));
-#else
-    return to_utf<utf8char>(s, "Latin1");
-#endif
-}
-
-utf16string __cdecl conversions::default_code_page_to_utf16(const std::string &s)
-{
-    if(s.empty())
-    {
-        return utf16string();
-    }
-
-#ifdef _WIN32
-    int size = ::MultiByteToWideChar(
-        CP_ACP, // convert from Windows system default
-        MB_ERR_INVALID_CHARS, // fail if any characters can't be translated
-        s.c_str(),
-        (int)s.size(),
-        nullptr, 0);
-    if (size == 0)
-    {
-        throw utility::details::create_system_error(GetLastError());
-    }
-
-    // this length includes the terminating null
-    std::wstring buffer;
-    buffer.resize(size);
-
-    // now call again to format the string
-    int result = ::MultiByteToWideChar(
-        CP_ACP, // convert from Windows system default
-        MB_ERR_INVALID_CHARS, // fail if any characters can't be translated
-        s.c_str(),
-        (int)s.size(),
-        &buffer[0], size);
-    if(result == size)
-    {
-        return buffer;
-    }
-    else
-    {
-        throw utility::details::create_system_error(GetLastError());
-    }
-#else
-    return utf_to_utf<utf16char>(to_utf<char>(s, std::locale(""), stop));
-#endif
-}
+//std::string __cdecl conversions::utf16_to_utf8(const utf16string &w)
+//{
+//    if(w.empty())
+//    {
+//        return std::string();
+//    }
+//
+//#ifdef _WIN32
+//    // first find the size
+//    const int size = ::WideCharToMultiByte(
+//        CP_UTF8, // convert to utf-8
+//#if _WIN32_WINNT >= _WIN32_WINNT_VISTA
+//        WC_ERR_INVALID_CHARS, // fail if any characters can't be translated
+//#else
+//        0, // ERROR_INVALID_FLAGS is not supported in XP, set this dwFlags to 0
+//#endif // _WIN32_WINNT >= _WIN32_WINNT_VISTA
+//        w.c_str(),
+//        (int)w.size(),
+//        nullptr, 0, // find the size required
+//        nullptr, nullptr); // must be null for utf8
+//
+//    if (size == 0)
+//    {
+//        throw utility::details::create_system_error(GetLastError());
+//    }
+//
+//    std::string buffer;
+//    buffer.resize(size);
+//
+//    // now call again to format the string
+//    const int result = ::WideCharToMultiByte(
+//        CP_UTF8, // convert to utf-8
+//#if _WIN32_WINNT >= _WIN32_WINNT_VISTA
+//        WC_ERR_INVALID_CHARS, // fail if any characters can't be translated
+//#else
+//        0, // ERROR_INVALID_FLAGS is not supported in XP, set this dwFlags to 0
+//#endif // _WIN32_WINNT >= _WIN32_WINNT_VISTA
+//        w.c_str(),
+//        (int)w.size(),
+//        &buffer[0], size,
+//        nullptr, nullptr); // must be null for utf8
+//
+//    if (result != size)
+//    {
+//        throw utility::details::create_system_error(GetLastError());
+//    }
+//
+//    return buffer;
+//#else
+//    return utf_to_utf<char>(w, stop);
+//#endif
+//}
+//
+//utf16string __cdecl conversions::usascii_to_utf16(const std::string &s)
+//{
+//    if(s.empty())
+//    {
+//        return utf16string();
+//    }
+//
+//#ifdef _WIN32
+//    int size = ::MultiByteToWideChar(
+//        20127, // convert from us-ascii
+//        MB_ERR_INVALID_CHARS, // fail if any characters can't be translated
+//        s.c_str(),
+//        (int)s.size(),
+//        nullptr, 0);
+//
+//    if (size == 0)
+//    {
+//        throw utility::details::create_system_error(GetLastError());
+//    }
+//
+//    // this length includes the terminating null
+//    std::wstring buffer;
+//    buffer.resize(size);
+//
+//    // now call again to format the string
+//    int result = ::MultiByteToWideChar(
+//        20127, // convert from us-ascii
+//        MB_ERR_INVALID_CHARS, // fail if any characters can't be translated
+//        s.c_str(),
+//        (int)s.size(),
+//        &buffer[0], size);
+//    if (result != size)
+//    {
+//        throw utility::details::create_system_error(GetLastError());
+//    }
+//
+//    return buffer;
+//#else
+//    return utf_to_utf<utf16char>(to_utf<char>(s, "ascii", stop));
+//#endif
+//}
+//
+//utf16string __cdecl conversions::latin1_to_utf16(const std::string &s)
+//{
+//    if(s.empty())
+//    {
+//        return utf16string();
+//    }
+//
+//#ifdef _WIN32
+//    int size = ::MultiByteToWideChar(
+//        28591, // convert from Latin1
+//        MB_ERR_INVALID_CHARS, // fail if any characters can't be translated
+//        s.c_str(),
+//        (int)s.size(),
+//        nullptr, 0);
+//
+//    if (size == 0)
+//    {
+//        throw utility::details::create_system_error(GetLastError());
+//    }
+//
+//    // this length includes the terminating null
+//    std::wstring buffer;
+//    buffer.resize(size);
+//
+//    // now call again to format the string
+//    int result = ::MultiByteToWideChar(
+//        28591, // convert from Latin1
+//        MB_ERR_INVALID_CHARS, // fail if any characters can't be translated
+//        s.c_str(),
+//        (int)s.size(),
+//        &buffer[0], size);
+//
+//    if (result != size)
+//    {
+//        throw utility::details::create_system_error(GetLastError());
+//    }
+//
+//    return buffer;
+//#else
+//    return utf_to_utf<utf16char>(to_utf<char>(s, "Latin1", stop));
+//#endif
+//}
+//
+//utf8string __cdecl conversions::latin1_to_utf8(const std::string &s)
+//{
+//    if (s.empty())
+//    {
+//        return utf8string();
+//    }
+//
+//#ifdef _WIN32
+//    // Not aware of a Windows function to perform to round trip
+//    // the conversion. Latin1 isn't a common case so use easy to code solution.
+//    return utf16_to_utf8(latin1_to_utf16(s));
+//#else
+//    return to_utf<utf8char>(s, "Latin1");
+//#endif
+//}
+//
+//utf16string __cdecl conversions::default_code_page_to_utf16(const std::string &s)
+//{
+//    if(s.empty())
+//    {
+//        return utf16string();
+//    }
+//
+//#ifdef _WIN32
+//    int size = ::MultiByteToWideChar(
+//        CP_ACP, // convert from Windows system default
+//        MB_ERR_INVALID_CHARS, // fail if any characters can't be translated
+//        s.c_str(),
+//        (int)s.size(),
+//        nullptr, 0);
+//    if (size == 0)
+//    {
+//        throw utility::details::create_system_error(GetLastError());
+//    }
+//
+//    // this length includes the terminating null
+//    std::wstring buffer;
+//    buffer.resize(size);
+//
+//    // now call again to format the string
+//    int result = ::MultiByteToWideChar(
+//        CP_ACP, // convert from Windows system default
+//        MB_ERR_INVALID_CHARS, // fail if any characters can't be translated
+//        s.c_str(),
+//        (int)s.size(),
+//        &buffer[0], size);
+//    if(result == size)
+//    {
+//        return buffer;
+//    }
+//    else
+//    {
+//        throw utility::details::create_system_error(GetLastError());
+//    }
+//#else
+//    return utf_to_utf<utf16char>(to_utf<char>(s, std::locale(""), stop));
+//#endif
+//}
 
 utility::string_t __cdecl conversions::to_string_t(utf16string &&s)
 {
@@ -552,23 +552,23 @@ datetime datetime::timeval_to_datetime(const timeval &time)
 
 static bool is_digit(utility::char_t c) { return c >= _XPLATSTR('0') && c <= _XPLATSTR('9'); }
 
-datetime __cdecl datetime::utc_now()
-{
-#ifdef _WIN32
-    ULARGE_INTEGER largeInt;
-    FILETIME fileTime;
-    GetSystemTimeAsFileTime(&fileTime);
-
-    largeInt.LowPart = fileTime.dwLowDateTime;
-    largeInt.HighPart = fileTime.dwHighDateTime;
-
-    return datetime(largeInt.QuadPart);
-#else //LINUX
-    struct timeval time;
-    gettimeofday(&time, nullptr);
-    return timeval_to_datetime(time);
-#endif
-}
+//datetime __cdecl datetime::utc_now()
+//{
+//#ifdef _WIN32
+//    ULARGE_INTEGER largeInt;
+//    FILETIME fileTime;
+//    GetSystemTimeAsFileTime(&fileTime);
+//
+//    largeInt.LowPart = fileTime.dwLowDateTime;
+//    largeInt.HighPart = fileTime.dwHighDateTime;
+//
+//    return datetime(largeInt.QuadPart);
+//#else //LINUX
+//    struct timeval time;
+//    gettimeofday(&time, nullptr);
+//    return timeval_to_datetime(time);
+//#endif
+//}
 
 utility::string_t datetime::to_string(date_format format) const
 {

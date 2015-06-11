@@ -37,7 +37,6 @@ target_link_libraries(measure
   numerics
   cor
   vis
-  casablanca
 )
 if(ENABLE_MGL)
     target_link_libraries(measure mgl)
@@ -59,7 +58,6 @@ if(YES)
       cor
       numerics
       filter
-      casablanca
     )
 
     add_executable(spec_intel
@@ -73,7 +71,6 @@ if(YES)
       cor
       numerics
       filter
-      casablanca
       vis
     )
 

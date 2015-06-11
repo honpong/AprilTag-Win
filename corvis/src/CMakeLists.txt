@@ -77,25 +77,6 @@ else()
     target_link_libraries(numerics PUBLIC "-framework Accelerate")
 endif()
 
-add_library(casablanca STATIC
-  ../../ThirdParty/casablanca/Release/src/json/json.cpp
-  ../../ThirdParty/casablanca/Release/src/json/json_parsing.cpp
-  ../../ThirdParty/casablanca/Release/src/json/json_serialization.cpp
-  ../../ThirdParty/casablanca/Release/src/utilities/asyncrt_utils.cpp
-)
-target_include_directories(casablanca PRIVATE ../../ThirdParty/casablanca/Release/src/pch)
-target_include_directories(casablanca PUBLIC ../../ThirdParty/casablanca/Release/include)
-set_property(TARGET casablanca PROPERTY CXX_STANDARD 14)
-if (WIN32)
-  target_compile_definitions(casablanca PUBLIC UNICODE _UNICODE)
-  target_compile_definitions(casablanca PUBLIC _WINSOCK_DEPRECATED_NO_WARNINGS WIN32)
-  target_compile_definitions(casablanca PUBLIC _NO_ASYNCRTIMP _NO_PPLXIMP)
-else(WIN32)
-  find_package(Boost REQUIRED COMPONENTS random chrono system thread locale regex filesystem)
-  target_include_directories(casablanca PUBLIC ${Boost_INCLUDE_DIR})
-  target_link_libraries(casablanca PRIVATE ${Boost_LIBRARIES} ${Boost_FRAMEWORK})
-endif(WIN32)
-
 add_library(filter STATIC
   filter/filter.cpp
   filter/state_vision.cpp
@@ -116,7 +97,7 @@ add_library(filter STATIC
   filter/replay.cpp
 )
 target_include_directories(filter PUBLIC filter)
-target_link_libraries(filter PUBLIC casablanca)
+target_include_directories(filter PRIVATE rapidjson/include)
 if(ENABLE_ZXING)
     target_link_libraries(filter PRIVATE libzxing)
 endif()

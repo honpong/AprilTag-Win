@@ -1,6 +1,6 @@
 #pragma once
 #include "calibration_data_store.h"
-#include "cpprest/details/basic_types.h" // utility::string_t
+#include <string>
 
 #define CALIBRATION_FILE_NAME "calibration.json"
 
@@ -17,8 +17,8 @@ namespace RealityCap
         calibration_json_store();
         virtual ~calibration_json_store();
 
-        static bool SerializeCalibration(const corvis_device_parameters &cal, std::wstring &jsonString);
-        static bool DeserializeCalibration(const std::wstring &jsonString, corvis_device_parameters &cal);
+        static bool SerializeCalibration(const corvis_device_parameters &cal, std::string &jsonString);
+        static bool DeserializeCalibration(const std::string &jsonString, corvis_device_parameters &cal);
         
         virtual bool LoadCalibration(corvis_device_parameters &cal) override;
         virtual bool LoadCalibrationDefaults(const corvis_device_type deviceType, corvis_device_parameters &cal) override;

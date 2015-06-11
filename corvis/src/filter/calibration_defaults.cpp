@@ -1,6 +1,6 @@
 #include "calibration_defaults.h"
 
-static const wchar_t * CALIBRATION_DEFAULT_GIGABYTE_S11 = LR"(
+static const char *CALIBRATION_DEFAULT_GIGABYTE_S11 = R"(
 {
   "device": "gigabyte_s11",
   "calibrationVersion": 7,
@@ -46,7 +46,7 @@ static const wchar_t * CALIBRATION_DEFAULT_GIGABYTE_S11 = LR"(
 }
 )";
 
-static const wchar_t * CALIBRATION_DEFAULT_IPAD2 = LR"(
+static const char *CALIBRATION_DEFAULT_IPAD2 = R"(
 {
   "device": "ipad2",
   "calibrationVersion": 7,
@@ -92,7 +92,7 @@ static const wchar_t * CALIBRATION_DEFAULT_IPAD2 = LR"(
 }
 )";
 
-static const wchar_t * CALIBRATION_DEFAULT_IPAD3 = LR"(
+static const char *CALIBRATION_DEFAULT_IPAD3 = R"(
 {
   "device": "ipad3",
   "calibrationVersion": 7,
@@ -138,7 +138,7 @@ static const wchar_t * CALIBRATION_DEFAULT_IPAD3 = LR"(
 }
 )";
 
-static const wchar_t * CALIBRATION_DEFAULT_IPAD4 = LR"(
+static const char *CALIBRATION_DEFAULT_IPAD4 = R"(
 {
   "device": "ipad4",
   "calibrationVersion": 7,
@@ -184,7 +184,7 @@ static const wchar_t * CALIBRATION_DEFAULT_IPAD4 = LR"(
 }
 )";
 
-static const wchar_t * CALIBRATION_DEFAULT_IPADAIR = LR"(
+static const char *CALIBRATION_DEFAULT_IPADAIR = R"(
 {
   "device": "ipadair",
   "calibrationVersion": 7,
@@ -230,7 +230,7 @@ static const wchar_t * CALIBRATION_DEFAULT_IPADAIR = LR"(
 }
 )";
 
-static const wchar_t * CALIBRATION_DEFAULT_IPADAIR2 = LR"(
+static const char *CALIBRATION_DEFAULT_IPADAIR2 = R"(
 {
   "device": "ipadair2",
   "calibrationVersion": 7,
@@ -276,7 +276,7 @@ static const wchar_t * CALIBRATION_DEFAULT_IPADAIR2 = LR"(
 }
 )";
 
-static const wchar_t * CALIBRATION_DEFAULT_IPADMINI = LR"(
+static const char *CALIBRATION_DEFAULT_IPADMINI = R"(
 {
   "device": "ipadmini",
   "calibrationVersion": 7,
@@ -322,7 +322,7 @@ static const wchar_t * CALIBRATION_DEFAULT_IPADMINI = LR"(
 }
 )";
 
-static const wchar_t * CALIBRATION_DEFAULT_IPADMINIRETINA = LR"(
+static const char *CALIBRATION_DEFAULT_IPADMINIRETINA = R"(
 {
   "device": "ipadminiretina",
   "calibrationVersion": 7,
@@ -368,7 +368,7 @@ static const wchar_t * CALIBRATION_DEFAULT_IPADMINIRETINA = LR"(
 }
 )";
 
-static const wchar_t * CALIBRATION_DEFAULT_IPADMINIRETINA2 = LR"(
+static const char *CALIBRATION_DEFAULT_IPADMINIRETINA2 = R"(
 {
   "device": "ipadminiretina2",
   "calibrationVersion": 7,
@@ -414,7 +414,7 @@ static const wchar_t * CALIBRATION_DEFAULT_IPADMINIRETINA2 = LR"(
 }
 )";
 
-static const wchar_t * CALIBRATION_DEFAULT_IPHONE4S = LR"(
+static const char *CALIBRATION_DEFAULT_IPHONE4S = R"(
 {
   "device": "iphone4s",
   "calibrationVersion": 7,
@@ -460,7 +460,7 @@ static const wchar_t * CALIBRATION_DEFAULT_IPHONE4S = LR"(
 }
 )";
 
-static const wchar_t * CALIBRATION_DEFAULT_IPHONE5 = LR"(
+static const char *CALIBRATION_DEFAULT_IPHONE5 = R"(
 {
   "device": "iphone5",
   "calibrationVersion": 7,
@@ -506,7 +506,7 @@ static const wchar_t * CALIBRATION_DEFAULT_IPHONE5 = LR"(
 }
 )";
 
-static const wchar_t * CALIBRATION_DEFAULT_IPHONE5C = LR"(
+static const char *CALIBRATION_DEFAULT_IPHONE5C = R"(
 {
   "device": "iphone5c",
   "calibrationVersion": 7,
@@ -552,7 +552,7 @@ static const wchar_t * CALIBRATION_DEFAULT_IPHONE5C = LR"(
 }
 )";
 
-static const wchar_t * CALIBRATION_DEFAULT_IPHONE5S = LR"(
+static const char *CALIBRATION_DEFAULT_IPHONE5S = R"(
 {
   "device": "iphone5s",
   "calibrationVersion": 7,
@@ -598,7 +598,7 @@ static const wchar_t * CALIBRATION_DEFAULT_IPHONE5S = LR"(
 }
 )";
 
-static const wchar_t * CALIBRATION_DEFAULT_IPHONE6 = LR"(
+static const char *CALIBRATION_DEFAULT_IPHONE6 = R"(
 {
   "device": "iphone6",
   "calibrationVersion": 7,
@@ -644,7 +644,7 @@ static const wchar_t * CALIBRATION_DEFAULT_IPHONE6 = LR"(
 }
 )";
 
-static const wchar_t * CALIBRATION_DEFAULT_IPHONE6PLUS = LR"(
+static const char *CALIBRATION_DEFAULT_IPHONE6PLUS = R"(
 {
   "device": "iphone6plus",
   "calibrationVersion": 7,
@@ -690,7 +690,7 @@ static const wchar_t * CALIBRATION_DEFAULT_IPHONE6PLUS = LR"(
 }
 )";
 
-static const wchar_t * CALIBRATION_DEFAULT_IPOD5 = LR"(
+static const char *CALIBRATION_DEFAULT_IPOD5 = R"(
 {
   "device": "ipod5",
   "calibrationVersion": 7,
@@ -736,7 +736,7 @@ static const wchar_t * CALIBRATION_DEFAULT_IPOD5 = LR"(
 }
 )";
 
-static const wchar_t * CALIBRATION_DEFAULT_UNKNOWN = LR"(
+static const char *CALIBRATION_DEFAULT_UNKNOWN = R"(
 {
   "device": "unknown",
   "calibrationVersion": 7,
@@ -782,7 +782,7 @@ static const wchar_t * CALIBRATION_DEFAULT_UNKNOWN = LR"(
 }
 )";
 
-const wchar_t * calibration_default_json_for_device_type(corvis_device_type device)
+const char *calibration_default_json_for_device_type(corvis_device_type device)
 {
     switch(device) {
     case DEVICE_TYPE_IPOD5:

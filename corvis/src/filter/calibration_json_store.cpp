@@ -1,15 +1,14 @@
 #include "device_parameters.h"
 #include "calibration_json_store.h"
-#include "cpprest/json.h"
-#include "cpprest/details/basic_types.h"
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
 #include <iostream>
 #include <fstream>
 #include <sys/stat.h>
 
 using namespace RealityCap;
-using namespace web;
-using namespace web::json;
-using namespace utility;
+using namespace rapidjson;
 using namespace std;
 
 #define KEY_FX "Fx"
@@ -76,136 +75,111 @@ string GetCalibrationDefaultsFileName(corvis_device_type deviceType)
     return deviceTypeString.append(".json");
 }
 
-void CopyJsonToStruct(value &json, corvis_device_parameters &cal)
+void CopyJsonToStruct(Document &json, corvis_device_parameters &cal)
 {
-    cal.version = json[U(KEY_CALIBRATION_VERSION)].as_number().to_uint32();
-    cal.Fx = (float)json[U(KEY_FX)].as_number().to_double();
-    cal.Fy = (float)json[U(KEY_FY)].as_number().to_double();
-    cal.Cx = (float)json[U(KEY_CX)].as_number().to_double();
-    cal.Cy = (float)json[U(KEY_CY)].as_number().to_double();
-    cal.px = (float)json[U(KEY_PX)].as_number().to_double();
-    cal.py = (float)json[U(KEY_PY)].as_number().to_double();
-    cal.K[0] = (float)json[U(KEY_K0)].as_number().to_double();
-    cal.K[1] = (float)json[U(KEY_K1)].as_number().to_double();
-    cal.K[2] = (float)json[U(KEY_K2)].as_number().to_double();
-    cal.a_bias[0] = (float)json[U(KEY_ABIAS0)].as_number().to_double();
-    cal.a_bias[1] = (float)json[U(KEY_ABIAS1)].as_number().to_double();
-    cal.a_bias[2] = (float)json[U(KEY_ABIAS2)].as_number().to_double();
-    cal.w_bias[0] = (float)json[U(KEY_WBIAS0)].as_number().to_double();
-    cal.w_bias[1] = (float)json[U(KEY_WBIAS1)].as_number().to_double();
-    cal.w_bias[2] = (float)json[U(KEY_WBIAS2)].as_number().to_double();
-    cal.Tc[0] = (float)json[U(KEY_TC0)].as_number().to_double();
-    cal.Tc[1] = (float)json[U(KEY_TC1)].as_number().to_double();
-    cal.Tc[2] = (float)json[U(KEY_TC2)].as_number().to_double();
-    cal.Wc[0] = (float)json[U(KEY_WC0)].as_number().to_double();
-    cal.Wc[1] = (float)json[U(KEY_WC1)].as_number().to_double();
-    cal.Wc[2] = (float)json[U(KEY_WC2)].as_number().to_double();
-    cal.a_bias_var[0] = (float)json[U(KEY_ABIASVAR0)].as_number().to_double();
-    cal.a_bias_var[1] = (float)json[U(KEY_ABIASVAR1)].as_number().to_double();
-    cal.a_bias_var[2] = (float)json[U(KEY_ABIASVAR2)].as_number().to_double();
-    cal.w_bias_var[0] = (float)json[U(KEY_WBIASVAR0)].as_number().to_double();
-    cal.w_bias_var[1] = (float)json[U(KEY_WBIASVAR1)].as_number().to_double();
-    cal.w_bias_var[2] = (float)json[U(KEY_WBIASVAR2)].as_number().to_double();
-    cal.Tc_var[0] = (float)json[U(KEY_TCVAR0)].as_number().to_double();
-    cal.Tc_var[1] = (float)json[U(KEY_TCVAR1)].as_number().to_double();
-    cal.Tc_var[2] = (float)json[U(KEY_TCVAR2)].as_number().to_double();
-    cal.Wc_var[0] = (float)json[U(KEY_WCVAR0)].as_number().to_double();
-    cal.Wc_var[1] = (float)json[U(KEY_WCVAR1)].as_number().to_double();
-    cal.Wc_var[2] = (float)json[U(KEY_WCVAR2)].as_number().to_double();
-    cal.w_meas_var = (float)json[U(KEY_WMEASVAR)].as_number().to_double();
-    cal.a_meas_var = (float)json[U(KEY_AMEASVAR)].as_number().to_double();
-    cal.image_width = json[U(KEY_IMAGE_WIDTH)].as_number().to_int32();
-    cal.image_height = json[U(KEY_IMAGE_HEIGHT)].as_number().to_int32();
-    cal.shutter_delay = std::chrono::microseconds(json[U(KEY_SHUTTER_DELAY)].as_integer());
-    cal.shutter_period = std::chrono::microseconds(json[U(KEY_SHUTTER_PERIOD)].as_integer());
+    cal.version = json[KEY_CALIBRATION_VERSION].GetInt();
+    cal.Fx = (float)json[KEY_FX].GetDouble();
+    cal.Fy = (float)json[KEY_FY].GetDouble();
+    cal.Cx = (float)json[KEY_CX].GetDouble();
+    cal.Cy = (float)json[KEY_CY].GetDouble();
+    cal.px = (float)json[KEY_PX].GetDouble();
+    cal.py = (float)json[KEY_PY].GetDouble();
+    cal.K[0] = (float)json[KEY_K0].GetDouble();
+    cal.K[1] = (float)json[KEY_K1].GetDouble();
+    cal.K[2] = (float)json[KEY_K2].GetDouble();
+    cal.a_bias[0] = (float)json[KEY_ABIAS0].GetDouble();
+    cal.a_bias[1] = (float)json[KEY_ABIAS1].GetDouble();
+    cal.a_bias[2] = (float)json[KEY_ABIAS2].GetDouble();
+    cal.w_bias[0] = (float)json[KEY_WBIAS0].GetDouble();
+    cal.w_bias[1] = (float)json[KEY_WBIAS1].GetDouble();
+    cal.w_bias[2] = (float)json[KEY_WBIAS2].GetDouble();
+    cal.Tc[0] = (float)json[KEY_TC0].GetDouble();
+    cal.Tc[1] = (float)json[KEY_TC1].GetDouble();
+    cal.Tc[2] = (float)json[KEY_TC2].GetDouble();
+    cal.Wc[0] = (float)json[KEY_WC0].GetDouble();
+    cal.Wc[1] = (float)json[KEY_WC1].GetDouble();
+    cal.Wc[2] = (float)json[KEY_WC2].GetDouble();
+    cal.a_bias_var[0] = (float)json[KEY_ABIASVAR0].GetDouble();
+    cal.a_bias_var[1] = (float)json[KEY_ABIASVAR1].GetDouble();
+    cal.a_bias_var[2] = (float)json[KEY_ABIASVAR2].GetDouble();
+    cal.w_bias_var[0] = (float)json[KEY_WBIASVAR0].GetDouble();
+    cal.w_bias_var[1] = (float)json[KEY_WBIASVAR1].GetDouble();
+    cal.w_bias_var[2] = (float)json[KEY_WBIASVAR2].GetDouble();
+    cal.Tc_var[0] = (float)json[KEY_TCVAR0].GetDouble();
+    cal.Tc_var[1] = (float)json[KEY_TCVAR1].GetDouble();
+    cal.Tc_var[2] = (float)json[KEY_TCVAR2].GetDouble();
+    cal.Wc_var[0] = (float)json[KEY_WCVAR0].GetDouble();
+    cal.Wc_var[1] = (float)json[KEY_WCVAR1].GetDouble();
+    cal.Wc_var[2] = (float)json[KEY_WCVAR2].GetDouble();
+    cal.w_meas_var = (float)json[KEY_WMEASVAR].GetDouble();
+    cal.a_meas_var = (float)json[KEY_AMEASVAR].GetDouble();
+    cal.image_width = json[KEY_IMAGE_WIDTH].GetInt();
+    cal.image_height = json[KEY_IMAGE_HEIGHT].GetInt();
+    cal.shutter_delay = std::chrono::microseconds(json[KEY_SHUTTER_DELAY].GetInt());
+    cal.shutter_period = std::chrono::microseconds(json[KEY_SHUTTER_PERIOD].GetInt());
 }
 
-void CopyStructToJson(const corvis_device_parameters &cal, value &json)
+void CopyStructToJson(const corvis_device_parameters &cal, Value &json)
 {
-    json[U(KEY_CALIBRATION_VERSION)] = value::number(CALIBRATION_VERSION);
-    json[U(KEY_FX)] = value::number(cal.Fx);
-    json[U(KEY_FY)] = value::number(cal.Fy);
-    json[U(KEY_CX)] = value::number(cal.Cx);
-    json[U(KEY_CY)] = value::number(cal.Cy);
-    json[U(KEY_PX)] = value::number(cal.px);
-    json[U(KEY_PY)] = value::number(cal.py);
-    json[U(KEY_K0)] = value::number(cal.K[0]);
-    json[U(KEY_K1)] = value::number(cal.K[1]);
-    json[U(KEY_K2)] = value::number(cal.K[2]);
-    json[U(KEY_ABIAS0)] = value::number(cal.a_bias[0]);
-    json[U(KEY_ABIAS1)] = value::number(cal.a_bias[1]);
-    json[U(KEY_ABIAS2)] = value::number(cal.a_bias[2]);
-    json[U(KEY_WBIAS0)] = value::number(cal.w_bias[0]);
-    json[U(KEY_WBIAS1)] = value::number(cal.w_bias[1]);
-    json[U(KEY_WBIAS2)] = value::number(cal.w_bias[2]);
-    json[U(KEY_TC0)] = value::number(cal.Tc[0]);
-    json[U(KEY_TC1)] = value::number(cal.Tc[1]);
-    json[U(KEY_TC2)] = value::number(cal.Tc[2]);
-    json[U(KEY_WC0)] = value::number(cal.Wc[0]);
-    json[U(KEY_WC1)] = value::number(cal.Wc[1]);
-    json[U(KEY_WC2)] = value::number(cal.Wc[2]);
-    json[U(KEY_ABIASVAR0)] = value::number(cal.a_bias_var[0]);
-    json[U(KEY_ABIASVAR1)] = value::number(cal.a_bias_var[1]);
-    json[U(KEY_ABIASVAR2)] = value::number(cal.a_bias_var[2]);
-    json[U(KEY_WBIASVAR0)] = value::number(cal.w_bias_var[0]);
-    json[U(KEY_WBIASVAR1)] = value::number(cal.w_bias_var[1]);
-    json[U(KEY_WBIASVAR2)] = value::number(cal.w_bias_var[2]);
-    json[U(KEY_TCVAR0)] = value::number(cal.Tc_var[0]);
-    json[U(KEY_TCVAR1)] = value::number(cal.Tc_var[1]);
-    json[U(KEY_TCVAR2)] = value::number(cal.Tc_var[2]);
-    json[U(KEY_WCVAR0)] = value::number(cal.Wc_var[0]);
-    json[U(KEY_WCVAR1)] = value::number(cal.Wc_var[1]);
-    json[U(KEY_WCVAR2)] = value::number(cal.Wc_var[2]);
-    json[U(KEY_WMEASVAR)] = value::number(cal.w_meas_var);
-    json[U(KEY_AMEASVAR)] = value::number(cal.a_meas_var);
-    json[U(KEY_IMAGE_WIDTH)] = value::number(cal.image_width);
-    json[U(KEY_IMAGE_HEIGHT)] = value::number(cal.image_height);
-    json[U(KEY_SHUTTER_DELAY)] = value::number((double)std::chrono::duration_cast<std::chrono::microseconds>(cal.shutter_delay).count());
-    json[U(KEY_SHUTTER_PERIOD)] = value::number((double)std::chrono::duration_cast<std::chrono::microseconds>(cal.shutter_period).count());
+    json[KEY_CALIBRATION_VERSION] = CALIBRATION_VERSION;
+    json[KEY_FX] = cal.Fx;
+    json[KEY_FY] = cal.Fy;
+    json[KEY_CX] = cal.Cx;
+    json[KEY_CY] = cal.Cy;
+    json[KEY_PX] = cal.px;
+    json[KEY_PY] = cal.py;
+    json[KEY_K0] = cal.K[0];
+    json[KEY_K1] = cal.K[1];
+    json[KEY_K2] = cal.K[2];
+    json[KEY_ABIAS0] = cal.a_bias[0];
+    json[KEY_ABIAS1] = cal.a_bias[1];
+    json[KEY_ABIAS2] = cal.a_bias[2];
+    json[KEY_WBIAS0] = cal.w_bias[0];
+    json[KEY_WBIAS1] = cal.w_bias[1];
+    json[KEY_WBIAS2] = cal.w_bias[2];
+    json[KEY_TC0] = cal.Tc[0];
+    json[KEY_TC1] = cal.Tc[1];
+    json[KEY_TC2] = cal.Tc[2];
+    json[KEY_WC0] = cal.Wc[0];
+    json[KEY_WC1] = cal.Wc[1];
+    json[KEY_WC2] = cal.Wc[2];
+    json[KEY_ABIASVAR0] = cal.a_bias_var[0];
+    json[KEY_ABIASVAR1] = cal.a_bias_var[1];
+    json[KEY_ABIASVAR2] = cal.a_bias_var[2];
+    json[KEY_WBIASVAR0] = cal.w_bias_var[0];
+    json[KEY_WBIASVAR1] = cal.w_bias_var[1];
+    json[KEY_WBIASVAR2] = cal.w_bias_var[2];
+    json[KEY_TCVAR0] = cal.Tc_var[0];
+    json[KEY_TCVAR1] = cal.Tc_var[1];
+    json[KEY_TCVAR2] = cal.Tc_var[2];
+    json[KEY_WCVAR0] = cal.Wc_var[0];
+    json[KEY_WCVAR1] = cal.Wc_var[1];
+    json[KEY_WCVAR2] = cal.Wc_var[2];
+    json[KEY_WMEASVAR] = cal.w_meas_var;
+    json[KEY_AMEASVAR] = cal.a_meas_var;
+    json[KEY_IMAGE_WIDTH] = cal.image_width;
+    json[KEY_IMAGE_HEIGHT] = cal.image_height;
+    json[KEY_SHUTTER_DELAY] = (int)std::chrono::duration_cast<std::chrono::microseconds>(cal.shutter_delay).count();
+    json[KEY_SHUTTER_PERIOD] = (int)std::chrono::duration_cast<std::chrono::microseconds>(cal.shutter_period).count();
 }
 
-bool RealityCap::calibration_json_store::SerializeCalibration(const corvis_device_parameters &cal, std::wstring &jsonStringW)
+bool RealityCap::calibration_json_store::SerializeCalibration(const corvis_device_parameters &cal, std::string &jsonString)
 {
-    try
-    {
-        value json = value::object();
-        CopyStructToJson(cal, json);
-        utility::string_t jsonString = json.serialize();
-        std::wstring wide(jsonString.begin(), jsonString.end());
-        jsonStringW = wide;
-        if (!jsonString.length()) return false;
-    }
-    catch (json_exception)
-    {
+    Document json; json.Parse(calibration_default_json_for_device_type(DEVICE_TYPE_UNKNOWN));
+    CopyStructToJson(cal, json);
+    StringBuffer buffer;
+    Writer<StringBuffer> writer(buffer);
+    json.Accept(writer);
+    jsonString = buffer.GetString();
+    return jsonString.length();
+}
+
+bool RealityCap::calibration_json_store::DeserializeCalibration(const std::string &jsonString, corvis_device_parameters &cal)
+{
+    Document json; json.Parse(jsonString.c_str());
+    if (json.HasParseError())
         return false;
-    }
-
-    return true;
-}
-
-#include <codecvt>
-bool RealityCap::calibration_json_store::DeserializeCalibration(const std::wstring &jsonStringW, corvis_device_parameters &cal)
-{
-#if UNICODE
-    utility::string_t jsonString(jsonStringW);
-#else
-    typedef std::codecvt_utf8<wchar_t> convert_type;
-    std::wstring_convert<convert_type, wchar_t> converter;
-    std::string converted_str = converter.to_bytes(jsonStringW);
-    utility::string_t jsonString(converted_str);
-#endif
-    try
-    {
-        if (!jsonString.length()) return false;
-
-        value json = value::parse(jsonString);
-        CopyJsonToStruct(json, cal);
-    }
-    catch (json_exception)
-    {
-        return false;
-    }
-
+    CopyJsonToStruct(json, cal);
     return true;
 }
 
@@ -214,12 +188,12 @@ void calibration_json_store::ParseCalibrationFile(string fileName, corvis_device
     string fullName = calibrationLocation + fileName;
     if (!FileExists(fullName)) throw runtime_error("Calibration file not found.");
 
-    utility::ifstream_t jsonFile;
-    jsonFile.open(fullName);
+    ifstream jsonFile(fullName);
     if (jsonFile.fail()) throw runtime_error("Failed to open calibration file.");
-    value json = value::parse(jsonFile);
 
-    CopyJsonToStruct(json, cal);
+    string jsonString((istreambuf_iterator<char>(jsonFile)), istreambuf_iterator<char>());
+    if (!DeserializeCalibration(jsonString, cal))
+        throw runtime_error("Failed to parse calibration file.");
 }
 
 bool RealityCap::calibration_json_store::LoadCalibration(corvis_device_parameters &cal)
@@ -247,24 +221,13 @@ bool calibration_json_store::SaveCalibration(const corvis_device_parameters &cal
 
 bool calibration_json_store::SaveCalibration(const corvis_device_parameters &cal, const char* fileName)
 {
-    try
-    {
-        value json = value::object();
-        CopyStructToJson(cal, json);
+    string jsonString;
+    if (!SerializeCalibration(cal, jsonString))
+        throw runtime_error("Failed to serialize calibration for writing.");
 
-        utility::ofstream_t jsonFile;
-        jsonFile.open(calibrationLocation + fileName);
-        if (jsonFile.fail()) throw runtime_error("Failed to open calibration file for writing.");
-        jsonFile << json;
-        jsonFile.close();
-
-        return true;
-    }
-    catch (...)
-    {
-        // TODO: log error?
-        return false;
-    }
+    ofstream jsonFile(calibrationLocation + fileName);
+    jsonFile << jsonString;
+    return true;
 }
 
 bool RealityCap::calibration_json_store::ClearCalibration()

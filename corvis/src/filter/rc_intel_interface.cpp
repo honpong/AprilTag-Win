@@ -416,14 +416,17 @@ corvis_device_parameters rc_getCalibration(rc_Tracker *tracker)
     return calibration;
 }
 
+#include <codecvt>
+
 size_t rc_getCalibration(rc_Tracker *tracker, const wchar_t** buffer)
 {
     corvis_device_parameters cal = rc_getCalibration(tracker);
-    std::wstring json;
+    std::string json;
     bool result = calibration_json_store::SerializeCalibration(cal, json);
     if (result)
     {
-        tracker->jsonString = std::wstring(json.begin(), json.end());
+        std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+        tracker->jsonString = converter.from_bytes(json);
         *buffer = tracker->jsonString.c_str();
         return tracker->jsonString.length();
     }
@@ -433,10 +436,12 @@ size_t rc_getCalibration(rc_Tracker *tracker, const wchar_t** buffer)
     }
 }
 
-bool rc_setCalibration(rc_Tracker *tracker, const wchar_t* buffer)
+bool rc_setCalibration(rc_Tracker *tracker, const wchar_t *wbuffer)
 {
+    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+    std::string buffer = converter.to_bytes(wbuffer);
     corvis_device_parameters cal;
-    bool result = calibration_json_store::DeserializeCalibration(std::wstring(buffer), cal);
+    bool result = calibration_json_store::DeserializeCalibration(buffer, cal);
     if (result) tracker->set_device(cal);
     return result;
 }

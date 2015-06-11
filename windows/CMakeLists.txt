@@ -21,7 +21,6 @@ target_compile_options(vis PRIVATE /wd4200 /wd4458)
 add_library(RCTracker SHARED ../corvis/src/filter/rc_intel_interface.cpp)
 target_link_libraries(RCTracker PRIVATE
   filter
-  casablanca
   numerics
   cor
   vis

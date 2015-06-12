@@ -244,8 +244,9 @@ void EnterReplayingState(const PWSTR filePath)
     if (result)
     {
         SetWindowText(hCalibrateButton, TEXT("Replaying..."));
-        vis.start();
         appState = Replay;
+        vis.start(); // blocks until vis window is closed
+        ExitReplayingState();
     }
     else
     {

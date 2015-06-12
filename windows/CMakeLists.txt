@@ -94,3 +94,13 @@ file(COPY src/rc_pxc_util.h DESTINATION dist/RCTracker)
 file(COPY ../corvis/src/glfw DESTINATION dist/ThirdParty)
 file(COPY src/intel_deliverables/ThirdParty/CMakeLists.txt DESTINATION dist/ThirdParty)
 file(COPY src/intel_deliverables/gigabyte_s11.json DESTINATION dist/RCUtility)
+
+# Custom targets will always be rebuilt, which means this target will
+# copy the updated the DLL whenever it is built
+add_custom_target(
+    BuildIntelDistribution ALL
+    DEPENDS RCTracker)
+add_custom_command(TARGET BuildIntelDistribution POST_BUILD COMMAND
+    ${CMAKE_COMMAND} -E copy $<TARGET_FILE:RCTracker> dist/RCTracker/)
+add_custom_command(TARGET BuildIntelDistribution POST_BUILD COMMAND
+    ${CMAKE_COMMAND} -E copy $<TARGET_LINKER_FILE:RCTracker> dist/RCTracker/)

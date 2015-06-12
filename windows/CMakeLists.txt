@@ -40,9 +40,8 @@ target_link_libraries(RCTrackerDemo "$ENV{RSSDK_DIR}lib/$(PlatformName)/libpxcmd
 
 add_custom_command(TARGET RCTrackerDemo POST_BUILD        # Adds a post-build event to RCUtility
     COMMAND ${CMAKE_COMMAND} -E copy_if_different  # which executes "cmake - E copy_if_different..."
-        "${PROJECT_SOURCE_DIR}/intel_deliverables/RCUtility/gigabyte_s11.json"      # <--this is in-file
+        "${PROJECT_SOURCE_DIR}/src/intel_deliverables/gigabyte_s11.json"      # <--this is in-file
         $<TARGET_FILE_DIR:RCTrackerDemo>)                 # <--this is out-file path
-
 
 add_library(RealityCapLib
   RealityCapLib/TrackerManager.cpp

@@ -32,7 +32,7 @@
 #include <random>
 #include <locale.h>
 
-//#include "pplx/pplxtasks.h"
+#include "pplx/pplxtasks.h"
 #include "cpprest/details/basic_types.h"
 
 #if !defined(_WIN32) || (_MSC_VER >= 1700)
@@ -40,7 +40,7 @@
 #endif
 
 #ifndef _WIN32
-//#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string.hpp>
 #if !defined(ANDROID) && !defined(__ANDROID__) // CodePlex 269
 #include <xlocale.h>
 #endif
@@ -295,14 +295,14 @@ namespace details
     /// <param name="left">First string to compare.</param>
     /// <param name="right">Second strong to compare.</param>
     /// <returns>true if the strings are equivalent, false otherwise</returns>
-//    inline bool str_icmp(const utility::string_t &left, const utility::string_t &right)
-//    {
-//#ifdef _WIN32
-//        return _wcsicmp(left.c_str(), right.c_str()) == 0;
-//#else
-//        return boost::iequals(left, right);
-//#endif
-//    }
+    inline bool str_icmp(const utility::string_t &left, const utility::string_t &right)
+    {
+#ifdef _WIN32
+        return _wcsicmp(left.c_str(), right.c_str()) == 0;
+#else
+        return boost::iequals(left, right);
+#endif
+    }
 
 #ifdef _WIN32
 

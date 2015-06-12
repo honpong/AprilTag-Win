@@ -38,8 +38,8 @@
 
 #if defined(__APPLE__)
 #include <dispatch/dispatch.h>
-//#include <boost/thread/mutex.hpp>
-//#include <boost/thread/condition_variable.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/condition_variable.hpp>
 #else
 #include <mutex>   
 #include <condition_variable>

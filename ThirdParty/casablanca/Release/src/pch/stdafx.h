@@ -74,11 +74,11 @@
 #undef BOOST_NO_CXX11_SMART_PTR
 #undef BOOST_NO_CXX11_NULLPTR
 #endif
-//#include "boost/thread/mutex.hpp"
-//#include "boost/locale.hpp"
-//#include "boost/thread/condition_variable.hpp"
-//#include "boost/date_time/posix_time/posix_time_types.hpp"
-//#include "boost/bind/bind.hpp"
+#include "boost/thread/mutex.hpp"
+#include "boost/locale.hpp"
+#include "boost/thread/condition_variable.hpp"
+#include "boost/date_time/posix_time/posix_time_types.hpp"
+#include "boost/bind/bind.hpp"
 #include <sys/stat.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -101,59 +101,59 @@
 #include <memory>
 #include <thread>
 
-//#include "pplx/pplxtasks.h"
+#include "pplx/pplxtasks.h"
 #include "cpprest/version.h"
 
 // streams
-//#include "cpprest/streams.h"
-//#include "cpprest/astreambuf.h"
-//#include "cpprest/rawptrstream.h"
-//#include "cpprest/interopstream.h"
-//#include "cpprest/producerconsumerstream.h"
+#include "cpprest/streams.h"
+#include "cpprest/astreambuf.h"
+#include "cpprest/rawptrstream.h"
+#include "cpprest/interopstream.h"
+#include "cpprest/producerconsumerstream.h"
 
 // json
 #include "cpprest/json.h"
 
 // uri
-//#include "cpprest/base_uri.h"
-//#include "cpprest/details/uri_parser.h"
+#include "cpprest/base_uri.h"
+#include "cpprest/details/uri_parser.h"
 
 // utilities
 #include "cpprest/asyncrt_utils.h"
-//#include "cpprest/details/web_utilities.h"
+#include "cpprest/details/web_utilities.h"
 
 // http
-//#include "cpprest/http_headers.h"
-//#include "cpprest/http_msg.h"
-//#include "cpprest/http_client.h"
-//#include "cpprest/details/http_helpers.h"
+#include "cpprest/http_headers.h"
+#include "cpprest/http_msg.h"
+#include "cpprest/http_client.h"
+#include "cpprest/details/http_helpers.h"
 
 // oauth
-//#if !defined(_WIN32) || _WIN32_WINNT >= _WIN32_WINNT_VISTA
-//#include "cpprest/oauth1.h"
-//#endif
-//#include "cpprest/oauth2.h"
+#if !defined(_WIN32) || _WIN32_WINNT >= _WIN32_WINNT_VISTA
+#include "cpprest/oauth1.h"
+#endif
+#include "cpprest/oauth2.h"
 
 // websockets
-//#include "cpprest/ws_client.h"
-//#include "cpprest/ws_msg.h"
+#include "cpprest/ws_client.h"
+#include "cpprest/ws_msg.h"
 
-//#if !defined(__cplusplus_winrt)
-//#if _WIN32_WINNT >= _WIN32_WINNT_VISTA
-//#include "cpprest/details/http_server.h"
-//#include "cpprest/http_listener.h"
-//#include "cpprest/details/http_server_api.h"
-//#endif // _WIN32_WINNT >= _WIN32_WINNT_VISTA
+#if !defined(__cplusplus_winrt)
+#if _WIN32_WINNT >= _WIN32_WINNT_VISTA
+#include "cpprest/details/http_server.h"
+#include "cpprest/http_listener.h"
+#include "cpprest/details/http_server_api.h"
+#endif // _WIN32_WINNT >= _WIN32_WINNT_VISTA
 
-//#ifdef _WIN32
-//#if _WIN32_WINNT >= _WIN32_WINNT_VISTA
-//#include "cpprest/details/http_server_httpsys.h"
-//#endif // _WIN32_WINNT >= _WIN32_WINNT_VISTA
-//#else
-//#include "cpprest/details/http_server_asio.h"
-//#endif
+#ifdef _WIN32
+#if _WIN32_WINNT >= _WIN32_WINNT_VISTA
+#include "cpprest/details/http_server_httpsys.h"
+#endif // _WIN32_WINNT >= _WIN32_WINNT_VISTA
+#else
+#include "cpprest/details/http_server_asio.h"
+#endif
 
-//#endif
+#endif
 
 #if defined(max)
 #error: max macro defined -- make sure to #define NOMINMAX before including windows.h

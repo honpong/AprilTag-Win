@@ -26,6 +26,9 @@ state_vision_feature::state_vision_feature(f_t initialx, f_t initialy): state_le
     set_process_noise(initial_process_noise);
     image_velocity.x = 0;
     image_velocity.y = 0;
+    relative = v4(0, 0, 0, 0);
+    local = v4(0, 0, 0, 0);
+    world = v4(0, 0, 0, 0);
 }
 
 void state_vision_feature::dropping_group()

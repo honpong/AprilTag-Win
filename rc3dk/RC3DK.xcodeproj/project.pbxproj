@@ -84,19 +84,8 @@
 		32E757151A980149004BA247 /* NSError+RCDictionaryRepresentation.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E757141A980149004BA247 /* NSError+RCDictionaryRepresentation.m */; };
 		388998B21B26B03C0077DAA7 /* calibration_data_store.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 388998B11B26B03C0077DAA7 /* calibration_data_store.cpp */; };
 		388998B41B26B0490077DAA7 /* calibration_json_store.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 388998B31B26B0490077DAA7 /* calibration_json_store.cpp */; };
-		388998BF1B26B1760077DAA7 /* json_parsing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 388998BC1B26B1760077DAA7 /* json_parsing.cpp */; };
-		388998C11B26B1760077DAA7 /* json_serialization.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 388998BD1B26B1760077DAA7 /* json_serialization.cpp */; };
-		388998C31B26B1760077DAA7 /* json.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 388998BE1B26B1760077DAA7 /* json.cpp */; };
 		388998C51B26B1880077DAA7 /* calibration_json_store.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 388998B31B26B0490077DAA7 /* calibration_json_store.cpp */; };
 		388998C61B26B1900077DAA7 /* calibration_data_store.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 388998B11B26B03C0077DAA7 /* calibration_data_store.cpp */; };
-		388998F21B26BCC20077DAA7 /* boost.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 388998F11B26BCC20077DAA7 /* boost.a */; };
-		388998F41B26BDC30077DAA7 /* asyncrt_utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 388998F31B26BDC30077DAA7 /* asyncrt_utils.cpp */; };
-		388998F51B26BDFE0077DAA7 /* asyncrt_utils.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 388998F31B26BDC30077DAA7 /* asyncrt_utils.cpp */; };
-		388998F61B26BE030077DAA7 /* json_parsing.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 388998BC1B26B1760077DAA7 /* json_parsing.cpp */; };
-		388998F71B26BE070077DAA7 /* json_serialization.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 388998BD1B26B1760077DAA7 /* json_serialization.cpp */; };
-		388998F81B26BE0C0077DAA7 /* json.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 388998BE1B26B1760077DAA7 /* json.cpp */; };
-		3889991F1B26CD7E0077DAA7 /* boost.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 388998F11B26BCC20077DAA7 /* boost.a */; };
-		388999231B26D09B0077DAA7 /* boost.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 388998F11B26BCC20077DAA7 /* boost.a */; };
 		38AEA3081B2789EF0091C4E7 /* calibration_defaults.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 38AEA3071B2789EF0091C4E7 /* calibration_defaults.cpp */; };
 		38AEA30A1B278A260091C4E7 /* calibration_defaults.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 38AEA3071B2789EF0091C4E7 /* calibration_defaults.cpp */; };
 		38EDF0771AD43D2500F0A322 /* rotation_vector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 38EDF0761AD43D2400F0A322 /* rotation_vector.cpp */; };
@@ -520,11 +509,6 @@
 		388998B11B26B03C0077DAA7 /* calibration_data_store.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = calibration_data_store.cpp; sourceTree = "<group>"; };
 		388998B31B26B0490077DAA7 /* calibration_json_store.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = calibration_json_store.cpp; sourceTree = "<group>"; };
 		388998B51B26B0540077DAA7 /* calibration_json_store.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = calibration_json_store.h; sourceTree = "<group>"; };
-		388998BC1B26B1760077DAA7 /* json_parsing.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = json_parsing.cpp; path = ../../ThirdParty/casablanca/Release/src/json/json_parsing.cpp; sourceTree = "<group>"; };
-		388998BD1B26B1760077DAA7 /* json_serialization.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = json_serialization.cpp; path = ../../ThirdParty/casablanca/Release/src/json/json_serialization.cpp; sourceTree = "<group>"; };
-		388998BE1B26B1760077DAA7 /* json.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = json.cpp; path = ../../ThirdParty/casablanca/Release/src/json/json.cpp; sourceTree = "<group>"; };
-		388998F11B26BCC20077DAA7 /* boost.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = boost.a; path = ../ThirdParty/ofxiOSBoost/libs/boost/ios/boost.a; sourceTree = "<group>"; };
-		388998F31B26BDC30077DAA7 /* asyncrt_utils.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = asyncrt_utils.cpp; path = ../../ThirdParty/casablanca/Release/src/utilities/asyncrt_utils.cpp; sourceTree = "<group>"; };
 		38AEA3071B2789EF0091C4E7 /* calibration_defaults.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = calibration_defaults.cpp; sourceTree = "<group>"; };
 		38AEA3091B278A050091C4E7 /* calibration_defaults.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = calibration_defaults.h; sourceTree = "<group>"; };
 		38EDF0761AD43D2400F0A322 /* rotation_vector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rotation_vector.cpp; sourceTree = "<group>"; };
@@ -696,7 +680,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				321A28D61ACBBADE009406A2 /* libOCMock.a in Frameworks */,
-				3889991F1B26CD7E0077DAA7 /* boost.a in Frameworks */,
 				325F2EAF1ACB7DAA00145B9C /* libNocilla.a in Frameworks */,
 				32036E961ACB2A5700FC0588 /* libRC3DK.a in Frameworks */,
 			);
@@ -709,7 +692,6 @@
 				327B563918EB5F0A0001CCE1 /* OpenGLES.framework in Frameworks */,
 				D31EC5381A5F1E5B0003379A /* libzxing.a in Frameworks */,
 				327B54E318EB4CC90001CCE1 /* Foundation.framework in Frameworks */,
-				388998F21B26BCC20077DAA7 /* boost.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -728,7 +710,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				D3B4EB3E1A1E7DE100BE0443 /* OpenGLES.framework in Frameworks */,
-				388999231B26D09B0077DAA7 /* boost.a in Frameworks */,
 				D31EC5391A5F1E9E0003379A /* libzxing.a in Frameworks */,
 				D3B4EB3F1A1E7DE100BE0443 /* Foundation.framework in Frameworks */,
 			);
@@ -856,7 +837,6 @@
 		327B54E118EB4CC90001CCE1 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				388998F11B26BCC20077DAA7 /* boost.a */,
 				D32D21EB1AE003290070A8F0 /* GLKit.framework */,
 				325F2E831ACB7D1D00145B9C /* libNocilla.a */,
 				D31EC5371A5F1E5B0003379A /* libzxing.a */,
@@ -873,7 +853,6 @@
 				D9C43E111B0BB0BE00F48072 /* rc_intel_interface.cpp */,
 				D95E92DA1AB86D4600EAB109 /* sensor_data.h */,
 				327B552218EB4D720001CCE1 /* AFNetworking */,
-				388998C81B26B1DB0077DAA7 /* Casablanca */,
 				327B558318EB4F130001CCE1 /* Corvis */,
 				327B558018EB4E3A0001CCE1 /* Data Classes */,
 				D33E9D1A1ADD144D0085F35C /* Sensor Managers */,
@@ -1133,17 +1112,6 @@
 			);
 			name = vis;
 			path = ../../corvis/src/vis;
-			sourceTree = "<group>";
-		};
-		388998C81B26B1DB0077DAA7 /* Casablanca */ = {
-			isa = PBXGroup;
-			children = (
-				388998F31B26BDC30077DAA7 /* asyncrt_utils.cpp */,
-				388998BC1B26B1760077DAA7 /* json_parsing.cpp */,
-				388998BD1B26B1760077DAA7 /* json_serialization.cpp */,
-				388998BE1B26B1760077DAA7 /* json.cpp */,
-			);
-			name = Casablanca;
 			sourceTree = "<group>";
 		};
 		D305600D1ADD2466002BD682 /* Capture */ = {
@@ -1601,7 +1569,6 @@
 				D33E61E11ADE632900569C82 /* capture.cpp in Sources */,
 				32E757151A980149004BA247 /* NSError+RCDictionaryRepresentation.m in Sources */,
 				327B557C18EB4DC20001CCE1 /* RCVector.m in Sources */,
-				388998F41B26BDC30077DAA7 /* asyncrt_utils.cpp in Sources */,
 				327B55BE18EB4F3A0001CCE1 /* filter.cpp in Sources */,
 				327B553618EB4D720001CCE1 /* RCAFImageRequestOperation.m in Sources */,
 				327B55C118EB4F3A0001CCE1 /* observation.cpp in Sources */,
@@ -1621,7 +1588,6 @@
 				327B553818EB4D720001CCE1 /* RCAFNetworkActivityIndicatorManager.m in Sources */,
 				327B556C18EB4DC20001CCE1 /* NSString+RCString.m in Sources */,
 				327B55C018EB4F3A0001CCE1 /* state_vision.cpp in Sources */,
-				388998C31B26B1760077DAA7 /* json.cpp in Sources */,
 				D983B2A81B1695D40013099E /* RCSensorData.mm in Sources */,
 				D33E9D2D1ADD14600085F35C /* RCLocationManager.m in Sources */,
 				327B556E18EB4DC20001CCE1 /* RCCameraManager.mm in Sources */,
@@ -1632,7 +1598,6 @@
 				327B553B18EB4D720001CCE1 /* RCAFXMLRequestOperation.m in Sources */,
 				327B55C318EB4F3A0001CCE1 /* state_motion.cpp in Sources */,
 				D33E61E31ADE6A6B00569C82 /* RCCaptureManager.mm in Sources */,
-				388998C11B26B1760077DAA7 /* json_serialization.cpp in Sources */,
 				328A4DD21950D52000587949 /* RCSensorFusionError.m in Sources */,
 				327B553418EB4D720001CCE1 /* RCAFHTTPClient.m in Sources */,
 				327B55BF18EB4F3A0001CCE1 /* filter_setup.cpp in Sources */,
@@ -1648,7 +1613,6 @@
 				327B557818EB4DC20001CCE1 /* RCSensorFusionData.m in Sources */,
 				D95EB18C1AA50AF200ADFC20 /* sensor_fusion.cpp in Sources */,
 				327B557918EB4DC20001CCE1 /* RCSensorFusionStatus.m in Sources */,
-				388998BF1B26B1760077DAA7 /* json_parsing.cpp in Sources */,
 				D95EB1871AA5038600ADFC20 /* sensor_fusion_queue.cpp in Sources */,
 				D953126F1A15AE63004D6068 /* homography.cpp in Sources */,
 				327B556F18EB4DC20001CCE1 /* RCCameraParameters.m in Sources */,
@@ -1704,8 +1668,6 @@
 				D3B4EACA1A1E7DE100BE0443 /* RCLicenseError.m in Sources */,
 				D3588EF61A20C06600CA10E7 /* exceptions.cpp in Sources */,
 				D33B00581A20CA8E00287FC9 /* sift.c in Sources */,
-				388998F61B26BE030077DAA7 /* json_parsing.cpp in Sources */,
-				388998F81B26BE0C0077DAA7 /* json.cpp in Sources */,
 				D3931E1B1A2217E5008F8940 /* random.c in Sources */,
 				D3588EFA1A20C0B900CA10E7 /* daialg.cpp in Sources */,
 				D321AD3F1A323C17003AEA77 /* fundamental.cpp in Sources */,
@@ -1713,7 +1675,6 @@
 				D33E9D301ADD14600085F35C /* RCMotionManager.m in Sources */,
 				D95EB1881AA5038600ADFC20 /* sensor_fusion_queue.cpp in Sources */,
 				D3588F091A20C4B800CA10E7 /* stat.c in Sources */,
-				388998F71B26BE070077DAA7 /* json_serialization.cpp in Sources */,
 				D3B4EAD21A1E7DE100BE0443 /* filter.cpp in Sources */,
 				D3B4EAD31A1E7DE100BE0443 /* RCAFImageRequestOperation.m in Sources */,
 				D3B4EAD61A1E7DE100BE0443 /* observation.cpp in Sources */,
@@ -1729,7 +1690,6 @@
 				D3B4EADE1A1E7DE100BE0443 /* RCCalibration.mm in Sources */,
 				D33E9D2C1ADD14600085F35C /* RCVideoManager.m in Sources */,
 				D3B4EAE01A1E7DE100BE0443 /* scaled_mask.cpp in Sources */,
-				388998F51B26BDFE0077DAA7 /* asyncrt_utils.cpp in Sources */,
 				D321AD421A323C17003AEA77 /* stereo.cpp in Sources */,
 				D3588EF31A20C04000CA10E7 /* bp.cpp in Sources */,
 				D3B4EAE81A1E7DE100BE0443 /* fast_9.cpp in Sources */,
@@ -1850,7 +1810,6 @@
 					"$(inherited)",
 					../Nocilla,
 					../OCMock,
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/ios",
 				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = (
@@ -1888,7 +1847,6 @@
 					"$(inherited)",
 					../Nocilla,
 					../OCMock,
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/ios",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = (
@@ -1926,7 +1884,6 @@
 					"$(inherited)",
 					../Nocilla,
 					../OCMock,
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/ios",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = YES;
@@ -1966,7 +1923,6 @@
 					"$(inherited)",
 					../Nocilla,
 					../OCMock,
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/ios",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = YES;
@@ -2005,7 +1961,6 @@
 					"$(inherited)",
 					../Nocilla,
 					../OCMock,
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/ios",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = YES;
@@ -2044,7 +1999,6 @@
 					"$(inherited)",
 					../Nocilla,
 					../OCMock,
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/ios",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = YES;
@@ -2087,10 +2041,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = "-ObjC";
@@ -2119,16 +2070,13 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/include/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/src/pch/",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/include/",
+					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/ios/",
 				);
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = (
@@ -2177,10 +2125,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
@@ -2254,16 +2199,13 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/include/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/src/pch/",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/include/",
+					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/ios/",
 				);
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = (
@@ -2297,16 +2239,13 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/include/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/src/pch/",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/include/",
+					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/ofxiOSBoost/libs/boost/include"
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/ios/",
 				);
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = (
@@ -2353,10 +2292,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = "-ObjC";
@@ -2385,16 +2321,13 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/include/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/src/pch/",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/include/",
+					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/ios/",
 				);
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = (
@@ -2441,10 +2374,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = "-ObjC";
@@ -2473,16 +2403,13 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/include/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/src/pch/",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/include/",
+					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/ios/",
 				);
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = (
@@ -2518,17 +2445,14 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/include/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/src/pch/",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/include/",
+					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/ios/",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
@@ -2576,7 +2500,6 @@
 					"$(inherited)",
 					../Nocilla,
 					../OCMock,
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/ios/",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = YES;
@@ -2620,10 +2543,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = "-ObjC";
@@ -2652,16 +2572,13 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/include/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/src/pch/",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/include/",
+					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/ios/",
 				);
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = (
@@ -2694,17 +2611,13 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/include/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/src/pch/",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/include/",
+					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/ios/",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
@@ -2756,10 +2669,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = (
-					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-				);
+				HEADER_SEARCH_PATHS = "$(inherited)";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
 				OTHER_LDFLAGS = "-ObjC";
@@ -2788,16 +2698,13 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/include/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/src/pch/",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/include/",
+					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/ios/",
 				);
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -2829,17 +2736,13 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/include/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/src/pch/",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/include/",
+					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/ios/",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
@@ -2874,17 +2777,13 @@
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/include/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/src/pch/",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/include/",
+					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/ios/",
 				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = (
@@ -2908,17 +2807,13 @@
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/include/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/src/pch/",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/include/",
+					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/ios/",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = (
@@ -2943,17 +2838,13 @@
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/include/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/src/pch/",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/include/",
+					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/ios/",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = (
@@ -2978,17 +2869,13 @@
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/include/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/src/pch/",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/include/",
+					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/ios/",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = (
@@ -3013,17 +2900,13 @@
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/include/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/src/pch/",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/include/",
+					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/ios/",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = (
@@ -3048,17 +2931,13 @@
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/include/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/src/pch/",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/include/",
+					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/ios/",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = (
@@ -3075,14 +2954,10 @@
 			buildSettings = {
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/include/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/src/pch/",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/include/",
+					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/ios/",
 				);
 				PRODUCT_NAME = RC3DKVis;
 			};
@@ -3102,17 +2977,13 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/include/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/src/pch/",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/include/",
+					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/ios/",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
@@ -3148,17 +3019,13 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/include/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/src/pch/",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/include/",
+					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/ios/",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
@@ -3195,17 +3062,13 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/include/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/src/pch/",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/include/",
+					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/ios/",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
@@ -3242,17 +3105,13 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/include/",
-					"$(SRCROOT)/../ThirdParty/casablanca/Release/src/pch/",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/include/",
+					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)",
-					"$(SRCROOT)/../ThirdParty/ofxiOSBoost/libs/boost/ios/",
 				);
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",

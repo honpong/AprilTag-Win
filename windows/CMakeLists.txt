@@ -81,6 +81,11 @@ target_compile_definitions(RCUtility PRIVATE UNICODE _UNICODE)
 target_compile_options(RCUtility PRIVATE /ZW /EHsc /Gm- "/AI${PLATFORM_CONFIG_PATH}" "/AI${WINDOWS_CONFIG_PATH}")
 target_include_directories(RCUtility PRIVATE "$ENV{RSSDK_DIR}/include")
 
+add_custom_command(TARGET RCUtility POST_BUILD        # Adds a post-build event to RCUtility
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different  # which executes "cmake - E copy_if_different..."
+        "${PROJECT_SOURCE_DIR}/src/intel_deliverables/gigabyte_s11.json"      # <--this is in-file
+        $<TARGET_FILE_DIR:RCUtility>)                 # <--this is out-file path
+
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/dist)
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/dist/ThirdParty)
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/dist/RCTracker)

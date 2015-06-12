@@ -1,5 +1,7 @@
 #include "arcball.h"
 
+static const float radians_per_pixel = (float)(M_PI/640.);
+
 typedef struct _v4 {
     _v4() {v[0] = 0; v[1] = 0; v[2] = 0; v[3] = 0;};
     _v4(float x, float y, float z, float w) {v[0] = x; v[1] = y; v[2] = z; v[3] = w;};

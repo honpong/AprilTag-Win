@@ -108,3 +108,5 @@ add_custom_command(TARGET BuildIntelDistribution POST_BUILD COMMAND
     ${CMAKE_COMMAND} -E copy $<TARGET_FILE:RCTracker> dist/RCTracker/)
 add_custom_command(TARGET BuildIntelDistribution POST_BUILD COMMAND
     ${CMAKE_COMMAND} -E copy $<TARGET_LINKER_FILE:RCTracker> dist/RCTracker/)
+add_dependencies(RCUtility BuildIntelDistribution)
+add_dependencies(RCTrackerDemo BuildIntelDistribution)

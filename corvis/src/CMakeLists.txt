@@ -122,6 +122,14 @@ target_link_libraries(vis PRIVATE ${GLFW_LIBRARIES})
 set_property(TARGET vis PROPERTY CXX_STANDARD 14)
 
 if(ENABLE_STEREO)
+    add_subdirectory(qhull)
+    foreach(qvar qhull_TARGETS qhull_STATIC qhull_SHARED qhull_SHAREDP)
+      get_directory_property(${qvar} DIRECTORY qhull DEFINITION ${qvar})
+    endforeach(qvar)
+    set_target_properties(${qhull_TARGETS} PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
+    set_target_properties(${qhull_SHARED} ${qhull_SHAREDP} PROPERTIES MACOSX_RPATH ON) # Avoid pointless warning
+    target_include_directories(${qhull_STATIC} PUBLIC qhull/src/libqhull)
+
     add_library(stereo STATIC
       stereo/stereo.cpp
       stereo/stereo_mesh.cpp
@@ -129,15 +137,9 @@ if(ENABLE_STEREO)
       stereo/fundamental.cpp
       stereo/stereo_features.cpp
     )
-    target_link_libraries(stereo PRIVATE DAI qhullstatic vlfeat)
+    target_link_libraries(stereo PRIVATE DAI ${qhull_STATIC} vlfeat)
     target_include_directories(stereo PUBLIC stereo)
     set_property(TARGET stereo PROPERTY CXX_STANDARD 14)
-
-    add_subdirectory(qhull)
-    set_target_properties(libqhull qhull_p PROPERTIES MACOSX_RPATH ON) # Avoid pointless warning
-    get_directory_property(qhull_TARGETS DIRECTORY qhull DEFINITION qhull_TARGETS)
-    set_target_properties(${qhull_TARGETS} PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
-    target_include_directories(qhullstatic PUBLIC qhull/src/libqhull)
 
     file(GLOB LIBVLFEAT_FILES "vlfeat-0.9.18/vl/*.c")
     add_library(vlfeat STATIC ${LIBVLFEAT_FILES})

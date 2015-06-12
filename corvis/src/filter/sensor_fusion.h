@@ -14,10 +14,12 @@
 #include "../numerics/transformation.h"
 #include "../cor/platform/sensor_clock.h"
 #include "../cor/sensor_data.h"
-#include "filter_setup.h"
 #include "../cor/sensor_fusion_queue.h"
+#include "../../../shared_corvis_3dk/RCSensorFusionInternals.h"
+#include "../../../shared_corvis_3dk/camera_control_interface.h"
 #include "device_parameters.h"
 #include "capture.h"
+#include "filter.h"
 
 enum class camera_specifier
 {

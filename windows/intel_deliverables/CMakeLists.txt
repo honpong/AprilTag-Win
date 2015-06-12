@@ -8,7 +8,6 @@ add_library(pxcmd STATIC IMPORTED)
 set_property(TARGET pxcmd PROPERTY IMPORTED_LOCATION "$ENV{RSSDK_DIR}lib/$(PlatformName)/libpxcmd.lib")
 
 add_library(RealityCapLib
-  RealityCapLib/CaptureManager.cpp
   RealityCapLib/TrackerManager.cpp
   RealityCapLib/SensorManager.cpp
   RealityCapLib/RCFactory.cpp

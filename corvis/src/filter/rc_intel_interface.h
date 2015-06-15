@@ -85,6 +85,9 @@ typedef struct {
  [R20 R21 R22 T2]
  */
 typedef float rc_Pose[12];
+static const rc_Pose rc_POSE_IDENTITY = { 1.f, 0.f, 0.f, 0.f,
+                                          0.f, 1.f, 0.f, 0.f,
+                                          0.f, 0.f, 1.f, 0.f };
 
 /**
  Timestamp, in microseconds

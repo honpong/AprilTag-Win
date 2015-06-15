@@ -136,6 +136,13 @@ bool SensorManager::StartPlayback(const wchar_t *filename, bool realtime)
     return true;
 }
 
+void SensorManager::WaitUntilFinished()
+{
+    if (!isVideoStreaming()) return;
+    if (videoThread.joinable())
+        videoThread.join();
+}
+
 void SensorManager::StopSensors()
 {
     if (!isVideoStreaming()) return;

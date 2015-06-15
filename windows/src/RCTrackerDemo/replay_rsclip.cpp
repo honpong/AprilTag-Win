@@ -27,9 +27,7 @@ int wmain(int c, wchar_t **v)
         return 0;
     }
 
-    while (trackMan->isVideoStreaming()) {}
-
-    trackMan->Stop();
+    trackMan->WaitUntilFinished();
 
     fprintf(stderr, "Exiting\n");
 

@@ -57,12 +57,12 @@ add_library(RealityCapLib
   RealityCapLib/Debug.h
   RealityCapLib/stdafx.cpp
   RealityCapLib/stdafx.h
+  RealityCapLib/rc_pxc_util.h
 )
 target_include_directories(RealityCapLib PUBLIC RealityCapLib)
 target_include_directories(RealityCapLib PUBLIC 
   ../corvis/src/filter/
   "$ENV{RSSDK_DIR}/include"
-    src
 )
 target_compile_definitions(RealityCapLib PRIVATE UNICODE _UNICODE)
 target_link_libraries(RealityCapLib RCTracker pxcmd)
@@ -105,7 +105,6 @@ file(COPY src/RCTrackerDemo DESTINATION dist)
 file(COPY RealityCapLib DESTINATION dist)
 file(COPY src/intel_deliverables/CMakeLists.txt DESTINATION dist)
 file(COPY ../corvis/src/filter/rc_intel_interface.h DESTINATION dist/RCTracker)
-file(COPY src/rc_pxc_util.h DESTINATION dist/RCTracker)
 file(COPY ../corvis/src/glfw DESTINATION dist/ThirdParty)
 file(COPY src/intel_deliverables/ThirdParty/CMakeLists.txt DESTINATION dist/ThirdParty)
 file(COPY src/intel_deliverables/gigabyte_s11.json DESTINATION dist/RCUtility)

@@ -37,7 +37,7 @@ target_include_directories(RCTrackerDemo PRIVATE ../corvis/src/filter/
 link_directories("$ENV{RSSDK_DIR}lib/$(PlatformName)")
 target_link_libraries(RCTrackerDemo "$ENV{RSSDK_DIR}lib/$(PlatformName)/libpxcmd.lib")
 
-add_custom_command(TARGET RCTrackerDemo POST_BUILD        # Adds a post-build event to RCUtility
+add_custom_command(TARGET RCTrackerDemo POST_BUILD        # Adds a post-build event to RCTrackerDemo
     COMMAND ${CMAKE_COMMAND} -E copy_if_different  # which executes "cmake - E copy_if_different..."
         "${PROJECT_SOURCE_DIR}/src/intel_deliverables/gigabyte_s11.json"      # <--this is in-file
         $<TARGET_FILE_DIR:RCTrackerDemo>)                 # <--this is out-file path

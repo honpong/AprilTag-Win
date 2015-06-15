@@ -91,9 +91,6 @@ void world_state_render_plot_teardown()
     plot_render.gl_destroy();
 }
 
-static int plot_width = 600;
-static int plot_height = 400;
-static uint8_t * plot_frame = NULL;
 #ifdef WIN32
 static void create_plot(world_state * state, int index, uint8_t *plot_frame, int plot_width, int plot_height) {}
 #else // !WIN32

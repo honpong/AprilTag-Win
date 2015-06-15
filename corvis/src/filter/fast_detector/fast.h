@@ -19,7 +19,7 @@ class fast_detector_9 {
     vector<xy> &detect(const unsigned char *im, const scaled_mask *mask, int number_wanted, int bthresh, int winx, int winy, int winwidth, int winheight);
     vector<xy> &detect(const unsigned char *im, const scaled_mask *mask, int number_wanted, int bthresh) { return detect(im, mask, number_wanted, bthresh, 0, 0, xsize, ysize); }
     xy track(const unsigned char *im1, const unsigned char *im2, int xcurrent, int ycurrent, float predx, float predy, float radius, int b, float min_score);
-    void init(const int xsize, const int ysize, const int stride, const int patch_stride, const int patch_win_half_width);
+    void init(const int image_width, const int image_height, const int image_stride, const int tracker_patch_stride, const int tracker_patch_win_half_width);
 };
 /*
 class fast_detector_10 {

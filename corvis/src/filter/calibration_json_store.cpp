@@ -171,7 +171,7 @@ bool RealityCap::calibration_json_store::SerializeCalibration(const corvis_devic
     Writer<StringBuffer> writer(buffer);
     json.Accept(writer);
     jsonString = buffer.GetString();
-    return jsonString.length();
+    return jsonString.length() > 0;
 }
 
 bool RealityCap::calibration_json_store::DeserializeCalibration(const std::string &jsonString, corvis_device_parameters &cal)

@@ -85,6 +85,9 @@ add_executable(RCUtility WIN32
     RCUtility/visualization.h
     RCUtility/FilePicker.h
 )
+
+target_compile_options(glfw PRIVATE /wd4457)
+
 target_link_libraries(RCUtility RealityCapLib pxcmd)
 target_link_libraries(RCUtility glad glfw)
 target_link_libraries(RCUtility ${GLFW_LIBRARIES})

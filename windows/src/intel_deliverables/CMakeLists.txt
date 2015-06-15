@@ -24,6 +24,13 @@ link_directories("RCTracker")
 target_link_libraries(RealityCapLib RCTracker pxcmd)
 target_compile_options(RealityCapLib PRIVATE /wd4200 /wd4458)
 
+add_executable(RCTrackerDemo
+    RCTrackerDemo/replay_rsclip.cpp
+    )
+target_link_libraries(RCTrackerDemo
+    RealityCapLib
+    RCTracker)
+
 add_executable(RCUtility WIN32
     RCUtility/RCUtility.cpp
     RCUtility/RCUtility.h

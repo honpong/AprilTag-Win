@@ -151,8 +151,8 @@ bool TrackerManager::StartReplay(const std::wstring filename, bool realtime)
 void TrackerManager::Stop()
 {
     if (!isRunning()) return;
-    rc_stopTracker(_tracker);
     StopSensors();
+    rc_stopTracker(_tracker);
     StoreCurrentCalibration(); // TODO: handle failure
     _isRunning = false;
 }

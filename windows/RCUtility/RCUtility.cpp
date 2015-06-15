@@ -244,7 +244,7 @@ void EnterReplayingState(const PWSTR filePath)
     bool result = trackMan->StartReplay(filePath, true);
     if (result)
     {
-        SetWindowText(hCalibrateButton, TEXT("Replaying..."));
+        SetWindowText(hStatusLabel, TEXT("Replaying..."));
         appState = Replay;
         vis.start(); // blocks until vis window is closed
         ExitReplayingState();

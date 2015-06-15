@@ -13,7 +13,7 @@ int main(int c, char **v)
     world_state ws;
 
     bool realtime = false, start_paused = false;
-    bool enable_gui = true, show_plots = true, show_video = true, show_main = true;
+    bool enable_gui = true, show_plots = false, show_video = true, show_main = true;
     char *devicename = nullptr, *filename = nullptr, *rendername = nullptr;
     for (int i=1; i<c; i++)
         if      (v[i][0] != '-' && !filename) filename = v[i];

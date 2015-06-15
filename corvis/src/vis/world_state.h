@@ -9,7 +9,7 @@
 #include "../cor/platform/sensor_clock.h"
 #include "../cor/packet.h"
 #include "../Eigen/StdVector"
-#include "../cor/platform/sensor_data.h"
+#include "../cor/sensor_data.h"
 
 typedef struct _VertexData {
     float position[3];

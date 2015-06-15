@@ -23,7 +23,7 @@ PXC_DEFINE_CONST(METADATA_IMU_GRAVITY, 0x7bce5555);             // Last row (6-8
 // A sorted copy of this ring buffer is attached to the depth image as meta data (e.g. METADATA_IMU_TILT).
 const unsigned IMU_RING_BUFFER_SAMPLE_COUNT = 16; // The number of samples attached (for each sensor type)
 
-typedef struct imu_sample
+typedef struct
 {
     /// @param[out] coordinatedUniversalTime100ns 
     /// A single tick represents one hundred nanoseconds 

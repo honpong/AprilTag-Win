@@ -83,9 +83,9 @@ void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int m
         scale *= 1/1.1f;
     if(key == GLFW_KEY_MINUS && action == GLFW_PRESS)
         scale *= 1.1f;
-    if(key == GLFW_KEY_SPACE && action == GLFW_PRESS)
+    if(key == GLFW_KEY_SPACE && action == GLFW_PRESS && replay_control)
        replay_control->toggle_pause();
-    if(key == GLFW_KEY_S && action == GLFW_PRESS)
+    if(key == GLFW_KEY_S && action == GLFW_PRESS && replay_control)
        replay_control->step();
     if(key == GLFW_KEY_F && action == GLFW_PRESS)
        write_frame();
@@ -171,20 +171,20 @@ void gui::start_glfw()
             plots_height_percent = .5f;
 
         if(show_video) {
-            video_width = width*right_column_percent;
-            video_height = height*video_height_percent;
+            video_width = lroundf(width*right_column_percent);
+            video_height = lroundf(height*video_height_percent);
             if(1.*video_height/video_width > 1.f*frame_height/frame_width)
-                video_height = video_width *  1.f*frame_height/frame_width;
+                video_height = lroundf(video_width *  1.f*frame_height/frame_width);
             else
-                video_width = video_height * 1.f*frame_width/frame_height;
+                video_width = lroundf(video_height * 1.f*frame_width/frame_height);
         }
         if(show_plots) {
-            plots_width = width*right_column_percent;
+            plots_width = lroundf(width*right_column_percent);
             plots_height = height - video_height;
             if(show_video)
                 plots_width = video_width;
             if(!show_video && show_main)
-                plots_height = height*plots_height_percent;
+                plots_height = lroundf(height*plots_height_percent);
         }
         if(show_main && show_video && show_plots)
             main_width = width - video_width;

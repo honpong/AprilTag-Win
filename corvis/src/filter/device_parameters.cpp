@@ -9,6 +9,8 @@
 #include "device_parameters.h"
 #include <string>
 #include <iostream>
+#include "calibration_json_store.h"
+#include <memory>
 
 #define _USE_MATH_DEFINES
 #include <cmath>
@@ -16,39 +18,62 @@
 #define M_PI 3.14159265358979323846
 #endif
 
+using namespace RealityCap;
+
+void get_device_type_string_map(unordered_map<corvis_device_type, string> &map)
+{
+    if (map.size()) return;
+    map[DEVICE_TYPE_IPOD5] = "ipodtouch";
+    map[DEVICE_TYPE_IPHONE4S] = "iphone4s";
+    map[DEVICE_TYPE_IPHONE5C] = "iphone5c";
+    map[DEVICE_TYPE_IPHONE5S] = "iphone5s";
+    map[DEVICE_TYPE_IPHONE5] = "iphone5";
+    map[DEVICE_TYPE_IPHONE6PLUS] = "iphone6plus";
+    map[DEVICE_TYPE_IPHONE6] = "iphone6";
+    map[DEVICE_TYPE_IPAD2] = "ipad2";
+    map[DEVICE_TYPE_IPAD3] = "ipad3";
+    map[DEVICE_TYPE_IPAD4] = "ipad4";
+    map[DEVICE_TYPE_IPADAIR2] = "ipadair2";
+    map[DEVICE_TYPE_IPADAIR] = "ipadair";
+    map[DEVICE_TYPE_IPADMINIRETINA2] = "ipadminiretina2";
+    map[DEVICE_TYPE_IPADMINIRETINA] = "ipadminiretina";
+    map[DEVICE_TYPE_IPADMINI] = "ipadmini";
+    map[DEVICE_TYPE_GIGABYTE_S11] = "gigabyte_s11";
+    map[DEVICE_TYPE_UNKNOWN] = "unknown";
+}
+
+string get_device_type_string(corvis_device_type type)
+{
+    unordered_map<corvis_device_type, string> map;
+    get_device_type_string_map(map);
+
+    if (map.find(type) != map.end())
+        return map[type];
+    else
+        return NULL;
+}
+
 corvis_device_type get_device_by_name(const char *name)
 {
     if(!name) return DEVICE_TYPE_UNKNOWN;
 
-    std::string device_name(name);
-    
-    /*
-     ******** IMPORTANT! *************
-     Longer variants (iphone5s, iphone5c) have to come before the shorter variants (iphone5), since we only match the start of the name
-     */
-    if(device_name.find("ipodtouch") == 0) return DEVICE_TYPE_IPOD5;
-    if(device_name.find("ipod5") == 0) return DEVICE_TYPE_IPOD5;
+    std::string full_name(name), device_name = full_name.substr(0, full_name.find_first_of('_'));
+    corvis_device_type type = DEVICE_TYPE_UNKNOWN;
 
-    if(device_name.find("iphone4s") == 0) return DEVICE_TYPE_IPHONE4S;
-    if(device_name.find("iphone5c") == 0) return DEVICE_TYPE_IPHONE5C;
-    if(device_name.find("iphone5s") == 0) return DEVICE_TYPE_IPHONE5S;
-    if(device_name.find("iphone5") == 0) return DEVICE_TYPE_IPHONE5;
-    if(device_name.find("iphone6plus") == 0) return DEVICE_TYPE_IPHONE6PLUS;
-    if(device_name.find("iphone6") == 0) return DEVICE_TYPE_IPHONE6;
+    unordered_map<corvis_device_type, string> map;
+    get_device_type_string_map(map);
 
-    if(device_name.find("ipad2") == 0) return DEVICE_TYPE_IPAD2;
-    if(device_name.find("ipad3") == 0) return DEVICE_TYPE_IPAD3;
-    if(device_name.find("ipad4") == 0) return DEVICE_TYPE_IPAD4;
+    // search map values. slow, but this function will be called infrequently.
+    for (unordered_map<corvis_device_type, string>::iterator i = map.begin(); i != map.end(); i++)
+    {
+        if (i->second.compare(device_name) == 0)
+        {
+            type = i->first;
+            break;
+        }
+    }
 
-    if(device_name.find("ipadair2") == 0) return DEVICE_TYPE_IPADAIR2;
-    if(device_name.find("ipadair") == 0) return DEVICE_TYPE_IPADAIR;
-    if(device_name.find("ipadminiretina2") == 0) return DEVICE_TYPE_IPADMINIRETINA2;
-    if(device_name.find("ipadminiretina") == 0) return DEVICE_TYPE_IPADMINIRETINA;
-    if(device_name.find("ipadmini") == 0) return DEVICE_TYPE_IPADMINI;
-
-    if (device_name.find("gigabyte_s11") == 0) return DEVICE_TYPE_GIGABYTE_S11;
-
-    return DEVICE_TYPE_UNKNOWN;
+    return type;
 }
 
 void device_set_resolution(struct corvis_device_parameters *dc, int image_width, int image_height)
@@ -71,198 +96,11 @@ void device_set_framerate(struct corvis_device_parameters *dc, float framerate_h
     dc->shutter_period = std::chrono::duration_cast<sensor_clock::duration>(std::chrono::duration<float>(1.f/framerate_hz));
 }
 
+// TODO: should this go away?
 bool get_parameters_for_device(corvis_device_type type, struct corvis_device_parameters *dc)
 {
-    dc->px = 0.;
-    dc->py = 0.;
-    dc->K[2] = 0.;
-    dc->Wc[0] = (float) (sqrt(2.)/2. * M_PI);
-    dc->Wc[1] = (float) (-sqrt(2.)/2. * M_PI);
-    dc->Wc[2] = 0.;
-    double a_bias_stdev = .02 * 9.8 / 2.; //20 mg "typical", assuming that means two-sigma
-    double w_bias_stdev = 10. / 180. * M_PI / 2.; //10 dps typical according to specs, but not in practice - factory or apple calibration? Found some devices with much larger range
-    float w_stdev = (float) (.03 * sqrt(50.) / 180. * M_PI); //.03 dps / sqrt(hz) at 50 hz
-    float a_stdev = (float) (.000218 * sqrt(50.) * 9.8); //218 ug / sqrt(hz) at 50 hz
-    dc->w_meas_var = w_stdev * w_stdev;
-    dc->a_meas_var = a_stdev * a_stdev;
-    dc->image_width = 640;
-    dc->image_height = 480;
-    dc->Cx = (dc->image_width - 1)/2.f;
-    dc->Cy = (dc->image_height - 1)/2.f;
-    int max_dim = dc->image_width > dc->image_height ? dc->image_width : dc->image_height;
-    device_set_framerate(dc, 30);
-
-
-    for(int i = 0; i < 3; ++i) {
-        dc->a_bias[i] = 0.;
-        dc->w_bias[i] = 0.;
-        dc->a_bias_var[i] = (float) (a_bias_stdev * a_bias_stdev);
-        dc->w_bias_var[i] = (float) (w_bias_stdev * w_bias_stdev);
-        dc->Tc_var[i] = 1.e-6f;
-        dc->Wc_var[i] = 1.e-6f;
-    }
-    dc->Tc_var[2] = 1.e-10f; //Letting this float gives ambiguity with focal length
-
-    switch(type)
-    {
-        case DEVICE_TYPE_IPHONE4S: //Tc from new sequence appears reasonably consistent with teardown
-            dc->Fx = 606.f/640.f * max_dim;
-            dc->Fy = dc->Fx;
-            dc->K[0] = .21f;
-            dc->K[1] = -.45f;
-            dc->Tc[0] = 0.010f;
-            dc->Tc[1] = 0.006f;
-            dc->Tc[2] = 0.000f;
-            return true;
-        case DEVICE_TYPE_IPHONE5: //Tc from new sequence is consistent with teardown
-            dc->Fx = 596.f/640.f * max_dim;
-            dc->Fy = dc->Fx;
-            dc->K[0] = .12f;
-            dc->K[1] = -.20f;
-            dc->Tc[0] = 0.010f;
-            dc->Tc[1] = 0.008f;
-            dc->Tc[2] = 0.000f;
-            return true;
-        case DEVICE_TYPE_IPHONE5C: //Guess from teardown - Tc is different from iphone 5
-            dc->Fx = 596.f/640.f * max_dim;
-            dc->Fy = dc->Fx;
-            dc->K[0] = .12f;
-            dc->K[1] = -.20f;
-            dc->Tc[0] = 0.005f;
-            dc->Tc[1] = 0.025f;
-            dc->Tc[2] = 0.000f;
-            return true;
-        case DEVICE_TYPE_IPHONE5S: //Tc from sequence appears consistent with teardown; static calibration for my 5s is not right for older sequences
-            //iphone5s_sam is a bit different, but within range
-            dc->Fx = 547.f/640.f * max_dim;
-            dc->Fy = dc->Fx;
-            dc->K[0] = .09f;
-            dc->K[1] = -.15f;
-            dc->Tc[0] = 0.015f;
-            dc->Tc[1] = 0.050f;
-            dc->Tc[2] = 0.000f;
-            return true;
-        case DEVICE_TYPE_IPHONE6: //Calibrated on Eagle's iPhone 6; consistent with teardwon
-            dc->Fx = 548.f/640.f * max_dim;
-            dc->Fy = dc->Fx;
-            dc->K[0] = .10f;
-            dc->K[1] = -.15f;
-            dc->Tc[0] = 0.015f;
-            dc->Tc[1] = 0.065f;
-            dc->Tc[2] = 0.000f;
-            return true;
-        case DEVICE_TYPE_IPHONE6PLUS: //Based on 6, but calibrated with real iPhone 6 plus
-            dc->Fx = 548.f/640.f * max_dim;
-            dc->Fy = dc->Fx;
-            dc->K[0] = .10f;
-            dc->K[1] = -.15f;
-            dc->Tc[0] = 0.008f;
-            dc->Tc[1] = 0.075f;
-            dc->Tc[2] = 0.000f;
-            return true;
-        case DEVICE_TYPE_IPOD5: //Tc is reasonably consistent with teardown
-            dc->Fx = 591.f/640.f * max_dim;
-            dc->Fy = dc->Fx;
-            dc->K[0] = .18f;
-            dc->K[1] = -.37f;
-            dc->Tc[0] = 0.043f;
-            dc->Tc[1] = 0.020f;
-            dc->Tc[2] = 0.000f;
-            return true;
-        case DEVICE_TYPE_IPAD2: //Tc from sequence appears consistent with teardown, except x offset seems a bit large
-            dc->Fx = 782.f/640.f * max_dim;
-            dc->Fy = dc->Fx;
-            dc->K[0] = .03f;
-            dc->K[1] = -.21f;
-            dc->Tc[0] = -0.030f;
-            dc->Tc[1] = 0.118f;
-            dc->Tc[2] = 0.f;
-            return true;
-        case DEVICE_TYPE_IPAD3: //Tc from sequence seems stable, but can't see on teardown. y offset seems hard to estimate, not sure if it's right
-            dc->Fx = 627.f/640.f * max_dim;
-            dc->Fy = dc->Fx;
-            dc->K[0] = .17f;
-            dc->K[1] = -.38f;
-            dc->Tc[0] = 0.064f;
-            dc->Tc[1] = -0.017f;
-            dc->Tc[2] = 0.f;
-            return true;
-        case DEVICE_TYPE_IPAD4: //Tc from sequence seems stable, but can't see on teardown.
-            dc->Fx = 594.f/640.f * max_dim;
-            dc->Fy = dc->Fx;
-            dc->K[0] = .17f;
-            dc->K[1] = -.47f;
-            dc->Tc[0] = .010f;
-            dc->Tc[1] = .050f;
-            dc->Tc[2] = 0.f;
-            return true;
-        case DEVICE_TYPE_IPADAIR: //Tc from sequence appears consistent with teardown
-            dc->Fx = 582.f/640.f * max_dim;
-            dc->Fy = dc->Fx;
-            dc->K[0] = .12f;
-            dc->K[1] = -.25f;
-            dc->Tc[0] = -.012f;
-            dc->Tc[1] = .065f;
-            dc->Tc[2] = .000f;
-            return true;
-        case DEVICE_TYPE_IPADAIR2: //Calibrated from device; very similar to old
-            dc->Fx = 573.f/640.f * max_dim;
-            dc->Fy = dc->Fx;
-            dc->K[0] = .13f;
-            dc->K[1] = -.26f;
-            dc->Tc[0] = -.003f;
-            dc->Tc[1] = .068f;
-            dc->Tc[2] = .000f;
-            return true;
-        case DEVICE_TYPE_IPADMINI: //Tc from sequence is consistent with teardown
-            dc->Fx = 583.f/640.f * max_dim;
-            dc->Fy = dc->Fx;
-            dc->K[0] = .13f;
-            dc->K[1] = -.21f;
-            dc->Tc[0] = -0.014f;
-            dc->Tc[1] = 0.074f;
-            dc->Tc[2] = 0.f;
-            return true;
-        case DEVICE_TYPE_IPADMINIRETINA: //Tc from sequence is consistent with teardown
-            dc->Fx = 580.f/640.f * max_dim;
-            dc->Fy = dc->Fx;
-            dc->K[0] = .14f;
-            dc->K[1] = -.33f;
-            dc->Tc[0] = -0.003f;
-            dc->Tc[1] = 0.070f;
-            dc->Tc[2] = 0.000f;
-            return true;
-        case DEVICE_TYPE_IPADMINIRETINA2: //Just copied from old
-            dc->Fx = 580.f/640.f * max_dim;
-            dc->Fy = dc->Fx;
-            dc->K[0] = .14f;
-            dc->K[1] = -.33f;
-            dc->Tc[0] = -0.003f;
-            dc->Tc[1] = 0.070f;
-            dc->Tc[2] = 0.000f;
-            return true;
-
-        case DEVICE_TYPE_GIGABYTE_S11: //TBD
-            dc->Fx = 627.f / 640.f * max_dim;
-            dc->Fy = dc->Fx;
-            dc->K[0] = .17f;
-            dc->K[1] = -.38f;
-            dc->Tc[0] = 0.064f;
-            dc->Tc[1] = -0.017f;
-            dc->Tc[2] = 0.f;
-            return true;
-
-        case DEVICE_TYPE_UNKNOWN:
-        default:
-            dc->Fx = 600.f/640.f * max_dim;
-            dc->Fy = dc->Fx;
-            dc->K[0] = .20f;
-            dc->K[1] = -.20f;
-            dc->Tc[0] = 0.01f;
-            dc->Tc[1] = 0.03f;
-            dc->Tc[2] = 0.0f;
-            return false;
-    }
+    unique_ptr<calibration_data_store> calStore = calibration_data_store::GetStore();
+    return calStore->LoadCalibrationDefaults(type, *dc);
 }
 
 void set_initialized(struct corvis_device_parameters *dc)
@@ -689,6 +527,28 @@ bool get_parameters_for_device_name(const char * config_name, struct corvis_devi
         dc->shutter_delay = 0;
         dc->shutter_period = 31000;
         */
+
+    return true;
+}
+
+bool is_calibration_valid(const corvis_device_parameters &cal, const corvis_device_parameters &deviceDefaults)
+{
+    if (cal.version != CALIBRATION_VERSION) return false;
+
+    //check if biases are within 5 sigma
+    const float sigma = 5.;
+    float a = cal.a_bias[0];
+    if (a * a > sigma * sigma * deviceDefaults.a_bias_var[0]) return false;
+    a = cal.a_bias[1];
+    if (a * a > sigma * sigma * deviceDefaults.a_bias_var[1]) return false;
+    a = cal.a_bias[2];
+    if (a * a > sigma * sigma * deviceDefaults.a_bias_var[2]) return false;
+    a = cal.w_bias[0];
+    if (a * a > sigma * sigma * deviceDefaults.w_bias_var[0]) return false;
+    a = cal.w_bias[1];
+    if (a * a > sigma * sigma * deviceDefaults.w_bias_var[1]) return false;
+    a = cal.w_bias[2];
+    if (a * a > sigma * sigma * deviceDefaults.w_bias_var[2]) return false;
 
     return true;
 }

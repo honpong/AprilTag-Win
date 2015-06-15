@@ -2,10 +2,11 @@
 
 #include "stdafx.h"
 #include <thread>
+#include <atomic>
+#include "pxcsensemanager.h"
+#include "pxcmetadata.h"
+#include "libpxcimu_internal.h"
 
-class PXCSenseManager;
-class PXCImage;
-struct imu_sample;
 
 namespace RealityCap
 {
@@ -16,30 +17,33 @@ namespace RealityCap
 
     public:
         virtual void OnColorFrame(PXCImage* colorImage) {};
-        virtual void OnAmeterSample(struct imu_sample* sample) {};
-        virtual void OnGyroSample(struct imu_sample* sample) {};
+        virtual void OnAmeterSample(imu_sample_t* sample) {};
+        virtual void OnGyroSample(imu_sample_t* sample) {};
     };
 
     class SensorManager : SensorDataReceiver
     {
     public:
         SensorManager(PXCSenseManager* senseMan);
-        ~SensorManager();
+        virtual ~SensorManager();
         bool StartSensors(); // returns true if sensors started successfully
         void StopSensors();
+        bool StartPlayback(const wchar_t *filename, bool realtime);
+        bool StartRecording(const wchar_t *absFileName);
         bool isVideoStreaming();
+        void WaitUntilFinished();
         void SetReceiver(SensorDataReceiver* sensorReceiver) { _sensorReceiver = sensorReceiver; };
         PXCSenseManager* GetSenseManager() {  return _senseMan; };
 
     protected:
         virtual void OnColorFrame(PXCImage* colorImage) override;
-        virtual void OnAmeterSample(struct imu_sample* sample) override;
-        virtual void OnGyroSample(struct imu_sample* sample) override;
+        virtual void OnAmeterSample(imu_sample_t* sample) override;
+        virtual void OnGyroSample(imu_sample_t* sample) override;
 
     private:
         PXCSenseManager* _senseMan;
         std::thread videoThread;
-        bool _isVideoStreaming;
+        std::atomic_bool _isVideoStreaming;
         SensorDataReceiver* _sensorReceiver;
 
         void PollForFrames();

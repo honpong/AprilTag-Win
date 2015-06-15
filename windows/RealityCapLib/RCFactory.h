@@ -1,10 +1,7 @@
 #pragma once
 #include "SensorManager.h"
-#include "CalibrationManager.h"
-#include "CaptureManager.h"
+#include "TrackerManager.h"
 #include <memory>
-
-using namespace std;
 
 class PXCSenseManager;
 
@@ -14,9 +11,9 @@ namespace RealityCap
     {
     public:
         RCFactory();
-        ~RCFactory();
-        unique_ptr<CalibrationManager> CreateCalibrationManager();
-        unique_ptr<CaptureManager> CreateCaptureManager();
+        virtual ~RCFactory();
+        std::unique_ptr<SensorManager> CreateSensorManager();
+        std::unique_ptr<TrackerManager> CreateTrackerManager();
         PXCSenseManager* GetSenseManager() { return _senseMan; };
 
     private:

@@ -22,6 +22,8 @@
 int state_node::statesize;
 int state_node::maxstatesize;
 
+const static sensor_clock::duration max_camera_delay = std::chrono::microseconds(200000); //We drop a frame if it arrives at least this late
+const static sensor_clock::duration max_inertial_delay = std::chrono::microseconds(100000); //We drop inertial data if it arrives at least this late
 const static sensor_clock::duration min_steady_time = std::chrono::microseconds(100000); //time held steady before we start treating it as steady
 const static sensor_clock::duration steady_converge_time = std::chrono::microseconds(200000); //time that user needs to hold steady (us)
 const static int calibration_converge_samples = 200; //number of accelerometer readings needed to converge in calibration mode
@@ -288,7 +290,7 @@ static float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
     return current < end ? 1.f : (float) ((log(begin) - log(current)) / (log(begin) - log(end))); //log here seems to give smoother progress
 }
 
-static float get_bias_convergence(struct filter *f, int dir)
+static float get_bias_convergence(const struct filter *f, int dir)
 {
     float max_pct = (float)var_bounds_to_std_percent(f->s.a_bias.variance()[dir], f->a_bias_start[dir], min_a_bias_var);
     float pct = (float)f->accel_stability.count / (float)calibration_converge_samples;
@@ -415,6 +417,14 @@ void filter_accelerometer_measurement(struct filter *f, const float data[3], sen
     //This will throw away both the outlier measurement and the next measurement, because we update last every time. This prevents setting last to an outlier and never recovering.
     if(f->run_state == RCSensorFusionRunStateInactive) return;
     if(!check_packet_time(f, time, packet_accelerometer)) return;
+    if(!f->ignore_lateness) {
+        auto current = sensor_clock::now();
+        auto delta = current - time;
+        if(delta > max_inertial_delay) {
+            if(log_enabled) fprintf(stderr, "Warning, dropped an old accel sample - timestamp %lld, now %lld\n", sensor_clock::tp_to_micros(time), sensor_clock::tp_to_micros(current));
+            return;
+        }
+    }
     if(!f->got_accelerometer) { //skip first packet - has been crap from gyro
         f->got_accelerometer = true;
         return;
@@ -466,6 +476,14 @@ void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_
     //This will throw away both the outlier measurement and the next measurement, because we update last every time. This prevents setting last to an outlier and never recovering.
     if(f->run_state == RCSensorFusionRunStateInactive) return;
     if(!check_packet_time(f, time, packet_gyroscope)) return;
+    if(!f->ignore_lateness) {
+        auto current = sensor_clock::now();
+        auto delta = current - time;
+        if(delta > max_inertial_delay) {
+            if(log_enabled) fprintf(stderr, "Warning, dropped an old gyro sample - timestamp %lld, now %lld\n", sensor_clock::tp_to_micros(time), sensor_clock::tp_to_micros(current));
+            return;
+        }
+    }
     if(!f->got_gyroscope) { //skip the first piece of data as it seems to be crap
         f->got_gyroscope = true;
         return;
@@ -764,6 +782,10 @@ bool filter_image_measurement(struct filter *f, const unsigned char *data, int w
         
         auto current = sensor_clock::now();
         auto delta = current - time;
+        if(delta > max_camera_delay) {
+            if(log_enabled) fprintf(stderr, "Warning, dropped an old video frame - timestamp %lld, now %lld\n", sensor_clock::tp_to_micros(time), sensor_clock::tp_to_micros(current));
+            return false;
+        }
         if(!f->valid_delta) {
             f->mindelta = delta;
             f->valid_delta = true;
@@ -1121,7 +1143,7 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->s.remap();
 }
 
-float filter_converged(struct filter *f)
+float filter_converged(const struct filter *f)
 {
     if(f->run_state == RCSensorFusionRunStateSteadyInitialization) {
         if(f->stable_start == sensor_clock::micros_to_tp(0)) return 0.;
@@ -1139,14 +1161,14 @@ float filter_converged(struct filter *f)
     } else return 0.;
 }
 
-bool filter_is_steady(struct filter *f)
+bool filter_is_steady(const struct filter *f)
 {
     return
         f->s.V.v.norm() < .1 &&
         f->s.w.v.norm() < .1;
 }
 
-int filter_get_features(struct filter *f, struct corvis_feature_info *features, int max)
+int filter_get_features(const struct filter *f, struct corvis_feature_info *features, int max)
 {
     int index = 0;
     for(state_vision_feature *i : f->s.features) {
@@ -1164,7 +1186,7 @@ int filter_get_features(struct filter *f, struct corvis_feature_info *features, 
     return index;
 }
 
-void filter_get_camera_parameters(struct filter *f, float matrix[16], float focal_center_radial[5])
+void filter_get_camera_parameters(const struct filter *f, float matrix[16], float focal_center_radial[5])
 {
     focal_center_radial[0] = (float)f->s.focal_length.v;
     focal_center_radial[1] = (float)f->s.center_x.v;

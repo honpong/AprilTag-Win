@@ -1,0 +1,126 @@
+cmake_minimum_required(VERSION 3.2.2 FATAL_ERROR)
+
+add_subdirectory(../corvis "${CMAKE_CURRENT_BINARY_DIR}/corvis")
+
+add_library(pxcmd STATIC IMPORTED)
+set_property(TARGET pxcmd PROPERTY IMPORTED_LOCATION "$ENV{RSSDK_DIR}lib/$(PlatformName)/libpxcmd.lib")
+
+file(GLOB PLATFORM_CONFIG_PATH # platform.winmd
+  "C:/Program Files (x86)/Microsoft SDKs/Windows/v8.1/ExtensionSDKs/Microsoft.VCLibs/12.0/References/CommonConfiguration/neutral"
+  "C:/Program Files/Microsoft SDKs/Windows/v8.1/ExtensionSDKs/Microsoft.VCLibs/12.0/References/CommonConfiguration/neutral"
+)
+
+file(GLOB WINDOWS_CONFIG_PATH # Windows.winmd
+  "C:/Program Files (x86)/Windows Kits/8.1/References/CommonConfiguration/Neutral"
+  "C:/Program Files/Windows Kits/8.1/References/CommonConfiguration/Neutral"
+)
+
+target_compile_options(filter PRIVATE /wd4200 /wd4458)
+target_compile_options(vis PRIVATE /wd4200 /wd4458)
+
+add_library(RCTracker SHARED
+    ../corvis/src/filter/rc_intel_interface.cpp
+    ../corvis/src/filter/rc_intel_interface.h
+)
+
+target_link_libraries(RCTracker PRIVATE
+  filter
+  numerics
+  cor
+  vis
+)
+set_property(TARGET RCTracker PROPERTY CXX_STANDARD 14)
+target_include_directories(RCTracker PUBLIC
+    ../corvis/src/filter
+)
+
+add_executable(RCTrackerDemo src/RCTrackerDemo/replay_rsclip.cpp)
+target_link_libraries(RCTrackerDemo RCTracker)
+target_link_libraries(RCTrackerDemo RealityCapLib)
+target_include_directories(RCTrackerDemo PRIVATE
+    "$ENV{RSSDK_DIR}/include/"
+)
+link_directories("$ENV{RSSDK_DIR}lib/$(PlatformName)")
+target_link_libraries(RCTrackerDemo "$ENV{RSSDK_DIR}lib/$(PlatformName)/libpxcmd.lib")
+
+add_custom_command(TARGET RCTrackerDemo POST_BUILD        # Adds a post-build event to RCTrackerDemo
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different  # which executes "cmake - E copy_if_different..."
+        "${PROJECT_SOURCE_DIR}/src/intel_deliverables/gigabyte_s11.json"      # <--this is in-file
+        $<TARGET_FILE_DIR:RCTrackerDemo>)                 # <--this is out-file path
+
+add_library(RealityCapLib
+  RealityCapLib/TrackerManager.cpp
+  RealityCapLib/TrackerManager.h
+  RealityCapLib/SensorManager.cpp
+  RealityCapLib/SensorManager.h
+  RealityCapLib/RCFactory.cpp
+  RealityCapLib/RCFactory.h
+  RealityCapLib/Debug.cpp
+  RealityCapLib/Debug.h
+  RealityCapLib/stdafx.cpp
+  RealityCapLib/stdafx.h
+  RealityCapLib/rc_pxc_util.h
+)
+target_include_directories(RealityCapLib PUBLIC RealityCapLib)
+target_include_directories(RealityCapLib PUBLIC 
+  "$ENV{RSSDK_DIR}/include"
+)
+target_compile_definitions(RealityCapLib PRIVATE UNICODE _UNICODE)
+target_link_libraries(RealityCapLib RCTracker pxcmd)
+target_compile_options(RealityCapLib PRIVATE /wd4200 /wd4458)
+
+add_executable(RCUtility WIN32
+    RCUtility/RCUtility.cpp
+    RCUtility/RCUtility.h
+    RCUtility/RCUtility.rc
+    RCUtility/Resource.h
+    RCUtility/stdafx.cpp
+    RCUtility/stdafx.h
+    RCUtility/targetver.h
+    RCUtility/render_data.cpp
+    RCUtility/render_data.h
+    RCUtility/arcball.cpp
+    RCUtility/arcball.h
+    RCUtility/visualization.cpp
+    RCUtility/visualization.h
+    RCUtility/FilePicker.h
+)
+
+target_compile_options(glfw PRIVATE /wd4457)
+
+target_link_libraries(RCUtility RealityCapLib pxcmd)
+target_link_libraries(RCUtility glad glfw)
+target_link_libraries(RCUtility ${GLFW_LIBRARIES})
+target_compile_options(RCUtility PRIVATE /wd4200 /wd4458)
+target_compile_definitions(RCUtility PRIVATE UNICODE _UNICODE)
+target_compile_options(RCUtility PRIVATE /ZW /EHsc /Gm- "/AI${PLATFORM_CONFIG_PATH}" "/AI${WINDOWS_CONFIG_PATH}")
+target_include_directories(RCUtility PRIVATE "$ENV{RSSDK_DIR}/include")
+
+add_custom_command(TARGET RCUtility POST_BUILD        # Adds a post-build event to RCUtility
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different  # which executes "cmake - E copy_if_different..."
+        "${PROJECT_SOURCE_DIR}/src/intel_deliverables/gigabyte_s11.json"      # <--this is in-file
+        $<TARGET_FILE_DIR:RCUtility>)                 # <--this is out-file path
+
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/dist)
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/dist/ThirdParty)
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/dist/RCTracker)
+file(COPY RCUtility DESTINATION dist)
+file(COPY src/RCTrackerDemo DESTINATION dist)
+file(COPY RealityCapLib DESTINATION dist)
+file(COPY src/intel_deliverables/CMakeLists.txt DESTINATION dist)
+file(COPY ../corvis/src/filter/rc_intel_interface.h DESTINATION dist/RCTracker)
+file(COPY ../corvis/src/glfw DESTINATION dist/ThirdParty)
+file(COPY src/intel_deliverables/ThirdParty/CMakeLists.txt DESTINATION dist/ThirdParty)
+file(COPY src/intel_deliverables/gigabyte_s11.json DESTINATION dist/RCUtility)
+
+# Custom targets will always be rebuilt, which means this target will
+# copy the updated the DLL whenever it is built
+add_custom_target(
+    BuildIntelDistribution ALL
+    DEPENDS RCTracker)
+add_custom_command(TARGET BuildIntelDistribution POST_BUILD COMMAND
+    ${CMAKE_COMMAND} -E copy $<TARGET_FILE:RCTracker> dist/RCTracker/)
+add_custom_command(TARGET BuildIntelDistribution POST_BUILD COMMAND
+    ${CMAKE_COMMAND} -E copy $<TARGET_LINKER_FILE:RCTracker> dist/RCTracker/)
+add_dependencies(RCUtility BuildIntelDistribution)
+add_dependencies(RCTrackerDemo BuildIntelDistribution)

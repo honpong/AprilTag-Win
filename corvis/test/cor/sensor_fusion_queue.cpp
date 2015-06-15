@@ -87,15 +87,15 @@ TEST(SensorFusionQueue, Threading)
 
     fusion_queue q(camf, accf, gyrf, fusion_queue::latency_strategy::BALANCED, camera_interval, inertial_interval, jitter);
 
-    auto start = std::chrono::steady_clock::now();
+    auto start = sensor_clock::now();
     
     q.start_sync(true);
     
     std::thread camthread([&q, start, camera_interval, cam_latency, &camsent, thread_time]{
         camera_data x;
-        auto now = std::chrono::steady_clock::now();
+        auto now = sensor_clock::now();
         auto start_time = now;
-        while((now = std::chrono::steady_clock::now()) < start_time + thread_time)
+        while((now = sensor_clock::now()) < start_time + thread_time)
         {
             auto duration = now - start;
             x.timestamp = sensor_clock::time_point(duration);
@@ -107,9 +107,9 @@ TEST(SensorFusionQueue, Threading)
     });
     std::thread gyrothread([&q, start, inertial_interval, in_latency, &gyrsent, thread_time]{
         gyro_data x;
-        auto now = std::chrono::steady_clock::now();
+        auto now = sensor_clock::now();
         auto start_time = now;
-        while((now = std::chrono::steady_clock::now()) < start_time + thread_time)
+        while((now = sensor_clock::now()) < start_time + thread_time)
         {
             auto duration = now - start;
             x.timestamp = sensor_clock::time_point(duration);
@@ -121,9 +121,9 @@ TEST(SensorFusionQueue, Threading)
     });
     std::thread accelthread([&q, start, inertial_interval, in_latency, &accsent, thread_time]{
         accelerometer_data x;
-        auto now = std::chrono::steady_clock::now();
+        auto now = sensor_clock::now();
         auto start_time = now;
-        while((now = std::chrono::steady_clock::now()) < start_time + thread_time)
+        while((now = sensor_clock::now()) < start_time + thread_time)
         {
             auto duration = now - start;
             x.timestamp = sensor_clock::time_point(duration);

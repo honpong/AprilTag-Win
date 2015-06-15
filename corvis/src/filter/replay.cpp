@@ -55,7 +55,7 @@ void replay::setup_filter()
         filter_gyroscope_measurement(&cor_setup->sfm, x.angvel_rad__s, x.timestamp);
     };
     queue = make_unique<fusion_queue>(camf, accf, gyrf, fusion_queue::latency_strategy::ELIMINATE_DROPS, std::chrono::microseconds(33000), std::chrono::microseconds(10000), std::chrono::microseconds(5000));
-    queue->start_offline(true);
+    queue->start_singlethreaded(true);
     cor_setup->sfm.ignore_lateness = true;
     filter_start_dynamic(&cor_setup->sfm);
 }
@@ -173,7 +173,6 @@ void replay::start()
                     }
                 }
             }
-            queue->dispatch_offline(false);
             bytes_dispatched += header.bytes;
             packets_dispatched++;
 
@@ -191,7 +190,8 @@ void replay::start()
         file.read((char *)&header, 16);
         if(file.bad() || file.eof()) is_running = false;
     }
-    while(queue->dispatch_offline(true)) {}
+    queue->stop_sync();
+    
     file.close();
 
     length = (float) cor_setup->sfm.s.T.v.norm() * 100;

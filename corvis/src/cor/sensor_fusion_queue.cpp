@@ -30,6 +30,7 @@ bool sensor_queue<T, size>::push(T&& x)
     if(last_in != sensor_clock::time_point())
     {
         sensor_clock::duration delta = time - last_in;
+        stats.data(delta.count());
         const float alpha = .1f;
         period = alpha * delta + (1.f - alpha) * period;
     }
@@ -93,6 +94,7 @@ fusion_queue::fusion_queue(const std::function<void(camera_data &&)> &camera_fun
                 control_func(nullptr),
                 active(false),
                 wait_for_camera(true),
+                singlethreaded(false),
                 strategy(s),
                 camera_period_expected(cam_period),
                 inertial_period_expected(inertial_period),
@@ -100,10 +102,30 @@ fusion_queue::fusion_queue(const std::function<void(camera_data &&)> &camera_fun
 {
 }
 
+fusion_queue::~fusion_queue()
+{
+    stop_immediately();
+    wait_until_finished();
+}
 
-void fusion_queue::receive_camera(camera_data&& x) { camera_queue.push(std::move(x)); }
-void fusion_queue::receive_accelerometer(accelerometer_data&& x) { accel_queue.push(std::move(x)); }
-void fusion_queue::receive_gyro(gyro_data&& x) { gyro_queue.push(std::move(x)); }
+
+void fusion_queue::receive_camera(camera_data&& x)
+{
+    camera_queue.push(std::move(x));
+    if(singlethreaded) dispatch_singlethread(false);
+}
+
+void fusion_queue::receive_accelerometer(accelerometer_data&& x)
+{
+    accel_queue.push(std::move(x));
+    if(singlethreaded) dispatch_singlethread(false);
+}
+
+void fusion_queue::receive_gyro(gyro_data&& x)
+{
+    gyro_queue.push(std::move(x));
+    if(singlethreaded) dispatch_singlethread(false);
+}
 
 void fusion_queue::dispatch_sync(std::function<void()> fn)
 {
@@ -117,6 +139,7 @@ void fusion_queue::dispatch_async(std::function<void()> fn)
     std::unique_lock<std::mutex> lock(mutex);
     control_func = fn;
     lock.unlock();
+    if(singlethreaded) dispatch_singlethread(false);
 }
 
 void fusion_queue::start_async(bool expect_camera)
@@ -142,13 +165,14 @@ void fusion_queue::start_sync(bool expect_camera)
     }
 }
 
-void fusion_queue::start_offline(bool expect_camera)
+void fusion_queue::start_singlethreaded(bool expect_camera)
 {
     wait_for_camera = expect_camera;
+    singlethreaded = true;
     active = true;
 }
 
-void fusion_queue::stop_async()
+void fusion_queue::stop_immediately()
 {
     std::unique_lock<std::mutex> lock(mutex);
     active = false;
@@ -156,10 +180,25 @@ void fusion_queue::stop_async()
     cond.notify_one();
 }
 
+void fusion_queue::stop_async()
+{
+    if(singlethreaded)
+    {
+        //flush any waiting data
+        while (dispatch_singlethread(true));
+#ifdef DEBUG
+        std::cerr << "Camera: " << camera_queue.get_stats();
+        std::cerr << "Accel: " << accel_queue.get_stats();
+        std::cerr << "Gyro: " << gyro_queue.get_stats();
+#endif
+    }
+    stop_immediately();
+}
+
 void fusion_queue::stop_sync()
 {
     stop_async();
-    wait_until_finished();
+    if(!singlethreaded) wait_until_finished();
 }
 
 void fusion_queue::wait_until_finished()
@@ -194,9 +233,9 @@ void fusion_queue::runloop()
     //flush any remaining data
     while (dispatch_next(lock, true));
 #ifdef DEBUG
-    fprintf(stderr, "Camera: "); camera_queue.print_stats();
-    fprintf(stderr, "Accel: "); accel_queue.print_stats();
-    fprintf(stderr, "Gyro: "); gyro_queue.print_stats();
+    std::cerr << "Camera: " << camera_queue.get_stats();
+    std::cerr << "Accel: " << accel_queue.get_stats();
+    std::cerr << "Gyro: " << gyro_queue.get_stats();
 #endif
     lock.unlock();
 }
@@ -211,6 +250,12 @@ sensor_clock::time_point  fusion_queue::global_latest_received() const
 bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
 {
     if(strategy == latency_strategy::ELIMINATE_LATENCY) return true; //always dispatch if we are eliminating latency
+    
+    if(strategy == latency_strategy::IMAGE_TRIGGER && wait_for_camera) //if we aren't waiting for camera, then IMAGE_TRIGGER behaves like MINIMIZE_DROPS
+    {
+        if(camera_queue.empty()) return false;
+        else return true;
+    }
 
     //We test the proposed queue against itself, but immediately green light it because queue won't be empty anyway
     if(camera_queue.empty() && wait_for_camera)
@@ -235,7 +280,7 @@ bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
         if(strategy == latency_strategy::ELIMINATE_DROPS) return false;
         if(time > accel_queue.last_out + accel_queue.period - std::chrono::milliseconds(1))
         {
-            if(strategy == latency_strategy::MINIMIZE_DROPS) return false;
+            if(strategy == latency_strategy::MINIMIZE_DROPS || strategy == latency_strategy::IMAGE_TRIGGER) return false;
             if(strategy == latency_strategy::BALANCED && wait_for_camera && camera_queue.empty()) return false; //In balanced strategy, we wait longer, as long as we aren't blocking a camera frame, otherwise fall through to minimize latency
             if(global_latest_received() < accel_queue.last_out + accel_queue.period + jitter) return false;
         }
@@ -246,7 +291,7 @@ bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
         if(strategy == latency_strategy::ELIMINATE_DROPS) return false;
         if(time > gyro_queue.last_out + gyro_queue.period - std::chrono::milliseconds(1)) //OK to dispatch if it's far enough ahead of when we expect the other
         {
-            if(strategy == latency_strategy::MINIMIZE_DROPS) return false;
+            if(strategy == latency_strategy::MINIMIZE_DROPS || strategy == latency_strategy::IMAGE_TRIGGER) return false;
             if(strategy == latency_strategy::BALANCED && wait_for_camera && camera_queue.empty()) return false; //In balanced strategy, if we aren't holding up a camera frame, wait
             if(global_latest_received() < accel_queue.last_out + accel_queue.period + jitter) return false; //Otherwise (balanced and minimize latency) wait as long as we aren't likely to be late and dropped
         }
@@ -319,7 +364,7 @@ bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock, bool force)
     return true;
 }
 
-bool fusion_queue::dispatch_offline(bool force)
+bool fusion_queue::dispatch_singlethread(bool force)
 {
     std::unique_lock<std::mutex> lock(mutex);
     bool ret = dispatch_next(lock, force);

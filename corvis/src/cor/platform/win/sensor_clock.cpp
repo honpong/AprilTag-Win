@@ -16,5 +16,6 @@ sensor_clock::time_point sensor_clock::now() noexcept
     ULARGE_INTEGER ftl;
     ftl.HighPart = ft.dwHighDateTime;
     ftl.LowPart = ft.dwLowDateTime;
-    return sensor_clock::time_point(sensor_clock::duration(ftl.QuadPart));
+    auto time_100ns = std::chrono::duration<ULONGLONG, std::ratio<1, 10000000>>(ftl.QuadPart);
+    return time_point(std::chrono::duration_cast<duration>(time_100ns));
 }

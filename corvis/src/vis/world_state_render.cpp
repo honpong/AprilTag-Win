@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <limits>
+
 #include "gl_util.h"
 #include "render.h"
 #include "video_render.h"
@@ -157,8 +159,8 @@ static void create_plot(world_state * state, int index, uint8_t *plot_frame, int
         //    fprintf(stderr, "encoder error %d: %s\n", error, lodepng_error_text(error));
     });
 }
-#endif //TARGET_OS_IPHONE
 #endif //WIN32
+#endif //TARGET_OS_IPHONE
 
 void world_state_render_plot(world_state * world, int index, int viewport_width, int viewport_height)
 {

@@ -264,6 +264,7 @@ void sensor_fusion::stop()
 void sensor_fusion::reset(sensor_clock::time_point time, const transformation &initial_pose_m)
 {
     queue->stop_sync();
+    // TODO: we currently ignore initial_pose_m
     filter_initialize(&sfm, device);
 }
 

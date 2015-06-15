@@ -18,7 +18,11 @@ file(GLOB WINDOWS_CONFIG_PATH # Windows.winmd
 target_compile_options(filter PRIVATE /wd4200 /wd4458)
 target_compile_options(vis PRIVATE /wd4200 /wd4458)
 
-add_library(RCTracker SHARED ../corvis/src/filter/rc_intel_interface.cpp)
+add_library(RCTracker SHARED
+    ../corvis/src/filter/rc_intel_interface.cpp
+    ../corvis/src/filter/rc_intel_interface.h
+)
+
 target_link_libraries(RCTracker PRIVATE
   filter
   numerics
@@ -44,10 +48,15 @@ add_custom_command(TARGET RCTrackerDemo POST_BUILD        # Adds a post-build ev
 
 add_library(RealityCapLib
   RealityCapLib/TrackerManager.cpp
+  RealityCapLib/TrackerManager.h
   RealityCapLib/SensorManager.cpp
+  RealityCapLib/SensorManager.h
   RealityCapLib/RCFactory.cpp
+  RealityCapLib/RCFactory.h
   RealityCapLib/Debug.cpp
+  RealityCapLib/Debug.h
   RealityCapLib/stdafx.cpp
+  RealityCapLib/stdafx.h
 )
 target_include_directories(RealityCapLib PUBLIC RealityCapLib)
 target_include_directories(RealityCapLib PUBLIC 
@@ -68,8 +77,11 @@ add_executable(RCUtility WIN32
     RCUtility/stdafx.h
     RCUtility/targetver.h
     RCUtility/render_data.cpp
+    RCUtility/render_data.h
     RCUtility/arcball.cpp
+    RCUtility/arcball.h
     RCUtility/visualization.cpp
+    RCUtility/visualization.h
     RCUtility/FilePicker.h
 )
 target_link_libraries(RCUtility RealityCapLib pxcmd)

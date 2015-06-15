@@ -319,9 +319,9 @@ void rc_getPose(const rc_Tracker * tracker, rc_Pose pose_m)
     pose_m[T2] = (float)tracker->sfm.s.T.v[2];
 
     m4 R = to_rotation_matrix(tracker->sfm.s.W.v);
-    pose_m[0]  = R(0, 0); pose_m[1]  = R(0, 1); pose_m[2]  = R(0, 2);
-    pose_m[4]  = R(1, 0); pose_m[5]  = R(1, 1); pose_m[6]  = R(1, 2);
-    pose_m[8]  = R(2, 0); pose_m[9]  = R(2, 1); pose_m[10] = R(2, 2);
+    for(int r = 0; r < 3; r++)
+        for(int c = 0; c < 3; c++) // skip last column, already filled above
+            pose_m[r*4 + c] = (float)R(r, c); // pose_m is 3x4
 }
 
 int rc_getFeatures(const rc_Tracker * tracker, rc_Feature **features_px)

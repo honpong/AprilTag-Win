@@ -141,7 +141,7 @@ void SensorManager::StopSensors()
     if (!isVideoStreaming()) return;
     _isVideoStreaming = false;
     if (videoThread.joinable())
-        videoThread.detach(); // let polling thread finish on it's own. join() hangs. not sure why. 
+        videoThread.join();
 }
 
 bool SensorManager::isVideoStreaming()

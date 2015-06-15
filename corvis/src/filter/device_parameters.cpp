@@ -58,7 +58,7 @@ corvis_device_type get_device_by_name(const char *name)
 {
     if(!name) return DEVICE_TYPE_UNKNOWN;
 
-    std::string device_name(name);
+    std::string full_name(name), device_name = full_name.substr(0, full_name.find_first_of('_'));
     corvis_device_type type = DEVICE_TYPE_UNKNOWN;
 
     unordered_map<corvis_device_type, string> map;

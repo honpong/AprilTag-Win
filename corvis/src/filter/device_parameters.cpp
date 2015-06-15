@@ -24,7 +24,6 @@ void get_device_type_string_map(unordered_map<corvis_device_type, string> &map)
 {
     if (map.size()) return;
     map[DEVICE_TYPE_IPOD5] = "ipodtouch";
-    map[DEVICE_TYPE_IPOD5] = "ipod5";
     map[DEVICE_TYPE_IPHONE4S] = "iphone4s";
     map[DEVICE_TYPE_IPHONE5C] = "iphone5c";
     map[DEVICE_TYPE_IPHONE5S] = "iphone5s";

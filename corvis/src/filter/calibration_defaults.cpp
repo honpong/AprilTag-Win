@@ -692,7 +692,7 @@ static const char *CALIBRATION_DEFAULT_IPHONE6PLUS = R"(
 
 static const char *CALIBRATION_DEFAULT_IPOD5 = R"(
 {
-  "device": "ipod5",
+  "device": "ipodtouch",
   "calibrationVersion": 7,
   "Fx": 591,
   "Fy": 591,

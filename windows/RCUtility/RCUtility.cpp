@@ -230,6 +230,7 @@ void ExitLiveVisState()
     if (appState != Live) return;
     SetWindowText(hStatusLabel, TEXT("Stopping live visualization..."));
     trackMan->Stop();
+    visualization_data.reset();
     SetWindowText(hStatusLabel, TEXT("Live visualization stopped."));
     SetWindowText(hLiveButton, TEXT("Live"));
     appState = Idle;
@@ -259,6 +260,7 @@ void ExitReplayingState()
     if (appState != Replay) return;
     SetWindowText(hStatusLabel, TEXT("Stopping replay..."));
     trackMan->Stop();
+    visualization_data.reset();
     SetWindowText(hStatusLabel, TEXT("Replay stopped."));
     appState = Idle;
 }

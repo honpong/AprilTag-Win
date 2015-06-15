@@ -20,7 +20,7 @@ static GLData pose_data[] = {
     {{0, 0, .5}, {0, 0, 255, 255}},
 };
 
-static inline void transform_by_pose(rc_Pose pose, const GLData & vi, GLData & vo)
+static inline void transform_by_pose(const rc_Pose pose, const GLData & vi, GLData & vo)
 {
     vo.position[0] = vi.position[0]*pose[0] + vi.position[1]*pose[1] + vi.position[2]*pose[2]  + pose[3];
     vo.position[1] = vi.position[0]*pose[4] + vi.position[1]*pose[5] + vi.position[2]*pose[6]  + pose[7];
@@ -40,6 +40,20 @@ static inline void set_color(GLData * vertex, unsigned char r, unsigned char g, 
     vertex->color[1] = g;
     vertex->color[2] = b;
     vertex->color[3] = alpha;
+}
+
+void render_data::reset()
+{
+    data_lock.lock();
+
+    // Position and orientation
+    for (int i = 0; i < axis_vertex_num; i++)
+        transform_by_pose(rc_POSE_IDENTITY, axis_vertex[i], pose_vertex[i]);
+
+    // Path history
+    path_history.clear();
+
+    data_lock.unlock();
 }
 
 void render_data::update_data(rc_Timestamp time, rc_Pose pose, rc_Feature * current_features, size_t current_feature_count)

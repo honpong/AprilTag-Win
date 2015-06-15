@@ -22,6 +22,7 @@ public:
 
     render_data();
     ~render_data();
+    void reset();
     void update_data(rc_Timestamp time, rc_Pose pose, rc_Feature * features, size_t feature_count);
     std::mutex data_lock;
 

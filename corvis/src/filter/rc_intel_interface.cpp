@@ -147,9 +147,9 @@ void rc_configureCamera(rc_Tracker * tracker, rc_Camera camera, const rc_Pose po
         }
     }
     rotation_vector r = to_rotation_vector(R);
-    tracker->device.Wc[0] = r.x();
-    tracker->device.Wc[1] = r.y();
-    tracker->device.Wc[2] = r.z();
+    tracker->device.Wc[0] = (float)r.x();
+    tracker->device.Wc[1] = (float)r.y();
+    tracker->device.Wc[2] = (float)r.z();
 }
 
 
@@ -180,17 +180,17 @@ void rc_configureLocation(rc_Tracker * tracker, double latitude_deg, double long
 
 RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callback, void *handle)
 {
-    if(callback) tracker->camera_callback = [callback, handle](std::unique_ptr<sensor_fusion::data> d, camera_data &&i) {
+    if(callback) tracker->camera_callback = [callback, handle](std::unique_ptr<sensor_fusion::data> d, camera_data &&cam) {
         uint64_t micros = std::chrono::duration_cast<std::chrono::microseconds>(d->time.time_since_epoch()).count();
 
         rc_Pose p;
-        p[T0] = d->transform.T[0];
-        p[T1] = d->transform.T[1];
-        p[T2] = d->transform.T[2];
+        p[T0] = (float)d->transform.T[0];
+        p[T1] = (float)d->transform.T[1];
+        p[T2] = (float)d->transform.T[2];
         m4 R = to_rotation_matrix(d->transform.Q);
         for(int i = 0; i < 3; i++) {
             for(int j = 0; j < 3; j++) {
-                p[i * 4 + j] = R(i, j);
+                p[i * 4 + j] = (float)R(i, j);
             }
         }
 
@@ -314,9 +314,9 @@ void rc_receiveGyro(rc_Tracker * tracker, rc_Timestamp time_us, const rc_Vector 
 
 void rc_getPose(const rc_Tracker * tracker, rc_Pose pose_m)
 {
-    pose_m[T0] = tracker->sfm.s.T.v[0];
-    pose_m[T1] = tracker->sfm.s.T.v[1];
-    pose_m[T2] = tracker->sfm.s.T.v[2];
+    pose_m[T0] = (float)tracker->sfm.s.T.v[0];
+    pose_m[T1] = (float)tracker->sfm.s.T.v[1];
+    pose_m[T2] = (float)tracker->sfm.s.T.v[2];
 
     m4 R = to_rotation_matrix(tracker->sfm.s.W.v);
     pose_m[0]  = R(0, 0); pose_m[1]  = R(0, 1); pose_m[2]  = R(0, 2);
@@ -390,26 +390,26 @@ void rc_setOutputLog(rc_Tracker * tracker, const char * filename)
 corvis_device_parameters rc_getCalibration(rc_Tracker *tracker)
 {
     corvis_device_parameters calibration;
-    calibration.Fx = tracker->sfm.s.focal_length.v;
-    calibration.Fy = tracker->sfm.s.focal_length.v;
-    calibration.Cx = tracker->sfm.s.center_x.v;
-    calibration.Cy = tracker->sfm.s.center_y.v;
-    calibration.w_meas_var = tracker->sfm.w_variance;
-    calibration.a_meas_var = tracker->sfm.a_variance;
-    calibration.K[0] = tracker->sfm.s.k1.v;
-    calibration.K[1] = tracker->sfm.s.k2.v;
-    calibration.K[2] = tracker->sfm.s.k3.v;
-    calibration.Wc[0] = tracker->sfm.s.Wc.v.x();
-    calibration.Wc[1] = tracker->sfm.s.Wc.v.y();
-    calibration.Wc[2] = tracker->sfm.s.Wc.v.z();
+    calibration.Fx = (float)tracker->sfm.s.focal_length.v;
+    calibration.Fy = (float)tracker->sfm.s.focal_length.v;
+    calibration.Cx = (float)tracker->sfm.s.center_x.v;
+    calibration.Cy = (float)tracker->sfm.s.center_y.v;
+    calibration.w_meas_var = (float)tracker->sfm.w_variance;
+    calibration.a_meas_var = (float)tracker->sfm.a_variance;
+    calibration.K[0] = (float)tracker->sfm.s.k1.v;
+    calibration.K[1] = (float)tracker->sfm.s.k2.v;
+    calibration.K[2] = (float)tracker->sfm.s.k3.v;
+    calibration.Wc[0] = (float)tracker->sfm.s.Wc.v.x();
+    calibration.Wc[1] = (float)tracker->sfm.s.Wc.v.y();
+    calibration.Wc[2] = (float)tracker->sfm.s.Wc.v.z();
     for(int i = 0; i < 3; i++) {
-        calibration.a_bias[i] = tracker->sfm.s.a_bias.v[i];
-        calibration.a_bias_var[i] = tracker->sfm.s.a_bias.variance()[i];
-        calibration.w_bias[i] = tracker->sfm.s.w_bias.v[i];
-        calibration.w_bias_var[i] = tracker->sfm.s.w_bias.variance()[i];
-        calibration.Tc[i] = tracker->sfm.s.Tc.v[i];
-        calibration.Tc_var[i] = tracker->sfm.s.Tc.variance()[i];
-        calibration.Wc_var[i] = tracker->sfm.s.Wc.variance()[i];
+        calibration.a_bias[i] = (float)tracker->sfm.s.a_bias.v[i];
+        calibration.a_bias_var[i] = (float)tracker->sfm.s.a_bias.variance()[i];
+        calibration.w_bias[i] = (float)tracker->sfm.s.w_bias.v[i];
+        calibration.w_bias_var[i] = (float)tracker->sfm.s.w_bias.variance()[i];
+        calibration.Tc[i] = (float)tracker->sfm.s.Tc.v[i];
+        calibration.Tc_var[i] = (float)tracker->sfm.s.Tc.variance()[i];
+        calibration.Wc_var[i] = (float)tracker->sfm.s.Wc.variance()[i];
     }
     calibration.image_width = tracker->sfm.image_width;
     calibration.image_height = tracker->sfm.image_height;

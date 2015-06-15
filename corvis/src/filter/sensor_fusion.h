@@ -30,6 +30,7 @@ enum class camera_specifier
 class sensor_fusion
 {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     struct status
     {
         RCSensorFusionRunState run_state;

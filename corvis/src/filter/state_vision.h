@@ -104,20 +104,20 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
         v.set_depth_meters(1.);
     }
     
-    f_t copy_cov_from_row(const matrix &cov, const int i) const
+    f_t copy_cov_from_row(const matrix &c, const int i) const
     {
         if(index < 0) return 0.;
-        return cov(i, index);
+        return c(i, index);
     }
     
-    void copy_cov_to_col(matrix &cov, const int j, const f_t v) const
+    void copy_cov_to_col(matrix &c, const int j, const f_t val) const
     {
-        cov(index, j) = v;
+        c(index, j) = val;
     }
     
-    void copy_cov_to_row(matrix &cov, const int j, const f_t v) const
+    void copy_cov_to_row(matrix &c, const int j, const f_t val) const
     {
-        cov(j, index) = v;
+        c(j, index) = val;
     }
     
     void perturb_variance() {
@@ -217,7 +217,7 @@ protected:
     virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);
     virtual void cache_jacobians(f_t dt);
 private:
-    void project_new_group_covariance(const state_vision_group &g);
+    void project_new_group_covariance(const state_vision_group &vision_group);
     void clear_features_and_groups();
 };
 

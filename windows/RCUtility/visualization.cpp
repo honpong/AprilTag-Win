@@ -236,6 +236,8 @@ static void error_callback(int error, const char* description)
 
 void visualization::start()
 {
+    arc.reset();
+
     if (!glfwInit())
         exit(EXIT_FAILURE);
 

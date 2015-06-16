@@ -92,8 +92,8 @@ public: // these methods get called from the sensor manager thread
         switch (status)
         {
         case 0:
-            SendMessage(hWnd, IDB_EXIT_CALIBRATION, NULL, NULL); // message will be processed on window's main thread
             SetWindowText(hStatusLabel, TEXT("Calibration complete."));
+            PostMessage(hWnd, IDB_EXIT_CALIBRATION, NULL, NULL); // message will be processed on window's main thread
             break;
         case 1:
             SetWindowText(hStatusLabel, TEXT("Place the device flat on a table."));

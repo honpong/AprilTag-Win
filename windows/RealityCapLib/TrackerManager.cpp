@@ -193,6 +193,12 @@ void TrackerManager::OnGyroSample(imu_sample_t* sample)
 
 void TrackerManager::UpdateStatus(rc_TrackerState newState, rc_TrackerError errorCode, rc_TrackerConfidence confidence, float newProgress)
 {
+    if (newProgress != _progress)
+    {
+        if (_delegate) _delegate->OnProgressUpdated(newProgress);
+        _progress = newProgress;
+    }
+
     // check for errors
     if (errorCode && _delegate) _delegate->OnError(errorCode);
 
@@ -201,12 +207,6 @@ void TrackerManager::UpdateStatus(rc_TrackerState newState, rc_TrackerError erro
     {
         if (_delegate) _delegate->OnStatusUpdated(newState);
         _trackerState = newState;
-    }
-
-    if (newProgress != _progress)
-    {
-        if (_delegate) _delegate->OnProgressUpdated(newProgress);
-        _progress = newProgress;
     }
 }
 

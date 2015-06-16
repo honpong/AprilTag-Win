@@ -18,14 +18,14 @@ using namespace std;
 
 #define MAX_LOADSTRING 100
 
-typedef enum AppState
+typedef enum
 {
     Idle,
     Calibrating,
     Capturing,
     Live,
     Replay
-};
+} AppState;
 
 // Global Variables:
 HINSTANCE hInst;								// current instance

@@ -24,7 +24,6 @@ target_include_directories(RCTracker PUBLIC
 )
 
 add_executable(RCTrackerDemo src/RCTrackerDemo/replay_rsclip.cpp)
-target_link_libraries(RCTrackerDemo RCTracker)
 target_link_libraries(RCTrackerDemo RealityCapLib)
 target_include_directories(RCTrackerDemo PRIVATE
     "$ENV{RSSDK_DIR}/include/"

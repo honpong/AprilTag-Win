@@ -34,16 +34,16 @@ quaternion quaternion_multiply(const quaternion & q1, const quaternion & q2)
     return result;
 }
 
-quaternion quaternion_invert(const quaternion & q)
+quaternion quaternion_invert(const quaternion & qin)
 {
-    quaternion qi(-q.x, -q.y, -q.z, q.w);
+    quaternion qi(-qin.x, -qin.y, -qin.z, qin.w);
     return qi;
 }
 
 #include <stdio.h>
 quaternion axis_angle_to_quaternion(const v4 & v)
 {
-    v4 w(.5 * v.x, .5 * v.y, .5 * v.z, 0);
+    v4 w(.5f * v.x, .5f * v.y, .5f * v.z, 0.f);
 
     float th2 = w.x*w.x + w.y*w.y + w.z*w.z;
     float th = sqrt(th2), C = cos(th);
@@ -56,18 +56,18 @@ quaternion axis_angle_to_quaternion(const v4 & v)
 }
 
 // R should be 3x4
-void quaternion_to_rotation(const quaternion & q, float * R)
+void quaternion_to_rotation(const quaternion & qin, float * R)
 {
     float
-    xx = q.x*q.x,
-    yy = q.y*q.y,
-    zz = q.z*q.z,
-    wx = q.w*q.x,
-    wy = q.w*q.y,
-    wz = q.w*q.z,
-    xy = q.x*q.y,
-    xz = q.x*q.z,
-    yz = q.y*q.z;
+    xx = qin.x*qin.x,
+    yy = qin.y*qin.y,
+    zz = qin.z*qin.z,
+    wx = qin.w*qin.x,
+    wy = qin.w*qin.y,
+    wz = qin.w*qin.z,
+    xy = qin.x*qin.y,
+    xz = qin.x*qin.z,
+    yz = qin.y*qin.z;
 
     R[0] = 1.f - 2.f * (yy+zz); R[1] = 2.f * (xy-wz); R[2] = 2.f * (xz+wy); R[3] = 0.f;
     R[4] = 2.f * (xy+wz); R[5] = 1.f - 2.f * (xx+zz); R[6] = 2.f * (yz-wx); R[7] = 0.f;
@@ -85,10 +85,10 @@ v4 matrix_times_v4(float * M, const v4 & v)
     return result;
 }
 
-v4 quaternion_rotate(const quaternion & q, const v4 & v)
+v4 quaternion_rotate(const quaternion & qin, const v4 & v)
 {
     float rotation[12];
-    quaternion_to_rotation(q, rotation);
+    quaternion_to_rotation(qin, rotation);
     return matrix_times_v4(rotation, v);
 }
 

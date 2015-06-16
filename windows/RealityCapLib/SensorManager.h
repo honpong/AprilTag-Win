@@ -43,7 +43,7 @@ namespace RealityCap
     private:
         PXCSenseManager* _senseMan;
         std::thread videoThread;
-        std::atomic_bool _isVideoStreaming;
+        std::atomic<bool> _isVideoStreaming;
         SensorDataReceiver* _sensorReceiver;
 
         void PollForFrames();

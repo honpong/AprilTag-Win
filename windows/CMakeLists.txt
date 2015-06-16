@@ -4,9 +4,6 @@ project(RealityCap)
 
 add_subdirectory(../corvis "${CMAKE_CURRENT_BINARY_DIR}/corvis")
 
-add_library(pxcmd STATIC IMPORTED)
-set_property(TARGET pxcmd PROPERTY IMPORTED_LOCATION "$ENV{RSSDK_DIR}lib/$(PlatformName)/libpxcmd.lib")
-
 target_compile_options(filter PRIVATE /wd4200 /wd4458)
 target_compile_options(vis PRIVATE /wd4200 /wd4458)
 
@@ -32,8 +29,6 @@ target_link_libraries(RCTrackerDemo RealityCapLib)
 target_include_directories(RCTrackerDemo PRIVATE
     "$ENV{RSSDK_DIR}/include/"
 )
-link_directories("$ENV{RSSDK_DIR}lib/$(PlatformName)")
-target_link_libraries(RCTrackerDemo "$ENV{RSSDK_DIR}lib/$(PlatformName)/libpxcmd.lib")
 
 add_custom_command(TARGET RCTrackerDemo POST_BUILD        # Adds a post-build event to RCTrackerDemo
     COMMAND ${CMAKE_COMMAND} -E copy_if_different  # which executes "cmake - E copy_if_different..."
@@ -58,7 +53,11 @@ target_include_directories(RealityCapLib PUBLIC
   "$ENV{RSSDK_DIR}/include"
 )
 target_compile_definitions(RealityCapLib PRIVATE UNICODE _UNICODE)
-target_link_libraries(RealityCapLib RCTracker pxcmd)
+target_link_libraries(RealityCapLib RCTracker
+    $<$<CONFIG:Debug>:$ENV{RSSDK_DIR}lib/$(PlatformName)/libpxc_d.lib>
+    $<$<NOT:$<CONFIG:Debug>>:$ENV{RSSDK_DIR}lib/$(PlatformName)/libpxc.lib>
+)
+
 target_compile_options(RealityCapLib PRIVATE /wd4200 /wd4458)
 
 add_executable(RCUtility WIN32
@@ -80,7 +79,7 @@ add_executable(RCUtility WIN32
 
 target_compile_options(glfw PRIVATE /wd4457)
 
-target_link_libraries(RCUtility RealityCapLib pxcmd)
+target_link_libraries(RCUtility RealityCapLib)
 target_link_libraries(RCUtility glad glfw)
 target_link_libraries(RCUtility ${GLFW_LIBRARIES})
 target_compile_options(RCUtility PRIVATE /wd4200 /wd4458)

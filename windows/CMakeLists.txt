@@ -7,16 +7,6 @@ add_subdirectory(../corvis "${CMAKE_CURRENT_BINARY_DIR}/corvis")
 add_library(pxcmd STATIC IMPORTED)
 set_property(TARGET pxcmd PROPERTY IMPORTED_LOCATION "$ENV{RSSDK_DIR}lib/$(PlatformName)/libpxcmd.lib")
 
-file(GLOB PLATFORM_CONFIG_PATH # platform.winmd
-  "C:/Program Files (x86)/Microsoft SDKs/Windows/v8.1/ExtensionSDKs/Microsoft.VCLibs/12.0/References/CommonConfiguration/neutral"
-  "C:/Program Files/Microsoft SDKs/Windows/v8.1/ExtensionSDKs/Microsoft.VCLibs/12.0/References/CommonConfiguration/neutral"
-)
-
-file(GLOB WINDOWS_CONFIG_PATH # Windows.winmd
-  "C:/Program Files (x86)/Windows Kits/8.1/References/CommonConfiguration/Neutral"
-  "C:/Program Files/Windows Kits/8.1/References/CommonConfiguration/Neutral"
-)
-
 target_compile_options(filter PRIVATE /wd4200 /wd4458)
 target_compile_options(vis PRIVATE /wd4200 /wd4458)
 

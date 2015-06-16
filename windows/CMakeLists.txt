@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 3.2.2 FATAL_ERROR)
 
+project(RealityCap)
+
 add_subdirectory(../corvis "${CMAKE_CURRENT_BINARY_DIR}/corvis")
 
 add_library(pxcmd STATIC IMPORTED)
@@ -93,7 +95,6 @@ target_link_libraries(RCUtility glad glfw)
 target_link_libraries(RCUtility ${GLFW_LIBRARIES})
 target_compile_options(RCUtility PRIVATE /wd4200 /wd4458)
 target_compile_definitions(RCUtility PRIVATE UNICODE _UNICODE)
-target_compile_options(RCUtility PRIVATE /ZW /EHsc /Gm- "/AI${PLATFORM_CONFIG_PATH}" "/AI${WINDOWS_CONFIG_PATH}")
 target_include_directories(RCUtility PRIVATE "$ENV{RSSDK_DIR}/include")
 
 add_custom_command(TARGET RCUtility POST_BUILD        # Adds a post-build event to RCUtility

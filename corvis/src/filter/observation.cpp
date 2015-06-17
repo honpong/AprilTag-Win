@@ -160,14 +160,8 @@ bool observation_queue::process(state &s, sensor_clock::time_point time)
         if(log_enabled) fprintf(stderr, "In Kalman update, original measurement size was %d, ended up with 0 measurements!\n", orig_meas_size);
     }
 
-    // keep the most recent measurement of a given type around for plotting, etc
     for (auto &o : observations)
-        if (auto *ovf = dynamic_cast<observation_vision_feature*>(o.get()))
-            recent_f_map[ovf->feature->id] = std::unique_ptr<observation_vision_feature>(static_cast<observation_vision_feature*>(o.release()));
-        else if (dynamic_cast<observation_accelerometer*>(o.get()))
-            recent_a = std::unique_ptr<observation_accelerometer>(static_cast<observation_accelerometer*>(o.release()));
-        else if (dynamic_cast<observation_gyroscope*>(o.get()))
-            recent_g = std::unique_ptr<observation_gyroscope>(static_cast<observation_gyroscope*>(o.release()));
+        cache_recent(std::move(o));
 
     observations.clear();
     f_t delta_T = (s.T.v - s.last_position).norm();

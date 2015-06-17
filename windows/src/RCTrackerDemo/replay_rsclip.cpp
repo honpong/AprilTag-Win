@@ -20,6 +20,9 @@ int wmain(int c, wchar_t **v)
     RCFactory factory;
     auto trackMan = factory.CreateTrackerManager();
     trackMan->SetLog(logger, stdout);
+    if(c == 3) {
+        trackMan->SetOutputLog(std::wstring(v[2]));
+    }
 
     if (!trackMan->StartReplay(v[1], false))
     {

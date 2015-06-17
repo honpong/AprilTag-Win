@@ -130,6 +130,11 @@ bool TrackerManager::StartCalibration()
     return isRunning();
 }
 
+void TrackerManager::SetOutputLog(const std::wstring filename)
+{
+    rc_setOutputLog(_tracker, filename.c_str());
+}
+
 bool TrackerManager::StartReplay(const std::wstring filename, bool realtime)
 {
     if (isRunning()) return false;

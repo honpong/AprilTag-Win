@@ -134,7 +134,6 @@ bool TrackerManager::StartReplay(const std::wstring filename, bool realtime)
 {
     if (isRunning()) return false;
     if (!LoadDefaultCalibration()) return false;
-    if (!StartPlayback(filename.c_str(), realtime)) return false;
 
     _trackerState = rc_E_INACTIVE;
     _progress = 0.;
@@ -142,6 +141,11 @@ bool TrackerManager::StartReplay(const std::wstring filename, bool realtime)
     rc_setStatusCallback(_tracker, status_callback, this);
     rc_setDataCallback(_tracker, data_callback, this);
     rc_startTracker(_tracker);
+
+    if (!StartPlayback(filename.c_str(), realtime)) {
+        rc_stopTracker(_tracker);
+        return false;
+    }
 
     _isRunning = true;
 

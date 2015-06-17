@@ -4,6 +4,13 @@ project(RealityCap)
 
 add_subdirectory(../corvis "${CMAKE_CURRENT_BINARY_DIR}/corvis")
 
+add_library(pxc STATIC IMPORTED)
+set_target_properties(pxc PROPERTIES
+  IMPORTED_LOCATION_DEBUG       "$ENV{RSSDK_DIR}lib/$(PlatformName)/libpxc_d.lib"
+  IMPORTED_LOCATION_RELEASE     "$ENV{RSSDK_DIR}lib/$(PlatformName)/libpxc.lib"
+  INTERFACE_INCLUDE_DIRECTORIES "$ENV{RSSDK_DIR}include"
+)
+
 target_compile_options(filter PRIVATE /wd4200 /wd4458)
 target_compile_options(vis PRIVATE /wd4200 /wd4458)
 
@@ -25,9 +32,6 @@ target_include_directories(RCTracker PUBLIC
 
 add_executable(RCTrackerDemo src/RCTrackerDemo/replay_rsclip.cpp)
 target_link_libraries(RCTrackerDemo RealityCapLib)
-target_include_directories(RCTrackerDemo PRIVATE
-    "$ENV{RSSDK_DIR}/include/"
-)
 
 add_custom_command(TARGET RCTrackerDemo POST_BUILD        # Adds a post-build event to RCTrackerDemo
     COMMAND ${CMAKE_COMMAND} -E copy_if_different  # which executes "cmake - E copy_if_different..."
@@ -48,15 +52,8 @@ add_library(RealityCapLib
   RealityCapLib/rc_pxc_util.h
 )
 target_include_directories(RealityCapLib PUBLIC RealityCapLib)
-target_include_directories(RealityCapLib PUBLIC 
-  "$ENV{RSSDK_DIR}/include"
-)
 target_compile_definitions(RealityCapLib PRIVATE UNICODE _UNICODE)
-target_link_libraries(RealityCapLib RCTracker
-    $<$<CONFIG:Debug>:$ENV{RSSDK_DIR}lib/$(PlatformName)/libpxc_d.lib>
-    $<$<NOT:$<CONFIG:Debug>>:$ENV{RSSDK_DIR}lib/$(PlatformName)/libpxc.lib>
-)
-
+target_link_libraries(RealityCapLib PUBLIC RCTracker pxc)
 target_compile_options(RealityCapLib PRIVATE /wd4200 /wd4458)
 
 add_executable(RCUtility WIN32
@@ -83,7 +80,6 @@ target_link_libraries(RCUtility glad glfw)
 target_link_libraries(RCUtility ${GLFW_LIBRARIES})
 target_compile_options(RCUtility PRIVATE /wd4200 /wd4458)
 target_compile_definitions(RCUtility PRIVATE UNICODE _UNICODE)
-target_include_directories(RCUtility PRIVATE "$ENV{RSSDK_DIR}/include")
 
 add_custom_command(TARGET RCUtility POST_BUILD        # Adds a post-build event to RCUtility
     COMMAND ${CMAKE_COMMAND} -E copy_if_different  # which executes "cmake - E copy_if_different..."

@@ -5,7 +5,10 @@ project(RCUtility)
 add_subdirectory(ThirdParty "${CMAKE_CURRENT_BINARY_DIR}/ThirdParty")
 
 add_library(pxcmd STATIC IMPORTED)
-set_property(TARGET pxcmd PROPERTY IMPORTED_LOCATION "$ENV{RSSDK_DIR}lib/$(PlatformName)/libpxcmd.lib")
+set_target_properties(pxcmd PROPERTIES
+  IMPORTED_LOCATION             "$ENV{RSSDK_DIR}lib/$(PlatformName)/libpxcmd.lib"
+  INTERFACE_INCLUDE_DIRECTORIES "$ENV{RSSDK_DIR}include"
+)
 
 add_library(RealityCapLib
   RealityCapLib/TrackerManager.cpp
@@ -15,21 +18,16 @@ add_library(RealityCapLib
   RealityCapLib/stdafx.cpp
 )
 target_include_directories(RealityCapLib PUBLIC RealityCapLib)
-target_include_directories(RealityCapLib PUBLIC 
-  RCTracker
-  "$ENV{RSSDK_DIR}/include"
-)
+target_include_directories(RealityCapLib PUBLIC RCTracker)
 target_compile_definitions(RealityCapLib PRIVATE UNICODE _UNICODE)
 link_directories("RCTracker")
-target_link_libraries(RealityCapLib RCTracker pxcmd)
+target_link_libraries(RealityCapLib PUBLIC RCTracker pxcmd)
 target_compile_options(RealityCapLib PRIVATE /wd4200 /wd4458)
 
 add_executable(RCTrackerDemo
     RCTrackerDemo/replay_rsclip.cpp
     )
-target_link_libraries(RCTrackerDemo
-    RealityCapLib
-    RCTracker)
+target_link_libraries(RCTrackerDemo RealityCapLib)
 
 add_executable(RCUtility WIN32
     RCUtility/RCUtility.cpp
@@ -44,12 +42,11 @@ add_executable(RCUtility WIN32
     RCUtility/visualization.cpp
     RCUtility/FilePicker.h
 )
-target_link_libraries(RCUtility RealityCapLib pxcmd)
+target_link_libraries(RCUtility RealityCapLib)
 target_link_libraries(RCUtility glad glfw)
 target_link_libraries(RCUtility ${GLFW_LIBRARIES})
 target_compile_options(RCUtility PRIVATE /wd4200 /wd4458)
 target_compile_definitions(RCUtility PRIVATE UNICODE _UNICODE)
-target_include_directories(RCUtility PRIVATE "$ENV{RSSDK_DIR}/include")
 
 add_custom_command(TARGET RCUtility POST_BUILD        # Adds a post-build event to RCUtility
     COMMAND ${CMAKE_COMMAND} -E copy_if_different  # which executes "cmake - E copy_if_different..."

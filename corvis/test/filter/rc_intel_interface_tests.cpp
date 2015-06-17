@@ -14,7 +14,7 @@ TEST(rc_intel_interface_tests, rc_setCalibration)
     unique_ptr<calibration_data_store> store = calibration_data_store::GetStore();
 
     corvis_device_parameters cal;
-    EXPECT_TRUE(store->LoadCalibrationDefaults(DEVICE_TYPE_GIGABYTE_S11, cal));
+    EXPECT_TRUE(store->LoadCalibrationDefaults(DEVICE_TYPE_GIGABYTES11, cal));
 
     // set cal
     string jsonString;

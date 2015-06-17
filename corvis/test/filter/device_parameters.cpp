@@ -8,8 +8,8 @@ using namespace RealityCap;
 
 TEST(device_parameters_tests, get_device_type_string)
 {
-    string s = get_device_type_string(DEVICE_TYPE_GIGABYTE_S11);
-    EXPECT_STRCASEEQ(s.c_str(), "gigabyte_s11");
+    string s = get_device_type_string(DEVICE_TYPE_GIGABYTES11);
+    EXPECT_STRCASEEQ(s.c_str(), "gigabytes11");
 }
 
 TEST(device_parameters_tests, get_device_type_string_map)
@@ -21,21 +21,21 @@ TEST(device_parameters_tests, get_device_type_string_map)
 
 TEST(device_parameters_tests, get_device_by_name)
 {
-    corvis_device_type type = get_device_by_name("gigabyte_s11");
-    EXPECT_EQ(DEVICE_TYPE_GIGABYTE_S11, type);
+    corvis_device_type type = get_device_by_name("gigabytes11");
+    EXPECT_EQ(DEVICE_TYPE_GIGABYTES11, type);
 }
 
 TEST(device_parameters_tests, get_parameters_for_device)
 {
     corvis_device_parameters cal;
-    get_parameters_for_device(DEVICE_TYPE_GIGABYTE_S11, &cal);
+    get_parameters_for_device(DEVICE_TYPE_GIGABYTES11, &cal);
     EXPECT_EQ(cal.version, CALIBRATION_VERSION);
 }
 
 TEST(device_parameters_tests, get_parameters_for_device_name)
 {
     corvis_device_parameters cal;
-    get_parameters_for_device_name("gigabyte_s11", &cal);
+    get_parameters_for_device_name("gigabytes11", &cal);
     EXPECT_EQ(cal.version, CALIBRATION_VERSION);
     // TODO: verify correct file was loaded?
 }
@@ -45,10 +45,10 @@ TEST(device_parameters_tests, is_calibration_valid)
     unique_ptr<calibration_data_store> store = calibration_data_store::GetStore();
 
     corvis_device_parameters cal;
-    store->LoadCalibrationDefaults(DEVICE_TYPE_GIGABYTE_S11, cal);
+    store->LoadCalibrationDefaults(DEVICE_TYPE_GIGABYTES11, cal);
 
     corvis_device_parameters defaults;
-    store->LoadCalibrationDefaults(DEVICE_TYPE_GIGABYTE_S11, defaults);
+    store->LoadCalibrationDefaults(DEVICE_TYPE_GIGABYTES11, defaults);
 
     EXPECT_TRUE(is_calibration_valid(cal, defaults));
 }

@@ -77,28 +77,24 @@ void gui::write_frame()
 
 void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int mods)
 {
-    if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        scale = initial_scale;
-    if(key == GLFW_KEY_EQUAL && action == GLFW_PRESS)
-        scale *= 1/1.1f;
-    if(key == GLFW_KEY_MINUS && action == GLFW_PRESS)
-        scale *= 1.1f;
-    if(key == GLFW_KEY_SPACE && action == GLFW_PRESS && replay_control)
-       replay_control->toggle_pause();
-    if(key == GLFW_KEY_S && action == GLFW_PRESS && replay_control)
-       replay_control->step();
-    if(key == GLFW_KEY_F && action == GLFW_PRESS)
-       write_frame();
-    if(key == GLFW_KEY_N && action == GLFW_PRESS)
-        current_plot = state->change_plot(current_plot + ((mods & GLFW_MOD_SHIFT) ? -1 : 1));
-    if(key >= GLFW_KEY_0 && key <= GLFW_KEY_9 && action == GLFW_PRESS)
-        current_plot = state->change_plot(key - GLFW_KEY_0);
-    if(key == GLFW_KEY_V && action == GLFW_PRESS)
-        show_video = !show_video;
-    if(key == GLFW_KEY_M && action == GLFW_PRESS)
-        show_main = !show_main;
-    if(key == GLFW_KEY_P && action == GLFW_PRESS)
-        show_plots = !show_plots;
+    if (action == GLFW_PRESS) {
+        switch (key) {
+             break; case GLFW_KEY_0: case GLFW_KEY_1: case GLFW_KEY_2: case GLFW_KEY_3:
+                    case GLFW_KEY_4: case GLFW_KEY_5: case GLFW_KEY_6: case GLFW_KEY_7:
+                    case GLFW_KEY_8:
+                    case GLFW_KEY_9:        current_plot = state->change_plot(key - GLFW_KEY_0);
+             break; case GLFW_KEY_N:        current_plot = state->change_plot(current_plot + ((mods & GLFW_MOD_SHIFT) ? -1 : 1));
+             break; case GLFW_KEY_ESCAPE:   scale = initial_scale;
+             break; case GLFW_KEY_EQUAL:    scale *= 1/1.1f;
+             break; case GLFW_KEY_MINUS:    scale *= 1.1f;
+             break; case GLFW_KEY_SPACE:    if (replay_control) replay_control->toggle_pause();
+             break; case GLFW_KEY_S:        if (replay_control) replay_control->step();
+             break; case GLFW_KEY_F:        write_frame();
+             break; case GLFW_KEY_V:        show_video = !show_video;
+             break; case GLFW_KEY_M:        show_main = !show_main;
+             break; case GLFW_KEY_P:        show_plots = !show_plots;
+        }
+    }
 }
 
 void gui::render(int view_width, int view_height)

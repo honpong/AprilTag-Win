@@ -114,6 +114,9 @@ void set_initialized(struct corvis_device_parameters *dc)
 bool get_parameters_for_device_name(const char * config_name, struct corvis_device_parameters *dc)
 {
     corvis_device_type device_type = get_device_by_name(config_name);
+    if (device_type == DEVICE_TYPE_UNKNOWN)
+        return false;
+
     if(!get_parameters_for_device(device_type, dc))
         return false;
 

@@ -38,7 +38,7 @@ private:
 public:
     replay(bool start_paused=false) : is_paused(start_paused) {}
     bool open(const char *name);
-    void set_device(const char *name);
+    bool set_device(const char *name);
     void setup_filter();
     bool configure_all(const char *filename, const char *devicename, bool realtime=false, std::function<void (float)> progress_callback=nullptr, std::function<void (const filter *, camera_data)> camera_callback=nullptr);
     void start();

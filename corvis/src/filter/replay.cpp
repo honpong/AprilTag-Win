@@ -27,13 +27,16 @@ bool replay::open(const char *name)
     return true;
 }
 
-void replay::set_device(const char *name)
+bool replay::set_device(const char *name)
 {
     corvis_device_parameters dc;
-    if(get_parameters_for_device_name(name, &dc))
+    if (get_parameters_for_device_name(name, &dc)) {
         cor_setup = std::make_unique<filter_setup>(&dc);
-    else
-        cerr << "Error: no device named " << name;
+        return true;
+    } else {
+        cerr << "Error: no device named " << name << "\n";
+        return false;
+    }
 }
 
 void replay::setup_filter()
@@ -201,7 +204,7 @@ void replay::start()
 bool replay::configure_all(const char *filename, const char *devicename, bool realtime, std::function<void (float)> progress, std::function<void (const filter *, camera_data)> camera_cb)
 {
     if(!open(filename)) return false;
-    set_device(devicename);
+    if (!set_device(devicename)) return false;
     setup_filter();
     is_realtime = realtime;
     progress_callback = progress;

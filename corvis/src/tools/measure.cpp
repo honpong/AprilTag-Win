@@ -44,8 +44,9 @@ int main(int c, char **v)
             ws.receive_camera(f, std::move(d));
         };
 
-    if(!rp.configure_all(filename, devicename, realtime, progress, camera_callback)) return -1;
-    
+    if(!rp.configure_all(filename, devicename, realtime, progress, camera_callback))
+        return 2;
+
     if(enable_gui) { // The GUI must be on the main thread
         std::thread replay_thread([&](void) { rp.start(); });
         vis.start(&rp);

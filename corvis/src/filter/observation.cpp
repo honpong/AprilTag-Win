@@ -22,8 +22,11 @@ void observation_queue::predict()
 
 void observation_queue::measure_and_prune()
 {
-    observations.erase(remove_if(observations.begin(), observations.end(), [](auto &o) {
-       return !o->measure();
+    observations.erase(remove_if(observations.begin(), observations.end(), [this](auto &o) {
+       bool ok = o->measure();
+       if (!ok)
+           cache_recent(std::move(o));
+       return !ok;
     }), observations.end());
 }
 

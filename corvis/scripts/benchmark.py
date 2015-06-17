@@ -13,7 +13,7 @@ def scan_tests(folder_name):
     configurations = []
     for dirname, dirnames, filenames in os.walk(folder_name, followlinks=True):
         for filename in filenames:
-            config_name = os.path.basename(dirname)
+            config_name = os.path.basename(os.path.dirname(os.path.join(dirname, filename)))
             L_match = re.search("_L([\d.]+)", filename)
             PL_match = re.search("_PL([\d.]+)", filename)
             L = None

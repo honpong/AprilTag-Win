@@ -77,7 +77,7 @@ void gui::write_frame()
 
 void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int mods)
 {
-    if(key == GLFW_KEY_0 && action == GLFW_PRESS)
+    if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         scale = initial_scale;
     if(key == GLFW_KEY_EQUAL && action == GLFW_PRESS)
         scale *= 1/1.1f;

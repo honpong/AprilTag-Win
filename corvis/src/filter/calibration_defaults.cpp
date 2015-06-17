@@ -1,8 +1,8 @@
 #include "calibration_defaults.h"
 
-static const char *CALIBRATION_DEFAULT_GIGABYTE_S11 = R"(
+static const char *CALIBRATION_DEFAULT_GIGABYTES11 = R"(
 {
-  "device": "gigabyte_s11",
+  "device": "gigabytes11",
   "calibrationVersion": 7,
   "Fx": 635,
   "Fy": 635,
@@ -815,8 +815,8 @@ const char *calibration_default_json_for_device_type(corvis_device_type device)
             return CALIBRATION_DEFAULT_IPADMINIRETINA;
     case DEVICE_TYPE_IPADMINI:
             return CALIBRATION_DEFAULT_IPADMINI;
-    case DEVICE_TYPE_GIGABYTE_S11:
-            return CALIBRATION_DEFAULT_GIGABYTE_S11;
+    case DEVICE_TYPE_GIGABYTES11:
+            return CALIBRATION_DEFAULT_GIGABYTES11;
     case DEVICE_TYPE_UNKNOWN:
     default:
             return CALIBRATION_DEFAULT_UNKNOWN;

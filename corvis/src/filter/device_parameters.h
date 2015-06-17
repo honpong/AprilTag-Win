@@ -52,7 +52,7 @@ typedef enum
     DEVICE_TYPE_IPADMINIRETINA,
     DEVICE_TYPE_IPADMINIRETINA2,
 
-    DEVICE_TYPE_GIGABYTE_S11
+    DEVICE_TYPE_GIGABYTES11
 } corvis_device_type;
 
 corvis_device_type get_device_by_name(const char *name);

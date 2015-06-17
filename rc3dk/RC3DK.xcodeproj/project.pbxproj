@@ -2070,6 +2070,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
+					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
@@ -2199,6 +2200,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
+					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
@@ -2239,9 +2241,10 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
+					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
-					"$(SRCROOT)/ofxiOSBoost/libs/boost/include"
+					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2321,6 +2324,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
+					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
@@ -2403,6 +2407,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
+					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
@@ -2572,6 +2577,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
+					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
@@ -2613,6 +2619,7 @@
 					"$(inherited)",
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
+					"$(SRCROOT)/../corvis/src/rapidjson/include",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -2698,6 +2705,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
+					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
@@ -2738,6 +2746,7 @@
 					"$(inherited)",
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
+					"$(SRCROOT)/../corvis/src/rapidjson/include",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -2979,6 +2988,7 @@
 					"$(inherited)",
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
+					"$(SRCROOT)/../corvis/src/rapidjson/include",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -3021,6 +3031,7 @@
 					"$(inherited)",
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
+					"$(SRCROOT)/../corvis/src/rapidjson/include",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -3064,6 +3075,7 @@
 					"$(inherited)",
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
+					"$(SRCROOT)/../corvis/src/rapidjson/include",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -3107,6 +3119,7 @@
 					"$(inherited)",
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
+					"$(SRCROOT)/../corvis/src/rapidjson/include",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (

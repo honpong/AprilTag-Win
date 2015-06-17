@@ -9,6 +9,7 @@
 #include "rc_intel_interface.h"
 #include "sensor_fusion.h"
 #include "calibration_json_store.h"
+#include <codecvt>
 
 using namespace RealityCap;
 
@@ -382,9 +383,11 @@ void rc_triggerLog(const rc_Tracker * tracker)
     tracker->trigger_log();
 }
 
-void rc_setOutputLog(rc_Tracker * tracker, const char * filename)
+void rc_setOutputLog(rc_Tracker * tracker, const wchar_t * wfilename)
 {
-    tracker->set_output_log(filename);
+    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+    std::string filename = converter.to_bytes(wfilename);
+    tracker->set_output_log(filename.c_str());
 }
 
 corvis_device_parameters rc_getCalibration(rc_Tracker *tracker)
@@ -415,8 +418,6 @@ corvis_device_parameters rc_getCalibration(rc_Tracker *tracker)
     calibration.image_height = tracker->sfm.image_height;
     return calibration;
 }
-
-#include <codecvt>
 
 size_t rc_getCalibration(rc_Tracker *tracker, const wchar_t** buffer)
 {

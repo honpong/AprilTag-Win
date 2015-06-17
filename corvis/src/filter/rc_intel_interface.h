@@ -189,7 +189,7 @@ RCTRACKER_API void rc_triggerLog(const rc_Tracker *tracker);
 /**
  If this is set, writes a log file in Realitycap's internal format to the filename specified
  */
-RCTRACKER_API void rc_setOutputLog(rc_Tracker * tracker, const char * filename);
+RCTRACKER_API void rc_setOutputLog(rc_Tracker * tracker, const wchar_t * wfilename);
 
 RCTRACKER_API size_t rc_getCalibration(rc_Tracker *tracker, const wchar_t** buffer);
 RCTRACKER_API bool rc_setCalibration(rc_Tracker *tracker, const wchar_t* buffer);

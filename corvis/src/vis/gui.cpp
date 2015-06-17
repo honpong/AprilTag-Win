@@ -90,7 +90,9 @@ void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int m
     if(key == GLFW_KEY_F && action == GLFW_PRESS)
        write_frame();
     if(key == GLFW_KEY_N && action == GLFW_PRESS)
-       current_plot = state->next_plot(current_plot);
+        current_plot = state->change_plot(current_plot + ((mods & GLFW_MOD_SHIFT) ? -1 : 1));
+    if(key >= GLFW_KEY_0 && key <= GLFW_KEY_9 && action == GLFW_PRESS)
+        current_plot = state->change_plot(key - GLFW_KEY_0);
     if(key == GLFW_KEY_V && action == GLFW_PRESS)
         show_video = !show_video;
     if(key == GLFW_KEY_M && action == GLFW_PRESS)

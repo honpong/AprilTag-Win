@@ -74,7 +74,7 @@ public:
     ~world_state();
     void update_vertex_arrays(bool show_only_good=true);
     void render_plot(int index, std::function<void (plot&)> render_callback);
-    int next_plot(int current_plot);
+    int change_plot(int index);
 
     void receive_camera(const filter * f, camera_data &&data);
     void observe_feature(sensor_clock::time_point timestamp, uint64_t feature_id, float x, float y, float z, float image_x, float image_y, float cx, float cy, float cxy, bool good);

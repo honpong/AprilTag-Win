@@ -30,10 +30,11 @@ void world_state::render_plot(int index, std::function<void (plot&)> render_call
     plot_lock.unlock();
 }
 
-int world_state::next_plot(int index)
+int world_state::change_plot(int index)
 {
     plot_lock.lock();
-    index++;
+    if(index < 0)
+        index = (int)plots.size() - 1;
     if(index >= (int)plots.size())
         index = 0;
     plot_lock.unlock();

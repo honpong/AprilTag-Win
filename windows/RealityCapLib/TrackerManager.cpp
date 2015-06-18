@@ -55,7 +55,7 @@ bool TrackerManager::ReadCalibration(std::wstring filename)
     std::wstring calibrationJSON((std::istreambuf_iterator<wchar_t>(t)),
         std::istreambuf_iterator<wchar_t>());
     if (calibrationJSON.length() == 0) {
-        Debug::Log(L"Couldn't load calibration, failing");
+        Debug::Log(L"Couldn't load calibration %s", filename.c_str());
         return false;
     }
     bool result = rc_setCalibration(_tracker, calibrationJSON.c_str());

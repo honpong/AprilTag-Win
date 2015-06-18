@@ -93,7 +93,6 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CaptureManagerTests.cpp" />
     <ClCompile Include="PXCSenseManagerFake.cpp" />
     <ClCompile Include="RCFactoryTests.cpp" />
     <ClCompile Include="RealityCapLibTests.cpp" />

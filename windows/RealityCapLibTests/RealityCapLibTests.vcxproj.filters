@@ -32,9 +32,6 @@
     <ClCompile Include="RealityCapLibTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CaptureManagerTests.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="RCFactoryTests.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>

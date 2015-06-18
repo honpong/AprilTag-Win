@@ -283,6 +283,19 @@ bool get_parameters_for_device_name(const char * config_name, struct corvis_devi
         set_initialized(dc);
     }
 
+    else if(device_name == "gigabytes11_ben") {
+        dc->Fx = 635.9521484375f;
+        dc->Fy = 635.9521484375f;
+        dc->Cx = 351.518310546875f;
+        dc->Cy = 232.09027099609375f;
+        dc->a_bias[0] = 0.63581299781799316f;
+        dc->a_bias[1] = 0.36253389716148376f;
+        dc->a_bias[2] = 1.1042510271072388f;
+        dc->w_bias[0] = -0.018003974109888077f;
+        dc->w_bias[1] = -0.0072470856830477715f;
+        dc->w_bias[2] = 0.0027284857351332903f;
+        set_initialized(dc);
+    }
     /* These never get used because we don't get an initial
      * device_type
     else if(device_name == "ipad3-front") {

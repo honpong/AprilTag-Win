@@ -72,7 +72,7 @@ public:
     std::function<void(std::unique_ptr<data>, camera_data &&)> camera_callback;
     std::function<void(status)> status_callback;
     
-    sensor_fusion(bool immediate_dispatch);
+    sensor_fusion(fusion_queue::latency_strategy strategy);
     
     void set_device(const corvis_device_parameters &dc);
     

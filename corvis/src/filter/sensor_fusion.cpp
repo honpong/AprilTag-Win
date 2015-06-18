@@ -198,7 +198,7 @@ void sensor_fusion::update_data(camera_data &&image)
     }
 }
 
-sensor_fusion::sensor_fusion(bool immediate_dispatch)
+sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
 {
     isSensorFusionRunning = false;
     isProcessingVideo = false;
@@ -232,10 +232,6 @@ sensor_fusion::sensor_fusion(bool immediate_dispatch)
         filter_gyroscope_measurement(&sfm, data.angvel_rad__s, data.timestamp);
     };
     
-    fusion_queue::latency_strategy strategy;
-    if(immediate_dispatch) strategy = fusion_queue::latency_strategy::ELIMINATE_LATENCY;
-    else strategy = fusion_queue::latency_strategy::IMAGE_TRIGGER;
-
     queue = std::make_unique<fusion_queue>(cam_fn, acc_fn, gyr_fn, strategy, std::chrono::microseconds(33333), std::chrono::microseconds(10000), std::chrono::microseconds(10000)); //Have to make jitter high - ipad air 2 accelerometer has high latency, we lose about 10% of samples with jitter at 8000
 }
 

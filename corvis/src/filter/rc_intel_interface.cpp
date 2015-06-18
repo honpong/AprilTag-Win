@@ -73,7 +73,7 @@ static rc_TrackerConfidence tracker_confidence_from_confidence(RCSensorFusionCon
 
 struct rc_Tracker: public sensor_fusion
 {
-    rc_Tracker(bool immediate_dispatch): sensor_fusion(immediate_dispatch) {}
+    rc_Tracker(bool immediate_dispatch): sensor_fusion(immediate_dispatch ? fusion_queue::latency_strategy::ELIMINATE_LATENCY : fusion_queue::latency_strategy::IMAGE_TRIGGER) {}
     std::wstring jsonString;
 };
 

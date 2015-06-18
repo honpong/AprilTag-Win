@@ -50,7 +50,9 @@ int main(int c, char **v)
     if(enable_gui) { // The GUI must be on the main thread
         std::thread replay_thread([&](void) { rp.start(); });
         vis.start(&rp);
+        rp.stop();
         replay_thread.join();
+        return 0;
     }
     else
         rp.start();

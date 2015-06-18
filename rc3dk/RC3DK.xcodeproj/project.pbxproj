@@ -82,10 +82,8 @@
 		32DD2ACC1B200B1200B44447 /* world_state_render.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32DD2AC21B200B1200B44447 /* world_state_render.cpp */; };
 		32DD2ACD1B200E0200B44447 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B563518EB5ECA0001CCE1 /* OpenGLES.framework */; };
 		32E757151A980149004BA247 /* NSError+RCDictionaryRepresentation.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E757141A980149004BA247 /* NSError+RCDictionaryRepresentation.m */; };
-		388998B21B26B03C0077DAA7 /* calibration_data_store.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 388998B11B26B03C0077DAA7 /* calibration_data_store.cpp */; };
 		388998B41B26B0490077DAA7 /* calibration_json_store.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 388998B31B26B0490077DAA7 /* calibration_json_store.cpp */; };
 		388998C51B26B1880077DAA7 /* calibration_json_store.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 388998B31B26B0490077DAA7 /* calibration_json_store.cpp */; };
-		388998C61B26B1900077DAA7 /* calibration_data_store.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 388998B11B26B03C0077DAA7 /* calibration_data_store.cpp */; };
 		38AEA3081B2789EF0091C4E7 /* calibration_defaults.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 38AEA3071B2789EF0091C4E7 /* calibration_defaults.cpp */; };
 		38AEA30A1B278A260091C4E7 /* calibration_defaults.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 38AEA3071B2789EF0091C4E7 /* calibration_defaults.cpp */; };
 		38EDF0771AD43D2500F0A322 /* rotation_vector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 38EDF0761AD43D2400F0A322 /* rotation_vector.cpp */; };
@@ -506,7 +504,6 @@
 		32DD2AC31B200B1200B44447 /* world_state_render.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = world_state_render.h; sourceTree = "<group>"; };
 		32E757131A980149004BA247 /* NSError+RCDictionaryRepresentation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSError+RCDictionaryRepresentation.h"; sourceTree = "<group>"; };
 		32E757141A980149004BA247 /* NSError+RCDictionaryRepresentation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSError+RCDictionaryRepresentation.m"; sourceTree = "<group>"; };
-		388998B11B26B03C0077DAA7 /* calibration_data_store.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = calibration_data_store.cpp; sourceTree = "<group>"; };
 		388998B31B26B0490077DAA7 /* calibration_json_store.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = calibration_json_store.cpp; sourceTree = "<group>"; };
 		388998B51B26B0540077DAA7 /* calibration_json_store.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = calibration_json_store.h; sourceTree = "<group>"; };
 		38AEA3071B2789EF0091C4E7 /* calibration_defaults.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = calibration_defaults.cpp; sourceTree = "<group>"; };
@@ -999,7 +996,6 @@
 				38AEA3071B2789EF0091C4E7 /* calibration_defaults.cpp */,
 				388998B31B26B0490077DAA7 /* calibration_json_store.cpp */,
 				388998B51B26B0540077DAA7 /* calibration_json_store.h */,
-				388998B11B26B03C0077DAA7 /* calibration_data_store.cpp */,
 				327B559E18EB4F3A0001CCE1 /* fast_detector */,
 				D33E61DF1ADE632900569C82 /* capture.h */,
 				D33E61E01ADE632900569C82 /* capture.cpp */,
@@ -1573,7 +1569,6 @@
 				327B553618EB4D720001CCE1 /* RCAFImageRequestOperation.m in Sources */,
 				327B55C118EB4F3A0001CCE1 /* observation.cpp in Sources */,
 				327B553718EB4D720001CCE1 /* RCAFJSONRequestOperation.m in Sources */,
-				388998B21B26B03C0077DAA7 /* calibration_data_store.cpp in Sources */,
 				327B557018EB4DC20001CCE1 /* RCDeviceInfo.m in Sources */,
 				327B556D18EB4DC20001CCE1 /* RCCalibration.mm in Sources */,
 				D9CCDC7E192E887F00A41329 /* scaled_mask.cpp in Sources */,
@@ -1713,7 +1708,6 @@
 				D33B005A1A20CACE00287FC9 /* imopv.c in Sources */,
 				D3F4C7151AF0D492003D4D0B /* device_parameters.cpp in Sources */,
 				D33E9D2A1ADD14600085F35C /* RCSensorManager.m in Sources */,
-				388998C61B26B1900077DAA7 /* calibration_data_store.cpp in Sources */,
 				D3B4EB071A1E7DE100BE0443 /* RCAFXMLRequestOperation.m in Sources */,
 				D3B4EB091A1E7DE100BE0443 /* state_motion.cpp in Sources */,
 				D3C0EDFB1A37B4DC00423EDE /* qr.cpp in Sources */,

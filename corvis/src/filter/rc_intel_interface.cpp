@@ -11,8 +11,6 @@
 #include "calibration_json_store.h"
 #include <codecvt>
 
-using namespace RealityCap;
-
 static const unsigned T0 = 3;
 static const unsigned T1 = 7;
 static const unsigned T2 = 11;
@@ -423,7 +421,7 @@ size_t rc_getCalibration(rc_Tracker *tracker, const wchar_t** buffer)
 {
     corvis_device_parameters cal = rc_getCalibration(tracker);
     std::string json;
-    bool result = calibration_json_store::SerializeCalibration(cal, json);
+    bool result = calibration_serialize(cal, json);
     if (result)
     {
         std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
@@ -442,7 +440,7 @@ bool rc_setCalibration(rc_Tracker *tracker, const wchar_t *wbuffer)
     std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
     std::string buffer = converter.to_bytes(wbuffer);
     corvis_device_parameters cal;
-    bool result = calibration_json_store::DeserializeCalibration(buffer, cal);
+    bool result = calibration_deserialize(buffer, cal);
     if (result) tracker->set_device(cal);
     return result;
 }

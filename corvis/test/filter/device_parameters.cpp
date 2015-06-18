@@ -1,10 +1,9 @@
 #include "gtest/gtest.h"
 #include "device_parameters.h"
-#include "calibration_data_store.h"
+#include "calibration_json_store.h"
 #include <memory>
 
 using namespace std;
-using namespace RealityCap;
 
 TEST(device_parameters_tests, get_device_type_string)
 {
@@ -42,41 +41,33 @@ TEST(device_parameters_tests, get_parameters_for_device_name)
 
 TEST(device_parameters_tests, is_calibration_valid)
 {
-    unique_ptr<calibration_data_store> store = calibration_data_store::GetStore();
-
-    corvis_device_parameters cal;
-    store->LoadCalibrationDefaults(DEVICE_TYPE_GIGABYTES11, cal);
-
-    corvis_device_parameters defaults;
-    store->LoadCalibrationDefaults(DEVICE_TYPE_GIGABYTES11, defaults);
+    corvis_device_parameters cal, defaults;
+    calibration_load_defaults(DEVICE_TYPE_GIGABYTES11, cal);
+    calibration_load_defaults(DEVICE_TYPE_GIGABYTES11, defaults);
 
     EXPECT_TRUE(is_calibration_valid(cal, defaults));
 }
 
 TEST(device_parameters_tests, is_calibration_valid_not)
 {
-    unique_ptr<calibration_data_store> store = calibration_data_store::GetStore();
-
     corvis_device_parameters cal;
-    store->LoadCalibrationDefaults(DEVICE_TYPE_IPAD2, cal);
+    calibration_load_defaults(DEVICE_TYPE_IPAD2, cal);
     cal.a_bias[1] = 999; // makes is_calibration_valid() return false
 
     corvis_device_parameters defaults;
-    store->LoadCalibrationDefaults(DEVICE_TYPE_IPAD2, defaults);
+    calibration_load_defaults(DEVICE_TYPE_IPAD2, defaults);
 
     EXPECT_FALSE(is_calibration_valid(cal, defaults));
 }
 
 TEST(device_parameters_tests, is_calibration_valid_wrong_version)
 {
-    unique_ptr<calibration_data_store> store = calibration_data_store::GetStore();
-
     corvis_device_parameters cal;
-    store->LoadCalibrationDefaults(DEVICE_TYPE_IPAD2, cal);
+    calibration_load_defaults(DEVICE_TYPE_IPAD2, cal);
     cal.version = cal.version - 1; // makes is_calibration_valid() return false
 
     corvis_device_parameters defaults;
-    store->LoadCalibrationDefaults(DEVICE_TYPE_IPAD2, defaults);
+    calibration_load_defaults(DEVICE_TYPE_IPAD2, defaults);
 
     EXPECT_FALSE(is_calibration_valid(cal, defaults));
 }

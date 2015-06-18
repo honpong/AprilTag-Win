@@ -6,19 +6,16 @@
 #include "calibration_json_store.h"
 
 using namespace std;
-using namespace RealityCap;
 
 TEST(rc_intel_interface_tests, rc_setCalibration)
 {
     // load default cal
-    unique_ptr<calibration_data_store> store = calibration_data_store::GetStore();
-
     corvis_device_parameters cal;
-    EXPECT_TRUE(store->LoadCalibrationDefaults(DEVICE_TYPE_GIGABYTES11, cal));
+    EXPECT_TRUE(calibration_load_defaults(DEVICE_TYPE_GIGABYTES11, cal));
 
     // set cal
     string jsonString;
-    EXPECT_TRUE(calibration_json_store::SerializeCalibration(cal, jsonString));
+    EXPECT_TRUE(calibration_serialize(cal, jsonString));
 
     rc_Tracker *tracker = rc_create();
     wstring_convert<codecvt_utf8<wchar_t>, wchar_t> converter;

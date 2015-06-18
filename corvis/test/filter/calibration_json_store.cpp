@@ -5,16 +5,7 @@
 #include <iostream>
 #include <fstream>
 
-using namespace RealityCap;
 using namespace std;
-
-const float testFloat = .1;
-
-TEST(calibration_json_store_tests, NewDelete)
-{
-    calibration_json_store* instance = new calibration_json_store();
-    delete instance;
-}
 
 bool nearlyEqual(float a, float b, float epsilon) 
 {
@@ -41,16 +32,15 @@ bool nearlyEqual(float a, float b, float epsilon)
 TEST(calibration_json_store_tests, SerializeDeserialize)
 {
     corvis_device_parameters cal, calDeserialized;
-    calibration_json_store calStore;
-    EXPECT_TRUE(calStore.LoadCalibrationDefaults(DEVICE_TYPE_UNKNOWN, cal));
+    EXPECT_TRUE(calibration_load_defaults(DEVICE_TYPE_UNKNOWN, cal));
 
     try
     {
         std::string jsonString;
-        EXPECT_TRUE(calibration_json_store::SerializeCalibration(cal, jsonString));
+        EXPECT_TRUE(calibration_serialize(cal, jsonString));
         EXPECT_TRUE(jsonString.length()); // expect non-zero length
 
-        EXPECT_TRUE(calibration_json_store::DeserializeCalibration(jsonString, calDeserialized));
+        EXPECT_TRUE(calibration_deserialize(jsonString, calDeserialized));
     }
     catch (runtime_error)
     {
@@ -70,7 +60,7 @@ TEST(calibration_json_store_tests, DeserializeCalibration)
     try
     {
         std::string jsonString;
-        EXPECT_FALSE(calibration_json_store::DeserializeCalibration(jsonString, calDeserialized));
+        EXPECT_FALSE(calibration_deserialize(jsonString, calDeserialized));
     }
     catch (...)
     {

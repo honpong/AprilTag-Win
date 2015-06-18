@@ -96,7 +96,6 @@ add_library(filter STATIC
   filter/qr.cpp
   filter/device_parameters.cpp
   filter/calibration_json_store.cpp
-  filter/calibration_data_store.cpp
   filter/calibration_defaults.cpp
   filter/sensor_fusion.cpp
   filter/capture.cpp

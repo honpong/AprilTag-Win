@@ -18,8 +18,6 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-using namespace RealityCap;
-
 void get_device_type_string_map(unordered_map<corvis_device_type, string> &map)
 {
     if (map.size()) return;
@@ -99,8 +97,7 @@ void device_set_framerate(struct corvis_device_parameters *dc, float framerate_h
 // TODO: should this go away?
 bool get_parameters_for_device(corvis_device_type type, struct corvis_device_parameters *dc)
 {
-    unique_ptr<calibration_data_store> calStore = calibration_data_store::GetStore();
-    return calStore->LoadCalibrationDefaults(type, *dc);
+    return calibration_load_defaults(type, *dc);
 }
 
 void set_initialized(struct corvis_device_parameters *dc)

@@ -7,7 +7,6 @@
 #include <fstream>
 #include <sys/stat.h>
 
-using namespace RealityCap;
 using namespace rapidjson;
 using namespace std;
 
@@ -53,21 +52,6 @@ using namespace std;
 #define KEY_CALIBRATION_VERSION "calibrationVersion"
 
 #include "calibration_defaults.h"
-
-calibration_json_store::calibration_json_store()
-{
-}
-
-
-calibration_json_store::~calibration_json_store()
-{
-}
-
-bool FileExists(string filename) 
-{
-    struct stat fileInfo;
-    return stat(filename.c_str(), &fileInfo) == 0;
-}
 
 void CopyJsonToStruct(Document &json, corvis_device_parameters &cal)
 {
@@ -157,7 +141,7 @@ void CopyStructToJson(const corvis_device_parameters &cal, Value &json)
     json[KEY_SHUTTER_PERIOD] = (int)std::chrono::duration_cast<std::chrono::microseconds>(cal.shutter_period).count();
 }
 
-bool RealityCap::calibration_json_store::SerializeCalibration(const corvis_device_parameters &cal, std::string &jsonString)
+bool calibration_serialize(const corvis_device_parameters &cal, std::string &jsonString)
 {
     Document json; json.Parse(calibration_default_json_for_device_type(DEVICE_TYPE_UNKNOWN));
     CopyStructToJson(cal, json);
@@ -168,7 +152,7 @@ bool RealityCap::calibration_json_store::SerializeCalibration(const corvis_devic
     return jsonString.length() > 0;
 }
 
-bool RealityCap::calibration_json_store::DeserializeCalibration(const std::string &jsonString, corvis_device_parameters &cal)
+bool calibration_deserialize(const std::string &jsonString, corvis_device_parameters &cal)
 {
     Document json; json.Parse(jsonString.c_str());
     if (json.HasParseError())
@@ -177,7 +161,7 @@ bool RealityCap::calibration_json_store::DeserializeCalibration(const std::strin
     return true;
 }
 
-bool RealityCap::calibration_json_store::LoadCalibrationDefaults(const corvis_device_type deviceType, corvis_device_parameters &cal)
+bool calibration_load_defaults(const corvis_device_type deviceType, corvis_device_parameters &cal)
 {
-    return RealityCap::calibration_json_store::DeserializeCalibration(calibration_default_json_for_device_type(deviceType), cal);
+    return calibration_deserialize(calibration_default_json_for_device_type(deviceType), cal);
 }

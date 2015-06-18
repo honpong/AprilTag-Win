@@ -31,7 +31,7 @@ bool replay::set_device(const char *name)
 {
     corvis_device_parameters dc;
     if (get_parameters_for_device_name(name, &dc)) {
-        cor_setup = std::make_unique<filter_setup>(&dc);
+        fusion.set_device(dc);
         return true;
     } else {
         cerr << "Error: no device named " << name << "\n";
@@ -41,26 +41,14 @@ bool replay::set_device(const char *name)
 
 void replay::setup_filter()
 {
-    auto camf = [this](camera_data &&x) {
-        if (cor_setup->device.image_height != x.height || cor_setup->device.image_width != x.width) {
-            device_set_resolution(&cor_setup->device, x.width, x.height);
-            filter_initialize(&cor_setup->sfm, cor_setup->device);
-            filter_start_dynamic(&cor_setup->sfm);
-        }
-        filter_image_measurement(&cor_setup->sfm, x.image, x.width, x.height, x.stride, x.timestamp);
-        if(camera_callback)
-            camera_callback(&cor_setup->sfm, std::move(x));
-    };
-    auto accf = [this](accelerometer_data &&x) {
-        filter_accelerometer_measurement(&cor_setup->sfm, x.accel_m__s2, x.timestamp);
-    };
-    auto gyrf = [this](gyro_data &&x) {
-        filter_gyroscope_measurement(&cor_setup->sfm, x.angvel_rad__s, x.timestamp);
-    };
-    queue = make_unique<fusion_queue>(camf, accf, gyrf, fusion_queue::latency_strategy::ELIMINATE_DROPS, std::chrono::microseconds(33000), std::chrono::microseconds(10000), std::chrono::microseconds(5000));
-    queue->start_singlethreaded(true);
-    cor_setup->sfm.ignore_lateness = true;
-    filter_start_dynamic(&cor_setup->sfm);
+    if(camera_callback)
+    {
+        fusion.camera_callback = [this](std::unique_ptr<sensor_fusion::data> data, camera_data &&image)
+        {
+            camera_callback(&fusion.sfm, std::move(image));
+        };
+    }
+    fusion.start_offline();
 }
 
 void replay::start()
@@ -126,7 +114,7 @@ void replay::start()
                     d.stride = width;
                     d.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time+16667));
                     d.image_handle = std::move(phandle);
-                    queue->receive_camera(std::move(d));
+                    fusion.receive_image(std::move(d));
                     is_stepping = false;
                     break;
                 }
@@ -137,7 +125,7 @@ void replay::start()
                     d.accel_m__s2[1] = ((float *)packet->data)[1];
                     d.accel_m__s2[2] = ((float *)packet->data)[2];
                     d.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time));
-                    queue->receive_accelerometer(std::move(d));
+                    fusion.receive_accelerometer(std::move(d));
                     break;
                 }
                 case packet_gyroscope:
@@ -147,7 +135,7 @@ void replay::start()
                     d.angvel_rad__s[1] = ((float *)packet->data)[1];
                     d.angvel_rad__s[2] = ((float *)packet->data)[2];
                     d.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time));
-                    queue->receive_gyro(std::move(d));
+                    fusion.receive_gyro(std::move(d));
                     break;
                 }
                 case packet_imu:
@@ -158,13 +146,13 @@ void replay::start()
                     a.accel_m__s2[1] = imu->a[1];
                     a.accel_m__s2[2] = imu->a[2];
                     a.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time));
-                    queue->receive_accelerometer(std::move(a));
+                    fusion.receive_accelerometer(std::move(a));
                     gyro_data g;
                     g.angvel_rad__s[0] = imu->w[0];
                     g.angvel_rad__s[1] = imu->w[1];
                     g.angvel_rad__s[2] = imu->w[2];
                     g.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time));
-                    queue->receive_gyro(std::move(g));
+                    fusion.receive_gyro(std::move(g));
                     break;
                 }
                 case packet_filter_control:
@@ -172,7 +160,7 @@ void replay::start()
                     if(header.user == 1)
                     {
                         //start measuring
-                        queue->dispatch_sync([this] { filter_set_reference(&cor_setup->sfm); });
+                        fusion.queue->dispatch_sync([this] { filter_set_reference(&fusion.sfm); });
                     }
                 }
             }
@@ -193,22 +181,23 @@ void replay::start()
         file.read((char *)&header, 16);
         if(file.bad() || file.eof()) is_running = false;
     }
-    queue->stop_sync();
+    fusion.stop();
     
     file.close();
 
-    length = (float) cor_setup->sfm.s.T.v.norm() * 100;
-    path_length = cor_setup->sfm.s.total_distance * 100;
+    v4 T = fusion.get_external_transformation().T;
+    length = (float) T.norm() * 100;
+    path_length = fusion.sfm.s.total_distance * 100;
 }
 
 bool replay::configure_all(const char *filename, const char *devicename, bool realtime, std::function<void (float)> progress, std::function<void (const filter *, camera_data)> camera_cb)
 {
     if(!open(filename)) return false;
     if (!set_device(devicename)) return false;
-    setup_filter();
     is_realtime = realtime;
     progress_callback = progress;
     camera_callback = camera_cb;
+    setup_filter();
     return true;
 }
 

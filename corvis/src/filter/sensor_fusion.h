@@ -231,6 +231,7 @@ public:
     v4 filter_to_external_position(const v4& x) const;
     
 private:
+    friend class replay; //Allow replay to access queue directly so it can send the obsolete start measuring signal, which we don't expose elsewhere
     RCSensorFusionErrorCode get_error();
     void update_status();
     void update_data(camera_data &&data);

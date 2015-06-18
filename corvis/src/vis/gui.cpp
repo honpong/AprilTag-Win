@@ -93,6 +93,7 @@ void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int m
              break; case GLFW_KEY_V:        show_video = !show_video;
              break; case GLFW_KEY_M:        show_main = !show_main;
              break; case GLFW_KEY_P:        show_plots = !show_plots;
+             break; case GLFW_KEY_Q:        quit = true; if (replay_control) replay_control->stop();
         }
     }
 }
@@ -143,7 +144,7 @@ void gui::start_glfw()
 
     //fprintf(stderr, "OpenGL Version %d.%d loaded\n", GLVersion.major, GLVersion.minor);
 
-    while (!glfwWindowShouldClose(main_window))
+    while (!glfwWindowShouldClose(main_window) && !quit)
     {
         glfwGetFramebufferSize(main_window, &width, &height);
         glViewport(0, 0, width, height);

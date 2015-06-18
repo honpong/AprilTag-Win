@@ -51,11 +51,11 @@ private:
     int width, height;
 
     std::atomic<int> current_plot{0};
+    std::atomic<bool> quit{false};
 
     // Mouse related
     arcball arc;
     bool is_rotating{false};
-
 
     // Display related
     GLFWwindow * main_window;

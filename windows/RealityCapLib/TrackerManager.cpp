@@ -175,7 +175,6 @@ void TrackerManager::Stop()
     if (!isRunning()) return;
     StopSensors();
     rc_stopTracker(_tracker);
-    StoreCurrentCalibration(); // TODO: handle failure
     rc_reset(_tracker, 0, rc_POSE_IDENTITY);
     _isRunning = false;
 }

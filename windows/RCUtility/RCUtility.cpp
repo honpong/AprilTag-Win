@@ -198,6 +198,8 @@ void ExitCalibratingState()
 {
     if (appState != Calibrating) return;
     SetWindowText(hStatusLabel, TEXT("Stopping calibration..."));
+    if (!trackMan->StoreCurrentCalibration())
+        Debug::Log(L"Unable to store calibration");
     trackMan->Stop();
     SetWindowText(hStatusLabel, TEXT("Calibration stopped."));
     SetWindowText(hProgressLabel, TEXT(""));

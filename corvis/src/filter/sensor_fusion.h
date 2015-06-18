@@ -63,7 +63,6 @@ public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
         sensor_clock::time_point time;
         transformation transform;
-        transformation camera_transform;
         std::string origin_qr_code;
         camera_parameters camera_intrinsics;
         float total_path_m;
@@ -219,6 +218,17 @@ public:
     //public for now
     filter sfm;
     corvis_device_parameters device;
+    
+    //These change coordinates from accelerometer-centered coordinates to camera-centered coordinates
+    v4 accel_to_camera_position(const v4& x) const;
+    v4 camera_to_accel_position(const v4& x) const;
+    transformation accel_to_camera_transformation(const transformation &x) const;
+    transformation camera_to_accel_transformation(const transformation &x) const;
+    
+    //Gets the current transformation, moving from filter-internal to external coordinates
+    //Currently: goes from accel to accel (no-op), but does adjust for qr code
+    transformation get_external_transformation() const;
+    v4 filter_to_external_position(const v4& x) const;
     
 private:
     RCSensorFusionErrorCode get_error();

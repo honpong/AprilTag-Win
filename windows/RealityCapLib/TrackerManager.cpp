@@ -94,7 +94,9 @@ bool TrackerManager::StoreCurrentCalibration()
 bool TrackerManager::Start()
 {
     if (isRunning()) return false;
-    if (!LoadDefaultCalibration()) return false;
+    if (!LoadStoredCalibration())
+        if (!LoadDefaultCalibration())
+            return false;
     if (!StartSensors()) return false;
 
     _trackerState = rc_E_INACTIVE;

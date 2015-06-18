@@ -16,12 +16,6 @@ TEST(calibration_json_store_tests, NewDelete)
     delete instance;
 }
 
-fpos_t filesize(const char* filename)
-{
-    std::ifstream in(filename, std::ifstream::ate | std::ifstream::binary);
-    return in.tellg();
-}
-
 bool nearlyEqual(float a, float b, float epsilon) 
 {
     const float absA = fabs(a);
@@ -44,80 +38,10 @@ bool nearlyEqual(float a, float b, float epsilon)
     }
 }
 
-TEST(calibration_json_store_tests, SaveCalibration)
-{
-    remove(CALIBRATION_FILE_NAME);
-
-    calibration_json_store calStore;
-    corvis_device_parameters params;
-    params.Fx = testFloat;
-
-    try
-    {
-        calStore.SaveCalibration(params);
-    }
-    catch (runtime_error)
-    {
-        FAIL();
-    }
-
-    // check that file size is greater than zero
-    EXPECT_GT(filesize(CALIBRATION_FILE_NAME), 0);
-}
-
-// there will be an existing calibration file because of above test
-TEST(calibration_json_store_tests, LoadCalibration)
-{
-    calibration_json_store calStore;
-    try
-    {
-        corvis_device_parameters cal;
-        calStore.LoadCalibration(cal);
-        EXPECT_TRUE(nearlyEqual(testFloat, cal.Fx, FLT_EPSILON));
-    }
-    catch (runtime_error)
-    {
-        FAIL();
-    }
-}
-
-TEST(calibration_json_store_tests, HasCalibration)
-{
-    calibration_json_store calStore;
-    corvis_device_parameters cal;
-
-    try
-    {
-        // save the defaults as a valid calibration. next test cleans up.
-        calStore.LoadCalibrationDefaults(DEVICE_TYPE_UNKNOWN, cal);
-        calStore.SaveCalibration(cal);
-        EXPECT_TRUE(calStore.HasCalibration());
-    }
-    catch (runtime_error)
-    {
-        FAIL();
-    }
-}
-
-TEST(calibration_json_store_tests, HasCalibration_MissingFile)
-{
-    calibration_json_store calStore;
-    try
-    {
-        calStore.ClearCalibration();
-        EXPECT_FALSE(calStore.HasCalibration());
-    }
-    catch (runtime_error)
-    {
-        FAIL();
-    }
-}
-
 TEST(calibration_json_store_tests, SerializeDeserialize)
 {
     corvis_device_parameters cal, calDeserialized;
     calibration_json_store calStore;
-    calStore.SetCalibrationLocation("calibration/");
     EXPECT_TRUE(calStore.LoadCalibrationDefaults(DEVICE_TYPE_UNKNOWN, cal));
 
     try

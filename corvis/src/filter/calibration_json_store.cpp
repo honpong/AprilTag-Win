@@ -69,12 +69,6 @@ bool FileExists(string filename)
     return stat(filename.c_str(), &fileInfo) == 0;
 }
 
-string GetCalibrationDefaultsFileName(corvis_device_type deviceType)
-{
-    string deviceTypeString = get_device_type_string(deviceType);
-    return deviceTypeString.append(".json");
-}
-
 void CopyJsonToStruct(Document &json, corvis_device_parameters &cal)
 {
     cal.version = json[KEY_CALIBRATION_VERSION].GetInt();
@@ -183,60 +177,7 @@ bool RealityCap::calibration_json_store::DeserializeCalibration(const std::strin
     return true;
 }
 
-void calibration_json_store::ParseCalibrationFile(string fileName, corvis_device_parameters &cal)
-{
-    string fullName = calibrationLocation + fileName;
-    if (!FileExists(fullName)) throw runtime_error("Calibration file not found.");
-
-    ifstream jsonFile(fullName);
-    if (jsonFile.fail()) throw runtime_error("Failed to open calibration file.");
-
-    string jsonString((istreambuf_iterator<char>(jsonFile)), istreambuf_iterator<char>());
-    if (!DeserializeCalibration(jsonString, cal))
-        throw runtime_error("Failed to parse calibration file.");
-}
-
-bool RealityCap::calibration_json_store::LoadCalibration(corvis_device_parameters &cal)
-{
-    if (FileExists(calibrationLocation + CALIBRATION_FILE_NAME))
-    {
-        ParseCalibrationFile(CALIBRATION_FILE_NAME, cal);
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
 bool RealityCap::calibration_json_store::LoadCalibrationDefaults(const corvis_device_type deviceType, corvis_device_parameters &cal)
 {
     return RealityCap::calibration_json_store::DeserializeCalibration(calibration_default_json_for_device_type(deviceType), cal);
-}
-
-bool calibration_json_store::SaveCalibration(const corvis_device_parameters &cal)
-{
-    return SaveCalibration(cal, CALIBRATION_FILE_NAME);
-}
-
-bool calibration_json_store::SaveCalibration(const corvis_device_parameters &cal, const char* fileName)
-{
-    string jsonString;
-    if (!SerializeCalibration(cal, jsonString))
-        throw runtime_error("Failed to serialize calibration for writing.");
-
-    ofstream jsonFile(calibrationLocation + fileName);
-    jsonFile << jsonString;
-    return true;
-}
-
-bool RealityCap::calibration_json_store::ClearCalibration()
-{
-    return remove(CALIBRATION_FILE_NAME) == 0;
-}
-
-bool RealityCap::calibration_json_store::HasCalibration()
-{
-    corvis_device_parameters cal;
-    return LoadCalibration(cal);
 }

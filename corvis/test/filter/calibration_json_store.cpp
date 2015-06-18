@@ -7,28 +7,6 @@
 
 using namespace std;
 
-bool nearlyEqual(float a, float b, float epsilon) 
-{
-    const float absA = fabs(a);
-    const float absB = fabs(b);
-    const float diff = fabs(a - b);
-
-    if (a == b)  // shortcut, handles infinities
-    {
-        return true;
-    }
-    else if (a == 0 || b == 0 || diff < FLT_MIN) 
-    {
-        // a or b is zero or both are extremely close to it
-        // relative error is less meaningful here
-        return diff < (epsilon * FLT_MIN);
-    }
-    else  // use relative error
-    {
-        return diff / fmin((absA + absB), FLT_MAX) < epsilon;
-    }
-}
-
 TEST(calibration_json_store_tests, SerializeDeserialize)
 {
     corvis_device_parameters cal, calDeserialized;
@@ -49,8 +27,8 @@ TEST(calibration_json_store_tests, SerializeDeserialize)
 
     // just do some spot checking
     EXPECT_EQ(cal.version, calDeserialized.version);
-    EXPECT_TRUE(nearlyEqual(cal.Fx, calDeserialized.Fx, FLT_EPSILON));
-    EXPECT_TRUE(nearlyEqual(cal.Cx, calDeserialized.Cx, FLT_EPSILON));
+    EXPECT_FLOAT_EQ(cal.Fx, calDeserialized.Fx);
+    EXPECT_FLOAT_EQ(cal.Cx, calDeserialized.Cx);
 }
 
 TEST(calibration_json_store_tests, DeserializeCalibration)

@@ -89,11 +89,11 @@ void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int m
              break; case GLFW_KEY_MINUS:    scale *= 1.1f;
              break; case GLFW_KEY_SPACE:    if (replay_control) replay_control->toggle_pause();
              break; case GLFW_KEY_S:        if (replay_control) replay_control->step();
+             break; case GLFW_KEY_Q:        if (replay_control) replay_control->stop(); quit = true;
              break; case GLFW_KEY_F:        write_frame();
              break; case GLFW_KEY_V:        show_video = !show_video;
              break; case GLFW_KEY_M:        show_main = !show_main;
              break; case GLFW_KEY_P:        show_plots = !show_plots;
-             break; case GLFW_KEY_Q:        quit = true; if (replay_control) replay_control->stop();
         }
     }
 }

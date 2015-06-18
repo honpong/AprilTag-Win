@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "../../gtest/gtest.h"
-#include "CalibrationManager.h"
 #include "CaptureManager.h"
 #include "RCFactory.h"
 #include "PXCSenseManagerFake.h"
@@ -16,7 +15,6 @@ TEST(RCFactoryTests, NewDelete)
 TEST(RCFactoryTests, SameSenseMan)
 {
     RCFactory factory;
-    unique_ptr<CalibrationManager> calMan = factory.CreateCalibrationManager();
     unique_ptr<CaptureManager> capMan = factory.CreateCaptureManager();
     ASSERT_EQ(calMan->GetSenseManager(), capMan->GetSenseManager());
 }

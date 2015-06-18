@@ -138,7 +138,20 @@ void TrackerManager::SetOutputLog(const std::wstring filename)
 bool TrackerManager::StartReplay(const std::wstring filename, bool realtime)
 {
     if (isRunning()) return false;
-    if (!LoadDefaultCalibration()) return false;
+    // Try to load filename.json, then look for calibration.json in
+    // the same folder. If that doesn't work, fall back to loading the
+    // default calibration
+    std::wstring calibration_filename = filename + L".json";
+    if (!ReadCalibration(calibration_filename)) {
+        wstring::size_type pos = filename.find_last_of(L"\\/");
+        calibration_filename = wstring(filename.begin(), filename.begin() + pos);
+        calibration_filename += L"\\calibration.json";
+        if(!ReadCalibration(calibration_filename)) {
+            Debug::Log(L"Reading default calibration");
+            if(!LoadDefaultCalibration())
+                return false;
+        }
+    }
 
     _trackerState = rc_E_INACTIVE;
     _progress = 0.;

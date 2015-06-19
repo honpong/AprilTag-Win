@@ -11,9 +11,30 @@
 #include "calibration_json_store.h"
 #include <codecvt>
 
-static const unsigned T0 = 3;
-static const unsigned T1 = 7;
-static const unsigned T2 = 11;
+static void transformation_to_rc_Pose(const transformation &g, rc_Pose p)
+{
+    m4 R = to_rotation_matrix(g.Q);
+    for(int i = 0; i < 3; i++) {
+        for(int j = 0; j < 3; j++) {
+            p[i * 4 + j] = (float)R(i, j);
+        }
+        p[i * 4 + 3] = (float)g.T[i];
+    }
+}
+
+static transformation rc_Pose_to_transformation(const rc_Pose p)
+{
+    transformation g;
+    m4 R = m4::Zero();
+    for(int i = 0; i < 3; i++) {
+        for(int j = 0; j < 3; j++) {
+            R(i,j) = p[i * 4 + j];
+        }
+        g.T[i] = p[i * 4 + 3];
+    }
+    g.Q = to_quaternion(R);
+    return g;
+}
 
 static rc_TrackerState tracker_state_from_run_state(RCSensorFusionRunState run_state)
 {
@@ -75,7 +96,26 @@ struct rc_Tracker: public sensor_fusion
 {
     rc_Tracker(bool immediate_dispatch): sensor_fusion(immediate_dispatch ? fusion_queue::latency_strategy::ELIMINATE_LATENCY : fusion_queue::latency_strategy::IMAGE_TRIGGER) {}
     std::wstring jsonString;
+    std::vector<rc_Feature> features;
 };
+
+std::vector<rc_Feature> copy_features_from_sensor_fusion(const std::vector<sensor_fusion::feature_point> &in_feats)
+{
+    std::vector<rc_Feature> features;
+    features.reserve(in_feats.size());
+    for (auto fp : in_feats)
+    {
+        rc_Feature feat;
+        feat.image_x = fp.x;
+        feat.image_y = fp.y;
+        feat.world.x = fp.worldx;
+        feat.world.y = fp.worldy;
+        feat.world.z = fp.worldz;
+        feat.id = fp.id;
+        features.push_back(feat);
+    }
+    return features;
+}
 
 extern "C" rc_Tracker * rc_create()
 {
@@ -92,15 +132,7 @@ extern "C" void rc_destroy(rc_Tracker * tracker)
 
 extern "C" void rc_reset(rc_Tracker * tracker, rc_Timestamp initialTime_us, const rc_Pose initialPose_m)
 {
-    m4 R = m4::Identity();
-    v4 T = v4::Zero();
-    for(int i = 0; i < 3; ++i) {
-        T[i] = initialPose_m[i * 4 + 3];
-        for(int j = 0; j < 3; ++ j) {
-            R(i, j) = initialPose_m[i * 4 + j];
-        }
-    }
-    tracker->reset(sensor_clock::micros_to_tp(initialTime_us), transformation(R, T));
+    tracker->reset(sensor_clock::micros_to_tp(initialTime_us), rc_Pose_to_transformation(initialPose_m));
 }
 
 void rc_printDeviceConfig(rc_Tracker * tracker)
@@ -136,19 +168,13 @@ void rc_configureCamera(rc_Tracker * tracker, rc_Camera camera, const rc_Pose po
     tracker->device.K[1] = 0;
     tracker->device.K[2] = 0;
 
-    tracker->device.Tc[0] = pose_m[T0];
-    tracker->device.Tc[1] = pose_m[T1];
-    tracker->device.Tc[2] = pose_m[T2];
-    m4 R = m4::Identity();
-    for(int i = 0; i < 3; i++) {
-        for(int j = 0; j < 3; j++) {
-            R(i, j) = pose_m[i * 4 + j];
-        }
+    transformation g = rc_Pose_to_transformation(pose_m);
+    rotation_vector W = to_rotation_vector(g.Q);
+    for(int i = 0; i < 3; ++i)
+    {
+        tracker->device.Tc[i] = (float)g.T[i];
+        tracker->device.Wc[i] = (float)W.raw_vector()[i];
     }
-    rotation_vector r = to_rotation_vector(R);
-    tracker->device.Wc[0] = (float)r.x();
-    tracker->device.Wc[1] = (float)r.y();
-    tracker->device.Wc[2] = (float)r.z();
 }
 
 
@@ -183,34 +209,13 @@ RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callb
         uint64_t micros = std::chrono::duration_cast<std::chrono::microseconds>(d->time.time_since_epoch()).count();
 
         rc_Pose p;
-        p[T0] = (float)d->transform.T[0];
-        p[T1] = (float)d->transform.T[1];
-        p[T2] = (float)d->transform.T[2];
-        m4 R = to_rotation_matrix(d->transform.Q);
-        for(int i = 0; i < 3; i++) {
-            for(int j = 0; j < 3; j++) {
-                p[i * 4 + j] = (float)R(i, j);
-            }
-        }
+        transformation_to_rc_Pose(d->transform, p);
 
-        int fcount = d->features.size();
-        vector<rc_Feature> outfeats;
-        outfeats.reserve(fcount);
-        for (auto fp : d->features)
-        {
-            rc_Feature feat;
-            feat.image_x = fp.x;
-            feat.image_y = fp.y;
-            feat.world.x = fp.worldx;
-            feat.world.y = fp.worldy;
-            feat.world.z = fp.worldz;
-            feat.id = fp.id;
-            outfeats.push_back(feat);
-        }
+        std::vector<rc_Feature> features = copy_features_from_sensor_fusion(d->features);
         rc_Feature *f = nullptr;
-        if (fcount)
-            f = &outfeats[0];
-        callback(handle, micros, p, f, fcount);
+        int count = features.size();
+        if(count) f = &features[0];
+        callback(handle, micros, p, f, count);
     };
     else tracker->camera_callback = nullptr;
 }
@@ -313,31 +318,16 @@ void rc_receiveGyro(rc_Tracker * tracker, rc_Timestamp time_us, const rc_Vector 
 
 void rc_getPose(const rc_Tracker * tracker, rc_Pose pose_m)
 {
-    pose_m[T0] = (float)tracker->sfm.s.T.v[0];
-    pose_m[T1] = (float)tracker->sfm.s.T.v[1];
-    pose_m[T2] = (float)tracker->sfm.s.T.v[2];
-
-    m4 R = to_rotation_matrix(tracker->sfm.s.W.v);
-    for(int r = 0; r < 3; r++)
-        for(int c = 0; c < 3; c++) // skip last column, already filled above
-            pose_m[r*4 + c] = (float)R(r, c); // pose_m is 3x4
+    transformation_to_rc_Pose(tracker->get_transformation(), pose_m);
 }
 
-int rc_getFeatures(const rc_Tracker * tracker, rc_Feature **features_px)
+int rc_getFeatures(rc_Tracker * tracker, rc_Feature **features_px)
 {
-    int num_features = (int)tracker->sfm.s.features.size();
-    *features_px = (rc_Feature *)malloc(num_features*sizeof(rc_Feature));
-    int i = 0;
-    for(auto f : tracker->sfm.s.features) {
-        (*features_px)[i].id = f->id;
-        (*features_px)[i].world.x = (float)f->world[0];
-        (*features_px)[i].world.y = (float)f->world[1];
-        (*features_px)[i].world.z = (float)f->world[2];
-        (*features_px)[i].image_x = (float)f->current[0];
-        (*features_px)[i].image_y = (float)f->current[1];
-        i++;
-    }
-    return num_features;
+    tracker->features = copy_features_from_sensor_fusion(tracker->get_features());
+    *features_px = nullptr;
+    int count = tracker->features.size();
+    if(count) *features_px = &tracker->features[0];
+    return count;
 }
 
 rc_TrackerState rc_getState(const rc_Tracker *tracker)

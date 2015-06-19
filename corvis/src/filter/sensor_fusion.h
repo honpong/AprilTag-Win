@@ -224,11 +224,12 @@ public:
     v4 accel_to_camera_position(const v4& x) const;
     v4 camera_to_accel_position(const v4& x) const;
     transformation accel_to_camera_transformation(const transformation &x) const;
+    v4 filter_to_external_position(const v4& x) const;
     
     //Gets the current transformation, moving from filter-internal to external coordinates
-    //Currently: goes from accel to accel (no-op), but does adjust for qr code
-    transformation get_external_transformation() const;
-    v4 filter_to_external_position(const v4& x) const;
+    //Adjusts for camera vs accel centered and QR offset
+    transformation get_transformation() const;
+    std::vector<feature_point> get_features() const;
     
 private:
     friend class replay; //Allow replay to access queue directly so it can send the obsolete start measuring signal, which we don't expose elsewhere

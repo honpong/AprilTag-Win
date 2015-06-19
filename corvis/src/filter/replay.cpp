@@ -185,7 +185,7 @@ void replay::start()
     
     file.close();
 
-    v4 T = fusion.get_external_transformation().T;
+    v4 T = fusion.get_transformation().T;
     length = (float) T.norm() * 100;
     path_length = fusion.sfm.s.total_distance * 100;
 }

@@ -58,7 +58,7 @@ transformation sensor_fusion::accel_to_camera_transformation(const transformatio
     return compose(accel_to_camera_world_transform(), compose(x, cam_transform));
 }
 
-transformation sensor_fusion::get_external_transformation() const
+transformation sensor_fusion::get_transformation() const
 {
     transformation filter_transform(to_quaternion(sfm.s.W.v), sfm.s.T.v);    
     if(sfm.qr.valid)
@@ -165,6 +165,30 @@ void sensor_fusion::update_status()
     last_status = s;
 }
 
+std::vector<sensor_fusion::feature_point> sensor_fusion::get_features() const
+{
+    std::vector<feature_point> features;
+    features.reserve(sfm.s.features.size());
+    for(auto i: sfm.s.features)
+    {
+        if(i->is_valid()) {
+            feature_point p;
+            p.id = i->id;
+            p.x = (float)i->current[0];
+            p.y = (float)i->current[1];
+            p.original_depth = (float)i->v.depth();
+            p.stdev = (float)i->v.stdev_meters(sqrt(i->variance()));
+            v4 ext_pos = filter_to_external_position(i->world);
+            p.worldx = (float)ext_pos[0];
+            p.worldy = (float)ext_pos[1];
+            p.worldz = (float)ext_pos[2];
+            p.initialized = i->is_initialized();
+            features.push_back(p);
+        }
+    }
+    return features;
+}
+
 void sensor_fusion::update_data(camera_data &&image)
 {
     auto d = std::make_unique<data>();
@@ -187,27 +211,11 @@ void sensor_fusion::update_data(camera_data &&image)
         d->origin_qr_code = sfm.qr.data;
     }
     
-    d->transform = get_external_transformation();
+    d->transform = get_transformation();
     d->time = sfm.last_time;
 
-    d->features.reserve(sfm.s.features.size());
-    for(auto i: sfm.s.features)
-    {
-        if(i->is_valid()) {
-            feature_point p;
-            p.id = i->id;
-            p.x = (float)i->current[0];
-            p.y = (float)i->current[1];
-            p.original_depth = (float)i->v.depth();
-            p.stdev = (float)i->v.stdev_meters(sqrt(i->variance()));
-            v4 ext_pos = filter_to_external_position(i->world);
-            p.worldx = (float)ext_pos[0];
-            p.worldy = (float)ext_pos[1];
-            p.worldz = (float)ext_pos[2];
-            p.initialized = i->is_initialized();
-            d->features.push_back(p);
-        }
-    }
+    d->features = get_features();
+
     if(camera_callback) {
         //if(threaded) std::async(std::launch::async, camera_callback, std::move(d), std::move(image));
         //else
@@ -356,7 +364,7 @@ void sensor_fusion::trigger_log() const
 
     last_log = sfm.last_time;
 
-    transformation transform = get_external_transformation();
+    transformation transform = get_transformation();
     
     m4 R = to_rotation_matrix(transform.Q);
     v4 T = transform.T;

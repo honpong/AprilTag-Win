@@ -52,7 +52,7 @@ class TestRunner(object):
     return self.run_subprocess(test_case)
 
   def run_subprocess(self, test_case):
-    print "Running ", test_case["path"], "using bin/measure"; sys.stdout.flush();
+    print "Running ", test_case["path"]; sys.stdout.flush();
     args = [self.measure_path, os.path.join(self.input_dir, test_case["path"]), test_case["config"], "--no-gui"]
     if self.output_dir is not None:
         test_case["image"] = "%s.png" % test_case["path"]

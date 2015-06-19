@@ -63,7 +63,6 @@ public:
         EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
         sensor_clock::time_point time;
         transformation transform;
-        transformation camera_transform;
         std::string origin_qr_code;
         camera_parameters camera_intrinsics;
         float total_path_m;
@@ -73,7 +72,7 @@ public:
     std::function<void(std::unique_ptr<data>, camera_data &&)> camera_callback;
     std::function<void(status)> status_callback;
     
-    sensor_fusion(bool immediate_dispatch);
+    sensor_fusion(fusion_queue::latency_strategy strategy);
     
     void set_device(const corvis_device_parameters &dc);
     
@@ -220,7 +219,20 @@ public:
     filter sfm;
     corvis_device_parameters device;
     
+    //These change coordinates from accelerometer-centered coordinates to camera-centered coordinates
+    transformation accel_to_camera_world_transform() const;
+    v4 accel_to_camera_position(const v4& x) const;
+    v4 camera_to_accel_position(const v4& x) const;
+    transformation accel_to_camera_transformation(const transformation &x) const;
+    v4 filter_to_external_position(const v4& x) const;
+    
+    //Gets the current transformation, moving from filter-internal to external coordinates
+    //Adjusts for camera vs accel centered and QR offset
+    transformation get_transformation() const;
+    std::vector<feature_point> get_features() const;
+    
 private:
+    friend class replay; //Allow replay to access queue directly so it can send the obsolete start measuring signal, which we don't expose elsewhere
     RCSensorFusionErrorCode get_error();
     void update_status();
     void update_data(camera_data &&data);

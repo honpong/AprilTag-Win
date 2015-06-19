@@ -13,9 +13,8 @@
 #include <atomic>
 #include <memory>
 #include <functional>
-#include "filter_setup.h"
 #include "../cor/packet.h"
-#include "../cor/sensor_fusion_queue.h"
+#include "sensor_fusion.h"
 
 class replay
 {
@@ -30,13 +29,12 @@ private:
     std::atomic<bool> is_paused{false};
     std::atomic<bool> is_stepping{false};
     bool is_realtime = false;
-    std::unique_ptr<filter_setup> cor_setup;
-    std::unique_ptr<fusion_queue> queue;
+    sensor_fusion fusion;
     std::function<void (const filter *, camera_data &&)> camera_callback;
     std::function<void (float)> progress_callback;
 
 public:
-    replay(bool start_paused=false) : is_paused(start_paused) {}
+    replay(bool start_paused=false) : is_paused(start_paused), fusion(fusion_queue::latency_strategy::ELIMINATE_DROPS) {}
     bool open(const char *name);
     bool set_device(const char *name);
     bool set_calibration_from_filename(const char *filename);

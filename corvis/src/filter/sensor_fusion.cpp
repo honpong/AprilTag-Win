@@ -10,6 +10,75 @@
 #include "sensor_fusion.h"
 #include "filter.h"
 
+/*
+ The filter has multiple reference frames:
+ w: The world reference frame, with z aligned to gravity, and rotation around z arbitrary, and centered at initial accel position
+ a: Accelerometer reference frame
+ c: Camera reference frame
+ w': Camera-centered world reference frame, with alignement as above, but centered around initial camera position
+ 
+ The existing output of the filter is:
+ g__w_at = g__w_a0 * g__a0_at
+ 
+ We want instead to have:
+ g__w'_ct = g__w'_w * g__w_at * g__a_c
+ 
+ g__w'_w = g__w'_c0 * g__c_a * g__a0_w
+ 
+ both g__w'_c0 and g__a0_w are R-only - respective world centers are at instrument centers, and I want R__w'_w = I
+ 
+ R__w'_c0 * R__c_a * R__a0_w = I
+ 
+ R__w'_c0 = R__w_a0 * R__a_c
+ 
+ so:
+ 
+ g__w'_w = (I, R__w_a0 * R__a_c * T__c_a)
+ = (I, R__w_a0 * R__a_c * R__c_a * -T__a_c)
+ = (I, R__w_a0 * -T__a_c)
+*/
+transformation sensor_fusion::accel_to_camera_world_transform() const
+{
+    return transformation(quaternion(), sfm.s.initial_orientation * -sfm.s.Tc.v);
+}
+
+v4 sensor_fusion::accel_to_camera_position(const v4& x) const
+{
+    return transformation_apply(accel_to_camera_world_transform(), x);
+}
+
+v4 sensor_fusion::camera_to_accel_position(const v4& x) const
+{
+    return transformation_apply(invert(accel_to_camera_world_transform()), x);
+}
+
+transformation sensor_fusion::accel_to_camera_transformation(const transformation &x) const
+{
+    transformation cam_transform(to_quaternion(sfm.s.Wc.v), sfm.s.Tc.v);
+    return compose(accel_to_camera_world_transform(), compose(x, cam_transform));
+}
+
+transformation sensor_fusion::get_transformation() const
+{
+    transformation filter_transform(to_quaternion(sfm.s.W.v), sfm.s.T.v);    
+    if(sfm.qr.valid)
+    {
+        return accel_to_camera_transformation(compose(sfm.qr.origin, filter_transform));
+    }
+
+    return accel_to_camera_transformation(filter_transform);
+}
+
+v4 sensor_fusion::filter_to_external_position(const v4& x) const
+{
+    if(sfm.qr.valid)
+    {
+        return accel_to_camera_position(transformation_apply(sfm.qr.origin, x));
+    }
+    return accel_to_camera_position(x);
+}
+
+
 void sensor_fusion::flush_and_reset()
 {
     isSensorFusionRunning = false;
@@ -96,13 +165,35 @@ void sensor_fusion::update_status()
     last_status = s;
 }
 
+std::vector<sensor_fusion::feature_point> sensor_fusion::get_features() const
+{
+    std::vector<feature_point> features;
+    features.reserve(sfm.s.features.size());
+    for(auto i: sfm.s.features)
+    {
+        if(i->is_valid()) {
+            feature_point p;
+            p.id = i->id;
+            p.x = (float)i->current[0];
+            p.y = (float)i->current[1];
+            p.original_depth = (float)i->v.depth();
+            p.stdev = (float)i->v.stdev_meters(sqrt(i->variance()));
+            v4 ext_pos = filter_to_external_position(i->world);
+            p.worldx = (float)ext_pos[0];
+            p.worldy = (float)ext_pos[1];
+            p.worldz = (float)ext_pos[2];
+            p.initialized = i->is_initialized();
+            features.push_back(p);
+        }
+    }
+    return features;
+}
+
 void sensor_fusion::update_data(camera_data &&image)
 {
     auto d = std::make_unique<data>();
     
     //perform these operations synchronously in the calling (filter) thread
-    transformation transform(to_quaternion(sfm.s.W.v), sfm.s.T.v);
-    transformation cam_transform(to_quaternion(sfm.s.Wc.v), sfm.s.Tc.v);
     d->total_path_m = sfm.s.total_distance;
     camera_parameters cp;
     cp.fx = (float)sfm.s.focal_length.v;
@@ -117,31 +208,14 @@ void sensor_fusion::update_data(camera_data &&image)
     
     if(sfm.qr.valid)
     {
-        transform = compose(sfm.qr.origin, transform);
         d->origin_qr_code = sfm.qr.data;
     }
     
-    d->transform = transform;
-    d->camera_transform = compose(d->transform, cam_transform);
+    d->transform = get_transformation();
     d->time = sfm.last_time;
 
-    d->features.reserve(sfm.s.features.size());
-    for(auto i: sfm.s.features)
-    {
-        if(i->is_valid()) {
-            feature_point p;
-            p.id = i->id;
-            p.x = (float)i->current[0];
-            p.y = (float)i->current[1];
-            p.original_depth = (float)i->v.depth();
-            p.stdev = (float)i->v.stdev_meters(sqrt(i->variance()));
-            p.worldx = (float)i->world[0];
-            p.worldy = (float)i->world[1];
-            p.worldz = (float)i->world[2];
-            p.initialized = i->is_initialized();
-            d->features.push_back(p);
-        }
-    }
+    d->features = get_features();
+
     if(camera_callback) {
         //if(threaded) std::async(std::launch::async, camera_callback, std::move(d), std::move(image));
         //else
@@ -149,7 +223,7 @@ void sensor_fusion::update_data(camera_data &&image)
     }
 }
 
-sensor_fusion::sensor_fusion(bool immediate_dispatch)
+sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
 {
     isSensorFusionRunning = false;
     isProcessingVideo = false;
@@ -183,10 +257,6 @@ sensor_fusion::sensor_fusion(bool immediate_dispatch)
         filter_gyroscope_measurement(&sfm, data.angvel_rad__s, data.timestamp);
     };
     
-    fusion_queue::latency_strategy strategy;
-    if(immediate_dispatch) strategy = fusion_queue::latency_strategy::ELIMINATE_LATENCY;
-    else strategy = fusion_queue::latency_strategy::IMAGE_TRIGGER;
-
     queue = std::make_unique<fusion_queue>(cam_fn, acc_fn, gyr_fn, strategy, std::chrono::microseconds(33333), std::chrono::microseconds(10000), std::chrono::microseconds(10000)); //Have to make jitter high - ipad air 2 accelerometer has high latency, we lose about 10% of samples with jitter at 8000
 }
 
@@ -294,8 +364,10 @@ void sensor_fusion::trigger_log() const
 
     last_log = sfm.last_time;
 
-    m4 R = to_rotation_matrix(sfm.s.W.v);
-    v4 T = sfm.s.T.v;
+    transformation transform = get_transformation();
+    
+    m4 R = to_rotation_matrix(transform.Q);
+    v4 T = transform.T;
 
     std::stringstream s(std::stringstream::out);
     s << sfm.last_time.time_since_epoch().count() << " " << " " <<

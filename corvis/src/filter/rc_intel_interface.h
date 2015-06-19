@@ -166,7 +166,7 @@ RCTRACKER_API void rc_receiveAccelerometer(rc_Tracker *tracker, rc_Timestamp tim
 RCTRACKER_API void rc_receiveGyro(rc_Tracker *tracker, rc_Timestamp time_us, const rc_Vector angular_velocity_rad__s);
 
 RCTRACKER_API void rc_getPose(const rc_Tracker *tracker, rc_Pose pose_m);
-RCTRACKER_API int rc_getFeatures(const rc_Tracker *tracker, rc_Feature **features_px);
+RCTRACKER_API int rc_getFeatures(rc_Tracker *tracker, rc_Feature **features_px);
 RCTRACKER_API rc_TrackerState rc_getState(const rc_Tracker *tracker);
 RCTRACKER_API rc_TrackerConfidence rc_getConfidence(const rc_Tracker *tracker);
 RCTRACKER_API rc_TrackerError rc_getError(const rc_Tracker *tracker);

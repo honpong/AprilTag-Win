@@ -52,8 +52,7 @@ bool replay::set_calibration_from_filename(const char *filename)
         if(!load_calibration(path + "calibration.json", dc))
             return false;
     }
-
-    cor_setup = std::make_unique<filter_setup>(&dc);
+    fusion.set_device(dc);
     return true;
 }
 

@@ -185,8 +185,8 @@ void gui::start_glfw()
             if(!show_video && show_main)
                 plots_height = lroundf(height*plots_height_percent);
         }
-        if(show_main && show_video && show_plots)
-            main_width = width - video_width;
+        if(show_main && (show_video || show_plots))
+            main_width = width - max(video_width, plots_width);
 
         // Update data
         state->update_vertex_arrays();

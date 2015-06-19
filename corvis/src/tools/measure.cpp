@@ -6,7 +6,7 @@
 int main(int c, char **v)
 {
     if (0) { usage:
-        cerr << "Usage: " << v[0] << " [--pause] [--realtime] [--no-gui] [--no-plots] [--no-video] [--no-main] [--render <file.png>] <filename> <devicename>\n";
+        cerr << "Usage: " << v[0] << " [--pause] [--realtime] [--no-gui] [--no-plots] [--no-video] [--no-main] [--render <file.png>] <filename> [devicename]\n";
         return 1;
     }
 
@@ -27,7 +27,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--render") == 0 && i+1 < c) rendername = v[++i];
         else goto usage;
 
-    if (!filename || !devicename)
+    if (!filename)
         goto usage;
 
     if(enable_gui)

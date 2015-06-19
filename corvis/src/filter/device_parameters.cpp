@@ -119,6 +119,8 @@ bool get_parameters_for_device_name(const char * config_name, struct corvis_devi
 
     std::string device_name(config_name);
 
+    fprintf(stderr, "Warning: get_parameters_for_device_name will be removed soon\n");
+
     if(device_name == "iphone4s_camelia") {
         dc->a_bias[0] = -0.1241252f;
         dc->a_bias[1] = 0.01688302f;

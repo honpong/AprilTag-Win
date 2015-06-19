@@ -8,6 +8,7 @@
 #include "replay.h"
 
 #include <string.h>
+#include "calibration_json_store.h"
 #include "device_parameters.h"
 #include "../cor/packet.h"
 
@@ -24,6 +25,35 @@ bool replay::open(const char *name)
     file.seekg (0, ios::beg);
     auto begin = file.tellg();
     size = end - begin;
+    return true;
+}
+
+bool load_calibration(string filename, corvis_device_parameters & dc)
+{
+    ifstream file_handle(filename);
+    if(file_handle.fail())
+        return false;
+
+    string json((istreambuf_iterator<char>(file_handle)), istreambuf_iterator<char>());
+
+    if(!calibration_deserialize(json, dc))
+        return false;
+
+    return true;
+}
+
+bool replay::set_calibration_from_filename(const char *filename)
+{
+    corvis_device_parameters dc;
+    string fn(filename);
+    if(!load_calibration(fn + ".json", dc)) {
+        auto found = fn.find_last_of("/\\");
+        string path = fn.substr(0, found+1);
+        if(!load_calibration(path + "calibration.json", dc))
+            return false;
+    }
+
+    cor_setup = std::make_unique<filter_setup>(&dc);
     return true;
 }
 
@@ -204,7 +234,9 @@ void replay::start()
 bool replay::configure_all(const char *filename, const char *devicename, bool realtime, std::function<void (float)> progress, std::function<void (const filter *, camera_data)> camera_cb)
 {
     if(!open(filename)) return false;
-    if (!set_device(devicename)) return false;
+    if (!set_calibration_from_filename(filename))
+        if (!set_device(devicename))
+            return false;
     setup_filter();
     is_realtime = realtime;
     progress_callback = progress;

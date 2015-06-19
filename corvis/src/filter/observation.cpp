@@ -574,7 +574,8 @@ bool observation_accelerometer::measure()
     stdev.data(g);
     if(!state.orientation_initialized)
     {
-        state.W.v = to_rotation_vector(initial_orientation_from_gravity(g));
+        state.initial_orientation = initial_orientation_from_gravity(g);
+        state.W.v = to_rotation_vector(state.initial_orientation);
         state.orientation_initialized = true;
         return false;
     } else return observation_spatial::measure();

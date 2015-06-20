@@ -2,7 +2,7 @@
 if "%2"=="" goto instr
 for %%F in (%1\*.rssdk) do (
 	echo %%~nF
-	RCTrackerDemo %%~dpnxF %2\%%~nF
+	%~dp0\RCTrackerDemo %%~dpnxF %2\%%~nF
 )
 goto end
 :instr

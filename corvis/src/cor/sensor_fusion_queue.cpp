@@ -185,7 +185,7 @@ void fusion_queue::stop_async()
     if(singlethreaded)
     {
         //flush any waiting data
-        while (dispatch_singlethread(true));
+        dispatch_singlethread(true);
 #ifdef DEBUG
         std::cerr << "Camera: " << camera_queue.get_stats();
         std::cerr << "Accel: " << accel_queue.get_stats();
@@ -364,11 +364,10 @@ bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock, bool force)
     return true;
 }
 
-bool fusion_queue::dispatch_singlethread(bool force)
+void fusion_queue::dispatch_singlethread(bool force)
 {
     std::unique_lock<std::mutex> lock(mutex);
-    bool ret = dispatch_next(lock, force);
+    while(dispatch_next(lock, force)); //always be greedy - could have multiple pieces of data buffered
     lock.unlock();
-    return ret;
 }
 

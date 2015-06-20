@@ -38,6 +38,11 @@ add_custom_command(TARGET RCTrackerDemo POST_BUILD        # Adds a post-build ev
         "${PROJECT_SOURCE_DIR}/src/intel_deliverables/gigabyte_s11.json"      # <--this is in-file
         $<TARGET_FILE_DIR:RCTrackerDemo>)                 # <--this is out-file path
 
+add_custom_command(TARGET RCTrackerDemo POST_BUILD        # Adds a post-build event to RCTrackerDemo
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different  # which executes "cmake - E copy_if_different..."
+        "${PROJECT_SOURCE_DIR}/src/RCTrackerDemo/convert_clip.bat"      # <--this is in-file
+        $<TARGET_FILE_DIR:RCTrackerDemo>)                 # <--this is out-file path
+
 add_library(RealityCapLib
   RealityCapLib/TrackerManager.cpp
   RealityCapLib/TrackerManager.h

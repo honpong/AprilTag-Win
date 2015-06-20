@@ -251,6 +251,8 @@ bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
 {
     if(strategy == latency_strategy::ELIMINATE_LATENCY) return true; //always dispatch if we are eliminating latency
     
+    if(camera_queue.full() || accel_queue.full() || gyro_queue.full()) return true;
+    
     if(strategy == latency_strategy::IMAGE_TRIGGER && wait_for_camera) //if we aren't waiting for camera, then IMAGE_TRIGGER behaves like MINIMIZE_DROPS
     {
         if(camera_queue.empty()) return false;

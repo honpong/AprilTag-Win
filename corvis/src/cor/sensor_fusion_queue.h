@@ -25,6 +25,7 @@ class sensor_queue
 public:
     sensor_queue(std::mutex &mx, std::condition_variable &cnd, const bool &actv, const sensor_clock::duration expected_period);
     bool empty() const { return count == 0; }
+    bool full() const { return count == size; }
     bool push(T&& x); //Doesn't block. Returns false if the queue is full or data arrived out of order
     T pop(const std::unique_lock<std::mutex> &lock); // assumes the lock is already held
     sensor_clock::time_point get_next_time(const std::unique_lock<std::mutex> &lock, sensor_clock::time_point last_global_dispatched);

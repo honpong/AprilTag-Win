@@ -45,7 +45,6 @@ void TrackerManager::ConfigureCameraIntrinsics()
     PXCCapture::Device *pDevice = capMan->QueryDevice();
     PXCPointF32 focal = pDevice->QueryColorFocalLength();
     PXCPointF32 principal = pDevice->QueryColorPrincipalPoint();
-    pxcI32 exposure = pDevice->QueryColorExposure();
     rc_configureCamera(_tracker, rc_EGRAY8, camera_pose, 640, 480, principal.x, principal.y, focal.x, 0, focal.y);
 }
 
@@ -194,7 +193,10 @@ void TrackerManager::SetDelegate(TrackerManagerDelegate* del)
 void TrackerManager::OnColorFrame(PXCImage* colorSample)
 {
     RCSavedImage *si = new RCSavedImage(colorSample);
-    int shutter_time_us = 0;
+    PXCCaptureManager *capMan = GetSenseManager()->QueryCaptureManager();
+    PXCCapture::Device *pDevice = capMan->QueryDevice();
+    pxcI32 exposure = pDevice->QueryColorExposure();
+    int shutter_time_us = 1 << exposure;
     //Timestamp: divide by 10 to go from 100ns to us, subtract 637us blank interval, subtract shutter time to get start of capture
     rc_receiveImage(_tracker, rc_EGRAY8, colorSample->QueryTimeStamp() / 10 - 637 - shutter_time_us, shutter_time_us, NULL, false, si->data.pitches[0], si->data.planes[0], RCSavedImage::releaseOpaquePointer, (void*)si);
 }

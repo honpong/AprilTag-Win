@@ -129,7 +129,7 @@ void sensor_fusion::update_status()
     if(s == last_status) return;
     
     // queue actions related to failures before queuing callbacks to the sdk client.
-    if(s.error == RCSensorFusionErrorCodeTooFast || s.error == RCSensorFusionErrorCodeOther)
+    if(s.error == RCSensorFusionErrorCodeOther)
     {
         //Sensor fusion has already been reset by get_error, but it could have gotten random data inbetween, so do full reset
         if(threaded) std::async(std::launch::async, [this] { flush_and_reset(); });

@@ -35,8 +35,6 @@ int wmain(int c, wchar_t **v)
 
     std::cerr << trackMan->getTimingStats();
 
-    fprintf(stderr, "Exiting\n");
-
     return 0;
 
 }

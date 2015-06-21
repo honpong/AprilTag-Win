@@ -12,6 +12,9 @@
 #include <fstream>
 #include "../cor/sensor_data.h"
 #include "../cor/packet.h"
+#include <thread>
+#include <atomic>
+#include <mutex>
 
 class capture
 {

@@ -9,7 +9,7 @@ TEST(SensorFusionQueue, Reorder)
     auto accf = [&last_time](accelerometer_data &&x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; };
     auto gyrf = [&last_time](gyro_data &&x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; };
     
-    fusion_queue q(camf, accf, gyrf, fusion_queue::latency_strategy::BALANCED, std::chrono::microseconds(33000), std::chrono::microseconds(10000), std::chrono::microseconds(5000));
+    fusion_queue q(camf, accf, gyrf, fusion_queue::latency_strategy::BALANCED, std::chrono::microseconds(5000));
     
     q.start_sync(true);
 
@@ -85,7 +85,7 @@ TEST(SensorFusionQueue, Threading)
     auto accf = [&last_acc_time, &accrcv](accelerometer_data &&x) { EXPECT_GE(x.timestamp, last_acc_time); last_acc_time = x.timestamp; ++accrcv; };
     auto gyrf = [&last_gyr_time, &gyrrcv](gyro_data &&x) { EXPECT_GE(x.timestamp, last_gyr_time); last_gyr_time = x.timestamp; ++gyrrcv; };
 
-    fusion_queue q(camf, accf, gyrf, fusion_queue::latency_strategy::BALANCED, camera_interval, inertial_interval, jitter);
+    fusion_queue q(camf, accf, gyrf, fusion_queue::latency_strategy::BALANCED, jitter);
 
     auto start = sensor_clock::now();
     
@@ -147,7 +147,7 @@ TEST(ThreadedDispatch, DropLate)
     auto accf = [&last_time](accelerometer_data &&x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; EXPECT_NE(x.timestamp, sensor_clock::time_point(std::chrono::microseconds(17000))); };
     auto gyrf = [&last_time](gyro_data &&x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; EXPECT_NE(x.timestamp, sensor_clock::time_point(std::chrono::microseconds(30000))); };
     
-    fusion_queue q(camf, accf, gyrf, fusion_queue::latency_strategy::BALANCED, std::chrono::microseconds(33000), std::chrono::microseconds(10000), std::chrono::microseconds(5000));
+    fusion_queue q(camf, accf, gyrf, fusion_queue::latency_strategy::BALANCED, std::chrono::microseconds(5000));
     
     q.start_sync(true);
     

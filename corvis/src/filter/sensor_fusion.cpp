@@ -257,7 +257,7 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
         filter_gyroscope_measurement(&sfm, data.angvel_rad__s, data.timestamp);
     };
     
-    queue = std::make_unique<fusion_queue>(cam_fn, acc_fn, gyr_fn, strategy, std::chrono::microseconds(33333), std::chrono::microseconds(10000), std::chrono::microseconds(10000)); //Have to make jitter high - ipad air 2 accelerometer has high latency, we lose about 10% of samples with jitter at 8000
+    queue = std::make_unique<fusion_queue>(cam_fn, acc_fn, gyr_fn, strategy, std::chrono::microseconds(10000)); //Have to make jitter high - ipad air 2 accelerometer has high latency, we lose about 10% of samples with jitter at 8000
 }
 
 void sensor_fusion::set_device(const corvis_device_parameters &dc)

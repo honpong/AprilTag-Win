@@ -90,8 +90,7 @@ void capture::setup_queue()
         if(got_camera && got_accel && got_gyro) write_gyroscope_data(data.angvel_rad__s, micros);
     };
 
-    // TODO: configure framerate here?
-    queue = std::make_unique<fusion_queue>(cam_fn, acc_fn, gyr_fn, fusion_queue::latency_strategy::ELIMINATE_DROPS, std::chrono::microseconds(33333), std::chrono::microseconds(10000), std::chrono::microseconds(10000)); //Have to make jitter high - ipad air 2 accelerometer has high latency, we lose about 10% of samples with jitter at 8000
+    queue = std::make_unique<fusion_queue>(cam_fn, acc_fn, gyr_fn, fusion_queue::latency_strategy::ELIMINATE_DROPS, std::chrono::microseconds(10000)); //Have to make jitter high - ipad air 2 accelerometer has high latency, we lose about 10% of samples with jitter at 8000
     queue->start_async(true);
 }
 

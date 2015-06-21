@@ -23,7 +23,7 @@ template<typename T, int size>
 class sensor_queue
 {
 public:
-    sensor_queue(std::mutex &mx, std::condition_variable &cnd, const bool &actv, const sensor_clock::duration expected_period);
+    sensor_queue(std::mutex &mx, std::condition_variable &cnd, const bool &actv);
     bool empty() const { return count == 0; }
     bool full() const { return count == size; }
     bool push(T&& x); //Doesn't block. Returns false if the queue is full or data arrived out of order
@@ -83,8 +83,6 @@ public:
                  const std::function<void(accelerometer_data &&)> &accelerometer_func,
                  const std::function<void(gyro_data &&)> &gyro_func,
                  latency_strategy s,
-                 sensor_clock::duration camera_period,
-                 sensor_clock::duration inertial_period,
                  sensor_clock::duration max_jitter);
     ~fusion_queue();
     
@@ -128,8 +126,6 @@ private:
     
     latency_strategy strategy;
     
-    sensor_clock::duration camera_period_expected;
-    sensor_clock::duration inertial_period_expected;
     sensor_clock::time_point last_dispatched;
     
     sensor_clock::duration jitter;

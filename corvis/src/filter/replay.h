@@ -48,6 +48,7 @@ public:
     uint64_t get_packets_dispatched() { return packets_dispatched; }
     float get_path_length() { return path_length; }
     float get_length() { return length; }
+    std::string get_timing_stats() { return fusion.get_timing_stats(); }
 };
 
 #endif /* defined(__RC3DK__replay__) */

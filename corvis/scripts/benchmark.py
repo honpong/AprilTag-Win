@@ -60,6 +60,7 @@ class TestRunner(object):
             if e.errno != errno.EEXIST: raise
         args.extend(["--render", image])
     output = subprocess.check_output(args, stderr=subprocess.STDOUT)
+    print output
     #"Straight-line length is 89.00 cm, total path length 92.54 cm"
     res = re.match(".* ([\d\.]+) cm.* ([\d\.]+) cm.*",
             output, re.MULTILINE | re.DOTALL)

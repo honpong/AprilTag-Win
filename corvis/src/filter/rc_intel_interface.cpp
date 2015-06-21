@@ -97,6 +97,7 @@ struct rc_Tracker: public sensor_fusion
     rc_Tracker(bool immediate_dispatch): sensor_fusion(immediate_dispatch ? fusion_queue::latency_strategy::ELIMINATE_LATENCY : fusion_queue::latency_strategy::IMAGE_TRIGGER) {}
     std::wstring jsonString;
     std::vector<rc_Feature> features;
+    std::string timingStats;
 };
 
 std::vector<rc_Feature> copy_features_from_sensor_fusion(const std::vector<sensor_fusion::feature_point> &in_feats)
@@ -405,6 +406,12 @@ corvis_device_parameters rc_getCalibration(rc_Tracker *tracker)
     calibration.image_width = tracker->sfm.image_width;
     calibration.image_height = tracker->sfm.image_height;
     return calibration;
+}
+
+const char *rc_getTimingStats(rc_Tracker *tracker)
+{
+    tracker->timingStats = tracker->get_timing_stats();
+    return tracker->timingStats.c_str();
 }
 
 size_t rc_getCalibration(rc_Tracker *tracker, const wchar_t** buffer)

@@ -214,6 +214,8 @@ public:
     }
     bool output_enabled{false};
     capture output;
+    
+    std::string get_timing_stats() { return queue->get_stats(); };
 
     //public for now
     filter sfm;

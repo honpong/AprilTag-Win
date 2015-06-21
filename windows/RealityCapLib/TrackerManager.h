@@ -47,6 +47,7 @@ namespace RealityCap
 
         void UpdateStatus(rc_TrackerState newState, rc_TrackerError errorCode, rc_TrackerConfidence confidence, float progress);
         void UpdateData(rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count);
+        const char *getTimingStats() { return rc_getTimingStats(_tracker); }
 
     protected:
         virtual void OnColorFrame(PXCImage* colorImage) override;

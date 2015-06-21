@@ -187,6 +187,11 @@ RCTRACKER_API void rc_setLog(rc_Tracker *tracker, void (*log)(void *handle, cons
 RCTRACKER_API void rc_triggerLog(const rc_Tracker *tracker);
 
 /**
+ Returns a string with statistics on sensor timing
+ */
+RCTRACKER_API const char *rc_getTimingStats(rc_Tracker *tracker);
+
+/**
  If this is set, writes a log file in Realitycap's internal format to the filename specified
  */
 RCTRACKER_API void rc_setOutputLog(rc_Tracker * tracker, const wchar_t * wfilename);

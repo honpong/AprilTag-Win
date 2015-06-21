@@ -108,6 +108,10 @@ fusion_queue::~fusion_queue()
     wait_until_finished();
 }
 
+std::string fusion_queue::get_stats()
+{
+    return "Camera: " + camera_queue.get_stats() + "Accel: " + accel_queue.get_stats() + "Gyro: " + gyro_queue.get_stats();
+}
 
 void fusion_queue::receive_camera(camera_data&& x)
 {
@@ -187,9 +191,7 @@ void fusion_queue::stop_async()
         //flush any waiting data
         dispatch_singlethread(true);
 #ifdef DEBUG
-        std::cerr << "Camera: " << camera_queue.get_stats();
-        std::cerr << "Accel: " << accel_queue.get_stats();
-        std::cerr << "Gyro: " << gyro_queue.get_stats();
+        std::cerr << get_stats();
 #endif
     }
     stop_immediately();
@@ -233,9 +235,7 @@ void fusion_queue::runloop()
     //flush any remaining data
     while (dispatch_next(lock, true));
 #ifdef DEBUG
-    std::cerr << "Camera: " << camera_queue.get_stats();
-    std::cerr << "Accel: " << accel_queue.get_stats();
-    std::cerr << "Gyro: " << gyro_queue.get_stats();
+    std::cerr << get_stats();
 #endif
     lock.unlock();
 }

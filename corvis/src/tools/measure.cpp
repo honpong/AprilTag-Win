@@ -68,6 +68,7 @@ int main(int c, char **v)
     uint64_t bytes_dispatched = rp.get_bytes_dispatched();
     printf("Straight-line length is %.2f cm, total path length %.2f cm\n", length, path_length);
     printf("Dispatched %llu packets %.2f Mbytes\n", packets_dispatched, bytes_dispatched/1.e6);
+    std::cout << rp.get_timing_stats();
 
     return 0;
 }

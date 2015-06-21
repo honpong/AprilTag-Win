@@ -43,7 +43,7 @@ public:
     std::string get_stats()
     {
         std::ostringstream os;
-        os << "period " << period.count() << " total in " << total_in << " total out " << total_out << " drop full " << drop_full << " drop late " << drop_late << " timing " << stats;
+        os << "period (moving average) " << period.count() << " total in " << total_in << " total out " << total_out << " drop full " << drop_full << " drop late " << drop_late << " timing " << stats;
         return os.str();
     }
     
@@ -93,6 +93,7 @@ public:
     void stop_async();
     void stop_sync();
     void wait_until_finished();
+    std::string get_stats();
 
     void receive_camera(camera_data&& x);
     void receive_accelerometer(accelerometer_data&& x);

@@ -1,6 +1,7 @@
 #include "rc_intel_interface.h"
 #include "TrackerManager.h"
 #include "RCFactory.h"
+#include <iostream>
 
 using namespace RealityCap;
 
@@ -31,6 +32,8 @@ int wmain(int c, wchar_t **v)
     }
 
     trackMan->WaitUntilFinished();
+
+    std::cerr << trackMan->getTimingStats();
 
     fprintf(stderr, "Exiting\n");
 

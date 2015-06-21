@@ -251,6 +251,7 @@ void rc_stopTracker(rc_Tracker * tracker)
     tracker->output_enabled = false;
 }
 
+//This is only for writing to logfiles - uses start time of image capture
 void copy_camera_data(rc_Tracker * tracker, rc_Timestamp time_us, rc_Timestamp shutter_time_us, int stride, const void *image, camera_data & d)
 {
     //TODO: don't malloc here
@@ -262,7 +263,8 @@ void copy_camera_data(rc_Tracker * tracker, rc_Timestamp time_us, rc_Timestamp s
     d.height = tracker->device.image_height;
     // TODO: Check that we support stride
     d.stride = d.width;
-    d.timestamp = sensor_clock::micros_to_tp(time_us + shutter_time_us / 2);
+    //only for writing to logfiles
+    d.timestamp = sensor_clock::micros_to_tp(time_us);
 }
 
 void rc_receiveImage(rc_Tracker *tracker, rc_Camera camera, rc_Timestamp time_us, rc_Timestamp shutter_time_us, const rc_Pose poseEstimate_m, bool force_recognition, int stride, const void *image, void(*completion_callback)(void *callback_handle), void *callback_handle)

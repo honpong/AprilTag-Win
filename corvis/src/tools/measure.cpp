@@ -6,13 +6,14 @@
 int main(int c, char **v)
 {
     if (0) { usage:
-        cerr << "Usage: " << v[0] << " [--pause] [--realtime] [--no-gui] [--no-plots] [--no-video] [--no-main] [--render <file.png>] <filename> [devicename]\n";
+        cerr << "Usage: " << v[0] << " [--pause] [--realtime] [--no-gui] [--no-plots] [--no-video] [--no-main] [--quarter] [--render <file.png>] <filename> [devicename]\n";
         return 1;
     }
 
     world_state ws;
 
     bool realtime = false, start_paused = false;
+    bool quarter = false;
     bool enable_gui = true, show_plots = false, show_video = true, show_main = true;
     char *devicename = nullptr, *filename = nullptr, *rendername = nullptr;
     for (int i=1; i<c; i++)
@@ -25,6 +26,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--no-main")  == 0) show_main  = false;
         else if (strcmp(v[i], "--pause")  == 0) start_paused  = true;
         else if (strcmp(v[i], "--render") == 0 && i+1 < c) rendername = v[++i];
+        else if (strcmp(v[i], "--quarter") == 0) quarter = true;
         else goto usage;
 
     if (!filename)
@@ -46,6 +48,8 @@ int main(int c, char **v)
 
     if(!rp.configure_all(filename, devicename, realtime, progress, camera_callback))
         return 2;
+    
+    if(quarter) rp.enable_quarter_scale_images();
 
     if(enable_gui) { // The GUI must be on the main thread
         std::thread replay_thread([&](void) { rp.start(); });

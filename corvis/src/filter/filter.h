@@ -126,7 +126,6 @@ extern "C" void filter_initialize(struct filter *f, corvis_device_parameters dev
 float filter_converged(const struct filter *f);
 bool filter_is_steady(const struct filter *f);
 int filter_get_features(const struct filter *f, struct corvis_feature_info *features, int max);
-void filter_get_camera_parameters(const struct filter *f, float matrix[16], float focal_center_radial[5]);
 //void filter_select_feature(struct filter *f, float x, float y);
 
 #endif

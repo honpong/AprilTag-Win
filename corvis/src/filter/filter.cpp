@@ -764,14 +764,13 @@ bool filter_image_measurement(struct filter *f, const unsigned char *data, int w
     }
     if(f->run_state != RCSensorFusionRunStateRunning && f->run_state != RCSensorFusionRunStateDynamicInitialization && f->run_state != RCSensorFusionRunStateSteadyInitialization) return true; //frame was "processed" so that callbacks still get called
     
-    if(width != f->track.width || height != f->track.height) {
-        fprintf(stderr, "Image dimensions don't match what we expect!\n");
-        abort();
-    }
     f->track.width = width;
     f->track.height = height;
     f->track.stride = stride;
     f->track.init();
+    f->image_width = width;
+    f->image_height = height;
+    f->s.image_width = width;
     
     if(!f->ignore_lateness) {
         /*thread_info_data_t thinfo;
@@ -1184,22 +1183,6 @@ int filter_get_features(const struct filter *f, struct corvis_feature_info *feat
         ++index;
     }
     return index;
-}
-
-void filter_get_camera_parameters(const struct filter *f, float matrix[16], float focal_center_radial[5])
-{
-    focal_center_radial[0] = (float)f->s.focal_length.v;
-    focal_center_radial[1] = (float)f->s.center_x.v;
-    focal_center_radial[2] = (float)f->s.center_y.v;
-    focal_center_radial[3] = (float)f->s.k1.v;
-    focal_center_radial[4] = (float)f->s.k2.v;
-
-    //transpose for opengl
-    for(int i = 0; i < 4; ++i) {
-        for(int j = 0; j < 4; ++j) {
-            matrix[j * 4 + i] = (float)f->s.camera_matrix(i, j);
-        }
-    }
 }
 
 void filter_start_static_calibration(struct filter *f)

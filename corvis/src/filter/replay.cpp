@@ -141,6 +141,21 @@ void replay::start()
                     d.width = width;
                     d.height = height;
                     d.stride = width;
+                    if(quarter_scale)
+                    {
+                        d.width = width / 2;
+                        d.height = height / 2;
+                        d.stride = width / 2;
+                        for(int y = 0; y < d.height; ++y) {
+                            for(int x = 0; x < d.width; ++x) {
+                                d.image[y * d.stride + x] =
+                                    (d.image[(y * 2 * width) + (x * 2)] +
+                                    d.image[((y * 2 + 1) * width) + (x * 2)] +
+                                    d.image[(y * 2 * width) + (x * 2 + 1)] +
+                                    d.image[((y * 2 + 1) * width) + (x * 2 + 1)]) / 4;
+                            }
+                        }
+                    }
                     d.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time+16667));
                     d.image_handle = std::move(phandle);
                     fusion.receive_image(std::move(d));

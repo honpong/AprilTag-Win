@@ -770,7 +770,6 @@ bool filter_image_measurement(struct filter *f, const unsigned char *data, int w
     f->track.init();
     f->image_width = width;
     f->image_height = height;
-    f->s.image_width = width;
     
     if(!f->ignore_lateness) {
         /*thread_info_data_t thinfo;

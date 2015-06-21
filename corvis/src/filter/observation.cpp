@@ -284,16 +284,16 @@ void observation_vision_feature::cache_jacobians()
         //dy_dTr = m4(0.);
     } else {
 #if estimate_camera_intrinsics
-        dx_dF = norm_predicted.x * kr + sum(dx_dX * dX_dF);
-        dy_dF = norm_predicted.y * kr + sum(dy_dX * dX_dF);
-        dx_dk1 = norm_predicted.x * state.focal_length.v * r2        + sum(dx_dX * dX_dk1);
-        dy_dk1 = norm_predicted.y * state.focal_length.v * r2        + sum(dy_dX * dX_dk1);
-        dx_dk2 = norm_predicted.x * state.focal_length.v * (r2 * r2) + sum(dx_dX * dX_dk2);
-        dy_dk2 = norm_predicted.y * state.focal_length.v * (r2 * r2) + sum(dy_dX * dX_dk2);
-        dx_dcx = 1. + sum(dx_dX * dX_dcx);
-        dx_dcy = sum(dx_dX * dX_dcy);
-        dy_dcx = sum(dy_dX * dX_dcx);
-        dy_dcy = 1. + sum(dy_dX * dX_dcy);
+        dx_dF = norm_predicted.x * kr + dx_dX.dot(dX_dF);
+        dy_dF = norm_predicted.y * kr + dy_dX.dot(dX_dF);
+        dx_dk1 = norm_predicted.x * state.focal_length.v * r2        + dx_dX.dot(dX_dk1);
+        dy_dk1 = norm_predicted.y * state.focal_length.v * r2        + dy_dX.dot(dX_dk1);
+        dx_dk2 = norm_predicted.x * state.focal_length.v * (r2 * r2) + dx_dX.dot(dX_dk2);
+        dy_dk2 = norm_predicted.y * state.focal_length.v * (r2 * r2) + dy_dX.dot(dX_dk2);
+        dx_dcx = 1. + dx_dX.dot(dX_dcx);
+        dx_dcy = dx_dX.dot(dX_dcy);
+        dy_dcx = dy_dX.dot(dX_dcx);
+        dy_dcy = 1. + dy_dX.dot(dX_dcy);
 #endif
         dx_dWr = dx_dX.transpose() * (dRtotX0_dWr + dTtot_dWr * invrho);
         dx_dTr = dx_dX.transpose() * dTtot_dTr * invrho;

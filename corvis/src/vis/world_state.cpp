@@ -22,29 +22,39 @@ static VertexData orientation_data[] = {
 
 static std::size_t feature_ellipse_vertex_size = 30; // 15 segments
 static std::size_t max_plot_samples = 1000;
-void world_state::render_plot(int index, std::function<void (plot&)> render_callback)
+void world_state::render_plot(int plot_index, int key_index, std::function<void (plot&, int key_index)> render_callback)
 {
-    plot_lock.lock();
-    if(index < (int)plots.size() && index >= 0)
-        render_callback(plots[index]);
-    plot_lock.unlock();
+    std::lock_guard<std::mutex> lock(plot_lock);
+    if(plot_index < plots.size() && plot_index >= 0 && key_index < (int)plots[plot_index].size())
+        render_callback(plots[plot_index], key_index);
 }
 
 int world_state::change_plot(int index)
 {
-    plot_lock.lock();
+    std::lock_guard<std::mutex> lock(plot_lock);
     if(index < 0)
-        index = (int)plots.size() - 1;
+        return (int)plots.size() - 1;
     if(index >= (int)plots.size())
-        index = 0;
-    plot_lock.unlock();
+        return 0;
     return index;
+}
+
+int world_state::change_plot_key(int plot_index, int key_index)
+{
+    std::lock_guard<std::mutex> lock(plot_lock);
+    if (plot_index >= 0 && plot_index < (int)plots.size()) {
+        if (key_index < -1)
+            return (int)plots[plot_index].size() -1;
+        if (key_index < (int)plots[plot_index].size())
+            return key_index;
+    }
+    return -1;
 }
 
 void world_state::observe_plot_item(sensor_clock::time_point timestamp, int index, std::string name, float value)
 {
     plot_lock.lock();
-    if (index+1 > (int)plots.size())
+    if (index+1 > plots.size())
         plots.resize(index+1);
     auto &plot = plots[index][name];
     plot.push_back(plot_item(timestamp, value));

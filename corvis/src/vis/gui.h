@@ -39,7 +39,6 @@ private:
     void render(int main_width, int main_height);
     void render_video(int video_width, int video_height);
     void render_plot(int plots_width, int plots_height);
-    void next_plot();
 
     void calculate_viewports();
 
@@ -51,6 +50,7 @@ private:
     int width, height;
 
     std::atomic<int> current_plot{0};
+    std::atomic<int> current_plot_key{-1};
     std::atomic<bool> quit{false};
 
     // Mouse related

@@ -92,11 +92,11 @@ void world_state_render_plot_teardown()
 }
 
 #ifdef WIN32
-static void create_plot(world_state * state, int index, uint8_t *plot_frame, int plot_width, int plot_height) {}
+static void create_plot(world_state * state, int plot_index, int key_index, uint8_t *plot_frame, int plot_width, int plot_height) {}
 #else // !WIN32
 
 #if TARGET_OS_IPHONE
-static void create_plot(world_state * state, int index, uint8_t *plot_frame, int plot_width, int plot_height) {}
+static void create_plot(world_state * state, int plot_index, int key_index, uint8_t *plot_frame, int plot_width, int plot_height) {}
 #else // !TARGET_OS_IPHONE
 
 #include "lodepng.h"
@@ -104,12 +104,11 @@ static void create_plot(world_state * state, int index, uint8_t *plot_frame, int
 #include <mgl2/mgl.h>
 #undef _MSC_VER
 
-static void create_plot(world_state * state, int index, uint8_t *plot_frame, int plot_width, int plot_height)
+static void create_plot(world_state * state, int plot_index, int key_index, uint8_t *plot_frame, int plot_width, int plot_height)
 {
     mglGraph gr(0,plot_width,plot_height); // 600x400 graph, plotted to an image
-
     // mglData stores the x and y data to be plotted
-    state->render_plot(index, [&] (world_state::plot &plot) {
+    state->render_plot(plot_index, key_index, [&] (world_state::plot &plot, int key_index) {
         gr.NewFrame();
         gr.Alpha(false);
         gr.Clf('w');
@@ -120,7 +119,10 @@ static void create_plot(world_state * state, int index, uint8_t *plot_frame, int
         std::string names;
         const char *colors[] = {"r","g","b"}; int i=0;
 
-        for (auto &kv : plot) {
+        for (auto kvi = plot.begin(); kvi != plot.end(); ++kvi, i++) {
+            auto &kv = *kvi;
+            if (key_index != -1 && key_index != i)
+                continue;
             const std::string &name = kv.first; const plot_data &p = kv.second;
             names += (names.size() ? " " : "") + name;
 
@@ -143,7 +145,7 @@ static void create_plot(world_state * state, int index, uint8_t *plot_frame, int
 
             gr.SetRange('x', minx, maxx);
             gr.SetRange('y', miny, maxy);
-            gr.Plot(data_x, data_y, colors[i++%3]);
+            gr.Plot(data_x, data_y, colors[key_index == -1 ? i%3 : key_index % 3]);
         }
 
 
@@ -162,7 +164,7 @@ static void create_plot(world_state * state, int index, uint8_t *plot_frame, int
 #endif //WIN32
 #endif //TARGET_OS_IPHONE
 
-void world_state_render_plot(world_state * world, int index, int viewport_width, int viewport_height)
+void world_state_render_plot(world_state * world, int plot_index, int key_index, int viewport_width, int viewport_height)
 {
     static int plot_width = -1, plot_height = -1;
     static uint8_t *plot_frame;
@@ -173,7 +175,7 @@ void world_state_render_plot(world_state * world, int index, int viewport_width,
         plot_frame = (uint8_t *)malloc(plot_width*plot_height*4*sizeof(uint8_t));
     }
     if (plot_width && plot_height) {
-        create_plot(world, index, plot_frame, plot_width, plot_height);
+        create_plot(world, plot_index, key_index, plot_frame, plot_width, plot_height);
         plot_render.render(plot_frame, plot_width, plot_height, viewport_width, viewport_height, false);
     }
 }

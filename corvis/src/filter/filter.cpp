@@ -621,7 +621,6 @@ void filter_setup_next_frame(struct filter *f, const uint8_t *image, sensor_cloc
     if(f->run_state != RCSensorFusionRunStateRunning) return;
 
     if(feats_used) {
-        int fi = 0;
         for(state_vision_group *g : f->s.groups.children) {
             if(!g->status || g->status == group_initializing) continue;
             for(state_vision_feature *i : g->features.children) {
@@ -635,8 +634,6 @@ void filter_setup_next_frame(struct filter *f, const uint8_t *image, sensor_cloc
                 obs->tracker = f->track;
 
                 f->observations.observations.push_back(std::move(obs));
-
-                fi += 2;
             }
         }
     }

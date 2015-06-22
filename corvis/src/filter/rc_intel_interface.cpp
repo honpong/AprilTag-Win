@@ -252,35 +252,35 @@ void rc_stopTracker(rc_Tracker * tracker)
 }
 
 //This is only for writing to logfiles - uses start time of image capture
-void copy_camera_data(rc_Tracker * tracker, rc_Timestamp time_us, rc_Timestamp shutter_time_us, int stride, const void *image, camera_data & d)
+void copy_camera_data(rc_Tracker * tracker, rc_Timestamp time_us, rc_Timestamp shutter_time_us, int width, int height, int stride, const void *image, camera_data & d)
 {
     //TODO: don't malloc here
-    int bytes = tracker->device.image_width * tracker->device.image_height;
+    int bytes = width * height;
     d.image_handle = std::unique_ptr<void, void(*)(void *)>(malloc(bytes), free);
     d.image = (uint8_t *)d.image_handle.get();
-    for (int i = 0; i < tracker->device.image_height; i++) memcpy(d.image + i * tracker->device.image_width, ((unsigned char *)image) + i * stride, tracker->device.image_width);
-    d.width = tracker->device.image_width;
-    d.height = tracker->device.image_height;
+    for (int i = 0; i < height; i++) memcpy(d.image + i * width, ((unsigned char *)image) + i * stride, width);
+    d.width = width;
+    d.height = height;
     // TODO: Check that we support stride
     d.stride = d.width;
     //only for writing to logfiles
     d.timestamp = sensor_clock::micros_to_tp(time_us);
 }
 
-void rc_receiveImage(rc_Tracker *tracker, rc_Camera camera, rc_Timestamp time_us, rc_Timestamp shutter_time_us, const rc_Pose poseEstimate_m, bool force_recognition, int stride, const void *image, void(*completion_callback)(void *callback_handle), void *callback_handle)
+void rc_receiveImage(rc_Tracker *tracker, rc_Camera camera, rc_Timestamp time_us, rc_Timestamp shutter_time_us, const rc_Pose poseEstimate_m, bool force_recognition, int width, int height, int stride, const void *image, void(*completion_callback)(void *callback_handle), void *callback_handle)
 {
     if(camera == rc_EGRAY8) {
         camera_data d;
         d.image_handle = std::unique_ptr<void, void(*)(void *)>(callback_handle, completion_callback);
         d.image = (uint8_t *)image;
-        d.width = tracker->device.image_width;
-        d.height = tracker->device.image_height;
+        d.width = width;
+        d.height = height;
         d.stride = stride;
         d.timestamp = sensor_clock::micros_to_tp(time_us + shutter_time_us / 2);
         tracker->receive_image(std::move(d));
         if(tracker->output_enabled) {
             camera_data d2;
-            copy_camera_data(tracker, time_us, shutter_time_us, stride, image, d2);
+            copy_camera_data(tracker, time_us, shutter_time_us, width, height, stride, image, d2);
             tracker->output.receive_camera(std::move(d2));
         }
     }

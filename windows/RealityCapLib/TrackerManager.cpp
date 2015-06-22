@@ -197,8 +197,9 @@ void TrackerManager::OnColorFrame(PXCImage* colorSample)
     PXCCapture::Device *pDevice = capMan->QueryDevice();
     pxcI32 exposure = pDevice->QueryColorExposure();
     uint64_t shutter_time_us = 1 << exposure;
+    PXCImage::ImageInfo info = colorSample->QueryInfo();
     //Timestamp: divide by 10 to go from 100ns to us, subtract 637us blank interval and 12 ms ad-hoc (tuning) offset, subtract shutter time to get start of capture
-    rc_receiveImage(_tracker, rc_EGRAY8, colorSample->QueryTimeStamp() / 10 - 637 - 12000 - shutter_time_us, shutter_time_us, NULL, false, si->data.pitches[0], si->data.planes[0], RCSavedImage::releaseOpaquePointer, (void*)si);
+    rc_receiveImage(_tracker, rc_EGRAY8, colorSample->QueryTimeStamp() / 10 - 637 - 12000 - shutter_time_us, shutter_time_us, NULL, false, info.width, info.height, si->data.pitches[0], si->data.planes[0], RCSavedImage::releaseOpaquePointer, (void*)si);
 }
 
 void TrackerManager::OnAmeterSample(imu_sample_t* sample)

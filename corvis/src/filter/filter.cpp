@@ -855,7 +855,7 @@ bool filter_image_measurement(struct filter *f, const unsigned char *data, int w
             if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def after disabling orient only\n");
 #endif
         }
-        addfeatures(f, space, data, f->track.width, f->track.height, time);
+        addfeatures(f, space, data, width, height, time);
         if(f->s.features.size() < state_vision_group::min_feats) {
             if (log_enabled) fprintf(stderr, "detector failure: only %ld features after add\n", f->s.features.size());
             f->detector_failed = true;

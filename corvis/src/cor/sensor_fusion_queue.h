@@ -39,6 +39,9 @@ public:
     uint64_t total_in = 0;
     uint64_t total_out = 0;
     stdev_scalar stats;
+#ifdef DEBUG
+    histogram hist{200};
+#endif
 
     std::string get_stats()
     {

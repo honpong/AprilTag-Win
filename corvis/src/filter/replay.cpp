@@ -122,6 +122,12 @@ void replay::start()
         {
             auto timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time)) + realtime_offset;
             now = sensor_clock::now();
+            if(is_realtime && timestamp - now > std::chrono::seconds(1)) {
+                auto gap = std::chrono::duration_cast<std::chrono::microseconds>(timestamp - now);
+                fprintf(stderr, "Warning: skipping a %f second gap\n", gap.count()/1.e6f);
+                realtime_offset -= (timestamp - now);
+                timestamp -= realtime_offset;
+            }
             if(is_realtime && timestamp - now > std::chrono::microseconds(0))
                 std::this_thread::sleep_for(timestamp - now);
 

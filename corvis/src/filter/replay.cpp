@@ -103,7 +103,7 @@ void replay::start()
     while (is_running) {
         auto start_pause = sensor_clock::now();
         auto finish_pause = start_pause;
-        while(is_paused  && !is_stepping) {
+        while(is_paused  && !is_stepping && is_running) {
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
             finish_pause = sensor_clock::now();
         }

@@ -14,6 +14,8 @@ def scan_tests(folder_name):
     for dirname, dirnames, filenames in os.walk(folder_name, followlinks=True):
         for filename in filenames:
             config_name = os.path.basename(os.path.dirname(os.path.join(dirname, filename)))
+            if filename.endswith(".json"):
+                continue;
             L_match = re.search("_L([\d.]+)", filename)
             PL_match = re.search("_PL([\d.]+)", filename)
             L = None

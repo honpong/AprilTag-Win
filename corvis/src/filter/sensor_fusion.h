@@ -33,10 +33,10 @@ public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     struct status
     {
-        RCSensorFusionRunState run_state;
-        RCSensorFusionErrorCode error;
-        RCSensorFusionConfidence confidence;
-        float progress;
+        RCSensorFusionRunState run_state{ RCSensorFusionRunStateInactive };
+        RCSensorFusionErrorCode error{ RCSensorFusionErrorCodeNone };
+        RCSensorFusionConfidence confidence{ RCSensorFusionConfidenceNone };
+        float progress{ 0 };
         bool operator==(const struct status & other) { return run_state == other.run_state && error == other.error && confidence == other.confidence && progress == other.progress; }
     };
     

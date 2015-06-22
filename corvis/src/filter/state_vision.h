@@ -187,6 +187,7 @@ class state_vision: public state_motion {
     state_scalar focal_length;
     state_scalar center_x, center_y;
     state_scalar k1, k2, k3;
+    int image_width;
 
     state_branch<state_vision_group *> groups;
     list<state_vision_feature *> features;

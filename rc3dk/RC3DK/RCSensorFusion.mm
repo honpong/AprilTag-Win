@@ -459,7 +459,7 @@
     
     RCScalar *totalPath = [[RCScalar alloc] initWithScalar:f->s.total_distance withStdDev:0.];
     
-    RCCameraParameters *camParams = [[RCCameraParameters alloc] initWithFocalLength:(float)f->s.focal_length.v withOpticalCenterX:(float)f->s.center_x.v withOpticalCenterY:(float)f->s.center_y.v withRadialSecondDegree:(float)f->s.k1.v withRadialFourthDegree:(float)f->s.k2.v];
+    RCCameraParameters *camParams = [[RCCameraParameters alloc] initWithFocalLength:(float)f->s.focal_length.v * f->image_width withOpticalCenterX:(float)f->s.center_x.v * f->image_width withOpticalCenterY:(float)f->s.center_y.v * f->image_width withRadialSecondDegree:(float)f->s.k1.v withRadialFourthDegree:(float)f->s.k2.v];
 
     NSString * qrDetected = nil;
     if(f->qr.valid)

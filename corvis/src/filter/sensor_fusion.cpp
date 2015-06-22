@@ -196,10 +196,10 @@ void sensor_fusion::update_data(camera_data &&image)
     //perform these operations synchronously in the calling (filter) thread
     d->total_path_m = sfm.s.total_distance;
     camera_parameters cp;
-    cp.fx = (float)sfm.s.focal_length.v;
-    cp.fy = (float)sfm.s.focal_length.v;
-    cp.cx = (float)sfm.s.center_x.v;
-    cp.cy = (float)sfm.s.center_y.v;
+    cp.fx = (float)sfm.s.focal_length.v * sfm.image_width;
+    cp.fy = (float)sfm.s.focal_length.v * sfm.image_width;
+    cp.cx = (float)sfm.s.center_x.v * sfm.image_width;
+    cp.cy = (float)sfm.s.center_y.v * sfm.image_width;
     cp.skew = 0;
     cp.k1 = (float)sfm.s.k1.v;
     cp.k2 = (float)sfm.s.k2.v;

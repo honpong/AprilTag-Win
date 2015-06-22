@@ -770,6 +770,7 @@ bool filter_image_measurement(struct filter *f, const unsigned char *data, int w
     f->track.init();
     f->image_width = width;
     f->image_height = height;
+    f->s.image_width = width;
     
     if(!f->ignore_lateness) {
         /*thread_info_data_t thinfo;
@@ -1075,9 +1076,9 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     for(int i = 0; i < 3; ++i) tmp[i] = device.w_bias_var[i] < min_w_bias_var ? min_w_bias_var : device.w_bias_var[i];
     f->s.w_bias.set_initial_variance(tmp[0], tmp[1], tmp[2]);
     
-    f->s.focal_length.v = device.Fx;
-    f->s.center_x.v = device.Cx;
-    f->s.center_y.v = device.Cy;
+    f->s.focal_length.v = device.Fx / device.image_width;
+    f->s.center_x.v = device.Cx / device.image_width;
+    f->s.center_y.v = device.Cy / device.image_width;
     f->s.k1.v = device.K[0];
     f->s.k2.v = device.K[1];
     f->s.k3.v = 0.; //device.K[2];
@@ -1096,9 +1097,9 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->s.a_bias.set_process_noise(1.e-10);
     f->s.w_bias.set_process_noise(1.e-12);
     //TODO: check this process noise
-    f->s.focal_length.set_process_noise(1.e-2);
-    f->s.center_x.set_process_noise(1.e-5);
-    f->s.center_y.set_process_noise(1.e-5);
+    f->s.focal_length.set_process_noise(1.e-2 / device.image_width / device.image_width);
+    f->s.center_x.set_process_noise(1.e-5 / device.image_width / device.image_width);
+    f->s.center_y.set_process_noise(1.e-5 / device.image_width / device.image_width);
     f->s.k1.set_process_noise(1.e-6);
     f->s.k2.set_process_noise(1.e-6);
     f->s.k3.set_process_noise(1.e-6);
@@ -1111,9 +1112,9 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->s.dw.set_initial_variance(1.e5); //observed range of variances in sequences is 1-6
     f->s.a.set_initial_variance(1.e5);
 
-    f->s.focal_length.set_initial_variance(BEGIN_FOCAL_VAR);
-    f->s.center_x.set_initial_variance(BEGIN_C_VAR);
-    f->s.center_y.set_initial_variance(BEGIN_C_VAR);
+    f->s.focal_length.set_initial_variance(BEGIN_FOCAL_VAR / device.image_width / device.image_width);
+    f->s.center_x.set_initial_variance(BEGIN_C_VAR / device.image_width / device.image_width);
+    f->s.center_y.set_initial_variance(BEGIN_C_VAR / device.image_width / device.image_width);
     f->s.k1.set_initial_variance(BEGIN_K1_VAR);
     f->s.k2.set_initial_variance(BEGIN_K2_VAR);
     f->s.k3.set_initial_variance(BEGIN_K3_VAR);
@@ -1122,6 +1123,7 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->shutter_period = device.shutter_period;
     f->image_height = device.image_height;
     f->image_width = device.image_width;
+    f->s.image_width = device.image_width;
     
     f->track.width = device.image_width;
     f->track.height = device.image_height;

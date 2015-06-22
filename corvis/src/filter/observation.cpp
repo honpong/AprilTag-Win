@@ -198,8 +198,8 @@ void observation_vision_feature::predict()
     Rtot = Rct * Rrt * Rc;
     Ttot = Rct * (Rrt * (state.Tc.v - state_group->Tr.v) - state.Tc.v);
 
-    norm_initial.x = (float)((feature->initial[0] - state.center_x.v) / state.focal_length.v);
-    norm_initial.y = (float)((feature->initial[1] - state.center_y.v) / state.focal_length.v);
+    norm_initial.x = (float)((feature->initial[0] / state.image_width - state.center_x.v) / state.focal_length.v);
+    norm_initial.y = (float)((feature->initial[1] / state.image_width - state.center_y.v) / state.focal_length.v);
 
     f_t r2, kr;
     state.fill_calibration(norm_initial, r2, kr);
@@ -228,8 +228,8 @@ void observation_vision_feature::predict()
     norm_predicted.y = (float)ippred[1];
 
     state.fill_calibration(norm_predicted, r2, kr);
-    pred[0] = norm_predicted.x * kr * state.focal_length.v + state.center_x.v;
-    pred[1] = norm_predicted.y * kr * state.focal_length.v + state.center_y.v;
+    pred[0] = (norm_predicted.x * kr * state.focal_length.v + state.center_x.v) * state.image_width;
+    pred[1] = (norm_predicted.y * kr * state.focal_length.v + state.center_y.v) * state.image_width;
     feature->prediction.x = (float)pred[0];
     feature->prediction.y = (float)pred[1];
 }
@@ -265,8 +265,8 @@ void observation_vision_feature::cache_jacobians()
     state.fill_calibration(norm_predicted, r2, kr);
     f_t invZ = 1. / X[2];
     v4 dx_dX, dy_dX;
-    dx_dX = kr * state.focal_length.v * v4(invZ, 0., -X[0] * invZ * invZ, 0.);
-    dy_dX = kr * state.focal_length.v * v4(0., invZ, -X[1] * invZ * invZ, 0.);
+    dx_dX = state.image_width * kr * state.focal_length.v * v4(invZ, 0., -X[0] * invZ * invZ, 0.);
+    dy_dX = state.image_width * kr * state.focal_length.v * v4(0., invZ, -X[1] * invZ * invZ, 0.);
 
     v4 dX_dp = Ttot * feature->v.invdepth_jacobian();
     dx_dp = dx_dX.dot(dX_dp);
@@ -284,16 +284,16 @@ void observation_vision_feature::cache_jacobians()
         //dy_dTr = m4(0.);
     } else {
 #if estimate_camera_intrinsics
-        dx_dF = norm_predicted.x * kr + dx_dX.dot(dX_dF);
-        dy_dF = norm_predicted.y * kr + dy_dX.dot(dX_dF);
-        dx_dk1 = norm_predicted.x * state.focal_length.v * r2        + dx_dX.dot(dX_dk1);
-        dy_dk1 = norm_predicted.y * state.focal_length.v * r2        + dy_dX.dot(dX_dk1);
-        dx_dk2 = norm_predicted.x * state.focal_length.v * (r2 * r2) + dx_dX.dot(dX_dk2);
-        dy_dk2 = norm_predicted.y * state.focal_length.v * (r2 * r2) + dy_dX.dot(dX_dk2);
-        dx_dcx = 1. + dx_dX.dot(dX_dcx);
+        dx_dF = state.image_width * norm_predicted.x * kr + dx_dX.dot(dX_dF);
+        dy_dF = state.image_width * norm_predicted.y * kr + dy_dX.dot(dX_dF);
+        dx_dk1 = state.image_width * norm_predicted.x * state.focal_length.v * r2        + dx_dX.dot(dX_dk1);
+        dy_dk1 = state.image_width * norm_predicted.y * state.focal_length.v * r2        + dy_dX.dot(dX_dk1);
+        dx_dk2 = state.image_width * norm_predicted.x * state.focal_length.v * (r2 * r2) + dx_dX.dot(dX_dk2);
+        dy_dk2 = state.image_width * norm_predicted.y * state.focal_length.v * (r2 * r2) + dy_dX.dot(dX_dk2);
+        dx_dcx = state.image_width *  + dx_dX.dot(dX_dcx);
         dx_dcy = dx_dX.dot(dX_dcy);
         dy_dcx = dy_dX.dot(dX_dcx);
-        dy_dcy = 1. + dy_dX.dot(dX_dcy);
+        dy_dcy = state.image_width *  + dy_dX.dot(dX_dcy);
 #endif
         dx_dWr = dx_dX.transpose() * (dRtotX0_dWr + dTtot_dWr * invrho);
         dx_dTr = dx_dX.transpose() * dTtot_dTr * invrho;
@@ -393,8 +393,8 @@ f_t observation_vision_feature::projection_residual(const v4 & X, const xy &foun
     
     state.fill_calibration(norm, r2, kr);
     
-    uncalib.x = (float)(norm.x * kr * state.focal_length.v + state.center_x.v);
-    uncalib.y = (float)(norm.y * kr * state.focal_length.v + state.center_y.v);
+    uncalib.x = (float)((norm.x * kr * state.focal_length.v + state.center_x.v) * state.image_width);
+    uncalib.y = (float)((norm.y * kr * state.focal_length.v + state.center_y.v) * state.image_width);
     f_t dx = uncalib.x - found.x;
     f_t dy = uncalib.y - found.y;
     return dx * dx + dy * dy;
@@ -413,7 +413,7 @@ void observation_vision_feature::update_initializing()
     
     v4 X_0_proj = X_0 / X_0[2];
     v4 delta = (X_inf_proj - X_0_proj);
-    f_t pixelvar = delta.dot(delta) * state.focal_length.v * state.focal_length.v;
+    f_t pixelvar = delta.dot(delta) * state.focal_length.v * state.focal_length.v * state.image_width * state.image_width;
     if(pixelvar > 5. * 5. * state_vision_feature::measurement_var) { //tells us if we have enough baseline
         feature->status = feature_normal;
     }

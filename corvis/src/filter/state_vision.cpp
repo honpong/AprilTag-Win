@@ -280,8 +280,8 @@ feature_t state_vision::calibrate_feature(const feature_t &initial) const
 {
     feature_t norm, calib;
     
-    norm.x = (float)((initial.x - center_x.v) / focal_length.v);
-    norm.y = (float)((initial.y - center_y.v) / focal_length.v);
+    norm.x = (float)((initial.x / image_width - center_x.v) / focal_length.v);
+    norm.y = (float)((initial.y / image_width - center_y.v) / focal_length.v);
     
     f_t r2, kr;
     fill_calibration(norm, r2, kr);

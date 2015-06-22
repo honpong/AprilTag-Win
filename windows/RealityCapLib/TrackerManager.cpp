@@ -145,7 +145,8 @@ bool TrackerManager::StartReplay(const std::wstring filename, bool realtime)
     std::wstring calibration_filename = filename + L".json";
     if (!ReadCalibration(calibration_filename)) {
         wstring::size_type pos = filename.find_last_of(L"\\/");
-        calibration_filename = wstring(filename.begin(), filename.begin() + pos);
+        if (pos >= filename.length()) calibration_filename = L".";
+        else calibration_filename = wstring(filename.begin(), filename.begin() + pos);
         calibration_filename += L"\\calibration.json";
         if(!ReadCalibration(calibration_filename)) {
             Debug::Log(L"Reading default calibration");

@@ -22,13 +22,14 @@ pxcIMUsensor selectedSensors[] = {
 };
 const int NUM_OF_REQUESTED_SENSORS = sizeof(selectedSensors) / sizeof(pxcIMUsensor);
 
-SensorManager::SensorManager(PXCSenseManager* senseMan) : _isVideoStreaming(false)
+SensorManager::SensorManager(PXCSenseManager* senseMan) : _isVideoStreaming(false), _sensorReceiver(NULL)
 {
     _senseMan = senseMan;
 }
 
 SensorManager::~SensorManager()
 {
+    StopSensors();
 }
 
 bool SensorManager::StartSensors()
@@ -84,12 +85,70 @@ bool SensorManager::StartSensors()
     return true;
 }
 
+bool SensorManager::StartRecording(const wchar_t *absFileName)
+{
+    PXCCaptureManager *captureMgr = _senseMan->QueryCaptureManager();
+    auto status = captureMgr->SetFileName(absFileName, true);
+    if (status < PXC_STATUS_NO_ERROR)
+    {
+        Debug::Log(L"Failed to set recording file name\n");
+        return false;
+    }
+    if (!StartSensors()) return false;
+    return true;
+}
+
+bool SensorManager::StartPlayback(const wchar_t *filename, bool realtime)
+{
+    if (_isVideoStreaming) return false;
+    PXCCaptureManager *captureMgr = _senseMan->QueryCaptureManager();
+    auto status = captureMgr->SetFileName(filename, false);
+    if (status < PXC_STATUS_NO_ERROR)
+    {
+        Debug::Log(L"Failed to set playback file name\n");
+        return false;
+    }
+
+    captureMgr->SetRealtime(realtime);
+
+    PXCVideoModule::DataDesc desc = { 0 };
+    captureMgr->QueryCapture()->QueryDeviceInfo(0, &desc.deviceInfo);
+    status = _senseMan->EnableStreams(&desc);
+
+    if (status < PXC_STATUS_NO_ERROR)
+    {
+        Debug::Log(L"Failed to enable stream(s)\n");
+        return false;
+    }
+
+    status = _senseMan->Init();
+    if (status < PXC_STATUS_NO_ERROR)
+    {
+        Debug::Log(L"Failed to initialize video pipeline\n");
+        return false;
+    }
+
+    _isVideoStreaming = true;
+
+    // poll for frames in a separate thread
+    videoThread = std::thread(&SensorManager::PollForFrames, this);
+
+    return true;
+}
+
+void SensorManager::WaitUntilFinished()
+{
+    if (!isVideoStreaming()) return;
+    if (videoThread.joinable())
+        videoThread.join();
+}
+
 void SensorManager::StopSensors()
 {
     if (!isVideoStreaming()) return;
     _isVideoStreaming = false;
-    videoThread.join();
-    if (_senseMan) _senseMan->Close();
+    if (videoThread.joinable())
+        videoThread.join();
 }
 
 bool SensorManager::isVideoStreaming()
@@ -140,8 +199,6 @@ void SensorManager::PollForFrames()
         PXCImage* depthImage = cameraSample->depth;
         PXCImage* colorImage = cameraSample->color;
 
-        OnColorFrame(colorImage);
-
         // process the IMU data for each sensor type        
         for (int sensorNum = 0; sensorNum < NUM_OF_REQUESTED_SENSORS; sensorNum++)
         {
@@ -168,22 +225,32 @@ void SensorManager::PollForFrames()
             }
         }
 
+        //Always pass image data AFTER associated inertial data. This will trigger the update
+        OnColorFrame(colorImage);
+
         _senseMan->ReleaseFrame();
     }
+
+    _isVideoStreaming = false; // in case we're replaying and we reach EoF
+    _senseMan->Close();
+    Debug::Log(L"Exiting sensor polling thread");
 }
 
 void SensorManager::OnColorFrame(PXCImage * colorImage)
 {
+    if (_sensorReceiver) _sensorReceiver->OnColorFrame(colorImage);
     Debug::Log(L"%lli color sample", colorImage->QueryTimeStamp() - 6370); // Taking care of 637 Micro seconds blank interval-> 637000 nanoseconds -> 6370 (one hundred nanoseconds)
 }
 
 void SensorManager::OnAmeterSample(imu_sample_t* sample)
 {
+    if (_sensorReceiver) _sensorReceiver->OnAmeterSample(sample);
     Debug::Log(L"%lli %s\t%0.3f, %0.3f, %0.3f", sample->coordinatedUniversalTime100ns, L"accel", sample->data[0], sample->data[1], sample->data[2]);
 }
 
 void SensorManager::OnGyroSample(imu_sample_t* sample)
 {
+    if (_sensorReceiver) _sensorReceiver->OnGyroSample(sample);
     Debug::Log(L"%lli %s\t%0.3f, %0.3f, %0.3f", sample->coordinatedUniversalTime100ns, L"gyro", sample->data[0], sample->data[1], sample->data[2]);
 }
 

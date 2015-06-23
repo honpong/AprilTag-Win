@@ -8,25 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3207A5471AC0CD0500792F30 /* libRC3DK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3207A5431AC0CC1200792F30 /* libRC3DK.a */; };
-		3207A5C61AC0EDCB00792F30 /* RCVideoPreview.m in Sources */ = {isa = PBXBuildFile; fileRef = 3207A5BB1AC0EB5900792F30 /* RCVideoPreview.m */; };
-		3207A5C71AC0EDCD00792F30 /* RCGLShaderProgram.m in Sources */ = {isa = PBXBuildFile; fileRef = 3207A5B91AC0EB5900792F30 /* RCGLShaderProgram.m */; };
-		3207A5C81AC0EDCE00792F30 /* RCGLManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 3207A5B71AC0EB5900792F30 /* RCGLManagerFactory.m */; };
-		3207A5CB1AC0EDF600792F30 /* RCGLManagerFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207A5B61AC0EB5900792F30 /* RCGLManagerFactory.h */; };
-		3207A5CC1AC0EDF900792F30 /* RCGLShaderProgram.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207A5B81AC0EB5900792F30 /* RCGLShaderProgram.h */; };
-		3207A5CD1AC0EDFB00792F30 /* RCVideoPreview.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3207A5BA1AC0EB5900792F30 /* RCVideoPreview.h */; };
-		3296F2351A8BD6EF0092D808 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 3296F22B1A8BD6EF0092D808 /* MBProgressHUD.m */; };
-		3296F2361A8BD6EF0092D808 /* RCCalibration1.m in Sources */ = {isa = PBXBuildFile; fileRef = 3296F22D1A8BD6EF0092D808 /* RCCalibration1.m */; };
-		3296F2371A8BD6EF0092D808 /* RCCalibration2.m in Sources */ = {isa = PBXBuildFile; fileRef = 3296F22F1A8BD6EF0092D808 /* RCCalibration2.m */; };
-		3296F2381A8BD6EF0092D808 /* RCCalibration3.m in Sources */ = {isa = PBXBuildFile; fileRef = 3296F2311A8BD6EF0092D808 /* RCCalibration3.m */; };
-		3296F26E1A8BD9150092D808 /* Calibration.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 3296F2261A8BD6EF0092D808 /* Calibration.storyboard */; };
-		3296F26F1A8BD9160092D808 /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 3296F2271A8BD6EF0092D808 /* holding_landscape.jpg */; };
-		3296F2701A8BD9170092D808 /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 3296F2281A8BD6EF0092D808 /* holding_portrait.jpg */; };
-		3296F2711A8BD91D0092D808 /* ipad_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 3296F2291A8BD6EF0092D808 /* ipad_on_table.jpg */; };
 		3296F2921A8C09670092D808 /* QuickstartKit.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3296F28E1A8C07A00092D808 /* QuickstartKit.h */; };
-		32B4DA781A8C197F00FFBF16 /* MBProgressHUD.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3296F22A1A8BD6EF0092D808 /* MBProgressHUD.h */; };
-		32B4DA791A8C198000FFBF16 /* RCCalibration1.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3296F22C1A8BD6EF0092D808 /* RCCalibration1.h */; };
-		32B4DA7A1A8C198300FFBF16 /* RCCalibration2.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3296F22E1A8BD6EF0092D808 /* RCCalibration2.h */; };
-		32B4DA7B1A8C198500FFBF16 /* RCCalibration3.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 3296F2301A8BD6EF0092D808 /* RCCalibration3.h */; };
 		32D1D5AC1AEF0A7F00B76313 /* RC3DK.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32D1D5941AEF0A1000B76313 /* RC3DK.h */; };
 		32D1D5AD1AEF0A7F00B76313 /* RCAVSessionManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32D1D5951AEF0A1000B76313 /* RCAVSessionManager.h */; };
 		32D1D5AE1AEF0A7F00B76313 /* RCCameraParameters.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32D1D5961AEF0A1000B76313 /* RCCameraParameters.h */; };
@@ -51,6 +33,24 @@
 		32D1D5C11AEF0A7F00B76313 /* RCVideoFrameDelegate.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32D1D5A91AEF0A1000B76313 /* RCVideoFrameDelegate.h */; };
 		32D1D5C21AEF0A7F00B76313 /* RCVideoFrameProvider.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32D1D5AA1AEF0A1000B76313 /* RCVideoFrameProvider.h */; };
 		32D1D5C31AEF0A7F00B76313 /* RCVideoManager.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32D1D5AB1AEF0A1000B76313 /* RCVideoManager.h */; };
+		32D1E6AB1B20BF630032AE29 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D1E69D1B20BF630032AE29 /* MBProgressHUD.m */; };
+		32D1E6AC1B20BF630032AE29 /* RCCalibration1.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D1E69F1B20BF630032AE29 /* RCCalibration1.m */; };
+		32D1E6AD1B20BF630032AE29 /* RCCalibration2.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D1E6A11B20BF630032AE29 /* RCCalibration2.m */; };
+		32D1E6AE1B20BF630032AE29 /* RCCalibration3.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D1E6A31B20BF630032AE29 /* RCCalibration3.m */; };
+		32D1E6AF1B20BF630032AE29 /* RCGLManagerFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D1E6A61B20BF630032AE29 /* RCGLManagerFactory.m */; };
+		32D1E6B01B20BF630032AE29 /* RCGLShaderProgram.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D1E6A81B20BF630032AE29 /* RCGLShaderProgram.m */; };
+		32D1E6B11B20BF630032AE29 /* RCVideoPreview.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D1E6AA1B20BF630032AE29 /* RCVideoPreview.m */; };
+		32D1E6F31B20C1F90032AE29 /* MBProgressHUD.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32D1E69C1B20BF630032AE29 /* MBProgressHUD.h */; };
+		32D1E6F41B20C1F90032AE29 /* RCCalibration1.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32D1E69E1B20BF630032AE29 /* RCCalibration1.h */; };
+		32D1E6F51B20C1F90032AE29 /* RCCalibration2.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32D1E6A01B20BF630032AE29 /* RCCalibration2.h */; };
+		32D1E6F61B20C1F90032AE29 /* RCCalibration3.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32D1E6A21B20BF630032AE29 /* RCCalibration3.h */; };
+		32D1E6F71B20C1F90032AE29 /* RCGLManagerFactory.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32D1E6A51B20BF630032AE29 /* RCGLManagerFactory.h */; };
+		32D1E6F81B20C1F90032AE29 /* RCGLShaderProgram.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32D1E6A71B20BF630032AE29 /* RCGLShaderProgram.h */; };
+		32D1E6F91B20C1F90032AE29 /* RCVideoPreview.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 32D1E6A91B20BF630032AE29 /* RCVideoPreview.h */; };
+		388999091B26C82F0077DAA7 /* Calibration.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 32D1E6981B20BF630032AE29 /* Calibration.storyboard */; };
+		3889990A1B26C83C0077DAA7 /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32D1E6991B20BF630032AE29 /* holding_landscape.jpg */; };
+		3889990B1B26C83F0077DAA7 /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32D1E69A1B20BF630032AE29 /* holding_portrait.jpg */; };
+		3889990C1B26C8420077DAA7 /* ipad_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32D1E69B1B20BF630032AE29 /* ipad_on_table.jpg */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -60,6 +60,13 @@
 			dstPath = "include/$(PRODUCT_NAME)";
 			dstSubfolderSpec = 16;
 			files = (
+				32D1E6F31B20C1F90032AE29 /* MBProgressHUD.h in CopyFiles */,
+				32D1E6F41B20C1F90032AE29 /* RCCalibration1.h in CopyFiles */,
+				32D1E6F51B20C1F90032AE29 /* RCCalibration2.h in CopyFiles */,
+				32D1E6F61B20C1F90032AE29 /* RCCalibration3.h in CopyFiles */,
+				32D1E6F71B20C1F90032AE29 /* RCGLManagerFactory.h in CopyFiles */,
+				32D1E6F81B20C1F90032AE29 /* RCGLShaderProgram.h in CopyFiles */,
+				32D1E6F91B20C1F90032AE29 /* RCVideoPreview.h in CopyFiles */,
 				32D1D5AC1AEF0A7F00B76313 /* RC3DK.h in CopyFiles */,
 				32D1D5AD1AEF0A7F00B76313 /* RCAVSessionManager.h in CopyFiles */,
 				32D1D5AE1AEF0A7F00B76313 /* RCCameraParameters.h in CopyFiles */,
@@ -84,14 +91,7 @@
 				32D1D5C11AEF0A7F00B76313 /* RCVideoFrameDelegate.h in CopyFiles */,
 				32D1D5C21AEF0A7F00B76313 /* RCVideoFrameProvider.h in CopyFiles */,
 				32D1D5C31AEF0A7F00B76313 /* RCVideoManager.h in CopyFiles */,
-				3207A5CD1AC0EDFB00792F30 /* RCVideoPreview.h in CopyFiles */,
-				3207A5CC1AC0EDF900792F30 /* RCGLShaderProgram.h in CopyFiles */,
-				3207A5CB1AC0EDF600792F30 /* RCGLManagerFactory.h in CopyFiles */,
-				32B4DA781A8C197F00FFBF16 /* MBProgressHUD.h in CopyFiles */,
 				3296F2921A8C09670092D808 /* QuickstartKit.h in CopyFiles */,
-				32B4DA7A1A8C198300FFBF16 /* RCCalibration2.h in CopyFiles */,
-				32B4DA791A8C198000FFBF16 /* RCCalibration1.h in CopyFiles */,
-				32B4DA7B1A8C198500FFBF16 /* RCCalibration3.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -99,25 +99,7 @@
 
 /* Begin PBXFileReference section */
 		3207A5431AC0CC1200792F30 /* libRC3DK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libRC3DK.a; path = "../RC3DK-Library/libRC3DK.a"; sourceTree = "<group>"; };
-		3207A5B61AC0EB5900792F30 /* RCGLManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCGLManagerFactory.h; sourceTree = "<group>"; };
-		3207A5B71AC0EB5900792F30 /* RCGLManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCGLManagerFactory.m; sourceTree = "<group>"; };
-		3207A5B81AC0EB5900792F30 /* RCGLShaderProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCGLShaderProgram.h; sourceTree = "<group>"; };
-		3207A5B91AC0EB5900792F30 /* RCGLShaderProgram.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCGLShaderProgram.m; sourceTree = "<group>"; };
-		3207A5BA1AC0EB5900792F30 /* RCVideoPreview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoPreview.h; sourceTree = "<group>"; };
-		3207A5BB1AC0EB5900792F30 /* RCVideoPreview.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoPreview.m; sourceTree = "<group>"; };
 		3296F1DB1A8BD68F0092D808 /* libQuickstartKit.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libQuickstartKit.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		3296F2261A8BD6EF0092D808 /* Calibration.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Calibration.storyboard; sourceTree = "<group>"; };
-		3296F2271A8BD6EF0092D808 /* holding_landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_landscape.jpg; sourceTree = "<group>"; };
-		3296F2281A8BD6EF0092D808 /* holding_portrait.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_portrait.jpg; sourceTree = "<group>"; };
-		3296F2291A8BD6EF0092D808 /* ipad_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = ipad_on_table.jpg; sourceTree = "<group>"; };
-		3296F22A1A8BD6EF0092D808 /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
-		3296F22B1A8BD6EF0092D808 /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
-		3296F22C1A8BD6EF0092D808 /* RCCalibration1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration1.h; sourceTree = "<group>"; };
-		3296F22D1A8BD6EF0092D808 /* RCCalibration1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration1.m; sourceTree = "<group>"; };
-		3296F22E1A8BD6EF0092D808 /* RCCalibration2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration2.h; sourceTree = "<group>"; };
-		3296F22F1A8BD6EF0092D808 /* RCCalibration2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration2.m; sourceTree = "<group>"; };
-		3296F2301A8BD6EF0092D808 /* RCCalibration3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration3.h; sourceTree = "<group>"; };
-		3296F2311A8BD6EF0092D808 /* RCCalibration3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration3.m; sourceTree = "<group>"; };
 		3296F2651A8BD8E20092D808 /* QuickstartResources.bundle */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = QuickstartResources.bundle; sourceTree = BUILT_PRODUCTS_DIR; };
 		3296F2681A8BD8E20092D808 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3296F28E1A8C07A00092D808 /* QuickstartKit.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuickstartKit.h; sourceTree = "<group>"; };
@@ -145,6 +127,24 @@
 		32D1D5A91AEF0A1000B76313 /* RCVideoFrameDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCVideoFrameDelegate.h; path = "../../../RC3DK-Library/include/RC3DK/RCVideoFrameDelegate.h"; sourceTree = "<group>"; };
 		32D1D5AA1AEF0A1000B76313 /* RCVideoFrameProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCVideoFrameProvider.h; path = "../../../RC3DK-Library/include/RC3DK/RCVideoFrameProvider.h"; sourceTree = "<group>"; };
 		32D1D5AB1AEF0A1000B76313 /* RCVideoManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCVideoManager.h; path = "../../../RC3DK-Library/include/RC3DK/RCVideoManager.h"; sourceTree = "<group>"; };
+		32D1E6981B20BF630032AE29 /* Calibration.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Calibration.storyboard; sourceTree = "<group>"; };
+		32D1E6991B20BF630032AE29 /* holding_landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_landscape.jpg; sourceTree = "<group>"; };
+		32D1E69A1B20BF630032AE29 /* holding_portrait.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_portrait.jpg; sourceTree = "<group>"; };
+		32D1E69B1B20BF630032AE29 /* ipad_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = ipad_on_table.jpg; sourceTree = "<group>"; };
+		32D1E69C1B20BF630032AE29 /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
+		32D1E69D1B20BF630032AE29 /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
+		32D1E69E1B20BF630032AE29 /* RCCalibration1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration1.h; sourceTree = "<group>"; };
+		32D1E69F1B20BF630032AE29 /* RCCalibration1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration1.m; sourceTree = "<group>"; };
+		32D1E6A01B20BF630032AE29 /* RCCalibration2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration2.h; sourceTree = "<group>"; };
+		32D1E6A11B20BF630032AE29 /* RCCalibration2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration2.m; sourceTree = "<group>"; };
+		32D1E6A21B20BF630032AE29 /* RCCalibration3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration3.h; sourceTree = "<group>"; };
+		32D1E6A31B20BF630032AE29 /* RCCalibration3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration3.m; sourceTree = "<group>"; };
+		32D1E6A51B20BF630032AE29 /* RCGLManagerFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCGLManagerFactory.h; sourceTree = "<group>"; };
+		32D1E6A61B20BF630032AE29 /* RCGLManagerFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCGLManagerFactory.m; sourceTree = "<group>"; };
+		32D1E6A71B20BF630032AE29 /* RCGLShaderProgram.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCGLShaderProgram.h; sourceTree = "<group>"; };
+		32D1E6A81B20BF630032AE29 /* RCGLShaderProgram.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCGLShaderProgram.m; sourceTree = "<group>"; };
+		32D1E6A91B20BF630032AE29 /* RCVideoPreview.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCVideoPreview.h; sourceTree = "<group>"; };
+		32D1E6AA1B20BF630032AE29 /* RCVideoPreview.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCVideoPreview.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -215,20 +215,6 @@
 			path = RC3DK;
 			sourceTree = "<group>";
 		};
-		3207A5B51AC0EB5900792F30 /* VideoPreview */ = {
-			isa = PBXGroup;
-			children = (
-				3207A5B61AC0EB5900792F30 /* RCGLManagerFactory.h */,
-				3207A5B71AC0EB5900792F30 /* RCGLManagerFactory.m */,
-				3207A5B81AC0EB5900792F30 /* RCGLShaderProgram.h */,
-				3207A5B91AC0EB5900792F30 /* RCGLShaderProgram.m */,
-				3207A5BA1AC0EB5900792F30 /* RCVideoPreview.h */,
-				3207A5BB1AC0EB5900792F30 /* RCVideoPreview.m */,
-			);
-			name = VideoPreview;
-			path = ../../VideoPreview;
-			sourceTree = "<group>";
-		};
 		3296F1D21A8BD68F0092D808 = {
 			isa = PBXGroup;
 			children = (
@@ -251,31 +237,11 @@
 			isa = PBXGroup;
 			children = (
 				3207A5301AC0CC1200792F30 /* 3DK */,
-				3296F2251A8BD6EF0092D808 /* Calibration */,
-				3207A5B51AC0EB5900792F30 /* VideoPreview */,
+				32D1E6971B20BF630032AE29 /* Calibration */,
+				32D1E6A41B20BF630032AE29 /* VideoPreview */,
 				3296F28E1A8C07A00092D808 /* QuickstartKit.h */,
 			);
 			path = QuickstartKit;
-			sourceTree = "<group>";
-		};
-		3296F2251A8BD6EF0092D808 /* Calibration */ = {
-			isa = PBXGroup;
-			children = (
-				3296F2261A8BD6EF0092D808 /* Calibration.storyboard */,
-				3296F2271A8BD6EF0092D808 /* holding_landscape.jpg */,
-				3296F2281A8BD6EF0092D808 /* holding_portrait.jpg */,
-				3296F2291A8BD6EF0092D808 /* ipad_on_table.jpg */,
-				3296F22A1A8BD6EF0092D808 /* MBProgressHUD.h */,
-				3296F22B1A8BD6EF0092D808 /* MBProgressHUD.m */,
-				3296F22C1A8BD6EF0092D808 /* RCCalibration1.h */,
-				3296F22D1A8BD6EF0092D808 /* RCCalibration1.m */,
-				3296F22E1A8BD6EF0092D808 /* RCCalibration2.h */,
-				3296F22F1A8BD6EF0092D808 /* RCCalibration2.m */,
-				3296F2301A8BD6EF0092D808 /* RCCalibration3.h */,
-				3296F2311A8BD6EF0092D808 /* RCCalibration3.m */,
-			);
-			name = Calibration;
-			path = ../../Calibration;
 			sourceTree = "<group>";
 		};
 		3296F2661A8BD8E20092D808 /* QuickstartResources */ = {
@@ -292,6 +258,38 @@
 				3296F2681A8BD8E20092D808 /* Info.plist */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		32D1E6971B20BF630032AE29 /* Calibration */ = {
+			isa = PBXGroup;
+			children = (
+				32D1E6981B20BF630032AE29 /* Calibration.storyboard */,
+				32D1E6991B20BF630032AE29 /* holding_landscape.jpg */,
+				32D1E69A1B20BF630032AE29 /* holding_portrait.jpg */,
+				32D1E69B1B20BF630032AE29 /* ipad_on_table.jpg */,
+				32D1E69C1B20BF630032AE29 /* MBProgressHUD.h */,
+				32D1E69D1B20BF630032AE29 /* MBProgressHUD.m */,
+				32D1E69E1B20BF630032AE29 /* RCCalibration1.h */,
+				32D1E69F1B20BF630032AE29 /* RCCalibration1.m */,
+				32D1E6A01B20BF630032AE29 /* RCCalibration2.h */,
+				32D1E6A11B20BF630032AE29 /* RCCalibration2.m */,
+				32D1E6A21B20BF630032AE29 /* RCCalibration3.h */,
+				32D1E6A31B20BF630032AE29 /* RCCalibration3.m */,
+			);
+			path = Calibration;
+			sourceTree = "<group>";
+		};
+		32D1E6A41B20BF630032AE29 /* VideoPreview */ = {
+			isa = PBXGroup;
+			children = (
+				32D1E6A51B20BF630032AE29 /* RCGLManagerFactory.h */,
+				32D1E6A61B20BF630032AE29 /* RCGLManagerFactory.m */,
+				32D1E6A71B20BF630032AE29 /* RCGLShaderProgram.h */,
+				32D1E6A81B20BF630032AE29 /* RCGLShaderProgram.m */,
+				32D1E6A91B20BF630032AE29 /* RCVideoPreview.h */,
+				32D1E6AA1B20BF630032AE29 /* RCVideoPreview.m */,
+			);
+			path = VideoPreview;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -371,10 +369,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3296F26E1A8BD9150092D808 /* Calibration.storyboard in Resources */,
-				3296F2711A8BD91D0092D808 /* ipad_on_table.jpg in Resources */,
-				3296F2701A8BD9170092D808 /* holding_portrait.jpg in Resources */,
-				3296F26F1A8BD9160092D808 /* holding_landscape.jpg in Resources */,
+				388999091B26C82F0077DAA7 /* Calibration.storyboard in Resources */,
+				3889990C1B26C8420077DAA7 /* ipad_on_table.jpg in Resources */,
+				3889990B1B26C83F0077DAA7 /* holding_portrait.jpg in Resources */,
+				3889990A1B26C83C0077DAA7 /* holding_landscape.jpg in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -385,13 +383,13 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3207A5C81AC0EDCE00792F30 /* RCGLManagerFactory.m in Sources */,
-				3207A5C71AC0EDCD00792F30 /* RCGLShaderProgram.m in Sources */,
-				3296F2381A8BD6EF0092D808 /* RCCalibration3.m in Sources */,
-				3207A5C61AC0EDCB00792F30 /* RCVideoPreview.m in Sources */,
-				3296F2371A8BD6EF0092D808 /* RCCalibration2.m in Sources */,
-				3296F2351A8BD6EF0092D808 /* MBProgressHUD.m in Sources */,
-				3296F2361A8BD6EF0092D808 /* RCCalibration1.m in Sources */,
+				32D1E6AD1B20BF630032AE29 /* RCCalibration2.m in Sources */,
+				32D1E6B01B20BF630032AE29 /* RCGLShaderProgram.m in Sources */,
+				32D1E6AB1B20BF630032AE29 /* MBProgressHUD.m in Sources */,
+				32D1E6AC1B20BF630032AE29 /* RCCalibration1.m in Sources */,
+				32D1E6AE1B20BF630032AE29 /* RCCalibration3.m in Sources */,
+				32D1E6AF1B20BF630032AE29 /* RCGLManagerFactory.m in Sources */,
+				32D1E6B11B20BF630032AE29 /* RCVideoPreview.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

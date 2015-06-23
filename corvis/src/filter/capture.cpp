@@ -10,7 +10,7 @@
 #include <string.h>
 #include "device_parameters.h"
 #include "../cor/packet.h"
-#include "../cor/platform/sensor_data.h"
+#include "../cor/sensor_data.h"
 
 packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
 {
@@ -67,32 +67,22 @@ void capture::write_gyroscope_data(const float data[3], uint64_t timestamp)
     free(buf);
 }
 
-void capture::setup_queue()
+void capture::receive_camera(camera_data &&data)
 {
-    auto cam_fn = [this](camera_data &&data)
-    {
-        auto micros = std::chrono::duration_cast<std::chrono::microseconds>(data.timestamp.time_since_epoch()).count();
-        got_camera = true;
-        if (got_camera && got_accel && got_gyro) write_camera_data(data.image, data.width, data.height, data.stride, micros);
-    };
+    auto micros = std::chrono::duration_cast<std::chrono::microseconds>(data.timestamp.time_since_epoch()).count();
+    write_camera_data(data.image, data.width, data.height, data.stride, micros);
+};
 
-    auto acc_fn = [this](accelerometer_data &&data)
-    {
-        auto micros = std::chrono::duration_cast<std::chrono::microseconds>(data.timestamp.time_since_epoch()).count();
-        got_accel = true;
-        if (got_camera && got_accel && got_gyro) write_accelerometer_data(data.accel_m__s2, micros);
-    };
+void capture::receive_accelerometer(accelerometer_data &&data)
+{
+    auto micros = std::chrono::duration_cast<std::chrono::microseconds>(data.timestamp.time_since_epoch()).count();
+    write_accelerometer_data(data.accel_m__s2, micros);
+}
 
-    auto gyr_fn = [this](gyro_data &&data)
-    {
-        auto micros = std::chrono::duration_cast<std::chrono::microseconds>(data.timestamp.time_since_epoch()).count();
-        got_gyro = true;
-        if(got_camera && got_accel && got_gyro) write_gyroscope_data(data.angvel_rad__s, micros);
-    };
-
-    // TODO: configure framerate here?
-    queue = std::make_unique<fusion_queue>(cam_fn, acc_fn, gyr_fn, fusion_queue::latency_strategy::ELIMINATE_DROPS, std::chrono::microseconds(33333), std::chrono::microseconds(10000), std::chrono::microseconds(10000)); //Have to make jitter high - ipad air 2 accelerometer has high latency, we lose about 10% of samples with jitter at 8000
-    queue->start_async(true);
+void capture::receive_gyro(gyro_data &&data)
+{
+    auto micros = std::chrono::duration_cast<std::chrono::microseconds>(data.timestamp.time_since_epoch()).count();
+    write_gyroscope_data(data.angvel_rad__s, micros);
 }
 
 bool capture::start(const char *name)
@@ -103,14 +93,11 @@ bool capture::start(const char *name)
         std::cerr << "Couldn't open file " << name << " for writing.\n";
         return false;
     }
-    got_accel = got_gyro = got_camera = false;
-    setup_queue();
     return true;
 }
 
 void capture::stop()
 {
-    queue->stop_sync(); // does stop_async and then waits
     file.flush();
     file.close();
 }

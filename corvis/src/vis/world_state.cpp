@@ -22,36 +22,39 @@ static VertexData orientation_data[] = {
 
 static std::size_t feature_ellipse_vertex_size = 30; // 15 segments
 static std::size_t max_plot_samples = 1000;
-void world_state::render_plots(std::function<void (plot&)> render_callback)
+void world_state::render_plot(int plot_index, int key_index, std::function<void (plot&, int key_index)> render_callback)
 {
-    plot_lock.lock();
-    for(auto &plot : plots)
-        render_callback(plot);
-    plot_lock.unlock();
+    std::lock_guard<std::mutex> lock(plot_lock);
+    if(plot_index < plots.size() && plot_index >= 0 && key_index < (int)plots[plot_index].size())
+        render_callback(plots[plot_index], key_index);
 }
 
-void world_state::render_plot(int index, std::function<void (plot&)> render_callback)
+int world_state::change_plot(int index)
 {
-    plot_lock.lock();
-    if(index < (int)plots.size() && index >= 0)
-        render_callback(plots[index]);
-    plot_lock.unlock();
-}
-
-int world_state::next_plot(int index)
-{
-    plot_lock.lock();
-    index++;
+    std::lock_guard<std::mutex> lock(plot_lock);
+    if(index < 0)
+        return (int)plots.size() - 1;
     if(index >= (int)plots.size())
-        index = 0;
-    plot_lock.unlock();
+        return 0;
     return index;
+}
+
+int world_state::change_plot_key(int plot_index, int key_index)
+{
+    std::lock_guard<std::mutex> lock(plot_lock);
+    if (plot_index >= 0 && plot_index < (int)plots.size()) {
+        if (key_index < -1)
+            return (int)plots[plot_index].size() -1;
+        if (key_index < (int)plots[plot_index].size())
+            return key_index;
+    }
+    return -1;
 }
 
 void world_state::observe_plot_item(sensor_clock::time_point timestamp, int index, std::string name, float value)
 {
     plot_lock.lock();
-    if (index+1 > (int)plots.size())
+    if (index+1 > plots.size())
         plots.resize(index+1);
     auto &plot = plots[index][name];
     plot.push_back(plot_item(timestamp, value));
@@ -143,6 +146,25 @@ void world_state::receive_camera(const filter * f, camera_data &&d)
 
     observe_plot_item(d.timestamp, 5, "v-inn-mean_x", (float)observation_vision_feature::inn_stdev[0].mean);
     observe_plot_item(d.timestamp, 5, "v-inn-mean_y", (float)observation_vision_feature::inn_stdev[1].mean);
+
+    if (f->observations.recent_a.get()) {
+        observe_plot_item(d.timestamp, 6, "a-inn_x", (float)f->observations.recent_a->innovation(0));
+        observe_plot_item(d.timestamp, 6, "a-inn_y", (float)f->observations.recent_a->innovation(1));
+        observe_plot_item(d.timestamp, 6, "a-inn_z", (float)f->observations.recent_a->innovation(2));
+    }
+
+    if (f->observations.recent_g.get()) {
+        observe_plot_item(d.timestamp, 7, "g-inn_x", (float)f->observations.recent_g->innovation(0));
+        observe_plot_item(d.timestamp, 7, "g-inn_y", (float)f->observations.recent_g->innovation(1));
+        observe_plot_item(d.timestamp, 7, "g-inn_z", (float)f->observations.recent_g->innovation(2));
+    }
+
+    for (auto &of : f->observations.recent_f_map)
+      observe_plot_item(d.timestamp,  8, "v-inn_x " + std::to_string(of.first), (float)of.second->innovation(0));
+    for (auto &of : f->observations.recent_f_map)
+      observe_plot_item(d.timestamp,  9, "v-inn_y " + std::to_string(of.first), (float)of.second->innovation(1));
+    for (auto &of : f->observations.recent_f_map)
+      observe_plot_item(d.timestamp, 10, "v-inn_r " + std::to_string(of.first), (float)hypot(of.second->innovation(0), of.second->innovation(1)));
 }
 
 world_state::world_state()

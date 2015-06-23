@@ -1,32 +1,12 @@
-// Copyright (c) 2008-2012, Eagle Jones
+// Written by Eagle Jones
+// Copyright (c) 2012-2015, RealityCap
 // All rights reserved.
 //
-// This file is a part of the corvis framework, and is made available
-// under the BSD license; please see LICENSE file for full text
 
 #include <assert.h>
 #include "kalman.h"
 #include "matrix.h"
 #include <string.h>
-/*
-  block update looks like:
-  L 0 * A B * L' 0  =  LAL' LB
-  0 I   C D   0  0      CL'  D
-  C = B'(symmetry of covar matr)
-
-  temp = A + LA'
-  B = (CL')' = LB
-  C = B'
-*/
-
-//TODO: symmetric version?
-//TODO: implement IEKF sparse update.
-//TODO: woodbury matrix identity:
-//      start with inv (lambda) = 1/R (diagonal R)
-//      update 1 measurement at a time ... this is only good if C is much smaller than meas! -- have to invert C
-//      maybe with information filter?
-//TODO: block update as above... once we calculate the kalman gain, we multiply by
-// the linearization, giving us a gamma which is nicely blocked.
 
 bool kalman_compute_gain(matrix &gain, const matrix &LC, const matrix &inn_cov)
 {

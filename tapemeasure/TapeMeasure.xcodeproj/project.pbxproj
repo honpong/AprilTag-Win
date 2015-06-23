@@ -10,7 +10,6 @@
 		32011D0F191D943300F17327 /* tips.html in Resources */ = {isa = PBXBuildFile; fileRef = 32011D0E191D943300F17327 /* tips.html */; };
 		32011D13191D96EA00F17327 /* TMAboutView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32011D12191D96EA00F17327 /* TMAboutView.m */; };
 		32011D16191D97E500F17327 /* TMTipsView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32011D15191D97E500F17327 /* TMTipsView.m */; };
-		320992711706402D0078C992 /* TMViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 32808D63170396E200BE7CBC /* TMViewController.m */; };
 		320F9F8D19A6A8C300CF43B6 /* TMLocalMoviePlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 320F9F8C19A6A8C300CF43B6 /* TMLocalMoviePlayer.m */; };
 		3232AAA116D2C1FF007101EA /* TMMeasurement+TMMeasurementSync.m in Sources */ = {isa = PBXBuildFile; fileRef = 3232AAA016D2C1FF007101EA /* TMMeasurement+TMMeasurementSync.m */; };
 		3233C7AF16F3B9D700129B99 /* TMAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 3233C7AE16F3B9D700129B99 /* TMAnalytics.m */; };
@@ -22,11 +21,6 @@
 		32590C8316781F4000E2BA1C /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32C87C4416779B2F006ED337 /* CoreLocation.framework */; };
 		325FC8BB16D6F7CF003A00BE /* TMLoginVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 325FC8BA16D6F7CF003A00BE /* TMLoginVC.m */; };
 		3265479819C3669500A89749 /* Tutorial.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = 3265479719C3669500A89749 /* Tutorial.mp4 */; };
-		326E47D216FA31CE007AA105 /* TMNewMeasurementVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 3280F802161BBB3200B5C8A8 /* TMNewMeasurementVC.m */; };
-		326E47D316FA5DFD007AA105 /* TMAnalytics.m in Sources */ = {isa = PBXBuildFile; fileRef = 3233C7AE16F3B9D700129B99 /* TMAnalytics.m */; };
-		326E47D516FA5ECF007AA105 /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3287846F1630B6CB00040AAF /* AVFoundation.framework */; };
-		326E47D616FA5ED4007AA105 /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3288554F16307A6A0074A3DE /* CoreMotion.framework */; };
-		326E47D716FA5EE1007AA105 /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32C87C4416779B2F006ED337 /* CoreLocation.framework */; };
 		3273BCB5170BA81F00FF0F6A /* TMMeasurementType.m in Sources */ = {isa = PBXBuildFile; fileRef = 3273BCB4170BA81F00FF0F6A /* TMMeasurementType.m */; };
 		327FC37E19D505A200C113D0 /* libRCCore.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 329B38DD1626409D0021B41E /* libRCCore.a */; };
 		32803A6018DB6452002F54B5 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 32803A5F18DB6452002F54B5 /* Images.xcassets */; };
@@ -66,7 +60,6 @@
 		328CE19F16432B6D0092A69C /* TMHistoryVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 328CE19E16432B6D0092A69C /* TMHistoryVC.m */; };
 		328CE1A516433F340092A69C /* TMOptionsVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 328CE1A416433F340092A69C /* TMOptionsVC.m */; };
 		328D264F16BB15550067D7D8 /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328D264E16BB15550067D7D8 /* Security.framework */; };
-		328D4A2E1728A61E001E8251 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E7161BBB3200B5C8A8 /* CoreGraphics.framework */; };
 		32935108172F352200E8FDEA /* TMCrosshairsLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32935107172F352200E8FDEA /* TMCrosshairsLayerDelegate.m */; };
 		3298378C19BFDB3D00270DBB /* OSKMimeAttachment.m in Sources */ = {isa = PBXBuildFile; fileRef = 3298378919BFDB3D00270DBB /* OSKMimeAttachment.m */; };
 		3298378D19BFDB3D00270DBB /* OSKWebPageTitleUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 3298378B19BFDB3D00270DBB /* OSKWebPageTitleUtility.m */; };
@@ -78,29 +71,23 @@
 		32AB3B1D19B7B86700C9BAF0 /* tutorial_screenshot.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32AB3B1C19B7B86700C9BAF0 /* tutorial_screenshot.jpg */; };
 		32B3252016EA49E00069DE63 /* TMLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B3251F16EA49E00069DE63 /* TMLocation.m */; };
 		32B3252316EA49F70069DE63 /* TMSyncable.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B3252216EA49F70069DE63 /* TMSyncable.m */; };
-		32B3252F16EA8AB20069DE63 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32B3252E16EA8AB20069DE63 /* MobileCoreServices.framework */; };
-		32B3253016EA8ABB0069DE63 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D9218CB616E847B2006F4591 /* SystemConfiguration.framework */; };
 		32B3253116EA8AFB0069DE63 /* MobileCoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32B3252E16EA8AB20069DE63 /* MobileCoreServices.framework */; };
 		32B8F67F16E92368001B1962 /* TMServerOpsFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = 32B8F67E16E92368001B1962 /* TMServerOpsFactory.m */; };
-		32BAFF2C173057C700C69941 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 328478BC162E2CCF00BFCDD4 /* QuartzCore.framework */; };
 		32BD1D5B178F1AE2005201DA /* TMLineLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 32BD1D5A178F1AE2005201DA /* TMLineLayerDelegate.m */; };
 		32C210C019B63433007FF050 /* golden_gate.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32C210BF19B63433007FF050 /* golden_gate.jpg */; };
 		32C242F2170B7ED200738BCD /* TMMeasurementTypeCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C242F1170B7ED200738BCD /* TMMeasurementTypeCell.m */; };
-		32C539DD16701FEC00A14137 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32C539DC16701FEC00A14137 /* SenTestingKit.framework */; };
-		32C539DE16701FEC00A14137 /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E3161BBB3200B5C8A8 /* UIKit.framework */; };
-		32C539DF16701FEC00A14137 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3280F7E5161BBB3200B5C8A8 /* Foundation.framework */; };
 		32C5663017692EA100FB3CD4 /* TMAugmentedRealityView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C5662F17692EA100FB3CD4 /* TMAugmentedRealityView.m */; };
 		32C8969116699C0400667BF9 /* TMMeasurementTypeVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 32C8969016699C0400667BF9 /* TMMeasurementTypeVC.m */; };
 		32CB4C601649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 32CB4C5E1649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld */; };
 		32CB4C6216499C0700D8A7B8 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 32CB4C6116499C0700D8A7B8 /* CoreData.framework */; };
-		32D2B6E618EA163000B72F05 /* Calibration.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 32D2B6DA18EA163000B72F05 /* Calibration.storyboard */; };
-		32D2B6E718EA163000B72F05 /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32D2B6DB18EA163000B72F05 /* holding_landscape.jpg */; };
-		32D2B6E818EA163000B72F05 /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32D2B6DC18EA163000B72F05 /* holding_portrait.jpg */; };
-		32D2B6E918EA163000B72F05 /* ipad_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32D2B6DD18EA163000B72F05 /* ipad_on_table.jpg */; };
-		32D2B6EA18EA163000B72F05 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D2B6DF18EA163000B72F05 /* MBProgressHUD.m */; };
-		32D2B6EB18EA163000B72F05 /* RCCalibration1.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D2B6E118EA163000B72F05 /* RCCalibration1.m */; };
-		32D2B6EC18EA163000B72F05 /* RCCalibration2.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D2B6E318EA163000B72F05 /* RCCalibration2.m */; };
-		32D2B6ED18EA163000B72F05 /* RCCalibration3.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D2B6E518EA163000B72F05 /* RCCalibration3.m */; };
+		32D1E6BF1B20BFA60032AE29 /* Calibration.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 32D1E6B31B20BFA60032AE29 /* Calibration.storyboard */; };
+		32D1E6C01B20BFA60032AE29 /* holding_landscape.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32D1E6B41B20BFA60032AE29 /* holding_landscape.jpg */; };
+		32D1E6C11B20BFA60032AE29 /* holding_portrait.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32D1E6B51B20BFA60032AE29 /* holding_portrait.jpg */; };
+		32D1E6C21B20BFA60032AE29 /* ipad_on_table.jpg in Resources */ = {isa = PBXBuildFile; fileRef = 32D1E6B61B20BFA60032AE29 /* ipad_on_table.jpg */; };
+		32D1E6C31B20BFA60032AE29 /* MBProgressHUD.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D1E6B81B20BFA60032AE29 /* MBProgressHUD.m */; };
+		32D1E6C41B20BFA60032AE29 /* RCCalibration1.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D1E6BA1B20BFA60032AE29 /* RCCalibration1.m */; };
+		32D1E6C51B20BFA60032AE29 /* RCCalibration2.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D1E6BC1B20BFA60032AE29 /* RCCalibration2.m */; };
+		32D1E6C61B20BFA60032AE29 /* RCCalibration3.m in Sources */ = {isa = PBXBuildFile; fileRef = 32D1E6BE1B20BFA60032AE29 /* RCCalibration3.m */; };
 		32E0A06516E11D3A00D0E689 /* TMLocation+TMLocationExt.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E0A06416E11D3A00D0E689 /* TMLocation+TMLocationExt.m */; };
 		32E0A06A16E11D5100D0E689 /* TMLocation+TMLocationSync.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E0A06916E11D5100D0E689 /* TMLocation+TMLocationSync.m */; };
 		32E0A07F16E13D5600D0E689 /* TMSyncable+TMSyncableExt.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E0A07E16E13D5600D0E689 /* TMSyncable+TMSyncableExt.m */; };
@@ -339,26 +326,12 @@
 			remoteGlobalIDString = 32865B6416260B500080BA1A;
 			remoteInfo = RCCore;
 		};
-		328258E21ADDE0DC00CCAAAA /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 3280F7D6161BBB3200B5C8A8 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 3280F7DE161BBB3200B5C8A8;
-			remoteInfo = TapeMeasure;
-		};
 		329B38DC1626409D0021B41E /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 32865B9016260B7C0080BA1A /* RCCore.xcodeproj */;
 			proxyType = 2;
 			remoteGlobalIDString = 32865B6516260B500080BA1A;
 			remoteInfo = RCCore;
-		};
-		329B38DE1626409D0021B41E /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 32865B9016260B7C0080BA1A /* RCCore.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 32865B7616260B500080BA1A;
-			remoteInfo = RCCoreTests;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -484,18 +457,18 @@
 		32CB4C5F1649979300D8A7B8 /* TMMeasurementDM.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = TMMeasurementDM.xcdatamodel; sourceTree = "<group>"; };
 		32CB4C6116499C0700D8A7B8 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		32CF88AA1A310D500044B17B /* RC3DK.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RC3DK.h; sourceTree = "<group>"; };
-		32D2B6DA18EA163000B72F05 /* Calibration.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Calibration.storyboard; sourceTree = "<group>"; };
-		32D2B6DB18EA163000B72F05 /* holding_landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_landscape.jpg; sourceTree = "<group>"; };
-		32D2B6DC18EA163000B72F05 /* holding_portrait.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_portrait.jpg; sourceTree = "<group>"; };
-		32D2B6DD18EA163000B72F05 /* ipad_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = ipad_on_table.jpg; sourceTree = "<group>"; };
-		32D2B6DE18EA163000B72F05 /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
-		32D2B6DF18EA163000B72F05 /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
-		32D2B6E018EA163000B72F05 /* RCCalibration1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration1.h; sourceTree = "<group>"; };
-		32D2B6E118EA163000B72F05 /* RCCalibration1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration1.m; sourceTree = "<group>"; };
-		32D2B6E218EA163000B72F05 /* RCCalibration2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration2.h; sourceTree = "<group>"; };
-		32D2B6E318EA163000B72F05 /* RCCalibration2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration2.m; sourceTree = "<group>"; };
-		32D2B6E418EA163000B72F05 /* RCCalibration3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration3.h; sourceTree = "<group>"; };
-		32D2B6E518EA163000B72F05 /* RCCalibration3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration3.m; sourceTree = "<group>"; };
+		32D1E6B31B20BFA60032AE29 /* Calibration.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; path = Calibration.storyboard; sourceTree = "<group>"; };
+		32D1E6B41B20BFA60032AE29 /* holding_landscape.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_landscape.jpg; sourceTree = "<group>"; };
+		32D1E6B51B20BFA60032AE29 /* holding_portrait.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = holding_portrait.jpg; sourceTree = "<group>"; };
+		32D1E6B61B20BFA60032AE29 /* ipad_on_table.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; path = ipad_on_table.jpg; sourceTree = "<group>"; };
+		32D1E6B71B20BFA60032AE29 /* MBProgressHUD.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MBProgressHUD.h; sourceTree = "<group>"; };
+		32D1E6B81B20BFA60032AE29 /* MBProgressHUD.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MBProgressHUD.m; sourceTree = "<group>"; };
+		32D1E6B91B20BFA60032AE29 /* RCCalibration1.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration1.h; sourceTree = "<group>"; };
+		32D1E6BA1B20BFA60032AE29 /* RCCalibration1.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration1.m; sourceTree = "<group>"; };
+		32D1E6BB1B20BFA60032AE29 /* RCCalibration2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration2.h; sourceTree = "<group>"; };
+		32D1E6BC1B20BFA60032AE29 /* RCCalibration2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration2.m; sourceTree = "<group>"; };
+		32D1E6BD1B20BFA60032AE29 /* RCCalibration3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCCalibration3.h; sourceTree = "<group>"; };
+		32D1E6BE1B20BFA60032AE29 /* RCCalibration3.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RCCalibration3.m; sourceTree = "<group>"; };
 		32E0A06316E11D3A00D0E689 /* TMLocation+TMLocationExt.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TMLocation+TMLocationExt.h"; sourceTree = "<group>"; };
 		32E0A06416E11D3A00D0E689 /* TMLocation+TMLocationExt.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "TMLocation+TMLocationExt.m"; sourceTree = "<group>"; };
 		32E0A06816E11D5100D0E689 /* TMLocation+TMLocationSync.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "TMLocation+TMLocationSync.h"; sourceTree = "<group>"; };
@@ -879,23 +852,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		32C539D716701FEC00A14137 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				32BAFF2C173057C700C69941 /* QuartzCore.framework in Frameworks */,
-				328D4A2E1728A61E001E8251 /* CoreGraphics.framework in Frameworks */,
-				32B3253016EA8ABB0069DE63 /* SystemConfiguration.framework in Frameworks */,
-				32B3252F16EA8AB20069DE63 /* MobileCoreServices.framework in Frameworks */,
-				32C539DD16701FEC00A14137 /* SenTestingKit.framework in Frameworks */,
-				32C539DE16701FEC00A14137 /* UIKit.framework in Frameworks */,
-				32C539DF16701FEC00A14137 /* Foundation.framework in Frameworks */,
-				326E47D516FA5ECF007AA105 /* AVFoundation.framework in Frameworks */,
-				326E47D616FA5ED4007AA105 /* CoreMotion.framework in Frameworks */,
-				326E47D716FA5EE1007AA105 /* CoreLocation.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -953,8 +909,8 @@
 		3280F7E9161BBB3200B5C8A8 /* TapeMeasure */ = {
 			isa = PBXGroup;
 			children = (
+				32D1E6B21B20BFA60032AE29 /* Calibration */,
 				32AB3B1F19B7B87000C9BAF0 /* Media */,
-				32D2B6D918EA163000B72F05 /* Calibration */,
 				32C45D9616DC22AB00FE7247 /* ThirdParty */,
 				3280F7EA161BBB3200B5C8A8 /* Supporting Files */,
 				32B6865E16C9717D00A907A6 /* Models */,
@@ -991,7 +947,6 @@
 			isa = PBXGroup;
 			children = (
 				329B38DD1626409D0021B41E /* libRCCore.a */,
-				329B38DF1626409D0021B41E /* RCCoreTests.octest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1123,24 +1078,24 @@
 			name = ThirdParty;
 			sourceTree = "<group>";
 		};
-		32D2B6D918EA163000B72F05 /* Calibration */ = {
+		32D1E6B21B20BFA60032AE29 /* Calibration */ = {
 			isa = PBXGroup;
 			children = (
-				32D2B6DA18EA163000B72F05 /* Calibration.storyboard */,
-				32D2B6DB18EA163000B72F05 /* holding_landscape.jpg */,
-				32D2B6DC18EA163000B72F05 /* holding_portrait.jpg */,
-				32D2B6DD18EA163000B72F05 /* ipad_on_table.jpg */,
-				32D2B6DE18EA163000B72F05 /* MBProgressHUD.h */,
-				32D2B6DF18EA163000B72F05 /* MBProgressHUD.m */,
-				32D2B6E018EA163000B72F05 /* RCCalibration1.h */,
-				32D2B6E118EA163000B72F05 /* RCCalibration1.m */,
-				32D2B6E218EA163000B72F05 /* RCCalibration2.h */,
-				32D2B6E318EA163000B72F05 /* RCCalibration2.m */,
-				32D2B6E418EA163000B72F05 /* RCCalibration3.h */,
-				32D2B6E518EA163000B72F05 /* RCCalibration3.m */,
+				32D1E6B31B20BFA60032AE29 /* Calibration.storyboard */,
+				32D1E6B41B20BFA60032AE29 /* holding_landscape.jpg */,
+				32D1E6B51B20BFA60032AE29 /* holding_portrait.jpg */,
+				32D1E6B61B20BFA60032AE29 /* ipad_on_table.jpg */,
+				32D1E6B71B20BFA60032AE29 /* MBProgressHUD.h */,
+				32D1E6B81B20BFA60032AE29 /* MBProgressHUD.m */,
+				32D1E6B91B20BFA60032AE29 /* RCCalibration1.h */,
+				32D1E6BA1B20BFA60032AE29 /* RCCalibration1.m */,
+				32D1E6BB1B20BFA60032AE29 /* RCCalibration2.h */,
+				32D1E6BC1B20BFA60032AE29 /* RCCalibration2.m */,
+				32D1E6BD1B20BFA60032AE29 /* RCCalibration3.h */,
+				32D1E6BE1B20BFA60032AE29 /* RCCalibration3.m */,
 			);
 			name = Calibration;
-			path = ../../Calibration;
+			path = ../../QuickstartKit/QuickstartKit/Calibration;
 			sourceTree = "<group>";
 		};
 		32E6807B18F5BA740043D50A /* Flurry */ = {
@@ -1567,13 +1522,6 @@
 			remoteRef = 329B38DC1626409D0021B41E /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		329B38DF1626409D0021B41E /* RCCoreTests.octest */ = {
-			isa = PBXReferenceProxy;
-			fileType = wrapper.cfbundle;
-			path = RCCoreTests.octest;
-			remoteRef = 329B38DE1626409D0021B41E /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
 /* End PBXReferenceProxy section */
 
 /* Begin PBXResourcesBuildPhase section */
@@ -1589,16 +1537,15 @@
 				324EC50818E3ADB900D47E0D /* MainStoryboard_iPad.storyboard in Resources */,
 				32E6878418F617160043D50A /* osk-mailIcon-76@2x.png in Resources */,
 				32E687AE18F617160043D50A /* ReadingList-Icon-60@2x.png in Resources */,
-				32D2B6E918EA163000B72F05 /* ipad_on_table.jpg in Resources */,
 				32E6879318F617160043D50A /* osk-pinboardIcon-60@2x.png in Resources */,
 				32E6875B18F617160043D50A /* Omnifocus-Icon-60@2x.png in Resources */,
 				32E687A418F617160043D50A /* osk_linkPlaceholder_phone.png in Resources */,
+				32D1E6C21B20BFA60032AE29 /* ipad_on_table.jpg in Resources */,
 				32E6878818F617160043D50A /* osk-navbarButton-disabled.png in Resources */,
 				32E6876118F617160043D50A /* osk-appDotNetIcon-29.png in Resources */,
 				32011D0F191D943300F17327 /* tips.html in Resources */,
 				32E6874418F617160043D50A /* Chrome-Icon-29@2x.png in Resources */,
 				32E6877718F617160043D50A /* osk-iap-badge-60@2x.png in Resources */,
-				32D2B6E618EA163000B72F05 /* Calibration.storyboard in Resources */,
 				32E6875318F617160043D50A /* Instapaper-Icon-120.png in Resources */,
 				32E6878018F617160043D50A /* osk-iconMask-bw-76.png in Resources */,
 				32E6874B18F617160043D50A /* Drafts-Icon-76.png in Resources */,
@@ -1627,6 +1574,7 @@
 				32E6874C18F617160043D50A /* Drafts-Icon-76@2x.png in Resources */,
 				32E6875618F617160043D50A /* Instapaper-Icon-60@2x.png in Resources */,
 				32551D1C1937EBAE0066D0D0 /* realitycap_logo@2x.png in Resources */,
+				32D1E6BF1B20BFA60032AE29 /* Calibration.storyboard in Resources */,
 				3280F7EE161BBB3200B5C8A8 /* InfoPlist.strings in Resources */,
 				32E6875F18F617160043D50A /* osk-airDropIcon-76.png in Resources */,
 				32E6879E18F617160043D50A /* osk-settingsPlaceholder@2x.png in Resources */,
@@ -1652,7 +1600,6 @@
 				32E6879518F617160043D50A /* osk-pinboardIcon-76@2x.png in Resources */,
 				32E6877A18F617160043D50A /* osk-icon-border-60@2x.png in Resources */,
 				32E6879718F617160043D50A /* osk-readabilityIcon-29@2x.png in Resources */,
-				32D2B6E818EA163000B72F05 /* holding_portrait.jpg in Resources */,
 				32E687B618F617160043D50A /* Things-Icon-76@2x.png in Resources */,
 				32E6876518F617160043D50A /* osk-appDotNetIcon-76@2x.png in Resources */,
 				32E687B518F617160043D50A /* Things-Icon-76.png in Resources */,
@@ -1661,7 +1608,6 @@
 				32E6879818F617160043D50A /* osk-readabilityIcon-60@2x.png in Resources */,
 				32E6878D18F617160043D50A /* osk-navbarButton@2x.png in Resources */,
 				32E6879918F617160043D50A /* osk-readabilityIcon-76.png in Resources */,
-				32D2B6E718EA163000B72F05 /* holding_landscape.jpg in Resources */,
 				3287279D16A9C7C7000A652C /* AppledocSettings.plist in Resources */,
 				32E687A718F617160043D50A /* Pocket-Icon-29@2x.png in Resources */,
 				32E6878A18F617160043D50A /* osk-navbarButton-highlighted.png in Resources */,
@@ -1696,6 +1642,7 @@
 				32E6877B18F617160043D50A /* osk-icon-border-76.png in Resources */,
 				32E6874D18F617160043D50A /* GooglePlus-Icon-29.png in Resources */,
 				32E6875418F617160043D50A /* Instapaper-Icon-29.png in Resources */,
+				32D1E6C11B20BFA60032AE29 /* holding_portrait.jpg in Resources */,
 				32E6873F18F617160043D50A /* 1Password-Icon-120.png in Resources */,
 				32E6878118F617160043D50A /* osk-iconMask-bw-76@2x.png in Resources */,
 				32E6874718F617160043D50A /* Chrome-Icon-76@2x.png in Resources */,
@@ -1715,6 +1662,7 @@
 				32E687A118F617160043D50A /* osk-twitterIcon-76@2x.png in Resources */,
 				32E6874218F617160043D50A /* 1Password-Icon-76@2x.png in Resources */,
 				32551D1E1937EC5C0066D0D0 /* realitycap_logo.png in Resources */,
+				32D1E6C01B20BFA60032AE29 /* holding_landscape.jpg in Resources */,
 				32E6877C18F617160043D50A /* osk-icon-border-76@2x.png in Resources */,
 				32E6874A18F617160043D50A /* Drafts-Icon-60@2x.png in Resources */,
 				32803A6018DB6452002F54B5 /* Images.xcassets in Resources */,
@@ -1723,13 +1671,6 @@
 				32E6876418F617160043D50A /* osk-appDotNetIcon-76.png in Resources */,
 				32E6879218F617160043D50A /* osk-pinboardIcon-29@2x.png in Resources */,
 				32E687A218F617160043D50A /* osk_linkPlaceholder_pad.png in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		32C539D816701FEC00A14137 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1749,19 +1690,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "KEYWORDS=\"TODO|FIXME|\\?\\?\\?:|\\!\\!\\!:\"\nfind ${SRCROOT} \\( -name \"*.h\" -or -name \"*.m\" \\) -print0 | \\\nxargs -0 egrep --with-filename --line-number --only-matching \"($KEYWORDS).*\\$\" | \\\nperl -p -e \"s/($KEYWORDS)/ warning: \\$1/\"";
-		};
-		32C539D916701FEC00A14137 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Run the unit tests in this test bundle.\n\"${SYSTEM_DEVELOPER_DIR}/Tools/RunUnitTests\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -1794,20 +1722,19 @@
 				32E6881618F617170043D50A /* OSKWebViewController.m in Sources */,
 				32E687ED18F617160043D50A /* OSKManagedAccount.m in Sources */,
 				32E6880518F617170043D50A /* OSKSessionController_Pad.m in Sources */,
+				32D1E6C41B20BFA60032AE29 /* RCCalibration1.m in Sources */,
 				32E6881318F617170043D50A /* OSKUITextViewSubstitute.m in Sources */,
+				32D1E6C31B20BFA60032AE29 /* MBProgressHUD.m in Sources */,
 				328CE19F16432B6D0092A69C /* TMHistoryVC.m in Sources */,
 				328CE1A516433F340092A69C /* TMOptionsVC.m in Sources */,
 				3289FF0016442FA80007A819 /* TMResultsVC.m in Sources */,
 				32CB4C601649979300D8A7B8 /* TMMeasurementDM.xcdatamodeld in Sources */,
 				32E687CB18F617160043D50A /* OSKActivityCollectionViewController.m in Sources */,
 				32E687F818F617170043D50A /* OSKPinboardActivity.m in Sources */,
-				32D2B6EA18EA163000B72F05 /* MBProgressHUD.m in Sources */,
 				3288E45F190B06C200400CF7 /* CustomIOS7AlertView.m in Sources */,
 				32C8969116699C0400667BF9 /* TMMeasurementTypeVC.m in Sources */,
 				32590C8016781D7800E2BA1C /* TMMapVC.m in Sources */,
 				32E687B718F617160043D50A /* NSCoder+OSKCoder.m in Sources */,
-				32D2B6EB18EA163000B72F05 /* RCCalibration1.m in Sources */,
-				32D2B6EC18EA163000B72F05 /* RCCalibration2.m in Sources */,
 				3280BB45191ABBC700338A38 /* TMShareSheet.m in Sources */,
 				32E687EA18F617160043D50A /* OSKKeychainUtility.m in Sources */,
 				32E4C4BF18F8A7A20094022B /* TMNavigationController.m in Sources */,
@@ -1905,22 +1832,13 @@
 				32E687F918F617170043D50A /* OSKPinboardUtility.m in Sources */,
 				32E687E118F617160043D50A /* OSKFacebookAudienceChooserViewController.m in Sources */,
 				32E687C318F617160043D50A /* OSKAccountManagementViewController.m in Sources */,
+				32D1E6C61B20BFA60032AE29 /* RCCalibration3.m in Sources */,
 				32E687CD18F617160043D50A /* OSKActivityIndicatorItem.m in Sources */,
 				32BD1D5B178F1AE2005201DA /* TMLineLayerDelegate.m in Sources */,
 				328CB79817949A1100893C68 /* TMLineLayer.m in Sources */,
-				32D2B6ED18EA163000B72F05 /* RCCalibration3.m in Sources */,
 				32E687C118F617160043D50A /* OSK1PasswordSearchActivity.m in Sources */,
+				32D1E6C51B20BFA60032AE29 /* RCCalibration2.m in Sources */,
 				32E687F018F617160043D50A /* OSKMessageComposeViewController.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		32C539D616701FEC00A14137 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				326E47D216FA31CE007AA105 /* TMNewMeasurementVC.m in Sources */,
-				326E47D316FA5DFD007AA105 /* TMAnalytics.m in Sources */,
-				320992711706402D0078C992 /* TMViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1931,11 +1849,6 @@
 			isa = PBXTargetDependency;
 			name = RCCore;
 			targetProxy = 32803A4518DA6B98002F54B5 /* PBXContainerItemProxy */;
-		};
-		328258E31ADDE0DC00CCAAAA /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 3280F7DE161BBB3200B5C8A8 /* TapeMeasure */;
-			targetProxy = 328258E21ADDE0DC00CCAAAA /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 

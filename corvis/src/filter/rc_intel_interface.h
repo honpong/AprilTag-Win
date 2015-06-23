@@ -12,88 +12,200 @@
 extern "C" {
 #endif
 
+#include <stddef.h>
 #include <stdint.h>
 
-enum rc_camera
-{
-    depth,
-    rgb
-};
+#ifdef _WIN32
+#  ifdef RCTRACKER_API_EXPORTS
+#    define RCTRACKER_API __declspec(dllexport)
+#  else
+#    define RCTRACKER_API __declspec(dllimport)
+#  endif
+#else
+#  define RCTRACKER_API
+#endif
 
-struct rc_vector
+typedef enum {
+    rc_EGRAY8,
+    rc_EDEPTH16,
+} rc_Camera;
+
+typedef enum
 {
-    double x,y,z;
-}
+    /** rc_Tracker is inactive. */
+    rc_E_INACTIVE = 0,
+    /** rc_Tracker is in static calibration mode. The device should not be moved or touched. */
+    rc_E_STATIC_CALIBRATION = 1,
+    /** startSensorFusionWithDevice: has been called, and rc_Tracker is in the handheld steady initialization phase. */
+    rc_E_STEADY_INITIALIZATION = 2,
+    /** startSensorFusionUnstableWithDevice: has been called, and rc_Tracker is in the handheld dynamic initialization phase. */
+    rc_E_DYNAMIC_INITIALIZATION = 3,
+    /** rc_Tracker is active and updates are being provided with all data. */
+    rc_E_RUNNING = 4,
+    /** rc_Tracker is in handheld portrait calibration mode. The device should be held steady in portrait orientation, perpendicular to the floor. */
+    rc_E_PORTRAIT_CALIBRATION = 5,
+    /** rc_Tracker is in handheld landscape calibration mode. The device should be held steady in landscape orientation, perpendicular to the floor. */
+    rc_E_LANDSCAPE_CALIBRATION = 6
+} rc_TrackerState;
+
+typedef enum
+{
+    /** No error has occurred. */
+    rc_E_ERROR_NONE = 0,
+    /** No visual features were detected in the most recent image. This is normal in some circumstances, such as quick motion or if the device temporarily looks at a blank wall. */
+    rc_E_ERROR_VISION = 1,
+    /** The device moved more rapidly than expected for typical handheld motion. This may indicate that rc_Tracker has failed and is providing invalid data. */
+    rc_E_ERROR_SPEED = 2,
+    /** A fatal internal error has occured. */
+    rc_E_ERROR_OTHER = 3,
+} rc_TrackerError;
+
+typedef enum
+{
+    /** rc_Tracker is not currently running (possibly due to failure). */
+    RC_E_CONFIDENCE_NONE = 0,
+    /** The data has low confidence. This occurs if no visual features could be detected or tracked. */
+    rc_E_CONFIDENCE_LOW = 1,
+    /** The data has medium confidence. This occurs when rc_Tracker has recently been initialized, or has recovered from having few usable visual features, and continues until the user has moved sufficiently to produce reliable measurements. If the user moves too slowly or features are unreliable, this will not switch to rc_E_CONFIDENCE_HIGH, and measurements may be unreliable. */
+    rc_E_CONFIDENCE_MEDIUM = 2,
+    /** Sufficient visual features and motion have been detected that measurements are likely to be accurate. */
+    rc_E_CONFIDENCE_HIGH = 3
+} rc_TrackerConfidence;
+
+
+typedef struct {
+    float x,y,z;
+} rc_Vector;
 
 /**
- This maps to a flat array of 12 floats, corresponding to 3x3 rotation matrix followed by translation vector in row-major order:
+ Flat array of 12 floats, corresponding to 3x4 transformation matrix in row-major order:
  
- [R00 R01 R02]
- [R10 R11 R12]
- [R20 R21 R22]
- [T0 T1 T2]
+ [R00 R01 R02 T0]
+ [R10 R11 R12 T1]
+ [R20 R21 R22 T2]
  */
-struct rc_pose
-{
-    double R[3][3];
-    rc_vector T;
-};
+typedef float rc_Pose[12];
+static const rc_Pose rc_POSE_IDENTITY = { 1.f, 0.f, 0.f, 0.f,
+                                          0.f, 1.f, 0.f, 0.f,
+                                          0.f, 0.f, 1.f, 0.f };
 
 /**
  Timestamp, in microseconds
  */
-typedef uint64_t rc_timestamp;
+typedef int64_t rc_Timestamp;
 
-struct rc_tracker;
+typedef struct
+{
+    uint64_t id;
+    rc_Vector world;
+    float image_x, image_y;
+} rc_Feature;
 
-struct rc_data;
+typedef void(*rc_DataCallback)(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count);
+typedef void(*rc_StatusCallback)(void *handle, rc_TrackerState state, rc_TrackerError error, rc_TrackerConfidence confidence, float progress);
+    
+typedef struct rc_Tracker rc_Tracker;
 
-struct rc_tracker* rc_create();
-void rc_destroy(s)truct rc_tracker *tracker);
+RCTRACKER_API rc_Tracker * rc_create();
+RCTRACKER_API void rc_destroy(rc_Tracker *tracker);
 
-//These functions all run synchronously; assume that the start_ functions have not been called yet
 /**
- @param tracker The active rc_tracker instance
+ Resets system, clearing all history and state, and sets initial pose and time.
+ System will be stopped until one of the rc_start_ functions is called.
+ */
+RCTRACKER_API void rc_reset(rc_Tracker *tracker, rc_Timestamp initialTime_us, const rc_Pose initialPose_m);
+
+/**
+ @param tracker The active rc_Tracker instance
  @param camera The camera to configure
  @param pose_m Position (in meters) and orientation of camera relative to reference point
  @param image_width_px Image width in pixels
  @param image_height_px Image height in pixels
- @param focal_length_px Focal length in pixels
- @param principal_x_px Horizontal principal point in pixels
- @param principal_y_px Vertical principal point in pixels
+ @param center_x_px Horizontal principal point of camera in pixels
+ @param center_y_px Horizontal principal point of camera in pixels
+ @param focal_length_px Focal length of camera in pixels
  */
-void rc_configure_camera(struct rc_tracker *tracker, enum rc_camera camera,
-                         const struct rc_pose *pose_m,
-                         int width_px, int height_px,
-                         int principal_x_px, int principal_y_px, int focal_length_px);
-void rc_configure_accelerometer(struct rc_tracker *tracker, const struct rc_pose *pose_m, struct rc_vector *bias_m__s_s, float noise_variance);
-void rc_configure_gyroscope(struct rc_tracker *tracker, const struct rc_pose *pose_m, struct rc_vector *bias_rad__s, float noise_variance);
+RCTRACKER_API void rc_configureCamera(rc_Tracker *tracker, rc_Camera camera, const rc_Pose pose_m,
+                        int width_px, int height_px, float center_x_px, float center_y_px,
+                        float focal_length_x_px, float focal_length_y_px, float skew);
+RCTRACKER_API void rc_configureAccelerometer(rc_Tracker *tracker, const rc_Pose pose_m, const rc_Vector bias_m__s2, float noiseVariance_m2__s4);
+RCTRACKER_API void rc_configureGyroscope(rc_Tracker *tracker, const rc_Pose pose_m, const rc_Vector bias_rad__s, float noiseVariance_rad2__s2);
+RCTRACKER_API void rc_configureLocation(rc_Tracker *tracker, double latitude_deg, double longitude_deg, double altitude_m);
 
-void rc_set_location(struct rc_tracker *tracker, double latitude_degrees, double longitude_degrees, double altitude_meters);
-//TBD: how to trigger logging for various log modes (events vs stream vs single)
-void rc_set_log(struct rc_tracker *tracker, void (*log)(char *buffer_utf8, size_t length));
+// WARNING: The data callback currently blocks the filter thread due to a bug in visual studio. Don't do significant work in it!
+RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callback, void *handle);
+RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback callback, void *handle);
 
-//These may all run async
-void rc_start_calibration(struct rc_tracker *tracker);
-void rc_start_inertial_only(struct rc_tracker *tracker);
-void rc_start_full_tracker(struct rc_tracker *tracker);
+RCTRACKER_API void rc_startCalibration(rc_Tracker *tracker);
 
-void rc_receive_image(struct rc_tracker *tracker, rc_camera camera, const rc_pose *pose_estimate_m, rc_timestamp time_us, const uint8_t *image);
-//Acceleration is in m/s^2
-void rc_receive_accelerometer(struct rc_tracker *tracker, rc_timestamp time_us, const rc_vector *acceleration_m__s_s);
-//Angular velocity is in rad/s
-void rc_receive_gyro(struct rc_tracker *tracker, rc_timestamp time_us, const rc_vector *angular_velocity_rad__s);
+/** TODO:
+ Starts processing inertial data to estimate the orientation of the device so that initialization of the full tracker can happen more quickly.
+ */
+//void rc_startInertialOnly(rc_Tracker *tracker);
 
 /**
- Resets system, clearing all history and state, and sets initial pose and time.
- System will be stopped until one of the start_ functions is called.
+ Starts the tracker.
  */
-void reset(struct rc_tracker *tracker, const struct rc_pose *initial_pose_m, rc_timestamp initial_time_us);
+RCTRACKER_API void rc_startTracker(rc_Tracker *tracker);
+RCTRACKER_API void rc_stopTracker(rc_Tracker *tracker);
 
-/* To be implemented with location recognition / loop closure
-void rc_start_mapping_from_pose_estimates(struct rc_tracker *tracker);
-void rc_save_tracker(struct rc_tracker *tracker);
-void rc_load_tracker(struct rc_tracker *tracker);
+/**
+ @param tracker The active rc_Tracker instance
+ @param camera The camera from which this frame was received
+ @param time_us Timestamp (in microseconds) when capture of this frame began
+ @param shutter_time_us Exposure time (in microseconds)
+ @param poseEstimate_m Position (in meters) and orientation estimate from external tracking system
+ @param force_recognition If true, force the tracker instance to perform relocalization / loop closure immediately.
+ @param stride Number of bytes in each line
+ @param image Image data.
+ @param completion_callback Function to be called when the frame has been processed and image data is no longer needed. image must remain valid (even after receiveImage has returned) until this function is called.
+ @param callback_handle An opaque pointer that will be passed to completion_callback when the frame has been processed and image data is no longer needed.
+ */
+RCTRACKER_API void rc_receiveImage(rc_Tracker *tracker, rc_Camera camera, rc_Timestamp time_us, rc_Timestamp shutter_time_us, const rc_Pose poseEstimate_m, bool force_recognition, int width, int height, int stride, const void *image, void(*completion_callback)(void *callback_handle), void *callback_handle);
+RCTRACKER_API void rc_receiveAccelerometer(rc_Tracker *tracker, rc_Timestamp time_us, const rc_Vector acceleration_m__s2);
+RCTRACKER_API void rc_receiveGyro(rc_Tracker *tracker, rc_Timestamp time_us, const rc_Vector angular_velocity_rad__s);
+
+RCTRACKER_API void rc_getPose(const rc_Tracker *tracker, rc_Pose pose_m);
+RCTRACKER_API int rc_getFeatures(rc_Tracker *tracker, rc_Feature **features_px);
+RCTRACKER_API rc_TrackerState rc_getState(const rc_Tracker *tracker);
+RCTRACKER_API rc_TrackerConfidence rc_getConfidence(const rc_Tracker *tracker);
+RCTRACKER_API rc_TrackerError rc_getError(const rc_Tracker *tracker);
+RCTRACKER_API float rc_getProgress(const rc_Tracker *tracker);
+
+/**
+ @param tracker The active rc_Tracker instance
+ @param log The function to call with output
+ @param stream If true, log every calculated output pose
+ @param period_us If non-zero, log each calculated pose when it has been period_us microseconds or more since the last pose was logged
+ @param handle Token to pass to log callback
+ */
+RCTRACKER_API void rc_setLog(rc_Tracker *tracker, void (*log)(void *handle, const char *buffer_utf8, size_t length), bool stream, rc_Timestamp period_us, void *handle);
+
+/**
+ Immediately outputs the last calculated pose
+ */
+RCTRACKER_API void rc_triggerLog(const rc_Tracker *tracker);
+
+/**
+ Returns a string with statistics on sensor timing
+ */
+RCTRACKER_API const char *rc_getTimingStats(rc_Tracker *tracker);
+
+/**
+ If this is set, writes a log file in Realitycap's internal format to the filename specified
+ */
+RCTRACKER_API void rc_setOutputLog(rc_Tracker * tracker, const wchar_t * wfilename);
+
+RCTRACKER_API size_t rc_getCalibration(rc_Tracker *tracker, const wchar_t** buffer);
+RCTRACKER_API bool rc_setCalibration(rc_Tracker *tracker, const wchar_t* buffer);
+
+/*
+ Not yet implemented (depend on loop closure):
+
+//Starts processing inertial data and some image data to build environment representation and enable relocalization / loop closure. Does not run full tracker; instead uses the provided poseEstimates with each image)
+void rc_startMappingFromKnownPoses(rc_Tracker *tracker);
+void rc_saveMap(rc_Tracker *tracker,  void (*write)(void *handle, void *buffer, size_t length), void *handle);
+void rc_loadMap(rc_Tracker *tracker, size_t (*read)(void *handle, void *buffer, size_t length), void *handle);
 */
 
 #ifdef __cplusplus

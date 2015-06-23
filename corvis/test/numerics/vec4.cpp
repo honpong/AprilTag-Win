@@ -18,72 +18,22 @@ const static m4 bar = {{
     {-3.4, .8, .2, 0.}
 }};
 
-const static m4 symmetric = foo * foo.transpose();
-
-const static v4 vec(1.5, -.64, 4.1, 0.);
-
-const static v4 v4_delta = v4(.01, -.01, .01, 0.);
-
-const static m4 m4_delta = {{
-    {0., .01, -.01, 0},
-    {-.01, -.01, .01, 0},
-    {-.01, 0., -.01, 0},
-    {0, 0, 0, 0}
-}};
-
-TEST(Vector4, Equality)
-{
-    v4 v1 = vec, v2 = v1;
-    EXPECT_EQ(v1, v2);
-    for(int i = 0; i < 4; ++i) {
-        v2[i]++;
-        EXPECT_FALSE(v1 == v2);
-        v2 = v1;
-    }
-}
-
-TEST(Matrix4, Equality)
-{
-    m4 m1 = foo, m2 = m1;
-    EXPECT_EQ(m1, m2);
-    for(int i = 0; i < 4; ++i) {
-        for(int j = 0; j < 4; ++j) {
-            m2(i, j)++;
-            EXPECT_FALSE(m1 == m2);
-            m2 = m1;
-        }
-    }
-}
-
-TEST(Matrix4, Identity) {
-    EXPECT_EQ(foo, foo);
-    EXPECT_EQ(foo, foo * m4::Identity());
-    EXPECT_EQ(foo, m4::Identity() * foo);
-    EXPECT_EQ(foo + bar, bar + foo);
-    EXPECT_EQ(foo + m4::Zero(), foo);
-    EXPECT_EQ((m4)(foo - foo), (m4)m4::Zero());
-    EXPECT_EQ((foo + bar) + m4::Identity(), foo + (bar + m4::Identity()));
-    EXPECT_EQ(m4::Identity() * m4::Identity(), m4::Identity());
-    EXPECT_EQ(foo.transpose().transpose(), foo);
-    EXPECT_EQ((foo * bar).transpose(), bar.transpose() * foo.transpose());
-    EXPECT_EQ(symmetric.transpose(), symmetric);
-}
-
 TEST(Matrix4, Determinant) {
     m4 a = {{ {5., -2., 1., 0.}, {0., 3., -1., 0.}, {2., 0., 7., 0.}, {0., 0., 0., 0.} }};
-    EXPECT_FLOAT_EQ(determinant3(a), 103);
+    EXPECT_NEAR(determinant3(a), 103, F_T_EPS);
     
     m4 b = {{ {1, 2, 3, 0}, {0, -4, 1, 0}, {0, 3, -1, 0}, {0, 0, 0 ,0} }};
-    EXPECT_FLOAT_EQ(determinant3(b), 1);
+    EXPECT_NEAR(determinant3(b), 1, F_T_EPS);
 
-    EXPECT_FLOAT_EQ(determinant3(foo), 15128654.998270018);
-    EXPECT_FLOAT_EQ(determinant3(bar), 1349053797.5000024);
+    EXPECT_NEAR(determinant3(foo), 15128654.998270018, 1e-7);
+    EXPECT_NEAR(determinant3(bar), 1349053797.5000024, 1e-5);
 }
 
 TEST(Vector4, Cross) {
+    v4 vec(1.5, -.64, 4.1, 0.);
     v4 vec2(.08, 1.2, -.23, 0.);
-    EXPECT_EQ(cross(vec, vec2), skew3(vec) * vec2) << "a x b = skew(a) * b";
-    EXPECT_EQ(cross(vec, vec2), skew3(vec2).transpose() * vec) << "a x b = skew(b)^T * a";
+    EXPECT_V4_NEAR(cross(vec, vec2), skew3(vec) * vec2, 0) << "a x b = skew(a) * b";
+    EXPECT_V4_NEAR(cross(vec, vec2), skew3(vec2).transpose() * vec, 0) << "a x b = skew(b)^T * a";
 }
 
 bool same_sign(f_t first, f_t second)
@@ -150,16 +100,16 @@ v4 iav_vel_stub(const v4 &base, const void *other)
 void test_rotation(const v4 &vec)
 {
     m4 skewmat = skew3(vec);
-    EXPECT_EQ(vec, invskew3(skewmat)) << "invskew(skew(vec)) = vec";
+    EXPECT_V4_NEAR(vec, invskew3(skewmat), 0) << "invskew(skew(vec)) = vec";
     
     rotation_vector rvec(vec[0], vec[1], vec[2]);
     m4 rotmat = to_rotation_matrix(rvec);
     {
         SCOPED_TRACE("rotation_vector(vec).[xyz] = vec");
-        EXPECT_EQ(rvec.x(), vec[0]);
-        EXPECT_EQ(rvec.y(), vec[1]);
-        EXPECT_EQ(rvec.z(), vec[2]);
-        EXPECT_EQ(rvec.raw_vector(), vec);
+        EXPECT_DOUBLE_EQ(rvec.x(), vec[0]);
+        EXPECT_DOUBLE_EQ(rvec.y(), vec[1]);
+        EXPECT_DOUBLE_EQ(rvec.z(), vec[2]);
+        EXPECT_V4_NEAR(rvec.raw_vector(), vec, 0);
     }
     
     EXPECT_ROTATION_VECTOR_NEAR(to_rotation_vector(to_quaternion(rvec)), rvec, F_T_EPS) << "rot_vec(quaternion(vec)) = vec";
@@ -183,7 +133,7 @@ void test_rotation(const v4 &vec)
         fprintf(stderr, "Angular velocity integration linearization max error (velocity) is %.1f%%\n", err * 100);
     }
 
-    EXPECT_EQ(integrate_angular_velocity(vec, angvel), integrate_angular_velocity(rvec, angvel).raw_vector())
+    EXPECT_V4_NEAR(integrate_angular_velocity(vec, angvel), integrate_angular_velocity(rvec, angvel).raw_vector(), 0)
         << "integrate_angular_velocity(v4) = integrate_angular_velocity(rotvec)";
 
     quaternion quat = to_quaternion(rvec);

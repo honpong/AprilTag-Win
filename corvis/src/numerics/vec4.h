@@ -1,8 +1,7 @@
-// Copyright (c) 2008-2012, Eagle Jones
+// Written by Eagle Jones
+// Copyright (c) 2012-2015, RealityCap
 // All rights reserved.
 //
-// This file is a part of the corvis framework, and is made available
-// under the BSD license; please see LICENSE file for full text
 
 #ifndef __vec4_H
 #define __vec4_H
@@ -19,6 +18,7 @@ extern "C" {
 }
 
 #include <ostream>
+#include <vector>
 
 //Don't use GPL-licensed pieces of eigen
 #define EIGEN_MPL2_ONLY
@@ -112,6 +112,23 @@ public:
 static inline std::ostream& operator<<(std::ostream &stream, const stdev_scalar &s)
 {
     return stream << "mean is: " << s.mean << ", stdev is: " << s.stdev << ", maximum is: " << s.maximum << std::endl;
+}
+
+class histogram
+{
+public:
+    std::vector<int> v;
+    histogram(int max): v(max, 0) {}
+    void data(int x) { if(x >= v.size()) ++v[v.size()-1]; else ++v[x]; }
+};
+
+static inline std::ostream& operator<<(std::ostream &stream, const histogram &h)
+{
+    for(int i = 0; i < h.v.size(); ++i)
+    {
+        stream << i << " " << h.v[i] << "\n";
+    }
+    return stream;
 }
 
 class v4_lowpass {

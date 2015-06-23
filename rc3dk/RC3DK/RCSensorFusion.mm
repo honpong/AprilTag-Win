@@ -7,6 +7,7 @@
 //
 
 #import "RCSensorFusion.h"
+#import "RCSensorData.h"
 #include "sensor_fusion_queue.h"
 #include "filter_setup.h"
 #include <mach/mach_time.h>
@@ -17,15 +18,6 @@
 #include <memory>
 #import "RCLicenseValidator.h"
 #import <ImageIO/ImageIO.h>
-
-uint64_t get_timestamp()
-{
-    static mach_timebase_info_data_t s_timebase_info;
-    if (s_timebase_info.denom == 0) {
-        mach_timebase_info(&s_timebase_info);
-    }
-    return mach_absolute_time() * s_timebase_info.numer / s_timebase_info.denom / 1000;
-}
 
 @interface RCSensorFusionOperation : NSObject
 
@@ -142,7 +134,7 @@ uint64_t get_timestamp()
             if(!isSensorFusionRunning)
             {
             } else if(isProcessingVideo) {
-                docallback = filter_image_measurement(&_cor_setup->sfm, data.image, data.width, data.height, data.stride, data.timestamp);
+                docallback = filter_image_measurement(&_cor_setup->sfm, data);
                 [self sendStatus];
                 if(docallback) [self sendDataWithSampleBuffer:sampleBuffer];
             } else {
@@ -166,7 +158,7 @@ uint64_t get_timestamp()
             filter_gyroscope_measurement(&_cor_setup->sfm, data.angvel_rad__s, data.timestamp);
         };
 
-        queue = std::make_unique<fusion_queue>(cam_fn, acc_fn, gyr_fn, fusion_queue::latency_strategy::MINIMIZE_DROPS, std::chrono::microseconds(33333), std::chrono::microseconds(10000), std::chrono::microseconds(10000)); //Have to make jitter high - ipad air 2 accelerometer has high latency, we lose about 10% of samples with jitter at 8000
+        queue = std::make_unique<fusion_queue>(cam_fn, acc_fn, gyr_fn, fusion_queue::latency_strategy::MINIMIZE_DROPS, std::chrono::microseconds(10000)); //Have to make jitter high - ipad air 2 accelerometer has high latency, we lose about 10% of samples with jitter at 8000
         lastRunState = RCSensorFusionRunStateInactive;
         lastErrorCode = RCSensorFusionErrorCodeNone;
         lastConfidence = RCSensorFusionConfidenceNone;
@@ -467,7 +459,7 @@ uint64_t get_timestamp()
     
     RCScalar *totalPath = [[RCScalar alloc] initWithScalar:f->s.total_distance withStdDev:0.];
     
-    RCCameraParameters *camParams = [[RCCameraParameters alloc] initWithFocalLength:(float)f->s.focal_length.v withOpticalCenterX:(float)f->s.center_x.v withOpticalCenterY:(float)f->s.center_y.v withRadialSecondDegree:(float)f->s.k1.v withRadialFourthDegree:(float)f->s.k2.v];
+    RCCameraParameters *camParams = [[RCCameraParameters alloc] initWithFocalLength:(float)f->s.focal_length.v * f->image_width withOpticalCenterX:(float)f->s.center_x.v * f->image_width withOpticalCenterY:(float)f->s.center_y.v * f->image_width withRadialSecondDegree:(float)f->s.k1.v withRadialFourthDegree:(float)f->s.k2.v];
 
     NSString * qrDetected = nil;
     if(f->qr.valid)
@@ -505,7 +497,7 @@ uint64_t get_timestamp()
             [array addObject:feature];
         }
     }
-    return [NSArray arrayWithArray:array];
+    return array;
 }
 
 - (BOOL) isSensorFusionRunning
@@ -540,20 +532,8 @@ uint64_t get_timestamp()
         DLog( @"Sample buffer is not ready. Skipping sample." );
         return;
     }
-    CMTime timestamp = (CMTime)CMSampleBufferGetPresentationTimeStamp(sampleBuffer);
-    if(!_cor_setup->sfm.ignore_lateness)
-    {
-        uint64_t time_us = (uint64_t)(timestamp.value / (timestamp.timescale / 1000000.));
-        uint64_t now = get_timestamp();
-        if(now - time_us > 100000)
-        {
-            DLog(@"Warning, got an old video frame - timestamp %lld, now %lld\n", time_us, now);
-            return;
-        }
-    }
-    
     try {
-        camera_data c(sampleBuffer);
+        camera_data c(camera_data_from_CMSampleBufferRef(sampleBuffer));
         CFDictionaryRef metadataDict = (CFDictionaryRef)CMGetAttachment(sampleBuffer, kCGImagePropertyExifDictionary , NULL);
         float exposure = [(NSString *)CFDictionaryGetValue(metadataDict, kCGImagePropertyExifExposureTime) floatValue];
         auto duration = std::chrono::duration<float>(exposure);
@@ -568,35 +548,13 @@ uint64_t get_timestamp()
 - (void) receiveAccelerometerData:(CMAccelerometerData *)accelerationData;
 {
     if(!isSensorFusionRunning) return;
-    if(!_cor_setup->sfm.ignore_lateness)
-    {
-        uint64_t time_us = (uint64_t)(accelerationData.timestamp * 1000000);
-        uint64_t now = get_timestamp();
-        if(now - time_us > 40000)
-        {
-            DLog(@"Warning, got an old accelerometer sample - timestamp %lld, now %lld\n", time_us, now);
-            return;
-        }
-    }
-    
-    queue->receive_accelerometer(accelerometer_data((__bridge void *)accelerationData));
+    queue->receive_accelerometer(accelerometer_data_from_CMAccelerometerData(accelerationData));
 }
 
 - (void) receiveGyroData:(CMGyroData *)gyroData
 {
     if(!isSensorFusionRunning) return;
-    if(!_cor_setup->sfm.ignore_lateness)
-    {
-        uint64_t time_us = (uint64_t)(gyroData.timestamp * 1000000);
-        uint64_t now = get_timestamp();
-        if(now - time_us > 40000)
-        {
-            DLog(@"Warning, got an old gyro sample - timestamp %lld, now %lld\n", time_us, now);
-            return;
-        }
-    }
-    
-    queue->receive_gyro(gyro_data((__bridge void *)gyroData));
+    queue->receive_gyro(gyro_data_from_CMGyroData(gyroData));
 }
 
 #pragma mark - QR Code handling

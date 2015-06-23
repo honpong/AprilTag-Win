@@ -147,11 +147,11 @@ TEST(Homography, Real)
     float qr_size = 0.1825;
     int modules = 25;
     feature_t calibrated[4];
-    calibrated[0] = (feature_t) {.x = -0.351846, .y = 0.206401};
-    calibrated[1] = (feature_t) {.x = 0.085983, .y = 0.207428};
-    calibrated[2] = (feature_t) {.x = 0.016154, .y = -0.156903};
-    calibrated[3] = (feature_t) {.x = -0.348012, .y = -0.233697};
-    
+	calibrated[0] = feature_t { -0.351846f,  0.206401f };
+	calibrated[1] = feature_t {  0.085983f,  0.207428f };
+	calibrated[2] = feature_t {  0.016154f, -0.156903f };
+	calibrated[3] = feature_t { -0.348012f, -0.233697f };
+
     const m4 Rexpected = {{
         {7.240773e-03, -9.991911e-01, 2.042948e-02, 0.000000e+00},
         {-1.003615e+00, -6.556204e-03, -4.141437e-03, 0.000000e+00},

@@ -18,6 +18,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		32D1E7A11B20C5170032AE29 /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 		32D930531AFA8E4B006ED7D0 /* CalibrationSample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CalibrationSample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		32D930571AFA8E4B006ED7D0 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		32D930581AFA8E4B006ED7D0 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -72,6 +73,7 @@
 				32D930631AFA8E4B006ED7D0 /* Images.xcassets */,
 				32D930651AFA8E4B006ED7D0 /* LaunchScreen.xib */,
 				32D930561AFA8E4B006ED7D0 /* Supporting Files */,
+				32D1E7A11B20C5170032AE29 /* README */,
 			);
 			path = CalibrationSample;
 			sourceTree = "<group>";

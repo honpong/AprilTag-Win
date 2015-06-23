@@ -22,8 +22,11 @@ void observation_queue::predict()
 
 void observation_queue::measure_and_prune()
 {
-    observations.erase(remove_if(observations.begin(), observations.end(), [](auto &o) {
-       return !o->measure();
+    observations.erase(remove_if(observations.begin(), observations.end(), [this](auto &o) {
+       bool ok = o->measure();
+       if (!ok)
+           cache_recent(std::move(o));
+       return !ok;
     }), observations.end());
 }
 
@@ -159,7 +162,10 @@ bool observation_queue::process(state &s, sensor_clock::time_point time)
     } else if(orig_meas_size != 3) {
         if(log_enabled) fprintf(stderr, "In Kalman update, original measurement size was %d, ended up with 0 measurements!\n", orig_meas_size);
     }
-    
+
+    for (auto &o : observations)
+        cache_recent(std::move(o));
+
     observations.clear();
     f_t delta_T = (s.T.v - s.last_position).norm();
     if(delta_T > .01) {
@@ -192,8 +198,8 @@ void observation_vision_feature::predict()
     Rtot = Rct * Rrt * Rc;
     Ttot = Rct * (Rrt * (state.Tc.v - state_group->Tr.v) - state.Tc.v);
 
-    norm_initial.x = (float)((feature->initial[0] - state.center_x.v) / state.focal_length.v);
-    norm_initial.y = (float)((feature->initial[1] - state.center_y.v) / state.focal_length.v);
+    norm_initial.x = (float)((feature->initial[0] / state.image_width - state.center_x.v) / state.focal_length.v);
+    norm_initial.y = (float)((feature->initial[1] / state.image_width - state.center_y.v) / state.focal_length.v);
 
     f_t r2, kr;
     state.fill_calibration(norm_initial, r2, kr);
@@ -222,8 +228,8 @@ void observation_vision_feature::predict()
     norm_predicted.y = (float)ippred[1];
 
     state.fill_calibration(norm_predicted, r2, kr);
-    pred[0] = norm_predicted.x * kr * state.focal_length.v + state.center_x.v;
-    pred[1] = norm_predicted.y * kr * state.focal_length.v + state.center_y.v;
+    pred[0] = (norm_predicted.x * kr * state.focal_length.v + state.center_x.v) * state.image_width;
+    pred[1] = (norm_predicted.y * kr * state.focal_length.v + state.center_y.v) * state.image_width;
     feature->prediction.x = (float)pred[0];
     feature->prediction.y = (float)pred[1];
 }
@@ -259,8 +265,8 @@ void observation_vision_feature::cache_jacobians()
     state.fill_calibration(norm_predicted, r2, kr);
     f_t invZ = 1. / X[2];
     v4 dx_dX, dy_dX;
-    dx_dX = kr * state.focal_length.v * v4(invZ, 0., -X[0] * invZ * invZ, 0.);
-    dy_dX = kr * state.focal_length.v * v4(0., invZ, -X[1] * invZ * invZ, 0.);
+    dx_dX = state.image_width * kr * state.focal_length.v * v4(invZ, 0., -X[0] * invZ * invZ, 0.);
+    dy_dX = state.image_width * kr * state.focal_length.v * v4(0., invZ, -X[1] * invZ * invZ, 0.);
 
     v4 dX_dp = Ttot * feature->v.invdepth_jacobian();
     dx_dp = dx_dX.dot(dX_dp);
@@ -278,16 +284,16 @@ void observation_vision_feature::cache_jacobians()
         //dy_dTr = m4(0.);
     } else {
 #if estimate_camera_intrinsics
-        dx_dF = norm_predicted.x * kr + sum(dx_dX * dX_dF);
-        dy_dF = norm_predicted.y * kr + sum(dy_dX * dX_dF);
-        dx_dk1 = norm_predicted.x * state.focal_length.v * r2        + sum(dx_dX * dX_dk1);
-        dy_dk1 = norm_predicted.y * state.focal_length.v * r2        + sum(dy_dX * dX_dk1);
-        dx_dk2 = norm_predicted.x * state.focal_length.v * (r2 * r2) + sum(dx_dX * dX_dk2);
-        dy_dk2 = norm_predicted.y * state.focal_length.v * (r2 * r2) + sum(dy_dX * dX_dk2);
-        dx_dcx = 1. + sum(dx_dX * dX_dcx);
-        dx_dcy = sum(dx_dX * dX_dcy);
-        dy_dcx = sum(dy_dX * dX_dcx);
-        dy_dcy = 1. + sum(dy_dX * dX_dcy);
+        dx_dF = state.image_width * norm_predicted.x * kr + dx_dX.dot(dX_dF);
+        dy_dF = state.image_width * norm_predicted.y * kr + dy_dX.dot(dX_dF);
+        dx_dk1 = state.image_width * norm_predicted.x * state.focal_length.v * r2        + dx_dX.dot(dX_dk1);
+        dy_dk1 = state.image_width * norm_predicted.y * state.focal_length.v * r2        + dy_dX.dot(dX_dk1);
+        dx_dk2 = state.image_width * norm_predicted.x * state.focal_length.v * (r2 * r2) + dx_dX.dot(dX_dk2);
+        dy_dk2 = state.image_width * norm_predicted.y * state.focal_length.v * (r2 * r2) + dy_dX.dot(dX_dk2);
+        dx_dcx = state.image_width *  + dx_dX.dot(dX_dcx);
+        dx_dcy = dx_dX.dot(dX_dcy);
+        dy_dcx = dy_dX.dot(dX_dcx);
+        dy_dcy = state.image_width *  + dy_dX.dot(dX_dcy);
 #endif
         dx_dWr = dx_dX.transpose() * (dRtotX0_dWr + dTtot_dWr * invrho);
         dx_dTr = dx_dX.transpose() * dTtot_dTr * invrho;
@@ -387,8 +393,8 @@ f_t observation_vision_feature::projection_residual(const v4 & X, const xy &foun
     
     state.fill_calibration(norm, r2, kr);
     
-    uncalib.x = (float)(norm.x * kr * state.focal_length.v + state.center_x.v);
-    uncalib.y = (float)(norm.y * kr * state.focal_length.v + state.center_y.v);
+    uncalib.x = (float)((norm.x * kr * state.focal_length.v + state.center_x.v) * state.image_width);
+    uncalib.y = (float)((norm.y * kr * state.focal_length.v + state.center_y.v) * state.image_width);
     f_t dx = uncalib.x - found.x;
     f_t dy = uncalib.y - found.y;
     return dx * dx + dy * dy;
@@ -407,7 +413,7 @@ void observation_vision_feature::update_initializing()
     
     v4 X_0_proj = X_0 / X_0[2];
     v4 delta = (X_inf_proj - X_0_proj);
-    f_t pixelvar = delta.dot(delta) * state.focal_length.v * state.focal_length.v;
+    f_t pixelvar = delta.dot(delta) * state.focal_length.v * state.focal_length.v * state.image_width * state.image_width;
     if(pixelvar > 5. * 5. * state_vision_feature::measurement_var) { //tells us if we have enough baseline
         feature->status = feature_normal;
     }
@@ -444,21 +450,18 @@ void observation_vision_feature::update_initializing()
     predict();
 }
 
-const float tracker_min_match = 0.4f;
-const float tracker_good_match = 0.75f;
-const float tracker_radius = 5.5f;
 bool observation_vision_feature::measure()
 {
-    xy bestkp = tracker.track(feature->patch, image, (float)feature->current[0] + feature->image_velocity.x, (float)feature->current[1] + feature->image_velocity.y, tracker_radius, tracker_min_match);
+    xy bestkp = tracker.track(feature->patch, image, (float)feature->current[0] + feature->image_velocity.x, (float)feature->current[1] + feature->image_velocity.y, tracker.radius, tracker.min_match);
 
     // Not a good enough match, try the filter prediction
-    if(bestkp.score < tracker_good_match) {
-        xy bestkp2 = tracker.track(feature->patch, image, (float)pred[0], (float)pred[1], tracker_radius, bestkp.score);
+    if(bestkp.score < tracker.good_match) {
+        xy bestkp2 = tracker.track(feature->patch, image, (float)pred[0], (float)pred[1], tracker.radius, bestkp.score);
         if(bestkp2.score > bestkp.score)
             bestkp = bestkp2;
     }
     // Still no match? Guess that we haven't moved at all
-    if(bestkp.score < tracker_min_match) {
+    if(bestkp.score < tracker.min_match) {
         xy bestkp2 = tracker.track(feature->patch, image, (float)feature->current[0], (float)feature->current[1], 5.5, bestkp.score);
         if(bestkp2.score > bestkp.score)
             bestkp = bestkp2;
@@ -568,7 +571,8 @@ bool observation_accelerometer::measure()
     stdev.data(g);
     if(!state.orientation_initialized)
     {
-        state.W.v = to_rotation_vector(initial_orientation_from_gravity(g));
+        state.initial_orientation = initial_orientation_from_gravity(g);
+        state.W.v = to_rotation_vector(state.initial_orientation);
         state.orientation_initialized = true;
         return false;
     } else return observation_spatial::measure();

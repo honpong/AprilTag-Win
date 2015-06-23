@@ -14,20 +14,17 @@
 class sensor_clock
 {
 public:
-#ifdef WIN32
-    typedef std::chrono::duration<long long, std::ratio<1, 10000000>> duration;
-#else
-    typedef std::chrono::nanoseconds                        duration;
-#endif
+    typedef std::chrono::microseconds                       duration;
     typedef duration::rep                                   rep;
     typedef duration::period                                period;
     typedef std::chrono::time_point<sensor_clock, duration> time_point;
     static constexpr const bool is_steady = true;
-    
+
     static time_point now() noexcept;
     static uint64_t tp_to_micros(const time_point t) { return std::chrono::duration_cast<std::chrono::microseconds>(t.time_since_epoch()).count(); }
     static time_point micros_to_tp(const uint64_t m) { return time_point(std::chrono::microseconds(m)); }
 
+    static time_point ns100_to_tp(uint64_t ns100) { return time_point(std::chrono::duration_cast<duration>(std::chrono::duration<uint64_t, std::ratio<1, 10000000>>(ns100))); }
 };
 
 #endif /* defined(__RC3DK__sensor_clock__) */

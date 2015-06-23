@@ -13,15 +13,19 @@
 #include <thread>
 #include <atomic>
 #include <condition_variable>
-#include "platform/sensor_data.h"
+#include "sensor_data.h"
 #include "platform/sensor_clock.h"
+#include "../numerics/vec4.h"
+#include <iostream>
+#include <string>
 
 template<typename T, int size>
 class sensor_queue
 {
 public:
-    sensor_queue(std::mutex &mx, std::condition_variable &cnd, const bool &actv, const sensor_clock::duration expected_period);
+    sensor_queue(std::mutex &mx, std::condition_variable &cnd, const bool &actv);
     bool empty() const { return count == 0; }
+    bool full() const { return count == size; }
     bool push(T&& x); //Doesn't block. Returns false if the queue is full or data arrived out of order
     T pop(const std::unique_lock<std::mutex> &lock); // assumes the lock is already held
     sensor_clock::time_point get_next_time(const std::unique_lock<std::mutex> &lock, sensor_clock::time_point last_global_dispatched);
@@ -34,10 +38,16 @@ public:
     uint64_t drop_late = 0;
     uint64_t total_in = 0;
     uint64_t total_out = 0;
+    stdev_scalar stats;
+#ifdef DEBUG
+    histogram hist{200};
+#endif
 
-    void print_stats()
+    std::string get_stats()
     {
-        fprintf(stderr, "period %f, total in %lld, total out %lld, drop full %lld, drop late %lld\n", period.count(), total_in, total_out, drop_full, drop_late);
+        std::ostringstream os;
+        os << "period (moving average) " << period.count() << " total in " << total_in << " total out " << total_out << " drop full " << drop_full << " drop late " << drop_late << " timing " << stats;
+        return os.str();
     }
     
 private:
@@ -65,6 +75,7 @@ public:
     {
         ELIMINATE_LATENCY, //Immediate dispatch. Not recommended. May fail entirely depending on relative latencies as all data from one sensor is dropped.
         MINIMIZE_LATENCY, //Only wait if we are less than 1 ms before or less than jitter ms after the expected arrival of future data. Generally results in 10-20% dropped data
+        IMAGE_TRIGGER, //buffer data until we get an image, then process everything befoer that image. if we don't expect images, then behave like minimize drops
         BALANCED, //Blends strategy of minimize drops when we aren't blocking vision processing and minimize latency when we are blocking vision. Generally low rate, <5% of dropped data.
         MINIMIZE_DROPS, //we'll only drop if something arrives earlier than expected. Almost never drops
         ELIMINATE_DROPS //we always wait until the data in the other queues is ready
@@ -75,29 +86,30 @@ public:
                  const std::function<void(accelerometer_data &&)> &accelerometer_func,
                  const std::function<void(gyro_data &&)> &gyro_func,
                  latency_strategy s,
-                 sensor_clock::duration camera_period,
-                 sensor_clock::duration inertial_period,
                  sensor_clock::duration max_jitter);
+    ~fusion_queue();
     
     void start_async(bool expect_camera);
     void start_sync(bool expect_camera);
-    void start_offline(bool expect_camera);
+    void start_singlethreaded(bool expect_camera);
+    void stop_immediately();
     void stop_async();
     void stop_sync();
     void wait_until_finished();
+    std::string get_stats();
 
     void receive_camera(camera_data&& x);
     void receive_accelerometer(accelerometer_data&& x);
     void receive_gyro(gyro_data&& x);
     void dispatch_sync(std::function<void()> fn);
     void dispatch_async(std::function<void()> fn);
-    bool dispatch_offline(bool force);
     
 private:
     void runloop();
     bool run_control(const std::unique_lock<std::mutex> &lock);
     bool ok_to_dispatch(sensor_clock::time_point time);
     bool dispatch_next(std::unique_lock<std::mutex> &lock, bool force);
+    void dispatch_singlethread(bool force);
     sensor_clock::time_point global_latest_received() const;
 
     std::mutex mutex;
@@ -114,11 +126,10 @@ private:
     std::function<void()> control_func;
     bool active;
     bool wait_for_camera;
+    bool singlethreaded;
     
     latency_strategy strategy;
     
-    sensor_clock::duration camera_period_expected;
-    sensor_clock::duration inertial_period_expected;
     sensor_clock::time_point last_dispatched;
     
     sensor_clock::duration jitter;

@@ -1,8 +1,7 @@
 // Copyright (c) 2008-2012, Eagle Jones
+// Copyright (c) 2012-2015 RealityCap, Inc
 // All rights reserved.
 //
-// This file is a part of the corvis framework, and is made available
-// under the BSD license; please see LICENSE file for full text
 
 #ifndef __PACKET_H
 #define __PACKET_H

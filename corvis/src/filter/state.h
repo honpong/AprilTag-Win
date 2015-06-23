@@ -195,28 +195,23 @@ template <class T, int _size> class state_leaf: public state_node {
         for(int i = 0; i < size; ++i) initial_variance[i] = x;
     }
 
-    int remap_leaf(int i, covariance &cov) {
-        if(index < 0) {
-            int temploc = cov.add(i, size);
-            for(int j = 0; j < size; ++j) {
-                cov(temploc+j, temploc+j) = initial_variance[j];
-                cov.process_noise[temploc+j] = process_noise[j];
-            }
-        } else {
-            cov.reindex(i, index, size);
-        }
+    int remap_leaf(int i, covariance &c) {
+        if(index < 0)
+            c.add(i, size, process_noise, initial_variance);
+        else
+            c.reindex(i, index, size);
         index = i;
-        this->cov = &cov;
+        this->cov = &c;
         return i + size;
     }
 
-    int remap_dynamic(int i, covariance &cov) {
-        if(dynamic) return remap_leaf(i, cov);
+    int remap_dynamic(int i, covariance &c) {
+        if(dynamic) return remap_leaf(i, c);
         else return i;
     }
 
-    int remap_static(int i, covariance &cov) {
-        if(!dynamic) return remap_leaf(i, cov);
+    int remap_static(int i, covariance &c) {
+        if(!dynamic) return remap_leaf(i, c);
         else return i;
     }
 
@@ -278,26 +273,26 @@ class state_vector: public state_leaf<v4, 3> {
         initial_variance[2] = z;
     }
     
-    inline v4 copy_cov_from_row(const matrix &cov, const int i) const
+    inline v4 copy_cov_from_row(const matrix &c, const int i) const
     {
         if(index < 0) return v4::Zero();
-        return v4(cov(i, index), cov(i, index+1), cov(i, index+2), 0.);
+        return v4(c(i, index), c(i, index+1), c(i, index+2), 0.);
     }
     
-    inline void copy_cov_to_col(matrix &cov, const int j, const v4 &v) const
+    inline void copy_cov_to_col(matrix &c, const int j, const v4 &cov_v) const
     {
         if(index < 0) return;
-        cov(index, j) = v[0];
-        cov(index+1, j) = v[1];
-        cov(index+2, j) = v[2];
+        c(index, j) = cov_v[0];
+        c(index+1, j) = cov_v[1];
+        c(index+2, j) = cov_v[2];
     }
 
-    inline void copy_cov_to_row(matrix &cov, const int j, const v4 &v) const
+    inline void copy_cov_to_row(matrix &c, const int j, const v4 &cov_v) const
     {
         if(index < 0) return;
-        cov(j, index) = v[0];
-        cov(j, index+1) = v[1];
-        cov(j, index+2) = v[2];
+        c(j, index) = cov_v[0];
+        c(j, index+1) = cov_v[1];
+        c(j, index+2) = cov_v[2];
     }
 
     void reset() {
@@ -355,26 +350,26 @@ public:
         initial_variance[2] = z;
     }
     
-    inline v4 copy_cov_from_row(const matrix &cov, const int i) const
+    inline v4 copy_cov_from_row(const matrix &c, const int i) const
     {
         if(index < 0) return v4::Zero();
-        return v4(cov(i, index), cov(i, index+1), saturated ? 0. : cov(i, index+2), 0.);
+        return v4(c(i, index), c(i, index+1), saturated ? 0. : c(i, index+2), 0.);
     }
     
-    inline void copy_cov_to_col(matrix &cov, const int j, const v4 &v) const
+    inline void copy_cov_to_col(matrix &c, const int j, const v4 &cov_v) const
     {
         if(index < 0) return;
-        cov(index, j) = v[0];
-        cov(index+1, j) = v[1];
-        if (!saturated) cov(index+2, j) = v[2];
+        c(index, j) = cov_v[0];
+        c(index+1, j) = cov_v[1];
+        if (!saturated) c(index+2, j) = cov_v[2];
     }
     
-    inline void copy_cov_to_row(matrix &cov, const int j, const v4 &v) const
+    inline void copy_cov_to_row(matrix &c, const int j, const v4 &cov_v) const
     {
         if(index < 0) return;
-        cov(j, index) = v[0];
-        cov(j, index+1) = v[1];
-        if (!saturated) cov(j, index+2) = v[2];
+        c(j, index) = cov_v[0];
+        c(j, index+1) = cov_v[1];
+        if (!saturated) c(j, index+2) = cov_v[2];
     }
     
     void reset() {
@@ -438,28 +433,28 @@ public:
         initial_variance[3] = z;
     }
     
-    inline v4 copy_cov_from_row(const matrix &cov, const int i) const
+    inline v4 copy_cov_from_row(const matrix &c, const int i) const
     {
         if(index < 0) return v4::Zero();
-        return v4(cov(i, index), cov(i, index+1), cov(i, index+2), saturated ? 0. : cov(i, index+3));
+        return v4(c(i, index), c(i, index+1), c(i, index+2), saturated ? 0. : c(i, index+3));
     }
     
-    inline void copy_cov_to_col(matrix &cov, const int j, const v4 &v) const
+    inline void copy_cov_to_col(matrix &c, const int j, const v4 &cov_v) const
     {
         if(index < 0) return;
-        cov(index, j) = v[0];
-        cov(index+1, j) = v[1];
-        cov(index+2, j) = v[2];
-        if(!saturated) cov(index+3, j) = v[3];
+        c(index, j) = cov_v[0];
+        c(index+1, j) = cov_v[1];
+        c(index+2, j) = cov_v[2];
+        if(!saturated) c(index+3, j) = cov_v[3];
     }
     
-    inline void copy_cov_to_row(matrix &cov, const int j, const v4 &v) const
+    inline void copy_cov_to_row(matrix &c, const int j, const v4 &cov_v) const
     {
         if(index < 0) return;
-        cov(j, index) = v[0];
-        cov(j, index+1) = v[1];
-        cov(j, index+2) = v[2];
-        if(!saturated) cov(j, index+3) = v[3];
+        c(j, index) = cov_v[0];
+        c(j, index+1) = cov_v[1];
+        c(j, index+2) = cov_v[2];
+        if(!saturated) c(j, index+3) = cov_v[3];
     }
 
     void reset() {
@@ -556,22 +551,22 @@ class state_scalar: public state_leaf<f_t, 1> {
         v = 0.;
     }
     
-    inline f_t copy_cov_from_row(const matrix &cov, const int i) const
+    inline f_t copy_cov_from_row(const matrix &c, const int i) const
     {
         if(index < 0) return 0.;
-        return cov(i, index);
+        return c(i, index);
     }
 
-    inline void copy_cov_to_col(matrix &cov, const int j, const f_t v) const
+    inline void copy_cov_to_col(matrix &c, const int j, const f_t val) const
     {
         if(index < 0) return;
-        cov(index, j) = v;
+        c(index, j) = val;
     }
     
-    inline void copy_cov_to_row(matrix &cov, const int j, const f_t v) const
+    inline void copy_cov_to_row(matrix &c, const int j, const f_t val) const
     {
         if(index < 0) return;
-        cov(j, index) = v;
+        c(j, index) = val;
     }
     
     void perturb_variance() {

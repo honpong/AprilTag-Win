@@ -5,6 +5,7 @@
 #include "../numerics/matrix.h"
 #include "../numerics/vec4.h"
 #include <vector>
+#include <map>
 #include <algorithm>
 #include "tracker.h"
 #include "../cor/platform/sensor_clock.h"
@@ -162,6 +163,19 @@ public:
     observation_queue();
     bool process(state &s, sensor_clock::time_point time);
     vector<unique_ptr<observation>> observations;
+
+    // keep the most recent measurement of a given type around for plotting, etc
+    std::unique_ptr<observation_gyroscope> recent_g;
+    std::unique_ptr<observation_accelerometer> recent_a;
+    std::map<uint64_t, std::unique_ptr<observation_vision_feature>> recent_f_map;
+    void cache_recent(std::unique_ptr<observation> &&o) {
+        if (auto *ovf = dynamic_cast<observation_vision_feature*>(o.get()))
+            recent_f_map[ovf->feature->id] = std::unique_ptr<observation_vision_feature>(static_cast<observation_vision_feature*>(o.release()));
+        else if (dynamic_cast<observation_accelerometer*>(o.get()))
+            recent_a = std::unique_ptr<observation_accelerometer>(static_cast<observation_accelerometer*>(o.release()));
+        else if (dynamic_cast<observation_gyroscope*>(o.get()))
+            recent_g = std::unique_ptr<observation_gyroscope>(static_cast<observation_gyroscope*>(o.release()));
+    }
 
 protected:
     int size();

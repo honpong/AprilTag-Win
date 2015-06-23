@@ -93,10 +93,10 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="CalibrationManagerTests.cpp" />
-    <ClCompile Include="CaptureManagerTests.cpp" />
+    <ClCompile Include="PXCSenseManagerFake.cpp" />
     <ClCompile Include="RCFactoryTests.cpp" />
     <ClCompile Include="RealityCapLibTests.cpp" />
+    <ClCompile Include="SensorManagerTests.cpp" />
     <ClCompile Include="stdafx.cpp" />
   </ItemGroup>
   <ItemGroup>

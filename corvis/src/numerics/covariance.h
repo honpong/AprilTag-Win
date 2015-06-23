@@ -54,16 +54,17 @@ public:
         }
     }
     
-    int add(int newindex, int size)
+    void add(int newindex, int size, f_t * p_noise, f_t * initial_variance)
     {
         int oldsize = cov.rows();
         process_noise.resize(oldsize + size);
         cov.resize(oldsize + size, oldsize + size);
 
         for(int j = 0; j < size; ++j) {
+            process_noise[oldsize+j] = p_noise[j];
+            cov(oldsize+j, oldsize+j) = initial_variance[j];
             map[newindex+j] = -(oldsize+j);
         }
-        return oldsize;
     }
     
     void reindex(int newindex, int oldindex, int size)

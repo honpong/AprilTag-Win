@@ -11,20 +11,20 @@ gui * gui::static_gui;
 
 const static float initial_scale = 5;
 
-void gui::configure_view()
+void gui::configure_view(int view_width, int view_height)
 {
-    float aspect = 1.f*width/height;
+    float aspect = 1.f*view_width/view_height;
     float nearclip = 0.1f;
     float farclip = 30.f;
     if(scale > farclip) farclip = scale*1.5f;
     if(scale < nearclip) nearclip = scale*0.75f;
-    build_projection_matrix(_projectionMatrix, 60.0f, aspect, nearclip, farclip);
+    build_projection_matrix(projection_matrix, 60.0f, aspect, nearclip, farclip);
 
     m4 R = to_rotation_matrix(arc.get_quaternion());
     R(2, 3) = -scale; // Translate by -scale
     for(int i = 0; i < 4; i++) {
         for(int j = 0; j < 4; j++) {
-            _modelViewMatrix[j * 4 + i] = (float)R(i, j);
+            view_matrix[j * 4 + i] = (float)R(i, j);
         }
     }
 }
@@ -77,42 +77,31 @@ void gui::write_frame()
 
 void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int mods)
 {
-    if(key == GLFW_KEY_0 && action == GLFW_PRESS)
-        scale = initial_scale;
-    if(key == GLFW_KEY_EQUAL && action == GLFW_PRESS)
-        scale *= 1/1.1f;
-    if(key == GLFW_KEY_MINUS && action == GLFW_PRESS)
-        scale *= 1.1f;
-    if(key == GLFW_KEY_SPACE && action == GLFW_PRESS)
-       replay_control->toggle_pause();
-    if(key == GLFW_KEY_S && action == GLFW_PRESS)
-       replay_control->step();
-    if(key == GLFW_KEY_F && action == GLFW_PRESS)
-       write_frame();
-    if(key == GLFW_KEY_N && action == GLFW_PRESS)
-       current_plot = state->next_plot(current_plot);
+    if (action == GLFW_PRESS) {
+        switch (key) {
+             break; case GLFW_KEY_0: case GLFW_KEY_1: case GLFW_KEY_2: case GLFW_KEY_3:
+                    case GLFW_KEY_4: case GLFW_KEY_5: case GLFW_KEY_6: case GLFW_KEY_7:
+                    case GLFW_KEY_8:
+                    case GLFW_KEY_9:        current_plot_key = -1; current_plot = state->change_plot(key - GLFW_KEY_0);
+             break; case GLFW_KEY_N:        current_plot_key = -1; current_plot = state->change_plot(current_plot + ((mods & GLFW_MOD_SHIFT) ? -1 : 1));
+             break; case GLFW_KEY_LEFT:     current_plot_key = state->change_plot_key(current_plot, current_plot_key - 1);
+             break; case GLFW_KEY_RIGHT:    current_plot_key = state->change_plot_key(current_plot, current_plot_key + 1);
+             break; case GLFW_KEY_ESCAPE:   scale = initial_scale; current_plot_key = -1;
+             break; case GLFW_KEY_EQUAL:    scale *= 1/1.1f;
+             break; case GLFW_KEY_MINUS:    scale *= 1.1f;
+             break; case GLFW_KEY_SPACE:    if (replay_control) replay_control->toggle_pause();
+             break; case GLFW_KEY_S:        if (replay_control) replay_control->step();
+             break; case GLFW_KEY_Q:        if (replay_control) replay_control->stop(); quit = true;
+             break; case GLFW_KEY_F:        write_frame();
+             break; case GLFW_KEY_V:        show_video = !show_video;
+             break; case GLFW_KEY_M:        show_main = !show_main;
+             break; case GLFW_KEY_P:        show_plots = !show_plots;
+        }
+    }
 }
 
-void gui::render_plot(int plots_width, int plots_height)
+void gui::render(int view_width, int view_height)
 {
-    glViewport(0, 0, plots_width, plots_height);
-    world_state_render_plot(state, current_plot, plots_width, plots_height);
-}
-
-void gui::render_video(int video_width, int video_height)
-{
-    glViewport(0, 0, video_width, video_height);
-    world_state_render_video(state, video_width, video_height);
-}
-
-void gui::render()
-{
-    glViewport(0, 0, width, height);
-    state->update_vertex_arrays();
-
-    // Draw call
-    configure_view();
-    world_state_render(state, _modelViewMatrix, _projectionMatrix);
 }
 
 static void error_callback(int error, const char* description)
@@ -131,7 +120,7 @@ void gui::start_glfw()
     glfwSetErrorCallback(error_callback);
 
     glfwWindowHint(GLFW_RESIZABLE, true);
-    glfwWindowHint(GLFW_VISIBLE, false);
+    glfwWindowHint(GLFW_VISIBLE, true);
     GLFWwindow* main_window = glfwCreateWindow(width, height, "Replay", NULL, NULL);
     if (!main_window)
     {
@@ -152,78 +141,79 @@ void gui::start_glfw()
 
     gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
     world_state_render_init();
-
-    glfwWindowHint(GLFW_RESIZABLE, true);
-    glfwWindowHint(GLFW_VISIBLE, false);
-    GLFWwindow* video_window = glfwCreateWindow(640, 480, "Replay Video", NULL, NULL);
-    glfwSetKeyCallback(video_window, gui::keyboard_callback);
-    if (!video_window)
-    {
-        glfwTerminate();
-        exit(EXIT_FAILURE);
-    }
-    glfwSetWindowPos(video_window, pos_x + width + 20, pos_y);
-    if(show_video)
-        glfwShowWindow(video_window);
-    glfwMakeContextCurrent(video_window);
-    glfwSwapInterval(1);
-
-    gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
     world_state_render_video_init();
-
-    glfwWindowHint(GLFW_RESIZABLE, true);
-    glfwWindowHint(GLFW_VISIBLE, false);
-    GLFWwindow* plots_window = glfwCreateWindow(600, 400, "Replay Plots", NULL, NULL);
-    glfwSetKeyCallback(plots_window, gui::keyboard_callback);
-    if (!plots_window)
-    {
-        glfwTerminate();
-        exit(EXIT_FAILURE);
-    }
-    glfwSetWindowPos(plots_window, pos_x + width + 20, pos_y + height + 20);
-    if(show_plots)
-        glfwShowWindow(plots_window);
-    glfwMakeContextCurrent(plots_window);
-    glfwSwapInterval(1);
-
-    gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
     world_state_render_plot_init();
 
     //fprintf(stderr, "OpenGL Version %d.%d loaded\n", GLVersion.major, GLVersion.minor);
 
-    while (!glfwWindowShouldClose(main_window))
+    while (!glfwWindowShouldClose(main_window) && !quit)
     {
-        if(show_main) {
-            glfwMakeContextCurrent(main_window);
-            glfwGetFramebufferSize(main_window, &width, &height);
-            render();
-            glfwSwapBuffers(main_window);
-        }
-        glfwPollEvents();
- 
-        if(show_video) {
-            glfwMakeContextCurrent(video_window);
-            int video_width, video_height;
-            glfwGetFramebufferSize(video_window, &video_width, &video_height);
-            render_video(video_width, video_height);
-            glfwSwapBuffers(video_window);
-        }
-        glfwPollEvents();
+        glfwGetFramebufferSize(main_window, &width, &height);
+        glViewport(0, 0, width, height);
+        glEnable(GL_DEPTH_TEST);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        if(show_plots) {
-            glfwMakeContextCurrent(plots_window);
-            int plots_width, plots_height;
-            glfwGetFramebufferSize(plots_window, &plots_width, &plots_height);
-            render_plot(plots_width, plots_height);
-            glfwSwapBuffers(plots_window);
+        // Calculate layout
+        int main_width = width, main_height = height;
+        int video_width = 0, video_height = 0;
+        int plots_width = 0, plots_height = 0;
+        int frame_width = 0, frame_height = 0;
+        float right_column_percent = .5f;
+        float video_height_percent = .5f;
+        float plots_height_percent = 1.f - video_height_percent;
+
+        bool show_video = this->show_video && world_state_render_video_get_size(state, &frame_width, &frame_height);
+
+        if(!show_main)
+            right_column_percent = 1.f;
+        if(!show_plots)
+            video_height_percent = 1.f;
+        if(!show_video)
+            plots_height_percent = .5f;
+
+        if(show_video) {
+            video_width = lroundf(width*right_column_percent);
+            video_height = lroundf(height*video_height_percent);
+            if(1.*video_height/video_width > 1.f*frame_height/frame_width)
+                video_height = lroundf(video_width *  1.f*frame_height/frame_width);
+            else
+                video_width = lroundf(video_height * 1.f*frame_width/frame_height);
         }
+        if(show_plots) {
+            plots_width = lroundf(width*right_column_percent);
+            plots_height = height - video_height;
+            if(show_video)
+                plots_width = video_width;
+            if(!show_video && show_main)
+                plots_height = lroundf(height*plots_height_percent);
+        }
+        if(show_main && (show_video || show_plots))
+            main_width = width - max(video_width, plots_width);
+
+        // Update data
+        state->update_vertex_arrays();
+
+        // Draw
+        if(show_main) {
+            glViewport(0, 0, main_width, main_height);
+            configure_view(main_width, main_height);
+            world_state_render(state, view_matrix, projection_matrix);
+        }
+        if(show_video) {
+            // y coordinate is 0 = bottom, height = top (opengl)
+            glViewport(width - video_width, 0, video_width, video_height);
+            world_state_render_video(state, video_width, video_height);
+        }
+        if(show_plots) {
+            // y coordinate is 0 = bottom, height = top (opengl)
+            glViewport(width - plots_width, video_height, plots_width, plots_height);
+            world_state_render_plot(state, current_plot, current_plot_key, plots_width, plots_height);
+        }
+        glfwSwapBuffers(main_window);
         glfwPollEvents();
     }
     glfwDestroyWindow(main_window);
-    glfwDestroyWindow(video_window);
-    glfwDestroyWindow(plots_window);
     glfwTerminate();
-    std::cerr << "GUI closed, replay still running in realtime (press Ctrl+c to quit)\n";
 }
 
 
@@ -235,7 +225,7 @@ void gui::start(replay * rp)
 }
 
 gui::gui(world_state * world, bool show_main_, bool show_video_, bool show_plots_)
-    : state(world), scale(initial_scale), width(512), height(512),
+    : state(world), scale(initial_scale), width(640), height(480),
       show_main(show_main_), show_video(show_video_), show_plots(show_plots_)
 {
     static_gui = this;

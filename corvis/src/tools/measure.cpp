@@ -6,16 +6,15 @@
 int main(int c, char **v)
 {
     if (0) { usage:
-        cerr << "Usage: " << v[0] << " [--no-gui] [--realtime] [--no-plots] [--no-video] [--no-main] [--render <file.png>] <filename> <devicename>\n";
+        cerr << "Usage: " << v[0] << " [--pause] [--realtime] [--no-gui] [--no-plots] [--no-video] [--no-main] [--qvga] [--render <file.png>] <filename> [devicename]\n";
         return 1;
     }
 
-    replay rp;
-
     world_state ws;
 
-    bool realtime = false;
-    bool enable_gui = true, show_plots = true, show_video = true, show_main = true;
+    bool realtime = false, start_paused = false;
+    bool qvga = false;
+    bool enable_gui = true, show_plots = false, show_video = true, show_main = true;
     char *devicename = nullptr, *filename = nullptr, *rendername = nullptr;
     for (int i=1; i<c; i++)
         if      (v[i][0] != '-' && !filename) filename = v[i];
@@ -25,10 +24,12 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--no-plots") == 0) show_plots = false;
         else if (strcmp(v[i], "--no-video") == 0) show_video = false;
         else if (strcmp(v[i], "--no-main")  == 0) show_main  = false;
+        else if (strcmp(v[i], "--pause")  == 0) start_paused  = true;
         else if (strcmp(v[i], "--render") == 0 && i+1 < c) rendername = v[++i];
+        else if (strcmp(v[i], "--qvga") == 0) qvga = true;
         else goto usage;
 
-    if (!filename || !devicename)
+    if (!filename)
         goto usage;
 
     if(enable_gui)
@@ -37,6 +38,7 @@ int main(int c, char **v)
     std::function<void (float)> progress;
     std::function<void (const filter *, camera_data &&)> camera_callback;
 
+    replay rp(start_paused);
     gui vis(&ws, show_main, show_video, show_plots);
 
     if(rendername || enable_gui)
@@ -44,12 +46,17 @@ int main(int c, char **v)
             ws.receive_camera(f, std::move(d));
         };
 
-    if(!rp.configure_all(filename, devicename, realtime, progress, camera_callback)) return -1;
+    if(!rp.configure_all(filename, devicename, realtime, progress, camera_callback))
+        return 2;
     
+    if(qvga) rp.enable_qvga();
+
     if(enable_gui) { // The GUI must be on the main thread
         std::thread replay_thread([&](void) { rp.start(); });
         vis.start(&rp);
+        rp.stop();
         replay_thread.join();
+        return 0;
     }
     else
         rp.start();
@@ -65,6 +72,7 @@ int main(int c, char **v)
     uint64_t bytes_dispatched = rp.get_bytes_dispatched();
     printf("Straight-line length is %.2f cm, total path length %.2f cm\n", length, path_length);
     printf("Dispatched %llu packets %.2f Mbytes\n", packets_dispatched, bytes_dispatched/1.e6);
+    std::cout << rp.get_timing_stats();
 
     return 0;
 }

@@ -19,12 +19,12 @@ PXCSenseManager* RCFactory::CreateSenseManager()
     return _senseMan;
 }
 
-unique_ptr<CalibrationManager> RCFactory::CreateCalibrationManager()
+std::unique_ptr<TrackerManager> RCFactory::CreateTrackerManager()
 {
-    return make_unique<CalibrationManager>(CreateSenseManager());
+	return std::unique_ptr<TrackerManager>(new TrackerManager(CreateSenseManager()));
 }
 
-unique_ptr<CaptureManager> RCFactory::CreateCaptureManager()
+std::unique_ptr<SensorManager> RCFactory::CreateSensorManager()
 {
-    return make_unique<CaptureManager>(CreateSenseManager());
+    return std::unique_ptr<SensorManager>(new SensorManager(CreateSenseManager()));
 }

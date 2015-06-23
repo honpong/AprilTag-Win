@@ -4,7 +4,7 @@
 #include "quaternion.h"
 #include "utils.h"
 
-static void check_initial_orientation_from_gravity(const v4 gravity, const v4 facing)
+static void check_initial_orientation_from_gravity(const v4 &gravity, const v4 &facing)
 {
     v4 camera(0,0,-1,0), z(0,0,1,0), facing_perp(-facing[1], facing[0], 0, 0);
     quaternion q = initial_orientation_from_gravity_facing(gravity, facing);

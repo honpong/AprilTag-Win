@@ -13,9 +13,8 @@
 #include <atomic>
 #include <memory>
 #include <functional>
-#include "filter_setup.h"
 #include "../cor/packet.h"
-#include "../cor/sensor_fusion_queue.h"
+#include "sensor_fusion.h"
 
 class replay
 {
@@ -30,16 +29,19 @@ private:
     std::atomic<bool> is_paused{false};
     std::atomic<bool> is_stepping{false};
     bool is_realtime = false;
-    std::unique_ptr<filter_setup> cor_setup;
-    std::unique_ptr<fusion_queue> queue;
+    sensor_fusion fusion;
     std::function<void (const filter *, camera_data &&)> camera_callback;
     std::function<void (float)> progress_callback;
+    bool qvga {false};
 
 public:
+    replay(bool start_paused=false) : is_paused(start_paused), fusion(fusion_queue::latency_strategy::ELIMINATE_DROPS) {}
     bool open(const char *name);
-    void set_device(const char *name);
+    bool set_device(const char *name);
+    bool set_calibration_from_filename(const char *filename);
     void setup_filter();
     bool configure_all(const char *filename, const char *devicename, bool realtime=false, std::function<void (float)> progress_callback=nullptr, std::function<void (const filter *, camera_data)> camera_callback=nullptr);
+    void enable_qvga() { qvga = true; }
     void start();
     void stop();
     void toggle_pause() { is_paused = !is_paused; }
@@ -48,6 +50,7 @@ public:
     uint64_t get_packets_dispatched() { return packets_dispatched; }
     float get_path_length() { return path_length; }
     float get_length() { return length; }
+    std::string get_timing_stats() { return fusion.get_timing_stats(); }
 };
 
 #endif /* defined(__RC3DK__replay__) */

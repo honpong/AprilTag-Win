@@ -13,9 +13,10 @@ void world_state_render_teardown();
 void world_state_render(world_state * world, float * _modelViewMatrix, float * _projectionMatrix);
 bool world_state_render_video_init();
 void world_state_render_video(world_state * world, int viewport_width, int viewport_height);
+bool world_state_render_video_get_size(world_state * world, int *video_width, int *video_height);
 void world_state_render_video_teardown();
 bool world_state_render_plot_init();
-void world_state_render_plot(world_state * world, int index, int viewport_width, int viewport_height);
+void world_state_render_plot(world_state * world, int plot_index, int key_index, int viewport_width, int viewport_height);
 void world_state_render_plot_teardown();
 
 

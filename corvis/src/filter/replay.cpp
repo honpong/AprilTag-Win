@@ -148,7 +148,7 @@ void replay::start()
                     d.width = width;
                     d.height = height;
                     d.stride = width;
-                    if(quarter_scale)
+                    if(qvga && width == 640 && height == 480)
                     {
                         d.width = width / 2;
                         d.height = height / 2;

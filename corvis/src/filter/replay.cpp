@@ -87,6 +87,7 @@ void replay::start()
     length = 0;
     packets_dispatched = 0;
     bytes_dispatched = 0;
+    bool check_image_size = true;
 
     packet_header_t header;
     file.read((char *)&header, 16);
@@ -161,6 +162,10 @@ void replay::start()
                                     d.image[((y * 2 + 1) * width) + (x * 2 + 1)]) / 4;
                             }
                         }
+                    }
+                    if(check_image_size && d.width < 320) {
+                        fprintf(stderr, "Warning: Image width is less than 320 (%d x %d)\n", d.width, d.height);
+                        check_image_size = false;
                     }
                     d.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time+16667));
                     d.image_handle = std::move(phandle);

@@ -287,9 +287,9 @@ void rc_receiveImage(rc_Tracker *tracker, rc_Camera camera, rc_Timestamp time_us
 	tracker->trigger_log();
 }
 
-void rc_receiveDepthImage(rc_Tracker *tracker, rc_Camera camera, rc_Timestamp time_us, rc_Timestamp shutter_time_us, const rc_Pose poseEstimate_m, bool force_recognition, int width, int height, int stride, const void *image, void(*completion_callback)(void *callback_handle), void *callback_handle)
+void rc_receiveImageWithDepth(rc_Tracker *tracker, rc_Camera camera, rc_Timestamp time_us, rc_Timestamp shutter_time_us, const rc_Pose poseEstimate_m, bool force_recognition, int width, int height, int stride, const void *image, void(*completion_callback)(void *callback_handle), void *callback_handle, int depthWidth, int depthHeight, int depthStride, const void *depthImage, void(*depth_completion_callback)(void *callback_handle), void *depth_callback_handle) 
 {
-	// this is where the magic happens
+	rc_receiveImage(tracker, camera, time_us, shutter_time_us, poseEstimate_m, force_recognition, width, height, stride, image, completion_callback, callback_handle);
 }
 
 void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Timestamp time_us, const rc_Vector acceleration_m__s2)

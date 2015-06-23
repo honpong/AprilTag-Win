@@ -681,8 +681,10 @@ void filter_set_reference(struct filter *f)
     f->s.reset_position();
 }
 
-bool filter_image_measurement(struct filter *f, const unsigned char *data, int width, int height, int stride, sensor_clock::time_point time)
+bool filter_image_measurement(struct filter *f, const camera_data & camera)
 {
+    sensor_clock::time_point time = camera.timestamp;
+
     if(f->run_state == RCSensorFusionRunStateInactive) return false;
     if(!check_packet_time(f, time, packet_camera)) return false;
     if(!f->got_accelerometer || !f->got_gyroscope) return false;
@@ -694,10 +696,10 @@ bool filter_image_measurement(struct filter *f, const unsigned char *data, int w
 
     if(f->qr.running && (time - f->last_qr_time > qr_detect_period)) {
         f->last_qr_time = time;
-        f->qr.process_frame(f, data, width, height);
+        f->qr.process_frame(f, camera.image, camera.width, camera.height);
     }
     if(f->qr_bench.enabled)
-        f->qr_bench.process_frame(f, data, width, height);
+        f->qr_bench.process_frame(f, camera.image, camera.width, camera.height);
 
     f->got_image = true;
     if(f->run_state == RCSensorFusionRunStateDynamicInitialization) {
@@ -719,13 +721,13 @@ bool filter_image_measurement(struct filter *f, const unsigned char *data, int w
     }
     if(f->run_state != RCSensorFusionRunStateRunning && f->run_state != RCSensorFusionRunStateDynamicInitialization && f->run_state != RCSensorFusionRunStateSteadyInitialization) return true; //frame was "processed" so that callbacks still get called
     
-    f->track.width = width;
-    f->track.height = height;
-    f->track.stride = stride;
+    f->track.width = camera.width;
+    f->track.height = camera.height;
+    f->track.stride = camera.stride;
     f->track.init();
-    f->image_width = width;
-    f->image_height = height;
-    f->s.image_width = width;
+    f->image_width = camera.width;
+    f->image_height = camera.height;
+    f->s.image_width = camera.width;
     
     if(!f->ignore_lateness) {
         /*thread_info_data_t thinfo;
@@ -771,7 +773,7 @@ bool filter_image_measurement(struct filter *f, const unsigned char *data, int w
     }
 
 
-    filter_setup_next_frame(f, data, time);
+    filter_setup_next_frame(f, camera.image, time);
 
     if(show_tuning) {
         fprintf(stderr, "vision:\n");
@@ -810,7 +812,7 @@ bool filter_image_measurement(struct filter *f, const unsigned char *data, int w
             if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def after disabling orient only\n");
 #endif
         }
-        addfeatures(f, space, data, width, height, time);
+        addfeatures(f, space, camera.image, camera.width, camera.height, time);
         if(f->s.features.size() < state_vision_group::min_feats) {
             if (log_enabled) fprintf(stderr, "detector failure: only %ld features after add\n", f->s.features.size());
             f->detector_failed = true;

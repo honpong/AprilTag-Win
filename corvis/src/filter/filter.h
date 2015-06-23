@@ -11,6 +11,7 @@
 #include "../../../shared_corvis_3dk/RCSensorFusionInternals.h"
 #include "../../../shared_corvis_3dk/camera_control_interface.h"
 #include "../cor/platform/sensor_clock.h"
+#include "../cor/sensor_data.h"
 
 struct filter {
 filter(): s(cov)
@@ -96,7 +97,7 @@ filter(): s(cov)
     camera_control_interface camera_control;
 };
 
-bool filter_image_measurement(struct filter *f, const unsigned char *data, int width, int height, int stride, sensor_clock::time_point time);
+bool filter_image_measurement(struct filter *f, const camera_data & camera);
 void filter_accelerometer_measurement(struct filter *f, const float data[3], sensor_clock::time_point time);
 void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_clock::time_point time);
 void filter_set_reference(struct filter *f);

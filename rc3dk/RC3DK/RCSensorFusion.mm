@@ -134,7 +134,7 @@
             if(!isSensorFusionRunning)
             {
             } else if(isProcessingVideo) {
-                docallback = filter_image_measurement(&_cor_setup->sfm, data.image, data.width, data.height, data.stride, data.timestamp);
+                docallback = filter_image_measurement(&_cor_setup->sfm, data);
                 [self sendStatus];
                 if(docallback) [self sendDataWithSampleBuffer:sampleBuffer];
             } else {

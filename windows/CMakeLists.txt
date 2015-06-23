@@ -6,9 +6,9 @@ add_subdirectory(../corvis "${CMAKE_CURRENT_BINARY_DIR}/corvis")
 
 add_library(pxc STATIC IMPORTED)
 set_target_properties(pxc PROPERTIES
-  IMPORTED_LOCATION_DEBUG       "$ENV{RSSDK_DIR}lib/$(PlatformName)/libpxc_d.lib"
-  IMPORTED_LOCATION_RELEASE     "$ENV{RSSDK_DIR}lib/$(PlatformName)/libpxc.lib"
-  INTERFACE_INCLUDE_DIRECTORIES "$ENV{RSSDK_DIR}include"
+  IMPORTED_LOCATION_DEBUG       "$ENV{RSSDK_DIR}/lib/$(PlatformName)/libpxc_d.lib"
+  IMPORTED_LOCATION_RELEASE     "$ENV{RSSDK_DIR}/lib/$(PlatformName)/libpxc.lib"
+  INTERFACE_INCLUDE_DIRECTORIES "$ENV{RSSDK_DIR}/include"
 )
 
 target_compile_options(filter PRIVATE /wd4200 /wd4458)

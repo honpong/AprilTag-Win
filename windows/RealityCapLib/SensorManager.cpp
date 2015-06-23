@@ -226,7 +226,6 @@ void SensorManager::PollForFrames()
         }
 
         //Always pass image data AFTER associated inertial data. This will trigger the update
-        OnColorFrame(colorImage);
 		OnColorFrameWithDepth(colorImage, depthImage);
 
         _senseMan->ReleaseFrame();

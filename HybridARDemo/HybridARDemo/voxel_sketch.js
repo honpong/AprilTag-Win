@@ -242,7 +242,10 @@ var MainController = (function ($, window, RC3DK, THREE)
         raycaster.setFromCamera( mouse, camera );
         raycaster.ray
         //alert("camera matrixWorld [[ " + camera.matrixWorld.elements[0].toFixed(2) + ", " + camera.matrixWorld.elements[1].toFixed(2) + ", " + camera.matrixWorld.elements[2].toFixed(2) + ", " + camera.matrixWorld.elements[3].toFixed(2) + " ],[" + camera.matrixWorld.elements[4].toFixed(2) + ", " + camera.matrixWorld.elements[5].toFixed(2) + ", " + camera.matrixWorld.elements[6].toFixed(2) + ", " + camera.matrixWorld.elements[7].toFixed(2) + "],[" + camera.matrixWorld.elements[8].toFixed(2) + ", " + camera.matrixWorld.elements[9].toFixed(2) + ", " + camera.matrixWorld.elements[10].toFixed(2) + ", " + camera.matrixWorld.elements[11].toFixed(2) + "],[" + camera.matrixWorld.elements[12].toFixed(2) + ", " + camera.matrixWorld.elements[13].toFixed(2) + ", " + camera.matrixWorld.elements[14].toFixed(2) + ", " + camera.matrixWorld.elements[15].toFixed(2) + "] ], ray origin ( " + raycaster.ray.origin.x.toFixed(2) + ", " + raycaster.ray.origin.y.toFixed(2) + ", " + raycaster.ray.origin.z.toFixed(2) + " ), direction (" + raycaster.ray.direction.x.toFixed(2) + ", " + raycaster.ray.direction.y.toFixed(2) + ", " + raycaster.ray.direction.z.toFixed(2) + " )");
+        //alert("ray origin ( " + raycaster.ray.origin.x.toFixed(2) + ", " + raycaster.ray.origin.y.toFixed(2) + ", " + raycaster.ray.origin.z.toFixed(2) + " ), direction (" + raycaster.ray.direction.x.toFixed(2) + ", " + raycaster.ray.direction.y.toFixed(2) + ", " + raycaster.ray.direction.z.toFixed(2) + " )");
 
+                      
+                      
         var intersects = raycaster.intersectObjects( scene.children);
 
         if ( intersects.length > 0 ) {
@@ -250,11 +253,29 @@ var MainController = (function ($, window, RC3DK, THREE)
             var intersect = intersects[ 0 ];
 
             //alert("object found ( " + intersect.point.x.toString() + ", " + intersect.point.y.toString() + ", " + + intersect.point.z.toString() + " )");
-          
-                      
-            rollOverMesh.position.copy( intersect.point );
-            rollOverMesh.position.divideScalar( .05 ).floor().multiplyScalar( .05 ).addScalar( .025 );
+            
+            //we need to put in a switch here
+            if (intersect.object.id == rollOverMesh.id) {
+                  var voxel = new THREE.Mesh( cubeGeo, cubeMaterial );
+                  voxel.position.copy( rollOverMesh.position );
+                  voxel.position.divideScalar( .05 ).floor().multiplyScalar( .05 ).addScalar( .025 );
+                  scene.add( voxel );
+                  
+                  objects.push( voxel );
 
+            }
+            
+            rollOverMesh.position.copy( intersect.point );
+            //we want the selection box to apear adjacent to newly created voxels, we have to introduce a slight bias to its position so
+                      // numerical error on the intersect doesn't push it into the newly created voxel.
+            rollOverMesh.position.x = rollOverMesh.position.x + (raycaster.ray.origin.x - raycaster.ray.direction.x)/1000; //bais closer to camera.
+            rollOverMesh.position.y = rollOverMesh.position.y + (raycaster.ray.origin.y - raycaster.ray.direction.y)/1000; //bais closer to camera.
+            rollOverMesh.position.z = rollOverMesh.position.z + 0.001; //bais selection box to apear on top of objects.
+            rollOverMesh.position.divideScalar( .05 ).floor().multiplyScalar( .05 ).addScalar( .025 );
+                      
+            
+                      
+                      
         }
 
         renderer.render( scene, camera );

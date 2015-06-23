@@ -109,19 +109,6 @@ void filter_start_qr_detection(struct filter *f, const std::string& data, float 
 void filter_stop_qr_detection(struct filter *f);
 void filter_start_qr_benchmark(struct filter *f, float dimension);
 
-#ifdef SWIG
-%callback("%s_cb");
-#endif
-extern "C" void filter_image_packet(void *f, packet_t *p);
-extern "C" void filter_imu_packet(void *f, packet_t *p);
-extern "C" void filter_accelerometer_packet(void *f, packet_t *p);
-extern "C" void filter_gyroscope_packet(void *f, packet_t *p);
-extern "C" void filter_features_added_packet(void *f, packet_t *p);
-extern "C" void filter_control_packet(void *_f, packet_t *p);
-#ifdef SWIG
-%nocallback;
-#endif
-
 extern "C" void filter_initialize(struct filter *f, corvis_device_parameters device);
 float filter_converged(const struct filter *f);
 bool filter_is_steady(const struct filter *f);

@@ -209,20 +209,6 @@ static bool check_packet_time(struct filter *f, sensor_clock::time_point t, int 
     return true;
 }
 
-extern "C" void filter_imu_packet(void *_f, packet_t *p)
-{
-    if(p->header.type != packet_imu) return;
-    struct filter *f = (struct filter *)_f;
-    filter_accelerometer_measurement(f, (float *)&p->data, sensor_clock::micros_to_tp(p->header.time));
-    filter_gyroscope_measurement(f, (float *)&p->data + 3, sensor_clock::micros_to_tp(p->header.time));
-}
-
-extern "C" void filter_accelerometer_packet(void *_f, packet_t *p)
-{
-    if(p->header.type != packet_accelerometer) return;
-    filter_accelerometer_measurement((struct filter *)_f, (float *)&p->data, sensor_clock::micros_to_tp(p->header.time));
-}
-
 void update_static_calibration(struct filter *f)
 {
     if(f->accel_stability.count < calibration_converge_samples) return;
@@ -462,12 +448,6 @@ void filter_accelerometer_measurement(struct filter *f, const float data[3], sen
     }
 }
 
-extern "C" void filter_gyroscope_packet(void *_f, packet_t *p)
-{
-    if(p->header.type != packet_gyroscope) return;
-    filter_gyroscope_measurement((struct filter *)_f, (float *)&p->data, sensor_clock::micros_to_tp(p->header.time));
-}
-
 void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_clock::time_point time)
 {
     v4 meas(data[0], data[1], data[2], 0.);
@@ -701,28 +681,6 @@ void filter_set_reference(struct filter *f)
     f->s.reset_position();
 }
 
-extern "C" void filter_control_packet(void *_f, packet_t *p)
-{
-    if(p->header.type != packet_filter_control) return;
-    struct filter *f = (struct filter *)_f;
-    //ignore full filter reset - can't do from here and may not make sense anymore
-    /*if(p->header.user == 2) {
-        //full reset
-        if (log_enabled) fprintf(stderr, "full filter reset\n");
-        filter_reset_full(f);
-    }*/
-    if(p->header.user == 1) {
-        //start measuring
-        if (log_enabled) fprintf(stderr, "measurement starting\n");
-        filter_set_reference(f);
-    }
-    if(p->header.user == 0) {
-        //stop measuring
-        if (log_enabled) fprintf(stderr, "measurement stopping\n");
-        //ignore
-    }
-}
-
 bool filter_image_measurement(struct filter *f, const unsigned char *data, int width, int height, int stride, sensor_clock::time_point time)
 {
     if(f->run_state == RCSensorFusionRunStateInactive) return false;
@@ -900,57 +858,6 @@ bool filter_image_measurement(struct filter *f, const unsigned char *data, int w
     }
 
     return true;
-}
-
-extern "C" void filter_image_packet(void *_f, packet_t *p)
-{
-    if(p->header.type != packet_camera) return;
-    struct filter *f = (struct filter *)_f;
-    int packet_width, packet_height;
-    char tmp[17];
-    memcpy(tmp, p->data, 16);
-    tmp[16] = 0;
-    std::stringstream parse(tmp);
-    //pgm header is "P5 x y"
-    parse.ignore(3, ' ') >> packet_width >> packet_height;
-    if(!f->track.width) {
-        f->track.width = packet_width;
-        f->track.height = packet_height;
-        f->track.stride = packet_width;
-    }
-    else
-        assert(packet_width == f->track.width && packet_height == f->track.height);
-    filter_image_measurement(f, p->data + 16, f->track.width, f->track.height, f->track.stride, sensor_clock::micros_to_tp(p->header.time));
-}
-
-extern "C" void filter_features_added_packet(void *_f, packet_t *p)
-{
-    struct filter *f = (struct filter *)_f;
-    if(p->header.type == packet_feature_select) {
-        feature_t *initial = (feature_t*) p->data;
-        for(int i = 0; i < p->header.user; ++i) {
-            state_vision_feature *feat = f->s.add_feature(initial[i].x, initial[i].y);
-            assert(initial[i].x != INFINITY);
-            feat->status = feature_initializing;
-            feat->current[0] = initial[i].x;
-            feat->current[1] = initial[i].y;
-        }
-        f->s.remap();
-    }
-    if(p->header.type == packet_feature_intensity) {
-        uint8_t *intensity = (uint8_t *)p->data;
-        list<state_vision_feature *>::iterator fiter = f->s.features.end();
-        --fiter;
-        for(int i = p->header.user; i > 0; --i) {
-            (*fiter)->intensity = intensity[i];
-        }
-        /*  
-        int feature_base = f->s.features.size() - p->header.user;
-        //        list<state_vision_feature *>::iterator fiter = f->s.featuresf->s.features.end()-p->header.user;
-        for(int i = 0; i < p->header.user; ++i) {
-            f->s.features[feature_base + i]->intensity = intensity[i];
-            }*/
-    }
 }
 
 /*static double a_bias_stdev = .02 * 9.8; //20 mg

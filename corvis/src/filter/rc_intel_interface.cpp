@@ -269,22 +269,27 @@ void copy_camera_data(rc_Tracker * tracker, rc_Timestamp time_us, rc_Timestamp s
 
 void rc_receiveImage(rc_Tracker *tracker, rc_Camera camera, rc_Timestamp time_us, rc_Timestamp shutter_time_us, const rc_Pose poseEstimate_m, bool force_recognition, int width, int height, int stride, const void *image, void(*completion_callback)(void *callback_handle), void *callback_handle)
 {
-    if(camera == rc_EGRAY8) {
-        camera_data d;
-        d.image_handle = std::unique_ptr<void, void(*)(void *)>(callback_handle, completion_callback);
-        d.image = (uint8_t *)image;
-        d.width = width;
-        d.height = height;
-        d.stride = stride;
-        d.timestamp = sensor_clock::micros_to_tp(time_us + shutter_time_us / 2);
-        tracker->receive_image(std::move(d));
-        if(tracker->output_enabled) {
-            camera_data d2;
-            copy_camera_data(tracker, time_us, shutter_time_us, width, height, stride, image, d2);
-            tracker->output.receive_camera(std::move(d2));
-        }
-    }
-    tracker->trigger_log();
+	if (camera == rc_EGRAY8) {
+		camera_data d;
+		d.image_handle = std::unique_ptr<void, void(*)(void *)>(callback_handle, completion_callback);
+		d.image = (uint8_t *)image;
+		d.width = width;
+		d.height = height;
+		d.stride = stride;
+		d.timestamp = sensor_clock::micros_to_tp(time_us + shutter_time_us / 2);
+		tracker->receive_image(std::move(d));
+		if (tracker->output_enabled) {
+			camera_data d2;
+			copy_camera_data(tracker, time_us, shutter_time_us, width, height, stride, image, d2);
+			tracker->output.receive_camera(std::move(d2));
+		}
+	}
+	tracker->trigger_log();
+}
+
+void rc_receiveDepthImage(rc_Tracker *tracker, rc_Camera camera, rc_Timestamp time_us, rc_Timestamp shutter_time_us, const rc_Pose poseEstimate_m, bool force_recognition, int width, int height, int stride, const void *image, void(*completion_callback)(void *callback_handle), void *callback_handle)
+{
+	// this is where the magic happens
 }
 
 void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Timestamp time_us, const rc_Vector acceleration_m__s2)

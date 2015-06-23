@@ -51,6 +51,7 @@ namespace RealityCap
 
     protected:
         virtual void OnColorFrame(PXCImage* colorImage) override;
+		virtual void OnDepthFrame(PXCImage* depthImage) override;
         virtual void OnAmeterSample(imu_sample_t* sample) override;
         virtual void OnGyroSample(imu_sample_t* sample) override;
         std::wstring GetExePath();

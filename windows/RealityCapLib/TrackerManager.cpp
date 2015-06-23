@@ -203,6 +203,16 @@ void TrackerManager::OnColorFrame(PXCImage* colorSample)
     rc_receiveImage(_tracker, rc_EGRAY8, colorSample->QueryTimeStamp() / 10 - 637 - 12000 - shutter_time_us, shutter_time_us, NULL, false, info.width, info.height, si->data.pitches[0], si->data.planes[0], RCSavedImage::releaseOpaquePointer, (void*)si);
 }
 
+void TrackerManager::OnDepthFrame(PXCImage* depthImage)
+{
+	RCSavedImage *si = new RCSavedImage(depthImage);
+	PXCCaptureManager *capMan = GetSenseManager()->QueryCaptureManager();
+	PXCCapture::Device *pDevice = capMan->QueryDevice();
+	PXCImage::ImageInfo info = depthImage->QueryInfo();
+	//Timestamp: divide by 10 to go from 100ns to us, subtract 637us blank interval and 12 ms ad-hoc (tuning) offset
+	rc_receiveDepthImage(_tracker, rc_EGRAY8, depthImage->QueryTimeStamp() / 10 - 637 - 12000, NULL, false, info.width, info.height, si->data.pitches[0], si->data.planes[0], RCSavedImage::releaseOpaquePointer, (void*)si);
+}
+
 void TrackerManager::OnAmeterSample(imu_sample_t* sample)
 {
     if (!isRunning()) return;

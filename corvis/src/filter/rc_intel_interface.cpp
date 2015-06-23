@@ -260,11 +260,11 @@ void rc_receiveImage(rc_Tracker *tracker, rc_Camera camera, rc_Timestamp time_us
 		d.width = width;
 		d.height = height;
 		d.stride = stride;
+        d.timestamp = sensor_clock::micros_to_tp(time_us);
+        d.exposure_time = std::chrono::microseconds(shutter_time_us);
         if(tracker->output_enabled) {
-            d.timestamp = sensor_clock::micros_to_tp(time_us);
             tracker->output.write_camera(d);
         }
-        d.timestamp = sensor_clock::micros_to_tp(time_us + shutter_time_us / 2);
 		tracker->receive_image(std::move(d));
 	}
 	tracker->trigger_log();
@@ -278,18 +278,19 @@ void rc_receiveImageWithDepth(rc_Tracker *tracker, rc_Camera camera, rc_Timestam
     d.width = width;
     d.height = height;
     d.stride = stride;
+    d.timestamp = sensor_clock::micros_to_tp(time_us);
+    d.exposure_time = std::chrono::microseconds(shutter_time_us);
     d.depth = std::make_unique<image_depth16>();
     d.depth->image_handle = std::unique_ptr<void, void(*)(void *)>(depth_callback_handle, depth_completion_callback);
     d.depth->image = (uint16_t *)depthImage;
     d.depth->width = depthWidth;
     d.depth->height = depthHeight;
     d.depth->stride = depthStride;
+    d.depth->timestamp = d.timestamp;
+    d.depth->exposure_time = d.exposure_time;
     if(tracker->output_enabled) {
-        d.timestamp = sensor_clock::micros_to_tp(time_us);
         tracker->output.write_camera(d);
     }
-    d.timestamp = sensor_clock::micros_to_tp(time_us + shutter_time_us / 2);
-    d.depth->timestamp = d.timestamp;
     tracker->receive_image(std::move(d));
 }
 

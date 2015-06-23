@@ -76,7 +76,35 @@ void capture::write_image_gray8(const image_gray8 &data)
 void capture::write_camera(const camera_data &data)
 {
     auto micros = std::chrono::duration_cast<std::chrono::microseconds>(data.timestamp.time_since_epoch()).count();
-    write_image_gray8(data.image, data.width, data.height, data.stride, micros);
+    int width = data.width;
+    int height = data.height;
+    int depth_width = 0;
+    int depth_height = 0;
+    if(data.depth)
+    {
+        depth_width = data.depth->width;
+        depth_height = data.depth->height;
+    }
+    packet_t *buf = packet_alloc(packet_image_with_depth, 16 + width * height + depth_width * depth_height * 2, micros);
+    packet_image_with_depth_t *ip = (packet_image_with_depth_t *)buf;
+    ip->width = width;
+    ip->height = height;
+    ip->depth_width = depth_width;
+    ip->depth_height = depth_height;
+    ip->exposure_time_us = std::chrono::duration_cast<std::chrono::microseconds>(data.exposure_time).count();
+    for(int y = 0 ; y < height; ++y)
+    {
+        memcpy(ip->data + y * width, data.image + y * data.stride, width);
+    }
+    if(data.depth)
+    {
+        for(int y = 0; y < depth_height; ++y)
+        {
+            memcpy(ip->data + width * height + y * depth_width, ((uint8_t *)data.depth->image) + y * data.depth->stride, depth_width * 2);
+        }
+    }
+    write_packet(buf);
+    free(buf);
 };
 
 void capture::write_accelerometer(const accelerometer_data &data)

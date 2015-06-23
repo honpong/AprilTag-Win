@@ -46,6 +46,7 @@ enum packet_type {
     packet_filter_control = 25,
     packet_ground_truth = 26,
     packet_core_motion = 27,
+    packet_image_with_depth = 28,
 };
 
 typedef struct {
@@ -64,6 +65,14 @@ typedef struct {
     packet_header_t header;
     uint8_t data[];
 } packet_camera_t;
+
+typedef struct {
+    packet_header_t header;
+    uint64_t exposure_time_us;
+    uint16_t width, height;
+    uint16_t depth_width, depth_height;
+    uint8_t data[];
+} packet_image_with_depth_t;
 
 typedef struct {
     packet_header_t header;

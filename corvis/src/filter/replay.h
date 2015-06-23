@@ -33,7 +33,7 @@ private:
     std::function<void (const filter *, camera_data &&)> camera_callback;
     std::function<void (float)> progress_callback;
     bool qvga {false};
-    image_gray8 parse_gray8(int width, int height, int stride, uint8_t *data, uint64_t time_us, std::unique_ptr<void, void(*)(void *)> handle);
+    image_gray8 parse_gray8(int width, int height, int stride, uint8_t *data, uint64_t time_us, uint64_t exposure_time_us, std::unique_ptr<void, void(*)(void *)> handle);
 
 public:
     replay(bool start_paused=false) : is_paused(start_paused), fusion(fusion_queue::latency_strategy::ELIMINATE_DROPS) {}

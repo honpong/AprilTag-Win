@@ -340,6 +340,8 @@ void sensor_fusion::reset(sensor_clock::time_point time, const transformation &i
 
 void sensor_fusion::receive_image(camera_data &&data)
 {
+    //Adjust image timestamps to be in middle of exposure period
+    data.timestamp += data.exposure_time / 2;
     queue->receive_camera(std::move(data));
 }
 

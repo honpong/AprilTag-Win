@@ -862,24 +862,6 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
     return true;
 }
 
-/*static double a_bias_stdev = .02 * 9.8; //20 mg
-static double BEGIN_ABIAS_VAR = a_bias_stdev * a_bias_stdev;
-static double w_bias_stdev = 10. / 180. * M_PI; //10 dps
-static double BEGIN_WBIAS_VAR = w_bias_stdev * w_bias_stdev;*/
-
-#define BEGIN_FOCAL_VAR 10.
-#define END_FOCAL_VAR .3
-#define BEGIN_C_VAR 2.
-#define END_C_VAR .16
-#define BEGIN_ABIAS_VAR 1.e-5
-#define END_ABIAS_VAR 1.e-6
-#define BEGIN_WBIAS_VAR 1.e-7
-#define END_WBIAS_VAR 1.e-8
-#define BEGIN_K1_VAR 2.e-4
-#define END_K1_VAR 1.e-5
-#define BEGIN_K2_VAR 2.e-4
-#define BEGIN_K3_VAR 1.e-4
-
 //This should be called every time we want to initialize or reset the filter
 extern "C" void filter_initialize(struct filter *f, struct corvis_device_parameters device)
 {
@@ -1018,12 +1000,12 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->s.dw.set_initial_variance(1.e5); //observed range of variances in sequences is 1-6
     f->s.a.set_initial_variance(1.e5);
 
-    f->s.focal_length.set_initial_variance(BEGIN_FOCAL_VAR / device.image_width / device.image_width);
-    f->s.center_x.set_initial_variance(BEGIN_C_VAR / device.image_width / device.image_width);
-    f->s.center_y.set_initial_variance(BEGIN_C_VAR / device.image_width / device.image_width);
-    f->s.k1.set_initial_variance(BEGIN_K1_VAR);
-    f->s.k2.set_initial_variance(BEGIN_K2_VAR);
-    f->s.k3.set_initial_variance(BEGIN_K3_VAR);
+    f->s.focal_length.set_initial_variance(10. / device.image_width / device.image_width);
+    f->s.center_x.set_initial_variance(2. / device.image_width / device.image_width);
+    f->s.center_y.set_initial_variance(2. / device.image_width / device.image_width);
+    f->s.k1.set_initial_variance(2.e-4);
+    f->s.k2.set_initial_variance(2.e-4);
+    f->s.k3.set_initial_variance(2.e-4);
     
     f->shutter_delay = device.shutter_delay;
     f->shutter_period = device.shutter_period;

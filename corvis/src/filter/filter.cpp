@@ -684,11 +684,6 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
     if(!check_packet_time(f, time, packet_camera)) return false;
     if(!f->got_accelerometer || !f->got_gyroscope) return false;
     
-    if(!f->valid_time) {
-        f->first_time = time;
-        f->valid_time = true;
-    }
-
     if(f->qr.running && (time - f->last_qr_time > qr_detect_period)) {
         f->last_qr_time = time;
         f->qr.process_frame(f, camera.image, camera.width, camera.height);
@@ -919,9 +914,6 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     
     f->stable_start = sensor_clock::time_point(sensor_clock::duration(0));
     f->calibration_bad = false;
-    
-    f->valid_time = 0;
-    f->first_time = sensor_clock::time_point(sensor_clock::duration(0));
     
     f->mindelta = std::chrono::microseconds(0);
     f->valid_delta = false;

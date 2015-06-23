@@ -73,9 +73,6 @@ filter(): s(cov)
 
     scaled_mask *scaled_mask;
     
-    bool valid_time;
-    sensor_clock::time_point first_time;
-    
     sensor_clock::duration mindelta;
     bool valid_delta;
     sensor_clock::time_point last_arrival;

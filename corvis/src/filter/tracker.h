@@ -14,11 +14,11 @@ struct tracker {
     int stride;
     const static int half_patch_width = 3;
     fast_detector_9 fast;
-    int track_threshold = 10;
-    int detect_threshold = 40;
+    int track_threshold = 5;
+    int detect_threshold = 15;
     float radius = 5.5f;
-    float min_match = 0.4f;
-    float good_match = 0.75f;
+    float min_match = 0.2f;
+    float good_match = 0.65f;
     
     void init()
     {

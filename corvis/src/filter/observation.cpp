@@ -450,21 +450,18 @@ void observation_vision_feature::update_initializing()
     predict();
 }
 
-const float tracker_min_match = 0.4f;
-const float tracker_good_match = 0.75f;
-const float tracker_radius = 5.5f;
 bool observation_vision_feature::measure()
 {
-    xy bestkp = tracker.track(feature->patch, image, (float)feature->current[0] + feature->image_velocity.x, (float)feature->current[1] + feature->image_velocity.y, tracker_radius, tracker_min_match);
+    xy bestkp = tracker.track(feature->patch, image, (float)feature->current[0] + feature->image_velocity.x, (float)feature->current[1] + feature->image_velocity.y, tracker.radius, tracker.min_match);
 
     // Not a good enough match, try the filter prediction
-    if(bestkp.score < tracker_good_match) {
-        xy bestkp2 = tracker.track(feature->patch, image, (float)pred[0], (float)pred[1], tracker_radius, bestkp.score);
+    if(bestkp.score < tracker.good_match) {
+        xy bestkp2 = tracker.track(feature->patch, image, (float)pred[0], (float)pred[1], tracker.radius, bestkp.score);
         if(bestkp2.score > bestkp.score)
             bestkp = bestkp2;
     }
     // Still no match? Guess that we haven't moved at all
-    if(bestkp.score < tracker_min_match) {
+    if(bestkp.score < tracker.min_match) {
         xy bestkp2 = tracker.track(feature->patch, image, (float)feature->current[0], (float)feature->current[1], 5.5, bestkp.score);
         if(bestkp2.score > bestkp.score)
             bestkp = bestkp2;

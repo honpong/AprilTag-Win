@@ -26,16 +26,17 @@ private:
     std::mutex write_lock;
 
     void write_packet(packet_t * p);
-    void write_camera_data(uint8_t * image, int width, int height, int stride, uint64_t timestamp);
+    void write_image_gray8(uint8_t * image, int width, int height, int stride, uint64_t timestamp);
     void write_accelerometer_data(const float data[3], uint64_t timestamp);
     void write_gyroscope_data(const float data[3], uint64_t timestamp);
 
 public:
     bool start(const char *name);
     void stop();
-    void receive_camera(camera_data&& x);
-    void receive_accelerometer(accelerometer_data&& x);
-    void receive_gyro(gyro_data&& x);
+    void receive_image_gray8(const image_gray8& x);
+    void receive_camera(const camera_data& x);
+    void receive_accelerometer(const accelerometer_data& x);
+    void receive_gyro(const gyro_data& x);
     uint64_t get_bytes_written() { return bytes_written; }
     uint64_t get_packets_written() { return packets_written; }
 };

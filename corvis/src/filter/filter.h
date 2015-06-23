@@ -11,6 +11,7 @@
 #include "../../../shared_corvis_3dk/RCSensorFusionInternals.h"
 #include "../../../shared_corvis_3dk/camera_control_interface.h"
 #include "../cor/platform/sensor_clock.h"
+#include "../cor/sensor_data.h"
 
 struct filter {
 filter(): s(cov)
@@ -72,9 +73,6 @@ filter(): s(cov)
 
     scaled_mask *scaled_mask;
     
-    bool valid_time;
-    sensor_clock::time_point first_time;
-    
     sensor_clock::duration mindelta;
     bool valid_delta;
     sensor_clock::time_point last_arrival;
@@ -87,8 +85,6 @@ filter(): s(cov)
     sensor_clock::time_point last_qr_time;
     qr_benchmark qr_bench;
 
-    bool using_simulator;
-
     v4 a_bias_start, w_bias_start; //for tracking calibration progress
     
     observation_queue observations;
@@ -96,7 +92,7 @@ filter(): s(cov)
     camera_control_interface camera_control;
 };
 
-bool filter_image_measurement(struct filter *f, const unsigned char *data, int width, int height, int stride, sensor_clock::time_point time);
+bool filter_image_measurement(struct filter *f, const camera_data & camera);
 void filter_accelerometer_measurement(struct filter *f, const float data[3], sensor_clock::time_point time);
 void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_clock::time_point time);
 void filter_set_reference(struct filter *f);
@@ -104,23 +100,9 @@ void filter_compute_gravity(struct filter *f, double latitude, double altitude);
 void filter_start_static_calibration(struct filter *f);
 void filter_start_hold_steady(struct filter *f);
 void filter_start_dynamic(struct filter *f);
-void filter_start_simulator(struct filter *f);
 void filter_start_qr_detection(struct filter *f, const std::string& data, float dimension, bool use_gravity);
 void filter_stop_qr_detection(struct filter *f);
 void filter_start_qr_benchmark(struct filter *f, float dimension);
-
-#ifdef SWIG
-%callback("%s_cb");
-#endif
-extern "C" void filter_image_packet(void *f, packet_t *p);
-extern "C" void filter_imu_packet(void *f, packet_t *p);
-extern "C" void filter_accelerometer_packet(void *f, packet_t *p);
-extern "C" void filter_gyroscope_packet(void *f, packet_t *p);
-extern "C" void filter_features_added_packet(void *f, packet_t *p);
-extern "C" void filter_control_packet(void *_f, packet_t *p);
-#ifdef SWIG
-%nocallback;
-#endif
 
 extern "C" void filter_initialize(struct filter *f, corvis_device_parameters device);
 float filter_converged(const struct filter *f);

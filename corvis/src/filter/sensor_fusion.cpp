@@ -233,7 +233,7 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
         if(!isSensorFusionRunning)
         {
         } else if(isProcessingVideo) {
-            docallback = filter_image_measurement(&sfm, data.image, data.width, data.height, data.stride, data.timestamp);
+            docallback = filter_image_measurement(&sfm, data);
             update_status();
             if(docallback) update_data(std::move(data));
         } else {

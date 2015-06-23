@@ -32,7 +32,8 @@ private:
     sensor_fusion fusion;
     std::function<void (const filter *, camera_data &&)> camera_callback;
     std::function<void (float)> progress_callback;
-    bool quarter_scale {false};
+    bool qvga {false};
+    image_gray8 parse_gray8(int width, int height, int stride, uint8_t *data, uint64_t time_us, std::unique_ptr<void, void(*)(void *)> handle);
 
 public:
     replay(bool start_paused=false) : is_paused(start_paused), fusion(fusion_queue::latency_strategy::ELIMINATE_DROPS) {}
@@ -41,7 +42,7 @@ public:
     bool set_calibration_from_filename(const char *filename);
     void setup_filter();
     bool configure_all(const char *filename, const char *devicename, bool realtime=false, std::function<void (float)> progress_callback=nullptr, std::function<void (const filter *, camera_data)> camera_callback=nullptr);
-    void enable_quarter_scale_images() { quarter_scale = true; }
+    void enable_qvga() { qvga = true; }
     void start();
     void stop();
     void toggle_pause() { is_paused = !is_paused; }

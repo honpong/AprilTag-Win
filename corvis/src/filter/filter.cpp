@@ -209,20 +209,6 @@ static bool check_packet_time(struct filter *f, sensor_clock::time_point t, int 
     return true;
 }
 
-extern "C" void filter_imu_packet(void *_f, packet_t *p)
-{
-    if(p->header.type != packet_imu) return;
-    struct filter *f = (struct filter *)_f;
-    filter_accelerometer_measurement(f, (float *)&p->data, sensor_clock::micros_to_tp(p->header.time));
-    filter_gyroscope_measurement(f, (float *)&p->data + 3, sensor_clock::micros_to_tp(p->header.time));
-}
-
-extern "C" void filter_accelerometer_packet(void *_f, packet_t *p)
-{
-    if(p->header.type != packet_accelerometer) return;
-    filter_accelerometer_measurement((struct filter *)_f, (float *)&p->data, sensor_clock::micros_to_tp(p->header.time));
-}
-
 void update_static_calibration(struct filter *f)
 {
     if(f->accel_stability.count < calibration_converge_samples) return;
@@ -462,12 +448,6 @@ void filter_accelerometer_measurement(struct filter *f, const float data[3], sen
     }
 }
 
-extern "C" void filter_gyroscope_packet(void *_f, packet_t *p)
-{
-    if(p->header.type != packet_gyroscope) return;
-    filter_gyroscope_measurement((struct filter *)_f, (float *)&p->data, sensor_clock::micros_to_tp(p->header.time));
-}
-
 void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_clock::time_point time)
 {
     v4 meas(data[0], data[1], data[2], 0.);
@@ -518,11 +498,6 @@ void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_
         " bias is:\n" <<
         f->s.w_bias.v << f->s.w_bias.variance();
     }
-
-    // Simulator should update outputs because it doesn't produce
-    // images, which are the only time outputs are normally sent
-    if(f->using_simulator)
-        filter_update_outputs(f, time);
 }
 
 static int filter_process_features(struct filter *f, sensor_clock::time_point time)
@@ -641,48 +616,51 @@ void filter_setup_next_frame(struct filter *f, const uint8_t *image, sensor_cloc
 }
 
 //features are added to the state immediately upon detection - handled with triangulation in observation_vision_feature::predict - but what is happening with the empty row of the covariance matrix during that time?
-static void addfeatures(struct filter *f, size_t newfeats, const unsigned char *img, unsigned int width, int height, sensor_clock::time_point time)
+static void filter_add_features(struct filter *f, const camera_data & camera, size_t newfeats)
 {
 #ifdef TEST_POSDEF
     if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def before adding features\n");
 #endif
     // Filter out features which we already have by masking where
     // existing features are located
-    if(!f->scaled_mask) f->scaled_mask = new scaled_mask(width, height);
+    if(!f->scaled_mask) f->scaled_mask = new scaled_mask(camera.width, camera.height);
     f->scaled_mask->initialize();
     for(state_vision_feature *i : f->s.features) {
         f->scaled_mask->clear((int)i->current[0], (int)i->current[1]);
     }
 
     // Run detector
-    vector<xy> &kp = f->track.detect(img, f->scaled_mask, (int)newfeats, 0, 0, width, height);
+    vector<xy> &kp = f->track.detect(camera.image, f->scaled_mask, (int)newfeats, 0, 0, camera.width, camera.height);
 
     // Check that the detected features don't collide with the mask
     // and add them to the filter
     if(kp.size() < newfeats) newfeats = kp.size();
     if(newfeats < state_vision_group::min_feats) return;
-    state_vision_group *g = f->s.add_group(time);
+    state_vision_group *g = f->s.add_group(camera.timestamp);
 
     int found_feats = 0;
     for(int i = 0; i < (int)kp.size(); ++i) {
         int x = (int)kp[i].x;
         int y = (int)kp[i].y;
-        if(x > 0 && y > 0 && x < (int)width-1 && y < (int)height-1 && f->scaled_mask->test(x, y)) {
+        if(x > 0 && y > 0 && x < (int)camera.width-1 && y < (int)camera.height-1 && f->scaled_mask->test(x, y)) {
             f->scaled_mask->clear(x, y);
             state_vision_feature *feat = f->s.add_feature(x, y);
-            feat->intensity = (uint8_t)((((unsigned int)img[x + y*width]) + img[x + 1 + y * width] + img[x + width + y * width] + img[x + 1 + width + y * width]) >> 2);
+            feat->intensity = (uint8_t)((((unsigned int)camera.image[x + y*camera.width]) + 
+                                                        camera.image[x + 1 + y * camera.width] +
+                                                        camera.image[x + camera.width + y * camera.width] +
+                                                        camera.image[x + 1 + camera.width + y * camera.width]) >> 2);
             int half_patch = f->track.half_patch_width;
             int full_patch = 2 * half_patch + 1;
             for(int py = 0; py < full_patch; ++py)
             {
                 for(int px = 0; px <= full_patch; ++px)
                 {
-                    feat->patch[py * full_patch + px] = img[x + px - half_patch + (y + py - half_patch) * width];
+                    feat->patch[py * full_patch + px] = camera.image[x + px - half_patch + (y + py - half_patch) * camera.width];
                 }
             }
             g->features.children.push_back(feat);
             feat->groupid = g->id;
-            feat->found_time = time;
+            feat->found_time = camera.timestamp;
             
             found_feats++;
             if(found_feats == newfeats) break;
@@ -701,45 +679,20 @@ void filter_set_reference(struct filter *f)
     f->s.reset_position();
 }
 
-extern "C" void filter_control_packet(void *_f, packet_t *p)
+bool filter_image_measurement(struct filter *f, const camera_data & camera)
 {
-    if(p->header.type != packet_filter_control) return;
-    struct filter *f = (struct filter *)_f;
-    //ignore full filter reset - can't do from here and may not make sense anymore
-    /*if(p->header.user == 2) {
-        //full reset
-        if (log_enabled) fprintf(stderr, "full filter reset\n");
-        filter_reset_full(f);
-    }*/
-    if(p->header.user == 1) {
-        //start measuring
-        if (log_enabled) fprintf(stderr, "measurement starting\n");
-        filter_set_reference(f);
-    }
-    if(p->header.user == 0) {
-        //stop measuring
-        if (log_enabled) fprintf(stderr, "measurement stopping\n");
-        //ignore
-    }
-}
+    sensor_clock::time_point time = camera.timestamp;
 
-bool filter_image_measurement(struct filter *f, const unsigned char *data, int width, int height, int stride, sensor_clock::time_point time)
-{
     if(f->run_state == RCSensorFusionRunStateInactive) return false;
     if(!check_packet_time(f, time, packet_camera)) return false;
     if(!f->got_accelerometer || !f->got_gyroscope) return false;
     
-    if(!f->valid_time) {
-        f->first_time = time;
-        f->valid_time = true;
-    }
-
     if(f->qr.running && (time - f->last_qr_time > qr_detect_period)) {
         f->last_qr_time = time;
-        f->qr.process_frame(f, data, width, height);
+        f->qr.process_frame(f, camera.image, camera.width, camera.height);
     }
     if(f->qr_bench.enabled)
-        f->qr_bench.process_frame(f, data, width, height);
+        f->qr_bench.process_frame(f, camera.image, camera.width, camera.height);
 
     f->got_image = true;
     if(f->run_state == RCSensorFusionRunStateDynamicInitialization) {
@@ -761,13 +714,13 @@ bool filter_image_measurement(struct filter *f, const unsigned char *data, int w
     }
     if(f->run_state != RCSensorFusionRunStateRunning && f->run_state != RCSensorFusionRunStateDynamicInitialization && f->run_state != RCSensorFusionRunStateSteadyInitialization) return true; //frame was "processed" so that callbacks still get called
     
-    f->track.width = width;
-    f->track.height = height;
-    f->track.stride = stride;
+    f->track.width = camera.width;
+    f->track.height = camera.height;
+    f->track.stride = camera.stride;
     f->track.init();
-    f->image_width = width;
-    f->image_height = height;
-    f->s.image_width = width;
+    f->image_width = camera.width;
+    f->image_height = camera.height;
+    f->s.image_width = camera.width;
     
     if(!f->ignore_lateness) {
         /*thread_info_data_t thinfo;
@@ -813,7 +766,7 @@ bool filter_image_measurement(struct filter *f, const unsigned char *data, int w
     }
 
 
-    filter_setup_next_frame(f, data, time);
+    filter_setup_next_frame(f, camera.image, time);
 
     if(show_tuning) {
         fprintf(stderr, "vision:\n");
@@ -852,7 +805,7 @@ bool filter_image_measurement(struct filter *f, const unsigned char *data, int w
             if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def after disabling orient only\n");
 #endif
         }
-        addfeatures(f, space, data, width, height, time);
+        filter_add_features(f, camera, space);
         if(f->s.features.size() < state_vision_group::min_feats) {
             if (log_enabled) fprintf(stderr, "detector failure: only %ld features after add\n", f->s.features.size());
             f->detector_failed = true;
@@ -901,75 +854,6 @@ bool filter_image_measurement(struct filter *f, const unsigned char *data, int w
 
     return true;
 }
-
-extern "C" void filter_image_packet(void *_f, packet_t *p)
-{
-    if(p->header.type != packet_camera) return;
-    struct filter *f = (struct filter *)_f;
-    int packet_width, packet_height;
-    char tmp[17];
-    memcpy(tmp, p->data, 16);
-    tmp[16] = 0;
-    std::stringstream parse(tmp);
-    //pgm header is "P5 x y"
-    parse.ignore(3, ' ') >> packet_width >> packet_height;
-    if(!f->track.width) {
-        f->track.width = packet_width;
-        f->track.height = packet_height;
-        f->track.stride = packet_width;
-    }
-    else
-        assert(packet_width == f->track.width && packet_height == f->track.height);
-    filter_image_measurement(f, p->data + 16, f->track.width, f->track.height, f->track.stride, sensor_clock::micros_to_tp(p->header.time));
-}
-
-extern "C" void filter_features_added_packet(void *_f, packet_t *p)
-{
-    struct filter *f = (struct filter *)_f;
-    if(p->header.type == packet_feature_select) {
-        feature_t *initial = (feature_t*) p->data;
-        for(int i = 0; i < p->header.user; ++i) {
-            state_vision_feature *feat = f->s.add_feature(initial[i].x, initial[i].y);
-            assert(initial[i].x != INFINITY);
-            feat->status = feature_initializing;
-            feat->current[0] = initial[i].x;
-            feat->current[1] = initial[i].y;
-        }
-        f->s.remap();
-    }
-    if(p->header.type == packet_feature_intensity) {
-        uint8_t *intensity = (uint8_t *)p->data;
-        list<state_vision_feature *>::iterator fiter = f->s.features.end();
-        --fiter;
-        for(int i = p->header.user; i > 0; --i) {
-            (*fiter)->intensity = intensity[i];
-        }
-        /*  
-        int feature_base = f->s.features.size() - p->header.user;
-        //        list<state_vision_feature *>::iterator fiter = f->s.featuresf->s.features.end()-p->header.user;
-        for(int i = 0; i < p->header.user; ++i) {
-            f->s.features[feature_base + i]->intensity = intensity[i];
-            }*/
-    }
-}
-
-/*static double a_bias_stdev = .02 * 9.8; //20 mg
-static double BEGIN_ABIAS_VAR = a_bias_stdev * a_bias_stdev;
-static double w_bias_stdev = 10. / 180. * M_PI; //10 dps
-static double BEGIN_WBIAS_VAR = w_bias_stdev * w_bias_stdev;*/
-
-#define BEGIN_FOCAL_VAR 10.
-#define END_FOCAL_VAR .3
-#define BEGIN_C_VAR 2.
-#define END_C_VAR .16
-#define BEGIN_ABIAS_VAR 1.e-5
-#define END_ABIAS_VAR 1.e-6
-#define BEGIN_WBIAS_VAR 1.e-7
-#define END_WBIAS_VAR 1.e-8
-#define BEGIN_K1_VAR 2.e-4
-#define END_K1_VAR 1.e-5
-#define BEGIN_K2_VAR 2.e-4
-#define BEGIN_K3_VAR 1.e-4
 
 //This should be called every time we want to initialize or reset the filter
 extern "C" void filter_initialize(struct filter *f, struct corvis_device_parameters device)
@@ -1033,9 +917,6 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     
     f->stable_start = sensor_clock::time_point(sensor_clock::duration(0));
     f->calibration_bad = false;
-    
-    f->valid_time = 0;
-    f->first_time = sensor_clock::time_point(sensor_clock::duration(0));
     
     f->mindelta = std::chrono::microseconds(0);
     f->valid_delta = false;
@@ -1109,12 +990,12 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->s.dw.set_initial_variance(1.e5); //observed range of variances in sequences is 1-6
     f->s.a.set_initial_variance(1.e5);
 
-    f->s.focal_length.set_initial_variance(BEGIN_FOCAL_VAR / device.image_width / device.image_width);
-    f->s.center_x.set_initial_variance(BEGIN_C_VAR / device.image_width / device.image_width);
-    f->s.center_y.set_initial_variance(BEGIN_C_VAR / device.image_width / device.image_width);
-    f->s.k1.set_initial_variance(BEGIN_K1_VAR);
-    f->s.k2.set_initial_variance(BEGIN_K2_VAR);
-    f->s.k3.set_initial_variance(BEGIN_K3_VAR);
+    f->s.focal_length.set_initial_variance(10. / device.image_width / device.image_width);
+    f->s.center_x.set_initial_variance(2. / device.image_width / device.image_width);
+    f->s.center_y.set_initial_variance(2. / device.image_width / device.image_width);
+    f->s.k1.set_initial_variance(2.e-4);
+    f->s.k2.set_initial_variance(2.e-4);
+    f->s.k3.set_initial_variance(2.e-4);
     
     f->shutter_delay = device.shutter_delay;
     f->shutter_period = device.shutter_period;
@@ -1129,8 +1010,6 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
 
     f->last_qr_time = sensor_clock::micros_to_tp(0);
 
-    f->using_simulator = false;
-    
     f->max_velocity = 0.;
     f->median_depth_variance = 1.;
     f->has_converged = false;
@@ -1201,14 +1080,6 @@ void filter_start_dynamic(struct filter *f)
 {
     f->want_start = f->last_time;
     f->run_state = RCSensorFusionRunStateDynamicInitialization;
-}
-
-void filter_start_simulator(struct filter *f)
-{
-    f->want_start = f->last_time;
-    f->s.disable_orientation_only();
-    f->run_state = RCSensorFusionRunStateRunning;
-    f->using_simulator = true;
 }
 
 /*

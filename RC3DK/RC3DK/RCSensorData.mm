@@ -48,18 +48,18 @@ camera_data camera_data_from_CMSampleBufferRef(CMSampleBufferRef sampleBuffer)
     if(!pixelBuffer) throw std::runtime_error("Null image buffer");
     pixelBuffer = (CVPixelBufferRef)CVPixelBufferRetain(pixelBuffer);
     
-    d.width = CVPixelBufferGetWidth(pixelBuffer);
-    d.height = CVPixelBufferGetHeight(pixelBuffer);
+    d.width = (int)CVPixelBufferGetWidth(pixelBuffer);
+    d.height = (int)CVPixelBufferGetHeight(pixelBuffer);
     CVPixelBufferLockBaseAddress(pixelBuffer, kCVPixelBufferLock_ReadOnly);
     
     if(CVPixelBufferIsPlanar(pixelBuffer))
     {
-        d.stride = CVPixelBufferGetBytesPerRowOfPlane(pixelBuffer, 0);
+        d.stride = (int)CVPixelBufferGetBytesPerRowOfPlane(pixelBuffer, 0);
         d.image = (unsigned char *)CVPixelBufferGetBaseAddressOfPlane(pixelBuffer,0);
     }
     else
     {
-        d.stride = CVPixelBufferGetBytesPerRow(pixelBuffer);
+        d.stride = (int)CVPixelBufferGetBytesPerRow(pixelBuffer);
         d.image = (unsigned char *)CVPixelBufferGetBaseAddress(pixelBuffer);
     }
     

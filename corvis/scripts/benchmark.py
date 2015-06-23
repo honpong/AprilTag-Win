@@ -42,10 +42,11 @@ def measurement_string(L, L_measured):
     return "%.2fcm actual, %.2fcm measured, %.2fcm error (%.2f%%)" % (L, L_measured, error, error_percent)
 
 class TestRunner(object):
-  def  __init__(self, input_dir, output_dir = None):
+  def  __init__(self, input_dir, output_dir = None, qvga = False):
     self.input_dir = input_dir
     self.output_dir = output_dir
     self.measure_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../bin/measure")
+    self.qvga = qvga
 
   def __call__(self, test_case):
     #return self.run(test_case)
@@ -54,6 +55,8 @@ class TestRunner(object):
   def run_subprocess(self, test_case):
     print "Running ", test_case["path"]; sys.stdout.flush();
     args = [self.measure_path, os.path.join(self.input_dir, test_case["path"]), test_case["config"], "--no-gui"]
+    if self.qvga:
+        args.append("--qvga")
     if self.output_dir is not None:
         test_case["image"] = "%s.png" % test_case["path"]
         image = os.path.join(output_dir, test_case["image"])
@@ -104,8 +107,8 @@ def error_histogram_string(counts, bins):
 
 import multiprocessing
 
-def benchmark(input_dir, output_dir = None):
-    test_runner = TestRunner(input_dir, output_dir)
+def benchmark(input_dir, output_dir = None, qvga = False):
+    test_runner = TestRunner(input_dir, output_dir, qvga)
     test_cases = scan_tests(input_dir)
     pool = multiprocessing.Pool(multiprocessing.cpu_count() - 1)
     print "Worker pool size is", pool._processes
@@ -187,15 +190,22 @@ def benchmark(input_dir, output_dir = None):
     print >>r, "Alternate histogram score (lower is better) is %d\n" % altscore
 
 if __name__ == "__main__":
-    if   len(sys.argv) == 2:
-        sequence_dir, output_dir = sys.argv[1], None
-    elif len(sys.argv) == 3:
-        sequence_dir, output_dir = sys.argv[1], sys.argv[2]
+    from optparse import OptionParser
+    usage = "Usage: %prog [options] sequence-dir [output-dir]"
+    parser = OptionParser(usage=usage)
+    parser.add_option("-q", "--qvga", action="store_true", dest="qvga", default=False,
+            help="Scale images to qvga (320x240)")
+    (options, args) = parser.parse_args()
+    print len(args), args
+    if   len(args) == 1:
+        sequence_dir, output_dir = args[0], None
+    elif len(args) == 2:
+        sequence_dir, output_dir = args[0], args[1]
         os.mkdir(output_dir)
     else:
-        print "Usage:", sys.argv[0], "<sequence-dir> [<output-dir>]"
+        parser.print_help()
         sys.exit(1)
 
-    benchmark(sequence_dir, output_dir)
+    benchmark(sequence_dir, output_dir, options.qvga)
 
 

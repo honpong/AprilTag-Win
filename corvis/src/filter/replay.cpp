@@ -80,6 +80,33 @@ void replay::setup_filter()
     fusion.start_offline();
 }
 
+image_gray8 replay::parse_gray8(int width, int height, int stride, uint8_t *data, uint64_t time_us, std::unique_ptr<void, void(*)(void *)> handle)
+{
+    image_gray8 gray;
+    gray.image = data;
+    gray.width = width;
+    gray.height = height;
+    gray.stride = width;
+    if(qvga && width == 640 && height == 480)
+    {
+        gray.width = width / 2;
+        gray.height = height / 2;
+        gray.stride = width / 2;
+        for(int y = 0; y < gray.height; ++y) {
+            for(int x = 0; x < gray.width; ++x) {
+                gray.image[y * gray.stride + x] =
+                (gray.image[(y * 2 * width) + (x * 2)] +
+                 gray.image[((y * 2 + 1) * width) + (x * 2)] +
+                 gray.image[(y * 2 * width) + (x * 2 + 1)] +
+                 gray.image[((y * 2 + 1) * width) + (x * 2 + 1)]) / 4;
+            }
+        }
+    }
+    gray.timestamp = sensor_clock::time_point(std::chrono::microseconds(time_us+16667));
+    gray.image_handle = std::move(handle);
+    return gray;
+}
+
 void replay::start()
 {
     is_running = true;
@@ -87,7 +114,6 @@ void replay::start()
     length = 0;
     packets_dispatched = 0;
     bytes_dispatched = 0;
-    bool check_image_size = true;
 
     packet_header_t header;
     file.read((char *)&header, 16);
@@ -144,31 +170,7 @@ void replay::start()
                     //pgm header is "P5 x y"
                     parse.ignore(3, ' ') >> width >> height;
                     camera_data d;
-                    d.image = packet->data + 16;
-                    d.width = width;
-                    d.height = height;
-                    d.stride = width;
-                    if(qvga && width == 640 && height == 480)
-                    {
-                        d.width = width / 2;
-                        d.height = height / 2;
-                        d.stride = width / 2;
-                        for(int y = 0; y < d.height; ++y) {
-                            for(int x = 0; x < d.width; ++x) {
-                                d.image[y * d.stride + x] =
-                                    (d.image[(y * 2 * width) + (x * 2)] +
-                                    d.image[((y * 2 + 1) * width) + (x * 2)] +
-                                    d.image[(y * 2 * width) + (x * 2 + 1)] +
-                                    d.image[((y * 2 + 1) * width) + (x * 2 + 1)]) / 4;
-                            }
-                        }
-                    }
-                    if(check_image_size && d.width < 320) {
-                        fprintf(stderr, "Warning: Image width is less than 320 (%d x %d)\n", d.width, d.height);
-                        check_image_size = false;
-                    }
-                    d.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time+16667));
-                    d.image_handle = std::move(phandle);
+                    d = parse_gray8(width, height, width, packet->data + 16, packet->header.time, std::move(phandle));
                     fusion.receive_image(std::move(d));
                     is_stepping = false;
                     break;

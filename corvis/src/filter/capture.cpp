@@ -36,7 +36,7 @@ void capture::write_packet(packet_t * p)
     packets_written++;
 }
 
-void capture::write_camera_data(uint8_t * image, int width, int height, int stride, uint64_t timestamp)
+void capture::write_image_gray8(uint8_t * image, int width, int height, int stride, uint64_t timestamp)
 {
     // 16 bytes for pgm header
     packet_t *buf = packet_alloc(packet_camera, width*height+16, timestamp);
@@ -67,19 +67,25 @@ void capture::write_gyroscope_data(const float data[3], uint64_t timestamp)
     free(buf);
 }
 
-void capture::receive_camera(camera_data &&data)
+void capture::receive_image_gray8(const image_gray8 &data)
 {
     auto micros = std::chrono::duration_cast<std::chrono::microseconds>(data.timestamp.time_since_epoch()).count();
-    write_camera_data(data.image, data.width, data.height, data.stride, micros);
+    write_image_gray8(data.image, data.width, data.height, data.stride, micros);
 };
 
-void capture::receive_accelerometer(accelerometer_data &&data)
+void capture::receive_camera(const camera_data &data)
+{
+    auto micros = std::chrono::duration_cast<std::chrono::microseconds>(data.timestamp.time_since_epoch()).count();
+    write_image_gray8(data.image, data.width, data.height, data.stride, micros);
+};
+
+void capture::receive_accelerometer(const accelerometer_data &data)
 {
     auto micros = std::chrono::duration_cast<std::chrono::microseconds>(data.timestamp.time_since_epoch()).count();
     write_accelerometer_data(data.accel_m__s2, micros);
 }
 
-void capture::receive_gyro(gyro_data &&data)
+void capture::receive_gyro(const gyro_data &data)
 {
     auto micros = std::chrono::duration_cast<std::chrono::microseconds>(data.timestamp.time_since_epoch()).count();
     write_gyroscope_data(data.angvel_rad__s, micros);

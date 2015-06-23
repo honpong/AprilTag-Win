@@ -12,17 +12,37 @@
 #include <memory>
 #include "platform/sensor_clock.h"
 
-class camera_data
+enum class camera_enum
+{
+    gray,
+    rgb,
+    depth
+};
+
+template<camera_enum camera_type, class data_type>
+class image_data
 {
 public:
-    camera_data(): image_handle(nullptr, nullptr), image(nullptr), width(0), height(0), stride(0) { }
-    camera_data(camera_data&& other) = default;
-    camera_data &operator=(camera_data&& other) = default;
+    image_data(): image_handle(nullptr, nullptr), image(nullptr), width(0), height(0), stride(0) { }
+    image_data(image_data<camera_type, data_type>&& other) = default;
+    image_data &operator=(image_data<camera_type, data_type>&& other) = default;
     
     sensor_clock::time_point timestamp;
     std::unique_ptr<void, void(*)(void *)> image_handle;
-    uint8_t *image;
+    data_type *image;
     int width, height, stride;
+};
+
+typedef image_data<camera_enum::gray, uint8_t> image_gray8;
+typedef image_data<camera_enum::depth, uint16_t> image_depth16;
+
+class camera_data: public image_data<camera_enum::gray, uint8_t>
+{
+public:
+    camera_data(): image_data(), depth(nullptr) { }
+    camera_data(image_gray8 &&other): image_gray8(std::move(other)) {}
+
+    std::unique_ptr<image_depth16> depth;
 };
 
 class accelerometer_data

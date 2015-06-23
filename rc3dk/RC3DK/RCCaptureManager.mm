@@ -32,19 +32,19 @@
 - (void) receiveVideoFrame:(CMSampleBufferRef)sampleBuffer;
 {
     if(isCapturing)
-        cp.receive_camera(camera_data_from_CMSampleBufferRef(sampleBuffer));
+        cp.write_camera(camera_data_from_CMSampleBufferRef(sampleBuffer));
 }
 
 - (void) receiveAccelerometerData:(CMAccelerometerData *)accelerationData
 {
     if(isCapturing)
-        cp.receive_accelerometer(accelerometer_data_from_CMAccelerometerData(accelerationData));
+        cp.write_accelerometer(accelerometer_data_from_CMAccelerometerData(accelerationData));
 }
 
 - (void) receiveGyroData:(CMGyroData *)gyroData
 {
     if(isCapturing)
-        cp.receive_gyro(gyro_data_from_CMGyroData(gyroData));
+        cp.write_gyro(gyro_data_from_CMGyroData(gyroData));
 }
 
 - (void)startCaptureWithPath:(NSString *)path

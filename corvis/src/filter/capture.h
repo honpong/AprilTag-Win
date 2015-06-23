@@ -33,10 +33,10 @@ private:
 public:
     bool start(const char *name);
     void stop();
-    void receive_image_gray8(const image_gray8& x);
-    void receive_camera(const camera_data& x);
-    void receive_accelerometer(const accelerometer_data& x);
-    void receive_gyro(const gyro_data& x);
+    void write_image_gray8(const image_gray8& x);
+    void write_camera(const camera_data& x);
+    void write_accelerometer(const accelerometer_data& x);
+    void write_gyro(const gyro_data& x);
     uint64_t get_bytes_written() { return bytes_written; }
     uint64_t get_packets_written() { return packets_written; }
 };

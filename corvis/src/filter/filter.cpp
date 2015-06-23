@@ -616,48 +616,51 @@ void filter_setup_next_frame(struct filter *f, const uint8_t *image, sensor_cloc
 }
 
 //features are added to the state immediately upon detection - handled with triangulation in observation_vision_feature::predict - but what is happening with the empty row of the covariance matrix during that time?
-static void addfeatures(struct filter *f, size_t newfeats, const unsigned char *img, unsigned int width, int height, sensor_clock::time_point time)
+static void filter_add_features(struct filter *f, const camera_data & camera, size_t newfeats)
 {
 #ifdef TEST_POSDEF
     if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def before adding features\n");
 #endif
     // Filter out features which we already have by masking where
     // existing features are located
-    if(!f->scaled_mask) f->scaled_mask = new scaled_mask(width, height);
+    if(!f->scaled_mask) f->scaled_mask = new scaled_mask(camera.width, camera.height);
     f->scaled_mask->initialize();
     for(state_vision_feature *i : f->s.features) {
         f->scaled_mask->clear((int)i->current[0], (int)i->current[1]);
     }
 
     // Run detector
-    vector<xy> &kp = f->track.detect(img, f->scaled_mask, (int)newfeats, 0, 0, width, height);
+    vector<xy> &kp = f->track.detect(camera.image, f->scaled_mask, (int)newfeats, 0, 0, camera.width, camera.height);
 
     // Check that the detected features don't collide with the mask
     // and add them to the filter
     if(kp.size() < newfeats) newfeats = kp.size();
     if(newfeats < state_vision_group::min_feats) return;
-    state_vision_group *g = f->s.add_group(time);
+    state_vision_group *g = f->s.add_group(camera.timestamp);
 
     int found_feats = 0;
     for(int i = 0; i < (int)kp.size(); ++i) {
         int x = (int)kp[i].x;
         int y = (int)kp[i].y;
-        if(x > 0 && y > 0 && x < (int)width-1 && y < (int)height-1 && f->scaled_mask->test(x, y)) {
+        if(x > 0 && y > 0 && x < (int)camera.width-1 && y < (int)camera.height-1 && f->scaled_mask->test(x, y)) {
             f->scaled_mask->clear(x, y);
             state_vision_feature *feat = f->s.add_feature(x, y);
-            feat->intensity = (uint8_t)((((unsigned int)img[x + y*width]) + img[x + 1 + y * width] + img[x + width + y * width] + img[x + 1 + width + y * width]) >> 2);
+            feat->intensity = (uint8_t)((((unsigned int)camera.image[x + y*camera.width]) + 
+                                                        camera.image[x + 1 + y * camera.width] +
+                                                        camera.image[x + camera.width + y * camera.width] +
+                                                        camera.image[x + 1 + camera.width + y * camera.width]) >> 2);
             int half_patch = f->track.half_patch_width;
             int full_patch = 2 * half_patch + 1;
             for(int py = 0; py < full_patch; ++py)
             {
                 for(int px = 0; px <= full_patch; ++px)
                 {
-                    feat->patch[py * full_patch + px] = img[x + px - half_patch + (y + py - half_patch) * width];
+                    feat->patch[py * full_patch + px] = camera.image[x + px - half_patch + (y + py - half_patch) * camera.width];
                 }
             }
             g->features.children.push_back(feat);
             feat->groupid = g->id;
-            feat->found_time = time;
+            feat->found_time = camera.timestamp;
             
             found_feats++;
             if(found_feats == newfeats) break;
@@ -802,7 +805,7 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
             if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def after disabling orient only\n");
 #endif
         }
-        addfeatures(f, space, camera.image, camera.width, camera.height, time);
+        filter_add_features(f, camera, space);
         if(f->s.features.size() < state_vision_group::min_feats) {
             if (log_enabled) fprintf(stderr, "detector failure: only %ld features after add\n", f->s.features.size());
             f->detector_failed = true;

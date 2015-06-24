@@ -206,7 +206,7 @@ void replay::start()
                         d.depth = std::make_unique<image_depth16>();
                         d.depth->width = ip->depth_width;
                         d.depth->height = ip->depth_height;
-                        d.depth->stride = ip->depth_width;
+                        d.depth->stride = ip->depth_width * 2;
                         d.depth->timestamp = d.timestamp;
                         d.depth->exposure_time = d.exposure_time;
                         d.depth->image = (uint16_t *)(ip->data + ip->width * ip->height);

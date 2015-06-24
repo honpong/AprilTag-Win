@@ -100,7 +100,7 @@ void capture::write_camera(const camera_data &data)
     {
         for(int y = 0; y < depth_height; ++y)
         {
-            memcpy(ip->data + width * height + y * depth_width, ((uint8_t *)data.depth->image) + y * data.depth->stride, depth_width * 2);
+            memcpy(ip->data + width * height + y * depth_width * 2, ((uint8_t *)data.depth->image) + y * data.depth->stride, depth_width * 2);
         }
     }
     write_packet(buf);

@@ -195,7 +195,7 @@ void gui::start_glfw()
 
         if(show_plots) {
             plots_width = lroundf(width*right_column_percent);
-            plots_height = height - video_height;
+            plots_height = height - video_height - depth_height;
             if(show_video)
                 plots_width = video_width;
             if(!show_video && show_main)

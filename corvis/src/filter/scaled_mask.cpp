@@ -33,7 +33,7 @@ void scaled_mask::clear(int fx, int fy)
         //don't draw previous row, but need to check pixel to left
         if(x > 1) mask[x-1 + y * scaled_width] = 0;
     }
-    if(y < scaled_height - 1) {
+    if(y < scaled_height - 2) {
         for(int i = 0; i < 3; ++i) mask[x-1+i + (y+1)*scaled_width] = 0;
         mask[x+1 + y*scaled_width] = 0;
     } else {

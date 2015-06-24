@@ -144,7 +144,7 @@ static void create_plot(world_state * state, int plot_index, int key_index, uint
         gr.Clf('w');
         gr.SubPlot(1,1,0,"T");
         gr.Box();
-        float minx = std::numeric_limits<float>::max(), maxx = std::numeric_limits<float>::min();
+        sensor_clock::time_point mint = sensor_clock::time_point::max(), maxt = sensor_clock::time_point::min();
         float miny = std::numeric_limits<float>::max(), maxy = std::numeric_limits<float>::min();
         std::string names;
         const char *colors[] = {"r","g","b"};
@@ -158,9 +158,9 @@ static void create_plot(world_state * state, int plot_index, int key_index, uint
             //    continue;
 
             for(auto data : kvi->second) {
-                float seconds = sensor_clock::tp_to_micros(data.first)/1e6;
-                if(seconds < minx) minx = seconds;
-                if(seconds > maxx) maxx = seconds;
+                sensor_clock::time_point t = data.first;
+                if(t < mint) mint = t;
+                if(t > maxt) maxt = t;
 
                 float val = data.second;
                 if(val < miny) miny = val;
@@ -180,14 +180,14 @@ static void create_plot(world_state * state, int plot_index, int key_index, uint
 
             int j = 0;
             for(auto data : p) {
-                float seconds = sensor_clock::tp_to_micros(data.first)/1e6 - minx;
+                float seconds = std::chrono::duration_cast<std::chrono::duration<float>>(data.first - mint).count();
                 data_x.a[j] = seconds;
 
                 float val = data.second;
                 data_y.a[j++] = val;
             }
 
-            gr.SetRange('x', 0, maxx - minx);
+            gr.SetRange('x', 0, std::chrono::duration_cast<std::chrono::duration<float>>(maxt - mint).count());
             gr.SetRange('y', miny, maxy);
             gr.Plot(data_x, data_y, colors[key_index == -1 ? i%3 : key_index % 3]);
         }

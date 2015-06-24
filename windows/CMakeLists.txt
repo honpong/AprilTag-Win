@@ -8,6 +8,8 @@ add_library(pxc STATIC IMPORTED)
 set_target_properties(pxc PROPERTIES
   IMPORTED_LOCATION_DEBUG       "$ENV{RSSDK_DIR}/lib/$(PlatformName)/libpxc_d.lib"
   IMPORTED_LOCATION_RELEASE     "$ENV{RSSDK_DIR}/lib/$(PlatformName)/libpxc.lib"
+  IMPORTED_LOCATION_RELWITHDEBINFO "$ENV{RSSDK_DIR}/lib/$(PlatformName)/libpxc.lib"
+  IMPORTED_LOCATION_MINSIZEREL  "$ENV{RSSDK_DIR}/lib/$(PlatformName)/libpxc.lib"
   INTERFACE_INCLUDE_DIRECTORIES "$ENV{RSSDK_DIR}/include"
 )
 

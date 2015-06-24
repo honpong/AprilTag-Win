@@ -1,6 +1,6 @@
 all:
 	mkdir -p bin
-	cd bin && cmake ../ -DCMAKE_INSTALL_PREFIX=.
+	cd bin && cmake .. -DCMAKE_BUILD_TYPE=RelWithDebInfo
 	cmake --build bin/
 
 clean:

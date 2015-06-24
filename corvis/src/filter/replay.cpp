@@ -8,6 +8,7 @@
 #include "replay.h"
 
 #include <string.h>
+#include <regex>
 #include "calibration_json_store.h"
 #include "device_parameters.h"
 #include "../cor/packet.h"
@@ -76,9 +77,8 @@ bool replay::load_reference_from_pose_file(const string &filename)
 
 static bool find_prefixed_number(const std::string in, const std::string &prefix, float &n)
 {
-    size_t pi = in.rfind(prefix), ni = pi + prefix.size();
-    if (pi == string::npos) return false;
-    stringstream s(in.substr(ni, in.find_first_not_of("0123456789.", ni) - ni));
+    smatch m; if (!regex_search(in, m, regex(prefix + "(\\d+(?:\\.\\d*)?)"))) return false;
+    stringstream s(m[1]);
     float nn; s >> nn; if (!s.fail()) n = nn;
     return !s.fail();
 }

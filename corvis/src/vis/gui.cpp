@@ -160,43 +160,37 @@ void gui::start_glfw()
         int video_width = 0, video_height = 0;
         int depth_width = 0, depth_height = 0;
         int plots_width = 0, plots_height = 0;
-        int frame_width = 0, frame_height = 0;
-        float right_column_percent = .5f;
-        float video_height_percent = .33f;
-        float depth_height_percent = .33f;
-        float plots_height_percent = 1.f - video_height_percent;
+        int video_frame_width = 0, video_frame_height = 0;
+        int depth_frame_width = 0, depth_frame_height = 0;
 
-        bool show_video = this->show_video && world_state_render_video_get_size(state, &frame_width, &frame_height);
-        bool show_depth = this->show_depth && world_state_render_depth_get_size(state, &frame_width, &frame_height);
+        bool show_video = this->show_video && world_state_render_video_get_size(state, &video_frame_width, &video_frame_height);
+        bool show_depth = this->show_depth && world_state_render_depth_get_size(state, &depth_frame_width, &depth_frame_height);
 
-        if(!show_main)
-            right_column_percent = 1.f;
-        if(!show_plots) {
-            if(!show_depth) {
-                video_height_percent = 1.f;
-            } else {
-                video_height_percent = .5f;
-                depth_height_percent = .5f;
-            }
-        }
-        if(!show_video || !show_depth)
-            plots_height_percent = .5f;
+        float right_column_percent = show_main ? .5f : 1.f;
+        float video_ratio = show_video ? 1.f : 0.f;
+        float plots_ratio = show_plots ? 1.f : 0.f;
+        float depth_ratio = show_depth ? 1.f : 0.f;
+
+        float total = video_ratio + plots_ratio + depth_ratio + FLT_EPSILON;
+        float video_height_percent = video_ratio / total;
+        float depth_height_percent = depth_ratio / total;
+        float plots_height_percent = 1.f - video_height_percent - depth_height_percent;
 
         if(show_video) {
             video_width = lroundf(width*right_column_percent);
             video_height = lroundf(height*video_height_percent);
-            if(1.*video_height/video_width > 1.f*frame_height/frame_width)
-                video_height = lroundf(video_width *  1.f*frame_height/frame_width);
+            if(1.*video_height/video_width > 1.f*video_frame_height/video_frame_width)
+                video_height = lroundf(video_width *  1.f*video_frame_height/video_frame_width);
             else
-                video_width = lroundf(video_height * 1.f*frame_width/frame_height);
+                video_width = lroundf(video_height * 1.f*video_frame_width/video_frame_height);
         }
         if(show_depth) {
             depth_width = lroundf(width*right_column_percent);
             depth_height = lroundf(height*depth_height_percent);
-            if(1.*depth_height/depth_width > 1.f*frame_height/frame_width)
-                depth_height = lroundf(depth_width *  1.f*frame_height/frame_width);
+            if(1.*depth_height/depth_width > 1.f*depth_frame_height/depth_frame_width)
+                depth_height = lroundf(depth_width *  1.f*depth_frame_height/depth_frame_width);
             else
-                depth_width = lroundf(depth_height * 1.f*frame_width/frame_height);
+                depth_width = lroundf(depth_height * 1.f*depth_frame_width/depth_frame_height);
         }
 
         if(show_plots) {

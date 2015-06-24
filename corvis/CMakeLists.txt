@@ -50,6 +50,7 @@ if(YES)
       test/filter/homography.cpp test/filter/utils.cpp
       test/filter/device_parameters.cpp
       test/filter/calibration_json_store.cpp
+      test/filter/tpose.cpp
       test/cor/sensor_fusion_queue.cpp
     )
     set_property(TARGET spec PROPERTY CXX_STANDARD 14)

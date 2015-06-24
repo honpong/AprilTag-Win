@@ -14,6 +14,7 @@
 #include <memory>
 #include <functional>
 #include "../cor/packet.h"
+#include "tpose.h"
 #include "sensor_fusion.h"
 
 class replay
@@ -25,6 +26,7 @@ private:
     std::atomic<uint64_t> bytes_dispatched{0};
     std::atomic<float> path_length{0}; float reference_path_length{NAN};
     std::atomic<float> length{0}; float reference_length{NAN};
+    std::unique_ptr<tpose_sequence> reference_seq;
     std::atomic<bool> is_running{false};
     std::atomic<bool> is_paused{false};
     std::atomic<bool> is_stepping{false};
@@ -35,6 +37,7 @@ private:
     bool qvga {false};
     image_gray8 parse_gray8(int width, int height, int stride, uint8_t *data, uint64_t time_us, uint64_t exposure_time_us, std::unique_ptr<void, void(*)(void *)> handle);
     bool find_reference_in_filename(const string &filename);
+    bool load_reference_from_pose_file(const string &filename);
 
 public:
     replay(bool start_paused=false) : is_paused(start_paused), fusion(fusion_queue::latency_strategy::ELIMINATE_DROPS) {}

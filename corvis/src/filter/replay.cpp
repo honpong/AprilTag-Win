@@ -58,7 +58,20 @@ bool replay::set_calibration_from_filename(const char *filename)
 
 bool replay::set_reference_from_filename(const string &filename)
 {
-    return find_reference_in_filename(filename);
+    return load_reference_from_pose_file(filename + ".pose")
+        || find_reference_in_filename(filename);
+}
+
+bool replay::load_reference_from_pose_file(const string &filename)
+{
+    unique_ptr<tpose_sequence> seq = make_unique<tpose_sequence>();
+    if (seq->load_from_file(filename)) {
+        reference_path_length = seq->get_path_length();
+        reference_length = seq->get_length();
+        reference_seq = move(seq);
+        return true;
+    }
+    return false;
 }
 
 static bool find_prefixed_number(const std::string in, const std::string &prefix, float &n)

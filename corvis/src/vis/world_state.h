@@ -58,6 +58,7 @@ private:
 
 public:
     std::mutex image_lock;
+    std::mutex depth_lock;
     std::mutex display_lock;
     std::mutex plot_lock;
     VertexData * grid_vertex;
@@ -67,6 +68,7 @@ public:
     VertexData * orientation_vertex;
     VertexData * feature_ellipse_vertex;
     ImageData last_image;
+    ImageData last_depth;
     int grid_vertex_num, axis_vertex_num, path_vertex_num, feature_vertex_num, orientation_vertex_num;
     int feature_ellipse_vertex_num;
 
@@ -82,6 +84,7 @@ public:
     void observe_position(sensor_clock::time_point timestamp, float x, float y, float z, float qw, float qx, float qy, float qz);
     void observe_plot_item(sensor_clock::time_point timestamp, int plot_index, std::string plot_name, float value);
     void observe_image(sensor_clock::time_point timestamp, uint8_t * image, int width, int height);
+    void observe_depth(sensor_clock::time_point timestamp, uint16_t * image, int width, int height);
     void reset() {
         display_lock.lock();
         features.clear();

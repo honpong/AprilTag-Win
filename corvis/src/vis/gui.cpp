@@ -94,6 +94,7 @@ void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int m
              break; case GLFW_KEY_Q:        if (replay_control) replay_control->stop(); quit = true;
              break; case GLFW_KEY_F:        write_frame();
              break; case GLFW_KEY_V:        show_video = !show_video;
+             break; case GLFW_KEY_D:        show_depth = !show_depth;
              break; case GLFW_KEY_M:        show_main = !show_main;
              break; case GLFW_KEY_P:        show_plots = !show_plots;
         }
@@ -142,6 +143,7 @@ void gui::start_glfw()
     gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
     world_state_render_init();
     world_state_render_video_init();
+    world_state_render_depth_init();
     world_state_render_plot_init();
 
     //fprintf(stderr, "OpenGL Version %d.%d loaded\n", GLVersion.major, GLVersion.minor);
@@ -156,19 +158,28 @@ void gui::start_glfw()
         // Calculate layout
         int main_width = width, main_height = height;
         int video_width = 0, video_height = 0;
+        int depth_width = 0, depth_height = 0;
         int plots_width = 0, plots_height = 0;
         int frame_width = 0, frame_height = 0;
         float right_column_percent = .5f;
-        float video_height_percent = .5f;
+        float video_height_percent = .33f;
+        float depth_height_percent = .33f;
         float plots_height_percent = 1.f - video_height_percent;
 
         bool show_video = this->show_video && world_state_render_video_get_size(state, &frame_width, &frame_height);
+        bool show_depth = this->show_depth && world_state_render_depth_get_size(state, &frame_width, &frame_height);
 
         if(!show_main)
             right_column_percent = 1.f;
-        if(!show_plots)
-            video_height_percent = 1.f;
-        if(!show_video)
+        if(!show_plots) {
+            if(!show_depth) {
+                video_height_percent = 1.f;
+            } else {
+                video_height_percent = .5f;
+                depth_height_percent = .5f;
+            }
+        }
+        if(!show_video || !show_depth)
             plots_height_percent = .5f;
 
         if(show_video) {
@@ -179,6 +190,15 @@ void gui::start_glfw()
             else
                 video_width = lroundf(video_height * 1.f*frame_width/frame_height);
         }
+        if(show_depth) {
+            depth_width = lroundf(width*right_column_percent);
+            depth_height = lroundf(height*depth_height_percent);
+            if(1.*depth_height/depth_width > 1.f*frame_height/frame_width)
+                depth_height = lroundf(depth_width *  1.f*frame_height/frame_width);
+            else
+                depth_width = lroundf(depth_height * 1.f*frame_width/frame_height);
+        }
+
         if(show_plots) {
             plots_width = lroundf(width*right_column_percent);
             plots_height = height - video_height;
@@ -187,8 +207,8 @@ void gui::start_glfw()
             if(!show_video && show_main)
                 plots_height = lroundf(height*plots_height_percent);
         }
-        if(show_main && (show_video || show_plots))
-            main_width = width - max(video_width, plots_width);
+        if(show_main && (show_video || show_plots || show_depth))
+            main_width = width - max(max(video_width, plots_width), depth_width);
 
         // Update data
         state->update_vertex_arrays();
@@ -204,9 +224,14 @@ void gui::start_glfw()
             glViewport(width - video_width, 0, video_width, video_height);
             world_state_render_video(state, video_width, video_height);
         }
+        if(show_depth) {
+            // y coordinate is 0 = bottom, height = top (opengl)
+            glViewport(width - depth_width, video_height, depth_width, depth_height);
+            world_state_render_depth(state, depth_width, depth_height);
+        }
         if(show_plots) {
             // y coordinate is 0 = bottom, height = top (opengl)
-            glViewport(width - plots_width, video_height, plots_width, plots_height);
+            glViewport(width - plots_width, video_height + depth_height, plots_width, plots_height);
             world_state_render_plot(state, current_plot, current_plot_key, plots_width, plots_height);
         }
         glfwSwapBuffers(main_window);
@@ -224,9 +249,9 @@ void gui::start(replay * rp)
     start_glfw();
 }
 
-gui::gui(world_state * world, bool show_main_, bool show_video_, bool show_plots_)
+gui::gui(world_state * world, bool show_main_, bool show_video_, bool show_depth_, bool show_plots_)
     : state(world), scale(initial_scale), width(640), height(480),
-      show_main(show_main_), show_video(show_video_), show_plots(show_plots_)
+      show_main(show_main_), show_video(show_video_), show_depth(show_depth_), show_plots(show_plots_)
 {
     static_gui = this;
 }

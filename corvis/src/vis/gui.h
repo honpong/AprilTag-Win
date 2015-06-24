@@ -38,6 +38,7 @@ private:
     void keyboard(GLFWwindow * window, int key, int scancode, int action, int mods);
     void render(int main_width, int main_height);
     void render_video(int video_width, int video_height);
+    void render_depth(int depth_width, int depth_height);
     void render_plot(int plots_width, int plots_height);
 
     void calculate_viewports();
@@ -59,12 +60,12 @@ private:
 
     // Display related
     GLFWwindow * main_window;
-    bool show_main, show_video, show_plots;
+    bool show_main, show_video, show_depth, show_plots;
 
     replay * replay_control;
 
 public:
-    gui(world_state * render_state, bool show_main, bool show_video, bool show_plots);
+    gui(world_state * render_state, bool show_main, bool show_video, bool show_depth, bool show_plots);
     ~gui();
     void queue_render();
     // If replay is NULL, pause and stepping control is not enabled

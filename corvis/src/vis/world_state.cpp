@@ -80,6 +80,27 @@ void world_state::observe_image(sensor_clock::time_point timestamp, uint8_t * im
     image_lock.unlock();
 }
 
+#define MAX_DEPTH 8191
+
+void world_state::observe_depth(sensor_clock::time_point timestamp, uint16_t * image, int width, int height)
+{
+    depth_lock.lock();
+    if(last_depth.image && (width != last_depth.width || height != last_depth.height))
+        last_depth.image = (uint8_t *)realloc(last_depth.image, sizeof(uint8_t)*width*height);
+    
+    if(!last_depth.image)
+        last_depth.image = (uint8_t *)malloc(sizeof(uint8_t)*width*height);
+    
+    for(int i = 0; i < width * height; ++i)
+    {
+        last_depth.image[i] = (image[i] == 0 || image[i] > MAX_DEPTH) ? 0 : 255 - (image[i] / 32);
+    }
+    
+    last_depth.width = width;
+    last_depth.height = height;
+    depth_lock.unlock();
+}
+
 static inline void compute_covariance_ellipse(state_vision_feature * feat, float & cx, float & cy, float & ctheta)
 {
     //http://math.stackexchange.com/questions/8672/eigenvalues-and-eigenvectors-of-2-times-2-matrix
@@ -119,6 +140,7 @@ void world_state::receive_camera(const filter * f, camera_data &&d)
         }
     }
     observe_image(d.timestamp, d.image, d.width, d.height);
+    if(d.depth) observe_depth(d.depth->timestamp, d.depth->image, d.depth->width, d.depth->height);
     
     v4 T = f->s.T.v;
     quaternion q = to_quaternion(f->s.W.v);
@@ -180,6 +202,9 @@ world_state::world_state()
     last_image.width = 0;
     last_image.height = 0;
     last_image.image = NULL;
+    last_depth.width = 0;
+    last_depth.height = 0;
+    last_depth.image = NULL;
 }
 
 world_state::~world_state()
@@ -194,6 +219,8 @@ world_state::~world_state()
         free(grid_vertex);
     if(last_image.image)
         free(last_image.image);
+    if(last_depth.image)
+        free(last_depth.image);
 }
 
 static inline void set_position(VertexData * vertex, float x, float y, float z)

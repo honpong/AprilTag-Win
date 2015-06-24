@@ -14,7 +14,7 @@ int main(int c, char **v)
 
     bool realtime = false, start_paused = false;
     bool qvga = false;
-    bool enable_gui = true, show_plots = false, show_video = true, show_main = true;
+    bool enable_gui = true, show_plots = false, show_video = true, show_depth = true, show_main = true;
     char *devicename = nullptr, *filename = nullptr, *rendername = nullptr;
     for (int i=1; i<c; i++)
         if      (v[i][0] != '-' && !filename) filename = v[i];
@@ -22,6 +22,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--no-gui") == 0) enable_gui = false;
         else if (strcmp(v[i], "--realtime") == 0) realtime = true;
         else if (strcmp(v[i], "--no-plots") == 0) show_plots = false;
+        else if (strcmp(v[i], "--no-depth") == 0) show_depth = false;
         else if (strcmp(v[i], "--no-video") == 0) show_video = false;
         else if (strcmp(v[i], "--no-main")  == 0) show_main  = false;
         else if (strcmp(v[i], "--pause")  == 0) start_paused  = true;
@@ -39,7 +40,7 @@ int main(int c, char **v)
     std::function<void (const filter *, camera_data &&)> camera_callback;
 
     replay rp(start_paused);
-    gui vis(&ws, show_main, show_video, show_plots);
+    gui vis(&ws, show_main, show_video, show_depth, show_plots);
 
     if(rendername || enable_gui)
         camera_callback = [&](const filter * f, camera_data &&d) {

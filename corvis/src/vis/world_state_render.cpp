@@ -9,6 +9,7 @@
 #include "render.h"
 #include "video_render.h"
 
+static video_render depth_render;
 static video_render frame_render;
 static video_render plot_render;
 static render render;
@@ -57,6 +58,35 @@ bool world_state_render_video_get_size(world_state * world, int *width, int *hei
     *width = world->last_image.width;
     *height = world->last_image.width;
     world->image_lock.unlock();
+    return *width && *height;
+}
+
+bool world_state_render_depth_init()
+{
+    depth_render.gl_init();
+    return true;
+}
+
+void world_state_render_depth_teardown()
+{
+    depth_render.gl_destroy();
+}
+
+void world_state_render_depth(world_state * world, int viewport_width, int viewport_height)
+{
+    world->display_lock.lock();
+    world->depth_lock.lock();
+    depth_render.render(world->last_depth.image, world->last_depth.width, world->last_depth.height, viewport_width, viewport_height, true);
+    world->depth_lock.unlock();
+    world->display_lock.unlock();
+}
+
+bool world_state_render_depth_get_size(world_state * world, int *width, int *height)
+{
+    world->depth_lock.lock();
+    *width = world->last_depth.width;
+    *height = world->last_depth.width;
+    world->depth_lock.unlock();
     return *width && *height;
 }
 

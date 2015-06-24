@@ -198,7 +198,6 @@ if __name__ == "__main__":
     parser.add_option("-q", "--qvga", action="store_true", dest="qvga", default=False,
             help="Scale images to qvga (320x240)")
     (options, args) = parser.parse_args()
-    print len(args), args
     if   len(args) == 1:
         sequence_dir, output_dir = args[0], None
     elif len(args) == 2:

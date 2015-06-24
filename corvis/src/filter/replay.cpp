@@ -80,7 +80,7 @@ void replay::setup_filter()
     fusion.start_offline();
 }
 
-image_gray8 replay::parse_gray8(int width, int height, int stride, uint8_t *data, uint64_t time_us, std::unique_ptr<void, void(*)(void *)> handle)
+image_gray8 replay::parse_gray8(int width, int height, int stride, uint8_t *data, uint64_t time_us, uint64_t exposure_time_us, std::unique_ptr<void, void(*)(void *)> handle)
 {
     image_gray8 gray;
     gray.image = data;
@@ -102,7 +102,8 @@ image_gray8 replay::parse_gray8(int width, int height, int stride, uint8_t *data
             }
         }
     }
-    gray.timestamp = sensor_clock::time_point(std::chrono::microseconds(time_us+16667));
+    gray.exposure_time = std::chrono::microseconds(exposure_time_us);
+    gray.timestamp = sensor_clock::time_point(std::chrono::microseconds(time_us));
     gray.image_handle = std::move(handle);
     return gray;
 }
@@ -169,8 +170,25 @@ void replay::start()
                     std::stringstream parse(tmp);
                     //pgm header is "P5 x y"
                     parse.ignore(3, ' ') >> width >> height;
-                    camera_data d;
-                    d = parse_gray8(width, height, width, packet->data + 16, packet->header.time, std::move(phandle));
+                    camera_data d = parse_gray8(width, height, width, packet->data + 16, packet->header.time, 33333, std::move(phandle));
+                    fusion.receive_image(std::move(d));
+                    is_stepping = false;
+                    break;
+                }
+                case packet_image_with_depth:
+                {
+                    packet_image_with_depth_t *ip = (packet_image_with_depth_t *)packet;
+                    camera_data d = parse_gray8(ip->width, ip->height, ip->width, ip->data, ip->header.time, ip->exposure_time_us, std::move(phandle));
+                    if(ip->depth_height && ip->depth_width)
+                    {
+                        d.depth = std::make_unique<image_depth16>();
+                        d.depth->width = ip->depth_width;
+                        d.depth->height = ip->depth_height;
+                        d.depth->stride = ip->depth_width;
+                        d.depth->timestamp = d.timestamp;
+                        d.depth->exposure_time = d.exposure_time;
+                        d.depth->image = (uint16_t *)(ip->data + ip->width * ip->height);
+                    }
                     fusion.receive_image(std::move(d));
                     is_stepping = false;
                     break;

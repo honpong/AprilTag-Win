@@ -226,7 +226,7 @@ void SensorManager::PollForFrames()
         }
 
         //Always pass image data AFTER associated inertial data. This will trigger the update
-        OnColorFrame(colorImage);
+		OnColorFrameWithDepth(colorImage, depthImage);
 
         _senseMan->ReleaseFrame();
     }
@@ -240,6 +240,12 @@ void SensorManager::OnColorFrame(PXCImage * colorImage)
 {
     if (_sensorReceiver) _sensorReceiver->OnColorFrame(colorImage);
     Debug::Log(L"%lli color sample", colorImage->QueryTimeStamp() - 6370); // Taking care of 637 Micro seconds blank interval-> 637000 nanoseconds -> 6370 (one hundred nanoseconds)
+}
+
+void SensorManager::OnColorFrameWithDepth(PXCImage* colorImage, PXCImage * depthImage)
+{
+	if (_sensorReceiver) _sensorReceiver->OnColorFrameWithDepth(colorImage, depthImage);
+	Debug::Log(L"%lli color with depth sample", depthImage->QueryTimeStamp() - 6370); // Taking care of 637 Micro seconds blank interval-> 637000 nanoseconds -> 6370 (one hundred nanoseconds)
 }
 
 void SensorManager::OnAmeterSample(imu_sample_t* sample)

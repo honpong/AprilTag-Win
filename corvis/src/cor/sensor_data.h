@@ -28,6 +28,7 @@ public:
     image_data &operator=(image_data<camera_type, data_type>&& other) = default;
     
     sensor_clock::time_point timestamp;
+    sensor_clock::duration exposure_time;
     std::unique_ptr<void, void(*)(void *)> image_handle;
     data_type *image;
     int width, height, stride;

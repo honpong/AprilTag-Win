@@ -615,6 +615,24 @@ void filter_setup_next_frame(struct filter *f, const uint8_t *image, sensor_cloc
     //TODO: implement feature_single ?
 }
 
+static uint64_t get_raw_depth(const camera_data &cam, int x, int y)
+{
+    //TODO: make this more efficient if needed
+    int dx = (x * cam.depth->width) / cam.width;
+    int dy = (y * cam.depth->height) / cam.height;
+    if(dx < 0 || dy < 0 || dx > cam.depth->width - 1 || dy > cam.depth->height - 1) return 0;
+    assert(2 * stride / 2 == stride);
+    return cam.depth->image[cam.depth->stride * y + x];
+}
+
+static float get_depth_for_point(const camera_data &cam, int x, int y)
+{
+    uint16_t depth_mm = get_raw_depth(cam, x, y);
+    return depth_mm / 1000.;
+//    if(depth.image[y * depth.stride + x]) return depth.image[y * stride + x] / 1000.f;
+//    if(x == 0 || y == 0 || x == depth.width - 1 || y == depth.height - 1) return 0;
+}
+
 //features are added to the state immediately upon detection - handled with triangulation in observation_vision_feature::predict - but what is happening with the empty row of the covariance matrix during that time?
 static void filter_add_features(struct filter *f, const camera_data & camera, size_t newfeats)
 {
@@ -645,6 +663,18 @@ static void filter_add_features(struct filter *f, const camera_data & camera, si
         if(x > 0 && y > 0 && x < (int)camera.width-1 && y < (int)camera.height-1 && f->scaled_mask->test(x, y)) {
             f->scaled_mask->clear(x, y);
             state_vision_feature *feat = f->s.add_feature(x, y);
+
+            float depth_m = 0;
+            if(camera.depth) depth_m = get_depth_for_point(camera, x, y);
+            if(depth_m)
+            {
+                //fprintf(stderr, "successful depth init at %fm\n", depth_m);
+                feat->v.set_depth_meters(depth_m);
+                feat->set_initial_variance(.03 * .03);
+                feat->status = feature_normal;
+            }
+            //else fprintf(stderr, "unsuccess\n");
+            
             feat->intensity = (uint8_t)((((unsigned int)camera.image[x + y*camera.width]) + 
                                                         camera.image[x + 1 + y * camera.width] +
                                                         camera.image[x + camera.width + y * camera.width] +

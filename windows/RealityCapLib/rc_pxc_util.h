@@ -14,12 +14,13 @@
 
 struct RCSavedImage
 {
-    RCSavedImage(PXCImage *i) : image(i)
+    RCSavedImage(PXCImage *i, PXCImage::PixelFormat format) : image(i)
     {
-        pxcStatus result = image->AcquireAccess(PXCImage::ACCESS_READ, PXCImage::PIXEL_FORMAT_Y8, &data);
+        pxcStatus result = image->AcquireAccess(PXCImage::ACCESS_READ, format, &data);
         if (result != PXC_STATUS_NO_ERROR || !data.planes[0]) throw std::runtime_error("PXCImage->AcquireAccess failed!");
         image->AddRef();
     }
+
     ~RCSavedImage()
     {
         image->ReleaseAccess(&data);

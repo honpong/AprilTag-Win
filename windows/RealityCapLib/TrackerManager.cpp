@@ -193,7 +193,7 @@ void TrackerManager::SetDelegate(TrackerManagerDelegate* del)
 
 void TrackerManager::OnColorFrame(PXCImage* colorSample)
 {
-    RCSavedImage *si = new RCSavedImage(colorSample);
+    RCSavedImage *si = new RCSavedImage(colorSample, PXCImage::PIXEL_FORMAT_Y8);
     PXCCaptureManager *capMan = GetSenseManager()->QueryCaptureManager();
     PXCCapture::Device *pDevice = capMan->QueryDevice();
     pxcI32 exposure = pDevice->QueryColorExposure();
@@ -201,6 +201,23 @@ void TrackerManager::OnColorFrame(PXCImage* colorSample)
     PXCImage::ImageInfo info = colorSample->QueryInfo();
     //Timestamp: divide by 10 to go from 100ns to us, subtract 637us blank interval and 12 ms ad-hoc (tuning) offset, subtract shutter time to get start of capture
     rc_receiveImage(_tracker, rc_EGRAY8, colorSample->QueryTimeStamp() / 10 - 637 - 12000 - shutter_time_us, shutter_time_us, NULL, false, info.width, info.height, si->data.pitches[0], si->data.planes[0], RCSavedImage::releaseOpaquePointer, (void*)si);
+}
+
+void TrackerManager::OnColorFrameWithDepth(PXCImage* colorSample, PXCImage* depthSample)
+{
+	PXCCaptureManager *capMan = GetSenseManager()->QueryCaptureManager();
+	PXCCapture::Device *pDevice = capMan->QueryDevice();
+
+	RCSavedImage *sic = new RCSavedImage(colorSample, PXCImage::PIXEL_FORMAT_Y8);
+	pxcI32 exposure = pDevice->QueryColorExposure();
+	uint64_t shutter_time_us = 1 << exposure;
+	PXCImage::ImageInfo colorInfo = colorSample->QueryInfo();
+
+	RCSavedImage *sid = new RCSavedImage(depthSample, PXCImage::PIXEL_FORMAT_DEPTH);
+	PXCImage::ImageInfo depthInfo = depthSample->QueryInfo();
+
+	//Timestamp: divide by 10 to go from 100ns to us, subtract 637us blank interval and 12 ms ad-hoc (tuning) offset, subtract shutter time to get start of capture
+	rc_receiveImageWithDepth(_tracker, rc_EGRAY8, colorSample->QueryTimeStamp() / 10 - 637 - 12000 - shutter_time_us, shutter_time_us, NULL, false, colorInfo.width, colorInfo.height, sic->data.pitches[0], sic->data.planes[0], RCSavedImage::releaseOpaquePointer, (void*)sic, depthInfo.width, depthInfo.height, sid->data.pitches[0], sid->data.planes[0], RCSavedImage::releaseOpaquePointer, (void*)sid);
 }
 
 void TrackerManager::OnAmeterSample(imu_sample_t* sample)

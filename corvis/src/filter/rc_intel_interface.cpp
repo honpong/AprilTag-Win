@@ -292,6 +292,7 @@ void rc_receiveImageWithDepth(rc_Tracker *tracker, rc_Camera camera, rc_Timestam
         tracker->output.write_camera(d);
     }
     tracker->receive_image(std::move(d));
+    tracker->trigger_log();
 }
 
 void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Timestamp time_us, const rc_Vector acceleration_m__s2)

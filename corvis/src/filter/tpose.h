@@ -11,6 +11,7 @@
 struct tpose_raw {
     uint64_t t_100ns; m4 R; v4 T_mm;
     friend inline std::istream &operator>>(std::istream &l, tpose_raw &tp);
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 inline std::istream &operator>>(std::istream &l, tpose_raw &tp) {
@@ -31,6 +32,7 @@ struct tpose {
     bool operator<(const struct tpose &tp) const {
         return t < tp.t;
     };
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 struct tpose_sequence {
@@ -62,6 +64,7 @@ struct tpose_sequence {
         return static_cast<bool>(std::ifstream(filename) >> *this);
     }
     friend inline std::istream &operator>>(std::istream &file, tpose_sequence &s);
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
 inline std::istream &operator>>(std::istream &file, tpose_sequence &s) {

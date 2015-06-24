@@ -5,7 +5,7 @@
 
 TEST(TPose, LessThan)
 {
-    EXPECT_LT(tpose{sensor_clock::ns100_to_tp(24000)},tpose{sensor_clock::ns100_to_tp(25000)});
+    EXPECT_TRUE(tpose{sensor_clock::ns100_to_tp(24000)} < tpose{sensor_clock::ns100_to_tp(25000)});
 }
 
 TEST(TPose, Parses)

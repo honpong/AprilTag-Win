@@ -44,7 +44,7 @@ public:
     bool open(const char *name);
     bool set_calibration_from_filename(const char *filename);
     void setup_filter();
-    bool configure_all(const char *filename, const char *devicename, bool realtime=false, std::function<void (float)> progress_callback=nullptr, std::function<void (const filter *, camera_data)> camera_callback=nullptr);
+    bool configure_all(const char *filename, bool realtime=false, std::function<void (float)> progress_callback=nullptr, std::function<void (const filter *, camera_data)> camera_callback=nullptr);
     void enable_qvga() { qvga = true; }
     void start();
     void stop();

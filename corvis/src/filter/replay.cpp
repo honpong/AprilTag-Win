@@ -287,7 +287,7 @@ void replay::start()
     path_length = fusion.sfm.s.total_distance;
 }
 
-bool replay::configure_all(const char *filename, const char *devicename, bool realtime, std::function<void (float)> progress, std::function<void (const filter *, camera_data)> camera_cb)
+bool replay::configure_all(const char *filename, bool realtime, std::function<void (float)> progress, std::function<void (const filter *, camera_data)> camera_cb)
 {
     if(!open(filename)) return false;
     if (!set_calibration_from_filename(filename))

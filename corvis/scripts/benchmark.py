@@ -13,12 +13,11 @@ def scan_tests(folder_name):
     configurations = []
     for dirname, dirnames, filenames in os.walk(folder_name, followlinks=True):
         for filename in filenames:
-            config_name = os.path.basename(os.path.dirname(os.path.join(dirname, filename)))
             if filename.endswith(".json") or filename.endswith(".pose"):
                 continue;
-            test_case = {"config" : config_name, "path" : os.path.join(dirname[len(folder_name):],filename) }
+            test_case = {"path" : os.path.join(dirname[len(folder_name):],filename) }
             configurations.append(test_case)
-    return sorted(configurations, key=itemgetter('config', 'path'))
+    return sorted(configurations, key=itemgetter('path'))
 
 def measurement_error(L, L_measured):
     err = abs(L_measured - L)
@@ -43,7 +42,7 @@ class TestRunner(object):
 
   def run_subprocess(self, test_case):
     print "Running ", test_case["path"]; sys.stdout.flush();
-    args = [self.measure_path, os.path.join(self.input_dir, test_case["path"]), test_case["config"], "--no-gui"]
+    args = [self.measure_path, os.path.join(self.input_dir, test_case["path"]), "--no-gui"]
     if self.qvga:
         args.append("--qvga")
     if self.output_dir is not None:

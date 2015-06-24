@@ -57,7 +57,6 @@ typedef enum
 
 corvis_device_type get_device_by_name(const char *name);
 bool get_parameters_for_device(corvis_device_type type, struct corvis_device_parameters *dc);
-bool get_parameters_for_device_name(const char * name, struct corvis_device_parameters *dc);
 
 bool is_calibration_valid(const corvis_device_parameters &calibration, const corvis_device_parameters &deviceDefaults);
 

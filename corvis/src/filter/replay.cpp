@@ -90,18 +90,6 @@ bool replay::find_reference_in_filename(const string &filename)
     return PL | L;
 }
 
-bool replay::set_device(const char *name)
-{
-    corvis_device_parameters dc;
-    if (get_parameters_for_device_name(name, &dc)) {
-        fusion.set_device(dc);
-        return true;
-    } else {
-        cerr << "Error: no device named " << name << "\n";
-        return false;
-    }
-}
-
 void replay::setup_filter()
 {
     if(camera_callback)
@@ -303,8 +291,7 @@ bool replay::configure_all(const char *filename, const char *devicename, bool re
 {
     if(!open(filename)) return false;
     if (!set_calibration_from_filename(filename))
-        if (!set_device(devicename))
-            return false;
+        return false;
     is_realtime = realtime;
     progress_callback = progress;
     camera_callback = camera_cb;

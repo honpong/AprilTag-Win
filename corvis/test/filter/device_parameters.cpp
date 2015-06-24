@@ -31,14 +31,6 @@ TEST(device_parameters_tests, get_parameters_for_device)
     EXPECT_EQ(cal.version, CALIBRATION_VERSION);
 }
 
-TEST(device_parameters_tests, get_parameters_for_device_name)
-{
-    corvis_device_parameters cal;
-    get_parameters_for_device_name("gigabytes11", &cal);
-    EXPECT_EQ(cal.version, CALIBRATION_VERSION);
-    // TODO: verify correct file was loaded?
-}
-
 TEST(device_parameters_tests, is_calibration_valid)
 {
     corvis_device_parameters cal, defaults;

@@ -42,7 +42,6 @@ private:
 public:
     replay(bool start_paused=false) : is_paused(start_paused), fusion(fusion_queue::latency_strategy::ELIMINATE_DROPS) {}
     bool open(const char *name);
-    bool set_device(const char *name);
     bool set_calibration_from_filename(const char *filename);
     void setup_filter();
     bool configure_all(const char *filename, const char *devicename, bool realtime=false, std::function<void (float)> progress_callback=nullptr, std::function<void (const filter *, camera_data)> camera_callback=nullptr);

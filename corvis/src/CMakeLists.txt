@@ -174,3 +174,10 @@ if(ENABLE_ZXING)
       PUBLIC libzxing-cpp
     )
 endif()
+
+if(NOT WIN32)
+    target_compile_options(filter PRIVATE -DDEBUG=1)
+    target_compile_options(cor PRIVATE -DDEBUG=1)
+    target_compile_options(numerics PRIVATE -DDEBUG=1)
+    target_compile_options(vis PRIVATE -DDEBUG=1)
+endif()

@@ -56,6 +56,27 @@ bool replay::set_calibration_from_filename(const char *filename)
     return true;
 }
 
+bool replay::set_reference_from_filename(const string &filename)
+{
+    return find_reference_in_filename(filename);
+}
+
+static bool find_prefixed_number(const std::string in, const std::string &prefix, float &n)
+{
+    size_t pi = in.rfind(prefix), ni = pi + prefix.size();
+    if (pi == string::npos) return false;
+    stringstream s(in.substr(ni, in.find_first_not_of("0123456789.", ni) - ni));
+    float nn; s >> nn; if (!s.fail()) n = nn;
+    return !s.fail();
+}
+
+bool replay::find_reference_in_filename(const string &filename)
+{
+    bool PL = find_prefixed_number(filename, "_PL", reference_path_length); reference_path_length /= 100;
+    bool L = find_prefixed_number(filename, "_L", reference_length); reference_length /= 100;
+    return PL | L;
+}
+
 bool replay::set_device(const char *name)
 {
     corvis_device_parameters dc;
@@ -261,8 +282,8 @@ void replay::start()
     file.close();
 
     v4 T = fusion.get_transformation().T;
-    length = (float) T.norm() * 100;
-    path_length = fusion.sfm.s.total_distance * 100;
+    length = (float) T.norm();
+    path_length = fusion.sfm.s.total_distance;
 }
 
 bool replay::configure_all(const char *filename, const char *devicename, bool realtime, std::function<void (float)> progress, std::function<void (const filter *, camera_data)> camera_cb)

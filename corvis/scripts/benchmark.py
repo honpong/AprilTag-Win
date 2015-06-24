@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import sys, os, errno
-import re
+import re, math
 import subprocess
 from collections import defaultdict
 from operator import itemgetter
@@ -14,26 +14,15 @@ def scan_tests(folder_name):
     for dirname, dirnames, filenames in os.walk(folder_name, followlinks=True):
         for filename in filenames:
             config_name = os.path.basename(os.path.dirname(os.path.join(dirname, filename)))
-            if filename.endswith(".json"):
+            if filename.endswith(".json") or filename.endswith(".pose"):
                 continue;
-            L_match = re.search("_L([\d.]+)", filename)
-            PL_match = re.search("_PL([\d.]+)", filename)
-            L = None
-            PL = None
-            if L_match: 
-                L = float(L_match.group(1))
-            if PL_match: 
-                PL = float(PL_match.group(1))
-            if not L_match and not PL_match:
-                print "Malformed data filename:", filename, "skipping"
-                continue
-            test_case = {"config" : config_name, "path" : os.path.join(dirname[len(folder_name):],filename), "L" : L, "PL" : PL}
+            test_case = {"config" : config_name, "path" : os.path.join(dirname[len(folder_name):],filename) }
             configurations.append(test_case)
     return sorted(configurations, key=itemgetter('config', 'path'))
 
 def measurement_error(L, L_measured):
     err = abs(L_measured - L)
-    if L == 0:
+    if L < 1:
         return (err, err)
     return (err, 100.*err / L)
 
@@ -66,15 +55,14 @@ class TestRunner(object):
         args.extend(["--render", image])
     output = subprocess.check_output(args, stderr=subprocess.STDOUT)
     print output
-    #"Straight-line length is 89.00 cm, total path length 92.54 cm"
-    res = re.match(".* ([\d\.]+) cm.* ([\d\.]+) cm.*",
-            output, re.MULTILINE | re.DOTALL)
-    (PL, L) = (None, None)
-    if res:
-        L = float(res.group(1))
-        PL = float(res.group(2))
-    print "Finished", test_case["path"], "(%.2fcm, %.2fcm)" % (L, PL); sys.stdout.flush();
-    return (PL, L)
+    #"Reference Straight-line length is 0.00 cm, total path length 65.00 cm"
+    #"Computed  Straight-line length is 0.40 cm, total path length 49.29 cm"
+    res = re.match(".*Reference .* ([\d\.]+|nan) cm.* ([\d\.]+|nan) cm.*"
+                   +".*Computed .* ([\d\.]+) cm.* ([\d\.]+) cm.*",
+                   output, re.MULTILINE | re.DOTALL)
+    (L, PL, base_L, base_PL) = map(float,res.group(3,4,1,2)) if res else (None, None, float("nan"), float("nan"))
+    print "Finished", test_case["path"], "(%.2fcm, %.2fcm)" % (L, PL) if res else "failed to match"; sys.stdout.flush();
+    return (PL, L, base_PL, base_L)
 
 def write_html(output_dir, test_cases):
     with open(os.path.join(output_dir, "index.html"),'w') as html:
@@ -125,16 +113,18 @@ def benchmark(input_dir, output_dir = None, qvga = False):
     PL_errors_percent = []
     primary_errors_percent = []
     for test_case, result in zip(test_cases, results):
-        (PL, L) = result
+        (PL, L, base_PL, base_L) = result
         print >>r, "Result", test_case["path"]
-        has_L = test_case["L"] is not None
-        has_PL = test_case["PL"] is not None
-        # Length measurement
-        base_L = test_case["L"] if has_L else 0.;
-        base_PL = test_case["PL"] if has_PL else PL;
+
+        has_PL = not math.isnan(base_PL)
+        has_L = not math.isnan(base_L)
+        if not has_L:
+            base_L = 0.
+        if not has_PL:
+            base_PL = PL
         if base_PL == 0:
             base_PL = 1.;
-        
+
         L_error, L_error_percent = measurement_error(base_L, L)
         (PL_error, PL_error_percent) = measurement_error(base_PL, PL)
         loop_close_error_percent = 100. * abs(L - base_L) / base_PL;

@@ -23,8 +23,8 @@ private:
     std::ifstream::pos_type size;
     std::atomic<uint64_t> packets_dispatched{0};
     std::atomic<uint64_t> bytes_dispatched{0};
-    std::atomic<float> path_length{0};
-    std::atomic<float> length{0};
+    std::atomic<float> path_length{0}; float reference_path_length{NAN};
+    std::atomic<float> length{0}; float reference_length{NAN};
     std::atomic<bool> is_running{false};
     std::atomic<bool> is_paused{false};
     std::atomic<bool> is_stepping{false};
@@ -34,6 +34,7 @@ private:
     std::function<void (float)> progress_callback;
     bool qvga {false};
     image_gray8 parse_gray8(int width, int height, int stride, uint8_t *data, uint64_t time_us, uint64_t exposure_time_us, std::unique_ptr<void, void(*)(void *)> handle);
+    bool find_reference_in_filename(const string &filename);
 
 public:
     replay(bool start_paused=false) : is_paused(start_paused), fusion(fusion_queue::latency_strategy::ELIMINATE_DROPS) {}
@@ -51,6 +52,9 @@ public:
     uint64_t get_packets_dispatched() { return packets_dispatched; }
     float get_path_length() { return path_length; }
     float get_length() { return length; }
+    float get_reference_path_length() { return reference_path_length; }
+    float get_reference_length() { return reference_length; }
+    bool set_reference_from_filename(const string &filename);
     std::string get_timing_stats() { return fusion.get_timing_stats(); }
 };
 

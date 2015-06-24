@@ -51,6 +51,11 @@ int main(int c, char **v)
     
     if(qvga) rp.enable_qvga();
 
+    if (!rp.set_reference_from_filename(filename) && !enable_gui) {
+        cerr << filename << ": unable to find a reference to measure against\n";
+        return 3;
+    }
+
     if(enable_gui) { // The GUI must be on the main thread
         std::thread replay_thread([&](void) { rp.start(); });
         vis.start(&rp);
@@ -66,12 +71,9 @@ int main(int c, char **v)
         return 1;
     }
 
-    float length = rp.get_length();
-    float path_length = rp.get_path_length();
-    uint64_t packets_dispatched = rp.get_packets_dispatched();
-    uint64_t bytes_dispatched = rp.get_bytes_dispatched();
-    printf("Straight-line length is %.2f cm, total path length %.2f cm\n", length, path_length);
-    printf("Dispatched %llu packets %.2f Mbytes\n", packets_dispatched, bytes_dispatched/1.e6);
+    printf("Reference Straight-line length is %.2f cm, total path length %.2f cm\n", 100*rp.get_reference_length(), 100*rp.get_reference_path_length());
+    printf("Computed  Straight-line length is %.2f cm, total path length %.2f cm\n", 100*rp.get_length(), 100*rp.get_path_length());
+    printf("Dispatched %llu packets %.2f Mbytes\n", rp.get_packets_dispatched(), rp.get_bytes_dispatched()/1.e6);
     std::cout << rp.get_timing_stats();
 
     return 0;

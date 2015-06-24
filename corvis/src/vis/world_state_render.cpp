@@ -148,9 +148,9 @@ static void create_plot(world_state * state, int plot_index, int key_index, uint
         float miny = std::numeric_limits<float>::max(), maxy = std::numeric_limits<float>::min();
         std::string names;
         const char *colors[] = {"r","g","b"};
-        int i=0;
 
         // Iterate over the data once to determine the extents
+        int i=0;
         for (auto kvi = plot.begin(); kvi != plot.end(); ++kvi, i++) {
             // Enable these two lines if you want per-plot line
             // scaling when using the arrow keys
@@ -170,15 +170,13 @@ static void create_plot(world_state * state, int plot_index, int key_index, uint
 
         i = 0;
         for (auto kvi = plot.begin(); kvi != plot.end(); ++kvi, i++) {
-            auto &kv = *kvi;
             if (key_index != -1 && key_index != i)
                 continue;
-            const std::string &name = kv.first; const plot_data &p = kv.second;
+            const std::string &name = kvi->first; const plot_data &p = kvi->second;
             names += (names.size() ? " " : "") + name;
 
             mglData data_x(p.size());
             mglData data_y(p.size());
-            auto first = sensor_clock::tp_to_micros(p.front().first);
 
             int j = 0;
             for(auto data : p) {

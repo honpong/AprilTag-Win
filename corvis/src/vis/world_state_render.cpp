@@ -56,7 +56,7 @@ bool world_state_render_video_get_size(world_state * world, int *width, int *hei
 {
     world->image_lock.lock();
     *width = world->last_image.width;
-    *height = world->last_image.width;
+    *height = world->last_image.height;
     world->image_lock.unlock();
     return *width && *height;
 }
@@ -85,7 +85,7 @@ bool world_state_render_depth_get_size(world_state * world, int *width, int *hei
 {
     world->depth_lock.lock();
     *width = world->last_depth.width;
-    *height = world->last_depth.width;
+    *height = world->last_depth.height;
     world->depth_lock.unlock();
     return *width && *height;
 }

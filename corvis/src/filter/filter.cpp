@@ -622,7 +622,7 @@ static uint64_t get_raw_depth(const camera_data &cam, int x, int y)
     int dy = (y * cam.depth->height) / cam.height;
     if(dx < 0 || dy < 0 || dx > cam.depth->width - 1 || dy > cam.depth->height - 1) return 0;
     assert(2 * cam.depth->stride / 2 == cam.depth->stride);
-    return cam.depth->image[cam.depth->stride * y + x];
+    return cam.depth->image[cam.depth->stride * dy + dx];
 }
 
 static float get_depth_for_point(const camera_data &cam, int x, int y)

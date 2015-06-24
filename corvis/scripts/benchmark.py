@@ -193,6 +193,8 @@ if __name__ == "__main__":
     from optparse import OptionParser
     usage = "Usage: %prog [options] sequence-dir [output-dir]"
     parser = OptionParser(usage=usage)
+    parser.add_option("-f", "--force", action="store_true", dest="force", default=False,
+            help="Force overriting output-dir")
     parser.add_option("-q", "--qvga", action="store_true", dest="qvga", default=False,
             help="Scale images to qvga (320x240)")
     (options, args) = parser.parse_args()
@@ -201,7 +203,8 @@ if __name__ == "__main__":
         sequence_dir, output_dir = args[0], None
     elif len(args) == 2:
         sequence_dir, output_dir = args[0], args[1]
-        os.mkdir(output_dir)
+        if not os.path.exists(output_dir) or not options.force:
+            os.mkdir(output_dir)
     else:
         parser.print_help()
         sys.exit(1)

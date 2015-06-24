@@ -93,8 +93,8 @@ void CopyJsonToStruct(Document &json, corvis_device_parameters &cal)
     cal.a_meas_var = (float)json[KEY_AMEASVAR].GetDouble();
     cal.image_width = json[KEY_IMAGE_WIDTH].GetInt();
     cal.image_height = json[KEY_IMAGE_HEIGHT].GetInt();
-    cal.shutter_delay = std::chrono::microseconds(json[KEY_SHUTTER_DELAY].GetInt());
-    cal.shutter_period = std::chrono::microseconds(json[KEY_SHUTTER_PERIOD].GetInt());
+    cal.shutter_delay = std::chrono::microseconds(0);
+    cal.shutter_period = std::chrono::microseconds(0);
 }
 
 void CopyStructToJson(const corvis_device_parameters &cal, Value &json)

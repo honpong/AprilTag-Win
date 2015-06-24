@@ -1,6 +1,6 @@
 all:
 	mkdir -p bin
-	cd bin && cmake .. -DCMAKE_BUILD_TYPE=Debug
+	cd bin && cmake ../ -DCMAKE_INSTALL_PREFIX=.
 	cmake --build bin/
 
 clean:

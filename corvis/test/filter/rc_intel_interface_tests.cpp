@@ -25,7 +25,7 @@ TEST(rc_intel_interface_tests, rc_setCalibration)
     // now read cal back out and compare
     const wchar_t* buffer;
     size_t size = rc_getCalibration(tracker, &buffer);
-    EXPECT_TRUE(size);
+    EXPECT_GT(size, 0);
 
     // this doesn't work because not all all fields are being extracted from filter at the moment.
     //EXPECT_STREQ(jsonString.c_str(), buffer);

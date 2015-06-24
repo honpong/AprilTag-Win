@@ -3081,7 +3081,7 @@ xy fast_detector_9::track(const unsigned char *im1, const unsigned char *im2, in
 {
     int x, y;
     
-    xy best = {INFINITY, INFINITY, min_score, 0.};
+    xy best = {INFINITY, INFINITY, min_score, 0.f};
     
     int x1 = (int)ceilf(predx - radius);
     int x2 = (int)floorf(predx + radius);

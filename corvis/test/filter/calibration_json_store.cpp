@@ -16,7 +16,7 @@ TEST(calibration_json_store_tests, SerializeDeserialize)
     {
         std::string jsonString;
         EXPECT_TRUE(calibration_serialize(cal, jsonString));
-        EXPECT_TRUE(jsonString.length()); // expect non-zero length
+        EXPECT_GT(jsonString.length(), 0); // expect non-zero length
 
         EXPECT_TRUE(calibration_deserialize(jsonString, calDeserialized));
     }

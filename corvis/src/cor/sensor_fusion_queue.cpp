@@ -30,9 +30,9 @@ bool sensor_queue<T, size>::push(T&& x)
     if(last_in != sensor_clock::time_point())
     {
         sensor_clock::duration delta = time - last_in;
-        stats.data(delta.count());
+        stats.data(std::chrono::duration<f_t>(delta).count());
 #ifdef DEBUG
-        hist.data(delta.count() / 1000);
+        hist.data(std::chrono::duration<f_t,std::milli>(delta).count());
 #endif
         if(period == std::chrono::duration<double, std::micro>(0)) period = delta;
         else

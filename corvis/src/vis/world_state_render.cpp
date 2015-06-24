@@ -147,8 +147,28 @@ static void create_plot(world_state * state, int plot_index, int key_index, uint
         float minx = std::numeric_limits<float>::max(), maxx = std::numeric_limits<float>::min();
         float miny = std::numeric_limits<float>::max(), maxy = std::numeric_limits<float>::min();
         std::string names;
-        const char *colors[] = {"r","g","b"}; int i=0;
+        const char *colors[] = {"r","g","b"};
+        int i=0;
 
+        // Iterate over the data once to determine the extents
+        for (auto kvi = plot.begin(); kvi != plot.end(); ++kvi, i++) {
+            // Enable these two lines if you want per-plot line
+            // scaling when using the arrow keys
+            //if (key_index != -1 && key_index != i)
+            //    continue;
+
+            for(auto data : kvi->second) {
+                float seconds = sensor_clock::tp_to_micros(data.first)/1e6;
+                if(seconds < minx) minx = seconds;
+                if(seconds > maxx) maxx = seconds;
+
+                float val = data.second;
+                if(val < miny) miny = val;
+                if(val > maxy) maxy = val;
+            }
+        }
+
+        i = 0;
         for (auto kvi = plot.begin(); kvi != plot.end(); ++kvi, i++) {
             auto &kv = *kvi;
             if (key_index != -1 && key_index != i)
@@ -162,18 +182,14 @@ static void create_plot(world_state * state, int plot_index, int key_index, uint
 
             int j = 0;
             for(auto data : p) {
-                float seconds = (sensor_clock::tp_to_micros(data.first) - first)/1e6;
-                if(seconds < minx) minx = seconds;
-                if(seconds > maxx) maxx = seconds;
+                float seconds = sensor_clock::tp_to_micros(data.first)/1e6 - minx;
                 data_x.a[j] = seconds;
 
                 float val = data.second;
-                if(val < miny) miny = val;
-                if(val > maxy) maxy = val;
                 data_y.a[j++] = val;
             }
 
-            gr.SetRange('x', minx, maxx);
+            gr.SetRange('x', 0, maxx - minx);
             gr.SetRange('y', miny, maxy);
             gr.Plot(data_x, data_y, colors[key_index == -1 ? i%3 : key_index % 3]);
         }

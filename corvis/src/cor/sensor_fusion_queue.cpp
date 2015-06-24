@@ -195,7 +195,7 @@ void fusion_queue::stop_async()
         dispatch_singlethread(true);
 #ifdef DEBUG
         std::cerr << get_stats();
-        std::cerr << gyro_queue.hist;
+        //std::cerr << gyro_queue.hist;
 #endif
     }
     stop_immediately();
@@ -240,7 +240,7 @@ void fusion_queue::runloop()
     while (dispatch_next(lock, true));
 #ifdef DEBUG
     std::cerr << get_stats();
-    std::cerr << gyro_queue.hist;
+    //std::cerr << gyro_queue.hist;
 #endif
     lock.unlock();
 }

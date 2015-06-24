@@ -5,6 +5,9 @@
 #include "vec4.h"
 #include "quaternion.h"
 
+#undef GTEST_DISALLOW_ASSIGN_
+#define GTEST_DISALLOW_ASSIGN_(type) public: EIGEN_MAKE_ALIGNED_OPERATOR_NEW void operator=(type const &)
+
 ::testing::AssertionResult
 test_m4_near(const char* expr1, const char* expr2, const char* bounds_expr,
              const m4 &a, const m4 &b, const f_t bounds);

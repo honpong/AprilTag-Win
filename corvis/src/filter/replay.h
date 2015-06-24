@@ -24,8 +24,8 @@ private:
     std::ifstream::pos_type size;
     std::atomic<uint64_t> packets_dispatched{0};
     std::atomic<uint64_t> bytes_dispatched{0};
-    std::atomic<float> path_length{0}; float reference_path_length{NAN};
-    std::atomic<float> length{0}; float reference_length{NAN};
+    std::atomic<double> path_length{0}; double reference_path_length{NAN};
+    std::atomic<double> length{0}; double reference_length{NAN};
     std::unique_ptr<tpose_sequence> reference_seq;
     std::atomic<bool> is_running{false};
     std::atomic<bool> is_paused{false};
@@ -52,10 +52,10 @@ public:
     void step() { is_paused = is_stepping = true; }
     uint64_t get_bytes_dispatched() { return bytes_dispatched; }
     uint64_t get_packets_dispatched() { return packets_dispatched; }
-    float get_path_length() { return path_length; }
-    float get_length() { return length; }
-    float get_reference_path_length() { return reference_path_length; }
-    float get_reference_length() { return reference_length; }
+    double get_path_length() { return path_length; }
+    double get_length() { return length; }
+    double get_reference_path_length() { return reference_path_length; }
+    double get_reference_length() { return reference_length; }
     bool set_reference_from_filename(const string &filename);
     std::string get_timing_stats() { return fusion.get_timing_stats(); }
 };

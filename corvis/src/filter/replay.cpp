@@ -75,11 +75,11 @@ bool replay::load_reference_from_pose_file(const string &filename)
     return false;
 }
 
-static bool find_prefixed_number(const std::string in, const std::string &prefix, float &n)
+static bool find_prefixed_number(const std::string in, const std::string &prefix, double &n)
 {
     smatch m; if (!regex_search(in, m, regex(prefix + "(\\d+(?:\\.\\d*)?)"))) return false;
     stringstream s(m[1]);
-    float nn; s >> nn; if (!s.fail()) n = nn;
+    double nn; s >> nn; if (!s.fail()) n = nn;
     return !s.fail();
 }
 

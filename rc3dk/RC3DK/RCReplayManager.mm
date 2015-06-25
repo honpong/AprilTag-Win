@@ -79,7 +79,7 @@
         }
     };
 
-    rp.configure_all([path UTF8String], "iphone5s_brian", realtime, callback);
+    rp.configure_all([path UTF8String], realtime, callback);
 }
 
 - (void)stopReplay

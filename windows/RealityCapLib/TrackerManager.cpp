@@ -11,6 +11,7 @@
 #include "libpxcimu_internal.h"
 #include "rc_intel_interface.h"
 #include "rc_pxc_util.h"
+#include "pxcprojection.h"
 
 using namespace RealityCap;
 using namespace std;
@@ -213,8 +214,10 @@ void TrackerManager::OnColorFrameWithDepth(PXCImage* colorSample, PXCImage* dept
 	uint64_t shutter_time_us = 1 << exposure;
 	PXCImage::ImageInfo colorInfo = colorSample->QueryInfo();
 
-	RCSavedImage *sid = new RCSavedImage(depthSample, PXCImage::PIXEL_FORMAT_DEPTH);
-	PXCImage::ImageInfo depthInfo = depthSample->QueryInfo();
+    PXCProjection *proj = pDevice->CreateProjection();
+    PXCImage *remap_depth = proj->CreateDepthImageMappedToColor(depthSample, colorSample);
+    RCSavedImage *sid = new RCSavedImage(remap_depth, PXCImage::PIXEL_FORMAT_DEPTH);
+    PXCImage::ImageInfo depthInfo = remap_depth->QueryInfo();
 
 	//Timestamp: divide by 10 to go from 100ns to us, subtract 637us blank interval and 12 ms ad-hoc (tuning) offset, subtract shutter time to get start of capture
 	rc_receiveImageWithDepth(_tracker, rc_EGRAY8, colorSample->QueryTimeStamp() / 10 - 637 - 12000 - shutter_time_us, shutter_time_us, NULL, false, colorInfo.width, colorInfo.height, sic->data.pitches[0], sic->data.planes[0], RCSavedImage::releaseOpaquePointer, (void*)sic, depthInfo.width, depthInfo.height, sid->data.pitches[0], sid->data.planes[0], RCSavedImage::releaseOpaquePointer, (void*)sid);

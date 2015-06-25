@@ -52,16 +52,21 @@ class TestRunner(object):
         except OSError as e:
             if e.errno != errno.EEXIST: raise
         args.extend(["--render", image])
-    output = subprocess.check_output(args, stderr=subprocess.STDOUT)
-    print output
-    #"Reference Straight-line length is 0.00 cm, total path length 65.00 cm"
-    #"Computed  Straight-line length is 0.40 cm, total path length 49.29 cm"
-    res = re.match(".*Reference .* ([\d\.]+|nan) cm.* ([\d\.]+|nan) cm.*"
-                   +".*Computed .* ([\d\.]+) cm.* ([\d\.]+) cm.*",
-                   output, re.MULTILINE | re.DOTALL)
-    (L, PL, base_L, base_PL) = map(float,res.group(3,4,1,2)) if res else (None, None, float("nan"), float("nan"))
-    print "Finished", test_case["path"], "(%.2fcm, %.2fcm)" % (L, PL) if res else "failed to match"; sys.stdout.flush();
-    return (PL, L, base_PL, base_L)
+    try:
+        output = subprocess.check_output(args, stderr=subprocess.STDOUT)
+        print output
+        #"Reference Straight-line length is 0.00 cm, total path length 65.00 cm"
+        #"Computed  Straight-line length is 0.40 cm, total path length 49.29 cm"
+        res = re.match(".*Reference .* ([\d\.]+|nan) cm.* ([\d\.]+|nan) cm.*"
+                       +".*Computed .* ([\d\.]+) cm.* ([\d\.]+) cm.*",
+                       output, re.MULTILINE | re.DOTALL)
+        (L, PL, base_L, base_PL) = map(float,res.group(3,4,1,2)) if res else (None, None, float("nan"), float("nan"))
+        print "Finished", test_case["path"], "(%.2fcm, %.2fcm)" % (L, PL) if res else "failed to match"; sys.stdout.flush();
+        return (PL, L, base_PL, base_L, True)
+    except subprocess.CalledProcessError as e:
+        print e
+        print e.output
+        return (0, 0, 0, 0, False)
 
 def write_html(output_dir, test_cases):
     with open(os.path.join(output_dir, "index.html"),'w') as html:
@@ -112,7 +117,10 @@ def benchmark(input_dir, output_dir = None, qvga = False):
     PL_errors_percent = []
     primary_errors_percent = []
     for test_case, result in zip(test_cases, results):
-        (PL, L, base_PL, base_L) = result
+        (PL, L, base_PL, base_L, success) = result
+        if not success:
+            print >>r, "FAILED", test_case["path"]
+            continue
         print >>r, "Result", test_case["path"]
 
         has_PL = not math.isnan(base_PL)

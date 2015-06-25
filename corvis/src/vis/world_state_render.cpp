@@ -106,6 +106,7 @@ void world_state_render(world_state * world, float * view_matrix, float * projec
     render.draw_array(world->orientation_vertex, world->orientation_vertex_num, GL_LINES);
     render.draw_array(world->feature_vertex, world->feature_vertex_num, GL_POINTS);
     render.draw_array(world->path_vertex, world->path_vertex_num, GL_POINTS);
+    render.draw_array(world->path_gt_vertex, world->path_gt_vertex_num, GL_POINTS);
 
 #if !(TARGET_OS_IPHONE)
     glPointSize(10.0f);

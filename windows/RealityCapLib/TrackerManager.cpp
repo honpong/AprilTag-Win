@@ -214,13 +214,30 @@ void TrackerManager::OnColorFrameWithDepth(PXCImage* colorSample, PXCImage* dept
 	uint64_t shutter_time_us = 1 << exposure;
 	PXCImage::ImageInfo colorInfo = colorSample->QueryInfo();
 
-    PXCProjection *proj = pDevice->CreateProjection();
-    PXCImage *remap_depth = proj->CreateDepthImageMappedToColor(depthSample, colorSample);
-    RCSavedImage *sid = new RCSavedImage(remap_depth, PXCImage::PIXEL_FORMAT_DEPTH);
-    PXCImage::ImageInfo depthInfo = remap_depth->QueryInfo();
+    RCSavedImage *sid = 0;
+    PXCImage::ImageInfo depthInfo;
 
-	//Timestamp: divide by 10 to go from 100ns to us, subtract 637us blank interval and 12 ms ad-hoc (tuning) offset, subtract shutter time to get start of capture
-	rc_receiveImageWithDepth(_tracker, rc_EGRAY8, colorSample->QueryTimeStamp() / 10 - 637 - 12000 - shutter_time_us, shutter_time_us, NULL, false, colorInfo.width, colorInfo.height, sic->data.pitches[0], sic->data.planes[0], RCSavedImage::releaseOpaquePointer, (void*)sic, depthInfo.width, depthInfo.height, sid->data.pitches[0], sid->data.planes[0], RCSavedImage::releaseOpaquePointer, (void*)sid);
+    bool reproject = false;
+    if (reproject)
+    {
+        PXCProjection *proj = pDevice->CreateProjection();
+        PXCImage *remap_depth = proj->CreateDepthImageMappedToColor(depthSample, colorSample);
+        if (remap_depth)
+        {
+            sid = new RCSavedImage(remap_depth, PXCImage::PIXEL_FORMAT_DEPTH);
+            depthInfo = remap_depth->QueryInfo();
+        }
+        else reproject = false; //Reprojection failed, so fall through to original depth data
+        proj->Release();
+    }
+    if(!reproject) //This is explicitly not an else because we want to fall through if reprojection fails
+    {
+        sid = new RCSavedImage(depthSample, PXCImage::PIXEL_FORMAT_DEPTH);
+        depthInfo = depthSample->QueryInfo();
+    }
+
+    //Timestamp: divide by 10 to go from 100ns to us, subtract 637us blank interval and 12 ms ad-hoc (tuning) offset, subtract shutter time to get start of capture
+    rc_receiveImageWithDepth(_tracker, rc_EGRAY8, colorSample->QueryTimeStamp() / 10 - 637 - 12000 - shutter_time_us, shutter_time_us, NULL, false, colorInfo.width, colorInfo.height, sic->data.pitches[0], sic->data.planes[0], RCSavedImage::releaseOpaquePointer, (void*)sic, depthInfo.width, depthInfo.height, sid->data.pitches[0], sid->data.planes[0], RCSavedImage::releaseOpaquePointer, (void*)sid);
 }
 
 void TrackerManager::OnAmeterSample(imu_sample_t* sample)

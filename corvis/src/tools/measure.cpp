@@ -46,9 +46,11 @@ int main(int c, char **v)
             ws.receive_camera(f, std::move(d));
         };
 
-    if(!rp.configure_all(filename, realtime, progress, camera_callback))
+    if(!rp.configure_all(filename, realtime, progress, camera_callback)) {
+        cerr << filename << ": configure_all failed! (Check your calibration.json?)\n";
         return 2;
-    
+    }
+
     if(qvga) rp.enable_qvga();
 
     if (!rp.set_reference_from_filename(filename) && !enable_gui) {

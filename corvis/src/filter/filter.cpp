@@ -607,6 +607,8 @@ void filter_setup_next_frame(struct filter *f, const uint8_t *image, sensor_cloc
                 obs->meas[1] = i->current[1];
                 obs->image = image;
                 obs->tracker = f->track;
+                obs->feature->dt = time - obs->feature->last_seen;
+                obs->feature->last_seen = time;
 
                 f->observations.observations.push_back(std::move(obs));
             }
@@ -695,6 +697,7 @@ static void filter_add_features(struct filter *f, const camera_data & camera, si
             g->features.children.push_back(feat);
             feat->groupid = g->id;
             feat->found_time = camera.timestamp;
+            feat->last_seen = feat->found_time;
             
             found_feats++;
             if(found_feats == newfeats) break;

@@ -69,6 +69,9 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     v4 relative;
     f_t depth;
     feature_t image_velocity;
+    sensor_clock::duration dt;
+    sensor_clock::duration last_dt;
+    sensor_clock::time_point last_seen;
 
     sensor_clock::time_point found_time;
 

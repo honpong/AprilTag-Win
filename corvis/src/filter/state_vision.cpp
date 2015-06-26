@@ -24,6 +24,8 @@ state_vision_feature::state_vision_feature(f_t initialx, f_t initialy): state_le
     innovation_variance_xy = 0.;
     v.set_depth_meters(initial_depth_meters);
     set_process_noise(initial_process_noise);
+    dt = sensor_clock::duration(0);
+    last_dt = sensor_clock::duration(0);
     image_velocity.x = 0;
     image_velocity.y = 0;
     relative = v4(0, 0, 0, 0);

@@ -452,7 +452,11 @@ void observation_vision_feature::update_initializing()
 
 bool observation_vision_feature::measure()
 {
-    xy bestkp = tracker.track(feature->patch, image, (float)feature->current[0] + feature->image_velocity.x, (float)feature->current[1] + feature->image_velocity.y, tracker.radius, tracker.min_match);
+    float ratio = 1.f;
+    if(feature->last_dt.count())
+        ratio = (float)feature->dt.count() / feature->last_dt.count();
+
+    xy bestkp = tracker.track(feature->patch, image, (float)feature->current[0] + feature->image_velocity.x*ratio, (float)feature->current[1] + feature->image_velocity.y*ratio, tracker.radius, tracker.min_match);
 
     // Not a good enough match, try the filter prediction
     if(bestkp.score < tracker.good_match) {
@@ -488,6 +492,9 @@ bool observation_vision_feature::measure()
             update_initializing();
         }
     }
+
+    feature->last_dt = feature->dt;
+
     return valid;
 }
 

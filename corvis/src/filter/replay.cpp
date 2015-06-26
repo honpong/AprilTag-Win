@@ -210,6 +210,30 @@ void replay::start()
                         d.depth->timestamp = d.timestamp;
                         d.depth->exposure_time = d.exposure_time;
                         d.depth->image = (uint16_t *)(ip->data + ip->width * ip->height);
+                        int width = d.depth->width;
+                        int height = d.depth->height;
+                        int stride = d.depth->stride;
+                        if(qvga && width == 640 && height == 480)
+                        {
+                            d.depth->width = width / 2;
+                            d.depth->height = height / 2;
+                            d.depth->stride = stride / 2;
+                            for(int y = 0; y < d.depth->height; ++y) {
+                                for(int x = 0; x < d.depth->stride; ++x) {
+                                    uint16_t p1 = d.depth->image[(y * 2 * width) + (x * 2)];
+                                    uint16_t p2 = d.depth->image[((y * 2 + 1) * width) + (x * 2)];
+                                    uint16_t p3 = d.depth->image[(y * 2 * width) + (x * 2 + 1)];
+                                    uint16_t p4 = d.depth->image[((y * 2 + 1) * width) + (x * 2 + 1)];
+                                    int divisor = 0;
+                                    if(p1) divisor++;
+                                    if(p2) divisor++;
+                                    if(p3) divisor++;
+                                    if(p4) divisor++;
+                                    if(!divisor) divisor = 1;
+                                    d.depth->image[y * d.depth->stride / 2 + x] = (p1 + p2 + p3 + p4) / divisor;
+                                }
+                            }
+                        }
                     }
                     fusion.receive_image(std::move(d));
                     is_stepping = false;

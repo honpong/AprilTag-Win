@@ -18,8 +18,9 @@ int main(int c, char **v)
     char *filename = nullptr, *rendername = nullptr;
     for (int i=1; i<c; i++)
         if      (v[i][0] != '-' && !filename) filename = v[i];
-        else if (strcmp(v[i], "--no-gui") == 0) enable_gui = false;
+        else if (strcmp(v[i], "--no-gui") == 0) { enable_gui = false; realtime = true; }
         else if (strcmp(v[i], "--realtime") == 0) realtime = true;
+        else if (strcmp(v[i], "--no-realtime") == 0) realtime = false;
         else if (strcmp(v[i], "--no-plots") == 0) show_plots = false;
         else if (strcmp(v[i], "--no-depth") == 0) show_depth = false;
         else if (strcmp(v[i], "--no-video") == 0) show_video = false;
@@ -31,9 +32,6 @@ int main(int c, char **v)
 
     if (!filename)
         goto usage;
-
-    if(enable_gui)
-        realtime = true;
 
     std::function<void (float)> progress;
     std::function<void (const filter *, camera_data &&)> camera_callback;
@@ -55,7 +53,6 @@ int main(int c, char **v)
 
     if (!rp.set_reference_from_filename(filename) && !enable_gui) {
         cerr << filename << ": unable to find a reference to measure against\n";
-        return 3;
     }
 
     if(enable_gui) { // The GUI must be on the main thread

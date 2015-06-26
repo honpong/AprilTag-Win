@@ -18,7 +18,7 @@ int main(int c, char **v)
     char *filename = nullptr, *rendername = nullptr;
     for (int i=1; i<c; i++)
         if      (v[i][0] != '-' && !filename) filename = v[i];
-        else if (strcmp(v[i], "--no-gui") == 0) { enable_gui = false; realtime = true; }
+        else if (strcmp(v[i], "--no-gui") == 0) enable_gui = false;
         else if (strcmp(v[i], "--realtime") == 0) realtime = true;
         else if (strcmp(v[i], "--no-realtime") == 0) realtime = false;
         else if (strcmp(v[i], "--no-plots") == 0) show_plots = false;

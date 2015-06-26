@@ -386,10 +386,10 @@ void rc_setOutputLog(rc_Tracker * tracker, const wchar_t * wfilename)
 corvis_device_parameters rc_getCalibration(rc_Tracker *tracker)
 {
     corvis_device_parameters calibration;
-    calibration.Fx = (float)tracker->sfm.s.focal_length.v * tracker->sfm.image_height;
-    calibration.Fy = (float)tracker->sfm.s.focal_length.v * tracker->sfm.image_height;
-    calibration.Cx = (float)tracker->sfm.s.center_x.v * tracker->sfm.image_height + tracker->sfm.image_width / 2. - .5;
-    calibration.Cy = (float)tracker->sfm.s.center_y.v * tracker->sfm.image_height + tracker->sfm.image_height / 2. - .5;
+    calibration.Fx = (float)tracker->sfm.s.focal_length.v * tracker->sfm.s.image_height;
+    calibration.Fy = (float)tracker->sfm.s.focal_length.v * tracker->sfm.s.image_height;
+    calibration.Cx = (float)tracker->sfm.s.center_x.v * tracker->sfm.s.image_height + tracker->sfm.s.image_width / 2. - .5;
+    calibration.Cy = (float)tracker->sfm.s.center_y.v * tracker->sfm.s.image_height + tracker->sfm.s.image_height / 2. - .5;
     calibration.w_meas_var = (float)tracker->sfm.w_variance;
     calibration.a_meas_var = (float)tracker->sfm.a_variance;
     calibration.K[0] = (float)tracker->sfm.s.k1.v;
@@ -407,8 +407,8 @@ corvis_device_parameters rc_getCalibration(rc_Tracker *tracker)
         calibration.Tc_var[i] = (float)tracker->sfm.s.Tc.variance()[i];
         calibration.Wc_var[i] = (float)tracker->sfm.s.Wc.variance()[i];
     }
-    calibration.image_width = tracker->sfm.image_width;
-    calibration.image_height = tracker->sfm.image_height;
+    calibration.image_width = tracker->sfm.s.image_width;
+    calibration.image_height = tracker->sfm.s.image_height;
     return calibration;
 }
 

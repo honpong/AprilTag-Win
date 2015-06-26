@@ -599,7 +599,7 @@ void filter_setup_next_frame(struct filter *f, const uint8_t *image, sensor_cloc
         for(state_vision_group *g : f->s.groups.children) {
             if(!g->status || g->status == group_initializing) continue;
             for(state_vision_feature *i : g->features.children) {
-                auto extra_time = std::chrono::duration_cast<sensor_clock::duration>(f->shutter_delay + i->current[1]/(float)f->image_height * f->shutter_period);
+                auto extra_time = std::chrono::duration_cast<sensor_clock::duration>(f->shutter_delay + i->current[1]/(float)f->s.image_height * f->shutter_period);
                 auto obs = std::make_unique<observation_vision_feature>(f->s, time + extra_time, time);
                 obs->state_group = g;
                 obs->feature = i;
@@ -755,8 +755,6 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
     f->track.height = camera.height;
     f->track.stride = camera.stride;
     f->track.init();
-    f->image_width = camera.width;
-    f->image_height = camera.height;
     f->s.image_width = camera.width;
     f->s.image_height = camera.height;
     
@@ -963,9 +961,6 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->active_time = sensor_clock::time_point(sensor_clock::duration(0));
     f->estimating_Tc = false;
     
-    f->image_height = 0;
-    f->image_width = 0;
-    
     if(f->scaled_mask)
     {
         delete f->scaled_mask;
@@ -1037,8 +1032,6 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     
     f->shutter_delay = device.shutter_delay;
     f->shutter_period = device.shutter_period;
-    f->image_height = device.image_height;
-    f->image_width = device.image_width;
     f->s.image_width = device.image_width;
     f->s.image_height = device.image_height;
     

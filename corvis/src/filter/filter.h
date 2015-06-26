@@ -54,7 +54,6 @@ filter(): s(cov)
     sensor_clock::time_point want_start;
     bool got_accelerometer, got_gyroscope, got_image;
     v4 last_gyro_meas, last_accel_meas;
-    int image_height, image_width;
     sensor_clock::duration shutter_delay;
     sensor_clock::duration shutter_period;
     bool detector_failed, tracker_failed, tracker_warned;

@@ -633,6 +633,11 @@ static float get_depth_for_point(const camera_data &cam, int x, int y)
 //    if(x == 0 || y == 0 || x == depth.width - 1 || y == depth.height - 1) return 0;
 }
 
+static float get_stdev_pct_for_depth(float depth_m)
+{
+    return 0.0023638192164147698 + (0.0015072367800769945 + 0.00044245048102432134 * depth_m) * depth_m;
+}
+
 //features are added to the state immediately upon detection - handled with triangulation in observation_vision_feature::predict - but what is happening with the empty row of the covariance matrix during that time?
 static void filter_add_features(struct filter *f, const camera_data & camera, size_t newfeats)
 {
@@ -668,12 +673,11 @@ static void filter_add_features(struct filter *f, const camera_data & camera, si
             if(camera.depth) depth_m = get_depth_for_point(camera, x, y);
             if(depth_m)
             {
-                //fprintf(stderr, "successful depth init at %fm\n", depth_m);
                 feat->v.set_depth_meters(depth_m);
-                feat->set_initial_variance(.03 * .03);
+                float std_pct = get_stdev_pct_for_depth(depth_m);
+                feat->set_initial_variance(std_pct * std_pct); // assumes log depth
                 feat->status = feature_normal;
             }
-            //else fprintf(stderr, "unsuccess\n");
             
             feat->intensity = (uint8_t)((((unsigned int)camera.image[x + y*camera.width]) + 
                                                         camera.image[x + 1 + y * camera.width] +

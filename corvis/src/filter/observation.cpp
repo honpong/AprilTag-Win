@@ -198,8 +198,8 @@ void observation_vision_feature::predict()
     Rtot = Rct * Rrt * Rc;
     Ttot = Rct * (Rrt * (state.Tc.v - state_group->Tr.v) - state.Tc.v);
 
-    norm_initial.x = (float)((feature->initial[0] / state.image_width - state.center_x.v) / state.focal_length.v);
-    norm_initial.y = (float)((feature->initial[1] / state.image_width - state.center_y.v) / state.focal_length.v);
+    norm_initial.x = (float)(((feature->initial[0] - state.image_width / 2. + .5) / state.image_width - state.center_x.v) / state.focal_length.v);
+    norm_initial.y = (float)(((feature->initial[1] - state.image_height / 2. + .5) / state.image_width - state.center_y.v) / state.focal_length.v);
 
     f_t r2, kr;
     state.fill_calibration(norm_initial, r2, kr);
@@ -228,8 +228,8 @@ void observation_vision_feature::predict()
     norm_predicted.y = (float)ippred[1];
 
     state.fill_calibration(norm_predicted, r2, kr);
-    pred[0] = (norm_predicted.x * kr * state.focal_length.v + state.center_x.v) * state.image_width;
-    pred[1] = (norm_predicted.y * kr * state.focal_length.v + state.center_y.v) * state.image_width;
+    pred[0] = (norm_predicted.x * kr * state.focal_length.v + state.center_x.v) * state.image_width + state.image_width / 2. - .5;
+    pred[1] = (norm_predicted.y * kr * state.focal_length.v + state.center_y.v) * state.image_width + state.image_height / 2. - .5;
     feature->prediction.x = (float)pred[0];
     feature->prediction.y = (float)pred[1];
 }
@@ -393,8 +393,8 @@ f_t observation_vision_feature::projection_residual(const v4 & X, const xy &foun
     
     state.fill_calibration(norm, r2, kr);
     
-    uncalib.x = (float)((norm.x * kr * state.focal_length.v + state.center_x.v) * state.image_width);
-    uncalib.y = (float)((norm.y * kr * state.focal_length.v + state.center_y.v) * state.image_width);
+    uncalib.x = (float)((norm.x * kr * state.focal_length.v + state.center_x.v) * state.image_width + state.image_width / 2. - .5);
+    uncalib.y = (float)((norm.y * kr * state.focal_length.v + state.center_y.v) * state.image_width + state.image_height / 2. - .5);
     f_t dx = uncalib.x - found.x;
     f_t dy = uncalib.y - found.y;
     return dx * dx + dy * dy;

@@ -388,8 +388,8 @@ corvis_device_parameters rc_getCalibration(rc_Tracker *tracker)
     corvis_device_parameters calibration;
     calibration.Fx = (float)tracker->sfm.s.focal_length.v * tracker->sfm.image_width;
     calibration.Fy = (float)tracker->sfm.s.focal_length.v * tracker->sfm.image_width;
-    calibration.Cx = (float)tracker->sfm.s.center_x.v * tracker->sfm.image_width;
-    calibration.Cy = (float)tracker->sfm.s.center_y.v * tracker->sfm.image_width;
+    calibration.Cx = (float)tracker->sfm.s.center_x.v * tracker->sfm.image_width + tracker->sfm.image_width / 2. - .5;
+    calibration.Cy = (float)tracker->sfm.s.center_y.v * tracker->sfm.image_width + tracker->sfm.image_height / 2. - .5;
     calibration.w_meas_var = (float)tracker->sfm.w_variance;
     calibration.a_meas_var = (float)tracker->sfm.a_variance;
     calibration.K[0] = (float)tracker->sfm.s.k1.v;

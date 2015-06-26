@@ -755,6 +755,7 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
     f->image_width = camera.width;
     f->image_height = camera.height;
     f->s.image_width = camera.width;
+    f->s.image_height = camera.height;
     
     if(!f->ignore_lateness) {
         /*thread_info_data_t thinfo;
@@ -989,8 +990,8 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->s.w_bias.set_initial_variance(tmp[0], tmp[1], tmp[2]);
     
     f->s.focal_length.v = device.Fx / device.image_width;
-    f->s.center_x.v = device.Cx / device.image_width;
-    f->s.center_y.v = device.Cy / device.image_width;
+    f->s.center_x.v = (device.Cx - device.image_width / 2. + .5) / device.image_width;
+    f->s.center_y.v = (device.Cy - device.image_height / 2. + .5) / device.image_width;
     f->s.k1.v = device.K[0];
     f->s.k2.v = device.K[1];
     f->s.k3.v = 0.; //device.K[2];
@@ -1036,6 +1037,7 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->image_height = device.image_height;
     f->image_width = device.image_width;
     f->s.image_width = device.image_width;
+    f->s.image_height = device.image_height;
     
     f->track.width = device.image_width;
     f->track.height = device.image_height;

@@ -664,10 +664,12 @@ static void filter_add_features(struct filter *f, const camera_data & camera, si
     state_vision_group *g = f->s.add_group(camera.timestamp);
 
     int found_feats = 0;
+    int half_patch = f->track.half_patch_width;
+    int full_patch = 2 * half_patch + 1;
     for(int i = 0; i < (int)kp.size(); ++i) {
         int x = (int)kp[i].x;
         int y = (int)kp[i].y;
-        if(x > 0 && y > 0 && x < (int)camera.width-1 && y < (int)camera.height-1 && f->scaled_mask->test(x, y)) {
+        if(x > half_patch && y > half_patch && x < (int)camera.width-1-half_patch && y < (int)camera.height-1-half_patch && f->scaled_mask->test(x, y)) {
             f->scaled_mask->clear(x, y);
             state_vision_feature *feat = f->s.add_feature(x, y);
 
@@ -685,8 +687,6 @@ static void filter_add_features(struct filter *f, const camera_data & camera, si
                                                         camera.image[x + 1 + y * camera.width] +
                                                         camera.image[x + camera.width + y * camera.width] +
                                                         camera.image[x + 1 + camera.width + y * camera.width]) >> 2);
-            int half_patch = f->track.half_patch_width;
-            int full_patch = 2 * half_patch + 1;
             for(int py = 0; py < full_patch; ++py)
             {
                 for(int px = 0; px <= full_patch; ++px)

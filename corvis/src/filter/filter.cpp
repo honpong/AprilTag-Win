@@ -902,7 +902,6 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     state_vision_feature::outlier_thresh = 2;
     state_vision_feature::outlier_reject = 30.;
     state_vision_feature::max_variance = .10 * .10; //because of log-depth, the standard deviation is approximately a percentage (so .10 * .10 = 10%)
-    state_vision_feature::min_add_vis_cov = .5;
     state_vision_group::ref_noise = 1.e-30;
     state_vision_group::min_feats = 1;
     

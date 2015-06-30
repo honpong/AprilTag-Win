@@ -11,7 +11,6 @@ f_t state_vision_feature::measurement_var;
 f_t state_vision_feature::outlier_thresh;
 f_t state_vision_feature::outlier_reject;
 f_t state_vision_feature::max_variance;
-f_t state_vision_feature::min_add_vis_cov;
 uint64_t state_vision_group::counter = 0;
 uint64_t state_vision_feature::counter = 0;
 

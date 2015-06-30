@@ -816,14 +816,6 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
 
     filter_process_features(f, time);
 
-    if(estimate_camera_extrinsics && !f->estimating_Tc && time - f->active_time > std::chrono::seconds(2))
-    {
-        //TODO: leaving Tc out of the state now. This gain scheduling is wrong (crash when adding tc back in if state is full).
-        f->s.children.push_back(&f->s.Tc);
-        f->s.remap();
-        f->estimating_Tc = true;
-    }
-
     int space = f->s.maxstatesize - f->s.statesize - 6;
     if(space > f->max_group_add) space = f->max_group_add;
     if(space >= f->min_group_add) {
@@ -832,11 +824,6 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
             if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def before disabling orient only\n");
 #endif
             f->s.disable_orientation_only();
-            if(estimate_camera_extrinsics) {
-                f->s.remove_child(&(f->s.Tc));
-                f->s.remap();
-                f->estimating_Tc = false;
-            }
 #ifdef TEST_POSDEF
             if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def after disabling orient only\n");
 #endif
@@ -959,7 +946,6 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     
     f->last_arrival = sensor_clock::time_point(sensor_clock::duration(0));
     f->active_time = sensor_clock::time_point(sensor_clock::duration(0));
-    f->estimating_Tc = false;
     
     if(f->scaled_mask)
     {

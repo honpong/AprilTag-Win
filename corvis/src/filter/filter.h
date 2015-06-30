@@ -78,8 +78,6 @@ filter(): s(cov)
     
     sensor_clock::time_point active_time;
     
-    bool estimating_Tc;
-
     qr_detector qr;
     sensor_clock::time_point last_qr_time;
     qr_benchmark qr_bench;

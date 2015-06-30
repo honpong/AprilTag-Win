@@ -143,7 +143,6 @@ static void create_plot(world_state * state, int plot_index, int key_index, uint
         gr.Alpha(false);
         gr.Clf('w');
         gr.SubPlot(1,1,0,"T");
-        gr.Box();
         sensor_clock::time_point mint = sensor_clock::time_point::max(), maxt = sensor_clock::time_point::min();
         float miny = std::numeric_limits<float>::max(), maxy = std::numeric_limits<float>::min();
         std::string names;

@@ -75,6 +75,7 @@ public:
     sensor_fusion(fusion_queue::latency_strategy strategy);
     
     void set_device(const corvis_device_parameters &dc);
+    corvis_device_parameters get_device() const { return filter_get_device_parameters(&sfm); }
     
     /** Sets the current location of the device.
      

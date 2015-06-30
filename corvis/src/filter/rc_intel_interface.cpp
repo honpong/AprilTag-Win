@@ -383,33 +383,9 @@ void rc_setOutputLog(rc_Tracker * tracker, const wchar_t * wfilename)
     tracker->set_output_log(filename.c_str());
 }
 
-corvis_device_parameters rc_getCalibration(rc_Tracker *tracker)
+static corvis_device_parameters rc_getCalibration(rc_Tracker *tracker)
 {
-    corvis_device_parameters calibration;
-    calibration.Fx = (float)tracker->sfm.s.focal_length.v * tracker->sfm.s.image_height;
-    calibration.Fy = (float)tracker->sfm.s.focal_length.v * tracker->sfm.s.image_height;
-    calibration.Cx = (float)tracker->sfm.s.center_x.v * tracker->sfm.s.image_height + tracker->sfm.s.image_width / 2. - .5;
-    calibration.Cy = (float)tracker->sfm.s.center_y.v * tracker->sfm.s.image_height + tracker->sfm.s.image_height / 2. - .5;
-    calibration.w_meas_var = (float)tracker->sfm.w_variance;
-    calibration.a_meas_var = (float)tracker->sfm.a_variance;
-    calibration.K[0] = (float)tracker->sfm.s.k1.v;
-    calibration.K[1] = (float)tracker->sfm.s.k2.v;
-    calibration.K[2] = (float)tracker->sfm.s.k3.v;
-    calibration.Wc[0] = (float)tracker->sfm.s.Wc.v.x();
-    calibration.Wc[1] = (float)tracker->sfm.s.Wc.v.y();
-    calibration.Wc[2] = (float)tracker->sfm.s.Wc.v.z();
-    for(int i = 0; i < 3; i++) {
-        calibration.a_bias[i] = (float)tracker->sfm.s.a_bias.v[i];
-        calibration.a_bias_var[i] = (float)tracker->sfm.s.a_bias.variance()[i];
-        calibration.w_bias[i] = (float)tracker->sfm.s.w_bias.v[i];
-        calibration.w_bias_var[i] = (float)tracker->sfm.s.w_bias.variance()[i];
-        calibration.Tc[i] = (float)tracker->sfm.s.Tc.v[i];
-        calibration.Tc_var[i] = (float)tracker->sfm.s.Tc.variance()[i];
-        calibration.Wc_var[i] = (float)tracker->sfm.s.Wc.variance()[i];
-    }
-    calibration.image_width = tracker->sfm.s.image_width;
-    calibration.image_height = tracker->sfm.s.image_height;
-    return calibration;
+    return filter_get_device_parameters(&tracker->sfm);
 }
 
 const char *rc_getTimingStats(rc_Tracker *tracker)

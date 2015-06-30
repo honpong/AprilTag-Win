@@ -1036,6 +1036,35 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->s.remap();
 }
 
+corvis_device_parameters filter_get_device_parameters(const struct filter *f)
+{
+    corvis_device_parameters calibration;
+    calibration.Fx = (float)f->s.focal_length.v * f->s.image_height;
+    calibration.Fy = (float)f->s.focal_length.v * f->s.image_height;
+    calibration.Cx = (float)f->s.center_x.v * f->s.image_height + f->s.image_width / 2. - .5;
+    calibration.Cy = (float)f->s.center_y.v * f->s.image_height + f->s.image_height / 2. - .5;
+    calibration.w_meas_var = (float)f->w_variance;
+    calibration.a_meas_var = (float)f->a_variance;
+    calibration.K[0] = (float)f->s.k1.v;
+    calibration.K[1] = (float)f->s.k2.v;
+    calibration.K[2] = (float)f->s.k3.v;
+    calibration.Wc[0] = (float)f->s.Wc.v.x();
+    calibration.Wc[1] = (float)f->s.Wc.v.y();
+    calibration.Wc[2] = (float)f->s.Wc.v.z();
+    for(int i = 0; i < 3; i++) {
+        calibration.a_bias[i] = (float)f->s.a_bias.v[i];
+        calibration.a_bias_var[i] = (float)f->s.a_bias.variance()[i];
+        calibration.w_bias[i] = (float)f->s.w_bias.v[i];
+        calibration.w_bias_var[i] = (float)f->s.w_bias.variance()[i];
+        calibration.Tc[i] = (float)f->s.Tc.v[i];
+        calibration.Tc_var[i] = (float)f->s.Tc.variance()[i];
+        calibration.Wc_var[i] = (float)f->s.Wc.variance()[i];
+    }
+    calibration.image_width = f->s.image_width;
+    calibration.image_height = f->s.image_height;
+    return calibration;
+}
+
 float filter_converged(const struct filter *f)
 {
     if(f->run_state == RCSensorFusionRunStateSteadyInitialization) {

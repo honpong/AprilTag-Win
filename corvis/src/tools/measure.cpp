@@ -1,4 +1,5 @@
 #include "../filter/replay.h"
+#include "../filter/calibration_json_store.h"
 #include "../vis/world_state.h"
 #include "../vis/offscreen_render.h"
 #include "../vis/gui.h"
@@ -6,13 +7,14 @@
 int main(int c, char **v)
 {
     if (0) { usage:
-        cerr << "Usage: " << v[0] << " [--pause] [--realtime] [--no-gui] [--no-plots] [--no-video] [--no-main] [--qvga] [--render <file.png>] <filename>\n";
+        cerr << "Usage: " << v[0] << " [--pause] [--realtime] [--no-gui] [--no-plots] [--no-video] [--no-main] [--qvga] [--render <file.png>] [--save <calibration-json>] <filename>\n";
         return 1;
     }
 
     world_state ws;
 
     bool realtime = false, start_paused = false;
+    std:string save;
     bool qvga = false;
     bool enable_gui = true, show_plots = false, show_video = true, show_depth = true, show_main = true;
     char *filename = nullptr, *rendername = nullptr;
@@ -28,6 +30,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--pause")  == 0) start_paused  = true;
         else if (strcmp(v[i], "--render") == 0 && i+1 < c) rendername = v[++i];
         else if (strcmp(v[i], "--qvga") == 0) qvga = true;
+        else if (strcmp(v[i], "--save") == 0 && i+1 < c) save = v[++i];
         else goto usage;
 
     if (!filename)
@@ -66,6 +69,14 @@ int main(int c, char **v)
     if(rendername && !offscreen_render_to_file(rendername, &ws)) {
         cerr << "Failed to render\n";
         return 1;
+    }
+
+    if (!save.empty()) {
+        std::string json;
+        if (calibration_serialize(rp.get_device_parameters(), json)) {
+            std::ofstream out(save);
+            out << json;
+        }
     }
 
     std::cout << filename << std::endl;

@@ -57,6 +57,7 @@ public:
     double get_reference_path_length() { return reference_path_length; }
     double get_reference_length() { return reference_length; }
     bool set_reference_from_filename(const string &filename);
+    corvis_device_parameters get_device_parameters() const { return fusion.get_device(); }
     std::string get_timing_stats() { return fusion.get_timing_stats(); }
 };
 

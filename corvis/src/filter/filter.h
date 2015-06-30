@@ -100,6 +100,7 @@ void filter_start_dynamic(struct filter *f);
 void filter_start_qr_detection(struct filter *f, const std::string& data, float dimension, bool use_gravity);
 void filter_stop_qr_detection(struct filter *f);
 void filter_start_qr_benchmark(struct filter *f, float dimension);
+corvis_device_parameters filter_get_device_parameters(const struct filter *f);
 
 extern "C" void filter_initialize(struct filter *f, corvis_device_parameters device);
 float filter_converged(const struct filter *f);

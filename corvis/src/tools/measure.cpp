@@ -74,7 +74,6 @@ int main(int c, char **v)
     printf("Reference Straight-line length is %.2f cm, total path length %.2f cm\n", 100*rp.get_reference_length(), 100*rp.get_reference_path_length());
     printf("Computed  Straight-line length is %.2f cm, total path length %.2f cm\n", 100*rp.get_length(), 100*rp.get_path_length());
     printf("Dispatched %llu packets %.2f Mbytes\n", rp.get_packets_dispatched(), rp.get_bytes_dispatched()/1.e6);
-    std::cout << rp.get_timing_stats();
 
     return 0;
 }

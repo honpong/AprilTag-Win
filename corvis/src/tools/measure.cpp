@@ -39,10 +39,9 @@ int main(int c, char **v)
     replay rp(start_paused);
     gui vis(&ws, show_main, show_video, show_depth, show_plots);
 
-    if(rendername || enable_gui)
-        camera_callback = [&](const filter * f, camera_data &&d) {
-            ws.receive_camera(f, std::move(d));
-        };
+    camera_callback = [&](const filter * f, camera_data &&d) {
+        ws.receive_camera(f, std::move(d));
+    };
 
     if(!rp.configure_all(filename, realtime, progress, camera_callback)) {
         cerr << filename << ": configure_all failed! (Check your calibration.json?)\n";

@@ -19,6 +19,7 @@ typedef struct _VertexData {
 typedef struct _feature {
     float x, y, z;
     sensor_clock::time_point last_seen;
+    int times_seen;
     float image_x, image_y;
     float cx, cy, ctheta;
     bool good;
@@ -85,6 +86,7 @@ public:
     void observe_plot_item(sensor_clock::time_point timestamp, int plot_index, std::string plot_name, float value);
     void observe_image(sensor_clock::time_point timestamp, uint8_t * image, int width, int height);
     void observe_depth(sensor_clock::time_point timestamp, uint16_t * image, int width, int height);
+    std::string get_feature_stats();
     void reset() {
         display_lock.lock();
         features.clear();

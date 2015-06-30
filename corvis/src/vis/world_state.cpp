@@ -388,6 +388,25 @@ void world_state::build_grid_vertex_data()
     }
 }
 
+std::string world_state::get_feature_stats()
+{
+    std::ostringstream os;
+    display_lock.lock();
+    os.precision(2);
+    os << fixed;
+    os << "Features seen: " << features.size() << " ";
+    float average_times_seen = 0;
+    if(features.size()) {
+        for(auto f : features) {
+            average_times_seen += f.second.times_seen;
+        }
+        average_times_seen /= features.size();
+    }
+    os << "with an average life of " << average_times_seen << " frames" << std::endl;
+    display_lock.unlock();
+    return os.str();
+}
+
 void world_state::observe_feature(sensor_clock::time_point timestamp, uint64_t feature_id, float x, float y, float z, float image_x, float image_y, float cx, float cy, float ctheta, bool good)
 {
     Feature f;
@@ -401,11 +420,14 @@ void world_state::observe_feature(sensor_clock::time_point timestamp, uint64_t f
     f.ctheta = ctheta;
     f.last_seen = timestamp;
     f.good = good;
+    f.times_seen = 1;
     display_lock.lock();
     if(timestamp > current_feature_timestamp)
         current_feature_timestamp = timestamp;
     if(timestamp > current_timestamp)
         current_timestamp = timestamp;
+    if(features.count(feature_id))
+        f.times_seen = features[feature_id].times_seen+1;
     features[feature_id] = f;
     display_lock.unlock();
 }

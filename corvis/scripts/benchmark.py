@@ -111,7 +111,7 @@ def benchmark(input_dir, output_dir = None, qvga = False):
     else:
         r = sys.stdout
 
-    results = pool.map(test_runner, test_cases)
+    results = pool.map(test_runner, test_cases, 1)
 
     L_errors_percent = []
     PL_errors_percent = []

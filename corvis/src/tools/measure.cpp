@@ -59,7 +59,6 @@ int main(int c, char **v)
         vis.start(&rp);
         rp.stop();
         replay_thread.join();
-        return 0;
     }
     else
         rp.start();

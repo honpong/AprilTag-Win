@@ -60,11 +60,11 @@ public class SensorFusion implements SensorEventListener, PreviewCallback
 	
 	protected void onSensorFusionStatusUpdate(SensorFusionStatus status)
 	{
-		Log.d(MyApplication.TAG, String.format("runState: %d progress: %f", status.runState, status.progress));
+//		Log.d(MyApplication.TAG, String.format("runState: %d progress: %f", status.runState, status.progress));
 	}
 	
 	protected void onSensorFusionDataUpdate(SensorFusionData data)
 	{
-		Log.d(MyApplication.TAG, String.format("onSensorFusionDataUpdate %d", data.timestamp));
+//		Log.d(MyApplication.TAG, String.format("onSensorFusionDataUpdate %d", data.timestamp));
 	}
 }

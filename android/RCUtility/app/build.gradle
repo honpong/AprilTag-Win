@@ -23,6 +23,22 @@ android {
     }
 }
 
+def rsRoot = "$System.env.RSSDK"
 dependencies {
     compile 'com.android.support:support-v13:22.2.0'
+    compile files (
+            rsRoot + '/libs/PXCACommon_x86.jar',
+            rsRoot + '/libs/OpenCL_x86.jar',
+            rsRoot + '/libs/PXCAScenePerception_x86.jar',
+            rsRoot + '/libs/PXCAPlayback_Camera_x86.jar',
+            rsRoot + '/libs/SP_Core_x86.jar',
+            rsRoot + '/libs/c++_shared_x86.jar',
+            rsRoot + '/libs/cilkrts_x86.jar',
+            rsRoot + '/libs/metaioTracker_x86.jar',
+            rsRoot + '/libs/PXCACommon.jar',
+            rsRoot + '/libs/PXCASenseManager.jar',
+            rsRoot + '/libs/PXCAPlayback.jar',
+            rsRoot + '/libs/PXCAScenePerception.jar'
+    )
 }
+

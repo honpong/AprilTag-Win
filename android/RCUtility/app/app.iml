@@ -88,8 +88,20 @@
     </content>
     <orderEntry type="jdk" jdkName="Android API 22 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" exported="" name="PXCAPlayback" level="project" />
+    <orderEntry type="library" exported="" name="PXCACommon_x86" level="project" />
+    <orderEntry type="library" exported="" name="OpenCL_x86" level="project" />
+    <orderEntry type="library" exported="" name="metaioTracker_x86" level="project" />
+    <orderEntry type="library" exported="" name="SP_Core_x86" level="project" />
+    <orderEntry type="library" exported="" name="PXCAScenePerception_x86" level="project" />
+    <orderEntry type="library" exported="" name="support-annotations-22.2.0" level="project" />
+    <orderEntry type="library" exported="" name="c++_shared_x86" level="project" />
+    <orderEntry type="library" exported="" name="PXCAPlayback_Camera_x86" level="project" />
+    <orderEntry type="library" exported="" name="cilkrts_x86" level="project" />
+    <orderEntry type="library" exported="" name="PXCASenseManager" level="project" />
+    <orderEntry type="library" exported="" name="PXCAScenePerception" level="project" />
     <orderEntry type="library" exported="" name="support-v13-22.2.0" level="project" />
     <orderEntry type="library" exported="" name="support-v4-22.2.0" level="project" />
-    <orderEntry type="library" exported="" name="support-annotations-22.2.0" level="project" />
+    <orderEntry type="library" exported="" name="PXCACommon" level="project" />
   </component>
 </module>

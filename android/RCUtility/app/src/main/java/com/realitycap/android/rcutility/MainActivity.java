@@ -26,7 +26,8 @@ public class MainActivity extends Activity
 	IMUManager imuMan;
 	VideoManager videoMan;
 	SensorFusion sensorFusion;
-	
+    RealSenseManager rsMan;
+
 	enum AppState
 	{
 		Idle, Calibrating, Capturing, LiveVis, ReplayVis
@@ -100,6 +101,8 @@ public class MainActivity extends Activity
 		
 		imuMan.setSensorEventListener(sensorFusion);
 		videoMan.setVideoSubscriber(sensorFusion);
+
+		rsMan = new RealSenseManager(this);
 		
 		setStatusText("Ready");		
 	}
@@ -113,7 +116,8 @@ public class MainActivity extends Activity
 	protected void startSensors()
 	{
 		imuMan.startSensors();
-		videoMan.startVideo(videoPreview);
+//		videoMan.startVideo(videoPreview);
+        rsMan.startCameras();
 		videoPreview.setVisibility(View.VISIBLE);
 	}
 	
@@ -121,7 +125,8 @@ public class MainActivity extends Activity
 	{
 		imuMan.stopSensors();
 		videoPreview.setVisibility(View.INVISIBLE);
-		videoMan.stopVideo();
+        rsMan.stopCameras();
+//		videoMan.stopVideo();
 	}
 	
 	protected boolean startCalibration()
@@ -146,7 +151,7 @@ public class MainActivity extends Activity
 	protected boolean startCapture()
 	{
 		if (appState != AppState.Idle) return false;
-		setStatusText("Starting capture...");
+        setStatusText("Starting capture...");
 		startSensors();
 		sensorFusion.startCapture();
 		setStatusText("Capturing...");
@@ -215,3 +220,5 @@ public class MainActivity extends Activity
 		if (line != null) Log.e(MyApplication.TAG, line);
 	}
 }
+
+

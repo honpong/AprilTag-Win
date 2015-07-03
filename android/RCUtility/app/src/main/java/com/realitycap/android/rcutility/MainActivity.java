@@ -102,7 +102,7 @@ public class MainActivity extends Activity
 		imuMan.setSensorEventListener(sensorFusion);
 		videoMan.setVideoSubscriber(sensorFusion);
 
-		rsMan = new RealSenseManager(this);
+		rsMan = new RealSenseManager(this, sensorFusion);
 		
 		setStatusText("Ready");		
 	}
@@ -113,12 +113,16 @@ public class MainActivity extends Activity
 		log(text);
 	}
 	
-	protected void startSensors()
+	protected boolean startSensors()
 	{
 		imuMan.startSensors();
 //		videoMan.startVideo(videoPreview);
-        rsMan.startCameras();
-		videoPreview.setVisibility(View.VISIBLE);
+        if (rsMan.startCameras())
+        {
+            videoPreview.setVisibility(View.VISIBLE);
+            return true;
+        }
+        else return false;
 	}
 	
 	protected void stopSensors()
@@ -152,7 +156,11 @@ public class MainActivity extends Activity
 	{
 		if (appState != AppState.Idle) return false;
         setStatusText("Starting capture...");
-		startSensors();
+		if (!startSensors())
+        {
+            setStatusText("Failed to start sensors.");
+            return false;
+        }
 		sensorFusion.startCapture();
 		setStatusText("Capturing...");
 		appState = AppState.Capturing;

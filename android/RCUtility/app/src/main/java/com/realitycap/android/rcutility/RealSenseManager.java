@@ -24,20 +24,20 @@ public class RealSenseManager
 {
     private static final String TAG = "RealSenseManager";
     private static SenseManager mSenseManager;
-    private Bitmap colorBitmap;
-    private Bitmap depthBitmap;
     private boolean mIsCamRunning = false;
     private boolean enablePlayback = false;
+    private ISyncedFrameReceiver receiver;
 
     private StreamTypeSet userStreamTypes = new StreamTypeSet(StreamType.COLOR, StreamType.DEPTH, StreamType.UVMAP);
     private Camera.Desc playbackCamDesc = new Camera.Desc(Camera.Type.PLAYBACK, Camera.Facing.ANY, userStreamTypes);
 
-    RealSenseManager(Context context)
+    RealSenseManager(Context context, ISyncedFrameReceiver receiver)
     {
         mSenseManager = new SenseManager(context);
+        this.receiver = receiver;
     }
 
-    public void startCameras()
+    public boolean startCameras()
     {
         Log.d(TAG, "startCameras");
 
@@ -48,18 +48,22 @@ public class RealSenseManager
                 if (enablePlayback)
                 {
                     mSenseManager.enableStreams(mSenseEventHandler, playbackCamDesc);
-                } else
+                }
+                else
                 {
                     mSenseManager.enableStreams(mSenseEventHandler, getUserProfiles(), null);
                 }
-            } catch (Exception e)
+
+                mIsCamRunning = true;
+            }
+            catch (Exception e)
             {
                 Log.e(TAG, "Exception:" + e.getMessage());
                 e.printStackTrace();
             }
-
-            mIsCamRunning = true;
         }
+
+        return mIsCamRunning;
     }
 
     public void stopCameras()
@@ -83,71 +87,37 @@ public class RealSenseManager
 
     OnSenseManagerHandler mSenseEventHandler = new OnSenseManagerHandler()
     {
-        private MyImage mTmpBuffer;
-
         @Override
         public void onSetProfile(Camera.CaptureInfo profiles)
         {
-            Log.i(TAG, "OnSetProfile");
-            // Configure Color Plane
-            StreamProfile cs = profiles.getStreamProfiles().get(StreamType.COLOR);
-            if (null == cs)
-            {
-                Log.e(TAG, "Error: NULL INDEX_COLOR");
-                colorBitmap = null;
-            } else
-            {
-                Log.i(TAG, "Configuring color with format " + cs.Format + " for width " + cs.Width + " and height " + cs.Height);
-                colorBitmap = Bitmap.createBitmap(cs.Width, cs.Height, Bitmap.Config.ARGB_8888);
-            }
-
-            // Configure Depth Plane
-            StreamProfile ds = profiles.getStreamProfiles().get(StreamType.DEPTH);
-            if (null == ds)
-            {
-                Log.e(TAG, "Error: NULL INDEX_DEPTH");
-                depthBitmap = null;
-            } else
-            {
-                Log.i(TAG, "Configuring DisplayMode (DEPTH_RAW_GRAYSCALE): format " + ds.Format + " for width " + ds.Width + " and height " + ds.Height);
-                depthBitmap = Bitmap.createBitmap(ds.Width, ds.Height, Bitmap.Config.ARGB_8888);
-                mTmpBuffer = new MyImage(ds.Width, ds.Height, RSPixelFormat.RGBA_8888);
-            }
-            Log.i(TAG, "Camera Calibration: \n" + profiles.getCalibrationData());
-//            mDisplayRunnable = new SimpleRunnable(mColorView, mDepthView);
+//            Log.i(TAG, "OnSetProfile");
         }
 
 
         @Override
         public void onNewSample(ImageSet images)
         {
+            if (receiver == null) return; // no point in any of this if no one is receiving it
+
             Image color = images.acquireImage(StreamType.COLOR);
             Image depth = images.acquireImage(StreamType.DEPTH);
 
-            if (color == null) Log.i(TAG, "color is null");
-            if (depth == null) Log.i(TAG, "depth is null");
-
-            if (null != colorBitmap && null != color)
+            if (color == null || depth == null)
             {
-                ByteBuffer data = color.acquireAccess();
-                colorBitmap.copyPixelsFromBuffer(data);
-                data.rewind();
-                color.releaseAccess();
-
-                Log.v(TAG, "RealSense color sample received.");
+                if (color == null) Log.i(TAG, "color is null");
+                if (depth == null) Log.i(TAG, "depth is null");
+                return;
             }
 
-            if (null != depthBitmap && null != depth && null != color)
-            {
-//                DepthUtils.Z16ToGrayscale8888(depth, mTmpBuffer);
-//                depthBitmap.copyPixelsFromBuffer(mTmpBuffer.buffer);
-//                mTmpBuffer.buffer.rewind();
+            Log.v(TAG, "RealSense camera sample received.");
 
-                Log.v(TAG, "RealSense depth sample received.");
-            }
+            ByteBuffer colorData = color.acquireAccess();
+            ByteBuffer depthData = depth.acquireAccess();
 
-//            mDisplayRunnable.setBitmaps(colorBitmap, depthBitmap);
-//            runOnUiThread(mDisplayRunnable);
+            receiver.onSyncedFrames(colorData, depthData);
+
+            color.releaseAccess();
+            depth.releaseAccess();
         }
 
 

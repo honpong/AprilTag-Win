@@ -156,7 +156,7 @@ extern "C"
 	    
 	    // allocate buffer for array and get data from Java array
 	    buffer  = new jbyte[size];
-	    env->GetByteArrayRegion(data, 0, size, buffer);
+	    env->GetByteArrayRegion(data, 0, size, buffer); // slow. copies data.
 	    if(RunExceptionCheck(env)) return(JNI_FALSE);
         
         LOGV(">>>>>>>>>>> Camera frame received <<<<<<<<<<<<<");
@@ -165,10 +165,26 @@ extern "C"
 	    env->SetByteArrayRegion(data, 0, size, buffer);
 	    delete[] buffer;
 	    if(RunExceptionCheck(env)) return(JNI_FALSE);
-        
+
+        // send some fake updates for testing
         SendStatusUpdate(env, thiz, 1, 0, 3, 0);
         SendDataUpdate(env, thiz, 12345678L);
         
 	    return(JNI_TRUE);
 	}
+
+	JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_SensorFusion_receiveSyncedFrames( JNIEnv* env, jobject thiz, jobject colorData, jobject depthData )
+    {
+        void* colorPtr = env->GetDirectBufferAddress(colorData);
+        jlong colorLength = env->GetDirectBufferCapacity(colorData);
+        if(RunExceptionCheck(env)) return(JNI_FALSE);
+
+        void* depthPtr = env->GetDirectBufferAddress(depthData);
+        jlong depthLength = env->GetDirectBufferCapacity(depthData);
+        if(RunExceptionCheck(env)) return(JNI_FALSE);
+
+        LOGV(">>>>>>>>>>> Synced camera frames received <<<<<<<<<<<<<");
+
+        return(JNI_TRUE);
+    }
 }

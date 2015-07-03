@@ -7,7 +7,9 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.util.Log;
 
-public class SensorFusion implements SensorEventListener, PreviewCallback
+import java.nio.ByteBuffer;
+
+public class SensorFusion implements SensorEventListener, PreviewCallback, ISyncedFrameReceiver
 {
 	static
 	{
@@ -23,6 +25,7 @@ public class SensorFusion implements SensorEventListener, PreviewCallback
 	protected native void receiveAccelerometer(float x, float y, float z, long timestamp);
 	protected native void receiveGyro(float x, float y, float z, long timestamp);
 	protected native boolean receiveVideoFrame(byte[] data);
+    protected native boolean receiveSyncedFrames(ByteBuffer colorData, ByteBuffer depthData);
 	
 	public SensorFusion()
 	{
@@ -57,6 +60,13 @@ public class SensorFusion implements SensorEventListener, PreviewCallback
 		if (!result) Log.w(MyApplication.TAG, "receiveVideoFrame() returned FALSE");
 		camera.addCallbackBuffer(data);
 	}
+
+    @Override
+    public void onSyncedFrames(final ByteBuffer colorData, final ByteBuffer depthData)
+    {
+        boolean result = receiveSyncedFrames(colorData, depthData);
+        if (!result) Log.w(MyApplication.TAG, "receiveSyncedFrames() returned FALSE");
+    }
 	
 	protected void onSensorFusionStatusUpdate(SensorFusionStatus status)
 	{

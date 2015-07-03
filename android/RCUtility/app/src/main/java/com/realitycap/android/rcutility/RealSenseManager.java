@@ -1,8 +1,7 @@
 package com.realitycap.android.rcutility;
 
-import android.graphics.Bitmap;
-import android.util.Log;
 import android.content.Context;
+import android.util.Log;
 
 import com.intel.camera.toolkit.depth.Camera;
 import com.intel.camera.toolkit.depth.Image;

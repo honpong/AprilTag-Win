@@ -5,12 +5,12 @@
 TEST(RotationVector, Exponential)
 {
     rotation_vector w(.1,.2,.3);
-    m4 R = {{
+    m4 R = {
             { 0.93575480327791880, -0.28316496056507373, 0.21019170595074288, 0},
             { 0.30293271340263710,  0.9505806179060914, -0.06803131640494002, 0},
             {-0.18054007669439776,  0.12733457491763028, 0.97529030895304570, 0},
             { 0,                    0,                   0,                   1},
-    }};
+    };
     EXPECT_M4_NEAR(R, to_rotation_matrix(w), F_T_EPS);
     EXPECT_M4_NEAR(to_rotation_matrix(rotation_vector(0,0,0)), m4::Identity(), 0);
 }
@@ -18,12 +18,12 @@ TEST(RotationVector, Exponential)
 TEST(RotationVector, ExactJacobians)
 {
     rotation_vector w(.1,.2,.3);
-    m4 J = {{
+    m4 J = {
             { 0.97848449542621930,  0.15156822390846117, -0.093873647747713900, 0},
             {-0.14494806865499016,  0.98344961186632260,  0.059349614974115006, 0},
             { 0.10380388062792034, -0.03948914921370206,  0.991724805933161300, 0},
             { 0,                    0,                    0,                    0},
-    }};
+    };
     EXPECT_M4_NEAR(J,    to_body_jacobian( w), F_T_EPS);
     EXPECT_M4_NEAR(J, to_spatial_jacobian(-w), F_T_EPS);
 }

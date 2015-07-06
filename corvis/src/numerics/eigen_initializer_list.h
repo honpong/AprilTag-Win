@@ -14,11 +14,11 @@
 EIGEN_STRONG_INLINE Matrix(std::initializer_list<const Scalar> initlist): Base()
 {
     Base::_check_template_params();
-    int dim = initlist.size();
+    size_t dim = initlist.size();
     eigen_assert(SizeAtCompileTime == Dynamic || SizeAtCompileTime == dim);
     if(Base::size() == 0) Base::resize(dim);
     eigen_assert(Base::size() == dim);
-    int i = 0;
+    size_t i = 0;
     for(auto x: initlist)
     {
         (*this)[i] = x;
@@ -36,11 +36,11 @@ EIGEN_STRONG_INLINE Matrix(std::initializer_list<std::initializer_list<const Sca
     if(Base::size() == 0) Base::resize(rows, cols);
     eigen_assert(Base::rows() == rows && Base::cols() == cols);
 
-    int i = 0;
+    size_t i = 0;
     for(auto x: initlist)
     {
         eigen_assert(x.size() == cols);
-        int j = 0;
+        size_t j = 0;
         for(auto y: x)
         {
             (*this)(i, j) = y;

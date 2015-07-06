@@ -34,6 +34,24 @@ struct tracker {
     {
         return fast.detect(im, mask, number_wanted, detect_threshold, winx, winy, winwidth, winheight);
     }
+
+    bool is_trackable(int x, int y)
+    {
+        return (x > half_patch_width &&
+                y > half_patch_width &&
+                x < width-1-half_patch_width &&
+                y < height-1-half_patch_width);
+    }
+
+    void add_track(const unsigned char *im, int x, int y, unsigned char *patch)
+    {
+        int full_patch = 2 * half_patch_width + 1;
+        for(int py = 0; py < full_patch; ++py) {
+            for(int px = 0; px <= full_patch; ++px) {
+                patch[py * full_patch + px] = im[x + px - half_patch_width + (y + py - half_patch_width) * width];
+            }
+        }
+    }
 };
 
 #endif

@@ -669,7 +669,7 @@ static void filter_add_features(struct filter *f, const camera_data & camera, si
     for(int i = 0; i < (int)kp.size(); ++i) {
         int x = (int)kp[i].x;
         int y = (int)kp[i].y;
-        if(x > half_patch && y > half_patch && x < (int)camera.width-1-half_patch && y < (int)camera.height-1-half_patch && f->scaled_mask->test(x, y)) {
+        if(f->track.is_trackable(x, y) && f->scaled_mask->test(x, y)) {
             f->scaled_mask->clear(x, y);
             state_vision_feature *feat = f->s.add_feature(x, y);
 
@@ -687,13 +687,9 @@ static void filter_add_features(struct filter *f, const camera_data & camera, si
                                                         camera.image[x + 1 + y * camera.width] +
                                                         camera.image[x + camera.width + y * camera.width] +
                                                         camera.image[x + 1 + camera.width + y * camera.width]) >> 2);
-            for(int py = 0; py < full_patch; ++py)
-            {
-                for(int px = 0; px <= full_patch; ++px)
-                {
-                    feat->patch[py * full_patch + px] = camera.image[x + px - half_patch + (y + py - half_patch) * camera.width];
-                }
-            }
+
+            f->track.add_track(camera.image, x, y, feat->patch);
+
             g->features.children.push_back(feat);
             feat->groupid = g->id;
             feat->found_time = camera.timestamp;

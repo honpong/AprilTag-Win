@@ -683,11 +683,6 @@ static void filter_add_features(struct filter *f, const camera_data & camera, si
                 feat->status = feature_normal;
             }
             
-            feat->intensity = (uint8_t)((((unsigned int)camera.image[x + y*camera.width]) + 
-                                                        camera.image[x + 1 + y * camera.width] +
-                                                        camera.image[x + camera.width + y * camera.width] +
-                                                        camera.image[x + 1 + camera.width + y * camera.width]) >> 2);
-
             f->track.add_track(camera.image, x, y, feat->patch);
 
             g->features.children.push_back(feat);

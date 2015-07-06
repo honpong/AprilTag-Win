@@ -540,7 +540,6 @@ static int filter_process_features(struct filter *f, sensor_clock::time_point ti
             }
         }
     }
-    auto micros = sensor_clock::tp_to_micros(time);
     if(track_fail && !total_feats && log_enabled) fprintf(stderr, "Tracker failed! %d features dropped.\n", track_fail);
     //    if (log_enabled) fprintf(stderr, "outliers: %d/%d (%f%%)\n", outliers, total_feats, outliers * 100. / total_feats);
     int features_used = f->s.process_features(time);
@@ -553,7 +552,7 @@ static int filter_process_features(struct filter *f, sensor_clock::time_point ti
     }
 
     //clean up dropped features and groups
-    f->s.features.remove_if([f,micros](state_vision_feature *i) {
+    f->s.features.remove_if([f](state_vision_feature *i) {
         if(i->status == feature_gooddrop) i->status = feature_empty;
         if(i->status == feature_reject) i->status = feature_empty;
         if(i->status == feature_empty) {
@@ -564,7 +563,7 @@ static int filter_process_features(struct filter *f, sensor_clock::time_point ti
             return false;
     });
 
-    f->s.groups.children.remove_if([f,micros](state_vision_group *g) {
+    f->s.groups.children.remove_if([f](state_vision_group *g) {
         if(g->status == group_empty) {
             delete g;
             return true;

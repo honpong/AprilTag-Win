@@ -664,8 +664,6 @@ static void filter_add_features(struct filter *f, const camera_data & camera, si
     state_vision_group *g = f->s.add_group(camera.timestamp);
 
     int found_feats = 0;
-    int half_patch = f->track.half_patch_width;
-    int full_patch = 2 * half_patch + 1;
     for(int i = 0; i < (int)kp.size(); ++i) {
         int x = (int)kp[i].x;
         int y = (int)kp[i].y;

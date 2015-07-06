@@ -1124,36 +1124,6 @@ void filter_start_dynamic(struct filter *f)
     f->run_state = RCSensorFusionRunStateDynamicInitialization;
 }
 
-/*
-void filter_select_feature(struct filter *f, float x, float y)
-{
-    //first, see if we already have a feature there
-    float mydist = 8; // 8 pixel radius max
-    state_vision_feature *myfeat = 0;
-    for(state_vision_feature *feat : f->s.features) {
-        if(feat->status != feature_normal && feat->status != feature_ready && feat->status != feature_initializing) continue;
-        float dx = fabs(feat->current[0] - x);
-        float dy = fabs(feat->current[1] - y);
-        if(dx <= mydist && dy <= mydist) { //<= so we get full 8 pixel range and we default to younger features
-            myfeat = feat;
-            mydist = (dx < dy) ? dy : dx;
-        }
-    }
-    if(!myfeat) {
-        //didn't find an existing feature - select a new one
-        vector<xy> kp = f->track.detect(f->track.im2, NULL, 1, x - 8, y - 8, 17, 17);
-        if(kp.size() > 0) {
-            myfeat = f->s.add_feature(kp[0].x, kp[0].y);
-            int lx = floor(kp[0].x);
-            int ly = floor(kp[0].y);
-            myfeat->intensity = (((unsigned int)f->track.im2[lx + ly*f->track.width]) + f->track.im2[lx + 1 + ly * f->track.width] + f->track.im2[lx + f->track.width + ly * f->track.width] + f->track.im2[lx + 1 + f->track.width + ly * f->track.width]) >> 2;
-        }
-    }
-    if(!myfeat) return; //couldn't find anything
-    myfeat->user = true;
-    f->s.remap();
-}*/
-
 void filter_start_qr_detection(struct filter *f, const std::string& data, float dimension, bool use_gravity)
 {
     f->qr.start(data, dimension, use_gravity);

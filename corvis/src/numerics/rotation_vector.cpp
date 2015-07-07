@@ -6,7 +6,10 @@
 static m4 skew3_series(const v4 &v, f_t I, f_t S, f_t C)
 {
     f_t x=v[0], y=v[1], z=v[2], w=v[3];
-    return {
+    
+    //Need explicit naming of return type to work around compiler bug
+    //https://connect.microsoft.com/VisualStudio/Feedback/Details/1515546
+    return m4 {
         {I - C*(y*y+z*z), C*x*y - S*z, C*x*z + S*y, 0},
         {C*y*x + S*z, I - C*(x*x+z*z), C*y*z - S*x, 0},
         {C*z*x - S*y, C*z*y + S*x, I - C*(x*x+y*y), 0},

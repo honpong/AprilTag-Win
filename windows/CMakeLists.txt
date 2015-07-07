@@ -2,6 +2,13 @@ cmake_minimum_required(VERSION 3.2.2 FATAL_ERROR)
 
 project(RealityCap)
 
+# /arch:sse2 is implied on 64 bit, and visual studio complains if you specify it
+if( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+	add_compile_options(/openmp)
+else( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+	add_compile_options(/arch:SSE2 /openmp)
+endif( CMAKE_SIZEOF_VOID_P EQUAL 8 )
+
 add_subdirectory(../corvis "${CMAKE_CURRENT_BINARY_DIR}/corvis")
 
 add_library(pxc STATIC IMPORTED)

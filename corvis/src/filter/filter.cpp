@@ -818,7 +818,7 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
         }
         filter_add_features(f, camera, space);
         if(f->s.features.size() < state_vision_group::min_feats) {
-            if (log_enabled) fprintf(stderr, "detector failure: only %ld features after add\n", f->s.features.size());
+            if (log_enabled) fprintf(stderr, "detector failure: only %zd features after add\n", f->s.features.size());
             f->detector_failed = true;
             f->calibration_bad = true;
             if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) f->s.enable_orientation_only();

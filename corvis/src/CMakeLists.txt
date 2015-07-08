@@ -60,14 +60,18 @@ add_library(numerics STATIC
   numerics/kalman.cpp
 )
 target_include_directories(numerics INTERFACE numerics)
+
 set_property(TARGET numerics PROPERTY CXX_STANDARD 14)
+if(WIN32)
+  target_include_directories(numerics PRIVATE "$ENV{RSSDK_DIR}include")
+endif()
+
 if(WIN32)
     file(GLOB MKLLOCS
         "C:/Program Files (x86)/Intel/Composer XE 2015/mkl"
         "C:/Program Files/Intel/Composer XE 2015/mkl"
     )
     list(GET MKLLOCS 0 MKLLOC)
-    target_include_directories(numerics PRIVATE "$ENV{RSSDK_DIR}include")
     target_include_directories(numerics PRIVATE "${MKLLOC}/include")
     link_directories("$ENV{RSSDK_DIR}lib/$(PlatformName)")
 if( CMAKE_SIZEOF_VOID_P EQUAL 8 )

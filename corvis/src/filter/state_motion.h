@@ -75,7 +75,7 @@ public:
     
     virtual void reset()
     {
-        if(orientation_only) disable_orientation_only();
+        disable_orientation_only();
         state_motion_orientation::reset();
     }
     

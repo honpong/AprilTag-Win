@@ -78,7 +78,7 @@ if(WIN32 OR ANDROID)
         set(MKL_INTEL_SUFFIX "")
       endif()
     endif()
-    file(GLOB MKLLOCS
+    file(GLOB MKLLOCS ${MKLROOT} $ENV{MKLROOT}
         "C:/Program Files (x86)/Intel/Composer XE 2015/mkl"
         "C:/Program Files/Intel/Composer XE 2015/mkl"
     )

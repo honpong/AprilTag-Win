@@ -23,6 +23,7 @@ typedef struct _feature {
     float image_x, image_y;
     float cx, cy, ctheta;
     bool good;
+    float recovered_score;
 } Feature;
 
 typedef struct _position {
@@ -81,7 +82,7 @@ public:
     int change_plot_key(int plot_index, int key_index);
 
     void receive_camera(const filter * f, camera_data &&data);
-    void observe_feature(sensor_clock::time_point timestamp, uint64_t feature_id, float x, float y, float z, float image_x, float image_y, float cx, float cy, float cxy, bool good);
+    void observe_feature(sensor_clock::time_point timestamp, uint64_t feature_id, float x, float y, float z, float image_x, float image_y, float cx, float cy, float cxy, bool good, float recovered_score);
     void observe_position(sensor_clock::time_point timestamp, float x, float y, float z, float qw, float qx, float qy, float qz);
     void observe_plot_item(sensor_clock::time_point timestamp, int plot_index, std::string plot_name, float value);
     void observe_image(sensor_clock::time_point timestamp, uint8_t * image, int width, int height);

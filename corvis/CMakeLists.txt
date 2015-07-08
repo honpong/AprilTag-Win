@@ -4,7 +4,7 @@ set(PACKAGE_NAME "corvis")
 
 project(${PACKAGE_NAME} C CXX)
 
-if(WIN32)
+if(WIN32 OR ANDROID)
 else()
     add_compile_options(-march=native -mfpmath=sse -O3)
 endif()

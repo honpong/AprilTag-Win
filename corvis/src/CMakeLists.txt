@@ -118,12 +118,17 @@ add_library(filter STATIC
   filter/sensor_fusion.cpp
   filter/capture.cpp
   filter/replay.cpp
+  filter/feature_cache.h
+  filter/feature_cache.cpp
+  filter/feature_descriptor.h
+  filter/feature_descriptor.cpp
 )
 target_include_directories(filter PUBLIC filter)
 target_include_directories(filter PRIVATE rapidjson/include)
 if(ENABLE_ZXING)
     target_link_libraries(filter PRIVATE libzxing)
 endif()
+target_link_libraries(filter PRIVATE vlfeat)
 set_property(TARGET filter PROPERTY CXX_STANDARD 14)
 
 if(ENABLE_VISGL)

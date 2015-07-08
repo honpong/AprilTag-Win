@@ -647,14 +647,14 @@ static void filter_add_features(struct filter *f, const camera_data & camera, si
 #endif
     // Filter out features which we already have by masking where
     // existing features are located
-    if(!f->scaled_mask) f->scaled_mask = new scaled_mask(camera.width, camera.height);
-    f->scaled_mask->initialize();
+    if(!f->mask) f->mask = new scaled_mask(camera.width, camera.height);
+    f->mask->initialize();
     for(state_vision_feature *i : f->s.features) {
-        f->scaled_mask->clear((int)i->current[0], (int)i->current[1]);
+        f->mask->clear((int)i->current[0], (int)i->current[1]);
     }
 
     // Run detector
-    vector<xy> &kp = f->track.detect(camera.image, f->scaled_mask, (int)newfeats, 0, 0, camera.width, camera.height);
+    vector<xy> &kp = f->track.detect(camera.image, f->mask, (int)newfeats, 0, 0, camera.width, camera.height);
 
     // Check that the detected features don't collide with the mask
     // and add them to the filter
@@ -666,8 +666,8 @@ static void filter_add_features(struct filter *f, const camera_data & camera, si
     for(int i = 0; i < (int)kp.size(); ++i) {
         int x = (int)kp[i].x;
         int y = (int)kp[i].y;
-        if(f->track.is_trackable(x, y) && f->scaled_mask->test(x, y)) {
-            f->scaled_mask->clear(x, y);
+        if(f->track.is_trackable(x, y) && f->mask->test(x, y)) {
+            f->mask->clear(x, y);
             state_vision_feature *feat = f->s.add_feature(x, y);
 
             float depth_m = 0;
@@ -934,10 +934,10 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->last_arrival = sensor_clock::time_point(sensor_clock::duration(0));
     f->active_time = sensor_clock::time_point(sensor_clock::duration(0));
     
-    if(f->scaled_mask)
+    if(f->mask)
     {
-        delete f->scaled_mask;
-        f->scaled_mask = 0;
+        delete f->mask;
+        f->mask = 0;
     }
     
     f->observations.observations.clear();

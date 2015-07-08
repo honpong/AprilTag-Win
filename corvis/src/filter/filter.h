@@ -17,14 +17,14 @@ struct filter {
 filter(): s(cov)
     {
         //make sure all pointers are null
-        scaled_mask = 0;
+        mask = 0;
         
         //these need to be initialized to defaults - everything else is handled in filter_initialize that is called every time
         gravity_magnitude = 9.80665;
         ignore_lateness = false;
     }
     ~filter() {
-        if(scaled_mask) delete scaled_mask;
+        if(mask) delete mask;
     }
     RCSensorFusionRunState run_state;
     int min_group_add;
@@ -70,7 +70,7 @@ filter(): s(cov)
     float median_depth_variance;
     bool has_converged;
 
-    scaled_mask *scaled_mask;
+    scaled_mask *mask;
     
     sensor_clock::duration mindelta;
     bool valid_delta;

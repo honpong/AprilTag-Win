@@ -23,7 +23,7 @@ extern "C" {
 #    define RCTRACKER_API __declspec(dllimport)
 #  endif
 #else
-#  define RCTRACKER_API
+#  define RCTRACKER_API __attribute__ ((visibility("default")))
 #endif
 
 typedef enum {

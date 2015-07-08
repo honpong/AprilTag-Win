@@ -67,7 +67,7 @@ sensor_clock::time_point sensor_clock::now() noexcept
 {
     struct timespec tp;
     assert(clock_gettime(CLOCK_MONOTONIC, &tp) == 0);
-    return time_point(std::chrono::seconds(tp.tv_sec) + std::chrono::nanoseconds(tp.tv_nsec));
+    return time_point(std::chrono::duration_cast<duration>(std::chrono::seconds(tp.tv_sec) + std::chrono::nanoseconds(tp.tv_nsec)));
 }
 
 #endif

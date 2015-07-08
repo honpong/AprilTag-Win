@@ -17,6 +17,8 @@ extern "C" {
 #include "state_motion.h"
 #include "tracker.h"
 #include "../cor/platform/sensor_clock.h"
+#include "feature_cache.h"
+#include "feature_descriptor.h"
 
 #define estimate_camera_intrinsics 0
 #define estimate_camera_extrinsics 0
@@ -36,7 +38,8 @@ enum feature_flag {
     feature_normal,
     feature_ready,
     feature_initializing,
-    feature_single
+    feature_single,
+    feature_revived
 };
 
 class log_depth
@@ -188,6 +191,7 @@ public:
 
     state_branch<state_vision_group *> groups;
     list<state_vision_feature *> features;
+    feature_cache cache;
     
     state_vision(covariance &c);
     ~state_vision();
@@ -215,9 +219,12 @@ public:
     feature_t project_feature(const feature_t &feat) const;
     feature_t unproject_feature(const feature_t &feat) const;
     float median_depth_variance();
+    void recover_features();
     
     virtual void reset();
     void reset_position();
+
+    bool recovered;
     
 protected:
     virtual void add_non_orientation_states();

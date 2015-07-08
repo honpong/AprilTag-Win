@@ -575,13 +575,40 @@ static void filter_add_features(struct filter *f, const camera_data & camera, si
     if(newfeats < state_vision_group::min_feats) return;
     state_vision_group *g = f->s.add_group(camera.timestamp);
 
+    descriptor d;
+    float radius = 16;
+    int side_length = 41;
+    state_vision_feature * feat;
+
     int found_feats = 0;
+    for(int i = 0; i < kp.size(); ++i) {
+        int x = kp[i].x;
+        int y = kp[i].y;
+        if(f->track.is_trackable(x, y) && f->scaled_mask->test(x, y)) {
+            descriptor_compute(camera.image, camera.width, camera.height, camera.stride, x, y, side_length, radius, d);
+            feat = f->s.cache.query(d);
+            if(feat) {
+                f->scaled_mask->clear(x, y);
+                f->s.recovered = true;
+                feat->initial = v4(x, y, 1, 0);
+                feat->current = feat->initial;
+                feat->status = feature_revived;
+                g->features.children.push_back(feat);
+                f->s.features.push_back(feat);
+                //fprintf(stderr, "recovered from cache\n");
+                //cor_time_pb_pause();
+            }
+        }
+    }
+
     for(int i = 0; i < (int)kp.size(); ++i) {
         int x = (int)kp[i].x;
         int y = (int)kp[i].y;
         if(f->track.is_trackable(x, y) && f->mask->test(x, y)) {
             f->mask->clear(x, y);
             state_vision_feature *feat = f->s.add_feature(x, y);
+            descriptor_compute(camera.image, camera.width, camera.height, camera.stride, x, y, side_length, radius, d);
+            feat->descriptor = d;
 
             float depth_m = 0;
             if(camera.depth) depth_m = get_depth_for_point(camera, x, y);
@@ -604,6 +631,7 @@ static void filter_add_features(struct filter *f, const camera_data & camera, si
             if(found_feats == newfeats) break;
         }
     }
+    f->s.recover_features();
     g->status = group_initializing;
     g->make_normal();
     f->s.remap();

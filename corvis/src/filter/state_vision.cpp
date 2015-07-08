@@ -197,6 +197,51 @@ void state_vision::reset_position()
     last_position = v4::Zero();
 }
 
+#include "../numerics/transformation.h"
+void state_vision::recover_features()
+{
+    if(recovered) {
+        int z = 0;
+        recovered = false;
+        transformation world(W.v, T.v);
+        transformation camera(Wc.v, Tc.v);
+        for(state_vision_group * g : groups.children) {
+            //fprintf(stderr, "%p group\n", g);
+            transformation group(g->Wr.v, g->Tr.v);
+            transformation Gtot = compose(world, compose(invert(group), camera));
+            transformation Gtoti = invert(Gtot);
+            for(state_vision_feature * f : g->features.children) {
+                //fprintf(stderr, "%p feature\n", f);
+                //fprintf(stderr, "status %d\n", f->status);
+                if(f->status == feature_revived) {
+                    z++;
+                    // xworld = transformation_apply(compose(world, compose(invert(group), camera)), xcamera)
+                    v4 Xc = transformation_apply(Gtoti, f->world);
+                    float variance = f->last_variance;
+                    f->reset();
+                    f->v.set_depth_meters(Xc[2]);
+                    //float match_thresh = 0.3*0.3;
+                    float factor = 1.2;
+                    //fprintf(stderr, "variance %f %f\n", variance*factor, state_vision_feature::initial_var);
+
+                    //f->recovered_score/match_thresh;
+                    //if(factor < 1) factor = 1;
+                    if(variance*factor < state_vision_feature::initial_var)
+                        f->set_initial_variance(variance*factor);
+                    else
+                        f->set_initial_variance(state_vision_feature::initial_var);
+                    f->status = feature_normal;
+                    //f->set_process_noise(f->initial_process_noise);
+                    f->image_velocity.x = 0;
+                    f->image_velocity.y = 0;
+                    f->outlier = 0;
+                }
+            }
+        }
+        //fprintf(stderr, "Recovered %d features\n", z); // recovered features
+    }
+}
+
 int state_vision::process_features(sensor_clock::time_point time)
 {
     int useful_drops = 0;
@@ -263,9 +308,10 @@ int state_vision::process_features(sensor_clock::time_point time)
     }
 
     //clean up dropped features and groups
-    features.remove_if([](state_vision_feature *i) {
+    features.remove_if([&](state_vision_feature *i) {
         if(i->should_drop()) {
-            delete i;
+            // calls delete i
+            cache.add(i);
             return true;
         } else
             return false;

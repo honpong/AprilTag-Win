@@ -310,8 +310,12 @@ int state_vision::process_features(sensor_clock::time_point time)
     //clean up dropped features and groups
     features.remove_if([&](state_vision_feature *i) {
         if(i->should_drop()) {
-            // calls delete i
-            cache.add(i);
+            if(i->status == feature_gooddrop) {
+                // calls delete i
+                cache.add(i);
+            } else {
+                delete i;
+            }
             return true;
         } else
             return false;

@@ -14,6 +14,7 @@ extern "C" {
 
 #include <stddef.h>
 #include <stdint.h>
+#include <stdbool.h>
 
 #ifdef _WIN32
 #  ifdef RCTRACKER_API_EXPORTS

@@ -10,7 +10,6 @@
 
 void state_motion_orientation::cache_jacobians(f_t dt)
 {
-    m4 dWp_dwdt;
     dW = (w.v + dt/2. * dw.v) * dt;
     integrate_angular_velocity_jacobian(W.v, dW, dWp_dW, dWp_ddW);
     Rt = to_rotation_matrix(-W.v);

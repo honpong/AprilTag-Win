@@ -18,6 +18,7 @@ if(ENABLE_MGL)
     target_compile_options(mgl INTERFACE -Wno-return-type-c-linkage -Wno-parentheses-equality)
 endif()
 
+if(ENABLE_VISGL)
 set(GLFW_INSTALL OFF CACHE BOOL "")
 set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "")
 set(GLFW_BUILD_TESTS OFF CACHE BOOL "")
@@ -35,6 +36,7 @@ target_compile_options(glad PRIVATE $<$<C_COMPILER_ID:MSVC>:/wd4996>)
 target_include_directories(glad
   PUBLIC glfw/deps
 )
+endif()
 
 set(COR_SOURCES cor/sensor_fusion_queue.cpp)
 if(WIN32)
@@ -124,6 +126,7 @@ if(ENABLE_ZXING)
 endif()
 set_property(TARGET filter PROPERTY CXX_STANDARD 14)
 
+if(ENABLE_VISGL)
 add_library(vis STATIC
   vis/world_state.cpp
   vis/world_state_render.cpp
@@ -141,6 +144,7 @@ if(ENABLE_MGL)
 endif()
 target_link_libraries(vis PRIVATE ${GLFW_LIBRARIES})
 set_property(TARGET vis PROPERTY CXX_STANDARD 14)
+endif()
 
 if(ENABLE_STEREO)
     add_subdirectory(qhull)
@@ -195,5 +199,7 @@ if(NOT WIN32)
     target_compile_options(filter PRIVATE -DDEBUG=1)
     target_compile_options(cor PRIVATE -DDEBUG=1)
     target_compile_options(numerics PRIVATE -DDEBUG=1)
+    if(ENABLE_VISGL)
     target_compile_options(vis PRIVATE -DDEBUG=1)
+    endif()
 endif()

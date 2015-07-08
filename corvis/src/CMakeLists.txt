@@ -83,7 +83,7 @@ if(WIN32 OR ANDROID)
         "C:/Program Files/Intel/Composer XE 2015/mkl"
     )
     list(GET MKLLOCS 0 MKLLOC)
-    target_include_directories(numerics PRIVATE "${MKLLOC}/include")
+    target_include_directories(numerics PRIVATE SYSTEM "${MKLLOC}/include")
     link_directories("$ENV{RSSDK_DIR}lib/$(PlatformName)")
     if (ANDROID)
     target_link_libraries(numerics PRIVATE -Wl,--whole-archive)

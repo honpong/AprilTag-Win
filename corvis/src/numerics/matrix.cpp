@@ -20,7 +20,7 @@
 #define lapack_int __CLPK_integer
 #else // __APPLE__
 #ifdef WIN32
-#include "mkl.h"
+#include <mkl.h>
 #else // WIN32
 #include <cblas.h>
 #include <lapacke.h>

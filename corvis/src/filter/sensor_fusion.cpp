@@ -63,19 +63,19 @@ transformation sensor_fusion::get_transformation() const
     transformation filter_transform(to_quaternion(sfm.s.W.v), sfm.s.T.v);    
     if(sfm.qr.valid)
     {
-        return accel_to_camera_transformation(compose(sfm.qr.origin, filter_transform));
+        return compose(sfm.qr.origin, filter_transform);
     }
 
-    return accel_to_camera_transformation(filter_transform);
+    return filter_transform;
 }
 
 v4 sensor_fusion::filter_to_external_position(const v4& x) const
 {
     if(sfm.qr.valid)
     {
-        return accel_to_camera_position(transformation_apply(sfm.qr.origin, x));
+        return transformation_apply(sfm.qr.origin, x);
     }
-    return accel_to_camera_position(x);
+    return x;
 }
 
 

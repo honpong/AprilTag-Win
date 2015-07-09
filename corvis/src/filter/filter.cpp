@@ -134,13 +134,10 @@ void filter_update_outputs(struct filter *f, sensor_clock::time_point time)
     if(f->run_state != RCSensorFusionRunStateRunning) return;
     m4
         R = to_rotation_matrix(f->s.W.v),
-        Rt = R.transpose(),
-        Rc = to_rotation_matrix(f->s.Wc.v),
-        Rct = Rc.transpose(),
-        RctRt = Rct * Rt;
-
-    f->s.camera_matrix = RctRt;
-    v4 T = Rct * ((Rt * -f->s.T.v) - f->s.Tc.v);
+        Rt = R.transpose();
+        
+    f->s.camera_matrix = Rt;
+    v4 T = (Rt * -f->s.T.v);
     f->s.camera_matrix(0, 3) = T[0];
     f->s.camera_matrix(1, 3) = T[1];
     f->s.camera_matrix(2, 3) = T[2];

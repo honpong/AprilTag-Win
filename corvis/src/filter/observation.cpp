@@ -488,6 +488,10 @@ void observation_accelerometer::predict()
     }
     //TODO: add w and dw terms
     v4 pred_a = Rc * Rt * acc + state.a_bias.v;
+    if(!state.orientation_only)
+    {
+        pred_a += cross(state.w.v, cross(state.w.v, state.Tc.v)) + cross(state.dw.v, state.Tc.v);
+    }
     for(int i = 0; i < 3; ++i) {
         pred[i] = pred_a[i];
     }
@@ -505,7 +509,10 @@ void observation_accelerometer::cache_jacobians()
 #if estimate_camera_extrinsics
     m4 Rc_dRc_dWc = to_spatial_jacobian(state.Wc.v);
     da_dWc = skew3(Rc * Rt * acc) * Rc_dRc_dWc;
+    da_dTc = skew3(state.w.v) * skew3(state.w.v) + skew3(state.dw.v);
 #endif
+    da_ddw = -skew3(state.Tc.v);
+    da_dw = -skew3(cross(state.w.v, state.Tc.v)) * -skew3(state.Tc.v);
 }
 
 void observation_accelerometer::project_covariance(matrix &dst, const matrix &src)
@@ -519,15 +526,21 @@ void observation_accelerometer::project_covariance(matrix &dst, const matrix &sr
             v4 cov_W = state.W.copy_cov_from_row(src, j);
 #if estimate_camera_extrinsics
             v4 cov_Wc = state.Wc.copy_cov_from_row(src, j);
+            v4 cov_Tc = state.Tc.copy_cov_from_row(src, j);
 #endif
             v4 cov_a = state.a.copy_cov_from_row(src, j);
+            v4 cov_w = state.w.copy_cov_from_row(src, j);
+            v4 cov_dw = state.dw.copy_cov_from_row(src, j);
             f_t cov_g = state.g.copy_cov_from_row(src, j);
             v4 res =
                 cov_a_bias +
                 da_dW * cov_W +
 #if estimate_camera_extrinsics
                 da_dWc * cov_Wc +
+                da_dTc * cov_Tc +
 #endif
+                da_dw * cov_w +
+                da_ddw * cov_dw +
                 Rc * Rt * (cov_a + v4(0., 0., cov_g, 0.));
             for(int i = 0; i < 3; ++i) {
                 dst(i, j) = res[i];

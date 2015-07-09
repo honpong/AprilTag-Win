@@ -114,9 +114,9 @@ class observation_spatial: public observation_storage<3> {
 class observation_accelerometer: public observation_spatial {
 protected:
     state_vision &state;
-    m4 Rt, Rc, da_dW;
+    m4 Rt, Rc, da_dW, da_dw, da_ddw;
 #if estimate_camera_extrinsics
-    m4 da_dWc;
+    m4 da_dWc, da_dTc;
 #endif
  public:
     static stdev_vector stdev, inn_stdev;

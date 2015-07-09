@@ -10,54 +10,6 @@
 #include "sensor_fusion.h"
 #include "filter.h"
 
-/*
- The filter has multiple reference frames:
- w: The world reference frame, with z aligned to gravity, and rotation around z arbitrary, and centered at initial accel position
- a: Accelerometer reference frame
- c: Camera reference frame
- w': Camera-centered world reference frame, with alignement as above, but centered around initial camera position
- 
- The existing output of the filter is:
- g__w_at = g__w_a0 * g__a0_at
- 
- We want instead to have:
- g__w'_ct = g__w'_w * g__w_at * g__a_c
- 
- g__w'_w = g__w'_c0 * g__c_a * g__a0_w
- 
- both g__w'_c0 and g__a0_w are R-only - respective world centers are at instrument centers, and I want R__w'_w = I
- 
- R__w'_c0 * R__c_a * R__a0_w = I
- 
- R__w'_c0 = R__w_a0 * R__a_c
- 
- so:
- 
- g__w'_w = (I, R__w_a0 * R__a_c * T__c_a)
- = (I, R__w_a0 * R__a_c * R__c_a * -T__a_c)
- = (I, R__w_a0 * -T__a_c)
-*/
-transformation sensor_fusion::accel_to_camera_world_transform() const
-{
-    return transformation(quaternion(), sfm.s.initial_orientation * -sfm.s.Tc.v);
-}
-
-v4 sensor_fusion::accel_to_camera_position(const v4& x) const
-{
-    return transformation_apply(accel_to_camera_world_transform(), x);
-}
-
-v4 sensor_fusion::camera_to_accel_position(const v4& x) const
-{
-    return transformation_apply(invert(accel_to_camera_world_transform()), x);
-}
-
-transformation sensor_fusion::accel_to_camera_transformation(const transformation &x) const
-{
-    transformation cam_transform(to_quaternion(sfm.s.Wc.v), sfm.s.Tc.v);
-    return compose(accel_to_camera_world_transform(), compose(x, cam_transform));
-}
-
 transformation sensor_fusion::get_transformation() const
 {
     transformation filter_transform(to_quaternion(sfm.s.W.v), sfm.s.T.v);    

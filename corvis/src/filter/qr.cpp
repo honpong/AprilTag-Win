@@ -170,7 +170,7 @@ bool qr_code_origin(const struct filter *f, struct qr_detection detection, float
 {
     transformation qr;
     if(qr_code_homography(f, detection, qr_size_m, qr)) {
-        transformation world = compose(transformation(f->s.W.v, f->s.T.v), transformation(f->s.Wc.v, f->s.Tc.v));
+        transformation world = transformation(f->s.W.v, f->s.T.v);
         transformation world_qr = compose(world, qr);
 
         if(use_gravity) {
@@ -211,11 +211,11 @@ void qr_benchmark::process_frame(const struct filter * f, const uint8_t * image,
                 origin_valid = true;
 
                 origin_qr = t_qr;
-                origin_state = compose(transformation(f->s.W.v, f->s.T.v), transformation(f->s.Wc.v, f->s.Tc.v));
+                origin_state = transformation(f->s.W.v, f->s.T.v);
             }
             else {
                 transformation now_qr = t_qr;
-                transformation now_state = compose(transformation(f->s.W.v, f->s.T.v), transformation(f->s.Wc.v, f->s.Tc.v));
+                transformation now_state = transformation(f->s.W.v, f->s.T.v);
 
                 transformation now_state_est = compose(origin_state, compose(origin_qr, invert(now_qr)));
 

@@ -476,6 +476,7 @@ void observation_vision_feature::compute_measurement_covariance()
     m_cov[0] = robust_mc;
     m_cov[1] = robust_mc;
 }
+
 void observation_accelerometer::predict()
 {
     Rt = to_rotation_matrix(state.W.v).transpose();

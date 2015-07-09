@@ -451,11 +451,6 @@
     quaternion q = to_quaternion(f->s.W.v);
     RCRotation* rotation = [[RCRotation alloc] initWithQuaternionW:(float)q.w() withX:(float)q.x() withY:(float)q.y() withZ:(float)q.z()];
     RCTransformation* transformation = [[RCTransformation alloc] initWithTranslation:translation withRotation:rotation];
-
-    RCTranslation* camT = [[RCTranslation alloc] initWithVector:vFloat_from_v4(f->s.Tc.v) withStandardDeviation:vFloat_from_v4(v4_sqrt(f->s.Tc.variance()))];
-    q = to_quaternion(f->s.Wc.v);
-    RCRotation* camR = [[RCRotation alloc] initWithQuaternionW:(float)q.w() withX:(float)q.x() withY:(float)q.y() withZ:(float)q.z()];
-    RCTransformation* camTransform = [[RCTransformation alloc] initWithTranslation:camT withRotation:camR];
     
     RCScalar *totalPath = [[RCScalar alloc] initWithScalar:f->s.total_distance withStdDev:0.];
     
@@ -471,7 +466,7 @@
         qrDetected = [NSString stringWithCString:f->qr.data.c_str() encoding:NSUTF8StringEncoding];
     }
 
-    RCTransformation *cameraTransformation = [transformation composeWithTransformation:camTransform];
+    RCTransformation *cameraTransformation = transformation;
     RCSensorFusionData* data = [[RCSensorFusionData alloc] initWithTransformation:transformation withCameraTransformation:cameraTransformation withCameraParameters:camParams withTotalPath:totalPath withFeatures:[self getFeaturesArray] withSampleBuffer:sampleBuffer withTimestamp:sensor_clock::tp_to_micros(f->last_time) withOriginQRCode:qrDetected];
 
     //send the callback to the main/ui thread

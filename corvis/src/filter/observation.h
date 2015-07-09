@@ -59,7 +59,7 @@ class observation_vision_feature: public observation_storage<2> {
     const state_vision &state;
  public:
     static stdev_scalar stdev[2], inn_stdev[2];
-    m4 Rrt, Rc, Rct;
+    m4 Rrt;
     v4 X0, X;
     const uint8_t *image;
     struct tracker tracker;
@@ -72,9 +72,6 @@ class observation_vision_feature: public observation_storage<2> {
 #if estimate_camera_intrinsics
     f_t dx_dF, dy_dF;
     f_t dx_dk1, dy_dk1, dx_dk2, dy_dk2, dx_dcx, dy_dcx, dx_dcy, dy_dcy;
-#endif
-#if estimate_camera_extrinsics
-    v4 dx_dWc, dy_dWc, dx_dTc, dy_dTc;
 #endif
 
     state_vision_group *state_group;
@@ -116,8 +113,11 @@ class observation_spatial: public observation_storage<3> {
 
 class observation_accelerometer: public observation_spatial {
 protected:
-    state_motion &state;
-    m4 Rt, da_dW;
+    state_vision &state;
+    m4 Rt, Rc, da_dW, da_dw, da_ddw;
+#if estimate_camera_extrinsics
+    m4 da_dWc, da_dTc;
+#endif
  public:
     static stdev_vector stdev, inn_stdev;
     virtual void predict();
@@ -128,7 +128,7 @@ protected:
     }
     virtual void cache_jacobians();
     virtual void project_covariance(matrix &dst, const matrix &src);
-    observation_accelerometer(state_motion &_state, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_spatial(_time_actual, _time_apparent), state(_state) {}
+    observation_accelerometer(state_vision &_state, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_spatial(_time_actual, _time_apparent), state(_state) {}
 
 #ifndef SWIG
 public:
@@ -138,8 +138,11 @@ public:
 
 class observation_gyroscope: public observation_spatial {
 protected:
-    const state_motion_orientation &state;
-
+    const state_vision &state;
+    m4 Rc;
+#if estimate_camera_extrinsics
+    m4 dw_dWc;
+#endif
  public:
     static stdev_vector stdev, inn_stdev;
     virtual void predict();
@@ -153,7 +156,7 @@ protected:
     }
     virtual void cache_jacobians();
     virtual void project_covariance(matrix &dst, const matrix &src);
-    observation_gyroscope(state_motion_orientation &_state, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_spatial(_time_actual, _time_apparent), state(_state) {}
+    observation_gyroscope(state_vision &_state, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_spatial(_time_actual, _time_apparent), state(_state) {}
 };
 
 #define MAXOBSERVATIONSIZE 256

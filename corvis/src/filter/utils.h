@@ -8,7 +8,7 @@ static inline quaternion initial_orientation_from_gravity_facing(const v4 &gravi
 {
     v4 z(0., 0., 1., 0.);
     quaternion q = rotation_between_two_vectors(gravity, z);
-    v4 zt = q * -z/*camera in accelerometer frame*/;
+    v4 zt = q * z;
     //project the transformed z vector onto the x-y plane
     zt[2] = 0.;
     f_t len = zt.norm();

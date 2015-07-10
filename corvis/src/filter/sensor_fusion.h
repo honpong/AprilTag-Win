@@ -119,7 +119,7 @@ public:
      Resets system, clearing all history and state, and sets initial pose and time.
      System will be stopped until one of the start_ functions is called.
      */
-    void reset(sensor_clock::time_point time, const transformation &initial_pose_m);
+    void reset(sensor_clock::time_point time, const transformation &initial_pose_m, bool origin_gravity_aligned);
     
     /** Once sensor fusion has started, video frames should be passed in as they are received from the camera.
      @param which_camera Specifies which camera generated this image.

@@ -273,12 +273,15 @@ void sensor_fusion::stop()
     isProcessingVideo = false;
 }
 
-void sensor_fusion::reset(sensor_clock::time_point time, const transformation &initial_pose_m)
+void sensor_fusion::reset(sensor_clock::time_point time, const transformation &initial_pose_m, bool origin_gravity_aligned)
 {
     queue->stop_sync();
     // TODO: we currently ignore initial_pose_m
     filter_initialize(&sfm, device);
-    filter_set_reference(struct filter *f)
+    sfm.last_time = time;
+    sfm.s.time_update(time); //This initial time update doesn't actually do anything - just sets current time, but it will cause the first measurement to run a time_update relative to this
+    sfm.origin_gravity_aligned = origin_gravity_aligned;
+    filter_set_origin(&sfm, initial_pose_m, false);
 }
 
 void sensor_fusion::receive_image(camera_data &&data)

@@ -133,7 +133,7 @@ extern "C" void rc_destroy(rc_Tracker * tracker)
 
 extern "C" void rc_reset(rc_Tracker * tracker, rc_Timestamp initialTime_us, const rc_Pose initialPose_m)
 {
-    tracker->reset(sensor_clock::micros_to_tp(initialTime_us), rc_Pose_to_transformation(initialPose_m));
+    tracker->reset(sensor_clock::micros_to_tp(initialTime_us), rc_Pose_to_transformation(initialPose_m), false);
 }
 
 void rc_printDeviceConfig(rc_Tracker * tracker)
@@ -179,9 +179,8 @@ void rc_configureCamera(rc_Tracker * tracker, rc_Camera camera, const rc_Pose po
 }
 
 
-void rc_configureAccelerometer(rc_Tracker * tracker, const rc_Pose pose_m, const rc_Vector bias_m__s2, float noiseVariance_m2__s4)
+void rc_configureAccelerometer(rc_Tracker * tracker, const rc_Vector bias_m__s2, float noiseVariance_m2__s4)
 {
-    //TODO: Support pose_m
     tracker->device.a_bias[0] = bias_m__s2.x;
     tracker->device.a_bias[1] = bias_m__s2.y;
     tracker->device.a_bias[2] = bias_m__s2.z;
@@ -189,9 +188,8 @@ void rc_configureAccelerometer(rc_Tracker * tracker, const rc_Pose pose_m, const
         tracker->device.a_bias_var[i] = noiseVariance_m2__s4;
 }
 
-void rc_configureGyroscope(rc_Tracker * tracker, const rc_Pose pose_m, const rc_Vector bias_rad__s, float noiseVariance_rad2__s2)
+void rc_configureGyroscope(rc_Tracker * tracker, const rc_Vector bias_rad__s, float noiseVariance_rad2__s2)
 {
-    //TODO: Support pose_m
     tracker->device.w_bias[0] = bias_rad__s.x;
     tracker->device.w_bias[1] = bias_rad__s.y;
     tracker->device.w_bias[2] = bias_rad__s.z;

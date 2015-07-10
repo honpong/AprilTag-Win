@@ -420,10 +420,6 @@ void filter_accelerometer_measurement(struct filter *f, const float data[3], sen
         return;
     }
     
-    if(!f->gravity_init) {
-        f->gravity_init = true;
-    }
-    
     auto obs_a = std::make_unique<observation_accelerometer>(f->s, time, time);
     
     for(int i = 0; i < 3; ++i) {
@@ -442,6 +438,13 @@ void filter_accelerometer_measurement(struct filter *f, const float data[3], sen
         observation_accelerometer::stdev <<
         " bias is:\n" <<
         f->s.a_bias.v << f->s.a_bias.variance();
+    }
+    if(!f->gravity_init) {
+        f->gravity_init = true;
+        if(!f->origin_gravity_aligned)
+        {
+            f->origin.Q = f->origin.Q * conjugate(f->s.initial_orientation);
+        }
     }
 }
 

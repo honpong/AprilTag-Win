@@ -95,6 +95,7 @@ filter(): s(cov)
 bool filter_image_measurement(struct filter *f, const camera_data & camera);
 void filter_accelerometer_measurement(struct filter *f, const float data[3], sensor_clock::time_point time);
 void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_clock::time_point time);
+void filter_set_origin(struct filter *f, const transformation &origin, bool gravity_aligned);
 void filter_set_reference(struct filter *f);
 void filter_compute_gravity(struct filter *f, double latitude, double altitude);
 void filter_start_static_calibration(struct filter *f);

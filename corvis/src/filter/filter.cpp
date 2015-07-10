@@ -696,9 +696,21 @@ static void filter_add_features(struct filter *f, const camera_data & camera, si
 #endif
 }
 
+void filter_set_origin(struct filter *f, const transformation &origin, bool gravity_aligned)
+{
+    if(gravity_aligned) {
+        v4 z_old(0., 0., 1., 0.);
+        v4 z_new = origin.Q * z_old;
+        quaternion Qd = rotation_between_two_vectors_normalized(z_new, z_old);
+        f->origin.Q = Qd * origin.Q;
+    } else f->origin.Q = origin.Q;
+    f->origin.T = origin.T;
+}
+
 void filter_set_reference(struct filter *f)
 {
-    f->s.reset_position();
+    filter_set_origin(f, transformation(f->s.W.v, f->s.T.v), true);
+    //f->s.reset_position();
 }
 
 bool filter_image_measurement(struct filter *f, const camera_data & camera)
@@ -712,6 +724,10 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
     if(f->qr.running && (time - f->last_qr_time > qr_detect_period)) {
         f->last_qr_time = time;
         f->qr.process_frame(f, camera.image, camera.width, camera.height);
+        if(f->qr.valid)
+        {
+            filter_set_origin(f, f->qr.origin, f->origin_gravity_aligned);
+        }
     }
     if(f->qr_bench.enabled)
         f->qr_bench.process_frame(f, camera.image, camera.width, camera.height);
@@ -1016,6 +1032,9 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->median_depth_variance = 1.;
     f->has_converged = false;
     
+    f->origin = transformation();
+    f->origin_gravity_aligned = true;
+    
     state_node::statesize = 0;
     f->s.enable_orientation_only();
     f->s.remap();
@@ -1115,7 +1134,8 @@ void filter_start_dynamic(struct filter *f)
 
 void filter_start_qr_detection(struct filter *f, const std::string& data, float dimension, bool use_gravity)
 {
-    f->qr.start(data, dimension, use_gravity);
+    f->origin_gravity_aligned = use_gravity;
+    f->qr.start(data, dimension);
     f->last_qr_time = sensor_clock::micros_to_tp(0);
 }
 

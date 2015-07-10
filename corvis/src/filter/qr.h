@@ -36,17 +36,15 @@ public:
     transformation origin;
 
     float size_m;
-    bool use_gravity;
     string data;
 
     qr_detector() : valid(false), running(false) {};
 
-    void start(const string& desired_code, float dimension, bool gravity)
+    void start(const string& desired_code, float dimension)
     {
         valid = false;
         data = desired_code;
         size_m = dimension;
-        use_gravity = gravity;
         running = true;
     }
 

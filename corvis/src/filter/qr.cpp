@@ -166,20 +166,12 @@ bool qr_code_homography(const struct filter *f, struct qr_detection detection, f
     return false;
 }
 
-bool qr_code_origin(const struct filter *f, struct qr_detection detection, float qr_size_m, bool use_gravity, transformation & origin)
+bool qr_code_origin(const struct filter *f, struct qr_detection detection, float qr_size_m, transformation & origin)
 {
     transformation qr;
     if(qr_code_homography(f, detection, qr_size_m, qr)) {
         transformation world = transformation(f->s.W.v, f->s.T.v);
         transformation world_qr = compose(world, qr);
-
-        if(use_gravity) {
-            v4 z_old(0., 0., 1., 0.);
-            v4 z_new = conjugate(world_qr.Q) * z_old;
-            quaternion Qd = rotation_between_two_vectors_normalized(z_old, z_new);
-            world_qr.Q = world_qr.Q * Qd;
-        }
-
         origin = invert(world_qr);
         return true;
     }
@@ -192,7 +184,7 @@ void qr_detector::process_frame(const struct filter * f, const uint8_t * image, 
     qr_detection d;
     if(qr_detect_one(image, width, height, d)) {
         if(data.empty() || (d.data == data)) {
-            if(qr_code_origin(f, d, size_m, use_gravity, origin)) {
+            if(qr_code_origin(f, d, size_m, origin)) {
                 data = d.data;
                 running = false;
                 valid = true;

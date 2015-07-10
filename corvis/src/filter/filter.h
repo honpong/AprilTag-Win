@@ -81,6 +81,9 @@ filter(): s(cov)
     qr_detector qr;
     sensor_clock::time_point last_qr_time;
     qr_benchmark qr_bench;
+    
+    transformation origin;
+    bool origin_gravity_aligned;
 
     v4 a_bias_start, w_bias_start; //for tracking calibration progress
     

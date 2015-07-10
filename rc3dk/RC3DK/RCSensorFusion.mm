@@ -456,13 +456,14 @@
     
     RCCameraParameters *camParams = [[RCCameraParameters alloc] initWithFocalLength:(float)f->s.focal_length.v * f->s.image_height withOpticalCenterX:(float)f->s.center_x.v * f->s.image_height + f->s.image_width / 2. - .5 withOpticalCenterY:(float)f->s.center_y.v * f->s.image_height + f->s.image_height / 2. - .5 withRadialSecondDegree:(float)f->s.k1.v withRadialFourthDegree:(float)f->s.k2.v];
 
+    RCRotation* originRotation = [[RCRotation alloc] initWithQuaternionW:(float)f->origin.Q.w() withX:(float)f->origin.Q.x() withY:(float)f->origin.Q.y() withZ:(float)f->origin.Q.z()];
+    RCTranslation* originTranslation = [[RCTranslation alloc] initWithX:(float)f->origin.T[0] withY:(float)f->origin.T[1] withZ:(float)f->origin.T[2]];
+    RCTransformation * originTransform = [[RCTransformation alloc] initWithTranslation:originTranslation withRotation:originRotation];
+    transformation = [originTransform composeWithTransformation:transformation];
+
     NSString * qrDetected = nil;
     if(f->qr.valid)
     {
-        RCRotation* originRotation = [[RCRotation alloc] initWithQuaternionW:(float)f->qr.origin.Q.w() withX:(float)f->qr.origin.Q.x() withY:(float)f->qr.origin.Q.y() withZ:(float)f->qr.origin.Q.z()];
-        RCTranslation* originTranslation = [[RCTranslation alloc] initWithX:(float)f->qr.origin.T[0] withY:(float)f->qr.origin.T[1] withZ:(float)f->qr.origin.T[2]];
-        RCTransformation * originTransform = [[RCTransformation alloc] initWithTranslation:originTranslation withRotation:originRotation];
-        transformation = [originTransform composeWithTransformation:transformation];
         qrDetected = [NSString stringWithCString:f->qr.data.c_str() encoding:NSUTF8StringEncoding];
     }
 

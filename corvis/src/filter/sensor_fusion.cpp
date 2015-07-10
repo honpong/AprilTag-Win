@@ -13,23 +13,13 @@
 transformation sensor_fusion::get_transformation() const
 {
     transformation filter_transform(to_quaternion(sfm.s.W.v), sfm.s.T.v);    
-    if(sfm.qr.valid)
-    {
-        return compose(sfm.qr.origin, filter_transform);
-    }
-
-    return filter_transform;
+    return compose(sfm.origin, filter_transform);
 }
 
 v4 sensor_fusion::filter_to_external_position(const v4& x) const
 {
-    if(sfm.qr.valid)
-    {
-        return transformation_apply(sfm.qr.origin, x);
-    }
-    return x;
+    return transformation_apply(sfm.origin, x);
 }
-
 
 void sensor_fusion::flush_and_reset()
 {
@@ -288,6 +278,7 @@ void sensor_fusion::reset(sensor_clock::time_point time, const transformation &i
     queue->stop_sync();
     // TODO: we currently ignore initial_pose_m
     filter_initialize(&sfm, device);
+    filter_set_reference(struct filter *f)
 }
 
 void sensor_fusion::receive_image(camera_data &&data)

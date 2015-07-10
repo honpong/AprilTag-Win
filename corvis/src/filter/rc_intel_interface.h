@@ -119,7 +119,7 @@ RCTRACKER_API void rc_reset(rc_Tracker *tracker, rc_Timestamp initialTime_us, co
 /**
  @param tracker The active rc_Tracker instance
  @param camera The camera to configure
- @param pose_m Position (in meters) and orientation of camera relative to reference point
+ @param pose_m Position (in meters) and orientation of camera relative to reference point (accelerometer)
  @param image_width_px Image width in pixels
  @param image_height_px Image height in pixels
  @param center_x_px Horizontal principal point of camera in pixels

@@ -188,6 +188,7 @@ class state_vision: public state_motion {
     state_scalar center_x, center_y;
     state_scalar k1, k2, k3;
     int image_width, image_height;
+    bool fisheye = false;
 
     state_branch<state_vision_group *> groups;
     list<state_vision_feature *> features;
@@ -202,9 +203,16 @@ class state_vision: public state_motion {
     v4 last_position;
     m4 camera_matrix;
     state_vision_group *reference;
+    
     void fill_calibration(feature_t &initial, f_t &r2, f_t &kr) const {
         r2 = initial.x * initial.x + initial.y * initial.y;
-        kr = 1. + r2 * (k1.v + r2 * (k2.v + r2 * k3.v));
+
+        if(fisheye) {
+            f_t r = sqrt(r2);
+            f_t ru = tan(r * k1.v) / (2. * tan(k1.v / 2.));
+            kr = ru / r;
+        }
+        else kr = 1. + r2 * (k1.v + r2 * (k2.v + r2 * k3.v));
     }
     feature_t calibrate_feature(const feature_t &initial) const;
     

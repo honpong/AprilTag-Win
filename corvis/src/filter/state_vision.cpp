@@ -150,7 +150,7 @@ int state_vision_group::make_normal()
     return 0;
 }
 
-state_vision::state_vision(covariance &c): state_motion(c), Tc("Tc"), Wc("Wc"), focal_length("focal_length"), center_x("center_x"), center_y("center_y"), k1("k1"), k2("k2"), k3("k3"), total_distance(0.), last_position(v4::Zero()), reference(nullptr)
+state_vision::state_vision(covariance &c): state_motion(c), Tc("Tc"), Wc("Wc"), focal_length("focal_length"), center_x("center_x"), center_y("center_y"), k1("k1"), k2("k2"), k3("k3"), fisheye(false), total_distance(0.), last_position(v4::Zero()), reference(nullptr)
 {
     reference = NULL;
     if(estimate_camera_intrinsics)

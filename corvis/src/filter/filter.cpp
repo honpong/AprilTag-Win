@@ -982,6 +982,7 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->s.k1.v = device.K[0];
     f->s.k2.v = device.K[1];
     f->s.k3.v = 0.; //device.K[2];
+    f->s.fisheye = device.fisheye;
     
     f->s.g.set_initial_variance(1.e-7);
     
@@ -1055,6 +1056,7 @@ corvis_device_parameters filter_get_device_parameters(const struct filter *f)
     calibration.K[0] = (float)f->s.k1.v;
     calibration.K[1] = (float)f->s.k2.v;
     calibration.K[2] = (float)f->s.k3.v;
+    calibration.fisheye = f->s.fisheye;
     calibration.Wc[0] = (float)f->s.Wc.v.x();
     calibration.Wc[1] = (float)f->s.Wc.v.y();
     calibration.Wc[2] = (float)f->s.Wc.v.z();

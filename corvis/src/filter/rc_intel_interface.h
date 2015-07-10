@@ -125,10 +125,12 @@ RCTRACKER_API void rc_reset(rc_Tracker *tracker, rc_Timestamp initialTime_us, co
  @param center_x_px Horizontal principal point of camera in pixels
  @param center_y_px Horizontal principal point of camera in pixels
  @param focal_length_px Focal length of camera in pixels
+ @param fisheye If false, the image is undistorted. If true, the image is from a fisheye camera.
+ @param fisheye_fov_radians Fisheye camera field of view in radians
  */
 RCTRACKER_API void rc_configureCamera(rc_Tracker *tracker, rc_Camera camera, const rc_Pose pose_m,
                         int width_px, int height_px, float center_x_px, float center_y_px,
-                        float focal_length_x_px, float focal_length_y_px, float skew);
+                        float focal_length_x_px, float focal_length_y_px, float skew, bool fisheye, float fisheye_fov_radians);
 RCTRACKER_API void rc_configureAccelerometer(rc_Tracker *tracker, const rc_Vector bias_m__s2, float noiseVariance_m2__s4);
 RCTRACKER_API void rc_configureGyroscope(rc_Tracker *tracker, const rc_Vector bias_rad__s, float noiseVariance_rad2__s2);
 RCTRACKER_API void rc_configureLocation(rc_Tracker *tracker, double latitude_deg, double longitude_deg, double altitude_m);

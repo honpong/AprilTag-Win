@@ -26,6 +26,7 @@ struct corvis_device_parameters
     float Wc[3];
     float Wc_var[3];
     int image_width, image_height;
+    bool fisheye;
     sensor_clock::duration shutter_delay, shutter_period;
     unsigned long int version;
 };

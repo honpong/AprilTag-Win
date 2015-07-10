@@ -95,6 +95,7 @@ void CopyJsonToStruct(Document &json, corvis_device_parameters &cal)
     cal.image_height = json[KEY_IMAGE_HEIGHT].GetInt();
     cal.shutter_delay = std::chrono::microseconds(0);
     cal.shutter_period = std::chrono::microseconds(0);
+    cal.fisheye = false;
 }
 
 void CopyStructToJson(const corvis_device_parameters &cal, Value &json)

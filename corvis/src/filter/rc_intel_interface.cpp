@@ -157,7 +157,7 @@ void rc_printDeviceConfig(rc_Tracker * tracker)
     //fprintf(stderr, "sensor_clock::duration shutter_delay, shutter_period;
 }
 
-void rc_configureCamera(rc_Tracker * tracker, rc_Camera camera, const rc_Pose pose_m, int width_px, int height_px, float center_x_px, float center_y_px, float focal_length_x_px, float focal_length_y_px, float skew)
+void rc_configureCamera(rc_Tracker * tracker, rc_Camera camera, const rc_Pose pose_m, int width_px, int height_px, float center_x_px, float center_y_px, float focal_length_x_px, float focal_length_y_px, float skew, bool fisheye, float fisheye_fov_radians)
 {
     tracker->device.Cx = center_x_px;
     tracker->device.Cy = center_y_px;
@@ -169,6 +169,12 @@ void rc_configureCamera(rc_Tracker * tracker, rc_Camera camera, const rc_Pose po
     tracker->device.K[1] = 0;
     tracker->device.K[2] = 0;
 
+    tracker->device.fisheye = fisheye;
+    if(fisheye)
+    {
+        tracker->device.K[0] = fisheye_fov_radians;
+    }
+    
     transformation g = rc_Pose_to_transformation(pose_m);
     rotation_vector W = to_rotation_vector(g.Q);
     for(int i = 0; i < 3; ++i)

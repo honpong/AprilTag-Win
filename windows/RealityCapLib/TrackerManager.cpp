@@ -46,7 +46,7 @@ void TrackerManager::ConfigureCameraIntrinsics()
     PXCCapture::Device *pDevice = capMan->QueryDevice();
     PXCPointF32 focal = pDevice->QueryColorFocalLength();
     PXCPointF32 principal = pDevice->QueryColorPrincipalPoint();
-    rc_configureCamera(_tracker, rc_EGRAY8, camera_pose, 640, 480, principal.x, principal.y, focal.x, 0, focal.y);
+    rc_configureCamera(_tracker, rc_EGRAY8, camera_pose, 640, 480, principal.x, principal.y, focal.x, 0, focal.y, false, 0);
 }
 
 bool TrackerManager::ReadCalibration(std::wstring filename)

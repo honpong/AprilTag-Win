@@ -261,7 +261,8 @@ protected:
 #define PERTURB_FACTOR 1.1
 
 class state_vector: public state_leaf<v4, 3> {
- public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+public:
     state_vector(const char *_name): state_leaf(_name) { reset(); }
 
     using state_leaf::set_initial_variance;
@@ -331,6 +332,7 @@ class state_vector: public state_leaf<v4, 3> {
 };
 
 class state_rotation_vector: public state_leaf<rotation_vector, 3> {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 public:
     state_rotation_vector(const char *_name): state_leaf(_name) { reset(); }
 
@@ -414,6 +416,7 @@ protected:
 
 class state_quaternion: public state_leaf<quaternion, 4>
 {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 public:
     state_quaternion(const char *_name): state_leaf(_name) { reset(); }
     

@@ -18,7 +18,7 @@ extern "C" {
 using namespace std;
 
 class observation {
- public:
+public:
     const int size;
     sensor_clock::time_point time_actual;
     sensor_clock::time_point time_apparent;
@@ -39,6 +39,8 @@ class observation {
 };
 
 template<int _size> class observation_storage: public observation {
+public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 protected:
     f_t m_cov[_size];
     f_t pred[_size];
@@ -97,7 +99,8 @@ public:
 
 #ifndef SWIG
 class observation_spatial: public observation_storage<3> {
- public:
+public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     f_t variance;
     virtual void compute_measurement_covariance() { for(int i = 0; i < 3; ++i) m_cov[i] = variance; }
     virtual bool measure() { return true; }
@@ -137,6 +140,8 @@ public:
 };
 
 class observation_gyroscope: public observation_spatial {
+public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 protected:
     const state_vision &state;
     m4 Rc;
@@ -163,6 +168,7 @@ protected:
 
 class observation_queue {
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     observation_queue();
     bool process(state &s, sensor_clock::time_point time);
     vector<unique_ptr<observation>> observations;

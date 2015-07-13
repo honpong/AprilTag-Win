@@ -14,6 +14,7 @@
 #include "../cor/sensor_data.h"
 
 struct filter {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 filter(): s(cov)
     {
         //make sure all pointers are null

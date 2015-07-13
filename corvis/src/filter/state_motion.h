@@ -13,6 +13,7 @@
 #include "state.h"
 
 class state_motion_orientation: public state_root {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 public:
     state_rotation_vector W;
     state_vector w;
@@ -58,6 +59,7 @@ private:
 };
 
 class state_motion: public state_motion_orientation {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     friend class observation_accelerometer;
 public:
     state_vector T;

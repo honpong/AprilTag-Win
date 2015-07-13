@@ -181,7 +181,8 @@ public:
 };
 
 class state_vision: public state_motion {
- public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+public:
     state_vector Tc;
     state_rotation_vector Wc;
     state_scalar focal_length;

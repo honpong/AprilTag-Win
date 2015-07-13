@@ -91,13 +91,10 @@ class observation_vision_feature: public observation_storage<2> {
 
     observation_vision_feature(state_vision &_state, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_storage(_time_actual, _time_apparent), state(_state) {}
 
-#ifndef SWIG
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-#endif
 };
 
-#ifndef SWIG
 class observation_spatial: public observation_storage<3> {
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
@@ -112,7 +109,6 @@ public:
         }
     }
 };
-#endif
 
 class observation_accelerometer: public observation_spatial {
 protected:
@@ -133,10 +129,8 @@ protected:
     virtual void project_covariance(matrix &dst, const matrix &src);
     observation_accelerometer(state_vision &_state, sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_spatial(_time_actual, _time_apparent), state(_state) {}
 
-#ifndef SWIG
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-#endif
 };
 
 class observation_gyroscope: public observation_spatial {
@@ -196,11 +190,9 @@ protected:
     void compute_innovation_covariance(const matrix &m_cov);
     int remove_invalid_measurements(const state &s, int orig_size, matrix &inn);
     bool update_state_and_covariance(state &s, const matrix &inn);
-#ifndef SWIG
     matrix LC;
     matrix K;
     matrix res_cov;
-#endif
     static bool observation_comp_actual(const unique_ptr<observation> &p1, const unique_ptr<observation> &p2) { return p1->time_actual < p2->time_actual; }
     static bool observation_comp_apparent(const unique_ptr <observation> &p1, const unique_ptr<observation> &p2) { return p1->time_apparent < p2->time_apparent; }
     

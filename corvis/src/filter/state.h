@@ -177,13 +177,7 @@ template <class T, int _size> class state_leaf: public state_node {
     
     covariance *cov;
     
-#ifdef SWIG
-    %immutable;
-#endif
     const char *name;
-#ifdef SWIG
-    %mutable;
-#endif
     
     void set_process_noise(f_t x)
     {
@@ -250,13 +244,6 @@ protected:
     f_t initial_variance[_size];
     int size;
 };
-
-#ifdef SWIG
-%template(state_leaf_rotation_vector) state_leaf<rotation_vector, 3>;
-%template(state_leaf_vec) state_leaf<v4, 3>;
-%template(state_leaf_sca) state_leaf<f_t, 1>;
-%template(state_branch_node) state_branch<state_node *>;
-#endif
 
 #define PERTURB_FACTOR 1.1
 

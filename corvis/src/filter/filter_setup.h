@@ -7,13 +7,7 @@
 class filter_setup
 {
 public:
-#ifdef SWIG
-    %immutable;
-#endif
     filter sfm;
-#ifdef SWIG
-    %mutable;
-#endif
     struct corvis_device_parameters device;
     filter_setup(corvis_device_parameters *device_params);
     struct corvis_device_parameters get_device_parameters();
@@ -27,10 +21,8 @@ public:
     bool get_device_steady();
     RCSensorFusionErrorCode get_error();
 
-#ifndef SWIG
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-#endif
 };
 
 #endif

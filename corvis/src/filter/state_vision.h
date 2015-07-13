@@ -141,10 +141,8 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
         fprintf(stderr, "feature %lld %f %f\n", id, v.v, variance());
     }
 
-#ifndef SWIG
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-#endif
 };
 
 class state_vision_group: public state_branch<state_node *> {
@@ -174,10 +172,8 @@ class state_vision_group: public state_branch<state_node *> {
     m4 dWrp_dWr, dWrp_ddW;
     m4 dTrp_ddT, dTrp_dWr, dTrp_dW;
 
-#ifndef SWIG
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-#endif
 };
 
 class state_vision: public state_motion {

@@ -34,18 +34,10 @@ filter(): s(cov)
     sensor_clock::time_point last_time;
     sensor_clock::time_point last_packet_time;
     int last_packet_type;
-#ifdef SWIG
-    %immutable;
-#endif
     state s;
-#ifdef SWIG
-    %mutable;
-#endif
     
     covariance cov;
 
-#ifndef SWIG
-#endif
     f_t w_variance;
     f_t a_variance;
 

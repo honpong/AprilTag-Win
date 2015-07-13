@@ -128,7 +128,7 @@ RCTRACKER_API void rc_reset(rc_Tracker *tracker, rc_Timestamp initialTime_us, co
  @param center_y_px Horizontal principal point of camera in pixels
  @param focal_length_px Focal length of camera in pixels
  @param fisheye If false, the image is undistorted. If true, the image is from a fisheye camera.
- @param fisheye_fov_radians Fisheye camera field of view in radians
+ @param fisheye_fov_radians Fisheye camera field of view in radians (half-angle FOV)
  */
 RCTRACKER_API void rc_configureCamera(rc_Tracker *tracker, rc_Camera camera, const rc_Pose pose_m,
                         int width_px, int height_px, float center_x_px, float center_y_px,

@@ -248,8 +248,8 @@ sensor_clock::duration steady_time(struct filter *f, stdev_vector &stdev, const 
         if(!f->s.orientation_initialized) return sensor_clock::duration(0);
         v4 local_up = to_rotation_matrix(f->s.W.v).transpose() * v4(0., 0., 1., 0.);
         //face up -> (0, 0, 1)
-        //portrait -> (0, 1, 0)
-        //landscape -> (1, 0, 0)
+        //portrait -> (1, 0, 0)
+        //landscape -> (0, 1, 0)
         f_t costheta = orientation.dot(local_up);
         if(fabs(costheta) < .71) return sensor_clock::duration(0); //don't start since we aren't in orientation +/- 6 deg
     }
@@ -321,7 +321,7 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, const v4 &
             }
         case RCSensorFusionRunStatePortraitCalibration:
         {
-            if(steady_time(f, f->accel_stability, meas, accelerometer_steady_var, steady_sigma, time, v4(0, 1, 0, 0), true) > min_steady_time)
+            if(steady_time(f, f->accel_stability, meas, accelerometer_steady_var, steady_sigma, time, v4(1, 0, 0, 0), true) > min_steady_time)
             {
                 f->s.enable_bias_estimation();
                 if(get_bias_convergence(f, 1) >= 1.)
@@ -346,7 +346,7 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, const v4 &
         }
         case RCSensorFusionRunStateLandscapeCalibration:
         {
-            if(steady_time(f, f->accel_stability, meas, accelerometer_steady_var, steady_sigma, time, v4(1, 0, 0, 0), true) > min_steady_time)
+            if(steady_time(f, f->accel_stability, meas, accelerometer_steady_var, steady_sigma, time, v4(0, 1, 0, 0), true) > min_steady_time)
             {
                 f->s.enable_bias_estimation();
                 if(get_bias_convergence(f, 0) >= 1.)

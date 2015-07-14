@@ -230,3 +230,7 @@ proguard/
 
 # Log Files
 *.log
+Sunlayar/Sunlayar/HTML/.idea
+workspace.xml
+gradle.xml
+android/RCUtility/.idea/libraries/*.xml

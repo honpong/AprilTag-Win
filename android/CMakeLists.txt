@@ -4,6 +4,10 @@ project(Tracker)
 
 add_compile_options(-fvisibility=hidden)
 
+# Match the options used by default in android-ndk-*/toolchains/*-clang3.6/setup.mk
+add_compile_options(-ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -fno-omit-frame-pointer)
+set(CMAKE_POSITION_INDEPENDENT_CODE True)
+
 add_subdirectory(../corvis "${CMAKE_CURRENT_BINARY_DIR}/corvis")
 
 add_library(tracker SHARED ../corvis/src/filter/rc_intel_interface.cpp)

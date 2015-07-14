@@ -20,6 +20,11 @@ packet_t *packet_alloc(enum packet_type type, uint32_t bytes, uint64_t time)
     bytes += 16;
 
     packet_t * ptr = (packet_t *)malloc(bytes);
+    if(!ptr)
+    {
+        fprintf(stderr, "Capture failed: malloc returned null.\n");
+        assert(0);
+    }
     ptr->header.type = type;
     ptr->header.bytes = bytes;
     ptr->header.time = time;

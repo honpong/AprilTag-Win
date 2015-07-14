@@ -207,10 +207,9 @@ public:
         if(fisheye) {
             f_t r = sqrt(r2);
             f_t ru = tan(r * k1.v) / (2. * tan(k1.v / 2.));
-            kr = r / ru;
+            kr = ru / r;
         }
         else kr = 1. + r2 * (k1.v + r2 * (k2.v + r2 * k3.v));
-        //TODO: should this be inverted? NOTE - fisheye above is already
     }
     feature_t calibrate_feature(const feature_t &initial) const;
     feature_t uncalibrate_feature(const feature_t &normalized) const;

@@ -1,6 +1,7 @@
 #include <string.h>
 #include <jni.h>
 #include <android/log.h>
+#include "rc_intel_interface.h"
 
 #define TAG "RCUtility"
 #define LOGV(...) ((void)__android_log_print(ANDROID_LOG_VERBOSE, TAG, __VA_ARGS__))

@@ -13,7 +13,8 @@ model {
     }
     android.ndk {
         moduleName = "sensor-fusion"
-        ldLibs += ["log"]
+        cppFlags += "-I" + file("../../../corvis/src/filter")
+        ldLibs += ["tracker", "log"]
     }
     android.buildTypes {
         release {
@@ -22,6 +23,12 @@ model {
         }
     }
     android.productFlavors {
+        create("rc86") {
+            ndk.ldFlags  += "-L" + file("build-x86")
+        }
+        create("rc64") {
+            ndk.ldFlags  += "-L" + file("build-x64")
+        }
     }
 }
 

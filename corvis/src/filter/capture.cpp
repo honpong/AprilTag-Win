@@ -7,6 +7,7 @@
 
 #include "capture.h"
 
+#include <assert.h>
 #include <string.h>
 #include "device_parameters.h"
 #include "../cor/packet.h"

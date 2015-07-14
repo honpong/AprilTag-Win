@@ -277,18 +277,46 @@ state_vision_group * state_vision::add_group(sensor_clock::time_point time)
     return g;
 }
 
-feature_t state_vision::calibrate_feature(const feature_t &initial) const
+feature_t state_vision::project_feature(const feature_t &feat) const
 {
-    feature_t norm, calib;
-    
-    norm.x = (float)(((initial.x - image_width / 2. + .5) / image_height - center_x.v) / focal_length.v);
-    norm.y = (float)(((initial.y - image_height / 2. + .5) / image_height - center_y.v) / focal_length.v);
-    
+    feature_t feat_p;
+    feat_p.x = (float)(((feat.x - image_width / 2. + .5) / image_height - center_x.v) / focal_length.v);
+    feat_p.y = (float)(((feat.y - image_height / 2. + .5) / image_height - center_y.v) / focal_length.v);
+    return feat_p;
+}
+
+feature_t state_vision::unproject_feature(const feature_t &feat_n) const
+{
+    feature_t feat;
+    feat.x = (float)(feat_n.x * focal_length.v + center_x.v) * image_height + image_width / 2. - .5;
+    feat.y = (float)(feat_n.y * focal_length.v + center_y.v) * image_height + image_height / 2. - .5;
+    return feat;
+}
+
+feature_t state_vision::uncalibrate_feature(const feature_t &feat_n) const
+{
     f_t r2, kr;
-    fill_calibration(norm, r2, kr);
-    calib.x = (float)(norm.x / kr);
-    calib.y = (float)(norm.y / kr);
-    return calib;
+    fill_calibration(feat_n, r2, kr);
+
+    feature_t feat_u;
+    feat_u.x = (float)(feat_n.x / kr);
+    feat_u.y = (float)(feat_n.y / kr);
+
+    return unproject_feature(feat_u);
+}
+
+feature_t state_vision::calibrate_feature(const feature_t &feat_u) const
+{
+    feature_t feat_n = project_feature(feat_u);
+
+    f_t r2, kr;
+    fill_calibration(feat_n, r2, kr);
+
+    feature_t feat_c;
+    feat_c.x = (float)(feat_n.x * kr);
+    feat_c.y = (float)(feat_n.y * kr);
+
+    return feat_c;
 }
 
 void state_vision::remove_non_orientation_states()

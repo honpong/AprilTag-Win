@@ -201,7 +201,7 @@ public:
     m4 camera_matrix;
     state_vision_group *reference;
     
-    void fill_calibration(feature_t &initial, f_t &r2, f_t &kr) const {
+    void fill_calibration(const feature_t &initial, f_t &r2, f_t &kr) const {
         r2 = initial.x * initial.x + initial.y * initial.y;
 
         if(fisheye) {
@@ -213,6 +213,9 @@ public:
         //TODO: should this be inverted? NOTE - fisheye above is already
     }
     feature_t calibrate_feature(const feature_t &initial) const;
+    feature_t uncalibrate_feature(const feature_t &normalized) const;
+    feature_t project_feature(const feature_t &feat) const;
+    feature_t unproject_feature(const feature_t &feat) const;
     
     virtual void reset();
     void reset_position();

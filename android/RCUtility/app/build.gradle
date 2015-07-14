@@ -1,25 +1,27 @@
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.model.application'
 
-android {
-    compileSdkVersion 22
-    buildToolsVersion "22.0.1"
-    defaultConfig {
-        applicationId "com.realitycap.android.rcutility"
-        minSdkVersion 22
-        targetSdkVersion 22
-
-        ndk {
-            moduleName "sensor-fusion"
-            ldLibs "log"
+model {
+    android {
+        compileSdkVersion = 22
+        buildToolsVersion = "22.0.1"
+        defaultConfig.with {
+            applicationId = "com.realitycap.android.rcutility"
+            minSdkVersion.apiLevel = 21
+            targetSdkVersion.apiLevel = 22
+            version = 1
         }
     }
-    buildTypes {
+    android.ndk {
+        moduleName = "sensor-fusion"
+        ldLibs += ["log"]
+    }
+    android.buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            isMinifyEnabled = false
+            proguardFiles += file('proguard-rules.pro')
         }
     }
-    productFlavors {
+    android.productFlavors {
     }
 }
 

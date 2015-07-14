@@ -24,9 +24,11 @@ model {
     }
     android.productFlavors {
         create("rc86") {
+            ndk.abiFilters += "x86"
             ndk.ldFlags  += "-L" + file("build-x86")
         }
         create("rc64") {
+            ndk.abiFilters += "x86_64"
             ndk.ldFlags  += "-L" + file("build-x64")
         }
     }

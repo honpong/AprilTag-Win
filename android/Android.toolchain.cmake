@@ -4,9 +4,11 @@ set(CMAKE_SYSTEM_NAME Linux)
 
 if (NOT CMAKE_C_COMPILER_EXTERNAL_TOOLCHAIN AND NOT CMAKE_C_COMPILER_TARGET) # When called by try_compile these are passed in from below
   set(ANDROID_NDK "${ANDROID_NDK}" CACHE PATH "Android NDK Path")
-  set(ANDROID_PLATFORM "android-21" CACHE STRING "Android Platform: 21, 20, ...")
-  set(ANDROID_ARCH "${ANDROID_ARCH}" CACHE STRING "Android Architecture: x86, x86_64, arm64, ...")
-  message("looking for ${ANDROID_PLATFORM} on ${ANDROID_ARCH} in ${ANDROID_NDK}")
+  set(ANDROID_PLATFORM "android-21" CACHE STRING "Android Platform")
+  set_property(CACHE ANDROID_PLATFORM PROPERTY STRINGS android-21 android-20 android-19)
+  set(ANDROID_ARCH "${ANDROID_ARCH}" CACHE STRING "Android Architecture")
+  set_property(CACHE ANDROID_ARCH PROPERTY STRINGS x86 x86_64 arm64)
+
   if(ANDROID_ARCH STREQUAL "x86")
     set(CMAKE_SYSTEM_PROCESSOR i686)
   else()

@@ -72,14 +72,14 @@ void SendStatusUpdate(JNIEnv* env, jobject thiz, int runState, float progress, i
     jclass sensorFusionClass = env->GetObjectClass(thiz);
     if(RunExceptionCheck(env)) return;
     
-    jmethodID methodId = env->GetMethodID(sensorFusionClass, "onSensorFusionStatusUpdate", "(Lcom/realitycap/android/rcutility/SensorFusionStatus;)V");
+    jmethodID methodId = env->GetMethodID(sensorFusionClass, "onStatusUpdated", "(Lcom/realitycap/android/rcutility/SensorFusionStatus;)V");
     if(RunExceptionCheck(env)) return;
     
     env->CallVoidMethod(thiz, methodId, statusObj);
     if(RunExceptionCheck(env)) return;
 }
 
-void SendDataUpdate(JNIEnv* env, jobject thiz, long timestamp)
+void SendProgressUpdate(JNIEnv *env, jobject thiz, long timestamp)
 {
     // init a SensorFusionData instance
     jclass dataClass = env->FindClass("com/realitycap/android/rcutility/SensorFusionData");
@@ -98,7 +98,7 @@ void SendDataUpdate(JNIEnv* env, jobject thiz, long timestamp)
     jclass sensorFusionClass = env->GetObjectClass(thiz);
     if(RunExceptionCheck(env)) return;
     
-    jmethodID methodId = env->GetMethodID(sensorFusionClass, "onSensorFusionDataUpdate", "(Lcom/realitycap/android/rcutility/SensorFusionData;)V");
+    jmethodID methodId = env->GetMethodID(sensorFusionClass, "onProgressUpdated", "(Lcom/realitycap/android/rcutility/SensorFusionData;)V");
     if(RunExceptionCheck(env)) return;
     
     env->CallVoidMethod(thiz, methodId, dataObj);
@@ -108,74 +108,48 @@ void SendDataUpdate(JNIEnv* env, jobject thiz, long timestamp)
 
 extern "C"
 {
-	JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_SensorFusion_startSensorFusion( JNIEnv* env, jobject thiz )
+	JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_start( JNIEnv* env, jobject thiz )
 	{
-        LOGD("startSensorFusion");
+        LOGD("start");
 	    return(JNI_TRUE);
     }
     
-    JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_SensorFusion_stopSensorFusion( JNIEnv* env, jobject thiz )
+    JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_stop( JNIEnv* env, jobject thiz )
     {
-        LOGD("stopSensorFusion");
+        LOGD("stop");
     }
     
-    JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_SensorFusion_startStaticCalibration( JNIEnv* env, jobject thiz )
+    JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_startCalibration( JNIEnv* env, jobject thiz )
     {
-        LOGD("startStaticCalibration");
+        LOGD("startCalibration");
         return(JNI_TRUE);
     }
     
-    JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_SensorFusion_startCapture( JNIEnv* env, jobject thiz )
+    JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_startReplay( JNIEnv* env, jobject thiz )
     {
-        LOGD("startCapture");
+        LOGD("startReplay");
         return(JNI_TRUE);
     }
     
-    JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_SensorFusion_stopCapture( JNIEnv* env, jobject thiz )
+    JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_setOutputLog( JNIEnv* env, jobject thiz )
     {
-        LOGD("stopCapture");
+        LOGD("setOutputLog");
     }
 	
-	JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_SensorFusion_receiveAccelerometer( JNIEnv* env, jobject thiz, jfloat x, jfloat y, jfloat z, jlong timestamp )
+	JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_receiveAccelerometer( JNIEnv* env, jobject thiz, jfloat x, jfloat y, jfloat z, jlong timestamp )
 	{
 //	    LOGV("%li accel %f, %f, %f", (long)timestamp, x, y, z);
 	}
 	
-	JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_SensorFusion_receiveGyro( JNIEnv* env, jobject thiz, jfloat x, jfloat y, jfloat z, jlong timestamp )
+	JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_receiveGyro( JNIEnv* env, jobject thiz, jfloat x, jfloat y, jfloat z, jlong timestamp )
 	{
 //	    LOGV("%li gyro %f, %f, %f", (long)timestamp, x, y, z);
 	}
 	
-	JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_SensorFusion_receiveVideoFrame( JNIEnv* env, jobject thiz, jbyteArray data )
-	{
-	    jbyte* buffer = NULL;
-        jsize size = env->GetArrayLength(data);
-        if(RunExceptionCheck(env)) return(JNI_FALSE);
-	    
-	    // check if array size >0
-	    if(size<=0) return(JNI_FALSE);
-	    
-	    // allocate buffer for array and get data from Java array
-	    buffer  = new jbyte[size];
-	    env->GetByteArrayRegion(data, 0, size, buffer); // slow. copies data.
-	    if(RunExceptionCheck(env)) return(JNI_FALSE);
-        
-        LOGV(">>>>>>>>>>> Camera frame received <<<<<<<<<<<<<");
-	    
-	    // set result to Java array and delete buffer
-	    env->SetByteArrayRegion(data, 0, size, buffer);
-	    delete[] buffer;
-	    if(RunExceptionCheck(env)) return(JNI_FALSE);
-
-        // send some fake updates for testing
-        SendStatusUpdate(env, thiz, 1, 0, 3, 0);
-        SendDataUpdate(env, thiz, 12345678L);
-        
-	    return(JNI_TRUE);
-	}
-
-	JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_SensorFusion_receiveSyncedFrames( JNIEnv* env, jobject thiz, jobject colorData, jobject depthData )
+	JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_receiveSyncedFrames( JNIEnv* env, jobject thiz, jobject colorData, jobject depthData )
     {
+        rc_Tracker *x =rc_create();
+
         void* colorPtr = env->GetDirectBufferAddress(colorData);
         jlong colorLength = env->GetDirectBufferCapacity(colorData);
         if(RunExceptionCheck(env)) return(JNI_FALSE);

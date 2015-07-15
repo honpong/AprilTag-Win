@@ -9,25 +9,24 @@ import android.util.Log;
 
 import java.nio.ByteBuffer;
 
-public class SensorFusion implements SensorEventListener, PreviewCallback, ISyncedFrameReceiver
+public class TrackerProxy implements SensorEventListener, ISyncedFrameReceiver
 {
 	static
 	{
-		System.loadLibrary("sensor-fusion");
+		System.loadLibrary("tracker_wrapper");
 	}
 	
-	public native boolean startSensorFusion();
-	public native void stopSensorFusion();
-	public native boolean startStaticCalibration();
-	public native boolean startCapture();
-	public native void stopCapture();
+	public native boolean start();
+	public native void stop();
+	public native boolean startCalibration();
+	public native boolean startReplay();
+	public native void setOutputLog();
 	
 	protected native void receiveAccelerometer(float x, float y, float z, long timestamp);
 	protected native void receiveGyro(float x, float y, float z, long timestamp);
-	protected native boolean receiveVideoFrame(byte[] data);
     protected native boolean receiveSyncedFrames(ByteBuffer colorData, ByteBuffer depthData);
 	
-	public SensorFusion()
+	public TrackerProxy()
 	{
 		
 	}	
@@ -52,14 +51,6 @@ public class SensorFusion implements SensorEventListener, PreviewCallback, ISync
 	{
 		Log.d(MyApplication.TAG, String.format("onAccuracyChanged(%s, %d)", sensor.getName(), accuracy));
 	}
-	
-	@Override
-	public void onPreviewFrame(final byte[] data, Camera camera)
-	{
-		boolean result = receiveVideoFrame(data);
-		if (!result) Log.w(MyApplication.TAG, "receiveVideoFrame() returned FALSE");
-		camera.addCallbackBuffer(data);
-	}
 
     @Override
     public void onSyncedFrames(final ByteBuffer colorData, final ByteBuffer depthData)
@@ -68,13 +59,13 @@ public class SensorFusion implements SensorEventListener, PreviewCallback, ISync
         if (!result) Log.w(MyApplication.TAG, "receiveSyncedFrames() returned FALSE");
     }
 	
-	protected void onSensorFusionStatusUpdate(SensorFusionStatus status)
+	protected void onStatusUpdated(SensorFusionStatus status)
 	{
 //		Log.d(MyApplication.TAG, String.format("runState: %d progress: %f", status.runState, status.progress));
 	}
 	
-	protected void onSensorFusionDataUpdate(SensorFusionData data)
+	protected void onProgressUpdated(SensorFusionData data)
 	{
-//		Log.d(MyApplication.TAG, String.format("onSensorFusionDataUpdate %d", data.timestamp));
+//		Log.d(MyApplication.TAG, String.format("onProgressUpdated %d", data.timestamp));
 	}
 }

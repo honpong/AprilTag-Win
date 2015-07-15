@@ -12,7 +12,7 @@ model {
         }
     }
     android.ndk {
-        moduleName = "sensor-fusion"
+        moduleName = "tracker_wrapper"
         cppFlags += "-I" + file("../../../corvis/src/filter")
         ldLibs += ["tracker", "log"]
     }
@@ -37,6 +37,7 @@ model {
 def rsRoot = "$System.env.RSSDK"
 dependencies {
     compile 'com.android.support:support-v13:22.2.0'
+    // TODO: not all of these are necessary
     compile files (
             rsRoot + '/libs/PXCACommon_x86.jar',
             rsRoot + '/libs/OpenCL_x86.jar',

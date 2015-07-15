@@ -25,7 +25,7 @@ public class MainActivity extends Activity
 	
 	IMUManager imuMan;
 	VideoManager videoMan;
-	SensorFusion sensorFusion;
+	TrackerProxy trackerProxy;
     RealSenseManager rsMan;
 
 	enum AppState
@@ -97,12 +97,11 @@ public class MainActivity extends Activity
 		
 		imuMan = new IMUManager();
 		videoMan = new VideoManager();
-		sensorFusion = new SensorFusion();
+		trackerProxy = new TrackerProxy();
 		
-		imuMan.setSensorEventListener(sensorFusion);
-		videoMan.setVideoSubscriber(sensorFusion);
+		imuMan.setSensorEventListener(trackerProxy);
 
-		rsMan = new RealSenseManager(this, sensorFusion);
+		rsMan = new RealSenseManager(this, trackerProxy);
 		
 		setStatusText("Ready");		
 	}
@@ -138,7 +137,7 @@ public class MainActivity extends Activity
 		if (appState != AppState.Idle) return false;
 		setStatusText("Starting calibration...");
 		imuMan.startSensors();
-		boolean result = sensorFusion.startStaticCalibration();
+		boolean result = trackerProxy.startCalibration();
 		if (result) appState = AppState.Calibrating;
 		return result;
 	}
@@ -146,7 +145,7 @@ public class MainActivity extends Activity
 	protected void stopCalibration()
 	{
 		if (appState != AppState.Calibrating) return;
-		sensorFusion.stopSensorFusion();
+		trackerProxy.stop();
 		imuMan.stopSensors();
 		setStatusText("Calibration stopped.");
 		appState = AppState.Idle;
@@ -161,7 +160,7 @@ public class MainActivity extends Activity
             setStatusText("Failed to start sensors.");
             return false;
         }
-		sensorFusion.startCapture();
+//		trackerProxy.setOutputLog("capture.rssdk");
 		setStatusText("Capturing...");
 		appState = AppState.Capturing;
 		return true;
@@ -170,7 +169,6 @@ public class MainActivity extends Activity
 	protected void stopCapture()
 	{
 		if (appState != AppState.Capturing) return;
-		sensorFusion.stopCapture();
 		stopSensors();
 		setStatusText("Capture stopped.");
 		appState = AppState.Idle;

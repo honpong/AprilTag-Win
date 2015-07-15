@@ -55,10 +55,10 @@ public class TrackerProxy implements SensorEventListener, ISyncedFrameReceiver
 	}
 
     @Override
-    public void onSyncedFrames(final ByteBuffer colorData, final ByteBuffer depthData)
+    public void onSyncedFrames(long time_us, long shutter_time_us, int width, int height, int stride, final ByteBuffer colorData, int depthWidth, int depthHeight, int depthStride, final ByteBuffer depthData)
     {
-//        boolean result = receiveImageWithDepth();
-//        if (!result) Log.w(MyApplication.TAG, "receiveSyncedFrames() returned FALSE");
+        boolean result = receiveImageWithDepth(time_us, shutter_time_us, false, width, height, stride, colorData, depthWidth, depthHeight, depthStride, depthData);
+        if (!result) Log.w(MyApplication.TAG, "receiveImageWithDepth() returned FALSE");
     }
 	
 	protected void onStatusUpdated(SensorFusionStatus status)

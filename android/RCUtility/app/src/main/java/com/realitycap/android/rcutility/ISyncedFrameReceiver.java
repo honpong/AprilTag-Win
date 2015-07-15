@@ -7,5 +7,5 @@ import java.nio.ByteBuffer;
  */
 public interface ISyncedFrameReceiver
 {
-    void onSyncedFrames(final ByteBuffer colorData, final ByteBuffer depthData);
+    void onSyncedFrames(long time_us, long shutter_time_us, int width, int height, int stride, final ByteBuffer colorData, int depthWidth, int depthHeight, int depthStride, final ByteBuffer depthData);
 }

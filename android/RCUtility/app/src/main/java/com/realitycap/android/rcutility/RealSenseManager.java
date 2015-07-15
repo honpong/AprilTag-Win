@@ -108,12 +108,15 @@ public class RealSenseManager
                 return;
             }
 
-            Log.v(TAG, "RealSense camera sample received.");
+            int colorStride = color.getInfo().DataSize / color.getHeight();
+            int depthStride = depth.getInfo().DataSize / depth.getHeight();
+
+//            Log.v(TAG, "RealSense camera sample received.");
 
             ByteBuffer colorData = color.acquireAccess();
             ByteBuffer depthData = depth.acquireAccess();
 
-            receiver.onSyncedFrames(colorData, depthData);
+            receiver.onSyncedFrames(color.getTimeStamp(), 0, color.getWidth(), color.getHeight(), colorStride, colorData, depth.getWidth(), depth.getHeight(), depthStride, depthData);
 
             color.releaseAccess();
             depth.releaseAccess();

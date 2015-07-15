@@ -584,11 +584,11 @@ static void filter_add_features(struct filter *f, const camera_data & camera, si
     for(int i = 0; i < kp.size(); ++i) {
         int x = kp[i].x;
         int y = kp[i].y;
-        if(f->track.is_trackable(x, y) && f->scaled_mask->test(x, y)) {
+        if(f->track.is_trackable(x, y) && f->mask->test(x, y)) {
             descriptor_compute(camera.image, camera.width, camera.height, camera.stride, x, y, side_length, radius, d);
             feat = f->s.cache.query(d);
             if(feat) {
-                f->scaled_mask->clear(x, y);
+                f->mask->clear(x, y);
                 f->s.recovered = true;
                 feat->initial = v4(x, y, 1, 0);
                 feat->current = feat->initial;

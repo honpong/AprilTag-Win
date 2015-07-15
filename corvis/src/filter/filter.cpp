@@ -1110,7 +1110,7 @@ int filter_get_features(const struct filter *f, struct corvis_feature_info *feat
         features[index].wx = (float)i->world[0];
         features[index].wy = (float)i->world[1];
         features[index].wz = (float)i->world[2];
-        features[index].depth = (float)i->depth;
+        features[index].depth = (float)i->v.depth();
         features[index].stdev = (float)i->v.stdev_meters(sqrt(i->variance()));
         ++index;
     }

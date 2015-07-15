@@ -161,11 +161,13 @@ extern "C"
         if (!tracker) return (JNI_FALSE);
     }
 
-    JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_configureCamera(JNIEnv* env, jobject thiz, jint camera, jintArray pose_m, jint width_px, jint height_px, jfloat center_x_px, jfloat center_y_px, jfloat focal_length_x_px, jfloat focal_length_y_px, jfloat skew, jboolean fisheye, jfloat fisheye_fov_radians)
+    JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_configureCamera(JNIEnv* env, jobject thiz, jint camera, jint width_px, jint height_px, jfloat center_x_px, jfloat center_y_px, jfloat focal_length_x_px, jfloat focal_length_y_px, jfloat skew, jboolean fisheye, jfloat fisheye_fov_radians)
     {
         if (!tracker) return (JNI_FALSE);
-        rc_Pose pose;
-        rc_Camera cam;
+        const rc_Pose pose = { 0, -1, 0, 0,
+                             -1, 0, 0, 0,
+                              0, 0, -1, 0 };
+        rc_Camera cam = (rc_Camera)camera;
         rc_configureCamera(tracker, cam, pose, width_px, height_px, center_x_px, center_y_px, focal_length_x_px, focal_length_y_px, skew, fisheye, fisheye_fov_radians);
     }
 

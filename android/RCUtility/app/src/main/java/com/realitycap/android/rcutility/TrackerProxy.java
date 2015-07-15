@@ -16,13 +16,17 @@ public class TrackerProxy implements SensorEventListener, ISyncedFrameReceiver
 		System.loadLibrary("tracker_wrapper");
 	}
 
-	public native boolean create();
+    public static final int CAMERA_EGRAY8 = 0;
+    public static final int CAMERA_EDEPTH16 = 1;
+
+    public native boolean create();
 	public native boolean destroy();
 	public native boolean start();
 	public native void stop();
 	public native boolean startCalibration();
 	public native boolean startReplay();
 	public native boolean setOutputLog();
+    public native void configureCamera(int camera, int width_px, int height_px, float center_x_px, float center_y_px, float focal_length_x_px, float focal_length_y_px, float skew, boolean fisheye, float fisheye_fov_radians);
 	
 	protected native void receiveAccelerometer(float x, float y, float z, long timestamp);
 	protected native void receiveGyro(float x, float y, float z, long timestamp);

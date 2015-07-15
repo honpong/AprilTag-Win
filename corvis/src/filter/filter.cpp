@@ -578,15 +578,16 @@ static void filter_add_features(struct filter *f, const camera_data & camera, si
     descriptor d;
     float radius = 16;
     int side_length = 41;
-    state_vision_feature * feat;
 
     int found_feats = 0;
     for(int i = 0; i < kp.size(); ++i) {
         int x = kp[i].x;
         int y = kp[i].y;
         if(f->track.is_trackable(x, y) && f->mask->test(x, y)) {
-            descriptor_compute(camera.image, camera.width, camera.height, camera.stride, x, y, side_length, radius, d);
-            feat = f->s.cache.query(d);
+            bool success = descriptor_compute(camera.image, camera.width, camera.height, camera.stride, x, y, side_length, radius, d);
+            if(!success)
+                continue;
+            state_vision_feature * feat = f->s.cache.query(d);
             if(feat) {
                 f->mask->clear(x, y);
                 f->s.recovered = true;

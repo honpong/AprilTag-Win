@@ -109,33 +109,33 @@ rc_Tracker* tracker;
 
 extern "C"
 {
-    JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_create( JNIEnv* env, jobject thiz )
+    JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_createTracker( JNIEnv* env, jobject thiz )
     {
-        LOGD("rc_create");
+        LOGD("createTracker");
         tracker = rc_create();
         if (!tracker) return (JNI_FALSE);
         else return(JNI_TRUE);
     }
 
-    JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_destroy( JNIEnv* env, jobject thiz )
+    JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_destroyTracker( JNIEnv* env, jobject thiz )
     {
-        LOGD("rc_destroy");
+        LOGD("destroyTracker");
         if (!tracker) return (JNI_FALSE);
         rc_destroy(tracker);
         return(JNI_TRUE);
     }
 
-	JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_start( JNIEnv* env, jobject thiz )
+	JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_startTracker( JNIEnv* env, jobject thiz )
 	{
-        LOGD("start");
+        LOGD("startTracker");
         if (!tracker) return (JNI_FALSE);
         rc_startTracker(tracker);
 	    return(JNI_TRUE);
     }
     
-    JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_stop( JNIEnv* env, jobject thiz )
+    JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_stopTracker( JNIEnv* env, jobject thiz )
     {
-        LOGD("stop");
+        LOGD("stopTracker");
         if (!tracker) return;
         rc_stopTracker(tracker);
 //        rc_reset(tracker, 0, rc_POSE_IDENTITY);

@@ -19,10 +19,10 @@ public class TrackerProxy implements SensorEventListener, ISyncedFrameReceiver
     public static final int CAMERA_EGRAY8 = 0;
     public static final int CAMERA_EDEPTH16 = 1;
 
-    public native boolean create();
-	public native boolean destroy();
-	public native boolean start();
-	public native void stop();
+    public native boolean createTracker();
+	public native boolean destroyTracker();
+	public native boolean startTracker();
+	public native void stopTracker();
 	public native boolean startCalibration();
 	public native boolean startReplay();
 	public native boolean setOutputLog();

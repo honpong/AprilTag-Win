@@ -145,7 +145,7 @@ public class MainActivity extends Activity
 	protected void stopCalibration()
 	{
 		if (appState != AppState.Calibrating) return;
-		trackerProxy.stop();
+		trackerProxy.stopTracker();
 		imuMan.stopSensors();
 		setStatusText("Calibration stopped.");
 		appState = AppState.Idle;

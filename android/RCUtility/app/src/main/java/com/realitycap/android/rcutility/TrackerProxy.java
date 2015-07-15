@@ -15,16 +15,18 @@ public class TrackerProxy implements SensorEventListener, ISyncedFrameReceiver
 	{
 		System.loadLibrary("tracker_wrapper");
 	}
-	
+
+	public native boolean create();
+	public native boolean destroy();
 	public native boolean start();
 	public native void stop();
 	public native boolean startCalibration();
 	public native boolean startReplay();
-	public native void setOutputLog();
+	public native boolean setOutputLog();
 	
 	protected native void receiveAccelerometer(float x, float y, float z, long timestamp);
 	protected native void receiveGyro(float x, float y, float z, long timestamp);
-    protected native boolean receiveSyncedFrames(ByteBuffer colorData, ByteBuffer depthData);
+    protected native boolean receiveImageWithDepth(long time_us, long shutter_time_us, boolean force_recognition, int width, int height, int stride, ByteBuffer colorData, int depthWidth, int depthHeight, int depthStride, ByteBuffer depthData);
 	
 	public TrackerProxy()
 	{
@@ -55,8 +57,8 @@ public class TrackerProxy implements SensorEventListener, ISyncedFrameReceiver
     @Override
     public void onSyncedFrames(final ByteBuffer colorData, final ByteBuffer depthData)
     {
-        boolean result = receiveSyncedFrames(colorData, depthData);
-        if (!result) Log.w(MyApplication.TAG, "receiveSyncedFrames() returned FALSE");
+//        boolean result = receiveImageWithDepth();
+//        if (!result) Log.w(MyApplication.TAG, "receiveSyncedFrames() returned FALSE");
     }
 	
 	protected void onStatusUpdated(SensorFusionStatus status)

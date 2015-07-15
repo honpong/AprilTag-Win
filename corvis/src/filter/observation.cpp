@@ -210,8 +210,7 @@ void observation_vision_feature::predict()
 
     X = X_unscale * feature->v.invdepth();
 
-    feature->relative = X0_unscale;
-    feature->local = Rrt * (feature->relative - state_group->Tr.v);
+    feature->local = Rrt * (X0_unscale - state_group->Tr.v);
     feature->world = R * feature->local + state.T.v;
     feature->depth = X_unscale[2];
     v4 ippred = X / X[2]; //in the image plane

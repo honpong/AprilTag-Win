@@ -27,7 +27,6 @@ state_vision_feature::state_vision_feature(f_t initialx, f_t initialy): state_le
     last_dt = sensor_clock::duration(0);
     image_velocity.x = 0;
     image_velocity.y = 0;
-    local = v4(0, 0, 0, 0);
     world = v4(0, 0, 0, 0);
 }
 

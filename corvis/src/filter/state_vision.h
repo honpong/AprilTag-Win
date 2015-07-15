@@ -65,7 +65,6 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     uint64_t id;
     uint64_t groupid;
     v4 world;
-    v4 local;
     f_t depth;
     feature_t image_velocity;
     sensor_clock::duration dt;

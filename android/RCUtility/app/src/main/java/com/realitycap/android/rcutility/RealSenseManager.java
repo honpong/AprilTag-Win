@@ -116,7 +116,7 @@ public class RealSenseManager
             ByteBuffer colorData = color.acquireAccess();
             ByteBuffer depthData = depth.acquireAccess();
 
-            receiver.onSyncedFrames(color.getTimeStamp(), 0, color.getWidth(), color.getHeight(), colorStride, colorData, depth.getWidth(), depth.getHeight(), depthStride, depthData);
+            receiver.onSyncedFrames(color.getTimeStamp(), 33333, color.getWidth(), color.getHeight(), colorStride, colorData, depth.getWidth(), depth.getHeight(), depthStride, depthData);
 
             color.releaseAccess();
             depth.releaseAccess();

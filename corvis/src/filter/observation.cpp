@@ -1,7 +1,6 @@
 #include "observation.h"
 #include "tracker.h"
 #include "../numerics/kalman.h"
-#include "../numerics/transformation.h"
 #include "utils.h"
 
 stdev_scalar observation_vision_feature::stdev[2], observation_vision_feature::inn_stdev[2];
@@ -191,12 +190,11 @@ void observation_vision_feature::innovation_covariance_hook(const matrix &cov, i
 
 void observation_vision_feature::predict()
 {
-    transformation group(state_group->Wr.v, state_group->Tr.v);
-    transformation group_i = invert(group);
-    transformation world(state.W.v, state.T.v);
-    Rrt = to_rotation_matrix(group_i.Q);
+    m4 Rr = to_rotation_matrix(state_group->Wr.v);
+    m4 R = to_rotation_matrix(state.W.v);
+    Rrt = Rr.transpose();
     Rtot = Rrt;
-    Ttot = group_i.T;
+    Ttot = Rrt * ( - state_group->Tr.v);
 
     feature_t uncal = { (float)feature->initial[0], (float)feature->initial[1] };
     norm_initial = state.calibrate_feature(uncal);
@@ -208,11 +206,11 @@ void observation_vision_feature::predict()
     //Should work because projection(R X + T) = projection(R (X/p) + T/p)
     //(This is not the same as saying that RX+T = R(X/p) + T/p, which is false)
     //Have verified that the above identity is numerically identical in my results
-    v4 X_unscale = transformation_apply(group_i, X0_unscale);
+    v4 X_unscale = Rtot * X0_unscale + Ttot;
 
     X = X_unscale * feature->v.invdepth();
 
-    feature->world = transformation_apply(world, X_unscale);
+    feature->world = R * Rrt * (X0_unscale - state_group->Tr.v) + state.T.v;
     v4 ippred = X / X[2]; //in the image plane
     if(fabs(ippred[2]-1.) > 1.e-7 || ippred[3] != 0.) {
         fprintf(stderr, "FAILURE in feature projection in observation_vision_feature::predict\n");

@@ -2,6 +2,7 @@
 #include <jni.h>
 #include <android/log.h>
 #include "rc_intel_interface.h"
+#include <stdlib.h>
 
 #define TAG "RCUtility"
 #define LOGV(...) ((void)__android_log_print(ANDROID_LOG_VERBOSE, TAG, __VA_ARGS__))
@@ -12,6 +13,14 @@
 
 JNIEnv *jniEnv;
 jobject callingObj;
+
+static wchar_t* createWcharFromChar(const char* text)
+{
+    size_t size = strlen(text) + 1;
+    wchar_t* wa = new wchar_t[size];
+    mbstowcs(wa,text,size);
+    return wa;
+}
 
 bool RunExceptionCheck(JNIEnv* env)
 {
@@ -129,7 +138,7 @@ extern "C"
         LOGD("stopTracker");
         if (!tracker) return;
         rc_stopTracker(tracker);
-//        rc_reset(tracker, 0, rc_POSE_IDENTITY);
+        rc_reset(tracker, 0, rc_POSE_IDENTITY);
     }
     
     JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_startCalibration( JNIEnv* env, jobject thiz )
@@ -146,10 +155,14 @@ extern "C"
         return(JNI_TRUE);
     }
     
-    JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_setOutputLog( JNIEnv* env, jobject thiz )
+    JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_setOutputLog( JNIEnv* env, jobject thiz, jstring filename)
     {
         LOGD("setOutputLog");
         if (!tracker) return (JNI_FALSE);
+        const char *cFilename = env->GetStringUTFChars(filename, 0);
+        const wchar_t* wFilename = createWcharFromChar(cFilename);
+        rc_setOutputLog(tracker, wFilename);
+        delete wFilename;
     }
 
     JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_configureCamera(JNIEnv* env, jobject thiz, jint camera, jint width_px, jint height_px, jfloat center_x_px, jfloat center_y_px, jfloat focal_length_x_px, jfloat focal_length_y_px, jfloat skew, jboolean fisheye, jfloat fisheye_fov_radians)
@@ -158,8 +171,7 @@ extern "C"
         const rc_Pose pose = { 0, -1, 0, 0,
                              -1, 0, 0, 0,
                               0, 0, -1, 0 };
-        rc_Camera cam = (rc_Camera)camera;
-        rc_configureCamera(tracker, cam, pose, width_px, height_px, center_x_px, center_y_px, focal_length_x_px, focal_length_y_px, skew, fisheye, fisheye_fov_radians);
+        rc_configureCamera(tracker, (rc_Camera)camera, pose, width_px, height_px, center_x_px, center_y_px, focal_length_x_px, focal_length_y_px, skew, fisheye, fisheye_fov_radians);
     }
 
 	JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_receiveAccelerometer( JNIEnv* env, jobject thiz, jfloat x, jfloat y, jfloat z, jlong timestamp )

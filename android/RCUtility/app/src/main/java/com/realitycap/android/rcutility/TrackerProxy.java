@@ -27,7 +27,8 @@ public class TrackerProxy implements SensorEventListener, ISyncedFrameReceiver
 	public native boolean startReplay();
 	public native boolean setOutputLog();
     public native void configureCamera(int camera, int width_px, int height_px, float center_x_px, float center_y_px, float focal_length_x_px, float focal_length_y_px, float skew, boolean fisheye, float fisheye_fov_radians);
-	
+	public native void setOutputLog(String filename);
+    
 	protected native void receiveAccelerometer(float x, float y, float z, long timestamp);
 	protected native void receiveGyro(float x, float y, float z, long timestamp);
     protected native boolean receiveImageWithDepth(long time_us, long shutter_time_us, boolean force_recognition, int width, int height, int stride, ByteBuffer colorData, int depthWidth, int depthHeight, int depthStride, ByteBuffer depthData);

@@ -7,7 +7,7 @@
 int main(int c, char **v)
 {
     if (0) { usage:
-        cerr << "Usage: " << v[0] << " [--pause] [--realtime] [--no-gui] [--no-plots] [--no-video] [--no-main] [--qvga] [--render <file.png>] [--save <calibration-json>] <filename>\n";
+        cerr << "Usage: " << v[0] << " [--pause] [--realtime] [--no-gui] [--no-plots] [--no-video] [--no-main] [--qvga] [--no-depth] [--render <file.png>] [--save <calibration-json>] <filename>\n";
         return 1;
     }
 
@@ -15,7 +15,7 @@ int main(int c, char **v)
 
     bool realtime = false, start_paused = false;
     std:string save;
-    bool qvga = false;
+    bool qvga = false, depth = true;
     bool enable_gui = true, show_plots = false, show_video = true, show_depth = true, show_main = true;
     char *filename = nullptr, *rendername = nullptr;
     for (int i=1; i<c; i++)
@@ -30,6 +30,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--pause")  == 0) start_paused  = true;
         else if (strcmp(v[i], "--render") == 0 && i+1 < c) rendername = v[++i];
         else if (strcmp(v[i], "--qvga") == 0) qvga = true;
+        else if (strcmp(v[i], "--drop-depth") == 0) depth = false;
         else if (strcmp(v[i], "--save") == 0 && i+1 < c) save = v[++i];
         else goto usage;
 
@@ -52,6 +53,8 @@ int main(int c, char **v)
     }
 
     if(qvga) rp.enable_qvga();
+    
+    if(!depth) rp.disable_depth();
 
     if (!rp.set_reference_from_filename(filename) && !enable_gui) {
         cerr << filename << ": unable to find a reference to measure against\n";

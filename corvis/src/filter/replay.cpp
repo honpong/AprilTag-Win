@@ -201,7 +201,7 @@ void replay::start()
                 {
                     packet_image_with_depth_t *ip = (packet_image_with_depth_t *)packet;
                     camera_data d = parse_gray8(ip->width, ip->height, ip->width, ip->data, ip->header.time, ip->exposure_time_us, std::move(phandle));
-                    if(ip->depth_height && ip->depth_width)
+                    if(depth && ip->depth_height && ip->depth_width)
                     {
                         d.depth = std::make_unique<image_depth16>();
                         d.depth->width = ip->depth_width;

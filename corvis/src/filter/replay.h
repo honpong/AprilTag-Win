@@ -35,6 +35,7 @@ private:
     std::function<void (const filter *, camera_data &&)> camera_callback;
     std::function<void (float)> progress_callback;
     bool qvga {false};
+    bool depth {true};
     image_gray8 parse_gray8(int width, int height, int stride, uint8_t *data, uint64_t time_us, uint64_t exposure_time_us, std::unique_ptr<void, void(*)(void *)> handle);
     bool find_reference_in_filename(const string &filename);
     bool load_reference_from_pose_file(const string &filename);
@@ -46,6 +47,7 @@ public:
     void setup_filter();
     bool configure_all(const char *filename, bool realtime=false, std::function<void (float)> progress_callback=nullptr, std::function<void (const filter *, camera_data)> camera_callback=nullptr);
     void enable_qvga() { qvga = true; }
+    void disable_depth() { depth = false; }
     void start();
     void stop();
     void toggle_pause() { is_paused = !is_paused; }

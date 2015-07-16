@@ -30,11 +30,12 @@ def measurement_string(L, L_measured):
     return "%.2fcm actual, %.2fcm measured, %.2fcm error (%.2f%%)" % (L, L_measured, error, error_percent)
 
 class TestRunner(object):
-  def  __init__(self, input_dir, output_dir = None, qvga = False):
+  def  __init__(self, input_dir, output_dir = None, qvga = False, nodepth = False):
     self.input_dir = input_dir
     self.output_dir = output_dir
     self.measure_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "../bin/measure")
     self.qvga = qvga
+    self.nodepth = nodepth
 
   def __call__(self, test_case):
     #return self.run(test_case)
@@ -45,6 +46,8 @@ class TestRunner(object):
     args = [self.measure_path, os.path.join(self.input_dir, test_case["path"]), "--no-gui"]
     if self.qvga:
         args.append("--qvga")
+    if self.nodepth:
+        args.append("--drop-depth")
     if self.output_dir is not None:
         test_case["image"] = "%s.png" % test_case["path"]
         image = os.path.join(output_dir, test_case["image"])
@@ -99,8 +102,8 @@ def error_histogram_string(counts, bins):
 
 import multiprocessing
 
-def benchmark(input_dir, output_dir = None, qvga = False):
-    test_runner = TestRunner(input_dir, output_dir, qvga)
+def benchmark(input_dir, output_dir = None, qvga = False, depth = True):
+    test_runner = TestRunner(input_dir, output_dir, qvga, depth)
     test_cases = scan_tests(input_dir)
     pool = multiprocessing.Pool(multiprocessing.cpu_count() - 1)
     print "Worker pool size is", pool._processes
@@ -194,6 +197,8 @@ if __name__ == "__main__":
             help="Force overriting output-dir")
     parser.add_option("-q", "--qvga", action="store_true", dest="qvga", default=False,
             help="Scale images to qvga (320x240)")
+    parser.add_option("--drop-depth", action="store_true", dest="nodepth", default=False,
+            help="Ignore depth data")
     (options, args) = parser.parse_args()
     if   len(args) == 1:
         sequence_dir, output_dir = args[0], None
@@ -205,6 +210,6 @@ if __name__ == "__main__":
         parser.print_help()
         sys.exit(1)
 
-    benchmark(sequence_dir, output_dir, options.qvga)
+    benchmark(sequence_dir, output_dir, options.qvga, options.nodepth)
 
 

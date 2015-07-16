@@ -584,10 +584,6 @@ static int filter_process_features(struct filter *f, sensor_clock::time_point ti
     return features_used;
 }
 
-bool feature_variance_comp(state_vision_feature *p1, state_vision_feature *p2) {
-    return p1->variance() < p2->variance();
-}
-
 void filter_setup_next_frame(struct filter *f, const uint8_t *image, sensor_clock::time_point time)
 {
     size_t feats_used = f->s.features.size();

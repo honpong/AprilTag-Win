@@ -2,12 +2,12 @@ apply plugin: 'com.android.model.application'
 
 model {
     android {
-        compileSdkVersion = 22
+        compileSdkVersion = 21
         buildToolsVersion = "22.0.1"
         defaultConfig.with {
             applicationId = "com.realitycap.android.rcutility"
             minSdkVersion.apiLevel = 21
-            targetSdkVersion.apiLevel = 22
+            targetSdkVersion.apiLevel = 21
             version = 1
         }
     }

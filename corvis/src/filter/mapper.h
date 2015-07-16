@@ -9,9 +9,16 @@
 #include <vector>
 #include <../numerics/vec4.h>
 #include <stdbool.h>
-#include "../numerics/homogeneous.h"
+#include "../numerics/transformation.h"
 
 using namespace std;
+
+class transformation_variance {
+    public:
+    transformation transform;
+    m4 variance;
+};
+
 /*
 
 struct map_group {
@@ -48,12 +55,11 @@ struct map_edge {
 };
 
 struct map_feature {
-    point position;
+    v4 position;
     float variance;
-    float color[3];
     uint32_t label;
     uint8_t descriptor[128];
-    map_feature(const point &p, const float v, const float c, const uint32_t l, const uint8_t d[128]);
+    map_feature(const v4 &p, const float v, const uint32_t l, const uint8_t d[128]);
     void render(bool special = 0, int mode = 0);
 };
 
@@ -69,7 +75,7 @@ struct map_node {
     transformation_variance transform;
     transformation_variance global_orientation;
 map_node(): terms(0), depth(0), parent(-1) {}
-    bool add_feature(const point &p, const float v, const float c, const uint32_t l, const uint8_t d[128]);
+    bool add_feature(const v4 &p, const float v, const uint32_t l, const uint8_t d[128]);
     void render(bool special = 0, bool spheres = 0);
 };
 
@@ -79,7 +85,7 @@ struct map_match {
 };
 
 struct local_feature {
-    point position;
+    v4 position;
     map_feature *feature;
 };
 
@@ -89,12 +95,11 @@ struct match_pair {
 
 class mapper {
  protected:
-    pthread_mutex_t mutex;
     vector<map_node> nodes;
     vector<transformation_variance> geometry;
     vector<uint64_t> document_frequency;
     uint64_t reference;
-    homogeneous_transformation relative_transformation;
+    transformation relative_transformation;
     list<v4> local_features;
     bool unlinked;
     list<uint64_t> origins;
@@ -112,7 +117,7 @@ class mapper {
 
     int new_check_for_matches(uint64_t id1, uint64_t id2, transformation_variance &relpos, int min_inliers);
     int check_for_matches(uint64_t id1, uint64_t id2, transformation_variance &relpos, int min_inliers);
-    int estimate_translation(uint64_t id1, uint64_t id2, vect &result, int min_inliers, const homogeneous_transformation &pre_transform, const list<match_pair> &matches, const list<match_pair> &neighbor_matches);
+    int estimate_translation(uint64_t id1, uint64_t id2, v4 &result, int min_inliers, const transformation &pre_transform, const list<match_pair> &matches, const list<match_pair> &neighbor_matches);
     int brute_force_rotation(uint64_t id1, uint64_t id2, transformation_variance &trans, int threshhold, float min, float max);
     void localize_neighbor_features(uint64_t id, list<local_feature> &features);
     void breadth_first(int start, int maxdepth, void(mapper::*callback)(map_node &));
@@ -127,9 +132,9 @@ class mapper {
     int dictionary_size;
     void new_map();
     void add_edge(uint64_t id1, uint64_t id2);
-    void set_relative_transformation(const homogeneous_transformation &T);
+    void set_relative_transformation(const transformation &T);
     void set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform);
-    void add_feature(uint64_t groupid, point pos, float variance, float color, uint32_t label, uint8_t descriptor[128]);
+    void add_feature(uint64_t groupid, v4 pos, float variance, uint32_t label, uint8_t descriptor[128]);
     // uses diffuse_matches and tf_idf_match
     bool get_matches(uint64_t id, vector<map_match> &matches, int max, int suppression);
     void set_reference(uint64_t id);
@@ -142,18 +147,9 @@ class mapper {
     int render_mode;
     bool render_special;
     void node_finished(uint64_t id, const transformation_variance &global_orientation);
-    mapbuffer *output_map;
+    //mapbuffer *output_map;
     bool no_search;
     void print_stats();
 };
-
-#ifdef SWIG
-%callback("%s_cb");
-#endif
-extern "C" void packet_handler(void *_m, packet_t *p);
-extern "C" void run_new_map(mapper *m, mapbuffer *mb);
-#ifdef SWIG
-%nocallback;
-#endif
 
 #endif

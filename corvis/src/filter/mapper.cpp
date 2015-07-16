@@ -8,6 +8,22 @@
 #include <queue>
 #include "mapper.h"
 
+transformation_variance invert(const transformation_variance & T)
+{
+    transformation_variance result = T;
+    result.transform = invert(T.transform);
+    // TODO: deal with variance
+    return result;
+}
+
+transformation_variance operator *(const transformation_variance & T1, const transformation_variance & T2)
+{
+    transformation_variance result;
+    result.transform = compose(T1.transform, T2.transform);
+    // TODO: deal with variance
+    return result;
+}
+
 size_t map_node::histogram_size;
 
 //NOTE: this is reversed so that we can pop the smallest item from the heap
@@ -74,9 +90,8 @@ float mapper::one_to_one_idf_score(const list<map_feature *> &hist1, const list<
     return score;
 }
 
-mapper::mapper(int dict_size): document_frequency(dict_size), dictionary_size(dict_size), group_id_offset(0), render_mode(0), render_special(0), output_map(0), no_search(false)
+mapper::mapper(int dict_size): document_frequency(dict_size), dictionary_size(dict_size), group_id_offset(0), render_mode(0), render_special(0), no_search(false)
 {
-    pthread_mutex_init(&mutex, NULL);
     map_node::histogram_size = dictionary_size;
     new_map();
     unlinked = false;
@@ -93,12 +108,11 @@ map_edge &map_node::get_add_neighbor(uint64_t neighbor)
 
 void mapper::add_edge(uint64_t id1, uint64_t id2)
 {
-    pthread_mutex_lock(&mutex);
-    pthread_cleanup_push((void(*)(void *))pthread_mutex_unlock, &mutex);
     if(nodes.size() <= id1) nodes.resize(id1+1);
     if(nodes.size() <= id2) nodes.resize(id2+1);
     nodes[id1].get_add_neighbor(id2);
     nodes[id2].get_add_neighbor(id1);
+    /*
     if(output_map) {
         packet_map_edge_t *p = (packet_map_edge_t *)mapbuffer_alloc(output_map, packet_map_edge, sizeof(packet_map_edge_t) - sizeof(packet_header_t));
         p->first = id1;
@@ -106,29 +120,23 @@ void mapper::add_edge(uint64_t id1, uint64_t id2)
         p->header.user = 0;
         mapbuffer_enqueue(output_map, (packet_t *)p, 1);
     }
-    pthread_cleanup_pop(1);
+    */
 }
 
 void mapper::add_node(uint64_t id)
 {
-    pthread_mutex_lock(&mutex);
-    pthread_cleanup_push((void(*)(void *))pthread_mutex_unlock, &mutex);
     if(nodes.size() <= id) nodes.resize(id + 1);
-    pthread_cleanup_pop(1);
 }
 
 
-map_feature::map_feature(const point &p, const float v, const float c, const uint32_t l, const uint8_t d[128]): position(p), variance(v), label(l)
+map_feature::map_feature(const v4 &p, const float v, const uint32_t l, const uint8_t d[128]): position(p), variance(v), label(l)
 {
-    color[0] = c;
-    color[1] = c;
-    color[2] = c;
     memcpy(descriptor, d, sizeof(descriptor));
 }
 
-bool map_node::add_feature(const point &pos, const float variance, const float color, const uint32_t label, const uint8_t descriptor[128])
+bool map_node::add_feature(const v4 &pos, const float variance, const uint32_t label, const uint8_t descriptor[128])
 {
-    map_feature *feat = new map_feature(pos, variance, color, label, descriptor);
+    map_feature *feat = new map_feature(pos, variance, label, descriptor);
     list<map_feature *>::iterator feature;
     for(feature = features.begin(); feature != features.end(); ++feature) {
         if((*feature)->label >= label) break;
@@ -138,10 +146,10 @@ bool map_node::add_feature(const point &pos, const float variance, const float c
     return (feature == features.end() || (*feature)->label != label); //true if this was a new label for this group
 }
 
-void mapper::add_feature(uint64_t groupid, point pos, float variance, float color, uint32_t label, uint8_t descriptor[128])
+void mapper::add_feature(uint64_t groupid, v4 pos, float variance, uint32_t label, uint8_t descriptor[128])
 {
     ++feature_count;
-    if(nodes[groupid].add_feature(pos, variance, color, label, descriptor)) {
+    if(nodes[groupid].add_feature(pos, variance, label, descriptor)) {
         ++document_frequency[label];
     }
 }
@@ -164,12 +172,13 @@ void mapper::internal_set_geometry(uint64_t id1, uint64_t id2, const transformat
         edge1.geometry = id;
         edge2.geometry = -id;
     }
+    /*
     if(output_map) {
         packet_map_edge_t *p = (packet_map_edge_t *)mapbuffer_alloc(output_map, packet_map_edge, sizeof(packet_map_edge_t) - sizeof(packet_header_t));
         p->first = id1;
         p->second = id2;
         v4 W = invrodrigues(transform.transform.get_rotation(), NULL);
-        vect T = transform.transform.get_translation();
+        v4 T = transform.transform.get_translation();
         for(int i = 0; i < 3; ++i) {
             p->W[i] = W[i];
             p->T[i] = T[i];
@@ -179,30 +188,22 @@ void mapper::internal_set_geometry(uint64_t id1, uint64_t id2, const transformat
         p->header.user = 1;
         mapbuffer_enqueue(output_map, (packet_t *)p, 1);
     }
+    */
 }
 
 void mapper::set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform)
 {
-    pthread_mutex_lock(&mutex);
-    pthread_cleanup_push((void(*)(void *))pthread_mutex_unlock, &mutex);
     if(nodes.size() <= id1) nodes.resize(id1+1);
     if(nodes.size() <= id2) nodes.resize(id2+1);
     internal_set_geometry(id1, id2, transform);
-    pthread_cleanup_pop(1);
 }
 
 void mapper::set_reference(uint64_t id) {
-    pthread_mutex_lock(&mutex);
-    pthread_cleanup_push((void(*)(void *))pthread_mutex_unlock, &mutex);
     reference = id;
-    pthread_cleanup_pop(1);
 }
 
-void mapper::set_relative_transformation(const homogeneous_transformation &T) {
-    pthread_mutex_lock(&mutex);
-    pthread_cleanup_push((void(*)(void *))pthread_mutex_unlock, &mutex);
+void mapper::set_relative_transformation(const transformation &T) {
     relative_transformation = T;
-    pthread_cleanup_pop(1);
 }
 
 /*
@@ -261,7 +262,7 @@ void mapper::diffuse_matches(vector<float> &matches, vector<map_match> &result, 
             num += matches[edge->neighbor];
             denom += nodes[edge->neighbor].terms;
         }
-        result.push_back((map_match) {i, num / denom});
+        result.push_back((map_match) {(uint64_t)i, num / denom});
         push_heap(result.begin(), result.end(), map_match_compare);
         if(result.size() > max) {
             pop_heap(result.begin(), result.end(), map_match_compare);
@@ -289,7 +290,7 @@ void assign_matches(list<local_feature> &f1, list<local_feature> &f2, list<match
 
 int mapper::brute_force_rotation(uint64_t id1, uint64_t id2, transformation_variance &trans, int threshhold, float min, float max)
 {
-    homogeneous_transformation R;
+    transformation R;
     int best = 0;
     int worst = 100000000;
     f_t first_best, last_best;
@@ -318,8 +319,8 @@ int mapper::brute_force_rotation(uint64_t id1, uint64_t id2, transformation_vari
     assign_matches(f1, f2, neighbor_matches);
     if(neighbor_matches.size() < threshhold) return 0;
     for(float theta = min; theta < max; theta += (max-min) / 200.) {
-        R.set_rotation(rodrigues(v4(0., 0., theta, 0.), NULL));
-        vect dT;
+        transformation R(rotation_vector(0., 0., theta), v4(0,0,0,0));
+        v4 dT;
         int in = estimate_translation(id1, id2, dT, threshhold, R, matches, neighbor_matches);
         if(in < worst) worst = in;
         if(in > best) {
@@ -334,10 +335,10 @@ int mapper::brute_force_rotation(uint64_t id1, uint64_t id2, transformation_vari
         if(in < best) running = false;
     }
     if(best-worst >= threshhold) {
-        trans.transform.set_rotation(rodrigues(v4(0., 0., (first_best + last_best) / 2., 0.), NULL));
-        vect dT;
+        trans.transform = transformation(rotation_vector(0., 0., (first_best + last_best) / 2.), v4(0,0,0,0));
+        v4 dT;
         estimate_translation(id1, id2, dT, threshhold, trans.transform, matches, neighbor_matches);
-        trans.transform.set_translation(dT);
+        trans.transform.T = dT;
         return best-worst;
     }
     return 0;
@@ -346,8 +347,6 @@ int mapper::brute_force_rotation(uint64_t id1, uint64_t id2, transformation_vari
 bool mapper::get_matches(uint64_t id, vector<map_match> &matches, int max, int suppression)
 {
     bool found = false;
-    pthread_mutex_lock(&mutex);
-    pthread_cleanup_push((void(*)(void *))pthread_mutex_unlock, &mutex);
     //rebuild the map relative to the current node
     nodes[id].transform = transformation_variance();
     breadth_first(id, 0, NULL);
@@ -377,8 +376,10 @@ bool mapper::get_matches(uint64_t id, vector<map_match> &matches, int max, int s
         float theta = 0.;
         if(matches[i].id < group_id_offset && unlinked) {
             score = brute_force_rotation(id, matches[i].id, g, threshhold, -M_PI, M_PI);
-            v4 W = invrodrigues(g.transform.get_rotation(), NULL);
-            theta = W[3];
+            //v4 W = invrodrigues(g.transform.get_rotation(), NULL);
+            //theta = W[3];
+            theta = g.transform.Q.w();
+
         } else {
             score = check_for_matches(id, matches[i].id, g, threshhold);
         }
@@ -392,13 +393,12 @@ bool mapper::get_matches(uint64_t id, vector<map_match> &matches, int max, int s
     if(best >= threshhold) {
         transformation_variance newT;
         if(brute_force_rotation(id, bestid, newT, threshhold, besttheta-M_PI/6., besttheta+M_PI/6.) >= threshhold) {
-            fprintf(stderr, "****************** %d ********************\n", id);
+            fprintf(stderr, "****************** %llu ********************\n", id);
             found = true;
             internal_set_geometry(id, bestid, newT);
             if(bestid < group_id_offset) unlinked = false;
         }
     }
-    pthread_cleanup_pop(1);
     return found;
 }
 
@@ -409,7 +409,7 @@ static bool local_feature_compare(const local_feature &first, const local_featur
 void localize_features(map_node &node, list<local_feature> &features)
 {
     for(list<map_feature *>::iterator feat = node.features.begin(); feat != node.features.end(); ++feat) {
-        features.push_back((local_feature){node.transform.transform * (*feat)->position, *feat});
+        features.push_back((local_feature){transformation_apply(node.transform.transform, (*feat)->position), *feat});
     }
 }
 
@@ -458,14 +458,14 @@ void assign_matches(list<local_feature> &f1, list<local_feature> &f2, list<match
 float refine_transformation(const transformation_variance &base, transformation_variance &dR, transformation_variance &dT, const list<match_pair> &neighbor_matches)
 {
     //determine inliers and translation
-    vect total_dT(0., 0., 0.);
+    v4 total_dT(0., 0., 0., 0.);
     int inliers = 0;
     transformation_variance total = dT * base * dR;
     float resid = 1.e10;
     for(list<match_pair>::const_iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
-        point local = total.transform * inverse(base).transform * neighbor_match->second.position;
-        vect error = neighbor_match->first.position - local;
-        resid = norm_2(error);
+        v4 local = transformation_apply(compose(total.transform, invert(base).transform), neighbor_match->second.position);
+        v4 error = neighbor_match->first.position - local;
+        resid = error.norm()*error.norm();
         float threshhold = 3. * 3. * (neighbor_match->first.feature->variance + neighbor_match->second.feature->variance);
         if(resid < threshhold) {
             total_dT = total_dT + error;
@@ -473,25 +473,25 @@ float refine_transformation(const transformation_variance &base, transformation_
         }
     }
     assert(inliers);
-    dT.transform.set_translation(dT.transform.get_translation() + total_dT / inliers);
+    dT.transform.T = dT.transform.T + total_dT / inliers;
     //double total_theta;
-    total = inverse(dT * base * dR);
+    total = invert(dT * base * dR);
     v4 total_rot;
     inliers = 0;
     for(list<match_pair>::const_iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
-        point local = total.transform * neighbor_match->first.position;
-        point other = inverse(base).transform * neighbor_match->second.position;
-        vect error = local - other;
-        resid = norm_2(error);
+        v4 local = total.transform * neighbor_match->first.position;
+        v4 other = invert(base).transform * neighbor_match->second.position;
+        v4 error = local - other;
+        resid = error.norm()*error.norm();
         float threshhold = 3. * 3. * (neighbor_match->first.feature->variance + neighbor_match->second.feature->variance);
         if(resid < threshhold) {
             //now both are in the rotated frame of the other group. find relative rotation
-            v4 a = v4(other.data);
+            v4 a = v4(other);
             a[2] = 0.;
-            v4 b =v4 (local.data);
+            v4 b =v4 (local);
             b[2] = 0.;
             v4 dW = relative_rotation(a, b);
-            //double norm_prod = sum(first * second) / (norm(first) * norm(second));
+            //double norm_prod = sum(first * second) / (first.norm() * second.norm());
             //double theta = acos(norm_prod);
             //fprintf(stderr, "%f\n", theta);
             total_rot += dW;
@@ -508,19 +508,18 @@ float refine_transformation(const transformation_variance &base, transformation_
 //this just checks matches -- external bits need to make sure not to send it something too close
 bool generate_transformation(const match_pair &match1, const match_pair &match2, transformation_variance &trn)
 {
-    vect v1 = match2.first.position - match1.first.position,
-        v2 = match2.second.position - match1.second.position;
-    float d1 = norm(v1),
-        d2 = norm(v2);
+    v4 v1 = match2.first.position - match1.first.position,
+       v2 = match2.second.position - match1.second.position;
+    float d1 = v1.norm(),
+          d2 = v2.norm();
     float thresh = 3. * sqrt(match1.first.feature->variance + match1.second.feature->variance + match2.first.feature->variance + match2.second.feature->variance);
     if(fabs(d1-d2) > thresh) return false;
 
     // (second.first.position - first.first.position).print();
     
-    v4 dW = relative_rotation(v4(v2.data), v4(v1.data));
-    m4 dR = rodrigues(dW, NULL);
-    trn.transform.set_rotation(dR);
-    trn.transform.set_translation(match1.first.position - dR * match1.second.position);
+    v4 dW = relative_rotation(v4(v2), v4(v1));
+    m4 dR = to_rotation_matrix(rotation_vector(dW[0], dW[1], dW[2]));
+    trn.transform = transformation(dR, match1.first.position - dR * match1.second.position);
     return true;
 }
 
@@ -555,8 +554,8 @@ int mapper::new_check_for_matches(uint64_t id1, uint64_t id2, transformation_var
             if(generate_transformation(*match1, *match2, trn)) {
                 int inliers = 0;
                 for(list<match_pair>::iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
-                    vect error = neighbor_match->first.position - (trn.transform * neighbor_match->second.position);
-                    float resid = norm_2(error);
+                    v4 error = neighbor_match->first.position - (trn.transform * neighbor_match->second.position);
+                    float resid = error.norm()*error.norm();
                     //3 sigma
                     float threshhold = 3.*3. * (neighbor_match->first.feature->variance + neighbor_match->second.feature->variance);
                     //float baseline_threshhold = norm(neighbor_match->first.position-match->first.position);
@@ -577,18 +576,18 @@ int mapper::new_check_for_matches(uint64_t id1, uint64_t id2, transformation_var
     return best_score;
 }
 
-int mapper::estimate_translation(uint64_t id1, uint64_t id2, vect &result, int min_inliers, const homogeneous_transformation &pre_transform, const list <match_pair> &matches, const list<match_pair> &neighbor_matches)
+int mapper::estimate_translation(uint64_t id1, uint64_t id2, v4 &result, int min_inliers, const transformation &pre_transform, const list <match_pair> &matches, const list<match_pair> &neighbor_matches)
 {
     int best_score = 0;
-    vect bestdT;
-    vect total_dT;
+    v4 bestdT;
+    v4 total_dT;
     for(list<match_pair>::const_iterator match = matches.begin(); match != matches.end(); ++match) {
-        vect dT = match->first.position - pre_transform * match->second.position;
+        v4 dT = match->first.position - pre_transform * match->second.position;
         int inliers = 0;
         for(list<match_pair>::const_iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
-            vect thisdT = neighbor_match->first.position - pre_transform * neighbor_match->second.position;
-            vect error = vect(dT.data - thisdT.data);
-            float resid = norm_2(error);
+            v4 thisdT = neighbor_match->first.position - pre_transform * neighbor_match->second.position;
+            v4 error = dT - thisdT;
+            float resid = error.norm()*error.norm();
             //3 sigma
             float threshhold = 3.*3. * (neighbor_match->first.feature->variance + neighbor_match->second.feature->variance);
             if(resid < threshhold) {
@@ -625,18 +624,19 @@ int mapper::check_for_matches(uint64_t id1, uint64_t id2, transformation_varianc
     assign_matches(f1, f2, neighbor_matches);
 
     int best_score = 0;
-    vect bestdT;
+    v4 bestdT;
     for(list<match_pair>::iterator match = matches.begin(); match != matches.end(); ++match) {
-        vect dT = match->first.position - match->second.position;
+        v4 dT = match->first.position - match->second.position;
         int inliers = 0;
-        vect var = nodes[id2].transform.variance.get_translation();
+        //v4 var = nodes[id2].transform.variance.get_translation();
+        v4 var = nodes[id2].transform.transform.T;
         /*if(dT[0] * dT[0] > var[0] * 6000.) continue;
         if(dT[1] * dT[1] > var[1] * 6000.) continue;
         if(dT[2] * dT[2] > var[2] * 6000.) continue;*/
         //TODO: propagate T_var, W_var and use that to prune candidate transformations (dT)
         for(list<match_pair>::iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
-            vect error = neighbor_match->first.position - (neighbor_match->second.position + dT);
-            float resid = norm_2(error);
+            v4 error = neighbor_match->first.position - (neighbor_match->second.position + dT);
+            float resid = error.norm()*error.norm();
             //3 sigma
             float threshhold = 3.*3. * (neighbor_match->first.feature->variance + neighbor_match->second.feature->variance);
             //float baseline_threshhold = norm(neighbor_match->first.position-match->first.position);
@@ -654,8 +654,8 @@ int mapper::check_for_matches(uint64_t id1, uint64_t id2, transformation_varianc
     }
     transformation_variance dR; //identity
     transformation_variance dT;
-    dT.transform.set_translation(bestdT);
-    relpos.transform = nodes[id2].transform.transform * inverse(nodes[id1].transform.transform);
+    dT.transform.T = bestdT;
+    relpos.transform = nodes[id2].transform.transform * invert(nodes[id1].transform.transform);
     if(best_score >= min_inliers) {
         float residual = refine_transformation(relpos, dR, dT, neighbor_matches);
         //residual = refine_transformation(relpos, dR, dT, neighbor_matches);
@@ -679,8 +679,6 @@ int mapper::check_for_matches(uint64_t id1, uint64_t id2, transformation_varianc
 
 void mapper::dump_map(const char *filename)
 {
-    pthread_mutex_lock(&mutex);
-    pthread_cleanup_push((void(*)(void *))pthread_mutex_unlock, &mutex);
     FILE *group_graph = fopen(filename, "wt");
     fprintf(group_graph, "graph G {\nedge[len=2];\n");
     for(unsigned int node = 0; node < nodes.size(); ++node) {
@@ -695,16 +693,12 @@ void mapper::dump_map(const char *filename)
     }
     fprintf(group_graph, "}\n");
     fclose(group_graph);
-    pthread_cleanup_pop(1);
 }
 
 void mapper::set_local_features(list<v4> &locals)
 {
-    pthread_mutex_lock(&mutex);
-    pthread_cleanup_push((void(*)(void *))pthread_mutex_unlock, &mutex);
     local_features.clear();
     local_features.splice(local_features.end(), locals);
-    pthread_cleanup_pop(1);
 }
 
 #ifdef __APPLE__
@@ -715,11 +709,12 @@ void mapper::set_local_features(list<v4> &locals)
 #include <GL/glu.h>
 #endif
 
-static GLUquadricObj *sphere_quad = 0;
+//static GLUquadricObj *sphere_quad = 0;
 
 void map_feature::render(bool special, int mode)
 {
-    glColor3fv(color);
+    /*
+    glColor3fv(1.f,1.f,1.f);
     if(mode == 2) {
         if(!sphere_quad) {
             sphere_quad = gluNewQuadric();
@@ -734,10 +729,12 @@ void map_feature::render(bool special, int mode)
         glVertex3f(position[0], position[1], position[2]);
         glEnd();
     }
+    */
 }
 
 void map_node::render(bool special, bool spheres)
 {
+    /*
     if(special && !render_special) return;
     glPushMatrix();
     double glm[4][4];
@@ -747,7 +744,10 @@ void map_node::render(bool special, bool spheres)
         (*feature)->render(special, spheres);
     }
     glPopMatrix();
-    vect T_var = transform.variance.get_translation();
+    //TODO: Fix these
+    //v4 T_var = transform.variance.get_translation();
+    v4 T_var = transform.T;
+    */
 }
 
 void mapper::breadth_first(int start, int maxdepth, void(mapper::*callback)(map_node &)) {
@@ -766,7 +766,7 @@ void mapper::breadth_first(int start, int maxdepth, void(mapper::*callback)(map_
                 transformation_variance Gr = nodes[u].transform;
                 if(edge->geometry && nodes[v].parent == -1) {
                     transformation_variance dG = geometry[abs(edge->geometry)-1];
-                    nodes[v].transform = (edge->geometry > 0) ? Gr * dG : Gr * inverse(dG);
+                    nodes[v].transform = (edge->geometry > 0) ? Gr * dG : Gr * invert(dG);
                     nodes[v].depth = nodes[u].depth + 1;
                     nodes[v].parent = u;
                     next.push(v);
@@ -786,8 +786,8 @@ void mapper::render_callback(map_node &node)
         if(!render_special || (nodes[node.parent].render_special && node.render_special)) {
             glColor3f(1., 1., 1.);
             glBegin(GL_LINES);
-            vect Tr = nodes[node.parent].transform.transform.get_translation();
-            vect T = node.transform.transform.get_translation();
+            v4 Tr = nodes[node.parent].transform.transform.T;
+            v4 T = node.transform.transform.T;
             glVertex3f(Tr[0], Tr[1], Tr[2]);
             glVertex3f(T[0], T[1], T[2]);
             glEnd();
@@ -800,11 +800,10 @@ void mapper::render_callback(map_node &node)
 
 void mapper::render()
 {
+    /*
     glPointSize(2);
     int start = reference;
     if(start >= nodes.size() || start < 0) return;
-    pthread_mutex_lock(&mutex);
-    pthread_cleanup_push((void(*)(void *))pthread_mutex_unlock, &mutex);
     int maxdepth = 0; //0 = unlimited
 
     if(render_mode) {
@@ -816,13 +815,13 @@ void mapper::render()
         glEnd();
     }
 
-    nodes[start].transform = transformation_variance(inverse(relative_transformation), homogeneous_variance());
+    nodes[start].transform = transformation_variance(invert(relative_transformation), homogeneous_variance());
     breadth_first(start, maxdepth, &mapper::render_callback);
     if(unlinked) {
         nodes[0].transform = transformation_variance();
         breadth_first(0, maxdepth, &mapper::render_callback);
     }
-    pthread_cleanup_pop(1);
+    */
 }
 
 void mapper::new_map()
@@ -844,8 +843,8 @@ void mapper::new_map()
 
 void mapper::print_stats()
 {
-    fprintf(stderr, "nodes: %d\n", nodes.size());
-    fprintf(stderr, "features: %d\n", feature_count);
+    fprintf(stderr, "nodes: %lu\n", nodes.size());
+    fprintf(stderr, "features: %llu\n", feature_count);
 }
 
 void mapper::node_finished(uint64_t id, const transformation_variance &global_orientation)
@@ -863,8 +862,9 @@ void mapper::node_finished(uint64_t id, const transformation_variance &global_or
     }
 }
     
-transformation_variance rodrigues_variance(const v4 &W, const v4 &W_var, const vect &T, const vect &T_var)
+transformation_variance rodrigues_variance(const v4 &W, const v4 &W_var, const v4 &T, const v4 &T_var)
 {
+    /*
     m4v4 dR_dW;
     m4 R = rodrigues(W, &dR_dW);
     m4 R_var;
@@ -874,26 +874,20 @@ transformation_variance rodrigues_variance(const v4 &W, const v4 &W_var, const v
         }
     }
     return transformation_variance(R, R_var, T, T_var);
+    //TODO: fix this
+    */
+    transformation_variance Tv;
+    return Tv;
 }
 
-extern "C" void run_new_map(mapper *m, struct mapbuffer *mb)
-{
-    m->new_map();
-    packet_t *p;
-    uint64_t thread_pos = 0;
-    while((p = mapbuffer_read(mb, &thread_pos))) {
-        pthread_testcancel();
-        packet_handler(m, p);
-    }
-}
-
+/*
 extern "C" void packet_handler(void *_m, packet_t *p)
 {
     mapper *m = (mapper *)_m;
     switch(p->header.type) {
     case packet_recognition_descriptor: {
         packet_recognition_descriptor_t *dp = (packet_recognition_descriptor_t *)p;
-        m->add_feature(dp->groupid + m->group_id_offset, point(dp->x, dp->y, dp->z), dp->variance, dp->color, dp->label, dp->descriptor);
+        m->add_feature(dp->groupid + m->group_id_offset, v4(dp->x, dp->y, dp->z), dp->variance, dp->label, dp->descriptor);
         if(m->output_map) {
             packet_t *newp = mapbuffer_alloc(m->output_map, packet_recognition_descriptor, sizeof(packet_recognition_descriptor_t) - sizeof(packet_header_t));
             memcpy(newp->data, p->data, sizeof(packet_recognition_descriptor_t) - sizeof(packet_header_t));
@@ -906,7 +900,7 @@ extern "C" void packet_handler(void *_m, packet_t *p)
     case packet_recognition_group: {
         packet_recognition_group_t *dp = (packet_recognition_group_t *)p;
         if(p->header.user) { //drop
-            transformation_variance global_orientation = rodrigues_variance(v4(dp->W[0], dp->W[1], dp->W[2], 0.), v4(dp->W_var[0], dp->W_var[1], dp->W_var[2], 0.), vect(), vect());
+            transformation_variance global_orientation = rodrigues_variance(v4(dp->W[0], dp->W[1], dp->W[2], 0.), v4(dp->W_var[0], dp->W_var[1], dp->W_var[2], 0.), v4(), v4());
             m->node_finished(dp->id + m->group_id_offset, global_orientation);
         } else {
             m->add_node(dp->id + m->group_id_offset);
@@ -923,7 +917,7 @@ extern "C" void packet_handler(void *_m, packet_t *p)
     case packet_filter_current: {
         packet_filter_current_t *cp = (packet_filter_current_t *)p;
         m->set_reference(cp->reference + m->group_id_offset);
-        m->set_relative_transformation(homogeneous_transformation(rodrigues(v4(cp->W[0], cp->W[1], cp->W[2], 0.), NULL), vect(cp->T[0], cp->T[1], cp->T[2])));
+        m->set_relative_transformation(transformation(rodrigues(v4(cp->W[0], cp->W[1], cp->W[2], 0.), NULL), v4(cp->T[0], cp->T[1], cp->T[2])));
         list<v4> points;
         for(int i = 0; i < p->header.user; ++i) {
             points.push_back(v4(cp->points[i][0], cp->points[i][1], cp->points[i][2], 0.));
@@ -943,7 +937,7 @@ extern "C" void packet_handler(void *_m, packet_t *p)
             v4
                 W(mp->W[0], mp->W[1], mp->W[2], 0.),
                 W_var(mp->W_var[0], mp->W_var[1], mp->W_var[2], 0.);
-            vect
+            v4 
                 T(mp->T[0], mp->T[1], mp->T[2]),
                 T_var(mp->T_var[0], mp->T_var[1], mp->T_var[2]);
             transformation_variance G = rodrigues_variance(W, W_var, T, T_var);
@@ -957,4 +951,4 @@ extern "C" void packet_handler(void *_m, packet_t *p)
         return;
     }
 }
-
+*/

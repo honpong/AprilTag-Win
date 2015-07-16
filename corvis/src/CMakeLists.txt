@@ -122,6 +122,8 @@ add_library(filter STATIC
   filter/feature_cache.cpp
   filter/feature_descriptor.h
   filter/feature_descriptor.cpp
+  filter/mapper.h
+  filter/mapper.cpp
 )
 target_include_directories(filter PUBLIC filter)
 target_include_directories(filter PRIVATE rapidjson/include)

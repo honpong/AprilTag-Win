@@ -187,6 +187,8 @@ void world_state::receive_camera(const filter * f, camera_data &&d)
       observe_plot_item(d.timestamp,  9, "v-inn_y " + std::to_string(of.first), (float)of.second->innovation(1));
     for (auto &of : f->observations.recent_f_map)
       observe_plot_item(d.timestamp, 10, "v-inn_r " + std::to_string(of.first), (float)hypot(of.second->innovation(0), of.second->innovation(1)));
+
+    observe_plot_item(d.timestamp, 11, "median-depth-var", (float)f->median_depth_variance);
 }
 
 world_state::world_state()

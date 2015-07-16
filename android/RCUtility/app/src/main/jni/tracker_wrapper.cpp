@@ -10,6 +10,9 @@
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, TAG, __VA_ARGS__))
 #define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, TAG, __VA_ARGS__))
 
+JNIEnv *jniEnv;
+jobject callingObj;
+
 bool RunExceptionCheck(JNIEnv* env)
 {
     if(env->ExceptionCheck())
@@ -51,58 +54,39 @@ void CallMethod(JNIEnv* env, jclass theClass, jobject obj, const char* methodNam
     if(RunExceptionCheck(env)) return;
 }
 
-void SendStatusUpdate(JNIEnv* env, jobject thiz, int runState, float progress, int confidence, int errorCode)
+void SendStatusUpdate(int runState, float progress, int confidence, int errorCode)
 {
+    if (!jniEnv || !callingObj) return;
+
     // init a SensorFusionStatus instance
-    jclass statusClass = env->FindClass("com/realitycap/android/rcutility/SensorFusionStatus");
-    if(RunExceptionCheck(env)) return;
+    jclass statusClass = jniEnv->FindClass("com/realitycap/android/rcutility/SensorFusionStatus");
+    if(RunExceptionCheck(jniEnv)) return;
     
-    jmethodID initId = env->GetMethodID(statusClass, "<init>", "()V");
-    if(RunExceptionCheck(env)) return;
+    jmethodID initId = jniEnv->GetMethodID(statusClass, "<init>", "()V");
+    if(RunExceptionCheck(jniEnv)) return;
     
-    jobject statusObj = env->NewObject(statusClass, initId);
-    if(RunExceptionCheck(env)) return;
+    jobject statusObj = jniEnv->NewObject(statusClass, initId);
+    if(RunExceptionCheck(jniEnv)) return;
     
-    CallMethod(env, statusClass, statusObj, "setRunState", runState);
-    CallMethod(env, statusClass, statusObj, "setProgress", progress);
-    CallMethod(env, statusClass, statusObj, "setConfidence", confidence);
-    CallMethod(env, statusClass, statusObj, "setErrorCode", errorCode);
+    CallMethod(jniEnv, statusClass, statusObj, "setRunState", runState);
+    CallMethod(jniEnv, statusClass, statusObj, "setProgress", progress);
+    CallMethod(jniEnv, statusClass, statusObj, "setConfidence", confidence);
+    CallMethod(jniEnv, statusClass, statusObj, "setErrorCode", errorCode);
     
     // pass status object to the callback
-    jclass sensorFusionClass = env->GetObjectClass(thiz);
-    if(RunExceptionCheck(env)) return;
+    jclass sensorFusionClass = jniEnv->GetObjectClass(callingObj);
+    if(RunExceptionCheck(jniEnv)) return;
     
-    jmethodID methodId = env->GetMethodID(sensorFusionClass, "onStatusUpdated", "(Lcom/realitycap/android/rcutility/SensorFusionStatus;)V");
-    if(RunExceptionCheck(env)) return;
-    
-    env->CallVoidMethod(thiz, methodId, statusObj);
-    if(RunExceptionCheck(env)) return;
+    jmethodID methodId = jniEnv->GetMethodID(sensorFusionClass, "onStatusUpdated", "(Lcom/realitycap/android/rcutility/SensorFusionStatus;)V");
+    if(RunExceptionCheck(jniEnv)) return;
+
+    jniEnv->CallVoidMethod(callingObj, methodId, statusObj);
+    if(RunExceptionCheck(jniEnv)) return;
 }
 
-void SendProgressUpdate(JNIEnv *env, jobject thiz, long timestamp)
+static void status_callback(void *handle, rc_TrackerState state, rc_TrackerError error, rc_TrackerConfidence confidence, float progress)
 {
-    // init a SensorFusionData instance
-    jclass dataClass = env->FindClass("com/realitycap/android/rcutility/SensorFusionData");
-    if(RunExceptionCheck(env)) return;
-    
-    jmethodID initId = env->GetMethodID(dataClass, "<init>", "()V");
-    if(RunExceptionCheck(env)) return;
-    
-    jobject dataObj = env->NewObject(dataClass, initId);
-    if(RunExceptionCheck(env)) return;
-    
-    // TODO add other properties
-    CallMethod(env, dataClass, dataObj, "setTimestamp", timestamp);
-    
-    // pass data object to the callback
-    jclass sensorFusionClass = env->GetObjectClass(thiz);
-    if(RunExceptionCheck(env)) return;
-    
-    jmethodID methodId = env->GetMethodID(sensorFusionClass, "onProgressUpdated", "(Lcom/realitycap/android/rcutility/SensorFusionData;)V");
-    if(RunExceptionCheck(env)) return;
-    
-    env->CallVoidMethod(thiz, methodId, dataObj);
-    if(RunExceptionCheck(env)) return;
+    SendStatusUpdate(state, progress, confidence, error);
 }
 
 rc_Tracker* tracker;
@@ -129,7 +113,14 @@ extern "C"
 	{
         LOGD("startTracker");
         if (!tracker) return (JNI_FALSE);
+
+        // save these for the status callback. not sure if this will work.
+        jniEnv = env;
+        callingObj = thiz;
+
+        rc_setStatusCallback(tracker, status_callback, NULL);
         rc_startTracker(tracker);
+
 	    return(JNI_TRUE);
     }
     

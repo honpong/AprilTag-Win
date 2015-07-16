@@ -67,11 +67,6 @@ public class TrackerProxy implements SensorEventListener, ISyncedFrameReceiver
 	
 	protected void onStatusUpdated(SensorFusionStatus status)
 	{
-//		Log.d(MyApplication.TAG, String.format("runState: %d progress: %f", status.runState, status.progress));
-	}
-	
-	protected void onProgressUpdated(SensorFusionData data)
-	{
-//		Log.d(MyApplication.TAG, String.format("onProgressUpdated %d", data.timestamp));
+		Log.d(MyApplication.TAG, String.format("runState: %d progress: %f", status.runState, status.progress));
 	}
 }

@@ -37,6 +37,14 @@ model {
     }
 }
 
+tasks.all { task ->
+    if (task.name.contains('Arm') ||
+        task.name.contains('Mips') ||
+        task.name.contains('Rc64') && !task.name.contains('_64') && task.name.contains('86') ||
+        task.name.contains('Rc86') &&  task.name.contains('_64'))
+        task.enabled = false
+}
+
 def rsRoot = "$System.env.RSSDK"
 dependencies {
     compile 'com.android.support:support-v13:22.2.0'

@@ -210,6 +210,7 @@ public:
     feature_t uncalibrate_feature(const feature_t &normalized) const;
     feature_t project_feature(const feature_t &feat) const;
     feature_t unproject_feature(const feature_t &feat) const;
+    float median_depth_variance();
     
     virtual void reset();
     void reset_position();

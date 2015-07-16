@@ -847,22 +847,9 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
             f->detector_failed = false;
         }
     }
-    
-    vector<state_vision_feature *> useful_feats;
-    for(auto i: f->s.features)
-    {
-        if(i->is_initialized()) useful_feats.push_back(i);
-    }
-    
-    if(useful_feats.size())
-    {
-        sort(useful_feats.begin(), useful_feats.end(), [](state_vision_feature *a, state_vision_feature *b) { return a->variance() < b->variance(); });
-        f->median_depth_variance = (float)useful_feats[useful_feats.size() / 2]->variance();
-    }
-    else
-    {
-        f->median_depth_variance = 1.;
-    }
+
+    f->median_depth_variance = f->s.median_depth_variance();
+
     float velocity = (float)f->s.V.v.norm();
     if(velocity > f->max_velocity) f->max_velocity = velocity;
     

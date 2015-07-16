@@ -317,6 +317,23 @@ feature_t state_vision::calibrate_feature(const feature_t &feat_u) const
     return feat_c;
 }
 
+float state_vision::median_depth_variance()
+{
+    float median_variance = 1.f;
+
+    vector<state_vision_feature *> useful_feats;
+    for(auto i: features) {
+        if(i->is_initialized()) useful_feats.push_back(i);
+    }
+
+    if(useful_feats.size()) {
+        sort(useful_feats.begin(), useful_feats.end(), [](state_vision_feature *a, state_vision_feature *b) { return a->variance() < b->variance(); });
+        median_variance = (float)useful_feats[useful_feats.size() / 2]->variance();
+    }
+
+    return median_variance;
+}
+
 void state_vision::remove_non_orientation_states()
 {
     if(estimate_camera_extrinsics) {

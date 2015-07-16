@@ -145,6 +145,7 @@ extern "C"
     {
         LOGD("startCalibration");
         if (!tracker) return (JNI_FALSE);
+        rc_startCalibration(tracker);
         return(JNI_TRUE);
     }
     
@@ -154,15 +155,46 @@ extern "C"
         if (!tracker) return (JNI_FALSE);
         return(JNI_TRUE);
     }
-    
+
+    JNIEXPORT jstring JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_getCalibration( JNIEnv* env, jobject thiz)
+    {
+        LOGD("getCalibration");
+        if (!tracker) return env->NewStringUTF("");
+
+        const wchar_t *cal;
+        size_t size = rc_getCalibration(tracker, &cal);
+
+        if (!size) return env->NewStringUTF("");
+
+        // convert wchar_t to char
+        char* buffer;
+        wcstombs(buffer, cal, size + 1);
+
+        return env->NewStringUTF(buffer);
+    }
+
+    JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_setCalibration( JNIEnv* env, jobject thiz, jstring calString)
+    {
+        LOGD("setCalibration");
+        if (!tracker) return (JNI_FALSE);
+        const char *cString = env->GetStringUTFChars(calString, 0);
+        const wchar_t *wString = createWcharFromChar(cString);
+        jboolean result = (jboolean)rc_setCalibration(tracker, wString);
+        delete wString;
+        env->ReleaseStringUTFChars(calString, cString);
+        return(result);
+    }
+
     JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_setOutputLog( JNIEnv* env, jobject thiz, jstring filename)
     {
         LOGD("setOutputLog");
         if (!tracker) return (JNI_FALSE);
         const char *cFilename = env->GetStringUTFChars(filename, 0);
-        const wchar_t* wFilename = createWcharFromChar(cFilename);
+        const wchar_t *wFilename = createWcharFromChar(cFilename);
         rc_setOutputLog(tracker, wFilename);
         delete wFilename;
+        env->ReleaseStringUTFChars(filename, cFilename);
+        return(JNI_TRUE);
     }
 
     JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_configureCamera(JNIEnv* env, jobject thiz, jint camera, jint width_px, jint height_px, jfloat center_x_px, jfloat center_y_px, jfloat focal_length_x_px, jfloat focal_length_y_px, jfloat skew, jboolean fisheye, jfloat fisheye_fov_radians)

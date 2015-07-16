@@ -1,0 +1,960 @@
+// Created by Eagle Jones
+// Copyright (c) 2012. RealityCap, Inc.
+// All Rights Reserved.
+
+#include <algorithm>
+#include <assert.h>
+#include <limits.h>
+#include <queue>
+#include "mapper.h"
+
+size_t map_node::histogram_size;
+
+//NOTE: this is reversed so that we can pop the smallest item from the heap
+bool map_match_compare(const map_match &x, const map_match &y)
+{
+    return (x.score > y.score);
+}
+
+int map_histogram_dist_2(const vector<int> &hist1, const vector<int> &hist2, int bound = INT_MAX)
+{
+    int dist = 0;
+    assert(hist1.size() == hist2.size());
+    for(size_t i = 0; i < hist1.size(); ++i) {
+        int delta = hist1[i] - hist2[i];
+        dist += delta * delta;
+        if(dist >= bound) return dist;
+    }
+    return dist;
+}
+
+int map_histogram_score(const vector<int> &hist1, const vector<int> &hist2)
+{
+    int score = 0;
+    assert(hist1.size() == hist2.size());
+    for(size_t i = 0; i < hist1.size(); ++i) {
+        if(hist1[i] && hist2[i]) ++score;
+    }
+    return score;
+}
+
+//scoring functions: no lock needed: only accesses document_frequency, which is static, and don't mind getting old values
+float mapper::tf_idf_score(const list<map_feature *> &hist1, const list<map_feature *> &hist2)
+{
+    float score = 0.;
+    list<map_feature *>::const_iterator first = hist1.begin(), second = hist2.begin();
+    while(first != hist1.end()) {
+        int label = (*first)->label;
+        int count1 = 0, count2 = 0;
+        while(first != hist1.end() && (*first)->label == label) { ++first; ++count1; }
+        while(second != hist2.end() && (*second)->label < label) ++second;
+        while(second != hist2.end() && (*second)->label == label) { ++second; ++count2; }
+        float idf = log(nodes.size() / document_frequency[label]);
+        score += count1 * count2 * idf;
+    }
+    return score;
+}
+
+//unused
+float mapper::one_to_one_idf_score(const list<map_feature *> &hist1, const list<map_feature *> &hist2)
+{
+    float score = 0.;
+    list<map_feature *>::const_iterator first = hist1.begin(), second = hist2.begin();
+    while(first != hist1.end()) {
+        while(second != hist2.end() && (*second)->label < (*first)->label) ++second;
+        if(second == hist2.end()) break;
+        if((*first)->label == (*second)->label) {
+            assert(document_frequency[(*first)->label]);
+            float idf = log(nodes.size() / document_frequency[(*first)->label]);
+            score += idf;
+            ++second;
+        }
+        ++first;
+    }
+    return score;
+}
+
+mapper::mapper(int dict_size): document_frequency(dict_size), dictionary_size(dict_size), group_id_offset(0), render_mode(0), render_special(0), output_map(0), no_search(false)
+{
+    pthread_mutex_init(&mutex, NULL);
+    map_node::histogram_size = dictionary_size;
+    new_map();
+    unlinked = false;
+}
+
+map_edge &map_node::get_add_neighbor(uint64_t neighbor)
+{
+    for(list<map_edge>::iterator edge = edges.begin(); edge != edges.end(); ++edge) {
+        if(edge->neighbor == neighbor) return *edge;
+    }
+    edges.push_back((map_edge){neighbor, 0});
+    return edges.back();
+}
+
+void mapper::add_edge(uint64_t id1, uint64_t id2)
+{
+    pthread_mutex_lock(&mutex);
+    pthread_cleanup_push((void(*)(void *))pthread_mutex_unlock, &mutex);
+    if(nodes.size() <= id1) nodes.resize(id1+1);
+    if(nodes.size() <= id2) nodes.resize(id2+1);
+    nodes[id1].get_add_neighbor(id2);
+    nodes[id2].get_add_neighbor(id1);
+    if(output_map) {
+        packet_map_edge_t *p = (packet_map_edge_t *)mapbuffer_alloc(output_map, packet_map_edge, sizeof(packet_map_edge_t) - sizeof(packet_header_t));
+        p->first = id1;
+        p->second = id2;
+        p->header.user = 0;
+        mapbuffer_enqueue(output_map, (packet_t *)p, 1);
+    }
+    pthread_cleanup_pop(1);
+}
+
+void mapper::add_node(uint64_t id)
+{
+    pthread_mutex_lock(&mutex);
+    pthread_cleanup_push((void(*)(void *))pthread_mutex_unlock, &mutex);
+    if(nodes.size() <= id) nodes.resize(id + 1);
+    pthread_cleanup_pop(1);
+}
+
+
+map_feature::map_feature(const point &p, const float v, const float c, const uint32_t l, const uint8_t d[128]): position(p), variance(v), label(l)
+{
+    color[0] = c;
+    color[1] = c;
+    color[2] = c;
+    memcpy(descriptor, d, sizeof(descriptor));
+}
+
+bool map_node::add_feature(const point &pos, const float variance, const float color, const uint32_t label, const uint8_t descriptor[128])
+{
+    map_feature *feat = new map_feature(pos, variance, color, label, descriptor);
+    list<map_feature *>::iterator feature;
+    for(feature = features.begin(); feature != features.end(); ++feature) {
+        if((*feature)->label >= label) break;
+    }
+    features.insert(feature, feat);
+    ++terms;
+    return (feature == features.end() || (*feature)->label != label); //true if this was a new label for this group
+}
+
+void mapper::add_feature(uint64_t groupid, point pos, float variance, float color, uint32_t label, uint8_t descriptor[128])
+{
+    ++feature_count;
+    if(nodes[groupid].add_feature(pos, variance, color, label, descriptor)) {
+        ++document_frequency[label];
+    }
+}
+
+void mapper::internal_set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform)
+{
+    map_edge &edge1 = nodes[id1].get_add_neighbor(id2);
+    int64_t id = edge1.geometry;
+    if(id > 0) {
+        geometry[id-1] = transform;
+    } else {
+        if(id) {
+            id = -id;
+            geometry[id-1] = transform;
+        } else {
+            geometry.push_back(transform);
+            id = geometry.size();
+        }
+        map_edge &edge2 = nodes[id2].get_add_neighbor(id1);
+        edge1.geometry = id;
+        edge2.geometry = -id;
+    }
+    if(output_map) {
+        packet_map_edge_t *p = (packet_map_edge_t *)mapbuffer_alloc(output_map, packet_map_edge, sizeof(packet_map_edge_t) - sizeof(packet_header_t));
+        p->first = id1;
+        p->second = id2;
+        v4 W = invrodrigues(transform.transform.get_rotation(), NULL);
+        vect T = transform.transform.get_translation();
+        for(int i = 0; i < 3; ++i) {
+            p->W[i] = W[i];
+            p->T[i] = T[i];
+            p->W_var[i] = 0.;
+            p->T_var[i] = 0.;
+        }
+        p->header.user = 1;
+        mapbuffer_enqueue(output_map, (packet_t *)p, 1);
+    }
+}
+
+void mapper::set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform)
+{
+    pthread_mutex_lock(&mutex);
+    pthread_cleanup_push((void(*)(void *))pthread_mutex_unlock, &mutex);
+    if(nodes.size() <= id1) nodes.resize(id1+1);
+    if(nodes.size() <= id2) nodes.resize(id2+1);
+    internal_set_geometry(id1, id2, transform);
+    pthread_cleanup_pop(1);
+}
+
+void mapper::set_reference(uint64_t id) {
+    pthread_mutex_lock(&mutex);
+    pthread_cleanup_push((void(*)(void *))pthread_mutex_unlock, &mutex);
+    reference = id;
+    pthread_cleanup_pop(1);
+}
+
+void mapper::set_relative_transformation(const homogeneous_transformation &T) {
+    pthread_mutex_lock(&mutex);
+    pthread_cleanup_push((void(*)(void *))pthread_mutex_unlock, &mutex);
+    relative_transformation = T;
+    pthread_cleanup_pop(1);
+}
+
+/*
+vector<map_match> *mapper::new_query(const list<map_feature *> &histogram, size_t K)
+{
+    vector<map_match> *result = new vector<map_match>();
+    result->reserve(K+1);
+    int bound = INT_MAX;
+    for(uint64_t node = 0; node < nodes.size(); ++node) {
+        int dist_2 = map_histogram_dist_2(histogram, nodes[node].histogram, bound);
+        if(dist_2 >= bound) continue;
+        result->push_back((map_match){node, dist_2});
+        push_heap(result->begin(), result->end(), map_match_compare);
+        if(result->size() > K) {
+            pop_heap(result->begin(), result->end(), map_match_compare);
+            result->pop_back();
+            bound = (*result)[0].score;
+        }
+    }
+    sort_heap(result->begin(), result->end(), map_match_compare);
+    reverse(result->begin(), result->end());
+    return result;
+}
+
+void mapper::delete_query(vector<map_match> *query)
+{
+    delete query;
+}
+
+void mapper::add_matches(vector<int> &matches, const vector<int> &histogram)
+{
+    size_t nnodes = nodes.size();
+    if(matches.size() < nnodes) matches.resize(nnodes, 0);
+    for(size_t i = 0; i < nnodes; ++i) {
+        matches[i] += map_histogram_score(histogram, nodes[i].histogram);
+    }
+}*/
+
+void mapper::tf_idf_match(vector<float> &matches, const list<map_feature *> &histogram)
+{
+    size_t nnodes = nodes.size();
+    if(matches.size() < nnodes) matches.resize(nnodes);
+    for(size_t i = 0; i < nnodes; ++i) {
+        matches[i] = tf_idf_score(histogram, nodes[i].features);
+    }
+}
+
+void mapper::diffuse_matches(vector<float> &matches, vector<map_match> &result, int max, int unrecent)
+{
+    //mark the nodes that are too close to this one
+    for(int i = 0; i < matches.size(); ++i) {
+        if(nodes[i].depth <= unrecent) continue;
+        float num = matches[i];
+        int denom = nodes[i].terms;
+        for(list<map_edge>::iterator edge = nodes[i].edges.begin(); edge != nodes[i].edges.end(); ++edge) {
+            num += matches[edge->neighbor];
+            denom += nodes[edge->neighbor].terms;
+        }
+        result.push_back((map_match) {i, num / denom});
+        push_heap(result.begin(), result.end(), map_match_compare);
+        if(result.size() > max) {
+            pop_heap(result.begin(), result.end(), map_match_compare);
+            result.pop_back();
+        }
+    }
+    sort_heap(result.begin(), result.end(), map_match_compare);
+}
+
+static bool map_feature_compare(const map_feature *first, const map_feature *second)
+{
+    return first->label < second->label;
+}
+
+void mapper::joint_histogram(int node, list<map_feature *> &histogram)
+{
+    for(list<map_edge>::iterator edge = nodes[node].edges.begin(); edge != nodes[node].edges.end(); ++edge) {
+        list<map_feature *> neighbor_copy(nodes[edge->neighbor].features);
+        histogram.merge(neighbor_copy, map_feature_compare);
+    }
+}
+
+void localize_features(map_node &node, list<local_feature> &features);
+void assign_matches(list<local_feature> &f1, list<local_feature> &f2, list<match_pair> &matches);
+
+int mapper::brute_force_rotation(uint64_t id1, uint64_t id2, transformation_variance &trans, int threshhold, float min, float max)
+{
+    homogeneous_transformation R;
+    int best = 0;
+    int worst = 100000000;
+    f_t first_best, last_best;
+    bool running = false;
+    assert(max > min);
+    //get all features for each group and its neighbors into the local frames
+    list<local_feature> f1, f2;
+    nodes[id1].transform = transformation_variance();
+    nodes[id2].transform = transformation_variance();
+    breadth_first(id1, 1, NULL);
+    breadth_first(id2, 1, NULL);
+    localize_features(nodes[id1], f1);
+    localize_features(nodes[id2], f2);
+    //ONLY look for matches in THIS group
+    list<match_pair> matches;
+    assign_matches(f1, f2, matches);
+    if(matches.size() == 0) return 0;
+    //BUT, check support on ENTIRE neighborhood.
+    f1.clear();
+    f2.clear();
+    localize_features(nodes[id1], f1);
+    localize_features(nodes[id2], f2);
+    localize_neighbor_features(id1, f1);
+    localize_neighbor_features(id2, f2);
+    list<match_pair> neighbor_matches;
+    assign_matches(f1, f2, neighbor_matches);
+    if(neighbor_matches.size() < threshhold) return 0;
+    for(float theta = min; theta < max; theta += (max-min) / 200.) {
+        R.set_rotation(rodrigues(v4(0., 0., theta, 0.), NULL));
+        vect dT;
+        int in = estimate_translation(id1, id2, dT, threshhold, R, matches, neighbor_matches);
+        if(in < worst) worst = in;
+        if(in > best) {
+            first_best = theta;
+            last_best = theta;
+            best = in;
+            running = true;
+        }
+        if(in == best && running) {
+            last_best = theta;
+        }
+        if(in < best) running = false;
+    }
+    if(best-worst >= threshhold) {
+        trans.transform.set_rotation(rodrigues(v4(0., 0., (first_best + last_best) / 2., 0.), NULL));
+        vect dT;
+        estimate_translation(id1, id2, dT, threshhold, trans.transform, matches, neighbor_matches);
+        trans.transform.set_translation(dT);
+        return best-worst;
+    }
+    return 0;
+}
+
+bool mapper::get_matches(uint64_t id, vector<map_match> &matches, int max, int suppression)
+{
+    bool found = false;
+    pthread_mutex_lock(&mutex);
+    pthread_cleanup_push((void(*)(void *))pthread_mutex_unlock, &mutex);
+    //rebuild the map relative to the current node
+    nodes[id].transform = transformation_variance();
+    breadth_first(id, 0, NULL);
+    if(unlinked && group_id_offset != 0) {
+        if(id < group_id_offset) {
+            nodes[group_id_offset].transform = transformation_variance();
+            breadth_first(group_id_offset, 0, NULL);
+        } else {
+            nodes[0].transform = transformation_variance();
+            breadth_first(0, 0, NULL);
+        }
+    }
+
+    list<map_feature *> histogram;
+    vector<float> scores;
+    joint_histogram(id, histogram);
+    tf_idf_match(scores, histogram);
+    diffuse_matches(scores, matches, max, suppression);
+    int best = 0;
+    transformation_variance bestg;
+    int bestid;
+    int threshhold = 8;
+    float besttheta = 0.;
+    for(int i = 0; i < matches.size(); ++i) {
+        transformation_variance g;
+        int score = 0;
+        float theta = 0.;
+        if(matches[i].id < group_id_offset && unlinked) {
+            score = brute_force_rotation(id, matches[i].id, g, threshhold, -M_PI, M_PI);
+            v4 W = invrodrigues(g.transform.get_rotation(), NULL);
+            theta = W[3];
+        } else {
+            score = check_for_matches(id, matches[i].id, g, threshhold);
+        }
+        if(score > best) {
+            best = score;
+            bestg = g;
+            bestid = matches[i].id;
+            besttheta = theta;
+        }
+    }
+    if(best >= threshhold) {
+        transformation_variance newT;
+        if(brute_force_rotation(id, bestid, newT, threshhold, besttheta-M_PI/6., besttheta+M_PI/6.) >= threshhold) {
+            fprintf(stderr, "****************** %d ********************\n", id);
+            found = true;
+            internal_set_geometry(id, bestid, newT);
+            if(bestid < group_id_offset) unlinked = false;
+        }
+    }
+    pthread_cleanup_pop(1);
+    return found;
+}
+
+static bool local_feature_compare(const local_feature &first, const local_feature &second) {
+    return map_feature_compare(first.feature, second.feature);
+}
+
+void localize_features(map_node &node, list<local_feature> &features)
+{
+    for(list<map_feature *>::iterator feat = node.features.begin(); feat != node.features.end(); ++feat) {
+        features.push_back((local_feature){node.transform.transform * (*feat)->position, *feat});
+    }
+}
+
+void mapper::localize_neighbor_features(uint64_t id, list<local_feature> &features)
+{
+    for(list<map_edge>::iterator edge = nodes[id].edges.begin(); edge != nodes[id].edges.end(); ++edge) {   
+        localize_features(nodes[edge->neighbor], features);
+    }
+}
+
+void mapper::set_special(uint64_t id, bool special)
+{
+    nodes[id].render_special = special;
+    for(list<map_edge>::iterator edge = nodes[id].edges.begin(); edge != nodes[id].edges.end(); ++edge) {   
+        nodes[edge->neighbor].render_special = special;
+    }
+}
+
+static int sift_distance(const map_feature &first, const map_feature &second) {
+    int sum = 0;
+    for(int i = 0; i < 128; ++i) {
+        int diff = first.descriptor[i] - second.descriptor[i];
+        sum += diff*diff;
+    }
+    return sum;
+}
+
+void assign_matches(list<local_feature> &f1, list<local_feature> &f2, list<match_pair> &matches) {
+    for(list<local_feature>::iterator fi1 = f1.begin(); fi1 != f1.end(); ++fi1) {
+        int best_score = INT_MAX;
+        list<local_feature>::iterator best = f2.end();
+        for(list<local_feature>::iterator candidate = f2.begin(); candidate != f2.end(); ++candidate) {
+            int score = sift_distance(*fi1->feature, *candidate->feature);
+            if(score < best_score) {
+                best_score = score;
+                best = candidate;
+            }
+        }
+        if(best != f2.end() /*&& best < max_sift_distance_2*/) {
+            matches.push_back((match_pair){ *fi1, *best });
+            f2.erase(best);
+        }
+    }
+}
+
+float refine_transformation(const transformation_variance &base, transformation_variance &dR, transformation_variance &dT, const list<match_pair> &neighbor_matches)
+{
+    //determine inliers and translation
+    vect total_dT(0., 0., 0.);
+    int inliers = 0;
+    transformation_variance total = dT * base * dR;
+    float resid = 1.e10;
+    for(list<match_pair>::const_iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
+        point local = total.transform * inverse(base).transform * neighbor_match->second.position;
+        vect error = neighbor_match->first.position - local;
+        resid = norm_2(error);
+        float threshhold = 3. * 3. * (neighbor_match->first.feature->variance + neighbor_match->second.feature->variance);
+        if(resid < threshhold) {
+            total_dT = total_dT + error;
+            ++inliers;
+        }
+    }
+    assert(inliers);
+    dT.transform.set_translation(dT.transform.get_translation() + total_dT / inliers);
+    //double total_theta;
+    total = inverse(dT * base * dR);
+    v4 total_rot;
+    inliers = 0;
+    for(list<match_pair>::const_iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
+        point local = total.transform * neighbor_match->first.position;
+        point other = inverse(base).transform * neighbor_match->second.position;
+        vect error = local - other;
+        resid = norm_2(error);
+        float threshhold = 3. * 3. * (neighbor_match->first.feature->variance + neighbor_match->second.feature->variance);
+        if(resid < threshhold) {
+            //now both are in the rotated frame of the other group. find relative rotation
+            v4 a = v4(other.data);
+            a[2] = 0.;
+            v4 b =v4 (local.data);
+            b[2] = 0.;
+            v4 dW = relative_rotation(a, b);
+            //double norm_prod = sum(first * second) / (norm(first) * norm(second));
+            //double theta = acos(norm_prod);
+            //fprintf(stderr, "%f\n", theta);
+            total_rot += dW;
+            ++inliers;
+        }
+    }
+    assert(inliers);
+    v4 dW = total_rot / inliers;
+    //    m4 dR = rodrigues(v4(0., 0., dtheta, 0.), NULL);
+    //dR.transform.set_rotation(dR.transform.get_rotation() * rodrigues(dW, NULL));
+    return resid;
+}
+
+//this just checks matches -- external bits need to make sure not to send it something too close
+bool generate_transformation(const match_pair &match1, const match_pair &match2, transformation_variance &trn)
+{
+    vect v1 = match2.first.position - match1.first.position,
+        v2 = match2.second.position - match1.second.position;
+    float d1 = norm(v1),
+        d2 = norm(v2);
+    float thresh = 3. * sqrt(match1.first.feature->variance + match1.second.feature->variance + match2.first.feature->variance + match2.second.feature->variance);
+    if(fabs(d1-d2) > thresh) return false;
+
+    // (second.first.position - first.first.position).print();
+    
+    v4 dW = relative_rotation(v4(v2.data), v4(v1.data));
+    m4 dR = rodrigues(dW, NULL);
+    trn.transform.set_rotation(dR);
+    trn.transform.set_translation(match1.first.position - dR * match1.second.position);
+    return true;
+}
+
+int mapper::new_check_for_matches(uint64_t id1, uint64_t id2, transformation_variance &relpos, int min_inliers)
+{
+    //get all features for each group and its neighbors into the local frames
+    list<local_feature> f1, f2;
+    nodes[id1].transform = transformation_variance();
+    nodes[id2].transform = transformation_variance();
+    breadth_first(id1, 1, NULL);
+    breadth_first(id2, 1, NULL);
+    localize_features(nodes[id1], f1);
+    localize_features(nodes[id2], f2);
+    //ONLY look for matches in THIS group
+    list<match_pair> matches;
+    assign_matches(f1, f2, matches);
+    //BUT, check support on ENTIRE neighborhood.
+    f1.clear();
+    f2.clear();
+    localize_features(nodes[id1], f1);
+    localize_features(nodes[id2], f2);
+    localize_neighbor_features(id1, f1);
+    localize_neighbor_features(id2, f2);
+    list<match_pair> neighbor_matches;
+    assign_matches(f1, f2, neighbor_matches);
+    int best_score = 0;
+    for(list<match_pair>::iterator match1 = matches.begin(); match1 != matches.end(); ++match1) {
+        list<match_pair>::iterator match2 = match1;
+        ++match2;
+        for(; match2 != matches.end(); ++match2) {
+            transformation_variance trn;
+            if(generate_transformation(*match1, *match2, trn)) {
+                int inliers = 0;
+                for(list<match_pair>::iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
+                    vect error = neighbor_match->first.position - (trn.transform * neighbor_match->second.position);
+                    float resid = norm_2(error);
+                    //3 sigma
+                    float threshhold = 3.*3. * (neighbor_match->first.feature->variance + neighbor_match->second.feature->variance);
+                    //float baseline_threshhold = norm(neighbor_match->first.position-match->first.position);
+                    if(resid < threshhold /*&& resid <= baseline_threshhold*/) {
+                        //neighbor_match->first.position.print();
+                        //(neighbor_match->second.position + dT).print();
+                        //fprintf(stderr, " resid %f, thresh %f, baseth %f\n", resid, threshhold, baseline_threshhold);
+                        ++inliers;
+                    }
+                }
+                if(inliers > best_score) {
+                    best_score = inliers;
+                    relpos = trn;
+                }
+            }
+        }
+    }
+    return best_score;
+}
+
+int mapper::estimate_translation(uint64_t id1, uint64_t id2, vect &result, int min_inliers, const homogeneous_transformation &pre_transform, const list <match_pair> &matches, const list<match_pair> &neighbor_matches)
+{
+    int best_score = 0;
+    vect bestdT;
+    vect total_dT;
+    for(list<match_pair>::const_iterator match = matches.begin(); match != matches.end(); ++match) {
+        vect dT = match->first.position - pre_transform * match->second.position;
+        int inliers = 0;
+        for(list<match_pair>::const_iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
+            vect thisdT = neighbor_match->first.position - pre_transform * neighbor_match->second.position;
+            vect error = vect(dT.data - thisdT.data);
+            float resid = norm_2(error);
+            //3 sigma
+            float threshhold = 3.*3. * (neighbor_match->first.feature->variance + neighbor_match->second.feature->variance);
+            if(resid < threshhold) {
+                ++inliers;
+                total_dT = total_dT + thisdT;
+            }
+        }
+        if(inliers > best_score) {
+            best_score = inliers;
+            bestdT = total_dT / inliers;
+        }
+    }
+    result = bestdT;
+    return best_score;
+}
+
+int mapper::check_for_matches(uint64_t id1, uint64_t id2, transformation_variance &relpos, int min_inliers)
+{
+    //get all features for each group and its neighbors into the local frames
+    list<local_feature> f1, f2;
+    localize_features(nodes[id1], f1);
+    localize_features(nodes[id2], f2);
+    //ONLY look for matches in THIS group
+    list<match_pair> matches;
+    assign_matches(f1, f2, matches);
+    //BUT, check support on ENTIRE neighborhood.
+    f1.clear();
+    f2.clear();
+    localize_features(nodes[id1], f1);
+    localize_features(nodes[id2], f2);
+    localize_neighbor_features(id1, f1);
+    localize_neighbor_features(id2, f2);
+    list<match_pair> neighbor_matches;
+    assign_matches(f1, f2, neighbor_matches);
+
+    int best_score = 0;
+    vect bestdT;
+    for(list<match_pair>::iterator match = matches.begin(); match != matches.end(); ++match) {
+        vect dT = match->first.position - match->second.position;
+        int inliers = 0;
+        vect var = nodes[id2].transform.variance.get_translation();
+        /*if(dT[0] * dT[0] > var[0] * 6000.) continue;
+        if(dT[1] * dT[1] > var[1] * 6000.) continue;
+        if(dT[2] * dT[2] > var[2] * 6000.) continue;*/
+        //TODO: propagate T_var, W_var and use that to prune candidate transformations (dT)
+        for(list<match_pair>::iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
+            vect error = neighbor_match->first.position - (neighbor_match->second.position + dT);
+            float resid = norm_2(error);
+            //3 sigma
+            float threshhold = 3.*3. * (neighbor_match->first.feature->variance + neighbor_match->second.feature->variance);
+            //float baseline_threshhold = norm(neighbor_match->first.position-match->first.position);
+            if(resid < threshhold /*&& resid <= baseline_threshhold*/) {
+                //neighbor_match->first.position.print();
+                //(neighbor_match->second.position + dT).print();
+                //fprintf(stderr, " resid %f, thresh %f, baseth %f\n", resid, threshhold, baseline_threshhold);
+                ++inliers;
+            }
+        }
+        if(inliers > best_score) {
+            best_score = inliers;
+            bestdT = dT;
+        }
+    }
+    transformation_variance dR; //identity
+    transformation_variance dT;
+    dT.transform.set_translation(bestdT);
+    relpos.transform = nodes[id2].transform.transform * inverse(nodes[id1].transform.transform);
+    if(best_score >= min_inliers) {
+        float residual = refine_transformation(relpos, dR, dT, neighbor_matches);
+        //residual = refine_transformation(relpos, dR, dT, neighbor_matches);
+        relpos = dT * relpos * dR;
+    }
+    return best_score;
+
+    /*    //choose two potential matches...
+    v4 T1 = p1_1;
+    v4 T2 = p2_1;
+    //project onto x-y plane. once i have constrained refs, just take x-y values
+    f_t pdot = p1_2[0] * p2_2[0] + p1_2[1] * p2_2[1];
+    f_t norm = (p1_2[0] * p1_2[0] + p1_2[1] * p1_2[1]) * (p2_2[0] * p2_2[0] + p2_2[1] * p2_2[1]);
+    f_t theta = acos(pdot / norm);
+    //TODO: check direction
+    v4 W(0., 0., theta, 0.);
+    m4 R = rodrigues(W,NULL);
+    for(*/
+    
+}
+
+void mapper::dump_map(const char *filename)
+{
+    pthread_mutex_lock(&mutex);
+    pthread_cleanup_push((void(*)(void *))pthread_mutex_unlock, &mutex);
+    FILE *group_graph = fopen(filename, "wt");
+    fprintf(group_graph, "graph G {\nedge[len=2];\n");
+    for(unsigned int node = 0; node < nodes.size(); ++node) {
+        for(list<map_edge>::iterator edge = nodes[node].edges.begin(); edge != nodes[node].edges.end(); ++edge) {
+            unsigned int neighbor = edge->neighbor;
+            if(edge->geometry > 0) {
+                fprintf(group_graph, "%d -- %d [dir=forward]\n;", node, neighbor);
+            } else if(edge->geometry == 0 && node < neighbor) {
+                fprintf(group_graph, "%d -- %d\n;", node, neighbor);
+            }
+        }
+    }
+    fprintf(group_graph, "}\n");
+    fclose(group_graph);
+    pthread_cleanup_pop(1);
+}
+
+void mapper::set_local_features(list<v4> &locals)
+{
+    pthread_mutex_lock(&mutex);
+    pthread_cleanup_push((void(*)(void *))pthread_mutex_unlock, &mutex);
+    local_features.clear();
+    local_features.splice(local_features.end(), locals);
+    pthread_cleanup_pop(1);
+}
+
+#ifdef __APPLE__
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#else
+#include <GL/gl.h>
+#include <GL/glu.h>
+#endif
+
+static GLUquadricObj *sphere_quad = 0;
+
+void map_feature::render(bool special, int mode)
+{
+    glColor3fv(color);
+    if(mode == 2) {
+        if(!sphere_quad) {
+            sphere_quad = gluNewQuadric();
+            gluQuadricNormals(sphere_quad, GLU_SMOOTH);
+        }
+        glPushMatrix();
+        glTranslatef(position[0], position[1], position[2]);
+        gluSphere(sphere_quad, sqrt(variance), 8, 8);
+        glPopMatrix();
+    } else if(mode == 1) {
+        glBegin(GL_POINTS);
+        glVertex3f(position[0], position[1], position[2]);
+        glEnd();
+    }
+}
+
+void map_node::render(bool special, bool spheres)
+{
+    if(special && !render_special) return;
+    glPushMatrix();
+    double glm[4][4];
+    get_gl_matrix<double>(transform.transform, glm);
+    glMultMatrixd(glm[0]);
+    for(list<map_feature *>::iterator feature = features.begin(); feature != features.end(); ++feature) {
+        (*feature)->render(special, spheres);
+    }
+    glPopMatrix();
+    vect T_var = transform.variance.get_translation();
+}
+
+void mapper::breadth_first(int start, int maxdepth, void(mapper::*callback)(map_node &)) {
+    queue<int> next;
+    list<int> done;
+    next.push(start);
+    nodes[start].parent = -2;
+    nodes[start].depth = 0;
+    while (!next.empty()) {
+        int u = next.front();
+        next.pop();
+        if(callback) (this->*callback)(nodes[u]);
+        if(!maxdepth || nodes[u].depth <= maxdepth) {
+            for(list<map_edge>::iterator edge = nodes[u].edges.begin(); edge != nodes[u].edges.end(); ++edge) {
+                int v = edge->neighbor;
+                transformation_variance Gr = nodes[u].transform;
+                if(edge->geometry && nodes[v].parent == -1) {
+                    transformation_variance dG = geometry[abs(edge->geometry)-1];
+                    nodes[v].transform = (edge->geometry > 0) ? Gr * dG : Gr * inverse(dG);
+                    nodes[v].depth = nodes[u].depth + 1;
+                    nodes[v].parent = u;
+                    next.push(v);
+                }
+            }
+        }
+        done.push_back(u);
+    }
+    for(list<int>::iterator reset = done.begin(); reset != done.end(); ++reset) {
+        nodes[*reset].parent = -1;
+    }
+}
+
+void mapper::render_callback(map_node &node)
+{
+    if(node.depth != 0) {
+        if(!render_special || (nodes[node.parent].render_special && node.render_special)) {
+            glColor3f(1., 1., 1.);
+            glBegin(GL_LINES);
+            vect Tr = nodes[node.parent].transform.transform.get_translation();
+            vect T = node.transform.transform.get_translation();
+            glVertex3f(Tr[0], Tr[1], Tr[2]);
+            glVertex3f(T[0], T[1], T[2]);
+            glEnd();
+        }
+        node.render(render_special, render_mode);
+    } else {
+        node.render(render_special, render_mode);
+    }
+}
+
+void mapper::render()
+{
+    glPointSize(2);
+    int start = reference;
+    if(start >= nodes.size() || start < 0) return;
+    pthread_mutex_lock(&mutex);
+    pthread_cleanup_push((void(*)(void *))pthread_mutex_unlock, &mutex);
+    int maxdepth = 0; //0 = unlimited
+
+    if(render_mode) {
+        glColor3f(0., 0., 1.);
+        glBegin(GL_POINTS);
+        for(list<v4>::iterator f = local_features.begin(); f != local_features.end(); ++f) {
+            glVertex3f((*f)[0], (*f)[1], (*f)[2]);
+        }
+        glEnd();
+    }
+
+    nodes[start].transform = transformation_variance(inverse(relative_transformation), homogeneous_variance());
+    breadth_first(start, maxdepth, &mapper::render_callback);
+    if(unlinked) {
+        nodes[0].transform = transformation_variance();
+        breadth_first(0, maxdepth, &mapper::render_callback);
+    }
+    pthread_cleanup_pop(1);
+}
+
+void mapper::new_map()
+{
+    int numpieces = origins.size();
+    /*    if(numpieces > 1) {
+        //we have at least two segments and we just finished one. check entire previous map...
+        for(uint64_t second = 0; second < origins[numpieces-1]; ++second) {
+            breadth_first(second, 1, NULL);
+            //against each of the nodes we just added
+            for(uint64_t first = origins[numpieces-1]; first < nodes.size(); ++first) {
+                breadth_first(first, 1, NULL);
+                get_matches
+                }*/
+    group_id_offset = nodes.size();
+    unlinked = true;
+    origins.push_back(group_id_offset);
+}
+
+void mapper::print_stats()
+{
+    fprintf(stderr, "nodes: %d\n", nodes.size());
+    fprintf(stderr, "features: %d\n", feature_count);
+}
+
+void mapper::node_finished(uint64_t id, const transformation_variance &global_orientation)
+{
+    nodes[id].global_orientation = global_orientation;
+    if(no_search) return;
+    if(id >= 10) {
+        vector<map_match> matches;
+        if(get_matches(id-10, matches, 20, 20)) {
+            /*                    for(int i = dp->id-11; i >=0; --i) {
+                                  vector<map_match> nm;
+                                  m->get_matches(i, nm, 20, 1);
+                                  }*/
+        }
+    }
+}
+    
+transformation_variance rodrigues_variance(const v4 &W, const v4 &W_var, const vect &T, const vect &T_var)
+{
+    m4v4 dR_dW;
+    m4 R = rodrigues(W, &dR_dW);
+    m4 R_var;
+    for(int i = 0; i < 4; ++i) {
+        for(int j = 0; j < 4; ++j) {
+            R_var[i][j] = sum(dR_dW[i][j] * dR_dW[i][j] * W_var);
+        }
+    }
+    return transformation_variance(R, R_var, T, T_var);
+}
+
+extern "C" void run_new_map(mapper *m, struct mapbuffer *mb)
+{
+    m->new_map();
+    packet_t *p;
+    uint64_t thread_pos = 0;
+    while((p = mapbuffer_read(mb, &thread_pos))) {
+        pthread_testcancel();
+        packet_handler(m, p);
+    }
+}
+
+extern "C" void packet_handler(void *_m, packet_t *p)
+{
+    mapper *m = (mapper *)_m;
+    switch(p->header.type) {
+    case packet_recognition_descriptor: {
+        packet_recognition_descriptor_t *dp = (packet_recognition_descriptor_t *)p;
+        m->add_feature(dp->groupid + m->group_id_offset, point(dp->x, dp->y, dp->z), dp->variance, dp->color, dp->label, dp->descriptor);
+        if(m->output_map) {
+            packet_t *newp = mapbuffer_alloc(m->output_map, packet_recognition_descriptor, sizeof(packet_recognition_descriptor_t) - sizeof(packet_header_t));
+            memcpy(newp->data, p->data, sizeof(packet_recognition_descriptor_t) - sizeof(packet_header_t));
+            ((packet_recognition_descriptor_t *)newp)->groupid = dp->groupid + m->group_id_offset;
+            newp->header.user = p->header.user;
+            mapbuffer_enqueue(m->output_map, newp, p->header.time);
+        }
+        break;
+    }
+    case packet_recognition_group: {
+        packet_recognition_group_t *dp = (packet_recognition_group_t *)p;
+        if(p->header.user) { //drop
+            transformation_variance global_orientation = rodrigues_variance(v4(dp->W[0], dp->W[1], dp->W[2], 0.), v4(dp->W_var[0], dp->W_var[1], dp->W_var[2], 0.), vect(), vect());
+            m->node_finished(dp->id + m->group_id_offset, global_orientation);
+        } else {
+            m->add_node(dp->id + m->group_id_offset);
+        }
+        if(m->output_map) {
+            packet_t *newp = mapbuffer_alloc(m->output_map, packet_recognition_group, sizeof(packet_recognition_group_t) - sizeof(packet_header_t));
+            memcpy(newp->data, p->data, sizeof(packet_recognition_group_t) - sizeof(packet_header_t));
+            ((packet_recognition_group_t *)newp)->id = dp->id + m->group_id_offset;
+            newp->header.user = p->header.user;
+            mapbuffer_enqueue(m->output_map, newp, p->header.time);
+        }
+        break;
+    }
+    case packet_filter_current: {
+        packet_filter_current_t *cp = (packet_filter_current_t *)p;
+        m->set_reference(cp->reference + m->group_id_offset);
+        m->set_relative_transformation(homogeneous_transformation(rodrigues(v4(cp->W[0], cp->W[1], cp->W[2], 0.), NULL), vect(cp->T[0], cp->T[1], cp->T[2])));
+        list<v4> points;
+        for(int i = 0; i < p->header.user; ++i) {
+            points.push_back(v4(cp->points[i][0], cp->points[i][1], cp->points[i][2], 0.));
+        }
+        m->set_local_features(points);
+        if(m->output_map) {
+            packet_t *newp = mapbuffer_alloc(m->output_map, packet_filter_current, sizeof(packet_filter_current_t) - sizeof(packet_header_t));
+            ((packet_filter_current_t *)newp)->reference = cp->reference + m->group_id_offset;
+            newp->header.user = 0;
+            mapbuffer_enqueue(m->output_map, newp, p->header.time);
+        }
+        break;
+    }
+    case packet_map_edge: {
+        packet_map_edge_t *mp = (packet_map_edge_t *)p;
+        if(mp->header.user) {
+            v4
+                W(mp->W[0], mp->W[1], mp->W[2], 0.),
+                W_var(mp->W_var[0], mp->W_var[1], mp->W_var[2], 0.);
+            vect
+                T(mp->T[0], mp->T[1], mp->T[2]),
+                T_var(mp->T_var[0], mp->T_var[1], mp->T_var[2]);
+            transformation_variance G = rodrigues_variance(W, W_var, T, T_var);
+            m->set_geometry(mp->first + m->group_id_offset, mp->second + m->group_id_offset, G);
+        } else {
+            m->add_edge(mp->first + m->group_id_offset, mp->second + m->group_id_offset);
+        }
+        break;
+    }
+    default:
+        return;
+    }
+}
+

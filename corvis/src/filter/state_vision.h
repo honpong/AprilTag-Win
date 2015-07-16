@@ -72,8 +72,6 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
 
     sensor_clock::time_point found_time;
 
-    bool user;
-
     static f_t initial_depth_meters;
     static f_t initial_var;
     static f_t initial_process_noise;

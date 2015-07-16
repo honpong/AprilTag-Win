@@ -14,7 +14,7 @@ f_t state_vision_feature::max_variance;
 uint64_t state_vision_group::counter = 0;
 uint64_t state_vision_feature::counter = 0;
 
-state_vision_feature::state_vision_feature(f_t initialx, f_t initialy): state_leaf("feature"), outlier(0.), initial(initialx, initialy, 1., 0.), current(initial), user(false), status(feature_initializing)
+state_vision_feature::state_vision_feature(f_t initialx, f_t initialy): state_leaf("feature"), outlier(0.), initial(initialx, initialy, 1., 0.), current(initial), status(feature_initializing)
 {
     id = counter++;
     set_initial_variance(initial_var);

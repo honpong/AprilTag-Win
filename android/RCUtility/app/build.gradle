@@ -11,6 +11,9 @@ model {
             version = 1
         }
     }
+    android.lintOptions {
+        abortOnError = false
+    }
     android.ndk {
         moduleName = "tracker_wrapper"
         cppFlags += "-I" + file("../../../corvis/src/filter")

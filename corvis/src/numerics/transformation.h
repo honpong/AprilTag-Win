@@ -45,9 +45,19 @@ static inline v4 transformation_apply(const transformation & t, const v4 & apply
     return t.Q * apply_to + t.T;
 }
 
+static inline v4 operator*(const transformation & t, const v4 & apply_to)
+{
+    return transformation_apply(t, apply_to);
+}
+
 static inline transformation compose(const transformation & t1, const transformation & t2)
 {
     return transformation(t1.Q * t2.Q, t1.T + t1.Q * t2.T);
+}
+
+static inline transformation operator*(const transformation &t1, const transformation & t2)
+{
+    return compose(t1, t2);
 }
 
 #endif

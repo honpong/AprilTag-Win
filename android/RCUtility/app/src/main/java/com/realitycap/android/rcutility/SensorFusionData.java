@@ -1,5 +1,7 @@
 package com.realitycap.android.rcutility;
 
+import com.intel.camera.toolkit.depth.Point3DF;
+
 import java.util.ArrayList;
 
 public class SensorFusionData
@@ -15,7 +17,7 @@ public class SensorFusionData
 
     public void addFeaturePoint(long id, float worldX, float worldY, float worldZ, float imageX, float imageY)
     {
-        Vector3 world = new Vector3();
+        Point3DF world = new Point3DF();
         world.x = worldX;
         world.y = worldY;
         world.z = worldZ;

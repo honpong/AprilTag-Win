@@ -1,12 +1,14 @@
 package com.realitycap.android.rcutility;
 
+import com.intel.camera.toolkit.depth.Point3DF;
+
 /**
  * Created by benhirashima on 7/17/15.
  */
 public class FeaturePoint
 {
     protected long id;
-    protected Vector3 world;
+    protected Point3DF world;
     protected float imageX;
     protected float imageY;
 
@@ -20,12 +22,12 @@ public class FeaturePoint
         this.id = id;
     }
 
-    public Vector3 getWorld()
+    public Point3DF getWorld()
     {
         return world;
     }
 
-    public void setWorld(Vector3 world)
+    public void setWorld(Point3DF world)
     {
         this.world = world;
     }

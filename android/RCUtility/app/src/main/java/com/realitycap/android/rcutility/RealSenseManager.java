@@ -30,6 +30,10 @@ public class RealSenseManager
     private StreamTypeSet userStreamTypes = new StreamTypeSet(StreamType.COLOR, StreamType.DEPTH, StreamType.UVMAP);
     private Camera.Desc playbackCamDesc = new Camera.Desc(Camera.Type.PLAYBACK, Camera.Facing.ANY, userStreamTypes);
 
+    protected Camera.Calibration.Intrinsics mColorParams; //intrinsics param of color camera
+    protected Camera.Calibration.Intrinsics mDepthParams; //intrinsics param of depth camera
+    protected Camera.Calibration.Extrinsics mDepthToColorParams;
+
     RealSenseManager(Context context, ISyncedFrameReceiver receiver)
     {
         mSenseManager = new SenseManager(context);
@@ -84,12 +88,24 @@ public class RealSenseManager
         }
     }
 
+    public Camera.Calibration.Intrinsics getCameraIntrinsics()
+    {
+        return mColorParams;
+    }
+
     OnSenseManagerHandler mSenseEventHandler = new OnSenseManagerHandler()
     {
         @Override
-        public void onSetProfile(Camera.CaptureInfo profiles)
+        public void onSetProfile(Camera.CaptureInfo info)
         {
 //            Log.i(TAG, "OnSetProfile");
+            Camera.Calibration cal = info.getCalibrationData();
+            if (cal != null)
+            {
+                mColorParams 		= cal.colorIntrinsics;
+//                mDepthParams 		= cal.depthIntrinsics;
+//                mDepthToColorParams = cal.depthToColorExtrinsics;
+            }
         }
 
 

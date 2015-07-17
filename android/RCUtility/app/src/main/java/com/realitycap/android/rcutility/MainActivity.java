@@ -14,6 +14,8 @@ import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import com.intel.camera.toolkit.depth.Camera;
+
 public class MainActivity extends Activity
 {
 	private TextView statusText;
@@ -136,8 +138,17 @@ public class MainActivity extends Activity
 	{
 		if (appState != AppState.Idle) return false;
 		setStatusText("Starting calibration...");
-		imuMan.startSensors();
-		boolean result = trackerProxy.startCalibration();
+        rsMan.startCameras();
+        imuMan.startSensors();
+        Camera.Calibration.Intrinsics intr = rsMan.getCameraIntrinsics(); // TODO: this may return null because camera hasn't started yet. might have to wait for a callback here.
+        if (intr == null)
+        {
+            rsMan.stopCameras();
+            imuMan.stopSensors();
+            return false;
+        }
+        trackerProxy.configureCamera(0, 640, 480, intr.principalPoint.x, intr.principalPoint.y, intr.focalLength.x, intr.focalLength.y, 0, false, 0);
+        boolean result = trackerProxy.startCalibration();
 		if (result) appState = AppState.Calibrating;
 		return result;
 	}
@@ -147,6 +158,7 @@ public class MainActivity extends Activity
 		if (appState != AppState.Calibrating) return;
 		trackerProxy.stopTracker();
 		imuMan.stopSensors();
+        rsMan.stopCameras();
 		setStatusText("Calibration stopped.");
 		appState = AppState.Idle;
 	}

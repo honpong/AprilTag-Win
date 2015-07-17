@@ -62,6 +62,5 @@ dependencies {
             rsRoot + '/libs/PXCASenseManager.jar',
             rsRoot + '/libs/PXCAPlayback.jar',
             rsRoot + '/libs/PXCAScenePerception.jar'
-    )
+    ).each { assert it.exists() : "$it: Not found\nSet RSSDK (currently $rsRoot)" }
 }
-

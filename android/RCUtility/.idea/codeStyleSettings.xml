@@ -3,6 +3,7 @@
   <component name="ProjectCodeStyleSettingsManager">
     <option name="PER_PROJECT_SETTINGS">
       <value>
+        <option name="AUTODETECT_INDENTS" value="false" />
         <option name="CLASS_COUNT_TO_USE_IMPORT_ON_DEMAND" value="99" />
         <option name="NAMES_COUNT_TO_USE_IMPORT_ON_DEMAND" value="99" />
         <option name="PACKAGES_TO_USE_IMPORT_ON_DEMAND">
@@ -30,10 +31,15 @@
             <emptyLine />
           </value>
         </option>
-        <option name="RIGHT_MARGIN" value="100" />
+        <option name="RIGHT_MARGIN" value="200" />
         <AndroidXmlCodeStyleSettings>
           <option name="USE_CUSTOM_SETTINGS" value="true" />
         </AndroidXmlCodeStyleSettings>
+        <Objective-C>
+          <option name="NAMESPACE_BRACE_PLACEMENT" value="2" />
+          <option name="FUNCTION_BRACE_PLACEMENT" value="2" />
+          <option name="BLOCK_BRACE_PLACEMENT" value="2" />
+        </Objective-C>
         <Objective-C-extensions>
           <option name="GENERATE_INSTANCE_VARIABLES_FOR_PROPERTIES" value="ASK" />
           <option name="RELEASE_STYLE" value="IVAR" />
@@ -66,10 +72,32 @@
           <option name="XML_LEGACY_SETTINGS_IMPORTED" value="true" />
         </XML>
         <codeStyleSettings language="JAVA">
+          <option name="RIGHT_MARGIN" value="500" />
           <option name="BRACE_STYLE" value="2" />
           <option name="CLASS_BRACE_STYLE" value="2" />
           <option name="METHOD_BRACE_STYLE" value="2" />
           <option name="ELSE_ON_NEW_LINE" value="true" />
+          <option name="KEEP_SIMPLE_BLOCKS_IN_ONE_LINE" value="true" />
+          <option name="KEEP_SIMPLE_METHODS_IN_ONE_LINE" value="true" />
+          <option name="KEEP_SIMPLE_CLASSES_IN_ONE_LINE" value="true" />
+          <option name="METHOD_ANNOTATION_WRAP" value="0" />
+          <option name="CLASS_ANNOTATION_WRAP" value="0" />
+          <option name="FIELD_ANNOTATION_WRAP" value="0" />
+        </codeStyleSettings>
+        <codeStyleSettings language="ObjectiveC">
+          <option name="BRACE_STYLE" value="2" />
+          <option name="CLASS_BRACE_STYLE" value="2" />
+          <option name="ELSE_ON_NEW_LINE" value="true" />
+          <option name="ALIGN_MULTILINE_BINARY_OPERATION" value="false" />
+          <option name="ALIGN_MULTILINE_ASSIGNMENT" value="false" />
+          <option name="ALIGN_MULTILINE_TERNARY_OPERATION" value="false" />
+          <option name="ALIGN_MULTILINE_ARRAY_INITIALIZER_EXPRESSION" value="false" />
+          <option name="SPACE_WITHIN_BRACES" value="false" />
+          <option name="BINARY_OPERATION_WRAP" value="0" />
+          <option name="TERNARY_OPERATION_WRAP" value="0" />
+          <option name="TERNARY_OPERATION_SIGNS_ON_NEXT_LINE" value="false" />
+          <option name="ARRAY_INITIALIZER_WRAP" value="0" />
+          <option name="ENUM_CONSTANTS_WRAP" value="0" />
         </codeStyleSettings>
         <codeStyleSettings language="XML">
           <option name="FORCE_REARRANGE_MODE" value="1" />

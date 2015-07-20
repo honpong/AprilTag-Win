@@ -15,7 +15,7 @@ import android.widget.ToggleButton;
 
 import com.intel.camera.toolkit.depth.Camera;
 
-public class MainActivity extends Activity
+public class MainActivity extends Activity implements ITrackerReceiver
 {
 	private TextView statusText;
 	private ToggleButton calibrationButton;
@@ -28,7 +28,7 @@ public class MainActivity extends Activity
 	TrackerProxy trackerProxy;
     RealSenseManager rsMan;
 
-	enum AppState
+    enum AppState
 	{
 		Idle, Calibrating, Capturing, LiveVis, ReplayVis
 	}
@@ -166,7 +166,9 @@ public class MainActivity extends Activity
 		trackerProxy.stopTracker();
 		imuMan.stopSensors();
         rsMan.stopCameras();
-		setStatusText("Calibration stopped.");
+        String cal = trackerProxy.getCalibration();
+        Log.v(MyApplication.TAG, cal);
+        setStatusText("Calibration stopped.");
 		appState = AppState.Idle;
 	}
 	
@@ -200,6 +202,50 @@ public class MainActivity extends Activity
 		setStatusText("startLiveActivity");
 		return true;
 	}
+
+    @Override public void onStatusUpdated(SensorFusionStatus status)
+    {
+        if(appState == AppState.Calibrating)
+        {
+            if (status.errorCode > 1)
+            {
+                stopCalibration();
+                setStatusText("Tracker error code: " + status.errorCode);
+                return;
+            }
+            switch (status.runState)
+            {
+                case 0: // idle
+                    stopCalibration();
+                    break;
+                case 1: // static calibration
+                    if (status.progress <= 1.) setStatusText("Place device on a flat surface. Progress: " + status.progress + "%");
+                    break;
+                case 5: // portrait calibration
+                    if (status.progress <= 1.) setStatusText("Hold steady in portrait orientation. Progress: " + status.progress + "%");
+                    break;
+                case 6:
+                    if (status.progress <= 1.) setStatusText("Hold steady in landscape orientation. Progress: " + status.progress + "%");
+                    break;
+                default:
+                    break;
+            }
+        }
+        else if(appState == AppState.Capturing)
+        {
+            if (status.errorCode > 1)
+            {
+                stopCapture();
+                setStatusText("Tracker error code: " + status.errorCode);
+                return;
+            }
+        }
+    }
+
+    @Override public void onDataUpdated(SensorFusionData data)
+    {
+
+    }
 	
 	protected boolean openFilePicker()
 	{

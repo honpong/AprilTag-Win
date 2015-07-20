@@ -9,7 +9,7 @@ import android.util.Log;
 
 import java.nio.ByteBuffer;
 
-public class TrackerProxy implements SensorEventListener, ISyncedFrameReceiver
+public class TrackerProxy implements SensorEventListener, ISyncedFrameReceiver, ITrackerReceiver
 {
     static
     {
@@ -35,10 +35,24 @@ public class TrackerProxy implements SensorEventListener, ISyncedFrameReceiver
     protected native void receiveGyro(float x, float y, float z, long timestamp);
     protected native boolean receiveImageWithDepth(long time_us, long shutter_time_us, boolean force_recognition, int width, int height, int stride, ByteBuffer colorData, int depthWidth, int depthHeight, int depthStride, ByteBuffer depthData);
 
+    protected ITrackerReceiver receiver;
+
     public TrackerProxy()
     {
 
     }
+
+    public ITrackerReceiver getReceiver()
+    {
+        return receiver;
+    }
+
+    public void setReceiver(ITrackerReceiver receiver)
+    {
+        this.receiver = receiver;
+    }
+
+    // SensorEventListener interface
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent)
@@ -61,6 +75,8 @@ public class TrackerProxy implements SensorEventListener, ISyncedFrameReceiver
         Log.d(MyApplication.TAG, String.format("onAccuracyChanged(%s, %d)", sensor.getName(), accuracy));
     }
 
+    //ISyncedFrameReceiver interface
+
     @Override
     public void onSyncedFrames(long time_us, long shutter_time_us, int width, int height, int stride, final ByteBuffer colorData, int depthWidth, int depthHeight, int depthStride, final ByteBuffer depthData)
     {
@@ -68,13 +84,19 @@ public class TrackerProxy implements SensorEventListener, ISyncedFrameReceiver
 //        if (!result) Log.w(MyApplication.TAG, "receiveImageWithDepth() returned FALSE");
     }
 
-    protected void onStatusUpdated(SensorFusionStatus status)
+    // ITrackerReceiver interface
+
+    @Override
+    public void onStatusUpdated(SensorFusionStatus status)
     {
         Log.d(MyApplication.TAG, String.format("onStatusUpdated - runState: %d progress: %f", status.runState, status.progress));
+        if (receiver != null) receiver.onStatusUpdated(status);
     }
 
-    protected void onDataUpdated(SensorFusionData data)
+    @Override
+    public void onDataUpdated(SensorFusionData data)
     {
         Log.d(MyApplication.TAG, String.format("onDataUpdated - %d features", data.getFeatures().size()));
+        if (receiver != null) receiver.onDataUpdated(data);
     }
 }

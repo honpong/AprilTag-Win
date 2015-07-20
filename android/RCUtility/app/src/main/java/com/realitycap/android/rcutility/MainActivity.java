@@ -155,8 +155,7 @@ public class MainActivity extends Activity
 
     private void cancelCalibration()
     {
-        rsMan.stopCameras();
-        imuMan.stopSensors();
+        stopSensors();
         appState = AppState.Idle;
         setStatusText("Failed to start calibration");
     }
@@ -177,6 +176,7 @@ public class MainActivity extends Activity
         setStatusText("Starting capture...");
 		if (!startSensors())
         {
+            stopSensors(); // in case one set of sensors started and the other didn't
             setStatusText("Failed to start sensors.");
             return false;
         }

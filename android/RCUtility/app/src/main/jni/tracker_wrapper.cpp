@@ -283,7 +283,7 @@ extern "C"
         jlong depthLength = env->GetDirectBufferCapacity(depthData);
         if (RunExceptionCheck(env)) return (JNI_FALSE);
 
-        LOGV(">>>>>>>>>>> Synced camera frames received <<<<<<<<<<<<<");
+//        LOGV(">>>>>>>>>>> Synced camera frames received <<<<<<<<<<<<<");
 
         rc_receiveImageWithDepth(tracker, rc_EGRAY8, time_us, shutter_time_us, NULL, false, width, height, stride, colorData, NULL, NULL, depthWidth, depthHeight, depthStride, depthData, NULL, NULL);
 

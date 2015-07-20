@@ -17,13 +17,17 @@ public class IMUManager
 		mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
 	}
 	
-	public void startSensors()
+	public boolean startSensors()
 	{
 		final Sensor accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		if (accelerometer != null && mListener != null) mSensorManager.registerListener(mListener, accelerometer, SENSOR_REPORT_RATE);
+        else return false;
 		
 		final Sensor gyro = mSensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED);
 		if (gyro != null && mListener != null) mSensorManager.registerListener(mListener, gyro, SENSOR_REPORT_RATE);
+        else return false;
+
+        return true;
 	}
 	
 	public void stopSensors()

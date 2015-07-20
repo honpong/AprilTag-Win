@@ -104,11 +104,19 @@ public class MainActivity extends Activity
 		imuMan.setSensorEventListener(trackerProxy);
 
 		rsMan = new RealSenseManager(this, trackerProxy);
+
+        trackerProxy.createTracker();
 		
 		setStatusText("Ready");		
 	}
-	
-	protected void setStatusText(String text)
+
+    @Override protected void onDestroy()
+    {
+        trackerProxy.destroyTracker();
+        super.onDestroy();
+    }
+
+    protected void setStatusText(String text)
 	{
 		statusText.setText(text);
 		log(text);
@@ -138,20 +146,34 @@ public class MainActivity extends Activity
 	{
 		if (appState != AppState.Idle) return false;
 		setStatusText("Starting calibration...");
-        rsMan.startCameras();
+
+        boolean result = rsMan.startCameras();
+        if (!result) cancelCalibration();
         imuMan.startSensors();
-        Camera.Calibration.Intrinsics intr = rsMan.getCameraIntrinsics(); // TODO: this may return null because camera hasn't started yet. might have to wait for a callback here.
-        if (intr == null)
-        {
-            rsMan.stopCameras();
-            imuMan.stopSensors();
-            return false;
-        }
+        if (!result) cancelCalibration();
+
+        Camera.Calibration.Intrinsics intr = rsMan.getCameraIntrinsics();
+        if (intr == null) cancelCalibration();
         trackerProxy.configureCamera(0, 640, 480, intr.principalPoint.x, intr.principalPoint.y, intr.focalLength.x, intr.focalLength.y, 0, false, 0);
-        boolean result = trackerProxy.startCalibration();
-		if (result) appState = AppState.Calibrating;
+
+        result = trackerProxy.startCalibration();
+		if (result)
+        {
+            appState = AppState.Calibrating;
+            setStatusText("Calibrating");
+        }
+        else cancelCalibration();
+
 		return result;
 	}
+
+    private void cancelCalibration()
+    {
+        rsMan.stopCameras();
+        imuMan.stopSensors();
+        appState = AppState.Idle;
+        setStatusText("Failed to start calibration");
+    }
 	
 	protected void stopCalibration()
 	{

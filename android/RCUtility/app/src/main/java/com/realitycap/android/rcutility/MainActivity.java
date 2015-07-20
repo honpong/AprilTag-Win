@@ -10,7 +10,6 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
-import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -23,7 +22,6 @@ public class MainActivity extends Activity
 	private ToggleButton captureButton;
 	private Button liveButton;
 	private Button replayButton;
-	private FrameLayout videoPreview;
 	
 	IMUManager imuMan;
 	VideoManager videoMan;
@@ -95,8 +93,6 @@ public class MainActivity extends Activity
 			}
 		});
 		
-		videoPreview = (FrameLayout) this.findViewById(R.id.cameraPreview);
-		
 		imuMan = new IMUManager();
 		videoMan = new VideoManager();
 		trackerProxy = new TrackerProxy();
@@ -124,39 +120,29 @@ public class MainActivity extends Activity
 	
 	protected boolean startSensors()
 	{
-		imuMan.startSensors();
-//		videoMan.startVideo(videoPreview);
-        if (rsMan.startCameras())
-        {
-            videoPreview.setVisibility(View.VISIBLE);
-            return true;
-        }
-        else return false;
+        if(!imuMan.startSensors()) return false;
+        if(!rsMan.startCameras()) return false;
+        return true;
 	}
 	
 	protected void stopSensors()
 	{
 		imuMan.stopSensors();
-		videoPreview.setVisibility(View.INVISIBLE);
         rsMan.stopCameras();
-//		videoMan.stopVideo();
 	}
 	
 	protected boolean startCalibration()
 	{
 		if (appState != AppState.Idle) return false;
-		setStatusText("Starting calibration...");
+        setStatusText("Starting calibration...");
 
-        boolean result = rsMan.startCameras();
-        if (!result) cancelCalibration();
-        imuMan.startSensors();
-        if (!result) cancelCalibration();
+        if (!startSensors()) cancelCalibration();
 
         Camera.Calibration.Intrinsics intr = rsMan.getCameraIntrinsics();
         if (intr == null) cancelCalibration();
         trackerProxy.configureCamera(0, 640, 480, intr.principalPoint.x, intr.principalPoint.y, intr.focalLength.x, intr.focalLength.y, 0, false, 0);
 
-        result = trackerProxy.startCalibration();
+        boolean result = trackerProxy.startCalibration();
 		if (result)
         {
             appState = AppState.Calibrating;

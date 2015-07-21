@@ -3,7 +3,10 @@ cmake_minimum_required(VERSION 3.2.2)
 set(CMAKE_SYSTEM_NAME Linux)
 
 if (NOT CMAKE_C_COMPILER_EXTERNAL_TOOLCHAIN AND NOT CMAKE_C_COMPILER_TARGET) # When called by try_compile these are passed in from below
-  set(ANDROID_NDK_ROOT "$ENV{ANDROID_NDK_ROOT}" CACHE PATH "Android NDK Path")
+  find_path(ANDROID_NDK_ROOT "build/tools/make-standalone-toolchain.sh" HINTS ENV ANDROID_NDK_ROOT DOC "Android NDK Path")
+  if (NOT ANDROID_NDK_ROOT)
+    message(FATAL_ERROR "Required (environment) variable \$ANDROID_NDK_ROOT not set to a directory containing ndk-build")
+  endif()
   set(ANDROID_PLATFORM "android-21" CACHE STRING "Android Platform")
   set_property(CACHE ANDROID_PLATFORM PROPERTY STRINGS android-21 android-20 android-19)
   set(ANDROID_ARCH "${ANDROID_ARCH}" CACHE STRING "Android Architecture")

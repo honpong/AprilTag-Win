@@ -8,6 +8,7 @@ import android.util.Log;
 import com.intel.camera.toolkit.depth.sensemanager.SensorSample;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 
 public class TrackerProxy implements SensorEventListener, IRealSenseSensorReceiver, ITrackerReceiver
 {
@@ -85,15 +86,25 @@ public class TrackerProxy implements SensorEventListener, IRealSenseSensorReceiv
     }
 
     @Override
-    public void onAccelerometerSample(SensorSample sample)
+    public void onAccelerometerSamples(ArrayList<SensorSample> samples)
     {
-        if (sample != null) receiveAccelerometer(sample.values()[0], sample.values()[1], sample.values()[2], sample.timestamp());
+        if (samples == null) return;
+
+        for (SensorSample sample : samples)
+        {
+            if (sample != null) receiveAccelerometer(sample.values()[0], sample.values()[1], sample.values()[2], sample.timestamp());
+        }
     }
 
     @Override
-    public void onGyroSample(SensorSample sample)
+    public void onGyroSamples(ArrayList<SensorSample> samples)
     {
-        if (sample != null) receiveGyro(sample.values()[0], sample.values()[1], sample.values()[2], sample.timestamp());
+        if (samples == null) return;
+
+        for (SensorSample sample : samples)
+        {
+            if (sample != null) receiveGyro(sample.values()[0], sample.values()[1], sample.values()[2], sample.timestamp());
+        }
     }
 
     // ITrackerReceiver interface

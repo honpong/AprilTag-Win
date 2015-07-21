@@ -18,6 +18,7 @@ import com.intel.camera.toolkit.depth.sensemanager.SenseManager;
 import com.intel.camera.toolkit.depth.sensemanager.SensorSample;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -99,7 +100,8 @@ public class RealSenseManager
      */
     public boolean startImu()
     {
-        if (mIMUManager != null) return false;
+        if (mIMUManager == null) return false;
+
         try
         {
             if (!mIMUManager.enableSensor(Sensor.TYPE_ACCELEROMETER))
@@ -136,39 +138,21 @@ public class RealSenseManager
         }
     }
 
-    public SensorSample getLatestAccelerometerSample()
-    {
-        return getSample(Sensor.TYPE_ACCELEROMETER);
-    }
-
-    public SensorSample getLatestGyroSample()
-    {
-        return getSample(Sensor.TYPE_GYROSCOPE_UNCALIBRATED);
-    }
-
-    // This comment is from RS sample code for getting the gravity vector - Ben
-    /**
-     * Get the most recent gravity vector from sensor.
-     * Note: Conversion must be made from coordinate system of gravity sensor into
-     * Scene Perception's coordinate system.
-     * In particular, when camera is perfectly placed horizontally and viewing outward, the
-     * normalized value of gravity should be (x, y, z) ~ (0, 1, 0).
-     * Also, when the camera is rotated clock wise from such horizontal position to
-     * be placed in vertically and view outward, the normalized value of gravity should
-     * be (x, y, z) ~ (1, 0, 0).
-     *
-     * @return x, y, z coordinate values of the normalized gravity vector (magnitude of 1)
-     */
-    protected SensorSample getSample(int sensorType)
+    protected ArrayList<SensorSample> getSamplesSince(int sensorType, long timestamp)
     {
         if (mIMUManager == null) return null;
 
-        SensorSample[] samples = mIMUManager.querySensorSamples(sensorType);
-        if (samples != null && samples.length > 0)
+        SensorSample[] allSamples = mIMUManager.querySensorSamples(sensorType); // The sensor samples are saved in reverse chronological order (so index 0, contains the most recent sample).
+        ArrayList<SensorSample> newSamples = new ArrayList<>();
+        if(allSamples != null)
         {
-            return samples[0];
+            for (SensorSample sample : allSamples)
+            {
+                if (sample.timestamp() > timestamp) newSamples.add(sample);
+                else break;
+            }
         }
-        else return null;
+        return newSamples;
     }
 
     public Camera.Calibration.Intrinsics getCameraIntrinsics()
@@ -178,6 +162,9 @@ public class RealSenseManager
 
     OnSenseManagerHandler mSenseEventHandler = new OnSenseManagerHandler()
     {
+        long lastAmeterTimestamp = 0;
+        long lastGyroTimestamp = 0;
+
         @Override
         public void onSetProfile(Camera.CaptureInfo info)
         {
@@ -191,7 +178,6 @@ public class RealSenseManager
             }
             startupLatch.countDown();
         }
-
 
         @Override
         public void onNewSample(ImageSet images)
@@ -218,14 +204,24 @@ public class RealSenseManager
 
             receiver.onSyncedFrames(color.getTimeStamp(), 33333, color.getWidth(), color.getHeight(), colorStride, colorData, depth.getWidth(), depth.getHeight(), depthStride, depthData);
 
-            // temp, for testing
-            receiver.onAccelerometerSample(getLatestAccelerometerSample());
-            receiver.onGyroSample(getLatestGyroSample());
-
             color.releaseAccess();
             depth.releaseAccess();
-        }
 
+            // send IMU samples
+            ArrayList<SensorSample> ameterSamples = getSamplesSince(Sensor.TYPE_ACCELEROMETER, lastAmeterTimestamp);
+            if (ameterSamples != null && ameterSamples.size() > 0 && ameterSamples.get(0) != null)
+            {
+                lastAmeterTimestamp = ameterSamples.get(0).timestamp();
+                receiver.onAccelerometerSamples(ameterSamples);
+            }
+
+            ArrayList<SensorSample> gyroSamples = getSamplesSince(Sensor.TYPE_GYROSCOPE_UNCALIBRATED, lastGyroTimestamp);
+            if (gyroSamples != null && gyroSamples.size() > 0 && gyroSamples.get(0) != null)
+            {
+                lastGyroTimestamp = gyroSamples.get(0).timestamp();
+                receiver.onGyroSamples(gyroSamples);
+            }
+        }
 
         @Override
         public void onError(StreamProfileSet profile, int error)

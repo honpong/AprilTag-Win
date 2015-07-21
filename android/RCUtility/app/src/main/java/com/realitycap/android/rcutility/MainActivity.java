@@ -120,16 +120,16 @@ public class MainActivity extends Activity implements ITrackerReceiver
 	
 	protected boolean startSensors()
 	{
-//        if(!imuMan.startSensors()) return false;
+        if(!imuMan.startSensors()) return false;
         if(!rsMan.startCameras()) return false;
-        if(!rsMan.startImu()) return false;
+//        if(!rsMan.startImu()) return false;
         return true;
 	}
 	
 	protected void stopSensors()
 	{
-//		imuMan.stopSensors();
-        rsMan.stopImu();
+		imuMan.stopSensors();
+//        rsMan.stopImu();
         rsMan.stopCameras();
 	}
 	

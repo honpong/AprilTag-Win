@@ -15,6 +15,7 @@ import com.intel.camera.toolkit.depth.StreamTypeSet;
 import com.intel.camera.toolkit.depth.sensemanager.SenseManager;
 
 import java.nio.ByteBuffer;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Created by benhirashima on 7/2/15.
@@ -33,6 +34,7 @@ public class RealSenseManager
     protected Camera.Calibration.Intrinsics mColorParams; //intrinsics param of color camera
     protected Camera.Calibration.Intrinsics mDepthParams; //intrinsics param of depth camera
     protected Camera.Calibration.Extrinsics mDepthToColorParams;
+    private CountDownLatch startupLatch;
 
     RealSenseManager(Context context, ISyncedFrameReceiver receiver)
     {
@@ -48,6 +50,7 @@ public class RealSenseManager
         {
             try
             {
+                startupLatch = new CountDownLatch(1);
                 if (enablePlayback)
                 {
                     mSenseManager.enableStreams(mSenseEventHandler, playbackCamDesc);
@@ -56,7 +59,7 @@ public class RealSenseManager
                 {
                     mSenseManager.enableStreams(mSenseEventHandler, getUserProfiles(), null);
                 }
-
+                startupLatch.await();
                 mIsCamRunning = true;
             }
             catch (Exception e)
@@ -65,7 +68,6 @@ public class RealSenseManager
                 e.printStackTrace();
             }
         }
-
         return mIsCamRunning;
     }
 
@@ -106,6 +108,7 @@ public class RealSenseManager
 //                mDepthParams 		= cal.depthIntrinsics;
 //                mDepthToColorParams = cal.depthToColorExtrinsics;
             }
+            startupLatch.countDown();
         }
 
 

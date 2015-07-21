@@ -26,7 +26,7 @@ if (NOT CMAKE_C_COMPILER_EXTERNAL_TOOLCHAIN AND NOT CMAKE_C_COMPILER_TARGET) # W
                             --platform=${ANDROID_PLATFORM} --arch=${ANDROID_ARCH} --llvm-version=3.6 --stl=libcxx
                             --install-dir="${ANDROID_TOOLCHAIN_ROOT}")
     if (NOT EXISTS "${ANDROID_TOOLCHAIN_ROOT}/${ANDROID_TOOLCHAIN_MACHINE_NAME}")
-      message(ERROR "failed to build the toolchain: ${ANDROID_TOOLCHAIN_ROOT}/${ANDROID_TOOLCHAIN_MACHINE_NAME}")
+      message(FATAL_ERROR "Failed to build the toolchain: ${ANDROID_TOOLCHAIN_ROOT}/${ANDROID_TOOLCHAIN_MACHINE_NAME}")
     endif()
   endif()
 

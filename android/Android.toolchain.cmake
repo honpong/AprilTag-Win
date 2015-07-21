@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.2.2)
 set(CMAKE_SYSTEM_NAME Linux)
 
 if (NOT CMAKE_C_COMPILER_EXTERNAL_TOOLCHAIN AND NOT CMAKE_C_COMPILER_TARGET) # When called by try_compile these are passed in from below
-  set(ANDROID_NDK "${ANDROID_NDK}" CACHE PATH "Android NDK Path")
+  set(ANDROID_NDK_ROOT "$ENV{ANDROID_NDK_ROOT}" CACHE PATH "Android NDK Path")
   set(ANDROID_PLATFORM "android-21" CACHE STRING "Android Platform")
   set_property(CACHE ANDROID_PLATFORM PROPERTY STRINGS android-21 android-20 android-19)
   set(ANDROID_ARCH "${ANDROID_ARCH}" CACHE STRING "Android Architecture")
@@ -19,7 +19,7 @@ if (NOT CMAKE_C_COMPILER_EXTERNAL_TOOLCHAIN AND NOT CMAKE_C_COMPILER_TARGET) # W
   set(ANDROID_TOOLCHAIN_ROOT "${CMAKE_BINARY_DIR}/toolchain" CACHE PATH "Toolchain root")
   if (NOT EXISTS "${ANDROID_TOOLCHAIN_ROOT}/${ANDROID_TOOLCHAIN_MACHINE_NAME}")
     file(REMOVE_RECURSE "${ANDROID_TOOLCHAIN_ROOT}")
-    execute_process(COMMAND "${ANDROID_NDK}/build/tools/make-standalone-toolchain.sh"
+    execute_process(COMMAND "${ANDROID_NDK_ROOT}/build/tools/make-standalone-toolchain.sh"
                             --platform=${ANDROID_PLATFORM} --arch=${ANDROID_ARCH} --llvm-version=3.6 --stl=libcxx
                             --install-dir="${ANDROID_TOOLCHAIN_ROOT}")
     if (NOT EXISTS "${ANDROID_TOOLCHAIN_ROOT}/${ANDROID_TOOLCHAIN_MACHINE_NAME}")

@@ -120,14 +120,16 @@ public class MainActivity extends Activity implements ITrackerReceiver
 	
 	protected boolean startSensors()
 	{
-        if(!imuMan.startSensors()) return false;
+//        if(!imuMan.startSensors()) return false;
         if(!rsMan.startCameras()) return false;
+        if(!rsMan.startImu()) return false;
         return true;
 	}
 	
 	protected void stopSensors()
 	{
-		imuMan.stopSensors();
+//		imuMan.stopSensors();
+        rsMan.stopImu();
         rsMan.stopCameras();
 	}
 	
@@ -171,9 +173,8 @@ public class MainActivity extends Activity implements ITrackerReceiver
 	protected void stopCalibration()
 	{
 		if (appState != AppState.Calibrating) return;
-		trackerProxy.stopTracker();
-		imuMan.stopSensors();
-        rsMan.stopCameras();
+        trackerProxy.stopTracker();
+		stopSensors();
         String cal = trackerProxy.getCalibration();
         Log.v(MyApplication.TAG, cal);
         setStatusText("Calibration stopped.");

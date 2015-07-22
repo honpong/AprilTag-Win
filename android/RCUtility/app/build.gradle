@@ -44,8 +44,8 @@ model {
 }
 
 tasks.all { task ->
-    if (task.name.contains('Arm') ||
-        task.name.contains('Mips') ||
+    if (task.name.contains('Arm') || task.name.startsWith('arm') ||
+        task.name.contains('Mips') || task.name.startsWith('mips') ||
         task.name.contains('Rc64') && !task.name.contains('_64') && task.name.contains('86') ||
         task.name.contains('Rc86') &&  task.name.contains('_64'))
         task.enabled = false

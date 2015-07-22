@@ -234,6 +234,3 @@ Sunlayar/Sunlayar/HTML/.idea
 workspace.xml
 gradle.xml
 android/RCUtility/.idea/libraries/*.xml
-android/RCUtility/app/build-x86
-android/RCUtility/app/build-x64
-libtracker.so

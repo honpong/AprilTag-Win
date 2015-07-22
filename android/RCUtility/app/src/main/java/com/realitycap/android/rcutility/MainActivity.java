@@ -122,12 +122,14 @@ public class MainActivity extends Activity implements ITrackerReceiver
 	{
         if(!imuMan.startSensors()) return false;
         if(!rsMan.startCameras()) return false;
+//        if(!rsMan.startImu()) return false;
         return true;
 	}
 	
 	protected void stopSensors()
 	{
 		imuMan.stopSensors();
+//        rsMan.stopImu();
         rsMan.stopCameras();
 	}
 	
@@ -136,21 +138,29 @@ public class MainActivity extends Activity implements ITrackerReceiver
 		if (appState != AppState.Idle) return false;
         setStatusText("Starting calibration...");
 
-        if (!startSensors()) cancelCalibration();
+        if (!startSensors())
+        {
+            cancelCalibration();
+            return false;
+        }
 
         Camera.Calibration.Intrinsics intr = rsMan.getCameraIntrinsics();
-        if (intr == null) cancelCalibration();
+        if (intr == null)
+        {
+            cancelCalibration();
+            return false;
+        }
         trackerProxy.configureCamera(0, 640, 480, intr.principalPoint.x, intr.principalPoint.y, intr.focalLength.x, intr.focalLength.y, 0, false, 0);
 
-        boolean result = trackerProxy.startCalibration();
-		if (result)
+        if(!trackerProxy.startCalibration())
         {
-            appState = AppState.Calibrating;
-            setStatusText("Calibrating");
+            cancelCalibration();
+            return false;
         }
-        else cancelCalibration();
 
-		return result;
+        appState = AppState.Calibrating;
+        setStatusText("Calibrating");
+        return true;
 	}
 
     private void cancelCalibration()
@@ -163,9 +173,8 @@ public class MainActivity extends Activity implements ITrackerReceiver
 	protected void stopCalibration()
 	{
 		if (appState != AppState.Calibrating) return;
-		trackerProxy.stopTracker();
-		imuMan.stopSensors();
-        rsMan.stopCameras();
+        trackerProxy.stopTracker();
+		stopSensors();
         String cal = trackerProxy.getCalibration();
         Log.v(MyApplication.TAG, cal);
         setStatusText("Calibration stopped.");

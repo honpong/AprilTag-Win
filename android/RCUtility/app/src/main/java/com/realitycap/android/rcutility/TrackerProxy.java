@@ -1,15 +1,16 @@
 package com.realitycap.android.rcutility;
 
-import android.hardware.Camera;
-import android.hardware.Camera.PreviewCallback;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.util.Log;
 
-import java.nio.ByteBuffer;
+import com.intel.camera.toolkit.depth.sensemanager.SensorSample;
 
-public class TrackerProxy implements SensorEventListener, ISyncedFrameReceiver, ITrackerReceiver
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+
+public class TrackerProxy implements SensorEventListener, IRealSenseSensorReceiver, ITrackerReceiver
 {
     static
     {
@@ -75,13 +76,35 @@ public class TrackerProxy implements SensorEventListener, ISyncedFrameReceiver, 
         Log.d(MyApplication.TAG, String.format("onAccuracyChanged(%s, %d)", sensor.getName(), accuracy));
     }
 
-    //ISyncedFrameReceiver interface
+    //IRealSenseSensorReceiver interface
 
     @Override
     public void onSyncedFrames(long time_us, long shutter_time_us, int width, int height, int stride, final ByteBuffer colorData, int depthWidth, int depthHeight, int depthStride, final ByteBuffer depthData)
     {
         boolean result = receiveImageWithDepth(time_us, shutter_time_us, false, width, height, stride, colorData, depthWidth, depthHeight, depthStride, depthData);
 //        if (!result) Log.w(MyApplication.TAG, "receiveImageWithDepth() returned FALSE");
+    }
+
+    @Override
+    public void onAccelerometerSamples(ArrayList<SensorSample> samples)
+    {
+        if (samples == null) return;
+
+        for (SensorSample sample : samples)
+        {
+            if (sample != null) receiveAccelerometer(sample.values()[0], sample.values()[1], sample.values()[2], sample.timestamp());
+        }
+    }
+
+    @Override
+    public void onGyroSamples(ArrayList<SensorSample> samples)
+    {
+        if (samples == null) return;
+
+        for (SensorSample sample : samples)
+        {
+            if (sample != null) receiveGyro(sample.values()[0], sample.values()[1], sample.values()[2], sample.timestamp());
+        }
     }
 
     // ITrackerReceiver interface

@@ -87,10 +87,10 @@ public class TrackerProxy implements SensorEventListener, ISyncedFrameReceiver, 
     // ITrackerReceiver interface
 
     @Override
-    public void onStatusUpdated(SensorFusionStatus status)
+    public void onStatusUpdated(int runState, int errorCode, int confidence, float progress)
     {
-        Log.d(MyApplication.TAG, String.format("onStatusUpdated - runState: %d progress: %f", status.runState, status.progress));
-        if (receiver != null) receiver.onStatusUpdated(status);
+        Log.d(MyApplication.TAG, String.format("onStatusUpdated - runState: %d progress: %f", runState, progress));
+//        if (receiver != null) receiver.onStatusUpdated(status);
     }
 
     @Override

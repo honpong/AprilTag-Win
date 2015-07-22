@@ -203,29 +203,29 @@ public class MainActivity extends Activity implements ITrackerReceiver
 		return true;
 	}
 
-    @Override public void onStatusUpdated(SensorFusionStatus status)
+    @Override public void onStatusUpdated(int runState, int errorCode, int confidence, float progress)
     {
         if(appState == AppState.Calibrating)
         {
-            if (status.errorCode > 1)
+            if (errorCode > 1)
             {
                 stopCalibration();
-                setStatusText("Tracker error code: " + status.errorCode);
+                setStatusText("Tracker error code: " + errorCode);
                 return;
             }
-            switch (status.runState)
+            switch (runState)
             {
                 case 0: // idle
                     stopCalibration();
                     break;
                 case 1: // static calibration
-                    if (status.progress <= 1.) setStatusText("Place device on a flat surface. Progress: " + status.progress + "%");
+                    if (progress <= 1.) setStatusText("Place device on a flat surface. Progress: " + progress + "%");
                     break;
                 case 5: // portrait calibration
-                    if (status.progress <= 1.) setStatusText("Hold steady in portrait orientation. Progress: " + status.progress + "%");
+                    if (progress <= 1.) setStatusText("Hold steady in portrait orientation. Progress: " + progress + "%");
                     break;
                 case 6:
-                    if (status.progress <= 1.) setStatusText("Hold steady in landscape orientation. Progress: " + status.progress + "%");
+                    if (progress <= 1.) setStatusText("Hold steady in landscape orientation. Progress: " + progress + "%");
                     break;
                 default:
                     break;
@@ -233,10 +233,10 @@ public class MainActivity extends Activity implements ITrackerReceiver
         }
         else if(appState == AppState.Capturing)
         {
-            if (status.errorCode > 1)
+            if (errorCode > 1)
             {
                 stopCapture();
-                setStatusText("Tracker error code: " + status.errorCode);
+                setStatusText("Tracker error code: " + errorCode);
                 return;
             }
         }

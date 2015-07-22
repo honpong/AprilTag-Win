@@ -12,8 +12,11 @@
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, TAG, __VA_ARGS__))
 #define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, TAG, __VA_ARGS__))
 
-JNIEnv *jniEnv;
+JavaVM *javaVM;
 jobject callingObj;
+jclass statusClass;
+jclass dataUpdateClass;
+jmethodID methodId;
 
 static wchar_t *createWcharFromChar(const char *text)
 {
@@ -38,6 +41,13 @@ bool RunExceptionCheck(JNIEnv *env)
     {
         return false;
     }
+}
+
+jint JNI_OnLoad(JavaVM* vm, void* reserved)
+{
+    LOGI("JNI_OnLoad");
+    javaVM = vm;
+    return JNI_VERSION_1_6;
 }
 
 void CallMethod(JNIEnv *env, jclass theClass, jobject obj, const char *methodName, int argument)
@@ -73,72 +83,65 @@ void CallMethod(JNIEnv *env, jclass theClass, jobject obj, const char *methodNam
 
 static void status_callback(void *handle, rc_TrackerState state, rc_TrackerError error, rc_TrackerConfidence confidence, float progress)
 {
-    if (!jniEnv || !callingObj) return;
+    int status;
+    JNIEnv *env;
+    bool isAttached = false;
 
-    // init a SensorFusionStatus instance
-    jclass statusClass = jniEnv->FindClass("com/realitycap/android/rcutility/SensorFusionStatus");
-    if (RunExceptionCheck(jniEnv)) return;
+    status = javaVM->GetEnv((void **) &env, JNI_VERSION_1_6);
+    if (status < 0)
+    {
+        LOGE("Failed to get JNI env");
+        return;
+    }
 
-    jmethodID initId = jniEnv->GetMethodID(statusClass, "<init>", "()V");
-    if (RunExceptionCheck(jniEnv)) return;
+    status = javaVM->AttachCurrentThread(&env, NULL);
+    if (status < 0)
+    {
+        LOGE("callback_handler: failed to attach current thread");
+        return;
+    }
+    isAttached = true;
 
-    jobject statusObj = jniEnv->NewObject(statusClass, initId);
-    if (RunExceptionCheck(jniEnv)) return;
+//    if (!jniEnv || !callingObj || !methodId) return;
 
-    // set properties on SensorFusionStatus instance
-    CallMethod(jniEnv, statusClass, statusObj, "setRunState", (int) state);
-    CallMethod(jniEnv, statusClass, statusObj, "setProgress", progress);
-    CallMethod(jniEnv, statusClass, statusObj, "setConfidence", confidence);
-    CallMethod(jniEnv, statusClass, statusObj, "setErrorCode", (int) error);
-
-    // pass status object to the callback in java land
-    jclass sensorFusionClass = jniEnv->GetObjectClass(callingObj);
-    if (RunExceptionCheck(jniEnv)) return;
-
-    jmethodID methodId = jniEnv->GetMethodID(sensorFusionClass, "onStatusUpdated", "(Lcom/realitycap/android/rcutility/SensorFusionStatus;)V");
-    if (RunExceptionCheck(jniEnv)) return;
-
-    jniEnv->CallVoidMethod(callingObj, methodId, statusObj);
-    if (RunExceptionCheck(jniEnv)) return;
+    env->CallVoidMethod(callingObj, methodId, (int)state, (int)error, (int)confidence, progress);
+    if (RunExceptionCheck(env)) return;
 }
 
 static void data_callback(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count)
 {
-    if (!jniEnv || !callingObj) return;
-
-    // init a SensorFusionData instance
-    jclass dataUpdateClass = jniEnv->FindClass("com/realitycap/android/rcutility/SensorFusionData");
-    if (RunExceptionCheck(jniEnv)) return;
-
-    jmethodID initId = jniEnv->GetMethodID(dataUpdateClass, "<init>", "()V");
-    if (RunExceptionCheck(jniEnv)) return;
-
-    jobject dataUpdateObj = jniEnv->NewObject(dataUpdateClass, initId);
-    if (RunExceptionCheck(jniEnv)) return;
-
-    // set properties on the SensorFusionData instance
-    CallMethod(jniEnv, dataUpdateClass, dataUpdateObj, "setTimestamp", time);
-    CallMethod(jniEnv, dataUpdateClass, dataUpdateObj, "setPose", pose, 12);
-
-    jmethodID methodId = jniEnv->GetMethodID(dataUpdateClass, "addFeaturePoint", "(JFFFFF)V"); // takes a long and 5 floats
-
-    // add features to SensorFusionData instance
-    for (int i = 0; i < feature_count; ++i)
-    {
-        rc_Feature feat = features[i];
-        jniEnv->CallVoidMethod(dataUpdateObj, methodId, feat.id, feat.world.x, feat.world.y, feat.world.z, feat.image_x, feat.image_y);
-        if (RunExceptionCheck(jniEnv)) return;
-    }
-
-    // pass data update object to the callback in java land
-    jclass sensorFusionClass = jniEnv->GetObjectClass(callingObj);
-    if (RunExceptionCheck(jniEnv)) return;
-
-    methodId = jniEnv->GetMethodID(sensorFusionClass, "onDataUpdated", "(Lcom/realitycap/android/rcutility/SensorFusionData;)V");
-    if (RunExceptionCheck(jniEnv)) return;
-
-    jniEnv->CallVoidMethod(callingObj, methodId, dataUpdateObj);
-    if (RunExceptionCheck(jniEnv)) return;
+//    if (!jniEnv || !callingObj || !dataUpdateClass) return;
+//
+//    // init a SensorFusionData instance
+//    jmethodID initId = jniEnv->GetMethodID(dataUpdateClass, "<init>", "()V");
+//    if (RunExceptionCheck(jniEnv)) return;
+//
+//    jobject dataUpdateObj = jniEnv->NewObject(dataUpdateClass, initId);
+//    if (RunExceptionCheck(jniEnv)) return;
+//
+//    // set properties on the SensorFusionData instance
+//    CallMethod(jniEnv, dataUpdateClass, dataUpdateObj, "setTimestamp", time);
+//    CallMethod(jniEnv, dataUpdateClass, dataUpdateObj, "setPose", pose, 12);
+//
+//    jmethodID methodId = jniEnv->GetMethodID(dataUpdateClass, "addFeaturePoint", "(JFFFFF)V"); // takes a long and 5 floats
+//
+//    // add features to SensorFusionData instance
+//    for (int i = 0; i < feature_count; ++i)
+//    {
+//        rc_Feature feat = features[i];
+//        jniEnv->CallVoidMethod(dataUpdateObj, methodId, feat.id, feat.world.x, feat.world.y, feat.world.z, feat.image_x, feat.image_y);
+//        if (RunExceptionCheck(jniEnv)) return;
+//    }
+//
+//    // pass data update object to the callback in java land
+//    jclass sensorFusionClass = jniEnv->GetObjectClass(callingObj);
+//    if (RunExceptionCheck(jniEnv)) return;
+//
+//    methodId = jniEnv->GetMethodID(sensorFusionClass, "onDataUpdated", "(Lcom/realitycap/android/rcutility/SensorFusionData;)V");
+//    if (RunExceptionCheck(jniEnv)) return;
+//
+//    jniEnv->CallVoidMethod(callingObj, methodId, dataUpdateObj);
+//    if (RunExceptionCheck(jniEnv)) return;
 }
 
 rc_Tracker *tracker;
@@ -150,7 +153,14 @@ extern "C"
         LOGD("createTracker");
         tracker = rc_create();
         if (!tracker) return (JNI_FALSE);
-        else return (JNI_TRUE);
+
+        // save these for the callbacks. we are assuming that the callbacks will be made to the same object that imports this function.
+        callingObj = thiz;
+
+        rc_setStatusCallback(tracker, status_callback, NULL);
+        rc_setDataCallback(tracker, data_callback, NULL);
+
+        return (JNI_TRUE);
     }
 
     JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_destroyTracker(JNIEnv *env, jobject thiz)
@@ -166,11 +176,6 @@ extern "C"
         LOGD("startTracker");
         if (!tracker) return (JNI_FALSE);
 
-        // save these for the status callback. not sure if this will work.
-        jniEnv = env;
-        callingObj = thiz;
-
-        rc_setStatusCallback(tracker, status_callback, NULL);
         rc_startTracker(tracker);
 
         return (JNI_TRUE);
@@ -188,6 +193,13 @@ extern "C"
     {
         LOGD("startCalibration");
         if (!tracker) return (JNI_FALSE);
+
+        jclass sensorFusionClass = env->GetObjectClass(thiz);
+        if (RunExceptionCheck(env)) return false;
+
+        methodId = env->GetMethodID(sensorFusionClass, "onStatusUpdated", "(IIIF)V");
+        if (RunExceptionCheck(env)) return false;
+
         rc_startCalibration(tracker);
         return (JNI_TRUE);
     }
@@ -256,7 +268,8 @@ extern "C"
         if (!tracker) return;
         rc_Vector vec = {x, y, z};
         rc_Timestamp ts = timestamp / 1000; // convert ns to us
-        rc_receiveAccelerometer(tracker, ts, vec);
+        status_callback(NULL, rc_E_RUNNING, rc_E_ERROR_NONE, rc_E_CONFIDENCE_HIGH, 10.);
+//        rc_receiveAccelerometer(tracker, ts, vec);
     //	    LOGV("%li accel %f, %f, %f", (long)timestamp, x, y, z);
     }
 
@@ -265,7 +278,7 @@ extern "C"
         if (!tracker) return;
         rc_Vector vec = {x, y, z};
         rc_Timestamp ts = timestamp / 1000; // convert ns to us
-        rc_receiveGyro(tracker, ts, vec);
+//        rc_receiveGyro(tracker, ts, vec);
     //	    LOGV("%li gyro %f, %f, %f", (long)timestamp, x, y, z);
     }
 

@@ -175,8 +175,8 @@ public class MainActivity extends Activity implements ITrackerReceiver
 		if (appState != AppState.Calibrating) return;
         trackerProxy.stopTracker();
 		stopSensors();
-        String cal = trackerProxy.getCalibration();
-        Log.v(MyApplication.TAG, cal);
+//        String cal = trackerProxy.getCalibration();
+//        Log.v(MyApplication.TAG, cal);
         trackerProxy.destroyTracker();
         setStatusText("Calibration stopped.");
 		appState = AppState.Idle;

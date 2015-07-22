@@ -105,9 +105,9 @@ static void status_callback(void *handle, rc_TrackerState state, rc_TrackerError
     }
 
     jclass trackerProxyClass = env->GetObjectClass(*trackerProxyObj);
-    jmethodID methodId = env->GetStaticMethodID(trackerProxyClass, "onStatusUpdated", "(IIIF)V");
+    jmethodID methodId = env->GetMethodID(trackerProxyClass, "onStatusUpdated", "(IIIF)V");
 
-    env->CallStaticVoidMethod(trackerProxyClass, methodId, (int)state, (int)error, (int)confidence, progress);
+    env->CallVoidMethod(*trackerProxyObj, methodId, (int)state, (int)error, (int)confidence, progress);
     RunExceptionCheck(env);
 }
 

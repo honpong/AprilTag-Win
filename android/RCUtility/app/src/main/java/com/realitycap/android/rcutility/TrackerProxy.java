@@ -10,7 +10,7 @@ import com.intel.camera.toolkit.depth.sensemanager.SensorSample;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
-public class TrackerProxy implements SensorEventListener, IRealSenseSensorReceiver
+public class TrackerProxy implements SensorEventListener, IRealSenseSensorReceiver, ITrackerReceiver
 {
     static
     {
@@ -108,14 +108,15 @@ public class TrackerProxy implements SensorEventListener, IRealSenseSensorReceiv
     }
 
     // ITrackerReceiver interface
-
-    public static void onStatusUpdated(int runState, int errorCode, int confidence, float progress)
+    @Override
+    public void onStatusUpdated(int runState, int errorCode, int confidence, float progress)
     {
         Log.d(MyApplication.TAG, String.format("onStatusUpdated - runState: %d progress: %f", runState, progress));
 //        if (receiver != null) receiver.onStatusUpdated(status);
     }
 
-    public static void onDataUpdated(SensorFusionData data)
+    @Override
+    public void onDataUpdated(SensorFusionData data)
     {
         Log.d(MyApplication.TAG, String.format("onDataUpdated - %d features", data.getFeatures().size()));
 //        if (receiver != null) receiver.onDataUpdated(data);

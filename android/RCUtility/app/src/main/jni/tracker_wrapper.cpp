@@ -12,11 +12,9 @@
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, TAG, __VA_ARGS__))
 #define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, TAG, __VA_ARGS__))
 
-JavaVM *javaVM;
-jobject callingObj;
-jclass statusClass;
-jclass dataUpdateClass;
-jmethodID methodId;
+static JavaVM *javaVM;
+static jobject *trackerProxyObj;
+static rc_Tracker *tracker;
 
 static wchar_t *createWcharFromChar(const char *text)
 {
@@ -85,32 +83,37 @@ static void status_callback(void *handle, rc_TrackerState state, rc_TrackerError
 {
     int status;
     JNIEnv *env;
-    bool isAttached = false;
+
+    if (!trackerProxyObj)
+    {
+        LOGE("status_callback: Tracker proxy object is null.");
+        return;
+    }
 
     status = javaVM->GetEnv((void **) &env, JNI_VERSION_1_6);
     if (status < 0)
     {
-        LOGE("Failed to get JNI env");
+        LOGE("status_callback: Failed to get JNI env.");
         return;
     }
 
     status = javaVM->AttachCurrentThread(&env, NULL);
     if (status < 0)
     {
-        LOGE("callback_handler: failed to attach current thread");
+        LOGE("status_callback: Failed to attach current thread.");
         return;
     }
-    isAttached = true;
 
-//    if (!jniEnv || !callingObj || !methodId) return;
+    jclass trackerProxyClass = env->GetObjectClass(*trackerProxyObj);
+    jmethodID methodId = env->GetStaticMethodID(trackerProxyClass, "onStatusUpdated", "(IIIF)V");
 
-    env->CallVoidMethod(callingObj, methodId, (int)state, (int)error, (int)confidence, progress);
-    if (RunExceptionCheck(env)) return;
+    env->CallStaticVoidMethod(trackerProxyClass, methodId, (int)state, (int)error, (int)confidence, progress);
+    RunExceptionCheck(env);
 }
 
 static void data_callback(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count)
 {
-//    if (!jniEnv || !callingObj || !dataUpdateClass) return;
+//    if (!jniEnv || !trackerProxyObj || !dataUpdateClass) return;
 //
 //    // init a SensorFusionData instance
 //    jmethodID initId = jniEnv->GetMethodID(dataUpdateClass, "<init>", "()V");
@@ -134,17 +137,15 @@ static void data_callback(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feat
 //    }
 //
 //    // pass data update object to the callback in java land
-//    jclass sensorFusionClass = jniEnv->GetObjectClass(callingObj);
+//    jclass sensorFusionClass = jniEnv->GetObjectClass(trackerProxyObj);
 //    if (RunExceptionCheck(jniEnv)) return;
 //
 //    methodId = jniEnv->GetMethodID(sensorFusionClass, "onDataUpdated", "(Lcom/realitycap/android/rcutility/SensorFusionData;)V");
 //    if (RunExceptionCheck(jniEnv)) return;
 //
-//    jniEnv->CallVoidMethod(callingObj, methodId, dataUpdateObj);
+//    jniEnv->CallVoidMethod(trackerProxyObj, methodId, dataUpdateObj);
 //    if (RunExceptionCheck(jniEnv)) return;
 }
-
-rc_Tracker *tracker;
 
 extern "C"
 {
@@ -154,8 +155,8 @@ extern "C"
         tracker = rc_create();
         if (!tracker) return (JNI_FALSE);
 
-        // save these for the callbacks. we are assuming that the callbacks will be made to the same object that imports this function.
-        callingObj = thiz;
+        // save this object for the callbacks.
+        trackerProxyObj = &thiz;
 
         rc_setStatusCallback(tracker, status_callback, NULL);
         rc_setDataCallback(tracker, data_callback, NULL);
@@ -168,6 +169,8 @@ extern "C"
         LOGD("destroyTracker");
         if (!tracker) return (JNI_FALSE);
         rc_destroy(tracker);
+        tracker = NULL;
+        trackerProxyObj = NULL;
         return (JNI_TRUE);
     }
 
@@ -194,13 +197,9 @@ extern "C"
         LOGD("startCalibration");
         if (!tracker) return (JNI_FALSE);
 
-        jclass sensorFusionClass = env->GetObjectClass(thiz);
-        if (RunExceptionCheck(env)) return false;
-
-        methodId = env->GetMethodID(sensorFusionClass, "onStatusUpdated", "(IIIF)V");
-        if (RunExceptionCheck(env)) return false;
-
         rc_startCalibration(tracker);
+        status_callback(NULL, rc_E_STATIC_CALIBRATION, rc_E_ERROR_NONE, rc_E_CONFIDENCE_HIGH, 0); // temp, for testing
+
         return (JNI_TRUE);
     }
 
@@ -268,7 +267,6 @@ extern "C"
         if (!tracker) return;
         rc_Vector vec = {x, y, z};
         rc_Timestamp ts = timestamp / 1000; // convert ns to us
-        status_callback(NULL, rc_E_RUNNING, rc_E_ERROR_NONE, rc_E_CONFIDENCE_HIGH, 10.);
 //        rc_receiveAccelerometer(tracker, ts, vec);
     //	    LOGV("%li accel %f, %f, %f", (long)timestamp, x, y, z);
     }

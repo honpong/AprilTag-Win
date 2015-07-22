@@ -99,10 +99,8 @@ public class MainActivity extends Activity implements ITrackerReceiver
 		
 		imuMan.setSensorEventListener(trackerProxy);
 
-		rsMan = new RealSenseManager(this, trackerProxy);
+//		rsMan = new RealSenseManager(this, trackerProxy);
 
-        trackerProxy.createTracker();
-		
 		setStatusText("Ready");		
 	}
 
@@ -120,17 +118,17 @@ public class MainActivity extends Activity implements ITrackerReceiver
 	
 	protected boolean startSensors()
 	{
-        if(!imuMan.startSensors()) return false;
-        if(!rsMan.startCameras()) return false;
+//        if(!imuMan.startSensors()) return false;
+//        if(!rsMan.startCameras()) return false;
 //        if(!rsMan.startImu()) return false;
         return true;
 	}
 	
 	protected void stopSensors()
 	{
-		imuMan.stopSensors();
+//		imuMan.stopSensors();
 //        rsMan.stopImu();
-        rsMan.stopCameras();
+//        rsMan.stopCameras();
 	}
 	
 	protected boolean startCalibration()
@@ -138,19 +136,21 @@ public class MainActivity extends Activity implements ITrackerReceiver
 		if (appState != AppState.Idle) return false;
         setStatusText("Starting calibration...");
 
+        trackerProxy.createTracker();
+
         if (!startSensors())
         {
             cancelCalibration();
             return false;
         }
 
-        Camera.Calibration.Intrinsics intr = rsMan.getCameraIntrinsics();
-        if (intr == null)
-        {
-            cancelCalibration();
-            return false;
-        }
-        trackerProxy.configureCamera(0, 640, 480, intr.principalPoint.x, intr.principalPoint.y, intr.focalLength.x, intr.focalLength.y, 0, false, 0);
+//        Camera.Calibration.Intrinsics intr = rsMan.getCameraIntrinsics();
+//        if (intr == null)
+//        {
+//            cancelCalibration();
+//            return false;
+//        }
+//        trackerProxy.configureCamera(0, 640, 480, intr.principalPoint.x, intr.principalPoint.y, intr.focalLength.x, intr.focalLength.y, 0, false, 0);
 
         if(!trackerProxy.startCalibration())
         {
@@ -166,7 +166,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
     private void cancelCalibration()
     {
         stopSensors();
-        appState = AppState.Idle;
+        trackerProxy.destroyTracker();
         setStatusText("Failed to start calibration");
     }
 	
@@ -177,6 +177,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
 		stopSensors();
         String cal = trackerProxy.getCalibration();
         Log.v(MyApplication.TAG, cal);
+        trackerProxy.destroyTracker();
         setStatusText("Calibration stopped.");
 		appState = AppState.Idle;
 	}

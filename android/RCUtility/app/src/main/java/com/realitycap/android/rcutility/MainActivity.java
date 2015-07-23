@@ -101,8 +101,6 @@ public class MainActivity extends Activity implements ITrackerReceiver
 
 		rsMan = new RealSenseManager(this, trackerProxy);
 
-        trackerProxy.createTracker();
-		
 		setStatusText("Ready");		
 	}
 
@@ -122,14 +120,14 @@ public class MainActivity extends Activity implements ITrackerReceiver
 	{
         if(!imuMan.startSensors()) return false;
         if(!rsMan.startCameras()) return false;
-//        if(!rsMan.startImu()) return false;
+        if(!rsMan.startImu()) return false;
         return true;
 	}
 	
 	protected void stopSensors()
 	{
 		imuMan.stopSensors();
-//        rsMan.stopImu();
+        rsMan.stopImu();
         rsMan.stopCameras();
 	}
 	
@@ -137,6 +135,8 @@ public class MainActivity extends Activity implements ITrackerReceiver
 	{
 		if (appState != AppState.Idle) return false;
         setStatusText("Starting calibration...");
+
+        trackerProxy.createTracker();
 
         if (!startSensors())
         {
@@ -166,7 +166,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
     private void cancelCalibration()
     {
         stopSensors();
-        appState = AppState.Idle;
+        trackerProxy.destroyTracker();
         setStatusText("Failed to start calibration");
     }
 	
@@ -178,6 +178,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
         String cal = trackerProxy.getCalibration();
         if(cal != null) Log.v(MyApplication.TAG, cal);
         else Log.v(MyApplication.TAG, "Calibration not loaded");
+        trackerProxy.destroyTracker();
         setStatusText("Calibration stopped.");
 		appState = AppState.Idle;
 	}
@@ -213,29 +214,29 @@ public class MainActivity extends Activity implements ITrackerReceiver
 		return true;
 	}
 
-    @Override public void onStatusUpdated(SensorFusionStatus status)
+    @Override public void onStatusUpdated(int runState, int errorCode, int confidence, float progress)
     {
         if(appState == AppState.Calibrating)
         {
-            if (status.errorCode > 1)
+            if (errorCode > 1)
             {
                 stopCalibration();
-                setStatusText("Tracker error code: " + status.errorCode);
+                setStatusText("Tracker error code: " + errorCode);
                 return;
             }
-            switch (status.runState)
+            switch (runState)
             {
                 case 0: // idle
                     stopCalibration();
                     break;
                 case 1: // static calibration
-                    if (status.progress <= 1.) setStatusText("Place device on a flat surface. Progress: " + status.progress + "%");
+                    if (progress <= 1.) setStatusText("Place device on a flat surface. Progress: " + progress + "%");
                     break;
                 case 5: // portrait calibration
-                    if (status.progress <= 1.) setStatusText("Hold steady in portrait orientation. Progress: " + status.progress + "%");
+                    if (progress <= 1.) setStatusText("Hold steady in portrait orientation. Progress: " + progress + "%");
                     break;
                 case 6:
-                    if (status.progress <= 1.) setStatusText("Hold steady in landscape orientation. Progress: " + status.progress + "%");
+                    if (progress <= 1.) setStatusText("Hold steady in landscape orientation. Progress: " + progress + "%");
                     break;
                 default:
                     break;
@@ -243,10 +244,10 @@ public class MainActivity extends Activity implements ITrackerReceiver
         }
         else if(appState == AppState.Capturing)
         {
-            if (status.errorCode > 1)
+            if (errorCode > 1)
             {
                 stopCapture();
-                setStatusText("Tracker error code: " + status.errorCode);
+                setStatusText("Tracker error code: " + errorCode);
                 return;
             }
         }

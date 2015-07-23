@@ -5,6 +5,6 @@ package com.realitycap.android.rcutility;
  */
 public interface ITrackerReceiver
 {
-    void onStatusUpdated(SensorFusionStatus status);
+    void onStatusUpdated(int runState, int errorCode, int confidence, float progress);
     void onDataUpdated(SensorFusionData data);
 }

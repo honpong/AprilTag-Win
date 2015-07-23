@@ -108,18 +108,17 @@ public class TrackerProxy implements SensorEventListener, IRealSenseSensorReceiv
     }
 
     // ITrackerReceiver interface
-
     @Override
-    public void onStatusUpdated(SensorFusionStatus status)
+    public void onStatusUpdated(int runState, int errorCode, int confidence, float progress)
     {
-        Log.d(MyApplication.TAG, String.format("onStatusUpdated - runState: %d progress: %f", status.runState, status.progress));
-        if (receiver != null) receiver.onStatusUpdated(status);
+//        Log.d(MyApplication.TAG, String.format("onStatusUpdated - runState: %d progress: %f", runState, progress));
+        if (receiver != null) receiver.onStatusUpdated(runState, errorCode, confidence, progress);
     }
 
     @Override
     public void onDataUpdated(SensorFusionData data)
     {
-        Log.d(MyApplication.TAG, String.format("onDataUpdated - %d features", data.getFeatures().size()));
+//        Log.d(MyApplication.TAG, String.format("onDataUpdated"));
         if (receiver != null) receiver.onDataUpdated(data);
     }
 }

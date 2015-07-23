@@ -296,13 +296,6 @@ int state_vision::process_features(sensor_clock::time_point time)
             delete g;
             return true;
         } else {
-            if(g->status == group_initializing) {
-                for(state_vision_feature *i : g->features.children) {
-                    if (log_enabled) fprintf(stderr, "calling triangulate feature from process\n");
-                    assert(0);
-                    (void)i; //triangulate_feature(&(f->s), i);
-                }
-            }
             return false;
         }
     });

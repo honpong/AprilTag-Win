@@ -69,14 +69,10 @@ void CallMethod(JNIEnv *env, jclass theClass, jobject obj, const char *methodNam
     if (RunExceptionCheck(env)) return;
 }
 
-void CallMethod(JNIEnv *env, jclass theClass, jobject obj, const char *methodName, const float *array, const size_t size)
+void CallMethod(JNIEnv *env, jclass theClass, jobject obj, const char *methodName, const float *array)
 {
-    jmethodID methodId = env->GetMethodID(theClass, methodName, "([F)V"); // takes a float array and returns void. the single bracket is intentional.
-    jfloatArray fArray = env->NewFloatArray(size);
-    void *temp = env->GetPrimitiveArrayCritical((jarray)fArray, 0);
-    memcpy(temp, array, size);
-    env->ReleasePrimitiveArrayCritical(fArray, temp, 0);
-    env->CallVoidMethod(obj, methodId, fArray);
+    jmethodID methodId = env->GetMethodID(theClass, methodName, "(FFFFFFFFFFFF)V");
+    env->CallVoidMethod(obj, methodId, array[0], array[1], array[2], array[3], array[4], array[5], array[6], array[7], array[8], array[9], array[10], array[11], array[12]);
     if (RunExceptionCheck(env)) return;
 }
 
@@ -142,7 +138,7 @@ static void data_callback(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feat
 
     // set properties on the SensorFusionData instance
     CallMethod(env, dataUpdateClass, dataUpdateObj, "setTimestamp", time);
-    if (pose) CallMethod(env, dataUpdateClass, dataUpdateObj, "setPose", pose, 12);
+    if (pose) CallMethod(env, dataUpdateClass, dataUpdateObj, "setPose", pose);
 
     jmethodID methodId = env->GetMethodID(dataUpdateClass, "addFeaturePoint", "(JFFFFF)V"); // takes a long and 5 floats
 

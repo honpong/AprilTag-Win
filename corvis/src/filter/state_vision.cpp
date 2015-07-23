@@ -202,27 +202,6 @@ int state_vision::process_features(sensor_clock::time_point time)
     int total_feats = 0;
     int outliers = 0;
     int track_fail = 0;
-    int toobig = statesize - maxstatesize;
-    //TODO: revisit this - should check after dropping other features, make this more intelligent
-    if(toobig > 0) {
-        int dropped = 0;
-        vector<f_t> vars;
-        for(state_vision_feature *i : features) {
-            vars.push_back(i->variance());
-        }
-        std::sort(vars.begin(), vars.end());
-        if((int)vars.size() > toobig) {
-            f_t min = vars[vars.size() - toobig];
-            for(state_vision_feature *i : features) {
-                if(i->variance() >= min) {
-                    i->status = feature_empty;
-                    ++dropped;
-                    if(dropped >= toobig) break;
-                }
-            }
-            if (log_enabled) fprintf(stderr, "state is %d too big, dropped %d features, min variance %f\n",toobig, dropped, min);
-        }
-    }
     for(state_vision_feature *i : features) {
         if(i->current[0] == INFINITY) {
             ++track_fail;

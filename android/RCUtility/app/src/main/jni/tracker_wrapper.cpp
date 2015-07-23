@@ -234,16 +234,6 @@ extern "C"
         LOGD("startCalibration");
         if (!tracker) return (JNI_FALSE);
 
-        status_callback(NULL, rc_E_STATIC_CALIBRATION, rc_E_ERROR_NONE, rc_E_CONFIDENCE_HIGH, 0); // temp, for testing
-
-        rc_Vector v = { 0, 0, 0 };
-        rc_Feature feature = { 0, v, 0, 0 };
-        rc_Feature features[] = { feature };
-        rc_Pose pose = {0, -1, 0, 0,
-                        -1, 0, 0, 0,
-                        0, 0, -1, 0};
-        data_callback(NULL, 0, pose, features, 1);
-
         rc_startCalibration(tracker);
 
         return (JNI_TRUE);
@@ -317,7 +307,7 @@ extern "C"
         if (!tracker) return;
         rc_Vector vec = {x, y, z};
         rc_Timestamp ts = timestamp / 1000; // convert ns to us
-//        rc_receiveAccelerometer(tracker, ts, vec);
+        rc_receiveAccelerometer(tracker, ts, vec);
     //	    LOGV("%li accel %f, %f, %f", (long)timestamp, x, y, z);
     }
 
@@ -326,7 +316,7 @@ extern "C"
         if (!tracker) return;
         rc_Vector vec = {x, y, z};
         rc_Timestamp ts = timestamp / 1000; // convert ns to us
-//        rc_receiveGyro(tracker, ts, vec);
+        rc_receiveGyro(tracker, ts, vec);
     //	    LOGV("%li gyro %f, %f, %f", (long)timestamp, x, y, z);
     }
 

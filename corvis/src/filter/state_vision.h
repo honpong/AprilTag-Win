@@ -36,7 +36,6 @@ enum feature_flag {
     feature_normal,
     feature_ready,
     feature_initializing,
-    feature_reject,
     feature_single
 };
 

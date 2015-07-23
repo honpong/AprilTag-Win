@@ -44,7 +44,7 @@ void state_vision_feature::drop()
 
 bool state_vision_feature::should_drop() const
 {
-    return status == feature_empty || status == feature_reject || status == feature_gooddrop;
+    return status == feature_empty || status == feature_gooddrop;
 }
 
 bool state_vision_feature::is_valid() const
@@ -229,8 +229,8 @@ int state_vision::process_features(sensor_clock::time_point time)
             if(i->is_good()) ++useful_drops;
             i->drop();
         } else {
-            if(i->status == feature_normal || i->status == feature_reject) ++total_feats;
-            if(i->outlier > i->outlier_reject || i->status == feature_reject) {
+            if(i->status == feature_normal) ++total_feats;
+            if(i->outlier > i->outlier_reject) {
                 i->status = feature_empty;
                 ++outliers;
             }
@@ -283,7 +283,6 @@ int state_vision::process_features(sensor_clock::time_point time)
     //clean up dropped features and groups
     features.remove_if([](state_vision_feature *i) {
         if(i->status == feature_gooddrop) i->status = feature_empty;
-        if(i->status == feature_reject) i->status = feature_empty;
         if(i->status == feature_empty) {
             delete i;
             return true;

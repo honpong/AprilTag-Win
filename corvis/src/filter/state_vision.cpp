@@ -204,10 +204,12 @@ int state_vision::process_features(sensor_clock::time_point time)
     int track_fail = 0;
     for(state_vision_feature *i : features) {
         if(i->current[0] == INFINITY) {
+            // Drop tracking failures
             ++track_fail;
             if(i->is_good()) ++useful_drops;
             i->drop();
         } else {
+            // Drop outliers
             if(i->status == feature_normal) ++total_feats;
             if(i->outlier > i->outlier_reject) {
                 i->status = feature_empty;

@@ -22,7 +22,7 @@ model {
     }
     android.buildTypes {
         release {
-            ndk.ldLibs += ["tracker_release"]
+            ndk.ldLibs += ["tracker"]
             isMinifyEnabled = false
             proguardFiles += file('proguard-rules.pro')
         }
@@ -57,9 +57,8 @@ model {
                         workingDir   "build/cmake/$arch/$type/"
                         commandLine "cmake", "--build", file("build/cmake/$arch/$type/"), "--", "-j" + project.getGradle().startParameter.maxWorkerCount
                         doLast { copy {
-                            from "build/cmake/$arch/$type/libtracker.so"
+                            from "build/cmake/$arch/$type/libtracker${type == 'debug' ? '_debug' : ''}.so"
                             into "build/cmake/jniLibs/$arch"
-                            rename { "libtracker_${type}.so" }
                         } }
                     }.dependsOn project.tasks.create(name: "cmakeTracker${arch.capitalize()}${type.capitalize()}", type: Exec) {
                         mkdir        "build/cmake/$arch/$type/"

@@ -267,10 +267,14 @@ extern "C"
         if (!size) return env->NewStringUTF("");
 
         // convert wchar_t to char
-        char *buffer;
-        wcstombs(buffer, cal, size + 1);
+        char* buffer = (char*)malloc(sizeof(char)*size);
+        wcstombs(buffer, cal, size);
 
-        return env->NewStringUTF(buffer);
+        jstring result = env->NewStringUTF(buffer);
+
+        delete buffer;
+
+        return result;
     }
 
     JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_setCalibration(JNIEnv *env, jobject thiz, jstring calString)

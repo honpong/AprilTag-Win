@@ -117,7 +117,7 @@ static void data_callback(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feat
     if (RunExceptionCheck(jniEnv)) return;
 
     // set properties on the SensorFusionData instance
-    CallMethod(jniEnv, dataUpdateClass, dataUpdateObj, "setTimestamp", time);
+    CallMethod(jniEnv, dataUpdateClass, dataUpdateObj, "setTimestamp", (long)time);
     CallMethod(jniEnv, dataUpdateClass, dataUpdateObj, "setPose", pose, 12);
 
     jmethodID methodId = jniEnv->GetMethodID(dataUpdateClass, "addFeaturePoint", "(JFFFFF)V"); // takes a long and 5 floats

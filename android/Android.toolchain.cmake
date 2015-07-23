@@ -3,27 +3,32 @@ cmake_minimum_required(VERSION 3.2.2)
 set(CMAKE_SYSTEM_NAME Linux)
 
 if (NOT CMAKE_C_COMPILER_EXTERNAL_TOOLCHAIN AND NOT CMAKE_C_COMPILER_TARGET) # When called by try_compile these are passed in from below
-  set(ANDROID_NDK "${ANDROID_NDK}" CACHE PATH "Android NDK Path")
+  find_path(ANDROID_NDK_ROOT "build/tools/make-standalone-toolchain.sh" HINTS ENV ANDROID_NDK_ROOT DOC "Android NDK Path")
+  if (NOT ANDROID_NDK_ROOT)
+    message(FATAL_ERROR "Required (environment) variable \$ANDROID_NDK_ROOT not set to a directory containing ndk-build")
+  endif()
   set(ANDROID_PLATFORM "android-21" CACHE STRING "Android Platform")
   set_property(CACHE ANDROID_PLATFORM PROPERTY STRINGS android-21 android-20 android-19)
   set(ANDROID_ARCH "${ANDROID_ARCH}" CACHE STRING "Android Architecture")
-  set_property(CACHE ANDROID_ARCH PROPERTY STRINGS x86 x86_64 arm64)
+  set_property(CACHE ANDROID_ARCH PROPERTY STRINGS x86 x86_64)
 
   if(ANDROID_ARCH STREQUAL "x86")
     set(CMAKE_SYSTEM_PROCESSOR i686)
-  else()
+  elseif(ANDROID_ARCH STREQUAL "x86_64")
     set(CMAKE_SYSTEM_PROCESSOR ${ANDROID_ARCH})
+  else()
+    message(FATAL_ERROR "ANDROID_ARCH must be set to x86 or x86_64")
   endif()
   set(ANDROID_TOOLCHAIN_MACHINE_NAME "${CMAKE_SYSTEM_PROCESSOR}-linux-android" CACHE INTERNAL "Toolchain target")
 
   set(ANDROID_TOOLCHAIN_ROOT "${CMAKE_BINARY_DIR}/toolchain" CACHE PATH "Toolchain root")
   if (NOT EXISTS "${ANDROID_TOOLCHAIN_ROOT}/${ANDROID_TOOLCHAIN_MACHINE_NAME}")
     file(REMOVE_RECURSE "${ANDROID_TOOLCHAIN_ROOT}")
-    execute_process(COMMAND "${ANDROID_NDK}/build/tools/make-standalone-toolchain.sh"
+    execute_process(COMMAND "${ANDROID_NDK_ROOT}/build/tools/make-standalone-toolchain.sh"
                             --platform=${ANDROID_PLATFORM} --arch=${ANDROID_ARCH} --llvm-version=3.6 --stl=libcxx
                             --install-dir="${ANDROID_TOOLCHAIN_ROOT}")
     if (NOT EXISTS "${ANDROID_TOOLCHAIN_ROOT}/${ANDROID_TOOLCHAIN_MACHINE_NAME}")
-      message(ERROR "failed to build the toolchain: ${ANDROID_TOOLCHAIN_ROOT}/${ANDROID_TOOLCHAIN_MACHINE_NAME}")
+      message(FATAL_ERROR "Failed to build the toolchain: ${ANDROID_TOOLCHAIN_ROOT}/${ANDROID_TOOLCHAIN_MACHINE_NAME}")
     endif()
   endif()
 

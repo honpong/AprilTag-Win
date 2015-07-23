@@ -557,7 +557,6 @@ static int filter_process_features(struct filter *f, sensor_clock::time_point ti
         if(i->status == feature_gooddrop) i->status = feature_empty;
         if(i->status == feature_reject) i->status = feature_empty;
         if(i->status == feature_empty) {
-            f->observations.recent_f_map.erase(i->id);
             delete i;
             return true;
         } else

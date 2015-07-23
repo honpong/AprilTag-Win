@@ -163,6 +163,7 @@ bool observation_queue::process(state &s, sensor_clock::time_point time)
         if(log_enabled) fprintf(stderr, "In Kalman update, original measurement size was %d, ended up with 0 measurements!\n", orig_meas_size);
     }
 
+    recent_f_map.clear();
     for (auto &o : observations)
         cache_recent(std::move(o));
 

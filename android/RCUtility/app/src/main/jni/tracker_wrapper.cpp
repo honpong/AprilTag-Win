@@ -12,7 +12,7 @@
 #define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, TAG, __VA_ARGS__))
 
 static JavaVM *javaVM;
-static jobject *trackerProxyObj;
+static jobject trackerProxyObj;
 static rc_Tracker *tracker;
 static jobject dataUpdateObj;
 
@@ -105,10 +105,10 @@ static void status_callback(void *handle, rc_TrackerState state, rc_TrackerError
         return;
     }
 
-    jclass trackerProxyClass = env->GetObjectClass(*trackerProxyObj);
+    jclass trackerProxyClass = env->GetObjectClass(trackerProxyObj);
     jmethodID methodId = env->GetMethodID(trackerProxyClass, "onStatusUpdated", "(IIIF)V");
 
-    env->CallVoidMethod(*trackerProxyObj, methodId, (int)state, (int)error, (int)confidence, progress);
+    env->CallVoidMethod(trackerProxyObj, methodId, (int)state, (int)error, (int)confidence, progress);
     RunExceptionCheck(env);
 }
 
@@ -154,10 +154,10 @@ static void data_callback(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feat
         if (RunExceptionCheck(env)) return;
     }
 
-    jclass trackerProxyClass = env->GetObjectClass(*trackerProxyObj);
+    jclass trackerProxyClass = env->GetObjectClass(trackerProxyObj);
     methodId = env->GetMethodID(trackerProxyClass, "onDataUpdated", "(Lcom/realitycap/android/rcutility/SensorFusionData;)V");
 
-    env->CallVoidMethod(*trackerProxyObj, methodId, dataUpdateObj);
+    env->CallVoidMethod(trackerProxyObj, methodId, dataUpdateObj);
     if (RunExceptionCheck(env)) return;
 }
 
@@ -193,7 +193,7 @@ extern "C"
         if (!tracker) return (JNI_FALSE);
 
         // save this object for the callbacks.
-        trackerProxyObj = &thiz;
+        trackerProxyObj = env->NewGlobalRef(thiz);
 
         // init a SensorFusionData instance
         initJavaObject(env, "com/realitycap/android/rcutility/SensorFusionData", &dataUpdateObj);

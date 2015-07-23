@@ -10,6 +10,11 @@ public class SensorFusionData
     protected float[] pose;
     protected ArrayList<FeaturePoint> features;
 
+    SensorFusionData ()
+    {
+        features = new ArrayList<>();
+    }
+
     public ArrayList<FeaturePoint> getFeatures()
     {
         return features;

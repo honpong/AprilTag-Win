@@ -15,6 +15,7 @@
 static JavaVM *javaVM;
 static jobject *trackerProxyObj;
 static rc_Tracker *tracker;
+static jobject dataUpdateObj;
 
 static wchar_t *createWcharFromChar(const char *text)
 {
@@ -64,18 +65,19 @@ void CallMethod(JNIEnv *env, jclass theClass, jobject obj, const char *methodNam
 
 void CallMethod(JNIEnv *env, jclass theClass, jobject obj, const char *methodName, long argument)
 {
-    // we have to use jvalue here for some reason
     jmethodID methodId = env->GetMethodID(theClass, methodName, "(J)V");
-    jvalue argVal;
-    argVal.j = argument;
-    env->CallVoidMethod(obj, methodId, argVal);
+    env->CallVoidMethod(obj, methodId, argument);
     if (RunExceptionCheck(env)) return;
 }
 
 void CallMethod(JNIEnv *env, jclass theClass, jobject obj, const char *methodName, const float *array, const size_t size)
 {
     jmethodID methodId = env->GetMethodID(theClass, methodName, "([F)V"); // takes a float array and returns void. the single bracket is intentional.
-    env->CallVoidMethod(obj, methodId, array, size);
+    jfloatArray fArray = env->NewFloatArray(size);
+    void *temp = env->GetPrimitiveArrayCritical((jarray)fArray, 0);
+    memcpy(temp, array, size);
+    env->ReleasePrimitiveArrayCritical(fArray, temp, 0);
+    env->CallVoidMethod(obj, methodId, fArray);
     if (RunExceptionCheck(env)) return;
 }
 
@@ -113,38 +115,74 @@ static void status_callback(void *handle, rc_TrackerState state, rc_TrackerError
 
 static void data_callback(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count)
 {
-//    if (!jniEnv || !trackerProxyObj || !dataUpdateClass) return;
-//
-//    // init a SensorFusionData instance
-//    jmethodID initId = jniEnv->GetMethodID(dataUpdateClass, "<init>", "()V");
-//    if (RunExceptionCheck(jniEnv)) return;
-//
-//    jobject dataUpdateObj = jniEnv->NewObject(dataUpdateClass, initId);
-//    if (RunExceptionCheck(jniEnv)) return;
-//
-//    // set properties on the SensorFusionData instance
-//    CallMethod(jniEnv, dataUpdateClass, dataUpdateObj, "setTimestamp", time);
-//    CallMethod(jniEnv, dataUpdateClass, dataUpdateObj, "setPose", pose, 12);
-//
-//    jmethodID methodId = jniEnv->GetMethodID(dataUpdateClass, "addFeaturePoint", "(JFFFFF)V"); // takes a long and 5 floats
-//
-//    // add features to SensorFusionData instance
-//    for (int i = 0; i < feature_count; ++i)
-//    {
-//        rc_Feature feat = features[i];
-//        jniEnv->CallVoidMethod(dataUpdateObj, methodId, feat.id, feat.world.x, feat.world.y, feat.world.z, feat.image_x, feat.image_y);
-//        if (RunExceptionCheck(jniEnv)) return;
-//    }
-//
-//    // pass data update object to the callback in java land
-//    jclass sensorFusionClass = jniEnv->GetObjectClass(trackerProxyObj);
-//    if (RunExceptionCheck(jniEnv)) return;
-//
-//    methodId = jniEnv->GetMethodID(sensorFusionClass, "onDataUpdated", "(Lcom/realitycap/android/rcutility/SensorFusionData;)V");
-//    if (RunExceptionCheck(jniEnv)) return;
-//
-//    jniEnv->CallVoidMethod(trackerProxyObj, methodId, dataUpdateObj);
-//    if (RunExceptionCheck(jniEnv)) return;
+    int status;
+    JNIEnv *env;
+
+    if (!trackerProxyObj)
+    {
+        LOGE("data_callback: Tracker proxy object is null.");
+        return;
+    }
+
+    status = javaVM->GetEnv((void **) &env, JNI_VERSION_1_6);
+    if (status < 0)
+    {
+        LOGE("data_callback: Failed to get JNI env.");
+        return;
+    }
+
+    status = javaVM->AttachCurrentThread(&env, NULL);
+    if (status < 0)
+    {
+        LOGE("data_callback: Failed to attach current thread.");
+        return;
+    }
+
+    jclass dataUpdateClass = env->GetObjectClass(dataUpdateObj);
+    if (RunExceptionCheck(env)) return;
+
+    // set properties on the SensorFusionData instance
+    CallMethod(env, dataUpdateClass, dataUpdateObj, "setTimestamp", time);
+    if (pose) CallMethod(env, dataUpdateClass, dataUpdateObj, "setPose", pose, 12);
+
+    jmethodID methodId = env->GetMethodID(dataUpdateClass, "addFeaturePoint", "(JFFFFF)V"); // takes a long and 5 floats
+
+    // add features to SensorFusionData instance
+    for (int i = 0; i < feature_count; ++i)
+    {
+        rc_Feature feat = features[i];
+        env->CallVoidMethod(dataUpdateObj, methodId, feat.id, feat.world.x, feat.world.y, feat.world.z, feat.image_x, feat.image_y);
+        if (RunExceptionCheck(env)) return;
+    }
+
+    jclass trackerProxyClass = env->GetObjectClass(*trackerProxyObj);
+    methodId = env->GetMethodID(trackerProxyClass, "onDataUpdated", "(Lcom/realitycap/android/rcutility/SensorFusionData;)V");
+
+    env->CallVoidMethod(*trackerProxyObj, methodId, dataUpdateObj);
+    if (RunExceptionCheck(env)) return;
+}
+
+void initJavaObject(JNIEnv *env, const char *path, jobject *objptr)
+{
+    jclass cls = env->FindClass(path);
+    if (!cls)
+    {
+        LOGE("initJavaObject: failed to get %s class reference", path);
+        return;
+    }
+    jmethodID constr = env->GetMethodID(cls, "<init>", "()V");
+    if (!constr)
+    {
+        LOGE("initJavaObject: failed to get %s constructor", path);
+        return;
+    }
+    jobject obj = env->NewObject(cls, constr);
+    if (!obj)
+    {
+        LOGE("initJavaObject: failed to create a %s object", path);
+        return;
+    }
+    (*objptr) = env->NewGlobalRef(obj);
 }
 
 extern "C"
@@ -157,6 +195,9 @@ extern "C"
 
         // save this object for the callbacks.
         trackerProxyObj = &thiz;
+
+        // init a SensorFusionData instance
+        initJavaObject(env, "com/realitycap/android/rcutility/SensorFusionData", &dataUpdateObj);
 
         rc_setStatusCallback(tracker, status_callback, NULL);
         rc_setDataCallback(tracker, data_callback, NULL);
@@ -197,8 +238,17 @@ extern "C"
         LOGD("startCalibration");
         if (!tracker) return (JNI_FALSE);
 
-        rc_startCalibration(tracker);
         status_callback(NULL, rc_E_STATIC_CALIBRATION, rc_E_ERROR_NONE, rc_E_CONFIDENCE_HIGH, 0); // temp, for testing
+
+        rc_Vector v = { 0, 0, 0 };
+        rc_Feature feature = { 0, v, 0, 0 };
+        rc_Feature features[] = { feature };
+        rc_Pose pose = {0, -1, 0, 0,
+                        -1, 0, 0, 0,
+                        0, 0, -1, 0};
+        data_callback(NULL, 0, pose, features, 1);
+
+        rc_startCalibration(tracker);
 
         return (JNI_TRUE);
     }

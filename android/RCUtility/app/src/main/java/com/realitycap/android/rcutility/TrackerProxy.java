@@ -118,7 +118,7 @@ public class TrackerProxy implements SensorEventListener, IRealSenseSensorReceiv
     @Override
     public void onDataUpdated(SensorFusionData data)
     {
-        Log.d(MyApplication.TAG, String.format("onDataUpdated - %d features", data.getFeatures().size()));
+        Log.d(MyApplication.TAG, String.format("onDataUpdated"));
 //        if (receiver != null) receiver.onDataUpdated(data);
     }
 }

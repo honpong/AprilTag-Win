@@ -282,8 +282,7 @@ int state_vision::process_features(sensor_clock::time_point time)
 
     //clean up dropped features and groups
     features.remove_if([](state_vision_feature *i) {
-        if(i->status == feature_gooddrop) i->status = feature_empty;
-        if(i->status == feature_empty) {
+        if(i->should_drop()) {
             delete i;
             return true;
         } else

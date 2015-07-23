@@ -224,19 +224,22 @@ public class MainActivity extends Activity implements ITrackerReceiver
                 setStatusText("Tracker error code: " + errorCode);
                 return;
             }
+
+            int percentage = Math.round(progress * 100);
+
             switch (runState)
             {
                 case 0: // idle
                     stopCalibration();
                     break;
                 case 1: // static calibration
-                    if (progress <= 1.) setStatusText("Place device on a flat surface. Progress: " + progress + "%");
+                    if (progress <= 1.) setStatusText("Place device on a flat surface. Progress: " + percentage + "%");
                     break;
                 case 5: // portrait calibration
-                    if (progress <= 1.) setStatusText("Hold steady in portrait orientation. Progress: " + progress + "%");
+                    if (progress <= 1.) setStatusText("Hold steady in portrait orientation. Progress: " + percentage + "%");
                     break;
-                case 6:
-                    if (progress <= 1.) setStatusText("Hold steady in landscape orientation. Progress: " + progress + "%");
+                case 6: // landscape calibraiton
+                    if (progress <= 1.) setStatusText("Hold steady in landscape orientation. Progress: " + percentage + "%");
                     break;
                 default:
                     break;

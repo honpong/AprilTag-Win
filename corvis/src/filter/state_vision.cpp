@@ -198,6 +198,47 @@ void state_vision::reset_position()
 
 int state_vision::process_features(sensor_clock::time_point time)
 {
+    int useful_drops = 0;
+    int total_feats = 0;
+    int outliers = 0;
+    int track_fail = 0;
+    int toobig = statesize - maxstatesize;
+    //TODO: revisit this - should check after dropping other features, make this more intelligent
+    if(toobig > 0) {
+        int dropped = 0;
+        vector<f_t> vars;
+        for(state_vision_feature *i : features) {
+            vars.push_back(i->variance());
+        }
+        std::sort(vars.begin(), vars.end());
+        if((int)vars.size() > toobig) {
+            f_t min = vars[vars.size() - toobig];
+            for(state_vision_feature *i : features) {
+                if(i->variance() >= min) {
+                    i->status = feature_empty;
+                    ++dropped;
+                    if(dropped >= toobig) break;
+                }
+            }
+            if (log_enabled) fprintf(stderr, "state is %d too big, dropped %d features, min variance %f\n",toobig, dropped, min);
+        }
+    }
+    for(state_vision_feature *i : features) {
+        if(i->current[0] == INFINITY) {
+            ++track_fail;
+            if(i->is_good()) ++useful_drops;
+            i->drop();
+        } else {
+            if(i->status == feature_normal || i->status == feature_reject) ++total_feats;
+            if(i->outlier > i->outlier_reject || i->status == feature_reject) {
+                i->status = feature_empty;
+                ++outliers;
+            }
+        }
+    }
+    if(track_fail && !total_feats && log_enabled) fprintf(stderr, "Tracker failed! %d features dropped.\n", track_fail);
+    //    if (log_enabled) fprintf(stderr, "outliers: %d/%d (%f%%)\n", outliers, total_feats, outliers * 100. / total_feats);
+
     int total_health = 0;
     bool need_reference = true;
     state_vision_group *best_group = 0;
@@ -238,6 +279,36 @@ int state_vision::process_features(sensor_clock::time_point time)
         total_health += best_group->make_reference();
         reference = best_group;
     }
+
+    //clean up dropped features and groups
+    features.remove_if([](state_vision_feature *i) {
+        if(i->status == feature_gooddrop) i->status = feature_empty;
+        if(i->status == feature_reject) i->status = feature_empty;
+        if(i->status == feature_empty) {
+            delete i;
+            return true;
+        } else
+            return false;
+    });
+
+    groups.children.remove_if([](state_vision_group *g) {
+        if(g->status == group_empty) {
+            delete g;
+            return true;
+        } else {
+            if(g->status == group_initializing) {
+                for(state_vision_feature *i : g->features.children) {
+                    if (log_enabled) fprintf(stderr, "calling triangulate feature from process\n");
+                    assert(0);
+                    (void)i; //triangulate_feature(&(f->s), i);
+                }
+            }
+            return false;
+        }
+    });
+
+    remap();
+
     return total_health;
 }
 

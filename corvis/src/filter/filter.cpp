@@ -501,89 +501,6 @@ void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_
     }
 }
 
-static int filter_process_features(struct filter *f, sensor_clock::time_point time)
-{
-    int useful_drops = 0;
-    int total_feats = 0;
-    int outliers = 0;
-    int track_fail = 0;
-    int toobig = f->s.statesize - f->s.maxstatesize;
-    //TODO: revisit this - should check after dropping other features, make this more intelligent
-    if(toobig > 0) {
-        int dropped = 0;
-        vector<f_t> vars;
-        for(state_vision_feature *i : f->s.features) {
-            vars.push_back(i->variance());
-        }
-        std::sort(vars.begin(), vars.end());
-        if((int)vars.size() > toobig) {
-            f_t min = vars[vars.size() - toobig];
-            for(state_vision_feature *i : f->s.features) {
-                if(i->variance() >= min) {
-                    i->status = feature_empty;
-                    ++dropped;
-                    if(dropped >= toobig) break;
-                }
-            }
-            if (log_enabled) fprintf(stderr, "state is %d too big, dropped %d features, min variance %f\n",toobig, dropped, min);
-        }
-    }
-    for(state_vision_feature *i : f->s.features) {
-        if(i->current[0] == INFINITY) {
-            ++track_fail;
-            if(i->is_good()) ++useful_drops;
-            i->drop();
-        } else {
-            if(i->status == feature_normal || i->status == feature_reject) ++total_feats;
-            if(i->outlier > i->outlier_reject || i->status == feature_reject) {
-                i->status = feature_empty;
-                ++outliers;
-            }
-        }
-    }
-    if(track_fail && !total_feats && log_enabled) fprintf(stderr, "Tracker failed! %d features dropped.\n", track_fail);
-    //    if (log_enabled) fprintf(stderr, "outliers: %d/%d (%f%%)\n", outliers, total_feats, outliers * 100. / total_feats);
-    int features_used = f->s.process_features(time);
-    if(!features_used)
-    {
-        //Lost all features - reset convergence
-        f->has_converged = false;
-        f->max_velocity = 0.;
-        f->median_depth_variance = 1.;
-    }
-
-    //clean up dropped features and groups
-    f->s.features.remove_if([f](state_vision_feature *i) {
-        if(i->status == feature_gooddrop) i->status = feature_empty;
-        if(i->status == feature_reject) i->status = feature_empty;
-        if(i->status == feature_empty) {
-            delete i;
-            return true;
-        } else
-            return false;
-    });
-
-    f->s.groups.children.remove_if([f](state_vision_group *g) {
-        if(g->status == group_empty) {
-            delete g;
-            return true;
-        } else {
-            if(g->status == group_initializing) {
-                for(state_vision_feature *i : g->features.children) {
-                    if (log_enabled) fprintf(stderr, "calling triangulate feature from process\n");
-                    assert(0);
-                    (void)i; //triangulate_feature(&(f->s), i);
-                }
-            }
-            return false;
-        }
-    });
-
-    f->s.remap();
-
-    return features_used;
-}
-
 void filter_setup_next_frame(struct filter *f, const uint8_t *image, sensor_clock::time_point time)
 {
     size_t feats_used = f->s.features.size();
@@ -814,7 +731,14 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
         cerr << observation_vision_feature::inn_stdev[1];
     }
 
-    filter_process_features(f, time);
+    int features_used = f->s.process_features(time);
+    if(!features_used)
+    {
+        //Lost all features - reset convergence
+        f->has_converged = false;
+        f->max_velocity = 0.;
+        f->median_depth_variance = 1.;
+    }
 
     int space = f->s.maxstatesize - f->s.statesize - 6;
     if(space > f->max_group_add) space = f->max_group_add;

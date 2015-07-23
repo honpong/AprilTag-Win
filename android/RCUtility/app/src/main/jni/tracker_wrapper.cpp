@@ -1,7 +1,6 @@
 #include <string.h>
 #include <jni.h>
 #include <android/log.h>
-#include "rc_intel_interface.h"
 #include <stdlib.h>
 #include <rc_intel_interface.h>
 

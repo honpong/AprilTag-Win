@@ -207,6 +207,7 @@ extern "C"
         rc_destroy(tracker);
         tracker = NULL;
         trackerProxyObj = NULL;
+        env->DeleteGlobalRef(trackerProxyObj);
         return (JNI_TRUE);
     }
 

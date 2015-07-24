@@ -144,6 +144,10 @@ static void data_callback(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feat
     env->CallVoidMethod(dataUpdateObj, methodId, pose[0], pose[1], pose[2], pose[3], pose[4], pose[5], pose[6], pose[7], pose[8], pose[9], pose[10], pose[11]);
     if (RunExceptionCheck(env)) return;
 
+    methodId = env->GetMethodID(dataUpdateClass, "clearFeaturePoints", "()V"); // necessary because we are reusing the cached instance of SensorFusionData
+    env->CallVoidMethod(dataUpdateObj, methodId);
+    if (RunExceptionCheck(env)) return;
+
     methodId = env->GetMethodID(dataUpdateClass, "addFeaturePoint", "(JFFFFF)V"); // takes a long and 5 floats
 
     // add features to SensorFusionData instance

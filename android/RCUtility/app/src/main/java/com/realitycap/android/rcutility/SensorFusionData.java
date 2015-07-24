@@ -36,6 +36,11 @@ public class SensorFusionData
         features.add(feature);
     }
 
+    public void clearFeaturePoints()
+    {
+        features.clear();
+    }
+
     public float[] getPose()
     {
         return pose;

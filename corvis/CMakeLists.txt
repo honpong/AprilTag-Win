@@ -6,7 +6,7 @@ project(${PACKAGE_NAME} C CXX)
 
 if(WIN32 OR ANDROID)
 else()
-    add_compile_options(-march=native -mfpmath=sse -O3)
+    add_compile_options(-march=native -mfpmath=sse)
 endif()
 
 set(ENABLE_STEREO true)

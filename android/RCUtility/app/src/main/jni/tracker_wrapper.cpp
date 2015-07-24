@@ -16,6 +16,13 @@ static jobject trackerProxyObj;
 static rc_Tracker *tracker;
 static jobject dataUpdateObj;
 
+jint JNI_OnLoad(JavaVM* vm, void* reserved)
+{
+    LOGI("JNI_OnLoad");
+    javaVM = vm;
+    return JNI_VERSION_1_6;
+}
+
 #pragma mark - utility functions
 
 static wchar_t *createWcharFromChar(const char *text)
@@ -41,41 +48,6 @@ bool RunExceptionCheck(JNIEnv *env)
     {
         return false;
     }
-}
-
-jint JNI_OnLoad(JavaVM* vm, void* reserved)
-{
-    LOGI("JNI_OnLoad");
-    javaVM = vm;
-    return JNI_VERSION_1_6;
-}
-
-void CallJavaMethod(JNIEnv *env, jclass theClass, jobject obj, const char *methodName, int argument)
-{
-    jmethodID methodId = env->GetMethodID(theClass, methodName, "(I)V");
-    env->CallVoidMethod(obj, methodId, argument);
-    if (RunExceptionCheck(env)) return;
-}
-
-void CallJavaMethod(JNIEnv *env, jclass theClass, jobject obj, const char *methodName, float argument)
-{
-    jmethodID methodId = env->GetMethodID(theClass, methodName, "(F)V");
-    env->CallVoidMethod(obj, methodId, argument);
-    if (RunExceptionCheck(env)) return;
-}
-
-void CallJavaMethod(JNIEnv *env, jclass theClass, jobject obj, const char *methodName, long argument)
-{
-    jmethodID methodId = env->GetMethodID(theClass, methodName, "(J)V");
-    env->CallVoidMethod(obj, methodId, argument);
-    if (RunExceptionCheck(env)) return;
-}
-
-void CallJavaMethod(JNIEnv *env, jclass theClass, jobject obj, const char *methodName, const float *array)
-{
-    jmethodID methodId = env->GetMethodID(theClass, methodName, "(FFFFFFFFFFFF)V");
-    env->CallVoidMethod(obj, methodId, array[0], array[1], array[2], array[3], array[4], array[5], array[6], array[7], array[8], array[9], array[10], array[11], array[12]);
-    if (RunExceptionCheck(env)) return;
 }
 
 void initJavaObject(JNIEnv *env, const char *path, jobject *objptr)
@@ -164,10 +136,15 @@ static void data_callback(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feat
     if (RunExceptionCheck(env)) return;
 
     // set properties on the SensorFusionData instance
-    CallJavaMethod(env, dataUpdateClass, dataUpdateObj, "setTimestamp", (long) time);
-    if (pose) CallJavaMethod(env, dataUpdateClass, dataUpdateObj, "setPose", pose);
+    jmethodID methodId = env->GetMethodID(dataUpdateClass, "setTimestamp", "(J)V");
+    env->CallVoidMethod(dataUpdateObj, methodId, (long) time);
+    if (RunExceptionCheck(env)) return;
 
-    jmethodID methodId = env->GetMethodID(dataUpdateClass, "addFeaturePoint", "(JFFFFF)V"); // takes a long and 5 floats
+    methodId = env->GetMethodID(dataUpdateClass, "setPose", "(FFFFFFFFFFFF)V");
+    env->CallVoidMethod(dataUpdateObj, methodId, pose[0], pose[1], pose[2], pose[3], pose[4], pose[5], pose[6], pose[7], pose[8], pose[9], pose[10], pose[11]);
+    if (RunExceptionCheck(env)) return;
+
+    methodId = env->GetMethodID(dataUpdateClass, "addFeaturePoint", "(JFFFFF)V"); // takes a long and 5 floats
 
     // add features to SensorFusionData instance
     for (int i = 0; i < feature_count; ++i)

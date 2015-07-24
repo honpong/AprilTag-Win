@@ -24,7 +24,6 @@ public class MainActivity extends Activity implements ITrackerReceiver
 	private Button replayButton;
 	
 	IMUManager imuMan;
-	VideoManager videoMan;
 	TrackerProxy trackerProxy;
     RealSenseManager rsMan;
 
@@ -94,7 +93,6 @@ public class MainActivity extends Activity implements ITrackerReceiver
 		});
 		
 		imuMan = new IMUManager();
-		videoMan = new VideoManager();
 		trackerProxy = new TrackerProxy();
 		
 		imuMan.setSensorEventListener(trackerProxy);
@@ -141,6 +139,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
         if (!startSensors())
         {
             cancelCalibration();
+            setStatusText("Failed to start sensors.");
             return false;
         }
 
@@ -148,9 +147,10 @@ public class MainActivity extends Activity implements ITrackerReceiver
         if (intr == null)
         {
             cancelCalibration();
+            setStatusText("Failed to get camera intrinsics.");
             return false;
         }
-        trackerProxy.configureCamera(0, 640, 480, intr.principalPoint.x, intr.principalPoint.y, intr.focalLength.x, intr.focalLength.y, 0, false, 0);
+        trackerProxy.configureCamera(TrackerProxy.CAMERA_EGRAY8, 640, 480, intr.principalPoint.x, intr.principalPoint.y, intr.focalLength.x, intr.focalLength.y, 0, false, 0);
 
         if(!trackerProxy.startCalibration())
         {
@@ -177,12 +177,13 @@ public class MainActivity extends Activity implements ITrackerReceiver
 		stopSensors();
         String cal = trackerProxy.getCalibration();
         if(cal != null) Log.v(MyApplication.TAG, cal);
-        else Log.v(MyApplication.TAG, "Calibration not loaded");
+        else Log.w(MyApplication.TAG, "Calibration not loaded");
         trackerProxy.destroyTracker();
         setStatusText("Calibration stopped.");
 		appState = AppState.Idle;
 	}
-	
+
+    // work in progress
 	protected boolean startCapture()
 	{
 		if (appState != AppState.Idle) return false;
@@ -198,22 +199,25 @@ public class MainActivity extends Activity implements ITrackerReceiver
 		appState = AppState.Capturing;
 		return true;
 	}
-	
-	protected void stopCapture()
+
+    // work in progress
+    protected void stopCapture()
 	{
 		if (appState != AppState.Capturing) return;
 		stopSensors();
 		setStatusText("Capture stopped.");
 		appState = AppState.Idle;
 	}
-	
-	protected boolean startLiveActivity()
+
+    // work in progress
+    protected boolean startLiveActivity()
 	{
 		if (appState != AppState.Idle) return false;
 		setStatusText("startLiveActivity");
 		return true;
 	}
 
+    // work in progress
     @Override public void onStatusUpdated(int runState, int errorCode, int confidence, float progress)
     {
         if(appState == AppState.Calibrating)
@@ -256,12 +260,14 @@ public class MainActivity extends Activity implements ITrackerReceiver
         }
     }
 
+    // work in progress
     @Override public void onDataUpdated(SensorFusionData data)
     {
 
     }
-	
-	protected boolean openFilePicker()
+
+    // work in progress
+    protected boolean openFilePicker()
 	{
 		if (appState != AppState.Idle) return false;
 		setStatusText("openFilePicker");

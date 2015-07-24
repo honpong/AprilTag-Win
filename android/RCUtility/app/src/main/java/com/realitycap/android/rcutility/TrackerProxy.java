@@ -53,8 +53,7 @@ public class TrackerProxy implements SensorEventListener, IRealSenseSensorReceiv
         this.receiver = receiver;
     }
 
-    // SensorEventListener interface
-
+    //region SensorEventListener interface. sensor data from android API comes in here.
     @Override
     public void onSensorChanged(SensorEvent sensorEvent)
     {
@@ -75,9 +74,9 @@ public class TrackerProxy implements SensorEventListener, IRealSenseSensorReceiv
     {
         Log.d(MyApplication.TAG, String.format("onAccuracyChanged(%s, %d)", sensor.getName(), accuracy));
     }
+    //endregion
 
-    //IRealSenseSensorReceiver interface
-
+    //region IRealSenseSensorReceiver interface. sensor data from RS API comes in here.
     @Override
     public void onSyncedFrames(long time_us, long shutter_time_us, int width, int height, int stride, final ByteBuffer colorData, int depthWidth, int depthHeight, int depthStride, final ByteBuffer depthData)
     {
@@ -106,8 +105,9 @@ public class TrackerProxy implements SensorEventListener, IRealSenseSensorReceiv
             if (sample != null) receiveGyro(sample.values()[0], sample.values()[1], sample.values()[2], sample.timestamp());
         }
     }
+    //endregion
 
-    // ITrackerReceiver interface
+    //region ITrackerReceiver interface. callbacks from tracker library come in here.
     @Override
     public void onStatusUpdated(int runState, int errorCode, int confidence, float progress)
     {
@@ -121,4 +121,5 @@ public class TrackerProxy implements SensorEventListener, IRealSenseSensorReceiv
 //        Log.d(MyApplication.TAG, String.format("onDataUpdated"));
         if (receiver != null) receiver.onDataUpdated(data);
     }
+    //endregion
 }

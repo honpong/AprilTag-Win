@@ -36,8 +36,6 @@ public class RealSenseManager
     private Camera.Desc playbackCamDesc = new Camera.Desc(Camera.Type.PLAYBACK, Camera.Facing.ANY, userStreamTypes);
 
     protected Camera.Calibration.Intrinsics mColorParams; //intrinsics param of color camera
-    protected Camera.Calibration.Intrinsics mDepthParams; //intrinsics param of depth camera
-    protected Camera.Calibration.Extrinsics mDepthToColorParams;
     private CountDownLatch startupLatch;
 
     RealSenseManager(Context context, IRealSenseSensorReceiver receiver)
@@ -95,9 +93,6 @@ public class RealSenseManager
         }
     }
 
-    /**
-     * start delivery of IMU samples
-     */
     public boolean startImu()
     {
         if (mIMUManager == null) return false;
@@ -123,9 +118,6 @@ public class RealSenseManager
         }
     }
 
-    /**
-     * Close delivery of IMU samples
-     */
     public void stopImu()
     {
         try
@@ -170,12 +162,7 @@ public class RealSenseManager
         {
 //            Log.i(MyApplication.TAG, "OnSetProfile");
             Camera.Calibration cal = info.getCalibrationData();
-            if (cal != null)
-            {
-                mColorParams 		= cal.colorIntrinsics;
-//                mDepthParams 		= cal.depthIntrinsics;
-//                mDepthToColorParams = cal.depthToColorExtrinsics;
-            }
+            if (cal != null) mColorParams = cal.colorIntrinsics;
             startupLatch.countDown();
         }
 
@@ -236,11 +223,8 @@ public class RealSenseManager
         StreamProfileSet set = new StreamProfileSet();
         StreamProfile colorProfile = new StreamProfile(640, 480, RSPixelFormat.RGBA_8888, 30, StreamType.COLOR);
         StreamProfile depthProfile = new StreamProfile(320, 240, RSPixelFormat.Z16, 30, StreamType.DEPTH);
-//        StreamProfile depthProfile = new StreamProfile(480, 360, RSPixelFormat.Z16, 30, StreamType.DEPTH);
-//        StreamProfile uvProfile = new StreamProfile(480, 360, RSPixelFormat.UVMAP, 30, StreamType.UVMAP);
         set.set(StreamType.COLOR, colorProfile);
         set.set(StreamType.DEPTH, depthProfile);
-//        set.set(StreamType.UVMAP, uvProfile);
 
         return set;
     }

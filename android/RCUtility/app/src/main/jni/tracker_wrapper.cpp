@@ -16,6 +16,8 @@ static jobject trackerProxyObj;
 static rc_Tracker *tracker;
 static jobject dataUpdateObj;
 
+#pragma mark - utility functions
+
 static wchar_t *createWcharFromChar(const char *text)
 {
     size_t size = strlen(text) + 1;
@@ -48,33 +50,58 @@ jint JNI_OnLoad(JavaVM* vm, void* reserved)
     return JNI_VERSION_1_6;
 }
 
-void CallMethod(JNIEnv *env, jclass theClass, jobject obj, const char *methodName, int argument)
+void CallJavaMethod(JNIEnv *env, jclass theClass, jobject obj, const char *methodName, int argument)
 {
     jmethodID methodId = env->GetMethodID(theClass, methodName, "(I)V");
     env->CallVoidMethod(obj, methodId, argument);
     if (RunExceptionCheck(env)) return;
 }
 
-void CallMethod(JNIEnv *env, jclass theClass, jobject obj, const char *methodName, float argument)
+void CallJavaMethod(JNIEnv *env, jclass theClass, jobject obj, const char *methodName, float argument)
 {
     jmethodID methodId = env->GetMethodID(theClass, methodName, "(F)V");
     env->CallVoidMethod(obj, methodId, argument);
     if (RunExceptionCheck(env)) return;
 }
 
-void CallMethod(JNIEnv *env, jclass theClass, jobject obj, const char *methodName, long argument)
+void CallJavaMethod(JNIEnv *env, jclass theClass, jobject obj, const char *methodName, long argument)
 {
     jmethodID methodId = env->GetMethodID(theClass, methodName, "(J)V");
     env->CallVoidMethod(obj, methodId, argument);
     if (RunExceptionCheck(env)) return;
 }
 
-void CallMethod(JNIEnv *env, jclass theClass, jobject obj, const char *methodName, const float *array)
+void CallJavaMethod(JNIEnv *env, jclass theClass, jobject obj, const char *methodName, const float *array)
 {
     jmethodID methodId = env->GetMethodID(theClass, methodName, "(FFFFFFFFFFFF)V");
     env->CallVoidMethod(obj, methodId, array[0], array[1], array[2], array[3], array[4], array[5], array[6], array[7], array[8], array[9], array[10], array[11], array[12]);
     if (RunExceptionCheck(env)) return;
 }
+
+void initJavaObject(JNIEnv *env, const char *path, jobject *objptr)
+{
+    jclass cls = env->FindClass(path);
+    if (!cls)
+    {
+        LOGE("initJavaObject: failed to get %s class reference", path);
+        return;
+    }
+    jmethodID constr = env->GetMethodID(cls, "<init>", "()V");
+    if (!constr)
+    {
+        LOGE("initJavaObject: failed to get %s constructor", path);
+        return;
+    }
+    jobject obj = env->NewObject(cls, constr);
+    if (!obj)
+    {
+        LOGE("initJavaObject: failed to create a %s object", path);
+        return;
+    }
+    (*objptr) = env->NewGlobalRef(obj);
+}
+
+#pragma mark - callbacks up into java land
 
 static void status_callback(void *handle, rc_TrackerState state, rc_TrackerError error, rc_TrackerConfidence confidence, float progress)
 {
@@ -137,8 +164,8 @@ static void data_callback(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feat
     if (RunExceptionCheck(env)) return;
 
     // set properties on the SensorFusionData instance
-    CallMethod(env, dataUpdateClass, dataUpdateObj, "setTimestamp", (long)time);
-    if (pose) CallMethod(env, dataUpdateClass, dataUpdateObj, "setPose", pose);
+    CallJavaMethod(env, dataUpdateClass, dataUpdateObj, "setTimestamp", (long) time);
+    if (pose) CallJavaMethod(env, dataUpdateClass, dataUpdateObj, "setPose", pose);
 
     jmethodID methodId = env->GetMethodID(dataUpdateClass, "addFeaturePoint", "(JFFFFF)V"); // takes a long and 5 floats
 
@@ -157,28 +184,7 @@ static void data_callback(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feat
     if (RunExceptionCheck(env)) return;
 }
 
-void initJavaObject(JNIEnv *env, const char *path, jobject *objptr)
-{
-    jclass cls = env->FindClass(path);
-    if (!cls)
-    {
-        LOGE("initJavaObject: failed to get %s class reference", path);
-        return;
-    }
-    jmethodID constr = env->GetMethodID(cls, "<init>", "()V");
-    if (!constr)
-    {
-        LOGE("initJavaObject: failed to get %s constructor", path);
-        return;
-    }
-    jobject obj = env->NewObject(cls, constr);
-    if (!obj)
-    {
-        LOGE("initJavaObject: failed to create a %s object", path);
-        return;
-    }
-    (*objptr) = env->NewGlobalRef(obj);
-}
+#pragma mark - functions that get called from java land
 
 extern "C"
 {

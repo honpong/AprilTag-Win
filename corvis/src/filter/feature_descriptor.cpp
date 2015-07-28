@@ -1,39 +1,60 @@
 #include "feature_descriptor.h"
 #include <stdio.h>
- 
-void liop_fill_patch(const uint8_t * I, int stride, float center_x, float center_y, int side_length, float * patch)
-{
-    int i = 0;
-    int lx = center_x - side_length/2;
-    int ly = center_y - side_length/2;
-    for(int dy = 0; dy < side_length; dy++) {
-        for(int dx = 0; dx < side_length; dx++) {
-            patch[i++] = I[(ly + dy)*stride + (lx + dx)]/1.;
-        }
-    }
+
+extern "C" {
+#include "../vlfeat-0.9.18/vl/imopv.h"
 }
 
-void liop_compute_desc(VlLiopDesc * liop, const uint8_t * I, int stride, float center_x, float center_y, int side_length, float * patch, float * desc)
+#define interp(c0, c1, t) ((c0)*(1-(t)) + ((c1)*(t)))
+float bilinear_interp(const uint8_t * image, int stride, float x, float y)
 {
-    liop_fill_patch(I, stride, center_x, center_y, side_length, patch);
+    float result = 0;
+    int xi = (int)x;
+    int yi = (int)y;
+    float tx = x - xi;
+    float ty = y - yi;
+    //if(xi < 0 || xi >= width-1 || yi < 0 || yi >= height-1)
+    //    return 0;
+    float c00 = image[yi*stride + xi];
+    float c01 = image[(yi+1)*stride + xi];
+    float c10 = image[yi*stride + xi + 1];
+    float c11 = image[(yi+1)*stride + xi + 1];
+    result = interp(interp(c00, c10, tx), interp(c01, c11, tx), ty);
+    return result;
+}
+
+void liop_fill_patch(const uint8_t * I, int stride, float center_x, float center_y, float radius, float * patch)
+{
+    int i = 0;
+    float lx = center_x - radius;
+    float ly = center_y - radius;
+    for(int dy = 0; dy < liop_side_length; dy++) {
+        float ys = ly + 2.f*radius * dy/liop_side_length;
+        for(int dx = 0; dx < liop_side_length; dx++) {
+            float xs = lx + 2.f*radius * dx/liop_side_length;
+            // TODO patch div 255?
+            patch[i++] = bilinear_interp(I, stride, xs, ys);
+        }
+    }
+    // from the liop paper, smooth the patch with a gaussian sigma = 1.2
+    vl_imsmooth_f(patch, liop_side_length, patch, liop_side_length, liop_side_length, liop_side_length, 1.2, 1.2);
+}
+
+void liop_compute_desc(VlLiopDesc * liop, const uint8_t * I, int stride, float center_x, float center_y, float radius, float * patch, float * desc)
+{
+    liop_fill_patch(I, stride, center_x, center_y, radius, patch);
     vl_liopdesc_process(liop, desc, patch);
 }
 
 
-bool descriptor_compute(const uint8_t * image, int width, int height, int stride, float cx, float cy, int side_length, float radius, descriptor & desc)
+bool descriptor_compute(const uint8_t * image, int width, int height, int stride, float cx, float cy, float radius, descriptor & desc)
 {
-    if(cx + side_length/2 >= width || cx - side_length/2 < 0 ||
-       cy + side_length/2 >= height || cy - side_length/2 < 0)
+    if(cx + radius >= width || cx - radius < 0 || cy + radius >= height || cy - radius < 0)
         return false;
 
-    float sample_radius = 5;
-    VlLiopDesc * liop = vl_liopdesc_new(liop_neighbors, liop_spatial_bins, sample_radius, side_length);
+    VlLiopDesc * liop = vl_liopdesc_new(liop_neighbors, liop_spatial_bins, liop_sample_radius, liop_side_length);
 
-    float patch[side_length*side_length];
-    liop_compute_desc(liop, image, stride, cx, cy, side_length, patch, desc.d);
-    // convert the patch to uint8
-    for(int i =0; i < side_length*side_length; i++)
-        desc.patch[i] = patch[i];
+    liop_compute_desc(liop, image, stride, cx, cy, radius, desc.patch, desc.d);
 
     vl_liopdesc_delete(liop);
 

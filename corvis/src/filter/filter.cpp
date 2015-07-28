@@ -584,7 +584,7 @@ static void filter_add_features(struct filter *f, const camera_data & camera, si
         int x = kp[i].x;
         int y = kp[i].y;
         if(f->track.is_trackable(x, y) && f->mask->test(x, y)) {
-            bool success = descriptor_compute(camera.image, camera.width, camera.height, camera.stride, x, y, side_length, radius, d);
+            bool success = false; //descriptor_compute(camera.image, camera.width, camera.height, camera.stride, x, y, side_length, radius, d);
             if(!success)
                 continue;
             state_vision_feature * feat = f->s.cache.query(d);
@@ -608,8 +608,8 @@ static void filter_add_features(struct filter *f, const camera_data & camera, si
         if(f->track.is_trackable(x, y) && f->mask->test(x, y)) {
             f->mask->clear(x, y);
             state_vision_feature *feat = f->s.add_feature(x, y);
-            descriptor_compute(camera.image, camera.width, camera.height, camera.stride, x, y, side_length, radius, d);
-            feat->descriptor = d;
+            //descriptor_compute(camera.image, camera.width, camera.height, camera.stride, x, y, side_length, radius, d);
+            //feat->descriptor = d;
 
             float depth_m = 0;
             if(camera.depth) depth_m = get_depth_for_point(camera, x, y);

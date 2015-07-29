@@ -132,7 +132,7 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     }
     
     virtual void print() {
-        fprintf(stderr, "feature %lld %f %f\n", id, v.v, variance());
+        fprintf(stderr, "feature %" PRIu64 "d %f %f\n", id, v.v, variance());
     }
 
 public:

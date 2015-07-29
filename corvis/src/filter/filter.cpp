@@ -199,7 +199,7 @@ void filter_compute_gravity(struct filter *f, double latitude, double altitude)
 static bool check_packet_time(struct filter *f, sensor_clock::time_point t, int type)
 {
     if(t < f->last_packet_time) {
-        if (log_enabled) fprintf(stderr, "Warning: received packets out of order: %d at %lld came first, then %d at %lld. delta %lld\n", f->last_packet_type, sensor_clock::tp_to_micros(f->last_packet_time), type, sensor_clock::tp_to_micros(t), std::chrono::duration_cast<std::chrono::microseconds>(f->last_packet_time - t).count());
+        if (log_enabled) fprintf(stderr, "Warning: received packets out of order: %d at %" PRIu64 " came first, then %d at %" PRIu64 ". delta %lld\n", f->last_packet_type, sensor_clock::tp_to_micros(f->last_packet_time), type, sensor_clock::tp_to_micros(t), (long long)std::chrono::duration_cast<std::chrono::microseconds>(f->last_packet_time - t).count());
         return false;
     }
     f->last_packet_time = t;
@@ -405,7 +405,7 @@ void filter_accelerometer_measurement(struct filter *f, const float data[3], sen
         auto current = sensor_clock::now();
         auto delta = current - time;
         if(delta > max_inertial_delay) {
-            if(log_enabled) fprintf(stderr, "Warning, dropped an old accel sample - timestamp %lld, now %lld\n", sensor_clock::tp_to_micros(time), sensor_clock::tp_to_micros(current));
+            if(log_enabled) fprintf(stderr, "Warning, dropped an old accel sample - timestamp %" PRIu64 ", now %" PRIu64 "\n", sensor_clock::tp_to_micros(time), sensor_clock::tp_to_micros(current));
             return;
         }
     }
@@ -461,7 +461,7 @@ void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_
         auto current = sensor_clock::now();
         auto delta = current - time;
         if(delta > max_inertial_delay) {
-            if(log_enabled) fprintf(stderr, "Warning, dropped an old gyro sample - timestamp %lld, now %lld\n", sensor_clock::tp_to_micros(time), sensor_clock::tp_to_micros(current));
+            if(log_enabled) fprintf(stderr, "Warning, dropped an old gyro sample - timestamp %" PRIu64 ", now %" PRIu64 "\n", sensor_clock::tp_to_micros(time), sensor_clock::tp_to_micros(current));
             return;
         }
     }
@@ -655,7 +655,7 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
         if(inertial_converged) {
             if(log_enabled) {
                 if(inertial_converged) {
-                    fprintf(stderr, "Inertial converged at time %lld\n", std::chrono::duration_cast<std::chrono::microseconds>(time - f->want_start).count());
+                    fprintf(stderr, "Inertial converged at time %lld\n", (long long)std::chrono::duration_cast<std::chrono::microseconds>(time - f->want_start).count());
                 } else {
                     fprintf(stderr, "Inertial did not converge %f, %f\n", f->s.W.variance()[0], f->s.W.variance()[1]);
                 }
@@ -685,7 +685,7 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
         auto current = sensor_clock::now();
         auto delta = current - time;
         if(delta > max_camera_delay) {
-            if(log_enabled) fprintf(stderr, "Warning, dropped an old video frame - timestamp %lld, now %lld\n", sensor_clock::tp_to_micros(time), sensor_clock::tp_to_micros(current));
+            if(log_enabled) fprintf(stderr, "Warning, dropped an old video frame - timestamp %" PRIu64 ", now %" PRIu64 "\n", sensor_clock::tp_to_micros(time), sensor_clock::tp_to_micros(current));
             return false;
         }
         if(!f->valid_delta) {
@@ -703,18 +703,18 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
             if (log_enabled) fprintf(stderr, "old max_state_size was %d\n", f->s.maxstatesize);
             f->s.maxstatesize = f->s.statesize - 1;
             if(f->s.maxstatesize < MINSTATESIZE) f->s.maxstatesize = MINSTATESIZE;
-            if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", std::chrono::duration_cast<std::chrono::microseconds>(lateness).count(), f->s.maxstatesize, f->s.statesize);
+            if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", (long long)std::chrono::duration_cast<std::chrono::microseconds>(lateness).count(), f->s.maxstatesize, f->s.statesize);
             if (log_enabled) fprintf(stderr, "dropping a frame!\n");
             return false;
         }
         if(lateness > period && f->s.maxstatesize > MINSTATESIZE && f->s.statesize < f->s.maxstatesize) {
             f->s.maxstatesize = f->s.statesize - 1;
             if(f->s.maxstatesize < MINSTATESIZE) f->s.maxstatesize = MINSTATESIZE;
-            if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", std::chrono::duration_cast<std::chrono::microseconds>(lateness).count(), f->s.maxstatesize, f->s.statesize);
+            if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", (long long)std::chrono::duration_cast<std::chrono::microseconds>(lateness).count(), f->s.maxstatesize, f->s.statesize);
         }
         if(lateness < period / 4 && f->s.statesize > f->s.maxstatesize - f->min_group_add && f->s.maxstatesize < MAXSTATESIZE - 1) {
             ++f->s.maxstatesize;
-            if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", std::chrono::duration_cast<std::chrono::microseconds>(lateness).count(), f->s.maxstatesize, f->s.statesize);
+            if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", (long long)std::chrono::duration_cast<std::chrono::microseconds>(lateness).count(), f->s.maxstatesize, f->s.statesize);
         }
     }
 

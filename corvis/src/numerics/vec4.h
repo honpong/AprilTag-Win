@@ -14,7 +14,8 @@ extern "C" {
 #include <xmmintrin.h>
 #endif
 #include "../cor/cor_types.h"
-#include "stdio.h"
+#include <stdio.h>
+#include <inttypes.h>
 }
 
 #include <ostream>

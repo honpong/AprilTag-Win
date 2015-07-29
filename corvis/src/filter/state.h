@@ -145,7 +145,7 @@ public:
     void time_update(sensor_clock::time_point time)
     {
         if(time <= current_time) {
-            if(log_enabled && time < current_time) fprintf(stderr, "negative time step: last was %llu, this is %llu, delta %llu\n", sensor_clock::tp_to_micros(current_time), sensor_clock::tp_to_micros(time), std::chrono::duration_cast<std::chrono::microseconds>(current_time - time).count());
+            if(log_enabled && time < current_time) fprintf(stderr, "negative time step: last was %" PRIu64 "d, this is %" PRIu64 "d, delta %llu\n", sensor_clock::tp_to_micros(current_time), sensor_clock::tp_to_micros(time), std::chrono::duration_cast<std::chrono::microseconds>(current_time - time).count());
             return;
         }
         if(current_time != sensor_clock::micros_to_tp(0)) {

@@ -195,7 +195,7 @@ if(ENABLE_ZXING)
     )
 endif()
 
-if(NOT WIN32)
+if(CMAKE_BUILD_TYPE MATCHES "Debug" OR CMAKE_BUILD_TYPE MATCHES "RelWithDebInfo")
     target_compile_options(filter PRIVATE -DDEBUG=1)
     target_compile_options(cor PRIVATE -DDEBUG=1)
     target_compile_options(numerics PRIVATE -DDEBUG=1)

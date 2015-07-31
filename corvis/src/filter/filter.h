@@ -7,7 +7,10 @@
 #include "feature_info.h"
 #include "tracker.h"
 #include "scaled_mask.h"
+#include "../numerics/transformation.h"
+#ifdef ENABLE_QR
 #include "qr.h"
+#endif
 #include "../../../shared_corvis_3dk/RCSensorFusionInternals.h"
 #include "../../../shared_corvis_3dk/camera_control_interface.h"
 #include "../cor/platform/sensor_clock.h"
@@ -71,9 +74,11 @@ filter(): s(cov)
     
     sensor_clock::time_point active_time;
     
+#ifdef ENABLE_QR
     qr_detector qr;
     sensor_clock::time_point last_qr_time;
     qr_benchmark qr_bench;
+#endif
     
     transformation origin;
     bool origin_gravity_aligned;
@@ -94,9 +99,11 @@ void filter_compute_gravity(struct filter *f, double latitude, double altitude);
 void filter_start_static_calibration(struct filter *f);
 void filter_start_hold_steady(struct filter *f);
 void filter_start_dynamic(struct filter *f);
+#ifdef ENABLE_QR
 void filter_start_qr_detection(struct filter *f, const std::string& data, float dimension, bool use_gravity);
 void filter_stop_qr_detection(struct filter *f);
 void filter_start_qr_benchmark(struct filter *f, float dimension);
+#endif
 corvis_device_parameters filter_get_device_parameters(const struct filter *f);
 
 extern "C" void filter_initialize(struct filter *f, corvis_device_parameters device);

@@ -637,6 +637,7 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
     if(!check_packet_time(f, time, packet_camera)) return false;
     if(!f->got_accelerometer || !f->got_gyroscope) return false;
     
+#ifdef ENABLE_QR
     if(f->qr.running && (time - f->last_qr_time > qr_detect_period)) {
         f->last_qr_time = time;
         f->qr.process_frame(f, camera.image, camera.width, camera.height);
@@ -647,7 +648,8 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
     }
     if(f->qr_bench.enabled)
         f->qr_bench.process_frame(f, camera.image, camera.width, camera.height);
-
+#endif
+    
     f->got_image = true;
     if(f->run_state == RCSensorFusionRunStateDynamicInitialization) {
         if(f->want_start == sensor_clock::micros_to_tp(0)) f->want_start = time;
@@ -936,9 +938,9 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->track.height = device.image_height;
     f->track.stride = f->track.width;
     f->track.init();
-
+#ifdef ENABLE_QR
     f->last_qr_time = sensor_clock::micros_to_tp(0);
-
+#endif
     f->max_velocity = 0.;
     f->median_depth_variance = 1.;
     f->has_converged = false;
@@ -1043,6 +1045,7 @@ void filter_start_dynamic(struct filter *f)
     f->run_state = RCSensorFusionRunStateDynamicInitialization;
 }
 
+#ifdef ENABLE_QR
 void filter_start_qr_detection(struct filter *f, const std::string& data, float dimension, bool use_gravity)
 {
     f->origin_gravity_aligned = use_gravity;
@@ -1059,3 +1062,4 @@ void filter_start_qr_benchmark(struct filter * f, float qr_size_m)
 {
     f->qr_bench.start(qr_size_m);
 }
+#endif

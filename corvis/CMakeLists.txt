@@ -12,16 +12,17 @@ endif()
 set(ENABLE_STEREO true)
 set(ENABLE_MGL true)
 set(ENABLE_VISGL true)
-set(ENABLE_ZXING true)
+set(ENABLE_QR true)
 if(WIN32)
     set(ENABLE_STEREO false)
     set(ENABLE_MGL false)
     set(ENABLE_VISGL true)
-    set(ENABLE_ZXING false)
+    set(ENABLE_QR false)
 elseif(ANDROID)
     set(ENABLE_STEREO false)
     set(ENABLE_MGL false)
     set(ENABLE_VISGL false)
+    set(ENABLE_QR false)
 endif()
 
 # A few hints for the BOOST_ROOT to help find_package(Boost)
@@ -49,16 +50,20 @@ if(ENABLE_MGL)
 endif()
 
 if(YES)
-    add_executable(spec
+    set(spec_sources
       ../gtest/gtest_main.cc ../gtest/gtest-all.cc
       test/test.cpp test/util.cpp
       test/numerics/vec4.cpp test/numerics/rotation_vector.cpp test/numerics/quaternion.cpp
-      test/filter/homography.cpp test/filter/utils.cpp
+      test/filter/utils.cpp
       test/filter/device_parameters.cpp
       test/filter/calibration_json_store.cpp
       test/filter/tpose.cpp
       test/cor/sensor_fusion_queue.cpp
     )
+    if(ENABLE_QR)
+        set(spec_sources ${spec_sources} test/filter/homography.cpp)
+    endif()
+    add_executable(spec ${spec_sources})
     set_property(TARGET spec PROPERTY CXX_STANDARD 14)
     target_include_directories(spec PRIVATE test ..)
     target_link_libraries(spec
@@ -66,6 +71,9 @@ if(YES)
       numerics
       filter
     )
+    if(ENABLE_QR)
+       target_link_libraries(spec qr)
+    endif()
 
     add_executable(spec_intel
       ../gtest/gtest_main.cc ../gtest/gtest-all.cc

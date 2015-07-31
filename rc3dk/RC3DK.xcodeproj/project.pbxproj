@@ -2028,6 +2028,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"LIBRARY=1",
 					"NDEBUG=1",
+					"ENABLE_QR=1",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -2112,6 +2113,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
+					"ENABLE_QR=1",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
@@ -2154,6 +2156,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"RELEASE=1",
 					"NDEBUG=1",
+					"ENABLE_QR=1",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -2282,6 +2285,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"ARCHIVE=1",
 					"NDEBUG=1",
+					"ENABLE_QR=1",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -2365,6 +2369,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"LIBRARY=1",
 					"NDEBUG=1",
+					"ENABLE_QR=1",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -2535,6 +2540,7 @@
 					"LIBRARY=1",
 					"LAX_LICENSE_VALIDATION=1",
 					"NDEBUG=1",
+					"ENABLE_QR=1",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -2663,6 +2669,7 @@
 					"LIBRARY=1",
 					"OFFLINE=1",
 					"NDEBUG=1",
+					"ENABLE_QR=1",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -2785,9 +2792,7 @@
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -2815,9 +2820,7 @@
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -2846,9 +2849,7 @@
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -2877,9 +2878,7 @@
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -2908,9 +2907,7 @@
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -2939,9 +2936,7 @@
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = (
 					"-ObjC",
@@ -2959,9 +2954,7 @@
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				PRODUCT_NAME = RC3DKVis;
 			};
 			name = LibrarySunlayar;

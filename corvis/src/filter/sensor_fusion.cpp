@@ -147,12 +147,12 @@ void sensor_fusion::update_data(camera_data &&image)
     cp.k2 = (float)sfm.s.k2.v;
     cp.k3 = (float)sfm.s.k3.v;
     d->camera_intrinsics = cp;
-    
+#ifdef ENABLE_QR
     if(sfm.qr.valid)
     {
         d->origin_qr_code = sfm.qr.data;
     }
-    
+#endif
     d->transform = get_transformation();
     d->time = sfm.last_time;
 

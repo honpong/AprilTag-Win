@@ -110,8 +110,6 @@ add_library(filter STATIC
   filter/fast_detector/fast_9.cpp
   filter/scaled_mask.cpp
   filter/camera_control_interface_dummy.cpp
-  filter/homography.cpp
-  filter/qr.cpp
   filter/device_parameters.cpp
   filter/calibration_json_store.cpp
   filter/calibration_defaults.cpp
@@ -121,10 +119,17 @@ add_library(filter STATIC
 )
 target_include_directories(filter PUBLIC filter)
 target_include_directories(filter PRIVATE rapidjson/include)
-if(ENABLE_ZXING)
-    target_link_libraries(filter PRIVATE libzxing)
-endif()
 set_property(TARGET filter PROPERTY CXX_STANDARD 14)
+
+if(ENABLE_QR)
+add_library(qr STATIC
+  filter/homography.cpp
+  filter/qr.cpp
+)
+target_include_directories(qr PUBLIC filter)
+target_link_libraries(qr PRIVATE libzxing)
+set_property(TARGET qr PROPERTY CXX_STANDARD 14)
+endif()
 
 if(ENABLE_VISGL)
 add_library(vis STATIC
@@ -183,7 +188,7 @@ if(ENABLE_STEREO)
     target_compile_options(DAI PUBLIC -DMACOSX -DDAI_WITH_BP -DDAI_WITH_TRWBP)
 endif() # WIN32
 
-if(ENABLE_ZXING)
+if(ENABLE_QR)
     file(GLOB_RECURSE LIBZXING_FILES
         "libzxing-cpp/zxing/*.cpp"
         "libzxing-cpp/bigint/*.cpp"
@@ -197,6 +202,9 @@ endif()
 
 if(CMAKE_BUILD_TYPE MATCHES "Debug" OR CMAKE_BUILD_TYPE MATCHES "RelWithDebInfo")
     target_compile_options(filter PRIVATE -DDEBUG=1)
+    if(ENABLE_QR)
+    target_compile_options(qr PRIVATE -DDEBUG=1)
+    endif()
     target_compile_options(cor PRIVATE -DDEBUG=1)
     target_compile_options(numerics PRIVATE -DDEBUG=1)
     if(ENABLE_VISGL)

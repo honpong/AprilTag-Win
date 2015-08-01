@@ -45,3 +45,9 @@ tasks.withType(LinkSharedLibrary) { task ->
     if (m.matches() && task.enabled)
         task.dependsOn "makeTracker${m.group(1).capitalize()}${m.group(2).capitalize()}"
 }
+
+task rcRelease(type: Copy) {
+    from "build/cmake/jniLibs"
+    from "../../../corvis/src/filter/rc_intel_interface.h"
+    into "src/main/jniLibs"
+}

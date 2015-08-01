@@ -17,7 +17,6 @@ model {
     }
     android.ndk {
         moduleName = "tracker_wrapper"
-        cppFlags += "-I" + file("src/main/jniLibs")
         ldLibs += ["log"]
     }
     android.buildTypes {
@@ -37,18 +36,24 @@ model {
     android.productFlavors {
         create("rc86") {
             ndk.abiFilters += "x86"
-            ndk.ldFlags  += "-L" + file("src/main/jniLibs/x86")
         }
         create("rc64") {
             ndk.abiFilters += "x86_64"
-            ndk.ldFlags  += "-L" + file("src/main/jniLibs/x86_64")
         }
     }
 }
 
 project.ext.ndkDir = new com.android.build.gradle.internal.NdkHandler(rootDir, null, "clang", "3.6").getNdkDirectory()
 
-if (!file("src/main/jniLibs/").exists())
+if (file("src/main/jniLibs/").exists())
+    model {
+        android.ndk {  cppFlags += "-I" + file("src/main/jniLibs") }
+        android.productFlavors {
+            rc86 { ndk.ldFlags  += "-L" + file("src/main/jniLibs/x86") }
+            rc64 { ndk.ldFlags  += "-L" + file("src/main/jniLibs/x86_64") }
+        }
+    }
+else
     apply from: "../../cmake.gradle"
 
 tasks.all { task ->

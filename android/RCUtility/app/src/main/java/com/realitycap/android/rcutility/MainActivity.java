@@ -168,7 +168,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
         }
         trackerProxy.configureCamera(TrackerProxy.CAMERA_EGRAY8, 640, 480, intr.principalPoint.x, intr.principalPoint.y, intr.focalLength.x, intr.focalLength.y, 0, false, 0);
 
-        String defaultCal = readTextFromFile("ft210.json");
+        final String defaultCal = readTextFromFile("ft210.json");
         if (defaultCal == null || defaultCal.length() <= 0)
         {
             cancelCalibration();
@@ -264,13 +264,8 @@ public class MainActivity extends Activity implements ITrackerReceiver
             in = new BufferedReader(new InputStreamReader(is));
 
             String str;
-            boolean isFirst = true;
             while ((str = in.readLine()) != null)
             {
-                if (isFirst)
-                    isFirst = false;
-                else
-                    buf.append('\n');
                 buf.append(str);
             }
             return buf.toString();

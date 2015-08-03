@@ -10,7 +10,7 @@ import java.util.ArrayList;
  */
 public interface IRealSenseSensorReceiver
 {
-    void onSyncedFrames(long time_us, long shutter_time_us, int width, int height, int stride, final ByteBuffer colorData, int depthWidth, int depthHeight, int depthStride, final ByteBuffer depthData);
+    void onSyncedFrames(long time_ns, long shutter_time_ns, int width, int height, int stride, final ByteBuffer colorData, int depthWidth, int depthHeight, int depthStride, final ByteBuffer depthData);
     void onAccelerometerSamples(ArrayList<SensorSample> samples);
     void onGyroSamples(ArrayList<SensorSample> samples);
 }

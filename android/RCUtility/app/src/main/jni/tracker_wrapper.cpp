@@ -279,25 +279,25 @@ extern "C"
         rc_configureCamera(tracker, (rc_Camera) camera, pose, width_px, height_px, center_x_px, center_y_px, focal_length_x_px, focal_length_y_px, skew, fisheye, fisheye_fov_radians);
     }
 
-    JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_receiveAccelerometer(JNIEnv *env, jobject thiz, jfloat x, jfloat y, jfloat z, jlong timestamp)
+    JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_receiveAccelerometer(JNIEnv *env, jobject thiz, jfloat x, jfloat y, jfloat z, jlong time_ns)
     {
         if (!tracker) return;
         rc_Vector vec = {x, y, z};
-        rc_Timestamp ts = timestamp / 1000; // convert ns to us
+        rc_Timestamp ts = time_ns / 1000; // convert ns to us
         rc_receiveAccelerometer(tracker, ts, vec);
     //	    LOGV("%li accel %f, %f, %f", (long)timestamp, x, y, z);
     }
 
-    JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_receiveGyro(JNIEnv *env, jobject thiz, jfloat x, jfloat y, jfloat z, jlong timestamp)
+    JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_receiveGyro(JNIEnv *env, jobject thiz, jfloat x, jfloat y, jfloat z, jlong time_ns)
     {
         if (!tracker) return;
         rc_Vector vec = {x, y, z};
-        rc_Timestamp ts = timestamp / 1000; // convert ns to us
+        rc_Timestamp ts = time_ns / 1000; // convert ns to us
         rc_receiveGyro(tracker, ts, vec);
     //	    LOGV("%li gyro %f, %f, %f", (long)timestamp, x, y, z);
     }
 
-    JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_receiveImageWithDepth(JNIEnv *env, jobject thiz, jlong time_us, jlong shutter_time_us, jboolean force_recognition,
+    JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_receiveImageWithDepth(JNIEnv *env, jobject thiz, jlong time_ns, jlong shutter_time_ns, jboolean force_recognition,
                                                                                                         jint width, jint height, jint stride, jobject colorData, jint depthWidth, jint depthHeight,
                                                                                                         jint depthStride, jobject depthData)
     {
@@ -313,7 +313,7 @@ extern "C"
 
 //        LOGV(">>>>>>>>>>> Synced camera frames received <<<<<<<<<<<<<");
 
-        rc_receiveImageWithDepth(tracker, rc_EGRAY8, time_us, shutter_time_us, NULL, false, width, height, stride, colorData, NULL, NULL, depthWidth, depthHeight, depthStride, depthData, NULL, NULL);
+        rc_receiveImageWithDepth(tracker, rc_EGRAY8, time_ns / 1000, shutter_time_ns / 1000, NULL, false, width, height, stride, colorData, NULL, NULL, depthWidth, depthHeight, depthStride, depthData, NULL, NULL);
 
         return (JNI_TRUE);
     }

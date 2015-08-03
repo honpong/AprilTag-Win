@@ -1,6 +1,7 @@
 package com.realitycap.android.rcutility;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -17,6 +18,8 @@ import com.intel.camera.toolkit.depth.Camera;
 
 public class MainActivity extends Activity implements ITrackerReceiver
 {
+    private static final String PREF_KEY_CALIBRATION = "calibration";
+
 	private TextView statusText;
 	private ToggleButton calibrationButton;
 	private ToggleButton captureButton;
@@ -33,6 +36,8 @@ public class MainActivity extends Activity implements ITrackerReceiver
 	}
 	
 	AppState appState = AppState.Idle;
+
+    SharedPreferences prefs;
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState)
@@ -98,6 +103,8 @@ public class MainActivity extends Activity implements ITrackerReceiver
 		imuMan.setSensorEventListener(trackerProxy);
 
 		rsMan = new RealSenseManager(this, trackerProxy);
+
+        prefs = getSharedPreferences("RCUtilityPrefs", 0);
 
 		setStatusText("Ready");		
 	}
@@ -175,11 +182,17 @@ public class MainActivity extends Activity implements ITrackerReceiver
 		if (appState != AppState.Calibrating) return;
         trackerProxy.stopTracker();
 		stopSensors();
+
+        boolean success = true;
         String cal = trackerProxy.getCalibration();
-        if(cal != null) Log.v(MyApplication.TAG, cal);
-        else Log.w(MyApplication.TAG, "Calibration not loaded");
+        if(cal != null) prefs.edit().putString(PREF_KEY_CALIBRATION, cal).apply();
+        else success = false;
+
         trackerProxy.destroyTracker();
-        setStatusText("Calibration stopped.");
+
+        if (success) setStatusText("Calibration stopped.");
+        else setStatusText("Calibration not saved");
+
 		appState = AppState.Idle;
 	}
 

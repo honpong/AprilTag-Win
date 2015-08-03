@@ -3,7 +3,6 @@
 #include <android/log.h>
 #include <stdlib.h>
 #include <rc_intel_interface.h>
-#include <calibration_defaults.h>
 
 #define TAG "RCUtility"
 #define LOGV(...) ((void)__android_log_print(ANDROID_LOG_VERBOSE, TAG, __VA_ARGS__))
@@ -211,11 +210,6 @@ extern "C"
     {
         LOGD("startCalibration");
         if (!tracker) return (JNI_FALSE);
-
-        const char* defaultCal = calibration_default_json_for_device_type(DEVICE_TYPE_UNKNOWN);
-        const wchar_t* wCharCal = createWcharFromChar(defaultCal);
-        rc_setCalibration(tracker, wCharCal);
-        delete wCharCal;
 
         rc_startCalibration(tracker);
 

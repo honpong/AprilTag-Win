@@ -86,13 +86,6 @@ static void status_callback(void *handle, rc_TrackerState state, rc_TrackerError
         return;
     }
 
-    status = javaVM->GetEnv((void **) &env, JNI_VERSION_1_6);
-    if (status < 0)
-    {
-        LOGE("status_callback: Failed to get JNI env.");
-        return;
-    }
-
     status = javaVM->AttachCurrentThread(&env, NULL);
     if (status < 0)
     {
@@ -105,6 +98,8 @@ static void status_callback(void *handle, rc_TrackerState state, rc_TrackerError
 
     env->CallVoidMethod(trackerProxyObj, methodId, (int)state, (int)error, (int)confidence, progress);
     RunExceptionCheck(env);
+
+    javaVM->DetachCurrentThread();
 }
 
 static void data_callback(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count)
@@ -115,13 +110,6 @@ static void data_callback(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feat
     if (!trackerProxyObj)
     {
         LOGE("data_callback: Tracker proxy object is null.");
-        return;
-    }
-
-    status = javaVM->GetEnv((void **) &env, JNI_VERSION_1_6);
-    if (status < 0)
-    {
-        LOGE("data_callback: Failed to get JNI env.");
         return;
     }
 
@@ -163,6 +151,8 @@ static void data_callback(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feat
 
     env->CallVoidMethod(trackerProxyObj, methodId, dataUpdateObj);
     if (RunExceptionCheck(env)) return;
+
+    javaVM->DetachCurrentThread();
 }
 
 #pragma mark - functions that get called from java land

@@ -109,6 +109,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
 
         imuMan = new IMUManager();
         trackerProxy = new TrackerProxy();
+        trackerProxy.receiver = this;
 
         imuMan.setSensorEventListener(trackerProxy);
 

@@ -13,13 +13,14 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.ToggleButton;
+import android.os.Handler;
 
 import com.intel.camera.toolkit.depth.Camera;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.BufferedReader;
 
 public class MainActivity extends Activity implements ITrackerReceiver
 {
@@ -293,52 +294,70 @@ public class MainActivity extends Activity implements ITrackerReceiver
     }
 
     // work in progress
-    @Override public void onStatusUpdated(int runState, int errorCode, int confidence, float progress)
+    @Override public void onStatusUpdated(final int runState, final int errorCode, final int confidence, final float progress)
     {
-        if (appState == AppState.Calibrating)
+        Handler mainHandler = new Handler(getMainLooper());
+        Runnable myRunnable = new Runnable()
         {
-            if (errorCode > 1)
+            @Override
+            public void run()
             {
-                stopCalibration();
-                setStatusText("Tracker error code: " + errorCode);
-                return;
-            }
+                if (appState == AppState.Calibrating)
+                {
+                    if (errorCode > 1)
+                    {
+                        stopCalibration();
+                        setStatusText("Tracker error code: " + errorCode);
+                        return;
+                    }
 
-            int percentage = Math.round(progress * 100);
+                    int percentage = Math.round(progress * 100);
 
-            switch (runState)
-            {
-                case 0: // idle
-                    stopCalibration();
-                    break;
-                case 1: // static calibration
-                    if (progress <= 1.) setStatusText("Place device on a flat surface. Progress: " + percentage + "%");
-                    break;
-                case 5: // portrait calibration
-                    if (progress <= 1.) setStatusText("Hold steady in portrait orientation. Progress: " + percentage + "%");
-                    break;
-                case 6: // landscape calibraiton
-                    if (progress <= 1.) setStatusText("Hold steady in landscape orientation. Progress: " + percentage + "%");
-                    break;
-                default:
-                    break;
+                    switch (runState)
+                    {
+                        case 0: // idle
+                            stopCalibration();
+                            break;
+                        case 1: // static calibration
+                            if (progress <= 1.) setStatusText("Place device on a flat surface. Progress: " + percentage + "%");
+                            break;
+                        case 5: // portrait calibration
+                            if (progress <= 1.) setStatusText("Hold steady in portrait orientation. Progress: " + percentage + "%");
+                            break;
+                        case 6: // landscape calibraiton
+                            if (progress <= 1.) setStatusText("Hold steady in landscape orientation. Progress: " + percentage + "%");
+                            break;
+                        default:
+                            break;
+                    }
+                }
+                else if (appState == AppState.Capturing)
+                {
+                    if (errorCode > 1)
+                    {
+                        stopCapture();
+                        setStatusText("Tracker error code: " + errorCode);
+                        return;
+                    }
+                }
             }
-        }
-        else if (appState == AppState.Capturing)
-        {
-            if (errorCode > 1)
-            {
-                stopCapture();
-                setStatusText("Tracker error code: " + errorCode);
-                return;
-            }
-        }
+        };
+        mainHandler.post(myRunnable); // runs the Runnable on the main thread
     }
 
     // work in progress
     @Override public void onDataUpdated(SensorFusionData data)
     {
-
+        Handler mainHandler = new Handler(getMainLooper());
+        Runnable myRunnable = new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                // do something on main thread
+            }
+        };
+        mainHandler.post(myRunnable); // runs the Runnable on the main thread
     }
 
     // work in progress

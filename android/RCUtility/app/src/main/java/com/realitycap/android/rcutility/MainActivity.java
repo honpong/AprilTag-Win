@@ -218,7 +218,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
         if (cal != null)
         {
             prefs.edit().putString(PREF_KEY_CALIBRATION, cal).apply();
-            if (!writeTextToFile(cal, "calibration.json")) success = false;
+            success = writeTextToFile(cal, "calibration.json");
         }
         else success = false;
 

@@ -210,7 +210,6 @@ public class MainActivity extends Activity implements ITrackerReceiver
     protected void stopCalibration()
     {
         if (appState != AppState.Calibrating) return;
-        trackerProxy.stopTracker();
         stopSensors();
 
         boolean success = true;
@@ -222,6 +221,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
         }
         else success = false;
 
+        trackerProxy.stopTracker();
         trackerProxy.destroyTracker();
 
         if (success) setStatusText("Calibration stopped.");

@@ -305,10 +305,11 @@ public class MainActivity extends Activity implements ITrackerReceiver
     protected boolean writeTextToFile(String text, String filename)
     {
         FileOutputStream outputStream;
-        String absFilePath = Environment.getExternalStorageDirectory().getAbsolutePath() + filename;
+        File file = new File(Environment.getExternalStorageDirectory(), filename);
+
         try
         {
-            outputStream = openFileOutput(absFilePath, Context.MODE_PRIVATE);
+            outputStream = new FileOutputStream(file);
             outputStream.write(text.getBytes());
             outputStream.close();
         }

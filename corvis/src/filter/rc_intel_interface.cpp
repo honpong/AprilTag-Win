@@ -234,7 +234,11 @@ RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback c
 
 void rc_startCalibration(rc_Tracker * tracker)
 {
+#ifdef WIN32
     tracker->start_calibration(false);
+#else
+    tracker->start_calibration(true);
+#endif
 }
 
 /*void rc_startInertialOnly(rc_Tracker * tracker)
@@ -244,7 +248,11 @@ void rc_startCalibration(rc_Tracker * tracker)
 
 void rc_startTracker(rc_Tracker * tracker)
 {
+#ifdef WIN32
     tracker->start_offline();
+#else
+    tracker->start_unstable(true);
+#endif
 }
 
 void rc_stopTracker(rc_Tracker * tracker)

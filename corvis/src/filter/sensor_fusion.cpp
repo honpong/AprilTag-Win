@@ -231,7 +231,7 @@ void sensor_fusion::start_calibration(bool thread)
     filter_initialize(&sfm, device);
 }*/
 
-void sensor_fusion::start(bool thread, camera_control_interface &cam)
+void sensor_fusion::start(bool thread)
 {
     threaded = thread;
     isSensorFusionRunning = true;
@@ -242,7 +242,7 @@ void sensor_fusion::start(bool thread, camera_control_interface &cam)
     else queue->start_singlethreaded(true);
 }
 
-void sensor_fusion::start_unstable(bool thread, camera_control_interface &cam)
+void sensor_fusion::start_unstable(bool thread)
 {
     threaded = thread;
     isSensorFusionRunning = true;

@@ -1,8 +1,10 @@
 package com.realitycap.android.rcutility;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,6 +20,8 @@ import android.os.Handler;
 import com.intel.camera.toolkit.depth.Camera;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -211,7 +215,11 @@ public class MainActivity extends Activity implements ITrackerReceiver
 
         boolean success = true;
         String cal = trackerProxy.getCalibration();
-        if (cal != null) prefs.edit().putString(PREF_KEY_CALIBRATION, cal).apply();
+        if (cal != null)
+        {
+            prefs.edit().putString(PREF_KEY_CALIBRATION, cal).apply();
+            if (!writeTextToFile(cal, "calibration.json")) success = false;
+        }
         else success = false;
 
         trackerProxy.destroyTracker();
@@ -292,6 +300,25 @@ public class MainActivity extends Activity implements ITrackerReceiver
         }
 
         return null;
+    }
+
+    protected boolean writeTextToFile(String text, String filename)
+    {
+        FileOutputStream outputStream;
+        String absFilePath = Environment.getExternalStorageDirectory().getAbsolutePath() + filename;
+        try
+        {
+            outputStream = openFileOutput(absFilePath, Context.MODE_PRIVATE);
+            outputStream.write(text.getBytes());
+            outputStream.close();
+        }
+        catch (Exception e)
+        {
+            Log.e(MyApplication.TAG, e.getLocalizedMessage());
+            return false;
+        }
+
+        return true;
     }
 
     // work in progress

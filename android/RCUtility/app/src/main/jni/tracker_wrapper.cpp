@@ -79,6 +79,7 @@ static void status_callback(void *handle, rc_TrackerState state, rc_TrackerError
 {
     int status;
     JNIEnv *env;
+    bool isAttached = false;
 
     if (!trackerProxyObj)
     {
@@ -87,11 +88,7 @@ static void status_callback(void *handle, rc_TrackerState state, rc_TrackerError
     }
 
     status = javaVM->AttachCurrentThread(&env, NULL);
-    if (status < 0)
-    {
-        LOGE("status_callback: Failed to attach current thread.");
-        return;
-    }
+    if (status == 0) isAttached = true;
 
     jclass trackerProxyClass = env->GetObjectClass(trackerProxyObj);
     jmethodID methodId = env->GetMethodID(trackerProxyClass, "onStatusUpdated", "(IIIF)V");
@@ -99,13 +96,14 @@ static void status_callback(void *handle, rc_TrackerState state, rc_TrackerError
     env->CallVoidMethod(trackerProxyObj, methodId, (int)state, (int)error, (int)confidence, progress);
     RunExceptionCheck(env);
 
-    javaVM->DetachCurrentThread();
+    if (isAttached) javaVM->DetachCurrentThread();
 }
 
 static void data_callback(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count)
 {
     int status;
     JNIEnv *env;
+    bool isAttached = false;
 
     if (!trackerProxyObj)
     {
@@ -114,11 +112,7 @@ static void data_callback(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feat
     }
 
     status = javaVM->AttachCurrentThread(&env, NULL);
-    if (status < 0)
-    {
-        LOGE("data_callback: Failed to attach current thread.");
-        return;
-    }
+    if (status == 0) isAttached = true;
 
     jclass dataUpdateClass = env->GetObjectClass(dataUpdateObj);
     if (RunExceptionCheck(env)) return;
@@ -152,7 +146,7 @@ static void data_callback(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feat
     env->CallVoidMethod(trackerProxyObj, methodId, dataUpdateObj);
     if (RunExceptionCheck(env)) return;
 
-    javaVM->DetachCurrentThread();
+    if (isAttached) javaVM->DetachCurrentThread();
 }
 
 #pragma mark - functions that get called from java land

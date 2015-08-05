@@ -760,7 +760,7 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
         cerr << observation_vision_feature::inn_stdev[1];
     }
 
-    int features_used = f->s.process_features(time);
+    int features_used = f->s.process_features(camera, time);
     if(!features_used)
     {
         //Lost all features - reset convergence

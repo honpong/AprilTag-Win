@@ -28,6 +28,7 @@ state_vision_feature::state_vision_feature(f_t initialx, f_t initialy): state_le
     image_velocity.x = 0;
     image_velocity.y = 0;
     world = v4(0, 0, 0, 0);
+    Xcamera = v4(0, 0, 0, 0);
     recovered_score = 0;
 }
 
@@ -106,11 +107,36 @@ void state_vision_group::make_empty()
     status = group_empty;
 }
 
-int state_vision_group::process_features()
+int state_vision_group::process_features(const camera_data & camera, mapper & map)
 {
+    //TODO Maybe add dropped features to a list here to keep them in
+    //the map?
     features.children.remove_if([&](state_vision_feature *f) {
         return f->should_drop();
     });
+
+    for(auto f : features.children) {
+        float stdev = (float)f->v.stdev_meters(sqrt(f->variance()));
+        bool good = stdev / f->v.depth() < .1;
+        if((good || f->is_good()) && !f->descriptor_valid) {
+            //fprintf(stderr, "feature %llu good\n", f->id);
+            //TODO: Compute descriptor, is is_good good enough?
+            float scale = f->v.depth();
+            float radius = 16./scale;
+            if(radius < 4) {
+                radius = 4;
+            }
+            if(descriptor_compute(camera.image, camera.width, camera.height, camera.stride,
+                        f->current[0], f->current[1], radius, f->descriptor)) {
+                f->descriptor_valid = true;
+                map.add_feature(id, f->Xcamera, f->variance(), f->descriptor);
+            }
+        }
+    }
+
+    if(map.num_features(id) > 10) {
+        map.match_group(id);
+    }
 
     health = features.children.size();
     if(health < min_feats)
@@ -242,7 +268,7 @@ void state_vision::recover_features()
     }
 }
 
-int state_vision::process_features(sensor_clock::time_point time)
+int state_vision::process_features(const camera_data & camera, sensor_clock::time_point time)
 {
     int useful_drops = 0;
     int total_feats = 0;
@@ -275,7 +301,7 @@ int state_vision::process_features(sensor_clock::time_point time)
     for(state_vision_group *g : groups.children) {
         // Delete the features we marked to drop, return the health of
         // the group (the number of features)
-        int health = g->process_features();
+        int health = g->process_features(camera, map);
 
         if(g->status && g->status != group_initializing)
             total_health += health;
@@ -305,6 +331,7 @@ int state_vision::process_features(sensor_clock::time_point time)
     if(best_group && need_reference) {
         total_health += best_group->make_reference();
         reference = best_group;
+        map.set_reference(best_group->id);
     }
 
     //clean up dropped features and groups
@@ -357,8 +384,11 @@ void state_vision::project_new_group_covariance(const state_vision_group &g)
 state_vision_group * state_vision::add_group(sensor_clock::time_point time)
 {
     state_vision_group *g = new state_vision_group();
+    map.add_node(g->id);
     for(state_vision_group *neighbor : groups.children) {
+        map.add_edge(g->id, neighbor->id);
         g->old_neighbors.push_back(neighbor->id);
+        //map.add_edge(neighbor->id, g->id);
         neighbor->neighbors.push_back(g->id);
     }
     groups.children.push_back(g);

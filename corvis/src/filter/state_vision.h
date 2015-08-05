@@ -19,6 +19,8 @@ extern "C" {
 #include "../cor/platform/sensor_clock.h"
 #include "feature_cache.h"
 #include "feature_descriptor.h"
+#include "mapper.h"
+#include "../cor/sensor_data.h"
 
 #define estimate_camera_intrinsics 0
 #define estimate_camera_extrinsics 0
@@ -67,6 +69,7 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     uint64_t id;
     uint64_t groupid;
     v4 world;
+    v4 Xcamera;
     feature_t image_velocity;
     sensor_clock::duration dt;
     sensor_clock::duration last_dt;
@@ -75,6 +78,7 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     sensor_clock::time_point found_time;
 
     descriptor descriptor;
+    bool descriptor_valid{false};
 
     float recovered_score;
     float last_variance;
@@ -163,7 +167,7 @@ class state_vision_group: public state_branch<state_node *> {
     state_vision_group(const state_vision_group &other);
     state_vision_group();
     void make_empty();
-    int process_features();
+    int process_features(const camera_data & camera, mapper & map);
     int make_reference();
     int make_normal();
     static f_t ref_noise;
@@ -192,10 +196,11 @@ public:
     state_branch<state_vision_group *> groups;
     list<state_vision_feature *> features;
     feature_cache cache;
+    mapper map;
     
     state_vision(covariance &c);
     ~state_vision();
-    int process_features(sensor_clock::time_point time);
+    int process_features(const camera_data & camera, sensor_clock::time_point time);
     state_vision_feature *add_feature(f_t initialx, f_t initialy);
     state_vision_group *add_group(sensor_clock::time_point time);
 

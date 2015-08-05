@@ -7,9 +7,11 @@
 
 #include <list>
 #include <vector>
-#include <../numerics/vec4.h>
 #include <stdbool.h>
+
 #include "../numerics/transformation.h"
+#include "../numerics/vec4.h"
+#include "feature_descriptor.h"
 
 using namespace std;
 
@@ -58,12 +60,13 @@ struct map_feature {
     v4 position;
     float variance;
     uint32_t label;
-    uint8_t descriptor[128];
-    map_feature(const v4 &p, const float v, const uint32_t l, const uint8_t d[128]);
+    descriptor d;
+    map_feature(const v4 &p, const float v, const uint32_t l, const descriptor & d);
     void render(bool special = 0, int mode = 0);
 };
 
 struct map_node {
+    uint64_t id;
     static size_t histogram_size;
     list<map_edge> edges;
     map_edge &get_add_neighbor(uint64_t neighbor);
@@ -75,7 +78,7 @@ struct map_node {
     transformation_variance transform;
     transformation_variance global_orientation;
 map_node(): terms(0), depth(0), parent(-1) {}
-    bool add_feature(const v4 &p, const float v, const uint32_t l, const uint8_t d[128]);
+    bool add_feature(const v4 &p, const float v, const uint32_t l, const descriptor & d);
     void render(bool special = 0, bool spheres = 0);
 };
 
@@ -104,6 +107,7 @@ class mapper {
     bool unlinked;
     list<uint64_t> origins;
     uint64_t feature_count;
+    vector<descriptor> dictionary;
 
     //vector<vector <reverse_entry> > reverse;
     //unused
@@ -126,23 +130,20 @@ class mapper {
     void set_special(uint64_t id, bool special);
 
  public:
-    void add_node(uint64_t id);
     uint64_t group_id_offset;
     mapper(int dict_size = 30);
     int dictionary_size;
-    void new_map();
     void add_edge(uint64_t id1, uint64_t id2);
     void set_relative_transformation(const transformation &T);
     void set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform);
-    void add_feature(uint64_t groupid, v4 pos, float variance, uint32_t label, uint8_t descriptor[128]);
     // uses diffuse_matches and tf_idf_match
     bool get_matches(uint64_t id, vector<map_match> &matches, int max, int suppression);
     void set_reference(uint64_t id);
-    void set_local_features(list<v4> &locals);
     /*    vector<map_match> *new_query(const vector<int> &histogram, size_t K);
     void delete_query(vector<map_match> *query);
     void add_matches(vector<int> &matches, const vector<int> &histogram);*/
     void dump_map(const char *filename);
+    void write_features() const;
     void render();
     int render_mode;
     bool render_special;
@@ -150,6 +151,14 @@ class mapper {
     //mapbuffer *output_map;
     bool no_search;
     void print_stats();
+    // return the number of features stored in a node
+    int num_features(uint64_t group_id);
+    // search all the groups for a similar one
+    void match_group(uint64_t group_id);
+
+    void add_node(uint64_t group_id);
+    void add_feature(uint64_t groupid, v4 pos, float variance, const descriptor & d);
+    uint32_t project_feature(const descriptor & d);
 };
 
 #endif

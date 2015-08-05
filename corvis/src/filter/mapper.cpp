@@ -90,10 +90,9 @@ float mapper::one_to_one_idf_score(const list<map_feature *> &hist1, const list<
     return score;
 }
 
-mapper::mapper(int dict_size): document_frequency(dict_size), dictionary_size(dict_size), group_id_offset(0), render_mode(0), render_special(0), no_search(false)
+mapper::mapper(int dict_size): document_frequency(dict_size), dictionary_size(dict_size), render_mode(0), render_special(0), no_search(false)
 {
     map_node::histogram_size = dictionary_size;
-    new_map();
     unlinked = false;
 }
 
@@ -123,20 +122,52 @@ void mapper::add_edge(uint64_t id1, uint64_t id2)
     */
 }
 
+void mapper::match_group(uint64_t id)
+{
+    //fprintf(stderr, "trying to match %llu\n", id);
+    for(auto node : nodes) {
+        if(node.id == id) continue;
+        if(node.features.size() < 10) continue;
+        //TODO match
+        int matches = 0;
+        for(auto f1 : nodes[id].features) {
+            for(auto f2 : node.features) {
+                if(f1->label == f2->label) {
+                    matches++;
+                    break;
+                }
+                /*
+                if(descriptor_dist2(f1->d, f2->d) < 0.7*0.7) {
+                    matches++;
+                    break;
+                }
+                */
+            }
+        }
+        if(0 && matches)
+            fprintf(stderr, "match %d (%lu to %lu) with id %llu\n", matches, nodes[id].features.size(), node.features.size(), node.id);
+    }
+}
+
+int mapper::num_features(uint64_t id)
+{
+    return (int)nodes[id].features.size();
+}
+
 void mapper::add_node(uint64_t id)
 {
     if(nodes.size() <= id) nodes.resize(id + 1);
+    nodes[id].id = id;
 }
 
 
-map_feature::map_feature(const v4 &p, const float v, const uint32_t l, const uint8_t d[128]): position(p), variance(v), label(l)
+map_feature::map_feature(const v4 &p, const float v, const uint32_t l, const descriptor & desc): position(p), variance(v), label(l), d(desc)
 {
-    memcpy(descriptor, d, sizeof(descriptor));
 }
 
-bool map_node::add_feature(const v4 &pos, const float variance, const uint32_t label, const uint8_t descriptor[128])
+bool map_node::add_feature(const v4 &pos, const float variance, const uint32_t label, const descriptor & d)
 {
-    map_feature *feat = new map_feature(pos, variance, label, descriptor);
+    map_feature *feat = new map_feature(pos, variance, label, d);
     list<map_feature *>::iterator feature;
     for(feature = features.begin(); feature != features.end(); ++feature) {
         if((*feature)->label >= label) break;
@@ -146,10 +177,36 @@ bool map_node::add_feature(const v4 &pos, const float variance, const uint32_t l
     return (feature == features.end() || (*feature)->label != label); //true if this was a new label for this group
 }
 
-void mapper::add_feature(uint64_t groupid, v4 pos, float variance, uint32_t label, uint8_t descriptor[128])
+
+uint32_t mapper::project_feature(const descriptor & d)
 {
+    uint32_t best_id = 0;
+    float best_score = 0;
+    bool valid = false;
+    const float add_thresh = 0.9*0.9;
+    const int max_size = 30;
+    for(uint32_t i = 0; i < (uint32_t)dictionary.size(); i++) {
+        float score = descriptor_dist2(d, dictionary[i]);
+        if(!valid || score < best_score) {
+            valid = true;
+            best_score = score;
+            best_id = i;
+        }
+    }
+    // Push into the dictionary if there is space and the match was bad
+    if(!valid ||
+       (valid && best_score > add_thresh && dictionary.size() < max_size)) {
+        best_id = dictionary.size();
+        dictionary.push_back(d);
+    }
+    return best_id;
+}
+
+void mapper::add_feature(uint64_t groupid, v4 pos, float variance, const descriptor & d)
+{
+    uint32_t label = project_feature(d);
     ++feature_count;
-    if(nodes[groupid].add_feature(pos, variance, label, descriptor)) {
+    if(nodes[groupid].add_feature(pos, variance, label, d)) {
         ++document_frequency[label];
     }
 }
@@ -350,15 +407,6 @@ bool mapper::get_matches(uint64_t id, vector<map_match> &matches, int max, int s
     //rebuild the map relative to the current node
     nodes[id].transform = transformation_variance();
     breadth_first(id, 0, NULL);
-    if(unlinked && group_id_offset != 0) {
-        if(id < group_id_offset) {
-            nodes[group_id_offset].transform = transformation_variance();
-            breadth_first(group_id_offset, 0, NULL);
-        } else {
-            nodes[0].transform = transformation_variance();
-            breadth_first(0, 0, NULL);
-        }
-    }
 
     list<map_feature *> histogram;
     vector<float> scores;
@@ -374,7 +422,7 @@ bool mapper::get_matches(uint64_t id, vector<map_match> &matches, int max, int s
         transformation_variance g;
         int score = 0;
         float theta = 0.;
-        if(matches[i].id < group_id_offset && unlinked) {
+        if(0) {//matches[i].id < group_id_offset && unlinked) {
             score = brute_force_rotation(id, matches[i].id, g, threshhold, -M_PI, M_PI);
             //v4 W = invrodrigues(g.transform.get_rotation(), NULL);
             //theta = W[3];
@@ -396,7 +444,6 @@ bool mapper::get_matches(uint64_t id, vector<map_match> &matches, int max, int s
             fprintf(stderr, "****************** %llu ********************\n", id);
             found = true;
             internal_set_geometry(id, bestid, newT);
-            if(bestid < group_id_offset) unlinked = false;
         }
     }
     return found;
@@ -430,8 +477,8 @@ void mapper::set_special(uint64_t id, bool special)
 
 static int sift_distance(const map_feature &first, const map_feature &second) {
     int sum = 0;
-    for(int i = 0; i < 128; ++i) {
-        int diff = first.descriptor[i] - second.descriptor[i];
+    for(int i = 0; i < descriptor_size; ++i) {
+        int diff = first.d.d[i] - second.d.d[i];
         sum += diff*diff;
     }
     return sum;
@@ -687,18 +734,12 @@ void mapper::dump_map(const char *filename)
             if(edge->geometry > 0) {
                 fprintf(group_graph, "%d -- %d [dir=forward]\n;", node, neighbor);
             } else if(edge->geometry == 0 && node < neighbor) {
-                fprintf(group_graph, "%d -- %d\n;", node, neighbor);
+                fprintf(group_graph, "%d -- %d;\n", node, neighbor);
             }
         }
     }
     fprintf(group_graph, "}\n");
     fclose(group_graph);
-}
-
-void mapper::set_local_features(list<v4> &locals)
-{
-    local_features.clear();
-    local_features.splice(local_features.end(), locals);
 }
 
 #ifdef __APPLE__
@@ -822,23 +863,6 @@ void mapper::render()
         breadth_first(0, maxdepth, &mapper::render_callback);
     }
     */
-}
-
-void mapper::new_map()
-{
-    int numpieces = origins.size();
-    /*    if(numpieces > 1) {
-        //we have at least two segments and we just finished one. check entire previous map...
-        for(uint64_t second = 0; second < origins[numpieces-1]; ++second) {
-            breadth_first(second, 1, NULL);
-            //against each of the nodes we just added
-            for(uint64_t first = origins[numpieces-1]; first < nodes.size(); ++first) {
-                breadth_first(first, 1, NULL);
-                get_matches
-                }*/
-    group_id_offset = nodes.size();
-    unlinked = true;
-    origins.push_back(group_id_offset);
 }
 
 void mapper::print_stats()

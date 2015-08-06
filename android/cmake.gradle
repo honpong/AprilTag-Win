@@ -24,7 +24,7 @@ model {
             String type = binary.buildType.name
             binary.productFlavors.each { flavor ->
                 flavor.ndk.abiFilters.each { arch ->
-                    rcRelease.dependsOn project.tasks.create(name: "makeTracker${arch.capitalize()}${type.capitalize()}", type: Exec) {
+                    rcRelease.dependsOn(project.tasks.create(name: "makeTracker${arch.capitalize()}${type.capitalize()}", type: Exec) {
                         workingDir   "build/cmake/$arch/$type/"
                         commandLine "cmake", "--build", file("build/cmake/$arch/$type/"), "--", "-j" + project.getGradle().startParameter.maxWorkerCount
                         doLast { copy {
@@ -32,7 +32,7 @@ model {
                             from "build/cmake/$arch/$type/libtracker${type == 'release' ? '' : '_' + type}.so"
                             into "build/cmake/jniLibs/$arch"
                         } }
-                    }.dependsOn project.tasks.create(name: "cmakeTracker${arch.capitalize()}${type.capitalize()}", type: Exec) {
+                    }.dependsOn(project.tasks.create(name: "cmakeTracker${arch.capitalize()}${type.capitalize()}", type: Exec) {
                         mkdir        "build/cmake/$arch/$type/"
                         workingDir   "build/cmake/$arch/$type/"
                         commandLine "cmake", project.rootDir.parent,
@@ -40,7 +40,7 @@ model {
                             "-DANDROID_NDK_ROOT=${project.ext.ndkDir}",
                             "-DANDROID_PLATFORM=android-21", "-DANDROID_ARCH=$arch",
                             "-DCMAKE_TOOLCHAIN_FILE=Android.toolchain.cmake"
-                    }
+                    }))
                 }
             }
         }

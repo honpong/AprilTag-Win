@@ -22,7 +22,8 @@ model {
                         workingDir   "build/cmake/$arch/$type/"
                         commandLine "cmake", "--build", file("build/cmake/$arch/$type/"), "--", "-j" + project.getGradle().startParameter.maxWorkerCount
                         doLast { copy {
-                            from "build/cmake/$arch/$type/libtracker${type == 'debug' ? '_debug' : ''}.so"
+                            println "build/cmake/$arch/$type/libtracker${type == 'release' ? '' : '_' + type}.so"
+                            from "build/cmake/$arch/$type/libtracker${type == 'release' ? '' : '_' + type}.so"
                             into "build/cmake/jniLibs/$arch"
                         } }
                     }.dependsOn project.tasks.create(name: "cmakeTracker${arch.capitalize()}${type.capitalize()}", type: Exec) {
@@ -41,7 +42,7 @@ model {
 }
 
 tasks.withType(LinkSharedLibrary) { task ->
-    java.util.regex.Matcher m = task.name =~ /^link(?i)(x86|x86_64)(Release|Debug).*/;
+    java.util.regex.Matcher m = task.name =~ /^link(?i)(x86|x86_64)(Release|Debug|Relwithdebinfo).*/;
     if (m.matches() && task.enabled)
         task.dependsOn "makeTracker${m.group(1).capitalize()}${m.group(2).capitalize()}"
 }

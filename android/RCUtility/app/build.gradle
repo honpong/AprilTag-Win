@@ -32,6 +32,13 @@ model {
             isDebuggable = true
             isJniDebuggable = true
         }
+        create("relwithdebinfo") {
+            ndk.ldLibs += ["tracker_relwithdebinfo"]
+            isMinifyEnabled = false
+            proguardFiles += file('proguard-rules.pro')
+            isDebuggable = true
+            isJniDebuggable = true
+        }
     }
     android.productFlavors {
         create("rc86") {

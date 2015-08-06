@@ -1,3 +1,9 @@
+task rcRelease(type: Copy) { // FIXME: add dependencies
+    from "build/cmake/jniLibs"
+    from "../../../corvis/src/filter/rc_intel_interface.h"
+    into "src/main/jniLibs"
+}
+
 model {
     android.sources {
         main { jniLibs { source { srcDirs { "build/cmake/jniLibs" } } } }
@@ -18,7 +24,7 @@ model {
             String type = binary.buildType.name
             binary.productFlavors.each { flavor ->
                 flavor.ndk.abiFilters.each { arch ->
-                    project.tasks.create(name: "makeTracker${arch.capitalize()}${type.capitalize()}", type: Exec) {
+                    rcRelease.dependsOn project.tasks.create(name: "makeTracker${arch.capitalize()}${type.capitalize()}", type: Exec) {
                         workingDir   "build/cmake/$arch/$type/"
                         commandLine "cmake", "--build", file("build/cmake/$arch/$type/"), "--", "-j" + project.getGradle().startParameter.maxWorkerCount
                         doLast { copy {
@@ -45,10 +51,4 @@ tasks.withType(LinkSharedLibrary) { task ->
     java.util.regex.Matcher m = task.name =~ /^link(?i)(x86|x86_64)(Release|Debug|Relwithdebinfo).*/;
     if (m.matches() && task.enabled)
         task.dependsOn "makeTracker${m.group(1).capitalize()}${m.group(2).capitalize()}"
-}
-
-task rcRelease(type: Copy) {
-    from "build/cmake/jniLibs"
-    from "../../../corvis/src/filter/rc_intel_interface.h"
-    into "src/main/jniLibs"
 }

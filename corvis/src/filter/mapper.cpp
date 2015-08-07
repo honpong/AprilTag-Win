@@ -238,38 +238,6 @@ void mapper::write_features() const
 uint32_t mapper::project_feature(const descriptor & d)
 {
     return feature_dictionary.quantize(d);
-    /*
-    //TODO:
-    //if(kmeans_dictionary is valid)
-    //  project using vl_kmeans_quantize and return
-    //add another function to load dictionary
-    uint32_t best_id = 0;
-    float best_score = 0;
-    bool valid = false;
-    const float add_thresh = 0.9*0.9;
-    const int max_size = 30;
-    for(uint32_t i = 0; i < (uint32_t)dictionary.size(); i++) {
-        float score = descriptor_dist2(d, dictionary[i]);
-        if(!valid || score < best_score) {
-            valid = true;
-            best_score = score;
-            best_id = i;
-        }
-    }
-    // Push into the dictionary if there is space and the match was bad
-    if(!valid ||
-       (valid && best_score > add_thresh && dictionary.size() < max_size)) {
-        best_id = dictionary.size();
-        dictionary.push_back(d);
-        if(dictionary.size() == max_size) {
-            // TODO: If so, need to also update document_frequency
-            // maybe compute vl_dictionary at this point
-            fprintf(stderr, "should reproject all features here, now that dictionary is built\n");
-        }
-    }
-    fprintf(stderr, "projected to %u valid %d score %f\n", best_id, valid, sqrt(best_score) );
-    return best_id;
-    */
 }
 
 void mapper::add_feature(uint64_t groupid, v4 pos, float variance, const descriptor & d)

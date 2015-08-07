@@ -233,15 +233,18 @@ public class MainActivity extends Activity implements ITrackerReceiver
     // work in progress
     protected boolean startCapture()
     {
+        trackerProxy.createTracker();
+
         if (appState != AppState.Idle) return false;
         setStatusText("Starting capture...");
         if (!startSensors())
         {
             stopSensors(); // in case one set of sensors started and the other didn't
+            trackerProxy.destroyTracker();
             setStatusText("Failed to start sensors.");
             return false;
         }
-//		trackerProxy.setOutputLog("capture.rssdk");
+		trackerProxy.setOutputLog(Environment.getExternalStorageDirectory() + "/capture");
         setStatusText("Capturing...");
         appState = AppState.Capturing;
         return true;
@@ -252,6 +255,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
     {
         if (appState != AppState.Capturing) return;
         stopSensors();
+        trackerProxy.destroyTracker();
         setStatusText("Capture stopped.");
         appState = AppState.Idle;
     }

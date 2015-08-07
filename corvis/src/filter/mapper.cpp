@@ -90,9 +90,11 @@ float mapper::one_to_one_idf_score(const list<map_feature *> &hist1, const list<
     return score;
 }
 
-mapper::mapper(int dict_size): document_frequency(dict_size), dictionary_size(dict_size), render_mode(0), render_special(0), no_search(false)
+mapper::mapper(): render_mode(0), render_special(0), no_search(false), feature_dictionary("corvis.dictionary")
 {
-    map_node::histogram_size = dictionary_size;
+    int dict_size = feature_dictionary.get_num_centers();
+    map_node::histogram_size = dict_size;
+    document_frequency.resize(dict_size);
     unlinked = false;
 }
 
@@ -177,9 +179,79 @@ bool map_node::add_feature(const v4 &pos, const float variance, const uint32_t l
     return (feature == features.end() || (*feature)->label != label); //true if this was a new label for this group
 }
 
+/*
+struct descriptor {
+    float d[descriptor_size];
+    float patch[liop_side_length*liop_side_length];
+};
+*/
+
+void mapper::write_features() const
+{
+    vector<descriptor> features;
+    for(int n = 0; n < nodes.size(); n++) {
+        for(auto f : nodes[n].features) {
+            features.push_back(f->d);
+        }
+    }
+    fprintf(stderr, "training dictionary with %lu features\n", features.size());
+    class dictionary dict(features, 30);
+    dict.write("log.dictionary");
+    fprintf(stderr, "done\n");
+/*
+    FILE * fdescriptors = fopen("fdescriptors.m", "w");
+    FILE * fpatches = fopen("fpatches.m", "w");
+    FILE * flabels = fopen("flabels.m", "w");
+    fprintf(fdescriptors, "descriptors = [");
+    fprintf(fpatches, "patches = [");
+    fprintf(flabels, "labels = [");
+    for(int n = 0; n < nodes.size(); n++) {
+        for(auto f : nodes[n].features) {
+            for(int i = 0; i < descriptor_size; i++)
+                fprintf(fdescriptors, "%f ", f->d.d[i]);
+            for(int i = 0; i < liop_side_length*liop_side_length; i++)
+                fprintf(fpatches, "%f ", f->d.patch[i]);
+
+            fprintf(fdescriptors, ";\n");
+            fprintf(fpatches, ";\n");
+            fprintf(flabels, "%d ", f->label + 1); // +1 for matlab numbering
+        }
+    }
+    fprintf(fdescriptors, "];\n");
+    fprintf(fpatches, "];\n");
+    fprintf(flabels, "];\n");
+    fclose(fdescriptors);
+    fclose(fpatches);
+    fclose(flabels);
+
+    FILE * fdict_descriptors = fopen("dict_descriptors.m", "w");
+    FILE * fdict_patches = fopen("dict_patches.m", "w");
+    fprintf(fdict_descriptors, "dictionary_descriptors = [");
+    fprintf(fdict_patches, "dictionary_patches = [");
+    for(auto f : dictionary) {
+        for(int i = 0; i < descriptor_size; i++)
+            fprintf(fdict_descriptors, "%f ", f.d[i]);
+        for(int i = 0; i < liop_side_length*liop_side_length; i++)
+            fprintf(fdict_patches, "%f ", f.patch[i]);
+
+        fprintf(fdict_descriptors, ";\n");
+        fprintf(fdict_patches, ";\n");
+    }
+    fprintf(fdict_descriptors, "];\n");
+    fprintf(fdict_patches, "];\n");
+    fclose(fdict_descriptors);
+    fclose(fdict_patches);
+    */
+}
 
 uint32_t mapper::project_feature(const descriptor & d)
 {
+    return feature_dictionary.quantize(d);
+    /*
+    //TODO:
+    //if(kmeans_dictionary is valid)
+    //  project using vl_kmeans_quantize and return
+    //add another function to load dictionary
     uint32_t best_id = 0;
     float best_score = 0;
     bool valid = false;
@@ -198,8 +270,15 @@ uint32_t mapper::project_feature(const descriptor & d)
        (valid && best_score > add_thresh && dictionary.size() < max_size)) {
         best_id = dictionary.size();
         dictionary.push_back(d);
+        if(dictionary.size() == max_size) {
+            // TODO: If so, need to also update document_frequency
+            // maybe compute vl_dictionary at this point
+            fprintf(stderr, "should reproject all features here, now that dictionary is built\n");
+        }
     }
+    fprintf(stderr, "projected to %u valid %d score %f\n", best_id, valid, sqrt(best_score) );
     return best_id;
+    */
 }
 
 void mapper::add_feature(uint64_t groupid, v4 pos, float variance, const descriptor & d)

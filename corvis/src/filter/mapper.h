@@ -12,6 +12,7 @@
 #include "../numerics/transformation.h"
 #include "../numerics/vec4.h"
 #include "feature_descriptor.h"
+#include "dictionary.h"
 
 using namespace std;
 
@@ -107,7 +108,7 @@ class mapper {
     bool unlinked;
     list<uint64_t> origins;
     uint64_t feature_count;
-    vector<descriptor> dictionary;
+    dictionary feature_dictionary;
 
     //vector<vector <reverse_entry> > reverse;
     //unused
@@ -131,8 +132,7 @@ class mapper {
 
  public:
     uint64_t group_id_offset;
-    mapper(int dict_size = 30);
-    int dictionary_size;
+    mapper();
     void add_edge(uint64_t id1, uint64_t id2);
     void set_relative_transformation(const transformation &T);
     void set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform);

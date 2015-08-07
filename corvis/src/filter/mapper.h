@@ -22,36 +22,6 @@ class transformation_variance {
     m4 variance;
 };
 
-/*
-
-struct map_group {
-    list<map_feature> features;
-    list<map_pair> neighbors;
-};
-
-class mapper {
- public:
-    map_edge edges[100000];
-    map_feature features[100000];
-    int map_feature_groups[100000];
-    int map_feature_group_size[100000];
-    
-    
-    vector<map_feature> features;
-    vector<map_group> groups;
-    
-
-    reverse_entry reverse_index[100][100000];
-    int reverse_index_size[100];
-    };*/
-
-//no reverse index for now - dictionary is small. do exhaustive search
-/*
-struct reverse_entry {
-    uint64_t group;
-    int count;
-    };*/
-
 struct map_edge {
     uint64_t neighbor;
     int64_t geometry; //positive/negative indicate geometric edge direction, 0 indicates a covisibility edge

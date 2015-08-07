@@ -195,7 +195,7 @@ public class RealSenseManager
             depth.releaseAccess();
 
             // send IMU samples
-            ArrayList<SensorSample> ameterSamples = getSamplesSince(Sensor.TYPE_ACCELEROMETER, lastAmeterTimestamp);
+            /*ArrayList<SensorSample> ameterSamples = getSamplesSince(Sensor.TYPE_ACCELEROMETER, lastAmeterTimestamp);
             if (ameterSamples != null && ameterSamples.size() > 0 && ameterSamples.get(0) != null)
             {
                 lastAmeterTimestamp = ameterSamples.get(0).timestamp();
@@ -207,7 +207,7 @@ public class RealSenseManager
             {
                 lastGyroTimestamp = gyroSamples.get(0).timestamp();
                 receiver.onGyroSamples(gyroSamples);
-            }
+            }*/
         }
 
         @Override

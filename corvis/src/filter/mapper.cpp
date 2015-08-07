@@ -113,15 +113,6 @@ void mapper::add_edge(uint64_t id1, uint64_t id2)
     if(nodes.size() <= id2) nodes.resize(id2+1);
     nodes[id1].get_add_neighbor(id2);
     nodes[id2].get_add_neighbor(id1);
-    /*
-    if(output_map) {
-        packet_map_edge_t *p = (packet_map_edge_t *)mapbuffer_alloc(output_map, packet_map_edge, sizeof(packet_map_edge_t) - sizeof(packet_header_t));
-        p->first = id1;
-        p->second = id2;
-        p->header.user = 0;
-        mapbuffer_enqueue(output_map, (packet_t *)p, 1);
-    }
-    */
 }
 
 void mapper::match_group(uint64_t id)
@@ -308,23 +299,6 @@ void mapper::internal_set_geometry(uint64_t id1, uint64_t id2, const transformat
         edge1.geometry = id;
         edge2.geometry = -id;
     }
-    /*
-    if(output_map) {
-        packet_map_edge_t *p = (packet_map_edge_t *)mapbuffer_alloc(output_map, packet_map_edge, sizeof(packet_map_edge_t) - sizeof(packet_header_t));
-        p->first = id1;
-        p->second = id2;
-        v4 W = invrodrigues(transform.transform.get_rotation(), NULL);
-        v4 T = transform.transform.get_translation();
-        for(int i = 0; i < 3; ++i) {
-            p->W[i] = W[i];
-            p->T[i] = T[i];
-            p->W_var[i] = 0.;
-            p->T_var[i] = 0.;
-        }
-        p->header.user = 1;
-        mapbuffer_enqueue(output_map, (packet_t *)p, 1);
-    }
-    */
 }
 
 void mapper::set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform)
@@ -991,13 +965,6 @@ extern "C" void packet_handler(void *_m, packet_t *p)
     case packet_recognition_descriptor: {
         packet_recognition_descriptor_t *dp = (packet_recognition_descriptor_t *)p;
         m->add_feature(dp->groupid + m->group_id_offset, v4(dp->x, dp->y, dp->z), dp->variance, dp->label, dp->descriptor);
-        if(m->output_map) {
-            packet_t *newp = mapbuffer_alloc(m->output_map, packet_recognition_descriptor, sizeof(packet_recognition_descriptor_t) - sizeof(packet_header_t));
-            memcpy(newp->data, p->data, sizeof(packet_recognition_descriptor_t) - sizeof(packet_header_t));
-            ((packet_recognition_descriptor_t *)newp)->groupid = dp->groupid + m->group_id_offset;
-            newp->header.user = p->header.user;
-            mapbuffer_enqueue(m->output_map, newp, p->header.time);
-        }
         break;
     }
     case packet_recognition_group: {
@@ -1007,13 +974,6 @@ extern "C" void packet_handler(void *_m, packet_t *p)
             m->node_finished(dp->id + m->group_id_offset, global_orientation);
         } else {
             m->add_node(dp->id + m->group_id_offset);
-        }
-        if(m->output_map) {
-            packet_t *newp = mapbuffer_alloc(m->output_map, packet_recognition_group, sizeof(packet_recognition_group_t) - sizeof(packet_header_t));
-            memcpy(newp->data, p->data, sizeof(packet_recognition_group_t) - sizeof(packet_header_t));
-            ((packet_recognition_group_t *)newp)->id = dp->id + m->group_id_offset;
-            newp->header.user = p->header.user;
-            mapbuffer_enqueue(m->output_map, newp, p->header.time);
         }
         break;
     }
@@ -1026,12 +986,6 @@ extern "C" void packet_handler(void *_m, packet_t *p)
             points.push_back(v4(cp->points[i][0], cp->points[i][1], cp->points[i][2], 0.));
         }
         m->set_local_features(points);
-        if(m->output_map) {
-            packet_t *newp = mapbuffer_alloc(m->output_map, packet_filter_current, sizeof(packet_filter_current_t) - sizeof(packet_header_t));
-            ((packet_filter_current_t *)newp)->reference = cp->reference + m->group_id_offset;
-            newp->header.user = 0;
-            mapbuffer_enqueue(m->output_map, newp, p->header.time);
-        }
         break;
     }
     case packet_map_edge: {

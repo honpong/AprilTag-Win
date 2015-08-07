@@ -148,7 +148,6 @@ class mapper {
     int render_mode;
     bool render_special;
     void node_finished(uint64_t id, const transformation_variance &global_orientation);
-    //mapbuffer *output_map;
     bool no_search;
     void print_stats();
     // return the number of features stored in a node

@@ -51,6 +51,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
     AppState appState = AppState.Idle;
 
     SharedPreferences prefs;
+    TextFileIO textFileIO = new TextFileIO();
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -222,7 +223,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
         if (cal != null)
         {
             prefs.edit().putString(PREF_KEY_CALIBRATION, cal).apply();
-            success = writeTextToFileOnSDCard(cal, "calibration.json");
+            success = textFileIO.writeTextToFileOnSDCard(cal, "calibration.json");
         }
         else success = false;
 
@@ -317,14 +318,14 @@ public class MainActivity extends Activity implements ITrackerReceiver
 
     protected boolean setDefaultCalibrationFromFile(String fileName)
     {
-        final String defaultCal = readTextFromFileInAssets(fileName);
+        final String defaultCal = textFileIO.readTextFromFileInAssets(fileName);
         if (defaultCal == null || defaultCal.length() <= 0) return false;
         return trackerProxy.setCalibration(defaultCal);
     }
 
     protected boolean setCalibrationFromFile(String fileName)
     {
-        final String cal = readTextFromFileOnSDCard(fileName);
+        final String cal = textFileIO.readTextFromFileOnSDCard(fileName);
         if (cal == null || cal.length() <= 0) return false;
         return trackerProxy.setCalibration(cal);
     }
@@ -342,95 +343,6 @@ public class MainActivity extends Activity implements ITrackerReceiver
         return true;
     }
 
-    protected String readTextFromFileInAssets(String filename)
-    {
-        InputStream is;
-        try
-        {
-            is = getAssets().open(filename);
-        }
-        catch (IOException e)
-        {
-            Log.e(MyApplication.TAG, e.getLocalizedMessage());
-            return null;
-        }
-        return readTextFromInputStream(is);
-    }
-
-    protected String readTextFromFileOnSDCard(String filename)
-    {
-        File file = new File(Environment.getExternalStorageDirectory(), filename);
-        FileInputStream is;
-        try
-        {
-            is = new FileInputStream(file);
-        }
-        catch (FileNotFoundException e)
-        {
-            Log.e(MyApplication.TAG, e.getLocalizedMessage());
-            return null;
-        }
-        return readTextFromInputStream(is);
-    }
-
-    protected String readTextFromInputStream(InputStream is)
-    {
-        BufferedReader in = null;
-        try
-        {
-            StringBuilder buf = new StringBuilder();
-            in = new BufferedReader(new InputStreamReader(is));
-
-            String str;
-            while ((str = in.readLine()) != null)
-            {
-                buf.append(str);
-            }
-            return buf.toString();
-        }
-        catch (IOException e)
-        {
-            Log.e(MyApplication.TAG, e.getLocalizedMessage());
-        }
-        finally
-        {
-            if (in != null)
-            {
-                try
-                {
-                    in.close();
-                }
-                catch (IOException e)
-                {
-                    Log.e(MyApplication.TAG, e.getLocalizedMessage());
-                }
-            }
-        }
-
-        return null;
-    }
-
-    protected boolean writeTextToFileOnSDCard(String text, String filename)
-    {
-        FileOutputStream outputStream;
-        File file = new File(Environment.getExternalStorageDirectory(), filename);
-
-        try
-        {
-            outputStream = new FileOutputStream(file);
-            outputStream.write(text.getBytes());
-            outputStream.close();
-        }
-        catch (Exception e)
-        {
-            Log.e(MyApplication.TAG, e.getLocalizedMessage());
-            return false;
-        }
-
-        return true;
-    }
-
-    // work in progress
     @Override public void onStatusUpdated(final int runState, final int errorCode, final int confidence, final float progress)
     {
         Handler mainHandler = new Handler(getMainLooper());

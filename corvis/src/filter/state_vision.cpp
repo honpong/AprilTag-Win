@@ -122,7 +122,7 @@ int state_vision_group::process_features(const camera_data & camera, mapper & ma
             //fprintf(stderr, "feature %llu good\n", f->id);
             //TODO: Compute descriptor, is is_good good enough?
             float scale = f->v.depth();
-            float radius = 16./scale;
+            float radius = 32./scale;
             if(radius < 4) {
                 radius = 4;
             }

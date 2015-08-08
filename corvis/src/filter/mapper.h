@@ -33,7 +33,6 @@ struct map_feature {
     uint32_t label;
     descriptor d;
     map_feature(const v4 &p, const float v, const uint32_t l, const descriptor & d);
-    void render(bool special = 0, int mode = 0);
 };
 
 struct map_node {
@@ -45,12 +44,10 @@ struct map_node {
     list<map_feature *> features; //sorted by label
     int depth; //used in traversal
     int parent;
-    bool render_special;
     transformation_variance transform;
     transformation_variance global_orientation;
 map_node(): terms(0), depth(0), parent(-1) {}
     bool add_feature(const v4 &p, const float v, const uint32_t l, const descriptor & d);
-    void render(bool special = 0, bool spheres = 0);
 };
 
 struct map_match {
@@ -96,7 +93,6 @@ class mapper {
     int brute_force_rotation(uint64_t id1, uint64_t id2, transformation_variance &trans, int threshhold, float min, float max);
     void localize_neighbor_features(uint64_t id, list<local_feature> &features);
     void breadth_first(int start, int maxdepth, void(mapper::*callback)(map_node &));
-    void render_callback(map_node &node);
     void internal_set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform);
     void set_special(uint64_t id, bool special);
 
@@ -113,10 +109,7 @@ class mapper {
     void delete_query(vector<map_match> *query);
     void add_matches(vector<int> &matches, const vector<int> &histogram);*/
     void dump_map(const char *filename);
-    void write_features() const;
-    void render();
-    int render_mode;
-    bool render_special;
+    void train_dictionary() const;
     void node_finished(uint64_t id, const transformation_variance &global_orientation);
     bool no_search;
     void print_stats();

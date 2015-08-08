@@ -90,7 +90,7 @@ float mapper::one_to_one_idf_score(const list<map_feature *> &hist1, const list<
     return score;
 }
 
-mapper::mapper(): render_mode(0), render_special(0), no_search(false), feature_dictionary("corvis.dictionary")
+mapper::mapper(): no_search(false), feature_dictionary("corvis.dictionary")
 {
     int dict_size = feature_dictionary.get_num_centers();
     map_node::histogram_size = dict_size;
@@ -170,14 +170,7 @@ bool map_node::add_feature(const v4 &pos, const float variance, const uint32_t l
     return (feature == features.end() || (*feature)->label != label); //true if this was a new label for this group
 }
 
-/*
-struct descriptor {
-    float d[descriptor_size];
-    float patch[liop_side_length*liop_side_length];
-};
-*/
-
-void mapper::write_features() const
+void mapper::train_dictionary() const
 {
     vector<descriptor> features;
     for(int n = 0; n < nodes.size(); n++) {
@@ -185,54 +178,8 @@ void mapper::write_features() const
             features.push_back(f->d);
         }
     }
-    fprintf(stderr, "training dictionary with %lu features\n", features.size());
     class dictionary dict(features, 30);
     dict.write("log.dictionary");
-    fprintf(stderr, "done\n");
-/*
-    FILE * fdescriptors = fopen("fdescriptors.m", "w");
-    FILE * fpatches = fopen("fpatches.m", "w");
-    FILE * flabels = fopen("flabels.m", "w");
-    fprintf(fdescriptors, "descriptors = [");
-    fprintf(fpatches, "patches = [");
-    fprintf(flabels, "labels = [");
-    for(int n = 0; n < nodes.size(); n++) {
-        for(auto f : nodes[n].features) {
-            for(int i = 0; i < descriptor_size; i++)
-                fprintf(fdescriptors, "%f ", f->d.d[i]);
-            for(int i = 0; i < liop_side_length*liop_side_length; i++)
-                fprintf(fpatches, "%f ", f->d.patch[i]);
-
-            fprintf(fdescriptors, ";\n");
-            fprintf(fpatches, ";\n");
-            fprintf(flabels, "%d ", f->label + 1); // +1 for matlab numbering
-        }
-    }
-    fprintf(fdescriptors, "];\n");
-    fprintf(fpatches, "];\n");
-    fprintf(flabels, "];\n");
-    fclose(fdescriptors);
-    fclose(fpatches);
-    fclose(flabels);
-
-    FILE * fdict_descriptors = fopen("dict_descriptors.m", "w");
-    FILE * fdict_patches = fopen("dict_patches.m", "w");
-    fprintf(fdict_descriptors, "dictionary_descriptors = [");
-    fprintf(fdict_patches, "dictionary_patches = [");
-    for(auto f : dictionary) {
-        for(int i = 0; i < descriptor_size; i++)
-            fprintf(fdict_descriptors, "%f ", f.d[i]);
-        for(int i = 0; i < liop_side_length*liop_side_length; i++)
-            fprintf(fdict_patches, "%f ", f.patch[i]);
-
-        fprintf(fdict_descriptors, ";\n");
-        fprintf(fdict_patches, ";\n");
-    }
-    fprintf(fdict_descriptors, "];\n");
-    fprintf(fdict_patches, "];\n");
-    fclose(fdict_descriptors);
-    fclose(fdict_patches);
-    */
 }
 
 uint32_t mapper::project_feature(const descriptor & d)
@@ -485,14 +432,6 @@ void mapper::localize_neighbor_features(uint64_t id, list<local_feature> &featur
 {
     for(list<map_edge>::iterator edge = nodes[id].edges.begin(); edge != nodes[id].edges.end(); ++edge) {   
         localize_features(nodes[edge->neighbor], features);
-    }
-}
-
-void mapper::set_special(uint64_t id, bool special)
-{
-    nodes[id].render_special = special;
-    for(list<map_edge>::iterator edge = nodes[id].edges.begin(); edge != nodes[id].edges.end(); ++edge) {   
-        nodes[edge->neighbor].render_special = special;
     }
 }
 
@@ -763,55 +702,6 @@ void mapper::dump_map(const char *filename)
     fclose(group_graph);
 }
 
-#ifdef __APPLE__
-#include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
-#else
-#include <GL/gl.h>
-#include <GL/glu.h>
-#endif
-
-//static GLUquadricObj *sphere_quad = 0;
-
-void map_feature::render(bool special, int mode)
-{
-    /*
-    glColor3fv(1.f,1.f,1.f);
-    if(mode == 2) {
-        if(!sphere_quad) {
-            sphere_quad = gluNewQuadric();
-            gluQuadricNormals(sphere_quad, GLU_SMOOTH);
-        }
-        glPushMatrix();
-        glTranslatef(position[0], position[1], position[2]);
-        gluSphere(sphere_quad, sqrt(variance), 8, 8);
-        glPopMatrix();
-    } else if(mode == 1) {
-        glBegin(GL_POINTS);
-        glVertex3f(position[0], position[1], position[2]);
-        glEnd();
-    }
-    */
-}
-
-void map_node::render(bool special, bool spheres)
-{
-    /*
-    if(special && !render_special) return;
-    glPushMatrix();
-    double glm[4][4];
-    get_gl_matrix<double>(transform.transform, glm);
-    glMultMatrixd(glm[0]);
-    for(list<map_feature *>::iterator feature = features.begin(); feature != features.end(); ++feature) {
-        (*feature)->render(special, spheres);
-    }
-    glPopMatrix();
-    //TODO: Fix these
-    //v4 T_var = transform.variance.get_translation();
-    v4 T_var = transform.T;
-    */
-}
-
 void mapper::breadth_first(int start, int maxdepth, void(mapper::*callback)(map_node &)) {
     queue<int> next;
     list<int> done;
@@ -840,50 +730,6 @@ void mapper::breadth_first(int start, int maxdepth, void(mapper::*callback)(map_
     for(list<int>::iterator reset = done.begin(); reset != done.end(); ++reset) {
         nodes[*reset].parent = -1;
     }
-}
-
-void mapper::render_callback(map_node &node)
-{
-    if(node.depth != 0) {
-        if(!render_special || (nodes[node.parent].render_special && node.render_special)) {
-            glColor3f(1., 1., 1.);
-            glBegin(GL_LINES);
-            v4 Tr = nodes[node.parent].transform.transform.T;
-            v4 T = node.transform.transform.T;
-            glVertex3f(Tr[0], Tr[1], Tr[2]);
-            glVertex3f(T[0], T[1], T[2]);
-            glEnd();
-        }
-        node.render(render_special, render_mode);
-    } else {
-        node.render(render_special, render_mode);
-    }
-}
-
-void mapper::render()
-{
-    /*
-    glPointSize(2);
-    int start = reference;
-    if(start >= nodes.size() || start < 0) return;
-    int maxdepth = 0; //0 = unlimited
-
-    if(render_mode) {
-        glColor3f(0., 0., 1.);
-        glBegin(GL_POINTS);
-        for(list<v4>::iterator f = local_features.begin(); f != local_features.end(); ++f) {
-            glVertex3f((*f)[0], (*f)[1], (*f)[2]);
-        }
-        glEnd();
-    }
-
-    nodes[start].transform = transformation_variance(invert(relative_transformation), homogeneous_variance());
-    breadth_first(start, maxdepth, &mapper::render_callback);
-    if(unlinked) {
-        nodes[0].transform = transformation_variance();
-        breadth_first(0, maxdepth, &mapper::render_callback);
-    }
-    */
 }
 
 void mapper::print_stats()
@@ -924,56 +770,3 @@ transformation_variance rodrigues_variance(const v4 &W, const v4 &W_var, const v
     transformation_variance Tv;
     return Tv;
 }
-
-/*
-extern "C" void packet_handler(void *_m, packet_t *p)
-{
-    mapper *m = (mapper *)_m;
-    switch(p->header.type) {
-    case packet_recognition_descriptor: {
-        packet_recognition_descriptor_t *dp = (packet_recognition_descriptor_t *)p;
-        m->add_feature(dp->groupid + m->group_id_offset, v4(dp->x, dp->y, dp->z), dp->variance, dp->label, dp->descriptor);
-        break;
-    }
-    case packet_recognition_group: {
-        packet_recognition_group_t *dp = (packet_recognition_group_t *)p;
-        if(p->header.user) { //drop
-            transformation_variance global_orientation = rodrigues_variance(v4(dp->W[0], dp->W[1], dp->W[2], 0.), v4(dp->W_var[0], dp->W_var[1], dp->W_var[2], 0.), v4(), v4());
-            m->node_finished(dp->id + m->group_id_offset, global_orientation);
-        } else {
-            m->add_node(dp->id + m->group_id_offset);
-        }
-        break;
-    }
-    case packet_filter_current: {
-        packet_filter_current_t *cp = (packet_filter_current_t *)p;
-        m->set_reference(cp->reference + m->group_id_offset);
-        m->set_relative_transformation(transformation(rodrigues(v4(cp->W[0], cp->W[1], cp->W[2], 0.), NULL), v4(cp->T[0], cp->T[1], cp->T[2])));
-        list<v4> points;
-        for(int i = 0; i < p->header.user; ++i) {
-            points.push_back(v4(cp->points[i][0], cp->points[i][1], cp->points[i][2], 0.));
-        }
-        m->set_local_features(points);
-        break;
-    }
-    case packet_map_edge: {
-        packet_map_edge_t *mp = (packet_map_edge_t *)p;
-        if(mp->header.user) {
-            v4
-                W(mp->W[0], mp->W[1], mp->W[2], 0.),
-                W_var(mp->W_var[0], mp->W_var[1], mp->W_var[2], 0.);
-            v4 
-                T(mp->T[0], mp->T[1], mp->T[2]),
-                T_var(mp->T_var[0], mp->T_var[1], mp->T_var[2]);
-            transformation_variance G = rodrigues_variance(W, W_var, T, T_var);
-            m->set_geometry(mp->first + m->group_id_offset, mp->second + m->group_id_offset, G);
-        } else {
-            m->add_edge(mp->first + m->group_id_offset, mp->second + m->group_id_offset);
-        }
-        break;
-    }
-    default:
-        return;
-    }
-}
-*/

@@ -18,15 +18,6 @@ import android.widget.ToggleButton;
 
 import com.intel.camera.toolkit.depth.Camera;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-
 public class MainActivity extends Activity implements ITrackerReceiver
 {
     private static final String PREF_KEY_CALIBRATION = "calibration";
@@ -69,11 +60,11 @@ public class MainActivity extends Activity implements ITrackerReceiver
             {
                 if (isChecked)
                 {
-                    if (!startCalibration()) calibrationButton.setChecked(false);
+                    if (!enterCalibrationState()) calibrationButton.setChecked(false);
                 }
                 else
                 {
-                    cancelCalibration();
+                    abortCalibration();
                 }
             }
         });
@@ -86,11 +77,11 @@ public class MainActivity extends Activity implements ITrackerReceiver
             {
                 if (isChecked)
                 {
-                    if (!startCapture()) captureButton.setChecked(false);
+                    if (!enterCaptureState()) captureButton.setChecked(false);
                 }
                 else
                 {
-                    stopCapture();
+                    exitCaptureState();
                 }
             }
         });
@@ -101,7 +92,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
             @Override
             public void onClick(View v)
             {
-                startLiveView();
+                enterLiveState();
             }
         });
 
@@ -166,7 +157,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
         rsMan.stopCameras();
     }
 
-    protected boolean startCalibration()
+    protected boolean enterCalibrationState()
     {
         if (appState != AppState.Idle) return false;
         setStatusText("Starting calibration...");
@@ -175,22 +166,22 @@ public class MainActivity extends Activity implements ITrackerReceiver
 
         if (!startSensors())
         {
-            return cancelTracking("Failed to start sensors.");
+            return abortTracking("Failed to start sensors.");
         }
 
         if (!configureCamera())
         {
-            return cancelTracking("Failed to get camera intrinsics.");
+            return abortTracking("Failed to get camera intrinsics.");
         }
 
         if (!setDefaultCalibrationFromFile(DEFAULT_CALIBRATION_FILENAME))
         {
-            return cancelTracking("Failed to load default calibration file.");
+            return abortTracking("Failed to load default calibration file.");
         }
 
         if (!trackerProxy.startCalibration())
         {
-            return cancelTracking("Failed to start calibration.");
+            return abortTracking("Failed to start calibration.");
         }
 
         appState = AppState.Calibrating;
@@ -198,7 +189,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
         return true;
     }
 
-    protected void cancelCalibration()
+    protected void abortCalibration()
     {
         if (appState != AppState.Calibrating) return;
 
@@ -212,7 +203,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
         appState = AppState.Idle;
     }
 
-    protected void stopCalibration()
+    protected void exitCalibrationState()
     {
         if (appState != AppState.Calibrating) return;
 
@@ -237,7 +228,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
         appState = AppState.Idle;
     }
 
-    protected boolean startCapture()
+    protected boolean enterCaptureState()
     {
         if (appState != AppState.Idle) return false;
 
@@ -246,7 +237,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
         setStatusText("Starting capture...");
         if (!startSensors())
         {
-            return cancelTracking("Failed to start sensors.");
+            return abortTracking("Failed to start sensors.");
         }
 
         trackerProxy.setOutputLog(Environment.getExternalStorageDirectory() + "/capture");
@@ -257,7 +248,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
         return true;
     }
 
-    protected void stopCapture()
+    protected void exitCaptureState()
     {
         if (appState != AppState.Capturing) return;
         stopSensors();
@@ -266,7 +257,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
         appState = AppState.Idle;
     }
 
-    protected boolean startLiveView()
+    protected boolean enterLiveState()
     {
         if (appState != AppState.Idle) return false;
         setStatusText("Starting live view...");
@@ -275,22 +266,22 @@ public class MainActivity extends Activity implements ITrackerReceiver
 
         if (!startSensors())
         {
-            return cancelTracking("Failed to start sensors.");
+            return abortTracking("Failed to start sensors.");
         }
 
         if (!configureCamera())
         {
-            return cancelTracking("Failed to get camera intrinsics.");
+            return abortTracking("Failed to get camera intrinsics.");
         }
 
         if (!setCalibrationFromFile(CALIBRATION_FILENAME))
         {
-            return cancelTracking("Failed to load calibration file.");
+            return abortTracking("Failed to load calibration file.");
         }
 
         if (!trackerProxy.startTracker())
         {
-            return cancelTracking("Failed to start tracking.");
+            return abortTracking("Failed to start tracking.");
         }
 
         setStatusText("Live view running...");
@@ -298,7 +289,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
         return true;
     }
 
-    protected void stopLiveView()
+    protected void exitLiveState()
     {
         if (appState != AppState.Idle) return;
         setStatusText("Stopping live view...");
@@ -308,7 +299,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
         setStatusText("Stopped.");
     }
 
-    private boolean cancelTracking(String message)
+    private boolean abortTracking(String message)
     {
         stopSensors();
         trackerProxy.destroyTracker();
@@ -355,7 +346,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
                 {
                     if (errorCode > 1)
                     {
-                        stopCalibration();
+                        exitCalibrationState();
                         setStatusText("Tracker error code: " + errorCode);
                         return;
                     }
@@ -365,7 +356,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
                     switch (runState)
                     {
                         case 0: // idle
-                            stopCalibration();
+                            exitCalibrationState();
                             setStatusText("Calibration successful.");
                             break;
                         case 1: // static calibration
@@ -385,7 +376,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
                 {
                     if (errorCode > 1)
                     {
-                        stopCapture();
+                        exitCaptureState();
                         setStatusText("Tracker error code: " + errorCode);
                         return;
                     }

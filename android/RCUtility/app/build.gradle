@@ -52,8 +52,6 @@ model {
     }
 }
 
-project.ext.ndkDir = new com.android.build.gradle.internal.NdkHandler(rootDir, null, "clang", "3.6").getNdkDirectory()
-
 if (file("src/main/jniLibs/").exists())
     model {
         android.ndk {  cppFlags += "-I" + file("src/main/jniLibs") }

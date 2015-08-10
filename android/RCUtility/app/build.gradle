@@ -20,6 +20,7 @@ model {
         ldLibs += ["log"]
         toolchain = "clang"
         toolchainVersion = "3.6"
+        stl = "c++_shared"
     }
     android.buildTypes {
         release {

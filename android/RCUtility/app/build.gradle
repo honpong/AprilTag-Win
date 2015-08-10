@@ -18,6 +18,7 @@ model {
     android.ndk {
         moduleName = "tracker_wrapper"
         ldLibs += ["log"]
+        stl = "stlport_shared"
     }
     android.buildTypes {
         release {

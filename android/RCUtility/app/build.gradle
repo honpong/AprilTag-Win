@@ -18,6 +18,8 @@ model {
     android.ndk {
         moduleName = "tracker_wrapper"
         ldLibs += ["log"]
+        toolchain = "clang"
+        toolchainVersion = "3.6"
     }
     android.buildTypes {
         release {

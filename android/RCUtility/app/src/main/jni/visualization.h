@@ -1,8 +1,8 @@
 #ifndef __VISUALIZATION__
 #define __VISUALIZATION__
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
+#include <../../../../../../corvis/src/glfw/deps/glad/glad.h>
+#include <../../../../../../corvis/src/glfw/include/GLFW/glfw3.h>
 
 #include "render_data.h"
 #include "arcball.h"

@@ -4,7 +4,6 @@
 #include "rc_intel_interface.h"
 #include <mutex>
 #include <vector>
-#include <stdlib.h>
 
 typedef struct {
     float position[3];

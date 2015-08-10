@@ -4,6 +4,8 @@ task rcRelease(type: Copy) { // FIXME: add dependencies
     into "src/main/jniLibs"
 }
 
+project.ext.ndkDir = new com.android.build.gradle.internal.NdkHandler(rootDir, null, "clang", "3.6").getNdkDirectory()
+
 model {
     android.sources {
         main { jniLibs { source { srcDirs { "build/cmake/jniLibs" } } } }

@@ -18,7 +18,8 @@ model {
     android.ndk {
         moduleName = "tracker_wrapper"
         ldLibs += ["log"]
-        stl = "stlport_shared"
+        toolchain = "clang"
+        toolchainVersion = "3.6"
     }
     android.buildTypes {
         release {
@@ -50,8 +51,6 @@ model {
         }
     }
 }
-
-project.ext.ndkDir = new com.android.build.gradle.internal.NdkHandler(rootDir, null, "clang", "3.6").getNdkDirectory()
 
 if (file("src/main/jniLibs/").exists())
     model {

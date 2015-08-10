@@ -14,17 +14,17 @@ typedef v4 quaternion;
 
 static quaternion q(0,0,0,1);
 
-v4 scale(const v4 & vec, float amount)
+static v4 scale(const v4 & vec, float amount)
 {
     return v4(vec.v[0]*amount, vec.v[1]*amount, vec.v[2]*amount, vec.v[3]*amount);
 }
 
-float norm(const v4 & vec)
+static float norm(const v4 & vec)
 {
     return sqrt(vec.v[0]*vec.v[0] + vec.v[1]*vec.v[1] + vec.v[2]*vec.v[2] + vec.v[3]*vec.v[3]);
 }
 
-quaternion quaternion_multiply(const quaternion & q1, const quaternion & q2)
+static quaternion quaternion_multiply(const quaternion & q1, const quaternion & q2)
 {
     quaternion result;
     result.w = q1.w*q2.w - q1.x*q2.x - q1.y*q2.y - q1.z*q2.z;
@@ -34,14 +34,14 @@ quaternion quaternion_multiply(const quaternion & q1, const quaternion & q2)
     return result;
 }
 
-quaternion quaternion_invert(const quaternion & qin)
+static quaternion quaternion_invert(const quaternion & qin)
 {
     quaternion qi(-qin.x, -qin.y, -qin.z, qin.w);
     return qi;
 }
 
 #include <stdio.h>
-quaternion axis_angle_to_quaternion(const v4 & v)
+static quaternion axis_angle_to_quaternion(const v4 & v)
 {
     v4 w(.5f * v.x, .5f * v.y, .5f * v.z, 0.f);
 
@@ -56,7 +56,7 @@ quaternion axis_angle_to_quaternion(const v4 & v)
 }
 
 // R should be 3x4
-void quaternion_to_rotation(const quaternion & qin, float * R)
+static void quaternion_to_rotation(const quaternion & qin, float * R)
 {
     float
     xx = qin.x*qin.x,
@@ -74,7 +74,7 @@ void quaternion_to_rotation(const quaternion & qin, float * R)
     R[8] = 2.f * (xz-wy); R[9] = 2.f * (yz+wx); R[10] = 1.f - 2.f * (xx+yy); R[11] = 0.f;
 }
 
-v4 matrix_times_v4(float * M, const v4 & v)
+static v4 matrix_times_v4(float * M, const v4 & v)
 {
     v4 result;
     result.x = v.v[0]*M[0] + v.v[1]*M[1] + v.v[2]*M[2]  + v.v[3]*M[3];
@@ -85,7 +85,7 @@ v4 matrix_times_v4(float * M, const v4 & v)
     return result;
 }
 
-v4 quaternion_rotate(const quaternion & qin, const v4 & v)
+static v4 quaternion_rotate(const quaternion & qin, const v4 & v)
 {
     float rotation[12];
     quaternion_to_rotation(qin, rotation);

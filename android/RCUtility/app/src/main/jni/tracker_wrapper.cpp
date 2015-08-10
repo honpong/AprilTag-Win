@@ -3,6 +3,7 @@
 #include <android/log.h>
 #include <stdlib.h>
 #include <rc_intel_interface.h>
+#include <visualization.h>
 
 #define TAG "RCUtility"
 #define LOGV(...) ((void)__android_log_print(ANDROID_LOG_VERBOSE, TAG, __VA_ARGS__))

@@ -1,8 +1,6 @@
 package com.realitycap.android.rcutility;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
 import android.graphics.PixelFormat;
 import android.hardware.camera2.CameraAccessException;
@@ -14,29 +12,24 @@ import android.hardware.camera2.CaptureRequest;
 import android.hardware.camera2.params.StreamConfigurationMap;
 import android.media.Image;
 import android.media.ImageReader;
-import android.os.Bundle;
 import android.os.Handler;
-import android.renderscript.Allocation;
-import android.renderscript.Element;
-import android.renderscript.RenderScript;
-import android.renderscript.ScriptIntrinsicYuvToRGB;
-import android.renderscript.Type;
 import android.util.Log;
 import android.util.Pair;
 import android.util.Size;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.Surface;
-import android.widget.ImageView;
-import android.widget.Toast;
 
-import java.nio.ByteBuffer;
+import com.intel.camera2.extensions.depthcamera.DepthCameraCaptureSessionConfiguration;
+import com.intel.camera2.extensions.depthcamera.DepthCameraCharacteristics;
+import com.intel.camera2.extensions.depthcamera.DepthCameraImageReader;
+import com.intel.camera2.extensions.depthcamera.DepthCameraStreamConfigurationMap;
+import com.intel.camera2.extensions.depthcamera.DepthImage;
+import com.intel.camera2.extensions.depthcamera.DepthImageFormat;
+import com.intel.camera2.extensions.depthcamera.UVMAPImage;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-
-import com.intel.camera2.extensions.depthcamera.*;
 
 /**
  * Created by benhirashima on 8/11/15.

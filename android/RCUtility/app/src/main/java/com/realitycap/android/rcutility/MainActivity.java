@@ -1,10 +1,10 @@
 package com.realitycap.android.rcutility;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -15,20 +15,14 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.ToggleButton;
-import android.os.Handler;
 
 import com.intel.camera.toolkit.depth.Camera;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 
 public class MainActivity extends Activity implements ITrackerReceiver
 {
     private static final String PREF_KEY_CALIBRATION = "calibration";
+    public static final String CALIBRATION_FILENAME = "calibration.json";
+    public static final String DEFAULT_CALIBRATION_FILENAME = "ft210.json";
 
     private TextView statusText;
     private ToggleButton calibrationButton;
@@ -48,6 +42,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
     AppState appState = AppState.Idle;
 
     SharedPreferences prefs;
+    TextFileIO textFileIO = new TextFileIO();
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -65,11 +60,11 @@ public class MainActivity extends Activity implements ITrackerReceiver
             {
                 if (isChecked)
                 {
-                    if (!startCalibration()) calibrationButton.setChecked(false);
+                    if (!enterCalibrationState()) calibrationButton.setChecked(false);
                 }
                 else
                 {
-                    stopCalibration();
+                    abortCalibration();
                 }
             }
         });
@@ -82,11 +77,11 @@ public class MainActivity extends Activity implements ITrackerReceiver
             {
                 if (isChecked)
                 {
-                    if (!startCapture()) captureButton.setChecked(false);
+                    if (!enterCaptureState()) captureButton.setChecked(false);
                 }
                 else
                 {
-                    stopCapture();
+                    exitCaptureState();
                 }
             }
         });
@@ -97,7 +92,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
             @Override
             public void onClick(View v)
             {
-                startLiveActivity();
+                enterLiveState();
             }
         });
 
@@ -139,8 +134,19 @@ public class MainActivity extends Activity implements ITrackerReceiver
     protected boolean startSensors()
     {
         if (!imuMan.startSensors()) return false;
-        if (!rsMan.startCameras()) return false;
-//        if(!rsMan.startImu()) return false;
+
+        if (!rsMan.startCameras())
+        {
+            imuMan.stopSensors();
+            return false;
+        }
+
+//        if(!rsMan.startImu())
+//        {
+//            imuMan.stopCameras();
+//            return false;
+//        }
+
         return true;
     }
 
@@ -151,7 +157,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
         rsMan.stopCameras();
     }
 
-    protected boolean startCalibration()
+    protected boolean enterCalibrationState()
     {
         if (appState != AppState.Idle) return false;
         setStatusText("Starting calibration...");
@@ -160,39 +166,22 @@ public class MainActivity extends Activity implements ITrackerReceiver
 
         if (!startSensors())
         {
-            cancelCalibration();
-            setStatusText("Failed to start sensors.");
-            return false;
+            return abortTracking("Failed to start sensors.");
         }
 
-        Camera.Calibration.Intrinsics intr = rsMan.getCameraIntrinsics();
-        if (intr == null)
+        if (!configureCamera())
         {
-            cancelCalibration();
-            setStatusText("Failed to get camera intrinsics.");
-            return false;
-        }
-        trackerProxy.configureCamera(TrackerProxy.CAMERA_EGRAY8, 640, 480, intr.principalPoint.x, intr.principalPoint.y, intr.focalLength.x, intr.focalLength.y, 0, false, 0);
-
-        final String defaultCal = readTextFromFile("ft210.json");
-        if (defaultCal == null || defaultCal.length() <= 0)
-        {
-            cancelCalibration();
-            setStatusText("Failed to load default calibration file, or file was empty.");
-            return false;
+            return abortTracking("Failed to get camera intrinsics.");
         }
 
-        if (!trackerProxy.setCalibration(defaultCal))
+        if (!setDefaultCalibrationFromFile(DEFAULT_CALIBRATION_FILENAME))
         {
-            cancelCalibration();
-            setStatusText("Failed to set default calibration.");
-            return false;
+            return abortTracking("Failed to load default calibration file.");
         }
 
         if (!trackerProxy.startCalibration())
         {
-            cancelCalibration();
-            return false;
+            return abortTracking("Failed to start calibration.");
         }
 
         appState = AppState.Calibrating;
@@ -200,16 +189,24 @@ public class MainActivity extends Activity implements ITrackerReceiver
         return true;
     }
 
-    private void cancelCalibration()
-    {
-        stopSensors();
-        trackerProxy.destroyTracker();
-        setStatusText("Failed to start calibration");
-    }
-
-    protected void stopCalibration()
+    protected void abortCalibration()
     {
         if (appState != AppState.Calibrating) return;
+
+        stopSensors();
+        trackerProxy.stopTracker();
+        trackerProxy.destroyTracker();
+
+        setStatusText("Calibration stopped.");
+
+        calibrationButton.setChecked(false);
+        appState = AppState.Idle;
+    }
+
+    protected void exitCalibrationState()
+    {
+        if (appState != AppState.Calibrating) return;
+
         stopSensors();
 
         boolean success = true;
@@ -217,41 +214,41 @@ public class MainActivity extends Activity implements ITrackerReceiver
         if (cal != null)
         {
             prefs.edit().putString(PREF_KEY_CALIBRATION, cal).apply();
-            success = writeTextToFile(cal, "calibration.json");
+            success = textFileIO.writeTextToFileOnSDCard(cal, "calibration.json");
         }
         else success = false;
 
         trackerProxy.stopTracker();
         trackerProxy.destroyTracker();
 
-        if (success) setStatusText("Calibration stopped.");
-        else setStatusText("Calibration not saved");
+        if (success) setStatusText("Calibration successful.");
+        else setStatusText("Calibration not saved.");
 
+        calibrationButton.setChecked(false);
         appState = AppState.Idle;
     }
 
-    // work in progress
-    protected boolean startCapture()
+    protected boolean enterCaptureState()
     {
+        if (appState != AppState.Idle) return false;
+
         trackerProxy.createTracker();
 
-        if (appState != AppState.Idle) return false;
         setStatusText("Starting capture...");
         if (!startSensors())
         {
-            stopSensors(); // in case one set of sensors started and the other didn't
-            trackerProxy.destroyTracker();
-            setStatusText("Failed to start sensors.");
-            return false;
+            return abortTracking("Failed to start sensors.");
         }
-		trackerProxy.setOutputLog(Environment.getExternalStorageDirectory() + "/capture");
+
+        trackerProxy.setOutputLog(Environment.getExternalStorageDirectory() + "/capture");
+
         setStatusText("Capturing...");
+
         appState = AppState.Capturing;
         return true;
     }
 
-    // work in progress
-    protected void stopCapture()
+    protected void exitCaptureState()
     {
         if (appState != AppState.Capturing) return;
         stopSensors();
@@ -260,73 +257,83 @@ public class MainActivity extends Activity implements ITrackerReceiver
         appState = AppState.Idle;
     }
 
-    // work in progress
-    protected boolean startLiveActivity()
+    protected boolean enterLiveState()
     {
         if (appState != AppState.Idle) return false;
-        setStatusText("startLiveActivity");
+        setStatusText("Starting live view...");
+
+        trackerProxy.createTracker();
+
+        if (!startSensors())
+        {
+            return abortTracking("Failed to start sensors.");
+        }
+
+        if (!configureCamera())
+        {
+            return abortTracking("Failed to get camera intrinsics.");
+        }
+
+        if (!setCalibrationFromFile(CALIBRATION_FILENAME))
+        {
+            return abortTracking("Failed to load calibration file.");
+        }
+
+        if (!trackerProxy.startTracker())
+        {
+            return abortTracking("Failed to start tracking.");
+        }
+
+        setStatusText("Live view running...");
+        appState = AppState.LiveVis;
         return true;
     }
 
-    protected String readTextFromFile(String filename)
+    protected void exitLiveState()
     {
-        BufferedReader in = null;
-        try
-        {
-            StringBuilder buf = new StringBuilder();
-            InputStream is = getAssets().open(filename);
-            in = new BufferedReader(new InputStreamReader(is));
-
-            String str;
-            while ((str = in.readLine()) != null)
-            {
-                buf.append(str);
-            }
-            return buf.toString();
-        }
-        catch (IOException e)
-        {
-            Log.e(MyApplication.TAG, e.getLocalizedMessage());
-        }
-        finally
-        {
-            if (in != null)
-            {
-                try
-                {
-                    in.close();
-                }
-                catch (IOException e)
-                {
-                    Log.e(MyApplication.TAG, e.getLocalizedMessage());
-                }
-            }
-        }
-
-        return null;
+        if (appState != AppState.Idle) return;
+        setStatusText("Stopping live view...");
+        stopSensors();
+        trackerProxy.destroyTracker();
+        appState = AppState.Idle;
+        setStatusText("Stopped.");
     }
 
-    protected boolean writeTextToFile(String text, String filename)
+    private boolean abortTracking(String message)
     {
-        FileOutputStream outputStream;
-        File file = new File(Environment.getExternalStorageDirectory(), filename);
+        stopSensors();
+        trackerProxy.destroyTracker();
+        setStatusText(message);
+        return false;
+    }
 
-        try
+    protected boolean setDefaultCalibrationFromFile(String fileName)
+    {
+        final String defaultCal = textFileIO.readTextFromFileInAssets(fileName);
+        if (defaultCal == null || defaultCal.length() <= 0) return false;
+        return trackerProxy.setCalibration(defaultCal);
+    }
+
+    protected boolean setCalibrationFromFile(String fileName)
+    {
+        final String cal = textFileIO.readTextFromFileOnSDCard(fileName);
+        if (cal == null || cal.length() <= 0) return false;
+        return trackerProxy.setCalibration(cal);
+    }
+
+    protected boolean configureCamera()
+    {
+        Camera.Calibration.Intrinsics intr = rsMan.getCameraIntrinsics();
+        if (intr == null)
         {
-            outputStream = new FileOutputStream(file);
-            outputStream.write(text.getBytes());
-            outputStream.close();
-        }
-        catch (Exception e)
-        {
-            Log.e(MyApplication.TAG, e.getLocalizedMessage());
+            stopSensors();
+            trackerProxy.destroyTracker();
             return false;
         }
-
+        trackerProxy.configureCamera(TrackerProxy.CAMERA_EGRAY8, 640, 480, intr.principalPoint.x, intr.principalPoint.y, intr.focalLength.x, intr.focalLength.y, 0, false, 0);
         return true;
     }
 
-    // work in progress
     @Override public void onStatusUpdated(final int runState, final int errorCode, final int confidence, final float progress)
     {
         Handler mainHandler = new Handler(getMainLooper());
@@ -339,7 +346,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
                 {
                     if (errorCode > 1)
                     {
-                        stopCalibration();
+                        exitCalibrationState();
                         setStatusText("Tracker error code: " + errorCode);
                         return;
                     }
@@ -349,7 +356,8 @@ public class MainActivity extends Activity implements ITrackerReceiver
                     switch (runState)
                     {
                         case 0: // idle
-                            stopCalibration();
+                            exitCalibrationState();
+                            setStatusText("Calibration successful.");
                             break;
                         case 1: // static calibration
                             if (progress <= 1.) setStatusText("Place device on a flat surface. Progress: " + percentage + "%");
@@ -357,7 +365,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
                         case 5: // portrait calibration
                             if (progress <= 1.) setStatusText("Hold steady in portrait orientation. Progress: " + percentage + "%");
                             break;
-                        case 6: // landscape calibraiton
+                        case 6: // landscape calibration
                             if (progress <= 1.) setStatusText("Hold steady in landscape orientation. Progress: " + percentage + "%");
                             break;
                         default:
@@ -368,7 +376,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
                 {
                     if (errorCode > 1)
                     {
-                        stopCapture();
+                        exitCaptureState();
                         setStatusText("Tracker error code: " + errorCode);
                         return;
                     }

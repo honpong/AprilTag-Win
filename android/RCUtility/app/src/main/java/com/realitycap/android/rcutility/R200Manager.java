@@ -37,15 +37,15 @@ import java.util.Set;
 public class R200Manager
 {
     private static final String TAG = MyApplication.TAG;
+    public static final int COLOR_WIDTH = 640;
+    public static final int COLOR_HEIGHT = 480;
+    public static final int DEPTH_WIDTH = 320;
+    public static final int DEPTH_HEIGHT = 240;
 
     private CameraDevice mCamera;
     private CameraCharacteristics mCameraChar;
     private final Handler mHandler = new Handler();
     private static final int MAX_NUM_FRAMES = 5;
-    private int mColorWidth;
-    private int mColorHeight;
-    private int mDepthWidth;
-    private int mDepthHeight;
     private CameraCaptureSession mPreviewSession = null;
     private List<Pair<Surface, Integer>> mSurfaceList = new ArrayList<Pair<Surface, Integer>>();
     private boolean mRepeating = false;
@@ -65,9 +65,9 @@ public class R200Manager
         this.receiver = receiver;
     }
 
-    public void openCamera()
+    public void startCamera()
     {
-        Log.d(TAG, "openCamera");
+        Log.d(TAG, "startCamera");
 
         CameraManager camManager = (CameraManager) MyApplication.getContext().getSystemService(Context.CAMERA_SERVICE);
         String cameraId = null;
@@ -146,15 +146,14 @@ public class R200Manager
         }
         catch (Exception e)
         {
-            Log.e(TAG, "In openCamera(), Exception:" + e.getMessage());
+            Log.e(TAG, "In startCamera(), Exception:" + e.getMessage());
             e.printStackTrace();
         }
     }
 
-
-    public void closeCamera()
+    public void stopCamera()
     {
-        Log.d(TAG, "closeCamera");
+        Log.d(TAG, "stopCamera");
 
         try
         {
@@ -172,7 +171,7 @@ public class R200Manager
         }
         catch (Exception e)
         {
-            Log.e(TAG, "In closeCamera(), Exception:" + e.getMessage());
+            Log.e(TAG, "In stopCamera(), Exception:" + e.getMessage());
             e.printStackTrace();
         }
 
@@ -424,21 +423,13 @@ public class R200Manager
         {
             // NOTE: Sample is using hard coded resolutions: A robust app should verify these exist from camera capabilities.
 
-            // Used to display color
-            mColorWidth = 640;
-            mColorHeight = 480;
-
-            // Used to display either depth or uvmap
-            mDepthWidth = 320;
-            mDepthHeight = 240;
-
             // Setup Camera
-            colorReader = ImageReader.newInstance(mColorWidth, mColorHeight, ImageFormat.YUV_420_888, MAX_NUM_FRAMES);
+            colorReader = ImageReader.newInstance(COLOR_WIDTH, COLOR_HEIGHT, ImageFormat.YUV_420_888, MAX_NUM_FRAMES);
             colorReader.setOnImageAvailableListener(new ColorImageAvailableListener(), null);
             mSurfaceList.add(new Pair<Surface, Integer>(colorReader.getSurface(), DepthCameraStreamConfigurationMap.COLOR_STREAM_SOURCE_ID));
             mImageSyncronizer.addImageType(ImageSynchronizer.COLOR);
 
-            depthReader = DepthCameraImageReader.newInstance(mDepthWidth, mDepthHeight, DepthImageFormat.Z16, MAX_NUM_FRAMES);
+            depthReader = DepthCameraImageReader.newInstance(DEPTH_WIDTH, DEPTH_HEIGHT, DepthImageFormat.Z16, MAX_NUM_FRAMES);
             depthReader.setOnImageAvailableListener(new DepthImageAvailableListener(), null);
             mSurfaceList.add(new Pair<Surface, Integer>(depthReader.getSurface(), DepthCameraStreamConfigurationMap.DEPTH_STREAM_SOURCE_ID));
             mImageSyncronizer.addImageType(ImageSynchronizer.DEPTH);

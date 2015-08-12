@@ -161,15 +161,14 @@ public class RealSenseManager
         @Override
         public void onSetProfile(Camera.CaptureInfo info)
         {
-//            Log.i(TAG, "OnSetProfile");
             Camera.Calibration cal = info.getCalibrationData();
             if (cal != null) mColorParams = cal.colorIntrinsics;
-            startupLatch.countDown();
         }
 
         @Override
         public void onNewSample(ImageSet images)
         {
+            startupLatch.countDown(); // indicates camera has fully started. allows startCameras() to return.
             if (receiver == null) return; // no point in any of this if no one is receiving it
 
             Image color = images.acquireImage(StreamType.COLOR);

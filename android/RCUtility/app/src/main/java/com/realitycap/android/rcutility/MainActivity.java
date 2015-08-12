@@ -115,7 +115,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
 
         imuMan.setSensorEventListener(trackerProxy);
 
-        rsMan = new RealSenseManager(this, trackerProxy);
+        rsMan = new RealSenseManager(this, null);
         r200Man = new R200Manager(trackerProxy);
 
         prefs = getSharedPreferences("RCUtilityPrefs", 0);
@@ -370,7 +370,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
 
     protected boolean configureCamera()
     {
-        if (r200Man.isRunning()) return false; // TODO: is this necessary?
+        if (r200Man.isRunning()) return false;
         rsMan.startCameras();
         Camera.Calibration.Intrinsics intr = rsMan.getCameraIntrinsics();
         rsMan.stopCameras();

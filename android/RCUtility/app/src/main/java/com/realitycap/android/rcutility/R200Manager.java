@@ -355,7 +355,7 @@ public class R200Manager
         @Override
         public void onConfigureFailed(CameraCaptureSession cameraCaptureSession)
         {
-            Log.d(TAG, "(cameraCaptureSession.StateCallback) onConfigureFailed");
+            Log.e(TAG, "(cameraCaptureSession.StateCallback) onConfigureFailed");
         }
     }
 
@@ -377,7 +377,7 @@ public class R200Manager
         @Override
         public void onError(CameraDevice camera, int error)
         {
-            Log.d(TAG, "(CameraDevice.StateCallback) onError");
+            Log.d(TAG, "(CameraDevice.StateCallback) onError; code = " + error);
             mCurState.set(DepthCameraState.CAMERA_CLOSED);
         }
 

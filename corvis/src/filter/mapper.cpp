@@ -151,6 +151,7 @@ void mapper::add_node(uint64_t id)
 {
     if(nodes.size() <= id) nodes.resize(id + 1);
     nodes[id].id = id;
+    nodes[id].parent = -1;
 }
 
 

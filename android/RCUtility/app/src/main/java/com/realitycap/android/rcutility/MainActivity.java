@@ -442,10 +442,10 @@ public class MainActivity extends Activity implements ITrackerReceiver
                 switch (appState)
                 {
                     case LiveVis:
-                        setStatusText(String.format("live [x: %.3f, y: %.3f, z:%.3f]", data.getPose()[0], data.getPose()[1], data.getPose()[2]));
+                        setStatusText(data.toPoseString());
                         break;
                     case ReplayVis:
-                        setStatusText(String.format("replay [x: %.3f, y: %.3f, z:%.3f]", data.getPose()[0], data.getPose()[1], data.getPose()[2]));
+                        setStatusText(data.toPoseString());
                         break;
                 }
             }

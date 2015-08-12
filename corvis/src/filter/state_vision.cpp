@@ -386,9 +386,9 @@ state_vision_group * state_vision::add_group(sensor_clock::time_point time)
     state_vision_group *g = new state_vision_group();
     map.add_node(g->id);
     for(state_vision_group *neighbor : groups.children) {
+        // Adds a symmetric edge
         map.add_edge(g->id, neighbor->id);
         g->old_neighbors.push_back(neighbor->id);
-        //map.add_edge(neighbor->id, g->id);
         neighbor->neighbors.push_back(g->id);
     }
     groups.children.push_back(g);

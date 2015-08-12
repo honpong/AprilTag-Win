@@ -65,7 +65,7 @@ public class R200Manager
         this.receiver = receiver;
     }
 
-    public void startCamera()
+    public boolean startCamera()
     {
         Log.d(TAG, "startCamera");
 
@@ -143,11 +143,14 @@ public class R200Manager
             mCurState.set(DepthCameraState.CAMERA_OPENING);
 
             camManager.openCamera(cameraId, new SimpleDeviceListener(), mHandler);
+
+            return true;
         }
         catch (Exception e)
         {
             Log.e(TAG, "In startCamera(), Exception:" + e.getMessage());
             e.printStackTrace();
+            return false;
         }
     }
 
@@ -200,6 +203,11 @@ public class R200Manager
         }
 
         mPreviewSession = null;
+    }
+
+    public boolean isRunning()
+    {
+        return mCurState.get() != DepthCameraState.CAMERA_CLOSED;
     }
 
     public class ImageSynchronizer

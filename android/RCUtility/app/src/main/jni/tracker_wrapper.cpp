@@ -12,8 +12,8 @@
 #define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, TAG, __VA_ARGS__))
 
 static JavaVM *javaVM;
-static jobject trackerProxyObj;
 static rc_Tracker *tracker;
+static jobject trackerProxyObj;
 static jobject dataUpdateObj;
 
 jint JNI_OnLoad(JavaVM* vm, void* reserved)
@@ -179,6 +179,7 @@ extern "C"
         tracker = NULL;
         trackerProxyObj = NULL;
         env->DeleteGlobalRef(trackerProxyObj);
+        env->DeleteGlobalRef(dataUpdateObj);
         return (JNI_TRUE);
     }
 

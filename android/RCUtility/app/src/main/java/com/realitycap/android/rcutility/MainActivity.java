@@ -33,6 +33,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
     IMUManager imuMan;
     TrackerProxy trackerProxy;
     RealSenseManager rsMan;
+    R200Manager r200Man;
 
     enum AppState
     {
@@ -92,7 +93,8 @@ public class MainActivity extends Activity implements ITrackerReceiver
             @Override
             public void onClick(View v)
             {
-                enterLiveState();
+                if (appState == AppState.Idle) enterLiveState();
+                else if (appState == AppState.LiveVis) exitLiveState();
             }
         });
 
@@ -113,6 +115,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
         imuMan.setSensorEventListener(trackerProxy);
 
         rsMan = new RealSenseManager(this, trackerProxy);
+        r200Man = new R200Manager(trackerProxy);
 
         prefs = getSharedPreferences("RCUtilityPrefs", 0);
 
@@ -135,7 +138,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
     {
         if (!imuMan.startSensors()) return false;
 
-        if (!rsMan.startCameras())
+        if (!r200Man.startCamera())
         {
             imuMan.stopSensors();
             return false;
@@ -154,7 +157,8 @@ public class MainActivity extends Activity implements ITrackerReceiver
     {
         imuMan.stopSensors();
 //        rsMan.stopImu();
-        rsMan.stopCameras();
+//        rsMan.stopCameras();
+        r200Man.stopCamera();
     }
 
     protected boolean enterCalibrationState()
@@ -164,9 +168,9 @@ public class MainActivity extends Activity implements ITrackerReceiver
 
         trackerProxy.createTracker();
 
-        if (!startSensors())
+        if (!imuMan.startSensors())
         {
-            return abortTracking("Failed to start sensors.");
+            return abortTracking("Failed to start IMU sensors.");
         }
 
         if (!configureCamera())
@@ -193,7 +197,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
     {
         if (appState != AppState.Calibrating) return;
 
-        stopSensors();
+        imuMan.stopSensors();
         trackerProxy.stopTracker();
         trackerProxy.destroyTracker();
 
@@ -207,7 +211,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
     {
         if (appState != AppState.Calibrating) return;
 
-        stopSensors();
+        imuMan.stopSensors();
 
         boolean success = true;
         String cal = trackerProxy.getCalibration();
@@ -232,18 +236,17 @@ public class MainActivity extends Activity implements ITrackerReceiver
     {
         if (appState != AppState.Idle) return false;
 
-        trackerProxy.createTracker();
-
         setStatusText("Starting capture...");
+
+        trackerProxy.createTracker();
+        trackerProxy.setOutputLog(Environment.getExternalStorageDirectory() + "/capture");
+
         if (!startSensors())
         {
             return abortTracking("Failed to start sensors.");
         }
 
-        trackerProxy.setOutputLog(Environment.getExternalStorageDirectory() + "/capture");
-
         setStatusText("Capturing...");
-
         appState = AppState.Capturing;
         return true;
     }
@@ -264,11 +267,6 @@ public class MainActivity extends Activity implements ITrackerReceiver
 
         trackerProxy.createTracker();
 
-        if (!startSensors())
-        {
-            return abortTracking("Failed to start sensors.");
-        }
-
         if (!configureCamera())
         {
             return abortTracking("Failed to get camera intrinsics.");
@@ -277,6 +275,11 @@ public class MainActivity extends Activity implements ITrackerReceiver
         if (!setCalibrationFromFile(CALIBRATION_FILENAME))
         {
             return abortTracking("Failed to load calibration file.");
+        }
+
+        if (!startSensors())
+        {
+            return abortTracking("Failed to start sensors.");
         }
 
         if (!trackerProxy.startTracker())
@@ -291,12 +294,12 @@ public class MainActivity extends Activity implements ITrackerReceiver
 
     protected void exitLiveState()
     {
-        if (appState != AppState.Idle) return;
+        if (appState != AppState.LiveVis) return;
         setStatusText("Stopping live view...");
         stopSensors();
         trackerProxy.destroyTracker();
         appState = AppState.Idle;
-        setStatusText("Stopped.");
+        setStatusText("Stopped live view.");
     }
 
     private boolean abortTracking(String message)
@@ -323,13 +326,11 @@ public class MainActivity extends Activity implements ITrackerReceiver
 
     protected boolean configureCamera()
     {
+        if (r200Man.isRunning()) return false; // TODO: is this necessary?
+        rsMan.startCameras();
         Camera.Calibration.Intrinsics intr = rsMan.getCameraIntrinsics();
-        if (intr == null)
-        {
-            stopSensors();
-            trackerProxy.destroyTracker();
-            return false;
-        }
+        rsMan.stopCameras();
+        if (intr == null) return false;
         trackerProxy.configureCamera(TrackerProxy.CAMERA_EGRAY8, 640, 480, intr.principalPoint.x, intr.principalPoint.y, intr.focalLength.x, intr.focalLength.y, 0, false, 0);
         return true;
     }
@@ -387,7 +388,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
     }
 
     // work in progress
-    @Override public void onDataUpdated(SensorFusionData data)
+    @Override public void onDataUpdated(final SensorFusionData data)
     {
         Handler mainHandler = new Handler(getMainLooper());
         Runnable myRunnable = new Runnable()
@@ -395,7 +396,15 @@ public class MainActivity extends Activity implements ITrackerReceiver
             @Override
             public void run()
             {
-                // do something on main thread
+                switch (appState)
+                {
+                    case LiveVis:
+                        setStatusText(String.format("live [x: %.3f, y: %.3f, z:%.3f]", data.getPose()[0], data.getPose()[1], data.getPose()[2]));
+                        break;
+                    case ReplayVis:
+                        setStatusText(String.format("replay [x: %.3f, y: %.3f, z:%.3f]", data.getPose()[0], data.getPose()[1], data.getPose()[2]));
+                        break;
+                }
             }
         };
         mainHandler.post(myRunnable); // runs the Runnable on the main thread

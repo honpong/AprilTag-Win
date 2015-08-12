@@ -1,10 +1,18 @@
 package com.realitycap.android.rcutility;
 
 import android.app.Activity;
+import android.content.ContentUris;
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,12 +26,15 @@ import android.widget.ToggleButton;
 
 import com.intel.camera.toolkit.depth.Camera;
 
+import java.io.File;
+
 public class MainActivity extends Activity implements ITrackerReceiver
 {
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final String PREF_KEY_CALIBRATION = "calibration";
     public static final String CALIBRATION_FILENAME = "calibration.json";
     public static final String DEFAULT_CALIBRATION_FILENAME = "ft210.json";
+    private static final int ACTION_PICK_REPLAY_FILE = 94131;
 
     private TextView statusText;
     private ToggleButton calibrationButton;
@@ -105,7 +116,8 @@ public class MainActivity extends Activity implements ITrackerReceiver
             @Override
             public void onClick(View v)
             {
-                openFilePicker();
+                if (appState == AppState.Idle) openFilePicker();
+                else if (appState == AppState.ReplayVis) exitReplayState();
             }
         });
 
@@ -303,10 +315,10 @@ public class MainActivity extends Activity implements ITrackerReceiver
         setStatusText("Stopped live view.");
     }
 
-    protected boolean enterReplayState()
+    protected boolean enterReplayState(String absFilePath)
     {
         if (appState != AppState.Idle) return false;
-        setStatusText("Starting replay...");
+        Log.d(TAG, "Starting replay of file: " + absFilePath);
 
         trackerProxy.createTracker();
 
@@ -325,7 +337,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
             return abortTracking("Failed to start tracking.");
         }
 
-//        if (!startPlayback())
+//        if (!startPlayback(absFilePath))
 //        {
 //            return abortTracking("Failed to start playback.");
 //        }
@@ -476,8 +488,23 @@ public class MainActivity extends Activity implements ITrackerReceiver
     protected boolean openFilePicker()
     {
         if (appState != AppState.Idle) return false;
-        setStatusText("openFilePicker");
+
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        startActivityForResult(intent, ACTION_PICK_REPLAY_FILE);
+
         return true;
+    }
+
+    @Override protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        if (resultCode == Activity.RESULT_OK && requestCode == ACTION_PICK_REPLAY_FILE)
+        {
+            String path = UriUtils.getPath(this, data.getData());
+            enterReplayState(path);
+        }
+        else super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override

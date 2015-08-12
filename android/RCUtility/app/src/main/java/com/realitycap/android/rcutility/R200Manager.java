@@ -105,16 +105,16 @@ public class R200Manager
             if (cameraId != null)
             {
                 // Color
-                Log.d(TAG, "Camera " + cameraId + " color characteristics");
+                Log.v(TAG, "Camera " + cameraId + " color characteristics");
                 StreamConfigurationMap configMap = mCameraChar.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
 
                 int[] colorFormats = configMap.getOutputFormats();
                 for (int format : colorFormats)
                 {
-                    Log.d(TAG, "Camera " + cameraId + ": Supports color format " + formatToText(format));
+                    Log.v(TAG, "Camera " + cameraId + ": Supports color format " + formatToText(format));
                     Size[] mColorSizes = configMap.getOutputSizes(format);
                     for (Size s : mColorSizes)
-                        Log.d(TAG, "Camera " + cameraId + ":     color size " + s.getWidth() + ", " + s.getHeight());
+                        Log.v(TAG, "Camera " + cameraId + ":     color size " + s.getWidth() + ", " + s.getHeight());
                 }
 
                 // Depth
@@ -125,17 +125,17 @@ public class R200Manager
                 };
                 for (int streamId : streamIds)
                 {
-                    Log.d(TAG, "Camera " + cameraId + " DepthCameraStreamConfigurationMap for " + streamIdToText(streamId));
+                    Log.v(TAG, "Camera " + cameraId + " DepthCameraStreamConfigurationMap for " + streamIdToText(streamId));
                     DepthCameraStreamConfigurationMap depthConfigMap = new DepthCameraStreamConfigurationMap(mCameraChar);
 
                     int[] depthFormats = depthConfigMap.getOutputFormats(streamId);
                     for (int format : depthFormats)
                     {
-                        Log.d(TAG, "Camera " + cameraId + ": Supports depth format " + formatToText(format));
+                        Log.v(TAG, "Camera " + cameraId + ": Supports depth format " + formatToText(format));
 
                         Size[] sizes = depthConfigMap.getOutputSizes(streamId, format);
                         for (Size s : sizes)
-                            Log.d(TAG, "Camera " + cameraId + ":     color size " + s.getWidth() + ", " + s.getHeight());
+                            Log.v(TAG, "Camera " + cameraId + ":     color size " + s.getWidth() + ", " + s.getHeight());
                     }
                 }
             }

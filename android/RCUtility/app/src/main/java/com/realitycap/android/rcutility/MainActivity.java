@@ -268,14 +268,14 @@ public class MainActivity extends Activity implements ITrackerReceiver
 
         trackerProxy.createTracker();
 
-        if (!configureCamera())
-        {
-            return abortTracking("Failed to get camera intrinsics.");
-        }
-
         if (!setCalibrationFromFile(CALIBRATION_FILENAME))
         {
             return abortTracking("Failed to load calibration file. You may need to run calibration first.");
+        }
+
+        if (!configureCamera())
+        {
+            return abortTracking("Failed to get camera intrinsics.");
         }
 
         if (!startSensors())
@@ -310,14 +310,14 @@ public class MainActivity extends Activity implements ITrackerReceiver
 
         trackerProxy.createTracker();
 
-        if (!configureCamera())
-        {
-            return abortTracking("Failed to get camera intrinsics.");
-        }
-
         if (!setCalibrationFromFile(CALIBRATION_FILENAME))
         {
             return abortTracking("Failed to load calibration file. You may need to run calibration first.");
+        }
+
+        if (!configureCamera())
+        {
+            return abortTracking("Failed to get camera intrinsics.");
         }
 
         if (!trackerProxy.startTracker())
@@ -347,6 +347,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
 
     private boolean abortTracking(String message)
     {
+        Log.d(TAG, "abortTracking");
         stopSensors();
         trackerProxy.destroyTracker();
         setStatusText(message);
@@ -442,10 +443,10 @@ public class MainActivity extends Activity implements ITrackerReceiver
                 switch (appState)
                 {
                     case LiveVis:
-                        setStatusText(data.toPoseString());
+                        statusText.setText(data.toPoseString()); // don't use setStatusText() to avoid excess logging
                         break;
                     case ReplayVis:
-                        setStatusText(data.toPoseString());
+                        statusText.setText(data.toPoseString()); // don't use setStatusText() to avoid excess logging
                         break;
                 }
             }

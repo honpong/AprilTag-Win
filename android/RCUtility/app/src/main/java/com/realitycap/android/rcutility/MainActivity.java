@@ -275,7 +275,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
 
         if (!setCalibrationFromFile(CALIBRATION_FILENAME))
         {
-            return abortTracking("Failed to load calibration file.");
+            return abortTracking("Failed to load calibration file. You may need to run calibration first.");
         }
 
         if (!startSensors())
@@ -301,6 +301,48 @@ public class MainActivity extends Activity implements ITrackerReceiver
         trackerProxy.destroyTracker();
         appState = AppState.Idle;
         setStatusText("Stopped live view.");
+    }
+
+    protected boolean enterReplayState()
+    {
+        if (appState != AppState.Idle) return false;
+        setStatusText("Starting replay...");
+
+        trackerProxy.createTracker();
+
+        if (!configureCamera())
+        {
+            return abortTracking("Failed to get camera intrinsics.");
+        }
+
+        if (!setCalibrationFromFile(CALIBRATION_FILENAME))
+        {
+            return abortTracking("Failed to load calibration file. You may need to run calibration first.");
+        }
+
+        if (!trackerProxy.startTracker())
+        {
+            return abortTracking("Failed to start tracking.");
+        }
+
+//        if (!startPlayback())
+//        {
+//            return abortTracking("Failed to start playback.");
+//        }
+
+        setStatusText("Replay running...");
+        appState = AppState.ReplayVis;
+        return true;
+    }
+
+    protected void exitReplayState()
+    {
+        if (appState != AppState.ReplayVis) return;
+        setStatusText("Stopping replay...");
+//        stopPlayback();
+        trackerProxy.destroyTracker();
+        appState = AppState.Idle;
+        setStatusText("Stopped replay.");
     }
 
     private boolean abortTracking(String message)

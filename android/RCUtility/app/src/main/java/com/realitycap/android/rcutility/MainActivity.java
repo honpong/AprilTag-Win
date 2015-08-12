@@ -426,6 +426,24 @@ public class MainActivity extends Activity implements ITrackerReceiver
                         return;
                     }
                 }
+                else if (appState == AppState.LiveVis)
+                {
+                    if (errorCode > 1)
+                    {
+                        exitLiveState();
+                        setStatusText("Tracker error code: " + errorCode);
+                        return;
+                    }
+                }
+                else if (appState == AppState.ReplayVis)
+                {
+                    if (errorCode > 1)
+                    {
+                        exitReplayState();
+                        setStatusText("Tracker error code: " + errorCode);
+                        return;
+                    }
+                }
             }
         };
         mainHandler.post(myRunnable); // runs the Runnable on the main thread

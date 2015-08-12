@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <rc_intel_interface.h>
 
-#define TAG "RCUtility"
+#define TAG "tracker_wrapper"
 #define LOGV(...) ((void)__android_log_print(ANDROID_LOG_VERBOSE, TAG, __VA_ARGS__))
 #define LOGD(...) ((void)__android_log_print(ANDROID_LOG_DEBUG, TAG, __VA_ARGS__))
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, TAG, __VA_ARGS__))

@@ -20,6 +20,7 @@ import com.intel.camera.toolkit.depth.Camera;
 
 public class MainActivity extends Activity implements ITrackerReceiver
 {
+    private static final String TAG = MainActivity.class.getSimpleName();
     private static final String PREF_KEY_CALIBRATION = "calibration";
     public static final String CALIBRATION_FILENAME = "calibration.json";
     public static final String DEFAULT_CALIBRATION_FILENAME = "ft210.json";
@@ -442,7 +443,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
 
     private void log(String line)
     {
-        if (line != null) Log.d(MyApplication.TAG, line);
+        if (line != null) Log.d(TAG, line);
     }
 
     @SuppressWarnings("unused")
@@ -453,7 +454,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
 
     private void logError(String line)
     {
-        if (line != null) Log.e(MyApplication.TAG, line);
+        if (line != null) Log.e(TAG, line);
     }
 }
 

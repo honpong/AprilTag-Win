@@ -36,7 +36,7 @@ import java.util.Set;
  */
 public class R200Manager
 {
-    private static final String TAG = MyApplication.TAG;
+    private static final String TAG = R200Manager.class.getSimpleName();
     public static final int COLOR_WIDTH = 640;
     public static final int COLOR_HEIGHT = 480;
     public static final int DEPTH_WIDTH = 320;

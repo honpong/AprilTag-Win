@@ -135,7 +135,10 @@ int state_vision_group::process_features(const camera_data & camera, mapper & ma
     }
 
     if(map.num_features(id) > 10) {
-        map.match_group(id);
+        int max = 20;
+        int suppression = 1;
+        vector<map_match> matches;
+        map.get_matches(id, matches, max, suppression);
     }
 
     health = features.children.size();

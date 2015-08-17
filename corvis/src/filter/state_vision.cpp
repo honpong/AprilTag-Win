@@ -391,6 +391,12 @@ state_vision_group * state_vision::add_group(sensor_clock::time_point time)
     for(state_vision_group *neighbor : groups.children) {
         // Adds a symmetric edge
         map.add_edge(g->id, neighbor->id);
+        transformation G(g->Wr.v, g->Tr.v);
+        transformation N(neighbor->Wr.v, neighbor->Tr.v);
+        transformation_variance transform;
+        transform.transform = compose(invert(N), G);
+        map.set_geometry(g->id, neighbor->id, transform);
+
         g->old_neighbors.push_back(neighbor->id);
         neighbor->neighbors.push_back(g->id);
     }

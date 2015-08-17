@@ -64,6 +64,7 @@ struct local_feature {
 
 struct match_pair {
     local_feature first, second;
+    float score;
 };
 
 class mapper {

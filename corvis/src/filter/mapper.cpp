@@ -438,10 +438,10 @@ void mapper::localize_neighbor_features(uint64_t id, list<local_feature> &featur
     }
 }
 
-static int sift_distance(const map_feature &first, const map_feature &second) {
-    int sum = 0;
+static float sift_distance(const map_feature &first, const map_feature &second) {
+    float sum = 0;
     for(int i = 0; i < descriptor_size; ++i) {
-        int diff = first.d.d[i] - second.d.d[i];
+        float diff = first.d.d[i] - second.d.d[i];
         sum += diff*diff;
     }
     return sum;
@@ -449,17 +449,18 @@ static int sift_distance(const map_feature &first, const map_feature &second) {
 
 void assign_matches(list<local_feature> &f1, list<local_feature> &f2, list<match_pair> &matches) {
     for(list<local_feature>::iterator fi1 = f1.begin(); fi1 != f1.end(); ++fi1) {
-        int best_score = INT_MAX;
+        float best_score = FLT_MAX;
         list<local_feature>::iterator best = f2.end();
         for(list<local_feature>::iterator candidate = f2.begin(); candidate != f2.end(); ++candidate) {
-            int score = sift_distance(*fi1->feature, *candidate->feature);
+            if(fi1->feature->id == candidate->feature->id) continue;
+            float score = sift_distance(*fi1->feature, *candidate->feature);
             if(score < best_score) {
                 best_score = score;
                 best = candidate;
             }
         }
         if(best != f2.end() /*&& best < max_sift_distance_2*/) {
-            matches.push_back((match_pair){ *fi1, *best });
+            matches.push_back((match_pair){ *fi1, *best, best_score });
             f2.erase(best);
         }
     }

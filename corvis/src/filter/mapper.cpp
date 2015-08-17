@@ -591,10 +591,10 @@ int mapper::estimate_translation(uint64_t id1, uint64_t id2, v4 &result, int min
 {
     int best_score = 0;
     v4 bestdT;
-    v4 total_dT;
     for(list<match_pair>::const_iterator match = matches.begin(); match != matches.end(); ++match) {
         v4 dT = match->first.position - pre_transform * match->second.position;
         int inliers = 0;
+        v4 total_dT = v4(0,0,0,0);
         for(list<match_pair>::const_iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
             v4 thisdT = neighbor_match->first.position - pre_transform * neighbor_match->second.position;
             v4 error = dT - thisdT;

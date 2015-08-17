@@ -129,7 +129,7 @@ int state_vision_group::process_features(const camera_data & camera, mapper & ma
             if(descriptor_compute(camera.image, camera.width, camera.height, camera.stride,
                         f->current[0], f->current[1], radius, f->descriptor)) {
                 f->descriptor_valid = true;
-                map.add_feature(id, f->Xcamera, f->variance(), f->descriptor);
+                map.add_feature(id, f->id, f->Xcamera, f->variance(), f->descriptor);
             }
         }
     }

@@ -28,11 +28,12 @@ struct map_edge {
 };
 
 struct map_feature {
+    uint64_t id;
     v4 position;
     float variance;
     uint32_t label;
     descriptor d;
-    map_feature(const v4 &p, const float v, const uint32_t l, const descriptor & d);
+    map_feature(const uint64_t id, const v4 &p, const float v, const uint32_t l, const descriptor & d);
 };
 
 struct map_node {
@@ -47,7 +48,7 @@ struct map_node {
     transformation_variance transform;
     transformation_variance global_orientation;
 map_node(): terms(0), depth(0), parent(-1) {}
-    bool add_feature(const v4 &p, const float v, const uint32_t l, const descriptor & d);
+    bool add_feature(const uint64_t id, const v4 &p, const float v, const uint32_t l, const descriptor & d);
 };
 
 struct map_match {
@@ -119,7 +120,7 @@ class mapper {
     void match_group(uint64_t group_id);
 
     void add_node(uint64_t group_id);
-    void add_feature(uint64_t groupid, v4 pos, float variance, const descriptor & d);
+    void add_feature(uint64_t groupid, uint64_t id, v4 pos, float variance, const descriptor & d);
     uint32_t project_feature(const descriptor & d);
 };
 

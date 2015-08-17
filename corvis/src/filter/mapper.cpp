@@ -155,13 +155,13 @@ void mapper::add_node(uint64_t id)
 }
 
 
-map_feature::map_feature(const v4 &p, const float v, const uint32_t l, const descriptor & desc): position(p), variance(v), label(l), d(desc)
+map_feature::map_feature(const uint64_t _id, const v4 &p, const float v, const uint32_t l, const descriptor & desc): id(_id), position(p), variance(v), label(l), d(desc)
 {
 }
 
-bool map_node::add_feature(const v4 &pos, const float variance, const uint32_t label, const descriptor & d)
+bool map_node::add_feature(const uint64_t id, const v4 &pos, const float variance, const uint32_t label, const descriptor & d)
 {
-    map_feature *feat = new map_feature(pos, variance, label, d);
+    map_feature *feat = new map_feature(id, pos, variance, label, d);
     list<map_feature *>::iterator feature;
     for(feature = features.begin(); feature != features.end(); ++feature) {
         if((*feature)->label >= label) break;
@@ -188,11 +188,11 @@ uint32_t mapper::project_feature(const descriptor & d)
     return feature_dictionary.quantize(d);
 }
 
-void mapper::add_feature(uint64_t groupid, v4 pos, float variance, const descriptor & d)
+void mapper::add_feature(uint64_t groupid, uint64_t id, v4 pos, float variance, const descriptor & d)
 {
     uint32_t label = project_feature(d);
     ++feature_count;
-    if(nodes[groupid].add_feature(pos, variance, label, d)) {
+    if(nodes[groupid].add_feature(id, pos, variance, label, d)) {
         ++document_frequency[label];
     }
 }

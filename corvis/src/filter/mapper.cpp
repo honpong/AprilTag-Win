@@ -373,6 +373,8 @@ int mapper::brute_force_rotation(uint64_t id1, uint64_t id2, transformation_vari
 bool mapper::get_matches(uint64_t id, vector<map_match> &matches, int max, int suppression)
 {
     bool found = false;
+    if(nodes[id].match_attempted) return false;
+    nodes[id].match_attempted = true;
     //rebuild the map relative to the current node
     nodes[id].transform = transformation_variance();
     breadth_first(id, 0, NULL);

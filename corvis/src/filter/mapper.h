@@ -39,6 +39,7 @@ struct map_feature {
 struct map_node {
     uint64_t id;
     static size_t histogram_size;
+    bool match_attempted{false};
     list<map_edge> edges;
     map_edge &get_add_neighbor(uint64_t neighbor);
     int terms;

@@ -42,4 +42,3 @@ public class MyGLSurfaceView extends GLSurfaceView
 //        return super.onKeyDown(keyCode, event);
 //    }
 }
-

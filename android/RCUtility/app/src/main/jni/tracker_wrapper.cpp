@@ -3,6 +3,7 @@
 #include <android/log.h>
 #include <stdlib.h>
 #include <rc_intel_interface.h>
+#include <visualization.h>
 
 #include "render_data.h"
 

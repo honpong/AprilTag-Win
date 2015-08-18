@@ -21,12 +21,12 @@ public class MyGLSurfaceView extends GLSurfaceView
 
     public void startRendering()
     {
-        mMyRenderer.isEnabled = true;
+        mMyRenderer.setIsEnabled(true);
     }
 
     public void stopRendering()
     {
-        mMyRenderer.isEnabled = false;
+        mMyRenderer.setIsEnabled(false);
     }
 
 //    public boolean onKeyDown(int keyCode, KeyEvent event) {

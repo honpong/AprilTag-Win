@@ -16,7 +16,7 @@ public class MyRenderer implements GLSurfaceView.Renderer
     }
     private native void render();
 
-    protected boolean isEnabled = false;
+    private boolean isEnabled = false;
 
     public boolean isEnabled()
     {

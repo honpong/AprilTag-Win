@@ -5,7 +5,9 @@
 #include <rc_intel_interface.h>
 #include <visualization.h>
 
-#define TAG "RCUtility"
+#include "render_data.h"
+
+#define TAG "tracker_wrapper"
 #define LOGV(...) ((void)__android_log_print(ANDROID_LOG_VERBOSE, TAG, __VA_ARGS__))
 #define LOGD(...) ((void)__android_log_print(ANDROID_LOG_DEBUG, TAG, __VA_ARGS__))
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, TAG, __VA_ARGS__))
@@ -13,8 +15,9 @@
 #define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, TAG, __VA_ARGS__))
 
 static JavaVM *javaVM;
-static jobject trackerProxyObj;
 static rc_Tracker *tracker;
+static render_data render_data;
+static jobject trackerProxyObj;
 static jobject dataUpdateObj;
 
 jint JNI_OnLoad(JavaVM* vm, void* reserved)
@@ -102,6 +105,8 @@ static void status_callback(void *handle, rc_TrackerState state, rc_TrackerError
 
 static void data_callback(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count)
 {
+    render_data.update_data(time, pose, features, feature_count);
+
     int status;
     JNIEnv *env;
     bool isAttached = false;
@@ -180,6 +185,7 @@ extern "C"
         tracker = NULL;
         trackerProxyObj = NULL;
         env->DeleteGlobalRef(trackerProxyObj);
+        env->DeleteGlobalRef(dataUpdateObj);
         return (JNI_TRUE);
     }
 
@@ -272,6 +278,7 @@ extern "C"
                 -1, 0, 0, 0,
                 0, 0, -1, 0};
         rc_configureCamera(tracker, (rc_Camera) camera, pose, width_px, height_px, center_x_px, center_y_px, focal_length_x_px, focal_length_y_px, skew, fisheye, fisheye_fov_radians);
+        return (JNI_TRUE);
     }
 
     JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_receiveAccelerometer(JNIEnv *env, jobject thiz, jfloat x, jfloat y, jfloat z, jlong time_ns)
@@ -311,5 +318,11 @@ extern "C"
         rc_receiveImageWithDepth(tracker, rc_EGRAY8, time_ns / 1000, shutter_time_ns / 1000, NULL, false, width, height, stride, colorData, NULL, NULL, depthWidth, depthHeight, depthStride, depthData, NULL, NULL);
 
         return (JNI_TRUE);
+    }
+
+    // may be called before tracker is started, but always after tracker is created
+    JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_setGLSurface(JNIEnv *env, jobject thiz, jobject surface)
+    {
+        LOGD("setGLSurface()");
     }
 }

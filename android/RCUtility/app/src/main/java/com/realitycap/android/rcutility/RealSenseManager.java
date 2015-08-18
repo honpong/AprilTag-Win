@@ -26,6 +26,7 @@ import java.util.concurrent.CountDownLatch;
  */
 public class RealSenseManager
 {
+    private static final String TAG = RealSenseManager.class.getSimpleName();
     private SenseManager mSenseManager;
     private IMUCaptureManager mIMUManager;
     private boolean mIsCamRunning = false;
@@ -47,7 +48,7 @@ public class RealSenseManager
 
     public boolean startCameras()
     {
-        Log.d(MyApplication.TAG, "startCameras");
+        Log.d(TAG, "startCameras");
 
         if (false == mIsCamRunning)
         {
@@ -67,7 +68,7 @@ public class RealSenseManager
             }
             catch (Exception e)
             {
-                Log.e(MyApplication.TAG, "Exception:" + e.getMessage());
+                Log.e(TAG, "Exception:" + e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -76,7 +77,7 @@ public class RealSenseManager
 
     public void stopCameras()
     {
-        Log.d(MyApplication.TAG, "stopCameras");
+        Log.d(TAG, "stopCameras");
 
         if (true == mIsCamRunning)
         {
@@ -85,7 +86,7 @@ public class RealSenseManager
                 mSenseManager.close();
             } catch (Exception e)
             {
-                Log.e(MyApplication.TAG, "Exception:" + e.getMessage());
+                Log.e(TAG, "Exception:" + e.getMessage());
                 e.printStackTrace();
             }
 
@@ -101,19 +102,19 @@ public class RealSenseManager
         {
             if (!mIMUManager.enableSensor(Sensor.TYPE_ACCELEROMETER))
             {
-                Log.e(MyApplication.TAG, "Failed to enable accelerometer");
+                Log.e(TAG, "Failed to enable accelerometer");
                 return false;
             }
             if (!mIMUManager.enableSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED))
             {
-                Log.e(MyApplication.TAG, "Failed to enable gyro");
+                Log.e(TAG, "Failed to enable gyro");
                 return false;
             }
             return true;
         }
         catch (Exception e)
         {
-            Log.e(MyApplication.TAG, "Error starting IMU: " + e.getMessage());
+            Log.e(TAG, "Error starting IMU: " + e.getMessage());
             return false;
         }
     }
@@ -126,7 +127,7 @@ public class RealSenseManager
         }
         catch (Exception e)
         {
-            Log.e(MyApplication.TAG, "Error closing IMUManager: " + e.getMessage());
+            Log.e(TAG, "Error closing IMUManager: " + e.getMessage());
         }
     }
 
@@ -160,15 +161,14 @@ public class RealSenseManager
         @Override
         public void onSetProfile(Camera.CaptureInfo info)
         {
-//            Log.i(MyApplication.TAG, "OnSetProfile");
             Camera.Calibration cal = info.getCalibrationData();
             if (cal != null) mColorParams = cal.colorIntrinsics;
-            startupLatch.countDown();
         }
 
         @Override
         public void onNewSample(ImageSet images)
         {
+            startupLatch.countDown(); // indicates camera has fully started. allows startCameras() to return.
             if (receiver == null) return; // no point in any of this if no one is receiving it
 
             Image color = images.acquireImage(StreamType.COLOR);
@@ -176,15 +176,15 @@ public class RealSenseManager
 
             if (color == null || depth == null)
             {
-                if (color == null) Log.i(MyApplication.TAG, "color is null");
-                if (depth == null) Log.i(MyApplication.TAG, "depth is null");
+                if (color == null) Log.i(TAG, "color is null");
+                if (depth == null) Log.i(TAG, "depth is null");
                 return;
             }
 
             int colorStride = color.getInfo().DataSize / color.getHeight();
             int depthStride = depth.getInfo().DataSize / depth.getHeight();
 
-//            Log.v(MyApplication.TAG, "RealSense camera sample received.");
+//            Log.v(TAG, "RealSense camera sample received.");
 
             ByteBuffer colorData = color.acquireAccess();
             ByteBuffer depthData = depth.acquireAccess();
@@ -214,7 +214,7 @@ public class RealSenseManager
         public void onError(StreamProfileSet profile, int error)
         {
             stopCameras();
-            Log.e(MyApplication.TAG, "Error code " + error + ". The camera is not present or failed to initialize.");
+            Log.e(TAG, "Error code " + error + ". The camera is not present or failed to initialize.");
         }
     };
 

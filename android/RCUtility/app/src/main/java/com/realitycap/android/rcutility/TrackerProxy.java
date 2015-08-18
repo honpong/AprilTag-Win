@@ -4,6 +4,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.util.Log;
+import android.view.Surface;
 
 import com.intel.camera.toolkit.depth.sensemanager.SensorSample;
 
@@ -17,6 +18,7 @@ public class TrackerProxy implements SensorEventListener, IRealSenseSensorReceiv
         System.loadLibrary("tracker_wrapper");
     }
 
+    private static final String TAG = TrackerProxy.class.getSimpleName();
     public static final int CAMERA_EGRAY8 = 0;
     public static final int CAMERA_EDEPTH16 = 1;
 
@@ -31,6 +33,7 @@ public class TrackerProxy implements SensorEventListener, IRealSenseSensorReceiv
     public native void setOutputLog(String filename);
     public native String getCalibration();
     public native boolean setCalibration(String cal);
+    public native void setGLSurface(Surface surface);
 
     protected native void receiveAccelerometer(float x, float y, float z, long timestamp);
     protected native void receiveGyro(float x, float y, float z, long timestamp);
@@ -59,12 +62,12 @@ public class TrackerProxy implements SensorEventListener, IRealSenseSensorReceiv
     {
         if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
         {
-//			Log.d(MyApplication.TAG, String.format("accel %.3f, %.3f, %.3f, %d", sensorEvent.values[0], sensorEvent.values[1], sensorEvent.values[2], sensorEvent.timestamp));
+//			Log.d(TAG, String.format("accel %.3f, %.3f, %.3f, %d", sensorEvent.values[0], sensorEvent.values[1], sensorEvent.values[2], sensorEvent.timestamp));
             receiveAccelerometer(sensorEvent.values[0], sensorEvent.values[1], sensorEvent.values[2], sensorEvent.timestamp);
         }
         else if (sensorEvent.sensor.getType() == Sensor.TYPE_GYROSCOPE || sensorEvent.sensor.getType() == Sensor.TYPE_GYROSCOPE_UNCALIBRATED)
         {
-//			Log.d(MyApplication.TAG, String.format("gyro %.3f, %.3f, %.3f, %d", sensorEvent.values[0], sensorEvent.values[1], sensorEvent.values[2], sensorEvent.timestamp));
+//			Log.d(TAG, String.format("gyro %.3f, %.3f, %.3f, %d", sensorEvent.values[0], sensorEvent.values[1], sensorEvent.values[2], sensorEvent.timestamp));
             receiveGyro(sensorEvent.values[0], sensorEvent.values[1], sensorEvent.values[2], sensorEvent.timestamp);
         }
     }
@@ -72,7 +75,7 @@ public class TrackerProxy implements SensorEventListener, IRealSenseSensorReceiv
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy)
     {
-        Log.d(MyApplication.TAG, String.format("onAccuracyChanged(%s, %d)", sensor.getName(), accuracy));
+        Log.d(TAG, String.format("onAccuracyChanged(%s, %d)", sensor.getName(), accuracy));
     }
     //endregion
 
@@ -80,9 +83,9 @@ public class TrackerProxy implements SensorEventListener, IRealSenseSensorReceiv
     @Override
     public void onSyncedFrames(long time_ns, long shutter_time_ns, int width, int height, int stride, final ByteBuffer colorData, int depthWidth, int depthHeight, int depthStride, final ByteBuffer depthData)
     {
-        //Log.d(MyApplication.TAG, String.format("camera %d", time_ns));
+        //Log.d(TAG, String.format("camera %d", time_ns));
         boolean result = receiveImageWithDepth(time_ns, shutter_time_ns, false, width, height, stride, colorData, depthWidth, depthHeight, depthStride, depthData);
-//        if (!result) Log.w(MyApplication.TAG, "receiveImageWithDepth() returned FALSE");
+//        if (!result) Log.w(TAG, "receiveImageWithDepth() returned FALSE");
     }
 
     @Override
@@ -112,14 +115,14 @@ public class TrackerProxy implements SensorEventListener, IRealSenseSensorReceiv
     @Override
     public void onStatusUpdated(int runState, int errorCode, int confidence, float progress)
     {
-//        Log.d(MyApplication.TAG, String.format("onStatusUpdated - runState: %d progress: %f", runState, progress));
+//        Log.d(TAG, String.format("onStatusUpdated - runState: %d progress: %f", runState, progress));
         if (receiver != null) receiver.onStatusUpdated(runState, errorCode, confidence, progress);
     }
 
     @Override
     public void onDataUpdated(SensorFusionData data)
     {
-//        Log.d(MyApplication.TAG, String.format("onDataUpdated"));
+//        Log.d(TAG, String.format("onDataUpdated"));
         if (receiver != null) receiver.onDataUpdated(data);
     }
     //endregion

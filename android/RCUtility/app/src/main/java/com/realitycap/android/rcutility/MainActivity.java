@@ -1,7 +1,9 @@
 package com.realitycap.android.rcutility;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
@@ -16,13 +18,9 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import com.intel.camera.toolkit.depth.Camera;
-
-public class MainActivity extends Activity implements ITrackerReceiver
+public class MainActivity extends TrackerActivity
 {
-    private static final String PREF_KEY_CALIBRATION = "calibration";
-    public static final String CALIBRATION_FILENAME = "calibration.json";
-    public static final String DEFAULT_CALIBRATION_FILENAME = "ft210.json";
+    private static final String TAG = MainActivity.class.getSimpleName();
 
     private TextView statusText;
     private ToggleButton calibrationButton;
@@ -30,19 +28,14 @@ public class MainActivity extends Activity implements ITrackerReceiver
     private Button liveButton;
     private Button replayButton;
 
-    IMUManager imuMan;
-    TrackerProxy trackerProxy;
-    RealSenseManager rsMan;
-
     enum AppState
     {
-        Idle, Calibrating, Capturing, LiveVis, ReplayVis
+        Idle, Calibrating, Capturing
     }
 
     AppState appState = AppState.Idle;
 
     SharedPreferences prefs;
-    TextFileIO textFileIO = new TextFileIO();
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -92,7 +85,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
             @Override
             public void onClick(View v)
             {
-                enterLiveState();
+                if (appState == AppState.Idle) startLiveActivity();
             }
         });
 
@@ -102,59 +95,19 @@ public class MainActivity extends Activity implements ITrackerReceiver
             @Override
             public void onClick(View v)
             {
-                openFilePicker();
+                if (appState == AppState.Idle) openFilePicker();
             }
         });
-
-        imuMan = new IMUManager();
-        trackerProxy = new TrackerProxy();
-        trackerProxy.receiver = this;
-
-        imuMan.setSensorEventListener(trackerProxy);
-
-        rsMan = new RealSenseManager(this, trackerProxy);
 
         prefs = getSharedPreferences("RCUtilityPrefs", 0);
 
         setStatusText("Ready");
     }
 
-    @Override protected void onDestroy()
-    {
-        trackerProxy.destroyTracker();
-        super.onDestroy();
-    }
-
     protected void setStatusText(String text)
     {
         statusText.setText(text);
         log(text);
-    }
-
-    protected boolean startSensors()
-    {
-        if (!imuMan.startSensors()) return false;
-
-        if (!rsMan.startCameras())
-        {
-            imuMan.stopSensors();
-            return false;
-        }
-
-//        if(!rsMan.startImu())
-//        {
-//            imuMan.stopCameras();
-//            return false;
-//        }
-
-        return true;
-    }
-
-    protected void stopSensors()
-    {
-        imuMan.stopSensors();
-//        rsMan.stopImu();
-        rsMan.stopCameras();
     }
 
     protected boolean enterCalibrationState()
@@ -164,9 +117,9 @@ public class MainActivity extends Activity implements ITrackerReceiver
 
         trackerProxy.createTracker();
 
-        if (!startSensors())
+        if (!imuMan.startSensors())
         {
-            return abortTracking("Failed to start sensors.");
+            return abortTracking("Failed to start IMU sensors.");
         }
 
         if (!configureCamera())
@@ -193,7 +146,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
     {
         if (appState != AppState.Calibrating) return;
 
-        stopSensors();
+        imuMan.stopSensors();
         trackerProxy.stopTracker();
         trackerProxy.destroyTracker();
 
@@ -207,7 +160,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
     {
         if (appState != AppState.Calibrating) return;
 
-        stopSensors();
+        imuMan.stopSensors();
 
         boolean success = true;
         String cal = trackerProxy.getCalibration();
@@ -232,18 +185,17 @@ public class MainActivity extends Activity implements ITrackerReceiver
     {
         if (appState != AppState.Idle) return false;
 
-        trackerProxy.createTracker();
-
         setStatusText("Starting capture...");
+
+        trackerProxy.createTracker();
+        trackerProxy.setOutputLog(Environment.getExternalStorageDirectory() + "/capture");
+
         if (!startSensors())
         {
             return abortTracking("Failed to start sensors.");
         }
 
-        trackerProxy.setOutputLog(Environment.getExternalStorageDirectory() + "/capture");
-
         setStatusText("Capturing...");
-
         appState = AppState.Capturing;
         return true;
     }
@@ -257,81 +209,29 @@ public class MainActivity extends Activity implements ITrackerReceiver
         appState = AppState.Idle;
     }
 
-    protected boolean enterLiveState()
-    {
-        if (appState != AppState.Idle) return false;
-        setStatusText("Starting live view...");
-
-        trackerProxy.createTracker();
-
-        if (!startSensors())
-        {
-            return abortTracking("Failed to start sensors.");
-        }
-
-        if (!configureCamera())
-        {
-            return abortTracking("Failed to get camera intrinsics.");
-        }
-
-        if (!setCalibrationFromFile(CALIBRATION_FILENAME))
-        {
-            return abortTracking("Failed to load calibration file.");
-        }
-
-        if (!trackerProxy.startTracker())
-        {
-            return abortTracking("Failed to start tracking.");
-        }
-
-        setStatusText("Live view running...");
-        appState = AppState.LiveVis;
-        return true;
-    }
-
-    protected void exitLiveState()
+    protected void startLiveActivity()
     {
         if (appState != AppState.Idle) return;
-        setStatusText("Stopping live view...");
-        stopSensors();
-        trackerProxy.destroyTracker();
-        appState = AppState.Idle;
-        setStatusText("Stopped.");
+        Intent intent = new Intent(this, VisActivity.class);
+        intent.setAction(VisActivity.ACTION_LIVE_VIS);
+        startActivity(intent);
+    }
+
+    protected void startReplayActivity(Uri captureFile)
+    {
+        Intent intent = new Intent(this, VisActivity.class);
+        intent.setAction(VisActivity.ACTION_REPLAY_VIS);
+        intent.setData(captureFile);
+        startActivity(intent);
     }
 
     private boolean abortTracking(String message)
     {
+        Log.d(TAG, "abortTracking");
         stopSensors();
         trackerProxy.destroyTracker();
         setStatusText(message);
         return false;
-    }
-
-    protected boolean setDefaultCalibrationFromFile(String fileName)
-    {
-        final String defaultCal = textFileIO.readTextFromFileInAssets(fileName);
-        if (defaultCal == null || defaultCal.length() <= 0) return false;
-        return trackerProxy.setCalibration(defaultCal);
-    }
-
-    protected boolean setCalibrationFromFile(String fileName)
-    {
-        final String cal = textFileIO.readTextFromFileOnSDCard(fileName);
-        if (cal == null || cal.length() <= 0) return false;
-        return trackerProxy.setCalibration(cal);
-    }
-
-    protected boolean configureCamera()
-    {
-        Camera.Calibration.Intrinsics intr = rsMan.getCameraIntrinsics();
-        if (intr == null)
-        {
-            stopSensors();
-            trackerProxy.destroyTracker();
-            return false;
-        }
-        trackerProxy.configureCamera(TrackerProxy.CAMERA_EGRAY8, 640, 480, intr.principalPoint.x, intr.principalPoint.y, intr.focalLength.x, intr.focalLength.y, 0, false, 0);
-        return true;
     }
 
     @Override public void onStatusUpdated(final int runState, final int errorCode, final int confidence, final float progress)
@@ -386,27 +286,31 @@ public class MainActivity extends Activity implements ITrackerReceiver
         mainHandler.post(myRunnable); // runs the Runnable on the main thread
     }
 
-    // work in progress
-    @Override public void onDataUpdated(SensorFusionData data)
+    @Override public void onDataUpdated(final SensorFusionData data)
     {
-        Handler mainHandler = new Handler(getMainLooper());
-        Runnable myRunnable = new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                // do something on main thread
-            }
-        };
-        mainHandler.post(myRunnable); // runs the Runnable on the main thread
+
     }
 
     // work in progress
     protected boolean openFilePicker()
     {
         if (appState != AppState.Idle) return false;
-        setStatusText("openFilePicker");
+
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        startActivityForResult(intent, ACTION_PICK_REPLAY_FILE);
+
         return true;
+    }
+
+    @Override protected void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        if (resultCode == Activity.RESULT_OK && requestCode == ACTION_PICK_REPLAY_FILE)
+        {
+            startReplayActivity(data.getData());
+        }
+        else super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -433,7 +337,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
 
     private void log(String line)
     {
-        if (line != null) Log.d(MyApplication.TAG, line);
+        if (line != null) Log.d(TAG, line);
     }
 
     @SuppressWarnings("unused")
@@ -444,7 +348,7 @@ public class MainActivity extends Activity implements ITrackerReceiver
 
     private void logError(String line)
     {
-        if (line != null) Log.e(MyApplication.TAG, line);
+        if (line != null) Log.e(TAG, line);
     }
 }
 

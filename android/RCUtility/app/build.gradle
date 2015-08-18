@@ -18,29 +18,25 @@ model {
     android.ndk {
         moduleName = "tracker_wrapper"
         ldLibs += ["log"]
-        toolchain = "clang"
-        toolchainVersion = "3.6"
         stl = "c++_shared"
     }
     android.buildTypes {
         release {
             ndk.ldLibs += ["tracker"]
-            isMinifyEnabled = false
+            minifyEnabled = false
             proguardFiles += file('proguard-rules.pro')
         }
         debug {
             ndk.ldLibs += ["tracker_debug"]
-            isMinifyEnabled = false
+            minifyEnabled = false
             proguardFiles += file('proguard-rules.pro')
-            isDebuggable = true
-            isJniDebuggable = true
+            debuggable = true
         }
         create("relwithdebinfo") {
             ndk.ldLibs += ["tracker_relwithdebinfo"]
-            isMinifyEnabled = false
+            minifyEnabled = false
             proguardFiles += file('proguard-rules.pro')
-            isDebuggable = true
-            isJniDebuggable = true
+            debuggable = true
         }
     }
     android.productFlavors {
@@ -84,12 +80,12 @@ dependencies {
             rsRoot + '/libs/PXCAScenePerception_x86.jar',
             rsRoot + '/libs/PXCAPlayback_Camera_x86.jar',
             rsRoot + '/libs/SP_Core_x86.jar',
-            rsRoot + '/libs/c++_shared_x86.jar',
             rsRoot + '/libs/cilkrts_x86.jar',
             rsRoot + '/libs/metaioTracker_x86.jar',
             rsRoot + '/libs/PXCACommon.jar',
             rsRoot + '/libs/PXCASenseManager.jar',
             rsRoot + '/libs/PXCAPlayback.jar',
-            rsRoot + '/libs/PXCAScenePerception.jar'
+            rsRoot + '/libs/PXCAScenePerception.jar',
+            rsRoot + '/libs/com.intel.camera2.extensions.depthcamera.jar'
     ).each { assert it.exists() : "$it: Not found\nSet RSSDK (currently $rsRoot)" }
 }

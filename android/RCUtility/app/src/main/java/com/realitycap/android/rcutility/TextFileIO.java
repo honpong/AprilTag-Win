@@ -18,6 +18,8 @@ import java.io.InputStreamReader;
  */
 public class TextFileIO
 {
+    private static final String TAG = TextFileIO.class.getSimpleName();
+    
     public String readTextFromFileInAssets(String filename)
     {
         InputStream is;
@@ -27,7 +29,7 @@ public class TextFileIO
         }
         catch (IOException e)
         {
-            Log.e(MyApplication.TAG, e.getLocalizedMessage());
+            Log.e(TAG, e.getLocalizedMessage());
             return null;
         }
         return readTextFromInputStream(is);
@@ -43,7 +45,7 @@ public class TextFileIO
         }
         catch (FileNotFoundException e)
         {
-            Log.e(MyApplication.TAG, e.getLocalizedMessage());
+            Log.e(TAG, e.getLocalizedMessage());
             return null;
         }
         return readTextFromInputStream(is);
@@ -66,7 +68,7 @@ public class TextFileIO
         }
         catch (IOException e)
         {
-            Log.e(MyApplication.TAG, e.getLocalizedMessage());
+            Log.e(TAG, e.getLocalizedMessage());
         }
         finally
         {
@@ -78,7 +80,7 @@ public class TextFileIO
                 }
                 catch (IOException e)
                 {
-                    Log.e(MyApplication.TAG, e.getLocalizedMessage());
+                    Log.e(TAG, e.getLocalizedMessage());
                 }
             }
         }
@@ -99,7 +101,7 @@ public class TextFileIO
         }
         catch (Exception e)
         {
-            Log.e(MyApplication.TAG, e.getLocalizedMessage());
+            Log.e(TAG, e.getLocalizedMessage());
             return false;
         }
 

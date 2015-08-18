@@ -500,9 +500,11 @@ bool stereo::preprocess_internal(const stereo_frame &from, stereo_frame &to, m4 
             to.T = Tto * (to.T).norm(); // keep the magnitude of T
         }
     }
+#ifdef DEBUG
     else
         fprintf(stderr, "Invalid F estimation\n");
-
+#endif
+    
     if(enable_debug_files) {
         write_debug_info();
     }

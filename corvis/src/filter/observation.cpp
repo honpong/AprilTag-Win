@@ -213,9 +213,11 @@ void observation_vision_feature::predict()
 
     feature->world = R * Rrt * (X0_unscale - state_group->Tr.v) + state.T.v;
     v4 ippred = X / X[2]; //in the image plane
+#ifdef DEBUG
     if(fabs(ippred[2]-1.) > 1.e-7 || ippred[3] != 0.) {
         fprintf(stderr, "FAILURE in feature projection in observation_vision_feature::predict\n");
     }
+#endif
 
     norm_predicted = {(float)ippred[0], (float)ippred[1]};
     feature->prediction = state.uncalibrate_feature(norm_predicted);
@@ -330,9 +332,11 @@ f_t observation_vision_feature::projection_residual(const v4 & X, const xy &foun
 {
     f_t invZ = 1./X[2];
     v4 ippred = X * invZ; //in the image plane
+#ifdef DEBUG
     if(fabs(ippred[2]-1.) > 1.e-7 || ippred[3] != 0.) {
         fprintf(stderr, "FAILURE in feature projection in observation_vision_feature::predict\n");
     }
+#endif
     feature_t norm = { (float)ippred[0], (float)ippred[1] };
     
     feature_t uncalib = state.uncalibrate_feature(norm);

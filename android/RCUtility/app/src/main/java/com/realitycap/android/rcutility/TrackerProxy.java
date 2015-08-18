@@ -4,6 +4,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.util.Log;
+import android.view.Surface;
 
 import com.intel.camera.toolkit.depth.sensemanager.SensorSample;
 
@@ -32,6 +33,7 @@ public class TrackerProxy implements SensorEventListener, IRealSenseSensorReceiv
     public native void setOutputLog(String filename);
     public native String getCalibration();
     public native boolean setCalibration(String cal);
+    public native void setGLSurface(Surface surface);
 
     protected native void receiveAccelerometer(float x, float y, float z, long timestamp);
     protected native void receiveGyro(float x, float y, float z, long timestamp);

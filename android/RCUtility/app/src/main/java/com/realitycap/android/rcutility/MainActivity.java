@@ -1,18 +1,12 @@
 package com.realitycap.android.rcutility;
 
 import android.app.Activity;
-import android.content.ContentUris;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.provider.DocumentsContract;
-import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -23,10 +17,6 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.ToggleButton;
-
-import com.intel.camera.toolkit.depth.Camera;
-
-import java.io.File;
 
 public class MainActivity extends TrackerActivity
 {
@@ -40,7 +30,7 @@ public class MainActivity extends TrackerActivity
 
     enum AppState
     {
-        Idle, Calibrating, Capturing, LiveVis, ReplayVis
+        Idle, Calibrating, Capturing
     }
 
     AppState appState = AppState.Idle;
@@ -95,8 +85,7 @@ public class MainActivity extends TrackerActivity
             @Override
             public void onClick(View v)
             {
-                if (appState == AppState.Idle) enterLiveState();
-                else if (appState == AppState.LiveVis) exitLiveState();
+                if (appState == AppState.Idle) startLiveActivity();
             }
         });
 
@@ -107,7 +96,6 @@ public class MainActivity extends TrackerActivity
             public void onClick(View v)
             {
                 if (appState == AppState.Idle) openFilePicker();
-                else if (appState == AppState.ReplayVis) exitReplayState();
             }
         });
 
@@ -221,88 +209,20 @@ public class MainActivity extends TrackerActivity
         appState = AppState.Idle;
     }
 
-    protected boolean enterLiveState()
+    protected void startLiveActivity()
     {
-        if (appState != AppState.Idle) return false;
-        setStatusText("Starting live view...");
-
-        trackerProxy.createTracker();
-
-        if (!setCalibrationFromFile(CALIBRATION_FILENAME))
-        {
-            return abortTracking("Failed to load calibration file. You may need to run calibration first.");
-        }
-
-        if (!configureCamera())
-        {
-            return abortTracking("Failed to get camera intrinsics.");
-        }
-
-        if (!startSensors())
-        {
-            return abortTracking("Failed to start sensors.");
-        }
-
-        if (!trackerProxy.startTracker())
-        {
-            return abortTracking("Failed to start tracking.");
-        }
-
-        setStatusText("Live view running...");
-        appState = AppState.LiveVis;
-        return true;
+        if (appState != AppState.Idle) return;
+        Intent intent = new Intent(this, VisActivity.class);
+        intent.setAction(VisActivity.ACTION_LIVE_VIS);
+        startActivity(intent);
     }
 
-    protected void exitLiveState()
+    protected void startReplayActivity(Uri captureFile)
     {
-        if (appState != AppState.LiveVis) return;
-        setStatusText("Stopping live view...");
-        stopSensors();
-        trackerProxy.destroyTracker();
-        appState = AppState.Idle;
-        setStatusText("Stopped live view.");
-    }
-
-    protected boolean enterReplayState(String absFilePath)
-    {
-        if (appState != AppState.Idle) return false;
-        Log.d(TAG, "Starting replay of file: " + absFilePath);
-
-        trackerProxy.createTracker();
-
-        if (!setCalibrationFromFile(CALIBRATION_FILENAME))
-        {
-            return abortTracking("Failed to load calibration file. You may need to run calibration first.");
-        }
-
-        if (!configureCamera())
-        {
-            return abortTracking("Failed to get camera intrinsics.");
-        }
-
-        if (!trackerProxy.startTracker())
-        {
-            return abortTracking("Failed to start tracking.");
-        }
-
-//        if (!startPlayback(absFilePath))
-//        {
-//            return abortTracking("Failed to start playback.");
-//        }
-
-        setStatusText("Replay running...");
-        appState = AppState.ReplayVis;
-        return true;
-    }
-
-    protected void exitReplayState()
-    {
-        if (appState != AppState.ReplayVis) return;
-        setStatusText("Stopping replay...");
-//        stopPlayback();
-        trackerProxy.destroyTracker();
-        appState = AppState.Idle;
-        setStatusText("Stopped replay.");
+        Intent intent = new Intent(this, VisActivity.class);
+        intent.setAction(VisActivity.ACTION_REPLAY_VIS);
+        intent.setData(captureFile);
+        startActivity(intent);
     }
 
     private boolean abortTracking(String message)
@@ -312,31 +232,6 @@ public class MainActivity extends TrackerActivity
         trackerProxy.destroyTracker();
         setStatusText(message);
         return false;
-    }
-
-    protected boolean setDefaultCalibrationFromFile(String fileName)
-    {
-        final String defaultCal = textFileIO.readTextFromFileInAssets(fileName);
-        if (defaultCal == null || defaultCal.length() <= 0) return false;
-        return trackerProxy.setCalibration(defaultCal);
-    }
-
-    protected boolean setCalibrationFromFile(String fileName)
-    {
-        final String cal = textFileIO.readTextFromFileOnSDCard(fileName);
-        if (cal == null || cal.length() <= 0) return false;
-        return trackerProxy.setCalibration(cal);
-    }
-
-    protected boolean configureCamera()
-    {
-        if (r200Man.isRunning()) return false;
-        rsMan.startCameras();
-        Camera.Calibration.Intrinsics intr = rsMan.getCameraIntrinsics();
-        rsMan.stopCameras();
-        if (intr == null) return false;
-        trackerProxy.configureCamera(TrackerProxy.CAMERA_EGRAY8, 640, 480, intr.principalPoint.x, intr.principalPoint.y, intr.focalLength.x, intr.focalLength.y, 0, false, 0);
-        return true;
     }
 
     @Override public void onStatusUpdated(final int runState, final int errorCode, final int confidence, final float progress)
@@ -386,50 +281,14 @@ public class MainActivity extends TrackerActivity
                         return;
                     }
                 }
-                else if (appState == AppState.LiveVis)
-                {
-                    if (errorCode > 1)
-                    {
-                        exitLiveState();
-                        setStatusText("Tracker error code: " + errorCode);
-                        return;
-                    }
-                }
-                else if (appState == AppState.ReplayVis)
-                {
-                    if (errorCode > 1)
-                    {
-                        exitReplayState();
-                        setStatusText("Tracker error code: " + errorCode);
-                        return;
-                    }
-                }
             }
         };
         mainHandler.post(myRunnable); // runs the Runnable on the main thread
     }
 
-    // work in progress
     @Override public void onDataUpdated(final SensorFusionData data)
     {
-        Handler mainHandler = new Handler(getMainLooper());
-        Runnable myRunnable = new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                switch (appState)
-                {
-                    case LiveVis:
-                        statusText.setText(data.toPoseString()); // don't use setStatusText() to avoid excess logging
-                        break;
-                    case ReplayVis:
-                        statusText.setText(data.toPoseString()); // don't use setStatusText() to avoid excess logging
-                        break;
-                }
-            }
-        };
-        mainHandler.post(myRunnable); // runs the Runnable on the main thread
+
     }
 
     // work in progress
@@ -449,8 +308,7 @@ public class MainActivity extends TrackerActivity
     {
         if (resultCode == Activity.RESULT_OK && requestCode == ACTION_PICK_REPLAY_FILE)
         {
-            String path = UriUtils.getPath(this, data.getData());
-            enterReplayState(path);
+            startReplayActivity(data.getData());
         }
         else super.onActivityResult(requestCode, resultCode, data);
     }

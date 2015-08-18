@@ -91,7 +91,6 @@ public abstract class TrackerActivity extends Activity implements ITrackerReceiv
 
     protected boolean configureCamera()
     {
-        if (r200Man.isRunning()) return false;
         rsMan.startCameras();
         Camera.Calibration.Intrinsics intr = rsMan.getCameraIntrinsics();
         rsMan.stopCameras();

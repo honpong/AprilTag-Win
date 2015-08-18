@@ -28,24 +28,15 @@ import com.intel.camera.toolkit.depth.Camera;
 
 import java.io.File;
 
-public class MainActivity extends Activity implements ITrackerReceiver
+public class MainActivity extends TrackerActivity
 {
     private static final String TAG = MainActivity.class.getSimpleName();
-    private static final String PREF_KEY_CALIBRATION = "calibration";
-    public static final String CALIBRATION_FILENAME = "calibration.json";
-    public static final String DEFAULT_CALIBRATION_FILENAME = "ft210.json";
-    private static final int ACTION_PICK_REPLAY_FILE = 94131;
 
     private TextView statusText;
     private ToggleButton calibrationButton;
     private ToggleButton captureButton;
     private Button liveButton;
     private Button replayButton;
-
-    IMUManager imuMan;
-    TrackerProxy trackerProxy;
-    RealSenseManager rsMan;
-    R200Manager r200Man;
 
     enum AppState
     {
@@ -55,7 +46,6 @@ public class MainActivity extends Activity implements ITrackerReceiver
     AppState appState = AppState.Idle;
 
     SharedPreferences prefs;
-    TextFileIO textFileIO = new TextFileIO();
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -121,57 +111,15 @@ public class MainActivity extends Activity implements ITrackerReceiver
             }
         });
 
-        imuMan = new IMUManager();
-        trackerProxy = new TrackerProxy();
-        trackerProxy.receiver = this;
-
-        imuMan.setSensorEventListener(trackerProxy);
-
-        rsMan = new RealSenseManager(this, null);
-        r200Man = new R200Manager(trackerProxy);
-
         prefs = getSharedPreferences("RCUtilityPrefs", 0);
 
         setStatusText("Ready");
-    }
-
-    @Override protected void onDestroy()
-    {
-        trackerProxy.destroyTracker();
-        super.onDestroy();
     }
 
     protected void setStatusText(String text)
     {
         statusText.setText(text);
         log(text);
-    }
-
-    protected boolean startSensors()
-    {
-        if (!imuMan.startSensors()) return false;
-
-        if (!r200Man.startCamera())
-        {
-            imuMan.stopSensors();
-            return false;
-        }
-
-//        if(!rsMan.startImu())
-//        {
-//            imuMan.stopCameras();
-//            return false;
-//        }
-
-        return true;
-    }
-
-    protected void stopSensors()
-    {
-        imuMan.stopSensors();
-//        rsMan.stopImu();
-//        rsMan.stopCameras();
-        r200Man.stopCamera();
     }
 
     protected boolean enterCalibrationState()

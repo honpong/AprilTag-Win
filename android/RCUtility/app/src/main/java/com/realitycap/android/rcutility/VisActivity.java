@@ -1,9 +1,10 @@
 package com.realitycap.android.rcutility;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceHolder;
-import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Toast;
 
@@ -22,12 +23,23 @@ public class VisActivity extends TrackerActivity implements SurfaceHolder.Callba
     }
 
     AppState appState = AppState.Idle;
+    AppState desiredAppState = AppState.Idle;
     MyGLSurfaceView surfaceView;
+    Uri replayFileUri = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
+
+        final Intent intent = getIntent();
+        if (intent.getAction() == ACTION_LIVE_VIS)
+            desiredAppState = AppState.LiveVis;
+        else if (intent.getAction() == ACTION_REPLAY_VIS)
+        {
+            desiredAppState = AppState.ReplayVis;
+            replayFileUri = intent.getData();
+        }
 
         trackerProxy.createTracker();
 
@@ -39,9 +51,13 @@ public class VisActivity extends TrackerActivity implements SurfaceHolder.Callba
             public void onClick(View view)
             {
                 if (appState == AppState.Idle)
-                    enterLiveState();
-                else
-                    enterIdleState();
+                {
+                    if (desiredAppState == AppState.LiveVis)
+                        enterLiveState();
+                    else if (desiredAppState == AppState.ReplayVis)
+                        enterReplayState(replayFileUri);
+                }
+                else enterIdleState();
             }
         });
 
@@ -116,10 +132,20 @@ public class VisActivity extends TrackerActivity implements SurfaceHolder.Callba
         showMessage("Stopped.");
     }
 
-    protected boolean enterReplayState(String absFilePath)
+    protected boolean enterReplayState(Uri uri)
     {
-        if (appState != AppState.Idle) return false;
-        showMessage("Starting replay of file: " + absFilePath);
+        if (appState != AppState.Idle || uri == null) return false;
+
+        String absFilePath = UriUtils.getPath(this, uri);
+        if (absFilePath == null || absFilePath.length() == 0)
+        {
+            showMessage("Bad replay file URI.");
+            return false;
+        }
+        else
+        {
+            showMessage("Starting replay of file: " + absFilePath);
+        }
 
         if (!setCalibrationFromFile(CALIBRATION_FILENAME))
         {

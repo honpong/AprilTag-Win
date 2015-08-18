@@ -393,15 +393,7 @@ bool mapper::get_matches(uint64_t id, vector<map_match> &matches, int max, int s
         transformation_variance g;
         int score = 0;
         float theta = 0.;
-        if(0) {//matches[i].id < group_id_offset && unlinked) {
-            score = brute_force_rotation(id, matches[i].id, g, threshhold, -M_PI, M_PI);
-            //v4 W = invrodrigues(g.transform.get_rotation(), NULL);
-            //theta = W[3];
-            theta = g.transform.Q.w();
-
-        } else {
-            score = check_for_matches(id, matches[i].id, g, threshhold);
-        }
+        score = check_for_matches(id, matches[i].id, g, threshhold);
         if(score > best) {
             best = score;
             bestg = g;

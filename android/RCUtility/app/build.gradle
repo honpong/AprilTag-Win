@@ -18,6 +18,7 @@ model {
     android.ndk {
         moduleName = "tracker_wrapper"
         ldLibs += ["log"]
+        stl = "c++_shared"
     }
     android.buildTypes {
         release {
@@ -79,7 +80,6 @@ dependencies {
             rsRoot + '/libs/PXCAScenePerception_x86.jar',
             rsRoot + '/libs/PXCAPlayback_Camera_x86.jar',
             rsRoot + '/libs/SP_Core_x86.jar',
-            rsRoot + '/libs/c++_shared_x86.jar',
             rsRoot + '/libs/cilkrts_x86.jar',
             rsRoot + '/libs/metaioTracker_x86.jar',
             rsRoot + '/libs/PXCACommon.jar',

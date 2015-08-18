@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include <rc_intel_interface.h>
 
+#include "render_data.h"
+
 #define TAG "tracker_wrapper"
 #define LOGV(...) ((void)__android_log_print(ANDROID_LOG_VERBOSE, TAG, __VA_ARGS__))
 #define LOGD(...) ((void)__android_log_print(ANDROID_LOG_DEBUG, TAG, __VA_ARGS__))
@@ -13,6 +15,7 @@
 
 static JavaVM *javaVM;
 static rc_Tracker *tracker;
+static render_data render_data;
 static jobject trackerProxyObj;
 static jobject dataUpdateObj;
 
@@ -101,6 +104,8 @@ static void status_callback(void *handle, rc_TrackerState state, rc_TrackerError
 
 static void data_callback(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count)
 {
+    render_data.update_data(time, pose, features, feature_count);
+
     int status;
     JNIEnv *env;
     bool isAttached = false;

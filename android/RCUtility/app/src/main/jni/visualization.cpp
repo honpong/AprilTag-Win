@@ -131,13 +131,13 @@ void visualization_render::gl_render(float * view_matrix, float * projection_mat
     data->data_lock.lock();
 
     // Draw the frame
-    glLineWidth(2);
+    //glLineWidth(2);
     draw_array(vertex_loc, color_loc, data->grid_vertex, data->grid_vertex_num, GL_LINES);
-    glLineWidth(4);
+    //glLineWidth(4);
     draw_array(vertex_loc, color_loc, data->axis_vertex, data->axis_vertex_num, GL_LINES);
     draw_array(vertex_loc, color_loc, data->pose_vertex, data->pose_vertex_num, GL_LINES);
 
-    glPointSize(2);
+    //glPointSize(2);
     draw_array(vertex_loc, color_loc, data->path_vertex, data->path_vertex_num, GL_POINTS);
     draw_array(vertex_loc, color_loc, data->feature_vertex, data->feature_vertex_num, GL_POINTS);
 
@@ -195,6 +195,7 @@ void visualization::configure_view(int view_width, int view_height)
     view_matrix[14] = -scale;
 }
 
+#if 0
 void visualization::mouse_move(GLFWwindow * window, double x, double y)
 {
     if(is_rotating)
@@ -228,6 +229,7 @@ void visualization::keyboard(GLFWwindow * window, int key, int scancode, int act
     if(key == GLFW_KEY_MINUS && action == GLFW_PRESS)
         scale *= 1.1f;
 }
+#endif
 
 static void error_callback(int error, const char* description)
 {
@@ -237,7 +239,7 @@ static void error_callback(int error, const char* description)
 void visualization::start()
 {
     arc.reset();
-
+#if 0
     if (!glfwInit())
         exit(EXIT_FAILURE);
 
@@ -288,6 +290,7 @@ void visualization::start()
     r.gl_destroy();
     glfwDestroyWindow(main_window);
     glfwTerminate();
+#endif
 }
 
 visualization::visualization(render_data * _data)

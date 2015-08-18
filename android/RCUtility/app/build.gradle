@@ -17,8 +17,9 @@ model {
     }
     android.ndk {
         moduleName = "tracker_wrapper"
-        ldLibs += ["log"]
+        ldLibs += ["log", "GLESv2"]
         stl = "c++_shared"
+        cppFlags += "-I" + file("src/main/jni")
     }
     android.buildTypes {
         release {

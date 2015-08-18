@@ -1,8 +1,9 @@
 #ifndef __VISUALIZATION__
 #define __VISUALIZATION__
 
-#include <../../../../../../corvis/src/glfw/deps/glad/glad.h>
-#include <../../../../../../corvis/src/glfw/include/GLFW/glfw3.h>
+#include <EGL/egl.h>
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
 
 #include "render_data.h"
 #include "arcball.h"
@@ -24,6 +25,7 @@ class visualization
 {
 private:
     static visualization * static_gui;
+#if 0
     static void mouse_callback(GLFWwindow * window, int button, int action, int mods) {
         visualization::static_gui->mouse(window, button, action, mods);
     };
@@ -36,15 +38,18 @@ private:
     static void scroll_callback(GLFWwindow * window, double dx, double dy) {
         visualization::static_gui->scroll(window, dx, dy);
     };
+#endif
 
     float projection_matrix[16]; // 4x4
     float view_matrix[16]; // 4x4
 
     void configure_view(int view_width, int view_height);
+#if 0
     void scroll(GLFWwindow * window, double xoffset, double yoffset);
     void keyboard(GLFWwindow * window, int key, int scancode, int action, int mods);
     void mouse(GLFWwindow * window, int button, int action, int mods);
     void mouse_move(GLFWwindow * window, double x, double y);
+#endif
 
     float scale;
     int width, height;
@@ -55,7 +60,7 @@ private:
     bool is_rotating;
 
     // Display related
-    GLFWwindow * main_window;
+    //GLFWwindow * main_window;
 
 public:
 

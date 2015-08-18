@@ -324,4 +324,9 @@ extern "C"
     {
         LOGD("setGLSurface()");
     }
+
+    JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_MyRenderer_render(JNIEnv *env, jobject thiz)
+    {
+        LOGD("render()");
+    }
 }

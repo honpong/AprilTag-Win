@@ -29,10 +29,9 @@ public class VisActivity extends TrackerActivity implements SurfaceHolder.Callba
         super.onCreate(savedInstanceState);
 
         trackerProxy.createTracker();
-        trackerProxy.receiver = this;
 
         setContentView(R.layout.activity_vis);
-        SurfaceView surfaceView = (SurfaceView) findViewById(R.id.surfaceview);
+        MyGLSurfaceView surfaceView = (MyGLSurfaceView) findViewById(R.id.surfaceview);
         surfaceView.getHolder().addCallback(this);
         surfaceView.setOnClickListener(new View.OnClickListener()
         {
@@ -180,11 +179,11 @@ public class VisActivity extends TrackerActivity implements SurfaceHolder.Callba
 
     @Override public void onStatusUpdated(int runState, int errorCode, int confidence, float progress)
     {
-        // do nothing
+        // won't be called.
     }
 
     @Override public void onDataUpdated(SensorFusionData data)
     {
-        // do nothing
+        // won't be called.
     }
 }

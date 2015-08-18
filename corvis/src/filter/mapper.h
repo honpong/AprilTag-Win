@@ -40,6 +40,7 @@ struct map_node {
     uint64_t id;
     static size_t histogram_size;
     bool match_attempted{false};
+    bool finished{false};
     list<map_edge> edges;
     map_edge &get_add_neighbor(uint64_t neighbor);
     int terms;
@@ -113,7 +114,7 @@ class mapper {
     void add_matches(vector<int> &matches, const vector<int> &histogram);*/
     void dump_map(const char *filename);
     void train_dictionary() const;
-    void node_finished(uint64_t id, const transformation_variance &global_orientation);
+    void node_finished(uint64_t id, const transformation &global_orientation);
     bool no_search;
     void print_stats();
     // return the number of features stored in a node

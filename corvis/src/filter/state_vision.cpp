@@ -351,8 +351,11 @@ int state_vision::process_features(const camera_data & camera, sensor_clock::tim
             return false;
     });
 
-    groups.children.remove_if([](state_vision_group *g) {
+    groups.children.remove_if([&](state_vision_group *g) {
         if(g->status == group_empty) {
+            transformation state_position(W.v, T.v);
+            transformation final_position(g->Wr.v, g->Tr.v);
+            map.node_finished(g->id, compose(state_position, invert(final_position)));
             delete g;
             return true;
         } else {

@@ -734,19 +734,12 @@ void mapper::print_stats()
     fprintf(stderr, "features: %llu\n", feature_count);
 }
 
-void mapper::node_finished(uint64_t id, const transformation_variance &global_orientation)
+void mapper::node_finished(uint64_t id, const transformation &global)
 {
+    nodes[id].finished = true;
+    transformation_variance global_orientation;
+    global_orientation.transform = global;
     nodes[id].global_orientation = global_orientation;
-    if(no_search) return;
-    if(id >= 10) {
-        vector<map_match> matches;
-        if(get_matches(id-10, matches, 20, 20)) {
-            /*                    for(int i = dp->id-11; i >=0; --i) {
-                                  vector<map_match> nm;
-                                  m->get_matches(i, nm, 20, 1);
-                                  }*/
-        }
-    }
 }
     
 transformation_variance rodrigues_variance(const v4 &W, const v4 &W_var, const v4 &T, const v4 &T_var)

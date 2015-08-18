@@ -64,6 +64,18 @@ void world_state::observe_plot_item(sensor_clock::time_point timestamp, int inde
     plot_lock.unlock();
 }
 
+void world_state::observe_map_node(sensor_clock::time_point timestamp, uint64_t node_id, bool finished, transformation position, vector<uint64_t>neighbors)
+{
+    display_lock.lock();
+    MapNode n;
+    n.id = node_id;
+    n.finished = finished;
+    n.position = position;
+    n.neighbors = neighbors;
+    map_nodes[node_id] = n;
+    display_lock.unlock();
+}
+
 void world_state::observe_image(sensor_clock::time_point timestamp, uint8_t * image, int width, int height)
 {
     image_lock.lock();
@@ -142,6 +154,14 @@ void world_state::receive_camera(const filter * f, camera_data &&d)
     observe_image(d.timestamp, d.image, d.width, d.height);
     if(d.depth) observe_depth(d.depth->timestamp, d.depth->image, d.depth->width, d.depth->height);
     
+    for(auto map_node : f->s.map.nodes) {
+        vector<uint64_t> neighbors;
+        for(auto edge : map_node.edges) {
+            neighbors.push_back(edge.neighbor);
+        }
+        observe_map_node(d.timestamp, map_node.id, map_node.finished, map_node.global_orientation.transform, neighbors);
+    }
+
     v4 T = f->s.T.v;
     quaternion q = to_quaternion(f->s.W.v);
     observe_position(d.timestamp, (float)T[0], (float)T[1], (float)T[2], (float)q.w(), (float)q.x(), (float)q.y(), (float)q.z());
@@ -196,6 +216,8 @@ world_state::world_state()
     path_vertex = (VertexData *)calloc(sizeof(VertexData), path_vertex_alloc);
     feature_vertex = (VertexData *)calloc(sizeof(VertexData), feature_vertex_alloc);
     feature_ellipse_vertex = (VertexData *)calloc(sizeof(VertexData), feature_ellipse_vertex_alloc);
+    map_node_vertex = (VertexData *)calloc(sizeof(VertexData), map_node_vertex_alloc);
+    map_edge_vertex = (VertexData *)calloc(sizeof(VertexData), map_edge_vertex_alloc);
     build_grid_vertex_data();
     axis_vertex = axis_data;
     axis_vertex_num = 6;
@@ -219,6 +241,10 @@ world_state::~world_state()
         free(feature_ellipse_vertex);
     if(grid_vertex)
         free(grid_vertex);
+    if(map_node_vertex)
+        free(map_node_vertex);
+    if(map_edge_vertex)
+        free(map_edge_vertex);
     if(last_image.image)
         free(last_image.image);
     if(last_depth.image)
@@ -289,6 +315,17 @@ void world_state::update_vertex_arrays(bool show_only_good)
         path_vertex_alloc = path.size()*2;
         path_vertex = (VertexData *)realloc(path_vertex, sizeof(VertexData)*path_vertex_alloc);
     }
+    if(map_node_vertex_alloc < map_nodes.size()) {
+        map_node_vertex_alloc = map_nodes.size()*2;
+        map_node_vertex = (VertexData *)realloc(map_node_vertex, sizeof(VertexData)*map_node_vertex_alloc);
+    }
+    int map_edges = 0;
+    for(auto node : map_nodes)
+        map_edges += node.second.neighbors.size()*2;
+    if(map_edge_vertex_alloc < map_edges) {
+        map_edge_vertex_alloc = map_edges*2;
+        map_edge_vertex = (VertexData *)realloc(map_edge_vertex, sizeof(VertexData)*map_edge_vertex_alloc);
+    }
     if(feature_ellipse_vertex_alloc < features.size()*feature_ellipse_vertex_size) {
         feature_ellipse_vertex_alloc = features.size()*feature_ellipse_vertex_size*2;
         feature_ellipse_vertex = (VertexData *)realloc(feature_ellipse_vertex, sizeof(VertexData)*feature_ellipse_vertex_alloc);
@@ -345,6 +382,32 @@ void world_state::update_vertex_arrays(bool show_only_good)
         idx++;
     }
     path_vertex_num = idx;
+
+    idx = 0;
+    int nedges = 0;
+    for(auto n : map_nodes) {
+        auto id = n.first;
+        auto node = n.second;
+        if(!node.finished)
+            set_color(&map_node_vertex[idx], 127, 255, 127, 255);
+        else
+            set_color(&map_node_vertex[idx], 255, 255, 0, 255);
+        v4 v1(node.position.T.x(), node.position.T.y(), node.position.T.z(), 0);
+        set_position(&map_node_vertex[idx], v1[0], v1[1], v1[2]);
+        for(uint64_t neighbor_id : node.neighbors) {
+            set_color(&map_edge_vertex[nedges], 255, 0, 255, 255);
+            set_position(&map_edge_vertex[nedges], v1[0], v1[1], v1[2]);
+            nedges++;
+
+            auto node2 = map_nodes[neighbor_id];
+            set_color(&map_edge_vertex[nedges], 255, 0, 255, 255);
+            set_position(&map_edge_vertex[nedges], node2.position.T.x(), node2.position.T.y(), node2.position.T.z());
+            nedges++;
+        }
+        idx++;
+    }
+    map_node_vertex_num = idx;
+    map_edge_vertex_num = nedges;
     display_lock.unlock();
 }
 

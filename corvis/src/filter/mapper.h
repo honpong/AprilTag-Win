@@ -69,8 +69,9 @@ struct match_pair {
 };
 
 class mapper {
- protected:
+ public:
     vector<map_node> nodes;
+ protected:
     vector<transformation_variance> geometry;
     vector<uint64_t> document_frequency;
     uint64_t reference;

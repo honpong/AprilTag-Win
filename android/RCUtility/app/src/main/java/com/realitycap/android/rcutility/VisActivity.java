@@ -22,6 +22,7 @@ public class VisActivity extends TrackerActivity implements SurfaceHolder.Callba
     }
 
     AppState appState = AppState.Idle;
+    MyGLSurfaceView surfaceView;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -31,7 +32,7 @@ public class VisActivity extends TrackerActivity implements SurfaceHolder.Callba
         trackerProxy.createTracker();
 
         setContentView(R.layout.activity_vis);
-        MyGLSurfaceView surfaceView = (MyGLSurfaceView) findViewById(R.id.surfaceview);
+        surfaceView = (MyGLSurfaceView) findViewById(R.id.surfaceview);
         surfaceView.getHolder().addCallback(this);
         surfaceView.setOnClickListener(new View.OnClickListener()
         {
@@ -43,6 +44,8 @@ public class VisActivity extends TrackerActivity implements SurfaceHolder.Callba
                     enterIdleState();
             }
         });
+
+        showMessage("Tap anywhere to start");
     }
 
     @Override protected void onPause()
@@ -97,6 +100,8 @@ public class VisActivity extends TrackerActivity implements SurfaceHolder.Callba
             return abortTracking("Failed to start tracking.");
         }
 
+        surfaceView.startRendering();
+
         appState = AppState.LiveVis;
         return true;
     }
@@ -105,6 +110,7 @@ public class VisActivity extends TrackerActivity implements SurfaceHolder.Callba
     {
         if (appState != AppState.LiveVis) return;
         showMessage("Stopping ...");
+        surfaceView.stopRendering();
         stopSensors();
         appState = AppState.Idle;
         showMessage("Stopped.");
@@ -165,7 +171,6 @@ public class VisActivity extends TrackerActivity implements SurfaceHolder.Callba
 
     public void surfaceChanged(SurfaceHolder holder, int format, int w, int h)
     {
-        if (appState == AppState.Idle) return;
         trackerProxy.setGLSurface(holder.getSurface());
     }
 

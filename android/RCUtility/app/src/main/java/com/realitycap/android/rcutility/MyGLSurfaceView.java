@@ -19,6 +19,16 @@ public class MyGLSurfaceView extends GLSurfaceView
         setRenderer(mMyRenderer);
     }
 
+    public void startRendering()
+    {
+        mMyRenderer.isEnabled = true;
+    }
+
+    public void stopRendering()
+    {
+        mMyRenderer.isEnabled = false;
+    }
+
 //    public boolean onKeyDown(int keyCode, KeyEvent event) {
 //        if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER) {
 //            queueEvent(new Runnable() {

@@ -16,6 +16,18 @@ public class MyRenderer implements GLSurfaceView.Renderer
     }
     private native void render();
 
+    protected boolean isEnabled = false;
+
+    public boolean isEnabled()
+    {
+        return isEnabled;
+    }
+
+    public synchronized void setIsEnabled(boolean isEnabled)
+    {
+        this.isEnabled = isEnabled;
+    }
+
     @Override public void onSurfaceCreated(GL10 gl, EGLConfig config)
     {
 
@@ -28,6 +40,6 @@ public class MyRenderer implements GLSurfaceView.Renderer
 
     @Override public void onDrawFrame(GL10 gl)
     {
-//            render();
+        if (isEnabled) render();
     }
 }

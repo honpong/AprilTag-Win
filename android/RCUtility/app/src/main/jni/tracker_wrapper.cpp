@@ -17,6 +17,7 @@
 static JavaVM *javaVM;
 static rc_Tracker *tracker;
 static render_data render_data;
+static visualization vis(&render_data);
 static jobject trackerProxyObj;
 static jobject dataUpdateObj;
 
@@ -327,9 +328,22 @@ extern "C"
         LOGD("setGLSurface()");
     }
 
-    JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_MyRenderer_render(JNIEnv *env, jobject thiz)
+    JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_MyRenderer_setup(JNIEnv *env, jobject thiz)
+    {
+        if (!tracker) return;
+        LOGD("setup()");
+        vis.setup();
+    }
+    JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_MyRenderer_render(JNIEnv *env, jobject thiz, jint width, jint height)
     {
         if (!tracker) return;
         LOGD("render()");
+        vis.render(width, height);
+    }
+    JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_MyRenderer_teardown(JNIEnv *env, jobject thiz)
+    {
+        if (!tracker) return;
+        LOGD("teardown()");
+        vis.teardown();
     }
 }

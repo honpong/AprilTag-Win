@@ -236,41 +236,8 @@ static void error_callback(int error, const char* description)
     fputs(description, stderr);
 }
 
-void visualization::start()
+void visualization::render(int width, int height)
 {
-    arc.reset();
-#if 0
-    if (!glfwInit())
-        exit(EXIT_FAILURE);
-
-    glfwSetErrorCallback(error_callback);
-
-    glfwWindowHint(GLFW_RESIZABLE, true);
-    glfwWindowHint(GLFW_VISIBLE, true);
-    GLFWwindow* main_window = glfwCreateWindow(width, height, "Visualization", NULL, NULL);
-    if (!main_window)
-    {
-        glfwTerminate();
-        exit(EXIT_FAILURE);
-    }
-    glfwShowWindow(main_window);
-    glfwMakeContextCurrent(main_window);
-    glfwSwapInterval(1);
-
-    glfwSetKeyCallback(main_window, visualization::keyboard_callback);
-    glfwSetInputMode(main_window, GLFW_STICKY_MOUSE_BUTTONS, 1);
-    glfwSetScrollCallback(main_window, visualization::scroll_callback);
-    glfwSetMouseButtonCallback(main_window, visualization::mouse_callback);
-    glfwSetCursorPosCallback(main_window, visualization::move_callback);
-
-    gladLoadGLLoader((GLADloadproc) glfwGetProcAddress);
-    r.gl_init();
-
-    fprintf(stderr, "OpenGL Version %d.%d loaded\n", GLVersion.major, GLVersion.minor);
-
-    while (!glfwWindowShouldClose(main_window))
-    {
-        glfwGetFramebufferSize(main_window, &width, &height);
         glViewport(0, 0, width, height);
         glEnable(GL_DEPTH_TEST);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -282,15 +249,6 @@ void visualization::start()
         glViewport(0, 0, main_width, main_height);
         configure_view(main_width, main_height);
         r.gl_render(view_matrix, projection_matrix, data);
-        glfwSwapBuffers(main_window);
-        glfwPollEvents();
-    }
-
-    // Cleanup
-    r.gl_destroy();
-    glfwDestroyWindow(main_window);
-    glfwTerminate();
-#endif
 }
 
 visualization::visualization(render_data * _data)

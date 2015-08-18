@@ -59,14 +59,18 @@ private:
     arcball arc;
     bool is_rotating;
 
-    // Display related
-    //GLFWwindow * main_window;
-
 public:
 
     visualization(render_data * data);
     ~visualization();
-    void start();
+    void setup() {
+        arc.reset();
+        r.gl_init();
+    }
+    void render(int width, int height);
+    void teardown() {
+        r.gl_destroy();
+    }
 };
 
 #endif

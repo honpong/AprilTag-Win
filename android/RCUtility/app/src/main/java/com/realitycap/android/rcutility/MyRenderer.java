@@ -14,7 +14,9 @@ public class MyRenderer implements GLSurfaceView.Renderer
     {
         System.loadLibrary("tracker_wrapper");
     }
-    private native void render();
+    private native void setup();
+    private native void render(int width, int height);
+    private native void teardown();
 
     private boolean isEnabled = false;
 
@@ -30,16 +32,17 @@ public class MyRenderer implements GLSurfaceView.Renderer
 
     @Override public void onSurfaceCreated(GL10 gl, EGLConfig config)
     {
-
+        setup();
     }
 
     @Override public void onSurfaceChanged(GL10 gl, int width, int height)
     {
-
+        teardown();
+        setup();
     }
 
     @Override public void onDrawFrame(GL10 gl)
     {
-        if (isEnabled) render();
+        if (isEnabled) render(width, height);
     }
 }

@@ -305,6 +305,10 @@ int state_vision::process_features(const camera_data & camera, sensor_clock::tim
         // Delete the features we marked to drop, return the health of
         // the group (the number of features)
         int health = g->process_features(camera, map);
+        // Update group position in the map
+        transformation world(W.v, T.v);
+        transformation group_position(g->Wr.v, g->Tr.v);
+        map.set_node_geometry(g->id, compose(world, invert(group_position)));
 
         if(g->status && g->status != group_initializing)
             total_health += health;
@@ -353,9 +357,9 @@ int state_vision::process_features(const camera_data & camera, sensor_clock::tim
 
     groups.children.remove_if([&](state_vision_group *g) {
         if(g->status == group_empty) {
-            transformation state_position(W.v, T.v);
-            transformation final_position(g->Wr.v, g->Tr.v);
-            map.node_finished(g->id, compose(state_position, invert(final_position)));
+            transformation world(W.v, T.v);
+            transformation group_position(g->Wr.v, g->Tr.v);
+            map.node_finished(g->id, compose(world, invert(group_position)));
             delete g;
             return true;
         } else {
@@ -390,7 +394,7 @@ void state_vision::project_new_group_covariance(const state_vision_group &g)
 state_vision_group * state_vision::add_group(sensor_clock::time_point time)
 {
     state_vision_group *g = new state_vision_group();
-    map.add_node(g->id);
+    map.add_node(g->id, transformation(W.v, T.v));
     for(state_vision_group *neighbor : groups.children) {
         // Adds a symmetric edge
         map.add_edge(g->id, neighbor->id);

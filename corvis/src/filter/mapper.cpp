@@ -147,11 +147,12 @@ int mapper::num_features(uint64_t id)
     return (int)nodes[id].features.size();
 }
 
-void mapper::add_node(uint64_t id)
+void mapper::add_node(uint64_t id, const transformation & T)
 {
     if(nodes.size() <= id) nodes.resize(id + 1);
     nodes[id].id = id;
     nodes[id].parent = -1;
+    set_node_geometry(id, T);
 }
 
 
@@ -734,12 +735,17 @@ void mapper::print_stats()
     fprintf(stderr, "features: %llu\n", feature_count);
 }
 
-void mapper::node_finished(uint64_t id, const transformation &global)
+void mapper::set_node_geometry(uint64_t id, const transformation &global)
 {
-    nodes[id].finished = true;
     transformation_variance global_orientation;
     global_orientation.transform = global;
     nodes[id].global_orientation = global_orientation;
+}
+
+void mapper::node_finished(uint64_t id, const transformation &global)
+{
+    nodes[id].finished = true;
+    set_node_geometry(id, global);
 }
     
 transformation_variance rodrigues_variance(const v4 &W, const v4 &W_var, const v4 &T, const v4 &T_var)

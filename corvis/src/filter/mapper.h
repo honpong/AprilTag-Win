@@ -115,6 +115,7 @@ class mapper {
     void add_matches(vector<int> &matches, const vector<int> &histogram);*/
     void dump_map(const char *filename);
     void train_dictionary() const;
+    void set_node_geometry(uint64_t id, const transformation &global_orientation);
     void node_finished(uint64_t id, const transformation &global_orientation);
     bool no_search;
     void print_stats();
@@ -123,7 +124,7 @@ class mapper {
     // search all the groups for a similar one
     void match_group(uint64_t group_id);
 
-    void add_node(uint64_t group_id);
+    void add_node(uint64_t group_id, const transformation &global_orientation);
     void add_feature(uint64_t groupid, uint64_t id, v4 pos, float variance, const descriptor & d);
     uint32_t project_feature(const descriptor & d);
 };

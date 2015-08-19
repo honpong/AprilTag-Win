@@ -331,40 +331,42 @@ extern "C"
     JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_MyRenderer_setup(JNIEnv *env, jobject thiz, jint width, jint height)
     {
         if (!tracker) return;
-        LOGD("setup(%d, %d)", width, height);
+//        LOGD("setup(%d, %d)", width, height);
         vis.setup(width, height);
     }
 
     JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_MyRenderer_render(JNIEnv *env, jobject thiz, jint width, jint height)
     {
         if (!tracker) return;
-        LOGV("render(%d, %d)", width, height);
+//        LOGV("render(%d, %d)", width, height);
         vis.render(width, height);
     }
 
     JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_MyRenderer_teardown(JNIEnv *env, jobject thiz)
     {
         if (!tracker) return;
-        LOGD("teardown()");
+//        LOGD("teardown()");
         vis.teardown();
     }
 
     JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_MyGLSurfaceView_handleDrag(JNIEnv *env, jobject thiz, jfloat x, jfloat y)
     {
         if (!tracker) return;
-        LOGV("handleDrag(%f,%f)", x, y);
+//        LOGV("handleDrag(%f,%f)", x, y);
         vis.mouse_move(x, y);
     }
 
     JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_MyGLSurfaceView_handleDragEnd(JNIEnv *env, jobject thiz)
     {
         if (!tracker) return;
-        LOGV("handleDragEnd()");
+//        LOGV("handleDragEnd()");
+        vis.mouse_up();
     }
 
     JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_MyGLSurfaceView_handlePinch(JNIEnv *env, jobject thiz, jdouble pixelDist)
     {
         if (!tracker) return;
-        LOGV("handlePinch(%f)", pixelDist);
+//        LOGV("handlePinch(%f)", pixelDist);
+        vis.scroll(pixelDist);
     }
 }

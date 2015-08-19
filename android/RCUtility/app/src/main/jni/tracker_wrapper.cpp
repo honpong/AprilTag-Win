@@ -334,16 +334,24 @@ extern "C"
         LOGD("setup(%d, %d)", width, height);
         vis.setup(width, height);
     }
+
     JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_MyRenderer_render(JNIEnv *env, jobject thiz, jint width, jint height)
     {
         if (!tracker) return;
-        LOGD("render(%d, %d)", width, height);
+        LOGV("render(%d, %d)", width, height);
         vis.render(width, height);
     }
+
     JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_MyRenderer_teardown(JNIEnv *env, jobject thiz)
     {
         if (!tracker) return;
         LOGD("teardown()");
         vis.teardown();
+    }
+
+    JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_MyGLSurfaceView_handleDrag(JNIEnv *env, jobject thiz, jfloat x, jfloat y)
+    {
+        if (!tracker) return;
+        LOGV("handleDrag(%f,%f)", x, y);
     }
 }

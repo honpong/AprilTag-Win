@@ -16,9 +16,15 @@ public class MyGLSurfaceView extends GLSurfaceView
     private static final String TAG = MyGLSurfaceView.class.getSimpleName();
     public static final double TAP_MOVEMENT_THRESHOLD = 50.0;
     private MyRenderer mMyRenderer;
-    private int pointerId = 0;
+    private int pointerId = -1;
     private boolean isMoving = false;
     private Point2DF touchDownPoint = null;
+
+    static
+    {
+        System.loadLibrary("tracker_wrapper");
+    }
+    private native void handleDrag(float x, float y);
 
     public MyGLSurfaceView(Context context, AttributeSet attrs)
     {
@@ -46,12 +52,14 @@ public class MyGLSurfaceView extends GLSurfaceView
             touchDownPoint = new Point2DF(event.getX(0), event.getY(0));
         }
 
+        if (pointerId < 0) return false;
         int pointerIndex = event.findPointerIndex(pointerId);
 
         if (event.getAction() == MotionEvent.ACTION_MOVE)
         {
             isMoving = true;
-            Log.i(TAG, "drag " + event.getX(pointerIndex) + ", " + event.getY(pointerIndex));
+//            Log.v(TAG, "drag " + event.getX(pointerIndex) + ", " + event.getY(pointerIndex));
+            handleDrag(event.getX(pointerIndex), event.getY(pointerIndex));
             return true;
         }
 

@@ -14,7 +14,7 @@ public class MyRenderer implements GLSurfaceView.Renderer
     {
         System.loadLibrary("tracker_wrapper");
     }
-    private native void setup();
+    private native void setup(int width, int height);
     private native void render(int width, int height);
     private native void teardown();
 
@@ -33,7 +33,6 @@ public class MyRenderer implements GLSurfaceView.Renderer
 
     @Override public void onSurfaceCreated(GL10 gl, EGLConfig config)
     {
-        setup();
     }
 
     @Override public void onSurfaceChanged(GL10 gl, int width_, int height_)
@@ -41,7 +40,7 @@ public class MyRenderer implements GLSurfaceView.Renderer
         width = width_;
         height = height_;
         teardown();
-        setup();
+        setup(width, height);
     }
 
     @Override public void onDrawFrame(GL10 gl)

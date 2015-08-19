@@ -236,25 +236,20 @@ static void error_callback(int error, const char* description)
     fputs(description, stderr);
 }
 
-void visualization::setup()
+void visualization::setup(int width, int height)
 {
     arc.reset();
     r.gl_init();
+
+    glViewport(0, 0, width, height);
+    glEnable(GL_DEPTH_TEST);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void visualization::render(int width, int height)
 {
-        glViewport(0, 0, width, height);
-        glEnable(GL_DEPTH_TEST);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        // Calculate layout
-        int main_width = width, main_height = height;
-
-        // Draw
-        glViewport(0, 0, main_width, main_height);
-        configure_view(main_width, main_height);
-        r.gl_render(view_matrix, projection_matrix, data);
+    configure_view(width, height);
+    r.gl_render(view_matrix, projection_matrix, data);
 }
 
 void visualization::teardown()

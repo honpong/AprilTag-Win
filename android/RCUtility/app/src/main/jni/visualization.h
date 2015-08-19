@@ -63,7 +63,7 @@ public:
 
     visualization(render_data * data);
     ~visualization();
-    void setup();
+    void setup(int width, int height);
     void render(int width, int height);
     void teardown();
 };

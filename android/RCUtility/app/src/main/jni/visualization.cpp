@@ -189,27 +189,22 @@ void visualization::mouse_move(double x, double y)
 {
     if(is_rotating)
         arc.continue_rotation((float)x, (float)y);
+    else
+        arc.start_rotation((float)x, (float)y);
+    is_rotating = true;
+}
+
+void visualization::mouse_up()
+{
+    is_rotating = false;
+}
+
+void visualization::scroll(double offset)
+{
+    scale *= (1 + (float)offset*.05f);
 }
 
 #if 0
-void visualization::mouse(GLFWwindow * window, int button, int action, int mods)
-{
-    double x, y;
-    glfwGetCursorPos(window, &x, &y);
-    if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
-        arc.start_rotation((float)x, (float)y);
-        is_rotating = true;
-    }
-    else if(button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
-        is_rotating = false;
-    }
-}
-
-void visualization::scroll(GLFWwindow * window, double xoffset, double yoffset)
-{
-    scale *= (1 + (float)yoffset*.05f);
-}
-
 void visualization::keyboard(GLFWwindow * window, int key, int scancode, int action, int mods)
 {
     if(key == GLFW_KEY_0 && action == GLFW_PRESS)

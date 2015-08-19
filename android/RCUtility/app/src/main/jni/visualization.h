@@ -45,9 +45,7 @@ private:
 
     void configure_view(int view_width, int view_height);
 #if 0
-    void scroll(GLFWwindow * window, double xoffset, double yoffset);
     void keyboard(GLFWwindow * window, int key, int scancode, int action, int mods);
-    void mouse(GLFWwindow * window, int button, int action, int mods);
 #endif
 
     float scale;
@@ -67,6 +65,8 @@ public:
     void teardown();
 
     void mouse_move(double x, double y);
+    void mouse_up();
+    void scroll(double offset);
 };
 
 #endif

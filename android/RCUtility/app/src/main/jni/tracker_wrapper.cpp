@@ -355,4 +355,16 @@ extern "C"
         LOGV("handleDrag(%f,%f)", x, y);
         vis.mouse_move(x, y);
     }
+
+    JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_MyGLSurfaceView_handleDragEnd(JNIEnv *env, jobject thiz)
+    {
+        if (!tracker) return;
+        LOGV("handleDragEnd()");
+    }
+
+    JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_MyGLSurfaceView_handlePinch(JNIEnv *env, jobject thiz, jdouble pixelDist)
+    {
+        if (!tracker) return;
+        LOGV("handlePinch(%f)", pixelDist);
+    }
 }

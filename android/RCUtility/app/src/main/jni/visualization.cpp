@@ -9,9 +9,7 @@
 
 visualization * visualization::static_gui;
 
-static const char * vs =
-"#version 120\n"
-""
+static const char * vs_es =
 "uniform mat4 view, proj;\n"
 " "
 "attribute vec3 position;\n"
@@ -25,12 +23,9 @@ static const char * vs =
 "    gl_PointSize = 8.;\n"
 "}\n";
 
-static const char * fs = ""
-"#version 120\n"
-" "
-"varying vec4 color_fs;\n"
-" "
-"void main()"
+static const char * fs_es =
+"varying lowp vec4 color_fs;\n"
+"void main()\n"
 "{\n"
 "    gl_FragColor = color_fs;\n"
 "}";
@@ -76,13 +71,8 @@ void visualization_render::gl_init()
     v = glCreateShader(GL_VERTEX_SHADER);
     f = glCreateShader(GL_FRAGMENT_SHADER);
 
-#if TARGET_OS_IPHONE
     glShaderSource(v, 1, &vs_es,NULL);
     glShaderSource(f, 1, &fs_es,NULL);
-#else
-    glShaderSource(v, 1, &vs,NULL);
-    glShaderSource(f, 1, &fs,NULL);
-#endif
 
     glCompileShader(v);
     glCompileShader(f);

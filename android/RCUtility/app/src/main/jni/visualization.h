@@ -63,14 +63,9 @@ public:
 
     visualization(render_data * data);
     ~visualization();
-    void setup() {
-        arc.reset();
-        r.gl_init();
-    }
+    void setup();
     void render(int width, int height);
-    void teardown() {
-        r.gl_destroy();
-    }
+    void teardown();
 };
 
 #endif

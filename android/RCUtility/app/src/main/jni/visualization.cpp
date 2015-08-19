@@ -236,6 +236,12 @@ static void error_callback(int error, const char* description)
     fputs(description, stderr);
 }
 
+void visualization::setup()
+{
+    arc.reset();
+    r.gl_init();
+}
+
 void visualization::render(int width, int height)
 {
         glViewport(0, 0, width, height);
@@ -249,6 +255,11 @@ void visualization::render(int width, int height)
         glViewport(0, 0, main_width, main_height);
         configure_view(main_width, main_height);
         r.gl_render(view_matrix, projection_matrix, data);
+}
+
+void visualization::teardown()
+{
+    r.gl_destroy();
 }
 
 visualization::visualization(render_data * _data)

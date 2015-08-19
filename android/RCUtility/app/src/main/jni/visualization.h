@@ -48,7 +48,6 @@ private:
     void scroll(GLFWwindow * window, double xoffset, double yoffset);
     void keyboard(GLFWwindow * window, int key, int scancode, int action, int mods);
     void mouse(GLFWwindow * window, int button, int action, int mods);
-    void mouse_move(GLFWwindow * window, double x, double y);
 #endif
 
     float scale;
@@ -66,6 +65,8 @@ public:
     void setup(int width, int height);
     void render(int width, int height);
     void teardown();
+
+    void mouse_move(double x, double y);
 };
 
 #endif

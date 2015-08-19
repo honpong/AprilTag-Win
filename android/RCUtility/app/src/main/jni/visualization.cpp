@@ -185,13 +185,13 @@ void visualization::configure_view(int view_width, int view_height)
     view_matrix[14] = -scale;
 }
 
-#if 0
-void visualization::mouse_move(GLFWwindow * window, double x, double y)
+void visualization::mouse_move(double x, double y)
 {
     if(is_rotating)
         arc.continue_rotation((float)x, (float)y);
 }
 
+#if 0
 void visualization::mouse(GLFWwindow * window, int button, int action, int mods)
 {
     double x, y;

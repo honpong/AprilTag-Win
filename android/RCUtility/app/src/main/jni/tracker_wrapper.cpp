@@ -353,5 +353,6 @@ extern "C"
     {
         if (!tracker) return;
         LOGV("handleDrag(%f,%f)", x, y);
+        vis.mouse_move(x, y);
     }
 }

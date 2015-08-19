@@ -11,7 +11,7 @@ import android.widget.Toast;
 /**
  * Created by benhirashima on 8/17/15.
  */
-public class VisActivity extends TrackerActivity implements SurfaceHolder.Callback
+public class VisActivity extends TrackerActivity
 {
     private static final String TAG = VisActivity.class.getSimpleName();
     public static final String ACTION_LIVE_VIS = "com.realitycap.rcutility.LIVE_VIS";
@@ -45,7 +45,6 @@ public class VisActivity extends TrackerActivity implements SurfaceHolder.Callba
 
         setContentView(R.layout.activity_vis);
         surfaceView = (MyGLSurfaceView) findViewById(R.id.surfaceview);
-        surfaceView.getHolder().addCallback(this);
         surfaceView.setOnClickListener(new View.OnClickListener()
         {
             public void onClick(View view)
@@ -193,19 +192,6 @@ public class VisActivity extends TrackerActivity implements SurfaceHolder.Callba
     {
         Toast.makeText(this, text, Toast.LENGTH_SHORT).show();
         Log.i(TAG, text);
-    }
-
-    public void surfaceChanged(SurfaceHolder holder, int format, int w, int h)
-    {
-        trackerProxy.setGLSurface(holder.getSurface());
-    }
-
-    public void surfaceCreated(SurfaceHolder holder)
-    {
-    }
-
-    public void surfaceDestroyed(SurfaceHolder holder)
-    {
     }
 
     @Override public void onStatusUpdated(int runState, int errorCode, int confidence, float progress)

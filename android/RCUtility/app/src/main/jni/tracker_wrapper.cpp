@@ -321,13 +321,6 @@ extern "C"
         return (JNI_TRUE);
     }
 
-    // may be called before tracker is started, but always after tracker is created
-    JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_setGLSurface(JNIEnv *env, jobject thiz, jobject surface)
-    {
-        if (!tracker) return;
-        LOGD("setGLSurface()");
-    }
-
     JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_MyRenderer_setup(JNIEnv *env, jobject thiz, jint width, jint height)
     {
         if (!tracker) return;

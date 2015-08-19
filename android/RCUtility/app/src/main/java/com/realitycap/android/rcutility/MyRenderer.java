@@ -19,6 +19,7 @@ public class MyRenderer implements GLSurfaceView.Renderer
     private native void teardown();
 
     private boolean isEnabled = false;
+    int width, height;
 
     public boolean isEnabled()
     {
@@ -35,8 +36,10 @@ public class MyRenderer implements GLSurfaceView.Renderer
         setup();
     }
 
-    @Override public void onSurfaceChanged(GL10 gl, int width, int height)
+    @Override public void onSurfaceChanged(GL10 gl, int width_, int height_)
     {
+        width = width_;
+        height = height_;
         teardown();
         setup();
     }

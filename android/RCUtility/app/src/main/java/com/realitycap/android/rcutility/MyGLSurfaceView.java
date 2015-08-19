@@ -34,6 +34,7 @@ public class MyGLSurfaceView extends GLSurfaceView
     private native void handleDrag(float x, float y);
     private native void handleDragEnd();
     private native void handlePinch(double pixelDist);
+    private native void handlePinchEnd();
 
     public MyGLSurfaceView(Context context, AttributeSet attrs)
     {
@@ -144,6 +145,7 @@ public class MyGLSurfaceView extends GLSurfaceView
 
         if (event.getAction() == MotionEvent.ACTION_CANCEL || event.getAction() == MotionEvent.ACTION_POINTER_UP || event.getAction() == MotionEvent.ACTION_POINTER_2_UP)
         {
+            handlePinchEnd();
             touchState = TouchState.None;
             pointerId1 = -1;
             pointerId2 = -1;

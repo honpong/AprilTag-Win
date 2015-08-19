@@ -233,11 +233,11 @@ void visualization::setup(int width, int height)
 
     glViewport(0, 0, width, height);
     glEnable(GL_DEPTH_TEST);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void visualization::render(int width, int height)
 {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     configure_view(width, height);
     r.gl_render(view_matrix, projection_matrix, data);
 }

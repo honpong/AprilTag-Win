@@ -161,10 +161,10 @@ public class VisActivity extends TrackerActivity
             return abortTracking("Failed to start tracking.");
         }
 
-//        if (!startPlayback(absFilePath))
-//        {
-//            return abortTracking("Failed to start playback.");
-//        }
+        if (!trackerProxy.startReplay(absFilePath))
+        {
+            return abortTracking("Failed to start replay.");
+        }
 
         showMessage("Replay running...");
         appState = AppState.ReplayVis;
@@ -175,7 +175,8 @@ public class VisActivity extends TrackerActivity
     {
         if (appState != AppState.ReplayVis) return;
         showMessage("Stopping ...");
-//        stopPlayback();
+        trackerProxy.stopTracker();
+        stopSensors();
         appState = AppState.Idle;
         showMessage("Stopped.");
     }

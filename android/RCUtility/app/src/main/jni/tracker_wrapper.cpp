@@ -218,7 +218,7 @@ extern "C"
         return (JNI_TRUE);
     }
 
-    JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_startReplay(JNIEnv *env, jobject thiz)
+    JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_startReplay(JNIEnv *env, jobject thiz, jstring absFilePath)
     {
         LOGD("startReplay");
         if (!tracker) return (JNI_FALSE);

@@ -266,7 +266,7 @@ extern "C"
         const wchar_t *wFilename = createWcharFromChar(cFilename);
         rc_setOutputLog(tracker, wFilename);
         delete wFilename;
-        env->ReleaseStringUTFChars(filename, cFilename);
+//        env->ReleaseStringUTFChars(filename, cFilename); // apparently unnecessary. causes crash. doesn't leak memory without it.
         return (JNI_TRUE);
     }
 
@@ -316,7 +316,7 @@ extern "C"
 
 //        LOGV(">>>>>>>>>>> Synced camera frames received <<<<<<<<<<<<<");
 
-        rc_receiveImageWithDepth(tracker, rc_EGRAY8, time_ns / 1000, shutter_time_ns / 1000, NULL, false, width, height, stride, colorData, NULL, NULL, depthWidth, depthHeight, depthStride, depthData, NULL, NULL);
+//        rc_receiveImageWithDepth(tracker, rc_EGRAY8, time_ns / 1000, shutter_time_ns / 1000, NULL, false, width, height, stride, colorData, NULL, NULL, depthWidth, depthHeight, depthStride, depthData, NULL, NULL);
 
         return (JNI_TRUE);
     }

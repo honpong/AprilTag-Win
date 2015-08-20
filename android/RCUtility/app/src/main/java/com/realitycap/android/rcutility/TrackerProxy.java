@@ -3,6 +3,7 @@ package com.realitycap.android.rcutility;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
+import android.media.Image;
 import android.util.Log;
 import android.view.Surface;
 
@@ -36,7 +37,7 @@ public class TrackerProxy implements SensorEventListener, IRealSenseSensorReceiv
 
     protected native void receiveAccelerometer(float x, float y, float z, long timestamp);
     protected native void receiveGyro(float x, float y, float z, long timestamp);
-    protected native boolean receiveImageWithDepth(long time_us, long shutter_time_us, boolean force_recognition, int width, int height, int stride, ByteBuffer colorData, int depthWidth, int depthHeight, int depthStride, ByteBuffer depthData);
+    protected native boolean receiveImageWithDepth(long time_us, long shutter_time_us, boolean force_recognition, int width, int height, int stride, ByteBuffer colorData, Image colorImage, int depthWidth, int depthHeight, int depthStride, ByteBuffer depthData, Image depthImage);
 
     protected ITrackerReceiver receiver;
 
@@ -80,11 +81,32 @@ public class TrackerProxy implements SensorEventListener, IRealSenseSensorReceiv
 
     //region IRealSenseSensorReceiver interface. sensor data from RS API comes in here.
     @Override
-    public void onSyncedFrames(long time_ns, long shutter_time_ns, int width, int height, int stride, final ByteBuffer colorData, int depthWidth, int depthHeight, int depthStride, final ByteBuffer depthData)
+    public void onSyncedFrames(Image colorImage, Image depthImage)
     {
+        Image.Plane[] planes = colorImage.getPlanes();
+        assert (planes != null && planes.length > 0);
+
+        Image.Plane[] depthPlanes = depthImage.getPlanes();
+        assert (depthPlanes != null && depthPlanes.length > 0);
+
+        boolean result = receiveImageWithDepth(
+                colorImage.getTimestamp(),
+                33333000,
+                false,
+                colorImage.getWidth(),
+                colorImage.getHeight(),
+                planes[0].getRowStride(),
+                planes[0].getBuffer(),
+                colorImage,
+                depthImage.getWidth(),
+                depthImage.getHeight(),
+                depthPlanes[0].getRowStride(),
+                depthPlanes[0].getBuffer(),
+                depthImage
+        );
+
         //Log.d(TAG, String.format("camera %d", time_ns));
-        boolean result = receiveImageWithDepth(time_ns, shutter_time_ns, false, width, height, stride, colorData, depthWidth, depthHeight, depthStride, depthData);
-//        if (!result) Log.w(TAG, "receiveImageWithDepth() returned FALSE");
+        if (!result) Log.w(TAG, "receiveImageWithDepth() returned FALSE");
     }
 
     @Override

@@ -20,6 +20,8 @@ static render_data render_data;
 static visualization vis(&render_data);
 static jobject trackerProxyObj;
 static jobject dataUpdateObj;
+static jobject colorImageCached;
+static jobject depthImageCached;
 
 jint JNI_OnLoad(JavaVM* vm, void* reserved)
 {
@@ -152,6 +154,48 @@ static void data_callback(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feat
 
     env->CallVoidMethod(trackerProxyObj, methodId, dataUpdateObj);
     if (RunExceptionCheck(env)) return;
+
+    if (isAttached) javaVM->DetachCurrentThread();
+}
+
+static void release_color_image(void *handle)
+{
+    LOGV("release_color_image");
+    int status;
+    JNIEnv *env;
+    bool isAttached = false;
+    status = javaVM->AttachCurrentThread(&env, NULL);
+    if (status == 0) isAttached = true;
+
+    jclass colorImageClass = env->GetObjectClass(colorImageCached);
+    if (RunExceptionCheck(env)) return;
+
+    jmethodID methodId = env->GetMethodID(colorImageClass, "close", "()V");
+    env->CallVoidMethod(colorImageCached, methodId);
+    if (RunExceptionCheck(env)) return;
+
+    env->DeleteGlobalRef(colorImageCached);
+
+    if (isAttached) javaVM->DetachCurrentThread();
+}
+
+static void release_depth_image(void *handle)
+{
+    LOGV("release_depth_image");
+    int status;
+    JNIEnv *env;
+    bool isAttached = false;
+    status = javaVM->AttachCurrentThread(&env, NULL);
+    if (status == 0) isAttached = true;
+
+    jclass depthImageClass = env->GetObjectClass(depthImageCached);
+    if (RunExceptionCheck(env)) return;
+
+    jmethodID methodId = env->GetMethodID(depthImageClass, "close", "()V");
+    env->CallVoidMethod(depthImageCached, methodId);
+    if (RunExceptionCheck(env)) return;
+
+    env->DeleteGlobalRef(depthImageCached);
 
     if (isAttached) javaVM->DetachCurrentThread();
 }
@@ -301,10 +345,14 @@ extern "C"
     }
 
     JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_receiveImageWithDepth(JNIEnv *env, jobject thiz, jlong time_ns, jlong shutter_time_ns, jboolean force_recognition,
-                                                                                                        jint width, jint height, jint stride, jobject colorData, jint depthWidth, jint depthHeight,
-                                                                                                        jint depthStride, jobject depthData)
+                                                                                                        jint width, jint height, jint stride, jobject colorData, jobject colorImage, jint depthWidth, jint depthHeight,
+                                                                                                        jint depthStride, jobject depthData, jobject depthImage)
     {
         if (!tracker) return (JNI_FALSE);
+
+        // cache these refs so we can close them in the callbacks
+        colorImageCached = env->NewGlobalRef(colorImage);
+        depthImageCached = env->NewGlobalRef(depthImage);
 
         void *colorPtr = env->GetDirectBufferAddress(colorData);
         if (RunExceptionCheck(env)) return (JNI_FALSE);
@@ -314,7 +362,7 @@ extern "C"
 
 //        LOGV(">>>>>>>>>>> Synced camera frames received <<<<<<<<<<<<<");
 
-        rc_receiveImageWithDepth(tracker, rc_EGRAY8, time_ns / 1000, shutter_time_ns / 1000, NULL, false, width, height, stride, colorPtr, NULL, NULL, depthWidth, depthHeight, depthStride, depthPtr, NULL, NULL);
+        rc_receiveImageWithDepth(tracker, rc_EGRAY8, time_ns / 1000, shutter_time_ns / 1000, NULL, false, width, height, stride, colorPtr, release_color_image, NULL, depthWidth, depthHeight, depthStride, depthPtr, release_depth_image, NULL);
 
         return (JNI_TRUE);
     }

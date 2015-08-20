@@ -280,13 +280,7 @@ public class R200Manager
         {
             if (receiver != null)
             {
-                Image.Plane[] planes = colorImage.getPlanes();
-                assert (planes != null && planes.length > 0);
-
-                Image.Plane[] depthPlanes = depthImage.getPlanes();
-                assert (depthPlanes != null && depthPlanes.length > 0);
-
-                receiver.onSyncedFrames(colorImage.getTimestamp(), 33333000, colorImage.getWidth(), colorImage.getHeight(), planes[0].getRowStride(), planes[0].getBuffer(), depthImage.getWidth(), depthImage.getHeight(), depthPlanes[0].getRowStride(), depthPlanes[0].getBuffer());
+                receiver.onSyncedFrames(colorImage, depthImage);
             }
         }
 

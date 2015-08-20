@@ -307,16 +307,14 @@ extern "C"
         if (!tracker) return (JNI_FALSE);
 
         void *colorPtr = env->GetDirectBufferAddress(colorData);
-        jlong colorLength = env->GetDirectBufferCapacity(colorData);
         if (RunExceptionCheck(env)) return (JNI_FALSE);
 
         void *depthPtr = env->GetDirectBufferAddress(depthData);
-        jlong depthLength = env->GetDirectBufferCapacity(depthData);
         if (RunExceptionCheck(env)) return (JNI_FALSE);
 
 //        LOGV(">>>>>>>>>>> Synced camera frames received <<<<<<<<<<<<<");
 
-        rc_receiveImageWithDepth(tracker, rc_EGRAY8, time_ns / 1000, shutter_time_ns / 1000, NULL, false, width, height, stride, colorData, NULL, NULL, depthWidth, depthHeight, depthStride, depthData, NULL, NULL);
+        rc_receiveImageWithDepth(tracker, rc_EGRAY8, time_ns / 1000, shutter_time_ns / 1000, NULL, false, width, height, stride, colorPtr, NULL, NULL, depthWidth, depthHeight, depthStride, depthPtr, NULL, NULL);
 
         return (JNI_TRUE);
     }

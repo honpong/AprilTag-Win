@@ -1,0 +1,12 @@
+rm -f /tmp/archive.zip
+git archive -o /tmp/tracker.zip HEAD -- RCUtility
+zip            /tmp/tracker.zip         RCUtility/app/src/main/jniLibs/*/*
+(
+ rm -rf /tmp/rc_replay
+ mkdir -p /tmp/rc_replay/{x86_64,x86}/release
+ cp -a ../corvis/src/tracker/{*.cpp,*.h,README} /tmp/rc_replay
+ cp -a RCUtility/app/build/cmake/x86_64/release/rc_replay/rc_replay /tmp/rc_replay/x86_64/release/
+ cp -a RCUtility/app/build/cmake/x86/release/rc_replay/rc_replay /tmp/rc_replay/x86/release/
+ cd  /tmp
+ zip /tmp/tracker.zip rc_replay/{*.cpp,*.h,README,*/release/rc_replay}
+)

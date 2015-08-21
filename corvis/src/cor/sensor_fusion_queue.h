@@ -122,7 +122,7 @@ private:
     
     sensor_queue<accelerometer_data, 32> accel_queue;
     sensor_queue<gyro_data, 32> gyro_queue;
-    sensor_queue<camera_data, 8> camera_queue;
+    sensor_queue<camera_data, 4> camera_queue;
     std::function<void()> control_func;
     bool active;
     bool wait_for_camera;

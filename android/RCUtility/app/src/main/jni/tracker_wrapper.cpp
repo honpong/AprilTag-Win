@@ -14,20 +14,20 @@
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, TAG, __VA_ARGS__))
 #define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, TAG, __VA_ARGS__))
 
+#define MY_JNI_VERSION JNI_VERSION_1_6
+
 static JavaVM *javaVM;
 static rc_Tracker *tracker;
 static render_data render_data;
 static visualization vis(&render_data);
 static jobject trackerProxyObj;
 static jobject dataUpdateObj;
-static jobject colorImageCached;
-static jobject depthImageCached;
 
 jint JNI_OnLoad(JavaVM* vm, void* reserved)
 {
     LOGI("JNI_OnLoad");
     javaVM = vm;
-    return JNI_VERSION_1_6;
+    return MY_JNI_VERSION;
 }
 
 #pragma mark - utility functions
@@ -72,13 +72,18 @@ void initJavaObject(JNIEnv *env, const char *path, jobject *objptr)
     (*objptr) = env->NewGlobalRef(obj);
 }
 
+bool isThreadAttached()
+{
+    void* env;
+    int status = javaVM->GetEnv(&env, MY_JNI_VERSION);
+    return !(status == JNI_EDETACHED);
+}
+
 #pragma mark - callbacks up into java land
 
 static void status_callback(void *handle, rc_TrackerState state, rc_TrackerError error, rc_TrackerConfidence confidence, float progress)
 {
-    int status;
     JNIEnv *env;
-    bool isAttached = false;
 
     if (!trackerProxyObj)
     {
@@ -86,8 +91,9 @@ static void status_callback(void *handle, rc_TrackerState state, rc_TrackerError
         return;
     }
 
-    status = javaVM->AttachCurrentThread(&env, NULL);
-    if (status == 0) isAttached = true;
+    bool wasOriginallyAttached = isThreadAttached();
+    javaVM->AttachCurrentThread(&env, NULL); // if thread is not attached, we still need this to get the ref to JNIEnv, but don't need to detach later. weird.
+    if (RunExceptionCheck(env)) return;
 
     jclass trackerProxyClass = env->GetObjectClass(trackerProxyObj);
     jmethodID methodId = env->GetMethodID(trackerProxyClass, "onStatusUpdated", "(IIIF)V");
@@ -95,16 +101,14 @@ static void status_callback(void *handle, rc_TrackerState state, rc_TrackerError
     env->CallVoidMethod(trackerProxyObj, methodId, (int)state, (int)error, (int)confidence, progress);
     RunExceptionCheck(env);
 
-    if (isAttached) javaVM->DetachCurrentThread();
+    if (!wasOriginallyAttached) javaVM->DetachCurrentThread();
 }
 
 static void data_callback(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count)
 {
     render_data.update_data(time, pose, features, feature_count);
 
-    int status;
     JNIEnv *env;
-    bool isAttached = false;
 
     if (!trackerProxyObj)
     {
@@ -112,8 +116,9 @@ static void data_callback(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feat
         return;
     }
 
-    status = javaVM->AttachCurrentThread(&env, NULL);
-    if (status == 0) isAttached = true;
+    bool wasOriginallyAttached = isThreadAttached();
+    javaVM->AttachCurrentThread(&env, NULL);
+    if (RunExceptionCheck(env)) return;
 
     jclass dataUpdateClass = env->GetObjectClass(dataUpdateObj);
     if (RunExceptionCheck(env)) return;
@@ -147,49 +152,49 @@ static void data_callback(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feat
     env->CallVoidMethod(trackerProxyObj, methodId, dataUpdateObj);
     if (RunExceptionCheck(env)) return;
 
-    if (isAttached) javaVM->DetachCurrentThread();
+    if (!wasOriginallyAttached) javaVM->DetachCurrentThread();
 }
 
 static void release_color_image(void *handle)
 {
-    LOGV("release_color_image");
-    int status;
+//    LOGV("release_color_image");
     JNIEnv *env;
-    bool isAttached = false;
-    status = javaVM->AttachCurrentThread(&env, NULL);
-    if (status == 0) isAttached = true;
 
-    jclass colorImageClass = env->GetObjectClass(colorImageCached);
+    bool wasOriginallyAttached = isThreadAttached();
+    javaVM->AttachCurrentThread(&env, NULL);
+    if (RunExceptionCheck(env)) return;
+
+    jclass colorImageClass = env->GetObjectClass((jobject)handle);
     if (RunExceptionCheck(env)) return;
 
     jmethodID methodId = env->GetMethodID(colorImageClass, "close", "()V");
-    env->CallVoidMethod(colorImageCached, methodId);
+    env->CallVoidMethod((jobject)handle, methodId);
     if (RunExceptionCheck(env)) return;
 
-    env->DeleteGlobalRef(colorImageCached);
+    env->DeleteGlobalRef((jobject)handle);
 
-    if (isAttached) javaVM->DetachCurrentThread();
+    if (!wasOriginallyAttached) javaVM->DetachCurrentThread();
 }
 
 static void release_depth_image(void *handle)
 {
-    LOGV("release_depth_image");
-    int status;
+//    LOGV("release_depth_image");
     JNIEnv *env;
-    bool isAttached = false;
-    status = javaVM->AttachCurrentThread(&env, NULL);
-    if (status == 0) isAttached = true;
 
-    jclass depthImageClass = env->GetObjectClass(depthImageCached);
+    bool wasOriginallyAttached = isThreadAttached();
+    javaVM->AttachCurrentThread(&env, NULL);
+    if (RunExceptionCheck(env)) return;
+
+    jclass depthImageClass = env->GetObjectClass((jobject)handle);
     if (RunExceptionCheck(env)) return;
 
     jmethodID methodId = env->GetMethodID(depthImageClass, "close", "()V");
-    env->CallVoidMethod(depthImageCached, methodId);
+    env->CallVoidMethod((jobject)handle, methodId);
     if (RunExceptionCheck(env)) return;
 
-    env->DeleteGlobalRef(depthImageCached);
+    env->DeleteGlobalRef((jobject)handle);
 
-    if (isAttached) javaVM->DetachCurrentThread();
+    if (!wasOriginallyAttached) javaVM->DetachCurrentThread();
 }
 
 #pragma mark - functions that get called from java land
@@ -326,8 +331,8 @@ extern "C"
         if (!tracker) return (JNI_FALSE);
 
         // cache these refs so we can close them in the callbacks
-        colorImageCached = env->NewGlobalRef(colorImage);
-        depthImageCached = env->NewGlobalRef(depthImage);
+        jobject colorImageCached = env->NewGlobalRef(colorImage);
+        jobject depthImageCached = env->NewGlobalRef(depthImage);
 
         void *colorPtr = env->GetDirectBufferAddress(colorData);
         if (RunExceptionCheck(env)) return (JNI_FALSE);
@@ -337,7 +342,7 @@ extern "C"
 
 //        LOGV(">>>>>>>>>>> Synced camera frames received <<<<<<<<<<<<<");
 
-        rc_receiveImageWithDepth(tracker, rc_EGRAY8, time_ns / 1000, shutter_time_ns / 1000, NULL, false, width, height, stride, colorPtr, release_color_image, NULL, depthWidth, depthHeight, depthStride, depthPtr, release_depth_image, NULL);
+        rc_receiveImageWithDepth(tracker, rc_EGRAY8, time_ns / 1000, shutter_time_ns / 1000, NULL, false, width, height, stride, colorPtr, release_color_image, colorImageCached, depthWidth, depthHeight, depthStride, depthPtr, release_depth_image, depthImageCached);
 
         return (JNI_TRUE);
     }

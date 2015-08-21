@@ -92,7 +92,7 @@ static void status_callback(void *handle, rc_TrackerState state, rc_TrackerError
     }
 
     bool wasOriginallyAttached = isThreadAttached();
-    javaVM->AttachCurrentThread(&env, NULL); // if thread is not attached, we still need this to get the ref to JNIEnv, but don't need to detach later. weird.
+    javaVM->AttachCurrentThread(&env, NULL); // if thread is attached, we still need this to get the ref to JNIEnv, but don't need to detach later. weird.
     if (RunExceptionCheck(env)) return;
 
     jclass trackerProxyClass = env->GetObjectClass(trackerProxyObj);

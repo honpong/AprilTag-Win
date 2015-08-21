@@ -232,13 +232,9 @@ RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback c
     };
 }
 
-void rc_startCalibration(rc_Tracker * tracker)
+void rc_startCalibration(rc_Tracker * tracker, rc_TrackerRunFlags run_flags)
 {
-#ifdef WIN32
-    tracker->start_calibration(false);
-#else
-    tracker->start_calibration(true);
-#endif
+    tracker->start_calibration(run_flags == rc_E_ASYNCRONOUS);
 }
 
 /*void rc_startInertialOnly(rc_Tracker * tracker)
@@ -246,13 +242,12 @@ void rc_startCalibration(rc_Tracker * tracker)
     tracker->start_inertial_only();
 }*/
 
-void rc_startTracker(rc_Tracker * tracker)
+void rc_startTracker(rc_Tracker * tracker, rc_TrackerRunFlags run_flags)
 {
-#ifdef WIN32
-    tracker->start_offline();
-#else
-    tracker->start_unstable(true);
-#endif
+    if (run_flags == rc_E_ASYNCRONOUS)
+        tracker->start_unstable(true);
+    else
+        tracker->start_offline();
 }
 
 void rc_stopTracker(rc_Tracker * tracker)

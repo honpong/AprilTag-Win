@@ -231,7 +231,7 @@ extern "C"
         LOGD("startTracker");
         if (!tracker) return (JNI_FALSE);
 
-        rc_startTracker(tracker);
+        rc_startTracker(tracker, rc_E_ASYNCRONOUS);
 
         return (JNI_TRUE);
     }
@@ -249,7 +249,7 @@ extern "C"
         LOGD("startCalibration");
         if (!tracker) return (JNI_FALSE);
 
-        rc_startCalibration(tracker);
+        rc_startCalibration(tracker, rc_E_ASYNCRONOUS);
 
         return (JNI_TRUE);
     }

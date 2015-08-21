@@ -143,7 +143,15 @@ RCTRACKER_API void rc_configureLocation(rc_Tracker *tracker, double latitude_deg
 RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callback, void *handle);
 RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback callback, void *handle);
 
-RCTRACKER_API void rc_startCalibration(rc_Tracker *tracker);
+typedef enum
+{
+    /** rc_Tracker should process data on the callers thread. */
+    rc_E_SYNCRONOUS = 0,
+    /** rc_Tracker should process data on its own thread, returning immediately from all calls. */
+    rc_E_ASYNCRONOUS = 1,
+} rc_TrackerRunFlags;
+
+RCTRACKER_API void rc_startCalibration(rc_Tracker *tracker, rc_TrackerRunFlags run_flags);
 
 /** TODO:
  Starts processing inertial data to estimate the orientation of the device so that initialization of the full tracker can happen more quickly.
@@ -153,7 +161,7 @@ RCTRACKER_API void rc_startCalibration(rc_Tracker *tracker);
 /**
  Starts the tracker.
  */
-RCTRACKER_API void rc_startTracker(rc_Tracker *tracker);
+RCTRACKER_API void rc_startTracker(rc_Tracker *tracker, rc_TrackerRunFlags run_flags);
 RCTRACKER_API void rc_stopTracker(rc_Tracker *tracker);
 
 /**

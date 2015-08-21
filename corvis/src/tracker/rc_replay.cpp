@@ -1,10 +1,4 @@
-//
-//  replay.cpp
-//
-//  Created by Eagle Jones on 4/8/15.
 //  Copyright (c) 2015 RealityCap. All rights reserved.
-//
-
 #include "rc_replay.h"
 
 #include <regex>

@@ -1,3 +1,4 @@
+//  Copyright (c) 2015 RealityCap. All rights reserved.
 #include "rc_replay.h"
 #include <iostream>
 #include <cmath>

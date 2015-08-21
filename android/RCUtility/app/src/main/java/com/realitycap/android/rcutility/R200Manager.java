@@ -265,22 +265,15 @@ public class R200Manager
                     mCounters[COLOR]--;
                 }
 
-                if ((null != colorImage) && (null != depthImage))
-                    onImageAvailable(colorImage, depthImage);
-
-                if (colorImage != null)
-                    colorImage.close();
-                if (depthImage != null)
-                    depthImage.close();
-            }
-        }
-
-
-        public void onImageAvailable(Image colorImage, DepthImage depthImage)
-        {
-            if (receiver != null)
-            {
-                receiver.onSyncedFrames(colorImage, depthImage);
+                if (null != colorImage && null != depthImage && receiver != null)
+                {
+                    receiver.onSyncedFrames(colorImage, depthImage); // receiver is responsible for closing the images
+                }
+                else
+                {
+                    if (colorImage != null) colorImage.close();
+                    if (depthImage != null) depthImage.close();
+                }
             }
         }
 

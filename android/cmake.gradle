@@ -1,6 +1,8 @@
 task rcRelease(type: Copy) { // FIXME: add dependencies
     from "build/cmake/jniLibs"
     from "../../../corvis/src/filter/rc_intel_interface.h"
+    include "*/libtracker.so"
+    include "*.h"
     into "src/main/jniLibs"
 }
 
@@ -19,12 +21,17 @@ model {
             ndk.ldFlags  += "-L" + file("build/cmake/jniLibs/x86_64")
         }
     }
+    android.buildTypes {
+        release        { ndk.ldLibs += ["tracker"] }
+        debug          { ndk.ldLibs += ["tracker_debug"] }
+        relwithdebinfo { ndk.ldLibs += ["tracker_relwithdebinfo"] }
+    }
     components.android {
         binaries.afterEach { binary ->
             String type = binary.buildType.name
             binary.productFlavors.each { flavor ->
                 flavor.ndk.abiFilters.each { arch ->
-                    rcRelease.dependsOn(project.tasks.create(name: "makeTracker${arch.capitalize()}${type.capitalize()}", type: Exec) {
+                    def make = project.tasks.create(name: "makeTracker${arch.capitalize()}${type.capitalize()}", type: Exec) {
                         workingDir   "build/cmake/$arch/$type/"
                         commandLine "cmake", "--build", file("build/cmake/$arch/$type/"), "--", "-j" + project.getGradle().startParameter.maxWorkerCount
                         doLast { copy {
@@ -40,7 +47,9 @@ model {
                             "-DANDROID_NDK_ROOT=${project.ext.ndkDir}",
                             "-DANDROID_PLATFORM=android-21", "-DANDROID_ARCH=$arch",
                             "-DCMAKE_TOOLCHAIN_FILE=Android.toolchain.cmake"
-                    }))
+                   });
+                   if (type == "release")
+                      rcRelease.dependsOn(make)
                 }
             }
         }

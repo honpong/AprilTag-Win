@@ -23,18 +23,15 @@ model {
     }
     android.buildTypes {
         release {
-            ndk.ldLibs += ["tracker"]
             minifyEnabled = false
             proguardFiles += file('proguard-rules.pro')
         }
         debug {
-            ndk.ldLibs += ["tracker_debug"]
             minifyEnabled = false
             proguardFiles += file('proguard-rules.pro')
             debuggable = true
         }
         create("relwithdebinfo") {
-            ndk.ldLibs += ["tracker_relwithdebinfo"]
             minifyEnabled = false
             proguardFiles += file('proguard-rules.pro')
             debuggable = true
@@ -54,7 +51,10 @@ project.ext.ndkDir = new com.android.build.gradle.internal.NdkHandler(rootDir, n
 
 if (file("src/main/jniLibs/").exists())
     model {
-        android.ndk {  cppFlags += "-I" + file("src/main/jniLibs") }
+        android.ndk {
+            cppFlags += "-I" + file("src/main/jniLibs")
+            ldLibs += ["tracker"]
+        }
         android.productFlavors {
             rc86 { ndk.ldFlags  += "-L" + file("src/main/jniLibs/x86") }
             rc64 { ndk.ldFlags  += "-L" + file("src/main/jniLibs/x86_64") }

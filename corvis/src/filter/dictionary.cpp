@@ -25,6 +25,18 @@ dictionary::dictionary(string filename)
     vl_kmeans_set_centers(kmeans, centers, dimension, num_centers);
 }
 
+dictionary::dictionary(int dim, int num, const float c[])
+{
+    kmeans = vl_kmeans_new(VL_TYPE_FLOAT, VlDistanceL2);
+    
+    dimension = dim;
+    num_centers = num;
+    
+    // set centers
+    vl_kmeans_set_centers(kmeans, c, dimension, num_centers);
+}
+
+
 dictionary::~dictionary()
 {
     vl_kmeans_delete(kmeans);
@@ -41,6 +53,35 @@ void dictionary::write(string filename)
     fwrite(&num_centers, sizeof(num_centers), 1, f);
     fwrite(vl_kmeans_get_centers(kmeans), sizeof(float), dimension*num_centers, f);
 
+    fclose(f);
+}
+
+void dictionary::write_header(std::string basename)
+{
+    string filename = basename + "_dictionary.h";
+    FILE *f = fopen(filename.c_str(), "wt");
+    if(!f) {
+        fprintf(stderr, "Could not open %s for writing\n", filename.c_str());
+    }
+    
+    fprintf(f, "#ifndef %s_dictionary_h\n", basename.c_str());
+    fprintf(f, "#define %s_dictionary_h\n\n", basename.c_str());
+    
+    fprintf(f, "#define %s_dimension %d\n", basename.c_str(), dimension);
+    fprintf(f, "#define %s_num_centers %d\n", basename.c_str(), num_centers);
+    fprintf(f, "const static float %s_centers[%s_dimension * %s_num_centers] {\n", basename.c_str(), basename.c_str(), basename.c_str());
+    
+    float *centers = (float *)vl_kmeans_get_centers(kmeans);
+    for(int c = 0; c < num_centers; ++c) {
+        for(int d = 0; d < dimension; ++d) {
+            fprintf(f, "%f, ", centers[c * dimension + d]);
+        }
+        fprintf(f, "\n");
+    }
+    
+    fprintf(f, "};\n\n");
+    
+    fprintf(f, "#endif //%s_dictionary_h\n", basename.c_str());
     fclose(f);
 }
 

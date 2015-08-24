@@ -21,7 +21,17 @@ static rc_Tracker *tracker;
 static render_data render_data;
 static visualization vis(&render_data);
 static jobject trackerProxyObj;
+static jclass trackerProxyClass;
+static jmethodID trackerProxy_onStatusUpdated;
 static jobject dataUpdateObj;
+static jclass dataUpdateClass;
+static jmethodID dataUpdate_setTimestamp;
+static jmethodID dataUpdate_setPose;
+static jmethodID dataUpdate_clearFeaturePoints;
+static jmethodID dataUpdate_addFeaturePoint;
+static jmethodID trackerProxy_onDataUpdated;
+static jclass imageClass;
+static jmethodID imageClass_close;
 
 jint JNI_OnLoad(JavaVM* vm, void* reserved)
 {
@@ -83,23 +93,19 @@ bool isThreadAttached()
 
 static void status_callback(void *handle, rc_TrackerState state, rc_TrackerError error, rc_TrackerConfidence confidence, float progress)
 {
-    JNIEnv *env;
-
     if (!trackerProxyObj)
     {
         LOGE("status_callback: Tracker proxy object is null.");
         return;
     }
 
+    JNIEnv *env;
     bool wasOriginallyAttached = isThreadAttached();
-    javaVM->AttachCurrentThread(&env, NULL); // if thread is attached, we still need this to get the ref to JNIEnv, but don't need to detach later. weird.
+    javaVM->AttachCurrentThread(&env, NULL); // if thread was attached, we still need this to get the ref to JNIEnv, but don't need to detach later.
     if (RunExceptionCheck(env)) return;
 
-    jclass trackerProxyClass = env->GetObjectClass(trackerProxyObj);
-    jmethodID methodId = env->GetMethodID(trackerProxyClass, "onStatusUpdated", "(IIIF)V");
-
-    env->CallVoidMethod(trackerProxyObj, methodId, (int)state, (int)error, (int)confidence, progress);
-    RunExceptionCheck(env);
+    ((JNIEnv*)env)->CallVoidMethod(trackerProxyObj, trackerProxy_onStatusUpdated, (int)state, (int)error, (int)confidence, progress);
+    RunExceptionCheck(((JNIEnv*)env));
 
     if (!wasOriginallyAttached) javaVM->DetachCurrentThread();
 }
@@ -120,76 +126,40 @@ static void data_callback(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feat
     javaVM->AttachCurrentThread(&env, NULL);
     if (RunExceptionCheck(env)) return;
 
-    jclass dataUpdateClass = env->GetObjectClass(dataUpdateObj);
-    if (RunExceptionCheck(env)) return;
-
     // set properties on the SensorFusionData instance
-    jmethodID methodId = env->GetMethodID(dataUpdateClass, "setTimestamp", "(J)V");
-    env->CallVoidMethod(dataUpdateObj, methodId, (long) time);
+    env->CallVoidMethod(dataUpdateObj, dataUpdate_setTimestamp, (long) time);
     if (RunExceptionCheck(env)) return;
 
-    methodId = env->GetMethodID(dataUpdateClass, "setPose", "(FFFFFFFFFFFF)V");
-    env->CallVoidMethod(dataUpdateObj, methodId, pose[0], pose[1], pose[2], pose[3], pose[4], pose[5], pose[6], pose[7], pose[8], pose[9], pose[10], pose[11]);
+    env->CallVoidMethod(dataUpdateObj, dataUpdate_setPose, pose[0], pose[1], pose[2], pose[3], pose[4], pose[5], pose[6], pose[7], pose[8], pose[9], pose[10], pose[11]);
     if (RunExceptionCheck(env)) return;
 
-    methodId = env->GetMethodID(dataUpdateClass, "clearFeaturePoints", "()V"); // necessary because we are reusing the cached instance of SensorFusionData
-    env->CallVoidMethod(dataUpdateObj, methodId);
+    env->CallVoidMethod(dataUpdateObj, dataUpdate_clearFeaturePoints); // necessary because we are reusing the cached instance of SensorFusionData
     if (RunExceptionCheck(env)) return;
-
-    methodId = env->GetMethodID(dataUpdateClass, "addFeaturePoint", "(JFFFFF)V"); // takes a long and 5 floats
 
     // add features to SensorFusionData instance
     for (int i = 0; i < feature_count; ++i)
     {
         rc_Feature feat = features[i];
-        env->CallVoidMethod(dataUpdateObj, methodId, feat.id, feat.world.x, feat.world.y, feat.world.z, feat.image_x, feat.image_y);
+        env->CallVoidMethod(dataUpdateObj, dataUpdate_addFeaturePoint, feat.id, feat.world.x, feat.world.y, feat.world.z, feat.image_x, feat.image_y);
         if (RunExceptionCheck(env)) return;
     }
 
-    jclass trackerProxyClass = env->GetObjectClass(trackerProxyObj);
-    methodId = env->GetMethodID(trackerProxyClass, "onDataUpdated", "(Lcom/realitycap/android/rcutility/SensorFusionData;)V");
-
-    env->CallVoidMethod(trackerProxyObj, methodId, dataUpdateObj);
+    env->CallVoidMethod(trackerProxyObj, trackerProxy_onDataUpdated, dataUpdateObj);
     if (RunExceptionCheck(env)) return;
 
     if (!wasOriginallyAttached) javaVM->DetachCurrentThread();
 }
 
-static void release_color_image(void *handle)
+static void release_image(void *handle)
 {
-//    LOGV("release_color_image");
+//    LOGV("release_image");
     JNIEnv *env;
 
     bool wasOriginallyAttached = isThreadAttached();
     javaVM->AttachCurrentThread(&env, NULL);
     if (RunExceptionCheck(env)) return;
 
-    jclass colorImageClass = env->GetObjectClass((jobject)handle);
-    if (RunExceptionCheck(env)) return;
-
-    jmethodID methodId = env->GetMethodID(colorImageClass, "close", "()V");
-    env->CallVoidMethod((jobject)handle, methodId);
-    if (RunExceptionCheck(env)) return;
-
-    env->DeleteGlobalRef((jobject)handle);
-
-    if (!wasOriginallyAttached) javaVM->DetachCurrentThread();
-}
-
-static void release_depth_image(void *handle)
-{
-//    LOGV("release_depth_image");
-    JNIEnv *env;
-
-    bool wasOriginallyAttached = isThreadAttached();
-    javaVM->AttachCurrentThread(&env, NULL);
-    if (RunExceptionCheck(env)) return;
-
-    jclass depthImageClass = env->GetObjectClass((jobject)handle);
-    if (RunExceptionCheck(env)) return;
-
-    jmethodID methodId = env->GetMethodID(depthImageClass, "close", "()V");
-    env->CallVoidMethod((jobject)handle, methodId);
+    env->CallVoidMethod((jobject)handle, imageClass_close);
     if (RunExceptionCheck(env)) return;
 
     env->DeleteGlobalRef((jobject)handle);
@@ -207,11 +177,23 @@ extern "C"
         tracker = rc_create();
         if (!tracker) return (JNI_FALSE);
 
-        // save this object for the callbacks.
+        // save this stuff for the callbacks.
         trackerProxyObj = env->NewGlobalRef(thiz);
+        trackerProxyClass = (jclass)env->NewGlobalRef(env->GetObjectClass(trackerProxyObj));
+        trackerProxy_onStatusUpdated = env->GetMethodID(trackerProxyClass, "onStatusUpdated", "(IIIF)V");
+        trackerProxy_onDataUpdated = env->GetMethodID(trackerProxyClass, "onDataUpdated", "(Lcom/realitycap/android/rcutility/SensorFusionData;)V");
+
+        dataUpdateClass = (jclass)env->NewGlobalRef(env->FindClass("com/realitycap/android/rcutility/SensorFusionData"));
+        dataUpdate_setTimestamp = env->GetMethodID(dataUpdateClass, "setTimestamp", "(J)V");
+        dataUpdate_setPose = env->GetMethodID(dataUpdateClass, "setPose", "(FFFFFFFFFFFF)V");
+        dataUpdate_clearFeaturePoints = env->GetMethodID(dataUpdateClass, "clearFeaturePoints", "()V");
+        dataUpdate_addFeaturePoint = env->GetMethodID(dataUpdateClass, "addFeaturePoint", "(JFFFFF)V"); // takes a long and 5 floats
 
         // init a SensorFusionData instance
         initJavaObject(env, "com/realitycap/android/rcutility/SensorFusionData", &dataUpdateObj);
+
+        imageClass = (jclass)env->NewGlobalRef(env->FindClass("android/media/Image"));
+        imageClass_close = env->GetMethodID(imageClass, "close", "()V");
 
         rc_setStatusCallback(tracker, status_callback, NULL);
         rc_setDataCallback(tracker, data_callback, NULL);
@@ -227,7 +209,10 @@ extern "C"
         tracker = NULL;
         trackerProxyObj = NULL;
         env->DeleteGlobalRef(trackerProxyObj);
+        env->DeleteGlobalRef(trackerProxyClass);
         env->DeleteGlobalRef(dataUpdateObj);
+        env->DeleteGlobalRef(dataUpdateClass);
+        env->DeleteGlobalRef(imageClass);
         return (JNI_TRUE);
     }
 
@@ -342,7 +327,7 @@ extern "C"
 
 //        LOGV(">>>>>>>>>>> Synced camera frames received <<<<<<<<<<<<<");
 
-        rc_receiveImageWithDepth(tracker, rc_EGRAY8, time_ns / 1000, shutter_time_ns / 1000, NULL, false, width, height, stride, colorPtr, release_color_image, colorImageCached, depthWidth, depthHeight, depthStride, depthPtr, release_depth_image, depthImageCached);
+        rc_receiveImageWithDepth(tracker, rc_EGRAY8, time_ns / 1000, shutter_time_ns / 1000, NULL, false, width, height, stride, colorPtr, release_image, colorImageCached, depthWidth, depthHeight, depthStride, depthPtr, release_image, depthImageCached);
 
         return (JNI_TRUE);
     }

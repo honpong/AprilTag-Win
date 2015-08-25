@@ -17,6 +17,7 @@ private:
     double length_m {0}, reference_length_m {NAN};
     bool find_reference_in_filename(const std::string &filename);
     bool set_calibration_from_filename(const std::string &fn);
+    virtual bool sleep_until(uint64_t time_us) { return true; }
 
 public:
     replay() { tracker = rc_create(); }

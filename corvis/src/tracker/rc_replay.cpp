@@ -146,6 +146,9 @@ bool replay::run()
         if (!file.read((char *)packet->data, header.bytes - 16))
             break;
 
+        if (!sleep_until(header.time))
+            break;
+
         switch(header.type) {
             case packet_camera: {
                 char tmp[17]; memcpy(tmp, packet->data, 16); tmp[16] = 0;

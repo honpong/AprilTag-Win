@@ -53,11 +53,11 @@ if (file("src/main/jniLibs/").exists())
     model {
         android.ndk {
             cppFlags += "-I" + file("src/main/jniLibs")
-            cppFlags += "-I" + file("../../tracker")
+            cppFlags += "-I" + file("../../rc_replay")
             ldLibs += ["tracker"]
         }
         android.sources {
-            main { jni { source { srcDirs += "../../tracker" } } }
+            main { jni { source { srcDirs += "../../rc_replay" } } }
         }
         android.productFlavors {
             rc86 { ndk.ldFlags  += "-L" + file("src/main/jniLibs/x86") }

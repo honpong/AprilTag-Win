@@ -1,11 +1,17 @@
 package com.realitycap.android.rcutility;
 
+import android.app.ActionBar;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.SurfaceHolder;
 import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 /**
@@ -32,6 +38,8 @@ public class VisActivity extends TrackerActivity
     {
         super.onCreate(savedInstanceState);
 
+        showMessage("Tap anywhere to start");
+
         final Intent intent = getIntent();
         if (intent.getAction() == ACTION_LIVE_VIS)
             desiredAppState = AppState.LiveVis;
@@ -49,18 +57,12 @@ public class VisActivity extends TrackerActivity
         {
             public void onClick(View view)
             {
-                if (appState == AppState.Idle)
-                {
-                    if (desiredAppState == AppState.LiveVis)
-                        enterLiveState();
-                    else if (desiredAppState == AppState.ReplayVis)
-                        enterReplayState(replayFileUri);
-                }
-                else enterIdleState();
+                handleStartStopTap();
             }
         });
 
-        showMessage("Tap anywhere to start");
+        ActionBar actionBar = getActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
     }
 
     @Override protected void onPause()
@@ -74,6 +76,35 @@ public class VisActivity extends TrackerActivity
         enterIdleState();
         trackerProxy.destroyTracker();
         super.onDestroy();
+    }
+
+    @Override public boolean onCreateOptionsMenu(Menu menu)
+    {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.vis_activity_menu, menu);
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override public boolean onOptionsItemSelected(MenuItem item)
+    {
+        if (item.getItemId() == R.id.action_start)
+        {
+            handleStartStopTap();
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    protected void handleStartStopTap()
+    {
+        if (appState == AppState.Idle)
+        {
+            if (desiredAppState == AppState.LiveVis)
+                enterLiveState();
+            else if (desiredAppState == AppState.ReplayVis)
+                enterReplayState(replayFileUri);
+        }
+        else enterIdleState();
     }
 
     protected void enterIdleState()
@@ -93,6 +124,7 @@ public class VisActivity extends TrackerActivity
     {
         if (appState != AppState.Idle) return false;
 
+        setButtonText("Stop");
         showMessage("Starting live visualization...");
 
         if (!setCalibrationFromFile(CALIBRATION_FILENAME))
@@ -129,11 +161,14 @@ public class VisActivity extends TrackerActivity
         stopSensors();
         appState = AppState.Idle;
         showMessage("Stopped.");
+        setButtonText("Start");
     }
 
     protected boolean enterReplayState(Uri uri)
     {
         if (appState != AppState.Idle || uri == null) return false;
+
+        setButtonText("Stop");
 
         String absFilePath = UriUtils.getPath(this, uri);
         if (absFilePath == null || absFilePath.length() == 0)
@@ -179,6 +214,13 @@ public class VisActivity extends TrackerActivity
         stopSensors();
         appState = AppState.Idle;
         showMessage("Stopped.");
+        setButtonText("Start");
+    }
+
+    protected void setButtonText(String text)
+    {
+        TextView button = (TextView)findViewById(R.id.action_start);
+        button.setText(text);
     }
 
     private boolean abortTracking(String message)

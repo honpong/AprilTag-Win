@@ -254,6 +254,8 @@ extern "C"
         auto result = (jboolean)replayer.open(cString);
         render_data.reset();
         env->ReleaseStringUTFChars(absFilePath, cString);
+        rc_setStatusCallback(replayer.tracker, status_callback, NULL);
+        rc_setDataCallback(replayer.tracker, data_callback, NULL);
         return result;
     }
     JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_stopReplay(JNIEnv *env, jobject thiz)

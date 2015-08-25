@@ -11,7 +11,6 @@ namespace rc {
 class replay
 {
 private:
-    rc_Tracker *tracker;
     std::ifstream file;
     bool depth {true};
     double length_m {0}, reference_length_m {NAN};
@@ -20,6 +19,7 @@ private:
     virtual bool sleep_until(uint64_t time_us) { return true; }
 
 public:
+    rc_Tracker *tracker;
     replay() { tracker = rc_create(); }
     ~replay() { rc_destroy(tracker); tracker = nullptr; }
     bool open(const char *name);

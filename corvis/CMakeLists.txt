@@ -49,6 +49,10 @@ if(ENABLE_MGL)
     target_link_libraries(measure mgl)
 endif()
 
+add_executable(rc_replay src/tools/rc_replay.cpp src/tracker/rc_replay.cpp)
+set_target_properties(rc_replay PROPERTIES CXX_STANDARD 14)
+target_link_libraries(rc_replay tracker)
+
 if(YES)
     set(spec_sources
       ../gtest/gtest_main.cc ../gtest/gtest-all.cc

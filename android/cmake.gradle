@@ -35,7 +35,7 @@ model {
                         workingDir   "build/cmake/$arch/$type/"
                         commandLine "cmake", "--build", file("build/cmake/$arch/$type/"), "--", "-j" + project.getGradle().startParameter.maxWorkerCount
                         doLast { copy {
-                            from "build/cmake/$arch/$type/libtracker${type == 'release' ? '' : '_' + type}.so"
+                            from "build/cmake/$arch/$type/corvis/src/libtracker${type == 'release' ? '' : '_' + type}.so"
                             into "build/cmake/jniLibs/$arch"
                         } }
                     }.dependsOn(project.tasks.create(name: "cmakeTracker${arch.capitalize()}${type.capitalize()}", type: Exec) {

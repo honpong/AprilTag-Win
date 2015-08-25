@@ -121,6 +121,11 @@ target_include_directories(filter PUBLIC filter)
 target_include_directories(filter PRIVATE rapidjson/include)
 set_property(TARGET filter PROPERTY CXX_STANDARD 14)
 
+add_library(tracker SHARED filter/rc_intel_interface.cpp)
+set_target_properties(tracker PROPERTIES CXX_STANDARD 14)
+target_link_libraries(tracker filter numerics cor)
+target_include_directories(tracker PUBLIC tracker)
+
 if(ENABLE_QR)
 add_library(qr STATIC
   filter/homography.cpp

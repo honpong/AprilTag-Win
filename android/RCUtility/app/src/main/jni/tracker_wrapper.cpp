@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <rc_intel_interface.h>
 #include <visualization.h>
+#include "rc_replay_threaded.h"
 
 #include "render_data.h"
 
@@ -20,6 +21,7 @@ static JavaVM *javaVM;
 static rc_Tracker *tracker;
 static render_data render_data;
 static visualization vis(&render_data);
+static rc::replay_threaded replayer;
 static jobject trackerProxyObj;
 static jclass trackerProxyClass;
 static jmethodID trackerProxy_onStatusUpdated;
@@ -246,9 +248,18 @@ extern "C"
 
     JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_startReplay(JNIEnv *env, jobject thiz, jstring absFilePath)
     {
-        LOGD("startReplay");
-        if (!tracker) return (JNI_FALSE);
-        return (JNI_TRUE);
+        rc_stopTracker(tracker); // Stop the live tracker
+        const char *cString = env->GetStringUTFChars(absFilePath, 0);
+        LOGD("startReplay: %s", cString);
+        auto result = (jboolean)replayer.open(cString);
+        render_data.reset();
+        env->ReleaseStringUTFChars(absFilePath, cString);
+        return result;
+    }
+    JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_stopReplay(JNIEnv *env, jobject thiz)
+    {
+        LOGD("stoppingReplay...");
+        return replayer.close();
     }
 
     JNIEXPORT jstring JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_getCalibration(JNIEnv *env, jobject thiz)

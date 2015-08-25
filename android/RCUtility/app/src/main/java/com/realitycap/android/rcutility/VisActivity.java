@@ -181,21 +181,6 @@ public class VisActivity extends TrackerActivity
             showMessage("Starting replay of file: " + absFilePath);
         }
 
-        if (!setCalibrationFromFile(CALIBRATION_FILENAME))
-        {
-            return abortTracking("Failed to load calibration file. You may need to run calibration first.");
-        }
-
-        if (!configureCamera())
-        {
-            return abortTracking("Failed to get camera intrinsics.");
-        }
-
-        if (!trackerProxy.startTracker())
-        {
-            return abortTracking("Failed to start tracking.");
-        }
-
         if (!trackerProxy.startReplay(absFilePath))
         {
             return abortTracking("Failed to start replay.");
@@ -210,8 +195,7 @@ public class VisActivity extends TrackerActivity
     {
         if (appState != AppState.ReplayVis) return;
         showMessage("Stopping ...");
-        trackerProxy.stopTracker();
-        stopSensors();
+        trackerProxy.stopReplay();
         appState = AppState.Idle;
         showMessage("Stopped.");
         setButtonText("Start");

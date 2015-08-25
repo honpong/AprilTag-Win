@@ -9,9 +9,11 @@ task rcRelease(type: Copy) { // FIXME: add dependencies
 model {
     android.sources {
         main { jniLibs { source { srcDirs { "build/cmake/jniLibs" } } } }
+        main { jni { source { srcDirs += "../../../corvis/src/tracker" } } }
     }
     android.ndk {
         cppFlags += "-I" + file("../../../corvis/src/filter")
+        cppFlags += "-I" + file("../../../corvis/src/tracker")
     }
     android.productFlavors {
         rc86 {

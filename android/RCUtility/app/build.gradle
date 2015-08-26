@@ -56,8 +56,8 @@ if (file("../../rc_replay/lib/").exists())
             ldLibs += ["tracker"]
         }
         android.sources {
-            main { jni { source { srcDirs += "../../rc_replay/src" } } }
-            main { jniLibs { source { srcDirs += "../../rc_replay/lib" } } }
+            main { jni { source { srcDirs += [ "../../rc_replay/src", "src/main/jni" ] } } }
+            main { jniLibs { source { srcDirs = [ "../../rc_replay/lib", "src/main/jniLibs" ] } } }
         }
         android.productFlavors {
             rc86 { ndk.ldFlags  += "-L" + file("../../rc_replay/lib/x86") }

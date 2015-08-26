@@ -19,8 +19,8 @@ task rcRelease(type: Copy, dependsOn: [rcHeader, rcSource]) {
 
 model {
     android.sources {
-        main { jniLibs { source { srcDirs { "build/cmake/jniLibs" } } } }
-        main { jni { source { srcDirs += "../../../corvis/src/tracker" } } }
+        main { jniLibs { source { srcDirs = ["build/cmake/jniLibs"] } } }
+        main { jni { source { srcDirs = ["../../../corvis/src/tracker", "src/main/jni"] } } }
     }
     android.ndk {
         cppFlags += "-I" + file("../../../corvis/src/filter")

@@ -1,10 +1,21 @@
-task rcRelease(type: Copy) { // FIXME: add dependencies
-    from "build/cmake/jniLibs"
+task rcHeader(type: Copy) {
     from "../../../corvis/src/filter/rc_intel_interface.h"
-    include "*/libtracker.so"
+    from "../../../corvis/src/tracker"
+    include "*.cpp"
     include "*.h"
-    into "src/main/jniLibs"
+    into "../../rc_replay/src"
 }
+task rcSource(type: Copy, dependsOn: rcHeader) {
+    from "../../../corvis/src/tools/rc_replay.cpp"
+    from "../../../corvis/src/tracker/README"
+    into "../../rc_replay"
+}
+task rcRelease(type: Copy, dependsOn: [rcHeader, rcSource]) {
+    from "build/cmake/jniLibs"
+    include "*/libtracker.so"
+    into "../../rc_replay/lib"
+}
+
 
 model {
     android.sources {

@@ -49,19 +49,19 @@ model {
 
 project.ext.ndkDir = new com.android.build.gradle.internal.NdkHandler(rootDir, null, "clang", "3.6").getNdkDirectory()
 
-if (file("src/main/jniLibs/").exists())
+if (file("../../rc_replay/lib/").exists())
     model {
         android.ndk {
-            cppFlags += "-I" + file("src/main/jniLibs")
-            cppFlags += "-I" + file("../../rc_replay")
+            cppFlags += "-I" + file("../../rc_replay/src")
             ldLibs += ["tracker"]
         }
         android.sources {
-            main { jni { source { srcDirs += "../../rc_replay" } } }
+            main { jni { source { srcDirs += "../../rc_replay/src" } } }
+            main { jniLibs { source { srcDirs += "../../rc_replay/lib" } } }
         }
         android.productFlavors {
-            rc86 { ndk.ldFlags  += "-L" + file("src/main/jniLibs/x86") }
-            rc64 { ndk.ldFlags  += "-L" + file("src/main/jniLibs/x86_64") }
+            rc86 { ndk.ldFlags  += "-L" + file("../../rc_replay/lib/x86") }
+            rc64 { ndk.ldFlags  += "-L" + file("../../rc_replay/lib/x86_64") }
         }
     }
 else

@@ -21,7 +21,7 @@ static JavaVM *javaVM;
 static rc_Tracker *tracker;
 static render_data render_data;
 static visualization vis(&render_data);
-static rc::replay_threaded replayer;
+static rc::replay_threaded *replayer;
 static jobject trackerProxyObj;
 static jclass trackerProxyClass;
 static jmethodID trackerProxy_onStatusUpdated;
@@ -249,20 +249,28 @@ extern "C"
     JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_startReplay(JNIEnv *env, jobject thiz, jstring absFilePath)
     {
         if (tracker) rc_stopTracker(tracker); // Stop the live tracker
+        if (replayer) return JNI_FALSE;
 
         const char *cString = env->GetStringUTFChars(absFilePath, 0);
         LOGD("startReplay: %s", cString);
-        auto result = (jboolean)replayer.open(cString);
+
+        replayer = new rc::replay_threaded;
+        rc_setStatusCallback(replayer->tracker, status_callback, NULL);
+        rc_setDataCallback(replayer->tracker, data_callback, NULL);
         render_data.reset();
+
+        auto result = (jboolean)replayer->open(cString);
+
         env->ReleaseStringUTFChars(absFilePath, cString);
-        rc_setStatusCallback(replayer.tracker, status_callback, NULL);
-        rc_setDataCallback(replayer.tracker, data_callback, NULL);
         return result;
     }
     JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_stopReplay(JNIEnv *env, jobject thiz)
     {
+        if (!replayer) return JNI_FALSE;
         LOGD("stoppingReplay...");
-        return replayer.close();
+        jboolean result = replayer->close();
+        delete replayer; replayer = nullptr;
+        return result;
     }
 
     JNIEXPORT jstring JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_getCalibration(JNIEnv *env, jobject thiz)

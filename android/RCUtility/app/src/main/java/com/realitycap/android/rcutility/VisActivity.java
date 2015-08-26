@@ -186,6 +186,8 @@ public class VisActivity extends TrackerActivity
             return abortTracking("Failed to start replay.");
         }
 
+        surfaceView.startRendering();
+
         showMessage("Replay running...");
         appState = AppState.ReplayVis;
         return true;
@@ -195,6 +197,7 @@ public class VisActivity extends TrackerActivity
     {
         if (appState != AppState.ReplayVis) return;
         showMessage("Stopping ...");
+        surfaceView.stopRendering();
         trackerProxy.stopReplay();
         appState = AppState.Idle;
         showMessage("Stopped.");

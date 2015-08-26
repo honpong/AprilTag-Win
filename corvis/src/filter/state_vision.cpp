@@ -134,13 +134,6 @@ int state_vision_group::process_features(const camera_data & camera, mapper & ma
         }
     }
 
-    if(map.num_features(id) > 10) {
-        int max = 20;
-        int suppression = 1;
-        vector<map_match> matches;
-        map.get_matches(id, matches, max, suppression);
-    }
-
     health = features.children.size();
     if(health < min_feats)
         health = 0;
@@ -331,6 +324,20 @@ int state_vision::process_features(const camera_data & camera, sensor_clock::tim
             if(health > best_health) {
                 best_group = g;
                 best_health = g->health;
+            }
+        }
+
+        if(map.num_features(g->id) > 10) {
+            int max = 20;
+            int suppression = 1;
+            vector<map_match> matches;
+            if(map.get_matches(g->id, matches, max, suppression)) {
+                transformation world(W.v, T.v);
+                transformation group_world = map.get_relative_transformation(0, g->id);
+                transformation group_relative(g->Wr.v, g->Tr.v);
+                transformation new_world = group_world * group_relative;
+                std::cerr << "loop closed: " << new_world;
+                std::cerr << "unclosed: " << world;
             }
         }
     }

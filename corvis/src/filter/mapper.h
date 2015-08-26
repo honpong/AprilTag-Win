@@ -122,8 +122,6 @@ class mapper {
     void print_stats();
     // return the number of features stored in a node
     int num_features(uint64_t group_id);
-    // search all the groups for a similar one
-    void match_group(uint64_t group_id);
 
     void add_node(uint64_t group_id, const transformation &global_orientation);
     void add_feature(uint64_t groupid, uint64_t id, v4 pos, float variance, const descriptor & d);

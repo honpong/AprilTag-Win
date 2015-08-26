@@ -116,33 +116,6 @@ void mapper::add_edge(uint64_t id1, uint64_t id2)
     nodes[id2].get_add_neighbor(id1);
 }
 
-void mapper::match_group(uint64_t id)
-{
-    //fprintf(stderr, "trying to match %llu\n", id);
-    for(auto node : nodes) {
-        if(node.id == id) continue;
-        if(node.features.size() < 10) continue;
-        //TODO match
-        int matches = 0;
-        for(auto f1 : nodes[id].features) {
-            for(auto f2 : node.features) {
-                if(f1->label == f2->label) {
-                    matches++;
-                    break;
-                }
-                /*
-                if(descriptor_dist2(f1->d, f2->d) < 0.7*0.7) {
-                    matches++;
-                    break;
-                }
-                */
-            }
-        }
-        if(0 && matches)
-            fprintf(stderr, "match %d (%lu to %lu) with id %llu\n", matches, nodes[id].features.size(), node.features.size(), node.id);
-    }
-}
-
 int mapper::num_features(uint64_t id)
 {
     return (int)nodes[id].features.size();

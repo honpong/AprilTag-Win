@@ -230,6 +230,13 @@ void mapper::set_reference(uint64_t id) {
     reference = id;
 }
 
+transformation mapper::get_relative_transformation(uint64_t from_id, uint64_t to_id)
+{
+    breadth_first(from_id, 0, NULL);
+
+    return nodes[to_id].transform.transform;
+}
+
 void mapper::set_relative_transformation(const transformation &T) {
     relative_transformation = T;
 }

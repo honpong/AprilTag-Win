@@ -106,6 +106,7 @@ class mapper {
     mapper();
     void add_edge(uint64_t id1, uint64_t id2);
     void set_relative_transformation(const transformation &T);
+    transformation get_relative_transformation(uint64_t id1, uint64_t id2);
     void set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform);
     // uses diffuse_matches and tf_idf_match
     bool get_matches(uint64_t id, vector<map_match> &matches, int max, int suppression);

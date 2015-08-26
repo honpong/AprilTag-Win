@@ -248,7 +248,8 @@ extern "C"
 
     JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_startReplay(JNIEnv *env, jobject thiz, jstring absFilePath)
     {
-        rc_stopTracker(tracker); // Stop the live tracker
+        if (tracker) rc_stopTracker(tracker); // Stop the live tracker
+
         const char *cString = env->GetStringUTFChars(absFilePath, 0);
         LOGD("startReplay: %s", cString);
         auto result = (jboolean)replayer.open(cString);

@@ -1,6 +1,5 @@
 rm -f          /tmp/tracker.zip
 git archive -o /tmp/tracker.zip HEAD -- RCUtility
-zip            /tmp/tracker.zip         RCUtility/app/src/main/jniLibs/{*.h,*/*.so}
 zip            /tmp/tracker.zip         rc_replay/{README,*.cpp,src/*.{cpp,h},lib/*/*.so}
 (
  rm -rf                                                             /tmp/rc_replay

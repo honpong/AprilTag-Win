@@ -56,7 +56,8 @@ private:
     arcball arc;
     bool is_rotating;
 
-    int initial_offset;
+    double start_scale;
+    double start_offset;
     bool is_scrolling;
 
 public:

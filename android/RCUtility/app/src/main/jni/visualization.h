@@ -56,6 +56,10 @@ private:
     arcball arc;
     bool is_rotating;
 
+    double start_scale;
+    double start_offset;
+    bool is_scrolling;
+
 public:
 
     visualization(render_data * data);
@@ -67,6 +71,7 @@ public:
     void mouse_move(double x, double y);
     void mouse_up();
     void scroll(double offset);
+    void scroll_done();
 };
 
 #endif

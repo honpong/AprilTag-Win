@@ -400,5 +400,6 @@ extern "C"
     {
         if (!tracker) return;
         LOGV("handlePinchEnd()");
+        vis.scroll_done();
     }
 }

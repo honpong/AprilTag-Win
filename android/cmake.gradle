@@ -8,6 +8,7 @@ task rcHeader(type: Copy) {
 task rcSource(type: Copy, dependsOn: rcHeader) {
     from "../../../corvis/src/tools/rc_replay.cpp"
     from "../../../corvis/src/tracker/README"
+    rename "rc_replay.cpp", "main.cpp"
     into "../../rc_replay"
 }
 task rcRelease(type: Copy, dependsOn: [rcHeader, rcSource]) {

@@ -201,7 +201,21 @@ void visualization::mouse_up()
 
 void visualization::scroll(double offset)
 {
-    scale *= (1 + (float)offset*.05f);
+    if (is_scrolling)
+    {
+        scale = start_scale * start_offset / offset;
+    }
+    else
+    {
+        start_offset = offset;
+        start_scale = scale;
+    }
+    is_scrolling = true;
+}
+
+void visualization::scroll_done()
+{
+    is_scrolling = false;
 }
 
 #if 0
@@ -243,7 +257,7 @@ void visualization::teardown()
 }
 
 visualization::visualization(render_data * _data)
-    : data(_data), scale(initial_scale), width(640), height(480), is_rotating(false)
+    : data(_data), scale(initial_scale), width(640), height(480), is_rotating(false), is_scrolling(false)
 {
     static_gui = this;
 }

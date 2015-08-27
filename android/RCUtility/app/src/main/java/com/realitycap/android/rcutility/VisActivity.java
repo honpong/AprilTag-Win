@@ -183,7 +183,7 @@ public class VisActivity extends TrackerActivity
 
         if (!trackerProxy.startReplay(absFilePath))
         {
-            return abortTracking("Failed to start replay.");
+            return abortTracking("Failed to start replay. Is there a calibration.json in the same directory?");
         }
 
         surfaceView.startRendering();

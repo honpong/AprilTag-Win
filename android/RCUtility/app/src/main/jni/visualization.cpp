@@ -201,7 +201,16 @@ void visualization::mouse_up()
 
 void visualization::scroll(double offset)
 {
-    scale *= (1 + (float)offset*.05f);
+    if (is_scrolling)
+        scale *= (1 + (float)(offset - initial_offset)*.05f);
+    else
+        initial_offset = offset;
+    is_scrolling = true;
+}
+
+void visualization::scroll_done()
+{
+    is_scrolling = false;
 }
 
 #if 0

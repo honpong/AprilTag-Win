@@ -91,7 +91,7 @@ float mapper::one_to_one_idf_score(const list<map_feature *> &hist1, const list<
     return score;
 }
 
-mapper::mapper(): no_search(false), feature_dictionary(corvis_dimension, corvis_num_centers, corvis_centers)
+mapper::mapper(): feature_count(0), no_search(false), feature_dictionary(corvis_dimension, corvis_num_centers, corvis_centers)
 {
     int dict_size = feature_dictionary.get_num_centers();
     map_node::histogram_size = dict_size;

@@ -66,7 +66,7 @@ float mapper::tf_idf_score(const list<map_feature *> &hist1, const list<map_feat
         while(first != hist1.end() && (*first)->label == label) { ++first; ++count1; }
         while(second != hist2.end() && (*second)->label < label) ++second;
         while(second != hist2.end() && (*second)->label == label) { ++second; ++count2; }
-        float idf = log(nodes.size() / document_frequency[label]);
+        float idf = log(1.f * nodes.size() / document_frequency[label]);
         score += count1 * count2 * idf;
     }
     return score;

@@ -287,6 +287,8 @@ static bool map_feature_compare(const map_feature *first, const map_feature *sec
 
 void mapper::joint_histogram(int node, list<map_feature *> &histogram)
 {
+    list<map_feature *> copy(nodes[node].features);
+    histogram.merge(copy, map_feature_compare);
     for(list<map_edge>::iterator edge = nodes[node].edges.begin(); edge != nodes[node].edges.end(); ++edge) {
         list<map_feature *> neighbor_copy(nodes[edge->neighbor].features);
         histogram.merge(neighbor_copy, map_feature_compare);

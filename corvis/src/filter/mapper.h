@@ -86,7 +86,7 @@ class mapper {
     //unused
     float one_to_one_idf_score(const list<map_feature *> &hist1, const list<map_feature *> &hist2);
 
-    void diffuse_matches(vector<float> &matches, vector<map_match> &diffusion, int max, int unrecent);
+    void diffuse_matches(uint64_t id, vector<float> &matches, vector<map_match> &diffusion, int max, int unrecent);
     void joint_histogram(int node, list<map_feature *> &histogram);
 
     float tf_idf_score(const list<map_feature *> &hist1, const list<map_feature *> &hist2);

@@ -269,11 +269,14 @@ void mapper::tf_idf_match(vector<float> &matches, const list<map_feature *> &his
     }
 }
 
-void mapper::diffuse_matches(vector<float> &matches, vector<map_match> &result, int max, int unrecent)
+void mapper::diffuse_matches(uint64_t node_id, vector<float> &matches, vector<map_match> &result, int max, int unrecent)
 {
     //mark the nodes that are too close to this one
     for(int i = 0; i < matches.size(); ++i) {
-        if(nodes[i].depth <= unrecent) continue;
+        if(nodes[i].id == node_id) continue; // Can't match ourselves
+        // parent == -1 means we didn't reach it in a breadth first
+        // traversal from the current node
+        if(nodes[i].depth <= unrecent && nodes[i].parent != -1) continue;
         float num = matches[i];
         int denom = nodes[i].terms;
         for(list<map_edge>::iterator edge = nodes[i].edges.begin(); edge != nodes[i].edges.end(); ++edge) {
@@ -377,7 +380,7 @@ bool mapper::get_matches(uint64_t id, vector<map_match> &matches, int max, int s
     vector<float> scores;
     joint_histogram(id, histogram);
     tf_idf_match(scores, histogram);
-    diffuse_matches(scores, matches, max, suppression);
+    diffuse_matches(id, scores, matches, max, suppression);
     int best = 0;
     transformation_variance bestg;
     int bestid;

@@ -390,7 +390,7 @@ bool mapper::get_matches(uint64_t id, vector<map_match> &matches, int max, int s
         transformation_variance g;
         int score = 0;
         float theta = 0.;
-        score = check_for_matches(id, matches[i].id, g, threshhold);
+        score = new_check_for_matches(id, matches[i].id, g, threshhold);
         matches[i].score = score;
         matches[i].g = g.transform;
         if(score > best) {

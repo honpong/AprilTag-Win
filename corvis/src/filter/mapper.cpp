@@ -440,6 +440,7 @@ static float sift_distance(const map_feature &first, const map_feature &second) 
 }
 
 void assign_matches(list<local_feature> &f1, list<local_feature> &f2, list<match_pair> &matches) {
+    const float max_sift_distance_2 = 0.9*0.9;
     for(list<local_feature>::iterator fi1 = f1.begin(); fi1 != f1.end(); ++fi1) {
         float best_score = FLT_MAX;
         list<local_feature>::iterator best = f2.end();
@@ -451,7 +452,7 @@ void assign_matches(list<local_feature> &f1, list<local_feature> &f2, list<match
                 best = candidate;
             }
         }
-        if(best != f2.end() /*&& best < max_sift_distance_2*/) {
+        if(best != f2.end() && best_score < max_sift_distance_2) {
             matches.push_back((match_pair){ *fi1, *best, best_score });
             f2.erase(best);
         }

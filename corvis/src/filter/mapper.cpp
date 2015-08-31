@@ -494,11 +494,12 @@ float refine_transformation(const transformation_variance &base, transformation_
             a[2] = 0.;
             v4 b =v4 (local);
             b[2] = 0.;
-            v4 dW = relative_rotation(a, b);
+            rotation_vector dW_rot = to_rotation_vector(rotation_between_two_vectors(a, b));
+            v4 dW = v4(dW_rot.x(), dW_rot.y(), dW_rot.z(), 0);
             //double norm_prod = sum(first * second) / (first.norm() * second.norm());
             //double theta = acos(norm_prod);
             //fprintf(stderr, "%f\n", theta);
-            total_rot += dW;
+            total_rot = total_rot + dW;
             ++inliers;
         }
     }
@@ -521,8 +522,8 @@ bool generate_transformation(const match_pair &match1, const match_pair &match2,
 
     // (second.first.position - first.first.position).print();
     
-    v4 dW = relative_rotation(v4(v2), v4(v1));
-    m4 dR = to_rotation_matrix(rotation_vector(dW[0], dW[1], dW[2]));
+    quaternion q = rotation_between_two_vectors(v2, v1);
+    m4 dR = to_rotation_matrix(q);
     trn.transform = transformation(dR, match1.first.position - dR * match1.second.position);
     return true;
 }

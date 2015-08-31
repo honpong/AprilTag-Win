@@ -217,7 +217,7 @@ transformation mapper::get_relative_transformation(uint64_t from_id, uint64_t to
 {
     breadth_first(from_id, 0, NULL);
 
-    return nodes[to_id].transform.transform;
+    return invert(nodes[to_id].transform.transform) * nodes[from_id].transform.transform;
 }
 
 void mapper::set_relative_transformation(const transformation &T) {

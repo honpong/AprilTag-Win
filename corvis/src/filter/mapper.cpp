@@ -400,6 +400,7 @@ bool mapper::get_matches(uint64_t id, vector<map_match> &matches, int max, int s
             besttheta = theta;
         }
     }
+    sort(matches.begin(), matches.end(), map_match_compare);
     if(best >= threshhold) {
         transformation_variance newT;
         if(brute_force_rotation(id, bestid, newT, threshhold, besttheta-M_PI/6., besttheta+M_PI/6.) >= threshhold) {

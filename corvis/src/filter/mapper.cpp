@@ -163,6 +163,16 @@ uint32_t mapper::project_feature(const descriptor & d)
     return feature_dictionary.quantize(d);
 }
 
+void mapper::update_feature_position(uint64_t groupid, uint64_t id, v4 pos, float variance)
+{
+    for(auto f : nodes[groupid].features) {
+        if(f->id == id) {
+            f->position = pos;
+            f->variance = variance;
+        }
+    }
+}
+
 void mapper::add_feature(uint64_t groupid, uint64_t id, v4 pos, float variance, const descriptor & d)
 {
     uint32_t label = project_feature(d);

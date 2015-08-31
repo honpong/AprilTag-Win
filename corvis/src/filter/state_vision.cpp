@@ -118,6 +118,8 @@ int state_vision_group::process_features(const camera_data & camera, mapper & ma
     for(auto f : features.children) {
         float stdev = (float)f->v.stdev_meters(sqrt(f->variance()));
         bool good = stdev / f->v.depth() < .1;
+        if((good || f->is_good()) && f->descriptor_valid)
+            map.update_feature_position(id, f->id, f->Xcamera, f->variance());
         if((good || f->is_good()) && !f->descriptor_valid) {
             //fprintf(stderr, "feature %llu good\n", f->id);
             //TODO: Compute descriptor, is is_good good enough?

@@ -56,6 +56,7 @@ map_node(): terms(0), depth(0), parent(-1) {}
 struct map_match {
     uint64_t id;
     float score;
+    transformation g;
 };
 
 struct local_feature {

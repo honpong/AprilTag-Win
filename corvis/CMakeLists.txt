@@ -58,6 +58,7 @@ if(YES)
       test/filter/calibration_json_store.cpp
       test/filter/tpose.cpp
       test/filter/dictionary.cpp
+      test/filter/mapper.cpp
       test/cor/sensor_fusion_queue.cpp
     )
     set_property(TARGET spec PROPERTY CXX_STANDARD 14)

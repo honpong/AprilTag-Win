@@ -331,7 +331,7 @@ int state_vision::process_features(const camera_data & camera, sensor_clock::tim
 
         if(map.num_features(g->id) > 10) {
             int max = 20;
-            int suppression = 1;
+            int suppression = 2;
             vector<map_match> matches;
             if(map.get_matches(g->id, matches, max, suppression)) {
                 transformation world(W.v, T.v);

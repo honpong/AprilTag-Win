@@ -539,10 +539,12 @@ int mapper::new_check_for_matches(uint64_t id1, uint64_t id2, transformation_var
 {
     //get all features for each group and its neighbors into the local frames
     list<local_feature> f1, f2;
+    //Compute the relative transformation to neighbors
     nodes[id1].transform = transformation_variance();
     nodes[id2].transform = transformation_variance();
     breadth_first(id1, 1, NULL);
     breadth_first(id2, 1, NULL);
+    //Get all features into a local frame
     localize_features(nodes[id1], f1);
     localize_features(nodes[id2], f2);
     //ONLY look for matches in THIS group
@@ -551,6 +553,7 @@ int mapper::new_check_for_matches(uint64_t id1, uint64_t id2, transformation_var
     //BUT, check support on ENTIRE neighborhood.
     f1.clear();
     f2.clear();
+    //Get all node and neighbor features into a local frame
     localize_features(nodes[id1], f1);
     localize_features(nodes[id2], f2);
     localize_neighbor_features(id1, f1);
@@ -558,6 +561,9 @@ int mapper::new_check_for_matches(uint64_t id1, uint64_t id2, transformation_var
     list<match_pair> neighbor_matches;
     assign_matches(f1, f2, neighbor_matches);
     int best_score = 0;
+    // Now use node matches to generate transformations, then count
+    // inliers in the neighbor matches
+    // TODO: Why shouldn't this include neighbors to generate matches?
     for(list<match_pair>::iterator match1 = matches.begin(); match1 != matches.end(); ++match1) {
         list<match_pair>::iterator match2 = match1;
         ++match2;

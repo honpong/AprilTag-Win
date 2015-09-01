@@ -404,12 +404,15 @@ bool mapper::get_matches(uint64_t id, vector<map_match> &matches, int max, int s
     }
     sort(matches.begin(), matches.end(), map_match_compare);
     if(best >= threshhold) {
-        transformation_variance newT;
+        found = true;
+        transformation_variance newT = bestg;
+        /*
         if(brute_force_rotation(id, bestid, newT, threshhold, besttheta-M_PI/6., besttheta+M_PI/6.) >= threshhold) {
             fprintf(stderr, "****************** %llu - %d ********************\n", id, bestid);
             found = true;
             internal_set_geometry(id, bestid, newT);
         }
+        */
     }
     return found;
 }

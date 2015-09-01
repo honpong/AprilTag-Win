@@ -29,6 +29,8 @@ struct map_edge {
 
 struct map_feature {
     uint64_t id;
+    // map_feature position is the position relative to a camera with
+    // one of images axes oriented to match gravity (world z axis)
     v4 position;
     float variance;
     uint32_t label;
@@ -45,13 +47,19 @@ struct map_node {
     map_edge &get_add_neighbor(uint64_t neighbor);
     int terms;
     list<map_feature *> features; //sorted by label
-    int depth; //used in traversal
+    bool add_feature(const uint64_t id, const v4 &p, const float v, const uint32_t l, const descriptor & d);
+
+    // Rotation to align one axis of the camera with gravity
+    quaternion global_orientation;
+    // Global transformation from camera to world
+    transformation_variance global_transformation;
+
+    // temporary variables used in breadth first
+    int depth;
     int parent;
     transformation_variance transform;
-    transformation_variance global_transformation;
-    quaternion global_orientation;
+
 map_node(): terms(0), depth(0), parent(-1) {}
-    bool add_feature(const uint64_t id, const v4 &p, const float v, const uint32_t l, const descriptor & d);
 };
 
 struct map_match {

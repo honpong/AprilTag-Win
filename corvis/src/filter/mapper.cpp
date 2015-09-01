@@ -518,18 +518,20 @@ float refine_transformation(const transformation_variance &base, transformation_
 //this just checks matches -- external bits need to make sure not to send it something too close
 bool generate_transformation(const match_pair &match1, const match_pair &match2, transformation_variance &trn)
 {
-    v4 v1 = match2.first.position - match1.first.position,
-       v2 = match2.second.position - match1.second.position;
+    transformation center1, center2;
+    center1.T = -match1.first.position;
+    center2.T = -match1.second.position;
+    v4 v1 = center1*match2.first.position;
+    v4 v2 = center2*match2.second.position;
     float d1 = v1.norm(),
           d2 = v2.norm();
     float thresh = 3. * sqrt(match1.first.feature->variance + match1.second.feature->variance + match2.first.feature->variance + match2.second.feature->variance);
     if(fabs(d1-d2) > thresh) return false;
 
-    // (second.first.position - first.first.position).print();
-    
     quaternion q = rotation_between_two_vectors(v2, v1);
-    m4 dR = to_rotation_matrix(q);
-    trn.transform = transformation(dR, match1.first.position - dR * match1.second.position);
+    transformation rotation(q, v4(0,0,0,0));
+    transformation aggregate = compose(invert(center1), compose(rotation, center2));
+    trn.transform = aggregate;
     return true;
 }
 

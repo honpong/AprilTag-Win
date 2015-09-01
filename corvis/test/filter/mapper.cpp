@@ -56,3 +56,20 @@ TEST(Mapper, RTZ)
     EXPECT_QUATERNION_NEAR(g.Q, matches[0].g.Q, 4*F_T_EPS);
     EXPECT_V4_NEAR(g.T, matches[0].g.T, 4*F_T_EPS);
 }
+
+TEST(Mapper, RTFull)
+{
+    mapper map;
+    quaternion gravity = to_quaternion(rotation_vector(0.3,0.1,0));
+    transformation g(rotation_vector(0,0,0.93), v4(4.1,1.2,0.7,0));
+    fill_map_two_nodes(map, g, gravity);
+    int max = 20;
+    int suppression = 2;
+    vector<map_match> matches;
+    bool result = map.get_matches(1, matches, max, suppression);
+    EXPECT_TRUE(result);
+    EXPECT_TRUE(matches.size() > 0);
+    EXPECT_EQ(matches[0].id, 0);
+    EXPECT_QUATERNION_NEAR(g.Q, matches[0].g.Q, 4*F_T_EPS);
+    EXPECT_V4_NEAR(g.T, matches[0].g.T, 4*F_T_EPS);
+}

@@ -159,7 +159,7 @@ void world_state::receive_camera(const filter * f, camera_data &&d)
         for(auto edge : map_node.edges) {
             neighbors.push_back(edge.neighbor);
         }
-        observe_map_node(d.timestamp, map_node.id, map_node.finished, map_node.global_orientation.transform, neighbors);
+        observe_map_node(d.timestamp, map_node.id, map_node.finished, map_node.global_transformation.transform, neighbors);
     }
 
     v4 T = f->s.T.v;

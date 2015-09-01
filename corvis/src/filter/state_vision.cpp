@@ -403,7 +403,10 @@ void state_vision::project_new_group_covariance(const state_vision_group &g)
 state_vision_group * state_vision::add_group(sensor_clock::time_point time)
 {
     state_vision_group *g = new state_vision_group();
-    map.add_node(g->id, transformation(W.v, T.v));
+    //TODO: This should actually be gravity
+    quaternion gravity;
+    map.add_node(g->id, gravity);
+    map.set_node_geometry(g->id, transformation(W.v, T.v));
     for(state_vision_group *neighbor : groups.children) {
         // Adds a symmetric edge
         map.add_edge(g->id, neighbor->id);

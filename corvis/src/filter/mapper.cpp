@@ -121,12 +121,12 @@ int mapper::num_features(uint64_t id)
     return (int)nodes[id].features.size();
 }
 
-void mapper::add_node(uint64_t id, const transformation & T)
+void mapper::add_node(uint64_t id, const quaternion & gravity)
 {
     if(nodes.size() <= id) nodes.resize(id + 1);
     nodes[id].id = id;
     nodes[id].parent = -1;
-    set_node_geometry(id, T);
+    set_node_orientation(id, gravity);
 }
 
 
@@ -136,7 +136,8 @@ map_feature::map_feature(const uint64_t _id, const v4 &p, const float v, const u
 
 bool map_node::add_feature(const uint64_t id, const v4 &pos, const float variance, const uint32_t label, const descriptor & d)
 {
-    map_feature *feat = new map_feature(id, pos, variance, label, d);
+    // position is rotated by gravity
+    map_feature *feat = new map_feature(id, global_orientation*pos, variance, label, d);
     list<map_feature *>::iterator feature;
     for(feature = features.begin(); feature != features.end(); ++feature) {
         if((*feature)->label >= label) break;
@@ -167,7 +168,8 @@ void mapper::update_feature_position(uint64_t groupid, uint64_t id, v4 pos, floa
 {
     for(auto f : nodes[groupid].features) {
         if(f->id == id) {
-            f->position = pos;
+            // position is rotated by gravity
+            f->position = nodes[groupid].global_orientation * pos;
             f->variance = variance;
         }
     }
@@ -736,11 +738,16 @@ void mapper::print_stats()
     fprintf(stderr, "features: %llu\n", feature_count);
 }
 
+void mapper::set_node_orientation(uint64_t id, const quaternion & q)
+{
+    nodes[id].global_orientation = q;
+}
+
 void mapper::set_node_geometry(uint64_t id, const transformation &global)
 {
-    transformation_variance global_orientation;
-    global_orientation.transform = global;
-    nodes[id].global_orientation = global_orientation;
+    transformation_variance global_transformation;
+    global_transformation.transform = global;
+    nodes[id].global_transformation = global_transformation;
 }
 
 void mapper::node_finished(uint64_t id, const transformation &global)

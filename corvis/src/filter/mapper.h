@@ -48,7 +48,8 @@ struct map_node {
     int depth; //used in traversal
     int parent;
     transformation_variance transform;
-    transformation_variance global_orientation;
+    transformation_variance global_transformation;
+    quaternion global_orientation;
 map_node(): terms(0), depth(0), parent(-1) {}
     bool add_feature(const uint64_t id, const v4 &p, const float v, const uint32_t l, const descriptor & d);
 };
@@ -117,14 +118,15 @@ class mapper {
     void add_matches(vector<int> &matches, const vector<int> &histogram);*/
     void dump_map(const char *filename);
     void train_dictionary() const;
-    void set_node_geometry(uint64_t id, const transformation &global_orientation);
-    void node_finished(uint64_t id, const transformation &global_orientation);
+    void set_node_geometry(uint64_t id, const transformation &global_transformation);
+    void set_node_orientation(uint64_t id, const quaternion & q);
+    void node_finished(uint64_t id, const transformation &global_transformation);
     bool no_search;
     void print_stats();
     // return the number of features stored in a node
     int num_features(uint64_t group_id);
 
-    void add_node(uint64_t group_id, const transformation &global_orientation);
+    void add_node(uint64_t group_id, const quaternion &gravity);
     void add_feature(uint64_t groupid, uint64_t id, v4 pos, float variance, const descriptor & d);
     void update_feature_position(uint64_t groupid, uint64_t id, v4 pos, float variance);
     uint32_t project_feature(const descriptor & d);

@@ -276,9 +276,9 @@ void mapper::diffuse_matches(uint64_t node_id, vector<float> &matches, vector<ma
     //mark the nodes that are too close to this one
     for(int i = 0; i < matches.size(); ++i) {
         if(nodes[i].id == node_id) continue; // Can't match ourselves
-        // parent == -1 means we didn't reach it in a breadth first
-        // traversal from the current node
-        if(nodes[i].depth <= unrecent && nodes[i].parent != -1) continue;
+        // depth == 0 and nodes[i].id != node_id means we didn't reach
+        // it in a breadth first traversal from the current node
+        if(nodes[i].depth != 0 && nodes[i].depth <= unrecent) continue;
         float num = matches[i];
         int denom = nodes[i].terms;
         for(list<map_edge>::iterator edge = nodes[i].edges.begin(); edge != nodes[i].edges.end(); ++edge) {
@@ -376,6 +376,8 @@ bool mapper::get_matches(uint64_t id, vector<map_match> &matches, int max, int s
     nodes[id].match_attempted = true;
     //rebuild the map relative to the current node
     nodes[id].transform = transformation_variance();
+    for(auto n : nodes)
+        n.depth = 0;
     breadth_first(id, 0, NULL);
 
     list<map_feature *> histogram;

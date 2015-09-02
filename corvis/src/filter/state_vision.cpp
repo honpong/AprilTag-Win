@@ -425,8 +425,7 @@ void state_vision::update_map_node(state_vision_group * node)
 state_vision_group * state_vision::add_group(sensor_clock::time_point time)
 {
     state_vision_group *g = new state_vision_group();
-    //TODO: This should actually be gravity
-    quaternion gravity;
+    quaternion gravity = to_quaternion(W.v);
     map.add_node(g->id, gravity);
     update_map_node(g);
     for(state_vision_group *neighbor : groups.children) {

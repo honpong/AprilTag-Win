@@ -342,6 +342,14 @@ int state_vision::process_features(const camera_data & camera, sensor_clock::tim
                 transformation new_world = group_world * group_relative;
                 std::cerr << "loop closed: " << new_world;
                 std::cerr << "unclosed: " << world;
+                if(matches.size() > 0) {
+                    map_match m = matches[0];
+                    fprintf(stderr, "Loop closure: match %llu - %llu %f\n", g->id, m.id, m.score);
+                    std::cerr << m.g << std::endl;
+                    fprintf(stderr, "from the map\n");
+                    transformation relative = map.get_relative_transformation(g->id, m.id);
+                    std::cerr << relative << std::endl;
+                }
             }
         }
     }

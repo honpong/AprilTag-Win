@@ -240,6 +240,7 @@ protected:
 private:
     void project_new_group_covariance(const state_vision_group &vision_group);
     void clear_features_and_groups();
+    void update_map_edge(state_vision_group * from, state_vision_group * to);
 };
 
 typedef state_vision state;

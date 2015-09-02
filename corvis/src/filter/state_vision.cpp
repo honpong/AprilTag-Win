@@ -297,6 +297,11 @@ int state_vision::process_features(const camera_data & camera, sensor_clock::tim
     int normal_groups = 0;
 
     for(state_vision_group *g : groups.children) {
+        // Set the group position relative to its neighbors
+        for(state_vision_group *gn : groups.children) {
+            update_map_edge(g, gn);
+        }
+
         // Delete the features we marked to drop, return the health of
         // the group (the number of features)
         int health = g->process_features(camera, map);
@@ -400,6 +405,19 @@ void state_vision::project_new_group_covariance(const state_vision_group &g)
     }
 }
 
+void state_vision::update_map_edge(state_vision_group * from, state_vision_group * to)
+{
+    // Set the group position relative to its neighbors
+    transformation world(W.v, T.v);
+    transformation from_position(from->Wr.v, from->Tr.v);
+    transformation from_world = world*invert(from_position);
+    transformation to_position(to->Wr.v, to->Tr.v);
+    transformation to_world = world*invert(to_position);
+    transformation_variance tv;
+    tv.transform = invert(to_world)*from_world;
+    map.set_geometry(from->id, to->id, tv);
+}
+
 state_vision_group * state_vision::add_group(sensor_clock::time_point time)
 {
     state_vision_group *g = new state_vision_group();
@@ -408,13 +426,8 @@ state_vision_group * state_vision::add_group(sensor_clock::time_point time)
     map.add_node(g->id, gravity);
     map.set_node_geometry(g->id, transformation(W.v, T.v));
     for(state_vision_group *neighbor : groups.children) {
-        // Adds a symmetric edge
         map.add_edge(g->id, neighbor->id);
-        transformation G(g->Wr.v, g->Tr.v);
-        transformation N(neighbor->Wr.v, neighbor->Tr.v);
-        transformation_variance transform;
-        transform.transform = compose(invert(N), G);
-        map.set_geometry(g->id, neighbor->id, transform);
+        update_map_edge(g, neighbor);
 
         g->old_neighbors.push_back(neighbor->id);
         neighbor->neighbors.push_back(g->id);

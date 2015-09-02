@@ -373,7 +373,6 @@ bool mapper::get_matches(uint64_t id, vector<map_match> &matches, int max, int s
 {
     bool found = false;
     if(nodes[id].match_attempted) return false;
-    nodes[id].match_attempted = true;
     //rebuild the map relative to the current node
     nodes[id].transform = transformation_variance();
     for(auto n : nodes)
@@ -408,6 +407,7 @@ bool mapper::get_matches(uint64_t id, vector<map_match> &matches, int max, int s
     if(best >= threshhold) {
         found = true;
         transformation_variance newT = bestg;
+        nodes[id].match_attempted = true;
         /*
         if(brute_force_rotation(id, bestid, newT, threshhold, besttheta-M_PI/6., besttheta+M_PI/6.) >= threshhold) {
             fprintf(stderr, "****************** %llu - %d ********************\n", id, bestid);

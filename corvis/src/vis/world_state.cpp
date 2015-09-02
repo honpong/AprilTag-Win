@@ -138,6 +138,8 @@ static inline void compute_covariance_ellipse(state_vision_feature * feat, float
 
 void world_state::receive_camera(const filter * f, camera_data &&d)
 {
+    current_timestamp = d.timestamp;
+    current_feature_timestamp = d.timestamp;
     for(auto feat : f->s.features) {
         if(feat->is_valid()) {
             float stdev = (float)feat->v.stdev_meters(sqrt(feat->variance()));

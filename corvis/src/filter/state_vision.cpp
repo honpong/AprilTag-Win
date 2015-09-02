@@ -298,6 +298,7 @@ int state_vision::process_features(const camera_data & camera, sensor_clock::tim
 
     for(state_vision_group *g : groups.children) {
         // Set the group position relative to its neighbors
+        update_map_node(g);
         for(state_vision_group *gn : groups.children) {
             update_map_edge(g, gn);
         }
@@ -305,10 +306,6 @@ int state_vision::process_features(const camera_data & camera, sensor_clock::tim
         // Delete the features we marked to drop, return the health of
         // the group (the number of features)
         int health = g->process_features(camera, map);
-        // Update group position in the map
-        transformation world(W.v, T.v);
-        transformation group_position(g->Wr.v, g->Tr.v);
-        map.set_node_geometry(g->id, compose(world, invert(group_position)));
 
         if(g->status && g->status != group_initializing)
             total_health += health;
@@ -418,13 +415,20 @@ void state_vision::update_map_edge(state_vision_group * from, state_vision_group
     map.set_geometry(from->id, to->id, tv);
 }
 
+void state_vision::update_map_node(state_vision_group * node)
+{
+    transformation world(W.v, T.v);
+    transformation group(node->Wr.v, node->Tr.v);
+    map.set_node_geometry(node->id, world*invert(group));
+}
+
 state_vision_group * state_vision::add_group(sensor_clock::time_point time)
 {
     state_vision_group *g = new state_vision_group();
     //TODO: This should actually be gravity
     quaternion gravity;
     map.add_node(g->id, gravity);
-    map.set_node_geometry(g->id, transformation(W.v, T.v));
+    update_map_node(g);
     for(state_vision_group *neighbor : groups.children) {
         map.add_edge(g->id, neighbor->id);
         update_map_edge(g, neighbor);

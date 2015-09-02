@@ -212,7 +212,7 @@ void observation_vision_feature::predict()
     X = X_unscale * feature->v.invdepth();
 
     feature->world = R * Rrt * (X0_unscale - state_group->Tr.v) + state.T.v;
-    feature->Xcamera = X_unscale;
+    feature->Xcamera = X0_unscale;
     v4 ippred = X / X[2]; //in the image plane
     if(fabs(ippred[2]-1.) > 1.e-7 || ippred[3] != 0.) {
         fprintf(stderr, "FAILURE in feature projection in observation_vision_feature::predict\n");

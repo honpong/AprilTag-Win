@@ -62,7 +62,7 @@ bool sensor_queue<T, size>::push(T&& x)
 template<typename T, int size>
 sensor_clock::time_point sensor_queue<T, size>::get_next_time(const std::unique_lock<std::mutex> &lock, sensor_clock::time_point last_global_dispatched)
 {
-    while(count && storage[readpos].timestamp < last_global_dispatched) {
+    while(count && (storage[readpos].timestamp < last_global_dispatched || storage[readpos].timestamp <= last_out)) {
         pop(lock);
         ++drop_late;
     }

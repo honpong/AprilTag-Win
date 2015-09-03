@@ -497,7 +497,7 @@ void observation_accelerometer::cache_jacobians()
     da_dW = skew3(Rc * Rt * acc) * Rc * Rt_dR_dW;
 #if estimate_camera_extrinsics
     m4 Rc_dRc_dWc = to_spatial_jacobian(state.Wc.v);
-    da_dWc = skew3(Rc * Rt * acc) * Rc_dRc_dWc;
+    da_dWc = -skew3(Rc * Rt * acc) * Rc_dRc_dWc;
     da_dTc = skew3(state.w.v) * skew3(state.w.v) + skew3(state.dw.v);
 #endif
     da_ddw = -skew3(state.Tc.v);

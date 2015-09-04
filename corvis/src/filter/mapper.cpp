@@ -211,10 +211,6 @@ void mapper::set_geometry(uint64_t id1, uint64_t id2, const transformation_varia
     internal_set_geometry(id1, id2, transform);
 }
 
-void mapper::set_reference(uint64_t id) {
-    reference = id;
-}
-
 transformation mapper::get_relative_transformation(uint64_t from_id, uint64_t to_id)
 {
     breadth_first(from_id, 0, NULL);

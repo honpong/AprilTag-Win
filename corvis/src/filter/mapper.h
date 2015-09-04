@@ -84,7 +84,6 @@ class mapper {
  protected:
     vector<transformation_variance> geometry;
     vector<uint64_t> document_frequency;
-    uint64_t reference;
     transformation relative_transformation;
     list<v4> local_features;
     bool unlinked;
@@ -120,7 +119,6 @@ class mapper {
     void set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform);
     // uses diffuse_matches and tf_idf_match
     bool get_matches(uint64_t id, vector<map_match> &matches, int max, int suppression);
-    void set_reference(uint64_t id);
     /*    vector<map_match> *new_query(const vector<int> &histogram, size_t K);
     void delete_query(vector<map_match> *query);
     void add_matches(vector<int> &matches, const vector<int> &histogram);*/

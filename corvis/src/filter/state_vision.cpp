@@ -358,7 +358,6 @@ int state_vision::process_features(const camera_data & camera, sensor_clock::tim
     if(best_group && need_reference) {
         total_health += best_group->make_reference();
         reference = best_group;
-        map.set_reference(best_group->id);
     }
 
     //clean up dropped features and groups

@@ -643,12 +643,7 @@ int mapper::check_for_matches(uint64_t id1, uint64_t id2, transformation_varianc
     for(list<match_pair>::iterator match = matches.begin(); match != matches.end(); ++match) {
         v4 dT = match->first.position - match->second.position;
         int inliers = 0;
-        //v4 var = nodes[id2].transform.variance.get_translation();
         v4 var = nodes[id2].transform.transform.T;
-        /*if(dT[0] * dT[0] > var[0] * 6000.) continue;
-        if(dT[1] * dT[1] > var[1] * 6000.) continue;
-        if(dT[2] * dT[2] > var[2] * 6000.) continue;*/
-        //TODO: propagate T_var, W_var and use that to prune candidate transformations (dT)
         for(list<match_pair>::iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
             v4 error = neighbor_match->first.position - (neighbor_match->second.position + dT);
             float resid = error.norm()*error.norm();
@@ -673,23 +668,10 @@ int mapper::check_for_matches(uint64_t id1, uint64_t id2, transformation_varianc
     relpos.transform = nodes[id2].transform.transform * invert(nodes[id1].transform.transform);
     if(best_score >= min_inliers) {
         float residual = refine_transformation(relpos, dR, dT, neighbor_matches);
-        //residual = refine_transformation(relpos, dR, dT, neighbor_matches);
         relpos = dT * relpos * dR;
     }
     return best_score;
 
-    /*    //choose two potential matches...
-    v4 T1 = p1_1;
-    v4 T2 = p2_1;
-    //project onto x-y plane. once i have constrained refs, just take x-y values
-    f_t pdot = p1_2[0] * p2_2[0] + p1_2[1] * p2_2[1];
-    f_t norm = (p1_2[0] * p1_2[0] + p1_2[1] * p1_2[1]) * (p2_2[0] * p2_2[0] + p2_2[1] * p2_2[1]);
-    f_t theta = acos(pdot / norm);
-    //TODO: check direction
-    v4 W(0., 0., theta, 0.);
-    m4 R = rodrigues(W,NULL);
-    for(*/
-    
 }
 
 void mapper::dump_map(const char *filename)

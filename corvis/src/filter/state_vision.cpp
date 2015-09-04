@@ -123,7 +123,7 @@ int state_vision_group::process_features(const camera_data & camera, mapper & ma
             map.update_feature_position(id, f->id, f->Xcamera, variance_meters);
         if(good && !f->descriptor_valid) {
             float scale = f->v.depth();
-            float radius = 32./scale;
+            float radius = 32./scale * (camera.width / 320.);
             if(radius < 4) {
                 radius = 4;
             }

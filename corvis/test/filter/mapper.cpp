@@ -35,7 +35,7 @@ TEST(Mapper, I)
     bool result = map.get_matches(1, matches, max, suppression);
     EXPECT_TRUE(result);
     EXPECT_TRUE(matches.size() > 0);
-    EXPECT_EQ(matches[0].id, 0);
+    EXPECT_EQ(matches[0].to, 0);
     EXPECT_QUATERNION_NEAR(g.Q, matches[0].g.Q, 4*F_T_EPS);
     EXPECT_V4_NEAR(g.T, matches[0].g.T, 4*F_T_EPS);
 }
@@ -52,7 +52,7 @@ TEST(Mapper, RTZ)
     bool result = map.get_matches(1, matches, max, suppression);
     EXPECT_TRUE(result);
     EXPECT_TRUE(matches.size() > 0);
-    EXPECT_EQ(matches[0].id, 0);
+    EXPECT_EQ(matches[0].to, 0);
     EXPECT_QUATERNION_NEAR(g.Q, matches[0].g.Q, 4*F_T_EPS);
     EXPECT_V4_NEAR(g.T, matches[0].g.T, 4*F_T_EPS);
 }
@@ -69,7 +69,7 @@ TEST(Mapper, RTFull)
     bool result = map.get_matches(1, matches, max, suppression);
     EXPECT_TRUE(result);
     EXPECT_TRUE(matches.size() > 0);
-    EXPECT_EQ(matches[0].id, 0);
+    EXPECT_EQ(matches[0].to, 0);
     EXPECT_QUATERNION_NEAR(g.Q, matches[0].g.Q, 4*F_T_EPS);
     EXPECT_V4_NEAR(g.T, matches[0].g.T, 4*F_T_EPS);
 }

@@ -281,7 +281,7 @@ void mapper::diffuse_matches(uint64_t node_id, vector<float> &matches, vector<ma
             num += matches[edge->neighbor];
             denom += nodes[edge->neighbor].terms;
         }
-        result.push_back((map_match) {(uint64_t)i, num / denom});
+        result.push_back((map_match) {(uint64_t)node_id, (uint64_t)i, num / denom});
         push_heap(result.begin(), result.end(), map_match_compare);
         if(result.size() > max) {
             pop_heap(result.begin(), result.end(), map_match_compare);
@@ -368,7 +368,6 @@ int mapper::brute_force_rotation(uint64_t id1, uint64_t id2, transformation_vari
 bool mapper::get_matches(uint64_t id, vector<map_match> &matches, int max, int suppression)
 {
     bool found = false;
-    if(nodes[id].match_attempted) return false;
     //rebuild the map relative to the current node
     nodes[id].transform = transformation_variance();
     for(auto n : nodes)
@@ -389,13 +388,13 @@ bool mapper::get_matches(uint64_t id, vector<map_match> &matches, int max, int s
         transformation_variance g;
         int score = 0;
         float theta = 0.;
-        score = check_for_matches(id, matches[i].id, g, threshhold);
+        score = check_for_matches(id, matches[i].to, g, threshhold);
         matches[i].score = score;
         matches[i].g = g.transform;
         if(score > best) {
             best = score;
             bestg = g;
-            bestid = matches[i].id;
+            bestid = matches[i].to;
             besttheta = theta;
         }
     }
@@ -403,7 +402,6 @@ bool mapper::get_matches(uint64_t id, vector<map_match> &matches, int max, int s
     if(best >= threshhold) {
         found = true;
         transformation_variance newT = bestg;
-        nodes[id].match_attempted = true;
         //internal_set_geometry(id, bestid, newT);
         if(brute_force_rotation(id, bestid, newT, threshhold, besttheta-M_PI/6., besttheta+M_PI/6.) >= threshhold) {
             fprintf(stderr, "****************** %llu - %d ********************\n", id, bestid);
@@ -412,6 +410,21 @@ bool mapper::get_matches(uint64_t id, vector<map_match> &matches, int max, int s
         }
     }
     return found;
+}
+
+bool mapper::find_closure(vector<map_match> &matches, int max, int suppression)
+{
+    for(int i = 0; i < nodes.size(); i++) {
+        if(nodes[i].finished && !nodes[i].match_attempted && i + 10 < nodes.size()) {
+            //fprintf(stderr, "searching for loop closure for %llu\n", nodes[i].id);
+            nodes[i].match_attempted = true;
+            matches.clear();
+            if(get_matches(nodes[i].id, matches, max, suppression)) {
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 static bool local_feature_compare(const local_feature &first, const local_feature &second) {

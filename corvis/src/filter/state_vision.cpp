@@ -330,27 +330,19 @@ int state_vision::process_features(const camera_data & camera, sensor_clock::tim
                 best_health = g->health;
             }
         }
+    }
 
-        if(map.num_features(g->id) > 10) {
-            int max = 20;
-            int suppression = 2;
-            vector<map_match> matches;
-            if(map.get_matches(g->id, matches, max, suppression)) {
-                transformation world(W.v, T.v);
-                transformation group_world = map.get_relative_transformation(0, g->id);
-                transformation group_relative(g->Wr.v, g->Tr.v);
-                transformation new_world = group_world * group_relative;
-                std::cerr << "loop closed: " << new_world;
-                std::cerr << "unclosed: " << world;
-                if(matches.size() > 0) {
-                    map_match m = matches[0];
-                    fprintf(stderr, "Loop closure: match %llu - %llu %f\n", g->id, m.id, m.score);
-                    std::cerr << m.g << std::endl;
-                    fprintf(stderr, "from the map\n");
-                    transformation relative = map.get_relative_transformation(g->id, m.id);
-                    std::cerr << relative << std::endl;
-                }
-            }
+    int max = 20;
+    int suppression = 2;
+    vector<map_match> matches;
+    if(map.find_closure(matches, max, suppression)) {
+        if(matches.size() > 0) {
+            map_match m = matches[0];
+            fprintf(stderr, "Loop closure: match %llu - %llu %f\n", m.from, m.to, m.score);
+            std::cerr << m.g << std::endl;
+            fprintf(stderr, "from the map\n");
+            transformation relative = map.get_relative_transformation(m.from, m.to);
+            std::cerr << relative << std::endl;
         }
     }
 

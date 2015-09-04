@@ -63,7 +63,8 @@ map_node(): terms(0), depth(0), parent(-1) {}
 };
 
 struct map_match {
-    uint64_t id;
+    uint64_t from;
+    uint64_t to;
     float score;
     transformation g;
 };
@@ -119,6 +120,7 @@ class mapper {
     void set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform);
     // uses diffuse_matches and tf_idf_match
     bool get_matches(uint64_t id, vector<map_match> &matches, int max, int suppression);
+    bool find_closure(vector<map_match> &matches, int max, int suppression);
     /*    vector<map_match> *new_query(const vector<int> &histogram, size_t K);
     void delete_query(vector<map_match> *query);
     void add_matches(vector<int> &matches, const vector<int> &histogram);*/

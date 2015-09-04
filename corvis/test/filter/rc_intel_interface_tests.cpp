@@ -38,7 +38,7 @@ TEST(rc_intel_interface_tests, rc_setCalibration_failure)
 {
     rc_Tracker *tracker = rc_create();
 #ifdef _WIN32
-    EXPECT_FALSE(rc_setCalibration(tracker, L"".c_str()));
+    EXPECT_FALSE(rc_setCalibration(tracker, L""));
 #else
     EXPECT_FALSE(rc_setCalibration(tracker, ""));
 #endif

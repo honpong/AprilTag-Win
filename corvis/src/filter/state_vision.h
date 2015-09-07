@@ -208,6 +208,9 @@ public:
     v4 last_position;
     m4 camera_matrix;
     state_vision_group *reference;
+    uint64_t last_reference{0};
+    v4 last_Tr;
+    rotation_vector last_Wr;
     
     void fill_calibration(const feature_t &initial, f_t &r2, f_t &kr) const {
         r2 = initial.x * initial.x + initial.y * initial.y;
@@ -242,6 +245,8 @@ private:
     void clear_features_and_groups();
     void update_map_edge(state_vision_group * from, state_vision_group * to);
     void update_map_node(state_vision_group * node);
+    transformation get_relative_transformation(const transformation &G);
+    void set_geometry(state_vision_group *g);
 };
 
 typedef state_vision state;

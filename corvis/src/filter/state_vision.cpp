@@ -266,6 +266,32 @@ void state_vision::recover_features()
     }
 }
 
+transformation state_vision::get_relative_transformation(const transformation &G)
+{
+    v4 Tr;
+    rotation_vector Wr;
+    if(reference) {
+        Tr = reference->Tr.v;
+        Wr = reference->Wr.v;
+    } else {
+        Tr = last_Tr;
+        Wr = last_Wr;
+    }
+    transformation Greference(Wr, Tr);
+    return invert(Greference)*G;
+}
+
+void state_vision::set_geometry(state_vision_group *g)
+{
+    if(g->id == 0) return;
+    transformation G = get_relative_transformation(transformation(g->Wr.v, g->Tr.v));
+    uint64_t from = reference?reference->id:last_reference;
+    uint64_t to = g->id;
+    transformation_variance tv;
+    tv.transform = G;
+    map.set_geometry(from, to, tv);
+}
+
 int state_vision::process_features(const camera_data & camera, sensor_clock::time_point time)
 {
     int useful_drops = 0;
@@ -299,9 +325,6 @@ int state_vision::process_features(const camera_data & camera, sensor_clock::tim
     for(state_vision_group *g : groups.children) {
         // Set the group position relative to its neighbors
         update_map_node(g);
-        for(state_vision_group *gn : groups.children) {
-            update_map_edge(g, gn);
-        }
 
         // Delete the features we marked to drop, return the health of
         // the group (the number of features)
@@ -312,8 +335,15 @@ int state_vision::process_features(const camera_data & camera, sensor_clock::tim
 
         // Notify features that this group is about to disappear
         // This sets group_empty (even if group_reference)
-        if(!health)
+        if(!health) {
             g->make_empty();
+            if(g->status == group_reference) {
+                last_reference = g->id;
+                last_Tr = g->Tr.v;
+                last_Wr = g->Wr.v;
+            }
+        }
+        set_geometry(g);
 
         // Found our reference group
         if(g->status == group_reference)
@@ -429,7 +459,6 @@ state_vision_group * state_vision::add_group(sensor_clock::time_point time)
     update_map_node(g);
     for(state_vision_group *neighbor : groups.children) {
         map.add_edge(g->id, neighbor->id);
-        update_map_edge(g, neighbor);
 
         g->old_neighbors.push_back(neighbor->id);
         neighbor->neighbors.push_back(g->id);

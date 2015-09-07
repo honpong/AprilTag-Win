@@ -268,6 +268,7 @@ void sensor_fusion::start_offline()
 
 void sensor_fusion::stop()
 {
+    sfm.s.map.dump_map("map.dot");
     queue->stop_sync();
     isSensorFusionRunning = false;
     isProcessingVideo = false;

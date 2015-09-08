@@ -51,8 +51,6 @@ struct map_node {
 
     // Rotation to align one axis of the camera with gravity
     quaternion global_orientation;
-    // Global transformation from camera to world
-    transformation_variance global_transformation;
 
     // temporary variables used in breadth first
     int depth;
@@ -126,9 +124,8 @@ class mapper {
     void add_matches(vector<int> &matches, const vector<int> &histogram);*/
     void dump_map(const char *filename);
     void train_dictionary() const;
-    void set_node_geometry(uint64_t id, const transformation &global_transformation);
     void set_node_orientation(uint64_t id, const quaternion & q);
-    void node_finished(uint64_t id, const transformation &global_transformation);
+    void node_finished(uint64_t id);
     bool no_search;
     void print_stats();
     // return the number of features stored in a node

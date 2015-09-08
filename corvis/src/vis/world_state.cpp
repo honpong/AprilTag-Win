@@ -156,6 +156,7 @@ void world_state::receive_camera(const filter * f, camera_data &&d)
     observe_image(d.timestamp, d.image, d.width, d.height);
     if(d.depth) observe_depth(d.depth->timestamp, d.depth->image, d.depth->width, d.depth->height);
     
+    /*
     for(auto map_node : f->s.map.nodes) {
         vector<uint64_t> neighbors;
         for(auto edge : map_node.edges) {
@@ -163,6 +164,7 @@ void world_state::receive_camera(const filter * f, camera_data &&d)
         }
         observe_map_node(d.timestamp, map_node.id, map_node.finished, map_node.global_transformation.transform, neighbors);
     }
+    */
 
     v4 T = f->s.T.v;
     quaternion q = to_quaternion(f->s.W.v);

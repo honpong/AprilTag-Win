@@ -747,21 +747,9 @@ void mapper::set_node_orientation(uint64_t id, const quaternion & q)
     nodes[id].global_orientation = q;
 }
 
-void mapper::set_node_geometry(uint64_t id, const transformation &global)
-{
-    transformation_variance global_transformation;
-    global_transformation.transform = global;
-    nodes[id].global_transformation = global_transformation;
-}
-
-void mapper::node_finished(uint64_t id, const transformation &global)
+void mapper::node_finished(uint64_t id)
 {
     nodes[id].finished = true;
-    set_node_geometry(id, global);
-    for(auto edge : nodes[id].edges) {
-        transformation_variance tv = invert(nodes[edge.neighbor].global_transformation)*nodes[id].global_transformation;
-        set_geometry(id, edge.neighbor, tv);
-    }
 }
     
 transformation_variance rodrigues_variance(const v4 &W, const v4 &W_var, const v4 &T, const v4 &T_var)

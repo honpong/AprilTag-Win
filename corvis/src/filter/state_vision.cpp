@@ -323,9 +323,6 @@ int state_vision::process_features(const camera_data & camera, sensor_clock::tim
     int normal_groups = 0;
 
     for(state_vision_group *g : groups.children) {
-        // Set the group position relative to its neighbors
-        update_map_node(g);
-
         // Delete the features we marked to drop, return the health of
         // the group (the number of features)
         int health = g->process_features(camera, map);
@@ -397,9 +394,7 @@ int state_vision::process_features(const camera_data & camera, sensor_clock::tim
 
     groups.children.remove_if([&](state_vision_group *g) {
         if(g->status == group_empty) {
-            transformation world(W.v, T.v);
-            transformation group_position(g->Wr.v, g->Tr.v);
-            map.node_finished(g->id, compose(world, invert(group_position)));
+            map.node_finished(g->id);
             delete g;
             return true;
         } else {
@@ -431,32 +426,11 @@ void state_vision::project_new_group_covariance(const state_vision_group &g)
     }
 }
 
-void state_vision::update_map_edge(state_vision_group * from, state_vision_group * to)
-{
-    // Set the group position relative to its neighbors
-    transformation world(W.v, T.v);
-    transformation from_position(from->Wr.v, from->Tr.v);
-    transformation from_world = world*invert(from_position);
-    transformation to_position(to->Wr.v, to->Tr.v);
-    transformation to_world = world*invert(to_position);
-    transformation_variance tv;
-    tv.transform = invert(to_world)*from_world;
-    map.set_geometry(from->id, to->id, tv);
-}
-
-void state_vision::update_map_node(state_vision_group * node)
-{
-    transformation world(W.v, T.v);
-    transformation group(node->Wr.v, node->Tr.v);
-    map.set_node_geometry(node->id, world*invert(group));
-}
-
 state_vision_group * state_vision::add_group(sensor_clock::time_point time)
 {
     state_vision_group *g = new state_vision_group();
     quaternion gravity = to_quaternion(W.v);
     map.add_node(g->id, gravity);
-    update_map_node(g);
     for(state_vision_group *neighbor : groups.children) {
         map.add_edge(g->id, neighbor->id);
 

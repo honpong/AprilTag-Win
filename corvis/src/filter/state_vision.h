@@ -243,8 +243,6 @@ protected:
 private:
     void project_new_group_covariance(const state_vision_group &vision_group);
     void clear_features_and_groups();
-    void update_map_edge(state_vision_group * from, state_vision_group * to);
-    void update_map_node(state_vision_group * node);
     transformation get_relative_transformation(const transformation &G);
     void set_geometry(state_vision_group *g);
 };

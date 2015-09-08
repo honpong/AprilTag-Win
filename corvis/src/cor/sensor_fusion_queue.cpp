@@ -14,6 +14,32 @@ sensor_queue<T, size>::sensor_queue(std::mutex &mx, std::condition_variable &cnd
 }
 
 template<typename T, int size>
+void sensor_queue<T, size>::reset()
+{
+    period = std::chrono::duration<double, std::micro>(0);
+    last_in = sensor_clock::time_point();
+    last_out = sensor_clock::time_point();
+    
+    drop_full = 0;
+    drop_late = 0;
+    total_in = 0;
+    total_out = 0;
+    stats = stdev_scalar();
+#ifdef DEBUG
+    hist = histogram{200};
+#endif
+    
+    for(int i = 0; i < size; ++i)
+    {
+        storage[i] = T();
+    }
+    
+    readpos = 0;
+    writepos = 0;
+    count = 0;
+}
+
+template<typename T, int size>
 bool sensor_queue<T, size>::push(T&& x)
 {
     std::unique_lock<std::mutex> lock(mutex);
@@ -103,6 +129,20 @@ fusion_queue::fusion_queue(const std::function<void(camera_data &&)> &camera_fun
                 strategy(s),
                 jitter(max_jitter)
 {
+}
+
+void fusion_queue::reset()
+{
+    stop_immediately();
+    wait_until_finished();
+    thread = std::thread();
+
+    accel_queue.reset();
+    gyro_queue.reset();
+    camera_queue.reset();
+    control_func = nullptr;
+    active = false;
+    last_dispatched = sensor_clock::time_point();
 }
 
 fusion_queue::~fusion_queue()
@@ -245,7 +285,7 @@ void fusion_queue::runloop()
     lock.unlock();
 }
 
-sensor_clock::time_point  fusion_queue::global_latest_received() const
+sensor_clock::time_point fusion_queue::global_latest_received() const
 {
     if(camera_queue.last_in >= gyro_queue.last_in && camera_queue.last_in >= accel_queue.last_in) return camera_queue.last_in;
     else if(accel_queue.last_in >= gyro_queue.last_in) return accel_queue.last_in;

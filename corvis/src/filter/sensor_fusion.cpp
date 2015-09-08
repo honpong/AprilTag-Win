@@ -21,20 +21,6 @@ v4 sensor_fusion::filter_to_external_position(const v4& x) const
     return transformation_apply(sfm.origin, x);
 }
 
-void sensor_fusion::flush_and_reset()
-{
-    isSensorFusionRunning = false;
-    queue->stop_sync();
-    queue->dispatch_sync([this]{
-        filter_initialize(&sfm, device);
-    });
-    sfm.camera_control.focus_unlock();
-    sfm.camera_control.release_platform_specific_object();
-    
-    isProcessingVideo = false;
-    processingVideoRequested = false;
-}
-
 RCSensorFusionErrorCode sensor_fusion::get_error()
 {
     RCSensorFusionErrorCode error = RCSensorFusionErrorCodeNone;
@@ -271,13 +257,20 @@ void sensor_fusion::stop()
     queue->stop_sync();
     isSensorFusionRunning = false;
     isProcessingVideo = false;
+    processingVideoRequested = false;
+}
+
+void sensor_fusion::flush_and_reset()
+{
+    stop();
+    filter_initialize(&sfm, device);
+    sfm.camera_control.focus_unlock();
+    sfm.camera_control.release_platform_specific_object();
 }
 
 void sensor_fusion::reset(sensor_clock::time_point time, const transformation &initial_pose_m, bool origin_gravity_aligned)
 {
-    queue->stop_sync();
-    // TODO: we currently ignore initial_pose_m
-    filter_initialize(&sfm, device);
+    flush_and_reset();
     sfm.last_time = time;
     sfm.s.time_update(time); //This initial time update doesn't actually do anything - just sets current time, but it will cause the first measurement to run a time_update relative to this
     sfm.origin_gravity_aligned = origin_gravity_aligned;

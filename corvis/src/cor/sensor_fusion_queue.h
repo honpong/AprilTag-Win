@@ -24,6 +24,7 @@ class sensor_queue
 {
 public:
     sensor_queue(std::mutex &mx, std::condition_variable &cnd, const bool &actv);
+    void reset();
     bool empty() const { return count == 0; }
     bool full() const { return count == size; }
     bool push(T&& x); //Doesn't block. Returns false if the queue is full or data arrived out of order
@@ -89,6 +90,7 @@ public:
                  sensor_clock::duration max_jitter);
     ~fusion_queue();
     
+    void reset();
     void start_async(bool expect_camera);
     void start_sync(bool expect_camera);
     void start_singlethreaded(bool expect_camera);

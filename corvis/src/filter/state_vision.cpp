@@ -118,6 +118,10 @@ int state_vision_group::process_features(const camera_data & camera, mapper & ma
     for(auto f : features.children) {
         float stdev = (float)f->v.stdev_meters(sqrt(f->variance()));
         float variance_meters = stdev*stdev;
+        const float measurement_var = 1.e-2*1.e-2;
+        if(variance_meters < measurement_var)
+            variance_meters = measurement_var;
+
         bool good = stdev / f->v.depth() < .05;
         if(good && f->descriptor_valid)
             map.update_feature_position(id, f->id, f->Xcamera, variance_meters);

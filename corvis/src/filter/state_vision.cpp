@@ -282,7 +282,7 @@ transformation state_vision::get_relative_transformation(const transformation &G
         Wr = last_Wr;
     }
     transformation Greference(Wr, Tr);
-    return invert(Greference)*G;
+    return Greference*invert(G);
 }
 
 void state_vision::set_geometry(state_vision_group *g)

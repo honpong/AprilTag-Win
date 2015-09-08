@@ -337,14 +337,17 @@ int state_vision::process_features(const camera_data & camera, sensor_clock::tim
         // Notify features that this group is about to disappear
         // This sets group_empty (even if group_reference)
         if(!health) {
-            g->make_empty();
             if(g->status == group_reference) {
                 last_reference = g->id;
                 last_Tr = g->Tr.v;
                 last_Wr = g->Wr.v;
+                reference = 0;
             }
+            else {
+                set_geometry(g);
+            }
+            g->make_empty();
         }
-        set_geometry(g);
 
         // Found our reference group
         if(g->status == group_reference)
@@ -378,6 +381,7 @@ int state_vision::process_features(const camera_data & camera, sensor_clock::tim
     }
 
     if(best_group && need_reference) {
+        set_geometry(best_group);
         total_health += best_group->make_reference();
         reference = best_group;
     }

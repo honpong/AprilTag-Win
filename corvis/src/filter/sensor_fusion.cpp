@@ -263,6 +263,7 @@ void sensor_fusion::stop()
 void sensor_fusion::flush_and_reset()
 {
     stop();
+    queue->reset();
     filter_initialize(&sfm, device);
     sfm.camera_control.focus_unlock();
     sfm.camera_control.release_platform_specific_object();

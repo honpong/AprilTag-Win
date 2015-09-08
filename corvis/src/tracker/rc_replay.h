@@ -22,6 +22,7 @@ public:
     rc_Tracker *tracker;
     replay() { tracker = rc_create(); }
     ~replay() { rc_destroy(tracker); tracker = nullptr; }
+    void reset() { rc_reset(tracker, 0, rc_Pose{1,0,0,0, 0,1,0,0, 0,0,1,0}); }
     bool open(const char *name);
     bool run();
     void disable_depth() { depth = false; }

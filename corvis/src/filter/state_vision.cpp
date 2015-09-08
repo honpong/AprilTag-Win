@@ -437,7 +437,7 @@ void state_vision::project_new_group_covariance(const state_vision_group &g)
 state_vision_group * state_vision::add_group(sensor_clock::time_point time)
 {
     state_vision_group *g = new state_vision_group();
-    quaternion gravity = to_quaternion(W.v);
+    quaternion gravity; // identity rotation
     map.add_node(g->id, gravity);
     for(state_vision_group *neighbor : groups.children) {
         map.add_edge(g->id, neighbor->id);

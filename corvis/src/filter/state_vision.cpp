@@ -377,6 +377,8 @@ int state_vision::process_features(const camera_data & camera, sensor_clock::tim
             fprintf(stderr, "from the map\n");
             transformation relative = map.get_relative_transformation(m.from, m.to);
             std::cerr << relative << std::endl;
+            fprintf(stderr, "delta:\n");
+            std::cerr << relative*invert(m.g) << std::endl;
         }
     }
 

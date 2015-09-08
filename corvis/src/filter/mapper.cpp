@@ -272,6 +272,7 @@ void mapper::diffuse_matches(uint64_t node_id, vector<float> &matches, vector<ma
     //mark the nodes that are too close to this one
     for(int i = 0; i < matches.size(); ++i) {
         if(nodes[i].id == node_id) continue; // Can't match ourselves
+        if(!nodes[i].finished) continue; // Can't match unfinished nodes
         // depth == 0 and nodes[i].id != node_id means we didn't reach
         // it in a breadth first traversal from the current node
         if(nodes[i].depth != 0 && nodes[i].depth <= unrecent) continue;

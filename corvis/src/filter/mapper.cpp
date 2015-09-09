@@ -742,13 +742,20 @@ void mapper::print_stats()
     fprintf(stderr, "features: %llu\n", feature_count);
 }
 
+void mapper::set_node_transformation(uint64_t id, const transformation & G)
+{
+    nodes[id].global_transformation = transformation_variance();
+    nodes[id].global_transformation.transform = G;
+}
+
 void mapper::set_node_orientation(uint64_t id, const quaternion & q)
 {
     nodes[id].global_orientation = q;
 }
 
-void mapper::node_finished(uint64_t id)
+void mapper::node_finished(uint64_t id, const transformation & G)
 {
+    set_node_transformation(id, G);
     nodes[id].finished = true;
 }
     

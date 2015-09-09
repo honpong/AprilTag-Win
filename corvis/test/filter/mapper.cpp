@@ -20,11 +20,12 @@ void fill_map_two_nodes(mapper & map, const transformation & g, const quaternion
         map.add_feature(0, i, position, variance, d);
         map.add_feature(1, i+corvis_num_centers, inverse_gravity*g*position, variance, d);
     }
-    map.node_finished(0);
-    map.node_finished(1);
-    map.node_finished(2);
-    map.node_finished(3);
-    map.node_finished(4);
+    transformation Gidentity;
+    map.node_finished(0, Gidentity);
+    map.node_finished(1, Gidentity);
+    map.node_finished(2, Gidentity);
+    map.node_finished(3, Gidentity);
+    map.node_finished(4, Gidentity);
 }
 
 TEST(Mapper, I)

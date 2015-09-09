@@ -49,6 +49,7 @@ struct map_node {
     list<map_feature *> features; //sorted by label
     bool add_feature(const uint64_t id, const v4 &p, const float v, const uint32_t l, const descriptor & d);
 
+    transformation_variance global_transformation;
     // Rotation to align one axis of the camera with gravity
     quaternion global_orientation;
 
@@ -124,8 +125,9 @@ class mapper {
     void add_matches(vector<int> &matches, const vector<int> &histogram);*/
     void dump_map(const char *filename);
     void train_dictionary() const;
+    void set_node_transformation(uint64_t id, const transformation & G);
     void set_node_orientation(uint64_t id, const quaternion & q);
-    void node_finished(uint64_t id);
+    void node_finished(uint64_t id, const transformation & G);
     bool no_search;
     void print_stats();
     // return the number of features stored in a node

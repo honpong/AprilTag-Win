@@ -404,7 +404,8 @@ int state_vision::process_features(const camera_data & camera, sensor_clock::tim
 
     groups.children.remove_if([&](state_vision_group *g) {
         if(g->status == group_empty) {
-            map.node_finished(g->id);
+            transformation G = transformation(W.v, T.v)*invert(transformation(g->Wr.v, g->Tr.v));
+            map.node_finished(g->id, G);
             delete g;
             return true;
         } else {

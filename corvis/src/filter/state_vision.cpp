@@ -367,7 +367,7 @@ int state_vision::process_features(const camera_data & camera, sensor_clock::tim
     }
 
     int max = 20;
-    int suppression = 2;
+    int suppression = 10;
     vector<map_match> matches;
     if(map.find_closure(matches, max, suppression)) {
         if(matches.size() > 0) {

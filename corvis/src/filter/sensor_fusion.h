@@ -110,6 +110,9 @@ public:
      */
     void start_unstable(bool threaded);
 
+    void pause_and_reset_position();
+    void unpause();
+    
     void start_offline();
     
     /** Stops the processing of video and inertial data. */

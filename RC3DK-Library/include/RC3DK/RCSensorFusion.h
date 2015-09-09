@@ -120,6 +120,9 @@
 /** Stops the processing of video and inertial data. */
 - (void) stopSensorFusion;
 
+- (void) pauseSensorFusionAndResetPosition;
+- (void) unpauseSensorFusion;
+
 /** Once sensor fusion has started, video frames should be passed in as they are received from the camera. 
  @param sampleBuffer A CMSampleBufferRef representing a single video frame. You can obtain the sample buffer via the AVCaptureSession class, or you can use RCAVSessionManager to manage the session and pass the frames in for you. In either case, you can retrieve a sample buffer after it has been processed from [RCSensorFusionData sampleBuffer]. If you manage the AVCaptureSession yourself, you must use the 640x480 preset ([AVCaptureSession setSessionPreset:AVCaptureSessionPreset640x480]) and set the output format to 420f ([AVCaptureVideoDataOutput setVideoSettings:[NSDictionary dictionaryWithObject:[NSNumber numberWithInt:'420f'] forKey:(id)kCVPixelBufferPixelFormatTypeKey]]).
  */

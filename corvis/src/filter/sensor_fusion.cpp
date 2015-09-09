@@ -212,11 +212,6 @@ void sensor_fusion::start_calibration(bool thread)
     else queue->start_singlethreaded(false);
 }
 
-/*void sensor_fusion::start_inertial_only()
-{
-    filter_initialize(&sfm, device);
-}*/
-
 void sensor_fusion::start(bool thread)
 {
     threaded = thread;
@@ -237,6 +232,18 @@ void sensor_fusion::start_unstable(bool thread)
     filter_start_dynamic(&sfm);
     if(threaded) queue->start_async(true);
     else queue->start_singlethreaded(true);
+}
+
+void sensor_fusion::pause_and_reset_position()
+{
+    isProcessingVideo = false;
+    queue->dispatch_async([this]() { filter_start_inertial_only(&sfm); });
+}
+
+void sensor_fusion::unpause()
+{
+    isProcessingVideo = true;
+    queue->dispatch_async([this]() { filter_start_dynamic(&sfm); });
 }
 
 void sensor_fusion::start_offline()

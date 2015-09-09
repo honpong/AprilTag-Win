@@ -295,6 +295,8 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, const v4 &
             return f->a_variance;
         case RCSensorFusionRunStateDynamicInitialization:
             return accelerometer_inertial_var;
+        case RCSensorFusionRunStateInertialOnly:
+            return accelerometer_inertial_var;
         case RCSensorFusionRunStateStaticCalibration:
             if(steady_time(f, f->accel_stability, meas, f->a_variance, static_sigma, time, v4(0., 0., 1., 0.), true) > min_steady_time)
             {
@@ -1043,6 +1045,12 @@ void filter_start_dynamic(struct filter *f)
 {
     f->want_start = f->last_time;
     f->run_state = RCSensorFusionRunStateDynamicInitialization;
+}
+
+void filter_start_inertial_only(struct filter *f)
+{
+    f->run_state = RCSensorFusionRunStateInertialOnly;
+    f->s.enable_orientation_only();
 }
 
 #ifdef ENABLE_QR

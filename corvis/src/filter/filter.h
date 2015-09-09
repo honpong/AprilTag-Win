@@ -99,6 +99,7 @@ void filter_compute_gravity(struct filter *f, double latitude, double altitude);
 void filter_start_static_calibration(struct filter *f);
 void filter_start_hold_steady(struct filter *f);
 void filter_start_dynamic(struct filter *f);
+void filter_start_inertial_only(struct filter *f);
 #ifdef ENABLE_QR
 void filter_start_qr_detection(struct filter *f, const std::string& data, float dimension, bool use_gravity);
 void filter_stop_qr_detection(struct filter *f);

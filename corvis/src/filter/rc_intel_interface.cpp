@@ -237,10 +237,15 @@ void rc_startCalibration(rc_Tracker * tracker, rc_TrackerRunFlags run_flags)
     tracker->start_calibration(run_flags == rc_E_ASYNCRONOUS);
 }
 
-/*void rc_startInertialOnly(rc_Tracker * tracker)
+void rc_pauseAndResetPosition(rc_Tracker * tracker)
 {
-    tracker->start_inertial_only();
-}*/
+    tracker->pause_and_reset_position();
+}
+
+void rc_unpause(rc_Tracker *tracker)
+{
+    tracker->unpause();
+}
 
 void rc_startTracker(rc_Tracker * tracker, rc_TrackerRunFlags run_flags)
 {

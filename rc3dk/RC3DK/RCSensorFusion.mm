@@ -365,6 +365,20 @@
     [self flushAndReset];
 }
 
+- (void) pauseSensorFusionAndResetPosition
+{
+    queue->dispatch_async([self]{
+        filter_start_inertial_only(&_cor_setup->sfm);
+    });
+}
+
+- (void) unpauseSensorFusion
+{
+    queue->dispatch_async([self]{
+        filter_start_dynamic(&_cor_setup->sfm);
+    });
+}
+
 #pragma mark - RCSensorFusionDelegate handling
 
 - (void) sendStatus

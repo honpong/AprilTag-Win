@@ -13,12 +13,12 @@
 transformation sensor_fusion::get_transformation() const
 {
     transformation filter_transform(to_quaternion(sfm.s.W.v), sfm.s.T.v);    
-    return compose(sfm.origin, filter_transform);
+    return compose(sfm.origin, compose(sfm.s.loop_offset, filter_transform));
 }
 
 v4 sensor_fusion::filter_to_external_position(const v4& x) const
 {
-    return transformation_apply(sfm.origin, x);
+    return transformation_apply(compose(sfm.origin, sfm.s.loop_offset), x);
 }
 
 void sensor_fusion::flush_and_reset()

@@ -211,6 +211,9 @@ public:
     uint64_t last_reference{0};
     v4 last_Tr;
     rotation_vector last_Wr;
+
+    transformation loop_offset;
+    bool loop_closed{false};
     
     void fill_calibration(const feature_t &initial, f_t &r2, f_t &kr) const {
         r2 = initial.x * initial.x + initial.y * initial.y;

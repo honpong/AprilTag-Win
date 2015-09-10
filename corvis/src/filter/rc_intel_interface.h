@@ -163,7 +163,7 @@ RCTRACKER_API void rc_pauseAndResetPosition(rc_Tracker *tracker);
 /**
  Resumes full tracker operation.
  */
-RCTRACKER_API Nvoid rc_unpause(rc_Tracker *tracker);
+RCTRACKER_API void rc_unpause(rc_Tracker *tracker);
 
 /**
  Starts the tracker.

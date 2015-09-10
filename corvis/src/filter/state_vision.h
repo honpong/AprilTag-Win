@@ -17,7 +17,6 @@ extern "C" {
 #include "state_motion.h"
 #include "tracker.h"
 #include "../cor/platform/sensor_clock.h"
-#include "feature_cache.h"
 #include "feature_descriptor.h"
 #include "mapper.h"
 #include "../cor/sensor_data.h"
@@ -80,7 +79,6 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     descriptor descriptor;
     bool descriptor_valid{false};
 
-    float recovered_score;
     float last_variance;
 
     static f_t initial_depth_meters;
@@ -195,7 +193,6 @@ public:
 
     state_branch<state_vision_group *> groups;
     list<state_vision_feature *> features;
-    feature_cache cache;
     mapper map;
     
     state_vision(covariance &c);
@@ -230,13 +227,10 @@ public:
     feature_t project_feature(const feature_t &feat) const;
     feature_t unproject_feature(const feature_t &feat) const;
     float median_depth_variance();
-    void recover_features();
     
     virtual void reset();
     void reset_position();
 
-    bool recovered;
-    
 protected:
     virtual void add_non_orientation_states();
     virtual void remove_non_orientation_states();

@@ -151,7 +151,7 @@ void world_state::receive_camera(const filter * f, camera_data &&d)
             observe_feature(d.timestamp, feat->id,
                             (float)world[0], (float)world[1], (float)world[2],
                             (float)feat->current[0], (float)feat->current[1],
-                            cx, cy, ctheta, good, feat->recovered_score);
+                            cx, cy, ctheta, good);
         }
     }
     observe_image(d.timestamp, d.image, d.width, d.height);
@@ -342,11 +342,7 @@ void world_state::update_vertex_arrays(bool show_only_good)
         //auto feature_id = item.first;
         auto f = item.second;
         if (f.last_seen == current_feature_timestamp) {
-            if(f.recovered_score > 0) {
-                generate_feature_ellipse(f, 247, 247, 98, 255);
-                set_color(&feature_vertex[idx], 247, 247, 98, 255);
-            }
-            else if(f.good) {
+            if(f.good) {
                 generate_feature_ellipse(f, 88, 247, 98, 255);
                 set_color(&feature_vertex[idx], 88, 247, 98, 255);
             }
@@ -481,7 +477,7 @@ std::string world_state::get_feature_stats()
     return os.str();
 }
 
-void world_state::observe_feature(sensor_clock::time_point timestamp, uint64_t feature_id, float x, float y, float z, float image_x, float image_y, float cx, float cy, float ctheta, bool good, float recovered_score)
+void world_state::observe_feature(sensor_clock::time_point timestamp, uint64_t feature_id, float x, float y, float z, float image_x, float image_y, float cx, float cy, float ctheta, bool good)
 {
     Feature f;
     f.x = x;
@@ -495,7 +491,6 @@ void world_state::observe_feature(sensor_clock::time_point timestamp, uint64_t f
     f.last_seen = timestamp;
     f.good = good;
     f.times_seen = 1;
-    f.recovered_score = recovered_score;
     display_lock.lock();
     if(timestamp > current_feature_timestamp)
         current_feature_timestamp = timestamp;

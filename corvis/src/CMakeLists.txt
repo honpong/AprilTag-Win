@@ -118,8 +118,6 @@ add_library(filter STATIC
   filter/sensor_fusion.cpp
   filter/capture.cpp
   filter/replay.cpp
-  filter/feature_cache.h
-  filter/feature_cache.cpp
   filter/feature_descriptor.h
   filter/feature_descriptor.cpp
   filter/mapper.h

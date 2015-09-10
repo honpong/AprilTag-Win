@@ -496,6 +496,9 @@ float refine_transformation(const transformation_variance &base, transformation_
     }
     assert(inliers);
     dT.transform.T = dT.transform.T + total_dT / inliers;
+    return 0;
+
+    //TODO: Fix this
     //double total_theta;
     total = invert(dT * base * dR);
     v4 total_rot;

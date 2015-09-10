@@ -409,6 +409,7 @@ bool mapper::get_matches(uint64_t id, vector<map_match> &matches, int max, int s
             fprintf(stderr, "****************** %llu - %d ********************\n", id, bestid);
             found = true;
             //internal_set_geometry(id, bestid, newT);
+            matches[0].g = newT.transform;
         }
     }
     return found;

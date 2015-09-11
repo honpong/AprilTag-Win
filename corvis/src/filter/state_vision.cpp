@@ -109,8 +109,6 @@ void state_vision_group::make_empty()
 
 int state_vision_group::process_features(const camera_data & camera, mapper & map)
 {
-    //TODO Maybe add dropped features to a list here to keep them in
-    //the map?
     features.children.remove_if([&](state_vision_feature *f) {
         return f->should_drop();
     });

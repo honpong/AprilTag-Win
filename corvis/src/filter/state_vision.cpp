@@ -226,25 +226,17 @@ void state_vision::reset_position()
     last_position = v4::Zero();
 }
 
-transformation state_vision::get_relative_transformation(const transformation &G)
-{
-    v4 Tr;
-    rotation_vector Wr;
-    if(reference) {
-        Tr = reference->Tr.v;
-        Wr = reference->Wr.v;
-    } else {
-        Tr = last_Tr;
-        Wr = last_Wr;
-    }
-    transformation Greference(Wr, Tr);
-    return Greference*invert(G);
-}
-
 void state_vision::set_geometry(state_vision_group *g)
 {
     if(g->id == 0) return;
-    transformation G = get_relative_transformation(transformation(g->Wr.v, g->Tr.v));
+    transformation Greference;
+    if(reference) {
+        Greference = transformation(reference->Wr.v, reference->Tr.v);
+    } else {
+        Greference = transformation(last_Wr, last_Tr);
+    }
+    transformation Ggroup = transformation(g->Wr.v, g->Tr.v);
+    transformation G = Greference*invert(Ggroup);
     uint64_t from = reference?reference->id:last_reference;
     uint64_t to = g->id;
     transformation_variance tv;

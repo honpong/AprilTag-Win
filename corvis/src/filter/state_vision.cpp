@@ -107,33 +107,35 @@ void state_vision_group::make_empty()
     status = group_empty;
 }
 
-int state_vision_group::process_features(const camera_data & camera, mapper & map)
+int state_vision_group::process_features(const camera_data & camera, mapper & map, bool map_enabled)
 {
     features.children.remove_if([&](state_vision_feature *f) {
         return f->should_drop();
     });
 
-    for(auto f : features.children) {
-        float stdev = (float)f->v.stdev_meters(sqrt(f->variance()));
-        float variance_meters = stdev*stdev;
-        const float measurement_var = 1.e-2*1.e-2;
-        if(variance_meters < measurement_var)
-            variance_meters = measurement_var;
+    if(map_enabled) {
+        for(auto f : features.children) {
+            float stdev = (float)f->v.stdev_meters(sqrt(f->variance()));
+            float variance_meters = stdev*stdev;
+            const float measurement_var = 1.e-2*1.e-2;
+            if(variance_meters < measurement_var)
+                variance_meters = measurement_var;
 
-        bool good = stdev / f->v.depth() < .05;
-        if(good && f->descriptor_valid)
-            map.update_feature_position(id, f->id, f->Xcamera, variance_meters);
-        if(good && !f->descriptor_valid) {
-            float scale = f->v.depth();
-            float radius = 32./scale * (camera.width / 320.);
-            if(radius < 4) {
-                radius = 4;
-            }
-            //fprintf(stderr, "feature %llu good radius %f\n", f->id, radius);
-            if(descriptor_compute(camera.image, camera.width, camera.height, camera.stride,
-                        f->current[0], f->current[1], radius, f->descriptor)) {
-                f->descriptor_valid = true;
-                map.add_feature(id, f->id, f->Xcamera, variance_meters, f->descriptor);
+            bool good = stdev / f->v.depth() < .05;
+            if(good && f->descriptor_valid)
+                map.update_feature_position(id, f->id, f->Xcamera, variance_meters);
+            if(good && !f->descriptor_valid) {
+                float scale = f->v.depth();
+                float radius = 32./scale * (camera.width / 320.);
+                if(radius < 4) {
+                    radius = 4;
+                }
+                //fprintf(stderr, "feature %llu good radius %f\n", f->id, radius);
+                if(descriptor_compute(camera.image, camera.width, camera.height, camera.stride,
+                            f->current[0], f->current[1], radius, f->descriptor)) {
+                    f->descriptor_valid = true;
+                    map.add_feature(id, f->id, f->Xcamera, variance_meters, f->descriptor);
+                }
             }
         }
     }
@@ -282,7 +284,7 @@ int state_vision::process_features(const camera_data & camera, sensor_clock::tim
     for(state_vision_group *g : groups.children) {
         // Delete the features we marked to drop, return the health of
         // the group (the number of features)
-        int health = g->process_features(camera, map);
+        int health = g->process_features(camera, map, map_enabled);
 
         if(g->status && g->status != group_initializing)
             total_health += health;
@@ -290,14 +292,16 @@ int state_vision::process_features(const camera_data & camera, sensor_clock::tim
         // Notify features that this group is about to disappear
         // This sets group_empty (even if group_reference)
         if(!health) {
-            if(g->status == group_reference) {
-                last_reference = g->id;
-                last_Tr = g->Tr.v;
-                last_Wr = g->Wr.v;
-                reference = 0;
-            }
-            else {
-                set_geometry(g);
+            if(map_enabled) {
+                if(g->status == group_reference) {
+                    last_reference = g->id;
+                    last_Tr = g->Tr.v;
+                    last_Wr = g->Wr.v;
+                    reference = 0;
+                }
+                else {
+                    set_geometry(g);
+                }
             }
             g->make_empty();
         }
@@ -319,24 +323,28 @@ int state_vision::process_features(const camera_data & camera, sensor_clock::tim
         }
     }
 
-    int max = 20;
-    int suppression = 10;
-    vector<map_match> matches;
-    if(map.find_closure(matches, max, suppression)) {
-        if(matches.size() > 0) {
-            map_match m = matches[0];
-            fprintf(stderr, "Loop closure: match %llu - %llu %f\n", m.from, m.to, m.score);
-            std::cerr << m.g << std::endl;
-            fprintf(stderr, "from the map\n");
-            transformation relative = map.get_relative_transformation(m.from, m.to);
-            std::cerr << relative << std::endl;
-            fprintf(stderr, "delta:\n");
-            std::cerr << relative*invert(m.g) << std::endl;
+    if(map_enabled) {
+        int max = 20;
+        int suppression = 10;
+        vector<map_match> matches;
+        if(map.find_closure(matches, max, suppression)) {
+            if(matches.size() > 0) {
+                map_match m = matches[0];
+                fprintf(stderr, "Loop closure: match %llu - %llu %f\n", m.from, m.to, m.score);
+                std::cerr << m.g << std::endl;
+                fprintf(stderr, "from the map\n");
+                transformation relative = map.get_relative_transformation(m.from, m.to);
+                std::cerr << relative << std::endl;
+                fprintf(stderr, "delta:\n");
+                std::cerr << relative*invert(m.g) << std::endl;
+            }
         }
     }
 
     if(best_group && need_reference) {
-        set_geometry(best_group);
+        if(map_enabled) {
+            set_geometry(best_group);
+        }
         total_health += best_group->make_reference();
         reference = best_group;
     }
@@ -352,8 +360,10 @@ int state_vision::process_features(const camera_data & camera, sensor_clock::tim
 
     groups.children.remove_if([&](state_vision_group *g) {
         if(g->status == group_empty) {
-            transformation G = transformation(W.v, T.v)*invert(transformation(g->Wr.v, g->Tr.v));
-            map.node_finished(g->id, G);
+            if(map_enabled) {
+                transformation G = transformation(W.v, T.v)*invert(transformation(g->Wr.v, g->Tr.v));
+                map.node_finished(g->id, G);
+            }
             delete g;
             return true;
         } else {
@@ -389,12 +399,14 @@ state_vision_group * state_vision::add_group(sensor_clock::time_point time)
 {
     state_vision_group *g = new state_vision_group();
     quaternion gravity; // identity rotation
-    map.add_node(g->id, gravity);
-    for(state_vision_group *neighbor : groups.children) {
-        map.add_edge(g->id, neighbor->id);
+    if(map_enabled) {
+        map.add_node(g->id, gravity);
+        for(state_vision_group *neighbor : groups.children) {
+            map.add_edge(g->id, neighbor->id);
 
-        g->old_neighbors.push_back(neighbor->id);
-        neighbor->neighbors.push_back(g->id);
+            g->old_neighbors.push_back(neighbor->id);
+            neighbor->neighbors.push_back(g->id);
+        }
     }
     groups.children.push_back(g);
     remap();

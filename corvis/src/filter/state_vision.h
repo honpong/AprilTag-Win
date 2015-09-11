@@ -165,7 +165,7 @@ class state_vision_group: public state_branch<state_node *> {
     state_vision_group(const state_vision_group &other);
     state_vision_group();
     void make_empty();
-    int process_features(const camera_data & camera, mapper & map);
+    int process_features(const camera_data & camera, mapper & map, bool map_enabled);
     int make_reference();
     int make_normal();
     static f_t ref_noise;
@@ -193,7 +193,6 @@ public:
 
     state_branch<state_vision_group *> groups;
     list<state_vision_feature *> features;
-    mapper map;
     
     state_vision(covariance &c);
     ~state_vision();
@@ -209,6 +208,8 @@ public:
     v4 last_Tr;
     rotation_vector last_Wr;
 
+    bool map_enabled{false};
+    mapper map;
     transformation loop_offset;
     bool loop_closed{false};
     

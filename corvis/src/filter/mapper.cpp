@@ -123,7 +123,7 @@ map_edge &map_node::get_add_neighbor(uint64_t neighbor)
     for(list<map_edge>::iterator edge = edges.begin(); edge != edges.end(); ++edge) {
         if(edge->neighbor == neighbor) return *edge;
     }
-    edges.push_back((map_edge){neighbor, 0});
+    edges.push_back(map_edge{neighbor, 0});
     return edges.back();
 }
 
@@ -251,7 +251,7 @@ vector<map_match> *mapper::new_query(const list<map_feature *> &histogram, size_
     for(uint64_t node = 0; node < nodes.size(); ++node) {
         int dist_2 = map_histogram_dist_2(histogram, nodes[node].histogram, bound);
         if(dist_2 >= bound) continue;
-        result->push_back((map_match){node, dist_2});
+        result->push_back(map_match{node, dist_2});
         push_heap(result->begin(), result->end(), map_match_compare);
         if(result->size() > K) {
             pop_heap(result->begin(), result->end(), map_match_compare);
@@ -302,7 +302,7 @@ void mapper::diffuse_matches(uint64_t node_id, vector<float> &matches, vector<ma
             num += matches[edge->neighbor];
             denom += nodes[edge->neighbor].terms;
         }
-        result.push_back((map_match) {(uint64_t)node_id, (uint64_t)i, num / denom});
+        result.push_back(map_match {(uint64_t)node_id, (uint64_t)i, num / denom});
         push_heap(result.begin(), result.end(), map_match_compare);
         if(result.size() > max) {
             pop_heap(result.begin(), result.end(), map_match_compare);
@@ -457,7 +457,7 @@ static bool local_feature_compare(const local_feature &first, const local_featur
 void localize_features(map_node &node, list<local_feature> &features)
 {
     for(list<map_feature *>::iterator feat = node.features.begin(); feat != node.features.end(); ++feat) {
-        features.push_back((local_feature){transformation_apply(node.transform.transform, (*feat)->position), *feat});
+        features.push_back(local_feature{transformation_apply(node.transform.transform, (*feat)->position), *feat});
     }
 }
 
@@ -491,7 +491,7 @@ void assign_matches(list<local_feature> &f1, list<local_feature> &f2, list<match
             }
         }
         if(best != f2.end() && best_score < max_sift_distance_2) {
-            matches.push_back((match_pair){ *fi1, *best, best_score });
+            matches.push_back(match_pair{ *fi1, *best, best_score });
             f2.erase(best);
         }
     }

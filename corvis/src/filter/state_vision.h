@@ -208,7 +208,7 @@ public:
     v4 last_Tr;
     rotation_vector last_Wr;
 
-    bool map_enabled{false};
+    bool map_enabled{true};
     mapper map;
     transformation loop_offset;
     bool loop_closed{false};

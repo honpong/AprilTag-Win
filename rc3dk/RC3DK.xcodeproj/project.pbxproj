@@ -232,9 +232,6 @@
 		D91557801B87A15D006D2002 /* dictionary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D91557781B87A15D006D2002 /* dictionary.cpp */; };
 		D91557811B87A15D006D2002 /* dictionary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D91557781B87A15D006D2002 /* dictionary.cpp */; };
 		D91557821B87A15D006D2002 /* dictionary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D91557781B87A15D006D2002 /* dictionary.cpp */; };
-		D91557831B87A15D006D2002 /* feature_cache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D915577A1B87A15D006D2002 /* feature_cache.cpp */; };
-		D91557841B87A15D006D2002 /* feature_cache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D915577A1B87A15D006D2002 /* feature_cache.cpp */; };
-		D91557851B87A15D006D2002 /* feature_cache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D915577A1B87A15D006D2002 /* feature_cache.cpp */; };
 		D91557861B87A15D006D2002 /* feature_descriptor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D915577C1B87A15D006D2002 /* feature_descriptor.cpp */; };
 		D91557871B87A15D006D2002 /* feature_descriptor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D915577C1B87A15D006D2002 /* feature_descriptor.cpp */; };
 		D91557881B87A15D006D2002 /* feature_descriptor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D915577C1B87A15D006D2002 /* feature_descriptor.cpp */; };
@@ -767,8 +764,6 @@
 		D90D18C01A3A03B500D1AFE4 /* camera_control_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = camera_control_interface.h; path = ../../shared_corvis_3dk/camera_control_interface.h; sourceTree = "<group>"; };
 		D91557781B87A15D006D2002 /* dictionary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dictionary.cpp; sourceTree = "<group>"; };
 		D91557791B87A15D006D2002 /* dictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dictionary.h; sourceTree = "<group>"; };
-		D915577A1B87A15D006D2002 /* feature_cache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = feature_cache.cpp; sourceTree = "<group>"; };
-		D915577B1B87A15D006D2002 /* feature_cache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = feature_cache.h; sourceTree = "<group>"; };
 		D915577C1B87A15D006D2002 /* feature_descriptor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = feature_descriptor.cpp; sourceTree = "<group>"; };
 		D915577D1B87A15D006D2002 /* feature_descriptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = feature_descriptor.h; sourceTree = "<group>"; };
 		D915577E1B87A15D006D2002 /* mapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mapper.cpp; sourceTree = "<group>"; };
@@ -1191,8 +1186,6 @@
 			children = (
 				D91557781B87A15D006D2002 /* dictionary.cpp */,
 				D91557791B87A15D006D2002 /* dictionary.h */,
-				D915577A1B87A15D006D2002 /* feature_cache.cpp */,
-				D915577B1B87A15D006D2002 /* feature_cache.h */,
 				D915577C1B87A15D006D2002 /* feature_descriptor.cpp */,
 				D915577D1B87A15D006D2002 /* feature_descriptor.h */,
 				D915577E1B87A15D006D2002 /* mapper.cpp */,
@@ -1932,7 +1925,6 @@
 				D95EB1871AA5038600ADFC20 /* sensor_fusion_queue.cpp in Sources */,
 				D953126F1A15AE63004D6068 /* homography.cpp in Sources */,
 				327B556F18EB4DC20001CCE1 /* RCCameraParameters.m in Sources */,
-				D91557831B87A15D006D2002 /* feature_cache.cpp in Sources */,
 				D91558331B87A21A006D2002 /* slic.c in Sources */,
 				D33E9D291ADD14600085F35C /* RCSensorManager.m in Sources */,
 				D91557DE1B87A21A006D2002 /* covdet.c in Sources */,
@@ -1992,7 +1984,6 @@
 				32DD2ACC1B200B1200B44447 /* world_state_render.cpp in Sources */,
 				D915581A1B87A21A006D2002 /* mathop_avx.c in Sources */,
 				D91557EA1B87A21A006D2002 /* generic.c in Sources */,
-				D91557851B87A15D006D2002 /* feature_cache.cpp in Sources */,
 				D326CED71ADFC62C003B026B /* CaptureViewController.mm in Sources */,
 				D91558291B87A21A006D2002 /* random.c in Sources */,
 				D91557F01B87A21A006D2002 /* gmm.c in Sources */,
@@ -2100,7 +2091,6 @@
 				D915580D1B87A21A006D2002 /* kmeans.c in Sources */,
 				D3C0EDFB1A37B4DC00423EDE /* qr.cpp in Sources */,
 				D3B4EB0E1A1E7DE100BE0443 /* RCSensorFusionError.m in Sources */,
-				D91557841B87A15D006D2002 /* feature_cache.cpp in Sources */,
 				D3B4EB0F1A1E7DE100BE0443 /* RCAFHTTPClient.m in Sources */,
 				D3B4EB101A1E7DE100BE0443 /* filter_setup.cpp in Sources */,
 				D915583D1B87A21A006D2002 /* svmdataset.c in Sources */,

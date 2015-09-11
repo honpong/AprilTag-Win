@@ -99,6 +99,25 @@ mapper::mapper(): feature_count(0), no_search(false), feature_dictionary(corvis_
     unlinked = false;
 }
 
+mapper::~mapper()
+{
+    reset();
+}
+
+void mapper::reset()
+{
+    for(int i = 0; i < (int)nodes.size(); i++) {
+        for(map_feature * f : nodes[i].features)
+            delete f;
+        nodes[i].features.clear();
+    }
+    nodes.clear();
+    geometry.clear();
+    document_frequency.clear();
+    local_features.clear();
+    origins.clear();
+}
+
 map_edge &map_node::get_add_neighbor(uint64_t neighbor)
 {
     for(list<map_edge>::iterator edge = edges.begin(); edge != edges.end(); ++edge) {

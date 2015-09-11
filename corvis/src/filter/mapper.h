@@ -113,6 +113,8 @@ class mapper {
  public:
     uint64_t group_id_offset;
     mapper();
+    ~mapper();
+    void reset();
     void add_edge(uint64_t id1, uint64_t id2);
     void set_relative_transformation(const transformation &T);
     transformation get_relative_transformation(uint64_t id1, uint64_t id2);

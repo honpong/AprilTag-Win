@@ -215,6 +215,7 @@ void state_vision::reset()
     clear_features_and_groups();
     reference = NULL;
     total_distance = 0.;
+    map.reset();
     state_motion::reset();
 }
 

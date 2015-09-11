@@ -182,11 +182,13 @@ if(ENABLE_STEREO)
     target_link_libraries(stereo PRIVATE DAI ${qhull_STATIC} vlfeat)
     target_include_directories(stereo PUBLIC stereo)
     set_property(TARGET stereo PROPERTY CXX_STANDARD 14)
+endif()
 
     file(GLOB LIBVLFEAT_FILES "vlfeat-0.9.18/vl/*.c")
     add_library(vlfeat STATIC ${LIBVLFEAT_FILES})
     target_include_directories(vlfeat INTERFACE vlfeat-0.9.18/vl)
 
+if(ENABLE_STEREO)
     find_package(Boost REQUIRED)
     foreach(f alldai.cpp graph.cpp regiongraph.cpp emalg.cpp bipgraph.cpp evidence.cpp io.cpp trwbp.cpp bp.cpp exactinf.cpp daialg.cpp properties.cpp util.cpp bp_dual.cpp exceptions.cpp varset.cpp factor.cpp weightedgraph.cpp clustergraph.cpp factorgraph.cpp dag.cpp)
       list(APPEND DAI_FILES "libDAI-0.3.1/src/${f}")

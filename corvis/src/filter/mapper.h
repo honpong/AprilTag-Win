@@ -136,8 +136,8 @@ class mapper {
     int num_features(uint64_t group_id);
 
     void add_node(uint64_t group_id, const quaternion &gravity);
-    void add_feature(uint64_t groupid, uint64_t id, v4 pos, float variance, const descriptor & d);
-    void update_feature_position(uint64_t groupid, uint64_t id, v4 pos, float variance);
+    void add_feature(uint64_t groupid, uint64_t id, const v4 &pos, float variance, const descriptor & d);
+    void update_feature_position(uint64_t groupid, uint64_t id, const v4 &pos, float variance);
     uint32_t project_feature(const descriptor & d);
 };
 

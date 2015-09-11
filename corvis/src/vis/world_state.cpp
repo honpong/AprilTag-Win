@@ -64,7 +64,7 @@ void world_state::observe_plot_item(sensor_clock::time_point timestamp, int inde
     plot_lock.unlock();
 }
 
-void world_state::observe_map_node(sensor_clock::time_point timestamp, uint64_t node_id, bool finished, transformation position, vector<uint64_t>neighbors)
+void world_state::observe_map_node(sensor_clock::time_point timestamp, uint64_t node_id, bool finished, const transformation &position, vector<uint64_t>neighbors)
 {
     display_lock.lock();
     MapNode n;

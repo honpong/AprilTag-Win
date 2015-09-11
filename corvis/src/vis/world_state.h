@@ -99,7 +99,7 @@ public:
     void observe_plot_item(sensor_clock::time_point timestamp, int plot_index, std::string plot_name, float value);
     void observe_image(sensor_clock::time_point timestamp, uint8_t * image, int width, int height);
     void observe_depth(sensor_clock::time_point timestamp, uint16_t * image, int width, int height);
-    void observe_map_node(sensor_clock::time_point timestamp, uint64_t id, bool finished, transformation T, std::vector<uint64_t> neighbors);
+    void observe_map_node(sensor_clock::time_point timestamp, uint64_t id, bool finished, const transformation &T, std::vector<uint64_t> neighbors);
     std::string get_feature_stats();
     void reset() {
         display_lock.lock();

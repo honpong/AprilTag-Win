@@ -117,7 +117,7 @@ int state_vision_group::process_features(const camera_data & camera, mapper & ma
         for(auto f : features.children) {
             float stdev = (float)f->v.stdev_meters(sqrt(f->variance()));
             float variance_meters = stdev*stdev;
-            const float measurement_var = 1.e-2*1.e-2;
+            const float measurement_var = 1.e-3*1.e-3;
             if(variance_meters < measurement_var)
                 variance_meters = measurement_var;
 
@@ -337,7 +337,15 @@ int state_vision::process_features(const camera_data & camera, sensor_clock::tim
                 transformation relative = map.get_relative_transformation(m.from, m.to);
                 std::cerr << relative << std::endl;
                 fprintf(stderr, "delta:\n");
-                std::cerr << relative*invert(m.g) << std::endl;
+                std::cerr <<  conjugate(initial_orientation) * (relative*invert(m.g)).T << std::endl;
+                transformation initial(initial_orientation, v4(0., 0., 0., 0.));
+                //transformation new_t = initial * map.get_relative_transformation(0, m.from);
+                transformation new_t = map.nodes[m.to].global_transformation.transform * invert(m.g);
+                transformation old_t = map.nodes[m.from].global_transformation.transform;
+                std::cerr << "new:\n" << new_t << "\n";
+                std::cerr << "old:\n" << old_t << "\n";
+                loop_offset = new_t * invert(old_t);
+                //std::cerr << "loop_offset:\n" << loop_offset << "\n";
             }
         }
     }

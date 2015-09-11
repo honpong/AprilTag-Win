@@ -8,6 +8,7 @@
 #include <queue>
 #include "mapper.h"
 #include "corvis_dictionary.h"
+#include <iostream>
 
 transformation_variance invert(const transformation_variance & T)
 {
@@ -512,6 +513,7 @@ float refine_transformation(const transformation_variance &base, transformation_
         if(resid < threshhold) {
             total_dT = total_dT + error;
             ++inliers;
+            std::cerr << "error:\n" << error <<"\n";
         }
     }
     assert(inliers);

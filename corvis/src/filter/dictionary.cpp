@@ -16,13 +16,14 @@ dictionary::dictionary(string filename)
     fread(&dimension, sizeof(dimension), 1, f);
     fread(&num_centers, sizeof(num_centers), 1, f);
 
-    float centers[dimension*num_centers];
+    float *centers = new float[dimension*num_centers];
     fread(centers, sizeof(float), dimension*num_centers, f);
 
     fclose(f);
 
     // set centers
     vl_kmeans_set_centers(kmeans, centers, dimension, num_centers);
+    delete[] centers;
 }
 
 dictionary::dictionary(int dim, int num, const float c[])
@@ -98,7 +99,7 @@ uint32_t dictionary::quantize(const descriptor & d)
 
 dictionary::dictionary(vector<descriptor> descriptors, int num_clusters)
 {
-    float data[descriptors.size()*descriptor_size];
+    float *data = new float[descriptors.size()*descriptor_size];
     for(int i = 0; i < descriptors.size(); i++)
         memcpy(&data[descriptor_size*i], descriptors[i].d, descriptor_size*sizeof(float));
 
@@ -112,6 +113,8 @@ dictionary::dictionary(vector<descriptor> descriptors, int num_clusters)
     // Run at most 100 iterations of cluster refinement using Lloyd algorithm
     vl_kmeans_set_max_num_iterations(kmeans, 100);
     vl_kmeans_refine_centers(kmeans, data, descriptors.size());
+
+    delete[] data;
 
     // Obtain the energy of the solution
     //energy = vl_kmeans_get_energy(kmeans) ;

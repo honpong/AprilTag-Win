@@ -6,6 +6,7 @@ extern "C" {
 }
 
 #include <stdio.h>
+#include <stdint.h>
 
 const static int liop_spatial_bins = 6;
 const static int liop_neighbors = 4;

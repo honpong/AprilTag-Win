@@ -22,7 +22,7 @@ TEST(Dictionary, Train)
 {
     vector<descriptor> train_data = generate_training_data();
 
-    int dict_size = 2;
+    const int dict_size = 2;
     dictionary dict(train_data, dict_size);
 
     int hist[dict_size];

@@ -21,20 +21,6 @@ v4 sensor_fusion::filter_to_external_position(const v4& x) const
     return transformation_apply(compose(sfm.origin, sfm.s.loop_offset), x);
 }
 
-void sensor_fusion::flush_and_reset()
-{
-    isSensorFusionRunning = false;
-    queue->stop_sync();
-    queue->dispatch_sync([this]{
-        filter_initialize(&sfm, device);
-    });
-    sfm.camera_control.focus_unlock();
-    sfm.camera_control.release_platform_specific_object();
-    
-    isProcessingVideo = false;
-    processingVideoRequested = false;
-}
-
 RCSensorFusionErrorCode sensor_fusion::get_error()
 {
     RCSensorFusionErrorCode error = RCSensorFusionErrorCodeNone;
@@ -147,12 +133,12 @@ void sensor_fusion::update_data(camera_data &&image)
     cp.k2 = (float)sfm.s.k2.v;
     cp.k3 = (float)sfm.s.k3.v;
     d->camera_intrinsics = cp;
-    
+#ifdef ENABLE_QR
     if(sfm.qr.valid)
     {
         d->origin_qr_code = sfm.qr.data;
     }
-    
+#endif
     d->transform = get_transformation();
     d->time = sfm.last_time;
 
@@ -226,12 +212,7 @@ void sensor_fusion::start_calibration(bool thread)
     else queue->start_singlethreaded(false);
 }
 
-/*void sensor_fusion::start_inertial_only()
-{
-    filter_initialize(&sfm, device);
-}*/
-
-void sensor_fusion::start(bool thread, camera_control_interface &cam)
+void sensor_fusion::start(bool thread)
 {
     threaded = thread;
     isSensorFusionRunning = true;
@@ -242,7 +223,7 @@ void sensor_fusion::start(bool thread, camera_control_interface &cam)
     else queue->start_singlethreaded(true);
 }
 
-void sensor_fusion::start_unstable(bool thread, camera_control_interface &cam)
+void sensor_fusion::start_unstable(bool thread)
 {
     threaded = thread;
     isSensorFusionRunning = true;
@@ -251,6 +232,18 @@ void sensor_fusion::start_unstable(bool thread, camera_control_interface &cam)
     filter_start_dynamic(&sfm);
     if(threaded) queue->start_async(true);
     else queue->start_singlethreaded(true);
+}
+
+void sensor_fusion::pause_and_reset_position()
+{
+    isProcessingVideo = false;
+    queue->dispatch_async([this]() { filter_start_inertial_only(&sfm); });
+}
+
+void sensor_fusion::unpause()
+{
+    isProcessingVideo = true;
+    queue->dispatch_async([this]() { filter_start_dynamic(&sfm); });
 }
 
 void sensor_fusion::start_offline()
@@ -272,13 +265,21 @@ void sensor_fusion::stop()
     queue->stop_sync();
     isSensorFusionRunning = false;
     isProcessingVideo = false;
+    processingVideoRequested = false;
+}
+
+void sensor_fusion::flush_and_reset()
+{
+    stop();
+    queue->reset();
+    filter_initialize(&sfm, device);
+    sfm.camera_control.focus_unlock();
+    sfm.camera_control.release_platform_specific_object();
 }
 
 void sensor_fusion::reset(sensor_clock::time_point time, const transformation &initial_pose_m, bool origin_gravity_aligned)
 {
-    queue->stop_sync();
-    // TODO: we currently ignore initial_pose_m
-    filter_initialize(&sfm, device);
+    flush_and_reset();
     sfm.last_time = time;
     sfm.s.time_update(time); //This initial time update doesn't actually do anything - just sets current time, but it will cause the first measurement to run a time_update relative to this
     sfm.origin_gravity_aligned = origin_gravity_aligned;

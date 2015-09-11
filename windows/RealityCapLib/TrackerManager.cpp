@@ -104,7 +104,7 @@ bool TrackerManager::Start()
     
     rc_setStatusCallback(_tracker, status_callback, this);
     rc_setDataCallback(_tracker, data_callback, this);
-    rc_startTracker(_tracker);
+    rc_startTracker(_tracker, rc_E_SYNCRONOUS);
 
     _isRunning = true;
 
@@ -125,7 +125,7 @@ bool TrackerManager::StartCalibration()
 
 //    rc_setStatusCallback(_tracker, status_callback, this);
 //    rc_setDataCallback(_tracker, data_callback, this);
-    rc_startCalibration(_tracker);
+    rc_startCalibration(_tracker, rc_E_SYNCRONOUS);
 
     _isRunning = true;
 
@@ -161,7 +161,7 @@ bool TrackerManager::StartReplay(const std::wstring filename, bool realtime)
 
     rc_setStatusCallback(_tracker, status_callback, this);
     rc_setDataCallback(_tracker, data_callback, this);
-    rc_startTracker(_tracker);
+    rc_startTracker(_tracker, rc_E_SYNCRONOUS);
 
     if (!StartPlayback(filename.c_str(), realtime)) {
         rc_stopTracker(_tracker);

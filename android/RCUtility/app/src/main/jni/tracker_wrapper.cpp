@@ -1,27 +1,48 @@
 #include <string.h>
 #include <jni.h>
 #include <android/log.h>
-#include "rc_intel_interface.h"
 #include <stdlib.h>
 #include <rc_intel_interface.h>
+#include <visualization.h>
+#include "rc_replay_threaded.h"
 
-#define TAG "RCUtility"
+#include "render_data.h"
+
+#define TAG "tracker_wrapper"
 #define LOGV(...) ((void)__android_log_print(ANDROID_LOG_VERBOSE, TAG, __VA_ARGS__))
 #define LOGD(...) ((void)__android_log_print(ANDROID_LOG_DEBUG, TAG, __VA_ARGS__))
 #define LOGI(...) ((void)__android_log_print(ANDROID_LOG_INFO, TAG, __VA_ARGS__))
 #define LOGW(...) ((void)__android_log_print(ANDROID_LOG_WARN, TAG, __VA_ARGS__))
 #define LOGE(...) ((void)__android_log_print(ANDROID_LOG_ERROR, TAG, __VA_ARGS__))
 
-JNIEnv *jniEnv;
-jobject callingObj;
+#define MY_JNI_VERSION JNI_VERSION_1_6
 
-static wchar_t *createWcharFromChar(const char *text)
+static JavaVM *javaVM;
+static rc_Tracker *tracker;
+static render_data render_data;
+static visualization vis(&render_data);
+static rc::replay_threaded *replayer;
+static jobject trackerProxyObj;
+static jclass trackerProxyClass;
+static jmethodID trackerProxy_onStatusUpdated;
+static jobject dataUpdateObj;
+static jclass dataUpdateClass;
+static jmethodID dataUpdate_setTimestamp;
+static jmethodID dataUpdate_setPose;
+static jmethodID dataUpdate_clearFeaturePoints;
+static jmethodID dataUpdate_addFeaturePoint;
+static jmethodID trackerProxy_onDataUpdated;
+static jclass imageClass;
+static jmethodID imageClass_close;
+
+jint JNI_OnLoad(JavaVM* vm, void* reserved)
 {
-    size_t size = strlen(text) + 1;
-    wchar_t *wa = new wchar_t[size];
-    mbstowcs(wa, text, size);
-    return wa;
+    LOGI("JNI_OnLoad");
+    javaVM = vm;
+    return MY_JNI_VERSION;
 }
+
+#pragma mark - utility functions
 
 bool RunExceptionCheck(JNIEnv *env)
 {
@@ -40,108 +61,115 @@ bool RunExceptionCheck(JNIEnv *env)
     }
 }
 
-void CallMethod(JNIEnv *env, jclass theClass, jobject obj, const char *methodName, int argument)
+void initJavaObject(JNIEnv *env, const char *path, jobject *objptr)
 {
-    jmethodID methodId = env->GetMethodID(theClass, methodName, "(I)V");
-    env->CallVoidMethod(obj, methodId, argument);
-    if (RunExceptionCheck(env)) return;
+    jclass cls = env->FindClass(path);
+    if (!cls)
+    {
+        LOGE("initJavaObject: failed to get %s class reference", path);
+        return;
+    }
+    jmethodID constr = env->GetMethodID(cls, "<init>", "()V");
+    if (!constr)
+    {
+        LOGE("initJavaObject: failed to get %s constructor", path);
+        return;
+    }
+    jobject obj = env->NewObject(cls, constr);
+    if (!obj)
+    {
+        LOGE("initJavaObject: failed to create a %s object", path);
+        return;
+    }
+    (*objptr) = env->NewGlobalRef(obj);
 }
 
-void CallMethod(JNIEnv *env, jclass theClass, jobject obj, const char *methodName, float argument)
+bool isThreadAttached()
 {
-    jmethodID methodId = env->GetMethodID(theClass, methodName, "(F)V");
-    env->CallVoidMethod(obj, methodId, argument);
-    if (RunExceptionCheck(env)) return;
+    void* env;
+    int status = javaVM->GetEnv(&env, MY_JNI_VERSION);
+    return !(status == JNI_EDETACHED);
 }
 
-void CallMethod(JNIEnv *env, jclass theClass, jobject obj, const char *methodName, long argument)
-{
-    // we have to use jvalue here for some reason
-    jmethodID methodId = env->GetMethodID(theClass, methodName, "(J)V");
-    jvalue argVal;
-    argVal.j = argument;
-    env->CallVoidMethod(obj, methodId, argVal);
-    if (RunExceptionCheck(env)) return;
-}
-
-void CallMethod(JNIEnv *env, jclass theClass, jobject obj, const char *methodName, const float *array, const size_t size)
-{
-    jmethodID methodId = env->GetMethodID(theClass, methodName, "([F)V"); // takes a float array and returns void. the single bracket is intentional.
-    env->CallVoidMethod(obj, methodId, array, size);
-    if (RunExceptionCheck(env)) return;
-}
+#pragma mark - callbacks up into java land
 
 static void status_callback(void *handle, rc_TrackerState state, rc_TrackerError error, rc_TrackerConfidence confidence, float progress)
 {
-    if (!jniEnv || !callingObj) return;
+    if (!trackerProxyObj)
+    {
+        LOGE("status_callback: Tracker proxy object is null.");
+        return;
+    }
 
-    // init a SensorFusionStatus instance
-    jclass statusClass = jniEnv->FindClass("com/realitycap/android/rcutility/SensorFusionStatus");
-    if (RunExceptionCheck(jniEnv)) return;
+    JNIEnv *env;
+    bool wasOriginallyAttached = isThreadAttached();
+    javaVM->AttachCurrentThread(&env, NULL); // if thread was attached, we still need this to get the ref to JNIEnv, but don't need to detach later.
+    if (RunExceptionCheck(env)) return;
 
-    jmethodID initId = jniEnv->GetMethodID(statusClass, "<init>", "()V");
-    if (RunExceptionCheck(jniEnv)) return;
+    ((JNIEnv*)env)->CallVoidMethod(trackerProxyObj, trackerProxy_onStatusUpdated, (int)state, (int)error, (int)confidence, progress);
+    RunExceptionCheck(((JNIEnv*)env));
 
-    jobject statusObj = jniEnv->NewObject(statusClass, initId);
-    if (RunExceptionCheck(jniEnv)) return;
-
-    // set properties on SensorFusionStatus instance
-    CallMethod(jniEnv, statusClass, statusObj, "setRunState", (int) state);
-    CallMethod(jniEnv, statusClass, statusObj, "setProgress", progress);
-    CallMethod(jniEnv, statusClass, statusObj, "setConfidence", confidence);
-    CallMethod(jniEnv, statusClass, statusObj, "setErrorCode", (int) error);
-
-    // pass status object to the callback in java land
-    jclass sensorFusionClass = jniEnv->GetObjectClass(callingObj);
-    if (RunExceptionCheck(jniEnv)) return;
-
-    jmethodID methodId = jniEnv->GetMethodID(sensorFusionClass, "onStatusUpdated", "(Lcom/realitycap/android/rcutility/SensorFusionStatus;)V");
-    if (RunExceptionCheck(jniEnv)) return;
-
-    jniEnv->CallVoidMethod(callingObj, methodId, statusObj);
-    if (RunExceptionCheck(jniEnv)) return;
+    if (!wasOriginallyAttached) javaVM->DetachCurrentThread();
 }
 
 static void data_callback(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count)
 {
-    if (!jniEnv || !callingObj) return;
+    render_data.update_data(time, pose, features, feature_count);
 
-    // init a SensorFusionData instance
-    jclass dataUpdateClass = jniEnv->FindClass("com/realitycap/android/rcutility/SensorFusionData");
-    if (RunExceptionCheck(jniEnv)) return;
+    JNIEnv *env;
 
-    jmethodID initId = jniEnv->GetMethodID(dataUpdateClass, "<init>", "()V");
-    if (RunExceptionCheck(jniEnv)) return;
+    if (!trackerProxyObj)
+    {
+        LOGE("data_callback: Tracker proxy object is null.");
+        return;
+    }
 
-    jobject dataUpdateObj = jniEnv->NewObject(dataUpdateClass, initId);
-    if (RunExceptionCheck(jniEnv)) return;
+    bool wasOriginallyAttached = isThreadAttached();
+    javaVM->AttachCurrentThread(&env, NULL);
+    if (RunExceptionCheck(env)) return;
 
     // set properties on the SensorFusionData instance
-    CallMethod(jniEnv, dataUpdateClass, dataUpdateObj, "setTimestamp", (long)time);
-    CallMethod(jniEnv, dataUpdateClass, dataUpdateObj, "setPose", pose, 12);
+    env->CallVoidMethod(dataUpdateObj, dataUpdate_setTimestamp, (long) time);
+    if (RunExceptionCheck(env)) return;
 
-    jmethodID methodId = jniEnv->GetMethodID(dataUpdateClass, "addFeaturePoint", "(JFFFFF)V"); // takes a long and 5 floats
+    env->CallVoidMethod(dataUpdateObj, dataUpdate_setPose, pose[0], pose[1], pose[2], pose[3], pose[4], pose[5], pose[6], pose[7], pose[8], pose[9], pose[10], pose[11]);
+    if (RunExceptionCheck(env)) return;
+
+    env->CallVoidMethod(dataUpdateObj, dataUpdate_clearFeaturePoints); // necessary because we are reusing the cached instance of SensorFusionData
+    if (RunExceptionCheck(env)) return;
 
     // add features to SensorFusionData instance
     for (int i = 0; i < feature_count; ++i)
     {
         rc_Feature feat = features[i];
-        jniEnv->CallVoidMethod(dataUpdateObj, methodId, feat.id, feat.world.x, feat.world.y, feat.world.z, feat.image_x, feat.image_y);
-        if (RunExceptionCheck(jniEnv)) return;
+        env->CallVoidMethod(dataUpdateObj, dataUpdate_addFeaturePoint, feat.id, feat.world.x, feat.world.y, feat.world.z, feat.image_x, feat.image_y);
+        if (RunExceptionCheck(env)) return;
     }
 
-    // pass data update object to the callback in java land
-    jclass sensorFusionClass = jniEnv->GetObjectClass(callingObj);
-    if (RunExceptionCheck(jniEnv)) return;
+    env->CallVoidMethod(trackerProxyObj, trackerProxy_onDataUpdated, dataUpdateObj);
+    if (RunExceptionCheck(env)) return;
 
-    methodId = jniEnv->GetMethodID(sensorFusionClass, "onDataUpdated", "(Lcom/realitycap/android/rcutility/SensorFusionData;)V");
-    if (RunExceptionCheck(jniEnv)) return;
-
-    jniEnv->CallVoidMethod(callingObj, methodId, dataUpdateObj);
-    if (RunExceptionCheck(jniEnv)) return;
+    if (!wasOriginallyAttached) javaVM->DetachCurrentThread();
 }
 
-rc_Tracker *tracker;
+static void release_image(void *handle)
+{
+//    LOGV("release_image");
+    JNIEnv *env;
+
+    bool wasOriginallyAttached = isThreadAttached();
+    javaVM->AttachCurrentThread(&env, NULL);
+    if (RunExceptionCheck(env)) return;
+
+    env->CallVoidMethod((jobject)handle, imageClass_close);
+    if (RunExceptionCheck(env)) return;
+
+    env->DeleteGlobalRef((jobject)handle);
+
+    if (!wasOriginallyAttached) javaVM->DetachCurrentThread();
+}
+
+#pragma mark - functions that get called from java land
 
 extern "C"
 {
@@ -150,7 +178,29 @@ extern "C"
         LOGD("createTracker");
         tracker = rc_create();
         if (!tracker) return (JNI_FALSE);
-        else return (JNI_TRUE);
+
+        // save this stuff for the callbacks.
+        trackerProxyObj = env->NewGlobalRef(thiz);
+        trackerProxyClass = (jclass)env->NewGlobalRef(env->GetObjectClass(trackerProxyObj));
+        trackerProxy_onStatusUpdated = env->GetMethodID(trackerProxyClass, "onStatusUpdated", "(IIIF)V");
+        trackerProxy_onDataUpdated = env->GetMethodID(trackerProxyClass, "onDataUpdated", "(Lcom/realitycap/android/rcutility/SensorFusionData;)V");
+
+        dataUpdateClass = (jclass)env->NewGlobalRef(env->FindClass("com/realitycap/android/rcutility/SensorFusionData"));
+        dataUpdate_setTimestamp = env->GetMethodID(dataUpdateClass, "setTimestamp", "(J)V");
+        dataUpdate_setPose = env->GetMethodID(dataUpdateClass, "setPose", "(FFFFFFFFFFFF)V");
+        dataUpdate_clearFeaturePoints = env->GetMethodID(dataUpdateClass, "clearFeaturePoints", "()V");
+        dataUpdate_addFeaturePoint = env->GetMethodID(dataUpdateClass, "addFeaturePoint", "(JFFFFF)V"); // takes a long and 5 floats
+
+        // init a SensorFusionData instance
+        initJavaObject(env, "com/realitycap/android/rcutility/SensorFusionData", &dataUpdateObj);
+
+        imageClass = (jclass)env->NewGlobalRef(env->FindClass("android/media/Image"));
+        imageClass_close = env->GetMethodID(imageClass, "close", "()V");
+
+        rc_setStatusCallback(tracker, status_callback, NULL);
+        rc_setDataCallback(tracker, data_callback, NULL);
+
+        return (JNI_TRUE);
     }
 
     JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_destroyTracker(JNIEnv *env, jobject thiz)
@@ -158,6 +208,13 @@ extern "C"
         LOGD("destroyTracker");
         if (!tracker) return (JNI_FALSE);
         rc_destroy(tracker);
+        tracker = NULL;
+        trackerProxyObj = NULL;
+        env->DeleteGlobalRef(trackerProxyObj);
+        env->DeleteGlobalRef(trackerProxyClass);
+        env->DeleteGlobalRef(dataUpdateObj);
+        env->DeleteGlobalRef(dataUpdateClass);
+        env->DeleteGlobalRef(imageClass);
         return (JNI_TRUE);
     }
 
@@ -166,12 +223,7 @@ extern "C"
         LOGD("startTracker");
         if (!tracker) return (JNI_FALSE);
 
-        // save these for the status callback. not sure if this will work.
-        jniEnv = env;
-        callingObj = thiz;
-
-        rc_setStatusCallback(tracker, status_callback, NULL);
-        rc_startTracker(tracker);
+        rc_startTracker(tracker, rc_E_ASYNCRONOUS);
 
         return (JNI_TRUE);
     }
@@ -188,32 +240,45 @@ extern "C"
     {
         LOGD("startCalibration");
         if (!tracker) return (JNI_FALSE);
-        rc_startCalibration(tracker);
+
+        rc_startCalibration(tracker, rc_E_ASYNCRONOUS);
+
         return (JNI_TRUE);
     }
 
-    JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_startReplay(JNIEnv *env, jobject thiz)
+    JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_startReplay(JNIEnv *env, jobject thiz, jstring absFilePath)
     {
-        LOGD("startReplay");
-        if (!tracker) return (JNI_FALSE);
-        return (JNI_TRUE);
+        if (tracker) rc_stopTracker(tracker); // Stop the live tracker
+        if (replayer) return JNI_FALSE;
+
+        const char *cString = env->GetStringUTFChars(absFilePath, 0);
+        LOGD("startReplay: %s", cString);
+
+        replayer = new rc::replay_threaded;
+        rc_setStatusCallback(replayer->tracker, status_callback, NULL);
+        rc_setDataCallback(replayer->tracker, data_callback, NULL);
+        render_data.reset();
+
+        auto result = (jboolean)replayer->open(cString);
+
+        env->ReleaseStringUTFChars(absFilePath, cString);
+        return result;
+    }
+    JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_stopReplay(JNIEnv *env, jobject thiz)
+    {
+        if (!replayer) return JNI_FALSE;
+        LOGD("stoppingReplay...");
+        jboolean result = replayer->close();
+        delete replayer; replayer = nullptr;
+        return result;
     }
 
     JNIEXPORT jstring JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_getCalibration(JNIEnv *env, jobject thiz)
     {
         LOGD("getCalibration");
         if (!tracker) return env->NewStringUTF("");
-
-        const wchar_t *cal;
-        size_t size = rc_getCalibration(tracker, &cal);
-
-        if (!size) return env->NewStringUTF("");
-
-        // convert wchar_t to char
-        char *buffer;
-        wcstombs(buffer, cal, size + 1);
-
-        return env->NewStringUTF(buffer);
+        const char *cal;
+        return env->NewStringUTF(rc_getCalibration(tracker, &cal) ? cal : "");
     }
 
     JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_setCalibration(JNIEnv *env, jobject thiz, jstring calString)
@@ -221,9 +286,7 @@ extern "C"
         LOGD("setCalibration");
         if (!tracker) return (JNI_FALSE);
         const char *cString = env->GetStringUTFChars(calString, 0);
-        const wchar_t *wString = createWcharFromChar(cString);
-        jboolean result = (jboolean) rc_setCalibration(tracker, wString);
-        delete wString;
+        jboolean result = (jboolean) rc_setCalibration(tracker, cString);
         env->ReleaseStringUTFChars(calString, cString);
         return (result);
     }
@@ -233,9 +296,7 @@ extern "C"
         LOGD("setOutputLog");
         if (!tracker) return (JNI_FALSE);
         const char *cFilename = env->GetStringUTFChars(filename, 0);
-        const wchar_t *wFilename = createWcharFromChar(cFilename);
-        rc_setOutputLog(tracker, wFilename);
-        delete wFilename;
+        rc_setOutputLog(tracker, cFilename);
         env->ReleaseStringUTFChars(filename, cFilename);
         return (JNI_TRUE);
     }
@@ -249,44 +310,96 @@ extern "C"
                 -1, 0, 0, 0,
                 0, 0, -1, 0};
         rc_configureCamera(tracker, (rc_Camera) camera, pose, width_px, height_px, center_x_px, center_y_px, focal_length_x_px, focal_length_y_px, skew, fisheye, fisheye_fov_radians);
+        return (JNI_TRUE);
     }
 
-    JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_receiveAccelerometer(JNIEnv *env, jobject thiz, jfloat x, jfloat y, jfloat z, jlong timestamp)
+    JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_receiveAccelerometer(JNIEnv *env, jobject thiz, jfloat x, jfloat y, jfloat z, jlong time_ns)
     {
         if (!tracker) return;
         rc_Vector vec = {x, y, z};
-        rc_Timestamp ts = timestamp / 1000; // convert ns to us
+        rc_Timestamp ts = time_ns / 1000; // convert ns to us
         rc_receiveAccelerometer(tracker, ts, vec);
     //	    LOGV("%li accel %f, %f, %f", (long)timestamp, x, y, z);
     }
 
-    JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_receiveGyro(JNIEnv *env, jobject thiz, jfloat x, jfloat y, jfloat z, jlong timestamp)
+    JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_receiveGyro(JNIEnv *env, jobject thiz, jfloat x, jfloat y, jfloat z, jlong time_ns)
     {
         if (!tracker) return;
         rc_Vector vec = {x, y, z};
-        rc_Timestamp ts = timestamp / 1000; // convert ns to us
+        rc_Timestamp ts = time_ns / 1000; // convert ns to us
         rc_receiveGyro(tracker, ts, vec);
     //	    LOGV("%li gyro %f, %f, %f", (long)timestamp, x, y, z);
     }
 
-    JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_receiveImageWithDepth(JNIEnv *env, jobject thiz, jlong time_us, jlong shutter_time_us, jboolean force_recognition,
-                                                                                                        jint width, jint height, jint stride, jobject colorData, jint depthWidth, jint depthHeight,
-                                                                                                        jint depthStride, jobject depthData)
+    JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_receiveImageWithDepth(JNIEnv *env, jobject thiz, jlong time_ns, jlong shutter_time_ns, jboolean force_recognition,
+                                                                                                        jint width, jint height, jint stride, jobject colorData, jobject colorImage, jint depthWidth, jint depthHeight,
+                                                                                                        jint depthStride, jobject depthData, jobject depthImage)
     {
         if (!tracker) return (JNI_FALSE);
 
+        // cache these refs so we can close them in the callbacks
+        jobject colorImageCached = env->NewGlobalRef(colorImage);
+        jobject depthImageCached = env->NewGlobalRef(depthImage);
+
         void *colorPtr = env->GetDirectBufferAddress(colorData);
-        jlong colorLength = env->GetDirectBufferCapacity(colorData);
         if (RunExceptionCheck(env)) return (JNI_FALSE);
 
         void *depthPtr = env->GetDirectBufferAddress(depthData);
-        jlong depthLength = env->GetDirectBufferCapacity(depthData);
         if (RunExceptionCheck(env)) return (JNI_FALSE);
 
 //        LOGV(">>>>>>>>>>> Synced camera frames received <<<<<<<<<<<<<");
 
-        rc_receiveImageWithDepth(tracker, rc_EGRAY8, time_us, shutter_time_us, NULL, false, width, height, stride, colorData, NULL, NULL, depthWidth, depthHeight, depthStride, depthData, NULL, NULL);
+        rc_receiveImageWithDepth(tracker, rc_EGRAY8, time_ns / 1000, shutter_time_ns / 1000, NULL, false, width, height, stride, colorPtr, release_image, colorImageCached, depthWidth, depthHeight, depthStride, depthPtr, release_image, depthImageCached);
 
         return (JNI_TRUE);
+    }
+
+    JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_MyRenderer_setup(JNIEnv *env, jobject thiz, jint width, jint height)
+    {
+        if (!tracker) return;
+//        LOGD("setup(%d, %d)", width, height);
+        vis.setup(width, height);
+    }
+
+    JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_MyRenderer_render(JNIEnv *env, jobject thiz, jint width, jint height)
+    {
+        if (!tracker) return;
+//        LOGV("render(%d, %d)", width, height);
+        vis.render(width, height);
+    }
+
+    JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_MyRenderer_teardown(JNIEnv *env, jobject thiz)
+    {
+        if (!tracker) return;
+//        LOGD("teardown()");
+        vis.teardown();
+    }
+
+    JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_MyGLSurfaceView_handleDrag(JNIEnv *env, jobject thiz, jfloat x, jfloat y)
+    {
+        if (!tracker) return;
+//        LOGV("handleDrag(%f,%f)", x, y);
+        vis.mouse_move(x, y);
+    }
+
+    JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_MyGLSurfaceView_handleDragEnd(JNIEnv *env, jobject thiz)
+    {
+        if (!tracker) return;
+//        LOGV("handleDragEnd()");
+        vis.mouse_up();
+    }
+
+    JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_MyGLSurfaceView_handlePinch(JNIEnv *env, jobject thiz, jdouble pixelDist)
+    {
+        if (!tracker) return;
+//        LOGV("handlePinch(%f)", pixelDist);
+        vis.scroll(pixelDist);
+    }
+
+    JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_MyGLSurfaceView_handlePinchEnd(JNIEnv *env, jobject thiz)
+    {
+        if (!tracker) return;
+        LOGV("handlePinchEnd()");
+        vis.scroll_done();
     }
 }

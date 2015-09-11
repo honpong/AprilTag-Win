@@ -234,3 +234,6 @@ Sunlayar/Sunlayar/HTML/.idea
 workspace.xml
 gradle.xml
 android/RCUtility/.idea/libraries/*.xml
+
+# stupid app.iml always changes
+app.iml

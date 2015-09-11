@@ -1,0 +1,12 @@
+rm -f          /tmp/tracker.zip
+git archive -o /tmp/tracker.zip HEAD -- RCUtility
+zip            /tmp/tracker.zip         rc_replay/{README,*.cpp,src/*.{cpp,h},lib/*/*.so}
+(
+ rm -rf                                                             /tmp/rc_replay
+ mkdir -p                                                           /tmp/rc_replay/{x86_64,x86}/release
+ cp -a RCUtility/app/build/cmake/x86_64/release/corvis/rc_replay    /tmp/rc_replay/x86_64/release/
+ cp -a RCUtility/app/build/cmake/x86/release/corvis/rc_replay       /tmp/rc_replay/x86/release/
+ cd  /tmp
+ zip -r        /tmp/tracker.zip rc_replay
+)
+echo built     /tmp/tracker.zip

@@ -199,7 +199,7 @@ void filter_compute_gravity(struct filter *f, double latitude, double altitude)
 static bool check_packet_time(struct filter *f, sensor_clock::time_point t, int type)
 {
     if(t < f->last_packet_time) {
-        if (log_enabled) fprintf(stderr, "Warning: received packets out of order: %d at %lld came first, then %d at %lld. delta %lld\n", f->last_packet_type, sensor_clock::tp_to_micros(f->last_packet_time), type, sensor_clock::tp_to_micros(t), std::chrono::duration_cast<std::chrono::microseconds>(f->last_packet_time - t).count());
+        if (log_enabled) fprintf(stderr, "Warning: received packets out of order: %d at %" PRIu64 " came first, then %d at %" PRIu64 ". delta %lld\n", f->last_packet_type, sensor_clock::tp_to_micros(f->last_packet_time), type, sensor_clock::tp_to_micros(t), (long long)std::chrono::duration_cast<std::chrono::microseconds>(f->last_packet_time - t).count());
         return false;
     }
     f->last_packet_time = t;
@@ -294,6 +294,8 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, const v4 &
         case RCSensorFusionRunStateInactive: //shouldn't happen
             return f->a_variance;
         case RCSensorFusionRunStateDynamicInitialization:
+            return accelerometer_inertial_var;
+        case RCSensorFusionRunStateInertialOnly:
             return accelerometer_inertial_var;
         case RCSensorFusionRunStateStaticCalibration:
             if(steady_time(f, f->accel_stability, meas, f->a_variance, static_sigma, time, v4(0., 0., 1., 0.), true) > min_steady_time)
@@ -405,7 +407,7 @@ void filter_accelerometer_measurement(struct filter *f, const float data[3], sen
         auto current = sensor_clock::now();
         auto delta = current - time;
         if(delta > max_inertial_delay) {
-            if(log_enabled) fprintf(stderr, "Warning, dropped an old accel sample - timestamp %lld, now %lld\n", sensor_clock::tp_to_micros(time), sensor_clock::tp_to_micros(current));
+            if(log_enabled) fprintf(stderr, "Warning, dropped an old accel sample - timestamp %" PRIu64 ", now %" PRIu64 "\n", sensor_clock::tp_to_micros(time), sensor_clock::tp_to_micros(current));
             return;
         }
     }
@@ -461,7 +463,7 @@ void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_
         auto current = sensor_clock::now();
         auto delta = current - time;
         if(delta > max_inertial_delay) {
-            if(log_enabled) fprintf(stderr, "Warning, dropped an old gyro sample - timestamp %lld, now %lld\n", sensor_clock::tp_to_micros(time), sensor_clock::tp_to_micros(current));
+            if(log_enabled) fprintf(stderr, "Warning, dropped an old gyro sample - timestamp %" PRIu64 ", now %" PRIu64 "\n", sensor_clock::tp_to_micros(time), sensor_clock::tp_to_micros(current));
             return;
         }
     }
@@ -643,6 +645,7 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
     if(!check_packet_time(f, time, packet_camera)) return false;
     if(!f->got_accelerometer || !f->got_gyroscope) return false;
     
+#ifdef ENABLE_QR
     if(f->qr.running && (time - f->last_qr_time > qr_detect_period)) {
         f->last_qr_time = time;
         f->qr.process_frame(f, camera.image, camera.width, camera.height);
@@ -653,7 +656,8 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
     }
     if(f->qr_bench.enabled)
         f->qr_bench.process_frame(f, camera.image, camera.width, camera.height);
-
+#endif
+    
     f->got_image = true;
     if(f->run_state == RCSensorFusionRunStateDynamicInitialization) {
         if(f->want_start == sensor_clock::micros_to_tp(0)) f->want_start = time;
@@ -661,7 +665,7 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
         if(inertial_converged) {
             if(log_enabled) {
                 if(inertial_converged) {
-                    fprintf(stderr, "Inertial converged at time %lld\n", std::chrono::duration_cast<std::chrono::microseconds>(time - f->want_start).count());
+                    fprintf(stderr, "Inertial converged at time %lld\n", (long long)std::chrono::duration_cast<std::chrono::microseconds>(time - f->want_start).count());
                 } else {
                     fprintf(stderr, "Inertial did not converge %f, %f\n", f->s.W.variance()[0], f->s.W.variance()[1]);
                 }
@@ -691,7 +695,7 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
         auto current = sensor_clock::now();
         auto delta = current - time;
         if(delta > max_camera_delay) {
-            if(log_enabled) fprintf(stderr, "Warning, dropped an old video frame - timestamp %lld, now %lld\n", sensor_clock::tp_to_micros(time), sensor_clock::tp_to_micros(current));
+            if(log_enabled) fprintf(stderr, "Warning, dropped an old video frame - timestamp %" PRIu64 ", now %" PRIu64 "\n", sensor_clock::tp_to_micros(time), sensor_clock::tp_to_micros(current));
             return false;
         }
         if(!f->valid_delta) {
@@ -709,18 +713,18 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
             if (log_enabled) fprintf(stderr, "old max_state_size was %d\n", f->s.maxstatesize);
             f->s.maxstatesize = f->s.statesize - 1;
             if(f->s.maxstatesize < MINSTATESIZE) f->s.maxstatesize = MINSTATESIZE;
-            if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", std::chrono::duration_cast<std::chrono::microseconds>(lateness).count(), f->s.maxstatesize, f->s.statesize);
+            if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", (long long)std::chrono::duration_cast<std::chrono::microseconds>(lateness).count(), f->s.maxstatesize, f->s.statesize);
             if (log_enabled) fprintf(stderr, "dropping a frame!\n");
             return false;
         }
         if(lateness > period && f->s.maxstatesize > MINSTATESIZE && f->s.statesize < f->s.maxstatesize) {
             f->s.maxstatesize = f->s.statesize - 1;
             if(f->s.maxstatesize < MINSTATESIZE) f->s.maxstatesize = MINSTATESIZE;
-            if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", std::chrono::duration_cast<std::chrono::microseconds>(lateness).count(), f->s.maxstatesize, f->s.statesize);
+            if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", (long long)std::chrono::duration_cast<std::chrono::microseconds>(lateness).count(), f->s.maxstatesize, f->s.statesize);
         }
         if(lateness < period / 4 && f->s.statesize > f->s.maxstatesize - f->min_group_add && f->s.maxstatesize < MAXSTATESIZE - 1) {
             ++f->s.maxstatesize;
-            if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", std::chrono::duration_cast<std::chrono::microseconds>(lateness).count(), f->s.maxstatesize, f->s.statesize);
+            if (log_enabled) fprintf(stderr, "was %lld us late, new max state size is %d, current state size is %d\n", (long long)std::chrono::duration_cast<std::chrono::microseconds>(lateness).count(), f->s.maxstatesize, f->s.statesize);
         }
     }
 
@@ -942,9 +946,9 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->track.height = device.image_height;
     f->track.stride = f->track.width;
     f->track.init();
-
+#ifdef ENABLE_QR
     f->last_qr_time = sensor_clock::micros_to_tp(0);
-
+#endif
     f->max_velocity = 0.;
     f->median_depth_variance = 1.;
     f->has_converged = false;
@@ -1049,6 +1053,13 @@ void filter_start_dynamic(struct filter *f)
     f->run_state = RCSensorFusionRunStateDynamicInitialization;
 }
 
+void filter_start_inertial_only(struct filter *f)
+{
+    f->run_state = RCSensorFusionRunStateInertialOnly;
+    f->s.enable_orientation_only();
+}
+
+#ifdef ENABLE_QR
 void filter_start_qr_detection(struct filter *f, const std::string& data, float dimension, bool use_gravity)
 {
     f->origin_gravity_aligned = use_gravity;
@@ -1065,3 +1076,4 @@ void filter_start_qr_benchmark(struct filter * f, float qr_size_m)
 {
     f->qr_bench.start(qr_size_m);
 }
+#endif

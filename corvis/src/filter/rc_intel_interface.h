@@ -19,12 +19,14 @@ extern "C" {
 #endif
 
 #ifdef _WIN32
+   typedef wchar_t rc_char_t;
 #  ifdef RCTRACKER_API_EXPORTS
 #    define RCTRACKER_API __declspec(dllexport)
 #  else
 #    define RCTRACKER_API __declspec(dllimport)
 #  endif
 #else
+   typedef char rc_char_t;
 #  define RCTRACKER_API __attribute__ ((visibility("default")))
 #endif
 
@@ -48,7 +50,9 @@ typedef enum
     /** rc_Tracker is in handheld portrait calibration mode. The device should be held steady in portrait orientation, perpendicular to the floor. */
     rc_E_PORTRAIT_CALIBRATION = 5,
     /** rc_Tracker is in handheld landscape calibration mode. The device should be held steady in landscape orientation, perpendicular to the floor. */
-    rc_E_LANDSCAPE_CALIBRATION = 6
+    rc_E_LANDSCAPE_CALIBRATION = 6,
+    /** rc_Tracker is running in inertial only mode. Orientation will be tracked. */
+    rc_E_INERTIAL_ONLY
 } rc_TrackerState;
 
 typedef enum
@@ -141,17 +145,30 @@ RCTRACKER_API void rc_configureLocation(rc_Tracker *tracker, double latitude_deg
 RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callback, void *handle);
 RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback callback, void *handle);
 
-RCTRACKER_API void rc_startCalibration(rc_Tracker *tracker);
+typedef enum
+{
+    /** rc_Tracker should process data on the callers thread. */
+    rc_E_SYNCRONOUS = 0,
+    /** rc_Tracker should process data on its own thread, returning immediately from all calls. */
+    rc_E_ASYNCRONOUS = 1,
+} rc_TrackerRunFlags;
 
-/** TODO:
- Starts processing inertial data to estimate the orientation of the device so that initialization of the full tracker can happen more quickly.
+RCTRACKER_API void rc_startCalibration(rc_Tracker *tracker, rc_TrackerRunFlags run_flags);
+
+/**
+ Resets position and pauses the tracker. While paused, the tracker will continue processing inertial measurements and updating orientation. When rc_unpause is called, the tracker will start up again very quickly.
  */
-//void rc_startInertialOnly(rc_Tracker *tracker);
+RCTRACKER_API void rc_pauseAndResetPosition(rc_Tracker *tracker);
+
+/**
+ Resumes full tracker operation.
+ */
+RCTRACKER_API void rc_unpause(rc_Tracker *tracker);
 
 /**
  Starts the tracker.
  */
-RCTRACKER_API void rc_startTracker(rc_Tracker *tracker);
+RCTRACKER_API void rc_startTracker(rc_Tracker *tracker, rc_TrackerRunFlags run_flags);
 RCTRACKER_API void rc_stopTracker(rc_Tracker *tracker);
 
 /**
@@ -200,10 +217,10 @@ RCTRACKER_API const char *rc_getTimingStats(rc_Tracker *tracker);
 /**
  If this is set, writes a log file in Realitycap's internal format to the filename specified
  */
-RCTRACKER_API void rc_setOutputLog(rc_Tracker * tracker, const wchar_t * wfilename);
+RCTRACKER_API void rc_setOutputLog(rc_Tracker *tracker, const rc_char_t *filename);
 
-RCTRACKER_API size_t rc_getCalibration(rc_Tracker *tracker, const wchar_t** buffer);
-RCTRACKER_API bool rc_setCalibration(rc_Tracker *tracker, const wchar_t* buffer);
+RCTRACKER_API size_t rc_getCalibration(rc_Tracker *tracker, const rc_char_t **buffer);
+RCTRACKER_API bool rc_setCalibration(rc_Tracker *tracker, const rc_char_t *buffer);
 
 /*
  Not yet implemented (depend on loop closure):

@@ -26,6 +26,7 @@ import java.util.concurrent.CountDownLatch;
  */
 public class RealSenseManager
 {
+    private static final String TAG = RealSenseManager.class.getSimpleName();
     private SenseManager mSenseManager;
     private IMUCaptureManager mIMUManager;
     private boolean mIsCamRunning = false;
@@ -36,8 +37,6 @@ public class RealSenseManager
     private Camera.Desc playbackCamDesc = new Camera.Desc(Camera.Type.PLAYBACK, Camera.Facing.ANY, userStreamTypes);
 
     protected Camera.Calibration.Intrinsics mColorParams; //intrinsics param of color camera
-    protected Camera.Calibration.Intrinsics mDepthParams; //intrinsics param of depth camera
-    protected Camera.Calibration.Extrinsics mDepthToColorParams;
     private CountDownLatch startupLatch;
 
     RealSenseManager(Context context, IRealSenseSensorReceiver receiver)
@@ -49,7 +48,7 @@ public class RealSenseManager
 
     public boolean startCameras()
     {
-        Log.d(MyApplication.TAG, "startCameras");
+        Log.d(TAG, "startCameras");
 
         if (false == mIsCamRunning)
         {
@@ -69,7 +68,7 @@ public class RealSenseManager
             }
             catch (Exception e)
             {
-                Log.e(MyApplication.TAG, "Exception:" + e.getMessage());
+                Log.e(TAG, "Exception:" + e.getMessage());
                 e.printStackTrace();
             }
         }
@@ -78,7 +77,7 @@ public class RealSenseManager
 
     public void stopCameras()
     {
-        Log.d(MyApplication.TAG, "stopCameras");
+        Log.d(TAG, "stopCameras");
 
         if (true == mIsCamRunning)
         {
@@ -87,7 +86,7 @@ public class RealSenseManager
                 mSenseManager.close();
             } catch (Exception e)
             {
-                Log.e(MyApplication.TAG, "Exception:" + e.getMessage());
+                Log.e(TAG, "Exception:" + e.getMessage());
                 e.printStackTrace();
             }
 
@@ -95,9 +94,6 @@ public class RealSenseManager
         }
     }
 
-    /**
-     * start delivery of IMU samples
-     */
     public boolean startImu()
     {
         if (mIMUManager == null) return false;
@@ -106,26 +102,23 @@ public class RealSenseManager
         {
             if (!mIMUManager.enableSensor(Sensor.TYPE_ACCELEROMETER))
             {
-                Log.e(MyApplication.TAG, "Failed to enable accelerometer");
+                Log.e(TAG, "Failed to enable accelerometer");
                 return false;
             }
             if (!mIMUManager.enableSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED))
             {
-                Log.e(MyApplication.TAG, "Failed to enable gyro");
+                Log.e(TAG, "Failed to enable gyro");
                 return false;
             }
             return true;
         }
         catch (Exception e)
         {
-            Log.e(MyApplication.TAG, "Error starting IMU: " + e.getMessage());
+            Log.e(TAG, "Error starting IMU: " + e.getMessage());
             return false;
         }
     }
 
-    /**
-     * Close delivery of IMU samples
-     */
     public void stopImu()
     {
         try
@@ -134,7 +127,7 @@ public class RealSenseManager
         }
         catch (Exception e)
         {
-            Log.e(MyApplication.TAG, "Error closing IMUManager: " + e.getMessage());
+            Log.e(TAG, "Error closing IMUManager: " + e.getMessage());
         }
     }
 
@@ -168,20 +161,14 @@ public class RealSenseManager
         @Override
         public void onSetProfile(Camera.CaptureInfo info)
         {
-//            Log.i(MyApplication.TAG, "OnSetProfile");
             Camera.Calibration cal = info.getCalibrationData();
-            if (cal != null)
-            {
-                mColorParams 		= cal.colorIntrinsics;
-//                mDepthParams 		= cal.depthIntrinsics;
-//                mDepthToColorParams = cal.depthToColorExtrinsics;
-            }
-            startupLatch.countDown();
+            if (cal != null) mColorParams = cal.colorIntrinsics;
         }
 
         @Override
         public void onNewSample(ImageSet images)
         {
+            startupLatch.countDown(); // indicates camera has fully started. allows startCameras() to return.
             if (receiver == null) return; // no point in any of this if no one is receiving it
 
             Image color = images.acquireImage(StreamType.COLOR);
@@ -189,26 +176,26 @@ public class RealSenseManager
 
             if (color == null || depth == null)
             {
-                if (color == null) Log.i(MyApplication.TAG, "color is null");
-                if (depth == null) Log.i(MyApplication.TAG, "depth is null");
+                if (color == null) Log.i(TAG, "color is null");
+                if (depth == null) Log.i(TAG, "depth is null");
                 return;
             }
 
             int colorStride = color.getInfo().DataSize / color.getHeight();
             int depthStride = depth.getInfo().DataSize / depth.getHeight();
 
-//            Log.v(MyApplication.TAG, "RealSense camera sample received.");
+//            Log.v(TAG, "RealSense camera sample received.");
 
             ByteBuffer colorData = color.acquireAccess();
             ByteBuffer depthData = depth.acquireAccess();
 
-            receiver.onSyncedFrames(color.getTimeStamp(), 33333, color.getWidth(), color.getHeight(), colorStride, colorData, depth.getWidth(), depth.getHeight(), depthStride, depthData);
+//            receiver.onSyncedFrames(color, depth); // FIXME
 
             color.releaseAccess();
             depth.releaseAccess();
 
             // send IMU samples
-            ArrayList<SensorSample> ameterSamples = getSamplesSince(Sensor.TYPE_ACCELEROMETER, lastAmeterTimestamp);
+            /*ArrayList<SensorSample> ameterSamples = getSamplesSince(Sensor.TYPE_ACCELEROMETER, lastAmeterTimestamp);
             if (ameterSamples != null && ameterSamples.size() > 0 && ameterSamples.get(0) != null)
             {
                 lastAmeterTimestamp = ameterSamples.get(0).timestamp();
@@ -220,14 +207,14 @@ public class RealSenseManager
             {
                 lastGyroTimestamp = gyroSamples.get(0).timestamp();
                 receiver.onGyroSamples(gyroSamples);
-            }
+            }*/
         }
 
         @Override
         public void onError(StreamProfileSet profile, int error)
         {
             stopCameras();
-            Log.e(MyApplication.TAG, "Error code " + error + ". The camera is not present or failed to initialize.");
+            Log.e(TAG, "Error code " + error + ". The camera is not present or failed to initialize.");
         }
     };
 
@@ -236,11 +223,8 @@ public class RealSenseManager
         StreamProfileSet set = new StreamProfileSet();
         StreamProfile colorProfile = new StreamProfile(640, 480, RSPixelFormat.RGBA_8888, 30, StreamType.COLOR);
         StreamProfile depthProfile = new StreamProfile(320, 240, RSPixelFormat.Z16, 30, StreamType.DEPTH);
-//        StreamProfile depthProfile = new StreamProfile(480, 360, RSPixelFormat.Z16, 30, StreamType.DEPTH);
-//        StreamProfile uvProfile = new StreamProfile(480, 360, RSPixelFormat.UVMAP, 30, StreamType.UVMAP);
         set.set(StreamType.COLOR, colorProfile);
         set.set(StreamType.DEPTH, depthProfile);
-//        set.set(StreamType.UVMAP, uvProfile);
 
         return set;
     }

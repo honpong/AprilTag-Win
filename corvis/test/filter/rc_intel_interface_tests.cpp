@@ -18,12 +18,15 @@ TEST(rc_intel_interface_tests, rc_setCalibration)
     EXPECT_TRUE(calibration_serialize(cal, jsonString));
 
     rc_Tracker *tracker = rc_create();
+#ifdef _WIN32
     wstring_convert<codecvt_utf8<wchar_t>, wchar_t> converter;
-    wstring wideJsonString = converter.from_bytes(jsonString);
-    EXPECT_TRUE(rc_setCalibration(tracker, wideJsonString.c_str()));
+    EXPECT_TRUE(rc_setCalibration(tracker, converter.from_bytes(jsonString).c_str()));
+#else
+    EXPECT_TRUE(rc_setCalibration(tracker, jsonString.c_str()));
+#endif
 
     // now read cal back out and compare
-    const wchar_t* buffer;
+    const rc_char_t* buffer;
     size_t size = rc_getCalibration(tracker, &buffer);
     EXPECT_GT(size, 0);
 
@@ -34,6 +37,9 @@ TEST(rc_intel_interface_tests, rc_setCalibration)
 TEST(rc_intel_interface_tests, rc_setCalibration_failure)
 {
     rc_Tracker *tracker = rc_create();
-    std::wstring wideJsonString = L"";
-    EXPECT_FALSE(rc_setCalibration(tracker, wideJsonString.c_str()));
+#ifdef _WIN32
+    EXPECT_FALSE(rc_setCalibration(tracker, L""));
+#else
+    EXPECT_FALSE(rc_setCalibration(tracker, ""));
+#endif
 }

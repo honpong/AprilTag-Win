@@ -130,14 +130,18 @@ bool matrix_invert(matrix &m)
     lapack_int info;
     LAPACK_(sytrf)(&uplo, &n, m.data, &lda, ipiv, (f_t *)work, &lwork, &info);
     if(info) {
+#ifdef DEBUG
         fprintf(stderr, "matrix_invert: ssytrf failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+#endif
         return false;
     }
     LAPACK_(sytri)(&uplo, &n, m.data, &lda, ipiv, (f_t *)work, &info);
     if(info) {
+#ifdef DEBUG
         fprintf(stderr, "matrix_invert: ssytri failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+#endif
         return false;
     }
     //only generates half the matrix. so-called upper is actually lower (fortran)
@@ -168,16 +172,20 @@ bool matrix_solve_syt(matrix &A, matrix &B)
     lapack_int info;
     LAPACK_(sytrf)(&uplo, &n, A.data, &lda, ipiv, work, &lwork, &info);
     if(info) {
+#ifdef DEBUG
         fprintf(stderr, "matrix_solve: sytrf failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+#endif
         return false;
     }
     lapack_int nrhs = B._rows;
     lapack_int ldb = B.stride;
     LAPACK_(sytrs)(&uplo, &n, &nrhs, A.data, &lda, ipiv, B.data, &ldb, &info);
     if(info) {
+#ifdef DEBUG
         fprintf(stderr, "matrix_solve: sytrs failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+#endif
         return false;
     }
     return true;
@@ -280,8 +288,10 @@ bool matrix_cholesky(matrix &A)
     lapack_int lda = A.stride;
     LAPACK_(potrf)(&uplo, &n, A.data, &lda, &info);
     if(info) {
+#ifdef DEBUG
         fprintf(stderr, "cholesky: potrf failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+#endif
         return false;
     }
     //potrf only computes upper fortran (so really lower) triangle
@@ -318,8 +328,10 @@ f_t matrix_check_condition(matrix &A)
     LAPACK_(potrf)(&uplo, &n, tmp.data, &lda, &info);
     f_t rcond = 1.;
     if(info) {
+#ifdef DEBUG
         fprintf(stderr, "check_condition: potrf failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+#endif
         return 0.;
     }
     
@@ -327,8 +339,10 @@ f_t matrix_check_condition(matrix &A)
     f_t *work = walloca(f_t, 3*n);
     LAPACK_(pocon)(&uplo, &n, tmp.data, &lda, &anorm, &rcond, work, iwork, &info);
     if(info) {
+#ifdef DEBUG
         fprintf(stderr, "check_condition: pocon failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+#endif
         return 0.;
     }
     return rcond;
@@ -342,16 +356,20 @@ bool matrix_solve(matrix &A, matrix &B)
     lapack_int lda = A.stride;
     LAPACK_(potrf)(&uplo, &n, A.data, &lda, &info);
     if(info) {
+#ifdef DEBUG
         fprintf(stderr, "solve: spotrf failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+#endif
         return false; //could return matrix_solve_syt here instead
     }
     lapack_int nrhs = B._rows;
     lapack_int ldb = B.stride;
     LAPACK_(potrs)(&uplo, &n, &nrhs, A.data, &lda, B.data, &ldb, &info);
     if(info) {
+#ifdef DEBUG
         fprintf(stderr, "solve: spotrs failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+#endif
         return false;
     }
     return true;
@@ -372,8 +390,10 @@ bool matrix_solve_refine(matrix &A, matrix &B)
     lapack_int ldaf = A.stride;
     LAPACK_(potrf)(&uplo, &n, AF.data, &ldaf, &info);
     if(info) {
+#ifdef DEBUG
         fprintf(stderr, "solve: spotrf failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+#endif
         return false; //could return matrix_solve_syt here instead
     }
     lapack_int nrhs = B._rows;
@@ -387,8 +407,10 @@ bool matrix_solve_refine(matrix &A, matrix &B)
     lapack_int ldx = X.stride;
     LAPACK_(potrs)(&uplo, &n, &nrhs, AF.data, &ldaf, X.data, &ldx, &info);
     if(info) {
+#ifdef DEBUG
         fprintf(stderr, "solve: spotrs failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+#endif
         return false;
     }
     f_t *ferr = walloca(f_t, nrhs), *berr = walloca(f_t,nrhs);
@@ -396,8 +418,10 @@ bool matrix_solve_refine(matrix &A, matrix &B)
     f_t *work = walloca(f_t, 3 * n);
     LAPACK_(porfs)(&uplo, &n, &nrhs, A.data, &lda, AF.data, &ldaf, B.data, &ldb, X.data, &ldx, ferr, berr, work, iwork, &info);
     if(info) {
+#ifdef DEBUG
         fprintf(stderr, "solve: porfs failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+#endif
         return false;
     }
     for(int i = 0; i < B._rows; ++i) {
@@ -430,8 +454,10 @@ bool matrix_solve_extra(matrix &A, matrix &B)
     f_t rcond;
     LAPACK_(posvx)(&fact, &uplo, &n, &nrhs, A.data, &lda, AF.data, &ldaf, &equed, s, B.data, &ldb, X.data, &ldx, &rcond, ferr, berr, work, iwork, &info);
     if(info) {
+#ifdef DEBUG
         fprintf(stderr, "solve: posvx failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+#endif
         return false;
     }
     for(int i = 0; i < B._rows; ++i) {
@@ -463,8 +489,10 @@ bool matrix_solve_svd(matrix &A, matrix &B)
 
     //fprintf(stderr, "svd reported rank: %ld\n", rank);
     if(info) {
+#ifdef DEBUG
         fprintf(stderr, "solve: sgelsd failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+#endif
         return false;
     }
     return true;
@@ -492,8 +520,10 @@ bool matrix_svd(matrix &A, matrix &U, matrix &S, matrix &Vt)
     f_t *work = walloca(f_t, lwork);
     LAPACK_(gesdd)((char *)"A", &m, &n, A.data, &lda, S.data, Vt.data, &ldVt, U.data, &ldU, work, &lwork, iwork, &info);
     if(info) {
+#ifdef DEBUG
         fprintf(stderr, "svd: gesvd failed: %d\n", (int)info);
         fprintf(stderr, "\n******ALERT -- THIS IS FAILURE!\n\n");
+#endif
         return false;
     }
     return true;

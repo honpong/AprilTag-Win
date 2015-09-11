@@ -95,7 +95,7 @@ static rc_TrackerConfidence tracker_confidence_from_confidence(RCSensorFusionCon
 struct rc_Tracker: public sensor_fusion
 {
     rc_Tracker(bool immediate_dispatch): sensor_fusion(immediate_dispatch ? fusion_queue::latency_strategy::ELIMINATE_LATENCY : fusion_queue::latency_strategy::IMAGE_TRIGGER) {}
-    std::wstring jsonString;
+    std::basic_string<rc_char_t> jsonString;
     std::vector<rc_Feature> features;
     std::string timingStats;
 };
@@ -232,19 +232,27 @@ RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback c
     };
 }
 
-void rc_startCalibration(rc_Tracker * tracker)
+void rc_startCalibration(rc_Tracker * tracker, rc_TrackerRunFlags run_flags)
 {
-    tracker->start_calibration(false);
+    tracker->start_calibration(run_flags == rc_E_ASYNCRONOUS);
 }
 
-/*void rc_startInertialOnly(rc_Tracker * tracker)
+void rc_pauseAndResetPosition(rc_Tracker * tracker)
 {
-    tracker->start_inertial_only();
-}*/
+    tracker->pause_and_reset_position();
+}
 
-void rc_startTracker(rc_Tracker * tracker)
+void rc_unpause(rc_Tracker *tracker)
 {
-    tracker->start_offline();
+    tracker->unpause();
+}
+
+void rc_startTracker(rc_Tracker * tracker, rc_TrackerRunFlags run_flags)
+{
+    if (run_flags == rc_E_ASYNCRONOUS)
+        tracker->start_unstable(true);
+    else
+        tracker->start_offline();
 }
 
 void rc_stopTracker(rc_Tracker * tracker)
@@ -380,11 +388,14 @@ void rc_triggerLog(const rc_Tracker * tracker)
     tracker->trigger_log();
 }
 
-void rc_setOutputLog(rc_Tracker * tracker, const wchar_t * wfilename)
+void rc_setOutputLog(rc_Tracker * tracker, const rc_char_t *filename)
 {
-    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-    std::string filename = converter.to_bytes(wfilename);
-    tracker->set_output_log(filename.c_str());
+#ifdef _WIN32
+    std::wstring_convert<std::codecvt_utf8<rc_char_t>, rc_char_t> converter;
+    tracker->set_output_log(converter.to_bytes(filename).c_str());
+#else
+    tracker->set_output_log(filename);
+#endif
 }
 
 static corvis_device_parameters rc_getCalibration(rc_Tracker *tracker)
@@ -398,30 +409,31 @@ const char *rc_getTimingStats(rc_Tracker *tracker)
     return tracker->timingStats.c_str();
 }
 
-size_t rc_getCalibration(rc_Tracker *tracker, const wchar_t** buffer)
+size_t rc_getCalibration(rc_Tracker *tracker, const rc_char_t **buffer)
 {
     corvis_device_parameters cal = rc_getCalibration(tracker);
     std::string json;
-    bool result = calibration_serialize(cal, json);
-    if (result)
-    {
-        std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-        tracker->jsonString = converter.from_bytes(json);
-        *buffer = tracker->jsonString.c_str();
-        return tracker->jsonString.length();
-    }
-    else
-    {
+    if (!calibration_serialize(cal, json))
         return 0;
-    }
+#ifdef _WIN32
+    std::wstring_convert<std::codecvt_utf8<rc_char_t>, rc_char_t> converter;
+    tracker->jsonString = converter.from_bytes(json);
+#else
+    tracker->jsonString = json;
+#endif
+    *buffer = tracker->jsonString.c_str();
+    return tracker->jsonString.length();
 }
 
-bool rc_setCalibration(rc_Tracker *tracker, const wchar_t *wbuffer)
+bool rc_setCalibration(rc_Tracker *tracker, const rc_char_t *buffer)
 {
-    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
-    std::string buffer = converter.to_bytes(wbuffer);
     corvis_device_parameters cal;
+#ifdef _WIN32
+    std::wstring_convert<std::codecvt_utf8<rc_char_t>, rc_char_t> converter;
+    bool result = calibration_deserialize(converter.to_bytes(buffer), cal);
+#else
     bool result = calibration_deserialize(buffer, cal);
+#endif
     if (result) tracker->set_device(cal);
     return result;
 }

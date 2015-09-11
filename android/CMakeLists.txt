@@ -10,8 +10,7 @@ set(CMAKE_POSITION_INDEPENDENT_CODE True)
 
 add_subdirectory(../corvis "${CMAKE_CURRENT_BINARY_DIR}/corvis")
 
-add_library(tracker SHARED ../corvis/src/filter/rc_intel_interface.cpp)
-set_target_properties(tracker PROPERTIES CXX_STANDARD 14)
-target_link_libraries(tracker filter numerics cor)
+set_target_properties(tracker PROPERTIES DEBUG_POSTFIX _debug)
+set_target_properties(tracker PROPERTIES RELWITHDEBINFO_POSTFIX _relwithdebinfo)
 
 set_target_properties(measure spec spec_intel PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)

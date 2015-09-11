@@ -130,6 +130,8 @@ target_compile_options(filter PRIVATE "/MT$<$<STREQUAL:$<CONFIGURATION>,Debug>:d
 target_compile_options(glad PRIVATE "/MT$<$<STREQUAL:$<CONFIGURATION>,Debug>:d>")
 target_compile_options(numerics PRIVATE "/MT$<$<STREQUAL:$<CONFIGURATION>,Debug>:d>")
 target_compile_options(measure PRIVATE "/MT$<$<STREQUAL:$<CONFIGURATION>,Debug>:d>")
+target_compile_options(tracker PRIVATE "/MT$<$<STREQUAL:$<CONFIGURATION>,Debug>:d>")
+target_compile_options(rc_replay PRIVATE "/MT$<$<STREQUAL:$<CONFIGURATION>,Debug>:d>")
 target_compile_options(RCTracker PRIVATE "/MT$<$<STREQUAL:$<CONFIGURATION>,Debug>:d>")
 target_compile_options(vis PRIVATE "/MT$<$<STREQUAL:$<CONFIGURATION>,Debug>:d>")
 target_compile_options(spec PRIVATE "/MT$<$<STREQUAL:$<CONFIGURATION>,Debug>:d>")

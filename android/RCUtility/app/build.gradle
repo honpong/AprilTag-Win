@@ -17,64 +17,55 @@ model {
     }
     android.ndk {
         moduleName = "tracker_wrapper"
-        cppFlags += "-I" + file("../../../corvis/src/filter")
-        ldLibs += ["log"]
+        ldLibs += ["log", "GLESv2"]
+        stl = "c++_shared"
+        cppFlags += "-I" + file("src/main/jni")
     }
     android.buildTypes {
         release {
-            ndk.ldLibs += ["tracker_release"]
-            isMinifyEnabled = false
+            minifyEnabled = false
             proguardFiles += file('proguard-rules.pro')
         }
         debug {
-            ndk.ldLibs += ["tracker_debug"]
-            isMinifyEnabled = false
+            minifyEnabled = false
             proguardFiles += file('proguard-rules.pro')
-            isDebuggable = true
-            isJniDebuggable = true
+            debuggable = true
+        }
+        create("relwithdebinfo") {
+            minifyEnabled = false
+            proguardFiles += file('proguard-rules.pro')
+            debuggable = true
         }
     }
     android.productFlavors {
         create("rc86") {
             ndk.abiFilters += "x86"
-            ndk.ldFlags  += "-L" + file("build/cmake/jniLibs/x86")
         }
         create("rc64") {
             ndk.abiFilters += "x86_64"
-            ndk.ldFlags  += "-L" + file("build/cmake/jniLibs/x86_64")
-        }
-    }
-    android.sources {
-        main { jniLibs { source { srcDirs { "build/cmake/jniLibs" } } } }
-    }
-    components.android {
-        project.ext.ndkDir = new com.android.build.gradle.internal.NdkHandler(project.rootDir,null, "clang","").getNdkDirectory()
-        binaries.afterEach { binary ->
-            String type = binary.buildType.name
-            binary.productFlavors.each { flavor ->
-                flavor.ndk.abiFilters.each { arch ->
-                    project.tasks.create(name: "makeTracker${arch.capitalize()}${type.capitalize()}", type: Exec) {
-                        workingDir   "build/cmake/$arch/$type/"
-                        commandLine "cmake", "--build", file("build/cmake/$arch/$type/"), "--", "-j" + project.getGradle().startParameter.maxWorkerCount
-                        doLast { copy {
-                            from "build/cmake/$arch/$type/libtracker.so"
-                            into "build/cmake/jniLibs/$arch"
-                            rename { "libtracker_${type}.so" }
-                        } }
-                    }.dependsOn project.tasks.create(name: "cmakeTracker${arch.capitalize()}${type.capitalize()}", type: Exec) {
-                        mkdir        "build/cmake/$arch/$type/"
-                        workingDir   "build/cmake/$arch/$type/"
-                        commandLine "cmake", project.rootDir.parent,
-                            "-DCMAKE_BUILD_TYPE=${type.capitalize()}",
-                            "-DANDROID_NDK_ROOT=${project.ext.ndkDir}",
-                            "-DANDROID_PLATFORM=android-21", "-DANDROID_ARCH=$arch",
-                            "-DCMAKE_TOOLCHAIN_FILE=Android.toolchain.cmake"
-                    }
-                }
-            }
         }
     }
 }
+
+project.ext.ndkDir = new com.android.build.gradle.internal.NdkHandler(rootDir, null, "clang", "3.6").getNdkDirectory()
+
+if (file("../../rc_replay/lib/").exists())
+    model {
+        android.ndk {
+            cppFlags += "-I" + file("../../rc_replay/src")
+            ldLibs += ["tracker"]
+        }
+        android.sources {
+            main { jni { source { srcDirs += [ "../../rc_replay/src", "src/main/jni" ] } } }
+            main { jniLibs { source { srcDirs = [ "../../rc_replay/lib", "src/main/jniLibs" ] } } }
+        }
+        android.productFlavors {
+            rc86 { ndk.ldFlags  += "-L" + file("../../rc_replay/lib/x86") }
+            rc64 { ndk.ldFlags  += "-L" + file("../../rc_replay/lib/x86_64") }
+        }
+    }
+else
+    apply from: "../../cmake.gradle"
 
 tasks.all { task ->
     if (task.name.contains('Arm') || task.name.startsWith('arm') ||
@@ -82,12 +73,6 @@ tasks.all { task ->
         task.name.contains('Rc64') && !task.name.contains('_64') && task.name.contains('86') ||
         task.name.contains('Rc86') &&  task.name.contains('_64'))
         task.enabled = false
-}
-
-tasks.withType(LinkSharedLibrary) { task ->
-    java.util.regex.Matcher m = task.name =~ /^link(?i)(x86|x86_64)(Release|Debug).*/;
-    if (m.matches() && task.enabled)
-        task.dependsOn "makeTracker${m.group(1).capitalize()}${m.group(2).capitalize()}"
 }
 
 def rsRoot = "$System.env.RSSDK"
@@ -100,12 +85,12 @@ dependencies {
             rsRoot + '/libs/PXCAScenePerception_x86.jar',
             rsRoot + '/libs/PXCAPlayback_Camera_x86.jar',
             rsRoot + '/libs/SP_Core_x86.jar',
-            rsRoot + '/libs/c++_shared_x86.jar',
             rsRoot + '/libs/cilkrts_x86.jar',
             rsRoot + '/libs/metaioTracker_x86.jar',
             rsRoot + '/libs/PXCACommon.jar',
             rsRoot + '/libs/PXCASenseManager.jar',
             rsRoot + '/libs/PXCAPlayback.jar',
-            rsRoot + '/libs/PXCAScenePerception.jar'
+            rsRoot + '/libs/PXCAScenePerception.jar',
+            rsRoot + '/libs/com.intel.camera2.extensions.depthcamera.jar'
     ).each { assert it.exists() : "$it: Not found\nSet RSSDK (currently $rsRoot)" }
 }

@@ -99,7 +99,7 @@ public:
      
      @param device The camera_control_interface to be used for capture. This function will lock the focus on the camera device (if the device is capable of focusing) before starting video processing. No other modifications to the camera settings are made.
      */
-    void start(bool threaded, camera_control_interface &device);
+    void start(bool threaded);
     
     /** Prepares the object to receive video and inertial data, and starts sensor fusion updates.
      
@@ -108,8 +108,11 @@ public:
      @param device The camera_control_interface to be used for capture. This function will lock the focus on the camera device (if the device is capable of focusing) before starting video processing. No other modifications to the camera settings are made.
      @note It is strongly recommended to call start_sensor_fusion rather than this function
      */
-    void start_unstable(bool threaded, camera_control_interface &device);
+    void start_unstable(bool threaded);
 
+    void pause_and_reset_position();
+    void unpause();
+    
     void start_offline();
     
     /** Stops the processing of video and inertial data. */

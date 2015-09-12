@@ -211,6 +211,7 @@ public:
     bool map_enabled{true};
     mapper map;
     transformation loop_offset;
+    float lost_factor;
     bool loop_closed{false};
     
     void fill_calibration(const feature_t &initial, f_t &r2, f_t &kr) const {

@@ -538,7 +538,6 @@ float refine_transformation(const transformation_variance &base, transformation_
         if(resid < threshhold) {
             total_dT = total_dT + error;
             ++inliers;
-            std::cerr << "error:\n" << error.norm() <<"\n";
         }
     }
     assert(inliers);

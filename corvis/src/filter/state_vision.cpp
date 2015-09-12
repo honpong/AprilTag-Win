@@ -177,7 +177,7 @@ int state_vision_group::make_normal()
     return 0;
 }
 
-state_vision::state_vision(covariance &c): state_motion(c), Tc("Tc"), Wc("Wc"), focal_length("focal_length"), center_x("center_x"), center_y("center_y"), k1("k1"), k2("k2"), k3("k3"), fisheye(false), total_distance(0.), last_position(v4::Zero()), reference(nullptr)
+state_vision::state_vision(covariance &c): state_motion(c), Tc("Tc"), Wc("Wc"), focal_length("focal_length"), center_x("center_x"), center_y("center_y"), k1("k1"), k2("k2"), k3("k3"), fisheye(false), total_distance(0.), last_position(v4::Zero()), reference(nullptr), lost_factor(.1)
 {
     reference = NULL;
     if(estimate_camera_intrinsics)
@@ -312,7 +312,10 @@ int state_vision::process_features(const camera_data & camera, sensor_clock::tim
                 transformation old_t = map.nodes[m.from].global_transformation.transform;
                 std::cerr << "new:\n" << new_t << "\n";
                 std::cerr << "old:\n" << old_t << "\n";
-                loop_offset = new_t * invert(old_t);
+                transformation offset = new_t * invert(old_t);
+                loop_offset.T = loop_offset.T * (1. - lost_factor) + (new_t * invert(old_t)).T * lost_factor;
+                if(lost_factor > .1) lost_factor -= .1;
+                if(lost_factor < .1) lost_factor = .1;
                 //std::cerr << "loop_offset:\n" << loop_offset << "\n";
             }
         }
@@ -379,6 +382,7 @@ state_vision_group * state_vision::add_group(sensor_clock::time_point time)
         {
             map.add_edge(g->id, g->id-1);
             g->old_neighbors.push_back(g->id-1);
+            lost_factor = 1.;
         }
         for(state_vision_group *neighbor : groups.children) {
             map.add_edge(g->id, neighbor->id);

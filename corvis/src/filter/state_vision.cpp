@@ -375,6 +375,11 @@ state_vision_group * state_vision::add_group(sensor_clock::time_point time)
     quaternion gravity; // identity rotation
     if(map_enabled) {
         map.add_node(g->id, gravity);
+        if(groups.children.empty() && g->id != 0)
+        {
+            map.add_edge(g->id, g->id-1);
+            g->old_neighbors.push_back(g->id-1);
+        }
         for(state_vision_group *neighbor : groups.children) {
             map.add_edge(g->id, neighbor->id);
 

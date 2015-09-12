@@ -394,7 +394,24 @@ bool mapper::get_matches(uint64_t id, vector<map_match> &matches, int max, int s
     nodes[id].transform = transformation_variance();
     for(auto n : nodes)
         n.depth = 0;
+#if 1
     breadth_first(id, 0, NULL);
+#else
+    // TODO: if we match, need to rotate the resulting transform back
+    // into the frame of id? As simple as:
+    // matches.g.T = conjugage(nodes[id].global_transformation.transform.Q)*matches.g.T;
+    // ?
+    nodes[id].transform.transform = transformation(nodes[id].global_transformation.transform.Q, v4(0,0,0,0));
+    breadth_first(id, 0, NULL);
+    // Breadth first from every disconnected component
+    for(auto n : nodes) {
+        if(n.depth == 0 && n.id != id) {
+
+            nodes[n.id].transform.transform = transformation(nodes[n.id].global_transformation.transform.Q, v4(0,0,0,0));
+            breadth_first(n.id, 0, NULL);
+        }
+    }
+#endif
 
     list<map_feature *> histogram;
     vector<float> scores;

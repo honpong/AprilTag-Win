@@ -233,10 +233,10 @@ void mapper::set_geometry(uint64_t id1, uint64_t id2, const transformation_varia
 
 transformation mapper::get_relative_transformation(uint64_t from_id, uint64_t to_id)
 {
-    nodes[from_id].transform = transformation_variance();
-    breadth_first(from_id, 0, NULL);
+    nodes[to_id].transform = transformation_variance();
+    breadth_first(to_id, 0, NULL);
 
-    return nodes[to_id].transform.transform;
+    return nodes[from_id].transform.transform;
 }
 
 void mapper::set_relative_transformation(const transformation &T) {

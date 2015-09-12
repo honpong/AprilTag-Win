@@ -505,11 +505,19 @@ float refine_transformation(const transformation_variance &base, transformation_
     int inliers = 0;
     transformation_variance total = dT * base * dR;
     float resid = 1.e10;
+    float meanstd = 0;
+    for(list<match_pair>::const_iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
+        meanstd += sqrt(neighbor_match->first.feature->variance + neighbor_match->second.feature->variance);
+    }
+    meanstd /= neighbor_matches.size();
+    fprintf(stderr, "meanvar: %f\n", meanstd*meanstd);
+
     for(list<match_pair>::const_iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
         v4 local = transformation_apply(compose(total.transform, invert(base).transform), neighbor_match->second.position);
         v4 error = neighbor_match->first.position - local;
         resid = error.norm()*error.norm();
-        float threshhold = 3. * 3. * (neighbor_match->first.feature->variance + neighbor_match->second.feature->variance);
+        //float threshhold = 3. * 3. * (neighbor_match->first.feature->variance + neighbor_match->second.feature->variance);
+        float threshhold = 3. * 3. * (2*meanstd*2*meanstd);
         if(resid < threshhold) {
             total_dT = total_dT + error;
             ++inliers;

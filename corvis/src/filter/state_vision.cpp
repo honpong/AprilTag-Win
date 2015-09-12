@@ -226,24 +226,6 @@ void state_vision::reset_position()
     last_position = v4::Zero();
 }
 
-void state_vision::set_geometry(state_vision_group *g)
-{
-    if(g->id == 0) return;
-    transformation Greference;
-    if(reference) {
-        Greference = transformation(reference->Wr.v, reference->Tr.v);
-    } else {
-        Greference = transformation(last_Wr, last_Tr);
-    }
-    transformation Ggroup = transformation(g->Wr.v, g->Tr.v);
-    transformation G = Greference*invert(Ggroup);
-    uint64_t from = reference?reference->id:last_reference;
-    uint64_t to = g->id;
-    transformation_variance tv;
-    tv.transform = G;
-    map.set_geometry(from, to, tv);
-}
-
 int state_vision::process_features(const camera_data & camera, sensor_clock::time_point time)
 {
     int useful_drops = 0;
@@ -287,13 +269,7 @@ int state_vision::process_features(const camera_data & camera, sensor_clock::tim
         if(!health) {
             if(map_enabled) {
                 if(g->status == group_reference) {
-                    last_reference = g->id;
-                    last_Tr = g->Tr.v;
-                    last_Wr = g->Wr.v;
                     reference = 0;
-                }
-                else {
-                    set_geometry(g);
                 }
             }
             g->make_empty();
@@ -343,9 +319,6 @@ int state_vision::process_features(const camera_data & camera, sensor_clock::tim
     }
 
     if(best_group && need_reference) {
-        if(map_enabled) {
-            set_geometry(best_group);
-        }
         total_health += best_group->make_reference();
         reference = best_group;
     }

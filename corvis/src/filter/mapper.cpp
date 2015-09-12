@@ -784,6 +784,15 @@ void mapper::node_finished(uint64_t id, const transformation & G)
 {
     set_node_transformation(id, G);
     nodes[id].finished = true;
+    for(list<map_edge>::iterator edge = nodes[id].edges.begin(); edge != nodes[id].edges.end(); ++edge) {
+        uint64_t nid = edge->neighbor;
+        if(nodes[nid].finished && !edge->geometry) {
+            //fprintf(stderr, "setting an edge for %llu to %llu\n", id, nid);
+            transformation_variance tv;
+            tv.transform = invert(nodes[id].global_transformation.transform)*nodes[nid].global_transformation.transform;
+            set_geometry(id, nid, tv);
+        }
+    }
 }
     
 transformation_variance rodrigues_variance(const v4 &W, const v4 &W_var, const v4 &T, const v4 &T_var)

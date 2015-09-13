@@ -299,19 +299,11 @@ int state_vision::process_features(const camera_data & camera, sensor_clock::tim
         if(map.find_closure(matches, max, suppression)) {
             if(matches.size() > 0) {
                 map_match m = matches[0];
-                fprintf(stderr, "Loop closure: match %llu - %llu %f\n", m.from, m.to, m.score);
-                std::cerr << m.g << std::endl;
-                fprintf(stderr, "from the map\n");
-                transformation relative = map.get_relative_transformation(m.from, m.to);
-                std::cerr << relative << std::endl;
-                fprintf(stderr, "delta:\n");
-                std::cerr <<  conjugate(initial_orientation) * (relative*invert(m.g)).T << std::endl;
-                transformation initial(initial_orientation, v4(0., 0., 0., 0.));
+                //fprintf(stderr, "Loop closure: match %llu - %llu %f\n", m.from, m.to, m.score);
+                //std::cerr << m.g.T << std::endl;
                 //transformation new_t = initial * map.get_relative_transformation(m.from, 0);
                 transformation new_t = map.nodes[m.to].global_transformation.transform * invert(m.g);
                 transformation old_t = map.nodes[m.from].global_transformation.transform;
-                std::cerr << "new:\n" << new_t << "\n";
-                std::cerr << "old:\n" << old_t << "\n";
                 transformation offset = new_t * invert(old_t);
                 loop_offset.T = loop_offset.T * (1. - lost_factor) + (new_t * invert(old_t)).T * lost_factor;
                 if(lost_factor > .1) lost_factor -= .1;

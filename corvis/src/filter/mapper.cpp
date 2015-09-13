@@ -527,7 +527,7 @@ float refine_transformation(const transformation_variance &base, transformation_
         meanstd += sqrt(neighbor_match->first.feature->variance + neighbor_match->second.feature->variance);
     }
     meanstd /= neighbor_matches.size();
-    fprintf(stderr, "meanvar: %f\n", meanstd*meanstd);
+    //fprintf(stderr, "meanvar: %f\n", meanstd*meanstd);
 
     for(list<match_pair>::const_iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
         v4 local = transformation_apply(compose(total.transform, invert(base).transform), neighbor_match->second.position);

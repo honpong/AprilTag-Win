@@ -18,7 +18,7 @@ void liop_compute_desc(VlLiopDesc * liop, const uint8_t * I, int stride, float c
 
 struct descriptor {
     float d[descriptor_size];
-    float patch[liop_side_length*liop_side_length];
+    //float patch[liop_side_length*liop_side_length];
 };
 
 bool descriptor_compute(const uint8_t * image, int width, int height, int stride, float cx, float cy, float radius, descriptor & desc);

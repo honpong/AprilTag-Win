@@ -54,7 +54,8 @@ bool descriptor_compute(const uint8_t * image, int width, int height, int stride
 
     VlLiopDesc * liop = vl_liopdesc_new(liop_neighbors, liop_spatial_bins, liop_sample_radius, liop_side_length);
 
-    liop_compute_desc(liop, image, stride, cx, cy, radius, desc.patch, desc.d);
+    float patch[liop_side_length*liop_side_length];
+    liop_compute_desc(liop, image, stride, cx, cy, radius, patch, desc.d);
 
     vl_liopdesc_delete(liop);
 

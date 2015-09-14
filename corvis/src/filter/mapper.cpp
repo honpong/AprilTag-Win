@@ -150,9 +150,8 @@ void mapper::add_node(uint64_t id, const quaternion & gravity)
 }
 
 
-map_feature::map_feature(const uint64_t _id, const v4 &p, const float v, const uint32_t l, const descriptor & desc): id(_id), position(p), variance(v), label(l), d(desc)
+map_feature::map_feature(const uint64_t _id, const v4 &p, const float v, const uint32_t l, const descriptor & desc): id(_id), position(p), variance(v), label(l), dvec(desc.d)
 {
-    dvec = v144(d.d);
 }
 
 bool map_node::add_feature(const uint64_t id, const v4 &pos, const float variance, const uint32_t label, const descriptor & d)
@@ -173,7 +172,10 @@ void mapper::train_dictionary() const
     vector<descriptor> features;
     for(int n = 0; n < nodes.size(); n++) {
         for(auto f : nodes[n].features) {
-            features.push_back(f->d);
+            descriptor d;
+            for(int i = 0; i < descriptor_size; i++)
+                d.d[i] = f->dvec(i);
+            features.push_back(d);
         }
     }
     class dictionary dict(features, 30);

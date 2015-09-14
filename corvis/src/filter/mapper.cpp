@@ -486,12 +486,17 @@ void mapper::localize_neighbor_features(uint64_t id, list<local_feature> &featur
     }
 }
 
-static float sift_distance(const map_feature &first, const map_feature &second) {
+static inline float sift_distance(const map_feature &first, const map_feature &second) {
+    // ||d1 - d2||   = sqrt(||d1||^2 + ||d2||^2 - 2*d1*d2)
+    // since each descriptor has a norm of one:
+    // ||d1 - d2||   = sqrt(2 - 2*d1*d2)
+    // ||d1 - d2||^2 = 2 - 2*d1*d2
+    // ||d1 - d2||^2 = -2 (d2*d1 - 1)
     float sum = 0;
     for(int i = 0; i < descriptor_size; ++i) {
-        float diff = first.d.d[i] - second.d.d[i];
-        sum += diff*diff;
+        sum += first.d.d[i]*second.d.d[i];
     }
+    sum = -2 * (sum - 1);
     return sum;
 }
 

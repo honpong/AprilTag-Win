@@ -152,6 +152,7 @@ void mapper::add_node(uint64_t id, const quaternion & gravity)
 
 map_feature::map_feature(const uint64_t _id, const v4 &p, const float v, const uint32_t l, const descriptor & desc): id(_id), position(p), variance(v), label(l), d(desc)
 {
+    dvec = v144(d.d);
 }
 
 bool map_node::add_feature(const uint64_t id, const v4 &pos, const float variance, const uint32_t label, const descriptor & d)
@@ -492,12 +493,7 @@ static inline float sift_distance(const map_feature &first, const map_feature &s
     // ||d1 - d2||   = sqrt(2 - 2*d1*d2)
     // ||d1 - d2||^2 = 2 - 2*d1*d2
     // ||d1 - d2||^2 = -2 (d2*d1 - 1)
-    float sum = 0;
-    for(int i = 0; i < descriptor_size; ++i) {
-        sum += first.d.d[i]*second.d.d[i];
-    }
-    sum = -2 * (sum - 1);
-    return sum;
+    return 2.f*(1.f - first.dvec.dot(second.dvec));
 }
 
 void assign_matches(const list<local_feature> &f1, const list<local_feature> &f2, list<match_pair> &matches) {

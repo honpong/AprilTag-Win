@@ -150,8 +150,10 @@ void mapper::add_node(uint64_t id, const quaternion & gravity)
 }
 
 
-map_feature::map_feature(const uint64_t _id, const v4 &p, const float v, const uint32_t l, const descriptor & desc): id(_id), position(p), variance(v), label(l), dvec(desc.d)
+map_feature::map_feature(const uint64_t _id, const v4 &p, const float v, const uint32_t l, const descriptor & desc): id(_id), position(p), variance(v), label(l)
 {
+    Eigen::Map<const Eigen::VectorXf> eigen_d(desc.d, descriptor_size, 1);
+    dvec = Eigen::VectorXf(eigen_d);
 }
 
 bool map_node::add_feature(const uint64_t id, const v4 &pos, const float variance, const uint32_t label, const descriptor & d)

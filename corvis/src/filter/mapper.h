@@ -36,7 +36,7 @@ struct map_feature {
     v4 position;
     float variance;
     uint32_t label;
-    v144 dvec;
+    Eigen::VectorXf dvec;
     map_feature(const uint64_t id, const v4 &p, const float v, const uint32_t l, const descriptor & d);
 };
 

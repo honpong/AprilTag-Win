@@ -537,7 +537,7 @@ void assign_matches(const list<local_feature> &list1, const list<local_feature> 
             }
         }
         if(best_score < max_sift_distance_2)
-            matches.push_back((match_pair){ f1, best_match, best_score });
+            matches.push_back(match_pair{ f1, best_match, best_score });
     }
 }
 #endif

@@ -286,6 +286,11 @@ void sensor_fusion::reset(sensor_clock::time_point time, const transformation &i
     filter_set_origin(&sfm, initial_pose_m, false);
 }
 
+void sensor_fusion::attempt_relocalization()
+{
+    queue->dispatch_async([this]() { sfm.s.lost_factor = 1.; });
+}
+
 void sensor_fusion::receive_image(camera_data &&data)
 {
     //Adjust image timestamps to be in middle of exposure period

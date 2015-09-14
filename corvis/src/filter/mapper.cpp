@@ -496,6 +496,7 @@ static inline float sift_distance(const map_feature &first, const map_feature &s
     return 2.f*(1.f - first.dvec.dot(second.dvec));
 }
 
+#if 0
 void assign_matches(const list<local_feature> &f1, const list<local_feature> &f2, list<match_pair> &matches) {
     const float max_sift_distance_2 = 0.7*0.7;
     for(list<local_feature>::const_iterator fi1 = f1.begin(); fi1 != f1.end(); ++fi1) {
@@ -514,6 +515,28 @@ void assign_matches(const list<local_feature> &f1, const list<local_feature> &f2
         }
     }
 }
+
+#else
+// Uses the feature id to to matching, and then takes only the best match
+void assign_matches(const list<local_feature> &list1, const list<local_feature> &list2, list<match_pair> &matches) {
+    const float max_sift_distance_2 = 0.7*0.7;
+    for(const local_feature & f1 : list1) {
+        float best_score = max_sift_distance_2;
+        local_feature best_match;
+        for(const local_feature & f2 : list2) {
+            if(f1.feature->label == f2.feature->label) {
+                float score = sift_distance(*f1.feature, *f2.feature);
+                if(score < best_score) {
+                    best_score = score;
+                    best_match = f2;
+                }
+            }
+        }
+        if(best_score < max_sift_distance_2)
+            matches.push_back((match_pair){ f1, best_match, best_score });
+    }
+}
+#endif
 
 float refine_transformation(const transformation_variance &base, transformation_variance &dR, transformation_variance &dT, const list<match_pair> &neighbor_matches)
 {

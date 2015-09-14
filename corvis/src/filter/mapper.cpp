@@ -329,7 +329,7 @@ void mapper::joint_histogram(int node, list<map_feature *> &histogram)
 }
 
 void localize_features(map_node &node, list<local_feature> &features);
-void assign_matches(list<local_feature> &f1, list<local_feature> &f2, list<match_pair> &matches);
+void assign_matches(const list<local_feature> &f1, const list<local_feature> &f2, list<match_pair> &matches);
 
 int mapper::brute_force_rotation(uint64_t id1, uint64_t id2, transformation_variance &trans, int threshhold, float min, float max)
 {
@@ -500,12 +500,12 @@ static inline float sift_distance(const map_feature &first, const map_feature &s
     return sum;
 }
 
-void assign_matches(list<local_feature> &f1, list<local_feature> &f2, list<match_pair> &matches) {
+void assign_matches(const list<local_feature> &f1, const list<local_feature> &f2, list<match_pair> &matches) {
     const float max_sift_distance_2 = 0.7*0.7;
-    for(list<local_feature>::iterator fi1 = f1.begin(); fi1 != f1.end(); ++fi1) {
-        float best_score = FLT_MAX;
-        list<local_feature>::iterator best = f2.end();
-        for(list<local_feature>::iterator candidate = f2.begin(); candidate != f2.end(); ++candidate) {
+    for(list<local_feature>::const_iterator fi1 = f1.begin(); fi1 != f1.end(); ++fi1) {
+        float best_score = max_sift_distance_2;
+        list<local_feature>::const_iterator best = f2.end();
+        for(list<local_feature>::const_iterator candidate = f2.begin(); candidate != f2.end(); ++candidate) {
             if(fi1->feature->id == candidate->feature->id) continue;
             float score = sift_distance(*fi1->feature, *candidate->feature);
             if(score < best_score) {
@@ -515,7 +515,6 @@ void assign_matches(list<local_feature> &f1, list<local_feature> &f2, list<match
         }
         if(best != f2.end() && best_score < max_sift_distance_2) {
             matches.push_back(match_pair{ *fi1, *best, best_score });
-            f2.erase(best);
         }
     }
 }

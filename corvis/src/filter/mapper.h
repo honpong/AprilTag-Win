@@ -22,8 +22,6 @@ class transformation_variance {
     m4 variance;
 };
 
-typedef Eigen::Matrix<float, 144, 1> v144;
-
 struct map_edge {
     uint64_t neighbor;
     int64_t geometry; //positive/negative indicate geometric edge direction, 0 indicates a covisibility edge

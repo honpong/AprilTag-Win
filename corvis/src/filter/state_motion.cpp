@@ -78,6 +78,8 @@ void state_motion::evolve_state(f_t dt)
 {
     state_motion_orientation::evolve_state(dt);
 
+    if (orientation_only) return;
+
     T.v = T.v + dT;
     V.v = V.v + dt * a.v;
 
@@ -90,6 +92,8 @@ void state_motion::project_motion_covariance(matrix &dst, const matrix &src, f_t
 {
     state_motion_orientation::project_motion_covariance(dst, src, dt);
 
+    if (orientation_only) return;
+
     for(int i = 0; i < src.rows(); ++i) {
         v4 cov_T = T.copy_cov_from_row(src, i);
         v4 cov_V = V.copy_cov_from_row(src, i);
@@ -100,46 +104,13 @@ void state_motion::project_motion_covariance(matrix &dst, const matrix &src, f_t
     }
 }
 
-void state_motion::evolve_covariance_orientation_only(f_t dt)
-{
-    state_motion_orientation::cache_jacobians(dt);
-    
-    //use the tmp cov matrix to reduce stack size
-    matrix tmp(dynamic_statesize, cov.size());
-    state_motion_orientation::project_motion_covariance(tmp, cov.cov, dt);
-    for(int i = 0; i < dynamic_statesize; ++i) {
-        for(int j = dynamic_statesize; j < cov.size(); ++j) {
-            cov(i, j) = cov(j, i) = tmp(i, j);
-        }
-    }
-    state_motion_orientation::project_motion_covariance(cov.cov, tmp, dt);
-    //enforce symmetry
-    for(int i = 0; i < dynamic_statesize; ++i) {
-        for(int j = i + 1; j < dynamic_statesize; ++j) {
-            cov(i, j) = cov(j, i);
-        }
-    }
-    
-    //cov += diag(R)*dt
-    for(int i = 0; i < cov.size(); ++i) {
-        cov(i, i) += cov.process_noise[i] * dt;
-    }
-}
-
 void state_motion::cache_jacobians(f_t dt)
 {
     state_motion_orientation::cache_jacobians(dt);
-    dT = dt * (V.v + (dt / 2.) * a.v);
-}
 
-void state_motion::evolve(f_t dt)
-{
-    if(orientation_only) {
-        evolve_covariance_orientation_only(dt);
-        state_motion_orientation::evolve_state(dt);
-    } else {
-        state_motion_orientation::evolve(dt);
-    }
+    if (orientation_only) return;
+
+    dT = dt * (V.v + (dt / 2.) * a.v);
 }
 
 void state_motion::remove_non_orientation_states()

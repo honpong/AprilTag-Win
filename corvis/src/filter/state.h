@@ -136,10 +136,36 @@ public:
         current_time = sensor_clock::micros_to_tp(0);
     }
     
-    virtual void evolve(f_t dt)
+    void evolve(f_t dt)
     {
         evolve_covariance(dt);
         evolve_state(dt);
+    }
+
+    void evolve_covariance(f_t dt)
+    {
+        cache_jacobians(dt);
+
+        matrix tmp(dynamic_statesize, cov.size());
+
+        project_motion_covariance(tmp, cov.cov, dt);
+
+        //fill in the UR and LL matrices
+        for(int i = 0; i < dynamic_statesize; ++i)
+            for(int j = dynamic_statesize; j < cov.size(); ++j)
+                cov(i, j) = cov(j, i) = tmp(i, j);
+
+        //compute the UL matrix
+        project_motion_covariance(cov.cov, tmp, dt);
+
+        //enforce symmetry
+        for(int i = 0; i < dynamic_statesize; ++i)
+            for(int j = i + 1; j < dynamic_statesize; ++j)
+                cov(i, j) = cov(j, i);
+
+        //cov += diag(R)*dt
+        for(int i = 0; i < cov.size(); ++i)
+            cov(i, i) += cov.process_noise[i] * dt;
     }
 
     void time_update(sensor_clock::time_point time)
@@ -163,8 +189,9 @@ public:
     }
 
 protected:
-    virtual void evolve_covariance(f_t dt) = 0;
+    virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt) = 0;
     virtual void evolve_state(f_t dt) = 0;
+    virtual void cache_jacobians(f_t dt) = 0;
 
     sensor_clock::time_point current_time;
 };

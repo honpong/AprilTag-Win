@@ -49,7 +49,6 @@ public:
 protected:
     virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);
     virtual void evolve_state(f_t dt);
-    void evolve_covariance(f_t dt);
     virtual void cache_jacobians(f_t dt);
     m4 Rt, Rt_dR_dW;
     v4 dW;

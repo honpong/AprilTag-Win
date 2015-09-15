@@ -28,34 +28,6 @@ void state_motion_orientation::project_motion_covariance(matrix &dst, const matr
     }
 }
 
-void state_motion_orientation::evolve_covariance(f_t dt)
-{
-    cache_jacobians(dt);
-    
-    //use the tmp cov matrix to reduce stack size
-    matrix tmp(dynamic_statesize, cov.size());
-    project_motion_covariance(tmp, cov.cov, dt);
-    //fill in the UR and LL matrices
-    for(int i = 0; i < dynamic_statesize; ++i) {
-        for(int j = dynamic_statesize; j < cov.size(); ++j) {
-            cov(i, j) = cov(j, i) = tmp(i, j);
-        }
-    }
-    //compute the UL matrix
-    project_motion_covariance(cov.cov, tmp, dt);
-    //enforce symmetry
-    for(int i = 0; i < dynamic_statesize; ++i) {
-        for(int j = i + 1; j < dynamic_statesize; ++j) {
-            cov(i, j) = cov(j, i);
-        }
-    }
-    
-    //cov += diag(R)*dt
-    for(int i = 0; i < cov.size(); ++i) {
-        cov(i, i) += cov.process_noise[i] * dt;
-    }
-}
-
 void state_motion_orientation::evolve_state(f_t dt)
 {
     W.v = integrate_angular_velocity(W.v, dW);

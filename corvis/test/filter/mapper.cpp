@@ -3,22 +3,20 @@
 #include "corvis_dictionary.h"
 #include "util.h"
 
-void fill_map_two_nodes(mapper & map, const transformation & g, const quaternion & gravity)
+void fill_map_two_nodes(mapper & map, const transformation & g)
 {
-    transformation inverse_gravity = invert(transformation(gravity, v4(0,0,0,0)));
-    quaternion identity;
-    map.add_node(0, identity);
-    map.add_node(1, gravity);
-    map.add_node(2, identity); // add a few empty nodes to make tf-idf happy
-    map.add_node(3, identity);
-    map.add_node(4, identity);
+    map.add_node(0);
+    map.add_node(1);
+    map.add_node(2); // add a few empty nodes to make tf-idf happy
+    map.add_node(3);
+    map.add_node(4);
     for(int i = 0; i < corvis_num_centers; i++) {
         const float variance = 0.1*0.1;
         descriptor d;
         v4 position(i, i % 4, 2, 0);
         memcpy(d.d, corvis_centers + corvis_dimension*i, corvis_dimension*sizeof(float));
         map.add_feature(0, i, position, variance, d);
-        map.add_feature(1, i+corvis_num_centers, inverse_gravity*g*position, variance, d);
+        map.add_feature(1, i+corvis_num_centers, g*position, variance, d);
     }
     transformation Gidentity;
     map.node_finished(0, Gidentity);
@@ -32,8 +30,7 @@ TEST(Mapper, I)
 {
     mapper map;
     transformation g;
-    quaternion gravity;
-    fill_map_two_nodes(map, g, gravity);
+    fill_map_two_nodes(map, g);
     int max = 20;
     int suppression = 2;
     vector<map_match> matches;
@@ -49,8 +46,7 @@ TEST(Mapper, T)
 {
     mapper map;
     transformation g(quaternion(), v4(0.1,1.2,0.3,0));
-    quaternion gravity;
-    fill_map_two_nodes(map, g, gravity);
+    fill_map_two_nodes(map, g);
     int max = 20;
     int suppression = 2;
     vector<map_match> matches;

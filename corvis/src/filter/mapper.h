@@ -50,8 +50,6 @@ struct map_node {
     bool add_feature(const uint64_t id, const v4 &p, const float v, const uint32_t l, const descriptor & d);
 
     transformation_variance global_transformation;
-    // Rotation to align one axis of the camera with gravity
-    quaternion global_orientation;
 
     // temporary variables used in breadth first
     int depth;
@@ -128,14 +126,13 @@ class mapper {
     void dump_map(const char *filename);
     void train_dictionary() const;
     void set_node_transformation(uint64_t id, const transformation & G);
-    void set_node_orientation(uint64_t id, const quaternion & q);
     void node_finished(uint64_t id, const transformation & G);
     bool no_search;
     void print_stats();
     // return the number of features stored in a node
     int num_features(uint64_t group_id);
 
-    void add_node(uint64_t group_id, const quaternion &gravity);
+    void add_node(uint64_t group_id);
     void add_feature(uint64_t groupid, uint64_t id, const v4 &pos, float variance, const descriptor & d);
     void update_feature_position(uint64_t groupid, uint64_t id, const v4 &pos, float variance);
     uint32_t project_feature(const descriptor & d);

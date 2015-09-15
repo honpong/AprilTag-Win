@@ -141,12 +141,11 @@ int mapper::num_features(uint64_t id)
     return (int)nodes[id].features.size();
 }
 
-void mapper::add_node(uint64_t id, const quaternion & gravity)
+void mapper::add_node(uint64_t id)
 {
     if(nodes.size() <= id) nodes.resize(id + 1);
     nodes[id].id = id;
     nodes[id].parent = -1;
-    set_node_orientation(id, gravity);
 }
 
 
@@ -158,8 +157,7 @@ map_feature::map_feature(const uint64_t _id, const v4 &p, const float v, const u
 
 bool map_node::add_feature(const uint64_t id, const v4 &pos, const float variance, const uint32_t label, const descriptor & d)
 {
-    // position is rotated by gravity
-    map_feature *feat = new map_feature(id, global_orientation*pos, variance, label, d);
+    map_feature *feat = new map_feature(id, pos, variance, label, d);
     list<map_feature *>::iterator feature;
     for(feature = features.begin(); feature != features.end(); ++feature) {
         if((*feature)->label >= label) break;
@@ -194,7 +192,7 @@ void mapper::update_feature_position(uint64_t groupid, uint64_t id, const v4 &po
     for(auto f : nodes[groupid].features) {
         if(f->id == id) {
             // position is rotated by gravity
-            f->position = nodes[groupid].global_orientation * pos;
+            f->position = pos;
             f->variance = variance;
         }
     }
@@ -824,11 +822,6 @@ void mapper::set_node_transformation(uint64_t id, const transformation & G)
 {
     nodes[id].global_transformation = transformation_variance();
     nodes[id].global_transformation.transform = G;
-}
-
-void mapper::set_node_orientation(uint64_t id, const quaternion & q)
-{
-    nodes[id].global_orientation = q;
 }
 
 void mapper::node_finished(uint64_t id, const transformation & G)

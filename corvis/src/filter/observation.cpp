@@ -120,7 +120,7 @@ bool observation_queue::update_state_and_covariance(state &s, const matrix &inn)
         s.copy_state_from_array(state);
         kalman_update_covariance(s.cov.cov, K, LC);
         //Robust update is not needed and is much slower
-        //kalman_update_covariance_robust(f->s.cov.cov, K, LC, res_cov);
+        //kalman_update_covariance_robust(s.cov.cov, K, LC, res_cov);
         return true;
     } else {
         return false;

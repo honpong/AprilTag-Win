@@ -133,6 +133,10 @@ class mapper {
     void add_feature(uint64_t groupid, uint64_t id, const v4 &pos, float variance, const descriptor & d);
     void update_feature_position(uint64_t groupid, uint64_t id, const v4 &pos, float variance);
     uint32_t project_feature(const descriptor & d);
+
+    bool serialize(std::string &json);
 };
+
+bool mapper_deserialize(const std::string &json, mapper & map);
 
 #endif

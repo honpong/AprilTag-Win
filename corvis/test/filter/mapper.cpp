@@ -57,3 +57,30 @@ TEST(Mapper, T)
     EXPECT_QUATERNION_NEAR(g.Q, matches[0].g.Q, 4*F_T_EPS);
     EXPECT_V4_NEAR(g.T, matches[0].g.T, 4*F_T_EPS);
 }
+
+TEST(Mapper, Serialize)
+{
+    mapper map;
+    transformation g;
+    fill_map_two_nodes(map, g);
+    std::string json;
+    bool result = map.serialize(json);
+    EXPECT_TRUE(result);
+    EXPECT_TRUE(json.length() > 0);
+    mapper map2;
+    mapper_deserialize(json, map2);
+    EXPECT_EQ(map.nodes.size(), map2.nodes.size());
+    for(int i = 0; i < map.nodes.size(); i++) {
+        EXPECT_EQ(map.nodes[i].features.size(), map2.nodes[i].features.size());
+        EXPECT_EQ(map.nodes[i].edges.size(), map2.nodes[i].edges.size());
+        auto f1 = map.nodes[i].features.begin();
+        auto f2 = map2.nodes[i].features.begin();
+        for( ; f1 != map.nodes[i].features.end() || f2 != map2.nodes[i].features.end(); ++f1, ++f2) {
+            for(int j = 0; j < descriptor_size; j++) {
+                float d1 = (*f1)->dvec(j);
+                float d2 = (*f2)->dvec(j);
+                EXPECT_EQ(d1, d2);
+            }
+        }
+    }
+}

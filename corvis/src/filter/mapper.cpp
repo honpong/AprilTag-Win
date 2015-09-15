@@ -855,3 +855,166 @@ transformation_variance rodrigues_variance(const v4 &W, const v4 &W_var, const v
     transformation_variance Tv;
     return Tv;
 }
+
+
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+#include <iostream>
+#include <fstream>
+#include <sys/stat.h>
+#define MAPPER_SERIALIZED_VERSION 1
+#define KEY_VERSION "version"
+#define KEY_NODES "nodes"
+#define KEY_NODE_ID "id"
+#define KEY_NODE_NEIGHBORS "neighbors"
+#define KEY_NODE_TRANSLATION "T"
+#define KEY_NODE_QUATERNION "Q"
+#define KEY_FEATURES "features"
+#define KEY_FEATURE_ID "id"
+#define KEY_FEATURE_VARIANCE "variance"
+#define KEY_FEATURE_POSITION "position"
+#define KEY_FEATURE_DESCRIPTOR "d"
+
+using namespace rapidjson;
+
+bool mapper::serialize(std::string &json)
+{
+    // Build DOM
+    Document map_json;
+    map_json.SetObject();
+    Document::AllocatorType & allocator = map_json.GetAllocator();
+
+    Value version(MAPPER_SERIALIZED_VERSION);
+    map_json.AddMember(KEY_VERSION, version, allocator);
+
+    Value nodes_json(kArrayType);
+    for(int i = 0; i < nodes.size(); i++) {
+        // Only write finished nodes, because geometry is not valid
+        // otherwise
+        if(!nodes[i].finished) continue;
+        Value node_json(kObjectType);
+        node_json.AddMember(KEY_NODE_ID, nodes[i].id, allocator);
+
+        Value node_neighbors_json(kArrayType);
+        for(list<map_edge>::iterator edge = nodes[i].edges.begin(); edge != nodes[i].edges.end(); ++edge) {
+            uint64_t nid = edge->neighbor;
+            if(!nodes[nid].finished) continue;
+            Value neighbor_id(nid);
+            node_neighbors_json.PushBack(neighbor_id, allocator);
+        }
+        node_json.AddMember(KEY_NODE_NEIGHBORS, node_neighbors_json, allocator);
+
+        Value node_features_json(kArrayType);
+        for(auto f : nodes[i].features) {
+            Value node_feature_json(kObjectType);
+
+            Value fid(f->id);
+            node_feature_json.AddMember(KEY_FEATURE_ID, fid, allocator);
+
+            Value fvariance(f->variance);
+            node_feature_json.AddMember(KEY_FEATURE_VARIANCE, fvariance, allocator);
+
+            Value fposition(kArrayType);
+            fposition.PushBack(Value(f->position[0]), allocator);
+            fposition.PushBack(Value(f->position[1]), allocator);
+            fposition.PushBack(Value(f->position[2]), allocator);
+            fposition.PushBack(Value(f->position[3]), allocator);
+            node_feature_json.AddMember(KEY_FEATURE_POSITION, fposition, allocator);
+
+            Value fdescriptor(kArrayType);
+            for(int j = 0; j < descriptor_size; j++)
+                fdescriptor.PushBack(Value((double)f->dvec(j)), allocator);
+            node_feature_json.AddMember(KEY_FEATURE_DESCRIPTOR, fdescriptor, allocator);
+
+            node_features_json.PushBack(node_feature_json, allocator);
+        }
+        node_json.AddMember(KEY_FEATURES, node_features_json, allocator);
+
+        Value translation_json(kArrayType);
+        translation_json.PushBack(nodes[i].global_transformation.transform.T[0], allocator);
+        translation_json.PushBack(nodes[i].global_transformation.transform.T[1], allocator);
+        translation_json.PushBack(nodes[i].global_transformation.transform.T[2], allocator);
+        translation_json.PushBack(nodes[i].global_transformation.transform.T[3], allocator);
+        node_json.AddMember(KEY_NODE_TRANSLATION, translation_json, allocator);
+
+        Value rotation_json(kArrayType);
+        rotation_json.PushBack(nodes[i].global_transformation.transform.Q.w(), allocator);
+        rotation_json.PushBack(nodes[i].global_transformation.transform.Q.x(), allocator);
+        rotation_json.PushBack(nodes[i].global_transformation.transform.Q.y(), allocator);
+        rotation_json.PushBack(nodes[i].global_transformation.transform.Q.z(), allocator);
+        node_json.AddMember(KEY_NODE_QUATERNION, rotation_json, allocator);
+
+        nodes_json.PushBack(node_json, allocator);
+    }
+    map_json.AddMember(KEY_NODES, nodes_json, allocator);
+
+    // Write json to string buffer
+    StringBuffer buffer;
+    Writer<StringBuffer> writer(buffer);
+    map_json.Accept(writer);
+    json = buffer.GetString();
+
+    return json.length() > 0;
+}
+
+bool mapper_deserialize(const std::string &json, mapper & map)
+{
+    Document map_json; map_json.Parse(json.c_str());
+    if(map_json.HasParseError())
+        return false;
+
+    int version = map_json[KEY_VERSION].GetInt();
+    if(version != MAPPER_SERIALIZED_VERSION)
+        return false;
+
+    map.reset();
+
+    const Value & nodes = map_json[KEY_NODES];
+    if(!nodes.IsArray()) return false;
+
+    for(SizeType i = 0; i < nodes.Size(); i++) {
+        uint64_t node_id = nodes[i][KEY_NODE_ID].GetUint64();
+        map.add_node(node_id);
+
+        const Value & neighbors = nodes[i][KEY_NODE_NEIGHBORS];
+        for(SizeType j = 0; j < neighbors.Size(); j++) {
+            uint64_t neighbor_id = neighbors[j].GetUint64();
+            map.add_edge(node_id, neighbor_id);
+        }
+
+        const Value & features = nodes[i][KEY_FEATURES];
+        for(SizeType j = 0; j < features.Size(); j++) {
+            uint64_t feature_id = features[j][KEY_FEATURE_ID].GetUint64();
+            float variance = (float)features[j][KEY_FEATURE_VARIANCE].GetDouble();
+
+            v4 position;
+            const Value & feature_position = features[j][KEY_FEATURE_POSITION];
+            for(SizeType k = 0; k < feature_position.Size(); k++)
+                position[k] = (float)feature_position[k].GetDouble();
+
+            const Value & desc = features[j][KEY_FEATURE_DESCRIPTOR];
+            descriptor d;
+            for(SizeType k = 0; k < desc.Size(); k++) {
+                d.d[k] = (float)desc[k].GetDouble();
+            }
+
+            map.add_feature(node_id, feature_id, position, variance, d);
+        }
+
+        transformation G;
+        const Value & translation = nodes[i][KEY_NODE_TRANSLATION];
+        for(SizeType j = 0; j < translation.Size(); j++) {
+            G.T[j] = (float)translation[j].GetDouble();
+        }
+
+        const Value & rotation = nodes[i][KEY_NODE_QUATERNION];
+        G.Q.w() = (float)rotation[0].GetDouble();
+        G.Q.x() = (float)rotation[1].GetDouble();
+        G.Q.y() = (float)rotation[2].GetDouble();
+        G.Q.z() = (float)rotation[3].GetDouble();
+
+        map.node_finished(node_id, G);
+    }
+    return true;
+}

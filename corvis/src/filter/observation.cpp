@@ -62,7 +62,7 @@ void observation_queue::compute_prediction_covariance(const state &s, int meas_s
     int index = 0;
     for(auto &o : observations) {
         if(o->size) {
-            matrix dst(&LC(index, 0), o->size, statesize, meas_size-index, LC.get_stride());
+            matrix dst(LC, index, 0, o->size, statesize);
             o->cache_jacobians();
             o->project_covariance(dst, s.cov.cov);
             index += o->size;
@@ -73,7 +73,7 @@ void observation_queue::compute_prediction_covariance(const state &s, int meas_s
     index = 0;
     for(auto &o : observations) {
         if(o->size) {
-            matrix dst(&res_cov(index, 0), o->size, meas_size, meas_size-index, res_cov.get_stride());
+            matrix dst(res_cov, index, 0, o->size, meas_size);
             o->project_covariance(dst, LC);
             index += o->size;
         }

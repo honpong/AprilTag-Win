@@ -60,6 +60,10 @@ void state_motion_orientation::evolve_state(f_t dt)
 {
     W.v = integrate_angular_velocity(W.v, dW);
     w.v = w.v + dw.v * dt;
+
+    static stdev_vector w_dev, dw_dev;
+    w_dev.data(w.v);
+    dw_dev.data(dw.v);
 }
 
 void state_motion_orientation::compute_gravity(double latitude, double altitude)
@@ -72,16 +76,14 @@ void state_motion_orientation::compute_gravity(double latitude, double altitude)
 
 void state_motion::evolve_state(f_t dt)
 {
-    static stdev_vector V_dev, a_dev, w_dev, dw_dev;
     T.v = T.v + dT;
     V.v = V.v + dt * a.v;
 
     state_motion_orientation::evolve_state(dt);
     
+    static stdev_vector V_dev, a_dev;
     V_dev.data(V.v);
     a_dev.data(a.v);
-    w_dev.data(w.v);
-    dw_dev.data(dw.v);
 }
 
 void state_motion::project_motion_covariance(matrix &dst, const matrix &src, f_t dt)

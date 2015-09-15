@@ -115,6 +115,7 @@ void mapper::reset()
     nodes.clear();
     geometry.clear();
     document_frequency.clear();
+    feature_count = 0;
 }
 
 map_edge &map_node::get_add_neighbor(uint64_t neighbor)

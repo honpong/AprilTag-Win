@@ -76,11 +76,11 @@ void state_motion_orientation::compute_gravity(double latitude, double altitude)
 
 void state_motion::evolve_state(f_t dt)
 {
+    state_motion_orientation::evolve_state(dt);
+
     T.v = T.v + dT;
     V.v = V.v + dt * a.v;
 
-    state_motion_orientation::evolve_state(dt);
-    
     static stdev_vector V_dev, a_dev;
     V_dev.data(V.v);
     a_dev.data(a.v);
@@ -88,6 +88,8 @@ void state_motion::evolve_state(f_t dt)
 
 void state_motion::project_motion_covariance(matrix &dst, const matrix &src, f_t dt)
 {
+    state_motion_orientation::project_motion_covariance(dst, src, dt);
+
     for(int i = 0; i < src.rows(); ++i) {
         v4 cov_T = T.copy_cov_from_row(src, i);
         v4 cov_V = V.copy_cov_from_row(src, i);
@@ -96,7 +98,6 @@ void state_motion::project_motion_covariance(matrix &dst, const matrix &src, f_t
         T.copy_cov_to_col(dst, i, cov_T + dt * (cov_V + 1./2. * dt * cov_a));
         V.copy_cov_to_col(dst, i, cov_V + dt * cov_a);
     }
-    state_motion_orientation::project_motion_covariance(dst, src, dt);
 }
 
 void state_motion::evolve_covariance_orientation_only(f_t dt)

@@ -125,7 +125,6 @@ class mapper {
     void train_dictionary() const;
     void set_node_transformation(uint64_t id, const transformation & G);
     void node_finished(uint64_t id, const transformation & G);
-    bool no_search;
     void print_stats();
     // return the number of features stored in a node
     int num_features(uint64_t group_id);

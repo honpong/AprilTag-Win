@@ -83,9 +83,7 @@ class mapper {
     vector<transformation_variance> geometry;
     vector<uint64_t> document_frequency;
     transformation relative_transformation;
-    list<v4> local_features;
     bool unlinked;
-    list<uint64_t> origins;
     uint64_t feature_count;
     dictionary feature_dictionary;
 

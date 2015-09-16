@@ -135,11 +135,6 @@ void mapper::add_edge(uint64_t id1, uint64_t id2)
     nodes[id2].get_add_neighbor(id1);
 }
 
-int mapper::num_features(uint64_t id)
-{
-    return (int)nodes[id].features.size();
-}
-
 void mapper::add_node(uint64_t id)
 {
     if(nodes.size() <= id) nodes.resize(id + 1);

@@ -126,8 +126,6 @@ class mapper {
     void set_node_transformation(uint64_t id, const transformation & G);
     void node_finished(uint64_t id, const transformation & G);
     void print_stats();
-    // return the number of features stored in a node
-    int num_features(uint64_t group_id);
 
     void add_node(uint64_t group_id);
     void add_feature(uint64_t groupid, uint64_t id, const v4 &pos, float variance, const descriptor & d);

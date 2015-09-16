@@ -232,6 +232,7 @@ public:
     
     virtual void reset();
     void reset_position();
+    bool load_map(std::string json);
 
 protected:
     virtual void add_non_orientation_states();

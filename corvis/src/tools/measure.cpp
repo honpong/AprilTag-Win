@@ -7,7 +7,7 @@
 int main(int c, char **v)
 {
     if (0) { usage:
-        cerr << "Usage: " << v[0] << " [--pause] [--realtime] [--no-gui] [--no-plots] [--no-video] [--no-main] [--qvga] [--no-depth] [--render <file.png>] [--save <calibration-json>] <filename>\n";
+        cerr << "Usage: " << v[0] << " [--pause] [--realtime] [--no-gui] [--no-plots] [--no-video] [--no-main] [--qvga] [--no-depth] [--render <file.png>] [--save <calibration-json>] [--save-map <map-json>] [--load-map <map-json>] <filename>\n";
         return 1;
     }
 
@@ -15,6 +15,7 @@ int main(int c, char **v)
 
     bool realtime = false, start_paused = false;
     std::string save;
+    std::string save_map, load_map;
     bool qvga = false, depth = true;
     bool enable_gui = true, show_plots = false, show_video = true, show_depth = true, show_main = true;
     char *filename = nullptr, *rendername = nullptr;
@@ -32,6 +33,8 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--qvga") == 0) qvga = true;
         else if (strcmp(v[i], "--drop-depth") == 0) depth = false;
         else if (strcmp(v[i], "--save") == 0 && i+1 < c) save = v[++i];
+        else if (strcmp(v[i], "--save-map") == 0 && i+1 < c) save_map = v[++i];
+        else if (strcmp(v[i], "--load-map") == 0 && i+1 < c) load_map = v[++i];
         else goto usage;
 
     if (!filename)
@@ -49,6 +52,11 @@ int main(int c, char **v)
 
     if(!rp.configure_all(filename, realtime, progress, camera_callback)) {
         cerr << filename << ": configure_all failed! (Check your calibration.json?)\n";
+        return 2;
+    }
+
+    if(!load_map.empty() && !rp.load_map(load_map)) {
+        cerr << filename << ": Loading map " << load_map << " failed!\n";
         return 2;
     }
 
@@ -80,6 +88,10 @@ int main(int c, char **v)
             std::ofstream out(save);
             out << json;
         }
+    }
+
+    if (!save_map.empty()) {
+        rp.save_map(save_map);
     }
 
     std::cout << filename << std::endl;

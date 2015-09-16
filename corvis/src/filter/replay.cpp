@@ -327,3 +327,26 @@ void replay::stop()
 {
     is_running = false;
 }
+
+bool replay::load_map(string filename)
+{
+    ifstream file_handle(filename);
+    if(file_handle.fail())
+        return false;
+
+    string json((istreambuf_iterator<char>(file_handle)), istreambuf_iterator<char>());
+
+    if(!fusion.sfm.s.load_map(json))
+        return false;
+
+    return true;
+}
+
+void replay::save_map(string filename)
+{
+    std::string json;
+    if (fusion.sfm.s.map.serialize(json)) {
+        std::ofstream out(filename);
+        out << json;
+    }
+}

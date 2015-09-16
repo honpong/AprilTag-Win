@@ -61,6 +61,8 @@ public:
     bool set_reference_from_filename(const string &filename);
     corvis_device_parameters get_device_parameters() const { return fusion.get_device(); }
     std::string get_timing_stats() { return fusion.get_timing_stats(); }
+    bool load_map(std::string filename);
+    void save_map(string filename);
 };
 
 #endif /* defined(__RC3DK__replay__) */

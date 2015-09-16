@@ -533,3 +533,11 @@ void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t
     }
     state_motion::project_motion_covariance(dst, src, dt);
 }
+
+bool state_vision::load_map(std::string map_json)
+{
+    if(map_enabled) {
+        return mapper_deserialize(map_json, map);
+    }
+    return false;
+}

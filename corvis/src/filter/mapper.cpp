@@ -1031,6 +1031,7 @@ bool mapper_deserialize(const std::string &json, mapper & map)
         G.Q.z() = (float)rotation[3].GetDouble();
 
         map.node_finished(node_id, G);
+        map.nodes[node_id].match_attempted = true;
     }
     map.node_id_offset = max_node_id + 1;
     map.feature_id_offset = max_feature_id + 1;

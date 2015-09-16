@@ -34,7 +34,7 @@ TEST(Mapper, I)
     int max = 20;
     int suppression = 2;
     vector<map_match> matches;
-    bool result = map.get_matches(1, matches, max, suppression);
+    bool result = map.find_closure(matches, max, suppression);
     EXPECT_TRUE(result);
     EXPECT_TRUE(matches.size() > 0);
     EXPECT_EQ(matches[0].to, 0);
@@ -50,7 +50,7 @@ TEST(Mapper, T)
     int max = 20;
     int suppression = 2;
     vector<map_match> matches;
-    bool result = map.get_matches(1, matches, max, suppression);
+    bool result = map.find_closure(matches, max, suppression);
     EXPECT_TRUE(result);
     EXPECT_TRUE(matches.size() > 0);
     EXPECT_EQ(matches[0].to, 0);

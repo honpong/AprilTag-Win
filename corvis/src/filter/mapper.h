@@ -105,9 +105,12 @@ class mapper {
     void breadth_first(int start, int maxdepth, void(mapper::*callback)(map_node &));
     void internal_set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform);
     void set_special(uint64_t id, bool special);
+    bool get_matches(uint64_t id, vector<map_match> &matches, int max, int suppression);
+    void set_node_transformation(uint64_t id, const transformation & G);
 
  public:
-    uint64_t group_id_offset;
+    uint64_t node_id_offset{0};
+    uint64_t feature_id_offset{0};
     mapper();
     ~mapper();
     void reset();
@@ -115,15 +118,12 @@ class mapper {
     void set_relative_transformation(const transformation &T);
     transformation get_relative_transformation(uint64_t id1, uint64_t id2);
     void set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform);
-    // uses diffuse_matches and tf_idf_match
-    bool get_matches(uint64_t id, vector<map_match> &matches, int max, int suppression);
     bool find_closure(vector<map_match> &matches, int max, int suppression);
     /*    vector<map_match> *new_query(const vector<int> &histogram, size_t K);
     void delete_query(vector<map_match> *query);
     void add_matches(vector<int> &matches, const vector<int> &histogram);*/
     void dump_map(const char *filename);
     void train_dictionary() const;
-    void set_node_transformation(uint64_t id, const transformation & G);
     void node_finished(uint64_t id, const transformation & G);
     void print_stats();
 

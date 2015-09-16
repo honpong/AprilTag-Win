@@ -116,6 +116,8 @@ void mapper::reset()
     geometry.clear();
     document_frequency.clear();
     feature_count = 0;
+    feature_id_offset = 0;
+    node_id_offset = 0;
 }
 
 map_edge &map_node::get_add_neighbor(uint64_t neighbor)
@@ -129,6 +131,8 @@ map_edge &map_node::get_add_neighbor(uint64_t neighbor)
 
 void mapper::add_edge(uint64_t id1, uint64_t id2)
 {
+    id1 += node_id_offset;
+    id2 += node_id_offset;
     if(nodes.size() <= id1) nodes.resize(id1+1);
     if(nodes.size() <= id2) nodes.resize(id2+1);
     nodes[id1].get_add_neighbor(id2);
@@ -137,6 +141,7 @@ void mapper::add_edge(uint64_t id1, uint64_t id2)
 
 void mapper::add_node(uint64_t id)
 {
+    id += node_id_offset;
     if(nodes.size() <= id) nodes.resize(id + 1);
     nodes[id].id = id;
     nodes[id].parent = -1;
@@ -183,6 +188,8 @@ uint32_t mapper::project_feature(const descriptor & d)
 
 void mapper::update_feature_position(uint64_t groupid, uint64_t id, const v4 &pos, float variance)
 {
+    groupid += node_id_offset;
+    id += feature_id_offset;
     for(auto f : nodes[groupid].features) {
         if(f->id == id) {
             // position is rotated by gravity
@@ -194,6 +201,8 @@ void mapper::update_feature_position(uint64_t groupid, uint64_t id, const v4 &po
 
 void mapper::add_feature(uint64_t groupid, uint64_t id, const v4 &pos, float variance, const descriptor & d)
 {
+    groupid += node_id_offset;
+    id += feature_id_offset;
     uint32_t label = project_feature(d);
     ++feature_count;
     if(nodes[groupid].add_feature(id, pos, variance, label, d)) {
@@ -223,6 +232,8 @@ void mapper::internal_set_geometry(uint64_t id1, uint64_t id2, const transformat
 
 void mapper::set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform)
 {
+    id1 += node_id_offset;
+    id2 += node_id_offset;
     if(nodes.size() <= id1) nodes.resize(id1+1);
     if(nodes.size() <= id2) nodes.resize(id2+1);
     internal_set_geometry(id1, id2, transform);
@@ -230,6 +241,8 @@ void mapper::set_geometry(uint64_t id1, uint64_t id2, const transformation_varia
 
 transformation mapper::get_relative_transformation(uint64_t from_id, uint64_t to_id)
 {
+    from_id += node_id_offset;
+    to_id += node_id_offset;
     nodes[to_id].transform = transformation_variance();
     breadth_first(to_id, 0, NULL);
 
@@ -820,6 +833,7 @@ void mapper::set_node_transformation(uint64_t id, const transformation & G)
 
 void mapper::node_finished(uint64_t id, const transformation & G)
 {
+    id += node_id_offset;
     set_node_transformation(id, G);
     nodes[id].finished = true;
     for(list<map_edge>::iterator edge = nodes[id].edges.begin(); edge != nodes[id].edges.end(); ++edge) {
@@ -828,7 +842,7 @@ void mapper::node_finished(uint64_t id, const transformation & G)
             //fprintf(stderr, "setting an edge for %llu to %llu\n", id, nid);
             transformation_variance tv;
             tv.transform = invert(nodes[id].global_transformation.transform)*nodes[nid].global_transformation.transform;
-            set_geometry(id, nid, tv);
+            internal_set_geometry(id, nid, tv);
         }
     }
 }
@@ -968,8 +982,12 @@ bool mapper_deserialize(const std::string &json, mapper & map)
     const Value & nodes = map_json[KEY_NODES];
     if(!nodes.IsArray()) return false;
 
+    uint64_t max_feature_id = 0;
+    uint64_t max_node_id = 0;
     for(SizeType i = 0; i < nodes.Size(); i++) {
         uint64_t node_id = nodes[i][KEY_NODE_ID].GetUint64();
+        if(node_id > max_node_id)
+            max_node_id = node_id;
         map.add_node(node_id);
 
         const Value & neighbors = nodes[i][KEY_NODE_NEIGHBORS];
@@ -981,6 +999,9 @@ bool mapper_deserialize(const std::string &json, mapper & map)
         const Value & features = nodes[i][KEY_FEATURES];
         for(SizeType j = 0; j < features.Size(); j++) {
             uint64_t feature_id = features[j][KEY_FEATURE_ID].GetUint64();
+            if(feature_id > max_feature_id)
+                max_feature_id = feature_id;
+
             float variance = (float)features[j][KEY_FEATURE_VARIANCE].GetDouble();
 
             v4 position;
@@ -1011,5 +1032,7 @@ bool mapper_deserialize(const std::string &json, mapper & map)
 
         map.node_finished(node_id, G);
     }
+    map.node_id_offset = max_node_id + 1;
+    map.feature_id_offset = max_feature_id + 1;
     return true;
 }

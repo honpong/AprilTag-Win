@@ -246,24 +246,7 @@ template <class T, int _size> class state_leaf: public state_node {
             }
         }
     }
-    
-    static void resize_covariance(int i, int old_i, matrix &covariance_m, matrix &process_noise_m) {
-        //fix everything that came before us
-        for(int j = 0; j < i; ++j) {
-            covariance_m(i, j) = covariance_m(old_i, j);
-            covariance_m(j, i) = covariance_m(j, old_i);
-        }
-        //skip the gap
-        //fix the diagonal
-        covariance_m(i, i) = covariance_m(old_i, old_i);
-        process_noise_m[i] = process_noise_m[old_i];
-        //fix everything that will come after us
-        for(int j = old_i + 1; j < covariance_m.rows(); ++j) {
-            covariance_m(i, j) = covariance_m(old_i, j);
-            covariance_m(j, i) = covariance_m(j, old_i);
-        }
-    }
-    
+
     void remove() { index = -1; }
 protected:
     int index;

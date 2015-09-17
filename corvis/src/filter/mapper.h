@@ -83,7 +83,6 @@ class mapper {
     vector<transformation_variance> geometry;
     vector<uint64_t> document_frequency;
     transformation relative_transformation;
-    bool unlinked;
     uint64_t feature_count;
     dictionary feature_dictionary;
 
@@ -109,6 +108,7 @@ class mapper {
     void set_node_transformation(uint64_t id, const transformation & G);
 
  public:
+    bool unlinked;
     uint64_t node_id_offset{0};
     uint64_t feature_id_offset{0};
     mapper();

@@ -118,6 +118,7 @@ void mapper::reset()
     feature_count = 0;
     feature_id_offset = 0;
     node_id_offset = 0;
+    unlinked = false;
 }
 
 map_edge &map_node::get_add_neighbor(uint64_t neighbor)
@@ -1035,5 +1036,6 @@ bool mapper_deserialize(const std::string &json, mapper & map)
     }
     map.node_id_offset = max_node_id + 1;
     map.feature_id_offset = max_feature_id + 1;
+    map.unlinked = true;
     return true;
 }

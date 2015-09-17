@@ -118,7 +118,7 @@ class mapper {
     void set_relative_transformation(const transformation &T);
     transformation get_relative_transformation(uint64_t id1, uint64_t id2);
     void set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform);
-    bool find_closure(vector<map_match> &matches, int max, int suppression);
+    bool find_closure(int max, int suppression, transformation &offset);
     /*    vector<map_match> *new_query(const vector<int> &histogram, size_t K);
     void delete_query(vector<map_match> *query);
     void add_matches(vector<int> &matches, const vector<int> &histogram);*/

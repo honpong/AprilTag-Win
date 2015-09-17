@@ -293,23 +293,14 @@ int state_vision::process_features(const camera_data & camera, sensor_clock::tim
     }
 
     if(map_enabled) {
+        transformation offset;
         int max = 20;
         int suppression = 10;
-        vector<map_match> matches;
-        if(map.find_closure(matches, max, suppression)) {
-            if(matches.size() > 0) {
-                map_match m = matches[0];
-                //fprintf(stderr, "Loop closure: match %llu - %llu %f\n", m.from, m.to, m.score);
-                //std::cerr << m.g.T << std::endl;
-                //transformation new_t = initial * map.get_relative_transformation(m.from, 0);
-                transformation new_t = map.nodes[m.to].global_transformation.transform * invert(m.g);
-                transformation old_t = map.nodes[m.from].global_transformation.transform;
-                transformation offset = new_t * invert(old_t);
-                loop_offset.T = loop_offset.T * (1. - lost_factor) + (new_t * invert(old_t)).T * lost_factor;
-                if(lost_factor > .1) lost_factor -= .1;
-                if(lost_factor < .1) lost_factor = .1;
-                //std::cerr << "loop_offset:\n" << loop_offset << "\n";
-            }
+        if(map.find_closure(max, suppression, offset)) {
+            loop_offset.T = loop_offset.T * (1. - lost_factor) + offset.T * lost_factor;
+            if(lost_factor > .1) lost_factor -= .1;
+            if(lost_factor < .1) lost_factor = .1;
+            //std::cerr << "loop_offset:\n" << loop_offset << "\n";
         }
     }
 

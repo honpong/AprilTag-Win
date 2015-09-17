@@ -33,13 +33,11 @@ TEST(Mapper, I)
     fill_map_two_nodes(map, g);
     int max = 20;
     int suppression = 2;
-    vector<map_match> matches;
-    bool result = map.find_closure(matches, max, suppression);
+    transformation offset;
+    bool result = map.find_closure(max, suppression, offset);
     EXPECT_TRUE(result);
-    EXPECT_TRUE(matches.size() > 0);
-    EXPECT_EQ(matches[0].to, 0);
-    EXPECT_QUATERNION_NEAR(g.Q, matches[0].g.Q, 4*F_T_EPS);
-    EXPECT_V4_NEAR(g.T, matches[0].g.T, 4*F_T_EPS);
+    EXPECT_QUATERNION_NEAR(g.Q, offset.Q, 4*F_T_EPS);
+    EXPECT_V4_NEAR(g.T, offset.T, 4*F_T_EPS);
 }
 
 TEST(Mapper, T)
@@ -49,13 +47,11 @@ TEST(Mapper, T)
     fill_map_two_nodes(map, g);
     int max = 20;
     int suppression = 2;
-    vector<map_match> matches;
-    bool result = map.find_closure(matches, max, suppression);
+    transformation offset;
+    bool result = map.find_closure(max, suppression, offset);
     EXPECT_TRUE(result);
-    EXPECT_TRUE(matches.size() > 0);
-    EXPECT_EQ(matches[0].to, 0);
-    EXPECT_QUATERNION_NEAR(g.Q, matches[0].g.Q, 4*F_T_EPS);
-    EXPECT_V4_NEAR(g.T, matches[0].g.T, 4*F_T_EPS);
+    EXPECT_QUATERNION_NEAR(g.Q, offset.Q, 4*F_T_EPS);
+    EXPECT_V4_NEAR(g.T, offset.T, 4*F_T_EPS);
 }
 
 TEST(Mapper, Serialize)

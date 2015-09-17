@@ -242,8 +242,6 @@ void mapper::set_geometry(uint64_t id1, uint64_t id2, const transformation_varia
 
 transformation mapper::get_relative_transformation(uint64_t from_id, uint64_t to_id)
 {
-    from_id += node_id_offset;
-    to_id += node_id_offset;
     nodes[to_id].transform = transformation_variance();
     breadth_first(to_id, 0, NULL);
 
@@ -464,14 +462,21 @@ bool mapper::get_matches(uint64_t id, vector<map_match> &matches, int max, int s
     return found;
 }
 
-bool mapper::find_closure(vector<map_match> &matches, int max, int suppression)
+bool mapper::find_closure(int max, int suppression, transformation & offset)
 {
     for(int i = 0; i < nodes.size(); i++) {
         if(nodes[i].finished && !nodes[i].match_attempted && i + 10 < nodes.size()) {
             //fprintf(stderr, "searching for loop closure for %llu\n", nodes[i].id);
             nodes[i].match_attempted = true;
-            matches.clear();
+            vector<map_match> matches;
             if(get_matches(nodes[i].id, matches, max, suppression)) {
+                map_match m = matches[0];
+                //fprintf(stderr, "Loop closure: match %llu - %llu %f\n", m.from, m.to, m.score);
+                //std::cerr << m.g.T << std::endl;
+                //transformation new_t = initial * map.get_relative_transformation(m.from, 0);
+                transformation new_t = nodes[m.to].global_transformation.transform * invert(m.g);
+                transformation old_t = nodes[m.from].global_transformation.transform;
+                offset = new_t * invert(old_t);
                 return true;
             }
         }

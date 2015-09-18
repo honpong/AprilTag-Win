@@ -350,8 +350,12 @@ int mapper::brute_force_rotation(uint64_t id1, uint64_t id2, transformation_vari
     assert(max > min);
     //get all features for each group and its neighbors into the local frames
     list<local_feature> f1, f2;
+    transformation Gw1 = nodes[id1].global_transformation.transform;
+    transformation Gw2 = nodes[id2].global_transformation.transform;
     nodes[id1].transform = transformation_variance();
+    nodes[id1].transform.transform = Gw1;
     nodes[id2].transform = transformation_variance();
+    nodes[id2].transform.transform = Gw2;
     breadth_first(id1, 1, NULL);
     breadth_first(id2, 1, NULL);
     localize_features(nodes[id1], f1);
@@ -391,6 +395,7 @@ int mapper::brute_force_rotation(uint64_t id1, uint64_t id2, transformation_vari
         v4 dT;
         estimate_translation(id1, id2, dT, threshhold, trans.transform, matches, neighbor_matches);
         trans.transform.T = dT;
+        trans.transform = invert(Gw1)*trans.transform*Gw2;
         return best-worst;
     }
     return 0;

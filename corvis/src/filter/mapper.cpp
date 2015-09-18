@@ -701,6 +701,13 @@ int mapper::new_check_for_matches(uint64_t id1, uint64_t id2, transformation_var
 
 int mapper::estimate_translation(uint64_t id1, uint64_t id2, v4 &result, int min_inliers, const transformation &pre_transform, const list <match_pair> &matches, const list<match_pair> &neighbor_matches)
 {
+    float meanstd = 0;
+    for(list<match_pair>::const_iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
+        meanstd += sqrt(neighbor_match->first.feature->variance + neighbor_match->second.feature->variance);
+    }
+    meanstd /= neighbor_matches.size();
+    //fprintf(stderr, "meanvar: %f\n", meanstd*meanstd);
+
     int best_score = 0;
     v4 bestdT;
     for(list<match_pair>::const_iterator match = matches.begin(); match != matches.end(); ++match) {
@@ -712,7 +719,9 @@ int mapper::estimate_translation(uint64_t id1, uint64_t id2, v4 &result, int min
             v4 error = dT - thisdT;
             float resid = error.norm()*error.norm();
             //3 sigma
-            float threshhold = 3.*3. * (neighbor_match->first.feature->variance + neighbor_match->second.feature->variance);
+            //float threshhold = 3.*3. * (neighbor_match->first.feature->variance + neighbor_match->second.feature->variance);
+            float threshhold = 3. * 3. * (2*meanstd*2*meanstd);
+
             if(resid < threshhold) {
                 ++inliers;
                 total_dT = total_dT + thisdT;

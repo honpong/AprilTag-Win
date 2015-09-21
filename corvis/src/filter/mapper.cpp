@@ -337,7 +337,7 @@ void mapper::joint_histogram(int node, list<map_feature *> &histogram)
 }
 
 void localize_features(map_node &node, list<local_feature> &features);
-void assign_matches(const list<local_feature> &f1, const list<local_feature> &f2, list<match_pair> &matches);
+void assign_matches(const list<local_feature> &f1, const list<local_feature> &f2, list<match_pair> &matches, bool slow);
 
 int mapper::brute_force_rotation(uint64_t id1, uint64_t id2, transformation_variance &trans, int threshhold, float min, float max)
 {
@@ -361,7 +361,7 @@ int mapper::brute_force_rotation(uint64_t id1, uint64_t id2, transformation_vari
     localize_features(nodes[id2], f2);
     //ONLY look for matches in THIS group
     list<match_pair> matches;
-    assign_matches(f1, f2, matches);
+    assign_matches(f1, f2, matches, false);
     if(matches.size() == 0) return 0;
     //BUT, check support on ENTIRE neighborhood.
     f1.clear();
@@ -371,7 +371,7 @@ int mapper::brute_force_rotation(uint64_t id1, uint64_t id2, transformation_vari
     localize_neighbor_features(id1, f1);
     localize_neighbor_features(id2, f2);
     list<match_pair> neighbor_matches;
-    assign_matches(f1, f2, neighbor_matches);
+    assign_matches(f1, f2, neighbor_matches, false);
     if(neighbor_matches.size() < threshhold) return 0;
     for(float theta = min; theta < max; theta += (max-min) / 200.) {
         transformation R(rotation_vector(0., 0., theta), v4(0,0,0,0));
@@ -513,8 +513,7 @@ static inline float sift_distance(const map_feature &first, const map_feature &s
     return 2.f*(1.f - first.dvec.dot(second.dvec));
 }
 
-#if 0
-void assign_matches(const list<local_feature> &f1, const list<local_feature> &f2, list<match_pair> &matches) {
+void assign_matches_slow(const list<local_feature> &f1, const list<local_feature> &f2, list<match_pair> &matches) {
     const float max_sift_distance_2 = 0.7*0.7;
     for(list<local_feature>::const_iterator fi1 = f1.begin(); fi1 != f1.end(); ++fi1) {
         float best_score = max_sift_distance_2;
@@ -533,9 +532,8 @@ void assign_matches(const list<local_feature> &f1, const list<local_feature> &f2
     }
 }
 
-#else
 // Uses the feature id to to matching, and then takes only the best match
-void assign_matches(const list<local_feature> &list1, const list<local_feature> &list2, list<match_pair> &matches) {
+void assign_matches_fast(const list<local_feature> &list1, const list<local_feature> &list2, list<match_pair> &matches) {
     const float max_sift_distance_2 = 0.7*0.7;
     for(const local_feature & f1 : list1) {
         float best_score = max_sift_distance_2;
@@ -553,7 +551,14 @@ void assign_matches(const list<local_feature> &list1, const list<local_feature> 
             matches.push_back(match_pair{ f1, best_match, best_score });
     }
 }
-#endif
+
+void assign_matches(const list<local_feature> &f1, const list<local_feature> &f2, list<match_pair> &matches, bool fast)
+{
+    if(fast)
+        assign_matches_fast(f1, f2, matches);
+    else
+        assign_matches_slow(f1, f2, matches);
+}
 
 float refine_transformation(const transformation_variance &base, transformation_variance &dR, transformation_variance &dT, const list<match_pair> &neighbor_matches)
 {
@@ -651,7 +656,7 @@ int mapper::new_check_for_matches(uint64_t id1, uint64_t id2, transformation_var
     localize_features(nodes[id2], f2);
     //ONLY look for matches in THIS group
     list<match_pair> matches;
-    assign_matches(f1, f2, matches);
+    assign_matches(f1, f2, matches, true);
     //BUT, check support on ENTIRE neighborhood.
     f1.clear();
     f2.clear();
@@ -661,7 +666,7 @@ int mapper::new_check_for_matches(uint64_t id1, uint64_t id2, transformation_var
     localize_neighbor_features(id1, f1);
     localize_neighbor_features(id2, f2);
     list<match_pair> neighbor_matches;
-    assign_matches(f1, f2, neighbor_matches);
+    assign_matches(f1, f2, neighbor_matches, true);
     int best_score = 0;
     // Now use node matches to generate transformations, then count
     // inliers in the neighbor matches
@@ -741,7 +746,7 @@ int mapper::check_for_matches(uint64_t id1, uint64_t id2, transformation_varianc
     localize_features(nodes[id2], f2);
     //ONLY look for matches in THIS group
     list<match_pair> matches;
-    assign_matches(f1, f2, matches);
+    assign_matches(f1, f2, matches, true);
     //BUT, check support on ENTIRE neighborhood.
     f1.clear();
     f2.clear();
@@ -750,7 +755,7 @@ int mapper::check_for_matches(uint64_t id1, uint64_t id2, transformation_varianc
     localize_neighbor_features(id1, f1);
     localize_neighbor_features(id2, f2);
     list<match_pair> neighbor_matches;
-    assign_matches(f1, f2, neighbor_matches);
+    assign_matches(f1, f2, neighbor_matches, true);
 
     int best_score = 0;
     v4 bestdT;

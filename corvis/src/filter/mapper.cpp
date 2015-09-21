@@ -115,6 +115,7 @@ void mapper::reset()
     nodes.clear();
     geometry.clear();
     document_frequency.clear();
+    document_frequency.resize(map_node::histogram_size);
     feature_count = 0;
     feature_id_offset = 0;
     node_id_offset = 0;

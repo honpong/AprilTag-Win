@@ -34,9 +34,8 @@ const static f_t static_sigma = 6.; //how close to mean measurements in static m
 const static f_t steady_sigma = 3.; //how close to mean measurements in steady mode need to be - lower because it is handheld motion, not gaussian noise
 const static f_t dynamic_W_thresh_variance = 5.e-2; // variance of W must be less than this to initialize from dynamic mode
 //a_bias_var for best results on benchmarks is 6.4e-3
-const static f_t min_a_bias_var = 1.e-4; // calibration will finish immediately when variance of a_bias is less than this
-const static f_t detune_a_bias_var = 1.e-2; // variance of a_bias is reset to this between each run
-const static f_t detune_w_bias_var = 1.e-3; // variance of w_bias is reset to this between each run
+const static f_t min_a_bias_var = 1.e-4; // calibration will finish immediately when variance of a_bias is less than this, and it is reset to this between each run
+const static f_t min_w_bias_var = 1.e-6; // variance of w_bias is reset to this between each run
 const static f_t max_accel_delta = 10.; //This is biggest jump seen in hard shaking of device
 const static f_t max_gyro_delta = 5.; //This is biggest jump seen in hard shaking of device
 const static sensor_clock::duration qr_detect_period = std::chrono::microseconds(100000); //Time between checking frames for QR codes to reduce CPU usage
@@ -881,10 +880,10 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->s.a_bias.v = v4(device.a_bias[0], device.a_bias[1], device.a_bias[2], 0.);
     f_t tmp[3];
     //TODO: figure out how much drift we need to worry about between runs
-    for(int i = 0; i < 3; ++i) tmp[i] = device.a_bias_var[i] < detune_a_bias_var ? detune_a_bias_var : device.a_bias_var[i];
+    for(int i = 0; i < 3; ++i) tmp[i] = device.a_bias_var[i] < min_a_bias_var ? min_a_bias_var : device.a_bias_var[i];
     f->s.a_bias.set_initial_variance(tmp[0], tmp[1], tmp[2]);
     f->s.w_bias.v = v4(device.w_bias[0], device.w_bias[1], device.w_bias[2], 0.);
-    for(int i = 0; i < 3; ++i) tmp[i] = device.w_bias_var[i] < detune_w_bias_var ? detune_w_bias_var : device.w_bias_var[i];
+    for(int i = 0; i < 3; ++i) tmp[i] = device.w_bias_var[i] < min_w_bias_var ? min_w_bias_var : device.w_bias_var[i];
     f->s.w_bias.set_initial_variance(tmp[0], tmp[1], tmp[2]);
     
     f->s.focal_length.v = device.Fx / device.image_height;

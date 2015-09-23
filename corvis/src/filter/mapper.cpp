@@ -835,6 +835,11 @@ void mapper::print_stats()
 {
     fprintf(stderr, "nodes: %lu\n", nodes.size());
     fprintf(stderr, "features: %llu\n", feature_count);
+    fprintf(stderr, "document frequency:\n");
+    for(uint64_t frequency : document_frequency) {
+        fprintf(stderr, "%llu ", frequency);
+    }
+    fprintf(stderr, "\n");
 }
 
 void mapper::set_node_transformation(uint64_t id, const transformation & G)

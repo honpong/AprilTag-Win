@@ -958,6 +958,7 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
 corvis_device_parameters filter_get_device_parameters(const struct filter *f)
 {
     corvis_device_parameters calibration;
+    calibration.version = CALIBRATION_VERSION;
     calibration.Fx = (float)f->s.focal_length.v * f->s.image_height;
     calibration.Fy = (float)f->s.focal_length.v * f->s.image_height;
     calibration.Cx = (float)f->s.center_x.v * f->s.image_height + f->s.image_width / 2. - .5;

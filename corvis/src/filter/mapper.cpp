@@ -702,7 +702,7 @@ int mapper::estimate_translation(uint64_t id1, uint64_t id2, v4 &result, int min
 
     int best_score = 0;
     v4 bestdT;
-    for(list<match_pair>::const_iterator match = matches.begin(); match != matches.end(); ++match) {
+    for(list<match_pair>::const_iterator match = neighbor_matches.begin(); match != neighbor_matches.end(); ++match) {
         v4 dT = match->first.position - pre_transform * match->second.position;
         int inliers = 0;
         v4 total_dT = v4(0,0,0,0);
@@ -749,7 +749,7 @@ int mapper::check_for_matches(uint64_t id1, uint64_t id2, transformation_varianc
 
     int best_score = 0;
     v4 bestdT;
-    for(list<match_pair>::iterator match = matches.begin(); match != matches.end(); ++match) {
+    for(list<match_pair>::iterator match = neighbor_matches.begin(); match != neighbor_matches.end(); ++match) {
         v4 dT = match->first.position - match->second.position;
         int inliers = 0;
         v4 var = nodes[id2].transform.transform.T;

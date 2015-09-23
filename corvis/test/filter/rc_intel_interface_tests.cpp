@@ -25,10 +25,20 @@ TEST(rc_intel_interface_tests, rc_setCalibration)
     EXPECT_TRUE(rc_setCalibration(tracker, jsonString.c_str()));
 #endif
 
-    // now read cal back out and compare
+    // now read cal back out 
     const rc_char_t* buffer;
     size_t size = rc_getCalibration(tracker, &buffer);
     EXPECT_GT(size, 0);
+
+    // compare values between original and retrieved
+    corvis_device_parameters cal2 = rc_getCalibrationStruct(tracker);
+    EXPECT_FLOAT_EQ(cal.Fx, cal2.Fx);
+    EXPECT_FLOAT_EQ(cal.Fx, cal2.Fy);
+    EXPECT_FLOAT_EQ(cal.Cx, cal2.Cx);
+    EXPECT_FLOAT_EQ(cal.Cy, cal2.Cy);
+    EXPECT_FLOAT_EQ(cal.image_width, cal2.image_width);
+    EXPECT_FLOAT_EQ(cal.image_height, cal2.image_height);
+    EXPECT_FLOAT_EQ(cal.version, cal2.version);
 
     // this doesn't work because not all all fields are being extracted from filter at the moment.
     //EXPECT_STREQ(jsonString.c_str(), buffer);

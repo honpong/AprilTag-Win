@@ -398,7 +398,7 @@ void rc_setOutputLog(rc_Tracker * tracker, const rc_char_t *filename)
 #endif
 }
 
-static corvis_device_parameters rc_getCalibration(rc_Tracker *tracker)
+corvis_device_parameters rc_getCalibrationStruct(rc_Tracker *tracker)
 {
     return filter_get_device_parameters(&tracker->sfm);
 }
@@ -411,7 +411,7 @@ const char *rc_getTimingStats(rc_Tracker *tracker)
 
 size_t rc_getCalibration(rc_Tracker *tracker, const rc_char_t **buffer)
 {
-    corvis_device_parameters cal = rc_getCalibration(tracker);
+    corvis_device_parameters cal = rc_getCalibrationStruct(tracker);
     std::string json;
     if (!calibration_serialize(cal, json))
         return 0;
@@ -434,6 +434,13 @@ bool rc_setCalibration(rc_Tracker *tracker, const rc_char_t *buffer)
 #else
     bool result = calibration_deserialize(buffer, cal);
 #endif
-    if (result) tracker->set_device(cal);
+    if (result) rc_setCalibrationStruct(tracker, cal);
     return result;
+}
+
+bool rc_setCalibrationStruct(rc_Tracker *tracker, const corvis_device_parameters &cal)
+{
+    if (tracker == nullptr) return false;
+    tracker->set_device(cal);
+    return true;
 }

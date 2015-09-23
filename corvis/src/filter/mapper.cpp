@@ -431,35 +431,25 @@ bool mapper::get_matches(uint64_t id, vector<map_match> &matches, int max, int s
     joint_histogram(id, histogram);
     tf_idf_match(scores, histogram);
     diffuse_matches(id, scores, matches, max, suppression);
-    int best = 0;
-    transformation_variance bestg;
-    int bestid;
     int threshhold = 8;
-    float besttheta = 0.;
     for(int i = 0; i < matches.size(); ++i) {
         transformation_variance g;
-        int score = 0;
-        float theta = 0.;
-        score = check_for_matches(id, matches[i].to, g, threshhold);
-        matches[i].score = score;
+        matches[i].score = check_for_matches(id, matches[i].to, g, threshhold);
         matches[i].g = g.transform;
-        if(score > best) {
-            best = score;
-            bestg = g;
-            bestid = matches[i].to;
-            besttheta = theta;
-        }
     }
     sort(matches.begin(), matches.end(), map_match_compare);
-    if(best >= threshhold) {
-        transformation_variance newT = bestg;
-        int brute_score = brute_force_rotation(id, bestid, newT, threshhold, besttheta-M_PI/6., besttheta+M_PI/6.);
+    // TODO: need to check all top matches with the same score, then
+    // sort again
+    if(matches.size() > 0 && matches[0].score >= threshhold) {
+        transformation_variance newT;
+        newT.transform = matches[0].g;
+        int brute_score = brute_force_rotation(matches[0].from, matches[0].to, newT, threshhold, -M_PI/6., M_PI/6.);
         if(brute_score >= threshhold) {
-            //fprintf(stderr, "****************** %llu - %d ********************\n", id, bestid);
             found = true;
             matches[0].g = newT.transform;
+            matches[0].score = brute_score;
         }
-        //internal_set_geometry(id, bestid, newT);
+        //internal_set_geometry(matches[0].from, matches[0].to, newT);
     }
     return found;
 }

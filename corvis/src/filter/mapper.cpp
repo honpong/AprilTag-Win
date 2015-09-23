@@ -438,18 +438,27 @@ bool mapper::get_matches(uint64_t id, vector<map_match> &matches, int max, int s
         matches[i].g = g.transform;
     }
     sort(matches.begin(), matches.end(), map_match_compare);
-    // TODO: need to check all top matches with the same score, then
-    // sort again
     if(matches.size() > 0 && matches[0].score >= threshhold) {
-        transformation_variance newT;
-        newT.transform = matches[0].g;
-        int brute_score = brute_force_rotation(matches[0].from, matches[0].to, newT, threshhold, -M_PI/6., M_PI/6.);
-        if(brute_score >= threshhold) {
-            found = true;
-            matches[0].g = newT.transform;
-            matches[0].score = brute_score;
+        for(int i = 0; i < matches.size(); i++) {
+            if(matches[i].score != matches[0].score)
+                break;
+
+            transformation_variance newT;
+            newT.transform = matches[i].g;
+            int brute_score = brute_force_rotation(matches[0].from, matches[0].to, newT, threshhold, -M_PI/6., M_PI/6.);
+            if(brute_score >= threshhold) {
+                found = true;
+                matches[i].g = newT.transform;
+                matches[i].score = brute_score;
+            }
         }
-        //internal_set_geometry(matches[0].from, matches[0].to, newT);
+
+        if(found) {
+            // This sort makes sure the best fitting final
+            // transformation is selected
+            sort(matches.begin(), matches.end(), map_match_compare);
+            //internal_set_geometry(matches[0].from, matches[0].to, newT);
+        }
     }
     return found;
 }

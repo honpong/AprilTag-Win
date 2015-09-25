@@ -793,7 +793,7 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
 }
 
 //This should be called every time we want to initialize or reset the filter
-extern "C" void filter_initialize(struct filter *f, struct corvis_device_parameters device)
+extern "C" void filter_initialize(struct filter *f, device_parameters device)
 {
     //changing these two doesn't affect much.
     f->min_group_add = 16;
@@ -949,9 +949,9 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->s.remap();
 }
 
-corvis_device_parameters filter_get_device_parameters(const struct filter *f)
+device_parameters filter_get_device_parameters(const struct filter *f)
 {
-    corvis_device_parameters calibration;
+    device_parameters calibration;
     calibration.version = CALIBRATION_VERSION;
     calibration.Fx = (float)f->s.focal_length.v * f->s.image_height;
     calibration.Fy = (float)f->s.focal_length.v * f->s.image_height;

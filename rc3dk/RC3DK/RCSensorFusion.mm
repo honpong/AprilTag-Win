@@ -169,7 +169,7 @@
         [RCPrivateHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
 #endif
         
-        corvis_device_parameters dc = [RCCalibration getCalibrationData];
+        device_parameters dc = [RCCalibration getCalibrationData];
         _cor_setup = new filter_setup(&dc);
     }
     
@@ -522,7 +522,7 @@
 - (bool) saveCalibration
 {
     LOGME
-    struct corvis_device_parameters finalDeviceParameters;
+    device_parameters finalDeviceParameters;
     bool parametersGood;
     queue->dispatch_sync([&]{
         finalDeviceParameters = _cor_setup->get_device_parameters();

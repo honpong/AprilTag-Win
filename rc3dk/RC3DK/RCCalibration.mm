@@ -12,7 +12,7 @@
 
 @implementation RCCalibration
 
-+ (void) saveCalibrationData: (corvis_device_parameters)params
++ (void) saveCalibrationData: (device_parameters)params
 {
     LOGME
     
@@ -97,18 +97,18 @@
     }
 }
 
-+ (corvis_device_parameters) getDefaultsForCurrentDevice
++ (device_parameters) getDefaultsForCurrentDevice
 {
-    struct corvis_device_parameters dc;
+    device_parameters dc;
     get_parameters_for_device([self getCorvisDeviceForDeviceType:[RCDeviceInfo getDeviceType]], &dc);
     return dc;
 }
 
-+ (corvis_device_parameters) getCalibrationData
++ (device_parameters) getCalibrationData
 {
     LOGME
     
-    corvis_device_parameters defaults = [self getDefaultsForCurrentDevice], params;
+    device_parameters defaults = [self getDefaultsForCurrentDevice], params;
 
     if ([RCCalibration copySavedCalibrationData:&params]) { //TODO: what if this app is restored from itunes on a different device?
    /*     params.Fx = defaults.Fx;
@@ -128,7 +128,7 @@
     return params;
 }
 
-+ (BOOL) copySavedCalibrationData:(struct corvis_device_parameters*)dc
++ (BOOL) copySavedCalibrationData:(device_parameters*)dc
 {
     NSDictionary* data = [RCCalibration getCalibrationAsDictionary];
     if (data == nil || ![RCCalibration isCalibrationDataValid:data]) return NO;
@@ -185,7 +185,7 @@
     return [[NSUserDefaults standardUserDefaults] objectForKey:PREF_DEVICE_PARAMS];
 }
 
-+ (NSString*) stringFromCalibration:(struct corvis_device_parameters)dc
++ (NSString*) stringFromCalibration:(device_parameters)dc
 {
     return [NSString stringWithFormat:
             @"F % .1f % .1f\n"
@@ -213,7 +213,7 @@
 
 + (NSString*) getCalibrationAsString
 {
-    struct corvis_device_parameters dc;
+    device_parameters dc;
     if(![self copySavedCalibrationData:&dc]) return @"";
     return [self stringFromCalibration:dc];
 }
@@ -255,7 +255,7 @@
     {
         NSNumber* calibrationVersion = data[KEY_CALIBRATION_VERSION];
         if (calibrationVersion && [calibrationVersion intValue] == CALIBRATION_VERSION) result = YES;
-        corvis_device_parameters defaults = [self getDefaultsForCurrentDevice];
+        device_parameters defaults = [self getDefaultsForCurrentDevice];
         //check if biases are within 5 sigma
         float a = [((NSNumber*)data[KEY_ABIAS0]) floatValue];
         if(a * a > 5. * 5. * defaults.a_bias_var[0]) result = NO;

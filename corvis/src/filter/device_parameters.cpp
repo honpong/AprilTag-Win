@@ -74,7 +74,7 @@ corvis_device_type get_device_by_name(const char *name)
     return type;
 }
 
-void device_set_resolution(struct corvis_device_parameters *dc, int image_width, int image_height)
+void device_set_resolution(device_parameters *dc, int image_width, int image_height)
 {
     int max_old_dim = dc->image_width > dc->image_height ? dc->image_width : dc->image_height;
     int max_new_dim = image_width > image_height ? image_width : image_height;
@@ -89,12 +89,12 @@ void device_set_resolution(struct corvis_device_parameters *dc, int image_width,
 }
 
 // TODO: should this go away?
-bool get_parameters_for_device(corvis_device_type type, struct corvis_device_parameters *dc)
+bool get_parameters_for_device(corvis_device_type type, device_parameters *dc)
 {
     return calibration_load_defaults(type, *dc);
 }
 
-void set_initialized(struct corvis_device_parameters *dc)
+void set_initialized(device_parameters *dc)
 {
     for(int i=0; i < 3; i++) {
         dc->a_bias_var[i] = 6.4e-3f;
@@ -102,7 +102,7 @@ void set_initialized(struct corvis_device_parameters *dc)
     }
 }
 
-bool is_calibration_valid(const corvis_device_parameters &cal, const corvis_device_parameters &deviceDefaults)
+bool is_calibration_valid(const device_parameters &cal, const device_parameters &deviceDefaults)
 {
     if (cal.version != CALIBRATION_VERSION) return false;
 

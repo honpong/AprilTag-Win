@@ -8,8 +8,6 @@
 #ifndef rc_intel_interface_h
 #define rc_intel_interface_h
 
-#include "device_parameters.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -81,6 +79,26 @@ typedef enum
     rc_E_CONFIDENCE_HIGH = 3
 } rc_TrackerConfidence;
 
+typedef struct device_parameters_tag
+{
+    float Fx, Fy;
+    float Cx, Cy;
+    float px, py;
+    float K[3];
+    float a_bias[3];
+    float a_bias_var[3];
+    float w_bias[3];
+    float w_bias_var[3];
+    float w_meas_var;
+    float a_meas_var;
+    float Tc[3];
+    float Tc_var[3];
+    float Wc[3];
+    float Wc_var[3];
+    int image_width, image_height;
+    bool fisheye;
+    unsigned long int version;
+} rc_deviceParameters;
 
 typedef struct {
     float x,y,z;
@@ -224,8 +242,8 @@ RCTRACKER_API void rc_setOutputLog(rc_Tracker *tracker, const rc_char_t *filenam
 RCTRACKER_API size_t rc_getCalibration(rc_Tracker *tracker, const rc_char_t **buffer);
 RCTRACKER_API bool rc_setCalibration(rc_Tracker *tracker, const rc_char_t *buffer);
 
-RCTRACKER_API corvis_device_parameters rc_getCalibrationStruct(rc_Tracker *tracker);
-RCTRACKER_API bool rc_setCalibrationStruct(rc_Tracker *tracker, const corvis_device_parameters &cal);
+RCTRACKER_API rc_deviceParameters rc_getCalibrationStruct(rc_Tracker *tracker);
+RCTRACKER_API bool rc_setCalibrationStruct(rc_Tracker *tracker, const rc_deviceParameters &cal);
 
 /*
  Not yet implemented (depend on loop closure):

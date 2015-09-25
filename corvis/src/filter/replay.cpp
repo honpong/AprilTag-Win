@@ -29,7 +29,7 @@ bool replay::open(const char *name)
     return true;
 }
 
-bool load_calibration(string filename, corvis_device_parameters & dc)
+bool load_calibration(string filename, device_parameters & dc)
 {
     ifstream file_handle(filename);
     if(file_handle.fail())
@@ -45,7 +45,7 @@ bool load_calibration(string filename, corvis_device_parameters & dc)
 
 bool replay::set_calibration_from_filename(const char *filename)
 {
-    corvis_device_parameters dc;
+    device_parameters dc;
     string fn(filename);
     if(!load_calibration(fn + ".json", dc)) {
         auto found = fn.find_last_of("/\\");

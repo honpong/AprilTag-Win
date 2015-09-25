@@ -9,7 +9,7 @@ using namespace std;
 
 TEST(calibration_json_store_tests, SerializeDeserialize)
 {
-    corvis_device_parameters cal, calDeserialized;
+    device_parameters cal, calDeserialized;
     EXPECT_TRUE(calibration_load_defaults(DEVICE_TYPE_UNKNOWN, cal));
 
     try
@@ -33,7 +33,7 @@ TEST(calibration_json_store_tests, SerializeDeserialize)
 
 TEST(calibration_json_store_tests, DeserializeCalibration)
 {
-    corvis_device_parameters calDeserialized;
+    device_parameters calDeserialized;
 
     try
     {

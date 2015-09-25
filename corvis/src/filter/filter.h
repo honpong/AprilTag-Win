@@ -103,9 +103,9 @@ void filter_start_qr_detection(struct filter *f, const std::string& data, float 
 void filter_stop_qr_detection(struct filter *f);
 void filter_start_qr_benchmark(struct filter *f, float dimension);
 #endif
-corvis_device_parameters filter_get_device_parameters(const struct filter *f);
+device_parameters filter_get_device_parameters(const struct filter *f);
 
-extern "C" void filter_initialize(struct filter *f, corvis_device_parameters device);
+extern "C" void filter_initialize(struct filter *f, device_parameters device);
 float filter_converged(const struct filter *f);
 bool filter_is_steady(const struct filter *f);
 int filter_get_features(const struct filter *f, struct corvis_feature_info *features, int max);

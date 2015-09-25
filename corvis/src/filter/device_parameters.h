@@ -9,26 +9,10 @@ using namespace std;
 
 #define CALIBRATION_VERSION 7
 
-struct corvis_device_parameters
-{
-    float Fx, Fy;
-    float Cx, Cy;
-    float px, py;
-    float K[3];
-    float a_bias[3];
-    float a_bias_var[3];
-    float w_bias[3];
-    float w_bias_var[3];
-    float w_meas_var;
-    float a_meas_var;
-    float Tc[3];
-    float Tc_var[3];
-    float Wc[3];
-    float Wc_var[3];
-    int image_width, image_height;
-    bool fisheye;
-    unsigned long int version;
-};
+//For device_parameters, but this should really be factored into a shared header if used directly there.
+#include "rc_intel_interface.h"
+
+typedef rc_deviceParameters device_parameters;
 
 typedef enum
 {
@@ -56,11 +40,11 @@ typedef enum
 } corvis_device_type;
 
 corvis_device_type get_device_by_name(const char *name);
-bool get_parameters_for_device(corvis_device_type type, struct corvis_device_parameters *dc);
+bool get_parameters_for_device(corvis_device_type type, device_parameters *dc);
 
-bool is_calibration_valid(const corvis_device_parameters &calibration, const corvis_device_parameters &deviceDefaults);
+bool is_calibration_valid(const device_parameters &calibration, const device_parameters &deviceDefaults);
 
-void device_set_resolution(struct corvis_device_parameters *dc, int image_width, int image_height);
+void device_set_resolution(device_parameters *dc, int image_width, int image_height);
 
 void get_device_type_string_map(unordered_map<corvis_device_type, string> &map);
 string get_device_type_string(corvis_device_type type);

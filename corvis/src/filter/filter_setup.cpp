@@ -1,6 +1,6 @@
 #include "filter_setup.h"
 
-filter_setup::filter_setup(corvis_device_parameters *device_params)
+filter_setup::filter_setup(device_parameters *device_params)
 {
     device = *device_params;
     filter_initialize(&sfm, device);
@@ -57,9 +57,9 @@ RCSensorFusionErrorCode filter_setup::get_error()
     return errorCode;
 }
 
-struct corvis_device_parameters filter_setup::get_device_parameters()
+device_parameters filter_setup::get_device_parameters()
 {
-    corvis_device_parameters dc = device;
+    device_parameters dc = device;
     dc.K[0] = (float)sfm.s.k1.v;
     dc.K[1] = (float)sfm.s.k2.v;
     dc.K[2] = (float)sfm.s.k3.v;

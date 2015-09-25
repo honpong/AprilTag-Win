@@ -60,12 +60,12 @@ typedef enum {
 
 @interface RCCalibration : NSObject
 
-+ (void) saveCalibrationData: (struct corvis_device_parameters)params;
-+ (struct corvis_device_parameters) getCalibrationData;
++ (void) saveCalibrationData: (device_parameters)params;
++ (device_parameters) getCalibrationData;
 + (NSDictionary*) getCalibrationAsDictionary;
 + (NSString*) getCalibrationAsString;
 + (void) clearCalibrationData;
-+ (NSString*) stringFromCalibration:(struct corvis_device_parameters)dc;
++ (NSString*) stringFromCalibration:(device_parameters)dc;
 + (BOOL) hasCalibrationData;
 + (BOOL) isCalibrationDataValid:(NSDictionary*)data;
 + (void) postDeviceCalibration:(void (^)())successBlock onFailure:(void (^)(NSInteger statusCode))failureBlock;

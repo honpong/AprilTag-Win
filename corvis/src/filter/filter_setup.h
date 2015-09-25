@@ -8,9 +8,9 @@ class filter_setup
 {
 public:
     filter sfm;
-    struct corvis_device_parameters device;
-    filter_setup(corvis_device_parameters *device_params);
-    struct corvis_device_parameters get_device_parameters();
+    device_parameters device;
+    filter_setup(device_parameters *device_params);
+    device_parameters get_device_parameters();
     int get_failure_code();
     bool get_speed_warning();
     bool get_vision_warning();

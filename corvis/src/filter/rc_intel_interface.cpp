@@ -138,7 +138,7 @@ extern "C" void rc_reset(rc_Tracker * tracker, rc_Timestamp initialTime_us, cons
 
 void rc_printDeviceConfig(rc_Tracker * tracker)
 {
-    corvis_device_parameters device = tracker->device;
+    device_parameters device = tracker->device;
     fprintf(stderr, "Fx, Fy; %f %f\n", device.Fx, device.Fy);
     fprintf(stderr, "Cx, Cy; %f %f\n", device.Cx, device.Cy);
     fprintf(stderr, "px, py; %f %f\n", device.px, device.py);
@@ -397,7 +397,7 @@ void rc_setOutputLog(rc_Tracker * tracker, const rc_char_t *filename)
 #endif
 }
 
-corvis_device_parameters rc_getCalibrationStruct(rc_Tracker *tracker)
+device_parameters rc_getCalibrationStruct(rc_Tracker *tracker)
 {
     return filter_get_device_parameters(&tracker->sfm);
 }
@@ -410,7 +410,7 @@ const char *rc_getTimingStats(rc_Tracker *tracker)
 
 size_t rc_getCalibration(rc_Tracker *tracker, const rc_char_t **buffer)
 {
-    corvis_device_parameters cal = rc_getCalibrationStruct(tracker);
+    device_parameters cal = rc_getCalibrationStruct(tracker);
     std::string json;
     if (!calibration_serialize(cal, json))
         return 0;
@@ -426,7 +426,7 @@ size_t rc_getCalibration(rc_Tracker *tracker, const rc_char_t **buffer)
 
 bool rc_setCalibration(rc_Tracker *tracker, const rc_char_t *buffer)
 {
-    corvis_device_parameters cal;
+    device_parameters cal;
 #ifdef _WIN32
     std::wstring_convert<std::codecvt_utf8<rc_char_t>, rc_char_t> converter;
     bool result = calibration_deserialize(converter.to_bytes(buffer), cal);
@@ -437,7 +437,7 @@ bool rc_setCalibration(rc_Tracker *tracker, const rc_char_t *buffer)
     return result;
 }
 
-bool rc_setCalibrationStruct(rc_Tracker *tracker, const corvis_device_parameters &cal)
+bool rc_setCalibrationStruct(rc_Tracker *tracker, const device_parameters &cal)
 {
     if (tracker == nullptr) return false;
     tracker->set_device(cal);

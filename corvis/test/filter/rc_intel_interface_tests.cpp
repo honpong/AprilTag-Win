@@ -10,7 +10,7 @@ using namespace std;
 TEST(rc_intel_interface_tests, rc_setCalibration)
 {
     // load default cal
-    corvis_device_parameters cal;
+    device_parameters cal;
     EXPECT_TRUE(calibration_load_defaults(DEVICE_TYPE_GIGABYTES11, cal));
 
     // set cal
@@ -31,7 +31,7 @@ TEST(rc_intel_interface_tests, rc_setCalibration)
     EXPECT_GT(size, 0);
 
     // compare values between original and retrieved
-    corvis_device_parameters cal2 = rc_getCalibrationStruct(tracker);
+    device_parameters cal2 = rc_getCalibrationStruct(tracker);
     EXPECT_FLOAT_EQ(cal.Fx, cal2.Fx);
     EXPECT_FLOAT_EQ(cal.Fx, cal2.Fy);
     EXPECT_FLOAT_EQ(cal.Cx, cal2.Cx);

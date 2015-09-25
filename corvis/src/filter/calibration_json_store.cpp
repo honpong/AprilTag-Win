@@ -51,7 +51,7 @@ using namespace std;
 
 #include "calibration_defaults.h"
 
-void CopyJsonToStruct(Document &json, corvis_device_parameters &cal)
+void CopyJsonToStruct(Document &json, device_parameters &cal)
 {
     cal.version = json[KEY_CALIBRATION_VERSION].GetInt();
     cal.Fx = (float)json[KEY_FX].GetDouble();
@@ -94,7 +94,7 @@ void CopyJsonToStruct(Document &json, corvis_device_parameters &cal)
     cal.fisheye = false;
 }
 
-void CopyStructToJson(const corvis_device_parameters &cal, Value &json)
+void CopyStructToJson(const device_parameters &cal, Value &json)
 {
     json[KEY_CALIBRATION_VERSION] = CALIBRATION_VERSION;
     json[KEY_FX] = cal.Fx;
@@ -136,7 +136,7 @@ void CopyStructToJson(const corvis_device_parameters &cal, Value &json)
     json[KEY_IMAGE_HEIGHT] = cal.image_height;
 }
 
-bool calibration_serialize(const corvis_device_parameters &cal, std::string &jsonString)
+bool calibration_serialize(const device_parameters &cal, std::string &jsonString)
 {
     Document json; json.Parse(calibration_default_json_for_device_type(DEVICE_TYPE_UNKNOWN));
     CopyStructToJson(cal, json);
@@ -147,7 +147,7 @@ bool calibration_serialize(const corvis_device_parameters &cal, std::string &jso
     return jsonString.length() > 0;
 }
 
-bool calibration_deserialize(const std::string &jsonString, corvis_device_parameters &cal)
+bool calibration_deserialize(const std::string &jsonString, device_parameters &cal)
 {
     Document json; json.Parse(jsonString.c_str());
     if (json.HasParseError())
@@ -156,7 +156,7 @@ bool calibration_deserialize(const std::string &jsonString, corvis_device_parame
     return true;
 }
 
-bool calibration_load_defaults(const corvis_device_type deviceType, corvis_device_parameters &cal)
+bool calibration_load_defaults(const corvis_device_type deviceType, device_parameters &cal)
 {
     return calibration_deserialize(calibration_default_json_for_device_type(deviceType), cal);
 }

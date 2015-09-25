@@ -302,9 +302,14 @@ void mapper::diffuse_matches(uint64_t node_id, vector<float> &matches, vector<ma
 {
     //mark the nodes that are too close to this one
     for(int i = 0; i < matches.size(); ++i) {
-        if(nodes[i].id == node_id) continue; // Can't match ourselves
-        if(!nodes[i].finished) continue; // Can't match unfinished nodes
-        if(nodes[i].depth <= unrecent) continue; // Can't match nodes that are too close
+        if(unlinked && i < node_id_offset) {
+            if(!nodes[i].finished) continue; // Can't match unfinished nodes
+        }
+        else {
+            if(nodes[i].id == node_id) continue; // Can't match ourselves
+            if(!nodes[i].finished) continue; // Can't match unfinished nodes
+            if(nodes[i].depth <= unrecent) continue; // Can't match nodes that are too close
+        }
         float num = matches[i];
         int denom = nodes[i].terms;
         for(list<map_edge>::iterator edge = nodes[i].edges.begin(); edge != nodes[i].edges.end(); ++edge) {
@@ -404,27 +409,14 @@ bool mapper::get_matches(uint64_t id, vector<map_match> &matches, int max, int s
 {
     bool found = false;
     //rebuild the map relative to the current node
-    nodes[id].transform = transformation_variance();
     for(auto n : nodes)
         n.depth = 0;
-#if 1
+    nodes[id].transform = transformation_variance();
     breadth_first(id, 0, NULL);
-#else
-    // TODO: if we match, need to rotate the resulting transform back
-    // into the frame of id? As simple as:
-    // matches.g.T = conjugage(nodes[id].global_transformation.transform.Q)*matches.g.T;
-    // ?
-    nodes[id].transform.transform = transformation(nodes[id].global_transformation.transform.Q, v4(0,0,0,0));
-    breadth_first(id, 0, NULL);
-    // Breadth first from every disconnected component
-    for(auto n : nodes) {
-        if(n.depth == 0 && n.id != id) {
-
-            nodes[n.id].transform.transform = transformation(nodes[n.id].global_transformation.transform.Q, v4(0,0,0,0));
-            breadth_first(n.id, 0, NULL);
-        }
+    if(unlinked) {
+        nodes[0].transform = transformation_variance();
+        breadth_first(0, 0, NULL);
     }
-#endif
 
     list<map_feature *> histogram;
     vector<float> scores;
@@ -434,7 +426,10 @@ bool mapper::get_matches(uint64_t id, vector<map_match> &matches, int max, int s
     int threshhold = 8;
     for(int i = 0; i < matches.size(); ++i) {
         transformation_variance g;
-        matches[i].score = check_for_matches(id, matches[i].to, g, threshhold);
+        if(unlinked && matches[i].to < node_id_offset)
+            matches[i].score = brute_force_rotation(matches[i].from, matches[i].to, g, threshhold, -M_PI, M_PI);
+        else
+            matches[i].score = check_for_matches(id, matches[i].to, g, threshhold);
         matches[i].g = g.transform;
     }
     sort(matches.begin(), matches.end(), map_match_compare);
@@ -457,7 +452,13 @@ bool mapper::get_matches(uint64_t id, vector<map_match> &matches, int max, int s
             // This sort makes sure the best fitting final
             // transformation is selected
             sort(matches.begin(), matches.end(), map_match_compare);
-            //internal_set_geometry(matches[0].from, matches[0].to, newT);
+            //internal_set_geometry(matches[0].from, matches[0].to, matches[0].g);
+            if(unlinked && matches[0].to < node_id_offset) {
+                unlinked = false;
+                transformation_variance tv;
+                tv.transform = matches[0].g;
+                internal_set_geometry(matches[0].from, matches[0].to, tv);
+            }
         }
     }
     return found;

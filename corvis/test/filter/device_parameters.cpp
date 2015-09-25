@@ -72,13 +72,3 @@ TEST(device_parameters_tests, device_set_resolution)
     EXPECT_EQ(96, cal.image_width);
     EXPECT_EQ(69, cal.image_height);
 }
-
-TEST(device_parameters_tests, device_set_framerate)
-{
-    corvis_device_parameters cal;
-    device_set_framerate(&cal, 99.f);
-
-    // don't test for specific values, which may be brittle. just make sure it's something reasonable.
-    EXPECT_GE(cal.shutter_delay.count(), 0); 
-    EXPECT_GT(cal.shutter_period.count(), 0);
-}

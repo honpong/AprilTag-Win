@@ -243,7 +243,6 @@
     double frame_duration = (CMTimeGetSeconds(device.activeVideoMinFrameDuration) + CMTimeGetSeconds(device.activeVideoMaxFrameDuration))/2;
     DLog(@"Starting with %d width x %d height", sz.width, sz.height);
     device_set_resolution(&_cor_setup->device, sz.width, sz.height);
-    device_set_framerate(&_cor_setup->device, (float)(1./frame_duration));
     filter_initialize(&_cor_setup->sfm, _cor_setup->device);
 }
 

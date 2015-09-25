@@ -154,7 +154,6 @@ void rc_printDeviceConfig(rc_Tracker * tracker)
     fprintf(stderr, "Wc[3]; %f %f %f\n", device.Wc[0], device.Wc[1], device.Wc[2]);
     fprintf(stderr, "Wc_var[3]; %f %f %f\n", device.Wc_var[0], device.Wc_var[1], device.Wc_var[2]);
     fprintf(stderr, "int image_width, image_height; %d %d\n", device.image_width, device.image_height);
-    //fprintf(stderr, "sensor_clock::duration shutter_delay, shutter_period;
 }
 
 void rc_configureCamera(rc_Tracker * tracker, rc_Camera camera, const rc_Pose pose_m, int width_px, int height_px, float center_x_px, float center_y_px, float focal_length_x_px, float focal_length_y_px, float skew, bool fisheye, float fisheye_fov_radians)

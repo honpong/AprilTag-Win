@@ -27,7 +27,6 @@ struct corvis_device_parameters
     float Wc_var[3];
     int image_width, image_height;
     bool fisheye;
-    sensor_clock::duration shutter_delay, shutter_period;
     unsigned long int version;
 };
 
@@ -62,7 +61,6 @@ bool get_parameters_for_device(corvis_device_type type, struct corvis_device_par
 bool is_calibration_valid(const corvis_device_parameters &calibration, const corvis_device_parameters &deviceDefaults);
 
 void device_set_resolution(struct corvis_device_parameters *dc, int image_width, int image_height);
-void device_set_framerate(struct corvis_device_parameters *dc, float framerate_hz);
 
 void get_device_type_string_map(unordered_map<corvis_device_type, string> &map);
 string get_device_type_string(corvis_device_type type);

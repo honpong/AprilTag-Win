@@ -502,7 +502,7 @@ void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_
     }
 }
 
-void filter_setup_next_frame(struct filter *f, const uint8_t *image, sensor_clock::time_point time)
+void filter_setup_next_frame(struct filter *f, const camera_data &cam_data)
 {
     size_t feats_used = f->s.features.size();
 
@@ -512,16 +512,16 @@ void filter_setup_next_frame(struct filter *f, const uint8_t *image, sensor_cloc
         for(state_vision_group *g : f->s.groups.children) {
             if(!g->status || g->status == group_initializing) continue;
             for(state_vision_feature *i : g->features.children) {
-                auto extra_time = std::chrono::duration_cast<sensor_clock::duration>(f->shutter_delay + i->current[1]/(float)f->s.image_height * f->shutter_period);
-                auto obs = std::make_unique<observation_vision_feature>(f->s, time + extra_time, time);
+                auto extra_time = std::chrono::duration_cast<sensor_clock::duration>(cam_data.exposure_time * (i->current[1] / (float)cam_data.height));
+                auto obs = std::make_unique<observation_vision_feature>(f->s, cam_data.timestamp + extra_time, cam_data.timestamp);
                 obs->state_group = g;
                 obs->feature = i;
                 obs->meas[0] = i->current[0];
                 obs->meas[1] = i->current[1];
-                obs->image = image;
+                obs->image = cam_data.image;
                 obs->tracker = f->track;
-                obs->feature->dt = time - obs->feature->last_seen;
-                obs->feature->last_seen = time;
+                obs->feature->dt = cam_data.timestamp - obs->feature->last_seen;
+                obs->feature->last_seen = cam_data.timestamp;
 
                 f->observations.observations.push_back(std::move(obs));
             }
@@ -722,7 +722,7 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
     }
 
 
-    filter_setup_next_frame(f, camera.image, time);
+    filter_setup_next_frame(f, camera);
 
     if(show_tuning) {
         fprintf(stderr, "vision:\n");
@@ -798,9 +798,6 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     //changing these two doesn't affect much.
     f->min_group_add = 16;
     f->max_group_add = 40;
-    
-    f->shutter_delay = std::chrono::microseconds(0);
-    f->shutter_period = std::chrono::microseconds(0);
     
     f->w_variance = device.w_meas_var;
     f->a_variance = device.a_meas_var;
@@ -930,8 +927,6 @@ extern "C" void filter_initialize(struct filter *f, struct corvis_device_paramet
     f->s.k2.set_initial_variance(2.e-4);
     f->s.k3.set_initial_variance(2.e-4);
     
-    f->shutter_delay = device.shutter_delay;
-    f->shutter_period = device.shutter_period;
     f->s.image_width = device.image_width;
     f->s.image_height = device.image_height;
     

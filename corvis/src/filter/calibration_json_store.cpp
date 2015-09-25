@@ -47,8 +47,6 @@ using namespace std;
 #define KEY_AMEASVAR "aMeasVar"
 #define KEY_IMAGE_WIDTH "imageWidth"
 #define KEY_IMAGE_HEIGHT "imageHeight"
-#define KEY_SHUTTER_DELAY "shutterDelay"
-#define KEY_SHUTTER_PERIOD "shutterPeriod"
 #define KEY_CALIBRATION_VERSION "calibrationVersion"
 
 #include "calibration_defaults.h"
@@ -93,8 +91,6 @@ void CopyJsonToStruct(Document &json, corvis_device_parameters &cal)
     cal.a_meas_var = (float)json[KEY_AMEASVAR].GetDouble();
     cal.image_width = json[KEY_IMAGE_WIDTH].GetInt();
     cal.image_height = json[KEY_IMAGE_HEIGHT].GetInt();
-    cal.shutter_delay = std::chrono::microseconds(0);
-    cal.shutter_period = std::chrono::microseconds(0);
     cal.fisheye = false;
 }
 
@@ -138,8 +134,6 @@ void CopyStructToJson(const corvis_device_parameters &cal, Value &json)
     json[KEY_AMEASVAR] = cal.a_meas_var;
     json[KEY_IMAGE_WIDTH] = cal.image_width;
     json[KEY_IMAGE_HEIGHT] = cal.image_height;
-    json[KEY_SHUTTER_DELAY] = (int)std::chrono::duration_cast<std::chrono::microseconds>(cal.shutter_delay).count();
-    json[KEY_SHUTTER_PERIOD] = (int)std::chrono::duration_cast<std::chrono::microseconds>(cal.shutter_period).count();
 }
 
 bool calibration_serialize(const corvis_device_parameters &cal, std::string &jsonString)

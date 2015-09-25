@@ -21,10 +21,12 @@ model {
         stl = "c++_shared"
         cppFlags += "-I" + file("src/main/jni")
     }
+    def debugSigningConfig
     android.buildTypes {
         release {
             minifyEnabled = false
             proguardFiles += file('proguard-rules.pro')
+            signingConfig = debugSigningConfig
         }
         debug {
             minifyEnabled = false
@@ -35,6 +37,12 @@ model {
             minifyEnabled = false
             proguardFiles += file('proguard-rules.pro')
             debuggable = true
+            signingConfig = debugSigningConfig
+        }
+    }
+    android.signingConfigs {
+        debug {
+            debugSigningConfig = it
         }
     }
     android.productFlavors {

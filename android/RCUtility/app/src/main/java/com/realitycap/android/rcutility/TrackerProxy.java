@@ -3,6 +3,7 @@ package com.realitycap.android.rcutility;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
+import android.os.SystemClock;
 import android.media.Image;
 import android.util.Log;
 import android.view.Surface;
@@ -90,8 +91,12 @@ public class TrackerProxy implements SensorEventListener, IRealSenseSensorReceiv
         Image.Plane[] depthPlanes = depthImage.getPlanes();
         assert (depthPlanes != null && depthPlanes.length > 0);
 
+        assert (colorImage.getTimestamp() == depthImage.getTimestamp());
+        long timeOffset = SystemClock.elapsedRealtimeNanos() - SystemClock.uptimeMillis() * 1000000; //in nanoseconds
+        long frameTime =  depthImage.getTimestamp() + timeOffset;
+
         boolean result = receiveImageWithDepth(
-                colorImage.getTimestamp(),
+                frameTime,
                 33333000,
                 false,
                 colorImage.getWidth(),

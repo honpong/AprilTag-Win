@@ -1,6 +1,6 @@
 //
 //  camera_control_interface.h
-//  Corvis
+//  
 //
 //  Created by Eagle Jones on 12/11/14.
 //  Copyright (c) 2014 RealityCap. All rights reserved.

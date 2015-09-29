@@ -12,7 +12,7 @@ using namespace std;
 //For device_parameters, but this should really be factored into a shared header if used directly there.
 #include "rc_intel_interface.h"
 
-typedef rc_deviceParameters device_parameters;
+typedef rc_DeviceParameters device_parameters;
 
 typedef enum
 {

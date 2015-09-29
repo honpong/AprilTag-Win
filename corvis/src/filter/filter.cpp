@@ -1005,7 +1005,7 @@ bool filter_is_steady(const struct filter *f)
         f->s.w.v.norm() < .1;
 }
 
-int filter_get_features(const struct filter *f, struct corvis_feature_info *features, int max)
+int filter_get_features(const struct filter *f, struct feature_info *features, int max)
 {
     int index = 0;
     for(state_vision_feature *i : f->s.features) {

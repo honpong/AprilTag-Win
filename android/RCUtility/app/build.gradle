@@ -83,7 +83,10 @@ tasks.all { task ->
         task.enabled = false
 }
 
-def rsRoot = "$System.env.RSSDK"
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+def rsRoot = properties.getProperty('rssdk.dir')
+
 dependencies {
     compile 'com.android.support:support-v13:22.2.0'
     // TODO: not all of these are necessary

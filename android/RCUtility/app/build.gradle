@@ -103,5 +103,5 @@ dependencies {
             rsRoot + '/libs/PXCAPlayback.jar',
             rsRoot + '/libs/PXCAScenePerception.jar',
             rsRoot + '/libs/com.intel.camera2.extensions.depthcamera.jar'
-    ).each { assert it.exists() : "$it: Not found\nSet RSSDK (currently $rsRoot)" }
+    ).each { assert it.exists() : "$it: Not found.\nYou may need to set rssdk.dir in local.properties" }
 }

@@ -17,6 +17,9 @@ task rcRelease(type: Copy, dependsOn: [rcHeader, rcSource]) {
     into "../../rc_replay/lib"
 }
 
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+def mklRoot = properties.getProperty('mkl.dir')
 
 model {
     android.sources {
@@ -59,7 +62,8 @@ model {
                             "-DCMAKE_BUILD_TYPE=${type.capitalize()}",
                             "-DANDROID_NDK_ROOT=${project.ext.ndkDir}",
                             "-DANDROID_PLATFORM=android-21", "-DANDROID_ARCH=$arch",
-                            "-DCMAKE_TOOLCHAIN_FILE=Android.toolchain.cmake"
+                            "-DCMAKE_TOOLCHAIN_FILE=Android.toolchain.cmake",
+                            "-DMKLROOT=$mklRoot"
                    });
                    if (type == "release")
                       rcRelease.dependsOn(make)

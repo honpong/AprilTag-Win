@@ -108,7 +108,7 @@ public:
     
 private:
     void runloop();
-    bool run_control(const std::unique_lock<std::mutex> &lock);
+    bool run_control();
     bool ok_to_dispatch(sensor_clock::time_point time);
     bool dispatch_next(std::unique_lock<std::mutex> &lock, bool force);
     void dispatch_singlethread(bool force);

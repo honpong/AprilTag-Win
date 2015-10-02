@@ -20,6 +20,7 @@ model {
         ldLibs += ["log", "GLESv2"]
         stl = "c++_shared"
         cppFlags += "-I" + file("src/main/jni")
+        debuggable = true
     }
     def debugSigningConfig
     android.buildTypes {

@@ -332,8 +332,8 @@ extern "C"
     }
 
     JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_receiveImageWithDepth(JNIEnv *env, jobject thiz, jlong time_ns, jlong shutter_time_ns, jboolean force_recognition,
-                                                                                                        jint width, jint height, jint stride, jobject colorData, jobject colorImage, jint depthWidth, jint depthHeight,
-                                                                                                        jint depthStride, jobject depthData, jobject depthImage)
+                                                                                                        jint width, jint height, jint stride, jobject colorData, jobject colorImage,
+                                                                                                        jint depthWidth, jint depthHeight, jint depthStride, jobject depthData, jobject depthImage)
     {
         if (!tracker) return (JNI_FALSE);
 

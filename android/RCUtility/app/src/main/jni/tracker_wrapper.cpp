@@ -349,7 +349,15 @@ extern "C"
 
 //        LOGV(">>>>>>>>>>> Synced camera frames received <<<<<<<<<<<<<");
 
-        rc_receiveImageWithDepth(tracker, rc_EGRAY8, time_ns / 1000, shutter_time_ns / 1000, NULL, false, width, height, stride, colorPtr, release_image, colorImageCached, depthWidth, depthHeight, depthStride, depthPtr, release_image, depthImageCached);
+        if (false) {
+            rc_receiveImageWithDepth(tracker, rc_EGRAY8, time_ns / 1000, shutter_time_ns / 1000, NULL, false,
+                                     width, height, stride, colorPtr, release_image, colorImageCached,
+                                     depthWidth, depthHeight, depthStride, depthPtr, release_image, depthImageCached);
+        } else {
+            rc_receiveImage(tracker, rc_EGRAY8, time_ns / 1000, shutter_time_ns / 1000, NULL, false,
+                            width, height, stride, colorPtr, release_image, colorImageCached);
+            release_image(depthImageCached);
+        }
 
         return (JNI_TRUE);
     }

@@ -216,7 +216,7 @@ void sensor_fusion::start(bool thread)
 {
     threaded = thread;
     isSensorFusionRunning = true;
-    isProcessingVideo = false;
+    isProcessingVideo = true;
     filter_initialize(&sfm, device);
     filter_start_hold_steady(&sfm);
     if(threaded) queue->start_async(true);
@@ -227,7 +227,7 @@ void sensor_fusion::start_unstable(bool thread)
 {
     threaded = thread;
     isSensorFusionRunning = true;
-    isProcessingVideo = false;
+    isProcessingVideo = true;
     filter_initialize(&sfm, device);
     filter_start_dynamic(&sfm);
     if(threaded) queue->start_async(true);

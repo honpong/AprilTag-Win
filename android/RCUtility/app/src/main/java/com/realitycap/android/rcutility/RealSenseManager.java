@@ -16,8 +16,6 @@ import com.intel.camera.toolkit.depth.StreamTypeSet;
 import com.intel.camera.toolkit.depth.sensemanager.IMUCaptureManager;
 import com.intel.camera.toolkit.depth.sensemanager.SenseManager;
 
-import java.util.concurrent.CountDownLatch;
-
 /**
  * Created by benhirashima on 7/2/15.
  */
@@ -34,7 +32,7 @@ public class RealSenseManager
     private Camera.Desc playbackCamDesc = new Camera.Desc(Camera.Type.PLAYBACK, Camera.Facing.ANY, userStreamTypes);
 
     protected Camera.Calibration.Intrinsics mColorParams; //intrinsics param of color camera
-    private CountDownLatch startupLatch;
+    ICameraIntrinsicsCallback callback;
 
     RealSenseManager(Context context, IRealSenseSensorReceiver receiver)
     {
@@ -43,15 +41,16 @@ public class RealSenseManager
         this.receiver = receiver;
     }
 
-    public boolean startCameras()
+    public boolean startCameras(final ICameraIntrinsicsCallback callback)
     {
         Log.d(TAG, "startCameras");
+
+        this.callback = callback;
 
         if (false == mIsCamRunning)
         {
             try
             {
-                startupLatch = new CountDownLatch(1);
                 if (enablePlayback)
                 {
                     mSenseManager.enableStreams(mSenseEventHandler, playbackCamDesc);
@@ -60,7 +59,6 @@ public class RealSenseManager
                 {
                     mSenseManager.enableStreams(mSenseEventHandler, getUserProfiles(), null);
                 }
-                startupLatch.await();
                 mIsCamRunning = true;
             }
             catch (Exception e)
@@ -160,13 +158,16 @@ public class RealSenseManager
         public void onSetProfile(Camera.CaptureInfo info)
         {
             Camera.Calibration cal = info.getCalibrationData();
-            if (cal != null) mColorParams = cal.colorIntrinsics;
+            if (cal != null)
+            {
+                mColorParams = cal.colorIntrinsics;
+                if (callback != null && mColorParams != null) callback.cameraIntrinsicsObtained(mColorParams);
+            }
         }
 
         @Override
         public void onNewSample(ImageSet images)
         {
-            startupLatch.countDown(); // indicates camera has fully started. allows startCameras() to return.
             if (receiver == null) return; // no point in any of this if no one is receiving it
 
             Image color = images.acquireImage(StreamType.COLOR);

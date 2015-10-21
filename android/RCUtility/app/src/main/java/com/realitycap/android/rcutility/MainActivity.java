@@ -7,9 +7,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.HandlerThread;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -18,6 +17,8 @@ import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import com.intel.camera.toolkit.depth.Camera;
+
 public class MainActivity extends TrackerActivity
 {
     private static final String TAG = MainActivity.class.getSimpleName();
@@ -25,8 +26,6 @@ public class MainActivity extends TrackerActivity
     private TextView statusText;
     private ToggleButton calibrationButton;
     private ToggleButton captureButton;
-    private Button liveButton;
-    private Button replayButton;
 
     enum AppState
     {
@@ -54,6 +53,7 @@ public class MainActivity extends TrackerActivity
                 if (isChecked)
                 {
                     if (!enterCalibrationState()) calibrationButton.setChecked(false);
+//                    mWorkerThread.postTask(startCalibrationTask);
                 }
                 else
                 {
@@ -79,7 +79,7 @@ public class MainActivity extends TrackerActivity
             }
         });
 
-        liveButton = (Button) this.findViewById(R.id.liveButton);
+        Button liveButton = (Button) this.findViewById(R.id.liveButton);
         liveButton.setOnClickListener(new OnClickListener()
         {
             @Override
@@ -89,7 +89,7 @@ public class MainActivity extends TrackerActivity
             }
         });
 
-        replayButton = (Button) this.findViewById(R.id.replayButton);
+        Button replayButton = (Button) this.findViewById(R.id.replayButton);
         replayButton.setOnClickListener(new OnClickListener()
         {
             @Override
@@ -104,10 +104,23 @@ public class MainActivity extends TrackerActivity
         setStatusText("Ready");
     }
 
-    protected void setStatusText(String text)
+    @Override protected void onResume()
     {
-        statusText.setText(text);
-        log(text);
+        super.onResume();
+
+        if (!hasSavedIntrinsics()) getCameraIntrinsics();
+    }
+
+    protected void setStatusText(final String text)
+    {
+        this.runOnUiThread(new Runnable()
+        {
+            @Override public void run()
+            {
+                statusText.setText(text);
+                Log.d(TAG, text);
+            }
+        });
     }
 
     protected boolean enterCalibrationState()
@@ -124,7 +137,7 @@ public class MainActivity extends TrackerActivity
 
         if (!configureCamera())
         {
-            return abortTracking("Failed to get camera intrinsics.");
+            return abortTracking("Failed to configure camera.");
         }
 
         if (!setDefaultCalibrationFromFile(DEFAULT_CALIBRATION_FILENAME))
@@ -162,7 +175,7 @@ public class MainActivity extends TrackerActivity
 
         imuMan.stopSensors();
 
-        boolean success = true;
+        boolean success;
         String cal = trackerProxy.getCalibration();
         if (cal != null)
         {
@@ -235,6 +248,32 @@ public class MainActivity extends TrackerActivity
         return false;
     }
 
+    protected void getCameraIntrinsics()
+    {
+        setStatusText("Fetching camera intrinsics...");
+        rsMan.startCameras(callback);
+    }
+
+    protected MyCameraIntrinsicsCallback callback = new MyCameraIntrinsicsCallback();
+
+    class MyCameraIntrinsicsCallback implements ICameraIntrinsicsCallback
+    {
+        @Override public void cameraIntrinsicsObtained(Camera.Calibration.Intrinsics intr)
+        {
+            rsMan.stopCameras();
+
+            SharedPreferences prefs = getSharedPreferences(MyApplication.SHARED_PREFS, MODE_PRIVATE);
+            prefs.edit().
+                    putFloat(PREF_PRINCIPAL_POINT_X, intr.principalPoint.x).
+                    putFloat(PREF_PRINCIPAL_POINT_Y, intr.principalPoint.y).
+                    putFloat(PREF_FOCAL_LENGTH_X, intr.focalLength.x).
+                    putFloat(PREF_FOCAL_LENGTH_Y, intr.focalLength.y).
+                    commit();
+
+            setStatusText("Ready");
+        }
+    }
+
     @Override public void onStatusUpdated(final int runState, final int errorCode, final int confidence, final float progress)
     {
         Handler mainHandler = new Handler(getMainLooper());
@@ -279,7 +318,6 @@ public class MainActivity extends TrackerActivity
                     {
                         exitCaptureState();
                         setStatusText("Tracker error code: " + errorCode);
-                        return;
                     }
                 }
             }
@@ -312,22 +350,6 @@ public class MainActivity extends TrackerActivity
             startReplayActivity(data.getData());
         }
         else super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    private void log(String line)
-    {
-        if (line != null) Log.d(TAG, line);
-    }
-
-    @SuppressWarnings("unused")
-    private void logError(Exception e)
-    {
-        if (e != null) logError(e.getLocalizedMessage());
-    }
-
-    private void logError(String line)
-    {
-        if (line != null) Log.e(TAG, line);
     }
 }
 

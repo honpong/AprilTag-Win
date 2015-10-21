@@ -475,10 +475,10 @@ void observation_accelerometer::predict()
     {
         acc += state.a.v;
     }
-    //TODO: add w and dw terms
     v4 pred_a = Rc * Rt * acc + state.a_bias.v;
     if(!state.orientation_only)
     {
+        //TODO: shouldn't these have an Rc (possible Rt) term?
         pred_a += cross(state.w.v, cross(state.w.v, state.Tc.v)) + cross(state.dw.v, state.Tc.v);
     }
     for(int i = 0; i < 3; ++i) {

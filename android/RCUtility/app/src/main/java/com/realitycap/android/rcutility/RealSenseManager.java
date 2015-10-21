@@ -15,10 +15,7 @@ import com.intel.camera.toolkit.depth.StreamType;
 import com.intel.camera.toolkit.depth.StreamTypeSet;
 import com.intel.camera.toolkit.depth.sensemanager.IMUCaptureManager;
 import com.intel.camera.toolkit.depth.sensemanager.SenseManager;
-import com.intel.camera.toolkit.depth.sensemanager.SensorSample;
 
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
 import java.util.concurrent.CountDownLatch;
 
 /**
@@ -131,22 +128,23 @@ public class RealSenseManager
         }
     }
 
-    protected ArrayList<SensorSample> getSamplesSince(int sensorType, long timestamp)
-    {
-        if (mIMUManager == null) return null;
-
-        SensorSample[] allSamples = mIMUManager.querySensorSamples(sensorType); // The sensor samples are saved in reverse chronological order (so index 0, contains the most recent sample).
-        ArrayList<SensorSample> newSamples = new ArrayList<>();
-        if(allSamples != null)
-        {
-            for (SensorSample sample : allSamples)
-            {
-                if (sample.timestamp() > timestamp) newSamples.add(sample);
-                else break;
-            }
-        }
-        return newSamples;
-    }
+    // this was for RS IMU, which is not being used currently
+//    protected ArrayList<SensorSample> getSamplesSince(int sensorType, long timestamp)
+//    {
+//        if (mIMUManager == null) return null;
+//
+//        SensorSample[] allSamples = mIMUManager.querySensorSamples(sensorType); // The sensor samples are saved in reverse chronological order (so index 0, contains the most recent sample).
+//        ArrayList<SensorSample> newSamples = new ArrayList<>();
+//        if(allSamples != null)
+//        {
+//            for (SensorSample sample : allSamples)
+//            {
+//                if (sample.timestamp() > timestamp) newSamples.add(sample);
+//                else break;
+//            }
+//        }
+//        return newSamples;
+//    }
 
     public Camera.Calibration.Intrinsics getCameraIntrinsics()
     {
@@ -181,18 +179,12 @@ public class RealSenseManager
                 return;
             }
 
-            int colorStride = color.getInfo().DataSize / color.getHeight();
-            int depthStride = depth.getInfo().DataSize / depth.getHeight();
-
 //            Log.v(TAG, "RealSense camera sample received.");
-
-            ByteBuffer colorData = color.acquireAccess();
-            ByteBuffer depthData = depth.acquireAccess();
 
 //            receiver.onSyncedFrames(color, depth); // FIXME
 
-            color.releaseAccess();
-            depth.releaseAccess();
+            color.release();
+            depth.release();
 
             // send IMU samples
             /*ArrayList<SensorSample> ameterSamples = getSamplesSince(Sensor.TYPE_ACCELEROMETER, lastAmeterTimestamp);

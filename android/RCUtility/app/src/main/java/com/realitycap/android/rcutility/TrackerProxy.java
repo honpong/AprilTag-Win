@@ -3,15 +3,11 @@ package com.realitycap.android.rcutility;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
-import android.os.SystemClock;
 import android.media.Image;
+import android.os.SystemClock;
 import android.util.Log;
-import android.view.Surface;
-
-import com.intel.camera.toolkit.depth.sensemanager.SensorSample;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
 
 public class TrackerProxy implements SensorEventListener, IRealSenseSensorReceiver, ITrackerReceiver
 {
@@ -115,27 +111,27 @@ public class TrackerProxy implements SensorEventListener, IRealSenseSensorReceiv
         if (!result) Log.w(TAG, "receiveImageWithDepth() returned FALSE");
     }
 
-    @Override
-    public void onAccelerometerSamples(ArrayList<SensorSample> samples)
-    {
-        if (samples == null) return;
-
-        for (SensorSample sample : samples)
-        {
-            if (sample != null) receiveAccelerometer(sample.values()[0], sample.values()[1], sample.values()[2], sample.timestamp());
-        }
-    }
-
-    @Override
-    public void onGyroSamples(ArrayList<SensorSample> samples)
-    {
-        if (samples == null) return;
-
-        for (SensorSample sample : samples)
-        {
-            if (sample != null) receiveGyro(sample.values()[0], sample.values()[1], sample.values()[2], sample.timestamp());
-        }
-    }
+//    @Override
+//    public void onAccelerometerSamples(ArrayList<SensorSample> samples)
+//    {
+//        if (samples == null) return;
+//
+//        for (SensorSample sample : samples)
+//        {
+//            if (sample != null) receiveAccelerometer(sample.values()[0], sample.values()[1], sample.values()[2], sample.timestamp());
+//        }
+//    }
+//
+//    @Override
+//    public void onGyroSamples(ArrayList<SensorSample> samples)
+//    {
+//        if (samples == null) return;
+//
+//        for (SensorSample sample : samples)
+//        {
+//            if (sample != null) receiveGyro(sample.values()[0], sample.values()[1], sample.values()[2], sample.timestamp());
+//        }
+//    }
     //endregion
 
     //region ITrackerReceiver interface. callbacks from tracker library come in here.

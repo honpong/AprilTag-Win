@@ -168,10 +168,14 @@ void filter_update_outputs(struct filter *f, sensor_clock::time_point time)
     //f->log->trace("{} [{} {} {}] [{} {} {}]", time, output[0], output[1], output[2], output[3], output[4], output[5]);
 }
 
-void process_observation_queue(struct filter *f, sensor_clock::time_point time)
+void preprocess_observation_queue(struct filter *f, sensor_clock::time_point time)
 {
     f->last_time = time;
     f->observations.preprocess(f->s, time);
+}
+
+void process_observation_queue(struct filter *f)
+{
     if(!f->observations.process(f->s)) {
         f->numeric_failed = true;
         f->calibration_bad = true;
@@ -418,8 +422,8 @@ void filter_accelerometer_measurement(struct filter *f, const accelerometer_data
 
     f->observations.observations.push_back(std::move(obs_a));
 
-    process_observation_queue(f, data.timestamp);
-
+    preprocess_observation_queue(f, data.timestamp);
+    process_observation_queue(f);
     if(!f->gravity_init) {
         f->gravity_init = true;
         if(!f->origin_gravity_aligned)
@@ -470,7 +474,8 @@ void filter_gyroscope_measurement(struct filter *f, const gyro_data &data)
         f->gyro_stability.data(meas);
     }
 
-    process_observation_queue(f, data.timestamp);
+    preprocess_observation_queue(f, data.timestamp);
+    process_observation_queue(f);
     auto stop = std::chrono::steady_clock::now();
     f->gyro_timer = stop-start;
 }
@@ -479,16 +484,18 @@ void filter_setup_next_frame(struct filter *f, const image_gray8 &image)
 {
     if(f->run_state != RCSensorFusionRunStateRunning) return;
 
+    f->s.image = image.image;
+    f->s.tracker = f->track;
+
     for(state_vision_group *g : f->s.groups.children) {
         if(!g->status || g->status == group_initializing) continue;
         for(state_vision_feature *i : g->features.children) {
             auto extra_time = std::chrono::duration_cast<sensor_clock::duration>(image.exposure_time * (i->current[1] / (float)image.height));
-            auto obs = std::make_unique<observation_vision_feature>(*image.source, f->s, f->s.camera_intrinsics, image.timestamp + extra_time, image.timestamp, f->track);
+            auto obs = std::make_unique<observation_vision_feature>(*image.source, f->s, f->s.camera_intrinsics, image.timestamp + extra_time, image.timestamp);
             obs->state_group = g;
             obs->feature = i;
             obs->meas[0] = i->current[0];
             obs->meas[1] = i->current[1];
-            obs->image = image.image;
             obs->feature->dt = image.timestamp - obs->feature->last_seen;
             obs->feature->last_seen = image.timestamp;
 
@@ -789,7 +796,9 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
 
     filter_setup_next_frame(f, image);
 
-    process_observation_queue(f, time);
+    preprocess_observation_queue(f, time);
+    f->s.update_feature_tracks();
+    process_observation_queue(f);
 
     int features_used = f->s.process_features(image, time);
     if(!features_used)

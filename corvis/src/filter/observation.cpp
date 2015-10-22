@@ -1,5 +1,4 @@
 #include "observation.h"
-#include "tracker.h"
 #include "../numerics/kalman.h"
 #include "utils.h"
 
@@ -220,9 +219,8 @@ void observation_vision_feature::predict()
 #endif
 
     norm_predicted = {ippred[0], ippred[1]};
-    feature_t prediction = intrinsics.unnormalize_feature(intrinsics.distort_feature(norm_predicted));
-    pred[0] = prediction.x();
-    pred[1] = prediction.y();
+    feature->prediction = intrinsics.unnormalize_feature(intrinsics.distort_feature(norm_predicted));
+    pred = feature->prediction;
 }
 
 void observation_vision_feature::cache_jacobians()
@@ -414,32 +412,10 @@ void observation_vision_feature::update_initializing()
 
 bool observation_vision_feature::measure()
 {
-    float ratio = 1.f;
-    if(feature->last_dt.count())
-        ratio = (float)feature->dt.count() / feature->last_dt.count();
+    meas[0] = feature->current[0];
+    meas[1] = feature->current[1];
 
-    xy bestkp = tracker.track(feature->patch, image, (float)feature->current[0] + feature->image_velocity.x()*ratio, (float)feature->current[1] + feature->image_velocity.y()*ratio, tracker.radius, tracker.min_match);
-
-    // Not a good enough match, try the filter prediction
-    if(bestkp.score < tracker.good_match) {
-        xy bestkp2 = tracker.track(feature->patch, image, (float)pred[0], (float)pred[1], tracker.radius, bestkp.score);
-        if(bestkp2.score > bestkp.score)
-            bestkp = bestkp2;
-    }
-    // Still no match? Guess that we haven't moved at all
-    if(bestkp.score < tracker.min_match) {
-        xy bestkp2 = tracker.track(feature->patch, image, (float)feature->current[0], (float)feature->current[1], 5.5, bestkp.score);
-        if(bestkp2.score > bestkp.score)
-            bestkp = bestkp2;
-    }
-
-    bool valid = bestkp.x != INFINITY;
-
-    feature->image_velocity.x() = valid ? bestkp.x - feature->current[0] : 0;
-    feature->image_velocity.y() = valid ? bestkp.y - feature->current[1] : 0;
-
-    meas[0] = feature->current[0] = bestkp.x;
-    meas[1] = feature->current[1] = bestkp.y;
+    bool valid = meas[0] != INFINITY;
 
     if(valid) {
         meas_stdev.data(meas);
@@ -447,8 +423,6 @@ bool observation_vision_feature::measure()
             update_initializing();
         }
     }
-
-    feature->last_dt = feature->dt;
 
     // The covariance will become ill-conditioned if either the original predict()ion
     // or the predict()ion in update_initializing() lead to huge or non-sensical pred[]s

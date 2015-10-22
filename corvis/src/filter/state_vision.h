@@ -91,6 +91,7 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     f_t outlier = 0;
     v2 initial;
     v2 current;
+    v2 prediction;
     f_t innovation_variance_x = 0, innovation_variance_y = 0, innovation_variance_xy = 0;
     uint64_t id;
     uint64_t groupid;
@@ -216,6 +217,8 @@ class state_vision: public state_motion {
 public:
     state_extrinsics extrinsics;
     state_vision_intrinsics camera_intrinsics;
+    uint8_t * image;
+    struct tracker tracker;
     
     uint64_t feature_counter;
     uint64_t group_counter;
@@ -239,6 +242,7 @@ public:
     transformation loop_offset;
     bool loop_closed{false};
     
+    void update_feature_tracks();
     float median_depth_variance();
     
     virtual void reset();

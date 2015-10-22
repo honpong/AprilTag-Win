@@ -422,6 +422,49 @@ f_t state_vision_intrinsics::get_undistortion_factor(const feature_t &feat_d, fe
     return ku_d;
 }
 
+void state_vision::update_feature_tracks()
+{
+    for(state_vision_group *g : groups.children) {
+        if(!g->status || g->status == group_initializing) continue;
+        for(state_vision_feature *feature : g->features.children) {
+
+            float ratio = 1.f;
+            if(feature->last_dt.count())
+                ratio = (float)feature->dt.count() / feature->last_dt.count();
+
+            xy bestkp = tracker.track(feature->patch, image, (float)feature->current[0] + feature->image_velocity.x()*ratio, (float)feature->current[1] + feature->image_velocity.y()*ratio, tracker.radius, tracker.min_match);
+
+            // Not a good enough match, try the filter prediction
+            if(bestkp.score < tracker.good_match) {
+                xy bestkp2 = tracker.track(feature->patch, image, (float)feature->prediction[0], (float)feature->prediction[1], tracker.radius, bestkp.score);
+                if(bestkp2.score > bestkp.score)
+                    bestkp = bestkp2;
+            }
+            // Still no match? Guess that we haven't moved at all
+            if(bestkp.score < tracker.min_match) {
+                xy bestkp2 = tracker.track(feature->patch, image, (float)feature->current[0], (float)feature->current[1], 5.5, bestkp.score);
+                if(bestkp2.score > bestkp.score)
+                    bestkp = bestkp2;
+            }
+
+            bool valid = bestkp.x != INFINITY;
+
+            if(valid) {
+                feature->image_velocity[0]  = bestkp.x - (float)feature->current[0];
+                feature->image_velocity[1]  = bestkp.y - (float)feature->current[1];
+            }
+            else {
+                feature->image_velocity[0] = 0;
+                feature->image_velocity[1] = 0;
+            }
+
+            feature->current[0] = bestkp.x;
+            feature->current[1] = bestkp.y;
+            feature->last_dt = feature->dt;
+        }
+    }
+}
+
 float state_vision::median_depth_variance()
 {
     float median_variance = 1;

@@ -1,12 +1,8 @@
 To run this on Android:
 
-   adb push rc_replay /sdcard/
-   adb push libtracker.so /sdcard/
+   adb root
+   adb push rc_replay /data/app/com.realitycap.android.rcutility-1/lib/x86_64/
    adb shell
-      su
-      # cd to any writable directory where chmod +x works (consider selinux)
-      cd /mnt/obb
-      mv /sdcard/libtracker.so /sdcard/rc_replay .
-      chmod 0775 ./rc_replay
-      # Note the /path/to/capture must contain calibration.json
-      LD_LIBRARY_PATH=`pwd` ./rc_replay --output-poses /path/to/capture/file
+      export LD_LIBRARY_PATH=/data/app/com.realitycap.android.rcutility-1/lib/x86_64
+      export PATH=/data/app/com.realitycap.android.rcutility-1/lib/x86_64:$PATH
+      rc_replay

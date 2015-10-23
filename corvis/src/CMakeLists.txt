@@ -111,6 +111,7 @@ add_library(filter STATIC
   filter/scaled_mask.cpp
   filter/camera_control_interface_dummy.cpp
   filter/device_parameters.cpp
+  filter/rs_calibration_json.cpp
   filter/calibration_json_store.cpp
   filter/calibration_defaults.cpp
   filter/sensor_fusion.cpp

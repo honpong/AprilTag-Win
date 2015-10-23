@@ -8,7 +8,7 @@
 #define RCTRACKER_API_EXPORTS
 #include "rc_intel_interface.h"
 #include "sensor_fusion.h"
-#include "calibration_json_store.h"
+#include "rs_calibration_json.h"
 #include <codecvt>
 
 static void transformation_to_rc_Pose(const transformation &g, rc_Pose p)
@@ -517,8 +517,10 @@ bool rc_setCalibrationStruct(rc_Tracker *tracker, const rcCalibration &cal)
 size_t rc_getCalibration(rc_Tracker *tracker, const rc_char_t **buffer)
 {
     device_parameters cal = filter_get_device_parameters(&tracker->sfm);
+    rcCalibration rsCal = rsCalFromRCCal(cal);
+
     std::string json;
-    if (!calibration_serialize(cal, json))
+    if (!calibration_serialize(rsCal, json))
         return 0;
 #ifdef _WIN32
     std::wstring_convert<std::codecvt_utf8<rc_char_t>, rc_char_t> converter;
@@ -532,13 +534,17 @@ size_t rc_getCalibration(rc_Tracker *tracker, const rc_char_t **buffer)
 
 bool rc_setCalibration(rc_Tracker *tracker, const rc_char_t *buffer)
 {
-    device_parameters cal;
+    rcCalibration cal;
 #ifdef _WIN32
     std::wstring_convert<std::codecvt_utf8<rc_char_t>, rc_char_t> converter;
     bool result = calibration_deserialize(converter.to_bytes(buffer), cal);
 #else
     bool result = calibration_deserialize(buffer, cal);
 #endif
-    if (result) tracker->set_device(cal);
+    if (result)
+    {
+        device_parameters rcCal = rcCalFromRSCal(cal);
+        tracker->set_device(rcCal);
+    }
     return result;
 }

@@ -27,7 +27,7 @@ public class TrackerProxy implements SensorEventListener, IRealSenseSensorReceiv
     public native boolean startCalibration();
     public native boolean startReplay(String absFilePath);
     public native boolean stopReplay();
-    public native void configureCamera(int camera, int width_px, int height_px, float center_x_px, float center_y_px, float focal_length_x_px, float focal_length_y_px, float skew, boolean fisheye, float fisheye_fov_radians);
+    public native void configureCamera(int width_px, int height_px, float center_x_px, float center_y_px, float focal_length_x_px, float focal_length_y_px, int depth_width, int depth_height, float depth_px, float depth_py, float depth_fx, float depth_fy, float offsetX, float offsetY, float offsetZ, float skew, boolean fisheye, float fisheye_fov_radians);
     public native void setOutputLog(String filename);
     public native String getCalibration();
     public native boolean setCalibration(String cal);

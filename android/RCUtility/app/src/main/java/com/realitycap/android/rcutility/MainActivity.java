@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -16,8 +15,6 @@ import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.ToggleButton;
-
-import com.intel.camera.toolkit.depth.Camera;
 
 public class MainActivity extends TrackerActivity
 {
@@ -102,13 +99,6 @@ public class MainActivity extends TrackerActivity
         prefs = getSharedPreferences("RCUtilityPrefs", 0);
 
         setStatusText("Ready");
-    }
-
-    @Override protected void onResume()
-    {
-        super.onResume();
-
-        if (!hasSavedIntrinsics()) getCameraIntrinsics();
     }
 
     protected void setStatusText(final String text)
@@ -246,32 +236,6 @@ public class MainActivity extends TrackerActivity
         trackerProxy.destroyTracker();
         setStatusText(message);
         return false;
-    }
-
-    protected void getCameraIntrinsics()
-    {
-        setStatusText("Fetching camera intrinsics...");
-        rsMan.startCameras(callback);
-    }
-
-    protected MyCameraIntrinsicsCallback callback = new MyCameraIntrinsicsCallback();
-
-    class MyCameraIntrinsicsCallback implements ICameraIntrinsicsCallback
-    {
-        @Override public void cameraIntrinsicsObtained(Camera.Calibration.Intrinsics intr)
-        {
-            rsMan.stopCameras();
-
-            SharedPreferences prefs = getSharedPreferences(MyApplication.SHARED_PREFS, MODE_PRIVATE);
-            prefs.edit().
-                    putFloat(PREF_PRINCIPAL_POINT_X, intr.principalPoint.x).
-                    putFloat(PREF_PRINCIPAL_POINT_Y, intr.principalPoint.y).
-                    putFloat(PREF_FOCAL_LENGTH_X, intr.focalLength.x).
-                    putFloat(PREF_FOCAL_LENGTH_Y, intr.focalLength.y).
-                    commit();
-
-            setStatusText("Ready");
-        }
     }
 
     @Override public void onStatusUpdated(final int runState, final int errorCode, final int confidence, final float progress)

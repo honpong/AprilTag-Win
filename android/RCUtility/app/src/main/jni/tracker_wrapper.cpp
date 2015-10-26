@@ -35,6 +35,26 @@ static jmethodID trackerProxy_onDataUpdated;
 static jclass imageClass;
 static jmethodID imageClass_close;
 
+static float gOffsetX, gOffsetY, gOffsetZ;
+
+typedef struct ZIntrinsics
+{
+    int rw, rh;
+    float rpx, rpy;
+    float rfx, rfy;
+} ZIntrinsics;
+
+static ZIntrinsics gZIntrinsics;
+
+typedef struct RGBIntrinsics
+{
+    int rh, rw;
+    float rpx, rpy;
+    float rfx, rfy;
+} RGBIntrinsics;
+
+static RGBIntrinsics gRGBIntrinsics;
+
 jint JNI_OnLoad(JavaVM* vm, void* reserved)
 {
     LOGI("JNI_OnLoad");
@@ -301,15 +321,38 @@ extern "C"
         return (JNI_TRUE);
     }
 
-    JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_configureCamera(JNIEnv *env, jobject thiz, jint camera, jint width_px, jint height_px, jfloat center_x_px,
-                                                                                                  jfloat center_y_px, jfloat focal_length_x_px, jfloat focal_length_y_px, jfloat skew, jboolean fisheye,
-                                                                                                  jfloat fisheye_fov_radians)
+    JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_configureCamera(JNIEnv *env, jobject thiz,
+                                                                                                  jint width_px, jint height_px, jfloat center_x_px, jfloat center_y_px, jfloat focal_length_x_px, jfloat focal_length_y_px,
+                                                                                                  jint depth_width, jint depth_height, jfloat depth_px, jfloat depth_py, jfloat depth_fx, jfloat depth_fy,
+                                                                                                  jfloat offsetX, jfloat offsetY, jfloat offsetZ,
+                                                                                                  jfloat skew, jboolean fisheye, jfloat fisheye_fov_radians)
     {
         if (!tracker) return (JNI_FALSE);
-        const rc_Pose pose = {0, -1, 0, 0,
-                -1, 0, 0, 0,
-                0, 0, -1, 0};
-        rc_configureCamera(tracker, (rc_Camera) camera, pose, width_px, height_px, center_x_px, center_y_px, focal_length_x_px, focal_length_y_px, skew, fisheye, fisheye_fov_radians);
+
+        //cache intrinsics
+        gZIntrinsics.rw = depth_width;
+        gZIntrinsics.rh = depth_height;
+        gZIntrinsics.rfx = depth_fx;
+        gZIntrinsics.rfy = depth_fy;
+        gZIntrinsics.rpx = depth_px;
+        gZIntrinsics.rpy = depth_py;
+
+        gRGBIntrinsics.rw = width_px;
+        gRGBIntrinsics.rh = height_px;
+        gRGBIntrinsics.rfx = focal_length_x_px;
+        gRGBIntrinsics.rfy = focal_length_y_px;
+        gRGBIntrinsics.rpx = center_x_px;
+        gRGBIntrinsics.rpy = center_y_px;
+
+        gOffsetX = offsetX;
+        gOffsetY = offsetY;
+        gOffsetZ = offsetZ;
+
+        const rc_Pose pose =    {0, -1, 0, 0,
+                                -1, 0, 0, 0,
+                                0, 0, -1, 0};
+
+        rc_configureCamera(tracker, rc_Camera::rc_EGRAY8 , pose, width_px, height_px, center_x_px, center_y_px, focal_length_x_px, focal_length_y_px, skew, fisheye, fisheye_fov_radians);
         return (JNI_TRUE);
     }
 

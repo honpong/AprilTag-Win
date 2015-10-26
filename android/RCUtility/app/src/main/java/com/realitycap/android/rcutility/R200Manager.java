@@ -238,7 +238,7 @@ public class R200Manager
         }
 
         DepthCameraCalibrationDataMap map = new DepthCameraCalibrationDataMap(mCameraChar);
-        return map.getCalibrationData(new Size(COLOR_WIDTH, COLOR_HEIGHT), new Size(DEPTH_WIDTH, DEPTH_HEIGHT), false, Integer.parseInt(cameraId));
+        return map.getCalibrationData(new Size(COLOR_WIDTH, COLOR_HEIGHT), new Size(DEPTH_WIDTH, DEPTH_HEIGHT), true, Integer.parseInt(cameraId));
     }
 
     public boolean isRunning()

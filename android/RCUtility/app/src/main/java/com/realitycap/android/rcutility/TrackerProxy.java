@@ -41,7 +41,7 @@ public class TrackerProxy implements SensorEventListener, IRealSenseSensorReceiv
 
     protected native void receiveAccelerometer(float x, float y, float z, long timestamp);
     protected native void receiveGyro(float x, float y, float z, long timestamp);
-    protected native boolean receiveImageWithDepth(long time_us, long shutter_time_us, boolean force_recognition, int width, int height, int stride, ByteBuffer colorData, Image colorImage, int depthWidth, int depthHeight, int depthStride, ByteBuffer depthData, Image depthImage);
+    protected native boolean receiveImageWithDepth(long time_us, long shutter_time_us, boolean force_recognition, int width, int height, int stride, ByteBuffer colorData, Image colorImage, int depthWidth, int depthHeight, int depthStride, ByteBuffer depthData);
     protected native int alignDepth(ByteBuffer depthIn, ByteBuffer depthOut);
 
     protected ITrackerReceiver receiver;
@@ -113,9 +113,10 @@ public class TrackerProxy implements SensorEventListener, IRealSenseSensorReceiv
                 depthImage.getWidth(),
                 depthImage.getHeight(),
                 depthPlanes[0].getRowStride(),
-                depthPlanes[0].getBuffer(),
-                depthImage
+                alignedDepthBuffer
         );
+
+        depthImage.close();
 
         //Log.d(TAG, String.format("camera %d", time_ns));
         if (!result) Log.w(TAG, "receiveImageWithDepth() returned FALSE");

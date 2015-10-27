@@ -3,15 +3,18 @@
 #include "rc_intel_interface.h"
 #include <memory>
 #include <codecvt>
-#include "calibration_json_store.h"
+#include "rs_calibration_json.h"
 
 using namespace std;
 
 TEST(rc_intel_interface_tests, rc_setCalibration)
 {
-    // load default cal
-    device_parameters cal;
-    EXPECT_TRUE(calibration_load_defaults(DEVICE_TYPE_GIGABYTES11, cal));
+    rcCalibration cal;
+
+    cal.Fx = 0.123;
+    cal.Fy = 0.321;
+    cal.Cx = 0.456;
+    cal.Cy = 0.654;
 
     // set cal
     string jsonString;
@@ -25,23 +28,22 @@ TEST(rc_intel_interface_tests, rc_setCalibration)
     EXPECT_TRUE(rc_setCalibration(tracker, jsonString.c_str()));
 #endif
 
-    // now read cal back out 
+    // now read cal back out
     const rc_char_t* buffer;
     size_t size = rc_getCalibration(tracker, &buffer);
     EXPECT_GT(size, 0);
 
     // compare values between original and retrieved
-    device_parameters cal2 = rc_getCalibrationStruct(tracker);
+    rcCalibration cal2 = rc_getCalibrationStruct(tracker);
     EXPECT_FLOAT_EQ(cal.Fx, cal2.Fx);
     EXPECT_FLOAT_EQ(cal.Fx, cal2.Fy);
     EXPECT_FLOAT_EQ(cal.Cx, cal2.Cx);
     EXPECT_FLOAT_EQ(cal.Cy, cal2.Cy);
-    EXPECT_FLOAT_EQ(cal.image_width, cal2.image_width);
-    EXPECT_FLOAT_EQ(cal.image_height, cal2.image_height);
-    EXPECT_FLOAT_EQ(cal.version, cal2.version);
 
     // this doesn't work because not all all fields are being extracted from filter at the moment.
     //EXPECT_STREQ(jsonString.c_str(), buffer);
+
+    rc_destroy(tracker);
 }
 
 TEST(rc_intel_interface_tests, rc_setCalibration_failure)
@@ -52,4 +54,27 @@ TEST(rc_intel_interface_tests, rc_setCalibration_failure)
 #else
     EXPECT_FALSE(rc_setCalibration(tracker, ""));
 #endif
+    rc_destroy(tracker);
+}
+
+TEST(rc_intel_interface_tests, rc_setCalibrationStruct)
+{
+    rcCalibration cal;
+
+    cal.Fx = 0.123;
+    cal.Fy = 0.321;
+    cal.Cx = 0.456;
+    cal.Cy = 0.654;
+
+    rc_Tracker *tracker = rc_create();
+
+    rc_setCalibrationStruct(tracker, cal);
+
+    rcCalibration cal2 = rc_getCalibrationStruct(tracker);
+    EXPECT_FLOAT_EQ(cal.Fx, cal2.Fx);
+    EXPECT_FLOAT_EQ(cal.Fx, cal2.Fy);
+    EXPECT_FLOAT_EQ(cal.Cx, cal2.Cx);
+    EXPECT_FLOAT_EQ(cal.Cy, cal2.Cy);
+
+    rc_destroy(tracker);
 }

@@ -68,6 +68,7 @@ static const char *CALIBRATION_DEFAULTS = R"(
     "K0": 0.20000000298023224,
     "K1": -0.20000000298023224,
     "K2": 0,
+    "Kw": 0,
     "abias0": 0,
     "abias1": 0,
     "abias2": 0,
@@ -219,4 +220,3 @@ bool calibration_deserialize(const std::string &jsonString, rcCalibration &cal)
     CopyJsonToStruct(json, cal);
     return true;
 }
-

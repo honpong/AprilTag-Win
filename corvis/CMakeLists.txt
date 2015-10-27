@@ -45,8 +45,10 @@ target_link_libraries(measure
   filter
   numerics
   cor
-  vis
 )
+if(ENABLE_VISGL)
+    target_link_libraries(measure vis)
+endif()
 if(ENABLE_MGL)
     target_link_libraries(measure mgl)
 endif()

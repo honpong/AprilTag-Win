@@ -92,6 +92,9 @@ int main(int c, char **v)
     if (!configure(rp, filename))
         return 2;
 
+#if defined(ANDROID) || defined(WIN32)
+    rp.start();
+#else
     world_state ws;
     gui vis(&ws, show_main, show_video, show_depth, show_plots);
     rp.set_camera_callback([&](const filter * f, camera_data &&d) {
@@ -110,6 +113,8 @@ int main(int c, char **v)
         cerr << "Failed to render\n";
         return 1;
     }
+    std::cout << ws.get_feature_stats();
+#endif
 
     if (!save.empty()) {
         std::string json;
@@ -120,6 +125,5 @@ int main(int c, char **v)
     }
 
     print_results(rp, filename);
-    std::cout << ws.get_feature_stats();
     return 0;
 }

@@ -455,14 +455,18 @@ extern "C"
                 int thirdImageX = static_cast<int>(gRGBIntrinsics.rfx * (thirdCamX / thirdCamZ) + gRGBIntrinsics.rpx + 0.5f);
                 int thirdImageY = static_cast<int>(gRGBIntrinsics.rfy * (thirdCamY / thirdCamZ) + gRGBIntrinsics.rpy + 0.5f);
 
-                // Clip anything that falls outside the boundaries of the third image
-                if (thirdImageX < 0 || thirdImageY < 0 || thirdImageX >= static_cast<int>(gRGBIntrinsics.rw) || thirdImageY >= static_cast<int>(gRGBIntrinsics.rh))
+                // The aligned image is the same size as the original depth image
+                int alignedImageX = thirdImageX * gZIntrinsics.rw / gRGBIntrinsics.rw;
+                int alignedImageY = thirdImageY * gZIntrinsics.rh / gRGBIntrinsics.rh;
+
+                // Clip anything that falls outside the boundaries of the aligned image
+                if (alignedImageX < 0 || alignedImageY < 0 || alignedImageX >= static_cast<int>(gZIntrinsics.rw) || alignedImageY >= static_cast<int>(gRGBIntrinsics.rh))
                 {
                     continue;
                 }
 
                 // Write the current pixel to the aligned image
-                auto & outDepth = alignedZ[thirdImageY * gZIntrinsics.rw + thirdImageX];
+                auto & outDepth = alignedZ[alignedImageY * gZIntrinsics.rw + alignedImageX];
                 auto minDepth = (depth > outDepth)? outDepth : depth;
                 outDepth = outDepth ? minDepth : depth;
             }
@@ -472,27 +476,27 @@ extern "C"
         if(fillHoles)
         {
             auto out = alignedZ;
-            for (unsigned int y = 0; y < gRGBIntrinsics.rh; ++y)
+            for (unsigned int y = 0; y < gZIntrinsics.rh; ++y)
             {
-                for(unsigned int x = 0; x < gRGBIntrinsics.rw; ++x)
+                for(unsigned int x = 0; x < gZIntrinsics.rw; ++x)
                 {
                     if(!*out)
                     {
-                        if (x + 1 < gRGBIntrinsics.rw && out[1])
+                        if (x + 1 < gZIntrinsics.rw && out[1])
                         {
                             *out = out[1];
                         }
                         else
                         {
-                            if (y + 1 < gRGBIntrinsics.rh && out[gRGBIntrinsics.rw])
+                            if (y + 1 < gZIntrinsics.rh && out[gZIntrinsics.rw])
                             {
-                                *out = out[gRGBIntrinsics.rw];
+                                *out = out[gZIntrinsics.rw];
                             }
                             else
                             {
-                                if (x + 1 < gRGBIntrinsics.rw && y + 1 < gRGBIntrinsics.rh && out[gRGBIntrinsics.rw + 1])
+                                if (x + 1 < gZIntrinsics.rw && y + 1 < gZIntrinsics.rh && out[gZIntrinsics.rw + 1])
                                 {
-                                    *out = out[gRGBIntrinsics.rw + 1];
+                                    *out = out[gZIntrinsics.rw + 1];
                                 }
                             }
                         }

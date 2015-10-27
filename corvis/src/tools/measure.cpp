@@ -35,14 +35,38 @@ int main(int c, char **v)
     if (!filename)
         goto usage;
 
-    replay rp(start_paused);
-    if(qvga) rp.enable_qvga();
-    if(!depth) rp.disable_depth();
-    if(realtime) rp.enable_realtime();
+    auto configure = [&](replay &rp, const char *capture_file) -> bool {
+        if(qvga) rp.enable_qvga();
+        if(!depth) rp.disable_depth();
+        if(realtime) rp.enable_realtime();
 
-    if (!rp.set_reference_from_filename(filename) && !enable_gui) {
-        cerr << filename << ": unable to find a reference to measure against\n";
-    }
+        if(!rp.open(capture_file))
+            return false;
+
+        if(!rp.set_calibration_from_filename(capture_file)) {
+          cerr << "calibration not found: " << capture_file << ".json nor calibration.json\n";
+          return false;
+        }
+
+        if(!rp.set_reference_from_filename(capture_file) && !enable_gui) {
+            cerr << capture_file << ": unable to find a reference to measure against\n";
+            return false;
+        }
+
+        return true;
+    };
+
+    auto print_results = [](replay &rp, const char *capture_file) {
+        std::cout << capture_file << std::endl;
+        printf("Reference Straight-line length is %.2f cm, total path length %.2f cm\n", 100*rp.get_reference_length(), 100*rp.get_reference_path_length());
+        printf("Computed  Straight-line length is %.2f cm, total path length %.2f cm\n", 100*rp.get_length(), 100*rp.get_path_length());
+        printf("Dispatched %llu packets %.2f Mbytes\n", rp.get_packets_dispatched(), rp.get_bytes_dispatched()/1.e6);
+    };
+
+    replay rp(start_paused);
+
+    if (!configure(rp, filename))
+        return 2;
 
     world_state ws;
     gui vis(&ws, show_main, show_video, show_depth, show_plots);
@@ -50,21 +74,12 @@ int main(int c, char **v)
         ws.receive_camera(f, std::move(d));
     });
 
-    if(!rp.open(filename))
-        return 2;
-
-    if(!rp.set_calibration_from_filename(filename)) {
-        cerr << "calibration not found: " << filename << ".json nor calibration.json\n";
-        return 2;
-    }
-
     if(enable_gui) { // The GUI must be on the main thread
         std::thread replay_thread([&](void) { rp.start(); });
         vis.start(&rp);
         rp.stop();
         replay_thread.join();
-    }
-    else
+    } else
         rp.start();
 
     if(rendername && !offscreen_render_to_file(rendername, &ws)) {
@@ -80,11 +95,7 @@ int main(int c, char **v)
         }
     }
 
-    std::cout << filename << std::endl;
+    print_results(rp, filename);
     std::cout << ws.get_feature_stats();
-    printf("Reference Straight-line length is %.2f cm, total path length %.2f cm\n", 100*rp.get_reference_length(), 100*rp.get_reference_path_length());
-    printf("Computed  Straight-line length is %.2f cm, total path length %.2f cm\n", 100*rp.get_length(), 100*rp.get_path_length());
-    printf("Dispatched %llu packets %.2f Mbytes\n", rp.get_packets_dispatched(), rp.get_bytes_dispatched()/1.e6);
-
     return 0;
 }

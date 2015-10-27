@@ -132,6 +132,7 @@ image_gray8 replay::parse_gray8(int width, int height, int stride, uint8_t *data
 
 void replay::start()
 {
+    setup_filter();
     is_running = true;
     path_length = 0;
     length = 0;
@@ -309,18 +310,6 @@ void replay::start()
     v4 T = fusion.get_transformation().T;
     length = (float) T.norm();
     path_length = fusion.sfm.s.total_distance;
-}
-
-bool replay::configure_all(const char *filename, bool realtime, std::function<void (float)> progress, std::function<void (const filter *, camera_data)> camera_cb)
-{
-    if(!open(filename)) return false;
-    if (!set_calibration_from_filename(filename))
-        return false;
-    is_realtime = realtime;
-    progress_callback = progress;
-    camera_callback = camera_cb;
-    setup_filter();
-    return true;
 }
 
 void replay::stop()

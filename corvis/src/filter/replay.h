@@ -42,10 +42,12 @@ private:
 
 public:
     replay(bool start_paused=false) : is_paused(start_paused), fusion(fusion_queue::latency_strategy::ELIMINATE_DROPS) {}
-    bool open(const char *name);
+    bool open(const char *filename);
     bool set_calibration_from_filename(const char *filename);
     void setup_filter();
-    bool configure_all(const char *filename, bool realtime=false, std::function<void (float)> progress_callback=nullptr, std::function<void (const filter *, camera_data)> camera_callback=nullptr);
+    void set_progress_callback(std::function<void (float)> progress_callback) { this->progress_callback = progress_callback; }
+    void set_camera_callback(std::function<void (const filter *, camera_data)> camera_callback) { this->camera_callback = camera_callback; }
+    void enable_realtime() { is_realtime = true; }
     void enable_qvga() { qvga = true; }
     void disable_depth() { depth = false; }
     void start();

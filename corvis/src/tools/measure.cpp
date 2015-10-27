@@ -11,8 +11,6 @@ int main(int c, char **v)
         return 1;
     }
 
-    world_state ws;
-
     bool realtime = false, start_paused = false;
     std:string save;
     bool qvga = false, depth = true;
@@ -37,27 +35,27 @@ int main(int c, char **v)
     if (!filename)
         goto usage;
 
-    std::function<void (float)> progress;
-    std::function<void (const filter *, camera_data &&)> camera_callback;
-
     replay rp(start_paused);
-    gui vis(&ws, show_main, show_video, show_depth, show_plots);
-
-    camera_callback = [&](const filter * f, camera_data &&d) {
-        ws.receive_camera(f, std::move(d));
-    };
-
-    if(!rp.configure_all(filename, realtime, progress, camera_callback)) {
-        cerr << filename << ": configure_all failed! (Check your calibration.json?)\n";
-        return 2;
-    }
-
     if(qvga) rp.enable_qvga();
-    
     if(!depth) rp.disable_depth();
+    if(realtime) rp.enable_realtime();
 
     if (!rp.set_reference_from_filename(filename) && !enable_gui) {
         cerr << filename << ": unable to find a reference to measure against\n";
+    }
+
+    world_state ws;
+    gui vis(&ws, show_main, show_video, show_depth, show_plots);
+    rp.set_camera_callback([&](const filter * f, camera_data &&d) {
+        ws.receive_camera(f, std::move(d));
+    });
+
+    if(!rp.open(filename))
+        return 2;
+
+    if(!rp.set_calibration_from_filename(filename)) {
+        cerr << "calibration not found: " << filename << ".json nor calibration.json\n";
+        return 2;
     }
 
     if(enable_gui) { // The GUI must be on the main thread

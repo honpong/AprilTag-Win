@@ -70,6 +70,7 @@ struct measurement {
 
 #include <future>
 #include <thread>
+#include <algorithm>
 
 void benchmark_run(std::ostream& stream, const char *directory, std::function<bool (const char *capture_file, struct benchmark_result &result)> measure_file) {
     std::vector<std::string> files;
@@ -82,10 +83,12 @@ void benchmark_run(std::ostream& stream, const char *directory, std::function<bo
     struct benchmark_data { std::string basename, file; struct benchmark_result result; std::future<bool> ok; };
     std::vector<benchmark_data> results; results.reserve(files.size()); // avoid reallocing below
 
+    int first=0, last=0; // a poor man's thread pool (works best with fixed size units of work)
     for (auto &file : files) {
         results.push_back(benchmark_data { file.substr(strlen(directory) + 1), file });
-        results.back().ok = std::async(measure_file, results.back().file.c_str(), std::ref(results.back().result));
-        //results.back().ok.wait(); // uncomment for synchronous debugging
+        results.back().ok = std::async(std::launch::async, measure_file, results.back().file.c_str(), std::ref(results.back().result));
+        if ((++last - first) >= std::max<signed>(1, std::thread::hardware_concurrency()))
+          results[first++].ok.wait();
     }
 
     std::vector<double> L_errors_percent, PL_errors_percent, primary_errors_percent;

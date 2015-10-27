@@ -11,12 +11,14 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.intel.camera.toolkit.depth.Camera;
+import com.intel.camera2.extensions.depthcamera.DepthCameraCalibrationDataMap;
 
 /**
  * Created by benhirashima on 8/17/15.
  */
 public abstract class TrackerActivity extends Activity implements ITrackerReceiver
 {
+    private static final String TAG = TrackerActivity.class.getSimpleName();
     protected static final String PREF_KEY_CALIBRATION = "calibration";
     public static final String CALIBRATION_FILENAME = "calibration.json";
     public static final String DEFAULT_CALIBRATION_FILENAME = "ft210.json";
@@ -83,16 +85,34 @@ public abstract class TrackerActivity extends Activity implements ITrackerReceiv
 
     protected boolean configureCamera()
     {
-        if (!hasSavedIntrinsics()) return false;
+        DepthCameraCalibrationDataMap.DepthCameraCalibrationData cal;
+        try
+        {
+            cal = r200Man.getCalibrationData();
+        }
+        catch (Exception e)
+        {
+            Log.e(TAG, e.getLocalizedMessage());
+            return false;
+        }
 
-        SharedPreferences prefs = getSharedPreferences(MyApplication.SHARED_PREFS, MODE_PRIVATE);
-        trackerProxy.configureCamera(TrackerProxy.CAMERA_EGRAY8,
-                640, 480,
-                prefs.getFloat(PREF_PRINCIPAL_POINT_X, 0),
-                prefs.getFloat(PREF_PRINCIPAL_POINT_Y, 0),
-                prefs.getFloat(PREF_FOCAL_LENGTH_X, 0),
-                prefs.getFloat(PREF_FOCAL_LENGTH_Y, 0)
-                , 0, false, 0);
+        trackerProxy.configureCamera(
+                cal.getColorCameraIntrinsics().getResolution().getWidth(),
+                cal.getColorCameraIntrinsics().getResolution().getHeight(),
+                cal.getColorCameraIntrinsics().getPrincipalPoint().x,
+                cal.getColorCameraIntrinsics().getPrincipalPoint().y,
+                cal.getColorCameraIntrinsics().getFocalLength().x,
+                cal.getColorCameraIntrinsics().getFocalLength().y,
+                cal.getDepthCameraIntrinsics().getResolution().getWidth(),
+                cal.getDepthCameraIntrinsics().getResolution().getHeight(),
+                cal.getDepthCameraIntrinsics().getPrincipalPoint().x,
+                cal.getDepthCameraIntrinsics().getPrincipalPoint().y,
+                cal.getDepthCameraIntrinsics().getFocalLength().x,
+                cal.getDepthCameraIntrinsics().getFocalLength().y,
+                cal.getDepthToColorExtrinsics().getTranslation()[0],
+                cal.getDepthToColorExtrinsics().getTranslation()[1],
+                cal.getDepthToColorExtrinsics().getTranslation()[2],
+                0, false, 0);
 
         return true;
     }

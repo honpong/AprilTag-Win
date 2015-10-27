@@ -460,7 +460,7 @@ extern "C"
                 int alignedImageY = thirdImageY * gZIntrinsics.rh / gRGBIntrinsics.rh;
 
                 // Clip anything that falls outside the boundaries of the aligned image
-                if (alignedImageX < 0 || alignedImageY < 0 || alignedImageX >= static_cast<int>(gZIntrinsics.rw) || alignedImageY >= static_cast<int>(gRGBIntrinsics.rh))
+                if (alignedImageX < 0 || alignedImageY < 0 || alignedImageX >= static_cast<int>(gZIntrinsics.rw) || alignedImageY >= static_cast<int>(gZIntrinsics.rh))
                 {
                     continue;
                 }

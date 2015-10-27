@@ -390,25 +390,23 @@ extern "C"
 
     JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_receiveImageWithDepth(JNIEnv *env, jobject thiz, jlong time_ns, jlong shutter_time_ns, jboolean force_recognition,
                                                                                                         jint width, jint height, jint stride, jobject colorData, jobject colorImage,
-                                                                                                        jint depthWidth, jint depthHeight, jint depthStride, jobject depthData)
+                                                                                                        jint depthWidth, jint depthHeight, jint depthStride, jobject depthBuffer)
     {
         if (!tracker) return (JNI_FALSE);
 
         // cache these refs so we can close them in the callbacks
-        jobject colorImageCached = env->NewGlobalRef(colorImage);
+        jobject colorImageRef = env->NewGlobalRef(colorImage);
+        jobject depthBufferRef = env->NewGlobalRef(depthBuffer);
 
         void *colorPtr = env->GetDirectBufferAddress(colorData);
         if (RunExceptionCheck(env)) return (JNI_FALSE);
 
-        void *depthPtr = env->GetDirectBufferAddress(depthData);
+        void *depthPtr = env->GetDirectBufferAddress(depthBuffer);
         if (RunExceptionCheck(env)) return (JNI_FALSE);
 
-        jobject depthBufferCached = env->NewGlobalRef(depthData);
-
         rc_receiveImageWithDepth(tracker, rc_EGRAY8, time_ns / 1000, shutter_time_ns / 1000, NULL, false,
-                                 width, height, stride, colorPtr, release_image, colorImageCached,
-                                 depthWidth, depthHeight, depthStride, depthPtr, release_buffer, depthBufferCached);
-
+                                 width, height, stride, colorPtr, release_image, colorImageRef,
+                                 depthWidth, depthHeight, depthStride, depthPtr, release_buffer, depthBufferRef);
 
         return (JNI_TRUE);
     }

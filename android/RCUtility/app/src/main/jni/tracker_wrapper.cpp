@@ -405,6 +405,105 @@ extern "C"
         return (JNI_TRUE);
     }
 
+    JNIEXPORT jint JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_alignDepth(JNIEnv *env, jobject thisObj, jobject jInputDepthImg, jobject jOutputDepthImg)
+    {
+        unsigned short *inDepth = nullptr;
+        unsigned short *alignedZ = nullptr;
+        float pGravity[3] = {0};
+
+        if (jInputDepthImg != NULL)
+        {
+            inDepth = reinterpret_cast<unsigned short *>(env->GetDirectBufferAddress(jInputDepthImg));
+        }
+
+        if (jOutputDepthImg != NULL)
+        {
+            alignedZ = reinterpret_cast<unsigned short *>(env->GetDirectBufferAddress(jOutputDepthImg));
+        }
+
+        if ((inDepth == nullptr) ||
+            (alignedZ == nullptr))
+        {
+            return 2;//SP_STATUS::SP_STATUS_INVALIDARG;
+        }
+
+        bool fillHoles = true;
+
+        float invZFocalX = 1.0f / gZIntrinsics.rfx, invZFocalY = 1.0f / gZIntrinsics.rfy;
+
+        memset(alignedZ, 0, gZIntrinsics.rw * gZIntrinsics.rh * 2);
+
+        for (unsigned int y = 0; y < gZIntrinsics.rh; ++y)
+        {
+            const float tempy = (y - gZIntrinsics.rpy) * invZFocalY;
+            for (unsigned int x = 0; x < gZIntrinsics.rw; ++x)
+            {
+                auto depth = *inDepth++;
+
+                // DSTransformFromZImageToZCamera(gZIntrinsics, zImage, zCamera); // Move from image coordinates to 3D coordinates
+                float zCamZ = static_cast<float>(depth);
+                float zCamX = zCamZ * (x - gZIntrinsics.rpx) * invZFocalX;
+                float zCamY = zCamZ * tempy;
+
+
+                // DSTransformFromZCameraToRectThirdCamera(translation, zCamera, thirdCamera); // Move from Z to Third
+                float thirdCamX = zCamX + gOffsetX;
+                float thirdCamY = zCamY + gOffsetY;
+                float thirdCamZ = zCamZ + gOffsetZ;
+
+                // DSTransformFromThirdCameraToRectThirdImage(gRGBIntrinsics, thirdCamera, thirdImage); // Move from 3D coordinates back to image coordinates
+                int thirdImageX = static_cast<int>(gRGBIntrinsics.rfx * (thirdCamX / thirdCamZ) + gRGBIntrinsics.rpx + 0.5f);
+                int thirdImageY = static_cast<int>(gRGBIntrinsics.rfy * (thirdCamY / thirdCamZ) + gRGBIntrinsics.rpy + 0.5f);
+
+                // Clip anything that falls outside the boundaries of the third image
+                if (thirdImageX < 0 || thirdImageY < 0 || thirdImageX >= static_cast<int>(gRGBIntrinsics.rw) || thirdImageY >= static_cast<int>(gRGBIntrinsics.rh))
+                {
+                    continue;
+                }
+
+                // Write the current pixel to the aligned image
+                auto & outDepth = alignedZ[thirdImageY * gZIntrinsics.rw + thirdImageX];
+                auto minDepth = (depth > outDepth)? outDepth : depth;
+                outDepth = outDepth ? minDepth : depth;
+            }
+        }
+
+        // OPTIONAL: This does a very simple hole-filling by propagating each pixel into holes to its immediate left and below
+        if(fillHoles)
+        {
+            auto out = alignedZ;
+            for (unsigned int y = 0; y < gRGBIntrinsics.rh; ++y)
+            {
+                for(unsigned int x = 0; x < gRGBIntrinsics.rw; ++x)
+                {
+                    if(!*out)
+                    {
+                        if (x + 1 < gRGBIntrinsics.rw && out[1])
+                        {
+                            *out = out[1];
+                        }
+                        else
+                        {
+                            if (y + 1 < gRGBIntrinsics.rh && out[gRGBIntrinsics.rw])
+                            {
+                                *out = out[gRGBIntrinsics.rw];
+                            }
+                            else
+                            {
+                                if (x + 1 < gRGBIntrinsics.rw && y + 1 < gRGBIntrinsics.rh && out[gRGBIntrinsics.rw + 1])
+                                {
+                                    *out = out[gRGBIntrinsics.rw + 1];
+                                }
+                            }
+                        }
+                    }
+                    ++out;
+                }
+            }
+        }
+        return 0;//SP_STATUS::SP_STATUS_SUCCESS;
+    }
+
     JNIEXPORT void JNICALL Java_com_realitycap_android_rcutility_MyRenderer_setup(JNIEnv *env, jobject thiz, jint width, jint height)
     {
         if (!tracker) return;

@@ -1,5 +1,7 @@
 package com.realitycap.android.rcutility;
 
+import android.graphics.Point;
+import android.graphics.PointF;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -7,7 +9,12 @@ import android.media.Image;
 import android.os.SystemClock;
 import android.util.Log;
 
+import com.intel.camera2.extensions.depthcamera.DepthCameraCalibrationDataMap;
+import com.intel.camera2.extensions.depthcamera.DepthImage;
+import com.intel.camera2.extensions.depthcamera.Point3DF;
+
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 public class TrackerProxy implements SensorEventListener, IRealSenseSensorReceiver, ITrackerReceiver
 {
@@ -35,6 +42,7 @@ public class TrackerProxy implements SensorEventListener, IRealSenseSensorReceiv
     protected native void receiveAccelerometer(float x, float y, float z, long timestamp);
     protected native void receiveGyro(float x, float y, float z, long timestamp);
     protected native boolean receiveImageWithDepth(long time_us, long shutter_time_us, boolean force_recognition, int width, int height, int stride, ByteBuffer colorData, Image colorImage, int depthWidth, int depthHeight, int depthStride, ByteBuffer depthData, Image depthImage);
+    protected native int alignDepth(ByteBuffer depthIn, ByteBuffer depthOut);
 
     protected ITrackerReceiver receiver;
 
@@ -89,6 +97,9 @@ public class TrackerProxy implements SensorEventListener, IRealSenseSensorReceiv
         assert (colorImage.getTimestamp() == depthImage.getTimestamp());
         long timeOffset = SystemClock.elapsedRealtimeNanos() - SystemClock.uptimeMillis() * 1000000; //in nanoseconds
         long frameTime =  depthImage.getTimestamp() + timeOffset;
+
+        ByteBuffer alignedDepthBuffer = ByteBuffer.allocateDirect(depthImage.getWidth() * depthImage.getHeight() * 2).order(ByteOrder.nativeOrder());
+        alignDepth(depthPlanes[0].getBuffer(), alignedDepthBuffer);
 
         boolean result = receiveImageWithDepth(
                 frameTime,

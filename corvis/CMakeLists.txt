@@ -36,6 +36,8 @@ add_subdirectory(src)
 
 add_executable(measure
   src/tools/measure.cpp
+  src/tools/benchmark.cpp
+  src/tools/for_each_file.cpp
 )
 set_property(TARGET measure PROPERTY CXX_STANDARD 14)
 

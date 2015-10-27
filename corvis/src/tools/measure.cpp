@@ -3,15 +3,17 @@
 #include "../vis/world_state.h"
 #include "../vis/offscreen_render.h"
 #include "../vis/gui.h"
+#include "benchmark.h"
 
 int main(int c, char **v)
 {
     if (0) { usage:
-        cerr << "Usage: " << v[0] << " [--pause] [--realtime] [--no-gui] [--no-plots] [--no-video] [--no-main] [--qvga] [--no-depth] [--render <file.png>] [--save <calibration-json>] <filename>\n";
+        cerr << "Usage: " << v[0] << " [--qvga] [--no-depth] [--realtime] [--pause] [--no-gui] [--no-plots] [--no-video] [--no-main] [--render <file.png>] [--save <calibration-json>] <filename>\n";
+        cerr << "       " << v[0] << " [--qvga] [--no-depth] --benchmark <directory>\n";
         return 1;
     }
 
-    bool realtime = false, start_paused = false;
+    bool realtime = false, start_paused = false, benchmark = false;
     std:string save;
     bool qvga = false, depth = true;
     bool enable_gui = true, show_plots = false, show_video = true, show_depth = true, show_main = true;
@@ -30,6 +32,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--qvga") == 0) qvga = true;
         else if (strcmp(v[i], "--drop-depth") == 0) depth = false;
         else if (strcmp(v[i], "--save") == 0 && i+1 < c) save = v[++i];
+        else if (strcmp(v[i], "--benchmark") == 0) benchmark = true;
         else goto usage;
 
     if (!filename)
@@ -57,11 +60,32 @@ int main(int c, char **v)
     };
 
     auto print_results = [](replay &rp, const char *capture_file) {
-        std::cout << capture_file << std::endl;
         printf("Reference Straight-line length is %.2f cm, total path length %.2f cm\n", 100*rp.get_reference_length(), 100*rp.get_reference_path_length());
         printf("Computed  Straight-line length is %.2f cm, total path length %.2f cm\n", 100*rp.get_length(), 100*rp.get_path_length());
         printf("Dispatched %llu packets %.2f Mbytes\n", rp.get_packets_dispatched(), rp.get_bytes_dispatched()/1.e6);
     };
+
+    if (benchmark) {
+        enable_gui = false; if (realtime || start_paused) goto usage;
+
+        benchmark_run(std::cout, filename, [&](const char *capture_file, struct benchmark_result &res) -> bool {
+            std::unique_ptr<replay> rp_ = std::make_unique<replay>(start_paused); replay &rp = *rp_; // avoid blowing the stack when threaded
+
+            if (!configure(rp, capture_file)) return false;
+
+            std::cout << "Running  " << capture_file << std::endl;
+            rp.start();
+            std::cout << "Finished " << capture_file << std::endl;
+
+            res.length_cm.reference = 100*rp.get_reference_length();  res.path_length_cm.reference = 100*rp.get_reference_path_length();
+            res.length_cm.measured  = 100*rp.get_length();            res.path_length_cm.measured  = 100*rp.get_path_length();
+
+            print_results(rp, capture_file);
+
+            return true;
+        });
+        return 0;
+    }
 
     replay rp(start_paused);
 

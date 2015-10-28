@@ -145,8 +145,8 @@ void CopyJsonToStruct(Document &json, rcCalibration &cal)
     cal.WcVar2 = (float)json[KEY_WCVAR2].GetDouble();
     cal.wMeasVar = (float)json[KEY_WMEASVAR].GetDouble();
     cal.aMeasVar = (float)json[KEY_AMEASVAR].GetDouble();
-    cal.imageWidth = json[KEY_AMEASVAR].GetInt();
-    cal.imageHeight = json[KEY_AMEASVAR].GetInt();
+    cal.imageWidth = json[KEY_IMAGE_WIDTH].GetInt();
+    cal.imageHeight = json[KEY_IMAGE_HEIGHT].GetInt();
     cal.distortionModel = json[KEY_DISTORTION_MODEL].GetInt();
 //    cal.shutterDelay = (float)json[KEY_SHUTTER_DELAY].GetDouble();
 //    cal.shutterPeriod = (float)json[KEY_SHUTTER_PERIOD].GetDouble();

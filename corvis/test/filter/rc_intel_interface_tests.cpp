@@ -57,6 +57,10 @@ TEST(rc_intel_interface_tests, rc_setCalibration)
 {
     rcCalibration cal;
 
+    std::string deviceName = "test";
+    int charLen = sizeof(cal.deviceName);
+    strncpy(cal.deviceName, deviceName.c_str(), charLen - 1);
+    cal.deviceName[charLen - 1] = '\0';
     cal.imageWidth = 123;
     cal.imageHeight = 321;
 
@@ -79,6 +83,7 @@ TEST(rc_intel_interface_tests, rc_setCalibration)
 
     // compare values between original and retrieved
     rcCalibration cal2 = rc_getCalibrationStruct(tracker);
+    EXPECT_STREQ(deviceName.c_str(), cal.deviceName);
     EXPECT_EQ(123, cal2.imageWidth);
     EXPECT_EQ(321, cal2.imageHeight);
 

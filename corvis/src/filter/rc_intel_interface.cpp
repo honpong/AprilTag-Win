@@ -456,6 +456,7 @@ rcCalibration rsCalFromRCCal(const rc_DeviceParameters &cal)
 {
     rcCalibration out;
 
+    out.deviceName[0] = '\0';
     out.calibrationVersion = cal.version;
     out.Fx = cal.Fx;
     out.Fy = cal.Fy;

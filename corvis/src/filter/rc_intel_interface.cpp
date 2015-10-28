@@ -556,8 +556,14 @@ bool rc_setCalibration(rc_Tracker *tracker, const rc_char_t *buffer)
 
 bool rc_setCalibrationFromFile(rc_Tracker *tracker, const rc_char_t *filePath)
 {
+#ifdef _WIN32
     std::wifstream stream(filePath);
     std::wstringstream buffer;
+#else
+    std::ifstream stream(filePath);
+    std::stringstream buffer;
+#endif
+
     buffer << stream.rdbuf();
     bool result = rc_setCalibration(tracker, buffer.str().c_str());
     return result;

@@ -118,3 +118,18 @@ TEST(rc_intel_interface_tests, rc_setCalibrationStruct)
 
     rc_destroy(tracker);
 }
+
+TEST(rc_intel_interface_tests, rc_setCalibrationFromFile)
+{
+    rc_Tracker *tracker = rc_create();
+
+    const rc_char_t* filename = L"C:/Users/bhirashi/AppData/Roaming/Local Libraries/Local Documents/rcmain/windows/build/corvis/Debug/calibration.json";
+    EXPECT_TRUE(rc_setCalibrationFromFile(tracker, filename));
+
+    rcCalibration calOutput = rc_getCalibrationStruct(tracker);
+    EXPECT_STREQ(R"(unknown)", calOutput.deviceName);
+    EXPECT_EQ(640, calOutput.imageWidth);
+    EXPECT_EQ(480, calOutput.imageHeight);
+
+    rc_destroy(tracker);
+}

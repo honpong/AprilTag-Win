@@ -398,6 +398,8 @@ RCTRACKER_API bool rc_setCalibration(rc_Tracker *tracker, const rc_char_t *buffe
 RCTRACKER_API rcCalibration rc_getCalibrationStruct(rc_Tracker *tracker);
 RCTRACKER_API bool rc_setCalibrationStruct(rc_Tracker *tracker, const rcCalibration &cal);
 
+RCTRACKER_API bool rc_setCalibrationFromFile(rc_Tracker *tracker, const rc_char_t *filePath);
+
 
 /*
  Not yet implemented (depend on loop closure):

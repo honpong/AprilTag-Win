@@ -10,6 +10,9 @@
 #include "sensor_fusion.h"
 #include "rs_calibration_json.h"
 #include <codecvt>
+#include <vector>
+#include <fstream>
+#include <iterator>
 
 static void transformation_to_rc_Pose(const transformation &g, rc_Pose p)
 {
@@ -548,5 +551,14 @@ bool rc_setCalibration(rc_Tracker *tracker, const rc_char_t *buffer)
         device_parameters rcCal = rcCalFromRSCal(cal);
         tracker->set_device(rcCal);
     }
+    return result;
+}
+
+bool rc_setCalibrationFromFile(rc_Tracker *tracker, const rc_char_t *filePath)
+{
+    std::wifstream stream(filePath);
+    std::wstringstream buffer;
+    buffer << stream.rdbuf();
+    bool result = rc_setCalibration(tracker, buffer.str().c_str());
     return result;
 }

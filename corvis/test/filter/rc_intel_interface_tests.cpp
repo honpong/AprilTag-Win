@@ -55,18 +55,15 @@ static const char *CALIBRATION_DEFAULTS = R"(
 
 TEST(rc_intel_interface_tests, rc_setCalibration)
 {
-    rcCalibration cal;
+    rcCalibration calInput;
 
-    std::string deviceName = "test";
-    int charLen = sizeof(cal.deviceName);
-    strncpy(cal.deviceName, deviceName.c_str(), charLen - 1);
-    cal.deviceName[charLen - 1] = '\0';
-    cal.imageWidth = 123;
-    cal.imageHeight = 321;
+    strncpy_s(calInput.deviceName, sizeof(calInput.deviceName), R"(test)", _TRUNCATE);
+    calInput.imageWidth = 123;
+    calInput.imageHeight = 321;
 
     // set cal
     string jsonString;
-    EXPECT_TRUE(calibration_serialize(cal, jsonString));
+    EXPECT_TRUE(calibration_serialize(calInput, jsonString));
 
     rc_Tracker *tracker = rc_create();
 #ifdef _WIN32
@@ -82,10 +79,10 @@ TEST(rc_intel_interface_tests, rc_setCalibration)
     EXPECT_GT(size, 0);
 
     // compare values between original and retrieved
-    rcCalibration cal2 = rc_getCalibrationStruct(tracker);
-    EXPECT_STREQ(deviceName.c_str(), cal.deviceName);
-    EXPECT_EQ(123, cal2.imageWidth);
-    EXPECT_EQ(321, cal2.imageHeight);
+    rcCalibration calOutput = rc_getCalibrationStruct(tracker);
+    EXPECT_STREQ(calInput.deviceName, calOutput.deviceName);
+    EXPECT_EQ(123, calOutput.imageWidth);
+    EXPECT_EQ(321, calOutput.imageHeight);
 
     // this doesn't work because not all all fields are being extracted from filter at the moment.
     //EXPECT_STREQ(jsonString.c_str(), buffer);
@@ -106,18 +103,18 @@ TEST(rc_intel_interface_tests, rc_setCalibration_failure)
 
 TEST(rc_intel_interface_tests, rc_setCalibrationStruct)
 {
-    rcCalibration cal;
+    rcCalibration calInput;
 
-    cal.imageWidth = 321;
-    cal.imageHeight = 123;
+    calInput.imageWidth = 321;
+    calInput.imageHeight = 123;
 
     rc_Tracker *tracker = rc_create();
 
-    rc_setCalibrationStruct(tracker, cal);
+    rc_setCalibrationStruct(tracker, calInput);
 
-    rcCalibration cal2 = rc_getCalibrationStruct(tracker);
-    EXPECT_EQ(cal.imageWidth, cal2.imageWidth);
-    EXPECT_EQ(cal.imageHeight, cal2.imageHeight);
+    rcCalibration calOutput = rc_getCalibrationStruct(tracker);
+    EXPECT_EQ(calInput.imageWidth, calOutput.imageWidth);
+    EXPECT_EQ(calInput.imageHeight, calOutput.imageHeight);
 
     rc_destroy(tracker);
 }

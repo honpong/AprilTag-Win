@@ -407,6 +407,7 @@ rc_DeviceParameters rcCalFromRSCal(const rcCalibration &cal)
 {
     rc_DeviceParameters out;
 
+    strncpy_s(out.deviceName, sizeof(out.deviceName), cal.deviceName, _TRUNCATE);
     out.version = cal.calibrationVersion;
     out.Fx = cal.Fx;
     out.Fy = cal.Fy;
@@ -456,7 +457,7 @@ rcCalibration rsCalFromRCCal(const rc_DeviceParameters &cal)
 {
     rcCalibration out;
 
-    out.deviceName[0] = '\0';
+    strncpy_s(out.deviceName, sizeof(out.deviceName), cal.deviceName, _TRUNCATE);
     out.calibrationVersion = cal.version;
     out.Fx = cal.Fx;
     out.Fy = cal.Fy;
@@ -505,6 +506,7 @@ rcCalibration rsCalFromRCCal(const rc_DeviceParameters &cal)
 rcCalibration rc_getCalibrationStruct(rc_Tracker *tracker)
 {
     device_parameters cal = filter_get_device_parameters(&tracker->sfm);
+    strncpy_s(cal.deviceName, sizeof(cal.deviceName), tracker->device.deviceName, _TRUNCATE); // filter doesn't keep this internally, so set it here
     return rsCalFromRCCal(cal);
 }
 
@@ -517,8 +519,7 @@ bool rc_setCalibrationStruct(rc_Tracker *tracker, const rcCalibration &cal)
 
 size_t rc_getCalibration(rc_Tracker *tracker, const rc_char_t **buffer)
 {
-    device_parameters cal = filter_get_device_parameters(&tracker->sfm);
-    rcCalibration rsCal = rsCalFromRCCal(cal);
+    rcCalibration rsCal = rc_getCalibrationStruct(tracker);
 
     std::string json;
     if (!calibration_serialize(rsCal, json))

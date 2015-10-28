@@ -81,6 +81,7 @@ typedef enum rc_TrackerConfidence
 
 typedef struct rc_DeviceParameters
 {
+    char deviceName[256];
     float Fx, Fy;
     float Cx, Cy;
     float px, py;
@@ -385,7 +386,13 @@ RCTRACKER_API const char *rc_getTimingStats(rc_Tracker *tracker);
  */
 RCTRACKER_API void rc_setOutputLog(rc_Tracker *tracker, const rc_char_t *filename);
 
+/**
+    Yields a JSON string that represents a rcCalibration struct.
+*/
 RCTRACKER_API size_t rc_getCalibration(rc_Tracker *tracker, const rc_char_t **buffer);
+/**
+    Takes a JSON string that represents a rcCalibration struct.
+*/
 RCTRACKER_API bool rc_setCalibration(rc_Tracker *tracker, const rc_char_t *buffer);
 
 RCTRACKER_API rcCalibration rc_getCalibrationStruct(rc_Tracker *tracker);

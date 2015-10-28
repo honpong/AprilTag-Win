@@ -104,9 +104,7 @@ static const char *CALIBRATION_DEFAULTS = R"(
 void CopyJsonToStruct(Document &json, rcCalibration &cal)
 {
     std::string deviceName = json[KEY_DEVICE_NAME].GetString();
-    int charLen = sizeof(cal.deviceName);
-    strncpy(cal.deviceName, deviceName.c_str(), charLen - 1);
-    cal.deviceName[charLen - 1] = '\0';
+    strncpy_s(cal.deviceName, sizeof(cal.deviceName), deviceName.c_str(), _TRUNCATE);
 
     cal.calibrationVersion = json[KEY_CALIBRATION_VERSION].GetInt();
     cal.Fx = (float)json[KEY_FX].GetDouble();

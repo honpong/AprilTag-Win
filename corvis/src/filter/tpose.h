@@ -82,7 +82,7 @@ inline std::istream &operator>>(std::istream &file, tpose_sequence &s) {
             file.setstate(std::ios_base::failbit);
             return file;
         }
-        s.tposes.emplace(s.tposes.end(), tp_raw);
+        s.tposes.emplace_back(tp_raw);
     }
     if (file.eof() && !file.bad()) // getline() can set fail on eof() :(
         file.clear(file.rdstate() & ~std::ios::failbit);

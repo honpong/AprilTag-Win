@@ -16,6 +16,8 @@ struct tpose_raw {
 
 inline std::istream &operator>>(std::istream &l, tpose_raw &tp) {
     l >> tp.t_100ns;
+    tp.R = m4::Identity();
+    tp.T_mm = v4::Zero();
     for (int i=0; i<3; i++) {
         for (int j=0; j<3; j++)
             l >> tp.R(i,j);

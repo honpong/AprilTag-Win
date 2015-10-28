@@ -34,7 +34,6 @@ public:
     state_node(): dynamic(false) {}
     virtual ~state_node() {};
     bool dynamic;
-    static int statesize, maxstatesize;
     virtual void copy_state_to_array(matrix &state) = 0;
     virtual void copy_state_from_array(matrix &state) = 0;
     virtual int remap_dynamic(int i, covariance &cov) = 0;
@@ -105,7 +104,8 @@ public:
 class state_root: public state_branch<state_node *> {
 public:
     state_root(covariance &c): cov(c), current_time(sensor_clock::micros_to_tp(0)) {}
-    
+
+    int statesize, maxstatesize;
     covariance &cov;
 
     int remap() {

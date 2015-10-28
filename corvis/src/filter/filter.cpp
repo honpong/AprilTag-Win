@@ -19,9 +19,6 @@
 #include "filter.h"
 #include <memory>
 
-int state_node::statesize;
-int state_node::maxstatesize;
-
 const static sensor_clock::duration max_camera_delay = std::chrono::microseconds(200000); //We drop a frame if it arrives at least this late
 const static sensor_clock::duration max_inertial_delay = std::chrono::microseconds(100000); //We drop inertial data if it arrives at least this late
 const static sensor_clock::duration min_steady_time = std::chrono::microseconds(100000); //time held steady before we start treating it as steady
@@ -944,7 +941,7 @@ extern "C" void filter_initialize(struct filter *f, device_parameters device)
     f->origin = transformation();
     f->origin_gravity_aligned = true;
     
-    state_node::statesize = 0;
+    f->s.statesize = 0;
     f->s.enable_orientation_only();
     f->s.remap();
 }

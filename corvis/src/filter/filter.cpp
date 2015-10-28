@@ -813,9 +813,6 @@ extern "C" void filter_initialize(struct filter *f, device_parameters device)
     state_vision_group::ref_noise = 1.e-30;
     state_vision_group::min_feats = 1;
     
-    state_vision_group::counter = 0;
-    state_vision_feature::counter = 0;
-
     observation_vision_feature::stdev[0] = stdev_scalar();
     observation_vision_feature::stdev[1] = stdev_scalar();
     observation_vision_feature::inn_stdev[0] = stdev_scalar();

@@ -11,12 +11,10 @@ f_t state_vision_feature::measurement_var;
 f_t state_vision_feature::outlier_thresh;
 f_t state_vision_feature::outlier_reject;
 f_t state_vision_feature::max_variance;
-uint64_t state_vision_group::counter = 0;
-uint64_t state_vision_feature::counter = 0;
 
-state_vision_feature::state_vision_feature(f_t initialx, f_t initialy): state_leaf("feature"), outlier(0.), initial(initialx, initialy, 1., 0.), current(initial), status(feature_initializing)
+state_vision_feature::state_vision_feature(uint64_t feature_id, f_t initialx, f_t initialy): state_leaf("feature"), outlier(0.), initial(initialx, initialy, 1., 0.), current(initial), status(feature_initializing)
 {
-    id = counter++;
+    id = feature_id;
     set_initial_variance(initial_var);
     innovation_variance_x = 0.;
     innovation_variance_y = 0.;
@@ -82,9 +80,9 @@ state_vision_group::state_vision_group(const state_vision_group &other): Tr(othe
     children.push_back(&Wr);
 }
 
-state_vision_group::state_vision_group(): Tr("Tr"), Wr("Wr"), health(0), status(group_initializing)
+state_vision_group::state_vision_group(uint64_t group_id): Tr("Tr"), Wr("Wr"), health(0), status(group_initializing)
 {
-    id = counter++;
+    id = group_id;
     Tr.dynamic = true;
     Wr.dynamic = true;
     children.push_back(&Tr);
@@ -148,7 +146,10 @@ int state_vision_group::make_normal()
     return 0;
 }
 
-state_vision::state_vision(covariance &c): state_motion(c), Tc("Tc"), Wc("Wc"), focal_length("focal_length"), center_x("center_x"), center_y("center_y"), k1("k1"), k2("k2"), k3("k3"), fisheye(false), total_distance(0.), last_position(v4::Zero()), reference(nullptr)
+state_vision::state_vision(covariance &c):
+    state_motion(c),
+    Tc("Tc"), Wc("Wc"), focal_length("focal_length"), center_x("center_x"), center_y("center_y"), k1("k1"), k2("k2"), k3("k3"),
+    fisheye(false), total_distance(0.), last_position(v4::Zero()), reference(nullptr), feature_counter(0), group_counter(0)
 {
     reference = NULL;
     if(estimate_camera_intrinsics)
@@ -286,7 +287,7 @@ int state_vision::process_features(sensor_clock::time_point time)
 
 state_vision_feature * state_vision::add_feature(f_t initialx, f_t initialy)
 {
-    state_vision_feature *f = new state_vision_feature(initialx, initialy);
+    state_vision_feature *f = new state_vision_feature(feature_counter++, initialx, initialy);
     features.push_back(f);
     //allfeatures.push_back(f);
     return f;
@@ -305,7 +306,7 @@ void state_vision::project_new_group_covariance(const state_vision_group &g)
 
 state_vision_group * state_vision::add_group(sensor_clock::time_point time)
 {
-    state_vision_group *g = new state_vision_group();
+    state_vision_group *g = new state_vision_group(group_counter++);
     for(state_vision_group *neighbor : groups.children) {
         g->old_neighbors.push_back(neighbor->id);
         neighbor->neighbors.push_back(g->id);

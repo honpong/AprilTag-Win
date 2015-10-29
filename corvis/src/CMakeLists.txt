@@ -82,7 +82,7 @@ if(WIN32 OR ANDROID)
     endif()
     file(GLOB MKLLOCS ${MKLROOT} $ENV{MKLROOT}
         "C:/Program Files (x86)/Intel/Composer XE 2015/mkl"
-        "C:/Program Files (x86)/IntelSWTools/compilers_and_libraries_2016/windows/mkl"
+        "C:/Program Files (x86)/IntelSWTools/compilers_and_libraries/windows/mkl"
         "C:/Program Files/Intel/Composer XE 2015/mkl"
     )
     list(GET MKLLOCS 0 MKLLOC)

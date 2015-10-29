@@ -402,8 +402,8 @@ RCTRACKER_API size_t rc_getCalibration(rc_Tracker *tracker, const rc_char_t **bu
 */
 RCTRACKER_API bool rc_setCalibration(rc_Tracker *tracker, const rc_char_t *buffer);
 
-RCTRACKER_API rcCalibration rc_getCalibrationStruct(rc_Tracker *tracker);
-RCTRACKER_API bool rc_setCalibrationStruct(rc_Tracker *tracker, const rcCalibration &cal);
+RCTRACKER_API void rc_getCalibrationStruct(rc_Tracker *tracker, rcCalibration *cal);
+RCTRACKER_API bool rc_setCalibrationStruct(rc_Tracker *tracker, const rcCalibration *cal);
 
 RCTRACKER_API bool rc_setCalibrationFromFile(rc_Tracker *tracker, const rc_char_t *filePath);
 

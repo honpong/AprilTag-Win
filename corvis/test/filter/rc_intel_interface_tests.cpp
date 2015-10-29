@@ -82,7 +82,8 @@ TEST(rc_intel_interface_tests, rc_setCalibration)
     EXPECT_GT(size, 0);
 
     // compare values between original and retrieved
-    rcCalibration calOutput = rc_getCalibrationStruct(tracker);
+    rcCalibration calOutput;
+    rc_getCalibrationStruct(tracker, &calOutput);
     EXPECT_STREQ(calInput.deviceName, calOutput.deviceName);
     EXPECT_EQ(123, calOutput.imageWidth);
     EXPECT_EQ(321, calOutput.imageHeight);
@@ -113,9 +114,10 @@ TEST(rc_intel_interface_tests, rc_setCalibrationStruct)
 
     rc_Tracker *tracker = rc_create();
 
-    rc_setCalibrationStruct(tracker, calInput);
+    rc_setCalibrationStruct(tracker, &calInput);
 
-    rcCalibration calOutput = rc_getCalibrationStruct(tracker);
+    rcCalibration calOutput;
+    rc_getCalibrationStruct(tracker, &calOutput);
     EXPECT_EQ(calInput.imageWidth, calOutput.imageWidth);
     EXPECT_EQ(calInput.imageHeight, calOutput.imageHeight);
 
@@ -129,7 +131,8 @@ TEST(rc_intel_interface_tests, rc_setCalibrationFromFile)
     const rc_char_t* filename = L"C:/Users/bhirashi/AppData/Roaming/Local Libraries/Local Documents/rcmain/windows/build/corvis/Debug/calibration.json";
     EXPECT_TRUE(rc_setCalibrationFromFile(tracker, filename));
 
-    rcCalibration calOutput = rc_getCalibrationStruct(tracker);
+    rcCalibration calOutput;
+    rc_getCalibrationStruct(tracker, &calOutput);
     EXPECT_STREQ(R"(unknown)", calOutput.deviceName);
     EXPECT_EQ(640, calOutput.imageWidth);
     EXPECT_EQ(480, calOutput.imageHeight);
@@ -149,9 +152,10 @@ TEST(rc_intel_interface_tests, rc_fisheyeKw)
 
     rc_Tracker *tracker = rc_create();
 
-    rc_setCalibrationStruct(tracker, calInput);
+    rc_setCalibrationStruct(tracker, &calInput);
 
-    rcCalibration calOutput = rc_getCalibrationStruct(tracker);
+    rcCalibration calOutput;
+    rc_getCalibrationStruct(tracker, &calOutput);
     EXPECT_EQ(calInput.Kw, calOutput.K0);
     EXPECT_EQ(calInput.Kw, calOutput.Kw);
     EXPECT_EQ(calInput.distortionModel, calOutput.distortionModel);

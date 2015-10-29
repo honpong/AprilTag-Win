@@ -99,6 +99,9 @@ typedef struct rc_DeviceParameters
     int image_width, image_height;
     bool fisheye;
     unsigned long int version;
+    float shutterDelay;
+    float shutterPeriod;
+    float timeStampOffset;
 } rc_DeviceParameters;
 
 typedef struct SP_Calibration
@@ -243,6 +246,10 @@ typedef struct SP_Calibration
     /// @param[out] wMeasVar
     /// Gyroscope measurement noise variance
     float wMeasVar;
+
+    float shutterDelay;
+    float shutterPeriod;
+    float timeStampOffset;
 
 } SP_Calibration;
 typedef struct SP_Calibration rcCalibration;

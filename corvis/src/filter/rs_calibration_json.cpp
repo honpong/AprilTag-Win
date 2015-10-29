@@ -50,9 +50,9 @@ using namespace std;
 #define KEY_CALIBRATION_VERSION "calibrationVersion"
 #define KEY_DISTORTION_MODEL "distortionModel"
 #define KEY_DEVICE_NAME "deviceName"
-//#define KEY_SHUTTER_DELAY "shutterDelay"
-//#define KEY_SHUTTER_PERIOD "shutterPeriod"
-//#define KEY_TIMESTAMP_OFFSET "timeStampOffset"
+#define KEY_SHUTTER_DELAY "shutterDelay"
+#define KEY_SHUTTER_PERIOD "shutterPeriod"
+#define KEY_TIMESTAMP_OFFSET "timeStampOffset"
 
 // these are meaningless. they are only used to initialize the json document.
 static const char *CALIBRATION_DEFAULTS = R"(
@@ -97,7 +97,10 @@ static const char *CALIBRATION_DEFAULTS = R"(
     "aMeasVar": 0.00022821025049779564,
     "imageWidth": 640,
     "imageHeight": 480,
-    "distortionModel": 0
+    "distortionModel": 0,
+    "shutterDelay": 0,
+    "shutterPeriod" : 0,
+    "timeStampOffset" : 0
 }
 )";
 
@@ -146,9 +149,9 @@ void CopyJsonToStruct(Document &json, rcCalibration &cal)
     cal.imageWidth = json[KEY_IMAGE_WIDTH].GetInt();
     cal.imageHeight = json[KEY_IMAGE_HEIGHT].GetInt();
     cal.distortionModel = json[KEY_DISTORTION_MODEL].GetInt();
-//    cal.shutterDelay = (float)json[KEY_SHUTTER_DELAY].GetDouble();
-//    cal.shutterPeriod = (float)json[KEY_SHUTTER_PERIOD].GetDouble();
-//    cal.timeStampOffset = (float)json[KEY_TIMESTAMP_OFFSET].GetDouble();
+    cal.shutterDelay = (float)json[KEY_SHUTTER_DELAY].GetDouble();
+    cal.shutterPeriod = (float)json[KEY_SHUTTER_PERIOD].GetDouble();
+    cal.timeStampOffset = (float)json[KEY_TIMESTAMP_OFFSET].GetDouble();
 }
 
 void CopyStructToJson(const rcCalibration &cal, Document &json)
@@ -194,9 +197,9 @@ void CopyStructToJson(const rcCalibration &cal, Document &json)
     json[KEY_IMAGE_WIDTH] = cal.imageWidth;
     json[KEY_IMAGE_HEIGHT] = cal.imageHeight;
     json[KEY_DISTORTION_MODEL] = cal.distortionModel;
-//    json[KEY_SHUTTER_DELAY] = cal.shutterDelay;
-//    json[KEY_SHUTTER_PERIOD] = cal.shutterPeriod;
-//    json[KEY_TIMESTAMP_OFFSET] = cal.timeStampOffset;
+    json[KEY_SHUTTER_DELAY] = cal.shutterDelay;
+    json[KEY_SHUTTER_PERIOD] = cal.shutterPeriod;
+    json[KEY_TIMESTAMP_OFFSET] = cal.timeStampOffset;
 }
 
 bool calibration_serialize(const rcCalibration &cal, std::string &jsonString)

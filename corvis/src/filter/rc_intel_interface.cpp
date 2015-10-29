@@ -452,6 +452,9 @@ rc_DeviceParameters rcCalFromRSCal(const rcCalibration &cal)
     out.image_width = cal.imageWidth;
     out.image_height = cal.imageHeight;
     out.fisheye = cal.distortionModel;
+    out.shutterDelay = cal.shutterDelay;
+    out.shutterPeriod = cal.shutterPeriod;
+    out.timeStampOffset = cal.timeStampOffset;
 
     return out;
 }
@@ -502,6 +505,9 @@ rcCalibration rsCalFromRCCal(const rc_DeviceParameters &cal)
     out.imageWidth = cal.image_width;
     out.imageHeight = cal.image_height;
     out.distortionModel = cal.fisheye;
+    out.shutterDelay = cal.shutterDelay;
+    out.shutterPeriod = cal.shutterPeriod;
+    out.timeStampOffset = cal.timeStampOffset;
 
     return out;
 }
@@ -509,8 +515,15 @@ rcCalibration rsCalFromRCCal(const rc_DeviceParameters &cal)
 rcCalibration rc_getCalibrationStruct(rc_Tracker *tracker)
 {
     device_parameters cal = filter_get_device_parameters(&tracker->sfm);
-    strncpy_s(cal.deviceName, sizeof(cal.deviceName), tracker->device.deviceName, _TRUNCATE); // filter doesn't keep this internally, so set it here
-    return rsCalFromRCCal(cal);
+    rcCalibration calOut = rsCalFromRCCal(cal);
+
+    // filter doesn't keep these internally, so set them here
+    strncpy_s(calOut.deviceName, sizeof(calOut.deviceName), tracker->device.deviceName, _TRUNCATE);
+    calOut.shutterDelay = tracker->device.shutterDelay;
+    calOut.shutterPeriod = tracker->device.shutterPeriod;
+    calOut.timeStampOffset = tracker->device.timeStampOffset;
+
+    return calOut;
 }
 
 bool rc_setCalibrationStruct(rc_Tracker *tracker, const rcCalibration &cal)

@@ -4,6 +4,7 @@
 #include "../vis/offscreen_render.h"
 #include "../vis/gui.h"
 #include "benchmark.h"
+#include <iomanip>
 
 int main(int c, char **v)
 {
@@ -60,9 +61,10 @@ int main(int c, char **v)
     };
 
     auto print_results = [](replay &rp, const char *capture_file) {
-        printf("Reference Straight-line length is %.2f cm, total path length %.2f cm\n", 100*rp.get_reference_length(), 100*rp.get_reference_path_length());
-        printf("Computed  Straight-line length is %.2f cm, total path length %.2f cm\n", 100*rp.get_length(), 100*rp.get_path_length());
-        printf("Dispatched %llu packets %.2f Mbytes\n", rp.get_packets_dispatched(), rp.get_bytes_dispatched()/1.e6);
+        std::cout << std::fixed << std::setprecision(2);
+        std::cout << "Reference Straight-line length is " << 100*rp.get_reference_length() << " cm, total path length " << 100*rp.get_reference_path_length() << " cm\n";
+        std::cout << "Computed  Straight-line length is " << 100*rp.get_length()           << " cm, total path length " << 100*rp.get_path_length()           << " cm\n";
+        std::cout << "Dispatched " << rp.get_packets_dispatched() << " packets " << rp.get_bytes_dispatched()/1.e6 << " Mbytes\n";
     };
 
     if (benchmark) {

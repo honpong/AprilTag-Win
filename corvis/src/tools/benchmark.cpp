@@ -90,6 +90,8 @@ void benchmark_run(std::ostream& stream, const char *directory, std::function<bo
         if ((++last - first) >= std::max<signed>(1, std::thread::hardware_concurrency()))
           results[first++].ok.wait();
     }
+    while (first < last)
+        results[first++].ok.wait();
 
     std::vector<double> L_errors_percent, PL_errors_percent, primary_errors_percent;
 

@@ -410,7 +410,7 @@ rc_DeviceParameters rcCalFromRSCal(const rcCalibration &cal)
 {
     rc_DeviceParameters out;
 
-    strncpy_s(out.deviceName, sizeof(out.deviceName), cal.deviceName, _TRUNCATE);
+    snprintf(out.deviceName, sizeof(out.deviceName), "%s", cal.deviceName);
     out.version = cal.calibrationVersion;
     out.Fx = cal.Fx;
     out.Fy = cal.Fy;
@@ -463,7 +463,7 @@ rcCalibration rsCalFromRCCal(const rc_DeviceParameters &cal)
 {
     rcCalibration out;
 
-    strncpy_s(out.deviceName, sizeof(out.deviceName), cal.deviceName, _TRUNCATE);
+    snprintf(out.deviceName, sizeof(out.deviceName), "%s", cal.deviceName);
     out.calibrationVersion = cal.version;
     out.Fx = cal.Fx;
     out.Fy = cal.Fy;
@@ -518,7 +518,7 @@ rcCalibration rc_getCalibrationStruct(rc_Tracker *tracker)
     rcCalibration calOut = rsCalFromRCCal(cal);
 
     // filter doesn't keep these internally, so set them here
-    strncpy_s(calOut.deviceName, sizeof(calOut.deviceName), tracker->device.deviceName, _TRUNCATE);
+    snprintf(calOut.deviceName, sizeof(calOut.deviceName), "%s", tracker->device.deviceName);
     calOut.shutterDelay = tracker->device.shutterDelay;
     calOut.shutterPeriod = tracker->device.shutterPeriod;
     calOut.timeStampOffset = tracker->device.timeStampOffset;

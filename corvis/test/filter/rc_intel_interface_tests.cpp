@@ -60,7 +60,7 @@ TEST(rc_intel_interface_tests, rc_setCalibration)
 {
     rcCalibration calInput;
 
-    strncpy_s(calInput.deviceName, sizeof(calInput.deviceName), R"(test)", _TRUNCATE);
+    snprintf(calInput.deviceName, sizeof(calInput.deviceName), "%s", R"(test)");
     calInput.imageWidth = 123;
     calInput.imageHeight = 321;
 

@@ -126,7 +126,11 @@ TEST(rc_intel_interface_tests, rc_setCalibrationFromFile)
 {
     rc_Tracker *tracker = rc_create();
 
-    const rc_char_t* filename = L"C:/Users/bhirashi/AppData/Roaming/Local Libraries/Local Documents/rcmain/windows/build/corvis/Debug/calibration.json";
+    const rc_char_t* filename =
+#ifdef WIN32
+        L
+#endif
+        "C:/Users/bhirashi/AppData/Roaming/Local Libraries/Local Documents/rcmain/windows/build/corvis/Debug/calibration.json";
     EXPECT_TRUE(rc_setCalibrationFromFile(tracker, filename));
 
     rcCalibration calOutput = rc_getCalibrationStruct(tracker);

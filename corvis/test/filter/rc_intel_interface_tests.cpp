@@ -90,7 +90,7 @@ TEST(rc_intel_interface_tests, rc_setCalibration)
     // this doesn't work because not all all fields are being extracted from filter at the moment.
     //EXPECT_STREQ(jsonString.c_str(), buffer);
 
-    //rc_destroy(tracker);
+    rc_destroy(tracker);
 }
 
 TEST(rc_intel_interface_tests, rc_setCalibration_failure)
@@ -101,7 +101,7 @@ TEST(rc_intel_interface_tests, rc_setCalibration_failure)
 #else
     EXPECT_FALSE(rc_setCalibration(tracker, ""));
 #endif
-    //rc_destroy(tracker);
+    rc_destroy(tracker);
 }
 
 TEST(rc_intel_interface_tests, rc_setCalibrationStruct)
@@ -119,7 +119,7 @@ TEST(rc_intel_interface_tests, rc_setCalibrationStruct)
     EXPECT_EQ(calInput.imageWidth, calOutput.imageWidth);
     EXPECT_EQ(calInput.imageHeight, calOutput.imageHeight);
 
-    //rc_destroy(tracker);
+    rc_destroy(tracker);
 }
 
 TEST(rc_intel_interface_tests, rc_setCalibrationFromFile)
@@ -137,5 +137,24 @@ TEST(rc_intel_interface_tests, rc_setCalibrationFromFile)
     EXPECT_FLOAT_EQ(0.2, calOutput.shutterPeriod);
     EXPECT_FLOAT_EQ(0.3, calOutput.timeStampOffset);
 
-    //rc_destroy(tracker);
+    rc_destroy(tracker);
+}
+
+TEST(rc_intel_interface_tests, rc_fisheyeKw)
+{
+    rcCalibration calInput;
+
+    calInput.Kw = .123;
+    calInput.distortionModel = 1;
+
+    rc_Tracker *tracker = rc_create();
+
+    rc_setCalibrationStruct(tracker, calInput);
+
+    rcCalibration calOutput = rc_getCalibrationStruct(tracker);
+    EXPECT_EQ(calInput.Kw, calOutput.K0);
+    EXPECT_EQ(calInput.Kw, calOutput.Kw);
+    EXPECT_EQ(calInput.distortionModel, calOutput.distortionModel);
+
+    rc_destroy(tracker);
 }

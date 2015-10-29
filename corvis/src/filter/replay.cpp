@@ -78,7 +78,7 @@ bool replay::load_reference_from_pose_file(const string &filename)
 static bool find_prefixed_number(const std::string in, const std::string &prefix, double &n)
 {
     smatch m; if (!regex_search(in, m, regex(prefix + "(\\d+(?:\\.\\d*)?)"))) return false;
-    n = strtod(std::string(m[1]).c_str(), NULL);
+    n = std::stod(m[1]);
     return true;
 }
 

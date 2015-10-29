@@ -10,9 +10,7 @@
 #include "sensor_fusion.h"
 #include "rs_calibration_json.h"
 #include <codecvt>
-#include <vector>
 #include <fstream>
-#include <iterator>
 
 static void transformation_to_rc_Pose(const transformation &g, rc_Pose p)
 {

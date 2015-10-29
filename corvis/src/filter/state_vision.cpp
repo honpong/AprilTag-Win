@@ -216,6 +216,8 @@ int state_vision::feature_count()
 
 int state_vision::process_features(const image_gray8 &image, sensor_clock::time_point time)
 {
+    std::vector<uint64_t> dropped_features;
+
     int useful_drops = 0;
     int total_feats = 0;
     int outliers = 0;
@@ -235,8 +237,11 @@ int state_vision::process_features(const image_gray8 &image, sensor_clock::time_
                     ++outliers;
                 }
             }
+            if(i->should_drop())
+                dropped_features.push_back(i->tracker_id);
         }
     }
+
     if(track_fail && !total_feats) log->warn("Tracker failed! {} features dropped.", track_fail);
     //    log.warn("outliers: {}/{} ({}%)", outliers, total_feats, outliers * 100. / total_feats);
 
@@ -262,6 +267,8 @@ int state_vision::process_features(const image_gray8 &image, sensor_clock::time_
                     reference = 0;
                 }
             }
+            for(state_vision_feature *i : g->features.children)
+                dropped_features.push_back(i->tracker_id);
             g->make_empty();
         }
 
@@ -313,6 +320,8 @@ int state_vision::process_features(const image_gray8 &image, sensor_clock::time_
             return false;
         }
     });
+
+    tracker.drop_features(dropped_features);
 
     remap();
 
@@ -424,43 +433,83 @@ f_t state_vision_intrinsics::get_undistortion_factor(const feature_t &feat_d, fe
 
 void state_vision::update_feature_tracks()
 {
+    // TODO: add previous image
+    // TODO: add gyro measurements
+    // TODO: get time
+    int64_t current_time_us;
+    tracker_image current_image;
+    current_image.image = image;
+    current_image.width_px = camera_intrinsics.image_width;
+    current_image.height_px = camera_intrinsics.image_height;
+    current_image.time_us = current_time_us;
+    tracker_image previous_image = current_image;
+
+    std::vector<tracker_point> current_points;
+    std::vector<std::vector<tracker_point>> predictions;
+    std::vector<gyro_measurement> gyro_measurements;
+    std::map<uint64_t, state_vision_feature *> id_to_state;
+    std::map<uint64_t, bool> valid_features;
+
     for(state_vision_group *g : groups.children) {
         if(!g->status || g->status == group_initializing) continue;
         for(state_vision_feature *feature : g->features.children) {
+            tracker_point p;
+            p.id = feature->tracker_id;
+            p.x = feature->current[0];
+            p.y = feature->current[1];
+            p.score = 0;
+            current_points.push_back(p);
+            id_to_state[feature->tracker_id] = feature;
+            valid_features[feature->tracker_id] = false;
+
+            std::vector<tracker_point> point_predictions;
+            tracker_point prediction;
+            prediction.id = feature->tracker_id;
+            prediction.score = 0;
 
             float ratio = 1.f;
             if(feature->last_dt.count())
                 ratio = (float)feature->dt.count() / feature->last_dt.count();
 
-            xy bestkp = tracker.track(feature->patch, image, (float)feature->current[0] + feature->image_velocity.x()*ratio, (float)feature->current[1] + feature->image_velocity.y()*ratio, tracker.radius, tracker.min_match);
+            prediction.x = (float)feature->current[0] + feature->image_velocity.x()*ratio;
+            prediction.y = (float)feature->current[1] + feature->image_velocity.y()*ratio;
+            point_predictions.push_back(prediction);
 
-            // Not a good enough match, try the filter prediction
-            if(bestkp.score < tracker.good_match) {
-                xy bestkp2 = tracker.track(feature->patch, image, (float)feature->prediction[0], (float)feature->prediction[1], tracker.radius, bestkp.score);
-                if(bestkp2.score > bestkp.score)
-                    bestkp = bestkp2;
-            }
-            // Still no match? Guess that we haven't moved at all
-            if(bestkp.score < tracker.min_match) {
-                xy bestkp2 = tracker.track(feature->patch, image, (float)feature->current[0], (float)feature->current[1], 5.5, bestkp.score);
-                if(bestkp2.score > bestkp.score)
-                    bestkp = bestkp2;
-            }
+            prediction.x = (float)feature->prediction.x();
+            prediction.y = (float)feature->prediction.y();
+            point_predictions.push_back(prediction);
 
-            bool valid = bestkp.x != INFINITY;
+            prediction.x = (float)feature->current[0];
+            prediction.y = (float)feature->current[1];
+            point_predictions.push_back(prediction);
+            predictions.push_back(point_predictions);
 
-            if(valid) {
-                feature->image_velocity[0]  = bestkp.x - (float)feature->current[0];
-                feature->image_velocity[1]  = bestkp.y - (float)feature->current[1];
-            }
-            else {
-                feature->image_velocity[0] = 0;
-                feature->image_velocity[1] = 0;
-            }
-
-            feature->current[0] = bestkp.x;
-            feature->current[1] = bestkp.y;
             feature->last_dt = feature->dt;
+        }
+    }
+    std::vector<tracker_point> tracks;
+    if(current_points.size() > 0) {
+        tracks = tracker.track(previous_image, current_image, gyro_measurements, current_points, predictions);
+    }
+
+    // Update valid features
+    for(auto p : tracks) {
+        state_vision_feature * feature = id_to_state[p.id];
+        valid_features[p.id] = true;
+        feature->image_velocity[0]  = p.x - (float)feature->current[0];
+        feature->image_velocity[1]  = p.y - (float)feature->current[1];
+        feature->current[0] = p.x;
+        feature->current[1] = p.y;
+    }
+
+    // Update invalid features
+    for(std::pair<uint64_t, bool> valid : valid_features) {
+        if(!valid.second) {
+            state_vision_feature * feature = id_to_state[valid.first];
+            feature->image_velocity[0] = 0;
+            feature->image_velocity[1] = 0;
+            feature->current[0] = INFINITY;
+            feature->current[1] = INFINITY;
         }
     }
 }

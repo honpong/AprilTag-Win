@@ -7,6 +7,7 @@
 #include "calibration_xml.h"
 #include "feature_info.h"
 #include "tracker.h"
+#include "fast_tracker.h"
 #include "scaled_mask.h"
 #include "../numerics/transformation.h"
 #ifdef ENABLE_QR
@@ -61,7 +62,6 @@ struct filter {
     bool numeric_failed;
     sensor_clock::time_point speed_warning_time;
     bool ignore_lateness;
-    tracker track;
     stdev<3> gyro_stability, accel_stability;
     sensor_clock::time_point stable_start;
     bool calibration_bad;

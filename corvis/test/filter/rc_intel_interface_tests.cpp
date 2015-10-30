@@ -63,6 +63,9 @@ TEST(rc_intel_interface_tests, rc_setCalibration)
     snprintf(calInput.deviceName, sizeof(calInput.deviceName), "%s", R"(test)");
     calInput.imageWidth = 123;
     calInput.imageHeight = 321;
+    calInput.px = 0.567;
+    calInput.py = 0.765;
+    calInput.distortionModel = 1;
 
     // set cal
     string jsonString;
@@ -85,8 +88,11 @@ TEST(rc_intel_interface_tests, rc_setCalibration)
     rcCalibration calOutput;
     rc_getCalibrationStruct(tracker, &calOutput);
     EXPECT_STREQ(calInput.deviceName, calOutput.deviceName);
-    EXPECT_EQ(123, calOutput.imageWidth);
-    EXPECT_EQ(321, calOutput.imageHeight);
+    EXPECT_EQ(calInput.imageWidth, calOutput.imageWidth);
+    EXPECT_EQ(calInput.imageHeight, calOutput.imageHeight);
+    EXPECT_EQ(calInput.px, calOutput.px);
+    EXPECT_EQ(calInput.py, calOutput.py);
+    EXPECT_EQ(calInput.distortionModel, calOutput.distortionModel);
 
     // this doesn't work because not all all fields are being extracted from filter at the moment.
     //EXPECT_STREQ(jsonString.c_str(), buffer);

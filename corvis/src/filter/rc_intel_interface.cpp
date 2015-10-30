@@ -516,6 +516,10 @@ void rc_getCalibrationStruct(rc_Tracker *tracker, rcCalibration *calOut)
     calOut->shutterDelay = tracker->device.shutterDelay;
     calOut->shutterPeriod = tracker->device.shutterPeriod;
     calOut->timeStampOffset = tracker->device.timeStampOffset;
+    calOut->calibrationVersion = CALIBRATION_VERSION;
+    calOut->px = tracker->device.px;
+    calOut->py = tracker->device.py;
+    calOut->distortionModel = tracker->device.fisheye;
 }
 
 bool rc_setCalibrationStruct(rc_Tracker *tracker, const rcCalibration *cal)

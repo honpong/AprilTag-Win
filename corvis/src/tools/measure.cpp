@@ -15,7 +15,7 @@ int main(int c, char **v)
     }
 
     bool realtime = false, start_paused = false, benchmark = false;
-    std:string save;
+    std::string save;
     bool qvga = false, depth = true;
     bool enable_gui = true, show_plots = false, show_video = true, show_depth = true, show_main = true;
     char *filename = nullptr, *rendername = nullptr;

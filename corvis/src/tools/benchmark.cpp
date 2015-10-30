@@ -31,7 +31,7 @@ public:
         bins = std::vector<size_t>(edges.size()-1, 0);
 
         for (auto &d : data) { // FIXME: makes this O(log(n)) instead of O(n) ?
-            int i; for (i=0; i < bins.size()-1; i++)
+            size_t i; for (i=0; i < bins.size()-1; i++)
                 if (edges[i] <= d && d < edges[i+1])
                     bins[i]++;
             if (edges[i] <= d && d <= edges[i+1]) // last bin is closed
@@ -44,10 +44,10 @@ template<typename T, bool add_front, bool add_back>
 static inline std::ostream& operator<<(std::ostream &stream, const histogram<T, add_front, add_back> &h)
 {
     stream << std::fixed << std::setprecision(1);
-    for (int i=0; i<h.bins.size(); i++)
+    for (size_t i=0; i<h.bins.size(); i++)
         stream << (i ? "\t" : "") << h.edges[i] << "%";
     stream << (add_back ? "+" : "") << "\n";
-    for (int i=0; i<h.bins.size(); i++)
+    for (size_t i=0; i<h.bins.size(); i++)
         stream << (i ? "\t" : "") << h.bins[i];
     return stream << "\n";
 }

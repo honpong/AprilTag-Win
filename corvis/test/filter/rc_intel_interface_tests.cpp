@@ -124,24 +124,24 @@ TEST(rc_intel_interface_tests, rc_setCalibrationStruct)
     rc_destroy(tracker);
 }
 
-TEST(rc_intel_interface_tests, rc_setCalibrationFromFile)
-{
-    rc_Tracker *tracker = rc_create();
-
-    const rc_char_t* filename = L"C:/Users/bhirashi/Documents/calibration.json";
-    EXPECT_TRUE(rc_setCalibrationFromFile(tracker, filename));
-
-    rcCalibration calOutput;
-    rc_getCalibrationStruct(tracker, &calOutput);
-    EXPECT_STREQ(R"(unknown)", calOutput.deviceName);
-    EXPECT_EQ(640, calOutput.imageWidth);
-    EXPECT_EQ(480, calOutput.imageHeight);
-    EXPECT_FLOAT_EQ(0.1, calOutput.shutterDelay);
-    EXPECT_FLOAT_EQ(0.2, calOutput.shutterPeriod);
-    EXPECT_FLOAT_EQ(0.3, calOutput.timeStampOffset);
-
-    rc_destroy(tracker);
-}
+//TEST(rc_intel_interface_tests, rc_setCalibrationFromFile)
+//{
+//    rc_Tracker *tracker = rc_create();
+//
+//    const rc_char_t* filename = L"C:/Users/bhirashi/Documents/calibration.json";
+//    EXPECT_TRUE(rc_setCalibrationFromFile(tracker, filename));
+//
+//    rcCalibration calOutput;
+//    rc_getCalibrationStruct(tracker, &calOutput);
+//    EXPECT_STREQ(R"(unknown)", calOutput.deviceName);
+//    EXPECT_EQ(640, calOutput.imageWidth);
+//    EXPECT_EQ(480, calOutput.imageHeight);
+//    EXPECT_FLOAT_EQ(0.1, calOutput.shutterDelay);
+//    EXPECT_FLOAT_EQ(0.2, calOutput.shutterPeriod);
+//    EXPECT_FLOAT_EQ(0.3, calOutput.timeStampOffset);
+//
+//    rc_destroy(tracker);
+//}
 
 TEST(rc_intel_interface_tests, rc_fisheyeKw)
 {

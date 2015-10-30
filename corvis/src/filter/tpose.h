@@ -88,7 +88,7 @@ inline std::istream &operator>>(std::istream &file, tpose_sequence &s) {
         file.clear(file.rdstate() & ~std::ios::failbit);
     if(s.tposes.size()) {
         transformation origin_inv = invert(s.tposes[0].G);
-        for(int i = 0; i < s.tposes.size(); i++) {
+        for(size_t i = 0; i < s.tposes.size(); i++) {
             s.tposes[i].G = compose(origin_inv, s.tposes[i].G);
         }
     }

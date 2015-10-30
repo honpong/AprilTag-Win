@@ -82,11 +82,11 @@ void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int m
              break; case GLFW_KEY_0: case GLFW_KEY_1: case GLFW_KEY_2: case GLFW_KEY_3:
                     case GLFW_KEY_4: case GLFW_KEY_5: case GLFW_KEY_6: case GLFW_KEY_7:
                     case GLFW_KEY_8:
-                    case GLFW_KEY_9:        current_plot_key = -1; current_plot = state->change_plot(key - GLFW_KEY_0);
-             break; case GLFW_KEY_N:        current_plot_key = -1; current_plot = state->change_plot(current_plot + ((mods & GLFW_MOD_SHIFT) ? -1 : 1));
+                    case GLFW_KEY_9:        current_plot_key = (size_t)-1; current_plot = state->change_plot(key - GLFW_KEY_0);
+             break; case GLFW_KEY_N:        current_plot_key = (size_t)-1; current_plot = state->change_plot(current_plot + ((mods & GLFW_MOD_SHIFT) ? -1 : 1));
              break; case GLFW_KEY_LEFT:     current_plot_key = state->change_plot_key(current_plot, current_plot_key - 1);
              break; case GLFW_KEY_RIGHT:    current_plot_key = state->change_plot_key(current_plot, current_plot_key + 1);
-             break; case GLFW_KEY_ESCAPE:   scale = initial_scale; current_plot_key = -1;
+             break; case GLFW_KEY_ESCAPE:   scale = initial_scale; current_plot_key = (size_t)-1;
              break; case GLFW_KEY_EQUAL:    scale *= 1/1.1f;
              break; case GLFW_KEY_MINUS:    scale *= 1.1f;
              break; case GLFW_KEY_SPACE:    if (replay_control) replay_control->toggle_pause();

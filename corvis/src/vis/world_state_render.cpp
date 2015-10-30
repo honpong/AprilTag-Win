@@ -122,11 +122,11 @@ void world_state_render_plot_teardown()
 }
 
 #ifdef WIN32
-static void create_plot(world_state * state, int plot_index, int key_index, uint8_t *plot_frame, int plot_width, int plot_height) {}
+static void create_plot(world_state * state, size_t plot_index, size_t key_index, uint8_t *plot_frame, int plot_width, int plot_height) {}
 #else // !WIN32
 
 #if TARGET_OS_IPHONE
-static void create_plot(world_state * state, int plot_index, int key_index, uint8_t *plot_frame, int plot_width, int plot_height) {}
+static void create_plot(world_state * state, size_t plot_index, size_t key_index, uint8_t *plot_frame, int plot_width, int plot_height) {}
 #else // !TARGET_OS_IPHONE
 
 #include "lodepng.h"
@@ -134,11 +134,11 @@ static void create_plot(world_state * state, int plot_index, int key_index, uint
 #include <mgl2/mgl.h>
 #undef _MSC_VER
 
-static void create_plot(world_state * state, int plot_index, int key_index, uint8_t *plot_frame, int plot_width, int plot_height)
+static void create_plot(world_state * state, size_t plot_index, size_t key_index, uint8_t *plot_frame, int plot_width, int plot_height)
 {
     mglGraph gr(0,plot_width,plot_height); // 600x400 graph, plotted to an image
     // mglData stores the x and y data to be plotted
-    state->render_plot(plot_index, key_index, [&] (world_state::plot &plot, int key_index) {
+    state->render_plot(plot_index, key_index, [&] (world_state::plot &plot, size_t key_index) {
         gr.NewFrame();
         gr.Alpha(false);
         gr.Clf('w');
@@ -153,7 +153,7 @@ static void create_plot(world_state * state, int plot_index, int key_index, uint
         for (auto kvi = plot.begin(); kvi != plot.end(); ++kvi, i++) {
             // Enable these two lines if you want per-plot line
             // scaling when using the arrow keys
-            //if (key_index != -1 && key_index != i)
+            //if (key_index != (size_t)-1 && key_index != i)
             //    continue;
 
             for(auto data : kvi->second) {
@@ -169,7 +169,7 @@ static void create_plot(world_state * state, int plot_index, int key_index, uint
 
         i = 0;
         for (auto kvi = plot.begin(); kvi != plot.end(); ++kvi, i++) {
-            if (key_index != -1 && key_index != i)
+            if (key_index != (size_t)-1 && key_index != i)
                 continue;
             const std::string &name = kvi->first; const plot_data &p = kvi->second;
             names += (names.size() ? " " : "") + name;
@@ -188,7 +188,7 @@ static void create_plot(world_state * state, int plot_index, int key_index, uint
 
             gr.SetRange('x', 0, std::chrono::duration_cast<std::chrono::duration<float>>(maxt - mint).count());
             gr.SetRange('y', miny, maxy);
-            gr.Plot(data_x, data_y, colors[key_index == -1 ? i%3 : key_index % 3]);
+            gr.Plot(data_x, data_y, colors[key_index == (size_t)-1 ? i%3 : key_index % 3]);
         }
 
 
@@ -207,7 +207,7 @@ static void create_plot(world_state * state, int plot_index, int key_index, uint
 #endif //WIN32
 #endif //TARGET_OS_IPHONE
 
-void world_state_render_plot(world_state * world, int plot_index, int key_index, int viewport_width, int viewport_height)
+void world_state_render_plot(world_state * world, size_t plot_index, size_t key_index, int viewport_width, int viewport_height)
 {
     static int plot_width = -1, plot_height = -1;
     static uint8_t *plot_frame;

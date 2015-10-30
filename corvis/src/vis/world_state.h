@@ -76,14 +76,14 @@ public:
     world_state();
     ~world_state();
     void update_vertex_arrays(bool show_only_good=true);
-    void render_plot(int plot_index, int key_index, std::function<void (plot&, int key_index)> render_callback);
-    int change_plot(int plot_index);
-    int change_plot_key(int plot_index, int key_index);
+    void render_plot(size_t plot_index, size_t key_index, std::function<void (plot&, size_t key_index)> render_callback);
+    size_t change_plot(size_t plot_index);
+    size_t change_plot_key(size_t plot_index, size_t key_index);
 
     void receive_camera(const filter * f, camera_data &&data);
     void observe_feature(sensor_clock::time_point timestamp, uint64_t feature_id, float x, float y, float z, float image_x, float image_y, float cx, float cy, float cxy, bool good);
     void observe_position(sensor_clock::time_point timestamp, float x, float y, float z, float qw, float qx, float qy, float qz);
-    void observe_plot_item(sensor_clock::time_point timestamp, int plot_index, std::string plot_name, float value);
+    void observe_plot_item(sensor_clock::time_point timestamp, size_t plot_index, std::string plot_name, float value);
     void observe_image(sensor_clock::time_point timestamp, uint8_t * image, int width, int height);
     void observe_depth(sensor_clock::time_point timestamp, uint16_t * image, int width, int height);
     std::string get_feature_stats();

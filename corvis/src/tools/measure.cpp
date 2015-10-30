@@ -71,7 +71,7 @@ int main(int c, char **v)
         enable_gui = false; if (realtime || start_paused) goto usage;
 
         benchmark_run(std::cout, filename, [&](const char *capture_file, struct benchmark_result &res) -> bool {
-            std::unique_ptr<replay> rp_ = std::make_unique<replay>(start_paused); replay &rp = *rp_; // avoid blowing the stack when threaded
+            auto rp_ = std::make_unique<replay>(start_paused); replay &rp = *rp_; // avoid blowing the stack when threaded or on Windows
 
             if (!configure(rp, capture_file)) return false;
 
@@ -89,7 +89,7 @@ int main(int c, char **v)
         return 0;
     }
 
-    replay rp(start_paused);
+    auto rp_ = std::make_unique<replay>(start_paused); replay &rp = *rp_; // avoid blowing the stack when threaded or on Windows
 
     if (!configure(rp, filename))
         return 2;

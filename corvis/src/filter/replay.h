@@ -41,6 +41,7 @@ private:
     bool load_reference_from_pose_file(const string &filename);
 
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     replay(bool start_paused=false) : is_paused(start_paused), fusion(fusion_queue::latency_strategy::ELIMINATE_DROPS) {}
     bool open(const char *filename);
     bool set_calibration_from_filename(const char *filename);

@@ -9,7 +9,7 @@ using namespace std;
 
 static const char *CALIBRATION_DEFAULTS = R"(
 {
-    "deviceName" : "unknown",
+    "device" : "unknown",
     "calibrationVersion": 1,
     "Fx": 600,
     "Fy": 600,
@@ -128,7 +128,7 @@ TEST(rc_intel_interface_tests, rc_setCalibrationFromFile)
 {
     rc_Tracker *tracker = rc_create();
 
-    const rc_char_t* filename = L"C:/Users/bhirashi/AppData/Roaming/Local Libraries/Local Documents/rcmain/windows/build/corvis/Debug/calibration.json";
+    const rc_char_t* filename = L"C:/Users/bhirashi/Documents/calibration.json";
     EXPECT_TRUE(rc_setCalibrationFromFile(tracker, filename));
 
     rcCalibration calOutput;

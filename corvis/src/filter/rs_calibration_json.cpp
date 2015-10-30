@@ -49,7 +49,7 @@ using namespace std;
 #define KEY_IMAGE_HEIGHT "imageHeight"
 #define KEY_CALIBRATION_VERSION "calibrationVersion"
 #define KEY_DISTORTION_MODEL "distortionModel"
-#define KEY_DEVICE_NAME "deviceName"
+#define KEY_DEVICE_NAME "device"
 #define KEY_SHUTTER_DELAY "shutterDelay"
 #define KEY_SHUTTER_PERIOD "shutterPeriod"
 #define KEY_TIMESTAMP_OFFSET "timeStampOffset"
@@ -57,7 +57,7 @@ using namespace std;
 // these are meaningless. they are only used to initialize the json document.
 static const char *CALIBRATION_DEFAULTS = R"(
 {
-    "deviceName" : "unknown",
+    "device" : "unknown",
     "calibrationVersion": 1,
     "Fx": 600,
     "Fy": 600,
@@ -106,52 +106,55 @@ static const char *CALIBRATION_DEFAULTS = R"(
 
 void CopyJsonToStruct(Document &json, rcCalibration &cal)
 {
-    std::string deviceName = json[KEY_DEVICE_NAME].GetString();
-    snprintf(cal.deviceName, sizeof(cal.deviceName), "%s", deviceName.c_str());
+    if (json.HasMember(KEY_DEVICE_NAME))
+    {
+        std::string deviceName = json[KEY_DEVICE_NAME].GetString();
+        snprintf(cal.deviceName, sizeof(cal.deviceName), "%s", deviceName.c_str());
+    }
 
-    cal.calibrationVersion = json[KEY_CALIBRATION_VERSION].GetInt();
-    cal.Fx = (float)json[KEY_FX].GetDouble();
-    cal.Fy = (float)json[KEY_FY].GetDouble();
-    cal.Cx = (float)json[KEY_CX].GetDouble();
-    cal.Cy = (float)json[KEY_CY].GetDouble();
-    cal.px = (float)json[KEY_PX].GetDouble();
-    cal.py = (float)json[KEY_PY].GetDouble();
-    cal.K0 = (float)json[KEY_K0].GetDouble();
-    cal.K1 = (float)json[KEY_K1].GetDouble();
-    cal.K2 = (float)json[KEY_K2].GetDouble();
-    cal.Kw = (float)json[KEY_KW].GetDouble();
-    cal.abias0 = (float)json[KEY_ABIAS0].GetDouble();
-    cal.abias1 = (float)json[KEY_ABIAS1].GetDouble();
-    cal.abias2 = (float)json[KEY_ABIAS2].GetDouble();
-    cal.wbias0 = (float)json[KEY_WBIAS0].GetDouble();
-    cal.wbias1 = (float)json[KEY_WBIAS1].GetDouble();
-    cal.wbias2 = (float)json[KEY_WBIAS2].GetDouble();
-    cal.Tc0 = (float)json[KEY_TC0].GetDouble();
-    cal.Tc1 = (float)json[KEY_TC1].GetDouble();
-    cal.Tc2 = (float)json[KEY_TC2].GetDouble();
-    cal.Wc0 = (float)json[KEY_WC0].GetDouble();
-    cal.Wc1 = (float)json[KEY_WC1].GetDouble();
-    cal.Wc2 = (float)json[KEY_WC2].GetDouble();
-    cal.abiasvar0 = (float)json[KEY_ABIASVAR0].GetDouble();
-    cal.abiasvar1 = (float)json[KEY_ABIASVAR1].GetDouble();
-    cal.abiasvar2 = (float)json[KEY_ABIASVAR2].GetDouble();
-    cal.wbiasvar0 = (float)json[KEY_WBIASVAR0].GetDouble();
-    cal.wbiasvar1 = (float)json[KEY_WBIASVAR1].GetDouble();
-    cal.wbiasvar2 = (float)json[KEY_WBIASVAR2].GetDouble();
-    cal.TcVar0 = (float)json[KEY_TCVAR0].GetDouble();
-    cal.TcVar1 = (float)json[KEY_TCVAR1].GetDouble();
-    cal.TcVar2 = (float)json[KEY_TCVAR2].GetDouble();
-    cal.WcVar0 = (float)json[KEY_WCVAR0].GetDouble();
-    cal.WcVar1 = (float)json[KEY_WCVAR1].GetDouble();
-    cal.WcVar2 = (float)json[KEY_WCVAR2].GetDouble();
-    cal.wMeasVar = (float)json[KEY_WMEASVAR].GetDouble();
-    cal.aMeasVar = (float)json[KEY_AMEASVAR].GetDouble();
-    cal.imageWidth = json[KEY_IMAGE_WIDTH].GetInt();
-    cal.imageHeight = json[KEY_IMAGE_HEIGHT].GetInt();
-    cal.distortionModel = json[KEY_DISTORTION_MODEL].GetInt();
-    cal.shutterDelay = (float)json[KEY_SHUTTER_DELAY].GetDouble();
-    cal.shutterPeriod = (float)json[KEY_SHUTTER_PERIOD].GetDouble();
-    cal.timeStampOffset = (float)json[KEY_TIMESTAMP_OFFSET].GetDouble();
+    if (json.HasMember(KEY_CALIBRATION_VERSION)) cal.calibrationVersion = json[KEY_CALIBRATION_VERSION].GetInt();
+    if (json.HasMember(KEY_FX)) cal.Fx = (float)json[KEY_FX].GetDouble();
+    if (json.HasMember(KEY_FY)) cal.Fy = (float)json[KEY_FY].GetDouble();
+    if (json.HasMember(KEY_CX)) cal.Cx = (float)json[KEY_CX].GetDouble();
+    if (json.HasMember(KEY_CY)) cal.Cy = (float)json[KEY_CY].GetDouble();
+    if (json.HasMember(KEY_PX)) cal.px = (float)json[KEY_PX].GetDouble();
+    if (json.HasMember(KEY_PY)) cal.py = (float)json[KEY_PY].GetDouble();
+    if (json.HasMember(KEY_K0)) cal.K0 = (float)json[KEY_K0].GetDouble();
+    if (json.HasMember(KEY_K1)) cal.K1 = (float)json[KEY_K1].GetDouble();
+    if (json.HasMember(KEY_K2)) cal.K2 = (float)json[KEY_K2].GetDouble();
+    if (json.HasMember(KEY_KW)) cal.Kw = (float)json[KEY_KW].GetDouble();
+    if (json.HasMember(KEY_ABIAS0)) cal.abias0 = (float)json[KEY_ABIAS0].GetDouble();
+    if (json.HasMember(KEY_ABIAS1)) cal.abias1 = (float)json[KEY_ABIAS1].GetDouble();
+    if (json.HasMember(KEY_ABIAS2)) cal.abias2 = (float)json[KEY_ABIAS2].GetDouble();
+    if (json.HasMember(KEY_WBIAS0)) cal.wbias0 = (float)json[KEY_WBIAS0].GetDouble();
+    if (json.HasMember(KEY_WBIAS1)) cal.wbias1 = (float)json[KEY_WBIAS1].GetDouble();
+    if (json.HasMember(KEY_WBIAS2)) cal.wbias2 = (float)json[KEY_WBIAS2].GetDouble();
+    if (json.HasMember(KEY_TC0)) cal.Tc0 = (float)json[KEY_TC0].GetDouble();
+    if (json.HasMember(KEY_TC1)) cal.Tc1 = (float)json[KEY_TC1].GetDouble();
+    if (json.HasMember(KEY_TC2)) cal.Tc2 = (float)json[KEY_TC2].GetDouble();
+    if (json.HasMember(KEY_WC0)) cal.Wc0 = (float)json[KEY_WC0].GetDouble();
+    if (json.HasMember(KEY_WC1)) cal.Wc1 = (float)json[KEY_WC1].GetDouble();
+    if (json.HasMember(KEY_WC2)) cal.Wc2 = (float)json[KEY_WC2].GetDouble();
+    if (json.HasMember(KEY_ABIASVAR0)) cal.abiasvar0 = (float)json[KEY_ABIASVAR0].GetDouble();
+    if (json.HasMember(KEY_ABIASVAR1)) cal.abiasvar1 = (float)json[KEY_ABIASVAR1].GetDouble();
+    if (json.HasMember(KEY_ABIASVAR2)) cal.abiasvar2 = (float)json[KEY_ABIASVAR2].GetDouble();
+    if (json.HasMember(KEY_WBIASVAR0)) cal.wbiasvar0 = (float)json[KEY_WBIASVAR0].GetDouble();
+    if (json.HasMember(KEY_WBIASVAR1)) cal.wbiasvar1 = (float)json[KEY_WBIASVAR1].GetDouble();
+    if (json.HasMember(KEY_WBIASVAR2)) cal.wbiasvar2 = (float)json[KEY_WBIASVAR2].GetDouble();
+    if (json.HasMember(KEY_TCVAR0)) cal.TcVar0 = (float)json[KEY_TCVAR0].GetDouble();
+    if (json.HasMember(KEY_TCVAR1)) cal.TcVar1 = (float)json[KEY_TCVAR1].GetDouble();
+    if (json.HasMember(KEY_TCVAR2)) cal.TcVar2 = (float)json[KEY_TCVAR2].GetDouble();
+    if (json.HasMember(KEY_WCVAR0)) cal.WcVar0 = (float)json[KEY_WCVAR0].GetDouble();
+    if (json.HasMember(KEY_WCVAR1)) cal.WcVar1 = (float)json[KEY_WCVAR1].GetDouble();
+    if (json.HasMember(KEY_WCVAR2)) cal.WcVar2 = (float)json[KEY_WCVAR2].GetDouble();
+    if (json.HasMember(KEY_WMEASVAR)) cal.wMeasVar = (float)json[KEY_WMEASVAR].GetDouble();
+    if (json.HasMember(KEY_AMEASVAR)) cal.aMeasVar = (float)json[KEY_AMEASVAR].GetDouble();
+    if (json.HasMember(KEY_IMAGE_WIDTH)) cal.imageWidth = json[KEY_IMAGE_WIDTH].GetInt();
+    if (json.HasMember(KEY_IMAGE_HEIGHT)) cal.imageHeight = json[KEY_IMAGE_HEIGHT].GetInt();
+    if (json.HasMember(KEY_DISTORTION_MODEL)) cal.distortionModel = json[KEY_DISTORTION_MODEL].GetInt();
+    if (json.HasMember(KEY_SHUTTER_DELAY)) cal.shutterDelay = (float)json[KEY_SHUTTER_DELAY].GetDouble();
+    if (json.HasMember(KEY_SHUTTER_PERIOD)) cal.shutterPeriod = (float)json[KEY_SHUTTER_PERIOD].GetDouble();
+    if (json.HasMember(KEY_TIMESTAMP_OFFSET)) cal.timeStampOffset = (float)json[KEY_TIMESTAMP_OFFSET].GetDouble();
 }
 
 void CopyStructToJson(const rcCalibration &cal, Document &json)
@@ -204,20 +207,40 @@ void CopyStructToJson(const rcCalibration &cal, Document &json)
 
 bool calibration_serialize(const rcCalibration &cal, std::string &jsonString)
 {
-    Document json; json.Parse(CALIBRATION_DEFAULTS);
-    CopyStructToJson(cal, json);
-    StringBuffer buffer;
-    Writer<StringBuffer> writer(buffer);
-    json.Accept(writer);
-    jsonString = buffer.GetString();
-    return jsonString.length() > 0;
+    Document json; 
+    
+    try
+    {
+        json.Parse(CALIBRATION_DEFAULTS);
+
+        CopyStructToJson(cal, json);
+
+        StringBuffer buffer;
+        Writer<StringBuffer> writer(buffer);
+        json.Accept(writer);
+        jsonString = buffer.GetString();
+        return jsonString.length() > 0;
+    }
+    catch (std::exception e)
+    {
+        return false;
+    }   
 }
 
 bool calibration_deserialize(const std::string &jsonString, rcCalibration &cal)
 {
-    Document json; json.Parse(jsonString.c_str());
-    if (json.HasParseError())
+    Document json;
+
+    try
+    {
+        json.Parse(jsonString.c_str());
+        if (json.HasParseError()) return false;
+        CopyJsonToStruct(json, cal);
+    }
+    catch (std::exception e)
+    {
         return false;
-    CopyJsonToStruct(json, cal);
+    }
+
     return true;
 }

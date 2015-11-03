@@ -28,7 +28,7 @@ TEST(device_parameters_tests, get_parameters_for_device)
 {
     device_parameters cal;
     get_parameters_for_device(DEVICE_TYPE_GIGABYTES11, &cal);
-    EXPECT_EQ(cal.version, CALIBRATION_VERSION);
+    EXPECT_EQ(cal.calibrationVersion, CALIBRATION_VERSION);
 }
 
 TEST(device_parameters_tests, is_calibration_valid)
@@ -56,7 +56,7 @@ TEST(device_parameters_tests, is_calibration_valid_wrong_version)
 {
     device_parameters cal;
     calibration_load_defaults(DEVICE_TYPE_IPAD2, cal);
-    cal.version = cal.version - 1; // makes is_calibration_valid() return false
+    cal.calibrationVersion = cal.calibrationVersion - 1; // makes is_calibration_valid() return false
 
     device_parameters defaults;
     calibration_load_defaults(DEVICE_TYPE_IPAD2, defaults);

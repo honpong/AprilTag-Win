@@ -139,11 +139,11 @@ extern "C" void rc_reset(rc_Tracker * tracker, rc_Timestamp initialTime_us, cons
 
 void rc_printDeviceConfig(rc_Tracker * tracker)
 {
-    device_parameters device = tracker->device;
+    rcCalibration device = tracker->device;
     fprintf(stderr, "Fx, Fy; %f %f\n", device.Fx, device.Fy);
     fprintf(stderr, "Cx, Cy; %f %f\n", device.Cx, device.Cy);
     fprintf(stderr, "px, py; %f %f\n", device.px, device.py);
-    fprintf(stderr, "K[3]; %f %f %f\n", device.K[0], device.K[1], device.K[2]);
+    fprintf(stderr, "K[3]; %f %f %f\n", device.K0, device.K1, device.K2);
     fprintf(stderr, "a_bias[3]; %f %f %f\n", device.a_bias[0], device.a_bias[1], device.a_bias[2]);
     fprintf(stderr, "a_bias_var[3]; %f %f %f\n", device.a_bias_var[0], device.a_bias_var[1], device.a_bias_var[2]);
     fprintf(stderr, "w_bias[3]; %f %f %f\n", device.w_bias[0], device.w_bias[1], device.w_bias[2]);
@@ -165,14 +165,14 @@ void rc_configureCamera(rc_Tracker * tracker, rc_Camera camera, const rc_Pose po
     tracker->device.Fy = focal_length_y_px;
     tracker->device.image_width = width_px;
     tracker->device.image_height = height_px;
-    tracker->device.K[0] = 0;
-    tracker->device.K[1] = 0;
-    tracker->device.K[2] = 0;
+    tracker->device.K0 = 0;
+    tracker->device.K1 = 0;
+    tracker->device.K2 = 0;
 
-    tracker->device.fisheye = fisheye;
+    tracker->device.distortionModel = fisheye;
     if(fisheye)
     {
-        tracker->device.K[0] = fisheye_fov_radians;
+        tracker->device.K0 = fisheye_fov_radians;
     }
     
     transformation g = rc_Pose_to_transformation(pose_m);
@@ -404,128 +404,48 @@ const char *rc_getTimingStats(rc_Tracker *tracker)
     return tracker->timingStats.c_str();
 }
 
-rc_DeviceParameters rcCalFromRSCal(const rcCalibration *cal)
-{
-    rc_DeviceParameters out;
-
-    snprintf(out.deviceName, sizeof(out.deviceName), "%s", cal->deviceName);
-    out.version = cal->calibrationVersion;
-    out.Fx = cal->Fx;
-    out.Fy = cal->Fy;
-    out.Cx = cal->Cx;
-    out.Cy = cal->Cy;
-    out.px = cal->px;
-    out.py = cal->py;
-    out.K[0] = cal->K0;
-    out.K[1] = cal->K1;
-    out.K[2] = cal->K2;
-    if (cal->distortionModel == 1)
-        out.K[0] = cal->Kw;
-    out.a_bias[0] = cal->abias0;
-    out.a_bias[1] = cal->abias1;
-    out.a_bias[2] = cal->abias2;
-    out.w_bias[0] = cal->wbias0;
-    out.w_bias[1] = cal->wbias1;
-    out.w_bias[2] = cal->wbias2;
-    out.Tc[0] = cal->Tc0;
-    out.Tc[1] = cal->Tc1;
-    out.Tc[2] = cal->Tc2;
-    out.Wc[0] = cal->Wc0;
-    out.Wc[1] = cal->Wc1;
-    out.Wc[2] = cal->Wc2;
-    out.a_bias_var[0] = cal->abiasvar0;
-    out.a_bias_var[1] = cal->abiasvar1;
-    out.a_bias_var[2] = cal->abiasvar2;
-    out.w_bias_var[0] = cal->wbiasvar0;
-    out.w_bias_var[1] = cal->wbiasvar1;
-    out.w_bias_var[2] = cal->wbiasvar2;
-    out.Tc_var[0] = cal->TcVar0;
-    out.Tc_var[1] = cal->TcVar1;
-    out.Tc_var[2] = cal->TcVar2;
-    out.Wc_var[0] = cal->WcVar0;
-    out.Wc_var[1] = cal->WcVar1;
-    out.Wc_var[2] = cal->WcVar2;
-    out.w_meas_var = cal->wMeasVar;
-    out.a_meas_var = cal->aMeasVar;
-    out.image_width = cal->imageWidth;
-    out.image_height = cal->imageHeight;
-    out.fisheye = cal->distortionModel;
-    out.shutterDelay = cal->shutterDelay;
-    out.shutterPeriod = cal->shutterPeriod;
-    out.timeStampOffset = cal->timeStampOffset;
-
-    return out;
-}
-
-void copyRCCalToRSCal(const rc_DeviceParameters &cal, rcCalibration *out)
-{
-    snprintf(out->deviceName, sizeof(out->deviceName), "%s", cal.deviceName);
-    out->calibrationVersion = cal.version;
-    out->Fx = cal.Fx;
-    out->Fy = cal.Fy;
-    out->Cx = cal.Cx;
-    out->Cy = cal.Cy;
-    out->px = cal.px;
-    out->py = cal.py;
-    out->K0 = cal.K[0];
-    out->K1 = cal.K[1];
-    out->K2 = cal.K[2];
-    if (cal.fisheye)
-        out->Kw = cal.K[0];
-    out->abias0 = cal.a_bias[0];
-    out->abias1 = cal.a_bias[1];
-    out->abias2 = cal.a_bias[2];
-    out->wbias0 = cal.w_bias[0];
-    out->wbias1 = cal.w_bias[1];
-    out->wbias2 = cal.w_bias[2];
-    out->Tc0 = cal.Tc[0];
-    out->Tc1 = cal.Tc[1];
-    out->Tc2 = cal.Tc[2];
-    out->Wc0 = cal.Wc[0];
-    out->Wc1 = cal.Wc[1];
-    out->Wc2 = cal.Wc[2];
-    out->abiasvar0 = cal.a_bias_var[0];
-    out->abiasvar1 = cal.a_bias_var[1];
-    out->abiasvar2 = cal.a_bias_var[2];
-    out->wbiasvar0 = cal.w_bias_var[0];
-    out->wbiasvar1 = cal.w_bias_var[1];
-    out->wbiasvar2 = cal.w_bias_var[2];
-    out->TcVar0 = cal.Tc_var[0];
-    out->TcVar1 = cal.Tc_var[1];
-    out->TcVar2 = cal.Tc_var[2];
-    out->WcVar0 = cal.Wc_var[0];
-    out->WcVar1 = cal.Wc_var[1];
-    out->WcVar2 = cal.Wc_var[2];
-    out->wMeasVar = cal.w_meas_var;
-    out->aMeasVar = cal.a_meas_var;
-    out->imageWidth = cal.image_width;
-    out->imageHeight = cal.image_height;
-    out->distortionModel = cal.fisheye;
-    out->shutterDelay = cal.shutterDelay;
-    out->shutterPeriod = cal.shutterPeriod;
-    out->timeStampOffset = cal.timeStampOffset;
-}
-
 void rc_getCalibrationStruct(rc_Tracker *tracker, rcCalibration *calOut)
 {
-    device_parameters cal = filter_get_device_parameters(&tracker->sfm);
-    copyRCCalToRSCal(cal, calOut);
+    filter_get_device_parameters(&tracker->sfm, calOut);
 
-    // filter doesn't keep these internally, so set them here
+    // filter doesn't keep these internally, so copy them here
     snprintf(calOut->deviceName, sizeof(calOut->deviceName), "%s", tracker->device.deviceName);
     calOut->shutterDelay = tracker->device.shutterDelay;
     calOut->shutterPeriod = tracker->device.shutterPeriod;
     calOut->timeStampOffset = tracker->device.timeStampOffset;
-    calOut->calibrationVersion = CALIBRATION_VERSION;
     calOut->px = tracker->device.px;
     calOut->py = tracker->device.py;
-    calOut->distortionModel = tracker->device.fisheye;
+    for (int i = 0; i < sizeof(calOut->accelerometerTransform) / sizeof(calOut->accelerometerTransform[0]); i++)
+    {
+        calOut->accelerometerTransform[i] = tracker->device.accelerometerTransform[i];
+    }
+    for (int i = 0; i < sizeof(calOut->gyroscopeTransform) / sizeof(calOut->gyroscopeTransform[0]); i++)
+    {
+        calOut->gyroscopeTransform[i] = tracker->device.gyroscopeTransform[i];
+    }
 }
 
 bool rc_setCalibrationStruct(rc_Tracker *tracker, const rcCalibration *cal)
 {
     if (tracker == nullptr) return false;
-    tracker->set_device(rcCalFromRSCal(cal));
+    tracker->set_device(*cal);
+
+    // filter doesn't keep these internally, so copy them here
+    snprintf(tracker->device.deviceName, sizeof(tracker->device.deviceName), "%s", cal->deviceName);
+    tracker->device.shutterDelay = cal->shutterDelay;
+    tracker->device.shutterPeriod = cal->shutterPeriod;
+    tracker->device.timeStampOffset = cal->timeStampOffset;
+    tracker->device.px = cal->px;
+    tracker->device.py = cal->py;
+    for (int i = 0; i < sizeof(cal->accelerometerTransform) / sizeof(cal->accelerometerTransform[0]); i++)
+    {
+        tracker->device.accelerometerTransform[i] = cal->accelerometerTransform[i];
+    }
+    for (int i = 0; i < sizeof(cal->gyroscopeTransform) / sizeof(cal->gyroscopeTransform[0]); i++)
+    {
+        tracker->device.gyroscopeTransform[i] = cal->gyroscopeTransform[i];
+    }
+
     return true;
 }
 
@@ -535,7 +455,7 @@ size_t rc_getCalibration(rc_Tracker *tracker, const rc_char_t **buffer)
     rc_getCalibrationStruct(tracker, &rsCal);
 
     std::string json;
-    if (!calibration_serialize(rsCal, json))
+    if (!rs_calibration_serialize(rsCal, json))
         return 0;
 #ifdef _WIN32
     std::wstring_convert<std::codecvt_utf8<rc_char_t>, rc_char_t> converter;
@@ -552,14 +472,13 @@ bool rc_setCalibration(rc_Tracker *tracker, const rc_char_t *buffer)
     rcCalibration cal;
 #ifdef _WIN32
     std::wstring_convert<std::codecvt_utf8<rc_char_t>, rc_char_t> converter;
-    bool result = calibration_deserialize(converter.to_bytes(buffer), cal);
+    bool result = rs_calibration_deserialize(converter.to_bytes(buffer), cal);
 #else
-    bool result = calibration_deserialize(buffer, cal);
+    bool result = rs_calibration_deserialize(buffer, cal);
 #endif
     if (result)
     {
-        device_parameters rcCal = rcCalFromRSCal(&cal);
-        tracker->set_device(rcCal);
+        tracker->set_device(cal);
     }
     return result;
 }

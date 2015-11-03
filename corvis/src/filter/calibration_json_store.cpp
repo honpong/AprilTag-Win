@@ -53,16 +53,16 @@ using namespace std;
 
 void CopyJsonToStruct(Document &json, device_parameters &cal)
 {
-    cal.version = json[KEY_CALIBRATION_VERSION].GetInt();
+    cal.calibrationVersion = json[KEY_CALIBRATION_VERSION].GetInt();
     cal.Fx = (float)json[KEY_FX].GetDouble();
     cal.Fy = (float)json[KEY_FY].GetDouble();
     cal.Cx = (float)json[KEY_CX].GetDouble();
     cal.Cy = (float)json[KEY_CY].GetDouble();
     cal.px = (float)json[KEY_PX].GetDouble();
     cal.py = (float)json[KEY_PY].GetDouble();
-    cal.K[0] = (float)json[KEY_K0].GetDouble();
-    cal.K[1] = (float)json[KEY_K1].GetDouble();
-    cal.K[2] = (float)json[KEY_K2].GetDouble();
+    cal.K0 = (float)json[KEY_K0].GetDouble();
+    cal.K1 = (float)json[KEY_K1].GetDouble();
+    cal.K2 = (float)json[KEY_K2].GetDouble();
     cal.a_bias[0] = (float)json[KEY_ABIAS0].GetDouble();
     cal.a_bias[1] = (float)json[KEY_ABIAS1].GetDouble();
     cal.a_bias[2] = (float)json[KEY_ABIAS2].GetDouble();
@@ -91,7 +91,7 @@ void CopyJsonToStruct(Document &json, device_parameters &cal)
     cal.a_meas_var = (float)json[KEY_AMEASVAR].GetDouble();
     cal.image_width = json[KEY_IMAGE_WIDTH].GetInt();
     cal.image_height = json[KEY_IMAGE_HEIGHT].GetInt();
-    cal.fisheye = false;
+    cal.distortionModel = 0;
 }
 
 void CopyStructToJson(const device_parameters &cal, Value &json)
@@ -103,9 +103,9 @@ void CopyStructToJson(const device_parameters &cal, Value &json)
     json[KEY_CY] = cal.Cy;
     json[KEY_PX] = cal.px;
     json[KEY_PY] = cal.py;
-    json[KEY_K0] = cal.K[0];
-    json[KEY_K1] = cal.K[1];
-    json[KEY_K2] = cal.K[2];
+    json[KEY_K0] = cal.K0;
+    json[KEY_K1] = cal.K1;
+    json[KEY_K2] = cal.K2;
     json[KEY_ABIAS0] = cal.a_bias[0];
     json[KEY_ABIAS1] = cal.a_bias[1];
     json[KEY_ABIAS2] = cal.a_bias[2];
@@ -158,5 +158,7 @@ bool calibration_deserialize(const std::string &jsonString, device_parameters &c
 
 bool calibration_load_defaults(const corvis_device_type deviceType, device_parameters &cal)
 {
-    return calibration_deserialize(calibration_default_json_for_device_type(deviceType), cal);
+    bool result = calibration_deserialize(calibration_default_json_for_device_type(deviceType), cal);
+    if (result) cal.calibrationVersion = CALIBRATION_VERSION; // need this here to override possibly outdated value in default JSON
+    return result;
 }

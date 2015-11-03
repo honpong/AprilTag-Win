@@ -74,8 +74,8 @@ public:
     
     sensor_fusion(fusion_queue::latency_strategy strategy);
     
-    void set_device(const device_parameters &dc);
-    device_parameters get_device() const { return filter_get_device_parameters(&sfm); }
+    device_parameters get_device() const;
+    void set_device(const rcCalibration &dc);
     
     /** Sets the current location of the device.
      
@@ -223,7 +223,7 @@ public:
 
     //public for now
     filter sfm;
-    device_parameters device;
+    rcCalibration device;
     
     //These change coordinates from accelerometer-centered coordinates to camera-centered coordinates
     transformation accel_to_camera_world_transform() const;

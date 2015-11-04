@@ -17,6 +17,10 @@ TEST(rc_intel_interface_tests, rc_setCalibration)
     calInput.px = 0.567;
     calInput.py = 0.765;
     calInput.distortionModel = 1;
+    calInput.accelerometerTransform[0] = 0.123;
+    calInput.accelerometerTransform[8] = 0.321;
+    calInput.gyroscopeTransform[0] = 0.456;
+    calInput.gyroscopeTransform[8] = 0.654;
 
     // set cal
     string jsonString;
@@ -44,6 +48,10 @@ TEST(rc_intel_interface_tests, rc_setCalibration)
     EXPECT_FLOAT_EQ(calInput.px, calOutput.px);
     EXPECT_FLOAT_EQ(calInput.py, calOutput.py);
     EXPECT_EQ(calInput.distortionModel, calOutput.distortionModel);
+    EXPECT_FLOAT_EQ(calInput.accelerometerTransform[0], calOutput.accelerometerTransform[0]);
+    EXPECT_FLOAT_EQ(calInput.accelerometerTransform[8], calOutput.accelerometerTransform[8]);
+    EXPECT_FLOAT_EQ(calInput.gyroscopeTransform[0], calOutput.gyroscopeTransform[0]);
+    EXPECT_FLOAT_EQ(calInput.gyroscopeTransform[8], calOutput.gyroscopeTransform[8]);
 
     // this doesn't work because not all all fields are being extracted from filter at the moment.
     //EXPECT_STREQ(jsonString.c_str(), buffer);

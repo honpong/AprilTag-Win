@@ -80,31 +80,6 @@ typedef enum rc_TrackerConfidence
     rc_E_CONFIDENCE_HIGH = 3
 } rc_TrackerConfidence;
 
-typedef struct rc_DeviceParameters
-{
-    char deviceName[256];
-    float Fx, Fy;
-    float Cx, Cy;
-    float px, py;
-    float K[3];
-    float a_bias[3];
-    float a_bias_var[3];
-    float w_bias[3];
-    float w_bias_var[3];
-    float w_meas_var;
-    float a_meas_var;
-    float Tc[3];
-    float Tc_var[3];
-    float Wc[3];
-    float Wc_var[3];
-    int image_width, image_height;
-    bool fisheye;
-    unsigned long int version;
-    float shutterDelay;
-    float shutterPeriod;
-    float timeStampOffset;
-} rc_DeviceParameters;
-
 typedef struct rc_Vector {
     float x,y,z;
 } rc_Vector;

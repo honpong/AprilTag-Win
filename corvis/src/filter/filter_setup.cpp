@@ -3,7 +3,7 @@
 filter_setup::filter_setup(device_parameters *device_params)
 {
     device = *device_params;
-    filter_initialize(&sfm, device);
+    filter_initialize(&sfm, device_params);
 }
 
 //TODO: Make it so speed error doesn't cause reset?
@@ -25,7 +25,7 @@ RCSensorFusionErrorCode filter_setup::get_error()
 
     if(errorCode == RCSensorFusionErrorCodeTooFast || errorCode == RCSensorFusionErrorCodeOther) {
         // Do a full filter reset
-        filter_initialize(&sfm, device);
+        filter_initialize(&sfm, &device);
         switch(state)
         {
             case RCSensorFusionRunStateInactive:
@@ -60,10 +60,10 @@ RCSensorFusionErrorCode filter_setup::get_error()
 device_parameters filter_setup::get_device_parameters()
 {
     device_parameters dc = device;
-    dc.K[0] = (float)sfm.s.k1.v;
-    dc.K[1] = (float)sfm.s.k2.v;
-    dc.K[2] = (float)sfm.s.k3.v;
-    dc.fisheye = sfm.s.fisheye;
+    dc.K0 = (float)sfm.s.k1.v;
+    dc.K1 = (float)sfm.s.k2.v;
+    dc.K2 = (float)sfm.s.k3.v;
+    dc.distortionModel = sfm.s.fisheye;
     dc.Fx = dc.Fy = (float)(sfm.s.focal_length.v * sfm.s.image_height);
     dc.Cx = (float)(sfm.s.center_x.v * sfm.s.image_height + sfm.s.image_width / 2. - .5);
     dc.Cy = (float)(sfm.s.center_y.v * sfm.s.image_height + sfm.s.image_height / 2. - .5);

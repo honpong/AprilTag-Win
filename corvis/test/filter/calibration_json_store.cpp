@@ -26,7 +26,7 @@ TEST(calibration_json_store_tests, SerializeDeserialize)
     }
 
     // just do some spot checking
-    EXPECT_EQ(cal.version, calDeserialized.version);
+    EXPECT_EQ(cal.calibrationVersion, calDeserialized.calibrationVersion);
     EXPECT_FLOAT_EQ(cal.Fx, calDeserialized.Fx);
     EXPECT_FLOAT_EQ(cal.Cx, calDeserialized.Cx);
 }

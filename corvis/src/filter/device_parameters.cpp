@@ -104,7 +104,7 @@ void set_initialized(device_parameters *dc)
 
 bool is_calibration_valid(const device_parameters &cal, const device_parameters &deviceDefaults)
 {
-    if (cal.version != CALIBRATION_VERSION) return false;
+    if (cal.calibrationVersion != CALIBRATION_VERSION) return false;
 
     //check if biases are within 5 sigma
     const float sigma = 5.;

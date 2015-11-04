@@ -13,11 +13,11 @@ typedef struct SP_Calibration
 
 	/// @param[out] imageWidth
 	/// Color camera's image width in pixels
-	int imageWidth;
+	int image_width;
 
 	/// @param[out] imageHeight
 	/// Color camera's image height in pixels
-	int imageHeight;
+	int image_height;
 
 	/// @param[out] Fx
 	/// Color camera's horizontal focal length in pixels
@@ -56,94 +56,44 @@ typedef struct SP_Calibration
 	/// fisheye distortion one-parameter model
 	float Kw;
 
-	/// @param[out] abias0
-	/// Accelerometer bias
-	float abias0;
-	/// @param[out] abias1
-	/// Accelerometer bias
-	float abias1;
-	/// @param[out] abias2
-	/// Accelerometer bias
-	float abias2;
+    /// @param[out] a_bias
+    /// Accelerometer bias
+    float a_bias[3];
+    
+    /// @param[out] a_bias_var
+    /// Variance of accelerometer bias
+    float a_bias_var[3];
+    
+    /// @param[out] w_bias
+    /// Gyroscope bias
+    float w_bias[3];
 
-	/// @param[out] wbias0
-	/// Gyroscope bias
-	float wbias0;
-	/// @param[out] wbias1
-	/// Gyroscope bias
-	float wbias1;
-	/// @param[out] wbias2
-	/// Gyroscope bias
-	float wbias2;
+    /// @param[out] w_bias_var
+    /// Variance of gyroscope bias
+    float w_bias_var[3];
 
-	/// @param[out] Tc0
-	/// X-dimension of translation between camera and accelerometer in meters
-	float Tc0;
-	/// @param[out] Tc1
-	/// Y-dimension of translation between camera and accelerometer in meters
-	float Tc1;
-	/// @param[out] Tc2
-	/// Z-dimension of translation between camera and accelerometer in meters
-	float Tc2;
+	/// @param[out] Tc
+    /// translation between camera and accelerometer in meters
+    float Tc[3];
+    /// @param[out] TcVar
+    /// Variances of Tc
+    float Tc_var[3];
 
-	/// @param[out] Wc0
-	/// Rotation between camera and accelerometer, around x-axis in radians
-	float Wc0;
-	/// @param[out] Wc1
-	/// Rotation between camera and accelerometer, around y-axis in radians
-	float Wc1;
-	/// @param[out] Wc2
-	/// Rotation between camera and accelerometer, around z-axis in radians
-	float Wc2;
+    /// @param[out] Wc
+    /// Rotation between camera and accelerometer, in radians
+    float Wc[3];
 
-	/// @param[out] abiasvar0
-	/// Variance of accelerometer bias
-	float abiasvar0;
-	/// @param[out] abiasvar1
-	/// Variance of accelerometer bias
-	float abiasvar1;
-	/// @param[out] abiasvar2
-	/// Variance of accelerometer bias
-	float abiasvar2;
-
-	/// @param[out] wbiasvar0
-	/// Variance of gyroscope bias
-	float wbiasvar0;
-	/// @param[out] wbiasvar1
-	/// Variance of gyroscope bias
-	float wbiasvar1;
-	/// @param[out] wbiasvar2
-	/// Variance of gyroscope bias
-	float wbiasvar2;
-
-	/// @param[out] TcVar0
-	/// Variances of Tc
-	float TcVar0;
-	/// @param[out] TcVar1
-	/// Variances of Tc
-	float TcVar1;
-	/// @param[out] TcVar2
-	/// Variances of Tc
-	float TcVar2;
-
-	/// @param[out] WcVar0
-	/// Variances of Wc
-	float WcVar0;
-	/// @param[out] WcVar1
-	/// Variances of Wc
-	float WcVar1;
-	/// @param[out] WcVar2
-	/// Variances of Wc
-	float WcVar2;
+    /// @param[out] WcVar
+    /// Variances of Wc
+    float Wc_var[3];
 
 	/// @param[out] aMeasVar
 	/// Accelerometer measurement noise variance
-	float aMeasVar;
+	float a_meas_var;
 
 	/// @param[out] wMeasVar
 	/// Gyroscope measurement noise variance
-	float wMeasVar;
-
+	float w_meas_var;
 
 	/// @param[out] shutterDelay
 	/// Camera shutter's delay time

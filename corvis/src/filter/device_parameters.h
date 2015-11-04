@@ -7,12 +7,11 @@
 
 using namespace std;
 
-#define CALIBRATION_VERSION 7
+#define CALIBRATION_VERSION 8
 
-//For device_parameters, but this should really be factored into a shared header if used directly there.
-#include "rc_intel_interface.h"
+#include "SP_Calibration.h"
 
-typedef rc_DeviceParameters device_parameters;
+typedef SP_Calibration device_parameters;
 
 typedef enum
 {

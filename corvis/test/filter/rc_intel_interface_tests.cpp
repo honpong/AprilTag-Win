@@ -21,6 +21,8 @@ TEST(rc_intel_interface_tests, rc_setCalibration)
     calInput.accelerometerTransform[8] = 0.321;
     calInput.gyroscopeTransform[0] = 0.456;
     calInput.gyroscopeTransform[8] = 0.654;
+    calInput.shutterDelay = 0.666;
+    calInput.shutterPeriod = 0.777;
 
     // set cal
     string jsonString;
@@ -48,6 +50,8 @@ TEST(rc_intel_interface_tests, rc_setCalibration)
     EXPECT_FLOAT_EQ(calInput.px, calOutput.px);
     EXPECT_FLOAT_EQ(calInput.py, calOutput.py);
     EXPECT_EQ(calInput.distortionModel, calOutput.distortionModel);
+    EXPECT_FLOAT_EQ(calInput.shutterDelay, calOutput.shutterDelay);
+    EXPECT_FLOAT_EQ(calInput.shutterPeriod, calOutput.shutterPeriod);
     EXPECT_FLOAT_EQ(calInput.accelerometerTransform[0], calOutput.accelerometerTransform[0]);
     EXPECT_FLOAT_EQ(calInput.accelerometerTransform[8], calOutput.accelerometerTransform[8]);
     EXPECT_FLOAT_EQ(calInput.gyroscopeTransform[0], calOutput.gyroscopeTransform[0]);

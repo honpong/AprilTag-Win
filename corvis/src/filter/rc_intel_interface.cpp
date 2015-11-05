@@ -478,7 +478,7 @@ bool rc_setCalibration(rc_Tracker *tracker, const rc_char_t *buffer)
 #endif
     if (result)
     {
-        tracker->set_device(cal);
+        rc_setCalibrationStruct(tracker, &cal);
     }
     return result;
 }

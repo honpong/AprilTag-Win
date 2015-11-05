@@ -90,7 +90,8 @@ bool replay::set_calibration_from_filename(const std::string &fn)
         if(!read_file(path + "calibration.json", calibration))
             return false;
     }
-    return rc_setCalibration(tracker, calibration.c_str());
+    rcCalibration defaultCal;
+    return rc_setCalibration(tracker, calibration.c_str(), &defaultCal);
 }
 
 static bool find_prefixed_number(const std::string in, const std::string &prefix, double &n)

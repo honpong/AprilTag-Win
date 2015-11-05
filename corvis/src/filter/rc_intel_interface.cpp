@@ -467,14 +467,14 @@ size_t rc_getCalibration(rc_Tracker *tracker, const rc_char_t **buffer)
     return tracker->jsonString.length();
 }
 
-bool rc_setCalibration(rc_Tracker *tracker, const rc_char_t *buffer)
+bool rc_setCalibration(rc_Tracker *tracker, const rc_char_t *buffer, const rcCalibration *defaults)
 {
     rcCalibration cal;
 #ifdef _WIN32
     std::wstring_convert<std::codecvt_utf8<rc_char_t>, rc_char_t> converter;
-    bool result = rs_calibration_deserialize(converter.to_bytes(buffer), cal);
+    bool result = rs_calibration_deserialize(converter.to_bytes(buffer), cal, defaults);
 #else
-    bool result = rs_calibration_deserialize(buffer, cal);
+    bool result = rs_calibration_deserialize(buffer, cal, defaults);
 #endif
     if (result)
     {
@@ -483,7 +483,7 @@ bool rc_setCalibration(rc_Tracker *tracker, const rc_char_t *buffer)
     return result;
 }
 
-bool rc_setCalibrationFromFile(rc_Tracker *tracker, const rc_char_t *filePath)
+bool rc_setCalibrationFromFile(rc_Tracker *tracker, const rc_char_t *filePath, const rcCalibration *defaults)
 {
 #ifdef _WIN32
     std::wifstream stream(filePath);
@@ -494,6 +494,6 @@ bool rc_setCalibrationFromFile(rc_Tracker *tracker, const rc_char_t *filePath)
 #endif
 
     buffer << stream.rdbuf();
-    bool result = rc_setCalibration(tracker, buffer.str().c_str());
+    bool result = rc_setCalibration(tracker, buffer.str().c_str(), defaults);
     return result;
 }

@@ -226,12 +226,12 @@ RCTRACKER_API size_t rc_getCalibration(rc_Tracker *tracker, const rc_char_t **bu
 /**
     Takes a JSON string that represents a rcCalibration struct.
 */
-RCTRACKER_API bool rc_setCalibration(rc_Tracker *tracker, const rc_char_t *buffer);
+RCTRACKER_API bool rc_setCalibration(rc_Tracker *tracker, const rc_char_t *buffer, const rcCalibration *defaults);
 
 RCTRACKER_API void rc_getCalibrationStruct(rc_Tracker *tracker, rcCalibration *cal);
 RCTRACKER_API bool rc_setCalibrationStruct(rc_Tracker *tracker, const rcCalibration *cal);
 
-RCTRACKER_API bool rc_setCalibrationFromFile(rc_Tracker *tracker, const rc_char_t *filePath);
+RCTRACKER_API bool rc_setCalibrationFromFile(rc_Tracker *tracker, const rc_char_t *filePath, const rcCalibration *defaults);
 
 
 /*

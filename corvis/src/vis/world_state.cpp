@@ -148,19 +148,24 @@ void world_state::receive_camera(const filter * f, camera_data &&d)
     observe_position(d.timestamp, (float)T[0], (float)T[1], (float)T[2], (float)q.w(), (float)q.x(), (float)q.y(), (float)q.z());
     int p = 0;
 
-    observe_plot_item(d.timestamp, p, "Tx", (float)f->s.T.v[0]);
-    observe_plot_item(d.timestamp, p, "Ty", (float)f->s.T.v[1]);
-    observe_plot_item(d.timestamp, p, "Tz", (float)f->s.T.v[2]);
-    p++;
-
     observe_plot_item(d.timestamp, p, "wbias_x", (float)f->s.w_bias.v[0]);
     observe_plot_item(d.timestamp, p, "wbias_y", (float)f->s.w_bias.v[1]);
     observe_plot_item(d.timestamp, p, "wbias_z", (float)f->s.w_bias.v[2]);
     p++;
 
+    observe_plot_item(d.timestamp, p, "var-wbias_x", (float)f->s.w_bias.variance()[0]);
+    observe_plot_item(d.timestamp, p, "var-wbias_y", (float)f->s.w_bias.variance()[1]);
+    observe_plot_item(d.timestamp, p, "var-wbias_z", (float)f->s.w_bias.variance()[2]);
+    p++;
+
     observe_plot_item(d.timestamp, p, "abias_x", (float)f->s.a_bias.v[0]);
     observe_plot_item(d.timestamp, p, "abias_y", (float)f->s.a_bias.v[1]);
     observe_plot_item(d.timestamp, p, "abias_z", (float)f->s.a_bias.v[2]);
+    p++;
+
+    observe_plot_item(d.timestamp, p, "var-abias_x", (float)f->s.a_bias.variance()[0]);
+    observe_plot_item(d.timestamp, p, "var-abias_y", (float)f->s.a_bias.variance()[1]);
+    observe_plot_item(d.timestamp, p, "var-abias_z", (float)f->s.a_bias.variance()[2]);
     p++;
 
     observe_plot_item(d.timestamp, p, "a-inn-mean_x", (float)observation_accelerometer::inn_stdev.mean[0]);

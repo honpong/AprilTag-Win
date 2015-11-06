@@ -110,9 +110,6 @@ bool replay::find_reference_in_filename(const std::string &filename)
     return found;
 }
 
-typedef void(*rc_DataCallback)(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count);
-typedef void(*rc_StatusCallback)(void *handle, rc_TrackerState state, rc_TrackerError error, rc_TrackerConfidence confidence, float progress);
-
 void replay::enable_pose_output()
 {
     rc_setDataCallback(tracker, [](void *handle, rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count) {

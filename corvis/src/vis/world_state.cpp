@@ -146,50 +146,65 @@ void world_state::receive_camera(const filter * f, camera_data &&d)
     v4 T = f->s.T.v;
     quaternion q = to_quaternion(f->s.W.v);
     observe_position(d.timestamp, (float)T[0], (float)T[1], (float)T[2], (float)q.w(), (float)q.x(), (float)q.y(), (float)q.z());
+    int p = 0;
 
-    observe_plot_item(d.timestamp, 0, "Tx", (float)f->s.T.v[0]);
-    observe_plot_item(d.timestamp, 0, "Ty", (float)f->s.T.v[1]);
-    observe_plot_item(d.timestamp, 0, "Tz", (float)f->s.T.v[2]);
+    observe_plot_item(d.timestamp, p, "Tx", (float)f->s.T.v[0]);
+    observe_plot_item(d.timestamp, p, "Ty", (float)f->s.T.v[1]);
+    observe_plot_item(d.timestamp, p, "Tz", (float)f->s.T.v[2]);
+    p++;
 
-    observe_plot_item(d.timestamp, 1, "wbias_x", (float)f->s.w_bias.v[0]);
-    observe_plot_item(d.timestamp, 1, "wbias_y", (float)f->s.w_bias.v[1]);
-    observe_plot_item(d.timestamp, 1, "wbias_z", (float)f->s.w_bias.v[2]);
+    observe_plot_item(d.timestamp, p, "wbias_x", (float)f->s.w_bias.v[0]);
+    observe_plot_item(d.timestamp, p, "wbias_y", (float)f->s.w_bias.v[1]);
+    observe_plot_item(d.timestamp, p, "wbias_z", (float)f->s.w_bias.v[2]);
+    p++;
 
-    observe_plot_item(d.timestamp, 2, "abias_x", (float)f->s.a_bias.v[0]);
-    observe_plot_item(d.timestamp, 2, "abias_y", (float)f->s.a_bias.v[1]);
-    observe_plot_item(d.timestamp, 2, "abias_z", (float)f->s.a_bias.v[2]);
+    observe_plot_item(d.timestamp, p, "abias_x", (float)f->s.a_bias.v[0]);
+    observe_plot_item(d.timestamp, p, "abias_y", (float)f->s.a_bias.v[1]);
+    observe_plot_item(d.timestamp, p, "abias_z", (float)f->s.a_bias.v[2]);
+    p++;
 
-    observe_plot_item(d.timestamp, 3, "a-inn-mean_x", (float)observation_accelerometer::inn_stdev.mean[0]);
-    observe_plot_item(d.timestamp, 3, "a-inn-mean_y", (float)observation_accelerometer::inn_stdev.mean[1]);
-    observe_plot_item(d.timestamp, 3, "a-inn-mean_z", (float)observation_accelerometer::inn_stdev.mean[2]);
+    observe_plot_item(d.timestamp, p, "a-inn-mean_x", (float)observation_accelerometer::inn_stdev.mean[0]);
+    observe_plot_item(d.timestamp, p, "a-inn-mean_y", (float)observation_accelerometer::inn_stdev.mean[1]);
+    observe_plot_item(d.timestamp, p, "a-inn-mean_z", (float)observation_accelerometer::inn_stdev.mean[2]);
+    p++;
 
-    observe_plot_item(d.timestamp, 4, "g-inn-mean_x", (float)observation_gyroscope::inn_stdev.mean[0]);
-    observe_plot_item(d.timestamp, 4, "g-inn-mean_y", (float)observation_gyroscope::inn_stdev.mean[1]);
-    observe_plot_item(d.timestamp, 4, "g-inn-mean_z", (float)observation_gyroscope::inn_stdev.mean[2]);
+    observe_plot_item(d.timestamp, p, "g-inn-mean_x", (float)observation_gyroscope::inn_stdev.mean[0]);
+    observe_plot_item(d.timestamp, p, "g-inn-mean_y", (float)observation_gyroscope::inn_stdev.mean[1]);
+    observe_plot_item(d.timestamp, p, "g-inn-mean_z", (float)observation_gyroscope::inn_stdev.mean[2]);
+    p++;
 
-    observe_plot_item(d.timestamp, 5, "v-inn-mean_x", (float)observation_vision_feature::inn_stdev[0].mean);
-    observe_plot_item(d.timestamp, 5, "v-inn-mean_y", (float)observation_vision_feature::inn_stdev[1].mean);
+    observe_plot_item(d.timestamp, p, "v-inn-mean_x", (float)observation_vision_feature::inn_stdev[0].mean);
+    observe_plot_item(d.timestamp, p, "v-inn-mean_y", (float)observation_vision_feature::inn_stdev[1].mean);
+    p++;
 
     if (f->observations.recent_a.get()) {
-        observe_plot_item(d.timestamp, 6, "a-inn_x", (float)f->observations.recent_a->innovation(0));
-        observe_plot_item(d.timestamp, 6, "a-inn_y", (float)f->observations.recent_a->innovation(1));
-        observe_plot_item(d.timestamp, 6, "a-inn_z", (float)f->observations.recent_a->innovation(2));
+        observe_plot_item(d.timestamp, p, "a-inn_x", (float)f->observations.recent_a->innovation(0));
+        observe_plot_item(d.timestamp, p, "a-inn_y", (float)f->observations.recent_a->innovation(1));
+        observe_plot_item(d.timestamp, p, "a-inn_z", (float)f->observations.recent_a->innovation(2));
+        p++;
     }
 
     if (f->observations.recent_g.get()) {
-        observe_plot_item(d.timestamp, 7, "g-inn_x", (float)f->observations.recent_g->innovation(0));
-        observe_plot_item(d.timestamp, 7, "g-inn_y", (float)f->observations.recent_g->innovation(1));
-        observe_plot_item(d.timestamp, 7, "g-inn_z", (float)f->observations.recent_g->innovation(2));
+        observe_plot_item(d.timestamp, p, "g-inn_x", (float)f->observations.recent_g->innovation(0));
+        observe_plot_item(d.timestamp, p, "g-inn_y", (float)f->observations.recent_g->innovation(1));
+        observe_plot_item(d.timestamp, p, "g-inn_z", (float)f->observations.recent_g->innovation(2));
+        p++;
     }
 
     for (auto &of : f->observations.recent_f_map)
-      observe_plot_item(d.timestamp,  8, "v-inn_x " + std::to_string(of.first), (float)of.second->innovation(0));
-    for (auto &of : f->observations.recent_f_map)
-      observe_plot_item(d.timestamp,  9, "v-inn_y " + std::to_string(of.first), (float)of.second->innovation(1));
-    for (auto &of : f->observations.recent_f_map)
-      observe_plot_item(d.timestamp, 10, "v-inn_r " + std::to_string(of.first), (float)hypot(of.second->innovation(0), of.second->innovation(1)));
+      observe_plot_item(d.timestamp,  p, "v-inn_x " + std::to_string(of.first), (float)of.second->innovation(0));
+    p++;
 
-    observe_plot_item(d.timestamp, 11, "median-depth-var", (float)f->median_depth_variance);
+    for (auto &of : f->observations.recent_f_map)
+      observe_plot_item(d.timestamp,  p, "v-inn_y " + std::to_string(of.first), (float)of.second->innovation(1));
+    p++;
+
+    for (auto &of : f->observations.recent_f_map)
+      observe_plot_item(d.timestamp, p, "v-inn_r " + std::to_string(of.first), (float)hypot(of.second->innovation(0), of.second->innovation(1)));
+    p++;
+
+    observe_plot_item(d.timestamp, p, "median-depth-var", (float)f->median_depth_variance);
+    p++;
 }
 
 world_state::world_state()

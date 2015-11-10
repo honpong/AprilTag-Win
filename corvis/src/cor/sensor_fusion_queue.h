@@ -105,7 +105,9 @@ public:
     void receive_gyro(gyro_data&& x);
     void dispatch_sync(std::function<void()> fn);
     void dispatch_async(std::function<void()> fn);
-    
+
+    latency_strategy strategy;
+
 private:
     void runloop();
     bool run_control();
@@ -129,8 +131,6 @@ private:
     bool active;
     bool wait_for_camera;
     bool singlethreaded;
-    
-    latency_strategy strategy;
     
     sensor_clock::time_point last_dispatched;
     

@@ -51,6 +51,7 @@ public:
     void enable_realtime() { is_realtime = true; }
     void enable_qvga() { qvga = true; }
     void disable_depth() { depth = false; }
+    void enable_intel() { fusion.queue->strategy = fusion_queue::latency_strategy::IMAGE_TRIGGER; fusion.sfm.ignore_lateness = true; }
     void start();
     void stop();
     void toggle_pause() { is_paused = !is_paused; }

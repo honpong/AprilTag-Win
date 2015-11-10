@@ -9,12 +9,12 @@
 int main(int c, char **v)
 {
     if (0) { usage:
-        cerr << "Usage: " << v[0] << " [--qvga] [--no-depth] [--realtime] [--pause] [--no-gui] [--no-plots] [--no-video] [--no-main] [--render <file.png>] [--save <calibration-json>] <filename>\n";
-        cerr << "       " << v[0] << " [--qvga] [--no-depth] --benchmark <directory>\n";
+        cerr << "Usage: " << v[0] << " [--qvga] [--no-depth] [--intel] [--realtime] [--pause] [--no-gui] [--no-plots] [--no-video] [--no-main] [--render <file.png>] [--save <calibration-json>] <filename>\n";
+        cerr << "       " << v[0] << " [--qvga] [--no-depth] [--intel] --benchmark <directory>\n";
         return 1;
     }
 
-    bool realtime = false, start_paused = false, benchmark = false;
+    bool realtime = false, start_paused = false, benchmark = false, intel = false;
     std::string save;
     bool qvga = false, depth = true;
     bool enable_gui = true, show_plots = false, show_video = true, show_depth = true, show_main = true;
@@ -23,6 +23,7 @@ int main(int c, char **v)
         if      (v[i][0] != '-' && !filename) filename = v[i];
         else if (strcmp(v[i], "--no-gui") == 0) enable_gui = false;
         else if (strcmp(v[i], "--realtime") == 0) realtime = true;
+        else if (strcmp(v[i], "--intel") == 0) intel = true;
         else if (strcmp(v[i], "--no-realtime") == 0) realtime = false;
         else if (strcmp(v[i], "--no-plots") == 0) show_plots = false;
         else if (strcmp(v[i], "--no-depth") == 0) show_depth = false;
@@ -43,6 +44,7 @@ int main(int c, char **v)
         if(qvga) rp.enable_qvga();
         if(!depth) rp.disable_depth();
         if(realtime) rp.enable_realtime();
+        if(intel) rp.enable_intel();
 
         if(!rp.open(capture_file))
             return false;

@@ -148,6 +148,20 @@ void world_state::receive_camera(const filter * f, camera_data &&d)
     observe_position(d.timestamp, (float)T[0], (float)T[1], (float)T[2], (float)q.w(), (float)q.x(), (float)q.y(), (float)q.z());
     int p = 0;
 
+    if (f->observations.recent_a.get()) {
+        observe_plot_item(d.timestamp, p, "a_x", (float)f->observations.recent_a->meas[0]);
+        observe_plot_item(d.timestamp, p, "a_y", (float)f->observations.recent_a->meas[1]);
+        observe_plot_item(d.timestamp, p, "a_z", (float)f->observations.recent_a->meas[2]);
+    }
+    p++;
+
+    if (f->observations.recent_g.get()) {
+        observe_plot_item(d.timestamp, p, "g_x", (float)f->observations.recent_g->meas[0]);
+        observe_plot_item(d.timestamp, p, "g_y", (float)f->observations.recent_g->meas[1]);
+        observe_plot_item(d.timestamp, p, "g_z", (float)f->observations.recent_g->meas[2]);
+    }
+    p++;
+
     observe_plot_item(d.timestamp, p, "wbias_x", (float)f->s.w_bias.v[0]);
     observe_plot_item(d.timestamp, p, "wbias_y", (float)f->s.w_bias.v[1]);
     observe_plot_item(d.timestamp, p, "wbias_z", (float)f->s.w_bias.v[2]);

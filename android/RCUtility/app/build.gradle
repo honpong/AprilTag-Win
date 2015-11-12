@@ -86,11 +86,11 @@ tasks.all { task ->
 
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())
-def rsRoot = properties.getProperty('rssdk.dir')
+def rsRoot = properties.getProperty('sdk.dir')
 
 repositories {
     flatDir {
-        dirs rsRoot + '/libs'
+        dirs rsRoot + '/extras/intel/RealSense_SDK/libs'
     }
 }
 

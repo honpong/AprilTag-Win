@@ -98,8 +98,5 @@ dependencies {
     compile 'com.android.support:support-v13:22.2.0'
     compile(name:'PXCACore', ext:'aar')
     compile(name:'PXCASenseManager', ext:'aar')
-    compile(name:'PXCAScenePerception', ext:'aar')
-    compile(name:'PXCADepthPhoto', ext:'aar')
-    compile(name:'PXCADepthFace', ext:'aar')
     compile(name:'PXCAPlayback', ext:'aar')
 }

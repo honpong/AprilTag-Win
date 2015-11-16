@@ -23,9 +23,9 @@
         KEY_CY: @(params.Cy),
         KEY_PX: @(params.px),
         KEY_PY: @(params.py),
-        KEY_K0: @(params.K[0]),
-        KEY_K1: @(params.K[1]),
-        KEY_K2: @(params.K[2]),
+        KEY_K0: @(params.K0),
+        KEY_K1: @(params.K1),
+        KEY_K2: @(params.K2),
         KEY_ABIAS0: @(params.a_bias[0]),
         KEY_ABIAS1: @(params.a_bias[1]),
         KEY_ABIAS2: @(params.a_bias[2]),
@@ -140,9 +140,9 @@
         dc->Cy = [((NSNumber*)data[KEY_CY]) floatValue];
         dc->px = [((NSNumber*)data[KEY_PX]) floatValue];
         dc->py = [((NSNumber*)data[KEY_PY]) floatValue];
-        dc->K[0] = [((NSNumber*)data[KEY_K0]) floatValue];
-        dc->K[1] = [((NSNumber*)data[KEY_K1]) floatValue];
-        dc->K[2] = [((NSNumber*)data[KEY_K2]) floatValue];
+        dc->K0 = [((NSNumber*)data[KEY_K0]) floatValue];
+        dc->K1 = [((NSNumber*)data[KEY_K1]) floatValue];
+        dc->K2 = [((NSNumber*)data[KEY_K2]) floatValue];
         dc->a_bias[0] = [((NSNumber*)data[KEY_ABIAS0]) floatValue];
         dc->a_bias[1] = [((NSNumber*)data[KEY_ABIAS1]) floatValue];
         dc->a_bias[2] = [((NSNumber*)data[KEY_ABIAS2]) floatValue];
@@ -203,7 +203,7 @@
             dc.Fx, dc.Fy,
             dc.Cx, dc.Cy,
             dc.px, dc.py,
-            dc.K[0], dc.K[1], dc.K[2],
+            dc.K0, dc.K1, dc.K2,
             dc.a_bias[0], dc.a_bias[1], dc.a_bias[2], dc.a_bias_var[0], dc.a_bias_var[1], dc.a_bias_var[2],
             dc.w_bias[0], dc.w_bias[1], dc.w_bias[2], dc.w_bias_var[0], dc.w_bias_var[1], dc.w_bias_var[2],
             dc.Tc[0], dc.Tc[1], dc.Tc[2], dc.Tc_var[0], dc.Tc_var[1], dc.Tc_var[2],

@@ -543,11 +543,6 @@
     }
     try {
         camera_data c(camera_data_from_CMSampleBufferRef(sampleBuffer));
-        CFDictionaryRef metadataDict = (CFDictionaryRef)CMGetAttachment(sampleBuffer, kCGImagePropertyExifDictionary , NULL);
-        float exposure = [(NSString *)CFDictionaryGetValue(metadataDict, kCGImagePropertyExifExposureTime) floatValue];
-        auto duration = std::chrono::duration<float>(exposure);
-        c.timestamp += std::chrono::duration_cast<sensor_clock::duration>(duration * .5);
-
         queue->receive_camera(std::move(c));
     } catch (std::runtime_error) {
         //do nothing - indicates the sample / image buffer was not valid.

@@ -79,7 +79,10 @@
         }
     };
 
-    rp.configure_all([path UTF8String], realtime, callback);
+    rp.set_progress_callback(callback);
+    if(realtime)
+        rp.enable_realtime();
+    rp.open([path UTF8String]);
 }
 
 - (void)stopReplay

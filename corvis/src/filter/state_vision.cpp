@@ -319,7 +319,7 @@ state_vision_group * state_vision::add_group(sensor_clock::time_point time)
     return g;
 }
 
-feature_t state_vision::project_feature(const feature_t &feat) const
+feature_t state_vision::normalize_feature(const feature_t &feat) const
 {
     feature_t feat_p;
     feat_p.x = (float)(((feat.x - image_width / 2. + .5) / image_height - center_x.v) / focal_length.v);
@@ -327,7 +327,7 @@ feature_t state_vision::project_feature(const feature_t &feat) const
     return feat_p;
 }
 
-feature_t state_vision::unproject_feature(const feature_t &feat_n) const
+feature_t state_vision::unnormalize_feature(const feature_t &feat_n) const
 {
     feature_t feat;
     feat.x = (float)(feat_n.x * focal_length.v + center_x.v) * image_height + image_width / 2. - .5;
@@ -335,7 +335,7 @@ feature_t state_vision::unproject_feature(const feature_t &feat_n) const
     return feat;
 }
 
-feature_t state_vision::uncalibrate_feature(const feature_t &feat_n) const
+feature_t state_vision::distort_feature(const feature_t &feat_n) const
 {
     f_t r2, kr;
     fill_calibration(feat_n, r2, kr);
@@ -343,14 +343,11 @@ feature_t state_vision::uncalibrate_feature(const feature_t &feat_n) const
     feature_t feat_u;
     feat_u.x = (float)(feat_n.x / kr);
     feat_u.y = (float)(feat_n.y / kr);
-
-    return unproject_feature(feat_u);
+    return feat_u;
 }
 
-feature_t state_vision::calibrate_feature(const feature_t &feat_u) const
+feature_t state_vision::undistort_feature(const feature_t &feat_n) const
 {
-    feature_t feat_n = project_feature(feat_u);
-
     f_t r2, kr;
     fill_calibration(feat_n, r2, kr);
 

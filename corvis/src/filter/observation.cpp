@@ -198,7 +198,7 @@ void observation_vision_feature::predict()
     Ttot = Rrt * ( - state_group->Tr.v);
 
     feature_t uncal = { (float)feature->initial[0], (float)feature->initial[1] };
-    norm_initial = state.calibrate_feature(uncal);
+    norm_initial = state.undistort_feature(state.normalize_feature(uncal));
     X0 = v4(norm_initial.x, norm_initial.y, 1., 0.);
 
     v4 X0_unscale = X0 * feature->v.depth(); //not homog in v4
@@ -220,7 +220,7 @@ void observation_vision_feature::predict()
 #endif
 
     norm_predicted = {(float)ippred[0], (float)ippred[1]};
-    feature->prediction = state.uncalibrate_feature(norm_predicted);
+    feature->prediction = state.unnormalize_feature(state.distort_feature(norm_predicted));
     pred[0] = feature->prediction.x;
     pred[1] = feature->prediction.y;
 }
@@ -338,9 +338,8 @@ f_t observation_vision_feature::projection_residual(const v4 & X, const xy &foun
     }
 #endif
     feature_t norm = { (float)ippred[0], (float)ippred[1] };
-    
-    feature_t uncalib = state.uncalibrate_feature(norm);
-    
+    feature_t uncalib = state.unnormalize_feature(state.distort_feature(norm));
+
     f_t dx = uncalib.x - found.x;
     f_t dy = uncalib.y - found.y;
     return dx * dx + dy * dy;

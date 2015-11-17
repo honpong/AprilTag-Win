@@ -205,10 +205,10 @@ public:
         }
         else kr = 1. + r2 * (k1.v + r2 * (k2.v + r2 * k3.v));
     }
-    feature_t calibrate_feature(const feature_t &initial) const;
-    feature_t uncalibrate_feature(const feature_t &normalized) const;
-    feature_t project_feature(const feature_t &feat) const;
-    feature_t unproject_feature(const feature_t &feat) const;
+    feature_t undistort_feature(const feature_t &initial) const;
+    feature_t distort_feature(const feature_t &normalized) const;
+    feature_t normalize_feature(const feature_t &feat) const;
+    feature_t unnormalize_feature(const feature_t &feat) const;
     float median_depth_variance();
     
     virtual void reset();

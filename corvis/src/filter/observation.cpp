@@ -264,7 +264,7 @@ void observation_vision_feature::cache_jacobians()
 #if estimate_camera_intrinsics
         dx_dF = state.image_height * norm_predicted.x / kr + dx_dX.dot(dX_dF);
         dy_dF = state.image_height * norm_predicted.y / kr + dy_dX.dot(dX_dF);
-        dx_dk1 = -state.image_height * norm_predicted.x * state.focal_length.v / kr / kr  * r2        + dx_dX.dot(dX_dk1);
+        dx_dk1 = -state.image_height * norm_predicted.x * state.focal_length.v / kr / kr * r2        + dx_dX.dot(dX_dk1);
         dy_dk1 = -state.image_height * norm_predicted.y * state.focal_length.v / kr / kr * r2        + dy_dX.dot(dX_dk1);
         dx_dk2 = -state.image_height * norm_predicted.x * state.focal_length.v / kr / kr * (r2 * r2) + dx_dX.dot(dX_dk2);
         dy_dk2 = -state.image_height * norm_predicted.y * state.focal_length.v / kr / kr * (r2 * r2) + dy_dX.dot(dX_dk2);

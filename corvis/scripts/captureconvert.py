@@ -7,6 +7,7 @@ import sys
 camera_type = 1
 accel_type = 20
 gyro_type = 21
+image_with_depth_type = 28
 if len(sys.argv) != 3:
     print sys.argv[0], "<intel folder> <output filename>"
     sys.exit(1)
@@ -21,7 +22,7 @@ def read_image_timestamps(filename):
         reader = csv.reader(csvfile, delimiter=' ')
         for row in reader:
             (filename, timestamp) = row
-            rows.append([float(timestamp), camera_type, filename])
+            rows.append([float(timestamp), image_with_depth_type, filename])
     return rows
 
 def read_csv_timestamps(filename, ptype):
@@ -51,6 +52,16 @@ for line in data:
     if ptype == camera_type:
         fi = open(path + line[2])
         data = fi.read()
+        fi.close()
+    elif ptype == image_with_depth_type:
+        fi = open(path + line[2], 'rb')
+        assert fi.read(1) == 'P', '%s is a pgm' % (path + line[2])
+        P = fi.readline()
+        while len(P.split()) < 4:
+            P += fi.readline()
+        w, h, d = int(P.split()[1]), int(P.split()[2]), fi.read(); assert h * w == len(d)
+        dw, dh = 0, 0
+        data = pack('LHHHH', 0*33333333, w, h, dw, dh) + d
         fi.close()
     elif ptype == gyro_type:
         data = pack('fff', line[2], line[3], line[4])

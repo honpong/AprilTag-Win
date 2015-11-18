@@ -193,6 +193,10 @@ void replay::start()
                     //pgm header is "P5 x y"
                     parse.ignore(3, ' ') >> width >> height;
                     camera_data d = parse_gray8(width, height, width, packet->data + 16, packet->header.time, 33333, std::move(phandle));
+                    if(image_decimate && d.timestamp < last_image) break;
+                    if(last_image == sensor_clock::time_point()) last_image = d.timestamp;
+                    last_image += image_interval;
+
                     fusion.receive_image(std::move(d));
                     is_stepping = false;
                     break;
@@ -235,6 +239,9 @@ void replay::start()
                             }
                         }
                     }
+                    if(image_decimate && d.timestamp < last_image) break;
+                    if(last_image == sensor_clock::time_point()) last_image = d.timestamp;
+                    last_image += image_interval;
                     fusion.receive_image(std::move(d));
                     is_stepping = false;
                     break;
@@ -246,6 +253,9 @@ void replay::start()
                     d.accel_m__s2[1] = ((float *)packet->data)[1];
                     d.accel_m__s2[2] = ((float *)packet->data)[2];
                     d.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time));
+                    if(imu_decimate && d.timestamp < last_accel) break;
+                    if(last_accel == sensor_clock::time_point()) last_accel = d.timestamp;
+                    last_accel += imu_interval;
                     fusion.receive_accelerometer(std::move(d));
                     break;
                 }
@@ -256,6 +266,9 @@ void replay::start()
                     d.angvel_rad__s[1] = ((float *)packet->data)[1];
                     d.angvel_rad__s[2] = ((float *)packet->data)[2];
                     d.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time));
+                    if(imu_decimate && d.timestamp < last_gyro) break;
+                    if(last_gyro == sensor_clock::time_point()) last_gyro = d.timestamp;
+                    last_gyro += imu_interval;
                     fusion.receive_gyro(std::move(d));
                     break;
                 }

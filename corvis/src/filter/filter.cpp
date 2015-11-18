@@ -885,7 +885,7 @@ extern "C" void filter_initialize(struct filter *f, rcCalibration *device)
     else
         f->s.k1.v = device->K0;
     f->s.k2.v = device->K1;
-    f->s.k3.v = 0.; //device->K[2];
+    f->s.k3.v = device->K2;
     f->s.fisheye = device->distortionModel == 1;
     
     f->s.g.set_initial_variance(1.e-7);

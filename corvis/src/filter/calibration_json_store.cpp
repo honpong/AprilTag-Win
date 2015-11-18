@@ -22,6 +22,7 @@ void CopyJsonToStruct(Document &json, device_parameters &cal)
     cal.Cy = (float)json[KEY_CY].GetDouble();
     cal.px = (float)json[KEY_PX].GetDouble();
     cal.py = (float)json[KEY_PY].GetDouble();
+    cal.Kw = (float)json[KEY_KW].GetDouble();
     cal.K0 = (float)json[KEY_K0].GetDouble();
     cal.K1 = (float)json[KEY_K1].GetDouble();
     cal.K2 = (float)json[KEY_K2].GetDouble();
@@ -53,7 +54,7 @@ void CopyJsonToStruct(Document &json, device_parameters &cal)
     cal.a_meas_var = (float)json[KEY_AMEASVAR].GetDouble();
     cal.image_width = json[KEY_IMAGE_WIDTH].GetInt();
     cal.image_height = json[KEY_IMAGE_HEIGHT].GetInt();
-    cal.distortionModel = 0;
+    cal.distortionModel = json.HasMember(KEY_DISTORTION_MODEL) ? json[KEY_DISTORTION_MODEL].GetInt() : 0;
 }
 
 void CopyStructToJson(const device_parameters &cal, Value &json)
@@ -65,6 +66,7 @@ void CopyStructToJson(const device_parameters &cal, Value &json)
     json[KEY_CY] = cal.Cy;
     json[KEY_PX] = cal.px;
     json[KEY_PY] = cal.py;
+    json[KEY_KW] = cal.Kw;
     json[KEY_K0] = cal.K0;
     json[KEY_K1] = cal.K1;
     json[KEY_K2] = cal.K2;
@@ -96,6 +98,7 @@ void CopyStructToJson(const device_parameters &cal, Value &json)
     json[KEY_AMEASVAR] = cal.a_meas_var;
     json[KEY_IMAGE_WIDTH] = cal.image_width;
     json[KEY_IMAGE_HEIGHT] = cal.image_height;
+    json[KEY_DISTORTION_MODEL] = cal.distortionModel;
 }
 
 bool calibration_serialize(const device_parameters &cal, std::string &jsonString)

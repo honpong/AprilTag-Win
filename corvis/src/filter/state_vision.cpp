@@ -335,27 +335,38 @@ feature_t state_vision::unnormalize_feature(const feature_t &feat_n) const
     return feat;
 }
 
-feature_t state_vision::distort_feature(const feature_t &feat_n) const
+feature_t state_vision::distort_feature(const feature_t &feat_u) const
 {
-    f_t r2, kr;
-    fill_calibration(feat_n, r2, kr);
+    f_t kd_u, ru2 = feat_u.x * feat_u.x + feat_u.y * feat_u.y;
+    if (fisheye) {
+        f_t ru = sqrt(ru2), w = k1.v; if (!w) w = 0.922;
+        kd_u = atan(2 * tan(w / 2) * ru) / (ru * w);  // FIXME: add higher order terms (but not the linear one)
+    } else {
+        kd_u = 1 + ru2 * (k1.v + ru2 * (k2.v + ru2 * k3.v));
+    }
 
-    feature_t feat_u;
-    feat_u.x = (float)(feat_n.x / kr);
-    feat_u.y = (float)(feat_n.y / kr);
-    return feat_u;
+    return feature_t { (float)(feat_u.x * kd_u), (float)(feat_u.y * kd_u) };
 }
 
-feature_t state_vision::undistort_feature(const feature_t &feat_n) const
+feature_t state_vision::undistort_feature(const feature_t &feat_d) const
 {
-    f_t r2, kr;
-    fill_calibration(feat_n, r2, kr);
+    f_t ku_d, rd2 = feat_d.x * feat_d.x + feat_d.y * feat_d.y;
+    if (fisheye) {
+        f_t rd = sqrt(rd2), w = k1.v; if (!w) w = 0.922;
+        ku_d = tan(w * rd) / (2 * tan(w/2) * rd);
+    } else {
+        f_t kd_u, ru2 = rd2;
+        for (int i=0; i<4; i++) {
+           kd_u =  1 + ru2 * (k1.v + ru2 * (k2.v + ru2 * k3.v));
+           f_t dkd_u = k1.v + 2 * ru2 * (k2.v + 3 * ru2 * k3.v);
+           // f(ru2) == ru2 * kd_u * kd_u - rd2 == 0;
+           // ru2 -= f(ru2) / f'(ru2)
+           ru2 -= (ru2 * kd_u * kd_u - rd2) / (kd_u * (kd_u + 2 * ru2 * dkd_u));
+        }
+        ku_d = 1 / kd_u;
+    }
 
-    feature_t feat_c;
-    feat_c.x = (float)(feat_n.x * kr);
-    feat_c.y = (float)(feat_n.y * kr);
-
-    return feat_c;
+    return feature_t { (float)(feat_d.x * ku_d), (float)(feat_d.y * ku_d) };
 }
 
 float state_vision::median_depth_variance()

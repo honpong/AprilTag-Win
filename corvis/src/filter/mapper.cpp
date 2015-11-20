@@ -194,7 +194,6 @@ void mapper::update_feature_position(uint64_t groupid, uint64_t id, const v4 &po
     id += feature_id_offset;
     for(auto f : nodes[groupid].features) {
         if(f->id == id) {
-            // position is rotated by gravity
             f->position = pos;
             f->variance = variance;
         }

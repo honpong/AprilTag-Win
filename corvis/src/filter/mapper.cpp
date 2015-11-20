@@ -211,7 +211,7 @@ void mapper::add_feature(uint64_t groupid, uint64_t id, const v4 &pos, float var
     }
 }
 
-void mapper::internal_set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform)
+void mapper::internal_set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform, bool loop_closure)
 {
     map_edge &edge1 = nodes[id1].get_add_neighbor(id2);
     int64_t id = edge1.geometry;
@@ -228,6 +228,8 @@ void mapper::internal_set_geometry(uint64_t id1, uint64_t id2, const transformat
         map_edge &edge2 = nodes[id2].get_add_neighbor(id1);
         edge1.geometry = id;
         edge2.geometry = -id;
+        edge1.loop_closure = loop_closure;
+        edge2.loop_closure = loop_closure;
     }
 }
 
@@ -237,7 +239,7 @@ void mapper::set_geometry(uint64_t id1, uint64_t id2, const transformation_varia
     id2 += node_id_offset;
     if(nodes.size() <= id1) nodes.resize(id1+1);
     if(nodes.size() <= id2) nodes.resize(id2+1);
-    internal_set_geometry(id1, id2, transform);
+    internal_set_geometry(id1, id2, transform, false);
 }
 
 transformation mapper::get_relative_transformation(uint64_t from_id, uint64_t to_id)
@@ -451,12 +453,12 @@ bool mapper::get_matches(uint64_t id, vector<map_match> &matches, int max, int s
             // This sort makes sure the best fitting final
             // transformation is selected
             sort(matches.begin(), matches.end(), map_match_compare);
-            //internal_set_geometry(matches[0].from, matches[0].to, matches[0].g);
+            //internal_set_geometry(matches[0].from, matches[0].to, tv, true);
             if(unlinked && matches[0].to < node_id_offset) {
                 unlinked = false;
                 transformation_variance tv;
                 tv.transform = matches[0].g;
-                internal_set_geometry(matches[0].from, matches[0].to, tv);
+                internal_set_geometry(matches[0].from, matches[0].to, tv, true);
             }
         }
     }
@@ -868,7 +870,7 @@ void mapper::node_finished(uint64_t id, const transformation & G)
             //fprintf(stderr, "setting an edge for %llu to %llu\n", id, nid);
             transformation_variance tv;
             tv.transform = invert(nodes[id].global_transformation.transform)*nodes[nid].global_transformation.transform;
-            internal_set_geometry(id, nid, tv);
+            internal_set_geometry(id, nid, tv, false);
         }
     }
 }

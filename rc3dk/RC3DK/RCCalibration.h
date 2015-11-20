@@ -46,8 +46,6 @@
 #define KEY_AMEASVAR @"aMeasVar"
 #define KEY_IMAGE_WIDTH @"imageWidth"
 #define KEY_IMAGE_HEIGHT @"imageHeight"
-#define KEY_SHUTTER_DELAY @"shutterDelay"
-#define KEY_SHUTTER_PERIOD @"shutterPeriod"
 #define KEY_CALIBRATION_VERSION @"calibrationVersion"
 
 #define CALIBRATION_VERSION 7
@@ -62,12 +60,12 @@ typedef enum {
 
 @interface RCCalibration : NSObject
 
-+ (void) saveCalibrationData: (struct corvis_device_parameters)params;
-+ (struct corvis_device_parameters) getCalibrationData;
++ (void) saveCalibrationData: (device_parameters)params;
++ (device_parameters) getCalibrationData;
 + (NSDictionary*) getCalibrationAsDictionary;
 + (NSString*) getCalibrationAsString;
 + (void) clearCalibrationData;
-+ (NSString*) stringFromCalibration:(struct corvis_device_parameters)dc;
++ (NSString*) stringFromCalibration:(device_parameters)dc;
 + (BOOL) hasCalibrationData;
 + (BOOL) isCalibrationDataValid:(NSDictionary*)data;
 + (void) postDeviceCalibration:(void (^)())successBlock onFailure:(void (^)(NSInteger statusCode))failureBlock;

@@ -90,7 +90,8 @@ bool replay::set_calibration_from_filename(const std::string &fn)
         if(!read_file(path + "calibration.json", calibration))
             return false;
     }
-    return rc_setCalibration(tracker, calibration.c_str());
+    rcCalibration defaultCal;
+    return rc_setCalibration(tracker, calibration.c_str(), &defaultCal);
 }
 
 static bool find_prefixed_number(const std::string in, const std::string &prefix, double &n)
@@ -108,9 +109,6 @@ bool replay::find_reference_in_filename(const std::string &filename)
     if (found) reference_length_m = cm / 100;
     return found;
 }
-
-typedef void(*rc_DataCallback)(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count);
-typedef void(*rc_StatusCallback)(void *handle, rc_TrackerState state, rc_TrackerError error, rc_TrackerConfidence confidence, float progress);
 
 void replay::enable_pose_output()
 {

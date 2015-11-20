@@ -82,12 +82,14 @@ if(WIN32 OR ANDROID)
     endif()
     file(GLOB MKLLOCS ${MKLROOT} $ENV{MKLROOT}
         "C:/Program Files (x86)/Intel/Composer XE 2015/mkl"
+        "C:/Program Files (x86)/IntelSWTools/compilers_and_libraries/windows/mkl"
         "C:/Program Files/Intel/Composer XE 2015/mkl"
     )
     list(GET MKLLOCS 0 MKLLOC)
     target_include_directories(numerics PRIVATE SYSTEM "${MKLLOC}/include")
+    if (WIN32)
     link_directories("$ENV{RSSDK_DIR}lib/$(PlatformName)")
-    if (ANDROID)
+    elseif (ANDROID)
     target_link_libraries(numerics PRIVATE -Wl,--whole-archive)
     target_link_libraries(numerics PRIVATE "${MKLLOC}/lib/${MKL_ARCH}/${CMAKE_STATIC_LIBRARY_PREFIX}mkl_compat${CMAKE_STATIC_LIBRARY_SUFFIX}")
     target_link_libraries(numerics PRIVATE -Wl,--no-whole-archive)
@@ -111,6 +113,7 @@ add_library(filter STATIC
   filter/scaled_mask.cpp
   filter/camera_control_interface_dummy.cpp
   filter/device_parameters.cpp
+  filter/rs_calibration_json.cpp
   filter/calibration_json_store.cpp
   filter/calibration_defaults.cpp
   filter/sensor_fusion.cpp

@@ -169,7 +169,7 @@
         [RCPrivateHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
 #endif
         
-        corvis_device_parameters dc = [RCCalibration getCalibrationData];
+        device_parameters dc = [RCCalibration getCalibrationData];
         _cor_setup = new filter_setup(&dc);
     }
     
@@ -210,7 +210,7 @@
     queue->dispatch_async([self]{
         [RCCalibration clearCalibrationData];
         _cor_setup->device = [RCCalibration getCalibrationData];
-        filter_initialize(&_cor_setup->sfm, _cor_setup->device);
+        filter_initialize(&_cor_setup->sfm, &_cor_setup->device);
         filter_start_static_calibration(&_cor_setup->sfm);
     });
     isSensorFusionRunning = true;
@@ -243,8 +243,7 @@
     double frame_duration = (CMTimeGetSeconds(device.activeVideoMinFrameDuration) + CMTimeGetSeconds(device.activeVideoMaxFrameDuration))/2;
     DLog(@"Starting with %d width x %d height", sz.width, sz.height);
     device_set_resolution(&_cor_setup->device, sz.width, sz.height);
-    device_set_framerate(&_cor_setup->device, (float)(1./frame_duration));
-    filter_initialize(&_cor_setup->sfm, _cor_setup->device);
+    filter_initialize(&_cor_setup->sfm, &_cor_setup->device);
 }
 
 - (void) startSensorFusionWithDevice:(AVCaptureDevice *)device
@@ -340,7 +339,7 @@
     isSensorFusionRunning = false;
     queue->stop_sync();
     queue->dispatch_sync([self]{
-        filter_initialize(&_cor_setup->sfm, _cor_setup->device);
+        filter_initialize(&_cor_setup->sfm, &_cor_setup->device);
     });
 
     _cor_setup->sfm.camera_control.focus_unlock();
@@ -523,7 +522,7 @@
 - (bool) saveCalibration
 {
     LOGME
-    struct corvis_device_parameters finalDeviceParameters;
+    device_parameters finalDeviceParameters;
     bool parametersGood;
     queue->dispatch_sync([&]{
         finalDeviceParameters = _cor_setup->get_device_parameters();
@@ -544,11 +543,6 @@
     }
     try {
         camera_data c(camera_data_from_CMSampleBufferRef(sampleBuffer));
-        CFDictionaryRef metadataDict = (CFDictionaryRef)CMGetAttachment(sampleBuffer, kCGImagePropertyExifDictionary , NULL);
-        float exposure = [(NSString *)CFDictionaryGetValue(metadataDict, kCGImagePropertyExifExposureTime) floatValue];
-        auto duration = std::chrono::duration<float>(exposure);
-        c.timestamp += std::chrono::duration_cast<sensor_clock::duration>(duration * .5);
-
         queue->receive_camera(std::move(c));
     } catch (std::runtime_error) {
         //do nothing - indicates the sample / image buffer was not valid.

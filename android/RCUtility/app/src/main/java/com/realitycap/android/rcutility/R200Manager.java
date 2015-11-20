@@ -18,6 +18,7 @@ import android.util.Pair;
 import android.util.Size;
 import android.view.Surface;
 
+import com.intel.camera2.extensions.depthcamera.DepthCameraCalibrationDataMap;
 import com.intel.camera2.extensions.depthcamera.DepthCameraCaptureSessionConfiguration;
 import com.intel.camera2.extensions.depthcamera.DepthCameraCharacteristics;
 import com.intel.camera2.extensions.depthcamera.DepthCameraImageReader;
@@ -43,7 +44,6 @@ public class R200Manager
     public static final int DEPTH_HEIGHT = 240;
 
     private CameraDevice mCamera;
-    private CameraCharacteristics mCameraChar;
     private final Handler mHandler = new Handler();
     private static final int MAX_NUM_FRAMES = 5;
     private CameraCaptureSession mPreviewSession = null;
@@ -53,6 +53,8 @@ public class R200Manager
     private ImageReader colorReader;
     private ImageSynchronizer mImageSyncronizer;
     private IRealSenseSensorReceiver receiver;
+    private DepthCameraCalibrationDataMap.DepthCameraCalibrationData calibrationData;
+    CameraCharacteristics mCameraChar;
 
     /**
      * A internal state object to prevent the app open the camera before its closing process is completed.
@@ -70,40 +72,16 @@ public class R200Manager
         Log.d(TAG, "startCamera");
 
         CameraManager camManager = (CameraManager) MyApplication.getContext().getSystemService(Context.CAMERA_SERVICE);
-        String cameraId = null;
+        String cameraId;
 
         try
         {
-            String[] cameraIds = camManager.getCameraIdList();
-            if (cameraIds.length == 0)
-                throw new Exception(TAG + ": camera ids list= 0");
-
-            Log.w(TAG, "Number of cameras: " + cameraIds.length);
-
-            for (int i = 0; i < cameraIds.length; i++)
-            {
-                Log.w(TAG, "Evaluating camera " + cameraIds[i]);
-
-                mCameraChar = camManager.getCameraCharacteristics(cameraIds[i]);
-                try
-                {
-                    if (DepthCameraCharacteristics.isDepthCamera(mCameraChar))
-                    {
-                        cameraId = cameraIds[i];
-                        break;
-                    }
-                }
-                catch (Exception e)
-                {
-                    Log.w(TAG, "Camera " + cameraId + ": failed on isDepthCamera");
-                }
-            }
-
-            if (cameraIds.length > 0 && cameraId == null && mCameraChar != null)
-                throw new Exception(TAG + "No Depth Camera Found");
+            cameraId = getR200CameraId();
 
             if (cameraId != null)
             {
+                mCameraChar = camManager.getCameraCharacteristics(cameraId);
+
                 // Color
                 Log.v(TAG, "Camera " + cameraId + " color characteristics");
                 StreamConfigurationMap configMap = mCameraChar.get(CameraCharacteristics.SCALER_STREAM_CONFIGURATION_MAP);
@@ -138,6 +116,11 @@ public class R200Manager
                             Log.v(TAG, "Camera " + cameraId + ":     color size " + s.getWidth() + ", " + s.getHeight());
                     }
                 }
+            }
+            else
+            {
+                Log.e(TAG, "No Depth Camera Found");
+                return false;
             }
 
             mCurState.set(DepthCameraState.CAMERA_OPENING);
@@ -203,6 +186,59 @@ public class R200Manager
         }
 
         mPreviewSession = null;
+    }
+
+    protected String getR200CameraId() throws Exception
+    {
+        CameraManager camManager = (CameraManager) MyApplication.getContext().getSystemService(Context.CAMERA_SERVICE);
+        String cameraId = null;
+        CameraCharacteristics cameraChar;
+
+        String[] cameraIds = camManager.getCameraIdList();
+        if (cameraIds.length == 0)
+            throw new Exception(TAG + ": camera IDs list is empty");
+
+        Log.w(TAG, "Number of cameras: " + cameraIds.length);
+
+        for (int i = 0; i < cameraIds.length; i++)
+        {
+            Log.w(TAG, "Evaluating camera " + cameraIds[i]);
+
+            cameraChar = camManager.getCameraCharacteristics(cameraIds[i]);
+            if (cameraChar == null) break;
+
+            if (DepthCameraCharacteristics.isDepthCamera(cameraChar))
+            {
+                cameraId = cameraIds[i];
+                break;
+            }
+        }
+
+        if (cameraId == null) throw new Exception(TAG + ": Failed to get R200 camera ID. Does this device have one?");
+
+        return cameraId;
+    }
+
+    public DepthCameraCalibrationDataMap.DepthCameraCalibrationData getCalibrationData() throws Exception
+    {
+        CameraManager camManager = (CameraManager) MyApplication.getContext().getSystemService(Context.CAMERA_SERVICE);
+        String cameraId = getR200CameraId();
+
+        if (cameraId != null)
+        {
+            mCameraChar = camManager.getCameraCharacteristics(cameraId);
+            if (mCameraChar == null)
+            {
+                throw new Exception(TAG + ": Failed to get camera characteristics.");
+            }
+        }
+        else
+        {
+            throw new Exception(TAG + ": Failed to get camera ID.");
+        }
+
+        DepthCameraCalibrationDataMap map = new DepthCameraCalibrationDataMap(mCameraChar);
+        return map.getCalibrationData(new Size(COLOR_WIDTH, COLOR_HEIGHT), new Size(DEPTH_WIDTH, DEPTH_HEIGHT), true, Integer.parseInt(cameraId));
     }
 
     public boolean isRunning()
@@ -412,6 +448,7 @@ public class R200Manager
     private void createCameraSession()
     {
         Log.d(TAG, "createCameraSession");
+        CameraCharacteristics cameraChar;
         mImageSyncronizer = new ImageSynchronizer();
 
         try

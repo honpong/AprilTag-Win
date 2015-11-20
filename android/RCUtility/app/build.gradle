@@ -2,12 +2,12 @@ apply plugin: 'com.android.model.application'
 
 model {
     android {
-        compileSdkVersion = 21
+        compileSdkVersion = 'Intel Corporation:Intel RealSense Add-on:22'
         buildToolsVersion = "22.0.1"
         defaultConfig.with {
             applicationId = "com.realitycap.android.rcutility"
-            minSdkVersion.apiLevel = 21
-            targetSdkVersion.apiLevel = 21
+            minSdkVersion.apiLevel = 22
+            targetSdkVersion.apiLevel = 22
             version = 1
         }
     }
@@ -20,11 +20,14 @@ model {
         ldLibs += ["log", "GLESv2"]
         stl = "c++_shared"
         cppFlags += "-I" + file("src/main/jni")
+        debuggable = true
     }
+    def debugSigningConfig
     android.buildTypes {
         release {
             minifyEnabled = false
             proguardFiles += file('proguard-rules.pro')
+            signingConfig = debugSigningConfig
         }
         debug {
             minifyEnabled = false
@@ -35,6 +38,12 @@ model {
             minifyEnabled = false
             proguardFiles += file('proguard-rules.pro')
             debuggable = true
+            signingConfig = debugSigningConfig
+        }
+    }
+    android.signingConfigs {
+        debug {
+            debugSigningConfig = it
         }
     }
     android.productFlavors {
@@ -75,22 +84,19 @@ tasks.all { task ->
         task.enabled = false
 }
 
-def rsRoot = "$System.env.RSSDK"
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+def rsRoot = properties.getProperty('sdk.dir')
+
+repositories {
+    flatDir {
+        dirs rsRoot + '/extras/intel/RealSense_SDK/libs'
+    }
+}
+
 dependencies {
     compile 'com.android.support:support-v13:22.2.0'
-    // TODO: not all of these are necessary
-    compile files (
-            rsRoot + '/libs/PXCACommon_x86.jar',
-            rsRoot + '/libs/OpenCL_x86.jar',
-            rsRoot + '/libs/PXCAScenePerception_x86.jar',
-            rsRoot + '/libs/PXCAPlayback_Camera_x86.jar',
-            rsRoot + '/libs/SP_Core_x86.jar',
-            rsRoot + '/libs/cilkrts_x86.jar',
-            rsRoot + '/libs/metaioTracker_x86.jar',
-            rsRoot + '/libs/PXCACommon.jar',
-            rsRoot + '/libs/PXCASenseManager.jar',
-            rsRoot + '/libs/PXCAPlayback.jar',
-            rsRoot + '/libs/PXCAScenePerception.jar',
-            rsRoot + '/libs/com.intel.camera2.extensions.depthcamera.jar'
-    ).each { assert it.exists() : "$it: Not found\nSet RSSDK (currently $rsRoot)" }
+    compile(name:'PXCACore', ext:'aar')
+    compile(name:'PXCASenseManager', ext:'aar')
+    compile(name:'PXCAPlayback', ext:'aar')
 }

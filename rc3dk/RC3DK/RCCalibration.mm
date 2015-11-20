@@ -12,7 +12,7 @@
 
 @implementation RCCalibration
 
-+ (void) saveCalibrationData: (corvis_device_parameters)params
++ (void) saveCalibrationData: (device_parameters)params
 {
     LOGME
     
@@ -23,9 +23,9 @@
         KEY_CY: @(params.Cy),
         KEY_PX: @(params.px),
         KEY_PY: @(params.py),
-        KEY_K0: @(params.K[0]),
-        KEY_K1: @(params.K[1]),
-        KEY_K2: @(params.K[2]),
+        KEY_K0: @(params.K0),
+        KEY_K1: @(params.K1),
+        KEY_K2: @(params.K2),
         KEY_ABIAS0: @(params.a_bias[0]),
         KEY_ABIAS1: @(params.a_bias[1]),
         KEY_ABIAS2: @(params.a_bias[2]),
@@ -53,9 +53,7 @@
         KEY_WMEASVAR: @(params.w_meas_var),
         KEY_AMEASVAR: @(params.a_meas_var),
         KEY_IMAGE_WIDTH: @(params.image_width),
-        KEY_IMAGE_HEIGHT: @(params.image_height),
-        KEY_SHUTTER_DELAY: @(std::chrono::duration_cast<std::chrono::microseconds>(params.shutter_delay).count()),
-        KEY_SHUTTER_PERIOD: @(std::chrono::duration_cast<std::chrono::microseconds>(params.shutter_period).count())};
+        KEY_IMAGE_HEIGHT: @(params.image_height)};
     
     [[NSUserDefaults standardUserDefaults] setObject:data forKey:PREF_DEVICE_PARAMS];
     [[NSUserDefaults standardUserDefaults] synchronize];
@@ -99,18 +97,18 @@
     }
 }
 
-+ (corvis_device_parameters) getDefaultsForCurrentDevice
++ (device_parameters) getDefaultsForCurrentDevice
 {
-    struct corvis_device_parameters dc;
+    device_parameters dc;
     get_parameters_for_device([self getCorvisDeviceForDeviceType:[RCDeviceInfo getDeviceType]], &dc);
     return dc;
 }
 
-+ (corvis_device_parameters) getCalibrationData
++ (device_parameters) getCalibrationData
 {
     LOGME
     
-    corvis_device_parameters defaults = [self getDefaultsForCurrentDevice], params;
+    device_parameters defaults = [self getDefaultsForCurrentDevice], params;
 
     if ([RCCalibration copySavedCalibrationData:&params]) { //TODO: what if this app is restored from itunes on a different device?
    /*     params.Fx = defaults.Fx;
@@ -130,7 +128,7 @@
     return params;
 }
 
-+ (BOOL) copySavedCalibrationData:(struct corvis_device_parameters*)dc
++ (BOOL) copySavedCalibrationData:(device_parameters*)dc
 {
     NSDictionary* data = [RCCalibration getCalibrationAsDictionary];
     if (data == nil || ![RCCalibration isCalibrationDataValid:data]) return NO;
@@ -142,9 +140,9 @@
         dc->Cy = [((NSNumber*)data[KEY_CY]) floatValue];
         dc->px = [((NSNumber*)data[KEY_PX]) floatValue];
         dc->py = [((NSNumber*)data[KEY_PY]) floatValue];
-        dc->K[0] = [((NSNumber*)data[KEY_K0]) floatValue];
-        dc->K[1] = [((NSNumber*)data[KEY_K1]) floatValue];
-        dc->K[2] = [((NSNumber*)data[KEY_K2]) floatValue];
+        dc->K0 = [((NSNumber*)data[KEY_K0]) floatValue];
+        dc->K1 = [((NSNumber*)data[KEY_K1]) floatValue];
+        dc->K2 = [((NSNumber*)data[KEY_K2]) floatValue];
         dc->a_bias[0] = [((NSNumber*)data[KEY_ABIAS0]) floatValue];
         dc->a_bias[1] = [((NSNumber*)data[KEY_ABIAS1]) floatValue];
         dc->a_bias[2] = [((NSNumber*)data[KEY_ABIAS2]) floatValue];
@@ -173,8 +171,6 @@
         dc->a_meas_var = [((NSNumber*)data[KEY_AMEASVAR]) floatValue];
         dc->image_width = [((NSNumber*)data[KEY_IMAGE_WIDTH]) intValue];
         dc->image_height = [((NSNumber*)data[KEY_IMAGE_HEIGHT]) intValue];
-        dc->shutter_delay = std::chrono::microseconds([((NSNumber*)data[KEY_SHUTTER_DELAY]) intValue]);
-        dc->shutter_period = std::chrono::microseconds([((NSNumber*)data[KEY_SHUTTER_PERIOD]) intValue]);
     }
     @catch (NSException *exception) {
         DLog(@"Failed to get saved calibration data: %@", exception.debugDescription);
@@ -189,7 +185,7 @@
     return [[NSUserDefaults standardUserDefaults] objectForKey:PREF_DEVICE_PARAMS];
 }
 
-+ (NSString*) stringFromCalibration:(struct corvis_device_parameters)dc
++ (NSString*) stringFromCalibration:(device_parameters)dc
 {
     return [NSString stringWithFormat:
             @"F % .1f % .1f\n"
@@ -203,21 +199,21 @@
             "Tc % .4f % .4f % .4f %.1e %.1e %.1e\n"
             "Wc % .4f % .4f % .4f %.1e %.1e %.1e\n\n"
             
-            "wm %e am %e width %d height %d period %lld delay %lld\n",
+            "wm %e am %e width %d height %d\n",
             dc.Fx, dc.Fy,
             dc.Cx, dc.Cy,
             dc.px, dc.py,
-            dc.K[0], dc.K[1], dc.K[2],
+            dc.K0, dc.K1, dc.K2,
             dc.a_bias[0], dc.a_bias[1], dc.a_bias[2], dc.a_bias_var[0], dc.a_bias_var[1], dc.a_bias_var[2],
             dc.w_bias[0], dc.w_bias[1], dc.w_bias[2], dc.w_bias_var[0], dc.w_bias_var[1], dc.w_bias_var[2],
             dc.Tc[0], dc.Tc[1], dc.Tc[2], dc.Tc_var[0], dc.Tc_var[1], dc.Tc_var[2],
             dc.Wc[0], dc.Wc[1], dc.Wc[2], dc.Wc_var[0], dc.Wc_var[1], dc.Wc_var[2],
-            dc.w_meas_var, dc.a_meas_var, dc.image_width, dc.image_height, std::chrono::duration_cast<std::chrono::microseconds>(dc.shutter_period).count(), std::chrono::duration_cast<std::chrono::microseconds>(dc.shutter_delay).count()];
+            dc.w_meas_var, dc.a_meas_var, dc.image_width, dc.image_height];
 }
 
 + (NSString*) getCalibrationAsString
 {
-    struct corvis_device_parameters dc;
+    device_parameters dc;
     if(![self copySavedCalibrationData:&dc]) return @"";
     return [self stringFromCalibration:dc];
 }
@@ -259,7 +255,7 @@
     {
         NSNumber* calibrationVersion = data[KEY_CALIBRATION_VERSION];
         if (calibrationVersion && [calibrationVersion intValue] == CALIBRATION_VERSION) result = YES;
-        corvis_device_parameters defaults = [self getDefaultsForCurrentDevice];
+        device_parameters defaults = [self getDefaultsForCurrentDevice];
         //check if biases are within 5 sigma
         float a = [((NSNumber*)data[KEY_ABIAS0]) floatValue];
         if(a * a > 5. * 5. * defaults.a_bias_var[0]) result = NO;

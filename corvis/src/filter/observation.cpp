@@ -62,7 +62,7 @@ void observation_queue::compute_prediction_covariance(const state &s, int meas_s
     int index = 0;
     for(auto &o : observations) {
         if(o->size) {
-            matrix dst(&LC(index, 0), o->size, statesize, meas_size-index, LC.get_stride());
+            matrix dst(LC, index, 0, o->size, statesize);
             o->cache_jacobians();
             o->project_covariance(dst, s.cov.cov);
             index += o->size;
@@ -73,7 +73,7 @@ void observation_queue::compute_prediction_covariance(const state &s, int meas_s
     index = 0;
     for(auto &o : observations) {
         if(o->size) {
-            matrix dst(&res_cov(index, 0), o->size, meas_size, meas_size-index, res_cov.get_stride());
+            matrix dst(res_cov, index, 0, o->size, meas_size);
             o->project_covariance(dst, LC);
             index += o->size;
         }
@@ -120,7 +120,7 @@ bool observation_queue::update_state_and_covariance(state &s, const matrix &inn)
         s.copy_state_from_array(state);
         kalman_update_covariance(s.cov.cov, K, LC);
         //Robust update is not needed and is much slower
-        //kalman_update_covariance_robust(f->s.cov.cov, K, LC, res_cov);
+        //kalman_update_covariance_robust(s.cov.cov, K, LC, res_cov);
         return true;
     } else {
         return false;
@@ -476,10 +476,10 @@ void observation_accelerometer::predict()
     {
         acc += state.a.v;
     }
-    //TODO: add w and dw terms
     v4 pred_a = Rc * Rt * acc + state.a_bias.v;
     if(!state.orientation_only)
     {
+        //TODO: shouldn't these have an Rc (possible Rt) term?
         pred_a += cross(state.w.v, cross(state.w.v, state.Tc.v)) + cross(state.dw.v, state.Tc.v);
     }
     for(int i = 0; i < 3; ++i) {

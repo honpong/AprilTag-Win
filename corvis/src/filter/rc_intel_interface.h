@@ -12,6 +12,7 @@
 extern "C" {
 #endif
 
+#include "SP_Calibration.h"
 #include <stddef.h>
 #include <stdint.h>
 #ifndef _WIN32
@@ -30,12 +31,12 @@ extern "C" {
 #  define RCTRACKER_API __attribute__ ((visibility("default")))
 #endif
 
-typedef enum {
+typedef enum rc_Camera {
     rc_EGRAY8,
     rc_EDEPTH16,
 } rc_Camera;
 
-typedef enum
+typedef enum rc_TrackerState
 {
     /** rc_Tracker is inactive. */
     rc_E_INACTIVE = 0,
@@ -55,7 +56,7 @@ typedef enum
     rc_E_INERTIAL_ONLY
 } rc_TrackerState;
 
-typedef enum
+typedef enum rc_TrackerError
 {
     /** No error has occurred. */
     rc_E_ERROR_NONE = 0,
@@ -67,7 +68,7 @@ typedef enum
     rc_E_ERROR_OTHER = 3,
 } rc_TrackerError;
 
-typedef enum
+typedef enum rc_TrackerConfidence
 {
     /** rc_Tracker is not currently running (possibly due to failure). */
     RC_E_CONFIDENCE_NONE = 0,
@@ -79,8 +80,7 @@ typedef enum
     rc_E_CONFIDENCE_HIGH = 3
 } rc_TrackerConfidence;
 
-
-typedef struct {
+typedef struct rc_Vector {
     float x,y,z;
 } rc_Vector;
 
@@ -101,7 +101,7 @@ static const rc_Pose rc_POSE_IDENTITY = { 1.f, 0.f, 0.f, 0.f,
  */
 typedef int64_t rc_Timestamp;
 
-typedef struct
+typedef struct rc_Feature
 {
     uint64_t id;
     rc_Vector world;
@@ -145,7 +145,7 @@ RCTRACKER_API void rc_configureLocation(rc_Tracker *tracker, double latitude_deg
 RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callback, void *handle);
 RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback callback, void *handle);
 
-typedef enum
+typedef enum rc_TrackerRunFlags
 {
     /** rc_Tracker should process data on the callers thread. */
     rc_E_SYNCRONOUS = 0,
@@ -219,8 +219,20 @@ RCTRACKER_API const char *rc_getTimingStats(rc_Tracker *tracker);
  */
 RCTRACKER_API void rc_setOutputLog(rc_Tracker *tracker, const rc_char_t *filename);
 
+/**
+    Yields a JSON string that represents a rcCalibration struct.
+*/
 RCTRACKER_API size_t rc_getCalibration(rc_Tracker *tracker, const rc_char_t **buffer);
-RCTRACKER_API bool rc_setCalibration(rc_Tracker *tracker, const rc_char_t *buffer);
+/**
+    Takes a JSON string that represents a rcCalibration struct.
+*/
+RCTRACKER_API bool rc_setCalibration(rc_Tracker *tracker, const rc_char_t *buffer, const rcCalibration *defaults);
+
+RCTRACKER_API void rc_getCalibrationStruct(rc_Tracker *tracker, rcCalibration *cal);
+RCTRACKER_API bool rc_setCalibrationStruct(rc_Tracker *tracker, const rcCalibration *cal);
+
+RCTRACKER_API bool rc_setCalibrationFromFile(rc_Tracker *tracker, const rc_char_t *filePath, const rcCalibration *defaults);
+
 
 /*
  Not yet implemented (depend on loop closure):

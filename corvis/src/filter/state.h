@@ -34,7 +34,6 @@ public:
     state_node(): dynamic(false) {}
     virtual ~state_node() {};
     bool dynamic;
-    static int statesize, maxstatesize;
     virtual void copy_state_to_array(matrix &state) = 0;
     virtual void copy_state_from_array(matrix &state) = 0;
     virtual int remap_dynamic(int i, covariance &cov) = 0;
@@ -105,7 +104,8 @@ public:
 class state_root: public state_branch<state_node *> {
 public:
     state_root(covariance &c): cov(c), current_time(sensor_clock::micros_to_tp(0)) {}
-    
+
+    int statesize, maxstatesize;
     covariance &cov;
 
     int remap() {
@@ -136,10 +136,36 @@ public:
         current_time = sensor_clock::micros_to_tp(0);
     }
     
-    virtual void evolve(f_t dt)
+    void evolve(f_t dt)
     {
         evolve_covariance(dt);
         evolve_state(dt);
+    }
+
+    void evolve_covariance(f_t dt)
+    {
+        cache_jacobians(dt);
+
+        matrix tmp(dynamic_statesize, cov.size());
+
+        project_motion_covariance(tmp, cov.cov, dt);
+
+        //fill in the UR and LL matrices
+        for(int i = 0; i < dynamic_statesize; ++i)
+            for(int j = dynamic_statesize; j < cov.size(); ++j)
+                cov(i, j) = cov(j, i) = tmp(i, j);
+
+        //compute the UL matrix
+        project_motion_covariance(cov.cov, tmp, dt);
+
+        //enforce symmetry
+        for(int i = 0; i < dynamic_statesize; ++i)
+            for(int j = i + 1; j < dynamic_statesize; ++j)
+                cov(i, j) = cov(j, i);
+
+        //cov += diag(R)*dt
+        for(int i = 0; i < cov.size(); ++i)
+            cov(i, i) += cov.process_noise[i] * dt;
     }
 
     void time_update(sensor_clock::time_point time)
@@ -163,8 +189,9 @@ public:
     }
 
 protected:
-    virtual void evolve_covariance(f_t dt) = 0;
+    virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt) = 0;
     virtual void evolve_state(f_t dt) = 0;
+    virtual void cache_jacobians(f_t dt) = 0;
 
     sensor_clock::time_point current_time;
 };
@@ -219,24 +246,7 @@ template <class T, int _size> class state_leaf: public state_node {
             }
         }
     }
-    
-    static void resize_covariance(int i, int old_i, matrix &covariance_m, matrix &process_noise_m) {
-        //fix everything that came before us
-        for(int j = 0; j < i; ++j) {
-            covariance_m(i, j) = covariance_m(old_i, j);
-            covariance_m(j, i) = covariance_m(j, old_i);
-        }
-        //skip the gap
-        //fix the diagonal
-        covariance_m(i, i) = covariance_m(old_i, old_i);
-        process_noise_m[i] = process_noise_m[old_i];
-        //fix everything that will come after us
-        for(int j = old_i + 1; j < covariance_m.rows(); ++j) {
-            covariance_m(i, j) = covariance_m(old_i, j);
-            covariance_m(j, i) = covariance_m(j, old_i);
-        }
-    }
-    
+
     void remove() { index = -1; }
 protected:
     int index;

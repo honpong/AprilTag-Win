@@ -15,11 +15,6 @@ import com.intel.camera.toolkit.depth.StreamType;
 import com.intel.camera.toolkit.depth.StreamTypeSet;
 import com.intel.camera.toolkit.depth.sensemanager.IMUCaptureManager;
 import com.intel.camera.toolkit.depth.sensemanager.SenseManager;
-import com.intel.camera.toolkit.depth.sensemanager.SensorSample;
-
-import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.concurrent.CountDownLatch;
 
 /**
  * Created by benhirashima on 7/2/15.
@@ -37,7 +32,7 @@ public class RealSenseManager
     private Camera.Desc playbackCamDesc = new Camera.Desc(Camera.Type.PLAYBACK, Camera.Facing.ANY, userStreamTypes);
 
     protected Camera.Calibration.Intrinsics mColorParams; //intrinsics param of color camera
-    private CountDownLatch startupLatch;
+    ICameraIntrinsicsCallback callback;
 
     RealSenseManager(Context context, IRealSenseSensorReceiver receiver)
     {
@@ -46,15 +41,16 @@ public class RealSenseManager
         this.receiver = receiver;
     }
 
-    public boolean startCameras()
+    public boolean startCameras(final ICameraIntrinsicsCallback callback)
     {
         Log.d(TAG, "startCameras");
+
+        this.callback = callback;
 
         if (false == mIsCamRunning)
         {
             try
             {
-                startupLatch = new CountDownLatch(1);
                 if (enablePlayback)
                 {
                     mSenseManager.enableStreams(mSenseEventHandler, playbackCamDesc);
@@ -63,7 +59,6 @@ public class RealSenseManager
                 {
                     mSenseManager.enableStreams(mSenseEventHandler, getUserProfiles(), null);
                 }
-                startupLatch.await();
                 mIsCamRunning = true;
             }
             catch (Exception e)
@@ -131,22 +126,23 @@ public class RealSenseManager
         }
     }
 
-    protected ArrayList<SensorSample> getSamplesSince(int sensorType, long timestamp)
-    {
-        if (mIMUManager == null) return null;
-
-        SensorSample[] allSamples = mIMUManager.querySensorSamples(sensorType); // The sensor samples are saved in reverse chronological order (so index 0, contains the most recent sample).
-        ArrayList<SensorSample> newSamples = new ArrayList<>();
-        if(allSamples != null)
-        {
-            for (SensorSample sample : allSamples)
-            {
-                if (sample.timestamp() > timestamp) newSamples.add(sample);
-                else break;
-            }
-        }
-        return newSamples;
-    }
+    // this was for RS IMU, which is not being used currently
+//    protected ArrayList<SensorSample> getSamplesSince(int sensorType, long timestamp)
+//    {
+//        if (mIMUManager == null) return null;
+//
+//        SensorSample[] allSamples = mIMUManager.querySensorSamples(sensorType); // The sensor samples are saved in reverse chronological order (so index 0, contains the most recent sample).
+//        ArrayList<SensorSample> newSamples = new ArrayList<>();
+//        if(allSamples != null)
+//        {
+//            for (SensorSample sample : allSamples)
+//            {
+//                if (sample.timestamp() > timestamp) newSamples.add(sample);
+//                else break;
+//            }
+//        }
+//        return newSamples;
+//    }
 
     public Camera.Calibration.Intrinsics getCameraIntrinsics()
     {
@@ -162,13 +158,16 @@ public class RealSenseManager
         public void onSetProfile(Camera.CaptureInfo info)
         {
             Camera.Calibration cal = info.getCalibrationData();
-            if (cal != null) mColorParams = cal.colorIntrinsics;
+            if (cal != null)
+            {
+                mColorParams = cal.colorIntrinsics;
+                if (callback != null && mColorParams != null) callback.cameraIntrinsicsObtained(mColorParams);
+            }
         }
 
         @Override
         public void onNewSample(ImageSet images)
         {
-            startupLatch.countDown(); // indicates camera has fully started. allows startCameras() to return.
             if (receiver == null) return; // no point in any of this if no one is receiving it
 
             Image color = images.acquireImage(StreamType.COLOR);
@@ -181,18 +180,12 @@ public class RealSenseManager
                 return;
             }
 
-            int colorStride = color.getInfo().DataSize / color.getHeight();
-            int depthStride = depth.getInfo().DataSize / depth.getHeight();
-
 //            Log.v(TAG, "RealSense camera sample received.");
-
-            ByteBuffer colorData = color.acquireAccess();
-            ByteBuffer depthData = depth.acquireAccess();
 
 //            receiver.onSyncedFrames(color, depth); // FIXME
 
-            color.releaseAccess();
-            depth.releaseAccess();
+            color.release();
+            depth.release();
 
             // send IMU samples
             /*ArrayList<SensorSample> ameterSamples = getSamplesSince(Sensor.TYPE_ACCELEROMETER, lastAmeterTimestamp);

@@ -10,19 +10,18 @@
 
 struct tpose_raw {
     uint64_t t_100ns; m4 R; v4 T_mm;
-    friend inline std::istream &operator>>(std::istream &l, tpose_raw &tp);
+    tpose_raw() : R(m4::Identity()), T_mm(v4::Zero()), t_100ns(0) {}
+    tpose_raw(const char *line) : tpose_raw() {
+        size_t end = 0;
+        t_100ns = std::stoll(line+=end, &end);
+        for (int i=0; i<3; i++) {
+            for (int j=0; j<3; j++)
+                R(i,j) = std::stod(line+=end, &end);
+            T_mm(i) = std::stod(line+=end, &end);
+        }
+    }
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
-
-inline std::istream &operator>>(std::istream &l, tpose_raw &tp) {
-    l >> tp.t_100ns;
-    for (int i=0; i<3; i++) {
-        for (int j=0; j<3; j++)
-            l >> tp.R(i,j);
-        l >> tp.T_mm(i);
-    }
-    return l;
-}
 
 struct tpose {
     tpose(const tpose_raw &r) : t(sensor_clock::ns100_to_tp(r.t_100ns)), G(to_quaternion(r.R), r.T_mm / 1000) {}
@@ -36,7 +35,7 @@ struct tpose {
 };
 
 struct tpose_sequence {
-    std::vector<tpose> tposes;
+    std::vector<tpose, Eigen::aligned_allocator<tpose>> tposes;
     f_t get_length() {
         return tposes.empty() ? 0 : (tposes.front().G.T - tposes.back().G.T).norm();
     }
@@ -70,23 +69,21 @@ struct tpose_sequence {
 inline std::istream &operator>>(std::istream &file, tpose_sequence &s) {
     std::string line;
     for (int num = 1; std::getline(file, line); num++) {
-        std::stringstream l(line);
-        tpose_raw tp_raw;
-        l >> tp_raw;
-        if (!l) {
-            if (std::string(line).find("NA") != std::string::npos)
-                continue;
+        if (line.find("NA") != std::string::npos)
+            continue;
+        try {
+            s.tposes.emplace_back(tpose_raw(line.c_str()));
+        } catch (const std::exception&) { // invalid_argument or out_of_range
             std::cerr << "error on line "<< num <<": " << line << "\n";
             file.setstate(std::ios_base::failbit);
             return file;
         }
-        s.tposes.emplace(s.tposes.end(), tp_raw);
     }
     if (file.eof() && !file.bad()) // getline() can set fail on eof() :(
         file.clear(file.rdstate() & ~std::ios::failbit);
     if(s.tposes.size()) {
         transformation origin_inv = invert(s.tposes[0].G);
-        for(int i = 0; i < s.tposes.size(); i++) {
+        for(size_t i = 0; i < s.tposes.size(); i++) {
             s.tposes[i].G = compose(origin_inv, s.tposes[i].G);
         }
     }

@@ -100,9 +100,9 @@ public class VisActivity extends TrackerActivity
         if (appState == AppState.Idle)
         {
             if (desiredAppState == AppState.LiveVis)
-                enterLiveState();
+                if (!enterLiveState()) setButtonText("Start");
             else if (desiredAppState == AppState.ReplayVis)
-                enterReplayState(replayFileUri);
+                if (!enterReplayState(replayFileUri)) setButtonText("Start");
         }
         else enterIdleState();
     }
@@ -134,7 +134,7 @@ public class VisActivity extends TrackerActivity
 
         if (!configureCamera())
         {
-            return abortTracking("Failed to get camera intrinsics.");
+            return abortTracking("Failed to configure camera.");
         }
 
         if (!startSensors())

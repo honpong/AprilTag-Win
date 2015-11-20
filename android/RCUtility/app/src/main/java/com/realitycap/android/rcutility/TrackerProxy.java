@@ -1,16 +1,20 @@
 package com.realitycap.android.rcutility;
 
+import android.graphics.Point;
+import android.graphics.PointF;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.media.Image;
+import android.os.SystemClock;
 import android.util.Log;
-import android.view.Surface;
 
-import com.intel.camera.toolkit.depth.sensemanager.SensorSample;
+import com.intel.camera2.extensions.depthcamera.DepthCameraCalibrationDataMap;
+import com.intel.camera2.extensions.depthcamera.DepthImage;
+import com.intel.camera2.extensions.depthcamera.Point3DF;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
+import java.nio.ByteOrder;
 
 public class TrackerProxy implements SensorEventListener, IRealSenseSensorReceiver, ITrackerReceiver
 {
@@ -30,15 +34,15 @@ public class TrackerProxy implements SensorEventListener, IRealSenseSensorReceiv
     public native boolean startCalibration();
     public native boolean startReplay(String absFilePath);
     public native boolean stopReplay();
-    public native boolean setOutputLog();
-    public native void configureCamera(int camera, int width_px, int height_px, float center_x_px, float center_y_px, float focal_length_x_px, float focal_length_y_px, float skew, boolean fisheye, float fisheye_fov_radians);
+    public native void configureCamera(int width_px, int height_px, float center_x_px, float center_y_px, float focal_length_x_px, float focal_length_y_px, int depth_width, int depth_height, float depth_px, float depth_py, float depth_fx, float depth_fy, float offsetX, float offsetY, float offsetZ, float skew, boolean fisheye, float fisheye_fov_radians);
     public native void setOutputLog(String filename);
     public native String getCalibration();
     public native boolean setCalibration(String cal);
 
     protected native void receiveAccelerometer(float x, float y, float z, long timestamp);
     protected native void receiveGyro(float x, float y, float z, long timestamp);
-    protected native boolean receiveImageWithDepth(long time_us, long shutter_time_us, boolean force_recognition, int width, int height, int stride, ByteBuffer colorData, Image colorImage, int depthWidth, int depthHeight, int depthStride, ByteBuffer depthData, Image depthImage);
+    protected native boolean receiveImageWithDepth(long time_us, long shutter_time_us, boolean force_recognition, int width, int height, int stride, ByteBuffer colorData, Image colorImage, int depthWidth, int depthHeight, int depthStride, ByteBuffer depthData);
+    protected native int alignDepth(ByteBuffer depthIn, ByteBuffer depthOut);
 
     protected ITrackerReceiver receiver;
 
@@ -90,8 +94,15 @@ public class TrackerProxy implements SensorEventListener, IRealSenseSensorReceiv
         Image.Plane[] depthPlanes = depthImage.getPlanes();
         assert (depthPlanes != null && depthPlanes.length > 0);
 
+        assert (colorImage.getTimestamp() == depthImage.getTimestamp());
+        long timeOffset = SystemClock.elapsedRealtimeNanos() - SystemClock.uptimeMillis() * 1000000; //in nanoseconds
+        long frameTime =  depthImage.getTimestamp() + timeOffset;
+
+        ByteBuffer alignedDepthBuffer = ByteBuffer.allocateDirect(depthImage.getWidth() * depthImage.getHeight() * 2).order(ByteOrder.nativeOrder());
+        alignDepth(depthPlanes[0].getBuffer(), alignedDepthBuffer);
+
         boolean result = receiveImageWithDepth(
-                colorImage.getTimestamp(),
+                frameTime,
                 33333000,
                 false,
                 colorImage.getWidth(),
@@ -102,35 +113,36 @@ public class TrackerProxy implements SensorEventListener, IRealSenseSensorReceiv
                 depthImage.getWidth(),
                 depthImage.getHeight(),
                 depthPlanes[0].getRowStride(),
-                depthPlanes[0].getBuffer(),
-                depthImage
+                alignedDepthBuffer
         );
+
+        depthImage.close();
 
         //Log.d(TAG, String.format("camera %d", time_ns));
         if (!result) Log.w(TAG, "receiveImageWithDepth() returned FALSE");
     }
 
-    @Override
-    public void onAccelerometerSamples(ArrayList<SensorSample> samples)
-    {
-        if (samples == null) return;
-
-        for (SensorSample sample : samples)
-        {
-            if (sample != null) receiveAccelerometer(sample.values()[0], sample.values()[1], sample.values()[2], sample.timestamp());
-        }
-    }
-
-    @Override
-    public void onGyroSamples(ArrayList<SensorSample> samples)
-    {
-        if (samples == null) return;
-
-        for (SensorSample sample : samples)
-        {
-            if (sample != null) receiveGyro(sample.values()[0], sample.values()[1], sample.values()[2], sample.timestamp());
-        }
-    }
+//    @Override
+//    public void onAccelerometerSamples(ArrayList<SensorSample> samples)
+//    {
+//        if (samples == null) return;
+//
+//        for (SensorSample sample : samples)
+//        {
+//            if (sample != null) receiveAccelerometer(sample.values()[0], sample.values()[1], sample.values()[2], sample.timestamp());
+//        }
+//    }
+//
+//    @Override
+//    public void onGyroSamples(ArrayList<SensorSample> samples)
+//    {
+//        if (samples == null) return;
+//
+//        for (SensorSample sample : samples)
+//        {
+//            if (sample != null) receiveGyro(sample.values()[0], sample.values()[1], sample.values()[2], sample.timestamp());
+//        }
+//    }
     //endregion
 
     //region ITrackerReceiver interface. callbacks from tracker library come in here.

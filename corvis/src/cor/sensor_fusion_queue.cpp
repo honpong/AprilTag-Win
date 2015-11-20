@@ -252,7 +252,7 @@ void fusion_queue::wait_until_finished()
     if(thread.joinable()) thread.join();
 }
 
-bool fusion_queue::run_control(const std::unique_lock<std::mutex>& lock)
+bool fusion_queue::run_control()
 {
     if(!control_func) return false;
     control_func();
@@ -270,11 +270,11 @@ void fusion_queue::runloop()
     lock.lock();
     while(active)
     {
-        while(active && !run_control(lock) && !dispatch_next(lock, false))
+        while(active && !run_control() && !dispatch_next(lock, false))
         {
             cond.wait(lock);
         }
-        while(run_control(lock) || dispatch_next(lock, false)); //we need to be greedy, since we only get woken on new data arriving
+        while(run_control() || dispatch_next(lock, false)); //we need to be greedy, since we only get woken on new data arriving
     }
     //flush any remaining data
     while (dispatch_next(lock, true));

@@ -58,7 +58,8 @@ bool TrackerManager::ReadCalibration(std::wstring filename)
         Debug::Log(L"Couldn't load calibration %s", filename.c_str());
         return false;
     }
-    bool result = rc_setCalibration(_tracker, calibrationJSON.c_str());
+    rcCalibration defaultCal;
+    bool result = rc_setCalibration(_tracker, calibrationJSON.c_str(), &defaultCal);
     if (!result) return false;
 
     return true;

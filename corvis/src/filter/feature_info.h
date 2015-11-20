@@ -1,7 +1,7 @@
-#ifndef CORVIS_FEATURE_INFO
-#define CORVIS_FEATURE_INFO
+#ifndef __FEATURE_INFO_H
+#define __FEATURE_INFO_H
 
-struct corvis_feature_info {
+struct feature_info {
     uint64_t id;
     float x, y;
     float wx, wy, wz;

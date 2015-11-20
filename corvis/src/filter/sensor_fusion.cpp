@@ -188,10 +188,17 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
     queue = std::make_unique<fusion_queue>(cam_fn, acc_fn, gyr_fn, strategy, std::chrono::microseconds(10000)); //Have to make jitter high - ipad air 2 accelerometer has high latency, we lose about 10% of samples with jitter at 8000
 }
 
-void sensor_fusion::set_device(const corvis_device_parameters &dc)
+device_parameters sensor_fusion::get_device() const
+{
+    device_parameters cal;
+    filter_get_device_parameters(&sfm, &cal);
+    return cal;
+}
+
+void sensor_fusion::set_device(const rcCalibration &dc)
 {
     device = dc;
-    filter_initialize(&sfm, dc);
+    filter_initialize(&sfm, &device);
 }
 
 void sensor_fusion::set_location(double latitude_degrees, double longitude_degrees, double altitude_meters)
@@ -206,7 +213,7 @@ void sensor_fusion::start_calibration(bool thread)
     threaded = thread;
     isSensorFusionRunning = true;
     isProcessingVideo = false;
-    filter_initialize(&sfm, device);
+    filter_initialize(&sfm, &device);
     filter_start_static_calibration(&sfm);
     if(threaded) queue->start_async(false);
     else queue->start_singlethreaded(false);
@@ -216,8 +223,8 @@ void sensor_fusion::start(bool thread)
 {
     threaded = thread;
     isSensorFusionRunning = true;
-    isProcessingVideo = false;
-    filter_initialize(&sfm, device);
+    isProcessingVideo = true;
+    filter_initialize(&sfm, &device);
     filter_start_hold_steady(&sfm);
     if(threaded) queue->start_async(true);
     else queue->start_singlethreaded(true);
@@ -227,8 +234,8 @@ void sensor_fusion::start_unstable(bool thread)
 {
     threaded = thread;
     isSensorFusionRunning = true;
-    isProcessingVideo = false;
-    filter_initialize(&sfm, device);
+    isProcessingVideo = true;
+    filter_initialize(&sfm, &device);
     filter_start_dynamic(&sfm);
     if(threaded) queue->start_async(true);
     else queue->start_singlethreaded(true);
@@ -253,7 +260,7 @@ void sensor_fusion::start_offline()
     sfm.ignore_lateness = true;
     // TODO: Note that we call filter initialize, and this can change
     // device_parameters (specifically a_bias_var and w_bias_var)
-    filter_initialize(&sfm, device);
+    filter_initialize(&sfm, &device);
     filter_start_dynamic(&sfm);
     isSensorFusionRunning = true;
     isProcessingVideo = true;
@@ -272,7 +279,7 @@ void sensor_fusion::flush_and_reset()
 {
     stop();
     queue->reset();
-    filter_initialize(&sfm, device);
+    filter_initialize(&sfm, &device);
     sfm.camera_control.focus_unlock();
     sfm.camera_control.release_platform_specific_object();
 }

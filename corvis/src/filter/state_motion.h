@@ -49,7 +49,6 @@ public:
 protected:
     virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);
     virtual void evolve_state(f_t dt);
-    void evolve_covariance(f_t dt);
     virtual void cache_jacobians(f_t dt);
     m4 Rt, Rt_dR_dW;
     v4 dW;
@@ -83,7 +82,6 @@ public:
     
     virtual void enable_orientation_only();
     virtual void disable_orientation_only();
-    virtual void evolve(f_t dt);
     virtual void enable_bias_estimation();
     virtual void disable_bias_estimation();
 protected:
@@ -95,9 +93,6 @@ protected:
     virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);
     virtual void cache_jacobians(f_t dt);
     v4 dT;
-private:
-    void evolve_orientation_only(f_t dt);
-    void evolve_covariance_orientation_only(f_t dt);
 };
 
 #endif /* defined(__RC3DK__state_motion__) */

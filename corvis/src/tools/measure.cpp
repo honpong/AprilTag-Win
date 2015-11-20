@@ -3,17 +3,18 @@
 #include "../vis/world_state.h"
 #include "../vis/offscreen_render.h"
 #include "../vis/gui.h"
+#include "benchmark.h"
+#include <iomanip>
 
 int main(int c, char **v)
 {
     if (0) { usage:
-        cerr << "Usage: " << v[0] << " [--pause] [--realtime] [--no-gui] [--no-plots] [--no-video] [--no-main] [--qvga] [--no-depth] [--render <file.png>] [--save <calibration-json>] [--save-map <map-json>] [--load-map <map-json>] <filename>\n";
+        cerr << "Usage: " << v[0] << " [--qvga] [--no-depth] [--intel] [--realtime] [--pause] [--no-gui] [--no-plots] [--no-video] [--no-main] [--render <file.png>] [--save <calibration-json>] [--save-map <map-json>] [--load-map <map-json>] <filename>\n";
+        cerr << "       " << v[0] << " [--qvga] [--no-depth] [--intel] --benchmark <directory>\n";
         return 1;
     }
 
-    world_state ws;
-
-    bool realtime = false, start_paused = false;
+    bool realtime = false, start_paused = false, benchmark = false, intel = false;
     std::string save;
     std::string save_map, load_map;
     bool qvga = false, depth = true;
@@ -23,6 +24,7 @@ int main(int c, char **v)
         if      (v[i][0] != '-' && !filename) filename = v[i];
         else if (strcmp(v[i], "--no-gui") == 0) enable_gui = false;
         else if (strcmp(v[i], "--realtime") == 0) realtime = true;
+        else if (strcmp(v[i], "--intel") == 0) intel = true;
         else if (strcmp(v[i], "--no-realtime") == 0) realtime = false;
         else if (strcmp(v[i], "--no-plots") == 0) show_plots = false;
         else if (strcmp(v[i], "--no-depth") == 0) show_depth = false;
@@ -35,52 +37,96 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--save") == 0 && i+1 < c) save = v[++i];
         else if (strcmp(v[i], "--save-map") == 0 && i+1 < c) save_map = v[++i];
         else if (strcmp(v[i], "--load-map") == 0 && i+1 < c) load_map = v[++i];
+        else if (strcmp(v[i], "--benchmark") == 0) benchmark = true;
         else goto usage;
 
     if (!filename)
         goto usage;
 
-    std::function<void (float)> progress;
-    std::function<void (const filter *, camera_data &&)> camera_callback;
+    auto configure = [&](replay &rp, const char *capture_file) -> bool {
+        if(qvga) rp.enable_qvga();
+        if(!depth) rp.disable_depth();
+        if(realtime) rp.enable_realtime();
+        if(intel) rp.enable_intel();
 
-    replay rp(start_paused);
-    gui vis(&ws, show_main, show_video, show_depth, show_plots);
+        if(!rp.open(capture_file))
+            return false;
 
-    camera_callback = [&](const filter * f, camera_data &&d) {
-        ws.receive_camera(f, std::move(d));
+        if(!rp.set_calibration_from_filename(capture_file)) {
+          cerr << "calibration not found: " << capture_file << ".json nor calibration.json\n";
+          return false;
+        }
+
+        if(!rp.set_reference_from_filename(capture_file) && !enable_gui) {
+            cerr << capture_file << ": unable to find a reference to measure against\n";
+            return false;
+        }
+
+        if(!load_map.empty() && !rp.load_map(load_map)) {
+            cerr << filename << ": Loading map " << load_map << " failed!\n";
+            return 2;
+        }
+
+        return true;
     };
 
-    if(!rp.configure_all(filename, realtime, progress, camera_callback)) {
-        cerr << filename << ": configure_all failed! (Check your calibration.json?)\n";
+    auto print_results = [](replay &rp, const char *capture_file) {
+        std::cout << std::fixed << std::setprecision(2);
+        std::cout << "Reference Straight-line length is " << 100*rp.get_reference_length() << " cm, total path length " << 100*rp.get_reference_path_length() << " cm\n";
+        std::cout << "Computed  Straight-line length is " << 100*rp.get_length()           << " cm, total path length " << 100*rp.get_path_length()           << " cm\n";
+        std::cout << "Dispatched " << rp.get_packets_dispatched() << " packets " << rp.get_bytes_dispatched()/1.e6 << " Mbytes\n";
+    };
+
+    if (benchmark) {
+        enable_gui = false; if (realtime || start_paused) goto usage;
+
+        benchmark_run(std::cout, filename, [&](const char *capture_file, struct benchmark_result &res) -> bool {
+            auto rp_ = std::make_unique<replay>(start_paused); replay &rp = *rp_; // avoid blowing the stack when threaded or on Windows
+
+            if (!configure(rp, capture_file)) return false;
+
+            std::cout << "Running  " << capture_file << std::endl;
+            rp.start();
+            std::cout << "Finished " << capture_file << std::endl;
+
+            res.length_cm.reference = 100*rp.get_reference_length();  res.path_length_cm.reference = 100*rp.get_reference_path_length();
+            res.length_cm.measured  = 100*rp.get_length();            res.path_length_cm.measured  = 100*rp.get_path_length();
+
+            print_results(rp, capture_file);
+
+            return true;
+        });
+        return 0;
+    }
+
+    auto rp_ = std::make_unique<replay>(start_paused); replay &rp = *rp_; // avoid blowing the stack when threaded or on Windows
+
+    if (!configure(rp, filename))
         return 2;
-    }
 
-    if(!load_map.empty() && !rp.load_map(load_map)) {
-        cerr << filename << ": Loading map " << load_map << " failed!\n";
-        return 2;
-    }
-
-    if(qvga) rp.enable_qvga();
-    
-    if(!depth) rp.disable_depth();
-
-    if (!rp.set_reference_from_filename(filename) && !enable_gui) {
-        cerr << filename << ": unable to find a reference to measure against\n";
-    }
+#if defined(ANDROID) || defined(WIN32)
+    rp.start();
+#else
+    world_state ws;
+    gui vis(&ws, show_main, show_video, show_depth, show_plots);
+    rp.set_camera_callback([&](const filter * f, camera_data &&d) {
+        ws.receive_camera(f, std::move(d));
+    });
 
     if(enable_gui) { // The GUI must be on the main thread
         std::thread replay_thread([&](void) { rp.start(); });
         vis.start(&rp);
         rp.stop();
         replay_thread.join();
-    }
-    else
+    } else
         rp.start();
 
     if(rendername && !offscreen_render_to_file(rendername, &ws)) {
         cerr << "Failed to render\n";
         return 1;
     }
+    std::cout << ws.get_feature_stats();
+#endif
 
     if (!save.empty()) {
         std::string json;
@@ -94,11 +140,6 @@ int main(int c, char **v)
         rp.save_map(save_map);
     }
 
-    std::cout << filename << std::endl;
-    std::cout << ws.get_feature_stats();
-    printf("Reference Straight-line length is %.2f cm, total path length %.2f cm\n", 100*rp.get_reference_length(), 100*rp.get_reference_path_length());
-    printf("Computed  Straight-line length is %.2f cm, total path length %.2f cm\n", 100*rp.get_length(), 100*rp.get_path_length());
-    printf("Dispatched %llu packets %.2f Mbytes\n", rp.get_packets_dispatched(), rp.get_bytes_dispatched()/1.e6);
-
+    print_results(rp, filename);
     return 0;
 }

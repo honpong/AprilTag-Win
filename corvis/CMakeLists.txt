@@ -36,6 +36,8 @@ add_subdirectory(src)
 
 add_executable(measure
   src/tools/measure.cpp
+  src/tools/benchmark.cpp
+  src/tools/for_each_file.cpp
 )
 set_property(TARGET measure PROPERTY CXX_STANDARD 14)
 
@@ -43,8 +45,10 @@ target_link_libraries(measure
   filter
   numerics
   cor
-  vis
 )
+if(ENABLE_VISGL)
+    target_link_libraries(measure vis)
+endif()
 if(ENABLE_MGL)
     target_link_libraries(measure mgl)
 endif()

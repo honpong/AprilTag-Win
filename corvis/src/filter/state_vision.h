@@ -64,7 +64,6 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     v4 current;
     feature_t prediction;
     f_t innovation_variance_x, innovation_variance_y, innovation_variance_xy;
-    static uint64_t counter;
     uint64_t id;
     uint64_t groupid;
     v4 world;
@@ -90,7 +89,7 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     static f_t max_variance;
 
     state_vision_feature(): state_leaf("feature") {};
-    state_vision_feature(f_t initialx, f_t initialy);
+    state_vision_feature(uint64_t feature_id, f_t initialx, f_t initialy);
     bool should_drop() const;
     bool is_valid() const;
     bool is_good() const;
@@ -159,11 +158,10 @@ class state_vision_group: public state_branch<state_node *> {
     list<uint64_t> old_neighbors;
     int health;
     enum group_flag status;
-    static uint64_t counter;
     uint64_t id;
 
     state_vision_group(const state_vision_group &other);
-    state_vision_group();
+    state_vision_group(uint64_t group_id);
     void make_empty();
     int process_features(const camera_data & camera, mapper & map, bool map_enabled);
     int make_reference();
@@ -190,6 +188,8 @@ public:
     state_scalar k1, k2, k3;
     int image_width, image_height;
     bool fisheye = false;
+    uint64_t feature_counter;
+    uint64_t group_counter;
 
     state_branch<state_vision_group *> groups;
     list<state_vision_feature *> features;

@@ -8,8 +8,9 @@
 #define RCTRACKER_API_EXPORTS
 #include "rc_intel_interface.h"
 #include "sensor_fusion.h"
-#include "calibration_json_store.h"
+#include "rs_calibration_json.h"
 #include <codecvt>
+#include <fstream>
 
 static void transformation_to_rc_Pose(const transformation &g, rc_Pose p)
 {
@@ -96,13 +97,14 @@ struct rc_Tracker: public sensor_fusion
 {
     rc_Tracker(bool immediate_dispatch): sensor_fusion(immediate_dispatch ? fusion_queue::latency_strategy::ELIMINATE_LATENCY : fusion_queue::latency_strategy::IMAGE_TRIGGER) {}
     std::basic_string<rc_char_t> jsonString;
-    std::vector<rc_Feature> features;
+    std::vector<rc_Feature> gottenFeatures;
+    std::vector<rc_Feature> dataFeatures;
     std::string timingStats;
 };
 
-std::vector<rc_Feature> copy_features_from_sensor_fusion(const std::vector<sensor_fusion::feature_point> &in_feats)
+static void copy_features_from_sensor_fusion(std::vector<rc_Feature> &features, const std::vector<sensor_fusion::feature_point> &in_feats)
 {
-    std::vector<rc_Feature> features;
+    features.clear();
     features.reserve(in_feats.size());
     for (auto fp : in_feats)
     {
@@ -115,7 +117,6 @@ std::vector<rc_Feature> copy_features_from_sensor_fusion(const std::vector<senso
         feat.id = fp.id;
         features.push_back(feat);
     }
-    return features;
 }
 
 extern "C" rc_Tracker * rc_create()
@@ -138,11 +139,11 @@ extern "C" void rc_reset(rc_Tracker * tracker, rc_Timestamp initialTime_us, cons
 
 void rc_printDeviceConfig(rc_Tracker * tracker)
 {
-    corvis_device_parameters device = tracker->device;
+    rcCalibration device = tracker->device;
     fprintf(stderr, "Fx, Fy; %f %f\n", device.Fx, device.Fy);
     fprintf(stderr, "Cx, Cy; %f %f\n", device.Cx, device.Cy);
     fprintf(stderr, "px, py; %f %f\n", device.px, device.py);
-    fprintf(stderr, "K[3]; %f %f %f\n", device.K[0], device.K[1], device.K[2]);
+    fprintf(stderr, "K[3]; %f %f %f\n", device.K0, device.K1, device.K2);
     fprintf(stderr, "a_bias[3]; %f %f %f\n", device.a_bias[0], device.a_bias[1], device.a_bias[2]);
     fprintf(stderr, "a_bias_var[3]; %f %f %f\n", device.a_bias_var[0], device.a_bias_var[1], device.a_bias_var[2]);
     fprintf(stderr, "w_bias[3]; %f %f %f\n", device.w_bias[0], device.w_bias[1], device.w_bias[2]);
@@ -154,7 +155,6 @@ void rc_printDeviceConfig(rc_Tracker * tracker)
     fprintf(stderr, "Wc[3]; %f %f %f\n", device.Wc[0], device.Wc[1], device.Wc[2]);
     fprintf(stderr, "Wc_var[3]; %f %f %f\n", device.Wc_var[0], device.Wc_var[1], device.Wc_var[2]);
     fprintf(stderr, "int image_width, image_height; %d %d\n", device.image_width, device.image_height);
-    //fprintf(stderr, "sensor_clock::duration shutter_delay, shutter_period;
 }
 
 void rc_configureCamera(rc_Tracker * tracker, rc_Camera camera, const rc_Pose pose_m, int width_px, int height_px, float center_x_px, float center_y_px, float focal_length_x_px, float focal_length_y_px, float skew, bool fisheye, float fisheye_fov_radians)
@@ -165,14 +165,14 @@ void rc_configureCamera(rc_Tracker * tracker, rc_Camera camera, const rc_Pose po
     tracker->device.Fy = focal_length_y_px;
     tracker->device.image_width = width_px;
     tracker->device.image_height = height_px;
-    tracker->device.K[0] = 0;
-    tracker->device.K[1] = 0;
-    tracker->device.K[2] = 0;
+    tracker->device.K0 = 0;
+    tracker->device.K1 = 0;
+    tracker->device.K2 = 0;
 
-    tracker->device.fisheye = fisheye;
+    tracker->device.distortionModel = fisheye;
     if(fisheye)
     {
-        tracker->device.K[0] = fisheye_fov_radians;
+        tracker->device.K0 = fisheye_fov_radians;
     }
     
     transformation g = rc_Pose_to_transformation(pose_m);
@@ -210,17 +210,13 @@ void rc_configureLocation(rc_Tracker * tracker, double latitude_deg, double long
 
 RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callback, void *handle)
 {
-    if(callback) tracker->camera_callback = [callback, handle](std::unique_ptr<sensor_fusion::data> d, camera_data &&cam) {
+    if(callback) tracker->camera_callback = [callback, handle, tracker](std::unique_ptr<sensor_fusion::data> d, camera_data &&cam) {
         uint64_t micros = std::chrono::duration_cast<std::chrono::microseconds>(d->time.time_since_epoch()).count();
 
         rc_Pose p;
         transformation_to_rc_Pose(d->transform, p);
-
-        std::vector<rc_Feature> features = copy_features_from_sensor_fusion(d->features);
-        rc_Feature *f = nullptr;
-        int count = features.size();
-        if(count) f = &features[0];
-        callback(handle, micros, p, f, count);
+        copy_features_from_sensor_fusion(tracker->dataFeatures, d->features);
+        callback(handle, micros, p, tracker->dataFeatures.data(), tracker->dataFeatures.size());
     };
     else tracker->camera_callback = nullptr;
 }
@@ -342,11 +338,9 @@ void rc_getPose(const rc_Tracker * tracker, rc_Pose pose_m)
 
 int rc_getFeatures(rc_Tracker * tracker, rc_Feature **features_px)
 {
-    tracker->features = copy_features_from_sensor_fusion(tracker->get_features());
-    *features_px = nullptr;
-    int count = tracker->features.size();
-    if(count) *features_px = &tracker->features[0];
-    return count;
+    copy_features_from_sensor_fusion(tracker->gottenFeatures, tracker->get_features());
+    *features_px = tracker->gottenFeatures.data();
+    return tracker->gottenFeatures.size();
 }
 
 rc_TrackerState rc_getState(const rc_Tracker *tracker)
@@ -400,22 +394,64 @@ void rc_setOutputLog(rc_Tracker * tracker, const rc_char_t *filename)
 #endif
 }
 
-static corvis_device_parameters rc_getCalibration(rc_Tracker *tracker)
-{
-    return filter_get_device_parameters(&tracker->sfm);
-}
-
 const char *rc_getTimingStats(rc_Tracker *tracker)
 {
     tracker->timingStats = tracker->get_timing_stats();
     return tracker->timingStats.c_str();
 }
 
+void rc_getCalibrationStruct(rc_Tracker *tracker, rcCalibration *calOut)
+{
+    filter_get_device_parameters(&tracker->sfm, calOut);
+
+    // filter doesn't keep these internally, so copy them here
+    snprintf(calOut->deviceName, sizeof(calOut->deviceName), "%s", tracker->device.deviceName);
+    calOut->shutterDelay = tracker->device.shutterDelay;
+    calOut->shutterPeriod = tracker->device.shutterPeriod;
+    calOut->timeStampOffset = tracker->device.timeStampOffset;
+    calOut->px = tracker->device.px;
+    calOut->py = tracker->device.py;
+    for (int i = 0; i < sizeof(calOut->accelerometerTransform) / sizeof(calOut->accelerometerTransform[0]); i++)
+    {
+        calOut->accelerometerTransform[i] = tracker->device.accelerometerTransform[i];
+    }
+    for (int i = 0; i < sizeof(calOut->gyroscopeTransform) / sizeof(calOut->gyroscopeTransform[0]); i++)
+    {
+        calOut->gyroscopeTransform[i] = tracker->device.gyroscopeTransform[i];
+    }
+}
+
+bool rc_setCalibrationStruct(rc_Tracker *tracker, const rcCalibration *cal)
+{
+    if (tracker == nullptr) return false;
+    tracker->set_device(*cal);
+
+    // filter doesn't keep these internally, so copy them here
+    snprintf(tracker->device.deviceName, sizeof(tracker->device.deviceName), "%s", cal->deviceName);
+    tracker->device.shutterDelay = cal->shutterDelay;
+    tracker->device.shutterPeriod = cal->shutterPeriod;
+    tracker->device.timeStampOffset = cal->timeStampOffset;
+    tracker->device.px = cal->px;
+    tracker->device.py = cal->py;
+    for (int i = 0; i < sizeof(cal->accelerometerTransform) / sizeof(cal->accelerometerTransform[0]); i++)
+    {
+        tracker->device.accelerometerTransform[i] = cal->accelerometerTransform[i];
+    }
+    for (int i = 0; i < sizeof(cal->gyroscopeTransform) / sizeof(cal->gyroscopeTransform[0]); i++)
+    {
+        tracker->device.gyroscopeTransform[i] = cal->gyroscopeTransform[i];
+    }
+
+    return true;
+}
+
 size_t rc_getCalibration(rc_Tracker *tracker, const rc_char_t **buffer)
 {
-    corvis_device_parameters cal = rc_getCalibration(tracker);
+    rcCalibration rsCal;
+    rc_getCalibrationStruct(tracker, &rsCal);
+
     std::string json;
-    if (!calibration_serialize(cal, json))
+    if (!rs_calibration_serialize(rsCal, json))
         return 0;
 #ifdef _WIN32
     std::wstring_convert<std::codecvt_utf8<rc_char_t>, rc_char_t> converter;
@@ -427,15 +463,33 @@ size_t rc_getCalibration(rc_Tracker *tracker, const rc_char_t **buffer)
     return tracker->jsonString.length();
 }
 
-bool rc_setCalibration(rc_Tracker *tracker, const rc_char_t *buffer)
+bool rc_setCalibration(rc_Tracker *tracker, const rc_char_t *buffer, const rcCalibration *defaults)
 {
-    corvis_device_parameters cal;
+    rcCalibration cal;
 #ifdef _WIN32
     std::wstring_convert<std::codecvt_utf8<rc_char_t>, rc_char_t> converter;
-    bool result = calibration_deserialize(converter.to_bytes(buffer), cal);
+    bool result = rs_calibration_deserialize(converter.to_bytes(buffer), cal, defaults);
 #else
-    bool result = calibration_deserialize(buffer, cal);
+    bool result = rs_calibration_deserialize(buffer, cal, defaults);
 #endif
-    if (result) tracker->set_device(cal);
+    if (result)
+    {
+        rc_setCalibrationStruct(tracker, &cal);
+    }
+    return result;
+}
+
+bool rc_setCalibrationFromFile(rc_Tracker *tracker, const rc_char_t *filePath, const rcCalibration *defaults)
+{
+#ifdef _WIN32
+    std::wifstream stream(filePath);
+    std::wstringstream buffer;
+#else
+    std::ifstream stream(filePath);
+    std::stringstream buffer;
+#endif
+
+    buffer << stream.rdbuf();
+    bool result = rc_setCalibration(tracker, buffer.str().c_str(), defaults);
     return result;
 }

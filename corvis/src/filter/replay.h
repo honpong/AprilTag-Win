@@ -36,18 +36,29 @@ private:
     std::function<void (float)> progress_callback;
     bool qvga {false};
     bool depth {true};
+    bool imu_decimate {false};
+    bool image_decimate {false};
+    std::chrono::microseconds imu_interval {10000};
+    std::chrono::microseconds image_interval {33333};
+    sensor_clock::time_point last_accel, last_gyro, last_image;
     image_gray8 parse_gray8(int width, int height, int stride, uint8_t *data, uint64_t time_us, uint64_t exposure_time_us, std::unique_ptr<void, void(*)(void *)> handle);
     bool find_reference_in_filename(const string &filename);
     bool load_reference_from_pose_file(const string &filename);
 
 public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     replay(bool start_paused=false) : is_paused(start_paused), fusion(fusion_queue::latency_strategy::ELIMINATE_DROPS) {}
-    bool open(const char *name);
+    bool open(const char *filename);
     bool set_calibration_from_filename(const char *filename);
     void setup_filter();
-    bool configure_all(const char *filename, bool realtime=false, std::function<void (float)> progress_callback=nullptr, std::function<void (const filter *, camera_data)> camera_callback=nullptr);
+    void set_progress_callback(std::function<void (float)> progress_callback) { this->progress_callback = progress_callback; }
+    void set_camera_callback(std::function<void (const filter *, camera_data)> camera_callback) { this->camera_callback = camera_callback; }
+    void enable_realtime() { is_realtime = true; }
     void enable_qvga() { qvga = true; }
     void disable_depth() { depth = false; }
+    void decimate_imu(std::chrono::microseconds interval) { imu_decimate = true; imu_interval = interval; }
+    void decimate_images(std::chrono::microseconds interval) { image_decimate = true; image_interval = interval; }
+    void enable_intel() { fusion.queue->strategy = fusion_queue::latency_strategy::IMAGE_TRIGGER; fusion.sfm.ignore_lateness = true; }
     void start();
     void stop();
     void toggle_pause() { is_paused = !is_paused; }
@@ -59,7 +70,7 @@ public:
     double get_reference_path_length() { return reference_path_length; }
     double get_reference_length() { return reference_length; }
     bool set_reference_from_filename(const string &filename);
-    corvis_device_parameters get_device_parameters() const { return fusion.get_device(); }
+    device_parameters get_device_parameters() const { return fusion.get_device(); }
     std::string get_timing_stats() { return fusion.get_timing_stats(); }
     bool load_map(std::string filename);
     void save_map(string filename);

@@ -1,0 +1,10 @@
+<component name="libraryTable">
+  <library name="PXCASenseManager-">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/build/intermediates/exploded-aar/PXCASenseManager/res" />
+      <root url="jar://$PROJECT_DIR$/build/intermediates/exploded-aar/PXCASenseManager/jars/classes.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

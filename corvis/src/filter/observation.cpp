@@ -201,17 +201,9 @@ void observation_vision_feature::predict()
     norm_initial = state.undistort_feature(state.normalize_feature(uncal));
     X0 = v4(norm_initial.x, norm_initial.y, 1., 0.);
 
-    v4 X0_unscale = X0 * feature->v.depth(); //not homog in v4
+    X = Rtot * X0 + Ttot * feature->v.invdepth();
 
-    //Inverse depth
-    //Should work because projection(R X + T) = projection(R (X/p) + T/p)
-    //(This is not the same as saying that RX+T = R(X/p) + T/p, which is false)
-    //Have verified that the above identity is numerically identical in my results
-    v4 X_unscale = Rtot * X0_unscale + Ttot;
-
-    X = X_unscale * feature->v.invdepth();
-
-    feature->world = R * Rrt * (X0_unscale - state_group->Tr.v) + state.T.v;
+    feature->world = R * Rrt * (X0 * feature->v.depth() - state_group->Tr.v) + state.T.v;
     v4 ippred = X / X[2]; //in the image plane
 #ifdef DEBUG
     if(fabs(ippred[2]-1.) > 1.e-7 || ippred[3] != 0.) {

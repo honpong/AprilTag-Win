@@ -18,7 +18,7 @@ extern "C" {
 #include "tracker.h"
 #include "../cor/platform/sensor_clock.h"
 
-#define estimate_camera_intrinsics 0
+#define estimate_camera_intrinsics 1
 #define estimate_camera_extrinsics 0
 
 using namespace std;
@@ -194,19 +194,8 @@ public:
     v4 last_position;
     m4 camera_matrix;
     state_vision_group *reference;
-    
-    void fill_calibration(const feature_t &initial, f_t &r2, f_t &kr) const {
-        r2 = initial.x * initial.x + initial.y * initial.y;
-
-        if(fisheye) {
-            f_t r = sqrt(r2);
-            f_t ru = tan(r * k1.v) / (2. * tan(k1.v / 2.));
-            kr = ru / r;
-        }
-        else kr = 1. + r2 * (k1.v + r2 * (k2.v + r2 * k3.v));
-    }
-    feature_t undistort_feature(const feature_t &initial) const;
-    feature_t distort_feature(const feature_t &normalized) const;
+    feature_t undistort_feature(const feature_t &feat_d, f_t *ku_d_ = nullptr, f_t *dku_d_drd = nullptr, f_t *dku_d_dk1 = nullptr, f_t *dku_d_dk2 = nullptr, f_t *dku_d_dk3 = nullptr) const;
+    feature_t distort_feature(const feature_t &feat_u, f_t *kd_u_ = nullptr, f_t *dkd_u_dru = nullptr, f_t *dkd_u_dk1 = nullptr, f_t *dkd_u_dk2 = nullptr, f_t *dkd_u_dk3 = nullptr) const;
     feature_t normalize_feature(const feature_t &feat) const;
     feature_t unnormalize_feature(const feature_t &feat) const;
     float median_depth_variance();

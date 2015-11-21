@@ -268,8 +268,6 @@ void observation_vision_feature::cache_jacobians()
     if(!feature->is_initialized()) {
         dx_dWr = dx_dX.transpose() * dRtotX0_dWr;
         dy_dWr = dy_dX.transpose() * dRtotX0_dWr;
-        //dy_dT = m4(0.);
-        //dy_dT = m4(0.);
         //dy_dTr = m4(0.);
     } else {
 #if estimate_camera_intrinsics

@@ -905,9 +905,9 @@ extern "C" void filter_initialize(struct filter *f, rcCalibration *device)
     f->s.focal_length.set_process_noise(1.e-1 / device->image_height / device->image_height);
     f->s.center_x.set_process_noise(1.e-5 / device->image_height / device->image_height);
     f->s.center_y.set_process_noise(1.e-5 / device->image_height / device->image_height);
-    f->s.k1.set_process_noise(f->s.fisheye ? 1.e-9 : 1.e-6);
-    f->s.k2.set_process_noise(f->s.fisheye ? 1.e-9 : 1.e-6);
-    f->s.k3.set_process_noise(f->s.fisheye ? 1.e-9 : 1.e-6);
+    f->s.k1.set_process_noise(1.e-9);
+    f->s.k2.set_process_noise(1.e-9);
+    f->s.k3.set_process_noise(1.e-9);
 
     f->s.T.set_initial_variance(1.e-7); // to avoid not being positive definite
     //TODO: This might be wrong. changing this to 10 makes a very different (and not necessarily worse) result.

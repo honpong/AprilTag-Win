@@ -31,7 +31,6 @@ private:
     std::atomic<bool> is_paused{false};
     std::atomic<bool> is_stepping{false};
     bool is_realtime = false;
-    sensor_fusion fusion;
     std::function<void (const filter *, camera_data &&)> camera_callback;
     std::function<void (float)> progress_callback;
     bool qvga {false};
@@ -42,8 +41,10 @@ private:
 
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
+    sensor_fusion fusion;
     replay(bool start_paused=false) : is_paused(start_paused), fusion(fusion_queue::latency_strategy::ELIMINATE_DROPS) {}
     bool open(const char *filename);
+    std::string calibration_file;
     bool set_calibration_from_filename(const char *filename);
     void setup_filter();
     void set_progress_callback(std::function<void (float)> progress_callback) { this->progress_callback = progress_callback; }

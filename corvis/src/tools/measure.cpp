@@ -14,7 +14,7 @@ int main(int c, char **v)
         return 1;
     }
 
-    bool realtime = false, start_paused = false, benchmark = false, intel = false;
+    bool realtime = false, start_paused = false, benchmark = false, intel = false, calibrate = false;
     std::string save;
     bool qvga = false, depth = true;
     bool enable_gui = true, show_plots = false, show_video = true, show_depth = true, show_main = true;
@@ -35,6 +35,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--drop-depth") == 0) depth = false;
         else if (strcmp(v[i], "--save") == 0 && i+1 < c) save = v[++i];
         else if (strcmp(v[i], "--benchmark") == 0) benchmark = true;
+        else if (strcmp(v[i], "--calibrate") == 0) calibrate = true;
         else goto usage;
 
     if (!filename)
@@ -62,11 +63,26 @@ int main(int c, char **v)
         return true;
     };
 
-    auto print_results = [](replay &rp, const char *capture_file) {
+    auto update_calibration = [](replay &rp, const std::string &file) {
+        std::string json;
+        if (calibration_serialize(rp.get_device_parameters(), json)) {
+            std::ofstream out(file);
+            out << json;
+        }
+    };
+
+    auto print_results = [&calibrate, &update_calibration](replay &rp, const char *capture_file) {
         std::cout << std::fixed << std::setprecision(2);
         std::cout << "Reference Straight-line length is " << 100*rp.get_reference_length() << " cm, total path length " << 100*rp.get_reference_path_length() << " cm\n";
         std::cout << "Computed  Straight-line length is " << 100*rp.get_length()           << " cm, total path length " << 100*rp.get_path_length()           << " cm\n";
         std::cout << "Dispatched " << rp.get_packets_dispatched() << " packets " << rp.get_bytes_dispatched()/1.e6 << " Mbytes\n";
+        if      (rp.fusion.sfm.detector_failed)  std::cout << "Detector failed, not updating calibration\n";
+        else if (rp.fusion.sfm.tracker_failed)   std::cout << "Tracker failed, not updating calibration\n";
+        else if (rp.fusion.sfm.speed_failed)     std::cout << "Too fast, not updating calibration\n";
+        else if (rp.fusion.sfm.numeric_failed)   std::cout << "Numeric error, not updating calibration\n";
+        else if (rp.fusion.sfm.calibration_bad)  std::cout << "Bad calibration, not updating calibration\n";
+        else if (calibrate) { update_calibration(rp, rp.calibration_file); std::cout << "Updating " << rp.calibration_file << "\n"; }
+        else                                     std::cout << "Respected " << rp.calibration_file << "\n";
     };
 
     if (benchmark) {
@@ -120,13 +136,8 @@ int main(int c, char **v)
     std::cout << ws.get_feature_stats();
 #endif
 
-    if (!save.empty()) {
-        std::string json;
-        if (calibration_serialize(rp.get_device_parameters(), json)) {
-            std::ofstream out(save);
-            out << json;
-        }
-    }
+    if (!save.empty())
+        update_calibration(rp, save);
 
     print_results(rp, filename);
     return 0;

@@ -36,6 +36,9 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewStub;
+import android.webkit.ValueCallback;
+import android.webkit.WebChromeClient;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -182,10 +185,11 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule {
 			}		
 			
 			//checking scene quality for good initialization of SP module
-			if (mTrackingActivationRequested) {				
+//			if (mTrackingActivationRequested) {
 				float sceneQuality = mSPCore.getSceneQuality(input, false);
+                updateWebView("Scene quality: " + String.format("%.2f", sceneQuality));
 //				setEnabledPlaying(sceneQuality >= ACCEPTABLE_INPUT_COVERAGE_PERC);
-			}	
+//			}
 
 			// if user indicates active tracking and reconstruction (pressing Play button)
 			if (mIsScenePerceptionActive.get()) {
@@ -249,8 +253,7 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule {
 		private int DISPLAY_FPS_FREQ = 30;
 		private int mTrackedFrameCounter = 0;
 		@Override
-		public void onTrackingUpdate(TrackingAccuracy trackingResult,
-				CameraPose newCamPose) {
+		public void onTrackingUpdate(TrackingAccuracy trackingResult, CameraPose newCamPose) {
 			mTrackedFrameCounter++;
 			if (trackingResult != TrackingAccuracy.FAILED) {
 				mCameraPose.set(newCamPose);
@@ -259,6 +262,8 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule {
 				if (mTrackedFrameCounter % DISPLAY_FPS_FREQ == 0) {
 					setProgramStatus("Tracking: " + trackingResult  + " " + mFPSCal.getFPSText());
 				}
+
+                updateWebView(mFPSCal.getFPSText());
 				
 //				//update view point of render reconstruction if viewpoint is toggled or dynamic
 //				updateRenderViewPoint(mCameraPose);
@@ -512,6 +517,12 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule {
 
 		View view = inflater.inflate(R.layout.basic_api_fragment, container, false);
 		WebView webView = (WebView)view.findViewById(R.id.web_view);
+
+		WebSettings webSettings = webView.getSettings();
+		webSettings.setJavaScriptEnabled(true);
+
+		webView.setWebChromeClient(new WebChromeClient());
+
 		webView.loadUrl("file:///android_asset/index.html");
 
 //		createCustomViews(view);
@@ -801,6 +812,28 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule {
 			});
 		}
 	}
+
+    private void updateWebView(final String fps)
+    {
+        final Activity curActivity = getActivity();
+        if (curActivity != null) {
+            curActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    WebView webView = (WebView)curActivity.getWindow().getCurrentFocus().findViewById(R.id.web_view);
+                    webView.evaluateJavascript("setMessage('" + fps + "');", new ValueCallback<String>()
+                    {
+                        @Override
+                        public void onReceiveValue(String value)
+                        {
+
+                        }
+                    });
+                }
+            });
+        }
+
+    }
 	
 //	static {
 //		try{

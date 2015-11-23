@@ -1,6 +1,20 @@
 <html>
+<head>
+    <script src="jquery-2.1.1.min.js"></script>
+    <script language="JavaScript">
+        function setMessage(msg)
+        {
+            var elem = document.getElementById('message');
+            elem.innerText = msg;
+        }
 
+        $(document).ready(function()
+        {
+            setMessage('Howdy');
+        });
+    </script>
+</head>
 <body>
-Hello world
+<span id="message"></span>
 </body>
 </html>

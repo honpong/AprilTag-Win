@@ -10,46 +10,26 @@ Copyright(c) 2015 Intel Corporation. All Rights Reserved.
 
 package com.intel.sample.depth.spsample;
 
-import java.io.File;
 import java.nio.ByteBuffer;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Fragment;
-import android.opengl.GLSurfaceView;
-import android.opengl.Matrix;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
 import android.util.Size;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewStub;
-import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import com.intel.camera.toolkit.depth.Camera.Calibration;
 import com.intel.camera.toolkit.depth.sceneperception.SPCore;
 import com.intel.camera.toolkit.depth.sceneperception.SPCore.CameraTrackListener;
-import com.intel.camera.toolkit.depth.sceneperception.SPTypes.AsyncCallStatusResult;
 import com.intel.camera.toolkit.depth.sceneperception.SPTypes.CameraPose;
 import com.intel.camera.toolkit.depth.sceneperception.SPTypes.SPInputStream;
 import com.intel.camera.toolkit.depth.sceneperception.SPTypes.Status;
@@ -57,7 +37,6 @@ import com.intel.camera.toolkit.depth.sceneperception.SPTypes.CameraStreamIntrin
 import com.intel.camera.toolkit.depth.sceneperception.SPTypes.TrackingAccuracy;
 import com.intel.camera.toolkit.depth.Point3DF;
 import com.intel.sample.depth.spsample.SPUtils.FPSCalculator;
-import com.intel.sample.depth.spsample.SPUtils.ViewChange;
 
 /**
  * SPBasicFragment handles UI control and display of inputs and results of camera tracking 
@@ -187,7 +166,7 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule {
 			//checking scene quality for good initialization of SP module
 //			if (mTrackingActivationRequested) {
 				float sceneQuality = mSPCore.getSceneQuality(input, false);
-                updateWebView("Scene quality: " + String.format("%.2f", sceneQuality));
+                updateStatus("Scene quality: " + String.format("%.2f", sceneQuality));
 //				setEnabledPlaying(sceneQuality >= ACCEPTABLE_INPUT_COVERAGE_PERC);
 //			}
 
@@ -263,7 +242,7 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule {
 					setProgramStatus("Tracking: " + trackingResult  + " " + mFPSCal.getFPSText());
 				}
 
-                updateWebView(mFPSCal.getFPSText());
+                updateStatus(mFPSCal.getFPSText());
 				
 //				//update view point of render reconstruction if viewpoint is toggled or dynamic
 //				updateRenderViewPoint(mCameraPose);
@@ -523,7 +502,7 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule {
 
 		webView.setWebChromeClient(new WebChromeClient());
 
-		webView.loadUrl("file:///android_asset/index.html");
+		webView.loadUrl("file:///android_asset/main.html");
 
 //		createCustomViews(view);
 
@@ -813,7 +792,7 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule {
 		}
 	}
 
-    private void updateWebView(final String fps)
+    private void updateStatus(final String status)
     {
         final Activity curActivity = getActivity();
         if (curActivity != null) {
@@ -821,14 +800,7 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule {
                 @Override
                 public void run() {
                     WebView webView = (WebView)curActivity.getWindow().getCurrentFocus().findViewById(R.id.web_view);
-                    webView.evaluateJavascript("setMessage('" + fps + "');", new ValueCallback<String>()
-                    {
-                        @Override
-                        public void onReceiveValue(String value)
-                        {
-
-                        }
-                    });
+                    webView.evaluateJavascript("RealSense.trackingDidChangeStatus('" + status + "');", null);
                 }
             });
         }

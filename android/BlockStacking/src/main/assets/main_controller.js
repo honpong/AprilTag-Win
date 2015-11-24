@@ -1,11 +1,11 @@
 //
-//  Created by Ben Hirashima on 2/25/15.
-//  Copyright (c) 2015 RealityCap. All rights reserved.
+//  Created by Ben Hirashima on 11/23/15.
+//  Copyright (c) 2015 Intel. All rights reserved.
 //
-// depends on JQuery 2.0+, RC3DK.js, RC3DKPlus.js, three.js
+// depends on JQuery 2.0+, three.js
 
 ;
-var MainController = (function ($, window, RC3DK, THREE)
+var MainController = (function ($, window, RealSense, THREE)
 {
 
                       
@@ -22,7 +22,7 @@ var MainController = (function ($, window, RC3DK, THREE)
         ERROR:          4
     };
 
-    var currentRunState = RC3DK.SensorFusionRunState.Inactive;
+    var currentRunState = RealSense.SensorFusionRunState.Inactive;
     var workflowState = WorkflowStates.STARTUP;
 
     var scene, camera, renderer;
@@ -56,29 +56,31 @@ var MainController = (function ($, window, RC3DK, THREE)
             }
         });
 
-        RC3DK.onStatusUpdate(function (status)
+        RealSense.onStatusUpdate(function (status)
         {
-            if (status.runState !== currentRunState) handleNewSensorFusionRunState(status.runState);
+            showMessage(status);
 
-            if (status.runState === RC3DK.SensorFusionRunState.SteadyInitialization && workflowState === WorkflowStates.INITIALIZING)
-            {
-                updateInitializationProgress(status.progress);
-            }
-
-            if (status.error)
-            {
-                if (status.error.class == RC3DK.RCSensorFusionErrorClass)
-                {
-                    handleSensorFusionError(status.error);
-                }
-                else if (status.error.class == RC3DK.RCLicenseErrorClass)
-                {
-                    handleLicenseError(status.error);
-                }
-            }
+//            if (status.runState !== currentRunState) handleNewSensorFusionRunState(status.runState);
+//
+//            if (status.runState === RealSense.SensorFusionRunState.SteadyInitialization && workflowState === WorkflowStates.INITIALIZING)
+//            {
+//                updateInitializationProgress(status.progress);
+//            }
+//
+//            if (status.error)
+//            {
+//                if (status.error.class == RealSense.RCSensorFusionErrorClass)
+//                {
+//                    handleSensorFusionError(status.error);
+//                }
+//                else if (status.error.class == RealSense.RCLicenseErrorClass)
+//                {
+//                    handleLicenseError(status.error);
+//                }
+//            }
         });
 
-        RC3DK.onMatricesUpdate(function (matrices)
+        RealSense.onMatricesUpdate(function (matrices)
         {
             var projectionMatrix = matrix4FromPlainObject(matrices.projection);
             var cameraMatrix = matrix4FromPlainObject(matrices.camera);
@@ -92,7 +94,7 @@ var MainController = (function ($, window, RC3DK, THREE)
 
         switch (runState)
         {
-            case RC3DK.SensorFusionRunState.Running:
+            case RealSense.SensorFusionRunState.Running:
                 enterAugmentedState();
                 break;
         }
@@ -102,16 +104,16 @@ var MainController = (function ($, window, RC3DK, THREE)
     {
         showMessage("Press the button to start.");
 
-        RC3DK.stopSensorFusion();
-        RC3DK.showVideoView();
-        RC3DK.startSensors();
+//        RealSense.stopSensorFusion();
+//        RealSense.showVideoView();
+//        RealSense.startSensors();
 
         workflowState = WorkflowStates.READY;
     }
 
     function enterInitializationState()
     {
-        RC3DK.startSensorFusion();
+//        RealSense.startSensorFusion();
         workflowState = WorkflowStates.INITIALIZING;
     }
 
@@ -126,7 +128,7 @@ var MainController = (function ($, window, RC3DK, THREE)
     {
         if (!message) message = "Whoops, something went wrong.";
         showMessage(message);
-        RC3DK.stopSensorFusion();
+//        RealSense.stopSensorFusion();
         workflowState = WorkflowStates.ERROR;
     }
 
@@ -315,4 +317,4 @@ var MainController = (function ($, window, RC3DK, THREE)
 
     return module;
 
-})(jQuery, window, RC3DK, THREE);
+})(jQuery, window, RealSense, THREE);

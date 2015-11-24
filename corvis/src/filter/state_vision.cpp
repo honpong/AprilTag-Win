@@ -319,7 +319,7 @@ state_vision_group * state_vision::add_group(sensor_clock::time_point time)
     return g;
 }
 
-feature_t state_vision::project_feature(const feature_t &feat) const
+feature_t state_vision::normalize_feature(const feature_t &feat) const
 {
     feature_t feat_p;
     feat_p.x = (float)(((feat.x - image_width / 2. + .5) / image_height - center_x.v) / focal_length.v);
@@ -327,7 +327,7 @@ feature_t state_vision::project_feature(const feature_t &feat) const
     return feat_p;
 }
 
-feature_t state_vision::unproject_feature(const feature_t &feat_n) const
+feature_t state_vision::unnormalize_feature(const feature_t &feat_n) const
 {
     feature_t feat;
     feat.x = (float)(feat_n.x * focal_length.v + center_x.v) * image_height + image_width / 2. - .5;
@@ -335,30 +335,58 @@ feature_t state_vision::unproject_feature(const feature_t &feat_n) const
     return feat;
 }
 
-feature_t state_vision::uncalibrate_feature(const feature_t &feat_n) const
+feature_t state_vision::distort_feature(const feature_t &feat_u, f_t *kd_u_, f_t *dkd_u_dru, f_t *dkd_u_dk1, f_t *dkd_u_dk2, f_t *dkd_u_dk3) const
 {
-    f_t r2, kr;
-    fill_calibration(feat_n, r2, kr);
+    f_t kd_u, ru2, ru = sqrt(ru2 = feat_u.x * feat_u.x + feat_u.y * feat_u.y);
+    if (fisheye) {
+        f_t w = k1.v; if (!w) { w = .922; fprintf(stderr, "you really shouldn't have a zero-angle fisheye lens\n"); }
+        kd_u = atan(2 * tan(w / 2) * ru) / (ru * w);  // FIXME: add higher order terms (but not the linear one)
+        if (dkd_u_dru) *dkd_u_dru = 2 * tan(w/2) / (w + 4 * ru * ru * w * tan(w/2) * tan(w/2));
+        if (dkd_u_dk1) *dkd_u_dk1 = 2 * ru / (w * (1 + cos(w) + 4 * ru * ru * (1 - cos(w)))) - kd_u / w;
+        if (dkd_u_dk2) *dkd_u_dk2 = 0;
+        if (dkd_u_dk3) *dkd_u_dk3 = 0;
+    } else {
+        kd_u = 1 + ru2 * (k1.v + ru2 * (k2.v + ru2 * k3.v));
+        if (dkd_u_dru) *dkd_u_dru = 0 * (k1.v + ru2 * (2 * k2.v + 3 * k3.v * ru2)) * 2 * sqrt(ru2);
+        if (dkd_u_dk1) *dkd_u_dk1 = ru2;
+        if (dkd_u_dk2) *dkd_u_dk2 = ru2 * ru2;
+        if (dkd_u_dk3) *dkd_u_dk3 = ru2 * ru2 * ru2;
+    }
+    if (kd_u_) *kd_u_ = kd_u;
 
-    feature_t feat_u;
-    feat_u.x = (float)(feat_n.x / kr);
-    feat_u.y = (float)(feat_n.y / kr);
-
-    return unproject_feature(feat_u);
+    return feature_t { (float)(feat_u.x * kd_u), (float)(feat_u.y * kd_u) };
 }
 
-feature_t state_vision::calibrate_feature(const feature_t &feat_u) const
+feature_t state_vision::undistort_feature(const feature_t &feat_d, f_t *ku_d_, f_t *dku_d_drd, f_t *dku_d_dk1, f_t *dku_d_dk2, f_t *dku_d_dk3) const
 {
-    feature_t feat_n = project_feature(feat_u);
+    f_t ku_d, rd2 = feat_d.x * feat_d.x + feat_d.y * feat_d.y;
+    if (fisheye) {
+        f_t rd = sqrt(rd2), w = k1.v; if (!w) { w = .922; fprintf(stderr, "you really shouldn't have a zero-angle fisheye lens\n"); }
+        ku_d = tan(w * rd) / (2 * tan(w/2) * rd);
+        if (dku_d_drd) *dku_d_drd = 2 * (rd * w / (cos(rd * w) * cos(rd * w) * (2 * rd * tan(w/2))) - ku_d);
+        if (dku_d_dk1) *dku_d_dk1 = (2 * rd * sin(w) - sin(2 * rd * w)) / (8 * rd * (cos(rd * w) * cos(rd * w)) * (sin(w/2) * sin(w/2)));
+        if (dku_d_dk2) *dku_d_dk2 = 0;
+        if (dku_d_dk3) *dku_d_dk3 = 0;
+    } else {
+        f_t kd_u, ru2 = rd2, dkd_u_dru2;
+        for (int i=0; i<4; i++) {
+           kd_u =  1 + ru2 * (k1.v + ru2 * (k2.v + ru2 * k3.v));
+           dkd_u_dru2 = k1.v + 2 * ru2 * (k2.v + 3 * ru2 * k3.v);
+           // f(ru2) == ru2 * kd_u * kd_u - rd2 == 0;
+           // ru2 -= f(ru2) / f'(ru2)
+           ru2 -= (ru2 * kd_u * kd_u - rd2) / (kd_u * (kd_u + 2 * ru2 * dkd_u_dru2));
+        }
+        ku_d = 1 / kd_u;
+        f_t ru = sqrt(ru2), dkd_u_dru = 2 * ru * dkd_u_dru2;
+        // dku_d_drd = d/rd (1/kd_u) = d/ru (1/kd_u) dru/drd = d/ru (1/kd_u) / (drd/dru) = d/ru (1/kd_u) / (d/ru (ru kd_u)) = -dkd_u_dru/kd_u/kd_u / (kd_u + ru dkd_u_dru)
+        if (dku_d_drd) *dku_d_drd = 0 * -dkd_u_dru/(kd_u * kd_u * (kd_u + ru * dkd_u_dru));
+        if (dku_d_dk1) *dku_d_dk1 = -(ru2            )/(kd_u*kd_u);
+        if (dku_d_dk2) *dku_d_dk2 = -(ru2 * ru2      )/(kd_u*kd_u);
+        if (dku_d_dk3) *dku_d_dk3 = -(ru2 * ru2 * ru2)/(kd_u*kd_u);
+    }
+    if (ku_d_) *ku_d_ = ku_d;
 
-    f_t r2, kr;
-    fill_calibration(feat_n, r2, kr);
-
-    feature_t feat_c;
-    feat_c.x = (float)(feat_n.x * kr);
-    feat_c.y = (float)(feat_n.y * kr);
-
-    return feat_c;
+    return feature_t { (float)(feat_d.x * ku_d), (float)(feat_d.y * ku_d) };
 }
 
 float state_vision::median_depth_variance()
@@ -391,6 +419,7 @@ void state_vision::remove_non_orientation_states()
         remove_child(&center_y);
         remove_child(&k1);
         remove_child(&k2);
+        remove_child(&k3);
     }
     remove_child(&groups);
     state_motion::remove_non_orientation_states();
@@ -411,6 +440,7 @@ void state_vision::add_non_orientation_states()
         children.push_back(&center_y);
         children.push_back(&k1);
         children.push_back(&k2);
+        children.push_back(&k3);
     }
     children.push_back(&groups);
 }

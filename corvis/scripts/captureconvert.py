@@ -7,6 +7,7 @@ import sys
 camera_type = 1
 accel_type = 20
 gyro_type = 21
+image_with_depth_type = 28
 if len(sys.argv) != 3:
     print sys.argv[0], "<intel folder> <output filename>"
     sys.exit(1)
@@ -21,7 +22,7 @@ def read_image_timestamps(filename):
         reader = csv.reader(csvfile, delimiter=' ')
         for row in reader:
             (filename, timestamp) = row
-            rows.append([float(timestamp), camera_type, filename])
+            rows.append([float(timestamp), image_with_depth_type, filename])
     return rows
 
 def read_csv_timestamps(filename, ptype):
@@ -43,30 +44,36 @@ data.sort()
 
 wrote_packets = defaultdict(int)
 wrote_bytes = 0
-f = open(output_filename, "wb")
-for line in data:
-    microseconds = int(line[0]*1e6)
-    ptype = line[1]
-    data = ""
-    if ptype == camera_type:
-        fi = open(path + line[2])
-        data = fi.read()
-        fi.close()
-    elif ptype == gyro_type:
-        data = pack('fff', line[2], line[3], line[4])
-    elif ptype == accel_type:
-        data = pack('fff', line[2], line[3], line[4])
-    else:
-        print "Unexpected data type", ptype
-    pbytes = len(data) + 16
-    user = 0
-    header_str = pack('IHHQ', pbytes, ptype, user, microseconds)
-    f.write(header_str)
-    f.write(data)
-    wrote_packets[ptype] += 1
-    wrote_bytes += len(header_str) + len(data)
-
-f.close()
+with open(output_filename, "wb") as f:
+    for line in data:
+        microseconds = int(line[0]*1e6)
+        ptype = line[1]
+        data = ""
+        if ptype == camera_type:
+            with open(path + line[2]) as fi:
+                data = fi.read()
+        elif ptype == image_with_depth_type:
+            with open(path + line[2], 'rb') as fi:
+                assert fi.read(1) == 'P', '%s is a pgm' % (path + line[2])
+                P = fi.readline()
+                while len(P.split()) < 4:
+                    P += fi.readline()
+                w, h, d = int(P.split()[1]), int(P.split()[2]), fi.read(); assert h * w == len(d)
+                dw, dh = 0, 0
+                data = pack('LHHHH', 0*33333333, w, h, dw, dh) + d
+        elif ptype == gyro_type:
+            data = pack('fff', line[2], line[3], line[4])
+        elif ptype == accel_type:
+            data = pack('fff', line[2], line[3], line[4])
+        else:
+            print "Unexpected data type", ptype
+        pbytes = len(data) + 16
+        user = 0
+        header_str = pack('IHHQ', pbytes, ptype, user, microseconds)
+        f.write(header_str)
+        f.write(data)
+        wrote_packets[ptype] += 1
+        wrote_bytes += len(header_str) + len(data)
 
 print "Wrote", wrote_bytes/1e6, "Mbytes"
 for key in wrote_packets:

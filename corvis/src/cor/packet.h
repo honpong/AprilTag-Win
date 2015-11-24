@@ -98,7 +98,7 @@ typedef struct {
 
 typedef struct {
     packet_header_t header;
-    feature_t features[];
+    struct feature_t { float x,y; } features[];
 } packet_feature_track_t;
 
 typedef struct {
@@ -199,7 +199,7 @@ typedef struct {
 
 typedef struct {
     packet_header_t header;
-    feature_covariance_t covariance[];
+    struct feature_covariance_t { float x, y, cx, cy, cxy; } covariance[];
 } packet_feature_prediction_variance_t;
 
 typedef struct {

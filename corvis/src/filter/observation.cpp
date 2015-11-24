@@ -198,20 +198,13 @@ void observation_vision_feature::predict()
     Ttot = Rrt * ( - state_group->Tr.v);
 
     feature_t uncal = { (float)feature->initial[0], (float)feature->initial[1] };
-    norm_initial = state.calibrate_feature(uncal);
+    Xd = state.normalize_feature(uncal);
+    norm_initial = state.undistort_feature(Xd);
     X0 = v4(norm_initial.x, norm_initial.y, 1., 0.);
 
-    v4 X0_unscale = X0 * feature->v.depth(); //not homog in v4
+    X = Rtot * X0 + Ttot * feature->v.invdepth();
 
-    //Inverse depth
-    //Should work because projection(R X + T) = projection(R (X/p) + T/p)
-    //(This is not the same as saying that RX+T = R(X/p) + T/p, which is false)
-    //Have verified that the above identity is numerically identical in my results
-    v4 X_unscale = Rtot * X0_unscale + Ttot;
-
-    X = X_unscale * feature->v.invdepth();
-
-    feature->world = R * Rrt * (X0_unscale - state_group->Tr.v) + state.T.v;
+    feature->world = R * Rrt * (X0 * feature->v.depth() - state_group->Tr.v) + state.T.v;
     v4 ippred = X / X[2]; //in the image plane
 #ifdef DEBUG
     if(fabs(ippred[2]-1.) > 1.e-7 || ippred[3] != 0.) {
@@ -220,22 +213,33 @@ void observation_vision_feature::predict()
 #endif
 
     norm_predicted = {(float)ippred[0], (float)ippred[1]};
-    feature->prediction = state.uncalibrate_feature(norm_predicted);
+    feature->prediction = state.unnormalize_feature(state.distort_feature(norm_predicted));
     pred[0] = feature->prediction.x;
     pred[1] = feature->prediction.y;
 }
 
 void observation_vision_feature::cache_jacobians()
 {
-    //initial = (uncal - center) / (focal_length * kr)
-    f_t r2, kr;
-    state.fill_calibration(norm_initial, r2, kr);
+    // v4 Xd = ((point - size/2 + .5) / height - C) / F
+    // v4 dXd = - dC / F - Xd / F dF
+    // v4 Xd_dXd = - Xd.dC / F - Xd.Xd / F dF
+    // v4 X0 = ku_d * Xd
+    // m4 dX0 = dku_d * Xd + ku_d * dXd = dku_d_r * Xd_dXd/ru * Xd  - ku_d/F dC -  X0 / F dF
+    // f_t drd = d sqrt(Xd.Xd) = Xd.dXd/sqrt(Xd.Xd) = Xd_dXd/rd
+    // f_t dku_d = dku_d_dw dw + dku_d_drd * drd
+    // v4 X = Rtot * X0 + Ttot / depth
+    // v4 dX = dRtot * X0 + Rtot * dX0 + dTtot / depth - Tot / depth / depth ddepth
+
 #if estimate_camera_intrinsics
-    v4 dX_dcx = Rtot * v4(-kr / state.focal_length.v, 0., 0., 0.);
-    v4 dX_dcy = Rtot * v4(0., -kr / state.focal_length.v, 0., 0.);
-    v4 dX_dF = Rtot * v4(-X0[0] / state.focal_length.v, -X0[1] / state.focal_length.v, 0., 0.);
-    v4 dX_dk1 = Rtot * v4(-X0[0] * kr * r2, -X0[1] * kr * r2, 0., 0.);
-    v4 dX_dk2 = Rtot * v4(-X0[0] * kr * (r2 * r2), -X0[1] * kr * (r2 * r2), 0., 0.);
+    f_t rd2, rd = sqrt(rd2=Xd.x*Xd.x+Xd.y*Xd.y), w = state.k1.v;
+    f_t ku_d, dku_d_drd, dku_d_dk1, dku_d_dk2, dku_d_dk3;
+    /*X0 = */state.undistort_feature(Xd, &ku_d, &dku_d_drd, &dku_d_dk1, &dku_d_dk2, &dku_d_dk3);
+    v4 dX_dcx = Rtot * v4(ku_d  + dku_d_drd*Xd.x*Xd.x/rd,         dku_d_drd*Xd.x*Xd.y/rd, 0, 0) / -state.focal_length.v;
+    v4 dX_dcy = Rtot * v4(        dku_d_drd*Xd.y*Xd.x/rd, ku_d  + dku_d_drd*Xd.y*Xd.y/rd, 0, 0) / -state.focal_length.v;
+    v4 dX_dF  = Rtot * v4(X0[0] + dku_d_drd*Xd.x*rd,      X0[1] + dku_d_drd*Xd.y*rd,      0, 0) / -state.focal_length.v;
+    v4 dX_dk1 = Rtot * v4(Xd.x * dku_d_dk1, Xd.y * dku_d_dk1, 0, 0);
+    v4 dX_dk2 = Rtot * v4(Xd.x * dku_d_dk2, Xd.y * dku_d_dk2, 0, 0);
+    v4 dX_dk3 = Rtot * v4(Xd.x * dku_d_dk3, Xd.y * dku_d_dk3, 0, 0);
 #endif
     
     v4 RtotX0 = Rtot * X0;
@@ -243,12 +247,19 @@ void observation_vision_feature::cache_jacobians()
     m4 dRtotX0_dWr = skew3(RtotX0) * Rrt_dRr_dWr;
     m4 dTtot_dWr = skew3(Ttot) * Rrt_dRr_dWr;
     m4 dTtot_dTr = -Rrt;
-    
-    state.fill_calibration(norm_predicted, r2, kr);
+
+    f_t ru2, ru = sqrt(ru2=X[0]*X[0]+X[1]*X[1]);
+    f_t kd_u, dkd_u_dru, dkd_u_dk1, dkd_u_dk2, dkd_u_dk3;
+    state.distort_feature(Xd, &kd_u, &dkd_u_dru, &dkd_u_dk1, &dkd_u_dk2, &dkd_u_dk3);
+    // v4 xd = X/Xz * kd_u
+    // v4 dxd = dX/Xz * kd_u + X/Xz * dkd_u - X/Xz/Xz * dXz * kd_u = (dX/Xz - X/Xz/Xz * dXz) * kd_u + X/Xz * (dkd_u_dru * X.dX/ru + dkd_u_dw * dw)
+    // v4 x = (xd * F + C) * height + height/2 - .5
+    // v4 dx = height * (dxd * F + xd * dF + dC)
+    //       = height * (((dX/Xz - X/Xz/Xz * dXz) * kd_u + X/Xz * (dkd_u_dru * X.dX/ru + dkd_u_dw * dw)) * F + X/Xz * kd_u * dF + dC)
     f_t invZ = 1. / X[2];
     v4 dx_dX, dy_dX;
-    dx_dX = state.image_height / kr * state.focal_length.v * v4(invZ, 0., -X[0] * invZ * invZ, 0.);
-    dy_dX = state.image_height / kr * state.focal_length.v * v4(0., invZ, -X[1] * invZ * invZ, 0.);
+    dx_dX = state.image_height * kd_u * state.focal_length.v * v4(invZ + X[0]*invZ*dkd_u_dru*X[0]/ru,        X[0]*invZ*dkd_u_dru*X[1]/ru, -X[0] * invZ * invZ, 0);
+    dy_dX = state.image_height * kd_u * state.focal_length.v * v4(       X[1]*invZ*dkd_u_dru*X[0]/ru, invZ + X[1]*invZ*dkd_u_dru*X[1]/ru, -X[1] * invZ * invZ, 0);
 
     v4 dX_dp = Ttot * feature->v.invdepth_jacobian();
     dx_dp = dx_dX.dot(dX_dp);
@@ -257,21 +268,21 @@ void observation_vision_feature::cache_jacobians()
     if(!feature->is_initialized()) {
         dx_dWr = dx_dX.transpose() * dRtotX0_dWr;
         dy_dWr = dy_dX.transpose() * dRtotX0_dWr;
-        //dy_dT = m4(0.);
-        //dy_dT = m4(0.);
         //dy_dTr = m4(0.);
     } else {
 #if estimate_camera_intrinsics
-        dx_dF = state.image_height * norm_predicted.x / kr + dx_dX.dot(dX_dF);
-        dy_dF = state.image_height * norm_predicted.y / kr + dy_dX.dot(dX_dF);
-        dx_dk1 = -state.image_height * norm_predicted.x * state.focal_length.v / kr / kr  * r2        + dx_dX.dot(dX_dk1);
-        dy_dk1 = -state.image_height * norm_predicted.y * state.focal_length.v / kr / kr * r2        + dy_dX.dot(dX_dk1);
-        dx_dk2 = -state.image_height * norm_predicted.x * state.focal_length.v / kr / kr * (r2 * r2) + dx_dX.dot(dX_dk2);
-        dy_dk2 = -state.image_height * norm_predicted.y * state.focal_length.v / kr / kr * (r2 * r2) + dy_dX.dot(dX_dk2);
-        dx_dcx = state.image_height *  + dx_dX.dot(dX_dcx);
-        dx_dcy = dx_dX.dot(dX_dcy);
-        dy_dcx = dy_dX.dot(dX_dcx);
-        dy_dcy = state.image_height *  + dy_dX.dot(dX_dcy);
+        dx_dF = state.image_height * norm_predicted.x * kd_u + dx_dX.dot(dX_dF);
+        dy_dF = state.image_height * norm_predicted.y * kd_u + dy_dX.dot(dX_dF);
+
+        dx_dk1 = state.image_height * (dkd_u_dk1 * state.focal_length.v * X[0]*invZ + kd_u * dx_dX.dot(dX_dk1));
+        dy_dk1 = state.image_height * (dkd_u_dk1 * state.focal_length.v * X[1]*invZ + kd_u * dy_dX.dot(dX_dk1));
+        dx_dk2 = state.image_height * (dkd_u_dk2 * state.focal_length.v * X[0]*invZ + kd_u * dx_dX.dot(dX_dk2));
+        dy_dk2 = state.image_height * (dkd_u_dk2 * state.focal_length.v * X[1]*invZ + kd_u * dy_dX.dot(dX_dk2));
+        dx_dk3 = state.image_height * (dkd_u_dk3 * state.focal_length.v * X[0]*invZ + kd_u * dx_dX.dot(dX_dk3));
+        dy_dk3 = state.image_height * (dkd_u_dk3 * state.focal_length.v * X[1]*invZ + kd_u * dy_dX.dot(dX_dk3));
+
+        dx_dcx = state.image_height + dx_dX.dot(dX_dcx); dx_dcy =                      dx_dX.dot(dX_dcy);
+        dy_dcx =                      dy_dX.dot(dX_dcx); dy_dcy = state.image_height + dy_dX.dot(dX_dcy);
 #endif
         dx_dWr = dx_dX.transpose() * (dRtotX0_dWr + dTtot_dWr * invrho);
         dx_dTr = dx_dX.transpose() * dTtot_dTr * invrho;
@@ -303,6 +314,7 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
             f_t cov_cy = state.center_y.copy_cov_from_row(src, j);
             f_t cov_k1 = state.k1.copy_cov_from_row(src, j);
             f_t cov_k2 = state.k2.copy_cov_from_row(src, j);
+            f_t cov_k3 = state.k3.copy_cov_from_row(src, j);
 #endif
             dst(0, j) = dx_dp * cov_feat +
 #if estimate_camera_intrinsics
@@ -311,6 +323,7 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
             dx_dcy * cov_cy +
             dx_dk1 * cov_k1 +
             dx_dk2 * cov_k2 +
+            dx_dk3 * cov_k3 +
 #endif
             dx_dWr.dot(cov_Wr) +
             dx_dTr.dot(cov_Tr);
@@ -321,6 +334,7 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
             dy_dcy * cov_cy +
             dy_dk1 * cov_k1 +
             dy_dk2 * cov_k2 +
+            dy_dk3 * cov_k3 +
 #endif
             dy_dWr.dot(cov_Wr) +
             dy_dTr.dot(cov_Tr);
@@ -338,9 +352,8 @@ f_t observation_vision_feature::projection_residual(const v4 & X, const xy &foun
     }
 #endif
     feature_t norm = { (float)ippred[0], (float)ippred[1] };
-    
-    feature_t uncalib = state.uncalibrate_feature(norm);
-    
+    feature_t uncalib = state.unnormalize_feature(state.distort_feature(norm));
+
     f_t dx = uncalib.x - found.x;
     f_t dy = uncalib.y - found.y;
     return dx * dx + dy * dy;

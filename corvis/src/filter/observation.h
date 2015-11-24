@@ -73,13 +73,13 @@ class observation_vision_feature: public observation_storage<2> {
 
 #if estimate_camera_intrinsics
     f_t dx_dF, dy_dF;
-    f_t dx_dk1, dy_dk1, dx_dk2, dy_dk2, dx_dcx, dy_dcx, dx_dcy, dy_dcy;
+    f_t dx_dw, dy_dw, dx_dk1, dy_dk1, dx_dk2, dy_dk2, dx_dk3, dy_dk3, dx_dcx, dy_dcx, dx_dcy, dy_dcy;
 #endif
 
     state_vision_group *state_group;
     state_vision_feature *feature;
     
-    feature_t norm_initial, norm_predicted;
+    feature_t norm_initial, norm_predicted, Xd;
 
     virtual void predict();
     virtual void compute_measurement_covariance();

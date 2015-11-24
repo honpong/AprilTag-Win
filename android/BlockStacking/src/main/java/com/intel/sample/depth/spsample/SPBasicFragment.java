@@ -164,11 +164,11 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule {
 			}		
 			
 			//checking scene quality for good initialization of SP module
-//			if (mTrackingActivationRequested) {
+			if (!mIsScenePerceptionActive.get()) {
 				float sceneQuality = mSPCore.getSceneQuality(input, false);
-                updateStatus("Scene quality: " + String.format("%.2f", sceneQuality));
-//				setEnabledPlaying(sceneQuality >= ACCEPTABLE_INPUT_COVERAGE_PERC);
-//			}
+                setProgramStatus("Scene quality: " + String.format("%.2f", sceneQuality));
+				mIsScenePerceptionActive.set(sceneQuality >= ACCEPTABLE_INPUT_COVERAGE_PERC);
+			}
 
 			// if user indicates active tracking and reconstruction (pressing Play button)
 			if (mIsScenePerceptionActive.get()) {
@@ -239,10 +239,9 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule {
 				mFPSCal.updateTimeOnFrame(System.currentTimeMillis());
 
 				if (mTrackedFrameCounter % DISPLAY_FPS_FREQ == 0) {
-					setProgramStatus("Tracking: " + trackingResult  + " " + mFPSCal.getFPSText());
+                    String status = "Tracking: " + trackingResult  + " " + mFPSCal.getFPSText();
+                    setProgramStatus(status);
 				}
-
-                updateStatus(mFPSCal.getFPSText());
 				
 //				//update view point of render reconstruction if viewpoint is toggled or dynamic
 //				updateRenderViewPoint(mCameraPose);
@@ -786,26 +785,16 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule {
 				@Override
 				public void run() {
 //					mStatusTView.setText(newStatus);
-					Toast.makeText(curActivity, newStatus, Toast.LENGTH_SHORT).show();
+                    View rootView = curActivity.getWindow().getCurrentFocus();
+                    if (rootView != null)
+                    {
+                        WebView webView = (WebView) curActivity.getWindow().getCurrentFocus().findViewById(R.id.web_view);
+                        if (webView != null) webView.evaluateJavascript("RealSense.trackingDidChangeStatus('" + newStatus + "');", null);
+                    }
 				}
 			});
 		}
 	}
-
-    private void updateStatus(final String status)
-    {
-        final Activity curActivity = getActivity();
-        if (curActivity != null) {
-            curActivity.runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    WebView webView = (WebView)curActivity.getWindow().getCurrentFocus().findViewById(R.id.web_view);
-                    webView.evaluateJavascript("RealSense.trackingDidChangeStatus('" + status + "');", null);
-                }
-            });
-        }
-
-    }
 	
 //	static {
 //		try{

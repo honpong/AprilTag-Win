@@ -3,8 +3,8 @@
     android:layout_height="wrap_content">
 	<com.intel.sample.depth.spsample.ImageView2D
         android:id="@+id/view_2d"
-        android:layout_width="@dimen/stream_display_width_size"
-        android:layout_height="@dimen/stream_display_height_size"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:background="@color/blue"
         android:scaleType="centerCrop"
         android:drawingCacheQuality="low"

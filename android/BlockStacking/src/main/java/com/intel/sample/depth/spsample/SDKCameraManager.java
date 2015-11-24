@@ -212,7 +212,7 @@ public class SDKCameraManager extends CameraHandler {
 	 * callback function to be used by client of streaming to signal complete 
 	 * processing of the frames so that these frames could be released.
 	 */
-	public void frameProcessCompleteCallback(){
+	public synchronized void frameProcessCompleteCallback(){
 		if (mColorImg != null && mCurImgSet != null) {
 			mColorImg.release();
 			mCurImgSet.releaseImage(mColorImg);

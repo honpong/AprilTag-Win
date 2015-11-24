@@ -43,7 +43,7 @@ var MainController = (function ($, window, RealSense, THREE)
             switch (workflowState)
             {
                 case WorkflowStates.READY:
-                    enterInitializationState();
+                    enterAugmentedState();
                     break;
 
                 case WorkflowStates.AUGMENTED:
@@ -80,11 +80,12 @@ var MainController = (function ($, window, RealSense, THREE)
 //            }
         });
 
-        RealSense.onMatricesUpdate(function (matrices)
+        RealSense.onPoseUpdate(function (matrices)
         {
-            var projectionMatrix = matrix4FromPlainObject(matrices.projection);
-            var cameraMatrix = matrix4FromPlainObject(matrices.camera);
-            updateWebGLView(projectionMatrix, cameraMatrix);
+            showMessage("pose update");
+//            var projectionMatrix = matrix4FromPlainObject(matrices.projection);
+//            var cameraMatrix = matrix4FromPlainObject(matrices.camera);
+//            updateWebGLView(projectionMatrix, cameraMatrix);
         });
     });
 
@@ -109,12 +110,6 @@ var MainController = (function ($, window, RealSense, THREE)
 //        RealSense.startSensors();
 
         workflowState = WorkflowStates.READY;
-    }
-
-    function enterInitializationState()
-    {
-//        RealSense.startSensorFusion();
-        workflowState = WorkflowStates.INITIALIZING;
     }
 
     function enterAugmentedState()
@@ -148,12 +143,6 @@ var MainController = (function ($, window, RealSense, THREE)
     function handleLicenseError(error)
     {
         enterErrorState(error.class + ": " + error.code);
-    }
-
-    function updateInitializationProgress(progress)
-    {
-        var percentage = progress * 100;
-        showMessage("Hold still " + Math.ceil(percentage) + "%");
     }
 
     function setupWebGLView()

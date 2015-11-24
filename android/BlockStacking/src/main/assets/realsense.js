@@ -14,7 +14,7 @@
         }
         RealSense.prototype._singletonInstance = this;
 
-        var statusUpdateCallback, dataUpdateCallback, matricesUpdateCallback;
+        var statusUpdateCallback, dataUpdateCallback, poseUpdateCallback;
 
 //        this.baseUrl = "http://dummy.realitycap.com/";
 //
@@ -59,9 +59,9 @@
         /*
         the data object contains two matrices: projection and camera. each matrix has the properties m00...m33
          */
-        this.trackingDidUpdateMatrices = function (matrices)
+        this.trackingDidUpdatePose = function (matrices)
         {
-            if (matricesUpdateCallback) matricesUpdateCallback(matrices);
+            if (poseUpdateCallback) poseUpdateCallback(matrices);
         };
 
         this.onStatusUpdate = function (callback)
@@ -74,9 +74,9 @@
             dataUpdateCallback = callback;
         };
 
-        this.onMatricesUpdate = function(callback)
+        this.onPoseUpdate = function(callback)
         {
-            matricesUpdateCallback = callback;
+            poseUpdateCallback = callback;
         };
 
         this.logNative = function (message) {

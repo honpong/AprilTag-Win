@@ -41,11 +41,11 @@ typedef struct SP_Calibration
 
 	/// @param[out] distortionModel
 	/// Default value is 0. For fisheye, value of distortion model is 1
-	int distortionModel; 
+	int distortionModel;
 
 	/// @param[out] K0
 	/// radial distortion params
-	float K0; 
+	float K0;
 	/// @param[out] K1
 	/// radial distortion params
 	float K1;
@@ -59,11 +59,11 @@ typedef struct SP_Calibration
     /// @param[out] a_bias
     /// Accelerometer bias
     float a_bias[3];
-    
+
     /// @param[out] a_bias_var
     /// Variance of accelerometer bias
     float a_bias_var[3];
-    
+
     /// @param[out] w_bias
     /// Gyroscope bias
     float w_bias[3];

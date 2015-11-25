@@ -804,7 +804,7 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule {
                     if (rootView != null)
                     {
                         WebView webView = (WebView) curActivity.getWindow().getCurrentFocus().findViewById(R.id.web_view);
-                        if (webView != null) webView.evaluateJavascript("RealSense.trackingDidChangeStatus('" + newStatus + "');", null);
+                        if (webView != null) webView.evaluateJavascript("Tracker.trackingDidChangeStatus('" + newStatus + "');", null);
                     }
 				}
 			});
@@ -843,7 +843,7 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule {
                         if (webView != null)
                         {
                             StringBuilder sb = new StringBuilder(5);
-                            sb.append("RealSense.trackingDidUpdatePose(").append(cameraPoseString).append(",").append(cameraPoseString).append(");"); // TODO: replace first cameraPoseString with projection matrix
+                            sb.append("Tracker.trackingDidUpdatePose(").append(cameraPoseString).append(",").append(cameraPoseString).append(");"); // TODO: replace first cameraPoseString with projection matrix
                             webView.evaluateJavascript(sb.toString(), null);
                         }
                     }

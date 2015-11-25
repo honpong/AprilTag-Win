@@ -22,7 +22,7 @@ var MainController = (function ($, window, RealSense, THREE)
         ERROR:          4
     };
 
-    var currentRunState = RealSense.SensorFusionRunState.Inactive;
+    var currentRunState = Tracker.SensorFusionRunState.Inactive;
     var workflowState = WorkflowStates.STARTUP;
 
     var scene, camera, renderer;
@@ -56,31 +56,31 @@ var MainController = (function ($, window, RealSense, THREE)
             }
         });
 
-        RealSense.onStatusUpdate(function (status)
+        Tracker.onStatusUpdate(function (status)
         {
             showMessage(status);
 
 //            if (status.runState !== currentRunState) handleNewSensorFusionRunState(status.runState);
 //
-//            if (status.runState === RealSense.SensorFusionRunState.SteadyInitialization && workflowState === WorkflowStates.INITIALIZING)
+//            if (status.runState === Tracker.SensorFusionRunState.SteadyInitialization && workflowState === WorkflowStates.INITIALIZING)
 //            {
 //                updateInitializationProgress(status.progress);
 //            }
 //
 //            if (status.error)
 //            {
-//                if (status.error.class == RealSense.RCSensorFusionErrorClass)
+//                if (status.error.class == Tracker.RCSensorFusionErrorClass)
 //                {
 //                    handleSensorFusionError(status.error);
 //                }
-//                else if (status.error.class == RealSense.RCLicenseErrorClass)
+//                else if (status.error.class == Tracker.RCLicenseErrorClass)
 //                {
 //                    handleLicenseError(status.error);
 //                }
 //            }
         });
 
-        RealSense.onPoseUpdate(function (projMatrix, camMatrix)
+        Tracker.onPoseUpdate(function (projMatrix, camMatrix)
         {
             showMessage("pose update");
             var projectionMatrix = matrix4FromPlainObject(projMatrix);
@@ -95,7 +95,7 @@ var MainController = (function ($, window, RealSense, THREE)
 
         switch (runState)
         {
-            case RealSense.SensorFusionRunState.Running:
+            case Tracker.SensorFusionRunState.Running:
                 enterAugmentedState();
                 break;
         }
@@ -105,9 +105,9 @@ var MainController = (function ($, window, RealSense, THREE)
     {
         showMessage("Press the button to start.");
 
-//        RealSense.stopSensorFusion();
-//        RealSense.showVideoView();
-//        RealSense.startSensors();
+//        Tracker.stopSensorFusion();
+//        Tracker.showVideoView();
+//        Tracker.startSensors();
 
         workflowState = WorkflowStates.READY;
     }
@@ -123,7 +123,7 @@ var MainController = (function ($, window, RealSense, THREE)
     {
         if (!message) message = "Whoops, something went wrong.";
         showMessage(message);
-//        RealSense.stopSensorFusion();
+//        Tracker.stopSensorFusion();
         workflowState = WorkflowStates.ERROR;
     }
 
@@ -305,4 +305,4 @@ var MainController = (function ($, window, RealSense, THREE)
 
     return module;
 
-})(jQuery, window, RealSense, THREE);
+})(jQuery, window, Tracker, THREE);

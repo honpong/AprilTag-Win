@@ -7,12 +7,12 @@
 ;(function (window, $) {
     "use strict";
 
-    var RealSense = function ()
+    var Tracker = function ()
     {
-        if (RealSense.prototype._singletonInstance) {
-            return RealSense.prototype_singletonInstance;
+        if (Tracker.prototype._singletonInstance) {
+            return Tracker.prototype_singletonInstance;
         }
-        RealSense.prototype._singletonInstance = this;
+        Tracker.prototype._singletonInstance = this;
 
         var statusUpdateCallback, dataUpdateCallback, poseUpdateCallback;
 
@@ -107,6 +107,6 @@
         this.RCLicenseErrorClass = "RCLicenseError";
     }
 
-    if (!window.RealSense) window.RealSense = new RealSense();
+    if (!window.Tracker) window.Tracker = new Tracker();
 
 })(window, jQuery);

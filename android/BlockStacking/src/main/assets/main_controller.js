@@ -80,11 +80,11 @@ var MainController = (function ($, window, RealSense, THREE)
 //            }
         });
 
-        RealSense.onPoseUpdate(function (matrices)
+        RealSense.onPoseUpdate(function (projMatrix, camMatrix)
         {
             showMessage("pose update");
-//            var projectionMatrix = matrix4FromPlainObject(matrices.projection);
-//            var cameraMatrix = matrix4FromPlainObject(matrices.camera);
+            var projectionMatrix = matrix4FromPlainObject(projMatrix);
+            var cameraMatrix = matrix4FromPlainObject(camMatrix);
 //            updateWebGLView(projectionMatrix, cameraMatrix);
         });
     });
@@ -147,10 +147,9 @@ var MainController = (function ($, window, RealSense, THREE)
 
     function setupWebGLView()
     {
-          //prevent scrolling
-          document.body.addEventListener('touchstart', function(e){ e.stopPropagation(); e.preventDefault(); });
-              
-                      
+        //prevent scrolling
+        document.body.addEventListener('touchstart', function(e){ e.stopPropagation(); e.preventDefault(); });
+
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 

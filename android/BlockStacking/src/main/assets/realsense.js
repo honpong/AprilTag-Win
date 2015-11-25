@@ -59,9 +59,9 @@
         /*
         the data object contains two matrices: projection and camera. each matrix has the properties m00...m33
          */
-        this.trackingDidUpdatePose = function (matrices)
+        this.trackingDidUpdatePose = function (projMatrix, camMatrix)
         {
-            if (poseUpdateCallback) poseUpdateCallback(matrices);
+            if (poseUpdateCallback) poseUpdateCallback(projMatrix, camMatrix);
         };
 
         this.onStatusUpdate = function (callback)

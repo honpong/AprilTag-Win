@@ -120,10 +120,3 @@ bool calibration_deserialize(const std::string &jsonString, device_parameters &c
     CopyJsonToStruct(json, cal);
     return true;
 }
-
-bool calibration_load_defaults(const corvis_device_type deviceType, device_parameters &cal)
-{
-    bool result = calibration_deserialize(calibration_default_json_for_device_type(deviceType), cal);
-    if (result) cal.calibrationVersion = CALIBRATION_VERSION; // need this here to override possibly outdated value in default JSON
-    return result;
-}

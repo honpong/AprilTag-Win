@@ -1,4 +1,5 @@
 #include "calibration_defaults.h"
+#include "calibration_json_store.h"
 
 static const char *CALIBRATION_DEFAULT_GIGABYTES11 = R"(
 {
@@ -821,4 +822,11 @@ const char *calibration_default_json_for_device_type(corvis_device_type device)
     default:
             return CALIBRATION_DEFAULT_UNKNOWN;
     }
+}
+
+bool calibration_load_defaults(const corvis_device_type deviceType, device_parameters &cal)
+{
+    bool result = calibration_deserialize(calibration_default_json_for_device_type(deviceType), cal);
+    if (result) cal.calibrationVersion = CALIBRATION_VERSION; // need this here to override possibly outdated value in default JSON
+    return result;
 }

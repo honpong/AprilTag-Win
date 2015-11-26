@@ -190,7 +190,7 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
 
 device_parameters sensor_fusion::get_device() const
 {
-    device_parameters cal;
+    device_parameters cal = {};
     filter_get_device_parameters(&sfm, &cal);
     return cal;
 }

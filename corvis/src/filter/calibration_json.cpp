@@ -111,10 +111,13 @@ static void CopyRSStructToJson(const rcCalibration &cal, Document &json)
     json.AddMember(KEY_CY, cal.Cy, json.GetAllocator());
     json.AddMember(KEY_PX, cal.px, json.GetAllocator());
     json.AddMember(KEY_PY, cal.py, json.GetAllocator());
-    json.AddMember(KEY_K0, cal.K0, json.GetAllocator());
-    json.AddMember(KEY_K1, cal.K1, json.GetAllocator());
-    json.AddMember(KEY_K2, cal.K2, json.GetAllocator());
-    json.AddMember(KEY_KW, cal.Kw, json.GetAllocator());
+    if (cal.distortionModel == 0) {
+        json.AddMember(KEY_K0, cal.K0, json.GetAllocator());
+        json.AddMember(KEY_K1, cal.K1, json.GetAllocator());
+        json.AddMember(KEY_K2, cal.K2, json.GetAllocator());
+    } else if (cal.distortionModel == 1) {
+        json.AddMember(KEY_KW, cal.Kw, json.GetAllocator());
+    }
     json.AddMember(KEY_ABIAS0, cal.a_bias[0], json.GetAllocator());
     json.AddMember(KEY_ABIAS1, cal.a_bias[1], json.GetAllocator());
     json.AddMember(KEY_ABIAS2, cal.a_bias[2], json.GetAllocator());

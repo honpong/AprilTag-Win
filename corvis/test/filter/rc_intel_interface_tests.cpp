@@ -133,7 +133,6 @@ TEST(rc_intel_interface_tests, rc_fisheyeKw)
 
     rcCalibration calOutput;
     rc_getCalibrationStruct(tracker, &calOutput);
-    EXPECT_FLOAT_EQ(calInput.Kw, calOutput.K0);
     EXPECT_FLOAT_EQ(calInput.Kw, calOutput.Kw);
     EXPECT_EQ(calInput.distortionModel, calOutput.distortionModel);
 

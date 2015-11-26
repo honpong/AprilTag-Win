@@ -956,12 +956,13 @@ void filter_get_device_parameters(const struct filter *f, rcCalibration *cal)
     cal->Cy = (float)f->s.center_y.v * f->s.image_height + f->s.image_height / 2. - .5;
     cal->w_meas_var = (float)f->w_variance;
     cal->a_meas_var = (float)f->a_variance;
-    cal->K0 = (float)f->s.k1.v;
+
+    cal->distortionModel = f->s.fisheye;
+    cal->Kw = f->s.fisheye ? (float)f->s.k1.v : 0;
+    cal->K0 = f->s.fisheye ? 0 : (float)f->s.k1.v;
     cal->K1 = (float)f->s.k2.v;
     cal->K2 = (float)f->s.k3.v;
-    if (f->s.fisheye) 
-        cal->Kw = (float)f->s.k1.v;
-    cal->distortionModel = f->s.fisheye;
+
     cal->Wc[0] = (float)f->s.Wc.v.x();
     cal->Wc[1] = (float)f->s.Wc.v.y();
     cal->Wc[2] = (float)f->s.Wc.v.z();

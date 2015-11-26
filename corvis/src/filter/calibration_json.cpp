@@ -167,40 +167,22 @@ static void CopyRSStructToJson(const rcCalibration &cal, Document &json)
 
 bool calibration_serialize(const rcCalibration &cal, std::string &jsonString)
 {
-    Document json; 
-    
-    try
-    {
-        json.SetObject();
+    Document json;
+    json.SetObject();
+    CopyRSStructToJson(cal, json);
 
-        CopyRSStructToJson(cal, json);
-
-        StringBuffer buffer;
-        Writer<StringBuffer> writer(buffer);
-        json.Accept(writer);
-        jsonString = buffer.GetString();
-        return jsonString.length() > 0;
-    }
-    catch (std::exception e)
-    {
-        return false;
-    }   
+    StringBuffer buffer;
+    Writer<StringBuffer> writer(buffer);
+    json.Accept(writer);
+    jsonString = buffer.GetString();
+    return jsonString.length() > 0;
 }
 
 bool calibration_deserialize(const std::string &jsonString, rcCalibration &cal, const rcCalibration *defaults)
 {
     Document json;
-
-    try
-    {
-        json.Parse(jsonString.c_str());
-        if (json.HasParseError()) return false;
-        CopyJsonToRSStruct(json, cal, defaults);
-    }
-    catch (std::exception e)
-    {
+    if (json.Parse(jsonString.c_str()).HasParseError())
         return false;
-    }
-
+    CopyJsonToRSStruct(json, cal, defaults);
     return true;
 }

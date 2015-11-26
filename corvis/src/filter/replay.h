@@ -35,9 +35,11 @@ private:
     std::function<void (float)> progress_callback;
     bool qvga {false};
     bool depth {true};
-    bool imu_decimate {false};
+    bool accel_decimate {false};
+    bool gyro_decimate {false};
     bool image_decimate {false};
-    std::chrono::microseconds imu_interval {10000};
+    std::chrono::microseconds accel_interval {10000};
+    std::chrono::microseconds gyro_interval {10000};
     std::chrono::microseconds image_interval {33333};
     sensor_clock::time_point last_accel, last_gyro, last_image;
     image_gray8 parse_gray8(int width, int height, int stride, uint8_t *data, uint64_t time_us, uint64_t exposure_time_us, std::unique_ptr<void, void(*)(void *)> handle);
@@ -57,7 +59,8 @@ public:
     void enable_realtime() { is_realtime = true; }
     void enable_qvga() { qvga = true; }
     void disable_depth() { depth = false; }
-    void decimate_imu(std::chrono::microseconds interval) { imu_decimate = true; imu_interval = interval; }
+    void decimate_accel(std::chrono::microseconds interval) { accel_decimate = true; accel_interval = interval; }
+    void decimate_gyro(std::chrono::microseconds interval) { gyro_decimate = true; gyro_interval = interval; }
     void decimate_images(std::chrono::microseconds interval) { image_decimate = true; image_interval = interval; }
     void enable_intel() { fusion.queue->strategy = fusion_queue::latency_strategy::IMAGE_TRIGGER; fusion.sfm.ignore_lateness = true; }
     void start();

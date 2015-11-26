@@ -255,9 +255,9 @@ void replay::start()
                     d.accel_m__s2[1] = ((float *)packet->data)[1];
                     d.accel_m__s2[2] = ((float *)packet->data)[2];
                     d.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time));
-                    if(imu_decimate && d.timestamp < last_accel) break;
+                    if(accel_decimate && d.timestamp < last_accel) break;
                     if(last_accel == sensor_clock::time_point()) last_accel = d.timestamp;
-                    last_accel += imu_interval;
+                    last_accel += accel_interval;
                     fusion.receive_accelerometer(std::move(d));
                     break;
                 }
@@ -268,9 +268,9 @@ void replay::start()
                     d.angvel_rad__s[1] = ((float *)packet->data)[1];
                     d.angvel_rad__s[2] = ((float *)packet->data)[2];
                     d.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time));
-                    if(imu_decimate && d.timestamp < last_gyro) break;
+                    if(gyro_decimate && d.timestamp < last_gyro) break;
                     if(last_gyro == sensor_clock::time_point()) last_gyro = d.timestamp;
-                    last_gyro += imu_interval;
+                    last_gyro += gyro_interval;
                     fusion.receive_gyro(std::move(d));
                     break;
                 }

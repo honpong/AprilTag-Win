@@ -89,8 +89,8 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\corvis\test\filter\calibration_json_store_tests.cpp" />
-    <ClCompile Include="..\..\..\corvis\test\filter\device_parameters_tests.cpp" />
+    <ClCompile Include="..\..\..\corvis\test\filter\calibration_json.cpp" />
+    <ClCompile Include="..\..\..\corvis\test\filter\device_parameters.cpp" />
     <ClCompile Include="RC3DKTests.cpp" />
     <ClCompile Include="stdafx.cpp" />
   </ItemGroup>

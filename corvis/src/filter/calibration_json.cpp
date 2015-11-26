@@ -1,4 +1,4 @@
-#include "rs_calibration_json.h"
+#include "calibration_json.h"
 #include "json_keys.h"
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
@@ -10,7 +10,7 @@
 using namespace rapidjson;
 using namespace std;
 
-void CopyJsonToRSStruct(Document &json, rcCalibration &cal, const rcCalibration *defaults)
+static void CopyJsonToRSStruct(Document &json, rcCalibration &cal, const rcCalibration *defaults)
 {
     if (json.HasMember(KEY_DEVICE_NAME))
     {
@@ -99,7 +99,7 @@ void CopyJsonToRSStruct(Document &json, rcCalibration &cal, const rcCalibration 
     }
 }
 
-void CopyRSStructToJson(const rcCalibration &cal, Document &json)
+static void CopyRSStructToJson(const rcCalibration &cal, Document &json)
 {
     Value name(kStringType);
     name.SetString(cal.deviceName, json.GetAllocator());
@@ -165,7 +165,7 @@ void CopyRSStructToJson(const rcCalibration &cal, Document &json)
     json.AddMember(KEY_GYRO_TRANSFORM, gyroArray, json.GetAllocator());
 }
 
-bool rs_calibration_serialize(const rcCalibration &cal, std::string &jsonString)
+bool calibration_serialize(const rcCalibration &cal, std::string &jsonString)
 {
     Document json; 
     
@@ -187,7 +187,7 @@ bool rs_calibration_serialize(const rcCalibration &cal, std::string &jsonString)
     }   
 }
 
-bool rs_calibration_deserialize(const std::string &jsonString, rcCalibration &cal, const rcCalibration *defaults)
+bool calibration_deserialize(const std::string &jsonString, rcCalibration &cal, const rcCalibration *defaults)
 {
     Document json;
 

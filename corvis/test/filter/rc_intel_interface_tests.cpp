@@ -3,7 +3,7 @@
 #include "rc_intel_interface.h"
 #include <memory>
 #include <codecvt>
-#include "rs_calibration_json.h"
+#include "calibration_json.h"
 #include "json_keys.h"
 
 using namespace std;
@@ -29,7 +29,7 @@ TEST(rc_intel_interface_tests, rc_setCalibration)
 
     // set cal
     string jsonString;
-    EXPECT_TRUE(rs_calibration_serialize(calInput, jsonString));
+    EXPECT_TRUE(calibration_serialize(calInput, jsonString));
 
     rc_Tracker *tracker = rc_create();
 #ifdef _WIN32

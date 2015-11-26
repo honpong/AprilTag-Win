@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 #include "device_parameters.h"
-#include "calibration_json_store.h"
+#include "calibration_json.h"
 #include "calibration_defaults.h"
 #include <memory>
 

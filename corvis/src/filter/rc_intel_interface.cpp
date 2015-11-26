@@ -8,7 +8,7 @@
 #define RCTRACKER_API_EXPORTS
 #include "rc_intel_interface.h"
 #include "sensor_fusion.h"
-#include "rs_calibration_json.h"
+#include "calibration_json.h"
 #include <codecvt>
 #include <fstream>
 
@@ -449,7 +449,7 @@ size_t rc_getCalibration(rc_Tracker *tracker, const rc_char_t **buffer)
     rc_getCalibrationStruct(tracker, &rsCal);
 
     std::string json;
-    if (!rs_calibration_serialize(rsCal, json))
+    if (!calibration_serialize(rsCal, json))
         return 0;
 #ifdef _WIN32
     std::wstring_convert<std::codecvt_utf8<rc_char_t>, rc_char_t> converter;
@@ -466,9 +466,9 @@ bool rc_setCalibration(rc_Tracker *tracker, const rc_char_t *buffer, const rcCal
     rcCalibration cal;
 #ifdef _WIN32
     std::wstring_convert<std::codecvt_utf8<rc_char_t>, rc_char_t> converter;
-    bool result = rs_calibration_deserialize(converter.to_bytes(buffer), cal, defaults);
+    bool result = calibration_deserialize(converter.to_bytes(buffer), cal, defaults);
 #else
-    bool result = rs_calibration_deserialize(buffer, cal, defaults);
+    bool result = calibration_deserialize(buffer, cal, defaults);
 #endif
     if (result)
     {

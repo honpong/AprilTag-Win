@@ -9,7 +9,7 @@
 
 #include <string.h>
 #include <regex>
-#include "calibration_json_store.h"
+#include "calibration_json.h"
 #include "device_parameters.h"
 #include "../cor/packet.h"
 
@@ -37,7 +37,8 @@ bool load_calibration(string filename, device_parameters & dc)
 
     string json((istreambuf_iterator<char>(file_handle)), istreambuf_iterator<char>());
 
-    if(!calibration_deserialize(json, dc))
+    device_parameters def = {};
+    if(!calibration_deserialize(json, dc, &def))
         return false;
 
     return true;

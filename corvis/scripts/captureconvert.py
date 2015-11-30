@@ -61,6 +61,18 @@ for t in ['gyro','accel', 'fish']:
     data.extend(raw[t])
 data.sort()
 
+# The depth camera is not on the same clock as the gyro, accel and fisheye camera
+use_depth = False
+offset = 0 # 67
+offset += raw['depth'][0][0] - raw['fish'][0][0]
+def depth_for_image(t):
+    t += offset
+    best = raw['depth'][0]
+    for r in raw['depth']:
+        if abs(r[0] - t) < abs(r[0] - best[0]):
+            best = r
+    return best
+
 wrote_packets = defaultdict(int)
 wrote_bytes = 0
 with open(output_filename, "wb") as f:
@@ -74,7 +86,8 @@ with open(output_filename, "wb") as f:
         elif ptype == image_with_depth_type:
             w, h, b, d = read_pgm(path + line[2])
             assert b == 1, "image should be 1 byte, not %d" % b
-            dw, dh, db, dd = 0, 0, 0, ''
+            dw, dh, db, dd = read_pgm(path + depth_for_image(line[0])[2]) if use_depth else (0, 0, 0, '')
+            assert db == 2 or not use_depth, "depth should be 2 bytes, not %d" % db
             data = pack('LHHHH', 0*33333333, w, h, dw, dh) + d + dd
         elif ptype == gyro_type:
             data = pack('fff', line[2], line[3], line[4])

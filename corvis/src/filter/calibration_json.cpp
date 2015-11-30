@@ -152,23 +152,17 @@ static void CopyRSStructToJson(const rcCalibration &cal, Document &json)
     json.AddMember(KEY_SHUTTER_DELAY, cal.shutterDelay, json.GetAllocator());
     json.AddMember(KEY_SHUTTER_PERIOD, cal.shutterPeriod, json.GetAllocator());
     json.AddMember(KEY_TIMESTAMP_OFFSET, cal.timeStampOffset, json.GetAllocator());
-    
-    int arrSize = sizeof(cal.accelerometerTransform) / sizeof(cal.accelerometerTransform[0]);
+
     Value accelArray(kArrayType);
-    for (int i = 0; i < arrSize; i++)
-    {
-        accelArray.PushBack(cal.accelerometerTransform[i], json.GetAllocator());
-    }
+    for (auto v : cal.accelerometerTransform)
+        accelArray.PushBack(v, json.GetAllocator());
 
     if (std::accumulate(std::begin(cal.accelerometerTransform), std::end(cal.accelerometerTransform), false, std::logical_or<bool>()))
         json.AddMember(KEY_ACCEL_TRANSFORM, accelArray, json.GetAllocator());
 
-    arrSize = sizeof(cal.gyroscopeTransform) / sizeof(cal.gyroscopeTransform[0]);
     Value gyroArray(kArrayType);
-    for (int i = 0; i < arrSize; i++)
-    {
-        gyroArray.PushBack(cal.gyroscopeTransform[i], json.GetAllocator());
-    }
+    for (auto v : cal.gyroscopeTransform)
+        gyroArray.PushBack(v, json.GetAllocator());
 
     if (std::accumulate(std::begin(cal.gyroscopeTransform), std::end(cal.gyroscopeTransform), false, std::logical_or<bool>()))
         json.AddMember(KEY_GYRO_TRANSFORM, gyroArray, json.GetAllocator());

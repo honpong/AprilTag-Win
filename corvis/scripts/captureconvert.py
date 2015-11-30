@@ -37,6 +37,17 @@ def read_csv_timestamps(filename, ptype):
             rows.append([float(timestamp), ptype, float(x), float(y), float(z)])
     return rows
 
+def read_pgm(filename):
+    with open(filename, 'rb') as fi:
+        assert fi.read(1) == 'P', '%s is a pgm' % filename
+        P = fi.readline()
+        while len(P.split()) < 4:
+            P += fi.readline()
+        P = map(int,P.split())
+        w, h, b, d = P[1], P[2], int(math.log(P[3]+1,2)/8), fi.read()
+        assert h * w * b == len(d), "%d x %d %d bytes/pixel == %d bytes" % (h , w, b, len(d))
+        return (w,h,b,d)
+
 raw = {
    'gyro':  read_csv_timestamps(path + 'gyro.txt', gyro_type),
    'accel': read_csv_timestamps(path + 'accel.txt', accel_type),
@@ -61,14 +72,10 @@ with open(output_filename, "wb") as f:
             with open(path + line[2]) as fi:
                 data = fi.read()
         elif ptype == image_with_depth_type:
-            with open(path + line[2], 'rb') as fi:
-                assert fi.read(1) == 'P', '%s is a pgm' % (path + line[2])
-                P = fi.readline()
-                while len(P.split()) < 4:
-                    P += fi.readline()
-                w, h, d = int(P.split()[1]), int(P.split()[2]), fi.read(); assert h * w == len(d)
-                dw, dh = 0, 0
-                data = pack('LHHHH', 0*33333333, w, h, dw, dh) + d
+            w, h, b, d = read_pgm(path + line[2])
+            assert b == 1, "image should be 1 byte, not %d" % b
+            dw, dh, db, dd = 0, 0, 0, ''
+            data = pack('LHHHH', 0*33333333, w, h, dw, dh) + d + dd
         elif ptype == gyro_type:
             data = pack('fff', line[2], line[3], line[4])
         elif ptype == accel_type:

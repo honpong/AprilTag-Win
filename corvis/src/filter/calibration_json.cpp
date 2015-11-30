@@ -3,6 +3,8 @@
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
+#include <functional>
+#include <numeric>
 #include <iostream>
 #include <fstream>
 #include <sys/stat.h>
@@ -157,7 +159,9 @@ static void CopyRSStructToJson(const rcCalibration &cal, Document &json)
     {
         accelArray.PushBack(cal.accelerometerTransform[i], json.GetAllocator());
     }
-    json.AddMember(KEY_ACCEL_TRANSFORM, accelArray, json.GetAllocator());
+
+    if (std::accumulate(std::begin(cal.accelerometerTransform), std::end(cal.accelerometerTransform), false, std::logical_or<bool>()))
+        json.AddMember(KEY_ACCEL_TRANSFORM, accelArray, json.GetAllocator());
 
     arrSize = sizeof(cal.gyroscopeTransform) / sizeof(cal.gyroscopeTransform[0]);
     Value gyroArray(kArrayType);
@@ -165,7 +169,9 @@ static void CopyRSStructToJson(const rcCalibration &cal, Document &json)
     {
         gyroArray.PushBack(cal.gyroscopeTransform[i], json.GetAllocator());
     }
-    json.AddMember(KEY_GYRO_TRANSFORM, gyroArray, json.GetAllocator());
+
+    if (std::accumulate(std::begin(cal.gyroscopeTransform), std::end(cal.gyroscopeTransform), false, std::logical_or<bool>()))
+        json.AddMember(KEY_GYRO_TRANSFORM, gyroArray, json.GetAllocator());
 }
 
 bool calibration_serialize(const rcCalibration &cal, std::string &jsonString)

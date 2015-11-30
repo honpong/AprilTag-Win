@@ -60,13 +60,6 @@ var MainController = (function ($, window, RealSense, THREE)
         {
             showMessage(status);
 
-//            if (status.runState !== currentRunState) handleNewSensorFusionRunState(status.runState);
-//
-//            if (status.runState === Tracker.SensorFusionRunState.SteadyInitialization && workflowState === WorkflowStates.INITIALIZING)
-//            {
-//                updateInitializationProgress(status.progress);
-//            }
-//
 //            if (status.error)
 //            {
 //                if (status.error.class == Tracker.RCSensorFusionErrorClass)
@@ -82,10 +75,12 @@ var MainController = (function ($, window, RealSense, THREE)
 
         Tracker.onPoseUpdate(function (projMatrix, camMatrix)
         {
-            showMessage("pose update");
-            var projectionMatrix = matrix4FromPlainObject(projMatrix);
-            var cameraMatrix = matrix4FromPlainObject(camMatrix);
-//            updateWebGLView(projectionMatrix, cameraMatrix);
+            if (workflowState = WorkflowStates.AUGMENTED)
+            {
+                var projectionMatrix = matrix4FromPlainObject(projMatrix);
+                var cameraMatrix = matrix4FromPlainObject(camMatrix);
+                updateWebGLView(projectionMatrix, cameraMatrix);
+            }
         });
     });
 
@@ -105,16 +100,13 @@ var MainController = (function ($, window, RealSense, THREE)
     {
         showMessage("Press the button to start.");
 
-//        Tracker.stopSensorFusion();
-//        Tracker.showVideoView();
-//        Tracker.startSensors();
+        setupWebGLView();
 
         workflowState = WorkflowStates.READY;
     }
 
     function enterAugmentedState()
     {
-        setupWebGLView();
         showMessage("Augmented reality!");
         workflowState = WorkflowStates.AUGMENTED;
     }
@@ -154,7 +146,7 @@ var MainController = (function ($, window, RealSense, THREE)
         camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
 
         var canvas = document.getElementById("webGLCanvas");
-        renderer = new THREE.WebGLRenderer({ canvas: canvas });
+        renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
         renderer.setSize( window.innerWidth, window.innerHeight );
 
                       

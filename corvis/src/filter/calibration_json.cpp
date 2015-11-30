@@ -149,9 +149,12 @@ static void CopyRSStructToJson(const rcCalibration &cal, Document &json)
     json.AddMember(KEY_IMAGE_WIDTH, cal.image_width, json.GetAllocator());
     json.AddMember(KEY_IMAGE_HEIGHT, cal.image_height, json.GetAllocator());
     json.AddMember(KEY_DISTORTION_MODEL, cal.distortionModel, json.GetAllocator());
-    json.AddMember(KEY_SHUTTER_DELAY, cal.shutterDelay, json.GetAllocator());
-    json.AddMember(KEY_SHUTTER_PERIOD, cal.shutterPeriod, json.GetAllocator());
-    json.AddMember(KEY_TIMESTAMP_OFFSET, cal.timeStampOffset, json.GetAllocator());
+    if (cal.shutterDelay)
+        json.AddMember(KEY_SHUTTER_DELAY, cal.shutterDelay, json.GetAllocator());
+    if (cal.shutterPeriod)
+        json.AddMember(KEY_SHUTTER_PERIOD, cal.shutterPeriod, json.GetAllocator());
+    if (cal.timeStampOffset)
+        json.AddMember(KEY_TIMESTAMP_OFFSET, cal.timeStampOffset, json.GetAllocator());
 
     Value accelArray(kArrayType);
     for (auto v : cal.accelerometerTransform)

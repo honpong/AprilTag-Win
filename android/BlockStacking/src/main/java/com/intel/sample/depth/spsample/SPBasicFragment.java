@@ -818,22 +818,7 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule {
                 @Override
                 public void run() {
 					String cameraPoseString = String.format("{ m00: %f, m01: %f, m02: %f, m03: %f, m10: %f, m11: %f, m12: %f, m13: %f, m20: %f, m21: %f, m22: %f, m23: %f, m30: %f, m31: %f, m32: %f, m33: %f }",
-                            cameraPose.get()[0],
-                            cameraPose.get()[1],
-                            cameraPose.get()[2],
-                            cameraPose.get()[3],
-                            cameraPose.get()[4],
-                            cameraPose.get()[5],
-                            cameraPose.get()[6],
-                            cameraPose.get()[7],
-                            cameraPose.get()[8],
-                            cameraPose.get()[9],
-                            cameraPose.get()[10],
-                            cameraPose.get()[11],
-                            cameraPose.get()[12],
-                            cameraPose.get()[13],
-                            cameraPose.get()[14],
-                            cameraPose.get()[15]
+                        cameraPose.get()[0], cameraPose.get()[1], cameraPose.get()[2], cameraPose.get()[3], cameraPose.get()[4], cameraPose.get()[5], cameraPose.get()[6], cameraPose.get()[7], cameraPose.get()[8], cameraPose.get()[9], cameraPose.get()[10], cameraPose.get()[11], cameraPose.get()[12], cameraPose.get()[13], cameraPose.get()[14], cameraPose.get()[15]
                     );
 
                     View rootView = curActivity.getWindow().getCurrentFocus();

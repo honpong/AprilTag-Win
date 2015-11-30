@@ -2,6 +2,7 @@
 from struct import pack
 import csv
 from collections import defaultdict
+import math
 import sys
 
 camera_type = 1
@@ -36,10 +37,17 @@ def read_csv_timestamps(filename, ptype):
             rows.append([float(timestamp), ptype, float(x), float(y), float(z)])
     return rows
 
-data = []
-data.extend(read_csv_timestamps(path + 'gyro.txt', gyro_type))
-data.extend(read_csv_timestamps(path + 'accel.txt', accel_type))
-data.extend(read_image_timestamps(path + 'fisheye_timestamps.txt'))
+raw = {
+   'gyro':  read_csv_timestamps(path + 'gyro.txt', gyro_type),
+   'accel': read_csv_timestamps(path + 'accel.txt', accel_type),
+   'fish':  read_image_timestamps(path + 'fisheye_timestamps.txt'),
+   'depth': read_image_timestamps(path + 'depth_timestamps.txt'),
+   'color': read_image_timestamps(path + 'color_timestamps.txt'),
+}
+
+data = [];
+for t in ['gyro','accel', 'fish']:
+    data.extend(raw[t])
 data.sort()
 
 wrote_packets = defaultdict(int)

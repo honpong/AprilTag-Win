@@ -1,19 +1,21 @@
 package com.realitycap.android.rcutility;
 
 import android.content.Context;
-import android.hardware.Sensor;
 import android.util.Log;
 
+import com.intel.camera.toolkit.depth.SensorType;
 import com.intel.camera.toolkit.depth.Camera;
 import com.intel.camera.toolkit.depth.Image;
 import com.intel.camera.toolkit.depth.ImageSet;
-import com.intel.camera.toolkit.depth.OnSenseManagerHandler;
+import com.intel.camera.toolkit.depth.StreamSet;
+import com.intel.camera.toolkit.depth.SenseManagerCallback;
 import com.intel.camera.toolkit.depth.RSPixelFormat;
+import com.intel.camera.toolkit.depth.RSException;
 import com.intel.camera.toolkit.depth.StreamProfile;
 import com.intel.camera.toolkit.depth.StreamProfileSet;
 import com.intel.camera.toolkit.depth.StreamType;
 import com.intel.camera.toolkit.depth.StreamTypeSet;
-import com.intel.camera.toolkit.depth.sensemanager.IMUCaptureManager;
+import com.intel.camera.toolkit.depth.IMUCaptureManager;
 import com.intel.camera.toolkit.depth.sensemanager.SenseManager;
 
 /**
@@ -37,7 +39,6 @@ public class RealSenseManager
     RealSenseManager(Context context, IRealSenseSensorReceiver receiver)
     {
         mSenseManager = new SenseManager(context);
-        mIMUManager = IMUCaptureManager.instance(context);
         this.receiver = receiver;
     }
 
@@ -52,13 +53,10 @@ public class RealSenseManager
             try
             {
                 if (enablePlayback)
-                {
-                    mSenseManager.enableStreams(mSenseEventHandler, playbackCamDesc);
-                }
+                    mSenseManager.enableCameraDesc(playbackCamDesc);
                 else
-                {
-                    mSenseManager.enableStreams(mSenseEventHandler, getUserProfiles(), null);
-                }
+                    mSenseManager.enableStream(getUserProfiles());
+                mSenseManager.init(mSenseEventHandler, null);
                 mIsCamRunning = true;
             }
             catch (Exception e)
@@ -91,16 +89,17 @@ public class RealSenseManager
 
     public boolean startImu()
     {
-        if (mIMUManager == null) return false;
+        if (mIMUManager == null)
+            mIMUManager = mSenseManager.queryIMUCaptureManager();
 
         try
         {
-            if (!mIMUManager.enableSensor(Sensor.TYPE_ACCELEROMETER))
+            if (!mIMUManager.enableSensor(SensorType.ACCELEROMETER))
             {
                 Log.e(TAG, "Failed to enable accelerometer");
                 return false;
             }
-            if (!mIMUManager.enableSensor(Sensor.TYPE_GYROSCOPE_UNCALIBRATED))
+            if (!mIMUManager.enableSensor(SensorType.GYROSCOPE))
             {
                 Log.e(TAG, "Failed to enable gyro");
                 return false;
@@ -118,7 +117,8 @@ public class RealSenseManager
     {
         try
         {
-            if (mIMUManager != null) mIMUManager.close();
+            mIMUManager.disableSensor(SensorType.ACCELEROMETER);
+            mIMUManager.disableSensor(SensorType.GYROSCOPE);
         }
         catch (Exception e)
         {
@@ -149,7 +149,7 @@ public class RealSenseManager
         return mColorParams;
     }
 
-    OnSenseManagerHandler mSenseEventHandler = new OnSenseManagerHandler()
+    SenseManagerCallback mSenseEventHandler = new SenseManagerCallback()
     {
         long lastAmeterTimestamp = 0;
         long lastGyroTimestamp = 0;
@@ -157,7 +157,7 @@ public class RealSenseManager
         @Override
         public void onSetProfile(Camera.CaptureInfo info)
         {
-            Camera.Calibration cal = info.getCalibrationData();
+            Camera.Calibration cal = info.getStreamCalibrationData(); //  .getSnapshotCalibrationData()?
             if (cal != null)
             {
                 mColorParams = cal.colorIntrinsics;
@@ -166,7 +166,20 @@ public class RealSenseManager
         }
 
         @Override
-        public void onNewSample(ImageSet images)
+        public boolean onRequestMatchFound(StreamProfileSet streams, StreamProfileSet snapshot, StreamSet preview)
+        {
+            //throw new RuntimeException();
+            return false;
+        }
+
+        @Override
+        public void onNewSnapShot(ImageSet images, Camera.CaptureInfo info)
+        {
+            throw new RuntimeException();
+        }
+
+        @Override
+        public void onNewSample(ImageSet images, Camera.CaptureInfo info)
         {
             if (receiver == null) return; // no point in any of this if no one is receiving it
 
@@ -188,14 +201,14 @@ public class RealSenseManager
             depth.release();
 
             // send IMU samples
-            /*ArrayList<SensorSample> ameterSamples = getSamplesSince(Sensor.TYPE_ACCELEROMETER, lastAmeterTimestamp);
+            /*ArrayList<SensorSample> ameterSamples = getSamplesSince(SensorType.ACCELEROMETER, lastAmeterTimestamp);
             if (ameterSamples != null && ameterSamples.size() > 0 && ameterSamples.get(0) != null)
             {
                 lastAmeterTimestamp = ameterSamples.get(0).timestamp();
                 receiver.onAccelerometerSamples(ameterSamples);
             }
 
-            ArrayList<SensorSample> gyroSamples = getSamplesSince(Sensor.TYPE_GYROSCOPE_UNCALIBRATED, lastGyroTimestamp);
+            ArrayList<SensorSample> gyroSamples = getSamplesSince(SensorType.GYROSCOPE, lastGyroTimestamp);
             if (gyroSamples != null && gyroSamples.size() > 0 && gyroSamples.get(0) != null)
             {
                 lastGyroTimestamp = gyroSamples.get(0).timestamp();
@@ -204,10 +217,10 @@ public class RealSenseManager
         }
 
         @Override
-        public void onError(StreamProfileSet profile, int error)
+        public void onError(RSException e)
         {
             stopCameras();
-            Log.e(TAG, "Error code " + error + ". The camera is not present or failed to initialize.");
+            Log.e(TAG, "Error: " + e + ". The camera is not present or failed to initialize.");
         }
     };
 

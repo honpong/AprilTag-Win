@@ -237,7 +237,7 @@ public class R200Manager
             throw new Exception(TAG + ": Failed to get camera ID.");
         }
 
-        DepthCameraCalibrationDataMap map = new DepthCameraCalibrationDataMap(mCameraChar);
+        DepthCameraCalibrationDataMap map = new DepthCameraCalibrationDataMap(mCameraChar, Integer.parseInt(cameraId));
         return map.getCalibrationData(new Size(COLOR_WIDTH, COLOR_HEIGHT), new Size(DEPTH_WIDTH, DEPTH_HEIGHT), true, Integer.parseInt(cameraId));
     }
 

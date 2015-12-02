@@ -168,13 +168,9 @@ void rc_configureCamera(rc_Tracker * tracker, rc_Camera camera, const rc_Pose po
     tracker->device.K0 = 0;
     tracker->device.K1 = 0;
     tracker->device.K2 = 0;
-
+    tracker->device.Kw = fisheye_fov_radians;
     tracker->device.distortionModel = fisheye;
-    if(fisheye)
-    {
-        tracker->device.K0 = fisheye_fov_radians;
-    }
-    
+
     transformation g = rc_Pose_to_transformation(pose_m);
     rotation_vector W = to_rotation_vector(g.Q);
     for(int i = 0; i < 3; ++i)

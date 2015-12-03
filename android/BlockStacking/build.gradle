@@ -8,7 +8,7 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.2.3'
+        classpath 'com.android.tools.build:gradle:2.0.0-alpha1'
     }
 }
 
@@ -36,7 +36,7 @@ android {
 	    targetSdkVersion 22			
 	}	
     compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    buildToolsVersion '23.0.2'
 
     sourceSets.main.jniLibs.srcDir 'src/main/libs'
     sourceSets.main.jni.srcDirs = []

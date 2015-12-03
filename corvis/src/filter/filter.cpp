@@ -582,7 +582,10 @@ static void filter_add_features(struct filter *f, const camera_data & camera, si
             state_vision_feature *feat = f->s.add_feature(x, y);
 
             float depth_m = 0;
-            if(camera.depth) depth_m = get_depth_for_point(camera, x, y);
+            if(camera.depth) {
+                feature_t p = f->s.unnormalize_feature(f->s.undistort_feature(f->s.normalize_feature(feature_t {kp[i].x, kp[i].y})));
+                depth_m = get_depth_for_point(camera, p.x, p.y);
+            }
             if(depth_m)
             {
                 feat->v.set_depth_meters(depth_m);

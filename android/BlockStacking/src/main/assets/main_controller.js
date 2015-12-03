@@ -40,6 +40,7 @@ var MainController = (function ($, window, RealSense, THREE)
         FastClick.attach(document.body);
 
         $("#shutterButton").on( "click", function() {
+            showMessage("Click");
             switch (workflowState)
             {
                 case WorkflowStates.READY:
@@ -56,30 +57,33 @@ var MainController = (function ($, window, RealSense, THREE)
             }
         });
 
-        Tracker.onStatusUpdate(function (status)
+        Tracker.onStatusUpdate(function (trackingStatus, fps)
         {
-            showMessage(status);
+            if (workflowState != WorkflowStates.AUGMENTED && trackingStatus != "FAILED") workflowState = WorkflowStates.AUGMENTED;
 
-//            if (status.error)
-//            {
-//                if (status.error.class == Tracker.RCSensorFusionErrorClass)
-//                {
-//                    handleSensorFusionError(status.error);
-//                }
-//                else if (status.error.class == Tracker.RCLicenseErrorClass)
-//                {
-//                    handleLicenseError(status.error);
-//                }
-//            }
+            if (workflowState == WorkflowStates.AUGMENTED)
+            {
+                showMessage(trackingStatus + ", " + fps + " FPS");
+            }
         });
 
         Tracker.onPoseUpdate(function (projMatrix, camMatrix)
         {
-            if (workflowState = WorkflowStates.AUGMENTED)
+            if (workflowState == WorkflowStates.AUGMENTED)
             {
-                var projectionMatrix = matrix4FromPlainObject(projMatrix);
-                var cameraMatrix = matrix4FromPlainObject(camMatrix);
-                updateWebGLView(projectionMatrix, cameraMatrix);
+                var projectionMatrix4 = matrix4FromPlainObject(projMatrix);
+                var cameraMatrix4 = matrix4FromPlainObject(camMatrix);
+//                var cameraMatrix4 = new THREE.Matrix4();
+//                cameraMatrix4.identity();
+                updateWebGLView(projectionMatrix4, cameraMatrix4);
+            }
+        });
+
+        Tracker.onSceneQualityUpdate(function (quality)
+        {
+            if (workflowState == WorkflowStates.READY)
+            {
+                showMessage("Scene quality: " + quality);
             }
         });
     });
@@ -148,7 +152,6 @@ var MainController = (function ($, window, RealSense, THREE)
         var canvas = document.getElementById("webGLCanvas");
         renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
         renderer.setSize( window.innerWidth, window.innerHeight );
-
                       
         // roll-over helpers
 
@@ -269,7 +272,7 @@ var MainController = (function ($, window, RealSense, THREE)
         renderer.render( scene, camera );
 
     }
-    
+
                       
     function updateWebGLView(projectionMatrix, cameraMatrix)
     {
@@ -277,13 +280,13 @@ var MainController = (function ($, window, RealSense, THREE)
         if (!cameraMatrix) alert("no camera matrix");
 
                       
-        camera.projectionMatrix = projectionMatrix;
+//        camera.projectionMatrix = projectionMatrix;
         camera.matrixAutoUpdate = false;
         camera.matrixWorld = cameraMatrix;
         //some three.js functionality relies on position being set independently of matrixWorld defining position.
-        camera.position.x = cameraMatrix.elements[12];
-        camera.position.y = cameraMatrix.elements[13];
-        camera.position.z = cameraMatrix.elements[14];
+//        camera.position.x = cameraMatrix.elements[12];
+//        camera.position.y = cameraMatrix.elements[13];
+//        camera.position.z = cameraMatrix.elements[14];
                       
         renderer.render( scene, camera );
     }

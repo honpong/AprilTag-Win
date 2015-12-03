@@ -14,52 +14,22 @@
         }
         Tracker.prototype._singletonInstance = this;
 
-        var statusUpdateCallback, dataUpdateCallback, poseUpdateCallback;
+        var statusUpdateCallback, sceneQualityCallback, poseUpdateCallback;
 
-//        this.baseUrl = "http://dummy.realitycap.com/";
-//
-//        this.startSensors = function () {
-//            $.ajax({ type: "GET", url: this.baseUrl + "startSensors"})
-//                .fail(function (jqXHR, textStatus, errorThrown) {
-//                    logNative(textStatus + ": " + JSON.stringify(jqXHR));
-//                })
-//            ;
-//        };
-
-        /*
-         the status object has the same stucture and content as RCSensorFusionStatus. the error object may not be present.
-         ex: {runState:4,confidence:1,error:{class:"RCSensorFusionError",code:1},progress:1}
-         */
-        this.trackingDidChangeStatus = function (status)
+        this.statusUpdate = function (trackingStatus, fps)
         {
-            if (statusUpdateCallback) statusUpdateCallback(status);
+            if (statusUpdateCallback) statusUpdateCallback(trackingStatus, fps);
+        };
+
+        this.sceneQualityUpdate = function (quality)
+        {
+            if (sceneQualityCallback) sceneQualityCallback(quality);
         };
 
         /*
-         the data object has the same stucture and content as RCSensorFusionData, minus the featurePoints. ex:
-         {
-         transformation:{
-         rotation:{qx:-0.012587299570441246,qw:0.99985092878341675,qz:0.00024901828146539629,qy:-0.011816162616014481},
-         translation:{v2:0.0001231919159181416,v0:0.002296853344887495,std1:0.001661463757045567,v3:0,std2:0.0026393774896860123,v1:-0.0022083036601543427,std3:0,std0:0.0014444828266277909}
-         },
-         cameraParameters:{radialFouthDegree:-0.2295377254486084,radialSecondDegree:0.11349671334028244,opticalCenterY:247.20547485351562,opticalCenterX:325.925048828125,focalLength:587.55810546875},
-         cameraTransformation:{
-         rotation:{qx:0.70717746019363403,qw:0.00054524908773601055,qz:0.017255853861570358,qy:-0.70682525634765625},
-         translation:{v2:-0.0017100467812269926,v0:-0.00071634328924119473,std1:0.057653535157442093,v3:0,std2:0.072655044496059418,v1:0.067767113447189331,std3:0,std0:0.053758375346660614}
-         },
-         timestamp:248998938250,
-         totalPathLength:{scalar:0,standardDeviation:0}
-         }
+         each matrix has the properties m00...m33
          */
-        this.trackingDidUpdateData = function (data, medianFeatureDepth)
-        {
-            if (dataUpdateCallback) dataUpdateCallback(data, medianFeatureDepth);
-        };
-
-        /*
-        the data object contains two matrices: projection and camera. each matrix has the properties m00...m33
-         */
-        this.trackingDidUpdatePose = function (projMatrix, camMatrix)
+        this.poseUpdate = function (projMatrix, camMatrix)
         {
             if (poseUpdateCallback) poseUpdateCallback(projMatrix, camMatrix);
         };
@@ -69,9 +39,9 @@
             statusUpdateCallback = callback;
         };
 
-        this.onDataUpdate = function (callback)
+        this.onSceneQualityUpdate = function (callback)
         {
-            dataUpdateCallback = callback;
+            sceneQualityCallback = callback;
         };
 
         this.onPoseUpdate = function(callback)

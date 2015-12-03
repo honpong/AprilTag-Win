@@ -120,7 +120,11 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule {
 	private volatile boolean mIsMeshingTurnedOn = false; 
 	private Mesher mMesher; 
 	private Point3DF mSurfaceCenterPoint = new Point3DF();
-    
+    private CameraStreamIntrinsics internalIntrinsics = new CameraStreamIntrinsics();
+    private float[] perspMatrix;
+    private String perspMatrixJStr;
+
+
 	//               	 		S t a r t    U p					          //
 	//////////////////////////////////////////////////////////////////////////// 
 	// starting sequence of SP module
@@ -128,12 +132,42 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule {
         if(null != mSPCore) {		
 			//register for tracking event
 			mSPCore.addCameraTrackListener(new DepthCameraTrackListener());
-			mSPStatus = Status.SP_STATUS_SUCCESS; //initial running state	
+            mSPCore.getInternalCameraIntrinsics(internalIntrinsics);
+            perspMatrix = calcPerspMatrix(internalIntrinsics);
+            perspMatrixJStr = String.format("{ m00: %f, m01: %f, m02: %f, m03: %f, m10: %f, m11: %f, m12: %f, m13: %f, m20: %f, m21: %f, m22: %f, m23: %f, m30: %f, m31: %f, m32: %f, m33: %f }",
+                    perspMatrix[0], perspMatrix[1], perspMatrix[2], perspMatrix[3], perspMatrix[4], perspMatrix[5], perspMatrix[6], perspMatrix[7], perspMatrix[8], perspMatrix[9], perspMatrix[10], perspMatrix[11], perspMatrix[12], perspMatrix[13], perspMatrix[14], perspMatrix[15]
+            );
+            mSPStatus = Status.SP_STATUS_SUCCESS; //initial running state
 	    }
 	    else {
 	        mSPStatus = Status.SP_STATUS_ERROR;
 	    }
-	} 	
+	}
+
+    private float[] calcPerspMatrix(CameraStreamIntrinsics intrinsics)
+    {
+        float far = 100f;
+        float near = .01f;
+
+        float[] persp = new float[16];
+        persp[0] = intrinsics.getFocalLengthHorizontal() * 2f / intrinsics.getImageWidth() / 1f;
+        persp[5] = -intrinsics.getFocalLengthVertical() * 2f / intrinsics.getImageHeight() / 1f;
+        persp[8] = (intrinsics.getPrincipalPointCoordU() + .5f - intrinsics.getImageWidth() / 2f) * 2f / intrinsics.getImageWidth() / 1f;
+        persp[9] = -(intrinsics.getPrincipalPointCoordV() + .5f - intrinsics.getImageHeight() / 2f) * 2f / intrinsics.getImageHeight() / 1f;
+        persp[10] = (far+near) / (far-near);
+        persp[14] = 1.0f;
+        persp[11] = -2f * far * near /  (far-near);
+
+//        // landscape right
+//        float[] camScreenRot = new float[16];
+//        camScreenRot[0] = 1f;
+//        camScreenRot[5] = 1f;
+//
+//        float[] result = new float[16];
+//        Matrix.multiplyMM(result, 0, camScreenRot, 0, persp, 0);
+
+        return persp;
+    }
 	
 	//               	 		S e t    I n p u t s				          //
 	//////////////////////////////////////////////////////////////////////////// 
@@ -166,7 +200,7 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule {
 		public void onSyncedFramesAvailable(SPInputStream input) {	
 			if (mSPStatus != Status.SP_STATUS_SUCCESS) {
 				if (mIsScenePerceptionActive.get()) {
-					setProgramStatus("ERROR - " + mSPStatus);
+					setProgramStatus("ERROR - " + mSPStatus); // TODO: show in web view?
 				}
 				mCamHandler.frameProcessCompleteCallback();
 				return;
@@ -175,7 +209,7 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule {
 			//checking scene quality for good initialization of SP module
 			if (!mIsScenePerceptionActive.get()) {
 				float sceneQuality = mSPCore.getSceneQuality(input, false);
-                setProgramStatus("Scene quality: " + String.format("%.2f", sceneQuality));
+                sendSceneQualityToWebView(sceneQuality);
 				mIsScenePerceptionActive.set(sceneQuality >= ACCEPTABLE_INPUT_COVERAGE_PERC);
 			}
 
@@ -249,9 +283,9 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule {
 				mCameraPose.set(newCamPose);
 				mFPSCal.updateTimeOnFrame(System.currentTimeMillis());
 
-				if (mTrackedFrameCounter % DISPLAY_FPS_FREQ == 0) {
-                    String status = "Tracking: " + trackingResult  + " " + mFPSCal.getFPSText();
-                    setProgramStatus(status);
+				if (mTrackedFrameCounter % DISPLAY_FPS_FREQ == 0)
+                {
+                    sendTrackingStatusToWebView(trackingResult, mFPSCal.getFPS());
 				}
 				
 				//update view point of render reconstruction if viewpoint is toggled or dynamic
@@ -281,7 +315,9 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule {
 //				}
 				
 			}
-			else {
+			else
+            {
+                sendTrackingStatusToWebView(trackingResult, 0);
 				setProgramStatus("Tracking: " + trackingResult);
 			}
 		}
@@ -372,7 +408,7 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule {
 //			Date date = new Date();
 //			final String fName = fLocation + "/SP_Mesh_"+ mMeshFileDateFormat.format(date) + ".obj";
 //			final AsyncCallStatusResult saveMeshResult = mSPCore.asyncSaveMesh(fName, false, false);
-//			setProgramStatus("Trying to save mesh");
+//			sendTrackingStatusToWebView("Trying to save mesh");
 //			Thread showSaveMeshResult = new Thread(new Runnable() {
 //				@Override
 //				public void run(){
@@ -394,7 +430,7 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule {
 //			showSaveMeshResult.start();
 //		}
 //		else {
-//			setProgramStatus("ERROR - failed to write mesh to location " + fLocation);
+//			sendTrackingStatusToWebView("ERROR - failed to write mesh to location " + fLocation);
 //		}
 //	}
 	
@@ -620,7 +656,7 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule {
 //						setEnabledUIButtons(false);
 //						mTrackingActivationRequested = true; // request scene assessment
 //						mSPResetTracking = true; //require reset
-//						setProgramStatus("Stop Tracking");
+//						sendTrackingStatusToWebView("Stop Tracking");
 //					}
 //				}
 //			});
@@ -774,11 +810,8 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule {
 		mInputView.setInputSize(mColorInputSize);
 
 		// Set the camera parameters and initial pose for the renderer
-		CameraStreamIntrinsics internalIntrinsics = new CameraStreamIntrinsics();
-		mSPCore.getInternalCameraIntrinsics(internalIntrinsics);
 		mRecontRenderer.setCameraParams(internalIntrinsics);
 		mRecontRenderer.setInitialRenderPose(mInitialCameraPose);
-
 
 		// initialize projection matrix for display render volume
 		Matrix.transposeM(mProjectionMatrix, 0, mInitialCameraPose.get(), 0);
@@ -792,19 +825,45 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule {
 		return new SDKSyncedFramesHandler(camHandler, inputSize);	     	
 	}
 
-	@Override
-	public void setProgramStatus(final CharSequence newStatus){
+    @Override
+    public void setProgramStatus(CharSequence newStatus)
+    {
+        Log.d(TAG, newStatus.toString());
+    }
+
+    public void sendSceneQualityToWebView(final float quality){
+        final Activity curActivity = getActivity();
+        if (curActivity != null) {
+            curActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    View rootView = curActivity.getWindow().getCurrentFocus();
+                    if (rootView != null)
+                    {
+                        WebView webView = (WebView) curActivity.getWindow().getCurrentFocus().findViewById(R.id.web_view);
+                        if (webView != null) webView.evaluateJavascript("Tracker.sceneQualityUpdate(" + String.format("%.2f", quality) + ");", null);
+                    }
+                }
+            });
+        }
+    }
+
+	public void sendTrackingStatusToWebView(final TrackingAccuracy trackingAccuracy, final int fps){
 		final Activity curActivity = getActivity();
 		if (curActivity != null) {
 			curActivity.runOnUiThread(new Runnable() {
 				@Override
 				public void run() {
-//					mStatusTView.setText(newStatus);
                     View rootView = curActivity.getWindow().getCurrentFocus();
                     if (rootView != null)
                     {
                         WebView webView = (WebView) curActivity.getWindow().getCurrentFocus().findViewById(R.id.web_view);
-                        if (webView != null) webView.evaluateJavascript("Tracker.trackingDidChangeStatus('" + newStatus + "');", null);
+                        if (webView != null)
+                        {
+                            StringBuilder sb = new StringBuilder(5);
+                            sb.append("Tracker.statusUpdate('").append(trackingAccuracy).append("',").append(fps).append(");");
+                            webView.evaluateJavascript(sb.toString(), null);
+                        }
                     }
 				}
 			});
@@ -817,6 +876,7 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule {
             curActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+//					String cameraPoseString = String.format("{ m00: %f, m10: %f, m20: %f, m30: %f, m01: %f, m11: %f, m21: %f, m31: %f, m02: %f, m12: %f, m22: %f, m32: %f, m03: %f, m13: %f, m23: %f, m33: %f }",
 					String cameraPoseString = String.format("{ m00: %f, m01: %f, m02: %f, m03: %f, m10: %f, m11: %f, m12: %f, m13: %f, m20: %f, m21: %f, m22: %f, m23: %f, m30: %f, m31: %f, m32: %f, m33: %f }",
                         cameraPose.get()[0], cameraPose.get()[1], cameraPose.get()[2], cameraPose.get()[3], cameraPose.get()[4], cameraPose.get()[5], cameraPose.get()[6], cameraPose.get()[7], cameraPose.get()[8], cameraPose.get()[9], cameraPose.get()[10], cameraPose.get()[11], cameraPose.get()[12], cameraPose.get()[13], cameraPose.get()[14], cameraPose.get()[15]
                     );
@@ -828,7 +888,7 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule {
                         if (webView != null)
                         {
                             StringBuilder sb = new StringBuilder(5);
-                            sb.append("Tracker.trackingDidUpdatePose(").append(cameraPoseString).append(",").append(cameraPoseString).append(");"); // TODO: replace first cameraPoseString with projection matrix
+                            sb.append("Tracker.poseUpdate(").append(perspMatrixJStr).append(",").append(cameraPoseString).append(");");
                             webView.evaluateJavascript(sb.toString(), null);
                         }
                     }

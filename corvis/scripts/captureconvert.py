@@ -77,7 +77,7 @@ wrote_packets = defaultdict(int)
 wrote_bytes = 0
 with open(output_filename, "wb") as f:
     for line in data:
-        microseconds = int(line[0]*1e6)
+        microseconds = int(line[0]*1e3)
         ptype = line[1]
         data = ""
         if ptype == camera_type:

@@ -103,7 +103,7 @@ var MainController = (function ($, window, RealSense, THREE)
     function setupWebGLView()
     {
         //prevent scrolling
-        document.body.addEventListener('touchstart', function(e){ e.stopPropagation(); e.preventDefault(); });
+//        window.document.body.addEventListener('touchstart', function(e){ e.stopPropagation(); e.preventDefault(); });
 
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -124,7 +124,9 @@ var MainController = (function ($, window, RealSense, THREE)
         // cubes
 
         cubeGeo = new THREE.BoxGeometry( 0.05, 0.05, 0.05);
-        cubeMaterial = new THREE.MeshLambertMaterial( { color: 0xfeb74c, shading: THREE.FlatShading, map: THREE.ImageUtils.loadTexture( "square-outline-textured.png" ) } );
+//        THREE.ImageUtils.crossOrigin = '';
+//        cubeMaterial = new THREE.MeshLambertMaterial( { color: 0xfeb74c, shading: THREE.FlatShading, map: THREE.ImageUtils.loadTexture( "square-outline-textured.png" ) } );
+        cubeMaterial = new THREE.MeshLambertMaterial( { color: 0xfeb74c, shading: THREE.FlatShading } );
 
         // grid
 
@@ -181,11 +183,11 @@ var MainController = (function ($, window, RealSense, THREE)
         scene.add( light );
 
 
-        document.addEventListener('click', onDocumentClick, false );
+        window.document.addEventListener('click', onDocumentClick, false );
     }
 
-    function onDocumentClick( event ) {
-        alert("tap");
+    function onDocumentClick( event )
+    {
         event.preventDefault();
 
         mouse.set( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1 );

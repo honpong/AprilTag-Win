@@ -249,12 +249,12 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule {
 			}
 
 			// display of current inputs
-			int inputDisplayType = mSwitchInputView;
-			if (inputDisplayType == DISPLAY_DEPTH_INPUT) {
-				depthToRGB(input.getDepthImage(), mDepthViewBuffer, mDepthInputSize.getWidth(),
-						mDepthInputSize.getHeight(), mDepthInputSize.getWidth() * 2); //Z16 format has 2 bytes
-			}
-			displayFramesAvailable(mDepthViewBuffer, input.getColorImage(), inputDisplayType);
+//			int inputDisplayType = mSwitchInputView;
+//			if (inputDisplayType == DISPLAY_DEPTH_INPUT) {
+//				depthToRGB(input.getDepthImage(), mDepthViewBuffer, mDepthInputSize.getWidth(),
+//						mDepthInputSize.getHeight(), mDepthInputSize.getWidth() * 2); //Z16 format has 2 bytes
+//			}
+//			displayFramesAvailable(mDepthViewBuffer, input.getColorImage(), inputDisplayType);
 			
 			//signal complete processing of current input set
 			mCamHandler.frameProcessCompleteCallback();

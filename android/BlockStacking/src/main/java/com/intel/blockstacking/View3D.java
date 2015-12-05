@@ -8,7 +8,7 @@ Copyright(c) 2011-2015 Intel Corporation. All Rights Reserved.
 
 *********************************************************************************/
 
-package com.intel.sample.depth.spsample;
+package com.intel.blockstacking;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -19,7 +19,7 @@ import javax.microedition.khronos.opengles.GL10;
 import com.intel.camera.toolkit.depth.sceneperception.SPTypes.CameraPose;
 import com.intel.camera.toolkit.depth.sceneperception.SPTypes.CameraStreamIntrinsics;
 import com.intel.camera.toolkit.depth.Point3DF;
-import com.intel.sample.depth.spsample.SPUtils.ViewChange;
+import com.intel.blockstacking.SPUtils.ViewChange;
 
 import android.content.Context;
 import android.graphics.Bitmap;

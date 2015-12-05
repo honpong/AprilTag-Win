@@ -8,7 +8,7 @@ Copyright(c) 2011-2015 Intel Corporation. All Rights Reserved.
 
 *********************************************************************************/
 
-package com.intel.sample.depth.spsample;
+package com.intel.blockstacking;
 
 import java.nio.ByteBuffer;
 import android.content.Context;

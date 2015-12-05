@@ -8,7 +8,7 @@ Copyright(c) 2011-2015 Intel Corporation. All Rights Reserved.
 
 *********************************************************************************/
 
-package com.intel.sample.depth.spsample;
+package com.intel.blockstacking;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -30,7 +30,6 @@ import com.intel.camera.toolkit.depth.sceneperception.SPCore;
 import com.intel.camera.toolkit.depth.sceneperception.SPTypes.BlockMeshingUpdateInfo;
 import com.intel.camera.toolkit.depth.sceneperception.SPTypes.MeshResolution;
 import com.intel.camera.toolkit.depth.sceneperception.SPTypes.Status;
-import com.intel.sample.depth.spsample.SPUtils.float3;
 
 /**
  * Mesher handles updating mesh content and display of mesh of reconstruction result 
@@ -373,21 +372,21 @@ public class Mesher {
     	final int i1 = pFaces.get(pFacesStartIdx + 3 * iFaceIndex);
     	final int i2 = pFaces.get(pFacesStartIdx + 3 * iFaceIndex + 1); 
     	final int i3 = pFaces.get(pFacesStartIdx + 3 * iFaceIndex + 2);
-    	final float3 p1 = new float3(
+    	final SPUtils.float3 p1 = new SPUtils.float3(
     			pVertices.get(pVerticesStartIdx + 4 * i1), 
     			pVertices.get(pVerticesStartIdx + 4 * i1 + 1), 
     			pVertices.get(pVerticesStartIdx + 4 * i1 + 2));
-    	final float3 p2 = new float3(
+    	final SPUtils.float3 p2 = new SPUtils.float3(
     			pVertices.get(pVerticesStartIdx + 4 * i2), 
     			pVertices.get(pVerticesStartIdx + 4 * i2 + 1), 
     			pVertices.get(pVerticesStartIdx + 4 * i2 + 2));
-    	final float3 p3 = new float3(
+    	final SPUtils.float3 p3 = new SPUtils.float3(
     			pVertices.get(pVerticesStartIdx +4 * i3), 
     			pVertices.get(pVerticesStartIdx + 4 * i3 + 1), 
     			pVertices.get(pVerticesStartIdx + 4 * i3 + 2));
-    	final float3 a = p3.sub(p2);
-    	final float3 b = p1.sub(p2);
-    	float3 pn = a.cross(b).mul(-1.0f);
+    	final SPUtils.float3 a = p3.sub(p2);
+    	final SPUtils.float3 b = p1.sub(p2);
+    	SPUtils.float3 pn = a.cross(b).mul(-1.0f);
     	pn = pn.normalize();
     	pFacesNormals[3 * iFaceIndex] = pn.x;
     	pFacesNormals[3 * iFaceIndex + 1] = pn.y;
@@ -435,7 +434,7 @@ public class Mesher {
 
     	for (int vi = 0; vi < iNumVertices; vi++)
     	{
-    		float3 pn = new float3(pNormals[pNormalsStartIdx + 3 * vi], 
+    		SPUtils.float3 pn = new SPUtils.float3(pNormals[pNormalsStartIdx + 3 * vi],
     				pNormals[pNormalsStartIdx + 3 * vi + 1], 
     				pNormals[pNormalsStartIdx + 3 * vi + 2]);
     		if (mCurVerticesFaceCount[vi] > 0)

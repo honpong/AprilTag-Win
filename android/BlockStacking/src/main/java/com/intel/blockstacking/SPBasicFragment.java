@@ -8,7 +8,7 @@ Copyright(c) 2015 Intel Corporation. All Rights Reserved.
 
 *******************************************************************************/
 
-package com.intel.sample.depth.spsample;
+package com.intel.blockstacking;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -39,7 +39,6 @@ import com.intel.camera.toolkit.depth.sceneperception.SPTypes.CameraStreamIntrin
 import com.intel.camera.toolkit.depth.sceneperception.SPTypes.SPInputStream;
 import com.intel.camera.toolkit.depth.sceneperception.SPTypes.Status;
 import com.intel.camera.toolkit.depth.sceneperception.SPTypes.TrackingAccuracy;
-import com.intel.sample.depth.spsample.SPUtils.FPSCalculator;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.ExecutorService;
@@ -271,7 +270,7 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule {
 	 * volume image projected from the successfully tracked pose.  
 	 */
 	private class DepthCameraTrackListener implements CameraTrackListener {
-		private SPUtils.FPSCalculator mFPSCal = new FPSCalculator();
+		private SPUtils.FPSCalculator mFPSCal = new SPUtils.FPSCalculator();
 		private int DISPLAY_FPS_FREQ = 30;
 		private int mTrackedFrameCounter = 0;
 		@Override

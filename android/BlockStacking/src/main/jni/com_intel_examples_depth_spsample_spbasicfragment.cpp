@@ -173,7 +173,7 @@ static JNINativeMethod methodTable[] = {
 	{"depthToRGB", "(Ljava/nio/ByteBuffer;Ljava/nio/ByteBuffer;III)V", (void *)JNI_convertZ16ToRGB},
 };
 
-const char* spCoreClassPath = "com/intel/sample/depth/spsample/SPBasicFragment";
+const char* spCoreClassPath = "com/intel/blockstacking/SPBasicFragment";
 
 jint JNI_OnLoad(JavaVM* aVm, void* aReserved)
 {

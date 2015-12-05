@@ -8,12 +8,11 @@ Copyright(c) 2011-2015 Intel Corporation. All Rights Reserved.
 
 *********************************************************************************/
 
-package com.intel.sample.depth.spsample;
+package com.intel.blockstacking;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
-import java.nio.ShortBuffer;
 import java.util.LinkedList;
 import java.util.Queue;
 import javax.microedition.khronos.opengles.GL10;

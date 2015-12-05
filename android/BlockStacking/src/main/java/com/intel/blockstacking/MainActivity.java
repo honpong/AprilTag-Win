@@ -8,7 +8,7 @@ Copyright(c) 2015 Intel Corporation. All Rights Reserved.
 
 *******************************************************************************/
 
-package com.intel.sample.depth.spsample;
+package com.intel.blockstacking;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;

@@ -134,7 +134,10 @@ extern "C" void rc_destroy(rc_Tracker * tracker)
 
 extern "C" void rc_reset(rc_Tracker * tracker, rc_Timestamp initialTime_us, const rc_Pose initialPose_m)
 {
-    tracker->reset(sensor_clock::micros_to_tp(initialTime_us), rc_Pose_to_transformation(initialPose_m), false);
+    if (initialPose_m)
+        tracker->reset(sensor_clock::micros_to_tp(initialTime_us), rc_Pose_to_transformation(initialPose_m), false);
+    else
+        tracker->reset(sensor_clock::micros_to_tp(initialTime_us), transformation(), true);
 }
 
 void rc_printDeviceConfig(rc_Tracker * tracker)

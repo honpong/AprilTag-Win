@@ -162,6 +162,29 @@ void world_state::receive_camera(const filter * f, camera_data &&d)
     }
     p++;
 
+#ifdef estimate_camera_intrinsics
+    if (f->s.fisheye)
+        observe_plot_item(d.timestamp, p, "kw", (float)f->s.k1.v);
+    else {
+        observe_plot_item(d.timestamp, p, "k1", (float)f->s.k1.v);
+        observe_plot_item(d.timestamp, p, "k2", (float)f->s.k2.v);
+        observe_plot_item(d.timestamp, p, "k3", (float)f->s.k3.v);
+    }
+    p++;
+#endif
+
+#ifdef estimate_camera_extrinsics
+    observe_plot_item(d.timestamp, p, "Tc_x", (float)f->s.Tc.v[0]);
+    observe_plot_item(d.timestamp, p, "Tc_y", (float)f->s.Tc.v[1]);
+    observe_plot_item(d.timestamp, p, "Tc_z", (float)f->s.Tc.v[2]);
+    p++;
+
+    observe_plot_item(d.timestamp, p, "Wc_x", (float)f->s.Wc.v.raw_vector()[0]);
+    observe_plot_item(d.timestamp, p, "Wc_y", (float)f->s.Wc.v.raw_vector()[1]);
+    observe_plot_item(d.timestamp, p, "Wc_z", (float)f->s.Wc.v.raw_vector()[2]);
+    p++;
+#endif
+
     observe_plot_item(d.timestamp, p, "wbias_x", (float)f->s.w_bias.v[0]);
     observe_plot_item(d.timestamp, p, "wbias_y", (float)f->s.w_bias.v[1]);
     observe_plot_item(d.timestamp, p, "wbias_z", (float)f->s.w_bias.v[2]);

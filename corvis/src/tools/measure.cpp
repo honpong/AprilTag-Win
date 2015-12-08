@@ -112,7 +112,7 @@ int main(int c, char **v)
     if (!configure(rp, filename))
         return 2;
 
-#if defined(ANDROID) || defined(WIN32)
+#if defined(ANDROID)
     rp.start();
 #else
     world_state ws;

@@ -1,7 +1,7 @@
 #include "calibration_json.h"
 #include "json_keys.h"
 #include "rapidjson/document.h"
-#include "rapidjson/writer.h"
+#include "rapidjson/prettywriter.h"
 #include "rapidjson/stringbuffer.h"
 #include <functional>
 #include <numeric>
@@ -178,7 +178,7 @@ bool calibration_serialize(const rcCalibration &cal, std::string &jsonString)
     CopyRSStructToJson(cal, json);
 
     StringBuffer buffer;
-    Writer<StringBuffer> writer(buffer);
+    PrettyWriter<StringBuffer> writer(buffer);
     json.Accept(writer);
     jsonString = buffer.GetString();
     return jsonString.length() > 0;

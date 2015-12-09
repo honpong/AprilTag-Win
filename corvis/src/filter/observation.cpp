@@ -595,7 +595,7 @@ void observation_gyroscope::cache_jacobians()
 {
 #if estimate_camera_extrinsics
     m4 Rc_dRc_dWc = to_spatial_jacobian(state.Wc.v);
-    dw_dWc = skew3(Rc * state.w_bias.v) * Rc_dRc_dWc;
+    dw_dWc = -skew3(Rc * state.w_bias.v) * Rc_dRc_dWc;
 #endif
 }
 

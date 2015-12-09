@@ -171,6 +171,13 @@ void world_state::receive_camera(const filter * f, camera_data &&d)
         observe_plot_item(d.timestamp, p, "k3", (float)f->s.k3.v);
     }
     p++;
+
+    observe_plot_item(d.timestamp, p, "F", (float)f->s.focal_length.v);
+    p++;
+
+    observe_plot_item(d.timestamp, p, "C_x", (float)f->s.center_x.v);
+    observe_plot_item(d.timestamp, p, "C_y", (float)f->s.center_y.v);
+    p++;
 #endif
 
 #ifdef estimate_camera_extrinsics

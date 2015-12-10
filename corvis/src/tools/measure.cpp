@@ -55,7 +55,7 @@ int main(int c, char **v)
           return false;
         }
 
-        if(!rp.set_reference_from_filename(capture_file) && !enable_gui) {
+        if(!rp.set_reference_from_filename(capture_file) && !(enable_gui || calibrate)) {
             cerr << capture_file << ": unable to find a reference to measure against\n";
             return false;
         }

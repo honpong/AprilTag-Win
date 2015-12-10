@@ -9,13 +9,13 @@
 int main(int c, char **v)
 {
     if (0) { usage:
-        cerr << "Usage: " << v[0] << " [--qvga] [--no-depth] [--intel] [--realtime] [--pause] [--no-gui] [--no-plots] [--no-video] [--no-main] [--render <file.png>] [--save <calibration-json>] <filename>\n";
+        cerr << "Usage: " << v[0] << " [--qvga] [--no-depth] [--intel] [--realtime] [--pause] [--no-gui] [--no-plots] [--no-video] [--no-main] [--render <file.png>] [(--save | --load) <calibration-json>] <filename>\n";
         cerr << "       " << v[0] << " [--qvga] [--no-depth] [--intel] --benchmark <directory>\n";
         return 1;
     }
 
     bool realtime = false, start_paused = false, benchmark = false, intel = false, calibrate = false;
-    const char *save = nullptr;
+    const char *save = nullptr, *load = nullptr;
     bool qvga = false, depth = true;
     bool enable_gui = true, show_plots = false, show_video = true, show_depth = true, show_main = true;
     char *filename = nullptr, *rendername = nullptr;
@@ -34,6 +34,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--qvga") == 0) qvga = true;
         else if (strcmp(v[i], "--drop-depth") == 0) depth = false;
         else if (strcmp(v[i], "--save") == 0 && i+1 < c) save = v[++i];
+        else if (strcmp(v[i], "--load") == 0 && i+1 < c) load = v[++i];
         else if (strcmp(v[i], "--benchmark") == 0) benchmark = true;
         else if (strcmp(v[i], "--calibrate") == 0) calibrate = true;
         else goto usage;
@@ -50,9 +51,16 @@ int main(int c, char **v)
         if(!rp.open(capture_file))
             return false;
 
-        if(!rp.set_calibration_from_filename(capture_file)) {
-          cerr << "calibration not found: " << capture_file << ".json nor calibration.json\n";
-          return false;
+        if (load) {
+          if(!rp.load_calibration(load)) {
+            cerr << "unable to load calibration: " << load << "\n";
+            return false;
+          }
+        } else {
+          if(!rp.set_calibration_from_filename(capture_file)) {
+            cerr << "calibration not found: " << capture_file << ".json nor calibration.json\n";
+            return false;
+          }
         }
 
         if(!rp.set_reference_from_filename(capture_file) && !(enable_gui || calibrate)) {

@@ -15,7 +15,7 @@ int main(int c, char **v)
     }
 
     bool realtime = false, start_paused = false, benchmark = false, intel = false, calibrate = false;
-    std::string save;
+    const char *save = nullptr;
     bool qvga = false, depth = true;
     bool enable_gui = true, show_plots = false, show_video = true, show_depth = true, show_main = true;
     char *filename = nullptr, *rendername = nullptr;
@@ -136,7 +136,7 @@ int main(int c, char **v)
     std::cout << ws.get_feature_stats();
 #endif
 
-    if (!save.empty())
+    if (save)
         update_calibration(rp, save);
 
     print_results(rp, filename);

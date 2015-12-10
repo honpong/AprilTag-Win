@@ -12,7 +12,7 @@
 
 transformation sensor_fusion::get_transformation() const
 {
-    transformation filter_transform(to_quaternion(sfm.s.W.v), sfm.s.T.v);    
+    transformation filter_transform(sfm.s.Q.v, sfm.s.T.v);
     return compose(sfm.origin, filter_transform);
 }
 

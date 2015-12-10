@@ -69,7 +69,7 @@ class observation_vision_feature: public observation_storage<2> {
     v4 Ttot;
 
     f_t dx_dp, dy_dp;
-    v4 dx_dWr, dy_dWr, dx_dTr, dy_dTr;
+    v4 dx_dQr, dy_dQr, dx_dTr, dy_dTr;
 
 #if estimate_camera_intrinsics
     f_t dx_dF, dy_dF;
@@ -113,9 +113,9 @@ public:
 class observation_accelerometer: public observation_spatial {
 protected:
     state_vision &state;
-    m4 Rt, Rc, da_dW, da_dw, da_ddw;
+    m4 Rt, Rc, da_dQ, da_dw, da_ddw;
 #if estimate_camera_extrinsics
-    m4 da_dWc, da_dTc;
+    m4 da_dQc, da_dTc;
 #endif
  public:
     static stdev_vector stdev, inn_stdev;
@@ -140,7 +140,7 @@ protected:
     const state_vision &state;
     m4 Rc;
 #if estimate_camera_extrinsics
-    m4 dw_dWc;
+    m4 dw_dQc;
 #endif
  public:
     static stdev_vector stdev, inn_stdev;

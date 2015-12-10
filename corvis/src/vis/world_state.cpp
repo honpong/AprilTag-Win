@@ -144,7 +144,7 @@ void world_state::receive_camera(const filter * f, camera_data &&d)
     if(d.depth) observe_depth(d.depth->timestamp, d.depth->image, d.depth->width, d.depth->height);
     
     v4 T = f->s.T.v;
-    quaternion q = to_quaternion(f->s.W.v);
+    quaternion q = f->s.Q.v;
     observe_position(d.timestamp, (float)T[0], (float)T[1], (float)T[2], (float)q.w(), (float)q.x(), (float)q.y(), (float)q.z());
     int p = 0;
 
@@ -186,9 +186,9 @@ void world_state::receive_camera(const filter * f, camera_data &&d)
     observe_plot_item(d.timestamp, p, "Tc_z", (float)f->s.Tc.v[2]);
     p++;
 
-    observe_plot_item(d.timestamp, p, "Wc_x", (float)f->s.Wc.v.raw_vector()[0]);
-    observe_plot_item(d.timestamp, p, "Wc_y", (float)f->s.Wc.v.raw_vector()[1]);
-    observe_plot_item(d.timestamp, p, "Wc_z", (float)f->s.Wc.v.raw_vector()[2]);
+    observe_plot_item(d.timestamp, p, "Wc_x", (float)to_rotation_vector(f->s.Qc.v).raw_vector()[0]);
+    observe_plot_item(d.timestamp, p, "Wc_y", (float)to_rotation_vector(f->s.Qc.v).raw_vector()[1]);
+    observe_plot_item(d.timestamp, p, "Wc_z", (float)to_rotation_vector(f->s.Qc.v).raw_vector()[2]);
     p++;
 #endif
 

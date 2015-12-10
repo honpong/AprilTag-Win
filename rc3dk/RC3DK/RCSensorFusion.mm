@@ -461,8 +461,7 @@
     
     if (sampleBuffer) sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
     RCTranslation* translation = [[RCTranslation alloc] initWithVector:vFloat_from_v4(f->s.T.v) withStandardDeviation:vFloat_from_v4(v4_sqrt(f->s.T.variance()))];
-    quaternion q = to_quaternion(f->s.W.v);
-    RCRotation* rotation = [[RCRotation alloc] initWithQuaternionW:(float)q.w() withX:(float)q.x() withY:(float)q.y() withZ:(float)q.z()];
+    RCRotation* rotation = [[RCRotation alloc] initWithQuaternionW:(float)f->s.Q.v.w() withX:(float)f->s.Q.v.x() withY:(float)f->s.Q.v.y() withZ:(float)f->s.Q.v.z()];
     RCTransformation* transformation = [[RCTransformation alloc] initWithTranslation:translation withRotation:rotation];
     
     RCScalar *totalPath = [[RCScalar alloc] initWithScalar:f->s.total_distance withStdDev:0.];

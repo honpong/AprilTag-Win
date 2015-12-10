@@ -185,7 +185,4 @@ inline static f_t determinant3(const m4 &m)
     + m(0, 2) * determinant_minor(m, 0, 1);
 }
 
-v4 integrate_angular_velocity(const v4 &W, const v4 &w);
-void linearize_angular_integration(const v4 &W, const v4 &w, m4 &dW_dW, m4 &dW_dw);
-
 #endif

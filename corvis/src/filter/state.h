@@ -284,15 +284,7 @@ public:
         c(index+1, j) = cov_v[1];
         c(index+2, j) = cov_v[2];
     }
-
-    inline void copy_cov_to_row(matrix &c, const int j, const v4 &cov_v) const
-    {
-        if(index < 0) return;
-        c(j, index) = cov_v[0];
-        c(j, index+1) = cov_v[1];
-        c(j, index+2) = cov_v[2];
-    }
-
+    
     void reset() {
         index = -1;
         v = v4::Zero();
@@ -363,14 +355,6 @@ public:
         if (!saturated) c(index+2, j) = cov_v[2];
     }
     
-    inline void copy_cov_to_row(matrix &c, const int j, const v4 &cov_v) const
-    {
-        if(index < 0) return;
-        c(j, index) = cov_v[0];
-        c(j, index+1) = cov_v[1];
-        if (!saturated) c(j, index+2) = cov_v[2];
-    }
-    
     void reset() {
         index = -1;
         v = rotation_vector(0., 0., 0.);
@@ -411,7 +395,7 @@ protected:
     bool saturated;
 };
 
-class state_quaternion: public state_leaf<quaternion, 4>
+class state_quaternion: public state_leaf<quaternion, 3>
 {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 public:
@@ -420,23 +404,21 @@ public:
     void saturate()
     {
         saturated = true;
-        //size = 3;
     }
     
     using state_leaf::set_initial_variance;
-    
-    void set_initial_variance(f_t w, f_t x, f_t y, f_t z)
+
+    void set_initial_variance(f_t x, f_t y, f_t z)
     {
-        initial_variance[0] = w;
-        initial_variance[1] = x;
-        initial_variance[2] = y;
-        initial_variance[3] = z;
+        initial_variance[0] = x;
+        initial_variance[1] = y;
+        initial_variance[2] = z;
     }
     
     inline v4 copy_cov_from_row(const matrix &c, const int i) const
     {
         if(index < 0) return v4::Zero();
-        return v4(c(i, index), c(i, index+1), c(i, index+2), saturated ? 0. : c(i, index+3));
+        return v4(c(i, index), c(i, index+1), saturated ? 0. : c(i, index+2), 0);
     }
     
     inline void copy_cov_to_col(matrix &c, const int j, const v4 &cov_v) const
@@ -444,99 +426,47 @@ public:
         if(index < 0) return;
         c(index, j) = cov_v[0];
         c(index+1, j) = cov_v[1];
-        c(index+2, j) = cov_v[2];
-        if(!saturated) c(index+3, j) = cov_v[3];
+        if (!saturated) c(index+2, j) = cov_v[2];
     }
     
-    inline void copy_cov_to_row(matrix &c, const int j, const v4 &cov_v) const
-    {
-        if(index < 0) return;
-        c(j, index) = cov_v[0];
-        c(j, index+1) = cov_v[1];
-        c(j, index+2) = cov_v[2];
-        if(!saturated) c(j, index+3) = cov_v[3];
-    }
-
     void reset() {
         index = -1;
         v = quaternion(1., 0., 0., 0.);
+        w = rotation_vector(0,0,0);
         saturated = false;
-        size = 4;
     }
     
     void perturb_variance() {
         if(index < 0) return;
         cov->cov(index, index) *= PERTURB_FACTOR;
         cov->cov(index + 1, index + 1) *= PERTURB_FACTOR;
-        cov->cov(index + 2, index + 2) *= PERTURB_FACTOR;
-        if(!saturated) cov->cov(index + 3, index + 3) *= PERTURB_FACTOR;
+        if(!saturated) cov->cov(index + 2, index + 2) *= PERTURB_FACTOR;
     }
     
     v4 variance() const {
-        if(index < 0) return v4(initial_variance[0], initial_variance[1], initial_variance[2], initial_variance[3]);
-        return v4((*cov)(index, index), (*cov)(index+1, index+1), (*cov)(index+2, index+2), saturated ? 0. : (*cov)(index+3, index+3));
+        if(index < 0) return v4(initial_variance[0], initial_variance[1], initial_variance[2], 0);
+        return v4((*cov)(index, index), (*cov)(index+1, index+1), saturated ? 0. : (*cov)(index+2, index+2), 0);
     }
     
     void copy_state_to_array(matrix &state) {
-        state[index] = v.w();
-        state[index+1] = v.x();
-        state[index+2] = v.y();
-        if(!saturated) state[index+3] = v.z();
+        state[index+0] = 0;
+        state[index+1] = 0;
+        state[index+2] = 0;
     }
     
     virtual void copy_state_from_array(matrix &state) {
-        v.w() = state[index+0];
-        v.x() = state[index+1];
-        v.y() = state[index+2];
-        if(!saturated) v.z() = state[index+3];
-        normalize();
+        w = rotation_vector(state[index+0], state[index+1], state[index+2]);
+        v = to_quaternion(w) * v;
     }
     
     virtual void print()
     {
         v4 data(v.w(), v.x(), v.y(), v.z());
-        std::cerr << name << data << variance() << " (quaternion)\n";
+        std::cerr << name << data << " w(" << w << ") " << variance() << " (quaternion)\n";
     }
-    
-    void normalize()
-    {
-        if(index < 0) return;
-        f_t ss = v.w() * v.w() + v.x() * v.x() + v.y() * v.y() + v.z() * v.z();
-        m4 dWn_dW;
-        
-        //TODO:  Test this
-        //n(x) = x / sqrt(w*w + x*x + y*y + z*z)
-        //dn(x)/dx = 1 / sqrt(...) + x (derivative (1 / sqrt(...)))
-        // = 1/sqrt(...) + x * -1 / (2 * sqrt(...) * (...)) * derivative(...)
-        // = 1/sqrt(...) + x * -1 / (2 * sqrt(...) * (...)) * 2 x
-        // = 1/sqrt(...) - x^2 / (sqrt(...) * (...))
-        // = (1-x^2) / (sqrt(...) * (...))
-        //n(x) = x / sqrt(w*w + x*x + y*y + x*x)
-        //dn(x)/dw = -x / (2 * sqrt(...) * (...)) * 2w
-        // = -xw / (sqrt(...) * (...))
-        v4 qvec = v4(v.w(), v.x(), v.y(), v.z());
-        dWn_dW = (m4::Identity() - qvec * qvec.transpose()) * (1. / (sqrt(ss) * ss));
-        matrix tmp(size, cov->size());
-        for(int i = 0; i < cov->size(); ++i) {
-            v4 cov_Q = copy_cov_from_row(cov->cov, i);
-            v4 res = dWn_dW * cov_Q;
-            for(int j = 0; j < size; ++j) tmp(j, i) = res[j];
-        }
-        
-        m4 self_cov;
-        for(int i = 0; i < size; ++i) self_cov.row(i) = copy_cov_from_row(tmp, i);
-        self_cov = self_cov * dWn_dW;
-        for(int i = 0; i < size; ++i) copy_cov_to_row(tmp, i, self_cov.row(i));
 
-        for(int i = 0; i < size; ++i) {
-            for(int j = 0; j < cov->size(); ++j) {
-                cov->cov(index + i, j) = cov->cov(j, index + i) = tmp(i, j);
-            }
-        }
-        f_t norm = 1. / sqrt(ss);
-        v = quaternion(v.w() * norm, v.x() * norm, v.y() * norm, v.z() * norm);
-    }
 protected:
+    rotation_vector w;
     bool saturated;
 };
 
@@ -561,12 +491,6 @@ class state_scalar: public state_leaf<f_t, 1> {
     {
         if(index < 0) return;
         c(index, j) = val;
-    }
-    
-    inline void copy_cov_to_row(matrix &c, const int j, const f_t val) const
-    {
-        if(index < 0) return;
-        c(j, index) = val;
     }
     
     void perturb_variance() {

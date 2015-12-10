@@ -75,8 +75,8 @@ device_parameters filter_setup::get_device_parameters()
         dc.w_bias_var[i] = (float)sfm.s.w_bias.variance()[i];
         dc.Tc[i] = (float)sfm.s.Tc.v[i];
         dc.Tc_var[i] = (float)sfm.s.Tc.variance()[i];
-        dc.Wc[i] = (float)sfm.s.Wc.v.raw_vector()[i];
-        dc.Wc_var[i] = (float)sfm.s.Wc.variance()[i];
+        dc.Wc[i] = (float)to_rotation_vector(sfm.s.Qc.v).raw_vector()[i];
+        dc.Wc_var[i] = (float)sfm.s.Qc.variance()[i];
     }
     dc.a_meas_var = (float)sfm.a_variance;
     dc.w_meas_var = (float)sfm.w_variance;

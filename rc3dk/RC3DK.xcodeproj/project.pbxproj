@@ -46,7 +46,6 @@
 		327B55C318EB4F3A0001CCE1 /* state_motion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55B118EB4F3A0001CCE1 /* state_motion.cpp */; };
 		327B55D318EB4F430001CCE1 /* kalman.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55CA18EB4F430001CCE1 /* kalman.cpp */; };
 		327B55D418EB4F430001CCE1 /* matrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55CC18EB4F430001CCE1 /* matrix.cpp */; };
-		327B55D518EB4F430001CCE1 /* vec4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55D118EB4F430001CCE1 /* vec4.cpp */; };
 		327B560118EB57830001CCE1 /* RCCameraParameters.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B554C18EB4DC20001CCE1 /* RCCameraParameters.h */; };
 		327B560218EB57830001CCE1 /* RCFeaturePoint.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B555118EB4DC20001CCE1 /* RCFeaturePoint.h */; };
 		327B560318EB57830001CCE1 /* RCPoint.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B555518EB4DC20001CCE1 /* RCPoint.h */; };
@@ -186,7 +185,6 @@
 		D3B4EAF81A1E7DE100BE0443 /* RCCameraManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 327B554B18EB4DC20001CCE1 /* RCCameraManager.mm */; };
 		D3B4EAF91A1E7DE100BE0443 /* RCTranslation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B556618EB4DC20001CCE1 /* RCTranslation.m */; };
 		D3B4EAFC1A1E7DE100BE0443 /* RCTransformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B556418EB4DC20001CCE1 /* RCTransformation.m */; };
-		D3B4EB021A1E7DE100BE0443 /* vec4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55D118EB4F430001CCE1 /* vec4.cpp */; };
 		D3B4EB031A1E7DE100BE0443 /* RCPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B555618EB4DC20001CCE1 /* RCPoint.m */; };
 		D3B4EB071A1E7DE100BE0443 /* RCAFXMLRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B553318EB4D720001CCE1 /* RCAFXMLRequestOperation.m */; };
 		D3B4EB091A1E7DE100BE0443 /* state_motion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55B118EB4F3A0001CCE1 /* state_motion.cpp */; };
@@ -471,7 +469,6 @@
 		327B55CE18EB4F430001CCE1 /* quaternion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = quaternion.h; sourceTree = "<group>"; };
 		327B55CF18EB4F430001CCE1 /* rotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rotation.h; sourceTree = "<group>"; };
 		327B55D018EB4F430001CCE1 /* rotation_vector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rotation_vector.h; sourceTree = "<group>"; };
-		327B55D118EB4F430001CCE1 /* vec4.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vec4.cpp; sourceTree = "<group>"; };
 		327B55D218EB4F430001CCE1 /* vec4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vec4.h; sourceTree = "<group>"; };
 		327B563518EB5ECA0001CCE1 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		328A4DD01950D52000587949 /* RCSensorFusionError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCSensorFusionError.h; path = ../../rc3dk/RC3DK/RCSensorFusionError.h; sourceTree = "<group>"; };
@@ -1054,7 +1051,6 @@
 				327B55D018EB4F430001CCE1 /* rotation_vector.h */,
 				38EDF0761AD43D2400F0A322 /* rotation_vector.cpp */,
 				D3DE5D081A80E301000EF94D /* transformation.h */,
-				327B55D118EB4F430001CCE1 /* vec4.cpp */,
 				327B55D218EB4F430001CCE1 /* vec4.h */,
 				D96055841ACDFEF500E72711 /* eigen_initializer_list.h */,
 			);
@@ -1588,7 +1584,6 @@
 				327B556E18EB4DC20001CCE1 /* RCCameraManager.mm in Sources */,
 				327B557B18EB4DC20001CCE1 /* RCTranslation.m in Sources */,
 				327B557A18EB4DC20001CCE1 /* RCTransformation.m in Sources */,
-				327B55D518EB4F430001CCE1 /* vec4.cpp in Sources */,
 				327B557318EB4DC20001CCE1 /* RCPoint.m in Sources */,
 				327B553B18EB4D720001CCE1 /* RCAFXMLRequestOperation.m in Sources */,
 				327B55C318EB4F3A0001CCE1 /* state_motion.cpp in Sources */,
@@ -1700,7 +1695,6 @@
 				D3588EF51A20C04600CA10E7 /* factorgraph.cpp in Sources */,
 				D3B4EAFC1A1E7DE100BE0443 /* RCTransformation.m in Sources */,
 				D321AD411A323C17003AEA77 /* stereo_mesh.cpp in Sources */,
-				D3B4EB021A1E7DE100BE0443 /* vec4.cpp in Sources */,
 				D3B4EB031A1E7DE100BE0443 /* RCPoint.m in Sources */,
 				D3588F041A20C42C00CA10E7 /* poly2.c in Sources */,
 				D33E61E51ADE7CD300569C82 /* capture.cpp in Sources */,

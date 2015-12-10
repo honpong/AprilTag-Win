@@ -29,7 +29,7 @@ bool replay::open(const char *name)
     return true;
 }
 
-bool load_calibration(string filename, device_parameters & dc)
+bool replay::load_calibration(std::string filename)
 {
     ifstream file_handle(filename);
     if(file_handle.fail())
@@ -37,25 +37,24 @@ bool load_calibration(string filename, device_parameters & dc)
 
     string json((istreambuf_iterator<char>(file_handle)), istreambuf_iterator<char>());
 
-    device_parameters def = {};
+    device_parameters def = {}, dc;
     if(!calibration_deserialize(json, dc, &def))
         return false;
 
+    calibration_file = filename;
+    fusion.set_device(dc);
     return true;
 }
 
 bool replay::set_calibration_from_filename(const char *filename)
 {
-    device_parameters dc;
     string fn(filename), json;
-    if(!load_calibration(json = fn + ".json", dc)) {
+    if(!load_calibration(json = fn + ".json")) {
         auto found = fn.find_last_of("/\\");
         string path = fn.substr(0, found+1);
-        if(!load_calibration(json = path + "calibration.json", dc))
+        if(!load_calibration(json = path + "calibration.json"))
             return false;
     }
-    calibration_file = json;
-    fusion.set_device(dc);
     return true;
 }
 

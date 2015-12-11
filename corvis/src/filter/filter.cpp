@@ -905,7 +905,7 @@ extern "C" void filter_initialize(struct filter *f, rcCalibration *device)
     f->s.a_bias.set_process_noise(1.e-10);
     f->s.w_bias.set_process_noise(1.e-12);
     //TODO: check this process noise
-    f->s.focal_length.set_process_noise(1.e-1 / device->image_height / device->image_height);
+    f->s.focal_length.set_process_noise(1.e-5 / device->image_height / device->image_height);
     f->s.center_x.set_process_noise(1.e-5 / device->image_height / device->image_height);
     f->s.center_y.set_process_noise(1.e-5 / device->image_height / device->image_height);
     f->s.k1.set_process_noise(1.e-9);

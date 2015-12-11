@@ -159,12 +159,14 @@ void benchmark_run(std::ostream& stream, const char *directory, std::function<bo
     error_histogram alt_hist(primary_errors_percent, alt_edges);
     stream << alt_hist << "\n";
 
-    struct stat { size_t n; double sum, mean; } pe_le50 = {0, 0, 0};
+    struct stat { size_t n; double sum, mean, median; } pe_le50 = {0, 0, 0, 0};
+    std::sort(primary_errors_percent.begin(), primary_errors_percent.end());
     for(auto &pe : primary_errors_percent) if (pe < 50) { pe_le50.n++; pe_le50.sum += pe; }
     pe_le50.mean = pe_le50.sum / pe_le50.n;
+    pe_le50.median = primary_errors_percent[pe_le50.n/2];
 
     stream << std::fixed << std::setprecision(2);
-    stream << "Mean of " << pe_le50.n << " primary errors that are less than 50% is " << pe_le50.mean << "%\n";
+    stream << "Mean of " << pe_le50.n << " primary errors that are less than 50% is " << pe_le50.mean << "% and the median is " << pe_le50.median << "%\n";
 
     int score = 0;
     for (size_t i=0; i < pri_hist.bins.size(); i++)

@@ -31,8 +31,8 @@ const static f_t static_sigma = 6.; //how close to mean measurements in static m
 const static f_t steady_sigma = 3.; //how close to mean measurements in steady mode need to be - lower because it is handheld motion, not gaussian noise
 const static f_t dynamic_W_thresh_variance = 5.e-2; // variance of W must be less than this to initialize from dynamic mode
 //a_bias_var for best results on benchmarks is 6.4e-3
-const static f_t min_a_bias_var = 1.e-4; // calibration will finish immediately when variance of a_bias is less than this, and it is reset to this between each run
-const static f_t min_w_bias_var = 1.e-6; // variance of w_bias is reset to this between each run
+const static f_t min_a_bias_var = 1.e-6; // calibration will finish immediately when variance of a_bias is less than this, and it is reset to this between each run
+const static f_t min_w_bias_var = 1.e-8; // variance of w_bias is reset to this between each run
 const static f_t max_accel_delta = 10.; //This is biggest jump seen in hard shaking of device
 const static f_t max_gyro_delta = 5.; //This is biggest jump seen in hard shaking of device
 const static sensor_clock::duration qr_detect_period = std::chrono::microseconds(100000); //Time between checking frames for QR codes to reduce CPU usage

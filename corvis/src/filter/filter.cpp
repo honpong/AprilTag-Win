@@ -33,7 +33,7 @@ const static f_t dynamic_W_thresh_variance = 5.e-2; // variance of W must be les
 //a_bias_var for best results on benchmarks is 6.4e-3
 const static f_t min_a_bias_var = 1.e-6; // calibration will finish immediately when variance of a_bias is less than this, and it is reset to this between each run
 const static f_t min_w_bias_var = 1.e-8; // variance of w_bias is reset to this between each run
-const static f_t max_accel_delta = 10.; //This is biggest jump seen in hard shaking of device
+const static f_t max_accel_delta = 20.; //This is biggest jump seen in hard shaking of device
 const static f_t max_gyro_delta = 5.; //This is biggest jump seen in hard shaking of device
 const static sensor_clock::duration qr_detect_period = std::chrono::microseconds(100000); //Time between checking frames for QR codes to reduce CPU usage
 const static f_t convergence_minimum_velocity = 0.3; //Minimum speed (m/s) that the user must have traveled to consider the filter converged

@@ -23,7 +23,6 @@ using namespace std;
 
 #define log_enabled 0
 #define show_tuning 0
-#define plot_enabled 1
 
 //minstatesize = base (38) + 2xref (12) + full group(40) + min group (6) = 96
 #define MINSTATESIZE 96

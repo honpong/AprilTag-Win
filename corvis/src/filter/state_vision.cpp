@@ -159,6 +159,7 @@ state_vision::state_vision(covariance &c):
         children.push_back(&center_y);
         children.push_back(&k1);
         children.push_back(&k2);
+        children.push_back(&k3);
     }
     if(estimate_camera_extrinsics) {
         children.push_back(&Tc);

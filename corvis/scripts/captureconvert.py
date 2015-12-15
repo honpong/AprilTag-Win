@@ -4,17 +4,26 @@ import csv
 from collections import defaultdict
 import math
 import sys
+import getopt
 
 camera_type = 1
 accel_type = 20
 gyro_type = 21
 image_with_depth_type = 28
-if len(sys.argv) != 3:
-    print sys.argv[0], "<intel folder> <output filename>"
-    sys.exit(1)
 
-path = sys.argv[1]
-output_filename = sys.argv[2]
+use_depth = True
+offset = 0
+try:
+    opts, (path, output_filename) = getopt.gnu_getopt(sys.argv[1:], "Do:", ["no-depth", "depth-offset="])
+    for o,v in opts:
+        if o in ("-D", "--no-depth"):
+            use_depth = False;
+        elif o in ("-o", "--depth-offset"):
+            offset = float(v)
+except Exception as e:
+    print e
+    print sys.argv[0], "[--no-depth] [--depth-offset=<N>] <intel_folder> <output_filename>"
+    sys.exit(1)
 
 def read_image_timestamps(filename):
     #image is filename timestamp
@@ -62,8 +71,6 @@ for t in ['gyro','accel', 'fish']:
 data.sort()
 
 # The depth camera is not on the same clock as the gyro, accel and fisheye camera
-use_depth = False
-offset = 0 # 67
 offset += raw['depth'][0][0] - raw['fish'][0][0]
 def depth_for_image(t):
     t += offset

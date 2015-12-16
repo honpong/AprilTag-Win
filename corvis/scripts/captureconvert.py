@@ -61,8 +61,8 @@ raw = {
    'gyro':  read_csv_timestamps(path + 'gyro.txt', gyro_type),
    'accel': read_csv_timestamps(path + 'accel.txt', accel_type),
    'fish':  read_image_timestamps(path + 'fisheye_timestamps.txt'),
-   'depth': read_image_timestamps(path + 'depth_timestamps.txt'),
-   'color': read_image_timestamps(path + 'color_timestamps.txt'),
+   'depth': read_image_timestamps(path + 'depth_timestamps.txt') if use_depth else [] ,
+   'color': read_image_timestamps(path + 'color_timestamps.txt') if False else [],
 }
 
 data = [];
@@ -70,15 +70,16 @@ for t in ['gyro','accel', 'fish']:
     data.extend(raw[t])
 data.sort()
 
-# The depth camera is not on the same clock as the gyro, accel and fisheye camera
-offset += raw['depth'][0][0] - raw['fish'][0][0]
-def depth_for_image(t):
-    t += offset
-    best = raw['depth'][0]
-    for r in raw['depth']:
-        if abs(r[0] - t) < abs(r[0] - best[0]):
-            best = r
-    return best
+if use_depth:
+    # The depth camera is not on the same clock as the gyro, accel and fisheye camera
+    offset += raw['depth'][0][0] - raw['fish'][0][0]
+    def depth_for_image(t):
+        t += offset
+        best = raw['depth'][0]
+        for r in raw['depth']:
+            if abs(r[0] - t) < abs(r[0] - best[0]):
+                best = r
+        return best
 
 wrote_packets = defaultdict(int)
 wrote_bytes = 0

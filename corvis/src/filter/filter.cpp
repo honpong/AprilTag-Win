@@ -783,12 +783,6 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
     if(f->max_velocity > convergence_minimum_velocity && f->median_depth_variance < convergence_maximum_depth_variance) f->has_converged = true;
     
     filter_update_outputs(f, time);
-    f_t delta_T = (f->s.T.v - f->s.last_position).norm();
-    if(delta_T > .01) {
-        f->s.total_distance += (float)(f->s.T.v - f->s.last_position).norm();
-        f->s.last_position = f->s.T.v;
-    }
-
     return true;
 }
 

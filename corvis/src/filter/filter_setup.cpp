@@ -65,7 +65,7 @@ device_parameters filter_setup::get_device_parameters()
     dc.K2 = (float)sfm.s.k3.v;
     dc.distortionModel = sfm.s.fisheye;
     dc.Fx = dc.Fy = (float)(sfm.s.focal_length.v * sfm.s.image_height);
-    dc.Cx = (float)(sfm.s.center_x.v * sfm.s.image_height + sfm.s.image_width / 2. - .5);
+    dc.Cx = (float)(sfm.s.center_x.v * sfm.s.image_height + sfm.s.image_width  / 2. - .5);
     dc.Cy = (float)(sfm.s.center_y.v * sfm.s.image_height + sfm.s.image_height / 2. - .5);
     dc.px = dc.py = 0.;
     for(int i = 0; i < 3; ++i) {

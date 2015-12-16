@@ -79,7 +79,7 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     static f_t max_variance;
 
     state_vision_feature(): state_leaf("feature") {};
-    state_vision_feature(uint64_t feature_id, f_t initialx, f_t initialy);
+    state_vision_feature(uint64_t feature_id, feature_t initial);
     bool should_drop() const;
     bool is_valid() const;
     bool is_good() const;
@@ -176,6 +176,7 @@ public:
     state_scalar center_x, center_y;
     state_scalar k1, k2, k3;
     int image_width, image_height;
+    feature_t image_size() const { return feature_t {(f_t)image_width, (f_t)image_height}; }
     bool fisheye = false;
     uint64_t feature_counter;
     uint64_t group_counter;
@@ -186,7 +187,7 @@ public:
     state_vision(covariance &c);
     ~state_vision();
     int process_features(sensor_clock::time_point time);
-    state_vision_feature *add_feature(f_t initialx, f_t initialy);
+    state_vision_feature *add_feature(feature_t initial);
     state_vision_group *add_group(sensor_clock::time_point time);
 
     float total_distance;

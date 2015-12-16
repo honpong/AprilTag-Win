@@ -14,7 +14,7 @@ v4 camera::project_image_point(f_t x, f_t y) const
 v4 camera::calibrate_image_point(f_t x, f_t y) const
 {
     feature_t undistorted = undistort_image_point(x, y);
-    v4 calibrated_point = project_image_point(undistorted.x, undistorted.y);
+    v4 calibrated_point = project_image_point(undistorted.x(), undistorted.y());
     return calibrated_point;
 }
 
@@ -28,10 +28,8 @@ feature_t camera::undistort_image_point(f_t x, f_t y) const
     f_t kr = 1. + r2 * (k1 + r2 * (k2 + r2 * k3));
 
     // Adjust distorted projection by kr, and back project to image
-    feature_t undistorted;
-    undistorted.x = projected_x * focal_length / kr + center_x;
-    undistorted.y = projected_y * focal_length / kr + center_y;
-    return undistorted;
+    return feature_t {(float)(projected_x * focal_length / kr + center_x),
+                      (float)(projected_y * focal_length / kr + center_y)};
 }
 
 #define interp(c0, c1, t) ((c0)*(1-(t)) + ((c1)*(t)))
@@ -58,14 +56,14 @@ void camera::undistort_image(const uint8_t * input, uint8_t * output, bool * val
     for(int y = 0; y < height; y++)
         for(int x = 0; x < width; x++) {
             feature_t undistorted = undistort_image_point(x, y);
-            if(undistorted.x < 0 || undistorted.x >= width-1 ||
-               undistorted.y < 0 || undistorted.y >= height-1) {
+            if(undistorted.x() < 0 || undistorted.x() >= width-1 ||
+               undistorted.y() < 0 || undistorted.y() >= height-1) {
                 valid[y*width + x] = false;
                 output[y*width + x] = 0;
             }
             else {
                 valid[y*width + x] = true;
-                output[y*width + x] = bilinear_interp(input, width, height, undistorted.x, undistorted.y);
+                output[y*width + x] = bilinear_interp(input, width, height, undistorted.x(), undistorted.y());
             }
         }
 }

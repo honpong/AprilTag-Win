@@ -12,7 +12,7 @@ f_t state_vision_feature::outlier_thresh;
 f_t state_vision_feature::outlier_reject;
 f_t state_vision_feature::max_variance;
 
-state_vision_feature::state_vision_feature(uint64_t feature_id, f_t initialx, f_t initialy): state_leaf("feature"), outlier(0.), initial(initialx, initialy, 1., 0.), current(initial), status(feature_initializing)
+state_vision_feature::state_vision_feature(uint64_t feature_id, feature_t initial_): state_leaf("feature"), outlier(0.), initial(initial_.x(), initial_.y(), 1, 0), current(initial), status(feature_initializing)
 {
     id = feature_id;
     set_initial_variance(initial_var);
@@ -23,8 +23,7 @@ state_vision_feature::state_vision_feature(uint64_t feature_id, f_t initialx, f_
     set_process_noise(initial_process_noise);
     dt = sensor_clock::duration(0);
     last_dt = sensor_clock::duration(0);
-    image_velocity.x = 0;
-    image_velocity.y = 0;
+    image_velocity = {0,0};
     world = v4(0, 0, 0, 0);
 }
 
@@ -286,9 +285,9 @@ int state_vision::process_features(sensor_clock::time_point time)
     return total_health;
 }
 
-state_vision_feature * state_vision::add_feature(f_t initialx, f_t initialy)
+state_vision_feature * state_vision::add_feature(feature_t initial)
 {
-    state_vision_feature *f = new state_vision_feature(feature_counter++, initialx, initialy);
+    state_vision_feature *f = new state_vision_feature(feature_counter++, initial);
     features.push_back(f);
     //allfeatures.push_back(f);
     return f;
@@ -311,23 +310,17 @@ state_vision_group * state_vision::add_group(sensor_clock::time_point time)
 
 feature_t state_vision::normalize_feature(const feature_t &feat) const
 {
-    feature_t feat_p;
-    feat_p.x = (float)(((feat.x - image_width / 2. + .5) / image_height - center_x.v) / focal_length.v);
-    feat_p.y = (float)(((feat.y - image_height / 2. + .5) / image_height - center_y.v) / focal_length.v);
-    return feat_p;
+    return (((feat - image_size() / 2) + feature_t{.5,.5}) / image_height - feature_t {center_y.v, center_y.v}) / focal_length.v;
 }
 
 feature_t state_vision::unnormalize_feature(const feature_t &feat_n) const
 {
-    feature_t feat;
-    feat.x = (float)(feat_n.x * focal_length.v + center_x.v) * image_height + image_width / 2. - .5;
-    feat.y = (float)(feat_n.y * focal_length.v + center_y.v) * image_height + image_height / 2. - .5;
-    return feat;
+    return (feat_n * focal_length.v + feature_t {center_y.v, center_y.v}) * image_height + image_size() / 2 - feature_t{.5,.5};
 }
 
 feature_t state_vision::distort_feature(const feature_t &feat_u, f_t *kd_u_, f_t *dkd_u_dru, f_t *dkd_u_dk1, f_t *dkd_u_dk2, f_t *dkd_u_dk3) const
 {
-    f_t kd_u, ru2, ru = sqrt(ru2 = feat_u.x * feat_u.x + feat_u.y * feat_u.y);
+    f_t kd_u, ru2, ru = sqrt(ru2 = feat_u.squaredNorm());
     if (fisheye) {
         f_t w = k1.v; if (!w) { w = .922; fprintf(stderr, "you really shouldn't have a zero-angle fisheye lens\n"); }
         kd_u = atan(2 * tan(w / 2) * ru) / (ru * w);  // FIXME: add higher order terms (but not the linear one)
@@ -344,12 +337,12 @@ feature_t state_vision::distort_feature(const feature_t &feat_u, f_t *kd_u_, f_t
     }
     if (kd_u_) *kd_u_ = kd_u;
 
-    return feature_t { (float)(feat_u.x * kd_u), (float)(feat_u.y * kd_u) };
+    return feat_u * kd_u;
 }
 
 feature_t state_vision::undistort_feature(const feature_t &feat_d, f_t *ku_d_, f_t *dku_d_drd, f_t *dku_d_dk1, f_t *dku_d_dk2, f_t *dku_d_dk3) const
 {
-    f_t ku_d, rd2 = feat_d.x * feat_d.x + feat_d.y * feat_d.y;
+    f_t ku_d, rd2 = feat_d.squaredNorm();
     if (fisheye) {
         f_t rd = sqrt(rd2), w = k1.v; if (!w) { w = .922; fprintf(stderr, "you really shouldn't have a zero-angle fisheye lens\n"); }
         ku_d = tan(w * rd) / (2 * tan(w/2) * rd);
@@ -376,7 +369,7 @@ feature_t state_vision::undistort_feature(const feature_t &feat_d, f_t *ku_d_, f
     }
     if (ku_d_) *ku_d_ = ku_d;
 
-    return feature_t { (float)(feat_d.x * ku_d), (float)(feat_d.y * ku_d) };
+    return feat_d * ku_d;
 }
 
 float state_vision::median_depth_variance()

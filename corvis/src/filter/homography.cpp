@@ -54,8 +54,8 @@ bool homography_check_solution(const m4 &R, const v4 &T, const feature_t p1[4], 
     int nvalid = 0;
     for(int i = 0; i < 4; i++)
     {
-        v4 x1 = v4(p1[i].x, p1[i].y, 1, 0);
-        v4 x2 = v4(p2[i].x, p2[i].y, 1, 0);
+        v4 x1 = v4(p1[i].x(), p1[i].y(), 1, 0);
+        v4 x2 = v4(p2[i].x(), p2[i].y(), 1, 0);
         m4 skew_Rx1 = skew3(R*x1);
         m4 skew_x2 = skew3(x2);
         float alpha1 = (float)(-(skew_x2*T).dot(skew_x2*R*x1)/pow((skew_x2*T).norm(), 2));
@@ -267,8 +267,8 @@ bool homography_should_flip_sign(const m4 & H, const feature_t p1[4], const feat
 {
     int poscount = 0;
     for(int i = 0; i < 4; i++) {
-        v4 x1(p1[i].x, p1[i].y, 1, 0);
-        v4 x2(p2[i].x, p2[i].y, 1, 0);
+        v4 x1(p1[i].x(), p1[i].y(), 1, 0);
+        v4 x2(p2[i].x(), p2[i].y(), 1, 0);
         if(x2.dot(H*x1) >= 0)
             poscount++;
         else
@@ -293,7 +293,7 @@ m4 homography_compute(const feature_t p1[4], const feature_t p2[4])
     for(int c = 0; c < 4; ++c)
     {
         //Note: Since we choose X1, this should never be degenerate
-        homography_set_correspondence(X, c, p1[c].x, p1[c].y, p2[c].x, p2[c].y);
+        homography_set_correspondence(X, c, p1[c].x(), p1[c].y(), p2[c].x(), p2[c].y());
     }
     m4 H = m4::Identity();
     H.block(0, 0, 3, 3) = homography_estimate_from_constraints(X);
@@ -321,21 +321,19 @@ void fill_ideal_points(feature_t ideal[4], float qr_size_m, bool use_markers, in
         // the rest
         // modules are width/height of the qr code in bars
         // v2 = 25, v3 = 29, v4 = 33, v10 = 57 (4 * version + 17)
-        float offset = 0.5f;
-        ideal[0] = {3.5f,  3.5f};                    // UL
-        ideal[1] = {3.5f,  modules - 3.5f};          // LL
-        ideal[2] = {modules - 6.5f, modules - 6.5f}; // LR
-        ideal[3] = {modules - 3.5f, 3.5f};           // UR
-        for(int i = 0; i < 4; i++) {
-            ideal[i].x = (ideal[i].x/modules - offset)*qr_size_m;
-            ideal[i].y = (ideal[i].y/modules - offset)*qr_size_m;
-        }
+        feature_t offset = {0.5,0.5};
+        ideal[0] = {3.5,  3.5};                    // UL
+        ideal[1] = {3.5,  modules - 3.5};          // LL
+        ideal[2] = {modules - 6.5, modules - 6.5}; // LR
+        ideal[3] = {modules - 3.5, 3.5};           // UR
+        for(int i = 0; i < 4; i++)
+            ideal[i] = (ideal[i]/modules - offset)*qr_size_m;
     }
     else {
-        ideal[0] = {-0.5f*qr_size_m, -0.5f*qr_size_m}; // UL
-        ideal[1] = {-0.5f*qr_size_m, 0.5f*qr_size_m}; // LL
-        ideal[2] = {0.5f*qr_size_m, 0.5f*qr_size_m}; // LR
-        ideal[3] = {0.5f*qr_size_m, -0.5f*qr_size_m}; // UR
+        ideal[0] = {-0.5*qr_size_m, -0.5*qr_size_m}; // UL
+        ideal[1] = {-0.5*qr_size_m,  0.5*qr_size_m}; // LL
+        ideal[2] = { 0.5*qr_size_m,  0.5*qr_size_m}; // LR
+        ideal[3] = { 0.5*qr_size_m, -0.5*qr_size_m}; // UR
     }
 
 }

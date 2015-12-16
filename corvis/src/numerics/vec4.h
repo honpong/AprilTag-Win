@@ -45,6 +45,7 @@ typedef Eigen::Matrix<f_t, 4, 1> v4;
 typedef Eigen::Matrix<f_t, 3, 1> v3;
 typedef Eigen::Matrix<f_t, 4, 4> m4;
 typedef Eigen::Matrix<f_t, 3, 3> m3;
+typedef Eigen::Matrix<f_t, 2, 1> v2, feature_t;
 
 static inline v4 v4_sqrt(const v4 &v) { return v4(sqrt(v[0]), sqrt(v[1]), sqrt(v[2]), sqrt(v[3])); }
 

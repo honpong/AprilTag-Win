@@ -38,9 +38,9 @@ void fill_qr_ideal(v4 ideal[4], float qr_size, bool use_markers, int modules)
 void project_points(const v4 points[4], feature_t image[4])
 {
     for(int i = 0; i < 4; i++) {
-        image[i].x = points[i][0] / points[i][2];
-        image[i].y = points[i][1] / points[i][2];
-        //fprintf(stderr, "image %d (%f %f)\n", i, image[i].x, image[i].y);
+        image[i].x() = points[i][0] / points[i][2];
+        image[i].y() = points[i][1] / points[i][2];
+        //fprintf(stderr, "image %d (%f %f)\n", i, image[i].x(), image[i].y());
     }
 }
 

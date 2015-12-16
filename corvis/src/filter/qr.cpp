@@ -87,14 +87,14 @@ bool qr_detect_one(const uint8_t * image, int width, int height, struct qr_detec
     if(results.size() > 0) {
         ArrayRef<Ref<zxing::ResultPoint> > res = results[0]->getResultPoints();
         if(res->size() == 4) {
-            d.lower_left.x = res[0]->getX();
-            d.lower_left.y = res[0]->getY();
-            d.upper_left.x = res[1]->getX();
-            d.upper_left.y = res[1]->getY();
-            d.upper_right.x = res[2]->getX();
-            d.upper_right.y = res[2]->getY();
-            d.lower_right.x = res[3]->getX();
-            d.lower_right.y = res[3]->getY();
+            d.lower_left.x() = res[0]->getX();
+            d.lower_left.y() = res[0]->getY();
+            d.upper_left.x() = res[1]->getX();
+            d.upper_left.y() = res[1]->getY();
+            d.upper_right.x() = res[2]->getX();
+            d.upper_right.y() = res[2]->getY();
+            d.lower_right.x() = res[3]->getX();
+            d.lower_right.y() = res[3]->getY();
             d.modules = results[0]->getVersion()*4 + 17; // size of qr code is defined by the version
             Ref<zxing::String> data = results[0]->getText();
             d.data = data->getText();
@@ -146,14 +146,10 @@ bool qr_code_homography(const struct filter *f, struct qr_detection detection, f
     feature_t image_corners[4];
     feature_t calibrated[4];
 
-    image_corners[0].x = detection.upper_left.x;
-    image_corners[0].y = detection.upper_left.y;
-    image_corners[1].x = detection.lower_left.x;
-    image_corners[1].y = detection.lower_left.y;
-    image_corners[2].x = detection.lower_right.x;
-    image_corners[2].y = detection.lower_right.y;
-    image_corners[3].x = detection.upper_right.x;
-    image_corners[3].y = detection.upper_right.y;
+    image_corners[0] = detection.upper_left;
+    image_corners[1] = detection.lower_left;
+    image_corners[2] = detection.lower_right;
+    image_corners[3] = detection.upper_right;
     for(int c = 0; c < 4; c++) {
         calibrated[c] = f->s.undistort_feature(f->s.normalize_feature(image_corners[c]));
     }

@@ -2,7 +2,7 @@
 #define __STEREO_FEATURES_H
 
 #include "sift.h"
-#include "../cor/cor_types.h"
+#include "../numerics/vec4.h"
 
 #include <vector>
 using namespace std;

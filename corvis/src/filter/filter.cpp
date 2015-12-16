@@ -527,19 +527,19 @@ void filter_setup_next_frame(struct filter *f, const camera_data &cam_data)
     //TODO: implement feature_single ?
 }
 
-static uint16_t get_raw_depth(const camera_data &cam, int x, int y)
+static uint16_t get_raw_depth(const camera_data &cam, feature_t p)
 {
     //TODO: make this more efficient if needed
-    int dx = ((x - cam.width / 2) * cam.depth->width) / cam.width + cam.depth->width / 2;
-    int dy = ((y - cam.height / 2) * cam.depth->height) / cam.height + cam.depth->height / 2;
+    int dx = ((p.x() - cam.width / 2) * cam.depth->width) / cam.width + cam.depth->width / 2;
+    int dy = ((p.y() - cam.height / 2) * cam.depth->height) / cam.height + cam.depth->height / 2;
     if(dx < 0 || dy < 0 || dx > cam.depth->width - 1 || dy > cam.depth->height - 1) return 0;
     assert(2 * cam.depth->stride / 2 == cam.depth->stride);
     return cam.depth->image[cam.depth->stride / 2 * dy + dx];
 }
 
-static float get_depth_for_point(const camera_data &cam, int x, int y)
+static float get_depth_for_point(const camera_data &cam, feature_t p)
 {
-    uint16_t depth_mm = get_raw_depth(cam, x, y);
+    uint16_t depth_mm = get_raw_depth(cam, p);
     return depth_mm / 1000.0f;
 //    if(depth.image[y * depth.stride + x]) return depth.image[y * stride + x] / 1000.f;
 //    if(x == 0 || y == 0 || x == depth.width - 1 || y == depth.height - 1) return 0;
@@ -575,16 +575,17 @@ static void filter_add_features(struct filter *f, const camera_data & camera, si
 
     int found_feats = 0;
     for(int i = 0; i < (int)kp.size(); ++i) {
+        feature_t kp_i = {kp[i].x, kp[i].y};
         int x = (int)kp[i].x;
         int y = (int)kp[i].y;
         if(f->track.is_trackable(x, y) && f->mask->test(x, y)) {
             f->mask->clear(x, y);
-            state_vision_feature *feat = f->s.add_feature(x, y);
+            state_vision_feature *feat = f->s.add_feature(kp_i);
 
             float depth_m = 0;
             if(camera.depth) {
-                feature_t p = f->s.unnormalize_feature(f->s.undistort_feature(f->s.normalize_feature(feature_t {kp[i].x, kp[i].y})));
-                depth_m = get_depth_for_point(camera, p.x, p.y);
+                feature_t p = f->s.unnormalize_feature(f->s.undistort_feature(f->s.normalize_feature(kp_i)));
+                depth_m = get_depth_for_point(camera, p);
             }
             if(depth_m)
             {

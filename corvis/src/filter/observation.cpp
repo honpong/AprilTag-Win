@@ -197,10 +197,10 @@ void observation_vision_feature::predict()
     Rtot = Rrt;
     Ttot = Rrt * ( - state_group->Tr.v);
 
-    feature_t uncal = { (float)feature->initial[0], (float)feature->initial[1] };
+    feature_t uncal = { feature->initial[0], feature->initial[1] };
     Xd = state.normalize_feature(uncal);
     norm_initial = state.undistort_feature(Xd);
-    X0 = v4(norm_initial.x, norm_initial.y, 1., 0.);
+    X0 = v4(norm_initial.x(), norm_initial.y(), 1., 0.);
 
     X = Rtot * X0 + Ttot * feature->v.invdepth();
 
@@ -212,10 +212,10 @@ void observation_vision_feature::predict()
     }
 #endif
 
-    norm_predicted = {(float)ippred[0], (float)ippred[1]};
+    norm_predicted = {ippred[0], ippred[1]};
     feature->prediction = state.unnormalize_feature(state.distort_feature(norm_predicted));
-    pred[0] = feature->prediction.x;
-    pred[1] = feature->prediction.y;
+    pred[0] = feature->prediction.x();
+    pred[1] = feature->prediction.y();
 }
 
 void observation_vision_feature::cache_jacobians()
@@ -231,15 +231,15 @@ void observation_vision_feature::cache_jacobians()
     // v4 dX = dRtot * X0 + Rtot * dX0 + dTtot / depth - Tot / depth / depth ddepth
 
 #if estimate_camera_intrinsics
-    f_t rd2, rd = sqrt(rd2=Xd.x*Xd.x+Xd.y*Xd.y), w = state.k1.v;
+    f_t rd2, rd = sqrt(rd2=Xd.squaredNorm()), w = state.k1.v;
     f_t ku_d, dku_d_drd, dku_d_dk1, dku_d_dk2, dku_d_dk3;
     /*X0 = */state.undistort_feature(Xd, &ku_d, &dku_d_drd, &dku_d_dk1, &dku_d_dk2, &dku_d_dk3);
-    v4 dX_dcx = Rtot * v4(ku_d  + dku_d_drd*Xd.x*Xd.x/rd,         dku_d_drd*Xd.x*Xd.y/rd, 0, 0) / -state.focal_length.v;
-    v4 dX_dcy = Rtot * v4(        dku_d_drd*Xd.y*Xd.x/rd, ku_d  + dku_d_drd*Xd.y*Xd.y/rd, 0, 0) / -state.focal_length.v;
-    v4 dX_dF  = Rtot * v4(X0[0] + dku_d_drd*Xd.x*rd,      X0[1] + dku_d_drd*Xd.y*rd,      0, 0) / -state.focal_length.v;
-    v4 dX_dk1 = Rtot * v4(Xd.x * dku_d_dk1, Xd.y * dku_d_dk1, 0, 0);
-    v4 dX_dk2 = Rtot * v4(Xd.x * dku_d_dk2, Xd.y * dku_d_dk2, 0, 0);
-    v4 dX_dk3 = Rtot * v4(Xd.x * dku_d_dk3, Xd.y * dku_d_dk3, 0, 0);
+    v4 dX_dcx = Rtot * v4(ku_d  + dku_d_drd*Xd.x()*Xd.x()/rd,         dku_d_drd*Xd.x()*Xd.y()/rd, 0, 0) / -state.focal_length.v;
+    v4 dX_dcy = Rtot * v4(        dku_d_drd*Xd.y()*Xd.x()/rd, ku_d  + dku_d_drd*Xd.y()*Xd.y()/rd, 0, 0) / -state.focal_length.v;
+    v4 dX_dF  = Rtot * v4(X0[0] + dku_d_drd*Xd.x()       *rd, X0[1] + dku_d_drd*Xd.y()       *rd, 0, 0) / -state.focal_length.v;
+    v4 dX_dk1 = Rtot * v4(Xd.x() * dku_d_dk1, Xd.y() * dku_d_dk1, 0, 0);
+    v4 dX_dk2 = Rtot * v4(Xd.x() * dku_d_dk2, Xd.y() * dku_d_dk2, 0, 0);
+    v4 dX_dk3 = Rtot * v4(Xd.x() * dku_d_dk3, Xd.y() * dku_d_dk3, 0, 0);
 #endif
 
     v4 RtotX0 = Rtot * X0;
@@ -350,12 +350,10 @@ f_t observation_vision_feature::projection_residual(const v4 & X, const xy &foun
         fprintf(stderr, "FAILURE in feature projection in observation_vision_feature::predict\n");
     }
 #endif
-    feature_t norm = { (float)ippred[0], (float)ippred[1] };
+    feature_t norm = { ippred[0], ippred[1] };
     feature_t uncalib = state.unnormalize_feature(state.distort_feature(norm));
 
-    f_t dx = uncalib.x - found.x;
-    f_t dy = uncalib.y - found.y;
-    return dx * dx + dy * dy;
+    return (uncalib - feature_t{found.x, found.y}).squaredNorm();
 }
 
 void observation_vision_feature::update_initializing()
@@ -414,7 +412,7 @@ bool observation_vision_feature::measure()
     if(feature->last_dt.count())
         ratio = (float)feature->dt.count() / feature->last_dt.count();
 
-    xy bestkp = tracker.track(feature->patch, image, (float)feature->current[0] + feature->image_velocity.x*ratio, (float)feature->current[1] + feature->image_velocity.y*ratio, tracker.radius, tracker.min_match);
+    xy bestkp = tracker.track(feature->patch, image, (float)feature->current[0] + feature->image_velocity.x()*ratio, (float)feature->current[1] + feature->image_velocity.y()*ratio, tracker.radius, tracker.min_match);
 
     // Not a good enough match, try the filter prediction
     if(bestkp.score < tracker.good_match) {
@@ -431,14 +429,8 @@ bool observation_vision_feature::measure()
 
     bool valid = bestkp.x != INFINITY;
 
-    if(valid) {
-        feature->image_velocity.x  = bestkp.x - (float)feature->current[0];
-        feature->image_velocity.y  = bestkp.y - (float)feature->current[1];
-    }
-    else {
-        feature->image_velocity.x = 0;
-        feature->image_velocity.y = 0;
-    }
+    feature->image_velocity.x() = valid ? bestkp.x - feature->current[0] : 0;
+    feature->image_velocity.y() = valid ? bestkp.y - feature->current[1] : 0;
 
     meas[0] = feature->current[0] = bestkp.x;
     meas[1] = feature->current[1] = bestkp.y;

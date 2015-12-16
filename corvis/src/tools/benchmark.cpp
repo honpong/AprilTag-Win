@@ -136,7 +136,7 @@ void benchmark_run(std::ostream& stream, const char *directory, std::function<bo
             primary_errors_percent.push_back(mPL.error_percent);
 
         if (has_PL) {
-            stream << "\tPL\t" << mPL.to_string();
+            stream << "\tPL\t" << mPL.to_string() << "\n";
             PL_errors_percent.push_back(mPL.error_percent);
         }
     }

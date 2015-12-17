@@ -453,6 +453,13 @@ bool observation_vision_feature::measure()
 
     feature->last_dt = feature->dt;
 
+    // The covariance will become ill-conditioned if either the original predict()ion
+    // or the predict()ion in update_initializing() lead to huge or non-sensical pred[]s
+    if (X[2] < .01) { // throw away features that are predicted to be too close to or even behind the camera
+        feature->drop();
+        return false;
+    }
+
     return valid;
 }
 

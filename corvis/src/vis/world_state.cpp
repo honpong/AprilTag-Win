@@ -186,6 +186,11 @@ void world_state::receive_camera(const filter * f, camera_data &&d)
     observe_plot_item(d.timestamp, p, "Tc_z", (float)f->s.Tc.v[2]);
     p++;
 
+    observe_plot_item(d.timestamp, p, "Tvar_x", (float)f->s.T.variance()[0]);
+    observe_plot_item(d.timestamp, p, "Tvar_y", (float)f->s.T.variance()[1]);
+    observe_plot_item(d.timestamp, p, "Tvar_z", (float)f->s.T.variance()[2]);
+    p++;
+
     observe_plot_item(d.timestamp, p, "Wc_x", (float)to_rotation_vector(f->s.Qc.v).raw_vector()[0]);
     observe_plot_item(d.timestamp, p, "Wc_y", (float)to_rotation_vector(f->s.Qc.v).raw_vector()[1]);
     observe_plot_item(d.timestamp, p, "Wc_z", (float)to_rotation_vector(f->s.Qc.v).raw_vector()[2]);

@@ -28,22 +28,22 @@ model {
         main { jniLibs { source { srcDirs = ["build/cmake/jniLibs"] } } }
         main { jni { source { srcDirs = ["../../../corvis/src/tracker", "src/main/jni"] } } }
     }
-    android.ndk {
-        cppFlags += "-I" + file("../../../corvis/src/filter")
-        cppFlags += "-I" + file("../../../corvis/src/tracker")
+    android.ndk.with {
+        cppFlags.add "-I" + file("../../../corvis/src/filter")
+        cppFlags.add "-I" + file("../../../corvis/src/tracker")
     }
     android.productFlavors {
         rc86 {
-            ndk.ldFlags  += "-L" + file("build/cmake/jniLibs/x86")
+            ndk.ldFlags.add "-L" + file("build/cmake/jniLibs/x86")
         }
         rc64 {
-            ndk.ldFlags  += "-L" + file("build/cmake/jniLibs/x86_64")
+            ndk.ldFlags.add "-L" + file("build/cmake/jniLibs/x86_64")
         }
     }
     android.buildTypes {
-        release        { ndk.ldLibs += ["tracker"] }
-        debug          { ndk.ldLibs += ["tracker_debug"] }
-        relwithdebinfo { ndk.ldLibs += ["tracker_relwithdebinfo"] }
+        release        { ndk.ldLibs.add "tracker" }
+        debug          { ndk.ldLibs.add "tracker_debug" }
+        relwithdebinfo { ndk.ldLibs.add "tracker_relwithdebinfo" }
     }
     components.android {
         binaries.afterEach { binary ->

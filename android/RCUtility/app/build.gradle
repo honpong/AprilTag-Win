@@ -17,41 +17,35 @@ model {
     }
     android.ndk {
         moduleName = "tracker_wrapper"
-        ldLibs += ["log", "GLESv2"]
+        ldLibs.addAll "log", "GLESv2"
         stl = "c++_shared"
-        cppFlags += "-I" + file("src/main/jni")
+        cppFlags.add "-I" + file("src/main/jni")
         debuggable = true
     }
-    def debugSigningConfig
     android.buildTypes {
-        release {
-            minifyEnabled = false
-            proguardFiles += file('proguard-rules.pro')
-            signingConfig = debugSigningConfig
-        }
+        def debugSigningConfig
         debug {
-            minifyEnabled = false
-            proguardFiles += file('proguard-rules.pro')
             debuggable = true
+            debugSigningConfig = signingConfig
+        }
+        release {
+            signingConfig = debugSigningConfig
         }
         create("relwithdebinfo") {
-            minifyEnabled = false
-            proguardFiles += file('proguard-rules.pro')
             debuggable = true
             signingConfig = debugSigningConfig
-        }
-    }
-    android.signingConfigs {
-        debug {
-            debugSigningConfig = it
         }
     }
     android.productFlavors {
         create("rc86") {
-            ndk.abiFilters += "x86"
+            ndk.with {
+                abiFilters.add "x86"
+            }
         }
         create("rc64") {
-            ndk.abiFilters += "x86_64"
+            ndk.with {
+                 abiFilters.add "x86_64"
+            }
         }
     }
 }
@@ -61,28 +55,20 @@ project.ext.ndkDir = new com.android.build.gradle.internal.NdkHandler(rootDir, n
 if (file("../../rc_replay/lib/").exists())
     model {
         android.ndk {
-            cppFlags += "-I" + file("../../rc_replay/src")
-            ldLibs += ["tracker"]
+            cppFlags.add "-I" + file("../../rc_replay/src")
+            ldLibs.add "tracker"
         }
         android.sources {
-            main { jni { source { srcDirs += [ "../../rc_replay/src", "src/main/jni" ] } } }
+            main { jni { source { srcDirs = [ "../../rc_replay/src", "src/main/jni" ] } } }
             main { jniLibs { source { srcDirs = [ "../../rc_replay/lib", "src/main/jniLibs" ] } } }
         }
         android.productFlavors {
-            rc86 { ndk.ldFlags  += "-L" + file("../../rc_replay/lib/x86") }
-            rc64 { ndk.ldFlags  += "-L" + file("../../rc_replay/lib/x86_64") }
+            rc86 { ndk.ldFlags.add "-L" + file("../../rc_replay/lib/x86") }
+            rc64 { ndk.ldFlags.add "-L" + file("../../rc_replay/lib/x86_64") }
         }
     }
 else
     apply from: "../../cmake.gradle"
-
-tasks.all { task ->
-    if (task.name.contains('Arm') || task.name.startsWith('arm') ||
-        task.name.contains('Mips') || task.name.startsWith('mips') ||
-        task.name.contains('Rc64') && !task.name.contains('_64') && task.name.contains('86') ||
-        task.name.contains('Rc86') &&  task.name.contains('_64'))
-        task.enabled = false
-}
 
 Properties properties = new Properties()
 properties.load(project.rootProject.file('local.properties').newDataInputStream())

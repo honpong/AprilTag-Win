@@ -804,7 +804,7 @@ extern "C" void filter_initialize(struct filter *f, rcCalibration *device)
 #endif
     state_vision_feature::initial_var = .75;
     state_vision_feature::initial_process_noise = 1.e-20;
-    state_vision_feature::measurement_var = 1.5 * 1.5;
+    state_vision_feature::measurement_var = 2 * 2;
     state_vision_feature::outlier_thresh = 2;
     state_vision_feature::outlier_reject = 30.;
     state_vision_feature::max_variance = .10 * .10; //because of log-depth, the standard deviation is approximately a percentage (so .10 * .10 = 10%)

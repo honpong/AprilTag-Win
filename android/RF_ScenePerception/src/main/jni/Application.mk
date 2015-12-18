@@ -1,0 +1,5 @@
+APP_ABI := x86
+APP_CPPFLAGS += -std=c++11
+NDK_TOOLCHAIN_VERSION=4.9
+APP_PLATFORM := android-10
+APP_MODULE := SafeStringLib_static

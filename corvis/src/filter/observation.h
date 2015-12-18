@@ -57,7 +57,7 @@ public:
 
 class observation_vision_feature: public observation_storage<2> {
  private:
-    f_t projection_residual(const v4 & X, const xy &found);
+    f_t projection_residual(const v4 & X, const feature_t &found);
     const state_vision &state;
  public:
     static stdev_scalar stdev[2], inn_stdev[2];

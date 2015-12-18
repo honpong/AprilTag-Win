@@ -341,7 +341,7 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
     }
 }
 
-f_t observation_vision_feature::projection_residual(const v4 & X, const xy &found)
+f_t observation_vision_feature::projection_residual(const v4 & X, const feature_t & found_undistorted)
 {
     f_t invZ = 1./X[2];
     v4 ippred = X * invZ; //in the image plane
@@ -351,9 +351,7 @@ f_t observation_vision_feature::projection_residual(const v4 & X, const xy &foun
     }
 #endif
     feature_t norm = { ippred[0], ippred[1] };
-    feature_t uncalib = state.unnormalize_feature(state.distort_feature(norm));
-
-    return (uncalib - feature_t{found.x, found.y}).squaredNorm();
+    return (norm - found_undistorted).squaredNorm();
 }
 
 void observation_vision_feature::update_initializing()
@@ -369,30 +367,30 @@ void observation_vision_feature::update_initializing()
     
     v4 X_0_proj = X_0 / X_0[2];
     v4 delta = (X_inf_proj - X_0_proj);
-    f_t pixelvar = delta.dot(delta) * state.focal_length.v * state.focal_length.v * state.image_height * state.image_height;
+    f_t normalized_distance_to_px = state.focal_length.v * state.image_height;
+    f_t pixelvar = delta.dot(delta) * normalized_distance_to_px * normalized_distance_to_px;
     if(pixelvar > 5. * 5. * state_vision_feature::measurement_var) { //tells us if we have enough baseline
         feature->status = feature_normal;
     }
     
-    xy bestkp;
-    bestkp.x = (float)meas[0];
-    bestkp.y = (float)meas[1];
-    
-    min_d2 = projection_residual(X_inf + min * Ttot, bestkp);
-    max_d2 = projection_residual(X_inf + max * Ttot, bestkp);
+    feature_t bestkp = {meas[0], meas[1]};
+    feature_t bestkp_norm = state.undistort_feature(state.normalize_feature(bestkp));
+
+    min_d2 = projection_residual(X_inf + min * Ttot, bestkp_norm);
+    max_d2 = projection_residual(X_inf + max * Ttot, bestkp_norm);
     f_t best = min;
     f_t best_d2 = min_d2;
     for(int i = 0; i < 10; ++i) { //10 iterations = 1024 segments
         if(min_d2 < max_d2) {
             max = (min + max) / 2.;
-            max_d2 = projection_residual(X_inf + max * Ttot, bestkp);
+            max_d2 = projection_residual(X_inf + max * Ttot, bestkp_norm);
             if(min_d2 < best_d2) {
                 best_d2 = min_d2;
                 best = min;
             }
         } else {
             min = (min + max) / 2.;
-            min_d2 = projection_residual(X_inf + min * Ttot, bestkp);
+            min_d2 = projection_residual(X_inf + min * Ttot, bestkp_norm);
             if(max_d2 < best_d2) {
                 best_d2 = max_d2;
                 best = max;

@@ -260,7 +260,7 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule {
 		}
 	}
 	
-	private native void depthToRGB(ByteBuffer src, ByteBuffer dest, int width, int height, int stride);
+//	private native void depthToRGB(ByteBuffer src, ByteBuffer dest, int width, int height, int stride);
 	
 	//               	 	C a m e r a    T r a c k i n g 			          //
 	////////////////////////////////////////////////////////////////////////////
@@ -276,19 +276,19 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule {
 		@Override
 		public void onTrackingUpdate(TrackingAccuracy trackingResult, CameraPose newCamPose) {
 			mTrackedFrameCounter++;
-			if (trackingResult != TrackingAccuracy.FAILED) {
-				mCameraPose.set(newCamPose);
-				mFPSCal.updateTimeOnFrame(System.currentTimeMillis());
 
-				if (mTrackedFrameCounter % DISPLAY_FPS_FREQ == 0)
-                {
-                    sendTrackingStatusToWebView(trackingResult, mFPSCal.getFPS());
-				}
-				
-				//update view point of render reconstruction if viewpoint is toggled or dynamic
-				updateRenderViewPoint(mCameraPose);
+			mCameraPose.set(newCamPose);
+			mFPSCal.updateTimeOnFrame(System.currentTimeMillis());
 
-                sendPoseToWebView(mCameraPose);
+			if (mTrackedFrameCounter % DISPLAY_FPS_FREQ == 0)
+			{
+				sendTrackingStatusToWebView(trackingResult, mFPSCal.getFPS());
+			}
+
+			//update view point of render reconstruction if viewpoint is toggled or dynamic
+//				updateRenderViewPoint(mCameraPose);
+
+			sendPoseToWebView(mCameraPose);
 
 //				//Update UI to display new camera pose
 //				mRecontRenderer.setCameraPose(mCameraPose);
@@ -310,13 +310,7 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule {
 //				else { // update render volume image
 //					mLastRenderTask = mRenderVolumeEx.submit(mRunRenderVolume);
 //				}
-				
-			}
-			else
-            {
-                sendTrackingStatusToWebView(trackingResult, 0);
-				setProgramStatus("Tracking: " + trackingResult);
-			}
+
 		}
 
 		@Override

@@ -59,7 +59,8 @@ var MainController = (function ($, window, RealSense, THREE)
 
         Tracker.onSceneQualityUpdate(function (quality)
         {
-            showMessage("Scene quality: " + quality);
+            if (workflowState !== WorkflowStates.TRACKING)
+                showMessage("Scene quality: " + quality);
         });
     });
 

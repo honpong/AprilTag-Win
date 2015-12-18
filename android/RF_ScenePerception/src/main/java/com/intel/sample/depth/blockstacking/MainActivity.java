@@ -8,7 +8,7 @@ Copyright(c) 2015 Intel Corporation. All Rights Reserved.
 
 *******************************************************************************/
 
-package com.intel.sample.depth.spsample;
+package com.intel.sample.depth.blockstacking;
 import android.app.Activity;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
@@ -19,10 +19,10 @@ import com.intel.sample.depth.spsamplecommon.CameraHandler;
 import com.intel.sample.depth.spsamplecommon.SDKCameraManager;
 
 // To Launch in playback mode use the command:
-// 	- am start -W -n com.intel.sample.depth.spsample/.MainActivity -e play <filename>
+// 	- am start -W -n com.intel.sample.depth.blockstacking/.MainActivity -e play <filename>
 // 	
 // 	For example:
-// 	adb shell 'am start -W -n com.intel.sample.depth.spsample/.MainActivity -e play myfile.rssdk'
+// 	adb shell 'am start -W -n com.intel.sample.depth.blockstacking/.MainActivity -e play myfile.rssdk'
 
 public class MainActivity extends Activity{
    

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.intel.sample.depth.spsample"
+    package="com.intel.sample.depth.blockstacking"
     android:versionCode="1"
     android:versionName="0.2.171404"  >
 

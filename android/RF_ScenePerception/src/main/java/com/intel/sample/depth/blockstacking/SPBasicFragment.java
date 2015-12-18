@@ -8,7 +8,7 @@
 
  *******************************************************************************/
 
-package com.intel.sample.depth.spsample;
+package com.intel.sample.depth.blockstacking;
 
 import com.intel.sample.depth.spsamplecommon.SPUtils;
 
@@ -45,9 +45,6 @@ import com.intel.sample.depth.spsamplecommon.CameraHandler;
 import com.intel.sample.depth.spsamplecommon.CameraSyncedFramesListener;
 import com.intel.sample.depth.spsamplecommon.DepthProcessModule;
 import com.intel.sample.depth.spsamplecommon.ImageView2D;
-import com.intel.sample.depth.spsamplecommon.SPUtils;
-import com.intel.sample.depth.spsamplecommon.SPUtils.FPSCalculator;
-import com.intel.sample.depth.spsamplecommon.SPUtils.ViewChange;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.ExecutorService;
@@ -856,7 +853,7 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule
 		final Activity curActivity = getActivity();
 		if (curActivity != null)
 		{
-			Matrix.rotateM(cameraPose.get(), 0, 90f, 0f, 0f, 1f); // workaround for projection matrix difficulties
+			Matrix.rotateM(cameraPose.get(), 0, 90f, 1f, 0f, 0f); // workaround for projection matrix difficulties
 
 			curActivity.runOnUiThread(new Runnable() {
 				@Override

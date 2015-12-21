@@ -270,8 +270,8 @@ void observation_vision_feature::cache_jacobians()
         //dy_dTr = m4(0.);
     } else {
 #if estimate_camera_intrinsics
-        dx_dF = state.image_height * norm_predicted.x * kd_u + dx_dX.dot(dX_dF);
-        dy_dF = state.image_height * norm_predicted.y * kd_u + dy_dX.dot(dX_dF);
+        dx_dF = state.image_height * norm_predicted.x() * kd_u + dx_dX.dot(dX_dF);
+        dy_dF = state.image_height * norm_predicted.y() * kd_u + dy_dX.dot(dX_dF);
 
         dx_dk1 = state.image_height * (dkd_u_dk1 * state.focal_length.v * X[0]*invZ + kd_u * dx_dX.dot(dX_dk1));
         dy_dk1 = state.image_height * (dkd_u_dk1 * state.focal_length.v * X[1]*invZ + kd_u * dy_dX.dot(dX_dk1));

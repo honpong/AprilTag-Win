@@ -551,13 +551,13 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule
 	 */
 	private void createCustomViews(View parentView) {
 		//instantiate input view for display of inputs
-		ViewStub inputStub = (ViewStub)parentView.findViewById(R.id.input_view_stub);
-		inputStub.setLayoutResource(R.layout.image_view_2d);
-		FrameLayout inputViewLayout= (FrameLayout)inputStub.inflate();
-		View inputImageView = (View) inputViewLayout.findViewById(R.id.view_2d);
+//		ViewStub inputStub = (ViewStub)parentView.findViewById(R.id.input_view_stub);
+//		inputStub.setLayoutResource(R.layout.image_view_2d);
+//		FrameLayout inputViewLayout= (FrameLayout)inputStub.inflate();
+//		View inputImageView = (View) inputViewLayout.findViewById(R.id.view_2d);
 //		inputImageView.setContentDescription(getString(R.string.input_view_title));
-		mInputView = (ImageView2D)(inputImageView);
-		((ImageView2D)mInputView).setUiHandler(mHandler);
+//		mInputView = (ImageView2D)(inputImageView);
+//		((ImageView2D)mInputView).setUiHandler(mHandler);
 
 		//instantiate reconstruction volume view for display of surface reconstruction
 //		ViewStub renderVolumeStub = (ViewStub)parentView.findViewById(R.id.volume_view_stub);

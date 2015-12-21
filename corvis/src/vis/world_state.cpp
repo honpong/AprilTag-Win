@@ -175,8 +175,8 @@ void world_state::receive_camera(const filter * f, camera_data &&d)
     observe_plot_item(d.timestamp, p, "F", (float)(f->s.focal_length.v * f->s.image_height));
     p++;
 
-    observe_plot_item(d.timestamp, p, "C_x", (float)(f->s.center_x.v * f->s.image_height + f->s.image_width / 2. - .5));
-    observe_plot_item(d.timestamp, p, "C_y", (float)(f->s.center_y.v * f->s.image_height + f->s.image_width / 2. - .5));
+    observe_plot_item(d.timestamp, p, "C_x", (float)(f->s.center_x.v * f->s.image_height + f->s.image_width  / 2. - .5));
+    observe_plot_item(d.timestamp, p, "C_y", (float)(f->s.center_y.v * f->s.image_height + f->s.image_height / 2. - .5));
     p++;
 #endif
 

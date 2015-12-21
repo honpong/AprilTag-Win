@@ -78,8 +78,8 @@ var MainController = (function ($, window, RealSense, THREE)
     function enterReadyState()
     {
         showMessage("Press the button to start.");
-//        setupWebGLView();
-        setupWebGLViewCubes();
+        setupWebGLView();
+//        setupWebGLViewCubes();
         workflowState = WorkflowStates.READY;
     }
 

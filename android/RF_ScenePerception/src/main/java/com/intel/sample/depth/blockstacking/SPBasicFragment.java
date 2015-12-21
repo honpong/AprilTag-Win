@@ -855,7 +855,7 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule
 		if (curActivity != null)
 		{
 			final float[] pose = new float[16];
-			Matrix.rotateM(pose, 0, cameraPose.get(), 0, 180f, 1f, 0f, 0f); // workaround for projection matrix difficulties
+			Matrix.rotateM(pose, 0, cameraPose.get(), 0, 90f, 1f, 0f, 0f); // workaround for projection matrix difficulties
 
             final String cameraPoseString = String.format("{ m00: %f, m01: %f, m02: %f, m03: %f, m10: %f, m11: %f, m12: %f, m13: %f, m20: %f, m21: %f, m22: %f, m23: %f, m30: %f, m31: %f, m32: %f, m33: %f }",
                     pose[0], pose[1], pose[2], pose[3], pose[4], pose[5], pose[6], pose[7], pose[8], pose[9], pose[10], pose[11], pose[12], pose[13], pose[14], pose[15]

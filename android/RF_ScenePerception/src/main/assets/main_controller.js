@@ -38,13 +38,13 @@ var MainController = (function ($, window, RealSense, THREE)
 
         Tracker.onStatusUpdate(function (trackingStatus, fps)
         {
-            if (workflowState !== WorkflowStates.TRACKING && trackingStatus !== "FAILED")
-                workflowState = WorkflowStates.TRACKING;
-
-            if (workflowState === WorkflowStates.TRACKING)
-            {
+//            if (workflowState !== WorkflowStates.TRACKING && trackingStatus !== "FAILED")
+//                workflowState = WorkflowStates.TRACKING;
+//
+//            if (workflowState === WorkflowStates.TRACKING)
+//            {
                 showMessage(trackingStatus + " - " + fps + " FPS");
-            }
+//            }
         });
 
         Tracker.onPoseUpdate(function (projMatrix, camMatrix)
@@ -116,27 +116,27 @@ var MainController = (function ($, window, RealSense, THREE)
 
         var geometry = new THREE.BoxGeometry( .1, .1, .1 );
 
-        var cube = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: 0x0000ff, shading: THREE.FlatShading } ) );
+        var cube = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x0000ff, shading: THREE.FlatShading } ) );
         cube.position.z = -.5;
         scene.add( cube );
 
-        cube = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: 0x00ff00, shading: THREE.FlatShading } ) );
+        cube = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x00ff00, shading: THREE.FlatShading } ) );
         cube.position.z = .5;
         scene.add( cube );
 
-        cube = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: 0xff0000, shading: THREE.FlatShading } ) );
+        cube = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xff0000, shading: THREE.FlatShading } ) );
         cube.position.x = .5;
         scene.add( cube );
 
-        cube = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: 0xff00ff, shading: THREE.FlatShading } ) );
+        cube = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xff00ff, shading: THREE.FlatShading } ) );
         cube.position.x = -.5;
         scene.add( cube );
 
-        cube = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: 0x00ff00, shading: THREE.FlatShading } ) );
+        cube = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x00ff00, shading: THREE.FlatShading } ) );
         cube.position.y = .5;
         scene.add( cube );
 
-        cube = new THREE.Mesh( geometry, new THREE.MeshLambertMaterial( { color: 0x00ffff, shading: THREE.FlatShading } ) );
+        cube = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x00ffff, shading: THREE.FlatShading } ) );
         cube.position.y = -.5;
         scene.add( cube );
 

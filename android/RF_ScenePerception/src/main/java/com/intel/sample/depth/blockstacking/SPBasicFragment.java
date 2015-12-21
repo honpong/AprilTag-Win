@@ -829,6 +829,9 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule
 
 	public void sendTrackingStatusToWebView(final TrackingAccuracy trackingAccuracy, final int fps){
 		final Activity curActivity = getActivity();
+        final StringBuilder sb = new StringBuilder(5);
+        sb.append("Tracker.statusUpdate('").append(trackingAccuracy).append("',").append(fps).append(");");
+
 		if (curActivity != null) {
 			curActivity.runOnUiThread(new Runnable() {
 				@Override
@@ -839,8 +842,6 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule
 						WebView webView = (WebView) curActivity.getWindow().getCurrentFocus().findViewById(R.id.web_view);
 						if (webView != null)
 						{
-							StringBuilder sb = new StringBuilder(5);
-							sb.append("Tracker.statusUpdate('").append(trackingAccuracy).append("',").append(fps).append(");");
 							webView.evaluateJavascript(sb.toString(), null);
 						}
 					}
@@ -853,23 +854,26 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule
 		final Activity curActivity = getActivity();
 		if (curActivity != null)
 		{
-			Matrix.rotateM(cameraPose.get(), 0, 90f, 1f, 0f, 0f); // workaround for projection matrix difficulties
+			final float[] pose = new float[16];
+			Matrix.rotateM(pose, 0, cameraPose.get(), 0, 180f, 1f, 0f, 0f); // workaround for projection matrix difficulties
+
+            final String cameraPoseString = String.format("{ m00: %f, m01: %f, m02: %f, m03: %f, m10: %f, m11: %f, m12: %f, m13: %f, m20: %f, m21: %f, m22: %f, m23: %f, m30: %f, m31: %f, m32: %f, m33: %f }",
+                    pose[0], pose[1], pose[2], pose[3], pose[4], pose[5], pose[6], pose[7], pose[8], pose[9], pose[10], pose[11], pose[12], pose[13], pose[14], pose[15]
+            );
+
+            final StringBuilder sb = new StringBuilder(5);
+            sb.append("Tracker.poseUpdate(").append(perspMatrixJStr).append(",").append(cameraPoseString).append(");");
 
 			curActivity.runOnUiThread(new Runnable() {
 				@Override
-				public void run() {
-					String cameraPoseString = String.format("{ m00: %f, m01: %f, m02: %f, m03: %f, m10: %f, m11: %f, m12: %f, m13: %f, m20: %f, m21: %f, m22: %f, m23: %f, m30: %f, m31: %f, m32: %f, m33: %f }",
-							cameraPose.get()[0], cameraPose.get()[1], cameraPose.get()[2], cameraPose.get()[3], cameraPose.get()[4], cameraPose.get()[5], cameraPose.get()[6], cameraPose.get()[7], cameraPose.get()[8], cameraPose.get()[9], cameraPose.get()[10], cameraPose.get()[11], cameraPose.get()[12], cameraPose.get()[13], cameraPose.get()[14], cameraPose.get()[15]
-					);
-
+				public void run()
+                {
 					View rootView = curActivity.getWindow().getCurrentFocus();
 					if (rootView != null)
 					{
 						WebView webView = (WebView) curActivity.getWindow().getCurrentFocus().findViewById(R.id.web_view);
 						if (webView != null)
 						{
-							StringBuilder sb = new StringBuilder(5);
-							sb.append("Tracker.poseUpdate(").append(perspMatrixJStr).append(",").append(cameraPoseString).append(");");
 							webView.evaluateJavascript(sb.toString(), null);
 						}
 					}

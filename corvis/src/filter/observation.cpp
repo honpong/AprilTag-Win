@@ -224,9 +224,9 @@ void observation_vision_feature::cache_jacobians()
     // v4 dXd = - dC / F - Xd / F dF
     // v4 Xd_dXd = - Xd.dC / F - Xd.Xd / F dF
     // v4 X0 = ku_d * Xd
-    // m4 dX0 = dku_d * Xd + ku_d * dXd = dku_d_r * Xd_dXd/ru * Xd  - ku_d/F dC -  X0 / F dF
+    // m4 dX0 = dku_d * Xd + ku_d * dXd = (dku_d_drd * Xd_dXd/rd + dku_d_dk * dk) * Xd - ku_d/F dC - X0/F dF
     // f_t drd = d sqrt(Xd.Xd) = Xd.dXd/sqrt(Xd.Xd) = Xd_dXd/rd
-    // f_t dku_d = dku_d_dw dw + dku_d_drd * drd
+    // f_t dku_d = dku_d_dk dk + dku_d_drd * drd
     // v4 X = Rtot * X0 + Ttot / depth
     // v4 dX = dRtot * X0 + Rtot * dX0 + dTtot / depth - Tot / depth / depth ddepth
 

@@ -38,23 +38,14 @@ var MainController = (function ($, window, RealSense, THREE)
 
         Tracker.onStatusUpdate(function (trackingStatus, fps)
         {
-//            if (workflowState !== WorkflowStates.TRACKING && trackingStatus !== "FAILED")
-//                workflowState = WorkflowStates.TRACKING;
-//
-//            if (workflowState === WorkflowStates.TRACKING)
-//            {
-                showMessage(trackingStatus + " - " + fps + " FPS");
-//            }
+            showMessage(trackingStatus + " - " + fps + " FPS");
         });
 
         Tracker.onPoseUpdate(function (projMatrix, camMatrix)
         {
-//            if (workflowState === WorkflowStates.TRACKING)
-//            {
-                var projectionMatrix4 = matrix4FromPlainObject(projMatrix);
-                var cameraMatrix4 = matrix4FromPlainObject(camMatrix);
-                updateWebGLView(projectionMatrix4, cameraMatrix4);
-//            }
+            var projectionMatrix4 = matrix4FromPlainObject(projMatrix);
+            var cameraMatrix4 = matrix4FromPlainObject(camMatrix);
+            updateWebGLView(projectionMatrix4, cameraMatrix4);
         });
 
         Tracker.onSceneQualityUpdate(function (quality)

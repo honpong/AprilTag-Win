@@ -10,31 +10,21 @@
 
 package com.intel.sample.depth.blockstacking;
 
-import com.intel.sample.depth.spsamplecommon.SPUtils;
-
 import android.app.Activity;
 import android.app.Fragment;
 import android.graphics.Color;
 import android.opengl.Matrix;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.util.Size;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewStub;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
-import android.webkit.WebViewClient;
-import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.TextView;
-import android.widget.ToggleButton;
 
 import com.intel.camera.toolkit.depth.Camera.Calibration;
-import com.intel.camera.toolkit.depth.Point3DF;
 import com.intel.camera.toolkit.depth.sceneperception.SPCore;
 import com.intel.camera.toolkit.depth.sceneperception.SPCore.CameraTrackListener;
 import com.intel.camera.toolkit.depth.sceneperception.SPTypes.CameraPose;
@@ -45,46 +35,14 @@ import com.intel.camera.toolkit.depth.sceneperception.SPTypes.TrackingAccuracy;
 import com.intel.sample.depth.spsamplecommon.CameraHandler;
 import com.intel.sample.depth.spsamplecommon.CameraSyncedFramesListener;
 import com.intel.sample.depth.spsamplecommon.DepthProcessModule;
-import com.intel.sample.depth.spsamplecommon.ImageView2D;
+import com.intel.sample.depth.spsamplecommon.SPUtils;
 
-import java.nio.ByteBuffer;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-/**
- * SPBasicFragment handles UI control and display of inputs and results of camera tracking
- * and reconstruction.
- * It receives input streams (depth, color images and IMU samples) from SDKCameraManager
- * and makes use of Scene Perception to do camera tracking and reconstruction of the scene.
- */
 public class SPBasicFragment extends Fragment implements DepthProcessModule
 {
-	private static final String TAG = "ScenePerceptionSample";
-
-	public SPBasicFragment() {
-
-	}
-	// same size for depth frame inputs
-	private Size mDepthInputSize;
-
-	// same size for color frame inputs
-	private Size mColorInputSize;
-
-
-	// UI Handler for running UI related update
-	private final Handler mHandler = new Handler();
-
-	/**
-	 * get UI Handler for running UI related update
-	 */
-	public Handler getHandler() {
-		return mHandler;
-	}
-
-	// handler for depth camera module
 	private CameraHandler mDepthCameraHandler;
+	private static final String TAG = "BlockStacking";
 
 	/**
 	 * set handler of depth camera cycle
@@ -92,6 +50,7 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule
 	public void setCameraModule(CameraHandler camModule) {
 		mDepthCameraHandler = camModule;
 	}
+	public SPBasicFragment() { }
 
 	//////////////////////////////////////////////////////////////////////////
 	//                S c e n e  P e r c e p t i o n ( SP)  		        //
@@ -107,13 +66,8 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule
 	// threshold for percentage of coverage of valid depth values per depth
 	// input frame used for determining acceptable initial input frame.
 	private final float ACCEPTABLE_INPUT_COVERAGE_PERC = 0.3f;
-	private CameraStreamIntrinsics mSPConfiguration; //chosen SP configuration profile
 	// status of running state of SP
 	private Status mSPStatus = Status.SP_STATUS_NOT_CONFIGURED;
-	//toggle on/off for live meshing
-	private volatile boolean mIsMeshingTurnedOn = false;
-//	private Mesher mMesher;
-	private Point3DF mSurfaceCenterPoint = new Point3DF();
 	private CameraStreamIntrinsics internalIntrinsics = new CameraStreamIntrinsics();
 	private float[] perspMatrix;
 	private String perspMatrixJStr;
@@ -152,14 +106,6 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule
 		persp[14] = 1.0f;
 		persp[11] = -2f * far * near /  (far-near);
 
-//        // landscape right
-//        float[] camScreenRot = new float[16];
-//        camScreenRot[0] = 1f;
-//        camScreenRot[5] = 1f;
-//
-//        float[] result = new float[16];
-//        Matrix.multiplyMM(result, 0, camScreenRot, 0, persp, 0);
-
 		return persp;
 	}
 
@@ -172,16 +118,9 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule
 	 * SP module then passes inputs into SP and to display components.
 	 */
 	private class SDKSyncedFramesHandler implements CameraSyncedFramesListener {
-		//converted values to display depth
-		private ByteBuffer mDepthViewBuffer = null;
-		private CameraHandler mCamHandler; //handler of camera module
 		private boolean mIsFirstFrame = true; //for detecting first frame to set gravity input
 
-		public SDKSyncedFramesHandler(CameraHandler camHandler, Size depthImageSize) {
-			mCamHandler = camHandler;
-			mDepthViewBuffer = ByteBuffer.allocateDirect(depthImageSize.getWidth()*
-					depthImageSize.getWidth() * 4); //converting from 16 bits to 32 bits
-		}
+		public SDKSyncedFramesHandler(CameraHandler camHandler, Size depthImageSize) { }
 
 		/**
 		 * initially checks input quality to start SP
@@ -201,26 +140,16 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule
 				if (mIsScenePerceptionActive.get()) {
 					setProgramStatus("ERROR - " + mSPStatus); // TODO: show in web view?
 				}
-				mCamHandler.frameProcessCompleteCallback();
 				return;
 			}
 
 			// if user indicates active tracking and reconstruction (pressing Play button)
 			if (mIsScenePerceptionActive.get()) {
-//				mTrackingActivationRequested = false;
 				//if user restarts from a previous tracking.
 				if (mSPResetTracking) {
 					CameraPose resetCamPose = SPUtils.getGravityAlignedPoseIfApplicable(mInitialCameraPose, input);
 					mSPCore.requestTrackingReset(resetCamPose, input);
 					mSPResetTracking = false;
-
-					//updating UI display for reset
-					mRecontRenderer.setBaseRenderMatrix(mInitialCameraPose, true); //reset base render matrix					
-					mRecontRenderer.resetView();
-					mRecontRenderer.setCameraPose(resetCamPose); //update camera pose					
-					mRenderPose.setFromArray(mRecontRenderer.getRenderMatrix());
-					Matrix.transposeM(mProjectionMatrix, 0, mInitialCameraPose.get(),0);
-					mRequiredUpdateVolumeImage = true; //as reconstruction changes 
 				}
 				else { //synchronous setting inputs to SP
 					if (mIsFirstFrame) {
@@ -230,21 +159,7 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule
 
 					mSPCore.setInputs(input);
 				}
-				// update UI - center point in the scene surface for rendering a line to the point
-				mSurfaceCenterPoint = SPUtils.getSurfaceCenterPoint(input.getDepthImage(),
-						mDepthInputSize, mDepthIntrinsics);
 			}
-
-			// display of current inputs
-//			int inputDisplayType = mSwitchInputView;
-//			if (inputDisplayType == DISPLAY_DEPTH_INPUT) {
-//				depthToRGB(input.getDepthImage(), mDepthViewBuffer, mDepthInputSize.getWidth(),
-//						mDepthInputSize.getHeight(), mDepthInputSize.getWidth() * 2); //Z16 format has 2 bytes
-//			}
-//			displayFramesAvailable(mDepthViewBuffer, input.getColorImage(), inputDisplayType);
-
-			//signal complete processing of current input set
-			mCamHandler.frameProcessCompleteCallback();
 		}
 	}
 
@@ -273,32 +188,7 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule
 					sendTrackingStatusToWebView(trackingResult, mFPSCal.getFPS());
 				}
 
-				//update view point of render reconstruction if viewpoint is toggled or dynamic
-				updateRenderViewPoint(mCameraPose);
-
 				sendPoseToWebView(mCameraPose);
-
-//				//Update UI to display new camera pose
-//				mRecontRenderer.setCameraPose(mCameraPose);
-//
-//				// Update UI to render a line to middle point of surface corresponding to most
-//				// recent depth input.
-//				mRecontRenderer.setCenterSurfacePoint(mSurfaceCenterPoint);
-//				mVolumeView.onInputUpdate();
-//
-//				if (mIsMeshingTurnedOn) { // use live meshing
-//					if (mMesher == null) {
-//						mMesher = new Mesher(mSPCore);
-//						mRecontRenderer.setMeshContent(mMesher);
-//					}
-//					if (mTrackedFrameCounter % 20 == 0) { //lower update frequency
-//						mRecontRenderer.onInputUpdate(); //update mesh
-//					}
-//				}
-//				else { // update render volume image
-//					mLastRenderTask = mRenderVolumeEx.submit(mRunRenderVolume);
-//				}
-
 			}
 			else
 			{
@@ -323,203 +213,6 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule
 
 	}
 
-	//               	 	R e n d e r    V o l u m e   			          //
-	////////////////////////////////////////////////////////////////////////////
-	private ExecutorService mRenderVolumeEx = Executors.newSingleThreadExecutor();
-	private Future<?> mLastRenderTask;
-	private volatile boolean mRequiredUpdateVolumeImage = true;
-
-	/**
-	 * mRunRenderVolume gets a render volume image of the current reconstruction
-	 * result of the scene based on the current successfully tracked camera pose.
-	 * The function calls to display the image based on the currently set zoom
-	 * factor (by zoom in/out buttons).
-	 */
-	private RunRenderVolume mRunRenderVolume = new RunRenderVolume();
-	// camera pose to render the view of reconstruction
-	private CameraPose mRenderPose = new CameraPose();
-
-	private class RunRenderVolume implements Runnable {
-		private int mFrameCount = 0;
-		private volatile boolean mIsRenderVolumePrioritySet = false;
-		@Override
-		public void run() {
-			if (!mIsRenderVolumePrioritySet) {
-				try {
-					mIsRenderVolumePrioritySet = true; //try to set once
-					android.os.Process.setThreadPriority(android.os.Process.THREAD_PRIORITY_DISPLAY);
-				}
-				catch (Exception e) {Log.e(TAG, "ERROR - can not set runRenderVolume thread priority");}//do not have permission to set
-			}
-
-			if (mVolumeRenderingRGBAImg == null) { //allocate to the size of output image of SP module
-				mVolumeRenderingRGBAImg = ByteBuffer.allocateDirect(mSPCore.getOutputImagePixelSize().getWidth()
-						*  mSPCore.getOutputImagePixelSize().getHeight() * 4); //each pixel is of RGBA format
-			}
-
-			if (mFrameCount % 6 == 0 && //lower update rate of volume render image
-					mIsReconstructionEnabled) { // do not get volume render image when there is no reconstruction update
-				mRequiredUpdateVolumeImage = true;
-			}
-
-			if (mRequiredUpdateVolumeImage) { //require an update of volume rendering image
-				if (Status.SP_STATUS_SUCCESS == mSPCore.getVolumeRenderImage(mRenderPose, mVolumeRenderingRGBAImg)) {
-					mRecontRenderer.onInputUpdate(mVolumeRenderingRGBAImg); //displays render volume image
-				}
-				mRequiredUpdateVolumeImage = false;
-			}
-			mFrameCount++;
-		}
-	};
-
-	//               	S a v e   M e s h  to  F i l e	   			          //
-	////////////////////////////////////////////////////////////////////////////
-//	private final DateFormat mMeshFileDateFormat = new SimpleDateFormat(
-//			"yyyy-MM-dd-HH-mm-ss", Locale.US);
-//	/**
-//	 * saveSPMesh saves a mesh of the current reconstruction result by SP module
-//	 * into a file of pre-defined name format in Download folder.
-//	 * The function also displays process status of the saving task.
-//	 */
-//	private void saveSPMesh(){
-//		String state = Environment.getExternalStorageState();
-//		String fLocation = "/storage/emulated/legacy/Download";
-//
-//		if (Environment.MEDIA_MOUNTED.equals(state) || !Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-//			fLocation = Environment.getExternalStorageDirectory().getPath() + "/Download";
-//		}
-//		File testLocation = new File(fLocation);
-//		if (testLocation.exists() && testLocation.canWrite() && mSPCore != null) {
-//			Date date = new Date();
-//			final String fName = fLocation + "/SP_Mesh_"+ mMeshFileDateFormat.format(date) + ".obj";
-//			final AsyncCallStatusResult saveMeshResult = mSPCore.asyncSaveMesh(fName, false, false);
-//			sendTrackingStatusToWebView("Trying to save mesh");
-//			Thread showSaveMeshResult = new Thread(new Runnable() {
-//				@Override
-//				public void run(){
-//					Status callStatus;
-//					try {
-//						callStatus = saveMeshResult.awaitResult(); //wait till completion
-//					} catch (Exception e) {
-//						callStatus = Status.SP_STATUS_ERROR;
-//						SPUtils.showOnScreenMessage(getActivity(), "ERROR - failed to save mesh - " + callStatus);
-//					}
-//					if (callStatus == Status.SP_STATUS_SUCCESS) {
-//						SPUtils.showOnScreenMessage(getActivity(), "Mesh is saved in Download folder as " + fName);
-//					}
-//					else {
-//						SPUtils.showOnScreenMessage(getActivity(), "ERROR - failed to save mesh. " + saveMeshResult);
-//				}
-//				}
-//			});
-//			showSaveMeshResult.start();
-//		}
-//		else {
-//			sendTrackingStatusToWebView("ERROR - failed to write mesh to location " + fLocation);
-//		}
-//	}
-
-	////////////////////////////////////////////////////////////////////////////
-	//             			O t h e r  U I  E v e n t s						  //
-	////////////////////////////////////////////////////////////////////////////
-	private ImageView2D mInputView; // left pane to display depth or color inputs
-	private Button mPlayBtn;
-	private volatile boolean mDisplayPlayBtn = true;
-	private ToggleButton mToggleExtensionBtn;
-	private ToggleButton mToggleViewPointBtn;
-	private Button mSaveMeshBtn;
-	private Button mToggleMeshBtn;
-	private Button mZoomInBtn;
-	private Button mZoomOutBtn;
-	private TextView mStatusTView;
-	private ByteBuffer mVolumeRenderingRGBAImg = null;
-	private View3D mVolumeView;
-	private final int DISPLAY_COLOR_INPUT = 0;
-	private final int DISPLAY_DEPTH_INPUT = 1;
-	private volatile int mSwitchInputView = DISPLAY_COLOR_INPUT;
-	private volatile boolean mIsToggleViewPressed = false; //if toggling viewpoint is pressed
-//
-//	/**
-//	 * setEnabledControlUI enables play button or not and displays guidance on when to start.
-//	 * @param isEnabled if to enable playing or not
-//	 */
-//	private void setEnabledPlaying(final boolean isEnabled) {
-//		getActivity().runOnUiThread(new Runnable() {
-//			@Override
-//			public void run() {
-//				if (isEnabled) {
-//					mStatusTView.setText("Press the play button");
-//				}
-//				else {
-//					mStatusTView.setText("Point to an area within [1m, 2m] with "
-//							+ "enough structure and texture to start");
-//				}
-//				mPlayBtn.setEnabled(isEnabled);
-//			}
-//		});
-//	}
-//
-	/**
-	 * displayFramesAvailable displays either the rgba input frame or the
-	 * depth frame.
-	 */
-	private void displayFramesAvailable(ByteBuffer depthViewImage, ByteBuffer colorImage,
-										int inputDisplayType)
-	{
-		final ByteBuffer inputImage = (inputDisplayType == DISPLAY_DEPTH_INPUT)? depthViewImage : colorImage;
-		if(inputDisplayType==DISPLAY_DEPTH_INPUT)
-			mInputView.onImageInputUpdate(inputImage, mDepthInputSize);
-		else
-			mInputView.onImageInputUpdate(inputImage, mColorInputSize);
-	}
-
-	private volatile boolean mTrackingActivationRequested = false; //indicate if a request to run tracking is active
-
-	/*
-	 * updateRenderViewPoint updates rendering of reconstruction and camera pose
-	 * if the viewing point is toggled or if it is dynamically changing with camera pose.
-	 * @param curPose the current pose that the rendering needs to be updated to stay
-	 * consistent with.
-	 */
-	private void updateRenderViewPoint(CameraPose curPose) {
-		if (mIsToggleViewPressed) {
-			//update base render matrix at switching to dynamic view
-			if(mIsViewPointStatic){
-				mRecontRenderer.setBaseRenderMatrix(curPose, true);
-			}
-
-			//compute view change matrix
-			float[] curViewChange = new float[16];
-			float[] invChangeMatrix = new float[16];
-			Matrix.transposeM(curViewChange, 0, curPose.get(), 0);
-			Matrix.invertM(invChangeMatrix, 0, curViewChange, 0);
-			Matrix.multiplyMM(curViewChange, 0, invChangeMatrix, 0, mProjectionMatrix, 0);
-			mRecontRenderer.setViewChange(SPUtils.ViewChange.TOGGLE_VIEW_POINT, 1.0f, curViewChange);
-
-			//update render pose from which to get reconstruction view.
-			mRenderPose.setFromArray(mRecontRenderer.getRenderMatrix());
-			mRequiredUpdateVolumeImage = true; //request update of reconstruction from new pose
-
-			mIsViewPointStatic = !mIsViewPointStatic;
-			mIsToggleViewPressed = false;
-			//enable toggle button
-			getActivity().runOnUiThread(new Runnable() {
-				@Override
-				public void run() {
-					mToggleViewPointBtn.setEnabled(true);
-				}
-			});
-		}
-		else {
-			if(!mIsViewPointStatic) {
-				mRecontRenderer.setBaseRenderMatrix(curPose, false);
-				Matrix.transposeM(mProjectionMatrix, 0, mCameraPose.get(), 0);
-				mRenderPose.setFromArray(mRecontRenderer.getRenderMatrix());
-				mRequiredUpdateVolumeImage = true;
-			}
-		}
-	}
-
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
@@ -539,194 +232,12 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule
 		webView.loadUrl("file:///android_asset/main.html");
 		webView.setBackgroundColor(Color.TRANSPARENT); // must be set after loadUrl(). see http://stackoverflow.com/a/12039477/484943
 
-		createCustomViews(view);
-
 		return view;
 	}
-
-	private final float INITIAL_ZOOM_FACTOR = -1.5f;
-	private ReconstructionRenderer mRecontRenderer;
-
-	/**
-	 * createCustomViews creates display components for input and for render volume
-	 * image output of SP module.
-	 */
-	private void createCustomViews(View parentView) {
-		//instantiate input view for display of inputs
-//		ViewStub inputStub = (ViewStub)parentView.findViewById(R.id.input_view_stub);
-//		inputStub.setLayoutResource(R.layout.image_view_2d);
-//		FrameLayout inputViewLayout= (FrameLayout)inputStub.inflate();
-//		View inputImageView = (View) inputViewLayout.findViewById(R.id.view_2d);
-//		inputImageView.setContentDescription(getString(R.string.input_view_title));
-//		mInputView = (ImageView2D)(inputImageView);
-//		((ImageView2D)mInputView).setUiHandler(mHandler);
-
-		//instantiate reconstruction volume view for display of surface reconstruction
-//		ViewStub renderVolumeStub = (ViewStub)parentView.findViewById(R.id.volume_view_stub);
-//		renderVolumeStub.setLayoutResource(R.layout.view_3d);
-//		FrameLayout renderVolumeLayout= (FrameLayout)renderVolumeStub.inflate();
-//		View volumeImageView = (View) renderVolumeLayout.findViewById(R.id.view_3d);
-//		volumeImageView.setContentDescription(getString(R.string.render_view_title));
-//		mVolumeView = (View3D)volumeImageView;
-//		mVolumeView.setUIHandler(mHandler);
-
-		// set up renderer component for volume view
-		mRecontRenderer = new ReconstructionRenderer();
-		ReconstructionRenderer.setInitialZoomFactor(INITIAL_ZOOM_FACTOR);
-//		mVolumeView.setRenderer(mRecontRenderer);
-//		mVolumeView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
-	}
-
-	private volatile boolean mIsReconstructionEnabled = true;
-	private volatile boolean mIsViewPointStatic = true;
-	private float[] mProjectionMatrix = new float[16];
-//
-//	@SuppressLint("ClickableViewAccessibility")
-//	@Override
-//	public void onActivityCreated(Bundle savedInstanceState){
-//		super.onActivityCreated(savedInstanceState);
-//
-//		mInputView.setOnClickListener(
-//				new View.OnClickListener() {
-//					@Override
-//					public void onClick(View v) {
-//						mSwitchInputView = (mSwitchInputView + 1) % 2;
-//					}
-//				});
-//
-//		mToggleExtensionBtn = (ToggleButton) getActivity().findViewById(R.id.button_toggle_extension);
-//		mToggleExtensionBtn.setOnClickListener( new View.OnClickListener() {
-//			@Override
-//			public void onClick(View v) {
-//				if (mSPCore != null) {
-//					mIsReconstructionEnabled = !mIsReconstructionEnabled;
-//					mSPCore.setSceneReconstructionEnabled(mIsReconstructionEnabled);
-//				}
-//			}
-//		});
-//
-//		mToggleViewPointBtn = (ToggleButton) getActivity().findViewById(R.id.button_toggle_viewpoint);
-//		mToggleViewPointBtn.setOnClickListener(new View.OnClickListener() {
-//			@Override
-//			public void onClick(View v) {
-//				if (mSPCore != null) {
-//					mIsToggleViewPressed = true;
-//					mToggleViewPointBtn.setEnabled(false); //disable until the processing is done
-//				}
-//			}
-//		});
-//
-//		mPlayBtn = (Button) getActivity().findViewById(R.id.button_toggle_start);
-//		mPlayBtn.setOnClickListener(
-//			new View.OnClickListener() {
-//				@Override
-//				public void onClick(View v) {
-//					if (mDisplayPlayBtn) {
-//						mPlayBtn.setBackgroundResource(R.drawable.stop_button);
-//						mDisplayPlayBtn = false;
-//						mIsScenePerceptionActive.set(true);
-//						mStatusTView.setText("Await scene perception (re)start");
-//						setEnabledUIButtons(true);
-//						if (mToggleExtensionBtn.isChecked()){
-//							mToggleExtensionBtn.performClick();
-//						}
-//						//(re)start with static viewpoint
-//						mToggleViewPointBtn.setChecked(false);
-//						mIsViewPointStatic = true;
-//					}
-//					else { //stop button is pressed
-//						mIsScenePerceptionActive.set(false);
-//						mDisplayPlayBtn = true;
-//						mPlayBtn.setBackgroundResource(R.drawable.play_button);
-//						setEnabledUIButtons(false);
-//						mTrackingActivationRequested = true; // request scene assessment
-//						mSPResetTracking = true; //require reset
-//						sendTrackingStatusToWebView("Stop Tracking");
-//					}
-//				}
-//			});
-//
-//		mTrackingActivationRequested = true;//by default, enable scene quality assessment.
-//
-//		mSaveMeshBtn = (Button) getActivity().findViewById(R.id.button_saveMesh);
-//		mSaveMeshBtn.setOnClickListener( new View.OnClickListener() {
-//			@Override
-//			public void onClick(View v) {
-//					Toast.makeText(getActivity(), "Saving Mesh", Toast.LENGTH_SHORT).show();
-//					saveSPMesh();
-//				}
-//		});
-//
-//		mZoomInBtn = (Button) getActivity().findViewById(R.id.button_zoom_in);
-//		mZoomInBtn.setOnClickListener( new View.OnClickListener() {
-//			@Override
-//			public void onClick(View v) {
-//				mRecontRenderer.setViewChange(ViewChange.ZOOM_IN, 1.0f);
-//				mRenderPose.setFromArray(mRecontRenderer.getRenderMatrix());
-//				mRequiredUpdateVolumeImage = true;
-//			}
-//		});
-//
-//		mZoomOutBtn = (Button) getActivity().findViewById(R.id.button_zoom_out);
-//		mZoomOutBtn.setOnClickListener( new View.OnClickListener() {
-//			@Override
-//			public void onClick(View v) {
-//				mRecontRenderer.setViewChange(ViewChange.ZOOM_OUT, 1.0f);
-//				mRenderPose.setFromArray(mRecontRenderer.getRenderMatrix());
-//				mRequiredUpdateVolumeImage = true;
-//			}
-//		});
-//
-//		mVolumeView.setOnTouchListener(new View.OnTouchListener() {
-//			private float mPrevPositionX;
-//			private float mPrevPositionY;
-//			@Override
-//			public boolean onTouch(View v, MotionEvent event) {
-//			    float newPosX = event.getX();
-//			    float newPoxY = event.getY();
-//
-//				if (event.getAction() == MotionEvent.ACTION_MOVE) {
-//		            float dx = 3.0f * (newPosX - mPrevPositionX) / mRecontRenderer.getDisplaySize().getWidth();
-//		            float dy = 3.0f * (newPoxY - mPrevPositionY)/ mRecontRenderer.getDisplaySize().getHeight();
-//					mRecontRenderer.setViewChange(ViewChange.TILT, dy);
-//					mRecontRenderer.setViewChange(ViewChange.PAN, dx);
-//					mRenderPose.setFromArray(mRecontRenderer.getRenderMatrix());
-//					mRequiredUpdateVolumeImage = true;
-//			    }
-//			    mPrevPositionX = newPosX;
-//			    mPrevPositionY = newPoxY;
-//			    return true;
-//			}
-//		});
-//
-//		mToggleMeshBtn = (Button) getActivity().findViewById(R.id.button_toggleMesh);
-//		mToggleMeshBtn.setOnClickListener( new View.OnClickListener() {
-//			@Override
-//			public void onClick(View v) {
-//				if (mIsMeshingTurnedOn) {
-//					if (mMesher != null) { //reset meshing
-//						mMesher.reset();
-//					}
-//				}
-//				mIsMeshingTurnedOn = !mIsMeshingTurnedOn;
-//				mRecontRenderer.setEnabledMeshDisplay(mIsMeshingTurnedOn);
-//			}
-//		});
-//		mStatusTView = (TextView) getActivity().findViewById(R.id.status_text_view);
-//	}
-//
-//	private void setEnabledUIButtons(boolean state){
-//		mZoomInBtn.setEnabled(state);
-//		mZoomOutBtn.setEnabled(state);
-//		mSaveMeshBtn.setEnabled(state);
-//		mToggleExtensionBtn.setEnabled(state);
-//		mToggleViewPointBtn.setEnabled(state);
-//	}
 
 	@Override
 	public void onStart(){
 		super.onStart();
-//		setEnabledUIButtons(mIsScenePerceptionActive.get());
 		mDepthCameraHandler.onStart();
 	}
 
@@ -743,7 +254,6 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule
 	@Override
 	public void onResume(){
 		super.onResume();
-//		setEnabledUIButtons(mIsScenePerceptionActive.get());
 		mDepthCameraHandler.onResume();
 		if (mSPCore != null) {
 			mSPCore.resume();
@@ -759,11 +269,6 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule
 				mIsScenePerceptionActive.set(false);
 			}
 			mDepthCameraHandler.onDestroy();
-
-//			if (mRenderVolumeEx != null) {
-//				mRenderVolumeEx.shutdown();
-//				mRenderVolumeEx = null;
-//			}
 		}
 		catch (Exception e) {
 			Log.e(getString(R.string.app_name), "onDestroy():" + e.getMessage());
@@ -779,26 +284,11 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule
 	public void configureDepthProcess(int spResolution, Size depthInputSize, Size colorInputSize,
 									  Calibration.Intrinsics colorParams, Calibration.Intrinsics depthParams,
 									  float[] depthToColorTranslation) {
-		mDepthInputSize = depthInputSize;
-		mColorInputSize = colorInputSize;
 		mDepthIntrinsics = depthParams.copy();
 		mSPCore = mDepthCameraHandler.queryScenePerception();
 		// set camera initial pose
 		mInitialCameraPose = new CameraPose(CameraPose.IDENTITY_POSE);
 		startScenePerception(mInitialCameraPose);
-
-		// configure UI components
-		mInputView.setInputSize(mColorInputSize);
-
-		// Set the camera parameters and initial pose for the renderer
-		mRecontRenderer.setCameraParams(internalIntrinsics);
-		mRecontRenderer.setInitialRenderPose(mInitialCameraPose);
-
-		// initialize projection matrix for display render volume
-		Matrix.transposeM(mProjectionMatrix, 0, mInitialCameraPose.get(), 0);
-
-		//initialize viewing point matrix for rendering reconstruction
-		mRenderPose.setFromArray(mRecontRenderer.getRenderMatrix());
 	}
 
 	@Override
@@ -883,13 +373,4 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule
 			});
 		}
 	}
-
-//	static {
-//		try{
-//			System.loadLibrary("sceneperception_sample");
-//		}
-//		catch(UnsatisfiedLinkError e){
-//			Log.e(TAG, "Cannot load Scene Perception sample library");
-//		}
-//	}
 }

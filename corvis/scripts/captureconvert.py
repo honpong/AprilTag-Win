@@ -114,3 +114,7 @@ with open(output_filename, "wb") as f:
 print "Wrote", wrote_bytes/1e6, "Mbytes"
 for key in wrote_packets:
     print "Type", key, "-", wrote_packets[key], "packets"
+
+with open(path + "calibration.json", 'r') as f:
+    with open(output_filename + ".json", 'w') as t:
+        t.write(f.read())

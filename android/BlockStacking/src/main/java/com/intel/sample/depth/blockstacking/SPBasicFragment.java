@@ -118,9 +118,12 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule
 	 * SP module then passes inputs into SP and to display components.
 	 */
 	private class SDKSyncedFramesHandler implements CameraSyncedFramesListener {
+        private CameraHandler mCamHandler; //handler of camera module
 		private boolean mIsFirstFrame = true; //for detecting first frame to set gravity input
 
-		public SDKSyncedFramesHandler(CameraHandler camHandler, Size depthImageSize) { }
+		public SDKSyncedFramesHandler(CameraHandler camHandler, Size depthImageSize) {
+            mCamHandler = camHandler;
+        }
 
 		/**
 		 * initially checks input quality to start SP
@@ -140,6 +143,7 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule
 				if (mIsScenePerceptionActive.get()) {
 					setProgramStatus("ERROR - " + mSPStatus); // TODO: show in web view?
 				}
+                mCamHandler.frameProcessCompleteCallback();
 				return;
 			}
 
@@ -160,6 +164,8 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule
 					mSPCore.setInputs(input);
 				}
 			}
+            //signal complete processing of current input set
+            mCamHandler.frameProcessCompleteCallback();
 		}
 	}
 

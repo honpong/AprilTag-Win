@@ -136,8 +136,11 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule
 		public void onSyncedFramesAvailable(SPInputStream input) {
 
 			float sceneQuality = mSPCore.getSceneQuality(input, false);
-			mIsScenePerceptionActive.set(sceneQuality >= ACCEPTABLE_INPUT_COVERAGE_PERC);
-			if (!mIsScenePerceptionActive.get()) sendSceneQualityToWebView(sceneQuality);
+            if (!mIsScenePerceptionActive.get())
+            {
+                mIsScenePerceptionActive.set(sceneQuality >= ACCEPTABLE_INPUT_COVERAGE_PERC);
+                sendSceneQualityToWebView(sceneQuality);
+            }
 
 			if (mSPStatus != Status.SP_STATUS_SUCCESS) {
 				if (mIsScenePerceptionActive.get()) {

@@ -295,6 +295,7 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule
 									  float[] depthToColorTranslation) {
 		mDepthIntrinsics = depthParams.copy();
 		mSPCore = mDepthCameraHandler.queryScenePerception();
+		mSPCore.setInertialSupportEnabled(true);
 		// set camera initial pose
 		mInitialCameraPose = new CameraPose(CameraPose.IDENTITY_POSE);
 		startScenePerception(mInitialCameraPose);

@@ -3,7 +3,6 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/BlockStacking.iml" filepath="$PROJECT_DIR$/BlockStacking.iml" />
-      <module fileurl="file://$PROJECT_DIR$/RF_ScenePerception.iml" filepath="$PROJECT_DIR$/RF_ScenePerception.iml" />
     </modules>
   </component>
 </project>

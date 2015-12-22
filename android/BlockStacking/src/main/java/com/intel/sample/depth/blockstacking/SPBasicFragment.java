@@ -27,6 +27,7 @@ import android.view.ViewStub;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -531,6 +532,7 @@ public class SPBasicFragment extends Fragment implements DepthProcessModule
 
 		WebSettings webSettings = webView.getSettings();
 		webSettings.setJavaScriptEnabled(true);
+		webSettings.setAllowFileAccessFromFileURLs(true); // necessary to load block texture from file
 
 		webView.setWebChromeClient(new WebChromeClient());
 

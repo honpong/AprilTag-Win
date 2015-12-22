@@ -157,7 +157,7 @@ var MainController = (function ($, window, RealSense, THREE)
 
     function setupWebGLView()
     {
-        //prevent scrolling
+        //prevent scrolling. broken on android.
 //        window.document.body.addEventListener('touchstart', function(e){ e.stopPropagation(); e.preventDefault(); });
 
         scene = new THREE.Scene();
@@ -179,9 +179,7 @@ var MainController = (function ($, window, RealSense, THREE)
         // cubes
 
         cubeGeo = new THREE.BoxGeometry( 0.05, 0.05, 0.05);
-//        THREE.ImageUtils.crossOrigin = '';
-//        cubeMaterial = new THREE.MeshLambertMaterial( { color: 0xfeb74c, shading: THREE.FlatShading, map: THREE.ImageUtils.loadTexture( "square-outline-textured.png" ) } );
-        cubeMaterial = new THREE.MeshLambertMaterial( { color: 0xfeb74c, shading: THREE.FlatShading } );
+        cubeMaterial = new THREE.MeshLambertMaterial( { color: 0xfeb74c, shading: THREE.FlatShading, map: THREE.ImageUtils.loadTexture( "square-outline-textured.png" ) } );
 
         // grid
 

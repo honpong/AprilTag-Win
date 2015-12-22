@@ -252,14 +252,14 @@ void observation_vision_feature::cache_jacobians()
     f_t ru2, ru = sqrt(ru2=Xu.squaredNorm());
     f_t kd_u, dkd_u_dru, dkd_u_dk1, dkd_u_dk2, dkd_u_dk3;
     state.distort_feature(Xu, &kd_u, &dkd_u_dru, &dkd_u_dk1, &dkd_u_dk2, &dkd_u_dk3);
-    // v4 xd = X/Xz * kd_u
-    // v4 dxd = dX/Xz * kd_u + X/Xz * dkd_u - X/Xz/Xz * dXz * kd_u = (dX/Xz - X/Xz/Xz * dXz) * kd_u + X/Xz * (dkd_u_dru * X.dX/ru + dkd_u_dw * dw)
-    // v4 x = (xd * F + C) * height + height/2 - .5
-    // v4 dx = height * (dxd * F + xd * dF + dC)
-    //       = height * (((dX/Xz - X/Xz/Xz * dXz) * kd_u + X/Xz * (dkd_u_dru * X.dX/ru + dkd_u_dw * dw)) * F + X/Xz * kd_u * dF + dC)
+    // v2 xd = X/Xz * kd_u = Xu * kd_u
+    // v2 dxd = dX/Xz * kd_u + Xu * dkd_u - Xu/Xz * dXz * kd_u = (dX/Xz - Xu/Xz * dXz) * kd_u + Xu * (dkd_u_dru * X.dX/ru + dkd_u_dw * dw)
+    // v2 x = (xd * F + C) * height + height/2 - .5
+    // v2 dx = height * (dxd * F + xd * dF + dC)
+    //       = height * (((dX/Xz - Xu/Xz * dXz) * kd_u + Xu * (dkd_u_dru * X.dX/ru + dkd_u_dw * dw)) * F + Xu * kd_u * dF + dC)
     v4 dx_dX, dy_dX;
-    dx_dX = state.image_height * kd_u * state.focal_length.v * v4(invZ + X[0]*invZ*dkd_u_dru*X[0]/ru,        X[0]*invZ*dkd_u_dru*X[1]/ru, -X[0] * invZ * invZ, 0);
-    dy_dX = state.image_height * kd_u * state.focal_length.v * v4(       X[1]*invZ*dkd_u_dru*X[0]/ru, invZ + X[1]*invZ*dkd_u_dru*X[1]/ru, -X[1] * invZ * invZ, 0);
+    dx_dX = state.image_height * kd_u * state.focal_length.v * v4(invZ + Xu[0]*dkd_u_dru*X[0]/ru,        Xu[0]*dkd_u_dru*X[1]/ru, -Xu[0] * invZ, 0);
+    dy_dX = state.image_height * kd_u * state.focal_length.v * v4(       Xu[1]*dkd_u_dru*X[0]/ru, invZ + Xu[1]*dkd_u_dru*X[1]/ru, -Xu[1] * invZ, 0);
 
     v4 dX_dp = Ttot * feature->v.invdepth_jacobian();
     dx_dp = dx_dX.dot(dX_dp);

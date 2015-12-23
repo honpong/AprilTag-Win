@@ -14,7 +14,7 @@ int main(int c, char **v)
         return 1;
     }
 
-    bool realtime = false, start_paused = false, benchmark = false, intel = false, calibrate = false;
+    bool realtime = false, start_paused = false, benchmark = false, intel = false, calibrate = false, zero_bias = false;
     const char *save = nullptr, *load = nullptr;
     bool qvga = false, depth = true;
     bool enable_gui = true, show_plots = false, show_video = true, show_depth = true, show_main = true;
@@ -37,6 +37,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--load") == 0 && i+1 < c) load = v[++i];
         else if (strcmp(v[i], "--benchmark") == 0) benchmark = true;
         else if (strcmp(v[i], "--calibrate") == 0) calibrate = true;
+        else if (strcmp(v[i], "--zero-bias") == 0) zero_bias = true;
         else goto usage;
 
     if (!filename)
@@ -62,6 +63,8 @@ int main(int c, char **v)
             return false;
           }
         }
+
+        if(zero_bias) rp.zero_biases();
 
         if(!rp.set_reference_from_filename(capture_file) && !(enable_gui || calibrate)) {
             cerr << capture_file << ": unable to find a reference to measure against\n";

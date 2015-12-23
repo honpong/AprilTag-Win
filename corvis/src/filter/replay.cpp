@@ -29,6 +29,19 @@ bool replay::open(const char *name)
     return true;
 }
 
+void replay::zero_biases()
+{
+    auto device = fusion.get_device();
+    for(int i = 0; i < 3; i++) {
+        device.a_bias[i] = 0;
+        device.w_bias[i] = 0;
+        device.a_bias_var[i] = 1e-3;
+        device.w_bias_var[i] = 1e-4;
+    }
+    fusion.set_device(device);
+
+}
+
 bool replay::load_calibration(std::string filename)
 {
     ifstream file_handle(filename);

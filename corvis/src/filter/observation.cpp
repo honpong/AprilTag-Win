@@ -159,7 +159,7 @@ bool observation_queue::process(state &s, sensor_clock::time_point time)
         compute_prediction_covariance(s, meas_size);
         compute_innovation_covariance(m_cov);
         success = update_state_and_covariance(s, inn);
-    } else if(orig_meas_size != 3) {
+    } else if(orig_meas_size && orig_meas_size != 3) {
         if(log_enabled) fprintf(stderr, "In Kalman update, original measurement size was %d, ended up with 0 measurements!\n", orig_meas_size);
     }
 

@@ -460,22 +460,30 @@ void world_state::build_grid_vertex_data()
     }
 }
 
-std::string world_state::get_feature_stats()
+float world_state::get_feature_lifetime()
 {
-    std::ostringstream os;
-    display_lock.lock();
-    os.precision(2);
-    os << fixed;
-    os << "Features seen: " << features.size() << " ";
     float average_times_seen = 0;
+    display_lock.lock();
     if(features.size()) {
         for(auto f : features) {
             average_times_seen += f.second.times_seen;
         }
         average_times_seen /= features.size();
     }
-    os << "with an average life of " << average_times_seen << " frames" << std::endl;
     display_lock.unlock();
+    return average_times_seen;
+}
+
+std::string world_state::get_feature_stats()
+{
+    std::ostringstream os;
+    os.precision(2);
+    os << fixed;
+    float average_times_seen = get_feature_lifetime();
+    display_lock.lock();
+    os << "Features seen: " << features.size() << " ";
+    display_lock.unlock();
+    os << "with an average life of " << average_times_seen << " frames" << std::endl;
     return os.str();
 }
 

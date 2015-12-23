@@ -87,6 +87,7 @@ public:
     void observe_image(sensor_clock::time_point timestamp, uint8_t * image, int width, int height);
     void observe_depth(sensor_clock::time_point timestamp, uint16_t * image, int width, int height);
     std::string get_feature_stats();
+    float get_feature_lifetime();
     void reset() {
         display_lock.lock();
         features.clear();

@@ -527,7 +527,7 @@ void filter_setup_next_frame(struct filter *f, const camera_data &cam_data)
     //TODO: implement feature_single ?
 }
 
-static uint16_t get_raw_depth(const camera_data &cam, feature_t p)
+static uint16_t get_raw_depth(const camera_data &cam, const feature_t & p)
 {
     //TODO: make this more efficient if needed
     int dx = ((p.x() - cam.width / 2) * cam.depth->width) / cam.width + cam.depth->width / 2;
@@ -537,7 +537,7 @@ static uint16_t get_raw_depth(const camera_data &cam, feature_t p)
     return cam.depth->image[cam.depth->stride / 2 * dy + dx];
 }
 
-static float get_depth_for_point(const camera_data &cam, feature_t p)
+static float get_depth_for_point(const camera_data &cam, const feature_t & p)
 {
     uint16_t depth_mm = get_raw_depth(cam, p);
     return depth_mm / 1000.0f;

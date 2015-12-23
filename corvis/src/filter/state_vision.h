@@ -79,7 +79,7 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     static f_t max_variance;
 
     state_vision_feature(): state_leaf("feature") {};
-    state_vision_feature(uint64_t feature_id, feature_t initial);
+    state_vision_feature(uint64_t feature_id, const feature_t & initial);
     bool should_drop() const;
     bool is_valid() const;
     bool is_good() const;
@@ -187,7 +187,7 @@ public:
     state_vision(covariance &c);
     ~state_vision();
     int process_features(sensor_clock::time_point time);
-    state_vision_feature *add_feature(feature_t initial);
+    state_vision_feature *add_feature(const feature_t & initial);
     state_vision_group *add_group(sensor_clock::time_point time);
 
     float total_distance;

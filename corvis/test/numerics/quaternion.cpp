@@ -28,11 +28,3 @@ TEST(Quaternion, Rotation)
     EXPECT_V4_NEAR(rotq * v, rotw, 1.e-15) << "rotq * v == unqaternion(rotq * quaternion(v) * conjugate(rotq))";
     EXPECT_V4_NEAR(rotq * v, to_rotation_matrix(rotq) * v, 1.e-15);
 }
-
-TEST(Quaternion, IntegrateAngularVelocity)
-{
-    v4 angvel(.13, -.012, .4, 0.);
-    quaternion p = q * quaternion(0., angvel[0], angvel[1], angvel[2]);
-    quaternion res = quaternion(q.w() + .5 * p.w(), q.x() + .5 * p.x(), q.y() + .5 * p.y(), q.z() + .5 * p.z());
-    EXPECT_QUATERNION_NEAR(integrate_angular_velocity(q, angvel), res, 0);
-}

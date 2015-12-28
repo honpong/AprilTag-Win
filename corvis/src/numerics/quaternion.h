@@ -151,32 +151,6 @@ static inline rotation_vector to_rotation_vector(const m4 &R)
     return to_rotation_vector(to_quaternion(R));
 }
 
-static inline quaternion integrate_angular_velocity(const quaternion &Q, const v4 &w)
-{
-    return quaternion(Q.w() + .5 * (-Q.x() * w[0] - Q.y() * w[1] - Q.z() * w[2]),
-                      Q.x() + .5 * (Q.w() * w[0] + Q.y() * w[2] - Q.z() * w[1]),
-                      Q.y() + .5 * (Q.w() * w[1] + Q.z() * w[0] - Q.x() * w[2]),
-                      Q.z() + .5 * (Q.w() * w[2] + Q.x() * w[1] - Q.y() * w[0]));
-}
-
-static inline void integrate_angular_velocity_jacobian(const quaternion &Q, const v4 &w, m4 &dQ_dQ, m4 &dQ_dw)
-{
-    m4 temp {
-        {0., -w[0], -w[1], w[2]},
-        {w[0], 0., w[2], -w[1]},
-        {w[1], -w[2], 0., w[0]},
-        {w[2], w[1], -w[0], 0.}
-    };
-    dQ_dQ = temp * .5 + m4::Identity();
-    m4 temp2 {
-        {-Q.x(), -Q.y(), -Q.z(), 0.},
-        {Q.w(), -Q.z(), Q.y(), 0.},
-        {Q.z(), Q.w(), -Q.x(), 0.},
-        {-Q.y(), Q.x(), Q.w(), 0.}
-    };
-    dQ_dw = temp2 * .5;
-}
-
 //Assumes a and b are already normalized
 static inline quaternion rotation_between_two_vectors_normalized(const v4 &a, const v4 &b)
 {

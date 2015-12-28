@@ -13,13 +13,6 @@ TEST(Quaternion, Identity)
     EXPECT_QUATERNION_NEAR(qn * conjugate(qn), id, 1.e-15);
 }
 
-TEST(Quaternion, Cross)
-{
-    v4 v(-1.5, 1.6, -.2, 0.);
-    v4 qvec (q.x(), q.y(), q.z(), 0.);
-    EXPECT_V4_NEAR(qvec_cross(q, v), cross(qvec, v), 0);
-}
-
 TEST(Quaternion, Rotation)
 {
     quaternion rotq = normalize(q);

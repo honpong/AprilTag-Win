@@ -59,13 +59,6 @@ static inline quaternion normalize(const quaternion &a) {
     return quaternion(a.w() * norm, a.x() * norm, a.y() * norm, a.z() * norm);
 }
 
-static inline v4 qvec_cross(const quaternion &a, const v4 &b) {
-    return v4(a.y() * b[2] - a.z() * b[1],
-              a.z() * b[0] - a.x() * b[2],
-              a.x() * b[1] - a.y() * b[0],
-              0);
-}
-
 //This is the same as the right jacobian of quaternion_rotate
 static inline m4 to_rotation_matrix(const quaternion &q)
 {

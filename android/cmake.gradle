@@ -28,7 +28,7 @@ model {
         main { jniLibs { source { srcDirs = ["build/cmake/jniLibs"] } } }
         main { jni { source { srcDirs = ["../../../corvis/src/tracker", "src/main/jni"] } } }
     }
-    android.ndk.with {
+    android.ndk {
         cppFlags.add "-I" + file("../../../corvis/src/filter")
         cppFlags.add "-I" + file("../../../corvis/src/tracker")
     }

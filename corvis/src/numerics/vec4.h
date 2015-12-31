@@ -10,9 +10,6 @@
 #include <Accelerate/Accelerate.h>
 #endif
 extern "C" {
-#ifndef __APPLE__
-#include <xmmintrin.h>
-#endif
 #include "../cor/cor_types.h"
 #include <stdio.h>
 #include <inttypes.h>

@@ -272,7 +272,8 @@ void rc_receiveImage(rc_Tracker *tracker, rc_Camera camera, rc_Timestamp time_us
         if(tracker->output_enabled) {
             tracker->output.write_camera(d);
         }
-		tracker->receive_image(std::move(d));
+        else
+            tracker->receive_image(std::move(d));
 	}
 	tracker->trigger_log();
 }
@@ -298,7 +299,8 @@ void rc_receiveImageWithDepth(rc_Tracker *tracker, rc_Camera camera, rc_Timestam
     if(tracker->output_enabled) {
         tracker->output.write_camera(d);
     }
-    tracker->receive_image(std::move(d));
+    else
+        tracker->receive_image(std::move(d));
     tracker->trigger_log();
 }
 
@@ -312,7 +314,8 @@ void rc_receiveAccelerometer(rc_Tracker * tracker, rc_Timestamp time_us, const r
     if(tracker->output_enabled) {
         tracker->output.write_accelerometer(d);
     }
-    tracker->receive_accelerometer(std::move(d));
+    else
+        tracker->receive_accelerometer(std::move(d));
 }
 
 void rc_receiveGyro(rc_Tracker * tracker, rc_Timestamp time_us, const rc_Vector angular_velocity_rad__s)
@@ -325,7 +328,8 @@ void rc_receiveGyro(rc_Tracker * tracker, rc_Timestamp time_us, const rc_Vector 
     if(tracker->output_enabled) {
         tracker->output.write_gyro(d);
     }
-    tracker->receive_gyro(std::move(d));
+    else
+        tracker->receive_gyro(std::move(d));
 }
 
 void rc_getPose(const rc_Tracker * tracker, rc_Pose pose_m)

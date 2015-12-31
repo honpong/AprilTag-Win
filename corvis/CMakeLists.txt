@@ -41,11 +41,7 @@ add_executable(measure
 )
 set_property(TARGET measure PROPERTY CXX_STANDARD 14)
 
-target_link_libraries(measure
-  filter
-  numerics
-  cor
-)
+target_link_libraries(measure filter)
 if(ENABLE_VISGL)
     target_link_libraries(measure vis)
 endif()
@@ -75,11 +71,7 @@ if(YES)
     add_executable(spec ${spec_sources})
     set_property(TARGET spec PROPERTY CXX_STANDARD 14)
     target_include_directories(spec PRIVATE test ..)
-    target_link_libraries(spec
-      cor
-      numerics
-      filter
-    )
+    target_link_libraries(spec filter)
     if(ENABLE_QR)
        target_link_libraries(spec qr)
     endif()
@@ -91,12 +83,7 @@ if(YES)
     )
     set_property(TARGET spec_intel PROPERTY CXX_STANDARD 14)
     target_include_directories(spec_intel PRIVATE test ..)
-    target_link_libraries(spec_intel
-      cor
-      numerics
-      filter
-      vis
-    )
+    target_link_libraries(spec_intel filter vis)
 
     if(BUILD_STEREO)
         add_executable(spec_plus
@@ -106,11 +93,6 @@ if(YES)
         )
         set_property(TARGET spec_plus PROPERTY CXX_STANDARD 14)
         target_include_directories(spec_plus PRIVATE test ..)
-        target_link_libraries(spec_plus
-          cor
-          numerics
-          filter
-          stereo
-        )
+        target_link_libraries(spec_plus filter stereo)
     endif()
 endif()

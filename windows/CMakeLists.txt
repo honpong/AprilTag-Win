@@ -30,8 +30,6 @@ add_library(RCTracker SHARED
 
 target_link_libraries(RCTracker PRIVATE
   filter
-  numerics
-  cor
   vis
 )
 set_property(TARGET RCTracker PROPERTY CXX_STANDARD 14)

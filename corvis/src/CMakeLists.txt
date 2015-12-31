@@ -49,6 +49,7 @@ else()
     )
 endif()
 add_library(cor STATIC ${COR_SOURCES})
+target_link_libraries(cor numerics)
 target_include_directories(cor PUBLIC cor)
 set_property(TARGET cor PROPERTY CXX_STANDARD 14)
 if(WIN32)
@@ -60,7 +61,7 @@ add_library(numerics STATIC
   numerics/matrix.cpp
   numerics/kalman.cpp
 )
-target_include_directories(numerics INTERFACE numerics)
+target_include_directories(numerics PUBLIC numerics)
 
 set_property(TARGET numerics PROPERTY CXX_STANDARD 14)
 if(WIN32)
@@ -125,11 +126,12 @@ add_library(filter STATIC
 )
 target_include_directories(filter PUBLIC filter)
 target_include_directories(filter PRIVATE rapidjson/include)
+target_link_libraries(filter numerics cor)
 set_property(TARGET filter PROPERTY CXX_STANDARD 14)
 
 add_library(tracker SHARED filter/rc_intel_interface.cpp)
 set_target_properties(tracker PROPERTIES CXX_STANDARD 14)
-target_link_libraries(tracker filter numerics cor)
+target_link_libraries(tracker filter)
 target_include_directories(tracker PUBLIC tracker)
 
 if(ENABLE_QR)
@@ -138,7 +140,7 @@ add_library(qr STATIC
   filter/qr.cpp
 )
 target_include_directories(qr PUBLIC filter)
-target_link_libraries(qr PRIVATE libzxing)
+target_link_libraries(qr PRIVATE numerics libzxing)
 set_property(TARGET qr PROPERTY CXX_STANDARD 14)
 endif()
 
@@ -154,7 +156,7 @@ add_library(vis STATIC
   vis/render.cpp
   vis/video_render.cpp
 )
-target_link_libraries(vis PRIVATE glad glfw)
+target_link_libraries(vis PRIVATE glad glfw PUBLIC numerics)
 if(ENABLE_MGL)
     target_link_libraries(vis PRIVATE mgl)
 endif()
@@ -178,7 +180,7 @@ if(ENABLE_STEREO)
       stereo/fundamental.cpp
       stereo/stereo_features.cpp
     )
-    target_link_libraries(stereo PRIVATE DAI ${qhull_STATIC} vlfeat)
+    target_link_libraries(stereo PUBLIC numerics PRIVATE DAI ${qhull_STATIC} vlfeat)
     target_include_directories(stereo PUBLIC stereo)
     set_property(TARGET stereo PROPERTY CXX_STANDARD 14)
 

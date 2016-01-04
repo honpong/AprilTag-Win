@@ -52,8 +52,8 @@ static rc_Vector rc_convertAngularVelocity(const imu_sample_t *s)
     rc_Vector angular_velocity_rad__s;
     //windows gives angular velocity in degrees per second
     //Axes are different than accelerometer axes, and happen to be same as RC
-    angular_velocity_rad__s.x = (float)(s->data[0] * M_PI / 180.f);
-    angular_velocity_rad__s.y = (float)(s->data[1] * M_PI / 180.f);
+    angular_velocity_rad__s.x = (float)(s->data[1] * M_PI / 180.f);
+    angular_velocity_rad__s.y = -(float)(s->data[0] * M_PI / 180.f);
     angular_velocity_rad__s.z = (float)(s->data[2] * M_PI / 180.f);
     return angular_velocity_rad__s;
 }

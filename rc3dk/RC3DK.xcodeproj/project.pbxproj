@@ -2062,6 +2062,7 @@
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -2195,6 +2196,7 @@
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -2237,6 +2239,7 @@
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -2321,6 +2324,7 @@
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -2405,6 +2409,7 @@
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -2448,6 +2453,7 @@
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -2576,6 +2582,7 @@
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -2616,6 +2623,7 @@
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -2705,6 +2713,7 @@
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -2744,6 +2753,7 @@
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -2980,6 +2990,7 @@
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -3024,6 +3035,7 @@
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -3068,6 +3080,7 @@
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -3112,6 +3125,7 @@
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (

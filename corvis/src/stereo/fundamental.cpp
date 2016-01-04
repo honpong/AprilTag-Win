@@ -1,6 +1,6 @@
 #include "fundamental.h"
 
-#include "../Eigen/SVD"
+#include <Eigen/SVD>
 
 bool debug_eight_point_ransac = false;
 

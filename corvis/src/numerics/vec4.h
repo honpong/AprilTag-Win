@@ -35,8 +35,8 @@ extern "C" {
 //#define EIGEN_INITIALIZE_MATRICES_BY_ZERO
 
 #define EIGEN_DEFAULT_TO_ROW_MAJOR
-#define EIGEN_MATRIX_PLUGIN "../../../numerics/eigen_initializer_list.h"
-#include "../Eigen/Dense"
+#define EIGEN_MATRIX_PLUGIN "eigen_initializer_list.h"
+#include <Eigen/Dense>
 
 typedef Eigen::Matrix<f_t, 4, 1> v4;
 typedef Eigen::Matrix<f_t, 3, 1> v3;

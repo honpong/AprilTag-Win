@@ -8,7 +8,6 @@
 #include "../numerics/transformation.h"
 #include "../cor/platform/sensor_clock.h"
 #include "../cor/packet.h"
-#include "../Eigen/StdVector"
 #include "../cor/sensor_data.h"
 
 typedef struct _VertexData {

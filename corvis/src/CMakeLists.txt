@@ -61,7 +61,7 @@ add_library(numerics STATIC
   numerics/matrix.cpp
   numerics/kalman.cpp
 )
-target_include_directories(numerics PUBLIC numerics)
+target_include_directories(numerics PUBLIC numerics PUBLIC SYSTEM eigen)
 
 set_property(TARGET numerics PROPERTY CXX_STANDARD 14)
 if(WIN32)

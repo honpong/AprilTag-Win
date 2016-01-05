@@ -547,7 +547,7 @@ static float get_depth_for_point(const camera_data &cam, const feature_t & p)
 
 static float get_stdev_pct_for_depth(float depth_m)
 {
-    return 0.08 + 0.0023638192164147698 + (0.0015072367800769945 + 0.00044245048102432134 * depth_m) * depth_m;
+    return 0.0023638192164147698 + (0.0015072367800769945 + 0.00044245048102432134 * depth_m) * depth_m;
 }
 
 //features are added to the state immediately upon detection - handled with triangulation in observation_vision_feature::predict - but what is happening with the empty row of the covariance matrix during that time?

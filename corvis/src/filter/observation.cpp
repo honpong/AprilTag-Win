@@ -458,7 +458,7 @@ void observation_vision_feature::compute_measurement_covariance()
 {
     inn_stdev[0].data(inn[0]);
     inn_stdev[1].data(inn[1]);
-    f_t ot = feature->outlier_thresh * feature->outlier_thresh * (state.image_height/480.)*(state.image_height/480.);
+    f_t ot = feature->outlier_thresh * feature->outlier_thresh * (state.image_height/240.)*(state.image_height/240.);
 
     f_t residual = inn[0]*inn[0] + inn[1]*inn[1];
     f_t badness = residual; //outlier_count <= 0  ? outlier_inn[i] : outlier_ess[i];

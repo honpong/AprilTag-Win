@@ -210,7 +210,7 @@ void update_static_calibration(struct filter *f)
     f->a_variance = (var[0] + var[1] + var[2]) / 3.;
     var = f->gyro_stability.variance;
     f->w_variance = (var[0] + var[1] + var[2]) / 3.;
-#warning hack - floor set at milhone values
+    //WARNING HACK - floor set at milhone values
     if(f->w_variance < .00002) f->w_variance = .00002;
     if(f->a_variance < .005) f->a_variance = .005;
     //TODO: get rid of this (figure out how to deal with quantized sensor data)

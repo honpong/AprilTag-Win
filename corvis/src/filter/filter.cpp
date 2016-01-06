@@ -210,6 +210,10 @@ void update_static_calibration(struct filter *f)
     f->a_variance = (var[0] + var[1] + var[2]) / 3.;
     var = f->gyro_stability.variance;
     f->w_variance = (var[0] + var[1] + var[2]) / 3.;
+#warning hack - floor set at milhone values
+    if(f->w_variance < .00002) f->w_variance = .00002;
+    if(f->a_variance < .005) f->a_variance = .005;
+    //TODO: get rid of this (figure out how to deal with quantized sensor data)
     //this updates even the one dof that can't converge in the filter for this orientation (since we were static)
     f->s.w_bias.v = f->gyro_stability.mean;
     f->s.w_bias.set_initial_variance(f->gyro_stability.variance[0], f->gyro_stability.variance[1], f->gyro_stability.variance[2]); //Even though the one dof won't have converged in the filter, we know that this is a good value (average across stable meas).

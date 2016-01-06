@@ -83,10 +83,15 @@ if use_depth:
 
 wrote_packets = defaultdict(int)
 wrote_bytes = 0
+got_image = False
 with open(output_filename, "wb") as f:
     for line in data:
         microseconds = int(line[0]*1e3)
         ptype = line[1]
+        if ptype == image_with_depth_type or ptype == camera_type:
+            got_image = True
+        if not got_image:
+            continue
         data = ""
         if ptype == camera_type:
             with open(path + line[2]) as fi:

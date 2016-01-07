@@ -108,11 +108,11 @@ typedef struct SP_Calibration
 	float timeStampOffset;
 
 	/// @param[out] gyroscopeTransform
-	/// Rotation transformation applicable to gyroscope samples
+	/// Rotation transformation applicable to gyroscope samples (all zeros is the same as the identity)
 	float gyroscopeTransform[9];
 
 	/// @param[out] accelerometerTransform
-	/// Rotation transformation applicable to accelerometer samples
+	/// Rotation transformation applicable to accelerometer samples (all zeros is the same as the identity)
 	float accelerometerTransform[9];
 } SP_Calibration;
 typedef struct SP_Calibration rcCalibration;

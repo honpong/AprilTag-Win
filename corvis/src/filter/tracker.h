@@ -17,8 +17,8 @@ struct tracker {
     int track_threshold = 5;
     int detect_threshold = 15;
     float radius = 5.5f;
-    float min_match = 0.2f;
-    float good_match = 0.65f;
+    float min_match = 0.2f*0.2f;
+    float good_match = 0.65f*0.65f;
     
     void init()
     {

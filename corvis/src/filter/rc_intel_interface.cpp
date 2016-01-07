@@ -337,6 +337,11 @@ void rc_getPose(const rc_Tracker * tracker, rc_Pose pose_m)
     transformation_to_rc_Pose(tracker->get_transformation(), pose_m);
 }
 
+void rc_setPose(rc_Tracker * tracker, const rc_Pose pose_m)
+{
+    tracker->set_transformation(rc_Pose_to_transformation(pose_m));
+}
+
 int rc_getFeatures(rc_Tracker * tracker, rc_Feature **features_px)
 {
     copy_features_from_sensor_fusion(tracker->gottenFeatures, tracker->get_features());

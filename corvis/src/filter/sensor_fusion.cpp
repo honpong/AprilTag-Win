@@ -16,6 +16,11 @@ transformation sensor_fusion::get_transformation() const
     return compose(sfm.origin, filter_transform);
 }
 
+void sensor_fusion::set_transformation(const transformation &pose_m)
+{
+    sfm.origin = compose(pose_m, invert(transformation(sfm.s.Q.v, sfm.s.T.v)));
+}
+
 v4 sensor_fusion::filter_to_external_position(const v4& x) const
 {
     return transformation_apply(sfm.origin, x);

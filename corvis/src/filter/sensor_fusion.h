@@ -235,6 +235,8 @@ public:
     //Gets the current transformation, moving from filter-internal to external coordinates
     //Adjusts for camera vs accel centered and QR offset
     transformation get_transformation() const;
+    void set_transformation(const transformation &pose_m);
+
     std::vector<feature_point> get_features() const;
     
 private:

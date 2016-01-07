@@ -188,6 +188,14 @@ RCTRACKER_API void rc_receiveImageWithDepth(rc_Tracker *tracker, rc_Camera camer
 RCTRACKER_API void rc_receiveAccelerometer(rc_Tracker *tracker, rc_Timestamp time_us, const rc_Vector acceleration_m__s2);
 RCTRACKER_API void rc_receiveGyro(rc_Tracker *tracker, rc_Timestamp time_us, const rc_Vector angular_velocity_rad__s);
 
+/**
+ @param tracker The active rc_Tracker instance
+ @param pose_m Position (in meters) relative to the camera reference frame
+ Immediately after a call rc_getPose() will return pose_m.  For best
+ results, call this once the tracker has converged and the confidence
+ is rc_E_CONFIDENCE_MEDIUM or better rc_E_CONFIDENCE_HIGH.
+ */
+RCTRACKER_API void rc_setPose(rc_Tracker *tracker, const rc_Pose pose_m);
 RCTRACKER_API void rc_getPose(const rc_Tracker *tracker, rc_Pose pose_m);
 RCTRACKER_API int rc_getFeatures(rc_Tracker *tracker, rc_Feature **features_px);
 RCTRACKER_API rc_TrackerState rc_getState(const rc_Tracker *tracker);

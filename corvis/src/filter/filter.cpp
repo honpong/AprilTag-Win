@@ -397,7 +397,8 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, const v4 &
 
 void filter_accelerometer_measurement(struct filter *f, const float data[3], sensor_clock::time_point time)
 {
-    v4 meas(data[0], data[1], data[2], 0.);
+    v4 meas_(data[0], data[1], data[2], 0.);
+    v4 meas = f->a_alignment * meas_;
     v4 accel_delta = meas - f->last_accel_meas;
     f->last_accel_meas = meas;
     //This will throw away both the outlier measurement and the next measurement, because we update last every time. This prevents setting last to an outlier and never recovering.
@@ -453,7 +454,8 @@ void filter_accelerometer_measurement(struct filter *f, const float data[3], sen
 
 void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_clock::time_point time)
 {
-    v4 meas(data[0], data[1], data[2], 0.);
+    v4 meas_(data[0], data[1], data[2], 0.);
+    v4 meas = f->g_alignment * meas_;
     v4 gyro_delta = meas - f->last_gyro_meas;
     f->last_gyro_meas = meas;
     //This will throw away both the outlier measurement and the next measurement, because we update last every time. This prevents setting last to an outlier and never recovering.
@@ -799,6 +801,17 @@ extern "C" void filter_initialize(struct filter *f, rcCalibration *device)
     f->w_variance = device->w_meas_var;
     f->a_variance = device->a_meas_var;
 
+    f->a_alignment = {{device->accelerometerTransform[0],device->accelerometerTransform[1],device->accelerometerTransform[2],0},
+                      {device->accelerometerTransform[3],device->accelerometerTransform[4],device->accelerometerTransform[5],0},
+                      {device->accelerometerTransform[6],device->accelerometerTransform[7],device->accelerometerTransform[8],0},
+                      {0,0,0,1}};
+    f->g_alignment = {{device->gyroscopeTransform[0],device->gyroscopeTransform[1],device->gyroscopeTransform[2],0},
+                      {device->gyroscopeTransform[3],device->gyroscopeTransform[4],device->gyroscopeTransform[5],0},
+                      {device->gyroscopeTransform[6],device->gyroscopeTransform[7],device->gyroscopeTransform[8],0},
+                      {0,0,0,1}};
+    if (f->a_alignment == m4::Zero()) f->a_alignment = m4::Identity();
+    if (f->g_alignment == m4::Zero()) f->g_alignment = m4::Identity();
+
 #ifdef INITIAL_DEPTH
     state_vision_feature::initial_depth_meters = INITIAL_DEPTH;
 #else
@@ -977,6 +990,14 @@ void filter_get_device_parameters(const struct filter *f, rcCalibration *cal)
     }
     cal->image_width = f->s.image_width;
     cal->image_height = f->s.image_height;
+
+    cal->accelerometerTransform[0] = f->a_alignment(0,0); cal->accelerometerTransform[1] = f->a_alignment(0,1); cal->accelerometerTransform[2] = f->a_alignment(0,2);
+    cal->accelerometerTransform[3] = f->a_alignment(1,0); cal->accelerometerTransform[4] = f->a_alignment(1,1); cal->accelerometerTransform[5] = f->a_alignment(1,2);
+    cal->accelerometerTransform[6] = f->a_alignment(2,0); cal->accelerometerTransform[7] = f->a_alignment(2,1); cal->accelerometerTransform[8] = f->a_alignment(2,2);
+
+    cal->gyroscopeTransform[0] = f->g_alignment(0,0); cal->gyroscopeTransform[1] = f->g_alignment(0,1); cal->gyroscopeTransform[2] = f->a_alignment(0,2);
+    cal->gyroscopeTransform[3] = f->g_alignment(1,0); cal->gyroscopeTransform[4] = f->g_alignment(1,1); cal->gyroscopeTransform[5] = f->a_alignment(1,2);
+    cal->gyroscopeTransform[6] = f->g_alignment(2,0); cal->gyroscopeTransform[7] = f->g_alignment(2,1); cal->gyroscopeTransform[8] = f->a_alignment(2,2);
 }
 
 float filter_converged(const struct filter *f)

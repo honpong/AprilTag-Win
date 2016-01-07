@@ -45,6 +45,9 @@ filter(): s(cov)
     f_t w_variance;
     f_t a_variance;
 
+    m4 a_alignment;
+    m4 g_alignment;
+
     bool gravity_init;
     f_t gravity_magnitude;
 

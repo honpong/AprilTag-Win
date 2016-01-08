@@ -119,6 +119,7 @@ RCTRACKER_API void rc_destroy(rc_Tracker *tracker);
 /**
  Resets system, clearing all history and state, and sets initial pose and time.
  System will be stopped until one of the rc_start_ functions is called.
+ @param initialPose_m is deprecated, always pass the identity and use rc_setPose() after convergence
  */
 RCTRACKER_API void rc_reset(rc_Tracker *tracker, rc_Timestamp initialTime_us, const rc_Pose initialPose_m);
 

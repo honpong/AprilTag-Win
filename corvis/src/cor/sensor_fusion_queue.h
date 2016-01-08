@@ -126,9 +126,9 @@ private:
     std::function<void(accelerometer_data &&)> accel_receiver;
     std::function<void(gyro_data &&)> gyro_receiver;
     
-    sensor_queue<accelerometer_data, 32> accel_queue;
-    sensor_queue<gyro_data, 32> gyro_queue;
-    sensor_queue<camera_data, 4> camera_queue;
+    sensor_queue<accelerometer_data, 64> accel_queue;
+    sensor_queue<gyro_data, 64> gyro_queue;
+    sensor_queue<camera_data, 6> camera_queue;
     std::function<void()> control_func;
     bool active;
     bool copy_on_push = false;

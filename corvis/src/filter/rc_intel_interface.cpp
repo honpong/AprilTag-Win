@@ -242,6 +242,11 @@ void rc_unpause(rc_Tracker *tracker)
     tracker->unpause();
 }
 
+void rc_startBuffering(rc_Tracker * tracker)
+{
+    tracker->start_buffering();
+}
+
 void rc_startTracker(rc_Tracker * tracker, rc_TrackerRunFlags run_flags)
 {
     if (run_flags == rc_E_ASYNCRONOUS)

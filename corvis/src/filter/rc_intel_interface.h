@@ -166,6 +166,20 @@ RCTRACKER_API void rc_pauseAndResetPosition(rc_Tracker *tracker);
 RCTRACKER_API void rc_unpause(rc_Tracker *tracker);
 
 /**
+ Start buffering data. Currently 6 images and 64 imu samples are retained. Example usage:
+
+ rc_startBuffering(tracker);
+ // call receive as many times as needed
+ rc_receiveImage(...)
+ rc_receiveAccelerometer(...)
+ rc_receiveGyro(...)
+ // start the tracker and set the position
+ rc_startTracker(tracker, rc_E_SYNCRONOUS);
+ rc_setPose(tracker, rc_POSE_IDENTITY);
+ */
+RCTRACKER_API void rc_startBuffering(rc_Tracker *tracker);
+
+/**
  Starts the tracker.
  */
 RCTRACKER_API void rc_startTracker(rc_Tracker *tracker, rc_TrackerRunFlags run_flags);

@@ -266,7 +266,6 @@ void sensor_fusion::start_buffering()
 void sensor_fusion::start_offline()
 {
     threaded = false;
-    queue->start_singlethreaded(true);
     sfm.ignore_lateness = true;
     // TODO: Note that we call filter initialize, and this can change
     // device_parameters (specifically a_bias_var and w_bias_var)
@@ -274,6 +273,7 @@ void sensor_fusion::start_offline()
     filter_start_dynamic(&sfm);
     isSensorFusionRunning = true;
     isProcessingVideo = true;
+    queue->start_singlethreaded(true);
 }
 
 void sensor_fusion::stop()

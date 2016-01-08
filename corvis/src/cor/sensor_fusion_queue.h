@@ -95,6 +95,7 @@ public:
     void start_async(bool expect_camera);
     void start_sync(bool expect_camera);
     void start_singlethreaded(bool expect_camera);
+    void start_buffering();
     void stop_immediately();
     void stop_async();
     void stop_sync();

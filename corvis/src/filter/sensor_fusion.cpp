@@ -258,6 +258,11 @@ void sensor_fusion::unpause()
     queue->dispatch_async([this]() { filter_start_dynamic(&sfm); });
 }
 
+void sensor_fusion::start_buffering()
+{
+    queue->start_buffering();
+}
+
 void sensor_fusion::start_offline()
 {
     threaded = false;

@@ -113,6 +113,7 @@ public:
     void pause_and_reset_position();
     void unpause();
     
+    void start_buffering();
     void start_offline();
     
     /** Stops the processing of video and inertial data. */

@@ -137,8 +137,8 @@ RCTRACKER_API void rc_reset(rc_Tracker *tracker, rc_Timestamp initialTime_us, co
 RCTRACKER_API void rc_configureCamera(rc_Tracker *tracker, rc_Camera camera, const rc_Pose pose_m,
                         int width_px, int height_px, float center_x_px, float center_y_px,
                         float focal_length_x_px, float focal_length_y_px, float skew, bool fisheye, float fisheye_fov_radians);
-RCTRACKER_API void rc_configureAccelerometer(rc_Tracker *tracker, const rc_Vector bias_m__s2, float noiseVariance_m2__s4);
-RCTRACKER_API void rc_configureGyroscope(rc_Tracker *tracker, const rc_Vector bias_rad__s, float noiseVariance_rad2__s2);
+RCTRACKER_API void rc_configureAccelerometer(rc_Tracker *tracker, const rc_Pose alignment_and_bias_m__s2, float noiseVariance_m2__s4);
+RCTRACKER_API void rc_configureGyroscope(rc_Tracker *tracker, const rc_Pose alignment_and_bias_rad__s, float noiseVariance_rad2__s2);
 RCTRACKER_API void rc_configureLocation(rc_Tracker *tracker, double latitude_deg, double longitude_deg, double altitude_m);
 
 // WARNING: The data callback currently blocks the filter thread due to a bug in visual studio. Don't do significant work in it!

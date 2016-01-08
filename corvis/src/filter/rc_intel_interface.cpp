@@ -184,20 +184,44 @@ void rc_configureCamera(rc_Tracker * tracker, rc_Camera camera, const rc_Pose po
 }
 
 
-void rc_configureAccelerometer(rc_Tracker * tracker, const rc_Vector bias_m__s2, float noiseVariance_m2__s4)
+void rc_configureAccelerometer(rc_Tracker * tracker, const rc_Pose alignment_bias_m__s2, float noiseVariance_m2__s4)
 {
-    tracker->device.a_bias[0] = bias_m__s2.x;
-    tracker->device.a_bias[1] = bias_m__s2.y;
-    tracker->device.a_bias[2] = bias_m__s2.z;
+    tracker->device.accelerometerTransform[0] = alignment_bias_m__s2[0];
+    tracker->device.accelerometerTransform[1] = alignment_bias_m__s2[1];
+    tracker->device.accelerometerTransform[2] = alignment_bias_m__s2[2];
+
+    tracker->device.accelerometerTransform[3] = alignment_bias_m__s2[4];
+    tracker->device.accelerometerTransform[4] = alignment_bias_m__s2[5];
+    tracker->device.accelerometerTransform[5] = alignment_bias_m__s2[6];
+
+    tracker->device.accelerometerTransform[6] = alignment_bias_m__s2[8];
+    tracker->device.accelerometerTransform[7] = alignment_bias_m__s2[9];
+    tracker->device.accelerometerTransform[8] = alignment_bias_m__s2[10];
+
+    tracker->device.a_bias[0] = alignment_bias_m__s2[3];
+    tracker->device.a_bias[1] = alignment_bias_m__s2[7];
+    tracker->device.a_bias[2] = alignment_bias_m__s2[11];
     for(int i = 0; i < 3; i++)
         tracker->device.a_bias_var[i] = noiseVariance_m2__s4;
 }
 
-void rc_configureGyroscope(rc_Tracker * tracker, const rc_Vector bias_rad__s, float noiseVariance_rad2__s2)
+void rc_configureGyroscope(rc_Tracker * tracker, const rc_Pose alignment_bias_rad__s, float noiseVariance_rad2__s2)
 {
-    tracker->device.w_bias[0] = bias_rad__s.x;
-    tracker->device.w_bias[1] = bias_rad__s.y;
-    tracker->device.w_bias[2] = bias_rad__s.z;
+    tracker->device.gyroscopeTransform[0] = alignment_bias_rad__s[0];
+    tracker->device.gyroscopeTransform[1] = alignment_bias_rad__s[1];
+    tracker->device.gyroscopeTransform[2] = alignment_bias_rad__s[2];
+
+    tracker->device.gyroscopeTransform[3] = alignment_bias_rad__s[4];
+    tracker->device.gyroscopeTransform[4] = alignment_bias_rad__s[5];
+    tracker->device.gyroscopeTransform[5] = alignment_bias_rad__s[6];
+
+    tracker->device.gyroscopeTransform[6] = alignment_bias_rad__s[8];
+    tracker->device.gyroscopeTransform[7] = alignment_bias_rad__s[9];
+    tracker->device.gyroscopeTransform[8] = alignment_bias_rad__s[10];
+
+    tracker->device.a_bias[0] = alignment_bias_rad__s[3];
+    tracker->device.a_bias[1] = alignment_bias_rad__s[7];
+    tracker->device.a_bias[2] = alignment_bias_rad__s[11];
     for(int i = 0; i < 3; i++)
         tracker->device.w_bias_var[i] = noiseVariance_rad2__s2;
 }

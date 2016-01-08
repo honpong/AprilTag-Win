@@ -23,7 +23,7 @@ template<typename T, int size>
 class sensor_queue
 {
 public:
-    sensor_queue(std::mutex &mx, std::condition_variable &cnd, const bool &actv);
+    sensor_queue(std::mutex &mx, std::condition_variable &cnd, const bool &actv, const bool &copy_push);
     void reset();
     bool empty() const { return count == 0; }
     bool full() const { return count == size; }
@@ -57,6 +57,7 @@ private:
     std::mutex &mutex;
     std::condition_variable &cond;
     const bool &active;
+    const bool &copy_on_push;
     
     int readpos;
     int writepos;
@@ -129,6 +130,7 @@ private:
     sensor_queue<camera_data, 4> camera_queue;
     std::function<void()> control_func;
     bool active;
+    bool copy_on_push = false;
     bool wait_for_camera;
     bool singlethreaded;
     

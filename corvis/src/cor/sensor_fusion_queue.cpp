@@ -9,7 +9,7 @@
 #include <cassert>
 
 template<typename T, int size>
-sensor_queue<T, size>::sensor_queue(std::mutex &mx, std::condition_variable &cnd, const bool &actv): period(0), mutex(mx), cond(cnd), active(actv), readpos(0), writepos(0), count(0)
+sensor_queue<T, size>::sensor_queue(std::mutex &mx, std::condition_variable &cnd, const bool &actv, const bool &copy_push): period(0), mutex(mx), cond(cnd), active(actv), copy_on_push(copy_push), readpos(0), writepos(0), count(0)
 {
 }
 
@@ -76,7 +76,10 @@ bool sensor_queue<T, size>::push(T&& x)
         ++drop_full;
     }
     
-    storage[writepos] = std::move(x);
+    if(copy_on_push)
+        storage[writepos] = T(std::move(x));
+    else
+        storage[writepos] = std::move(x);
     writepos = (writepos + 1) % size;
     ++count;
     
@@ -119,9 +122,9 @@ fusion_queue::fusion_queue(const std::function<void(camera_data &&)> &camera_fun
                 camera_receiver(camera_func),
                 accel_receiver(accelerometer_func),
                 gyro_receiver(gyro_func),
-                accel_queue(mutex, cond, active),
-                gyro_queue(mutex, cond, active),
-                camera_queue(mutex, cond, active),
+                accel_queue(mutex, cond, active, copy_on_push),
+                gyro_queue(mutex, cond, active, copy_on_push),
+                camera_queue(mutex, cond, active, copy_on_push),
                 control_func(nullptr),
                 active(false),
                 wait_for_camera(true),

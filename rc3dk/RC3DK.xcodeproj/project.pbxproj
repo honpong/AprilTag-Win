@@ -2795,6 +2795,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 				);
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -2824,6 +2825,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 				);
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -2854,6 +2856,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 				);
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -2884,6 +2887,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 				);
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -2914,6 +2918,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 				);
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -2944,6 +2949,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 				);
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -2966,6 +2972,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				PRODUCT_NAME = RC3DKVis;

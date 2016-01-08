@@ -71,7 +71,7 @@
 - (void) startFromLive
 {
     UIStoryboard * mainStoryBoard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
-    ReplayViewController * rc = (ReplayViewController *)[mainStoryBoard instantiateViewControllerWithIdentifier:@"LiveView"];
+    UIViewController * rc = [mainStoryBoard instantiateViewControllerWithIdentifier:@"LiveView"];
     self.window.rootViewController = rc;
 }
 

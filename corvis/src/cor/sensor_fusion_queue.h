@@ -116,6 +116,7 @@ private:
     bool ok_to_dispatch(sensor_clock::time_point time);
     bool dispatch_next(std::unique_lock<std::mutex> &lock, bool force);
     void dispatch_singlethread(bool force);
+    void dispatch_buffer();
     sensor_clock::time_point global_latest_received() const;
 
     std::mutex mutex;

@@ -200,10 +200,16 @@ void fusion_queue::start_buffering()
     lock.unlock();
 }
 
-void fusion_queue::start_async(bool expect_camera)
+void fusion_queue::dispatch_buffer()
 {
     //flush any waiting data, but don't force queues to be empty
+    copy_on_push = false;
     dispatch_singlethread(false);
+}
+
+void fusion_queue::start_async(bool expect_camera)
+{
+    dispatch_buffer();
 
     wait_for_camera = expect_camera;
     if(!thread.joinable())
@@ -214,8 +220,7 @@ void fusion_queue::start_async(bool expect_camera)
 
 void fusion_queue::start_sync(bool expect_camera)
 {
-    //flush any waiting data, but don't force queues to be empty
-    dispatch_singlethread(false);
+    dispatch_buffer();
 
     wait_for_camera = expect_camera;
     if(!thread.joinable())
@@ -231,8 +236,7 @@ void fusion_queue::start_sync(bool expect_camera)
 
 void fusion_queue::start_singlethreaded(bool expect_camera)
 {
-    //flush any waiting data, but don't force queues to be empty
-    dispatch_singlethread(false);
+    dispatch_buffer();
 
     wait_for_camera = expect_camera;
     singlethreaded = true;

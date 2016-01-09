@@ -9,8 +9,8 @@
 int main(int c, char **v)
 {
     if (0) { usage:
-        cerr << "Usage: " << v[0] << " [--qvga] [--no-depth] [--intel] [--realtime] [--pause] [--no-gui] [--no-plots] [--no-video] [--no-main] [--render <file.png>] [(--save | --load) <calibration-json>] <filename>\n";
-        cerr << "       " << v[0] << " [--qvga] [--no-depth] [--intel] --benchmark <directory>\n";
+        cerr << "Usage: " << v[0] << " [--qvga] [--drop-depth] [--intel] [--realtime] [--pause] [--no-gui] [--no-plots] [--no-video] [--no-main] [--render <file.png>] [(--save | --load) <calibration-json>] <filename>\n";
+        cerr << "       " << v[0] << " [--qvga] [--drop-depth] [--intel] --benchmark <directory>\n";
         return 1;
     }
 

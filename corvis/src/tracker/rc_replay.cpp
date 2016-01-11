@@ -185,8 +185,7 @@ bool replay::run()
             }   break;
             case packet_filter_control: {
                 if(header.user == 1) { //start measuring
-                    rc_Pose zero = {};
-                    rc_reset(tracker, packet->header.time, zero);
+                    rc_setPose(tracker, rc_POSE_IDENTITY);
                     rc_startTracker(tracker, rc_E_SYNCRONOUS);
                 }
             }   break;

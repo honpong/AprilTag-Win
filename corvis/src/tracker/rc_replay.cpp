@@ -90,7 +90,7 @@ bool replay::set_calibration_from_filename(const std::string &fn)
         if(!read_file(path + "calibration.json", calibration))
             return false;
     }
-    rcCalibration defaultCal;
+    rcCalibration defaultCal = {};
     return rc_setCalibration(tracker, calibration.c_str(), &defaultCal);
 }
 

@@ -91,6 +91,7 @@ bool replay::set_calibration_from_filename(const std::string &fn)
             return false;
     }
     rcCalibration defaultCal = {};
+    if (trace) if (trace) printf("rc_setCalibration(\"%s\", \" default={}\");\n", calibration.c_str());
     return rc_setCalibration(tracker, calibration.c_str(), &defaultCal);
 }
 
@@ -132,6 +133,7 @@ void replay::enable_log_output(bool stream, rc_Timestamp period_us)
 
 bool replay::run()
 {
+    if (trace) printf("rc_startTracker(rc_E_SYNCRONOUS);\n");
     rc_startTracker(tracker, rc_E_SYNCRONOUS);
 
     while (file.peek() != EOF) {
@@ -197,42 +199,56 @@ bool replay::run()
                 }
                 if(depth && ip->depth_height && ip->depth_width) {
                     ip->header.user = 2; // ref count
+                    if (trace) printf("rc_receiveImageWithDepth(%lld, %lld, %dx%d, %dx%d);\n", packet->header.time, ip->exposure_time_us, ip->width, ip->height, ip->depth_width, ip->depth_height);
                     rc_receiveImageWithDepth(tracker, rc_EGRAY8, ip->header.time, ip->exposure_time_us, nullptr/*pose estimate*/, false /*force_recognition*/,
                                              ip->width, ip->height, ip->width, ip->data,
                                              [](void *packet) { if (!--((packet_header_t *)packet)->user) free(packet); }, packet,
                                              ip->depth_width, ip->depth_height, ip->depth_width*2, ip->data + ip->width * ip->height,
                                              [](void *packet) { if (!--((packet_header_t *)packet)->user) free(packet); }, phandle.release());
-                } else
+                } else {
+                    if (trace) printf("rc_receiveImage(%lld, %lld, %dx%d);\n", packet->header.time, ip->exposure_time_us, ip->width, ip->height);
                     rc_receiveImage(tracker, rc_EGRAY8, ip->header.time, ip->exposure_time_us, nullptr/*pose estimate*/, false/*force_recognition*/,
                                     ip->width, ip->height, ip->width, ip->data, [](void *packet) { free(packet); }, phandle.release());
+                }
             }   break;
             case packet_accelerometer: {
                 const rc_Vector acceleration_m__s2 = { ((float *)packet->data)[0], ((float *)packet->data)[1], ((float *)packet->data)[2] };
+                if (trace) printf("rc_receiveAccelerometer(%lld, %.9g, %.9g, %.9g);\n", packet->header.time, acceleration_m__s2.x, acceleration_m__s2.y, acceleration_m__s2.z);
                 rc_receiveAccelerometer(tracker, packet->header.time, acceleration_m__s2);
             }   break;
             case packet_gyroscope: {
                 const rc_Vector angular_velocity_rad__s = { ((float *)packet->data)[0], ((float *)packet->data)[1], ((float *)packet->data)[2] };
+                if (trace) printf("rc_receiveGyro(%lld, %.9g, %.9g, %.9g);\n", packet->header.time, angular_velocity_rad__s.x, angular_velocity_rad__s.y, angular_velocity_rad__s.z);
                 rc_receiveGyro(tracker, packet->header.time, angular_velocity_rad__s);
             }   break;
             case packet_imu: {
                 auto imu = (packet_imu_t *)packet;
                 const rc_Vector acceleration_m__s2 = { imu->a[0], imu->a[1], imu->a[2] }, angular_velocity_rad__s = { imu->w[0], imu->w[1], imu->w[2] };
+                if (trace) printf("rc_receiveAccelerometer(%lld, %.9g, %.9g, %.9g);\n", packet->header.time, acceleration_m__s2.x, acceleration_m__s2.y, acceleration_m__s2.z);
                 rc_receiveAccelerometer(tracker, packet->header.time, acceleration_m__s2);
+                if (trace) printf("rc_receiveGyro(%lld, %.9g, %.9g, %.9g);\n", packet->header.time, angular_velocity_rad__s.x, angular_velocity_rad__s.y, angular_velocity_rad__s.z);
                 rc_receiveGyro(tracker, packet->header.time, angular_velocity_rad__s);
             }   break;
             case packet_filter_control: {
                 if(header.user == 1) { //start measuring
+                    if (trace) printf("rc_setPose(rc_POSE_IDENTITY)\n");
                     rc_setPose(tracker, rc_POSE_IDENTITY);
+                    if (trace) printf("rc_startTracker(rc_E_SYNCRONOUS)\n");
                     rc_startTracker(tracker, rc_E_SYNCRONOUS);
                 }
             }   break;
         }
+        rc_Pose endPose_m;
+        rc_getPose(tracker, endPose_m);
+        if (trace) printf("rc_getPose([3]=%.9f, [7]=%.9f, [11]=%.9f);\n", endPose_m[3], endPose_m[7], endPose_m[11]);
     }
 
     rc_Pose endPose_m;
     rc_getPose(tracker, endPose_m);
+    if (trace) printf("rc_getPose([3]=%.9f, [7]=%.9f, [11]=%.9f);\n", endPose_m[3], endPose_m[7], endPose_m[11]);
     length_m = sqrtf(endPose_m[3]*endPose_m[3] + endPose_m[7]*endPose_m[7] + endPose_m[11]*endPose_m[11]);
 
+    if (trace) printf("rc_stopTracker();\n");
     rc_stopTracker(tracker);
     file.close();
 

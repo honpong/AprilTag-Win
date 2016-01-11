@@ -12,7 +12,7 @@
 
 @implementation RCCalibration
 
-+ (void) saveCalibrationData: (device_parameters)params
++ (BOOL) saveCalibrationData: (device_parameters)params
 {
     LOGME
     
@@ -56,7 +56,7 @@
         KEY_IMAGE_HEIGHT: @(params.image_height)};
     
     [[NSUserDefaults standardUserDefaults] setObject:data forKey:PREF_DEVICE_PARAMS];
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    return [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 + (corvis_device_type) getCorvisDeviceForDeviceType: (DeviceType)type

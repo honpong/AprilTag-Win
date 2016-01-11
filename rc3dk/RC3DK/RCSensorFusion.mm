@@ -353,13 +353,18 @@
 {
     LOGME
     if(!isSensorFusionRunning) return;
-    [self saveCalibration];
-    
+    if ([self saveCalibration])
+    {
 #ifndef OFFLINE
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-        [RCCalibration postDeviceCalibration:nil onFailure:nil];
-    });
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+            [RCCalibration postDeviceCalibration:nil onFailure:nil];
+        });
 #endif
+    }
+    else
+    {
+        DLog(@">>>>>> Failed to save calibration <<<<<<");
+    }
     
     [self flushAndReset];
 }
@@ -527,8 +532,9 @@
         finalDeviceParameters = _cor_setup->get_device_parameters();
         parametersGood = !_cor_setup->get_failure_code() && !_cor_setup->sfm.calibration_bad;
     });
-    if(parametersGood) [RCCalibration saveCalibrationData:finalDeviceParameters];
-    return parametersGood;
+    if(!parametersGood) return false;
+    
+    return [RCCalibration saveCalibrationData:finalDeviceParameters];
 }
 
 - (void) receiveVideoFrame:(CMSampleBufferRef)sampleBuffer

@@ -60,7 +60,7 @@ typedef enum {
 
 @interface RCCalibration : NSObject
 
-+ (void) saveCalibrationData: (device_parameters)params;
++ (BOOL) saveCalibrationData: (device_parameters)params; // return YES if successful
 + (device_parameters) getCalibrationData;
 + (NSDictionary*) getCalibrationAsDictionary;
 + (NSString*) getCalibrationAsString;

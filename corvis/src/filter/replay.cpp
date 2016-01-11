@@ -242,13 +242,7 @@ void replay::start()
                                     uint16_t p2 = d.depth->image[((y * 2 + 1) * width) + (x * 2)];
                                     uint16_t p3 = d.depth->image[(y * 2 * width) + (x * 2 + 1)];
                                     uint16_t p4 = d.depth->image[((y * 2 + 1) * width) + (x * 2 + 1)];
-                                    int divisor = 0;
-                                    if(p1) divisor++;
-                                    if(p2) divisor++;
-                                    if(p3) divisor++;
-                                    if(p4) divisor++;
-                                    if(!divisor) divisor = 1;
-                                    d.depth->image[y * d.depth->stride / 2 + x] = (p1 + p2 + p3 + p4) / divisor;
+                                    d.depth->image[y * d.depth->stride / 2 + x] = (p1 + p2 + p3 + p4) / (!!p1 + !!p2 + !!p3 + !!p4 ?: 1);
                                 }
                             }
                         }

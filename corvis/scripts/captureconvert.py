@@ -71,8 +71,9 @@ for t in ['gyro','accel', 'fish']:
 data.sort()
 
 if use_depth:
-    # The depth camera is not on the same clock as the gyro, accel and fisheye camera
-    offset += raw['depth'][0][0] - raw['fish'][0][0]
+    if abs(raw['depth'][0][0] - raw['fish'][0][0]) > 100:
+        offset += raw['depth'][0][0] - raw['fish'][0][0]
+        print "correcting for depth camera and fisheye not being on the same clock"
     def depth_for_image(t):
         t += offset
         best = raw['depth'][0]

@@ -158,6 +158,43 @@ bool replay::run()
             }   break;
             case packet_image_with_depth: {
                 packet_image_with_depth_t *ip = (packet_image_with_depth_t *)packet;
+                if(qvga) {
+                    uint16_t *depth_image_src = (uint16_t*)(ip->data + ip->width * ip->height);
+                    if (ip->width == 640 && ip->height == 480) {
+                        int width = ip->width, height = ip->height;
+                        uint8_t *image = ip->data;
+                        ip->width = width / 2;
+                        ip->height = height / 2;
+                        for(int y = 0; y < ip->height; ++y) {
+                            for(int x = 0; x < ip->width; ++x) {
+                                image[y * ip->width + x] =
+                                    (image[(y * 2 * width) + (x * 2)] +
+                                     image[((y * 2 + 1) * width) + (x * 2)] +
+                                     image[(y * 2 * width) + (x * 2 + 1)] +
+                                     image[((y * 2 + 1) * width) + (x * 2 + 1)]) / 4;
+                            }
+                        }
+                    }
+                    uint16_t *depth_image_dst = (uint16_t*)(ip->data + ip->width * ip->height);
+                    if(depth && ip->depth_width == 640 && ip->depth_height == 480) {
+                        int width = ip->depth_width, height = ip->depth_height;
+                        ip->depth_width = width / 2;
+                        ip->depth_height = height / 2;
+                        for(int y = 0; y < ip->depth_height; ++y) {
+                            for(int x = 0; x < ip->depth_width; ++x) {
+                                uint16_t p1 = depth_image_src[(y * 2 * width) + (x * 2)];
+                                uint16_t p2 = depth_image_src[((y * 2 + 1) * width) + (x * 2)];
+                                uint16_t p3 = depth_image_src[(y * 2 * width) + (x * 2 + 1)];
+                                uint16_t p4 = depth_image_src[((y * 2 + 1) * width) + (x * 2 + 1)];
+                                depth_image_dst[y * ip->depth_width + x] = (p1 + p2 + p3 + p4) / (!!p1 + !!p2 + !!p3 + !!p4 ?: 1);
+                            }
+                        }
+                    } else {
+                        for(int y = 0; y < ip->depth_height; ++y)
+                            for(int x = 0; x < ip->depth_width; ++x)
+                                depth_image_dst[y * ip->depth_width + x] = depth_image_src[y * ip->depth_width + x];
+                    }
+                }
                 if(depth && ip->depth_height && ip->depth_width) {
                     ip->header.user = 2; // ref count
                     rc_receiveImageWithDepth(tracker, rc_EGRAY8, ip->header.time, ip->exposure_time_us, nullptr/*pose estimate*/, false /*force_recognition*/,

@@ -13,6 +13,7 @@ class replay
 private:
     std::ifstream file;
     bool depth {true};
+    bool qvga {false};
     double length_m {0}, reference_length_m {NAN};
     bool find_reference_in_filename(const std::string &filename);
     bool set_calibration_from_filename(const std::string &fn);
@@ -26,6 +27,7 @@ public:
     bool open(const char *name);
     bool run();
     void disable_depth() { depth = false; }
+    void enable_qvga() { qvga = true; }
     double get_length() { return length_m; }
     double get_reference_length() { return reference_length_m; }
     void enable_pose_output();

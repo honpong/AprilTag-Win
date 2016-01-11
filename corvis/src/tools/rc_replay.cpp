@@ -7,7 +7,7 @@
 int main(int c, char **v)
 {
     if (0) { usage:
-        std::cerr << "Usage: " << v[0] << " [--drop-depth] [--output-poses] [--output-status] [--output-log] [--output-summary] <logfile>..\n";
+        std::cerr << "Usage: " << v[0] << " [--drop-depth] [--qvga] [--output-poses] [--output-status] [--output-log] [--output-summary] <logfile>..\n";
         return 1;
     }
 
@@ -17,6 +17,7 @@ int main(int c, char **v)
     for (int i=1; i<c; i++)
         if      (v[i][0] != '-') v[1+filenames++] = v[i];
         else if (strcmp(v[i], "--drop-depth") == 0) rp.disable_depth();
+        else if (strcmp(v[i], "--qvga") == 0) rp.enable_qvga();
         else if (strcmp(v[i], "--output-poses") == 0) rp.enable_pose_output();
         else if (strcmp(v[i], "--output-status") == 0) rp.enable_status_output();
         else if (strcmp(v[i], "--output-log") == 0) rp.enable_log_output(0, 333333);

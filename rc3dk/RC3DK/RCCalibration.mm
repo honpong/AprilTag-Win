@@ -109,75 +109,60 @@
     LOGME
     
     device_parameters defaults = [self getDefaultsForCurrentDevice], params;
+    
+    NSDictionary* data = [RCCalibration getCalibrationAsDictionary];
+    if (data == nil || ![RCCalibration isCalibrationDataValid:data]) return defaults;
 
-    if ([RCCalibration copySavedCalibrationData:&params]) { //TODO: what if this app is restored from itunes on a different device?
-   /*     params.Fx = defaults.Fx;
-        params.Fy = defaults.Fy;
-        params.Cx = defaults.Cx;
-        params.Cy = defaults.Cy;
-        params.px = defaults.px;
-        params.py = defaults.py;
-        params.K[0] = defaults.K[0];
-        params.K[1] = defaults.K[1];
-        params.K[2] = defaults.K[2];*/
-    } else {
-        params = defaults;
-    }
+    params = [RCCalibration copySavedCalibrationData:data];
     
     //DLog(@"%@", [self stringFromCalibration:params]);
     return params;
 }
 
-+ (BOOL) copySavedCalibrationData:(device_parameters*)dc
++ (device_parameters) copySavedCalibrationData:(NSDictionary*)data
 {
-    NSDictionary* data = [RCCalibration getCalibrationAsDictionary];
-    if (data == nil || ![RCCalibration isCalibrationDataValid:data]) return NO;
+    device_parameters dc;
+    if (!data) return dc;
 
-    @try {
-        dc->Fx = [((NSNumber*)data[KEY_FX]) floatValue];
-        dc->Fy = [((NSNumber*)data[KEY_FY]) floatValue];
-        dc->Cx = [((NSNumber*)data[KEY_CX]) floatValue];
-        dc->Cy = [((NSNumber*)data[KEY_CY]) floatValue];
-        dc->px = [((NSNumber*)data[KEY_PX]) floatValue];
-        dc->py = [((NSNumber*)data[KEY_PY]) floatValue];
-        dc->K0 = [((NSNumber*)data[KEY_K0]) floatValue];
-        dc->K1 = [((NSNumber*)data[KEY_K1]) floatValue];
-        dc->K2 = [((NSNumber*)data[KEY_K2]) floatValue];
-        dc->a_bias[0] = [((NSNumber*)data[KEY_ABIAS0]) floatValue];
-        dc->a_bias[1] = [((NSNumber*)data[KEY_ABIAS1]) floatValue];
-        dc->a_bias[2] = [((NSNumber*)data[KEY_ABIAS2]) floatValue];
-        dc->w_bias[0] = [((NSNumber*)data[KEY_WBIAS0]) floatValue];
-        dc->w_bias[1] = [((NSNumber*)data[KEY_WBIAS1]) floatValue];
-        dc->w_bias[2] = [((NSNumber*)data[KEY_WBIAS2]) floatValue];
-        dc->Tc[0] = [((NSNumber*)data[KEY_TC0]) floatValue];
-        dc->Tc[1] = [((NSNumber*)data[KEY_TC1]) floatValue];
-        dc->Tc[2] = [((NSNumber*)data[KEY_TC2]) floatValue];
-        dc->Wc[0] = [((NSNumber*)data[KEY_WC0]) floatValue];
-        dc->Wc[1] = [((NSNumber*)data[KEY_WC1]) floatValue];
-        dc->Wc[2] = [((NSNumber*)data[KEY_WC2]) floatValue];
-        dc->a_bias_var[0] = [((NSNumber*)data[KEY_ABIASVAR0]) floatValue];
-        dc->a_bias_var[1] = [((NSNumber*)data[KEY_ABIASVAR1]) floatValue];
-        dc->a_bias_var[2] = [((NSNumber*)data[KEY_ABIASVAR2]) floatValue];
-        dc->w_bias_var[0] = [((NSNumber*)data[KEY_WBIASVAR0]) floatValue];
-        dc->w_bias_var[1] = [((NSNumber*)data[KEY_WBIASVAR1]) floatValue];
-        dc->w_bias_var[2] = [((NSNumber*)data[KEY_WBIASVAR2]) floatValue];
-        dc->Tc_var[0] = [((NSNumber*)data[KEY_TCVAR0]) floatValue];
-        dc->Tc_var[1] = [((NSNumber*)data[KEY_TCVAR1]) floatValue];
-        dc->Tc_var[2] = [((NSNumber*)data[KEY_TCVAR2]) floatValue];
-        dc->Wc_var[0] = [((NSNumber*)data[KEY_WCVAR0]) floatValue];
-        dc->Wc_var[1] = [((NSNumber*)data[KEY_WCVAR1]) floatValue];
-        dc->Wc_var[2] = [((NSNumber*)data[KEY_WCVAR2]) floatValue];
-        dc->w_meas_var = [((NSNumber*)data[KEY_WMEASVAR]) floatValue];
-        dc->a_meas_var = [((NSNumber*)data[KEY_AMEASVAR]) floatValue];
-        dc->image_width = [((NSNumber*)data[KEY_IMAGE_WIDTH]) intValue];
-        dc->image_height = [((NSNumber*)data[KEY_IMAGE_HEIGHT]) intValue];
-    }
-    @catch (NSException *exception) {
-        DLog(@"Failed to get saved calibration data: %@", exception.debugDescription);
-        return NO;
-    }
-        
-    return YES;
+    dc.Fx = [((NSNumber*)data[KEY_FX]) floatValue];
+    dc.Fy = [((NSNumber*)data[KEY_FY]) floatValue];
+    dc.Cx = [((NSNumber*)data[KEY_CX]) floatValue];
+    dc.Cy = [((NSNumber*)data[KEY_CY]) floatValue];
+    dc.px = [((NSNumber*)data[KEY_PX]) floatValue];
+    dc.py = [((NSNumber*)data[KEY_PY]) floatValue];
+    dc.K0 = [((NSNumber*)data[KEY_K0]) floatValue];
+    dc.K1 = [((NSNumber*)data[KEY_K1]) floatValue];
+    dc.K2 = [((NSNumber*)data[KEY_K2]) floatValue];
+    dc.a_bias[0] = [((NSNumber*)data[KEY_ABIAS0]) floatValue];
+    dc.a_bias[1] = [((NSNumber*)data[KEY_ABIAS1]) floatValue];
+    dc.a_bias[2] = [((NSNumber*)data[KEY_ABIAS2]) floatValue];
+    dc.w_bias[0] = [((NSNumber*)data[KEY_WBIAS0]) floatValue];
+    dc.w_bias[1] = [((NSNumber*)data[KEY_WBIAS1]) floatValue];
+    dc.w_bias[2] = [((NSNumber*)data[KEY_WBIAS2]) floatValue];
+    dc.Tc[0] = [((NSNumber*)data[KEY_TC0]) floatValue];
+    dc.Tc[1] = [((NSNumber*)data[KEY_TC1]) floatValue];
+    dc.Tc[2] = [((NSNumber*)data[KEY_TC2]) floatValue];
+    dc.Wc[0] = [((NSNumber*)data[KEY_WC0]) floatValue];
+    dc.Wc[1] = [((NSNumber*)data[KEY_WC1]) floatValue];
+    dc.Wc[2] = [((NSNumber*)data[KEY_WC2]) floatValue];
+    dc.a_bias_var[0] = [((NSNumber*)data[KEY_ABIASVAR0]) floatValue];
+    dc.a_bias_var[1] = [((NSNumber*)data[KEY_ABIASVAR1]) floatValue];
+    dc.a_bias_var[2] = [((NSNumber*)data[KEY_ABIASVAR2]) floatValue];
+    dc.w_bias_var[0] = [((NSNumber*)data[KEY_WBIASVAR0]) floatValue];
+    dc.w_bias_var[1] = [((NSNumber*)data[KEY_WBIASVAR1]) floatValue];
+    dc.w_bias_var[2] = [((NSNumber*)data[KEY_WBIASVAR2]) floatValue];
+    dc.Tc_var[0] = [((NSNumber*)data[KEY_TCVAR0]) floatValue];
+    dc.Tc_var[1] = [((NSNumber*)data[KEY_TCVAR1]) floatValue];
+    dc.Tc_var[2] = [((NSNumber*)data[KEY_TCVAR2]) floatValue];
+    dc.Wc_var[0] = [((NSNumber*)data[KEY_WCVAR0]) floatValue];
+    dc.Wc_var[1] = [((NSNumber*)data[KEY_WCVAR1]) floatValue];
+    dc.Wc_var[2] = [((NSNumber*)data[KEY_WCVAR2]) floatValue];
+    dc.w_meas_var = [((NSNumber*)data[KEY_WMEASVAR]) floatValue];
+    dc.a_meas_var = [((NSNumber*)data[KEY_AMEASVAR]) floatValue];
+    dc.image_width = [((NSNumber*)data[KEY_IMAGE_WIDTH]) intValue];
+    dc.image_height = [((NSNumber*)data[KEY_IMAGE_HEIGHT]) intValue];
+    
+    return dc;
 }
 
 + (NSDictionary*) getCalibrationAsDictionary
@@ -213,8 +198,9 @@
 
 + (NSString*) getCalibrationAsString
 {
-    device_parameters dc;
-    if(![self copySavedCalibrationData:&dc]) return @"";
+    NSDictionary* data = [RCCalibration getCalibrationAsDictionary];
+    if (!data) return nil;
+    device_parameters dc = [self copySavedCalibrationData:data];
     return [self stringFromCalibration:dc];
 }
 

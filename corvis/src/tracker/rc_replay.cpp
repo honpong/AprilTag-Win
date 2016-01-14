@@ -188,7 +188,8 @@ bool replay::run()
                                 uint16_t p2 = depth_image_src[((y * 2 + 1) * width) + (x * 2)];
                                 uint16_t p3 = depth_image_src[(y * 2 * width) + (x * 2 + 1)];
                                 uint16_t p4 = depth_image_src[((y * 2 + 1) * width) + (x * 2 + 1)];
-                                depth_image_dst[y * ip->depth_width + x] = (p1 + p2 + p3 + p4) / (!!p1 + !!p2 + !!p3 + !!p4 ?: 1);
+                                int divisor = !!p1 + !!p2 + !!p3 + !!p4;
+                                depth_image_dst[y * ip->depth_width + x] = (p1 + p2 + p3 + p4) / (divisor ? divisor : 1);
                             }
                         }
                     } else {

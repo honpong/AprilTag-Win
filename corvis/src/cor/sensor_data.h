@@ -30,8 +30,8 @@ public:
     image_data(const image_data<camera_type, data_type> &other) : timestamp(other.timestamp), exposure_time(other.exposure_time),
         width(other.width), height(other.height), stride(other.stride), image_handle(nullptr, nullptr), image(nullptr) {
             if(height && stride) {
-                image = (data_type *)malloc(sizeof(data_type)*stride*height);
-                memcpy(image, other.image, sizeof(data_type)*stride*height);
+                image = (data_type *)malloc(stride*height);
+                memcpy(image, other.image, stride*height);
                 image_handle = std::unique_ptr<void, void(*)(void *)>(image, [](void * image_ptr) {
                             free(image_ptr);
                         });

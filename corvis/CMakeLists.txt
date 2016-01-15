@@ -54,6 +54,7 @@ set_target_properties(rc_replay PROPERTIES CXX_STANDARD 14)
 target_link_libraries(rc_replay tracker)
 
 if(YES)
+    enable_testing()
     set(spec_sources
       ../gtest/gtest_main.cc ../gtest/gtest-all.cc
       test/test.cpp test/util.cpp
@@ -75,6 +76,7 @@ if(YES)
     if(ENABLE_QR)
        target_link_libraries(spec qr)
     endif()
+    add_test(NAME spec COMMAND spec)
 
     add_executable(spec_intel
       ../gtest/gtest_main.cc ../gtest/gtest-all.cc
@@ -84,6 +86,7 @@ if(YES)
     set_property(TARGET spec_intel PROPERTY CXX_STANDARD 14)
     target_include_directories(spec_intel PRIVATE test ..)
     target_link_libraries(spec_intel filter vis)
+    add_test(NAME spec_intel COMMAND spec_intel)
 
     if(BUILD_STEREO)
         add_executable(spec_plus
@@ -94,5 +97,6 @@ if(YES)
         set_property(TARGET spec_plus PROPERTY CXX_STANDARD 14)
         target_include_directories(spec_plus PRIVATE test ..)
         target_link_libraries(spec_plus filter stereo)
+        add_test(NAME spec_plus COMMAND spec_plus)
     endif()
 endif()

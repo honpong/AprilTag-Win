@@ -141,8 +141,11 @@ void world_state::receive_camera(const filter * f, camera_data &&d)
         }
     }
     observe_image(d.timestamp, d.image, d.width, d.height);
-    if(d.depth) observe_depth(d.depth->timestamp, d.depth->image, d.depth->width, d.depth->height);
-    
+    if(d.depth) {
+        auto aligned_undistorted_depth = std::move(filter_aligned_distorted_depth_to_intrinsics(f, d));
+        observe_depth(d.depth->timestamp,aligned_undistorted_depth->image, aligned_undistorted_depth->width, aligned_undistorted_depth->height);
+    }
+
     v4 T = f->s.T.v;
     quaternion q = f->s.Q.v;
     observe_position(d.timestamp, (float)T[0], (float)T[1], (float)T[2], (float)q.w(), (float)q.x(), (float)q.y(), (float)q.z());

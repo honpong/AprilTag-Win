@@ -243,6 +243,9 @@
 		D9CCDC7E192E887F00A41329 /* scaled_mask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9CCDC7C192E887F00A41329 /* scaled_mask.cpp */; };
 		D9CFC1061AD5ABFC00445A80 /* rotation_vector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 38EDF0761AD43D2400F0A322 /* rotation_vector.cpp */; };
 		D9FE87B619427F190052B8D8 /* RCSensorFusionInternals.h in Copy Files */ = {isa = PBXBuildFile; fileRef = D9FE87B519410AB40052B8D8 /* RCSensorFusionInternals.h */; };
+		EC0CDA9E1C471C6A008261C3 /* libRC3DKPlus.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D3B4EB591A1E7DE100BE0443 /* libRC3DKPlus.a */; };
+		EC0CDAAA1C471DA6008261C3 /* MotionDnaSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EC6866BB1C4436FC0066634C /* MotionDnaSDK.framework */; };
+		EC2C6C4F1C45C318008C6793 /* MotionDnaSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EC6866BB1C4436FC0066634C /* MotionDnaSDK.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -259,6 +262,20 @@
 			proxyType = 1;
 			remoteGlobalIDString = D3B4EABE1A1E7DE100BE0443;
 			remoteInfo = RC3DKPlus;
+		};
+		EC0CDA9F1C471C6A008261C3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 327B54D718EB4CC90001CCE1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D3B4EABE1A1E7DE100BE0443;
+			remoteInfo = RC3DKPlus;
+		};
+		EC0CDADC1C471F36008261C3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 327B54D718EB4CC90001CCE1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D35BF0A41ADD111500BF3CB0;
+			remoteInfo = RC3DKVis;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -666,6 +683,7 @@
 		D9CCDC7C192E887F00A41329 /* scaled_mask.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scaled_mask.cpp; sourceTree = "<group>"; };
 		D9CCDC7D192E887F00A41329 /* scaled_mask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scaled_mask.h; sourceTree = "<group>"; };
 		D9FE87B519410AB40052B8D8 /* RCSensorFusionInternals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCSensorFusionInternals.h; path = ../../shared_corvis_3dk/RCSensorFusionInternals.h; sourceTree = "<group>"; };
+		EC0CDA991C471C69008261C3 /* RC3DKTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RC3DKTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -673,6 +691,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EC2C6C4F1C45C318008C6793 /* MotionDnaSDK.framework in Frameworks */,
 				321A28D61ACBBADE009406A2 /* libOCMock.a in Frameworks */,
 				325F2EAF1ACB7DAA00145B9C /* libNocilla.a in Frameworks */,
 				32036E961ACB2A5700FC0588 /* libRC3DK.a in Frameworks */,
@@ -706,6 +725,15 @@
 				D3B4EB3E1A1E7DE100BE0443 /* OpenGLES.framework in Frameworks */,
 				D31EC5391A5F1E9E0003379A /* libzxing.a in Frameworks */,
 				D3B4EB3F1A1E7DE100BE0443 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EC0CDA961C471C69008261C3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				EC0CDAAA1C471DA6008261C3 /* MotionDnaSDK.framework in Frameworks */,
+				EC0CDA9E1C471C6A008261C3 /* libRC3DKPlus.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -824,6 +852,7 @@
 				D3B4EB591A1E7DE100BE0443 /* libRC3DKPlus.a */,
 				32036E901ACB2A5700FC0588 /* RC3DK Tests.xctest */,
 				D35BF0A51ADD111500BF3CB0 /* RC3DKVis.app */,
+				EC0CDA991C471C69008261C3 /* RC3DKTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1356,6 +1385,7 @@
 			);
 			dependencies = (
 				32036E981ACB2A5700FC0588 /* PBXTargetDependency */,
+				EC0CDADD1C471F36008261C3 /* PBXTargetDependency */,
 			);
 			name = "RC3DK Tests";
 			productName = "RC3DK Tests";
@@ -1418,6 +1448,24 @@
 			productReference = D3B4EB591A1E7DE100BE0443 /* libRC3DKPlus.a */;
 			productType = "com.apple.product-type.library.static";
 		};
+		EC0CDA981C471C69008261C3 /* RC3DKTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EC0CDAA81C471C6A008261C3 /* Build configuration list for PBXNativeTarget "RC3DKTests" */;
+			buildPhases = (
+				EC0CDA951C471C69008261C3 /* Sources */,
+				EC0CDA961C471C69008261C3 /* Frameworks */,
+				EC0CDA971C471C69008261C3 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				EC0CDAA01C471C6A008261C3 /* PBXTargetDependency */,
+			);
+			name = RC3DKTests;
+			productName = RC3DKTests;
+			productReference = EC0CDA991C471C69008261C3 /* RC3DKTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -1429,9 +1477,14 @@
 				TargetAttributes = {
 					32036E8F1ACB2A5700FC0588 = {
 						CreatedOnToolsVersion = 6.1.1;
+						TestTargetID = D35BF0A41ADD111500BF3CB0;
 					};
 					D35BF0A41ADD111500BF3CB0 = {
 						CreatedOnToolsVersion = 6.2;
+						DevelopmentTeam = U2W6P22B25;
+					};
+					EC0CDA981C471C69008261C3 = {
+						CreatedOnToolsVersion = 7.2;
 					};
 				};
 			};
@@ -1452,6 +1505,7 @@
 				D3B4EABE1A1E7DE100BE0443 /* RC3DKPlus */,
 				32036E8F1ACB2A5700FC0588 /* RC3DK Tests */,
 				D35BF0A41ADD111500BF3CB0 /* RC3DKVis */,
+				EC0CDA981C471C69008261C3 /* RC3DKTests */,
 			);
 		};
 /* End PBXProject section */
@@ -1476,6 +1530,13 @@
 				D35BF0B51ADD111500BF3CB0 /* Images.xcassets in Resources */,
 				32D1E7301B20C3490032AE29 /* Calibration.storyboard in Resources */,
 				32D1E7321B20C3490032AE29 /* holding_portrait.jpg in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EC0CDA971C471C69008261C3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1739,6 +1800,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EC0CDA951C471C69008261C3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -1751,6 +1819,16 @@
 			isa = PBXTargetDependency;
 			target = D3B4EABE1A1E7DE100BE0443 /* RC3DKPlus */;
 			targetProxy = D33E9D4E1ADD1EFD0085F35C /* PBXContainerItemProxy */;
+		};
+		EC0CDAA01C471C6A008261C3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D3B4EABE1A1E7DE100BE0443 /* RC3DKPlus */;
+			targetProxy = EC0CDA9F1C471C6A008261C3 /* PBXContainerItemProxy */;
+		};
+		EC0CDADD1C471F36008261C3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D35BF0A41ADD111500BF3CB0 /* RC3DKVis */;
+			targetProxy = EC0CDADC1C471F36008261C3 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1777,6 +1855,7 @@
 		32036E9A1ACB2A5700FC0588 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -1785,6 +1864,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
+					"$(PROJECT_DIR)",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -1806,6 +1886,7 @@
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRIP_INSTALLED_PRODUCT = NO;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RC3DKVis.app/RC3DKVis";
 				VALIDATE_PRODUCT = NO;
 			};
 			name = Debug;
@@ -1813,6 +1894,7 @@
 		32036E9B1ACB2A5700FC0588 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -1822,6 +1904,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
+					"$(PROJECT_DIR)",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -1843,6 +1926,7 @@
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRIP_INSTALLED_PRODUCT = NO;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RC3DKVis.app/RC3DKVis";
 				VALIDATE_PRODUCT = NO;
 			};
 			name = Release;
@@ -1850,6 +1934,7 @@
 		32036E9C1ACB2A5700FC0588 /* Archive */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -1859,6 +1944,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
+					"$(PROJECT_DIR)",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -1881,6 +1967,7 @@
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRIP_INSTALLED_PRODUCT = NO;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RC3DKVis.app/RC3DKVis";
 				VALIDATE_PRODUCT = NO;
 			};
 			name = Archive;
@@ -1888,6 +1975,7 @@
 		32036E9D1ACB2A5700FC0588 /* Library */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -1897,6 +1985,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
+					"$(PROJECT_DIR)",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -1920,6 +2009,7 @@
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRIP_INSTALLED_PRODUCT = NO;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RC3DKVis.app/RC3DKVis";
 				VALIDATE_PRODUCT = NO;
 			};
 			name = Library;
@@ -1927,6 +2017,7 @@
 		32036E9E1ACB2A5700FC0588 /* LibraryLax */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -1936,6 +2027,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
+					"$(PROJECT_DIR)",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -1958,6 +2050,7 @@
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRIP_INSTALLED_PRODUCT = NO;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RC3DKVis.app/RC3DKVis";
 				VALIDATE_PRODUCT = NO;
 			};
 			name = LibraryLax;
@@ -1965,6 +2058,7 @@
 		32036E9F1ACB2A5700FC0588 /* LibraryOffline */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -1974,6 +2068,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
+					"$(PROJECT_DIR)",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -1996,6 +2091,7 @@
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRIP_INSTALLED_PRODUCT = NO;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RC3DKVis.app/RC3DKVis";
 				VALIDATE_PRODUCT = NO;
 			};
 			name = LibraryOffline;
@@ -2483,6 +2579,7 @@
 		32CD8E571AE04829009E88EC /* LibrarySunlayar */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -2492,6 +2589,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
+					"$(PROJECT_DIR)",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -2515,6 +2613,7 @@
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRIP_INSTALLED_PRODUCT = NO;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RC3DKVis.app/RC3DKVis";
 				VALIDATE_PRODUCT = NO;
 			};
 			name = LibrarySunlayar;
@@ -2787,6 +2886,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				ENABLE_BITCODE = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -2818,6 +2918,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				ENABLE_BITCODE = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -2849,6 +2950,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				ENABLE_BITCODE = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -2880,6 +2982,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				ENABLE_BITCODE = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -2911,6 +3014,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				ENABLE_BITCODE = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -2942,6 +3046,7 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				ENABLE_BITCODE = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
@@ -2968,6 +3073,7 @@
 		D35FC6851AE10E0E002E2FA8 /* LibrarySunlayar */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				ENABLE_BITCODE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3159,6 +3265,206 @@
 			};
 			name = Library;
 		};
+		EC0CDAA11C471C6A008261C3 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				INFOPLIST_FILE = RC3DKTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = YES;
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lc++",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.intel.RC3DKTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		EC0CDAA21C471C6A008261C3 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				INFOPLIST_FILE = RC3DKTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lc++",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.intel.RC3DKTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		EC0CDAA31C471C6A008261C3 /* Archive */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				INFOPLIST_FILE = RC3DKTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lc++",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.intel.RC3DKTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Archive;
+		};
+		EC0CDAA41C471C6A008261C3 /* Library */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				INFOPLIST_FILE = RC3DKTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lc++",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.intel.RC3DKTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Library;
+		};
+		EC0CDAA51C471C6A008261C3 /* LibrarySunlayar */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				INFOPLIST_FILE = RC3DKTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lc++",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.intel.RC3DKTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = LibrarySunlayar;
+		};
+		EC0CDAA61C471C6A008261C3 /* LibraryLax */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				INFOPLIST_FILE = RC3DKTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lc++",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.intel.RC3DKTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = LibraryLax;
+		};
+		EC0CDAA71C471C6A008261C3 /* LibraryOffline */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				INFOPLIST_FILE = RC3DKTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 9.2;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lc++",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.intel.RC3DKTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = LibraryOffline;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -3228,6 +3534,20 @@
 				32CD8E561AE04829009E88EC /* LibrarySunlayar */,
 				32CF16121AC35E51008D13BD /* LibraryLax */,
 				32D8A0361A3B924C00EAB150 /* LibraryOffline */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		EC0CDAA81C471C6A008261C3 /* Build configuration list for PBXNativeTarget "RC3DKTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EC0CDAA11C471C6A008261C3 /* Debug */,
+				EC0CDAA21C471C6A008261C3 /* Release */,
+				EC0CDAA31C471C6A008261C3 /* Archive */,
+				EC0CDAA41C471C6A008261C3 /* Library */,
+				EC0CDAA51C471C6A008261C3 /* LibrarySunlayar */,
+				EC0CDAA61C471C6A008261C3 /* LibraryLax */,
+				EC0CDAA71C471C6A008261C3 /* LibraryOffline */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -539,7 +539,6 @@ static uint16_t get_raw_depth(const camera_data &cam, const feature_t & p)
     int dx = ((p.x() - cam.width / 2) * cam.depth->width) / cam.width + cam.depth->width / 2;
     int dy = ((p.y() - cam.height / 2) * cam.depth->height) / cam.height + cam.depth->height / 2;
     if(dx < 0 || dy < 0 || dx > cam.depth->width - 1 || dy > cam.depth->height - 1) return 0;
-    assert(2 * cam.depth->stride / 2 == cam.depth->stride);
     return cam.depth->image[cam.depth->stride / 2 * dy + dx];
 }
 

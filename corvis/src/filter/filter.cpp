@@ -533,26 +533,89 @@ void filter_setup_next_frame(struct filter *f, const camera_data &cam_data)
     //TODO: implement feature_single ?
 }
 
-static uint16_t get_raw_depth(const camera_data &cam, const feature_t & p)
+static float get_depth_for_point(const image_depth16 &depth, const feature_t & p)
 {
-    //TODO: make this more efficient if needed
-    int dx = ((p.x() - cam.width / 2) * cam.depth->width) / cam.width + cam.depth->width / 2;
-    int dy = ((p.y() - cam.height / 2) * cam.depth->height) / cam.height + cam.depth->height / 2;
-    if(dx < 0 || dy < 0 || dx > cam.depth->width - 1 || dy > cam.depth->height - 1) return 0;
-    return cam.depth->image[cam.depth->stride / 2 * dy + dx];
-}
-
-static float get_depth_for_point(const camera_data &cam, const feature_t & p)
-{
-    uint16_t depth_mm = get_raw_depth(cam, p);
-    return depth_mm / 1000.0f;
-//    if(depth.image[y * depth.stride + x]) return depth.image[y * stride + x] / 1000.f;
-//    if(x == 0 || y == 0 || x == depth.width - 1 || y == depth.height - 1) return 0;
+    auto x = (int)p.x(), y = (int)p.y();
+    if (x >=0 && x < depth.width && y >= 0 && y < depth.height)
+        return .001f * depth.image[depth.stride / sizeof(uint16_t) * y + x];
+    else
+        return 0;
 }
 
 static float get_stdev_pct_for_depth(float depth_m)
 {
     return 0.0023638192164147698 + (0.0015072367800769945 + 0.00044245048102432134 * depth_m) * depth_m;
+}
+
+static std::unique_ptr<image_depth16> filter_aligned_depth_to_intrinsics(struct filter *f, const camera_data & camera)
+{
+    printf("Creating depth!\n");
+    auto aligned_depth = make_unique<image_depth16>(*camera.depth.get(), std::numeric_limits<uint16_t>::max());
+
+    int i_width =  camera.depth->width, i_height =  camera.depth->height, i_stride =  camera.depth->stride / sizeof(uint16_t);
+    int o_width = aligned_depth->width, o_height = aligned_depth->height, o_stride = aligned_depth->stride / sizeof(uint16_t);
+    uint16_t *in = camera.depth->image, *out = aligned_depth->image;
+
+    if (!(i_width == 320 && i_height == 240))
+        printf("Our hardcoded depth intrisics are no good!\n");
+
+    float i_Cx = /*f->s.depth.center_x.v     * i_height + (i_width  - 1) / 2. */170.9281616211,
+          i_Cy = /*f->s.depth.center_y.v     * i_height + (i_height - 1) / 2. */119.3207931519,
+          i_Fx = /*f->s.depth.focal_length.v * i_height*/ 304.2746887207,
+          i_Fy = /*f->s.depth.focal_length.v * i_height*/ 304.2746887207;
+
+    float o_Cx = f->s.center_x.v     * o_height + (o_width  - 1) / 2.,
+          o_Cy = f->s.center_y.v     * o_height + (o_height - 1) / 2.,
+          o_Fx = f->s.focal_length.v * o_height,
+          o_Fy = f->s.focal_length.v * o_height;
+
+    Eigen::Vector4f
+        color_to_fisheye_mm = {90.1526794f, 1.55622983f, -1.83264041f},
+        depth_to_color_mm = {-58.3016167f, 0.0683132708f, -0.0275956951f},
+        depth_to_fisheye_mm = color_to_fisheye_mm + depth_to_color_mm,
+        x_T_mm = depth_to_fisheye_mm;
+    Eigen::Array4i one = {0,1,0,1}, ONE = {0,0,1,1};
+
+    for (int y = 0; y < i_height; y++)
+        for (int x = 0; x < i_width; x++) {
+            uint16_t z = in[y * i_stride + x];
+            if (!z) continue;
+
+            // normalize, undistort(?), unproject and transform
+            float ix = z * (x - i_Cx) / i_Fx + x_T_mm[0];
+            float iy = z * (y - i_Cy) / i_Fy + x_T_mm[1];
+            float iz = z                     + x_T_mm[2];
+
+            // project, distort(?), unnormalize
+            float ox = o_Fx * ix / iz + o_Cx;
+            float oy = o_Fy * iy / iz + o_Cy;
+            float oz = iz;
+
+            if (0) {
+                int X = (int)roundf(ox), Y = (int)roundf(oy), Z = (int)roundf(oz);
+                if (X >= 0 && X < o_width && Y >=0 && Y < o_height)
+                    if (Z < out[Y * o_stride + X])
+                        out[Y * o_stride + X] = Z;
+            } else {
+                // ceil() and -1s give the 4 closest grid points
+                auto X = static_cast<int>(std::ceil(ox)) - Eigen::Array4i{0,1,0,1};
+                auto Y = static_cast<int>(std::ceil(oy)) - Eigen::Array4i{0,0,1,1};
+                auto Z = static_cast<int>(roundf(oz));
+                auto I = Y * o_stride + X;
+                auto within = X >= 0 && X < o_width && Y >= 0 && Y < o_height;
+                if (within[0] && oz < out[I[0]]) out[I[0]] = oz;
+                if (within[1] && oz < out[I[1]]) out[I[1]] = oz;
+                if (within[2] && oz < out[I[2]]) out[I[2]] = oz;
+                if (within[3] && oz < out[I[3]]) out[I[3]] = oz;
+            }
+        }
+
+    for (int Y = 0; Y < o_height; Y++)
+        for (int X = 0; X < o_width; X++)
+            if (out[Y * o_stride + X] == std::numeric_limits<uint16_t>::max())
+                out[Y * o_stride + X] = 0;
+
+    return std::move(aligned_depth);
 }
 
 //features are added to the state immediately upon detection - handled with triangulation in observation_vision_feature::predict - but what is happening with the empty row of the covariance matrix during that time?
@@ -577,6 +640,7 @@ static void filter_add_features(struct filter *f, const camera_data & camera, si
     if(kp.size() < newfeats) newfeats = kp.size();
     if(newfeats < state_vision_group::min_feats) return;
     state_vision_group *g = f->s.add_group(camera.timestamp);
+    std::unique_ptr<image_depth16> aligned_undistorted_depth;
 
     int found_feats = 0;
     for(int i = 0; i < (int)kp.size(); ++i) {
@@ -588,8 +652,11 @@ static void filter_add_features(struct filter *f, const camera_data & camera, si
             state_vision_feature *feat = f->s.add_feature(kp_i);
 
             float depth_m = 0;
-            if(camera.depth)
-                depth_m = get_depth_for_point(camera, kp_i);
+            if(camera.depth) {
+                if (!aligned_undistorted_depth)
+                    aligned_undistorted_depth = std::move(filter_aligned_depth_to_intrinsics(f, camera));
+                depth_m = get_depth_for_point(*aligned_undistorted_depth.get(), f->s.unnormalize_feature(f->s.undistort_feature(f->s.normalize_feature(kp_i))));
+            }
             if(depth_m)
             {
                 feat->v.set_depth_meters(depth_m);

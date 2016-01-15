@@ -547,7 +547,7 @@ static float get_stdev_pct_for_depth(float depth_m)
     return 0.0023638192164147698 + (0.0015072367800769945 + 0.00044245048102432134 * depth_m) * depth_m;
 }
 
-static std::unique_ptr<image_depth16> filter_aligned_depth_to_intrinsics(struct filter *f, const camera_data & camera)
+std::unique_ptr<image_depth16> filter_aligned_depth_to_intrinsics(const struct filter *f, const camera_data & camera)
 {
     printf("Creating depth!\n");
     auto aligned_depth = make_unique<image_depth16>(*camera.depth.get(), std::numeric_limits<uint16_t>::max());

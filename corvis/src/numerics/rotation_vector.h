@@ -18,15 +18,15 @@ public:
     
     v4 raw_vector() const { return data; }
     
-    const f_t x() const { return data[0]; }
-    const f_t y() const { return data[1]; }
-    const f_t z() const { return data[2]; }
+    f_t x() const { return data[0]; }
+    f_t y() const { return data[1]; }
+    f_t z() const { return data[2]; }
     f_t &x() { return data[0]; }
     f_t &y() { return data[1]; }
     f_t &z() { return data[2]; }
 
     inline const rotation_vector operator-() const { return rotation_vector(-data); }
-    inline const f_t norm2() const { return data[0]*data[0] + data[1]*data[1] + data[2]*data[2]; }
+    inline f_t norm2() const { return data[0]*data[0] + data[1]*data[1] + data[2]*data[2]; }
     inline const rotation_vector operator*(f_t s) { return data = data * s; }
     inline const rotation_vector operator/(f_t s) { return data = data / s; }
 private:

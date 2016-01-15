@@ -121,12 +121,12 @@ image_gray8 replay::parse_gray8(int width, int height, int stride, uint8_t *data
     gray.image = data;
     gray.width = width;
     gray.height = height;
-    gray.stride = width;
+    gray.stride = stride;
     if(qvga && width == 640 && height == 480)
     {
         gray.width = width / 2;
         gray.height = height / 2;
-        gray.stride = width / 2;
+        gray.stride = stride / 2;
         for(int y = 0; y < gray.height; ++y) {
             for(int x = 0; x < gray.width; ++x) {
                 gray.image[y * gray.stride + x] =
@@ -237,13 +237,13 @@ void replay::start()
                             d.depth->height = height / 2;
                             d.depth->stride = stride / 2;
                             for(int y = 0; y < d.depth->height; ++y) {
-                                for(int x = 0; x < d.depth->stride / 2; ++x) {
+                                for(int x = 0; x < d.depth->width; ++x) {
                                     uint16_t p1 = d.depth->image[(y * 2 * width) + (x * 2)];
                                     uint16_t p2 = d.depth->image[((y * 2 + 1) * width) + (x * 2)];
                                     uint16_t p3 = d.depth->image[(y * 2 * width) + (x * 2 + 1)];
                                     uint16_t p4 = d.depth->image[((y * 2 + 1) * width) + (x * 2 + 1)];
                                     int divisor = !!p1 + !!p2 + !!p3 + !!p4;
-                                    d.depth->image[y * d.depth->stride / 2 + x] = (p1 + p2 + p3 + p4) / (divisor ? divisor : 1);
+                                    d.depth->image[d.depth->stride / 2 * y + x] = (p1 + p2 + p3 + p4) / (divisor ? divisor : 1);
                                 }
                             }
                         }

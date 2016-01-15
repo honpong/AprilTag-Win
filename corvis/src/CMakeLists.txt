@@ -64,7 +64,7 @@ add_library(numerics STATIC
 target_include_directories(numerics SYSTEM PUBLIC eigen)
 target_include_directories(numerics PUBLIC numerics)
 
-set_property(TARGET numerics PROPERTY CXX_STANDARD 14)
+set_property(TARGET numerics PROPERTY CXX_STANDARD 11)
 if(WIN32)
   target_include_directories(numerics PRIVATE "$ENV{RSSDK_DIR}include")
 endif()

@@ -549,8 +549,7 @@ static float get_stdev_pct_for_depth(float depth_m)
 
 std::unique_ptr<image_depth16> filter_aligned_depth_to_intrinsics(const struct filter *f, const camera_data & camera)
 {
-    printf("Creating depth!\n");
-    auto aligned_depth = make_unique<image_depth16>(*camera.depth.get(), std::numeric_limits<uint16_t>::max());
+    auto aligned_depth = make_unique<image_depth16>(camera.depth->width, camera.depth->height, camera.depth->stride, std::numeric_limits<uint16_t>::max());
 
     int i_width =  camera.depth->width, i_height =  camera.depth->height, i_stride =  camera.depth->stride / sizeof(uint16_t);
     int o_width = aligned_depth->width, o_height = aligned_depth->height, o_stride = aligned_depth->stride / sizeof(uint16_t);
@@ -622,7 +621,7 @@ std::unique_ptr<image_depth16> filter_aligned_distorted_depth_to_intrinsics(cons
 {
     std::unique_ptr<image_depth16> aligned_depth = filter_aligned_depth_to_intrinsics(f, camera);
 
-    auto aligned_distorted_depth = std::make_unique<image_depth16>(*camera.depth.get(), std::numeric_limits<uint16_t>::max());
+    auto aligned_distorted_depth = make_unique<image_depth16>(camera.depth->width, camera.depth->height, camera.depth->stride, std::numeric_limits<uint16_t>::max());
     float x_i_to_d = 1.f * camera.depth->width / camera.width;
     float y_i_to_d = 1.f * camera.depth->height / camera.height;
     for(int y_image = 0; y_image < camera.height; y_image++) {

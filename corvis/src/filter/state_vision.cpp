@@ -310,12 +310,12 @@ state_vision_group * state_vision::add_group(sensor_clock::time_point time)
 
 feature_t state_vision::normalize_feature(const feature_t &feat) const
 {
-    return (((feat - image_size() / 2) + feature_t{.5,.5}) / image_height - feature_t {center_y.v, center_y.v}) / focal_length.v;
+    return (((feat - image_size() / 2) + feature_t{.5,.5}) / image_height - feature_t {center_x.v, center_y.v}) / focal_length.v;
 }
 
 feature_t state_vision::unnormalize_feature(const feature_t &feat_n) const
 {
-    return (feat_n * focal_length.v + feature_t {center_y.v, center_y.v}) * image_height + image_size() / 2 - feature_t{.5,.5};
+    return (feat_n * focal_length.v + feature_t {center_x.v, center_y.v}) * image_height + image_size() / 2 - feature_t{.5,.5};
 }
 
 feature_t state_vision::distort_feature(const feature_t &feat_u, f_t *kd_u_, f_t *dkd_u_dru, f_t *dkd_u_dk1, f_t *dkd_u_dk2, f_t *dkd_u_dk3) const

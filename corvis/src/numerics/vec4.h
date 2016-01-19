@@ -6,9 +6,6 @@
 #ifndef __vec4_H
 #define __vec4_H
 
-#ifdef __APPLE__
-#include <Accelerate/Accelerate.h>
-#endif
 extern "C" {
 #include "../cor/cor_types.h"
 #include <stdio.h>

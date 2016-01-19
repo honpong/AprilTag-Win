@@ -69,7 +69,7 @@ if(WIN32)
   target_include_directories(numerics PRIVATE "$ENV{RSSDK_DIR}include")
 endif()
 
-if(WIN32 OR ANDROID)
+if(WIN32 OR ANDROID OR CMAKE_CXX_COMPILER_ID STREQUAL Intel)
     if(CMAKE_SIZEOF_VOID_P EQUAL 8)
       if (APPLE)
         set(MKL_ARCH "")

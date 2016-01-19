@@ -622,18 +622,15 @@ std::unique_ptr<image_depth16> filter_aligned_distorted_depth_to_intrinsics(cons
     std::unique_ptr<image_depth16> aligned_depth = filter_aligned_depth_to_intrinsics(f, camera);
 
     auto aligned_distorted_depth = make_unique<image_depth16>(camera.depth->width, camera.depth->height, camera.depth->stride, std::numeric_limits<uint16_t>::max());
-    float x_i_to_d = 1.f * camera.depth->width / camera.width;
-    float y_i_to_d = 1.f * camera.depth->height / camera.height;
     for(int y_image = 0; y_image < camera.height; y_image++) {
         for(int x_image = 0; x_image < camera.width; x_image++) {
             feature_t kp_i = {(double)x_image, (double)y_image};
 
             feature_t kp_d = f->s.unnormalize_feature(f->s.undistort_feature(f->s.normalize_feature(kp_i)));
-            feature_t kp_d_scaled = {kp_d.x()*x_i_to_d, kp_d.y()*x_i_to_d};
-            float depth_m = get_depth_for_point(*aligned_depth.get(), kp_d_scaled);
+            float depth_m = get_depth_for_point(*aligned_depth.get(), kp_d);
             uint16_t depth_mm = depth_m / .001f;
-            int x = kp_d_scaled.x();
-            int y = kp_d_scaled.y();
+            int x = kp_d.x();
+            int y = kp_d.y();
             if(x > 0 && x < aligned_distorted_depth->width && y > 0 && y < aligned_distorted_depth->height) {
                 aligned_distorted_depth->image[y * aligned_distorted_depth->width + x] =
                     std::min(aligned_distorted_depth->image[y * aligned_distorted_depth->width + x], depth_mm);

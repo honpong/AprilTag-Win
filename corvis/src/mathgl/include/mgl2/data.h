@@ -69,6 +69,16 @@ using mglDataA::Momentum;
 	/// Delete the array
 	virtual ~mglData()	{	if(!link && a)	delete []a;	}
 
+	/// Move all data from variable d, and delete this variable.
+	inline void Move(mglData *d)	// NOTE: Variable d will be deleted!!!
+	{	if(d && d->GetNN()>1)
+		{	bool l=link;	mreal *b=a;
+			nx=d->nx;	ny=d->ny;	nz=d->nz;	a=d->a;	d->a=b;
+			temp=d->temp;	func=d->func;	o=d->o;	s=d->s;
+			id=d->id;	link=d->link;	d->link=l;	delete d;	}
+		else if(d)	{	*this = d->a[0];	delete d;	}
+	}
+
 	inline mreal GetVal(long i, long j=0, long k=0) const
 	{	return mgl_data_get_value(this,i,j,k);}
 	inline void SetVal(mreal f, long i, long j=0, long k=0)
@@ -318,6 +328,12 @@ using mglDataA::Momentum;
 	inline void Sew(const char *dirs="xyz", mreal da=2*mglPi)
 	{	mgl_data_sew(this,dirs,da);	}
 	/// Smooth the data on specified direction or directions
+	/** String \a dir may contain:
+	 *  ‘x’, ‘y’, ‘z’ for 1st, 2nd or 3d dimension;
+	 *  ‘dN’ for linear averaging over N points;
+	 *  ‘3’ for linear averaging over 3 points;
+	 *  ‘5’ for linear averaging over 5 points.
+	 *  By default quadratic averaging over 5 points is used. */
 	inline void Smooth(const char *dirs="xyz",mreal delta=0)
 	{	mgl_data_smooth(this,dirs,delta);	}
 	/// Normalize the data to range [v1,v2]
@@ -336,6 +352,14 @@ using mglDataA::Momentum;
 	/// Fill data by 'x'/'k' samples for Hankel ('h') or Fourier ('f') transform
 	inline void FillSample(const char *how)
 	{	mgl_data_fill_sample(this,how);	}
+	/// Apply wavelet transform
+	/** Parameter \a dir may contain:
+	 * ‘x‘,‘y‘,‘z‘ for directions,
+	 * ‘d‘ for daubechies, ‘D‘ for centered daubechies,
+	 * ‘h‘ for haar, ‘H‘ for centered haar,
+	 * ‘b‘ for bspline, ‘B‘ for centered bspline,
+	 * ‘i‘ for applying inverse transform. */
+	inline void Wavelet(const char *how, int k)	{	mgl_data_wavelet(this, how, k);	}
 
 	/// Return an approximated x-value (root) when dat(x) = val
 	inline mreal Solve(mreal val, bool use_spline=true, long i0=0) const
@@ -458,9 +482,9 @@ inline bool operator<(const mglDataA &b, const mglDataA &d)
 inline bool operator>(const mglDataA &b, const mglDataA &d)
 {	return b.Minimal()>d.Minimal();	}
 //-----------------------------------------------------------------------------
-mreal MGL_EXPORT_PURE mglLinear(const mreal *a, long nx, long ny, long nz, mreal x, mreal y, mreal z);
-mreal MGL_EXPORT_PURE mglSpline3(const mreal *a, long nx, long ny, long nz, mreal x, mreal y, mreal z,mreal *dx=0, mreal *dy=0, mreal *dz=0);
-mreal MGL_EXPORT_PURE mglSpline3s(const mreal *a, long nx, long ny, long nz, mreal x, mreal y, mreal z);
+mreal MGL_EXPORT mglLinear(const mreal *a, long nx, long ny, long nz, mreal x, mreal y, mreal z);
+mreal MGL_EXPORT mglSpline3(const mreal *a, long nx, long ny, long nz, mreal x, mreal y, mreal z,mreal *dx=0, mreal *dy=0, mreal *dz=0);
+mreal MGL_EXPORT mglSpline3s(const mreal *a, long nx, long ny, long nz, mreal x, mreal y, mreal z);
 #endif
 //-----------------------------------------------------------------------------
 /// Integral data transformation (like Fourier 'f' or 'i', Hankel 'h' or None 'n') for amplitude and phase
@@ -697,7 +721,7 @@ class MGL_EXPORT mglDataF : public mglDataA
 public:
 
 	mglDataF(long xx=1,long yy=1,long zz=1):nx(xx),ny(yy),nz(zz), dfunc(0),par(0)
-	{	ex=0;	v2=mglPoint(1,1,1);	setD();	}
+	{	ex=0;	v2.Set(1,1,1);	setD();	}
 	mglDataF(const mglDataF &d) : nx(d.nx), ny(d.ny), nz(d.nz), str(d.str), v1(d.v1), v2(d.v2), dx(d.dx),dy(d.dy),dz(d.dz), dfunc(d.dfunc),par(d.par)
 	{	ex = mgl_create_expr(str.c_str());	}
 #if MGL_HAVE_RVAL
@@ -869,6 +893,35 @@ public:
 	{	return 0;	}
 	mreal dvz(long ,long =0,long =0) const
 	{	return 0;	}
+};
+//-----------------------------------------------------------------------------
+/// Class for replacement of std::vector
+class MGL_EXPORT mglDataS : public mglDataA
+{
+public:
+	std::vector<mreal> dat;
+
+	mglDataS(const mglDataS &st) : dat(st.dat)	{}
+	mglDataS(const std::vector<mreal> &d) : dat(d)	{}
+	mglDataS(size_t s=1)	{	dat.resize(s);	}
+	~mglDataS()	{}
+	inline void reserve(size_t num)	{	dat.reserve(num);	}
+	inline void clear()	{	dat.clear();	}
+	inline double operator[](size_t i)	{	return dat[i];	}
+	inline void push_back(double t)	{	dat.push_back(t);	}
+	inline size_t size() const	{	return dat.size();	}
+	const mglDataS &operator=(const mglDataS &st)	{	dat = st.dat;	return st;	}
+	const std::vector<mreal> &operator=(const std::vector<mreal> &st)	{	dat = st;	return st;	}
+
+	mreal v(long i,long j=0,long k=0) const		{	return dat[i];	}
+	mreal vthr(long i) const	{	return dat[i];	};
+	long GetNx() const	{	return dat.size();	}
+	long GetNy() const	{	return 1;	}
+	long GetNz() const	{	return 1;	}
+	mreal dvx(long i,long j=0,long k=0) const
+	{	return i>0? (i<long(dat.size()-1)? (dat[i+1]-dat[i-1])/2:dat[i]-dat[i-1]) : dat[i+1]-dat[i];	}
+	mreal dvy(long i,long j=0,long k=0) const	{	return 1;	}
+	mreal dvz(long i,long j=0,long k=0) const	{	return 1;	}
 };
 //-----------------------------------------------------------------------------
 #endif

@@ -1007,17 +1007,21 @@ Command @ref{region} fill the area between 2 curves. It support gradient filling
 @verbatim
 call 'prepare1d'
 copy y1 y(:,1):copy y2 y(:,2)
+
 subplot 2 2 0 '':title 'Region plot (default)':box
 region y1 y2:plot y1 'k2':plot y2 'k2'
 
 subplot 2 2 1 '':title '2 colors':box
 region y1 y2 'yr':plot y1 'k2':plot y2 'k2'
 
-subplot 2 2 2 '':title '"!" style':box
-region y1 y2 '!':plot y1 'k2':plot y2 'k2'
-
-subplot 2 2 3 '':title '"i" style':box
+subplot 2 2 2 '':title '"i" style':box
 region y1 y2 'ir':plot y1 'k2':plot y2 'k2'
+
+subplot 2 2 3 '^_':title '3d variant':rotate 40 60:box
+new x1 100 'sin(pi*x)':new y1 100 'cos(pi*x)':new z 100 'x'
+new x2 100 'sin(pi*x+pi/3)':new y2 100 'cos(pi*x+pi/3)'
+plot x1 y1 z 'r2':plot x2 y2 z 'b2'
+region x1 y1 z x2 y2 z 'cmy!'
 @end verbatim
 
 @pfig{region, Example of Region()}
@@ -1422,6 +1426,7 @@ Basically, you can put this text after the script. Note, that you need to termin
 * Surf sample::
 * SurfC sample::
 * SurfA sample::
+* SurfCA sample::
 * Mesh sample::
 * Fall sample::
 * Belt sample::
@@ -1480,14 +1485,14 @@ surfc a b
 
 @c ------------------------------------------------------------------
 @external{}
-@node SurfA sample, Mesh sample, SurfC sample, 2D samples
+@node SurfA sample, SurfCA sample, SurfC sample, 2D samples
 @subsection SurfA sample
 @nav{}
 
 Command @ref{surfa} is similar to @ref{surf} but its transparency is determined by another data. The sample code is:
 @verbatim
 call 'prepare2d'
-title 'SurfC plot':rotate 50 60:light on:alpha on:box
+title 'SurfA plot':rotate 50 60:light on:alpha on:box
 surfa a b
 @end verbatim
 
@@ -1496,7 +1501,23 @@ surfa a b
 
 @c ------------------------------------------------------------------
 @external{}
-@node Mesh sample, Fall sample, SurfA sample, 2D samples
+@node SurfCA sample, Mesh sample, SurfA sample, 2D samples
+@subsection SurfCA sample
+@nav{}
+
+Command @ref{surfca} is similar to @ref{surf} but its color and transparency is determined by another data. The sample code is:
+@verbatim
+call 'prepare2d'
+title 'SurfCA plot':rotate 50 60:light on:alpha on:box
+surfa a b a
+@end verbatim
+
+@pfig{surfca, Example of SurfCA()}
+
+
+@c ------------------------------------------------------------------
+@external{}
+@node Mesh sample, Fall sample, SurfCA sample, 2D samples
 @subsection Mesh sample
 @nav{}
 
@@ -1784,6 +1805,7 @@ Basically, you can put this text after the script. Note, that you need to termin
 * Surf3 sample::
 * Surf3C sample::
 * Surf3A sample::
+* Surf3CA sample::
 * Cloud sample::
 * Dens3 sample::
 * Cont3 sample::
@@ -1826,7 +1848,7 @@ surf3 c '.'
 Command @ref{surf3c} is similar to @ref{surf3} but its coloring is determined by another data. The sample code is:
 @verbatim
 call 'prepare3d'
-title 'Surf3 plot':rotate 50 60:light on:alpha on:box
+title 'Surf3C plot':rotate 50 60:light on:alpha on:box
 surf3c c d
 @end verbatim
 
@@ -1834,22 +1856,38 @@ surf3c c d
 
 @c ------------------------------------------------------------------
 @external{}
-@node Surf3A sample, Cloud sample, Surf3C sample, 3D samples
+@node Surf3A sample, Surf3CA sample, Surf3C sample, 3D samples
 @subsection Surf3A sample
 @nav{}
 
 Command @ref{surf3a} is similar to @ref{surf3} but its transparency is determined by another data. The sample code is:
 @verbatim
 call 'prepare3d'
-title 'Surf3 plot':rotate 50 60:light on:alpha on:box
+title 'Surf3A plot':rotate 50 60:light on:alpha on:box
 surf3a c d
 @end verbatim
 
 @pfig{surf3a, Example of Surf3A()}
 
+
 @c ------------------------------------------------------------------
 @external{}
-@node Cloud sample, Dens3 sample, Surf3A sample, 3D samples
+@node Surf3CA sample, Cloud sample, Surf3A sample, 3D samples
+@subsection Surf3CA sample
+@nav{}
+
+Command @ref{surf3ca} is similar to @ref{surf3} but its color and transparency is determined by another data. The sample code is:
+@verbatim
+call 'prepare3d'
+title 'Surf3CA plot':rotate 50 60:light on:alpha on:box
+surf3a c d c
+@end verbatim
+
+@pfig{surf3ca, Example of Surf3CA()}
+
+@c ------------------------------------------------------------------
+@external{}
+@node Cloud sample, Dens3 sample, Surf3CA sample, 3D samples
 @subsection Cloud sample
 @nav{}
 
@@ -2396,25 +2434,24 @@ box:surf a 'h'
 
 @pfig{several_light, Example of several light sources.}
 
-Additionally, you can use local light sources and set to use diffise reflection instead of specular one (by default) or both kinds.
+Additionally, you can use local light sources and set to use @ref{diffuse} reflection instead of specular one (by default) or both kinds. Note, I use @ref{attachlight} command to keep light settings relative to subplot.
 @verbatim
-# use Quality=6 because need lighting in placed
-light on:quality 6
+light on: attachlight on
 call 'prepare2d'
 subplot 2 2 0:title 'Default':rotate 50 60:box:surf a
 line -1 -0.7 1.7 -1 -0.7 0.7 'BA'
 
+subplot 2 2 1:title 'Local':rotate 50 60
 light 0 1 0 1 -2 -1 -1
-subplot 2 2 1:title 'Local':rotate 50 60:box:surf a
-line 1 0 1 -1 -1 0 'BAO'
+line 1 0 1 -1 -1 0 'BAO':box:surf a
 
+subplot 2 2 2:title 'no diffuse':rotate 50 60
 diffuse 0
-subplot 2 2 2:title 'no diffuse':rotate 50 60:box:surf a
-line 1 0 1 -1 -1 0 'BAO'
+line 1 0 1 -1 -1 0 'BAO':box:surf a
 
+subplot 2 2 3:title 'diffusive only':rotate 50 60
 diffuse 0.5:light 0 1 0 1 -2 -1 -1 'w' 0
-subplot 2 2 3:title 'diffusive only':rotate 50 60:box:surf a
-line 1 0 1 -1 -1 0 'BAO'
+line 1 0 1 -1 -1 0 'BAO':box:surf a
 @end verbatim
 
 @pfig{light, Example of different types of lighting.}

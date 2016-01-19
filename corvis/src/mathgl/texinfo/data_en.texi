@@ -322,7 +322,7 @@ Delete rows which values are equal to next row for given column @var{idx}.
 @end deftypefn
 
 @anchor{join}
-@deftypefn {MGL command} {} join dat vdat
+@deftypefn {MGL command} {} join dat vdat [v2dat ...]
 @ifclear UDAV
 @deftypefnx {Method on @code{mglData}} @code{void} Join (@code{const mglDataA &}vdat)
 @deftypefnx {Method on @code{mglDataC}} @code{void} Join (@code{const mglDataA &}vdat)
@@ -1028,6 +1028,16 @@ Do Fourier transform of the data in given direction or directions. If @var{dir} 
 Do Hankel transform of the data in given direction or directions. The Hankel transform is @math{\sum a_j J_0(k j)} (see @uref{http://en.wikipedia.org/wiki/Hankel_transform}).
 @end deftypefn
 
+@anchor{wavelet}
+@deftypefn {MGL command} {} wavelet dat 'dir' @code{k}
+@ifclear UDAV
+@deftypefnx {Method on @code{mglData}} @code{void} Wavelet (@code{const char *}dir, @code{int} k)
+@deftypefnx {C function} @code{void} mgl_data_wavelet (@code{HMDT} dat, @code{const char *}dir, @code{int} k)
+@end ifclear
+Apply wavelet transform of the data in given direction or directions. Parameter @var{dir} set the kind of wavelet transform:
+@samp{d} for daubechies, @samp{D} for centered daubechies, @samp{h} for haar, @samp{H} for centered haar, @samp{b} for bspline, @samp{B} for centered bspline. If string @var{dir} contain symbol @samp{i} then inverse wavelet transform is applied. Parameter @var{k} set the size of wavelet transform.
+@end deftypefn
+
 @anchor{swap}
 @deftypefn {MGL command} {} swap dat 'dir'
 @ifclear UDAV
@@ -1078,7 +1088,8 @@ Remove value steps (like phase jumps after inverse trigonometric functions) with
 @deftypefnx {C function} @code{void} mgl_data_smooth (@code{HMDT} dat, @code{const char *}dir, @code{mreal} delta)
 @deftypefnx {C function} @code{void} mgl_datac_smooth (@code{HADT} dat, @code{const char *}dir, @code{mreal} delta)
 @end ifclear
-Smooths the data on specified direction or directions. String @var{dirs} specifies the dimensions which will be smoothed. It may contain characters: @samp{x} for 1st dimension, @samp{y} for 2nd dimension, @samp{z} for 3d dimension. If string @var{dir} contain: @samp{0} then does nothing, @samp{3} -- linear averaging over 3 points, @samp{5} -- linear averaging over 5 points. By default quadratic averaging over 5 points is used.
+Smooths the data on specified direction or directions. String @var{dirs} specifies the dimensions which will be smoothed. It may contain characters: @samp{x} for 1st dimension, @samp{y} for 2nd dimension, @samp{z} for 3d dimension. If string @var{dir} contain: @samp{0} then does nothing, @samp{3} -- linear averaging over 3 points, @samp{5} -- linear averaging over 5 points. If string @var{dir} contain @samp{dN} (where @samp{N} is digit 1,2,...,9) then linear averaging over (2*N+1)-th points is used.
+By default quadratic averaging over 5 points is used.
 @end deftypefn
 
 @anchor{envelop}
@@ -1462,6 +1473,7 @@ The same as previous but with specified amplitude @var{ampl} and phase @var{phas
 
 @anchor{fourier}
 @deftypefn {MGL command} {} fourier reDat imDat 'dir'
+@deftypefnx {MGL command} {} fourier complexDat 'dir'
 @ifclear UDAV
 @deftypefnx {Global function} @code{void} mglFourier @code{const mglDataA &}re, @code{const mglDataA &}im, @code{const char *}dir)
 @deftypefnx {C function} @code{void} mgl_data_fourier @code{HCDT} re, @code{HCDT} im, @code{const char *}dir)

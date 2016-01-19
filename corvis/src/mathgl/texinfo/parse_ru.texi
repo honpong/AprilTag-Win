@@ -34,7 +34,8 @@ MathGL имеет встроенный скриптовый язык MGL для 
 Строка -- произвольный набор символов между метками @samp{'}. Длинные строки могут быть соединены из нескольких линий файла символом @samp{\}. Т.е. строки файла @samp{'a +'\<br>' b'} дадут строку @samp{'a + b'} (здесь @samp{<br>} -- перевод строки). Также можно использовать соединение строк и чисел, используя символ @samp{,} без пробелов (например, @samp{'max(u)=',u.max,' a.u.'}).
 
 @item
-Обычно переменная имеет имя, состоящее из букв и чисел (должно начинаться с буквы и не быть длиннее 64 символов). В качестве переменной можно использовать временные массивы, включающие в себя:
+Обычно переменная имеет имя, состоящее из букв и чисел (должно начинаться с буквы и не быть длиннее 64 символов). Если выражение или переменная начинается с символа @samp{!}, то будут использованы комплексные значения. Например, код @code{new x 100 'x':copy !b !exp(1i*x)} создаст массив действительных чисел @var{x} и массив комплексных чисел @var{b}, который будет равен @math{exp(I*x)}, где @math{I^2=-1}. 
+В качестве переменной можно использовать также и временные массивы, включающие в себя:
 @itemize @bullet
 @item
 срезы (``подмассивы'') массивов данных (подобно команде @ref{subdata}). Например, @code{a(1)} или @code{a(1,:)} или @code{a(1,:,:)} -- вторая строка массива @var{a}, @code{a(:,2)} или @code{a(:,2,:)} -- третий столбец, @code{a(:,:,0)} -- первый срез и т.д. Также можно выделить часть массива с m-го по n-ый элемент @code{a(m:n,:,:)} или просто @code{a(m:n)}.
@@ -54,7 +55,7 @@ MathGL имеет встроенный скриптовый язык MGL для 
 Временные массивы не могут стоять в качестве первого аргумента команд, создающих массивы (например, @samp{new}, @samp{read}, @samp{hist} и т.д.).
 
 @item
-К скалярным переменным, кроме собственно чисел, относятся: специальные переменные @code{nan=#QNAN, pi=3.1415926..., on=1, off=0, :=-1}, переменные с суффиксами (@pxref{Data information}), переменные определенные командой @ref{define}. Также массивы размером 1x1x1 считаются скалярами (например, @samp{pi/dat.nx}).
+К скалярным переменным, кроме собственно чисел, относятся: специальные переменные @code{nan=#QNAN, inf=бесконечность, rnd=случайное число, pi=3.1415926..., on=1, off=0, :=-1}, переменные с суффиксами (@pxref{Data information}), переменные определенные командой @ref{define}. Также массивы размером 1x1x1 считаются скалярами (например, @samp{pi/dat.nx}).
 @end itemize
 Перед первым использованием все переменные должны быть определены с помощью команд, создающих массивы (@ref{new}, @ref{var}, @ref{list}, @ref{copy}, @ref{read}, @ref{hist}, @ref{sum} и др., см. @ref{Data constructor}, @ref{Data filling} и @ref{Make another data}).
 
@@ -102,21 +103,23 @@ MathGL имеет встроенный скриптовый язык MGL для 
 @deftypefn {MGL command} {} defnum $N smth
 Задает @var{N}-ый аргумент скрипта равным числовому значению @var{smth}. Здесь @var{N} это цифра (0...9) или буква (a...z).
 @end deftypefn
-@cindex defpal
-@anchor{defpal}
-@deftypefn {MGL command} {} defpal $N smth
-Задает @var{N}-ый аргумент скрипта равным символу палитры с индексом, найденным из @var{smth}. Здесь @var{N} это цифра (0...9) или буква (a...z).
-@end deftypefn
+
+@comment  @cindex defpal
+@comment  @anchor{defpal}
+@comment  @deftypefn {MGL command} {} defpal $N smth
+@comment  Задает @var{N}-ый аргумент скрипта равным символу палитры с индексом, найденным из @var{smth}. Здесь @var{N} это цифра (0...9) или буква (a...z).
+@comment  @end deftypefn
 
 @cindex call
 @anchor{call}
 @deftypefn {MGL command} {} call 'fname' [ARG1 ARG2 ... ARG9]
 Переходит к выполнению (вызывает) подпрограммы @var{fname} (или внешнего скрипта, если функция не была найдена). Опциональные аргументы передаются в подпрограмму. См. также @ref{func}.
 @end deftypefn
+
 @cindex func
 @anchor{func}
 @deftypefn {MGL command} {} func 'fname' [narg=0]
-Определяет подпрограмму с именем @var{fname} и задает число требуемых аргументов. Аргументы будут помещены в параметры скрипта $1, $2, ... $9. Отмечу, что выполнение основной программы должно быть остановлено до начала определений подпрограмм. См. также @ref{stop},  @ref{return}.
+Определяет подпрограмму с именем @var{fname} и задает число требуемых аргументов. Аргументы будут помещены в параметры скрипта $1, $2, ... $9. Отмечу, что выполнение основной программы будет остановлено при встрече @code{func} -- действует аналогично комманде @ref{stop}. См. также @ref{return}.
 
 @end deftypefn
 @cindex return
@@ -184,6 +187,12 @@ MathGL имеет встроенный скриптовый язык MGL для 
 Останавливает выполнение скрипта.
 @end deftypefn
 
+@cindex rkstep
+@anchor{rkstep}
+@deftypefn {MGL command} {} rkstep eq1;... var1;... [@code{dt=1}]
+Выполняет один шаг решения системы обыкновенных дифференциальных уравнений @{var1' = eq1, ... @} с временным шагом @var{dt}. Здесь переменные @samp{var1}, ... -- переменные, определенные в MGL скрипте ранее. При решении используется метод Рунге-Кутта 4-го порядка.
+@end deftypefn
+
 
 @c TODO Translate it!
 
@@ -200,9 +209,9 @@ MathGL имеет встроенный скриптовый язык MGL для 
 
 There is LaTeX package @code{mgltex} (was made by Diego Sejas Viscarra) which allow one to make figures directly from MGL script located in LaTeX file.
 
-For using this package you need to specify @code{--shell-escape} option for @emph{latex/pdflatex} or manually run @emph{mglconv} tool for produced MGL scripts for generation of images. Don't forgot to run @emph{latex/pdflatex} second time to insert generated images into the output document.
+For using this package you need to specify @code{--shell-escape} option for @emph{latex/pdflatex} or manually run @emph{mglconv} tool with produced MGL scripts for generation of images. Don't forgot to run @emph{latex/pdflatex} second time to insert generated images into the output document. Also you need to run @emph{pdflatex} third time to update converted from EPS images if you are using vector EPS output (default).
 
-The package may have following options: @code{draft}, @code{final} -- the same as in the @emph{graphicx} package; @code{jpg}, @code{jpeg}, @code{png} -- for export to JPEG/PNG images; @code{eps}, @code{epsz} -- for export to uncompressed/compressed EPS format as primitives; @code{bps}, @code{bpsz} -- for export to uncompressed/compressed EPS format as bitmap, @code{pdf} -- for export to 3D PDF.
+The package may have following options: @code{draft}, @code{final} --- the same as in the @emph{graphicx} package; @code{on}, @code{off} --- to activate/deactivate the creation of scripts and graphics; @code{comments}, @code{nocomments} --- to make visible/invisible commentaries contained inside @code{mglcomment} environments; @code{jpg}, @code{jpeg}, @code{png} --- to export graphics as JPEG/PNG images; @code{eps}, @code{epsz} --- to export to uncompressed/compressed EPS format as primitives; @code{bps}, @code{bpsz} --- to export to uncompressed/compressed EPS format as bitmap (doesn't work with @emph{pdflatex}); @code{pdf} --- to export to 3D PDF; @code{tex} --- to export to @emph{LaTeX/tikz} document.
 
 The package defines the following environments:
 @table @samp
@@ -252,6 +261,8 @@ An example of usage of @samp{mgl} environment would be:
 	Exactly the same as @samp{mglblock}, but it doesn't write to a file. This environment doesn't have arguments.
 @item mglfunc
 	Is used to define MGL functions. It takes one mandatory argument, which is the name of the function, plus one additional argument, which specifies the number of arguments of the function. The environment needs to contain only the body of the function, since the first and last lines are appended automatically, and the resulting code is written at the end of the general script, after the @ref{stop} command, which is also written automatically. The warning is produced if 2 or more function with the same name is defined.
+@item mglcomment
+	Is used to contain multiline commentaries. This commentaries will be visible/invisible in the output document, depending on the use of the package options @code{comments} and @code{nocomments} (see above), or the @code{\mglcomments} and @code{\mglnocomments} commands (see bellow).
 @item mglsetup
 	If many scripts with the same code are to be written, the repetitive code can be written inside this environment only once, then this code will be used automatically every time the @samp{\mglplot} command is used (see below). It takes one optional argument, which is a name to be associated to the corresponding contents of the environment; this name can be passed to the @samp{\mglplot} command to use the corresponding block of code automatically (see below).
 @end table
@@ -297,6 +308,12 @@ An example of usage of @samp{\mglplot} command would be:
 	This is like @samp{\mglgraphics} but, instead of creating/including the corresponding image, it writes the contents of the MGL script to the LaTeX document, and numerates the lines.
 @item \mgldir
 	This command can be used in the preamble of the document to specify a directory where LaTeX will save the MGL scripts and generate the corresponding images. This directory is also where @samp{\mglgraphics} and @samp{\mglinclude} will look for scripts.
+@item \mglquality
+	Adjust the quality of the MGL graphics produced similarly to @ref{quality}.
+@item \mgltexon, \mgltexoff
+	Activate/deactivate the creation of MGL scripts and images. Notice these commands have local behavior in the sense that their effect is from the point they are called on.
+@item \mglcomment, \mglnocomment
+	Make visible/invisible the contents of the @code{mglcomment} environments. These commands have local effect too.
 @item \mglTeX
 	It just pretty prints the name of the package.
 @end table
@@ -359,6 +376,13 @@ As an additional feature, when an image is not found or cannot be included, inst
 @deftypefnx {Функция С} @code{HMDT} mgl_parser_calc (@code{HMPR} p, @code{const char *}formula)
 @deftypefnx {Функция С} @code{HMDT} mgl_parser_calcw (@code{HMPR} p, @code{const wchar_t *}formula)
 Разбирает строку @var{formula} и возвращает полученный массив. В отличие от @code{AddVar()} или @code{FindVar()}, это обычный массив данных, который следует удалить после использования.
+@end deftypefn
+
+@deftypefn {Метод класса @code{mglParse}} @code{mglDataC} CalcComplex (@code{const char *}formula)
+@deftypefnx {Метод класса @code{mglParse}} @code{mglDataC} CalcComplex (@code{const wchar_t *}formula)
+@deftypefnx {Функция С} @code{HADT} mgl_parser_calc_complex (@code{HMPR} p, @code{const char *}formula)
+@deftypefnx {Функция С} @code{HADT} mgl_parser_calc_complexw (@code{HMPR} p, @code{const wchar_t *}formula)
+Разбирает строку @var{formula} и возвращает полученный массив с комплексными значениями. В отличие от @code{AddVar()} или @code{FindVar()}, это обычный массив данных, который следует удалить после использования.
 @end deftypefn
 
 
@@ -443,6 +467,13 @@ As an additional feature, when an image is not found or cannot be included, inst
 @deftypefn {Метод класса @code{mglParse}} @code{const char *} CmdDesc (@code{const char *}name)
 @deftypefnx {Функция С} @code{const char *} mgl_parser_cmd_desc (@code{HMPR} p, @code{const char *}name)
 Возвращает описание команды MGL с именем @var{name}.
+@end deftypefn
+
+@deftypefn {Method on @code{mglParse}} @code{void} RK_Step (@code{const char *}eqs, @code{const char *}vars, @code{mreal} dt=@code{1})
+@deftypefnx {Method on @code{mglParse}} @code{void} RK_Step (@code{const wchar_t *}eqs, @code{const wchar_t *}vars, @code{mreal} dt=@code{1})
+@deftypefnx {C function} @code{void} mgl_rk_step (@code{HMPR} p, @code{const char *}eqs, @code{const char *}vars, @code{mreal} dt)
+@deftypefnx {C function} @code{void} mgl_rk_step_w (@code{HMPR} p, @code{const wchar_t *}eqs, @code{const wchar_t *}vars, @code{mreal} dt)
+Make one step for ordinary differential equation(s) @{var1' = eq1, ... @} with time-step @var{dt}. Here strings @var{eqs} and @var{vars} contain the equations and variable names separated by symbol @samp{;}. The variable(s) @samp{var1}, ... are the ones, defined in MGL script previously. The Runge-Kutta 4-th order method is used.
 @end deftypefn
 
 @end ifclear

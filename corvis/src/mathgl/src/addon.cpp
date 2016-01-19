@@ -45,13 +45,13 @@ void MGL_EXPORT mgl_strcls(char *str)
 	delete []tmp;
 }
 //-----------------------------------------------------------------------------
-long MGL_EXPORT_PURE mgl_strpos(const char *str,char *fnd)
+long MGL_EXPORT mgl_strpos(const char *str,char *fnd)
 {
 	const char *p=strstr(str,fnd);
 	return p?p-str:-1L;
 }
 //-----------------------------------------------------------------------------
-long MGL_EXPORT_PURE mgl_chrpos(const char *str,char ch)
+long MGL_EXPORT mgl_chrpos(const char *str,char ch)
 {
 	const char *p=str?strchr(str,ch):0;
 	return p?p-str:-1L;

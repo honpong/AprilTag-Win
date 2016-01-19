@@ -48,7 +48,6 @@ friend void _mgl_timer(int);
 public:
 	mglCanvasGLUT();
 	virtual ~mglCanvasGLUT();
-	// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ��������� ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 	/// Create a window for plotting. Now implemeted only for GLUT.
 	void Window(int argc, char **argv, int (*draw)(mglBase *gr, void *p),
 						const char *title,void *par=NULL,

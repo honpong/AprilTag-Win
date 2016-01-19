@@ -41,7 +41,7 @@ void *calc(void *)
 	for(int i=0;i<10;i++)	// do calculation
 	{
 		long_calculations();       // which can be very long
-		pnt = mglPoint(2*mgl_rnd()-1,2*mgl_rnd()-1);
+		pnt.Set(2*mgl_rnd()-1,2*mgl_rnd()-1);
 		if(gr)
 		{
 			gr->Clf();			// make new drawing
@@ -75,7 +75,7 @@ void Foo::Calc()
 	for(int i=0;i<30;i++)   	// do calculation
 	{
 		long_calculations();	// which can be very long
-		pnt = mglPoint(2*mgl_rnd()-1,2*mgl_rnd()-1);
+		pnt.Set(2*mgl_rnd()-1,2*mgl_rnd()-1);
 		Gr->Update();			// update window
 	}
 }

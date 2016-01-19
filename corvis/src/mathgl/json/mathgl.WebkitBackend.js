@@ -9,8 +9,12 @@ mathgl.WebkitBackend = function() {}
 mathgl.WebkitBackend.prototype = new mathgl.Backend();
 
 
-/** return geometry */
-mathgl.WebkitBackend.prototype.geometry = function(mgl) {
+/**
+ * Request for geometry data for given MGL script.
+ * @param mgl {String} MGL script to build geometry
+ * @param callback {Function} receiver of geometry must be a function(error, result)
+ */
+mathgl.WebkitBackend.prototype.geometry = function(mgl, callback) {
 	var geometryData = globalBackend.geometry(mgl);
 
 	/*
@@ -20,6 +24,9 @@ mathgl.WebkitBackend.prototype.geometry = function(mgl) {
 	 */
 	
 	var obj = JSON.parse(geometryData);
-	obj.pp = new Array();
-	return obj;
+
+  // simulate async reply
+  setTimeout(function() {
+    callback(null, obj);
+  }, 0);
 }

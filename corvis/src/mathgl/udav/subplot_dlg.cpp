@@ -161,11 +161,11 @@ SubplotDialog::SubplotDialog(QWidget *parent) : QDialog(parent)
 
 	H = new QHBoxLayout;	u->addLayout(H);
 	l = new QLabel(tr("Rotate on"),this);	H->addWidget(l);
-	l = new QLabel(QString::fromWCharArray(L"θ"),this);	H->addWidget(l);
+	l = new QLabel(QString::fromWCharArray(L"\u03b8"),this);	H->addWidget(l);
 	tet = new QSpinBox(this);	H->addWidget(tet,1);	tet->setValue(0);	tet->setSingleStep(5);
 	tet->setToolTip(tr("Angle around x axis (in degrees)"));
 	connect(tet,SIGNAL(valueChanged(QString)),this,SLOT(updatePic()));
-	l = new QLabel(QString::fromWCharArray(L"φ"),this);	H->addWidget(l);
+	l = new QLabel(QString::fromWCharArray(L"\u03c6"),this);	H->addWidget(l);
 	phi = new QSpinBox(this);	H->addWidget(phi,1);	phi->setValue(0);	phi->setSingleStep(5);
 	phi->setToolTip(tr("Angle around z axis (in degrees)"));
 	connect(phi,SIGNAL(valueChanged(QString)),this,SLOT(updatePic()));

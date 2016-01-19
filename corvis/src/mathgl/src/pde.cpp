@@ -23,8 +23,7 @@
 #include "mgl2/thread.h"
 #include "mgl2/base.h"
 const double GAMMA=0.1;	///< value for damping
-mglData MGL_NO_EXPORT mglFormulaCalc(const char *str, const std::vector<mglDataA*> &head);
-mglDataC MGL_NO_EXPORT mglFormulaCalcC(const char *str, const std::vector<mglDataA*> &head);
+HADT MGL_NO_EXPORT mglFormulaCalcC(const char *str, const std::vector<mglDataA*> &head);
 //-----------------------------------------------------------------------------
 struct mgl_pde_ham
 {
@@ -51,34 +50,38 @@ void MGL_NO_EXPORT mgl_pde_hprep(const mgl_pde_ham *f)
 
 	x.Fill(f->xx,f->xx+f->dx*(nx-1),'x');	p.Freq(0,'x');
 	y.Fill(f->yy,f->yy+f->dy*(ny-1),'y');	q.Freq(0,'y');
-	mglDataC res = mglFormulaCalcC(f->eqs, list);
+	HADT res = mglFormulaCalcC(f->eqs, list);
 #pragma omp parallel for
-	for(long i=0;i<nx*ny;i++)	f->hxy[i] = res.a[i]*dd;
+	for(long i=0;i<nx*ny;i++)	f->hxy[i] = res->a[i]*dd;
+	delete res;
 	if(ny>2)
 	{
 		x.Fill(f->xs);	p.Freq(f->dp,'x');
 		res = mglFormulaCalcC(f->eqs, list);
 #pragma omp parallel for
-		for(long i=0;i<nx*ny;i++)	f->huy[i] = res.a[i]*dd;
+		for(long i=0;i<nx*ny;i++)	f->huy[i] = res->a[i]*dd;
+		delete res;
 	}
 	x.Fill(f->xs);	p.Freq(f->dp,'x');
 	y.Fill(f->ys);	q.Freq(f->dq,'y');
 	res = mglFormulaCalcC(f->eqs, list);
 #pragma omp parallel for
-	for(long i=0;i<nx*ny;i++)	f->huv[i] = res.a[i]*dd;
+	for(long i=0;i<nx*ny;i++)	f->huv[i] = res->a[i]*dd;
+	delete res;
 	if(ny>2)
 	{
 		x.Fill(f->xx,f->xx+f->dx*(nx-1),'x');	p.Freq(0,'x');
 		res = mglFormulaCalcC(f->eqs, list);
 #pragma omp parallel for
-		for(long i=0;i<nx*ny;i++)	f->hxv[i] = res.a[i]*dd;
+		for(long i=0;i<nx*ny;i++)	f->hxv[i] = res->a[i]*dd;
+		delete res;
 	}
 }
 //-----------------------------------------------------------------------------
 // Solve equation dx/dz = func(p,q,x,y,z,|u|)[u] where p=d/dx, q=d/dy. At this moment simplified form of ham is supported: ham = f(p,q,z) + g(x,y,z,'u'), where variable 'u'=|u| (for allowing solve nonlinear problems). You may specify imaginary part like ham = p^2 + i*x*(x>0) but only if dependence on variable 'i' is linear (i.e. ham = hre+i*him).
 HADT MGL_EXPORT mgl_pde_solve_c(HMGL gr, const char *ham, HCDT ini_re, HCDT ini_im, mreal dz, mreal k0, const char *opt)
 {
-	gr->SaveState(opt);
+	mreal gamma = gr->SaveState(opt);	if(mgl_isnan(gamma))	gamma = GAMMA;
 	mglPoint Min=gr->Min, Max=gr->Max;
 	long nx=ini_re->GetNx(), ny=ini_re->GetNy(), nz = long((Max.z-Min.z)/dz)+1;
 	if(nx<2 || nz<2 || Max.x==Min.x)			// Too small data
@@ -106,10 +109,10 @@ HADT MGL_EXPORT mgl_pde_solve_c(HMGL gr, const char *ham, HCDT ini_re, HCDT ini_
 	for(long j=0;j<2*ny;j++)	for(long i=0;i<2*nx;i++)	// step 1
 	{
 		register long i0 = i+2*nx*j;
-		if(i<nx/2)		dmp[i0] += GAMMA*mgl_ipow((nx/2-i)/(nx/2.),2);
-		if(i>3*nx/2)	dmp[i0] += GAMMA*mgl_ipow((i-3*nx/2-1)/(nx/2.),2);
-		if(j<ny/2)		dmp[i0] += GAMMA*mgl_ipow((ny/2-j)/(ny/2.),2);
-		if(j>3*ny/2)	dmp[i0] += GAMMA*mgl_ipow((j-3*ny/2-1)/(ny/2.),2);
+		if(i<nx/2)		dmp[i0] += gamma*mgl_ipow((nx/2-i)/(nx/2.),2);
+		if(i>3*nx/2)	dmp[i0] += gamma*mgl_ipow((i-3*nx/2-1)/(nx/2.),2);
+		if(j<ny/2)		dmp[i0] += gamma*mgl_ipow((ny/2-j)/(ny/2.),2);
+		if(j>3*ny/2)	dmp[i0] += gamma*mgl_ipow((j-3*ny/2-1)/(ny/2.),2);
 	}
 	mreal dx = (Max.x-Min.x)/(nx-1), dy = ny>1?(Max.y-Min.y)/(ny-1):0;
 	mreal dp = M_PI/(Max.x-Min.x)/k0, dq = M_PI/(Max.y-Min.y)/k0;

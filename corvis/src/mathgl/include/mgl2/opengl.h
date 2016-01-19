@@ -59,7 +59,6 @@ protected:
 
 	unsigned char **GetRGBLines(long &w, long &h, unsigned char *&f, bool solid=true);
 	void LightScale(const mglMatrix *M);
-	void set_pen(unsigned style,mreal width);
 
 	void gl_clf(mglColor Back=WC);
 };

@@ -19,6 +19,7 @@
  ***************************************************************************/
 #include <QLayout>
 #include <QLineEdit>
+#include <QToolBar>
 #include <QPushButton>
 #include <QTextBrowser>
 #include <QToolButton>
@@ -38,26 +39,20 @@ void showHelpMGL(QWidget *p,QString s)
 //-----------------------------------------------------------------------------
 HelpPanel::HelpPanel(QWidget *parent) : QWidget(parent)
 {
-	QPushButton *b;
-	QToolButton *t;
-	QVBoxLayout *o = new QVBoxLayout(this);
-	QHBoxLayout *a = new QHBoxLayout();	o->addLayout(a);
-	help = new QTextBrowser(this);		o->addWidget(help);
-	help->setOpenExternalLinks(false);
 
-	b = new QPushButton(QPixmap(":/png/go-previous.png"), tr("Backward"));
-	connect(b, SIGNAL(clicked()), help, SLOT(backward()));	a->addWidget(b);
-	entry = new QLineEdit(this);	a->addWidget(entry);
+	QToolBar *t = new QToolBar(this);	t->setMovable(false);
+	QVBoxLayout *v = new QVBoxLayout(this);	v->addWidget(t);
+	help = new QTextBrowser(this);	v->addWidget(help);	help->setOpenExternalLinks(false);
+
+	t->addAction(QPixmap(":/png/go-previous.png"), tr("Backward"), help, SLOT(backward()));
+	entry = new QLineEdit(this);	t->addWidget(entry);
 	connect(entry, SIGNAL(textChanged(const QString &)), this, SLOT(showHelp(const QString &)));
 	connect(entry, SIGNAL(returnPressed()), this, SLOT(showHelp()));
-	b = new QPushButton(QPixmap(":/png/go-next.png"), tr("Forward"));
-	connect(b, SIGNAL(clicked()), help, SLOT(forward()));	a->addWidget(b);
-//	b = new QPushButton(QPixmap(":/png/help-faq.png"), tr("Examples"));
-//	connect(b, SIGNAL(clicked()), this, SLOT(showExamples()));	a->addWidget(b);
-	t = new QToolButton(this);	t->setIcon(QPixmap(":/png/zoom-in.png"));
-	connect(t, SIGNAL(clicked()), this, SLOT(zoomIn()));	a->addWidget(t);
-	t = new QToolButton(this);	t->setIcon(QPixmap(":/png/zoom-out.png"));
-	connect(t, SIGNAL(clicked()), this, SLOT(zoomOut()));	a->addWidget(t);
+	t->addAction(QPixmap(":/png/go-next.png"), tr("Forward"), help, SLOT(forward()));
+	t->addSeparator();
+//	t->addAction(QPixmap(":/png/help-faq.png"), tr("Examples"), this, SLOT(showExamples()));
+	t->addAction(QPixmap(":/png/zoom-in.png"), tr("Zoom in text"), this, SLOT(zoomIn()));
+	t->addAction(QPixmap(":/png/zoom-out.png"), tr("Zoom out text"), this, SLOT(zoomOut()));
 	setWindowTitle(tr("Help"));
 }
 //-----------------------------------------------------------------------------

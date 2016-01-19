@@ -2,17 +2,14 @@
 
 ============= FAR FUTURE ================
 
-1. Graph(mreal x, mreal y, names, styles, font, size); -- names = "node1[node2,node3,node4[node5,node6]]", styles -- the same + apply for subnodes if absent. Styles are colors (fill,border,line), dash (to subnodes), marks "dos^v><", arrows.
-2. introduce new primitive type=5 -- arrow for Quality&3!=3. for better drawing in projections + json/view ?!?
-3. GTK window/widgets ???
-4. 2D textures as one of standard way for coloring -- if '%' present in color scheme
+1. GTK window/widgets ???
+2. Export to COLLADA !!!
+3. Export to X3D !!!
+4. 3D text (with depth), and text along 3D curve (for Quality=3) ???
 5. Improve fplot, fsurf ???
 6. Get true coordinates in CalcXYZ for curved equations too.
-7. setLineDash in JSON
-8. add real(), imag(), conj() + accurate types in MGL + add 'complex' in MGL ???
 9. Inplot data should have ranges (add mglInPlot{x1,x2,y1,y2,Bp or something like this} which include mglMatrix instead of mglBase::Bp) + calc coor + JS
 10. Test mglDataC::Diffraction() + write sample + add rational function???
-11. Complex (hex) colors in inline text command (like #{b9} or #{x0000ff})
 12. Extra markers for '&' and '&#' signs ?!?
 13. Enable consecutive (as multiplication of matrices instead of single summary one) rotation of axis + the same in JS. Problem with widgets?!?
 14. Export background image to svg ???
@@ -25,33 +22,27 @@
 20. Extend 'ask' by adding multiple questions simultaneously (+ set/get default values from file ???)
 21. Occasional seg.fault in mgl_qt_example at exit
 
-ZZ. Update *.i for new functions {before release!!!}
-
 
 ============= NEW FEATURES =============
 
-1. Export to COLLADA !!!
-2. 3D text (with depth, for Quality=3)
-3. Text along 3D curve (for Quality=3)
-4. Check centered curved text (see text2)
-
-5. Export to X3D
-6. New tests:
+1. New tests:
 	c. Tests for mglDataC arrays (as separate flag)
 	e. Test for Crop, Momentum, NormSl, Sew, DiffParam, Envelope, STFA for all directions "xyz"; Clean, Last, First, Find, Spline3, FindAny, Insert, Delete, Put, SetId/Column, Squeeze, Extend, Trace, Combine, new Max/Min/Momentum, FillSample, Hist, operators, Sort, Roots, Jacobian
 	u. Test FlowP + 3d
 
-7. Improve z-order for rapidly oscillating surfaces
-8. Manual rotation angle for axis ticks (as "value" option?!)
-9. Export to XPM (like GIF)
-10. Title and perspective
-11. Adjust BarWidth for proper using prevous (i-1) point
+2. Add manual shift of unrotated axis/tick labels.
+3. Centered curved text (see text2)
 
-12. introduce a set of default arrays like "x", "y", "z" and "t" for MGL ???
-13. Use mgltex.dtx (see e-mail 15 November)
-14. Binary font files for particular platform (+ check ARM). Add utility to translate from current (textual) to binary.
-16. Contour lines above/under surface (e-mail 10.12.14)
+5. Check lighting in OpenGL mode
+6. Add string manipulation -- {'str',val}=>str[val]; {'str',v1,v2}=>str.substr(v1,v2) [v1,v2 can be -1]; {'ch'+val'}=>char(ch+val)
+7. Improve z-order for rapidly oscillating surfaces
+8. Contour lines for bilinear interpolation (strong saddle-like faces)
+9. More accurate face cutting if one partially out of axis ranges
+
 17. Iris plot -- https://en.wikipedia.org/wiki/Iris_flower_data_set
+
+ZZ. Update *.i for new functions {before release!!!}
+
 
 ============= DOCUMENTATION =============
 
@@ -60,7 +51,6 @@ B. Add chapter with real samples
 C. Translate to Russian everything
 D. Docs about JS interface
 
-1. Docs about new Smooth() styles
 
 YY. Sample like http://pyxplot.org.uk/examples/05ap/02hlines/index.html using Stem()
 
@@ -76,6 +66,9 @@ YY. Sample like http://pyxplot.org.uk/examples/05ap/02hlines/index.html using St
 	c. Add command to insert as 'list'
 	d. Reset script after saving to HDF5 or putting to main script
 	e. Ask about script changes before closing data tab
+
+4. List of constants into the list of data?!
+5. Add color cycle ???
 
 
 ============= UNSURE ===========

@@ -155,6 +155,7 @@ void Fl_MathGL::draw()
 //-----------------------------------------------------------------------------
 void Fl_MathGL::update()
 {
+	Fl::lock();
 	if(draw_func || draw_cl)
 	{
 		mgl_reset_frames(gr);
@@ -175,7 +176,8 @@ void Fl_MathGL::update()
 	}
 	if(mgl_get_width(gr)!=w() || mgl_get_height(gr)!=h())
 		size(mgl_get_width(gr), mgl_get_height(gr));
-	gr->AskStop(false);	redraw();	Fl::flush();
+	gr->AskStop(false);	redraw();
+	Fl::flush();	Fl::unlock();
 }
 //-----------------------------------------------------------------------------
 void Fl_MathGL::resize(int xx, int yy, int ww, int hh)
@@ -338,11 +340,11 @@ void MGL_NO_EXPORT mgl_grid_cb(Fl_Widget*, void* v)
 //-------------------------------------------------------------------------
 void MGL_NO_EXPORT mgl_alpha_cb(Fl_Widget*, void* v)
 {	if(v)	((Fl_MGLView*)v)->toggle_alpha();	}
-void mglCanvasFL::ToggleAlpha()	{	Fl::lock();	mgl->toggle_alpha();	Fl::unlock();	}
+void mglCanvasFL::ToggleAlpha()	{	mgl->toggle_alpha();	}
 //-----------------------------------------------------------------------------
 void MGL_NO_EXPORT mgl_light_cb(Fl_Widget*, void* v)
 {	if(v)	((Fl_MGLView*)v)->toggle_light();	}
-void mglCanvasFL::ToggleLight()	{	Fl::lock();	mgl->toggle_light();	Fl::unlock();	}
+void mglCanvasFL::ToggleLight()	{	mgl->toggle_light();	}
 //-----------------------------------------------------------------------------
 void MGL_NO_EXPORT mgl_norm_cb(Fl_Widget*, void* v)
 {
@@ -352,21 +354,21 @@ void MGL_NO_EXPORT mgl_norm_cb(Fl_Widget*, void* v)
 	e->FMGL->set_zoom(0,0,1,1);
 	e->update();
 }
-void mglCanvasFL::ToggleNo()	{	Fl::lock();	mgl_norm_cb(0,mgl);	Fl::unlock();	}
+void mglCanvasFL::ToggleNo()	{	mgl_norm_cb(0,mgl);	}
 //-----------------------------------------------------------------------------
 void MGL_NO_EXPORT mgl_zoom_cb(Fl_Widget*, void* v)
 {
 	Fl_MGLView *e = (Fl_MGLView*)v;	if(!e)	return;
 	e->setoff_rotate();	e->toggle_zoom();
 }
-void mglCanvasFL::ToggleZoom()	{	Fl::lock();	mgl_zoom_cb(0,mgl);	Fl::unlock();	}
+void mglCanvasFL::ToggleZoom()	{	mgl_zoom_cb(0,mgl);	}
 //-----------------------------------------------------------------------------
 void MGL_NO_EXPORT mgl_rotate_cb(Fl_Widget*, void* v)
 {
 	Fl_MGLView *e = (Fl_MGLView*)v;	if(!e)	return;
 	e->setoff_zoom();	e->toggle_rotate();
 }
-void mglCanvasFL::ToggleRotate()	{	Fl::lock();	mgl_rotate_cb(0,mgl);	Fl::unlock();	}
+void mglCanvasFL::ToggleRotate()	{	mgl_rotate_cb(0,mgl);	}
 //-----------------------------------------------------------------------------
 void Fl_MGLView::update()
 {
@@ -376,7 +378,7 @@ void Fl_MGLView::update()
 }
 void MGL_NO_EXPORT mgl_draw_cb(Fl_Widget*, void* v)
 {	if(v)	((Fl_MGLView*)v)->update();	}
-void mglCanvasFL::Update()		{	Fl::lock();	mgl->update();	Fl::unlock();	}
+void mglCanvasFL::Update()		{	mgl->update();	}
 //-----------------------------------------------------------------------------
 void MGL_NO_EXPORT mgl_export_png_cb(Fl_Widget*, void* v)
 {
@@ -513,7 +515,7 @@ void MGL_NO_EXPORT mgl_so_cb(Fl_Widget*, void* v)
 //-----------------------------------------------------------------------------
 void MGL_NO_EXPORT mgl_adjust_cb(Fl_Widget*, void*v)
 {	Fl_MGLView *e = (Fl_MGLView*)v;	if(e)	e->adjust();	}
-void mglCanvasFL::Adjust()	{	Fl::lock();	mgl_adjust_cb(0,mgl);	Fl::unlock();	}
+void mglCanvasFL::Adjust()	{	mgl_adjust_cb(0,mgl);	}
 //-----------------------------------------------------------------------------
 void MGL_NO_EXPORT mgl_oncemore_cb(Fl_Widget*, void*v)
 {	Fl_MGLView *e = (Fl_MGLView*)v;	if(e && e->reload)	e->reload(e->par);	}
@@ -541,7 +543,7 @@ void MGL_NO_EXPORT mgl_sshow_cb(Fl_Widget *, void *v)
 	e->toggle_sshow();
 	if(e->is_sshow())	Fl::add_timeout(e->delay(e->par), mgl_time_cb, v);
 }
-void mglCanvasFL::Animation()	{	Fl::lock();	mgl_sshow_cb(0,mgl);	Fl::unlock();	}
+void mglCanvasFL::Animation()	{	mgl_sshow_cb(0,mgl);	}
 void MGL_LOCAL_CONST mgl_no_cb(Fl_Widget *, void *)	{}
 //-----------------------------------------------------------------------------
 void MGL_NO_EXPORT mgl_stop_cb(Fl_Widget*, void* v)
@@ -690,7 +692,9 @@ void MGL_EXPORT mgl_makemenu_fltk(Fl_Menu_ *m, Fl_MGLView *w)
 //-----------------------------------------------------------------------------
 void mglCanvasFL::Window(int argc, char **argv, int (*draw)(mglBase *gr, void *p), const char *title, void *par, void (*reload)(void *p), bool maximize)
 {
-	Fl::lock();
+	static bool first=true;
+	if(first)	{	Fl::lock();	first=false;	}
+
 	SetDrawFunc(draw, par, reload);
 	if(Wnd)	{	Wnd->label(title);	Wnd->show();	return;	}
 
@@ -707,7 +711,7 @@ void mglCanvasFL::Window(int argc, char **argv, int (*draw)(mglBase *gr, void *p
 	mgl->FMGL->set_draw(draw, par);
 
 	Wnd->end();
-	Wnd->resizable(mgl);	//w->graph);
+	Wnd->resizable(mgl);
 
 	if(maximize)
 	{
@@ -719,7 +723,8 @@ void mglCanvasFL::Window(int argc, char **argv, int (*draw)(mglBase *gr, void *p
 
 	static char ctmp[1];	ctmp[0]=0;
 	static char *tmp[1];	tmp[0]=ctmp;
-	Wnd->show(argv ? argc:0, argv ? argv:tmp);}
+	Wnd->show(argv ? argc:0, argv ? argv:tmp);
+}
 //-----------------------------------------------------------------------------
 HMGL MGL_EXPORT mgl_create_graph_fltk(int (*draw)(HMGL gr, void *p), const char *title, void *par, void (*load)(void *p))
 {

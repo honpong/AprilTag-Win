@@ -40,7 +40,7 @@
 #endif
 
 inline bool isn(char ch)	{return ch=='\n';}
-mglData MGL_NO_EXPORT mglFormulaCalc(const char *str, const std::vector<mglDataA*> &head);
+HMDT MGL_NO_EXPORT mglFormulaCalc(const char *str, const std::vector<mglDataA*> &head);
 //-----------------------------------------------------------------------------
 HMDT MGL_EXPORT mgl_create_data()	{	return new mglData;	}
 HMDT MGL_EXPORT mgl_create_data_size(long nx, long ny, long nz){	return new mglData(nx,ny,nz);	}
@@ -903,7 +903,7 @@ void MGL_EXPORT mgl_data_modify_vw(HMDT d, const char *eq,HCDT vdat,HCDT wdat)
 	list.push_back(&x);	list.push_back(&y);	list.push_back(&z);	list.push_back(d);
 	list.push_back(&v);	list.push_back(&w);	list.push_back(&r);
 	list.push_back(&i);	list.push_back(&j);	list.push_back(&k);
-	d->Set(mglFormulaCalc(eq,list));	d->s = s;
+	d->Move(mglFormulaCalc(eq,list));	d->s = s;
 }
 void MGL_EXPORT mgl_data_modify_vw_(uintptr_t *d, const char *eq, uintptr_t *v, uintptr_t *w,int l)
 {	char *s=new char[l+1];	memcpy(s,eq,l);	s[l]=0;
@@ -1181,8 +1181,7 @@ HMDT MGL_EXPORT mgl_data_column(HCDT dat, const char *eq)
 	if(list.size()==0)	return 0;	// no named columns
 	mglDataV *t = new mglDataV(dat->GetNy(),dat->GetNz());
 	t->s=L"#$mgl";	list.push_back(t);
-	mglData *r = new mglData;
-	r->Set(mglFormulaCalc(eq,list));
+	HMDT r = mglFormulaCalc(eq,list);
 	for(size_t i=0;i<list.size();i++)	delete list[i];
 	return r;
 }

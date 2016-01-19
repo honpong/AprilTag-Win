@@ -326,7 +326,7 @@ void MGL_EXPORT mgl_plot_xyz(HMGL gr, HCDT x, HCDT y, HCDT z, const char *pen, c
 		for(long i=0;i<n;i++)
 		{
 			if(i>0)	{	n2=n1;	p2 = p1;	t2=t1;	}
-			p1 = mglPoint(x->v(i,mx), y->v(i,my), z->v(i,mz));
+			p1.Set(x->v(i,mx), y->v(i,my), z->v(i,mz));
 			mreal c = sh ? gr->NextColor(pal,i):gr->CDef;
 			n1 = gr->AddPnt(p1,c);	t1 = n1>=0;
 			if(mk && t1)	gr->mark_plot(n1,mk);
@@ -418,7 +418,7 @@ void MGL_EXPORT mgl_tens_xyz(HMGL gr, HCDT x, HCDT y, HCDT z, HCDT c, const char
 		for(i=0;i<n;i++)
 		{
 			if(i>0)	{	n2=n1;	p2=p1;	t2=t1;	}
-			p1 = mglPoint(x->v(i,mx), y->v(i,my), z->v(i,mz), c->v(i,mc));
+			p1.Set(x->v(i,mx), y->v(i,my), z->v(i,mz), c->v(i,mc));
 			n1 = gr->AddPnt(p1,gr->GetC(ss,p1.c));	t1 = n1>=0;
 			if(mk && t1)	gr->mark_plot(n1,mk);
 			if(t1 && t2)
@@ -509,15 +509,15 @@ void MGL_EXPORT mgl_area_xyz(HMGL gr, HCDT x, HCDT y, HCDT z, const char *pen, c
 		if(gr->GetNumPal(pal)==2*m && !sh)	c2 = gr->NextColor(pal);
 		long mx = j<x->GetNy() ? j:0, my = j<y->GetNy() ? j:0, mz = j<z->GetNy() ? j:0;
 
-		nn = mglPoint(-y->dvx(0,my),x->dvx(0,mx));
-		mglPoint p = mglPoint(x->v(0,mx),y->v(0,my),z->v(0,mz));
+		nn.Set(-y->dvx(0,my),x->dvx(0,mx));
+		mglPoint p(x->v(0,mx),y->v(0,my),z->v(0,mz));
 		long n1 = gr->AddPnt(p,c1,nn,-1,11);	p.z = z0;
 		long n2 = gr->AddPnt(p,c2,nn,-1,11);
 		for(long i=1;i<n;i++)
 		{
 			long n3=n1, n4=n2;
-			nn = mglPoint(-y->dvx(i,my),x->dvx(i,mx));
-			p = mglPoint(x->v(i,mx),y->v(i,my),z->v(i,mz));
+			nn.Set(-y->dvx(i,my),x->dvx(i,mx));
+			p.Set(x->v(i,mx),y->v(i,my),z->v(i,mz));
 			if(sh)	c2=c1=gr->NextColor(pal,i);
 			n1 = gr->AddPnt(p,c1,nn,-1,11);	p.z = z0;	n2 = gr->AddPnt(p,c2,nn,-1,11);
 			if(wire)
@@ -541,7 +541,7 @@ void MGL_EXPORT mgl_area_xy(HMGL gr, HCDT x, HCDT y, const char *pen, const char
 	mreal zm = gr->AdjustZMin();
 	mreal y0=gr->GetOrgY('x');
 	mreal c1,c2;
-	mglPoint nn=mglPoint(0,0,1);
+	mglPoint nn(0,0,1);
 	bool sh = mglchr(pen,'!');
 	bool wire = mglchr(pen,'#');
 
@@ -555,13 +555,13 @@ void MGL_EXPORT mgl_area_xy(HMGL gr, HCDT x, HCDT y, const char *pen, const char
 		long mx = j<x->GetNy() ? j:0, my = j<y->GetNy() ? j:0;
 		mreal z0 = zm + (m-1-j)*(gr->Max.z-zm)/m;
 
-		mglPoint p = mglPoint(x->v(0,mx),y->v(0,my),z0);
+		mglPoint p(x->v(0,mx),y->v(0,my),z0);
 		long n1 = gr->AddPnt(p,c1,nn,-1,11);	p.y = y0;
 		long n2 = gr->AddPnt(p,c2,nn,-1,11);
 		for(long i=1;i<n;i++)
 		{
 			long n3=n1, n4=n2;
-			p = mglPoint(x->v(i,mx),y->v(i,my),z0);
+			p.Set(x->v(i,mx),y->v(i,my),z0);
 			if(sh)	c2=c1=gr->NextColor(pal,i);
 			n1 = gr->AddPnt(p,c1,nn,-1,11);	p.y = y0;	n2 = gr->AddPnt(p,c2,nn,-1,11);
 			if(wire)
@@ -616,7 +616,7 @@ void MGL_EXPORT mgl_region_3d(HMGL gr, HCDT x1, HCDT y1, HCDT z1, HCDT x2, HCDT 
 	gr->SaveState(opt);
 	static int cgid=1;	gr->StartGroup("Region",cgid++);
 	mreal c1,c2;
-	mglPoint nn=mglPoint(0,0,1);
+	mglPoint nn(0,0,1);
 	mreal zm = gr->AdjustZMin();
 //	bool inside = (mglchr(pen,'i'));	// NOTE: check if 'i' is free (used here for inside flag)
 	bool sh = mglchr(pen,'!');
@@ -654,7 +654,7 @@ void MGL_EXPORT mgl_region_xy(HMGL gr, HCDT x, HCDT y1, HCDT y2, const char *pen
 	gr->SaveState(opt);
 	static int cgid=1;	gr->StartGroup("Region",cgid++);
 	mreal c1,c2;
-	mglPoint nn=mglPoint(0,0,1);
+	mglPoint nn(0,0,1);
 	mreal zm = gr->AdjustZMin();
 	bool inside = (mglchr(pen,'i'));	// NOTE: check if 'i' is free (used here for inside flag)
 	bool sh = mglchr(pen,'!');
@@ -734,7 +734,7 @@ void MGL_EXPORT mgl_step_xyz(HMGL gr, HCDT x, HCDT y, HCDT z, const char *pen, c
 		for(long i=1;i<n;i++)
 		{
 			long n2 = n1;	// horizontal
-			p = mglPoint(x->v(i,mx), y->v(i,my), z->v(i-1,mz));
+			p.Set(x->v(i,mx), y->v(i,my), z->v(i-1,mz));
 			mreal c = sh ? gr->NextColor(pal,i):gr->CDef;
 			n1 = gr->AddPnt(p,c);	gr->line_plot(n1,n2);
 			if(i==1)	gr->arrow_plot(n2,n1,gr->Arrow1);
@@ -772,7 +772,7 @@ void MGL_EXPORT mgl_step_xy(HMGL gr, HCDT x, HCDT y, const char *pen, const char
 		for(long i=1;i<n;i++)
 		{
 			long n2 = n1;	// horizontal
-			p = mglPoint(x->v(i,mx), y->v(i-1,my), zVal);
+			p.Set(x->v(i,mx), y->v(i-1,my), zVal);
 			mreal c = sh ? gr->NextColor(pal,i):gr->CDef;
 			n1 = gr->AddPnt(p,c);	gr->line_plot(n1,n2);
 			if(i==1)	gr->arrow_plot(n2,n1,gr->Arrow1);
@@ -946,7 +946,7 @@ void MGL_EXPORT mgl_bars_xyz(HMGL gr, HCDT x, HCDT y, HCDT z, const char *pen, c
 			if(fall)	{	z0 = zp;	zz += z0;	zp = zz;	}
 
 			mreal c = vv<0 ? c1 : c2;
-			mglPoint nn = mglPoint(-y->dvx(i,my),x->dvx(i,mx));
+			mglPoint nn(-y->dvx(i,my),x->dvx(i,mx));
 			long n1 = gr->AddPnt(mglPoint(x1,y1,zz),c,nn);
 			long n2 = gr->AddPnt(mglPoint(x1,y1,z0),c,nn);
 			long n3 = gr->AddPnt(mglPoint(x2,y2,z0),c,nn);
@@ -1662,9 +1662,9 @@ void MGL_EXPORT mgl_tube_xyzr(HMGL gr, HCDT x, HCDT y, HCDT z, HCDT r, const cha
 		long mz = j<z->GetNy() ? j:0, mr = j<r->GetNy() ? j:0;
 		for(long i=0;i<n;i++)
 		{
-			l = mglPoint(x->dvx(i,mx),y->dvx(i,my),z->dvx(i,mz));
+			l.Set(x->dvx(i,mx),y->dvx(i,my),z->dvx(i,mz));
 			t = !l;		t.Normalize();	u = t^l;	u.Normalize();
-			q = mglPoint(x->v(i,mx),y->v(i,my),z->v(i,mz));
+			q.Set(x->v(i,mx),y->v(i,my),z->v(i,mz));
 			mreal rr=r->v(i,mr), dr=r->dvx(i,mr);
 			mreal c = sh ? gr->NextColor(pal,i):gr->CDef;
 			for(long k=0;k<num;k++)
@@ -1774,7 +1774,7 @@ void MGL_EXPORT mgl_tape_xyz(HMGL gr, HCDT x, HCDT y, HCDT z, const char *pen, c
 	if(rr==0 || mgl_isnan(rr))	rr = mgl_norm(gr->Max-gr->Min)*gr->BarWidth/25;
 	m = x->GetNy() > y->GetNy() ? x->GetNy() : y->GetNy();	m = z->GetNy() > m ? z->GetNy() : m;
 	gr->SetPenPal(pen,&pal);	gr->Reserve(4*n*m);
-	mglPoint p1,p2,q1,q2,l,nn,qn=mglPoint(NAN,NAN);
+	mglPoint p1,p2,q1,q2,l,nn,qn(NAN,NAN);
 	long n1=-1,n2=-1,n3=-1,n4=-1, m1=-1,m2=-1,m3=-1,m4=-1;
 	bool sh = mglchr(pen,'!'), xo = mglchr(pen,'x'), zo = mglchr(pen,'z'), wire = mglchr(pen,'#');
 	if(!xo && !zo)	xo = zo = true;
@@ -1787,10 +1787,10 @@ void MGL_EXPORT mgl_tape_xyz(HMGL gr, HCDT x, HCDT y, HCDT z, const char *pen, c
 		if(gr->GetNumPal(pal)==2*m && !sh)	c2 = gr->NextColor(pal);
 		long mx = j<x->GetNy() ? j:0, my = j<y->GetNy() ? j:0, mz = j<z->GetNy() ? j:0;
 		// initial values for normales
-		p2 = mglPoint(x->v(0,mx), y->v(0,my), z->v(0,mz));
-		l = mglPoint(x->v(1,mx), y->v(1,my), z->v(1,mz)) - p2;	l /= mgl_norm(l);
-		q1 = mglPoint(-l.y,l.x,0);	ll = mgl_norm(q1);
-		if(ll)	q1 /= ll;	else	q1 = mglPoint(0,1,0);
+		p2.Set(x->v(0,mx), y->v(0,my), z->v(0,mz));
+		l.Set(x->v(1,mx)-p2.x, y->v(1,my)-p2.y, z->v(1,mz)-p2.z);	l /= mgl_norm(l);
+		q1.Set(-l.y,l.x,0);	ll = mgl_norm(q1);
+		if(ll)	q1 /= ll;	else	q1.Set(0,1,0);
 		q2 = (q1^l);
 		if(p2>gr->Min && p2<gr->Max)
 		{
@@ -1801,7 +1801,7 @@ void MGL_EXPORT mgl_tape_xyz(HMGL gr, HCDT x, HCDT y, HCDT z, const char *pen, c
 		register long i;
 		for(i=1;i<n;i++)
 		{
-			p1 = p2;	p2 = mglPoint(x->v(i,mx), y->v(i,my), z->v(i,mz));
+			p1 = p2;	p2.Set(x->v(i,mx), y->v(i,my), z->v(i,mz));
 			l = p2-p1;		l /= mgl_norm(l);
 			q1 -= l*(l*q1);	q1/= mgl_norm(q1);	q2 = (q1^l);
 			m1 = n1;	m2 = n2;	m3 = n3;	m4 = n4;

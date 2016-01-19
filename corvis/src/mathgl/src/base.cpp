@@ -105,18 +105,16 @@ mglBase::mglBase()
 	pthread_mutex_init(&mutexClf,0);
 	Pnt.set_mutex(&mutexClf);
 	Prm.set_mutex(&mutexClf);
-	Sub.set_mutex(&mutexClf);
 	Txt.set_mutex(&mutexClf);
 #endif
 #if MGL_HAVE_OMP
 	omp_init_lock(&lockClf);
 	Pnt.set_mutex(&lockClf);
 	Prm.set_mutex(&lockClf);
-	Sub.set_mutex(&lockClf);
 	Txt.set_mutex(&lockClf);
 #endif
 	fnt=0;	*FontDef=0;	fx=fy=fz=fa=fc=0;
-	AMin = mglPoint(0,0,0,0);	AMax = mglPoint(1,1,1,1);
+	AMin.Set(0,0,0,0);	AMax.Set(1,1,1,1);
 
 	InUse = 1;	SetQuality();	FaceNum = 0;
 	// Always create default palette txt[0] and default scheme txt[1]
@@ -126,14 +124,13 @@ mglBase::mglBase()
 	MGL_PUSH(Txt,t2,mutexTxt);
 
 	strcpy(last_style,"__1 {dFFFF}k\0");
-	MinS=mglPoint(-1,-1,-1);	MaxS=mglPoint(1,1,1);
+	MinS.Set(-1,-1,-1);	MaxS.Set(1,1,1);
 	fnt = new mglFont;	fnt->gr = this;	PrevState=NAN;
 }
 mglBase::~mglBase()
 {
 	ClearEq();	ClearPrmInd();	delete fnt;
-	Pnt.set_mutex(0);	Prm.set_mutex(0);
-	Sub.set_mutex(0);	Txt.set_mutex(0);
+	Pnt.set_mutex(0);	Prm.set_mutex(0);	Txt.set_mutex(0);
 #if MGL_HAVE_OMP
 	omp_destroy_lock(&lockClf);
 #endif
@@ -193,7 +190,8 @@ const char *mglWarn[mglWarnEnd] = {"data dimension(s) is incompatible",	//mglWar
 								"There are wrong argument(s) in script",//mglScrArg
 								"There are wrong command in script",	//mglScrCmd
 								"There are too long string in script",	//mglScrLong
-								"There are unbalanced ' in script"};	//mglScrStr
+								"There are unbalanced ' in script",		//mglScrStr
+								"There are changing temporary data in script"};	//mglScrTemp
 //-----------------------------------------------------------------------------
 extern bool mglPrintWarn;
 void mglBase::SetWarn(int code, const char *who)
@@ -296,7 +294,7 @@ long mglBase::AddPnt(const mglMatrix *mat, mglPoint p, mreal c, mglPoint n, mrea
 	if(!get(MGL_ENABLE_ALPHA))	{	q.a=1;	if(txt.Smooth!=2)	q.ta=1-gap;	}
 	if(norefr)	q.v=0;
 	if(!get(MGL_ENABLE_LIGHT) && !(scl&4))	q.u=q.v=NAN;
-	if(mat->norot)	q.sub=-1;	// NOTE: temporary -- later should be mglInPlot here
+	q.sub=mat->norot?-Sub.size():Sub.size()-1;
 	long k;
 #pragma omp critical(pnt)
 	{k=Pnt.size();	MGL_PUSH(Pnt,q,mutexPnt);}	return k;
@@ -364,8 +362,8 @@ void mglBase::RecalcBorder()
 	{	FMin = Min;	FMax = Max;	}
 	else
 	{
-		FMin = mglPoint( INFINITY, INFINITY, INFINITY);
-		FMax = mglPoint(-INFINITY,-INFINITY,-INFINITY);
+		FMin.Set( INFINITY, INFINITY, INFINITY);
+		FMax.Set(-INFINITY,-INFINITY,-INFINITY);
 		register int i,j;
 		int n=30;
 		for(i=0;i<=n;i++)	for(j=0;j<=n;j++)	// x range
@@ -444,12 +442,12 @@ bool mglBase::ScalePoint(const mglMatrix *, mglPoint &p, mglPoint &n, bool use_n
 	}
 	else
 	{
-		if(x1<Min.x)	{x=Min.x;	n=mglPoint(1,0,0);}
-		if(x2>Max.x)	{x=Max.x;	n=mglPoint(1,0,0);}
-		if(y1<Min.y)	{y=Min.y;	n=mglPoint(0,1,0);}
-		if(y2>Max.y)	{y=Max.y;	n=mglPoint(0,1,0);}
-		if(z1<Min.z)	{z=Min.z;	n=mglPoint(0,0,1);}
-		if(z2>Max.z)	{z=Max.z;	n=mglPoint(0,0,1);}
+		if(x1<Min.x)	{x=Min.x;	n.Set(1,0,0);}
+		if(x2>Max.x)	{x=Max.x;	n.Set(1,0,0);}
+		if(y1<Min.y)	{y=Min.y;	n.Set(0,1,0);}
+		if(y2>Max.y)	{y=Max.y;	n.Set(0,1,0);}
+		if(z1<Min.z)	{z=Min.z;	n.Set(0,0,1);}
+		if(z2>Max.z)	{z=Max.z;	n.Set(0,0,1);}
 	}
 
 	x1=x;	y1=y;	z1=z;
@@ -512,7 +510,7 @@ void mglScaleAxis(mreal &v1, mreal &v2, mreal &v0, mreal x1, mreal x2)
 //-----------------------------------------------------------------------------
 void mglBase::SetOrigin(mreal x0, mreal y0, mreal z0, mreal c0)
 {
-	Org=mglPoint(x0,y0,z0,c0);
+	Org.Set(x0,y0,z0,c0);
 	if((TernAxis&3)==0)
 	{
 		Min = OMin;	Max = OMax;
@@ -547,7 +545,7 @@ void mglBase::SetRanges(mglPoint m1, mglPoint m2)
 		mglScaleAxis(Min.c, Max.c, Org.c, AMin.c, AMax.c);
 	}
 
-	CutMin = mglPoint(0,0,0);	CutMax = mglPoint(0,0,0);
+	CutMin.Set(0,0,0);	CutMax.Set(0,0,0);
 	RecalcBorder();
 }
 //-----------------------------------------------------------------------------
@@ -709,7 +707,7 @@ void mglBase::Ternary(int t)
 	{
 		if(c)	{	x1 = Min;	x2 = Max;	o = Org;	}
 		SetRanges(mglPoint(0,0,0),mglPoint(1,1,(t&3)==1?0:1));
-		Org=mglPoint(0,0,(t&3)==1?NAN:0);	c = false;
+		Org.Set(0,0,(t&3)==1?NAN:0);	c = false;
 	}
 	else if(!c)	{	SetRanges(x1,x2);	Org=o;	c=true;	}
 }
@@ -858,8 +856,8 @@ void mglTexture::Set(const char *s, int smooth, mreal alpha)
 		if(strchr(MGL_COLORS,s[i]) && j<1 && (m==0 || s[i-1]=='{'))	// {CN,val} format, where val in [0,1]
 		{
 			if(m>0 && s[i+1]>'0' && s[i+1]<='9')// ext color
-			{	c[2*n] = mglColor(s[i],(s[i+1]-'0')/5.f);	i++;	}
-			else	c[2*n] = mglColor(s[i]);	// usual color
+			{	c[2*n].Set(s[i],(s[i+1]-'0')/5.f);	i++;	}
+			else	c[2*n].Set(s[i]);	// usual color
 			val[n]=-1;	c[2*n].a = -1;	n++;
 		}
 		if(s[i]=='x' && i>0 && s[i-1]=='{' && j<1)	// {xRRGGBB,val} format, where val in [0,1]
@@ -885,7 +883,7 @@ void mglTexture::Set(const char *s, int smooth, mreal alpha)
 		c[2*i+1]=c[2*i];
 		if(man)	c[2*i].a=0;
 	}
-	if(map && sm)		// map texture
+	if(map && sm && n>1)		// map texture
 	{
 		if(n==2)
 		{	c[1]=c[2];	c[2]=c[0];	c[0]=BC;	c[3]=c[1]+c[2];	}
@@ -1008,7 +1006,7 @@ mreal mglBase::NextColor(long id, long sh)
 	return cc;
 }
 //-----------------------------------------------------------------------------
-MGL_EXPORT_PURE const char *mglchrs(const char *str, const char *chr)
+MGL_EXPORT const char *mglchrs(const char *str, const char *chr)
 {
 	if(!str || !str[0] || !chr || !chr[0])	return NULL;
 	size_t l=strlen(chr);
@@ -1020,7 +1018,7 @@ MGL_EXPORT_PURE const char *mglchrs(const char *str, const char *chr)
 	return NULL;
 }
 //-----------------------------------------------------------------------------
-MGL_EXPORT_PURE const char *mglchr(const char *str, char ch)
+MGL_EXPORT const char *mglchr(const char *str, char ch)
 {
 	if(!str || !str[0])	return NULL;
 	size_t l=strlen(str),k=0;
@@ -1209,8 +1207,10 @@ int MGL_LOCAL_PURE mglFindArg(const char *str)
 	return 0;
 }
 //-----------------------------------------------------------------------------
-void mglBase::SetAmbient(mreal bright)	{	AmbBr = bright;	}
-void mglBase::SetDiffuse(mreal bright)	{	DifBr = bright;	}
+void mglBase::SetAmbient(mreal bright)
+{	AmbBr=bright;	size_t n=Sub.size();	if(n>0)	Sub[n-1].AmbBr=bright;	}
+void mglBase::SetDiffuse(mreal bright)
+{	DifBr=bright;	size_t n=Sub.size();	if(n>0)	Sub[n-1].DifBr=bright;	}
 //-----------------------------------------------------------------------------
 mreal mglBase::SaveState(const char *opt)
 {
@@ -1363,10 +1363,10 @@ bool MGL_EXPORT mgl_check_dim3(HMGL gr, bool both, HCDT x, HCDT y, HCDT z, HCDT 
 bool MGL_EXPORT mgl_check_trig(HMGL gr, HCDT nums, HCDT x, HCDT y, HCDT z, HCDT a, const char *name, int d)
 {
 // 	if(!gr || !x || !y || !z || !a || !nums)	return true;		// if data is absent then should be segfault!!!
-	long n = x->GetNx(), m = nums->GetNy();
+	long n = x->GetNN(), m = nums->GetNy();
 	if(nums->GetNx()<d)	{	gr->SetWarn(mglWarnLow,name);	return true;	}
-	if(y->GetNx()!=n || z->GetNx()!=n)	{	gr->SetWarn(mglWarnDim,name);	return true;	}
-	if(a->GetNx()!=m && a->GetNx()!=n)	{	gr->SetWarn(mglWarnDim,name);	return true;	}
+	if(y->GetNN()!=n || z->GetNN()!=n)	{	gr->SetWarn(mglWarnDim,name);	return true;	}
+	if(a->GetNN()!=m && a->GetNN()!=n)	{	gr->SetWarn(mglWarnDim,name);	return true;	}
 	return false;
 }
 //-----------------------------------------------------------------------------

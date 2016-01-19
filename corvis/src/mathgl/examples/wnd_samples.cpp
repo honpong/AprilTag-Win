@@ -406,19 +406,19 @@ int sample_d(mglGraph *gr)
 
 	gr->NewFrame();
 	gr->Box();	gr->Axis("xy");
-	gr->Puts(mglPoint(0,1.2,1),"Vector field (color ~ \\sqrt{a^2})","rC",8);
+	gr->Puts(mglPoint(0,1.2,1),"Vector field (color ~ \\sqrt{a^2})",":rC",8);
 	gr->Vect(a,b,"","value 50");
 	gr->EndFrame();
 
 	gr->NewFrame();
 	gr->Box();	gr->Axis("xy");
-	gr->Puts(mglPoint(0,1.2,1),"Vector field (length ~ \\sqrt{a^2})","rC",8);
+	gr->Puts(mglPoint(0,1.2,1),"Vector field (length ~ \\sqrt{a^2})",":rC",8);
 	gr->Vect(a,b);
 	gr->EndFrame();
 
 	gr->NewFrame();
 	gr->Box();	gr->Axis("xy");
-	gr->Puts(mglPoint(0,1.2,1),"Flow chart (blue - source)","rC",8);
+	gr->Puts(mglPoint(0,1.2,1),"Flow chart (blue - source)",":rC",8);
 	gr->Flow(a,b);
 	gr->EndFrame();
 

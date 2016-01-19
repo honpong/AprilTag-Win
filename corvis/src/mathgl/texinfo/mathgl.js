@@ -236,7 +236,7 @@ var mgl_draw_good = function(obj, ctx, skip)
 	for(var i=0;i<obj.nprim;i++)	// for each primitive
 	{
 		var prim = obj.prim[i];
-		mgl_draw_prim(obj,ctx,prim,obj.pnts[prim[1]][3]?s2:s1);
+		mgl_draw_prim(obj,ctx,prim,obj.pnts[prim[1]][3]<0?s2:s1);
 	}
 	obj.good = 0;
 }
@@ -286,7 +286,14 @@ var mgl_draw_prim = function(obj, ctx, prim, scl)
 		var xx=obj.coor[n2][2]/100,yy=-obj.coor[n2][3]/100,zz=obj.coor[n2][4]/100;
 		var xc = obj.b[0]*xx + obj.b[1]*yy + obj.b[2]*zz;
 		var yc = obj.b[3]*xx + obj.b[4]*yy + obj.b[5]*zz;
-//			var zc = obj.b[6]*xx + obj.b[7]*yy + obj.b[8]*zz;
+		var zc = obj.b[6]*xx + obj.b[7]*yy + obj.b[8]*zz;
+
+		var dv = (1-obj.pf/1.37)/(1-obj.pf*obj.pp[i][2]/obj.depth);
+		var cv = obj.pf/(1-obj.pf/1.37)/obj.depth;
+		xc += (obj.pp[n1][0]-obj.b[9])*zc*cv;//*dv;
+		yc += (obj.pp[n1][1]-obj.b[10])*zc*cv;//*dv;
+		if(obj.pnts[n1][3]<0)	{	xc=xx;	yc=yy;	}
+
 		var ll = xc*xc+yc*yc;
 		if(ll < 1e-10)	break;
 		if(ll<1e10 && t/deg<1e4)
@@ -338,7 +345,7 @@ var mgl_prepare = function(obj, skip)
 		var x = obj.pnts[i][0]-obj.width/2;
 		var y = obj.pnts[i][1]-obj.height/2;
 		var z = obj.pnts[i][2]-obj.depth/2;
-		if(obj.pnts[i][3]==0)	// TODO: check later when mglInPlot will be ready
+		if(obj.pnts[i][3]>=0)	// TODO: check later when mglInPlot will be ready
 			obj.pp[i] = [b[9]  + b[0]*x + b[1]*y + b[2]*z,
 						b[10] + b[3]*x + b[4]*y + b[5]*z,
 						b[11] + b[6]*x + b[7]*y + b[8]*z];
@@ -347,8 +354,8 @@ var mgl_prepare = function(obj, skip)
 	}
 	if(obj.pf)	for(var i=0;i<obj.npnts;i++)	// perspective
 	{	// NOTE: it is not supported for coordinate determining now
-		var d = (1-obj.pf)/(1-obj.pf*obj.pp[i][2]/obj.depth);
-		if(obj.pnts[i][3]==0)	// TODO: check later when mglInPlot will be ready
+		var d = (1-obj.pf/1.37)/(1-obj.pf*obj.pp[i][2]/obj.depth);
+		if(obj.pnts[i][3]>=0)	// TODO: check later when mglInPlot will be ready
 		{
 			obj.pp[i][0] = d*obj.pp[i][0] + (1-d)/2*obj.width;
 			obj.pp[i][1] = d*obj.pp[i][1] + (1-d)/2*obj.height;

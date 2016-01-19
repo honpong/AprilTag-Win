@@ -44,9 +44,6 @@
 #include "mgl2/qt.h"
 //-----------------------------------------------------------------------------
 #define MGL_MAX_LINES	(INT_MAX-1000)
-#if !defined(WIN32) && !defined(__APPLE__)
-#include <X11/Xlib.h>
-#endif
 //-----------------------------------------------------------------------------
 /// Base class for windows containing MathGL graphics
 class mglCanvasQT : public mglCanvasWnd
@@ -58,7 +55,7 @@ using mglCanvasWnd::Window;
 	QMainWindow *Wnd;	///< Pointer to window
 
 	mglCanvasQT();
-    virtual ~mglCanvasQT() {	if(Wnd)	delete Wnd;	}
+    virtual ~mglCanvasQT();
 
 	/// Create a window for plotting. Now implemeted only for GLUT.
 	void Window(int argc, char **argv, int (*draw)(mglBase *gr, void *p),const char *title,
@@ -133,6 +130,7 @@ QMathGL::QMathGL(QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f)
 	enableWheel = enableMouse = true;
 	connect(timer, SIGNAL(timeout()), this, SLOT(nextSlide()));
 	connect(timerRefr, SIGNAL(timeout()), this, SLOT(refreshHQ()));
+	sclS = 0.25;	sclZ = 0.5;
 
 /*	thread = new QThread();
 	task = new mglTask();	task->moveToThread(thread);
@@ -259,31 +257,35 @@ void QMathGL::setCustZoom(bool z)	{	custZoom = z;	}
 //-----------------------------------------------------------------------------
 void QMathGL::setCustDraw(bool z)	{	custDraw = z;	}
 //-----------------------------------------------------------------------------
+void QMathGL::setZoomScl(double s)	{	if(s>0)	sclZ = s;	}
+//-----------------------------------------------------------------------------
+void QMathGL::setShiftScl(double s)	{	if(s)	sclS = s;	}
+//-----------------------------------------------------------------------------
 void QMathGL::shiftDown()
-{	mreal d=(y2-y1)/4;	y1+=d;	y2+=d;	refresh();	}
+{	mreal d=(y2-y1)*sclS;	y1+=d;	y2+=d;	refresh();	}
 //-----------------------------------------------------------------------------
 void QMathGL::shiftUp()
-{	mreal d=(y2-y1)/4;	y1-=d;	y2-=d;	refresh();	}
+{	mreal d=(y2-y1)*sclS;	y1-=d;	y2-=d;	refresh();	}
 //-----------------------------------------------------------------------------
 void QMathGL::shiftRight()
-{	mreal d=(x2-x1)/4;	x1-=d;	x2-=d;	refresh();	}
+{	mreal d=(x2-x1)*sclS;	x1-=d;	x2-=d;	refresh();	}
 //-----------------------------------------------------------------------------
 void QMathGL::shiftLeft()
-{	mreal d=(x2-x1)/4;	x1+=d;	x2+=d;	refresh();	}
+{	mreal d=(x2-x1)*sclS;	x1+=d;	x2+=d;	refresh();	}
 //-----------------------------------------------------------------------------
 void QMathGL::zoomIn()
 {
 	mreal d,c;
-	d = (y2-y1)/4;	c = (y2+y1)/2;	y1 = c-d;	y2 = c+d;
-	d = (x2-x1)/4;	c = (x2+x1)/2;	x1 = c-d;	x2 = c+d;
+	d = (y2-y1)*sclZ/2;	c = (y2+y1)/2;	y1 = c-d;	y2 = c+d;
+	d = (x2-x1)*sclZ/2;	c = (x2+x1)/2;	x1 = c-d;	x2 = c+d;
 	refresh();
 }
 //-----------------------------------------------------------------------------
 void QMathGL::zoomOut()
 {
 	mreal d,c;
-	d = (y2-y1);	c = (y2+y1)/2;	y1 = c-d;	y2 = c+d;
-	d = (x2-x1);	c = (x2+x1)/2;	x1 = c-d;	x2 = c+d;
+	d = (y2-y1)/sclZ/2;	c = (y2+y1)/2;	y1 = c-d;	y2 = c+d;
+	d = (x2-x1)/sclZ/2;	c = (x2+x1)/2;	x1 = c-d;	x2 = c+d;
 	refresh();
 }
 //-----------------------------------------------------------------------------
@@ -652,9 +654,9 @@ void QMathGL::wheelEvent(QWheelEvent *ev)
 void QMathGL::imgSize(int w, int h)
 {	if(w>0 && h>0)	{	mgl_set_size(gr,w,h);	update();	}	}
 //-----------------------------------------------------------------------------
-QString setExtension(QString &fname, const char *ext)
+QString setExtension(const QString &fname, const char *ext)
 {
-	QString oname;
+	QString oname=fname;
 	if(fname.right(4)!="."+QString(ext))	oname = fname+"."+QString(ext);
 	return oname;
 }
@@ -930,7 +932,7 @@ void QMathGL::prevSlide()
 //-----------------------------------------------------------------------------
 void QMathGL::animation(bool st)
 {
-	if(st)	timer->stop();
+	if(!st)	timer->stop();
 	else	timer->start(int(mgl_wnd_get_delay(gr)*1000));
 }
 //-----------------------------------------------------------------------------
@@ -985,6 +987,8 @@ void QMathGL::addText(QString txt)
 //-----------------------------------------------------------------------------
 mglCanvasQT::mglCanvasQT() : mglCanvasWnd()
 {	Wnd = 0;	}
+mglCanvasQT::~mglCanvasQT()
+{	if(Wnd)	delete Wnd;	}
 //-----------------------------------------------------------------------------
 void mglCanvasQT::GotoFrame(int d)
 {
@@ -994,7 +998,12 @@ void mglCanvasQT::GotoFrame(int d)
 	if(GetNumFig()>0 && d)	{	SetCurFig(f);	QMGL->refresh();	}
 }
 //-----------------------------------------------------------------------------
-void mglCanvasQT::Animation()	{	QMGL->animation(true);	}
+void mglCanvasQT::Animation()
+{
+	static bool start=true;
+	QMGL->animation(start);
+	start = !start;
+}
 //-----------------------------------------------------------------------------
 void mglCanvasQT::ToggleAlpha()	{	QMGL->setAlpha(!QMGL->getAlpha());	}
 //-----------------------------------------------------------------------------
@@ -1012,6 +1021,8 @@ void mglCanvasQT::Adjust()		{	QMGL->adjust();	}
 //-----------------------------------------------------------------------------
 void mglCanvasQT::Window(int argc, char **argv, int (*draw)(mglBase *gr, void *p), const char *title, void *par, void (*reload)(void *p), bool maximize)
 {
+	static char arg=0, *parg=&arg, **argv_=&parg;
+	static int argc_=0;
 	SetDrawFunc(draw, par, reload);
 	if(Wnd)
 	{
@@ -1024,15 +1035,10 @@ void mglCanvasQT::Window(int argc, char **argv, int (*draw)(mglBase *gr, void *p
 
 	if(!qApp)
 	{
-#if !defined(WIN32) && !defined(__APPLE__)
-		// try to fix possible multi-threading errors
-		// must be placed before ANY window creation
-		XInitThreads();
-#endif
-//		static char buf=0, *tmp=&buf;
-//		if(!argv)	{	argc = 1;	argv = &tmp;	}
-		if(!argv)	argc = 0;
-		QApplication *a = new QApplication(argc, argv);
+		QCoreApplication::setAttribute(Qt::AA_X11InitThreads);
+		if(!argv)	{	argc_ = 0;	argv_=&parg;	}
+		else		{	argc_ = argc;	argv_=argv;	}
+		QApplication *a = new QApplication(argc_, argv_);
 		a->connect(a, SIGNAL(lastWindowClosed()), a, SLOT(quit()));
 	}
 

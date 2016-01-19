@@ -41,6 +41,7 @@ struct MGL_EXPORT mglPoint
 #if MGL_HAVE_RVAL
 	mglPoint(mglPoint &&d):x(d.x),y(d.y),z(d.z),c(d.c)	{}
 #endif
+	inline void Set(mreal X=0,mreal Y=0,mreal Z=0,mreal C=0)	{x=X;y=Y;z=Z;c=C;}
 	inline bool IsNAN()		{	return (x!=x || y!=y || z!=z || c!=c);	}
 	inline mreal val(int i)	{	return (i<2 ? (i==0 ? x:y) : (i==2 ? z:c));	}
 	inline mreal norm()		{	return sqrt(x*x+y*y+z*z);	}

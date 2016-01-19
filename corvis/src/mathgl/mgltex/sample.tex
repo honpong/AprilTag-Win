@@ -1,15 +1,24 @@
 \documentclass{article}
 
-\usepackage[png,comments]{mgltex}
+\usepackage[jpg,comments]{mgltex}
 
 \title{\mglTeX{} package example}
 \author{Diego Sejas Viscarra, Alexey Balakin}
 \date{\today}
-\mgldir{scripts/}
+
+\mgldir{MGL/}
+\mglscriptsdir{scripts/}
+\mglgraphicsdir{graphics/}
+\mglbackupsdir{backups/}
 
 \begin{mglcommon}
   define gravity 9.81
 \end{mglcommon}
+
+\begin{mglsignature}
+  This scripts was generated on date |today.
+\end{mglsignature}
+
 
 \begin{document}
   
@@ -50,11 +59,13 @@ As an alternative to this method of declaring signatures, the user can manually 
   \item Any \LaTeX{} command can be used in this case.
 \end{itemize}
   For example, the default signature:
+  \begin{mglcomment}
   \begin{quote}\small
     \mglcomm\\
     \mglcomm\ This script was generated from $<$document$>$.mgl on date $<$today$>$\\
     \mglcomm
   \end{quote}
+  \end{mglcomment}
   can be achieved with
   \begin{verbatim}
     \def\mgltexsignature{%
@@ -66,7 +77,7 @@ As an alternative to this method of declaring signatures, the user can manually 
 \item[mglcomment]
   Used to contain multiline commentaries. This commentaries will be visible/invisible in the output document, depending on the use of the package options \texttt{comments} and \texttt{nocomments} (see above), or the \texttt{\mglcomments} and \texttt{\mglnocomments} commands (see bellow).
   
-  When, bisible, the comment will appear like this:
+  When, visible, the comment will appear like this:
   \begin{center}
     \makeatletter
     \verbatim@font
@@ -371,32 +382,31 @@ An example of usage of \texttt{\textbackslash{}mglplot} command would be:
 \end{figure}
 \end{verbatim}
 
-\begin{mglsetup}
+\begin{mglsetup}{generic}
   box '@{W9}' : axis
 \end{mglsetup}
-\begin{mglsetup}[2d]
+\begin{mglsetup}{2d}
   box : axis
   grid 'xy' ';k'
 \end{mglsetup}
-\begin{mglsetup}[3d]
+\begin{mglsetup}{3d}
   rotate 50 60
   box : axis : grid 'xyz' ';k'
 \end{mglsetup}
 \begin{figure}[!ht]
   \centering
-  \mglplot[scale=0.5]{new a 200 'sin(pi*x)':plot a '2B'}
+  \mglplot[scale=0.5,setup=generic]{new a 200 'x' : fplot 'sin(pi*x)' '2R' : plot a '2B'}
 \end{figure}
 \begin{figure}[!ht]
   \centering
-  \mglplot[scale=0.5,setup=2d]{
-    fplot 'sin(pi*x)' '2B' :
-    fplot 'cos(pi*x^2)' '2R'
+  \mglplot[scale=0.5,setup=2d]{%
+    fplot 'sin(pi*x)' '2B' :%
+    fplot 'cos(pi*x^2)' '2R'%
   }
 \end{figure}
 \begin{figure}[!ht]
   \centering
-  \mglplot[width=0.5 \textwidth, setup=3d]
-  {fsurf 'sin(pi*x)+cos(pi*y)'}
+  \mglplot[width=0.5\textwidth, setup=3d]{fsurf 'sin(pi*x)+cos(pi*y)'}
 \end{figure}
 
 As an additional feature, when an image is not found or cannot be included, instead of issuing an error, \texttt{mgltex} prints a box with the word \emph{'MGL image not found'} in the LaTeX document.
@@ -459,7 +469,4 @@ The result is:
   \end{mgl}
 \end{figure}
 \mgltexon
-
-
-
 \end{document}

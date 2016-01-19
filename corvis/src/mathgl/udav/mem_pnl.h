@@ -1,5 +1,3 @@
-#ifndef MEM_PNL_H
-#define MEM_PNL_H
 /***************************************************************************
  *   Copyright (C) 2008 by Alexey Balakin                                  *
  *   mathgl.abalakin@gmail.com                                             *
@@ -19,6 +17,8 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
+#ifndef MEM_PNL_H
+#define MEM_PNL_H
 #include <QWidget>
 class InfoDialog;
 class QTableWidget;

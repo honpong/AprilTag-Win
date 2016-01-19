@@ -24,8 +24,9 @@ private:
     std::ifstream::pos_type size;
     std::atomic<uint64_t> packets_dispatched{0};
     std::atomic<uint64_t> bytes_dispatched{0};
-    std::atomic<double> path_length{0}; double reference_path_length{NAN};
-    std::atomic<double> length{0}; double reference_length{NAN};
+    std::mutex lengths_mutex;
+    double path_length{0}; double reference_path_length{NAN};
+    double length{0}; double reference_length{NAN};
     std::unique_ptr<tpose_sequence> reference_seq;
     std::atomic<bool> is_running{false};
     std::atomic<bool> is_paused{false};

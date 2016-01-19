@@ -19,10 +19,10 @@ public:
     quaternion(): data(1., 0., 0., 0.) {}
     quaternion(const f_t other0, const f_t other1, const f_t other2, const f_t other3): data(other0, other1, other2, other3) {}
     
-    const f_t w() const { return data[0]; }
-    const f_t x() const { return data[1]; }
-    const f_t y() const { return data[2]; }
-    const f_t z() const { return data[3]; }
+    f_t w() const { return data[0]; }
+    f_t x() const { return data[1]; }
+    f_t y() const { return data[2]; }
+    f_t z() const { return data[3]; }
     f_t &w() { return data[0]; }
     f_t &x() { return data[1]; }
     f_t &y() { return data[2]; }

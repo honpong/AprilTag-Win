@@ -102,7 +102,7 @@
 #elif defined(__MWERKS__) && defined(__INTEL__)
 #   define QHULL_OS_WIN
 #endif
-#if defined(__INTEL_COMPILER) && !defined(QHULL_OS_WIN)
+#if defined(__INTEL_COMPILER) && !defined(QHULL_OS_WIN) && defined(__cplusplus)
 template <typename T>
 inline void qhullUnused(T &x) { (void)x; }
 #  define QHULL_UNUSED(x) qhullUnused(x);

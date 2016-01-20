@@ -32,8 +32,8 @@ TEST(Matrix4, Determinant) {
 TEST(Vector4, Cross) {
     v4 vec(1.5, -.64, 4.1, 0.);
     v4 vec2(.08, 1.2, -.23, 0.);
-    EXPECT_V4_NEAR(cross(vec, vec2), skew3(vec) * vec2, 0) << "a x b = skew(a) * b";
-    EXPECT_V4_NEAR(cross(vec, vec2), skew3(vec2).transpose() * vec, 0) << "a x b = skew(b)^T * a";
+    EXPECT_V4_NEAR(cross(vec, vec2), skew3(vec) * vec2, F_T_EPS) << "a x b = skew(a) * b";
+    EXPECT_V4_NEAR(cross(vec, vec2), skew3(vec2).transpose() * vec, F_T_EPS) << "a x b = skew(b)^T * a";
 }
 
 static void test_rotation(const v4 &vec)

@@ -35,9 +35,22 @@ typedef NS_ENUM(int, RCLicenseStatus)
     RCLicenseStatusInvalid = 4
 };
 
+typedef NS_ENUM(int, RCLicenseRule)
+{
+    /** Checks license server every run. */
+    RCLicenseRuleStrict = 0,
+    /** Allows use if server can't be reached, unless we've received a denial in the past. */
+    RCLicenseRuleLax= 10,
+    /** Allows offline use of a specific bundle ID */
+    RCLicenseRuleBundleID = 20,
+    /** Allows unlimited use offline. No license checking. */
+    RCLicenseRuleOffline = 30
+};
+
 @interface RCLicenseValidator : NSObject
 
-@property (nonatomic) BOOL isLax;
+@property (nonatomic) RCLicenseRule licenseRule;
+@property (nonatomic) NSString* allowBundleID; // if licenseRule == RCLicenseRuleBundleID, allows offline use with this bundle ID only
 
 + (RCLicenseValidator*) initWithBundleId:(NSString*)bundleId withVendorId:(NSString*)vendorId withHTTPClient:(RCAFHTTPClient*)httpClient withUserDefaults:(NSUserDefaults*)userDefaults;
 

@@ -48,14 +48,11 @@
 
 #define ERROR_DOMAIN @"com.realitycap.ErrorDomain"
 
-#ifdef OFFLINE
-    #define SKIP_LICENSE_CHECK YES
+// this skips license checking in internal apps that include RC3DK as a project, instead of a static library
+#ifdef LIBRARY
+    #define SKIP_LICENSE_CHECK NO
 #else
-    #ifdef LIBRARY
-        #define SKIP_LICENSE_CHECK NO
-    #else
-        #define SKIP_LICENSE_CHECK YES
-    #endif
+    #define SKIP_LICENSE_CHECK YES
 #endif
 
 #endif

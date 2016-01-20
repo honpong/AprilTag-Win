@@ -76,14 +76,28 @@
 - (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int licenseType, int licenseStatus))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock
 {
     RCLicenseValidator* validator = [RCLicenseValidator initWithBundleId:[[NSBundle mainBundle] bundleIdentifier] withVendorId:[[[UIDevice currentDevice] identifierForVendor] UUIDString] withHTTPClient:HTTP_CLIENT withUserDefaults:NSUserDefaults.standardUserDefaults];
+    
 #ifdef LAX_LICENSE_VALIDATION
-    validator.isLax = YES;
+    validator.licenseRule = RCLicenseRuleLax;
 #endif
+    
+#ifdef VIEWAR_ONLY
+    validator.licenseRule = RCLicenseRuleBundleID;
+    validator.allowBundleID = @"com.viewar.kareshopguid";
+#endif
+    
+#ifdef OFFLINE
+    validator.licenseRule = RCLicenseRuleOffline;
+#endif
+
     [validator validateLicense:apiKey withCompletionBlock:completionBlock withErrorBlock:errorBlock];
 }
 
 - (void) validateLicenseInternal
 {
+#if SKIP_LICENSE_CHECK
+    return;
+#endif
     [self validateLicense:licenseKey withCompletionBlock:^(int licenseType, int licenseStatus) {
         isLicenseValid = YES;
     } withErrorBlock:^(NSError* error) {

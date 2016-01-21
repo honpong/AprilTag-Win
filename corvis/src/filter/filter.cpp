@@ -639,6 +639,11 @@ std::unique_ptr<image_depth16> filter_aligned_distorted_depth_to_intrinsics(cons
             }
         }
     }
+
+    for (int y = 0; y < height; y++)
+        for (int x = 0; x < width; x++)
+            if (out[y * width + x] == std::numeric_limits<uint16_t>::max())
+                out[y * width + x] = 0;
     return std::move(aligned_distorted_depth);
 }
 

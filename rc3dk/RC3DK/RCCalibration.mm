@@ -272,7 +272,7 @@
     }
     NSDictionary* postParams = @{ @"secret": @"BensTheDude", JSON_KEY_FLAG:[NSNumber numberWithInt: JsonBlobFlagCalibrationData], JSON_KEY_BLOB: jsonString };
     
-    [HTTP_CLIENT
+    [[RCPrivateHTTPClient sharedInstance]
      postPath:API_DATUM_LOGGED
      parameters:postParams
      success:^(RCAFHTTPRequestOperation *operation, id JSON)

@@ -30,7 +30,6 @@
 #define MOTION_MANAGER [RCMotionManager sharedInstance]
 #define LOCATION_MANAGER [RCLocationManager sharedInstance]
 #define USER_MANAGER [RCUserManager sharedInstance]
-#define HTTP_CLIENT [RCPrivateHTTPClient sharedInstance]
 
 #define DOCS_DIRECTORY [NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES) objectAtIndex:0]
 
@@ -48,11 +47,14 @@
 
 #define ERROR_DOMAIN @"com.realitycap.ErrorDomain"
 
-// this skips license checking in internal apps that include RC3DK as a project, instead of a static library
-#ifdef LIBRARY
-    #define SKIP_LICENSE_CHECK NO
-#else
+#ifdef OFFLINE
     #define SKIP_LICENSE_CHECK YES
+#else
+    #ifdef LIBRARY
+        #define SKIP_LICENSE_CHECK NO
+    #else
+        #define SKIP_LICENSE_CHECK YES
+    #endif
 #endif
 
 #endif

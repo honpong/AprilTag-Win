@@ -318,19 +318,4 @@
     [self waitForExpectationsWithTimeout:TIMEOUT handler:nil];
 }
 
-- (void) testOffline
-{
-    RCLicenseValidator* validator = [RCLicenseValidator initWithBundleId:BUNDLE_ID withVendorId:VENDOR_ID withHTTPClient:HTTP_CLIENT withUserDefaults:NSUserDefaults.standardUserDefaults];
-    validator.licenseRule = RCLicenseRuleOffline;
-    
-    [validator validateLicense:@"garbage" withCompletionBlock:^(int licenseType, int licenseStatus) {
-        [responseArrived fulfill];
-    } withErrorBlock:^(NSError* error) {
-        [responseArrived fulfill];
-        XCTFail(@"%@", error.description);
-    }];
-    
-    [self waitForExpectationsWithTimeout:TIMEOUT handler:nil];
-}
-
 @end

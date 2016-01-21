@@ -40,27 +40,26 @@
 
 - (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int licenseType, int licenseStatus))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock
 {
-    if (self.licenseRule == RCLicenseRuleOffline)
+    if (SKIP_LICENSE_CHECK)
     {
-        DLog(@"Skipping license check");
+        DLog(@"Skipping license check.");
         if (completionBlock) completionBlock(RCLicenseTypeFull, RCLicenseStatusOK);
         return;
     }
-    
-    if (self.licenseRule == RCLicenseRuleBundleID && self.allowBundleID && self.allowBundleID.length > 0)
+    // everything below here should get optimized out by the compiler if we're in offline mode
+
+    if (self.licenseRule == RCLicenseRuleBundleID)
     {
-        if ([bundleId isEqualToString:self.allowBundleID])
+        if (self.allowBundleID && self.allowBundleID.length > 0 && [bundleId isEqualToString:self.allowBundleID])
         {
             if (completionBlock) completionBlock(RCLicenseTypeFull, RCLicenseStatusOK);
         }
         else
         {
-            if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorBundleIdMissing userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. Wrong bundle ID.", NSLocalizedFailureReasonErrorKey: @"Wrong bundle ID."}]);
+            if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorBundleIdMissing userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. Bad bundle ID.", NSLocalizedFailureReasonErrorKey: @"Bad bundle ID."}]);
         }
         return;
     }
-    
-    // everything below here should get optimized out by the compiler if we're skipping the license check
     
     if (apiKey == nil || apiKey.length == 0)
     {

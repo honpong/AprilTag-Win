@@ -43,8 +43,6 @@ typedef NS_ENUM(int, RCLicenseRule)
     RCLicenseRuleLax= 10,
     /** Allows offline use of a specific bundle ID */
     RCLicenseRuleBundleID = 20,
-    /** Allows unlimited use offline. No license checking. */
-    RCLicenseRuleOffline = 30
 };
 
 @interface RCLicenseValidator : NSObject

@@ -3227,7 +3227,7 @@
 					"LIBRARY=1",
 					"NDEBUG=1",
 					"ENABLE_QR=1",
-					"OFFLINE=1",
+					"VIEWAR_ONLY=1",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
@@ -3419,6 +3419,7 @@
 				32CD8E571AE04829009E88EC /* LibrarySunlayar */,
 				32036E9E1ACB2A5700FC0588 /* LibraryLax */,
 				32036E9F1ACB2A5700FC0588 /* LibraryOffline */,
+				EC88ECC61C4EECBB007E4FFF /* LibraryViewAR */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -3433,6 +3434,7 @@
 				32CD8E541AE04829009E88EC /* LibrarySunlayar */,
 				32CF160F1AC35E51008D13BD /* LibraryLax */,
 				32D8A0331A3B924C00EAB150 /* LibraryOffline */,
+				EC88ECC31C4EECBB007E4FFF /* LibraryViewAR */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -3447,6 +3449,7 @@
 				32CD8E551AE04829009E88EC /* LibrarySunlayar */,
 				32CF16101AC35E51008D13BD /* LibraryLax */,
 				32D8A0341A3B924C00EAB150 /* LibraryOffline */,
+				EC88ECC41C4EECBB007E4FFF /* LibraryViewAR */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -3460,6 +3463,7 @@
 				D35BF0C91ADD111500BF3CB0 /* Library */,
 				D35BF0CA1ADD111500BF3CB0 /* LibraryLax */,
 				D35BF0CB1ADD111500BF3CB0 /* LibraryOffline */,
+				EC88ECC71C4EECBB007E4FFF /* LibraryViewAR */,
 				D35FC6851AE10E0E002E2FA8 /* LibrarySunlayar */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -3475,6 +3479,7 @@
 				32CD8E561AE04829009E88EC /* LibrarySunlayar */,
 				32CF16121AC35E51008D13BD /* LibraryLax */,
 				32D8A0361A3B924C00EAB150 /* LibraryOffline */,
+				EC88ECC51C4EECBB007E4FFF /* LibraryViewAR */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

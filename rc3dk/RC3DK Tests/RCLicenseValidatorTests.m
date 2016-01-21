@@ -20,6 +20,7 @@
 #define VALID_LICENSE_KEY @"D3bed93A58f8A25FDF7Cbc4da0634D" // Ben's key
 #define BUNDLE_ID @"com.realitycap.tapemeasure"
 #define VENDOR_ID @"E621E1F8-C36C-495A-93FC-0C247A3E6E5F" // random example
+#define HTTP_CLIENT [RCPrivateHTTPClient sharedInstance]
 
 @interface RCLicenseValidatorTests : XCTestCase
 
@@ -288,7 +289,7 @@
     validator.licenseRule = RCLicenseRuleBundleID;
     validator.allowBundleID = @"com.viewar.kareshopguid";
     
-    [validator validateLicense:VALID_LICENSE_KEY withCompletionBlock:^(int licenseType, int licenseStatus) {
+    [validator validateLicense:nil withCompletionBlock:^(int licenseType, int licenseStatus) {
         [responseArrived fulfill];
     } withErrorBlock:^(NSError* error) {
         [responseArrived fulfill];
@@ -305,7 +306,7 @@
     validator.allowBundleID = @"com.viewar.kareshopguid";
     
     [validator
-     validateLicense:VALID_LICENSE_KEY
+     validateLicense:nil
      withCompletionBlock:^(int licenseType, int licenseStatus){
          [responseArrived fulfill];
          XCTFail(@"Completion block should not be called");
@@ -314,6 +315,21 @@
          [responseArrived fulfill];
          XCTAssertEqual(error.code, RCLicenseErrorBundleIdMissing, @"Error code should be RCLicenseErrorBundleIdMissing");
      }];
+    
+    [self waitForExpectationsWithTimeout:TIMEOUT handler:nil];
+}
+
+- (void) testSkipLicenseCheck
+{
+    RCLicenseValidator* validator = [RCLicenseValidator initWithBundleId:nil withVendorId:nil withHTTPClient:nil withUserDefaults:nil];
+    validator.licenseRule = RCLicenseRuleSkip;
+    
+    [validator validateLicense:nil withCompletionBlock:^(int licenseType, int licenseStatus) {
+        [responseArrived fulfill];
+    } withErrorBlock:^(NSError* error) {
+        [responseArrived fulfill];
+        XCTFail(@"%@", error.description);
+    }];
     
     [self waitForExpectationsWithTimeout:TIMEOUT handler:nil];
 }

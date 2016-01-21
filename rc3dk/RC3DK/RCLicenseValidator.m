@@ -40,7 +40,7 @@
 
 - (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int licenseType, int licenseStatus))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock
 {
-    if (SKIP_LICENSE_CHECK)
+    if (self.licenseRule == RCLicenseRuleSkip)
     {
         DLog(@"Skipping license check.");
         if (completionBlock) completionBlock(RCLicenseTypeFull, RCLicenseStatusOK);

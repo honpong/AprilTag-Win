@@ -37,6 +37,8 @@ typedef NS_ENUM(int, RCLicenseStatus)
 
 typedef NS_ENUM(int, RCLicenseRule)
 {
+    /** Skips license check. Immediately executes the completion callback. */
+    RCLicenseRuleSkip = -1,
     /** Checks license server every run. */
     RCLicenseRuleStrict = 0,
     /** Allows use if server can't be reached, unless we've received a denial in the past. */

@@ -90,6 +90,8 @@
     validator.licenseRule = RCLicenseRuleBundleID;
     validator.allowBundleID = @"com.viewar.kareshopguid";
 #endif
+    
+    if(SKIP_LICENSE_CHECK) validator.licenseRule = RCLicenseRuleSkip;
 
     [validator validateLicense:apiKey withCompletionBlock:completionBlock withErrorBlock:errorBlock];
 #endif

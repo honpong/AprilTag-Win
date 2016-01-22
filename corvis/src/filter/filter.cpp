@@ -808,8 +808,8 @@ extern "C" void filter_initialize(struct filter *f, rcCalibration *device)
                       {device->gyroscopeTransform[3],device->gyroscopeTransform[4],device->gyroscopeTransform[5],0},
                       {device->gyroscopeTransform[6],device->gyroscopeTransform[7],device->gyroscopeTransform[8],0},
                       {0,0,0,1}};
-    if (f->a_alignment == m4::Zero()) f->a_alignment = m4::Identity();
-    if (f->g_alignment == m4::Zero()) f->g_alignment = m4::Identity();
+    if (f->a_alignment.block<3,3>(0,0) == m3::Zero()) f->a_alignment = m4::Identity();
+    if (f->g_alignment.block<3,3>(0,0) == m3::Zero()) f->g_alignment = m4::Identity();
 
 #ifdef INITIAL_DEPTH
     state_vision_feature::initial_depth_meters = INITIAL_DEPTH;

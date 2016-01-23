@@ -634,7 +634,7 @@ std::unique_ptr<image_depth16> filter_aligned_distorted_depth_to_intrinsics(cons
             uint16_t depth_mm = depth_m / .001f;
             int x = kp_d.x();
             int y = kp_d.y();
-            if(x > 0 && x < width && y > 0 && y < height) {
+            if(x >= 0 && x < width && y >= 0 && y < height) {
                 out[y * width + x] = std::min(out[y * width + x], depth_mm);
             }
         }

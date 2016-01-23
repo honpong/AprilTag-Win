@@ -624,7 +624,7 @@ std::unique_ptr<image_depth16> filter_aligned_distorted_depth_to_intrinsics(cons
     auto aligned_distorted_depth = make_unique<image_depth16>(camera.depth->width, camera.depth->height, camera.depth->stride, std::numeric_limits<uint16_t>::max());
     auto out = aligned_distorted_depth->image;
     int width = aligned_distorted_depth->width, height = aligned_distorted_depth->height;
-    int stride = aligned_distorted_depth->stride;
+    int stride = aligned_distorted_depth->stride / sizeof(uint16_t);
     for(int y_image = 0; y_image < camera.height; y_image++) {
         for(int x_image = 0; x_image < camera.width; x_image++) {
             feature_t kp_i = {(double)x_image, (double)y_image};
@@ -635,15 +635,15 @@ std::unique_ptr<image_depth16> filter_aligned_distorted_depth_to_intrinsics(cons
             int x = kp_d.x();
             int y = kp_d.y();
             if(x >= 0 && x < width && y >= 0 && y < height) {
-                out[y * width + x] = std::min(out[y * width + x], depth_mm);
+                out[y * stride + x] = std::min(out[y * stride + x], depth_mm);
             }
         }
     }
 
     for (int y = 0; y < height; y++)
         for (int x = 0; x < width; x++)
-            if (out[y * width + x] == std::numeric_limits<uint16_t>::max())
-                out[y * width + x] = 0;
+            if (out[y * stride + x] == std::numeric_limits<uint16_t>::max())
+                out[y * stride + x] = 0;
     return std::move(aligned_distorted_depth);
 }
 

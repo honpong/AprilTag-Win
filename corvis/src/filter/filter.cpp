@@ -533,11 +533,11 @@ void filter_setup_next_frame(struct filter *f, const camera_data &cam_data)
     //TODO: implement feature_single ?
 }
 
-static float get_depth_for_point(const image_depth16 &depth, const feature_t & p)
+static float get_depth_for_point_mm(const image_depth16 &depth, const feature_t & p)
 {
     auto x = (int)p.x(), y = (int)p.y();
     if (x >=0 && x < depth.width && y >= 0 && y < depth.height)
-        return .001f * depth.image[depth.stride / sizeof(uint16_t) * y + x];
+        return depth.image[depth.stride / sizeof(uint16_t) * y + x];
     else
         return 0;
 }
@@ -630,8 +630,7 @@ std::unique_ptr<image_depth16> filter_aligned_distorted_depth_to_intrinsics(cons
             feature_t kp_i = {(double)x_image, (double)y_image};
 
             feature_t kp_d = f->s.unnormalize_feature(f->s.undistort_feature(f->s.normalize_feature(kp_i)));
-            float depth_m = get_depth_for_point(*aligned_depth.get(), kp_d);
-            uint16_t depth_mm = depth_m / .001f;
+            uint16_t depth_mm = get_depth_for_point_mm(*aligned_depth.get(), kp_d);
             int x = kp_d.x();
             int y = kp_d.y();
             if(x >= 0 && x < width && y >= 0 && y < height) {
@@ -684,7 +683,7 @@ static void filter_add_features(struct filter *f, const camera_data & camera, si
             if(camera.depth) {
                 if (!aligned_undistorted_depth)
                     aligned_undistorted_depth = std::move(filter_aligned_depth_to_intrinsics(f, camera));
-                depth_m = get_depth_for_point(*aligned_undistorted_depth.get(), f->s.unnormalize_feature(f->s.undistort_feature(f->s.normalize_feature(kp_i))));
+                depth_m = 0.001f * get_depth_for_point_mm(*aligned_undistorted_depth.get(), f->s.unnormalize_feature(f->s.undistort_feature(f->s.normalize_feature(kp_i))));
             }
             if(depth_m)
             {

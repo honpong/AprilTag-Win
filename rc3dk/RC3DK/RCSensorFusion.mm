@@ -73,13 +73,28 @@
     licenseKey = licenseKey_;
 }
 
+// this is still exposed to library clients for backward compatibility. calling it validates the license, but does NOT prevent the library from doing it's own check when starting up.
 - (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int licenseType, int licenseStatus))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock
 {
-    RCLicenseValidator* validator = [RCLicenseValidator initWithBundleId:[[NSBundle mainBundle] bundleIdentifier] withVendorId:[[[UIDevice currentDevice] identifierForVendor] UUIDString] withHTTPClient:HTTP_CLIENT withUserDefaults:NSUserDefaults.standardUserDefaults];
+#ifdef OFFLINE // don't even construct a RCLicenseValidator, because it uses RCPrivateHTTPClient, which we can't use because OFFLINE also means no encryption
+    if (completionBlock) completionBlock(RCLicenseTypeFull, RCLicenseStatusOK);
+    return;
+#else
+    RCLicenseValidator* validator = [RCLicenseValidator initWithBundleId:[[NSBundle mainBundle] bundleIdentifier] withVendorId:[[[UIDevice currentDevice] identifierForVendor] UUIDString] withHTTPClient:[RCPrivateHTTPClient sharedInstance] withUserDefaults:NSUserDefaults.standardUserDefaults];
+    
 #ifdef LAX_LICENSE_VALIDATION
-    validator.isLax = YES;
+    validator.licenseRule = RCLicenseRuleLax;
 #endif
+    
+#ifdef VIEWAR_ONLY
+    validator.licenseRule = RCLicenseRuleBundleID;
+    validator.allowBundleID = @"com.viewar.kareshopguid";
+#endif
+    
+    if(SKIP_LICENSE_CHECK) validator.licenseRule = RCLicenseRuleSkip;
+
     [validator validateLicense:apiKey withCompletionBlock:completionBlock withErrorBlock:errorBlock];
+#endif
 }
 
 - (void) validateLicenseInternal

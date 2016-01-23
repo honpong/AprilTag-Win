@@ -17,7 +17,7 @@
     NSUserDefaults* userDefaults;
     NSString* vendorId;
 }
-@synthesize isLax;
+@synthesize licenseRule, allowBundleID;
 
 + (RCLicenseValidator*) initWithBundleId:(NSString*)bundleId withVendorId:(NSString*)vendorId withHTTPClient:(RCAFHTTPClient*)httpClient withUserDefaults:(NSUserDefaults*)userDefaults
 {
@@ -33,20 +33,33 @@
     httpClient = httpClient_;
     userDefaults = userDefaults_;
     vendorId = vendorId_;
-    isLax = NO;
+    licenseRule = RCLicenseRuleStrict;
     
     return self;
 }
 
 - (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int licenseType, int licenseStatus))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock
 {
-    if (SKIP_LICENSE_CHECK)
+    if (self.licenseRule == RCLicenseRuleSkip)
     {
-        DLog(@"Skipping license check");
+        DLog(@"Skipping license check.");
         if (completionBlock) completionBlock(RCLicenseTypeFull, RCLicenseStatusOK);
         return;
     }
-    // everything below here should get optimized out by the compiler if we're skipping the license check
+    // everything below here should get optimized out by the compiler if we're in offline mode
+
+    if (self.licenseRule == RCLicenseRuleBundleID)
+    {
+        if (self.allowBundleID && self.allowBundleID.length > 0 && [bundleId isEqualToString:self.allowBundleID])
+        {
+            if (completionBlock) completionBlock(RCLicenseTypeFull, RCLicenseStatusOK);
+        }
+        else
+        {
+            if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorBundleIdMissing userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. Bad bundle ID.", NSLocalizedFailureReasonErrorKey: @"Bad bundle ID."}]);
+        }
+        return;
+    }
     
     if (apiKey == nil || apiKey.length == 0)
     {
@@ -85,14 +98,14 @@
          DLog(@"License completion %li\n%@", (long)operation.response.statusCode, operation.responseString);
          if (operation.response.statusCode != 200)
          {
-             if (isLax) completionBlock(-1, RCLicenseStatusOK);
+             if (self.licenseRule == RCLicenseRuleLax) completionBlock(-1, RCLicenseStatusOK);
              else if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorHttpError userInfo:@{NSLocalizedDescriptionKey: [NSString stringWithFormat:@"Failed to validate license. HTTP response code %li.", (long)operation.response.statusCode], NSLocalizedFailureReasonErrorKey: [NSString stringWithFormat:@"HTTP status %li: %@", (long)operation.response.statusCode, operation.responseString]}]);
              return;
          }
          
          if (JSON == nil)
          {
-             if (isLax) completionBlock(-1, RCLicenseStatusOK);
+             if (self.licenseRule == RCLicenseRuleLax) completionBlock(-1, RCLicenseStatusOK);
              else if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorEmptyResponse userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. Response body was empty.", NSLocalizedFailureReasonErrorKey: @"Response body was empty."}]);
              return;
          }
@@ -101,7 +114,7 @@
          NSDictionary *response = [NSJSONSerialization JSONObjectWithData:JSON options:0 error:&serializationError];
          if (serializationError || response == nil)
          {
-             if (isLax) completionBlock(-1, RCLicenseStatusOK);
+             if (self.licenseRule == RCLicenseRuleLax) completionBlock(-1, RCLicenseStatusOK);
              else if (errorBlock)
              {
                  NSMutableDictionary* userInfo = [NSMutableDictionary dictionaryWithObjectsAndKeys:@"Failed to validate license. Failed to deserialize response.", NSLocalizedDescriptionKey, @"Failed to deserialize response.", NSLocalizedFailureReasonErrorKey, nil];
@@ -116,7 +129,7 @@
          
          if (licenseStatusString == nil || licenseTypeString == nil)
          {
-             if (isLax) completionBlock(-1, RCLicenseStatusOK);
+             if (self.licenseRule == RCLicenseRuleLax) completionBlock(-1, RCLicenseStatusOK);
              else if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorInvalidResponse userInfo:@{NSLocalizedDescriptionKey: @"Failed to validate license. Invalid response from server.", NSLocalizedFailureReasonErrorKey: @"Invalid response from server."}]);
              return;
          }
@@ -152,7 +165,7 @@
                  break;
                  
              default:
-                 if (isLax) completionBlock(-1, RCLicenseStatusOK);
+                 if (self.licenseRule == RCLicenseRuleLax) completionBlock(-1, RCLicenseStatusOK);
                  else if (errorBlock) errorBlock([RCLicenseError errorWithDomain:ERROR_DOMAIN code:RCLicenseErrorUnknown userInfo:nil]);
                  break;
          }
@@ -161,7 +174,7 @@
      {
          DLog(@"License failure: %li\n%@", (long)operation.response.statusCode, operation.responseString);
          
-         if (isLax && ![userDefaults boolForKey:PREF_LICENSE_INVALID])
+         if (self.licenseRule == RCLicenseRuleLax && ![userDefaults boolForKey:PREF_LICENSE_INVALID])
          {
              if (completionBlock) completionBlock(-1, RCLicenseStatusOK);
              return;

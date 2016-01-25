@@ -18,7 +18,7 @@ int main(int c, char **v)
     const char *save = nullptr, *load = nullptr;
     bool qvga = false, depth = true;
     bool enable_gui = true, show_plots = false, show_video = true, show_depth = true, show_main = true;
-    char *filename = nullptr, *rendername = nullptr;
+    char *filename = nullptr, *rendername = nullptr, *benchmark_output = nullptr;
     for (int i=1; i<c; i++)
         if      (v[i][0] != '-' && !filename) filename = v[i];
         else if (strcmp(v[i], "--no-gui") == 0) enable_gui = false;
@@ -36,6 +36,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--save") == 0 && i+1 < c) save = v[++i];
         else if (strcmp(v[i], "--load") == 0 && i+1 < c) load = v[++i];
         else if (strcmp(v[i], "--benchmark") == 0) benchmark = true;
+        else if (strcmp(v[i], "--benchmark-output") == 0 && i+1 < c) benchmark_output = v[++i];
         else if (strcmp(v[i], "--calibrate") == 0) calibrate = true;
         else if (strcmp(v[i], "--zero-bias") == 0) zero_bias = true;
         else goto usage;
@@ -99,7 +100,14 @@ int main(int c, char **v)
     if (benchmark) {
         enable_gui = false; if (realtime || start_paused) goto usage;
 
-        benchmark_run(std::cout, filename, [&](const char *capture_file, struct benchmark_result &res) -> bool {
+        std::ostream * stream = &std::cout;
+        std::ofstream benchmark_ofstream;
+        if(benchmark_output) {
+            benchmark_ofstream.open(benchmark_output);
+            stream = &benchmark_ofstream;
+        }
+
+        benchmark_run(stream, filename, [&](const char *capture_file, struct benchmark_result &res) -> bool {
             auto rp_ = std::make_unique<replay>(start_paused); replay &rp = *rp_; // avoid blowing the stack when threaded or on Windows
 
             if (!configure(rp, capture_file)) return false;

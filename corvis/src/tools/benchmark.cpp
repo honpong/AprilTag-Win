@@ -72,7 +72,8 @@ struct measurement {
 #include <thread>
 #include <algorithm>
 
-void benchmark_run(std::ostream& stream, const char *directory, std::function<bool (const char *capture_file, struct benchmark_result &result)> measure_file) {
+void benchmark_run(std::ostream* stream_p, const char *directory, std::function<bool (const char *capture_file, struct benchmark_result &result)> measure_file) {
+    std::ostream & stream = *stream_p;
     std::vector<std::string> files;
     for_each_file(directory, [&files](const char *file) {
         if (0 == strstr(file, ".json") && 0 == strstr(file, ".pose"))

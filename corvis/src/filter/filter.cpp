@@ -872,7 +872,7 @@ extern "C" void filter_initialize(struct filter *f, rcCalibration *device)
     f->observations.observations.clear();
 
     f->s.reset();
-    f->s.maxstatesize = 120;
+    f->s.maxstatesize = MAXSTATESIZE;
 
     f->s.Tc.v = v4(device->Tc[0], device->Tc[1], device->Tc[2], 0.);
     f->s.Qc.v = to_quaternion(rotation_vector(device->Wc[0], device->Wc[1], device->Wc[2]));

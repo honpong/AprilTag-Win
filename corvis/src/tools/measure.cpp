@@ -100,12 +100,8 @@ int main(int c, char **v)
     if (benchmark) {
         enable_gui = false; if (realtime || start_paused) goto usage;
 
-        std::ostream * stream = &std::cout;
         std::ofstream benchmark_ofstream;
-        if(benchmark_output) {
-            benchmark_ofstream.open(benchmark_output);
-            stream = &benchmark_ofstream;
-        }
+        std::ostream &stream = benchmark_output ? benchmark_ofstream.open(benchmark_output), benchmark_ofstream : std::cout;
 
         benchmark_run(stream, filename, [&](const char *capture_file, struct benchmark_result &res) -> bool {
             auto rp_ = std::make_unique<replay>(start_paused); replay &rp = *rp_; // avoid blowing the stack when threaded or on Windows

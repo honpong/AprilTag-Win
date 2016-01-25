@@ -159,6 +159,7 @@ protected:
 };
 
 #define MAXOBSERVATIONSIZE 256
+static_assert(MAXOBSERVATIONSIZE > MAXSTATESIZE*2, "MAXOBSERVATIONSIZE isn't big enough for MAXSTATESIZE tracked features\n");
 
 class observation_queue {
 public:

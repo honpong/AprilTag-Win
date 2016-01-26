@@ -994,9 +994,9 @@ void filter_get_device_parameters(const struct filter *f, rcCalibration *cal)
     cal->accelerometerTransform[3] = f->a_alignment(1,0); cal->accelerometerTransform[4] = f->a_alignment(1,1); cal->accelerometerTransform[5] = f->a_alignment(1,2);
     cal->accelerometerTransform[6] = f->a_alignment(2,0); cal->accelerometerTransform[7] = f->a_alignment(2,1); cal->accelerometerTransform[8] = f->a_alignment(2,2);
 
-    cal->gyroscopeTransform[0] = f->g_alignment(0,0); cal->gyroscopeTransform[1] = f->g_alignment(0,1); cal->gyroscopeTransform[2] = f->a_alignment(0,2);
-    cal->gyroscopeTransform[3] = f->g_alignment(1,0); cal->gyroscopeTransform[4] = f->g_alignment(1,1); cal->gyroscopeTransform[5] = f->a_alignment(1,2);
-    cal->gyroscopeTransform[6] = f->g_alignment(2,0); cal->gyroscopeTransform[7] = f->g_alignment(2,1); cal->gyroscopeTransform[8] = f->a_alignment(2,2);
+    cal->gyroscopeTransform[0] = f->g_alignment(0,0); cal->gyroscopeTransform[1] = f->g_alignment(0,1); cal->gyroscopeTransform[2] = f->g_alignment(0,2);
+    cal->gyroscopeTransform[3] = f->g_alignment(1,0); cal->gyroscopeTransform[4] = f->g_alignment(1,1); cal->gyroscopeTransform[5] = f->g_alignment(1,2);
+    cal->gyroscopeTransform[6] = f->g_alignment(2,0); cal->gyroscopeTransform[7] = f->g_alignment(2,1); cal->gyroscopeTransform[8] = f->g_alignment(2,2);
 }
 
 float filter_converged(const struct filter *f)

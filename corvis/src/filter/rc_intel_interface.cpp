@@ -446,14 +446,6 @@ void rc_getCalibrationStruct(rc_Tracker *tracker, rcCalibration *calOut)
     calOut->timeStampOffset = tracker->device.timeStampOffset;
     calOut->px = tracker->device.px;
     calOut->py = tracker->device.py;
-    for (int i = 0; i < sizeof(calOut->accelerometerTransform) / sizeof(calOut->accelerometerTransform[0]); i++)
-    {
-        calOut->accelerometerTransform[i] = tracker->device.accelerometerTransform[i];
-    }
-    for (int i = 0; i < sizeof(calOut->gyroscopeTransform) / sizeof(calOut->gyroscopeTransform[0]); i++)
-    {
-        calOut->gyroscopeTransform[i] = tracker->device.gyroscopeTransform[i];
-    }
 }
 
 bool rc_setCalibrationStruct(rc_Tracker *tracker, const rcCalibration *cal)
@@ -468,14 +460,6 @@ bool rc_setCalibrationStruct(rc_Tracker *tracker, const rcCalibration *cal)
     tracker->device.timeStampOffset = cal->timeStampOffset;
     tracker->device.px = cal->px;
     tracker->device.py = cal->py;
-    for (int i = 0; i < sizeof(cal->accelerometerTransform) / sizeof(cal->accelerometerTransform[0]); i++)
-    {
-        tracker->device.accelerometerTransform[i] = cal->accelerometerTransform[i];
-    }
-    for (int i = 0; i < sizeof(cal->gyroscopeTransform) / sizeof(cal->gyroscopeTransform[0]); i++)
-    {
-        tracker->device.gyroscopeTransform[i] = cal->gyroscopeTransform[i];
-    }
 
     return true;
 }

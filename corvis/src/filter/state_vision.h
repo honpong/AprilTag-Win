@@ -18,9 +18,6 @@ extern "C" {
 #include "tracker.h"
 #include "../cor/platform/sensor_clock.h"
 
-#define estimate_camera_intrinsics 0
-#define estimate_camera_extrinsics 0
-
 using namespace std;
 
 enum group_flag {
@@ -180,6 +177,8 @@ public:
     bool fisheye = false;
     uint64_t feature_counter;
     uint64_t group_counter;
+    bool estimate_camera_intrinsics{false};
+    bool estimate_camera_extrinsics{false};
 
     state_branch<state_vision_group *> groups;
     list<state_vision_feature *> features;

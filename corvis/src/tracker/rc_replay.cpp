@@ -73,17 +73,17 @@ bool replay::open(const char *name)
     return true;
 }
 
-static bool read_file(const std::string name, std::basic_string<rc_char_t> &contents)
+static bool read_file(const std::string name, std::string &contents)
 {
-    std::basic_ifstream<rc_char_t> t(name);
-    std::istreambuf_iterator<rc_char_t> b(t), e;
+    std::ifstream t(name);
+    std::istreambuf_iterator<char> b(t), e;
     contents.assign(b,e);
     return t.good() && b == e;
 }
 
 bool replay::set_calibration_from_filename(const std::string &fn)
 {
-    std::basic_string<rc_char_t> calibration;
+    std::string calibration;
     if(!read_file(fn + ".json", calibration)) {
         auto found = fn.find_last_of("/\\");
         std::string path = fn.substr(0, found+1);

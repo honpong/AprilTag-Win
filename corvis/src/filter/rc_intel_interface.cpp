@@ -9,7 +9,6 @@
 #include "rc_intel_interface.h"
 #include "sensor_fusion.h"
 #include "calibration_json.h"
-#include <codecvt>
 #include <fstream>
 
 static void transformation_to_rc_Pose(const transformation &g, rc_Pose p)
@@ -96,7 +95,7 @@ static rc_TrackerConfidence tracker_confidence_from_confidence(RCSensorFusionCon
 struct rc_Tracker: public sensor_fusion
 {
     rc_Tracker(bool immediate_dispatch): sensor_fusion(immediate_dispatch ? fusion_queue::latency_strategy::ELIMINATE_LATENCY : fusion_queue::latency_strategy::IMAGE_TRIGGER) {}
-    std::basic_string<rc_char_t> jsonString;
+    std::string jsonString;
     std::vector<rc_Feature> gottenFeatures;
     std::vector<rc_Feature> dataFeatures;
     std::string timingStats;
@@ -419,14 +418,9 @@ void rc_triggerLog(const rc_Tracker * tracker)
     tracker->trigger_log();
 }
 
-void rc_setOutputLog(rc_Tracker * tracker, const rc_char_t *filename)
+void rc_setOutputLog(rc_Tracker * tracker, const char *filename)
 {
-#ifdef _WIN32
-    std::wstring_convert<std::codecvt_utf8<rc_char_t>, rc_char_t> converter;
-    tracker->set_output_log(converter.to_bytes(filename).c_str());
-#else
     tracker->set_output_log(filename);
-#endif
 }
 
 const char *rc_getTimingStats(rc_Tracker *tracker)
@@ -464,7 +458,7 @@ bool rc_setCalibrationStruct(rc_Tracker *tracker, const rcCalibration *cal)
     return true;
 }
 
-size_t rc_getCalibration(rc_Tracker *tracker, const rc_char_t **buffer)
+size_t rc_getCalibration(rc_Tracker *tracker, const char **buffer)
 {
     rcCalibration rsCal;
     rc_getCalibrationStruct(tracker, &rsCal);
@@ -472,25 +466,15 @@ size_t rc_getCalibration(rc_Tracker *tracker, const rc_char_t **buffer)
     std::string json;
     if (!calibration_serialize(rsCal, json))
         return 0;
-#ifdef _WIN32
-    std::wstring_convert<std::codecvt_utf8<rc_char_t>, rc_char_t> converter;
-    tracker->jsonString = converter.from_bytes(json);
-#else
     tracker->jsonString = json;
-#endif
     *buffer = tracker->jsonString.c_str();
     return tracker->jsonString.length();
 }
 
-bool rc_setCalibration(rc_Tracker *tracker, const rc_char_t *buffer, const rcCalibration *defaults)
+bool rc_setCalibration(rc_Tracker *tracker, const char *buffer, const rcCalibration *defaults)
 {
     rcCalibration cal;
-#ifdef _WIN32
-    std::wstring_convert<std::codecvt_utf8<rc_char_t>, rc_char_t> converter;
-    bool result = calibration_deserialize(converter.to_bytes(buffer), cal, defaults);
-#else
     bool result = calibration_deserialize(buffer, cal, defaults);
-#endif
     if (result)
     {
         rc_setCalibrationStruct(tracker, &cal);
@@ -498,16 +482,10 @@ bool rc_setCalibration(rc_Tracker *tracker, const rc_char_t *buffer, const rcCal
     return result;
 }
 
-bool rc_setCalibrationFromFile(rc_Tracker *tracker, const rc_char_t *filePath, const rcCalibration *defaults)
+bool rc_setCalibrationFromFile(rc_Tracker *tracker, const char *filePath, const rcCalibration *defaults)
 {
-#ifdef _WIN32
-    std::wifstream stream(filePath);
-    std::wstringstream buffer;
-#else
     std::ifstream stream(filePath);
     std::stringstream buffer;
-#endif
-
     buffer << stream.rdbuf();
     bool result = rc_setCalibration(tracker, buffer.str().c_str(), defaults);
     return result;

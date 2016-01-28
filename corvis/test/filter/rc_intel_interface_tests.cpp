@@ -32,15 +32,10 @@ TEST(rc_intel_interface_tests, rc_setCalibration)
     EXPECT_TRUE(calibration_serialize(calInput, jsonString));
 
     rc_Tracker *tracker = rc_create();
-#ifdef _WIN32
-    wstring_convert<codecvt_utf8<wchar_t>, wchar_t> converter;
-    EXPECT_TRUE(rc_setCalibration(tracker, converter.from_bytes(jsonString).c_str(), &defaults));
-#else
     EXPECT_TRUE(rc_setCalibration(tracker, jsonString.c_str(), &defaults));
-#endif
 
     // now read cal back out
-    const rc_char_t* buffer;
+    const char* buffer;
     size_t size = rc_getCalibration(tracker, &buffer);
     EXPECT_GT(size, 0);
 
@@ -72,11 +67,7 @@ TEST(rc_intel_interface_tests, rc_setCalibration_failure)
 {
     rcCalibration defaults;
     rc_Tracker *tracker = rc_create();
-#ifdef _WIN32
-    EXPECT_FALSE(rc_setCalibration(tracker, L"", &defaults));
-#else
     EXPECT_FALSE(rc_setCalibration(tracker, "", &defaults));
-#endif
     rc_destroy(tracker);
 }
 
@@ -154,13 +145,8 @@ TEST(rc_intel_interface_tests, calibration_defaults)
     std::stringstream jsonString;
     jsonString << "{ \"" << KEY_IMAGE_WIDTH << "\" : 123, \"" << KEY_ACCEL_TRANSFORM << "\" : [0,0,0,0,0,0,0,0.6] }"; // note that last element of array is missing
 
-#ifdef _WIN32
-    wstring_convert<codecvt_utf8<wchar_t>, wchar_t> converter;
-    EXPECT_TRUE(rc_setCalibration(tracker, converter.from_bytes(jsonString.str()).c_str(), &defaults));
-#else
     EXPECT_TRUE(rc_setCalibration(tracker, jsonString.str().c_str(), &defaults));
-#endif
-    
+
     // compare values between original and retrieved
     rcCalibration calOutput;
     rc_getCalibrationStruct(tracker, &calOutput);

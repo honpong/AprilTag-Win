@@ -20,14 +20,12 @@ extern "C" {
 #endif
 
 #ifdef _WIN32
-   typedef wchar_t rc_char_t;
 #  ifdef RCTRACKER_API_EXPORTS
 #    define RCTRACKER_API __declspec(dllexport)
 #  else
 #    define RCTRACKER_API __declspec(dllimport)
 #  endif
 #else
-   typedef char rc_char_t;
 #  define RCTRACKER_API __attribute__ ((visibility("default")))
 #endif
 
@@ -240,21 +238,21 @@ RCTRACKER_API const char *rc_getTimingStats(rc_Tracker *tracker);
 /**
  If this is set, writes a log file in Realitycap's internal format to the filename specified
  */
-RCTRACKER_API void rc_setOutputLog(rc_Tracker *tracker, const rc_char_t *filename);
+RCTRACKER_API void rc_setOutputLog(rc_Tracker *tracker, const char *filename);
 
 /**
     Yields a JSON string that represents a rcCalibration struct.
 */
-RCTRACKER_API size_t rc_getCalibration(rc_Tracker *tracker, const rc_char_t **buffer);
+RCTRACKER_API size_t rc_getCalibration(rc_Tracker *tracker, const char **buffer);
 /**
     Takes a JSON string that represents a rcCalibration struct.
 */
-RCTRACKER_API bool rc_setCalibration(rc_Tracker *tracker, const rc_char_t *buffer, const rcCalibration *defaults);
+RCTRACKER_API bool rc_setCalibration(rc_Tracker *tracker, const char *buffer, const rcCalibration *defaults);
 
 RCTRACKER_API void rc_getCalibrationStruct(rc_Tracker *tracker, rcCalibration *cal);
 RCTRACKER_API bool rc_setCalibrationStruct(rc_Tracker *tracker, const rcCalibration *cal);
 
-RCTRACKER_API bool rc_setCalibrationFromFile(rc_Tracker *tracker, const rc_char_t *filePath, const rcCalibration *defaults);
+RCTRACKER_API bool rc_setCalibrationFromFile(rc_Tracker *tracker, const char *filePath, const rcCalibration *defaults);
 
 
 /*

@@ -427,7 +427,7 @@ void filter_accelerometer_measurement(struct filter *f, const float data[3], sen
     auto obs_a = std::make_unique<observation_accelerometer>(f->s, time, time);
     
     for(int i = 0; i < 3; ++i) {
-        obs_a->meas[i] = data[i];
+        obs_a->meas[i] = meas[i];
     }
     
     obs_a->variance = get_accelerometer_variance_for_run_state(f, meas, time);
@@ -483,7 +483,7 @@ void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_
 
     auto obs_w = std::make_unique<observation_gyroscope>(f->s, time, time);
     for(int i = 0; i < 3; ++i) {
-        obs_w->meas[i] = data[i];
+        obs_w->meas[i] = meas[i];
     }
     obs_w->variance = f->w_variance;
 

@@ -33,6 +33,13 @@ add_executable(RCTrackerDemo
     )
 target_link_libraries(RCTrackerDemo RealityCapLib)
 
+add_executable(rc_replay
+    rc_replay/rc_replay.cpp
+    rc_replay/main.cpp
+)
+set_target_properties(rc_replay PROPERTIES CXX_STANDARD 14)
+target_link_libraries(rc_replay RCTracker)
+
 add_executable(RCUtility WIN32
     RCUtility/RCUtility.cpp
     RCUtility/RCUtility.h

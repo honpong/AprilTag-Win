@@ -157,6 +157,7 @@ typedef struct rc_Intrinsics {
  @param extrinsics_wrt_accel_m Transformation from the Camera frame to the Accelerometer frame in meters. May be null
  @param intrinsics May be null
  */
+RCTRACKER_API void rc_describeCamera(rc_Tracker *tracker,  rc_Camera camera,       rc_Pose extrinsics_wrt_accel_m,       rc_Intrinsics *intrinsics);
 RCTRACKER_API void rc_configureCamera(rc_Tracker *tracker, rc_Camera camera, const rc_Pose extrinsics_wrt_accel_m, const rc_Intrinsics *intrinsics);
 RCTRACKER_API void rc_configureAccelerometer(rc_Tracker *tracker, const rc_Pose alignment_and_bias_m__s2, float noiseVariance_m2__s4);
 RCTRACKER_API void rc_configureGyroscope(rc_Tracker *tracker, const rc_Pose alignment_and_bias_rad__s, float noiseVariance_rad2__s2);

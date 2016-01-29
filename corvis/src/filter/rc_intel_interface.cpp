@@ -196,6 +196,42 @@ void rc_configureCamera(rc_Tracker *tracker, rc_Camera camera, const rc_Pose ext
     }
 }
 
+void rc_describeCamera(rc_Tracker *tracker,  rc_Camera camera,       rc_Pose extrinsics_wrt_accel_m,       rc_Intrinsics *intrinsics)
+{
+    if (camera == rc_EGRAY8) {
+        const device_parameters *device = &tracker->device;
+        if (intrinsics) {
+            intrinsics->center_x_px       = device->Cx;
+            intrinsics->center_y_px       = device->Cy;
+            intrinsics->focal_length_x_px = device->Fx;
+            intrinsics->focal_length_y_px = device->Fy;
+            intrinsics->width_px          = device->image_width;
+            intrinsics->height_px         = device->image_height;
+            if (device->distortionModel == 0) {
+                intrinsics->type = rc_CAL_POLYNOMIAL3;
+                intrinsics->k1 = device->K0;
+                intrinsics->k2 = device->K1;
+                intrinsics->k3 = device->K2;
+            } else if (device->distortionModel == 1) {
+                intrinsics->type = rc_CAL_FISHEYE;
+                intrinsics->w = device->Kw;
+            } else if (device->distortionModel == 2) {
+                intrinsics->type = rc_CAL_UNDISTORTED;
+            }
+        }
+
+        if (extrinsics_wrt_accel_m) {
+            transformation g; rotation_vector W;
+            for(int i = 0; i < 3; ++i) {
+                    g.T[i] = device->Tc[i];
+                    W.raw_vector()[i] = device->Wc[i];
+            }
+            g.Q = to_quaternion(W);
+            transformation_to_rc_Pose(g, extrinsics_wrt_accel_m);
+        }
+    }
+}
+
 void rc_configureAccelerometer(rc_Tracker * tracker, const rc_Pose alignment_bias_m__s2, float noiseVariance_m2__s4)
 {
     tracker->device.accelerometerTransform[0] = alignment_bias_m__s2[0];

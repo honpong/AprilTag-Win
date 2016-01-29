@@ -121,21 +121,43 @@ RCTRACKER_API void rc_destroy(rc_Tracker *tracker);
  */
 RCTRACKER_API void rc_reset(rc_Tracker *tracker, rc_Timestamp initialTime_us, const rc_Pose initialPose_m);
 
+typedef enum rc_CalibrationType {
+    rc_CAL_FISHEYE,     // rd = arctan(2 * ru * tan(w / 2)) / w
+    rc_CAL_POLYNOMIAL3, // rd = ru * (k1 * ru^2 + k2 * ru^4 + k3 * ru^6)
+    rc_CAL_UNDISTORTED, // rd = ru
+} rc_CalibrationType;
+
 /**
  @param tracker The active rc_Tracker instance
  @param camera The camera to configure
- @param pose_m Position (in meters) and orientation of camera relative to reference point (accelerometer)
- @param image_width_px Image width in pixels
- @param image_height_px Image height in pixels
+ @param width_px Image width in pixels
+ @param height_px Image height in pixels
+ @param focal_length_x_px Focal length of camera in pixels
+ @param focal_length_y_px Focal length of camera in pixels
  @param center_x_px Horizontal principal point of camera in pixels
  @param center_y_px Horizontal principal point of camera in pixels
- @param focal_length_px Focal length of camera in pixels
- @param fisheye If false, the image is undistorted. If true, the image is from a fisheye camera.
- @param fisheye_fov_radians Fisheye camera field of view in radians (half-angle FOV)
+ @param k1,k2,k3 Polynomial distortion parameters
+ @param w Fisheye camera field of view in radians (half-angle FOV)
  */
-RCTRACKER_API void rc_configureCamera(rc_Tracker *tracker, rc_Camera camera, const rc_Pose pose_m,
-                        int width_px, int height_px, float center_x_px, float center_y_px,
-                        float focal_length_x_px, float focal_length_y_px, float skew, bool fisheye, float fisheye_fov_radians);
+typedef struct rc_Intrinsics {
+    rc_CalibrationType type;
+    uint32_t width_px, height_px;
+    double focal_length_x_px, focal_length_y_px;
+    double center_x_px, center_y_px;
+    union {
+        double distortion[5];
+        struct { double k1,k2,k3; };
+        double w;
+    };
+} rc_Intrinsics;
+
+/**
+ @param tracker The active rc_Tracker instance
+ @param camera The camera to configure
+ @param extrinsics_wrt_accel_m Transformation from the Camera frame to the Accelerometer frame in meters. May be null
+ @param intrinsics May be null
+ */
+RCTRACKER_API void rc_configureCamera(rc_Tracker *tracker, rc_Camera camera, const rc_Pose extrinsics_wrt_accel_m, const rc_Intrinsics *intrinsics);
 RCTRACKER_API void rc_configureAccelerometer(rc_Tracker *tracker, const rc_Pose alignment_and_bias_m__s2, float noiseVariance_m2__s4);
 RCTRACKER_API void rc_configureGyroscope(rc_Tracker *tracker, const rc_Pose alignment_and_bias_rad__s, float noiseVariance_rad2__s2);
 RCTRACKER_API void rc_configureLocation(rc_Tracker *tracker, double latitude_deg, double longitude_deg, double altitude_m);

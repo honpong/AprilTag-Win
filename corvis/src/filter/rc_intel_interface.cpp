@@ -159,29 +159,42 @@ void rc_printDeviceConfig(rc_Tracker * tracker)
     fprintf(stderr, "int image_width, image_height; %d %d\n", device.image_width, device.image_height);
 }
 
-void rc_configureCamera(rc_Tracker * tracker, rc_Camera camera, const rc_Pose pose_m, int width_px, int height_px, float center_x_px, float center_y_px, float focal_length_x_px, float focal_length_y_px, float skew, bool fisheye, float fisheye_fov_radians)
+void rc_configureCamera(rc_Tracker *tracker, rc_Camera camera, const rc_Pose extrinsics_wrt_accel_m, const rc_Intrinsics *intrinsics)
 {
-    tracker->device.Cx = center_x_px;
-    tracker->device.Cy = center_y_px;
-    tracker->device.Fx = focal_length_x_px;
-    tracker->device.Fy = focal_length_y_px;
-    tracker->device.image_width = width_px;
-    tracker->device.image_height = height_px;
-    tracker->device.K0 = 0;
-    tracker->device.K1 = 0;
-    tracker->device.K2 = 0;
-    tracker->device.Kw = fisheye_fov_radians;
-    tracker->device.distortionModel = fisheye;
-
-    transformation g = rc_Pose_to_transformation(pose_m);
-    rotation_vector W = to_rotation_vector(g.Q);
-    for(int i = 0; i < 3; ++i)
-    {
-        tracker->device.Tc[i] = (float)g.T[i];
-        tracker->device.Wc[i] = (float)W.raw_vector()[i];
+    if (camera == rc_EGRAY8) {
+        device_parameters *device = &tracker->device;
+        if (intrinsics) {
+            device->Cx = intrinsics->center_x_px;
+            device->Cy = intrinsics->center_y_px;
+            device->Fx = intrinsics->focal_length_x_px;
+            device->Fy = intrinsics->focal_length_y_px;
+            device->image_width = intrinsics->width_px;
+            device->image_height = intrinsics->height_px;
+            if (intrinsics->type == rc_CAL_POLYNOMIAL3) {
+                device->distortionModel = 0;
+                device->K0 = intrinsics->k1;
+                device->K1 = intrinsics->k2;
+                device->K2 = intrinsics->k3;
+                device->Kw = 0;
+            } else if (intrinsics->type == rc_CAL_FISHEYE) {
+                device->distortionModel = 1;
+                device->Kw = intrinsics->w;
+                device->K0 = device->K1 = device->K2 = 0;
+            } else if (intrinsics->type == rc_CAL_UNDISTORTED) {
+                device->distortionModel = 2;
+                device->K0 = device->K1 = device->K2 = device->Kw = 0;
+            }
+        }
+        if (extrinsics_wrt_accel_m) {
+            transformation g = rc_Pose_to_transformation(extrinsics_wrt_accel_m);
+            rotation_vector W = to_rotation_vector(g.Q);
+            for(int i = 0; i < 3; ++i) {
+                device->Tc[i] = (float)g.T[i];
+                device->Wc[i] = (float)W.raw_vector()[i];
+            }
+        }
     }
 }
-
 
 void rc_configureAccelerometer(rc_Tracker * tracker, const rc_Pose alignment_bias_m__s2, float noiseVariance_m2__s4)
 {

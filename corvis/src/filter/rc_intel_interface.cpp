@@ -478,64 +478,24 @@ const char *rc_getTimingStats(rc_Tracker *tracker)
     return tracker->timingStats.c_str();
 }
 
-void rc_getCalibrationStruct(rc_Tracker *tracker, rcCalibration *calOut)
-{
-    filter_get_device_parameters(&tracker->sfm, calOut);
-
-    // filter doesn't keep these internally, so copy them here
-    snprintf(calOut->deviceName, sizeof(calOut->deviceName), "%s", tracker->device.deviceName);
-    calOut->shutterDelay = tracker->device.shutterDelay;
-    calOut->shutterPeriod = tracker->device.shutterPeriod;
-    calOut->timeStampOffset = tracker->device.timeStampOffset;
-    calOut->px = tracker->device.px;
-    calOut->py = tracker->device.py;
-}
-
-bool rc_setCalibrationStruct(rc_Tracker *tracker, const rcCalibration *cal)
-{
-    if (tracker == nullptr) return false;
-    tracker->set_device(*cal);
-
-    // filter doesn't keep these internally, so copy them here
-    snprintf(tracker->device.deviceName, sizeof(tracker->device.deviceName), "%s", cal->deviceName);
-    tracker->device.shutterDelay = cal->shutterDelay;
-    tracker->device.shutterPeriod = cal->shutterPeriod;
-    tracker->device.timeStampOffset = cal->timeStampOffset;
-    tracker->device.px = cal->px;
-    tracker->device.py = cal->py;
-
-    return true;
-}
-
 size_t rc_getCalibration(rc_Tracker *tracker, const char **buffer)
 {
-    rcCalibration rsCal;
-    rc_getCalibrationStruct(tracker, &rsCal);
+    rcCalibration cal = {};
+    filter_get_device_parameters(&tracker->sfm, &cal);
 
     std::string json;
-    if (!calibration_serialize(rsCal, json))
+    if (!calibration_serialize(cal, json))
         return 0;
     tracker->jsonString = json;
     *buffer = tracker->jsonString.c_str();
     return tracker->jsonString.length();
 }
 
-bool rc_setCalibration(rc_Tracker *tracker, const char *buffer, const rcCalibration *defaults)
+bool rc_setCalibration(rc_Tracker *tracker, const char *buffer)
 {
-    rcCalibration cal;
-    bool result = calibration_deserialize(buffer, cal, defaults);
+    rcCalibration cal, defaults = {};
+    bool result = calibration_deserialize(buffer, cal, &defaults);
     if (result)
-    {
-        rc_setCalibrationStruct(tracker, &cal);
-    }
-    return result;
-}
-
-bool rc_setCalibrationFromFile(rc_Tracker *tracker, const char *filePath, const rcCalibration *defaults)
-{
-    std::ifstream stream(filePath);
-    std::stringstream buffer;
-    buffer << stream.rdbuf();
-    bool result = rc_setCalibration(tracker, buffer.str().c_str(), defaults);
+        tracker->set_device(cal);
     return result;
 }

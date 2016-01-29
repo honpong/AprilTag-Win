@@ -1,6 +1,7 @@
 
 #include "gtest/gtest.h"
 #include "rc_intel_interface.h"
+#include "sensor_fusion.h"
 #include <memory>
 #include "calibration_json.h"
 #include "json_keys.h"
@@ -9,9 +10,8 @@ using namespace std;
 
 TEST(rc_intel_interface_tests, rc_setCalibration)
 {
-    rcCalibration calInput, defaults;
+    rcCalibration calInput = { "(test)" };
 
-    snprintf(calInput.deviceName, sizeof(calInput.deviceName), "%s", R"(test)");
     calInput.image_width = 123;
     calInput.image_height = 321;
     calInput.px = 0.567;
@@ -31,7 +31,7 @@ TEST(rc_intel_interface_tests, rc_setCalibration)
     EXPECT_TRUE(calibration_serialize(calInput, jsonString));
 
     rc_Tracker *tracker = rc_create();
-    EXPECT_TRUE(rc_setCalibration(tracker, jsonString.c_str(), &defaults));
+    EXPECT_TRUE(rc_setCalibration(tracker, jsonString.c_str()));
 
     // now read cal back out
     const char* buffer;
@@ -39,8 +39,8 @@ TEST(rc_intel_interface_tests, rc_setCalibration)
     EXPECT_GT(size, 0);
 
     // compare values between original and retrieved
-    rcCalibration calOutput;
-    rc_getCalibrationStruct(tracker, &calOutput);
+    rcCalibration calOutput, defaults = {};
+    EXPECT_TRUE(calibration_deserialize(jsonString, calOutput, &defaults));
     EXPECT_STREQ(calInput.deviceName, calOutput.deviceName);
     EXPECT_EQ(calInput.image_width, calOutput.image_width);
     EXPECT_EQ(calInput.image_height, calOutput.image_height);
@@ -56,75 +56,47 @@ TEST(rc_intel_interface_tests, rc_setCalibration)
     EXPECT_FLOAT_EQ(calInput.gyroscopeTransform[0], calOutput.gyroscopeTransform[0]);
     EXPECT_FLOAT_EQ(calInput.gyroscopeTransform[8], calOutput.gyroscopeTransform[8]);
 
-    // this doesn't work because not all all fields are being extracted from filter at the moment.
-    //EXPECT_STREQ(jsonString.c_str(), buffer);
-
     rc_destroy(tracker);
 }
 
 TEST(rc_intel_interface_tests, rc_setCalibration_failure)
 {
-    rcCalibration defaults;
     rc_Tracker *tracker = rc_create();
-    EXPECT_FALSE(rc_setCalibration(tracker, "", &defaults));
+    EXPECT_FALSE(rc_setCalibration(tracker, ""));
     rc_destroy(tracker);
 }
-
-TEST(rc_intel_interface_tests, rc_setCalibrationStruct)
-{
-    rcCalibration calInput;
-
-    calInput.image_width = 321;
-    calInput.image_height = 123;
-
-    rc_Tracker *tracker = rc_create();
-
-    rc_setCalibrationStruct(tracker, &calInput);
-
-    rcCalibration calOutput;
-    rc_getCalibrationStruct(tracker, &calOutput);
-    EXPECT_EQ(calInput.image_width, calOutput.image_width);
-    EXPECT_EQ(calInput.image_height, calOutput.image_height);
-
-    rc_destroy(tracker);
-}
-
-//TEST(rc_intel_interface_tests, rc_setCalibrationFromFile)
-//{
-//    rc_Tracker *tracker = rc_create();
-//
-//    const rc_char_t* filename = L"C:/Users/bhirashi/Documents/gigabyte_s11.json";
-//    EXPECT_TRUE(rc_setCalibrationFromFile(tracker, filename));
-//
-//    rcCalibration calOutput;
-//    rc_getCalibrationStruct(tracker, &calOutput);
-//    EXPECT_STREQ(R"(gigabyte_s11)", calOutput.deviceName);
-//    EXPECT_EQ(640, calOutput.image_width);
-//    EXPECT_EQ(480, calOutput.image_height);
-//    EXPECT_FLOAT_EQ(0.1, calOutput.shutterDelay);
-//    EXPECT_FLOAT_EQ(0.2, calOutput.shutterPeriod);
-//    EXPECT_FLOAT_EQ(0.3, calOutput.timeStampOffset);
-//    EXPECT_FLOAT_EQ(-9.80665, calOutput.accelerometerTransform[1]);
-//    EXPECT_FLOAT_EQ(0.017453292519943295, calOutput.gyroscopeTransform[0]);
-//
-//    rc_destroy(tracker);
-//}
 
 TEST(rc_intel_interface_tests, rc_fisheyeKw)
 {
-    rcCalibration calInput;
-
-    calInput.Kw = .123;
-    calInput.distortionModel = 1;
-
     rc_Tracker *tracker = rc_create();
 
-    rc_setCalibrationStruct(tracker, &calInput);
+    const char json_in[] = "{ \"" KEY_KW "\": 0.123, \"" KEY_DISTORTION_MODEL "\": 1 }";
+    EXPECT_TRUE(rc_setCalibration(tracker, json_in));
 
-    rcCalibration calOutput;
-    rc_getCalibrationStruct(tracker, &calOutput);
-    EXPECT_FLOAT_EQ(calInput.Kw, calOutput.Kw);
-    EXPECT_EQ(calInput.distortionModel, calOutput.distortionModel);
+    struct rc_Intrinsics intrinsics = {};
+    rc_describeCamera(tracker, rc_EGRAY8, nullptr, &intrinsics);
+    EXPECT_EQ(intrinsics.type, rc_CAL_FISHEYE);
+    EXPECT_FLOAT_EQ(intrinsics.w, 0.123);
+
+    const char *json_out = nullptr;
+    rc_getCalibration(tracker, &json_out);
+
+    intrinsics.type = rc_CAL_POLYNOMIAL3;
+    intrinsics.k1 = 23;
+    intrinsics.w = 86;
+    rc_configureCamera(tracker, rc_EGRAY8, nullptr, &intrinsics);
+
+    rc_Intrinsics intrinsics_out;
+    rc_describeCamera(tracker, rc_EGRAY8, nullptr, &intrinsics_out);
+    EXPECT_EQ(intrinsics_out.type, rc_CAL_POLYNOMIAL3);
+    EXPECT_FLOAT_EQ(intrinsics_out.w, 86);
+
+    rc_setCalibration(tracker, json_out);
+
+    rc_Intrinsics intrinsics_again;
+    rc_describeCamera(tracker, rc_EGRAY8, nullptr, &intrinsics_again);
+    EXPECT_EQ(intrinsics_again.type, rc_CAL_FISHEYE);
+    EXPECT_FLOAT_EQ(intrinsics_again.w, .123);
 
     rc_destroy(tracker);
 }

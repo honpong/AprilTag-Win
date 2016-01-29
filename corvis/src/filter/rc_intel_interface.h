@@ -12,7 +12,6 @@
 extern "C" {
 #endif
 
-#include "SP_Calibration.h"
 #include <stddef.h>
 #include <stdint.h>
 #ifndef _WIN32
@@ -264,19 +263,13 @@ RCTRACKER_API const char *rc_getTimingStats(rc_Tracker *tracker);
 RCTRACKER_API void rc_setOutputLog(rc_Tracker *tracker, const char *filename);
 
 /**
-    Yields a JSON string that represents a rcCalibration struct.
+    Yields a JSON string that represents the tracker's current a calibration data.
 */
 RCTRACKER_API size_t rc_getCalibration(rc_Tracker *tracker, const char **buffer);
 /**
-    Takes a JSON string that represents a rcCalibration struct.
+    Loads a JSON string representing calibration data into the tracker.
 */
-RCTRACKER_API bool rc_setCalibration(rc_Tracker *tracker, const char *buffer, const rcCalibration *defaults);
-
-RCTRACKER_API void rc_getCalibrationStruct(rc_Tracker *tracker, rcCalibration *cal);
-RCTRACKER_API bool rc_setCalibrationStruct(rc_Tracker *tracker, const rcCalibration *cal);
-
-RCTRACKER_API bool rc_setCalibrationFromFile(rc_Tracker *tracker, const char *filePath, const rcCalibration *defaults);
-
+RCTRACKER_API bool rc_setCalibration(rc_Tracker *tracker, const char *buffer);
 
 /*
  Not yet implemented (depend on loop closure):

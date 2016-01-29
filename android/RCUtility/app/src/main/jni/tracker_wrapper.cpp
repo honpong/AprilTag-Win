@@ -320,8 +320,7 @@ extern "C"
         LOGD("setCalibration");
         if (!tracker) return (JNI_FALSE);
         const char *cString = env->GetStringUTFChars(calString, 0);
-        rcCalibration rcCal = {};
-        jboolean result = (jboolean) rc_setCalibration(tracker, cString, &rcCal);
+        jboolean result = (jboolean) rc_setCalibration(tracker, cString);
         env->ReleaseStringUTFChars(calString, cString);
         return (result);
     }

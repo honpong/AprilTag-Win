@@ -71,6 +71,7 @@ struct measurement {
 #include <future>
 #include <thread>
 #include <algorithm>
+#include <string.h>
 
 void benchmark_run(std::ostream &stream, const char *directory, std::function<bool (const char *capture_file, struct benchmark_result &result)> measure_file) {
     std::vector<std::string> files;

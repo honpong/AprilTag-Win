@@ -2,10 +2,6 @@
 #define DEVICE_PARAMETERS_H
 
 #include <stdbool.h>
-#include "../cor/platform/sensor_clock.h"
-#include <unordered_map>
-
-using namespace std;
 
 #define CALIBRATION_VERSION 8
 
@@ -38,14 +34,7 @@ typedef enum
     DEVICE_TYPE_GIGABYTES11
 } corvis_device_type;
 
-corvis_device_type get_device_by_name(const char *name);
 bool get_parameters_for_device(corvis_device_type type, device_parameters *dc);
-
-bool is_calibration_valid(const device_parameters &calibration, const device_parameters &deviceDefaults);
-
 void device_set_resolution(device_parameters *dc, int image_width, int image_height);
-
-void get_device_type_string_map(unordered_map<corvis_device_type, string> &map);
-string get_device_type_string(corvis_device_type type);
 
 #endif

@@ -1,15 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">RF_ScenePerception - Intel® RealSense™ SDK</string>
-    <string name="description_info">Camera Tracking and Scene Reconstruction</string>
-    <string name="input_view_title">RGB/Depth Input</string>
-    <string name="render_view_title">Volume Rendering</string>
-    <string name="intro_message">
-        <![CDATA[            
-            This sample demonstrates the basic use of Scene Perception API.
-        ]]>
-    </string>
-    
+    <string name="app_name">Block Stacking</string>
+    <string name="description_info">A block stacking game</string>
 	<color name="black">#000000</color>
 	<color name="blue">#0000ff</color> 
 	<color name="light_gray">#666699</color>     

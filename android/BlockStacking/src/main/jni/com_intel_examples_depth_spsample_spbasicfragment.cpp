@@ -20,24 +20,22 @@ Copyright(c) 2011-2015 Intel Corporation. All Rights Reserved.
 const char *TAG = "Native SP Sample";
 static const int hist_size = 256 * 256;
 static int depth_histogram[hist_size];
-static const unsigned int table_nr_colors = 2;
-static const unsigned int table_size = (table_nr_colors - 1) * 256 * 3;
+static const unsigned int table_size = 256 * 3;
 static uint8_t depth_colormap[table_size];
 void initDepthColorMap(void)
 {
-	uint8_t colors[table_nr_colors][3] = {
+	uint8_t colors[2][3] = {
 		{255, 0, 0},
 		{20, 40, 255}
 	};
-	for (unsigned int k = 0; k < table_nr_colors - 1; k++) {
-		for (int i = 0; i < 256; i++) {
-			int j = 3 * (k * 256 + i);
-			double a = double(i) / 255;
-			depth_colormap[j] = uint8_t((1 - a) * colors[k][0] + a * colors[k + 1][0]);
-			depth_colormap[j + 1] = uint8_t((1 - a) * colors[k][1] + a * colors[k + 1][1]);
-			depth_colormap[j + 2] = uint8_t((1 - a) * colors[k][2] + a * colors[k + 1][2]);
-		}
+	for (int i = 0; i < 256; i++) {
+		int j = 3 * i;
+		double a = double(i) / 255;
+		depth_colormap[j] = uint8_t((1 - a) * colors[0][0] + a * colors[1][0]);
+		depth_colormap[j + 1] = uint8_t((1 - a) * colors[0][1] + a * colors[1][1]);
+		depth_colormap[j + 2] = uint8_t((1 - a) * colors[0][2] + a * colors[1][2]);
 	}
+	
 
 	depth_colormap[0] = depth_colormap[1] = depth_colormap[2] = 0;
 }
@@ -51,7 +49,6 @@ static void z16ToRGBA8888(const void *in,
 	int nr_valid = 0;
 	unsigned int i;
     int r,c;
-    int x;
 	static bool init = false;
 
 	if (!init) {
@@ -85,7 +82,6 @@ static void z16ToRGBA8888(const void *in,
 
 	// Set rgb values
 	i = 0;
-	int rgbsize = width*height*4; //in bytes, 32 bits , depth is 16 bits
     for (r = 0; r < height; r++)
     {
         int base = r*stride/2;
@@ -128,52 +124,11 @@ JNIEXPORT void JNICALL JNI_convertZ16ToRGB
 	return;
 }
 
-
-
-
-//////////////////////////////////////////////////////////////////////////////////////////////////
-
-unsigned int gcd(unsigned int n, unsigned int d){
-	if (d == 0) return n;
-	else return gcd(d, n % d);
-}
-
-void frac(int* n, int* d){
-	unsigned int res = gcd((unsigned int)(*n), (unsigned int)(*d));
-	*n /= res;
-	*d /= res;
-}
-
-int resize_depth_VGA_2_QVGA(void* inBuf, int w, int h,
-		                    void* outBuf){
-	unsigned short* input  = static_cast<unsigned short*>(inBuf);
-	unsigned short* output = static_cast<unsigned short*>(outBuf);
-
-	int h_offset = 3; // pixels from the top
-	int w_offset = 3; // pixels from the side
-
-	int ow = 320; // output width
-	int oh = 240; // output height
-
-	for (int i = 0; i < h/2; i++){
-		for (int j = 0; j < w/2; j++){
-			int in  = 2*(i * w + j); 							// pixel location from VGA image
-			int out = ((i + h_offset) * ow) + w_offset + j;		// pixel location of QVGA image
-
-			output[out] = input[in];
-
-		}
-	}
-	return 1;
-}
-
-
-
 static JNINativeMethod methodTable[] = {
 	{"depthToRGB", "(Ljava/nio/ByteBuffer;Ljava/nio/ByteBuffer;III)V", (void *)JNI_convertZ16ToRGB},
 };
 
-const char* spCoreClassPath = "com/intel/sample/depth/spsample/SPBasicFragment";
+const char* spCoreClassPath = "com/intel/sample/depth/blockstacking/SPBasicFragment";
 
 jint JNI_OnLoad(JavaVM* aVm, void* aReserved)
 {

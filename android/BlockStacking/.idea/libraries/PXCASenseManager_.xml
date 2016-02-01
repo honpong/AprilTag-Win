@@ -3,6 +3,7 @@
     <CLASSES>
       <root url="file://$PROJECT_DIR$/build/intermediates/exploded-aar/PXCASenseManager/res" />
       <root url="jar://$PROJECT_DIR$/build/intermediates/exploded-aar/PXCASenseManager/jars/classes.jar!/" />
+      <root url="jar://$PROJECT_DIR$/build/intermediates/exploded-aar/PXCASenseManager/jars/libs/jacocoagent.jar!/" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />

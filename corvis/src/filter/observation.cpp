@@ -25,7 +25,7 @@ void observation_queue::measure_and_prune()
     observations.erase(remove_if(observations.begin(), observations.end(), [this](auto &o) {
        bool ok = o->measure();
        if (!ok)
-           cache_recent(std::move(o));
+           this->cache_recent(std::move(o));
        return !ok;
     }), observations.end());
 }

@@ -19,7 +19,7 @@
 #include <Accelerate/Accelerate.h>
 #define lapack_int __CLPK_integer
 #else // __APPLE__
-#if defined(WIN32) || defined(ANDROID) || defined(__INTEL_COMPILER)
+#if defined(WIN32) || defined(ANDROID) || defined(__linux__) || defined(__INTEL_COMPILER)
 #include <mkl.h>
 #else // WIN32
 #include <cblas.h>

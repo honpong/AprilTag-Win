@@ -535,7 +535,7 @@ void observation_accelerometer::project_covariance(matrix &dst, const matrix &sr
             if(state.estimate_camera_extrinsics) {
                 v4 scov_Qc = state.Qc.copy_cov_from_row(src, j);
                 v4 cov_Tc = state.Tc.copy_cov_from_row(src, j);
-                res += da_dQc * scov_Qc + da_dQc * cov_Tc;
+                res += da_dQc * scov_Qc + da_dTc * cov_Tc;
             }
             for(int i = 0; i < 3; ++i) {
                 dst(i, j) = res[i];

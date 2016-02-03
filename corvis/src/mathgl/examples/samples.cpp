@@ -557,18 +557,19 @@ void smgl_alpha(mglGraph *gr)	// alpha and lighting
 	gr->Box();	gr->Light(false);	gr->Surf(a);
 }
 //-----------------------------------------------------------------------------
-const char *mmgl_schemes="call 'sch' 0 'kw'\ncall 'sch' 1 'wk'\ncall 'sch' 2 'kHCcw'\ncall 'sch' 3 'kBbcw'\n"
+const char *mmgl_schemes="new x 100 100 'x':new y 100 100 'y'\n"
+"call 'sch' 0 'kw'\ncall 'sch' 1 '%gbrw'\ncall 'sch' 2 'kHCcw'\ncall 'sch' 3 'kBbcw'\n"
 "call 'sch' 4 'kRryw'\ncall 'sch' 5 'kGgew'\ncall 'sch' 6 'BbwrR'\ncall 'sch' 7 'BbwgG'\n"
 "call 'sch' 8 'GgwmM'\ncall 'sch' 9 'UuwqR'\ncall 'sch' 10 'QqwcC'\ncall 'sch' 11 'CcwyY'\n"
 "call 'sch' 12 'bcwyr'\ncall 'sch' 13 'bwr'\ncall 'sch' 14 'wUrqy'\ncall 'sch' 15 'UbcyqR'\n"
 "call 'sch' 16 'BbcyrR'\ncall 'sch' 17 'bgr'\ncall 'sch' 18 'BbcyrR|'\ncall 'sch' 19 'b{g,0.3}r'\n"
-"stop\nfunc 'sch' 2\nsubplot 2 10 $1 '<>_^' 0.2 0:fsurf 'x' $2\n"
+"stop\nfunc 'sch' 2\nsubplot 2 10 $1 '<>_^' 0.2 0:surfa x y $2\n"
 "text 0.07+0.5*mod($1,2) 0.92-0.1*int($1/2) $2 'A'\nreturn";
 void smgl_schemes(mglGraph *gr)	// Color table
 {
-	mglData a(256,2);	a.Fill(-1,1);
+	mglData a(256,2), b(256,2);	a.Fill(-1,1);	b.Fill(-1,1,'y');
 	gr->SubPlot(2,10,0,NULL,0.2);	gr->Dens(a,"kw");		gr->Puts(0.07, 0.92, "kw", "A");
-	gr->SubPlot(2,10,1,NULL,0.2);	gr->Dens(a,"wk");		gr->Puts(0.57, 0.92, "wk", "A");
+	gr->SubPlot(2,10,1,NULL,0.2);	gr->SurfA(a,b,"%gbrw");	gr->Puts(0.57, 0.92, "%gbrw", "A");
 	gr->SubPlot(2,10,2,NULL,0.2);	gr->Dens(a,"kHCcw");	gr->Puts(0.07, 0.82, "kHCcw", "A");
 	gr->SubPlot(2,10,3,NULL,0.2);	gr->Dens(a,"kBbcw");	gr->Puts(0.57, 0.82, "kBbcw", "A");
 	gr->SubPlot(2,10,4,NULL,0.2);	gr->Dens(a,"kRryw");	gr->Puts(0.07, 0.72, "kRryw", "A");
@@ -928,8 +929,11 @@ void smgl_tens(mglGraph *gr)
 const char *mmgl_region="call 'prepare1d'\ncopy y1 y(:,1):copy y2 y(:,2)\n"
 "subplot 2 2 0 '':title 'Region plot (default)':box:region y1 y2:plot y1 'k2':plot y2 'k2'\n"
 "subplot 2 2 1 '':title '2 colors':box:region y1 y2 'yr':plot y1 'k2':plot y2 'k2'\n"
-"subplot 2 2 2 '':title '\"!\" style':box:region y1 y2 '!':plot y1 'k2':plot y2 'k2'\n"
-"subplot 2 2 3 '':title '\"i\" style':box:region y1 y2 'ir':plot y1 'k2':plot y2 'k2'";
+"subplot 2 2 2 '':title '\"i\" style':box:region y1 y2 'ir':plot y1 'k2':plot y2 'k2'\n"
+"subplot 2 2 3 '^_':title '3d variant':rotate 40 60:box\n"
+"new x1 100 'sin(pi*x)':new y1 100 'cos(pi*x)':new z 100 'x'\n"
+"new x2 100 'sin(pi*x+pi/3)':new y2 100 'cos(pi*x+pi/3)'\n"
+"plot x1 y1 z 'r2':plot x2 y2 z 'b2'\nregion x1 y1 z x2 y2 z 'cmy!'";
 void smgl_region(mglGraph *gr)
 {
 	mglData y;	mgls_prepare1d(&y);
@@ -938,8 +942,13 @@ void smgl_region(mglGraph *gr)
 	gr->Box();	gr->Region(y1,y2);	gr->Plot(y1,"k2");	gr->Plot(y2,"k2");
 	if(big==3)	return;
 	gr->SubPlot(2,2,1,"");	gr->Title("2 colors");	gr->Box();	gr->Region(y1,y2,"yr");	gr->Plot(y1,"k2");	gr->Plot(y2,"k2");
-	gr->SubPlot(2,2,2,"");	gr->Title("'!' style");	gr->Box();	gr->Region(y1,y2,"!");	gr->Plot(y1,"k2");	gr->Plot(y2,"k2");
-	gr->SubPlot(2,2,3,"");	gr->Title("'i' style");	gr->Box();	gr->Region(y1,y2,"ir");	gr->Plot(y1,"k2");	gr->Plot(y2,"k2");
+	gr->SubPlot(2,2,2,"");	gr->Title("'i' style");	gr->Box();	gr->Region(y1,y2,"ir");	gr->Plot(y1,"k2");	gr->Plot(y2,"k2");
+	gr->SubPlot(2,2,3,"^_");	gr->Title("3d variant");	gr->Rotate(40,60);	gr->Box();
+	gr->Fill(y1,"cos(pi*x)");	gr->Fill(y2,"cos(pi*x+pi/3)");
+	mglData x1(y1.nx), x2(y1.nx), z(y1.nx);
+	gr->Fill(x1,"sin(pi*x)");	gr->Fill(x2,"sin(pi*x+pi/3)");	gr->Fill(z,"x");
+	gr->Plot(x1,y1,z,"r2");		gr->Plot(x2,y2,z,"b2");
+	gr->Region(x1,y1,z,x2,y2,z,"cmy!");
 }
 //-----------------------------------------------------------------------------
 const char *mmgl_stem="call 'prepare1d'\norigin 0 0 0:subplot 2 2 0 '':title 'Stem plot (default)':box:stem y\n"
@@ -1585,35 +1594,30 @@ void smgl_several_light(mglGraph *gr)	// several light sources
 	gr->Box();	gr->Surf(a,"h");
 }
 //-----------------------------------------------------------------------------
-const char *mmgl_light="light on:quality 6\ncall 'prepare2d'\n"
+const char *mmgl_light="light on:attachlight on\ncall 'prepare2d'\n"
 "subplot 2 2 0:title 'Default':rotate 50 60:box:surf a\nline -1 -0.7 1.7 -1 -0.7 0.7 'BA'\n\n"
-"light 0 1 0 1 -2 -1 -1\nsubplot 2 2 1:title 'Local':rotate 50 60:box:surf a\n"
-"line 1 0 1 -1 -1 0 'BAO'\n\n"
-"diffuse 0\nsubplot 2 2 2:title 'no diffuse':rotate 50 60:box:surf a\n"
-"line 1 0 1 -1 -1 0 'BAO'\n\n"
-"diffuse 0.5:light 0 1 0 1 -2 -1 -1 'w' 0\n"
-"subplot 2 2 3:title 'diffusive only':rotate 50 60:box:surf a\n"
-"line 1 0 1 -1 -1 0 'BAO'";
+"subplot 2 2 1:title 'Local':rotate 50 60\nlight 0 1 0 1 -2 -1 -1\nline 1 0 1 -1 -1 0 'BAO':box:surf a\n\n"
+"subplot 2 2 2:title 'no diffuse':rotate 50 60\ndiffuse 0\nline 1 0 1 -1 -1 0 'BAO':box:surf a\n\n"
+"subplot 2 2 3:title 'diffusive only':rotate 50 60\ndiffuse 0.5:light 0 1 0 1 -2 -1 -1 'w' 0\n"
+"line 1 0 1 -1 -1 0 'BAO':box:surf a";
 void smgl_light(mglGraph *gr)	// local light sources
 {
 	mglData a;	mgls_prepare2d(&a);
+	gr->Light(true);	gr->AttachLight(true);
 	if(big==3)
-	{	gr->Light(true);	gr->Rotate(50,60);	gr->Box();	gr->Surf(a);	return;	}
-	int qual = gr->GetQuality();
-	gr->Light(true);	gr->SetQuality(6);
-	gr->SubPlot(2,2,0);	gr->Title("Default");	gr->Rotate(50,60);	gr->Box();	gr->Surf(a);
-	gr->Line(mglPoint(-1,-0.7,1.7),mglPoint(-1,-0.7,0.7),"BA");
+	{	gr->Rotate(50,60);	gr->Box();	gr->Surf(a);	return;	}
+	gr->SubPlot(2,2,0);	gr->Title("Default");	gr->Rotate(50,60);
+	gr->Line(mglPoint(-1,-0.7,1.7),mglPoint(-1,-0.7,0.7),"BA");	gr->Box();	gr->Surf(a);
+	gr->SubPlot(2,2,1);	gr->Title("Local");	gr->Rotate(50,60);
 	gr->AddLight(0,mglPoint(1,0,1),mglPoint(-2,-1,-1));
-	gr->SubPlot(2,2,1);	gr->Title("Local");	gr->Rotate(50,60);	gr->Box();	gr->Surf(a);
-	gr->Line(mglPoint(1,0,1),mglPoint(-1,-1,0),"BAO");
+	gr->Line(mglPoint(1,0,1),mglPoint(-1,-1,0),"BAO");	gr->Box();	gr->Surf(a);
+	gr->SubPlot(2,2,2);	gr->Title("no diffuse");	gr->Rotate(50,60);
 	gr->SetDiffuse(0);
-	gr->SubPlot(2,2,2);	gr->Title("no diffuse");	gr->Rotate(50,60);	gr->Box();	gr->Surf(a);
-	gr->Line(mglPoint(1,0,1),mglPoint(-1,-1,0),"BAO");
+	gr->Line(mglPoint(1,0,1),mglPoint(-1,-1,0),"BAO");	gr->Box();	gr->Surf(a);
+	gr->SubPlot(2,2,3);	gr->Title("diffusive only");	gr->Rotate(50,60);
 	gr->SetDiffuse(0.5);
 	gr->AddLight(0,mglPoint(1,0,1),mglPoint(-2,-1,-1),'w',0);
-	gr->SubPlot(2,2,3);	gr->Title("diffusive only");	gr->Rotate(50,60);	gr->Box();	gr->Surf(a);
-	gr->Line(mglPoint(1,0,1),mglPoint(-1,-1,0),"BAO");
-	gr->SetQuality(qual);
+	gr->Line(mglPoint(1,0,1),mglPoint(-1,-1,0),"BAO");	gr->Box();	gr->Surf(a);
 }
 //-----------------------------------------------------------------------------
 const char *mmgl_surf3="call 'prepare3d'\nlight on:alpha on\n"
@@ -1649,6 +1653,15 @@ void smgl_surf3c(mglGraph *gr)
 	if(big!=3)	gr->Title("Surf3C plot");
 	gr->Rotate(50,60);	gr->Light(true);	gr->Alpha(true);
 	gr->Box();	gr->Surf3C(c,d);
+}
+//-----------------------------------------------------------------------------
+const char *mmgl_surf3ca="call 'prepare3d'\ntitle 'Surf3CA plot':rotate 50 60:light on:alpha on:box:surf3ca c d c";
+void smgl_surf3ca(mglGraph *gr)
+{
+	mglData c,d;	mgls_prepare3d(&c,&d);
+	if(big!=3)	gr->Title("Surf3CA plot");
+	gr->Rotate(50,60);	gr->Light(true);	gr->Alpha(true);
+	gr->Box();	gr->Surf3CA(c,d,c);
 }
 //-----------------------------------------------------------------------------
 const char *mmgl_cut="call 'prepare2d'\ncall 'prepare3d'\nsubplot 2 2 0:title 'Cut on (default)':rotate 50 60:light on:box:surf a; zrange -1 0.5\n"
@@ -1728,8 +1741,8 @@ void smgl_parser(mglGraph *gr)	// example of MGL parsing
 	double a[100];   // let a_i = sin(4*pi*x), x=0...1
 	for(int i=0;i<100;i++)a[i]=sin(4*M_PI*i/99);
 	mglParse *parser = new mglParse;
-	mglData *d = parser->AddVar("dat");
-	d->Set(a,100); // set data to variable
+	mglData *d = dynamic_cast<mglData*>(parser->AddVar("dat"));
+	if(d)	d->Set(a,100); // set data to variable
 	parser->Execute(gr, "plot dat; xrange 0 1\nbox\naxis");
 	// you may break script at any line do something
 	// and continue after that
@@ -1777,6 +1790,14 @@ void smgl_surfc(mglGraph *gr)
 	gr->Light(true);	gr->Box();	gr->SurfC(a,b);
 }
 //-----------------------------------------------------------------------------
+const char *mmgl_surfca="call 'prepare2d'\ntitle 'SurfCA plot':rotate 50 60:light on:alpha on:box:surfca a b a";
+void smgl_surfca(mglGraph *gr)
+{
+	mglData a,b;	mgls_prepare2d(&a,&b);
+	if(big!=3)	gr->Title("SurfCA plot");	gr->Rotate(50,60);
+	gr->Alpha(true);	gr->Light(true);	gr->Box();	gr->SurfCA(a,b,a);
+}
+//-----------------------------------------------------------------------------
 const char *mmgl_surfa="call 'prepare2d'\ntitle 'SurfA plot':rotate 50 60:light on:alpha on:box:surfa a b";
 void smgl_surfa(mglGraph *gr)
 {
@@ -1820,21 +1841,21 @@ void smgl_boxs(mglGraph *gr)
 	gr->Rotate(50,60);	gr->Box();	gr->Tile(a);
 }
 //-----------------------------------------------------------------------------
-const char *mmgl_fit="new rnd 100 '0.4*rnd+0.1+sin(2*pi*x)'\nnew in 100 '0.3+sin(2*pi*x)'\n"
-"list ini 1 1 3:fit res rnd 'a+b*sin(c*x)' 'abc' ini\n"
-"title 'Fitting sample':yrange -2 2:box:axis:plot rnd 'k. '\n"
+const char *mmgl_fit="new dat 100 '0.4*rnd+0.1+sin(2*pi*x)'\nnew in 100 '0.3+sin(2*pi*x)'\n"
+"list ini 1 1 3:fit res dat 'a+b*sin(c*x)' 'abc' ini\n"
+"title 'Fitting sample':yrange -2 2:box:axis:plot dat 'k. '\n"
 "plot res 'r':plot in 'b'\ntext -0.9 -1.3 'fitted:' 'r:L'\n"
 "putsfit 0 -1.8 'y = ' 'r':text 0 2.2 'initial: y = 0.3+sin(2\\pi x)' 'b'";
 void smgl_fit(mglGraph *gr)	// nonlinear fitting
 {
-	mglData rnd(100), in(100), res;
-	gr->Fill(rnd,"0.4*rnd+0.1+sin(2*pi*x)");
+	mglData dat(100), in(100), res;
+	gr->Fill(dat,"0.4*rnd+0.1+sin(2*pi*x)");
 	gr->Fill(in,"0.3+sin(2*pi*x)");
 	double ini[3] = {1,1,3};
 	mglData Ini(3,ini);
-	res = gr->Fit(rnd, "a+b*sin(c*x)", "abc", Ini);
+	res = gr->Fit(dat, "a+b*sin(c*x)", "abc", Ini);
 	if(big!=3)	gr->Title("Fitting sample");
-	gr->SetRange('y',-2,2);	gr->Box();	gr->Plot(rnd, "k. ");
+	gr->SetRange('y',-2,2);	gr->Box();	gr->Plot(dat, "k. ");
 	gr->Axis();		gr->Plot(res, "r");	gr->Plot(in, "b");
 	gr->Puts(mglPoint(-0.9, -1.3), "fitted:", "r:L");
 	gr->PutsFit(mglPoint(0, -1.8), "y = ", "r");
@@ -2685,8 +2706,10 @@ mglSample samp[] = {
 	{"surf3", smgl_surf3, mmgl_surf3},
 	{"surf3a", smgl_surf3a, mmgl_surf3a},
 	{"surf3c", smgl_surf3c, mmgl_surf3c},
+	{"surf3ca", smgl_surf3ca, mmgl_surf3ca},
 	{"surfa", smgl_surfa, mmgl_surfa},
 	{"surfc", smgl_surfc, mmgl_surfc},
+	{"surfca", smgl_surfca, mmgl_surfca},
 	{"table", smgl_table, mmgl_table},
 	{"tape", smgl_tape, mmgl_tape},
 	{"tens", smgl_tens, mmgl_tens},

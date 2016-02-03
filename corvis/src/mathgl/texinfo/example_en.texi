@@ -1763,18 +1763,23 @@ Function @ref{region} fill the area between 2 curves. It support gradient fillin
 int sample(mglGraph *gr)
 {
   mglData y;  mgls_prepare1d(&y);
-  mglData y1 = y.SubData(-1,1), y2 = y.SubData(-1,2); gr->SetOrigin(0,0,0);
-  gr->SubPlot(2,2,0,"");  gr->Title("Region plot (default)");
-  gr->Box();  gr->Region(y1,y2);  gr->Plot(y1,"k2");  gr->Plot(y2,"k2");
+  mglData y1 = y.SubData(-1,1), y2 = y.SubData(-1,2);  gr->SetOrigin(0,0,0);
 
-  gr->SubPlot(2,2,1,"");  gr->Title("2 colors");
-  gr->Box();  gr->Region(y1,y2,"yr"); gr->Plot(y1,"k2");  gr->Plot(y2,"k2");
+  gr->SubPlot(2,2,0,"");  gr->Title("Region plot (default)"); gr->Box();
+  gr->Region(y1,y2);  gr->Plot(y1,"k2");  gr->Plot(y2,"k2");
 
-  gr->SubPlot(2,2,2,"");  gr->Title("'!' style");
-  gr->Box();  gr->Region(y1,y2,"!");  gr->Plot(y1,"k2");  gr->Plot(y2,"k2");
+  gr->SubPlot(2,2,1,"");  gr->Title("2 colors");  gr->Box();
+  gr->Region(y1,y2,"yr"); gr->Plot(y1,"k2");  gr->Plot(y2,"k2");
 
-  gr->SubPlot(2,2,3,"");  gr->Title("'i' style");
-  gr->Box();  gr->Region(y1,y2,"ir"); gr->Plot(y1,"k2");  gr->Plot(y2,"k2");
+  gr->SubPlot(2,2,2,"");  gr->Title("'i' style");  gr->Box();
+  gr->Region(y1,y2,"ir"); gr->Plot(y1,"k2");  gr->Plot(y2,"k2");
+
+  gr->SubPlot(2,2,3,"^_");  gr->Title("3d variant");  gr->Rotate(40,60);  gr->Box();
+  gr->Fill(y1,"cos(pi*x)"); gr->Fill(y2,"cos(pi*x+pi/3)");
+  mglData x1(y1.nx), x2(y1.nx), z(y1.nx);
+  gr->Fill(x1,"sin(pi*x)"); gr->Fill(x2,"sin(pi*x+pi/3)");  gr->Fill(z,"x");
+  gr->Plot(x1,y1,z,"r2");   gr->Plot(x2,y2,z,"b2");
+  gr->Region(x1,y1,z,x2,y2,z,"cmy!");
   return 0;
 }
 @end verbatim
@@ -2294,6 +2299,7 @@ void mgls_prepare2d(HMDT a, HMDT b=0, HMDT v=0)
 * Surf sample::
 * SurfC sample::
 * SurfA sample::
+* SurfCA sample::
 * Mesh sample::
 * Fall sample::
 * Belt sample::
@@ -2362,7 +2368,7 @@ int sample(mglGraph *gr)
 
 @c ------------------------------------------------------------------
 @external{}
-@node SurfA sample, Mesh sample, SurfC sample, 2D samples
+@node SurfA sample, SurfCA sample, SurfC sample, 2D samples
 @subsection SurfA sample
 @nav{}
 
@@ -2383,7 +2389,28 @@ int sample(mglGraph *gr)
 
 @c ------------------------------------------------------------------
 @external{}
-@node Mesh sample, Fall sample, SurfA sample, 2D samples
+@node SurfCA sample, Mesh sample, SurfA sample, 2D samples
+@subsection SurfCA sample
+@nav{}
+
+Function @ref{surfca} is similar to @ref{surf} but its color and transparency is determined by another data. The sample code is:
+@verbatim
+int sample(mglGraph *gr)
+{
+  mglData a,b;  mgls_prepare2d(&a,&b);
+  gr->Title("SurfCA plot");  gr->Rotate(50,60);
+  gr->Alpha(true);  gr->Light(true);
+  gr->Box();  gr->SurfCA(a,b,a);
+  return 0;
+}
+@end verbatim
+
+@pfig{surfca, Example of SurfCA()}
+
+
+@c ------------------------------------------------------------------
+@external{}
+@node Mesh sample, Fall sample, SurfCA sample, 2D samples
 @subsection Mesh sample
 @nav{}
 
@@ -2745,6 +2772,7 @@ void mgls_prepare3d(HMDT a, HMDT b=0)
 * Surf3 sample::
 * Surf3C sample::
 * Surf3A sample::
+* Surf3CA sample::
 * Cloud sample::
 * Dens3 sample::
 * Cont3 sample::
@@ -2804,7 +2832,7 @@ int sample(mglGraph *gr)
 
 @c ------------------------------------------------------------------
 @external{}
-@node Surf3A sample, Cloud sample, Surf3C sample, 3D samples
+@node Surf3A sample, Surf3CA sample, Surf3C sample, 3D samples
 @subsection Surf3A sample
 @nav{}
 
@@ -2824,7 +2852,27 @@ int sample(mglGraph *gr)
 
 @c ------------------------------------------------------------------
 @external{}
-@node Cloud sample, Dens3 sample, Surf3A sample, 3D samples
+@node Surf3CA sample, Cloud sample, Surf3A sample, 3D samples
+@subsection Surf3CA sample
+@nav{}
+
+Function @ref{surf3ca} is similar to @ref{surf3} but its color and transparency is determined by another data. The sample code is:
+@verbatim
+int sample(mglGraph *gr)
+{
+  mglData c,d;  mgls_prepare3d(&c,&d);
+  gr->Title("Surf3CA plot"); gr->Rotate(50,60);
+  gr->Light(true);  gr->Alpha(true);
+  gr->Box();  gr->Surf3CA(c,d,c);
+  return 0;
+}
+@end verbatim
+
+@pfig{surf3ca, Example of Surf3CA()}
+
+@c ------------------------------------------------------------------
+@external{}
+@node Cloud sample, Dens3 sample, Surf3CA sample, 3D samples
 @subsection Cloud sample
 @nav{}
 
@@ -3519,32 +3567,26 @@ int sample(mglGraph *gr)
 
 @pfig{several_light, Example of several light sources.}
 
-Additionally, you can use local light sources and set to use diffise reflection instead of specular one (by default) or both kinds.
+Additionally, you can use local light sources and set to use @ref{diffuse} reflection instead of specular one (by default) or both kinds. Note, I use @ref{attachlight} command to keep light settings relative to subplot.
 @verbatim
 int sample(mglGraph *gr)
 {
-  // use Quality=6 because need lighting in placed
-  int qual = gr->GetQuality();
-  gr->Light(true);   gr->SetQuality(6);
+  gr->Light(true);  gr->AttachLight(true);
+  gr->SubPlot(2,2,0); gr->Title("Default"); gr->Rotate(50,60);
+  gr->Line(mglPoint(-1,-0.7,1.7),mglPoint(-1,-0.7,0.7),"BA"); gr->Box();  gr->Surf(a);
 
-  mglData a;	mgls_prepare2d(&a);
-  gr->SubPlot(2,2,0);  gr->Title("Default");
-  gr->Rotate(50,60); gr->Box(); gr->Surf(a);
-  gr->Line(mglPoint(-1,-0.7,1.7),mglPoint(-1,-0.7,0.7),"BA");
+  gr->SubPlot(2,2,1); gr->Title("Local");   gr->Rotate(50,60);
   gr->AddLight(0,mglPoint(1,0,1),mglPoint(-2,-1,-1));
-  gr->SubPlot(2,2,1);  gr->Title("Local");
-  gr->Rotate(50,60); gr->Box(); gr->Surf(a);
-  gr->Line(mglPoint(1,0,1),mglPoint(-1,-1,0),"BAO");
+  gr->Line(mglPoint(1,0,1),mglPoint(-1,-1,0),"BAO");  gr->Box();  gr->Surf(a);
+
+  gr->SubPlot(2,2,2); gr->Title("no diffuse"); gr->Rotate(50,60);
   gr->SetDiffuse(0);
-  gr->SubPlot(2,2,2);  gr->Title("no diffuse");
-  gr->Rotate(50,60); gr->Box(); gr->Surf(a);
-  gr->Line(mglPoint(1,0,1),mglPoint(-1,-1,0),"BAO");
+  gr->Line(mglPoint(1,0,1),mglPoint(-1,-1,0),"BAO");  gr->Box();  gr->Surf(a);
+
+  gr->SubPlot(2,2,3); gr->Title("diffusive only");  gr->Rotate(50,60);
   gr->SetDiffuse(0.5);
   gr->AddLight(0,mglPoint(1,0,1),mglPoint(-2,-1,-1),'w',0);
-  gr->SubPlot(2,2,3);  gr->Title("diffusive only");
-  gr->Rotate(50,60); gr->Box(); gr->Surf(a);
-  gr->Line(mglPoint(1,0,1),mglPoint(-1,-1,0),"BAO");
-  gr->SetQuality(qual);
+  gr->Line(mglPoint(1,0,1),mglPoint(-1,-1,0),"BAO");  gr->Box();  gr->Surf(a);
 }
 @end verbatim
 

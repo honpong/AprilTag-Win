@@ -12,9 +12,9 @@ void logger(void * handle, const char * buffer_utf8, size_t length)
 
 int wmain(int c, wchar_t **v)
 {
-    if(c < 2)
+    if(c != 3)
     {
-        fprintf(stderr, "specify file name\n");
+        fprintf(stderr, "usage: %ws <rssdk-clip> <rc-capture-out>\n", v[0]);
         return 0;
     }
 

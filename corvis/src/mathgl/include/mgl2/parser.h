@@ -35,7 +35,8 @@ struct mglArg
 	std::wstring w;	///< String with parameters
 	std::string s;	///< String with parameters
 	mreal v;		///< Numerical value (used if type==2)
-	mglArg():type(-1),d(0),v(0)	{}
+	dual c;			///< Numerical complex value (used if type==2)
+	mglArg():type(-1),d(0),v(0),c(0.)	{}
 };
 //-----------------------------------------------------------------------------
 /// Structure for MGL command
@@ -58,8 +59,9 @@ extern mglCommand mgls_base_cmd[];
 struct mglNum
 {
 	mreal d;		///< Number itself
+	dual c;
 	std::wstring s;	///< Number name
-	mglNum(mreal val=0):d(val)	{}
+	mglNum(mreal val=0):d(val),c(val)	{}
 };
 //-----------------------------------------------------------------------------
 /// Structure for function name and position.
@@ -97,7 +99,7 @@ public:
 	bool AllowDllCall;	///< Allow calls from external dynamic libraries
 	bool AllowSetSize;	///< Allow using setsize command
 	bool AllowFileIO;	///< Allow reading/saving files
-	bool Stop;			///< Stop command was. Flag prevent further execution
+	volatile bool Stop;	///< Stop command was. Flag prevent further execution
 	mglCommand *Cmd;	///< Table of MGL commands (can be changed by user). It MUST be sorted by 'name'!!!
 	long InUse;			///< Smart pointer (number of users)
 	const mglBase *curGr;	///< Current grapher
@@ -139,8 +141,8 @@ public:
 	mglDataA *FindVar(const char *name) MGL_FUNC_PURE;
 	mglDataA *FindVar(const wchar_t *name) MGL_FUNC_PURE;
 	/// Find variable or create it if absent
-	mglData *AddVar(const char *name);
-	mglData *AddVar(const wchar_t *name);
+	mglDataA *AddVar(const char *name);
+	mglDataA *AddVar(const wchar_t *name);
 	/// Find number or return 0 if absent
 	mglNum *FindNum(const char *name) MGL_FUNC_PURE;
 	mglNum *FindNum(const wchar_t *name) MGL_FUNC_PURE;
@@ -192,6 +194,7 @@ private:
 	/// In skip mode
 	bool inline ifskip()	{	return (if_pos>0 && !(if_stack[if_pos-1]&1));	}
 	bool inline skip()		{	return (Skip || ifskip() || for_br);	}
+	bool CheckForName(const std::wstring &s);	// check if name is valid for new data
 };
 //-----------------------------------------------------------------------------
 #endif

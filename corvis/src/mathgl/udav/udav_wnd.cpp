@@ -37,10 +37,6 @@
 #include <QMimeData>
 #include <QUrl>
 //-----------------------------------------------------------------------------
-#if !defined(WIN32) && !defined(__APPLE__)
-#include <X11/Xlib.h>
-#endif
-//-----------------------------------------------------------------------------
 #include <mgl2/qmathgl.h>
 #include "udav_wnd.h"
 #include "text_pnl.h"
@@ -95,12 +91,7 @@ void mgl_ask_qt(const wchar_t *quest, wchar_t *res);
 int main(int argc, char **argv)
 {
 	mgl_suppress_warn(true);
-//	QCoreApplication::setAttribute(Qt::AA_X11InitThreads);
-#if !defined(WIN32) && !defined(__APPLE__)
-	// try to fix possible multi-threading errors
-	// must be placed before ANY window creation
-	XInitThreads();
-#endif
+	QCoreApplication::setAttribute(Qt::AA_X11InitThreads);
 #ifdef WIN32
 	char buf[512];	getcwd(buf,500);	strcat(buf,"\\plugins\\");
 	QCoreApplication::addLibraryPath(buf);
@@ -725,7 +716,7 @@ void MainWindow::updateHidden()
 	do {
 		i++;
 		if(tc.block().text().startsWith("#h "))
-			hidden->append("Line "+QString::number(i)+QString::fromWCharArray(L" → ")+tc.block().text().mid(3)+"\n");
+			hidden->append("Line "+QString::number(i)+QString::fromWCharArray(L" \u2192 ")+tc.block().text().mid(3)+"\n");
 	} while(tc.movePosition(QTextCursor::NextBlock));
 	tc.setPosition(pos);
 }

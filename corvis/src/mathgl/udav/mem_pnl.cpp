@@ -19,7 +19,7 @@
  ***************************************************************************/
 #include <QLayout>
 #include <QTableWidget>
-#include <QToolButton>
+#include <QToolBar>
 #include <QInputDialog>
 #include <QMessageBox>
 #include <mgl2/mgl.h>
@@ -49,33 +49,18 @@ void refreshMemPanel(QWidget *p)
 //-----------------------------------------------------------------------------
 MemPanel::MemPanel(QWidget *parent) : QWidget(parent)
 {
-	QHBoxLayout *h;
-	QVBoxLayout *v;
-	QToolButton *b;
-
 	infoDlg = new InfoDialog(this);
 	infoDlg->setModal(true);	infoDlg->allowRefresh=false;
 
-	v = new QVBoxLayout(this);	h = new QHBoxLayout();	v->addLayout(h);
-	b = new QToolButton(this);	b->setIcon(QPixmap(":/png/document-new.png"));
-	b->setToolTip(tr("Create new data array"));		h->addWidget(b);
-	connect(b, SIGNAL(clicked()), this, SLOT(newTable()));
-	b = new QToolButton(this);	b->setIcon(QPixmap(table_xpm));
-	b->setToolTip(tr("Edit selected data array"));	h->addWidget(b);
-	connect(b, SIGNAL(clicked()), this, SLOT(editData()));
-	b = new QToolButton(this);	b->setIcon(QPixmap(":/png/edit-delete.png"));
-	b->setToolTip(tr("Delete selected data array"));		h->addWidget(b);
-	connect(b, SIGNAL(clicked()), this, SLOT(delData()));
-	b = new QToolButton(this);	b->setIcon(QPixmap(preview_xpm));
-	b->setToolTip(tr("Properties of selected data array"));	h->addWidget(b);
-	connect(b, SIGNAL(clicked()), this, SLOT(infoData()));
-	b = new QToolButton(this);	b->setIcon(QPixmap(":/png/view-refresh.png"));
-	b->setToolTip(tr("Update list of data arrays"));		h->addWidget(b);
-	connect(b, SIGNAL(clicked()), this, SLOT(refresh()));
-	h->addStretch(1);
-	b = new QToolButton(this);	b->setIcon(QPixmap(":/png/edit-clear.png"));
-	b->setToolTip(tr("Delete ALL data arrays"));	h->addWidget(b);
-	connect(b, SIGNAL(clicked()), this, SLOT(delAllData()));
+	QToolBar *t = new QToolBar(this);	t->setMovable(false);
+	QVBoxLayout *v = new QVBoxLayout(this);	v->addWidget(t);
+	t->addAction(QPixmap(":/png/document-new.png"), tr("Create new data array"), this, SLOT(newTable()));
+	t->addAction(QPixmap(table_xpm), tr("Edit selected data array"), this, SLOT(editData()));
+	t->addAction(QPixmap(":/png/edit-delete.png"), tr("Delete selected data array"), this, SLOT(delData()));
+	t->addAction(QPixmap(preview_xpm), tr("Properties of selected data array"), this, SLOT(infoData()));
+	t->addAction(QPixmap(":/png/view-refresh.png"), tr("Update list of data arrays"), this, SLOT(refresh()));
+	t->addSeparator();
+	t->addAction(QPixmap(":/png/edit-clear.png"), tr("Delete ALL data arrays"), this, SLOT(delAllData()));
 
 	colSort = 0;
 	tab = new QTableWidget(this);	tab->setColumnCount(3);	v->addWidget(tab);
@@ -98,7 +83,7 @@ void MemPanel::newTable()
 	QString name = QInputDialog::getText(this, tr("UDAV - New variable"),
 				tr("Enter name for new variable"), QLineEdit::Normal, "", &ok);
 	if(!ok || name.isEmpty())	return;
-	mglData *v = parser.AddVar(name.toStdString().c_str());
+	mglDataA *v = parser.AddVar(name.toStdString().c_str());
 	QWidget *t;
 	if(v->o)	t = (QWidget *)v->o;
 	else		t = newDataWnd(infoDlg,wnd,v);
@@ -171,7 +156,26 @@ void MemPanel::refresh()
 		it = new QTableWidgetItem(s);
 		tab->setItem(m,1,it);	it->setFlags(flags);
 		it->setTextAlignment(Qt::AlignHCenter|Qt::AlignVCenter);
-		s.sprintf("%12ld", v->GetNN()*sizeof(mreal));
+		long sv = 0;
+		if(dynamic_cast<mglData*>(v))	sv = v->GetNN()*sizeof(mreal)+sizeof(mglData);
+		else if(dynamic_cast<mglDataC*>(v))	sv = v->GetNN()*sizeof(dual)+sizeof(mglDataC);
+		else if(dynamic_cast<mglDataV*>(v))	sv = sizeof(mglDataV);
+		else if(dynamic_cast<mglDataW*>(v))	sv = sizeof(mglDataW);
+		else if(dynamic_cast<mglDataF*>(v))	sv = sizeof(mglDataF);
+		else if(dynamic_cast<mglDataR*>(v))	sv = sizeof(mglDataR);
+		else if(dynamic_cast<mglDataT*>(v))	sv = sizeof(mglDataT);
+		if(sv==0)	s = tr("unknown");
+#if MGL_SIZEOF_LONG>4
+//		else if((sv>>80L)>0)	s.sprintf("%ld Yb",sv>>80L);
+//		else if((sv>>70L)>0)	s.sprintf("%ld Zb",sv>>70L);
+		else if((sv>>60L)>0)	s.sprintf("%ld Eb",sv>>60L);
+		else if((sv>>50L)>0)	s.sprintf("%ld Pb",sv>>50L);
+		else if((sv>>40L)>0)	s.sprintf("%ld Tb",sv>>40L);
+#endif
+		else if((sv>>30L)>0)	s.sprintf("%ld Gb",sv>>30L);
+		else if((sv>>20L)>0)	s.sprintf("%ld Mb",sv>>20L);
+		else if((sv>>10L)>0)	s.sprintf("%ld Kb",sv>>10L);
+		else	s.sprintf("%ld b",sv);
 		it = new QTableWidgetItem(s);
 		tab->setItem(m,2,it);	it->setFlags(flags);
 		it->setTextAlignment(Qt::AlignRight|Qt::AlignVCenter);

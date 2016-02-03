@@ -24,6 +24,7 @@ xcuserdata
 x64/
 x86/
 build/
+build32/
 build64/
 bld/
 [Bb]in/

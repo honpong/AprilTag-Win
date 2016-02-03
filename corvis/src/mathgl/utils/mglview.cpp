@@ -52,7 +52,7 @@ int main(int argc, char **argv)
 			if(fp)
 			{
 				wchar_t ch;
-				while((ch=fgetwc(fp))!=WEOF)	opt.push_back(ch);
+				while(!feof(fp) && size_t(ch=fgetwc(fp))!=WEOF)	opt.push_back(ch);
 				fclose(fp);
 			}
 		}
@@ -85,7 +85,7 @@ int main(int argc, char **argv)
 		if(fp)
 		{
 			wchar_t ch;
-			while((ch=fgetwc(fp))!=WEOF)	str.push_back(ch);
+			while(!feof(fp) && size_t(ch=fgetwc(fp))!=WEOF)	str.push_back(ch);
 			fclose(fp);
 		}
 		else	{	printf("No file for MGL script\n");	return 0;	}

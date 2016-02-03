@@ -10,6 +10,12 @@ set_target_properties(pxcmd PROPERTIES
   INTERFACE_INCLUDE_DIRECTORIES "$ENV{RSSDK_DIR}include"
 )
 
+add_library(RCTracker STATIC IMPORTED)
+set_target_properties(RCTracker PROPERTIES
+  IMPORTED_LOCATION "${PROJECT_SOURCE_DIR}/RCTracker/RCTracker.lib"
+  INTERFACE_INCLUDE_DIRECTORIES "${PROJECT_SOURCE_DIR}/RCTracker"
+)
+
 add_library(RealityCapLib
   RealityCapLib/TrackerManager.cpp
   RealityCapLib/SensorManager.cpp
@@ -18,9 +24,7 @@ add_library(RealityCapLib
   RealityCapLib/stdafx.cpp
 )
 target_include_directories(RealityCapLib PUBLIC RealityCapLib)
-target_include_directories(RealityCapLib PUBLIC RCTracker)
 target_compile_definitions(RealityCapLib PRIVATE UNICODE _UNICODE)
-link_directories("RCTracker")
 target_link_libraries(RealityCapLib PUBLIC RCTracker pxcmd)
 target_compile_options(RealityCapLib PRIVATE /wd4200 /wd4458)
 
@@ -28,6 +32,13 @@ add_executable(RCTrackerDemo
     RCTrackerDemo/replay_rsclip.cpp
     )
 target_link_libraries(RCTrackerDemo RealityCapLib)
+
+add_executable(rc_replay
+    rc_replay/rc_replay.cpp
+    rc_replay/main.cpp
+)
+set_target_properties(rc_replay PROPERTIES CXX_STANDARD 14)
+target_link_libraries(rc_replay RCTracker)
 
 add_executable(RCUtility WIN32
     RCUtility/RCUtility.cpp

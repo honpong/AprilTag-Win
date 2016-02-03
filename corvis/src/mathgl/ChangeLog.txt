@@ -1,9 +1,44 @@
+2.3.3 Released 01 June 2015
+
+* Add SurfCA() and Surf3CA() plots
+* Add wavelet transforms
+* Add AttachLight() for attaching light settings to inplots
+* Add manual rotation angle for axis ticks (by "value" option)
+* Add mglDataS class which is similar to std::vector<double> one.
+* Add missing mglDataC functions
+
+* Add style '%' for color scheme along 2 coordinates (as in Map())
+* If tick template start with '&' then long integer is passed instead of double.
+* Add style 'V' for drawing text centered vertically.
+* Add style "dN" in Smooth() for averaging over (2*N+1)-th points.
+* Add TeX symbols "\quote", "--" and Cyrillic ones.
+
+* Add complex numbers in MGL -- any expression started with '!' will have complex value(s)
+* Add 'rkstep' command for Runge-Kutta step in MGL script
+* Add functions 'min()', 'max()' to MGL parser and formula evaluation.
+* MGL command 'join' now can join arbitrary number of data arrays.
+* Command 'stop' is not required to be placed before 'func'
+* Add warning about writing to temporary arrays in MGL scripts
+* Names 'rnd','nan','inf' are reserved in MGL scripts now.
+
+* Add annotation for plot styles and options into header files.
+* Greatly improve the speed of formula parsing for MGL scripts
+* Update JS interface
+* Add binary font files for speeding up initialization and font loading
+* Exclude "pure" attribute for function due to compatibility reasons
+* Add mgl_set_size_scl() for additional scaling width and height of the image
+* Add options -S, -q for mglconv
+* Rearrange toolbuttons in UDAV.
+* Bugfix for Flow() and Pipe() functions
+* Other minor improvements, bugfixes and compatibility changes
+
 2.3.2 Released 2 February 2015
 
 * Update mgltex (thanks to Diego Sejas Viscarra)
 * Add reading files with complex numbers by 'read' command.
 * Parallelize reading textual data files.
 * Add 'i','j','k' variables for data filling.
+* Add 2-color style for candle and ohlc plot.
 * Add saving images in QMathGL even if corresponding format support is disabled.
 * Add cmake option MGL_DEF_FONT to change default font name or use built-in one (if MGL_DEF_FONT is empty).
 * Compatibility changes and bugfixes.

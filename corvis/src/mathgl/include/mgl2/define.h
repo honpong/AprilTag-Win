@@ -47,8 +47,6 @@
 #endif
 
 #endif
-
-#define MGL_VER2 	3.1	// minor version of MathGL 2.* (like 1.3 for v.2.1.3)
 //-----------------------------------------------------------------------------
 #ifdef WIN32 //_MSC_VER needs this before math.h
 #define	_USE_MATH_DEFINES
@@ -97,11 +95,14 @@ typedef unsigned long uintptr_t;
 #if (_MSC_VER<=1800)
 #define collapse(a)	// MSVS don't support OpenMP 3.*
 #define strtoull _strtoui64
-#define hypot	_hypot
+//#define hypot	_hypot
 #define getcwd	_getcwd
 #define chdir	_chdir // BORLAND has chdir
 #endif
 #define snprintf _snprintf
+#if (_MSC_VER<1600) // based on https://hg.python.org/cpython/rev/9aedb876c2d7
+#define hypot	_hypot
+#endif
 #endif
 
 #if !MGL_SYS_NAN
@@ -167,6 +168,7 @@ typedef float mreal;
 #define mgl_min(a,b)	({typeof (a) _a = (a); typeof (b) _b = (b); _a > _b ? _b : _a;})
 #define mgl_max(a,b)	({typeof (a) _a = (a); typeof (b) _b = (b); _a > _b ? _a : _b;})
 #define mgl_sign(a)		({typeof (a) _a = (a); _a<0 ? -1:1;})
+#define mgl_int(a)		({typeof (a) _a = (a); long(_a+(_a>=0 ? 0.5:-0.5));})
 #else
 #define mgl_min(a,b)	(((a)>(b)) ? (b) : (a))
 #define mgl_max(a,b)	(((a)>(b)) ? (a) : (b))
@@ -175,6 +177,7 @@ typedef float mreal;
 #define mgl_isfin(a)	((a)-(a)==mreal(0.))
 #define mgl_isbad(a)	((a)-(a)!=mreal(0.))
 #define mgl_sign(a)		((a)<0 ? -1:1)
+#define mgl_int(a)		(long(a+((a)>=0 ? 0.5:-0.5)))
 #endif
 //-----------------------------------------------------------------------------
 enum{	// types of predefined curvelinear coordinate systems
@@ -224,6 +227,7 @@ enum{	// Codes for warnings/messages
 	mglScrCmd,		// Wrong command in MGL script
 	mglScrLong,		// Too long line in MGL script
 	mglScrStr,		// Unbalanced ' in MGL script
+	mglScrTemp,		// Change temporary data in MGL script
 	mglWarnEnd		// Maximal number of warnings (must be last)
 };
 //-----------------------------------------------------------------------------
@@ -253,7 +257,7 @@ extern uint64_t mgl_mask_val[16];
 #define MGL_SHOW_POS		0x001000 	///< Switch to show or not mouse click position
 #define MGL_CLF_ON_UPD		0x002000 	///< Clear plot before Update()
 #define MGL_NOSUBTICKS		0x004000 	///< Disable subticks drawing (for bounding box)
-//#define MGL_DIFFUSIVE		0x008000 	///< Use diffusive light instead of specular
+#define MGL_LOCAL_LIGHT		0x008000 	///< Keep light sources for each inplot
 #define MGL_VECT_FRAME		0x010000 	///< Use DrwDat to remember all data of frames
 #define MGL_REDUCEACC		0x020000 	///< Reduce accuracy of points (to reduc size of output files)
 #define MGL_PREFERVC 		0x040000 	///< Prefer vertex color instead of texture if output format supports
@@ -264,15 +268,13 @@ extern uint64_t mgl_mask_val[16];
 #include <complex.h>
 #if MGL_USE_DOUBLE
 typedef double _Complex mdual;
-#ifndef _Complex_I
-#define _Complex_I (double _Complex){0, 1}
-#endif
 #else
 typedef float _Complex mdual;
+#endif
 #ifndef _Complex_I
-#define _Complex_I (float _Complex){0, 1}
+#define _Complex_I	1.0i
 #endif
-#endif
+const mdual mgl_I=_Complex_I;
 #define mgl_abs(x)	cabs(x)
 #endif
 #ifdef __cplusplus
@@ -284,7 +286,7 @@ typedef std::complex<mreal> dual;
 typedef std::complex<double> ddual;
 #if !MGL_HAVE_C99_COMPLEX
 #define mdual dual
-#define _Complex_I dual(0,1)
+#define mgl_I dual(0,1)
 #define mgl_abs(x)	abs(x)
 #endif
 //-----------------------------------------------------------------------------
@@ -297,15 +299,15 @@ typedef double _Complex ddual;
 /// Find length of wchar_t string (bypass standard wcslen bug)
 double MGL_EXPORT_CONST mgl_hypot(double x, double y);
 /// Find length of wchar_t string (bypass standard wcslen bug)
-size_t MGL_EXPORT_PURE mgl_wcslen(const wchar_t *str);
+size_t MGL_EXPORT mgl_wcslen(const wchar_t *str);
 /// Get RGB values for given color id or fill by -1 if no one found
 void MGL_EXPORT mgl_chrrgb(char id, float rgb[3]);
 /// Check if string contain color id and return its number
-long MGL_EXPORT_PURE mgl_have_color(const char *stl);
+long MGL_EXPORT mgl_have_color(const char *stl);
 /// Find symbol in string excluding {} and return its position or NULL
-MGL_EXPORT_PURE const char *mglchr(const char *str, char ch);
+MGL_EXPORT const char *mglchr(const char *str, char ch);
 /// Find any symbol from chr in string excluding {} and return its position or NULL
-MGL_EXPORT_PURE const char *mglchrs(const char *str, const char *chr);
+MGL_EXPORT const char *mglchrs(const char *str, const char *chr);
 /// Set number of thread for plotting and data handling (for pthread version only)
 void MGL_EXPORT mgl_set_num_thr(int n);
 void MGL_EXPORT mgl_set_num_thr_(int *n);
@@ -325,7 +327,7 @@ void MGL_EXPORT mgl_clear_fft();
 void MGL_EXPORT mgl_set_global_warn(const char *text);
 void MGL_EXPORT mgl_set_global_warn_(const char *text,int);
 /// Get text of global warning message(s)
-MGL_EXPORT_PURE const char *mgl_get_global_warn();
+MGL_EXPORT const char *mgl_get_global_warn();
 int MGL_EXPORT mgl_get_global_warn_(char *out, int len);
 #ifdef __cplusplus
 }

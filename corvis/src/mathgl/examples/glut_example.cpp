@@ -41,7 +41,7 @@ void *calc(void *)
 	for(int i=0;i<10;i++)	// do calculation
 	{
 		sleep(1);           // which can be very long
-		pnt = mglPoint(2*mgl_rnd()-1,2*mgl_rnd()-1);
+		pnt.Set(2*mgl_rnd()-1,2*mgl_rnd()-1);
 printf("i=%d, gr=%p\n",i,gr);	fflush(stdout);
 		if(gr)
 		{

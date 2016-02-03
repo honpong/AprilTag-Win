@@ -73,16 +73,14 @@ This file documents the Mathematical Graphic Library (MathGL), a collection of c
 </table>
 
 <hr style="width: 100%; height: 1px;">
-<script type="text/javascript"><!--
-google_ad_client = "ca-pub-1128070552722622";
-/* Vertical small */
-google_ad_slot = "5501954624";
-google_ad_width = 120;
-google_ad_height = 240;
-//-->
-</script>
-<script type="text/javascript"
-src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 160x600, Vertical -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:160px;height:600px"
+     data-ad-client="ca-pub-1128070552722622"
+     data-ad-slot="2695178987"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
 </script>
 </nav>
 @end html
@@ -93,23 +91,21 @@ src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
 <br><script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 <!-- Ref 728x15 -->
 <ins class="adsbygoogle"
-style="display:inline-block;width:728px;height:15px"
-data-ad-client="ca-pub-1128070552722622"
-data-ad-slot="7008431385"></ins>
+     style="display:inline-block;width:728px;height:15px"
+     data-ad-client="ca-pub-1128070552722622"
+     data-ad-slot="7008431385"></ins>
 <script>
 (adsbygoogle = window.adsbygoogle || []).push({});
 </script><br>
 @comment
-<script type="text/javascript"><!--
-google_ad_client = "ca-pub-1128070552722622";
-/* 728x90, создано 23.12.09 */
-google_ad_slot = "9958083480";
-google_ad_width = 728;
-google_ad_height = 90;
-//-->
-</script>
-<script type="text/javascript"
-src="http://pagead2.googlesyndication.com/pagead/show_ads.js">
+<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<!-- 728x90, Horizontal -->
+<ins class="adsbygoogle"
+     style="display:inline-block;width:728px;height:90px"
+     data-ad-client="ca-pub-1128070552722622"
+     data-ad-slot="9958083480"></ins>
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
 </script><br/>
 <footer>
 <!--LiveInternet counter--><script type="text/javascript"><!--

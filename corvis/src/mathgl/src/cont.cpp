@@ -114,7 +114,7 @@ void MGL_NO_EXPORT mgl_string_curve(mglBase *gr,long f,long ,const long *ff,cons
 	for(j=0;j<len;j++)	// draw text
 	{
 		L[0] = text[align!=2?j:len-1-j];	s = pt[j+1]-pt[j];	l = !s;
-		gr->text_plot(gr->AddPnt(pt[j]+(pos*h)*l,c+dc*i,s,-1,-1),L,fnt,size,0.05,c+dc*j);
+		gr->text_plot(gr->AddPnt(pt[j]+(pos*h)*l,c+dc*i,align!=2?s:-s,-1,-1),L,fnt,size,0.05,c+dc*j);
 	}
 	delete []wdt;	delete []pt;	delete []fnt;
 }
@@ -1134,6 +1134,7 @@ void MGL_EXPORT mgl_cont3_(uintptr_t *gr, uintptr_t *a, const char *sch, mreal *
 //	Dens3 series
 //
 //-----------------------------------------------------------------------------
+void MGL_NO_EXPORT mgl_surf_gen(HMGL gr, HCDT x, HCDT y, HCDT z, HCDT c, HCDT a, const char *sch);
 void MGL_EXPORT mgl_dens3_xyz(HMGL gr, HCDT x, HCDT y, HCDT z, HCDT a, const char *sch, double sVal, const char *opt)
 {
 	bool both = mgl_isboth(x,y,z,a);
@@ -1147,7 +1148,8 @@ void MGL_EXPORT mgl_dens3_xyz(HMGL gr, HCDT x, HCDT y, HCDT z, HCDT a, const cha
 
 	_mgl_slice s;
 	mgl_get_slice(s,x,y,z,a,dir,sVal,both);
-	mgl_surfc_xy(gr,&s.x,&s.y,&s.z,&s.a,sch,0);
+	mgl_surf_gen(gr, &s.x,&s.y,&s.z,&s.a, 0, sch);
+//	mgl_surfc_xy(gr,&s.x,&s.y,&s.z,&s.a,sch,0);
 	gr->EndGroup();
 }
 //-----------------------------------------------------------------------------
@@ -1304,8 +1306,8 @@ long MGL_LOCAL_PURE mgl_find_prev(long i, long pc, long *nn)
 void MGL_NO_EXPORT mgl_axial_plot(mglBase *gr,long pc, mglPoint *ff, long *nn,char dir,mreal cc,int wire)
 {
 	mglPoint a(0,0,1),b,c,p,q1,q2;
-	if(dir=='x')	a = mglPoint(1,0,0);
-	if(dir=='y')	a = mglPoint(0,1,0);
+	if(dir=='x')	a.Set(1,0,0);
+	if(dir=='y')	a.Set(0,1,0);
 	b = !a;	c = a^b;
 
 	long p1,p2,p3,p4;
@@ -1364,14 +1366,14 @@ void MGL_EXPORT mgl_axial_gen(HMGL gr, mreal val, HCDT a, HCDT x, HCDT y, mreal 
 		mreal d = (i<n-1)?mgl_d(val,ma->a[i0+n*m*ak],ma->a[i0+1+n*m*ak]):-1;
 		if(d>=0 && d<1)
 		{
-			pp[pc] = mglPoint(mx->a[i0]*(1-d)+mx->a[i0+1]*d, my->a[i0]*(1-d)+my->a[i0+1]*d);
-			kk[pc] = mglPoint(i+d,j);	pc++;
+			pp[pc].Set(mx->a[i0]*(1-d)+mx->a[i0+1]*d, my->a[i0]*(1-d)+my->a[i0+1]*d);
+			kk[pc].Set(i+d,j);	pc++;
 		}
 		d = (j<m-1)?mgl_d(val,ma->a[i0+n*m*ak],ma->a[i0+n*m*ak+n]):-1;
 		if(d>=0 && d<1)
 		{
-			pp[pc] = mglPoint(mx->a[i0]*(1-d)+mx->a[i0+n]*d, my->a[i0]*(1-d)+my->a[i0+n]*d);
-			kk[pc] = mglPoint(i,j+d);	pc++;
+			pp[pc].Set(mx->a[i0]*(1-d)+mx->a[i0+n]*d, my->a[i0]*(1-d)+my->a[i0+n]*d);
+			kk[pc].Set(i,j+d);	pc++;
 		}
 	}
 	else	for(long j=0;j<m;j++)	for(long i=0;i<n;i++)
@@ -1380,14 +1382,14 @@ void MGL_EXPORT mgl_axial_gen(HMGL gr, mreal val, HCDT a, HCDT x, HCDT y, mreal 
 		mreal d = (i<n-1)?mgl_d(val,va,a->v(i+1,j,ak)):-1;
 		if(d>=0 && d<1)
 		{
-			pp[pc] = mglPoint(vx*(1-d)+x->v(i+1,j)*d, vy*(1-d)+y->v(i+1,j)*d);
-			kk[pc] = mglPoint(i+d,j);	pc++;
+			pp[pc].Set(vx*(1-d)+x->v(i+1,j)*d, vy*(1-d)+y->v(i+1,j)*d);
+			kk[pc].Set(i+d,j);	pc++;
 		}
 		d = (j<m-1)?mgl_d(val,va,a->v(i,j+1,ak)):-1;
 		if(d>=0 && d<1)
 		{
-			pp[pc] = mglPoint(vx*(1-d)+x->v(i,j+1)*d, vy*(1-d)+y->v(i,j+1)*d);
-			kk[pc] = mglPoint(i,j+d);	pc++;
+			pp[pc].Set(vx*(1-d)+x->v(i,j+1)*d, vy*(1-d)+y->v(i,j+1)*d);
+			kk[pc].Set(i,j+d);	pc++;
 		}
 	}
 	// deallocate arrays and finish if no point
@@ -1547,12 +1549,12 @@ void MGL_EXPORT mgl_torus(HMGL gr, HCDT r, HCDT z, const char *sch, const char *
 		if(mr&&mz)	for(i=0;i<n;i++)
 		{
 			nn[i] = i<n-1 ? i+1 : -1;
-			pp[i] = mglPoint(mr->a[i+n*j], mz->a[i+n*j]);
+			pp[i].Set(mr->a[i+n*j], mz->a[i+n*j]);
 		}
 		else	for(i=0;i<n;i++)
 		{
 			nn[i] = i<n-1 ? i+1 : -1;
-			pp[i] = mglPoint(r->v(i,j), z->v(i,j));
+			pp[i].Set(r->v(i,j), z->v(i,j));
 		}
 		mgl_axial_plot(gr,n,pp,nn,dir,c,wire);
 	}

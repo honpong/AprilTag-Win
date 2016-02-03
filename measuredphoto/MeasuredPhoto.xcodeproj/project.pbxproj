@@ -304,7 +304,6 @@
 		32934CDB18D8DB7C005DC87C /* MPEditPhoto.m in Sources */ = {isa = PBXBuildFile; fileRef = 32934CDA18D8DB7C005DC87C /* MPEditPhoto.m */; };
 		32934CF218D922E1005DC87C /* UIImage+MPImageFile.m in Sources */ = {isa = PBXBuildFile; fileRef = 32934CF118D922E1005DC87C /* UIImage+MPImageFile.m */; };
 		3298E9EF18A58ECC0017209B /* MPDotLayerDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3298E9EE18A58ECC0017209B /* MPDotLayerDelegate.m */; };
-		32A0D2ED18A956440038EFB2 /* Reveal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 322C372218A194EE001C69C2 /* Reveal.framework */; };
 		32A2104218906439002BD1E4 /* MPView.m in Sources */ = {isa = PBXBuildFile; fileRef = 32A2104118906439002BD1E4 /* MPView.m */; };
 		32AC6415198C393200699A2E /* MPUndoOverlay.m in Sources */ = {isa = PBXBuildFile; fileRef = 32AC6414198C393200699A2E /* MPUndoOverlay.m */; };
 		32AC641D1991500200699A2E /* MPDLocation.m in Sources */ = {isa = PBXBuildFile; fileRef = 32AC641C1991500200699A2E /* MPDLocation.m */; };
@@ -461,7 +460,6 @@
 		320E5DE917E37E8400381E7A /* MPYouTubeVideo.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPYouTubeVideo.m; sourceTree = "<group>"; };
 		322C371218A18AB6001C69C2 /* MPCircleLayerDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPCircleLayerDelegate.h; sourceTree = "<group>"; };
 		322C371318A18AB6001C69C2 /* MPCircleLayerDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MPCircleLayerDelegate.m; sourceTree = "<group>"; };
-		322C372218A194EE001C69C2 /* Reveal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Reveal.framework; sourceTree = "<group>"; };
 		323BD00F1A0D798900313573 /* Flurry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Flurry.h; sourceTree = "<group>"; };
 		323BD0101A0D798900313573 /* libFlurry_5.4.0.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libFlurry_5.4.0.a; sourceTree = "<group>"; };
 		3248C7D918A44AE400061D4A /* MPToolbarView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPToolbarView.h; sourceTree = "<group>"; };
@@ -1058,7 +1056,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				D36C3621184F360C00F77AAF /* libz.dylib in Frameworks */,
-				32A0D2ED18A956440038EFB2 /* Reveal.framework in Frameworks */,
 				D36C360E184F2FCD00F77AAF /* SystemConfiguration.framework in Frameworks */,
 				D36C360C184F2FC100F77AAF /* Security.framework in Frameworks */,
 				D36C360A184F2FB900F77AAF /* QuartzCore.framework in Frameworks */,
@@ -1549,7 +1546,6 @@
 			isa = PBXGroup;
 			children = (
 				32934CEB18D90A6B005DC87C /* AudioToolbox.framework */,
-				322C372218A194EE001C69C2 /* Reveal.framework */,
 				D36C3620184F360C00F77AAF /* libz.dylib */,
 				D36C360D184F2FCD00F77AAF /* SystemConfiguration.framework */,
 				D36C360B184F2FC100F77AAF /* Security.framework */,
@@ -1965,11 +1961,6 @@
 				LastTestingUpgradeCheck = 0510;
 				LastUpgradeCheck = 0460;
 				ORGANIZATIONNAME = RealityCap;
-				TargetAttributes = {
-					32BA429817A2DF8B002BAE13 = {
-						DevelopmentTeam = 7CKC6G36R8;
-					};
-				};
 			};
 			buildConfigurationList = 32BA429417A2DF8B002BAE13 /* Build configuration list for PBXProject "MeasuredPhoto" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -2499,6 +2490,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/**",
@@ -2517,8 +2509,6 @@
 				OTHER_LDFLAGS = (
 					"-lc++",
 					"-ObjC",
-					"-framework",
-					Reveal,
 				);
 				PRODUCT_NAME = 3Dimension;
 				PROVISIONING_PROFILE = "";
@@ -2611,6 +2601,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				DEAD_CODE_STRIPPING = NO;
+				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/**",
@@ -2628,8 +2619,6 @@
 				OTHER_LDFLAGS = (
 					"-lc++",
 					"-ObjC",
-					"-framework",
-					Reveal,
 				);
 				PRODUCT_NAME = 3Dimension;
 				PROVISIONING_PROFILE = "";
@@ -2652,6 +2641,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/**",
@@ -2670,8 +2660,6 @@
 				OTHER_LDFLAGS = (
 					"-lc++",
 					"-ObjC",
-					"-framework",
-					Reveal,
 				);
 				PRODUCT_NAME = 3Dimension;
 				PROVISIONING_PROFILE = "";

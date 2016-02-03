@@ -384,8 +384,8 @@ bool stereo::reestimate_F(const stereo_frame & reference, const stereo_frame & t
     for(int m = 0; m < matches.size(); m++) {
         feature_t p1 = reference_keypoints[matches[m].i1].pt;
         feature_t p2 = target_keypoints[matches[m].i2].pt;
-        reference_correspondences.push_back(v4(p1.x, p1.y, 1, 0));
-        target_correspondences.push_back(v4(p2.x, p2.y, 1, 0));
+        reference_correspondences.push_back(v4(p1.x(), p1.y(), 1, 0));
+        target_correspondences.push_back(v4(p2.x(), p2.y(), 1, 0));
     }
 
     // Estimate F
@@ -694,7 +694,7 @@ void stereo::undistort_features(list<stereo_feature> & features)
     for(list<stereo_feature>::iterator fiter = features.begin(); fiter != features.end(); ++fiter) {
         stereo_feature f = *fiter;
         feature_t undistorted = camera.undistort_image_point(f.current[0], f.current[1]);
-        fiter->current = v4(undistorted.x, undistorted.y, 0, 0);
+        fiter->current = v4(undistorted.x(), undistorted.y(), 1, 0);
     }
 }
 

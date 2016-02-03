@@ -159,6 +159,7 @@ Lamp-like transparency (@samp{2}) -- below and upper things are commutable and a
 @node Lighting, Fog, Transparency, Graphics setup
 @subsection Lighting
 @nav{}
+
 @ifclear UDAV
 @cindex SetAmbient
 @cindex AddLight
@@ -166,7 +167,7 @@ Lamp-like transparency (@samp{2}) -- below and upper things are commutable and a
 @cindex Light
 @cindex Ambient
 
-There are several functions for setup lighting. The general function is @ref{light} which switch on/off the lighting for overall plot. It influence only for graphics which created after @ref{light} call (with one exception, OpenGL). Generally MathGL support up to 10 independent light sources. But in OpenGL mode only 8 of light sources is used due to OpenGL limitations. The position, color, brightness of each light source can be set separately. By default only one light source is active. It is source number @code{0} with white color, located at top of the plot.
+There are several functions for setup lighting. The general function is @ref{light} which switch on/off the lighting for overall plot. It influence only for graphics which created after @ref{light} call (with one exception, OpenGL). Generally MathGL support up to 10 independent light sources. But in OpenGL mode only 8 of light sources is used due to OpenGL limitations. The position, color, brightness of each light source can be set separately. By default only one light source is active. It is source number @code{0} with white color, located at top of the plot. @sref{Lighting sample}
 
 @anchor{light}
 @deftypefn {MGL command} {} light @code{[val=on]}
@@ -213,6 +214,15 @@ Set brightness of diffusive light (only for local light sources).
 @deftypefnx {C function} @code{void} mgl_set_ambbr (@code{HMGL} gr, @code{mreal} bright)
 @end ifclear
 Sets the brightness of ambient light. The value should be in range [0,1].
+@end deftypefn
+
+@anchor{attachlight}
+@deftypefn {MGL command} {} attachlight @code{val}
+@ifclear UDAV
+@deftypefnx {Method on @code{mglGraph}} @code{void} AttachLight (@code{bool} val)
+@deftypefnx {C function} @code{void} mgl_set_attach_light (@code{HMGL} gr, @code{int} val)
+@end ifclear
+Set to attach light settings to @ref{inplot}/@ref{subplot}. Note, OpenGL and some output formats don't support this feature.
 @end deftypefn
 
 @c ==================================================================
@@ -569,6 +579,8 @@ Wrong command in MGL script
 Too long line in MGL script
 @item mglScrStr
 Unbalanced ' in MGL script
+@item mglScrTemp
+Change temporary data in MGL script
 @end table
 @end deftypefn
 
@@ -864,7 +876,7 @@ The same as previous but add single tick label @var{lbl} at position @var{val} t
 @deftypefnx {C function} @code{void} mgl_set_tick_templ (@code{HMGL} gr, @code{const char *}templ)
 @deftypefnx {C function} @code{void} mgl_set_tick_templw (@code{HMGL} gr, @code{const wchar_t *}templ)
 @end ifclear
-Set template @var{templ} for x-,y-,z-axis ticks or colorbar ticks. It may contain TeX symbols also. If @var{templ}=@code{""} then default template is used (in simplest case it is @samp{%.2g}). Setting on template switch off automatic ticks tuning.
+Set template @var{templ} for x-,y-,z-axis ticks or colorbar ticks. It may contain TeX symbols also. If @var{templ}=@code{""} then default template is used (in simplest case it is @samp{%.2g}). If template start with @samp{&} symbol then @code{long} integer value will be passed instead of default type @code{double}. Setting on template switch off automatic ticks tuning.
 @end deftypefn
 
 @anchor{ticktime}
@@ -888,7 +900,7 @@ Gets number of seconds from 1970 year to specified date/time @var{str}. The form
 @deftypefnx {Method on @code{mglGraph}} @code{void} SetTuneTicks (@code{int} tune, @code{mreal} pos=@code{1.15})
 @deftypefnx {C function} @code{void} mgl_tune_ticks (@code{HMGL} gr, @code{int} tune, @code{mreal} pos)
 @end ifclear
-Switch on/off ticks enhancing by factoring common multiplier (for small, like from 0.001 to 0.002, or large, like from 1000 to 2000, coordinate values -- enabled if @var{tune}&1 is nonzero) or common component (for narrow range, like from 0.999 to 1.000 -- enabled if @var{tune}&2 is nonzero). Also set the position @var{pos} of common multiplier/component on the axis: =0 at minimal axis value, =1 at maximal axis value. Default value is 1.15. If @var{tune}&4 is nonzero then zeros will be added to fixed width of all axis labels.
+Switch on/off ticks enhancing by factoring common multiplier (for small, like from 0.001 to 0.002, or large, like from 1000 to 2000, coordinate values -- enabled if @var{tune}&1 is nonzero) or common component (for narrow range, like from 0.999 to 1.000 -- enabled if @var{tune}&2 is nonzero). Also set the position @var{pos} of common multiplier/component on the axis: =0 at minimal axis value, =1 at maximal axis value. Default value is 1.15.
 @end deftypefn
 
 @anchor{tickshift}
@@ -1155,6 +1167,13 @@ Functions in this group save or give access to produced picture. So, usually the
 @end ifclear
 Sets size of picture in pixels. This function @strong{must be} called before any other plotting because it completely remove picture contents.
 @end deftypefn
+
+@ifclear UDAV
+@deftypefn {Method on @code{mglGraph}} @code{void} SetSizeScl (@code{double} factor)
+@deftypefnx {C function} @code{void} mgl_set_size_scl (@code{HMGL} gr, @code{double} factor)
+Set factor for width and height in all further calls of @ref{setsize}.
+@end deftypefn
+@end ifclear
 
 @anchor{quality}
 @deftypefn {MGL command} {} quality [@code{val}=2]
@@ -1703,7 +1722,7 @@ Draw tube (or truncated cone if @var{edge}=@code{false}) between points @var{p1}
 @item
 @samp{t} for drawing tubes/cylinder instead of cones/prisms;
 @item
-@samp{4}, @samp{6}, @samp{8}, @samp{t} for drawing square, hex- or octo-prism instead of cones.
+@samp{4}, @samp{6}, @samp{8} for drawing square, hex- or octo-prism instead of cones.
 @end itemize
 @end deftypefn
 
@@ -1818,7 +1837,7 @@ Draw bitmap (logo) along whole axis range, which can be changed by @ref{Command 
 
 These functions draw the text. There are functions for drawing text in arbitrary place, in arbitrary direction and along arbitrary curve. MathGL can use arbitrary font-faces and parse many TeX commands (for more details see @ref{Font styles}). All these functions have 2 variant: for printing 8-bit text (@code{char *}) and for printing Unicode text (@code{wchar_t *}). In first case the conversion into the current locale is used. So sometimes you need to specify it by @code{setlocale()} function. The @var{size} argument control the size of text: if positive it give the value, if negative it give the value relative to @code{SetFontSize()}. The font type (STIX, arial, courier, times and so on) can be selected by function LoadFont(). @xref{Font settings}.
 
-The font parameters are described by string. This string may set the text color @samp{wkrgbcymhRGBCYMHW} (see @ref{Color styles}). Starting from MathGL v.2.3, you can set color gradient for text (see @ref{Color scheme}). Also,  after delimiter symbol @samp{:}, it can contain characters of font type (@samp{rbiwou}) and/or align (@samp{LRCT}) specification. The font types are: @samp{r} -- roman (or regular) font, @samp{i} -- italic style, @samp{b} -- bold style, @samp{w} -- wired style, @samp{o} -- over-lined text, @samp{u} -- underlined text. By default roman font is used. The align types are: @samp{L} -- align left (default), @samp{C} -- align center, @samp{R} -- align right. Style @samp{T} will position text under the specified point (like align top). For example, string @samp{b:iC} correspond to italic font style for centered text which printed by blue color.
+The font parameters are described by string. This string may set the text color @samp{wkrgbcymhRGBCYMHW} (see @ref{Color styles}). Starting from MathGL v.2.3, you can set color gradient for text (see @ref{Color scheme}). Also,  after delimiter symbol @samp{:}, it can contain characters of font type (@samp{rbiwou}) and/or align (@samp{LRCTV}) specification. The font types are: @samp{r} -- roman (or regular) font, @samp{i} -- italic style, @samp{b} -- bold style, @samp{w} -- wired style, @samp{o} -- over-lined text, @samp{u} -- underlined text. By default roman font is used. The align types are: @samp{L} -- align left (default), @samp{C} -- align center, @samp{R} -- align right, @samp{T} -- align under, @samp{V} -- align center vertical. For example, string @samp{b:iC} correspond to italic font style for centered text which printed by blue color.
 
 If string contains symbols @samp{aA} then text is printed at absolute position @{@var{x}, @var{y}@} (supposed to be in range [0,1]) of picture (for @samp{A}) or subplot/inplot (for @samp{a}). If string contains symbol @samp{@@} then box around text is drawn.
 
@@ -1911,7 +1930,7 @@ Draws axes with ticks (see @ref{Axis settings}). Parameter @var{dir} may contain
 @item @samp{-} for printing usual @samp{-} in ticks labels;
 @item @samp{0123456789} for precision at printing ticks labels.
 @end itemize
-Styles of ticks and axis can be overrided by using @var{stl} string. @sref{Axis and ticks}
+Styles of ticks and axis can be overrided by using @var{stl} string. Option @code{value} set the manual rotation angle for the ticks. @sref{Axis and ticks}
 @end deftypefn
 
 @anchor{colorbar}
@@ -2021,7 +2040,9 @@ font style for legend text;
 @item
 @samp{#} for drawing box around legend;
 @item
-colors for background (first one) and border (second one) of legend. Note, that last color is always used as color for legend text.
+@samp{-} for arranging legend entries horizontally;
+@item
+colors for face (1st one), for border (2nd one) and for text (last one). If less than 3 colors are specified then the color for border is black (for 2 and less colors), and the color for face is white (for 1 or none colors).
 @end itemize
 @sref{Legend sample}
 
@@ -2031,7 +2052,7 @@ colors for background (first one) and border (second one) of legend. Note, that 
 @deftypefnx {Method on @code{mglGraph}} @code{void} Legend (@code{int} pos=@code{0x3}, @code{const char *}fnt=@code{"#"}, @code{const char *}opt=@code{""})
 @deftypefnx {C function} @code{void} mgl_legend (@code{HMGL} gr, @code{int} pos, @code{const char *}fnt, @code{const char *}opt)
 @end ifclear
-Draws legend of accumulated legend entries by font @var{fnt} with @var{size}. Parameter @var{pos} sets the position of the legend: @samp{0} is bottom left corner, @samp{1} is bottom right corner, @samp{2} is top left corner, @samp{3} is top right corner (is default). Parameter @var{fnt} can contain colors for face (1st one), for border (2nd one) and for text (last one). If less than 3 colors are specified then the color for border is black (for 2 and less colors), and the color for face is white (for 1 or none colors). If string @var{fnt} contain @samp{#} then border around the legend is drawn. If string @var{fnt} contain @samp{-} then legend entries will arranged horizontally. Option @code{value} set the space between line samples and text (default is 0.1).
+Draws legend of accumulated legend entries by font @var{fnt} with @var{size}. Parameter @var{pos} sets the position of the legend: @samp{0} is bottom left corner, @samp{1} is bottom right corner, @samp{2} is top left corner, @samp{3} is top right corner (is default). Option @code{value} set the space between line samples and text (default is 0.1).
 @end deftypefn
 
 @deftypefn {MGL command} {} legend @code{x y} ['fnt'='#']
@@ -2863,7 +2884,7 @@ These plotting functions draw @emph{two matrix} simultaneously. There are 5 gene
 @deftypefnx {C function} @code{void} mgl_surfc (@code{HMGL} gr, @code{HCDT} z, @code{HCDT} c, @code{const char *}sch, @code{const char *}opt)
 @deftypefnx {C function} @code{void} mgl_surfc_xy (@code{HMGL} gr, @code{HCDT} x, @code{HCDT} y, @code{HCDT} z, @code{HCDT} c, @code{const char *}sch, @code{const char *}opt)
 @end ifclear
-The function draws surface specified parametrically @{@var{x}[i,j], @var{y}[i,j], @var{z}[i,j]@} and color it by matrix @var{c}[i,j]. If string @var{sch} have symbol @samp{#} then grid lines are drawn. If string @var{sch} have symbol @samp{.} then plot by dots is produced. All dimensions of arrays @var{z} and @var{c} must be equal. Surface is plotted for each z slice of the data. See also @ref{surf}, @ref{surfa}, @ref{surf3c}. @sref{SurfC sample}
+The function draws surface specified parametrically @{@var{x}[i,j], @var{y}[i,j], @var{z}[i,j]@} and color it by matrix @var{c}[i,j]. If string @var{sch} have symbol @samp{#} then grid lines are drawn. If string @var{sch} have symbol @samp{.} then plot by dots is produced. All dimensions of arrays @var{z} and @var{c} must be equal. Surface is plotted for each z slice of the data. See also @ref{surf}, @ref{surfa}, @ref{surfca}, @ref{surf3c}. @sref{SurfC sample}
 @end deftypefn
 
 @anchor{surf3c}
@@ -2875,7 +2896,7 @@ The function draws surface specified parametrically @{@var{x}[i,j], @var{y}[i,j]
 @deftypefnx {C function} @code{void} mgl_surf3c_val (@code{HMGL} gr, @code{mreal} val, @code{HCDT} a, @code{HCDT} c, @code{const char *}sch, @code{const char *}opt)
 @deftypefnx {C function} @code{void} mgl_surf3c_xyz_val (@code{HMGL} gr, @code{mreal} val, @code{HCDT} x, @code{HCDT} y, @code{HCDT} z, @code{HCDT} a, @code{HCDT} c, @code{const char *}sch, @code{const char *}opt)
 @end ifclear
-The function draws isosurface plot for 3d array specified parametrically @var{a}[i,j,k](@var{x}[i,j,k], @var{y}[i,j,k], @var{z}[i,j,k]) at @var{a}(x,y,z)=@var{val}. It is mostly the same as @ref{surf3} function but the color of isosurface depends on values of array @var{c}. If string @var{sch} contain @samp{#} then wire plot is produced. If string @var{sch} have symbol @samp{.} then plot by dots is produced. See also @ref{surf3}, @ref{surfc}, @ref{surf3a}. @sref{Surf3C sample}
+The function draws isosurface plot for 3d array specified parametrically @var{a}[i,j,k](@var{x}[i,j,k], @var{y}[i,j,k], @var{z}[i,j,k]) at @var{a}(x,y,z)=@var{val}. It is mostly the same as @ref{surf3} function but the color of isosurface depends on values of array @var{c}. If string @var{sch} contain @samp{#} then wire plot is produced. If string @var{sch} have symbol @samp{.} then plot by dots is produced. See also @ref{surf3}, @ref{surfc}, @ref{surf3a}, @ref{surf3ca}. @sref{Surf3C sample}
 @end deftypefn
 
 @deftypefn {MGL command} {} surf3c adat cdat ['sch'='']
@@ -2899,7 +2920,7 @@ Draws @var{num}-th uniformly distributed in color range isosurfaces for 3d data.
 @deftypefnx {C function} @code{void} mgl_surfa (@code{HMGL} gr, @code{HCDT} z, @code{HCDT} c, @code{const char *}sch, @code{const char *}opt)
 @deftypefnx {C function} @code{void} mgl_surfa_xy (@code{HMGL} gr, @code{HCDT} x, @code{HCDT} y, @code{HCDT} z, @code{HCDT} c, @code{const char *}sch, @code{const char *}opt)
 @end ifclear
-The function draws surface specified parametrically @{@var{x}[i,j], @var{y}[i,j], @var{z}[i,j]@} and transparent it by matrix @var{c}[i,j]. If string @var{sch} have symbol @samp{#} then grid lines are drawn. If string @var{sch} have symbol @samp{.} then plot by dots is produced. All dimensions of arrays @var{z} and @var{c} must be equal. Surface is plotted for each z slice of the data. See also @ref{surf}, @ref{surfc}, @ref{surf3a}. @sref{SurfA sample}
+The function draws surface specified parametrically @{@var{x}[i,j], @var{y}[i,j], @var{z}[i,j]@} and transparent it by matrix @var{c}[i,j]. If string @var{sch} have symbol @samp{#} then grid lines are drawn. If string @var{sch} have symbol @samp{.} then plot by dots is produced. All dimensions of arrays @var{z} and @var{c} must be equal. Surface is plotted for each z slice of the data. See also @ref{surf}, @ref{surfc}, @ref{surfca}, @ref{surf3a}. @sref{SurfA sample}
 @end deftypefn
 
 @anchor{surf3a}
@@ -2911,7 +2932,7 @@ The function draws surface specified parametrically @{@var{x}[i,j], @var{y}[i,j]
 @deftypefnx {C function} @code{void} mgl_surf3a_val (@code{HMGL} gr, @code{mreal} val, @code{HCDT} a, @code{HCDT} c, @code{const char *}sch, @code{const char *}opt)
 @deftypefnx {C function} @code{void} mgl_surf3a_xyz_val (@code{HMGL} gr, @code{mreal} val, @code{HCDT} x, @code{HCDT} y, @code{HCDT} z, @code{HCDT} a, @code{HCDT} c, @code{const char *}sch, @code{const char *}opt)
 @end ifclear
-The function draws isosurface plot for 3d array specified parametrically @var{a}[i,j,k](@var{x}[i,j,k], @var{y}[i,j,k], @var{z}[i,j,k]) at @var{a}(x,y,z)=@var{val}. It is mostly the same as @ref{surf3} function but the transparency of isosurface depends on values of array @var{c}. If string @var{sch} contain @samp{#} then wire plot is produced. If string @var{sch} have symbol @samp{.} then plot by dots is produced. See also @ref{surf3}, @ref{surfc}, @ref{surf3a}. @sref{Surf3A sample}
+The function draws isosurface plot for 3d array specified parametrically @var{a}[i,j,k](@var{x}[i,j,k], @var{y}[i,j,k], @var{z}[i,j,k]) at @var{a}(x,y,z)=@var{val}. It is mostly the same as @ref{surf3} function but the transparency of isosurface depends on values of array @var{c}. If string @var{sch} contain @samp{#} then wire plot is produced. If string @var{sch} have symbol @samp{.} then plot by dots is produced. See also @ref{surf3}, @ref{surfc}, @ref{surf3a}, @ref{surf3ca}. @sref{Surf3A sample}
 @end deftypefn
 
 @deftypefn {MGL command} {} surf3a adat cdat ['sch'='']
@@ -2923,6 +2944,43 @@ The function draws isosurface plot for 3d array specified parametrically @var{a}
 @deftypefnx {C function} @code{void} mgl_surf3a_xyz (@code{HMGL} gr, @code{HCDT} x, @code{HCDT} y, @code{HCDT} z, @code{HCDT} a, @code{HCDT} c, @code{const char *}sch, @code{const char *}opt)
 @end ifclear
 Draws @var{num}-th uniformly distributed in color range isosurfaces for 3d data. At this array @var{c} can be vector with values of transparency and @var{num}=@var{c}.nx. In opposite case @var{num} is equal to parameter @code{value} in options @var{opt} (default is 3).
+@end deftypefn
+
+
+
+@anchor{surfca}
+@deftypefn {MGL command} {} surfca zdat cdat adat ['sch'='']
+@deftypefnx {MGL command} {} surfca xdat ydat zdat cdat adat ['sch'='']
+@ifclear UDAV
+@deftypefnx {Method on @code{mglGraph}} @code{void} SurfCA (@code{const mglDataA &}z, @code{const mglDataA &}c, @code{const mglDataA &}a, @code{const char *}sch=@code{""}, @code{const char *}opt=@code{""})
+@deftypefnx {Method on @code{mglGraph}} @code{void} SurfCA (@code{const mglDataA &}x, @code{const mglDataA &}y, @code{const mglDataA &}z, @code{const mglDataA &}c, @code{const mglDataA &}a, @code{const char *}sch=@code{""}, @code{const char *}opt=@code{""})
+@deftypefnx {C function} @code{void} mgl_surfca (@code{HMGL} gr, @code{HCDT} z, @code{HCDT} c, @code{HCDT} a, @code{const char *}sch, @code{const char *}opt)
+@deftypefnx {C function} @code{void} mgl_surfca_xy (@code{HMGL} gr, @code{HCDT} x, @code{HCDT} y, @code{HCDT} z, @code{HCDT} c, @code{HCDT} a, @code{const char *}sch, @code{const char *}opt)
+@end ifclear
+The function draws surface specified parametrically @{@var{x}[i,j], @var{y}[i,j], @var{z}[i,j]@}, color it by matrix @var{c}[i,j] and transparent it by matrix @var{a}[i,j]. If string @var{sch} have symbol @samp{#} then grid lines are drawn. If string @var{sch} have symbol @samp{.} then plot by dots is produced. All dimensions of arrays @var{z} and @var{c} must be equal. Surface is plotted for each z slice of the data. Note, you can use @ref{map}-like coloring if use @samp{%} in color scheme. See also @ref{surf}, @ref{surfc}, @ref{surfa}, @ref{surf3ca}. @sref{SurfCA sample}
+@end deftypefn
+
+@anchor{surf3ca}
+@deftypefn {MGL command} {} surf3ca adat cdat bdat @code{val} ['sch'='']
+@deftypefnx {MGL command} {} surf3ca xdat ydat zdat adat cdat bdat @code{val} ['sch'='']
+@ifclear UDAV
+@deftypefnx {Method on @code{mglGraph}} @code{void} Surf3CA (@code{mreal} val, @code{const mglDataA &}a, @code{const mglDataA &}c, @code{const mglDataA &}b, @code{const char *}sch=@code{""}, @code{const char *}opt=@code{""})
+@deftypefnx {Method on @code{mglGraph}} @code{void} Surf3CA (@code{mreal} val, @code{const mglDataA &}x, @code{const mglDataA &}y, @code{const mglDataA &}z, @code{const mglDataA &}a, @code{const mglDataA &}c, @code{const mglDataA &}b, @code{const char *}sch=@code{""}, @code{const char *}opt=@code{""})
+@deftypefnx {C function} @code{void} mgl_surf3ca_val (@code{HMGL} gr, @code{mreal} val, @code{HCDT} a, @code{HCDT} c, @code{HCDT} b, @code{const char *}sch, @code{const char *}opt)
+@deftypefnx {C function} @code{void} mgl_surf3ca_xyz_val (@code{HMGL} gr, @code{mreal} val, @code{HCDT} x, @code{HCDT} y, @code{HCDT} z, @code{HCDT} a, @code{HCDT} c, @code{HCDT} b,@code{const char *}sch, @code{const char *}opt)
+@end ifclear
+The function draws isosurface plot for 3d array specified parametrically @var{a}[i,j,k](@var{x}[i,j,k], @var{y}[i,j,k], @var{z}[i,j,k]) at @var{a}(x,y,z)=@var{val}. It is mostly the same as @ref{surf3} function but the color and the transparency of isosurface depends on values of array @var{c} and @var{b} correspondingly. If string @var{sch} contain @samp{#} then wire plot is produced. If string @var{sch} have symbol @samp{.} then plot by dots is produced. Note, you can use @ref{map}-like coloring if use @samp{%} in color scheme. See also @ref{surf3}, @ref{surfca}, @ref{surf3c}, @ref{surf3a}. @sref{Surf3CA sample}
+@end deftypefn
+
+@deftypefn {MGL command} {} surf3ca adat cdat bdat ['sch'='']
+@deftypefnx {MGL command} {} surf3ca xdat ydat zdat adat cdat bdat ['sch'='']
+@ifclear UDAV
+@deftypefnx {Method on @code{mglGraph}} @code{void} Surf3CA (@code{const mglDataA &}a, @code{const mglDataA &}c, @code{const mglDataA &}b, @code{const char *}sch=@code{""}, @code{const char *}opt=@code{""})
+@deftypefnx {Method on @code{mglGraph}} @code{void} Surf3CA (@code{const mglDataA &}x, @code{const mglDataA &}y, @code{const mglDataA &}z, @code{const mglDataA &}a, @code{const mglDataA &}c, @code{const mglDataA &}b, @code{const char *}sch=@code{""}, @code{const char *}opt=@code{""})
+@deftypefnx {C function} @code{void} mgl_surf3ca (@code{HMGL} gr, @code{HCDT} a, @code{HCDT} c, @code{HCDT} b, @code{const char *}sch, @code{const char *}opt)
+@deftypefnx {C function} @code{void} mgl_surf3ca_xyz (@code{HMGL} gr, @code{HCDT} x, @code{HCDT} y, @code{HCDT} z, @code{HCDT} a, @code{HCDT} c, @code{HCDT} b, @code{const char *}sch, @code{const char *}opt)
+@end ifclear
+Draws @var{num}-th uniformly distributed in color range isosurfaces for 3d data. Here parameter @var{num} is equal to parameter @code{value} in options @var{opt} (default is 3).
 @end deftypefn
 
 @anchor{tiles}
@@ -3430,8 +3488,13 @@ Get last fitted formula with found coefficients (as numbers).
 @end deftypefn
 
 @deftypefn {Method on @code{mglGraph}} @code{mreal} GetFitChi ()
-@deftypefnx {C function only} @code{mreal} mgl_get_fit_chi ()
+@deftypefnx {C function} @code{mreal} mgl_get_fit_chi ()
 Get \chi for last fitted formula.
+@end deftypefn
+
+@deftypefn {Method on @code{mglGraph}} @code{mreal} GetFitCovar ()
+@deftypefnx {C function} @code{mreal} mgl_get_fit_covar ()
+Get covariance matrix for last fitted formula.
 @end deftypefn
 @end ifclear
 

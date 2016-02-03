@@ -6,13 +6,7 @@
 #ifndef __vec4_H
 #define __vec4_H
 
-#ifdef __APPLE__
-#include <Accelerate/Accelerate.h>
-#endif
 extern "C" {
-#ifndef __APPLE__
-#include <xmmintrin.h>
-#endif
 #include "../cor/cor_types.h"
 #include <stdio.h>
 #include <inttypes.h>
@@ -38,13 +32,14 @@ extern "C" {
 //#define EIGEN_INITIALIZE_MATRICES_BY_ZERO
 
 #define EIGEN_DEFAULT_TO_ROW_MAJOR
-#define EIGEN_MATRIX_PLUGIN "../../../numerics/eigen_initializer_list.h"
-#include "../Eigen/Dense"
+#define EIGEN_MATRIX_PLUGIN "eigen_initializer_list.h"
+#include <Eigen/Dense>
 
 typedef Eigen::Matrix<f_t, 4, 1> v4;
 typedef Eigen::Matrix<f_t, 3, 1> v3;
 typedef Eigen::Matrix<f_t, 4, 4> m4;
 typedef Eigen::Matrix<f_t, 3, 3> m3;
+typedef Eigen::Matrix<f_t, 2, 1> v2, feature_t;
 
 static inline v4 v4_sqrt(const v4 &v) { return v4(sqrt(v[0]), sqrt(v[1]), sqrt(v[2]), sqrt(v[3])); }
 
@@ -177,8 +172,5 @@ inline static f_t determinant3(const m4 &m)
     - m(0, 1) * determinant_minor(m, 0, 2)
     + m(0, 2) * determinant_minor(m, 0, 1);
 }
-
-v4 integrate_angular_velocity(const v4 &W, const v4 &w);
-void linearize_angular_integration(const v4 &W, const v4 &w, m4 &dW_dW, m4 &dW_dw);
 
 #endif

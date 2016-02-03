@@ -57,7 +57,7 @@ public:
 
 class observation_vision_feature: public observation_storage<2> {
  private:
-    f_t projection_residual(const v4 & X, const xy &found);
+    f_t projection_residual(const v4 & X, const feature_t &found);
     const state_vision &state;
  public:
     static stdev_scalar stdev[2], inn_stdev[2];
@@ -69,17 +69,15 @@ class observation_vision_feature: public observation_storage<2> {
     v4 Ttot;
 
     f_t dx_dp, dy_dp;
-    v4 dx_dWr, dy_dWr, dx_dTr, dy_dTr;
+    v4 dx_dQr, dy_dQr, dx_dTr, dy_dTr;
 
-#if estimate_camera_intrinsics
     f_t dx_dF, dy_dF;
-    f_t dx_dk1, dy_dk1, dx_dk2, dy_dk2, dx_dcx, dy_dcx, dx_dcy, dy_dcy;
-#endif
+    f_t dx_dw, dy_dw, dx_dk1, dy_dk1, dx_dk2, dy_dk2, dx_dk3, dy_dk3, dx_dcx, dy_dcx, dx_dcy, dy_dcy;
 
     state_vision_group *state_group;
     state_vision_feature *feature;
     
-    feature_t norm_initial, norm_predicted;
+    feature_t norm_initial, norm_predicted, Xd;
 
     virtual void predict();
     virtual void compute_measurement_covariance();
@@ -113,10 +111,8 @@ public:
 class observation_accelerometer: public observation_spatial {
 protected:
     state_vision &state;
-    m4 Rt, Rc, da_dW, da_dw, da_ddw;
-#if estimate_camera_extrinsics
-    m4 da_dWc, da_dTc;
-#endif
+    m4 Rt, Rc, da_dQ, da_dw, da_ddw;
+    m4 da_dQc, da_dTc;
  public:
     static stdev_vector stdev, inn_stdev;
     virtual void predict();
@@ -139,9 +135,7 @@ public:
 protected:
     const state_vision &state;
     m4 Rc;
-#if estimate_camera_extrinsics
-    m4 dw_dWc;
-#endif
+    m4 dw_dQc;
  public:
     static stdev_vector stdev, inn_stdev;
     virtual void predict();
@@ -159,6 +153,7 @@ protected:
 };
 
 #define MAXOBSERVATIONSIZE 256
+static_assert(MAXOBSERVATIONSIZE > MAXSTATESIZE*2, "MAXOBSERVATIONSIZE isn't big enough for MAXSTATESIZE tracked features\n");
 
 class observation_queue {
 public:

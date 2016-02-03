@@ -120,9 +120,6 @@ struct MGL_EXPORT mglMatrix
 	bool norot;	// flag to disable pnts rotation
 	mglMatrix()	{	memset(this,0,sizeof(mglMatrix));	clear();	}
 	mglMatrix(const mglMatrix &aa) : x(aa.x),y(aa.y),z(aa.z),pf(aa.pf),norot(aa.norot) 	{	memcpy(b,aa.b,9*sizeof(mreal));	}
-#if MGL_HAVE_RVAL
-	mglMatrix(mglMatrix &&aa) : x(aa.x),y(aa.y),z(aa.z),pf(aa.pf),norot(aa.norot) 	{	memcpy(b,aa.b,9*sizeof(mreal));	}
-#endif
 	void Rotate(mreal tetz,mreal tetx,mreal tety);
 	void RotateN(mreal Tet,mreal x,mreal y,mreal z);
 	inline void clear()	{	x=y=z=pf=0;	memset(b,0,9*sizeof(mreal));	b[0]=b[4]=b[8]=1;	norot=false;	}
@@ -156,13 +153,42 @@ struct MGL_EXPORT mglPrim	// NOTE: use float for reducing memory size
 	};
 	mglPrim(int t=0):n1(0),n2(0),n3(0),n4(0),type(t),angl(0),id(0),z(0),w(0),m(0)	{}
 	mglPrim(const mglPrim &aa) : n1(aa.n1),n2(aa.n2),n3(aa.n3),n4(aa.n4),type(aa.type),angl(aa.angl),id(aa.id),z(aa.z),w(aa.w),m(aa.m) 	{}
-#if MGL_HAVE_RVAL
-	mglPrim(mglPrim &&aa) : n1(aa.n1),n2(aa.n2),n3(aa.n3),n4(aa.n4),type(aa.type),angl(aa.angl),id(aa.id),z(aa.z),w(aa.w),m(aa.m) 	{}
-#endif
 	const mglPrim &operator=(const mglPrim &aa)	{	memcpy(this, &aa, sizeof(mglPrim));	return aa;	}
 };
 bool operator<(const mglPrim &a,const mglPrim &b);
 bool operator>(const mglPrim &a,const mglPrim &b);
+//-----------------------------------------------------------------------------
+/// Structure for light source
+struct MGL_EXPORT mglLight
+{
+	mglLight():n(false),a(0),b(0)	{}
+	mglLight(const mglLight &aa) : n(aa.n),d(aa.d),r(aa.r),q(aa.q),p(aa.p),a(aa.a),b(aa.b),c(aa.c)	{}
+
+	bool n;			///< Availability of light sources
+	mglPoint d;		///< Direction of light sources
+	mglPoint r;		///< Position of light sources (NAN for infinity)
+	mglPoint q;		///< Actual position of light sources (filled by LightScale() function)
+	mglPoint p;		///< Actual direction of light sources (filled by LightScale() function)
+	mreal a;		///< Aperture of light sources
+	mreal b;		///< Brightness of light sources
+	mglColor c;		///< Color of light sources
+};
+//-----------------------------------------------------------------------------
+/// Structure for inplot
+struct MGL_EXPORT mglBlock
+{
+	int id;		///< object id
+	long n1,n2,n3,n4;	///< coordinates of corners {n1=x1,n2=x2,n3=y1,n4=y2}
+
+	mglLight light[10];	///< Light sources
+	mreal AmbBr;		///< Default ambient light brightness
+	mreal DifBr;		///< Default diffusive light brightness
+	mglMatrix B;		///< Transformation matrix
+
+	mglBlock():id(0),n1(0),n2(0),n3(0),n4(0),AmbBr(0.5),DifBr(0.5)	{}
+	mglBlock(const mglBlock &aa)	{	memcpy(this, &aa, sizeof(mglBlock));	}
+	const mglBlock &operator=(const mglBlock &aa)	{	memcpy(this, &aa, sizeof(mglBlock));	return aa;	}
+};
 //-----------------------------------------------------------------------------
 /// Structure for group of primitives
 struct MGL_EXPORT mglGroup
@@ -196,27 +222,31 @@ struct MGL_EXPORT mglText
 /// Structure for internal point representation
 struct MGL_EXPORT mglPnt	// NOTE: use float for reducing memory size
 {
-	float xx,yy,zz;	// original coordinates
-	float x,y,z;	// coordinates
-	float c,t,ta;	// index in color scheme
-	float u,v,w;	// normales
-	float r,g,b,a;	// RGBA color
+	union {	float dat[16];	struct {
+		float x,y,z;	// coordinates
+		float u,v,w;	// normales
+		float r,g,b,a;	// RGBA color
+		float xx,yy,zz;	// original coordinates
+		float c,t,ta;	// index in color scheme
+	}; };
 	short sub;		// subplot id and rotation information (later will be in subplot)
-	mglPnt(float X=0, float Y=0, float Z=0, float U=0, float V=0, float W=0, float R=0, float G=0, float B=0, float A=0):xx(X),yy(Y),zz(Z),x(X),y(Y),z(Z),c(0),t(0),ta(0),u(U),v(V),w(W),r(R),g(G),b(B),a(A),sub(0)	{}
-	mglPnt(const mglPnt &aa) : xx(aa.xx),yy(aa.yy),zz(aa.zz), x(aa.x),y(aa.y),z(aa.z), c(aa.c),t(aa.t),ta(aa.ta), u(aa.u),v(aa.v),w(aa.w), r(aa.r),g(aa.g),b(aa.b),a(aa.a), sub(aa.sub)	{}
-#if MGL_HAVE_RVAL
-	mglPnt(mglPnt &&aa) : xx(aa.xx),yy(aa.yy),zz(aa.zz), x(aa.x),y(aa.y),z(aa.z), c(aa.c),t(aa.t),ta(aa.ta), u(aa.u),v(aa.v),w(aa.w), r(aa.r),g(aa.g),b(aa.b),a(aa.a), sub(aa.sub)	{}
-#endif
-	inline const mglPnt&operator=(const mglPnt &aa)	{	memcpy(this,&aa,sizeof(mglPnt));	return aa;	}
+	mglPnt(float X, float Y=0, float Z=0, float U=0, float V=0, float W=0, float R=0, float G=0, float B=0, float A=0):x(X),y(Y),z(Z),u(U),v(V),w(W),r(R),g(G),b(B),a(A),xx(X),yy(Y),zz(Z),c(0),t(0),ta(0),sub(0)	{}
+	mglPnt():x(0),y(0),z(0),u(0),v(0),w(0),r(0),g(0),b(0),a(0),xx(0),yy(0),zz(0),c(0),t(0),ta(0),sub(0)	{}
+	mglPnt(const mglPnt &aa) : sub(aa.sub)	{	memcpy(dat,aa.dat,16*sizeof(float));	}
+	inline const mglPnt&operator=(const mglPnt &aa)	{ sub=aa.sub;	memcpy(dat,aa.dat,16*sizeof(float));	return aa;	}
 };
 inline mglPnt operator+(const mglPnt &a, const mglPnt &b)
-{	return mglPnt(a.x+b.x,a.y+b.y,a.z+b.z, a.u+b.u,a.v+b.v,a.w+b.w, a.r+b.r,a.g+b.g,a.b+b.b,a.a+b.a);	}
+{	mglPnt p;	for(long i=0;i<10;i++)	p.dat[i] = a.dat[i]+b.dat[i];	p.sub=a.sub;	return p;	}
+//{	return mglPnt(a.x+b.x,a.y+b.y,a.z+b.z, a.u+b.u,a.v+b.v,a.w+b.w, a.r+b.r,a.g+b.g,a.b+b.b,a.a+b.a);	}
 inline mglPnt operator-(const mglPnt &a, const mglPnt &b)
-{	return mglPnt(a.x-b.x,a.y-b.y,a.z-b.z, a.u-b.u,a.v-b.v,a.w-b.w, a.r-b.r,a.g-b.g,a.b-b.b,a.a-b.a);	}
+{	mglPnt p;	for(long i=0;i<10;i++)	p.dat[i] = a.dat[i]-b.dat[i];	p.sub=a.sub;	return p;	}
+//{	return mglPnt(a.x-b.x,a.y-b.y,a.z-b.z, a.u-b.u,a.v-b.v,a.w-b.w, a.r-b.r,a.g-b.g,a.b-b.b,a.a-b.a);	}
 inline mglPnt operator*(const mglPnt &a, float b)
-{	return mglPnt(a.x*b,a.y*b,a.z*b, a.u*b,a.v*b,a.w*b, a.r*b,a.g*b,a.b*b,a.a*b);	}
+{	mglPnt p;	for(long i=0;i<10;i++)	p.dat[i] = a.dat[i]*b;	p.sub=a.sub;	return p;	}
+//{	return mglPnt(a.x*b,a.y*b,a.z*b, a.u*b,a.v*b,a.w*b, a.r*b,a.g*b,a.b*b,a.a*b);	}
 inline mglPnt operator*(float b, const mglPnt &a)
-{	return mglPnt(a.x*b,a.y*b,a.z*b, a.u*b,a.v*b,a.w*b, a.r*b,a.g*b,a.b*b,a.a*b);	}
+{	mglPnt p;	for(long i=0;i<10;i++)	p.dat[i] = a.dat[i]*b;	p.sub=a.sub;	return p;	}
+//{	return mglPnt(a.x*b,a.y*b,a.z*b, a.u*b,a.v*b,a.w*b, a.r*b,a.g*b,a.b*b,a.a*b);	}
 //-----------------------------------------------------------------------------
 /// Structure for glyph representation
 struct MGL_EXPORT mglGlyph
@@ -362,7 +392,7 @@ public:
 	inline void SetCut(bool val)	{	set(val, MGL_ENABLE_CUT);	}
 	/// Set additional cutting box
 	inline void SetCutBox(mreal x1, mreal y1, mreal z1, mreal x2, mreal y2, mreal z2)
-	{	CutMin=mglPoint(x1,y1,z1);	CutMax=mglPoint(x2,y2,z2);	}
+	{	CutMin.Set(x1,y1,z1);	CutMax.Set(x2,y2,z2);	}
 	inline void SetCutBox(mglPoint v1, mglPoint v2)	{	CutMin=v1;	CutMax=v2;	}
 	/// Reset mask to solid state
 	inline void ResetMask()	{	mask = MGL_SOLID_MASK;	MaskAn = DefMaskAn;	}
@@ -372,6 +402,9 @@ public:
 	/// Set the using of light on/off.
 	virtual bool Light(bool enable)
 	{	bool t=get(MGL_ENABLE_LIGHT);	set(enable,MGL_ENABLE_LIGHT);	return t;	}
+	/// Set to attach light sources to inplot.
+	virtual bool AttachLight(bool enable)
+	{	bool t=get(MGL_LOCAL_LIGHT);	set(enable,MGL_LOCAL_LIGHT);	return t;	}
 	/// Set ambient light brightness
 	virtual void SetAmbient(mreal bright=0.5);
 	/// Set diffusive light brightness
@@ -546,7 +579,7 @@ public:
 	void SetEventFunc(void (*func)(void *), void *par)	{	event_cb=func;	event_par=par;	}
 
 protected:
-	bool Stop;			///< Flag that execution should be terminated.
+	volatile bool Stop;	///< Flag that execution should be terminated.
 	void (*event_cb)(void *);	///< Function to be called for event processing
 	void *event_par;	///< Parameter for event processing function
 
@@ -561,7 +594,7 @@ protected:
 	long *PrmInd;		///< Indexes of sorted primitives
 	mglStack<mglPnt> Pnt; 	///< Internal points
 	mglStack<mglPrim> Prm;	///< Primitives (lines, triangles and so on) -- need for export
-	mglStack<mglPrim> Sub;	///< InPlot regions {n1=x1,n2=x2,n3=y1,n4=y2,id}
+	std::vector<mglBlock> Sub;	///< InPlot regions
 	std::vector<mglText> Ptx;	///< Text labels for mglPrim
 	std::vector<mglText> Leg;	///< Text labels for legend
 	std::vector<mglGlyph> Glf;	///< Glyphs data
@@ -579,8 +612,8 @@ protected:
 	mreal pPos;			///< Current position in pen mask
 	mreal PenWidth;		///< Pen width for further line plotting (must be >0 !!!)
 //	long numT;			///< Number of textures
-	mreal AmbBr;		///< Default ambient light brightness
-	mreal DifBr;		///< Default diffusive light brightness
+	mreal AmbBr;		///< Default ambient light brightness	// TODO move to mglBlock
+	mreal DifBr;		///< Default diffusive light brightness	// TODO move to mglBlock
 
 	mreal persp;		///< Original value for perspective
 	mglMatrix Bp;		///< Transformation matrix for View() and Zoom()

@@ -4,7 +4,7 @@ set(mgl_src
 	data.cpp data_io.cpp data_ex.cpp data_png.cpp
 	export_2d.cpp export_3d.cpp eval.cpp evalp.cpp exec.cpp export.cpp
 	fit.cpp font.cpp obj.cpp other.cpp parser.cpp pde.cpp pixel.cpp
-	plot.cpp prim.cpp surf.cpp tex_table.cpp vect.cpp volume.cpp evalc.cpp
+	plot.cpp prim.cpp surf.cpp tex_table.cc vect.cpp volume.cpp evalc.cpp
 	s_hull/s_hull_pro.cpp window.cpp
 )
 

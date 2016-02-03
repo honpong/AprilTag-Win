@@ -1,6 +1,7 @@
 #include "gtest/gtest.h"
 #include "device_parameters.h"
-#include "calibration_json_store.h"
+#include "calibration_json.h"
+#include "calibration_defaults.h"
 #include <memory>
 
 using namespace std;
@@ -26,14 +27,14 @@ TEST(device_parameters_tests, get_device_by_name)
 
 TEST(device_parameters_tests, get_parameters_for_device)
 {
-    corvis_device_parameters cal;
+    device_parameters cal;
     get_parameters_for_device(DEVICE_TYPE_GIGABYTES11, &cal);
-    EXPECT_EQ(cal.version, CALIBRATION_VERSION);
+    EXPECT_EQ(cal.calibrationVersion, CALIBRATION_VERSION);
 }
 
 TEST(device_parameters_tests, is_calibration_valid)
 {
-    corvis_device_parameters cal, defaults;
+    device_parameters cal, defaults;
     calibration_load_defaults(DEVICE_TYPE_GIGABYTES11, cal);
     calibration_load_defaults(DEVICE_TYPE_GIGABYTES11, defaults);
 
@@ -42,11 +43,11 @@ TEST(device_parameters_tests, is_calibration_valid)
 
 TEST(device_parameters_tests, is_calibration_valid_not)
 {
-    corvis_device_parameters cal;
+    device_parameters cal;
     calibration_load_defaults(DEVICE_TYPE_IPAD2, cal);
     cal.a_bias[1] = 999; // makes is_calibration_valid() return false
 
-    corvis_device_parameters defaults;
+    device_parameters defaults;
     calibration_load_defaults(DEVICE_TYPE_IPAD2, defaults);
 
     EXPECT_FALSE(is_calibration_valid(cal, defaults));
@@ -54,11 +55,11 @@ TEST(device_parameters_tests, is_calibration_valid_not)
 
 TEST(device_parameters_tests, is_calibration_valid_wrong_version)
 {
-    corvis_device_parameters cal;
+    device_parameters cal;
     calibration_load_defaults(DEVICE_TYPE_IPAD2, cal);
-    cal.version = cal.version - 1; // makes is_calibration_valid() return false
+    cal.calibrationVersion = cal.calibrationVersion - 1; // makes is_calibration_valid() return false
 
-    corvis_device_parameters defaults;
+    device_parameters defaults;
     calibration_load_defaults(DEVICE_TYPE_IPAD2, defaults);
 
     EXPECT_FALSE(is_calibration_valid(cal, defaults));
@@ -66,19 +67,9 @@ TEST(device_parameters_tests, is_calibration_valid_wrong_version)
 
 TEST(device_parameters_tests, device_set_resolution)
 {
-    corvis_device_parameters cal;
+    device_parameters cal;
     device_set_resolution(&cal, 96, 69);
 
     EXPECT_EQ(96, cal.image_width);
     EXPECT_EQ(69, cal.image_height);
-}
-
-TEST(device_parameters_tests, device_set_framerate)
-{
-    corvis_device_parameters cal;
-    device_set_framerate(&cal, 99.f);
-
-    // don't test for specific values, which may be brittle. just make sure it's something reasonable.
-    EXPECT_GE(cal.shutter_delay.count(), 0); 
-    EXPECT_GT(cal.shutter_period.count(), 0);
 }

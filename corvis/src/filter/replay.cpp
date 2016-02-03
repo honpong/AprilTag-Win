@@ -9,7 +9,7 @@
 
 #include <string.h>
 #include <regex>
-#include "calibration_json_store.h"
+#include "calibration_json.h"
 #include "device_parameters.h"
 #include "../cor/packet.h"
 
@@ -29,7 +29,20 @@ bool replay::open(const char *name)
     return true;
 }
 
-bool load_calibration(string filename, corvis_device_parameters & dc)
+void replay::zero_biases()
+{
+    auto device = fusion.get_device();
+    for(int i = 0; i < 3; i++) {
+        device.a_bias[i] = 0;
+        device.w_bias[i] = 0;
+        device.a_bias_var[i] = 1e-3;
+        device.w_bias_var[i] = 1e-4;
+    }
+    fusion.set_device(device);
+
+}
+
+bool replay::load_calibration(std::string filename)
 {
     ifstream file_handle(filename);
     if(file_handle.fail())
@@ -37,23 +50,24 @@ bool load_calibration(string filename, corvis_device_parameters & dc)
 
     string json((istreambuf_iterator<char>(file_handle)), istreambuf_iterator<char>());
 
-    if(!calibration_deserialize(json, dc))
+    device_parameters def = {}, dc;
+    if(!calibration_deserialize(json, dc, &def))
         return false;
 
+    calibration_file = filename;
+    fusion.set_device(dc);
     return true;
 }
 
 bool replay::set_calibration_from_filename(const char *filename)
 {
-    corvis_device_parameters dc;
-    string fn(filename);
-    if(!load_calibration(fn + ".json", dc)) {
+    string fn(filename), json;
+    if(!load_calibration(json = fn + ".json")) {
         auto found = fn.find_last_of("/\\");
         string path = fn.substr(0, found+1);
-        if(!load_calibration(path + "calibration.json", dc))
+        if(!load_calibration(json = path + "calibration.json"))
             return false;
     }
-    fusion.set_device(dc);
     return true;
 }
 
@@ -78,9 +92,8 @@ bool replay::load_reference_from_pose_file(const string &filename)
 static bool find_prefixed_number(const std::string in, const std::string &prefix, double &n)
 {
     smatch m; if (!regex_search(in, m, regex(prefix + "(\\d+(?:\\.\\d*)?)"))) return false;
-    stringstream s(m[1]);
-    double nn; s >> nn; if (!s.fail()) n = nn;
-    return !s.fail();
+    n = std::stod(m[1]);
+    return true;
 }
 
 bool replay::find_reference_in_filename(const string &filename)
@@ -108,12 +121,12 @@ image_gray8 replay::parse_gray8(int width, int height, int stride, uint8_t *data
     gray.image = data;
     gray.width = width;
     gray.height = height;
-    gray.stride = width;
+    gray.stride = stride;
     if(qvga && width == 640 && height == 480)
     {
         gray.width = width / 2;
         gray.height = height / 2;
-        gray.stride = width / 2;
+        gray.stride = stride / 2;
         for(int y = 0; y < gray.height; ++y) {
             for(int x = 0; x < gray.width; ++x) {
                 gray.image[y * gray.stride + x] =
@@ -132,6 +145,7 @@ image_gray8 replay::parse_gray8(int width, int height, int stride, uint8_t *data
 
 void replay::start()
 {
+    setup_filter();
     is_running = true;
     path_length = 0;
     length = 0;
@@ -193,6 +207,10 @@ void replay::start()
                     //pgm header is "P5 x y"
                     parse.ignore(3, ' ') >> width >> height;
                     camera_data d = parse_gray8(width, height, width, packet->data + 16, packet->header.time, 33333, std::move(phandle));
+                    if(image_decimate && d.timestamp < last_image) break;
+                    if(last_image == sensor_clock::time_point()) last_image = d.timestamp;
+                    last_image += image_interval;
+
                     fusion.receive_image(std::move(d));
                     is_stepping = false;
                     break;
@@ -219,22 +237,20 @@ void replay::start()
                             d.depth->height = height / 2;
                             d.depth->stride = stride / 2;
                             for(int y = 0; y < d.depth->height; ++y) {
-                                for(int x = 0; x < d.depth->stride; ++x) {
+                                for(int x = 0; x < d.depth->width; ++x) {
                                     uint16_t p1 = d.depth->image[(y * 2 * width) + (x * 2)];
                                     uint16_t p2 = d.depth->image[((y * 2 + 1) * width) + (x * 2)];
                                     uint16_t p3 = d.depth->image[(y * 2 * width) + (x * 2 + 1)];
                                     uint16_t p4 = d.depth->image[((y * 2 + 1) * width) + (x * 2 + 1)];
-                                    int divisor = 0;
-                                    if(p1) divisor++;
-                                    if(p2) divisor++;
-                                    if(p3) divisor++;
-                                    if(p4) divisor++;
-                                    if(!divisor) divisor = 1;
-                                    d.depth->image[y * d.depth->stride / 2 + x] = (p1 + p2 + p3 + p4) / divisor;
+                                    int divisor = !!p1 + !!p2 + !!p3 + !!p4;
+                                    d.depth->image[d.depth->stride / 2 * y + x] = (p1 + p2 + p3 + p4) / (divisor ? divisor : 1);
                                 }
                             }
                         }
                     }
+                    if(image_decimate && d.timestamp < last_image) break;
+                    if(last_image == sensor_clock::time_point()) last_image = d.timestamp;
+                    last_image += image_interval;
                     fusion.receive_image(std::move(d));
                     is_stepping = false;
                     break;
@@ -246,6 +262,9 @@ void replay::start()
                     d.accel_m__s2[1] = ((float *)packet->data)[1];
                     d.accel_m__s2[2] = ((float *)packet->data)[2];
                     d.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time));
+                    if(accel_decimate && d.timestamp < last_accel) break;
+                    if(last_accel == sensor_clock::time_point()) last_accel = d.timestamp;
+                    last_accel += accel_interval;
                     fusion.receive_accelerometer(std::move(d));
                     break;
                 }
@@ -256,6 +275,9 @@ void replay::start()
                     d.angvel_rad__s[1] = ((float *)packet->data)[1];
                     d.angvel_rad__s[2] = ((float *)packet->data)[2];
                     d.timestamp = sensor_clock::time_point(std::chrono::microseconds(header.time));
+                    if(gyro_decimate && d.timestamp < last_gyro) break;
+                    if(last_gyro == sensor_clock::time_point()) last_gyro = d.timestamp;
+                    last_gyro += gyro_interval;
                     fusion.receive_gyro(std::move(d));
                     break;
                 }
@@ -306,21 +328,12 @@ void replay::start()
     
     file.close();
 
-    v4 T = fusion.get_transformation().T;
-    length = (float) T.norm();
-    path_length = fusion.sfm.s.total_distance;
-}
-
-bool replay::configure_all(const char *filename, bool realtime, std::function<void (float)> progress, std::function<void (const filter *, camera_data)> camera_cb)
-{
-    if(!open(filename)) return false;
-    if (!set_calibration_from_filename(filename))
-        return false;
-    is_realtime = realtime;
-    progress_callback = progress;
-    camera_callback = camera_cb;
-    setup_filter();
-    return true;
+    {
+        v4 T = fusion.get_transformation().T;
+        std::lock_guard<std::mutex> en_guard(lengths_mutex);
+        length = (float) T.norm();
+        path_length = fusion.sfm.s.total_distance;
+    }
 }
 
 void replay::stop()

@@ -1,5 +1,7 @@
 if(enable-qt)
 
+configure_file(${MathGL_SOURCE_DIR}/udav/mgl.xml.in ${MathGL_BINARY_DIR}/udav/mgl.xml)
+
 #set(mgl_wnd_src window.cpp)
 set(udav_src anim_dlg.cpp find_dlg.cpp mem_pnl.cpp prop_dlg.cpp textedit.cpp args_dlg.cpp
 	help_pnl.cpp newcmd_dlg.cpp text_pnl.cpp calc_dlg.cpp hint_dlg.cpp
@@ -53,8 +55,16 @@ install(
 	TARGETS udav
 	RUNTIME DESTINATION bin
 )
-install(FILES udav.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications/)
 install(FILES udav.png DESTINATION ${CMAKE_INSTALL_PREFIX}/share/pixmaps/)
 install(FILES udav_ru.qm DESTINATION ${CMAKE_INSTALL_PREFIX}/share/udav/)
-
+find_program(findupddb update-desktop-database)
+if(findupddb)
+	install(FILES udav.desktop DESTINATION ${CMAKE_INSTALL_PREFIX}/share/applications/)
+	install(CODE "execute_process(COMMAND \"${findupddb}\" \"${CMAKE_INSTALL_PREFIX}/share/applications\")")
+endif(findupddb)
+find_program(findupmdb update-mime-database)
+if(findupmdb)
+	install(FILES ${CMAKE_BINARY_DIR}/udav/mgl.xml DESTINATION ${CMAKE_INSTALL_PREFIX}/share/mime/packages/)
+	install(CODE "execute_process(COMMAND \"${findupmdb}\" \"${CMAKE_INSTALL_PREFIX}/share/mime\")")
+endif(findupmdb)
 endif(enable-qt)

@@ -13,6 +13,8 @@ class replay
 private:
     std::ifstream file;
     bool depth {true};
+    bool qvga {false};
+    bool trace {false};
     double length_m {0}, reference_length_m {NAN};
     bool find_reference_in_filename(const std::string &filename);
     bool set_calibration_from_filename(const std::string &fn);
@@ -22,10 +24,12 @@ public:
     rc_Tracker *tracker;
     replay() { tracker = rc_create(); }
     ~replay() { rc_destroy(tracker); tracker = nullptr; }
-    void reset() { rc_Pose id = {1,0,0,0, 0,1,0,0, 0,0,1,0}; rc_reset(tracker, 0, id); }
+    void reset() { rc_reset(tracker, 0, rc_POSE_IDENTITY); }
     bool open(const char *name);
     bool run();
     void disable_depth() { depth = false; }
+    void enable_qvga() { qvga = true; }
+    void enable_trace_output() { trace = true; }
     double get_length() { return length_m; }
     double get_reference_length() { return reference_length_m; }
     void enable_pose_output();

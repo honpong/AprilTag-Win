@@ -27,7 +27,9 @@ set to use new color from palette for each point (not for each curve, as default
 
 set to disable ticks tuning in @ref{axis} and @ref{colorbar};
 
-set to draw @ref{grid} lines at subticks coordinates too.
+set to draw @ref{grid} lines at subticks coordinates too;
+
+define complex variable/expression in MGL script if placed at beginning.
 
 @item #
 set to use solid marks (see @ref{Line styles}) or solid @ref{error} boxes;
@@ -51,7 +53,13 @@ start comment in @ref{MGL scripts} or in @ref{Command options}.
 @item $
 denote parameter of @ref{MGL scripts}.
 
+@item %
+set color scheme along 2 coordinates @ref{Color scheme}.
+
 @item &
+
+set to pass long integer number in tick template @ref{xtick}, @ref{ytick}, @ref{ztick}, @ref{ctick}.
+
 operation in @ref{Textual formulas}.
 
 @item @quoteright{}
@@ -446,7 +454,9 @@ name of u-axis (one of ternary axis);
 variable in @ref{Textual formulas}, which usually denote array itself.
 
 @item V
-arrow style (see @ref{Line styles}).
+arrow style (see @ref{Line styles});
+
+place text centering on vertical direction for @ref{text}.
 
 @item v
 one of marks (see @ref{Line styles});

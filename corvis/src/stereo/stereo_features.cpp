@@ -112,8 +112,8 @@ vector<sift_keypoint> sift_detect(uint8_t * image, int width, int height, int no
 
                 /* compute descriptor (if necessary) */
                 vl_sift_calc_keypoint_descriptor(filt, descr.d, k, angles [q]) ;
-                descr.pt.x = k->x;
-                descr.pt.y = k->y;
+                descr.pt.x() = k->x;
+                descr.pt.y() = k->y;
                 descr.sigma = k->sigma;
                 /* possibly should convert to uint8 for matching later */
                 /*

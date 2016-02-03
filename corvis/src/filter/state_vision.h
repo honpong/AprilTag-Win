@@ -21,9 +21,6 @@ extern "C" {
 #include "mapper.h"
 #include "../cor/sensor_data.h"
 
-#define estimate_camera_intrinsics 0
-#define estimate_camera_extrinsics 0
-
 using namespace std;
 
 enum group_flag {
@@ -64,7 +61,6 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     v4 current;
     feature_t prediction;
     f_t innovation_variance_x, innovation_variance_y, innovation_variance_xy;
-    static uint64_t counter;
     uint64_t id;
     uint64_t groupid;
     v4 world;
@@ -90,7 +86,7 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     static f_t max_variance;
 
     state_vision_feature(): state_leaf("feature") {};
-    state_vision_feature(f_t initialx, f_t initialy);
+    state_vision_feature(uint64_t feature_id, const feature_t & initial);
     bool should_drop() const;
     bool is_valid() const;
     bool is_good() const;
@@ -152,18 +148,17 @@ public:
 class state_vision_group: public state_branch<state_node *> {
  public:
     state_vector Tr;
-    state_rotation_vector Wr;
+    state_quaternion Qr;
 
     state_branch<state_vision_feature *> features;
     list<uint64_t> neighbors;
     list<uint64_t> old_neighbors;
     int health;
     enum group_flag status;
-    static uint64_t counter;
     uint64_t id;
 
     state_vision_group(const state_vision_group &other);
-    state_vision_group();
+    state_vision_group(uint64_t group_id);
     void make_empty();
     int process_features(const camera_data & camera, mapper & map, bool map_enabled);
     int make_reference();
@@ -172,9 +167,8 @@ class state_vision_group: public state_branch<state_node *> {
     static f_t min_feats;
     
     //cached data
-    m4 Rr;
-    m4 dWrp_dWr, dWrp_ddW;
-    m4 dTrp_ddT, dTrp_dWr, dTrp_dW;
+    m4 dQrp_s_dW;
+    m4 dTrp_ddT, dTrp_dQr_s_, dTrp_dQ_s;
 
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
@@ -184,12 +178,17 @@ class state_vision: public state_motion {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
 public:
     state_vector Tc;
-    state_rotation_vector Wc;
+    state_quaternion Qc;
     state_scalar focal_length;
     state_scalar center_x, center_y;
     state_scalar k1, k2, k3;
     int image_width, image_height;
+    feature_t image_size() const { return feature_t {(f_t)image_width, (f_t)image_height}; }
     bool fisheye = false;
+    uint64_t feature_counter;
+    uint64_t group_counter;
+    bool estimate_camera_intrinsics{false};
+    bool estimate_camera_extrinsics{false};
 
     state_branch<state_vision_group *> groups;
     list<state_vision_feature *> features;
@@ -197,13 +196,14 @@ public:
     state_vision(covariance &c);
     ~state_vision();
     int process_features(const camera_data & camera, sensor_clock::time_point time);
-    state_vision_feature *add_feature(f_t initialx, f_t initialy);
+    state_vision_feature *add_feature(const feature_t & initial);
     state_vision_group *add_group(sensor_clock::time_point time);
 
     float total_distance;
     v4 last_position;
     m4 camera_matrix;
     state_vision_group *reference;
+
     uint64_t last_reference{0};
     v4 last_Tr;
     rotation_vector last_Wr;
@@ -214,20 +214,10 @@ public:
     float lost_factor;
     bool loop_closed{false};
     
-    void fill_calibration(const feature_t &initial, f_t &r2, f_t &kr) const {
-        r2 = initial.x * initial.x + initial.y * initial.y;
-
-        if(fisheye) {
-            f_t r = sqrt(r2);
-            f_t ru = tan(r * k1.v) / (2. * tan(k1.v / 2.));
-            kr = ru / r;
-        }
-        else kr = 1. + r2 * (k1.v + r2 * (k2.v + r2 * k3.v));
-    }
-    feature_t calibrate_feature(const feature_t &initial) const;
-    feature_t uncalibrate_feature(const feature_t &normalized) const;
-    feature_t project_feature(const feature_t &feat) const;
-    feature_t unproject_feature(const feature_t &feat) const;
+    feature_t undistort_feature(const feature_t &feat_d, f_t *ku_d_ = nullptr, f_t *dku_d_drd = nullptr, f_t *dku_d_dk1 = nullptr, f_t *dku_d_dk2 = nullptr, f_t *dku_d_dk3 = nullptr) const;
+    feature_t distort_feature(const feature_t &feat_u, f_t *kd_u_ = nullptr, f_t *dkd_u_dru = nullptr, f_t *dkd_u_dk1 = nullptr, f_t *dkd_u_dk2 = nullptr, f_t *dkd_u_dk3 = nullptr) const;
+    feature_t normalize_feature(const feature_t &feat) const;
+    feature_t unnormalize_feature(const feature_t &feat) const;
     float median_depth_variance();
     
     virtual void reset();

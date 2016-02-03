@@ -11,8 +11,8 @@ if(NOT CMAKE_BUILD_TYPE)
 endif(NOT CMAKE_BUILD_TYPE)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
-#set(MathGL_VERSION_MAJOR 2)
-#set(MathGL_VERSION_MINOR 2.2)
+set(MathGL_VERSION_MAJOR 2)
+set(MathGL_VERSION_MINOR 3.3)
 set(MathGL_SOVERSION 7.4.0)
 
 
@@ -60,6 +60,7 @@ ENDMACRO(MGL_DEPENDENT_OPTION)
 include(CMakeDependentOption)
 
 set(MGL_LIB_INSTALL_DIR "lib" CACHE STRING "Set library install directory")
+string(TIMESTAMP MGL_NIGHT "%d.%m.%y")
 
 option(enable-double "Enable double precision in MathGL library" ON)
 option(enable-mpi "Enable mpi")
@@ -133,9 +134,8 @@ if(NOT WIN32)
 	set(MGL_MAN_PATH "${CMAKE_INSTALL_PREFIX}/share/man")
 	set(MGL_INFO_PATH "${CMAKE_INSTALL_PREFIX}/share/info")
 	set(MGL_FONT_PATH "${MGL_DATA_PATH}/fonts")
-	install(DIRECTORY fonts/ DESTINATION ${MGL_FONT_PATH}
-			PATTERN ".svn" EXCLUDE
-			PATTERN "*.vfm")
+else(NOT WIN32)
+	set(MGL_FONT_PATH "${CMAKE_INSTALL_PREFIX}/fonts")
 endif(NOT WIN32)
 
 include(CheckFunctionExists)
@@ -164,7 +164,11 @@ if(HAVE_MEMRCHR)
 	ADD_DEFINITIONS(-DHAVE_MEMRCHR)
 endif(HAVE_MEMRCHR)
 
+include(CheckTypeSize)
+check_type_size("long" SIZEOF_LONG)
+
 include(CheckCXXSourceCompiles)
+unset(MGL_HAVE_C99_COMPLEX)
 CHECK_CXX_SOURCE_COMPILES(
 "#include <complex>
 #include <complex.h>
@@ -175,12 +179,16 @@ std::complex<double> b(*a);return 0;}" MGL_HAVE_C99_COMPLEX)
 if(NOT MGL_HAVE_C99_COMPLEX)
 	set(MGL_HAVE_C99_COMPLEX 0)
 endif(NOT MGL_HAVE_C99_COMPLEX)
+
+unset(MGL_HAVE_NAN_INF)
 CHECK_CXX_SOURCE_COMPILES(
 "#include <math.h>
 int main(){double a=NAN, b=INFINITY;return 0;}" MGL_HAVE_NAN_INF)
 if(NOT MGL_HAVE_NAN_INF)
 	set(MGL_HAVE_NAN_INF 0)
 endif(NOT MGL_HAVE_NAN_INF)
+
+unset(MGL_HAVE_ATTRIBUTE)
 CHECK_CXX_SOURCE_COMPILES(
 "int __attribute__((pure)) test1() {return 0;}
 int __attribute__((const)) test2(int x) {return x*x;}
@@ -188,6 +196,8 @@ int main(int argc, char* argv[]) {return 0;}" MGL_HAVE_ATTRIBUTE)
 if(NOT MGL_HAVE_ATTRIBUTE)
 	set(MGL_HAVE_ATTRIBUTE 0)
 endif(NOT MGL_HAVE_ATTRIBUTE)
+
+unset(MGL_HAVE_TYPEOF)
 CHECK_CXX_SOURCE_COMPILES(
 "#define mgl_isnum(a)	({typeof (a) _a = (a); _a==_a;})
 int main(){bool a=mgl_isnum(1);return 0;}" MGL_HAVE_TYPEOF)
@@ -195,7 +205,7 @@ if(NOT MGL_HAVE_TYPEOF)
 	set(MGL_HAVE_TYPEOF 0)
 endif(NOT MGL_HAVE_TYPEOF)
 
-#unset(MGL_HAVE_C99_COMPLEX)
+unset(MGL_HAVE_RVAL)
 CHECK_CXX_SOURCE_COMPILES(
 "struct test { test() {} test(test&& a){} };
 int main() { test t;	return 0; }" MGL_HAVE_RVAL)
@@ -505,6 +515,7 @@ if(NOT enable-lgpl)
 	endif(enable-python OR enable-lua OR enable-octave)
 	if(NOT MSVC AND NOT BORLAND)
 		add_subdirectory( utils )
+		add_subdirectory( fonts )
 	endif(NOT MSVC AND NOT BORLAND)
 #	add_subdirectory( mgllab )
 endif(NOT enable-lgpl)
@@ -521,3 +532,9 @@ endif(NOT MSVC AND NOT BORLAND)
 if(enable-mgltex)
 	add_subdirectory( mgltex )
 endif(enable-mgltex)
+
+if(WIN32)
+	install(FILES ${CMAKE_SOURCE_DIR}/FindMathGL2.cmake DESTINATION ${CMAKE_INSTALL_PREFIX} RENAME mathgl2-config.cmake)
+else(WIN32)
+	install(FILES ${CMAKE_SOURCE_DIR}/FindMathGL2.cmake DESTINATION ${MGL_LIB_INSTALL_DIR}/cmake/mathgl2/ RENAME mathgl2-config.cmake)
+endif(WIN32)

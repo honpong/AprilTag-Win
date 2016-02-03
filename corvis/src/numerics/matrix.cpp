@@ -15,11 +15,11 @@
 #include <alloca.h>
 #endif
 
-#ifdef __APPLE__
+#if defined(__APPLE__) && !defined(__INTEL_COMPILER)
 #include <Accelerate/Accelerate.h>
 #define lapack_int __CLPK_integer
 #else // __APPLE__
-#if defined(WIN32) || defined(ANDROID)
+#if defined(WIN32) || defined(ANDROID) || defined(__INTEL_COMPILER)
 #include <mkl.h>
 #else // WIN32
 #include <cblas.h>

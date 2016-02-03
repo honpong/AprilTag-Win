@@ -25,6 +25,7 @@
 #endif
 
 #include "mgl2/mgl.h"
+#include "mgl2/font.h"
 #include "mgl2/eval.h"
 //-----------------------------------------------------------------------------
 void mgl_create_cpp_font(HMGL gr, const wchar_t *how);
@@ -64,6 +65,12 @@ void mgls_prepare3v(mglData *ex, mglData *ey, mglData *ez);
 void save(mglGraph *gr,const char *name,const char *suf);
 void test(mglGraph *gr)
 {
+	gr->Line(mglPoint(-1,-1),mglPoint(1,1));
+	gr->Axis();
+	gr->WriteEPS("1.eps");
+	gr->WriteTEX("1.tex");
+	gr->WriteSVG("1.svg");
+	return;
 	mglParse par;
 	par.Execute(gr,"load '/home/balakin/mathgl-code/mathgl-2x/build/examples/libmgl_module.so':baxis\n");
 //	par.Execute(gr,"subplot 1 1 0:#rotate 40 60\nperspective 1.22:box:axis\n");
@@ -103,6 +110,7 @@ static struct option longopts[] =
 	{ "font",	no_argument,	&dotest,	2 },
 	{ "time",	no_argument,	&dotest,	3 },
 	{ "fexport",no_argument,	&dotest,	4 },
+	{ "textbl",	no_argument,	&dotest,	5 },
 	{ "thread",	required_argument,	NULL,	't' },
 	{ "verbose",no_argument,	&verbose,	1 },
 	{ "width",	required_argument,	NULL,	'w' },
@@ -370,6 +378,15 @@ void smgl_fexport(mglGraph *gr)	// test file export
 	gr->ImportMGLD("fexport.mgld");
 }
 //-----------------------------------------------------------------------------
+extern mglTeXsymb mgl_tex_symb[];
+extern long mgl_tex_num;
+int MGL_LOCAL_PURE mgl_tex_symb_cmp(const void *a, const void *b)
+{
+	const mglTeXsymb *aa = (const mglTeXsymb *)a;
+	const mglTeXsymb *bb = (const mglTeXsymb *)b;
+	return wcscmp(aa->tex, bb->tex);
+}
+//-----------------------------------------------------------------------------
 int main(int argc,char **argv)
 {
 	mgl_suppress_warn(true);
@@ -431,8 +448,6 @@ int main(int argc,char **argv)
 
 	{	mgl_create_cpp_font(gr->Self(), L"!-~,¡-ÿ,̀-̏,Α-ω,ϑ,ϕ,ϖ,ϰ,ϱ,ϵ,А-я,ℏ,ℑ,ℓ,ℜ,←-↙,∀-∯,≠-≯,⟂");
 		delete gr;	return 0;	}
-	else if(dotest==4)
-	{	smgl_fexport(gr);	delete gr;	return 0;	}
 	else if(dotest==3)
 	{
 		int qual[7]={0,1,2,4,5,6,8};
@@ -468,6 +483,20 @@ int main(int argc,char **argv)
 		}
 		fprintf(fp,"\n@end multitable\n");	fclose(fp);
 	}
+	else if(dotest==4)
+	{	smgl_fexport(gr);	delete gr;	return 0;	}
+	else if(dotest==5)
+	{
+		size_t i=0;	while(mgl_tex_symb[i].tex[0])	i++;
+		if(mgl_tex_num!=i)	printf("real=%lu, set=%ld\n",i,mgl_tex_num);
+		for(size_t i=0;mgl_tex_symb[i].tex[0];i++)
+		{
+				mglTeXsymb tst, *rts;	tst.tex = mgl_tex_symb[i].tex;
+				rts = (mglTeXsymb *) bsearch(&tst, mgl_tex_symb, mgl_tex_num, sizeof(mglTeXsymb), mgl_tex_symb_cmp);
+				if(!rts)	printf("Bad '%ls' at %lu\n",mgl_tex_symb[i].tex,i);
+		}
+		delete gr;	return 0;
+	}
 
 	if(type==15 || type==16)	big=3;	// save mini version for json
 
@@ -485,7 +514,7 @@ int main(int argc,char **argv)
 				setlocale(LC_CTYPE, "");
 				char *buf = new char[strlen(s->mgl)+strlen(mmgl_dat_prepare)+1];
 				strcpy(buf,s->mgl);		strcat(buf,mmgl_dat_prepare);
-				printf("\n-------\n%s\n-------\n",verbose?buf:s->mgl);
+				if(type!=7)	printf("\n-------\n%s\n-------\n",verbose?buf:s->mgl);
 				par.Execute(gr,buf);	delete []buf;
 				const char *mess = gr->Message();
 				if(*mess)	printf("Warnings: %s\n-------\n",mess);
@@ -512,7 +541,7 @@ int main(int argc,char **argv)
 				setlocale(LC_CTYPE, "");
 				char *buf = new char[strlen(s->mgl)+strlen(mmgl_dat_prepare)+1];
 				strcpy(buf,s->mgl);		strcat(buf,mmgl_dat_prepare);
-				printf("\n-------\n%s\n-------\n",verbose?buf:s->mgl);
+				if(type!=7)	printf("\n-------\n%s\n-------\n",verbose?buf:s->mgl);
 				par.Execute(gr,buf);	delete []buf;
 				const char *mess = gr->Message();
 				if(*mess)	printf("Warnings: %s\n-------\n",mess);

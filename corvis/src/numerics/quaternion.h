@@ -19,10 +19,10 @@ public:
     quaternion(): data(1., 0., 0., 0.) {}
     quaternion(const f_t other0, const f_t other1, const f_t other2, const f_t other3): data(other0, other1, other2, other3) {}
     
-    const f_t w() const { return data[0]; }
-    const f_t x() const { return data[1]; }
-    const f_t y() const { return data[2]; }
-    const f_t z() const { return data[3]; }
+    f_t w() const { return data[0]; }
+    f_t x() const { return data[1]; }
+    f_t y() const { return data[2]; }
+    f_t z() const { return data[3]; }
     f_t &w() { return data[0]; }
     f_t &x() { return data[1]; }
     f_t &y() { return data[2]; }
@@ -57,13 +57,6 @@ static inline quaternion conjugate(const quaternion &q)
 static inline quaternion normalize(const quaternion &a) {
     f_t norm = 1. / sqrt(a.w() * a.w() + a.x() * a.x() + a.y() * a.y() + a.z() * a.z());
     return quaternion(a.w() * norm, a.x() * norm, a.y() * norm, a.z() * norm);
-}
-
-static inline v4 qvec_cross(const quaternion &a, const v4 &b) {
-    return v4(a.y() * b[2] - a.z() * b[1],
-              a.z() * b[0] - a.x() * b[2],
-              a.x() * b[1] - a.y() * b[0],
-              0);
 }
 
 //This is the same as the right jacobian of quaternion_rotate
@@ -149,32 +142,6 @@ static inline rotation_vector to_rotation_vector(const quaternion &q) {
 static inline rotation_vector to_rotation_vector(const m4 &R)
 {
     return to_rotation_vector(to_quaternion(R));
-}
-
-static inline quaternion integrate_angular_velocity(const quaternion &Q, const v4 &w)
-{
-    return quaternion(Q.w() + .5 * (-Q.x() * w[0] - Q.y() * w[1] - Q.z() * w[2]),
-                      Q.x() + .5 * (Q.w() * w[0] + Q.y() * w[2] - Q.z() * w[1]),
-                      Q.y() + .5 * (Q.w() * w[1] + Q.z() * w[0] - Q.x() * w[2]),
-                      Q.z() + .5 * (Q.w() * w[2] + Q.x() * w[1] - Q.y() * w[0]));
-}
-
-static inline void integrate_angular_velocity_jacobian(const quaternion &Q, const v4 &w, m4 &dQ_dQ, m4 &dQ_dw)
-{
-    m4 temp {
-        {0., -w[0], -w[1], w[2]},
-        {w[0], 0., w[2], -w[1]},
-        {w[1], -w[2], 0., w[0]},
-        {w[2], w[1], -w[0], 0.}
-    };
-    dQ_dQ = temp * .5 + m4::Identity();
-    m4 temp2 {
-        {-Q.x(), -Q.y(), -Q.z(), 0.},
-        {Q.w(), -Q.z(), Q.y(), 0.},
-        {Q.z(), Q.w(), -Q.x(), 0.},
-        {-Q.y(), Q.x(), Q.w(), 0.}
-    };
-    dQ_dw = temp2 * .5;
 }
 
 //Assumes a and b are already normalized

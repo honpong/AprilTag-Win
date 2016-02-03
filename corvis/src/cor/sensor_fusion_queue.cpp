@@ -9,7 +9,7 @@
 #include <cassert>
 
 template<typename T, int size>
-sensor_queue<T, size>::sensor_queue(std::mutex &mx, std::condition_variable &cnd, const bool &actv): period(0), mutex(mx), cond(cnd), active(actv), readpos(0), writepos(0), count(0)
+sensor_queue<T, size>::sensor_queue(std::mutex &mx, std::condition_variable &cnd, const bool &actv, const bool &copy_push): period(0), mutex(mx), cond(cnd), active(actv), copy_on_push(copy_push), readpos(0), writepos(0), count(0)
 {
 }
 
@@ -76,7 +76,10 @@ bool sensor_queue<T, size>::push(T&& x)
         ++drop_full;
     }
     
-    storage[writepos] = std::move(x);
+    if(copy_on_push)
+        storage[writepos] = T(std::move(x));
+    else
+        storage[writepos] = std::move(x);
     writepos = (writepos + 1) % size;
     ++count;
     
@@ -119,9 +122,9 @@ fusion_queue::fusion_queue(const std::function<void(camera_data &&)> &camera_fun
                 camera_receiver(camera_func),
                 accel_receiver(accelerometer_func),
                 gyro_receiver(gyro_func),
-                accel_queue(mutex, cond, active),
-                gyro_queue(mutex, cond, active),
-                camera_queue(mutex, cond, active),
+                accel_queue(mutex, cond, active, copy_on_push),
+                gyro_queue(mutex, cond, active, copy_on_push),
+                camera_queue(mutex, cond, active, copy_on_push),
                 control_func(nullptr),
                 active(false),
                 wait_for_camera(true),
@@ -189,8 +192,25 @@ void fusion_queue::dispatch_async(std::function<void()> fn)
     if(singlethreaded) dispatch_singlethread(false);
 }
 
+void fusion_queue::start_buffering()
+{
+    std::unique_lock<std::mutex> lock(mutex);
+    copy_on_push = true;
+    active = true;
+    lock.unlock();
+}
+
+void fusion_queue::dispatch_buffer()
+{
+    //flush any waiting data, but don't force queues to be empty
+    copy_on_push = false;
+    dispatch_singlethread(false);
+}
+
 void fusion_queue::start_async(bool expect_camera)
 {
+    dispatch_buffer();
+
     wait_for_camera = expect_camera;
     if(!thread.joinable())
     {
@@ -200,6 +220,8 @@ void fusion_queue::start_async(bool expect_camera)
 
 void fusion_queue::start_sync(bool expect_camera)
 {
+    dispatch_buffer();
+
     wait_for_camera = expect_camera;
     if(!thread.joinable())
     {
@@ -214,6 +236,8 @@ void fusion_queue::start_sync(bool expect_camera)
 
 void fusion_queue::start_singlethreaded(bool expect_camera)
 {
+    dispatch_buffer();
+
     wait_for_camera = expect_camera;
     singlethreaded = true;
     active = true;
@@ -252,7 +276,7 @@ void fusion_queue::wait_until_finished()
     if(thread.joinable()) thread.join();
 }
 
-bool fusion_queue::run_control(const std::unique_lock<std::mutex>& lock)
+bool fusion_queue::run_control()
 {
     if(!control_func) return false;
     control_func();
@@ -270,11 +294,11 @@ void fusion_queue::runloop()
     lock.lock();
     while(active)
     {
-        while(active && !run_control(lock) && !dispatch_next(lock, false))
+        while(active && !run_control() && !dispatch_next(lock, false))
         {
             cond.wait(lock);
         }
-        while(run_control(lock) || dispatch_next(lock, false)); //we need to be greedy, since we only get woken on new data arriving
+        while(run_control() || dispatch_next(lock, false)); //we need to be greedy, since we only get woken on new data arriving
     }
     //flush any remaining data
     while (dispatch_next(lock, true));

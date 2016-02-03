@@ -358,7 +358,6 @@
 		3265479719C3669500A89749 /* Tutorial.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; path = Tutorial.mp4; sourceTree = "<group>"; };
 		3273BCB3170BA81F00FF0F6A /* TMMeasurementType.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TMMeasurementType.h; sourceTree = "<group>"; };
 		3273BCB4170BA81F00FF0F6A /* TMMeasurementType.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TMMeasurementType.m; sourceTree = "<group>"; };
-		327BB10C19DC9D3F004182D1 /* Reveal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Reveal.framework; path = ../Reveal/Reveal.framework; sourceTree = "<group>"; };
 		32803A5F18DB6452002F54B5 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		32803A6818DBA2CF002F54B5 /* UIImage+InverseImage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+InverseImage.h"; sourceTree = "<group>"; };
 		32803A6918DBA2CF002F54B5 /* UIImage+InverseImage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+InverseImage.m"; sourceTree = "<group>"; };
@@ -876,7 +875,6 @@
 		3280F7E2161BBB3200B5C8A8 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				327BB10C19DC9D3F004182D1 /* Reveal.framework */,
 				32E6849418F5FB430043D50A /* MediaPlayer.framework */,
 				32E6849218F5FB390043D50A /* CoreText.framework */,
 				32E6849018F5FB250043D50A /* AddressBook.framework */,
@@ -1485,11 +1483,6 @@
 				LastTestingUpgradeCheck = 0510;
 				LastUpgradeCheck = 0510;
 				ORGANIZATIONNAME = RealityCap;
-				TargetAttributes = {
-					3280F7DE161BBB3200B5C8A8 = {
-						DevelopmentTeam = 7CKC6G36R8;
-					};
-				};
 			};
 			buildConfigurationList = 3280F7D9161BBB3200B5C8A8 /* Build configuration list for PBXProject "TapeMeasure" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -1913,6 +1906,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -2006,6 +2000,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -2025,8 +2020,6 @@
 					"-ObjC",
 					"-lc++",
 					"-lz",
-					"-framework",
-					Reveal,
 				);
 				PRODUCT_NAME = "Tape Measure";
 				PROVISIONING_PROFILE = "";
@@ -2045,6 +2038,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(PROJECT_DIR)",
@@ -2065,8 +2059,6 @@
 					"-ObjC",
 					"-lc++",
 					"-lz",
-					"-framework",
-					Reveal,
 				);
 				PRODUCT_NAME = "Tape Measure";
 				PROVISIONING_PROFILE = "";

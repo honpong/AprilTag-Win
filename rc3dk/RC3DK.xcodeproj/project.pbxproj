@@ -46,7 +46,6 @@
 		327B55C318EB4F3A0001CCE1 /* state_motion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55B118EB4F3A0001CCE1 /* state_motion.cpp */; };
 		327B55D318EB4F430001CCE1 /* kalman.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55CA18EB4F430001CCE1 /* kalman.cpp */; };
 		327B55D418EB4F430001CCE1 /* matrix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55CC18EB4F430001CCE1 /* matrix.cpp */; };
-		327B55D518EB4F430001CCE1 /* vec4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55D118EB4F430001CCE1 /* vec4.cpp */; };
 		327B560118EB57830001CCE1 /* RCCameraParameters.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B554C18EB4DC20001CCE1 /* RCCameraParameters.h */; };
 		327B560218EB57830001CCE1 /* RCFeaturePoint.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B555118EB4DC20001CCE1 /* RCFeaturePoint.h */; };
 		327B560318EB57830001CCE1 /* RCPoint.h in Copy Files */ = {isa = PBXBuildFile; fileRef = 327B555518EB4DC20001CCE1 /* RCPoint.h */; };
@@ -82,8 +81,8 @@
 		32DD2ACC1B200B1200B44447 /* world_state_render.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32DD2AC21B200B1200B44447 /* world_state_render.cpp */; };
 		32DD2ACD1B200E0200B44447 /* OpenGLES.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 327B563518EB5ECA0001CCE1 /* OpenGLES.framework */; };
 		32E757151A980149004BA247 /* NSError+RCDictionaryRepresentation.m in Sources */ = {isa = PBXBuildFile; fileRef = 32E757141A980149004BA247 /* NSError+RCDictionaryRepresentation.m */; };
-		388998B41B26B0490077DAA7 /* calibration_json_store.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 388998B31B26B0490077DAA7 /* calibration_json_store.cpp */; };
-		388998C51B26B1880077DAA7 /* calibration_json_store.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 388998B31B26B0490077DAA7 /* calibration_json_store.cpp */; };
+		388998B41B26B0490077DAA7 /* calibration_json.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 388998B31B26B0490077DAA7 /* calibration_json.cpp */; };
+		388998C51B26B1880077DAA7 /* calibration_json.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 388998B31B26B0490077DAA7 /* calibration_json.cpp */; };
 		38AEA3081B2789EF0091C4E7 /* calibration_defaults.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 38AEA3071B2789EF0091C4E7 /* calibration_defaults.cpp */; };
 		38AEA30A1B278A260091C4E7 /* calibration_defaults.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 38AEA3071B2789EF0091C4E7 /* calibration_defaults.cpp */; };
 		38EDF0771AD43D2500F0A322 /* rotation_vector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 38EDF0761AD43D2400F0A322 /* rotation_vector.cpp */; };
@@ -186,7 +185,6 @@
 		D3B4EAF81A1E7DE100BE0443 /* RCCameraManager.mm in Sources */ = {isa = PBXBuildFile; fileRef = 327B554B18EB4DC20001CCE1 /* RCCameraManager.mm */; };
 		D3B4EAF91A1E7DE100BE0443 /* RCTranslation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B556618EB4DC20001CCE1 /* RCTranslation.m */; };
 		D3B4EAFC1A1E7DE100BE0443 /* RCTransformation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B556418EB4DC20001CCE1 /* RCTransformation.m */; };
-		D3B4EB021A1E7DE100BE0443 /* vec4.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55D118EB4F430001CCE1 /* vec4.cpp */; };
 		D3B4EB031A1E7DE100BE0443 /* RCPoint.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B555618EB4DC20001CCE1 /* RCPoint.m */; };
 		D3B4EB071A1E7DE100BE0443 /* RCAFXMLRequestOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = 327B553318EB4D720001CCE1 /* RCAFXMLRequestOperation.m */; };
 		D3B4EB091A1E7DE100BE0443 /* state_motion.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 327B55B118EB4F3A0001CCE1 /* state_motion.cpp */; };
@@ -357,6 +355,7 @@
 		D9CCDC7E192E887F00A41329 /* scaled_mask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9CCDC7C192E887F00A41329 /* scaled_mask.cpp */; };
 		D9CFC1061AD5ABFC00445A80 /* rotation_vector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 38EDF0761AD43D2400F0A322 /* rotation_vector.cpp */; };
 		D9FE87B619427F190052B8D8 /* RCSensorFusionInternals.h in Copy Files */ = {isa = PBXBuildFile; fileRef = D9FE87B519410AB40052B8D8 /* RCSensorFusionInternals.h */; };
+		EC2C6C4F1C45C318008C6793 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -373,6 +372,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = D3B4EABE1A1E7DE100BE0443;
 			remoteInfo = RC3DKPlus;
+		};
+		EC0CDADC1C471F36008261C3 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 327B54D718EB4CC90001CCE1 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D35BF0A41ADD111500BF3CB0;
+			remoteInfo = RC3DKVis;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -583,7 +589,6 @@
 		327B55CE18EB4F430001CCE1 /* quaternion.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = quaternion.h; sourceTree = "<group>"; };
 		327B55CF18EB4F430001CCE1 /* rotation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rotation.h; sourceTree = "<group>"; };
 		327B55D018EB4F430001CCE1 /* rotation_vector.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rotation_vector.h; sourceTree = "<group>"; };
-		327B55D118EB4F430001CCE1 /* vec4.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = vec4.cpp; sourceTree = "<group>"; };
 		327B55D218EB4F430001CCE1 /* vec4.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vec4.h; sourceTree = "<group>"; };
 		327B563518EB5ECA0001CCE1 /* OpenGLES.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGLES.framework; path = System/Library/Frameworks/OpenGLES.framework; sourceTree = SDKROOT; };
 		328A4DD01950D52000587949 /* RCSensorFusionError.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCSensorFusionError.h; path = ../../rc3dk/RC3DK/RCSensorFusionError.h; sourceTree = "<group>"; };
@@ -616,8 +621,8 @@
 		32DD2AC31B200B1200B44447 /* world_state_render.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = world_state_render.h; sourceTree = "<group>"; };
 		32E757131A980149004BA247 /* NSError+RCDictionaryRepresentation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSError+RCDictionaryRepresentation.h"; sourceTree = "<group>"; };
 		32E757141A980149004BA247 /* NSError+RCDictionaryRepresentation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSError+RCDictionaryRepresentation.m"; sourceTree = "<group>"; };
-		388998B31B26B0490077DAA7 /* calibration_json_store.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = calibration_json_store.cpp; sourceTree = "<group>"; };
-		388998B51B26B0540077DAA7 /* calibration_json_store.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = calibration_json_store.h; sourceTree = "<group>"; };
+		388998B31B26B0490077DAA7 /* calibration_json.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = calibration_json.cpp; sourceTree = "<group>"; };
+		388998B51B26B0540077DAA7 /* calibration_json.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = calibration_json.h; sourceTree = "<group>"; };
 		38AEA3071B2789EF0091C4E7 /* calibration_defaults.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = calibration_defaults.cpp; sourceTree = "<group>"; };
 		38AEA3091B278A050091C4E7 /* calibration_defaults.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = calibration_defaults.h; sourceTree = "<group>"; };
 		38EDF0761AD43D2400F0A322 /* rotation_vector.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = rotation_vector.cpp; sourceTree = "<group>"; };
@@ -708,7 +713,7 @@
 		D392F7B81A1E010E00BBB1FF /* util.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = util.cpp; sourceTree = "<group>"; };
 		D392F7BA1A1E010E00BBB1FF /* weightedgraph.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = weightedgraph.cpp; sourceTree = "<group>"; };
 		D392F7BC1A1E010E00BBB1FF /* RCStereo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RCStereo.h; sourceTree = "<group>"; };
-		D392F7BD1A1E010E00BBB1FF /* RCStereo.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = RCStereo.mm; sourceTree = "<group>"; };
+		D392F7BD1A1E010E00BBB1FF /* RCStereo.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; lineEnding = 0; path = RCStereo.mm; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		D392F7BF1A1E010E00BBB1FF /* aib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aib.h; sourceTree = "<group>"; };
 		D392F7C11A1E010E00BBB1FF /* array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = array.h; sourceTree = "<group>"; };
 		D392F7C31A1E010E00BBB1FF /* covdet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = covdet.h; sourceTree = "<group>"; };
@@ -841,6 +846,7 @@
 		D91557D51B87A21A006D2002 /* svmdataset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = svmdataset.h; sourceTree = "<group>"; };
 		D91557D61B87A21A006D2002 /* vlad.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = vlad.c; sourceTree = "<group>"; };
 		D91557D71B87A21A006D2002 /* vlad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vlad.h; sourceTree = "<group>"; };
+		D90D18C01A3A03B500D1AFE4 /* camera_control_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = camera_control_interface.h; path = ../../shared_corvis_3dk/camera_control_interface.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		D953126D1A15AE63004D6068 /* homography.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = homography.cpp; sourceTree = "<group>"; };
 		D953126E1A15AE63004D6068 /* homography.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = homography.h; sourceTree = "<group>"; };
 		D95409AE1AC1019200706A24 /* sensor_clock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sensor_clock.cpp; path = platform/ios/sensor_clock.cpp; sourceTree = "<group>"; };
@@ -867,6 +873,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				EC2C6C4F1C45C318008C6793 /* (null) in Frameworks */,
 				321A28D61ACBBADE009406A2 /* libOCMock.a in Frameworks */,
 				325F2EAF1ACB7DAA00145B9C /* libNocilla.a in Frameworks */,
 				32036E961ACB2A5700FC0588 /* libRC3DK.a in Frameworks */,
@@ -1192,8 +1199,8 @@
 				D915577F1B87A15D006D2002 /* mapper.h */,
 				38AEA3091B278A050091C4E7 /* calibration_defaults.h */,
 				38AEA3071B2789EF0091C4E7 /* calibration_defaults.cpp */,
-				388998B31B26B0490077DAA7 /* calibration_json_store.cpp */,
-				388998B51B26B0540077DAA7 /* calibration_json_store.h */,
+				388998B31B26B0490077DAA7 /* calibration_json.cpp */,
+				388998B51B26B0540077DAA7 /* calibration_json.h */,
 				327B559E18EB4F3A0001CCE1 /* fast_detector */,
 				D33E61DF1ADE632900569C82 /* capture.h */,
 				D33E61E01ADE632900569C82 /* capture.cpp */,
@@ -1252,7 +1259,6 @@
 				327B55D018EB4F430001CCE1 /* rotation_vector.h */,
 				38EDF0761AD43D2400F0A322 /* rotation_vector.cpp */,
 				D3DE5D081A80E301000EF94D /* transformation.h */,
-				327B55D118EB4F430001CCE1 /* vec4.cpp */,
 				327B55D218EB4F430001CCE1 /* vec4.h */,
 				D96055841ACDFEF500E72711 /* eigen_initializer_list.h */,
 			);
@@ -1639,6 +1645,7 @@
 			);
 			dependencies = (
 				32036E981ACB2A5700FC0588 /* PBXTargetDependency */,
+				EC0CDADD1C471F36008261C3 /* PBXTargetDependency */,
 			);
 			name = "RC3DK Tests";
 			productName = "RC3DK Tests";
@@ -1712,9 +1719,11 @@
 				TargetAttributes = {
 					32036E8F1ACB2A5700FC0588 = {
 						CreatedOnToolsVersion = 6.1.1;
+						TestTargetID = D35BF0A41ADD111500BF3CB0;
 					};
 					D35BF0A41ADD111500BF3CB0 = {
 						CreatedOnToolsVersion = 6.2;
+						DevelopmentTeam = U2W6P22B25;
 					};
 				};
 			};
@@ -1886,7 +1895,6 @@
 				327B557B18EB4DC20001CCE1 /* RCTranslation.m in Sources */,
 				327B557A18EB4DC20001CCE1 /* RCTransformation.m in Sources */,
 				D91557E41B87A21A006D2002 /* fisher.c in Sources */,
-				327B55D518EB4F430001CCE1 /* vec4.cpp in Sources */,
 				327B557318EB4DC20001CCE1 /* RCPoint.m in Sources */,
 				D91557861B87A15D006D2002 /* feature_descriptor.cpp in Sources */,
 				D91558181B87A21A006D2002 /* mathop_avx.c in Sources */,
@@ -1913,7 +1921,6 @@
 				327B553918EB4D720001CCE1 /* RCAFPropertyListRequestOperation.m in Sources */,
 				D91557FA1B87A21A006D2002 /* host.c in Sources */,
 				38EDF0771AD43D2500F0A322 /* rotation_vector.cpp in Sources */,
-				388998B41B26B0490077DAA7 /* calibration_json_store.cpp in Sources */,
 				D91558301B87A21A006D2002 /* sift.c in Sources */,
 				D915581B1B87A21A006D2002 /* mathop_sse2.c in Sources */,
 				D91558361B87A21A006D2002 /* stringop.c in Sources */,
@@ -2010,8 +2017,8 @@
 				D992CC371AD5BA8500AA2259 /* sensor_clock.cpp in Sources */,
 				D915578A1B87A15D006D2002 /* mapper.cpp in Sources */,
 				D9CFC1061AD5ABFC00445A80 /* rotation_vector.cpp in Sources */,
-				388998C51B26B1880077DAA7 /* calibration_json_store.cpp in Sources */,
 				D915581C1B87A21A006D2002 /* mathop_sse2.c in Sources */,
+				388998C51B26B1880077DAA7 /* calibration_json.cpp in Sources */,
 				D364AFBD1A37A21700E39511 /* homography.cpp in Sources */,
 				D3588F071A20C47100CA10E7 /* merge.c in Sources */,
 				D91558161B87A21A006D2002 /* mathop.c in Sources */,
@@ -2075,7 +2082,6 @@
 				D3B4EAFC1A1E7DE100BE0443 /* RCTransformation.m in Sources */,
 				D91558101B87A21A006D2002 /* lbp.c in Sources */,
 				D321AD411A323C17003AEA77 /* stereo_mesh.cpp in Sources */,
-				D3B4EB021A1E7DE100BE0443 /* vec4.cpp in Sources */,
 				D3B4EB031A1E7DE100BE0443 /* RCPoint.m in Sources */,
 				D91557F21B87A21A006D2002 /* hikmeans.c in Sources */,
 				D3588F041A20C42C00CA10E7 /* poly2.c in Sources */,
@@ -2149,6 +2155,11 @@
 			target = D3B4EABE1A1E7DE100BE0443 /* RC3DKPlus */;
 			targetProxy = D33E9D4E1ADD1EFD0085F35C /* PBXContainerItemProxy */;
 		};
+		EC0CDADD1C471F36008261C3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D35BF0A41ADD111500BF3CB0 /* RC3DKVis */;
+			targetProxy = EC0CDADC1C471F36008261C3 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
@@ -2174,6 +2185,7 @@
 		32036E9A1ACB2A5700FC0588 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -2182,6 +2194,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
+					"$(PROJECT_DIR)",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -2203,6 +2216,7 @@
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRIP_INSTALLED_PRODUCT = NO;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RC3DKVis.app/RC3DKVis";
 				VALIDATE_PRODUCT = NO;
 			};
 			name = Debug;
@@ -2210,6 +2224,7 @@
 		32036E9B1ACB2A5700FC0588 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -2219,6 +2234,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
+					"$(PROJECT_DIR)",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -2240,6 +2256,7 @@
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRIP_INSTALLED_PRODUCT = NO;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RC3DKVis.app/RC3DKVis";
 				VALIDATE_PRODUCT = NO;
 			};
 			name = Release;
@@ -2247,6 +2264,7 @@
 		32036E9C1ACB2A5700FC0588 /* Archive */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -2256,6 +2274,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
+					"$(PROJECT_DIR)",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -2278,6 +2297,7 @@
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRIP_INSTALLED_PRODUCT = NO;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RC3DKVis.app/RC3DKVis";
 				VALIDATE_PRODUCT = NO;
 			};
 			name = Archive;
@@ -2285,6 +2305,7 @@
 		32036E9D1ACB2A5700FC0588 /* Library */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -2294,6 +2315,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
+					"$(PROJECT_DIR)",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -2317,6 +2339,7 @@
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRIP_INSTALLED_PRODUCT = NO;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RC3DKVis.app/RC3DKVis";
 				VALIDATE_PRODUCT = NO;
 			};
 			name = Library;
@@ -2324,6 +2347,7 @@
 		32036E9E1ACB2A5700FC0588 /* LibraryLax */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -2333,6 +2357,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
+					"$(PROJECT_DIR)",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -2355,6 +2380,7 @@
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRIP_INSTALLED_PRODUCT = NO;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RC3DKVis.app/RC3DKVis";
 				VALIDATE_PRODUCT = NO;
 			};
 			name = LibraryLax;
@@ -2362,6 +2388,7 @@
 		32036E9F1ACB2A5700FC0588 /* LibraryOffline */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -2371,6 +2398,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
+					"$(PROJECT_DIR)",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -2393,6 +2421,7 @@
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRIP_INSTALLED_PRODUCT = NO;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RC3DKVis.app/RC3DKVis";
 				VALIDATE_PRODUCT = NO;
 			};
 			name = LibraryOffline;
@@ -2446,11 +2475,11 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEPLOYMENT_POSTPROCESSING = YES;
 				DSTROOT = /tmp/RC3DK.dst;
 				DYLIB_COMPATIBILITY_VERSION = 2;
-				FRAMEWORK_VERSION = 0.7.3;
+				FRAMEWORK_VERSION = 0.7.4;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
@@ -2459,6 +2488,7 @@
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -2577,12 +2607,13 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEAD_CODE_STRIPPING = NO;
 				DEPLOYMENT_POSTPROCESSING = NO;
 				DSTROOT = /tmp/RC3DK.dst;
 				DYLIB_COMPATIBILITY_VERSION = 2;
-				FRAMEWORK_VERSION = 0.7.3;
+				ENABLE_BITCODE = NO;
+				FRAMEWORK_VERSION = 0.7.4;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
@@ -2591,6 +2622,7 @@
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -2619,11 +2651,12 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEPLOYMENT_POSTPROCESSING = NO;
 				DSTROOT = /tmp/RC3DK.dst;
 				DYLIB_COMPATIBILITY_VERSION = 2;
-				FRAMEWORK_VERSION = 0.7.3;
+				ENABLE_BITCODE = NO;
+				FRAMEWORK_VERSION = 0.7.4;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
@@ -2632,6 +2665,7 @@
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -2703,11 +2737,11 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEPLOYMENT_POSTPROCESSING = YES;
 				DSTROOT = /tmp/RC3DK.dst;
 				DYLIB_COMPATIBILITY_VERSION = 2;
-				FRAMEWORK_VERSION = 0.7.3;
+				FRAMEWORK_VERSION = 0.7.4;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
@@ -2716,6 +2750,7 @@
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -2787,11 +2822,11 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEPLOYMENT_POSTPROCESSING = YES;
 				DSTROOT = /tmp/RC3DK.dst;
 				DYLIB_COMPATIBILITY_VERSION = 2;
-				FRAMEWORK_VERSION = 0.7.3;
+				FRAMEWORK_VERSION = 0.7.4;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
@@ -2800,6 +2835,7 @@
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -2843,6 +2879,7 @@
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -2872,6 +2909,7 @@
 		32CD8E571AE04829009E88EC /* LibrarySunlayar */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
@@ -2881,6 +2919,7 @@
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(SDKROOT)/Developer/Library/Frameworks",
 					"$(inherited)",
+					"$(PROJECT_DIR)",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"$(inherited)",
@@ -2904,6 +2943,7 @@
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRIP_INSTALLED_PRODUCT = NO;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RC3DKVis.app/RC3DKVis";
 				VALIDATE_PRODUCT = NO;
 			};
 			name = LibrarySunlayar;
@@ -2958,11 +2998,11 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEPLOYMENT_POSTPROCESSING = YES;
 				DSTROOT = /tmp/RC3DK.dst;
 				DYLIB_COMPATIBILITY_VERSION = 2;
-				FRAMEWORK_VERSION = 0.7.3;
+				FRAMEWORK_VERSION = 0.7.4;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
@@ -2971,6 +3011,7 @@
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -3011,6 +3052,7 @@
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -3087,11 +3129,11 @@
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
 				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 3;
+				CURRENT_PROJECT_VERSION = 4;
 				DEPLOYMENT_POSTPROCESSING = YES;
 				DSTROOT = /tmp/RC3DK.dst;
 				DYLIB_COMPATIBILITY_VERSION = 2;
-				FRAMEWORK_VERSION = 0.7.3;
+				FRAMEWORK_VERSION = 0.7.4;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
@@ -3100,6 +3142,7 @@
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -3139,6 +3182,7 @@
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -3172,13 +3216,16 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				ENABLE_BITCODE = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 				);
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -3201,12 +3248,15 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				ENABLE_BITCODE = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 				);
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -3230,12 +3280,15 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				ENABLE_BITCODE = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 				);
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -3259,12 +3312,15 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				ENABLE_BITCODE = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 				);
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -3288,12 +3344,15 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				ENABLE_BITCODE = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 				);
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -3317,12 +3376,15 @@
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				ENABLE_BITCODE = YES;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 				);
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -3341,9 +3403,12 @@
 		D35FC6851AE10E0E002E2FA8 /* LibrarySunlayar */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				ENABLE_BITCODE = YES;
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				PRODUCT_NAME = RC3DKVis;
@@ -3358,6 +3423,7 @@
 				DEPLOYMENT_POSTPROCESSING = NO;
 				DSTROOT = /tmp/RC3DK.dst;
 				DYLIB_COMPATIBILITY_VERSION = 2;
+				ENABLE_BITCODE = NO;
 				FRAMEWORK_VERSION = 0.7.3;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
@@ -3367,6 +3433,7 @@
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -3401,6 +3468,7 @@
 				DEPLOYMENT_POSTPROCESSING = NO;
 				DSTROOT = /tmp/RC3DK.dst;
 				DYLIB_COMPATIBILITY_VERSION = 2;
+				ENABLE_BITCODE = NO;
 				FRAMEWORK_VERSION = 0.7.3;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
@@ -3410,6 +3478,7 @@
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -3454,6 +3523,7 @@
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -3498,6 +3568,7 @@
 					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
 					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
 					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -3524,6 +3595,208 @@
 			};
 			name = Library;
 		};
+		EC88ECC31C4EECBB007E4FFF /* LibraryViewAR */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"LIBRARY=1",
+					"NDEBUG=1",
+					"ENABLE_QR=1",
+					"VIEWAR_ONLY=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = "$(inherited)";
+				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				OTHER_CPLUSPLUSFLAGS = "$(OTHER_CFLAGS)";
+				OTHER_LDFLAGS = "-ObjC";
+				SDKROOT = iphoneos;
+				SEPARATE_STRIP = YES;
+				STRIP_STYLE = "non-global";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = LibraryViewAR;
+		};
+		EC88ECC41C4EECBB007E4FFF /* LibraryViewAR */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 4;
+				DEPLOYMENT_POSTPROCESSING = YES;
+				DSTROOT = /tmp/RC3DK.dst;
+				DYLIB_COMPATIBILITY_VERSION = 2;
+				FRAMEWORK_VERSION = 0.7.4;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
+					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
+					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../corvis/src/eigen",
+					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)",
+				);
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lc++",
+					"-all_load",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SEPARATE_STRIP = NO;
+				SKIP_INSTALL = YES;
+				STRIPFLAGS = "";
+				STRIP_INSTALLED_PRODUCT = YES;
+				STRIP_STYLE = "non-global";
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = LibraryViewAR;
+		};
+		EC88ECC51C4EECBB007E4FFF /* LibraryViewAR */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 3;
+				DEAD_CODE_STRIPPING = YES;
+				DEPLOYMENT_POSTPROCESSING = YES;
+				DSTROOT = /tmp/RC3DK.dst;
+				DYLIB_COMPATIBILITY_VERSION = 2;
+				FRAMEWORK_VERSION = 0.7.3;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "RC3DK/RC3DK-Prefix.pch";
+				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
+					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
+					"$(SRCROOT)/../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../corvis/src/eigen",
+					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)",
+				);
+				OTHER_CPLUSPLUSFLAGS = (
+					"$(OTHER_CFLAGS)",
+					"-DMACOSX",
+				);
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lc++",
+					"-all_load",
+				);
+				PRODUCT_NAME = RC3DKPlus;
+				SEPARATE_STRIP = NO;
+				SKIP_INSTALL = YES;
+				STRIPFLAGS = "";
+				STRIP_INSTALLED_PRODUCT = YES;
+				STRIP_STYLE = "non-global";
+				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = LibraryViewAR;
+		};
+		EC88ECC61C4EECBB007E4FFF /* LibraryViewAR */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEAD_CODE_STRIPPING = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(SDKROOT)/Developer/Library/Frameworks",
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"TEST=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				INFOPLIST_FILE = "RC3DK Tests/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					../Nocilla,
+					../OCMock,
+				);
+				MTL_ENABLE_DEBUG_INFO = NO;
+				ONLY_ACTIVE_ARCH = YES;
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lc++",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRIP_INSTALLED_PRODUCT = NO;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/RC3DKVis.app/RC3DKVis";
+				VALIDATE_PRODUCT = NO;
+			};
+			name = LibraryViewAR;
+		};
+		EC88ECC71C4EECBB007E4FFF /* LibraryViewAR */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				ENABLE_BITCODE = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				HEADER_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
+					"$(SRCROOT)/../corvis/src/eigen",
+				);
+				INFOPLIST_FILE = RC3DKVis/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
+				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				MTL_ENABLE_DEBUG_INFO = NO;
+				OTHER_LDFLAGS = (
+					"-ObjC",
+					"-lc++",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = LibraryViewAR;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -3537,6 +3810,7 @@
 				32CD8E571AE04829009E88EC /* LibrarySunlayar */,
 				32036E9E1ACB2A5700FC0588 /* LibraryLax */,
 				32036E9F1ACB2A5700FC0588 /* LibraryOffline */,
+				EC88ECC61C4EECBB007E4FFF /* LibraryViewAR */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -3551,6 +3825,7 @@
 				32CD8E541AE04829009E88EC /* LibrarySunlayar */,
 				32CF160F1AC35E51008D13BD /* LibraryLax */,
 				32D8A0331A3B924C00EAB150 /* LibraryOffline */,
+				EC88ECC31C4EECBB007E4FFF /* LibraryViewAR */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -3565,6 +3840,7 @@
 				32CD8E551AE04829009E88EC /* LibrarySunlayar */,
 				32CF16101AC35E51008D13BD /* LibraryLax */,
 				32D8A0341A3B924C00EAB150 /* LibraryOffline */,
+				EC88ECC41C4EECBB007E4FFF /* LibraryViewAR */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -3578,6 +3854,7 @@
 				D35BF0C91ADD111500BF3CB0 /* Library */,
 				D35BF0CA1ADD111500BF3CB0 /* LibraryLax */,
 				D35BF0CB1ADD111500BF3CB0 /* LibraryOffline */,
+				EC88ECC71C4EECBB007E4FFF /* LibraryViewAR */,
 				D35FC6851AE10E0E002E2FA8 /* LibrarySunlayar */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -3593,6 +3870,7 @@
 				32CD8E561AE04829009E88EC /* LibrarySunlayar */,
 				32CF16121AC35E51008D13BD /* LibraryLax */,
 				32D8A0361A3B924C00EAB150 /* LibraryOffline */,
+				EC88ECC51C4EECBB007E4FFF /* LibraryViewAR */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

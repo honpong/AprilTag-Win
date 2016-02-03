@@ -15,6 +15,7 @@
 #include "../../../shared_corvis_3dk/camera_control_interface.h"
 #include "../cor/platform/sensor_clock.h"
 #include "../cor/sensor_data.h"
+#include "SP_Calibration.h"
 
 struct filter {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
@@ -44,14 +45,15 @@ filter(): s(cov)
     f_t w_variance;
     f_t a_variance;
 
+    m4 a_alignment;
+    m4 g_alignment;
+
     bool gravity_init;
     f_t gravity_magnitude;
 
     sensor_clock::time_point want_start;
     bool got_accelerometer, got_gyroscope, got_image;
     v4 last_gyro_meas, last_accel_meas;
-    sensor_clock::duration shutter_delay;
-    sensor_clock::duration shutter_period;
     bool detector_failed, tracker_failed, tracker_warned;
     bool speed_failed, speed_warning;
     bool numeric_failed;
@@ -105,11 +107,11 @@ void filter_start_qr_detection(struct filter *f, const std::string& data, float 
 void filter_stop_qr_detection(struct filter *f);
 void filter_start_qr_benchmark(struct filter *f, float dimension);
 #endif
-corvis_device_parameters filter_get_device_parameters(const struct filter *f);
+void filter_get_device_parameters(const struct filter *f, rcCalibration *cal);
 
-extern "C" void filter_initialize(struct filter *f, corvis_device_parameters device);
+extern "C" void filter_initialize(struct filter *f, rcCalibration *device);
 float filter_converged(const struct filter *f);
 bool filter_is_steady(const struct filter *f);
-int filter_get_features(const struct filter *f, struct corvis_feature_info *features, int max);
+int filter_get_features(const struct filter *f, struct feature_info *features, int max);
 
 #endif

@@ -52,10 +52,10 @@ Generally, MathGL is GPL library. However, you can use LGPL license for MathGL c
 
 @strong{Latest news}
 @itemize
-@item @emph{2 February 2015.}
-New version (v.@value{VERSION}@value{MINVER}) of @uref{http://sourceforge.net/projects/mathgl, MathGL} is released. There are parallelizing of reading data files, updating @ref{LaTeX package}, other minor improvements and bugfixes, which denoted @ref{News, here}.
+@item @emph{1 June 2015.}
+New version (v.@value{VERSION}@value{MINVER}) of @uref{http://sourceforge.net/projects/mathgl, MathGL} is released. There are new functions, plot types and styles, improvement in MGL scripts and in mgltex, speeding up and bugfixes, which denoted @ref{News, here}.
 @item @emph{7 August 2014.}
-New version (v.@value{VERSION}) of @uref{http://sourceforge.net/projects/mathgl, MathGL} is released. There are many major improvements for both MathGL core and for UDAV, which denoted @ref{News, here}.
+New version (v.2.3) of @uref{http://sourceforge.net/projects/mathgl, MathGL} is released. There are many major improvements for both MathGL core and for UDAV, which denoted @ref{News, here}.
 @end itemize
 
 There is detailed @ref{News, news list}. Sourceforge project page @uref{http://sourceforge.net/projects/mathgl/, here}.
@@ -74,6 +74,44 @@ Javascript interface was developed with support of @url{http://www.datadvance.ne
 @nav{}
 
 @itemize
+
+@item @strong{1 June 2015.}
+New version (v.2.3.3) of @uref{http://sourceforge.net/projects/mathgl, MathGL} is released. There are new functions, plot types and styles, improvement in MGL scripts and in mgltex, speeding up and bugfixes:
+@itemize @bullet
+@item Update @ref{LaTeX package} (thanks to Diego Sejas Viscarra)
+@item Add @ref{surfca} and @ref{surf3ca} plots.
+@item Add @ref{wavelet} transforms.
+@item Add @ref{attachlight} for attaching light settings to inplots.
+@item Add manual rotation angle for @ref{axis} ticks (by "value" option).
+@item Add @code{mglDataS} class which is similar to std::vector<double> one.
+@item Add missing @code{mglDataC} functions.
+
+@item Add style '%' for color scheme along 2 coordinates (as in @ref{map}).
+@item If tick template start with '&' then long integer is passed instead of double.
+@item Add style 'V' for drawing @ref{text} centered vertically.
+@item Add style "dN" in @ref{smooth} for averaging over (2*N+1)-th points.
+@item Add TeX symbols "\quote", "--" and Cyrillic ones.
+
+@item Add complex numbers in MGL -- any expression started with '!' will have complex value(s).
+@item Add @ref{rkstep} command for Runge-Kutta step in MGL script.
+@item Add functions 'min()', 'max()' to MGL parser and formula evaluation.
+@item MGL command @ref{join} now can join arbitrary number of data arrays.
+@item Command @ref{stop} is not required to be placed before @ref{func}.
+@item Add warning about writing to temporary arrays in MGL scripts.
+@item Names 'rnd','nan','inf' are reserved in MGL scripts now.
+
+@item Add annotation for plot styles and options into header files.
+@item Greatly improve the speed of formula parsing for MGL scripts
+@item Update JS interface
+@item Add binary font files for speeding up initialization and font loading
+@item Exclude "pure" attribute for function due to compatibility reasons
+@item Add mgl_set_size_scl() for additional scaling width and height of the image
+@item Add options -S, -q for mglconv
+@item Rearrange toolbuttons in @ref{UDAV}.
+@item Bugfix for @ref{flow} and @ref{pipe} functions
+@item Other minor improvements, bugfixes and compatibility changes
+@end itemize
+
 
 @item @strong{2 February 2015.}
 New version (v.2.3.2) of @uref{http://sourceforge.net/projects/mathgl, MathGL} is released. There are minor improvements and bugfixes:

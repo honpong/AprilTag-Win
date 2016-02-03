@@ -7,6 +7,8 @@
 #include "Debug.h"
 #include <string>
 #include <fstream>
+#include <locale>
+#include <codecvt>
 #include <streambuf>
 #include "libpxcimu_internal.h"
 #include "rc_intel_interface.h"
@@ -51,14 +53,14 @@ void TrackerManager::ConfigureCameraIntrinsics()
 
 bool TrackerManager::ReadCalibration(std::wstring filename)
 {
-    std::wifstream t(filename);
-    std::wstring calibrationJSON((std::istreambuf_iterator<wchar_t>(t)),
-        std::istreambuf_iterator<wchar_t>());
+    std::ifstream t(filename);
+    std::string calibrationJSON((std::istreambuf_iterator<char>(t)), std::istreambuf_iterator<char>());
     if (calibrationJSON.length() == 0) {
         Debug::Log(L"Couldn't load calibration %s", filename.c_str());
         return false;
     }
-    bool result = rc_setCalibration(_tracker, calibrationJSON.c_str());
+    rcCalibration defaultCal;
+    bool result = rc_setCalibration(_tracker, calibrationJSON.c_str(), &defaultCal);
     if (!result) return false;
 
     return true;
@@ -76,11 +78,11 @@ bool TrackerManager::LoadStoredCalibration()
 
 bool TrackerManager::WriteCalibration(std::wstring filename)
 {
-    const wchar_t* buffer;
+    const char* buffer;
     size_t size = rc_getCalibration(_tracker, &buffer);
     if (!size) return false;
-    std::wofstream t(filename);
-    t << std::wstring(buffer);
+    std::ofstream t(filename);
+    t << std::string(buffer);
     t.close();
     if (t.bad()) return false;
     return true;
@@ -134,7 +136,8 @@ bool TrackerManager::StartCalibration()
 
 void TrackerManager::SetOutputLog(const std::wstring filename)
 {
-    rc_setOutputLog(_tracker, filename.c_str());
+    std::wstring_convert<std::codecvt_utf8<wchar_t>, wchar_t> converter;
+    rc_setOutputLog(_tracker, converter.to_bytes(filename).c_str());
 }
 
 bool TrackerManager::StartReplay(const std::wstring filename, bool realtime)

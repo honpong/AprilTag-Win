@@ -71,7 +71,7 @@
 - (void) startFromLive
 {
     UIStoryboard * mainStoryBoard = [UIStoryboard storyboardWithName:@"Main" bundle:nil];
-    ReplayViewController * rc = (ReplayViewController *)[mainStoryBoard instantiateViewControllerWithIdentifier:@"LiveView"];
+    UIViewController * rc = [mainStoryBoard instantiateViewControllerWithIdentifier:@"LiveView"];
     self.window.rootViewController = rc;
 }
 
@@ -108,7 +108,8 @@
 {
     // Save calibration data
     [[NSUserDefaults standardUserDefaults] setBool:YES forKey:PREF_IS_CALIBRATED]; // set a flag to indicate calibration completed
-
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    
     NSString * vendorId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
     NSDictionary * calibrationData = [[NSUserDefaults standardUserDefaults] objectForKey:PREF_DEVICE_PARAMS];
     NSMutableDictionary * dict = [calibrationData mutableCopy];

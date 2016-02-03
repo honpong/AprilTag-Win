@@ -45,6 +45,13 @@ typedef const mglDataA* HCDT;
 #ifdef __cplusplus
 extern "C" {
 #endif
+/// Set seed for random numbers
+void MGL_EXPORT mgl_srnd(long seed);
+void MGL_EXPORT mgl_srnd_(int *seed);
+/// Get random number
+double MGL_EXPORT mgl_rnd();
+double MGL_EXPORT mgl_rnd_();
+
 /// Set name for data variable (can be used in mgl_formula_calc() or in MGL scripts)
 void MGL_EXPORT mgl_data_set_name(mglDataA *dat, const char *name);
 void MGL_EXPORT mgl_data_set_name_(uintptr_t *dat, const char *name,int);

@@ -12,9 +12,8 @@ TEST(TPose, Parses)
 {
     std::string data = "130777180477627115    0.08218356   -0.99205852   -0.09521491  207.50582886   -0.88409311   -0.11667039    0.45251244   36.77946472   -0.46002755    0.04698976   -0.88666040 -2555.18896484        0.1901\n";
 
-    std::stringstream f(data);
-    tpose_raw tp;
-    EXPECT_TRUE(static_cast<bool>(f >> tp)) << "can parse tpose from string";
+    EXPECT_NO_THROW(tpose_raw(data.c_str())) << "can parse tpose from string";
+    tpose_raw tp(data.c_str());
     EXPECT_EQ(tp.t_100ns, 130777180477627115);
     EXPECT_EQ(tp.R(0,1), -0.99205852);
     EXPECT_EQ(tp.T_mm[2], -2555.18896484);
@@ -23,9 +22,7 @@ TEST(TPose, Parses)
 TEST(TPose, NA)
 {
     std::string data = "130777180477627115    NA\n";
-    std::stringstream f(data);
-    tpose_raw tp;
-    EXPECT_FALSE(f >> tp) << "fail to parse NA tpose from string";
+    EXPECT_THROW(tpose_raw tp(data.c_str()), std::invalid_argument) << "fail to parse NA tpose from string";
 }
 
 static const std::string pose_data =

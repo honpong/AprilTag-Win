@@ -1,5 +1,6 @@
 task rcHeader(type: Copy) {
     from "../../../corvis/src/filter/rc_intel_interface.h"
+    from "../../../corvis/src/filter/SP_Calibration.h"
     from "../../../corvis/src/tracker"
     include "*.cpp"
     include "*.h"
@@ -17,6 +18,10 @@ task rcRelease(type: Copy, dependsOn: [rcHeader, rcSource]) {
     into "../../rc_replay/lib"
 }
 
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+def mklRoot = properties.getProperty('mkl.dir')
+if (!mklRoot) throw new GradleException('You may need to set mkl.dir in local.properties')
 
 model {
     android.sources {
@@ -24,21 +29,21 @@ model {
         main { jni { source { srcDirs = ["../../../corvis/src/tracker", "src/main/jni"] } } }
     }
     android.ndk {
-        cppFlags += "-I" + file("../../../corvis/src/filter")
-        cppFlags += "-I" + file("../../../corvis/src/tracker")
+        cppFlags.add "-I" + file("../../../corvis/src/filter")
+        cppFlags.add "-I" + file("../../../corvis/src/tracker")
     }
     android.productFlavors {
         rc86 {
-            ndk.ldFlags  += "-L" + file("build/cmake/jniLibs/x86")
+            ndk.ldFlags.add "-L" + file("build/cmake/jniLibs/x86")
         }
         rc64 {
-            ndk.ldFlags  += "-L" + file("build/cmake/jniLibs/x86_64")
+            ndk.ldFlags.add "-L" + file("build/cmake/jniLibs/x86_64")
         }
     }
     android.buildTypes {
-        release        { ndk.ldLibs += ["tracker"] }
-        debug          { ndk.ldLibs += ["tracker_debug"] }
-        relwithdebinfo { ndk.ldLibs += ["tracker_relwithdebinfo"] }
+        release        { ndk.ldLibs.add "tracker" }
+        debug          { ndk.ldLibs.add "tracker_debug" }
+        relwithdebinfo { ndk.ldLibs.add "tracker_relwithdebinfo" }
     }
     components.android {
         binaries.afterEach { binary ->
@@ -59,7 +64,8 @@ model {
                             "-DCMAKE_BUILD_TYPE=${type.capitalize()}",
                             "-DANDROID_NDK_ROOT=${project.ext.ndkDir}",
                             "-DANDROID_PLATFORM=android-21", "-DANDROID_ARCH=$arch",
-                            "-DCMAKE_TOOLCHAIN_FILE=Android.toolchain.cmake"
+                            "-DCMAKE_TOOLCHAIN_FILE=Android.toolchain.cmake",
+                            "-DMKLROOT=$mklRoot"
                    });
                    if (type == "release")
                       rcRelease.dependsOn(make)

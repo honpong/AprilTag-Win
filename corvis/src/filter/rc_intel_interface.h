@@ -2,7 +2,7 @@
 //  rc_intel_interface.h
 //
 //  Created by Eagle Jones on 1/29/15.
-//  Copyright (c) 2015 Realitycap. All rights reserved.
+//  Copyright (c) 2015 Intel. All rights reserved.
 //
 
 #ifndef rc_intel_interface_h
@@ -12,6 +12,7 @@
 extern "C" {
 #endif
 
+#include "SP_Calibration.h"
 #include <stddef.h>
 #include <stdint.h>
 #ifndef _WIN32
@@ -19,23 +20,21 @@ extern "C" {
 #endif
 
 #ifdef _WIN32
-   typedef wchar_t rc_char_t;
 #  ifdef RCTRACKER_API_EXPORTS
 #    define RCTRACKER_API __declspec(dllexport)
 #  else
 #    define RCTRACKER_API __declspec(dllimport)
 #  endif
 #else
-   typedef char rc_char_t;
 #  define RCTRACKER_API __attribute__ ((visibility("default")))
 #endif
 
-typedef enum {
+typedef enum rc_Camera {
     rc_EGRAY8,
     rc_EDEPTH16,
 } rc_Camera;
 
-typedef enum
+typedef enum rc_TrackerState
 {
     /** rc_Tracker is inactive. */
     rc_E_INACTIVE = 0,
@@ -55,7 +54,7 @@ typedef enum
     rc_E_INERTIAL_ONLY
 } rc_TrackerState;
 
-typedef enum
+typedef enum rc_TrackerError
 {
     /** No error has occurred. */
     rc_E_ERROR_NONE = 0,
@@ -67,7 +66,7 @@ typedef enum
     rc_E_ERROR_OTHER = 3,
 } rc_TrackerError;
 
-typedef enum
+typedef enum rc_TrackerConfidence
 {
     /** rc_Tracker is not currently running (possibly due to failure). */
     RC_E_CONFIDENCE_NONE = 0,
@@ -79,8 +78,7 @@ typedef enum
     rc_E_CONFIDENCE_HIGH = 3
 } rc_TrackerConfidence;
 
-
-typedef struct {
+typedef struct rc_Vector {
     float x,y,z;
 } rc_Vector;
 
@@ -101,7 +99,7 @@ static const rc_Pose rc_POSE_IDENTITY = { 1.f, 0.f, 0.f, 0.f,
  */
 typedef int64_t rc_Timestamp;
 
-typedef struct
+typedef struct rc_Feature
 {
     uint64_t id;
     rc_Vector world;
@@ -119,6 +117,7 @@ RCTRACKER_API void rc_destroy(rc_Tracker *tracker);
 /**
  Resets system, clearing all history and state, and sets initial pose and time.
  System will be stopped until one of the rc_start_ functions is called.
+ @param initialPose_m is deprecated, always pass the identity and use rc_setPose() after convergence
  */
 RCTRACKER_API void rc_reset(rc_Tracker *tracker, rc_Timestamp initialTime_us, const rc_Pose initialPose_m);
 
@@ -137,15 +136,15 @@ RCTRACKER_API void rc_reset(rc_Tracker *tracker, rc_Timestamp initialTime_us, co
 RCTRACKER_API void rc_configureCamera(rc_Tracker *tracker, rc_Camera camera, const rc_Pose pose_m,
                         int width_px, int height_px, float center_x_px, float center_y_px,
                         float focal_length_x_px, float focal_length_y_px, float skew, bool fisheye, float fisheye_fov_radians);
-RCTRACKER_API void rc_configureAccelerometer(rc_Tracker *tracker, const rc_Vector bias_m__s2, float noiseVariance_m2__s4);
-RCTRACKER_API void rc_configureGyroscope(rc_Tracker *tracker, const rc_Vector bias_rad__s, float noiseVariance_rad2__s2);
+RCTRACKER_API void rc_configureAccelerometer(rc_Tracker *tracker, const rc_Pose alignment_and_bias_m__s2, float noiseVariance_m2__s4);
+RCTRACKER_API void rc_configureGyroscope(rc_Tracker *tracker, const rc_Pose alignment_and_bias_rad__s, float noiseVariance_rad2__s2);
 RCTRACKER_API void rc_configureLocation(rc_Tracker *tracker, double latitude_deg, double longitude_deg, double altitude_m);
 
 // WARNING: The data callback currently blocks the filter thread due to a bug in visual studio. Don't do significant work in it!
 RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callback, void *handle);
 RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback callback, void *handle);
 
-typedef enum
+typedef enum rc_TrackerRunFlags
 {
     /** rc_Tracker should process data on the callers thread. */
     rc_E_SYNCRONOUS = 0,
@@ -164,6 +163,20 @@ RCTRACKER_API void rc_pauseAndResetPosition(rc_Tracker *tracker);
  Resumes full tracker operation.
  */
 RCTRACKER_API void rc_unpause(rc_Tracker *tracker);
+
+/**
+ Start buffering data. Currently 6 images and 64 imu samples are retained. Example usage:
+
+ rc_startBuffering(tracker);
+ // call receive as many times as needed
+ rc_receiveImage(...)
+ rc_receiveAccelerometer(...)
+ rc_receiveGyro(...)
+ // start the tracker and set the position
+ rc_startTracker(tracker, rc_E_SYNCRONOUS);
+ rc_setPose(tracker, rc_POSE_IDENTITY);
+ */
+RCTRACKER_API void rc_startBuffering(rc_Tracker *tracker);
 
 /**
  Starts the tracker.
@@ -188,6 +201,14 @@ RCTRACKER_API void rc_receiveImageWithDepth(rc_Tracker *tracker, rc_Camera camer
 RCTRACKER_API void rc_receiveAccelerometer(rc_Tracker *tracker, rc_Timestamp time_us, const rc_Vector acceleration_m__s2);
 RCTRACKER_API void rc_receiveGyro(rc_Tracker *tracker, rc_Timestamp time_us, const rc_Vector angular_velocity_rad__s);
 
+/**
+ @param tracker The active rc_Tracker instance
+ @param pose_m Position (in meters) relative to the camera reference frame
+ Immediately after a call rc_getPose() will return pose_m.  For best
+ results, call this once the tracker has converged and the confidence
+ is rc_E_CONFIDENCE_MEDIUM or better rc_E_CONFIDENCE_HIGH.
+ */
+RCTRACKER_API void rc_setPose(rc_Tracker *tracker, const rc_Pose pose_m);
 RCTRACKER_API void rc_getPose(const rc_Tracker *tracker, rc_Pose pose_m);
 RCTRACKER_API int rc_getFeatures(rc_Tracker *tracker, rc_Feature **features_px);
 RCTRACKER_API rc_TrackerState rc_getState(const rc_Tracker *tracker);
@@ -217,10 +238,22 @@ RCTRACKER_API const char *rc_getTimingStats(rc_Tracker *tracker);
 /**
  If this is set, writes a log file in Realitycap's internal format to the filename specified
  */
-RCTRACKER_API void rc_setOutputLog(rc_Tracker *tracker, const rc_char_t *filename);
+RCTRACKER_API void rc_setOutputLog(rc_Tracker *tracker, const char *filename);
 
-RCTRACKER_API size_t rc_getCalibration(rc_Tracker *tracker, const rc_char_t **buffer);
-RCTRACKER_API bool rc_setCalibration(rc_Tracker *tracker, const rc_char_t *buffer);
+/**
+    Yields a JSON string that represents a rcCalibration struct.
+*/
+RCTRACKER_API size_t rc_getCalibration(rc_Tracker *tracker, const char **buffer);
+/**
+    Takes a JSON string that represents a rcCalibration struct.
+*/
+RCTRACKER_API bool rc_setCalibration(rc_Tracker *tracker, const char *buffer, const rcCalibration *defaults);
+
+RCTRACKER_API void rc_getCalibrationStruct(rc_Tracker *tracker, rcCalibration *cal);
+RCTRACKER_API bool rc_setCalibrationStruct(rc_Tracker *tracker, const rcCalibration *cal);
+
+RCTRACKER_API bool rc_setCalibrationFromFile(rc_Tracker *tracker, const char *filePath, const rcCalibration *defaults);
+
 
 /*
  Not yet implemented (depend on loop closure):

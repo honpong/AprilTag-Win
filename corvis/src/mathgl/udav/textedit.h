@@ -46,7 +46,8 @@ class QCompleter;
 class Numb;
 //-----------------------------------------------------------------------------
 class TextEdit : public QTextEdit
-{	Q_OBJECT
+{
+	Q_OBJECT
 public:
 	TextEdit(QWidget *parent = 0);
 	void setCompleter(QCompleter *c);

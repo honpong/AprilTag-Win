@@ -26,6 +26,8 @@ mathgl.View = function() {
 	this.__pitch = 0;
 	this.__yaw = 0;
 	this.__theta = 0;
+	// by default pitch rotation is unlimited
+	this.__limitedPitchRotation = false;
 }
 
 
@@ -61,7 +63,12 @@ mathgl.View.prototype.attachCanvas = function(canvas) {
 	this.__canvas.addEventListener("mouseup",   this.__onMouseUpFunc, false);
 	this.__canvas.addEventListener("mouseout",  this.__onMouseOutFunc, false);
 	this.__canvas.addEventListener("dblclick",  this.__onDblClickFunc, false);
-	this.__canvas.addEventListener("mousewheel",  this.__onMouseWheelFunc, false);
+//	this.__canvas.addEventListener("mousewheel",  this.__onMouseWheelFunc, false);
+	if ("onwheel" in document.createElement("div")) {
+		this.__canvas.addEventListener("wheel",  this.__onMouseWheelFunc, false);
+	} else {
+		this.__canvas.addEventListener("mousewheel",  this.__onMouseWheelFunc, false);
+	}
 
 	// initiate redraw
 	this.__renderLauncherFunc();
@@ -76,7 +83,12 @@ mathgl.View.prototype.detachCanvas = function() {
 	this.__canvas.removeEventListener("mouseup", this.__onMouseUpFunc, false);
 	this.__canvas.removeEventListener("mouseout", this.__onMouseOutFunc, false);
 	this.__canvas.removeEventListener("dblclick", this.__onDblClickFunc, false);
-	this.__canvas.removeEventListener("mousewheel",  this.__onMouseWheelFunc, false);
+//	this.__canvas.removeEventListener("mousewheel",  this.__onMouseWheelFunc, false);
+	if ("onwheel" in document.createElement("div")) {
+		this.__canvas.removeEventListener("wheel",  this.__onMouseWheelFunc, false);
+	} else {
+		this.__canvas.removeEventListener("mousewheel",  this.__onMouseWheelFunc, false);
+	}
 
 	// drop canvas
 	this.__canvas = null;
@@ -145,34 +157,34 @@ mathgl.View.prototype.viewArea = function() {
 
 mathgl.View.prototype.__onMouseMove = function(e) {
 	if (this.__isMouseDown) {
-		var x = e.offsetX;
-		var y = e.offsetY;
+		var x = e.layerX;
+		var y = e.layerY;
 		this.__yaw += 0.5 * (this.__mouseX - x) * Math.PI / 180;
-//		if(Math.abs(Math.cos(this.__yaw))>0.3)
-			this.__pitch += 0.5 * (y - this.__mouseY) * Math.PI / 180;
-//		else
-//			this.__theta += 0.5 * (y - this.__mouseY) * Math.PI / 180;
+		this.__pitch += 0.5 * (y - this.__mouseY) * Math.PI / 180;
 		this.__mouseX = x;
 		this.__mouseY = y;
-		if(this.__pitch > 63)	this.__pitch -= 20*Math.PI;
-		if(this.__pitch < -63)	this.__pitch += 20*Math.PI;
+		if (this.__limitedPitchRotation) {
+			this.__pitch = Math.min(this.__pitch, 0.999*Math.PI/2);
+			this.__pitch = Math.max(this.__pitch, -0.999*Math.PI/2);
+		} else {
+			if (this.__pitch > 63) this.__pitch -= 20*Math.PI;
+			if (this.__pitch < -63) this.__pitch += 20*Math.PI;
+		}
+
 		if(this.__yaw > 63)	this.__yaw -= 20*Math.PI;
 		if(this.__yaw <-63)	this.__yaw += 20*Math.PI;
-// 		this.__pitch = Math.min(this.__pitch, Math.PI / 2);
-// 		this.__pitch = Math.max(this.__pitch, -Math.PI / 2);
 // 		this.__yaw = Math.min(this.__yaw, Math.PI);
 // 		this.__yaw = Math.max(this.__yaw, -Math.PI);
 
-		if(this.__onCameraChanged)
-			this.__onCameraChanged(this.getViewpoint());
+    this.__notifyCameraChanged();
 		this.__renderLauncherFunc();
 	}
 }
 
 
 mathgl.View.prototype.__onMouseDown = function(e) {
-	this.__mouseX = e.offsetX;
-	this.__mouseY = e.offsetY;
+	this.__mouseX = e.layerX;
+	this.__mouseY = e.layerY;
 	this.__isMouseDown = true;
 }
 
@@ -188,25 +200,37 @@ mathgl.View.prototype.__onMouseOut = function() {
 
 
 mathgl.View.prototype.__onDblClick = function(e) {
-	this.__pickPointHandlerFunc(e.offsetX, e.offsetY);
+	this.__pickPointHandlerFunc(e.layerX, e.layerY);
 }
 
 
 mathgl.View.prototype.__onMouseWheel = function(e) {
 	this.__isMouseDown = false;
-	this.__distance -= 0.1 * e.wheelDelta / 120;
+//	this.__distance -= 0.1 * e.wheelDelta / 120;
+
+	var wheelSensivity = 0.1;
+	if (e.wheelDelta !== undefined) {
+		// handle deprecated 'mousewheel' event (old webkit in chrome and safari)
+		// wheelDelta is always 120 and inverted to standard deltaY
+		var direction = e.wheelDelta >= 0 ? -1 : 1;
+		this.__distance += -1. * wheelSensivity * direction;
+	} else if (e.deltaY !== undefined) {
+		// handle standard W3C DOM Level 3 'wheel' event
+		var direction = e.deltaY >= 0 ? -1 : 1;
+		this.__distance += wheelSensivity * direction;
+	}
+
 	this.__distance = Math.min(this.__distance, 10.0);
 	this.__distance = Math.max(this.__distance, 0.2);
-	if(this.__onCameraChanged)
-		this.__onCameraChanged(this.getViewpoint());
+  this.__notifyCameraChanged();
 	this.__renderLauncherFunc();
 }
 
-mathgl.View.prototype.getViewpoint = function() { 
+mathgl.View.prototype.getViewpoint = function() {
 	return { 
 		distance : this.__distance, 
 		pitch : this.__pitch, 
-		yaw : this.__yaw, 
+		yaw : this.__yaw
 	}; 
 } 
 
@@ -227,5 +251,16 @@ mathgl.View.prototype.setCameraEventHandler = function(handler) {
 	this.__onCameraChanged = handler; 
 }
 
+mathgl.View.prototype.__notifyCameraChanged = function() {
+	if(this.__onCameraChanged) {
+		this.__onCameraChanged(this.getViewpoint());
+	}
+}
 
-
+/**
+ * Limit the pitch control rotation to +-90 degrees
+ * @param limitedPitch {Boolean} enable or disable limit
+ */
+mathgl.View.prototype.setLimitedPitchRotation = function(limitedPitch) {
+	this.__limitedPitchRotation = limitedPitch;
+}

@@ -12,12 +12,10 @@ f_t state_vision_feature::measurement_var;
 f_t state_vision_feature::outlier_thresh;
 f_t state_vision_feature::outlier_reject;
 f_t state_vision_feature::max_variance;
-uint64_t state_vision_group::counter = 0;
-uint64_t state_vision_feature::counter = 0;
 
-state_vision_feature::state_vision_feature(f_t initialx, f_t initialy): state_leaf("feature"), outlier(0.), initial(initialx, initialy, 1., 0.), current(initial), status(feature_initializing)
+state_vision_feature::state_vision_feature(uint64_t feature_id, const feature_t & initial_): state_leaf("feature"), outlier(0.), initial(initial_.x(), initial_.y(), 1, 0), current(initial), status(feature_initializing)
 {
-    id = counter++;
+    id = feature_id;
     set_initial_variance(initial_var);
     innovation_variance_x = 0.;
     innovation_variance_y = 0.;
@@ -26,8 +24,7 @@ state_vision_feature::state_vision_feature(f_t initialx, f_t initialy): state_le
     set_process_noise(initial_process_noise);
     dt = sensor_clock::duration(0);
     last_dt = sensor_clock::duration(0);
-    image_velocity.x = 0;
-    image_velocity.y = 0;
+    image_velocity = {0,0};
     world = v4(0, 0, 0, 0);
     Xcamera = v4(0, 0, 0, 0);
 }
@@ -77,26 +74,26 @@ bool state_vision_feature::force_initialize()
 f_t state_vision_group::ref_noise;
 f_t state_vision_group::min_feats;
 
-state_vision_group::state_vision_group(const state_vision_group &other): Tr(other.Tr), Wr(other.Wr), features(other.features), health(other.health), status(other.status)
+state_vision_group::state_vision_group(const state_vision_group &other): Tr(other.Tr), Qr(other.Qr), features(other.features), health(other.health), status(other.status)
 {
     assert(status == group_normal); //only intended for use at initialization
     children.push_back(&Tr);
-    children.push_back(&Wr);
+    children.push_back(&Qr);
 }
 
-state_vision_group::state_vision_group(): Tr("Tr"), Wr("Wr"), health(0), status(group_initializing)
+state_vision_group::state_vision_group(uint64_t group_id): Tr("Tr"), Qr("Qr"), health(0), status(group_initializing)
 {
-    id = counter++;
+    id = group_id;
     Tr.dynamic = true;
-    Wr.dynamic = true;
+    Qr.dynamic = true;
     children.push_back(&Tr);
-    children.push_back(&Wr);
+    children.push_back(&Qr);
     Tr.v = v4(0., 0., 0., 0.);
-    Wr.v = rotation_vector();
+    Qr.v = quaternion();
     Tr.set_initial_variance(0., 0., 0.);
-    Wr.set_initial_variance(0., 0., 0.);
+    Qr.set_initial_variance(0., 0., 0.);
     Tr.set_process_noise(ref_noise);
-    Wr.set_process_noise(ref_noise);
+    Qr.set_process_noise(ref_noise);
 }
 
 void state_vision_group::make_empty()
@@ -165,7 +162,7 @@ int state_vision_group::make_reference()
         }
     }
     //remove_child(&Tr);
-    //Wr.saturate();
+    //Qr.saturate();
     return 0;
 }
 
@@ -177,7 +174,10 @@ int state_vision_group::make_normal()
     return 0;
 }
 
-state_vision::state_vision(covariance &c): state_motion(c), Tc("Tc"), Wc("Wc"), focal_length("focal_length"), center_x("center_x"), center_y("center_y"), k1("k1"), k2("k2"), k3("k3"), fisheye(false), total_distance(0.), last_position(v4::Zero()), reference(nullptr), lost_factor(.1)
+state_vision::state_vision(covariance &c):
+    state_motion(c),
+    Tc("Tc"), Qc("Qc"), focal_length("focal_length"), center_x("center_x"), center_y("center_y"), k1("k1"), k2("k2"), k3("k3"),
+    fisheye(false), total_distance(0.), last_position(v4::Zero()), reference(nullptr), feature_counter(0), group_counter(0), lost_factor(.1)
 {
     reference = NULL;
     if(estimate_camera_intrinsics)
@@ -187,10 +187,11 @@ state_vision::state_vision(covariance &c): state_motion(c), Tc("Tc"), Wc("Wc"), 
         children.push_back(&center_y);
         children.push_back(&k1);
         children.push_back(&k2);
+        children.push_back(&k3);
     }
     if(estimate_camera_extrinsics) {
         children.push_back(&Tc);
-        children.push_back(&Wc);
+        children.push_back(&Qc);
     }
     children.push_back(&groups);
 }
@@ -321,7 +322,7 @@ int state_vision::process_features(const camera_data & camera, sensor_clock::tim
     groups.children.remove_if([&](state_vision_group *g) {
         if(g->status == group_empty) {
             if(map_enabled) {
-                transformation G = transformation(W.v, T.v)*invert(transformation(g->Wr.v, g->Tr.v));
+                transformation G = transformation(Q.v, T.v)*invert(transformation(g->Qr.v, g->Tr.v));
                 map.node_finished(g->id, G);
             }
             delete g;
@@ -336,28 +337,17 @@ int state_vision::process_features(const camera_data & camera, sensor_clock::tim
     return total_health;
 }
 
-state_vision_feature * state_vision::add_feature(f_t initialx, f_t initialy)
+state_vision_feature * state_vision::add_feature(const feature_t & initial)
 {
-    state_vision_feature *f = new state_vision_feature(initialx, initialy);
+    state_vision_feature *f = new state_vision_feature(feature_counter++, initial);
     features.push_back(f);
     //allfeatures.push_back(f);
     return f;
 }
 
-void state_vision::project_new_group_covariance(const state_vision_group &g)
-{
-    //Note: this only works to fill in the covariance for Tr, Wr because it fills in cov(T,Tr) etc first (then copies that to cov(Tr,Tr).
-    for(int i = 0; i < cov.cov.rows(); ++i)
-    {
-        v4 cov_W = W.copy_cov_from_row(cov.cov, i);
-        g.Wr.copy_cov_to_col(cov.cov, i, cov_W);
-        g.Wr.copy_cov_to_row(cov.cov, i, cov_W);
-    }
-}
-
 state_vision_group * state_vision::add_group(sensor_clock::time_point time)
 {
-    state_vision_group *g = new state_vision_group();
+    state_vision_group *g = new state_vision_group(group_counter++);
     if(map_enabled) {
         map.add_node(g->id);
         if(groups.children.empty() && g->id != 0)
@@ -381,46 +371,68 @@ state_vision_group * state_vision::add_group(sensor_clock::time_point time)
     return g;
 }
 
-feature_t state_vision::project_feature(const feature_t &feat) const
+feature_t state_vision::normalize_feature(const feature_t &feat) const
 {
-    feature_t feat_p;
-    feat_p.x = (float)(((feat.x - image_width / 2. + .5) / image_height - center_x.v) / focal_length.v);
-    feat_p.y = (float)(((feat.y - image_height / 2. + .5) / image_height - center_y.v) / focal_length.v);
-    return feat_p;
+    return (((feat - image_size() / 2) + feature_t{.5,.5}) / image_height - feature_t {center_x.v, center_y.v}) / focal_length.v;
 }
 
-feature_t state_vision::unproject_feature(const feature_t &feat_n) const
+feature_t state_vision::unnormalize_feature(const feature_t &feat_n) const
 {
-    feature_t feat;
-    feat.x = (float)(feat_n.x * focal_length.v + center_x.v) * image_height + image_width / 2. - .5;
-    feat.y = (float)(feat_n.y * focal_length.v + center_y.v) * image_height + image_height / 2. - .5;
-    return feat;
+    return (feat_n * focal_length.v + feature_t {center_x.v, center_y.v}) * image_height + image_size() / 2 - feature_t{.5,.5};
 }
 
-feature_t state_vision::uncalibrate_feature(const feature_t &feat_n) const
+feature_t state_vision::distort_feature(const feature_t &feat_u, f_t *kd_u_, f_t *dkd_u_dru, f_t *dkd_u_dk1, f_t *dkd_u_dk2, f_t *dkd_u_dk3) const
 {
-    f_t r2, kr;
-    fill_calibration(feat_n, r2, kr);
+    f_t kd_u, ru2, ru = sqrt(ru2 = feat_u.squaredNorm());
+    if (fisheye) {
+        f_t w = k1.v; if (!w) { w = .922; fprintf(stderr, "you really shouldn't have a zero-angle fisheye lens\n"); }
+        kd_u = atan(2 * tan(w / 2) * ru) / (ru * w);  // FIXME: add higher order terms (but not the linear one)
+        if (dkd_u_dru) *dkd_u_dru = 2 * tan(w/2) / (w + 4 * ru * ru * w * tan(w/2) * tan(w/2));
+        if (dkd_u_dk1) *dkd_u_dk1 = 2 * ru / (w * (1 + cos(w) + 4 * ru * ru * (1 - cos(w)))) - kd_u / w;
+        if (dkd_u_dk2) *dkd_u_dk2 = 0;
+        if (dkd_u_dk3) *dkd_u_dk3 = 0;
+    } else {
+        kd_u = 1 + ru2 * (k1.v + ru2 * (k2.v + ru2 * k3.v));
+        if (dkd_u_dru) *dkd_u_dru = 0 * (k1.v + ru2 * (2 * k2.v + 3 * k3.v * ru2)) * 2 * sqrt(ru2);
+        if (dkd_u_dk1) *dkd_u_dk1 = ru2;
+        if (dkd_u_dk2) *dkd_u_dk2 = ru2 * ru2;
+        if (dkd_u_dk3) *dkd_u_dk3 = ru2 * ru2 * ru2;
+    }
+    if (kd_u_) *kd_u_ = kd_u;
 
-    feature_t feat_u;
-    feat_u.x = (float)(feat_n.x / kr);
-    feat_u.y = (float)(feat_n.y / kr);
-
-    return unproject_feature(feat_u);
+    return feat_u * kd_u;
 }
 
-feature_t state_vision::calibrate_feature(const feature_t &feat_u) const
+feature_t state_vision::undistort_feature(const feature_t &feat_d, f_t *ku_d_, f_t *dku_d_drd, f_t *dku_d_dk1, f_t *dku_d_dk2, f_t *dku_d_dk3) const
 {
-    feature_t feat_n = project_feature(feat_u);
+    f_t ku_d, rd2 = feat_d.squaredNorm();
+    if (fisheye) {
+        f_t rd = sqrt(rd2), w = k1.v; if (!w) { w = .922; fprintf(stderr, "you really shouldn't have a zero-angle fisheye lens\n"); }
+        ku_d = tan(w * rd) / (2 * tan(w/2) * rd);
+        if (dku_d_drd) *dku_d_drd = 2 * (rd * w / (cos(rd * w) * cos(rd * w) * (2 * rd * tan(w/2))) - ku_d);
+        if (dku_d_dk1) *dku_d_dk1 = (2 * rd * sin(w) - sin(2 * rd * w)) / (8 * rd * (cos(rd * w) * cos(rd * w)) * (sin(w/2) * sin(w/2)));
+        if (dku_d_dk2) *dku_d_dk2 = 0;
+        if (dku_d_dk3) *dku_d_dk3 = 0;
+    } else {
+        f_t kd_u, ru2 = rd2, dkd_u_dru2;
+        for (int i=0; i<4; i++) {
+           kd_u =  1 + ru2 * (k1.v + ru2 * (k2.v + ru2 * k3.v));
+           dkd_u_dru2 = k1.v + 2 * ru2 * (k2.v + 3 * ru2 * k3.v);
+           // f(ru2) == ru2 * kd_u * kd_u - rd2 == 0;
+           // ru2 -= f(ru2) / f'(ru2)
+           ru2 -= (ru2 * kd_u * kd_u - rd2) / (kd_u * (kd_u + 2 * ru2 * dkd_u_dru2));
+        }
+        ku_d = 1 / kd_u;
+        f_t ru = sqrt(ru2), dkd_u_dru = 2 * ru * dkd_u_dru2;
+        // dku_d_drd = d/rd (1/kd_u) = d/ru (1/kd_u) dru/drd = d/ru (1/kd_u) / (drd/dru) = d/ru (1/kd_u) / (d/ru (ru kd_u)) = -dkd_u_dru/kd_u/kd_u / (kd_u + ru dkd_u_dru)
+        if (dku_d_drd) *dku_d_drd = 0 * -dkd_u_dru/(kd_u * kd_u * (kd_u + ru * dkd_u_dru));
+        if (dku_d_dk1) *dku_d_dk1 = -(ru2            )/(kd_u*kd_u);
+        if (dku_d_dk2) *dku_d_dk2 = -(ru2 * ru2      )/(kd_u*kd_u);
+        if (dku_d_dk3) *dku_d_dk3 = -(ru2 * ru2 * ru2)/(kd_u*kd_u);
+    }
+    if (ku_d_) *ku_d_ = ku_d;
 
-    f_t r2, kr;
-    fill_calibration(feat_n, r2, kr);
-
-    feature_t feat_c;
-    feat_c.x = (float)(feat_n.x * kr);
-    feat_c.y = (float)(feat_n.y * kr);
-
-    return feat_c;
+    return feat_d * ku_d;
 }
 
 float state_vision::median_depth_variance()
@@ -444,7 +456,7 @@ void state_vision::remove_non_orientation_states()
 {
     if(estimate_camera_extrinsics) {
         remove_child(&Tc);
-        remove_child(&Wc);
+        remove_child(&Qc);
     }
     if(estimate_camera_intrinsics)
     {
@@ -453,6 +465,7 @@ void state_vision::remove_non_orientation_states()
         remove_child(&center_y);
         remove_child(&k1);
         remove_child(&k2);
+        remove_child(&k3);
     }
     remove_child(&groups);
     state_motion::remove_non_orientation_states();
@@ -464,7 +477,7 @@ void state_vision::add_non_orientation_states()
 
     if(estimate_camera_extrinsics) {
         children.push_back(&Tc);
-        children.push_back(&Wc);
+        children.push_back(&Qc);
     }
     if(estimate_camera_intrinsics)
     {
@@ -473,6 +486,7 @@ void state_vision::add_non_orientation_states()
         children.push_back(&center_y);
         children.push_back(&k1);
         children.push_back(&k2);
+        children.push_back(&k3);
     }
     children.push_back(&groups);
 }
@@ -480,9 +494,9 @@ void state_vision::add_non_orientation_states()
 void state_vision::evolve_state(f_t dt)
 {
     for(state_vision_group *g : groups.children) {
-        m4 Rr = to_rotation_matrix(g->Wr.v);
-        g->Tr.v = g->Tr.v + Rr * Rt * dT;
-        g->Wr.v = integrate_angular_velocity(g->Wr.v, dW);
+        g->Tr.v = g->Tr.v + g->dTrp_ddT * dT;
+        rotation_vector dWr(dW[0], dW[1], dW[2]);
+        g->Qr.v = g->Qr.v * to_quaternion(dWr); // FIXME: cache this?
     }
     state_motion::evolve_state(dt);
 }
@@ -492,13 +506,12 @@ void state_vision::cache_jacobians(f_t dt)
     state_motion::cache_jacobians(dt);
 
     for(state_vision_group *g : groups.children) {
-        integrate_angular_velocity_jacobian(g->Wr.v, dW, g->dWrp_dWr, g->dWrp_ddW);
-        m4 Rrt_dRr_dWr = to_body_jacobian(g->Wr.v);
-        g->Rr = to_rotation_matrix(g->Wr.v);
-        g->dTrp_ddT = g->Rr * Rt;
-        m4 RrRtdT = g->Rr * skew3(Rt * dT);
-        g->dTrp_dWr = RrRtdT * Rrt_dRr_dWr;
-        g->dTrp_dW  = RrRtdT * Rt_dR_dW;
+        m4 Rr = to_rotation_matrix(g->Qr.v);
+        g->dTrp_ddT = to_rotation_matrix(g->Qr.v * conjugate(Q.v));
+        m4 xRrRtdT = skew3(g->dTrp_ddT * dT);
+        g->dTrp_dQr_s_ = xRrRtdT;
+        g->dTrp_dQ_s   = xRrRtdT;
+        g->dQrp_s_dW = Rr * JdW_s;
     }
 }
 
@@ -507,19 +520,16 @@ void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t
     for(state_vision_group *g : groups.children) {
         for(int i = 0; i < src.rows(); ++i) {
             v4 cov_Tr = g->Tr.copy_cov_from_row(src, i);
-            v4 cov_Wr = g->Wr.copy_cov_from_row(src, i);
-            v4 cov_W = W.copy_cov_from_row(src, i);
+            v4 scov_Qr = g->Qr.copy_cov_from_row(src, i);
+            v4 scov_Q = Q.copy_cov_from_row(src, i);
             v4 cov_V = V.copy_cov_from_row(src, i);
             v4 cov_a = a.copy_cov_from_row(src, i);
             v4 cov_w = w.copy_cov_from_row(src, i);
             v4 cov_dw = dw.copy_cov_from_row(src, i);
             v4 cov_dT = dt * (cov_V + (dt / 2) * cov_a);
-            v4 cov_Tp = cov_Tr +
-            g->dTrp_ddT * cov_dT +
-            g->dTrp_dW * cov_W - g->dTrp_dWr * cov_Wr;
-            g->Tr.copy_cov_to_col(dst, i, cov_Tp);
+            g->Tr.copy_cov_to_col(dst, i, cov_Tr - g->dTrp_dQr_s_ * scov_Qr + g->dTrp_dQ_s * scov_Q + g->dTrp_ddT * cov_dT);
             v4 cov_dW = dt * (cov_w + dt/2. * cov_dw);
-            g->Wr.copy_cov_to_col(dst, i, g->dWrp_dWr * cov_Wr + g->dWrp_ddW * cov_dW);
+            g->Qr.copy_cov_to_col(dst, i, scov_Qr + g->dQrp_s_dW * cov_dW);
         }
     }
     state_motion::project_motion_covariance(dst, src, dt);

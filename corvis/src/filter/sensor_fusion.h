@@ -74,8 +74,8 @@ public:
     
     sensor_fusion(fusion_queue::latency_strategy strategy);
     
-    void set_device(const corvis_device_parameters &dc);
-    corvis_device_parameters get_device() const { return filter_get_device_parameters(&sfm); }
+    device_parameters get_device() const;
+    void set_device(const rcCalibration &dc);
     
     /** Sets the current location of the device.
      
@@ -113,6 +113,7 @@ public:
     void pause_and_reset_position();
     void unpause();
     
+    void start_buffering();
     void start_offline();
     
     /** Stops the processing of video and inertial data. */
@@ -226,7 +227,7 @@ public:
 
     //public for now
     filter sfm;
-    corvis_device_parameters device;
+    rcCalibration device;
     
     //These change coordinates from accelerometer-centered coordinates to camera-centered coordinates
     transformation accel_to_camera_world_transform() const;
@@ -238,6 +239,8 @@ public:
     //Gets the current transformation, moving from filter-internal to external coordinates
     //Adjusts for camera vs accel centered and QR offset
     transformation get_transformation() const;
+    void set_transformation(const transformation &pose_m);
+
     std::vector<feature_point> get_features() const;
     
 private:

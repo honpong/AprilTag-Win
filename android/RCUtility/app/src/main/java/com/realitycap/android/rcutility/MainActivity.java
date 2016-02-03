@@ -8,8 +8,6 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -25,8 +23,6 @@ public class MainActivity extends TrackerActivity
     private TextView statusText;
     private ToggleButton calibrationButton;
     private ToggleButton captureButton;
-    private Button liveButton;
-    private Button replayButton;
 
     enum AppState
     {
@@ -54,6 +50,7 @@ public class MainActivity extends TrackerActivity
                 if (isChecked)
                 {
                     if (!enterCalibrationState()) calibrationButton.setChecked(false);
+//                    mWorkerThread.postTask(startCalibrationTask);
                 }
                 else
                 {
@@ -79,7 +76,7 @@ public class MainActivity extends TrackerActivity
             }
         });
 
-        liveButton = (Button) this.findViewById(R.id.liveButton);
+        Button liveButton = (Button) this.findViewById(R.id.liveButton);
         liveButton.setOnClickListener(new OnClickListener()
         {
             @Override
@@ -89,7 +86,7 @@ public class MainActivity extends TrackerActivity
             }
         });
 
-        replayButton = (Button) this.findViewById(R.id.replayButton);
+        Button replayButton = (Button) this.findViewById(R.id.replayButton);
         replayButton.setOnClickListener(new OnClickListener()
         {
             @Override
@@ -104,10 +101,16 @@ public class MainActivity extends TrackerActivity
         setStatusText("Ready");
     }
 
-    protected void setStatusText(String text)
+    protected void setStatusText(final String text)
     {
-        statusText.setText(text);
-        log(text);
+        this.runOnUiThread(new Runnable()
+        {
+            @Override public void run()
+            {
+                statusText.setText(text);
+                Log.d(TAG, text);
+            }
+        });
     }
 
     protected boolean enterCalibrationState()
@@ -124,7 +127,7 @@ public class MainActivity extends TrackerActivity
 
         if (!configureCamera())
         {
-            return abortTracking("Failed to get camera intrinsics.");
+            return abortTracking("Failed to configure camera.");
         }
 
         if (!setDefaultCalibrationFromFile(DEFAULT_CALIBRATION_FILENAME))
@@ -162,7 +165,7 @@ public class MainActivity extends TrackerActivity
 
         imuMan.stopSensors();
 
-        boolean success = true;
+        boolean success;
         String cal = trackerProxy.getCalibration();
         if (cal != null)
         {
@@ -279,7 +282,6 @@ public class MainActivity extends TrackerActivity
                     {
                         exitCaptureState();
                         setStatusText("Tracker error code: " + errorCode);
-                        return;
                     }
                 }
             }
@@ -312,22 +314,6 @@ public class MainActivity extends TrackerActivity
             startReplayActivity(data.getData());
         }
         else super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    private void log(String line)
-    {
-        if (line != null) Log.d(TAG, line);
-    }
-
-    @SuppressWarnings("unused")
-    private void logError(Exception e)
-    {
-        if (e != null) logError(e.getLocalizedMessage());
-    }
-
-    private void logError(String line)
-    {
-        if (line != null) Log.e(TAG, line);
     }
 }
 

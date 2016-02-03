@@ -51,6 +51,8 @@ EQ_MOD,		// x modulo y
 EQ_LOG,		// logarithm of x on base a, log_a(x) = ln(x)/ln(a)
 EQ_ARG,		// argument of complex number arg(x,y) = atan2(x,y)
 EQ_HYPOT,	// sqrt(x^2+y^2)=hypot(x,y)
+EQ_MAX,		// maximum of x and y
+EQ_MIN,		// minimum of x and y
 // special functions of 2 arguments
 EQ_BESJ,		// regular cylindrical Bessel function of fractional order
 EQ_BESY,		// irregular cylindrical Bessel function of fractional order
@@ -369,9 +371,14 @@ mglFormula::mglFormula(const char *string)
 			else if(!strcmp(name+1,"anh"))	Kod=EQ_TANH;
 			else if(!strcmp(name+1,"h"))	Kod=EQ_TANH;
 		}
+		else if(name[0]=='m')
+		{
+			if(!strcmp(name+1,"od"))		Kod=EQ_MOD;
+			else if(!strcmp(name+1,"ax"))	Kod=EQ_MAX;
+			else if(!strcmp(name+1,"in"))	Kod=EQ_MIN;
+		}
 		else if(!strcmp(name,"hypot"))	Kod=EQ_HYPOT;
 		else if(!strcmp(name,"pow"))	Kod=EQ_POW;
-		else if(!strcmp(name,"mod"))	Kod=EQ_MOD;
 		else if(!strcmp(name,"i"))		Kod=EQ_BESI;
 		else if(!strcmp(name,"int"))	Kod=EQ_INT;
 		else if(!strcmp(name,"j"))		Kod=EQ_BESJ;
@@ -498,23 +505,25 @@ double MGL_LOCAL_CONST mgz2(double,double)	{return NAN;}	// NOTE I think NAN val
 double MGL_LOCAL_CONST asinh(double x)	{	return log(x+sqrt(x*x+1.));	}
 double MGL_LOCAL_CONST acosh(double x)	{	return x>1 ? log(x+sqrt(x*x-1.)) : NAN;	}
 double MGL_LOCAL_CONST atanh(double x)	{	return fabs(x)<1 ? log((1.+x)/(1.-x))/2 : NAN;	}
+double MGL_LOCAL_CONST fmin(double a,double b)	{	return a > b ? b : a;	}
+double MGL_LOCAL_CONST fmax(double a,double b)	{	return a > b ? a : b;	}
 #endif
 //-----------------------------------------------------------------------------
 typedef double (*func_1)(double);
 typedef double (*func_2)(double, double);
 //-----------------------------------------------------------------------------
-static const mreal z2[EQ_SIN-EQ_LT] = {3,3,3,3,0,3,3,0,0,0,0,0,NAN,0
+static const mreal z2[EQ_SIN-EQ_LT] = {3,3,3,3,0,3,3,0,0,0,0,0,NAN,3,3,3,3
 #if MGL_HAVE_GSL
 	,3,NAN, 3,NAN, 0,0,3,1,3
 #else
 	,0,0,0,0,0,0,0,0,0
 #endif
 };
-static const func_2 f2[EQ_SIN-EQ_LT] = {clt,cgt,ceq,cor,cand,add,sub,mul,del,ipw,pow,fmod,llg,arg,hypot
+static const func_2 f2[EQ_SIN-EQ_LT] = {clt,cgt,ceq,cor,cand,add,sub,mul,del,ipw,pow,fmod,llg,arg,hypot,fmax,fmin
 #if MGL_HAVE_GSL
 	,gsl_sf_bessel_Jnu,gsl_sf_bessel_Ynu,
 	gsl_sf_bessel_Inu,gsl_sf_bessel_Knu,
-	gslEllE,gslEllF,gslLegP,gsl_sf_beta,gsl_sf_gamma_inc,
+	gslEllE,gslEllF,gslLegP,gsl_sf_beta,gsl_sf_gamma_inc
 #else
 	,mgz2,mgz2,mgz2,mgz2,mgz2,mgz2,mgz2,mgz2,mgz2
 #endif
@@ -629,14 +638,14 @@ double MGL_LOCAL_CONST gamma_d(double a)	{return gsl_sf_psi(a)*gsl_sf_gamma(a);}
 #endif
 double MGL_LOCAL_CONST ginc_d(double a, double x)	{return -exp(-x)*pow(x,a-1);}
 //-----------------------------------------------------------------------------
-static const func_2 f21[EQ_SIN-EQ_LT] = {mgzz,mgzz,mgzz, mgzz,mgzz,mgp, mgp,mul1,div1, ipw1,pow1,mgp,llg1, mgz2
+static const func_2 f21[EQ_SIN-EQ_LT] = {mgzz,mgzz,mgzz, mgzz,mgzz,mgp, mgp,mul1,div1, ipw1,pow1,mgp,llg1, mgz2,mgzz,mgzz
 #if MGL_HAVE_GSL
 	,mgz2,mgz2,mgz2, mgz2,gslEllE1,gslEllF1, mgz2,mgz2,mgz2
 #else
 	,mgz2,mgz2,mgz2,mgz2,mgz2,mgz2,mgz2,mgz2,mgz2
 #endif
 };
-static const func_2 f22[EQ_SIN-EQ_LT] = {mgzz,mgzz,mgzz,mgzz,mgzz,mgp,mgm,mul2,div2,pow2,pow2,mgz2,llg2, mgz2
+static const func_2 f22[EQ_SIN-EQ_LT] = {mgzz,mgzz,mgzz,mgzz,mgzz,mgp,mgm,mul2,div2,pow2,pow2,mgz2,llg2, mgz2,mgzz,mgzz
 #if MGL_HAVE_GSL
 	,gslJnuD,gslYnuD,gslInuD,gslKnuD,gslEllE2,gslEllF2,mgz2/*gslLegP*/,mgz2,ginc_d
 #else
@@ -725,11 +734,11 @@ int MGL_LOCAL_PURE mglFindInText(char *str,const char *lst)
 //-----------------------------------------------------------------------------
 HMEX MGL_EXPORT mgl_create_expr(const char *expr)	{	return new mglFormula(expr);	}
 void MGL_EXPORT mgl_delete_expr(HMEX ex)	{	if(ex)	delete ex;	}
-double MGL_EXPORT_PURE mgl_expr_eval(HMEX ex, double x, double y,double z)
+double MGL_EXPORT mgl_expr_eval(HMEX ex, double x, double y,double z)
 {	return ex->Calc(x,y,z);	}
 double MGL_EXPORT mgl_expr_eval_v(HMEX ex, mreal *var)
 {	return ex->Calc(var);	}
-double MGL_EXPORT_PURE mgl_expr_diff(HMEX ex, char dir, double x, double y,double z)
+double MGL_EXPORT mgl_expr_diff(HMEX ex, char dir, double x, double y,double z)
 {	return ex->CalcD(dir,x,y,z);	}
 double MGL_EXPORT mgl_expr_diff_v(HMEX ex, char dir, mreal *var)
 {	return ex->CalcD(var, dir);		}

@@ -97,6 +97,8 @@ public slots:
 	void zoomIn();			///< Zoom in graphics
 	void zoomOut();			///< Zoom out graphics
 	void restore();			///< Restore zoom and rotation to default values
+	void setZoomScl(double s=0.5);		///< Set factor for zooming (must be s>0)
+	void setShiftScl(double s=0.25);	///< Set factor for shifting (must be s!=0)
 	//	void reload();			///< Reload data and execute script
 
 	void shiftLeft();		///< Shift graphics to left direction
@@ -203,6 +205,8 @@ private slots:
 	void afterPlot();	///< minor tuning after plot was done
 private:
 	int x0, y0, xe, ye;		///< Temporary variables for mouse
+	double sclZ;			///< Scale factor for zooming
+	double sclS;			///< Scale factor for shifting
 	uchar *grBuf;
 	void drawPrim();
 	int prevQuality;

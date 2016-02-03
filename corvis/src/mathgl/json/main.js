@@ -15,7 +15,8 @@ var main = function() {
   graph = new mathgl.Graph(canvas, backend);
   graph.setBackgroundFillStyle("#F0F0F0");
   // initialize it by some sample MGL script
-  graph.init(makeSampleScript());
+  graph.loadGeometry(makeSampleScript(),null);
+  graph.setPerspective(0.5);
 }
 
 
@@ -29,7 +30,8 @@ var makeSampleScript = function() {
 	var mgl = "origintick off\n";
 	mgl += "title 'qqq' '@k':ranges -2 2 -2 2 -2 2:colorbar '>'\n"   // NOTE: Ranges MUST BE specified for correctly work of zoomaxis feature
 	mgl += "facenum 50:";
-	mgl += "origin 0 0 0:axis :xlabel 'x':ylabel 'y':zlabel 'z':"
+//	mgl += "origin 0 0 0:axis :xlabel 'xxxx':ylabel 'yyyy':zlabel 'zzzz':"
+	mgl += "axis :xlabel 'xxxx':ylabel 'yyyy':zlabel 'zzzz':"
 	mgl += "box:fplot 'sin(x^2)'\n";   // This is just for testing zoomaxis features
 	mgl += "text 0 0 'aaa'";
 	return mgl;

@@ -131,9 +131,9 @@ StyleDialog::StyleDialog(QWidget *parent) : QDialog(parent)
 	mask = new QComboBox(p);	g->addWidget(mask, 2, 1);	fillMasks(mask);
 	angle = new QComboBox(p);	g->addWidget(angle, 3, 1);
 	angle->addItem(tr("none"));	
-	angle->addItem(QString::fromWCharArray(L"+45°"));
-	angle->addItem(QString::fromWCharArray(L"-45°"));	
-	angle->addItem(QString::fromWCharArray(L"90°"));
+	angle->addItem(QString::fromWCharArray(L"+45\xb0"));
+	angle->addItem(QString::fromWCharArray(L"-45\xb0"));	
+	angle->addItem(QString::fromWCharArray(L"90\xb0"));	// \xb0 <-> °
 	msize = new QSlider(p);		g->addWidget(msize, 4, 1);
 	msize->setRange(1, 9);		msize->setValue(1);
 	msize->setTickPosition(QSlider::TicksBothSides);

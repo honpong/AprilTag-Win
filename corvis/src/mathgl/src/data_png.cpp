@@ -41,7 +41,7 @@ MGL_NO_EXPORT unsigned char *mgl_create_scheme(const char *scheme,long &num)
 	mglColor col;
 	for(size_t i=0;i<l;i++)
 	{
-		col = mglColor(scheme[i]);
+		col.Set(scheme[i]);
 		if(col.Valid())
 		{	cc[3*np]=255*col.r;	cc[3*np+1]=255*col.g;	cc[3*np+2]=255*col.b;	np++;	}
 	}

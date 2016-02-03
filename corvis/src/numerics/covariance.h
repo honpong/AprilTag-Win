@@ -11,7 +11,7 @@
 
 #include "matrix.h"
 
-#define MAXSTATESIZE 160
+#define MAXSTATESIZE 120
 
 //typedef Eigen::Map<matrixtype, Eigen::Aligned, Eigen::OuterStride<MAXSTATESIZE>> covariance_map;
 

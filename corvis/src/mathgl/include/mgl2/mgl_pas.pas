@@ -132,9 +132,13 @@ procedure mgl_qt_run(); cdecl; external libmglqt;
 {== ../../include/mgl2/abstract.h ==}
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
+/// Set seed for random numbers
+procedure  mgl_srnd(seed: integer); cdecl; external libmgl;
+/// Get random number
+function  mgl_rnd(): double; cdecl; external libmgl;
 /// Set name for data variable (can be used in mgl_formula_calc() or in MGL scripts)
-procedure  mgl_data_set_name( !!! mglDataA *dat;const name: PChar); cdecl; external libmgl;
-procedure  mgl_data_set_name_w( !!! mglDataA *dat;const name: PWideChar); cdecl; external libmgl;
+procedure  mgl_data_set_name(dat: HMDT;const name: PChar); cdecl; external libmgl;
+procedure  mgl_data_set_name_w(dat: HMDT;const name: PWideChar); cdecl; external libmgl;
 /// Set callback function which is called at deleting variable
 /// Save whole data array (for ns=-1) or only ns-th slice to text file
 procedure  mgl_data_save(const dat: HMDT;const fname: PChar;ns: integer); cdecl; external libmgl;
@@ -184,7 +188,7 @@ function  mgl_data_momentum_val(const d: HMDT;dir: char;m: Pmreal;w: Pmreal;s: P
 //-----------------------------------------------------------------------------
 {== ../../include/mgl2/base_cf.h ==}
 //-----------------------------------------------------------------------------
-/// Check if MathGL version is valid
+/// Check if MathGL version is valid (return 0) or not (return 1)
 function  mgl_check_version(const ver: PChar): integer; cdecl; external libmgl;
 /// Suppress printing warnings to stderr
 procedure  mgl_suppress_warn(on: integer); cdecl; external libmgl;
@@ -192,7 +196,7 @@ procedure  mgl_suppress_warn(on: integer); cdecl; external libmgl;
 function  mgl_get_warn(gr: HMGL): integer; cdecl; external libmgl;
 /// Set warning code ant fill message
 procedure  mgl_set_warn(gr: HMGL;code: integer;const text: PChar); cdecl; external libmgl;
-/// Set buffer for warning messages
+/// Get text of warning message(s)
 function mgl_get_mess(gr: HMGL): PChar; cdecl; external libmgl;
 /// Set name of plot for saving filename
 procedure  mgl_set_plotid(gr: HMGL;const id: PChar); cdecl; external libmgl;
@@ -277,7 +281,7 @@ procedure  mgl_set_func(gr: HMGL;const EqX: PChar;const EqY: PChar;const EqZ: PC
 /// Set one of predefined transformation rule
 procedure  mgl_set_coor(gr: HMGL;how: integer); cdecl; external libmgl;
 /// Set to draw Ternary axis (triangle like axis, grid and so on)
-procedure  mgl_set_ternary(gr: HMGL;enable: integer); cdecl; external libmgl;
+procedure  mgl_set_ternary(gr: HMGL;kind: integer); cdecl; external libmgl;
 /// Set to use or not tick labels rotation
 procedure  mgl_set_tick_rotate(gr: HMGL;enable: integer); cdecl; external libmgl;
 /// Set to use or not tick labels skipping
@@ -305,10 +309,6 @@ procedure  mgl_restore_font(gr: HMGL); cdecl; external libmgl;
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-/// Set seed for random numbers
-procedure  mgl_srnd(seed: integer); cdecl; external libmgl;
-/// Get random number
-function  mgl_rnd(): double; cdecl; external libmgl;
 /// Get integer power of x
 function  mgl_ipow(x: double;n: integer): double; cdecl; external libmgl;
 /// Get number of seconds since 1970 for given string
@@ -555,10 +555,6 @@ function  mgl_expr_diff_v(ex: HMEX;dir: char;vars: Pmreal): double; cdecl; exter
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
-/// Set seed for random numbers
-procedure  mgl_srnd(seed: integer); cdecl; external libmgl;
-/// Get random number
-function  mgl_rnd(): double; cdecl; external libmgl;
 /// Get integer power of x
 function  mgl_ipowc(x: dual;n: integer): dual; cdecl; external libmgl;
 /// Get exp(i*a)
@@ -819,6 +815,7 @@ function  mgl_hist_x(gr: HMGL;const x: HMDT;const a: HMDT;const opt: PChar): HMD
 function  mgl_hist_xy(gr: HMGL;const x: HMDT;const y: HMDT;const a: HMDT;const opt: PChar): HMDT; cdecl; external libmgl;
 function  mgl_hist_xyz(gr: HMGL;const x: HMDT;const y: HMDT;const z: HMDT;const a: HMDT;const opt: PChar): HMDT; cdecl; external libmgl;
 procedure  mgl_puts_fit(gr: HMGL;x: double;y: double;z: double;const prefix: PChar;const font: PChar;size: double); cdecl; external libmgl;
+function  mgl_get_fit_chi(): mreal; cdecl; external libmgl;
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
 //-----------------------------------------------------------------------------
@@ -1102,8 +1099,8 @@ procedure  mgl_ellipse(gr: HMGL;x1: double;y1: double;z1: double;x2: double;y2: 
 procedure  mgl_rhomb(gr: HMGL;x1: double;y1: double;z1: double;x2: double;y2: double;z2: double;r: double;const stl: PChar); cdecl; external libmgl;
 /// Draws the polygon based on points p1,p2 with color stl
 procedure  mgl_polygon(gr: HMGL;x1: double;y1: double;z1: double;x2: double;y2: double;z2: double;n: integer;const stl: PChar); cdecl; external libmgl;
-procedure  mgl_arc_ext(gr: HMGL;x0: double;y0: double;z0: double;xr: double;yr: double;zr: double;x1: double;y1: double;z1: double;a: double; !!! const char* stl); cdecl; external libmgl;
-procedure  mgl_arc(gr: HMGL;x0: double;y0: double;x1: double;y1: double;a: double; !!! const char* stl); cdecl; external libmgl;
+procedure  mgl_arc_ext(gr: HMGL;x0: double;y0: double;z0: double;xr: double;yr: double;zr: double;x1: double;y1: double;z1: double;a: double;const stl: PChar); cdecl; external libmgl;
+procedure  mgl_arc(gr: HMGL;x0: double;y0: double;x1: double;y1: double;a: double;const stl: PChar); cdecl; external libmgl;
 /// Draw cones from points {x,y,z} to axis plane
 procedure  mgl_cones_xyz(graph: HMGL;const x: HMDT;const y: HMDT;const z: HMDT;const pen: PChar;const opt: PChar); cdecl; external libmgl;
 /// Draw cones from points {x,z} to axis plane
@@ -1141,6 +1138,9 @@ procedure  mgl_labelw_y(graph: HMGL;const y: HMDT;const text: PWideChar;const fn
 /// Draw table for values val along given direction with row labels text at position {x,y}
 procedure  mgl_table(gr: HMGL;x: double;y: double;const val: HMDT;const text: PChar;const fnt: PChar;const opt: PChar); cdecl; external libmgl;
 procedure  mgl_tablew(gr: HMGL;x: double;y: double;const val: HMDT;const text: PWideChar;const fnt: PChar;const opt: PChar); cdecl; external libmgl;
+/// Draws bitmap (logo) which is stretched along whole axis range
+procedure  mgl_logo(gr: HMGL;w: integer;h: integer;const rgba: PByte;smooth: integer;const opt: PChar); cdecl; external libmgl;
+procedure  mgl_logo_file(gr: HMGL;const fname: PChar;smooth: integer;const opt: PChar); cdecl; external libmgl;
 //-----------------------------------------------------------------------------
 {== ../../include/mgl2/other.h ==}
 //-----------------------------------------------------------------------------
@@ -1374,6 +1374,8 @@ procedure  mgl_set_frame(gr: HMGL;i: integer); cdecl; external libmgl;
 procedure  mgl_show_frame(gr: HMGL;i: integer); cdecl; external libmgl;
 /// Delete primitives for i-th frame (work if MGL_VECT_FRAME is set on)
 procedure  mgl_del_frame(gr: HMGL;i: integer); cdecl; external libmgl;
+/// Clear list of primitives for current drawing
+procedure  mgl_clear_frame(gr: HMGL); cdecl; external libmgl;
 /// Set the transparency type (0 - usual, 1 - glass, 2 - lamp)
 procedure  mgl_set_transp_type(gr: HMGL;kind: integer); cdecl; external libmgl;
 /// Set the transparency on/off.
@@ -1396,6 +1398,8 @@ procedure  mgl_mat_pop(gr: HMGL); cdecl; external libmgl;
 procedure  mgl_mat_push(gr: HMGL); cdecl; external libmgl;
 /// Clear up the frame
 procedure  mgl_clf(gr: HMGL); cdecl; external libmgl;
+/// Clear up the frame but keep fog settings
+procedure  mgl_clf_nfog(gr: HMGL); cdecl; external libmgl;
 /// Clear up the frame and fill background by specified color
 procedure  mgl_clf_rgb(gr: HMGL;r: double;g: double;b: double); cdecl; external libmgl;
 /// Clear up the frame and fill background by specified color
@@ -1441,6 +1445,7 @@ procedure  mgl_view(gr: HMGL;TetX: double;TetZ: double;TetY: double); cdecl; ext
 procedure  mgl_zoom(gr: HMGL;x1: double;y1: double;x2: double;y2: double); cdecl; external libmgl;
 //-----------------------------------------------------------------------------
 /// Callback function for mouse click
+/// Set callback functions for drawing and data reloading
 /// Set delay for animation in seconds
 procedure  mgl_wnd_set_delay(gr: HMGL;dt: double); cdecl; external libmgl;
 /// Get delay for animation in seconds
@@ -1496,6 +1501,8 @@ procedure  mgl_parser_del_var(p: HMPR;const name: PChar); cdecl; external libmgl
 procedure  mgl_parser_del_varw(p: HMPR;const name: PWideChar); cdecl; external libmgl;
 /// Delete all data variables
 procedure  mgl_parser_del_all(p: HMPR); cdecl; external libmgl;
+/// Load new commands from external dynamic Library (must have "const mglCommand *mgl_cmd_extra" variable)
+procedure  mgl_parser_load(pr: HMPR;const dll_name: PChar); cdecl; external libmgl;
 /// Parse and draw single line of the MGL script
 function  mgl_parse_line(gr: HMGL;p: HMPR;const str: PChar;pos: integer): integer; cdecl; external libmgl;
 function  mgl_parse_linew(gr: HMGL;p: HMPR;const str: PWideChar;pos: integer): integer; cdecl; external libmgl;
@@ -1509,6 +1516,8 @@ procedure  mgl_parser_restore_once(p: HMPR); cdecl; external libmgl;
 procedure  mgl_parser_allow_setsize(p: HMPR;a: integer); cdecl; external libmgl;
 /// Allow reading/saving files
 procedure  mgl_parser_allow_file_io(p: HMPR;a: integer); cdecl; external libmgl;
+/// Allow loading commands from external libraries
+procedure  mgl_parser_allow_dll_call(p: HMPR;a: integer); cdecl; external libmgl;
 /// Set flag to stop script parsing
 procedure  mgl_parser_stop(p: HMPR); cdecl; external libmgl;
 /// Return type of command: 0 - not found, 1 - data plot, 2 - other plot,

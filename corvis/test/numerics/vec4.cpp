@@ -32,72 +32,11 @@ TEST(Matrix4, Determinant) {
 TEST(Vector4, Cross) {
     v4 vec(1.5, -.64, 4.1, 0.);
     v4 vec2(.08, 1.2, -.23, 0.);
-    EXPECT_V4_NEAR(cross(vec, vec2), skew3(vec) * vec2, 0) << "a x b = skew(a) * b";
-    EXPECT_V4_NEAR(cross(vec, vec2), skew3(vec2).transpose() * vec, 0) << "a x b = skew(b)^T * a";
+    EXPECT_V4_NEAR(cross(vec, vec2), skew3(vec) * vec2, F_T_EPS) << "a x b = skew(a) * b";
+    EXPECT_V4_NEAR(cross(vec, vec2), skew3(vec2).transpose() * vec, F_T_EPS) << "a x b = skew(b)^T * a";
 }
 
-bool same_sign(f_t first, f_t second)
-{
-    return first * second >= 0. || fabs(first) < 1.e-5;
-}
-
-//max error on an individual level is too sensitive to small perturbations that don't matter
-/*
- f_t thresh = .1 * fabs(delta[j]);
- if(thresh < 1.e-5) thresh = 1.e-5;
- EXPECT_NEAR(delta[j], lindelta[j], thresh) << "where i is " << i << " and j is " << j;
- f_t err = fabs(delta[j] - lindelta[j]);
- if(fabs(delta[j]) > 1.e-5) err /= fabs(delta[j]);
- if(err > max_err) max_err = err;
-*/
-
-f_t test_m4_linearization(const v4 &base, v4 (*nonlinear)(const v4 &base, const void *other), const m4 &jacobian, void *other)
-{
-    const f_t eps = .1;
-    f_t max_err = 0.;
-    for(int i = 0; i < 3; ++i) {
-        v4 pert(v4::Zero());
-        pert[i] = base[i] * eps + 1.e-5;
-        v4 delta = nonlinear(base + pert, other) - nonlinear(base, other);
-        v4 lindelta = jacobian * pert;
-        
-        for(int j = 0; j < 3; ++j) {
-            EXPECT_PRED2(same_sign, delta[j], lindelta[j]) << "Sign flip, where i is " << i << " and j is " << j;
-        }
-        f_t vec_pct_err = (delta - lindelta).norm() / delta.norm();
-        EXPECT_LT(vec_pct_err, .10);
-        if(vec_pct_err > max_err) max_err = vec_pct_err;
-    }
-    return max_err;
-}
-
-v4 iavq_angle_stub(const v4 &base, const void *other)
-{
-    quaternion q(base[0], base[1], base[2], base[3]);
-    quaternion res = integrate_angular_velocity(q, *(v4 *)other);
-    return v4(res.w(), res.x(), res.y(), res.z());
-}
-
-v4 iavq_vel_stub(const v4 &base, const void *other)
-{
-    v4 b = *(v4 *)other;
-    quaternion q(b[0], b[1], b[2], b[3]);
-    quaternion res = integrate_angular_velocity(q, base);
-    return v4(res.w(), res.x(), res.y(), res.z());
-}
-
-
-v4 iav_angle_stub(const v4 &base, const void *other)
-{
-    return integrate_angular_velocity(base, *(v4 *)other);
-}
-
-v4 iav_vel_stub(const v4 &base, const void *other)
-{
-    return integrate_angular_velocity(*(v4 *)other, base);
-}
-
-void test_rotation(const v4 &vec)
+static void test_rotation(const v4 &vec)
 {
     m4 skewmat = skew3(vec);
     EXPECT_V4_NEAR(vec, invskew3(skewmat), 0) << "invskew(skew(vec)) = vec";
@@ -118,24 +57,6 @@ void test_rotation(const v4 &vec)
     EXPECT_M4_NEAR(m4::Identity(), rotmat.transpose() * rotmat, 1.e-15) << "R'R = I";
     EXPECT_V4_NEAR(vec, rotmat.transpose() * (rotmat * vec), 1.e-15) << "R'Rv = v";
 
-    v4 angvel(-.0514, .023, -.065, 0.);
-    
-    m4 dW_dW, dW_dw;
-    linearize_angular_integration(vec, angvel, dW_dW, dW_dw);
-    {
-        SCOPED_TRACE("integrate_angular_velocity(W + delta, w) = iav(W, w) + jacobian * delta");
-        f_t err = test_m4_linearization(vec, iav_angle_stub, dW_dW, &angvel);
-        fprintf(stderr, "Angular velocity integration linearization max error (angle) is %.1f%%\n", err * 100);
-    }
-    {
-        SCOPED_TRACE("integrate_angular_velocity(W, w + delta) = iav(W, w) + jacobian * delta");
-        f_t err = test_m4_linearization(angvel, iav_vel_stub, dW_dw, (void *)&vec);
-        fprintf(stderr, "Angular velocity integration linearization max error (velocity) is %.1f%%\n", err * 100);
-    }
-
-    EXPECT_V4_NEAR(integrate_angular_velocity(vec, angvel), integrate_angular_velocity(rvec, angvel).raw_vector(), 0)
-        << "integrate_angular_velocity(v4) = integrate_angular_velocity(rotvec)";
-
     quaternion quat = to_quaternion(rvec);
     EXPECT_M4_NEAR(to_rotation_matrix(quat), to_rotation_matrix(rvec), 1.e-15) << "rot_mat(rotvec_to_quat(v)) = rodrigues(v)";
     quaternion qinv = to_quaternion(rotmat);
@@ -153,25 +74,6 @@ void test_rotation(const v4 &vec)
         EXPECT_V4_NEAR(up, rotation_between_two_vectors(quat * up, up) * (quat * up) , 1.e-12);
     }
     
-    integrate_angular_velocity_jacobian(quat, angvel, dW_dW, dW_dw);
-    {
-        SCOPED_TRACE("quaternion integrate_angular_velocity(W + delta, w) = iav(W, w) + jacobian * delta");
-        f_t err = test_m4_linearization(v4(quat.w(), quat.x(), quat.y(), quat.z()), iavq_angle_stub, dW_dW, &angvel);
-        fprintf(stderr, "Quaternion Angular velocity integration linearization max error (angle) is %.1f%%\n", err * 100);
-    }
-    {
-        SCOPED_TRACE("quaternion integrate_angular_velocity(W, w + delta) = iav(W, w) + jacobian * delta");
-        v4 vq = v4(quat.w(), quat.x(), quat.y(), quat.z());
-        f_t err = test_m4_linearization(angvel, iavq_vel_stub, dW_dw, (void *)&vq);
-        fprintf(stderr, "Quaternion Angular velocity integration linearization max error (velocity) is %.1f%%\n", err * 100);
-    }
-
-    {
-        quaternion q1 = integrate_angular_velocity(quat, angvel);
-        quaternion q2 = quat * integrate_angular_velocity(quaternion(1., 0., 0., 0.), angvel);
-        EXPECT_QUATERNION_ROTATION_NEAR(q1,q2, 1.e-15)
-            << "integrate_angular_velocity(W, w) = W * integrate_angular_velocity(I, w)";
-    }
 }
 
 

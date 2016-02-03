@@ -78,7 +78,7 @@ CalcDialog::CalcDialog(QWidget *parent) : QWidget(parent)
 	connect(b, SIGNAL(clicked()), this, SLOT(key9()));
 	b = new QPushButton("+", this);	g->addWidget(b, 0, 3);	b->setMaximumWidth(minw);
 	connect(b, SIGNAL(clicked()), this, SLOT(keyAdd()));
-	b = new QPushButton(QString::fromWCharArray(L"π"), this);	g->addWidget(b, 0, 4);
+	b = new QPushButton(QString::fromWCharArray(L"\u03c0"), this);	g->addWidget(b, 0, 4);
 	connect(b, SIGNAL(clicked()), this, SLOT(keyPi()));		b->setMaximumWidth(minw);
 
 	b = new QPushButton("4", this);	g->addWidget(b, 1, 0);	b->setMaximumWidth(minw);
@@ -89,7 +89,7 @@ CalcDialog::CalcDialog(QWidget *parent) : QWidget(parent)
 	connect(b, SIGNAL(clicked()), this, SLOT(key6()));
 	b = new QPushButton("-", this);	g->addWidget(b, 1, 3);	b->setMaximumWidth(minw);
 	connect(b, SIGNAL(clicked()), this, SLOT(keySub()));
-	b = new QPushButton(QString::fromWCharArray(L"x²"), this);	g->addWidget(b, 1, 4);
+	b = new QPushButton(QString::fromWCharArray(L"x\xb2"), this);	g->addWidget(b, 1, 4);
 	connect(b, SIGNAL(clicked()), this, SLOT(keyX2()));		b->setMaximumWidth(minw);
 
 	b = new QPushButton("1", this);	g->addWidget(b, 2, 0);	b->setMaximumWidth(minw);
@@ -230,21 +230,21 @@ void CalcDialog::fillFuncName()
 	funcName[7]<<"airy_ai()"<<"airy_bi()"<<"airy_dai()"<<"airy_dbi()"<<"gamma()"<<"psi()"<<"beta(,)";
 	funcInfo[7]<<"Airy function Ai(x)"<<"Airy function Bi(x)"
 			<<"Derivative of Airy function Ai'(x)"<<"Derivative of Airy function Bi'(x)"
-			<<QString::fromWCharArray(L"Gamma function Γ(x)")
-			<<QString::fromWCharArray(L"Digamma function Γ'(x)/Γ(x)")
-			<<QString::fromWCharArray(L"Beta function Γ(x)*Γ(y)/Γ(x+y)");
+			<<QString::fromWCharArray(L"Gamma function \u0393(x)")
+			<<QString::fromWCharArray(L"Digamma function \u0393'(x)/\u0393(x)")
+			<<QString::fromWCharArray(L"Beta function \u0393(x)*\u0393(y)/\u0393(x+y)");
 	// exp integrals
 	funcName[8]<<"ci()"<<"si()"<<"ei()"<<"e1()"<<"e2()"<<"ei3()";
-	funcInfo[8]<<QString::fromWCharArray(L"Cosine integral ∫dt cos(t)/t")
-			<<QString::fromWCharArray(L"Sine integral ∫dt sin(t)/t")
-			<<QString::fromWCharArray(L"Integral -∫dt exp(-t)/t")
-			<<QString::fromWCharArray(L"Integral Re ∫dt exp(-xt)/t")
-			<<QString::fromWCharArray(L"Integral Re∫dt exp(-xt)/t^2")
-			<<QString::fromWCharArray(L"Integral ∫dt exp(-t^3)");
+	funcInfo[8]<<QString::fromWCharArray(L"Cosine integral \u222bdt cos(t)/t")
+			<<QString::fromWCharArray(L"Sine integral \u222bdt sin(t)/t")
+			<<QString::fromWCharArray(L"Integral -\u222bdt exp(-t)/t")
+			<<QString::fromWCharArray(L"Integral Re \u222bdt exp(-xt)/t")
+			<<QString::fromWCharArray(L"Integral Re\u222bdt exp(-xt)/t^2")
+			<<QString::fromWCharArray(L"Integral \u222bdt exp(-t^3)");
 	// special
 	funcName[9]<<"erf()"<<"z()"<<"legendre(,)"<<"dilog()"<<"eta()"<<"zeta()"<<"w0()"<<"w1()";
-	funcInfo[9]<<QString::fromWCharArray(L"Error function 2/√π ∫dt exp(-t^2)")<<"Dawson function"
-			<<"Legendre polynomial P_l(x)"<<QString::fromWCharArray(L"Dilogarithm -Re∫ds ln(1-s)/s")
+	funcInfo[9]<<QString::fromWCharArray(L"Error function 2/√π \u222bdt exp(-t^2)")<<"Dawson function"
+			<<"Legendre polynomial P_l(x)"<<QString::fromWCharArray(L"Dilogarithm -Re\u222bds ln(1-s)/s")
 			<<"Eta function (1-2/2^s)*zeta(s)"<<"Riemann zeta function"
 			<<"Lambert W function W_0(x)"<<"Lambert W function W_{-1}(x)";
 }

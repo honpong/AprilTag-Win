@@ -73,13 +73,28 @@
     licenseKey = licenseKey_;
 }
 
+// this is still exposed to library clients for backward compatibility. calling it validates the license, but does NOT prevent the library from doing it's own check when starting up.
 - (void) validateLicense:(NSString*)apiKey withCompletionBlock:(void (^)(int licenseType, int licenseStatus))completionBlock withErrorBlock:(void (^)(NSError*))errorBlock
 {
-    RCLicenseValidator* validator = [RCLicenseValidator initWithBundleId:[[NSBundle mainBundle] bundleIdentifier] withVendorId:[[[UIDevice currentDevice] identifierForVendor] UUIDString] withHTTPClient:HTTP_CLIENT withUserDefaults:NSUserDefaults.standardUserDefaults];
+#ifdef OFFLINE // don't even construct a RCLicenseValidator, because it uses RCPrivateHTTPClient, which we can't use because OFFLINE also means no encryption
+    if (completionBlock) completionBlock(RCLicenseTypeFull, RCLicenseStatusOK);
+    return;
+#else
+    RCLicenseValidator* validator = [RCLicenseValidator initWithBundleId:[[NSBundle mainBundle] bundleIdentifier] withVendorId:[[[UIDevice currentDevice] identifierForVendor] UUIDString] withHTTPClient:[RCPrivateHTTPClient sharedInstance] withUserDefaults:NSUserDefaults.standardUserDefaults];
+    
 #ifdef LAX_LICENSE_VALIDATION
-    validator.isLax = YES;
+    validator.licenseRule = RCLicenseRuleLax;
 #endif
+    
+#ifdef VIEWAR_ONLY
+    validator.licenseRule = RCLicenseRuleBundleID;
+    validator.allowBundleID = @"com.viewar.kareshopguid";
+#endif
+    
+    if(SKIP_LICENSE_CHECK) validator.licenseRule = RCLicenseRuleSkip;
+
     [validator validateLicense:apiKey withCompletionBlock:completionBlock withErrorBlock:errorBlock];
+#endif
 }
 
 - (void) validateLicenseInternal
@@ -169,7 +184,7 @@
         [RCPrivateHTTPClient initWithBaseUrl:API_BASE_URL withAcceptHeader:API_HEADER_ACCEPT withApiVersion:API_VERSION];
 #endif
         
-        corvis_device_parameters dc = [RCCalibration getCalibrationData];
+        device_parameters dc = [RCCalibration getCalibrationData];
         _cor_setup = new filter_setup(&dc);
     }
     
@@ -210,7 +225,7 @@
     queue->dispatch_async([self]{
         [RCCalibration clearCalibrationData];
         _cor_setup->device = [RCCalibration getCalibrationData];
-        filter_initialize(&_cor_setup->sfm, _cor_setup->device);
+        filter_initialize(&_cor_setup->sfm, &_cor_setup->device);
         filter_start_static_calibration(&_cor_setup->sfm);
     });
     isSensorFusionRunning = true;
@@ -243,8 +258,7 @@
     double frame_duration = (CMTimeGetSeconds(device.activeVideoMinFrameDuration) + CMTimeGetSeconds(device.activeVideoMaxFrameDuration))/2;
     DLog(@"Starting with %d width x %d height", sz.width, sz.height);
     device_set_resolution(&_cor_setup->device, sz.width, sz.height);
-    device_set_framerate(&_cor_setup->device, (float)(1./frame_duration));
-    filter_initialize(&_cor_setup->sfm, _cor_setup->device);
+    filter_initialize(&_cor_setup->sfm, &_cor_setup->device);
 }
 
 - (void) startSensorFusionWithDevice:(AVCaptureDevice *)device
@@ -340,7 +354,7 @@
     isSensorFusionRunning = false;
     queue->stop_sync();
     queue->dispatch_sync([self]{
-        filter_initialize(&_cor_setup->sfm, _cor_setup->device);
+        filter_initialize(&_cor_setup->sfm, &_cor_setup->device);
     });
 
     _cor_setup->sfm.camera_control.focus_unlock();
@@ -354,13 +368,18 @@
 {
     LOGME
     if(!isSensorFusionRunning) return;
-    [self saveCalibration];
-    
+    if ([self saveCalibration])
+    {
 #ifndef OFFLINE
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-        [RCCalibration postDeviceCalibration:nil onFailure:nil];
-    });
+        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+            [RCCalibration postDeviceCalibration:nil onFailure:nil];
+        });
 #endif
+    }
+    else
+    {
+        DLog(@">>>>>> Failed to save calibration <<<<<<");
+    }
     
     [self flushAndReset];
 }
@@ -462,8 +481,7 @@
     
     if (sampleBuffer) sampleBuffer = (CMSampleBufferRef)CFRetain(sampleBuffer);
     RCTranslation* translation = [[RCTranslation alloc] initWithVector:vFloat_from_v4(f->s.T.v) withStandardDeviation:vFloat_from_v4(v4_sqrt(f->s.T.variance()))];
-    quaternion q = to_quaternion(f->s.W.v);
-    RCRotation* rotation = [[RCRotation alloc] initWithQuaternionW:(float)q.w() withX:(float)q.x() withY:(float)q.y() withZ:(float)q.z()];
+    RCRotation* rotation = [[RCRotation alloc] initWithQuaternionW:(float)f->s.Q.v.w() withX:(float)f->s.Q.v.x() withY:(float)f->s.Q.v.y() withZ:(float)f->s.Q.v.z()];
     RCTransformation* transformation = [[RCTransformation alloc] initWithTranslation:translation withRotation:rotation];
     
     RCScalar *totalPath = [[RCScalar alloc] initWithScalar:f->s.total_distance withStdDev:0.];
@@ -523,14 +541,15 @@
 - (bool) saveCalibration
 {
     LOGME
-    struct corvis_device_parameters finalDeviceParameters;
+    device_parameters finalDeviceParameters;
     bool parametersGood;
     queue->dispatch_sync([&]{
         finalDeviceParameters = _cor_setup->get_device_parameters();
         parametersGood = !_cor_setup->get_failure_code() && !_cor_setup->sfm.calibration_bad;
     });
-    if(parametersGood) [RCCalibration saveCalibrationData:finalDeviceParameters];
-    return parametersGood;
+    if(!parametersGood) return false;
+    
+    return [RCCalibration saveCalibrationData:finalDeviceParameters];
 }
 
 - (void) receiveVideoFrame:(CMSampleBufferRef)sampleBuffer
@@ -544,11 +563,6 @@
     }
     try {
         camera_data c(camera_data_from_CMSampleBufferRef(sampleBuffer));
-        CFDictionaryRef metadataDict = (CFDictionaryRef)CMGetAttachment(sampleBuffer, kCGImagePropertyExifDictionary , NULL);
-        float exposure = [(NSString *)CFDictionaryGetValue(metadataDict, kCGImagePropertyExifExposureTime) floatValue];
-        auto duration = std::chrono::duration<float>(exposure);
-        c.timestamp += std::chrono::duration_cast<sensor_clock::duration>(duration * .5);
-
         queue->receive_camera(std::move(c));
     } catch (std::runtime_error) {
         //do nothing - indicates the sample / image buffer was not valid.

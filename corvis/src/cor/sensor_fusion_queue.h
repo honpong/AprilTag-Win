@@ -23,7 +23,7 @@ template<typename T, int size>
 class sensor_queue
 {
 public:
-    sensor_queue(std::mutex &mx, std::condition_variable &cnd, const bool &actv);
+    sensor_queue(std::mutex &mx, std::condition_variable &cnd, const bool &actv, const bool &copy_push);
     void reset();
     bool empty() const { return count == 0; }
     bool full() const { return count == size; }
@@ -57,6 +57,7 @@ private:
     std::mutex &mutex;
     std::condition_variable &cond;
     const bool &active;
+    const bool &copy_on_push;
     
     int readpos;
     int writepos;
@@ -94,6 +95,7 @@ public:
     void start_async(bool expect_camera);
     void start_sync(bool expect_camera);
     void start_singlethreaded(bool expect_camera);
+    void start_buffering();
     void stop_immediately();
     void stop_async();
     void stop_sync();
@@ -105,13 +107,16 @@ public:
     void receive_gyro(gyro_data&& x);
     void dispatch_sync(std::function<void()> fn);
     void dispatch_async(std::function<void()> fn);
-    
+
+    latency_strategy strategy;
+
 private:
     void runloop();
-    bool run_control(const std::unique_lock<std::mutex> &lock);
+    bool run_control();
     bool ok_to_dispatch(sensor_clock::time_point time);
     bool dispatch_next(std::unique_lock<std::mutex> &lock, bool force);
     void dispatch_singlethread(bool force);
+    void dispatch_buffer();
     sensor_clock::time_point global_latest_received() const;
 
     std::mutex mutex;
@@ -122,15 +127,14 @@ private:
     std::function<void(accelerometer_data &&)> accel_receiver;
     std::function<void(gyro_data &&)> gyro_receiver;
     
-    sensor_queue<accelerometer_data, 32> accel_queue;
-    sensor_queue<gyro_data, 32> gyro_queue;
-    sensor_queue<camera_data, 4> camera_queue;
+    sensor_queue<accelerometer_data, 64> accel_queue;
+    sensor_queue<gyro_data, 64> gyro_queue;
+    sensor_queue<camera_data, 6> camera_queue;
     std::function<void()> control_func;
     bool active;
+    bool copy_on_push = false;
     bool wait_for_camera;
     bool singlethreaded;
-    
-    latency_strategy strategy;
     
     sensor_clock::time_point last_dispatched;
     

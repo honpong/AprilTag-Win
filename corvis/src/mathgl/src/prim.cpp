@@ -57,7 +57,7 @@ void MGL_EXPORT mgl_line(HMGL gr, double x1, double y1, double z1, double x2, do
 {
 	static int cgid=1;	gr->StartGroup("Line",cgid++);
 	if(mgl_isnan(z1) || mgl_isnan(z2))	z1=z2=2*gr->Max.z-gr->Min.z;
-	mglPoint p1(x1,y1,z1), p2(x2,y2,z2), p=p1,nn=mglPoint(NAN);
+	mglPoint p1(x1,y1,z1), p2(x2,y2,z2), p=p1,nn(NAN);
 	gr->SetPenPal(pen);
 	n = (n<2) ? 2 : n;
 
@@ -83,7 +83,7 @@ void MGL_EXPORT mgl_curve(HMGL gr, double x1, double y1, double z1, double dx1, 
 {
 	static int cgid=1;	gr->StartGroup("Curve",cgid++);
 	if(mgl_isnan(z1) || mgl_isnan(z2))	z1=z2=2*gr->Max.z-gr->Min.z;
-	mglPoint p1(x1,y1,z1), p2(x2,y2,z2), d1(dx1,dy1,dz1), d2(dx2,dy2,dz2), a,b,p=p1,nn=mglPoint(NAN);
+	mglPoint p1(x1,y1,z1), p2(x2,y2,z2), d1(dx1,dy1,dz1), d2(dx2,dy2,dz2), a,b,p=p1,nn(NAN);
 	a = 3*(p2-p1)-d2-2*d1;	b = d1+d2-2*(p2-p1);
 	n = (n<2) ? 2 : n;
 	gr->SetPenPal(pen);
@@ -112,7 +112,7 @@ void MGL_EXPORT mgl_error_box(HMGL gr, double x, double y, double z, double ex, 
 {
 	static int cgid=1;	gr->StartGroup("ErBox",cgid++);
 	char mk=gr->SetPenPal(pen);
-	mglPoint p(x,y,z), q,nn=mglPoint(NAN);
+	mglPoint p(x,y,z), q,nn(NAN);
 	gr->Reserve(7);
 	long k1,k2;
 	q = p;	q.x += ex;	k1 = gr->AddPnt(q,gr->CDef,nn,0,3);
@@ -411,7 +411,7 @@ void MGL_EXPORT mgl_arc_ext(HMGL gr, double x0, double y0, double z0, double xr,
 	mreal c=gr->NextColor(pal);
 	gr->Reserve(n+2);
 	if(mgl_isnan(z0) || mgl_isnan(z1))	z0=z1=2*gr->Max.z-gr->Min.z;
-	mglPoint p0(x0,y0,z0), p1(x1,y1,z1), d=p1-p0, u=mglPoint(xr,yr,zr)^d, p,qq;
+	mglPoint p0(x0,y0,z0), p1(x1,y1,z1), d=p1-p0, u(mglPoint(xr,yr,zr)^d), p,qq;
 	if(u.norm()==0)	return;	// wrong vector orientation
 	u = (d.norm()/u.norm())*u;
 	gr->AddActive(gr->AddPnt(p0,gr->CDef,qq,-1,3),0);
@@ -461,8 +461,8 @@ void MGL_EXPORT mgl_ellipse(HMGL gr, double x1, double y1, double z1, double x2,
 	if(mgl_isnan(z1) || mgl_isnan(z2))	z1=z2=2*gr->Max.z-gr->Min.z;
 	mglPoint p1(x1,y1,z1), p2(x2,y2,z2), v=p2-p1;
 	d = v.norm();
-	if(d==0)	v = mglPoint(1);	else	v /= d;
-	mglPoint u=mglPoint(0,0,1)^v, q=u^v, p, s=(p1+p2)/2.;
+	if(d==0)	v.Set(1);	else	v /= d;
+	mglPoint u(mglPoint(0,0,1)^v), q(u^v), p, s=(p1+p2)/2.;
 	u *= r;		v *= sqrt(d*d/4+r*r);
 	// central point first
 	n0 = gr->AddPnt(p1,c,q,-1,11);	gr->AddActive(n0);
@@ -533,7 +533,7 @@ void MGL_EXPORT mgl_sphere_(uintptr_t* gr, mreal *x, mreal *y, mreal *z, mreal *
 void MGL_EXPORT mgl_drop(HMGL gr, mglPoint p, mglPoint q, double r, double c, double sh, double a)
 {
 	mglPoint p1,p2,pp,qq;
-	if(q.norm()==0)	{	q = mglPoint(1,0,0);	sh=0;	}
+	if(q.norm()==0)	{	q.Set(1,0,0);	sh=0;	}
 	q.Normalize();	p1 = !q;	p2 = q^p1;	r /= 2;
 
 	static int cgid=1;	gr->StartGroup("Drop",cgid++);
@@ -614,7 +614,7 @@ void MGL_EXPORT mgl_dew_xy(HMGL gr, HCDT x, HCDT y, HCDT ax, HCDT ay, const char
 			register mreal dy = j<m-1 ? (GetY(y,i,j+1,k).x-yy) : (yy-GetY(y,i,j-1,k).x);
 			dx *= tx;	dy *= ty;
 
-			mglPoint q = mglPoint(ax->v(i,j,k),ay->v(i,j,k));	dd = q.norm();
+			mglPoint q(ax->v(i,j,k),ay->v(i,j,k));	dd = q.norm();
 			if(inv)	q = -q;
 			mgl_drop(gr,mglPoint(xx, yy, zVal),q,(dx<dy?dx:dy)/2,gr->GetC(ss,dd*xm,false),dd*xm,1);
 		}
@@ -714,7 +714,7 @@ void MGL_EXPORT mgl_textmarkw_xyzr(HMGL gr, HCDT x, HCDT y, HCDT z, HCDT r, cons
 		long mz = j<z->GetNy() ? j:0, mr = j<r->GetNy() ? j:0;
 		for(long i=0;i<n;i++)
 		{
-			p = mglPoint(x->v(i,mx), y->v(i,my), z->v(i,mz));
+			p.Set(x->v(i,mx), y->v(i,my), z->v(i,mz));
 			register long k = gr->AddPnt(p,-1,q);
 			gr->text_plot(k, text, fnt, -0.5*fabs(r->v(i,mr)));
 		}

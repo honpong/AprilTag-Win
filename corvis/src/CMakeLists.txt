@@ -13,9 +13,10 @@ if(ENABLE_MGL)
     set_target_properties(mgl PROPERTIES MACOSX_RPATH ON)
     target_include_directories(mgl INTERFACE mathgl/include $<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/mathgl/include>)
     set_target_properties(mgl_example mgl-static PROPERTIES EXCLUDE_FROM_ALL 1 EXCLUDE_FROM_DEFAULT_BUILD 1)
-    target_compile_options(mgl PUBLIC -Wno-deprecated-register)
-    target_compile_options(mgl PRIVATE -Wno-deprecated-declarations)
-    target_compile_options(mgl INTERFACE -Wno-return-type-c-linkage -Wno-parentheses-equality)
+    target_compile_options(mgl PUBLIC    $<$<CXX_COMPILER_ID:Intel>: -diag-disable=3180> # unrecognized OpenMP #pragma
+                                         $<$<CXX_COMPILER_ID:AppleClang>: -Wno-deprecated-register>)
+    target_compile_options(mgl PRIVATE   $<$<CXX_COMPILER_ID:Clang>: -Wno-deprecated-declarations>) # internal to mathgl which requires cmake < 3.0 which didn't have AppleCLang
+    target_compile_options(mgl INTERFACE $<$<CXX_COMPILER_ID:AppleClang>: -Wno-return-type-c-linkage -Wno-parentheses-equality>)
 endif()
 
 if(ENABLE_VISGL)
@@ -25,7 +26,7 @@ set(GLFW_BUILD_TESTS OFF CACHE BOOL "")
 set(GLFW_BUILD_DOCS OFF CACHE BOOL "")
 add_subdirectory(glfw)
 if(NOT WIN32)
-    target_compile_options(glfw PRIVATE -Wno-deprecated-declarations)
+    target_compile_options(glfw PRIVATE $<$<CXX_COMPILER_ID:AppleClang>: -Wno-deprecated-declarations>)
 endif()
 target_include_directories(glfw INTERFACE glfw/include)
 
@@ -49,6 +50,7 @@ else()
     )
 endif()
 add_library(cor STATIC ${COR_SOURCES})
+target_link_libraries(cor numerics)
 target_include_directories(cor PUBLIC cor)
 set_property(TARGET cor PROPERTY CXX_STANDARD 14)
 if(WIN32)
@@ -57,23 +59,27 @@ endif()
 
 add_library(numerics STATIC
   numerics/rotation_vector.cpp
-  numerics/vec4.cpp
   numerics/matrix.cpp
   numerics/kalman.cpp
 )
-target_include_directories(numerics INTERFACE numerics)
+target_include_directories(numerics SYSTEM PUBLIC eigen)
+target_include_directories(numerics PUBLIC numerics)
 
-set_property(TARGET numerics PROPERTY CXX_STANDARD 14)
+set_property(TARGET numerics PROPERTY CXX_STANDARD 11)
 if(WIN32)
   target_include_directories(numerics PRIVATE "$ENV{RSSDK_DIR}include")
 endif()
 
-if(WIN32 OR ANDROID)
+if(WIN32 OR ANDROID OR CMAKE_CXX_COMPILER_ID STREQUAL Intel)
     if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-      set(MKL_ARCH intel64)
+      if (APPLE)
+        set(MKL_ARCH "")
+      else()
+        set(MKL_ARCH intel64/)
+      endif()
       set(MKL_INTEL_SUFFIX _lp64)
     elseif(CMAKE_SIZEOF_VOID_P EQUAL 4)
-      set(MKL_ARCH ia32)
+      set(MKL_ARCH ia32/)
       if (WIN32)
         set(MKL_INTEL_SUFFIX _c)
       elseif(ANDROID)
@@ -81,22 +87,31 @@ if(WIN32 OR ANDROID)
       endif()
     endif()
     file(GLOB MKLLOCS ${MKLROOT} $ENV{MKLROOT}
+        "/opt/intel/mkl"
         "C:/Program Files (x86)/Intel/Composer XE 2015/mkl"
+        "C:/Program Files (x86)/IntelSWTools/compilers_and_libraries/windows/mkl"
         "C:/Program Files/Intel/Composer XE 2015/mkl"
     )
-    list(GET MKLLOCS 0 MKLLOC)
+    list(LENGTH MKLLOCS MKL_SUPPORTED)
+    if (NOT MKL_SUPPORTED)
+        message(FATAL_ERROR "MKL not found: Pass -DMKLROOT= to cmake or set environment variable MKLROOT=")
+    else()
+        list(GET MKLLOCS 0 MKLLOC)
+        message(STATUS "MKL found at ${MKLLOC}")
+    endif()
     target_include_directories(numerics PRIVATE SYSTEM "${MKLLOC}/include")
-    link_directories("$ENV{RSSDK_DIR}lib/$(PlatformName)")
     if (ANDROID)
     target_link_libraries(numerics PRIVATE -Wl,--whole-archive)
-    target_link_libraries(numerics PRIVATE "${MKLLOC}/lib/${MKL_ARCH}/${CMAKE_STATIC_LIBRARY_PREFIX}mkl_compat${CMAKE_STATIC_LIBRARY_SUFFIX}")
+    target_link_libraries(numerics PRIVATE "${MKLLOC}/lib/${MKL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}mkl_compat${CMAKE_STATIC_LIBRARY_SUFFIX}")
     target_link_libraries(numerics PRIVATE -Wl,--no-whole-archive)
-    endif()
-    target_link_libraries(numerics PRIVATE $<$<NOT:$<C_COMPILER_ID:MSVC>>:-Wl,--start-group>)
-    target_link_libraries(numerics PRIVATE "${MKLLOC}/lib/${MKL_ARCH}/${CMAKE_STATIC_LIBRARY_PREFIX}mkl_intel${MKL_INTEL_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}")
-    target_link_libraries(numerics PRIVATE "${MKLLOC}/lib/${MKL_ARCH}/${CMAKE_STATIC_LIBRARY_PREFIX}mkl_core${CMAKE_STATIC_LIBRARY_SUFFIX}")
-    target_link_libraries(numerics PRIVATE "${MKLLOC}/lib/${MKL_ARCH}/${CMAKE_STATIC_LIBRARY_PREFIX}mkl_sequential${CMAKE_STATIC_LIBRARY_SUFFIX}")
-    target_link_libraries(numerics PRIVATE $<$<NOT:$<C_COMPILER_ID:MSVC>>:-Wl,--end-group>)
+    target_link_libraries(numerics PRIVATE -Wl,--start-group)
+    endif (ANDROID)
+    target_link_libraries(numerics PRIVATE "${MKLLOC}/lib/${MKL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}mkl_intel${MKL_INTEL_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}")
+    target_link_libraries(numerics PRIVATE "${MKLLOC}/lib/${MKL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}mkl_core${CMAKE_STATIC_LIBRARY_SUFFIX}")
+    target_link_libraries(numerics PRIVATE "${MKLLOC}/lib/${MKL_ARCH}${CMAKE_STATIC_LIBRARY_PREFIX}mkl_sequential${CMAKE_STATIC_LIBRARY_SUFFIX}")
+    if (ANDROID)
+    target_link_libraries(numerics PRIVATE -Wl,--end-group)
+    endif (ANDROID)
 else()
     target_link_libraries(numerics PUBLIC "-framework Accelerate")
 endif()
@@ -111,7 +126,7 @@ add_library(filter STATIC
   filter/scaled_mask.cpp
   filter/camera_control_interface_dummy.cpp
   filter/device_parameters.cpp
-  filter/calibration_json_store.cpp
+  filter/calibration_json.cpp
   filter/calibration_defaults.cpp
   filter/sensor_fusion.cpp
   filter/capture.cpp
@@ -125,12 +140,12 @@ add_library(filter STATIC
 )
 target_include_directories(filter PUBLIC filter)
 target_include_directories(filter PRIVATE rapidjson/include)
-target_link_libraries(filter PRIVATE vlfeat)
+target_link_libraries(filter numerics cor vlfeat)
 set_property(TARGET filter PROPERTY CXX_STANDARD 14)
 
 add_library(tracker SHARED filter/rc_intel_interface.cpp)
 set_target_properties(tracker PROPERTIES CXX_STANDARD 14)
-target_link_libraries(tracker filter numerics cor)
+target_link_libraries(tracker filter)
 target_include_directories(tracker PUBLIC tracker)
 
 if(ENABLE_QR)
@@ -139,7 +154,7 @@ add_library(qr STATIC
   filter/qr.cpp
 )
 target_include_directories(qr PUBLIC filter)
-target_link_libraries(qr PRIVATE libzxing)
+target_link_libraries(qr PRIVATE numerics libzxing)
 set_property(TARGET qr PROPERTY CXX_STANDARD 14)
 endif()
 
@@ -155,7 +170,7 @@ add_library(vis STATIC
   vis/render.cpp
   vis/video_render.cpp
 )
-target_link_libraries(vis PRIVATE glad glfw)
+target_link_libraries(vis PRIVATE glad glfw PUBLIC numerics)
 if(ENABLE_MGL)
     target_link_libraries(vis PRIVATE mgl)
 endif()
@@ -179,7 +194,7 @@ if(ENABLE_STEREO)
       stereo/fundamental.cpp
       stereo/stereo_features.cpp
     )
-    target_link_libraries(stereo PRIVATE DAI ${qhull_STATIC} vlfeat)
+    target_link_libraries(stereo PUBLIC numerics PRIVATE DAI ${qhull_STATIC} vlfeat)
     target_include_directories(stereo PUBLIC stereo)
     set_property(TARGET stereo PROPERTY CXX_STANDARD 14)
 endif()

@@ -9,14 +9,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-typedef struct {
-    float x,y;
-} feature_t;
-
-typedef struct {
-    float x, y, cx, cy, cxy;
-} feature_covariance_t;
-
 #define F_T_IS_DOUBLE
 #include <float.h>
 #ifdef F_T_IS_DOUBLE

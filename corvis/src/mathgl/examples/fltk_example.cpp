@@ -41,7 +41,7 @@ void *calc(void *)
 	for(int i=0;i<10;i++)		// do calculation
 	{
 		long_calculations();	// which can be very long
-		pnt = mglPoint(2*mgl_rnd()-1,2*mgl_rnd()-1);
+		pnt.Set(2*mgl_rnd()-1,2*mgl_rnd()-1);
 		if(gr)
 		{
 			gr->Clf();			// make new drawing
@@ -70,7 +70,7 @@ int main(int argc,char **argv)
 	for(int i=0;i<10;i++)	// do calculation
 	{
 		long_calculations();// which can be very long
-		pnt = mglPoint(2*mgl_rnd()-1,2*mgl_rnd()-1);
+		pnt.Set(2*mgl_rnd()-1,2*mgl_rnd()-1);
 		gr.Clf();			// make new drawing
 		gr.Line(mglPoint(),pnt,"Ar2");
 		char str[10] = "i=0";	str[3] = '0'+i;

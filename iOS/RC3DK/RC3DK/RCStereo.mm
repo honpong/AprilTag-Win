@@ -11,9 +11,9 @@
 #import <CoreImage/CoreImage.h>
 #import <UIKit/UIKit.h>
 
-#include "../../corvis/src/numerics/vec4.h"
-#include "../../corvis/src/numerics/quaternion.h"
-#include "../../corvis/src/stereo/stereo.h"
+#include "../../../corvis/src/numerics/vec4.h"
+#include "../../../corvis/src/numerics/quaternion.h"
+#include "../../../corvis/src/stereo/stereo.h"
 
 @interface RCStereo ()
 

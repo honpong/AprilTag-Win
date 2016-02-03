@@ -654,12 +654,12 @@
 		D3C0EDF91A37B4DC00423EDE /* qr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = qr.h; sourceTree = "<group>"; };
 		D3DE5D081A80E301000EF94D /* transformation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = transformation.h; sourceTree = "<group>"; };
 		D3F4C7131AF0D48A003D4D0B /* device_parameters.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = device_parameters.cpp; sourceTree = "<group>"; };
-		D90D18C01A3A03B500D1AFE4 /* camera_control_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = camera_control_interface.h; path = ../../shared_corvis_3dk/camera_control_interface.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
+		D90D18C01A3A03B500D1AFE4 /* camera_control_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = camera_control_interface.h; path = ../../../shared_corvis_3dk/camera_control_interface.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		D953126D1A15AE63004D6068 /* homography.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = homography.cpp; sourceTree = "<group>"; };
 		D953126E1A15AE63004D6068 /* homography.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = homography.h; sourceTree = "<group>"; };
 		D95409AE1AC1019200706A24 /* sensor_clock.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = sensor_clock.cpp; path = platform/ios/sensor_clock.cpp; sourceTree = "<group>"; };
 		D95409AF1AC1019200706A24 /* sensor_clock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sensor_clock.h; path = platform/sensor_clock.h; sourceTree = "<group>"; };
-		D95E92DA1AB86D4600EAB109 /* sensor_data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sensor_data.h; path = ../../corvis/src/cor/sensor_data.h; sourceTree = "<group>"; };
+		D95E92DA1AB86D4600EAB109 /* sensor_data.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = sensor_data.h; path = ../../../corvis/src/cor/sensor_data.h; sourceTree = "<group>"; };
 		D95EB1851AA5038600ADFC20 /* sensor_fusion_queue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sensor_fusion_queue.cpp; sourceTree = "<group>"; };
 		D95EB1861AA5038600ADFC20 /* sensor_fusion_queue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sensor_fusion_queue.h; sourceTree = "<group>"; };
 		D95EB18A1AA50AF200ADFC20 /* sensor_fusion.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = sensor_fusion.cpp; sourceTree = "<group>"; };
@@ -669,11 +669,11 @@
 		D983B2AB1B169AE60013099E /* RCSensorData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCSensorData.h; path = ../../rc3dk/RC3DK/RCSensorData.h; sourceTree = "<group>"; };
 		D992CC3B1AD5C46A00AA2259 /* replay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = replay.cpp; sourceTree = "<group>"; };
 		D992CC3C1AD5C46A00AA2259 /* replay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = replay.h; sourceTree = "<group>"; };
-		D9C43E101B0BADF600F48072 /* rc_intel_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rc_intel_interface.h; path = ../../corvis/src/filter/rc_intel_interface.h; sourceTree = "<group>"; };
-		D9C43E111B0BB0BE00F48072 /* rc_intel_interface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rc_intel_interface.cpp; path = ../../corvis/src/filter/rc_intel_interface.cpp; sourceTree = "<group>"; };
+		D9C43E101B0BADF600F48072 /* rc_intel_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rc_intel_interface.h; path = ../../../corvis/src/filter/rc_intel_interface.h; sourceTree = "<group>"; };
+		D9C43E111B0BB0BE00F48072 /* rc_intel_interface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rc_intel_interface.cpp; path = ../../../corvis/src/filter/rc_intel_interface.cpp; sourceTree = "<group>"; };
 		D9CCDC7C192E887F00A41329 /* scaled_mask.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scaled_mask.cpp; sourceTree = "<group>"; };
 		D9CCDC7D192E887F00A41329 /* scaled_mask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scaled_mask.h; sourceTree = "<group>"; };
-		D9FE87B519410AB40052B8D8 /* RCSensorFusionInternals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCSensorFusionInternals.h; path = ../../shared_corvis_3dk/RCSensorFusionInternals.h; sourceTree = "<group>"; };
+		D9FE87B519410AB40052B8D8 /* RCSensorFusionInternals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCSensorFusionInternals.h; path = ../../../shared_corvis_3dk/RCSensorFusionInternals.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -992,7 +992,7 @@
 				D95409AF1AC1019200706A24 /* sensor_clock.h */,
 			);
 			name = cor;
-			path = ../../corvis/src/cor;
+			path = ../../../corvis/src/cor;
 			sourceTree = "<group>";
 		};
 		327B559C18EB4F3A0001CCE1 /* filter */ = {
@@ -1032,7 +1032,7 @@
 				D3C0EDF91A37B4DC00423EDE /* qr.h */,
 			);
 			name = filter;
-			path = ../../corvis/src/filter;
+			path = ../../../corvis/src/filter;
 			sourceTree = "<group>";
 		};
 		327B559E18EB4F3A0001CCE1 /* fast_detector */ = {
@@ -1064,7 +1064,7 @@
 				D96055841ACDFEF500E72711 /* eigen_initializer_list.h */,
 			);
 			name = numerics;
-			path = ../../corvis/src/numerics;
+			path = ../../../corvis/src/numerics;
 			sourceTree = "<group>";
 		};
 		32D1E7231B20C3490032AE29 /* Calibration */ = {
@@ -1112,7 +1112,7 @@
 				32DD2AC31B200B1200B44447 /* world_state_render.h */,
 			);
 			name = vis;
-			path = ../../corvis/src/vis;
+			path = ../../../corvis/src/vis;
 			sourceTree = "<group>";
 		};
 		D305600D1ADD2466002BD682 /* Capture */ = {
@@ -1167,7 +1167,7 @@
 				D321AD381A323BF7003AEA77 /* stereo.h */,
 			);
 			name = stereo;
-			path = ../../corvis/src/stereo;
+			path = ../../../corvis/src/stereo;
 			sourceTree = "<group>";
 		};
 		D33E9D1A1ADD144D0085F35C /* Sensor Managers */ = {
@@ -1263,7 +1263,7 @@
 				D392F7A21A1E010E00BBB1FF /* userprintf.c */,
 			);
 			name = QHull;
-			path = ../../corvis/src/qhull/src/libqhull;
+			path = ../../../corvis/src/qhull/src/libqhull;
 			sourceTree = "<group>";
 		};
 		D392F7BB1A1E010E00BBB1FF /* libDAI */ = {
@@ -1280,7 +1280,7 @@
 				D392F7BA1A1E010E00BBB1FF /* weightedgraph.cpp */,
 			);
 			name = libDAI;
-			path = "../../corvis/src/libDAI-0.3.1/src";
+			path = "../../../corvis/src/libDAI-0.3.1/src";
 			sourceTree = "<group>";
 		};
 		D392F8071A1E010E00BBB1FF /* VLFeat */ = {
@@ -1333,7 +1333,7 @@
 				D392F8061A1E010E00BBB1FF /* vlad.h */,
 			);
 			name = VLFeat;
-			path = "../../corvis/src/vlfeat-0.9.18/vl";
+			path = "../../../corvis/src/vlfeat-0.9.18/vl";
 			sourceTree = "<group>";
 		};
 		D392F8121A1E010E00BBB1FF /* Stereo */ = {
@@ -1810,13 +1810,19 @@
 					"TEST=1",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				HEADER_SEARCH_PATHS = (
+					"<Multiple",
+					"values>",
+					../../ThirdParty/OCMock/OCMock,
+					../../ThirdParty/Nocilla/PublicHeaders,
+				);
 				INFOPLIST_FILE = "RC3DK Tests/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					../Nocilla,
-					../OCMock,
+					../../ThirdParty/Nocilla,
+					../../ThirdParty/OCMock,
 				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				OTHER_LDFLAGS = (
@@ -1850,13 +1856,19 @@
 					"TEST=1",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				HEADER_SEARCH_PATHS = (
+					"<Multiple",
+					"values>",
+					../../ThirdParty/OCMock/OCMock,
+					../../ThirdParty/Nocilla/PublicHeaders,
+				);
 				INFOPLIST_FILE = "RC3DK Tests/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					../Nocilla,
-					../OCMock,
+					../../ThirdParty/Nocilla,
+					../../ThirdParty/OCMock,
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				OTHER_LDFLAGS = (
@@ -1890,13 +1902,19 @@
 					"TEST=1",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				HEADER_SEARCH_PATHS = (
+					"<Multiple",
+					"values>",
+					../../ThirdParty/OCMock/OCMock,
+					../../ThirdParty/Nocilla/PublicHeaders,
+				);
 				INFOPLIST_FILE = "RC3DK Tests/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					../Nocilla,
-					../OCMock,
+					../../ThirdParty/Nocilla,
+					../../ThirdParty/OCMock,
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = YES;
@@ -1932,13 +1950,19 @@
 				);
 				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "$(inherited)";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				HEADER_SEARCH_PATHS = (
+					"<Multiple",
+					"values>",
+					../../ThirdParty/OCMock/OCMock,
+					../../ThirdParty/Nocilla/PublicHeaders,
+				);
 				INFOPLIST_FILE = "RC3DK Tests/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					../Nocilla,
-					../OCMock,
+					../../ThirdParty/Nocilla,
+					../../ThirdParty/OCMock,
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = YES;
@@ -1973,13 +1997,19 @@
 					"TEST=1",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				HEADER_SEARCH_PATHS = (
+					"<Multiple",
+					"values>",
+					../../ThirdParty/OCMock/OCMock,
+					../../ThirdParty/Nocilla/PublicHeaders,
+				);
 				INFOPLIST_FILE = "RC3DK Tests/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					../Nocilla,
-					../OCMock,
+					../../ThirdParty/Nocilla,
+					../../ThirdParty/OCMock,
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = YES;
@@ -2014,13 +2044,19 @@
 					"TEST=1",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				HEADER_SEARCH_PATHS = (
+					"<Multiple",
+					"values>",
+					../../ThirdParty/OCMock/OCMock,
+					../../ThirdParty/Nocilla/PublicHeaders,
+				);
 				INFOPLIST_FILE = "RC3DK Tests/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					../Nocilla,
-					../OCMock,
+					../../ThirdParty/Nocilla,
+					../../ThirdParty/OCMock,
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = YES;
@@ -2094,10 +2130,10 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
-					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"$(SRCROOT)/../corvis/src/rapidjson/include",
-					"$(SRCROOT)/../corvis/src/eigen",
+					"$(SRCROOT)/../../corvis/src/libDAI-0.3.1/include/",
+					"$(SRCROOT)/../../corvis/src/libzxing-cpp/",
+					"$(SRCROOT)/../../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -2228,10 +2264,10 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
-					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"$(SRCROOT)/../corvis/src/rapidjson/include",
-					"$(SRCROOT)/../corvis/src/eigen",
+					"$(SRCROOT)/../../corvis/src/libDAI-0.3.1/include/",
+					"$(SRCROOT)/../../corvis/src/libzxing-cpp/",
+					"$(SRCROOT)/../../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -2271,10 +2307,10 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
-					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"$(SRCROOT)/../corvis/src/rapidjson/include",
-					"$(SRCROOT)/../corvis/src/eigen",
+					"$(SRCROOT)/../../corvis/src/libDAI-0.3.1/include/",
+					"$(SRCROOT)/../../corvis/src/libzxing-cpp/",
+					"$(SRCROOT)/../../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -2356,10 +2392,10 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
-					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"$(SRCROOT)/../corvis/src/rapidjson/include",
-					"$(SRCROOT)/../corvis/src/eigen",
+					"$(SRCROOT)/../../corvis/src/libDAI-0.3.1/include/",
+					"$(SRCROOT)/../../corvis/src/libzxing-cpp/",
+					"$(SRCROOT)/../../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -2441,10 +2477,10 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
-					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"$(SRCROOT)/../corvis/src/rapidjson/include",
-					"$(SRCROOT)/../corvis/src/eigen",
+					"$(SRCROOT)/../../corvis/src/libDAI-0.3.1/include/",
+					"$(SRCROOT)/../../corvis/src/libzxing-cpp/",
+					"$(SRCROOT)/../../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -2485,10 +2521,10 @@
 				);
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
-					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"$(SRCROOT)/../corvis/src/rapidjson/include",
-					"$(SRCROOT)/../corvis/src/eigen",
+					"$(SRCROOT)/../../corvis/src/libDAI-0.3.1/include/",
+					"$(SRCROOT)/../../corvis/src/libzxing-cpp/",
+					"$(SRCROOT)/../../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -2536,13 +2572,19 @@
 				);
 				"GCC_PREPROCESSOR_DEFINITIONS[arch=*]" = "$(inherited)";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				HEADER_SEARCH_PATHS = (
+					"<Multiple",
+					"values>",
+					../../ThirdParty/OCMock/OCMock,
+					../../ThirdParty/Nocilla/PublicHeaders,
+				);
 				INFOPLIST_FILE = "RC3DK Tests/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					../Nocilla,
-					../OCMock,
+					../../ThirdParty/Nocilla,
+					../../ThirdParty/OCMock,
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = YES;
@@ -2617,10 +2659,10 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
-					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"$(SRCROOT)/../corvis/src/rapidjson/include",
-					"$(SRCROOT)/../corvis/src/eigen",
+					"$(SRCROOT)/../../corvis/src/libDAI-0.3.1/include/",
+					"$(SRCROOT)/../../corvis/src/libzxing-cpp/",
+					"$(SRCROOT)/../../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -2658,10 +2700,10 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
-					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"$(SRCROOT)/../corvis/src/rapidjson/include",
-					"$(SRCROOT)/../corvis/src/eigen",
+					"$(SRCROOT)/../../corvis/src/libDAI-0.3.1/include/",
+					"$(SRCROOT)/../../corvis/src/libzxing-cpp/",
+					"$(SRCROOT)/../../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -2748,10 +2790,10 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
-					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"$(SRCROOT)/../corvis/src/rapidjson/include",
-					"$(SRCROOT)/../corvis/src/eigen",
+					"$(SRCROOT)/../../corvis/src/libDAI-0.3.1/include/",
+					"$(SRCROOT)/../../corvis/src/libzxing-cpp/",
+					"$(SRCROOT)/../../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -2788,10 +2830,10 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
-					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"$(SRCROOT)/../corvis/src/rapidjson/include",
-					"$(SRCROOT)/../corvis/src/eigen",
+					"$(SRCROOT)/../../corvis/src/libDAI-0.3.1/include/",
+					"$(SRCROOT)/../../corvis/src/libzxing-cpp/",
+					"$(SRCROOT)/../../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -2834,7 +2876,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
-					"$(SRCROOT)/../corvis/src/eigen",
+					"$(SRCROOT)/../../corvis/src/eigen",
 				);
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -2865,7 +2907,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
-					"$(SRCROOT)/../corvis/src/eigen",
+					"$(SRCROOT)/../../corvis/src/eigen",
 				);
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -2897,7 +2939,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
-					"$(SRCROOT)/../corvis/src/eigen",
+					"$(SRCROOT)/../../corvis/src/eigen",
 				);
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -2929,7 +2971,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
-					"$(SRCROOT)/../corvis/src/eigen",
+					"$(SRCROOT)/../../corvis/src/eigen",
 				);
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -2961,7 +3003,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
-					"$(SRCROOT)/../corvis/src/eigen",
+					"$(SRCROOT)/../../corvis/src/eigen",
 				);
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -2993,7 +3035,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
-					"$(SRCROOT)/../corvis/src/eigen",
+					"$(SRCROOT)/../../corvis/src/eigen",
 				);
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -3017,7 +3059,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
-					"$(SRCROOT)/../corvis/src/eigen",
+					"$(SRCROOT)/../../corvis/src/eigen",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				PRODUCT_NAME = RC3DKVis;
@@ -3039,10 +3081,10 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
-					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"$(SRCROOT)/../corvis/src/rapidjson/include",
-					"$(SRCROOT)/../corvis/src/eigen",
+					"$(SRCROOT)/../../corvis/src/libDAI-0.3.1/include/",
+					"$(SRCROOT)/../../corvis/src/libzxing-cpp/",
+					"$(SRCROOT)/../../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -3084,10 +3126,10 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
-					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"$(SRCROOT)/../corvis/src/rapidjson/include",
-					"$(SRCROOT)/../corvis/src/eigen",
+					"$(SRCROOT)/../../corvis/src/libDAI-0.3.1/include/",
+					"$(SRCROOT)/../../corvis/src/libzxing-cpp/",
+					"$(SRCROOT)/../../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -3129,10 +3171,10 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
-					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"$(SRCROOT)/../corvis/src/rapidjson/include",
-					"$(SRCROOT)/../corvis/src/eigen",
+					"$(SRCROOT)/../../corvis/src/libDAI-0.3.1/include/",
+					"$(SRCROOT)/../../corvis/src/libzxing-cpp/",
+					"$(SRCROOT)/../../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -3174,10 +3216,10 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
-					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"$(SRCROOT)/../corvis/src/rapidjson/include",
-					"$(SRCROOT)/../corvis/src/eigen",
+					"$(SRCROOT)/../../corvis/src/libDAI-0.3.1/include/",
+					"$(SRCROOT)/../../corvis/src/libzxing-cpp/",
+					"$(SRCROOT)/../../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -3264,10 +3306,10 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
-					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"$(SRCROOT)/../corvis/src/rapidjson/include",
-					"$(SRCROOT)/../corvis/src/eigen",
+					"$(SRCROOT)/../../corvis/src/libDAI-0.3.1/include/",
+					"$(SRCROOT)/../../corvis/src/libzxing-cpp/",
+					"$(SRCROOT)/../../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -3304,10 +3346,10 @@
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
-					"$(SRCROOT)/../corvis/src/libDAI-0.3.1/include/",
-					"$(SRCROOT)/../corvis/src/libzxing-cpp/",
-					"$(SRCROOT)/../corvis/src/rapidjson/include",
-					"$(SRCROOT)/../corvis/src/eigen",
+					"$(SRCROOT)/../../corvis/src/libDAI-0.3.1/include/",
+					"$(SRCROOT)/../../corvis/src/libzxing-cpp/",
+					"$(SRCROOT)/../../corvis/src/rapidjson/include",
+					"$(SRCROOT)/../../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -3353,13 +3395,19 @@
 					"TEST=1",
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				HEADER_SEARCH_PATHS = (
+					"<Multiple",
+					"values>",
+					../../ThirdParty/OCMock/OCMock,
+					../../ThirdParty/Nocilla/PublicHeaders,
+				);
 				INFOPLIST_FILE = "RC3DK Tests/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.1;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					../Nocilla,
-					../OCMock,
+					../../ThirdParty/Nocilla,
+					../../ThirdParty/OCMock,
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ONLY_ACTIVE_ARCH = YES;
@@ -3390,7 +3438,7 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
-					"$(SRCROOT)/../corvis/src/eigen",
+					"$(SRCROOT)/../../corvis/src/eigen",
 				);
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;

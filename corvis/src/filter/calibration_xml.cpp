@@ -200,7 +200,132 @@ bool calibration_deserialize_xml(const std::string &xml, calibration &cal)
 
 #include "rapidxml_print.hpp"
 
+template <typename Derived>
+static char *xml_string(document &doc, const Eigen::DenseBase<Derived> &m)
+{
+    Eigen::IOFormat compact(Eigen::FullPrecision, Eigen::DontAlignCols, ", ", "; ", " ", "", "[", "]");
+    std::stringstream s; s << ' ' << m.format(compact) << ' ';
+    return doc.allocate_string(s.str().c_str());
+}
+
+static char *xml_string(document &doc, double x)
+{
+    std::stringstream s; s << x;
+    return doc.allocate_string(s.str().c_str());
+}
+
 bool calibration_serialize_xml(const calibration &cal, std::string &xml)
 {
-    return false;
+    document doc;
+    node *root; doc.append_node(root = doc.allocate_node(node_element, "rig"));
+    root->append_node(doc.allocate_node(node_element, "device_id", cal.device_id));
+
+    int index = 0;
+    for (const calibration::camera *c : {&cal.fisheye, &cal.color, &cal.ir, &cal.depth}) {
+        const char *type =
+            c->intrinsics.type == rc_CAL_FISHEYE     ? "calibu_fu_fv_u0_v0_w" :
+            c->intrinsics.type == rc_CAL_POLYNOMIAL3 ? "calibu_fu_fv_u0_v0_k1_k2_k3" :
+            c->intrinsics.type == rc_CAL_UNDISTORTED ? "calibu_fu_fv_u0_v0" : nullptr;
+        if (!type) { index++; continue; }
+
+        node *camera; root->append_node(camera = doc.allocate_node(node_element, "camera"));
+        node *camera_model; camera->append_node(camera_model = doc.allocate_node(node_element, "camera_model"));
+        camera_model->append_attribute(doc.allocate_attribute("name", c->name));
+        camera_model->append_attribute(doc.allocate_attribute("index", xml_string(doc, index++)));
+        camera_model->append_attribute(doc.allocate_attribute("type", type));
+        camera_model->append_attribute(doc.allocate_attribute("version", "8"));
+        camera_model->append_attribute(doc.allocate_attribute("is_cad", "1"));
+        camera_model->append_node(doc.allocate_node(node_element, "width", xml_string(doc, c->intrinsics.width_px)));
+        camera_model->append_node(doc.allocate_node(node_element, "height", xml_string(doc, c->intrinsics.height_px)));
+        m3 m = m3::Identity();
+        camera_model->append_node(doc.allocate_node(node_element, "right", xml_string(doc, m.block<3,1>(0,0))));
+        camera_model->append_node(doc.allocate_node(node_element, "down", xml_string(doc, m.block<3,1>(0,1))));
+        camera_model->append_node(doc.allocate_node(node_element, "forward", xml_string(doc, m.block<3,1>(0,2))));
+        std::stringstream s;
+        if (c->intrinsics.type == rc_CAL_POLYNOMIAL3) {
+            camera_model->append_node(doc.allocate_node(node_element, "params", xml_string(doc, Eigen::Matrix<f_t, 7,1>{
+                c->intrinsics.focal_length_x_px, c->intrinsics.focal_length_y_px,
+                c->intrinsics.center_x_px,       c->intrinsics.center_y_px,
+                c->intrinsics.k1, c->intrinsics.k2, c->intrinsics.k3,
+            })));
+        } else if (c->intrinsics.type == rc_CAL_FISHEYE) {
+            camera_model->append_node(doc.allocate_node(node_element, "params", xml_string(doc, Eigen::Matrix<f_t, 5,1>{
+                c->intrinsics.focal_length_x_px, c->intrinsics.focal_length_y_px,
+                c->intrinsics.center_x_px,       c->intrinsics.center_y_px,
+                c->intrinsics.w
+            })));
+        } else if (c->intrinsics.type == rc_CAL_UNDISTORTED) {
+            camera_model->append_node(doc.allocate_node(node_element, "params", xml_string(doc, Eigen::Matrix<f_t, 4,1>{
+                c->intrinsics.focal_length_x_px, c->intrinsics.focal_length_y_px,
+                c->intrinsics.center_x_px,       c->intrinsics.center_y_px,
+            })));
+        }
+        camera->append_node(doc.allocate_node(node_element, "pose"));
+    }
+
+    {
+        node *imu; root->append_node(imu = doc.allocate_node(node_element, "intrinsic_imu_calibration"));
+        imu->append_attribute(doc.allocate_attribute("name","Imu"));
+        imu->append_attribute(doc.allocate_attribute("imu_id","100"));
+        imu->append_attribute(doc.allocate_attribute("serialno","0"));
+        imu->append_attribute(doc.allocate_attribute("type",""));
+        imu->append_attribute(doc.allocate_attribute("version","1.0"));
+        imu->append_attribute(doc.allocate_attribute("is_cad","1"));
+
+        Eigen::Matrix<f_t, 6,1> b_w_b_a = Eigen::Matrix<f_t, 6,1>::Zero();
+        b_w_b_a.block<3,1>(0,0) = cal.imu.gyro_bias_rad__s;
+        b_w_b_a.block<3,1>(3,0) = cal.imu.accel_bias_m__s2;
+        imu->append_node(doc.allocate_node(node_element, "b_w_b_a", xml_string(doc, b_w_b_a)));
+
+        Eigen::Matrix<f_t, 6,6> crossterms = Eigen::Matrix<f_t, 6,6>::Zero();
+        crossterms.block<3,3>(0,0) = cal.imu.gyro_scale_and_alignment;
+        crossterms.block<3,3>(3,3) = cal.imu.accel_scale_and_alignment;
+        imu->append_node(doc.allocate_node(node_element, "crossterms", xml_string(doc, crossterms)));
+
+        imu->append_node(doc.allocate_node(node_element, "gyro_noise_sigma", xml_string(doc, cal.imu.gyro_noise_sigma_rad__2)));
+        imu->append_node(doc.allocate_node(node_element, "gyro_bias_sigma", xml_string(doc, cal.imu.gyro_bias_sigma_rad__2)));
+
+        imu->append_node(doc.allocate_node(node_element, "accel_noise_sigma", xml_string(doc, cal.imu.accel_noise_sigma_m__s2)));
+        imu->append_node(doc.allocate_node(node_element, "accel_bias_sigma", xml_string(doc, cal.imu.accel_bias_sigma_m__s2)));
+    }
+
+    const struct { const transformation &transformation; const char *A_id, *B_id; } extrinsics[] = {
+        { cal.fisheye.extrinsics_wrt_imu_m, "100",  "0" },
+        { cal.color.extrinsics_wrt_imu_m,   "100",  "1" },
+        { cal.ir.extrinsics_wrt_imu_m,      "100",  "2" },
+        { cal.depth.extrinsics_wrt_imu_m,   "100",  "3" },
+        { cal.device_wrt_imu_m,             "100", "40" },
+        { cal.unity.wrt_device_m,            "40", "41" },
+        { cal.opengl.wrt_device_m,           "40", "42" },
+        { cal.display.wrt_device_m,          "40", "43" },
+    };
+    for (auto &e : extrinsics) {
+        node *ext_cal; root->append_node(ext_cal = doc.allocate_node(node_element, "extrinsic_calibration"));
+        ext_cal->append_attribute(doc.allocate_attribute("name", ""));
+        ext_cal->append_attribute(doc.allocate_attribute("index", "0"));
+        ext_cal->append_attribute(doc.allocate_attribute("frame_A_id", e.A_id));
+        ext_cal->append_attribute(doc.allocate_attribute("frame_B_id", e.B_id));
+        ext_cal->append_attribute(doc.allocate_attribute("serialno", "0"));
+        ext_cal->append_attribute(doc.allocate_attribute("type", ""));
+        ext_cal->append_attribute(doc.allocate_attribute("version", "1.0"));
+        ext_cal->append_attribute(doc.allocate_attribute("is_cad", "1"));
+
+        Eigen::Matrix<f_t,3,4> m;
+        m.block<3,1>(0,3) = e.transformation.T.block<3,1>(0,0);
+        m.block<3,3>(0,0) = to_rotation_matrix(e.transformation.Q).block<3,3>(0,0);
+        ext_cal->append_node(doc.allocate_node(node_element, "A_T_B", xml_string(doc, m)));
+    }
+
+    {
+        if (cal.geo_location.latitude_deg || cal.geo_location.longitude_deg || cal.geo_location.altitude_m) {
+            node *geo_location; root->append_node(geo_location = doc.allocate_node(node_element, "geo_location"));
+            geo_location->append_node(doc.allocate_node(node_element, "latitude", xml_string(doc, cal.geo_location.latitude_deg)));
+            geo_location->append_node(doc.allocate_node(node_element, "longitude", xml_string(doc, cal.geo_location.longitude_deg)));
+            geo_location->append_node(doc.allocate_node(node_element, "altitude", xml_string(doc, cal.geo_location.altitude_m)));
+        }
+    }
+
+    xml.clear();
+    print(std::back_inserter(xml), doc);
+    return true;
 }

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Workspace
+   version = "1.0">
+   <FileRef
+      location = "group:rc3dk/RC3DK.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:rccore/RCCore.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:QuickstartKit/QuickstartKit.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:tapemeasure/TapeMeasure.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:measuredphoto/MeasuredPhoto.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:CardboardSDK-iOS/CardboardSDK-iOS.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:rc3dksampleapp/RC3DKSampleApp.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:rc3dksamplegl/RC3DKSampleGL.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:RC3DKSampleAR/RC3DKSampleAR.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:../corvis/src/libzxing-cpp/zxing.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:Sunlayar/Sunlayar.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:TrackLinks/TrackLinks.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:CalibrationSample/CalibrationSample.xcodeproj">
+   </FileRef>
+   <FileRef
+      location = "group:QRCodeSample/QRCodeSample.xcodeproj">
+   </FileRef>
+</Workspace>

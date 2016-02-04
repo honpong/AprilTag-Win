@@ -1,7 +1,9 @@
+#XCode files
 *.xcuserstate
 xcuserdata
+*.xccheckout
+
 .DS_Store
-*.xcworkspace
 
 ## Below taken from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 ## Ignore Visual Studio temporary files, build results, and

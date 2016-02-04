@@ -116,12 +116,12 @@ TEST(CalibrationXML, Parse)
     calibration cal;
     ASSERT_TRUE(calibration_deserialize_xml(xml, cal));
 
-    EXPECT_EQ(cal.imu.gyro_bias_rad__s[1], 23);
-    EXPECT_EQ(cal.imu.accel_bias_m__s2[2], 4.5);
-    EXPECT_EQ(cal.imu.gyro_bias_sigma_rad__2, 1.4125375e-4);
-    EXPECT_EQ(cal.imu.accel_bias_sigma_m__s2, 1.2589254e-2);
-    EXPECT_EQ(cal.imu.gyro_noise_sigma_rad__2, 5.3088444e-5);
-    EXPECT_EQ(cal.imu.accel_noise_sigma_m__s2, 0.001883649);
+    EXPECT_EQ(cal.imu.w_bias_rad__s[1], 23);
+    EXPECT_EQ(cal.imu.a_bias_m__s2[2], 4.5);
+    EXPECT_EQ(cal.imu.w_bias_sigma_rad__s, 1.4125375e-4);
+    EXPECT_EQ(cal.imu.a_bias_sigma_m__s2, 1.2589254e-2);
+    EXPECT_EQ(cal.imu.w_noise_sigma_rad__s, 5.3088444e-5);
+    EXPECT_EQ(cal.imu.a_noise_sigma_m__s2, 0.001883649);
 
     EXPECT_EQ(cal.fisheye.intrinsics.w, 0.922);
     EXPECT_EQ(cal.fisheye.intrinsics.focal_length_y_px, 255.8);

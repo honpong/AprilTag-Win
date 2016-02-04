@@ -12,10 +12,10 @@ struct calibration {
         rc_Intrinsics intrinsics;
     } fisheye, color, depth, ir;
     struct imu {
-        m3     gyro_scale_and_alignment = m3::Identity(), accel_scale_and_alignment = m3::Identity();
-        v3     gyro_bias_rad__s         = v3::Zero(),     accel_bias_m__s2          = v3::Zero();
-        double gyro_noise_sigma_rad__2,                   accel_noise_sigma_m__s2;
-        double gyro_bias_sigma_rad__2,                    accel_bias_sigma_m__s2;
+        m3     w_alignment = m3::Identity(), a_alignment = m3::Identity();
+        v3     w_bias_rad__s = v3::Zero(),   a_bias_m__s2 = v3::Zero();
+        double w_noise_sigma_rad__s,         a_noise_sigma_m__s2;
+        double w_bias_sigma_rad__s,          a_bias_sigma_m__s2;
     } imu;
     transformation device_wrt_imu_m;
     struct frame {

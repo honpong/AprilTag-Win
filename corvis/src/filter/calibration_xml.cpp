@@ -142,18 +142,18 @@ bool calibration_deserialize_xml(const std::string &xml, calibration &cal)
             checked_node imu(imu_);
             if (std::string("100") == imu.assert_attribute("imu_id")->value()) {
                 auto b_w_b_a = imu.assert_m<6,1>("b_w_b_a");
-                cal.imu.gyro_bias_rad__s = b_w_b_a.block<3,1>(0,0);
-                cal.imu.accel_bias_m__s2 = b_w_b_a.block<3,1>(3,0);
+                cal.imu.w_bias_rad__s = b_w_b_a.block<3,1>(0,0);
+                cal.imu.a_bias_m__s2  = b_w_b_a.block<3,1>(3,0);
 
                 auto crossterms = imu.assert_m<6,6>("crossterms");
-                cal.imu.gyro_scale_and_alignment  = crossterms.block<3,3>(0,0);
-                cal.imu.accel_scale_and_alignment = crossterms.block<3,3>(3,3);
+                cal.imu.w_alignment = crossterms.block<3,3>(0,0);
+                cal.imu.a_alignment = crossterms.block<3,3>(3,3);
 
-                cal.imu.gyro_noise_sigma_rad__2 = std::atof(imu.assert_node("gyro_noise_sigma")->value());
-                cal.imu.accel_noise_sigma_m__s2 = std::atof(imu.assert_node("accel_noise_sigma")->value());
+                cal.imu.w_noise_sigma_rad__s = std::atof(imu.assert_node("gyro_noise_sigma")->value());
+                cal.imu.a_noise_sigma_m__s2 = std::atof(imu.assert_node("accel_noise_sigma")->value());
 
-                cal.imu.gyro_bias_sigma_rad__2 = std::atof(imu.assert_node("gyro_bias_sigma")->value());
-                cal.imu.accel_bias_sigma_m__s2 = std::atof(imu.assert_node("accel_bias_sigma")->value());
+                cal.imu.w_bias_sigma_rad__s = std::atof(imu.assert_node("gyro_bias_sigma")->value());
+                cal.imu.a_bias_sigma_m__s2 = std::atof(imu.assert_node("accel_bias_sigma")->value());
             }
         }
         for (node *extrinsic_ = root->first_node("extrinsic_calibration"); extrinsic_; extrinsic_ = extrinsic_->next_sibling("extrinsic_calibration")) {
@@ -273,20 +273,20 @@ bool calibration_serialize_xml(const calibration &cal, std::string &xml)
         imu->append_attribute(doc.allocate_attribute("is_cad","1"));
 
         Eigen::Matrix<f_t, 6,1> b_w_b_a = Eigen::Matrix<f_t, 6,1>::Zero();
-        b_w_b_a.block<3,1>(0,0) = cal.imu.gyro_bias_rad__s;
-        b_w_b_a.block<3,1>(3,0) = cal.imu.accel_bias_m__s2;
+        b_w_b_a.block<3,1>(0,0) = cal.imu.w_bias_rad__s;
+        b_w_b_a.block<3,1>(3,0) = cal.imu.a_bias_m__s2;
         imu->append_node(doc.allocate_node(node_element, "b_w_b_a", xml_string(doc, b_w_b_a)));
 
         Eigen::Matrix<f_t, 6,6> crossterms = Eigen::Matrix<f_t, 6,6>::Zero();
-        crossterms.block<3,3>(0,0) = cal.imu.gyro_scale_and_alignment;
-        crossterms.block<3,3>(3,3) = cal.imu.accel_scale_and_alignment;
+        crossterms.block<3,3>(0,0) = cal.imu.w_alignment;
+        crossterms.block<3,3>(3,3) = cal.imu.a_alignment;
         imu->append_node(doc.allocate_node(node_element, "crossterms", xml_string(doc, crossterms)));
 
-        imu->append_node(doc.allocate_node(node_element, "gyro_noise_sigma", xml_string(doc, cal.imu.gyro_noise_sigma_rad__2)));
-        imu->append_node(doc.allocate_node(node_element, "gyro_bias_sigma", xml_string(doc, cal.imu.gyro_bias_sigma_rad__2)));
+        imu->append_node(doc.allocate_node(node_element, "gyro_noise_sigma", xml_string(doc, cal.imu.w_noise_sigma_rad__s)));
+        imu->append_node(doc.allocate_node(node_element, "gyro_bias_sigma",  xml_string(doc, cal.imu.w_bias_sigma_rad__s)));
 
-        imu->append_node(doc.allocate_node(node_element, "accel_noise_sigma", xml_string(doc, cal.imu.accel_noise_sigma_m__s2)));
-        imu->append_node(doc.allocate_node(node_element, "accel_bias_sigma", xml_string(doc, cal.imu.accel_bias_sigma_m__s2)));
+        imu->append_node(doc.allocate_node(node_element, "accel_noise_sigma", xml_string(doc, cal.imu.a_noise_sigma_m__s2)));
+        imu->append_node(doc.allocate_node(node_element, "accel_bias_sigma",  xml_string(doc, cal.imu.a_bias_sigma_m__s2)));
     }
 
     const struct { const transformation &transformation; const char *A_id, *B_id; } extrinsics[] = {

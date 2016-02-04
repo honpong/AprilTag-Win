@@ -139,7 +139,7 @@ typedef enum rc_CalibrationType {
  @param k1,k2,k3 Polynomial distortion parameters
  @param w Fisheye camera field of view in radians (half-angle FOV)
  */
-typedef struct rc_Intrinsics {
+typedef struct rc_CameraIntrinsics {
     rc_CalibrationType type;
     uint32_t width_px, height_px;
     double f_x_px, f_y_px;
@@ -149,7 +149,7 @@ typedef struct rc_Intrinsics {
         struct { double k1,k2,k3; };
         double w;
     };
-} rc_Intrinsics;
+} rc_CameraIntrinsics;
 
 /**
  @param tracker The active rc_Tracker instance
@@ -157,8 +157,8 @@ typedef struct rc_Intrinsics {
  @param extrinsics_wrt_accel_m Transformation from the Camera frame to the Accelerometer frame in meters. May be null
  @param intrinsics May be null
  */
-RCTRACKER_API void rc_describeCamera(rc_Tracker *tracker,  rc_Camera camera,       rc_Pose extrinsics_wrt_accel_m,       rc_Intrinsics *intrinsics);
-RCTRACKER_API void rc_configureCamera(rc_Tracker *tracker, rc_Camera camera, const rc_Pose extrinsics_wrt_accel_m, const rc_Intrinsics *intrinsics);
+RCTRACKER_API void rc_describeCamera(rc_Tracker *tracker,  rc_Camera camera,       rc_Pose extrinsics_wrt_accel_m,       rc_CameraIntrinsics *intrinsics);
+RCTRACKER_API void rc_configureCamera(rc_Tracker *tracker, rc_Camera camera, const rc_Pose extrinsics_wrt_accel_m, const rc_CameraIntrinsics *intrinsics);
 RCTRACKER_API void rc_configureAccelerometer(rc_Tracker *tracker, const rc_Pose alignment_and_bias_m__s2, float noiseVariance_m2__s4);
 RCTRACKER_API void rc_configureGyroscope(rc_Tracker *tracker, const rc_Pose alignment_and_bias_rad__s, float noiseVariance_rad2__s2);
 RCTRACKER_API void rc_configureLocation(rc_Tracker *tracker, double latitude_deg, double longitude_deg, double altitude_m);

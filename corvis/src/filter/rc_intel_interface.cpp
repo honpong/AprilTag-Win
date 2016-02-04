@@ -159,7 +159,7 @@ void rc_printDeviceConfig(rc_Tracker * tracker)
     fprintf(stderr, "int image_width, image_height; %d %d\n", device.image_width, device.image_height);
 }
 
-void rc_configureCamera(rc_Tracker *tracker, rc_Camera camera, const rc_Pose extrinsics_wrt_accel_m, const rc_Intrinsics *intrinsics)
+void rc_configureCamera(rc_Tracker *tracker, rc_Camera camera, const rc_Pose extrinsics_wrt_accel_m, const rc_CameraIntrinsics *intrinsics)
 {
     if (camera == rc_EGRAY8) {
         device_parameters *device = &tracker->device;
@@ -196,7 +196,7 @@ void rc_configureCamera(rc_Tracker *tracker, rc_Camera camera, const rc_Pose ext
     }
 }
 
-void rc_describeCamera(rc_Tracker *tracker,  rc_Camera camera,       rc_Pose extrinsics_wrt_accel_m,       rc_Intrinsics *intrinsics)
+void rc_describeCamera(rc_Tracker *tracker,  rc_Camera camera, rc_Pose extrinsics_wrt_accel_m, rc_CameraIntrinsics *intrinsics)
 {
     if (camera == rc_EGRAY8) {
         const device_parameters *device = &tracker->device;

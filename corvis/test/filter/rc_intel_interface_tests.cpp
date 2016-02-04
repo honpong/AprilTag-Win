@@ -74,29 +74,28 @@ TEST(rc_intel_interface_tests, rc_fisheyeKw)
     EXPECT_TRUE(rc_setCalibration(tracker, json_in));
 
     struct rc_CameraIntrinsics intrinsics = {};
-    rc_describeCamera(tracker, rc_EGRAY8, nullptr, &intrinsics);
+    ASSERT_TRUE(rc_describeCamera(tracker, rc_CAMERA_ID_FISHEYE, nullptr, &intrinsics));
     EXPECT_EQ(intrinsics.type, rc_CALIBRATION_TYPE_FISHEYE);
     EXPECT_FLOAT_EQ(intrinsics.w, 0.123);
 
-    const char *json_out = nullptr;
-    rc_getCalibration(tracker, &json_out);
+    const char *json_fisheye_123 = nullptr;
+    rc_getCalibration(tracker, &json_fisheye_123);
 
     intrinsics.type = rc_CALIBRATION_TYPE_POLYNOMIAL3;
     intrinsics.k1 = 23;
-    intrinsics.w = 86;
-    rc_configureCamera(tracker, rc_EGRAY8, nullptr, &intrinsics);
+    rc_configureCamera(tracker, rc_CAMERA_ID_COLOR, nullptr, &intrinsics);
 
     rc_CameraIntrinsics intrinsics_out;
-    rc_describeCamera(tracker, rc_EGRAY8, nullptr, &intrinsics_out);
+    ASSERT_TRUE(rc_describeCamera(tracker, rc_CAMERA_ID_COLOR, nullptr, &intrinsics_out));
     EXPECT_EQ(intrinsics_out.type, rc_CALIBRATION_TYPE_POLYNOMIAL3);
-    EXPECT_FLOAT_EQ(intrinsics_out.w, 86);
+    EXPECT_FLOAT_EQ(intrinsics_out.k1, 23);
 
-    rc_setCalibration(tracker, json_out);
+    rc_setCalibration(tracker, json_fisheye_123);
 
-    rc_CameraIntrinsics intrinsics_again;
-    rc_describeCamera(tracker, rc_EGRAY8, nullptr, &intrinsics_again);
-    EXPECT_EQ(intrinsics_again.type, rc_CALIBRATION_TYPE_FISHEYE);
-    EXPECT_FLOAT_EQ(intrinsics_again.w, .123);
+    rc_CameraIntrinsics intrinsics_fisheye_123;
+    rc_describeCamera(tracker, rc_CAMERA_ID_COLOR, nullptr, &intrinsics_fisheye_123);
+    EXPECT_EQ(intrinsics_fisheye_123.type, rc_CALIBRATION_TYPE_FISHEYE);
+    EXPECT_FLOAT_EQ(intrinsics_fisheye_123.w, .123);
 
     rc_destroy(tracker);
 }

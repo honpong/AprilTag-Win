@@ -28,10 +28,17 @@ extern "C" {
 #  define RCTRACKER_API __attribute__ ((visibility("default")))
 #endif
 
-typedef enum rc_Camera {
-    rc_EGRAY8,
-    rc_EDEPTH16,
-} rc_Camera;
+typedef enum rc_ImageFormat {
+    rc_FORMAT_GRAY8,
+    rc_FORMAT_DEPTH16,
+} rc_ImageFormat;
+
+typedef enum rc_CameraId {
+    rc_CAMERA_ID_COLOR,
+    rc_CAMERA_ID_FISHEYE,
+    rc_CAMERA_ID_DEPTH,
+    rc_CAMERA_ID_IR,
+} rc_CameraId;
 
 typedef enum rc_TrackerState
 {
@@ -128,14 +135,12 @@ typedef enum rc_CalibrationType {
 } rc_CalibrationType;
 
 /**
- @param tracker The active rc_Tracker instance
- @param camera The camera to configure
  @param width_px Image width in pixels
  @param height_px Image height in pixels
  @param f_x_px Focal length of camera in pixels
  @param f_y_px Focal length of camera in pixels
  @param c_x_px Horizontal principal point of camera in pixels
- @param c_y_px Horizontal principal point of camera in pixels
+ @param c_y_px Veritical principal point of camera in pixels
  @param k1,k2,k3 Polynomial distortion parameters
  @param w Fisheye camera field of view in radians (half-angle FOV)
  */
@@ -153,12 +158,12 @@ typedef struct rc_CameraIntrinsics {
 
 /**
  @param tracker The active rc_Tracker instance
- @param camera The camera to configure
- @param extrinsics_wrt_accel_m Transformation from the Camera frame to the Accelerometer frame in meters. May be null
- @param intrinsics May be null
+ @param camera_id Refers to one of a specific supported predefined set
+ @param extrinsics_wrt_accel_m Transformation from the Camera frame to the Accelerometer frame in meters (may be NULL)
+ @param intrinsics Camera Intrinsics (may be NULL)
  */
-RCTRACKER_API void rc_describeCamera(rc_Tracker *tracker,  rc_Camera camera,       rc_Pose extrinsics_wrt_accel_m,       rc_CameraIntrinsics *intrinsics);
-RCTRACKER_API void rc_configureCamera(rc_Tracker *tracker, rc_Camera camera, const rc_Pose extrinsics_wrt_accel_m, const rc_CameraIntrinsics *intrinsics);
+RCTRACKER_API bool rc_describeCamera(rc_Tracker *tracker,  rc_CameraId camera_id,       rc_Pose extrinsics_wrt_accel_m,       rc_CameraIntrinsics *intrinsics);
+RCTRACKER_API void rc_configureCamera(rc_Tracker *tracker, rc_CameraId camera_id, const rc_Pose extrinsics_wrt_accel_m, const rc_CameraIntrinsics *intrinsics);
 RCTRACKER_API void rc_configureAccelerometer(rc_Tracker *tracker, const rc_Pose alignment_and_bias_m__s2, float noiseVariance_m2__s4);
 RCTRACKER_API void rc_configureGyroscope(rc_Tracker *tracker, const rc_Pose alignment_and_bias_rad__s, float noiseVariance_rad2__s2);
 RCTRACKER_API void rc_configureLocation(rc_Tracker *tracker, double latitude_deg, double longitude_deg, double altitude_m);
@@ -209,18 +214,16 @@ RCTRACKER_API void rc_stopTracker(rc_Tracker *tracker);
 
 /**
  @param tracker The active rc_Tracker instance
- @param camera The camera from which this frame was received
  @param time_us Timestamp (in microseconds) when capture of this frame began
  @param shutter_time_us Exposure time (in microseconds)
- @param poseEstimate_m Position (in meters) and orientation estimate from external tracking system
- @param force_recognition If true, force the tracker instance to perform relocalization / loop closure immediately.
+ @param camera_id The camera_id is used to associate intrinsics with this image
+ @param format The format of the image should match the camera_id (e.g. depth format w/ depth camera id)
  @param stride Number of bytes in each line
  @param image Image data.
  @param completion_callback Function to be called when the frame has been processed and image data is no longer needed. image must remain valid (even after receiveImage has returned) until this function is called.
  @param callback_handle An opaque pointer that will be passed to completion_callback when the frame has been processed and image data is no longer needed.
  */
-RCTRACKER_API void rc_receiveImage(rc_Tracker *tracker, rc_Camera camera, rc_Timestamp time_us, rc_Timestamp shutter_time_us, const rc_Pose poseEstimate_m, bool force_recognition, int width, int height, int stride, const void *image, void(*completion_callback)(void *callback_handle), void *callback_handle);
-RCTRACKER_API void rc_receiveImageWithDepth(rc_Tracker *tracker, rc_Camera camera, rc_Timestamp time_us, rc_Timestamp shutter_time_us, const rc_Pose poseEstimate_m, bool force_recognition, int width, int height, int stride, const void *image, void(*completion_callback)(void *callback_handle), void *callback_handle, int depthWidth, int depthHeight, int depthStride, const void *depthImage, void(*depth_completion_callback)(void *callback_handle), void *depth_callback_handle);
+RCTRACKER_API void rc_receiveImage(rc_Tracker *tracker, rc_Timestamp time_us, rc_Timestamp shutter_time_us, rc_ImageFormat format, int width, int height, int stride, const void *image, void(*completion_callback)(void *callback_handle), void *callback_handle);
 RCTRACKER_API void rc_receiveAccelerometer(rc_Tracker *tracker, rc_Timestamp time_us, const rc_Vector acceleration_m__s2);
 RCTRACKER_API void rc_receiveGyro(rc_Tracker *tracker, rc_Timestamp time_us, const rc_Vector angular_velocity_rad__s);
 

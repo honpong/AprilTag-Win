@@ -95,6 +95,7 @@ static rc_TrackerConfidence tracker_confidence_from_confidence(RCSensorFusionCon
 struct rc_Tracker: public sensor_fusion
 {
     rc_Tracker(bool immediate_dispatch): sensor_fusion(immediate_dispatch ? fusion_queue::latency_strategy::ELIMINATE_LATENCY : fusion_queue::latency_strategy::IMAGE_TRIGGER) {}
+    std::unique_ptr<image_depth16> last_depth;
     std::string jsonString;
     std::vector<rc_Feature> gottenFeatures;
     std::vector<rc_Feature> dataFeatures;
@@ -159,9 +160,9 @@ void rc_printDeviceConfig(rc_Tracker * tracker)
     fprintf(stderr, "int image_width, image_height; %d %d\n", device.image_width, device.image_height);
 }
 
-void rc_configureCamera(rc_Tracker *tracker, rc_Camera camera, const rc_Pose extrinsics_wrt_accel_m, const rc_CameraIntrinsics *intrinsics)
+void rc_configureCamera(rc_Tracker *tracker, rc_CameraId camera_id, const rc_Pose extrinsics_wrt_accel_m, const rc_CameraIntrinsics *intrinsics)
 {
-    if (camera == rc_EGRAY8) {
+    if ((camera_id == rc_CAMERA_ID_FISHEYE || camera_id == rc_CAMERA_ID_COLOR)) {
         device_parameters *device = &tracker->device;
         if (intrinsics) {
             device->Cx = intrinsics->c_x_px;
@@ -196,10 +197,14 @@ void rc_configureCamera(rc_Tracker *tracker, rc_Camera camera, const rc_Pose ext
     }
 }
 
-void rc_describeCamera(rc_Tracker *tracker,  rc_Camera camera, rc_Pose extrinsics_wrt_accel_m, rc_CameraIntrinsics *intrinsics)
+bool rc_describeCamera(rc_Tracker *tracker,  rc_CameraId camera_id, rc_Pose extrinsics_wrt_accel_m, rc_CameraIntrinsics *intrinsics)
 {
-    if (camera == rc_EGRAY8) {
-        const device_parameters *device = &tracker->device;
+    const device_parameters *device =
+        (camera_id == rc_CAMERA_ID_COLOR   && tracker->device.distortionModel == 0) ||
+        (camera_id == rc_CAMERA_ID_FISHEYE && tracker->device.distortionModel == 1) ? &tracker->device : NULL;
+    if (!device)
+        return false;
+    else {
         if (intrinsics) {
             intrinsics->c_x_px = device->Cx;
             intrinsics->c_y_px = device->Cy;
@@ -229,6 +234,7 @@ void rc_describeCamera(rc_Tracker *tracker,  rc_Camera camera, rc_Pose extrinsic
             g.Q = to_quaternion(W);
             transformation_to_rc_Pose(g, extrinsics_wrt_accel_m);
         }
+        return true;
     }
 }
 
@@ -335,49 +341,37 @@ void rc_stopTracker(rc_Tracker * tracker)
     tracker->output_enabled = false;
 }
 
-void rc_receiveImage(rc_Tracker *tracker, rc_Camera camera, rc_Timestamp time_us, rc_Timestamp shutter_time_us, const rc_Pose poseEstimate_m, bool force_recognition, int width, int height, int stride, const void *image, void(*completion_callback)(void *callback_handle), void *callback_handle)
+void rc_receiveImage(rc_Tracker *tracker, rc_Timestamp time_us, rc_Timestamp shutter_time_us, rc_ImageFormat format,
+                     int width, int height, int stride, const void *image,
+                     void(*completion_callback)(void *callback_handle), void *callback_handle)
 {
-	if (camera == rc_EGRAY8) {
-		camera_data d;
-		d.image_handle = std::unique_ptr<void, void(*)(void *)>(callback_handle, completion_callback);
-		d.image = (uint8_t *)image;
-		d.width = width;
-		d.height = height;
-		d.stride = stride;
+    if (format == rc_FORMAT_DEPTH16) {
+        tracker->last_depth = std::make_unique<image_depth16>();
+        tracker->last_depth->image_handle = std::unique_ptr<void, void(*)(void *)>(callback_handle, completion_callback);
+        tracker->last_depth->image = (uint16_t *)image;
+        tracker->last_depth->width = width;
+        tracker->last_depth->height = height;
+        tracker->last_depth->stride = stride;
+        tracker->last_depth->timestamp = sensor_clock::micros_to_tp(time_us);
+        tracker->last_depth->exposure_time = std::chrono::microseconds(shutter_time_us);
+    } else if (format == rc_FORMAT_GRAY8) {
+        camera_data d;
+        d.image_handle = std::unique_ptr<void, void(*)(void *)>(callback_handle, completion_callback);
+        d.image = (uint8_t *)image;
+        d.width = width;
+        d.height = height;
+        d.stride = stride;
         d.timestamp = sensor_clock::micros_to_tp(time_us);
         d.exposure_time = std::chrono::microseconds(shutter_time_us);
+        if (tracker->last_depth && tracker->last_depth->timestamp > tracker->sfm.last_time) // TODO: this assumes a one deep queue for color images
+            d.depth = std::move(tracker->last_depth);
+
         if(tracker->output_enabled) {
             tracker->output.write_camera(d);
         }
         else
             tracker->receive_image(std::move(d));
-	}
-	tracker->trigger_log();
-}
-
-void rc_receiveImageWithDepth(rc_Tracker *tracker, rc_Camera camera, rc_Timestamp time_us, rc_Timestamp shutter_time_us, const rc_Pose poseEstimate_m, bool force_recognition, int width, int height, int stride, const void *image, void(*completion_callback)(void *callback_handle), void *callback_handle, int depthWidth, int depthHeight, int depthStride, const void *depthImage, void(*depth_completion_callback)(void *callback_handle), void *depth_callback_handle) 
-{
-    camera_data d;
-    d.image_handle = std::unique_ptr<void, void(*)(void *)>(callback_handle, completion_callback);
-    d.image = (uint8_t *)image;
-    d.width = width;
-    d.height = height;
-    d.stride = stride;
-    d.timestamp = sensor_clock::micros_to_tp(time_us);
-    d.exposure_time = std::chrono::microseconds(shutter_time_us);
-    d.depth = std::make_unique<image_depth16>();
-    d.depth->image_handle = std::unique_ptr<void, void(*)(void *)>(depth_callback_handle, depth_completion_callback);
-    d.depth->image = (uint16_t *)depthImage;
-    d.depth->width = depthWidth;
-    d.depth->height = depthHeight;
-    d.depth->stride = depthStride;
-    d.depth->timestamp = d.timestamp;
-    d.depth->exposure_time = d.exposure_time;
-    if(tracker->output_enabled) {
-        tracker->output.write_camera(d);
     }
-    else
-        tracker->receive_image(std::move(d));
     tracker->trigger_log();
 }
 

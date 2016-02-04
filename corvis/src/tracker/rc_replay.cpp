@@ -154,7 +154,7 @@ bool replay::run()
                 char tmp[17]; memcpy(tmp, packet->data, 16); tmp[16] = 0;
                 std::stringstream parse(tmp);
                 int width, height; parse.ignore(3, ' ') >> width >> height; //pgm header is "P5 x y"
-                rc_receiveImage(tracker, rc_EGRAY8, packet->header.time, 33333, nullptr/*pose estimate*/, false/*force_recognition*/,
+                rc_receiveImage(tracker, packet->header.time, 33333, rc_FORMAT_GRAY8,
                                 width, height, width, packet->data + 16, [](void *packet) { free(packet); }, phandle.release());
             }   break;
             case packet_image_with_depth: {
@@ -199,16 +199,19 @@ bool replay::run()
                 }
                 if(depth && ip->depth_height && ip->depth_width) {
                     ip->header.user = 2; // ref count
-                    if (trace) printf("rc_receiveImageWithDepth(%lld, %lld, %dx%d, %dx%d);\n", packet->header.time, ip->exposure_time_us, ip->width, ip->height, ip->depth_width, ip->depth_height);
-                    rc_receiveImageWithDepth(tracker, rc_EGRAY8, ip->header.time, ip->exposure_time_us, nullptr/*pose estimate*/, false /*force_recognition*/,
-                                             ip->width, ip->height, ip->width, ip->data,
-                                             [](void *packet) { if (!--((packet_header_t *)packet)->user) free(packet); }, packet,
-                                             ip->depth_width, ip->depth_height, ip->depth_width*2, ip->data + ip->width * ip->height,
-                                             [](void *packet) { if (!--((packet_header_t *)packet)->user) free(packet); }, phandle.release());
+                    if (trace) printf("rc_receiveImage(%lld, %lld, DEPTH16, %dx%d);\n", packet->header.time, (uint64_t)0, ip->depth_width, ip->depth_height);
+                    rc_receiveImage(tracker, ip->header.time, 0, rc_FORMAT_DEPTH16,
+                                    ip->depth_width, ip->depth_height, ip->depth_width*2, ip->data + ip->width * ip->height,
+                                    [](void *packet) { if (!--((packet_header_t *)packet)->user) free(packet); }, phandle.release());
+                    if (trace) printf("rc_receiveImageWithDepth(%lld, %lld, GRAY8, %dx%d);\n", packet->header.time, ip->exposure_time_us, ip->width, ip->height);
+                    rc_receiveImage(tracker, ip->header.time, ip->exposure_time_us, rc_FORMAT_GRAY8,
+                                    ip->width, ip->height, ip->width, ip->data,
+                                    [](void *packet) { if (!--((packet_header_t *)packet)->user) free(packet); }, packet);
                 } else {
                     if (trace) printf("rc_receiveImage(%lld, %lld, %dx%d);\n", packet->header.time, ip->exposure_time_us, ip->width, ip->height);
-                    rc_receiveImage(tracker, rc_EGRAY8, ip->header.time, ip->exposure_time_us, nullptr/*pose estimate*/, false/*force_recognition*/,
-                                    ip->width, ip->height, ip->width, ip->data, [](void *packet) { free(packet); }, phandle.release());
+                    rc_receiveImage(tracker, ip->header.time, ip->exposure_time_us, rc_FORMAT_GRAY8,
+                                    ip->width, ip->height, ip->width, ip->data,
+                                    [](void *packet) { free(packet); }, phandle.release());
                 }
             }   break;
             case packet_accelerometer: {

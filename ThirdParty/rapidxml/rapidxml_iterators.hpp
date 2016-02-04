@@ -169,6 +169,23 @@ namespace rapidxml
 
     };
 
+    template <typename Ch>
+    rapidxml::node_iterator<Ch> begin(rapidxml::xml_node<Ch> *node) {
+        return rapidxml::node_iterator<Ch>(node);
+    }
+    template <typename Ch>
+    rapidxml::node_iterator<Ch> end(rapidxml::xml_node<Ch> *node) {
+        return rapidxml::node_iterator<Ch>();
+    }
+
+    template <typename Ch>
+    rapidxml::attribute_iterator<Ch> begin(rapidxml::xml_attribute<Ch> *attribute) {
+        return rapidxml::attribute_iterator<Ch>(attribute);
+    }
+    template <typename Ch>
+    rapidxml::attribute_iterator<Ch> end(rapidxml::xml_attribute<Ch> *attribute) {
+        return rapidxml::attribute_iterator<Ch>();
+    }
 }
 
 #endif

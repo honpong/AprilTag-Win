@@ -170,17 +170,17 @@ void rc_configureCamera(rc_Tracker *tracker, rc_Camera camera, const rc_Pose ext
             device->Fy = intrinsics->f_y_px;
             device->image_width = intrinsics->width_px;
             device->image_height = intrinsics->height_px;
-            if (intrinsics->type == rc_CAL_POLYNOMIAL3) {
+            if (intrinsics->type == rc_CALIBRATION_TYPE_POLYNOMIAL3) {
                 device->distortionModel = 0;
                 device->K0 = intrinsics->k1;
                 device->K1 = intrinsics->k2;
                 device->K2 = intrinsics->k3;
                 device->Kw = 0;
-            } else if (intrinsics->type == rc_CAL_FISHEYE) {
+            } else if (intrinsics->type == rc_CALIBRATION_TYPE_FISHEYE) {
                 device->distortionModel = 1;
                 device->Kw = intrinsics->w;
                 device->K0 = device->K1 = device->K2 = 0;
-            } else if (intrinsics->type == rc_CAL_UNDISTORTED) {
+            } else if (intrinsics->type == rc_CALIBRATION_TYPE_UNDISTORTED) {
                 device->distortionModel = 2;
                 device->K0 = device->K1 = device->K2 = device->Kw = 0;
             }
@@ -208,15 +208,15 @@ void rc_describeCamera(rc_Tracker *tracker,  rc_Camera camera,       rc_Pose ext
             intrinsics->width_px          = device->image_width;
             intrinsics->height_px         = device->image_height;
             if (device->distortionModel == 0) {
-                intrinsics->type = rc_CAL_POLYNOMIAL3;
+                intrinsics->type = rc_CALIBRATION_TYPE_POLYNOMIAL3;
                 intrinsics->k1 = device->K0;
                 intrinsics->k2 = device->K1;
                 intrinsics->k3 = device->K2;
             } else if (device->distortionModel == 1) {
-                intrinsics->type = rc_CAL_FISHEYE;
+                intrinsics->type = rc_CALIBRATION_TYPE_FISHEYE;
                 intrinsics->w = device->Kw;
             } else if (device->distortionModel == 2) {
-                intrinsics->type = rc_CAL_UNDISTORTED;
+                intrinsics->type = rc_CALIBRATION_TYPE_UNDISTORTED;
             }
         }
 

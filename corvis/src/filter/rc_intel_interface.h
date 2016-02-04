@@ -121,10 +121,10 @@ RCTRACKER_API void rc_destroy(rc_Tracker *tracker);
 RCTRACKER_API void rc_reset(rc_Tracker *tracker, rc_Timestamp initialTime_us, const rc_Pose initialPose_m);
 
 typedef enum rc_CalibrationType {
-    rc_CAL_UNKNOWN,     // rd = ???
-    rc_CAL_FISHEYE,     // rd = arctan(2 * ru * tan(w / 2)) / w
-    rc_CAL_POLYNOMIAL3, // rd = ru * (k1 * ru^2 + k2 * ru^4 + k3 * ru^6)
-    rc_CAL_UNDISTORTED, // rd = ru
+    rc_CALIBRATION_TYPE_UNKNOWN,     // rd = ???
+    rc_CALIBRATION_TYPE_FISHEYE,     // rd = arctan(2 * ru * tan(w / 2)) / w
+    rc_CALIBRATION_TYPE_POLYNOMIAL3, // rd = ru * (k1 * ru^2 + k2 * ru^4 + k3 * ru^6)
+    rc_CALIBRATION_TYPE_UNDISTORTED, // rd = ru
 } rc_CalibrationType;
 
 /**

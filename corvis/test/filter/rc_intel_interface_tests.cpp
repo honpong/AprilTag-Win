@@ -75,27 +75,27 @@ TEST(rc_intel_interface_tests, rc_fisheyeKw)
 
     struct rc_Intrinsics intrinsics = {};
     rc_describeCamera(tracker, rc_EGRAY8, nullptr, &intrinsics);
-    EXPECT_EQ(intrinsics.type, rc_CAL_FISHEYE);
+    EXPECT_EQ(intrinsics.type, rc_CALIBRATION_TYPE_FISHEYE);
     EXPECT_FLOAT_EQ(intrinsics.w, 0.123);
 
     const char *json_out = nullptr;
     rc_getCalibration(tracker, &json_out);
 
-    intrinsics.type = rc_CAL_POLYNOMIAL3;
+    intrinsics.type = rc_CALIBRATION_TYPE_POLYNOMIAL3;
     intrinsics.k1 = 23;
     intrinsics.w = 86;
     rc_configureCamera(tracker, rc_EGRAY8, nullptr, &intrinsics);
 
     rc_Intrinsics intrinsics_out;
     rc_describeCamera(tracker, rc_EGRAY8, nullptr, &intrinsics_out);
-    EXPECT_EQ(intrinsics_out.type, rc_CAL_POLYNOMIAL3);
+    EXPECT_EQ(intrinsics_out.type, rc_CALIBRATION_TYPE_POLYNOMIAL3);
     EXPECT_FLOAT_EQ(intrinsics_out.w, 86);
 
     rc_setCalibration(tracker, json_out);
 
     rc_Intrinsics intrinsics_again;
     rc_describeCamera(tracker, rc_EGRAY8, nullptr, &intrinsics_again);
-    EXPECT_EQ(intrinsics_again.type, rc_CAL_FISHEYE);
+    EXPECT_EQ(intrinsics_again.type, rc_CALIBRATION_TYPE_FISHEYE);
     EXPECT_FLOAT_EQ(intrinsics_again.w, .123);
 
     rc_destroy(tracker);

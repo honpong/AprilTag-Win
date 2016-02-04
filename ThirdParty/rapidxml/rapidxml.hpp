@@ -52,7 +52,7 @@ namespace rapidxml
     
 #include <exception>    // For std::exception
 
-#define RAPIDXML_PARSE_ERROR(what, where) throw parse_error(what, where)
+#define RAPIDXML_PARSE_ERROR(what, where) throw parse_error(what, (void*)where)
 
 namespace rapidxml
 {

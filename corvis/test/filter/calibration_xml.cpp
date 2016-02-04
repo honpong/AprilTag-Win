@@ -124,14 +124,14 @@ TEST(CalibrationXML, Parse)
     EXPECT_EQ(cal.imu.a_noise_sigma_m__s2, 0.001883649);
 
     EXPECT_EQ(cal.fisheye.intrinsics.w, 0.922);
-    EXPECT_EQ(cal.fisheye.intrinsics.focal_length_y_px, 255.8);
+    EXPECT_EQ(cal.fisheye.intrinsics.f_y_px, 255.8);
     EXPECT_EQ(cal.fisheye.extrinsics_wrt_imu_m.T[0], 0.005911);
 
-    EXPECT_EQ(cal.color.intrinsics.focal_length_x_px, 885.7);
+    EXPECT_EQ(cal.color.intrinsics.f_x_px, 885.7);
     EXPECT_EQ(cal.color.intrinsics.k2, 0.072007);
 
-    EXPECT_EQ(cal.depth.intrinsics.center_x_px, 320.1);
-    EXPECT_EQ(cal.depth.intrinsics.center_y_px, 240.2);
+    EXPECT_EQ(cal.depth.intrinsics.c_x_px, 320.1);
+    EXPECT_EQ(cal.depth.intrinsics.c_y_px, 240.2);
     EXPECT_EQ(cal.depth.extrinsics_wrt_imu_m.T[2], 0.0023276);
 
     EXPECT_EQ(cal.ir.intrinsics.k3, 0.000281827);
@@ -159,17 +159,17 @@ TEST(CalibrationXML, Print)
 
     cal.depth.extrinsics_wrt_imu_m = transformation(rotation_vector(M_PI/M_SQRT2,-M_PI/M_SQRT2,0), v4(3,4.7,5,0));
     cal.depth.intrinsics.type = rc_CAL_UNDISTORTED;
-    cal.depth.intrinsics.focal_length_x_px = 400;
-    cal.depth.intrinsics.focal_length_y_px = 404;
-    cal.depth.intrinsics.center_x_px = 320.1;
-    cal.depth.intrinsics.center_y_px = 240.2;
+    cal.depth.intrinsics.f_x_px = 400;
+    cal.depth.intrinsics.f_y_px = 404;
+    cal.depth.intrinsics.c_x_px = 320.1;
+    cal.depth.intrinsics.c_y_px = 240.2;
 
     cal.fisheye.extrinsics_wrt_imu_m = transformation(rotation_vector(0,-M_PI/M_SQRT2,0), v4(4,3.5,7,0));
     cal.fisheye.intrinsics.type = rc_CAL_FISHEYE;
-    cal.fisheye.intrinsics.focal_length_x_px = 410;
-    cal.fisheye.intrinsics.focal_length_y_px = 414;
-    cal.fisheye.intrinsics.center_x_px = 320.8;
-    cal.fisheye.intrinsics.center_y_px = 240.9;
+    cal.fisheye.intrinsics.f_x_px = 410;
+    cal.fisheye.intrinsics.f_y_px = 414;
+    cal.fisheye.intrinsics.c_x_px = 320.8;
+    cal.fisheye.intrinsics.c_y_px = 240.9;
     cal.fisheye.intrinsics.w = .889;
 
     std::string xml;
@@ -181,17 +181,17 @@ TEST(CalibrationXML, Print)
     EXPECT_EQ(cal.device_id, "hello");
     EXPECT_EQ(cal.depth.extrinsics_wrt_imu_m, transformation(rotation_vector(M_PI/M_SQRT2,-M_PI/M_SQRT2,0), v4(3,4.7,5,0)));
     EXPECT_EQ(cal.depth.intrinsics.type, rc_CAL_UNDISTORTED);
-    EXPECT_EQ(cal.depth.intrinsics.focal_length_x_px, 400);
-    EXPECT_EQ(cal.depth.intrinsics.focal_length_y_px, 404);
-    EXPECT_EQ(cal.depth.intrinsics.center_x_px, 320.1);
-    EXPECT_EQ(cal.depth.intrinsics.center_y_px, 240.2);
+    EXPECT_EQ(cal.depth.intrinsics.f_x_px, 400);
+    EXPECT_EQ(cal.depth.intrinsics.f_y_px, 404);
+    EXPECT_EQ(cal.depth.intrinsics.c_x_px, 320.1);
+    EXPECT_EQ(cal.depth.intrinsics.c_y_px, 240.2);
 
     EXPECT_EQ(cal.fisheye.extrinsics_wrt_imu_m, transformation(rotation_vector(0,-M_PI/M_SQRT2,0), v4(4,3.5,7,0)));
     EXPECT_EQ(cal.fisheye.intrinsics.type, rc_CAL_FISHEYE);
-    EXPECT_EQ(cal.fisheye.intrinsics.focal_length_x_px, 410);
-    EXPECT_EQ(cal.fisheye.intrinsics.focal_length_y_px, 414);
-    EXPECT_EQ(cal.fisheye.intrinsics.center_x_px, 320.8);
-    EXPECT_EQ(cal.fisheye.intrinsics.center_y_px, 240.9);
+    EXPECT_EQ(cal.fisheye.intrinsics.f_x_px, 410);
+    EXPECT_EQ(cal.fisheye.intrinsics.f_y_px, 414);
+    EXPECT_EQ(cal.fisheye.intrinsics.c_x_px, 320.8);
+    EXPECT_EQ(cal.fisheye.intrinsics.c_y_px, 240.9);
     EXPECT_EQ(cal.fisheye.intrinsics.w, .889);
 
 }

@@ -108,10 +108,10 @@ bool calibration_deserialize_xml(const std::string &xml, calibration &cal)
                 std::string type = camera_model.assert_attribute("type")->value();
                 if (type == "calibu_fu_fv_u0_v0_k1_k2_k3") {
                     auto m = camera_model.assert_m<7,1>("params");
-                    c->intrinsics.focal_length_x_px = m[0];
-                    c->intrinsics.focal_length_y_px = m[1];
-                    c->intrinsics.center_x_px = m[2];
-                    c->intrinsics.center_y_px = m[3];
+                    c->intrinsics.f_x_px = m[0];
+                    c->intrinsics.f_y_px = m[1];
+                    c->intrinsics.c_x_px = m[2];
+                    c->intrinsics.c_y_px = m[3];
 
                     c->intrinsics.type = rc_CAL_POLYNOMIAL3;
                     c->intrinsics.k1 = m[4];
@@ -119,19 +119,19 @@ bool calibration_deserialize_xml(const std::string &xml, calibration &cal)
                     c->intrinsics.k3 = m[6];
                 } else if (type == "calibu_fu_fv_u0_v0_w") {
                     auto m = camera_model.assert_m<5,1>("params");
-                    c->intrinsics.focal_length_x_px = m[0];
-                    c->intrinsics.focal_length_y_px = m[1];
-                    c->intrinsics.center_x_px = m[2];
-                    c->intrinsics.center_y_px = m[3];
+                    c->intrinsics.f_x_px = m[0];
+                    c->intrinsics.f_y_px = m[1];
+                    c->intrinsics.c_x_px = m[2];
+                    c->intrinsics.c_y_px = m[3];
 
                     c->intrinsics.type = rc_CAL_FISHEYE;
                     c->intrinsics.w = m[4];
                 } else if (type == "calibu_fu_fv_u0_v0") {
                     auto m = camera_model.assert_m<4,1>("params");
-                    c->intrinsics.focal_length_x_px = m[0];
-                    c->intrinsics.focal_length_y_px = m[1];
-                    c->intrinsics.center_x_px = m[2];
-                    c->intrinsics.center_y_px = m[3];
+                    c->intrinsics.f_x_px = m[0];
+                    c->intrinsics.f_y_px = m[1];
+                    c->intrinsics.c_x_px = m[2];
+                    c->intrinsics.c_y_px = m[3];
 
                     c->intrinsics.type = rc_CAL_UNDISTORTED;
                 } else {
@@ -244,20 +244,20 @@ bool calibration_serialize_xml(const calibration &cal, std::string &xml)
         std::stringstream s;
         if (c->intrinsics.type == rc_CAL_POLYNOMIAL3) {
             camera_model->append_node(doc.allocate_node(node_element, "params", xml_string(doc, Eigen::Matrix<f_t, 7,1>{
-                c->intrinsics.focal_length_x_px, c->intrinsics.focal_length_y_px,
-                c->intrinsics.center_x_px,       c->intrinsics.center_y_px,
+                c->intrinsics.f_x_px, c->intrinsics.f_y_px,
+                c->intrinsics.c_x_px, c->intrinsics.c_y_px,
                 c->intrinsics.k1, c->intrinsics.k2, c->intrinsics.k3,
             })));
         } else if (c->intrinsics.type == rc_CAL_FISHEYE) {
             camera_model->append_node(doc.allocate_node(node_element, "params", xml_string(doc, Eigen::Matrix<f_t, 5,1>{
-                c->intrinsics.focal_length_x_px, c->intrinsics.focal_length_y_px,
-                c->intrinsics.center_x_px,       c->intrinsics.center_y_px,
+                c->intrinsics.f_x_px, c->intrinsics.f_y_px,
+                c->intrinsics.c_x_px, c->intrinsics.c_y_px,
                 c->intrinsics.w
             })));
         } else if (c->intrinsics.type == rc_CAL_UNDISTORTED) {
             camera_model->append_node(doc.allocate_node(node_element, "params", xml_string(doc, Eigen::Matrix<f_t, 4,1>{
-                c->intrinsics.focal_length_x_px, c->intrinsics.focal_length_y_px,
-                c->intrinsics.center_x_px,       c->intrinsics.center_y_px,
+                c->intrinsics.f_x_px, c->intrinsics.f_y_px,
+                c->intrinsics.c_x_px, c->intrinsics.c_y_px,
             })));
         }
         camera->append_node(doc.allocate_node(node_element, "pose"));

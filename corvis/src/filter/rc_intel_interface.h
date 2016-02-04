@@ -132,18 +132,18 @@ typedef enum rc_CalibrationType {
  @param camera The camera to configure
  @param width_px Image width in pixels
  @param height_px Image height in pixels
- @param focal_length_x_px Focal length of camera in pixels
- @param focal_length_y_px Focal length of camera in pixels
- @param center_x_px Horizontal principal point of camera in pixels
- @param center_y_px Horizontal principal point of camera in pixels
+ @param f_x_px Focal length of camera in pixels
+ @param f_y_px Focal length of camera in pixels
+ @param c_x_px Horizontal principal point of camera in pixels
+ @param c_y_px Horizontal principal point of camera in pixels
  @param k1,k2,k3 Polynomial distortion parameters
  @param w Fisheye camera field of view in radians (half-angle FOV)
  */
 typedef struct rc_Intrinsics {
     rc_CalibrationType type;
     uint32_t width_px, height_px;
-    double focal_length_x_px, focal_length_y_px;
-    double center_x_px, center_y_px;
+    double f_x_px, f_y_px;
+    double c_x_px, c_y_px;
     union {
         double distortion[5];
         struct { double k1,k2,k3; };

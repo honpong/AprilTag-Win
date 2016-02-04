@@ -164,10 +164,10 @@ void rc_configureCamera(rc_Tracker *tracker, rc_Camera camera, const rc_Pose ext
     if (camera == rc_EGRAY8) {
         device_parameters *device = &tracker->device;
         if (intrinsics) {
-            device->Cx = intrinsics->center_x_px;
-            device->Cy = intrinsics->center_y_px;
-            device->Fx = intrinsics->focal_length_x_px;
-            device->Fy = intrinsics->focal_length_y_px;
+            device->Cx = intrinsics->c_x_px;
+            device->Cy = intrinsics->c_y_px;
+            device->Fx = intrinsics->f_x_px;
+            device->Fy = intrinsics->f_y_px;
             device->image_width = intrinsics->width_px;
             device->image_height = intrinsics->height_px;
             if (intrinsics->type == rc_CAL_POLYNOMIAL3) {
@@ -201,10 +201,10 @@ void rc_describeCamera(rc_Tracker *tracker,  rc_Camera camera,       rc_Pose ext
     if (camera == rc_EGRAY8) {
         const device_parameters *device = &tracker->device;
         if (intrinsics) {
-            intrinsics->center_x_px       = device->Cx;
-            intrinsics->center_y_px       = device->Cy;
-            intrinsics->focal_length_x_px = device->Fx;
-            intrinsics->focal_length_y_px = device->Fy;
+            intrinsics->c_x_px = device->Cx;
+            intrinsics->c_y_px = device->Cy;
+            intrinsics->f_x_px = device->Fx;
+            intrinsics->f_y_px = device->Fy;
             intrinsics->width_px          = device->image_width;
             intrinsics->height_px         = device->image_height;
             if (device->distortionModel == 0) {

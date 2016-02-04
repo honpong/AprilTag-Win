@@ -326,6 +326,6 @@ bool calibration_serialize_xml(const calibration &cal, std::string &xml)
     }
 
     xml.clear();
-    print(std::back_inserter(xml), doc);
+    print<decltype(std::back_inserter(xml)), char, ' ', 2>(std::back_inserter(xml), doc);
     return true;
 }

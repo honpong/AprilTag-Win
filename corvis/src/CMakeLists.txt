@@ -134,13 +134,14 @@ add_library(filter STATIC
   filter/camera_control_interface_dummy.cpp
   filter/device_parameters.cpp
   filter/calibration_json.cpp
+  filter/calibration_xml.cpp
   filter/calibration_defaults.cpp
   filter/sensor_fusion.cpp
   filter/capture.cpp
   filter/replay.cpp
 )
 target_include_directories(filter PUBLIC filter)
-target_include_directories(filter PRIVATE rapidjson/include)
+target_include_directories(filter PRIVATE rapidjson/include ../../ThirdParty/rapidxml)
 target_link_libraries(filter numerics cor)
 set_property(TARGET filter PROPERTY CXX_STANDARD 14)
 

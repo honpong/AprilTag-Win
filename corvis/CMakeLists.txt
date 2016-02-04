@@ -63,6 +63,7 @@ if(YES)
       test/filter/state_vision.cpp
       test/filter/device_parameters.cpp
       test/filter/calibration_json.cpp
+      test/filter/calibration_xml.cpp
       test/filter/tpose.cpp
       test/cor/sensor_fusion_queue.cpp
     )

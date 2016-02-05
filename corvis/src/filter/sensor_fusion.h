@@ -18,6 +18,7 @@
 #include "../../../shared_corvis_3dk/RCSensorFusionInternals.h"
 #include "../../../shared_corvis_3dk/camera_control_interface.h"
 #include "device_parameters.h"
+#include "calibration_xml.h"
 #include "capture.h"
 #include "filter.h"
 
@@ -225,6 +226,7 @@ public:
     //public for now
     filter sfm;
     rcCalibration device;
+    calibration calibration;
     
     //These change coordinates from accelerometer-centered coordinates to camera-centered coordinates
     transformation accel_to_camera_world_transform() const;

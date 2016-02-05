@@ -162,6 +162,7 @@ void rc_printDeviceConfig(rc_Tracker * tracker)
 
 void rc_configureCamera(rc_Tracker *tracker, rc_CameraId camera_id, const rc_Pose extrinsics_wrt_accel_m, const rc_CameraIntrinsics *intrinsics)
 {
+    // Make this given camera the current camera
     if ((camera_id == rc_CAMERA_ID_FISHEYE || camera_id == rc_CAMERA_ID_COLOR)) {
         device_parameters *device = &tracker->device;
         if (intrinsics) {
@@ -194,17 +195,34 @@ void rc_configureCamera(rc_Tracker *tracker, rc_CameraId camera_id, const rc_Pos
                 device->Wc[i] = (float)W.raw_vector()[i];
             }
         }
+    } else if (camera_id == rc_CAMERA_ID_DEPTH) {
+        tracker->sfm.depth.extrinsics_wrt_imu_m = rc_Pose_to_transformation(extrinsics_wrt_accel_m);
+        tracker->sfm.depth.intrinsics = *intrinsics;
+    }
+    // Also write the calibration into the multi-camera calibration struct
+    calibration::camera *cam =
+        camera_id == rc_CAMERA_ID_FISHEYE ? &tracker->calibration.fisheye :
+        camera_id == rc_CAMERA_ID_COLOR   ? &tracker->calibration.color :
+        camera_id == rc_CAMERA_ID_DEPTH   ? &tracker->calibration.depth :
+        camera_id == rc_CAMERA_ID_IR      ? &tracker->calibration.ir : nullptr;
+    if (cam) {
+        cam->extrinsics_wrt_imu_m = rc_Pose_to_transformation(extrinsics_wrt_accel_m);
+        cam->intrinsics = *intrinsics;
     }
 }
 
 bool rc_describeCamera(rc_Tracker *tracker,  rc_CameraId camera_id, rc_Pose extrinsics_wrt_accel_m, rc_CameraIntrinsics *intrinsics)
 {
+    // When you query the currently configure camera, you get the info from the current 'device' struct
+    if (camera_id == rc_CAMERA_ID_DEPTH && tracker->sfm.depth.intrinsics.type != rc_CALIBRATION_TYPE_UNKNOWN) {
+        if (intrinsics) *intrinsics = tracker->sfm.depth.intrinsics;
+        if (extrinsics_wrt_accel_m) transformation_to_rc_Pose(tracker->sfm.depth.extrinsics_wrt_imu_m, extrinsics_wrt_accel_m);
+        return true;
+    }
     const device_parameters *device =
         (camera_id == rc_CAMERA_ID_COLOR   && tracker->device.distortionModel == 0) ||
         (camera_id == rc_CAMERA_ID_FISHEYE && tracker->device.distortionModel == 1) ? &tracker->device : NULL;
-    if (!device)
-        return false;
-    else {
+    if (device) {
         if (intrinsics) {
             intrinsics->c_x_px = device->Cx;
             intrinsics->c_y_px = device->Cy;
@@ -236,6 +254,18 @@ bool rc_describeCamera(rc_Tracker *tracker,  rc_CameraId camera_id, rc_Pose extr
         }
         return true;
     }
+
+    // When you query a currently unused camera, you get the data from the milti-camera calibration struct
+    const calibration::camera *cam =
+        camera_id == rc_CAMERA_ID_FISHEYE ? &tracker->calibration.fisheye :
+        camera_id == rc_CAMERA_ID_COLOR   ? &tracker->calibration.color :
+        camera_id == rc_CAMERA_ID_DEPTH   ? &tracker->calibration.depth :
+        camera_id == rc_CAMERA_ID_IR      ? &tracker->calibration.ir : nullptr;
+    if (!cam || cam->intrinsics.type == rc_CALIBRATION_TYPE_UNKNOWN)
+        return false;
+    if (intrinsics) *intrinsics = cam->intrinsics;
+    if (extrinsics_wrt_accel_m) transformation_to_rc_Pose(cam->extrinsics_wrt_imu_m, extrinsics_wrt_accel_m);
+    return true;
 }
 
 void rc_configureAccelerometer(rc_Tracker * tracker, const rc_Pose alignment_bias_m__s2, float noiseVariance_m2__s4)

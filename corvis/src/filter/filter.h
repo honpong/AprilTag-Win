@@ -4,6 +4,7 @@
 #include "state_vision.h"
 #include "observation.h"
 #include "device_parameters.h"
+#include "calibration_xml.h"
 #include "feature_info.h"
 #include "tracker.h"
 #include "scaled_mask.h"
@@ -50,6 +51,8 @@ filter(): s(cov)
 
     bool gravity_init;
     f_t gravity_magnitude;
+
+    calibration::camera depth = {};
 
     sensor_clock::time_point want_start;
     bool got_accelerometer, got_gyroscope, got_image;

@@ -168,7 +168,7 @@ bool calibration_deserialize_xml(const std::string &xml, calibration &cal)
             checked_node extrinsic(extrinsic_);
             auto A_id = std::atoi(extrinsic.assert_attribute("frame_A_id")->value());
             auto B_id = std::atoi(extrinsic.assert_attribute("frame_B_id")->value());
-            struct transformation *t = nullptr;
+            transformation *t = nullptr;
             if (A_id == 100) { // IMU
                 if (B_id == 40) // DEVICE
                     t = &cal.device_wrt_imu_m;

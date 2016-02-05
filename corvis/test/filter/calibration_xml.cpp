@@ -118,10 +118,10 @@ TEST(CalibrationXML, Parse)
 
     EXPECT_EQ(cal.imu.w_bias_rad__s[1], 23);
     EXPECT_EQ(cal.imu.a_bias_m__s2[2], 4.5);
-    EXPECT_EQ(cal.imu.w_bias_var_rad2__s2, 1.4125375e-4 * 1.4125375e-4);
-    EXPECT_EQ(cal.imu.a_bias_var_m2__s4, 1.2589254e-2 * 1.2589254e-2);
-    EXPECT_EQ(cal.imu.w_noise_var_rad2__s2, 5.3088444e-5 * 5.3088444e-5);
-    EXPECT_EQ(cal.imu.a_noise_var_m2__s4, 0.001883649 * 0.001883649);
+    EXPECT_EQ(cal.imu.w_bias_var_rad2__s2[0], 1.4125375e-4 * 1.4125375e-4);
+    EXPECT_EQ(cal.imu.a_bias_var_m2__s4[2],   1.2589254e-2 * 1.2589254e-2);
+    EXPECT_EQ(cal.imu.w_noise_var_rad2__s2,   5.3088444e-5 * 5.3088444e-5);
+    EXPECT_EQ(cal.imu.a_noise_var_m2__s4,     0.001883649  * 0.001883649);
 
     EXPECT_EQ(cal.fisheye.intrinsics.w, 0.922);
     EXPECT_EQ(cal.fisheye.intrinsics.f_y_px, 255.8);
@@ -147,12 +147,12 @@ TEST(CalibrationXML, Parse)
     calibration cal2;
     EXPECT_TRUE(calibration_deserialize_xml(tmp, cal2));
 
-    EXPECT_NEAR(cal2.imu.w_bias_rad__s[1],     23,                              (std::numeric_limits<f_t>::epsilon()));
-    EXPECT_NEAR(cal2.imu.a_bias_m__s2[2],      4.5,                             (std::numeric_limits<f_t>::epsilon()));
-    EXPECT_NEAR(cal2.imu.w_bias_var_rad2__s2,  1.4125375e-4 * 1.4125375e-4, sqrt(std::numeric_limits<f_t>::epsilon()));
-    EXPECT_NEAR(cal2.imu.a_bias_var_m2__s4,    1.2589254e-2 * 1.2589254e-2, sqrt(std::numeric_limits<f_t>::epsilon()));
-    EXPECT_NEAR(cal2.imu.w_noise_var_rad2__s2, 5.3088444e-5 * 5.3088444e-5, sqrt(std::numeric_limits<f_t>::epsilon()));
-    EXPECT_NEAR(cal2.imu.a_noise_var_m2__s4,   0.001883649 * 0.001883649,   sqrt(std::numeric_limits<f_t>::epsilon()));
+    EXPECT_NEAR(cal2.imu.w_bias_rad__s[1],        23,                              (std::numeric_limits<f_t>::epsilon()));
+    EXPECT_NEAR(cal2.imu.a_bias_m__s2[2],         4.5,                             (std::numeric_limits<f_t>::epsilon()));
+    EXPECT_NEAR(cal2.imu.w_bias_var_rad2__s2[1],  1.4125375e-4 * 1.4125375e-4, sqrt(std::numeric_limits<f_t>::epsilon()));
+    EXPECT_NEAR(cal2.imu.a_bias_var_m2__s4[2],    1.2589254e-2 * 1.2589254e-2, sqrt(std::numeric_limits<f_t>::epsilon()));
+    EXPECT_NEAR(cal2.imu.w_noise_var_rad2__s2,    5.3088444e-5 * 5.3088444e-5, sqrt(std::numeric_limits<f_t>::epsilon()));
+    EXPECT_NEAR(cal2.imu.a_noise_var_m2__s4,      0.001883649 * 0.001883649,   sqrt(std::numeric_limits<f_t>::epsilon()));
 
     std::string tmp_roundtrip;
     EXPECT_TRUE(calibration_serialize_xml(cal2, tmp_roundtrip));

@@ -151,12 +151,17 @@ bool calibration_deserialize_xml(const std::string &xml, calibration &cal)
 
                 cal.imu.w_noise_var_rad2__s2 = std::atof(imu.assert_node("gyro_noise_sigma")->value())
                                              * std::atof(imu.assert_node("gyro_noise_sigma")->value());
+
                 cal.imu.a_noise_var_m2__s4 = std::atof(imu.assert_node("accel_noise_sigma")->value())
                                            * std::atof(imu.assert_node("accel_noise_sigma")->value());
-                cal.imu.w_bias_var_rad2__s2 = std::atof(imu.assert_node("gyro_bias_sigma")->value())
-                                            * std::atof(imu.assert_node("gyro_bias_sigma")->value());
-                cal.imu.a_bias_var_m2__s4 = std::atof(imu.assert_node("accel_bias_sigma")->value())
-                                          * std::atof(imu.assert_node("accel_bias_sigma")->value());
+
+                auto w_bias_var_rad2__s2 = std::atof(imu.assert_node("gyro_bias_sigma")->value())
+                                         * std::atof(imu.assert_node("gyro_bias_sigma")->value());
+                cal.imu.w_bias_var_rad2__s2 = v3(w_bias_var_rad2__s2, w_bias_var_rad2__s2, w_bias_var_rad2__s2);
+
+                auto a_bias_var_m2__s4 = std::atof(imu.assert_node("accel_bias_sigma")->value())
+                                       * std::atof(imu.assert_node("accel_bias_sigma")->value());
+                cal.imu.a_bias_var_m2__s4 = v3(a_bias_var_m2__s4, a_bias_var_m2__s4, a_bias_var_m2__s4);
             }
         }
         for (node *extrinsic_ = root->first_node("extrinsic_calibration"); extrinsic_; extrinsic_ = extrinsic_->next_sibling("extrinsic_calibration")) {
@@ -286,10 +291,10 @@ bool calibration_serialize_xml(const calibration &cal, std::string &xml)
         imu->append_node(doc.allocate_node(node_element, "crossterms", xml_string(doc, crossterms)));
 
         imu->append_node(doc.allocate_node(node_element, "gyro_noise_sigma", xml_string(doc, sqrt(cal.imu.w_noise_var_rad2__s2))));
-        imu->append_node(doc.allocate_node(node_element, "gyro_bias_sigma",  xml_string(doc, sqrt(cal.imu.w_bias_var_rad2__s2))));
+        imu->append_node(doc.allocate_node(node_element, "gyro_bias_sigma",  xml_string(doc, sqrt(cal.imu.w_bias_var_rad2__s2.array().maxCoeff()))));
 
         imu->append_node(doc.allocate_node(node_element, "accel_noise_sigma", xml_string(doc, sqrt(cal.imu.a_noise_var_m2__s4))));
-        imu->append_node(doc.allocate_node(node_element, "accel_bias_sigma",  xml_string(doc, sqrt(cal.imu.a_bias_var_m2__s4))));
+        imu->append_node(doc.allocate_node(node_element, "accel_bias_sigma",  xml_string(doc, sqrt(cal.imu.a_bias_var_m2__s4.maxCoeff()))));
     }
 
     const struct { const transformation &transformation; const char *A_id, *B_id; } extrinsics[] = {

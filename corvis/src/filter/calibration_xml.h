@@ -14,8 +14,8 @@ struct calibration {
     struct imu {
         m3     w_alignment = m3::Identity(), a_alignment = m3::Identity();
         v3     w_bias_rad__s = v3::Zero(),   a_bias_m__s2 = v3::Zero();
+        v3     w_bias_var_rad2__s2,          a_bias_var_m2__s4;
         double w_noise_var_rad2__s2,         a_noise_var_m2__s4;
-        double w_bias_var_rad2__s2,          a_bias_var_m2__s4;
     } imu;
     transformation device_wrt_imu_m;
     struct frame {

@@ -10,7 +10,7 @@
 
 struct tpose_raw {
     uint64_t t_100ns; m4 R; v4 T_mm;
-    tpose_raw() : R(m4::Identity()), T_mm(v4::Zero()), t_100ns(0) {}
+    tpose_raw() : t_100ns(0), R(m4::Identity()), T_mm(v4::Zero()) {}
     tpose_raw(const char *line) : tpose_raw() {
         size_t end = 0;
         t_100ns = std::stoll(line+=end, &end);

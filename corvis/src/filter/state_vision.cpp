@@ -148,7 +148,7 @@ int state_vision_group::make_normal()
 state_vision::state_vision(covariance &c):
     state_motion(c),
     Tc("Tc"), Qc("Qc"), focal_length("focal_length"), center_x("center_x"), center_y("center_y"), k1("k1"), k2("k2"), k3("k3"),
-    fisheye(false), total_distance(0.), last_position(v4::Zero()), reference(nullptr), feature_counter(0), group_counter(0)
+    fisheye(false), feature_counter(0), group_counter(0), total_distance(0.), last_position(v4::Zero()), reference(nullptr)
 {
     reference = NULL;
     if(estimate_camera_intrinsics)

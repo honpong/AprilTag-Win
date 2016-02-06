@@ -179,14 +179,14 @@ static void copy_imu_to_json(const struct calibration::imu &imu, Value &json, Do
     for (auto i=0; i<imu.a_alignment.size(); i++)
         accelArray.PushBack(imu.a_alignment(i), a);
 
-    if (imu.a_alignment != m3::Zero())
+    if (imu.a_alignment != m3::Zero() && imu.a_alignment != m3::Identity())
         json.AddMember(KEY_ACCEL_TRANSFORM, accelArray, a);
 
     Value gyroArray(kArrayType);
     for (auto i=0; i<imu.w_alignment.size(); i++)
         gyroArray.PushBack(imu.w_alignment(i), a);
 
-    if (imu.w_alignment != m3::Zero())
+    if (imu.w_alignment != m3::Zero() && imu.w_alignment != m3::Identity())
         json.AddMember(KEY_GYRO_TRANSFORM, gyroArray, a);
 }
 

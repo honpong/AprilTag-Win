@@ -90,7 +90,7 @@ TEST(rc_tracker_tests, rc_fisheyeKw)
     rc_setCalibration(tracker, json_fisheye_123);
 
     rc_CameraIntrinsics intrinsics_fisheye_123;
-    rc_describeCamera(tracker, rc_CAMERA_ID_COLOR, nullptr, &intrinsics_fisheye_123);
+    rc_describeCamera(tracker, rc_CAMERA_ID_FISHEYE, nullptr, &intrinsics_fisheye_123);
     EXPECT_EQ(intrinsics_fisheye_123.type, rc_CALIBRATION_TYPE_FISHEYE);
     EXPECT_FLOAT_EQ(intrinsics_fisheye_123.w, .123);
 

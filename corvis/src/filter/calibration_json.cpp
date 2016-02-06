@@ -12,14 +12,21 @@
 using namespace rapidjson;
 using namespace std;
 
-static void CopyJsonToRSStruct(Document &json, calibration_json &cal)
+static void copy_json_to_camera(Document &json, calibration::camera &cam);
+static void copy_json_to_imu(Document &json, struct calibration::imu &imu);
+static void copy_json_to_calibration(Document &json, calibration_json &cal)
 {
     cal = calibration_json{};
-    auto &cam = cal.color;
-    auto &imu = cal.imu;
 
     if (json[KEY_DEVICE_NAME].GetString()) strlcpy(cal.device_id, json[KEY_DEVICE_NAME].GetString(), sizeof(cal.device_id));
     if (json.HasMember(KEY_CALIBRATION_VERSION)) cal.version = json[KEY_CALIBRATION_VERSION].GetInt();
+
+    copy_json_to_imu(json, cal.imu);
+    copy_json_to_camera(json, cal.color);
+}
+
+static void copy_json_to_camera(Document &json, calibration::camera &cam)
+{
     if (json.HasMember(KEY_IMAGE_WIDTH))  cam.intrinsics.width_px  = json[KEY_IMAGE_WIDTH].GetInt();
     if (json.HasMember(KEY_IMAGE_HEIGHT)) cam.intrinsics.height_px = json[KEY_IMAGE_HEIGHT].GetInt();
     if (json.HasMember(KEY_FX))           cam.intrinsics.f_x_px    = json[KEY_FX].GetDouble();
@@ -58,6 +65,10 @@ static void CopyJsonToRSStruct(Document &json, calibration_json &cal)
     if (json.HasMember(KEY_WCVAR0) && json.HasMember(KEY_WCVAR1) && json.HasMember(KEY_WCVAR2))
         cam.extrinsics_var_wrt_imu_m.W = v3(json[KEY_WCVAR0].GetDouble(), json[KEY_WCVAR1].GetDouble(), json[KEY_WCVAR2].GetDouble());
 
+}
+
+static void copy_json_to_imu(Document &json, struct calibration::imu &imu)
+{
     if (json.HasMember(KEY_ABIAS0) && json.HasMember(KEY_ABIAS1) && json.HasMember(KEY_ABIAS2))
         imu.a_bias_m__s2 = v3(json[KEY_ABIAS0].GetDouble(),
                               json[KEY_ABIAS1].GetDouble(),
@@ -93,15 +104,21 @@ static void CopyJsonToRSStruct(Document &json, calibration_json &cal)
             imu.w_alignment(i) = json[KEY_GYRO_TRANSFORM][i].GetDouble();
 }
 
-static void CopyRSStructToJson(const calibration_json &cal, Document &json)
+static void copy_camera_to_json(const calibration::camera &cam, Document &json);
+static void copy_imu_to_json(const struct calibration::imu &imu, Document &json);
+static void copy_calibration_to_json(const calibration_json &cal, Document &json)
 {
-    auto &cam = cal.color;
-    auto &imu = cal.imu;
     Value name(kStringType);
     name.SetString(cal.device_id, json.GetAllocator());
     json.AddMember(KEY_DEVICE_NAME, name, json.GetAllocator());
     json.AddMember(KEY_CALIBRATION_VERSION, CALIBRATION_VERSION, json.GetAllocator());
 
+    copy_imu_to_json(cal.imu, json);
+    copy_camera_to_json(cal.color, json);
+}
+
+static void copy_camera_to_json(const calibration::camera &cam, Document &json)
+{
     json.AddMember(KEY_IMAGE_WIDTH, cam.intrinsics.width_px, json.GetAllocator());
     json.AddMember(KEY_IMAGE_HEIGHT, cam.intrinsics.height_px, json.GetAllocator());
     json.AddMember(KEY_FX, cam.intrinsics.f_x_px, json.GetAllocator());
@@ -132,7 +149,10 @@ static void CopyRSStructToJson(const calibration_json &cal, Document &json)
     json.AddMember(KEY_TCVAR0, cam.extrinsics_var_wrt_imu_m.T[0], json.GetAllocator());
     json.AddMember(KEY_TCVAR1, cam.extrinsics_var_wrt_imu_m.T[1], json.GetAllocator());
     json.AddMember(KEY_TCVAR2, cam.extrinsics_var_wrt_imu_m.T[2], json.GetAllocator());
+}
 
+static void copy_imu_to_json(const struct calibration::imu &imu, Document &json)
+{
     json.AddMember(KEY_ABIAS0, imu.a_bias_m__s2[0], json.GetAllocator());
     json.AddMember(KEY_ABIAS1, imu.a_bias_m__s2[1], json.GetAllocator());
     json.AddMember(KEY_ABIAS2, imu.a_bias_m__s2[2], json.GetAllocator());
@@ -167,7 +187,7 @@ bool calibration_serialize(const calibration_json &cal, std::string &jsonString)
 {
     Document json;
     json.SetObject();
-    CopyRSStructToJson(cal, json);
+    copy_calibration_to_json(cal, json);
 
     StringBuffer buffer;
     PrettyWriter<StringBuffer> writer(buffer);
@@ -181,6 +201,6 @@ bool calibration_deserialize(const std::string &jsonString, calibration_json &ca
     Document json;
     if (json.Parse(jsonString.c_str()).HasParseError())
         return false;
-    CopyJsonToRSStruct(json, cal);
+    copy_json_to_calibration(json, cal);
     return true;
 }

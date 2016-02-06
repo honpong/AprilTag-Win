@@ -824,10 +824,10 @@ const char *calibration_default_json_for_device_type(corvis_device_type device)
     }
 }
 
-bool calibration_load_defaults(const corvis_device_type deviceType, device_parameters &cal)
+bool calibration_load_defaults(const corvis_device_type deviceType, calibration_json &cal)
 {
-    const rcCalibration def = {};
-    bool result = calibration_deserialize(calibration_default_json_for_device_type(deviceType), cal, &def);
-    if (result) cal.calibrationVersion = CALIBRATION_VERSION; // need this here to override possibly outdated value in default JSON
+    const calibration_json def = {};
+    bool result = calibration_deserialize(calibration_default_json_for_device_type(deviceType), cal);
+    if (result) cal.version = CALIBRATION_VERSION; // need this here to override possibly outdated value in default JSON
     return result;
 }

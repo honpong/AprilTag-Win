@@ -140,174 +140,66 @@ extern "C" void rc_reset(rc_Tracker * tracker, rc_Timestamp initialTime_us, cons
         tracker->reset(sensor_clock::micros_to_tp(initialTime_us), transformation(), true);
 }
 
-void rc_printDeviceConfig(rc_Tracker * tracker)
-{
-    rcCalibration device = tracker->device;
-    fprintf(stderr, "Fx, Fy; %f %f\n", device.Fx, device.Fy);
-    fprintf(stderr, "Cx, Cy; %f %f\n", device.Cx, device.Cy);
-    fprintf(stderr, "px, py; %f %f\n", device.px, device.py);
-    fprintf(stderr, "K[3]; %f %f %f\n", device.K0, device.K1, device.K2);
-    fprintf(stderr, "a_bias[3]; %f %f %f\n", device.a_bias[0], device.a_bias[1], device.a_bias[2]);
-    fprintf(stderr, "a_bias_var[3]; %f %f %f\n", device.a_bias_var[0], device.a_bias_var[1], device.a_bias_var[2]);
-    fprintf(stderr, "w_bias[3]; %f %f %f\n", device.w_bias[0], device.w_bias[1], device.w_bias[2]);
-    fprintf(stderr, "w_bias_var[3]; %f %f %f\n", device.w_bias_var[0], device.w_bias_var[1], device.w_bias_var[2]);
-    fprintf(stderr, "w_meas_var; %f\n", device.w_meas_var);
-    fprintf(stderr, "a_meas_var; %f\n", device.a_meas_var);
-    fprintf(stderr, "Tc[3]; %f %f %f\n", device.Tc[0], device.Tc[1], device.Tc[2]);
-    fprintf(stderr, "Tc_var[3]; %f %f %f\n", device.Tc_var[0], device.Tc_var[1], device.Tc_var[2]);
-    fprintf(stderr, "Wc[3]; %f %f %f\n", device.Wc[0], device.Wc[1], device.Wc[2]);
-    fprintf(stderr, "Wc_var[3]; %f %f %f\n", device.Wc_var[0], device.Wc_var[1], device.Wc_var[2]);
-    fprintf(stderr, "int image_width, image_height; %d %d\n", device.image_width, device.image_height);
-}
-
 void rc_configureCamera(rc_Tracker *tracker, rc_CameraId camera_id, const rc_Pose extrinsics_wrt_accel_m, const rc_CameraIntrinsics *intrinsics)
 {
     // Make this given camera the current camera
-    if ((camera_id == rc_CAMERA_ID_FISHEYE || camera_id == rc_CAMERA_ID_COLOR)) {
-        device_parameters *device = &tracker->device;
-        if (intrinsics) {
-            device->Cx = intrinsics->c_x_px;
-            device->Cy = intrinsics->c_y_px;
-            device->Fx = intrinsics->f_x_px;
-            device->Fy = intrinsics->f_y_px;
-            device->image_width = intrinsics->width_px;
-            device->image_height = intrinsics->height_px;
-            if (intrinsics->type == rc_CALIBRATION_TYPE_POLYNOMIAL3) {
-                device->distortionModel = 0;
-                device->K0 = intrinsics->k1;
-                device->K1 = intrinsics->k2;
-                device->K2 = intrinsics->k3;
-                device->Kw = 0;
-            } else if (intrinsics->type == rc_CALIBRATION_TYPE_FISHEYE) {
-                device->distortionModel = 1;
-                device->Kw = intrinsics->w;
-                device->K0 = device->K1 = device->K2 = 0;
-            } else if (intrinsics->type == rc_CALIBRATION_TYPE_UNDISTORTED) {
-                device->distortionModel = 2;
-                device->K0 = device->K1 = device->K2 = device->Kw = 0;
-            }
-        }
-        if (extrinsics_wrt_accel_m) {
-            transformation g = rc_Pose_to_transformation(extrinsics_wrt_accel_m);
-            rotation_vector W = to_rotation_vector(g.Q);
-            for(int i = 0; i < 3; ++i) {
-                device->Tc[i] = (float)g.T[i];
-                device->Wc[i] = (float)W.raw_vector()[i];
-            }
-        }
-    } else if (camera_id == rc_CAMERA_ID_DEPTH) {
-        tracker->sfm.depth.extrinsics_wrt_imu_m = rc_Pose_to_transformation(extrinsics_wrt_accel_m);
-        tracker->sfm.depth.intrinsics = *intrinsics;
-    }
-    // Also write the calibration into the multi-camera calibration struct
     calibration::camera *cam =
+        (camera_id == rc_CAMERA_ID_FISHEYE || camera_id == rc_CAMERA_ID_COLOR) ? &tracker->device.color :
+        (camera_id == rc_CAMERA_ID_DEPTH)                                      ? &tracker->device.depth : nullptr;
+    if (extrinsics_wrt_accel_m)
+        cam->extrinsics_wrt_imu_m = rc_Pose_to_transformation(extrinsics_wrt_accel_m);
+    if (intrinsics)
+        cam->intrinsics = *intrinsics;
+
+    // Also write through the calibration into the multi-camera calibration struct
+    cam =
         camera_id == rc_CAMERA_ID_FISHEYE ? &tracker->calibration.fisheye :
         camera_id == rc_CAMERA_ID_COLOR   ? &tracker->calibration.color :
         camera_id == rc_CAMERA_ID_DEPTH   ? &tracker->calibration.depth :
         camera_id == rc_CAMERA_ID_IR      ? &tracker->calibration.ir : nullptr;
-    if (cam) {
+    if (!cam)
+        return;
+    if (extrinsics_wrt_accel_m)
         cam->extrinsics_wrt_imu_m = rc_Pose_to_transformation(extrinsics_wrt_accel_m);
+    if (intrinsics)
         cam->intrinsics = *intrinsics;
-    }
 }
 
 bool rc_describeCamera(rc_Tracker *tracker,  rc_CameraId camera_id, rc_Pose extrinsics_wrt_accel_m, rc_CameraIntrinsics *intrinsics)
 {
-    // When you query the currently configure camera, you get the info from the current 'device' struct
-    if (camera_id == rc_CAMERA_ID_DEPTH && tracker->sfm.depth.intrinsics.type != rc_CALIBRATION_TYPE_UNKNOWN) {
-        if (intrinsics) *intrinsics = tracker->sfm.depth.intrinsics;
-        if (extrinsics_wrt_accel_m) transformation_to_rc_Pose(tracker->sfm.depth.extrinsics_wrt_imu_m, extrinsics_wrt_accel_m);
-        return true;
-    }
-    const device_parameters *device =
-        (camera_id == rc_CAMERA_ID_COLOR   && tracker->device.distortionModel == 0) ||
-        (camera_id == rc_CAMERA_ID_FISHEYE && tracker->device.distortionModel == 1) ? &tracker->device : NULL;
-    if (device) {
-        if (intrinsics) {
-            intrinsics->c_x_px = device->Cx;
-            intrinsics->c_y_px = device->Cy;
-            intrinsics->f_x_px = device->Fx;
-            intrinsics->f_y_px = device->Fy;
-            intrinsics->width_px          = device->image_width;
-            intrinsics->height_px         = device->image_height;
-            if (device->distortionModel == 0) {
-                intrinsics->type = rc_CALIBRATION_TYPE_POLYNOMIAL3;
-                intrinsics->k1 = device->K0;
-                intrinsics->k2 = device->K1;
-                intrinsics->k3 = device->K2;
-            } else if (device->distortionModel == 1) {
-                intrinsics->type = rc_CALIBRATION_TYPE_FISHEYE;
-                intrinsics->w = device->Kw;
-            } else if (device->distortionModel == 2) {
-                intrinsics->type = rc_CALIBRATION_TYPE_UNDISTORTED;
-            }
-        }
-
-        if (extrinsics_wrt_accel_m) {
-            transformation g; rotation_vector W;
-            for(int i = 0; i < 3; ++i) {
-                    g.T[i] = device->Tc[i];
-                    W.raw_vector()[i] = device->Wc[i];
-            }
-            g.Q = to_quaternion(W);
-            transformation_to_rc_Pose(g, extrinsics_wrt_accel_m);
-        }
-        return true;
-    }
-
-    // When you query a currently unused camera, you get the data from the milti-camera calibration struct
+    // When you query a currently configure camera, you get the info from the current 'device' struct
     const calibration::camera *cam =
-        camera_id == rc_CAMERA_ID_FISHEYE ? &tracker->calibration.fisheye :
-        camera_id == rc_CAMERA_ID_COLOR   ? &tracker->calibration.color :
-        camera_id == rc_CAMERA_ID_DEPTH   ? &tracker->calibration.depth :
-        camera_id == rc_CAMERA_ID_IR      ? &tracker->calibration.ir : nullptr;
-    if (!cam || cam->intrinsics.type == rc_CALIBRATION_TYPE_UNKNOWN)
+        (camera_id == rc_CAMERA_ID_DEPTH   && tracker->device.depth.intrinsics.type != rc_CALIBRATION_TYPE_UNKNOWN) ? &tracker->device.depth :
+        (camera_id == rc_CAMERA_ID_COLOR   && tracker->device.color.intrinsics.type != rc_CALIBRATION_TYPE_FISHEYE) ||
+        (camera_id == rc_CAMERA_ID_FISHEYE && tracker->device.color.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE) ? &tracker->device.color :
+    // When you query a currently unused camera, you get the data from the milti-camera calibration struct
+         camera_id == rc_CAMERA_ID_FISHEYE ? &tracker->calibration.fisheye :
+         camera_id == rc_CAMERA_ID_COLOR   ? &tracker->calibration.color :
+         camera_id == rc_CAMERA_ID_DEPTH   ? &tracker->calibration.depth :
+         camera_id == rc_CAMERA_ID_IR      ? &tracker->calibration.ir : nullptr;
+    if (!cam)
         return false;
-    if (intrinsics) *intrinsics = cam->intrinsics;
-    if (extrinsics_wrt_accel_m) transformation_to_rc_Pose(cam->extrinsics_wrt_imu_m, extrinsics_wrt_accel_m);
+    if (extrinsics_wrt_accel_m)
+        transformation_to_rc_Pose(cam->extrinsics_wrt_imu_m, extrinsics_wrt_accel_m);
+    if (intrinsics)
+        *intrinsics = cam->intrinsics;
     return true;
 }
 
 void rc_configureAccelerometer(rc_Tracker * tracker, const rc_Pose alignment_bias_m__s2, float noiseVariance_m2__s4)
 {
-    tracker->device.accelerometerTransform[0] = alignment_bias_m__s2[0];
-    tracker->device.accelerometerTransform[1] = alignment_bias_m__s2[1];
-    tracker->device.accelerometerTransform[2] = alignment_bias_m__s2[2];
-
-    tracker->device.accelerometerTransform[3] = alignment_bias_m__s2[4];
-    tracker->device.accelerometerTransform[4] = alignment_bias_m__s2[5];
-    tracker->device.accelerometerTransform[5] = alignment_bias_m__s2[6];
-
-    tracker->device.accelerometerTransform[6] = alignment_bias_m__s2[8];
-    tracker->device.accelerometerTransform[7] = alignment_bias_m__s2[9];
-    tracker->device.accelerometerTransform[8] = alignment_bias_m__s2[10];
-
-    tracker->device.a_bias[0] = alignment_bias_m__s2[3];
-    tracker->device.a_bias[1] = alignment_bias_m__s2[7];
-    tracker->device.a_bias[2] = alignment_bias_m__s2[11];
-    for(int i = 0; i < 3; i++)
-        tracker->device.a_bias_var[i] = noiseVariance_m2__s4;
+    Eigen::Map<const Eigen::Matrix<float,3,4>>    a_alignment_bias_m__s2(alignment_bias_m__s2);
+    tracker->calibration.imu.a_alignment        = a_alignment_bias_m__s2.block<3,3>(0,0).cast<double>();
+    tracker->calibration.imu.a_bias_m__s2       = a_alignment_bias_m__s2.block<3,1>(0,3).cast<double>();
+    tracker->calibration.imu.a_noise_var_m2__s4 = noiseVariance_m2__s4;
 }
 
 void rc_configureGyroscope(rc_Tracker * tracker, const rc_Pose alignment_bias_rad__s, float noiseVariance_rad2__s2)
 {
-    tracker->device.gyroscopeTransform[0] = alignment_bias_rad__s[0];
-    tracker->device.gyroscopeTransform[1] = alignment_bias_rad__s[1];
-    tracker->device.gyroscopeTransform[2] = alignment_bias_rad__s[2];
-
-    tracker->device.gyroscopeTransform[3] = alignment_bias_rad__s[4];
-    tracker->device.gyroscopeTransform[4] = alignment_bias_rad__s[5];
-    tracker->device.gyroscopeTransform[5] = alignment_bias_rad__s[6];
-
-    tracker->device.gyroscopeTransform[6] = alignment_bias_rad__s[8];
-    tracker->device.gyroscopeTransform[7] = alignment_bias_rad__s[9];
-    tracker->device.gyroscopeTransform[8] = alignment_bias_rad__s[10];
-
-    tracker->device.a_bias[0] = alignment_bias_rad__s[3];
-    tracker->device.a_bias[1] = alignment_bias_rad__s[7];
-    tracker->device.a_bias[2] = alignment_bias_rad__s[11];
-    for(int i = 0; i < 3; i++)
-        tracker->device.w_bias_var[i] = noiseVariance_rad2__s2;
+    Eigen::Map<const Eigen::Matrix<float,3,4>> w_alignment_bias_rad__s(alignment_bias_rad__s);
+    tracker->calibration.imu.w_alignment     = w_alignment_bias_rad__s.block<3,3>(0,0).cast<double>();;
+    tracker->calibration.imu.w_bias_rad__s   = w_alignment_bias_rad__s.block<3,1>(0,3).cast<double>();;
+    tracker->calibration.imu.w_noise_var_rad2__s2 = noiseVariance_rad2__s2;
 }
 
 void rc_configureLocation(rc_Tracker * tracker, double latitude_deg, double longitude_deg, double altitude_m)
@@ -504,7 +396,7 @@ const char *rc_getTimingStats(rc_Tracker *tracker)
 
 size_t rc_getCalibration(rc_Tracker *tracker, const char **buffer)
 {
-    rcCalibration cal = {};
+    device_parameters cal = {};
     filter_get_device_parameters(&tracker->sfm, &cal);
 
     std::string json;
@@ -517,8 +409,8 @@ size_t rc_getCalibration(rc_Tracker *tracker, const char **buffer)
 
 bool rc_setCalibration(rc_Tracker *tracker, const char *buffer)
 {
-    rcCalibration cal, defaults = {};
-    bool result = calibration_deserialize(buffer, cal, &defaults);
+    calibration_json cal;
+    bool result = calibration_deserialize(buffer, cal);
     if (result)
         tracker->set_device(cal);
     return result;

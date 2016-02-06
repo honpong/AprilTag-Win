@@ -18,7 +18,6 @@
 #include "../../../shared_corvis_3dk/RCSensorFusionInternals.h"
 #include "../../../shared_corvis_3dk/camera_control_interface.h"
 #include "device_parameters.h"
-#include "calibration_xml.h"
 #include "capture.h"
 #include "filter.h"
 
@@ -76,7 +75,7 @@ public:
     sensor_fusion(fusion_queue::latency_strategy strategy);
     
     device_parameters get_device() const;
-    void set_device(const rcCalibration &dc);
+    void set_device(const device_parameters &dc);
     
     /** Sets the current location of the device.
      
@@ -225,7 +224,7 @@ public:
 
     //public for now
     filter sfm;
-    rcCalibration device;
+    device_parameters device;
     calibration calibration;
     
     //These change coordinates from accelerometer-centered coordinates to camera-centered coordinates

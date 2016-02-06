@@ -10,19 +10,18 @@ using namespace std;
 
 TEST(rc_intel_interface_tests, rc_setCalibration)
 {
-    rcCalibration calInput = { "(test)" };
+    calibration_json calInput = {};
+    strlcpy(calInput.device_id, "(test)", sizeof(calInput.device_id));
 
-    calInput.image_width = 123;
-    calInput.image_height = 321;
-    calInput.px = 0.567;
-    calInput.py = 0.765;
-    calInput.distortionModel = 1;
-    calInput.accelerometerTransform[0] = 0.123;
-    calInput.accelerometerTransform[8] = 0.321;
-    calInput.gyroscopeTransform[0] = 0.456;
-    calInput.gyroscopeTransform[8] = 0.654;
-    calInput.shutterDelay = 0.666;
-    calInput.shutterPeriod = 0.777;
+    calInput.color.intrinsics.width_px = 123;
+    calInput.color.intrinsics.height_px = 321;
+    calInput.color.intrinsics.type = rc_CALIBRATION_TYPE_FISHEYE;
+    calInput.imu.a_alignment(0) = 0.123;
+    calInput.imu.a_alignment(8) = 0.321;
+    calInput.imu.w_alignment(0) = 0.456;
+    calInput.imu.w_alignment(8) = 0.654;
+    calInput.color.extrinsics_wrt_imu_m.T[0] = 0.666;
+    calInput.color.extrinsics_var_wrt_imu_m.T[1] = 0.777;
     //calInput.a_bias_var[2] = 1.111111111e-06;
     //calInput.w_bias_var[2] = 2.222222222e-07;
 
@@ -39,22 +38,20 @@ TEST(rc_intel_interface_tests, rc_setCalibration)
     EXPECT_GT(size, 0);
 
     // compare values between original and retrieved
-    rcCalibration calOutput, defaults = {};
-    EXPECT_TRUE(calibration_deserialize(jsonString, calOutput, &defaults));
-    EXPECT_STREQ(calInput.deviceName, calOutput.deviceName);
-    EXPECT_EQ(calInput.image_width, calOutput.image_width);
-    EXPECT_EQ(calInput.image_height, calOutput.image_height);
-    EXPECT_FLOAT_EQ(calInput.px, calOutput.px);
-    EXPECT_FLOAT_EQ(calInput.py, calOutput.py);
-    EXPECT_EQ(calInput.distortionModel, calOutput.distortionModel);
-    EXPECT_FLOAT_EQ(calInput.shutterDelay, calOutput.shutterDelay);
-    EXPECT_FLOAT_EQ(calInput.shutterPeriod, calOutput.shutterPeriod);
+    calibration_json calOutput;
+    EXPECT_TRUE(calibration_deserialize(jsonString, calOutput));
+    EXPECT_STREQ(calInput.device_id, calOutput.device_id);
+    EXPECT_EQ(calInput.color.intrinsics.width_px, calOutput.color.intrinsics.width_px);
+    EXPECT_EQ(calInput.color.intrinsics.height_px, calOutput.color.intrinsics.height_px);
+    EXPECT_EQ(calInput.color.intrinsics.type, calOutput.color.intrinsics.type);
+    EXPECT_FLOAT_EQ(calInput.color.extrinsics_wrt_imu_m.T[0], calOutput.color.extrinsics_wrt_imu_m.T[0]);
+    EXPECT_FLOAT_EQ(calInput.color.extrinsics_var_wrt_imu_m.T[1], calOutput.color.extrinsics_var_wrt_imu_m.T[1]);
     //EXPECT_FLOAT_EQ(calInput.a_bias_var[2], calOutput.a_bias_var[2]); these fail because there are minimums lower than the input values. not a problem.
     //EXPECT_FLOAT_EQ(calInput.w_bias_var[2], calOutput.w_bias_var[2]);
-    EXPECT_FLOAT_EQ(calInput.accelerometerTransform[0], calOutput.accelerometerTransform[0]);
-    EXPECT_FLOAT_EQ(calInput.accelerometerTransform[8], calOutput.accelerometerTransform[8]);
-    EXPECT_FLOAT_EQ(calInput.gyroscopeTransform[0], calOutput.gyroscopeTransform[0]);
-    EXPECT_FLOAT_EQ(calInput.gyroscopeTransform[8], calOutput.gyroscopeTransform[8]);
+    EXPECT_FLOAT_EQ(calInput.imu.a_alignment(0), calOutput.imu.a_alignment(0));
+    EXPECT_FLOAT_EQ(calInput.imu.a_alignment(8), calOutput.imu.a_alignment(8));
+    EXPECT_FLOAT_EQ(calInput.imu.w_alignment(0), calOutput.imu.w_alignment(0));
+    EXPECT_FLOAT_EQ(calInput.imu.w_alignment(8), calOutput.imu.w_alignment(8));
 
     rc_destroy(tracker);
 }

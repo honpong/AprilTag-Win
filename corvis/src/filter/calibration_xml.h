@@ -9,6 +9,7 @@ struct calibration {
     struct camera {
         char name[256];
         transformation extrinsics_wrt_imu_m;
+        struct transformation_var { v3 W, T; } extrinsics_var_wrt_imu_m;
         rc_CameraIntrinsics intrinsics;
     } fisheye, color, depth, ir;
     struct imu {

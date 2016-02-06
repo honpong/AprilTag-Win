@@ -200,7 +200,7 @@ device_parameters sensor_fusion::get_device() const
     return cal;
 }
 
-void sensor_fusion::set_device(const rcCalibration &dc)
+void sensor_fusion::set_device(const device_parameters &dc)
 {
     device = dc;
     filter_initialize(&sfm, &device);

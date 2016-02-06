@@ -33,10 +33,10 @@ void replay::zero_biases()
 {
     auto device = fusion.get_device();
     for(int i = 0; i < 3; i++) {
-        device.a_bias[i] = 0;
-        device.w_bias[i] = 0;
-        device.a_bias_var[i] = 1e-3;
-        device.w_bias_var[i] = 1e-4;
+        device.imu.a_bias_m__s2[i] = 0;
+        device.imu.w_bias_rad__s[i] = 0;
+        device.imu.a_bias_var_m2__s4[i] = 1e-3;
+        device.imu.w_bias_var_rad2__s2[i] = 1e-4;
     }
     fusion.set_device(device);
 
@@ -50,8 +50,8 @@ bool replay::load_calibration(std::string filename)
 
     string json((istreambuf_iterator<char>(file_handle)), istreambuf_iterator<char>());
 
-    device_parameters def = {}, dc;
-    if(!calibration_deserialize(json, dc, &def))
+    device_parameters dc;
+    if(!calibration_deserialize(json, dc))
         return false;
 
     calibration_file = filename;

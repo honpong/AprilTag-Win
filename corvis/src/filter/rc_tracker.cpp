@@ -8,7 +8,7 @@
 #define RCTRACKER_API_EXPORTS
 #include "rc_tracker.h"
 #include "sensor_fusion.h"
-#include "calibration_json.h"
+#include "device_parameters.h"
 #include <fstream>
 
 static void transformation_to_rc_Pose(const transformation &g, rc_Pose p)
@@ -409,9 +409,27 @@ size_t rc_getCalibration(rc_Tracker *tracker, const char **buffer)
 
 bool rc_setCalibration(rc_Tracker *tracker, const char *buffer)
 {
-    calibration_json cal;
-    bool result = calibration_deserialize(buffer, cal);
-    if (result)
-        tracker->set_device(cal);
-    return result;
+    std::string str(buffer);
+    if (str.find("<") != std::string::npos && (str.find("{") == std::string::npos || str.find("<") < str.find("{"))) {
+        struct calibration multi_camera_calibration;
+        if (!calibration_deserialize_xml(str, multi_camera_calibration))
+            return false;
+        // Store the multi-camera calibration for rc_describeCamera() and in case we want to write it back out
+        tracker->calibration = multi_camera_calibration;
+        // Pick the imu,depth,color combo from multi-camera calibration defaulting to fisheye if it's available
+        device_parameters device;
+        strlcpy(device.device_id, multi_camera_calibration.device_id, sizeof(device.device_id));
+        device.depth = multi_camera_calibration.depth;
+        device.color = multi_camera_calibration.fisheye.intrinsics.type ?
+            multi_camera_calibration.fisheye :
+            multi_camera_calibration.color;
+        device.imu   = multi_camera_calibration.imu;
+        tracker->set_device(device);
+    } else {
+        device_parameters device;
+        if (!calibration_deserialize(buffer, device))
+            return false;
+        tracker->set_device(device);
+    }
+    return true;
 }

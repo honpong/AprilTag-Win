@@ -2,7 +2,7 @@
 #include <jni.h>
 #include <android/log.h>
 #include <stdlib.h>
-#include <rc_intel_interface.h>
+#include "rc_tracker.h"
 #include <visualization.h>
 #include "rc_replay_threaded.h"
 

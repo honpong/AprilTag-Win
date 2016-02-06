@@ -146,7 +146,7 @@ target_link_libraries(filter numerics cor)
 set_property(TARGET filter PROPERTY CXX_STANDARD 14)
 
 set_target_properties(filter cor numerics PROPERTIES POSITION_INDEPENDENT_CODE ON)
-add_library(tracker SHARED filter/rc_intel_interface.cpp)
+add_library(tracker SHARED filter/rc_tracker.cpp)
 set_target_properties(tracker PROPERTIES CXX_STANDARD 14)
 target_link_libraries(tracker filter)
 target_include_directories(tracker PUBLIC tracker)

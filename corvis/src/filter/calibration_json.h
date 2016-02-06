@@ -1,6 +1,6 @@
 #pragma once
 #include <string>
-#include "rc_intel_interface.h"
+#include "rc_tracker.h"
 #include "calibration_xml.h"
 
 #define CALIBRATION_VERSION 8

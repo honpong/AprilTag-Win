@@ -1,6 +1,6 @@
 #pragma once
 
-#include "rc_intel_interface.h"
+#include "rc_tracker.h"
 #include "transformation.h"
 
 struct calibration {

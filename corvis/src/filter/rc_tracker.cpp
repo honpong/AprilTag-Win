@@ -1,12 +1,12 @@
 //
-//  rc_intel_interface.cpp
+//  rc_tracker.cpp
 //
 //  Created by Eagle Jones on 1/29/15.
 //  Copyright (c) 2015 Realitycap. All rights reserved.
 //
 
 #define RCTRACKER_API_EXPORTS
-#include "rc_intel_interface.h"
+#include "rc_tracker.h"
 #include "sensor_fusion.h"
 #include "calibration_json.h"
 #include <fstream>

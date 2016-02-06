@@ -239,7 +239,7 @@
 		D992CC371AD5BA8500AA2259 /* sensor_clock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D95409AE1AC1019200706A24 /* sensor_clock.cpp */; };
 		D992CC3D1AD5C46A00AA2259 /* replay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D992CC3B1AD5C46A00AA2259 /* replay.cpp */; };
 		D992CC3E1AD5C46A00AA2259 /* replay.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D992CC3B1AD5C46A00AA2259 /* replay.cpp */; };
-		D9C43E131B0BB0BE00F48072 /* rc_intel_interface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9C43E111B0BB0BE00F48072 /* rc_intel_interface.cpp */; };
+		D9C43E131B0BB0BE00F48072 /* rc_tracker.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9C43E111B0BB0BE00F48072 /* rc_tracker.cpp */; };
 		D9CCDC7E192E887F00A41329 /* scaled_mask.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D9CCDC7C192E887F00A41329 /* scaled_mask.cpp */; };
 		D9CFC1061AD5ABFC00445A80 /* rotation_vector.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 38EDF0761AD43D2400F0A322 /* rotation_vector.cpp */; };
 		D9FE87B619427F190052B8D8 /* RCSensorFusionInternals.h in Copy Files */ = {isa = PBXBuildFile; fileRef = D9FE87B519410AB40052B8D8 /* RCSensorFusionInternals.h */; };
@@ -669,8 +669,8 @@
 		D983B2AB1B169AE60013099E /* RCSensorData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCSensorData.h; path = ../../rc3dk/RC3DK/RCSensorData.h; sourceTree = "<group>"; };
 		D992CC3B1AD5C46A00AA2259 /* replay.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = replay.cpp; sourceTree = "<group>"; };
 		D992CC3C1AD5C46A00AA2259 /* replay.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = replay.h; sourceTree = "<group>"; };
-		D9C43E101B0BADF600F48072 /* rc_intel_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rc_intel_interface.h; path = ../../corvis/src/filter/rc_intel_interface.h; sourceTree = "<group>"; };
-		D9C43E111B0BB0BE00F48072 /* rc_intel_interface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rc_intel_interface.cpp; path = ../../corvis/src/filter/rc_intel_interface.cpp; sourceTree = "<group>"; };
+		D9C43E101B0BADF600F48072 /* rc_tracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = rc_tracker.h; path = ../../corvis/src/filter/rc_tracker.h; sourceTree = "<group>"; };
+		D9C43E111B0BB0BE00F48072 /* rc_tracker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = rc_tracker.cpp; path = ../../corvis/src/filter/rc_tracker.cpp; sourceTree = "<group>"; };
 		D9CCDC7C192E887F00A41329 /* scaled_mask.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = scaled_mask.cpp; sourceTree = "<group>"; };
 		D9CCDC7D192E887F00A41329 /* scaled_mask.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scaled_mask.h; sourceTree = "<group>"; };
 		D9FE87B519410AB40052B8D8 /* RCSensorFusionInternals.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = RCSensorFusionInternals.h; path = ../../shared_corvis_3dk/RCSensorFusionInternals.h; sourceTree = "<group>"; };
@@ -852,8 +852,8 @@
 		327B54E418EB4CC90001CCE1 /* RC3DK */ = {
 			isa = PBXGroup;
 			children = (
-				D9C43E101B0BADF600F48072 /* rc_intel_interface.h */,
-				D9C43E111B0BB0BE00F48072 /* rc_intel_interface.cpp */,
+				D9C43E101B0BADF600F48072 /* rc_tracker.h */,
+				D9C43E111B0BB0BE00F48072 /* rc_tracker.cpp */,
 				D95E92DA1AB86D4600EAB109 /* sensor_data.h */,
 				327B552218EB4D720001CCE1 /* AFNetworking */,
 				327B558318EB4F130001CCE1 /* Corvis */,
@@ -1703,7 +1703,7 @@
 				D3B4EAF61A1E7DE100BE0443 /* state_vision.cpp in Sources */,
 				D3B4EAF81A1E7DE100BE0443 /* RCCameraManager.mm in Sources */,
 				D3B4EAF91A1E7DE100BE0443 /* RCTranslation.m in Sources */,
-				D9C43E131B0BB0BE00F48072 /* rc_intel_interface.cpp in Sources */,
+				D9C43E131B0BB0BE00F48072 /* rc_tracker.cpp in Sources */,
 				D3588EF51A20C04600CA10E7 /* factorgraph.cpp in Sources */,
 				D3B4EAFC1A1E7DE100BE0443 /* RCTransformation.m in Sources */,
 				D321AD411A323C17003AEA77 /* stereo_mesh.cpp in Sources */,

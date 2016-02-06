@@ -4,7 +4,7 @@
 #include <fstream>
 #include <string>
 #include <cmath>
-#include "rc_intel_interface.h"
+#include "rc_tracker.h"
 
 namespace rc {
 

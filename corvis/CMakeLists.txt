@@ -81,8 +81,8 @@ if(YES)
 
     add_executable(spec_intel
       ../gtest/gtest_main.cc ../gtest/gtest-all.cc
-      src/filter/rc_intel_interface.cpp
-      test/filter/rc_intel_interface_tests.cpp
+      src/filter/rc_tracker.cpp
+      test/filter/rc_tracker_tests.cpp
     )
     set_property(TARGET spec_intel PROPERTY CXX_STANDARD 14)
     target_include_directories(spec_intel PRIVATE test ..)

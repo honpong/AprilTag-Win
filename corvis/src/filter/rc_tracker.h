@@ -1,12 +1,12 @@
 //
-//  rc_intel_interface.h
+//  rc_tracker.h
 //
 //  Created by Eagle Jones on 1/29/15.
 //  Copyright (c) 2015 Intel. All rights reserved.
 //
 
-#ifndef rc_intel_interface_h
-#define rc_intel_interface_h
+#ifndef rc_tracker_h
+#define rc_tracker_h
 
 #ifdef __cplusplus
 extern "C" {

@@ -11,7 +11,7 @@
 #include <codecvt>
 #include <streambuf>
 #include "libpxcimu_internal.h"
-#include "rc_intel_interface.h"
+#include "rc_tracker.h"
 #include "rc_pxc_util.h"
 #include "pxcprojection.h"
 

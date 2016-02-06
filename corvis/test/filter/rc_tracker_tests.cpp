@@ -1,6 +1,6 @@
 
 #include "gtest/gtest.h"
-#include "rc_intel_interface.h"
+#include "rc_tracker.h"
 #include "sensor_fusion.h"
 #include <memory>
 #include "calibration_json.h"
@@ -8,7 +8,7 @@
 
 using namespace std;
 
-TEST(rc_intel_interface_tests, rc_setCalibration)
+TEST(rc_tracker_tests, rc_setCalibration)
 {
     calibration_json calInput = {};
     strlcpy(calInput.device_id, "(test)", sizeof(calInput.device_id));
@@ -56,14 +56,14 @@ TEST(rc_intel_interface_tests, rc_setCalibration)
     rc_destroy(tracker);
 }
 
-TEST(rc_intel_interface_tests, rc_setCalibration_failure)
+TEST(rc_tracker_tests, rc_setCalibration_failure)
 {
     rc_Tracker *tracker = rc_create();
     EXPECT_FALSE(rc_setCalibration(tracker, ""));
     rc_destroy(tracker);
 }
 
-TEST(rc_intel_interface_tests, rc_fisheyeKw)
+TEST(rc_tracker_tests, rc_fisheyeKw)
 {
     rc_Tracker *tracker = rc_create();
 

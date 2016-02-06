@@ -12,20 +12,20 @@
 using namespace rapidjson;
 using namespace std;
 
-static void copy_json_to_camera(Document &json, calibration::camera &cam);
-static void copy_json_to_imu(Document &json, struct calibration::imu &imu);
-static void copy_json_to_calibration(Document &json, calibration_json &cal)
+static void copy_json_to_camera(Value &json, calibration::camera &cam, Document::AllocatorType& a);
+static void copy_json_to_imu(Value &json, struct calibration::imu &imu, Document::AllocatorType& a);
+static void copy_json_to_calibration(Value &json, calibration_json &cal, Document::AllocatorType& a)
 {
     cal = calibration_json{};
 
     if (json[KEY_DEVICE_NAME].GetString()) strlcpy(cal.device_id, json[KEY_DEVICE_NAME].GetString(), sizeof(cal.device_id));
     if (json.HasMember(KEY_CALIBRATION_VERSION)) cal.version = json[KEY_CALIBRATION_VERSION].GetInt();
 
-    copy_json_to_imu(json, cal.imu);
-    copy_json_to_camera(json, cal.color);
+    copy_json_to_imu(json, cal.imu, a);
+    copy_json_to_camera(json, cal.color, a);
 }
 
-static void copy_json_to_camera(Document &json, calibration::camera &cam)
+static void copy_json_to_camera(Value &json, calibration::camera &cam, Document::AllocatorType& a)
 {
     if (json.HasMember(KEY_IMAGE_WIDTH))  cam.intrinsics.width_px  = json[KEY_IMAGE_WIDTH].GetInt();
     if (json.HasMember(KEY_IMAGE_HEIGHT)) cam.intrinsics.height_px = json[KEY_IMAGE_HEIGHT].GetInt();
@@ -67,7 +67,7 @@ static void copy_json_to_camera(Document &json, calibration::camera &cam)
 
 }
 
-static void copy_json_to_imu(Document &json, struct calibration::imu &imu)
+static void copy_json_to_imu(Value &json, struct calibration::imu &imu, Document::AllocatorType& a)
 {
     if (json.HasMember(KEY_ABIAS0) && json.HasMember(KEY_ABIAS1) && json.HasMember(KEY_ABIAS2))
         imu.a_bias_m__s2 = v3(json[KEY_ABIAS0].GetDouble(),
@@ -104,90 +104,90 @@ static void copy_json_to_imu(Document &json, struct calibration::imu &imu)
             imu.w_alignment(i) = json[KEY_GYRO_TRANSFORM][i].GetDouble();
 }
 
-static void copy_camera_to_json(const calibration::camera &cam, Document &json);
-static void copy_imu_to_json(const struct calibration::imu &imu, Document &json);
-static void copy_calibration_to_json(const calibration_json &cal, Document &json)
+static void copy_camera_to_json(const calibration::camera &cam, Value &json, Document::AllocatorType& a);
+static void copy_imu_to_json(const struct calibration::imu &imu, Value &json, Document::AllocatorType& a);
+static void copy_calibration_to_json(const calibration_json &cal, Value &json, Document::AllocatorType& a)
 {
     Value name(kStringType);
-    name.SetString(cal.device_id, json.GetAllocator());
-    json.AddMember(KEY_DEVICE_NAME, name, json.GetAllocator());
-    json.AddMember(KEY_CALIBRATION_VERSION, CALIBRATION_VERSION, json.GetAllocator());
+    name.SetString(cal.device_id, a);
+    json.AddMember(KEY_DEVICE_NAME, name, a);
+    json.AddMember(KEY_CALIBRATION_VERSION, CALIBRATION_VERSION, a);
 
-    copy_imu_to_json(cal.imu, json);
-    copy_camera_to_json(cal.color, json);
+    copy_imu_to_json(cal.imu, json, a);
+    copy_camera_to_json(cal.color, json, a);
 }
 
-static void copy_camera_to_json(const calibration::camera &cam, Document &json)
+static void copy_camera_to_json(const calibration::camera &cam, Value &json, Document::AllocatorType& a)
 {
-    json.AddMember(KEY_IMAGE_WIDTH, cam.intrinsics.width_px, json.GetAllocator());
-    json.AddMember(KEY_IMAGE_HEIGHT, cam.intrinsics.height_px, json.GetAllocator());
-    json.AddMember(KEY_FX, cam.intrinsics.f_x_px, json.GetAllocator());
-    json.AddMember(KEY_FY, cam.intrinsics.f_y_px, json.GetAllocator());
-    json.AddMember(KEY_CX, cam.intrinsics.c_x_px, json.GetAllocator());
-    json.AddMember(KEY_CY, cam.intrinsics.c_y_px, json.GetAllocator());
+    json.AddMember(KEY_IMAGE_WIDTH, cam.intrinsics.width_px, a);
+    json.AddMember(KEY_IMAGE_HEIGHT, cam.intrinsics.height_px, a);
+    json.AddMember(KEY_FX, cam.intrinsics.f_x_px, a);
+    json.AddMember(KEY_FY, cam.intrinsics.f_y_px, a);
+    json.AddMember(KEY_CX, cam.intrinsics.c_x_px, a);
+    json.AddMember(KEY_CY, cam.intrinsics.c_y_px, a);
     if (cam.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE) {
-        json.AddMember(KEY_KW, cam.intrinsics.w, json.GetAllocator());
-        json.AddMember(KEY_DISTORTION_MODEL, 1, json.GetAllocator());
+        json.AddMember(KEY_KW, cam.intrinsics.w, a);
+        json.AddMember(KEY_DISTORTION_MODEL, 1, a);
     } else if (cam.intrinsics.type == rc_CALIBRATION_TYPE_UNDISTORTED) {
-        json.AddMember(KEY_DISTORTION_MODEL, 0, json.GetAllocator());
+        json.AddMember(KEY_DISTORTION_MODEL, 0, a);
     } else {
-        json.AddMember(KEY_K0, cam.intrinsics.k1, json.GetAllocator());
-        json.AddMember(KEY_K1, cam.intrinsics.k2, json.GetAllocator());
-        json.AddMember(KEY_K2, cam.intrinsics.k3, json.GetAllocator());
-        json.AddMember(KEY_DISTORTION_MODEL, 0, json.GetAllocator());
+        json.AddMember(KEY_K0, cam.intrinsics.k1, a);
+        json.AddMember(KEY_K1, cam.intrinsics.k2, a);
+        json.AddMember(KEY_K2, cam.intrinsics.k3, a);
+        json.AddMember(KEY_DISTORTION_MODEL, 0, a);
     }
 
-    json.AddMember(KEY_WC0, to_rotation_vector(cam.extrinsics_wrt_imu_m.Q).raw_vector()[0], json.GetAllocator());
-    json.AddMember(KEY_WC1, to_rotation_vector(cam.extrinsics_wrt_imu_m.Q).raw_vector()[1], json.GetAllocator());
-    json.AddMember(KEY_WC2, to_rotation_vector(cam.extrinsics_wrt_imu_m.Q).raw_vector()[2], json.GetAllocator());
-    json.AddMember(KEY_TC0, cam.extrinsics_wrt_imu_m.T[0], json.GetAllocator());
-    json.AddMember(KEY_TC1, cam.extrinsics_wrt_imu_m.T[1], json.GetAllocator());
-    json.AddMember(KEY_TC2, cam.extrinsics_wrt_imu_m.T[2], json.GetAllocator());
-    json.AddMember(KEY_WCVAR0, cam.extrinsics_var_wrt_imu_m.W[0], json.GetAllocator());
-    json.AddMember(KEY_WCVAR1, cam.extrinsics_var_wrt_imu_m.W[1], json.GetAllocator());
-    json.AddMember(KEY_WCVAR2, cam.extrinsics_var_wrt_imu_m.W[2], json.GetAllocator());
-    json.AddMember(KEY_TCVAR0, cam.extrinsics_var_wrt_imu_m.T[0], json.GetAllocator());
-    json.AddMember(KEY_TCVAR1, cam.extrinsics_var_wrt_imu_m.T[1], json.GetAllocator());
-    json.AddMember(KEY_TCVAR2, cam.extrinsics_var_wrt_imu_m.T[2], json.GetAllocator());
+    json.AddMember(KEY_WC0, to_rotation_vector(cam.extrinsics_wrt_imu_m.Q).raw_vector()[0], a);
+    json.AddMember(KEY_WC1, to_rotation_vector(cam.extrinsics_wrt_imu_m.Q).raw_vector()[1], a);
+    json.AddMember(KEY_WC2, to_rotation_vector(cam.extrinsics_wrt_imu_m.Q).raw_vector()[2], a);
+    json.AddMember(KEY_TC0, cam.extrinsics_wrt_imu_m.T[0], a);
+    json.AddMember(KEY_TC1, cam.extrinsics_wrt_imu_m.T[1], a);
+    json.AddMember(KEY_TC2, cam.extrinsics_wrt_imu_m.T[2], a);
+    json.AddMember(KEY_WCVAR0, cam.extrinsics_var_wrt_imu_m.W[0], a);
+    json.AddMember(KEY_WCVAR1, cam.extrinsics_var_wrt_imu_m.W[1], a);
+    json.AddMember(KEY_WCVAR2, cam.extrinsics_var_wrt_imu_m.W[2], a);
+    json.AddMember(KEY_TCVAR0, cam.extrinsics_var_wrt_imu_m.T[0], a);
+    json.AddMember(KEY_TCVAR1, cam.extrinsics_var_wrt_imu_m.T[1], a);
+    json.AddMember(KEY_TCVAR2, cam.extrinsics_var_wrt_imu_m.T[2], a);
 }
 
-static void copy_imu_to_json(const struct calibration::imu &imu, Document &json)
+static void copy_imu_to_json(const struct calibration::imu &imu, Value &json, Document::AllocatorType& a)
 {
-    json.AddMember(KEY_ABIAS0, imu.a_bias_m__s2[0], json.GetAllocator());
-    json.AddMember(KEY_ABIAS1, imu.a_bias_m__s2[1], json.GetAllocator());
-    json.AddMember(KEY_ABIAS2, imu.a_bias_m__s2[2], json.GetAllocator());
-    json.AddMember(KEY_WBIAS0, imu.w_bias_rad__s[0], json.GetAllocator());
-    json.AddMember(KEY_WBIAS1, imu.w_bias_rad__s[1], json.GetAllocator());
-    json.AddMember(KEY_WBIAS2, imu.w_bias_rad__s[2], json.GetAllocator());
-    json.AddMember(KEY_ABIASVAR0, imu.a_bias_var_m2__s4[0],   json.GetAllocator());
-    json.AddMember(KEY_ABIASVAR1, imu.a_bias_var_m2__s4[1],   json.GetAllocator());
-    json.AddMember(KEY_ABIASVAR2, imu.a_bias_var_m2__s4[2],   json.GetAllocator());
-    json.AddMember(KEY_WBIASVAR0, imu.w_bias_var_rad2__s2[0], json.GetAllocator());
-    json.AddMember(KEY_WBIASVAR1, imu.w_bias_var_rad2__s2[1], json.GetAllocator());
-    json.AddMember(KEY_WBIASVAR2, imu.w_bias_var_rad2__s2[2], json.GetAllocator());
-    json.AddMember(KEY_WMEASVAR,  imu.w_noise_var_rad2__s2,   json.GetAllocator());
-    json.AddMember(KEY_AMEASVAR,  imu.a_noise_var_m2__s4,     json.GetAllocator());
+    json.AddMember(KEY_ABIAS0, imu.a_bias_m__s2[0], a);
+    json.AddMember(KEY_ABIAS1, imu.a_bias_m__s2[1], a);
+    json.AddMember(KEY_ABIAS2, imu.a_bias_m__s2[2], a);
+    json.AddMember(KEY_WBIAS0, imu.w_bias_rad__s[0], a);
+    json.AddMember(KEY_WBIAS1, imu.w_bias_rad__s[1], a);
+    json.AddMember(KEY_WBIAS2, imu.w_bias_rad__s[2], a);
+    json.AddMember(KEY_ABIASVAR0, imu.a_bias_var_m2__s4[0],   a);
+    json.AddMember(KEY_ABIASVAR1, imu.a_bias_var_m2__s4[1],   a);
+    json.AddMember(KEY_ABIASVAR2, imu.a_bias_var_m2__s4[2],   a);
+    json.AddMember(KEY_WBIASVAR0, imu.w_bias_var_rad2__s2[0], a);
+    json.AddMember(KEY_WBIASVAR1, imu.w_bias_var_rad2__s2[1], a);
+    json.AddMember(KEY_WBIASVAR2, imu.w_bias_var_rad2__s2[2], a);
+    json.AddMember(KEY_WMEASVAR,  imu.w_noise_var_rad2__s2,   a);
+    json.AddMember(KEY_AMEASVAR,  imu.a_noise_var_m2__s4,     a);
 
     Value accelArray(kArrayType);
     for (auto i=0; i<imu.a_alignment.size(); i++)
-        accelArray.PushBack(imu.a_alignment(i), json.GetAllocator());
+        accelArray.PushBack(imu.a_alignment(i), a);
 
     if (imu.a_alignment != m3::Zero())
-        json.AddMember(KEY_ACCEL_TRANSFORM, accelArray, json.GetAllocator());
+        json.AddMember(KEY_ACCEL_TRANSFORM, accelArray, a);
 
     Value gyroArray(kArrayType);
     for (auto i=0; i<imu.w_alignment.size(); i++)
-        gyroArray.PushBack(imu.w_alignment(i), json.GetAllocator());
+        gyroArray.PushBack(imu.w_alignment(i), a);
 
     if (imu.w_alignment != m3::Zero())
-        json.AddMember(KEY_GYRO_TRANSFORM, gyroArray, json.GetAllocator());
+        json.AddMember(KEY_GYRO_TRANSFORM, gyroArray, a);
 }
 
 bool calibration_serialize(const calibration_json &cal, std::string &jsonString)
 {
     Document json;
     json.SetObject();
-    copy_calibration_to_json(cal, json);
+    copy_calibration_to_json(cal, json, json.GetAllocator());
 
     StringBuffer buffer;
     PrettyWriter<StringBuffer> writer(buffer);
@@ -201,6 +201,6 @@ bool calibration_deserialize(const std::string &jsonString, calibration_json &ca
     Document json;
     if (json.Parse(jsonString.c_str()).HasParseError())
         return false;
-    copy_json_to_calibration(json, cal);
+    copy_json_to_calibration(json, cal, json.GetAllocator());
     return true;
 }

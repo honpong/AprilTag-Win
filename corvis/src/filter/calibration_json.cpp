@@ -206,8 +206,10 @@ bool calibration_serialize(const calibration_json &cal, std::string &jsonString)
 bool calibration_deserialize(const std::string &jsonString, calibration_json &cal)
 {
     Document json;
-    if (json.Parse(jsonString.c_str()).HasParseError())
+    if (json.Parse(jsonString.c_str()).HasParseError()) {
+        std::cout << "JSON parse error (" << json.GetParseError() << ") at offset " << json.GetErrorOffset() << "\n";
         return false;
+    }
     copy_json_to_calibration(json, cal, json.GetAllocator());
     return true;
 }

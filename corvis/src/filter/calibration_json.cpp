@@ -18,7 +18,7 @@ static void copy_json_to_calibration(Value &json, calibration_json &cal, Documen
 {
     cal = calibration_json{};
 
-    if (json[KEY_DEVICE_NAME].GetString()) strlcpy(cal.device_id, json[KEY_DEVICE_NAME].GetString(), sizeof(cal.device_id));
+    if (json.HasMember(KEY_DEVICE_NAME)) strlcpy(cal.device_id, json[KEY_DEVICE_NAME].GetString(), sizeof(cal.device_id));
     if (json.HasMember(KEY_CALIBRATION_VERSION)) cal.version = json[KEY_CALIBRATION_VERSION].GetInt();
 
     copy_json_to_imu(json, cal.imu, a);

@@ -23,6 +23,8 @@ static void copy_json_to_calibration(Value &json, calibration_json &cal, Documen
 
     copy_json_to_imu(json, cal.imu, a);
     copy_json_to_camera(json, cal.color, a);
+    if (json.HasMember(KEY_DEPTH) && json[KEY_DEPTH].IsObject())
+        copy_json_to_camera(json[KEY_DEPTH], cal.depth, a);
 }
 
 static void copy_json_to_camera(Value &json, calibration::camera &cam, Document::AllocatorType& a)
@@ -115,6 +117,11 @@ static void copy_calibration_to_json(const calibration_json &cal, Value &json, D
 
     copy_imu_to_json(cal.imu, json, a);
     copy_camera_to_json(cal.color, json, a);
+    if (cal.depth.intrinsics.type != rc_CALIBRATION_TYPE_UNKNOWN) {
+        Value depth(kObjectType);
+        copy_camera_to_json(cal.depth, depth, a);
+        json.AddMember(KEY_DEPTH, depth, a);
+    }
 }
 
 static void copy_camera_to_json(const calibration::camera &cam, Value &json, Document::AllocatorType& a)

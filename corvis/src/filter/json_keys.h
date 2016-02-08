@@ -39,6 +39,7 @@
 #define KEY_IMAGE_HEIGHT "imageHeight"
 #define KEY_CALIBRATION_VERSION "calibrationVersion"
 #define KEY_DISTORTION_MODEL "distortionModel"
+#define KEY_DEPTH "depth"
 #define KEY_DEVICE_NAME "device"
 #define KEY_SHUTTER_DELAY "shutterDelay"
 #define KEY_SHUTTER_PERIOD "shutterPeriod"

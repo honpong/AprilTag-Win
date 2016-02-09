@@ -216,8 +216,6 @@ RCTRACKER_API void rc_stopTracker(rc_Tracker *tracker);
  @param tracker The active rc_Tracker instance
  @param time_us Timestamp (in microseconds) when capture of this frame began
  @param shutter_time_us Exposure time (in microseconds)
- @param camera_id The camera_id is used to associate intrinsics with this image
- @param format The format of the image should match the camera_id (e.g. depth format w/ depth camera id)
  @param stride Number of bytes in each line
  @param image Image data.
  @param completion_callback Function to be called when the frame has been processed and image data is no longer needed. image must remain valid (even after receiveImage has returned) until this function is called.

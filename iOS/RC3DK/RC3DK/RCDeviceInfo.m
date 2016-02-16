@@ -7,6 +7,7 @@
 //
 
 #import "RCDeviceInfo.h"
+#import "RCDebugLog.h"
 
 @implementation RCDeviceInfo
 

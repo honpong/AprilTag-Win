@@ -5,7 +5,8 @@
 //  Created by Ben Hirashima on 1/16/13.
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
-
+#import <Foundation/Foundation.h>
+#import "RCConstants.h"
 #import "RCSensorFusion.h"
 #import "RCSensorData.h"
 #include "sensor_fusion_queue.h"

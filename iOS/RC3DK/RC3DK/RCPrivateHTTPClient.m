@@ -8,6 +8,7 @@
 
 #import "RCPrivateHTTPClient.h"
 #import "RCDeviceInfo.h"
+#import "RCConstants.h"
 
 @implementation RCPrivateHTTPClient
 @synthesize apiVersion;

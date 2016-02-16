@@ -6,6 +6,7 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
+#import "RCConstants.h"
 #import "RCCalibration.h"
 #import "RCPrivateHTTPClient.h"
 #include "device_parameters.h"

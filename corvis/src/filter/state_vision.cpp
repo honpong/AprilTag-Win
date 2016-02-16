@@ -323,6 +323,7 @@ feature_t state_vision::distort_feature(const feature_t &feat_u, f_t *kd_u_, f_t
     f_t kd_u, ru2, ru = sqrt(ru2 = feat_u.squaredNorm());
     if (fisheye) {
         f_t w = k1.v; if (!w) { w = .922; fprintf(stderr, "you really shouldn't have a zero-angle fisheye lens\n"); }
+        if(ru < F_T_EPS) ru = F_T_EPS;
         kd_u = atan(2 * tan(w / 2) * ru) / (ru * w);  // FIXME: add higher order terms (but not the linear one)
         if (dkd_u_dru) *dkd_u_dru = 2 * tan(w/2) / (w + 4 * ru * ru * w * tan(w/2) * tan(w/2));
         if (dkd_u_dk1) *dkd_u_dk1 = 2 * ru / (w * (1 + cos(w) + 4 * ru * ru * (1 - cos(w)))) - kd_u / w;
@@ -345,6 +346,7 @@ feature_t state_vision::undistort_feature(const feature_t &feat_d, f_t *ku_d_, f
     f_t ku_d, rd2 = feat_d.squaredNorm();
     if (fisheye) {
         f_t rd = sqrt(rd2), w = k1.v; if (!w) { w = .922; fprintf(stderr, "you really shouldn't have a zero-angle fisheye lens\n"); }
+        if(rd < F_T_EPS) rd = F_T_EPS;
         ku_d = tan(w * rd) / (2 * tan(w/2) * rd);
         if (dku_d_drd) *dku_d_drd = 2 * (rd * w / (cos(rd * w) * cos(rd * w) * (2 * rd * tan(w/2))) - ku_d);
         if (dku_d_dk1) *dku_d_dk1 = (2 * rd * sin(w) - sin(2 * rd * w)) / (8 * rd * (cos(rd * w) * cos(rd * w)) * (sin(w/2) * sin(w/2)));

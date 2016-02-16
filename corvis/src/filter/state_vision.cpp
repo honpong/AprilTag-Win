@@ -448,7 +448,6 @@ void state_vision::cache_jacobians(f_t dt)
         m4 Rr = to_rotation_matrix(g->Qr.v);
         g->dTrp_ddT = to_rotation_matrix(g->Qr.v * conjugate(Q.v));
         m4 xRrRtdT = skew3(g->dTrp_ddT * dT);
-        g->dTrp_dQr_s_ = xRrRtdT;
         g->dTrp_dQ_s   = xRrRtdT;
         g->dQrp_s_dW = Rr * JdW_s;
     }
@@ -466,7 +465,7 @@ void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t
             v4 cov_w = w.copy_cov_from_row(src, i);
             v4 cov_dw = dw.copy_cov_from_row(src, i);
             v4 cov_dT = dt * (cov_V + (dt / 2) * cov_a);
-            g->Tr.copy_cov_to_col(dst, i, cov_Tr - g->dTrp_dQr_s_ * scov_Qr + g->dTrp_dQ_s * scov_Q + g->dTrp_ddT * cov_dT);
+            g->Tr.copy_cov_to_col(dst, i, cov_Tr + g->dTrp_dQ_s * (scov_Q - scov_Qr) + g->dTrp_ddT * cov_dT);
             v4 cov_dW = dt * (cov_w + dt/2. * cov_dw);
             g->Qr.copy_cov_to_col(dst, i, scov_Qr + g->dQrp_s_dW * cov_dW);
         }

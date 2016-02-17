@@ -461,8 +461,8 @@ void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t
         v4 cov_a = a.copy_cov_from_row(src, i);
         v4 cov_w = w.copy_cov_from_row(src, i);
         v4 cov_dw = dw.copy_cov_from_row(src, i);
-        v4 cov_dT = dt * (cov_V + (dt / 2) * cov_a);
-        v4 cov_dW = dt * (cov_w + dt/2. * cov_dw);
+        v4 cov_dT = dt * (cov_V + 1/2. * dt * cov_a);
+        v4 cov_dW = dt * (cov_w + 1/2. * dt * cov_dw);
         for(state_vision_group *g : groups.children) {
             v4 cov_Tr = g->Tr.copy_cov_from_row(src, i);
             v4 scov_Qr = g->Qr.copy_cov_from_row(src, i);

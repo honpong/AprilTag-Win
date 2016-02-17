@@ -1,2 +1,2 @@
-# Universal 
+# Universal ignores. Place platform specific ignores in the .gitignore in the platform’s directory.
 .DS_Store

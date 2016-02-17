@@ -122,7 +122,7 @@ std::vector<sensor_fusion::feature_point> sensor_fusion::get_features() const
     return features;
 }
 
-void sensor_fusion::update_data(camera_data &&image)
+void sensor_fusion::update_data(image_gray8 &&image)
 {
     auto d = std::make_unique<data>();
     
@@ -160,7 +160,7 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
 {
     isSensorFusionRunning = false;
     isProcessingVideo = false;
-    auto cam_fn = [this](camera_data &&data)
+    auto cam_fn = [this](image_gray8 &&data)
     {
         bool docallback = true;
         if(!isSensorFusionRunning)
@@ -176,6 +176,13 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
             if(docallback) update_data(std::move(data));
         }
     };
+
+    auto depth_fn = [this](image_depth16 &&data)
+    {
+        if(!isSensorFusionRunning) return;
+        //TODO: should I call update_status here?
+        filter_depth_measurement(&sfm, data);
+    };
     
     auto acc_fn = [this](accelerometer_data &&data)
     {
@@ -190,7 +197,7 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
         filter_gyroscope_measurement(&sfm, data.angvel_rad__s, data.timestamp);
     };
     
-    queue = std::make_unique<fusion_queue>(cam_fn, acc_fn, gyr_fn, strategy, std::chrono::microseconds(10000)); //Have to make jitter high - ipad air 2 accelerometer has high latency, we lose about 10% of samples with jitter at 8000
+    queue = std::make_unique<fusion_queue>(cam_fn, depth_fn, acc_fn, gyr_fn, strategy, std::chrono::microseconds(10000)); //Have to make jitter high - ipad air 2 accelerometer has high latency, we lose about 10% of samples with jitter at 8000
 }
 
 device_parameters sensor_fusion::get_device() const
@@ -302,11 +309,19 @@ void sensor_fusion::reset(sensor_clock::time_point time, const transformation &i
     filter_set_origin(&sfm, initial_pose_m, false);
 }
 
-void sensor_fusion::receive_image(camera_data &&data)
+void sensor_fusion::receive_image(image_gray8 &&data)
 {
     //Adjust image timestamps to be in middle of exposure period
     data.timestamp += data.exposure_time / 2;
     queue->receive_camera(std::move(data));
+}
+
+void sensor_fusion::receive_image(image_depth16 &&data)
+{
+    //TODO: Verify time adjustments here
+    //Adjust image timestamps to be in middle of exposure period
+    data.timestamp += data.exposure_time / 2;
+    queue->receive_depth(std::move(data));
 }
 
 void sensor_fusion::receive_accelerometer(accelerometer_data &&data)

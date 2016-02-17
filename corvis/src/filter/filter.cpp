@@ -505,7 +505,7 @@ void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_
     }
 }
 
-void filter_setup_next_frame(struct filter *f, const camera_data &cam_data)
+void filter_setup_next_frame(struct filter *f, const image_gray8 &image)
 {
     size_t feats_used = f->s.features.size();
 
@@ -515,16 +515,16 @@ void filter_setup_next_frame(struct filter *f, const camera_data &cam_data)
         for(state_vision_group *g : f->s.groups.children) {
             if(!g->status || g->status == group_initializing) continue;
             for(state_vision_feature *i : g->features.children) {
-                auto extra_time = std::chrono::duration_cast<sensor_clock::duration>(cam_data.exposure_time * (i->current[1] / (float)cam_data.height));
-                auto obs = std::make_unique<observation_vision_feature>(f->s, cam_data.timestamp + extra_time, cam_data.timestamp);
+                auto extra_time = std::chrono::duration_cast<sensor_clock::duration>(image.exposure_time * (i->current[1] / (float)image.height));
+                auto obs = std::make_unique<observation_vision_feature>(f->s, image.timestamp + extra_time, image.timestamp);
                 obs->state_group = g;
                 obs->feature = i;
                 obs->meas[0] = i->current[0];
                 obs->meas[1] = i->current[1];
-                obs->image = cam_data.image;
+                obs->image = image.image;
                 obs->tracker = f->track;
-                obs->feature->dt = cam_data.timestamp - obs->feature->last_seen;
-                obs->feature->last_seen = cam_data.timestamp;
+                obs->feature->dt = image.timestamp - obs->feature->last_seen;
+                obs->feature->last_seen = image.timestamp;
 
                 f->observations.observations.push_back(std::move(obs));
             }
@@ -533,18 +533,18 @@ void filter_setup_next_frame(struct filter *f, const camera_data &cam_data)
     //TODO: implement feature_single ?
 }
 
-static uint16_t get_raw_depth(const camera_data &cam, const feature_t & p)
+static uint16_t get_raw_depth(const image_gray8 &image,const image_depth16 &depth, const feature_t & p)
 {
     //TODO: make this more efficient if needed
-    int dx = ((p.x() - cam.width / 2) * cam.depth->width) / cam.width + cam.depth->width / 2;
-    int dy = ((p.y() - cam.height / 2) * cam.depth->height) / cam.height + cam.depth->height / 2;
-    if(dx < 0 || dy < 0 || dx > cam.depth->width - 1 || dy > cam.depth->height - 1) return 0;
-    return cam.depth->image[cam.depth->stride / 2 * dy + dx];
+    int dx = ((p.x() - image.width / 2) * depth.width) / image.width + depth.width / 2;
+    int dy = ((p.y() - image.height / 2) * depth.height) / image.height + depth.height / 2;
+    if(dx < 0 || dy < 0 || dx > depth.width - 1 || dy > depth.height - 1) return 0;
+    return depth.image[depth.stride / 2 * dy + dx];
 }
 
-static float get_depth_for_point(const camera_data &cam, const feature_t & p)
+static float get_depth_for_point(const image_gray8 &image, const image_depth16 &depth, const feature_t & p)
 {
-    uint16_t depth_mm = get_raw_depth(cam, p);
+    uint16_t depth_mm = get_raw_depth(image, depth, p);
     return depth_mm / 1000.0f;
 //    if(depth.image[y * depth.stride + x]) return depth.image[y * stride + x] / 1000.f;
 //    if(x == 0 || y == 0 || x == depth.width - 1 || y == depth.height - 1) return 0;
@@ -556,27 +556,27 @@ static float get_stdev_pct_for_depth(float depth_m)
 }
 
 //features are added to the state immediately upon detection - handled with triangulation in observation_vision_feature::predict - but what is happening with the empty row of the covariance matrix during that time?
-static void filter_add_features(struct filter *f, const camera_data & camera, size_t newfeats)
+static void filter_add_features(struct filter *f, const image_gray8 & image, size_t newfeats)
 {
 #ifdef TEST_POSDEF
     if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def before adding features\n");
 #endif
     // Filter out features which we already have by masking where
     // existing features are located
-    if(!f->mask) f->mask = new scaled_mask(camera.width, camera.height);
+    if(!f->mask) f->mask = new scaled_mask(image.width, image.height);
     f->mask->initialize();
     for(state_vision_feature *i : f->s.features) {
         f->mask->clear((int)i->current[0], (int)i->current[1]);
     }
 
     // Run detector
-    vector<xy> &kp = f->track.detect(camera.image, f->mask, (int)newfeats, 0, 0, camera.width, camera.height);
+    vector<xy> &kp = f->track.detect(image.image, f->mask, (int)newfeats, 0, 0, image.width, image.height);
 
     // Check that the detected features don't collide with the mask
     // and add them to the filter
     if(kp.size() < newfeats) newfeats = kp.size();
     if(newfeats < state_vision_group::min_feats) return;
-    state_vision_group *g = f->s.add_group(camera.timestamp);
+    state_vision_group *g = f->s.add_group(image.timestamp);
 
     int found_feats = 0;
     for(int i = 0; i < (int)kp.size(); ++i) {
@@ -588,8 +588,8 @@ static void filter_add_features(struct filter *f, const camera_data & camera, si
             state_vision_feature *feat = f->s.add_feature(kp_i);
 
             float depth_m = 0;
-            if(camera.depth)
-                depth_m = get_depth_for_point(camera, kp_i);
+            if(f->has_depth)
+                depth_m = get_depth_for_point(image, f->recent_depth, kp_i);
             if(depth_m)
             {
                 feat->v.set_depth_meters(depth_m);
@@ -598,11 +598,11 @@ static void filter_add_features(struct filter *f, const camera_data & camera, si
                 feat->status = feature_normal;
             }
             
-            f->track.add_track(camera.image, x, y, feat->patch);
+            f->track.add_track(image.image, x, y, feat->patch);
 
             g->features.children.push_back(feat);
             feat->groupid = g->id;
-            feat->found_time = camera.timestamp;
+            feat->found_time = image.timestamp;
             feat->last_seen = feat->found_time;
             
             found_feats++;
@@ -634,9 +634,16 @@ void filter_set_reference(struct filter *f)
     //f->s.reset_position();
 }
 
-bool filter_image_measurement(struct filter *f, const camera_data & camera)
+bool filter_depth_measurement(struct filter *f, const image_depth16 & depth)
 {
-    sensor_clock::time_point time = camera.timestamp;
+    f->recent_depth = image_depth16(depth);
+    f->has_depth = true;
+    return true;
+}
+
+bool filter_image_measurement(struct filter *f, const image_gray8 & image)
+{
+    sensor_clock::time_point time = image.timestamp;
 
     if(f->run_state == RCSensorFusionRunStateInactive) return false;
     if(!check_packet_time(f, time, packet_camera)) return false;
@@ -645,14 +652,14 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
 #ifdef ENABLE_QR
     if(f->qr.running && (time - f->last_qr_time > qr_detect_period)) {
         f->last_qr_time = time;
-        f->qr.process_frame(f, camera.image, camera.width, camera.height);
+        f->qr.process_frame(f, image.image, image.width, image.height);
         if(f->qr.valid)
         {
             filter_set_origin(f, f->qr.origin, f->origin_gravity_aligned);
         }
     }
     if(f->qr_bench.enabled)
-        f->qr_bench.process_frame(f, camera.image, camera.width, camera.height);
+        f->qr_bench.process_frame(f, image.image, image.width, image.height);
 #endif
     
     f->got_image = true;
@@ -675,12 +682,12 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
     }
     if(f->run_state != RCSensorFusionRunStateRunning && f->run_state != RCSensorFusionRunStateDynamicInitialization && f->run_state != RCSensorFusionRunStateSteadyInitialization) return true; //frame was "processed" so that callbacks still get called
     
-    f->track.width = camera.width;
-    f->track.height = camera.height;
-    f->track.stride = camera.stride;
+    f->track.width = image.width;
+    f->track.height = image.height;
+    f->track.stride = image.stride;
     f->track.init();
-    f->s.image_width = camera.width;
-    f->s.image_height = camera.height;
+    f->s.image_width = image.width;
+    f->s.image_height = image.height;
     
     if(!f->ignore_lateness) {
         /*thread_info_data_t thinfo;
@@ -726,7 +733,7 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
     }
 
 
-    filter_setup_next_frame(f, camera);
+    filter_setup_next_frame(f, image);
 
     if(show_tuning) {
         fprintf(stderr, "vision:\n");
@@ -759,7 +766,7 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
             if(!test_posdef(f->s.cov.cov)) fprintf(stderr, "not pos def after disabling orient only\n");
 #endif
         }
-        filter_add_features(f, camera, space);
+        filter_add_features(f, image, space);
         if(f->s.features.size() < state_vision_group::min_feats) {
             if (log_enabled) fprintf(stderr, "detector failure: only %zd features after add\n", f->s.features.size());
             f->detector_failed = true;

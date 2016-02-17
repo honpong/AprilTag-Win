@@ -14,15 +14,9 @@
 #include <string.h>
 #include <assert.h>
 #include "platform/sensor_clock.h"
+#include "../filter/rc_tracker.h"
 
-enum class camera_enum
-{
-    gray,
-    rgb,
-    depth
-};
-
-template<camera_enum camera_type, class data_type>
+template<rc_ImageFormat camera_type, class data_type>
 class image_data
 {
 public:
@@ -49,28 +43,8 @@ public:
     int width, height, stride;
 };
 
-typedef image_data<camera_enum::gray, uint8_t> image_gray8;
-typedef image_data<camera_enum::depth, uint16_t> image_depth16;
-
-class camera_data: public image_data<camera_enum::gray, uint8_t>
-{
-public:
-    camera_data(): image_data(), depth(nullptr) { }
-    camera_data(image_gray8 &&other): image_gray8(std::move(other)) {}
-    // this move constructor is required because otherwise the copy
-    // constructor will get called when a camera_data item is moved
-    camera_data(camera_data &&other): image_gray8(std::move(other)), depth(std::move(other.depth)) {}
-    camera_data(const camera_data &other) : image_gray8(other), depth(nullptr) {
-        if(other.depth) {
-            image_depth16 depth_copy(*other.depth);
-            depth = std::make_unique<image_depth16>(std::move(depth_copy));
-        }
-    };
-    camera_data &operator=(const camera_data& other) = delete;
-    camera_data &operator=(camera_data&& other) = default;
-
-    std::unique_ptr<image_depth16> depth;
-};
+typedef image_data<rc_FORMAT_GRAY8, uint8_t> image_gray8;
+typedef image_data<rc_FORMAT_DEPTH16, uint16_t> image_depth16;
 
 class accelerometer_data
 {

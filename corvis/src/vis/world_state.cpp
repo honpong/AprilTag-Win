@@ -125,7 +125,7 @@ static inline void compute_covariance_ellipse(state_vision_feature * feat, float
     ctheta = (float)theta; // rotate
 }
 
-void world_state::receive_camera(const filter * f, camera_data &&d)
+void world_state::receive_camera(const filter * f, image_gray8 &&d)
 {
     for(auto feat : f->s.features) {
         if(feat->is_valid()) {
@@ -141,7 +141,7 @@ void world_state::receive_camera(const filter * f, camera_data &&d)
         }
     }
     observe_image(d.timestamp, d.image, d.width, d.height);
-    if(d.depth) observe_depth(d.depth->timestamp, d.depth->image, d.depth->width, d.depth->height);
+    if(f->has_depth) observe_depth(f->recent_depth.timestamp, f->recent_depth.image, f->recent_depth.width, f->recent_depth.height);
     
     v4 T = f->s.T.v;
     quaternion q = f->s.Q.v;

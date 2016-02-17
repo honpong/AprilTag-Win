@@ -114,17 +114,20 @@ T sensor_queue<T, size>::pop(const std::unique_lock<std::mutex> &lock)
     return std::move(storage[oldpos]);
 }
 
-fusion_queue::fusion_queue(const std::function<void(camera_data &&)> &camera_func,
+fusion_queue::fusion_queue(const std::function<void(image_gray8 &&)> &camera_func,
+                           const std::function<void(image_depth16 &&)> &depth_func,
                            const std::function<void(accelerometer_data &&)> &accelerometer_func,
                            const std::function<void(gyro_data &&)> &gyro_func,
                            latency_strategy s,
                            sensor_clock::duration max_jitter):
                 camera_receiver(camera_func),
+                depth_receiver(depth_func),
                 accel_receiver(accelerometer_func),
                 gyro_receiver(gyro_func),
                 accel_queue(mutex, cond, active, copy_on_push),
                 gyro_queue(mutex, cond, active, copy_on_push),
                 camera_queue(mutex, cond, active, copy_on_push),
+                depth_queue(mutex, cond, active, copy_on_push),
                 control_func(nullptr),
                 active(false),
                 wait_for_camera(true),
@@ -142,6 +145,7 @@ void fusion_queue::reset()
 
     accel_queue.reset();
     gyro_queue.reset();
+    depth_queue.reset();
     camera_queue.reset();
     control_func = nullptr;
     active = false;
@@ -156,10 +160,16 @@ fusion_queue::~fusion_queue()
 
 std::string fusion_queue::get_stats()
 {
-    return "Camera: " + camera_queue.get_stats() + "Accel: " + accel_queue.get_stats() + "Gyro: " + gyro_queue.get_stats();
+    return "Camera: " + camera_queue.get_stats() + "Depth:" + depth_queue.get_stats() + "Accel: " + accel_queue.get_stats() + "Gyro: " + gyro_queue.get_stats();
 }
 
-void fusion_queue::receive_camera(camera_data&& x)
+void fusion_queue::receive_depth(image_depth16&& x)
+{
+    depth_queue.push(std::move(x));
+    if(singlethreaded) dispatch_singlethread(false);
+}
+
+void fusion_queue::receive_camera(image_gray8&& x)
 {
     camera_queue.push(std::move(x));
     if(singlethreaded) dispatch_singlethread(false);
@@ -311,7 +321,8 @@ void fusion_queue::runloop()
 
 sensor_clock::time_point fusion_queue::global_latest_received() const
 {
-    if(camera_queue.last_in >= gyro_queue.last_in && camera_queue.last_in >= accel_queue.last_in) return camera_queue.last_in;
+    if(depth_queue.last_in >= camera_queue.last_in && depth_queue.last_in >= gyro_queue.last_in && camera_queue.last_in >= accel_queue.last_in) return depth_queue.last_in;
+    else if(camera_queue.last_in >= gyro_queue.last_in && camera_queue.last_in >= accel_queue.last_in) return camera_queue.last_in;
     else if(accel_queue.last_in >= gyro_queue.last_in) return accel_queue.last_in;
     return gyro_queue.last_in;
 }
@@ -320,8 +331,9 @@ bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
 {
     if(strategy == latency_strategy::ELIMINATE_LATENCY) return true; //always dispatch if we are eliminating latency
     
-    if(camera_queue.full() || accel_queue.full() || gyro_queue.full()) return true;
+    if(depth_queue.full() || camera_queue.full() || accel_queue.full() || gyro_queue.full()) return true;
     
+    // TODO: figure out what to do here with a depth queue
     if(strategy == latency_strategy::IMAGE_TRIGGER && wait_for_camera) //if we aren't waiting for camera, then IMAGE_TRIGGER behaves like MINIMIZE_DROPS
     {
         if(camera_queue.empty()) return false;
@@ -374,14 +386,28 @@ bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
 bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock, bool force)
 {
     sensor_clock::time_point camera_time = camera_queue.get_next_time(lock, last_dispatched);
+    sensor_clock::time_point depth_time = depth_queue.get_next_time(lock, last_dispatched);
     sensor_clock::time_point accel_time = accel_queue.get_next_time(lock, last_dispatched);
     sensor_clock::time_point gyro_time = gyro_queue.get_next_time(lock, last_dispatched);
     
-    if(!camera_queue.empty() && (accel_queue.empty() || camera_time <= accel_time) && (gyro_queue.empty() || camera_time <= gyro_time))
+    if(!depth_queue.empty() && (camera_queue.empty() || camera_time <= depth_time) && (accel_queue.empty() || camera_time <= accel_time) && (gyro_queue.empty() || camera_time <= gyro_time))
     {
         if(!force && !ok_to_dispatch(camera_time)) return false;
 
-        camera_data data = camera_queue.pop(lock);
+        image_depth16 data = depth_queue.pop(lock);
+#ifdef DEBUG
+        assert(data.timestamp >= last_dispatched);
+#endif
+        last_dispatched = data.timestamp;
+        lock.unlock();
+        depth_receiver(std::move(data));
+        lock.lock();
+    }
+    else if(!camera_queue.empty() && (accel_queue.empty() || camera_time <= accel_time) && (gyro_queue.empty() || camera_time <= gyro_time))
+    {
+        if(!force && !ok_to_dispatch(camera_time)) return false;
+
+        image_gray8 data = camera_queue.pop(lock);
 #ifdef DEBUG
         assert(data.timestamp >= last_dispatched);
 #endif

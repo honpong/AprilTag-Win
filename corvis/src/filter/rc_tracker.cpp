@@ -209,7 +209,7 @@ void rc_configureLocation(rc_Tracker * tracker, double latitude_deg, double long
 
 RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callback, void *handle)
 {
-    if(callback) tracker->camera_callback = [callback, handle, tracker](std::unique_ptr<sensor_fusion::data> d, camera_data &&cam) {
+    if(callback) tracker->camera_callback = [callback, handle, tracker](std::unique_ptr<sensor_fusion::data> d, image_gray8 &&cam) {
         uint64_t micros = std::chrono::duration_cast<std::chrono::microseconds>(d->time.time_since_epoch()).count();
 
         rc_Pose p;
@@ -268,16 +268,22 @@ void rc_receiveImage(rc_Tracker *tracker, rc_Timestamp time_us, rc_Timestamp shu
                      void(*completion_callback)(void *callback_handle), void *callback_handle)
 {
     if (format == rc_FORMAT_DEPTH16) {
-        tracker->last_depth = std::make_unique<image_depth16>();
-        tracker->last_depth->image_handle = std::unique_ptr<void, void(*)(void *)>(callback_handle, completion_callback);
-        tracker->last_depth->image = (uint16_t *)image;
-        tracker->last_depth->width = width;
-        tracker->last_depth->height = height;
-        tracker->last_depth->stride = stride;
-        tracker->last_depth->timestamp = sensor_clock::micros_to_tp(time_us);
-        tracker->last_depth->exposure_time = std::chrono::microseconds(shutter_time_us);
+        image_depth16 d;
+        d.image_handle = std::unique_ptr<void, void(*)(void *)>(callback_handle, completion_callback);
+        d.image = (uint16_t *)image;
+        d.width = width;
+        d.height = height;
+        d.stride = stride;
+        d.timestamp = sensor_clock::micros_to_tp(time_us);
+        d.exposure_time = std::chrono::microseconds(shutter_time_us);
+
+        if(tracker->output_enabled) {
+            tracker->output.write_camera(d);
+        }
+        else
+            tracker->receive_image(std::move(d));
     } else if (format == rc_FORMAT_GRAY8) {
-        camera_data d;
+        image_gray8 d;
         d.image_handle = std::unique_ptr<void, void(*)(void *)>(callback_handle, completion_callback);
         d.image = (uint8_t *)image;
         d.width = width;
@@ -285,8 +291,6 @@ void rc_receiveImage(rc_Tracker *tracker, rc_Timestamp time_us, rc_Timestamp shu
         d.stride = stride;
         d.timestamp = sensor_clock::micros_to_tp(time_us);
         d.exposure_time = std::chrono::microseconds(shutter_time_us);
-        if (tracker->last_depth && tracker->last_depth->timestamp > tracker->sfm.last_time) // TODO: this assumes a one deep queue for color images
-            d.depth = std::move(tracker->last_depth);
 
         if(tracker->output_enabled) {
             tracker->output.write_camera(d);

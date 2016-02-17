@@ -7,6 +7,7 @@
 //
 
 #import "RCStereo.h"
+#import "RCConstants.h"
 
 #import <CoreImage/CoreImage.h>
 #import <UIKit/UIKit.h>

@@ -94,20 +94,15 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
         v.set_depth_meters(1.);
     }
     
-    f_t copy_cov_from_row(const matrix &c, const int i) const
+    inline f_t from_row(const matrix &c, const int i) const
     {
-        if(index < 0) return 0.;
-        return c(i, index);
+        return index >= 0 ? c(i, index) : 0;
     }
-    
-    void copy_cov_to_col(matrix &c, const int j, const f_t val) const
+
+    inline f_t &to_col(matrix &c, const int j) const
     {
-        c(index, j) = val;
-    }
-    
-    void copy_cov_to_row(matrix &c, const int j, const f_t val) const
-    {
-        c(j, index) = val;
+        static f_t scratch;
+        return index >= 0 ? c(index, j) : scratch;
     }
     
     void perturb_variance() {

@@ -294,33 +294,31 @@ void observation_vision_feature::project_covariance(matrix &dst, const matrix &s
 
     if(!feature->is_initialized()) {
         for(int j = 0; j < dst.cols(); ++j) {
-            v4 scov_Qr = state_group->Qr.copy_cov_from_row(src, j);
-            dst(0, j) =
-            dx_dQr.dot(scov_Qr);
-            dst(1, j) =
-            dy_dQr.dot(scov_Qr);
+            const auto scov_Qr = state_group->Qr.from_row(src, j);
+            dst(0, j) = dx_dQr.segment<3>(0).dot(scov_Qr);
+            dst(1, j) = dy_dQr.segment<3>(0).dot(scov_Qr);
         }
     } else {
         for(int j = 0; j < dst.cols(); ++j) {
-            f_t cov_feat = feature->copy_cov_from_row(src, j);
-            v4 scov_Qr = state_group->Qr.copy_cov_from_row(src, j);
-            v4 cov_Tr = state_group->Tr.copy_cov_from_row(src, j);
+            const f_t cov_feat = feature->from_row(src, j);
+            const auto scov_Qr = state_group->Qr.from_row(src, j);
+            const auto cov_Tr = state_group->Tr.from_row(src, j);
 
             dst(0, j) = dx_dp * cov_feat +
-                dx_dQr.dot(scov_Qr) +
-                dx_dTr.dot(cov_Tr);
+                dx_dQr.segment<3>(0).dot(scov_Qr) +
+                dx_dTr.segment<3>(0).dot(cov_Tr);
 
             dst(1, j) = dy_dp * cov_feat +
-                dy_dQr.dot(scov_Qr) +
-                dy_dTr.dot(cov_Tr);
+                dy_dQr.segment<3>(0).dot(scov_Qr) +
+                dy_dTr.segment<3>(0).dot(cov_Tr);
 
             if(state.estimate_camera_intrinsics) {
-                f_t cov_F = state.focal_length.copy_cov_from_row(src, j);
-                f_t cov_cx = state.center_x.copy_cov_from_row(src, j);
-                f_t cov_cy = state.center_y.copy_cov_from_row(src, j);
-                f_t cov_k1 = state.k1.copy_cov_from_row(src, j);
-                f_t cov_k2 = state.k2.copy_cov_from_row(src, j);
-                f_t cov_k3 = state.k3.copy_cov_from_row(src, j);
+                f_t cov_F = state.focal_length.from_row(src, j);
+                f_t cov_cx = state.center_x.from_row(src, j);
+                f_t cov_cy = state.center_y.from_row(src, j);
+                f_t cov_k1 = state.k1.from_row(src, j);
+                f_t cov_k2 = state.k2.from_row(src, j);
+                f_t cov_k3 = state.k3.from_row(src, j);
 
                 dst(0, j) +=
                 dx_dF * cov_F +
@@ -520,22 +518,22 @@ void observation_accelerometer::project_covariance(matrix &dst, const matrix &sr
     if(!state.orientation_only)
     {
         for(int j = 0; j < dst.cols(); ++j) {
-            v4 cov_a_bias = state.a_bias.copy_cov_from_row(src, j);
-            v4 scov_Q = state.Q.copy_cov_from_row(src, j);
-            v4 cov_a = state.a.copy_cov_from_row(src, j);
-            v4 cov_w = state.w.copy_cov_from_row(src, j);
-            v4 cov_dw = state.dw.copy_cov_from_row(src, j);
-            f_t cov_g = state.g.copy_cov_from_row(src, j);
-            v4 res =
+            const auto cov_a_bias = state.a_bias.from_row(src, j);
+            const auto scov_Q = state.Q.from_row(src, j);
+            const auto cov_a = state.a.from_row(src, j);
+            const auto cov_w = state.w.from_row(src, j);
+            const auto cov_dw = state.dw.from_row(src, j);
+            f_t cov_g = state.g.from_row(src, j);
+            v3 res =
                 cov_a_bias +
-                da_dQ * scov_Q +
-                da_dw * cov_w +
-                da_ddw * cov_dw +
-                Rc * Rt * (cov_a + v4(0., 0., cov_g, 0.));
+                da_dQ.block<3,3>(0,0) * scov_Q +
+                da_dw.block<3,3>(0,0) * cov_w +
+                da_ddw.block<3,3>(0,0) * cov_dw +
+                Rc.block<3,3>(0,0) * Rt.block<3,3>(0,0) * (cov_a + v3(0., 0., cov_g));
             if(state.estimate_camera_extrinsics) {
-                v4 scov_Qc = state.Qc.copy_cov_from_row(src, j);
-                v4 cov_Tc = state.Tc.copy_cov_from_row(src, j);
-                res += da_dQc * scov_Qc + da_dTc * cov_Tc;
+                const auto scov_Qc = state.Qc.from_row(src, j);
+                const auto cov_Tc = state.Tc.from_row(src, j);
+                res += da_dQc.block<3,3>(0,0) * scov_Qc + da_dTc.block<3,3>(0,0) * cov_Tc;
             }
             for(int i = 0; i < 3; ++i) {
                 dst(i, j) = res[i];
@@ -543,12 +541,12 @@ void observation_accelerometer::project_covariance(matrix &dst, const matrix &sr
         }
     } else {
         for(int j = 0; j < dst.cols(); ++j) {
-            v4 cov_a_bias = state.a_bias.copy_cov_from_row(src, j);
-            v4 scov_Q = state.Q.copy_cov_from_row(src, j);
-            v4 res = (state.estimate_bias ? cov_a_bias : v4(0,0,0,0)) + da_dQ * scov_Q;
+            const v3 cov_a_bias = state.a_bias.from_row(src, j);
+            const auto scov_Q = state.Q.from_row(src, j);
+            v3 res = (state.estimate_bias ? cov_a_bias : v3::Zero()) + da_dQ.block<3,3>(0,0) * scov_Q;
             if(state.estimate_camera_extrinsics) {
-                v4 scov_Qc = state.Qc.copy_cov_from_row(src, j);
-                res += da_dQc * scov_Qc;
+                const auto scov_Qc = state.Qc.from_row(src, j);
+                res += da_dQc.block<3,3>(0,0) * scov_Qc;
             }
             for(int i = 0; i < 3; ++i) {
                 dst(i, j) = res[i];
@@ -594,13 +592,13 @@ void observation_gyroscope::project_covariance(matrix &dst, const matrix &src)
 {
     //input matrix is either symmetric (covariance) or is implicitly transposed (L * C)
     for(int j = 0; j < dst.cols(); ++j) {
-        v4 cov_w = state.w.copy_cov_from_row(src, j);
-        v4 cov_wbias = state.w_bias.copy_cov_from_row(src, j);
-        v4 res = cov_wbias +
-            Rc * cov_w;
+        const auto cov_w = state.w.from_row(src, j);
+        const auto cov_wbias = state.w_bias.from_row(src, j);
+        v3 res = cov_wbias +
+            Rc.block<3,3>(0,0) * cov_w;
         if(state.estimate_camera_extrinsics) {
-            v4 scov_Qc = state.Qc.copy_cov_from_row(src, j);
-            res += dw_dQc * scov_Qc;
+            v3 scov_Qc = state.Qc.from_row(src, j);
+            res += dw_dQc.block<3,3>(0,0) * scov_Qc;
         }
         for(int i = 0; i < 3; ++i) {
             dst(i, j) = res[i];

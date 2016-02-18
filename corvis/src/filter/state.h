@@ -474,16 +474,15 @@ class state_scalar: public state_leaf<f_t, 1> {
         v = 0.;
     }
     
-    inline f_t copy_cov_from_row(const matrix &c, const int i) const
+    inline f_t from_row(const matrix &c, const int i) const
     {
-        if(index < 0) return 0.;
-        return c(i, index);
+        return index >= 0 ? c(i, index) : 0;
     }
 
-    inline void copy_cov_to_col(matrix &c, const int j, const f_t val) const
+    inline f_t &to_col(matrix &c, const int j) const
     {
-        if(index < 0) return;
-        c(index, j) = val;
+        static f_t scratch;
+        return index >= 0 ? c(index, j) : scratch;
     }
     
     void perturb_variance() {

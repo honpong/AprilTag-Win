@@ -282,20 +282,6 @@ public:
         initial_variance[2] = z;
     }
     
-    inline v4 copy_cov_from_row(const matrix &c, const int i) const
-    {
-        if(index < 0) return v4::Zero();
-        return v4(c(i, index), c(i, index+1), c(i, index+2), 0.);
-    }
-    
-    inline void copy_cov_to_col(matrix &c, const int j, const v4 &cov_v) const
-    {
-        if(index < 0) return;
-        c(index, j) = cov_v[0];
-        c(index+1, j) = cov_v[1];
-        c(index+2, j) = cov_v[2];
-    }
-    
     void reset() {
         index = -1;
         v = v4::Zero();
@@ -343,20 +329,6 @@ public:
         initial_variance[0] = x;
         initial_variance[1] = y;
         initial_variance[2] = z;
-    }
-    
-    inline v4 copy_cov_from_row(const matrix &c, const int i) const
-    {
-        if(index < 0) return v4::Zero();
-        return v4(c(i, index), c(i, index+1), c(i, index+2), 0.);
-    }
-    
-    inline void copy_cov_to_col(matrix &c, const int j, const v4 &cov_v) const
-    {
-        if(index < 0) return;
-        c(index, j) = cov_v[0];
-        c(index+1, j) = cov_v[1];
-        c(index+2, j) = cov_v[2];
     }
     
     void reset() {
@@ -410,20 +382,6 @@ public:
         initial_variance[2] = z;
     }
 
-    inline v4 copy_cov_from_row(const matrix &c, const int i) const
-    {
-        if(index < 0) return v4::Zero();
-        return v4(c(i, index), c(i, index+1), c(i, index+2), 0);
-    }
-    
-    inline void copy_cov_to_col(matrix &c, const int j, const v4 &cov_v) const
-    {
-        if(index < 0) return;
-        c(index, j) = cov_v[0];
-        c(index+1, j) = cov_v[1];
-        c(index+2, j) = cov_v[2];
-    }
-    
     void reset() {
         index = -1;
         v = quaternion(1., 0., 0., 0.);

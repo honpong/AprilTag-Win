@@ -324,13 +324,6 @@ class state_rotation_vector: public state_leaf<rotation_vector, 3> {
 public:
     state_rotation_vector(const char *_name): state_leaf(_name) { reset(); }
 
-    void saturate()
-    {
-        saturated = true;
-        //TODO: This is a temporary hack. In practice it works better to saturate by not updating the state, but still leaving an element in the covariance matrix. I think this is because of the observation of mourikis - lienarization causes the filter to get false information on yaw. Having this degree of freedom keeps the filter happier, instead of stuffing the inconsistency into other states, but we just don't update the state ever.
-        //size = 2;
-    }
-
     using state_leaf::set_initial_variance;
     
     void set_initial_variance(f_t x, f_t y, f_t z)
@@ -343,7 +336,7 @@ public:
     inline v4 copy_cov_from_row(const matrix &c, const int i) const
     {
         if(index < 0) return v4::Zero();
-        return v4(c(i, index), c(i, index+1), saturated ? 0. : c(i, index+2), 0.);
+        return v4(c(i, index), c(i, index+1), c(i, index+2), 0.);
     }
     
     inline void copy_cov_to_col(matrix &c, const int j, const v4 &cov_v) const
@@ -351,13 +344,12 @@ public:
         if(index < 0) return;
         c(index, j) = cov_v[0];
         c(index+1, j) = cov_v[1];
-        if (!saturated) c(index+2, j) = cov_v[2];
+        c(index+2, j) = cov_v[2];
     }
     
     void reset() {
         index = -1;
         v = rotation_vector(0., 0., 0.);
-        saturated = false;
         size = 3;
     }
     
@@ -365,33 +357,30 @@ public:
         if(index < 0) return;
         cov->cov(index, index) *= PERTURB_FACTOR;
         cov->cov(index + 1, index + 1) *= PERTURB_FACTOR;
-        if(!saturated) cov->cov(index + 2, index + 2) *= PERTURB_FACTOR;
+        cov->cov(index + 2, index + 2) *= PERTURB_FACTOR;
     }
     
     v4 variance() const {
         if(index < 0) return v4(initial_variance[0], initial_variance[1], initial_variance[2], 0.);
-        return v4((*cov)(index, index), (*cov)(index+1, index+1), saturated ? 0. : (*cov)(index+2, index+2), 0.);
+        return v4((*cov)(index, index), (*cov)(index+1, index+1), (*cov)(index+2, index+2), 0.);
     }
     
     void copy_state_to_array(matrix &state) {
         state[index] = v.x();
         state[index+1] = v.y();
-        if(!saturated) state[index+2] = v.z();
+        state[index+2] = v.z();
     }
     
     virtual void copy_state_from_array(matrix &state) {
         v.x() = state[index+0];
         v.y() = state[index+1];
-        if(!saturated) v.z() = state[index+2];
+        v.z() = state[index+2];
     }
     
     virtual void print()
     {
         cerr << name << v.raw_vector() << variance() << " (rot vec)\n";
     }
-
-protected:
-    bool saturated;
 };
 
 class state_quaternion: public state_leaf<quaternion, 3>
@@ -400,24 +389,19 @@ class state_quaternion: public state_leaf<quaternion, 3>
 public:
     state_quaternion(const char *_name): state_leaf(_name) { reset(); }
     
-    void saturate()
-    {
-        saturated = true;
-    }
-    
     using state_leaf::set_initial_variance;
-
+    
     void set_initial_variance(f_t x, f_t y, f_t z)
     {
         initial_variance[0] = x;
         initial_variance[1] = y;
         initial_variance[2] = z;
     }
-    
+
     inline v4 copy_cov_from_row(const matrix &c, const int i) const
     {
         if(index < 0) return v4::Zero();
-        return v4(c(i, index), c(i, index+1), saturated ? 0. : c(i, index+2), 0);
+        return v4(c(i, index), c(i, index+1), c(i, index+2), 0);
     }
     
     inline void copy_cov_to_col(matrix &c, const int j, const v4 &cov_v) const
@@ -425,26 +409,25 @@ public:
         if(index < 0) return;
         c(index, j) = cov_v[0];
         c(index+1, j) = cov_v[1];
-        if (!saturated) c(index+2, j) = cov_v[2];
+        c(index+2, j) = cov_v[2];
     }
     
     void reset() {
         index = -1;
         v = quaternion(1., 0., 0., 0.);
         w = rotation_vector(0,0,0);
-        saturated = false;
     }
     
     void perturb_variance() {
         if(index < 0) return;
         cov->cov(index, index) *= PERTURB_FACTOR;
         cov->cov(index + 1, index + 1) *= PERTURB_FACTOR;
-        if(!saturated) cov->cov(index + 2, index + 2) *= PERTURB_FACTOR;
+        cov->cov(index + 2, index + 2) *= PERTURB_FACTOR;
     }
     
     v4 variance() const {
         if(index < 0) return v4(initial_variance[0], initial_variance[1], initial_variance[2], 0);
-        return v4((*cov)(index, index), (*cov)(index+1, index+1), saturated ? 0. : (*cov)(index+2, index+2), 0);
+        return v4((*cov)(index, index), (*cov)(index+1, index+1), (*cov)(index+2, index+2), 0);
     }
     
     void copy_state_to_array(matrix &state) {
@@ -466,7 +449,6 @@ public:
 
 protected:
     rotation_vector w;
-    bool saturated;
 };
 
 class state_scalar: public state_leaf<f_t, 1> {

@@ -1,0 +1,4 @@
+#XCode files
+*.xcuserstate
+xcuserdata
+*.xccheckout

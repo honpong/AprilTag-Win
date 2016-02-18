@@ -6,6 +6,7 @@
 //  Copyright (c) 2014 RealityCap. All rights reserved.
 //
 
+#import "RCDebugLog.h"
 #import "RCCameraManager.h"
 #import "camera_control_interface.h"
 

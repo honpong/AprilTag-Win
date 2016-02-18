@@ -21,12 +21,12 @@ void state_motion_orientation::cache_jacobians(f_t dt)
 void state_motion_orientation::project_motion_covariance(matrix &dst, const matrix &src, f_t dt)
 {
     for(int i = 0; i < src.rows(); ++i) {
-        v4 scov_Q = Q.copy_cov_from_row(src, i);
-        v4 cov_w = w.copy_cov_from_row(src, i);
-        v4 cov_dw = dw.copy_cov_from_row(src, i);
-        w.copy_cov_to_col(dst, i, cov_w + dt * cov_dw);
-        v4 cov_dW = (cov_w + f_t(.5) * dt * cov_dw) * dt;
-        Q.copy_cov_to_col(dst, i, scov_Q + dQp_s_dW * cov_dW);
+        const auto scov_Q = Q.from_row(src, i);
+        const auto cov_w = w.from_row(src, i);
+        const auto cov_dw = dw.from_row(src, i);
+        w.to_col(dst, i) = cov_w + dt * cov_dw;
+        const v3 cov_dW = (cov_w + f_t(.5) * dt * cov_dw) * dt;
+        Q.to_col(dst, i) = scov_Q + dQp_s_dW.block<3,3>(0,0) * cov_dW;
     }
 }
 
@@ -70,12 +70,11 @@ void state_motion::project_motion_covariance(matrix &dst, const matrix &src, f_t
     if (orientation_only) return;
 
     for(int i = 0; i < src.rows(); ++i) {
-        v4 cov_T = T.copy_cov_from_row(src, i);
-        v4 cov_V = V.copy_cov_from_row(src, i);
-        v4 cov_a = a.copy_cov_from_row(src, i);
-
-        T.copy_cov_to_col(dst, i, cov_T + dt * (cov_V + f_t(.5) * dt * cov_a));
-        V.copy_cov_to_col(dst, i, cov_V + dt * cov_a);
+        const auto cov_T = T.from_row(src, i);
+        const auto cov_V = V.from_row(src, i);
+        const auto cov_a = a.from_row(src, i);
+        T.to_col(dst, i) = cov_T + dt * (cov_V + f_t(.5) * dt * cov_a);
+        V.to_col(dst, i) = cov_V + dt * cov_a;
     }
 }
 

@@ -246,6 +246,18 @@ template <class T, int _size> class state_leaf: public state_node {
         }
     }
 
+    inline const Eigen::Map< const Eigen::Matrix<f_t, _size, 1>, Eigen::Unaligned, Eigen::OuterStride<> > from_row(const matrix &c, int i) const
+    {
+        static const f_t zero[_size] = {};
+        return { index >=0 ? &c(i,index) : &zero[0], Eigen::OuterStride<>(index >= 0 ? c.get_stride() : 1) };
+    }
+
+    inline Eigen::Map< Eigen::Matrix<f_t, _size, 1>, Eigen::Unaligned, Eigen::InnerStride<> > to_col(matrix &c, int j) const
+    {
+        static f_t scratch[_size];
+        return { index>=0 ? &c(index,j) : &scratch[0], Eigen::InnerStride<>(index >= 0 ? c.get_stride() : 1) };
+    }
+
     void remove() { index = -1; }
 protected:
     int index;

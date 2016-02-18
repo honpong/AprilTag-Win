@@ -7,8 +7,6 @@
 ;
 var MainController = (function ($, window, RealSense, THREE)
 {
-
-                      
     "use strict";
 
     var module = {};
@@ -17,9 +15,8 @@ var MainController = (function ($, window, RealSense, THREE)
     {
         STARTUP:        0,
         READY:          1,
-        INITIALIZING:   2,
-        AUGMENTED:      3,
-        ERROR:          4
+        TRACKING:       2,
+        ERROR:          3
     };
 
     var currentRunState = Tracker.SensorFusionRunState.Inactive;
@@ -39,48 +36,21 @@ var MainController = (function ($, window, RealSense, THREE)
         enterReadyState();
         FastClick.attach(document.body);
 
-        $("#shutterButton").on( "click", function() {
-            switch (workflowState)
-            {
-                case WorkflowStates.READY:
-                    enterAugmentedState();
-                    break;
-
-                case WorkflowStates.AUGMENTED:
-                    enterReadyState();
-                    break;
-
-                case WorkflowStates.ERROR:
-                    enterReadyState();
-                    break;
-            }
-        });
-
-        Tracker.onStatusUpdate(function (status)
+        Tracker.onStatusUpdate(function (trackingStatus, fps)
         {
-            showMessage(status);
-
-//            if (status.error)
-//            {
-//                if (status.error.class == Tracker.RCSensorFusionErrorClass)
-//                {
-//                    handleSensorFusionError(status.error);
-//                }
-//                else if (status.error.class == Tracker.RCLicenseErrorClass)
-//                {
-//                    handleLicenseError(status.error);
-//                }
-//            }
+            showMessage(trackingStatus + " - " + fps + " FPS");
         });
 
         Tracker.onPoseUpdate(function (projMatrix, camMatrix)
         {
-            if (workflowState = WorkflowStates.AUGMENTED)
-            {
-                var projectionMatrix = matrix4FromPlainObject(projMatrix);
-                var cameraMatrix = matrix4FromPlainObject(camMatrix);
-                updateWebGLView(projectionMatrix, cameraMatrix);
-            }
+            var projectionMatrix4 = matrix4FromPlainObject(projMatrix);
+            var cameraMatrix4 = matrix4FromPlainObject(camMatrix);
+            updateWebGLView(projectionMatrix4, cameraMatrix4);
+        });
+
+        Tracker.onSceneQualityUpdate(function (quality)
+        {
+            showMessage("Scene quality: " + quality);
         });
     });
 
@@ -99,23 +69,21 @@ var MainController = (function ($, window, RealSense, THREE)
     function enterReadyState()
     {
         showMessage("Press the button to start.");
-
         setupWebGLView();
-
+//        setupWebGLViewCubes();
         workflowState = WorkflowStates.READY;
     }
 
     function enterAugmentedState()
     {
         showMessage("Augmented reality!");
-        workflowState = WorkflowStates.AUGMENTED;
+        workflowState = WorkflowStates.TRACKING;
     }
 
     function enterErrorState(message)
     {
         if (!message) message = "Whoops, something went wrong.";
         showMessage(message);
-//        Tracker.stopSensorFusion();
         workflowState = WorkflowStates.ERROR;
     }
 
@@ -124,23 +92,64 @@ var MainController = (function ($, window, RealSense, THREE)
         $("#message").html(message);
     }
 
-    function handleSensorFusionError(error)
-    {
-        if (error.code > 1)
-        {
-            enterErrorState(error.class + ": " + error.code);
-        }
-    }
+    function setupWebGLViewCubes()
+     {
+        //prevent scrolling
+        window.document.body.addEventListener('touchstart', function(e){ e.stopPropagation(); e.preventDefault(); });
 
-    function handleLicenseError(error)
-    {
-        enterErrorState(error.class + ": " + error.code);
-    }
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
+
+        var canvas = document.getElementById("webGLCanvas");
+        renderer = new THREE.WebGLRenderer({ canvas: canvas });
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        renderer.setClearColor( 0xffffff, 1 );
+
+        var geometry = new THREE.BoxGeometry( .1, .1, .1 );
+
+        var cube = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x0000ff, shading: THREE.FlatShading } ) );
+        cube.position.z = -.5;
+        scene.add( cube );
+
+        cube = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x00ff00, shading: THREE.FlatShading } ) );
+        cube.position.z = .5;
+        scene.add( cube );
+
+        cube = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xff0000, shading: THREE.FlatShading } ) );
+        cube.position.x = .5;
+        scene.add( cube );
+
+        cube = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0xff00ff, shading: THREE.FlatShading } ) );
+        cube.position.x = -.5;
+        scene.add( cube );
+
+        cube = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x00ff00, shading: THREE.FlatShading } ) );
+        cube.position.y = .5;
+        scene.add( cube );
+
+        cube = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { color: 0x00ffff, shading: THREE.FlatShading } ) );
+        cube.position.y = -.5;
+        scene.add( cube );
+
+
+        var light;
+
+        // top
+        light = new THREE.DirectionalLight( 0xCDEDDF );
+        light.position.set( 0, 1, 1 );
+        scene.add( light );
+
+        light = new THREE.AmbientLight( 0x404040 );
+        scene.add( light );
+
+
+        window.document.addEventListener('click', onDocumentClick, false );
+     }
 
     function setupWebGLView()
     {
-        //prevent scrolling
-        document.body.addEventListener('touchstart', function(e){ e.stopPropagation(); e.preventDefault(); });
+        //prevent scrolling. broken on android.
+//        window.document.body.addEventListener('touchstart', function(e){ e.stopPropagation(); e.preventDefault(); });
 
         scene = new THREE.Scene();
         camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 1000 );
@@ -148,8 +157,8 @@ var MainController = (function ($, window, RealSense, THREE)
         var canvas = document.getElementById("webGLCanvas");
         renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true });
         renderer.setSize( window.innerWidth, window.innerHeight );
+        renderer.setClearColor( 0xffffff, 1 );
 
-                      
         // roll-over helpers
 
         rollOverGeo = new THREE.BoxGeometry( 0.05, 0.05, 0.05);
@@ -193,7 +202,7 @@ var MainController = (function ($, window, RealSense, THREE)
         raycaster.far = 500000;
         raycaster.precision = 0.0000000000001;
         raycaster.linePrecision = 0.0000000000001;
-                      
+
         mouse = new THREE.Vector2();
 
         var geometry = new THREE.PlaneBufferGeometry( 1, 1 );
@@ -205,8 +214,8 @@ var MainController = (function ($, window, RealSense, THREE)
         scene.add( plane );
 
         objects.push( plane );
-              
-                      
+
+
         var light;
 
         // top
@@ -216,13 +225,13 @@ var MainController = (function ($, window, RealSense, THREE)
 
         light = new THREE.AmbientLight( 0x404040 );
         scene.add( light );
-                      
-                      
-        document.addEventListener('click', onDocumentClick, false );
+
+
+        window.document.addEventListener('click', onDocumentClick, false );
     }
 
-    function onDocumentClick( event ) {
-
+    function onDocumentClick( event )
+    {
         event.preventDefault();
 
         mouse.set( ( event.clientX / window.innerWidth ) * 2 - 1, - ( event.clientY / window.innerHeight ) * 2 + 1 );
@@ -232,27 +241,25 @@ var MainController = (function ($, window, RealSense, THREE)
         //alert("camera matrixWorld [[ " + camera.matrixWorld.elements[0].toFixed(2) + ", " + camera.matrixWorld.elements[1].toFixed(2) + ", " + camera.matrixWorld.elements[2].toFixed(2) + ", " + camera.matrixWorld.elements[3].toFixed(2) + " ],[" + camera.matrixWorld.elements[4].toFixed(2) + ", " + camera.matrixWorld.elements[5].toFixed(2) + ", " + camera.matrixWorld.elements[6].toFixed(2) + ", " + camera.matrixWorld.elements[7].toFixed(2) + "],[" + camera.matrixWorld.elements[8].toFixed(2) + ", " + camera.matrixWorld.elements[9].toFixed(2) + ", " + camera.matrixWorld.elements[10].toFixed(2) + ", " + camera.matrixWorld.elements[11].toFixed(2) + "],[" + camera.matrixWorld.elements[12].toFixed(2) + ", " + camera.matrixWorld.elements[13].toFixed(2) + ", " + camera.matrixWorld.elements[14].toFixed(2) + ", " + camera.matrixWorld.elements[15].toFixed(2) + "] ], ray origin ( " + raycaster.ray.origin.x.toFixed(2) + ", " + raycaster.ray.origin.y.toFixed(2) + ", " + raycaster.ray.origin.z.toFixed(2) + " ), direction (" + raycaster.ray.direction.x.toFixed(2) + ", " + raycaster.ray.direction.y.toFixed(2) + ", " + raycaster.ray.direction.z.toFixed(2) + " )");
         //alert("ray origin ( " + raycaster.ray.origin.x.toFixed(2) + ", " + raycaster.ray.origin.y.toFixed(2) + ", " + raycaster.ray.origin.z.toFixed(2) + " ), direction (" + raycaster.ray.direction.x.toFixed(2) + ", " + raycaster.ray.direction.y.toFixed(2) + ", " + raycaster.ray.direction.z.toFixed(2) + " )");
 
-                      
-                      
         var intersects = raycaster.intersectObjects( scene.children);
 
         if ( intersects.length > 0 ) {
-                      
+
             var intersect = intersects[ 0 ];
 
             //alert("object found ( " + intersect.point.x.toString() + ", " + intersect.point.y.toString() + ", " + + intersect.point.z.toString() + " )");
-            
+
             //we need to put in a switch here
             if (intersect.object.id == rollOverMesh.id) {
                   var voxel = new THREE.Mesh( cubeGeo, cubeMaterial );
                   voxel.position.copy( rollOverMesh.position );
                   voxel.position.divideScalar( .05 ).floor().multiplyScalar( .05 ).addScalar( .025 );
                   scene.add( voxel );
-                  
+
                   objects.push( voxel );
 
             }
-            
+
             rollOverMesh.position.copy( intersect.point );
             //we want the selection box to apear adjacent to newly created voxels, we have to introduce a slight bias to its position so
                       // numerical error on the intersect doesn't push it into the newly created voxel.
@@ -260,23 +267,17 @@ var MainController = (function ($, window, RealSense, THREE)
             rollOverMesh.position.y = rollOverMesh.position.y + (raycaster.ray.origin.y - raycaster.ray.direction.y)/1000; //bais closer to camera.
             rollOverMesh.position.z = rollOverMesh.position.z + 0.001; //bais selection box to apear on top of objects.
             rollOverMesh.position.divideScalar( .05 ).floor().multiplyScalar( .05 ).addScalar( .025 );
-                      
-            
-                      
-                      
         }
 
         renderer.render( scene, camera );
-
     }
-    
+
                       
     function updateWebGLView(projectionMatrix, cameraMatrix)
     {
         if (!projectionMatrix) alert("no projection matrix");
         if (!cameraMatrix) alert("no camera matrix");
 
-                      
         camera.projectionMatrix = projectionMatrix;
         camera.matrixAutoUpdate = false;
         camera.matrixWorld = cameraMatrix;
@@ -284,7 +285,7 @@ var MainController = (function ($, window, RealSense, THREE)
         camera.position.x = cameraMatrix.elements[12];
         camera.position.y = cameraMatrix.elements[13];
         camera.position.z = cameraMatrix.elements[14];
-                      
+
         renderer.render( scene, camera );
     }
 

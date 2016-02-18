@@ -1,5 +1,7 @@
+set -xe
 rm -f          /tmp/tracker.zip
 git archive -o /tmp/tracker.zip HEAD -- RCUtility
+$ANDROID_NDK_DIR/toolchains/x86-4.9/prebuilt/darwin-x86_64/bin/i686-linux-android-strip --strip-unneeded rc_replay/lib/x86*/libtracker.so
 zip            /tmp/tracker.zip         rc_replay/{README,*.cpp,src/*.{cpp,h},lib/*/*.so}
 (
  rm -rf                                                             /tmp/rc_replay

@@ -221,6 +221,11 @@ void world_state::receive_camera(const filter * f, camera_data &&d)
     observe_plot_item(d.timestamp, p, "Wc_z", (float)to_rotation_vector(f->s.Qc.v).raw_vector()[2]);
     p++;
 #endif
+    
+    observe_plot_item(d.timestamp, p, "T_x", (float)f->s.T.v[0]);
+    observe_plot_item(d.timestamp, p, "T_y", (float)f->s.T.v[1]);
+    observe_plot_item(d.timestamp, p, "T_z", (float)f->s.T.v[2]);
+    p++;
 
     observe_plot_item(d.timestamp, p, "wbias_x", (float)f->s.w_bias.v[0]);
     observe_plot_item(d.timestamp, p, "wbias_y", (float)f->s.w_bias.v[1]);

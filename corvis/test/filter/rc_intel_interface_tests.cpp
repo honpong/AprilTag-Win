@@ -2,7 +2,6 @@
 #include "gtest/gtest.h"
 #include "rc_intel_interface.h"
 #include <memory>
-#include <codecvt>
 #include "calibration_json.h"
 #include "json_keys.h"
 

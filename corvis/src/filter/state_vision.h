@@ -168,7 +168,7 @@ class state_vision_group: public state_branch<state_node *> {
     
     //cached data
     m4 dQrp_s_dW;
-    m4 dTrp_ddT, dTrp_dQr_s_, dTrp_dQ_s;
+    m4 dTrp_ddT, dTrp_dQ_s;
 
 public:
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW

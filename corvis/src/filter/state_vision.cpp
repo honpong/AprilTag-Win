@@ -177,7 +177,7 @@ int state_vision_group::make_normal()
 state_vision::state_vision(covariance &c):
     state_motion(c),
     Tc("Tc"), Qc("Qc"), focal_length("focal_length"), center_x("center_x"), center_y("center_y"), k1("k1"), k2("k2"), k3("k3"),
-    fisheye(false), total_distance(0.), last_position(v4::Zero()), reference(nullptr), feature_counter(0), group_counter(0), lost_factor(.1)
+    fisheye(false), feature_counter(0), group_counter(0), total_distance(0.), last_position(v4::Zero()), reference(nullptr), lost_factor(.1)
 {
     reference = NULL;
     if(estimate_camera_intrinsics)
@@ -386,6 +386,7 @@ feature_t state_vision::distort_feature(const feature_t &feat_u, f_t *kd_u_, f_t
     f_t kd_u, ru2, ru = sqrt(ru2 = feat_u.squaredNorm());
     if (fisheye) {
         f_t w = k1.v; if (!w) { w = .922; fprintf(stderr, "you really shouldn't have a zero-angle fisheye lens\n"); }
+        if(ru < F_T_EPS) ru = F_T_EPS;
         kd_u = atan(2 * tan(w / 2) * ru) / (ru * w);  // FIXME: add higher order terms (but not the linear one)
         if (dkd_u_dru) *dkd_u_dru = 2 * tan(w/2) / (w + 4 * ru * ru * w * tan(w/2) * tan(w/2));
         if (dkd_u_dk1) *dkd_u_dk1 = 2 * ru / (w * (1 + cos(w) + 4 * ru * ru * (1 - cos(w)))) - kd_u / w;
@@ -408,6 +409,7 @@ feature_t state_vision::undistort_feature(const feature_t &feat_d, f_t *ku_d_, f
     f_t ku_d, rd2 = feat_d.squaredNorm();
     if (fisheye) {
         f_t rd = sqrt(rd2), w = k1.v; if (!w) { w = .922; fprintf(stderr, "you really shouldn't have a zero-angle fisheye lens\n"); }
+        if(rd < F_T_EPS) rd = F_T_EPS;
         ku_d = tan(w * rd) / (2 * tan(w/2) * rd);
         if (dku_d_drd) *dku_d_drd = 2 * (rd * w / (cos(rd * w) * cos(rd * w) * (2 * rd * tan(w/2))) - ku_d);
         if (dku_d_dk1) *dku_d_dk1 = (2 * rd * sin(w) - sin(2 * rd * w)) / (8 * rd * (cos(rd * w) * cos(rd * w)) * (sin(w/2) * sin(w/2)));
@@ -509,7 +511,6 @@ void state_vision::cache_jacobians(f_t dt)
         m4 Rr = to_rotation_matrix(g->Qr.v);
         g->dTrp_ddT = to_rotation_matrix(g->Qr.v * conjugate(Q.v));
         m4 xRrRtdT = skew3(g->dTrp_ddT * dT);
-        g->dTrp_dQr_s_ = xRrRtdT;
         g->dTrp_dQ_s   = xRrRtdT;
         g->dQrp_s_dW = Rr * JdW_s;
     }
@@ -517,18 +518,18 @@ void state_vision::cache_jacobians(f_t dt)
 
 void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t dt)
 {
-    for(state_vision_group *g : groups.children) {
-        for(int i = 0; i < src.rows(); ++i) {
+    for(int i = 0; i < src.rows(); ++i) {
+        v4 scov_Q = Q.copy_cov_from_row(src, i);
+        v4 cov_V = V.copy_cov_from_row(src, i);
+        v4 cov_a = a.copy_cov_from_row(src, i);
+        v4 cov_w = w.copy_cov_from_row(src, i);
+        v4 cov_dw = dw.copy_cov_from_row(src, i);
+        v4 cov_dT = dt * (cov_V + (dt / 2) * cov_a);
+        v4 cov_dW = dt * (cov_w + dt/2. * cov_dw);
+        for(state_vision_group *g : groups.children) {
             v4 cov_Tr = g->Tr.copy_cov_from_row(src, i);
             v4 scov_Qr = g->Qr.copy_cov_from_row(src, i);
-            v4 scov_Q = Q.copy_cov_from_row(src, i);
-            v4 cov_V = V.copy_cov_from_row(src, i);
-            v4 cov_a = a.copy_cov_from_row(src, i);
-            v4 cov_w = w.copy_cov_from_row(src, i);
-            v4 cov_dw = dw.copy_cov_from_row(src, i);
-            v4 cov_dT = dt * (cov_V + (dt / 2) * cov_a);
-            g->Tr.copy_cov_to_col(dst, i, cov_Tr - g->dTrp_dQr_s_ * scov_Qr + g->dTrp_dQ_s * scov_Q + g->dTrp_ddT * cov_dT);
-            v4 cov_dW = dt * (cov_w + dt/2. * cov_dw);
+            g->Tr.copy_cov_to_col(dst, i, cov_Tr + g->dTrp_dQ_s * (scov_Q - scov_Qr) + g->dTrp_ddT * cov_dT);
             g->Qr.copy_cov_to_col(dst, i, scov_Qr + g->dQrp_s_dW * cov_dW);
         }
     }

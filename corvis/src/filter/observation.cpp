@@ -25,7 +25,7 @@ void observation_queue::measure_and_prune()
     observations.erase(remove_if(observations.begin(), observations.end(), [this](auto &o) {
        bool ok = o->measure();
        if (!ok)
-           cache_recent(std::move(o));
+           this->cache_recent(std::move(o));
        return !ok;
     }), observations.end());
 }
@@ -259,7 +259,7 @@ void observation_vision_feature::cache_jacobians()
         //dy_dTr = m4(0.);
     } else {
         if(state.estimate_camera_intrinsics) {
-            f_t rd2, rd = sqrt(rd2=Xd.squaredNorm()), w = state.k1.v;
+            f_t rd2, rd = sqrt(rd2=Xd.squaredNorm());
             f_t ku_d, dku_d_drd, dku_d_dk1, dku_d_dk2, dku_d_dk3;
             /*X0 = */state.undistort_feature(Xd, &ku_d, &dku_d_drd, &dku_d_dk1, &dku_d_dk2, &dku_d_dk3);
             v4 dX_dcx = Rtot * v4(ku_d  + dku_d_drd*Xd.x()*Xd.x()/rd,         dku_d_drd*Xd.x()*Xd.y()/rd, 0, 0) / -state.focal_length.v;
@@ -535,7 +535,7 @@ void observation_accelerometer::project_covariance(matrix &dst, const matrix &sr
             if(state.estimate_camera_extrinsics) {
                 v4 scov_Qc = state.Qc.copy_cov_from_row(src, j);
                 v4 cov_Tc = state.Tc.copy_cov_from_row(src, j);
-                res += da_dQc * scov_Qc + da_dQc * cov_Tc;
+                res += da_dQc * scov_Qc + da_dTc * cov_Tc;
             }
             for(int i = 0; i < 3; ++i) {
                 dst(i, j) = res[i];
@@ -563,7 +563,6 @@ bool observation_accelerometer::measure()
     stdev.data(g);
     if(!state.orientation_initialized)
     {
-        m4 Rc = to_rotation_matrix(state.Qc.v);
         state.initial_orientation = initial_orientation_from_gravity(state.Qc.v * g);
         state.Q.v = state.initial_orientation;
         state.orientation_initialized = true;

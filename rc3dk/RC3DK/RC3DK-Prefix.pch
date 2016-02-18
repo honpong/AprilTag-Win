@@ -1,9 +1,0 @@
-//
-// Prefix header for all source files of the 'RC3DK' target in the 'RC3DK' project
-//
-
-#ifdef __OBJC__
-    #import <Foundation/Foundation.h>
-    #import "RCConstants.h"
-#endif
- 

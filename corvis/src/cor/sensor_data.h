@@ -11,6 +11,7 @@
 
 #include <memory>
 #include <stdlib.h>
+#include <string.h>
 #include <assert.h>
 #include "platform/sensor_clock.h"
 
@@ -29,7 +30,7 @@ public:
     image_data(image_data<camera_type, data_type>&& other) = default;
     image_data &operator=(image_data<camera_type, data_type>&& other) = default;
     image_data(const image_data<camera_type, data_type> &other) : timestamp(other.timestamp), exposure_time(other.exposure_time),
-        width(other.width), height(other.height), stride(other.stride), image_handle(nullptr, nullptr), image(nullptr) {
+        image_handle(nullptr, nullptr), image(nullptr), width(other.width), height(other.height), stride(other.stride) {
             assert(stride % sizeof(data_type) == 0);
             if(height && stride) {
                 image = (data_type *)malloc(stride*height);

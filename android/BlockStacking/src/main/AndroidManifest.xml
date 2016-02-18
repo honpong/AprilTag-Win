@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.intel.sample.depth.spsample"
+    package="com.intel.sample.depth.blockstacking"
     android:versionCode="1"
-    android:versionName="0.2.171404"  >
+    android:versionName="0.1"  >
 
     <uses-sdk
         android:minSdkVersion="22"
@@ -11,6 +11,7 @@
 	 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />	 
  <!-- request permission to use camera - no need if you are using Intent -->
 	<uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 	<!-- declare usage of camera features - you can add a specific camera features, to
 	     avoid the app from being installed in a device that doesn't support that feature -->
     <uses-feature android:name="android.hardware.camera" />

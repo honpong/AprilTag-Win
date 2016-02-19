@@ -120,6 +120,7 @@ fusion_queue::fusion_queue(const std::function<void(image_gray8 &&)> &camera_fun
                            const std::function<void(gyro_data &&)> &gyro_func,
                            latency_strategy s,
                            sensor_clock::duration max_jitter):
+                strategy(s),
                 camera_receiver(camera_func),
                 depth_receiver(depth_func),
                 accel_receiver(accelerometer_func),
@@ -132,7 +133,6 @@ fusion_queue::fusion_queue(const std::function<void(image_gray8 &&)> &camera_fun
                 active(false),
                 wait_for_camera(true),
                 singlethreaded(false),
-                strategy(s),
                 jitter(max_jitter)
 {
 }

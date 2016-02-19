@@ -28,6 +28,32 @@ TEST_F(StateVision, UndistortPolynomialIdentity)
     }
 }
 
+TEST_F(StateVision, UndistortPolynomialZero)
+{
+    state.fisheye = false;
+    state.k1.v = -0.00959507;
+    state.k2.v = 0.008005806;
+    state.k3.v = 0.000281827;
+
+    feature_t p = {0, 0};
+    feature_t undistort_p = state.undistort_feature(p);
+    EXPECT_NEAR(undistort_p.x(), 0., std::numeric_limits<float>::epsilon());
+    EXPECT_NEAR(undistort_p.y(), 0., std::numeric_limits<float>::epsilon());
+}
+
+TEST_F(StateVision, DistortPolynomialZero)
+{
+    state.fisheye = false;
+    state.k1.v = -0.00959507;
+    state.k2.v = 0.008005806;
+    state.k3.v = 0.000281827;
+
+    feature_t p = {0, 0};
+    feature_t distort_p = state.distort_feature(p);
+    EXPECT_NEAR(distort_p.x(), 0., std::numeric_limits<float>::epsilon());
+    EXPECT_NEAR(distort_p.y(), 0., std::numeric_limits<float>::epsilon());
+}
+
 TEST_F(StateVision, UndistortFisheyeIdentity)
 {
     state.fisheye = true;
@@ -40,6 +66,28 @@ TEST_F(StateVision, UndistortFisheyeIdentity)
         EXPECT_NEAR(p.y(), distort_undistort_p.y(), std::numeric_limits<float>::epsilon());
     }
 
+}
+
+TEST_F(StateVision, UndistortFisheyeZero)
+{
+    state.fisheye = true;
+    state.k1.v = 0.95;
+
+    feature_t p = {0, 0};
+    feature_t undistort_p = state.undistort_feature(p);
+    EXPECT_NEAR(undistort_p.x(), 0., std::numeric_limits<float>::epsilon());
+    EXPECT_NEAR(undistort_p.y(), 0., std::numeric_limits<float>::epsilon());
+}
+
+TEST_F(StateVision, DistortFisheyeZero)
+{
+    state.fisheye = true;
+    state.k1.v = 0.95;
+
+    feature_t p = {0, 0};
+    feature_t distort_p = state.distort_feature(p);
+    EXPECT_NEAR(distort_p.x(), 0., std::numeric_limits<float>::epsilon());
+    EXPECT_NEAR(distort_p.y(), 0., std::numeric_limits<float>::epsilon());
 }
 
 TEST_F(StateVision, NormalizeIdentity)

@@ -92,9 +92,12 @@ filter(): s(cov)
     observation_queue observations;
     
     camera_control_interface camera_control;
+    image_depth16 recent_depth;
+    bool has_depth;
 };
 
-bool filter_image_measurement(struct filter *f, const camera_data & camera);
+bool filter_depth_measurement(struct filter *f, const image_depth16 & depth);
+bool filter_image_measurement(struct filter *f, const image_gray8 & image);
 void filter_accelerometer_measurement(struct filter *f, const float data[3], sensor_clock::time_point time);
 void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_clock::time_point time);
 void filter_set_origin(struct filter *f, const transformation &origin, bool gravity_aligned);

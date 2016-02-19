@@ -5,11 +5,12 @@
 TEST(SensorFusionQueue, Reorder)
 {
     sensor_clock::time_point last_time;
-    auto camf = [&last_time](camera_data &&x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; };
+    auto camf = [&last_time](image_gray8 &&x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; };
+    auto depthf = [&last_time](image_depth16 &&x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; };
     auto accf = [&last_time](accelerometer_data &&x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; };
     auto gyrf = [&last_time](gyro_data &&x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; };
     
-    fusion_queue q(camf, accf, gyrf, fusion_queue::latency_strategy::BALANCED, std::chrono::microseconds(5000));
+    fusion_queue q(camf, depthf, accf, gyrf, fusion_queue::latency_strategy::BALANCED, std::chrono::microseconds(5000));
     
     q.start_sync(true);
 
@@ -24,7 +25,11 @@ TEST(SensorFusionQueue, Reorder)
     a.timestamp = sensor_clock::time_point(std::chrono::microseconds(8000));
     q.receive_accelerometer(std::move(a));
 
-    camera_data c;
+    image_depth16 d;
+    d.timestamp = sensor_clock::time_point(std::chrono::microseconds(5000));
+    q.receive_depth(std::move(d));
+
+    image_gray8 c;
     c.timestamp = sensor_clock::time_point(std::chrono::microseconds(5000));
     q.receive_camera(std::move(c));
 
@@ -81,18 +86,19 @@ TEST(SensorFusionQueue, Threading)
     int gyrrcv = 0;
     int accrcv = 0;
     
-    auto camf = [&last_cam_time, &camrcv](camera_data &&x) { EXPECT_GE(x.timestamp, last_cam_time); last_cam_time = x.timestamp; ++camrcv; };
+    auto camf = [&last_cam_time, &camrcv](image_gray8 &&x) { EXPECT_GE(x.timestamp, last_cam_time); last_cam_time = x.timestamp; ++camrcv; };
+    auto depthf = [&last_cam_time, &camrcv](image_depth16 &&x) { EXPECT_GE(x.timestamp, last_cam_time); last_cam_time = x.timestamp; ++camrcv; };
     auto accf = [&last_acc_time, &accrcv](accelerometer_data &&x) { EXPECT_GE(x.timestamp, last_acc_time); last_acc_time = x.timestamp; ++accrcv; };
     auto gyrf = [&last_gyr_time, &gyrrcv](gyro_data &&x) { EXPECT_GE(x.timestamp, last_gyr_time); last_gyr_time = x.timestamp; ++gyrrcv; };
 
-    fusion_queue q(camf, accf, gyrf, fusion_queue::latency_strategy::BALANCED, jitter);
+    fusion_queue q(camf, depthf, accf, gyrf, fusion_queue::latency_strategy::BALANCED, jitter);
 
     auto start = sensor_clock::now();
     
     q.start_sync(true);
     
     std::thread camthread([&q, start, camera_interval, cam_latency, &camsent, thread_time]{
-        camera_data x;
+        image_gray8 x;
         auto now = sensor_clock::now();
         auto start_time = now;
         while((now = sensor_clock::now()) < start_time + thread_time)
@@ -143,11 +149,12 @@ TEST(SensorFusionQueue, Threading)
 TEST(ThreadedDispatch, DropLate)
 {
     sensor_clock::time_point last_time;
-    auto camf = [&last_time](camera_data &&x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; };
+    auto camf = [&last_time](image_gray8 &&x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; };
+    auto depthf = [&last_time](image_depth16 &&x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; };
     auto accf = [&last_time](accelerometer_data &&x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; EXPECT_NE(x.timestamp, sensor_clock::time_point(std::chrono::microseconds(17000))); };
     auto gyrf = [&last_time](gyro_data &&x) { EXPECT_GE(x.timestamp, last_time); last_time = x.timestamp; EXPECT_NE(x.timestamp, sensor_clock::time_point(std::chrono::microseconds(30000))); };
     
-    fusion_queue q(camf, accf, gyrf, fusion_queue::latency_strategy::BALANCED, std::chrono::microseconds(5000));
+    fusion_queue q(camf, depthf, accf, gyrf, fusion_queue::latency_strategy::BALANCED, std::chrono::microseconds(5000));
     
     q.start_sync(true);
     
@@ -162,7 +169,7 @@ TEST(ThreadedDispatch, DropLate)
     a.timestamp = sensor_clock::time_point(std::chrono::microseconds(8000));
     q.receive_accelerometer(std::move(a));
     
-    camera_data c;
+    image_gray8 c;
     c.timestamp = sensor_clock::time_point(std::chrono::microseconds(5000));
     q.receive_camera(std::move(c));
     

@@ -29,12 +29,15 @@ private:
     void write_image_gray8(uint8_t * image, int width, int height, int stride, uint64_t timestamp);
     void write_accelerometer_data(const float data[3], uint64_t timestamp);
     void write_gyroscope_data(const float data[3], uint64_t timestamp);
+    void write_image_raw(const sensor_clock::time_point & timestamp, const sensor_clock::duration & exposure_time,
+            const uint8_t * image, uint16_t width, uint16_t height, uint16_t stride, rc_ImageFormat format);
 
 public:
     bool start(const char *name);
     void stop();
     void write_image_gray8(const image_gray8& x);
-    void write_camera(const camera_data& x);
+    void write_camera(const image_gray8& x);
+    void write_camera(const image_depth16& x);
     void write_accelerometer(const accelerometer_data& x);
     void write_gyro(const gyro_data& x);
     uint64_t get_bytes_written() { return bytes_written; }

@@ -107,7 +107,7 @@ void replay::setup_filter()
 {
     if(camera_callback)
     {
-        fusion.camera_callback = [this](std::unique_ptr<sensor_fusion::data> data, camera_data &&image)
+        fusion.camera_callback = [this](std::unique_ptr<sensor_fusion::data> data, image_gray8 &&image)
         {
             camera_callback(&fusion.sfm, std::move(image));
         };
@@ -206,7 +206,7 @@ void replay::start()
                     std::stringstream parse(tmp);
                     //pgm header is "P5 x y"
                     parse.ignore(3, ' ') >> width >> height;
-                    camera_data d = parse_gray8(width, height, width, packet->data + 16, packet->header.time, 33333, std::move(phandle));
+                    image_gray8 d = parse_gray8(width, height, width, packet->data + 16, packet->header.time, 33333, std::move(phandle));
                     if(image_decimate && d.timestamp < last_image) break;
                     if(last_image == sensor_clock::time_point()) last_image = d.timestamp;
                     last_image += image_interval;
@@ -218,42 +218,49 @@ void replay::start()
                 case packet_image_with_depth:
                 {
                     packet_image_with_depth_t *ip = (packet_image_with_depth_t *)packet;
-                    camera_data d = parse_gray8(ip->width, ip->height, ip->width, ip->data, ip->header.time, ip->exposure_time_us, std::move(phandle));
+                    image_gray8 d = parse_gray8(ip->width, ip->height, ip->width, ip->data, ip->header.time, ip->exposure_time_us, std::move(phandle));
+                    if(image_decimate && d.timestamp < last_image) break;
                     if(depth && ip->depth_height && ip->depth_width)
                     {
-                        d.depth = std::make_unique<image_depth16>();
-                        d.depth->width = ip->depth_width;
-                        d.depth->height = ip->depth_height;
-                        d.depth->stride = ip->depth_width * 2;
-                        d.depth->timestamp = d.timestamp;
-                        d.depth->exposure_time = d.exposure_time;
-                        d.depth->image = (uint16_t *)(ip->data + ip->width * ip->height);
-                        int width = d.depth->width;
-                        int height = d.depth->height;
-                        int stride = d.depth->stride;
+                        image_depth16 depth;
+                        depth.width = ip->depth_width;
+                        depth.height = ip->depth_height;
+                        depth.stride = ip->depth_width * 2;
+                        depth.timestamp = d.timestamp;
+                        depth.exposure_time = d.exposure_time;
+                        depth.image = (uint16_t *)(ip->data + ip->width * ip->height);
+                        int width = depth.width;
+                        int height = depth.height;
+                        int stride = depth.stride;
                         if(qvga && width == 640 && height == 480)
                         {
-                            d.depth->width = width / 2;
-                            d.depth->height = height / 2;
-                            d.depth->stride = stride / 2;
-                            for(int y = 0; y < d.depth->height; ++y) {
-                                for(int x = 0; x < d.depth->width; ++x) {
-                                    uint16_t p1 = d.depth->image[(y * 2 * width) + (x * 2)];
-                                    uint16_t p2 = d.depth->image[((y * 2 + 1) * width) + (x * 2)];
-                                    uint16_t p3 = d.depth->image[(y * 2 * width) + (x * 2 + 1)];
-                                    uint16_t p4 = d.depth->image[((y * 2 + 1) * width) + (x * 2 + 1)];
+                            depth.width = width / 2;
+                            depth.height = height / 2;
+                            depth.stride = stride / 2;
+                            for(int y = 0; y < depth.height; ++y) {
+                                for(int x = 0; x < depth.width; ++x) {
+                                    uint16_t p1 = depth.image[(y * 2 * width) + (x * 2)];
+                                    uint16_t p2 = depth.image[((y * 2 + 1) * width) + (x * 2)];
+                                    uint16_t p3 = depth.image[(y * 2 * width) + (x * 2 + 1)];
+                                    uint16_t p4 = depth.image[((y * 2 + 1) * width) + (x * 2 + 1)];
                                     int divisor = !!p1 + !!p2 + !!p3 + !!p4;
-                                    d.depth->image[d.depth->stride / 2 * y + x] = (p1 + p2 + p3 + p4) / (divisor ? divisor : 1);
+                                    depth.image[depth.width * y + x] = (p1 + p2 + p3 + p4) / (divisor ? divisor : 1);
                                 }
                             }
                         }
+                        fusion.receive_image(std::move(depth));
                     }
-                    if(image_decimate && d.timestamp < last_image) break;
                     if(last_image == sensor_clock::time_point()) last_image = d.timestamp;
                     last_image += image_interval;
                     fusion.receive_image(std::move(d));
                     is_stepping = false;
                     break;
+                }
+                case packet_image_raw:
+                {
+                    fprintf(stderr, "FIXME: image_raw\n");
+                    break;
+
                 }
                 case packet_accelerometer:
                 {

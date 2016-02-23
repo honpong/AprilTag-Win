@@ -143,7 +143,7 @@
         isSensorFusionRunning = NO;
         isProcessingVideo = NO;
         
-        auto cam_fn = [self](camera_data &&data)
+        auto cam_fn = [self](image_gray8 &&data)
         {
             bool docallback = true;
             CMSampleBufferRef sampleBuffer = (CMSampleBufferRef)data.image_handle.get();
@@ -161,6 +161,11 @@
             }
         };
         
+        auto depth_fn = [self](image_depth16 &&data)
+        {
+            
+        };
+        
         auto acc_fn = [self](accelerometer_data &&data)
         {
             if(!isSensorFusionRunning) return;
@@ -174,7 +179,7 @@
             filter_gyroscope_measurement(&_cor_setup->sfm, data.angvel_rad__s, data.timestamp);
         };
 
-        queue = std::make_unique<fusion_queue>(cam_fn, acc_fn, gyr_fn, fusion_queue::latency_strategy::MINIMIZE_DROPS, std::chrono::microseconds(10000)); //Have to make jitter high - ipad air 2 accelerometer has high latency, we lose about 10% of samples with jitter at 8000
+        queue = std::make_unique<fusion_queue>(cam_fn, depth_fn, acc_fn, gyr_fn, fusion_queue::latency_strategy::MINIMIZE_DROPS, std::chrono::microseconds(10000)); //Have to make jitter high - ipad air 2 accelerometer has high latency, we lose about 10% of samples with jitter at 8000
         lastRunState = RCSensorFusionRunStateInactive;
         lastErrorCode = RCSensorFusionErrorCodeNone;
         lastConfidence = RCSensorFusionConfidenceNone;
@@ -563,7 +568,7 @@
         return;
     }
     try {
-        camera_data c(camera_data_from_CMSampleBufferRef(sampleBuffer));
+        image_gray8 c(camera_data_from_CMSampleBufferRef(sampleBuffer));
         queue->receive_camera(std::move(c));
     } catch (std::runtime_error) {
         //do nothing - indicates the sample / image buffer was not valid.

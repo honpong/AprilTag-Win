@@ -9,6 +9,8 @@
 #import "TMMapVC.h"
 #import <RCCore/RCCore.h>
 #import "RCCore/RCGeocoder.h"
+#import "TMAnalytics.h"
+#import "TMConstants.h"
 
 @interface TMMapVC ()
 

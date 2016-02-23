@@ -7,6 +7,7 @@
 //
 
 #import "TMPoint.h"
+#import <RCCore/RCCore.h>
 
 @interface TMPoint (TMPointExt)
 

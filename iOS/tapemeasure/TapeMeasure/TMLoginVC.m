@@ -8,6 +8,9 @@
 
 #import "TMLoginVC.h"
 #import "TMCreateAccountVC.h"
+#import "TMAnalytics.h"
+#import "TMConstants.h"
+#import <RCCore/RCCore.h>
 
 @implementation TMLoginVC
 

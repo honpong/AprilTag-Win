@@ -7,6 +7,7 @@
 //
 
 #import "RCMeasuredPhoto.h"
+#import "RCConstants.h"
 
 #define DATE_FORMATTER_INBOUND [RCDateFormatter getInstanceForFormat:@"yyyy-MM-dd'T'HH:mm:ss'Z'"]
 #define DATE_FORMATTER_OUTBOUND [RCDateFormatter getInstanceForFormat:@"yyyy-MM-dd'T'HH:mm:ss"]

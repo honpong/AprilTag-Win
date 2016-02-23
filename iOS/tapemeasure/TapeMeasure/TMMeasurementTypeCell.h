@@ -7,6 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "TMConstants.h"
 
 @interface TMMeasurementTypeCell : UICollectionViewCell
 

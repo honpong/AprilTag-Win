@@ -7,6 +7,8 @@
 //
 
 #import "RCHTTPClient.h"
+#import "RCConstants.h"
+#import "RC3DK.h"
 
 @implementation RCHTTPClient
 @synthesize apiVersion;

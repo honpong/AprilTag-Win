@@ -7,6 +7,7 @@
 //
 
 #import "TMLocalMoviePlayer.h"
+#import "TMAnalytics.h"
 
 @interface TMLocalMoviePlayer ()
 

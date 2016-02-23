@@ -918,8 +918,8 @@
 					"\"$(SRCROOT)/../opencv\"",
 				);
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "RCCore/RCCore-Prefix.pch";
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = "\"$(BUILT_PRODUCTS_DIR)/AFNetworking\"";
 				LIBRARY_SEARCH_PATHS = (
@@ -953,8 +953,8 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../opencv\"",
 				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "RCCore/RCCore-Prefix.pch";
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = "\"$(BUILT_PRODUCTS_DIR)/AFNetworking\"";
 				LIBRARY_SEARCH_PATHS = (
@@ -1011,8 +1011,8 @@
 					"$(inherited)",
 					"\"$(SRCROOT)/../opencv\"",
 				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "RCCore/RCCore-Prefix.pch";
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
 				HEADER_SEARCH_PATHS = "\"$(BUILT_PRODUCTS_DIR)/AFNetworking\"";
 				LIBRARY_SEARCH_PATHS = (

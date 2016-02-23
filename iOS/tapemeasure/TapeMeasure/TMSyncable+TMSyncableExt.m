@@ -7,6 +7,8 @@
 //
 
 #import "TMSyncable+TMSyncableExt.h"
+#import "TMConstants.h"
+#import <RCCore/RCCore.h>
 
 @implementation TMSyncable (TMSyncableExt)
 

@@ -7,6 +7,7 @@
 //
 
 #import "TMLocation+TMLocationExt.h"
+#import "TMConstants.h"
 
 @implementation TMLocation (TMLocationExt)
 

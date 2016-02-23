@@ -7,6 +7,7 @@
 //
 
 #import "TMMeasurement+TMMeasurementExt.h"
+#import "TMConstants.h"
 
 @implementation TMMeasurement (TMMeasurementExt)
 

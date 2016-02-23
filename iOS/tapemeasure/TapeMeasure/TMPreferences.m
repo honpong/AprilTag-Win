@@ -7,6 +7,9 @@
 //
 
 #import "TMPreferences.h"
+#import "TMAnalytics.h"
+#import "TMConstants.h"
+#import <RCCore/RCCore.h>
 
 @interface TMPreferences ()
 

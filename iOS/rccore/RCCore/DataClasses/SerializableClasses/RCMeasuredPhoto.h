@@ -11,6 +11,7 @@
 #import "RCUserManager.h"
 #import "RCHttpClient.h"
 #import "RCDateFormatter.h"
+#import "RC3DK.h"
 
 @interface RCMeasuredPhoto : NSObject
 

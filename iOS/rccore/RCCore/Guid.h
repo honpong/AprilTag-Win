@@ -3,6 +3,8 @@
 //  Copyright (c) 2012 Thong Nguyen (tumtumtum@gmail.com). All rights reserved.
 //
 
+#import <Foundation/Foundation.h>
+
 typedef enum
 {
 	GuidFormatCompact = 0,

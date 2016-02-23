@@ -7,6 +7,7 @@
 //
 
 #import <QuartzCore/QuartzCore.h>
+#import <UIKit/UIKit.h>
 
 extern CGFloat const kMPFeatureRadius;
 extern CGFloat const kMPFeatureFrameSize;

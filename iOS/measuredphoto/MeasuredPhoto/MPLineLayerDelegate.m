@@ -8,6 +8,8 @@
 
 #import "MPLineLayerDelegate.h"
 #import "MPLineLayer.h"
+#import <GLKit/GLKit.h>
+#import <UIKit/UIKit.h>
 
 @implementation MPLineLayerDelegate
 

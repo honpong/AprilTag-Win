@@ -9,6 +9,7 @@
 #import "MPSurveyAnswer.h"
 #import "MPAnalytics.h"
 #import <RCCore/RCCore.h>
+#import "MPConstants.h"
 
 @implementation MPSurveyAnswer
 

@@ -7,6 +7,7 @@
 //
 
 #import "MPUndoOverlay.h"
+#import <RCCore/RCCore.h>
 
 @interface MPUndoOverlay ()
 

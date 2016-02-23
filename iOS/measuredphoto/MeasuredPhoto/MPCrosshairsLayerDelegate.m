@@ -7,6 +7,7 @@
 //
 
 #import "MPCrosshairsLayerDelegate.h"
+#import <GLKit/GLKit.h>
 
 static const int kCrosshairLength = 25;
 

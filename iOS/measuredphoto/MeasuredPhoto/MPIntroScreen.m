@@ -9,6 +9,7 @@
 #import "MPIntroScreen.h"
 #import "MPAnalytics.h"
 #import "MPLocationIntro.h"
+#import <RCCore/RCCore.h>
 
 @interface MPIntroScreen ()
 

@@ -8,6 +8,8 @@
 
 #import "MPDMeasuredPhoto+MPDMeasuredPhotoExt.h"
 #import "UIImage+MPImageFile.h"
+#import <RCCore/RCCore.h>
+#import "MPConstants.h"
 
 @implementation MPDMeasuredPhoto (MPDMeasuredPhotoExt)
 

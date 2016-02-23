@@ -10,6 +10,7 @@
 #import "MPEditPhoto.h"
 #import "MPUndoOverlay.h"
 #import "MPShareSheet.h"
+#import <RCCore/RCCore.h>
 
 @interface MPGalleryController : UIViewController <UICollectionViewDataSource, UICollectionViewDelegate, MPUndoOverlayDelegate, UIActionSheetDelegate, MPShareSheetDelegate, RCLocalMoviePlayerDelegate>
 

@@ -8,6 +8,7 @@
 
 #import "MPAnalytics.h"
 #import "Flurry.h"
+#import <RCCore/RCDebugLog.h>
 
 @implementation MPAnalytics
 

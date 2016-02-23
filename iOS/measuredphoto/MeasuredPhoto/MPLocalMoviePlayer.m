@@ -7,6 +7,7 @@
 //
 
 #import "MPLocalMoviePlayer.h"
+#import "MPAnalytics.h"
 
 @interface MPLocalMoviePlayer ()
 

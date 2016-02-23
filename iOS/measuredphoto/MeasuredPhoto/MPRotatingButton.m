@@ -8,6 +8,8 @@
 
 #import "MPRotatingButton.h"
 #import "MPOrientationChangeData.h"
+#import "MPConstants.h"
+#import <RCCore/RCCore.h>
 
 @implementation MPRotatingButton
 

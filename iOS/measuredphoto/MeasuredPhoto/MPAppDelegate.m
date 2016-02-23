@@ -19,6 +19,7 @@
 #import "MPGalleryController.h"
 #import "RCCalibration2.h"
 #import "RCCalibration3.h"
+#import "MPConstants.h"
 
 #if TARGET_IPHONE_SIMULATOR
 #define SKIP_CALIBRATION YES // skip calibration when running on emulator because it cannot calibrate

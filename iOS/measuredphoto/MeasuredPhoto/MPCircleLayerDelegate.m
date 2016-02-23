@@ -7,6 +7,7 @@
 //
 
 #import "MPCircleLayerDelegate.h"
+#import <UIKit/UIKit.h>
 
 @implementation MPCircleLayerDelegate
 

@@ -7,6 +7,7 @@
 //
 
 #import "MPDotLayerDelegate.h"
+#import <GLKit/GLKit.h>
 
 @implementation MPDotLayerDelegate
 

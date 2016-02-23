@@ -8,6 +8,8 @@
 
 #import "MPPreferencesController.h"
 #import <RCCore/RCCore.h>
+#import "MPAnalytics.h"
+#import "MPConstants.h"
 
 @interface MPPreferencesController ()
 

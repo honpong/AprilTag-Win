@@ -2495,8 +2495,8 @@
 					"$(inherited)",
 					"$(SRCROOT)/**",
 				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = "ARCHIVE=1";
 				INFOPLIST_FILE = "MeasuredPhoto/MeasuredPhoto-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -2606,8 +2606,8 @@
 					"$(inherited)",
 					"$(SRCROOT)/**",
 				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
 				INFOPLIST_FILE = "MeasuredPhoto/MeasuredPhoto-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				IS_FILE_SHARING_ENABLED = YES;
@@ -2646,8 +2646,8 @@
 					"$(inherited)",
 					"$(SRCROOT)/**",
 				);
-				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "MeasuredPhoto/MeasuredPhoto-Prefix.pch";
+				GCC_PRECOMPILE_PREFIX_HEADER = NO;
+				GCC_PREFIX_HEADER = "";
 				INFOPLIST_FILE = "MeasuredPhoto/MeasuredPhoto-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				IS_FILE_SHARING_ENABLED = YES;

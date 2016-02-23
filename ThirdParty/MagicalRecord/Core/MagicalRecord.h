@@ -4,6 +4,7 @@
 //  Created by Saul Mora on 3/11/10.
 //  Copyright 2010 Magical Panda Software, LLC All rights reserved.
 //
+#import <Foundation/Foundation.h>
 
 /**
  Defines current and historical version numbers for MagicalRecord.

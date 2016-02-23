@@ -5,6 +5,7 @@
 //  Created by Ben Hirashima on 11/29/12.
 //  Copyright (c) 2012 RealityCap. All rights reserved.
 //
+#import <Foundation/Foundation.h>
 
 #ifndef TapeMeasure_Constants_h
 #define TapeMeasure_Constants_h

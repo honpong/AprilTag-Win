@@ -9,6 +9,7 @@
 #import "MPTitleTextBox.h"
 #import "CoreData+MagicalRecord.h"
 #import "MPOrientationChangeData.h"
+#import "MPConstants.h"
 
 @implementation MPTitleTextBox
 {

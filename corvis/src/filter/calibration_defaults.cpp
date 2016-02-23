@@ -1,6 +1,8 @@
 #include "calibration_defaults.h"
 #include "calibration_json.h"
 
+// NOTE these string literals seem to have a length limit of around 1032 characters. the string gets truncated after that. currently, they are just under that limit. - Ben
+
 static const char *CALIBRATION_DEFAULT_GIGABYTES11 = R"(
 {
   "device": "gigabytes11",
@@ -41,9 +43,7 @@ static const char *CALIBRATION_DEFAULT_GIGABYTES11 = R"(
   "wMeasVar": 0.000025,
   "aMeasVar": 0.0009,
   "imageWidth": 640,
-  "imageHeight": 480,
-  "shutterDelay": 0,
-  "shutterPeriod": 33333
+  "imageHeight": 480
 }
 )";
 
@@ -87,9 +87,7 @@ static const char *CALIBRATION_DEFAULT_IPAD2 = R"(
   "wMeasVar": 1.3707783182326239e-05,
   "aMeasVar": 0.00022821025049779564,
   "imageWidth": 640,
-  "imageHeight": 480,
-  "shutterDelay": 0,
-  "shutterPeriod": 33333
+  "imageHeight": 480
 }
 )";
 
@@ -133,9 +131,7 @@ static const char *CALIBRATION_DEFAULT_IPAD3 = R"(
   "wMeasVar": 1.3707783182326239e-05,
   "aMeasVar": 0.00022821025049779564,
   "imageWidth": 640,
-  "imageHeight": 480,
-  "shutterDelay": 0,
-  "shutterPeriod": 33333
+  "imageHeight": 480
 }
 )";
 
@@ -179,9 +175,7 @@ static const char *CALIBRATION_DEFAULT_IPAD4 = R"(
   "wMeasVar": 1.3707783182326239e-05,
   "aMeasVar": 0.00022821025049779564,
   "imageWidth": 640,
-  "imageHeight": 480,
-  "shutterDelay": 0,
-  "shutterPeriod": 33333
+  "imageHeight": 480
 }
 )";
 
@@ -225,9 +219,7 @@ static const char *CALIBRATION_DEFAULT_IPADAIR = R"(
   "wMeasVar": 1.3707783182326239e-05,
   "aMeasVar": 0.00022821025049779564,
   "imageWidth": 640,
-  "imageHeight": 480,
-  "shutterDelay": 0,
-  "shutterPeriod": 33333
+  "imageHeight": 480
 }
 )";
 
@@ -271,9 +263,7 @@ static const char *CALIBRATION_DEFAULT_IPADAIR2 = R"(
   "wMeasVar": 1.3707783182326239e-05,
   "aMeasVar": 0.00022821025049779564,
   "imageWidth": 640,
-  "imageHeight": 480,
-  "shutterDelay": 0,
-  "shutterPeriod": 33333
+  "imageHeight": 480
 }
 )";
 
@@ -317,9 +307,7 @@ static const char *CALIBRATION_DEFAULT_IPADMINI = R"(
   "wMeasVar": 1.3707783182326239e-05,
   "aMeasVar": 0.00022821025049779564,
   "imageWidth": 640,
-  "imageHeight": 480,
-  "shutterDelay": 0,
-  "shutterPeriod": 33333
+  "imageHeight": 480
 }
 )";
 
@@ -363,9 +351,7 @@ static const char *CALIBRATION_DEFAULT_IPADMINIRETINA = R"(
   "wMeasVar": 1.3707783182326239e-05,
   "aMeasVar": 0.00022821025049779564,
   "imageWidth": 640,
-  "imageHeight": 480,
-  "shutterDelay": 0,
-  "shutterPeriod": 33333
+  "imageHeight": 480
 }
 )";
 
@@ -409,9 +395,7 @@ static const char *CALIBRATION_DEFAULT_IPADMINIRETINA2 = R"(
   "wMeasVar": 1.3707783182326239e-05,
   "aMeasVar": 0.00022821025049779564,
   "imageWidth": 640,
-  "imageHeight": 480,
-  "shutterDelay": 0,
-  "shutterPeriod": 33333
+  "imageHeight": 480
 }
 )";
 
@@ -455,9 +439,7 @@ static const char *CALIBRATION_DEFAULT_IPHONE4S = R"(
   "wMeasVar": 1.3707783182326239e-05,
   "aMeasVar": 0.00022821025049779564,
   "imageWidth": 640,
-  "imageHeight": 480,
-  "shutterDelay": 0,
-  "shutterPeriod": 33333
+  "imageHeight": 480
 }
 )";
 
@@ -501,9 +483,7 @@ static const char *CALIBRATION_DEFAULT_IPHONE5 = R"(
   "wMeasVar": 1.3707783182326239e-05,
   "aMeasVar": 0.00022821025049779564,
   "imageWidth": 640,
-  "imageHeight": 480,
-  "shutterDelay": 0,
-  "shutterPeriod": 33333
+  "imageHeight": 480
 }
 )";
 
@@ -547,9 +527,7 @@ static const char *CALIBRATION_DEFAULT_IPHONE5C = R"(
   "wMeasVar": 1.3707783182326239e-05,
   "aMeasVar": 0.00022821025049779564,
   "imageWidth": 640,
-  "imageHeight": 480,
-  "shutterDelay": 0,
-  "shutterPeriod": 33333
+  "imageHeight": 480
 }
 )";
 
@@ -593,9 +571,7 @@ static const char *CALIBRATION_DEFAULT_IPHONE5S = R"(
   "wMeasVar": 1.3707783182326239e-05,
   "aMeasVar": 0.00022821025049779564,
   "imageWidth": 640,
-  "imageHeight": 480,
-  "shutterDelay": 0,
-  "shutterPeriod": 33333
+  "imageHeight": 480
 }
 )";
 
@@ -639,9 +615,7 @@ static const char *CALIBRATION_DEFAULT_IPHONE6 = R"(
   "wMeasVar": 1.3707783182326239e-05,
   "aMeasVar": 0.00022821025049779564,
   "imageWidth": 640,
-  "imageHeight": 480,
-  "shutterDelay": 0,
-  "shutterPeriod": 33333
+  "imageHeight": 480
 }
 )";
 
@@ -685,9 +659,7 @@ static const char *CALIBRATION_DEFAULT_IPHONE6PLUS = R"(
   "wMeasVar": 1.3707783182326239e-05,
   "aMeasVar": 0.00022821025049779564,
   "imageWidth": 640,
-  "imageHeight": 480,
-  "shutterDelay": 0,
-  "shutterPeriod": 33333
+  "imageHeight": 480
 }
 )";
 
@@ -731,9 +703,7 @@ static const char *CALIBRATION_DEFAULT_IPOD5 = R"(
   "wMeasVar": 1.3707783182326239e-05,
   "aMeasVar": 0.00022821025049779564,
   "imageWidth": 640,
-  "imageHeight": 480,
-  "shutterDelay": 0,
-  "shutterPeriod": 33333
+  "imageHeight": 480
 }
 )";
 
@@ -777,9 +747,7 @@ static const char *CALIBRATION_DEFAULT_UNKNOWN = R"(
   "wMeasVar": 1.3707783182326239e-05,
   "aMeasVar": 0.00022821025049779564,
   "imageWidth": 640,
-  "imageHeight": 480,
-  "shutterDelay": 0,
-  "shutterPeriod": 33333
+  "imageHeight": 480
 }
 )";
 
@@ -826,8 +794,8 @@ const char *calibration_default_json_for_device_type(corvis_device_type device)
 
 bool calibration_load_defaults(const corvis_device_type deviceType, calibration_json &cal)
 {
-    const calibration_json def = {};
-    bool result = calibration_deserialize(calibration_default_json_for_device_type(deviceType), cal);
+    std::string defaultJson(calibration_default_json_for_device_type(deviceType));
+    bool result = calibration_deserialize(defaultJson, cal);
     if (result) cal.version = CALIBRATION_VERSION; // need this here to override possibly outdated value in default JSON
     return result;
 }

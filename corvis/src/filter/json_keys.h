@@ -41,8 +41,6 @@
 #define KEY_DISTORTION_MODEL "distortionModel"
 #define KEY_DEPTH "depth"
 #define KEY_DEVICE_NAME "device"
-#define KEY_SHUTTER_DELAY "shutterDelay"
-#define KEY_SHUTTER_PERIOD "shutterPeriod"
 #define KEY_TIMESTAMP_OFFSET "timeStampOffset"
 #define KEY_ACCEL_TRANSFORM "accelerometerTransform"
 #define KEY_GYRO_TRANSFORM "gyroscopeTransform"

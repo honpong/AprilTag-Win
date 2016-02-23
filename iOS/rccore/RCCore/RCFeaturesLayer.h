@@ -8,6 +8,7 @@
 
 #import <QuartzCore/QuartzCore.h>
 #import "RCFeatureLayerDelegate.h"
+#import "RC3DK.h"
 
 #define VIDEO_WIDTH 480.
 #define VIDEO_HEIGHT 640.

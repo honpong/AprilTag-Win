@@ -7,6 +7,7 @@
 //
 
 #import "RCUser.h"
+#import "RCConstants.h"
 
 @implementation RCUser
 

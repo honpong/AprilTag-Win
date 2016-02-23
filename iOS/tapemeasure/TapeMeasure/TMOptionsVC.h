@@ -7,6 +7,7 @@
 //
 
 #import "TMMeasurement.h"
+#import <UIKit/UIKit.h>
 
 @protocol OptionsDelegate <NSObject>
 

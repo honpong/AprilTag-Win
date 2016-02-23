@@ -7,6 +7,7 @@
 //
 
 #import "TMShareSheet.h"
+#import "TMConstants.h"
 
 @implementation TMShareSheet
 

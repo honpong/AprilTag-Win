@@ -9,6 +9,7 @@
 #import "TMResultsVC.h"
 #import "TMHistoryVC.h"
 #import <RCCore/RCCore.h>
+#import "TMAnalytics.h"
 
 @interface TMResultsVC ()
 

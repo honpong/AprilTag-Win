@@ -6,6 +6,8 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
+#import <Foundation/Foundation.h>
+
 /** Instatiating NSDateFormatter is expensive, so we cache it in this singleton */
 @interface RCDateFormatter : NSObject
 

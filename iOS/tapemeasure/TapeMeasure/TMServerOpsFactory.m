@@ -8,6 +8,9 @@
 
 #import "TMServerOpsFactory.h"
 #import "RCCore/RCUserManager.h"
+#import "TMConstants.h"
+#import "TMAnalytics.h"
+#import <RCCore/RCDebugLog.h>
 
 @interface TMServerOpsImpl : NSObject <TMServerOps>
 {

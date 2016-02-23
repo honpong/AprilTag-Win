@@ -7,6 +7,7 @@
 //
 
 #import "RCDistanceImperialFractional.h"
+#import "RCDebugLog.h"
 
 @implementation RCDistanceImperialFractional
 {

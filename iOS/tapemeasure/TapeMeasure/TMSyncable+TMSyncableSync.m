@@ -7,6 +7,9 @@
 //
 
 #import "TMSyncable+TMSyncableSync.h"
+#import "TMConstants.h"
+#import <RCCore/RCDebugLog.h>
+#import "TMAnalytics.h"
 
 @implementation TMSyncable (TMSyncableSync)
 

@@ -14,6 +14,7 @@
 #import "TMLocalMoviePlayer.h"
 #import "TMPreferences.h"
 #import <RCCore/RCCore.h>
+#import "TMAnalytics.h"
 
 @implementation TMHistoryVC
 {

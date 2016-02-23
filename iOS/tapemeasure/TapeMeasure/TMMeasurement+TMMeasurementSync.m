@@ -7,6 +7,8 @@
 //
 
 #import "TMMeasurement+TMMeasurementSync.h"
+#import "TMConstants.h"
+#import <RCCore/RCCore.h>
 
 @implementation TMMeasurement (TMMeasurementSync)
 

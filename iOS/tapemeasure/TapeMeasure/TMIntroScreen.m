@@ -8,6 +8,8 @@
 
 #import "TMIntroScreen.h"
 #import "TMLocationIntro.h"
+#import "TMAnalytics.h"
+#import "RC3DK.h"
 
 @interface TMIntroScreen ()
 

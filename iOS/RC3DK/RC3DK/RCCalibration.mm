@@ -15,49 +15,17 @@
 
 + (BOOL) saveCalibrationData: (device_parameters)params
 {
-    LOGME
-    
-    NSDictionary* data = @{KEY_CALIBRATION_VERSION: [NSNumber numberWithFloat:CALIBRATION_VERSION],
-        KEY_FX: @(params.Fx),
-        KEY_FY: @(params.Fy),
-        KEY_CX: @(params.Cx),
-        KEY_CY: @(params.Cy),
-        KEY_PX: @(params.px),
-        KEY_PY: @(params.py),
-        KEY_K0: @(params.K0),
-        KEY_K1: @(params.K1),
-        KEY_K2: @(params.K2),
-        KEY_ABIAS0: @(params.a_bias[0]),
-        KEY_ABIAS1: @(params.a_bias[1]),
-        KEY_ABIAS2: @(params.a_bias[2]),
-        KEY_WBIAS0: @(params.w_bias[0]),
-        KEY_WBIAS1: @(params.w_bias[1]),
-        KEY_WBIAS2: @(params.w_bias[2]),
-        KEY_TC0: @(params.Tc[0]),
-        KEY_TC1: @(params.Tc[1]),
-        KEY_TC2: @(params.Tc[2]),
-        KEY_WC0: @(params.Wc[0]),
-        KEY_WC1: @(params.Wc[1]),
-        KEY_WC2: @(params.Wc[2]),
-        KEY_ABIASVAR0: @(params.a_bias_var[0]),
-        KEY_ABIASVAR1: @(params.a_bias_var[1]),
-        KEY_ABIASVAR2: @(params.a_bias_var[2]),
-        KEY_WBIASVAR0: @(params.w_bias_var[0]),
-        KEY_WBIASVAR1: @(params.w_bias_var[1]),
-        KEY_WBIASVAR2: @(params.w_bias_var[2]),
-        KEY_TCVAR0: @(params.Tc_var[0]),
-        KEY_TCVAR1: @(params.Tc_var[1]),
-        KEY_TCVAR2: @(params.Tc_var[2]),
-        KEY_WCVAR0: @(params.Wc_var[0]),
-        KEY_WCVAR1: @(params.Wc_var[1]),
-        KEY_WCVAR2: @(params.Wc_var[2]),
-        KEY_WMEASVAR: @(params.w_meas_var),
-        KEY_AMEASVAR: @(params.a_meas_var),
-        KEY_IMAGE_WIDTH: @(params.image_width),
-        KEY_IMAGE_HEIGHT: @(params.image_height)};
-    
-    [[NSUserDefaults standardUserDefaults] setObject:data forKey:PREF_DEVICE_PARAMS];
-    return [[NSUserDefaults standardUserDefaults] synchronize];
+    std::string calJson;
+    if (calibration_serialize(params, calJson))
+    {
+        [NSUserDefaults.standardUserDefaults setObject:[NSString stringWithUTF8String:calJson.c_str()] forKey:PREF_DEVICE_PARAMS];
+        return [[NSUserDefaults standardUserDefaults] synchronize];
+    }
+    else
+    {
+        DLog(@"Failed to save calibration data");
+        return NO;
+    }
 }
 
 + (corvis_device_type) getCorvisDeviceForDeviceType: (DeviceType)type
@@ -107,127 +75,46 @@
 
 + (device_parameters) getCalibrationData
 {
-    LOGME
-    
-    device_parameters defaults = [self getDefaultsForCurrentDevice], params;
-    
-    NSDictionary* data = [RCCalibration getCalibrationAsDictionary];
-    if (data == nil || ![RCCalibration isCalibrationDataValid:data]) return defaults;
+    NSString* calNSString = [RCCalibration loadStoredCalibrationJSONString];
+    if (calNSString == nil) return [RCCalibration getDefaultsForCurrentDevice];
 
-    params = [RCCalibration copySavedCalibrationData:data];
-    
-    //DLog(@"%@", [self stringFromCalibration:params]);
-    return params;
+    std::string calString = [calNSString cStringUsingEncoding:NSUTF8StringEncoding];
+    device_parameters params;
+    if(calibration_deserialize(calString, params))
+    {
+        
+        return params;
+    }
+    else
+    {
+        DLog(@"Failed to deserialize calibration");
+        return [RCCalibration getDefaultsForCurrentDevice];
+    }
 }
 
-+ (device_parameters) copySavedCalibrationData:(NSDictionary*)data
-{
-    device_parameters dc;
-    if (!data) return dc;
-
-    dc.Fx = [((NSNumber*)data[KEY_FX]) floatValue];
-    dc.Fy = [((NSNumber*)data[KEY_FY]) floatValue];
-    dc.Cx = [((NSNumber*)data[KEY_CX]) floatValue];
-    dc.Cy = [((NSNumber*)data[KEY_CY]) floatValue];
-    dc.px = [((NSNumber*)data[KEY_PX]) floatValue];
-    dc.py = [((NSNumber*)data[KEY_PY]) floatValue];
-    dc.K0 = [((NSNumber*)data[KEY_K0]) floatValue];
-    dc.K1 = [((NSNumber*)data[KEY_K1]) floatValue];
-    dc.K2 = [((NSNumber*)data[KEY_K2]) floatValue];
-    dc.a_bias[0] = [((NSNumber*)data[KEY_ABIAS0]) floatValue];
-    dc.a_bias[1] = [((NSNumber*)data[KEY_ABIAS1]) floatValue];
-    dc.a_bias[2] = [((NSNumber*)data[KEY_ABIAS2]) floatValue];
-    dc.w_bias[0] = [((NSNumber*)data[KEY_WBIAS0]) floatValue];
-    dc.w_bias[1] = [((NSNumber*)data[KEY_WBIAS1]) floatValue];
-    dc.w_bias[2] = [((NSNumber*)data[KEY_WBIAS2]) floatValue];
-    dc.Tc[0] = [((NSNumber*)data[KEY_TC0]) floatValue];
-    dc.Tc[1] = [((NSNumber*)data[KEY_TC1]) floatValue];
-    dc.Tc[2] = [((NSNumber*)data[KEY_TC2]) floatValue];
-    dc.Wc[0] = [((NSNumber*)data[KEY_WC0]) floatValue];
-    dc.Wc[1] = [((NSNumber*)data[KEY_WC1]) floatValue];
-    dc.Wc[2] = [((NSNumber*)data[KEY_WC2]) floatValue];
-    dc.a_bias_var[0] = [((NSNumber*)data[KEY_ABIASVAR0]) floatValue];
-    dc.a_bias_var[1] = [((NSNumber*)data[KEY_ABIASVAR1]) floatValue];
-    dc.a_bias_var[2] = [((NSNumber*)data[KEY_ABIASVAR2]) floatValue];
-    dc.w_bias_var[0] = [((NSNumber*)data[KEY_WBIASVAR0]) floatValue];
-    dc.w_bias_var[1] = [((NSNumber*)data[KEY_WBIASVAR1]) floatValue];
-    dc.w_bias_var[2] = [((NSNumber*)data[KEY_WBIASVAR2]) floatValue];
-    dc.Tc_var[0] = [((NSNumber*)data[KEY_TCVAR0]) floatValue];
-    dc.Tc_var[1] = [((NSNumber*)data[KEY_TCVAR1]) floatValue];
-    dc.Tc_var[2] = [((NSNumber*)data[KEY_TCVAR2]) floatValue];
-    dc.Wc_var[0] = [((NSNumber*)data[KEY_WCVAR0]) floatValue];
-    dc.Wc_var[1] = [((NSNumber*)data[KEY_WCVAR1]) floatValue];
-    dc.Wc_var[2] = [((NSNumber*)data[KEY_WCVAR2]) floatValue];
-    dc.w_meas_var = [((NSNumber*)data[KEY_WMEASVAR]) floatValue];
-    dc.a_meas_var = [((NSNumber*)data[KEY_AMEASVAR]) floatValue];
-    dc.image_width = [((NSNumber*)data[KEY_IMAGE_WIDTH]) intValue];
-    dc.image_height = [((NSNumber*)data[KEY_IMAGE_HEIGHT]) intValue];
-    
-    return dc;
-}
-
-+ (NSDictionary*) getCalibrationAsDictionary
++ (NSString*) loadStoredCalibrationJSONString
 {
     return [[NSUserDefaults standardUserDefaults] objectForKey:PREF_DEVICE_PARAMS];
-}
-
-+ (NSString*) stringFromCalibration:(device_parameters)dc
-{
-    return [NSString stringWithFormat:
-            @"F % .1f % .1f\n"
-            "C % .1f % .1f\n"
-            "p % e % e\n"
-            "K % .4f % .4f % .4f\n\n"
-            
-            "abias % .4f % .4f % .4f %.1e %.1e %.1e\n"
-            "wbias % .4f % .4f % .4f %.1e %.1e %.1e\n\n"
-            
-            "Tc % .4f % .4f % .4f %.1e %.1e %.1e\n"
-            "Wc % .4f % .4f % .4f %.1e %.1e %.1e\n\n"
-            
-            "wm %e am %e width %d height %d\n",
-            dc.Fx, dc.Fy,
-            dc.Cx, dc.Cy,
-            dc.px, dc.py,
-            dc.K0, dc.K1, dc.K2,
-            dc.a_bias[0], dc.a_bias[1], dc.a_bias[2], dc.a_bias_var[0], dc.a_bias_var[1], dc.a_bias_var[2],
-            dc.w_bias[0], dc.w_bias[1], dc.w_bias[2], dc.w_bias_var[0], dc.w_bias_var[1], dc.w_bias_var[2],
-            dc.Tc[0], dc.Tc[1], dc.Tc[2], dc.Tc_var[0], dc.Tc_var[1], dc.Tc_var[2],
-            dc.Wc[0], dc.Wc[1], dc.Wc[2], dc.Wc_var[0], dc.Wc_var[1], dc.Wc_var[2],
-            dc.w_meas_var, dc.a_meas_var, dc.image_width, dc.image_height];
-}
-
-+ (NSString*) getCalibrationAsString
-{
-    NSDictionary* data = [RCCalibration getCalibrationAsDictionary];
-    if (!data) return nil;
-    device_parameters dc = [self copySavedCalibrationData:data];
-    return [self stringFromCalibration:dc];
 }
 
 + (NSString*) getCalibrationAsJsonWithVendorId
 {
     NSString* vendorId = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
-    NSDictionary *calibrationDict = [self getCalibrationAsDictionary];
-    if(!calibrationDict) return nil;
-    NSDictionary* dict = @{ @"id": vendorId, @"calibration": calibrationDict };
-    
-    NSError *error;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:dict
-                                                       options:NSJSONWritingPrettyPrinted
-                                                         error:&error];
-    if (! jsonData) {
-        NSLog(@"Got an error: %@", error);
-        return @"";
-    } else {
-        return [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    }
+    NSString* calJson = [RCCalibration loadStoredCalibrationJSONString];
+    if (vendorId == nil || calJson == nil) return nil;
+    return [NSString stringWithFormat:@"{\n    \"id\" : %@,\n    \"calibration\" :\n    %@\n}", vendorId, calJson];
 }
 
 + (BOOL) hasCalibrationData
 {
-    NSDictionary* data = [[NSUserDefaults standardUserDefaults] objectForKey:PREF_DEVICE_PARAMS];
-    return [RCCalibration isCalibrationDataValid:data];
+    NSString* jsonString = [[NSUserDefaults standardUserDefaults] objectForKey:PREF_DEVICE_PARAMS];
+    if (jsonString == nil) return NO;
+    
+    std::string jsonStdString = [jsonString cStringUsingEncoding:NSUTF8StringEncoding];
+    device_parameters params;
+    if (!calibration_deserialize(jsonStdString, params)) return NO;
+    
+    return [RCCalibration isCalibrationDataValid:params];
 }
 
 + (void) clearCalibrationData
@@ -235,29 +122,26 @@
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:PREF_DEVICE_PARAMS];
 }
 
-+ (BOOL) isCalibrationDataValid:(NSDictionary*)data
++ (BOOL) isCalibrationDataValid:(device_parameters)params
 {
-    BOOL result = NO;
-    if (data)
-    {
-        NSNumber* calibrationVersion = data[KEY_CALIBRATION_VERSION];
-        if (calibrationVersion && [calibrationVersion intValue] == CALIBRATION_VERSION) result = YES;
-        device_parameters defaults = [self getDefaultsForCurrentDevice];
-        //check if biases are within 5 sigma
-        float a = [((NSNumber*)data[KEY_ABIAS0]) floatValue];
-        if(a * a > 5. * 5. * defaults.a_bias_var[0]) result = NO;
-        a = [((NSNumber*)data[KEY_ABIAS1]) floatValue];
-        if(a * a > 5. * 5. * defaults.a_bias_var[1]) result = NO;
-        a = [((NSNumber*)data[KEY_ABIAS2]) floatValue];
-        if(a * a > 5. * 5. * defaults.a_bias_var[2]) result = NO;
-        a = [((NSNumber*)data[KEY_WBIAS0]) floatValue];
-        if(a * a > 5. * 5. * defaults.w_bias_var[0]) result = NO;
-        a = [((NSNumber*)data[KEY_WBIAS1]) floatValue];
-        if(a * a > 5. * 5. * defaults.w_bias_var[1]) result = NO;
-        a = [((NSNumber*)data[KEY_WBIAS2]) floatValue];
-        if(a * a > 5. * 5. * defaults.w_bias_var[2]) result = NO;
-    }
-    return result;
+    if (params.version != CALIBRATION_VERSION) return NO;
+    
+    device_parameters defaults = [self getDefaultsForCurrentDevice];
+    
+    double a = params.imu.a_bias_m__s2[0];
+    if(a * a > 5. * 5. * defaults.imu.a_bias_var_m2__s4[0]) return NO;
+    a = params.imu.a_bias_m__s2[1];
+    if(a * a > 5. * 5. * defaults.imu.a_bias_var_m2__s4[1]) return NO;
+    a = params.imu.a_bias_m__s2[2];
+    if(a * a > 5. * 5. * defaults.imu.a_bias_var_m2__s4[2]) return NO;
+    a = params.imu.w_bias_rad__s[0];
+    if(a * a > 5. * 5. * defaults.imu.w_bias_var_rad2__s2[0]) return NO;
+    a = params.imu.w_bias_rad__s[1];
+    if(a * a > 5. * 5. * defaults.imu.w_bias_var_rad2__s2[1]) return NO;
+    a = params.imu.w_bias_rad__s[2];
+    if(a * a > 5. * 5. * defaults.imu.w_bias_var_rad2__s2[2]) return NO;
+    
+    return YES;
 }
 
 #ifndef OFFLINE
@@ -266,7 +150,7 @@
     LOGME;
     
     NSString *jsonString = [RCCalibration getCalibrationAsJsonWithVendorId];
-    if(!jsonString)
+    if(jsonString == nil)
     {
         DLog(@"Failed to get calibration. Result was nil.");
         return;

@@ -310,28 +310,28 @@ state_vision_group * state_vision::add_group(sensor_clock::time_point time)
 
 feature_t state_vision::normalize_feature(const feature_t &feat) const
 {
-    return (((feat - image_size() / 2) + feature_t{.5,.5}) / image_height - feature_t {center_x.v, center_y.v}) / focal_length.v;
+    return (((feat - f_t(.5) * image_size()) + feature_t{.5,.5}) / image_height - feature_t {center_x.v, center_y.v}) / focal_length.v;
 }
 
 feature_t state_vision::unnormalize_feature(const feature_t &feat_n) const
 {
-    return (feat_n * focal_length.v + feature_t {center_x.v, center_y.v}) * image_height + image_size() / 2 - feature_t{.5,.5};
+    return (feat_n * focal_length.v + feature_t {center_x.v, center_y.v}) * image_height + f_t(.5) * image_size() - feature_t{.5,.5};
 }
 
 feature_t state_vision::distort_feature(const feature_t &feat_u, f_t *kd_u_, f_t *dkd_u_dru, f_t *dkd_u_dk1, f_t *dkd_u_dk2, f_t *dkd_u_dk3) const
 {
-    f_t kd_u, ru2, ru = sqrt(ru2 = feat_u.squaredNorm());
+    f_t kd_u, ru2, ru = std::sqrt(ru2 = feat_u.squaredNorm());
     if (fisheye) {
         f_t w = k1.v; if (!w) { w = .922; fprintf(stderr, "you really shouldn't have a zero-angle fisheye lens\n"); }
         if(ru < F_T_EPS) ru = F_T_EPS;
-        kd_u = atan(2 * tan(w / 2) * ru) / (ru * w);  // FIXME: add higher order terms (but not the linear one)
-        if (dkd_u_dru) *dkd_u_dru = 2 * tan(w/2) / (w + 4 * ru * ru * w * tan(w/2) * tan(w/2));
-        if (dkd_u_dk1) *dkd_u_dk1 = 2 * ru / (w * (1 + cos(w) + 4 * ru * ru * (1 - cos(w)))) - kd_u / w;
+        kd_u = std::atan(f_t(2) * std::tan(w * f_t(.5)) * ru) / (ru * w);  // FIXME: add higher order terms (but not the linear one)
+        if (dkd_u_dru) *dkd_u_dru = f_t(2) * std::tan(f_t(.5)*w) / (w + f_t(4) * ru * ru * w * std::tan(f_t(.5)*w) * std::tan(f_t(.5)*w));
+        if (dkd_u_dk1) *dkd_u_dk1 = f_t(2) * ru / (w * (f_t(1) + std::cos(w) + f_t(4) * ru * ru * (f_t(1) - std::cos(w)))) - kd_u / w;
         if (dkd_u_dk2) *dkd_u_dk2 = 0;
         if (dkd_u_dk3) *dkd_u_dk3 = 0;
     } else {
-        kd_u = 1 + ru2 * (k1.v + ru2 * (k2.v + ru2 * k3.v));
-        if (dkd_u_dru) *dkd_u_dru = 0 * (k1.v + ru2 * (2 * k2.v + 3 * k3.v * ru2)) * 2 * sqrt(ru2);
+        kd_u = f_t(1) + ru2 * (k1.v + ru2 * (k2.v + ru2 * k3.v));
+        if (dkd_u_dru) *dkd_u_dru = 0 * (k1.v + ru2 * (f_t(2) * k2.v + f_t(3) * k3.v * ru2)) * f_t(2) * std::sqrt(ru2);
         if (dkd_u_dk1) *dkd_u_dk1 = ru2;
         if (dkd_u_dk2) *dkd_u_dk2 = ru2 * ru2;
         if (dkd_u_dk3) *dkd_u_dk3 = ru2 * ru2 * ru2;
@@ -345,24 +345,24 @@ feature_t state_vision::undistort_feature(const feature_t &feat_d, f_t *ku_d_, f
 {
     f_t ku_d, rd2 = feat_d.squaredNorm();
     if (fisheye) {
-        f_t rd = sqrt(rd2), w = k1.v; if (!w) { w = .922; fprintf(stderr, "you really shouldn't have a zero-angle fisheye lens\n"); }
+        f_t rd = std::sqrt(rd2), w = k1.v; if (!w) { w = .922; fprintf(stderr, "you really shouldn't have a zero-angle fisheye lens\n"); }
         if(rd < F_T_EPS) rd = F_T_EPS;
-        ku_d = tan(w * rd) / (2 * tan(w/2) * rd);
-        if (dku_d_drd) *dku_d_drd = 2 * (rd * w / (cos(rd * w) * cos(rd * w) * (2 * rd * tan(w/2))) - ku_d);
-        if (dku_d_dk1) *dku_d_dk1 = (2 * rd * sin(w) - sin(2 * rd * w)) / (8 * rd * (cos(rd * w) * cos(rd * w)) * (sin(w/2) * sin(w/2)));
+        ku_d = std::tan(w * rd) / (f_t(2) * std::tan(f_t(.5)*w) * rd);
+        if (dku_d_drd) *dku_d_drd = f_t(2) * (rd * w / (std::cos(rd * w) * std::cos(rd * w) * (f_t(2) * rd * std::tan(w*f_t(.5)))) - ku_d);
+        if (dku_d_dk1) *dku_d_dk1 = (f_t(2) * rd * std::sin(w) - std::sin(f_t(2) * rd * w)) / (f_t(8) * rd * (std::cos(rd * w) * std::cos(rd * w)) * (std::sin(w*f_t(.5)) * std::sin(w*f_t(.5))));
         if (dku_d_dk2) *dku_d_dk2 = 0;
         if (dku_d_dk3) *dku_d_dk3 = 0;
     } else {
         f_t kd_u, ru2 = rd2, dkd_u_dru2;
         for (int i=0; i<4; i++) {
-           kd_u =  1 + ru2 * (k1.v + ru2 * (k2.v + ru2 * k3.v));
-           dkd_u_dru2 = k1.v + 2 * ru2 * (k2.v + 3 * ru2 * k3.v);
+           kd_u =  f_t(1) + ru2 * (k1.v + ru2 * (k2.v + ru2 * k3.v));
+           dkd_u_dru2 = k1.v + f_t(2) * ru2 * (k2.v + f_t(3) * ru2 * k3.v);
            // f(ru2) == ru2 * kd_u * kd_u - rd2 == 0;
            // ru2 -= f(ru2) / f'(ru2)
-           ru2 -= (ru2 * kd_u * kd_u - rd2) / (kd_u * (kd_u + 2 * ru2 * dkd_u_dru2));
+           ru2 -= (ru2 * kd_u * kd_u - rd2) / (kd_u * (kd_u + f_t(2) * ru2 * dkd_u_dru2));
         }
-        ku_d = 1 / kd_u;
-        f_t ru = sqrt(ru2), dkd_u_dru = 2 * ru * dkd_u_dru2;
+        ku_d = f_t(1) / kd_u;
+        f_t ru = std::sqrt(ru2), dkd_u_dru = f_t(2) * ru * dkd_u_dru2;
         // dku_d_drd = d/rd (1/kd_u) = d/ru (1/kd_u) dru/drd = d/ru (1/kd_u) / (drd/dru) = d/ru (1/kd_u) / (d/ru (ru kd_u)) = -dkd_u_dru/kd_u/kd_u / (kd_u + ru dkd_u_dru)
         if (dku_d_drd) *dku_d_drd = 0 * -dkd_u_dru/(kd_u * kd_u * (kd_u + ru * dkd_u_dru));
         if (dku_d_dk1) *dku_d_dk1 = -(ru2            )/(kd_u*kd_u);
@@ -461,8 +461,8 @@ void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t
         v4 cov_a = a.copy_cov_from_row(src, i);
         v4 cov_w = w.copy_cov_from_row(src, i);
         v4 cov_dw = dw.copy_cov_from_row(src, i);
-        v4 cov_dT = dt * (cov_V + 1/2. * dt * cov_a);
-        v4 cov_dW = dt * (cov_w + 1/2. * dt * cov_dw);
+        v4 cov_dT = dt * (cov_V + f_t(0.5) * dt * cov_a);
+        v4 cov_dW = dt * (cov_w + f_t(0.5) * dt * cov_dw);
         for(state_vision_group *g : groups.children) {
             v4 cov_Tr = g->Tr.copy_cov_from_row(src, i);
             v4 scov_Qr = g->Qr.copy_cov_from_row(src, i);

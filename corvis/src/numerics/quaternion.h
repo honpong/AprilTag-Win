@@ -76,9 +76,9 @@ static inline m4 to_rotation_matrix(const quaternion &q)
     //Need explicit naming of return type to work around compiler bug
     //https://connect.microsoft.com/VisualStudio/Feedback/Details/1515546
     return m4 {
-        {1. - 2. * (yy+zz), 2. * (xy-wz), 2. * (xz+wy), 0.},
-        {2. * (xy+wz), 1. - 2. * (xx+zz), 2. * (yz-wx), 0.},
-        {2. * (xz-wy), 2. * (yz+wx), 1. - 2. * (xx+yy), 0.},
+        {f_t(1) - f_t(2) * (yy+zz), f_t(2) * (xy-wz), f_t(2) * (xz+wy), 0.},
+        {f_t(2) * (xy+wz), f_t(1) - f_t(2) * (xx+zz), f_t(2) * (yz-wx), 0.},
+        {f_t(2) * (xz-wy), f_t(2) * (yz+wx), f_t(1) - f_t(2) * (xx+yy), 0.},
         {0., 0., 0., 1.}
     };
 }

@@ -65,14 +65,16 @@ void world_state::observe_plot_item(sensor_clock::time_point timestamp, size_t i
     plot_lock.unlock();
 }
 
-void world_state::observe_map_node(sensor_clock::time_point timestamp, uint64_t node_id, bool finished, const transformation &position, vector<uint64_t>neighbors)
+void world_state::observe_map_node(sensor_clock::time_point timestamp, uint64_t node_id, bool finished, bool loop_closed, const transformation &position, vector<uint64_t> & neighbors, vector<Feature> & features)
 {
     display_lock.lock();
     MapNode n;
     n.id = node_id;
     n.finished = finished;
+    n.loop_closed = loop_closed;
     n.position = position;
     n.neighbors = neighbors;
+    n.features = features;
     map_nodes[node_id] = n;
     display_lock.unlock();
 }
@@ -147,7 +149,7 @@ void world_state::receive_camera(const filter * f, camera_data &&d)
             bool good = stdev / feat->v.depth() < .02;
             float cx, cy, ctheta;
             compute_covariance_ellipse(feat, cx, cy, ctheta);
-            v4 world = transformation_apply(f->s.loop_offset, feat->world);
+            v4 world = feat->world;
 
             observe_feature(d.timestamp, feat->id,
                             (float)world[0], (float)world[1], (float)world[2],
@@ -160,11 +162,22 @@ void world_state::receive_camera(const filter * f, camera_data &&d)
     
     /*
     for(auto map_node : f->s.map.nodes) {
+        bool loop_closed = false;
         vector<uint64_t> neighbors;
         for(auto edge : map_node.edges) {
             neighbors.push_back(edge.neighbor);
+            if(edge.loop_closure)
+                loop_closed = true;
         }
-        observe_map_node(d.timestamp, map_node.id, map_node.finished, map_node.global_transformation.transform, neighbors);
+        vector<Feature> features;
+        for(auto feature : map_node.features) {
+            Feature f;
+            f.x = feature->position[0];
+            f.y = feature->position[1];
+            f.z = feature->position[2];
+            features.push_back(f);
+        }
+        observe_map_node(d.timestamp, map_node.id, map_node.finished, loop_closed, map_node.global_transformation.transform, neighbors, features);
     }
     */
 
@@ -298,6 +311,7 @@ world_state::world_state()
     feature_ellipse_vertex = (VertexData *)calloc(sizeof(VertexData), feature_ellipse_vertex_alloc);
     map_node_vertex = (VertexData *)calloc(sizeof(VertexData), map_node_vertex_alloc);
     map_edge_vertex = (VertexData *)calloc(sizeof(VertexData), map_edge_vertex_alloc);
+    map_feature_vertex = (VertexData *)calloc(sizeof(VertexData), map_feature_vertex_alloc);
     build_grid_vertex_data();
     axis_vertex = axis_data;
     axis_vertex_num = 6;
@@ -325,6 +339,8 @@ world_state::~world_state()
         free(map_node_vertex);
     if(map_edge_vertex)
         free(map_edge_vertex);
+    if(map_feature_vertex)
+        free(map_feature_vertex);
     if(last_image.image)
         free(last_image.image);
     if(last_depth.image)
@@ -406,6 +422,13 @@ void world_state::update_vertex_arrays(bool show_only_good)
         map_edge_vertex_alloc = map_edges*2;
         map_edge_vertex = (VertexData *)realloc(map_edge_vertex, sizeof(VertexData)*map_edge_vertex_alloc);
     }
+    int map_features = 0;
+    for(auto node : map_nodes)
+        map_features += node.second.features.size();
+    if(map_feature_vertex_alloc < map_features) {
+        map_feature_vertex_alloc = map_features*2;
+        map_feature_vertex = (VertexData *)realloc(map_feature_vertex, sizeof(VertexData)*map_feature_vertex_alloc);
+    }
     if(feature_ellipse_vertex_alloc < features.size()*feature_ellipse_vertex_size) {
         feature_ellipse_vertex_alloc = features.size()*feature_ellipse_vertex_size*2;
         feature_ellipse_vertex = (VertexData *)realloc(feature_ellipse_vertex, sizeof(VertexData)*feature_ellipse_vertex_alloc);
@@ -461,17 +484,25 @@ void world_state::update_vertex_arrays(bool show_only_good)
 
     idx = 0;
     int nedges = 0;
+    int nfeatures = 0;
     for(auto n : map_nodes) {
         auto id = n.first;
         auto node = n.second;
         if(!node.finished)
-            set_color(&map_node_vertex[idx], 127, 255, 127, 255);
+            continue;
+        else if(node.loop_closed)
+            set_color(&map_node_vertex[idx], 255, 0, 0, 255);
         else
             set_color(&map_node_vertex[idx], 255, 255, 0, 255);
         v4 v1(node.position.T.x(), node.position.T.y(), node.position.T.z(), 0);
         set_position(&map_node_vertex[idx], v1[0], v1[1], v1[2]);
         for(uint64_t neighbor_id : node.neighbors) {
-            set_color(&map_edge_vertex[nedges], 255, 0, 255, 255);
+            if(!map_nodes[neighbor_id].finished) continue;
+
+            if(node.loop_closed && map_nodes[neighbor_id].loop_closed)
+                set_color(&map_edge_vertex[nedges], 255, 0, 0, 255);
+            else
+                set_color(&map_edge_vertex[nedges], 255, 0, 255, 255);
             set_position(&map_edge_vertex[nedges], v1[0], v1[1], v1[2]);
             nedges++;
 
@@ -480,10 +511,21 @@ void world_state::update_vertex_arrays(bool show_only_good)
             set_position(&map_edge_vertex[nedges], node2.position.T.x(), node2.position.T.y(), node2.position.T.z());
             nedges++;
         }
+        for(Feature f : node.features) {
+            v4 vertex(f.x, f.y, f.z, 0);
+            vertex = transformation_apply(node.position, vertex);
+            if(node.loop_closed)
+                set_color(&map_feature_vertex[nfeatures], 255, 127, 127, 255);
+            else
+                set_color(&map_feature_vertex[nfeatures], 0, 0, 255, 255);
+            set_position(&map_feature_vertex[nfeatures], vertex[0], vertex[1], vertex[2]);
+            nfeatures++;
+        }
         idx++;
     }
     map_node_vertex_num = idx;
     map_edge_vertex_num = nedges;
+    map_feature_vertex_num = nfeatures;
     display_lock.unlock();
 }
 

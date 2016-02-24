@@ -229,13 +229,10 @@
 		D3F4C7151AF0D492003D4D0B /* device_parameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F4C7131AF0D48A003D4D0B /* device_parameters.cpp */; };
 		D91557801B87A15D006D2002 /* dictionary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D91557781B87A15D006D2002 /* dictionary.cpp */; };
 		D91557811B87A15D006D2002 /* dictionary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D91557781B87A15D006D2002 /* dictionary.cpp */; };
-		D91557821B87A15D006D2002 /* dictionary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D91557781B87A15D006D2002 /* dictionary.cpp */; };
 		D91557861B87A15D006D2002 /* feature_descriptor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D915577C1B87A15D006D2002 /* feature_descriptor.cpp */; };
 		D91557871B87A15D006D2002 /* feature_descriptor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D915577C1B87A15D006D2002 /* feature_descriptor.cpp */; };
-		D91557881B87A15D006D2002 /* feature_descriptor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D915577C1B87A15D006D2002 /* feature_descriptor.cpp */; };
 		D91557891B87A15D006D2002 /* mapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D915577E1B87A15D006D2002 /* mapper.cpp */; };
 		D915578A1B87A15D006D2002 /* mapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D915577E1B87A15D006D2002 /* mapper.cpp */; };
-		D915578B1B87A15D006D2002 /* mapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D915577E1B87A15D006D2002 /* mapper.cpp */; };
 		D91557D81B87A21A006D2002 /* aib.c in Sources */ = {isa = PBXBuildFile; fileRef = D915578D1B87A21A006D2002 /* aib.c */; };
 		D91557D91B87A21A006D2002 /* aib.c in Sources */ = {isa = PBXBuildFile; fileRef = D915578D1B87A21A006D2002 /* aib.c */; };
 		D91557DA1B87A21A006D2002 /* aib.c in Sources */ = {isa = PBXBuildFile; fileRef = D915578D1B87A21A006D2002 /* aib.c */; };
@@ -1963,14 +1960,12 @@
 				D915583B1B87A21A006D2002 /* svm.c in Sources */,
 				D91557E31B87A21A006D2002 /* dsift.c in Sources */,
 				32DD2AC91B200B1200B44447 /* render.cpp in Sources */,
-				D91557881B87A15D006D2002 /* feature_descriptor.cpp in Sources */,
 				D91557F61B87A21A006D2002 /* hog.c in Sources */,
 				D91558321B87A21A006D2002 /* sift.c in Sources */,
 				D91558081B87A21A006D2002 /* imopv_sse2.c in Sources */,
 				32D1E7371B20C3490032AE29 /* RCCalibration3.m in Sources */,
 				D915580E1B87A21A006D2002 /* kmeans.c in Sources */,
 				D91557F91B87A21A006D2002 /* homkermap.c in Sources */,
-				D915578B1B87A15D006D2002 /* mapper.cpp in Sources */,
 				32DD2AC51B200B1200B44447 /* gl_util.cpp in Sources */,
 				D91558381B87A21A006D2002 /* stringop.c in Sources */,
 				D91558261B87A21A006D2002 /* quickshift.c in Sources */,
@@ -1996,7 +1991,6 @@
 				D91557E01B87A21A006D2002 /* covdet.c in Sources */,
 				D915583E1B87A21A006D2002 /* svmdataset.c in Sources */,
 				D91558351B87A21A006D2002 /* slic.c in Sources */,
-				D91557821B87A15D006D2002 /* dictionary.cpp in Sources */,
 				D91557E61B87A21A006D2002 /* fisher.c in Sources */,
 				D91557DD1B87A21A006D2002 /* array.c in Sources */,
 				D91558231B87A21A006D2002 /* pgm.c in Sources */,

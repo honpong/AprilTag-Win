@@ -25,6 +25,7 @@ class transformation_variance {
 struct map_edge {
     uint64_t neighbor;
     int64_t geometry; //positive/negative indicate geometric edge direction, 0 indicates a covisibility edge
+    bool loop_closure;
 };
 
 struct map_feature {
@@ -102,7 +103,7 @@ class mapper {
     int brute_force_rotation(uint64_t id1, uint64_t id2, transformation_variance &trans, int threshhold, float min, float max);
     void localize_neighbor_features(uint64_t id, list<local_feature> &features);
     void breadth_first(int start, int maxdepth, void(mapper::*callback)(map_node &));
-    void internal_set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform);
+    void internal_set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform, bool loop_closed);
     void set_special(uint64_t id, bool special);
     bool get_matches(uint64_t id, vector<map_match> &matches, int max, int suppression);
     void set_node_transformation(uint64_t id, const transformation & G);

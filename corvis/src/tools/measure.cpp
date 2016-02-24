@@ -80,6 +80,11 @@ int main(int c, char **v)
             return false;
         }
 
+        if(!load_map.empty() && !rp.load_map(load_map)) {
+            cerr << filename << ": Loading map " << load_map << " failed!\n";
+            return 2;
+        }
+
         return true;
     };
 

@@ -925,9 +925,9 @@ extern "C" void filter_initialize(struct filter *f, rcCalibration *device)
     //TODO: This might be wrong. changing this to 10 makes a very different (and not necessarily worse) result.
     f->s.Q.set_initial_variance(10., 10., 1.e-7); // to avoid not being positive definite
     f->s.V.set_initial_variance(1. * 1.);
-    f->s.w.set_initial_variance(1.e5);
-    f->s.dw.set_initial_variance(1.e5); //observed range of variances in sequences is 1-6
-    f->s.a.set_initial_variance(1.e5);
+    f->s.w.set_initial_variance(10);
+    f->s.dw.set_initial_variance(10); //observed range of variances in sequences is 1-6
+    f->s.a.set_initial_variance(10);
 
     f->s.focal_length.set_initial_variance(10. / device->image_height / device->image_height);
     f->s.center_x.set_initial_variance(2. / device->image_height / device->image_height);

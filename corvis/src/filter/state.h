@@ -158,9 +158,9 @@ public:
         project_motion_covariance(cov.cov, tmp, dt);
 
         //enforce symmetry
-        for(int i = 0; i < dynamic_statesize; ++i)
-            for(int j = i + 1; j < dynamic_statesize; ++j)
-                cov(i, j) = cov(j, i);
+        //for(int i = 0; i < dynamic_statesize; ++i)
+        //    for(int j = i + 1; j < dynamic_statesize; ++j)
+        //        cov(i, j) = cov(j, i);
 
         //cov += diag(R)*dt
         for(int i = 0; i < cov.size(); ++i)

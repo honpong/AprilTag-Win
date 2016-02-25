@@ -73,25 +73,6 @@ float mapper::tf_idf_score(const list<map_feature *> &hist1, const list<map_feat
     return score;
 }
 
-//unused
-float mapper::one_to_one_idf_score(const list<map_feature *> &hist1, const list<map_feature *> &hist2)
-{
-    float score = 0.;
-    list<map_feature *>::const_iterator first = hist1.begin(), second = hist2.begin();
-    while(first != hist1.end()) {
-        while(second != hist2.end() && (*second)->label < (*first)->label) ++second;
-        if(second == hist2.end()) break;
-        if((*first)->label == (*second)->label) {
-            assert(document_frequency[(*first)->label]);
-            float idf = log(nodes.size() / document_frequency[(*first)->label]);
-            score += idf;
-            ++second;
-        }
-        ++first;
-    }
-    return score;
-}
-
 mapper::mapper(): feature_count(0), feature_dictionary(corvis_dimension, corvis_num_centers, corvis_centers)
 {
     int dict_size = feature_dictionary.get_num_centers();
@@ -249,46 +230,6 @@ transformation mapper::get_relative_transformation(uint64_t from_id, uint64_t to
 
     return nodes[from_id].transform.transform;
 }
-
-void mapper::set_relative_transformation(const transformation &T) {
-    relative_transformation = T;
-}
-
-/*
-vector<map_match> *mapper::new_query(const list<map_feature *> &histogram, size_t K)
-{
-    vector<map_match> *result = new vector<map_match>();
-    result->reserve(K+1);
-    int bound = INT_MAX;
-    for(uint64_t node = 0; node < nodes.size(); ++node) {
-        int dist_2 = map_histogram_dist_2(histogram, nodes[node].histogram, bound);
-        if(dist_2 >= bound) continue;
-        result->push_back(map_match{node, dist_2});
-        push_heap(result->begin(), result->end(), map_match_compare);
-        if(result->size() > K) {
-            pop_heap(result->begin(), result->end(), map_match_compare);
-            result->pop_back();
-            bound = (*result)[0].score;
-        }
-    }
-    sort_heap(result->begin(), result->end(), map_match_compare);
-    reverse(result->begin(), result->end());
-    return result;
-}
-
-void mapper::delete_query(vector<map_match> *query)
-{
-    delete query;
-}
-
-void mapper::add_matches(vector<int> &matches, const vector<int> &histogram)
-{
-    size_t nnodes = nodes.size();
-    if(matches.size() < nnodes) matches.resize(nnodes, 0);
-    for(size_t i = 0; i < nnodes; ++i) {
-        matches[i] += map_histogram_score(histogram, nodes[i].histogram);
-    }
-}*/
 
 void mapper::tf_idf_match(vector<float> &matches, const list<map_feature *> &histogram)
 {
@@ -641,65 +582,6 @@ bool generate_transformation(const match_pair &match1, const match_pair &match2,
     transformation aggregate = compose(invert(center1), compose(rotation, center2));
     trn.transform = aggregate;
     return true;
-}
-
-int mapper::new_check_for_matches(uint64_t id1, uint64_t id2, transformation_variance &relpos, int min_inliers)
-{
-    //get all features for each group and its neighbors into the local frames
-    list<local_feature> f1, f2;
-    //Compute the relative transformation to neighbors
-    nodes[id1].transform = transformation_variance();
-    nodes[id2].transform = transformation_variance();
-    breadth_first(id1, 1, NULL);
-    breadth_first(id2, 1, NULL);
-    //Get all features into a local frame
-    localize_features(nodes[id1], f1);
-    localize_features(nodes[id2], f2);
-    //ONLY look for matches in THIS group
-    list<match_pair> matches;
-    assign_matches(f1, f2, matches, true);
-    //BUT, check support on ENTIRE neighborhood.
-    f1.clear();
-    f2.clear();
-    //Get all node and neighbor features into a local frame
-    localize_features(nodes[id1], f1);
-    localize_features(nodes[id2], f2);
-    localize_neighbor_features(id1, f1);
-    localize_neighbor_features(id2, f2);
-    list<match_pair> neighbor_matches;
-    assign_matches(f1, f2, neighbor_matches, true);
-    int best_score = 0;
-    // Now use node matches to generate transformations, then count
-    // inliers in the neighbor matches
-    // TODO: Why shouldn't this include neighbors to generate matches?
-    for(list<match_pair>::iterator match1 = matches.begin(); match1 != matches.end(); ++match1) {
-        list<match_pair>::iterator match2 = match1;
-        ++match2;
-        for(; match2 != matches.end(); ++match2) {
-            transformation_variance trn;
-            if(generate_transformation(*match1, *match2, trn)) {
-                int inliers = 0;
-                for(list<match_pair>::iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
-                    v4 error = neighbor_match->first.position - (trn.transform * neighbor_match->second.position);
-                    float resid = error.norm()*error.norm();
-                    //3 sigma
-                    float threshhold = 3.*3. * (neighbor_match->first.feature->variance + neighbor_match->second.feature->variance);
-                    //float baseline_threshhold = norm(neighbor_match->first.position-match->first.position);
-                    if(resid < threshhold /*&& resid <= baseline_threshhold*/) {
-                        //neighbor_match->first.position.print();
-                        //(neighbor_match->second.position + dT).print();
-                        //fprintf(stderr, " resid %f, thresh %f, baseth %f\n", resid, threshhold, baseline_threshhold);
-                        ++inliers;
-                    }
-                }
-                if(inliers > best_score) {
-                    best_score = inliers;
-                    relpos = trn;
-                }
-            }
-        }
-    }
-    return best_score;
 }
 
 int mapper::estimate_translation(uint64_t id1, uint64_t id2, v4 &result, int min_inliers, const transformation &pre_transform, const list <match_pair> &matches, const list<match_pair> &neighbor_matches)

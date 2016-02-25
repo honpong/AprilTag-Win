@@ -87,17 +87,12 @@ class mapper {
     uint64_t feature_count;
     dictionary feature_dictionary;
 
-    //vector<vector <reverse_entry> > reverse;
-    //unused
-    float one_to_one_idf_score(const list<map_feature *> &hist1, const list<map_feature *> &hist2);
-
     void diffuse_matches(uint64_t id, vector<float> &matches, vector<map_match> &diffusion, int max, int unrecent);
     void joint_histogram(int node, list<map_feature *> &histogram);
 
     float tf_idf_score(const list<map_feature *> &hist1, const list<map_feature *> &hist2);
     void tf_idf_match(vector<float> &scores, const list<map_feature *> &histogram);
 
-    int new_check_for_matches(uint64_t id1, uint64_t id2, transformation_variance &relpos, int min_inliers);
     int check_for_matches(uint64_t id1, uint64_t id2, transformation_variance &relpos, int min_inliers);
     int estimate_translation(uint64_t id1, uint64_t id2, v4 &result, int min_inliers, const transformation &pre_transform, const list<match_pair> &matches, const list<match_pair> &neighbor_matches);
     int brute_force_rotation(uint64_t id1, uint64_t id2, transformation_variance &trans, int threshhold, float min, float max);
@@ -120,9 +115,6 @@ class mapper {
     transformation get_relative_transformation(uint64_t id1, uint64_t id2);
     void set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform);
     bool find_closure(int max, int suppression, transformation &offset);
-    /*    vector<map_match> *new_query(const vector<int> &histogram, size_t K);
-    void delete_query(vector<map_match> *query);
-    void add_matches(vector<int> &matches, const vector<int> &histogram);*/
     void dump_map(const char *filename);
     void train_dictionary() const;
     void node_finished(uint64_t id, const transformation & G);

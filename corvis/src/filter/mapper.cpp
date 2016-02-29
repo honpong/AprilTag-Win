@@ -877,7 +877,7 @@ bool mapper::serialize(std::string &json)
     return json.length() > 0;
 }
 
-bool mapper_deserialize(const std::string &json, mapper & map)
+bool mapper::deserialize(const std::string &json, mapper & map)
 {
     Document map_json; map_json.Parse(json.c_str());
     if(map_json.HasParseError())

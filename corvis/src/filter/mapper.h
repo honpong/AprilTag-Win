@@ -78,9 +78,9 @@ struct match_pair {
 };
 
 class mapper {
- public:
+ private:
     vector<map_node> nodes;
- protected:
+    friend class map_node;
     vector<transformation_variance> geometry;
     vector<uint64_t> document_frequency;
     transformation relative_transformation;
@@ -102,32 +102,40 @@ class mapper {
     void set_special(uint64_t id, bool special);
     bool get_matches(uint64_t id, vector<map_match> &matches, int max, int suppression);
     void set_node_transformation(uint64_t id, const transformation & G);
-
- public:
+    transformation get_relative_transformation(uint64_t id1, uint64_t id2);
+    void set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform);
+    uint32_t project_feature(const descriptor & d);
     bool unlinked;
     uint64_t node_id_offset{0};
     uint64_t feature_id_offset{0};
+
+ public:
     mapper();
     ~mapper();
     void reset();
-    void add_edge(uint64_t id1, uint64_t id2);
-    void set_relative_transformation(const transformation &T);
-    transformation get_relative_transformation(uint64_t id1, uint64_t id2);
-    void set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform);
+
+    void add_node(uint64_t node_id);
+    void add_edge(uint64_t node_id1, uint64_t node_id2);
+    void add_feature(uint64_t node_id, uint64_t feature_id, const v4 & position_m, float depth_variance_m2, const descriptor & feature_descriptor);
+
+    const vector<map_node> & get_nodes() { return nodes; };
+
+    void update_feature_position(uint64_t node_id, uint64_t feature_id, const v4 &position_m, float depth_variance_m2);
+    void node_finished(uint64_t node_id, const transformation & G);
+
     bool find_closure(int max, int suppression, transformation &offset);
-    void dump_map(const char *filename);
+
+    // Training
     void train_dictionary() const;
-    void node_finished(uint64_t id, const transformation & G);
-    void print_stats();
 
-    void add_node(uint64_t group_id);
-    void add_feature(uint64_t groupid, uint64_t id, const v4 &pos, float variance, const descriptor & d);
-    void update_feature_position(uint64_t groupid, uint64_t id, const v4 &pos, float variance);
-    uint32_t project_feature(const descriptor & d);
-
+    // Reading / writing
     bool serialize(std::string &json);
+    static bool deserialize(const std::string &json, mapper & map);
+
+    // Debugging
+    void dump_map(const char *filename);
+    void print_stats();
 };
 
-bool mapper_deserialize(const std::string &json, mapper & map);
 
 #endif

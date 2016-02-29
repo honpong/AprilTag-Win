@@ -64,14 +64,17 @@ TEST(Mapper, Serialize)
     EXPECT_TRUE(result);
     EXPECT_TRUE(json.length() > 0);
     mapper map2;
-    mapper_deserialize(json, map2);
-    EXPECT_EQ(map.nodes.size(), map2.nodes.size());
-    for(int i = 0; i < map.nodes.size(); i++) {
-        EXPECT_EQ(map.nodes[i].features.size(), map2.nodes[i].features.size());
-        EXPECT_EQ(map.nodes[i].edges.size(), map2.nodes[i].edges.size());
-        auto f1 = map.nodes[i].features.begin();
-        auto f2 = map2.nodes[i].features.begin();
-        for( ; f1 != map.nodes[i].features.end() || f2 != map2.nodes[i].features.end(); ++f1, ++f2) {
+    mapper::deserialize(json, map2);
+    const vector<map_node> & nodes1 = map.get_nodes();
+    const vector<map_node> & nodes2 = map2.get_nodes();
+
+    EXPECT_EQ(nodes1.size(), nodes2.size());
+    for(int i = 0; i < nodes1.size(); i++) {
+        EXPECT_EQ(nodes1[i].features.size(), nodes2[i].features.size());
+        EXPECT_EQ(nodes1[i].edges.size(), nodes2[i].edges.size());
+        auto f1 = nodes1[i].features.begin();
+        auto f2 = nodes2[i].features.begin();
+        for( ; f1 != nodes1[i].features.end() || f2 != nodes2[i].features.end(); ++f1, ++f2) {
             for(int j = 0; j < descriptor_size; j++) {
                 float d1 = (*f1)->dvec(j);
                 float d2 = (*f2)->dvec(j);

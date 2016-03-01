@@ -15,6 +15,15 @@ void fill_map_two_nodes(mapper & map, const transformation & g)
         descriptor d;
         v4 position(i, i % 4, 2, 0);
         memcpy(d.d, corvis_centers + corvis_dimension*i, corvis_dimension*sizeof(float));
+
+        float norm = 0;
+        for(int j = 0; j < corvis_dimension; j++)
+            norm += d.d[j]*d.d[j];
+        norm = sqrt(norm);
+
+        for(int j = 0; j < corvis_dimension; j++)
+            d.d[j] /= norm;
+
         map.add_feature(0, i, position, variance, d);
         map.add_feature(1, i+corvis_num_centers, g*position, variance, d);
     }

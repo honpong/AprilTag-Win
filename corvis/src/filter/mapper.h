@@ -116,6 +116,7 @@ class mapper {
 
     void add_node(uint64_t node_id);
     void add_edge(uint64_t node_id1, uint64_t node_id2);
+    // Descriptor must have a norm of 1
     void add_feature(uint64_t node_id, uint64_t feature_id, const v4 & position_m, float depth_variance_m2, const descriptor & feature_descriptor);
 
     const vector<map_node> & get_nodes() { return nodes; };

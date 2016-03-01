@@ -28,13 +28,24 @@ dictionary::dictionary(string filename)
 
 dictionary::dictionary(int dim, int num, const float c[])
 {
+    float d[dim*num];
     kmeans = vl_kmeans_new(VL_TYPE_FLOAT, VlDistanceL2);
+    // Make sure that dictionary elements norm to 1
+    for(int i = 0; i < num; i++) {
+        float norm = 0;
+        for(int j = 0; j < dim; j++)
+            norm += c[i*dim + j]*c[i*dim + j];
+        norm = sqrt(norm);
+
+        for(int j = 0; j < dim; j++)
+            d[i*dim + j] = c[i*dim + j] / norm;
+    }
     
     dimension = dim;
     num_centers = num;
     
     // set centers
-    vl_kmeans_set_centers(kmeans, c, dimension, num_centers);
+    vl_kmeans_set_centers(kmeans, d, dimension, num_centers);
 }
 
 

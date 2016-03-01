@@ -10,6 +10,10 @@ void fill_map_two_nodes(mapper & map, const transformation & g)
     map.add_node(2); // add a few empty nodes to make tf-idf happy
     map.add_node(3);
     map.add_node(4);
+    map.add_edge(0,1);
+    map.add_edge(1,2);
+    map.add_edge(2,3);
+    map.add_edge(3,4);
     for(int i = 0; i < corvis_num_centers; i++) {
         const float variance = 0.1*0.1;
         descriptor d;
@@ -25,7 +29,7 @@ void fill_map_two_nodes(mapper & map, const transformation & g)
             d.d[j] /= norm;
 
         map.add_feature(0, i, position, variance, d);
-        map.add_feature(1, i+corvis_num_centers, g*position, variance, d);
+        map.add_feature(4, i+corvis_num_centers, g*position, variance, d);
     }
     transformation Gidentity;
     map.node_finished(0, Gidentity);

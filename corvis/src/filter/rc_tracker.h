@@ -34,10 +34,10 @@ typedef enum rc_ImageFormat {
 } rc_ImageFormat;
 
 typedef enum rc_CameraId {
-    rc_CAMERA_ID_COLOR,
     rc_CAMERA_ID_FISHEYE,
-    rc_CAMERA_ID_DEPTH,
+    rc_CAMERA_ID_COLOR,
     rc_CAMERA_ID_IR,
+    rc_CAMERA_ID_DEPTH,
 } rc_CameraId;
 
 typedef enum rc_TrackerState

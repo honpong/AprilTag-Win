@@ -7,6 +7,9 @@ It consists of tracker that combines a stream of data from an
 accelerometer, gyro, greyscale camera, and optionally a depth camera
 into an estimate of the rotation and translation of the device itself.
 
+The main interface to the library can be found in
+[rc_tracker.h](corvis/src/filter/rc_tracker.h).
+
 ## Building
 
 ### OS X
@@ -76,7 +79,7 @@ into an estimate of the rotation and translation of the device itself.
 
     ```powershell
 
-    ./windows/build.ps1
+    .\windows\build.ps1
 
     ```
 
@@ -93,7 +96,7 @@ into an estimate of the rotation and translation of the device itself.
 
     ```
 
-3. Build with
+3. Build every permutation
 
     ```sh
 
@@ -101,3 +104,38 @@ into an estimate of the rotation and translation of the device itself.
     ./gradlew build
 
     ```
+
+    or just the x86 Release version
+
+    ```sh
+
+    ./gradle assembleRc86Release
+
+    ```
+
+    or to install just the x86_64 Relwithdebinfo version
+
+    ```sh
+
+    ./gradle installRc64Relwithdebinfo
+
+    ```
+
+## Running
+
+To load a captured sequence and print out poses using a minimal
+wrapper around the [official interface](corvis/src/filter/rc_tracker.h).
+
+    ```sh
+
+   ./corvis/bin/rc_replay --output-summary --output-poses path/to/capture/file
+
+   ```
+
+To see a rendering of the data while the program runs try
+
+    ```sh
+
+    ./corvis/bin/measure --realtime path/to/capture/file
+
+   ```

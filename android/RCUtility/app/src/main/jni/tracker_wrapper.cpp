@@ -37,7 +37,7 @@ static jmethodID imageClass_close;
 
 static float gOffsetX, gOffsetY, gOffsetZ;
 
-static rc_Intrinsics gZIntrinsics, gRGBIntrinsics;
+static rc_CameraIntrinsics gZIntrinsics, gRGBIntrinsics;
 
 jint JNI_OnLoad(JavaVM* vm, void* reserved)
 {
@@ -328,21 +328,21 @@ extern "C"
         if (!tracker) return (JNI_FALSE);
 
         //cache intrinsics
-        gZIntrinsics.type = rc_CAL_UNDISTORTED;
+        gZIntrinsics.type = rc_CALIBRATION_TYPE_UNDISTORTED;
         gZIntrinsics.width_px = depth_width;
         gZIntrinsics.height_px = depth_height;
-        gZIntrinsics.focal_length_x_px = depth_fx;
-        gZIntrinsics.focal_length_y_px = depth_fy;
-        gZIntrinsics.center_x_px = depth_center_x_px;
-        gZIntrinsics.center_y_px = depth_center_y_px;
+        gZIntrinsics.f_x_px = depth_fx;
+        gZIntrinsics.f_y_px = depth_fy;
+        gZIntrinsics.c_x_px = depth_center_x_px;
+        gZIntrinsics.c_y_px = depth_center_y_px;
 
-        gRGBIntrinsics.type = fisheye ? rc_CAL_FISHEYE : rc_CAL_UNDISTORTED;
+        gRGBIntrinsics.type = fisheye ? rc_CALIBRATION_TYPE_FISHEYE : rc_CALIBRATION_TYPE_UNDISTORTED;
         gRGBIntrinsics.width_px = width_px;
         gRGBIntrinsics.height_px = height_px;
-        gRGBIntrinsics.focal_length_x_px = focal_length_x_px;
-        gRGBIntrinsics.focal_length_y_px = focal_length_y_px;
-        gRGBIntrinsics.center_x_px = center_x_px;
-        gRGBIntrinsics.center_y_px = center_y_px;
+        gRGBIntrinsics.f_x_px = focal_length_x_px;
+        gRGBIntrinsics.f_y_px = focal_length_y_px;
+        gRGBIntrinsics.c_x_px = center_x_px;
+        gRGBIntrinsics.c_y_px = center_y_px;
         gRGBIntrinsics.w = fisheye_fov_radians;
 
         gOffsetX = depth_to_color_x_mm;
@@ -365,8 +365,8 @@ extern "C"
             0, 0, -1, depth_to_color_z_mm / 1000,
         };
 
-        rc_configureCamera(tracker, rc_Camera::rc_EGRAY8, color_to_imu_m, &gRGBIntrinsics);
-        rc_configureCamera(tracker, rc_Camera::rc_EDEPTH16, depth_to_imu_m, &gZIntrinsics);
+        rc_configureCamera(tracker, rc_CAMERA_ID_COLOR, color_to_imu_m, &gRGBIntrinsics);
+        rc_configureCamera(tracker, rc_CAMERA_ID_DEPTH, depth_to_imu_m, &gZIntrinsics);
         return (JNI_TRUE);
     }
 
@@ -404,9 +404,10 @@ extern "C"
         void *depthPtr = env->GetDirectBufferAddress(depthBuffer);
         if (RunExceptionCheck(env)) return (JNI_FALSE);
 
-        rc_receiveImageWithDepth(tracker, rc_EGRAY8, time_ns / 1000, shutter_time_ns / 1000, NULL, false,
-                                 width, height, stride, colorPtr, release_image, colorImageRef,
-                                 depthWidth, depthHeight, depthStride, depthPtr, release_buffer, depthBufferRef);
+        rc_receiveImage(tracker, time_ns / 1000, shutter_time_ns / 1000, rc_FORMAT_DEPTH16,
+                        depthWidth, depthHeight, depthStride, depthPtr, release_buffer, depthBufferRef);
+        rc_receiveImage(tracker, time_ns / 1000, shutter_time_ns / 1000, rc_FORMAT_GRAY8,
+                        width, height, stride, colorPtr, release_image, colorImageRef);
 
         return (JNI_TRUE);
     }
@@ -435,20 +436,20 @@ extern "C"
 
         bool fillHoles = true;
 
-        float invZFocalX = 1.0f / gZIntrinsics.focal_length_x_px, invZFocalY = 1.0f / gZIntrinsics.focal_length_y_px;
+        float invZFocalX = 1.0f / gZIntrinsics.f_x_px, invZFocalY = 1.0f / gZIntrinsics.f_y_px;
 
         memset(alignedZ, 0, gZIntrinsics.width_px * gZIntrinsics.height_px * 2);
 
         for (unsigned int y = 0; y < gZIntrinsics.height_px; ++y)
         {
-            const float tempy = (y - gZIntrinsics.center_y_px) * invZFocalY;
+            const float tempy = (y - gZIntrinsics.c_y_px) * invZFocalY;
             for (unsigned int x = 0; x < gZIntrinsics.width_px; ++x)
             {
                 auto depth = *inDepth++;
 
                 // DSTransformFromZImageToZCamera(gZIntrinsics, zImage, zCamera); // Move from image coordinates to 3D coordinates
                 float zCamZ = static_cast<float>(depth);
-                float zCamX = zCamZ * (x - gZIntrinsics.center_x_px) * invZFocalX;
+                float zCamX = zCamZ * (x - gZIntrinsics.c_x_px) * invZFocalX;
                 float zCamY = zCamZ * tempy;
 
 
@@ -458,8 +459,8 @@ extern "C"
                 float thirdCamZ = zCamZ + gOffsetZ;
 
                 // DSTransformFromThirdCameraToRectThirdImage(gRGBIntrinsics, thirdCamera, thirdImage); // Move from 3D coordinates back to image coordinates
-                int thirdImageX = static_cast<int>(gRGBIntrinsics.focal_length_x_px * (thirdCamX / thirdCamZ) + gRGBIntrinsics.center_x_px + 0.5f);
-                int thirdImageY = static_cast<int>(gRGBIntrinsics.focal_length_y_px * (thirdCamY / thirdCamZ) + gRGBIntrinsics.center_y_px + 0.5f);
+                int thirdImageX = static_cast<int>(gRGBIntrinsics.f_x_px * (thirdCamX / thirdCamZ) + gRGBIntrinsics.c_x_px + 0.5f);
+                int thirdImageY = static_cast<int>(gRGBIntrinsics.f_y_px * (thirdCamY / thirdCamZ) + gRGBIntrinsics.c_y_px + 0.5f);
 
                 // The aligned image is the same size as the original depth image
                 int alignedImageX = thirdImageX * gZIntrinsics.width_px /  gRGBIntrinsics.width_px;

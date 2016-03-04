@@ -30,25 +30,25 @@ public:
         RCSensorFusionRunState run_state{ RCSensorFusionRunStateInactive };
         RCSensorFusionErrorCode error{ RCSensorFusionErrorCodeNone };
         RCSensorFusionConfidence confidence{ RCSensorFusionConfidenceNone };
-        float progress{ 0 };
+        f_t progress{ 0 };
         bool operator==(const struct status & other) { return run_state == other.run_state && error == other.error && confidence == other.confidence && progress == other.progress; }
     };
     
     struct camera_parameters
     {
-        float fx, fy;
-        float cx, cy;
-        float skew;
-        float k1, k2, k3;
+        f_t fx, fy;
+        f_t cx, cy;
+        f_t skew;
+        f_t k1, k2, k3;
     };
     
     struct feature_point
     {
         uint64_t id;
-        float x, y;
-        float original_depth;
-        float stdev;
-        float worldx, worldy, worldz;
+        f_t x, y;
+        f_t original_depth;
+        f_t stdev;
+        f_t worldx, worldy, worldz;
         bool initialized;
     };
     
@@ -59,7 +59,7 @@ public:
         transformation transform;
         std::string origin_qr_code;
         camera_parameters camera_intrinsics;
-        float total_path_m;
+        f_t total_path_m;
         std::vector<feature_point> features;
     };
     

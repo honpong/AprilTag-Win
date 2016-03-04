@@ -23,19 +23,31 @@ public:
     image_data(): image_handle(nullptr, nullptr), image(nullptr), width(0), height(0), stride(0) { }
     image_data(image_data<camera_type, data_type>&& other) = default;
     image_data &operator=(image_data<camera_type, data_type>&& other) = default;
-    image_data(const image_data<camera_type, data_type> &other) : timestamp(other.timestamp), exposure_time(other.exposure_time),
-        image_handle(nullptr, nullptr), image(nullptr), width(other.width), height(other.height), stride(other.stride) {
+    image_data(int image_width, int image_height, int image_stride) :
+        image_handle(nullptr, nullptr), image(nullptr), width(image_width), height(image_height), stride(image_stride) {
             assert(stride % sizeof(data_type) == 0);
             if(height && stride) {
                 image = (data_type *)malloc(stride*height);
-                memcpy(image, other.image, stride*height);
                 image_handle = std::unique_ptr<void, void(*)(void *)>(image, [](void * image_ptr) {
                             free(image_ptr);
                         });
             }
     }
+    image_data(int image_width, int image_height, int image_stride, data_type initial_value) :
+        image_data(image_width, image_height, image_stride) {
+            for (int y=0; y<height; y++)
+                std::fill_n(image + y*stride/sizeof(data_type), width, initial_value);
+    }
+    image_data(const image_data<camera_type, data_type> &other) :
+        image_data(other.width, other.height, other.stride) {
+            timestamp = other.timestamp;
+            exposure_time = other.exposure_time;
+            if(height && stride) {
+                memcpy(image, other.image, stride*height);
+            }
+    }
     image_data &operator=(const image_data<camera_type, data_type>& other) = delete;
-    
+
     sensor_clock::time_point timestamp;
     sensor_clock::duration exposure_time;
     std::unique_ptr<void, void(*)(void *)> image_handle;

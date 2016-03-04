@@ -236,7 +236,7 @@ void replay::start()
                         {
                             depth.width = width / 2;
                             depth.height = height / 2;
-                            depth.stride = stride / 2;
+                            depth.stride = width / 2 * 2;
                             for(int y = 0; y < depth.height; ++y) {
                                 for(int x = 0; x < depth.width; ++x) {
                                     uint16_t p1 = depth.image[(y * 2 * width) + (x * 2)];

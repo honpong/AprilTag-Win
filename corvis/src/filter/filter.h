@@ -119,4 +119,7 @@ float filter_converged(const struct filter *f);
 bool filter_is_steady(const struct filter *f);
 int filter_get_features(const struct filter *f, struct feature_info *features, int max);
 
+std::unique_ptr<image_depth16> filter_aligned_depth_to_intrinsics(const struct filter *f, const image_depth16 &depth);
+std::unique_ptr<image_depth16> filter_aligned_distorted_depth_to_intrinsics(const struct filter *f, const image_depth16 &depth);
+
 #endif

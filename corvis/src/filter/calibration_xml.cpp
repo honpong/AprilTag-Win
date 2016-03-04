@@ -92,14 +92,14 @@ bool calibration_deserialize_xml(const std::string &xml, calibration &cal)
         node *root = doc.first_node("rig");
         if (!root)
             throw parse_error("expected root node <rig>", (void*)xml.c_str());
-        strlcpy(cal.device_id, checked_node(root).assert_node("device_id")->value(), sizeof(cal.device_id));
+        snprintf(cal.device_id, sizeof(cal.device_id), "%s", checked_node(root).assert_node("device_id")->value());
         for (node *camera = root->first_node("camera"); camera; camera = camera->next_sibling("camera"))
             for (node *camera_model_ = camera->first_node("camera_model"); camera_model_; camera_model_ = camera_model_->next_sibling("camera_model")) {
                 checked_node camera_model(camera_model_);
                 struct calibration::camera *c = camera_from_index(cal, std::atoi(camera_model.assert_attribute("index")->value()));
                 if (!c)
                     continue;
-                strlcpy(c->name, camera_model.assert_attribute("name")->value(), sizeof(c->name));
+                snprintf(c->name, sizeof(c->name), "%s", camera_model.assert_attribute("name")->value());
                 c->intrinsics.width_px = std::atoi(camera_model.assert_node("width")->value());
                 c->intrinsics.height_px = std::atoi(camera_model.assert_node("height")->value());
                 v3  right   = camera_model.assert_m<3,1>("right"),

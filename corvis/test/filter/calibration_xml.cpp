@@ -163,7 +163,7 @@ TEST(CalibrationXML, Print)
 {
     return;
     calibration cal = {};
-    strlcpy(cal.device_id, "hello", sizeof(cal.device_id));
+    snprintf(cal.device_id, sizeof(cal.device_id), "%s", "hello");
 
     cal.depth.extrinsics_wrt_imu_m = transformation(rotation_vector(M_PI/M_SQRT2,-M_PI/M_SQRT2,0), v4(3,4.7,5,0));
     cal.depth.intrinsics.type = rc_CALIBRATION_TYPE_UNDISTORTED;

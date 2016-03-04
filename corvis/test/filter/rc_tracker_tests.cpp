@@ -11,7 +11,7 @@ using namespace std;
 TEST(rc_tracker_tests, rc_setCalibration)
 {
     calibration_json calInput = {};
-    strlcpy(calInput.device_id, "(test)", sizeof(calInput.device_id));
+    snprintf(calInput.device_id, sizeof(calInput.device_id), "%s", "(test)");
 
     calInput.color.intrinsics.width_px = 123;
     calInput.color.intrinsics.height_px = 321;

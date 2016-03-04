@@ -203,7 +203,7 @@ bool replay::run()
                     rc_receiveImage(tracker, ip->header.time, 0, rc_FORMAT_DEPTH16,
                                     ip->depth_width, ip->depth_height, ip->depth_width*2, ip->data + ip->width * ip->height,
                                     [](void *packet) { if (!--((packet_header_t *)packet)->user) free(packet); }, phandle.release());
-                    if (trace) printf("rc_receiveImageWithDepth(%lld, %lld, GRAY8, %dx%d);\n", packet->header.time, ip->exposure_time_us, ip->width, ip->height);
+                    if (trace) printf("rc_receiveImage(%lld, %lld, GRAY8, %dx%d);\n", packet->header.time, ip->exposure_time_us, ip->width, ip->height);
                     rc_receiveImage(tracker, ip->header.time, ip->exposure_time_us, rc_FORMAT_GRAY8,
                                     ip->width, ip->height, ip->width, ip->data,
                                     [](void *packet) { if (!--((packet_header_t *)packet)->user) free(packet); }, packet);

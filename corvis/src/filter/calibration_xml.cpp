@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <cstdlib>
+#include <cctype>
 
 namespace rapidxml {
 template<typename Ch>

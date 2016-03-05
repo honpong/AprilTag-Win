@@ -558,10 +558,15 @@ std::unique_ptr<image_depth16> filter_aligned_depth_to_intrinsics(const struct f
     if (!(i_width == 320 && i_height == 240))
         printf("Our hardcoded depth intrisics are no good!\n");
 
-    float i_Cx = /*f->s.depth.center_x.v     * i_height + (i_width  - 1) / 2. */170.9281616211,
-          i_Cy = /*f->s.depth.center_y.v     * i_height + (i_height - 1) / 2. */119.3207931519,
-          i_Fx = /*f->s.depth.focal_length.v * i_height*/ 304.2746887207,
-          i_Fy = /*f->s.depth.focal_length.v * i_height*/ 304.2746887207;
+    float d_focal_length_x =  f->depth.intrinsics.f_x_px                                            / f->depth.intrinsics.height_px,
+          d_focal_length_y =  f->depth.intrinsics.f_y_px                                            / f->depth.intrinsics.height_px,
+          d_center_x       = (f->depth.intrinsics.c_x_px - f->depth.intrinsics.width_px  / 2. + .5) / f->depth.intrinsics.height_px,
+          d_center_y       = (f->depth.intrinsics.c_y_px - f->depth.intrinsics.height_px / 2. + .5) / f->depth.intrinsics.height_px;
+
+    float i_Cx = d_center_x       * i_height + (i_width  - 1) / 2.,
+          i_Cy = d_center_y       * i_height + (i_height - 1) / 2.,
+          i_Fx = d_focal_length_x * i_height,
+          i_Fy = d_focal_length_y * i_height;
 
     float o_Cx = f->s.center_x.v     * o_height + (o_width  - 1) / 2.,
           o_Cy = f->s.center_y.v     * o_height + (o_height - 1) / 2.,

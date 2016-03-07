@@ -132,13 +132,6 @@ void filter_update_outputs(struct filter *f, sensor_clock::time_point time)
     m4
         R = to_rotation_matrix(f->s.Q.v),
         Rt = R.transpose();
-        
-    f->s.camera_matrix = Rt;
-    v4 T = (Rt * -f->s.T.v);
-    f->s.camera_matrix(0, 3) = T[0];
-    f->s.camera_matrix(1, 3) = T[1];
-    f->s.camera_matrix(2, 3) = T[2];
-    f->s.camera_matrix(3, 3) = 1.;
 
     bool old_speedfail = f->speed_failed;
     f->speed_failed = false;

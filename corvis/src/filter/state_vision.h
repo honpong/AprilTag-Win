@@ -191,7 +191,6 @@ public:
 
     float total_distance;
     v4 last_position;
-    m4 camera_matrix;
     state_vision_group *reference;
     feature_t undistort_feature(const feature_t &feat_d, f_t *ku_d_ = nullptr, f_t *dku_d_drd = nullptr, f_t *dku_d_dk1 = nullptr, f_t *dku_d_dk2 = nullptr, f_t *dku_d_dk3 = nullptr) const;
     feature_t distort_feature(const feature_t &feat_u, f_t *kd_u_ = nullptr, f_t *dkd_u_dru = nullptr, f_t *dkd_u_dk1 = nullptr, f_t *dkd_u_dk2 = nullptr, f_t *dkd_u_dk3 = nullptr) const;

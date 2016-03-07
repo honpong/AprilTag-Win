@@ -146,9 +146,9 @@ void rc_configureCamera(rc_Tracker *tracker, rc_CameraId camera_id, const rc_Pos
     calibration::camera *cam =
         (camera_id == rc_CAMERA_ID_FISHEYE || camera_id == rc_CAMERA_ID_COLOR) ? &tracker->device.color :
         (camera_id == rc_CAMERA_ID_DEPTH)                                      ? &tracker->device.depth : nullptr;
-    if (extrinsics_wrt_accel_m)
+    if (cam && extrinsics_wrt_accel_m)
         cam->extrinsics_wrt_imu_m = rc_Pose_to_transformation(extrinsics_wrt_accel_m);
-    if (intrinsics)
+    if (cam && intrinsics)
         cam->intrinsics = *intrinsics;
 
     // Also write through the calibration into the multi-camera calibration struct
@@ -157,11 +157,9 @@ void rc_configureCamera(rc_Tracker *tracker, rc_CameraId camera_id, const rc_Pos
         camera_id == rc_CAMERA_ID_COLOR   ? &tracker->calibration.color :
         camera_id == rc_CAMERA_ID_DEPTH   ? &tracker->calibration.depth :
         camera_id == rc_CAMERA_ID_IR      ? &tracker->calibration.ir : nullptr;
-    if (!cam)
-        return;
-    if (extrinsics_wrt_accel_m)
+    if (cam && extrinsics_wrt_accel_m)
         cam->extrinsics_wrt_imu_m = rc_Pose_to_transformation(extrinsics_wrt_accel_m);
-    if (intrinsics)
+    if (cam && intrinsics)
         cam->intrinsics = *intrinsics;
 }
 
@@ -177,11 +175,9 @@ bool rc_describeCamera(rc_Tracker *tracker,  rc_CameraId camera_id, rc_Pose extr
          camera_id == rc_CAMERA_ID_COLOR   ? &tracker->calibration.color :
          camera_id == rc_CAMERA_ID_DEPTH   ? &tracker->calibration.depth :
          camera_id == rc_CAMERA_ID_IR      ? &tracker->calibration.ir : nullptr;
-    if (!cam)
-        return false;
-    if (extrinsics_wrt_accel_m)
+    if (cam && extrinsics_wrt_accel_m)
         transformation_to_rc_Pose(cam->extrinsics_wrt_imu_m, extrinsics_wrt_accel_m);
-    if (intrinsics)
+    if (cam && intrinsics)
         *intrinsics = cam->intrinsics;
     return true;
 }

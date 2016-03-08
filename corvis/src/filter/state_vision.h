@@ -52,17 +52,17 @@ public:
 
 class state_vision_feature: public state_leaf<log_depth, 1> {
  public:
-    f_t outlier;
+    f_t outlier = 0;
     v4 initial;
     v4 current;
     feature_t prediction;
-    f_t innovation_variance_x, innovation_variance_y, innovation_variance_xy;
+    f_t innovation_variance_x = 0, innovation_variance_y = 0, innovation_variance_xy = 0;
     uint64_t id;
     uint64_t groupid;
-    v4 world;
-    feature_t image_velocity;
-    sensor_clock::duration dt;
-    sensor_clock::duration last_dt;
+    v4 world = v4(0, 0, 0, 0);
+    feature_t image_velocity = {0,0};
+    sensor_clock::duration dt = sensor_clock::duration(0);
+    sensor_clock::duration last_dt = sensor_clock::duration(0);
     sensor_clock::time_point last_seen;
 
     sensor_clock::time_point found_time;
@@ -85,7 +85,7 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     bool is_initialized() const { return status == feature_normal; }
     bool force_initialize();
 //private:
-    enum feature_flag status;
+    enum feature_flag status = feature_initializing;
     
     unsigned char patch[(tracker::half_patch_width * 2 + 1) * (tracker::half_patch_width * 2 + 1)];
     

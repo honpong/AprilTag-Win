@@ -12,19 +12,12 @@ f_t state_vision_feature::outlier_thresh;
 f_t state_vision_feature::outlier_reject;
 f_t state_vision_feature::max_variance;
 
-state_vision_feature::state_vision_feature(uint64_t feature_id, const feature_t & initial_): state_leaf("feature"), outlier(0.), initial(initial_.x(), initial_.y(), 1, 0), current(initial), status(feature_initializing)
+state_vision_feature::state_vision_feature(uint64_t feature_id, const feature_t & initial_): state_leaf("feature"), initial(initial_.x(), initial_.y(), 1, 0), current(initial)
 {
     id = feature_id;
     set_initial_variance(initial_var);
-    innovation_variance_x = 0.;
-    innovation_variance_y = 0.;
-    innovation_variance_xy = 0.;
     v.set_depth_meters(initial_depth_meters);
     set_process_noise(initial_process_noise);
-    dt = sensor_clock::duration(0);
-    last_dt = sensor_clock::duration(0);
-    image_velocity = {0,0};
-    world = v4(0, 0, 0, 0);
 }
 
 void state_vision_feature::dropping_group()

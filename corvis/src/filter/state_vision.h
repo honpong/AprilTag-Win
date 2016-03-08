@@ -189,8 +189,6 @@ public:
     state_vision_feature *add_feature(const feature_t & initial);
     state_vision_group *add_group(sensor_clock::time_point time);
 
-    float total_distance;
-    v4 last_position;
     state_vision_group *reference;
     feature_t undistort_feature(const feature_t &feat_d, f_t *ku_d_ = nullptr, f_t *dku_d_drd = nullptr, f_t *dku_d_dk1 = nullptr, f_t *dku_d_dk2 = nullptr, f_t *dku_d_dk3 = nullptr) const;
     feature_t distort_feature(const feature_t &feat_u, f_t *kd_u_ = nullptr, f_t *dkd_u_dru = nullptr, f_t *dkd_u_dk1 = nullptr, f_t *dkd_u_dk2 = nullptr, f_t *dkd_u_dk3 = nullptr) const;
@@ -199,7 +197,6 @@ public:
     float median_depth_variance();
     
     virtual void reset();
-    void reset_position();
     
 protected:
     virtual void add_non_orientation_states();

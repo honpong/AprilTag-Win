@@ -45,7 +45,7 @@ public:
 
     bool orientation_initialized;
     quaternion initial_orientation;
-    
+
 protected:
     virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);
     virtual void evolve_state(f_t dt);
@@ -64,7 +64,10 @@ public:
     state_vector T;
     state_vector V;
     state_vector a;
-    
+
+    float total_distance = 0;
+    v4 last_position = v4::Zero();
+
     state_motion(covariance &c): state_motion_orientation(c), T("T"), V("V"), a("a"), estimate_bias(true), orientation_only(false)
     {
         T.dynamic = true;
@@ -78,8 +81,16 @@ public:
     {
         disable_orientation_only();
         state_motion_orientation::reset();
+        total_distance = 0.;
     }
     
+    void reset_position()
+    {
+        T.v = v4::Zero();
+        total_distance = 0.;
+        last_position = v4::Zero();
+    }
+
     virtual void enable_orientation_only();
     virtual void disable_orientation_only();
     virtual void enable_bias_estimation();

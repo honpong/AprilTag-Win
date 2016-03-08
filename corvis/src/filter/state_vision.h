@@ -55,7 +55,6 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     f_t outlier = 0;
     v4 initial;
     v4 current;
-    feature_t prediction;
     f_t innovation_variance_x = 0, innovation_variance_y = 0, innovation_variance_xy = 0;
     uint64_t id;
     uint64_t groupid;

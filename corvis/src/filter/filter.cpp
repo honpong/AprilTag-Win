@@ -573,11 +573,8 @@ std::unique_ptr<image_depth16> filter_aligned_depth_to_intrinsics(const struct f
           o_Fx = f->s.focal_length.v * o_height,
           o_Fy = f->s.focal_length.v * o_height;
 
-    Eigen::Vector4f
-        color_to_fisheye_mm = {90.1526794f, 1.55622983f, -1.83264041f},
-        depth_to_color_mm = {-58.3016167f, 0.0683132708f, -0.0275956951f},
-        depth_to_fisheye_mm = color_to_fisheye_mm + depth_to_color_mm,
-        x_T_mm = depth_to_fisheye_mm;
+    transformation depth_to_color_m = invert(transformation(f->s.Qc.v,f->s.Tc.v)) * f->depth.extrinsics_wrt_imu_m;
+    Eigen::Vector4f x_T_mm = (depth_to_color_m.T * 1000).cast<float>();
     Eigen::Array4i one = {0,1,0,1}, ONE = {0,0,1,1};
 
     for (int y = 0; y < i_height; y++)

@@ -126,16 +126,8 @@ The main interface to the library can be found in
 To load a captured sequence and print out poses using a minimal
 wrapper around the [official interface](corvis/src/filter/rc_tracker.h).
 
-    ```sh
-
-   ./corvis/bin/rc_replay --output-summary --output-poses path/to/capture/file
-
-   ```
+    ./corvis/bin/rc_replay --output-summary --output-poses path/to/capture/file
 
 To see a rendering of the data while the program runs try
 
-    ```sh
-
     ./corvis/bin/measure --realtime path/to/capture/file
-
-   ```

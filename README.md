@@ -39,7 +39,7 @@ The main interface to the library can be found in
 
     ```sh
 
-    apt-get install cmake clang libboost-dev libgl1-mesa-dev libxcursor-dev libxinerama-dev libxrender-dev libxrandr-dev
+    apt-get install cmake clang-3.6 libc++-dev libboost-dev libgl1-mesa-dev libxcursor-dev libxinerama-dev libxrender-dev libxrandr-dev
 
     ```
 
@@ -47,7 +47,10 @@ The main interface to the library can be found in
 
     ```sh
 
-    make -C corvis
+    mkdir -p corvis/bin
+    cd corvis/bin
+    cmake .. -DCMAKE_CXX_COMPILER=clang++-3.6 -DCMAKE_C_COMPILER=clang-3.6
+    make
 
     ```
 

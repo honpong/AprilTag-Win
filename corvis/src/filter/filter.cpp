@@ -629,7 +629,7 @@ std::unique_ptr<image_depth16> filter_aligned_distorted_depth_to_intrinsics(cons
     int stride = aligned_distorted_depth->stride / sizeof(uint16_t);
     for(int y_image = 0; y_image < depth.height; y_image++) {
         for(int x_image = 0; x_image < depth.width; x_image++) {
-            feature_t kp_i = {(double)x_image, (double)y_image};
+            feature_t kp_i = {(f_t)x_image, (f_t)y_image};
             feature_t kp_d = f->s.unnormalize_feature(f->s.undistort_feature(f->s.normalize_feature(kp_i)));
             uint16_t depth_mm = get_depth_for_point_mm(*aligned_depth.get(), kp_d);
             int x = kp_d.x();

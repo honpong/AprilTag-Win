@@ -252,19 +252,19 @@ bool calibration_serialize_xml(const calibration &cal, std::string &xml)
         camera_model->append_node(doc.allocate_node(node_element, "forward", xml_string(doc, m.block<3,1>(0,2))));
         std::stringstream s;
         if (c->intrinsics.type == rc_CALIBRATION_TYPE_POLYNOMIAL3) {
-            camera_model->append_node(doc.allocate_node(node_element, "params", xml_string(doc, Eigen::Matrix<f_t, 7,1>{
+            camera_model->append_node(doc.allocate_node(node_element, "params", xml_string(doc, Eigen::Matrix<double, 7,1>{
                 c->intrinsics.f_x_px, c->intrinsics.f_y_px,
                 c->intrinsics.c_x_px, c->intrinsics.c_y_px,
                 c->intrinsics.k1, c->intrinsics.k2, c->intrinsics.k3,
             })));
         } else if (c->intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE) {
-            camera_model->append_node(doc.allocate_node(node_element, "params", xml_string(doc, Eigen::Matrix<f_t, 5,1>{
+            camera_model->append_node(doc.allocate_node(node_element, "params", xml_string(doc, Eigen::Matrix<double, 5,1>{
                 c->intrinsics.f_x_px, c->intrinsics.f_y_px,
                 c->intrinsics.c_x_px, c->intrinsics.c_y_px,
                 c->intrinsics.w
             })));
         } else if (c->intrinsics.type == rc_CALIBRATION_TYPE_UNDISTORTED) {
-            camera_model->append_node(doc.allocate_node(node_element, "params", xml_string(doc, Eigen::Matrix<f_t, 4,1>{
+            camera_model->append_node(doc.allocate_node(node_element, "params", xml_string(doc, Eigen::Matrix<double, 4,1>{
                 c->intrinsics.f_x_px, c->intrinsics.f_y_px,
                 c->intrinsics.c_x_px, c->intrinsics.c_y_px,
             })));

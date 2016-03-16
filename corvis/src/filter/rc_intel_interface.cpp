@@ -115,6 +115,7 @@ static void copy_features_from_sensor_fusion(std::vector<rc_Feature> &features, 
         feat.world.z = fp.worldz;
         feat.id = fp.id;
         feat.initialized = fp.initialized;
+        feat.stdev = fp.stdev;
         features.push_back(feat);
     }
 }

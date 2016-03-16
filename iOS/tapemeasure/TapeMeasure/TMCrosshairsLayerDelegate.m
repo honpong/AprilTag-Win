@@ -7,6 +7,7 @@
 //
 
 #import "TMCrosshairsLayerDelegate.h"
+#import <UIKit/UIKit.h>
 
 #define CROSSHAIR_LENGTH 30
 

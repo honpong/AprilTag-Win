@@ -8,6 +8,7 @@
 
 #import "RCGeocoder.h"
 #import "CLPlacemark+RCPlacemark.h"
+#import "RCDebugLog.h"
 
 @implementation RCGeocoder
 

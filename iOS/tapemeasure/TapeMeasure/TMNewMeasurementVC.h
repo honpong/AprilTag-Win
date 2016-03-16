@@ -6,6 +6,7 @@
 //  Copyright (c) 2012 RealityCap. All rights reserved.
 //
 
+#import "TMConstants.h"
 #import <GLKit/GLKit.h>
 #import <AVFoundation/AVFoundation.h>
 #import <CoreMedia/CoreMedia.h>

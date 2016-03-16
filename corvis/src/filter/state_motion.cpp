@@ -10,10 +10,10 @@
 
 void state_motion_orientation::cache_jacobians(f_t dt)
 {
-    dW = (w.v + dt/2. * dw.v) * dt;
+    dW = (w.v + f_t(.5) * dt * dw.v) * dt;
     rotation_vector dW_(dW[0],dW[1],dW[2]); // FIXME: remove this
     m4 R = to_rotation_matrix(Q.v);
-    JdW_s = to_spatial_jacobian(dW_/2);
+    JdW_s = to_spatial_jacobian(f_t(.5) * dW_);
     dQp_s_dW = R * JdW_s;
     Rt = R.transpose();  // FIXME: remove this?
 }
@@ -25,7 +25,7 @@ void state_motion_orientation::project_motion_covariance(matrix &dst, const matr
         v4 cov_w = w.copy_cov_from_row(src, i);
         v4 cov_dw = dw.copy_cov_from_row(src, i);
         w.copy_cov_to_col(dst, i, cov_w + dt * cov_dw);
-        v4 cov_dW = (cov_w + dt/2 * cov_dw) * dt;
+        v4 cov_dW = (cov_w + f_t(.5) * dt * cov_dw) * dt;
         Q.copy_cov_to_col(dst, i, scov_Q + dQp_s_dW * cov_dW);
     }
 }
@@ -73,8 +73,8 @@ void state_motion::project_motion_covariance(matrix &dst, const matrix &src, f_t
         v4 cov_T = T.copy_cov_from_row(src, i);
         v4 cov_V = V.copy_cov_from_row(src, i);
         v4 cov_a = a.copy_cov_from_row(src, i);
-        
-        T.copy_cov_to_col(dst, i, cov_T + dt * (cov_V + 1./2. * dt * cov_a));
+
+        T.copy_cov_to_col(dst, i, cov_T + dt * (cov_V + f_t(.5) * dt * cov_a));
         V.copy_cov_to_col(dst, i, cov_V + dt * cov_a);
     }
 }
@@ -85,7 +85,7 @@ void state_motion::cache_jacobians(f_t dt)
 
     if (orientation_only) return;
 
-    dT = dt * (V.v + (dt / 2.) * a.v);
+    dT = dt * (V.v + f_t(.5) * dt * a.v);
 }
 
 void state_motion::remove_non_orientation_states()

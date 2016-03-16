@@ -7,6 +7,7 @@
 //
 
 #import "TMAnalytics.h"
+#import <RCCore/RCDebugLog.h>
 
 @implementation TMAnalytics
 

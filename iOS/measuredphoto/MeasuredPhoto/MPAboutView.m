@@ -7,6 +7,7 @@
 //
 
 #import "MPAboutView.h"
+#import <RCCore/RCCore.h>
 
 @implementation MPAboutView
 {

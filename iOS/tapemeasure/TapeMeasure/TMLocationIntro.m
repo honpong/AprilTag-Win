@@ -9,6 +9,8 @@
 #import "TMLocationIntro.h"
 #import "TMResultsVC.h"
 #import "RCCalibration1.h"
+#import "TMAnalytics.h"
+
 @import CoreLocation;
 
 static const CLLocationDegrees latitude = 35.;

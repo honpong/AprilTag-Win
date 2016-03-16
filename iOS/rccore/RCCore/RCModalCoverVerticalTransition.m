@@ -8,6 +8,7 @@
 
 #import "RCModalCoverVerticalTransition.h"
 #import "RCModalCoverVerticalAnimation.h"
+#import <UIKit/UIKit.h>
 
 @implementation RCModalCoverVerticalTransition
 

@@ -27,6 +27,7 @@
 #import "MPOrientationChangeData.h"
 #import "MPContainerView.h"
 #import "MPExpandingCircleAnimationView.h"
+#import "MPConstants.h"
 
 extern NSString * const MPUIOrientationDidChangeNotification;
 

@@ -6,6 +6,8 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
+#import <Foundation/Foundation.h>
+
 typedef enum {
     UnitsMetric = 0, UnitsImperial = 1
 } Units;

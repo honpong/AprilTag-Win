@@ -7,6 +7,9 @@
 //
 
 #import "TMDataManagerFactory.h"
+#import "TMAnalytics.h"
+#import "TMConstants.h"
+#import <RCCore/RCCore.h>
 
 @interface TMDataManagerImpl : NSObject <TMDataManager>
 {

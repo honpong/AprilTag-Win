@@ -104,6 +104,7 @@ typedef struct rc_Feature
     uint64_t id;
     rc_Vector world;
     float image_x, image_y;
+    bool initialized;
 } rc_Feature;
 
 typedef void(*rc_DataCallback)(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count);

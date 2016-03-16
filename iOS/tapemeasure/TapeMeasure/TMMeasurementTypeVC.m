@@ -7,6 +7,7 @@
 //
 
 #import "TMMeasurementTypeVC.h"
+#import "TMAnalytics.h"
 
 @implementation TMMeasurementTypeVC
 {

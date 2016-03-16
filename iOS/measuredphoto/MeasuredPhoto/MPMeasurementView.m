@@ -9,6 +9,7 @@
 #import "MPMeasurementView.h"
 #import <RCCore/RCCore.h>
 #import "MPCapturePhoto.h"
+#import "MPConstants.h"
 
 @implementation MPMeasurementView
 {

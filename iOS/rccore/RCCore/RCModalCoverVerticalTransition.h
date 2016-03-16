@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
 static NSString * const RCModalCoverVerticalTransitionTapOutside = @"com.realitycap.RCModalCoverVerticalTransitionTapOutside";
 

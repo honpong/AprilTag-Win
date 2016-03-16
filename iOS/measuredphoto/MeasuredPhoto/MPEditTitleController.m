@@ -9,6 +9,8 @@
 #import "MPEditTitleController.h"
 #import "CoreData+MagicalRecord.h"
 #import "MPFadeTransitionDelegate.h"
+#import "MPConstants.h"
+#import <RCCore/RCDebugLog.h>
 
 @interface MPEditTitleController ()
 

@@ -7,6 +7,7 @@
 //
 
 #import "RCUserManager.h"
+#import "RCConstants.h"
 
 static const NSString *USERNAME_PARAM = @"username";
 static const NSString *PASSWORD_PARAM = @"password";

@@ -7,6 +7,8 @@
 //
 
 #import "TMAboutView.h"
+#import <UIKit/UIKit.h>
+#import <RCCore/RCCore.h>
 
 @interface TMAboutView ()
 

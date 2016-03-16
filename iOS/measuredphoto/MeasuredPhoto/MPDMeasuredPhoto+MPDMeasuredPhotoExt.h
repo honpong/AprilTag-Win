@@ -7,6 +7,8 @@
 //
 
 #import "MPDMeasuredPhoto.h"
+#import <UIKit/UIKit.h>
+#import <CoreMedia/CoreMedia.h>
 
 @interface MPDMeasuredPhoto (MPDMeasuredPhotoExt)
 

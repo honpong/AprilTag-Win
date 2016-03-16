@@ -11,6 +11,7 @@
 
 #import "CustomIOS7AlertView.h"
 #import <QuartzCore/QuartzCore.h>
+#import <RCCore/RCCore.h>
 
 const static CGFloat kCustomIOS7AlertViewDefaultButtonHeight       = 50;
 const static CGFloat kCustomIOS7AlertViewDefaultButtonSpacerHeight = 1;

@@ -10,6 +10,9 @@
 #import "RCCalibration1.h"
 #import <CoreLocation/CoreLocation.h>
 #import "MPIntroScreen.h"
+#import "MPAnalytics.h"
+#import <RCCore/RCCore.h>
+#import "MPConstants.h"
 
 static const CLLocationDegrees latitude = 35.;
 static const CLLocationDegrees startingLongitude = 43.;

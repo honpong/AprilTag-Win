@@ -7,6 +7,7 @@
 //
 
 #import "TMTipsView.h"
+#import <RCCore/RCCore.h>
 
 @interface TMTipsView ()
 

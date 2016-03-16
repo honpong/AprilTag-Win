@@ -7,6 +7,7 @@
 //
 
 #import "RCDistanceMetric.h"
+#import "RCDebugLog.h"
 
 @implementation RCDistanceMetric
 {

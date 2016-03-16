@@ -76,9 +76,9 @@ static inline m4 to_rotation_matrix(const quaternion &q)
     //Need explicit naming of return type to work around compiler bug
     //https://connect.microsoft.com/VisualStudio/Feedback/Details/1515546
     return m4 {
-        {1. - 2. * (yy+zz), 2. * (xy-wz), 2. * (xz+wy), 0.},
-        {2. * (xy+wz), 1. - 2. * (xx+zz), 2. * (yz-wx), 0.},
-        {2. * (xz-wy), 2. * (yz+wx), 1. - 2. * (xx+yy), 0.},
+        {f_t(1) - f_t(2) * (yy+zz), f_t(2) * (xy-wz), f_t(2) * (xz+wy), 0.},
+        {f_t(2) * (xy+wz), f_t(1) - f_t(2) * (xx+zz), f_t(2) * (yz-wx), 0.},
+        {f_t(2) * (xz-wy), f_t(2) * (yz+wx), f_t(1) - f_t(2) * (xx+yy), 0.},
         {0., 0., 0., 1.}
     };
 }
@@ -127,7 +127,7 @@ static inline quaternion to_quaternion(const m4 &m)
 }
 
 static inline quaternion to_quaternion(const rotation_vector &v) {
-    rotation_vector w(.5 * v.x(), .5 * v.y(), .5 * v.z());
+    rotation_vector w(f_t(.5) * v.x(), f_t(.5) * v.y(), f_t(.5) * v.z());
     f_t th2, th = sqrt(th2=w.norm2()), C = cos(th), S = sinc(th,th2);
     return quaternion(C, S * w.x(), S * w.y(), S * w.z()); // e^(v/2)
 }
@@ -149,11 +149,11 @@ static inline quaternion rotation_between_two_vectors_normalized(const v4 &a, co
 {
     quaternion res;
     f_t d = a.dot(b);
-    if( d >= 1.) //the two vectors are aligned)
+    if( d >= f_t(1.)) //the two vectors are aligned)
     {
         return quaternion();
     }
-    else if(d < (-1. + 1.e-6)) //the two vector are (nearly) opposite, pick an arbitrary orthogonal axis
+    else if(d < f_t(-1 + 1.e-6)) //the two vector are (nearly) opposite, pick an arbitrary orthogonal axis
     {
         if(fabs(a[0]) > fabs(a[2])) //make sure we have a non-zero element
         {
@@ -162,10 +162,10 @@ static inline quaternion rotation_between_two_vectors_normalized(const v4 &a, co
             res = quaternion(0., 0., -a[2], a[1]);
         }
     } else { // normal case
-        f_t s = sqrt((1. + d) * 2.);
-        
+        f_t s = sqrt((f_t(1) + d) * f_t(2));
+
         v4 axis = cross(a, b);
-        res = quaternion(.5 * s, axis[0] / s, axis[1] / s, axis[2] / s);
+        res = quaternion(f_t(.5) * s, axis[0] / s, axis[1] / s, axis[2] / s);
     }
     return normalize(res);
 }

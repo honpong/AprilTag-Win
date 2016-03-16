@@ -7,6 +7,7 @@
 //
 
 #import "RCDistanceImperial.h"
+#import "RCDebugLog.h"
 
 @implementation RCDistanceImperial
 {

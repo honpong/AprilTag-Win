@@ -6,6 +6,8 @@
 //  Copyright (c) 2013 RealityCap. All rights reserved.
 //
 
+#import <Foundation/Foundation.h>
+
 @interface MPAnalytics : NSObject
 
 + (void) logEvent: (NSString*)eventName;

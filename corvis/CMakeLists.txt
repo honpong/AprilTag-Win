@@ -4,6 +4,12 @@ set(PACKAGE_NAME "corvis")
 
 project(${PACKAGE_NAME} C CXX)
 
+file(GLOB HAVE_LIBCPP_V1 /usr/include/c++/v1)
+if (HAVE_LIBCPP_V1)
+    include_directories(BEFORE SYSTEM /usr/include/c++/v1)
+    link_libraries(c++)
+endif()
+
 if(WIN32 OR ANDROID)
 else()
     add_compile_options(-march=native -mfpmath=sse)

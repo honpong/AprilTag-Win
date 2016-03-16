@@ -8,6 +8,7 @@
 
 #import "TMOptionsVC.h"
 #import <RCCore/RCCore.h>
+#import "TMAnalytics.h"
 
 @interface TMOptionsVC ()
 

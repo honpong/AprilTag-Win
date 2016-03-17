@@ -160,26 +160,26 @@ void world_state::receive_camera(const filter * f, camera_data &&d)
     observe_image(d.timestamp, d.image, d.width, d.height);
     if(d.depth) observe_depth(d.depth->timestamp, d.depth->image, d.depth->width, d.depth->height);
     
-    /*
-    for(auto map_node : f->s.map.nodes) {
-        bool loop_closed = false;
-        vector<uint64_t> neighbors;
-        for(auto edge : map_node.edges) {
-            neighbors.push_back(edge.neighbor);
-            if(edge.loop_closure)
-                loop_closed = true;
+    if(f->s.map_enabled) {
+        for(auto map_node : f->s.map.get_nodes()) {
+            bool loop_closed = false;
+            vector<uint64_t> neighbors;
+            for(auto edge : map_node.edges) {
+                neighbors.push_back(edge.neighbor);
+                if(edge.loop_closure)
+                    loop_closed = true;
+            }
+            vector<Feature> features;
+            for(auto feature : map_node.features) {
+                Feature f;
+                f.x = feature->position[0];
+                f.y = feature->position[1];
+                f.z = feature->position[2];
+                features.push_back(f);
+            }
+            observe_map_node(d.timestamp, map_node.id, map_node.finished, loop_closed, map_node.global_transformation.transform, neighbors, features);
         }
-        vector<Feature> features;
-        for(auto feature : map_node.features) {
-            Feature f;
-            f.x = feature->position[0];
-            f.y = feature->position[1];
-            f.z = feature->position[2];
-            features.push_back(f);
-        }
-        observe_map_node(d.timestamp, map_node.id, map_node.finished, loop_closed, map_node.global_transformation.transform, neighbors, features);
     }
-    */
 
     transformation world(f->s.Q.v, f->s.T.v);
     transformation G = f->s.loop_offset*world;

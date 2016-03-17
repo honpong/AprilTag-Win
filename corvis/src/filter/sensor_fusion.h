@@ -150,6 +150,8 @@ public:
      */
     void receive_gyro(gyro_data &&data);
     
+    void start_mapping();
+    void stop_mapping();
     //*************Not yet implemented:
     
     
@@ -160,8 +162,6 @@ public:
      */
 //    bool has_calibration_data();
 
-    
-//    void start_mapping_from_pose_estimates();
     /** Sets the 3DK license key. Call this once before starting sensor fusion. In most cases, this should be done when your app starts.
      
      @param key A 30 character string. Obtain a license key by contacting RealityCap.

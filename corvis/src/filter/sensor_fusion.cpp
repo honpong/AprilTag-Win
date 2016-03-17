@@ -308,6 +308,16 @@ void sensor_fusion::attempt_relocalization()
     queue->dispatch_async([this]() { sfm.s.lost_factor = 1.; });
 }
 
+void sensor_fusion::start_mapping()
+{
+    sfm.s.map_enabled = true;
+}
+
+void sensor_fusion::stop_mapping()
+{
+    sfm.s.map_enabled = false;
+}
+
 void sensor_fusion::receive_image(camera_data &&data)
 {
     //Adjust image timestamps to be in middle of exposure period

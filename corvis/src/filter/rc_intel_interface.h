@@ -256,14 +256,17 @@ RCTRACKER_API bool rc_setCalibrationStruct(rc_Tracker *tracker, const rcCalibrat
 RCTRACKER_API bool rc_setCalibrationFromFile(rc_Tracker *tracker, const char *filePath, const rcCalibration *defaults);
 
 
-/*
- Not yet implemented (depend on loop closure):
+/**
+ Start/stop the mapping subsystem. When started, the map is completely empty. The map is build synchronously with rc_receive* startMapping must be called before loadMap
+ */
+RCTRACKER_API void rc_startMapping(rc_Tracker *tracker);
+RCTRACKER_API void rc_stopMapping(rc_Tracker *tracker);
 
-//Starts processing inertial data and some image data to build environment representation and enable relocalization / loop closure. Does not run full tracker; instead uses the provided poseEstimates with each image)
-void rc_startMappingFromKnownPoses(rc_Tracker *tracker);
-void rc_saveMap(rc_Tracker *tracker,  void (*write)(void *handle, void *buffer, size_t length), void *handle);
-void rc_loadMap(rc_Tracker *tracker, size_t (*read)(void *handle, void *buffer, size_t length), void *handle);
-*/
+/**
+ Save/load a map to use.
+ */
+//void rc_saveMap(rc_Tracker *tracker,  void (*write)(void *handle, void *buffer, size_t length), void *handle);
+//void rc_loadMap(rc_Tracker *tracker, size_t (*read)(void *handle, void *buffer, size_t length), void *handle);
 
 #ifdef __cplusplus
 }

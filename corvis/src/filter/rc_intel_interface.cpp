@@ -287,6 +287,16 @@ void rc_stopTracker(rc_Tracker * tracker)
     tracker->output_enabled = false;
 }
 
+void rc_startMapping(rc_Tracker *tracker)
+{
+    tracker->start_mapping();
+}
+
+void rc_stopMapping(rc_Tracker *tracker)
+{
+    tracker->stop_mapping();
+}
+
 void rc_receiveImage(rc_Tracker *tracker, rc_Camera camera, rc_Timestamp time_us, rc_Timestamp shutter_time_us, const rc_Pose poseEstimate_m, bool force_recognition, int width, int height, int stride, const void *image, void(*completion_callback)(void *callback_handle), void *callback_handle)
 {
     if(force_recognition) tracker->attempt_relocalization();

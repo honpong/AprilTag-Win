@@ -647,7 +647,7 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
         bool inertial_converged = (f->s.Q.variance()[0] < dynamic_W_thresh_variance && f->s.Q.variance()[1] < dynamic_W_thresh_variance);
         if(inertial_converged) {
             if(inertial_converged) {
-                debug_log->info("Inertial converged at time {}", (long long)std::chrono::duration_cast<std::chrono::microseconds>(time - f->want_start).count());
+                debug_log->info("Inertial converged at time {}", std::chrono::duration_cast<std::chrono::microseconds>(time - f->want_start).count());
             } else {
                 debug_log->info("Inertial did not converge {}, {}", f->s.Q.variance()[0], f->s.Q.variance()[1]);
             }
@@ -694,18 +694,18 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
             debug_log->warn("old max_state_size was {}", f->s.maxstatesize);
             f->s.maxstatesize = f->s.statesize - 1;
             if(f->s.maxstatesize < MINSTATESIZE) f->s.maxstatesize = MINSTATESIZE;
-            debug_log->warn("was {} us late, new max state size is {}, current state size is {}", (long long)std::chrono::duration_cast<std::chrono::microseconds>(lateness).count(), f->s.maxstatesize, f->s.statesize);
+            debug_log->warn("was {} us late, new max state size is {}, current state size is {}", std::chrono::duration_cast<std::chrono::microseconds>(lateness).count(), f->s.maxstatesize, f->s.statesize);
             debug_log->warn("dropping a frame!");
             return false;
         }
         if(lateness > period && f->s.maxstatesize > MINSTATESIZE && f->s.statesize < f->s.maxstatesize) {
             f->s.maxstatesize = f->s.statesize - 1;
             if(f->s.maxstatesize < MINSTATESIZE) f->s.maxstatesize = MINSTATESIZE;
-            debug_log->warn("was {} us late, new max state size is {}, current state size is {}", (long long)std::chrono::duration_cast<std::chrono::microseconds>(lateness).count(), f->s.maxstatesize, f->s.statesize);
+            debug_log->warn("was {} us late, new max state size is {}, current state size is {}", std::chrono::duration_cast<std::chrono::microseconds>(lateness).count(), f->s.maxstatesize, f->s.statesize);
         }
         if(lateness < period / 4 && f->s.statesize > f->s.maxstatesize - f->min_group_add && f->s.maxstatesize < MAXSTATESIZE - 1) {
             ++f->s.maxstatesize;
-            debug_log->warn("was {} us late, new max state size is {}, current state size is {}", (long long)std::chrono::duration_cast<std::chrono::microseconds>(lateness).count(), f->s.maxstatesize, f->s.statesize);
+            debug_log->warn("was {} us late, new max state size is {}, current state size is {}", std::chrono::duration_cast<std::chrono::microseconds>(lateness).count(), f->s.maxstatesize, f->s.statesize);
         }
     }
 

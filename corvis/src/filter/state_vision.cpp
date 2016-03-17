@@ -3,6 +3,7 @@
 // All Rights Reserved.
 
 #include "state_vision.h"
+#include "debug_log.h"
 
 f_t state_vision_feature::initial_depth_meters;
 f_t state_vision_feature::initial_var;
@@ -203,8 +204,8 @@ int state_vision::process_features(sensor_clock::time_point time)
             }
         }
     }
-    if(track_fail && !total_feats && log_enabled) fprintf(stderr, "Tracker failed! %d features dropped.\n", track_fail);
-    //    if (log_enabled) fprintf(stderr, "outliers: %d/%d (%f%%)\n", outliers, total_feats, outliers * 100. / total_feats);
+    if(track_fail && !total_feats) debug_log->warn("Tracker failed! {} features dropped.", track_fail);
+    //    debug_log->warn("outliers: {}/{} ({}%)", outliers, total_feats, outliers * 100. / total_feats);
 
     int total_health = 0;
     bool need_reference = true;

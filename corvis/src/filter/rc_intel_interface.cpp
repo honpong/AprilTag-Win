@@ -231,6 +231,13 @@ void rc_configureLocation(rc_Tracker * tracker, double latitude_deg, double long
     tracker->set_location(latitude_deg, longitude_deg, altitude_m);
 }
 
+RCTRACKER_API void rc_setDebugCallback(rc_Tracker *tracker, rc_DebugCallback callback, void *handle, rc_DebugLevel maximum_level)
+{
+    tracker->set_debug_log_function([callback, handle](void * handle, int level, const char * msg) {
+                callback(handle, (rc_DebugLevel)level, msg);
+            }, maximum_level, handle);
+}
+
 RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callback, void *handle)
 {
     if(callback) tracker->camera_callback = [callback, handle, tracker](std::unique_ptr<sensor_fusion::data> d, camera_data &&cam) {

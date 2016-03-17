@@ -18,6 +18,7 @@
 #include "observation.h"
 #include "filter.h"
 #include <memory>
+#include "debug_log.h"
 
 const static sensor_clock::duration max_camera_delay = std::chrono::microseconds(200000); //We drop a frame if it arrives at least this late
 const static sensor_clock::duration max_inertial_delay = std::chrono::microseconds(100000); //We drop inertial data if it arrives at least this late

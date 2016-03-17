@@ -9,6 +9,7 @@
 #include <future>
 #include "sensor_fusion.h"
 #include "filter.h"
+#include "debug_log.h"
 
 transformation sensor_fusion::get_transformation() const
 {
@@ -342,5 +343,10 @@ void sensor_fusion::trigger_log() const
             R(2, 0) << " " << R(2, 1) << " " << R(2, 2) << " " << T(2);
 
     log_function(log_handle, s.str().c_str(), s.str().length());
+}
+
+void sensor_fusion::set_debug_log_function(std::function<void (void *, int, const char *)> log, int max_log_level, void * handle)
+{
+    debug_log_set(log, max_log_level, handle);
 }
 

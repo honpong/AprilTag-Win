@@ -103,6 +103,11 @@ bool replay::find_reference_in_filename(const string &filename)
     return PL | L;
 }
 
+void stderr_log(void * handle, int log_level, const char * message)
+{
+    fprintf(stderr, "%s", message);
+}
+
 void replay::setup_filter()
 {
     if(camera_callback)
@@ -113,6 +118,7 @@ void replay::setup_filter()
         };
     }
     fusion.start_offline();
+    fusion.set_debug_log_function(stderr_log, rc_DEBUG_WARN, nullptr);
 }
 
 image_gray8 replay::parse_gray8(int width, int height, int stride, uint8_t *data, uint64_t time_us, uint64_t exposure_time_us, std::unique_ptr<void, void(*)(void *)> handle)

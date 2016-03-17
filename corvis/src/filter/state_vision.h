@@ -204,7 +204,7 @@ public:
     v4 last_Tr;
     rotation_vector last_Wr;
 
-    bool map_enabled{true};
+    bool map_enabled{false};
     mapper map;
     transformation loop_offset;
     float lost_factor;

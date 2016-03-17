@@ -9,7 +9,7 @@
 int main(int c, char **v)
 {
     if (0) { usage:
-        cerr << "Usage: " << v[0] << " [--qvga] [--drop-depth] [--intel] [--realtime] [--pause] [--no-gui] [--no-plots] [--no-video] [--no-main] [--render <file.png>] [(--save | --load) <calibration-json>] [--save-map <map-json>] [--load-map <map-json>] <filename>\n";
+        cerr << "Usage: " << v[0] << " [--qvga] [--drop-depth] [--intel] [--realtime] [--pause] [--no-gui] [--no-plots] [--no-video] [--no-main] [--render <file.png>] [(--save | --load) <calibration-json>] [--enable-map] [--save-map <map-json>] [--load-map <map-json>] <filename>\n";
         cerr << "       " << v[0] << " [--qvga] [--drop-depth] [--intel] --benchmark <directory>\n";
         return 1;
     }
@@ -19,6 +19,7 @@ int main(int c, char **v)
     std::string save_map, load_map;
     bool qvga = false, depth = true;
     bool enable_gui = true, show_plots = false, show_video = true, show_depth = true, show_main = true;
+    bool enable_map = false;
     char *filename = nullptr, *rendername = nullptr, *benchmark_output = nullptr;
     for (int i=1; i<c; i++)
         if      (v[i][0] != '-' && !filename) filename = v[i];
@@ -35,6 +36,7 @@ int main(int c, char **v)
         else if (strcmp(v[i], "--qvga") == 0) qvga = true;
         else if (strcmp(v[i], "--drop-depth") == 0) depth = false;
         else if (strcmp(v[i], "--save") == 0 && i+1 < c) save = v[++i];
+        else if (strcmp(v[i], "--enable-map") == 0) enable_map = true;
         else if (strcmp(v[i], "--save-map") == 0 && i+1 < c) save_map = v[++i];
         else if (strcmp(v[i], "--load-map") == 0 && i+1 < c) load_map = v[++i];
         else if (strcmp(v[i], "--load") == 0 && i+1 < c) load = v[++i];
@@ -57,6 +59,7 @@ int main(int c, char **v)
         if(!depth) rp.disable_depth();
         if(realtime) rp.enable_realtime();
         if(intel) rp.enable_intel();
+        if(enable_map) rp.start_mapping();
 
         if(!rp.open(capture_file))
             return false;

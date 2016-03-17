@@ -180,13 +180,20 @@ bool observation_queue::process(state &s, sensor_clock::time_point time)
     return success;
 }
 
+void observation_spatial::innovation_covariance_hook(const matrix &cov, int index)
+{
+    if(show_tuning) {
+        debug_log->info(" predicted stdev is {} {} {}", sqrt(cov(index, index)), sqrt(cov(index+1, index+1)), sqrt(cov(index+2, index+2)));
+    }
+}
+
 void observation_vision_feature::innovation_covariance_hook(const matrix &cov, int index)
 {
     feature->innovation_variance_x = cov(index, index);
     feature->innovation_variance_y = cov(index + 1, index + 1);
     feature->innovation_variance_xy = cov(index, index +1);
     if(show_tuning) {
-        fprintf(stderr, " predicted stdev is %e %e\n", sqrt(cov(index, index)), sqrt(cov(index+1, index+1)));
+        debug_log->info(" predicted stdev is {} {}", sqrt(cov(index, index)), sqrt(cov(index+1, index+1)));
     }
 }
 

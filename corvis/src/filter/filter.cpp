@@ -419,10 +419,10 @@ void filter_accelerometer_measurement(struct filter *f, const float data[3], sen
     obs_a->variance = get_accelerometer_variance_for_run_state(f, meas, time);
     f->observations.observations.push_back(std::move(obs_a));
 
-    if(show_tuning) fprintf(stderr, "accelerometer:\n");
+    if(show_tuning) debug_log->info("accelerometer:");
     process_observation_queue(f, time);
     if(show_tuning) {
-        cerr << " actual innov stdev is:\n" <<
+        debug_log->info() << " actual innov stdev is:\n" <<
         observation_accelerometer::inn_stdev <<
         " signal stdev is:\n" <<
         observation_accelerometer::stdev <<
@@ -479,10 +479,10 @@ void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_
         f->gyro_stability.data(meas);
     }
 
-    if(show_tuning) fprintf(stderr, "gyroscope:\n");
+    if(show_tuning) debug_log->info("gyroscope:");
     process_observation_queue(f, time);
     if(show_tuning) {
-        cerr << " actual innov stdev is:\n" <<
+        debug_log->info() << " actual innov stdev is:\n" <<
         observation_gyroscope::inn_stdev <<
         " signal stdev is:\n" <<
         observation_gyroscope::stdev <<
@@ -713,13 +713,13 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
     filter_setup_next_frame(f, camera);
 
     if(show_tuning) {
-        fprintf(stderr, "vision:\n");
+        debug_log->info("vision:");
     }
     process_observation_queue(f, time);
     if(show_tuning) {
-        fprintf(stderr, " actual innov stdev is:\n");
-        cerr << observation_vision_feature::inn_stdev[0];
-        cerr << observation_vision_feature::inn_stdev[1];
+        debug_log->info(" actual innov stdev is:");
+        debug_log->info() << observation_vision_feature::inn_stdev[0];
+        debug_log->info() << observation_vision_feature::inn_stdev[1];
     }
 
     int features_used = f->s.process_features(time);

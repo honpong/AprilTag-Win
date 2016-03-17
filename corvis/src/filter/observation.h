@@ -100,12 +100,7 @@ public:
     virtual void compute_measurement_covariance() { for(int i = 0; i < 3; ++i) m_cov[i] = variance; }
     virtual bool measure() { return true; }
     observation_spatial(sensor_clock::time_point _time_actual, sensor_clock::time_point _time_apparent): observation_storage(_time_actual, _time_apparent), variance(0.) {}
-    void innovation_covariance_hook(const matrix &cov, int index)
-    {
-        if(show_tuning) {
-            fprintf(stderr, " predicted stdev is %e %e %e\n", sqrt(cov(index, index)), sqrt(cov(index+1, index+1)), sqrt(cov(index+2, index+2)));
-        }
-    }
+    void innovation_covariance_hook(const matrix &cov, int index);
 };
 
 class observation_accelerometer: public observation_spatial {

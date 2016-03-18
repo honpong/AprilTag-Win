@@ -233,9 +233,9 @@ void rc_configureLocation(rc_Tracker * tracker, double latitude_deg, double long
 
 RCTRACKER_API void rc_setDebugCallback(rc_Tracker *tracker, rc_DebugCallback callback, void *handle, rc_DebugLevel maximum_level)
 {
-    tracker->set_debug_log_function([callback, handle](void * handle, int level, const char * msg) {
-                callback(handle, (rc_DebugLevel)level, msg);
-            }, maximum_level, handle);
+    tracker->set_debug_log_function([callback, handle](void * handle, int level, const char * msg, size_t len) {
+        callback(handle, (rc_DebugLevel)level, msg, len);
+    }, maximum_level, handle);
 }
 
 RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callback, void *handle)

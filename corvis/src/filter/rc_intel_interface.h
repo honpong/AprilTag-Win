@@ -118,8 +118,8 @@ typedef enum rc_DebugLevel
 
 typedef void(*rc_DataCallback)(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count);
 typedef void(*rc_StatusCallback)(void *handle, rc_TrackerState state, rc_TrackerError error, rc_TrackerConfidence confidence, float progress);
-typedef void(*rc_DebugCallback)(void *handle, rc_DebugLevel message_level, const char * message);
-    
+typedef void(*rc_DebugCallback)(void *handle, rc_DebugLevel message_level, const char * message, size_t len);
+
 typedef struct rc_Tracker rc_Tracker;
 
 RCTRACKER_API rc_Tracker * rc_create();

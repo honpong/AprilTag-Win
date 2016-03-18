@@ -113,8 +113,8 @@ void replay::setup_filter()
         };
     }
     fusion.start_offline();
-    fusion.set_debug_log_function([](void *, int log_level, const char *message) {
-        fwrite(message, strlen(message), 1, stderr);
+    fusion.set_debug_log_function([](void *, int log_level, const char *message, size_t len) {
+        fwrite(message, len, 1, stderr);
     }, rc_DEBUG_WARN, nullptr);
 }
 

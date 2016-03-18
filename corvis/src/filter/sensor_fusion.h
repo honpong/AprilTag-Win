@@ -218,7 +218,7 @@ public:
         @param handle - A void * that will be passed to the logging function each time
     */
 
-    void set_debug_log_function(std::function<void (void *, int, const char *)> log, int max_log_level, void * handle);
+    void set_debug_log_function(std::function<void (void *, int, const char *, size_t)> log, int max_log_level, void * handle);
 
     /** Immediately output a position via the log function */
     void trigger_log() const;

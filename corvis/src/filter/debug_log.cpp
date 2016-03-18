@@ -8,10 +8,10 @@ class threaded_callback_sink : public spdlog::sinks::base_sink < std::mutex >
 private:
     void * handle;
     int log_level;
-    std::function<void (void *, int, const char *)> callback;
+    std::function<void (void *, int, const char *, size_t)> callback;
 
 public:
-    threaded_callback_sink(std::function<void (void *, int, const char *)> log, int max_log_level, void * debug_handle) :
+    threaded_callback_sink(std::function<void (void *, int, const char *, size_t)> log, int max_log_level, void * debug_handle) :
         handle(debug_handle), log_level(max_log_level), callback(log) {};
 
 protected:
@@ -24,7 +24,7 @@ protected:
         if(msg.level == spdlog::level::warn) rc_msg_level = rc_DEBUG_WARN;
         if(msg.level == spdlog::level::info) rc_msg_level = rc_DEBUG_INFO;
         if(rc_msg_level <= log_level)
-            callback(handle, rc_msg_level, msg.formatted.c_str());
+            callback(handle, rc_msg_level, msg.formatted.c_str(), msg.formatted.size());
     }
 
     void flush() override
@@ -34,7 +34,7 @@ protected:
 
 
 std::shared_ptr<spdlog::logger> debug_log = std::make_shared<spdlog::logger>("sensor_fusion", std::make_shared<threaded_callback_sink>(nullptr, rc_DEBUG_NONE, nullptr));
-void debug_log_set(std::function<void (void *, int, const char *)> log, int max_log_level, void * handle)
+void debug_log_set(std::function<void (void *, int, const char *, size_t)> log, int max_log_level, void * handle)
 {
     if(debug_log)
         spdlog::drop("sensor_fusion");

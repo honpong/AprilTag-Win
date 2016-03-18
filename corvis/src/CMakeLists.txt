@@ -144,9 +144,11 @@ add_library(filter STATIC
   filter/mapper.cpp
   filter/dictionary.h
   filter/dictionary.cpp
+  filter/debug_log.cpp
 )
 target_include_directories(filter PUBLIC filter)
 target_include_directories(filter PRIVATE rapidjson/include)
+target_include_directories(filter PRIVATE ../../ThirdParty/spdlog/include)
 target_link_libraries(filter numerics cor vlfeat)
 set_property(TARGET filter PROPERTY CXX_STANDARD 14)
 

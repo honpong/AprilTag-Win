@@ -115,6 +115,7 @@ static void copy_features_from_sensor_fusion(std::vector<rc_Feature> &features, 
         feat.world.z = fp.worldz;
         feat.id = fp.id;
         feat.initialized = fp.initialized;
+        feat.stdev = fp.stdev;
         features.push_back(feat);
     }
 }
@@ -229,6 +230,13 @@ void rc_configureGyroscope(rc_Tracker * tracker, const rc_Pose alignment_bias_ra
 void rc_configureLocation(rc_Tracker * tracker, double latitude_deg, double longitude_deg, double altitude_m)
 {
     tracker->set_location(latitude_deg, longitude_deg, altitude_m);
+}
+
+RCTRACKER_API void rc_setDebugCallback(rc_Tracker *tracker, rc_DebugCallback callback, void *handle, rc_DebugLevel maximum_level)
+{
+    tracker->set_debug_log_function([callback, handle](void * handle, int level, const char * msg, size_t len) {
+        callback(handle, (rc_DebugLevel)level, msg, len);
+    }, maximum_level, handle);
 }
 
 RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callback, void *handle)

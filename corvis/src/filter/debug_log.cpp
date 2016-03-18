@@ -33,9 +33,12 @@ protected:
 };
 
 
+std::mutex set_mutex;
+
 std::shared_ptr<spdlog::logger> debug_log = std::make_shared<spdlog::logger>("sensor_fusion", std::make_shared<threaded_callback_sink>(nullptr, rc_DEBUG_NONE, nullptr));
 void debug_log_set(std::function<void (void *, int, const char *, size_t)> log, int max_log_level, void * handle)
 {
+    std::lock_guard<std::mutex> lock(set_mutex);
     if(debug_log)
         spdlog::drop("sensor_fusion");
 

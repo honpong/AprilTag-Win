@@ -120,7 +120,7 @@ int state_vision_group::process_features(const camera_data & camera, mapper & ma
                 if(radius < 4) {
                     radius = 4;
                 }
-                //fprintf(stderr, "feature %llu good radius %f\n", f->id, radius);
+                //debug_log->info("feature {} good radius {}", f->id, radius);
                 if(descriptor_compute(camera.image, camera.width, camera.height, camera.stride,
                             f->current[0], f->current[1], radius, f->descriptor)) {
                     f->descriptor_valid = true;
@@ -286,7 +286,7 @@ int state_vision::process_features(const camera_data & camera, sensor_clock::tim
             loop_offset.T = loop_offset.T * (1. - lost_factor) + offset.T * lost_factor;
             if(lost_factor > .1) lost_factor -= .1;
             if(lost_factor < .1) lost_factor = .1;
-            //std::cerr << "loop_offset:\n" << loop_offset << "\n";
+            debug_log->info() << "loop closed, offset: " << loop_offset;
         }
     }
 

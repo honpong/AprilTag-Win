@@ -9,6 +9,7 @@
 #include "mapper.h"
 #include "corvis_dictionary.h"
 #include <iostream>
+#include "debug_log.h"
 
 transformation_variance invert(const transformation_variance & T)
 {
@@ -410,13 +411,13 @@ bool mapper::find_closure(int max, int suppression, transformation & offset)
 {
     for(int i = 0; i < nodes.size(); i++) {
         if(nodes[i].finished && !nodes[i].match_attempted && i + 10 < nodes.size()) {
-            //fprintf(stderr, "searching for loop closure for %llu\n", nodes[i].id);
+            //debug_log->info("searching for loop closure for {}", nodes[i].id);
             nodes[i].match_attempted = true;
             vector<map_match> matches;
             if(get_matches(nodes[i].id, matches, max, suppression)) {
                 map_match m = matches[0];
-                //fprintf(stderr, "Loop closure: match %llu - %llu %f\n", m.from, m.to, m.score);
-                //std::cerr << m.g.T << std::endl;
+                //debug_log->info("Loop closure: match {} - {} {}", m.from, m.to, m.score);
+                //debug_log->info() << m.g.T;
                 //transformation new_t = initial * map.get_relative_transformation(m.from, 0);
                 transformation new_t = nodes[m.to].global_transformation.transform * invert(m.g);
                 transformation old_t = nodes[m.from].global_transformation.transform;
@@ -514,7 +515,7 @@ float refine_transformation(const transformation_variance &base, transformation_
         meanstd += sqrt(neighbor_match->first.feature->variance + neighbor_match->second.feature->variance);
     }
     meanstd /= neighbor_matches.size();
-    //fprintf(stderr, "meanvar: %f\n", meanstd*meanstd);
+    //debug_log->info("meanvar: {}", meanstd*meanstd);
 
     for(list<match_pair>::const_iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
         v4 local = transformation_apply(compose(total.transform, invert(base).transform), neighbor_match->second.position);
@@ -552,7 +553,7 @@ float refine_transformation(const transformation_variance &base, transformation_
             v4 dW = v4(dW_rot.x(), dW_rot.y(), dW_rot.z(), 0);
             //double norm_prod = sum(first * second) / (first.norm() * second.norm());
             //double theta = acos(norm_prod);
-            //fprintf(stderr, "%f\n", theta);
+            //debug_log->info("{}", theta);
             total_rot = total_rot + dW;
             ++inliers;
         }
@@ -591,7 +592,7 @@ int mapper::estimate_translation(uint64_t id1, uint64_t id2, v4 &result, int min
         meanstd += sqrt(neighbor_match->first.feature->variance + neighbor_match->second.feature->variance);
     }
     meanstd /= neighbor_matches.size();
-    //fprintf(stderr, "meanvar: %f\n", meanstd*meanstd);
+    //debug_log->info("meanvar: {}", meanstd*meanstd);
 
     int best_score = 0;
     v4 bestdT;
@@ -655,7 +656,7 @@ int mapper::check_for_matches(uint64_t id1, uint64_t id2, transformation_varianc
             if(resid < threshhold /*&& resid <= baseline_threshhold*/) {
                 //neighbor_match->first.position.print();
                 //(neighbor_match->second.position + dT).print();
-                //fprintf(stderr, " resid %f, thresh %f, baseth %f\n", resid, threshhold, baseline_threshhold);
+                //debug_log->info(" resid {}, thresh {}, baseth {}", resid, threshhold, baseline_threshhold);
                 ++inliers;
             }
         }
@@ -726,13 +727,12 @@ void mapper::breadth_first(int start, int maxdepth, void(mapper::*callback)(map_
 
 void mapper::print_stats()
 {
-    fprintf(stderr, "nodes: %lu\n", nodes.size());
-    fprintf(stderr, "features: %llu\n", feature_count);
-    fprintf(stderr, "document frequency:\n");
+    debug_log->info("Map nodes: {}", nodes.size());
+    debug_log->info("features: {}", feature_count);
+    debug_log->info("document frequency:");
     for(uint64_t frequency : document_frequency) {
-        fprintf(stderr, "%llu ", frequency);
+        debug_log->info("{} ", frequency);
     }
-    fprintf(stderr, "\n");
 }
 
 void mapper::set_node_transformation(uint64_t id, const transformation & G)
@@ -749,7 +749,7 @@ void mapper::node_finished(uint64_t id, const transformation & G)
     for(list<map_edge>::iterator edge = nodes[id].edges.begin(); edge != nodes[id].edges.end(); ++edge) {
         uint64_t nid = edge->neighbor;
         if(nodes[nid].finished && !edge->geometry) {
-            //fprintf(stderr, "setting an edge for %llu to %llu\n", id, nid);
+            //debug_log->info("setting an edge for {} to {}", id, nid);
             transformation_variance tv;
             tv.transform = invert(nodes[id].global_transformation.transform)*nodes[nid].global_transformation.transform;
             internal_set_geometry(id, nid, tv, false);

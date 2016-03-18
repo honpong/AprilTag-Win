@@ -40,10 +40,10 @@ void debug_log_set(std::function<void (void *, int, const char *, size_t)> log, 
 {
     std::lock_guard<std::mutex> lock(set_mutex);
     if(debug_log)
-        spdlog::drop("sensor_fusion");
+        spdlog::drop("rc_tracker");
 
     auto custom_sink = std::make_shared<threaded_callback_sink>(log, max_log_level, handle);
-    debug_log = std::make_shared<spdlog::logger>("sensor_fusion", custom_sink);
+    debug_log = std::make_shared<spdlog::logger>("rc_tracker", custom_sink);
 
     spdlog::register_logger(debug_log);
 }

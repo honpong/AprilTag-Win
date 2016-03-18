@@ -21,7 +21,7 @@ extern "C" {
 #include <iostream>
 using namespace std;
 
-#define log_enabled 0
+#define log_enabled 0 // Only used in state.h now
 #define show_tuning 0
 
 //minstatesize = base (38) + 2xref (12) + full group(40) + min group (6) = 96

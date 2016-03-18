@@ -70,6 +70,7 @@ if(YES)
       test/filter/device_parameters.cpp
       test/filter/calibration_json.cpp
       test/filter/tpose.cpp
+      test/filter/debug_log.cpp
       test/cor/sensor_fusion_queue.cpp
     )
     if(ENABLE_QR)
@@ -78,6 +79,7 @@ if(YES)
     add_executable(spec ${spec_sources})
     set_property(TARGET spec PROPERTY CXX_STANDARD 14)
     target_include_directories(spec PRIVATE test ..)
+    target_include_directories(spec PRIVATE ../ThirdParty/spdlog/include/)
     target_link_libraries(spec filter)
     if(ENABLE_QR)
        target_link_libraries(spec qr)

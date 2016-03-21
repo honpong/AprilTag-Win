@@ -305,6 +305,16 @@ void rc_stopMapping(rc_Tracker *tracker)
     tracker->stop_mapping();
 }
 
+bool rc_loadMap(rc_Tracker *tracker, size_t (*read)(void *handle, void *buffer, size_t length), void *handle)
+{
+    return tracker->load_map(read, handle);
+}
+
+void rc_saveMap(rc_Tracker *tracker,  void (*write)(void *handle, const void *buffer, size_t length), void *handle)
+{
+    tracker->save_map(write, handle);
+}
+
 void rc_receiveImage(rc_Tracker *tracker, rc_Camera camera, rc_Timestamp time_us, rc_Timestamp shutter_time_us, const rc_Pose poseEstimate_m, bool force_recognition, int width, int height, int stride, const void *image, void(*completion_callback)(void *callback_handle), void *callback_handle)
 {
     if(force_recognition) tracker->attempt_relocalization();

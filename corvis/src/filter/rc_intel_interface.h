@@ -277,8 +277,8 @@ RCTRACKER_API void rc_stopMapping(rc_Tracker *tracker);
 /**
  Save/load a map to use.
  */
-//void rc_saveMap(rc_Tracker *tracker,  void (*write)(void *handle, void *buffer, size_t length), void *handle);
-//void rc_loadMap(rc_Tracker *tracker, size_t (*read)(void *handle, void *buffer, size_t length), void *handle);
+RCTRACKER_API void rc_saveMap(rc_Tracker *tracker,  void (*write)(void *handle, const void *buffer, size_t length), void *handle);
+RCTRACKER_API bool rc_loadMap(rc_Tracker *tracker, size_t (*read)(void *handle, void *buffer, size_t length), void *handle);
 
 #ifdef __cplusplus
 }

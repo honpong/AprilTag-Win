@@ -50,16 +50,16 @@ int main(int c, char **v)
         goto usage;
 
     auto configure = [&](replay &rp, const char *capture_file) -> bool {
-        if(!load_map.empty() && !rp.load_map(load_map)) {
-            cerr << filename << ": Loading map " << load_map << " failed!\n";
-            return 2;
-        }
-
         if(qvga) rp.enable_qvga();
         if(!depth) rp.disable_depth();
         if(realtime) rp.enable_realtime();
         if(intel) rp.enable_intel();
         if(enable_map) rp.start_mapping();
+
+        if(!load_map.empty() && !rp.load_map(load_map)) {
+            cerr << filename << ": Loading map " << load_map << " failed!\n";
+            return 2;
+        }
 
         if(!rp.open(capture_file))
             return false;

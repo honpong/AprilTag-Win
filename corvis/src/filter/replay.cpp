@@ -344,25 +344,44 @@ void replay::stop()
     is_running = false;
 }
 
+struct stream_position
+{
+    size_t position;
+    string json;
+};
+
+size_t load_map_callback(void * handle, void *buffer, size_t length)
+{
+    struct stream_position * stream = (struct stream_position *)handle;
+    size_t chars = stream->json.copy((char *)buffer, length, stream->position);
+    stream->position += chars;
+    return chars;
+}
+
 bool replay::load_map(string filename)
 {
     ifstream file_handle(filename);
     if(file_handle.fail())
         return false;
 
-    string json((istreambuf_iterator<char>(file_handle)), istreambuf_iterator<char>());
+    struct stream_position s;
+    s.json = std::string((istreambuf_iterator<char>(file_handle)), istreambuf_iterator<char>());
+    s.position = 0;
 
-    if(!fusion.sfm.s.load_map(json))
+    if(!fusion.load_map(load_map_callback, &s))
         return false;
 
     return true;
 }
 
+void save_map_callback(void *handle, const void *buffer, size_t length)
+{
+    std::ofstream * out = (std::ofstream *)handle;
+    out->write((const char *)buffer, length);
+}
+
 void replay::save_map(string filename)
 {
-    std::string json;
-    if (fusion.sfm.s.map.serialize(json)) {
-        std::ofstream out(filename);
-        out << json;
-    }
+    std::ofstream out(filename);
+    fusion.save_map(save_map_callback, &out);
 }

@@ -112,7 +112,7 @@ The main interface to the library can be found in
 
     ```sh
 
-    ./gradle assembleRc86Release
+    ./gradlew assembleRc86Release
 
     ```
 
@@ -120,7 +120,7 @@ The main interface to the library can be found in
 
     ```sh
 
-    ./gradle installRc64Relwithdebinfo
+    ./gradlew installRc64Relwithdebinfo
 
     ```
 

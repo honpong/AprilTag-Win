@@ -157,6 +157,7 @@ bool replay::run()
                 char tmp[17]; memcpy(tmp, packet->data, 16); tmp[16] = 0;
                 std::stringstream parse(tmp);
                 int width, height; parse.ignore(3, ' ') >> width >> height; //pgm header is "P5 x y"
+                if (trace) printf("rc_receiveImage(%lld, %lld, GRAY8, %dx%d);\n", packet->header.time, (uint64_t)33333, width, height);
                 rc_receiveImage(tracker, packet->header.time, 33333, rc_FORMAT_GRAY8,
                                 width, height, width, packet->data + 16, [](void *packet) { free(packet); }, phandle.release());
             }   break;
@@ -211,7 +212,7 @@ bool replay::run()
                                     ip->width, ip->height, ip->width, ip->data,
                                     [](void *packet) { if (!--((packet_header_t *)packet)->user) free(packet); }, packet);
                 } else {
-                    if (trace) printf("rc_receiveImage(%lld, %lld, %dx%d);\n", packet->header.time, ip->exposure_time_us, ip->width, ip->height);
+                    if (trace) printf("rc_receiveImage(%lld, %lld, GRAY8, %dx%d);\n", packet->header.time, ip->exposure_time_us, ip->width, ip->height);
                     rc_receiveImage(tracker, ip->header.time, ip->exposure_time_us, rc_FORMAT_GRAY8,
                                     ip->width, ip->height, ip->width, ip->data,
                                     [](void *packet) { free(packet); }, phandle.release());

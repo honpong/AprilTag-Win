@@ -144,7 +144,6 @@ add_library(filter STATIC
   filter/mapper.cpp
   filter/dictionary.h
   filter/dictionary.cpp
-  filter/debug_log.cpp
 )
 target_include_directories(filter PUBLIC filter)
 target_include_directories(filter PRIVATE rapidjson/include ../../ThirdParty/rapidxml)

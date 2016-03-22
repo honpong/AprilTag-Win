@@ -4,7 +4,6 @@
 
 #include "state_vision.h"
 #include "../numerics/transformation.h"
-#include "debug_log.h"
 
 f_t state_vision_feature::initial_depth_meters;
 f_t state_vision_feature::initial_var;
@@ -120,7 +119,7 @@ int state_vision_group::process_features(const image_gray8 &image, mapper & map,
                 if(radius < 4) {
                     radius = 4;
                 }
-                //debug_log->info("feature {} good radius {}", f->id, radius);
+                //log->info("feature {} good radius {}", f->id, radius);
                 if(descriptor_compute(image.image, image.width, image.height, image.stride,
                             f->current[0], f->current[1], radius, f->descriptor)) {
                     f->descriptor_valid = true;
@@ -233,8 +232,8 @@ int state_vision::process_features(const image_gray8 &image, sensor_clock::time_
             }
         }
     }
-    if(track_fail && !total_feats) debug_log->warn("Tracker failed! {} features dropped.", track_fail);
-    //    debug_log->warn("outliers: {}/{} ({}%)", outliers, total_feats, outliers * 100. / total_feats);
+    if(track_fail && !total_feats) log->warn("Tracker failed! {} features dropped.", track_fail);
+    //    log.warn("outliers: {}/{} ({}%)", outliers, total_feats, outliers * 100. / total_feats);
 
     int total_health = 0;
     bool need_reference = true;
@@ -286,7 +285,7 @@ int state_vision::process_features(const image_gray8 &image, sensor_clock::time_
             loop_offset.T = loop_offset.T * (1. - lost_factor) + offset.T * lost_factor;
             if(lost_factor > .1) lost_factor -= .1;
             if(lost_factor < .1) lost_factor = .1;
-            debug_log->info() << "loop closed, offset: " << loop_offset;
+            log->info() << "loop closed, offset: " << loop_offset;
         }
     }
 

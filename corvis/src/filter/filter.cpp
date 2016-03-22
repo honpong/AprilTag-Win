@@ -18,7 +18,6 @@
 #include "observation.h"
 #include "filter.h"
 #include <memory>
-#include "debug_log.h"
 
 const static sensor_clock::duration max_camera_delay = std::chrono::microseconds(200000); //We drop a frame if it arrives at least this late
 const static sensor_clock::duration max_inertial_delay = std::chrono::microseconds(100000); //We drop inertial data if it arrives at least this late
@@ -72,14 +71,14 @@ void test_time_update(struct filter *f, f_t dt, int statesize)
             f_t delta = state[j] - save_new_state[j];
             f_t ldiff = leps * ltu(j, i);
             if((ldiff * delta < 0.) && (fabs(delta) > 1.e-5)) {
-                debug_log->warn("{}\t{}\t: sign flip: expected {}, got {}", i, j, ldiff, delta);
+                f->log->warn("{}\t{}\t: sign flip: expected {}, got {}", i, j, ldiff, delta);
                 continue;
             }
             f_t error = fabs(ldiff - delta);
             if(fabs(delta)) error /= fabs(delta);
             else error /= 1.e-5;
             if(error > .1) {
-                debug_log->warn("{}\t{}\t: lin error: expected {}, got {}", i, j, ldiff, delta);
+                f->log->warn("{}\t{}\t: lin error: expected {}, got {}", i, j, ldiff, delta);
                 continue;
             }
         }
@@ -111,14 +110,14 @@ void test_meas(struct filter *f, int pred_size, int statesize, int (*predict)(st
             f_t delta = pred[j] - save_pred[j];
             f_t ldiff = leps * lp(j, i);
             if((ldiff * delta < 0.) && (fabs(delta) > 1.e-5)) {
-                debug_log->warn("{}\t{}\t: sign flip: expected {}, got {}", i, j, ldiff, delta);
+                f->log->warn("{}\t{}\t: sign flip: expected {}, got {}", i, j, ldiff, delta);
                 continue;
             }
             f_t error = fabs(ldiff - delta);
             if(fabs(delta)) error /= fabs(delta);
             else error /= 1.e-5;
             if(error > .1) {
-                debug_log->warn("{}\t{}\t: lin error: expected {}, got {}", i, j, ldiff, delta);
+                f->log->warn("{}\t{}\t: lin error: expected {}, got {}", i, j, ldiff, delta);
                 continue;
             }
         }
@@ -138,38 +137,38 @@ void filter_update_outputs(struct filter *f, sensor_clock::time_point time)
     f->speed_failed = false;
     f_t speed = f->s.V.v.norm();
     if(speed > 3.) { //1.4m/s is normal walking speed
-        if (!old_speedfail) debug_log->warn("Velocity {} m/s exceeds max bound", speed);
+        if (!old_speedfail) f->log->warn("Velocity {} m/s exceeds max bound", speed);
         f->speed_failed = true;
         f->calibration_bad = true;
     } else if(speed > 2.) {
-        if (!f->speed_warning) debug_log->warn("High velocity ({} m/s) warning", speed);
+        if (!f->speed_warning) f->log->warn("High velocity ({} m/s) warning", speed);
         f->speed_warning = true;
         f->speed_warning_time = time;
     }
     f_t accel = f->s.a.v.norm();
     if(accel > 9.8) { //1g would saturate sensor anyway
-        if (!old_speedfail) debug_log->warn("Acceleration exceeds max bound");
+        if (!old_speedfail) f->log->warn("Acceleration exceeds max bound");
         f->speed_failed = true;
         f->calibration_bad = true;
     } else if(accel > 5.) { //max in mine is 6.
-        if (!f->speed_warning) debug_log->warn("High acceleration ({} m/s^2) warning", accel);
+        if (!f->speed_warning) f->log->warn("High acceleration ({} m/s^2) warning", accel);
         f->speed_warning = true;
         f->speed_warning_time = time;
     }
     f_t ang_vel = f->s.w.v.norm();
     if(ang_vel > 5.) { //sensor saturation - 250/180*pi
-        if (!old_speedfail) debug_log->warn("Angular velocity exceeds max bound");
+        if (!old_speedfail) f->log->warn("Angular velocity exceeds max bound");
         f->speed_failed = true;
         f->calibration_bad = true;
     } else if(ang_vel > 2.) { // max in mine is 1.6
-        if (!f->speed_warning) debug_log->warn("High angular velocity warning");
+        if (!f->speed_warning) f->log->warn("High angular velocity warning");
         f->speed_warning = true;
         f->speed_warning_time = time;
     }
     //if(f->speed_warning && filter_converged(f) < 1.) f->speed_failed = true;
     if(time - f->speed_warning_time > std::chrono::microseconds(1000000)) f->speed_warning = false;
 
-    //debug_log->info("{} [{} {} {}] [{} {} {}]", time, output[0], output[1], output[2], output[3], output[4], output[5]);
+    //f->log->info("{} [{} {} {}] [{} {} {}]", time, output[0], output[1], output[2], output[3], output[4], output[5]);
 }
 
 void process_observation_queue(struct filter *f, sensor_clock::time_point time)
@@ -189,7 +188,7 @@ void filter_compute_gravity(struct filter *f, double latitude, double altitude)
 static bool check_packet_time(struct filter *f, sensor_clock::time_point t, int type)
 {
     if(t < f->last_packet_time) {
-        debug_log->warn("Warning: received packets out of order: {} at {} came first, then {} at {}. delta {}", f->last_packet_type, sensor_clock::tp_to_micros(f->last_packet_time), type, sensor_clock::tp_to_micros(t), (long long)std::chrono::duration_cast<std::chrono::microseconds>(f->last_packet_time - t).count());
+        f->log->warn("Warning: received packets out of order: {} at {} came first, then {} at {}. delta {}", f->last_packet_type, sensor_clock::tp_to_micros(f->last_packet_time), type, sensor_clock::tp_to_micros(t), (long long)std::chrono::duration_cast<std::chrono::microseconds>(f->last_packet_time - t).count());
         return false;
     }
     f->last_packet_time = t;
@@ -255,10 +254,10 @@ sensor_clock::duration steady_time(struct filter *f, stdev_vector &stdev, const 
 
 static void print_calibration(struct filter *f)
 {
-    debug_log->info() << "w bias is: " << f->s.w_bias.v;
-    debug_log->info() << "w bias var is: " << f->s.w_bias.variance();
-    debug_log->info() << "a bias is: " << f->s.a_bias.v;
-    debug_log->info() << "a bias var is: " << f->s.a_bias.variance();
+    f->log->info() << "w bias is: " << f->s.w_bias.v;
+    f->log->info() << "w bias var is: " << f->s.w_bias.variance();
+    f->log->info() << "a bias is: " << f->s.a_bias.v;
+    f->log->info() << "a bias var is: " << f->s.a_bias.variance();
 }
 
 static float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
@@ -302,7 +301,7 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, const v4 &
                     f->w_bias_start = f->s.w_bias.variance();
                     reset_stability(f);
                     f->s.disable_bias_estimation();
-                    debug_log->info("When finishing static calibration:");
+                    f->log->info("When finishing static calibration:");
                     print_calibration(f);
                 }
                 return f->a_variance * 3 * 3; //pump up this variance because we aren't really perfect here
@@ -324,7 +323,7 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, const v4 &
                     f->w_bias_start = f->s.w_bias.variance();
                     reset_stability(f);
                     f->s.disable_bias_estimation();
-                    debug_log->info("When finishing portrait calibration:");
+                    f->log->info("When finishing portrait calibration:");
                     print_calibration(f);
                 }
                 return accelerometer_steady_var;
@@ -345,7 +344,7 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, const v4 &
                     f->run_state = RCSensorFusionRunStateInactive;
                     reset_stability(f);
                     f->s.disable_bias_estimation();
-                    debug_log->info("When finishing landscape calibration:");
+                    f->log->info("When finishing landscape calibration:");
                     print_calibration(f);
                 }
                 return accelerometer_steady_var;
@@ -394,7 +393,7 @@ void filter_accelerometer_measurement(struct filter *f, const float data[3], sen
         auto current = sensor_clock::now();
         auto delta = current - time;
         if(delta > max_inertial_delay) {
-            debug_log->warn("Warning, dropped an old accel sample - timestamp {}, now {}", sensor_clock::tp_to_micros(time), sensor_clock::tp_to_micros(current));
+            f->log->warn("Warning, dropped an old accel sample - timestamp {}, now {}", sensor_clock::tp_to_micros(time), sensor_clock::tp_to_micros(current));
             return;
         }
     }
@@ -406,7 +405,7 @@ void filter_accelerometer_measurement(struct filter *f, const float data[3], sen
 
     if(fabs(accel_delta[0]) > max_accel_delta || fabs(accel_delta[1]) > max_accel_delta || fabs(accel_delta[2]) > max_accel_delta)
     {
-        debug_log->warn("Rejecting an accel sample due to extreme jump {} {} {}", accel_delta[0], accel_delta[1], accel_delta[2]);
+        f->log->warn("Rejecting an accel sample due to extreme jump {} {} {}", accel_delta[0], accel_delta[1], accel_delta[2]);
         return;
     }
     
@@ -419,10 +418,10 @@ void filter_accelerometer_measurement(struct filter *f, const float data[3], sen
     obs_a->variance = get_accelerometer_variance_for_run_state(f, meas, time);
     f->observations.observations.push_back(std::move(obs_a));
 
-    if(show_tuning) debug_log->info("accelerometer:");
+    if(show_tuning) f->log->info("accelerometer:");
     process_observation_queue(f, time);
     if(show_tuning) {
-        debug_log->info() << " actual innov stdev is:\n" <<
+        f->log->info() << " actual innov stdev is:\n" <<
         observation_accelerometer::inn_stdev <<
         " signal stdev is:\n" <<
         observation_accelerometer::stdev <<
@@ -451,7 +450,7 @@ void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_
         auto current = sensor_clock::now();
         auto delta = current - time;
         if(delta > max_inertial_delay) {
-            debug_log->warn("Warning, dropped an old gyro sample - timestamp {}, now {}", sensor_clock::tp_to_micros(time), sensor_clock::tp_to_micros(current));
+            f->log->warn("Warning, dropped an old gyro sample - timestamp {}, now {}", sensor_clock::tp_to_micros(time), sensor_clock::tp_to_micros(current));
             return;
         }
     }
@@ -463,7 +462,7 @@ void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_
 
     if(fabs(gyro_delta[0]) > max_gyro_delta || fabs(gyro_delta[1]) > max_gyro_delta || fabs(gyro_delta[2]) > max_gyro_delta)
     {
-        debug_log->warn("Rejecting a gyro sample due to extreme jump {} {} {}", gyro_delta[0], gyro_delta[1], gyro_delta[2]);
+        f->log->warn("Rejecting a gyro sample due to extreme jump {} {} {}", gyro_delta[0], gyro_delta[1], gyro_delta[2]);
         return;
     }
 
@@ -479,10 +478,10 @@ void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_
         f->gyro_stability.data(meas);
     }
 
-    if(show_tuning) debug_log->info("gyroscope:");
+    if(show_tuning) f->log->info("gyroscope:");
     process_observation_queue(f, time);
     if(show_tuning) {
-        debug_log->info() << " actual innov stdev is:\n" <<
+        f->log->info() << " actual innov stdev is:\n" <<
         observation_gyroscope::inn_stdev <<
         " signal stdev is:\n" <<
         observation_gyroscope::stdev <<
@@ -641,7 +640,7 @@ std::unique_ptr<image_depth16> filter_aligned_distorted_depth_to_intrinsics(cons
 static void filter_add_features(struct filter *f, const image_gray8 & image, size_t newfeats)
 {
 #ifdef TEST_POSDEF
-    if(!test_posdef(f->s.cov.cov)) debug_log->warn("not pos def before adding features");
+    if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before adding features");
 #endif
     // Filter out features which we already have by masking where
     // existing features are located
@@ -705,7 +704,7 @@ static void filter_add_features(struct filter *f, const image_gray8 & image, siz
     g->make_normal();
     f->s.remap();
 #ifdef TEST_POSDEF
-    if(!test_posdef(f->s.cov.cov)) debug_log->warn("not pos def after adding features");
+    if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def after adding features");
 #endif
 }
 
@@ -760,9 +759,9 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
         bool inertial_converged = (f->s.Q.variance()[0] < dynamic_W_thresh_variance && f->s.Q.variance()[1] < dynamic_W_thresh_variance);
         if(inertial_converged) {
             if(inertial_converged) {
-                debug_log->info("Inertial converged at time {}", std::chrono::duration_cast<std::chrono::microseconds>(time - f->want_start).count());
+                f->log->info("Inertial converged at time {}", std::chrono::duration_cast<std::chrono::microseconds>(time - f->want_start).count());
             } else {
-                debug_log->info("Inertial did not converge {}, {}", f->s.Q.variance()[0], f->s.Q.variance()[1]);
+                f->log->info("Inertial did not converge {}, {}", f->s.Q.variance()[0], f->s.Q.variance()[1]);
             }
         } else return true;
     }
@@ -784,12 +783,12 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
         mach_msg_type_number_t thinfo_count;
         kern_return_t kr = thread_info(mach_thread_self(), THREAD_BASIC_INFO, thinfo, &thinfo_count);
         float cpu = ((thread_basic_info_t)thinfo)->cpu_usage / (float)TH_USAGE_SCALE;
-        debug_log->info("cpu usage is {}", cpu);*/
+        f->log->info("cpu usage is {}", cpu);*/
         
         auto current = sensor_clock::now();
         auto delta = current - time;
         if(delta > max_camera_delay) {
-            debug_log->warn("Warning, dropped an old video frame - timestamp {}, now {}", sensor_clock::tp_to_micros(time), sensor_clock::tp_to_micros(current));
+            f->log->warn("Warning, dropped an old video frame - timestamp {}, now {}", sensor_clock::tp_to_micros(time), sensor_clock::tp_to_micros(current));
             return false;
         }
         if(!f->valid_delta) {
@@ -804,21 +803,21 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
         f->last_arrival = time;
         
         if(lateness > period * 2) {
-            debug_log->warn("old max_state_size was {}", f->s.maxstatesize);
+            f->log->warn("old max_state_size was {}", f->s.maxstatesize);
             f->s.maxstatesize = f->s.statesize - 1;
             if(f->s.maxstatesize < MINSTATESIZE) f->s.maxstatesize = MINSTATESIZE;
-            debug_log->warn("was {} us late, new max state size is {}, current state size is {}", std::chrono::duration_cast<std::chrono::microseconds>(lateness).count(), f->s.maxstatesize, f->s.statesize);
-            debug_log->warn("dropping a frame!");
+            f->log->warn("was {} us late, new max state size is {}, current state size is {}", std::chrono::duration_cast<std::chrono::microseconds>(lateness).count(), f->s.maxstatesize, f->s.statesize);
+            f->log->warn("dropping a frame!");
             return false;
         }
         if(lateness > period && f->s.maxstatesize > MINSTATESIZE && f->s.statesize < f->s.maxstatesize) {
             f->s.maxstatesize = f->s.statesize - 1;
             if(f->s.maxstatesize < MINSTATESIZE) f->s.maxstatesize = MINSTATESIZE;
-            debug_log->warn("was {} us late, new max state size is {}, current state size is {}", std::chrono::duration_cast<std::chrono::microseconds>(lateness).count(), f->s.maxstatesize, f->s.statesize);
+            f->log->warn("was {} us late, new max state size is {}, current state size is {}", std::chrono::duration_cast<std::chrono::microseconds>(lateness).count(), f->s.maxstatesize, f->s.statesize);
         }
         if(lateness < period / 4 && f->s.statesize > f->s.maxstatesize - f->min_group_add && f->s.maxstatesize < MAXSTATESIZE - 1) {
             ++f->s.maxstatesize;
-            debug_log->warn("was {} us late, new max state size is {}, current state size is {}", std::chrono::duration_cast<std::chrono::microseconds>(lateness).count(), f->s.maxstatesize, f->s.statesize);
+            f->log->warn("was {} us late, new max state size is {}, current state size is {}", std::chrono::duration_cast<std::chrono::microseconds>(lateness).count(), f->s.maxstatesize, f->s.statesize);
         }
     }
 
@@ -826,13 +825,13 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
     filter_setup_next_frame(f, image);
 
     if(show_tuning) {
-        debug_log->info("vision:");
+        f->log->info("vision:");
     }
     process_observation_queue(f, time);
     if(show_tuning) {
-        debug_log->info(" actual innov stdev is:");
-        debug_log->info() << observation_vision_feature::inn_stdev[0];
-        debug_log->info() << observation_vision_feature::inn_stdev[1];
+        f->log->info(" actual innov stdev is:");
+        f->log->info() << observation_vision_feature::inn_stdev[0];
+        f->log->info() << observation_vision_feature::inn_stdev[1];
     }
 
     int features_used = f->s.process_features(image, time);
@@ -849,16 +848,16 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
     if(space >= f->min_group_add) {
         if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) {
 #ifdef TEST_POSDEF
-            if(!test_posdef(f->s.cov.cov)) debug_log->warn("not pos def before disabling orient only");
+            if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def before disabling orient only");
 #endif
             f->s.disable_orientation_only();
 #ifdef TEST_POSDEF
-            if(!test_posdef(f->s.cov.cov)) debug_log->warn("not pos def after disabling orient only");
+            if(!test_posdef(f->s.cov.cov)) f->log->warn("not pos def after disabling orient only");
 #endif
         }
         filter_add_features(f, image, space);
         if(f->s.features.size() < state_vision_group::min_feats) {
-            debug_log->warn("detector failure: only {} features after add", f->s.features.size());
+            f->log->warn("detector failure: only {} features after add", f->s.features.size());
             f->detector_failed = true;
             f->calibration_bad = true;
             if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) f->s.enable_orientation_only();
@@ -866,7 +865,7 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
             //don't go active until we can successfully add features
             if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) {
                 f->run_state = RCSensorFusionRunStateRunning;
-                debug_log->info("When moving from steady init to running:");
+                f->log->info("When moving from steady init to running:");
                 print_calibration(f);
                 f->active_time = time;
             }

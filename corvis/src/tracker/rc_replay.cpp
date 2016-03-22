@@ -134,6 +134,9 @@ bool replay::run()
 {
     if (trace) printf("rc_startTracker(rc_E_SYNCRONOUS);\n");
     rc_startTracker(tracker, rc_E_SYNCRONOUS);
+    const char *cal = nullptr;
+    rc_getCalibration(tracker, &cal);
+    if (trace) if (trace) printf("rc_getCalibration(\"%s\");\n", cal);
 
     while (file.peek() != EOF) {
         packet_header_t header;

@@ -135,7 +135,11 @@ if os.path.isfile(path + "CameraParameters.txt"):
         d_e_c = p.readline().split()
         with open(path + "calibration.json", 'r') as f:
             cal = defaultdict(int, json.loads(f.read()))
-            del cal['px']; del cal['py'] # ignored and often uninitialized
+            # ignored and often uninitialized
+            if 'px' in cal:
+                del cal['px']
+            if 'py' in cal:
+                del cal['py']
             # g_accel_depth = g_accel_color * (g_color_depth)^-1
             depth_Tc = transform([cal['Wc0'],cal['Wc1'],cal['Wc2']], [cal['Tc0'],cal['Tc1'],cal['Tc2']], map(lambda x: -x/1000., map(float,d_e_c[6:9])))
             cal['depth'] = dict(zip("imageWidth imageHeight Fx Fy Cx Cy Wc0 Wc1 Wc2 Tc0 Tc1 Tc2".split(), map(int,d_e_c[:2]) + map(float,d_e_c[2:6]) + [cal['Wc0'],cal['Wc1'],cal['Wc2']] + depth_Tc))

@@ -10,7 +10,7 @@ TEST(device_parameters_tests, get_parameters_for_device)
 {
     device_parameters cal;
     get_parameters_for_device(DEVICE_TYPE_GIGABYTES11, &cal);
-    EXPECT_EQ(cal.calibrationVersion, CALIBRATION_VERSION);
+    EXPECT_EQ(cal.version, CALIBRATION_VERSION);
 }
 
 TEST(device_parameters_tests, device_set_resolution)
@@ -18,6 +18,6 @@ TEST(device_parameters_tests, device_set_resolution)
     device_parameters cal;
     device_set_resolution(&cal, 96, 69);
 
-    EXPECT_EQ(96, cal.image_width);
-    EXPECT_EQ(69, cal.image_height);
+    EXPECT_EQ(96, cal.color.intrinsics.width_px);
+    EXPECT_EQ(69, cal.color.intrinsics.height_px);
 }

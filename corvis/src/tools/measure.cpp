@@ -148,7 +148,7 @@ int main(int c, char **v)
 #else
     world_state ws;
     gui vis(&ws, show_main, show_video, show_depth, show_plots);
-    rp.set_camera_callback([&](const filter * f, camera_data &&d) {
+    rp.set_camera_callback([&](const filter * f, image_gray8 &&d) {
         ws.receive_camera(f, std::move(d));
     });
 

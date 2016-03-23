@@ -10,16 +10,17 @@
 
 void device_set_resolution(device_parameters *dc, int image_width, int image_height)
 {
-    int max_old_dim = dc->image_width > dc->image_height ? dc->image_width : dc->image_height;
+    auto &in = dc->color.intrinsics;
+    int max_old_dim = in.width_px > in.height_px ? in.width_px : in.height_px;
     int max_new_dim = image_width > image_height ? image_width : image_height;
 
-    dc->image_width = image_width;
-    dc->image_height = image_height;
-    dc->Cx = (dc->image_width - 1)/2.f;
-    dc->Cy = (dc->image_height - 1)/2.f;
+    in.width_px = image_width;
+    in.height_px = image_height;
+    in.c_x_px = (in.width_px - 1)/2.f;
+    in.c_x_px = (in.height_px - 1)/2.f;
     // Scale the focal length depending on the resolution
-    dc->Fx = dc->Fx * max_new_dim / max_old_dim;
-    dc->Fy = dc->Fx;
+    in.f_x_px = in.f_x_px * max_new_dim / max_old_dim;
+    in.f_y_px = in.f_x_px;
 }
 
 // TODO: should this go away?

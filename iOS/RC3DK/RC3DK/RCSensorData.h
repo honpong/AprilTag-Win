@@ -13,7 +13,7 @@
 #import <CoreMedia/CoreMedia.h>
 #import <CoreMotion/CoreMotion.h>
 
-camera_data camera_data_from_CMSampleBufferRef(CMSampleBufferRef sampleBuffer);
+image_gray8 camera_data_from_CMSampleBufferRef(CMSampleBufferRef sampleBuffer);
 accelerometer_data accelerometer_data_from_CMAccelerometerData(CMAccelerometerData *accelerationData);
 gyro_data gyro_data_from_CMGyroData(CMGyroData *gyroData);
 

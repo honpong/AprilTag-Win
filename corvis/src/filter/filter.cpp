@@ -441,7 +441,7 @@ void filter_accelerometer_measurement(struct filter *f, const float data[3], sen
 void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_clock::time_point time)
 {
     v4 meas_(data[0], data[1], data[2], 0.);
-    v4 meas = f->g_alignment * meas_;
+    v4 meas = f->w_alignment * meas_;
     v4 gyro_delta = meas - f->last_gyro_meas;
     f->last_gyro_meas = meas;
     //This will throw away both the outlier measurement and the next measurement, because we update last every time. This prevents setting last to an outlier and never recovering.
@@ -491,7 +491,7 @@ void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_
     }
 }
 
-void filter_setup_next_frame(struct filter *f, const camera_data &cam_data)
+void filter_setup_next_frame(struct filter *f, const image_gray8 &image)
 {
     size_t feats_used = f->s.features.size();
 
@@ -501,16 +501,16 @@ void filter_setup_next_frame(struct filter *f, const camera_data &cam_data)
         for(state_vision_group *g : f->s.groups.children) {
             if(!g->status || g->status == group_initializing) continue;
             for(state_vision_feature *i : g->features.children) {
-                auto extra_time = std::chrono::duration_cast<sensor_clock::duration>(cam_data.exposure_time * (i->current[1] / (float)cam_data.height));
-                auto obs = std::make_unique<observation_vision_feature>(f->s, cam_data.timestamp + extra_time, cam_data.timestamp);
+                auto extra_time = std::chrono::duration_cast<sensor_clock::duration>(image.exposure_time * (i->current[1] / (float)image.height));
+                auto obs = std::make_unique<observation_vision_feature>(f->s, image.timestamp + extra_time, image.timestamp);
                 obs->state_group = g;
                 obs->feature = i;
                 obs->meas[0] = i->current[0];
                 obs->meas[1] = i->current[1];
-                obs->image = cam_data.image;
+                obs->image = image.image;
                 obs->tracker = f->track;
-                obs->feature->dt = cam_data.timestamp - obs->feature->last_seen;
-                obs->feature->last_seen = cam_data.timestamp;
+                obs->feature->dt = image.timestamp - obs->feature->last_seen;
+                obs->feature->last_seen = image.timestamp;
 
                 f->observations.observations.push_back(std::move(obs));
             }
@@ -519,21 +519,13 @@ void filter_setup_next_frame(struct filter *f, const camera_data &cam_data)
     //TODO: implement feature_single ?
 }
 
-static uint16_t get_raw_depth(const camera_data &cam, const feature_t & p)
+static float get_depth_for_point_mm(const image_depth16 &depth, const feature_t & p)
 {
-    //TODO: make this more efficient if needed
-    int dx = ((p.x() - cam.width / 2) * cam.depth->width) / cam.width + cam.depth->width / 2;
-    int dy = ((p.y() - cam.height / 2) * cam.depth->height) / cam.height + cam.depth->height / 2;
-    if(dx < 0 || dy < 0 || dx > cam.depth->width - 1 || dy > cam.depth->height - 1) return 0;
-    return cam.depth->image[cam.depth->stride / 2 * dy + dx];
-}
-
-static float get_depth_for_point(const camera_data &cam, const feature_t & p)
-{
-    uint16_t depth_mm = get_raw_depth(cam, p);
-    return depth_mm / 1000.0f;
-//    if(depth.image[y * depth.stride + x]) return depth.image[y * stride + x] / 1000.f;
-//    if(x == 0 || y == 0 || x == depth.width - 1 || y == depth.height - 1) return 0;
+    auto x = (int)p.x(), y = (int)p.y();
+    if (x >=0 && x < depth.width && y >= 0 && y < depth.height)
+        return depth.image[depth.stride / sizeof(uint16_t) * y + x];
+    else
+        return 0;
 }
 
 static float get_stdev_pct_for_depth(float depth_m)
@@ -541,28 +533,129 @@ static float get_stdev_pct_for_depth(float depth_m)
     return 0.0023638192164147698 + (0.0015072367800769945 + 0.00044245048102432134 * depth_m) * depth_m;
 }
 
+std::unique_ptr<image_depth16> filter_aligned_depth_to_intrinsics(const struct filter *f, const image_depth16 &depth)
+{
+    auto aligned_depth = make_unique<image_depth16>(depth.width, depth.height, depth.stride, std::numeric_limits<uint16_t>::max());
+
+    int i_width =         depth .width, i_height =         depth .height, i_stride =         depth .stride / sizeof(uint16_t);
+    int o_width = aligned_depth->width, o_height = aligned_depth->height, o_stride = aligned_depth->stride / sizeof(uint16_t);
+    uint16_t *in =        depth .image, *out     = aligned_depth->image;
+
+    if (!(i_width == 320 && i_height == 240))
+        printf("Our hardcoded depth intrisics are no good!\n");
+
+    float d_focal_length_x =  f->depth.intrinsics.f_x_px                                            / f->depth.intrinsics.height_px,
+          d_focal_length_y =  f->depth.intrinsics.f_y_px                                            / f->depth.intrinsics.height_px,
+          d_center_x       = (f->depth.intrinsics.c_x_px - f->depth.intrinsics.width_px  / 2. + .5) / f->depth.intrinsics.height_px,
+          d_center_y       = (f->depth.intrinsics.c_y_px - f->depth.intrinsics.height_px / 2. + .5) / f->depth.intrinsics.height_px;
+
+    float i_Cx = d_center_x       * i_height + (i_width  - 1) / 2.,
+          i_Cy = d_center_y       * i_height + (i_height - 1) / 2.,
+          i_Fx = d_focal_length_x * i_height,
+          i_Fy = d_focal_length_y * i_height;
+
+    float o_Cx = f->s.center_x.v     * o_height + (o_width  - 1) / 2.,
+          o_Cy = f->s.center_y.v     * o_height + (o_height - 1) / 2.,
+          o_Fx = f->s.focal_length.v * o_height,
+          o_Fy = f->s.focal_length.v * o_height;
+
+    transformation depth_to_color_m = invert(transformation(f->s.Qc.v,f->s.Tc.v)) * f->depth.extrinsics_wrt_imu_m;
+    Eigen::Vector4f x_T_mm = (depth_to_color_m.T * 1000).cast<float>();
+    Eigen::Array4i one = {0,1,0,1}, ONE = {0,0,1,1};
+
+    for (int y = 0; y < i_height; y++)
+        for (int x = 0; x < i_width; x++) {
+            uint16_t z = in[y * i_stride + x];
+            if (!z) continue;
+
+            // normalize, undistort(?), unproject and transform
+            float ix = z * (x - i_Cx) / i_Fx + x_T_mm[0];
+            float iy = z * (y - i_Cy) / i_Fy + x_T_mm[1];
+            float iz = z                     + x_T_mm[2];
+
+            // project, distort(?), unnormalize
+            float ox = o_Fx * ix / iz + o_Cx;
+            float oy = o_Fy * iy / iz + o_Cy;
+            float oz = iz;
+
+            if (0) {
+                int X = (int)roundf(ox), Y = (int)roundf(oy), Z = (int)roundf(oz);
+                if (X >= 0 && X < o_width && Y >=0 && Y < o_height)
+                    if (Z < out[Y * o_stride + X])
+                        out[Y * o_stride + X] = Z;
+            } else {
+                // ceil() and -1s give the 4 closest grid points
+                auto X = static_cast<int>(std::ceil(ox)) - Eigen::Array4i{0,1,0,1};
+                auto Y = static_cast<int>(std::ceil(oy)) - Eigen::Array4i{0,0,1,1};
+                auto Z = static_cast<int>(roundf(oz));
+                auto I = Y * o_stride + X;
+                auto within = X >= 0 && X < o_width && Y >= 0 && Y < o_height;
+                if (within[0] && oz < out[I[0]]) out[I[0]] = oz;
+                if (within[1] && oz < out[I[1]]) out[I[1]] = oz;
+                if (within[2] && oz < out[I[2]]) out[I[2]] = oz;
+                if (within[3] && oz < out[I[3]]) out[I[3]] = oz;
+            }
+        }
+
+    for (int Y = 0; Y < o_height; Y++)
+        for (int X = 0; X < o_width; X++)
+            if (out[Y * o_stride + X] == std::numeric_limits<uint16_t>::max())
+                out[Y * o_stride + X] = 0;
+
+    return std::move(aligned_depth);
+}
+
+std::unique_ptr<image_depth16> filter_aligned_distorted_depth_to_intrinsics(const struct filter *f, const image_depth16 &depth)
+{
+    std::unique_ptr<image_depth16> aligned_depth = filter_aligned_depth_to_intrinsics(f, depth);
+
+    auto aligned_distorted_depth = make_unique<image_depth16>(depth.width, depth.height, depth.stride, std::numeric_limits<uint16_t>::max());
+    auto out = aligned_distorted_depth->image;
+    int width = aligned_distorted_depth->width, height = aligned_distorted_depth->height;
+    int stride = aligned_distorted_depth->stride / sizeof(uint16_t);
+    for(int y_image = 0; y_image < depth.height; y_image++) {
+        for(int x_image = 0; x_image < depth.width; x_image++) {
+            feature_t kp_i = {(f_t)x_image, (f_t)y_image};
+            feature_t kp_d = f->s.unnormalize_feature(f->s.undistort_feature(f->s.normalize_feature(kp_i)));
+            uint16_t depth_mm = get_depth_for_point_mm(*aligned_depth.get(), kp_d);
+            int x = kp_d.x();
+            int y = kp_d.y();
+            if(x >= 0 && x < width && y >= 0 && y < height) {
+                out[y * stride + x] = std::min(out[y * stride + x], depth_mm);
+            }
+        }
+    }
+
+    for (int y = 0; y < height; y++)
+        for (int x = 0; x < width; x++)
+            if (out[y * stride + x] == std::numeric_limits<uint16_t>::max())
+                out[y * stride + x] = 0;
+    return std::move(aligned_distorted_depth);
+}
+
 //features are added to the state immediately upon detection - handled with triangulation in observation_vision_feature::predict - but what is happening with the empty row of the covariance matrix during that time?
-static void filter_add_features(struct filter *f, const camera_data & camera, size_t newfeats)
+static void filter_add_features(struct filter *f, const image_gray8 & image, size_t newfeats)
 {
 #ifdef TEST_POSDEF
     if(!test_posdef(f->s.cov.cov)) debug_log->warn("not pos def before adding features");
 #endif
     // Filter out features which we already have by masking where
     // existing features are located
-    if(!f->mask) f->mask = new scaled_mask(camera.width, camera.height);
+    if(!f->mask) f->mask = new scaled_mask(image.width, image.height);
     f->mask->initialize();
     for(state_vision_feature *i : f->s.features) {
         f->mask->clear((int)i->current[0], (int)i->current[1]);
     }
 
     // Run detector
-    vector<xy> &kp = f->track.detect(camera.image, f->mask, (int)newfeats, 0, 0, camera.width, camera.height);
+    vector<xy> &kp = f->track.detect(image.image, f->mask, (int)newfeats, 0, 0, image.width, image.height);
 
     // Check that the detected features don't collide with the mask
     // and add them to the filter
     if(kp.size() < newfeats) newfeats = kp.size();
     if(newfeats < state_vision_group::min_feats) return;
-    state_vision_group *g = f->s.add_group(camera.timestamp);
+    state_vision_group *g = f->s.add_group(image.timestamp);
+    std::unique_ptr<image_depth16> aligned_undistorted_depth;
 
     descriptor d;
     float radius = 16;
@@ -580,8 +673,11 @@ static void filter_add_features(struct filter *f, const camera_data & camera, si
             //feat->descriptor = d;
 
             float depth_m = 0;
-            if(camera.depth)
-                depth_m = get_depth_for_point(camera, kp_i);
+            if(f->has_depth) {
+                if (!aligned_undistorted_depth)
+                    aligned_undistorted_depth = std::move(filter_aligned_depth_to_intrinsics(f, f->recent_depth));
+                depth_m = 0.001f * get_depth_for_point_mm(*aligned_undistorted_depth.get(), f->s.unnormalize_feature(f->s.undistort_feature(f->s.normalize_feature(kp_i))));
+            }
             if(depth_m)
             {
                 feat->v.set_depth_meters(depth_m);
@@ -590,11 +686,11 @@ static void filter_add_features(struct filter *f, const camera_data & camera, si
                 feat->status = feature_normal;
             }
             
-            f->track.add_track(camera.image, x, y, feat->patch);
+            f->track.add_track(image.image, x, y, feat->patch);
 
             g->features.children.push_back(feat);
             feat->groupid = g->id;
-            feat->found_time = camera.timestamp;
+            feat->found_time = image.timestamp;
             feat->last_seen = feat->found_time;
             
             found_feats++;
@@ -626,9 +722,16 @@ void filter_set_reference(struct filter *f)
     //f->s.reset_position();
 }
 
-bool filter_image_measurement(struct filter *f, const camera_data & camera)
+bool filter_depth_measurement(struct filter *f, const image_depth16 & depth)
 {
-    sensor_clock::time_point time = camera.timestamp;
+    f->recent_depth = image_depth16(depth);
+    f->has_depth = true;
+    return true;
+}
+
+bool filter_image_measurement(struct filter *f, const image_gray8 & image)
+{
+    sensor_clock::time_point time = image.timestamp;
 
     if(f->run_state == RCSensorFusionRunStateInactive) return false;
     if(!check_packet_time(f, time, packet_camera)) return false;
@@ -637,14 +740,14 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
 #ifdef ENABLE_QR
     if(f->qr.running && (time - f->last_qr_time > qr_detect_period)) {
         f->last_qr_time = time;
-        f->qr.process_frame(f, camera.image, camera.width, camera.height);
+        f->qr.process_frame(f, image.image, image.width, image.height);
         if(f->qr.valid)
         {
             filter_set_origin(f, f->qr.origin, f->origin_gravity_aligned);
         }
     }
     if(f->qr_bench.enabled)
-        f->qr_bench.process_frame(f, camera.image, camera.width, camera.height);
+        f->qr_bench.process_frame(f, image.image, image.width, image.height);
 #endif
     
     f->got_image = true;
@@ -665,12 +768,12 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
     }
     if(f->run_state != RCSensorFusionRunStateRunning && f->run_state != RCSensorFusionRunStateDynamicInitialization && f->run_state != RCSensorFusionRunStateSteadyInitialization) return true; //frame was "processed" so that callbacks still get called
     
-    f->track.width = camera.width;
-    f->track.height = camera.height;
-    f->track.stride = camera.stride;
+    f->track.width = image.width;
+    f->track.height = image.height;
+    f->track.stride = image.stride;
     f->track.init();
-    f->s.image_width = camera.width;
-    f->s.image_height = camera.height;
+    f->s.image_width = image.width;
+    f->s.image_height = image.height;
     
     if(!f->ignore_lateness) {
         /*thread_info_data_t thinfo;
@@ -716,7 +819,7 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
     }
 
 
-    filter_setup_next_frame(f, camera);
+    filter_setup_next_frame(f, image);
 
     if(show_tuning) {
         debug_log->info("vision:");
@@ -728,7 +831,7 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
         debug_log->info() << observation_vision_feature::inn_stdev[1];
     }
 
-    int features_used = f->s.process_features(camera, time);
+    int features_used = f->s.process_features(image, time);
     if(!features_used)
     {
         //Lost all features - reset convergence
@@ -749,7 +852,7 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
             if(!test_posdef(f->s.cov.cov)) debug_log->warn("not pos def after disabling orient only");
 #endif
         }
-        filter_add_features(f, camera, space);
+        filter_add_features(f, image, space);
         if(f->s.features.size() < state_vision_group::min_feats) {
             debug_log->warn("detector failure: only {} features after add", f->s.features.size());
             f->detector_failed = true;
@@ -779,25 +882,27 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
 }
 
 //This should be called every time we want to initialize or reset the filter
-extern "C" void filter_initialize(struct filter *f, rcCalibration *device)
+extern "C" void filter_initialize(struct filter *f, device_parameters *device)
 {
+    auto &imu = device->imu;
+    auto &cam = device->color;
+
     //changing these two doesn't affect much.
     f->min_group_add = 16;
     f->max_group_add = 40;
-    
-    f->w_variance = device->w_meas_var;
-    f->a_variance = device->a_meas_var;
 
-    f->a_alignment = {{device->accelerometerTransform[0],device->accelerometerTransform[1],device->accelerometerTransform[2],0},
-                      {device->accelerometerTransform[3],device->accelerometerTransform[4],device->accelerometerTransform[5],0},
-                      {device->accelerometerTransform[6],device->accelerometerTransform[7],device->accelerometerTransform[8],0},
-                      {0,0,0,1}};
-    f->g_alignment = {{device->gyroscopeTransform[0],device->gyroscopeTransform[1],device->gyroscopeTransform[2],0},
-                      {device->gyroscopeTransform[3],device->gyroscopeTransform[4],device->gyroscopeTransform[5],0},
-                      {device->gyroscopeTransform[6],device->gyroscopeTransform[7],device->gyroscopeTransform[8],0},
-                      {0,0,0,1}};
-    if (f->a_alignment.block<3,3>(0,0) == m3::Zero()) f->a_alignment = m4::Identity();
-    if (f->g_alignment.block<3,3>(0,0) == m3::Zero()) f->g_alignment = m4::Identity();
+    f->depth = device->depth;
+
+    f->w_variance = imu.w_noise_var_rad2__s2;
+    f->a_variance = imu.a_noise_var_m2__s4;
+
+    f->a_alignment = m4::Identity();
+    if (imu.a_alignment != m3::Zero())
+        f->a_alignment.block<3,3>(0,0) = imu.a_alignment;
+
+    f->w_alignment = m4::Identity();
+    if (imu.w_alignment != m3::Zero())
+        f->w_alignment.block<3,3>(0,0) = imu.w_alignment;
 
 #ifdef INITIAL_DEPTH
     state_vision_feature::initial_depth_meters = INITIAL_DEPTH;
@@ -862,32 +967,32 @@ extern "C" void filter_initialize(struct filter *f, rcCalibration *device)
     f->s.reset();
     f->s.maxstatesize = MAXSTATESIZE;
 
-    f->s.Tc.v = v4(device->Tc[0], device->Tc[1], device->Tc[2], 0.);
-    f->s.Qc.v = to_quaternion(rotation_vector(device->Wc[0], device->Wc[1], device->Wc[2]));
+    f->s.Tc.v = v4(cam.extrinsics_wrt_imu_m.T[0], cam.extrinsics_wrt_imu_m.T[1], cam.extrinsics_wrt_imu_m.T[2], 0.);
+    f->s.Qc.v = cam.extrinsics_wrt_imu_m.Q;
 
-    //TODO: This is wrong
-    f->s.Qc.set_initial_variance(device->Wc_var[0], device->Wc_var[1], device->Wc_var[2]);
-    f->s.Tc.set_initial_variance(device->Tc_var[0], device->Tc_var[1], device->Tc_var[2]);
-    f->s.a_bias.v = v4(device->a_bias[0], device->a_bias[1], device->a_bias[2], 0.);
+    f->s.Qc.set_initial_variance(cam.extrinsics_var_wrt_imu_m.W[0], cam.extrinsics_var_wrt_imu_m.W[1], cam.extrinsics_var_wrt_imu_m.W[2]);
+    f->s.Tc.set_initial_variance(cam.extrinsics_var_wrt_imu_m.T[0], cam.extrinsics_var_wrt_imu_m.T[1], cam.extrinsics_var_wrt_imu_m.T[2]);
+
+    f->s.a_bias.v = v4(imu.a_bias_m__s2[0], imu.a_bias_m__s2[1], imu.a_bias_m__s2[2], 0.);
     f_t tmp[3];
     //TODO: figure out how much drift we need to worry about between runs
-    for(int i = 0; i < 3; ++i) tmp[i] = device->a_bias_var[i] < min_a_bias_var ? min_a_bias_var : device->a_bias_var[i];
+    for(int i = 0; i < 3; ++i) tmp[i] = imu.a_bias_var_m2__s4[i] < min_a_bias_var ? min_a_bias_var : imu.a_bias_var_m2__s4[i];
     f->s.a_bias.set_initial_variance(tmp[0], tmp[1], tmp[2]);
-    f->s.w_bias.v = v4(device->w_bias[0], device->w_bias[1], device->w_bias[2], 0.);
-    for(int i = 0; i < 3; ++i) tmp[i] = device->w_bias_var[i] < min_w_bias_var ? min_w_bias_var : device->w_bias_var[i];
+    f->s.w_bias.v = v4(imu.w_bias_rad__s[0], imu.w_bias_rad__s[1], imu.w_bias_rad__s[2], 0.);
+    for(int i = 0; i < 3; ++i) tmp[i] = imu.w_bias_var_rad2__s2[i] < min_w_bias_var ? min_w_bias_var : imu.w_bias_var_rad2__s2[i];
     f->s.w_bias.set_initial_variance(tmp[0], tmp[1], tmp[2]);
-    
-    f->s.focal_length.v = device->Fx / device->image_height;
-    f->s.center_x.v = (device->Cx - device->image_width / 2. + .5) / device->image_height;
-    f->s.center_y.v = (device->Cy - device->image_height / 2. + .5) / device->image_height;
-    if (device->distortionModel == 1)
-        f->s.k1.v = device->Kw;
+
+    f->s.focal_length.v = (cam.intrinsics.f_x_px + cam.intrinsics.f_y_px) / 2 / cam.intrinsics.height_px;
+    f->s.center_x.v = (cam.intrinsics.c_x_px - cam.intrinsics.width_px / 2. + .5) / cam.intrinsics.height_px;
+    f->s.center_y.v = (cam.intrinsics.c_y_px - cam.intrinsics.height_px / 2. + .5) / cam.intrinsics.height_px;
+    if (cam.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE)
+        f->s.k1.v = cam.intrinsics.w;
     else
-        f->s.k1.v = device->K0;
-    f->s.k2.v = device->K1;
-    f->s.k3.v = device->K2;
-    f->s.fisheye = device->distortionModel == 1;
-    
+        f->s.k1.v = cam.intrinsics.k1;
+    f->s.k2.v = cam.intrinsics.k2;
+    f->s.k3.v = cam.intrinsics.k3;
+    f->s.fisheye = cam.intrinsics.type == rc_CALIBRATION_TYPE_FISHEYE;
+
     f->s.g.set_initial_variance(1.e-7);
     
     f->s.T.set_process_noise(0.);
@@ -902,9 +1007,9 @@ extern "C" void filter_initialize(struct filter *f, rcCalibration *device)
     f->s.a_bias.set_process_noise(1.e-10);
     f->s.w_bias.set_process_noise(1.e-12);
     //TODO: check this process noise
-    f->s.focal_length.set_process_noise(1.e-5 / device->image_height / device->image_height);
-    f->s.center_x.set_process_noise(1.e-5 / device->image_height / device->image_height);
-    f->s.center_y.set_process_noise(1.e-5 / device->image_height / device->image_height);
+    f->s.focal_length.set_process_noise(1.e-5 / cam.intrinsics.height_px / cam.intrinsics.height_px);
+    f->s.center_x.set_process_noise(1.e-5 / cam.intrinsics.height_px / cam.intrinsics.height_px);
+    f->s.center_y.set_process_noise(1.e-5 / cam.intrinsics.height_px / cam.intrinsics.height_px);
     f->s.k1.set_process_noise(1.e-9);
     f->s.k2.set_process_noise(1.e-9);
     f->s.k3.set_process_noise(1.e-9);
@@ -917,19 +1022,19 @@ extern "C" void filter_initialize(struct filter *f, rcCalibration *device)
     f->s.dw.set_initial_variance(10); //observed range of variances in sequences is 1-6
     f->s.a.set_initial_variance(10);
 
-    f->s.focal_length.set_initial_variance(10. / device->image_height / device->image_height);
-    f->s.center_x.set_initial_variance(2. / device->image_height / device->image_height);
-    f->s.center_y.set_initial_variance(2. / device->image_height / device->image_height);
+    f->s.focal_length.set_initial_variance(10. / cam.intrinsics.height_px / cam.intrinsics.height_px);
+    f->s.center_x.set_initial_variance(2. / cam.intrinsics.height_px / cam.intrinsics.height_px);
+    f->s.center_y.set_initial_variance(2. / cam.intrinsics.height_px / cam.intrinsics.height_px);
 
     f->s.k1.set_initial_variance(f->s.fisheye ? .1*.1 : 2.e-4);
     f->s.k2.set_initial_variance(f->s.fisheye ? .1*.1 : 2.e-4);
     f->s.k3.set_initial_variance(f->s.fisheye ? .1*.1 : 2.e-4);
     
-    f->s.image_width = device->image_width;
-    f->s.image_height = device->image_height;
+    f->s.image_width = cam.intrinsics.width_px;
+    f->s.image_height = cam.intrinsics.height_px;
     
-    f->track.width = device->image_width;
-    f->track.height = device->image_height;
+    f->track.width = cam.intrinsics.width_px;
+    f->track.height = cam.intrinsics.height_px;
     f->track.stride = f->track.width;
     f->track.init();
 #ifdef ENABLE_QR
@@ -947,44 +1052,44 @@ extern "C" void filter_initialize(struct filter *f, rcCalibration *device)
     f->s.remap();
 }
 
-void filter_get_device_parameters(const struct filter *f, rcCalibration *cal)
+void filter_get_device_parameters(const struct filter *f, device_parameters *device)
 {
-    cal->calibrationVersion = CALIBRATION_VERSION;
-    cal->Fx = (float)f->s.focal_length.v * f->s.image_height;
-    cal->Fy = (float)f->s.focal_length.v * f->s.image_height;
-    cal->Cx = (float)f->s.center_x.v * f->s.image_height + f->s.image_width / 2. - .5;
-    cal->Cy = (float)f->s.center_y.v * f->s.image_height + f->s.image_height / 2. - .5;
-    cal->w_meas_var = (float)f->w_variance;
-    cal->a_meas_var = (float)f->a_variance;
+    auto &cam = device->color;
+    auto &imu = device->imu;
 
-    cal->distortionModel = f->s.fisheye;
-    cal->Kw = f->s.fisheye ? (float)f->s.k1.v : 0;
-    cal->K0 = f->s.fisheye ? 0 : (float)f->s.k1.v;
-    cal->K1 = (float)f->s.k2.v;
-    cal->K2 = (float)f->s.k3.v;
+    device->depth = f->depth;
 
-    cal->Wc[0] = (float)to_rotation_vector(f->s.Qc.v).x();
-    cal->Wc[1] = (float)to_rotation_vector(f->s.Qc.v).y();
-    cal->Wc[2] = (float)to_rotation_vector(f->s.Qc.v).z();
-    for(int i = 0; i < 3; i++) {
-        cal->a_bias[i] = (float)f->s.a_bias.v[i];
-        cal->a_bias_var[i] = (float)f->s.a_bias.variance()[i];
-        cal->w_bias[i] = (float)f->s.w_bias.v[i];
-        cal->w_bias_var[i] = (float)f->s.w_bias.variance()[i];
-        cal->Tc[i] = (float)f->s.Tc.v[i];
-        cal->Tc_var[i] = (float)f->s.Tc.variance()[i];
-        cal->Wc_var[i] = (float)f->s.Qc.variance()[i];
+    device->version = CALIBRATION_VERSION;
+    cam.intrinsics.width_px  = f->s.image_width;
+    cam.intrinsics.height_px = f->s.image_height;
+    cam.intrinsics.f_x_px = f->s.focal_length.v * f->s.image_height;
+    cam.intrinsics.f_y_px = f->s.focal_length.v * f->s.image_height;
+    cam.intrinsics.c_x_px = f->s.center_x.v * f->s.image_height + f->s.image_width / 2. - .5;
+    cam.intrinsics.c_y_px = f->s.center_y.v * f->s.image_height + f->s.image_height / 2. - .5;
+
+    if (f->s.fisheye) {
+        cam.intrinsics.type = rc_CALIBRATION_TYPE_FISHEYE;
+        cam.intrinsics.w = f->s.k1.v;
+    } else {
+        cam.intrinsics.type = rc_CALIBRATION_TYPE_POLYNOMIAL3;
+        cam.intrinsics.k1 = f->s.k1.v;
+        cam.intrinsics.k2 = f->s.k2.v;
+        cam.intrinsics.k3 = f->s.k3.v;
     }
-    cal->image_width = f->s.image_width;
-    cal->image_height = f->s.image_height;
 
-    cal->accelerometerTransform[0] = f->a_alignment(0,0); cal->accelerometerTransform[1] = f->a_alignment(0,1); cal->accelerometerTransform[2] = f->a_alignment(0,2);
-    cal->accelerometerTransform[3] = f->a_alignment(1,0); cal->accelerometerTransform[4] = f->a_alignment(1,1); cal->accelerometerTransform[5] = f->a_alignment(1,2);
-    cal->accelerometerTransform[6] = f->a_alignment(2,0); cal->accelerometerTransform[7] = f->a_alignment(2,1); cal->accelerometerTransform[8] = f->a_alignment(2,2);
+    cam.extrinsics_wrt_imu_m.Q = f->s.Qc.v;
+    cam.extrinsics_wrt_imu_m.T = f->s.Tc.v;
+    cam.extrinsics_var_wrt_imu_m.W = f->s.Qc.variance().segment<3>(0);
+    cam.extrinsics_var_wrt_imu_m.T = f->s.Tc.variance().segment<3>(0);
 
-    cal->gyroscopeTransform[0] = f->g_alignment(0,0); cal->gyroscopeTransform[1] = f->g_alignment(0,1); cal->gyroscopeTransform[2] = f->g_alignment(0,2);
-    cal->gyroscopeTransform[3] = f->g_alignment(1,0); cal->gyroscopeTransform[4] = f->g_alignment(1,1); cal->gyroscopeTransform[5] = f->g_alignment(1,2);
-    cal->gyroscopeTransform[6] = f->g_alignment(2,0); cal->gyroscopeTransform[7] = f->g_alignment(2,1); cal->gyroscopeTransform[8] = f->g_alignment(2,2);
+    imu.a_bias_m__s2         = f->s.a_bias.v.segment<3>(0);
+    imu.w_bias_rad__s        = f->s.w_bias.v.segment<3>(0);
+    imu.a_bias_var_m2__s4    = f->s.a_bias.variance().segment<3>(0);
+    imu.w_bias_var_rad2__s2  = f->s.w_bias.variance().segment<3>(0);
+    imu.w_noise_var_rad2__s2 = f->w_variance;
+    imu.a_noise_var_m2__s4   = f->a_variance;
+    imu.a_alignment          = f->a_alignment.block<3,3>(0,0);
+    imu.w_alignment          = f->w_alignment.block<3,3>(0,0);
 }
 
 float filter_converged(const struct filter *f)

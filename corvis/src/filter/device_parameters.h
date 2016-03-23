@@ -3,11 +3,9 @@
 
 #include <stdbool.h>
 
-#define CALIBRATION_VERSION 8
+#include "calibration_json.h"
 
-#include "SP_Calibration.h"
-
-typedef SP_Calibration device_parameters;
+typedef calibration_json device_parameters;
 
 typedef enum
 {

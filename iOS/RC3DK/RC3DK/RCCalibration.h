@@ -48,8 +48,6 @@
 #define KEY_IMAGE_HEIGHT @"imageHeight"
 #define KEY_CALIBRATION_VERSION @"calibrationVersion"
 
-#define CALIBRATION_VERSION 7
-
 #define JSON_KEY_FLAG @"flag"
 #define JSON_KEY_BLOB @"blob"
 #define JSON_KEY_DEVICE_TYPE @"device_type"
@@ -62,12 +60,9 @@ typedef enum {
 
 + (BOOL) saveCalibrationData: (device_parameters)params; // return YES if successful
 + (device_parameters) getCalibrationData;
-+ (NSDictionary*) getCalibrationAsDictionary;
-+ (NSString*) getCalibrationAsString;
 + (void) clearCalibrationData;
-+ (NSString*) stringFromCalibration:(device_parameters)dc;
 + (BOOL) hasCalibrationData;
-+ (BOOL) isCalibrationDataValid:(NSDictionary*)data;
++ (BOOL) isCalibrationDataValid:(device_parameters)params;
 + (void) postDeviceCalibration:(void (^)())successBlock onFailure:(void (^)(NSInteger statusCode))failureBlock;
 + (NSString*) getCalibrationAsJsonWithVendorId;
 

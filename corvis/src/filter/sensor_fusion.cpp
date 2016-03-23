@@ -108,14 +108,14 @@ std::vector<sensor_fusion::feature_point> sensor_fusion::get_features() const
         if(i->is_valid()) {
             feature_point p;
             p.id = i->id;
-            p.x = (float)i->current[0];
-            p.y = (float)i->current[1];
-            p.original_depth = (float)i->v.depth();
-            p.stdev = (float)i->v.stdev_meters(sqrt(i->variance()));
+            p.x = i->current[0];
+            p.y = i->current[1];
+            p.original_depth = i->v.depth();
+            p.stdev = i->v.stdev_meters(sqrt(i->variance()));
             v4 ext_pos = filter_to_external_position(i->world);
-            p.worldx = (float)ext_pos[0];
-            p.worldy = (float)ext_pos[1];
-            p.worldz = (float)ext_pos[2];
+            p.worldx = ext_pos[0];
+            p.worldy = ext_pos[1];
+            p.worldz = ext_pos[2];
             p.initialized = i->is_initialized();
             features.push_back(p);
         }
@@ -123,21 +123,21 @@ std::vector<sensor_fusion::feature_point> sensor_fusion::get_features() const
     return features;
 }
 
-void sensor_fusion::update_data(camera_data &&image)
+void sensor_fusion::update_data(image_gray8 &&image)
 {
     auto d = std::make_unique<data>();
     
     //perform these operations synchronously in the calling (filter) thread
     d->total_path_m = sfm.s.total_distance;
     camera_parameters cp;
-    cp.fx = (float)sfm.s.focal_length.v * sfm.s.image_height;
-    cp.fy = (float)sfm.s.focal_length.v * sfm.s.image_height;
-    cp.cx = (float)sfm.s.center_x.v * sfm.s.image_height + sfm.s.image_width / 2. - .5;
-    cp.cy = (float)sfm.s.center_y.v * sfm.s.image_height + sfm.s.image_height / 2. - .5;
+    cp.fx = sfm.s.focal_length.v * sfm.s.image_height;
+    cp.fy = sfm.s.focal_length.v * sfm.s.image_height;
+    cp.cx = sfm.s.center_x.v * sfm.s.image_height + sfm.s.image_width / 2. - .5;
+    cp.cy = sfm.s.center_y.v * sfm.s.image_height + sfm.s.image_height / 2. - .5;
     cp.skew = 0;
-    cp.k1 = (float)sfm.s.k1.v;
-    cp.k2 = (float)sfm.s.k2.v;
-    cp.k3 = (float)sfm.s.k3.v;
+    cp.k1 = sfm.s.k1.v;
+    cp.k2 = sfm.s.k2.v;
+    cp.k3 = sfm.s.k3.v;
     d->camera_intrinsics = cp;
 #ifdef ENABLE_QR
     if(sfm.qr.valid)
@@ -161,7 +161,7 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
 {
     isSensorFusionRunning = false;
     isProcessingVideo = false;
-    auto cam_fn = [this](camera_data &&data)
+    auto cam_fn = [this](image_gray8 &&data)
     {
         bool docallback = true;
         if(!isSensorFusionRunning)
@@ -177,6 +177,13 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
             if(docallback) update_data(std::move(data));
         }
     };
+
+    auto depth_fn = [this](image_depth16 &&data)
+    {
+        if(!isSensorFusionRunning) return;
+        //TODO: should I call update_status here?
+        filter_depth_measurement(&sfm, data);
+    };
     
     auto acc_fn = [this](accelerometer_data &&data)
     {
@@ -191,7 +198,7 @@ sensor_fusion::sensor_fusion(fusion_queue::latency_strategy strategy)
         filter_gyroscope_measurement(&sfm, data.angvel_rad__s, data.timestamp);
     };
     
-    queue = std::make_unique<fusion_queue>(cam_fn, acc_fn, gyr_fn, strategy, std::chrono::microseconds(10000)); //Have to make jitter high - ipad air 2 accelerometer has high latency, we lose about 10% of samples with jitter at 8000
+    queue = std::make_unique<fusion_queue>(cam_fn, depth_fn, acc_fn, gyr_fn, strategy, std::chrono::microseconds(10000)); //Have to make jitter high - ipad air 2 accelerometer has high latency, we lose about 10% of samples with jitter at 8000
 }
 
 device_parameters sensor_fusion::get_device() const
@@ -201,7 +208,7 @@ device_parameters sensor_fusion::get_device() const
     return cal;
 }
 
-void sensor_fusion::set_device(const rcCalibration &dc)
+void sensor_fusion::set_device(const device_parameters &dc)
 {
     device = dc;
     filter_initialize(&sfm, &device);
@@ -340,11 +347,19 @@ bool sensor_fusion::load_map(size_t (*read)(void *handle, void *buffer, size_t l
     return sfm.s.map.deserialize(json, sfm.s.map);
 }
 
-void sensor_fusion::receive_image(camera_data &&data)
+void sensor_fusion::receive_image(image_gray8 &&data)
 {
     //Adjust image timestamps to be in middle of exposure period
     data.timestamp += data.exposure_time / 2;
     queue->receive_camera(std::move(data));
+}
+
+void sensor_fusion::receive_image(image_depth16 &&data)
+{
+    //TODO: Verify time adjustments here
+    //Adjust image timestamps to be in middle of exposure period
+    data.timestamp += data.exposure_time / 2;
+    queue->receive_depth(std::move(data));
 }
 
 void sensor_fusion::receive_accelerometer(accelerometer_data &&data)

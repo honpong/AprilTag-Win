@@ -84,7 +84,8 @@ public:
         //Both minimize_drops and eliminate_drops may exhibit spurious drops due to different latencies in startup time of sensors. Since they wait for future data to show up, if that other data stream hasn't started yet, then the other buffers can fill up and drop due to being full.
     };
 
-    fusion_queue(const std::function<void(camera_data &&)> &camera_func,
+    fusion_queue(const std::function<void(image_gray8 &&)> &camera_func,
+                 const std::function<void(image_depth16 &&)> &depth_func,
                  const std::function<void(accelerometer_data &&)> &accelerometer_func,
                  const std::function<void(gyro_data &&)> &gyro_func,
                  latency_strategy s,
@@ -102,7 +103,8 @@ public:
     void wait_until_finished();
     std::string get_stats();
 
-    void receive_camera(camera_data&& x);
+    void receive_camera(image_gray8&& x);
+    void receive_depth(image_depth16&& x);
     void receive_accelerometer(accelerometer_data&& x);
     void receive_gyro(gyro_data&& x);
     void dispatch_sync(std::function<void()> fn);
@@ -123,13 +125,15 @@ private:
     std::condition_variable cond;
     std::thread thread;
     
-    std::function<void(camera_data &&)> camera_receiver;
+    std::function<void(image_gray8 &&)> camera_receiver;
+    std::function<void(image_depth16 &&)> depth_receiver;
     std::function<void(accelerometer_data &&)> accel_receiver;
     std::function<void(gyro_data &&)> gyro_receiver;
     
     sensor_queue<accelerometer_data, 64> accel_queue;
     sensor_queue<gyro_data, 64> gyro_queue;
-    sensor_queue<camera_data, 6> camera_queue;
+    sensor_queue<image_depth16, 6> depth_queue;
+    sensor_queue<image_gray8, 6> camera_queue;
     std::function<void()> control_func;
     bool active;
     bool copy_on_push = false;

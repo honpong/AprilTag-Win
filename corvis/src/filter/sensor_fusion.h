@@ -21,12 +21,6 @@
 #include "capture.h"
 #include "filter.h"
 
-enum class camera_specifier
-{
-    rgb,
-    depth
-};
-
 class sensor_fusion
 {
 public:
@@ -36,25 +30,25 @@ public:
         RCSensorFusionRunState run_state{ RCSensorFusionRunStateInactive };
         RCSensorFusionErrorCode error{ RCSensorFusionErrorCodeNone };
         RCSensorFusionConfidence confidence{ RCSensorFusionConfidenceNone };
-        float progress{ 0 };
+        f_t progress{ 0 };
         bool operator==(const struct status & other) { return run_state == other.run_state && error == other.error && confidence == other.confidence && progress == other.progress; }
     };
     
     struct camera_parameters
     {
-        float fx, fy;
-        float cx, cy;
-        float skew;
-        float k1, k2, k3;
+        f_t fx, fy;
+        f_t cx, cy;
+        f_t skew;
+        f_t k1, k2, k3;
     };
     
     struct feature_point
     {
         uint64_t id;
-        float x, y;
-        float original_depth;
-        float stdev;
-        float worldx, worldy, worldz;
+        f_t x, y;
+        f_t original_depth;
+        f_t stdev;
+        f_t worldx, worldy, worldz;
         bool initialized;
     };
     
@@ -65,17 +59,17 @@ public:
         transformation transform;
         std::string origin_qr_code;
         camera_parameters camera_intrinsics;
-        float total_path_m;
+        f_t total_path_m;
         std::vector<feature_point> features;
     };
     
-    std::function<void(std::unique_ptr<data>, camera_data &&)> camera_callback;
+    std::function<void(std::unique_ptr<data>, image_gray8 &&)> camera_callback;
     std::function<void(status)> status_callback;
     
     sensor_fusion(fusion_queue::latency_strategy strategy);
     
     device_parameters get_device() const;
-    void set_device(const rcCalibration &dc);
+    void set_device(const device_parameters &dc);
     
     /** Sets the current location of the device.
      
@@ -128,13 +122,14 @@ public:
      */
     void reset(sensor_clock::time_point time, const transformation &initial_pose_m, bool origin_gravity_aligned);
     
-    /** Once sensor fusion has started, video frames should be passed in as they are received from the camera.
-     @param which_camera Specifies which camera generated this image.
-     @param image The image data
-     @param pose Optional estimate of the pose of the device, if available. nullptr if not available.
-     @param time Time image was captured, in microseconds.
+    /** Once sensor fusion has started, video frames should be passed
+     in as they are received from the camera. The camera is implied
+     by the image format. image_gray8 is a an rgb or fisheye camera
+     in grayscale, and image_depth16 is a depth image.
+     @param data The image data
      */
-    void receive_image(camera_data &&data);
+    void receive_image(image_gray8 &&data);
+    void receive_image(image_depth16 &&data);
     
     /** Once sensor fusion has started, acceleration data should be passed in as it's received from the accelerometer.
      @param x Acceleration along the x axis, in m/s^2
@@ -246,7 +241,8 @@ public:
 
     //public for now
     filter sfm;
-    rcCalibration device;
+    device_parameters device;
+    calibration calibration;
     
     //These change coordinates from accelerometer-centered coordinates to camera-centered coordinates
     transformation accel_to_camera_world_transform() const;
@@ -266,7 +262,7 @@ private:
     friend class replay; //Allow replay to access queue directly so it can send the obsolete start measuring signal, which we don't expose elsewhere
     RCSensorFusionErrorCode get_error();
     void update_status();
-    void update_data(camera_data &&data);
+    void update_data(image_gray8 &&data);
     std::atomic<bool> isProcessingVideo, isSensorFusionRunning, processingVideoRequested;
     std::unique_ptr<fusion_queue> queue;
     status last_status;

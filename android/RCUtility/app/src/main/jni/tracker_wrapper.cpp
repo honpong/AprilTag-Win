@@ -2,7 +2,7 @@
 #include <jni.h>
 #include <android/log.h>
 #include <stdlib.h>
-#include <rc_intel_interface.h>
+#include "rc_tracker.h"
 #include <visualization.h>
 #include "rc_replay_threaded.h"
 
@@ -37,23 +37,7 @@ static jmethodID imageClass_close;
 
 static float gOffsetX, gOffsetY, gOffsetZ;
 
-typedef struct ZIntrinsics
-{
-    int rw, rh;
-    float rpx, rpy;
-    float rfx, rfy;
-} ZIntrinsics;
-
-static ZIntrinsics gZIntrinsics;
-
-typedef struct RGBIntrinsics
-{
-    int rh, rw;
-    float rpx, rpy;
-    float rfx, rfy;
-} RGBIntrinsics;
-
-static RGBIntrinsics gRGBIntrinsics;
+static rc_CameraIntrinsics gZIntrinsics, gRGBIntrinsics;
 
 jint JNI_OnLoad(JavaVM* vm, void* reserved)
 {
@@ -320,8 +304,7 @@ extern "C"
         LOGD("setCalibration");
         if (!tracker) return (JNI_FALSE);
         const char *cString = env->GetStringUTFChars(calString, 0);
-        rcCalibration rcCal = {};
-        jboolean result = (jboolean) rc_setCalibration(tracker, cString, &rcCal);
+        jboolean result = (jboolean) rc_setCalibration(tracker, cString);
         env->ReleaseStringUTFChars(calString, cString);
         return (result);
     }
@@ -338,36 +321,52 @@ extern "C"
 
     JNIEXPORT jboolean JNICALL Java_com_realitycap_android_rcutility_TrackerProxy_configureCamera(JNIEnv *env, jobject thiz,
                                                                                                   jint width_px, jint height_px, jfloat center_x_px, jfloat center_y_px, jfloat focal_length_x_px, jfloat focal_length_y_px,
-                                                                                                  jint depth_width, jint depth_height, jfloat depth_px, jfloat depth_py, jfloat depth_fx, jfloat depth_fy,
-                                                                                                  jfloat offsetX, jfloat offsetY, jfloat offsetZ,
+                                                                                                  jint depth_width, jint depth_height, jfloat depth_center_x_px, jfloat depth_center_y_px, jfloat depth_fx, jfloat depth_fy,
+                                                                                                  jfloat depth_to_color_x_mm, jfloat depth_to_color_y_mm, jfloat depth_to_color_z_mm,
                                                                                                   jfloat skew, jboolean fisheye, jfloat fisheye_fov_radians)
     {
         if (!tracker) return (JNI_FALSE);
 
         //cache intrinsics
-        gZIntrinsics.rw = depth_width;
-        gZIntrinsics.rh = depth_height;
-        gZIntrinsics.rfx = depth_fx;
-        gZIntrinsics.rfy = depth_fy;
-        gZIntrinsics.rpx = depth_px;
-        gZIntrinsics.rpy = depth_py;
+        gZIntrinsics.type = rc_CALIBRATION_TYPE_UNDISTORTED;
+        gZIntrinsics.width_px = depth_width;
+        gZIntrinsics.height_px = depth_height;
+        gZIntrinsics.f_x_px = depth_fx;
+        gZIntrinsics.f_y_px = depth_fy;
+        gZIntrinsics.c_x_px = depth_center_x_px;
+        gZIntrinsics.c_y_px = depth_center_y_px;
 
-        gRGBIntrinsics.rw = width_px;
-        gRGBIntrinsics.rh = height_px;
-        gRGBIntrinsics.rfx = focal_length_x_px;
-        gRGBIntrinsics.rfy = focal_length_y_px;
-        gRGBIntrinsics.rpx = center_x_px;
-        gRGBIntrinsics.rpy = center_y_px;
+        gRGBIntrinsics.type = fisheye ? rc_CALIBRATION_TYPE_FISHEYE : rc_CALIBRATION_TYPE_UNDISTORTED;
+        gRGBIntrinsics.width_px = width_px;
+        gRGBIntrinsics.height_px = height_px;
+        gRGBIntrinsics.f_x_px = focal_length_x_px;
+        gRGBIntrinsics.f_y_px = focal_length_y_px;
+        gRGBIntrinsics.c_x_px = center_x_px;
+        gRGBIntrinsics.c_y_px = center_y_px;
+        gRGBIntrinsics.w = fisheye_fov_radians;
 
-        gOffsetX = offsetX;
-        gOffsetY = offsetY;
-        gOffsetZ = offsetZ;
+        gOffsetX = depth_to_color_x_mm;
+        gOffsetY = depth_to_color_y_mm;
+        gOffsetZ = depth_to_color_z_mm;
 
-        const rc_Pose pose =    {0, -1, 0, 0,
-                                -1, 0, 0, 0,
-                                0, 0, -1, 0};
+        const rc_Pose depth_to_color_mm = { // g_cd
+            1, 0, 0, depth_to_color_x_mm / 1000,
+            0, 1, 0, depth_to_color_y_mm / 1000,
+            0, 0, 1, depth_to_color_z_mm / 1000,
+        };
+        const rc_Pose color_to_imu_m = { // g_ac
+            0, -1, 0, 0,
+            -1, 0, 0, 0,
+            0, 0, -1, 0,
+        };
+        const rc_Pose depth_to_imu_m = { // g_ad = g_ac * (g_cd)^-1
+            0, -1, 0, depth_to_color_y_mm / 1000,
+            -1, 0, 0, depth_to_color_x_mm / 1000,
+            0, 0, -1, depth_to_color_z_mm / 1000,
+        };
 
-        rc_configureCamera(tracker, rc_Camera::rc_EGRAY8 , pose, width_px, height_px, center_x_px, center_y_px, focal_length_x_px, focal_length_y_px, skew, fisheye, fisheye_fov_radians);
+        rc_configureCamera(tracker, rc_CAMERA_ID_COLOR, color_to_imu_m, &gRGBIntrinsics);
+        rc_configureCamera(tracker, rc_CAMERA_ID_DEPTH, depth_to_imu_m, &gZIntrinsics);
         return (JNI_TRUE);
     }
 
@@ -405,9 +404,10 @@ extern "C"
         void *depthPtr = env->GetDirectBufferAddress(depthBuffer);
         if (RunExceptionCheck(env)) return (JNI_FALSE);
 
-        rc_receiveImageWithDepth(tracker, rc_EGRAY8, time_ns / 1000, shutter_time_ns / 1000, NULL, false,
-                                 width, height, stride, colorPtr, release_image, colorImageRef,
-                                 depthWidth, depthHeight, depthStride, depthPtr, release_buffer, depthBufferRef);
+        rc_receiveImage(tracker, time_ns / 1000, shutter_time_ns / 1000, rc_FORMAT_DEPTH16,
+                        depthWidth, depthHeight, depthStride, depthPtr, release_buffer, depthBufferRef);
+        rc_receiveImage(tracker, time_ns / 1000, shutter_time_ns / 1000, rc_FORMAT_GRAY8,
+                        width, height, stride, colorPtr, release_image, colorImageRef);
 
         return (JNI_TRUE);
     }
@@ -436,20 +436,20 @@ extern "C"
 
         bool fillHoles = true;
 
-        float invZFocalX = 1.0f / gZIntrinsics.rfx, invZFocalY = 1.0f / gZIntrinsics.rfy;
+        float invZFocalX = 1.0f / gZIntrinsics.f_x_px, invZFocalY = 1.0f / gZIntrinsics.f_y_px;
 
-        memset(alignedZ, 0, gZIntrinsics.rw * gZIntrinsics.rh * 2);
+        memset(alignedZ, 0, gZIntrinsics.width_px * gZIntrinsics.height_px * 2);
 
-        for (unsigned int y = 0; y < gZIntrinsics.rh; ++y)
+        for (unsigned int y = 0; y < gZIntrinsics.height_px; ++y)
         {
-            const float tempy = (y - gZIntrinsics.rpy) * invZFocalY;
-            for (unsigned int x = 0; x < gZIntrinsics.rw; ++x)
+            const float tempy = (y - gZIntrinsics.c_y_px) * invZFocalY;
+            for (unsigned int x = 0; x < gZIntrinsics.width_px; ++x)
             {
                 auto depth = *inDepth++;
 
                 // DSTransformFromZImageToZCamera(gZIntrinsics, zImage, zCamera); // Move from image coordinates to 3D coordinates
                 float zCamZ = static_cast<float>(depth);
-                float zCamX = zCamZ * (x - gZIntrinsics.rpx) * invZFocalX;
+                float zCamX = zCamZ * (x - gZIntrinsics.c_x_px) * invZFocalX;
                 float zCamY = zCamZ * tempy;
 
 
@@ -459,21 +459,21 @@ extern "C"
                 float thirdCamZ = zCamZ + gOffsetZ;
 
                 // DSTransformFromThirdCameraToRectThirdImage(gRGBIntrinsics, thirdCamera, thirdImage); // Move from 3D coordinates back to image coordinates
-                int thirdImageX = static_cast<int>(gRGBIntrinsics.rfx * (thirdCamX / thirdCamZ) + gRGBIntrinsics.rpx + 0.5f);
-                int thirdImageY = static_cast<int>(gRGBIntrinsics.rfy * (thirdCamY / thirdCamZ) + gRGBIntrinsics.rpy + 0.5f);
+                int thirdImageX = static_cast<int>(gRGBIntrinsics.f_x_px * (thirdCamX / thirdCamZ) + gRGBIntrinsics.c_x_px + 0.5f);
+                int thirdImageY = static_cast<int>(gRGBIntrinsics.f_y_px * (thirdCamY / thirdCamZ) + gRGBIntrinsics.c_y_px + 0.5f);
 
                 // The aligned image is the same size as the original depth image
-                int alignedImageX = thirdImageX * gZIntrinsics.rw / gRGBIntrinsics.rw;
-                int alignedImageY = thirdImageY * gZIntrinsics.rh / gRGBIntrinsics.rh;
+                int alignedImageX = thirdImageX * gZIntrinsics.width_px /  gRGBIntrinsics.width_px;
+                int alignedImageY = thirdImageY * gZIntrinsics.height_px / gRGBIntrinsics.height_px;
 
                 // Clip anything that falls outside the boundaries of the aligned image
-                if (alignedImageX < 0 || alignedImageY < 0 || alignedImageX >= static_cast<int>(gZIntrinsics.rw) || alignedImageY >= static_cast<int>(gZIntrinsics.rh))
+                if (alignedImageX < 0 || alignedImageY < 0 || alignedImageX >= static_cast<int>(gZIntrinsics.width_px) || alignedImageY >= static_cast<int>(gZIntrinsics.height_px))
                 {
                     continue;
                 }
 
                 // Write the current pixel to the aligned image
-                auto & outDepth = alignedZ[alignedImageY * gZIntrinsics.rw + alignedImageX];
+                auto & outDepth = alignedZ[alignedImageY * gZIntrinsics.width_px + alignedImageX];
                 auto minDepth = (depth > outDepth)? outDepth : depth;
                 outDepth = outDepth ? minDepth : depth;
             }
@@ -483,27 +483,27 @@ extern "C"
         if(fillHoles)
         {
             auto out = alignedZ;
-            for (unsigned int y = 0; y < gZIntrinsics.rh; ++y)
+            for (unsigned int y = 0; y < gZIntrinsics.height_px; ++y)
             {
-                for(unsigned int x = 0; x < gZIntrinsics.rw; ++x)
+                for(unsigned int x = 0; x < gZIntrinsics.width_px; ++x)
                 {
                     if(!*out)
                     {
-                        if (x + 1 < gZIntrinsics.rw && out[1])
+                        if (x + 1 < gZIntrinsics.width_px && out[1])
                         {
                             *out = out[1];
                         }
                         else
                         {
-                            if (y + 1 < gZIntrinsics.rh && out[gZIntrinsics.rw])
+                            if (y + 1 < gZIntrinsics.height_px && out[gZIntrinsics.width_px])
                             {
-                                *out = out[gZIntrinsics.rw];
+                                *out = out[gZIntrinsics.width_px];
                             }
                             else
                             {
-                                if (x + 1 < gZIntrinsics.rw && y + 1 < gZIntrinsics.rh && out[gZIntrinsics.rw + 1])
+                                if (x + 1 < gZIntrinsics.width_px && y + 1 < gZIntrinsics.height_px && out[gZIntrinsics.width_px + 1])
                                 {
-                                    *out = out[gZIntrinsics.rw + 1];
+                                    *out = out[gZIntrinsics.width_px + 1];
                                 }
                             }
                         }

@@ -39,9 +39,9 @@ static void cleanupSampleBuffer(void *h)
     CFRelease(h);
 }
 
-camera_data camera_data_from_CMSampleBufferRef(CMSampleBufferRef sampleBuffer)
+image_gray8 camera_data_from_CMSampleBufferRef(CMSampleBufferRef sampleBuffer)
 {
-    camera_data d;
+    image_gray8 d;
     d.image_handle = std::unique_ptr<void, void(*)(void *)>((void *)CFRetain(sampleBuffer), cleanupSampleBuffer);
     if(!sampleBuffer) throw std::runtime_error("Null sample buffer");
     CMTime time = (CMTime)CMSampleBufferGetPresentationTimeStamp(sampleBuffer);

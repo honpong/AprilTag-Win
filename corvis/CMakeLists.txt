@@ -69,6 +69,7 @@ if(YES)
       test/filter/state_vision.cpp
       test/filter/device_parameters.cpp
       test/filter/calibration_json.cpp
+      test/filter/calibration_xml.cpp
       test/filter/tpose.cpp
       test/filter/dictionary.cpp
       test/filter/mapper.cpp
@@ -90,8 +91,8 @@ if(YES)
 
     add_executable(spec_intel
       ../gtest/gtest_main.cc ../gtest/gtest-all.cc
-      src/filter/rc_intel_interface.cpp
-      test/filter/rc_intel_interface_tests.cpp
+      src/filter/rc_tracker.cpp
+      test/filter/rc_tracker_tests.cpp
     )
     set_property(TARGET spec_intel PROPERTY CXX_STANDARD 14)
     target_include_directories(spec_intel PRIVATE test ..)

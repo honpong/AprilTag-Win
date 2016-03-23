@@ -8,7 +8,7 @@
 
 #pragma once
 
-#include "rc_intel_interface.h"
+#include "rc_tracker.h"
 #include "libpxcimu_internal.h"
 #include "pxcsensemanager.h"
 

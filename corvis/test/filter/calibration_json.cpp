@@ -11,7 +11,7 @@ using namespace std;
 
 TEST(calibration_json, SerializeDeserialize)
 {
-    device_parameters cal, calDeserialized, def = {};
+    device_parameters cal, calDeserialized;
     EXPECT_TRUE(calibration_load_defaults(DEVICE_TYPE_UNKNOWN, cal));
 
     try
@@ -20,7 +20,7 @@ TEST(calibration_json, SerializeDeserialize)
         EXPECT_TRUE(calibration_serialize(cal, jsonString));
         EXPECT_GT(jsonString.length(), 0); // expect non-zero length
 
-        EXPECT_TRUE(calibration_deserialize(jsonString, calDeserialized, &def));
+        EXPECT_TRUE(calibration_deserialize(jsonString, calDeserialized));
     }
     catch (runtime_error)
     {
@@ -28,19 +28,19 @@ TEST(calibration_json, SerializeDeserialize)
     }
 
     // just do some spot checking
-    EXPECT_EQ(cal.calibrationVersion, calDeserialized.calibrationVersion);
-    EXPECT_FLOAT_EQ(cal.Fx, calDeserialized.Fx);
-    EXPECT_FLOAT_EQ(cal.Cx, calDeserialized.Cx);
+    EXPECT_EQ(cal.version, calDeserialized.version);
+    EXPECT_FLOAT_EQ(cal.color.intrinsics.f_x_px, calDeserialized.color.intrinsics.f_x_px);
+    EXPECT_FLOAT_EQ(cal.color.intrinsics.c_x_px, calDeserialized.color.intrinsics.c_x_px);
 }
 
 TEST(calibration_json, DeserializeCalibration)
 {
-    device_parameters calDeserialized, def = {};
+    device_parameters calDeserialized;
 
     try
     {
         std::string jsonString;
-        EXPECT_FALSE(calibration_deserialize(jsonString, calDeserialized, &def));
+        EXPECT_FALSE(calibration_deserialize(jsonString, calDeserialized));
     }
     catch (...)
     {
@@ -50,27 +50,12 @@ TEST(calibration_json, DeserializeCalibration)
 
 TEST(calibration_json, calibration_deserialize)
 {
-    rcCalibration defaults;
+    const char json[] = "{ \"" KEY_DEVICE_NAME "\" : \"test\", \"" KEY_IMAGE_WIDTH "\" : 123, \"" KEY_ACCEL_TRANSFORM "\" : [0,0,0, 0,0,0, 0,0.6,0] }"; // note that last element of array is missing
 
-    snprintf(defaults.deviceName, sizeof(defaults.deviceName), "%s", R"(test)");
-    defaults.image_width = 456;
-    defaults.image_height = 321;
-    defaults.shutterDelay = 0.789;
-    defaults.accelerometerTransform[7] = 0.666; // this should not be set, since JSON contains a value for it
-    defaults.accelerometerTransform[8] = 0.777; // this should be set, since last element is missing in JSON
+    calibration_json calOutput;
+    EXPECT_TRUE(calibration_deserialize(json, calOutput));
 
-    const char json[] = "{ \"" KEY_IMAGE_WIDTH "\" : 123, \"" KEY_ACCEL_TRANSFORM "\" : [0,0,0,0,0,0,0,0.6] }"; // note that last element of array is missing
-
-    rcCalibration calOutput;
-    EXPECT_TRUE(calibration_deserialize(json, calOutput, &defaults));
-
-    // check that default value was NOT used
-    EXPECT_EQ(123, calOutput.image_width);
-    EXPECT_FLOAT_EQ(calOutput.accelerometerTransform[7], 0.6);
-
-    // check that default values were set
-    EXPECT_STREQ("test", calOutput.deviceName);
-    EXPECT_EQ(defaults.image_height, calOutput.image_height);
-    EXPECT_EQ(defaults.shutterDelay, calOutput.shutterDelay);
-    EXPECT_FLOAT_EQ(calOutput.accelerometerTransform[8], defaults.accelerometerTransform[8]);
+    EXPECT_EQ(123, calOutput.color.intrinsics.width_px);
+    EXPECT_FLOAT_EQ(calOutput.imu.a_alignment(7), 0.6);
+    EXPECT_STREQ("test", calOutput.device_id);
 }

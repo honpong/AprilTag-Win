@@ -96,7 +96,7 @@ public:
     size_t change_plot(size_t plot_index);
     size_t change_plot_key(size_t plot_index, size_t key_index);
 
-    void receive_camera(const filter * f, camera_data &&data);
+    void receive_camera(const filter * f, image_gray8 &&data);
     void observe_feature(sensor_clock::time_point timestamp, uint64_t feature_id, float x, float y, float z, float image_x, float image_y, float cx, float cy, float cxy, bool good);
     void observe_position(sensor_clock::time_point timestamp, float x, float y, float z, float qw, float qx, float qy, float qz);
     void observe_plot_item(sensor_clock::time_point timestamp, size_t plot_index, std::string plot_name, float value);

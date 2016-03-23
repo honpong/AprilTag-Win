@@ -1,18 +1,17 @@
 //
-//  rc_intel_interface.h
+//  rc_tracker.h
 //
 //  Created by Eagle Jones on 1/29/15.
 //  Copyright (c) 2015 Intel. All rights reserved.
 //
 
-#ifndef rc_intel_interface_h
-#define rc_intel_interface_h
+#ifndef rc_tracker_h
+#define rc_tracker_h
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#include "SP_Calibration.h"
 #include <stddef.h>
 #include <stdint.h>
 #ifndef _WIN32
@@ -29,10 +28,17 @@ extern "C" {
 #  define RCTRACKER_API __attribute__ ((visibility("default")))
 #endif
 
-typedef enum rc_Camera {
-    rc_EGRAY8,
-    rc_EDEPTH16,
-} rc_Camera;
+typedef enum rc_ImageFormat {
+    rc_FORMAT_GRAY8,
+    rc_FORMAT_DEPTH16,
+} rc_ImageFormat;
+
+typedef enum rc_CameraId {
+    rc_CAMERA_ID_FISHEYE,
+    rc_CAMERA_ID_COLOR,
+    rc_CAMERA_ID_IR,
+    rc_CAMERA_ID_DEPTH,
+} rc_CameraId;
 
 typedef enum rc_TrackerState
 {
@@ -133,21 +139,43 @@ RCTRACKER_API void rc_destroy(rc_Tracker *tracker);
  */
 RCTRACKER_API void rc_reset(rc_Tracker *tracker, rc_Timestamp initialTime_us, const rc_Pose initialPose_m);
 
+typedef enum rc_CalibrationType {
+    rc_CALIBRATION_TYPE_UNKNOWN,     // rd = ???
+    rc_CALIBRATION_TYPE_FISHEYE,     // rd = arctan(2 * ru * tan(w / 2)) / w
+    rc_CALIBRATION_TYPE_POLYNOMIAL3, // rd = ru * (k1 * ru^2 + k2 * ru^4 + k3 * ru^6)
+    rc_CALIBRATION_TYPE_UNDISTORTED, // rd = ru
+} rc_CalibrationType;
+
+/**
+ @param width_px Image width in pixels
+ @param height_px Image height in pixels
+ @param f_x_px Focal length of camera in pixels
+ @param f_y_px Focal length of camera in pixels
+ @param c_x_px Horizontal principal point of camera in pixels
+ @param c_y_px Veritical principal point of camera in pixels
+ @param k1,k2,k3 Polynomial distortion parameters
+ @param w Fisheye camera field of view in radians (half-angle FOV)
+ */
+typedef struct rc_CameraIntrinsics {
+    rc_CalibrationType type;
+    uint32_t width_px, height_px;
+    double f_x_px, f_y_px;
+    double c_x_px, c_y_px;
+    union {
+        double distortion[5];
+        struct { double k1,k2,k3; };
+        double w;
+    };
+} rc_CameraIntrinsics;
+
 /**
  @param tracker The active rc_Tracker instance
- @param camera The camera to configure
- @param pose_m Position (in meters) and orientation of camera relative to reference point (accelerometer)
- @param image_width_px Image width in pixels
- @param image_height_px Image height in pixels
- @param center_x_px Horizontal principal point of camera in pixels
- @param center_y_px Horizontal principal point of camera in pixels
- @param focal_length_px Focal length of camera in pixels
- @param fisheye If false, the image is undistorted. If true, the image is from a fisheye camera.
- @param fisheye_fov_radians Fisheye camera field of view in radians (half-angle FOV)
+ @param camera_id Refers to one of a specific supported predefined set
+ @param extrinsics_wrt_accel_m Transformation from the Camera frame to the Accelerometer frame in meters (may be NULL)
+ @param intrinsics Camera Intrinsics (may be NULL)
  */
-RCTRACKER_API void rc_configureCamera(rc_Tracker *tracker, rc_Camera camera, const rc_Pose pose_m,
-                        int width_px, int height_px, float center_x_px, float center_y_px,
-                        float focal_length_x_px, float focal_length_y_px, float skew, bool fisheye, float fisheye_fov_radians);
+RCTRACKER_API bool rc_describeCamera(rc_Tracker *tracker,  rc_CameraId camera_id,       rc_Pose extrinsics_wrt_accel_m,       rc_CameraIntrinsics *intrinsics);
+RCTRACKER_API void rc_configureCamera(rc_Tracker *tracker, rc_CameraId camera_id, const rc_Pose extrinsics_wrt_accel_m, const rc_CameraIntrinsics *intrinsics);
 RCTRACKER_API void rc_configureAccelerometer(rc_Tracker *tracker, const rc_Pose alignment_and_bias_m__s2, float noiseVariance_m2__s4);
 RCTRACKER_API void rc_configureGyroscope(rc_Tracker *tracker, const rc_Pose alignment_and_bias_rad__s, float noiseVariance_rad2__s2);
 RCTRACKER_API void rc_configureLocation(rc_Tracker *tracker, double latitude_deg, double longitude_deg, double altitude_m);
@@ -199,18 +227,14 @@ RCTRACKER_API void rc_stopTracker(rc_Tracker *tracker);
 
 /**
  @param tracker The active rc_Tracker instance
- @param camera The camera from which this frame was received
  @param time_us Timestamp (in microseconds) when capture of this frame began
- @param shutter_time_us Exposure time (in microseconds)
- @param poseEstimate_m Position (in meters) and orientation estimate from external tracking system
- @param force_recognition If true, force the tracker instance to perform relocalization / loop closure immediately.
+ @param shutter_time_us The rolling shutter exposure time (in microseconds) such that exposure line l takes place at time_us + l/height * shutter_time_us.  Use 0us for global shutter.
  @param stride Number of bytes in each line
  @param image Image data.
  @param completion_callback Function to be called when the frame has been processed and image data is no longer needed. image must remain valid (even after receiveImage has returned) until this function is called.
  @param callback_handle An opaque pointer that will be passed to completion_callback when the frame has been processed and image data is no longer needed.
  */
-RCTRACKER_API void rc_receiveImage(rc_Tracker *tracker, rc_Camera camera, rc_Timestamp time_us, rc_Timestamp shutter_time_us, const rc_Pose poseEstimate_m, bool force_recognition, int width, int height, int stride, const void *image, void(*completion_callback)(void *callback_handle), void *callback_handle);
-RCTRACKER_API void rc_receiveImageWithDepth(rc_Tracker *tracker, rc_Camera camera, rc_Timestamp time_us, rc_Timestamp shutter_time_us, const rc_Pose poseEstimate_m, bool force_recognition, int width, int height, int stride, const void *image, void(*completion_callback)(void *callback_handle), void *callback_handle, int depthWidth, int depthHeight, int depthStride, const void *depthImage, void(*depth_completion_callback)(void *callback_handle), void *depth_callback_handle);
+RCTRACKER_API void rc_receiveImage(rc_Tracker *tracker, rc_Timestamp time_us, rc_Timestamp shutter_time_us, rc_ImageFormat format, int width, int height, int stride, const void *image, void(*completion_callback)(void *callback_handle), void *callback_handle);
 RCTRACKER_API void rc_receiveAccelerometer(rc_Tracker *tracker, rc_Timestamp time_us, const rc_Vector acceleration_m__s2);
 RCTRACKER_API void rc_receiveGyro(rc_Tracker *tracker, rc_Timestamp time_us, const rc_Vector angular_velocity_rad__s);
 
@@ -254,19 +278,13 @@ RCTRACKER_API const char *rc_getTimingStats(rc_Tracker *tracker);
 RCTRACKER_API void rc_setOutputLog(rc_Tracker *tracker, const char *filename);
 
 /**
-    Yields a JSON string that represents a rcCalibration struct.
+    Yields a JSON string that represents the tracker's current a calibration data.
 */
 RCTRACKER_API size_t rc_getCalibration(rc_Tracker *tracker, const char **buffer);
 /**
-    Takes a JSON string that represents a rcCalibration struct.
+    Loads a JSON string representing calibration data into the tracker.
 */
-RCTRACKER_API bool rc_setCalibration(rc_Tracker *tracker, const char *buffer, const rcCalibration *defaults);
-
-RCTRACKER_API void rc_getCalibrationStruct(rc_Tracker *tracker, rcCalibration *cal);
-RCTRACKER_API bool rc_setCalibrationStruct(rc_Tracker *tracker, const rcCalibration *cal);
-
-RCTRACKER_API bool rc_setCalibrationFromFile(rc_Tracker *tracker, const char *filePath, const rcCalibration *defaults);
-
+RCTRACKER_API bool rc_setCalibration(rc_Tracker *tracker, const char *buffer);
 
 /**
  Start/stop the mapping subsystem. When started, the map is completely empty. The map is build synchronously with rc_receive* startMapping must be called before loadMap

@@ -1,9 +1,9 @@
 #include "filter_setup.h"
 
-filter_setup::filter_setup(device_parameters *device_params)
+filter_setup::filter_setup(device_parameters *device_parameters)
 {
-    device = *device_params;
-    filter_initialize(&sfm, device_params);
+    device = *device_parameters;
+    filter_initialize(&sfm, device_parameters);
 }
 
 //TODO: Make it so speed error doesn't cause reset?
@@ -59,29 +59,35 @@ RCSensorFusionErrorCode filter_setup::get_error()
 
 device_parameters filter_setup::get_device_parameters()
 {
-    device_parameters dc = device;
-    dc.K0 = (float)sfm.s.k1.v;
-    dc.K1 = (float)sfm.s.k2.v;
-    dc.K2 = (float)sfm.s.k3.v;
-    dc.distortionModel = sfm.s.fisheye;
-    dc.Fx = dc.Fy = (float)(sfm.s.focal_length.v * sfm.s.image_height);
-    dc.Cx = (float)(sfm.s.center_x.v * sfm.s.image_height + sfm.s.image_width  / 2. - .5);
-    dc.Cy = (float)(sfm.s.center_y.v * sfm.s.image_height + sfm.s.image_height / 2. - .5);
-    dc.px = dc.py = 0.;
-    for(int i = 0; i < 3; ++i) {
-        dc.a_bias[i] = (float)sfm.s.a_bias.v[i];
-        dc.a_bias_var[i] = (float)sfm.s.a_bias.variance()[i];
-        dc.w_bias[i] = (float)sfm.s.w_bias.v[i];
-        dc.w_bias_var[i] = (float)sfm.s.w_bias.variance()[i];
-        dc.Tc[i] = (float)sfm.s.Tc.v[i];
-        dc.Tc_var[i] = (float)sfm.s.Tc.variance()[i];
-        dc.Wc[i] = (float)to_rotation_vector(sfm.s.Qc.v).raw_vector()[i];
-        dc.Wc_var[i] = (float)sfm.s.Qc.variance()[i];
+    auto &cam = device.color;
+    auto &imu = device.imu;
+    if (sfm.s.fisheye) {
+        cam.intrinsics.type = rc_CALIBRATION_TYPE_FISHEYE;
+        cam.intrinsics.w = sfm.s.k1.v;
+        cam.intrinsics.k2 = 0;
+        cam.intrinsics.k3 = 0;
+    } else {
+        cam.intrinsics.type = rc_CALIBRATION_TYPE_POLYNOMIAL3;
+        cam.intrinsics.k1 = sfm.s.k1.v;
+        cam.intrinsics.k2 = sfm.s.k2.v;
+        cam.intrinsics.k3 = sfm.s.k3.v;
     }
-    dc.a_meas_var = (float)sfm.a_variance;
-    dc.w_meas_var = (float)sfm.w_variance;
-    device = dc;
-    return dc;
+    cam.intrinsics.f_x_px = cam.intrinsics.f_y_px = (sfm.s.focal_length.v * sfm.s.image_height);
+    cam.intrinsics.c_x_px = (sfm.s.center_x.v * sfm.s.image_height + sfm.s.image_width  / 2. - .5);
+    cam.intrinsics.c_y_px = (sfm.s.center_y.v * sfm.s.image_height + sfm.s.image_height / 2. - .5);
+
+    cam.extrinsics_wrt_imu_m.T     = sfm.s.Tc.v;
+    cam.extrinsics_var_wrt_imu_m.T = sfm.s.Tc.variance().segment<3>(0);
+    cam.extrinsics_wrt_imu_m.Q     = sfm.s.Qc.v;
+    cam.extrinsics_var_wrt_imu_m.W = sfm.s.Qc.variance().segment<3>(0);
+
+    imu.a_bias_m__s2         = sfm.s.a_bias.v.segment<3>(0);
+    imu.a_bias_var_m2__s4    = sfm.s.a_bias.variance().segment<3>(0);
+    imu.w_bias_rad__s        = sfm.s.w_bias.v.segment<3>(0);
+    imu.w_bias_var_rad2__s2  = sfm.s.w_bias.variance().segment<3>(0);
+    imu.a_noise_var_m2__s4   = sfm.a_variance;
+    imu.w_noise_var_rad2__s2 = sfm.w_variance;
+    return device;
 }
 
 #define FAILURE_TRACKER 0x02

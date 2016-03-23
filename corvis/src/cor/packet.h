@@ -9,6 +9,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "cor_types.h"
+#include "../filter/rc_tracker.h"
 
 #ifdef WIN32
 #pragma warning (push)
@@ -47,6 +48,7 @@ enum packet_type {
     packet_ground_truth = 26,
     packet_core_motion = 27,
     packet_image_with_depth = 28,
+    packet_image_raw = 29,
 };
 
 typedef struct {
@@ -73,6 +75,14 @@ typedef struct {
     uint16_t depth_width, depth_height;
     uint8_t data[];
 } packet_image_with_depth_t;
+
+typedef struct {
+    packet_header_t header;
+    uint64_t exposure_time_us;
+    uint16_t width, height, stride;
+    rc_ImageFormat format; // defined in rc_tracker.h
+    uint8_t data[];
+} packet_image_raw_t;
 
 typedef struct {
     packet_header_t header;

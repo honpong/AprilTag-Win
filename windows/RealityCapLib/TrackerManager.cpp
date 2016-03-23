@@ -11,7 +11,7 @@
 #include <codecvt>
 #include <streambuf>
 #include "libpxcimu_internal.h"
-#include "rc_intel_interface.h"
+#include "rc_tracker.h"
 #include "rc_pxc_util.h"
 #include "pxcprojection.h"
 
@@ -48,7 +48,15 @@ void TrackerManager::ConfigureCameraIntrinsics()
     PXCCapture::Device *pDevice = capMan->QueryDevice();
     PXCPointF32 focal = pDevice->QueryColorFocalLength();
     PXCPointF32 principal = pDevice->QueryColorPrincipalPoint();
-    rc_configureCamera(_tracker, rc_EGRAY8, camera_pose, 640, 480, principal.x, principal.y, focal.x, 0, focal.y, false, 0);
+    struct rc_CameraIntrinsics intrinsics = {};
+    intrinsics.type = rc_CALIBRATION_TYPE_UNDISTORTED;
+    intrinsics.width_px = 640;
+    intrinsics.height_px = 480;
+    intrinsics.f_x_px = focal.x;
+    intrinsics.f_y_px = focal.y;
+    intrinsics.c_x_px = principal.x;
+    intrinsics.c_y_px = principal.y;
+    rc_configureCamera(_tracker, rc_CAMERA_ID_COLOR, nullptr, &intrinsics);
 }
 
 bool TrackerManager::ReadCalibration(std::wstring filename)
@@ -59,8 +67,7 @@ bool TrackerManager::ReadCalibration(std::wstring filename)
         Debug::Log(L"Couldn't load calibration %s", filename.c_str());
         return false;
     }
-    rcCalibration defaultCal = {};
-    bool result = rc_setCalibration(_tracker, calibrationJSON.c_str(), &defaultCal);
+    bool result = rc_setCalibration(_tracker, calibrationJSON.c_str());
     if (!result) return false;
 
     return true;
@@ -204,7 +211,8 @@ void TrackerManager::OnColorFrame(PXCImage* colorSample)
     uint64_t shutter_time_us = 1 << exposure;
     PXCImage::ImageInfo info = colorSample->QueryInfo();
     //Timestamp: divide by 10 to go from 100ns to us, subtract 637us blank interval and 12 ms ad-hoc (tuning) offset, subtract shutter time to get start of capture
-    rc_receiveImage(_tracker, rc_EGRAY8, colorSample->QueryTimeStamp() / 10 - 637 - 12000 - shutter_time_us, shutter_time_us, NULL, false, info.width, info.height, si->data.pitches[0], si->data.planes[0], RCSavedImage::releaseOpaquePointer, (void*)si);
+    rc_receiveImage(_tracker, colorSample->QueryTimeStamp() / 10 - 637 - 12000 - shutter_time_us, shutter_time_us, rc_FORMAT_GRAY8,
+                    info.width, info.height, si->data.pitches[0], si->data.planes[0], RCSavedImage::releaseOpaquePointer, (void*)si);
 }
 
 void TrackerManager::OnColorFrameWithDepth(PXCImage* colorSample, PXCImage* depthSample)
@@ -228,12 +236,11 @@ void TrackerManager::OnColorFrameWithDepth(PXCImage* colorSample, PXCImage* dept
         remap_depth->Release(); //release the reference we got for creating it; we just added another
         depthInfo = remap_depth->QueryInfo();
         //Timestamp: divide by 10 to go from 100ns to us, subtract 637us blank interval and 12 ms ad-hoc (tuning) offset, subtract shutter time to get start of capture
-        rc_receiveImageWithDepth(_tracker, rc_EGRAY8, colorSample->QueryTimeStamp() / 10 - 637 - 12000 - shutter_time_us, shutter_time_us, NULL, false, colorInfo.width, colorInfo.height, sic->data.pitches[0], sic->data.planes[0], RCSavedImage::releaseOpaquePointer, (void*)sic, depthInfo.width, depthInfo.height, sid->data.pitches[0], sid->data.planes[0], RCSavedImage::releaseOpaquePointer, (void*)sid);
+        rc_receiveImage(_tracker, colorSample->QueryTimeStamp() / 10 - 637 - 12000 - shutter_time_us, shutter_time_us, rc_FORMAT_DEPTH16,
+                        depthInfo.width, depthInfo.height, sid->data.pitches[0], sid->data.planes[0], RCSavedImage::releaseOpaquePointer, (void*)sid);
     }
-    else {
-        //Timestamp: divide by 10 to go from 100ns to us, subtract 637us blank interval and 12 ms ad-hoc (tuning) offset, subtract shutter time to get start of capture
-        rc_receiveImageWithDepth(_tracker, rc_EGRAY8, colorSample->QueryTimeStamp() / 10 - 637 - 12000 - shutter_time_us, shutter_time_us, NULL, false, colorInfo.width, colorInfo.height, sic->data.pitches[0], sic->data.planes[0], RCSavedImage::releaseOpaquePointer, (void*)sic, 0, 0, 0, 0, 0, 0);
-    }
+    rc_receiveImage(_tracker, colorSample->QueryTimeStamp() / 10 - 637 - 12000 - shutter_time_us, shutter_time_us, rc_FORMAT_GRAY8,
+                    colorInfo.width, colorInfo.height, sic->data.pitches[0], sic->data.planes[0], RCSavedImage::releaseOpaquePointer, (void*)sic);
     proj->Release();
 
 }

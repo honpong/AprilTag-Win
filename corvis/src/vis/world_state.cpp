@@ -139,7 +139,7 @@ static inline void compute_covariance_ellipse(state_vision_feature * feat, float
     ctheta = (float)theta; // rotate
 }
 
-void world_state::receive_camera(const filter * f, camera_data &&d)
+void world_state::receive_camera(const filter * f, image_gray8 &&d)
 {
     current_timestamp = d.timestamp;
     current_feature_timestamp = d.timestamp;
@@ -158,8 +158,12 @@ void world_state::receive_camera(const filter * f, camera_data &&d)
         }
     }
     observe_image(d.timestamp, d.image, d.width, d.height);
-    if(d.depth) observe_depth(d.depth->timestamp, d.depth->image, d.depth->width, d.depth->height);
-    
+
+    if(f->has_depth) {
+        auto aligned_undistorted_depth = std::move(filter_aligned_distorted_depth_to_intrinsics(f, f->recent_depth));
+        observe_depth(f->recent_depth.timestamp, f->recent_depth.image, f->recent_depth.width, f->recent_depth.height);
+    }
+
     if(f->s.map_enabled) {
         for(auto map_node : f->s.map.get_nodes()) {
             bool loop_closed = false;
@@ -184,6 +188,7 @@ void world_state::receive_camera(const filter * f, camera_data &&d)
     transformation world(f->s.Q.v, f->s.T.v);
     transformation G = f->s.loop_offset*world;
     observe_position(d.timestamp, (float)G.T[0], (float)G.T[1], (float)G.T[2], (float)G.Q.w(), (float)G.Q.x(), (float)G.Q.y(), (float)G.Q.z());
+
     int p = 0;
 
     if (f->observations.recent_a.get()) {

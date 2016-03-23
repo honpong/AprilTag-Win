@@ -26,8 +26,8 @@ target_compile_options(filter PRIVATE /wd4200 /wd4458)
 target_compile_options(vis PRIVATE /wd4200 /wd4458)
 
 add_library(RCTracker SHARED
-    ../corvis/src/filter/rc_intel_interface.cpp
-    ../corvis/src/filter/rc_intel_interface.h
+    ../corvis/src/filter/rc_tracker.cpp
+    ../corvis/src/filter/rc_tracker.h
 )
 
 target_link_libraries(RCTracker PRIVATE
@@ -106,8 +106,8 @@ file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/dist/RCTracker)
 file(COPY RCUtility src/RCTrackerDemo RealityCapLib DESTINATION dist            PATTERN ".gitignore" EXCLUDE PATTERN "*~" EXCLUDE)
 file(COPY ../corvis/src/glfw                        DESTINATION dist/ThirdParty PATTERN ".gitignore" EXCLUDE PATTERN "*~" EXCLUDE)
 file(COPY src/intel_deliverables/CMakeLists.txt DESTINATION dist)
-file(COPY ../corvis/src/filter/rc_intel_interface.h DESTINATION dist/RCTracker)
-file(COPY ../corvis/src/filter/SP_Calibration.h DESTINATION dist/RCTracker)
+file(COPY ../corvis/src/filter/rc_tracker.h DESTINATION dist/RCTracker)
+file(COPY ../corvis/src/glfw DESTINATION dist/ThirdParty)
 file(COPY ../corvis/src/tracker/rc_replay.cpp DESTINATION dist/rc_replay)
 file(COPY ../corvis/src/tracker/rc_replay.h DESTINATION dist/rc_replay)
 file(GENERATE OUTPUT ${CMAKE_BINARY_DIR}/dist/rc_replay/main.cpp INPUT ${CMAKE_SOURCE_DIR}/../corvis/src/tools/rc_replay.cpp)

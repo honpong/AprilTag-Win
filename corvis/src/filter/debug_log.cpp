@@ -1,7 +1,7 @@
 #include "debug_log.h"
 
 #include "spdlog/sinks/sink.h"
-#include "rc_intel_interface.h"
+#include "rc_tracker.h"
 
 class threaded_callback_sink : public spdlog::sinks::base_sink < std::mutex >
 {

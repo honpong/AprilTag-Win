@@ -3,7 +3,7 @@
 #include "SensorManager.h"
 #include <thread>
 
-#include "rc_intel_interface.h"
+#include "rc_tracker.h"
 
 namespace RealityCap
 {

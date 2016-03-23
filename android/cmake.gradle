@@ -1,6 +1,5 @@
 task rcHeader(type: Copy) {
-    from "../../../corvis/src/filter/rc_intel_interface.h"
-    from "../../../corvis/src/filter/SP_Calibration.h"
+    from "../../../corvis/src/filter/rc_tracker.h"
     from "../../../corvis/src/tracker"
     include "*.cpp"
     include "*.h"

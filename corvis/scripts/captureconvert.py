@@ -5,6 +5,8 @@ from collections import defaultdict
 import math
 import sys
 import getopt
+import os.path
+import json
 
 camera_type = 1
 accel_type = 20
@@ -102,7 +104,7 @@ with open(output_filename, "wb") as f:
             assert b == 1, "image should be 1 byte, not %d" % b
             dw, dh, db, dd = read_pgm(path + depth_for_image(line[0])[2]) if use_depth else (0, 0, 0, '')
             assert db == 2 or not use_depth, "depth should be 2 bytes, not %d" % db
-            data = pack('LHHHH', 0*33333333, w, h, dw, dh) + d + dd
+            data = pack('QHHHH', 0*33333333, w, h, dw, dh) + d + dd
         elif ptype == gyro_type:
             data = pack('fff', line[2], line[3], line[4])
         elif ptype == accel_type:
@@ -121,6 +123,30 @@ print "Wrote", wrote_bytes/1e6, "Mbytes"
 for key in wrote_packets:
     print "Type", key, "-", wrote_packets[key], "packets"
 
-with open(path + "calibration.json", 'r') as f:
-    with open(output_filename + ".json", 'w') as t:
-        t.write(f.read())
+
+
+def transform(W, T, v):
+    from numpy import asarray, cross, eye, matrix
+    from scipy.linalg import expm3
+    return list(expm3(cross(eye(3), asarray(W))).dot(asarray(v)) + asarray(T))
+
+if os.path.isfile(path + "CameraParameters.txt"):
+    with open(path + "CameraParameters.txt", 'r') as p:
+        d_e_c = p.readline().split()
+        with open(path + "calibration.json", 'r') as f:
+            cal = defaultdict(int, json.loads(f.read()))
+            # ignored and often uninitialized
+            if 'px' in cal:
+                del cal['px']
+            if 'py' in cal:
+                del cal['py']
+            # g_accel_depth = g_accel_color * (g_color_depth)^-1
+            depth_Tc = transform([cal['Wc0'],cal['Wc1'],cal['Wc2']], [cal['Tc0'],cal['Tc1'],cal['Tc2']], map(lambda x: -x/1000., map(float,d_e_c[6:9])))
+            cal['depth'] = dict(zip("imageWidth imageHeight Fx Fy Cx Cy Wc0 Wc1 Wc2 Tc0 Tc1 Tc2".split(), map(int,d_e_c[:2]) + map(float,d_e_c[2:6]) + [cal['Wc0'],cal['Wc1'],cal['Wc2']] + depth_Tc))
+            with open(output_filename + ".json", 'w') as t:
+                 t.write(json.dumps(cal, sort_keys=True, indent=4,separators=(',', ': ')))
+            print "Added depth intrinsics and extrinsics to " + output_filename + ".json"
+else:
+    with open(path + "calibration.json", 'r') as f:
+        with open(output_filename + ".json", 'w') as t:
+            t.write(f.read())

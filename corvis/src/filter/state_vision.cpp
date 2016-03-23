@@ -97,7 +97,7 @@ void state_vision_group::make_empty()
     status = group_empty;
 }
 
-int state_vision_group::process_features(const camera_data & camera, mapper & map, bool map_enabled)
+int state_vision_group::process_features(const image_gray8 &image, mapper & map, bool map_enabled)
 {
     features.children.remove_if([&](state_vision_feature *f) {
         return f->should_drop();
@@ -116,12 +116,12 @@ int state_vision_group::process_features(const camera_data & camera, mapper & ma
                 map.update_feature_position(id, f->id, f->Xcamera, variance_meters);
             if(good && !f->descriptor_valid) {
                 float scale = f->v.depth();
-                float radius = 32./scale * (camera.width / 320.);
+                float radius = 32./scale * (image.width / 320.);
                 if(radius < 4) {
                     radius = 4;
                 }
                 //debug_log->info("feature {} good radius {}", f->id, radius);
-                if(descriptor_compute(camera.image, camera.width, camera.height, camera.stride,
+                if(descriptor_compute(image.image, image.width, image.height, image.stride,
                             f->current[0], f->current[1], radius, f->descriptor)) {
                     f->descriptor_valid = true;
                     map.add_feature(id, f->id, f->Xcamera, variance_meters, f->descriptor);
@@ -212,7 +212,7 @@ void state_vision::reset()
     state_motion::reset();
 }
 
-int state_vision::process_features(const camera_data & camera, sensor_clock::time_point time)
+int state_vision::process_features(const image_gray8 &image, sensor_clock::time_point time)
 {
     int useful_drops = 0;
     int total_feats = 0;
@@ -245,7 +245,7 @@ int state_vision::process_features(const camera_data & camera, sensor_clock::tim
     for(state_vision_group *g : groups.children) {
         // Delete the features we marked to drop, return the health of
         // the group (the number of features)
-        int health = g->process_features(camera, map, map_enabled);
+        int health = g->process_features(image, map, map_enabled);
 
         if(g->status && g->status != group_initializing)
             total_health += health;

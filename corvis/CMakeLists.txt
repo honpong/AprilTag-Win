@@ -70,6 +70,8 @@ if(YES)
       test/filter/device_parameters.cpp
       test/filter/calibration_json.cpp
       test/filter/tpose.cpp
+      test/filter/dictionary.cpp
+      test/filter/mapper.cpp
       test/filter/debug_log.cpp
       test/cor/sensor_fusion_queue.cpp
     )

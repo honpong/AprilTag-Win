@@ -14,7 +14,7 @@
 transformation sensor_fusion::get_transformation() const
 {
     transformation filter_transform(sfm.s.Q.v, sfm.s.T.v);
-    return compose(sfm.origin, filter_transform);
+    return compose(sfm.origin, compose(sfm.s.loop_offset, filter_transform));
 }
 
 void sensor_fusion::set_transformation(const transformation &pose_m)
@@ -24,7 +24,7 @@ void sensor_fusion::set_transformation(const transformation &pose_m)
 
 v4 sensor_fusion::filter_to_external_position(const v4& x) const
 {
-    return transformation_apply(sfm.origin, x);
+    return transformation_apply(compose(sfm.origin, sfm.s.loop_offset), x);
 }
 
 RCSensorFusionErrorCode sensor_fusion::get_error()
@@ -301,6 +301,43 @@ void sensor_fusion::reset(sensor_clock::time_point time, const transformation &i
     sfm.s.time_update(time); //This initial time update doesn't actually do anything - just sets current time, but it will cause the first measurement to run a time_update relative to this
     sfm.origin_gravity_aligned = origin_gravity_aligned;
     filter_set_origin(&sfm, initial_pose_m, false);
+}
+
+void sensor_fusion::attempt_relocalization()
+{
+    queue->dispatch_async([this]() { sfm.s.lost_factor = 1.; });
+}
+
+void sensor_fusion::start_mapping()
+{
+    sfm.s.map.reset();
+    sfm.s.map_enabled = true;
+}
+
+void sensor_fusion::stop_mapping()
+{
+    sfm.s.map_enabled = false;
+}
+
+void sensor_fusion::save_map(void (*write)(void *handle, const void *buffer, size_t length), void *handle)
+{
+    std::string json;
+    if(sfm.s.map_enabled && sfm.s.map.serialize(json)) {
+        write(handle, json.c_str(), json.length());
+    }
+}
+
+bool sensor_fusion::load_map(size_t (*read)(void *handle, void *buffer, size_t length), void *handle)
+{
+    if(!sfm.s.map_enabled) return false;
+
+    std::string json;
+    char buffer[1024];
+    size_t bytes_read;
+    while((bytes_read = read(handle, buffer, 1024)) != 0) {
+        json.append(buffer, bytes_read);
+    }
+    return sfm.s.map.deserialize(json, sfm.s.map);
 }
 
 void sensor_fusion::receive_image(camera_data &&data)

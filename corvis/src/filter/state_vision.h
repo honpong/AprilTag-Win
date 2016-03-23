@@ -17,6 +17,9 @@ extern "C" {
 #include "state_motion.h"
 #include "tracker.h"
 #include "../cor/platform/sensor_clock.h"
+#include "feature_descriptor.h"
+#include "mapper.h"
+#include "../cor/sensor_data.h"
 
 using namespace std;
 
@@ -33,7 +36,8 @@ enum feature_flag {
     feature_normal,
     feature_ready,
     feature_initializing,
-    feature_single
+    feature_single,
+    feature_revived
 };
 
 class log_depth
@@ -59,12 +63,18 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     uint64_t id;
     uint64_t groupid;
     v4 world = v4(0, 0, 0, 0);
+    v4 Xcamera = v4(0, 0, 0, 0);
     feature_t image_velocity = {0,0};
     sensor_clock::duration dt = sensor_clock::duration(0);
     sensor_clock::duration last_dt = sensor_clock::duration(0);
     sensor_clock::time_point last_seen;
 
     sensor_clock::time_point found_time;
+
+    descriptor descriptor;
+    bool descriptor_valid{false};
+
+    float last_variance;
 
     static f_t initial_depth_meters;
     static f_t initial_var;
@@ -149,7 +159,7 @@ class state_vision_group: public state_branch<state_node *> {
     state_vision_group(const state_vision_group &other);
     state_vision_group(uint64_t group_id);
     void make_empty();
-    int process_features();
+    int process_features(const camera_data & camera, mapper & map, bool map_enabled);
     int make_reference();
     int make_normal();
     static f_t ref_noise;
@@ -184,11 +194,22 @@ public:
     
     state_vision(covariance &c);
     ~state_vision();
-    int process_features(sensor_clock::time_point time);
+    int process_features(const camera_data & camera, sensor_clock::time_point time);
     state_vision_feature *add_feature(const feature_t & initial);
     state_vision_group *add_group(sensor_clock::time_point time);
 
     state_vision_group *reference;
+
+    uint64_t last_reference{0};
+    v4 last_Tr;
+    rotation_vector last_Wr;
+
+    bool map_enabled{false};
+    mapper map;
+    transformation loop_offset;
+    float lost_factor;
+    bool loop_closed{false};
+    
     feature_t undistort_feature(const feature_t &feat_d, f_t *ku_d_ = nullptr, f_t *dku_d_drd = nullptr, f_t *dku_d_dk1 = nullptr, f_t *dku_d_dk2 = nullptr, f_t *dku_d_dk3 = nullptr) const;
     feature_t distort_feature(const feature_t &feat_u, f_t *kd_u_ = nullptr, f_t *dkd_u_dru = nullptr, f_t *dkd_u_dk1 = nullptr, f_t *dkd_u_dk2 = nullptr, f_t *dkd_u_dk3 = nullptr) const;
     feature_t normalize_feature(const feature_t &feat) const;
@@ -196,7 +217,8 @@ public:
     float median_depth_variance();
     
     virtual void reset();
-    
+    bool load_map(std::string json);
+
 protected:
     virtual void add_non_orientation_states();
     virtual void remove_non_orientation_states();

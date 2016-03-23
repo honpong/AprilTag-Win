@@ -34,6 +34,15 @@ typedef struct _ImageData {
     int width, height;
 } ImageData;
 
+typedef struct _mapnode {
+    uint64_t id;
+    bool finished;
+    bool loop_closed;
+    transformation position;
+    std::vector<uint64_t> neighbors;
+    std::vector<Feature> features;
+} MapNode;
+
 struct filter;
 
 typedef std::pair<sensor_clock::time_point, float> plot_item;
@@ -44,6 +53,7 @@ class world_state
 public:
     typedef std::map<std::string, plot_data> plot;
 private:
+    std::map<uint64_t, MapNode> map_nodes;
     std::map<uint64_t, Feature> features;
     std::vector<Position, Eigen::aligned_allocator<Position> > path;
     sensor_clock::time_point current_feature_timestamp;
@@ -51,6 +61,9 @@ private:
     std::size_t path_vertex_alloc = 1000;
     std::size_t feature_vertex_alloc = 1000;
     std::size_t feature_ellipse_vertex_alloc = 1000;
+    std::size_t map_node_vertex_alloc = 1000;
+    std::size_t map_edge_vertex_alloc = 1000;
+    std::size_t map_feature_vertex_alloc = 1000;
     void build_grid_vertex_data();
     void generate_feature_ellipse(const Feature & feat, unsigned char r, unsigned char g, unsigned char b, unsigned char alpha);
 
@@ -67,10 +80,14 @@ public:
     VertexData * feature_vertex;
     VertexData * orientation_vertex;
     VertexData * feature_ellipse_vertex;
+    VertexData * map_node_vertex;
+    VertexData * map_edge_vertex;
+    VertexData * map_feature_vertex;
     ImageData last_image;
     ImageData last_depth;
     int grid_vertex_num, axis_vertex_num, path_vertex_num, feature_vertex_num, orientation_vertex_num;
     int feature_ellipse_vertex_num;
+    int map_node_vertex_num, map_edge_vertex_num, map_feature_vertex_num;
 
     world_state();
     ~world_state();
@@ -85,6 +102,7 @@ public:
     void observe_plot_item(sensor_clock::time_point timestamp, size_t plot_index, std::string plot_name, float value);
     void observe_image(sensor_clock::time_point timestamp, uint8_t * image, int width, int height);
     void observe_depth(sensor_clock::time_point timestamp, uint16_t * image, int width, int height);
+    void observe_map_node(sensor_clock::time_point timestamp, uint64_t id, bool finished, bool loop_closed, const transformation &T, std::vector<uint64_t> & neighbors, std::vector<Feature> & features);
     std::string get_feature_stats();
     float get_feature_lifetime();
     void reset() {

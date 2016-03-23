@@ -135,13 +135,6 @@ public:
     v4 sample(const v4 &data) { return filtered = filtered * (1. - constant) + data * constant; }
 };
 
-static inline v4 relative_rotation(const v4 &first, const v4 &second)
-{
-    v4 rv = cross(first.normalized(), second.normalized());
-    f_t sina = rv.norm();
-    return rv / sina * asin(sina);
-}
-
 inline static m4 skew3(const v4 &v)
 {
     m4 V = m4::Zero();

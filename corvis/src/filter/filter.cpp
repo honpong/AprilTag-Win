@@ -564,6 +564,10 @@ static void filter_add_features(struct filter *f, const camera_data & camera, si
     if(newfeats < state_vision_group::min_feats) return;
     state_vision_group *g = f->s.add_group(camera.timestamp);
 
+    descriptor d;
+    float radius = 16;
+    int side_length = 41;
+
     int found_feats = 0;
     for(int i = 0; i < (int)kp.size(); ++i) {
         feature_t kp_i = {kp[i].x, kp[i].y};
@@ -572,6 +576,8 @@ static void filter_add_features(struct filter *f, const camera_data & camera, si
         if(f->track.is_trackable(x, y) && f->mask->test(x, y)) {
             f->mask->clear(x, y);
             state_vision_feature *feat = f->s.add_feature(kp_i);
+            //descriptor_compute(camera.image, camera.width, camera.height, camera.stride, x, y, side_length, radius, d);
+            //feat->descriptor = d;
 
             float depth_m = 0;
             if(camera.depth)
@@ -722,7 +728,7 @@ bool filter_image_measurement(struct filter *f, const camera_data & camera)
         debug_log->info() << observation_vision_feature::inn_stdev[1];
     }
 
-    int features_used = f->s.process_features(time);
+    int features_used = f->s.process_features(camera, time);
     if(!features_used)
     {
         //Lost all features - reset convergence

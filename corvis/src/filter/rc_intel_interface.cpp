@@ -295,8 +295,29 @@ void rc_stopTracker(rc_Tracker * tracker)
     tracker->output_enabled = false;
 }
 
+void rc_startMapping(rc_Tracker *tracker)
+{
+    tracker->start_mapping();
+}
+
+void rc_stopMapping(rc_Tracker *tracker)
+{
+    tracker->stop_mapping();
+}
+
+bool rc_loadMap(rc_Tracker *tracker, size_t (*read)(void *handle, void *buffer, size_t length), void *handle)
+{
+    return tracker->load_map(read, handle);
+}
+
+void rc_saveMap(rc_Tracker *tracker,  void (*write)(void *handle, const void *buffer, size_t length), void *handle)
+{
+    tracker->save_map(write, handle);
+}
+
 void rc_receiveImage(rc_Tracker *tracker, rc_Camera camera, rc_Timestamp time_us, rc_Timestamp shutter_time_us, const rc_Pose poseEstimate_m, bool force_recognition, int width, int height, int stride, const void *image, void(*completion_callback)(void *callback_handle), void *callback_handle)
 {
+    if(force_recognition) tracker->attempt_relocalization();
 	if (camera == rc_EGRAY8) {
 		camera_data d;
 		d.image_handle = std::unique_ptr<void, void(*)(void *)>(callback_handle, completion_callback);
@@ -317,6 +338,7 @@ void rc_receiveImage(rc_Tracker *tracker, rc_Camera camera, rc_Timestamp time_us
 
 void rc_receiveImageWithDepth(rc_Tracker *tracker, rc_Camera camera, rc_Timestamp time_us, rc_Timestamp shutter_time_us, const rc_Pose poseEstimate_m, bool force_recognition, int width, int height, int stride, const void *image, void(*completion_callback)(void *callback_handle), void *callback_handle, int depthWidth, int depthHeight, int depthStride, const void *depthImage, void(*depth_completion_callback)(void *callback_handle), void *depth_callback_handle) 
 {
+    if(force_recognition) tracker->attempt_relocalization();
     camera_data d;
     d.image_handle = std::unique_ptr<void, void(*)(void *)>(callback_handle, completion_callback);
     d.image = (uint8_t *)image;

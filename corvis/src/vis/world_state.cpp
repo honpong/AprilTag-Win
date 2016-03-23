@@ -65,6 +65,20 @@ void world_state::observe_plot_item(sensor_clock::time_point timestamp, size_t i
     plot_lock.unlock();
 }
 
+void world_state::observe_map_node(sensor_clock::time_point timestamp, uint64_t node_id, bool finished, bool loop_closed, const transformation &position, vector<uint64_t> & neighbors, vector<Feature> & features)
+{
+    display_lock.lock();
+    MapNode n;
+    n.id = node_id;
+    n.finished = finished;
+    n.loop_closed = loop_closed;
+    n.position = position;
+    n.neighbors = neighbors;
+    n.features = features;
+    map_nodes[node_id] = n;
+    display_lock.unlock();
+}
+
 void world_state::observe_image(sensor_clock::time_point timestamp, uint8_t * image, int width, int height)
 {
     image_lock.lock();
@@ -127,15 +141,18 @@ static inline void compute_covariance_ellipse(state_vision_feature * feat, float
 
 void world_state::receive_camera(const filter * f, camera_data &&d)
 {
+    current_timestamp = d.timestamp;
+    current_feature_timestamp = d.timestamp;
     for(auto feat : f->s.features) {
         if(feat->is_valid()) {
             float stdev = (float)feat->v.stdev_meters(sqrt(feat->variance()));
             bool good = stdev / feat->v.depth() < .02;
             float cx, cy, ctheta;
             compute_covariance_ellipse(feat, cx, cy, ctheta);
+            v4 world = feat->world;
 
             observe_feature(d.timestamp, feat->id,
-                            (float)feat->world[0], (float)feat->world[1], (float)feat->world[2],
+                            (float)world[0], (float)world[1], (float)world[2],
                             (float)feat->current[0], (float)feat->current[1],
                             cx, cy, ctheta, good);
         }
@@ -143,9 +160,30 @@ void world_state::receive_camera(const filter * f, camera_data &&d)
     observe_image(d.timestamp, d.image, d.width, d.height);
     if(d.depth) observe_depth(d.depth->timestamp, d.depth->image, d.depth->width, d.depth->height);
     
-    v4 T = f->s.T.v;
-    quaternion q = f->s.Q.v;
-    observe_position(d.timestamp, (float)T[0], (float)T[1], (float)T[2], (float)q.w(), (float)q.x(), (float)q.y(), (float)q.z());
+    if(f->s.map_enabled) {
+        for(auto map_node : f->s.map.get_nodes()) {
+            bool loop_closed = false;
+            vector<uint64_t> neighbors;
+            for(auto edge : map_node.edges) {
+                neighbors.push_back(edge.neighbor);
+                if(edge.loop_closure)
+                    loop_closed = true;
+            }
+            vector<Feature> features;
+            for(auto feature : map_node.features) {
+                Feature f;
+                f.x = feature->position[0];
+                f.y = feature->position[1];
+                f.z = feature->position[2];
+                features.push_back(f);
+            }
+            observe_map_node(d.timestamp, map_node.id, map_node.finished, loop_closed, map_node.global_transformation.transform, neighbors, features);
+        }
+    }
+
+    transformation world(f->s.Q.v, f->s.T.v);
+    transformation G = f->s.loop_offset*world;
+    observe_position(d.timestamp, (float)G.T[0], (float)G.T[1], (float)G.T[2], (float)G.Q.w(), (float)G.Q.x(), (float)G.Q.y(), (float)G.Q.z());
     int p = 0;
 
     if (f->observations.recent_a.get()) {
@@ -271,6 +309,9 @@ world_state::world_state()
     path_vertex = (VertexData *)calloc(sizeof(VertexData), path_vertex_alloc);
     feature_vertex = (VertexData *)calloc(sizeof(VertexData), feature_vertex_alloc);
     feature_ellipse_vertex = (VertexData *)calloc(sizeof(VertexData), feature_ellipse_vertex_alloc);
+    map_node_vertex = (VertexData *)calloc(sizeof(VertexData), map_node_vertex_alloc);
+    map_edge_vertex = (VertexData *)calloc(sizeof(VertexData), map_edge_vertex_alloc);
+    map_feature_vertex = (VertexData *)calloc(sizeof(VertexData), map_feature_vertex_alloc);
     build_grid_vertex_data();
     axis_vertex = axis_data;
     axis_vertex_num = 6;
@@ -294,6 +335,12 @@ world_state::~world_state()
         free(feature_ellipse_vertex);
     if(grid_vertex)
         free(grid_vertex);
+    if(map_node_vertex)
+        free(map_node_vertex);
+    if(map_edge_vertex)
+        free(map_edge_vertex);
+    if(map_feature_vertex)
+        free(map_feature_vertex);
     if(last_image.image)
         free(last_image.image);
     if(last_depth.image)
@@ -364,6 +411,24 @@ void world_state::update_vertex_arrays(bool show_only_good)
         path_vertex_alloc = path.size()*2;
         path_vertex = (VertexData *)realloc(path_vertex, sizeof(VertexData)*path_vertex_alloc);
     }
+    if(map_node_vertex_alloc < map_nodes.size()) {
+        map_node_vertex_alloc = map_nodes.size()*2;
+        map_node_vertex = (VertexData *)realloc(map_node_vertex, sizeof(VertexData)*map_node_vertex_alloc);
+    }
+    int map_edges = 0;
+    for(auto node : map_nodes)
+        map_edges += node.second.neighbors.size()*2;
+    if(map_edge_vertex_alloc < map_edges) {
+        map_edge_vertex_alloc = map_edges*2;
+        map_edge_vertex = (VertexData *)realloc(map_edge_vertex, sizeof(VertexData)*map_edge_vertex_alloc);
+    }
+    int map_features = 0;
+    for(auto node : map_nodes)
+        map_features += node.second.features.size();
+    if(map_feature_vertex_alloc < map_features) {
+        map_feature_vertex_alloc = map_features*2;
+        map_feature_vertex = (VertexData *)realloc(map_feature_vertex, sizeof(VertexData)*map_feature_vertex_alloc);
+    }
     if(feature_ellipse_vertex_alloc < features.size()*feature_ellipse_vertex_size) {
         feature_ellipse_vertex_alloc = features.size()*feature_ellipse_vertex_size*2;
         feature_ellipse_vertex = (VertexData *)realloc(feature_ellipse_vertex, sizeof(VertexData)*feature_ellipse_vertex_alloc);
@@ -416,6 +481,51 @@ void world_state::update_vertex_arrays(bool show_only_good)
         idx++;
     }
     path_vertex_num = idx;
+
+    idx = 0;
+    int nedges = 0;
+    int nfeatures = 0;
+    for(auto n : map_nodes) {
+        auto id = n.first;
+        auto node = n.second;
+        if(!node.finished)
+            continue;
+        else if(node.loop_closed)
+            set_color(&map_node_vertex[idx], 255, 0, 0, 255);
+        else
+            set_color(&map_node_vertex[idx], 255, 255, 0, 255);
+        v4 v1(node.position.T.x(), node.position.T.y(), node.position.T.z(), 0);
+        set_position(&map_node_vertex[idx], v1[0], v1[1], v1[2]);
+        for(uint64_t neighbor_id : node.neighbors) {
+            if(!map_nodes[neighbor_id].finished) continue;
+
+            if(node.loop_closed && map_nodes[neighbor_id].loop_closed)
+                set_color(&map_edge_vertex[nedges], 255, 0, 0, 255);
+            else
+                set_color(&map_edge_vertex[nedges], 255, 0, 255, 255);
+            set_position(&map_edge_vertex[nedges], v1[0], v1[1], v1[2]);
+            nedges++;
+
+            auto node2 = map_nodes[neighbor_id];
+            set_color(&map_edge_vertex[nedges], 255, 0, 255, 255);
+            set_position(&map_edge_vertex[nedges], node2.position.T.x(), node2.position.T.y(), node2.position.T.z());
+            nedges++;
+        }
+        for(Feature f : node.features) {
+            v4 vertex(f.x, f.y, f.z, 0);
+            vertex = transformation_apply(node.position, vertex);
+            if(node.loop_closed)
+                set_color(&map_feature_vertex[nfeatures], 255, 127, 127, 255);
+            else
+                set_color(&map_feature_vertex[nfeatures], 0, 0, 255, 255);
+            set_position(&map_feature_vertex[nfeatures], vertex[0], vertex[1], vertex[2]);
+            nfeatures++;
+        }
+        idx++;
+    }
+    map_node_vertex_num = idx;
+    map_edge_vertex_num = nedges;
+    map_feature_vertex_num = nfeatures;
     display_lock.unlock();
 }
 

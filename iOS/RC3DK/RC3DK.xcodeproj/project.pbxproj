@@ -227,6 +227,115 @@
 		D3C0EDFB1A37B4DC00423EDE /* qr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3C0EDF81A37B4DC00423EDE /* qr.cpp */; };
 		D3F4C7141AF0D48A003D4D0B /* device_parameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F4C7131AF0D48A003D4D0B /* device_parameters.cpp */; };
 		D3F4C7151AF0D492003D4D0B /* device_parameters.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D3F4C7131AF0D48A003D4D0B /* device_parameters.cpp */; };
+		D91557801B87A15D006D2002 /* dictionary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D91557781B87A15D006D2002 /* dictionary.cpp */; };
+		D91557811B87A15D006D2002 /* dictionary.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D91557781B87A15D006D2002 /* dictionary.cpp */; };
+		D91557861B87A15D006D2002 /* feature_descriptor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D915577C1B87A15D006D2002 /* feature_descriptor.cpp */; };
+		D91557871B87A15D006D2002 /* feature_descriptor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D915577C1B87A15D006D2002 /* feature_descriptor.cpp */; };
+		D91557891B87A15D006D2002 /* mapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D915577E1B87A15D006D2002 /* mapper.cpp */; };
+		D915578A1B87A15D006D2002 /* mapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D915577E1B87A15D006D2002 /* mapper.cpp */; };
+		D91557D81B87A21A006D2002 /* aib.c in Sources */ = {isa = PBXBuildFile; fileRef = D915578D1B87A21A006D2002 /* aib.c */; };
+		D91557D91B87A21A006D2002 /* aib.c in Sources */ = {isa = PBXBuildFile; fileRef = D915578D1B87A21A006D2002 /* aib.c */; };
+		D91557DA1B87A21A006D2002 /* aib.c in Sources */ = {isa = PBXBuildFile; fileRef = D915578D1B87A21A006D2002 /* aib.c */; };
+		D91557DB1B87A21A006D2002 /* array.c in Sources */ = {isa = PBXBuildFile; fileRef = D915578F1B87A21A006D2002 /* array.c */; };
+		D91557DC1B87A21A006D2002 /* array.c in Sources */ = {isa = PBXBuildFile; fileRef = D915578F1B87A21A006D2002 /* array.c */; };
+		D91557DD1B87A21A006D2002 /* array.c in Sources */ = {isa = PBXBuildFile; fileRef = D915578F1B87A21A006D2002 /* array.c */; };
+		D91557DE1B87A21A006D2002 /* covdet.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557911B87A21A006D2002 /* covdet.c */; };
+		D91557DF1B87A21A006D2002 /* covdet.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557911B87A21A006D2002 /* covdet.c */; };
+		D91557E01B87A21A006D2002 /* covdet.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557911B87A21A006D2002 /* covdet.c */; };
+		D91557E11B87A21A006D2002 /* dsift.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557931B87A21A006D2002 /* dsift.c */; };
+		D91557E21B87A21A006D2002 /* dsift.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557931B87A21A006D2002 /* dsift.c */; };
+		D91557E31B87A21A006D2002 /* dsift.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557931B87A21A006D2002 /* dsift.c */; };
+		D91557E41B87A21A006D2002 /* fisher.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557951B87A21A006D2002 /* fisher.c */; };
+		D91557E51B87A21A006D2002 /* fisher.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557951B87A21A006D2002 /* fisher.c */; };
+		D91557E61B87A21A006D2002 /* fisher.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557951B87A21A006D2002 /* fisher.c */; };
+		D91557E71B87A21A006D2002 /* float.th in Resources */ = {isa = PBXBuildFile; fileRef = D91557971B87A21A006D2002 /* float.th */; };
+		D91557E81B87A21A006D2002 /* generic.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557981B87A21A006D2002 /* generic.c */; };
+		D91557E91B87A21A006D2002 /* generic.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557981B87A21A006D2002 /* generic.c */; };
+		D91557EA1B87A21A006D2002 /* generic.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557981B87A21A006D2002 /* generic.c */; };
+		D91557EE1B87A21A006D2002 /* gmm.c in Sources */ = {isa = PBXBuildFile; fileRef = D915579C1B87A21A006D2002 /* gmm.c */; };
+		D91557EF1B87A21A006D2002 /* gmm.c in Sources */ = {isa = PBXBuildFile; fileRef = D915579C1B87A21A006D2002 /* gmm.c */; };
+		D91557F01B87A21A006D2002 /* gmm.c in Sources */ = {isa = PBXBuildFile; fileRef = D915579C1B87A21A006D2002 /* gmm.c */; };
+		D91557F11B87A21A006D2002 /* hikmeans.c in Sources */ = {isa = PBXBuildFile; fileRef = D915579F1B87A21A006D2002 /* hikmeans.c */; };
+		D91557F21B87A21A006D2002 /* hikmeans.c in Sources */ = {isa = PBXBuildFile; fileRef = D915579F1B87A21A006D2002 /* hikmeans.c */; };
+		D91557F31B87A21A006D2002 /* hikmeans.c in Sources */ = {isa = PBXBuildFile; fileRef = D915579F1B87A21A006D2002 /* hikmeans.c */; };
+		D91557F41B87A21A006D2002 /* hog.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557A11B87A21A006D2002 /* hog.c */; };
+		D91557F51B87A21A006D2002 /* hog.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557A11B87A21A006D2002 /* hog.c */; };
+		D91557F61B87A21A006D2002 /* hog.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557A11B87A21A006D2002 /* hog.c */; };
+		D91557F71B87A21A006D2002 /* homkermap.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557A31B87A21A006D2002 /* homkermap.c */; };
+		D91557F81B87A21A006D2002 /* homkermap.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557A31B87A21A006D2002 /* homkermap.c */; };
+		D91557F91B87A21A006D2002 /* homkermap.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557A31B87A21A006D2002 /* homkermap.c */; };
+		D91557FA1B87A21A006D2002 /* host.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557A51B87A21A006D2002 /* host.c */; };
+		D91557FB1B87A21A006D2002 /* host.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557A51B87A21A006D2002 /* host.c */; };
+		D91557FC1B87A21A006D2002 /* host.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557A51B87A21A006D2002 /* host.c */; };
+		D91557FD1B87A21A006D2002 /* ikmeans.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557A71B87A21A006D2002 /* ikmeans.c */; };
+		D91557FE1B87A21A006D2002 /* ikmeans.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557A71B87A21A006D2002 /* ikmeans.c */; };
+		D91557FF1B87A21A006D2002 /* ikmeans.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557A71B87A21A006D2002 /* ikmeans.c */; };
+		D91558001B87A21A006D2002 /* ikmeans_elkan.tc in Resources */ = {isa = PBXBuildFile; fileRef = D91557A91B87A21A006D2002 /* ikmeans_elkan.tc */; };
+		D91558011B87A21A006D2002 /* ikmeans_init.tc in Resources */ = {isa = PBXBuildFile; fileRef = D91557AA1B87A21A006D2002 /* ikmeans_init.tc */; };
+		D91558021B87A21A006D2002 /* ikmeans_lloyd.tc in Resources */ = {isa = PBXBuildFile; fileRef = D91557AB1B87A21A006D2002 /* ikmeans_lloyd.tc */; };
+		D91558031B87A21A006D2002 /* imopv.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557AC1B87A21A006D2002 /* imopv.c */; };
+		D91558041B87A21A006D2002 /* imopv.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557AC1B87A21A006D2002 /* imopv.c */; };
+		D91558051B87A21A006D2002 /* imopv.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557AC1B87A21A006D2002 /* imopv.c */; };
+		D91558061B87A21A006D2002 /* imopv_sse2.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557AE1B87A21A006D2002 /* imopv_sse2.c */; };
+		D91558071B87A21A006D2002 /* imopv_sse2.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557AE1B87A21A006D2002 /* imopv_sse2.c */; };
+		D91558081B87A21A006D2002 /* imopv_sse2.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557AE1B87A21A006D2002 /* imopv_sse2.c */; };
+		D91558091B87A21A006D2002 /* kdtree.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557B01B87A21A006D2002 /* kdtree.c */; };
+		D915580A1B87A21A006D2002 /* kdtree.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557B01B87A21A006D2002 /* kdtree.c */; };
+		D915580B1B87A21A006D2002 /* kdtree.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557B01B87A21A006D2002 /* kdtree.c */; };
+		D915580C1B87A21A006D2002 /* kmeans.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557B21B87A21A006D2002 /* kmeans.c */; };
+		D915580D1B87A21A006D2002 /* kmeans.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557B21B87A21A006D2002 /* kmeans.c */; };
+		D915580E1B87A21A006D2002 /* kmeans.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557B21B87A21A006D2002 /* kmeans.c */; };
+		D915580F1B87A21A006D2002 /* lbp.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557B41B87A21A006D2002 /* lbp.c */; };
+		D91558101B87A21A006D2002 /* lbp.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557B41B87A21A006D2002 /* lbp.c */; };
+		D91558111B87A21A006D2002 /* lbp.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557B41B87A21A006D2002 /* lbp.c */; };
+		D91558121B87A21A006D2002 /* liop.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557B61B87A21A006D2002 /* liop.c */; };
+		D91558131B87A21A006D2002 /* liop.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557B61B87A21A006D2002 /* liop.c */; };
+		D91558141B87A21A006D2002 /* liop.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557B61B87A21A006D2002 /* liop.c */; };
+		D91558151B87A21A006D2002 /* mathop.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557B81B87A21A006D2002 /* mathop.c */; };
+		D91558161B87A21A006D2002 /* mathop.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557B81B87A21A006D2002 /* mathop.c */; };
+		D91558171B87A21A006D2002 /* mathop.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557B81B87A21A006D2002 /* mathop.c */; };
+		D91558181B87A21A006D2002 /* mathop_avx.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557BA1B87A21A006D2002 /* mathop_avx.c */; };
+		D91558191B87A21A006D2002 /* mathop_avx.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557BA1B87A21A006D2002 /* mathop_avx.c */; };
+		D915581A1B87A21A006D2002 /* mathop_avx.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557BA1B87A21A006D2002 /* mathop_avx.c */; };
+		D915581B1B87A21A006D2002 /* mathop_sse2.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557BC1B87A21A006D2002 /* mathop_sse2.c */; };
+		D915581C1B87A21A006D2002 /* mathop_sse2.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557BC1B87A21A006D2002 /* mathop_sse2.c */; };
+		D915581D1B87A21A006D2002 /* mathop_sse2.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557BC1B87A21A006D2002 /* mathop_sse2.c */; };
+		D915581E1B87A21A006D2002 /* mser.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557BE1B87A21A006D2002 /* mser.c */; };
+		D915581F1B87A21A006D2002 /* mser.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557BE1B87A21A006D2002 /* mser.c */; };
+		D91558201B87A21A006D2002 /* mser.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557BE1B87A21A006D2002 /* mser.c */; };
+		D91558211B87A21A006D2002 /* pgm.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557C01B87A21A006D2002 /* pgm.c */; };
+		D91558221B87A21A006D2002 /* pgm.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557C01B87A21A006D2002 /* pgm.c */; };
+		D91558231B87A21A006D2002 /* pgm.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557C01B87A21A006D2002 /* pgm.c */; };
+		D91558241B87A21A006D2002 /* quickshift.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557C31B87A21A006D2002 /* quickshift.c */; };
+		D91558251B87A21A006D2002 /* quickshift.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557C31B87A21A006D2002 /* quickshift.c */; };
+		D91558261B87A21A006D2002 /* quickshift.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557C31B87A21A006D2002 /* quickshift.c */; };
+		D91558271B87A21A006D2002 /* random.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557C51B87A21A006D2002 /* random.c */; };
+		D91558281B87A21A006D2002 /* random.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557C51B87A21A006D2002 /* random.c */; };
+		D91558291B87A21A006D2002 /* random.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557C51B87A21A006D2002 /* random.c */; };
+		D915582A1B87A21A006D2002 /* rodrigues.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557C71B87A21A006D2002 /* rodrigues.c */; };
+		D915582B1B87A21A006D2002 /* rodrigues.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557C71B87A21A006D2002 /* rodrigues.c */; };
+		D915582C1B87A21A006D2002 /* rodrigues.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557C71B87A21A006D2002 /* rodrigues.c */; };
+		D915582D1B87A21A006D2002 /* scalespace.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557C91B87A21A006D2002 /* scalespace.c */; };
+		D915582E1B87A21A006D2002 /* scalespace.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557C91B87A21A006D2002 /* scalespace.c */; };
+		D915582F1B87A21A006D2002 /* scalespace.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557C91B87A21A006D2002 /* scalespace.c */; };
+		D91558301B87A21A006D2002 /* sift.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557CC1B87A21A006D2002 /* sift.c */; };
+		D91558311B87A21A006D2002 /* sift.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557CC1B87A21A006D2002 /* sift.c */; };
+		D91558321B87A21A006D2002 /* sift.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557CC1B87A21A006D2002 /* sift.c */; };
+		D91558331B87A21A006D2002 /* slic.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557CE1B87A21A006D2002 /* slic.c */; };
+		D91558341B87A21A006D2002 /* slic.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557CE1B87A21A006D2002 /* slic.c */; };
+		D91558351B87A21A006D2002 /* slic.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557CE1B87A21A006D2002 /* slic.c */; };
+		D91558361B87A21A006D2002 /* stringop.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557D01B87A21A006D2002 /* stringop.c */; };
+		D91558371B87A21A006D2002 /* stringop.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557D01B87A21A006D2002 /* stringop.c */; };
+		D91558381B87A21A006D2002 /* stringop.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557D01B87A21A006D2002 /* stringop.c */; };
+		D91558391B87A21A006D2002 /* svm.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557D21B87A21A006D2002 /* svm.c */; };
+		D915583A1B87A21A006D2002 /* svm.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557D21B87A21A006D2002 /* svm.c */; };
+		D915583B1B87A21A006D2002 /* svm.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557D21B87A21A006D2002 /* svm.c */; };
+		D915583C1B87A21A006D2002 /* svmdataset.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557D41B87A21A006D2002 /* svmdataset.c */; };
+		D915583D1B87A21A006D2002 /* svmdataset.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557D41B87A21A006D2002 /* svmdataset.c */; };
+		D915583E1B87A21A006D2002 /* svmdataset.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557D41B87A21A006D2002 /* svmdataset.c */; };
+		D915583F1B87A21A006D2002 /* vlad.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557D61B87A21A006D2002 /* vlad.c */; };
+		D91558401B87A21A006D2002 /* vlad.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557D61B87A21A006D2002 /* vlad.c */; };
+		D91558411B87A21A006D2002 /* vlad.c in Sources */ = {isa = PBXBuildFile; fileRef = D91557D61B87A21A006D2002 /* vlad.c */; };
 		D953126F1A15AE63004D6068 /* homography.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D953126D1A15AE63004D6068 /* homography.cpp */; };
 		D95409B01AC1019200706A24 /* sensor_clock.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D95409AE1AC1019200706A24 /* sensor_clock.cpp */; };
 		D95EB1871AA5038600ADFC20 /* sensor_fusion_queue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = D95EB1851AA5038600ADFC20 /* sensor_fusion_queue.cpp */; };
@@ -654,6 +763,85 @@
 		D3C0EDF91A37B4DC00423EDE /* qr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = qr.h; sourceTree = "<group>"; };
 		D3DE5D081A80E301000EF94D /* transformation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = transformation.h; sourceTree = "<group>"; };
 		D3F4C7131AF0D48A003D4D0B /* device_parameters.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = device_parameters.cpp; sourceTree = "<group>"; };
+		D91557781B87A15D006D2002 /* dictionary.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = dictionary.cpp; sourceTree = "<group>"; };
+		D91557791B87A15D006D2002 /* dictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dictionary.h; sourceTree = "<group>"; };
+		D915577C1B87A15D006D2002 /* feature_descriptor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = feature_descriptor.cpp; sourceTree = "<group>"; };
+		D915577D1B87A15D006D2002 /* feature_descriptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = feature_descriptor.h; sourceTree = "<group>"; };
+		D915577E1B87A15D006D2002 /* mapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = mapper.cpp; sourceTree = "<group>"; };
+		D915577F1B87A15D006D2002 /* mapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mapper.h; sourceTree = "<group>"; };
+		D915578D1B87A21A006D2002 /* aib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = aib.c; sourceTree = "<group>"; };
+		D915578E1B87A21A006D2002 /* aib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = aib.h; sourceTree = "<group>"; };
+		D915578F1B87A21A006D2002 /* array.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = array.c; sourceTree = "<group>"; };
+		D91557901B87A21A006D2002 /* array.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = array.h; sourceTree = "<group>"; };
+		D91557911B87A21A006D2002 /* covdet.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = covdet.c; sourceTree = "<group>"; };
+		D91557921B87A21A006D2002 /* covdet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = covdet.h; sourceTree = "<group>"; };
+		D91557931B87A21A006D2002 /* dsift.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dsift.c; sourceTree = "<group>"; };
+		D91557941B87A21A006D2002 /* dsift.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dsift.h; sourceTree = "<group>"; };
+		D91557951B87A21A006D2002 /* fisher.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = fisher.c; sourceTree = "<group>"; };
+		D91557961B87A21A006D2002 /* fisher.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = fisher.h; sourceTree = "<group>"; };
+		D91557971B87A21A006D2002 /* float.th */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = float.th; sourceTree = "<group>"; };
+		D91557981B87A21A006D2002 /* generic.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = generic.c; sourceTree = "<group>"; };
+		D91557991B87A21A006D2002 /* generic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = generic.h; sourceTree = "<group>"; };
+		D915579C1B87A21A006D2002 /* gmm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = gmm.c; sourceTree = "<group>"; };
+		D915579D1B87A21A006D2002 /* gmm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = gmm.h; sourceTree = "<group>"; };
+		D915579E1B87A21A006D2002 /* heap-def.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "heap-def.h"; sourceTree = "<group>"; };
+		D915579F1B87A21A006D2002 /* hikmeans.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = hikmeans.c; sourceTree = "<group>"; };
+		D91557A01B87A21A006D2002 /* hikmeans.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hikmeans.h; sourceTree = "<group>"; };
+		D91557A11B87A21A006D2002 /* hog.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = hog.c; sourceTree = "<group>"; };
+		D91557A21B87A21A006D2002 /* hog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = hog.h; sourceTree = "<group>"; };
+		D91557A31B87A21A006D2002 /* homkermap.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = homkermap.c; sourceTree = "<group>"; };
+		D91557A41B87A21A006D2002 /* homkermap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = homkermap.h; sourceTree = "<group>"; };
+		D91557A51B87A21A006D2002 /* host.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = host.c; sourceTree = "<group>"; };
+		D91557A61B87A21A006D2002 /* host.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = host.h; sourceTree = "<group>"; };
+		D91557A71B87A21A006D2002 /* ikmeans.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ikmeans.c; sourceTree = "<group>"; };
+		D91557A81B87A21A006D2002 /* ikmeans.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ikmeans.h; sourceTree = "<group>"; };
+		D91557A91B87A21A006D2002 /* ikmeans_elkan.tc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ikmeans_elkan.tc; sourceTree = "<group>"; };
+		D91557AA1B87A21A006D2002 /* ikmeans_init.tc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ikmeans_init.tc; sourceTree = "<group>"; };
+		D91557AB1B87A21A006D2002 /* ikmeans_lloyd.tc */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ikmeans_lloyd.tc; sourceTree = "<group>"; };
+		D91557AC1B87A21A006D2002 /* imopv.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = imopv.c; sourceTree = "<group>"; };
+		D91557AD1B87A21A006D2002 /* imopv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imopv.h; sourceTree = "<group>"; };
+		D91557AE1B87A21A006D2002 /* imopv_sse2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = imopv_sse2.c; sourceTree = "<group>"; };
+		D91557AF1B87A21A006D2002 /* imopv_sse2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = imopv_sse2.h; sourceTree = "<group>"; };
+		D91557B01B87A21A006D2002 /* kdtree.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kdtree.c; sourceTree = "<group>"; };
+		D91557B11B87A21A006D2002 /* kdtree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kdtree.h; sourceTree = "<group>"; };
+		D91557B21B87A21A006D2002 /* kmeans.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = kmeans.c; sourceTree = "<group>"; };
+		D91557B31B87A21A006D2002 /* kmeans.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kmeans.h; sourceTree = "<group>"; };
+		D91557B41B87A21A006D2002 /* lbp.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lbp.c; sourceTree = "<group>"; };
+		D91557B51B87A21A006D2002 /* lbp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lbp.h; sourceTree = "<group>"; };
+		D91557B61B87A21A006D2002 /* liop.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = liop.c; sourceTree = "<group>"; };
+		D91557B71B87A21A006D2002 /* liop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = liop.h; sourceTree = "<group>"; };
+		D91557B81B87A21A006D2002 /* mathop.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mathop.c; sourceTree = "<group>"; };
+		D91557B91B87A21A006D2002 /* mathop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mathop.h; sourceTree = "<group>"; };
+		D91557BA1B87A21A006D2002 /* mathop_avx.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mathop_avx.c; sourceTree = "<group>"; };
+		D91557BB1B87A21A006D2002 /* mathop_avx.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mathop_avx.h; sourceTree = "<group>"; };
+		D91557BC1B87A21A006D2002 /* mathop_sse2.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mathop_sse2.c; sourceTree = "<group>"; };
+		D91557BD1B87A21A006D2002 /* mathop_sse2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mathop_sse2.h; sourceTree = "<group>"; };
+		D91557BE1B87A21A006D2002 /* mser.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = mser.c; sourceTree = "<group>"; };
+		D91557BF1B87A21A006D2002 /* mser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = mser.h; sourceTree = "<group>"; };
+		D91557C01B87A21A006D2002 /* pgm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = pgm.c; sourceTree = "<group>"; };
+		D91557C11B87A21A006D2002 /* pgm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = pgm.h; sourceTree = "<group>"; };
+		D91557C21B87A21A006D2002 /* qsort-def.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "qsort-def.h"; sourceTree = "<group>"; };
+		D91557C31B87A21A006D2002 /* quickshift.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = quickshift.c; sourceTree = "<group>"; };
+		D91557C41B87A21A006D2002 /* quickshift.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = quickshift.h; sourceTree = "<group>"; };
+		D91557C51B87A21A006D2002 /* random.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = random.c; sourceTree = "<group>"; };
+		D91557C61B87A21A006D2002 /* random.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = random.h; sourceTree = "<group>"; };
+		D91557C71B87A21A006D2002 /* rodrigues.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = rodrigues.c; sourceTree = "<group>"; };
+		D91557C81B87A21A006D2002 /* rodrigues.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = rodrigues.h; sourceTree = "<group>"; };
+		D91557C91B87A21A006D2002 /* scalespace.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = scalespace.c; sourceTree = "<group>"; };
+		D91557CA1B87A21A006D2002 /* scalespace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = scalespace.h; sourceTree = "<group>"; };
+		D91557CB1B87A21A006D2002 /* shuffle-def.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "shuffle-def.h"; sourceTree = "<group>"; };
+		D91557CC1B87A21A006D2002 /* sift.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = sift.c; sourceTree = "<group>"; };
+		D91557CD1B87A21A006D2002 /* sift.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = sift.h; sourceTree = "<group>"; };
+		D91557CE1B87A21A006D2002 /* slic.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = slic.c; sourceTree = "<group>"; };
+		D91557CF1B87A21A006D2002 /* slic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = slic.h; sourceTree = "<group>"; };
+		D91557D01B87A21A006D2002 /* stringop.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = stringop.c; sourceTree = "<group>"; };
+		D91557D11B87A21A006D2002 /* stringop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = stringop.h; sourceTree = "<group>"; };
+		D91557D21B87A21A006D2002 /* svm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = svm.c; sourceTree = "<group>"; };
+		D91557D31B87A21A006D2002 /* svm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = svm.h; sourceTree = "<group>"; };
+		D91557D41B87A21A006D2002 /* svmdataset.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = svmdataset.c; sourceTree = "<group>"; };
+		D91557D51B87A21A006D2002 /* svmdataset.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = svmdataset.h; sourceTree = "<group>"; };
+		D91557D61B87A21A006D2002 /* vlad.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = vlad.c; sourceTree = "<group>"; };
+		D91557D71B87A21A006D2002 /* vlad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vlad.h; sourceTree = "<group>"; };
 		D90D18C01A3A03B500D1AFE4 /* camera_control_interface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; name = camera_control_interface.h; path = ../../../shared_corvis_3dk/camera_control_interface.h; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.objcpp; };
 		D953126D1A15AE63004D6068 /* homography.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = homography.cpp; sourceTree = "<group>"; };
 		D953126E1A15AE63004D6068 /* homography.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = homography.h; sourceTree = "<group>"; };
@@ -973,6 +1161,7 @@
 		327B558318EB4F130001CCE1 /* Corvis */ = {
 			isa = PBXGroup;
 			children = (
+				D915578C1B87A21A006D2002 /* vl */,
 				D90D18C01A3A03B500D1AFE4 /* camera_control_interface.h */,
 				327B558418EB4F250001CCE1 /* cor */,
 				327B559C18EB4F3A0001CCE1 /* filter */,
@@ -998,6 +1187,12 @@
 		327B559C18EB4F3A0001CCE1 /* filter */ = {
 			isa = PBXGroup;
 			children = (
+				D91557781B87A15D006D2002 /* dictionary.cpp */,
+				D91557791B87A15D006D2002 /* dictionary.h */,
+				D915577C1B87A15D006D2002 /* feature_descriptor.cpp */,
+				D915577D1B87A15D006D2002 /* feature_descriptor.h */,
+				D915577E1B87A15D006D2002 /* mapper.cpp */,
+				D915577F1B87A15D006D2002 /* mapper.h */,
 				38AEA3091B278A050091C4E7 /* calibration_defaults.h */,
 				38AEA3071B2789EF0091C4E7 /* calibration_defaults.cpp */,
 				388998B31B26B0490077DAA7 /* calibration_json.cpp */,
@@ -1350,6 +1545,87 @@
 			path = RC3DK;
 			sourceTree = "<group>";
 		};
+		D915578C1B87A21A006D2002 /* vl */ = {
+			isa = PBXGroup;
+			children = (
+				D915578D1B87A21A006D2002 /* aib.c */,
+				D915578E1B87A21A006D2002 /* aib.h */,
+				D915578F1B87A21A006D2002 /* array.c */,
+				D91557901B87A21A006D2002 /* array.h */,
+				D91557911B87A21A006D2002 /* covdet.c */,
+				D91557921B87A21A006D2002 /* covdet.h */,
+				D91557931B87A21A006D2002 /* dsift.c */,
+				D91557941B87A21A006D2002 /* dsift.h */,
+				D91557951B87A21A006D2002 /* fisher.c */,
+				D91557961B87A21A006D2002 /* fisher.h */,
+				D91557971B87A21A006D2002 /* float.th */,
+				D91557981B87A21A006D2002 /* generic.c */,
+				D91557991B87A21A006D2002 /* generic.h */,
+				D915579C1B87A21A006D2002 /* gmm.c */,
+				D915579D1B87A21A006D2002 /* gmm.h */,
+				D915579E1B87A21A006D2002 /* heap-def.h */,
+				D915579F1B87A21A006D2002 /* hikmeans.c */,
+				D91557A01B87A21A006D2002 /* hikmeans.h */,
+				D91557A11B87A21A006D2002 /* hog.c */,
+				D91557A21B87A21A006D2002 /* hog.h */,
+				D91557A31B87A21A006D2002 /* homkermap.c */,
+				D91557A41B87A21A006D2002 /* homkermap.h */,
+				D91557A51B87A21A006D2002 /* host.c */,
+				D91557A61B87A21A006D2002 /* host.h */,
+				D91557A71B87A21A006D2002 /* ikmeans.c */,
+				D91557A81B87A21A006D2002 /* ikmeans.h */,
+				D91557A91B87A21A006D2002 /* ikmeans_elkan.tc */,
+				D91557AA1B87A21A006D2002 /* ikmeans_init.tc */,
+				D91557AB1B87A21A006D2002 /* ikmeans_lloyd.tc */,
+				D91557AC1B87A21A006D2002 /* imopv.c */,
+				D91557AD1B87A21A006D2002 /* imopv.h */,
+				D91557AE1B87A21A006D2002 /* imopv_sse2.c */,
+				D91557AF1B87A21A006D2002 /* imopv_sse2.h */,
+				D91557B01B87A21A006D2002 /* kdtree.c */,
+				D91557B11B87A21A006D2002 /* kdtree.h */,
+				D91557B21B87A21A006D2002 /* kmeans.c */,
+				D91557B31B87A21A006D2002 /* kmeans.h */,
+				D91557B41B87A21A006D2002 /* lbp.c */,
+				D91557B51B87A21A006D2002 /* lbp.h */,
+				D91557B61B87A21A006D2002 /* liop.c */,
+				D91557B71B87A21A006D2002 /* liop.h */,
+				D91557B81B87A21A006D2002 /* mathop.c */,
+				D91557B91B87A21A006D2002 /* mathop.h */,
+				D91557BA1B87A21A006D2002 /* mathop_avx.c */,
+				D91557BB1B87A21A006D2002 /* mathop_avx.h */,
+				D91557BC1B87A21A006D2002 /* mathop_sse2.c */,
+				D91557BD1B87A21A006D2002 /* mathop_sse2.h */,
+				D91557BE1B87A21A006D2002 /* mser.c */,
+				D91557BF1B87A21A006D2002 /* mser.h */,
+				D91557C01B87A21A006D2002 /* pgm.c */,
+				D91557C11B87A21A006D2002 /* pgm.h */,
+				D91557C21B87A21A006D2002 /* qsort-def.h */,
+				D91557C31B87A21A006D2002 /* quickshift.c */,
+				D91557C41B87A21A006D2002 /* quickshift.h */,
+				D91557C51B87A21A006D2002 /* random.c */,
+				D91557C61B87A21A006D2002 /* random.h */,
+				D91557C71B87A21A006D2002 /* rodrigues.c */,
+				D91557C81B87A21A006D2002 /* rodrigues.h */,
+				D91557C91B87A21A006D2002 /* scalespace.c */,
+				D91557CA1B87A21A006D2002 /* scalespace.h */,
+				D91557CB1B87A21A006D2002 /* shuffle-def.h */,
+				D91557CC1B87A21A006D2002 /* sift.c */,
+				D91557CD1B87A21A006D2002 /* sift.h */,
+				D91557CE1B87A21A006D2002 /* slic.c */,
+				D91557CF1B87A21A006D2002 /* slic.h */,
+				D91557D01B87A21A006D2002 /* stringop.c */,
+				D91557D11B87A21A006D2002 /* stringop.h */,
+				D91557D21B87A21A006D2002 /* svm.c */,
+				D91557D31B87A21A006D2002 /* svm.h */,
+				D91557D41B87A21A006D2002 /* svmdataset.c */,
+				D91557D51B87A21A006D2002 /* svmdataset.h */,
+				D91557D61B87A21A006D2002 /* vlad.c */,
+				D91557D71B87A21A006D2002 /* vlad.h */,
+			);
+			name = vl;
+			path = "../../corvis/src/vlfeat-0.9.18/vl";
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -1482,12 +1758,16 @@
 			files = (
 				D35BF0B31ADD111500BF3CB0 /* Main.storyboard in Resources */,
 				32D1E7331B20C3490032AE29 /* ipad_on_table.jpg in Resources */,
+				D91558011B87A21A006D2002 /* ikmeans_init.tc in Resources */,
 				D35FC6841AE10E0E002E2FA8 /* Default-568h@2x.png in Resources */,
+				D91558001B87A21A006D2002 /* ikmeans_elkan.tc in Resources */,
 				D35BF0B81ADD111500BF3CB0 /* LaunchScreen.xib in Resources */,
 				32D1E7311B20C3490032AE29 /* holding_landscape.jpg in Resources */,
 				D35BF0B51ADD111500BF3CB0 /* Images.xcassets in Resources */,
+				D91558021B87A21A006D2002 /* ikmeans_lloyd.tc in Resources */,
 				32D1E7301B20C3490032AE29 /* Calibration.storyboard in Resources */,
 				32D1E7321B20C3490032AE29 /* holding_portrait.jpg in Resources */,
+				D91557E71B87A21A006D2002 /* float.th in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1570,23 +1850,37 @@
 			buildActionMask = 2147483647;
 			files = (
 				328A4DD51950D5F400587949 /* RCLicenseError.m in Sources */,
+				D91557E81B87A21A006D2002 /* generic.c in Sources */,
+				D91558151B87A21A006D2002 /* mathop.c in Sources */,
+				D91557FD1B87A21A006D2002 /* ikmeans.c in Sources */,
 				D33E61E11ADE632900569C82 /* capture.cpp in Sources */,
 				32E757151A980149004BA247 /* NSError+RCDictionaryRepresentation.m in Sources */,
 				327B557C18EB4DC20001CCE1 /* RCVector.m in Sources */,
 				327B55BE18EB4F3A0001CCE1 /* filter.cpp in Sources */,
+				D91558241B87A21A006D2002 /* quickshift.c in Sources */,
 				327B553618EB4D720001CCE1 /* RCAFImageRequestOperation.m in Sources */,
 				327B55C118EB4F3A0001CCE1 /* observation.cpp in Sources */,
 				327B553718EB4D720001CCE1 /* RCAFJSONRequestOperation.m in Sources */,
+				D91558391B87A21A006D2002 /* svm.c in Sources */,
 				327B557018EB4DC20001CCE1 /* RCDeviceInfo.m in Sources */,
 				327B556D18EB4DC20001CCE1 /* RCCalibration.mm in Sources */,
+				D915580F1B87A21A006D2002 /* lbp.c in Sources */,
+				D915583F1B87A21A006D2002 /* vlad.c in Sources */,
 				D9CCDC7E192E887F00A41329 /* scaled_mask.cpp in Sources */,
 				D33E9D271ADD14600085F35C /* RCAVSessionManager.m in Sources */,
+				D915582A1B87A21A006D2002 /* rodrigues.c in Sources */,
+				D91558121B87A21A006D2002 /* liop.c in Sources */,
 				327B55BD18EB4F3A0001CCE1 /* fast_9.cpp in Sources */,
 				327B557718EB4DC20001CCE1 /* RCSensorFusion.mm in Sources */,
+				D915580C1B87A21A006D2002 /* kmeans.c in Sources */,
 				D992CC3D1AD5C46A00AA2259 /* replay.cpp in Sources */,
+				D91558061B87A21A006D2002 /* imopv_sse2.c in Sources */,
+				D91557DB1B87A21A006D2002 /* array.c in Sources */,
+				D915582D1B87A21A006D2002 /* scalespace.c in Sources */,
 				D3F4C7141AF0D48A003D4D0B /* device_parameters.cpp in Sources */,
 				D3C0EDFA1A37B4DC00423EDE /* qr.cpp in Sources */,
 				327B55D318EB4F430001CCE1 /* kalman.cpp in Sources */,
+				D91557F41B87A21A006D2002 /* hog.c in Sources */,
 				32036EA41ACB452000FC0588 /* RCLicenseValidator.m in Sources */,
 				327B553818EB4D720001CCE1 /* RCAFNetworkActivityIndicatorManager.m in Sources */,
 				327B556C18EB4DC20001CCE1 /* NSString+RCString.m in Sources */,
@@ -1596,31 +1890,52 @@
 				327B556E18EB4DC20001CCE1 /* RCCameraManager.mm in Sources */,
 				327B557B18EB4DC20001CCE1 /* RCTranslation.m in Sources */,
 				327B557A18EB4DC20001CCE1 /* RCTransformation.m in Sources */,
+				D91557E41B87A21A006D2002 /* fisher.c in Sources */,
 				327B557318EB4DC20001CCE1 /* RCPoint.m in Sources */,
+				D91557861B87A15D006D2002 /* feature_descriptor.cpp in Sources */,
+				D91558181B87A21A006D2002 /* mathop_avx.c in Sources */,
 				327B553B18EB4D720001CCE1 /* RCAFXMLRequestOperation.m in Sources */,
 				327B55C318EB4F3A0001CCE1 /* state_motion.cpp in Sources */,
+				D91557F11B87A21A006D2002 /* hikmeans.c in Sources */,
+				D91557EE1B87A21A006D2002 /* gmm.c in Sources */,
+				D91558091B87A21A006D2002 /* kdtree.c in Sources */,
 				D33E61E31ADE6A6B00569C82 /* RCCaptureManager.mm in Sources */,
 				328A4DD21950D52000587949 /* RCSensorFusionError.m in Sources */,
 				327B553418EB4D720001CCE1 /* RCAFHTTPClient.m in Sources */,
+				D91557801B87A15D006D2002 /* dictionary.cpp in Sources */,
 				327B55BF18EB4F3A0001CCE1 /* filter_setup.cpp in Sources */,
+				D91557D81B87A21A006D2002 /* aib.c in Sources */,
 				D33E9D2B1ADD14600085F35C /* RCVideoManager.m in Sources */,
+				D91558031B87A21A006D2002 /* imopv.c in Sources */,
 				38AEA3081B2789EF0091C4E7 /* calibration_defaults.cpp in Sources */,
 				327B55D418EB4F430001CCE1 /* matrix.cpp in Sources */,
+				D91557F71B87A21A006D2002 /* homkermap.c in Sources */,
 				327B553A18EB4D720001CCE1 /* RCAFURLConnectionOperation.m in Sources */,
+				D915581E1B87A21A006D2002 /* mser.c in Sources */,
 				D33E9D2F1ADD14600085F35C /* RCMotionManager.m in Sources */,
 				D95409B01AC1019200706A24 /* sensor_clock.cpp in Sources */,
 				327B553918EB4D720001CCE1 /* RCAFPropertyListRequestOperation.m in Sources */,
+				D91557FA1B87A21A006D2002 /* host.c in Sources */,
 				38EDF0771AD43D2500F0A322 /* rotation_vector.cpp in Sources */,
-				388998B41B26B0490077DAA7 /* calibration_json.cpp in Sources */,
+				D91558301B87A21A006D2002 /* sift.c in Sources */,
+				D915581B1B87A21A006D2002 /* mathop_sse2.c in Sources */,
+				D91558361B87A21A006D2002 /* stringop.c in Sources */,
 				327B557818EB4DC20001CCE1 /* RCSensorFusionData.m in Sources */,
 				D95EB18C1AA50AF200ADFC20 /* sensor_fusion.cpp in Sources */,
+				D91558271B87A21A006D2002 /* random.c in Sources */,
+				D91557E11B87A21A006D2002 /* dsift.c in Sources */,
 				327B557918EB4DC20001CCE1 /* RCSensorFusionStatus.m in Sources */,
 				D95EB1871AA5038600ADFC20 /* sensor_fusion_queue.cpp in Sources */,
 				D953126F1A15AE63004D6068 /* homography.cpp in Sources */,
 				327B556F18EB4DC20001CCE1 /* RCCameraParameters.m in Sources */,
+				D91558331B87A21A006D2002 /* slic.c in Sources */,
 				D33E9D291ADD14600085F35C /* RCSensorManager.m in Sources */,
+				D91557DE1B87A21A006D2002 /* covdet.c in Sources */,
+				D915583C1B87A21A006D2002 /* svmdataset.c in Sources */,
 				327B557518EB4DC20001CCE1 /* RCRotation.mm in Sources */,
+				D91558211B87A21A006D2002 /* pgm.c in Sources */,
 				327B553518EB4D720001CCE1 /* RCAFHTTPRequestOperation.m in Sources */,
+				D91557891B87A15D006D2002 /* mapper.cpp in Sources */,
 				327B557618EB4DC20001CCE1 /* RCScalar.m in Sources */,
 				327B557418EB4DC20001CCE1 /* RCPrivateHTTPClient.m in Sources */,
 				327B557118EB4DC20001CCE1 /* RCFeaturePoint.m in Sources */,
@@ -1633,24 +1948,57 @@
 			files = (
 				D35BF0E81ADD11DB00BF3CB0 /* RoundedButton.m in Sources */,
 				32DD2AC41B200B1200B44447 /* arcball.cpp in Sources */,
+				D91558201B87A21A006D2002 /* mser.c in Sources */,
+				D91558171B87A21A006D2002 /* mathop.c in Sources */,
+				D915581D1B87A21A006D2002 /* mathop_sse2.c in Sources */,
+				D91558141B87A21A006D2002 /* liop.c in Sources */,
 				D3B9FCCC1B287FEF00C79FA1 /* RCCalibration1.m in Sources */,
 				32DD2AAF1B200AC000B44447 /* RCReplayManager.mm in Sources */,
+				D915582F1B87A21A006D2002 /* scalespace.c in Sources */,
 				D35BF0AD1ADD111500BF3CB0 /* AppDelegate.m in Sources */,
+				D91557DA1B87A21A006D2002 /* aib.c in Sources */,
+				D915583B1B87A21A006D2002 /* svm.c in Sources */,
+				D91557E31B87A21A006D2002 /* dsift.c in Sources */,
 				32DD2AC91B200B1200B44447 /* render.cpp in Sources */,
+				D91557F61B87A21A006D2002 /* hog.c in Sources */,
+				D91558321B87A21A006D2002 /* sift.c in Sources */,
+				D91558081B87A21A006D2002 /* imopv_sse2.c in Sources */,
 				32D1E7371B20C3490032AE29 /* RCCalibration3.m in Sources */,
+				D915580E1B87A21A006D2002 /* kmeans.c in Sources */,
+				D91557F91B87A21A006D2002 /* homkermap.c in Sources */,
 				32DD2AC51B200B1200B44447 /* gl_util.cpp in Sources */,
+				D91558381B87A21A006D2002 /* stringop.c in Sources */,
+				D91558261B87A21A006D2002 /* quickshift.c in Sources */,
+				D91558411B87A21A006D2002 /* vlad.c in Sources */,
 				D35BF0AA1ADD111500BF3CB0 /* main.m in Sources */,
+				D915582C1B87A21A006D2002 /* rodrigues.c in Sources */,
+				D91558111B87A21A006D2002 /* lbp.c in Sources */,
+				D91557FF1B87A21A006D2002 /* ikmeans.c in Sources */,
+				D91557F31B87A21A006D2002 /* hikmeans.c in Sources */,
+				D91557FC1B87A21A006D2002 /* host.c in Sources */,
 				D35BF0E61ADD11DB00BF3CB0 /* MainViewController.m in Sources */,
 				D983B2AA1B1695D40013099E /* RCSensorData.mm in Sources */,
 				D35BF0E71ADD11DB00BF3CB0 /* ReplayViewController.m in Sources */,
 				32DD2ACA1B200B1200B44447 /* video_render.cpp in Sources */,
+				D915580B1B87A21A006D2002 /* kdtree.c in Sources */,
 				D35BF0E41ADD11DB00BF3CB0 /* CaptureFilename.m in Sources */,
 				32DD2ACC1B200B1200B44447 /* world_state_render.cpp in Sources */,
+				D915581A1B87A21A006D2002 /* mathop_avx.c in Sources */,
+				D91557EA1B87A21A006D2002 /* generic.c in Sources */,
 				D326CED71ADFC62C003B026B /* CaptureViewController.mm in Sources */,
+				D91558291B87A21A006D2002 /* random.c in Sources */,
+				D91557F01B87A21A006D2002 /* gmm.c in Sources */,
+				D91557E01B87A21A006D2002 /* covdet.c in Sources */,
+				D915583E1B87A21A006D2002 /* svmdataset.c in Sources */,
+				D91558351B87A21A006D2002 /* slic.c in Sources */,
+				D91557E61B87A21A006D2002 /* fisher.c in Sources */,
+				D91557DD1B87A21A006D2002 /* array.c in Sources */,
+				D91558231B87A21A006D2002 /* pgm.c in Sources */,
 				32DD2ACB1B200B1200B44447 /* world_state.cpp in Sources */,
 				D34A0BE51ADFDB04008DFCCF /* VisualizationController.mm in Sources */,
 				D3B9FCCD1B287FEF00C79FA1 /* RCCalibration2.m in Sources */,
 				32D1E7341B20C3490032AE29 /* MBProgressHUD.m in Sources */,
+				D91558051B87A21A006D2002 /* imopv.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1658,94 +2006,130 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D91557DF1B87A21A006D2002 /* covdet.c in Sources */,
 				D992CC371AD5BA8500AA2259 /* sensor_clock.cpp in Sources */,
+				D915578A1B87A15D006D2002 /* mapper.cpp in Sources */,
 				D9CFC1061AD5ABFC00445A80 /* rotation_vector.cpp in Sources */,
+				D915581C1B87A21A006D2002 /* mathop_sse2.c in Sources */,
 				388998C51B26B1880077DAA7 /* calibration_json.cpp in Sources */,
 				D364AFBD1A37A21700E39511 /* homography.cpp in Sources */,
 				D3588F071A20C47100CA10E7 /* merge.c in Sources */,
+				D91558161B87A21A006D2002 /* mathop.c in Sources */,
 				D3588EF81A20C08F00CA10E7 /* properties.cpp in Sources */,
 				D3588F051A20C44900CA10E7 /* geom.c in Sources */,
 				D3931E1E1A221853008F8940 /* host.c in Sources */,
 				D3588EF71A20C06B00CA10E7 /* bipgraph.cpp in Sources */,
 				D3B4EACA1A1E7DE100BE0443 /* RCLicenseError.m in Sources */,
+				D91557E21B87A21A006D2002 /* dsift.c in Sources */,
 				D3588EF61A20C06600CA10E7 /* exceptions.cpp in Sources */,
+				D915583A1B87A21A006D2002 /* svm.c in Sources */,
 				D33B00581A20CA8E00287FC9 /* sift.c in Sources */,
 				D3931E1B1A2217E5008F8940 /* random.c in Sources */,
+				D915582E1B87A21A006D2002 /* scalespace.c in Sources */,
+				D91557E91B87A21A006D2002 /* generic.c in Sources */,
 				D3588EFA1A20C0B900CA10E7 /* daialg.cpp in Sources */,
 				D321AD3F1A323C17003AEA77 /* fundamental.cpp in Sources */,
+				D91557E51B87A21A006D2002 /* fisher.c in Sources */,
 				D3B4EAD11A1E7DE100BE0443 /* RCVector.m in Sources */,
 				D33E9D301ADD14600085F35C /* RCMotionManager.m in Sources */,
 				D95EB1881AA5038600ADFC20 /* sensor_fusion_queue.cpp in Sources */,
 				D3588F091A20C4B800CA10E7 /* stat.c in Sources */,
 				D3B4EAD21A1E7DE100BE0443 /* filter.cpp in Sources */,
 				D3B4EAD31A1E7DE100BE0443 /* RCAFImageRequestOperation.m in Sources */,
+				D91558371B87A21A006D2002 /* stringop.c in Sources */,
 				D3B4EAD61A1E7DE100BE0443 /* observation.cpp in Sources */,
 				D3588F061A20C45F00CA10E7 /* random.c in Sources */,
 				D3B4EAD81A1E7DE100BE0443 /* RCAFJSONRequestOperation.m in Sources */,
 				D3588EF41A20C04300CA10E7 /* trwbp.cpp in Sources */,
 				D3588F0B1A20C50200CA10E7 /* usermem.c in Sources */,
+				D915582B1B87A21A006D2002 /* rodrigues.c in Sources */,
 				D3588EFE1A20C34400CA10E7 /* qset.c in Sources */,
 				D33E61E41ADE7C0900569C82 /* RCCaptureManager.mm in Sources */,
 				D3B4EADB1A1E7DE100BE0443 /* RCDeviceInfo.m in Sources */,
 				D983B2A91B1695D40013099E /* RCSensorData.mm in Sources */,
 				D33B00591A20CAB700287FC9 /* generic.c in Sources */,
+				D91557DC1B87A21A006D2002 /* array.c in Sources */,
+				D915580A1B87A21A006D2002 /* kdtree.c in Sources */,
+				D91557871B87A15D006D2002 /* feature_descriptor.cpp in Sources */,
 				D3B4EADE1A1E7DE100BE0443 /* RCCalibration.mm in Sources */,
 				D33E9D2C1ADD14600085F35C /* RCVideoManager.m in Sources */,
 				D3B4EAE01A1E7DE100BE0443 /* scaled_mask.cpp in Sources */,
 				D321AD421A323C17003AEA77 /* stereo.cpp in Sources */,
 				D3588EF31A20C04000CA10E7 /* bp.cpp in Sources */,
 				D3B4EAE81A1E7DE100BE0443 /* fast_9.cpp in Sources */,
+				D91558341B87A21A006D2002 /* slic.c in Sources */,
 				D3B4EAEA1A1E7DE100BE0443 /* RCSensorFusion.mm in Sources */,
+				D91557F81B87A21A006D2002 /* homkermap.c in Sources */,
 				D3B4EAED1A1E7DE100BE0443 /* RCStereo.mm in Sources */,
 				D3B4EAF01A1E7DE100BE0443 /* kalman.cpp in Sources */,
 				D3B4EAF11A1E7DE100BE0443 /* RCAFNetworkActivityIndicatorManager.m in Sources */,
+				D91558131B87A21A006D2002 /* liop.c in Sources */,
 				D3B4EAF31A1E7DE100BE0443 /* NSString+RCString.m in Sources */,
+				D91558311B87A21A006D2002 /* sift.c in Sources */,
 				D3B4EAF61A1E7DE100BE0443 /* state_vision.cpp in Sources */,
 				D3B4EAF81A1E7DE100BE0443 /* RCCameraManager.mm in Sources */,
+				D91558191B87A21A006D2002 /* mathop_avx.c in Sources */,
 				D3B4EAF91A1E7DE100BE0443 /* RCTranslation.m in Sources */,
 				D9C43E131B0BB0BE00F48072 /* rc_intel_interface.cpp in Sources */,
 				D3588EF51A20C04600CA10E7 /* factorgraph.cpp in Sources */,
 				D3B4EAFC1A1E7DE100BE0443 /* RCTransformation.m in Sources */,
+				D91558101B87A21A006D2002 /* lbp.c in Sources */,
 				D321AD411A323C17003AEA77 /* stereo_mesh.cpp in Sources */,
 				D3B4EB031A1E7DE100BE0443 /* RCPoint.m in Sources */,
+				D91557F21B87A21A006D2002 /* hikmeans.c in Sources */,
 				D3588F041A20C42C00CA10E7 /* poly2.c in Sources */,
+				D91558071B87A21A006D2002 /* imopv_sse2.c in Sources */,
 				D33E61E51ADE7CD300569C82 /* capture.cpp in Sources */,
 				D3588EFF1A20C36F00CA10E7 /* user.c in Sources */,
 				D33B005A1A20CACE00287FC9 /* imopv.c in Sources */,
+				D91558041B87A21A006D2002 /* imopv.c in Sources */,
 				D3F4C7151AF0D492003D4D0B /* device_parameters.cpp in Sources */,
 				D33E9D2A1ADD14600085F35C /* RCSensorManager.m in Sources */,
 				D3B4EB071A1E7DE100BE0443 /* RCAFXMLRequestOperation.m in Sources */,
 				D3B4EB091A1E7DE100BE0443 /* state_motion.cpp in Sources */,
+				D915580D1B87A21A006D2002 /* kmeans.c in Sources */,
 				D3C0EDFB1A37B4DC00423EDE /* qr.cpp in Sources */,
 				D3B4EB0E1A1E7DE100BE0443 /* RCSensorFusionError.m in Sources */,
 				D3B4EB0F1A1E7DE100BE0443 /* RCAFHTTPClient.m in Sources */,
 				D3B4EB101A1E7DE100BE0443 /* filter_setup.cpp in Sources */,
+				D915583D1B87A21A006D2002 /* svmdataset.c in Sources */,
+				D91557D91B87A21A006D2002 /* aib.c in Sources */,
 				D321AD3E1A323C17003AEA77 /* camera.cpp in Sources */,
 				D3588EFC1A20C31300CA10E7 /* libqhull.c in Sources */,
 				D3B4EB151A1E7DE100BE0443 /* matrix.cpp in Sources */,
 				D3588F021A20C3BE00CA10E7 /* mem.c in Sources */,
+				D91558251B87A21A006D2002 /* quickshift.c in Sources */,
 				38AEA30A1B278A260091C4E7 /* calibration_defaults.cpp in Sources */,
 				D992CC3E1AD5C46A00AA2259 /* replay.cpp in Sources */,
 				D3588F0A1A20C4CB00CA10E7 /* io.c in Sources */,
 				D3B4EB181A1E7DE100BE0443 /* RCAFURLConnectionOperation.m in Sources */,
+				D91558221B87A21A006D2002 /* pgm.c in Sources */,
+				D915581F1B87A21A006D2002 /* mser.c in Sources */,
 				D3588EF91A20C09C00CA10E7 /* weightedgraph.cpp in Sources */,
 				D321AD401A323C17003AEA77 /* stereo_features.cpp in Sources */,
 				D3588EFD1A20C32400CA10E7 /* poly.c in Sources */,
 				D3B4EB1E1A1E7DE100BE0443 /* RCAFPropertyListRequestOperation.m in Sources */,
 				D3588F031A20C3FD00CA10E7 /* userprintf.c in Sources */,
+				D91558401B87A21A006D2002 /* vlad.c in Sources */,
 				D3B4EB201A1E7DE100BE0443 /* RCSensorFusionData.m in Sources */,
+				D91557EF1B87A21A006D2002 /* gmm.c in Sources */,
+				D91557811B87A15D006D2002 /* dictionary.cpp in Sources */,
+				D91557F51B87A21A006D2002 /* hog.c in Sources */,
 				D3B4EB221A1E7DE100BE0443 /* RCSensorFusionStatus.m in Sources */,
+				D91558281B87A21A006D2002 /* random.c in Sources */,
 				D3B4EB291A1E7DE100BE0443 /* RCCameraParameters.m in Sources */,
 				D33E9D281ADD14600085F35C /* RCAVSessionManager.m in Sources */,
 				D3B4EB2A1A1E7DE100BE0443 /* RCRotation.mm in Sources */,
 				D3B4EB2F1A1E7DE100BE0443 /* RCAFHTTPRequestOperation.m in Sources */,
 				D3B4EB351A1E7DE100BE0443 /* RCScalar.m in Sources */,
+				D91557FE1B87A21A006D2002 /* ikmeans.c in Sources */,
 				D3588F081A20C4A400CA10E7 /* global.c in Sources */,
 				D3588EFB1A20C0D200CA10E7 /* util.cpp in Sources */,
 				D3588F011A20C39F00CA10E7 /* geom2.c in Sources */,
 				D33E9D2E1ADD14600085F35C /* RCLocationManager.m in Sources */,
 				D95EB18D1AA50AF200ADFC20 /* sensor_fusion.cpp in Sources */,
 				D3B4EB371A1E7DE100BE0443 /* RCPrivateHTTPClient.m in Sources */,
+				D91557FB1B87A21A006D2002 /* host.c in Sources */,
 				D3B4EB3B1A1E7DE100BE0443 /* RCFeaturePoint.m in Sources */,
 				32036EA51ACB452000FC0588 /* RCLicenseValidator.m in Sources */,
 			);

@@ -79,6 +79,9 @@ public:
     void zero_biases();
     device_parameters get_device_parameters() const { return fusion.get_device(); }
     std::string get_timing_stats() { return fusion.get_timing_stats(); }
+    void start_mapping() { fusion.start_mapping(); }
+    bool load_map(std::string filename);
+    void save_map(string filename);
 };
 
 #endif /* defined(__RC3DK__replay__) */

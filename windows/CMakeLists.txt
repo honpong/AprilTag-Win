@@ -9,6 +9,8 @@ else( CMAKE_SIZEOF_VOID_P EQUAL 8 )
 	add_compile_options(/arch:SSE2 /openmp)
 endif( CMAKE_SIZEOF_VOID_P EQUAL 8 )
 
+add_compile_options("/MT$<$<STREQUAL:$<CONFIGURATION>,Debug>:d>")
+
 add_subdirectory(../corvis "${CMAKE_CURRENT_BINARY_DIR}/corvis")
 
 add_library(pxc STATIC IMPORTED)
@@ -123,16 +125,3 @@ add_custom_command(TARGET BuildIntelDistribution POST_BUILD COMMAND
     ${CMAKE_COMMAND} -E copy $<TARGET_LINKER_FILE:RCTracker> dist/RCTracker/)
 add_dependencies(RCUtility BuildIntelDistribution)
 add_dependencies(RCTrackerDemo BuildIntelDistribution)
-
-target_compile_options(glfw PRIVATE "/MT$<$<STREQUAL:$<CONFIGURATION>,Debug>:d>")
-target_compile_options(cor PRIVATE "/MT$<$<STREQUAL:$<CONFIGURATION>,Debug>:d>")
-target_compile_options(filter PRIVATE "/MT$<$<STREQUAL:$<CONFIGURATION>,Debug>:d>")
-target_compile_options(glad PRIVATE "/MT$<$<STREQUAL:$<CONFIGURATION>,Debug>:d>")
-target_compile_options(numerics PRIVATE "/MT$<$<STREQUAL:$<CONFIGURATION>,Debug>:d>")
-target_compile_options(measure PRIVATE "/MT$<$<STREQUAL:$<CONFIGURATION>,Debug>:d>")
-target_compile_options(tracker PRIVATE "/MT$<$<STREQUAL:$<CONFIGURATION>,Debug>:d>")
-target_compile_options(rc_replay PRIVATE "/MT$<$<STREQUAL:$<CONFIGURATION>,Debug>:d>")
-target_compile_options(RCTracker PRIVATE "/MT$<$<STREQUAL:$<CONFIGURATION>,Debug>:d>")
-target_compile_options(vis PRIVATE "/MT$<$<STREQUAL:$<CONFIGURATION>,Debug>:d>")
-target_compile_options(spec PRIVATE "/MT$<$<STREQUAL:$<CONFIGURATION>,Debug>:d>")
-target_compile_options(spec_intel PRIVATE "/MT$<$<STREQUAL:$<CONFIGURATION>,Debug>:d>")

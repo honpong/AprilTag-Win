@@ -119,6 +119,9 @@ public:
     /** Stops the processing of video and inertial data. */
     void stop();
 
+    /** Forces the system to assume that it is lost and attempt to recover by recognizing a previously visited location. May not have any immediate effect, but the system will make best efforts to relocalize until it can. */
+    void attempt_relocalization();
+    
     /**
      Resets system, clearing all history and state, and sets initial pose and time.
      System will be stopped until one of the start_ functions is called.
@@ -147,6 +150,14 @@ public:
      */
     void receive_gyro(gyro_data &&data);
     
+    void start_mapping();
+    void stop_mapping();
+
+    void save_map(void (*write)(void *handle, const void *buffer, size_t length), void *handle);
+
+    bool load_map(size_t (*read)(void *handle, void *buffer, size_t length), void *handle);
+
+
     //*************Not yet implemented:
     
     
@@ -157,8 +168,6 @@ public:
      */
 //    bool has_calibration_data();
 
-    
-//    void start_mapping_from_pose_estimates();
     /** Sets the 3DK license key. Call this once before starting sensor fusion. In most cases, this should be done when your app starts.
      
      @param key A 30 character string. Obtain a license key by contacting RealityCap.

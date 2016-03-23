@@ -128,7 +128,6 @@ add_library(filter STATIC
   filter/state_vision.cpp
   filter/state_motion.cpp
   filter/observation.cpp
-  filter/filter_setup.cpp
   filter/fast_detector/fast_9.cpp
   filter/scaled_mask.cpp
   filter/camera_control_interface_dummy.cpp

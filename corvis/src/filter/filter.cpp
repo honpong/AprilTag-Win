@@ -132,13 +132,6 @@ void filter_update_outputs(struct filter *f, sensor_clock::time_point time)
     m4
         R = to_rotation_matrix(f->s.Q.v),
         Rt = R.transpose();
-        
-    f->s.camera_matrix = Rt;
-    v4 T = (Rt * -f->s.T.v);
-    f->s.camera_matrix(0, 3) = T[0];
-    f->s.camera_matrix(1, 3) = T[1];
-    f->s.camera_matrix(2, 3) = T[2];
-    f->s.camera_matrix(3, 3) = 1.;
 
     bool old_speedfail = f->speed_failed;
     f->speed_failed = false;
@@ -1030,9 +1023,9 @@ extern "C" void filter_initialize(struct filter *f, device_parameters *device)
     //TODO: This might be wrong. changing this to 10 makes a very different (and not necessarily worse) result.
     f->s.Q.set_initial_variance(10., 10., 1.e-7); // to avoid not being positive definite
     f->s.V.set_initial_variance(1. * 1.);
-    f->s.w.set_initial_variance(1.e5);
-    f->s.dw.set_initial_variance(1.e5); //observed range of variances in sequences is 1-6
-    f->s.a.set_initial_variance(1.e5);
+    f->s.w.set_initial_variance(10);
+    f->s.dw.set_initial_variance(10); //observed range of variances in sequences is 1-6
+    f->s.a.set_initial_variance(10);
 
     f->s.focal_length.set_initial_variance(10. / cam.intrinsics.height_px / cam.intrinsics.height_px);
     f->s.center_x.set_initial_variance(2. / cam.intrinsics.height_px / cam.intrinsics.height_px);

@@ -27,11 +27,10 @@
 #endif
 #endif
 
-#ifdef F_T_IS_SINGLE
-#define F_T_TYPE(prefix,func,suffix) prefix ## s ## func ## suffix
-#endif
 #ifdef F_T_IS_DOUBLE
 #define F_T_TYPE(prefix,func,suffix) prefix ## d ## func ## suffix
+#else
+#define F_T_TYPE(prefix,func,suffix) prefix ## s ## func ## suffix
 #endif
 
 #define LAPACK_(func) F_T_TYPE(      ,func, _)

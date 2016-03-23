@@ -52,17 +52,16 @@ public:
 
 class state_vision_feature: public state_leaf<log_depth, 1> {
  public:
-    f_t outlier;
+    f_t outlier = 0;
     v4 initial;
     v4 current;
-    feature_t prediction;
-    f_t innovation_variance_x, innovation_variance_y, innovation_variance_xy;
+    f_t innovation_variance_x = 0, innovation_variance_y = 0, innovation_variance_xy = 0;
     uint64_t id;
     uint64_t groupid;
-    v4 world;
-    feature_t image_velocity;
-    sensor_clock::duration dt;
-    sensor_clock::duration last_dt;
+    v4 world = v4(0, 0, 0, 0);
+    feature_t image_velocity = {0,0};
+    sensor_clock::duration dt = sensor_clock::duration(0);
+    sensor_clock::duration last_dt = sensor_clock::duration(0);
     sensor_clock::time_point last_seen;
 
     sensor_clock::time_point found_time;
@@ -85,7 +84,7 @@ class state_vision_feature: public state_leaf<log_depth, 1> {
     bool is_initialized() const { return status == feature_normal; }
     bool force_initialize();
 //private:
-    enum feature_flag status;
+    enum feature_flag status = feature_initializing;
     
     unsigned char patch[(tracker::half_patch_width * 2 + 1) * (tracker::half_patch_width * 2 + 1)];
     
@@ -189,9 +188,6 @@ public:
     state_vision_feature *add_feature(const feature_t & initial);
     state_vision_group *add_group(sensor_clock::time_point time);
 
-    float total_distance;
-    v4 last_position;
-    m4 camera_matrix;
     state_vision_group *reference;
     feature_t undistort_feature(const feature_t &feat_d, f_t *ku_d_ = nullptr, f_t *dku_d_drd = nullptr, f_t *dku_d_dk1 = nullptr, f_t *dku_d_dk2 = nullptr, f_t *dku_d_dk3 = nullptr) const;
     feature_t distort_feature(const feature_t &feat_u, f_t *kd_u_ = nullptr, f_t *dkd_u_dru = nullptr, f_t *dkd_u_dk1 = nullptr, f_t *dkd_u_dk2 = nullptr, f_t *dkd_u_dk3 = nullptr) const;
@@ -200,7 +196,6 @@ public:
     float median_depth_variance();
     
     virtual void reset();
-    void reset_position();
     
 protected:
     virtual void add_non_orientation_states();

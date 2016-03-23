@@ -8,7 +8,7 @@ if len(sys.argv) != 2:
     print "Usage:", sys.argv[0], "/path/to/accel.txt"
     sys.exit(1)
 
-g = 9.81599 # london
+g = 9.80665 # matches what we use in filter.h and state_motion.h
 buckets = [[g, 0, 0], [-g, 0, 0],
            [0, g, 0], [0, -g, 0],
            [0, 0, g], [0, 0, -g]]

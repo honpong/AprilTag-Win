@@ -213,9 +213,9 @@ void observation_vision_feature::predict()
 #endif
 
     norm_predicted = {ippred[0], ippred[1]};
-    feature->prediction = state.unnormalize_feature(state.distort_feature(norm_predicted));
-    pred[0] = feature->prediction.x();
-    pred[1] = feature->prediction.y();
+    feature_t prediction = state.unnormalize_feature(state.distort_feature(norm_predicted));
+    pred[0] = prediction.x();
+    pred[1] = prediction.y();
 }
 
 void observation_vision_feature::cache_jacobians()

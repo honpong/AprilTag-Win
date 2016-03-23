@@ -97,6 +97,27 @@ void gui::keyboard(GLFWwindow * window, int key, int scancode, int action, int m
              break; case GLFW_KEY_D:        show_depth = !show_depth;
              break; case GLFW_KEY_M:        show_main = !show_main;
              break; case GLFW_KEY_P:        show_plots = !show_plots;
+             break; case GLFW_KEY_SLASH:    fprintf(stderr, R"(
+0-9   Switch Plots
+n     Next Plot
+N     Prev Plot
+->    Next (or all) individual plot lines
+<-    Prev (or all) individual plot lines
+ESC   Show all plot lines
+
++     Zoom in
+=     Zoom out
+SPC   Pause
+s     Step
+
+v     Toggle Video
+D     Toggle Depth
+m     Toggle (Main) 3D path view
+p     Toggle Plots
+
+q     Quit
+?     Help (this)
+)");
         }
     }
 }

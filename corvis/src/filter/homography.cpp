@@ -322,18 +322,18 @@ void fill_ideal_points(feature_t ideal[4], float qr_size_m, bool use_markers, in
         // modules are width/height of the qr code in bars
         // v2 = 25, v3 = 29, v4 = 33, v10 = 57 (4 * version + 17)
         feature_t offset = {0.5,0.5};
-        ideal[0] = {3.5,  3.5};                    // UL
-        ideal[1] = {3.5,  modules - 3.5};          // LL
-        ideal[2] = {modules - 6.5, modules - 6.5}; // LR
-        ideal[3] = {modules - 3.5, 3.5};           // UR
+        ideal[0] = {          f_t(3.5),           f_t(3.5)}; // UL
+        ideal[1] = {          f_t(3.5), modules - f_t(3.5)}; // LL
+        ideal[2] = {modules - f_t(6.5), modules - f_t(6.5)}; // LR
+        ideal[3] = {modules - f_t(3.5),           f_t(3.5)}; // UR
         for(int i = 0; i < 4; i++)
             ideal[i] = (ideal[i]/modules - offset)*qr_size_m;
     }
     else {
-        ideal[0] = {-0.5*qr_size_m, -0.5*qr_size_m}; // UL
-        ideal[1] = {-0.5*qr_size_m,  0.5*qr_size_m}; // LL
-        ideal[2] = { 0.5*qr_size_m,  0.5*qr_size_m}; // LR
-        ideal[3] = { 0.5*qr_size_m, -0.5*qr_size_m}; // UR
+        ideal[0] = {f_t(-0.5)*qr_size_m, f_t(-0.5)*qr_size_m}; // UL
+        ideal[1] = {f_t(-0.5)*qr_size_m, f_t( 0.5)*qr_size_m}; // LL
+        ideal[2] = {f_t( 0.5)*qr_size_m, f_t( 0.5)*qr_size_m}; // LR
+        ideal[3] = {f_t( 0.5)*qr_size_m, f_t(-0.5)*qr_size_m}; // UR
     }
 
 }

@@ -22,7 +22,7 @@ public:
     state_vector a_bias;
     state_scalar g;
     
-    state_motion_orientation(covariance &c): state_root(c), Q("Q"), w("w"), dw("dw"), w_bias("w_bias"), a_bias("a_bias"), g("g"), orientation_initialized(false), gravity_magnitude(9.80665) {
+    state_motion_orientation(covariance &c): state_root(c), Q("Q"), w("w"), dw("dw"), w_bias("w_bias"), a_bias("a_bias"), g("g") {
         Q.dynamic = true;
         w.dynamic = true;
         children.push_back(&Q);
@@ -43,9 +43,9 @@ public:
 
     void compute_gravity(double latitude, double altitude);
 
-    bool orientation_initialized;
+    bool orientation_initialized = false;
     quaternion initial_orientation;
-    
+
 protected:
     virtual void project_motion_covariance(matrix &dst, const matrix &src, f_t dt);
     virtual void evolve_state(f_t dt);
@@ -54,7 +54,7 @@ protected:
     v4 dW;
     m4 JdW_s, dQp_s_dW;
 private:
-    f_t gravity_magnitude;
+    f_t gravity_magnitude = 9.80665;
 };
 
 class state_motion: public state_motion_orientation {
@@ -64,8 +64,11 @@ public:
     state_vector T;
     state_vector V;
     state_vector a;
-    
-    state_motion(covariance &c): state_motion_orientation(c), T("T"), V("V"), a("a"), estimate_bias(true), orientation_only(false)
+
+    float total_distance = 0;
+    v4 last_position = v4::Zero();
+
+    state_motion(covariance &c): state_motion_orientation(c), T("T"), V("V"), a("a")
     {
         T.dynamic = true;
         V.dynamic = true;
@@ -78,15 +81,23 @@ public:
     {
         disable_orientation_only();
         state_motion_orientation::reset();
+        total_distance = 0.;
     }
     
+    void reset_position()
+    {
+        T.v = v4::Zero();
+        total_distance = 0.;
+        last_position = v4::Zero();
+    }
+
     virtual void enable_orientation_only();
     virtual void disable_orientation_only();
     virtual void enable_bias_estimation();
     virtual void disable_bias_estimation();
 protected:
-    bool estimate_bias;
-    bool orientation_only;
+    bool estimate_bias = true;;
+    bool orientation_only = false;
     virtual void add_non_orientation_states();
     virtual void remove_non_orientation_states();
     virtual void evolve_state(f_t dt);

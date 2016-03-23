@@ -35,7 +35,7 @@ void kalman_update_covariance(matrix &cov, const matrix &gain, const matrix &LC)
     //enforce symmetry
     for(int i = 0; i < cov.rows(); ++i) {
         for(int j = i + 1; j < cov.cols(); ++j) {
-            cov(i, j) = cov(j, i) = (cov(i, j) + cov(j, i)) * .5;
+            cov(i, j) = cov(j, i) = (cov(i, j) + cov(j, i)) * f_t(.5);
         }
     }
 }

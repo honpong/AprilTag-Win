@@ -104,7 +104,7 @@ with open(output_filename, "wb") as f:
             assert b == 1, "image should be 1 byte, not %d" % b
             dw, dh, db, dd = read_pgm(path + depth_for_image(line[0])[2]) if use_depth else (0, 0, 0, '')
             assert db == 2 or not use_depth, "depth should be 2 bytes, not %d" % db
-            data = pack('LHHHH', 0*33333333, w, h, dw, dh) + d + dd
+            data = pack('QHHHH', 0*33333333, w, h, dw, dh) + d + dd
         elif ptype == gyro_type:
             data = pack('fff', line[2], line[3], line[4])
         elif ptype == accel_type:

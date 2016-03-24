@@ -114,18 +114,18 @@ typedef struct rc_Feature
     float stdev;
 } rc_Feature;
 
-typedef enum rc_DebugLevel
+typedef enum rc_MessageLevel
 {
-    rc_DEBUG_NONE = 0, /* no output */
-    rc_DEBUG_ERROR = 1, /* only errors */
-    rc_DEBUG_WARN = 2, /* errors + warnings */
-    rc_DEBUG_INFO = 3, /* errors + warnings + info */
-    rc_DEBUG_TRACE = 4, /* everything */
-} rc_DebugLevel;
+    rc_MESSAGE_NONE = 0, /* no output */
+    rc_MESSAGE_ERROR = 1, /* only errors */
+    rc_MESSAGE_WARN = 2, /* errors + warnings */
+    rc_MESSAGE_INFO = 3, /* errors + warnings + info */
+    rc_MESSAGE_TRACE = 4, /* everything */
+} rc_MessageLevel;
 
 typedef void(*rc_DataCallback)(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count);
 typedef void(*rc_StatusCallback)(void *handle, rc_TrackerState state, rc_TrackerError error, rc_TrackerConfidence confidence, float progress);
-typedef void(*rc_DebugCallback)(void *handle, rc_DebugLevel message_level, const char * message, size_t len);
+typedef void(*rc_MessageCallback)(void *handle, rc_MessageLevel message_level, const char * message, size_t len);
 
 typedef struct rc_Tracker rc_Tracker;
 
@@ -183,7 +183,7 @@ RCTRACKER_API void rc_configureLocation(rc_Tracker *tracker, double latitude_deg
 // WARNING: The data callback currently blocks the filter thread due to a bug in visual studio. Don't do significant work in it!
 RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callback, void *handle);
 RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback callback, void *handle);
-RCTRACKER_API void rc_setDebugCallback(rc_Tracker *tracker, rc_DebugCallback callback, void *handle, rc_DebugLevel maximum_level);
+RCTRACKER_API void rc_setMessageCallback(rc_Tracker *tracker, rc_MessageCallback callback, void *handle, rc_MessageLevel maximum_level);
 
 typedef enum rc_TrackerRunFlags
 {

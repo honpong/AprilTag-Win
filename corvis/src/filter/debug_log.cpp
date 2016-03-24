@@ -19,10 +19,10 @@ protected:
     {
         if(!callback) return;
 
-        int rc_msg_level = rc_DEBUG_TRACE;
-        if(msg.level == spdlog::level::err) rc_msg_level = rc_DEBUG_ERROR;
-        if(msg.level == spdlog::level::warn) rc_msg_level = rc_DEBUG_WARN;
-        if(msg.level == spdlog::level::info) rc_msg_level = rc_DEBUG_INFO;
+        int rc_msg_level = rc_MESSAGE_TRACE;
+        if(msg.level == spdlog::level::err) rc_msg_level = rc_MESSAGE_ERROR;
+        if(msg.level == spdlog::level::warn) rc_msg_level = rc_MESSAGE_WARN;
+        if(msg.level == spdlog::level::info) rc_msg_level = rc_MESSAGE_INFO;
         if(rc_msg_level <= log_level)
             callback(handle, rc_msg_level, msg.formatted.c_str(), msg.formatted.size());
     }
@@ -35,7 +35,7 @@ protected:
 
 std::mutex set_mutex;
 
-std::shared_ptr<spdlog::logger> debug_log = std::make_shared<spdlog::logger>("sensor_fusion", std::make_shared<threaded_callback_sink>(nullptr, rc_DEBUG_NONE, nullptr));
+std::shared_ptr<spdlog::logger> debug_log = std::make_shared<spdlog::logger>("sensor_fusion", std::make_shared<threaded_callback_sink>(nullptr, rc_MESSAGE_NONE, nullptr));
 void debug_log_set(std::function<void (void *, int, const char *, size_t)> log, int max_log_level, void * handle)
 {
     std::lock_guard<std::mutex> lock(set_mutex);

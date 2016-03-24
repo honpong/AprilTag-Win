@@ -535,6 +535,9 @@ static float get_stdev_pct_for_depth(float depth_m)
 
 std::unique_ptr<image_depth16> filter_aligned_depth_to_intrinsics(const struct filter *f, const image_depth16 &depth)
 {
+    if (f->depth.intrinsics.type == rc_CALIBRATION_TYPE_UNKNOWN)
+        return std::make_unique<image_depth16>(std::move(depth));
+
     auto aligned_depth = make_unique<image_depth16>(depth.width, depth.height, depth.stride, std::numeric_limits<uint16_t>::max());
 
     int i_width =         depth .width, i_height =         depth .height, i_stride =         depth .stride / sizeof(uint16_t);

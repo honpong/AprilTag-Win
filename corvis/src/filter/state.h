@@ -246,6 +246,18 @@ template <class T, int _size> class state_leaf: public state_node {
         }
     }
 
+    inline const Eigen::Map< const Eigen::Matrix<f_t, _size, 1>, Eigen::Unaligned, Eigen::OuterStride<> > from_row(const matrix &c, int i) const
+    {
+        static const f_t zero[_size] = {};
+        return { index >=0 ? &c(i,index) : &zero[0], Eigen::OuterStride<>(index >= 0 ? c.get_stride() : 1) };
+    }
+
+    inline Eigen::Map< Eigen::Matrix<f_t, _size, 1>, Eigen::Unaligned, Eigen::InnerStride<> > to_col(matrix &c, int j) const
+    {
+        static f_t scratch[_size];
+        return { index>=0 ? &c(index,j) : &scratch[0], Eigen::InnerStride<>(index >= 0 ? c.get_stride() : 1) };
+    }
+
     void remove() { index = -1; }
 protected:
     int index;
@@ -268,20 +280,6 @@ public:
         initial_variance[0] = x;
         initial_variance[1] = y;
         initial_variance[2] = z;
-    }
-    
-    inline v4 copy_cov_from_row(const matrix &c, const int i) const
-    {
-        if(index < 0) return v4::Zero();
-        return v4(c(i, index), c(i, index+1), c(i, index+2), 0.);
-    }
-    
-    inline void copy_cov_to_col(matrix &c, const int j, const v4 &cov_v) const
-    {
-        if(index < 0) return;
-        c(index, j) = cov_v[0];
-        c(index+1, j) = cov_v[1];
-        c(index+2, j) = cov_v[2];
     }
     
     void reset() {
@@ -331,20 +329,6 @@ public:
         initial_variance[0] = x;
         initial_variance[1] = y;
         initial_variance[2] = z;
-    }
-    
-    inline v4 copy_cov_from_row(const matrix &c, const int i) const
-    {
-        if(index < 0) return v4::Zero();
-        return v4(c(i, index), c(i, index+1), c(i, index+2), 0.);
-    }
-    
-    inline void copy_cov_to_col(matrix &c, const int j, const v4 &cov_v) const
-    {
-        if(index < 0) return;
-        c(index, j) = cov_v[0];
-        c(index+1, j) = cov_v[1];
-        c(index+2, j) = cov_v[2];
     }
     
     void reset() {
@@ -398,20 +382,6 @@ public:
         initial_variance[2] = z;
     }
 
-    inline v4 copy_cov_from_row(const matrix &c, const int i) const
-    {
-        if(index < 0) return v4::Zero();
-        return v4(c(i, index), c(i, index+1), c(i, index+2), 0);
-    }
-    
-    inline void copy_cov_to_col(matrix &c, const int j, const v4 &cov_v) const
-    {
-        if(index < 0) return;
-        c(index, j) = cov_v[0];
-        c(index+1, j) = cov_v[1];
-        c(index+2, j) = cov_v[2];
-    }
-    
     void reset() {
         index = -1;
         v = quaternion(1., 0., 0., 0.);
@@ -462,16 +432,15 @@ class state_scalar: public state_leaf<f_t, 1> {
         v = 0.;
     }
     
-    inline f_t copy_cov_from_row(const matrix &c, const int i) const
+    inline f_t from_row(const matrix &c, const int i) const
     {
-        if(index < 0) return 0.;
-        return c(i, index);
+        return index >= 0 ? c(i, index) : 0;
     }
 
-    inline void copy_cov_to_col(matrix &c, const int j, const f_t val) const
+    inline f_t &to_col(matrix &c, const int j) const
     {
-        if(index < 0) return;
-        c(index, j) = val;
+        static f_t scratch;
+        return index >= 0 ? c(index, j) : scratch;
     }
     
     void perturb_variance() {

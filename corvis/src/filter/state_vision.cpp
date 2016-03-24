@@ -504,18 +504,18 @@ void state_vision::cache_jacobians(f_t dt)
 void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t dt)
 {
     for(int i = 0; i < src.rows(); ++i) {
-        v4 scov_Q = Q.copy_cov_from_row(src, i);
-        v4 cov_V = V.copy_cov_from_row(src, i);
-        v4 cov_a = a.copy_cov_from_row(src, i);
-        v4 cov_w = w.copy_cov_from_row(src, i);
-        v4 cov_dw = dw.copy_cov_from_row(src, i);
-        v4 cov_dT = dt * (cov_V + f_t(0.5) * dt * cov_a);
-        v4 cov_dW = dt * (cov_w + f_t(0.5) * dt * cov_dw);
+        const auto cov_w = w.from_row(src, i);
+        const auto cov_dw = dw.from_row(src, i);
+        const v3 cov_dW = dt * (cov_w + f_t(.5) * dt * cov_dw);
+        const auto scov_Q = Q.from_row(src, i);
+        const auto cov_V = V.from_row(src, i);
+        const auto cov_a = a.from_row(src, i);
+        const v3 cov_dT = dt * (cov_V + f_t(.5) * dt * cov_a);
         for(state_vision_group *g : groups.children) {
-            v4 cov_Tr = g->Tr.copy_cov_from_row(src, i);
-            v4 scov_Qr = g->Qr.copy_cov_from_row(src, i);
-            g->Tr.copy_cov_to_col(dst, i, cov_Tr + g->dTrp_dQ_s * (scov_Q - scov_Qr) + g->dTrp_ddT * cov_dT);
-            g->Qr.copy_cov_to_col(dst, i, scov_Qr + g->dQrp_s_dW * cov_dW);
+            const auto cov_Tr = g->Tr.from_row(src, i);
+            const auto scov_Qr = g->Qr.from_row(src, i);
+            g->Tr.to_col(dst, i) = cov_Tr + g->dTrp_dQ_s.block<3,3>(0,0) * (scov_Q - scov_Qr) + g->dTrp_ddT.block<3,3>(0,0) * cov_dT;
+            g->Qr.to_col(dst, i) = scov_Qr + g->dQrp_s_dW.block<3,3>(0,0) * cov_dW;
         }
     }
     state_motion::project_motion_covariance(dst, src, dt);

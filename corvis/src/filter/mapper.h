@@ -13,6 +13,7 @@
 #include "../numerics/vec4.h"
 #include "feature_descriptor.h"
 #include "dictionary.h"
+#include <spdlog/spdlog.h>
 
 using namespace std;
 
@@ -136,6 +137,8 @@ class mapper {
     // Debugging
     void dump_map(const char *filename);
     void print_stats();
+
+    std::unique_ptr<spdlog::logger> log = std::make_unique<spdlog::logger>("mapper", spdlog::sinks::stderr_sink_st::instance());
 };
 
 

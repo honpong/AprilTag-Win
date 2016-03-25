@@ -113,9 +113,6 @@ void replay::setup_filter()
         };
     }
     fusion.start_offline();
-    fusion.set_debug_log_function([](void *, int log_level, const char *message, size_t len) {
-        fwrite(message, len, 1, stderr);
-    }, rc_MESSAGE_WARN, nullptr);
 }
 
 image_gray8 replay::parse_gray8(int width, int height, int stride, uint8_t *data, uint64_t time_us, uint64_t exposure_time_us, std::unique_ptr<void, void(*)(void *)> handle)

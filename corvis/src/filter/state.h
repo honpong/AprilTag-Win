@@ -15,6 +15,7 @@ extern "C" {
 #include "../numerics/rotation_vector.h"
 #include "../numerics/covariance.h"
 #include "../cor/platform/sensor_clock.h"
+#include "spdlog/spdlog.h"
 
 #include <vector>
 #include <list>
@@ -106,17 +107,18 @@ public:
 
     int statesize, maxstatesize;
     covariance &cov;
+    std::unique_ptr<spdlog::logger> log = std::make_unique<spdlog::logger>("state", spdlog::sinks::stderr_sink_st::instance());
 
     int remap() {
 #ifdef TEST_POSDEF
-        if(cov.size() && !test_posdef(cov.cov)) fprintf(stderr, "not pos def at beginning of remap\n");
+        if(cov.size() && !test_posdef(cov.cov)) log->error("not pos def at beginning of remap");
 #endif
         dynamic_statesize = state_branch<state_node *>::remap_dynamic(0, cov);
         statesize = state_branch<state_node *>::remap_static(dynamic_statesize, cov);
         cov.remap(statesize);
 #ifdef TEST_POSDEF
         if(!test_posdef(cov.cov)) {
-            fprintf(stderr, "not pos def at end of remap\n");
+            log->error("not pos def at end of remap");
             assert(0);
         }
 #endif
@@ -170,18 +172,18 @@ public:
     void time_update(sensor_clock::time_point time)
     {
         if(time <= current_time) {
-            if(log_enabled && time < current_time) std::cerr << "negative time step: last was " << sensor_clock::tp_to_micros(current_time) << ", this is " << sensor_clock::tp_to_micros(time) << ", delta " << std::chrono::duration_cast<std::chrono::microseconds>(current_time - time).count() << "\n";
+            if(time < current_time) log->info("negative time step: last was ") << sensor_clock::tp_to_micros(current_time) << ", this is " << sensor_clock::tp_to_micros(time) << ", delta " << std::chrono::duration_cast<std::chrono::microseconds>(current_time - time).count();
             return;
         }
         if(current_time != sensor_clock::micros_to_tp(0)) {
 #ifdef TEST_POSDEF
-            if(!test_posdef(cov.cov)) fprintf(stderr, "not pos def before explicit time update\n");
+            if(!test_posdef(cov.cov)) log->error("not pos def before explicit time update");
 #endif
             auto dt = std::chrono::duration_cast<std::chrono::duration<f_t>>(time - current_time).count();
-            if(log_enabled && dt > .025) fprintf(stderr, "Time step is %f\n", dt);
+            if(log_enabled && dt > .025) log->warn("Large time step (dt): ") << dt << "\n";
             evolve(dt);
 #ifdef TEST_POSDEF
-            if(!test_posdef(cov.cov)) fprintf(stderr, "not pos def after explicit time update\n");
+            if(!test_posdef(cov.cov)) log->error("not pos def after explicit time update");
 #endif
         }
         current_time = time;

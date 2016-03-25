@@ -211,19 +211,6 @@ public:
         log_function = log;
     };
 
-    /** Sets the debug log function to log sensor fusion diagnostics
-
-        @param log The function to call with output should take:
-            void * handle - any data the callback will need
-            const char * buffer_utf8 - The data which is to be writtens
-            size_t length - how many bytes to be written
-
-        @param max_log_level - 0 = no logging, 4 = most verbose (see rc_intel_interface.h)
-        @param handle - A void * that will be passed to the logging function each time
-    */
-
-    void set_debug_log_function(std::function<void (void *, int, const char *, size_t)> log, int max_log_level, void * handle);
-
     /** Immediately output a position via the log function */
     void trigger_log() const;
 

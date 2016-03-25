@@ -16,10 +16,11 @@
 #include "../../../shared_corvis_3dk/camera_control_interface.h"
 #include "../cor/platform/sensor_clock.h"
 #include "../cor/sensor_data.h"
+#include "spdlog/spdlog.h"
 
 struct filter {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-filter(): s(cov)
+    filter(): s(cov)
     {
         //make sure all pointers are null
         mask = 0;
@@ -41,6 +42,7 @@ filter(): s(cov)
     state s;
     
     covariance cov;
+    std::unique_ptr<spdlog::logger> &log = s.log;
 
     f_t w_variance;
     f_t a_variance;

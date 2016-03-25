@@ -2,7 +2,6 @@
 #include "tracker.h"
 #include "../numerics/kalman.h"
 #include "utils.h"
-#include "debug_log.h"
 
 stdev_scalar observation_vision_feature::stdev[2], observation_vision_feature::inn_stdev[2];
 stdev_vector observation_accelerometer::stdev, observation_accelerometer::inn_stdev, observation_gyroscope::stdev, observation_gyroscope::inn_stdev;
@@ -161,7 +160,7 @@ bool observation_queue::process(state &s, sensor_clock::time_point time)
         compute_innovation_covariance(m_cov);
         success = update_state_and_covariance(s, inn);
     } else if(orig_meas_size && orig_meas_size != 3) {
-        debug_log->warn("In Kalman update, original measurement size was {}, ended up with 0 measurements!\n", orig_meas_size);
+        //s.log->warn("In Kalman update, original measurement size was {}, ended up with 0 measurements!\n", orig_meas_size);
     }
 
     recent_f_map.clear();
@@ -183,7 +182,7 @@ bool observation_queue::process(state &s, sensor_clock::time_point time)
 void observation_spatial::innovation_covariance_hook(const matrix &cov, int index)
 {
     if(show_tuning) {
-        debug_log->info(" predicted stdev is {} {} {}", sqrt(cov(index, index)), sqrt(cov(index+1, index+1)), sqrt(cov(index+2, index+2)));
+        //s.log->info(" predicted stdev is {} {} {}", sqrt(cov(index, index)), sqrt(cov(index+1, index+1)), sqrt(cov(index+2, index+2)));
     }
 }
 
@@ -193,7 +192,7 @@ void observation_vision_feature::innovation_covariance_hook(const matrix &cov, i
     feature->innovation_variance_y = cov(index + 1, index + 1);
     feature->innovation_variance_xy = cov(index, index +1);
     if(show_tuning) {
-        debug_log->info(" predicted stdev is {} {}", sqrt(cov(index, index)), sqrt(cov(index+1, index+1)));
+        //s.log->info(" predicted stdev is {} {}", sqrt(cov(index, index)), sqrt(cov(index+1, index+1)));
     }
 }
 

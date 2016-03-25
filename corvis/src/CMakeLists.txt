@@ -144,11 +144,10 @@ add_library(filter STATIC
   filter/mapper.cpp
   filter/dictionary.h
   filter/dictionary.cpp
-  filter/debug_log.cpp
 )
 target_include_directories(filter PUBLIC filter)
 target_include_directories(filter PRIVATE rapidjson/include ../../ThirdParty/rapidxml)
-target_include_directories(filter PRIVATE ../../ThirdParty/spdlog/include)
+target_include_directories(filter PUBLIC ../../ThirdParty/spdlog/include)
 target_link_libraries(filter numerics cor vlfeat)
 set_property(TARGET filter PROPERTY CXX_STANDARD 14)
 
@@ -163,7 +162,7 @@ add_library(qr STATIC
   filter/qr.cpp
 )
 target_include_directories(qr PUBLIC filter)
-target_link_libraries(qr PRIVATE numerics libzxing)
+target_link_libraries(qr PRIVATE filter libzxing)
 set_property(TARGET qr PROPERTY CXX_STANDARD 14)
 endif()
 
@@ -179,7 +178,7 @@ add_library(vis STATIC
   vis/render.cpp
   vis/video_render.cpp
 )
-target_link_libraries(vis PRIVATE glad glfw PUBLIC numerics)
+target_link_libraries(vis PRIVATE glad glfw PUBLIC filter)
 if(ENABLE_MGL)
     target_link_libraries(vis PRIVATE mgl)
 endif()
@@ -203,7 +202,7 @@ if(ENABLE_STEREO)
       stereo/fundamental.cpp
       stereo/stereo_features.cpp
     )
-    target_link_libraries(stereo PUBLIC numerics PRIVATE DAI ${qhull_STATIC} vlfeat)
+    target_link_libraries(stereo PUBLIC filter PRIVATE DAI ${qhull_STATIC} vlfeat)
     target_include_directories(stereo PUBLIC stereo)
     set_property(TARGET stereo PROPERTY CXX_STANDARD 14)
 endif()

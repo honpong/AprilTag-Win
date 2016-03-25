@@ -205,11 +205,63 @@ void rc_configureLocation(rc_Tracker * tracker, double latitude_deg, double long
     tracker->set_location(latitude_deg, longitude_deg, altitude_m);
 }
 
-RCTRACKER_API void rc_setMessageCallback(rc_Tracker *tracker, rc_MessageCallback callback, void *handle, rc_MessageLevel maximum_level)
+class rc_callback_sink_st : public spdlog::sinks::base_sink < spdlog::details::null_mutex >
 {
-    tracker->set_debug_log_function([callback, handle](void * handle, int level, const char * msg, size_t len) {
-        callback(handle, (rc_MessageLevel)level, msg, len);
-    }, maximum_level, handle);
+private:
+    void *handle;
+    void (*callback)(void *, rc_MessageLevel, const char *, size_t);
+    static constexpr std::array<rc_MessageLevel, 10> rc_levels = {
+        rc_MESSAGE_TRACE, // trace    = 0,
+        rc_MESSAGE_DEBUG, // debug    = 1,
+        rc_MESSAGE_INFO,  // info     = 2,
+        rc_MESSAGE_WARN,  // notice   = 3,
+        rc_MESSAGE_WARN,  // warn     = 4,
+        rc_MESSAGE_ERROR, // err      = 5,
+        rc_MESSAGE_ERROR, // critical = 6,
+        rc_MESSAGE_ERROR, // alert    = 7,
+        rc_MESSAGE_ERROR, // emerg    = 8,
+        rc_MESSAGE_NONE,  // off      = 9
+    };
+
+public:
+    rc_callback_sink_st(rc_MessageCallback callback_, void *handle_) : handle(handle_), callback(callback_) {}
+    spdlog::level::level_enum level(rc_MessageLevel rc_level) const {
+        int i=0;
+        for (rc_MessageLevel rc_l : rc_levels)
+            if (rc_level == rc_l) return static_cast<spdlog::level::level_enum>(i); else i++;
+        return spdlog::level::trace;
+    }
+
+protected:
+    void _sink_it(const spdlog::details::log_msg& msg) override {
+        if (callback)
+            callback(handle, rc_levels[msg.level], msg.formatted.c_str(), msg.formatted.size());
+    }
+
+    void flush() override {}
+};
+
+constexpr std::array<rc_MessageLevel, 10> rc_callback_sink_st::rc_levels;
+
+RCTRACKER_API void rc_setDebugCallback(rc_Tracker *tracker, rc_MessageCallback callback, void *handle, rc_MessageLevel maximum_log_level)
+{
+    auto rc_sink = std::make_shared<rc_callback_sink_st>(callback, handle);
+    tracker->sfm.s.log = std::make_unique<spdlog::logger>("rc_tracker", rc_sink);
+    tracker->sfm.s.log->set_level(rc_sink->level(maximum_log_level));
+    tracker->sfm.s.map.log = std::make_unique<spdlog::logger>("rc_tracker", rc_sink);
+    tracker->sfm.s.map.log->set_level(rc_sink->level(maximum_log_level));
+}
+
+RCTRACKER_API void rc_debug(rc_Tracker *tracker, rc_MessageLevel log_level, const char *msg)
+{
+    switch(log_level) {
+    case rc_MESSAGE_TRACE: tracker->sfm.log->trace(msg); break;
+    case rc_MESSAGE_DEBUG: tracker->sfm.log->debug(msg); break;
+    case rc_MESSAGE_INFO:  tracker->sfm.log->info(msg);  break;
+    case rc_MESSAGE_WARN:  tracker->sfm.log->warn(msg);  break;
+    case rc_MESSAGE_ERROR: tracker->sfm.log->error(msg); break;
+    case rc_MESSAGE_NONE:                                break;
+    }
 }
 
 RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callback, void *handle)

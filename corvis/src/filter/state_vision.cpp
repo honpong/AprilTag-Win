@@ -304,11 +304,11 @@ int state_vision::process_features(const image_gray8 &image, sensor_clock::time_
             return false;
     });
 
-    groups.children.remove_if([&](state_vision_group *g) {
+    groups.children.remove_if([this](state_vision_group *g) {
         if(g->status == group_empty) {
             if(map_enabled) {
                 transformation G = transformation(Q.v, T.v)*invert(transformation(g->Qr.v, g->Tr.v));
-                map.node_finished(g->id, G);
+                this->map.node_finished(g->id, G);
             }
             delete g;
             return true;

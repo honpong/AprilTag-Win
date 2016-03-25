@@ -212,7 +212,7 @@ private:
     void (*callback)(void *, rc_MessageLevel, const char *, size_t);
     static constexpr std::array<rc_MessageLevel, 10> rc_levels = {
         rc_MESSAGE_TRACE, // trace    = 0,
-        rc_MESSAGE_TRACE, // debug    = 1,
+        rc_MESSAGE_DEBUG, // debug    = 1,
         rc_MESSAGE_INFO,  // info     = 2,
         rc_MESSAGE_WARN,  // notice   = 3,
         rc_MESSAGE_WARN,  // warn     = 4,
@@ -256,6 +256,7 @@ RCTRACKER_API void rc_debug(rc_Tracker *tracker, rc_MessageLevel log_level, cons
 {
     switch(log_level) {
     case rc_MESSAGE_TRACE: tracker->sfm.log->trace(msg); break;
+    case rc_MESSAGE_DEBUG: tracker->sfm.log->debug(msg); break;
     case rc_MESSAGE_INFO:  tracker->sfm.log->info(msg);  break;
     case rc_MESSAGE_WARN:  tracker->sfm.log->warn(msg);  break;
     case rc_MESSAGE_ERROR: tracker->sfm.log->error(msg); break;

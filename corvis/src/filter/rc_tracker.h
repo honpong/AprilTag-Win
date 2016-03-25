@@ -120,7 +120,8 @@ typedef enum rc_MessageLevel
     rc_MESSAGE_ERROR = 1, /* only errors */
     rc_MESSAGE_WARN = 2, /* errors + warnings */
     rc_MESSAGE_INFO = 3, /* errors + warnings + info */
-    rc_MESSAGE_TRACE = 4, /* everything */
+    rc_MESSAGE_DEBUG = 4, /* errors + warnings + info + debug */
+    rc_MESSAGE_TRACE = 5, /* everything */
 } rc_MessageLevel;
 
 typedef void(*rc_DataCallback)(void *handle, rc_Timestamp time, rc_Pose pose, rc_Feature *features, size_t feature_count);

@@ -168,7 +168,7 @@ void filter_update_outputs(struct filter *f, sensor_clock::time_point time)
     //if(f->speed_warning && filter_converged(f) < 1.) f->speed_failed = true;
     if(time - f->speed_warning_time > std::chrono::microseconds(1000000)) f->speed_warning = false;
 
-    //f->log->info("{} [{} {} {}] [{} {} {}]", time, output[0], output[1], output[2], output[3], output[4], output[5]);
+    //f->log->trace("{} [{} {} {}] [{} {} {}]", time, output[0], output[1], output[2], output[3], output[4], output[5]);
 }
 
 void process_observation_queue(struct filter *f, sensor_clock::time_point time)
@@ -254,10 +254,10 @@ sensor_clock::duration steady_time(struct filter *f, stdev_vector &stdev, const 
 
 static void print_calibration(struct filter *f)
 {
-    f->log->info() << "w bias is: " << f->s.w_bias.v;
-    f->log->info() << "w bias var is: " << f->s.w_bias.variance();
-    f->log->info() << "a bias is: " << f->s.a_bias.v;
-    f->log->info() << "a bias var is: " << f->s.a_bias.variance();
+    f->log->trace() << "w bias is: " << f->s.w_bias.v;
+    f->log->trace() << "w bias var is: " << f->s.w_bias.variance();
+    f->log->trace() << "a bias is: " << f->s.a_bias.v;
+    f->log->trace() << "a bias var is: " << f->s.a_bias.variance();
 }
 
 static float var_bounds_to_std_percent(f_t current, f_t begin, f_t end)
@@ -301,7 +301,7 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, const v4 &
                     f->w_bias_start = f->s.w_bias.variance();
                     reset_stability(f);
                     f->s.disable_bias_estimation();
-                    f->log->info("When finishing static calibration:");
+                    f->log->trace("When finishing static calibration:");
                     print_calibration(f);
                 }
                 return f->a_variance * 3 * 3; //pump up this variance because we aren't really perfect here
@@ -323,7 +323,7 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, const v4 &
                     f->w_bias_start = f->s.w_bias.variance();
                     reset_stability(f);
                     f->s.disable_bias_estimation();
-                    f->log->info("When finishing portrait calibration:");
+                    f->log->trace("When finishing portrait calibration:");
                     print_calibration(f);
                 }
                 return accelerometer_steady_var;
@@ -344,7 +344,7 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, const v4 &
                     f->run_state = RCSensorFusionRunStateInactive;
                     reset_stability(f);
                     f->s.disable_bias_estimation();
-                    f->log->info("When finishing landscape calibration:");
+                    f->log->trace("When finishing landscape calibration:");
                     print_calibration(f);
                 }
                 return accelerometer_steady_var;
@@ -418,10 +418,10 @@ void filter_accelerometer_measurement(struct filter *f, const float data[3], sen
     obs_a->variance = get_accelerometer_variance_for_run_state(f, meas, time);
     f->observations.observations.push_back(std::move(obs_a));
 
-    if(show_tuning) f->log->info("accelerometer:");
+    if(show_tuning) f->log->trace("accelerometer:");
     process_observation_queue(f, time);
     if(show_tuning) {
-        f->log->info() << " actual innov stdev is:\n" <<
+        f->log->trace() << " actual innov stdev is:\n" <<
         observation_accelerometer::inn_stdev <<
         " signal stdev is:\n" <<
         observation_accelerometer::stdev <<
@@ -478,10 +478,10 @@ void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_
         f->gyro_stability.data(meas);
     }
 
-    if(show_tuning) f->log->info("gyroscope:");
+    if(show_tuning) f->log->trace("gyroscope:");
     process_observation_queue(f, time);
     if(show_tuning) {
-        f->log->info() << " actual innov stdev is:\n" <<
+        f->log->trace() << " actual innov stdev is:\n" <<
         observation_gyroscope::inn_stdev <<
         " signal stdev is:\n" <<
         observation_gyroscope::stdev <<
@@ -759,9 +759,9 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
         bool inertial_converged = (f->s.Q.variance()[0] < dynamic_W_thresh_variance && f->s.Q.variance()[1] < dynamic_W_thresh_variance);
         if(inertial_converged) {
             if(inertial_converged) {
-                f->log->info("Inertial converged at time {}", std::chrono::duration_cast<std::chrono::microseconds>(time - f->want_start).count());
+                f->log->debug("Inertial converged at time {}", std::chrono::duration_cast<std::chrono::microseconds>(time - f->want_start).count());
             } else {
-                f->log->info("Inertial did not converge {}, {}", f->s.Q.variance()[0], f->s.Q.variance()[1]);
+                f->log->warn("Inertial did not converge {}, {}", f->s.Q.variance()[0], f->s.Q.variance()[1]);
             }
         } else return true;
     }
@@ -825,13 +825,13 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
     filter_setup_next_frame(f, image);
 
     if(show_tuning) {
-        f->log->info("vision:");
+        f->log->trace("vision:");
     }
     process_observation_queue(f, time);
     if(show_tuning) {
-        f->log->info(" actual innov stdev is:");
-        f->log->info() << observation_vision_feature::inn_stdev[0];
-        f->log->info() << observation_vision_feature::inn_stdev[1];
+        f->log->trace(" actual innov stdev is:");
+        f->log->trace() << observation_vision_feature::inn_stdev[0];
+        f->log->trace() << observation_vision_feature::inn_stdev[1];
     }
 
     int features_used = f->s.process_features(image, time);
@@ -865,7 +865,7 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
             //don't go active until we can successfully add features
             if(f->run_state == RCSensorFusionRunStateDynamicInitialization || f->run_state == RCSensorFusionRunStateSteadyInitialization) {
                 f->run_state = RCSensorFusionRunStateRunning;
-                f->log->info("When moving from steady init to running:");
+                f->log->trace("When moving from steady init to running:");
                 print_calibration(f);
                 f->active_time = time;
             }

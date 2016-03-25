@@ -570,11 +570,12 @@ std::unique_ptr<image_depth16> filter_aligned_depth_to_intrinsics(const struct f
         for (int x = 0; x < i_width; x++) {
             uint16_t z = in[y * i_stride + x];
             if (!z) continue;
+            float xf = x, yf = y, zf = z;
 
             // normalize, undistort(?), unproject and transform
-            float ix = z * (x - i_Cx) / i_Fx + x_T_mm[0];
-            float iy = z * (y - i_Cy) / i_Fy + x_T_mm[1];
-            float iz = z                     + x_T_mm[2];
+            float ix = zf * (xf - i_Cx) / i_Fx + x_T_mm[0];
+            float iy = zf * (yf - i_Cy) / i_Fy + x_T_mm[1];
+            float iz = zf                      + x_T_mm[2];
 
             // project, distort(?), unnormalize
             float ox = o_Fx * ix / iz + o_Cx;
@@ -593,10 +594,10 @@ std::unique_ptr<image_depth16> filter_aligned_depth_to_intrinsics(const struct f
                 auto Z = static_cast<int>(roundf(oz));
                 auto I = Y * o_stride + X;
                 auto within = X >= 0 && X < o_width && Y >= 0 && Y < o_height;
-                if (within[0] && oz < out[I[0]]) out[I[0]] = oz;
-                if (within[1] && oz < out[I[1]]) out[I[1]] = oz;
-                if (within[2] && oz < out[I[2]]) out[I[2]] = oz;
-                if (within[3] && oz < out[I[3]]) out[I[3]] = oz;
+                if (within[0] && oz < static_cast<float>(out[I[0]])) out[I[0]] = static_cast<uint16_t>(oz);
+                if (within[1] && oz < static_cast<float>(out[I[1]])) out[I[1]] = static_cast<uint16_t>(oz);
+                if (within[2] && oz < static_cast<float>(out[I[2]])) out[I[2]] = static_cast<uint16_t>(oz);
+                if (within[3] && oz < static_cast<float>(out[I[3]])) out[I[3]] = static_cast<uint16_t>(oz);
             }
         }
 

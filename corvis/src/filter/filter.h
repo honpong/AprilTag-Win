@@ -20,7 +20,7 @@
 
 struct filter {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
-filter(): s(cov)
+    filter(): s(cov)
     {
         //make sure all pointers are null
         mask = 0;

@@ -28,7 +28,8 @@ dictionary::dictionary(string filename)
 
 dictionary::dictionary(int dim, int num, const float c[])
 {
-    float d[dim*num];
+    std::vector<float> d; d.reserve(dim*num);
+
     kmeans = vl_kmeans_new(VL_TYPE_FLOAT, VlDistanceL2);
     // Make sure that dictionary elements norm to 1
     for(int i = 0; i < num; i++) {
@@ -45,7 +46,7 @@ dictionary::dictionary(int dim, int num, const float c[])
     num_centers = num;
     
     // set centers
-    vl_kmeans_set_centers(kmeans, d, dimension, num_centers);
+    vl_kmeans_set_centers(kmeans, d.data(), dimension, num_centers);
 }
 
 

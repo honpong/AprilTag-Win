@@ -80,7 +80,7 @@ struct match_pair {
 class mapper {
  private:
     vector<map_node> nodes;
-    friend class map_node;
+    friend struct map_node;
     vector<transformation_variance> geometry;
     vector<uint64_t> document_frequency;
     transformation relative_transformation;

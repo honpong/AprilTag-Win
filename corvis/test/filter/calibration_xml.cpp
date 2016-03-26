@@ -165,7 +165,7 @@ TEST(CalibrationXML, Print)
 {
     return;
     calibration cal = {};
-    snprintf(cal.device_id, sizeof(cal.device_id), "%s", "hello");
+    cal.device_id = "hello";
 
     cal.depth.extrinsics_wrt_imu_m = transformation(rotation_vector(M_PI/M_SQRT2,-M_PI/M_SQRT2,0), v4(3,4.7,5,0));
     cal.depth.intrinsics.type = rc_CALIBRATION_TYPE_UNDISTORTED;
@@ -173,6 +173,7 @@ TEST(CalibrationXML, Print)
     cal.depth.intrinsics.f_y_px = 404;
     cal.depth.intrinsics.c_x_px = 320.1;
     cal.depth.intrinsics.c_y_px = 240.2;
+    cal.depth.name = "depth";
 
     cal.fisheye.extrinsics_wrt_imu_m = transformation(rotation_vector(0,-M_PI/M_SQRT2,0), v4(4,3.5,7,0));
     cal.fisheye.intrinsics.type = rc_CALIBRATION_TYPE_FISHEYE;
@@ -181,6 +182,7 @@ TEST(CalibrationXML, Print)
     cal.fisheye.intrinsics.c_x_px = 320.8;
     cal.fisheye.intrinsics.c_y_px = 240.9;
     cal.fisheye.intrinsics.w = .889;
+    cal.fisheye.name = "fisheye";
 
     std::string xml;
     EXPECT_TRUE(calibration_serialize_xml(cal, xml));
@@ -195,6 +197,7 @@ TEST(CalibrationXML, Print)
     EXPECT_EQ(cal.depth.intrinsics.f_y_px, 404);
     EXPECT_EQ(cal.depth.intrinsics.c_x_px, 320.1);
     EXPECT_EQ(cal.depth.intrinsics.c_y_px, 240.2);
+    EXPECT_EQ(cal.depth.name, "depth");
 
     EXPECT_EQ(cal.fisheye.extrinsics_wrt_imu_m, transformation(rotation_vector(0,-M_PI/M_SQRT2,0), v4(4,3.5,7,0)));
     EXPECT_EQ(cal.fisheye.intrinsics.type, rc_CALIBRATION_TYPE_FISHEYE);
@@ -203,6 +206,7 @@ TEST(CalibrationXML, Print)
     EXPECT_EQ(cal.fisheye.intrinsics.c_x_px, 320.8);
     EXPECT_EQ(cal.fisheye.intrinsics.c_y_px, 240.9);
     EXPECT_EQ(cal.fisheye.intrinsics.w, .889);
+    EXPECT_EQ(cal.fisheye.name, "fisheye");
 
 }
 } /*testing*/ } /*rc*/

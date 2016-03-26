@@ -8,7 +8,7 @@
 struct calibration_json {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
     int version;
-    char device_id[256];
+    std::string device_id;
     struct calibration::imu imu;
     struct calibration::camera color, depth;
 };

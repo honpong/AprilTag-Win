@@ -499,7 +499,7 @@ bool rc_setCalibration(rc_Tracker *tracker, const char *buffer)
         tracker->calibration = multi_camera_calibration;
         // Pick the imu,depth,color combo from multi-camera calibration defaulting to fisheye if it's available
         device_parameters device;
-        snprintf(device.device_id, sizeof(device.device_id), "%s", multi_camera_calibration.device_id);
+        device.device_id = multi_camera_calibration.device_id;
         device.depth = multi_camera_calibration.depth;
         device.color = multi_camera_calibration.fisheye.intrinsics.type ?
             multi_camera_calibration.fisheye :

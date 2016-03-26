@@ -57,5 +57,5 @@ TEST(calibration_json, calibration_deserialize)
 
     EXPECT_EQ(123, calOutput.color.intrinsics.width_px);
     EXPECT_FLOAT_EQ(calOutput.imu.a_alignment(7), 0.6);
-    EXPECT_STREQ("test", calOutput.device_id);
+    EXPECT_EQ("test", calOutput.device_id);
 }

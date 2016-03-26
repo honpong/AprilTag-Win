@@ -5,9 +5,9 @@
 
 struct calibration {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
-    char device_id[256];
+    std::string device_id;
     struct camera {
-        char name[256];
+        std::string name;
         transformation extrinsics_wrt_imu_m;
         struct transformation_var { v3 W, T; } extrinsics_var_wrt_imu_m;
         rc_CameraIntrinsics intrinsics;

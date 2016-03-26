@@ -93,14 +93,14 @@ bool calibration_deserialize_xml(const std::string &xml, calibration &cal)
         node *root = doc.first_node("rig");
         if (!root)
             throw parse_error("expected root node <rig>", (void*)xml.c_str());
-        snprintf(cal.device_id, sizeof(cal.device_id), "%s", checked_node(root).assert_node("device_id")->value());
+        cal.device_id = checked_node(root).assert_node("device_id")->value();
         for (node *camera = root->first_node("camera"); camera; camera = camera->next_sibling("camera"))
             for (node *camera_model_ = camera->first_node("camera_model"); camera_model_; camera_model_ = camera_model_->next_sibling("camera_model")) {
                 checked_node camera_model(camera_model_);
                 struct calibration::camera *c = camera_from_index(cal, std::atoi(camera_model.assert_attribute("index")->value()));
                 if (!c)
                     continue;
-                snprintf(c->name, sizeof(c->name), "%s", camera_model.assert_attribute("name")->value());
+                c->name = camera_model.assert_attribute("name")->value();
                 c->intrinsics.width_px = std::atoi(camera_model.assert_node("width")->value());
                 c->intrinsics.height_px = std::atoi(camera_model.assert_node("height")->value());
                 v3  right   = camera_model.assert_m<3,1>("right"),
@@ -227,7 +227,7 @@ bool calibration_serialize_xml(const calibration &cal, std::string &xml)
 {
     document doc;
     node *root; doc.append_node(root = doc.allocate_node(node_element, "rig"));
-    root->append_node(doc.allocate_node(node_element, "device_id", cal.device_id));
+    root->append_node(doc.allocate_node(node_element, "device_id", cal.device_id.c_str()));
 
     int index = 0;
     for (const calibration::camera *c : {&cal.fisheye, &cal.color, &cal.ir, &cal.depth}) {
@@ -239,7 +239,7 @@ bool calibration_serialize_xml(const calibration &cal, std::string &xml)
 
         node *camera; root->append_node(camera = doc.allocate_node(node_element, "camera"));
         node *camera_model; camera->append_node(camera_model = doc.allocate_node(node_element, "camera_model"));
-        camera_model->append_attribute(doc.allocate_attribute("name", c->name));
+        camera_model->append_attribute(doc.allocate_attribute("name", c->name.c_str()));
         camera_model->append_attribute(doc.allocate_attribute("index", xml_string(doc, index++)));
         camera_model->append_attribute(doc.allocate_attribute("type", type));
         camera_model->append_attribute(doc.allocate_attribute("version", "8"));

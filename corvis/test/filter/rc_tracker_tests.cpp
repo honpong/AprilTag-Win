@@ -11,7 +11,7 @@ using namespace std;
 TEST(rc_tracker_tests, rc_setCalibration)
 {
     calibration_json calInput = {};
-    snprintf(calInput.device_id, sizeof(calInput.device_id), "%s", "(test)");
+    calInput.device_id = "(test)";
 
     calInput.color.intrinsics.width_px = 123;
     calInput.color.intrinsics.height_px = 321;
@@ -40,7 +40,7 @@ TEST(rc_tracker_tests, rc_setCalibration)
     // compare values between original and retrieved
     calibration_json calOutput;
     EXPECT_TRUE(calibration_deserialize(jsonString, calOutput));
-    EXPECT_STREQ(calInput.device_id, calOutput.device_id);
+    EXPECT_EQ(calInput.device_id, calOutput.device_id);
     EXPECT_EQ(calInput.color.intrinsics.width_px, calOutput.color.intrinsics.width_px);
     EXPECT_EQ(calInput.color.intrinsics.height_px, calOutput.color.intrinsics.height_px);
     EXPECT_EQ(calInput.color.intrinsics.type, calOutput.color.intrinsics.type);

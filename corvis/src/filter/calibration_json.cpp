@@ -18,7 +18,7 @@ static void copy_json_to_calibration(Value &json, calibration_json &cal, Documen
 {
     cal = calibration_json{};
 
-    if (json.HasMember(KEY_DEVICE_NAME)) snprintf(cal.device_id, sizeof(cal.device_id), "%s", json[KEY_DEVICE_NAME].GetString());
+    if (json.HasMember(KEY_DEVICE_NAME)) cal.device_id = json[KEY_DEVICE_NAME].GetString();
     if (json.HasMember(KEY_CALIBRATION_VERSION)) cal.version = json[KEY_CALIBRATION_VERSION].GetInt();
 
     copy_json_to_imu(json, cal.imu, a);
@@ -111,7 +111,7 @@ static void copy_imu_to_json(const struct calibration::imu &imu, Value &json, Do
 static void copy_calibration_to_json(const calibration_json &cal, Value &json, Document::AllocatorType& a)
 {
     Value name(kStringType);
-    name.SetString(cal.device_id, a);
+    name.SetString(cal.device_id.c_str(), a);
     json.AddMember(KEY_DEVICE_NAME, name, a);
     json.AddMember(KEY_CALIBRATION_VERSION, CALIBRATION_VERSION, a);
 

@@ -106,22 +106,23 @@ int state_vision_group::process_features(const image_gray8 &image, mapper & map,
         for(auto f : features.children) {
             float stdev = (float)f->v.stdev_meters(sqrt(f->variance()));
             float variance_meters = stdev*stdev;
-            const float measurement_var = 1.e-3*1.e-3;
+            const float measurement_var = 1.e-3f*1.e-3f;
             if(variance_meters < measurement_var)
                 variance_meters = measurement_var;
 
-            bool good = stdev / f->v.depth() < .05;
+            bool good = stdev / f->v.depth() < .05f;
             if(good && f->descriptor_valid)
                 map.update_feature_position(id, f->id, f->Xcamera, variance_meters);
             if(good && !f->descriptor_valid) {
-                float scale = f->v.depth();
-                float radius = 32./scale * (image.width / 320.);
-                if(radius < 4) {
-                    radius = 4;
+                float scale = static_cast<float>(f->v.depth());
+                float radius = 32.f/scale * (image.width / 320.f);
+                if(radius < 4.f) {
+                    radius = 4.f;
                 }
                 //log->info("feature {} good radius {}", f->id, radius);
                 if(descriptor_compute(image.image, image.width, image.height, image.stride,
-                            f->current[0], f->current[1], radius, f->descriptor)) {
+                                      static_cast<float>(f->current[0]), static_cast<float>(f->current[1]), radius,
+                                      f->descriptor)) {
                     f->descriptor_valid = true;
                     map.add_feature(id, f->id, f->Xcamera, variance_meters, f->descriptor);
                 }

@@ -518,7 +518,7 @@ void filter_setup_next_frame(struct filter *f, const image_gray8 &image)
     //TODO: implement feature_single ?
 }
 
-static float get_depth_for_point_mm(const image_depth16 &depth, const feature_t & p)
+static uint16_t get_depth_for_point_mm(const image_depth16 &depth, const feature_t & p)
 {
     auto x = (int)p.x(), y = (int)p.y();
     if (x >=0 && x < depth.width && y >= 0 && y < depth.height)

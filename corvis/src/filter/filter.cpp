@@ -660,7 +660,6 @@ static void filter_add_features(struct filter *f, const image_gray8 & image, siz
     state_vision_group *g = f->s.add_group(image.timestamp);
     std::unique_ptr<image_depth16> aligned_undistorted_depth;
 
-    descriptor d;
     float radius = 16;
     int side_length = 41;
 

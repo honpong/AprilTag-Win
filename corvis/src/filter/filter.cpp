@@ -418,16 +418,8 @@ void filter_accelerometer_measurement(struct filter *f, const float data[3], sen
     obs_a->variance = get_accelerometer_variance_for_run_state(f, meas, time);
     f->observations.observations.push_back(std::move(obs_a));
 
-    if(show_tuning) f->log->trace("accelerometer:");
     process_observation_queue(f, time);
-    if(show_tuning) {
-        f->log->trace() << " actual innov stdev is:\n" <<
-        observation_accelerometer::inn_stdev <<
-        " signal stdev is:\n" <<
-        observation_accelerometer::stdev <<
-        " bias is:\n" <<
-        f->s.a_bias.v << f->s.a_bias.variance();
-    }
+
     if(!f->gravity_init) {
         f->gravity_init = true;
         if(!f->origin_gravity_aligned)
@@ -478,16 +470,7 @@ void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_
         f->gyro_stability.data(meas);
     }
 
-    if(show_tuning) f->log->trace("gyroscope:");
     process_observation_queue(f, time);
-    if(show_tuning) {
-        f->log->trace() << " actual innov stdev is:\n" <<
-        observation_gyroscope::inn_stdev <<
-        " signal stdev is:\n" <<
-        observation_gyroscope::stdev <<
-        " bias is:\n" <<
-        f->s.w_bias.v << f->s.w_bias.variance();
-    }
 }
 
 void filter_setup_next_frame(struct filter *f, const image_gray8 &image)
@@ -823,15 +806,7 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
 
     filter_setup_next_frame(f, image);
 
-    if(show_tuning) {
-        f->log->trace("vision:");
-    }
     process_observation_queue(f, time);
-    if(show_tuning) {
-        f->log->trace(" actual innov stdev is:");
-        f->log->trace() << observation_vision_feature::inn_stdev[0];
-        f->log->trace() << observation_vision_feature::inn_stdev[1];
-    }
 
     int features_used = f->s.process_features(image, time);
     if(!features_used)

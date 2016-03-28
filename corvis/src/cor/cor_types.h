@@ -9,7 +9,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define F_T_IS_DOUBLE
+//#define F_T_IS_DOUBLE
 #include <float.h>
 #ifdef F_T_IS_DOUBLE
 typedef double f_t;

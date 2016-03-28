@@ -286,7 +286,7 @@ int state_vision::process_features(const image_gray8 &image, sensor_clock::time_
             loop_offset.T = loop_offset.T * (1. - lost_factor) + offset.T * lost_factor;
             if(lost_factor > .1) lost_factor -= .1;
             if(lost_factor < .1) lost_factor = .1;
-            log->info() << "loop closed, offset: " << loop_offset;
+            log->info() << "loop closed, offset: " << std::cref(loop_offset);
         }
     }
 

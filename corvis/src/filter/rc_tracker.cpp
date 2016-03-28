@@ -109,14 +109,14 @@ static void copy_features_from_sensor_fusion(std::vector<rc_Feature> &features, 
     for (auto fp : in_feats)
     {
         rc_Feature feat;
-        feat.image_x = fp.x;
-        feat.image_y = fp.y;
-        feat.world.x = fp.worldx;
-        feat.world.y = fp.worldy;
-        feat.world.z = fp.worldz;
+        feat.image_x = static_cast<decltype(feat.image_x)>(fp.x);
+        feat.image_y = static_cast<decltype(feat.image_y)>(fp.y);
+        feat.world.x = static_cast<decltype(feat.world.x)>(fp.worldx);
+        feat.world.y = static_cast<decltype(feat.world.y)>(fp.worldy);
+        feat.world.z = static_cast<decltype(feat.world.z)>(fp.worldz);
+        feat.stdev   = static_cast<decltype(feat.stdev)>(fp.stdev);
         feat.id = fp.id;
         feat.initialized = fp.initialized;
-        feat.stdev = fp.stdev;
         features.push_back(feat);
     }
 }
@@ -280,7 +280,7 @@ RCTRACKER_API void rc_setDataCallback(rc_Tracker *tracker, rc_DataCallback callb
 RCTRACKER_API void rc_setStatusCallback(rc_Tracker *tracker, rc_StatusCallback callback, void *handle)
 {
     if(callback) tracker->status_callback = [callback, handle](sensor_fusion::status s) {
-        callback(handle, tracker_state_from_run_state(s.run_state), tracker_error_from_error(s.error), tracker_confidence_from_confidence(s.confidence), s.progress);
+        callback(handle, tracker_state_from_run_state(s.run_state), tracker_error_from_error(s.error), tracker_confidence_from_confidence(s.confidence), static_cast<float>(s.progress));
     };
 }
 

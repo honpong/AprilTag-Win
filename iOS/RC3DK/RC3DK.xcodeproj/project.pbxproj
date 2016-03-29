@@ -1618,7 +1618,7 @@
 				D91557D71B87A21A006D2002 /* vlad.h */,
 			);
 			name = vl;
-			path = "../../corvis/src/vlfeat-0.9.18/vl";
+			path = "../../../corvis/src/vlfeat-0.9.18/vl";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */

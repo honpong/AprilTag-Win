@@ -35,7 +35,16 @@ The main interface to the library can be found in
 ### Ubuntu (14.04)
 
 1. Install MKL (and optionally ICC)
-2. Install build dependencies
+2. Enable repo for a recent build of cmake
+
+    ```sh
+    
+    sudo add-apt-repository ppa:george-edison55/cmake-3.x
+    sudo apt-get update
+    
+    ```
+    
+3. Install build dependencies
 
     ```sh
 
@@ -43,7 +52,7 @@ The main interface to the library can be found in
 
     ```
 
-3. Build with
+4. Build with
 
     ```sh
 

@@ -100,9 +100,10 @@ with open(output_filename, "wb") as f:
             with open(path + line[2]) as fi:
                 data = fi.read()
         elif ptype == image_with_depth_type:
-            w, h, b, d = read_pgm(path + line[2])
+            (time, ptype, filename) = line
+            w, h, b, d = read_pgm(path + filename)
             assert b == 1, "image should be 1 byte, not %d" % b
-            dw, dh, db, dd = read_pgm(path + depth_for_image(line[0])[2]) if use_depth else (0, 0, 0, '')
+            dw, dh, db, dd = read_pgm(path + depth_for_image(time)[2]) if use_depth else (0, 0, 0, '')
             assert db == 2 or not use_depth, "depth should be 2 bytes, not %d" % db
             data = pack('QHHHH', 0*33333333, w, h, dw, dh) + d + dd
         elif ptype == gyro_type:

@@ -33,8 +33,12 @@ def read_image_timestamps(filename):
     with open(filename, 'rb') as f:
         for line in f.xreadlines():
             row = line.split()
-            (filename, timestamp) = row
-            rows.append([float(timestamp), image_with_depth_type, filename])
+            if len(row) == 2:
+                (filename, timestamp) = row
+                (offset, length) = (0, None)
+            else:
+                (filename, offset, length, timestamp) = row
+            rows.append([float(timestamp), image_with_depth_type, filename, int(offset) if offset else 0, int(length) if length else None])
     return rows
 
 def read_csv_timestamps(filename, ptype):
@@ -48,8 +52,9 @@ def read_csv_timestamps(filename, ptype):
             rows.append([float(timestamp), ptype, float(x), float(y), float(z)])
     return rows
 
-def read_pgm(filename):
+def read_pgm(filename, offset=0, length=None):
     with open(filename, 'rb') as fi:
+        fi.seek(offset) if offset else None
         assert fi.read(1) == 'P', '%s is a pgm' % filename
         P = fi.readline()
         while len(P.split()) < 4:
@@ -63,7 +68,7 @@ raw = {
    'gyro':  read_csv_timestamps(path + 'gyro.txt', gyro_type),
    'accel': read_csv_timestamps(path + 'accel.txt', accel_type),
    'fish':  read_image_timestamps(path + 'fisheye_timestamps.txt'),
-   'depth': read_image_timestamps(path + 'depth_timestamps.txt') if use_depth else [] ,
+   'depth': read_image_timestamps(path + ('depth_timestamps.txt' if os.path.exists(path+'depth_timestamps.txt') else 'depth_offsets_timestamps.txt')) if use_depth else [],
    'color': read_image_timestamps(path + 'color_timestamps.txt') if False else [],
 }
 
@@ -100,10 +105,10 @@ with open(output_filename, "wb") as f:
             with open(path + line[2]) as fi:
                 data = fi.read()
         elif ptype == image_with_depth_type:
-            (time, ptype, filename) = line
+            (time, ptype, filename, offset, length) = line
             w, h, b, d = read_pgm(path + filename)
             assert b == 1, "image should be 1 byte, not %d" % b
-            dw, dh, db, dd = read_pgm(path + depth_for_image(time)[2]) if use_depth else (0, 0, 0, '')
+            dw, dh, db, dd = read_pgm(path + depth_for_image(time)[2], offset, length) if use_depth else (0, 0, 0, '')
             assert db == 2 or not use_depth, "depth should be 2 bytes, not %d" % db
             data = pack('QHHHH', 0*33333333, w, h, dw, dh) + d + dd
         elif ptype == gyro_type:

@@ -32,6 +32,7 @@ extern "C" {
 //#define EIGEN_INITIALIZE_MATRICES_BY_ZERO
 
 #define EIGEN_DEFAULT_TO_ROW_MAJOR
+#include <initializer_list> // needed by "eigen_initializer_list.h"
 #define EIGEN_MATRIX_PLUGIN "eigen_initializer_list.h"
 #include <Eigen/Dense>
 

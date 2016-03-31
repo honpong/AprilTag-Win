@@ -9,8 +9,6 @@
 #ifndef RC3DK_eigen_initializer_list_h
 #define RC3DK_eigen_initializer_list_h
 
-#include <initializer_list>
-
 EIGEN_STRONG_INLINE Matrix(std::initializer_list<const Scalar> initlist): Base()
 {
     Base::_check_template_params();

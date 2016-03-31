@@ -108,7 +108,7 @@ TEST(SensorFusionQueue, Threading)
             std::this_thread::sleep_for(cam_latency);
             q.receive_camera(std::move(x));
             ++camsent;
-            std::this_thread::sleep_until(now + camera_interval);
+            std::this_thread::sleep_for(camera_interval-cam_latency);
         }
     });
     std::thread gyrothread([&q, start, inertial_interval, in_latency, &gyrsent, thread_time]{
@@ -122,7 +122,7 @@ TEST(SensorFusionQueue, Threading)
             std::this_thread::sleep_for(in_latency);
             q.receive_gyro(std::move(x));
             ++gyrsent;
-            std::this_thread::sleep_until(now + inertial_interval);
+            std::this_thread::sleep_for(inertial_interval-in_latency);
         }
     });
     std::thread accelthread([&q, start, inertial_interval, in_latency, &accsent, thread_time]{
@@ -136,7 +136,7 @@ TEST(SensorFusionQueue, Threading)
             std::this_thread::sleep_for(in_latency);
             q.receive_accelerometer(std::move(x));
             ++accsent;
-            std::this_thread::sleep_until(now + inertial_interval);
+            std::this_thread::sleep_for(inertial_interval-in_latency);
         }
     });
     

@@ -30,9 +30,9 @@ except Exception as e:
 def read_image_timestamps(filename):
     #image is filename timestamp
     rows = []
-    with open(filename, 'rb') as csvfile:
-        reader = csv.reader(csvfile, delimiter=' ')
-        for row in reader:
+    with open(filename, 'rb') as f:
+        for line in f.xreadlines():
+            row = line.split()
             (filename, timestamp) = row
             rows.append([float(timestamp), image_with_depth_type, filename])
     return rows

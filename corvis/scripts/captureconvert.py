@@ -56,17 +56,15 @@ import StringIO
 def read_pgm(filename, offset=0, length=None):
     with open(filename, 'rb') as fi:
         fi.seek(offset) if offset else None
-        if length:
-            data = fi.read(length)
-        else:
-            data = fi.read()
-        fi_str = StringIO.StringIO(data)
-        assert fi_str.read(1) == 'P', '%s is a pgm' % filename
-        P = fi_str.readline()
+        return parse_pgm(fi if length is None else StringIO.StringIO(fi.read(length)))
+
+def parse_pgm(f):
+        assert f.read(1) == 'P', '%s is a pgm' % filename
+        P = f.readline()
         while len(P.split()) < 4:
-            P += fi_str.readline()
+            P += f.readline()
         P = map(int,P.split())
-        w, h, b, d = P[1], P[2], int(math.log(P[3]+1,2)/8), fi_str.read()
+        w, h, b, d = P[1], P[2], int(math.log(P[3]+1,2)/8), f.read()
         assert h * w * b == len(d), "%d x %d %d bytes/pixel == %d bytes" % (h , w, b, len(d))
         return (w,h,b,d)
 

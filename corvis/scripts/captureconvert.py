@@ -153,9 +153,52 @@ if os.path.isfile(path + "CameraParameters.txt"):
                 del cal['px']
             if 'py' in cal:
                 del cal['py']
+
+            imu_to_ds4_color = [0.0095, 0, 0]
+            if os.path.isfile(path + "calibration.xml"):
+                import xml.etree.ElementTree as ET
+                tree = ET.parse(path + "calibration.xml")
+                root = tree.getroot()
+                fisheye_index = "0"
+                ds4_color_index = "3"
+                for camera in root.findall("camera/camera_model"):
+                    if camera.attrib["type"] == "calibu_fu_fv_u0_v0_k1_k2_k3" and camera.find("height").text == "180":
+                        ds4_color_index = camera.attrib["index"]
+                        print "Found ds4 color at", ds4_color_index
+                    if camera.attrib["type"] == "calibu_fu_fv_u0_v0_w":
+                        fisheye_index = camera.attrib["index"]
+                        print "Found fisheye at", fisheye_index
+                        params = camera.find("params").text
+                        width = camera.find("width").text
+                        height = camera.find("height").text
+                        cal['imageWidth'] = int(width)
+                        cal['imageHeight'] = int(height)
+                        params = [float(p) for p in params.translate(None, '[];').split()]
+                        cal['Fx'] = params[0]
+                        cal['Fy'] = params[1]
+                        cal['Cx'] = params[2]
+                        cal['Cy'] = params[3]
+                        cal['Kw'] = params[4]
+                for extrinsic in root.findall("extrinsic_calibration"):
+                    if extrinsic.attrib["frame_B_id"] == fisheye_index:
+                        atb = extrinsic.find("A_T_B").text
+                        tf = [float(a) for a in atb.translate(None, '[];,').split()]
+                        (cal['Tc0'], cal['Tc1'], cal['Tc2']) = (tf[3], tf[7], tf[11])
+                        (cal['Wc0'], cal['Wc1'], cal['Wc2']) = (0, 0, 0)
+                        print "Fisheye tc", tf[3], tf[7], tf[11]
+                    if extrinsic.attrib["frame_B_id"] == ds4_color_index:
+                        atb = extrinsic.find("A_T_B").text
+                        tf = [float(a) for a in atb.translate(None, '[];,').split()]
+                        imu_to_ds4_color = [tf[3], tf[7], tf[11]]
+                        print "Color camera Tc", tf[3], tf[7], tf[11]
+
+            #print "d_e_c", d_e_c
             # g_accel_depth = g_accel_color * (g_color_depth)^-1
-            depth_Tc = transform([cal['Wc0'],cal['Wc1'],cal['Wc2']], [cal['Tc0'],cal['Tc1'],cal['Tc2']], map(lambda x: -x/1000., map(float,d_e_c[6:9])))
-            cal['depth'] = dict(zip("imageWidth imageHeight Fx Fy Cx Cy Wc0 Wc1 Wc2 Tc0 Tc1 Tc2".split(), map(int,d_e_c[:2]) + map(float,d_e_c[2:6]) + [cal['Wc0'],cal['Wc1'],cal['Wc2']] + depth_Tc))
+            ds4_color_to_depth = map(lambda x: -x/1000., map(float,d_e_c[6:9]))
+            depth_Wc = [0, 0, 0]
+            depth_Tc = transform(depth_Wc, imu_to_ds4_color, ds4_color_to_depth)
+            cal['depth'] = dict(zip("imageWidth imageHeight Fx Fy Cx Cy Wc0 Wc1 Wc2 Tc0 Tc1 Tc2".split(), map(int,d_e_c[:2]) + map(float,d_e_c[2:6]) + depth_Wc + depth_Tc))
+            #print cal['depth']
             with open(output_filename + ".json", 'w') as t:
                  t.write(json.dumps(cal, sort_keys=True, indent=4,separators=(',', ': ')))
             print "Added depth intrinsics and extrinsics to " + output_filename + ".json"

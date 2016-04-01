@@ -341,7 +341,9 @@ bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
             if(global_latest_received() < camera_queue.last_out + camera_queue.period + jitter) return false;
         }
     }
-    
+
+    //We don't wait for depth data. TODO: if depth latency is high we will never use depth. Should check this.
+
     if(accel_queue.empty())
     {
         if(strategy == latency_strategy::ELIMINATE_DROPS) return false;
@@ -374,9 +376,9 @@ bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock, bool force)
     sensor_clock::time_point accel_time = accel_queue.get_next_time(lock, last_dispatched);
     sensor_clock::time_point gyro_time = gyro_queue.get_next_time(lock, last_dispatched);
     
-    if(!depth_queue.empty() && (camera_queue.empty() || camera_time <= depth_time) && (accel_queue.empty() || camera_time <= accel_time) && (gyro_queue.empty() || camera_time <= gyro_time))
+    if(!depth_queue.empty() && (camera_queue.empty() || depth_time <= camera_time) && (accel_queue.empty() || depth_time <= accel_time) && (gyro_queue.empty() || depth_time <= gyro_time))
     {
-        if(!force && !ok_to_dispatch(camera_time)) return false;
+        if(!force && !ok_to_dispatch(depth_time)) return false;
 
         image_depth16 data = depth_queue.pop(lock);
 #ifdef DEBUG

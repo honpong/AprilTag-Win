@@ -73,7 +73,7 @@ def read_pgm(filename, offset=0, length=None):
 raw = {
    'gyro':  read_csv_timestamps(path + 'gyro.txt', gyro_type),
    'accel': read_csv_timestamps(path + 'accel.txt', accel_type),
-   'fish': read_image_timestamps(path + ('fisheye_offsets_timestamps.txt' if os.path.exists(path+'fisheye_offsets_timestamps.txt') else 'fisheye_timestamps.txt')) if use_depth else [],
+   'fish':  read_image_timestamps(path + ('fisheye_offsets_timestamps.txt' if os.path.exists(path+'fisheye_offsets_timestamps.txt') else 'fisheye_timestamps.txt')),
    'depth': read_image_timestamps(path + ('depth_offsets_timestamps.txt' if os.path.exists(path+'depth_offsets_timestamps.txt') else 'depth_timestamps.txt')) if use_depth else [],
    'color': read_image_timestamps(path + 'color_timestamps.txt') if False else [],
 }

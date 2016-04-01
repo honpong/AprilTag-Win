@@ -14,14 +14,14 @@ gyro_type = 21
 image_with_depth_type = 28
 
 use_depth = True
-offset = 0
+depth_time_offset = 0
 try:
     opts, (path, output_filename) = getopt.gnu_getopt(sys.argv[1:], "Do:", ["no-depth", "depth-offset="])
     for o,v in opts:
         if o in ("-D", "--no-depth"):
             use_depth = False;
         elif o in ("-o", "--depth-offset"):
-            offset = float(v)
+            depth_time_offset = float(v)
 except Exception as e:
     print e
     print sys.argv[0], "[--no-depth] [--depth-offset=<N>] <intel_folder> <output_filename>"
@@ -85,10 +85,10 @@ data.sort()
 
 if use_depth:
     if abs(raw['depth'][0][0] - raw['fish'][0][0]) > 100:
-        offset += raw['depth'][0][0] - raw['fish'][0][0]
+        depth_time_offset += raw['depth'][0][0] - raw['fish'][0][0]
         print "correcting for depth camera and fisheye not being on the same clock"
     def depth_for_image(t):
-        t += offset
+        t += depth_time_offset
         best = raw['depth'][0]
         for r in raw['depth']:
             if abs(r[0] - t) < abs(r[0] - best[0]):

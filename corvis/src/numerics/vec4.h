@@ -42,6 +42,11 @@ typedef Eigen::Matrix<f_t, 4, 4> m4;
 typedef Eigen::Matrix<f_t, 3, 3> m3;
 typedef Eigen::Matrix<f_t, 2, 1> v2, feature_t;
 
+#include <Eigen/StdVector>
+template <typename T> using aligned_vector = std::vector<T, Eigen::aligned_allocator<T>>;
+#include <Eigen/StdList>
+template <typename T> using aligned_list = std::list<T, Eigen::aligned_allocator<T>>;
+
 static inline v4 v4_sqrt(const v4 &v) { return v4(sqrt(v[0]), sqrt(v[1]), sqrt(v[2]), sqrt(v[3])); }
 
 #ifdef __ACCELERATE__

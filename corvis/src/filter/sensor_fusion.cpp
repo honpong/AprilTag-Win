@@ -223,6 +223,7 @@ void sensor_fusion::set_location(double latitude_degrees, double longitude_degre
 void sensor_fusion::start_calibration(bool thread)
 {
     threaded = thread;
+    buffering = false;
     isSensorFusionRunning = true;
     isProcessingVideo = false;
     filter_initialize(&sfm, &device);
@@ -234,6 +235,7 @@ void sensor_fusion::start_calibration(bool thread)
 void sensor_fusion::start(bool thread)
 {
     threaded = thread;
+    buffering = false;
     isSensorFusionRunning = true;
     isProcessingVideo = true;
     filter_initialize(&sfm, &device);
@@ -245,6 +247,7 @@ void sensor_fusion::start(bool thread)
 void sensor_fusion::start_unstable(bool thread)
 {
     threaded = thread;
+    buffering = false;
     isSensorFusionRunning = true;
     isProcessingVideo = true;
     filter_initialize(&sfm, &device);
@@ -267,12 +270,14 @@ void sensor_fusion::unpause()
 
 void sensor_fusion::start_buffering()
 {
+    buffering = true;
     queue->start_buffering();
 }
 
 void sensor_fusion::start_offline()
 {
     threaded = false;
+    buffering = false;
     sfm.ignore_lateness = true;
     // TODO: Note that we call filter initialize, and this can change
     // device_parameters (specifically a_bias_var and w_bias_var)
@@ -350,7 +355,13 @@ void sensor_fusion::receive_image(image_gray8 &&data)
 {
     //Adjust image timestamps to be in middle of exposure period
     data.timestamp += data.exposure_time / 2;
-    queue->receive_camera(std::move(data));
+    if(buffering)
+    {
+        image_gray8 temp(std::move(data));
+        queue->receive_camera(std::move(temp));
+    } else {
+        queue->receive_camera(std::move(data));
+    }
 }
 
 void sensor_fusion::receive_image(image_depth16 &&data)
@@ -358,7 +369,13 @@ void sensor_fusion::receive_image(image_depth16 &&data)
     //TODO: Verify time adjustments here
     //Adjust image timestamps to be in middle of exposure period
     data.timestamp += data.exposure_time / 2;
-    queue->receive_depth(std::move(data));
+    if(buffering)
+    {
+        image_depth16 temp(std::move(data));
+        queue->receive_depth(std::move(temp));
+    } else {
+        queue->receive_depth(std::move(data));
+    }
 }
 
 void sensor_fusion::receive_accelerometer(accelerometer_data &&data)

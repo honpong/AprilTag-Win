@@ -260,6 +260,7 @@ private:
     std::function<void (void *, const char *, size_t)> log_function;
     void * log_handle;
     bool log_stream;
+    bool buffering = true;
     sensor_clock::duration log_period;
 };
 

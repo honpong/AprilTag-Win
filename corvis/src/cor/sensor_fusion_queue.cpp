@@ -9,7 +9,7 @@
 #include <cassert>
 
 template<typename T, int size>
-sensor_queue<T, size>::sensor_queue(std::mutex &mx, std::condition_variable &cnd, const bool &actv, const bool &copy_push): period(0), mutex(mx), cond(cnd), active(actv), copy_on_push(copy_push), readpos(0), writepos(0), count(0)
+sensor_queue<T, size>::sensor_queue(std::mutex &mx, std::condition_variable &cnd, const bool &actv): period(0), mutex(mx), cond(cnd), active(actv), readpos(0), writepos(0), count(0)
 {
 }
 
@@ -75,11 +75,8 @@ bool sensor_queue<T, size>::push(T&& x)
         pop(lock);
         ++drop_full;
     }
-    
-    if(copy_on_push)
-        storage[writepos] = T(std::move(x));
-    else
-        storage[writepos] = std::move(x);
+
+    storage[writepos] = std::move(x);
     writepos = (writepos + 1) % size;
     ++count;
     
@@ -125,10 +122,10 @@ fusion_queue::fusion_queue(const std::function<void(image_gray8 &&)> &camera_fun
                 depth_receiver(depth_func),
                 accel_receiver(accelerometer_func),
                 gyro_receiver(gyro_func),
-                accel_queue(mutex, cond, active, copy_on_push),
-                gyro_queue(mutex, cond, active, copy_on_push),
-                camera_queue(mutex, cond, active, copy_on_push),
-                depth_queue(mutex, cond, active, copy_on_push),
+                accel_queue(mutex, cond, active),
+                gyro_queue(mutex, cond, active),
+                camera_queue(mutex, cond, active),
+                depth_queue(mutex, cond, active),
                 control_func(nullptr),
                 active(false),
                 wait_for_camera(true),
@@ -205,22 +202,12 @@ void fusion_queue::dispatch_async(std::function<void()> fn)
 void fusion_queue::start_buffering()
 {
     std::unique_lock<std::mutex> lock(mutex);
-    copy_on_push = true;
     active = true;
     lock.unlock();
 }
 
-void fusion_queue::dispatch_buffer()
-{
-    //flush any waiting data, but don't force queues to be empty
-    copy_on_push = false;
-    dispatch_singlethread(false);
-}
-
 void fusion_queue::start_async(bool expect_camera)
 {
-    dispatch_buffer();
-
     wait_for_camera = expect_camera;
     if(!thread.joinable())
     {
@@ -230,8 +217,6 @@ void fusion_queue::start_async(bool expect_camera)
 
 void fusion_queue::start_sync(bool expect_camera)
 {
-    dispatch_buffer();
-
     wait_for_camera = expect_camera;
     if(!thread.joinable())
     {
@@ -246,11 +231,10 @@ void fusion_queue::start_sync(bool expect_camera)
 
 void fusion_queue::start_singlethreaded(bool expect_camera)
 {
-    dispatch_buffer();
-
     wait_for_camera = expect_camera;
     singlethreaded = true;
     active = true;
+    dispatch_singlethread(false); //dispatch any waiting data in case we were buffering
 }
 
 void fusion_queue::stop_immediately()
@@ -357,7 +341,9 @@ bool fusion_queue::ok_to_dispatch(sensor_clock::time_point time)
             if(global_latest_received() < camera_queue.last_out + camera_queue.period + jitter) return false;
         }
     }
-    
+
+    //We don't wait for depth data. TODO: if depth latency is high we will never use depth. Should check this.
+
     if(accel_queue.empty())
     {
         if(strategy == latency_strategy::ELIMINATE_DROPS) return false;
@@ -390,9 +376,9 @@ bool fusion_queue::dispatch_next(std::unique_lock<std::mutex> &lock, bool force)
     sensor_clock::time_point accel_time = accel_queue.get_next_time(lock, last_dispatched);
     sensor_clock::time_point gyro_time = gyro_queue.get_next_time(lock, last_dispatched);
     
-    if(!depth_queue.empty() && (camera_queue.empty() || camera_time <= depth_time) && (accel_queue.empty() || camera_time <= accel_time) && (gyro_queue.empty() || camera_time <= gyro_time))
+    if(!depth_queue.empty() && (camera_queue.empty() || depth_time <= camera_time) && (accel_queue.empty() || depth_time <= accel_time) && (gyro_queue.empty() || depth_time <= gyro_time))
     {
-        if(!force && !ok_to_dispatch(camera_time)) return false;
+        if(!force && !ok_to_dispatch(depth_time)) return false;
 
         image_depth16 data = depth_queue.pop(lock);
 #ifdef DEBUG

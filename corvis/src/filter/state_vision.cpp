@@ -475,4 +475,5 @@ void state_vision::project_motion_covariance(matrix &dst, const matrix &src, f_t
             g->Qr.to_col(dst, i) = scov_Qr + g->dQrp_s_dW.block<3,3>(0,0) * cov_dW;
         }
     }
+    //Previously we called state_motion::project_covariance here, but this is inlined into the above for faster performance
 }

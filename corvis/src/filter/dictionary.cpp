@@ -28,7 +28,7 @@ dictionary::dictionary(string filename)
 
 dictionary::dictionary(int dim, int num, const float c[])
 {
-    std::vector<float> d; d.reserve(dim*num);
+    std::vector<float> d; d.resize(dim*num);
 
     kmeans = vl_kmeans_new(VL_TYPE_FLOAT, VlDistanceL2);
     // Make sure that dictionary elements norm to 1

@@ -78,8 +78,8 @@ TEST(Mapper, Serialize)
     EXPECT_TRUE(json.length() > 0);
     mapper map2;
     mapper::deserialize(json, map2);
-    const vector<map_node> & nodes1 = map.get_nodes();
-    const vector<map_node> & nodes2 = map2.get_nodes();
+    const aligned_vector<map_node> & nodes1 = map.get_nodes();
+    const aligned_vector<map_node> & nodes2 = map2.get_nodes();
 
     EXPECT_EQ(nodes1.size(), nodes2.size());
     for(int i = 0; i < nodes1.size(); i++) {

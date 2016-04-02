@@ -19,6 +19,7 @@ using namespace std;
 
 class transformation_variance {
     public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     transformation transform;
     m4 variance;
 };
@@ -30,6 +31,7 @@ struct map_edge {
 };
 
 struct map_feature {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     uint64_t id;
     // map_feature position is the position relative to a camera with
     // one of images axes oriented to match gravity (world z axis)
@@ -41,6 +43,7 @@ struct map_feature {
 };
 
 struct map_node {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     uint64_t id;
     static size_t histogram_size;
     bool match_attempted{false};
@@ -62,6 +65,7 @@ map_node(): terms(0), depth(0), parent(-1) {}
 };
 
 struct map_match {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     uint64_t from;
     uint64_t to;
     float score;
@@ -69,39 +73,41 @@ struct map_match {
 };
 
 struct local_feature {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     v4 position;
     map_feature *feature;
 };
 
 struct match_pair {
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     local_feature first, second;
     float score;
 };
 
 class mapper {
  private:
-    vector<map_node> nodes;
+    aligned_vector<map_node> nodes;
     friend struct map_node;
-    vector<transformation_variance> geometry;
+    aligned_vector<transformation_variance> geometry;
     vector<uint64_t> document_frequency;
     transformation relative_transformation;
     uint64_t feature_count;
     dictionary feature_dictionary;
 
-    void diffuse_matches(uint64_t id, vector<float> &matches, vector<map_match> &diffusion, int max, int unrecent);
+    void diffuse_matches(uint64_t id, vector<float> &matches, aligned_vector<map_match> &diffusion, int max, int unrecent);
     void joint_histogram(int node, list<map_feature *> &histogram);
 
     float tf_idf_score(const list<map_feature *> &hist1, const list<map_feature *> &hist2);
     void tf_idf_match(vector<float> &scores, const list<map_feature *> &histogram);
 
     int check_for_matches(uint64_t id1, uint64_t id2, transformation_variance &relpos, int min_inliers);
-    int estimate_translation(uint64_t id1, uint64_t id2, v4 &result, int min_inliers, const transformation &pre_transform, const list<match_pair> &matches, const list<match_pair> &neighbor_matches);
+    int estimate_translation(uint64_t id1, uint64_t id2, v4 &result, int min_inliers, const transformation &pre_transform, const aligned_list<match_pair> &matches, const aligned_list<match_pair> &neighbor_matches);
     int brute_force_rotation(uint64_t id1, uint64_t id2, transformation_variance &trans, int threshhold, float min, float max);
-    void localize_neighbor_features(uint64_t id, list<local_feature> &features);
+    void localize_neighbor_features(uint64_t id, aligned_list<local_feature> &features);
     void breadth_first(int start, int maxdepth, void(mapper::*callback)(map_node &));
     void internal_set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform, bool loop_closed);
     void set_special(uint64_t id, bool special);
-    bool get_matches(uint64_t id, vector<map_match> &matches, int max, int suppression);
+    bool get_matches(uint64_t id, aligned_vector<map_match> &matches, int max, int suppression);
     void set_node_transformation(uint64_t id, const transformation & G);
     transformation get_relative_transformation(uint64_t id1, uint64_t id2);
     void set_geometry(uint64_t id1, uint64_t id2, const transformation_variance &transform);
@@ -111,6 +117,7 @@ class mapper {
     uint64_t feature_id_offset{0};
 
  public:
+    EIGEN_MAKE_ALIGNED_OPERATOR_NEW;
     mapper();
     ~mapper();
     void reset();
@@ -120,7 +127,7 @@ class mapper {
     // Descriptor must have a norm of 1
     void add_feature(uint64_t node_id, uint64_t feature_id, const v4 & position_m, float depth_variance_m2, const descriptor & feature_descriptor);
 
-    const vector<map_node> & get_nodes() const { return nodes; };
+    const aligned_vector<map_node> & get_nodes() const { return nodes; };
 
     void update_feature_position(uint64_t node_id, uint64_t feature_id, const v4 &position_m, float depth_variance_m2);
     void node_finished(uint64_t node_id, const transformation & G);

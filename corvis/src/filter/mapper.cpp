@@ -133,7 +133,7 @@ void mapper::add_node(uint64_t id)
 
 map_feature::map_feature(const uint64_t _id, const v4 &p, const float v, const uint32_t l, const descriptor & desc): id(_id), position(p), variance(v), label(l)
 {
-    Eigen::Map<const Eigen::VectorXf> eigen_d(desc.d, descriptor_size, 1);
+    Eigen::Map<const Eigen::VectorXf, Eigen::Unaligned> eigen_d(desc.d, descriptor_size, 1);
     dvec = Eigen::VectorXf(eigen_d);
 }
 
@@ -240,7 +240,7 @@ void mapper::tf_idf_match(vector<float> &matches, const list<map_feature *> &his
     }
 }
 
-void mapper::diffuse_matches(uint64_t node_id, vector<float> &matches, vector<map_match> &result, int max, int unrecent)
+void mapper::diffuse_matches(uint64_t node_id, vector<float> &matches, aligned_vector<map_match> &result, int max, int unrecent)
 {
     //mark the nodes that are too close to this one
     for(int i = 0; i < matches.size(); ++i) {
@@ -283,8 +283,8 @@ void mapper::joint_histogram(int node, list<map_feature *> &histogram)
     }
 }
 
-void localize_features(map_node &node, list<local_feature> &features);
-void assign_matches(const list<local_feature> &f1, const list<local_feature> &f2, list<match_pair> &matches, bool slow);
+void localize_features(map_node &node, aligned_list<local_feature> &features);
+void assign_matches(const aligned_list<local_feature> &f1, const aligned_list<local_feature> &f2, aligned_list<match_pair> &matches, bool slow);
 
 int mapper::brute_force_rotation(uint64_t id1, uint64_t id2, transformation_variance &trans, int threshhold, float min, float max)
 {
@@ -295,7 +295,7 @@ int mapper::brute_force_rotation(uint64_t id1, uint64_t id2, transformation_vari
     bool running = false;
     assert(max > min);
     //get all features for each group and its neighbors into the local frames
-    list<local_feature> f1, f2;
+    aligned_list<local_feature> f1, f2;
     transformation Gw1 = nodes[id1].global_transformation.transform;
     transformation Gw2 = nodes[id2].global_transformation.transform;
     nodes[id1].transform = transformation_variance();
@@ -307,7 +307,7 @@ int mapper::brute_force_rotation(uint64_t id1, uint64_t id2, transformation_vari
     localize_features(nodes[id1], f1);
     localize_features(nodes[id2], f2);
     //ONLY look for matches in THIS group
-    list<match_pair> matches;
+    aligned_list<match_pair> matches;
     assign_matches(f1, f2, matches, false);
     if(matches.size() == 0) return 0;
     //BUT, check support on ENTIRE neighborhood.
@@ -317,7 +317,7 @@ int mapper::brute_force_rotation(uint64_t id1, uint64_t id2, transformation_vari
     localize_features(nodes[id2], f2);
     localize_neighbor_features(id1, f1);
     localize_neighbor_features(id2, f2);
-    list<match_pair> neighbor_matches;
+    aligned_list<match_pair> neighbor_matches;
     assign_matches(f1, f2, neighbor_matches, false);
     if(neighbor_matches.size() < threshhold) return 0;
     for(float theta = min; theta < max; theta += (max-min) / 200.) {
@@ -347,7 +347,7 @@ int mapper::brute_force_rotation(uint64_t id1, uint64_t id2, transformation_vari
     return 0;
 }
 
-bool mapper::get_matches(uint64_t id, vector<map_match> &matches, int max, int suppression)
+bool mapper::get_matches(uint64_t id, aligned_vector<map_match> &matches, int max, int suppression)
 {
     bool found = false;
     //rebuild the map relative to the current node
@@ -412,7 +412,7 @@ bool mapper::find_closure(int max, int suppression, transformation & offset)
         if(nodes[i].finished && !nodes[i].match_attempted && i + 10 < nodes.size()) {
             //log->info("searching for loop closure for {}", nodes[i].id);
             nodes[i].match_attempted = true;
-            vector<map_match> matches;
+            aligned_vector<map_match> matches;
             if(get_matches(nodes[i].id, matches, max, suppression)) {
                 map_match m = matches[0];
                 //log->info("Loop closure: match {} - {} {}", m.from, m.to, m.score);
@@ -432,14 +432,14 @@ static bool local_feature_compare(const local_feature &first, const local_featur
     return map_feature_compare(first.feature, second.feature);
 }
 
-void localize_features(map_node &node, list<local_feature> &features)
+void localize_features(map_node &node, aligned_list<local_feature> &features)
 {
     for(list<map_feature *>::iterator feat = node.features.begin(); feat != node.features.end(); ++feat) {
         features.push_back(local_feature{transformation_apply(node.transform.transform, (*feat)->position), *feat});
     }
 }
 
-void mapper::localize_neighbor_features(uint64_t id, list<local_feature> &features)
+void mapper::localize_neighbor_features(uint64_t id, aligned_list<local_feature> &features)
 {
     for(list<map_edge>::iterator edge = nodes[id].edges.begin(); edge != nodes[id].edges.end(); ++edge) {   
         localize_features(nodes[edge->neighbor], features);
@@ -455,12 +455,12 @@ static inline float sift_distance(const map_feature &first, const map_feature &s
     return 2.f*(1.f - first.dvec.dot(second.dvec));
 }
 
-void assign_matches_slow(const list<local_feature> &f1, const list<local_feature> &f2, list<match_pair> &matches) {
+void assign_matches_slow(const aligned_list<local_feature> &f1, const aligned_list<local_feature> &f2, aligned_list<match_pair> &matches) {
     const float max_sift_distance_2 = 0.7*0.7;
-    for(list<local_feature>::const_iterator fi1 = f1.begin(); fi1 != f1.end(); ++fi1) {
+    for(aligned_list<local_feature>::const_iterator fi1 = f1.begin(); fi1 != f1.end(); ++fi1) {
         float best_score = max_sift_distance_2;
-        list<local_feature>::const_iterator best = f2.end();
-        for(list<local_feature>::const_iterator candidate = f2.begin(); candidate != f2.end(); ++candidate) {
+        aligned_list<local_feature>::const_iterator best = f2.end();
+        for(aligned_list<local_feature>::const_iterator candidate = f2.begin(); candidate != f2.end(); ++candidate) {
             if(fi1->feature->id == candidate->feature->id) continue;
             float score = sift_distance(*fi1->feature, *candidate->feature);
             if(score < best_score) {
@@ -475,7 +475,7 @@ void assign_matches_slow(const list<local_feature> &f1, const list<local_feature
 }
 
 // Uses the feature id to to matching, and then takes only the best match
-void assign_matches_fast(const list<local_feature> &list1, const list<local_feature> &list2, list<match_pair> &matches) {
+void assign_matches_fast(const aligned_list<local_feature> &list1, const aligned_list<local_feature> &list2, aligned_list<match_pair> &matches) {
     const float max_sift_distance_2 = 0.7*0.7;
     for(const local_feature & f1 : list1) {
         float best_score = max_sift_distance_2;
@@ -494,7 +494,7 @@ void assign_matches_fast(const list<local_feature> &list1, const list<local_feat
     }
 }
 
-void assign_matches(const list<local_feature> &f1, const list<local_feature> &f2, list<match_pair> &matches, bool fast)
+void assign_matches(const aligned_list<local_feature> &f1, const aligned_list<local_feature> &f2, aligned_list<match_pair> &matches, bool fast)
 {
     if(fast)
         assign_matches_fast(f1, f2, matches);
@@ -502,7 +502,7 @@ void assign_matches(const list<local_feature> &f1, const list<local_feature> &f2
         assign_matches_slow(f1, f2, matches);
 }
 
-float refine_transformation(const transformation_variance &base, transformation_variance &dR, transformation_variance &dT, const list<match_pair> &neighbor_matches)
+float refine_transformation(const transformation_variance &base, transformation_variance &dR, transformation_variance &dT, const aligned_list<match_pair> &neighbor_matches)
 {
     //determine inliers and translation
     v4 total_dT(0., 0., 0., 0.);
@@ -510,13 +510,13 @@ float refine_transformation(const transformation_variance &base, transformation_
     transformation_variance total = dT * base * dR;
     float resid = 1.e10;
     float meanstd = 0;
-    for(list<match_pair>::const_iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
+    for(aligned_list<match_pair>::const_iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
         meanstd += sqrt(neighbor_match->first.feature->variance + neighbor_match->second.feature->variance);
     }
     meanstd /= neighbor_matches.size();
     //log->info("meanvar: {}", meanstd*meanstd);
 
-    for(list<match_pair>::const_iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
+    for(aligned_list<match_pair>::const_iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
         v4 local = transformation_apply(compose(total.transform, invert(base).transform), neighbor_match->second.position);
         v4 error = neighbor_match->first.position - local;
         resid = error.norm()*error.norm();
@@ -536,7 +536,7 @@ float refine_transformation(const transformation_variance &base, transformation_
     total = invert(dT * base * dR);
     v4 total_rot;
     inliers = 0;
-    for(list<match_pair>::const_iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
+    for(aligned_list<match_pair>::const_iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
         v4 local = total.transform * neighbor_match->first.position;
         v4 other = invert(base).transform * neighbor_match->second.position;
         v4 error = local - other;
@@ -584,10 +584,10 @@ bool generate_transformation(const match_pair &match1, const match_pair &match2,
     return true;
 }
 
-int mapper::estimate_translation(uint64_t id1, uint64_t id2, v4 &result, int min_inliers, const transformation &pre_transform, const list <match_pair> &matches, const list<match_pair> &neighbor_matches)
+int mapper::estimate_translation(uint64_t id1, uint64_t id2, v4 &result, int min_inliers, const transformation &pre_transform, const aligned_list<match_pair> &matches, const aligned_list<match_pair> &neighbor_matches)
 {
     float meanstd = 0;
-    for(list<match_pair>::const_iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
+    for(aligned_list<match_pair>::const_iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
         meanstd += sqrt(neighbor_match->first.feature->variance + neighbor_match->second.feature->variance);
     }
     meanstd /= neighbor_matches.size();
@@ -595,11 +595,11 @@ int mapper::estimate_translation(uint64_t id1, uint64_t id2, v4 &result, int min
 
     int best_score = 0;
     v4 bestdT;
-    for(list<match_pair>::const_iterator match = neighbor_matches.begin(); match != neighbor_matches.end(); ++match) {
+    for(aligned_list<match_pair>::const_iterator match = neighbor_matches.begin(); match != neighbor_matches.end(); ++match) {
         v4 dT = match->first.position - pre_transform * match->second.position;
         int inliers = 0;
         v4 total_dT = v4(0,0,0,0);
-        for(list<match_pair>::const_iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
+        for(aligned_list<match_pair>::const_iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
             v4 thisdT = neighbor_match->first.position - pre_transform * neighbor_match->second.position;
             v4 error = dT - thisdT;
             float resid = error.norm()*error.norm();
@@ -624,11 +624,11 @@ int mapper::estimate_translation(uint64_t id1, uint64_t id2, v4 &result, int min
 int mapper::check_for_matches(uint64_t id1, uint64_t id2, transformation_variance &relpos, int min_inliers)
 {
     //get all features for each group and its neighbors into the local frames
-    list<local_feature> f1, f2;
+    aligned_list<local_feature> f1, f2;
     localize_features(nodes[id1], f1);
     localize_features(nodes[id2], f2);
     //ONLY look for matches in THIS group
-    list<match_pair> matches;
+    aligned_list<match_pair> matches;
     assign_matches(f1, f2, matches, true);
     //BUT, check support on ENTIRE neighborhood.
     f1.clear();
@@ -637,16 +637,16 @@ int mapper::check_for_matches(uint64_t id1, uint64_t id2, transformation_varianc
     localize_features(nodes[id2], f2);
     localize_neighbor_features(id1, f1);
     localize_neighbor_features(id2, f2);
-    list<match_pair> neighbor_matches;
+    aligned_list<match_pair> neighbor_matches;
     assign_matches(f1, f2, neighbor_matches, true);
 
     int best_score = 0;
     v4 bestdT;
-    for(list<match_pair>::iterator match = neighbor_matches.begin(); match != neighbor_matches.end(); ++match) {
+    for(aligned_list<match_pair>::iterator match = neighbor_matches.begin(); match != neighbor_matches.end(); ++match) {
         v4 dT = match->first.position - match->second.position;
         int inliers = 0;
         v4 var = nodes[id2].transform.transform.T;
-        for(list<match_pair>::iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
+        for(aligned_list<match_pair>::iterator neighbor_match = neighbor_matches.begin(); neighbor_match != neighbor_matches.end(); ++neighbor_match) {
             v4 error = neighbor_match->first.position - (neighbor_match->second.position + dT);
             float resid = error.norm()*error.norm();
             //3 sigma

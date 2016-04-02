@@ -1,6 +1,5 @@
 #pragma once
 
-#include <vector>
 #include <string>
 #include <sstream>
 #include <fstream>
@@ -35,7 +34,7 @@ struct tpose {
 };
 
 struct tpose_sequence {
-    std::vector<tpose, Eigen::aligned_allocator<tpose>> tposes;
+    aligned_vector<tpose> tposes;
     f_t get_length() {
         return tposes.empty() ? 0 : (tposes.front().G.T - tposes.back().G.T).norm();
     }

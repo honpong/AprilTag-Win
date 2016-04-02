@@ -382,6 +382,7 @@ static f_t get_accelerometer_variance_for_run_state(struct filter *f, const v3 &
 
 void filter_accelerometer_measurement(struct filter *f, const float data[3], sensor_clock::time_point time)
 {
+    auto start = std::chrono::steady_clock::now();
     v3 meas_(data[0], data[1], data[2]);
     v3 meas = f->a_alignment * meas_;
     v3 accel_delta = meas - f->last_accel_meas;
@@ -423,10 +424,13 @@ void filter_accelerometer_measurement(struct filter *f, const float data[3], sen
             f->origin.Q = f->origin.Q * conjugate(f->s.initial_orientation);
         }
     }
+    auto stop = std::chrono::steady_clock::now();
+    f->accel_timer = stop-start;
 }
 
 void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_clock::time_point time)
 {
+    auto start = std::chrono::steady_clock::now();
     v3 meas_(data[0], data[1], data[2]);
     v3 meas = f->w_alignment * meas_;
     v3 gyro_delta = meas - f->last_gyro_meas;
@@ -464,6 +468,8 @@ void filter_gyroscope_measurement(struct filter *f, const float data[3], sensor_
     }
 
     process_observation_queue(f, time);
+    auto stop = std::chrono::steady_clock::now();
+    f->gyro_timer = stop-start;
 }
 
 void filter_setup_next_frame(struct filter *f, const image_gray8 &image)
@@ -690,6 +696,8 @@ bool filter_depth_measurement(struct filter *f, const image_depth16 & depth)
 
 bool filter_image_measurement(struct filter *f, const image_gray8 & image)
 {
+    auto start = std::chrono::steady_clock::now();
+
     sensor_clock::time_point time = image.timestamp;
 
     if(f->run_state == RCSensorFusionRunStateInactive) return false;
@@ -829,6 +837,10 @@ bool filter_image_measurement(struct filter *f, const image_gray8 & image)
     if(f->max_velocity > convergence_minimum_velocity && f->median_depth_variance < convergence_maximum_depth_variance) f->has_converged = true;
     
     filter_update_outputs(f, time);
+    
+    auto stop = std::chrono::steady_clock::now();
+    f->image_timer = stop-start;
+
     return true;
 }
 

@@ -316,6 +316,15 @@ void world_state::receive_camera(const filter * f, image_gray8 &&d)
 
     observe_plot_item(d.timestamp, p, "median-depth-var", (float)f->median_depth_variance);
     p++;
+    
+    observe_plot_item(d.timestamp, p, "accel timer", f->accel_timer.count());
+    p++;
+
+    observe_plot_item(d.timestamp, p, "gyro timer", f->gyro_timer.count());
+    p++;
+
+    observe_plot_item(d.timestamp, p, "image timer", f->image_timer.count());
+    p++;
 }
 
 world_state::world_state()

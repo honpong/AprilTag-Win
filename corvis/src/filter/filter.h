@@ -94,6 +94,8 @@ struct filter {
     camera_control_interface camera_control;
     image_depth16 recent_depth;
     bool has_depth;
+    
+    std::chrono::duration<float, milli> accel_timer, gyro_timer, image_timer;
 };
 
 bool filter_depth_measurement(struct filter *f, const image_depth16 & depth);

@@ -229,7 +229,7 @@ RCTRACKER_API void rc_stopTracker(rc_Tracker *tracker);
 /**
  @param tracker The active rc_Tracker instance
  @param time_us Timestamp (in microseconds) when capture of this frame began
- @param shutter_time_us The rolling shutter exposure time (in microseconds) such that exposure line l takes place at time_us + l/height * shutter_time_us.  Use 0us for global shutter.
+ @param shutter_time_us Exposure time (in microseconds). For rolling shutter, this should be the time such that exposure line l takes place at time_us + l/height * shutter_time_us. For global shutter, specify the exposure time, so that the middle of the exposure will be time_us + shutter_time_us / 2.
  @param stride Number of bytes in each line
  @param image Image data.
  @param completion_callback Function to be called when the frame has been processed and image data is no longer needed. image must remain valid (even after receiveImage has returned) until this function is called.

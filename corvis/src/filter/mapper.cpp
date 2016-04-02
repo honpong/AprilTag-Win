@@ -133,7 +133,7 @@ void mapper::add_node(uint64_t id)
 
 map_feature::map_feature(const uint64_t _id, const v4 &p, const float v, const uint32_t l, const descriptor & desc): id(_id), position(p), variance(v), label(l)
 {
-    Eigen::Map<const Eigen::VectorXf> eigen_d(desc.d, descriptor_size, 1);
+    Eigen::Map<const Eigen::VectorXf, Eigen::Unaligned> eigen_d(desc.d, descriptor_size, 1);
     dvec = Eigen::VectorXf(eigen_d);
 }
 

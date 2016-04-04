@@ -2513,6 +2513,7 @@
 					"$(SRCROOT)/../../corvis/src/rapidjson/include",
 					"$(SRCROOT)/../../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
+					"$(SRCROOT)/../../ThirdParty/spdlog/include/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2647,6 +2648,7 @@
 					"$(SRCROOT)/../../corvis/src/rapidjson/include",
 					"$(SRCROOT)/../../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
+					"$(SRCROOT)/../../ThirdParty/spdlog/include/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2690,6 +2692,7 @@
 					"$(SRCROOT)/../../corvis/src/rapidjson/include",
 					"$(SRCROOT)/../../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
+					"$(SRCROOT)/../../ThirdParty/spdlog/include/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2775,6 +2778,7 @@
 					"$(SRCROOT)/../../corvis/src/rapidjson/include",
 					"$(SRCROOT)/../../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
+					"$(SRCROOT)/../../ThirdParty/spdlog/include/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2860,6 +2864,7 @@
 					"$(SRCROOT)/../../corvis/src/rapidjson/include",
 					"$(SRCROOT)/../../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
+					"$(SRCROOT)/../../ThirdParty/spdlog/include/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -2904,6 +2909,7 @@
 					"$(SRCROOT)/../../corvis/src/rapidjson/include",
 					"$(SRCROOT)/../../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
+					"$(SRCROOT)/../../ThirdParty/spdlog/include/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3042,6 +3048,7 @@
 					"$(SRCROOT)/../../corvis/src/rapidjson/include",
 					"$(SRCROOT)/../../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
+					"$(SRCROOT)/../../ThirdParty/spdlog/include/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3083,6 +3090,7 @@
 					"$(SRCROOT)/../../corvis/src/rapidjson/include",
 					"$(SRCROOT)/../../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
+					"$(SRCROOT)/../../ThirdParty/spdlog/include/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3173,6 +3181,7 @@
 					"$(SRCROOT)/../../corvis/src/rapidjson/include",
 					"$(SRCROOT)/../../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
+					"$(SRCROOT)/../../ThirdParty/spdlog/include/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3213,6 +3222,7 @@
 					"$(SRCROOT)/../../corvis/src/rapidjson/include",
 					"$(SRCROOT)/../../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
+					"$(SRCROOT)/../../ThirdParty/spdlog/include/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3255,6 +3265,7 @@
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 					"$(SRCROOT)/../../corvis/src/eigen",
+					"$(SRCROOT)/../../ThirdParty/spdlog/include/",
 				);
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -3286,6 +3297,7 @@
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 					"$(SRCROOT)/../../corvis/src/eigen",
+					"$(SRCROOT)/../../ThirdParty/spdlog/include/",
 				);
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -3318,6 +3330,7 @@
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 					"$(SRCROOT)/../../corvis/src/eigen",
+					"$(SRCROOT)/../../ThirdParty/spdlog/include/",
 				);
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -3350,6 +3363,7 @@
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 					"$(SRCROOT)/../../corvis/src/eigen",
+					"$(SRCROOT)/../../ThirdParty/spdlog/include/",
 				);
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -3382,6 +3396,7 @@
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 					"$(SRCROOT)/../../corvis/src/eigen",
+					"$(SRCROOT)/../../ThirdParty/spdlog/include/",
 				);
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -3414,6 +3429,7 @@
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 					"$(SRCROOT)/../../corvis/src/eigen",
+					"$(SRCROOT)/../../ThirdParty/spdlog/include/",
 				);
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
@@ -3438,6 +3454,7 @@
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 					"$(SRCROOT)/../../corvis/src/eigen",
+					"$(SRCROOT)/../../ThirdParty/spdlog/include/",
 				);
 				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				PRODUCT_NAME = RC3DKVis;
@@ -3464,6 +3481,7 @@
 					"$(SRCROOT)/../../corvis/src/rapidjson/include",
 					"$(SRCROOT)/../../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
+					"$(SRCROOT)/../../ThirdParty/spdlog/include/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3509,6 +3527,7 @@
 					"$(SRCROOT)/../../corvis/src/rapidjson/include",
 					"$(SRCROOT)/../../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
+					"$(SRCROOT)/../../ThirdParty/spdlog/include/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3554,6 +3573,7 @@
 					"$(SRCROOT)/../../corvis/src/rapidjson/include",
 					"$(SRCROOT)/../../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
+					"$(SRCROOT)/../../ThirdParty/spdlog/include/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3599,6 +3619,7 @@
 					"$(SRCROOT)/../../corvis/src/rapidjson/include",
 					"$(SRCROOT)/../../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
+					"$(SRCROOT)/../../ThirdParty/spdlog/include/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3689,6 +3710,7 @@
 					"$(SRCROOT)/../../corvis/src/rapidjson/include",
 					"$(SRCROOT)/../../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
+					"$(SRCROOT)/../../ThirdParty/spdlog/include/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3729,6 +3751,7 @@
 					"$(SRCROOT)/../../corvis/src/rapidjson/include",
 					"$(SRCROOT)/../../corvis/src/eigen",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
+					"$(SRCROOT)/../../ThirdParty/spdlog/include/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -3817,6 +3840,7 @@
 					"$(inherited)",
 					"$(SRCROOT)/ofxiOSBoost/libs/boost/include",
 					"$(SRCROOT)/../../corvis/src/eigen",
+					"$(SRCROOT)/../../ThirdParty/spdlog/include/",
 				);
 				INFOPLIST_FILE = RC3DKVis/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 7.0;

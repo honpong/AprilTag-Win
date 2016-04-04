@@ -1515,47 +1515,17 @@ vl_thread_specific_state_delete (VlThreadState * self)
 #if (defined(VL_OS_LINUX) || defined(VL_OS_MACOSX)) && defined(VL_COMPILER_GNUC)
 static void vl_constructor () __attribute__ ((constructor)) ;
 static void vl_destructor () __attribute__ ((destructor))  ;
-#endif
 
-#if defined(VL_OS_WIN)
-static void vl_constructor () ;
-static void vl_destructor () ;
+#elif defined(VL_OS_WIN)
+static void vl_constructor (void) ;
+static void vl_destructor (void) ;
 
-BOOL WINAPI DllMain(
-    HINSTANCE hinstDLL,  // handle to DLL module
-    DWORD fdwReason,     // reason for calling function
-    LPVOID lpReserved )  // reserved
-{
-  VlState * state ;
-  VlThreadState * threadState ;
-  switch (fdwReason) {
-    case DLL_PROCESS_ATTACH:
-      /* Initialize once for each new process */
-      vl_constructor () ;
-      break ;
+#pragma section(".CRT$XCU",read)
+static void vl_constructor_(void) { vl_constructor(); atexit(vl_destructor); }
+__declspec(allocate(".CRT$XCU")) void (*vl_constructor__)(void) = vl_constructor_;
 
-    case DLL_THREAD_ATTACH:
-      /* Do thread-specific initialization */
-      break ;
-
-    case DLL_THREAD_DETACH:
-      /* Do thread-specific cleanup */
-#if ! defined(VL_DISABLE_THREADS) && defined(VL_THREADS_WIN)
-      state = vl_get_state() ;
-      threadState = (VlThreadState*) TlsGetValue(state->tlsIndex) ;
-      if (threadState) {
-        vl_thread_specific_state_delete (threadState) ;
-      }
-#endif
-      break;
-
-    case DLL_PROCESS_DETACH:
-      /* Perform any necessary cleanup */
-      vl_destructor () ;
-      break;
-    }
-    return TRUE ; /* Successful DLL_PROCESS_ATTACH */
-}
+#else
+#warning No detected way to call vl_constructor() and vl_destructor() automatically
 #endif /* VL_OS_WIN */
 
 /* ---------------------------------------------------------------- */

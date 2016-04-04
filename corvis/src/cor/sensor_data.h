@@ -15,6 +15,7 @@
 #include <assert.h>
 #include "platform/sensor_clock.h"
 #include "../filter/rc_tracker.h"
+#include <algorithm>
 
 template<rc_ImageFormat camera_type, class data_type>
 class image_data
